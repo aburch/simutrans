@@ -1084,7 +1084,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 					// finally overlay any water transition
 					if(  water_corners  ) {
 						if(  slope  ) {
-							display_alpha( ground_desc_t::get_water_tile(slope), ground_desc_t::get_beach_tile( slope, water_corners ), ALPHA_RED, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
+							display_alpha( ground_desc_t::get_water_tile(slope, wasser_t::stage), ground_desc_t::get_beach_tile( slope, water_corners ), ALPHA_RED, xpos, ypos, 0, 0, true, dirty|wasser_t::change_stage CLIP_NUM_PAR );
 							if(  ground_desc_t::shore  ) {
 								// additional shore image
 								image_id shore = ground_desc_t::shore->get_image(slope,snow_transition<=0);

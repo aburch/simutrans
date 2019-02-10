@@ -27,6 +27,15 @@ void_t add_scenario_message_at(const char* text, koord pos)
 	return void_t();
 }
 
+void_t add_ai_message_at(player_t *player, const char* text, koord pos)
+{
+	if (text) {
+		message_t *msg = welt->get_message();
+		msg->add_message(text, pos, message_t::ai, PLAYER_FLAG|player->get_player_nr());
+	}
+	return void_t();
+}
+
 
 call_tool_init add_scenario_message(player_t* player, const char* text)
 {
@@ -116,6 +125,19 @@ void export_gui(HSQUIRRELVM vm, bool scenario)
 		*/
 		STATIC register_method(vm, &add_scenario_message, "add_message");
 	}
-
+	else {
+		/**
+		* Adds message to the players mailboxes.
+		* Will be shown in ticker or as pop-up window depending on players preferences.
+		* Message window has small view of world.
+		*
+		* @param player sending this message
+		* @param text Text to be shown. Has to be a translated string or a translatable string.
+		* @param position Position of the view on the map. Clicking on the message will center viewport at this position.
+		* @warning Message only shown on server, but stored in savegame.
+		* @ingroup ai_only
+		*/
+		STATIC register_method(vm, &add_ai_message_at, "add_message_at");
+	}
 	end_class(vm);
 }

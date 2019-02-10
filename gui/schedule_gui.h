@@ -17,45 +17,19 @@
 #include "components/gui_button.h"
 #include "components/action_listener.h"
 
-#include "components/gui_textarea.h"
 #include "components/gui_scrollpane.h"
 
 #include "../convoihandle_t.h"
 #include "../linehandle_t.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 #include "../tpl/vector_tpl.h"
 
 
-class zeiger_t;
 class schedule_t;
-struct schedule_entry_t;
 class player_t;
 class cbuffer_t;
 class loadsave_t;
-
-
-class schedule_gui_stats_t : public gui_world_component_t
-{
-private:
-	static cbuffer_t buf;
-	static zeiger_t *current_stop_mark;
-
-
-	schedule_t* schedule;
-	player_t* player;
-
-public:
-	schedule_gui_stats_t(player_t *player_);
-	~schedule_gui_stats_t();
-
-	void set_schedule( schedule_t* f ) { schedule = f; }
-
-	void highlight_schedule( schedule_t *markschedule, bool marking );
-
-	// Draw the component
-	void draw(scr_coord offset);
-};
-
+class schedule_gui_stats_t;
 
 
 /**
@@ -66,14 +40,6 @@ public:
 class schedule_gui_t :	public gui_frame_t,
 						public action_listener_t
 {
-public:
-	/**
-	 * Append description of entry to buf.
-	 * short version, without loading level and position
-	 */
-	static void gimme_short_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* player_, schedule_entry_t const& entry, int max_chars);
-
-private:
 	enum mode_t {adding, inserting, removing, undefined_mode};
 
 	mode_t mode;
@@ -81,21 +47,17 @@ private:
 	// only active with lines
 	button_t bt_promote_to_line;
 	gui_combobox_t line_selector;
-	gui_label_t lb_line;
+	gui_label_buf_t lb_waitlevel;
 
 	// always needed
 	button_t bt_add, bt_insert, bt_remove; // stop management
 	button_t bt_return;
 
-	button_t bt_wait_prev, bt_wait_next;	// waiting in parts of month
-	gui_label_t lb_wait, lb_waitlevel;
-
-	gui_label_t lb_load;
+	gui_label_t lb_wait, lb_load;
 	gui_numberinput_t numimp_load;
+	gui_combobox_t wait_load;
 
-	char str_parts_month[32];
-
-	schedule_gui_stats_t stats;
+	schedule_gui_stats_t* stats;
 	gui_scrollpane_t scrolly;
 
 	// to add new lines automatically
@@ -107,7 +69,6 @@ private:
 
 	// changes the waiting/loading levels if allowed
 	void update_selection();
-
 protected:
 	schedule_t *schedule;
 	schedule_t* old_schedule;
@@ -116,10 +77,10 @@ protected:
 
 	linehandle_t new_line, old_line;
 
-public:
-	static int entry_height;
+	void init(schedule_t* schedule, player_t* player, convoihandle_t cnv);
 
-	schedule_gui_t(schedule_t* schedule, player_t* player, convoihandle_t cnv);
+public:
+	schedule_gui_t(schedule_t* schedule = NULL, player_t* player = NULL, convoihandle_t cnv = convoihandle_t());
 
 	virtual ~schedule_gui_t();
 
@@ -128,42 +89,30 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	const char *get_help_filename() const {return "schedule.txt";}
+	const char *get_help_filename() const OVERRIDE {return "schedule.txt";}
 
 	/**
 	 * Draw the Frame
 	 * @author Hansjörg Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_windowsize(scr_size size);
-
-	/**
-	 * show or hide the line selector combobox and its associated label
-	 * @author hsiegeln
-	 */
-	void show_line_selector(bool yesno) {
-		line_selector.set_visible(yesno);
-		lb_line.set_visible(yesno);
-	}
+	void set_windowsize(scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	/**
 	 * Map rotated, rotate schedules too
 	 */
-	void map_rotate90( sint16 );
+	void map_rotate90( sint16 ) OVERRIDE;
 
-	// this constructor is only used during loading
-	schedule_gui_t();
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	virtual void rdwr( loadsave_t *file );
-
-	uint32 get_rdwr_id() { return magic_schedule_rdwr_dummy; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_schedule_rdwr_dummy; }
 };
 
 #endif

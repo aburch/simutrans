@@ -6,12 +6,10 @@
  */
 
 #include "label_info.h"
+#include "components/gui_label.h"
 #include "../simworld.h"
-#include "../simcolor.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 #include "../simmenu.h"
-#include "../descriptor/skin_desc.h"
-#include "../dataobj/translator.h"
 #include "../obj/label.h"
 #include "../player/simplay.h"
 #include "../utils/simstring.h"
@@ -20,16 +18,22 @@
 
 label_info_t::label_info_t(label_t* l) :
 	gui_frame_t( translator::translate("Marker"), l->get_owner()),
-	player_name(""),
 	view(l->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
 {
 	label = l;
 
-	const char *const p_name = label->get_owner()->get_name();
-	const int min_width = max(290, display_calc_proportional_string_len_width(p_name, strlen(p_name)) + view.get_size().w + 30);
+	set_table_layout(1,0);
+	// input
+	add_component(&input);
+	input.add_listener(this);
 
-	view.set_pos( scr_coord(min_width - view.get_size().w - 10 , 21) );
+	add_table(3,0)->set_alignment(ALIGN_TOP);
+	// left: player name
+	new_component<gui_label_t>(label->get_owner()->get_name());
+	new_component<gui_fill_t>();
+	// right column: view
 	add_component( &view );
+	end_table();
 
 	grund_t *gr = welt->lookup(l->get_pos());
 	if(gr->get_text()) {
@@ -39,20 +43,10 @@ label_info_t::label_info_t(label_t* l) :
 		edit_name[0] = '\0';
 	}
 	// text input
-	input.set_pos(scr_coord(10,4));
-	input.set_size(scr_size(min_width-20, D_EDIT_HEIGHT));
 	input.set_text(edit_name, lengthof(edit_name));
-	add_component(&input);
-	input.add_listener(this);
-
-	// text (player name)
-	player_name.set_pos(scr_coord(10, 21));
-	player_name.set_text(p_name);
-	add_component(&player_name);
-
-	set_windowsize(scr_size(min_width, view.get_size().h+47));
-
 	set_focus(&input);
+
+	reset_min_windowsize();
 }
 
 

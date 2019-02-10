@@ -9,7 +9,7 @@
 #define gui_stadt_info_h
 
 #include "../simcity.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 
 #include "gui_frame.h"
 #include "components/gui_chart.h"
@@ -17,11 +17,12 @@
 #include "components/action_listener.h"
 #include "components/gui_label.h"
 #include "components/gui_button.h"
+#include "components/gui_button_to_chart.h"
 #include "components/gui_tab_panel.h"
-#include "../tpl/array2d_tpl.h"
 
 class stadt_t;
 template <class T> class sparse_tpl;
+class gui_city_minimap_t;
 
 /**
  * Window containing information about a city.
@@ -36,21 +37,15 @@ private:
 
 	gui_textinput_t name_input;    ///< Input field where the name of the city can be changed
 	button_t allow_growth;         ///< Checkbox to enable/disable city growth
-
-	scr_size minimaps_size;        ///< size of minimaps
-	scr_coord minimap2_offset;     ///< position offset of second minimap
+	gui_label_buf_t lb_size, lb_buildings, lb_border, lb_unemployed, lb_homeless;
 
 	gui_tab_panel_t year_month_tabs;
+	gui_aligned_container_t container_year, container_month;
 	gui_chart_t chart, mchart;                ///< Year and month history charts
 
-	button_t filterButtons[MAX_CITY_HISTORY]; ///< Buttons to enable/disable chart curves
+	gui_city_minimap_t *pax_map;
 
-	array2d_tpl<PIXVAL> pax_dest_old, pax_dest_new;
-
-	uint32 pax_destinations_last_change;
-
-	void init_pax_dest( array2d_tpl<PIXVAL> &pax_dest );
-	void add_pax_dest( array2d_tpl<PIXVAL> &pax_dest, const sparse_tpl<PIXVAL>* city_pax_dest );
+	gui_button_to_chart_array_t button_to_chart;
 
 	/// Renames the city to the name given in the text input field
 	void rename_city();
@@ -59,22 +54,25 @@ private:
 	/// e.g. when losing focus
 	void reset_city_name();
 
+	void update_labels();
+
+	void init();
 public:
-	city_info_t(stadt_t *city);
+	city_info_t(stadt_t *city = NULL);
 
 	virtual ~city_info_t();
 
-	const char *get_help_filename() const { return "citywindow.txt"; }
+	const char *get_help_filename() const OVERRIDE { return "citywindow.txt"; }
 
-	virtual koord3d get_weltpos(bool);
+	koord3d get_weltpos(bool) OVERRIDE;
 
-	virtual bool is_weltpos();
+	bool is_weltpos() OVERRIDE;
 
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	void map_rotate90( sint16 );
+	void map_rotate90( sint16 ) OVERRIDE;
 
 	// since we need to update the city pointer when topped
 	bool infowin_event(event_t const*) OVERRIDE;
@@ -86,19 +84,11 @@ public:
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	virtual bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
-	/**
-	 * resize window in response to a resize event
-	 */
-	void resize(const scr_coord delta);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
-	// this constructor is only used during loading
-	city_info_t();
-
-	void rdwr(loadsave_t *file);
-
-	uint32 get_rdwr_id() { return magic_city_info_t; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_city_info_t; }
 };
 
 #endif

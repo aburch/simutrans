@@ -12,6 +12,8 @@
 
 #include "halt_detail.h"
 #include "halt_info.h"
+#include "components/gui_button_to_chart.h"
+
 #include "../simworld.h"
 #include "../simware.h"
 #include "../simcolor.h"
@@ -37,7 +39,50 @@
 #include "../descriptor/skin_desc.h"
 
 
+#define CHART_HEIGHT (100)
 
+// helper class to compute departure board
+class dest_info_t {
+public:
+	bool compare( const dest_info_t &other ) const;
+	halthandle_t halt;
+	sint32 delta_ticks;
+	convoihandle_t cnv;
+
+	dest_info_t() : delta_ticks(0) {}
+	dest_info_t( halthandle_t h, sint32 d_t, convoihandle_t c) : halt(h), delta_ticks(d_t), cnv(c) {}
+	bool operator == (const dest_info_t &other) const { return ( this->cnv==other.cnv ); }
+};
+
+// class to compute and fill the departure board
+class gui_departure_board_t : public gui_aligned_container_t
+{
+	static bool compare_hi(const dest_info_t &a, const dest_info_t &b) { return a.delta_ticks <= b.delta_ticks; }
+	static karte_ptr_t welt;
+
+	vector_tpl<dest_info_t> destinations;
+	vector_tpl<dest_info_t> origins;
+
+	uint32 calc_ticks_until_arrival( convoihandle_t cnv );
+
+	void insert_image(convoihandle_t cnv);
+public:
+	halthandle_t halt;
+
+	// if nothing changed, this is the next refresh to recalculate the content of the departure board
+	sint8 next_refresh;
+
+	gui_departure_board_t() : gui_aligned_container_t()
+	{
+		next_refresh = -1;
+		set_table_layout(3,0);
+	}
+
+	void update_departures();
+
+	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
+};
+karte_ptr_t gui_departure_board_t::welt;
 
 
 static const char *sort_text[4] = {
@@ -82,82 +127,187 @@ const uint8 cost_type_color[MAX_HALT_COST] =
 	COL_LILAC
 };
 
+struct type_symbol_t {
+	haltestelle_t::stationtyp type;
+	const skin_desc_t **desc;
+};
+
+const type_symbol_t symbols[] = {
+	{ haltestelle_t::railstation, &skinverwaltung_t::zughaltsymbol },
+	{ haltestelle_t::loadingbay, &skinverwaltung_t::autohaltsymbol },
+	{ haltestelle_t::busstop, &skinverwaltung_t::bushaltsymbol },
+	{ haltestelle_t::dock, &skinverwaltung_t::schiffshaltsymbol },
+	{ haltestelle_t::airstop, &skinverwaltung_t::airhaltsymbol },
+	{ haltestelle_t::monorailstop, &skinverwaltung_t::monorailhaltsymbol },
+	{ haltestelle_t::tramstop, &skinverwaltung_t::tramhaltsymbol },
+	{ haltestelle_t::maglevstop, &skinverwaltung_t::maglevhaltsymbol },
+	{ haltestelle_t::narrowgaugestop, &skinverwaltung_t::narrowgaugehaltsymbol }
+};
+
+
+// helper class
+gui_halt_type_images_t::gui_halt_type_images_t(halthandle_t h)
+{
+	halt = h;
+	set_table_layout(lengthof(symbols), 1);
+	set_alignment(ALIGN_LEFT | ALIGN_CENTER_V);
+	assert( lengthof(img_transport) == lengthof(symbols) );
+	// indicator for supplied transport modes
+	haltestelle_t::stationtyp const halttype = halt->get_station_type();
+	for(uint i=0; i < lengthof(symbols); i++) {
+		if ( *symbols[i].desc ) {
+			add_component(img_transport + i);
+			img_transport[i].set_image( (*symbols[i].desc)->get_image_id(0));
+			img_transport[i].enable_offset_removal(true);
+			img_transport[i].set_visible( (halttype & symbols[i].type) != 0);
+		}
+	}
+}
+
+void gui_halt_type_images_t::draw(scr_coord offset)
+{
+	haltestelle_t::stationtyp const halttype = halt->get_station_type();
+	for(uint i=0; i < lengthof(symbols); i++) {
+		img_transport[i].set_visible( (halttype & symbols[i].type) != 0);
+	}
+	gui_aligned_container_t::draw(offset);
+}
+
+// main class
 halt_info_t::halt_info_t(halthandle_t halt) :
-		gui_frame_t( halt->get_name(), halt->get_owner() ),
-		scrolly(&text),
-		text(&freight_info),
-		sort_label(translator::translate("Hier warten/lagern:")),
-		view(halt->get_basis_pos3d(), scr_size(max(64, get_base_tile_raster_width()), max(56, get_base_tile_raster_width() * 7 / 8)))
+		gui_frame_t("", NULL),
+		departure_board( new gui_departure_board_t()),
+		text_freight(&freight_info),
+		scrolly_freight(&container_freight, true, true),
+		scrolly_departure(departure_board, true, true),
+		view(koord3d::invalid, scr_size(max(64, get_base_tile_raster_width()), max(56, get_base_tile_raster_width() * 7 / 8)))
+{
+	if (halt.is_bound()) {
+		init(halt);
+	}
+}
+
+void halt_info_t::init(halthandle_t halt)
 {
 	this->halt = halt;
+	set_name(halt->get_name());
+	set_owner(halt->get_owner() );
+
 	halt->set_sortby( env_t::default_sortmode );
 
-	const sint16 offset_below_viewport = D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + view.get_size().h;
-	const sint16 total_width = D_MARGIN_LEFT + 3*(D_BUTTON_WIDTH + D_H_SPACE) + max( D_BUTTON_WIDTH, view.get_size().w ) + D_MARGIN_RIGHT;
+	set_table_layout(1,0);
 
-	input.set_pos(scr_coord(10,4));
-	tstrncpy(edit_name, halt->get_name(), lengthof(edit_name));
-	input.set_text(edit_name, lengthof(edit_name));
-	input.add_listener(this);
-	add_component(&input);
+	// top part
+	add_table(2,2)->set_alignment(ALIGN_CENTER_H);
+	{
+		// input name
+		tstrncpy(edit_name, halt->get_name(), lengthof(edit_name));
+		input.set_text(edit_name, lengthof(edit_name));
+		input.add_listener(this);
+		add_component(&input);
 
-	add_component(&view);
+		button.init(button_t::roundbox, "Details");
+		button.set_tooltip("Open station/stop details");
+		button.add_listener(this);
+		add_component(&button);
 
-	// chart
-	chart.set_pos(scr_coord(D_MARGIN_LEFT,offset_below_viewport+2));
-	chart.set_size(scr_size(total_width-D_MARGIN_LEFT-D_MARGIN_RIGHT, 100));
-	chart.set_dimension(12, 10000);
-	chart.set_visible(false);
-	chart.set_background(SYSCOL_CHART_BACKGROUND);
-	const sint16 offset_below_chart = chart.get_pos().y + 100 + D_V_SPACE; // chart x-axis labels plus space
-	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
-		chart.add_curve(color_idx_to_rgb(cost_type_color[cost]), halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true, 0);
-		filterButtons[cost].init(button_t::box_state, cost_type[cost],
-			scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(cost%4), offset_below_chart+(D_BUTTON_HEIGHT+2)*(cost/4) ),
-			scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-		filterButtons[cost].add_listener(this);
-		filterButtons[cost].background_color = color_idx_to_rgb(cost_type_color[cost]);
-		filterButtons[cost].set_visible(false);
-		filterButtons[cost].pressed = false;
-		add_component(filterButtons + cost);
+		container_top = add_table(1,0);
+		{
+			// status images
+			add_table(5,1)->set_alignment(ALIGN_CENTER_V);
+			{
+				add_component(&indicator_color);
+				// indicator for enabled freight type
+				img_enable[0].set_image(skinverwaltung_t::passengers->get_image_id(0));
+				img_enable[1].set_image(skinverwaltung_t::mail->get_image_id(0));
+				img_enable[2].set_image(skinverwaltung_t::goods->get_image_id(0));
+
+				for(uint i=0; i<3; i++) {
+					add_component(img_enable + i);
+					img_enable[i].enable_offset_removal(true);
+				}
+				img_types = new_component<gui_halt_type_images_t>(halt);
+			}
+			end_table();
+			// capacities
+			add_table(6,1);
+			{
+				add_component(&lb_capacity[0]);
+				if (welt->get_settings().is_separate_halt_capacities()) {
+					new_component<gui_image_t>(skinverwaltung_t::passengers->get_image_id(0));
+					add_component(&lb_capacity[1]);
+					new_component<gui_image_t>(skinverwaltung_t::mail->get_image_id(0));
+					add_component(&lb_capacity[2]);
+					new_component<gui_image_t>(skinverwaltung_t::goods->get_image_id(0));
+				}
+			}
+			end_table();
+			add_component(&lb_happy);
+		}
+		end_table();
+
+		add_component(&view);
+		view.set_location(halt->get_basis_pos3d());
+
+		new_component<gui_empty_t>();
 	}
-	add_component(&chart);
-	chart_total_size = filterButtons[MAX_HALT_COST-1].get_pos().y + D_BUTTON_HEIGHT + D_V_SPACE - (chart.get_pos().y - 13);
+	end_table();
 
-	add_component(&sort_label);
 
-	const sint16 yoff = offset_below_viewport + D_V_SPACE;
+	// tabs: waiting, departure, chart
+
+	add_component(&switch_mode);
+	switch_mode.add_listener(this);
+	switch_mode.add_tab(&scrolly_freight, translator::translate("Hier warten/lagern:"));
+
+	// list of waiting cargo
+	// sort mode
+	container_freight.set_table_layout(1,0);
+	container_freight.add_table(2,1);
+	container_freight.new_component<gui_label_t>("Sort waiting list by");
 
 	// hsiegeln: added sort_button
-	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode],scr_coord(BUTTON1_X, yoff));
+	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode]);
 	sort_button.set_tooltip("Sort waiting list by");
 	sort_button.add_listener(this);
-	add_component(&sort_button);
+	container_freight.add_component(&sort_button);
+	container_freight.end_table();
 
-	toggler_departures.init( button_t::roundbox_state, "Departure board", scr_coord( BUTTON2_X, yoff ));
-	toggler_departures.set_tooltip("Show/hide estimated arrival times");
-	toggler_departures.add_listener( this );
-	add_component( &toggler_departures );
+	container_freight.add_component(&text_freight);
 
-	toggler.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X, yoff));
-	toggler.set_tooltip("Show/hide statistics");
-	toggler.add_listener(this);
-	add_component(&toggler);
+	// departure board
+	switch_mode.add_tab(&scrolly_departure, translator::translate("Departure board"));
+	departure_board->next_refresh = -1;
+	departure_board->halt = halt;
+	departure_board->update_departures();
+	departure_board->set_size( departure_board->get_min_size() );
 
-	button.init(button_t::roundbox, "Details", scr_coord(BUTTON4_X, yoff));
-	button.set_tooltip("Open station/stop details");
-	button.add_listener(this);
-	add_component(&button);
+	// chart
+	switch_mode.add_tab(&container_chart, translator::translate("Chart"));
+	container_chart.set_table_layout(1,0);
 
-	scrolly.set_pos(scr_coord(D_MARGIN_LEFT, yoff + D_BUTTON_HEIGHT + D_V_SPACE ));
-	scrolly.set_show_scroll_x(true);
-	add_component(&scrolly);
+	chart.set_min_size(scr_size(0, CHART_HEIGHT));
+	chart.set_dimension(12, 10000);
+	chart.set_background(SYSCOL_CHART_BACKGROUND);
+	container_chart.add_component(&chart);
 
-	set_windowsize(scr_size(total_width, D_DEFAULT_HEIGHT));
-	set_min_windowsize(scr_size(total_width, view.get_size().h+131+D_SCROLLBAR_HEIGHT));
+	container_chart.add_table(4,2);
+	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
+		uint16 curve = chart.add_curve(color_idx_to_rgb(cost_type_color[cost]), halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true, 0);
 
+		button_t *b = container_chart.new_component<button_t>();
+		b->init(button_t::box_state_automatic | button_t::flexible, cost_type[cost]);
+		b->background_color = color_idx_to_rgb(cost_type_color[cost]);
+		b->pressed = false;
+
+		button_to_chart.append(b, &chart, curve);
+	}
+	container_chart.end_table();
+
+	update_components();
 	set_resizemode(diagonal_resize);     // 31-May-02	markus weber	added
-	resize(scr_coord(0,0));
+	reset_min_windowsize();
+	set_windowsize(get_min_windowsize());
 }
 
 
@@ -173,6 +323,7 @@ halt_info_t::~halt_info_t()
 		// since init always returns false, it is safe to delete immediately
 		delete tool;
 	}
+	delete departure_board;
 }
 
 
@@ -188,6 +339,48 @@ bool halt_info_t::is_weltpos()
 }
 
 
+void halt_info_t::update_components()
+{
+	indicator_color.set_color(halt->get_status_farbe());
+
+	lb_capacity[0].buf().printf("%s: %u", translator::translate("Storage capacity"), halt->get_capacity(0));
+	lb_capacity[0].update();
+	lb_capacity[1].buf().printf("  %u", halt->get_capacity(1));
+	lb_capacity[1].update();
+	lb_capacity[2].buf().printf("  %u", halt->get_capacity(2));
+	lb_capacity[2].update();
+
+	if(  has_character( 0x263A )  ) {
+		utf8 happy[4], unhappy[4];
+		happy[ utf16_to_utf8( 0x263A, happy ) ] = 0;
+		unhappy[ utf16_to_utf8( 0x2639, unhappy ) ] = 0;
+		lb_happy.buf().printf(translator::translate("Passengers %d %s, %d %s, %d no route"), halt->get_pax_happy(), happy, halt->get_pax_unhappy(), unhappy, halt->get_pax_no_route());
+	}
+	else {
+		lb_happy.buf().printf(translator::translate("Passengers %d %c, %d %c, %d no route"), halt->get_pax_happy(), 30, halt->get_pax_unhappy(), 31, halt->get_pax_no_route());
+	}
+	lb_happy.update();
+
+	img_enable[0].set_visible(halt->get_pax_enabled());
+	img_enable[1].set_visible(halt->get_mail_enabled());
+	img_enable[2].set_visible(halt->get_ware_enabled());
+	container_top->set_size( container_top->get_size());
+
+	// buffer update now only when needed by halt itself => dedicated buffer for this
+	int old_len = freight_info.len();
+	halt->get_freight_info(freight_info);
+	if(  old_len != freight_info.len()  ) {
+		text_freight.recalc_size();
+		container_freight.set_size(container_freight.get_min_size());
+	}
+
+	if (switch_mode.get_aktives_tab() == &scrolly_departure) {
+		departure_board->update_departures();
+	}
+	set_dirty();
+}
+
+
 /**
  * Draw new component. The values to be passed refer to the window
  * i.e. It's the screen coordinates of the window where the
@@ -196,151 +389,16 @@ bool halt_info_t::is_weltpos()
  */
 void halt_info_t::draw(scr_coord pos, scr_size size)
 {
-	if(halt.is_bound()) {
+	assert(halt.is_bound());
 
-		// buffer update now only when needed by halt itself => dedicated buffer for this
-		int old_len = freight_info.len();
-		halt->get_freight_info(freight_info);
-		if(  toggler_departures.pressed  &&  next_refresh--<0  ) {
-			old_len = -1;
-		}
-		if(  old_len != freight_info.len()  ) {
-			if(  toggler_departures.pressed  ) {
-				update_departures();
-				joined_buf.append( freight_info );
-			}
-			text.recalc_size();
-		}
+	update_components();
 
-		gui_frame_t::draw(pos, size);
-		set_dirty();
-
-		sint16 top = pos.y+36;
-		PIXVAL indikatorfarbe = halt->get_status_farbe();
-		display_fillbox_wh_clip_rgb(pos.x+10, top+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indikatorfarbe, true);
-
-		// now what do we accept here?
-		int left = 10+D_INDICATOR_WIDTH+2;
-		if (halt->get_pax_enabled()) {
-			display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x+left, top, 0, false, false);
-			left += 10;
-		}
-		if (halt->get_mail_enabled()) {
-			display_color_img(skinverwaltung_t::mail->get_image_id(0), pos.x+left, top, 0, false, false);
-			left += 10;
-		}
-		if (halt->get_ware_enabled()) {
-			display_color_img(skinverwaltung_t::goods->get_image_id(0), pos.x+left, top, 0, false, false);
-			left += 10;
-		}
-
-		// what kind of station?
-		left -= 20;
-		top -= 44;
-		haltestelle_t::stationtyp const halttype = halt->get_station_type();
-		if (halttype & haltestelle_t::railstation) {
-			display_color_img(skinverwaltung_t::zughaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
-			left += 23;
-		}
-		if (halttype & haltestelle_t::loadingbay) {
-			display_color_img(skinverwaltung_t::autohaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
-			left += 23;
-		}
-		if (halttype & haltestelle_t::busstop) {
-			display_color_img(skinverwaltung_t::bushaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
-			left += 23;
-		}
-		if (halttype & haltestelle_t::dock) {
-			display_color_img(skinverwaltung_t::schiffshaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
-			left += 23;
-		}
-		if (halttype & haltestelle_t::airstop) {
-			display_color_img(skinverwaltung_t::airhaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
-			left += 23;
-		}
-		if (halttype & haltestelle_t::monorailstop) {
-			display_color_img(skinverwaltung_t::monorailhaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
-			left += 23;
-		}
-		if (halttype & haltestelle_t::tramstop) {
-			display_color_img(skinverwaltung_t::tramhaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
-			left += 23;
-		}
-		if (halttype & haltestelle_t::maglevstop) {
-			display_color_img(skinverwaltung_t::maglevhaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
-			left += 23;
-		}
-		if (halttype & haltestelle_t::narrowgaugestop) {
-			display_color_img(skinverwaltung_t::narrowgaugehaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
-			left += 23;
-		}
-
-		top = pos.y+50;
-		info_buf.clear();
-		info_buf.printf("%s: %u", translator::translate("Storage capacity"), halt->get_capacity(0));
-		left = pos.x+10;
-		// passengers
-		left += display_proportional_rgb(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-		if (welt->get_settings().is_separate_halt_capacities()) {
-			// here only for separate capacities
-			display_color_img(skinverwaltung_t::passengers->get_image_id(0), left, top, 0, false, false);
-			left += 10;
-			// mail
-			info_buf.clear();
-			info_buf.printf(",  %u", halt->get_capacity(1));
-			left += display_proportional_rgb(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			display_color_img(skinverwaltung_t::mail->get_image_id(0), left, top, 0, false, false);
-			left += 10;
-			// goods
-			info_buf.clear();
-			info_buf.printf(",  %u", halt->get_capacity(2));
-			left += display_proportional_rgb(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			display_color_img(skinverwaltung_t::goods->get_image_id(0), left, top, 0, false, false);
-			left = 53+LINESPACE;
-		}
-
-		// Hajo: Reuse of info_buf buffer to get and display
-		// information about the passengers happiness
-		info_buf.clear();
-		halt->info(info_buf);
-		display_multiline_text_rgb( pos.x+10, pos.y+53+LINESPACE, info_buf, SYSCOL_TEXT );
-	}
-}
-
-
-// activate the statistic
-void halt_info_t::show_hide_statistics( bool show )
-{
-	toggler.pressed = show;
-	const scr_coord offset = show ? scr_coord(0, chart_total_size) : scr_coord(0, -chart_total_size);
-	set_min_windowsize(get_min_windowsize() + offset);
-	scrolly.set_pos(scrolly.get_pos() + offset);
-	chart.set_visible(show);
-	set_windowsize(get_windowsize() + offset);
-	resize(scr_coord(0,0));
-	for (int i=0;i<MAX_HALT_COST;i++) {
-		filterButtons[i].set_visible(toggler.pressed);
-	}
-}
-
-
-// activate the statistic
-void halt_info_t::show_hide_departures( bool show )
-{
-	toggler_departures.pressed = show;
-	if(  show  ) {
-		update_departures();
-		text.set_buf( &joined_buf );
-	}
-	else {
-		joined_buf.clear();
-		text.set_buf( &freight_info );
-	}
+	gui_frame_t::draw(pos, size);
 }
 
 
 // a sophisticated guess of a convois arrival time, taking into account the braking too and the current convoi state
-uint32 halt_info_t::calc_ticks_until_arrival( convoihandle_t cnv )
+uint32 gui_departure_board_t::calc_ticks_until_arrival( convoihandle_t cnv )
 {
 	/* calculate the time needed:
 	 *   tiles << (8+12) / (kmh_to_speed(max_kmh) = ticks
@@ -375,13 +433,17 @@ uint32 halt_info_t::calc_ticks_until_arrival( convoihandle_t cnv )
 
 
 // refreshes the departure string
-void halt_info_t::update_departures()
+void gui_departure_board_t::update_departures()
 {
 	if (!halt.is_bound()) {
 		return;
 	}
 
-	vector_tpl<halt_info_t::dest_info_t> old_origins(origins);
+	if (--next_refresh >= 0) {
+		return;
+	}
+
+	vector_tpl<dest_info_t> old_origins(origins);
 
 	destinations.clear();
 	origins.clear();
@@ -399,11 +461,11 @@ void halt_info_t::update_departures()
 	FOR(  slist_tpl<convoihandle_t>, cnv, halt->get_loading_convois() ) {
 		halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_owner(),halt);
 		if(  next_halt.is_bound()  ) {
-			halt_info_t::dest_info_t next( next_halt, 0, cnv );
+			dest_info_t next( next_halt, 0, cnv );
 			destinations.append_unique( next );
 			if(  grund_t *gr = welt->lookup( cnv->get_vehikel(0)->last_stop_pos )  ) {
 				if(  gr->get_halt().is_bound()  &&  gr->get_halt() != halt  ) {
-					halt_info_t::dest_info_t prev( gr->get_halt(), 0, cnv );
+					dest_info_t prev( gr->get_halt(), 0, cnv );
 					origins.append_unique( prev );
 				}
 			}
@@ -418,7 +480,7 @@ void halt_info_t::update_departures()
 				halthandle_t prev_halt = haltestelle_t::get_halt( cnv->front()->last_stop_pos, cnv->get_owner() );
 				sint32 delta_t = cur_ticks + calc_ticks_until_arrival( cnv );
 				if(  prev_halt.is_bound()  ) {
-					halt_info_t::dest_info_t prev( prev_halt, delta_t, cnv );
+					dest_info_t prev( prev_halt, delta_t, cnv );
 					// smooth times a little
 					FOR( vector_tpl<dest_info_t>, &elem, old_origins ) {
 						if(  elem.cnv == cnv ) {
@@ -431,7 +493,7 @@ void halt_info_t::update_departures()
 				}
 				halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_owner(),halt);
 				if(  next_halt.is_bound()  ) {
-					halt_info_t::dest_info_t next( next_halt, delta_t+2000, cnv );
+					dest_info_t next( next_halt, delta_t+2000, cnv );
 					destinations.insert_ordered( next, compare_hi );
 				}
 			}
@@ -443,7 +505,7 @@ void halt_info_t::update_departures()
 			halthandle_t prev_halt = haltestelle_t::get_halt( cnv->front()->last_stop_pos, cnv->get_owner() );
 			sint32 delta_t = cur_ticks + calc_ticks_until_arrival( cnv );
 			if(  prev_halt.is_bound()  ) {
-				halt_info_t::dest_info_t prev( prev_halt, delta_t, cnv );
+				dest_info_t prev( prev_halt, delta_t, cnv );
 				// smooth times a little
 				FOR( vector_tpl<dest_info_t>, &elem, old_origins ) {
 					if(  elem.cnv == cnv ) {
@@ -456,40 +518,87 @@ void halt_info_t::update_departures()
 			}
 			halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_owner(),halt);
 			if(  next_halt.is_bound()  ) {
-				halt_info_t::dest_info_t next( next_halt, delta_t+2000, cnv );
+				dest_info_t next( next_halt, delta_t+2000, cnv );
 				destinations.insert_ordered( next, compare_hi );
 			}
 		}
 	}
 
-	// now we build the string ...
-	joined_buf.clear();
+	// fill the board
+	remove_all();
 	slist_tpl<halthandle_t> exclude;
 	if(  destinations.get_count()>0  ) {
-		joined_buf.append( " " );
-		joined_buf.append( translator::translate( "Departures to\n" ) );
-		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, destinations ) {
+		new_component_span<gui_label_t>("Departures to\n", 3);
+
+		FOR( vector_tpl<dest_info_t>, hi, destinations ) {
 			if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
-				joined_buf.printf( "  %s %s\n", tick_to_string( hi.delta_ticks, false ), hi.halt->get_name() );
+				gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
+				lb->buf().printf("%s", tick_to_string( hi.delta_ticks, false ) );
+				lb->update();
+
+				insert_image(hi.cnv);
+
+				new_component<gui_label_t>(hi.halt->get_name() );
 				exclude.append( hi.halt );
 			}
 		}
-		joined_buf.append( "\n " );
 	}
-
 	exclude.clear();
 	if(  origins.get_count()>0  ) {
-		joined_buf.append( translator::translate( "Arrivals from\n" ) );
-		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, origins ) {
+		new_component_span<gui_label_t>("Arrivals from\n", 3);
+
+		FOR( vector_tpl<dest_info_t>, hi, origins ) {
 			if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
-				joined_buf.printf( "  %s %s\n", tick_to_string( hi.delta_ticks, false ), hi.halt->get_name() );
+				gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
+				lb->buf().printf("%s", tick_to_string( hi.delta_ticks, false ) );
+				lb->update();
+
+				insert_image(hi.cnv);
+
+				new_component<gui_label_t>(hi.halt->get_name() );
 				exclude.append( hi.halt );
 			}
 		}
-		joined_buf.append( "\n" );
 	}
 
+	set_size( get_min_size() );
 	next_refresh = 5;
+}
+
+
+void gui_departure_board_t::insert_image(convoihandle_t cnv)
+{
+	gui_image_t *im = NULL;
+	switch(cnv->front()->get_waytype()) {
+		case road_wt:
+		{
+			if (cnv->front()->get_cargo_type() == goods_manager_t::passengers) {
+				im = new_component<gui_image_t>(skinverwaltung_t::bushaltsymbol->get_image_id(0));
+			}
+			else {
+				im = new_component<gui_image_t>(skinverwaltung_t::autohaltsymbol->get_image_id(0));
+			}
+			break;
+		}
+		case track_wt: {
+			if (cnv->front()->get_desc()->get_waytype() == tram_wt) {
+				im = new_component<gui_image_t>(skinverwaltung_t::tramhaltsymbol->get_image_id(0));
+			}
+			else {
+				im = new_component<gui_image_t>(skinverwaltung_t::zughaltsymbol->get_image_id(0));
+			}
+			break;
+		}
+		case water_wt:       im = new_component<gui_image_t>(skinverwaltung_t::schiffshaltsymbol->get_image_id(0)); break;
+		case air_wt:         im = new_component<gui_image_t>(skinverwaltung_t::airhaltsymbol->get_image_id(0)); break;
+		case monorail_wt:    im = new_component<gui_image_t>(skinverwaltung_t::monorailhaltsymbol->get_image_id(0)); break;
+		case maglev_wt:      im = new_component<gui_image_t>(skinverwaltung_t::maglevhaltsymbol->get_image_id(0)); break;
+		case narrowgauge_wt: im = new_component<gui_image_t>(skinverwaltung_t::narrowgaugehaltsymbol->get_image_id(0)); break;
+		default:             new_component<gui_empty_t>(); break;
+	}
+	if (im) {
+		im->enable_offset_removal(true);
+	}
 }
 
 
@@ -507,12 +616,6 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		halt->set_sortby((freight_list_sorter_t::sort_mode_t) env_t::default_sortmode);
 		sort_button.set_text(sort_text[env_t::default_sortmode]);
 	}
-	else  if (comp == &toggler) {
-		show_hide_statistics( toggler.pressed^1 );
-	}
-	else  if (comp == &toggler_departures) {
-		show_hide_departures( toggler_departures.pressed^1 );
-	}
 	else if(  comp == &input  ) {
 		if(  strcmp(halt->get_name(),edit_name)  ) {
 			// text changed => call tool
@@ -525,47 +628,12 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			delete tool;
 		}
 	}
-	else {
-		for( int i = 0; i<MAX_HALT_COST; i++) {
-			if (comp == &filterButtons[i]) {
-				filterButtons[i].pressed = !filterButtons[i].pressed;
-				if(filterButtons[i].pressed) {
-					chart.show_curve(i);
-				}
-				else {
-					chart.hide_curve(i);
-				}
-				break;
-			}
-		}
+	else if (comp == &switch_mode) {
+		departure_board->next_refresh = -1;
 	}
 
 	return true;
 }
-
-
-/**
- * Set window size and adjust component sizes and/or positions accordingly
- * @author Markus Weber
- */
-void halt_info_t::set_windowsize(scr_size size)
-{
-	gui_frame_t::set_windowsize(size);
-
-	input.set_size(scr_size(get_windowsize().w-20, D_EDIT_HEIGHT));
-
-	view.set_pos(scr_coord(get_windowsize().w - view.get_size().w - 10 , 21));
-
-	scrolly.set_size(get_client_windowsize()-scrolly.get_pos());
-
-	const sint16 yoff = scrolly.get_pos().y-D_BUTTON_HEIGHT-D_V_SPACE;
-	sort_button.set_pos(scr_coord(BUTTON1_X,yoff));
-	toggler_departures.set_pos(scr_coord(BUTTON2_X,yoff));
-	toggler.set_pos(scr_coord(BUTTON3_X,yoff));
-	button.set_pos(scr_coord(BUTTON4_X,yoff));
-	sort_label.set_pos(scr_coord(10,yoff-LINESPACE-D_V_SPACE));
-}
-
 
 
 void halt_info_t::map_rotate90( sint16 new_ysize )
@@ -574,69 +642,36 @@ void halt_info_t::map_rotate90( sint16 new_ysize )
 }
 
 
-halt_info_t::halt_info_t():
-	gui_frame_t("", NULL),
-	scrolly(&text),
-	text(&freight_info),
-	sort_label(NULL),
-	view(koord3d::invalid, scr_size(64, 64))
-{
-	// just a dummy
-}
-
-
 void halt_info_t::rdwr(loadsave_t *file)
 {
-	koord3d halt_pos;
+	// window size
 	scr_size size = get_windowsize();
-	uint32 flags = 0;
-	bool stats = toggler.pressed;
-	bool departures = toggler_departures.pressed;
-	sint32 xoff = scrolly.get_scroll_x();
-	sint32 yoff = scrolly.get_scroll_y();
+	size.rdwr( file );
+	// halt
+	koord3d halt_pos;
 	if(  file->is_saving()  ) {
 		halt_pos = halt->get_basis_pos3d();
-		for( int i = 0; i<MAX_HALT_COST; i++) {
-			if(  filterButtons[i].pressed  ) {
-				flags |= (1<<i);
-			}
-		}
 	}
 	halt_pos.rdwr( file );
-	size.rdwr( file );
-	file->rdwr_long( flags );
-	file->rdwr_byte( env_t::default_sortmode );
-	file->rdwr_bool( stats );
-	file->rdwr_bool( departures );
-	file->rdwr_long( xoff );
-	file->rdwr_long( yoff );
 	if(  file->is_loading()  ) {
 		halt = welt->lookup( halt_pos )->get_halt();
-		// now we can open the window ...
-		scr_coord const& pos = win_get_pos(this);
-		halt_info_t *w = new halt_info_t(halt);
-		create_win(pos.x, pos.y, w, w_info, magic_halt_info + halt.get_id());
-		if(  stats  ) {
-			size.h -= 170;
+		if (halt.is_bound()) {
+			init(halt);
+			reset_min_windowsize();
+			set_windowsize(size);
 		}
-		w->set_windowsize( size );
-		for( int i = 0; i<MAX_HALT_COST; i++) {
-			w->filterButtons[i].pressed = (flags>>i)&1;
-			if(w->filterButtons[i].pressed) {
-				w->chart.show_curve(i);
-			}
-		}
-		if(  stats  ) {
-			w->show_hide_statistics( true );
-		}
-		if(  departures  ) {
-			w->show_hide_departures( true );
-		}
-		halt->get_freight_info(w->freight_info);
-		w->text.recalc_size();
-		w->scrolly.set_scroll_position( xoff, yoff );
-		// we must invalidate halthandle
-		halt = halthandle_t();
+	}
+	// sort
+	file->rdwr_byte( env_t::default_sortmode );
+
+	scrolly_freight.rdwr(file);
+	scrolly_departure.rdwr(file);
+	switch_mode.rdwr(file);
+
+	// button-to-chart array
+	button_to_chart.rdwr(file);
+
+	if (!halt.is_bound()) {
 		destroy_win( this );
 	}
 }

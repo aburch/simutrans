@@ -6,8 +6,7 @@
 #define gui_baum_edit_h
 
 #include "extend_edit.h"
-
-#include "components/gui_label.h"
+#include "components/gui_image.h"
 
 
 class tree_desc_t;
@@ -17,9 +16,11 @@ class baum_edit_frame_t : public extend_edit_gui_t
 {
 private:
 	static tool_plant_tree_t baum_tool;
-	static char param_str[256];
+	static cbuffer_t param_str;
 
 	const tree_desc_t *desc;
+
+	gui_image_t tree_image;
 
 	vector_tpl<const tree_desc_t *>tree_list;
 

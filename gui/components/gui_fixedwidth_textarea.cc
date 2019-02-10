@@ -53,8 +53,22 @@ void gui_fixedwidth_textarea_t::set_reserved_area(const scr_size area)
 
 void gui_fixedwidth_textarea_t::set_size(scr_size size)
 {
-	// y-component (height) in size is deliberately ignored
-	set_width(size.w);
+	gui_component_t::set_size(size);
+	// height is ignored, we set it to be able to debug
+}
+
+
+scr_size gui_fixedwidth_textarea_t::get_min_size() const
+{
+	scr_size size = calc_display_text(scr_coord(0,0), false);
+	size.clip_lefttop(reserved_area);
+	return size;
+}
+
+
+scr_size gui_fixedwidth_textarea_t::get_max_size() const
+{
+	return get_min_size();
 }
 
 
@@ -63,7 +77,7 @@ void gui_fixedwidth_textarea_t::set_size(scr_size size)
  * if draw is true, it will also draw the text
  * borrowed from ding_infowin_t::calc_draw_info() with adaptation
  */
-scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, const bool draw)
+scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, const bool draw) const
 {
 	scr_coord_val x=0, word_x=0, y = 0;
 

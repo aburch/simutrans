@@ -6,7 +6,7 @@
  */
 
 #include "welt.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 #include "../simversion.h"
 #include "../dataobj/settings.h"
 #include "../dataobj/environment.h"
@@ -14,6 +14,7 @@
 #include "../player/finance.h" // MAX_PLAYER_HISTORY_YEARS
 #include "../vehicle/simvehicle.h"
 #include "settings_stats.h"
+#include "components/gui_divider.h"
 
 
 /* stuff not set here ....
@@ -47,21 +48,6 @@ static char const* const version[] =
 };
 
 
-// just free memory
-void settings_stats_t::free_all()
-{
-	while(  !label.empty()  ) {
-		delete label.remove_first();
-	}
-	while(  !numinp.empty()  ) {
-		delete numinp.remove_first();
-	}
-	while(  !button.empty()  ) {
-		delete button.remove_first();
-	}
-}
-
-
 bool settings_general_stats_t::action_triggered(gui_action_creator_t *komp, value_t v)
 {
 	assert( komp==&savegame ); (void)komp;
@@ -80,10 +66,8 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_INIT
 
 	// combobox for savegame version
-	savegame.set_pos( scr_coord(0, ypos) );
-	savegame.set_size( scr_size(70, D_BUTTON_HEIGHT) );
 	for(  uint32 i=0;  i<lengthof(version);  i++  ) {
-		savegame.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version[i]+2, SYSCOL_TEXT ) );
+		savegame.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( version[i]+2, SYSCOL_TEXT ) ;
 		if(  strcmp(version[i],env_t::savegame_version_str)==0  ) {
 			savegame.set_selection( i );
 		}
@@ -92,7 +76,6 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	add_component( &savegame );
 	savegame.add_listener( this );
 	INIT_LB( "savegame version" );
-	label.back()->set_pos( scr_coord( 70 + 6, label.back()->get_pos().y + 2 ) );
 	SEPERATOR
 	INIT_BOOL( "drive_left", sets->is_drive_left() );
 	INIT_BOOL( "signals_on_left", sets->is_signals_left() );
@@ -124,9 +107,8 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "world_maximum_height", sets->get_maximumheight(), 16, 127, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "world_minimum_height", sets->get_minimumheight(), -127, -12, gui_numberinput_t::AUTOLINEAR, false );
 
+	INIT_END
 	clear_dirty();
-	height = ypos;
-	set_size( settings_stats_t::get_size() );
 }
 
 void settings_general_stats_t::read(settings_t* const sets)
@@ -196,9 +178,7 @@ void settings_display_stats_t::init(settings_t const* const)
 	SEPERATOR
 	INIT_BOOL( "player_finance_display_account", env_t::player_finance_display_account );
 
-	clear_dirty();
-	height = ypos;
-	set_size( settings_stats_t::get_size() );
+	INIT_END
 }
 
 void settings_display_stats_t::read(settings_t* const)
@@ -251,9 +231,7 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "way_max_bridge_len", sets->way_max_bridge_len, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "way_leaving_road", sets->way_count_leaving_road, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 
-	clear_dirty();
-	height = ypos;
-	set_size( settings_stats_t::get_size() );
+	INIT_END
 }
 
 void settings_routing_stats_t::read(settings_t* const sets)
@@ -367,9 +345,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "citycar_level", sets->get_traffic_level(), 0, 16, 1, false );
 	INIT_NUM( "default_citycar_life", sets->get_stadtauto_duration(), 1, 1200, 12, false );
 
-	clear_dirty();
-	height = ypos;
-	set_size( settings_stats_t::get_size() );
+	INIT_END
 }
 
 void settings_economy_stats_t::read(settings_t* const sets)
@@ -468,9 +444,7 @@ void settings_costs_stats_t::init(settings_t const* const sets)
 	INIT_COST( "cost_transformer", -sets->cst_transformer, 1, 100000000, 10, false );
 	INIT_COST( "cost_maintain_transformer", -sets->cst_maintain_transformer, 1, 100000000, 10, false );
 	INIT_NUM("cost_make_public_months", sets->cst_make_public_months, 0, 36000, gui_numberinput_t::AUTOLINEAR, false );
-
-	height = ypos;
-	set_size( settings_stats_t::get_size() );
+	INIT_END
 }
 
 
@@ -501,9 +475,6 @@ void settings_costs_stats_t::read(settings_t* const sets)
 	READ_COST_VALUE( sets->cst_transformer )*(-1);
 	READ_COST_VALUE( sets->cst_maintain_transformer )*(-1);
 	READ_NUM_VALUE(sets->cst_make_public_months);
-
-	clear_dirty();
-	set_size( settings_stats_t::get_size() );
 }
 
 
@@ -524,7 +495,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	INIT_NUM_NEW( "Map roughness", mountain_roughness_start, 0, min(10, 11-((mountain_height_start+99)/100)), gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_LB( "Summer snowline" );
-	summer = label.back();
+	summer = new_component<gui_label_buf_t>();
 
 	INIT_NUM( "Winter snowline", sets->get_winter_snowline(), sets->get_groundwater(), 24, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
@@ -535,10 +506,10 @@ void settings_climates_stats_t::init(settings_t* const sets)
 		if(sets->get_climate_borders()[i]>arctic) {
 			arctic = sets->get_climate_borders()[i];
 		}
-	}
-	buf.clear();
-	buf.printf( "%s %i", translator::translate( "Summer snowline" ), arctic );
-	summer->set_text( buf );
+	}	cbuffer_t buf;
+
+	summer->buf().printf("%s %i", translator::translate( "Summer snowline" ), arctic );
+	summer->update();
 	SEPERATOR
 	INIT_BOOL( "lake", sets->get_lake() );
 	INIT_NUM_NEW( "Number of rivers", sets->get_river_number(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );
@@ -559,9 +530,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	INIT_NUM_NEW( "tree_climates", sets->get_tree_climates(), 0, 255, 1, false );
 	INIT_NUM_NEW( "no_tree_climates", sets->get_no_tree_climates(), 0, 255, 1, false );
 
-	clear_dirty();
-	height = ypos;
-	set_size( settings_stats_t::get_size() );
+	INIT_END
 }
 
 
@@ -587,9 +556,8 @@ void settings_climates_stats_t::read(settings_t* const sets)
 			arctic = ch;
 		}
 	}
-	buf.clear();
-	buf.printf( "%s %i", translator::translate( "Summer snowline" ), arctic );
-	summer->set_text( buf );
+	summer->buf().printf("%s %i", translator::translate( "Summer snowline" ), arctic );
+	summer->update();
 	READ_BOOL_VALUE( sets->lake );
 	READ_NUM_VALUE_NEW( sets->river_number );
 	READ_NUM_VALUE_NEW( sets->min_river_length );

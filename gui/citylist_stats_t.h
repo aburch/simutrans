@@ -10,25 +10,22 @@
 #ifndef CITYLIST_STATS_T_H
 #define CITYLIST_STATS_T_H
 
+#include "components/gui_aligned_container.h"
+#include "components/gui_label.h"
 #include "components/gui_scrolled_list.h"
-#include "../display/simgraph.h"
 #include "../simcity.h"
 
-class karte_ptr_t;
 class stadt_t;
 
 
 // City list stats display
-class citylist_stats_t : public gui_scrolled_list_t::scrollitem_t
+class citylist_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:
 	stadt_t* city;
-	bool mouse_over;  // flag to remember, whether last presse mopuse button on this
 
-	static scr_coord_val h;
-
-	static bool compare( gui_scrolled_list_t::scrollitem_t *a, gui_scrolled_list_t::scrollitem_t *b );
-
+	gui_label_buf_t label;
+	void update_label();
 public:
 	enum sort_mode_t { SORT_BY_NAME=0, SORT_BY_SIZE, SORT_BY_GROWTH, SORT_MODES, SORT_REVERSE=0x80 };
 	static sort_mode_t sort_mode;
@@ -36,12 +33,14 @@ public:
 public:
 	citylist_stats_t(stadt_t *);
 
-	scr_coord_val get_height() const { return h; }
+	void draw( scr_coord pos) OVERRIDE;
 
-	scr_coord_val draw( scr_coord pos, scr_coord_val width, bool is_selected, bool has_focus );
-	char const* get_text() const { return city->get_name(); }
-	bool sort( vector_tpl<scrollitem_t *> &, int, void * ) const;
-	bool infowin_event(const event_t *);
+	char const* get_text() const OVERRIDE { return city->get_name(); }
+	bool is_valid() const OVERRIDE;
+	bool infowin_event(const event_t *) OVERRIDE;
+	void set_size(scr_size size) OVERRIDE;
+
+	static bool compare(const gui_component_t *a, const gui_component_t *b );
 };
 
 #endif

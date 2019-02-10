@@ -22,13 +22,14 @@
 #include "components/gui_chart.h"
 #include "components/gui_obj_view_t.h"
 #include "components/action_listener.h"
+#include "components/gui_tab_panel.h"
+#include "components/gui_button_to_chart.h"
 #include "../convoihandle_t.h"
-#include "../linehandle_t.h"
-#include "../simconvoi.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 
 #include "../utils/cbuffer_t.h"
 
+class convoi_detail_t;
 
 class convoi_info_t : public gui_frame_t, private action_listener_t
 {
@@ -43,10 +44,9 @@ private:
 	*/
 	cbuffer_t freight_info;
 
-	gui_scrollpane_t scrolly;
 	gui_textarea_t text;
 	obj_view_t view;
-	gui_label_t sort_label;
+	gui_label_buf_t speed_label, profit_label, running_cost_label, weight_label, target_label, line_label;
 	gui_textinput_t input;
 	gui_speedbar_t filled_bar;
 	gui_speedbar_t speed_bar;
@@ -56,14 +56,13 @@ private:
 	button_t follow_button;
 	button_t go_home_button;
 	button_t no_load_button;
-	button_t filterButtons[convoi_t::MAX_CONVOI_COST];
+
+	gui_tab_panel_t switch_mode;
+	gui_aligned_container_t container_freight, container_stats, container_line, *container_top, container_details;
+	convoi_detail_t *details;
+	gui_scrollpane_t scroll_freight;
 
 	button_t sort_button;
-	button_t details_button;
-	button_t toggler;
-
-	sint16 chart_total_size;
-
 	button_t line_button;	// goto line ...
 	bool line_bound;
 
@@ -75,6 +74,8 @@ private:
 	sint32 cnv_route_index;
 
 	char cnv_name[256],old_cnv_name[256];
+
+	void update_labels();
 
 	// resets textinput to current convoi name
 	// necessary after convoi was renamed
@@ -89,8 +90,11 @@ private:
 
 	void show_hide_statistics( bool show );
 
+	gui_button_to_chart_array_t button_to_chart;
+
+	void init(convoihandle_t cnv);
 public:
-	convoi_info_t(convoihandle_t cnv);
+	convoi_info_t(convoihandle_t cnv = convoihandle_t());
 
 	virtual ~convoi_info_t();
 
@@ -99,7 +103,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const { return "convoiinfo.txt"; }
+	const char * get_help_filename() const OVERRIDE { return "convoiinfo.txt"; }
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -107,17 +111,11 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	/**
-	 * Set window size and adjust component sizes and/or positions accordingly
-	 * @author Hj. Malthaner
-	 */
-	virtual void set_windowsize(scr_size size);
+	bool is_weltpos() OVERRIDE;
 
-	virtual bool is_weltpos();
-
-	virtual koord3d get_weltpos( bool set );
+	koord3d get_weltpos( bool set ) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
@@ -126,12 +124,9 @@ public:
 	 */
 	void update_data() { reset_cnv_name(); set_dirty(); }
 
-	// this constructor is only used during loading
-	convoi_info_t();
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	void rdwr( loadsave_t *file );
-
-	uint32 get_rdwr_id() { return magic_convoi_info; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_convoi_info; }
 
 	void route_search_finished() { route_search_in_progress = false; }
 };

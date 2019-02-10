@@ -33,21 +33,13 @@ private:
 	player_t *player;
 
 	button_t bt_new_line, bt_edit_line, bt_delete_line, bt_withdraw_line;
-	gui_container_t cont, cont_haltestellen;
-	gui_scrollpane_t scrolly_convois, scrolly_haltestellen;
-	gui_scrolled_list_t scl;
+	gui_scrolled_list_t scl, scrolly_convois, scrolly_haltestellen;
 	gui_speedbar_t filled_bar;
 	gui_textinput_t inp_name, inp_filter;
 	gui_label_t lbl_filter;
 	gui_chart_t chart;
 	button_t filterButtons[MAX_LINE_COST];
 	gui_tab_panel_t tabs;
-
-	// vector of convoy info objects that are being displayed
-	vector_tpl<gui_convoiinfo_t *> convoy_infos;
-
-	// vector of stop info objects that are being displayed
-	vector_tpl<halt_list_stats_t *> stop_infos;
 
 	sint32 selection, capacity, load, loadfactor;
 
@@ -99,14 +91,14 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char* get_help_filename() const { return "linemanagement.txt"; }
+	const char* get_help_filename() const OVERRIDE { return "linemanagement.txt"; }
 
 	/**
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -114,13 +106,13 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_windowsize(scr_size size);
+	void set_windowsize(scr_size size) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -138,8 +130,8 @@ public:
 	void update_data(linehandle_t changed_line);
 
 	// following: rdwr stuff
-	void rdwr( loadsave_t *file );
-	uint32 get_rdwr_id();
+	void rdwr( loadsave_t *file ) OVERRIDE;
+	uint32 get_rdwr_id() OVERRIDE;
 };
 
 #endif

@@ -30,6 +30,11 @@ private:
 	bool visible:1;
 
 	/**
+	 * If invisible, still reserves space.
+	 */
+	bool rigid:1;
+
+	/**
 	 * Some components might not be allowed to gain focus.
 	 * For example: gui_textarea_t
 	 * This flag can be set to false to deny focus request for a gui_component.
@@ -55,7 +60,7 @@ public:
 	 * Basic constructor, initialises member variables
 	 * @author Hj. Malthaner
 	 */
-	gui_component_t(bool _focusable = false) : visible(true), focusable(_focusable) {}
+	gui_component_t(bool _focusable = false) : visible(true), rigid(false), focusable(_focusable) {}
 
 	/**
 	 * Virtual destructor so all descendant classes are destructed right
@@ -97,10 +102,19 @@ public:
 
 	/**
 	 * Checks if component should be displayed.
+	 * If invisible and not rigid compoment will be ignore for gui-positioning and resizing.
 	 * @author Hj. Malthaner
 	 */
 	virtual bool is_visible() const {
 		return visible;
+	}
+
+	void set_rigid(bool yesno) {
+		rigid = yesno;
+	}
+
+	bool is_rigid() const {
+		return rigid;
 	}
 
 	/**
@@ -150,6 +164,26 @@ public:
 	virtual void set_height(scr_coord_val height_par) {
 		set_size(scr_size(size.w,height_par));
 	}
+
+	/**
+	 * Get this component's maximal bounding box size.
+	 * If this is larger than get_min_size(), then the element will be enlarged if possible
+	 *   according to min_size of elements in the same row/column.
+	 * If w/h is equal to scr_size::inf.w/h, then the
+	 *   element is enlarged as much as possible if their is available space.
+	 */
+	virtual scr_size get_max_size() const {
+		return scr_size::inf;
+	}
+
+	/**
+	 * Get this component's minimal bounding box size.
+	 * Elements will be as least as small.
+	 */
+	virtual scr_size get_min_size() const {
+		return scr_size(0,0);
+	}
+
 
 	/**
 	 * Checks if the given position is inside the component area.
@@ -220,5 +254,43 @@ class gui_world_component_t: public gui_component_t
 protected:
 	static karte_ptr_t welt;
 };
+
+
+/**
+ * Class for an empty element, to simulate empty cells in tables.
+ */
+class gui_empty_t : public gui_component_t
+{
+	gui_component_t* ref; ///< this empty cell should have same min and max size as ref
+public:
+	gui_empty_t(gui_component_t* r = NULL): ref(r) {}
+
+	void draw(scr_coord) OVERRIDE { }
+
+	void set_ref(gui_component_t* r) { ref = r; }
+
+	scr_size get_min_size() const OVERRIDE { return ref ? ref->get_min_size() : gui_component_t::get_min_size(); }
+
+	scr_size get_max_size() const OVERRIDE { return ref ? ref->get_max_size() : gui_component_t::get_min_size(); }
+};
+
+/**
+ * Class for an empty element with potential infinite width.
+ * Can force neighboring cells to the boundary of the array
+ */
+class gui_fill_t : public gui_component_t
+{
+	bool fill_x;
+	bool fill_y;
+public:
+	gui_fill_t(bool x=true, bool y=false) : fill_x(x), fill_y(y) {}
+
+	void draw(scr_coord) OVERRIDE { }
+
+	scr_size get_min_size() const OVERRIDE { return scr_size(0,0); }
+
+	scr_size get_max_size() const OVERRIDE { return scr_size( fill_x ? scr_size::inf.w : 0, fill_y ? scr_size::inf.h : 0);  }
+};
+
 
 #endif

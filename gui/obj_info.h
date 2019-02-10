@@ -33,13 +33,8 @@ public:
 
 	virtual bool is_weltpos();
 
-	/**
-	 * @return the text to display in the info window
-	 *
-	 * @author Hj. Malthaner
-	 * @see simwin
-	 */
-	virtual void info(cbuffer_t& buf) const { get_obj()->info(buf); }
+	// refill buffer
+	void fill_buffer();
 
 	/**
 	* Draw new component. The values to be passed refer to the window

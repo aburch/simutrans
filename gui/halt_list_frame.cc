@@ -23,7 +23,7 @@
 #include "../simhalt.h"
 #include "../simware.h"
 #include "../simfab.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 #include "../descriptor/skin_desc.h"
 
 #include "../bauer/goods_manager.h"
@@ -33,8 +33,38 @@
 #include "../utils/cbuffer_t.h"
 
 
+static bool passes_filter(haltestelle_t const& s); // see below
 
-#define HALT_SCROLL_START (D_MARGIN_TOP + LINESPACE + D_V_SPACE + D_BUTTON_HEIGHT)
+/**
+ * Scrolled list of halt_list_stats_ts.
+ * Filters (by setting visibility) and sorts.
+ */
+class gui_scrolled_halt_list_t : public gui_scrolled_list_t
+{
+public:
+	gui_scrolled_halt_list_t() :  gui_scrolled_list_t(gui_scrolled_list_t::windowskin, compare) {}
+
+	void sort()
+	{
+		// set visibility according to filter
+		for(  vector_tpl<gui_component_t*>::iterator iter = item_list.begin();  iter != item_list.end();  ++iter) {
+			halt_list_stats_t *a = dynamic_cast<halt_list_stats_t*>(*iter);
+
+			a->set_visible( passes_filter(*a->get_halt()) );
+		}
+
+		gui_scrolled_list_t::sort(0);
+	}
+
+	static bool compare(const gui_component_t *aa, const gui_component_t *bb)
+	{
+		const halt_list_stats_t *a = dynamic_cast<const halt_list_stats_t*>(aa);
+		const halt_list_stats_t *b = dynamic_cast<const halt_list_stats_t*>(bb);
+
+		return halt_list_frame_t::compare_halts(a->get_halt(), b->get_halt());
+	}
+};
+
 
 /**
  * All filter and sort settings are static, so the old settings are
@@ -248,43 +278,45 @@ static bool passes_filter(haltestelle_t const& s)
 
 
 halt_list_frame_t::halt_list_frame_t(player_t *player) :
-	gui_frame_t( translator::translate("hl_title"), player),
-	vscroll( scrollbar_t::vertical ),
-	sort_label(translator::translate("hl_txt_sort")),
-	filter_label(translator::translate("hl_txt_filter"))
+	gui_frame_t( translator::translate("hl_title"), player)
 {
 	m_player = player;
 	filter_frame = NULL;
 
-	sort_label.set_pos(scr_coord(BUTTON1_X, D_MARGIN_TOP));
-	add_component(&sort_label);
-	const sint16 ybutton = D_MARGIN_TOP + LINESPACE + D_V_SPACE;
-	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, ybutton));
-	sortedby.add_listener(this);
-	add_component(&sortedby);
+	set_table_layout(1,0);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, ybutton));
-	sorteddir.add_listener(this);
-	add_component(&sorteddir);
+	add_table(4,2);
+	{
+		new_component_span<gui_label_t>("hl_txt_sort", 2);
+		new_component_span<gui_label_t>("hl_txt_filter", 2);
 
-	filter_label.set_pos(scr_coord(BUTTON3_X, D_MARGIN_TOP));
-	add_component(&filter_label);
 
-	filter_on.init(button_t::roundbox, translator::translate(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), scr_coord(BUTTON3_X, ybutton));
-	filter_on.add_listener(this);
-	add_component(&filter_on);
+		sortedby.init(button_t::roundbox, sort_text[get_sortierung()]);
+		sortedby.add_listener(this);
+		add_component(&sortedby);
 
-	filter_details.init(button_t::roundbox, translator::translate("hl_btn_filter_settings"), scr_coord(BUTTON4_X, ybutton));
-	filter_details.add_listener(this);
-	add_component(&filter_details);
 
-	display_list();
+		sorteddir.init(button_t::roundbox, get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+		sorteddir.add_listener(this);
+		add_component(&sorteddir);
 
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_DEFAULT_HEIGHT));
-	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+3*(28)+HALT_SCROLL_START));
+		filter_on.init(button_t::roundbox, get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable");
+		filter_on.add_listener(this);
+		add_component(&filter_on);
+
+		filter_details.init(button_t::roundbox, "hl_btn_filter_settings");
+		filter_details.add_listener(this);
+		add_component(&filter_details);
+	}
+	end_table();
+
+	scrolly = new_component<gui_scrolled_halt_list_t>();
+
+	fill_list();
 
 	set_resizemode(diagonal_resize);
-	resize (scr_coord(0,0));
+	set_resizemode(diagonal_resize);
+	reset_min_windowsize();
 }
 
 
@@ -300,77 +332,33 @@ halt_list_frame_t::~halt_list_frame_t()
 * This function refreshes the station-list
 * @author Markus Weber/Volker Meyer
 */
-void halt_list_frame_t::display_list()
+void halt_list_frame_t::fill_list()
 {
 	last_world_stops = haltestelle_t::get_alle_haltestellen().get_count();				// count of stations
 
-	ALLOCA(halthandle_t, a, last_world_stops);
-	int n = 0; // temporary variable
-	int i;
-
-	/**************************
-	 * Sort the station list
-	 *************************/
-
-	// create a unsorted station list
-	num_filtered_stops = 0;
+	scrolly->clear_elements();
 	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 		if(  halt->get_owner() == m_player  ) {
-			a[n++] = halt;
-			if (passes_filter(*halt)) {
-				num_filtered_stops++;
-			}
+			scrolly->new_component<halt_list_stats_t>(halt) ;
 		}
 	}
-	std::sort(a, a + n, compare_halts);
+	sort_list();
+}
 
+
+void halt_list_frame_t::sort_list()
+{
+	scrolly->sort();
 	sortedby.set_text(sort_text[get_sortierung()]);
 	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-
-	/****************************
-	 * Display the station list
-	 ***************************/
-
-	stops.clear();   // clear the list
-	stops.resize(n);
-
-	// display stations
-	for (i = 0; i < n; i++) {
-		stops.append(halt_list_stats_t(a[i]));
-		stops.back().set_pos(scr_coord(0,0));
-	}
-	// hide/show scroll bar
-	resize(scr_coord(0,0));
 }
 
 
 bool halt_list_frame_t::infowin_event(const event_t *ev)
 {
-	const sint16 xr = vscroll.is_visible() ? D_SCROLLBAR_WIDTH : 1;
-
 	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
 		if(filter_frame) {
 			filter_frame->infowin_event(ev);
-		}
-	}
-	else if(IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
-		// otherwise these events are only registered where directly over the scroll region
-		// (and sometime even not then ... )
-		return vscroll.infowin_event(ev);
-	}
-	else if(  (IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>HALT_SCROLL_START+D_TITLEBAR_HEIGHT  &&  ev->mx<get_windowsize().w-xr  &&  !stops.empty()  ) {
-		const int y = (ev->my-HALT_SCROLL_START-D_TITLEBAR_HEIGHT)/stops[0].get_size().h + vscroll.get_knob_offset();
-
-		if(  y<num_filtered_stops  ) {
-			// find the 'y'th filtered stop in the unfiltered stops list
-			uint32 i=0;
-			for(  int j=0;  i<stops.get_count()  &&  j<=y;  i++  ){
-				if (passes_filter(*stops[i].get_halt())) {
-					j++;
-				}
-			}
-			// let gui_convoiinfo_t() handle this, since then it will be automatically consistent
-			return stops[i-1].infowin_event( ev );
 		}
 	}
 	return gui_frame_t::infowin_event(ev);
@@ -386,15 +374,15 @@ bool halt_list_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* 
 	if (  comp == &filter_on  ) {
 		set_filter(any_filter, !get_filter(any_filter));
 		filter_on.set_text(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable");
-		display_list();
+		sort_list();
 	}
 	else if (  comp == &sortedby  ) {
 		set_sortierung((sort_mode_t)((get_sortierung() + 1) % SORT_MODES));
-		display_list();
+		sort_list();
 	}
 	else if (  comp == &sorteddir  ) {
 		set_reverse(!get_reverse());
-		display_list();
+		sort_list();
 	}
 	else if (  comp == &filter_details  ) {
 		if (filter_frame) {
@@ -409,68 +397,16 @@ bool halt_list_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* 
 }
 
 
-/**
- * Resize the window
- * @author Markus Weber
- */
-void halt_list_frame_t::resize(const scr_coord size_change)
-{
-	gui_frame_t::resize(size_change);
-	scr_size size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT+HALT_SCROLL_START);
-	vscroll.set_visible(false);
-	remove_component(&vscroll);
-	int halt_h = (stops.empty() ? 28 : stops[0].get_size().h);
-	vscroll.set_knob( size.h/halt_h, num_filtered_stops );
-	if(  num_filtered_stops<=size.h/halt_h  ) {
-		vscroll.set_knob_offset(0);
-	}
-	else {
-		add_component(&vscroll);
-		vscroll.set_visible(true);
-		vscroll.set_pos(scr_coord(size.w-D_SCROLLBAR_WIDTH, HALT_SCROLL_START));
-		vscroll.set_size(size-D_SCROLLBAR_SIZE);
-		vscroll.set_scroll_amount( 1 );
-	}
-}
-
-
 void halt_list_frame_t::draw(scr_coord pos, scr_size size)
 {
 	filter_details.pressed = filter_frame != NULL;
 
-	gui_frame_t::draw(pos, size);
-
-	const sint16 xr = vscroll.is_visible() ? D_SCROLLBAR_WIDTH+4 : 6;
-	const sint16 margin_top = D_TITLEBAR_HEIGHT + sortedby.get_pos().y + sortedby.get_size().h + D_V_SPACE;
-
-	PUSH_CLIP(pos.x, pos.y+margin_top, size.w-xr, size.h-margin_top-1 );
-
-	const sint32 start = vscroll.get_knob_offset();
-	sint16 yoffset = margin_top;
-
-	const int last_num_filtered_stops = num_filtered_stops;
-	num_filtered_stops = 0;
-
 	if(  last_world_stops != haltestelle_t::get_alle_haltestellen().get_count()  ) {
 		// some deleted/ added => resort
-		display_list();
+		fill_list();
 	}
 
-	FOR(vector_tpl<halt_list_stats_t>, & i, stops) {
-		halthandle_t const halt = i.get_halt();
-		if (halt.is_bound() && passes_filter(*halt)) {
-			num_filtered_stops++;
-			if(  num_filtered_stops>start  &&  yoffset<size.h+margin_top  ) {
-				i.draw(pos + scr_coord(0, yoffset));
-				yoffset += i.get_size().h;
-			}
-		}
-	}
-	if(  num_filtered_stops!=last_num_filtered_stops  ) {
-		resize (scr_coord(0,0));
-	}
-
-	POP_CLIP();
+	gui_frame_t::draw(pos, size);
 }
 
 

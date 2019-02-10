@@ -44,7 +44,7 @@ public:
 
 	bool has_script() const { return script; }
 
-	uint8 get_ai_id() const { return AI_SCRIPTED; }
+	uint8 get_ai_id() const OVERRIDE { return AI_SCRIPTED; }
 
 	void step() OVERRIDE;
 

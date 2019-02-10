@@ -12,134 +12,142 @@
 #ifndef gui_scrolled_list_h
 #define gui_scrolled_list_h
 
-#include "gui_scrollbar.h"
+#include "gui_aligned_container.h"
+#include "gui_scrollpane.h"
 #include "action_listener.h"
 #include "gui_action_creator.h"
+#include "gui_label.h"
 #include "../../simcolor.h"
-#include "../../display/simgraph.h"
-#include "../../utils/plainstring.h"
 #include "../../tpl/vector_tpl.h"
 
+/**
+ * Helper class to access the list of components in the scrolling container.
+ */
+class scroll_container_t : public gui_aligned_container_t
+{
+public:
+	vector_tpl <gui_component_t *>& get_components() { return components; }
+};
+
+/**
+ * Scrollable list of components that can be sorted, and has component selection.
+ */
 class gui_scrolled_list_t :
 	public gui_action_creator_t,
-	public action_listener_t,
-	public gui_component_t
+	public gui_scrollpane_t
 {
 public:
 	enum type { windowskin, listskin };
 
+
 	/**
-	 * Container for list entries - consisting of text and color
+	 * Base class for elements in lists. Virtual inheritance.
 	 */
-	class scrollitem_t {
+	class scrollitem_t : virtual public gui_component_t
+	{
 	public:
-		virtual ~scrollitem_t() {}
-		virtual scr_coord_val get_height() const = 0;	// largest object in this list
-		virtual scr_coord_val draw( scr_coord pos, scr_coord_val width, bool is_selected, bool has_focus ) = 0;
-		/* can do some action
-		 * input: coordinates relative to this element, button or zero for keyboard
-		 * return true, then event is not passed to caller
-		 */
-		virtual bool infowin_event(const event_t *) { return false; }
+		/// constructor: set focusable to true.
+		/// focused element will be used to determine selection in gui_scrolled_list_t
+		scrollitem_t() : gui_component_t(true /* focusable */), focused(false), selected(false) { }
+
 		virtual char const* get_text() const = 0;
-		virtual bool is_valid() { return true; }	//  can be used to indicate invalid entries
-		virtual bool is_editable() { return false; }
-		virtual bool sort( vector_tpl<scrollitem_t *> &, int, void * ) const { return false; } // not sorted, leave vector as before
+		virtual void set_text(char const *) {}
+		virtual bool is_valid() const { return true; }	//  can be used to indicate invalid entries
+		virtual bool is_editable()  const { return false; }
+
+		/// compares using get_text
+		static bool compare(const gui_component_t *a, const gui_component_t *b );
+
+		bool focused, selected;
+	protected:
+		using gui_component_t::draw;
 	};
 
-	// only uses pointer, non-editable
-	class const_text_scrollitem_t : public scrollitem_t {
-	protected:
-		const char *consttext;
-		PIXVAL color;
-		static bool compare( scrollitem_t *a, scrollitem_t *b );
+	typedef bool (*item_compare_func)(const gui_component_t* a, const gui_component_t* b);
+
+	/**
+	 * Text entry, non-editable
+	 */
+	class const_text_scrollitem_t : public gui_label_t, public scrollitem_t
+	{
 	public:
-		const_text_scrollitem_t(char const* const t, PIXVAL const col) : consttext(t), color(col) {}
+		const_text_scrollitem_t(char const* const t, PIXVAL const col) : gui_label_t(NULL, col) { set_text_pointer(t); }
 
-		virtual scr_coord_val draw( scr_coord pos, scr_coord_val width, bool is_selected, bool has_focus );
-		virtual scr_coord_val get_height() const { return LINESPACE; }
+		virtual char const* get_text() const { return get_text_pointer(); }
 
-		virtual PIXVAL get_color() { return color; }
-		virtual void set_color(PIXVAL col) { color = col; }
+		scr_size get_min_size() const;
+		scr_size get_max_size() const;
 
-		virtual char const* get_text() const { return consttext; }
 		virtual void set_text(char const *) {}
 
-		virtual bool sort( vector_tpl<scrollitem_t *>&v, int, void * ) const OVERRIDE;
-	};
+		void draw(scr_coord pos);
 
-	// editable text
-	class var_text_scrollitem_t : public const_text_scrollitem_t {
+		using gui_label_t::get_color;
 	private:
-		plainstring text;
+		using gui_label_t::set_text;
 
-	public:
-		var_text_scrollitem_t(char const* const t, PIXVAL const col) : const_text_scrollitem_t(t,col), text(t) {}
-		virtual void set_text(char const *t) OVERRIDE { text = t; }
-		virtual bool is_editable() { return true; }
 	};
+
 
 private:
 	enum type type;
-	sint32 selection; // only used when type is 'select'.
-	int border; // must be subtracted from size.h to get net size
-	int offset; // vertical offset of top left position.
 
-	scrollbar_t sb;
+	scr_coord_val max_width; // need for overlength entries
 
-	vector_tpl<gui_scrolled_list_t::scrollitem_t *> item_list;
+	item_compare_func compare;
 
-	int total_vertical_size;	// since in principle all element could have different size
+protected:
+	scroll_container_t container;
+	vector_tpl <gui_component_t *>& item_list;
+
+	void reset_container_size();
+
+	void set_cmp(item_compare_func cmp) { compare = cmp; }
+
+	/// deletes invalid elements from list
+	void cleanup_elements();
 
 public:
-	gui_scrolled_list_t(enum type);
+	gui_scrolled_list_t(enum type, item_compare_func cmp = 0);
 
 	~gui_scrolled_list_t() { clear_elements(); }
 
 	void show_selection(int s);
 
-	void set_selection(int s) { selection = s; }
-	sint32 get_selection() const { return selection; }
+	void set_selection(int s);
+	sint32 get_selection() const;
 	sint32 get_count() const { return item_list.get_count(); }
 
 	/*  when rebuilding a list, be sure to call recalculate the slider
 	 *  with recalculate_slider() to update the scrollbar properly. */
 	void clear_elements();
-	void append_element( scrollitem_t *item );
-	void insert_element( scrollitem_t *item );
-	scrollitem_t *get_element(sint32 i) const { return ((uint32)i<item_list.get_count()) ? item_list[i] : NULL; }
+	scrollitem_t *get_element(sint32 i) const { return (i>=0  &&  (uint32)i<item_list.get_count()) ? dynamic_cast<scrollitem_t*>(item_list[i]) : NULL; }
 
+	template<class C>
+	void new_component() { return container.new_component<C>()->set_focusable(true); }
+	template<class C, class A1>
+	void new_component(const A1& a1) { return container.new_component<C>(a1)->set_focusable(true); }
+	template<class C, class A1, class A2>
+	void new_component(const A1& a1, const A2& a2) { container.new_component<C>(a1, a2)->set_focusable(true); }
+	template<class C, class A1, class A2, class A3>
+	void new_component(const A1& a1, const A2& a2, const A3& a3) { container.new_component<C>(a1, a2, a3)->set_focusable(true); }
+	template<class C, class A1, class A2, class A3, class A4>
+	void new_component(const A1& a1, const A2& a2, const A3& a3, const A4& a4) { container.new_component<C>(a1, a2, a3, a4)->set_focusable(true); }
 	/**
 	 * Sorts the list.
 	 * Calls the virtual method scrollitem_t::sort of element at position @p offset.
 	 * Adjusts scrollbar.
 	 * @param offset sort list from element offset to end
-	 * @param sort_param will be used in call to scrollitem_t::sort
 	 */
-	void sort( int offset, void *sort_param );
-
-	// set the first element to be shown in the list
-	sint32 get_sb_offset() { return sb.get_knob_offset(); }
-	void set_sb_offset( sint32 off ) { sb.set_knob_offset( off ); offset = sb.get_knob_offset(); }
-
-	// resizes scrollbar
-	void adjust_scrollbar();
-
-	/**
-	 * request other pane-size. returns realized size.
-	 * use this for flexible sized lists
-	 * for fixed sized used only set_size()
-	 * @return value can be in between full-size wanted.
-	 */
-	scr_size request_size(scr_size size);
+	void sort( int offset);
 
 	void set_size(scr_size size) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	void draw(scr_coord pos);
+	void draw(scr_coord pos) OVERRIDE;
 
-	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+	void set_max_width(scr_coord_val mw) { max_width = mw; }
 };
 
 #endif

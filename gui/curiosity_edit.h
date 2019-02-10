@@ -6,9 +6,7 @@
 #define gui_curiosity_edit_h
 
 #include "extend_edit.h"
-
-#include "components/gui_label.h"
-
+#include "components/gui_combobox.h"
 
 class tool_build_house_t;
 class building_desc_t;
@@ -17,12 +15,10 @@ class curiosity_edit_frame_t : public extend_edit_gui_t
 {
 private:
 	static tool_build_house_t haus_tool;
-	static char param_str[256];
+	static cbuffer_t param_str;
 
 	const building_desc_t *desc;
 	uint8 rotation;
-
-	char rot_str[16];
 
 	vector_tpl<const building_desc_t *>building_list;
 
@@ -30,12 +26,11 @@ private:
 	button_t bt_land_attraction;
 	button_t bt_monuments;
 
-	button_t bt_left_rotate, bt_right_rotate;
-	gui_label_t lb_rotation, lb_rotation_info;
+	gui_combobox_t cb_rotation;
 
-	void fill_list( bool translate );
+	void fill_list( bool translate ) OVERRIDE;
 
-	virtual void change_item_info( sint32 i );
+	void change_item_info( sint32 i ) OVERRIDE;
 
 public:
 	curiosity_edit_frame_t(player_t* player);
@@ -52,7 +47,7 @@ public:
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	const char* get_help_filename() const { return "curiosity_build.txt"; }
+	const char* get_help_filename() const OVERRIDE { return "curiosity_build.txt"; }
 
 	/**
 	* Draw new component. The values to be passed refer to the window
@@ -60,7 +55,7 @@ public:
 	* component is displayed.
 	* @author Hj. Malthaner
 	*/
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

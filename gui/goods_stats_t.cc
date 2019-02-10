@@ -13,7 +13,6 @@
 
 #include "goods_stats_t.h"
 
-#include "../display/simgraph.h"
 #include "../simcolor.h"
 #include "../simworld.h"
 
@@ -21,69 +20,42 @@
 #include "../descriptor/goods_desc.h"
 
 #include "../dataobj/translator.h"
-#include "../utils/cbuffer_t.h"
-#include "../utils/simstring.h"
 
-#include "gui_frame.h"
-#include "../gui/components/gui_button.h"
+#include "components/gui_button.h"
+#include "components/gui_colorbox.h"
+#include "components/gui_label.h"
 
+karte_ptr_t goods_stats_t::welt;
 
-
-goods_stats_t::goods_stats_t()
+void goods_stats_t::update_goodslist(vector_tpl<const goods_desc_t*>goods, int bonus)
 {
-	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, goods_manager_t::get_count() * (LINESPACE+1) ) );
-}
+	scr_size size = get_size();
+	remove_all();
+	set_table_layout(6,0);
 
+	FOR(vector_tpl<const goods_desc_t*>, wtyp, goods) {
 
-void goods_stats_t::update_goodslist( uint16 *g, int b, int l )
-{
-	goodslist = g;
-	bonus = b;
-	listed_goods = l;
-	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, listed_goods * (LINESPACE+1) ) );
-}
+		new_component<gui_colorbox_t>(wtyp->get_color())->set_max_size(scr_size(D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT));
+		new_component<gui_label_t>(wtyp->get_name());
 
-
-/**
- * Draw the component
- * @author Hj. Malthaner
- */
-void goods_stats_t::draw(scr_coord offset)
-{
-	scr_coord_val yoff = offset.y;
-	char money_buf[256];
-	cbuffer_t buf;
-	offset.x += pos.x;
-
-	for(  uint16 i=0;  i<listed_goods;  i++  ) {
-		const goods_desc_t * wtyp = goods_manager_t::get_info(goodslist[i]);
-
-		display_ddd_box_clip_rgb(offset.x + 2, yoff, 8, 8, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
-		display_fillbox_wh_clip_rgb(offset.x + 3, yoff+1, 6, 6, wtyp->get_color(), true);
-
-		buf.clear();
-		buf.printf("%s", translator::translate(wtyp->get_name()));
-		display_proportional_clip_rgb(offset.x + 14, yoff,	buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-
-		// prissi
 		const sint32 grundwert128 = (sint32)wtyp->get_value() * welt->get_settings().get_bonus_basefactor();	// bonus price will be always at least this
 		const sint32 grundwert_bonus = (sint32)wtyp->get_value()*(1000l+(bonus-100l)*wtyp->get_speed_bonus());
 		const sint32 price = (grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus);
-		money_to_string( money_buf, price/300000.0 );
-		display_proportional_clip_rgb(offset.x + 130, yoff, money_buf, 	ALIGN_RIGHT, SYSCOL_TEXT, true);
+		gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
+		lb->buf().append_money(price/300000.0);
+		lb->update();
 
-		buf.clear();
-		buf.printf("%d%%", wtyp->get_speed_bonus());
-		display_proportional_clip_rgb(offset.x + 155, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
+		lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
+		lb->buf().printf("%d%%", wtyp->get_speed_bonus());
+		lb->update();
 
-		buf.clear();
-		buf.printf("%s", translator::translate(wtyp->get_catg_name()));
-		display_proportional_clip_rgb(offset.x + 165, yoff, buf, 	ALIGN_LEFT, SYSCOL_TEXT, 	true);
+		new_component<gui_label_t>(wtyp->get_catg_name());
 
-		buf.clear();
-		buf.printf("%dKg", wtyp->get_weight_per_unit());
-		display_proportional_clip_rgb(offset.x + 310, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
-
-		yoff += LINESPACE+1;
+		lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
+		lb->buf().printf("%dKg", wtyp->get_weight_per_unit());
+		lb->update();
 	}
+
+	scr_size min_size = get_min_size();
+	set_size(scr_size(max(size.w, min_size.w), min_size.h) );
 }

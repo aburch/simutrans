@@ -13,63 +13,63 @@
 #include "curiositylist_frame_t.h"
 #include "curiositylist_stats_t.h"
 
+#include "components/gui_label.h"
 #include "../dataobj/translator.h"
 #include "../simcolor.h"
+#include "../simworld.h"
+#include "../obj/gebaeude.h"
 
 
-/**
- * This variable defines the sort order (ascending or descending)
- * Values: 1 = ascending, 2 = descending)
- * @author Markus Weber
- */
-bool curiositylist_frame_t::sortreverse = false;
-
-/**
- * This variable defines by which column the table is sorted
- * Values: 0 = Station number
- *         1 = Station name
- *         2 = Waiting goods
- *         3 = Station type
- * @author Markus Weber
- */
-curiositylist::sort_mode_t curiositylist_frame_t::sortby = curiositylist::by_name;
-
-const char *curiositylist_frame_t::sort_text[curiositylist::SORT_MODES] = {
+const char* sort_text[curiositylist::SORT_MODES] = {
 	"hl_btn_sort_name",
-	"Passagierrate"/*,
-		     "Postrate"*/
+	"Passagierrate"
 };
+
 
 curiositylist_frame_t::curiositylist_frame_t() :
 	gui_frame_t( translator::translate("curlist_title") ),
-	sort_label(translator::translate("hl_txt_sort")),
-	stats(sortby,sortreverse),
-	scrolly(&stats)
+	scrolly(gui_scrolled_list_t::windowskin, curiositylist_stats_t::compare)
 {
-	sort_label.set_pos(scr_coord(BUTTON1_X, 2));
-	add_component(&sort_label);
+	attraction_count = 0;
 
-	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 14));
+	set_table_layout(1,0);
+	new_component<gui_label_t>("hl_txt_sort");
+
+	add_table(2,0);
+	sortedby.init(button_t::roundbox, sort_text[curiositylist_stats_t::sortby]);
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 14));
+	sorteddir.init(button_t::roundbox, curiositylist_stats_t::sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 	sorteddir.add_listener(this);
 	add_component(&sorteddir);
+	end_table();
 
-	scrolly.set_pos(scr_coord(0,14+D_BUTTON_HEIGHT+2));
-	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_component(&scrolly);
+	fill_list();
 
-	display_list();
-
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_DEFAULT_HEIGHT));
-	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+4*(LINESPACE+1)+14+D_BUTTON_HEIGHT+2+1));
-
+	reset_min_windowsize();
 	set_resizemode(diagonal_resize);
-	resize(scr_coord(0,0));
 }
 
+
+void curiositylist_frame_t::fill_list()
+{
+	scrolly.clear_elements();
+	const weighted_vector_tpl<gebaeude_t*>& world_attractions = welt->get_attractions();
+	attraction_count = world_attractions.get_count();
+
+	FOR(const weighted_vector_tpl<gebaeude_t*>, const geb, world_attractions) {
+		if (geb != NULL &&
+			geb->get_first_tile() == geb &&
+			geb->get_passagier_level() != 0) {
+
+			scrolly.new_component<curiositylist_stats_t>(geb) ;
+		}
+	}
+	scrolly.sort(0);
+	scrolly.set_size( scrolly.get_size());
+}
 
 
 /**
@@ -79,41 +79,25 @@ curiositylist_frame_t::curiositylist_frame_t() :
 bool curiositylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp == &sortedby) {
-		set_sortierung((curiositylist::sort_mode_t)((get_sortierung() + 1) % curiositylist::SORT_MODES));
-		display_list();
+		curiositylist_stats_t::sortby = (curiositylist::sort_mode_t) ((curiositylist_stats_t::sortby + 1) % curiositylist::SORT_MODES);
+		sortedby.set_text(sort_text[curiositylist_stats_t::sortby]);
+		scrolly.sort(0);
 	}
 	else if(komp == &sorteddir) {
-		set_reverse(!get_reverse());
-		display_list();
+		curiositylist_stats_t::sortreverse = !curiositylist_stats_t::sortreverse;
+		sorteddir.set_text( curiositylist_stats_t::sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+		scrolly.sort(0);
 	}
 	return true;
 }
 
 
 
-/**
- * resize window in response to a resize event
- * @author Hj. Malthaner
- * @date   16-Oct-2003
- */
-void curiositylist_frame_t::resize(const scr_coord delta)
+void curiositylist_frame_t::draw(scr_coord pos, scr_size size)
 {
-	gui_frame_t::resize(delta);
-	// window size -titlebar -offset (header)
-	scr_size size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT+14+D_BUTTON_HEIGHT+2+1);
-	scrolly.set_size(size);
-}
+	if(  world()->get_attractions().get_count() != attraction_count  ) {
+		fill_list();
+	}
 
-
-
-/**
-* This function refreshes the station-list
-* @author Markus Weber/Volker Meyer
-*/
-void curiositylist_frame_t::display_list()
-{
-	sortedby.set_text(sort_text[get_sortierung()]);
-	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-	stats.get_unique_attractions(sortby,sortreverse);
-	stats.recalc_size();
+	gui_frame_t::draw(pos,size);
 }

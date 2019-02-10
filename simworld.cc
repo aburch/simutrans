@@ -384,7 +384,7 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 			gr->set_pos( koord3d( k, height) );
 			if(  gr->get_typ() != grund_t::wasser  &&  max_hgt_nocheck(k) <= water_hgt  ) {
 				// below water but ground => convert
-				pl->kartenboden_setzen( new wasser_t(gr->get_pos()) );
+				pl->kartenboden_setzen( new wasser_t(gr->get_pos()), true /* do not calc_image for water tiles */ );
 			}
 			else if(  gr->get_typ() == grund_t::wasser  &&  max_hgt_nocheck(k) > water_hgt  ) {
 				// water above ground => to ground
@@ -4841,7 +4841,7 @@ void karte_t::switch_server( bool start_server, bool port_forwarding )
 		}
 		network_core_shutdown();
 		env_t::easy_server = 0;
-		
+
 		clear_random_mode( INTERACTIVE_RANDOM );
 		step_mode = NORMAL;
 		reset_timer();

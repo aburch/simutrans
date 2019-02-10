@@ -19,99 +19,73 @@
 #include "../dataobj/environment.h"
 #include "ai_option_t.h"
 
-#define L_DIALOG_WIDTH (200)
+
+bool ai_button_test(button_t *button, ai_t* ai, bool (ai_t::*get)() const, void (ai_t::*set)(bool) )
+{
+	button->pressed = (ai->*get)();
+	(ai->*set)( !button->pressed );
+	if(  button->pressed == (ai->*get)()  ) {
+		if(  (ai->*get)()  ) {
+			button->disable();
+			return true;
+		}
+	}
+	else {
+		(ai->*set)( button->pressed );
+		return true;
+	}
+	return false;
+}
+
+
+void toggle_ai_button(button_t *button, ai_t* ai, bool (ai_t::*get)() const, void (ai_t::*set)(bool) )
+{
+	(ai->*set)( !button->pressed );
+	button->pressed = (ai->*get)();
+}
+
 
 ai_option_t::ai_option_t( player_t *player ) :
-	gui_frame_t( translator::translate("Configure AI"), player ),
-	label_cs( "construction speed" )
+	gui_frame_t( translator::translate("Configure AI"), player )
 {
 	this->ai = dynamic_cast<ai_t *>(player);
 
-	scr_coord cursor(D_MARGIN_LEFT,D_MARGIN_TOP);
+	set_table_layout(1,0);
 
-	label_cs.set_pos( cursor );
-	add_component( &label_cs );
-	cursor.y += LINESPACE;
+	new_component<gui_label_t>("construction speed");
 
 	construction_speed.init( ai->get_construction_speed(), 25, 1000000, gui_numberinput_t::POWER2, false );
-	construction_speed.set_pos( cursor );
-	construction_speed.set_size( scr_size( L_DIALOG_WIDTH - D_MARGINS_X, D_EDIT_HEIGHT ) );
 	construction_speed.add_listener( this );
 	add_component( &construction_speed );
-	cursor.y += max(D_EDIT_HEIGHT, LINESPACE) + D_V_SPACE;
 
 	// find out if the mode is available and can be activated
 
-	buttons[0].init( button_t::square_state, "road vehicle", cursor, scr_size( L_DIALOG_WIDTH - D_MARGINS_X, D_CHECKBOX_HEIGHT ) );
-	buttons[0].pressed = ai->has_road_transport();
-	buttons[0].add_listener( this );
-	ai->set_road_transport( !buttons[0].pressed );
-	if(  buttons[0].pressed==ai->has_road_transport()  ) {
-		if(  ai->has_road_transport()  ) {
-			buttons[0].disable();
-			add_component( buttons+0 );
-			cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
-		}
-	}
-	else {
-		ai->set_road_transport( buttons[0].pressed );
+	buttons[0].init( button_t::square_state, "road vehicle");
+	if (ai_button_test(buttons+0, ai, &ai_t::has_road_transport, &ai_t::set_road_transport)) {
+		buttons[0].add_listener( this );
 		add_component( buttons+0 );
-		cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
 	}
 
-	buttons[1].init( button_t::square_state, "rail car", cursor, scr_size( L_DIALOG_WIDTH - D_MARGINS_X, D_CHECKBOX_HEIGHT ) );
-	buttons[1].pressed = ai->has_rail_transport();
-	buttons[1].add_listener( this );
-	ai->set_rail_transport( !buttons[1].pressed );
-	if(  buttons[1].pressed==ai->has_rail_transport()  ) {
-		if(  ai->has_rail_transport()  ) {
-			buttons[1].disable();
-			add_component( buttons+1 );
-			cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
-		}
-	}
-	else {
-		ai->set_rail_transport( buttons[1].pressed );
+	buttons[1].init( button_t::square_state, "rail car");
+	if (ai_button_test(buttons+1, ai, &ai_t::has_rail_transport, &ai_t::set_rail_transport)) {
+		buttons[1].add_listener( this );
 		add_component( buttons+1 );
-		cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
 	}
 
-	buttons[2].init( button_t::square_state, "water vehicle", cursor, scr_size( L_DIALOG_WIDTH - D_MARGINS_X, D_CHECKBOX_HEIGHT ) );
-	buttons[2].pressed = ai->has_ship_transport();
-	buttons[2].add_listener( this );
-	ai->set_ship_transport( !buttons[2].pressed );
-	if(  buttons[2].pressed==ai->has_ship_transport()  ) {
-		if(  ai->has_ship_transport()  ) {
-			buttons[2].disable();
-			add_component( buttons+2 );
-			cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
-		}
-	}
-	else {
-		ai->set_ship_transport( buttons[2].pressed );
+	buttons[2].init( button_t::square_state, "water vehicle");
+	if (ai_button_test(buttons+2, ai, &ai_t::has_ship_transport, &ai_t::set_ship_transport)) {
+		buttons[2].add_listener( this );
 		add_component( buttons+2 );
-		cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
 	}
 
-	buttons[3].init( button_t::square_state, "airplane", cursor, scr_size( L_DIALOG_WIDTH - D_MARGINS_X, D_CHECKBOX_HEIGHT ) );
-	buttons[3].pressed = ai->has_air_transport();
-	buttons[3].add_listener( this );
-	ai->set_air_transport( !buttons[3].pressed );
-	if(  buttons[3].pressed==ai->has_air_transport()  ) {
-		if(  ai->has_air_transport()  ) {
-			buttons[3].disable();
-			add_component( buttons+3 );
-			cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
-		}
-	}
-	else {
-		ai->set_air_transport( buttons[3].pressed );
+	buttons[3].init( button_t::square_state, "airplane");
+	if (ai_button_test(buttons+3, ai, &ai_t::has_air_transport, &ai_t::set_air_transport)) {
+		buttons[3].add_listener( this );
 		add_component( buttons+3 );
-		cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
 	}
 
-	// Remove one D_V_SPACE so bottom margin is exactly D_MARGIN_BOTTOM
-	set_windowsize( scr_size(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM - D_V_SPACE) );
+	reset_min_windowsize();
+	set_windowsize(get_min_windowsize());
 }
 
 
@@ -121,20 +95,16 @@ bool ai_option_t::action_triggered( gui_action_creator_t *komp, value_t v )
 		ai->set_construction_speed( v.i );
 	}
 	else if(  komp==buttons+0  ) {
-		ai->set_road_transport( !buttons[0].pressed );
-		buttons[0].pressed = ai->has_road_transport();
+		toggle_ai_button(buttons+0, ai, &ai_t::has_road_transport, &ai_t::set_road_transport);
 	}
 	else if(  komp==buttons+1  ) {
-		ai->set_rail_transport( !buttons[1].pressed );
-		buttons[1].pressed = ai->has_rail_transport();
+		toggle_ai_button(buttons+1, ai, &ai_t::has_rail_transport, &ai_t::set_rail_transport);
 	}
 	else if(  komp==buttons+2  ) {
-		ai->set_ship_transport( !buttons[2].pressed );
-		buttons[2].pressed = ai->has_ship_transport();
+		toggle_ai_button(buttons+2, ai, &ai_t::has_ship_transport, &ai_t::set_ship_transport);
 	}
 	else if(  komp==buttons+3  ) {
-		ai->set_air_transport( !buttons[3].pressed );
-		buttons[3].pressed = ai->has_air_transport();
+		toggle_ai_button(buttons+3, ai, &ai_t::has_air_transport, &ai_t::set_air_transport);
 	}
 	return true;
 }

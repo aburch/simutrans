@@ -13,92 +13,69 @@
 #include "city_info.h"
 
 #include "../simcity.h"
-#include "../simcolor.h"
 #include "../simevent.h"
-#include "../display/simgraph.h"
-#include "../display/viewport.h"
-#include "../gui/simwin.h"
 #include "../simworld.h"
 
-#include "../descriptor/skin_desc.h"
-#include <algorithm>
-
-#include "../dataobj/translator.h"
-
 #include "../utils/cbuffer_t.h"
-#include "../utils/simstring.h"
 
-
-scr_coord_val citylist_stats_t::h = LINESPACE;
 
 citylist_stats_t::citylist_stats_t(stadt_t *c)
 {
 	city = c;
-	h = max( gui_theme_t::gui_pos_button_size.h, LINESPACE );
-	mouse_over = false;
+	set_table_layout(3,0);
+
+	button_t *b = new_component<button_t>();
+	b->set_typ(button_t::posbutton_automatic);
+	b->set_targetpos(city->get_center());
+
+	add_component(&label);
+	update_label();
+
+	new_component<gui_fill_t>();
 }
 
 
-scr_coord_val citylist_stats_t::draw( scr_coord pos, scr_coord_val width, bool selected, bool )
+void citylist_stats_t::update_label()
 {
-	sint32 bev = city->get_einwohner();
-	sint32 growth = city->get_wachstum();
-
-	cbuffer_t buf;
+	cbuffer_t &buf = label.buf();
 	buf.printf( "%s: ", city->get_name() );
-	buf.append( bev, 0 );
+	buf.append( city->get_einwohner(), 0 );
 	buf.append( " (" );
-	buf.append( growth/10.0, 1 );
+	buf.append( city->get_wachstum()/10.0, 1 );
 	buf.append( ")" );
-	display_proportional_clip_rgb( pos.x+D_H_SPACE*2 + gui_theme_t::gui_pos_button_size.w, pos.y+(h-LINESPACE)/2, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-
-	// goto button
-	bool info_open = win_get_magic( (ptrdiff_t)city );
-	scr_rect pos_xywh( scr_coord(pos.x+D_H_SPACE, pos.y+(h-gui_theme_t::gui_pos_button_size.h)/2), gui_theme_t::gui_pos_button_size );
-	if(  selected  ||  mouse_over  ||  info_open  ) {
-		// still on center?
-		if(  grund_t *gr = world()->lookup_kartenboden( city->get_center() )  ) {
-			selected = world()->get_viewport()->is_on_center( gr->get_pos() );
-		}
-		if(  mouse_over  ) {
-			// still+pressed? (release will be extra event)
-			scr_coord_val mx = get_mouse_x(), my = get_mouse_y();
-			mouse_over = mx>=pos.x  &&  mx<pos.x+width  &&  my>=pos.y  &&  my<pos.y+h;
-			selected |= mouse_over;
-		}
-	}
-	display_img_aligned( gui_theme_t::pos_button_img[ selected ], pos_xywh, ALIGN_CENTER_V | ALIGN_CENTER_H, true );
-
-	if(  info_open  ) {
-		display_blend_wh_rgb( pos.x, pos.y, width, h, color_idx_to_rgb(COL_BLACK), 25 );
-	}
-	return true;
+	label.update();
 }
 
+
+void citylist_stats_t::set_size(scr_size size)
+{
+	gui_aligned_container_t::set_size(size);
+	label.set_size(scr_size(get_size().w - label.get_pos().x, label.get_size().h));
+}
+
+
+void citylist_stats_t::draw( scr_coord pos)
+{
+	update_label();
+	gui_aligned_container_t::draw(pos);
+}
+
+
+bool citylist_stats_t::is_valid() const
+{
+	return world()->get_cities().is_contained(city);
+}
 
 
 bool citylist_stats_t::infowin_event(const event_t *ev)
 {
-	mouse_over = false;
-	if(  ev->ev_class!=EVENT_KEYBOARD  ) {
-		// find out, if in pos box
-		scr_rect pos_xywh( scr_coord(D_H_SPACE, (h-gui_theme_t::gui_pos_button_size.h)/2), gui_theme_t::gui_pos_button_size );
-		bool pos_box_hit = pos_xywh.contains( scr_coord(ev->mx,ev->my) );
-		if(  (IS_LEFTRELEASE(ev)  &&  pos_box_hit)  ||  IS_RIGHTRELEASE(ev)  ) {
-			if(  grund_t *gr = world()->lookup_kartenboden( city->get_center() )  ) {
-				world()->get_viewport()->change_world_position( gr->get_pos() );
-			}
-		}
-		else if(  IS_LEFTRELEASE(ev)  ) {
-			city->open_info_window();
-		}
-		else {
-			mouse_over = (ev->button_state &1)  &&  pos_box_hit;
-		}
-	}
+	bool swallowed = gui_aligned_container_t::infowin_event(ev);
 
-	// never notify parent
-	return false;
+	if(  !swallowed  &&  IS_LEFTRELEASE(ev)  ) {
+		city->open_info_window();
+		swallowed = true;
+	}
+	return swallowed;
 }
 
 
@@ -106,18 +83,18 @@ bool citylist_stats_t::infowin_event(const event_t *ev)
 citylist_stats_t::sort_mode_t citylist_stats_t::sort_mode = citylist_stats_t::SORT_BY_NAME;
 
 
-bool citylist_stats_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scrolled_list_t::scrollitem_t *bb )
+bool citylist_stats_t::compare(const gui_component_t *aa, const gui_component_t *bb)
 {
 	bool reverse = citylist_stats_t::sort_mode > citylist_stats_t::SORT_MODES;
 	int sort_mode = citylist_stats_t::sort_mode & 0x1F;
 
-	citylist_stats_t* a = dynamic_cast<citylist_stats_t*>(aa);
-	citylist_stats_t* b = dynamic_cast<citylist_stats_t*>(bb);
+	const citylist_stats_t* a = dynamic_cast<const citylist_stats_t*>(aa);
+	const citylist_stats_t* b = dynamic_cast<const citylist_stats_t*>(bb);
 	// good luck with mixed lists
 	assert(a != NULL  &&  b != NULL);
 
 	if(  reverse  ) {
-		citylist_stats_t *temp = a;
+		const citylist_stats_t *temp = a;
 		a = b;
 		b = temp;
 	}
@@ -158,15 +135,4 @@ bool citylist_stats_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scrol
 	}
 	// otherwise: sort by name
 	return strcmp(atxt, btxt)<0;
-}
-
-
-bool citylist_stats_t::sort( vector_tpl<scrollitem_t *>&v, int offset, void * ) const
-{
-	vector_tpl<scrollitem_t *>::iterator start = v.begin();
-	while(  offset-->0  ) {
-		++start;
-	}
-	std::sort( start, v.end(), citylist_stats_t::compare );
-	return true;
 }
