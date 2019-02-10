@@ -5,7 +5,6 @@
 
 #BACKEND = allegro
 #BACKEND = gdi
-#BACKEND = opengl
 #BACKEND = sdl
 #BACKEND = sdl2
 #BACKEND = mixer_sdl

@@ -15,31 +15,20 @@
 #define good_stats_t_h
 
 #include "../simtypes.h"
-#include "components/gui_komponente.h"
+#include "components/gui_aligned_container.h"
 
+template<class T> class vector_tpl;
+class goods_desc_t;
 
-
-class goods_stats_t : public gui_world_component_t
+class goods_stats_t : public gui_aligned_container_t
 {
-private:
-	uint16 *goodslist;
-	int bonus;
-
-	// The number of goods to be displayed. May be less than maximum number of goods possible,
-	// if we are filtering to only the goods being produced by factories in the current game.
-	int listed_goods;
+	static karte_ptr_t welt;
 
 public:
-	goods_stats_t();
+	goods_stats_t() {}
 
 	// update list and resize
-	void update_goodslist( uint16 *g, int bonus, int listcount );
-
-	/**
-	* Draw the component
-	* @author Hj. Malthaner
-	*/
-	void draw(scr_coord offset);
+	void update_goodslist(vector_tpl<const goods_desc_t*>, int bonus);
 };
 
 #endif

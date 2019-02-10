@@ -2951,60 +2951,8 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 void fabrik_t::info_conn(cbuffer_t& buf) const
 {
 	buf.clear();
-	bool has_previous = false;
-	if (!lieferziele.empty()) {
-		has_previous = true;
-		buf.append(translator::translate("Abnehmer"));
-
-		FOR(vector_tpl<koord>, const& lieferziel, lieferziele) {
-			fabrik_t *fab = get_fab( lieferziel );
-			if(fab) {
-				if(  is_active_lieferziel(lieferziel)  ) {
-					buf.printf("\n      %s (%d,%d)", fab->get_name(), lieferziel.x, lieferziel.y);
-				}
-				else {
-					buf.printf("\n   %s (%d,%d)", fab->get_name(), lieferziel.x, lieferziel.y);
-				}
-			}
-		}
-	}
-
-	if (!suppliers.empty()) {
-		if(  has_previous  ) {
-			buf.append("\n\n");
-		}
-		has_previous = true;
-		buf.append(translator::translate("Suppliers"));
-
-		FOR(vector_tpl<koord>, const& supplier, suppliers) {
-			if(  fabrik_t *src = get_fab( supplier )  ) {
-				if(  src->is_active_lieferziel(get_pos().get_2d())  ) {
-					buf.printf("\n      %s (%d,%d)", src->get_name(), supplier.x, supplier.y);
-				}
-				else {
-					buf.printf("\n   %s (%d,%d)", src->get_name(), supplier.x, supplier.y);
-				}
-			}
-		}
-	}
-
-	if (!target_cities.empty()) {
-		if(  has_previous  ) {
-			buf.append("\n\n");
-		}
-		has_previous = true;
-		buf.append( is_end_consumer() ? translator::translate("Customers live in:") : translator::translate("Arbeiter aus:") );
-
-		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
-			buf.append("\n");
-		}
-	}
-
 	const planquadrat_t *plan = welt->access(get_pos().get_2d());
 	if(plan  &&  plan->get_haltlist_count()>0) {
-		if(  has_previous  ) {
-			buf.append("\n\n");
-		}
 		buf.append(translator::translate("Connected stops"));
 
 		for(  uint i=0;  i<plan->get_haltlist_count();  i++  ) {

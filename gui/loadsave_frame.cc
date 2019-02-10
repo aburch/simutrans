@@ -113,8 +113,8 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false
 
 	if(do_load) {
 		set_name(translator::translate("Laden"));
-		easy_server.init( button_t::square_automatic, "Start this as a server", scr_coord(D_MARGIN_LEFT,0) );
-		add_component(&easy_server);
+		easy_server.init( button_t::square_automatic, "Start this as a server");
+		bottom_left_frame.add_component(&easy_server);
 	}
 	else {
 		set_filename(welt->get_settings().get_filename());
@@ -155,16 +155,6 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false
 			dr_rename( SAVE_PATH_X "_load_cached.xml", SAVE_PATH_X "_cached.xml" );
 		}
 	}
-}
-
-
-/**
- * need to shift the start server button to the lower left
- */
-void loadsave_frame_t::set_windowsize(scr_size size)
-{
-	savegame_frame_t::set_windowsize(size);
-	easy_server.align_to(&savebutton, ALIGN_CENTER_V, scr_coord( 0, 0 ) );
 }
 
 

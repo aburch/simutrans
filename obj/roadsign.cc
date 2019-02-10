@@ -191,10 +191,7 @@ void roadsign_t::info(cbuffer_t & buf) const
 {
 	obj_t::info( buf );
 
-	if(  desc->is_private_way()  ) {
-		buf.append( "\n\n\n\n\n\n\n\n\n\n\n\n\n\n" );
-	}
-	else {
+	if(  !desc->is_private_way()  ) {
 		buf.append(translator::translate("Roadsign"));
 		buf.append("\n");
 		if(desc->is_single_way()) {
@@ -206,8 +203,6 @@ void roadsign_t::info(cbuffer_t & buf) const
 		buf.printf("%s%u\n", translator::translate("\ndirection:"), dir);
 		if(  automatic  ) {
 			buf.append(translator::translate("\nSet phases:"));
-			buf.append("\n");
-			buf.append("\n");
 		}
 	}
 }

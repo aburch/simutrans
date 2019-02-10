@@ -49,8 +49,6 @@ protected:
 	// sort with respect to info, which is date
 	virtual bool compare_items ( const dir_entry_t & entry, const char *info, const char *);
 
-	virtual void set_windowsize(scr_size size);
-
 public:
 	/**
 	* Set the window associated helptext

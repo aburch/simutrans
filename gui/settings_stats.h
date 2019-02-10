@@ -30,82 +30,58 @@ class settings_t;
 
 // call this before any init is done ...
 #define INIT_INIT \
-	width = 16;\
-	height = 0;\
-	sint16 ypos = 0;\
-	remove_all();\
-	free_all();\
-	seperator = 0;\
 	new_world = (win_get_magic( magic_welt_gui_t )!=NULL);\
+	set_table_layout(1,0); \
+	add_table(2,0);
+
+// at the end of init
+#define INIT_END \
+	end_table();\
+	set_size( get_min_size());
 
 
 #define INIT_NUM(t,a,b,c,d,e) \
 {\
-	width = max(width, proportional_string_width(t)+66);\
-	gui_numberinput_t *ni = new gui_numberinput_t();\
+	gui_numberinput_t *ni = new_component<gui_numberinput_t>();\
 	ni->init( (sint32)(a), (b), (c), (d), (e) );\
-	ni->set_pos( scr_coord( 0, ypos ) );\
-	ni->set_size( scr_size( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), D_EDIT_HEIGHT ) );\
 	numinp.append( ni );\
-	add_component( ni );\
-	gui_label_t *lb = new gui_label_t();\
+	gui_label_t *lb = new_component<gui_label_t>();\
 	lb->set_text_pointer(t);\
-	lb->align_to(ni, ALIGN_CENTER_V + ALIGN_EXTERIOR_H + ALIGN_LEFT, scr_coord(D_H_SPACE,0) );\
-	label.append( lb );\
-	add_component( lb );\
-	ypos += D_EDIT_HEIGHT;\
 }\
 
 #define INIT_NUM_NEW(t,a,b,c,d,e) if(  new_world  ) INIT_NUM( (t), (a), (b), (c), (d) , (e) )
 
 #define INIT_COST(t,a,b,c,d,e) \
 {\
-	width = max(width, proportional_string_width(t)+66);\
-	gui_numberinput_t *ni = new gui_numberinput_t();\
+	gui_numberinput_t *ni = new_component<gui_numberinput_t>();\
 	ni->init( (sint32)( (a)/(sint64)100 ), (b), (c), (d), (e) );\
-	ni->set_pos( scr_coord( 0, ypos ) );\
-	ni->set_size( scr_size( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), D_EDIT_HEIGHT ) );\
 	numinp.append( ni );\
-	add_component( ni );\
-	gui_label_t *lb = new gui_label_t();\
+	gui_label_t *lb = new_component<gui_label_t>();\
 	lb->set_text_pointer(t);\
-	lb->align_to(ni, ALIGN_CENTER_V + ALIGN_EXTERIOR_H + ALIGN_LEFT, scr_coord(D_H_SPACE,0) );\
-	label.append( lb );\
-	add_component( lb );\
-	ypos += D_EDIT_HEIGHT;\
 }\
 
 #define INIT_COST_NEW(t,a,b,c,d,e) if(  new_world  ) INIT_COST( (t), (a), (b), (c), (d) , (e) )
 
 #define INIT_LB(t) \
 {\
-	width = max(width, proportional_string_width(t)+4);\
-	gui_label_t *lb = new gui_label_t();\
+	gui_label_t *lb = new_component<gui_label_t>();\
 	lb->set_text_pointer(t);\
-	lb->set_pos( scr_coord( 0, ypos ) );\
-	label.append( lb );\
-	add_component( lb );\
-	ypos += LINESPACE;\
 }\
 
 #define INIT_LB_NEW(t) if(  new_world  ) INIT_LB( (t) )
 
 #define INIT_BOOL(t,a) \
 {\
-	width = max(width, proportional_string_width(t)+20);\
-	button_t *bt = new button_t();\
-	bt->init( button_t::square_automatic, (t), scr_coord( 0, ypos ) );\
-	bt->pressed = (a);\
+	button_t *bt = new_component_span<button_t>(2);\
+	bt->init(button_t::square_automatic, (t));\
 	button.append( bt );\
-	add_component( bt );\
-	ypos += D_CHECKBOX_HEIGHT;\
+	bt->pressed = (a);\
 }\
 
 #define INIT_BOOL_NEW(t,a) if(  new_world  ) INIT_BOOL( (t), (a) )
 
 #define SEPERATOR \
-	ypos += D_V_SPACE;\
-	seperator += 1;\
+	new_component_span<gui_divider_t>(2);
 
 
 // call this before and READ_...
@@ -125,17 +101,6 @@ class settings_t;
 #define READ_BOOL_VALUE(t)     (t) = (*booliter++)->pressed
 #define READ_BOOL_VALUE_NEW(t) if(new_world) { READ_BOOL_VALUE(t); }
 
-/*
-	uint32 read_numinp = 0;\
-	uint32 read_button = 0;\
-
-#define READ_NUM(t) (t)( numinp.at(read_numinp++)->get_value() )
-#define READ_COST(t) (t)( (sint64)(numinp.at(read_numinp++)->get_value())*100 )
-#define READ_NUM_VALUE(t) (t) = numinp.at(read_numinp++)->get_value()
-#define READ_COST_VALUE(t) (t) = (sint64)(numinp.at(read_numinp++)->get_value())*100
-#define READ_BOOL(t) (t)( button.at(read_button++)->pressed )
-#define READ_BOOL_VALUE(t) (t) = button.at(read_button++)->pressed
-*/
 
 
 /**
@@ -145,32 +110,22 @@ class settings_t;
 class settings_stats_t
 {
 protected:
-	sint16 width, height, seperator;
 	bool new_world;
 	// since the copy constructor will no copy the right action listener => pointer
-	slist_tpl<gui_label_t *> label;
 	slist_tpl<gui_numberinput_t *> numinp;
 	slist_tpl<button_t *> button;
 
-	void free_all();
-
 public:
-	settings_stats_t() { width = 16; }
-	~settings_stats_t() { free_all(); }
+	settings_stats_t() {}
 
 	void init(settings_t const*);
 	void read(settings_t const*);
-
-	scr_size get_size() const {
-		//return scr_size(width,(button.get_count()*D_BUTTON_HEIGHT+label.get_count())*LINESPACE+seperator*D_V_SPACE+6);
-		return scr_size(width,height);
-	}
 };
 
 
 
 // the only task left are the respective init/reading routines
-class settings_general_stats_t : protected settings_stats_t, public gui_container_t, public action_listener_t
+class settings_general_stats_t : protected settings_stats_t, public gui_aligned_container_t, public action_listener_t
 {
 	gui_combobox_t savegame;
 public:
@@ -180,40 +135,39 @@ public:
 	void read(settings_t*);
 };
 
-class settings_display_stats_t : protected settings_stats_t, public gui_container_t
+class settings_display_stats_t : protected settings_stats_t, public gui_aligned_container_t
 {
 public:
 	void init(settings_t const*);
 	void read(settings_t*);
 };
 
-class settings_routing_stats_t : protected settings_stats_t, public gui_container_t
+class settings_routing_stats_t : protected settings_stats_t, public gui_aligned_container_t
 {
 public:
 	void init(settings_t const*);
 	void read(settings_t*);
 };
 
-class settings_economy_stats_t : protected settings_stats_t, public gui_container_t
+class settings_economy_stats_t : protected settings_stats_t, public gui_aligned_container_t
 {
 public:
 	void init(settings_t const*);
 	void read(settings_t*);
 };
 
-class settings_costs_stats_t : protected settings_stats_t, public gui_container_t
+class settings_costs_stats_t : protected settings_stats_t, public gui_aligned_container_t
 {
 public:
 	void init(settings_t const*);
 	void read(settings_t*);
 };
 
-class settings_climates_stats_t : protected settings_stats_t, public gui_container_t, public action_listener_t
+class settings_climates_stats_t : protected settings_stats_t, public gui_aligned_container_t, public action_listener_t
 {
 private:
-	cbuffer_t buf;
 	settings_t* local_sets;
-	gui_label_t *summer;
+	gui_label_buf_t *summer;
 public:
 	void init(settings_t*);
 	void read(settings_t*);

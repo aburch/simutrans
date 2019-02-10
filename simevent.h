@@ -53,6 +53,7 @@
 #define SYSTEM_QUIT                   1
 #define SYSTEM_RESIZE                 2
 #define SYSTEM_RELOAD_WINDOWS         3
+#define SYSTEM_THEME_CHANGED          4
 
 /* normal keys have range 0-255, special key follow above 255 */
 /* other would be better for true unicode support :( */

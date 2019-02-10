@@ -13,7 +13,7 @@
 
 #include "gui_frame.h"
 #include "../tpl/vector_tpl.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 #include "../dataobj/environment.h"
 
 class tool_t;
@@ -79,9 +79,9 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *get_help_filename() const {return help_file;}
+	const char *get_help_filename() const OVERRIDE {return help_file;}
 
-	FLAGGED_PIXVAL get_titlecolor() const { return env_t::default_window_title_color; }
+	FLAGGED_PIXVAL get_titlecolor() const OVERRIDE { return env_t::default_window_title_color; }
 
 	bool is_hit(int x, int y) OVERRIDE;
 
@@ -90,7 +90,7 @@ public:
 	 * @return true if such a button is needed
 	 * @author Volker Meyer
 	 */
-	bool has_next() const {return has_prev_next;}
+	bool has_next() const OVERRIDE {return has_prev_next;}
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -100,10 +100,10 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	// since no information are needed to be saved to restore this, returning magic is enough
-	virtual uint32 get_rdwr_id() { return magic_toolbar+toolbar_id; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_toolbar+toolbar_id; }
 
 
 	bool empty(player_t *player) const;

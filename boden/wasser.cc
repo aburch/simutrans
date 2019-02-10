@@ -17,7 +17,11 @@
 int wasser_t::stage = 0;
 bool wasser_t::change_stage = false;
 
-
+wasser_t::wasser_t(koord3d pos): grund_t(pos), ribi(ribi_t::none), canal_ribi(ribi_t::none)
+{
+	set_hoehe( welt->get_water_hgt( pos.get_2d() ) );
+	slope = slope_t::flat;
+}
 
 // for animated waves
 void wasser_t::prepare_for_refresh()
@@ -47,9 +51,7 @@ void wasser_t::calc_image_internal(const bool calc_only_snowline_change)
 {
 	if(  !calc_only_snowline_change  ) {
 		koord pos2d( get_pos().get_2d() );
-		sint16 height = welt->get_water_hgt( pos2d );
-		set_hoehe( height );
-		slope = slope_t::flat;
+		sint16 height = welt->get_water_hgt( pos2d );\
 
 		sint16 zpos = min( welt->lookup_hgt( pos2d ), height ); // otherwise slope will fail ...
 

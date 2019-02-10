@@ -22,7 +22,6 @@ class ai_option_t : public gui_frame_t, private action_listener_t
 {
 private:
 	button_t buttons[4];
-	gui_label_t label_cs;
 	gui_numberinput_t construction_speed;
 	ai_t *ai;
 
@@ -34,7 +33,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const {return "players.txt";}
+	const char * get_help_filename() const OVERRIDE {return "players.txt";}
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

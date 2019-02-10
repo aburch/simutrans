@@ -18,7 +18,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 #include "../display/simimg.h"
 #include "../simmesg.h"
 #include "../simskin.h"
@@ -51,6 +51,8 @@
 #include "../utils/simstring.h"
 #include "../utils/simrandom.h"
 
+#include "components/gui_divider.h"
+
 #include "sprachen.h"
 #include "climates.h"
 #include "settings_frame.h"
@@ -62,23 +64,12 @@
 
 // Local adjustment
 #define L_PREVIEW_SIZE_MIN (16)
-#define L_DIALOG_WIDTH     (260)
-#define L_EDIT_WIDTH       (edit_Width)
-#define L_COLUMN1_X (L_DIALOG_WIDTH - L_EDIT_WIDTH - D_H_SPACE - MAP_PREVIEW_SIZE_X - D_MARGIN_RIGHT)
-#define L_COLUMN2_X (L_DIALOG_WIDTH - L_EDIT_WIDTH - D_MARGIN_RIGHT)
-#define L_BUTTON_EXTRA_WIDE ( (L_DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT - D_V_SPACE) / 2 )
-#define L_BUTTON_COLUMN_2   (L_DIALOG_WIDTH - L_BUTTON_EXTRA_WIDE - D_MARGIN_RIGHT)
 
 
 welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	gui_frame_t( translator::translate("Neue Welt" ) ),
 	map(0,0)
 {
-	// Coordinates are relative to parent (TITLEHEIGHT already subtracted)
-	scr_coord cursor(D_MARGIN_LEFT,D_MARGIN_TOP);
-	scr_coord_val edit_Width = display_get_char_max_width("0123456789")*5 + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH;
-	scr_coord_val label_width = L_COLUMN1_X - D_MARGIN_LEFT - D_H_SPACE;
-
 	sets = sets_par;
 	sets->beginner_mode = env_t::default_settings.get_beginner_mode();
 
@@ -113,228 +104,175 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 
 	//******************************************************************
 	// Component creation
-	// Map preview
-	map_preview.init(scr_coord(L_COLUMN1_X+edit_Width+D_H_SPACE, cursor.y));
-	add_component( &map_preview );
+	set_table_layout(1,0);
+	// top part: preview, maps size
+	new_component<gui_label_t>("1WORLD_CHOOSE");
+	new_component<gui_divider_t>();
+	add_table(3,1);
+	{
+		// input fields
+		add_table(2,3);
+		{
+			new_component<gui_label_t>("2WORLD_CHOOSE");
+			inp_map_number.init( abs(sets->get_map_number()), 0, 0x7FFFFFFF, 1, true );
+			inp_map_number.add_listener( this );
+			add_component( &inp_map_number );
 
-	// World setting label
-	world_title_label.init("1WORLD_CHOOSE",cursor);
-	world_title_label.set_width(L_COLUMN1_X+edit_Width - cursor.x);
-	add_component( &world_title_label );
-	cursor.y += LINESPACE; // label
+			// Map size label
+			size_label.init();
+			size_label.buf().printf(translator::translate("Size (%d MB):"), 9999);
+			size_label.update();
+			add_component( &size_label );
 
-	// divider 1
-	divider_1.init(cursor,L_DIALOG_WIDTH - D_MARGIN_LEFT -  D_H_SPACE - MAP_PREVIEW_SIZE_X - D_MARGIN_RIGHT);
-	add_component( &divider_1 );
-	cursor.y += D_DIVIDER_HEIGHT;
+			// Map X size edit
+			inp_x_size.init( sets->get_size_x(), 8, 32766, sets->get_size_x()>=512 ? 128 : 64, false );
+			inp_x_size.add_listener(this);
+			add_component( &inp_x_size );
 
-	// Map number edit
-	inp_map_number.init( abs(sets->get_map_number()), 0, 0x7FFFFFFF, 1, true );
-	inp_map_number.set_pos(scr_coord(L_COLUMN1_X, cursor.y));
-	inp_map_number.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
-	inp_map_number.add_listener( this );
-	add_component( &inp_map_number );
+			new_component<gui_empty_t>(&size_label);
 
-	// Map number label
-	map_number_label.init("2WORLD_CHOOSE",cursor);
-	map_number_label.set_width( label_width );
-	map_number_label.align_to(&inp_map_number,ALIGN_CENTER_V);
-	add_component( &map_number_label );
-	cursor.y += D_EDIT_HEIGHT;
+			// Map size Y edit
+			inp_y_size.init( sets->get_size_y(), 8, 32766, sets->get_size_y()>=512 ? 128 : 64, false );
+			inp_y_size.add_listener(this);
+			add_component( &inp_y_size );
+		}
+		end_table();
 
-	// Map size label
-	size_label.init("Size (%d MB):",cursor);
-	size_label.set_width( label_width );
-	add_component( &size_label );
-	cursor.y += LINESPACE;
+		new_component<gui_fill_t>();
+		// Map preview (will be initialized in update_preview
+		add_component( &map_preview );
+	}
+	end_table();
 
-	// Map X size edit
-	inp_x_size.init( sets->get_size_x(), 8, 32766, sets->get_size_x()>=512 ? 128 : 64, false );
-	inp_x_size.set_pos( scr_coord(L_COLUMN1_X,cursor.y) );
-	inp_x_size.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
-	inp_x_size.add_listener(this);
-	add_component( &inp_x_size );
-	cursor.y += D_EDIT_HEIGHT;
+	// two buttons
+	add_table(2,0)->set_force_equal_columns(true);
+	{
+		// Random map button
+		random_map.init(button_t::roundbox | button_t::flexible, "Random map");
+		random_map.set_tooltip("chooses a random map");
+		random_map.add_listener( this );
+		add_component( &random_map );
 
-	// Map size Y edit
-	inp_y_size.init( sets->get_size_y(), 8, 32766, sets->get_size_y()>=512 ? 128 : 64, false );
-	inp_y_size.set_pos(scr_coord(L_COLUMN1_X,cursor.y) );
-	inp_y_size.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
-	inp_y_size.add_listener(this);
-	add_component( &inp_y_size );
-	cursor.y += D_EDIT_HEIGHT;
-	cursor.y += D_V_SPACE;
+		// Load height map button
+		load_map.init(button_t::roundbox | button_t::flexible, "Lade Relief");
+		load_map.set_tooltip("load height data from file");
+		load_map.add_listener( this );
+		add_component( &load_map );
+	}
+	end_table();
 
-	// Random map button
-	random_map.init(button_t::roundbox,"Random map",cursor,scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
-	random_map.set_tooltip("chooses a random map");
-	random_map.add_listener( this );
-	add_component( &random_map );
+	// specify map parameters
+	add_table(2,0);
+	{
+		// Number of towns
+		new_component<gui_label_t>("5WORLD_CHOOSE");
+		inp_number_of_towns.add_listener(this);
+		inp_number_of_towns.init(abs(sets->get_city_count()), 0, 999);
+		add_component( &inp_number_of_towns );
 
-	// Load height map button
-	load_map.init(button_t::roundbox,"Lade Relief",scr_coord(L_BUTTON_COLUMN_2, cursor.y),scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
-	load_map.set_tooltip("load height data from file");
-	load_map.add_listener( this );
-	add_component( &load_map );
-	cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
+		// Town size
+		new_component<gui_label_t>("Median Citizen per town");
+		inp_town_size.add_listener(this);
+		inp_town_size.set_limits(0,999999);
+		inp_town_size.set_increment_mode(50);
+		inp_town_size.set_value( sets->get_mean_citizen_count() );
+		add_component( &inp_town_size );
 
-	label_width = L_COLUMN2_X - D_MARGIN_LEFT - D_H_SPACE;
+		// Intercity road length
+		new_component<gui_label_t>("Intercity road len:");
+		inp_intercity_road_len.add_listener(this);
+		inp_intercity_road_len.set_limits(0,9999);
+		inp_intercity_road_len.set_value( env_t::intercity_road_length );
+		inp_intercity_road_len.set_increment_mode( env_t::intercity_road_length>=1000 ? 100 : 20 );
+		add_component( &inp_intercity_road_len );
 
-	// Number of towns edit
-	inp_number_of_towns.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
-	inp_number_of_towns.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
-	inp_number_of_towns.add_listener(this);
-	inp_number_of_towns.set_limits(0,999);
-	inp_number_of_towns.set_value(abs(sets->get_city_count()) );
-	add_component( &inp_number_of_towns );
+		// Factories
+		new_component<gui_label_t>("No. of Factories");
+		inp_other_industries.add_listener(this);
+		inp_other_industries.set_limits(0,999);
+		inp_other_industries.set_value(abs(sets->get_factory_count()) );
+		add_component( &inp_other_industries );
 
-	// Number of towns label
-	cities_label.init("5WORLD_CHOOSE",cursor);
-	cities_label.set_width( label_width );
-	cities_label.align_to(&inp_number_of_towns,ALIGN_CENTER_V);
-	add_component( &cities_label );
-	cursor.y += D_EDIT_HEIGHT;
+		// Tourist attr.
+		new_component<gui_label_t>("Tourist attractions");
+		inp_tourist_attractions.add_listener(this);
+		inp_tourist_attractions.set_limits(0,999);
+		inp_tourist_attractions.set_value(abs(sets->get_tourist_attractions()) );
+		add_component( &inp_tourist_attractions );
 
-	// Town size edit
-	inp_town_size.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
-	inp_town_size.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
-	inp_town_size.add_listener(this);
-	inp_town_size.set_limits(0,999999);
-	inp_town_size.set_increment_mode(50);
-	inp_town_size.set_value( sets->get_mean_citizen_count() );
-	add_component( &inp_town_size );
+		// Use timeline checkbox
+		use_intro_dates.init(button_t::square_state, "Use timeline start year");
+		use_intro_dates.pressed = sets->get_use_timeline()&1;
+		use_intro_dates.add_listener( this );
+		add_component( &use_intro_dates );
 
-	// Town size label
-	median_label.init("Median Citizen per town",cursor);
-	median_label.set_width( label_width );
-	median_label.align_to(&inp_town_size,ALIGN_CENTER_V);
-	add_component( &median_label );
-	cursor.y += D_EDIT_HEIGHT;
+		// Timeline year edit
+		inp_intro_date.add_listener(this);
+		inp_intro_date.set_limits(game_start,game_ends);
+		inp_intro_date.set_increment_mode(10);
+		inp_intro_date.set_value(abs(sets->get_starting_year()) );
+		add_component( &inp_intro_date );
 
-	// Intercity road length edit
-	inp_intercity_road_len.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
-	inp_intercity_road_len.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
-	inp_intercity_road_len.add_listener(this);
-	inp_intercity_road_len.set_limits(0,9999);
-	inp_intercity_road_len.set_value( env_t::intercity_road_length );
-	inp_intercity_road_len.set_increment_mode( env_t::intercity_road_length>=1000 ? 100 : 20 );
-	add_component( &inp_intercity_road_len );
 
-	// Intercity road length label
-	intercity_label.init("Intercity road len:",cursor);
-	intercity_label.set_width( label_width );
-	intercity_label.align_to(&inp_intercity_road_len,ALIGN_CENTER_V);
-	add_component( &intercity_label );
-	cursor.y += D_EDIT_HEIGHT;
+		// Use beginner mode checkbox
+		use_beginner_mode.init(button_t::square_state, "Use beginner mode");
+		use_beginner_mode.set_tooltip("Higher transport fees, crossconnect all factories");
+		use_beginner_mode.pressed = sets->get_beginner_mode();
+		use_beginner_mode.add_listener( this );
+		add_component( &use_beginner_mode );
+	}
+	end_table();
 
-	// Factories edit
-	inp_other_industries.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
-	inp_other_industries.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
-	inp_other_industries.add_listener(this);
-	inp_other_industries.set_limits(0,999);
-	inp_other_industries.set_value(abs(sets->get_factory_count()) );
-	add_component( &inp_other_industries );
+	new_component<gui_divider_t>();
 
-	// Factories label
-	factories_label.init("No. of Factories",cursor);
-	factories_label.set_width( label_width );
-	factories_label.align_to(&inp_other_industries,ALIGN_CENTER_V);
-	add_component( &factories_label );
-	cursor.y += D_EDIT_HEIGHT;
+	add_table(2,1)->set_force_equal_columns(true);
+	{
+		// Map settings button
+		open_setting_gui.init(button_t::roundbox | button_t::flexible, "Setting");
+		open_setting_gui.pressed = win_get_magic( magic_settings_frame_t );
+		open_setting_gui.add_listener( this );
+		add_component( &open_setting_gui );
 
-	// Tourist attr. edit
-	inp_tourist_attractions.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
-	inp_tourist_attractions.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
-	inp_tourist_attractions.add_listener(this);
-	inp_tourist_attractions.set_limits(0,999);
-	inp_tourist_attractions.set_value(abs(sets->get_tourist_attractions()) );
-	add_component( &inp_tourist_attractions );
+		// Landscape settings button
+		open_climate_gui.init(button_t::roundbox | button_t::flexible,"Climate Control");
+		open_climate_gui.pressed = win_get_magic( magic_climate );
+		open_climate_gui.add_listener( this );
+		add_component( &open_climate_gui );
+	}
+	end_table();
 
-	// Tourist attr. label
-	tourist_label.init("Tourist attractions",cursor);
-	tourist_label.set_width( label_width );
-	tourist_label.align_to(&inp_tourist_attractions,ALIGN_CENTER_V);
-	add_component( &tourist_label );
-	cursor.y += D_EDIT_HEIGHT;
-	cursor.y += D_V_SPACE;
+	new_component<gui_divider_t>();
 
-	// Timeline year edit
-	inp_intro_date.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
-	inp_intro_date.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
-	inp_intro_date.add_listener(this);
-	inp_intro_date.set_limits(game_start,game_ends);
-	inp_intro_date.set_increment_mode(10);
-	inp_intro_date.set_value(abs(sets->get_starting_year()) );
-	add_component( &inp_intro_date );
+	add_table(2,2)->set_force_equal_columns(true);
+	{
+		// load game
+		load_game.init(button_t::roundbox | button_t::flexible, "Load game");
+		load_game.add_listener( this );
+		add_component( &load_game );
 
-	// Use timeline checkbox
-	use_intro_dates.init(button_t::square_state,"Use timeline start year", cursor);
-	use_intro_dates.set_width( label_width );
-	use_intro_dates.align_to(&inp_intro_date,ALIGN_CENTER_V);
-	use_intro_dates.pressed = sets->get_use_timeline()&1;
-	use_intro_dates.add_listener( this );
-	add_component( &use_intro_dates );
-	cursor.y += D_EDIT_HEIGHT;
+		// load scenario
+		load_scenario.init(button_t::roundbox | button_t::flexible,"Load scenario");
+		load_scenario.add_listener( this );
+		add_component( &load_scenario );
 
-	// Use beginner mode checkbox
-	use_beginner_mode.init(button_t::square_state, "Use beginner mode", cursor);
-	use_beginner_mode.set_width( label_width );
-	use_beginner_mode.set_tooltip("Higher transport fees, crossconnect all factories");
-	use_beginner_mode.pressed = sets->get_beginner_mode();
-	use_beginner_mode.add_listener( this );
-	add_component( &use_beginner_mode );
-	cursor.y += D_CHECKBOX_HEIGHT;
+		// start game
+		start_game.init(button_t::roundbox | button_t::flexible, "Starte Spiel");
+		start_game.add_listener( this );
+		add_component( &start_game );
 
-	// divider 2
-	divider_2.init(cursor,L_DIALOG_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT);
-	add_component( &divider_2 );
-	cursor.y += D_DIVIDER_HEIGHT;
-
-	// Map settings button
-	open_setting_gui.init(button_t::roundbox, "Setting", cursor, scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
-	open_setting_gui.pressed = win_get_magic( magic_settings_frame_t );
-	open_setting_gui.add_listener( this );
-	add_component( &open_setting_gui );
-
-	// Landscape settings button
-	open_climate_gui.init(button_t::roundbox,"Climate Control", scr_coord(L_BUTTON_COLUMN_2,cursor.y), scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
-	open_climate_gui.pressed = win_get_magic( magic_climate );
-	open_climate_gui.add_listener( this );
-	add_component( &open_climate_gui );
-	cursor.y += D_BUTTON_HEIGHT;
-
-	// divider 3
-	divider_3.init(cursor,L_DIALOG_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT);
-	add_component( &divider_3 );
-	cursor.y += D_DIVIDER_HEIGHT;
-
-	// load game
-	load_game.init(button_t::roundbox, "Load game", cursor, scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
-	load_game.add_listener( this );
-	add_component( &load_game );
-
-	// load scenario
-	load_scenario.init(button_t::roundbox,"Load scenario", scr_coord(L_BUTTON_COLUMN_2,cursor.y), scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
-	load_scenario.add_listener( this );
-	add_component( &load_scenario );
-	cursor.y += D_BUTTON_HEIGHT;
-	cursor.y += D_V_SPACE;
-
-	// start game
-	start_game.init(button_t::roundbox, "Starte Spiel", cursor, scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
-	start_game.add_listener( this );
-	add_component( &start_game );
-
-	// quit game
-	quit_game.init(button_t::roundbox,"Beenden", scr_coord(L_BUTTON_COLUMN_2,cursor.y), scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
-	quit_game.add_listener( this );
-	add_component( &quit_game );
-	cursor.y += D_BUTTON_HEIGHT;
-
-	set_windowsize( scr_size(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM) );
-	resize(scr_coord(0,0));
+		// quit game
+		quit_game.init(button_t::roundbox | button_t::flexible,"Beenden");
+		quit_game.add_listener( this );
+		add_component( &quit_game );
+	}
+	end_table();
 
 	update_preview();
+	update_memory(&size_label, sets);
+
+	reset_min_windowsize();
+	set_windowsize(get_min_windowsize());
+	set_resizemode(gui_frame_t::diagonal_resize);
 }
 
 
@@ -367,7 +305,7 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 				map.at(x,y) = reliefkarte_t::calc_hoehe_farbe( h_field[x*mx+y*my*w], sets->get_groundwater()-1 );
 			}
 		}
-		map_preview.set_map_data(&map,map_size);
+		map_preview.set_map_data(&map);
 		return true;
 	}
 	return false;
@@ -397,6 +335,29 @@ void welt_gui_t::update_densities()
 	}
 }
 
+void welt_gui_t::update_memory(gui_label_buf_t *label, const settings_t* sets)
+{
+	// Calculate map memory
+	const uint sx = sets->get_size_x();
+	const uint sy = sets->get_size_y();
+	const uint64 memory = (
+		(uint64)sizeof(karte_t) +
+		sizeof(player_t) * 8 +
+		sizeof(convoi_t) * 1000 +
+		(sizeof(schiene_t) + sizeof(vehicle_t)) * 10 * (sx + sy) +
+		sizeof(stadt_t) * sets->get_city_count() +
+		(
+			sizeof(grund_t) +
+			sizeof(planquadrat_t) +
+			sizeof(baum_t)*(1-sets->get_no_trees()) + /* only one since a lot will be water */
+			sizeof(void*)*2
+		) * (uint64)sx * (uint64)sy
+	) / (1024ll * 1024ll);
+
+	label->buf().printf(translator::translate("Size (%d MB):"), memory);
+	label->update();
+}
+
 
 /**
  * Calculate the new Map-Preview. Initialize the new RNG!
@@ -422,7 +383,7 @@ void welt_gui_t::update_preview(bool load_heightfield)
 		}
 		sets->heightfield = "";
 	}
-	map_preview.set_map_data(&map,map_size);
+	map_preview.set_map_data(&map);
 }
 
 
@@ -432,11 +393,11 @@ void welt_gui_t::resize_preview()
 
 	if(  world_aspect > 1.0  ) {
 		map_size.w = MAP_PREVIEW_SIZE_X-2;
-		map_size.h = (sint16) max( (const int)((float)map_size.w / world_aspect), L_PREVIEW_SIZE_MIN-2);
+		map_size.h = (sint16) max( (int)((float)map_size.w / world_aspect), L_PREVIEW_SIZE_MIN-2);
 	}
 	else {
 		map_size.h = MAP_PREVIEW_SIZE_Y-2;
-		map_size.w = (sint16) max( (const int)((float)map_size.h * world_aspect), L_PREVIEW_SIZE_MIN-2);
+		map_size.w = (sint16) max( (int)((float)map_size.h * world_aspect), L_PREVIEW_SIZE_MIN-2);
 	}
 	map.resize( map_size.w, map_size.h );
 }
@@ -639,25 +600,7 @@ void welt_gui_t::draw(scr_coord pos, scr_size size)
 	use_intro_dates.pressed = sets->get_use_timeline()&1;
 	use_beginner_mode.pressed = sets->get_beginner_mode();
 
-	// Calculate map memory
-	const uint sx = sets->get_size_x();
-	const uint sy = sets->get_size_y();
-	const uint64 memory = (
-		(uint64)sizeof(karte_t) +
-		sizeof(player_t) * 8 +
-		sizeof(convoi_t) * 1000 +
-		(sizeof(schiene_t) + sizeof(vehicle_t)) * 10 * (sx + sy) +
-		sizeof(stadt_t) * sets->get_city_count() +
-		(
-			sizeof(grund_t) +
-			sizeof(planquadrat_t) +
-			sizeof(baum_t)*(1-sets->get_no_trees()) + /* only one since a lot will be water */
-			sizeof(void*)*2
-		) * (uint64)sx * (uint64)sy
-	) / (1024ll * 1024ll);
-	buf.printf( translator::translate("Size (%d MB):"), (uint32)memory );
-	size_label.set_text(buf);
-
+	update_memory(&size_label, sets);
 	// draw child controls
 	gui_frame_t::draw(pos, size);
 }

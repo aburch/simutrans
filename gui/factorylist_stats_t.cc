@@ -10,45 +10,131 @@
  */
 
 #include "factorylist_stats_t.h"
-
-#include "../display/simgraph.h"
-#include "../display/viewport.h"
 #include "../simskin.h"
-#include "../simcolor.h"
 #include "../simfab.h"
 #include "../simworld.h"
 #include "../simskin.h"
-#include "simwin.h"
-
-#include "gui_frame.h"
-#include "components/gui_button.h"
 
 #include "../bauer/goods_manager.h"
 #include "../descriptor/skin_desc.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
-#include <algorithm>
 
 
-scr_coord_val factorylist_stats_t::h = LINESPACE;
 int factorylist_stats_t::sort_mode = factorylist::by_name;
 bool factorylist_stats_t::reverse = false;
-
 
 
 factorylist_stats_t::factorylist_stats_t(fabrik_t *fab)
 {
 	this->fab = fab;
-	h = max( gui_theme_t::gui_pos_button_size.h, LINESPACE );
-	mouse_over = false;
+	// pos button
+	set_table_layout(6,1);
+	button_t *b = new_component<button_t>();
+	b->set_typ(button_t::posbutton_automatic);
+	b->set_targetpos(fab->get_pos().get_2d());
+	// indicator bar
+	add_component(&indicator);
+	indicator.set_max_size(scr_size(D_INDICATOR_WIDTH,D_INDICATOR_HEIGHT));
+	// boost images
+	if (fab->get_desc()->get_electric_boost() ) {
+		boost_electric.set_image(skinverwaltung_t::electricity->get_image_id(0), true);
+		add_component(&boost_electric);
+	}
+	else {
+		new_component<gui_empty_t>();
+	}
+	if (fab->get_desc()->get_pax_boost() ) {
+		boost_passenger.set_image(skinverwaltung_t::passengers->get_image_id(0), true);
+		add_component(&boost_passenger);
+	}
+	else {
+		new_component<gui_empty_t>();
+	}
+	if (fab->get_desc()->get_mail_boost() ) {
+		boost_mail.set_image(skinverwaltung_t::mail->get_image_id(0), true);
+		add_component(&boost_mail);
+	}
+	else {
+		new_component<gui_empty_t>();
+	}
+	// factory name
+	add_component(&label);
+	update_label();
 }
 
 
-
-bool factorylist_stats_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scrolled_list_t::scrollitem_t *bb )
+void factorylist_stats_t::update_label()
 {
-	factorylist_stats_t* fa = dynamic_cast<factorylist_stats_t*>(aa);
-	factorylist_stats_t* fb = dynamic_cast<factorylist_stats_t*>(bb);
+	cbuffer_t &buf = label.buf();
+	buf.append(fab->get_name());
+	buf.append(" (");
+
+	if (!fab->get_input().empty()) {
+		buf.printf( "%i+%i", fab->get_total_in(), fab->get_total_transit() );
+	}
+	else {
+		buf.append("-");
+	}
+	buf.append(", ");
+
+	if (!fab->get_output().empty()) {
+		buf.append(fab->get_total_out(),0);
+	}
+	else {
+		buf.append("-");
+	}
+	buf.append(", ");
+
+	buf.append(fab->get_current_production(),0);
+	buf.append(") ");
+	label.update();
+}
+
+
+void factorylist_stats_t::set_size(scr_size size)
+{
+	gui_aligned_container_t::set_size(size);
+	label.set_size(scr_size(get_size().w - label.get_pos().x, label.get_size().h));
+}
+
+
+bool factorylist_stats_t::is_valid() const
+{
+	return world()->get_fab_list().is_contained(fab);
+}
+
+
+bool factorylist_stats_t::infowin_event(const event_t * ev)
+{
+	bool swallowed = gui_aligned_container_t::infowin_event(ev);
+
+	if(  !swallowed  &&  IS_LEFTRELEASE(ev)  ) {
+		fab->open_info_window();
+		swallowed = true;
+	}
+	return swallowed;
+}
+
+
+void factorylist_stats_t::draw(scr_coord pos)
+{
+	update_label();
+	// boost stuff
+	boost_electric.set_transparent(fab->get_prodfactor_electric()>0 ? 0 : TRANSPARENT50_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_BLACK));
+	boost_passenger.set_transparent(fab->get_prodfactor_pax()>0 ? 0 : TRANSPARENT50_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_BLACK));
+	boost_mail.set_transparent(fab->get_prodfactor_mail()>0 ? 0 : TRANSPARENT50_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_BLACK));
+
+	indicator.set_color( color_idx_to_rgb(fabrik_t::status_to_color[fab->get_status()]) );
+
+	gui_aligned_container_t::draw(pos);
+}
+
+
+bool factorylist_stats_t::compare(const gui_component_t *aa, const gui_component_t *bb)
+{
+	const factorylist_stats_t* fa = dynamic_cast<const factorylist_stats_t*>(aa);
+	const factorylist_stats_t* fb = dynamic_cast<const factorylist_stats_t*>(bb);
 	// good luck with mixed lists
 	assert(fa != NULL  &&  fb != NULL);
 	fabrik_t *a=fa->fab, *b=fb->fab;
@@ -108,109 +194,4 @@ bool factorylist_stats_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_sc
 		cmp = STRICMP(a->get_name(), b->get_name());
 	}
 	return reverse ? cmp > 0 : cmp < 0;
-}
-
-
-bool factorylist_stats_t::sort( vector_tpl<scrollitem_t *>&v, int offset, void * ) const
-{
-	vector_tpl<scrollitem_t *>::iterator start = v.begin();
-	while(  offset-->0  ) {
-		++start;
-	}
-	std::sort( start, v.end(), factorylist_stats_t::compare );
-	return true;
-}
-
-
-
-
-bool factorylist_stats_t::infowin_event(const event_t * ev)
-{
-	mouse_over = false;
-	if(  ev->ev_class!=EVENT_KEYBOARD  ) {
-		// find out, if in pos box
-		scr_rect pos_xywh( scr_coord(D_H_SPACE, (h-gui_theme_t::gui_pos_button_size.h)/2), gui_theme_t::gui_pos_button_size );
-		bool pos_box_hit = pos_xywh.contains( scr_coord(ev->mx,ev->my) );
-		if(  (IS_LEFTRELEASE(ev)  &&  pos_box_hit)  ||  IS_RIGHTRELEASE(ev)  ) {
-			world()->get_viewport()->change_world_position( fab->get_pos() );
-			mouse_over = true;
-		}
-		else if(  IS_LEFTRELEASE(ev)  ) {
-			fab->open_info_window();
-		}
-		else {
-			mouse_over = (ev->button_state & 3)  &&  pos_box_hit;
-		}
-	}
-
-	// never notify parent
-	return false;
-}
-
-
-
-scr_coord_val factorylist_stats_t::draw( scr_coord pos, scr_coord_val width, bool selected, bool )
-{
-	PIXVAL indikatorfarbe = color_idx_to_rgb(fabrik_t::status_to_color[fab->get_status()]);
-
-	cbuffer_t buf;
-	buf.append(fab->get_name());
-	buf.append(" (");
-
-	if (!fab->get_input().empty()) {
-		buf.printf( "%i+%i", fab->get_total_in(), fab->get_total_transit() );
-	}
-	else {
-		buf.append("-");
-	}
-	buf.append(", ");
-
-	if (!fab->get_output().empty()) {
-		buf.append(fab->get_total_out(),0);
-	}
-	else {
-		buf.append("-");
-	}
-	buf.append(", ");
-
-	buf.append(fab->get_current_production(),0);
-	buf.append(") ");
-
-	// goto button
-	bool info_open = win_get_magic( (ptrdiff_t)fab );
-	scr_rect pos_xywh( scr_coord(pos.x+D_H_SPACE, pos.y+(h-gui_theme_t::gui_pos_button_size.h)/2), gui_theme_t::gui_pos_button_size );
-	if(  selected  ||  mouse_over  ||  info_open  ) {
-		// still on center?
-		selected = world()->get_viewport()->is_on_center( fab->get_pos() );
-		if(  mouse_over  ) {
-			// still+pressed? (release will be extra event)
-			scr_coord_val mx = get_mouse_x(), my = get_mouse_y();
-			mouse_over = mx>=pos.x  &&  mx<pos.x+width  &&  my>=pos.y  &&  my<pos.y+h;
-			selected |= mouse_over;
-		}
-	}
-	display_img_aligned( gui_theme_t::pos_button_img[ selected ], pos_xywh, ALIGN_CENTER_V | ALIGN_CENTER_H, true );
-
-	int xpos = pos.x + D_MARGIN_LEFT + gui_theme_t::gui_pos_button_size.w + D_H_SPACE;
-	display_fillbox_wh_clip_rgb( xpos, pos.y+(h-D_INDICATOR_HEIGHT)/2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indikatorfarbe, true);
-
-	xpos += D_INDICATOR_WIDTH+D_H_SPACE;
-	if(  fab->get_prodfactor_electric()>0  &&  skinverwaltung_t::electricity->get_image(0)  ) {
-		display_color_img( skinverwaltung_t::electricity->get_image_id(0), xpos, pos.y+(h-skinverwaltung_t::electricity->get_image(0)->get_pic()->h)/2, 0, false, true);
-	}
-	xpos += 8+D_H_SPACE;
-	if(  fab->get_prodfactor_pax()>0  &&  skinverwaltung_t::passengers->get_image(0)  ) {
-		display_color_img( skinverwaltung_t::passengers->get_image_id(0), xpos, pos.y+(h-skinverwaltung_t::passengers->get_image(0)->get_pic()->h)/2, 0, false, true);
-	}
-	xpos += 8+D_H_SPACE;
-	if(  fab->get_prodfactor_mail()>0  &&  skinverwaltung_t::mail->get_image(0)  ) {
-		display_color_img( skinverwaltung_t::mail->get_image_id(0), xpos, pos.y+(h-skinverwaltung_t::mail->get_image(0)->get_pic()->h)/2, 0, false, true);
-	}
-	xpos += 8+D_H_SPACE;
-	display_proportional_clip_rgb( xpos, pos.y+(h-LINESPACE)/2, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-
-	if(  info_open  ) {
-		display_blend_wh_rgb( pos.x, pos.y, width, h, color_idx_to_rgb(COL_BLACK), 25 );
-	}
-	return true;
 }

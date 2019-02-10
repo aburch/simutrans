@@ -88,13 +88,21 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 
 
 
-void freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max, const ware_t *ware, const char *what_doing )
+void freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint64 sum, uint32 max, const ware_t *ware, const char *what_doing )
 {
+	uint32 const max_display = ~0;
+
 	// not the first line?
 	if(  buf.len() > 0  ) {
 		buf.append("\n");
 	}
-	buf.printf("%u", sum);
+
+	if (sum > max_display) {
+		buf.printf(">%u", max_display);
+	} else {
+		buf.printf("%u", (uint32)sum);
+	}
+
 	if(  max != 0  ) {
 		// convois
 		buf.printf("/%u", max);
@@ -122,23 +130,28 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			continue;
 		}
 		wlist[pos] = ware;
+		ware_t & current_good = wlist[pos];
 		// for the sorting via the number for the next stop we unify entries
 		if(  sort_mode == by_via_sum  ) {
 			// only add it, if there is not another thing waiting with the same via but another destination
 			for(  int i=0;  i<pos;  i++  ) {
 				ware_t& wi = wlist[i];
-				if(  wi.get_index()==ware.get_index()  &&  wi.get_zwischenziel()==ware.get_zwischenziel()  ) {
+				if(  wi.get_index()==ware.get_index()  &&  wi.get_zwischenziel()==ware.get_zwischenziel()  && !wi.is_goods_amount_maxed()  ) {
 					if(  wi.get_zwischenziel().is_bound()  ) {
 						if(  (  wi.get_ziel()==wi.get_zwischenziel() )==( ware.get_ziel()==ware.get_zwischenziel() ) ) {
-							wi.menge += ware.menge;
-							--pos;
+							current_good.menge = wi.add_goods(ware.menge);
+							if (current_good.menge == 0) {
+								--pos;
+							}
 							break;
 						}
 					}
 					else {
 						if(  wi.get_ziel() == ware.get_ziel()  ) {
-							wi.menge += ware.menge;
-							--pos;
+							current_good.menge = wi.add_goods(ware.menge);
+							if (current_good.menge == 0) {
+								--pos;
+							}
 							break;
 						}
 					}
@@ -174,7 +187,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 
 			ware_t const& ware = wlist[j];
 			if(  last_goods_index!=ware.get_index()  &&  last_ware_catg!=ware.get_catg()  ) {
-				sint32 sum = 0;
+				uint64 sum = 0;
 				last_goods_index = ware.get_index();
 				last_ware_catg = (ware.get_catg()!=0) ? ware.get_catg() : -1;
 				for(  int i=j;  i<pos;  i++  ) {

@@ -35,8 +35,9 @@ const int totalslopes = 81;
 
 /* combines a texture and a lightmap
  * just weights all pixels by the lightmap
+ * @param binary if true, then a binary decision is made: if lightmap is grey then take original pixel, if not set to black
  */
-static image_t* create_textured_tile(const image_t* image_lightmap, const image_t* image_texture)
+static image_t* create_textured_tile(const image_t* image_lightmap, const image_t* image_texture, bool binary = false)
 {
 	if(  image_lightmap == NULL  ) {
 		image_t *image_dest = image_t::create_single_pixel();
@@ -53,26 +54,36 @@ static image_t* create_textured_tile(const image_t* image_lightmap, const image_
 	// now mix the images
 	for (int j = 0; j < image_dest->get_pic()->h; j++) {
 		sint32 x = *dest++;
+		assert(x >= 0);
 		const sint32 offset = (image_dest->get_pic()->y + j - image_texture->get_pic()->y) * (x_y + 3) + 2; // position of the pixel in a rectangular map
 		do
 		{
 			sint16 runlen = *dest++;
+			assert(runlen >= 0);
 			for(int i=0; i<runlen; i++) {
+				assert(offset+x>0);
 				uint16 mix = texture[offset+x];
-				uint16 grey = *dest;
-				uint16 rc = (red_comp(grey)*red_comp(mix))/16;
-				if(rc>=32) {
-					rc = 31;
+
+				if (!binary) {
+					uint16 grey = *dest;
+					uint16 rc = (red_comp(grey)*red_comp(mix))/16;
+					if(rc>=32) {
+						rc = 31;
+					}
+					uint16 gc = (green_comp(grey)*green_comp(mix))/16;
+					if(gc>=32) {
+						gc = 31;
+					}
+					uint16 bc = (blue_comp(grey)*blue_comp(mix))/16;
+					if(bc>=32) {
+						bc = 31;
+					}
+					*dest++ = (rc<<10) | (gc<<5) | bc;
 				}
-				uint16 gc = (green_comp(grey)*green_comp(mix))/16;
-				if(gc>=32) {
-					gc = 31;
+				else {
+					if (*dest) { *dest = mix;}
+					dest++;
 				}
-				uint16 bc = (blue_comp(grey)*blue_comp(mix))/16;
-				if(bc>=32) {
-					bc = 31;
-				}
-				*dest++ = (rc<<10) | (gc<<5) | bc;
 				x ++;
 			}
 			x += *dest;
@@ -222,6 +233,57 @@ static image_t* create_alpha_tile(const image_t* image_lightmap, slope_t::type s
 }
 
 
+// copy ref texture, copy pixels from image into new texture
+static image_t* create_texture_from_tile(const image_t* image, const image_t* ref)
+{
+	if(  image == NULL  ||  image->get_pic()->w < 2  ) {
+		image_t *image_dest = image_t::create_single_pixel();
+		return image_dest;
+	}
+	// assumes ref is texture image with no clear runs, full rows.
+	image_t *image_dest = image_t::copy_image(*ref);
+	PIXVAL *const sp2 = image_dest->get_data();
+
+	const sint32 ref_w = ref->w;
+	const sint32 height= image->get_pic()->h;
+
+	// decode image and put it into dest
+	const PIXVAL* sp = image->get_data();
+
+	for(int y = 0;  y < height;  y++  ) {
+
+		int x = image->x;
+		uint16 runlen = *sp++;
+
+		do {
+			// we start with a clear run
+			x += runlen;
+
+			// now get colored pixels
+			runlen = (*sp++);
+
+			for(uint16 i=0; i<runlen; i++) {
+				PIXVAL p = *sp++;
+
+#define copypixel(xx, yy) \
+	if (0 <= (yy)  &&  (yy) < ref_w  &&  0 <= (xx)  &&  (xx) < ref_w) { \
+		sp2[ (ref_w+3)*(yy) + xx+2] = p; \
+	}
+				// put multiple copies into dest image
+				copypixel(x, y + image->y);
+				copypixel(x + ref_w/2, y + image->y + ref_w/4);
+				copypixel(x - ref_w/2, y + image->y + ref_w/4);
+				copypixel(x + ref_w/2, y + image->y - ref_w/4);
+				copypixel(x - ref_w/2, y + image->y - ref_w/4);
+
+				x++;
+			}
+		} while(  (runlen = *sp++)  );
+	}
+	// image_dest not registered
+	return image_dest;
+#undef copypixel
+}
 
 /****************************************************************************************************
 * the real textures are registered/calculated below
@@ -754,13 +816,24 @@ void ground_desc_t::init_ground_textures(karte_t *world)
 
 	// water images for water and overlay
 	water_image = image_offset;
+
+	image_t **water_stage_texture = new image_t*[water_animation_stages];
+	for(uint16 stage = 0; stage < water_animation_stages; stage++) {
+		water_stage_texture[stage] = create_texture_from_tile(sea->get_image_ptr(0 /*depth*/, stage), boden_texture->get_image_ptr(water_climate));
+	}
 	for(  int dslope = 0;  dslope < totalslopes - 1;  dslope++  ) {
-		if(  doubleslope_to_imgnr[dslope] != 255  ) {
-			int slope = double_grounds ? dslope : slopetable[dslope];
-			final_tile = create_textured_tile( light_map->get_image_ptr( slope ), boden_texture->get_image_ptr( water_climate ) );
-			ground_image_list.append( final_tile );
+		for(uint16 stage = 0; stage < water_animation_stages; stage++) {
+			if(  doubleslope_to_imgnr[dslope] != 255  ) {
+				int slope = double_grounds ? dslope : slopetable[dslope];
+				final_tile = create_textured_tile( light_map->get_image_ptr( slope ), water_stage_texture[stage], true);
+				ground_image_list.append( final_tile );
+			}
 		}
 	}
+	for(uint16 stage = 0; stage < water_animation_stages; stage++) {
+		delete water_stage_texture[stage];
+	}
+	delete [] water_stage_texture;
 
 	// now the other transitions
 	for(  int i=0;  i < number_of_climates;  i++  ) {
@@ -864,9 +937,9 @@ image_id ground_desc_t::get_ground_tile(grund_t *gr)
 }
 
 
-image_id ground_desc_t::get_water_tile(slope_t::type slope)
+image_id ground_desc_t::get_water_tile(slope_t::type slope, int stage)
 {
-	return water_image + doubleslope_to_imgnr[slope];
+	return water_image + stage + water_animation_stages*doubleslope_to_imgnr[slope];
 }
 
 

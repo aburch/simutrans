@@ -96,6 +96,7 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	scrolly_electrics(&cont_electrics),
 	scrolly_loks(&cont_loks),
 	scrolly_waggons(&cont_waggons),
+	line_selector(line_scrollitem_t::compare),
 	lb_vehicle_filter("Filter:", SYSCOL_TEXT, gui_label_t::right)
 {
 	scr_size size = scr_size(0,0);
@@ -846,12 +847,12 @@ void depot_frame_t::update_data()
 
 	// update convoy selector
 	convoy_selector.clear_elements();
-	convoy_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_convoy_text, SYSCOL_TEXT ) );
+	convoy_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( new_convoy_text, SYSCOL_TEXT ) ;
 	convoy_selector.set_selection(0);
 
 	// check all matching convoys
 	FOR(slist_tpl<convoihandle_t>, const c, depot->get_convoy_list()) {
-		convoy_selector.append_element( new convoy_scrollitem_t(c) );
+		convoy_selector.new_component<convoy_scrollitem_t>(c) ;
 		if(  cnv.is_bound()  &&  c == cnv  ) {
 			convoy_selector.set_selection( convoy_selector.count_elements() - 1 );
 		}
@@ -969,28 +970,28 @@ void depot_frame_t::update_data()
 			}
 		}
 	}
-	if(  last_selected_line.is_bound()  ) {
-		line_selector.insert_element( new line_scrollitem_t( last_selected_line ) );
-	}
 	if(  cnv.is_bound()  &&  cnv->get_schedule()  &&  !cnv->get_schedule()->empty()  ) {
 		if(  cnv->get_line().is_bound()  ) {
-			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, SYSCOL_TEXT ) );
-			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( clear_schedule_text, SYSCOL_TEXT ) );
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( clear_schedule_text, SYSCOL_TEXT ) ;
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( new_line_text, SYSCOL_TEXT ) ;
 		}
 		else {
-			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( promote_to_line_text, SYSCOL_TEXT ) );
-			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( unique_schedule_text, SYSCOL_TEXT ) );
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( unique_schedule_text, SYSCOL_TEXT ) ;
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( promote_to_line_text, SYSCOL_TEXT ) ;
 		}
 	}
 	else {
-		line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, SYSCOL_TEXT ) );
-		line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_schedule_text, SYSCOL_TEXT ) );
+		line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( no_schedule_text, SYSCOL_TEXT ) ;
+		line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( new_line_text, SYSCOL_TEXT ) ;
+	}
+	if(  last_selected_line.is_bound()  ) {
+		line_selector.new_component<line_scrollitem_t>( last_selected_line ) ;
 	}
 	if(  !selected_line.is_bound()  ) {
 		// select "create new schedule"
 		line_selector.set_selection( 0 );
 	}
-	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, SYSCOL_TEXT ) );
+	line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( line_seperator, SYSCOL_TEXT ) ;
 
 	// check all matching lines
 	if(  cnv.is_bound()  ) {
@@ -1000,7 +1001,7 @@ void depot_frame_t::update_data()
 	get_line_list(depot, &lines);
 	line_selector.set_selection( 0 );
 	FOR(  vector_tpl<linehandle_t>,  const line,  lines  ) {
-		line_selector.append_element( new line_scrollitem_t(line) );
+		line_selector.new_component<line_scrollitem_t>(line) ;
 		if(  selected_line.is_bound()  &&  selected_line == line  ) {
 			line_selector.set_selection( line_selector.count_elements() - 1 );
 		}
@@ -1009,15 +1010,15 @@ void depot_frame_t::update_data()
 		// no line selected
 		selected_line = linehandle_t();
 	}
-	line_selector.sort( last_selected_line.is_bound()+3, NULL );
+	line_selector.sort( last_selected_line.is_bound()+3 );
 
 	// Update vehicle filter
 	vehicle_filter.clear_elements();
-	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), SYSCOL_TEXT));
-	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Relevant"), SYSCOL_TEXT));
+	vehicle_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
+	vehicle_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Relevant"), SYSCOL_TEXT);
 
 	FOR(vector_tpl<goods_desc_t const*>, const i, welt->get_goods_list()) {
-		vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(i->get_name()), SYSCOL_TEXT));
+		vehicle_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(i->get_name()), SYSCOL_TEXT);
 	}
 
 	if(  depot->selected_filter > vehicle_filter.count_elements()  ) {
@@ -1028,7 +1029,7 @@ void depot_frame_t::update_data()
 	sort_by.clear_elements();
 	for(int i = 0; i < sb_length; i++)
 	{
-		sort_by.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_sort_by[i]), SYSCOL_TEXT));
+		sort_by.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(txt_sort_by[i]), SYSCOL_TEXT);
 	}
 	if(  depot->selected_sort_by > sort_by.count_elements()  ) {
 		depot->selected_sort_by = sb_name;

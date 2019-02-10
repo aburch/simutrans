@@ -19,6 +19,12 @@ private:
 	static const goods_desc_t *index_to_desc[256];
 
 public:
+	// Type used to specify goods limit, including handling potential overflow from addition.
+	typedef uint32 goods_amount_limit_t;
+
+	// Maximum number of goods per ware package. Limited by the bit field used.
+	static goods_amount_limit_t const MAXIMUM_GOOD_AMOUNT;
+
 	/// type of good, used as index into goods-types array
 	uint32 index: 8;
 
@@ -121,6 +127,20 @@ public:
 	 * @param speedkmh actual achieved speed in km/h
 	 */
 	static sint64 calc_revenue(const goods_desc_t* desc, waytype_t wt, sint32 speedkmh);
+
+	/**
+	 * Adds the number of goods to this goods packet.
+	 * Number of goods must be less than or equal to MAXIMUM_GOOD_AMOUNT.
+	 * @param number The number of goods to add to this packet.
+	 * @return Any excess goods that could not be added, eg due to logical limits.
+	 */
+	uint32 add_goods(uint32 const number);
+
+	/**
+	 * Checks if the goods amount is maxed.
+	 * @return If goods amount is maxed out so no more goods can be added.
+	 */
+	bool is_goods_amount_maxed();
 };
 
 #endif

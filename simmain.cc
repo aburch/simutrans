@@ -340,7 +340,12 @@ static bool wait_for_key()
 static void ask_objfilename()
 {
 	pakselector_t* sel = new pakselector_t();
-	sel->fill_list();
+	// notify gui to load list of paksets
+	event_t ev;
+	ev.ev_class = INFOWIN;
+	ev.ev_code  = WIN_OPEN;
+	sel->infowin_event(&ev);
+
 	if(sel->has_pak()) {
 		destroy_all_win(true);	// since eventually the successful load message is still there ....
 		modal_dialogue( sel, magic_none, NULL, empty_objfilename );

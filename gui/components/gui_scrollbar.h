@@ -92,7 +92,11 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	void draw(scr_coord pos);
+	void draw(scr_coord pos) OVERRIDE;
+
+	scr_size get_min_size() const OVERRIDE;
+
+	scr_size get_max_size() const OVERRIDE;
 };
 
 #endif

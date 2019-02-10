@@ -39,7 +39,7 @@ bool loadfont_frame_t::use_unicode=false;
  */
 bool loadfont_frame_t::item_action(const char *filename)
 {
-	display_load_font( filename );
+	win_load_font(filename, env_t::fontsize);
 	return false;
 }
 
@@ -49,12 +49,6 @@ bool loadfont_frame_t::ok_action(const char *filename)
 {
 	item_action(filename);
 	old_fontname.clear();
-
-	event_t *ev = new event_t();
-	ev->ev_class = EVENT_SYSTEM;
-	ev->ev_code = SYSTEM_RELOAD_WINDOWS;
-	queue_event( ev );
-
 	return true;
 }
 
@@ -62,8 +56,7 @@ bool loadfont_frame_t::ok_action(const char *filename)
 
 bool loadfont_frame_t::cancel_action(const char *)
 {
-	env_t::fontsize = old_linespace;
-	display_load_font( old_fontname.c_str() );
+	win_load_font(old_fontname.c_str(), old_linespace);
 	old_fontname.clear();
 	return true;
 }
@@ -82,20 +75,16 @@ loadfont_frame_t::loadfont_frame_t() : savegame_frame_t(NULL,false,NULL,false)
 
 	fnlabel.set_text( "font size" );
 
+	top_frame.remove_component(&input);
 	fontsize.init( env_t::fontsize, 6, 19, gui_numberinput_t::AUTOLINEAR, false );
-	fontsize.set_pos( input.get_pos() );
-	fontsize.set_size( gui_theme_t::gui_button_size );
-	add_component(&fontsize);
 	fontsize.add_listener(this);
+	top_frame.add_component(&fontsize);
 
-	unicode_only.init( button_t::square_automatic, "Only full Unicode fonts", scr_coord(0,0) );
+	unicode_only.init( button_t::square_automatic, "Only full Unicode fonts");
 	unicode_only.pressed = use_unicode;
-	add_component(&unicode_only);
 	unicode_only.add_listener(this);
-	unicode_only.align_to(&fontsize, ALIGN_CENTER_V | ALIGN_EXTERIOR_H | ALIGN_LEFT, scr_coord(D_H_SPACE,0) );
+	top_frame.add_component(&unicode_only, 2);
 
-	// remove unnecessary buttons
-	remove_component( &input );
 	delete_enabled = false;
 //	label_enabled  = false;
 }
@@ -162,7 +151,7 @@ bool loadfont_frame_t::check_file(const char *filename, const char *)
 		if(  !FT_New_Face( ft_library, filename, 0, &face )  ) {
 			// can load (no error returned)
 			bool ok = false;
-			if(  FT_Get_Char_Index( face, '}' )!=0  &&  STRICMP(face->style_name,"Regular")==0  ) {
+			if(  FT_Get_Char_Index( face, '}' )!=0  &&  (STRICMP(face->style_name,"Regular")==0  ||  STRICMP(face->style_name,"Bold")==0) ) {
 				// ok, we have at least charecter 126, and it is a regular font, so it is probably a valid font)
 				ok = !use_unicode;
 				if(  use_unicode  &&  face->num_glyphs>6000  ) {
@@ -214,7 +203,7 @@ void loadfont_frame_t::fill_list()
 		if (i.type == LI_HEADER) {
 			continue;
 		}
-		i.button->set_typ(button_t::roundbox_state);
+		i.button->set_typ(button_t::roundbox_state | button_t::flexible);
 #if !USE_FREETYPE
 	}
 #else
@@ -271,8 +260,7 @@ void loadfont_frame_t::rdwr( loadsave_t *file )
 bool loadfont_frame_t::action_triggered(gui_action_creator_t *component, value_t v)
 {
 	if(  &unicode_only==component  ) {
-		set_focus(&unicode_only);
-
+		// send event, this will reload window
 		event_t *ev = new event_t();
 		ev->ev_class = EVENT_SYSTEM;
 		ev->ev_code = SYSTEM_RELOAD_WINDOWS;
@@ -283,17 +271,7 @@ bool loadfont_frame_t::action_triggered(gui_action_creator_t *component, value_t
 	}
 
 	if(  &fontsize==component  ) {
-		set_focus(&fontsize);
-
-		env_t::fontsize = fontsize.get_value();
-		display_load_font( env_t::fontname.c_str() );
-		gui_theme_t::themes_init( env_t::default_theme, false );
-		/*
-		event_t *ev = new event_t();
-		ev->ev_class = EVENT_SYSTEM;
-		ev->ev_code = SYSTEM_RELOAD_WINDOWS;
-		queue_event( ev );
-		*/
+		win_load_font(env_t::fontname.c_str(), fontsize.get_value());
 		return false;
 	}
 

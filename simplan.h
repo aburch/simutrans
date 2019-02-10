@@ -61,7 +61,7 @@ public:
 	* Setzen des "normalen" Bodens auf Kartenniveau
 	* @author V. Meyer
 	*/
-	void kartenboden_setzen(grund_t *bd);
+	void kartenboden_setzen(grund_t *bd, bool startup = false);
 
 	/**
 	* Ersetzt Boden alt durch neu, löscht Boden alt.

@@ -3,7 +3,7 @@
 
 
 obj_view_t::obj_view_t(obj_t const* d, scr_size const size) :
-	world_view_t(),
+	world_view_t(size),
 	obj(d)
 {
 	set_size(size);

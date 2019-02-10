@@ -38,8 +38,6 @@ protected:
 	// true, if valid
 	virtual bool check_file( const char *filename, const char *suffix );
 
-	virtual void set_windowsize(scr_size size);
-
 public:
 	/**
 	* Set the window associated helptext

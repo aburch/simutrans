@@ -42,11 +42,16 @@ public:
 	 * arrow-buttons: buttons with arrows, cannot have text
 	 * repeat arrows: calls the caller until the mouse is released
 	 * scrollbar:     well you guess it. Not used by gui_frame_t things ...
+	 * flexible:      flag, can be set to box, square to get infinitely enlarging buttons
 	 */
 	enum type {
 		square=1, box, roundbox, arrowleft, arrowright, arrowup, arrowdown, repeatarrowleft, repeatarrowright, posbutton,
 		square_state=129, box_state, roundbox_state, arrowleft_state, arrowright_state, arrowup_state, arrowdown_state, scrollbar_horizontal_state, scrollbar_vertical_state, repeatarrowleft_state, repeatarrowright_state,
-		square_automatic=257
+		automatic = 256,
+		square_automatic    = square_state + automatic,
+		box_state_automatic = box_state + automatic,
+		posbutton_automatic = posbutton + automatic,
+		flexible = 512
 	};
 
 protected:
@@ -102,6 +107,9 @@ public:
 
 	button_t();
 
+	/**
+	 * Initializes the button. Sets the size depending on type.
+	 */
 	void init(enum type typ, const char *text, scr_coord pos=scr_coord(0,0), scr_size size = scr_size::invalid);
 
 	void set_typ(enum type typ);
@@ -146,7 +154,17 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
+
+	/**
+	 * Max-size: infinity for checkboxes, equal to size for the other types.
+	 */
+	scr_size get_max_size() const OVERRIDE;
+
+	/**
+	 * Min-size: equal to the size (set by init).
+	 */
+	scr_size get_min_size() const OVERRIDE;
 
 	void enable(bool true_false_par = true) { b_enabled = true_false_par; }
 
@@ -155,9 +173,12 @@ public:
 	bool enabled() { return b_enabled; }
 
 	// Knightly : a button can only be focusable when it is enabled
-	virtual bool is_focusable() { return b_enabled && gui_component_t::is_focusable(); }
+	bool is_focusable() OVERRIDE { return b_enabled && gui_component_t::is_focusable(); }
 
 	void update_focusability();
 
 };
+
+ENUM_BITSET(enum button_t::type)
+
 #endif

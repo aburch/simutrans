@@ -8,46 +8,45 @@
 #ifndef labellist_stats_t_h
 #define labellist_stats_t_h
 
-#include "../tpl/vector_tpl.h"
-#include "components/gui_komponente.h"
-#include "components/gui_button.h"
+#include "components/gui_aligned_container.h"
+#include "components/gui_label.h"
+#include "components/gui_scrolled_list.h"
 
 
 namespace labellist {
     enum sort_mode_t { by_name=0, by_koord, by_player, SORT_MODES };
 };
 
-/**
- * Curiosity list stats display
- * @author Hj. Malthaner
- */
-class labellist_stats_t : public gui_world_component_t
+class label_t;
+
+class labellist_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:
-	vector_tpl<koord> labels;
-	uint32 line_selected;
+	koord label_pos;
+	gui_label_buf_t label;
 
-	uint32 last_world_labels;
-	labellist::sort_mode_t sortby;
-	bool sortreverse, filter;
-
+	const label_t* get_label() const;
 public:
-	labellist_stats_t(labellist::sort_mode_t sortby, bool sortreverse, bool filter);
+	static labellist::sort_mode_t sortby;
+	static bool sortreverse, filter;
 
-	void get_unique_labels(labellist::sort_mode_t sortby, bool reverse, bool filter);
+	static bool compare(const gui_component_t *a, const gui_component_t *b );
+
+	labellist_stats_t(koord label_pos);
 
 	bool infowin_event(event_t const*) OVERRIDE;
-
-	/**
-	 * Recalc the size required to display everything and set size.
-	 */
-	void recalc_size();
 
 	/**
 	* Draw the component
 	* @author Hj. Malthaner
 	*/
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
+
+	void map_rotate90( sint16 );
+
+	bool is_valid() const OVERRIDE;
+
+	const char* get_text() const OVERRIDE;
 };
 
 #endif

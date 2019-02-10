@@ -13,23 +13,25 @@
 #include "../pathes.h"
 #include "../simsys.h"
 #include "../simdebug.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 #include "../utils/simstring.h"
 #include "../utils/searchfolder.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 
-#define L_BUTTON_COL_PERCENT (0.45) // Button column coverage in % of client area
-#define L_MIN_ROWS           (4)    // Minimum file entries to show (calculates min window size)
 #define L_DEFAULT_ROWS       (12)   // Number of file entries to show as default
-#define L_DIALOG_WIDTH       (488)  // You go and figure...
-
 #define L_SHORTENED_SIZE   (48)
 
-// The part of the dialog that is always fixed.
-#define L_FIXED_DIALOG_HEIGHT (D_TITLEBAR_HEIGHT + D_MARGINS_Y + D_EDIT_HEIGHT + D_V_SPACE + D_DIVIDER_HEIGHT + D_BUTTON_HEIGHT)
+/**
+ * Small helper class for tiny 'X' delete buttons
+ */
+class del_button_t : public button_t
+{
+public:
+	del_button_t() : button_t() { init(button_t::roundbox, "X"); }
 
-
+	scr_size get_min_size() const OVERRIDE { return scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT); }
+};
 
 /**
  * SAVE GAME FRAME CONSTRUCTOR
@@ -53,51 +55,53 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	searchpath_defined(false),
 	input(),
 	fnlabel("Filename"),
-	scrolly(&button_frame),
+	scrolly(&button_frame, true),
 	num_sections(0),
 	delete_enabled(delete_enabled)
 {
-	scr_coord cursor = scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP);
-
+	set_table_layout(1,0);
 	label_enabled = true;
 
-	fnlabel.set_pos(cursor);
-	add_component(&fnlabel);
+	// Filename input
+	top_frame.set_table_layout(2,0);
+	add_component(&top_frame);
+	{
+		top_frame.add_component(&fnlabel);
 
-	// Input box for game name
-	tstrncpy(ibuf, "", lengthof(ibuf));
-	input.set_pos( scr_coord ( fnlabel.get_pos().x + fnlabel.get_size().w + D_H_SPACE, cursor.y ) );
-	input.set_size( scr_size ( D_BUTTON_WIDTH, D_EDIT_HEIGHT ) );
-	input.set_text(ibuf, 128);
-	fnlabel.align_to(&input,ALIGN_CENTER_V);
-	add_component(&input);
-	cursor.y += D_EDIT_HEIGHT;
-	cursor.y += D_V_SPACE;
+		tstrncpy(ibuf, "", lengthof(ibuf));
+		input.set_text(ibuf, 128);
+		top_frame.add_component(&input);
+	}
 
 	// Needs to be scrollable, size is adjusted in set_windowsize()
-	scrolly.set_pos( cursor );
 	scrolly.set_scroll_amount_y(D_BUTTON_HEIGHT + D_FOCUS_OFFSET_V);
 	scrolly.set_size_corner(false);
 	scrolly.set_scrollbar_mode( scrollbar_t::show_auto );
 	add_component(&scrolly);
 
 	// Controls below will be sized and positioned in set_windowsize()
-	add_component(&divider1);
+	new_component<gui_divider_t>();
 
-	savebutton.init( button_t::roundbox, "Ok" );
+	add_table(3,1);
+	add_component(&bottom_left_frame);
+	bottom_left_frame.set_table_layout(1,0);
+
+	new_component<gui_fill_t>();
+
+	add_table(2,1)->set_force_equal_columns(true);
+	savebutton.init( button_t::roundbox | button_t::flexible, "Ok" );
 	savebutton.add_listener( this );
 	add_component( &savebutton );
 
-	cancelbutton.init( button_t::roundbox, "Cancel" );
+	cancelbutton.init( button_t::roundbox | button_t::flexible, "Cancel" );
 	cancelbutton.add_listener( this );
 	add_component( &cancelbutton );
+	end_table();
 
-	set_focus( &input );
+	end_table();
 
-	set_min_windowsize( scr_size ( cursor.x + (D_BUTTON_WIDTH<<1) + D_H_SPACE + D_MARGIN_RIGHT, L_FIXED_DIALOG_HEIGHT + (L_MIN_ROWS * D_BUTTON_HEIGHT) ) );
-	set_windowsize( scr_size (L_DIALOG_WIDTH, L_FIXED_DIALOG_HEIGHT + (L_DEFAULT_ROWS * D_BUTTON_HEIGHT) ) );
-
-	set_resizemode(diagonal_resize);
+	top_frame.set_focus( &input );
+	set_focus(&top_frame);
 
 	if(this->suffix == NULL) {
 		this->suffix = "";
@@ -109,7 +113,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 		dr_mkdir(path);
 	}
 
-	resize(scr_coord(0, 0));
+	set_resizemode(diagonal_resize);
 }
 
 
@@ -263,12 +267,6 @@ void savegame_frame_t::fill_list( void )
 		}
 
 	}
-
-	// Notify of the end
-	list_filled();
-
-	// force position and size calculation of list elements
-	resize(scr_coord(0, 0));
 }
 
 
@@ -284,9 +282,9 @@ void savegame_frame_t::fill_list( void )
  */
 void savegame_frame_t::list_filled( void )
 {
-
-	const scr_coord_val row_height = D_FOCUS_OFFSET_V + max( D_LABEL_HEIGHT, D_BUTTON_HEIGHT );
-	      scr_coord_val height     = D_FOCUS_OFFSET_V;
+	uint cols = (delete_enabled ? 1 : 0) + 1 + (label_enabled ? 1 : 0);
+	button_frame.set_table_layout(1,0);
+	button_frame.add_table(cols,0);
 
 	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 		button_t*    const delete_button = i.del;
@@ -294,17 +292,14 @@ void savegame_frame_t::list_filled( void )
 		gui_label_t* const label   = i.label;
 
 		if(i.type == LI_HEADER) {
-			button_frame.add_component(label);
 			if(this->num_sections < 2) {
-				// If just 1 section added, we won't print the header, skipping the y increment
+				// If just 1 section added, we won't print the header
 				label->set_visible(false);
 				continue;
 			}
-			height += row_height + 1;
+			button_frame.add_component(label, cols);
 		}
 		else {
-			delete_button->set_size(scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
-			delete_button->set_text("X");
 
 			if (dr_cantrash()) {
 				delete_button->set_tooltip("Send this file to the system trash bin. SHIFT+CLICK to permanently delete.");
@@ -315,18 +310,25 @@ void savegame_frame_t::list_filled( void )
 			delete_button->add_listener(this);
 			action_button->add_listener(this);
 
-			button_frame.add_component(delete_button);
+			if (delete_enabled) {
+				button_frame.add_component(delete_button);
+			}
 			button_frame.add_component(action_button);
-			button_frame.add_component(label);
-
-			// Update button frame's height
-			height += row_height;
+			if (label_enabled) {
+				button_frame.add_component(label);
+			}
 		}
 
 	}
+	button_frame.end_table();
 
-	// Update button frame's height to force scrollbar detection on first draw
-	button_frame.set_height( height );
+	const scr_coord_val row_height = max( D_LABEL_HEIGHT, D_BUTTON_HEIGHT ) + D_V_SPACE;
+
+	reset_min_windowsize();
+	scr_size size = get_min_size() + scr_size(0, min(entries.get_count(), L_DEFAULT_ROWS) * row_height);
+	// TODO do something smarter here
+	size.w = max(size.w, button_frame.get_min_size().w + D_SCROLLBAR_WIDTH);
+	set_windowsize(size);
 }
 
 
@@ -372,7 +374,7 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 	if(!no_cutting_suffix) {
 		name[strlen(name)-4] = '\0';
 	}
-	button->set_typ( button_t::roundbox );
+	button->set_typ( button_t::roundbox | button_t::flexible);
 	button->set_no_translate(true);
 	button->set_text(name); // to avoid translation
 
@@ -432,9 +434,7 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 
 	gui_label_t* l = new gui_label_t(NULL);
 	l->set_text_pointer(text);
-	button_t *del = new button_t();
-	del->set_typ( button_t::roundbox );
-	entries.insert(i, dir_entry_t(button, del, l, LI_ENTRY, fullpath));
+	entries.insert(i, dir_entry_t(button, new del_button_t(), l, LI_ENTRY, fullpath));
 }
 
 
@@ -455,6 +455,9 @@ bool savegame_frame_t::infowin_event(const event_t *event)
 	if(event->ev_class == INFOWIN  &&  event->ev_code == WIN_OPEN  &&  entries.empty()) {
 		// before no virtual functions can be used ...
 		fill_list();
+
+		// Notify of the end
+		list_filled();
 	}
 	if(  event->ev_class == EVENT_KEYBOARD  &&  event->ev_code == 13  ) {
 		action_triggered(&input, (long)0);
@@ -536,8 +539,6 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t
 						i.button->set_visible(false);
 						i.del->set_visible(false);
 						i.label->set_visible(false);
-						i.button->set_size(scr_size(0, 0));
-						i.del->set_size(scr_size(0, 0));
 
 						resize(scr_coord(0, 0));
 					}
@@ -576,95 +577,6 @@ bool savegame_frame_t::del_action(const char *fullpath)
 	dr_movetotrash(fullpath);
 	return false;
 }
-
-
-
-/**
- * SET WINDOW SIZE
- * Position and resize components when teh dialog size changes.
- * The delete button is untouched regarding x position and width.
- * Action button and label are sharing the space where the button width
- * occupies BUTTON_COL_PERCENT % of the space.
- * If the delete button is hidden, the button and label shares the full width
- * and if the label is hidden the button occpies the 100% of the shared space.
- * @author Hj. Malthaner
- * @author Mathew Hounsell
- * @author Max Kielland
- *
- * @param size  The new dialogue size.
- */
-void savegame_frame_t::set_windowsize(scr_size size)
-{
-	//const scr_coord_val label_y_offset = D_GET_CENTER_ALIGN_OFFSET(D_LABEL_HEIGHT,D_BUTTON_HEIGHT);
-	const scr_coord_val row_height     = D_FOCUS_OFFSET_V + max( D_LABEL_HEIGHT, D_BUTTON_HEIGHT );
-	const scr_coord_val width          = size.w - D_MARGIN_RIGHT;
-	      scr_coord_val y              = D_FOCUS_OFFSET_V; // leave room for focus frame
-	      sint16        curr_section   = 0;
-
-	size.clip_rightbottom( scr_coord( display_get_width(), display_get_height()-env_t::iconsize.h-D_STATUSBAR_HEIGHT ) );
-
-	gui_frame_t::set_windowsize(size);
-	size = get_windowsize();
-
-	// Adjust filename edit box
-	input.set_size  ( scr_size( width - input.get_pos().x, D_EDIT_HEIGHT ) );
-	scrolly.set_size( scr_size( size.w - D_MARGINS_X, size.h - L_FIXED_DIALOG_HEIGHT ) );
-
-	const scr_coord_val button_width = (scr_coord_val) ((size.w - D_MARGINS_X - (delete_enabled * (D_BUTTON_HEIGHT + D_H_SPACE)) - D_H_SPACE) * L_BUTTON_COL_PERCENT );
-	const scr_coord_val label_width =  (scr_coord_val) ( scrolly.get_client().w -  (delete_enabled * (D_BUTTON_HEIGHT + D_H_SPACE)) - button_width - D_H_SPACE);
-
-	// Arrange list elements (file names)
-	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
-
-		// resize all but delete button
-		// header entry, it's only shown if we have more than one
-		if(  i.type == LI_HEADER  &&  num_sections > 1  ) {
-			i.label->set_pos(scr_coord(0, y + 2));
-			y += row_height;
-			curr_section++;
-			continue;
-		}
-
-		if(  i.type == LI_HEADER  &&  num_sections < 2  ){
-			// skip this header, we don't increment y
-			curr_section++;
-			continue;
-		}
-
-		if(  i.button->is_visible()  ) {
-			button_t* const delete_button = i.del;
-			button_t* const action_button = i.button;
-
-			// We disable the delete button for extra sections entries
-			if(curr_section > 1  ||  !delete_enabled) {
-				delete_button->set_visible(false);
-			}
-			else {
-				delete_button->set_pos(scr_coord(D_FOCUS_OFFSET_H, y));
-			}
-
-			action_button->set_pos( scr_coord( D_FOCUS_OFFSET_H + delete_enabled * ( D_BUTTON_HEIGHT + D_H_SPACE ), y ) );
-			if (label_enabled) {
-				action_button->set_width(button_width);
-				i.label->align_to( action_button, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( D_H_SPACE, 0 ) );
-				i.label->set_width( label_width - (D_FOCUS_OFFSET_H<<1) );
-			}
-			else {
-				i.label->set_visible( false );
-				action_button->set_width( button_width + label_width - ( D_FOCUS_OFFSET_H<<1 ) );
-			}
-
-			y += row_height;
-		}
-	}
-
-	button_frame.set_size( scr_size(scrolly.get_client().x, button_frame.get_min_boundaries().h) );
-	divider1.set_width(size.w-D_MARGINS_X);
-	divider1.align_to(&scrolly,ALIGN_TOP | ALIGN_EXTERIOR_V | ALIGN_LEFT);
-	cancelbutton.align_to(&divider1, ALIGN_RIGHT | ALIGN_TOP | ALIGN_EXTERIOR_V );
-	savebutton.align_to(&cancelbutton, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord( D_H_SPACE, 0 ) );
-}
-
 
 
 /**

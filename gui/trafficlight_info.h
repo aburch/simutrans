@@ -25,11 +25,11 @@ class roadsign_t;
  */
 class trafficlight_info_t : public obj_infowin_t, public action_listener_t
 {
- private:
-	roadsign_t* ampel;
+private:
+	roadsign_t* roadsign;
 	gui_numberinput_t ns, ow, offset;
 
- public:
+public:
 	trafficlight_info_t(roadsign_t* s);
 
 	/*
@@ -37,7 +37,7 @@ class trafficlight_info_t : public obj_infowin_t, public action_listener_t
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *get_help_filename() const {return "trafficlight_info.txt";}
+	const char *get_help_filename() const OVERRIDE {return "trafficlight_info.txt";}
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

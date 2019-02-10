@@ -13,7 +13,7 @@
 #include "../simworld.h"
 #include "../display/viewport.h"
 #include "jump_frame.h"
-#include "components/gui_button.h"
+#include "components/gui_divider.h"
 
 #include "../dataobj/translator.h"
 
@@ -21,28 +21,24 @@
 jump_frame_t::jump_frame_t() :
 	gui_frame_t( translator::translate("Jump to") )
 {
-	scr_coord cursor(D_MARGIN_LEFT,D_MARGIN_TOP);
+	set_table_layout(1,0);
 
 	// Input box for new name
 	sprintf(buf, "%i,%i", welt->get_viewport()->get_world_position().x, welt->get_viewport()->get_world_position().y );
 	input.set_text(buf, 62);
 	input.add_listener(this);
-	input.set_pos(cursor);
-	input.set_size(scr_size(D_BUTTON_WIDTH, D_EDIT_HEIGHT));
 	add_component(&input);
-	cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
 
-	divider1.set_pos(cursor);
-	divider1.set_size(scr_size(D_BUTTON_WIDTH,D_DIVIDER_HEIGHT));
-	add_component(&divider1);
-	cursor.y += D_DIVIDER_HEIGHT + D_V_SPACE;
+	new_component<gui_divider_t>();
 
-	jumpbutton.init( button_t::roundbox, "Jump to", cursor );
+	jumpbutton.init( button_t::roundbox, "Jump to");
 	jumpbutton.add_listener(this);
 	add_component(&jumpbutton);
 
 	set_focus(&input);
-	set_windowsize(scr_size(cursor.x + D_BUTTON_WIDTH + D_MARGIN_RIGHT, cursor.y + D_BUTTON_HEIGHT + D_MARGIN_BOTTOM + D_TITLEBAR_HEIGHT));
+
+	reset_min_windowsize();
+	set_windowsize(get_min_windowsize());
 }
 
 
