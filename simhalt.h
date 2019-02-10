@@ -119,6 +119,7 @@ private:
 	sint32 last_loading_step;
 
 	koord init_pos;	// for halt without grounds, created during game initialisation
+	koord center_pos; // the avarage of all tiles' coordinate weighed by level of the building
 
 	/**
 	 * Handle for ourselves. Can be used like the 'this' pointer
@@ -431,6 +432,8 @@ public:
 	// [mod : shingoushori] mod : changes this to a private transfer exchange stop 2/3
 	void make_private_and_join( player_t *player, bool public_undertaking = false );
 
+	void merge_halt( player_t *player, halthandle_t halt_merged );
+
 	vector_tpl<connection_t> const& get_pax_connections()  const { return all_links[goods_manager_t::INDEX_PAS].connections;  }
 	vector_tpl<connection_t> const& get_mail_connections() const { return all_links[goods_manager_t::INDEX_MAIL].connections; }
 
@@ -596,7 +599,11 @@ public:
 	koord get_init_pos() const { return init_pos; }
 	koord get_basis_pos() const;
 	koord3d get_basis_pos3d() const;
+	koord get_center_pos() const { return center_pos; }
+private:
+	void recalc_center_pos();
 
+public:
 	/* return the closest square that belongs to this halt
 	 * @author prissi
 	 */
@@ -812,6 +819,10 @@ public:
 	 */
 	static void init_markers();
 
+	/*
+	 * check if it is in the station coverage
+	 */
+	bool is_halt_covered (const halthandle_t &halt) const;
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)
