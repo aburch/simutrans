@@ -89,6 +89,7 @@ In OTRP, you can specify the direction from which vehicles can enter the tile. F
 - The overlaying warning of addon names is disabled in OTRP. The warning will be shown when simutrans is launched with **-showoverlay** option or is launched as a server.
 - In OTRP, a longblocksignal reserves all tiles that are checked. In other words, a longblocksignal reserves exactly till the next signal, exceeding the end of the route. This is a prior implementation of a feature that is discussed in the simutrans international forum.
 - with `-snapshot x,y,z,f` option, simutrans takes a snapshot and immediately quits. x, y, and z are the central coordinate, and f is zoom factor which takes a value from 0 to 9.
+- general_tool[41] is merge_halt_tool. If you select two stations with this tool, the stations are merged into one same station. The cost of this operation depends on the distance between two stations. (Implemented by HyperSim)
 
 # Parameters of OTRP
 Most of these are stored in the game.
