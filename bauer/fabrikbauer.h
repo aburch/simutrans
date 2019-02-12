@@ -126,9 +126,10 @@ public:
 	 * If there is still a pending consumer, this method will first complete another chain for it.
 	 * If not, it will decide to either build a power station (if power is needed)
 	 * or build a new consumer near the indicated position.
+	 * Force consumer: 0 - neutral; 1 - disallow forcing; 2 - always force consumer
 	 * @returns number of factories built
 	 */
-	static int increase_industry_density(bool tell_me, bool do_not_add_beyond_target_density = false, bool power_station_only = false, bool disallow_force_consumer = false );
+	static int increase_industry_density(bool tell_me, bool do_not_add_beyond_target_density = false, bool power_station_only = false, uint32 force_consumer = 0 );
 
 	static bool power_stations_available();
 
