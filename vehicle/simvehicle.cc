@@ -4758,9 +4758,24 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	route_t target_rt;
 	const uint16 first_block = start_block == 0 ? start_block : start_block - 1;
 	const uint16 second_block = start_block == 0 ? start_block + 1 : start_block;
+	const uint16 third_block = start_block == 0 ? start_block + 2 : start_block + 1;
 	const koord3d first_tile = route->at(first_block);
 	const koord3d second_tile = route->at(second_block);
+	const koord3d third_tile = route->at(third_block);
+	const grund_t* third_ground = welt->lookup(third_tile); 
 	uint8 direction = ribi_type(first_tile, second_tile);
+
+	if (third_ground)
+	{
+		const schiene_t* railway = (schiene_t*)third_ground->get_weg(get_waytype());
+		if (railway && railway->is_junction())
+		{
+			ribi_t::ribi old_direction = direction;
+			direction |= ribi_t::all;
+			direction ^= ribi_t::backward(old_direction);
+		}
+	}
+	direction |= ribi_type(second_tile, third_tile);
 	direction |= welt->lookup(second_tile)->get_weg(get_waytype())->get_ribi_unmasked();
 	cnv->set_is_choosing(true);
 	bool can_find_route;
