@@ -1598,7 +1598,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			if(  !station->get_pax_enabled()  &&  !station->get_mail_enabled()  ) {
 				continue;
 			}
-			const sint32 pax_origin = (sint32)(station->get_finance_history( 1, HALT_HAPPY ) + station->get_finance_history( 1, HALT_UNHAPPY ) + station->get_finance_history( 1, HALT_NOROUTE ));
+			const sint32 pax_origin = (sint32)(station->get_finance_history( 1, HALT_HAPPY ) + station->get_finance_history( 1, HALT_UNHAPPY ) + station->get_finance_history(1, HALT_TOO_WAITING) + station->get_finance_history(1, HALT_NOROUTE) + station->get_finance_history( 1, HALT_TOO_SLOW ));
 			if(  pax_origin > max_origin  ) {
 				max_origin = pax_origin;
 			}

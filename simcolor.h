@@ -95,19 +95,21 @@ typedef unsigned char COLOR_VAL;
 #define COL_MARGIN          COL_LIGHT_YELLOW
 #define COL_WEALTH          (95)
 
-#define COL_COUNVOI_COUNT   (55)
+#define COL_COUNVOI_COUNT   COL_VEHICLE_ASSETS
 #define COL_FREE_CAPACITY   COL_TOLL
 #define COL_DISTANCE        COL_OPS_PROFIT
 
 #define COL_CITICENS        COL_WHITE
 #define COL_GROWTH          (122)
-#define COL_HAPPY           COL_WHITE
-#define COL_UNHAPPY         COL_RED
-#define COL_NO_ROUTE        COL_BLUE-128
-#define COL_PASSENGERS      COL_NO_ROUTE
-#define COL_WAITING         COL_YELLOW
-#define COL_ARRIVED         COL_DARK_ORANGE
-#define COL_DEPARTED        COL_DARK_YELLOW
+#define COL_HAPPY           COL_DARK_GREEN
+#define COL_UNHAPPY         COL_LIGHT_PURPLE
+#define COL_OVERCROWD       COL_PURPLE-1
+#define COL_NO_ROUTE        COL_RED
+#define COL_TOO_SLOW        (69)
+#define COL_PASSENGERS      COL_BLUE-128
+#define COL_WAITING         COL_DARK_TURQUOISE
+#define COL_ARRIVED         COL_LIGHT_BLUE
+#define COL_DEPARTED        COL_MAXSPEED
 
 //#define COL_POWERLINES      (87)
 #define COL_ELECTRICITY     (60)

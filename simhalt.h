@@ -36,9 +36,9 @@
 #include "tpl/binary_heap_tpl.h"
 #include "tpl/minivec_tpl.h"
 
-#define MAX_HALT_COST				8 // Total number of cost items
+#define MAX_HALT_COST				11 // Total number of cost items
 #define MAX_MONTHS					12 // Max history
-#define MAX_HALT_NON_MONEY_TYPES	7 // number of non money types in HALT's financial statistic
+#define MAX_HALT_NON_MONEY_TYPES	8 // number of non money types in HALT's financial statistic
 #define HALT_ARRIVED				0 // the amount of ware that arrived here
 #define HALT_DEPARTED				1 // the amount of ware that has departed from here
 #define HALT_WAITING				2 // the amount of ware waiting
@@ -46,8 +46,11 @@
 #define HALT_UNHAPPY				4 // number of unhappy passengers
 #define HALT_NOROUTE				5 // number of no-route passengers
 #define HALT_CONVOIS_ARRIVED        6 // number of convois arrived this month
-#define HALT_TOO_SLOW		        7 // The number of passengers whose estimated journey time exceeds their tolerance.
-/* NOTE - Standard has HALT_WALKED here as no. 7. In Extended, this is in cities, not stops.*/
+#define HALT_TOO_SLOW               7 // The number of passengers whose estimated journey time exceeds their tolerance.
+#define HALT_TOO_WAITING            8 // The number of passengers who waited so long at the station.
+#define HALT_MAIL_DELIVERED         9 // amount of delivered mail from here
+#define HALT_MAIL_NOROUTE          10 // amount of no-route mail
+ /* NOTE - Standard has HALT_WALKED here as no. 7. In Extended, this is in cities, not stops.*/
 
 // This should be network safe multi-threadedly (this has been considered carefully and tested somewhat,
 // although the test was run at a time (March 2017) when there was another known bug, hard to find, causing
@@ -350,6 +353,14 @@ public:
 	bool is_transfer(const uint8 catg) const { return non_identical_schedules[catg] > 1u; }
 //	bool is_transfer(const uint8 catg) const { return all_links[catg].is_transfer; }
 
+	// Whether or not there are passengers/mail trying to use this station.
+	// demand_check = false : Confirm existence of transport history of corresponding category
+	bool has_pax_user(const uint8 months, bool demand_check) const;
+	bool has_mail_user(const uint8 months, bool demand_check) const;
+
+	bool is_using() const;
+
+
 	typedef inthashtable_tpl<uint16, sint64> arrival_times_map;
 #ifdef MULTI_THREAD
 	uint32 get_transferring_cargoes_count() const;
@@ -646,6 +657,10 @@ public:
 	 */
 	void add_pax_no_route(int n);
 
+	// count mail no route or delivered
+	void add_mail_delivered(int n);
+	void add_mail_no_route(int n);
+
 	/**
 	 * Station crowded
 	 * @author Hj. Malthaner
@@ -657,10 +672,16 @@ public:
 	// @author: jamespetts
 	void add_pax_too_slow(int n);
 
+	// Waiting so long at the station. added 01/2019(EX14.3)
+	void add_pax_too_waiting(int n);
+
 	int get_pax_happy()    const { return (int)financial_history[0][HALT_HAPPY]; }
 	int get_pax_no_route() const { return (int)financial_history[0][HALT_NOROUTE]; }
 	int get_pax_unhappy()  const { return (int)financial_history[0][HALT_UNHAPPY]; }
 	int get_pax_too_slow()  const { return (int)financial_history[0][HALT_TOO_SLOW]; }
+	int get_pax_too_waiting() const { return (int)financial_history[0][HALT_TOO_WAITING]; }
+	int get_mail_delivered()  const { return (int)financial_history[0][HALT_MAIL_DELIVERED]; }
+	int get_mail_no_route()   const { return (int)financial_history[0][HALT_MAIL_NOROUTE]; }
 
 	/**
 	 * Add tile to list of station tiles.
@@ -759,7 +780,7 @@ public:
 	bool is_reservable(const grund_t *gr, convoihandle_t cnv) const;
 	uint8 get_empty_lane(const grund_t *gr, convoihandle_t cnv) const;
 
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	//void info(cbuffer_t & buf, bool dummy = false) const;
 
 	/**
 	 * @param buf the buffer to fill

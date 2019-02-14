@@ -1368,7 +1368,7 @@ void haltestelle_t::step()
 
 							// Passengers - use unhappy graph. Even passengers able to walk to their destination or
 							// next transfer are not happy about it if they expected to be able to take a ride there.
-							add_pax_unhappy(tmp.menge);
+							add_pax_too_waiting(tmp.menge);
 						}
 
 						// If they are discarded, a refund is due.
@@ -2297,6 +2297,13 @@ void haltestelle_t::add_pax_too_slow(int n)
 	book(n, HALT_TOO_SLOW);
 }
 
+// Waiting so long at the station. added 01/2019(EX14.3)
+
+void haltestelle_t::add_pax_too_waiting(int n)
+{
+	book(n, HALT_TOO_WAITING);
+}
+
 /**
  * Found no route
  * @author Hj. Malthaner
@@ -2304,6 +2311,16 @@ void haltestelle_t::add_pax_too_slow(int n)
 void haltestelle_t::add_pax_no_route(int n)
 {
 	book(n, HALT_NOROUTE);
+}
+
+void haltestelle_t::add_mail_delivered(int n)
+{
+	book(n, HALT_MAIL_DELIVERED);
+}
+
+void haltestelle_t::add_mail_no_route(int n)
+{
+	book(n, HALT_MAIL_NOROUTE);
 }
 
 /* retrieves a ware packet for any destination in the list
@@ -3208,19 +3225,19 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	return;
 }
 
-void haltestelle_t::info(cbuffer_t & buf, bool dummy) const
-{
-	if( has_character( 0x263A ) ) {
-		utf8 happy[4], unhappy[4];
-		happy[ utf16_to_utf8( 0x263A, happy ) ] = 0;
-		unhappy[ utf16_to_utf8( 0x2639, unhappy ) ] = 0;
-		buf.printf(translator::translate("Passengers %d %s, %d %s, %d no route, %d too slow"), get_pax_happy(), happy, get_pax_unhappy(), unhappy, get_pax_no_route(), get_pax_too_slow());
-	}
-	else {
-		buf.printf(translator::translate("Passengers %d %c, %d %c, %d no route, %d too slow"), get_pax_happy(), 30, get_pax_unhappy(), 31, get_pax_no_route(), get_pax_too_slow());
-	}
-	buf.append("\n\n");
-}
+//void haltestelle_t::info(cbuffer_t & buf, bool dummy) const
+//{
+//	if( has_character( 0x263A ) ) {
+//		utf8 happy[4], unhappy[4];
+//		happy[ utf16_to_utf8( 0x263A, happy ) ] = 0;
+//		unhappy[ utf16_to_utf8( 0x2639, unhappy ) ] = 0;
+//		buf.printf(translator::translate("%d %s, %d %s, %d gave up waiting"), get_pax_happy(), happy, get_pax_unhappy(), unhappy, get_pax_too_waiting());
+//	}
+//	else {
+//		buf.printf(translator::translate("%d %c, %d %c, %d gave up waiting"), get_pax_happy(), 30, get_pax_unhappy(), 31, get_pax_too_waiting());
+//	}
+//	buf.append("\n");
+//}
 
 
 /**
@@ -3922,11 +3939,15 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->get_extended_version() >= 5)
+	if (file->get_extended_version() >= 5)
 	{
-		for (int j = 0; j < 8 /*MAX_HALT_COST*/; j++)
+		for (int j = 0; j < 9 /*MAX_HALT_COST*/; j++)
 		{
-			for (int k = MAX_MONTHS	- 1; k >= 0; k--)
+			if (((file->get_extended_version() == 14 && file->get_extended_revision() < 5) || file->get_extended_version() < 14) && j==8)
+			{
+				break;
+			}
+			for (int k = MAX_MONTHS - 1; k >= 0; k--)
 			{
 				file->rdwr_longlong(financial_history[k][j]);
 			}
@@ -3934,7 +3955,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	}
 	else
 	{
-		// Earlier versions did not have pax_too_slow
+		// Earlier versions did not have pax_too_slow and pax_too_waiting
 		for (int j = 0; j < 8 /*MAX_HALT_COST*/; j++)
 		{
 			for (int k = MAX_MONTHS - 1; k >= 0; k--)
@@ -3964,6 +3985,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			if(file->is_loading())
 			{
 				financial_history[k][HALT_TOO_SLOW] = 0;
+				financial_history[k][HALT_TOO_WAITING] = 0;
+				financial_history[k][HALT_MAIL_DELIVERED] = 0;
+				financial_history[k][HALT_MAIL_NOROUTE] = 0;
 			}
 		}
 	}
@@ -5780,3 +5804,51 @@ uint32 haltestelle_t::get_transferring_cargoes_count() const
 	return count;
 }
 #endif
+
+bool haltestelle_t::has_pax_user(const uint8 months, bool demand_check) const {
+	int count = 0;
+	for (uint8 i = 0; i <= months; i++) {
+		if (i >= MAX_MONTHS) {
+			break;
+		}
+		count += financial_history[i][HALT_HAPPY];
+		count += financial_history[i][HALT_UNHAPPY];
+		count += financial_history[i][HALT_TOO_WAITING];
+		count += financial_history[i][HALT_TOO_SLOW];
+		if (demand_check) {
+			count += financial_history[i][HALT_NOROUTE];
+		}
+		if (count > 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool haltestelle_t::has_mail_user(const uint8 months, bool demand_check) const {
+	int count = 0;
+	for (uint8 i = 0; i <= months; i++) {
+		if (i >= MAX_MONTHS) {
+			break;
+		}
+		count += financial_history[i][HALT_MAIL_DELIVERED];
+		if (demand_check) {
+			count += financial_history[i][HALT_MAIL_NOROUTE];
+		}
+		if (count > 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool haltestelle_t::is_using() const {
+	int count = 0;
+	for (uint8 i = 0; i < 3; i++) {
+		count += financial_history[i][HALT_CONVOIS_ARRIVED];
+		if (count > 0) {
+			return true;
+		}
+	}
+	return false;
+}

@@ -105,6 +105,15 @@ public:
 	static const skin_desc_t *goods;
 	/// @}
 
+	/// @name icons used to passenger/mail evaluations
+	/// @{
+	static const skin_desc_t *pax_evaluation_icons;
+	static const skin_desc_t *mail_evaluation_icons;
+	/// @}
+
+	/// images used to alert in line with message text
+	static const skin_desc_t *alerts;
+
 	/// images shown in display of lines in mini-map
 	static const skin_desc_t *station_type;
 
