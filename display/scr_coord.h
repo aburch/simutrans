@@ -8,7 +8,7 @@
 class koord;
 
 // Screen coordinate type
-typedef sint16 scr_coord_val;
+typedef sint32 scr_coord_val;
 
 // Rectangle relations
 enum rect_relation_t { RECT_RELATION_INSIDE, RECT_RELATION_OVERLAP, RECT_RELATION_OUTSIDE };
@@ -32,8 +32,8 @@ public:
 	void rdwr(loadsave_t *file)
 	{
 		xml_tag_t k( file, "koord" );
-		file->rdwr_short(x);
-		file->rdwr_short(y);
+		file->rdwr_long(x);
+		file->rdwr_long(y);
 	}
 
 	const scr_coord& operator +=(const scr_coord& other ) {
@@ -123,8 +123,8 @@ public:
 	void rdwr(loadsave_t *file)
 	{
 		xml_tag_t k( file, "koord" );
-		file->rdwr_short(w);
-		file->rdwr_short(h);
+		file->rdwr_long(w);
+		file->rdwr_long(h);
 	}
 
 	inline void clip_lefttop( scr_coord scr_lefttop )
@@ -154,8 +154,8 @@ public:
 	}
 
 	const scr_size& operator -=(const scr_size& other ) {
-		w += other.w;
-		h += other.h;
+		w -= other.w;
+		h -= other.h;
 		return *this;
 	}
 
@@ -166,13 +166,14 @@ public:
 	}
 
 	const scr_size& operator -=(const scr_coord& other ) {
-		w += other.x;
-		h += other.y;
+		w -= other.x;
+		h -= other.y;
 		return *this;
 	}
 
 	static const scr_size invalid;
 
+	static const scr_size inf;
 private:
 	// conversions to/from koord not allowed anymore
 	operator koord() const;

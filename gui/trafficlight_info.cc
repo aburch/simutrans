@@ -17,7 +17,7 @@
 
 trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
 	obj_infowin_t(s),
-	ampel(s)
+	roadsign(s)
 {
 	ns.set_pos( scr_coord(10,get_windowsize().h-85) );
 	ns.set_size( scr_size(52, D_EDIT_HEIGHT) );
@@ -60,7 +60,7 @@ trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
 	}
 	for(uint8 i=0; i<8; i++) {
 		direction_buttons[i].add_listener( this );
-		direction_buttons[i].pressed = ((ampel->get_open_direction())&(1<<i))!=0;
+		direction_buttons[i].pressed = ((roadsign->get_open_direction())&(1<<i))!=0;
 		add_component( &direction_buttons[i] );
 	}
 }
@@ -78,35 +78,35 @@ bool trafficlight_info_t::action_triggered( gui_action_creator_t *komp, value_t 
 {
 	char param[256];
 	if(komp == &ns) {
-		sprintf( param, "%s,1,%i", ampel->get_pos().get_str(), (int)v.i );
+		sprintf( param, "%s,1,%i", roadsign->get_pos().get_str(), (int)v.i );
 		tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT]->set_default_param( param );
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT], welt->get_active_player() );
 	}
 	else if(komp == &ow) {
-		sprintf( param, "%s,0,%i", ampel->get_pos().get_str(), (int)v.i );
+		sprintf( param, "%s,0,%i", roadsign->get_pos().get_str(), (int)v.i );
 		tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT]->set_default_param( param );
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT], welt->get_active_player() );
 	}
  	else if(komp == &offset) {
-		sprintf( param, "%s,2,%i", ampel->get_pos().get_str(), (int)v.i );
+		sprintf( param, "%s,2,%i", roadsign->get_pos().get_str(), (int)v.i );
 		tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT]->set_default_param( param );
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT], welt->get_active_player() );
 	}
 	else {
 		// maybe this event is caused by the direction buttons.
 
-		uint8 dir = ampel->get_open_direction();
+		uint8 dir = roadsign->get_open_direction();
 		for(uint8 i=0; i<8; i++) {
 			if(komp == &direction_buttons[i]) {
 				dir ^= 1 << i;
 			}
 		}
 		// set open_direction
-		sprintf( param, "%s,3,%i", ampel->get_pos().get_str(), dir );
+		sprintf( param, "%s,3,%i", roadsign->get_pos().get_str(), dir );
 		tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT]->set_default_param( param );
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT], welt->get_active_player() );
 		for(uint8 i=0; i<8; i++) {
-			direction_buttons[i].pressed = ((ampel->get_open_direction())&(1<<i))!=0;
+			direction_buttons[i].pressed = ((roadsign->get_open_direction())&(1<<i))!=0;
 		}
 	}
 	return true;
@@ -116,10 +116,10 @@ bool trafficlight_info_t::action_triggered( gui_action_creator_t *komp, value_t 
 // notify for an external update
 void trafficlight_info_t::update_data()
 {
-	ns.set_value( ampel->get_ticks_ns() );
-	ow.set_value( ampel->get_ticks_ow() );
-	offset.set_value( ampel->get_ticks_offset() );
+	ns.set_value( roadsign->get_ticks_ns() );
+	ow.set_value( roadsign->get_ticks_ow() );
+	offset.set_value( roadsign->get_ticks_offset() );
 	for(uint8 i=0; i<8; i++) {
-		direction_buttons[i].pressed = ((ampel->get_open_direction())&(1<<i))!=0;
+		direction_buttons[i].pressed = ((roadsign->get_open_direction())&(1<<i))!=0;
 	}
 }

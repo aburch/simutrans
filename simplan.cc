@@ -176,7 +176,7 @@ bool planquadrat_t::boden_entfernen(grund_t *bd)
 }
 
 
-void planquadrat_t::kartenboden_setzen(grund_t *bd)
+void planquadrat_t::kartenboden_setzen(grund_t *bd, bool startup)
 {
 	assert(bd);
 	grund_t *tmp = get_kartenboden();
@@ -188,7 +188,10 @@ void planquadrat_t::kartenboden_setzen(grund_t *bd)
 		ground_size = 1;
 		bd->set_kartenboden(true);
 	}
-	bd->calc_image();
+	if (!startup) {
+		// water tiles need neighbor tiles, which might not be initialized at startup
+		bd->calc_image();
+	}
 	reliefkarte_t::get_karte()->calc_map_pixel(bd->get_pos().get_2d());
 }
 

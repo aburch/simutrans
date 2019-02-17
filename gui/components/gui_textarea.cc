@@ -29,9 +29,32 @@ gui_textarea_t::gui_textarea_t(cbuffer_t* buf_)
 }
 
 
-// recalcs the current size;
-// usually not needed to be called explicitly
+void gui_textarea_t::set_buf( cbuffer_t* buf_ )
+{
+	buf = buf_;
+	recalc_size();
+}
+
+
+scr_size gui_textarea_t::get_min_size() const
+{
+	return calc_size();
+}
+
+
+scr_size gui_textarea_t::get_max_size() const
+{
+	return get_min_size();
+}
+
+
 void gui_textarea_t::recalc_size()
+{
+	set_size(calc_size());
+}
+
+
+scr_size gui_textarea_t::calc_size() const
 {
 	const char *text(*buf);
 
@@ -55,8 +78,7 @@ void gui_textarea_t::recalc_size()
 			new_lines += LINESPACE;
 		} while(  next != NULL  &&  *buf!=0  );
 	}
-DBG_MESSAGE("gui_textarea_t::recalc_size()","reset size to %i,%i",x_size+L_PADDING_RIGHT,new_lines);
-	set_size( scr_size( x_size + L_PADDING_RIGHT, new_lines ) );
+	return scr_size( x_size + L_PADDING_RIGHT, new_lines );
 }
 
 
@@ -82,13 +104,13 @@ void gui_textarea_t::draw(scr_coord offset)
 
 		do {
 			next = strchr(buf, '\n');
-			if(  pos.y + new_lines + (LINESPACE >= 0)  ) {
-				const int len = next != NULL ? (long)(size_t)(next - buf) : -1;
-				int px_len = display_text_proportional_len_clip_rgb(x, y + new_lines, buf, ALIGN_LEFT | DT_CLIP, SYSCOL_TEXT, true, len);
-				if(px_len>x_size) {
-					x_size = px_len;
-				}
+
+			const size_t len = next != NULL ? next - buf : -1;
+			int px_len = display_text_proportional_len_clip_rgb(x, y + new_lines, buf, ALIGN_LEFT | DT_CLIP, SYSCOL_TEXT, true, len);
+			if(px_len>x_size) {
+				x_size = px_len;
 			}
+
 			buf = next + 1;
 			new_lines += LINESPACE;
 		} while(  next != NULL  &&  *buf!=0  );

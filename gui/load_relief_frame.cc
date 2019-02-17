@@ -36,9 +36,9 @@ load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_fram
 {
 	static char extra_path[1029];
 
-	new_format.init( button_t::square_automatic, "Maximize height levels", scr_coord(D_MARGIN_LEFT,savebutton.get_pos().y), scr_size(savebutton.get_pos().x-D_MARGIN_LEFT-D_H_SPACE,D_BUTTON_HEIGHT) );
+	new_format.init( button_t::square_automatic, "Maximize height levels");
 	new_format.pressed = env_t::new_height_map_conversion;
-	add_component( &new_format );
+	bottom_left_frame.add_component( &new_format );
 
 	sprintf(extra_path,"%s%smaps/", env_t::program_dir, env_t::objfilename.c_str());
 	//sprintf(extra_path,"%smaps/", env_t::program_dir);

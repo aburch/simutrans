@@ -17,6 +17,7 @@
 #include "../simcolor.h"
 #include "../dataobj/environment.h"
 #include "../utils/cbuffer_t.h"
+#include "components/gui_button_to_chart.h"
 
 
 /**
@@ -80,78 +81,102 @@ const uint8 citylist_frame_t::hist_type_type[karte_t::MAX_WORLD_COST] =
 	STANDARD
 };
 
-#define CHART_HEIGHT (168)
-#define SCROLL_START (D_MARGIN_TOP+D_V_SPACE*2+LINESPACE*2+D_BUTTON_HEIGHT)
-
-static unsigned old_cities = 0;
-
 
 citylist_frame_t::citylist_frame_t() :
 	gui_frame_t(translator::translate("City list")),
-	sort_label(translator::translate("hl_txt_sort")),
-	scrolly(gui_scrolled_list_t::windowskin)
+	scrolly(gui_scrolled_list_t::windowskin, citylist_stats_t::compare)
 {
-	old_cities = 0;
+	set_table_layout(1,0);
 
-	sort_label.set_pos(scr_coord(BUTTON1_X, D_MARGIN_TOP+D_V_SPACE+LINESPACE ) );
-	add_component(&sort_label);
+	add_component(&citizens);
 
-	sortedby.init(button_t::roundbox, sort_text[citylist_stats_t::sort_mode & 0x1F], scr_coord(BUTTON1_X, D_MARGIN_TOP+D_V_SPACE+LINESPACE*2) );
+	add_component(&main);
+	main.add_tab( &list, translator::translate("City list") );
+
+	list.set_table_layout(1,0);
+	list.new_component<gui_label_t>("hl_txt_sort");
+
+	list.add_table(2,0);
+	sortedby.init(button_t::roundbox, sort_text[citylist_stats_t::sort_mode & 0x1F]);
 	sortedby.add_listener(this);
-	add_component(&sortedby);
+	list.add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, citylist_stats_t::sort_mode > citylist_stats_t::SORT_MODES ? "hl_btn_sort_desc" : "hl_btn_sort_asc", scr_coord(BUTTON2_X, D_MARGIN_TOP+D_V_SPACE+LINESPACE*2));
+	sorteddir.init(button_t::roundbox, citylist_stats_t::sort_mode > citylist_stats_t::SORT_MODES ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 	sorteddir.add_listener(this);
-	add_component(&sorteddir);
+	list.add_component(&sorteddir);
+	list.end_table();
 
-	show_stats.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON4_X, D_MARGIN_TOP+D_V_SPACE+LINESPACE*2));
-	show_stats.set_tooltip("Show/hide statistics");
-	show_stats.add_listener(this);
-	add_component(&show_stats);
+	list.add_component(&scrolly);
+	fill_list();
 
-	year_month_tabs.add_tab(&chart, translator::translate("Years"));
-	year_month_tabs.add_tab(&mchart, translator::translate("Months"));
-	year_month_tabs.set_pos(scr_coord(0,SCROLL_START));
-	year_month_tabs.set_size(scr_size(D_DEFAULT_WIDTH, CHART_HEIGHT-D_BUTTON_HEIGHT*3-D_TITLEBAR_HEIGHT));
-	year_month_tabs.set_visible(false);
-	add_component(&year_month_tabs);
+	main.add_tab( &statistics, translator::translate("Chart") );
 
-	const sint16 yb = CHART_HEIGHT-D_V_SPACE-D_TAB_HEADER_HEIGHT-(karte_t::MAX_WORLD_COST/4)*(D_BUTTON_HEIGHT+D_V_SPACE);
-	chart.set_pos(scr_coord(D_MARGIN_LEFT,D_TAB_HEADER_HEIGHT));
-	chart.set_size(scr_size(D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT,yb));
+	statistics.set_table_layout(1,0);
+	statistics.add_component(&year_month_tabs);
+
+	year_month_tabs.add_tab(&container_year, translator::translate("Years"));
+	year_month_tabs.add_tab(&container_month, translator::translate("Months"));
+	// .. put the same buttons in both containers
+	button_t* buttons[karte_t::MAX_WORLD_COST];
+
+	container_year.set_table_layout(1,0);
+	container_year.add_component(&chart);
 	chart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_YEARS);
-	chart.set_visible(false);
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
-	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
-		chart.add_curve(color_idx_to_rgb(hist_type_color[cost]), welt->get_finance_history_year(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_YEARS, hist_type_type[cost], false, true, (cost==1) ? 1 : 0 );
-	}
+	chart.set_min_size(scr_size(0, 8*LINESPACE));
 
-	mchart.set_pos(scr_coord(D_MARGIN_LEFT,D_TAB_HEADER_HEIGHT));
-	mchart.set_size(scr_size(D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT,yb));
+	container_year.add_table(4,3);
+	for (int i = 0; i<karte_t::MAX_WORLD_COST; i++) {
+		sint16 curve = chart.add_curve(color_idx_to_rgb(hist_type_color[i]), welt->get_finance_history_year(), karte_t::MAX_WORLD_COST, i, MAX_WORLD_HISTORY_YEARS, hist_type_type[i], false, true, (i==1) ? 1 : 0 );
+		// add button
+		buttons[i] = container_year.new_component<button_t>();
+		buttons[i]->init(button_t::box_state_automatic | button_t::flexible, hist_type[i]);
+		buttons[i]->background_color = color_idx_to_rgb(hist_type_color[i]);
+		buttons[i]->pressed = false;
+
+		button_to_chart.append(buttons[i], &chart, curve);
+	}
+	container_year.end_table();
+
+	container_month.set_table_layout(1,0);
+	container_month.add_component(&mchart);
 	mchart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_MONTHS);
-	mchart.set_visible(false);
 	mchart.set_background(SYSCOL_CHART_BACKGROUND);
-	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
-		mchart.add_curve(color_idx_to_rgb(hist_type_color[cost]), welt->get_finance_history_month(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_MONTHS, hist_type_type[cost], false, true, (cost==1) ? 1 : 0 );
+	mchart.set_min_size(scr_size(0, 8*LINESPACE));
+
+	container_month.add_table(4,3);
+	for (int i = 0; i<karte_t::MAX_WORLD_COST; i++) {
+		sint16 curve = mchart.add_curve(color_idx_to_rgb(hist_type_color[i]), welt->get_finance_history_month(), karte_t::MAX_WORLD_COST, i, MAX_WORLD_HISTORY_MONTHS, hist_type_type[i], false, true, (i==1) ? 1 : 0 );
+
+		// add button
+		container_month.add_component(buttons[i]);
+		button_to_chart.append(buttons[i], &mchart, curve);
 	}
+	container_month.end_table();
 
-	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
-		filterButtons[cost].init(button_t::box_state, hist_type[cost], scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(cost%4), SCROLL_START+D_TAB_HEADER_HEIGHT+yb+(D_BUTTON_HEIGHT+D_V_SPACE)*(cost/4)), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-		filterButtons[cost].add_listener(this);
-		filterButtons[cost].background_color = color_idx_to_rgb(hist_type_color[cost]);
-		filterButtons[cost].set_visible(false);
-		filterButtons[cost].pressed = false;
-		add_component(filterButtons + cost);
-	}
-
-	scrolly.set_pos(scr_coord(1,SCROLL_START));
-	add_component(&scrolly);
-
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_DEFAULT_HEIGHT));
-	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+(show_stats.pressed ? SCROLL_START+CHART_HEIGHT : SCROLL_START)+3*max( gui_theme_t::gui_pos_button_size.h, LINESPACE ) ) );
+	update_label();
 
 	set_resizemode(diagonal_resize);
-	resize(scr_coord(0,0));
+	reset_min_windowsize();
+}
+
+
+void citylist_frame_t::update_label()
+{
+	citizens.buf().append( translator::translate("Total inhabitants:") );
+	citizens.buf().append( welt->get_finance_history_month()[0], 0 );
+	citizens.update();
+}
+
+
+void citylist_frame_t::fill_list()
+{
+	scrolly.clear_elements();
+	FOR(const weighted_vector_tpl<stadt_t *>,city,world()->get_cities()) {
+		scrolly.new_component<citylist_stats_t>(city) ;
+	}
+	scrolly.sort(0);
+	scrolly.set_size( scrolly.get_size());
 }
 
 
@@ -162,55 +187,15 @@ bool citylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 		i = (i + 1) % citylist_stats_t::SORT_MODES;
 		sortedby.set_text(sort_text[i]);
 		citylist_stats_t::sort_mode = (citylist_stats_t::sort_mode_t)(i | (citylist_stats_t::sort_mode & citylist_stats_t::SORT_REVERSE));
-		scrolly.sort(0,NULL);
+		scrolly.sort(0);
 	}
 	else if(komp == &sorteddir) {
 		bool reverse = citylist_stats_t::sort_mode <= citylist_stats_t::SORT_MODES;
 		sorteddir.set_text(reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 		citylist_stats_t::sort_mode = (citylist_stats_t::sort_mode_t)((citylist_stats_t::sort_mode & ~citylist_stats_t::SORT_REVERSE) + (reverse*citylist_stats_t::SORT_REVERSE) );
-		scrolly.sort(0,NULL);
-	}
-	else if(komp == &show_stats) {
-		show_stats.pressed = !show_stats.pressed;
-		chart.set_visible( show_stats.pressed );
-		year_month_tabs.set_visible( show_stats.pressed );
-		set_min_windowsize( scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+(show_stats.pressed ? SCROLL_START+CHART_HEIGHT : SCROLL_START)+3*max( gui_theme_t::gui_pos_button_size.h, LINESPACE ) ) );
-		for(  int i=0;  i<karte_t::MAX_WORLD_COST;  i++ ) {
-			filterButtons[i].set_visible(show_stats.pressed);
-		}
-		resize( scr_coord(0,0) );
-	}
-	else {
-		for(  int i=0;  i<karte_t::MAX_WORLD_COST;  i++ ) {
-			if(  komp == filterButtons+i  ) {
-				filterButtons[i].pressed = !filterButtons[i].pressed;
-				if (filterButtons[i].pressed) {
-					chart.show_curve(i);
-					mchart.show_curve(i);
-				}
-				else {
-					chart.hide_curve(i);
-					mchart.hide_curve(i);
-				}
-			}
-		}
+		scrolly.sort(0);
 	}
 	return true;
-}
-
-
-void citylist_frame_t::resize(const scr_coord delta)
-{
-	gui_frame_t::resize(delta);
-
-	scr_size size = get_windowsize()-scr_size(0,SCROLL_START+D_TITLEBAR_HEIGHT); // window size - scroll start
-	if(show_stats.pressed) {
-		// additional space for statistics
-		size.h -= CHART_HEIGHT;
-	}
-	scrolly.set_pos( scr_coord(0, SCROLL_START+(show_stats.pressed*CHART_HEIGHT) ) );
-	scrolly.set_size(size);
-	set_dirty();
 }
 
 
@@ -218,19 +203,10 @@ void citylist_frame_t::draw(scr_coord pos, scr_size size)
 {
 	welt->update_history();
 
-	if(  world()->get_cities().get_count() != old_cities  ) {
-		scrolly.clear_elements();
-		FOR(const weighted_vector_tpl<stadt_t *>,city,world()->get_cities()) {
-			scrolly.append_element( new citylist_stats_t(city) );
-		}
-		scrolly.sort(0,NULL);
-		old_cities = world()->get_cities().get_count();
+	if(  (sint32)world()->get_cities().get_count() != scrolly.get_count()  ) {
+		fill_list();
 	}
+	update_label();
 
-	gui_frame_t::draw(pos,size);
-
-	cbuffer_t buf;
-	buf.append( translator::translate("Total inhabitants:") );
-	buf.append( welt->get_finance_history_month()[0], 0 );
-	display_proportional_rgb( pos.x+D_MARGIN_LEFT, pos.y+D_MARGIN_TOP+D_TITLEBAR_HEIGHT, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
+	gui_frame_t::draw(pos, size);
 }

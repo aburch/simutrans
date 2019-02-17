@@ -31,8 +31,7 @@
 #include "../dataobj/loadsave.h"
 #include "../descriptor/factory_desc.h"
 #include "../simfab.h"
-#include "../utils/simrandom.h"
-#include "money_frame.h"
+#include "../player/finance.h"
 
 static koord old_ij=koord::invalid;
 
@@ -45,28 +44,73 @@ bool  map_frame_t::directory_visible=false;
 bool  map_frame_t::is_cursor_hidden=false;
 bool  map_frame_t::filter_factory_list=true;
 
-// Caches list of factories in current game world
-stringhashtable_tpl<const factory_desc_t *> map_frame_t::factory_list;
-
 // Hajo: we track our position onscreen
 scr_coord map_frame_t::screenpos;
 
-
-class legend_entry_t
+/**
+ * Scroll-container of map. Hack: size calculations of reliefkarte_t are intertwined with map_frame_t.
+ */
+class gui_scrollpane_map_t : public gui_scrollpane_t
 {
 public:
-	legend_entry_t() {}
-	legend_entry_t(const std::string &text_, PIXVAL colour_) : text(text_), colour(colour_) {}
-	bool operator==(const legend_entry_t& rhs) 	{
-		return ( (text == rhs.text)  &&  (colour == rhs.colour) );
-	}
+	gui_scrollpane_map_t(gui_component_t *comp) : gui_scrollpane_t(comp) {}
 
-	std::string text;
-	PIXVAL      colour;
+	scr_size get_max_size() const OVERRIDE { return scr_size::inf;}
 };
 
-static vector_tpl<legend_entry_t> legend(16);
+/**
+ * Entries in factory legend: show color indicator + name
+ */
+class legend_entry_t : public gui_component_t
+{
+	gui_label_t label;
+	PIXVAL color;
+public:
+	legend_entry_t(const char* text, PIXVAL c) : label(text), color(c) {}
 
+	scr_size get_min_size() const OVERRIDE
+	{
+		return  label.get_min_size() + scr_size(D_INDICATOR_BOX_WIDTH + D_H_SPACE, 0);
+	}
+
+	scr_size get_max_size() const OVERRIDE
+	{
+		return scr_size( scr_size::inf.w, label.get_max_size().h );
+	}
+
+	void draw(scr_coord offset) OVERRIDE
+	{
+		scr_coord pos = get_pos() + offset;
+		display_fillbox_wh_clip_rgb(pos.x, pos.y + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT, color, false);
+		display_fillbox_wh_clip_rgb(pos.x, pos.y + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT, SYSCOL_SHADOW, false);
+		label.draw(pos + scr_size(D_INDICATOR_BOX_WIDTH + D_H_SPACE, 0));
+	}
+};
+
+/**
+ * Show scale of severity-MAX_SEVERITY_COLORS
+ */
+class gui_scale_t : public gui_component_t
+{
+public:
+	void draw(scr_coord offset) OVERRIDE
+	{
+		scr_coord pos = get_pos() + offset;
+		double bar_width = (double)get_size().w/(double)MAX_SEVERITY_COLORS;
+		// color bar
+		for(  int i=0;  i<MAX_SEVERITY_COLORS;  i++  ) {
+			display_fillbox_wh_clip_rgb(pos.x + (i*bar_width), pos.y+2,  bar_width+1, 7, reliefkarte_t::calc_severity_color(i, MAX_SEVERITY_COLORS-1), false);
+		}
+	}
+	scr_size get_min_size() const OVERRIDE
+	{
+		return scr_size(0, 9);
+	}
+	scr_size get_max_size() const OVERRIDE
+	{
+		return scr_size( scr_size::inf.w, 9);
+	}
+};
 
 typedef struct {
 	PIXVAL color;
@@ -102,17 +146,12 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_WHITE,        COL_GREY5,       "Ownership", "Show the owenership of infrastructure", reliefkarte_t::MAP_OWNER }
 };
 
+#define scrolly (*p_scrolly)
 
 map_frame_t::map_frame_t() :
-	gui_frame_t( translator::translate("Reliefkarte") ),
-	scrolly(reliefkarte_t::get_karte()),
-	zoom_label("map zoom"),
-	min_label("min"),
-	max_label("max")
+	gui_frame_t( translator::translate("Reliefkarte") )
 {
-	scr_coord cursor( D_MARGIN_LEFT,D_MARGIN_TOP );
-	scr_coord_val zoom_label_width = display_get_char_max_width("0123456789") * 4 + display_get_char_width(':');
-
+	// init statics
 	old_ij = koord::invalid;
 	is_dragging = false;
 	zoomed = false;
@@ -120,87 +159,87 @@ map_frame_t::map_frame_t() :
 	// init map
 	reliefkarte_t *karte = reliefkarte_t::get_karte();
 	karte->init();
+	karte->set_mode( (reliefkarte_t::MAP_MODES)env_t::default_mapmode );
+	// show all players by default
+	karte->player_showed_on_map = -1;
 
+	p_scrolly = new gui_scrollpane_map_t(reliefkarte_t::get_karte());
+	// initialize scrollbar positions -- LATER
 	const scr_size size = karte->get_size();
 	const scr_size s_size=scrolly.get_size();
 	const koord ij = welt->get_viewport()->get_world_position();
 	const scr_size win_size = size-s_size; // this is the visible area
-	karte->set_mode( (reliefkarte_t::MAP_MODES)env_t::default_mapmode );
-	//show all players by default
-	karte->player_showed_on_map = -1;
+
 	scrolly.set_scroll_position(  max(0,min(ij.x-win_size.w/2,size.w)), max(0, min(ij.y-win_size.h/2,size.h)) );
 	scrolly.set_focusable( true );
 	scrolly.set_scrollbar_mode(scrollbar_t::show_always);
 
+
+	set_table_layout(1,0);
+
 	// first row of controls
-	// selections button
-	b_show_legend.init(button_t::roundbox_state, "Show legend", cursor);
-	b_show_legend.set_tooltip("Shows buttons on special topics.");
-	b_show_legend.add_listener(this);
-	add_component(&b_show_legend);
-	cursor.x += D_BUTTON_WIDTH + D_H_SPACE;
+	add_table(3,1);
+	{
+		// first row of controls
+		// selections button
+		b_show_legend.init(button_t::roundbox_state, "Show legend");
+		b_show_legend.set_tooltip("Shows buttons on special topics.");
+		b_show_legend.add_listener(this);
+		add_component(&b_show_legend);
 
-	// industry list button
-	b_show_directory.init(button_t::roundbox_state, "Show industry", cursor);
-	b_show_directory.set_tooltip("Shows a listing with all industries on the map.");
-	b_show_directory.add_listener(this);
-	add_component(&b_show_directory);
-	cursor.x += D_BUTTON_WIDTH + D_H_SPACE;
+		// industry list button
+		b_show_directory.init(button_t::roundbox_state, "Show industry");
+		b_show_directory.set_tooltip("Shows a listing with all industries on the map.");
+		b_show_directory.add_listener(this);
+		add_component(&b_show_directory);
 
-	// scale button
-	b_show_scale.init(button_t::roundbox_state, "Show map scale", cursor);
-	b_show_scale.set_tooltip("Shows the color code for several selections.");
-	b_show_scale.add_listener(this);
-	add_component(&b_show_scale);
-	cursor = scr_coord(D_MARGIN_LEFT, cursor.y + D_BUTTON_HEIGHT + D_V_SPACE);
+		// scale button
+		b_show_scale.init(button_t::roundbox_state, "Show map scale");
+		b_show_scale.set_tooltip("Shows the color code for several selections.");
+		b_show_scale.add_listener(this);
+		add_component(&b_show_scale);
+	}
+	end_table();
+
 
 	// second row of controls
-	// zoom levels label
-	zoom_label.set_pos(cursor);
-	zoom_label.set_color(SYSCOL_TEXT);
-	add_component( &zoom_label );
-	cursor.x += zoom_label.get_size().w + D_H_SPACE;
+	zoom_row = add_table(6,0);
+	{
+		// zoom levels label
+		new_component<gui_label_t>("map zoom");
 
-	// zoom levels arrow left
-	zoom_buttons[0].init(button_t::repeatarrowleft, NULL,cursor);
-	zoom_buttons[0].add_listener( this );
-	add_component( zoom_buttons+0 );
-	cursor.x += zoom_buttons[0].get_size().w;
+		// zoom levels arrow left
+		zoom_buttons[0].init(button_t::repeatarrowleft, NULL);
+		zoom_buttons[0].add_listener( this );
+		add_component( zoom_buttons+0 );
 
-	// zoom level value label
-	zoom_value_label.set_pos(cursor);
-	zoom_value_label.set_size( scr_size(zoom_label_width,LINESPACE) );
-	zoom_value_label.set_align(gui_label_t::centered);
-	zoom_value_label.set_color(SYSCOL_TEXT);
-	add_component( &zoom_value_label );
-	cursor.x += zoom_label_width;
+		// zoom level value label
+		zoom_value_label.buf().append("1:1");
+		zoom_value_label.update();
+		add_component( &zoom_value_label );
 
-	// zoom levels arrow right
-	zoom_buttons[1].init(button_t::repeatarrowright, NULL, cursor);
-	zoom_buttons[1].add_listener( this );
-	add_component( zoom_buttons+1 );
-	cursor.x += zoom_buttons[1].get_size().w + D_H_SPACE;
+		// zoom levels arrow right
+		zoom_buttons[1].init(button_t::repeatarrowright, NULL);
+		zoom_buttons[1].add_listener( this );
+		add_component( zoom_buttons+1 );
 
-	// rotate map 45° (isometric view)
-	b_rotate45.init( button_t::square_state, "isometric map", cursor);
-	b_rotate45.set_tooltip("Similar view as the main window");
-	b_rotate45.add_listener(this);
-	b_rotate45.pressed = karte->isometric;
-	add_component(&b_rotate45);
+		// rotate map 45° (isometric view)
+		b_rotate45.init( button_t::square_state, "isometric map");
+		b_rotate45.set_tooltip("Similar view as the main window");
+		b_rotate45.add_listener(this);
+		b_rotate45.pressed = karte->isometric;
+		add_component(&b_rotate45);
 
-	// align second row
-	// Max Kielland: This will be done automatically (and properly) by the new gui_layout_t control in the near future.
-	zoom_value_label.align_to(&zoom_buttons[0],ALIGN_CENTER_V);
-	zoom_buttons[1].align_to(&zoom_buttons[0],ALIGN_CENTER_V);
-	zoom_label.align_to(&zoom_buttons[0],ALIGN_CENTER_V);
-	b_rotate45.align_to(&zoom_buttons[0],ALIGN_CENTER_V);
-	cursor = scr_coord(D_MARGIN_LEFT,zoom_buttons[0].get_pos().y+zoom_buttons[0].get_size().h+D_V_SPACE);
+		new_component<gui_fill_t>();
+	}
+	end_table();
 
 	// filter container
-	filter_container.set_pos(cursor);
 	filter_container.set_visible(false);
 	add_component(&filter_container);
+	filter_container.set_table_layout(1,0);
 
+	filter_container.add_table(5,0);
 	// insert selections: show networks, in filter container
 	b_overlay_networks.init(button_t::square_state, "Networks");
 	b_overlay_networks.set_tooltip("Overlay schedules/network");
@@ -209,21 +248,15 @@ map_frame_t::map_frame_t() :
 	filter_container.add_component( &b_overlay_networks );
 
 	// player combo for network overlay
-	viewed_player_c.set_pos( scr_coord(D_BUTTON_WIDTH + D_H_SPACE, 0) );
-	viewed_player_c.set_size( scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
-	viewed_player_c.set_max_size(scr_size(116, 10 * D_BUTTON_HEIGHT));
-
-	viewed_player_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), SYSCOL_TEXT));
+	viewed_player_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
 	viewable_players[ 0 ] = -1;
 	for(  int np = 0, count = 1;  np < MAX_PLAYER_COUNT;  np++  ) {
 		if(  welt->get_player( np )  &&  welt->get_player( np )->get_finance()->has_convoi()) {
-			viewed_player_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(welt->get_player( np )->get_name(), color_idx_to_rgb(welt->get_player( np )->get_player_color1()+4)));
+			viewed_player_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(welt->get_player( np )->get_name(), color_idx_to_rgb(welt->get_player( np )->get_player_color1()+4));
 			viewable_players[ count++ ] = np;
 		}
 	}
-
 	viewed_player_c.set_selection(0);
-	reliefkarte_t::get_karte()->player_showed_on_map = -1;
 	viewed_player_c.set_focusable( true );
 	viewed_player_c.add_listener( this );
 	filter_container.add_component(&viewed_player_c);
@@ -233,30 +266,29 @@ map_frame_t::map_frame_t() :
 	freight_type_c.set_size( scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	freight_type_c.set_max_size( scr_size( 116, 5 * D_BUTTON_HEIGHT) );
 	{
-		int count = 0;
-		viewable_freight_types[count++] = NULL;
-		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("All"), SYSCOL_TEXT) );
-		viewable_freight_types[count++] = goods_manager_t::passengers;
-		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passagiere"), SYSCOL_TEXT) );
-		viewable_freight_types[count++] = goods_manager_t::mail;
-		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Post"), SYSCOL_TEXT) );
-		viewable_freight_types[count++] = goods_manager_t::none; // for all freight ...
-		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Fracht"), SYSCOL_TEXT) );
+		viewable_freight_types.append(NULL);
+		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("All"), SYSCOL_TEXT) ;
+		viewable_freight_types.append(goods_manager_t::passengers);
+		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Passagiere"), SYSCOL_TEXT) ;
+		viewable_freight_types.append(goods_manager_t::mail);
+		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Post"), SYSCOL_TEXT) ;
+		viewable_freight_types.append(goods_manager_t::none); // for all freight ...
+		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Fracht"), SYSCOL_TEXT) ;
 		for(  int i = 0;  i < goods_manager_t::get_max_catg_index();  i++  ) {
 			const goods_desc_t *freight_type = goods_manager_t::get_info_catg(i);
 			const int index = freight_type->get_catg_index();
 			if(  index == goods_manager_t::INDEX_NONE  ||  freight_type->get_catg()==0  ) {
 				continue;
 			}
-			freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(freight_type->get_catg_name()), SYSCOL_TEXT));
-			viewable_freight_types[count++] = freight_type;
+			freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(freight_type->get_catg_name()), SYSCOL_TEXT);
+			viewable_freight_types.append(freight_type);
 		}
 		for(  int i=0;  i < goods_manager_t::get_count();  i++  ) {
 			const goods_desc_t *ware = goods_manager_t::get_info(i);
 			if(  ware->get_catg() == 0  &&  ware->get_index() > 2  ) {
 				// Special freight: Each good is special
-				viewable_freight_types[count++] = ware;
-				freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(ware->get_name()), SYSCOL_TEXT) );
+				viewable_freight_types.append(ware);
+				freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate(ware->get_name()), SYSCOL_TEXT) ;
 			}
 		}
 	}
@@ -267,12 +299,8 @@ map_frame_t::map_frame_t() :
 	filter_container.add_component(&freight_type_c);
 
 	// mode of transport combo for network overlay
-	transport_type_c.set_pos(scr_coord(3 * (D_BUTTON_WIDTH + D_H_SPACE), 0));
-	transport_type_c.set_size( scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
-	transport_type_c.set_max_size( scr_size( 116, 10 * D_BUTTON_HEIGHT) );
-
 	for (int i = 0; i < simline_t::MAX_LINE_TYPE; i++) {
-		transport_type_c.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(simline_t::get_linetype_name((simline_t::linetype)i), SYSCOL_TEXT));
+		transport_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(simline_t::get_linetype_name((simline_t::linetype)i), SYSCOL_TEXT);
 	}
 	transport_type_c.set_selection(0);
 	reliefkarte_t::get_karte()->transport_type_showed_on_map = simline_t::line;
@@ -281,26 +309,27 @@ map_frame_t::map_frame_t() :
 	filter_container.add_component(&transport_type_c);
 
 	b_overlay_networks_load_factor.init(button_t::square_state, "Free Capacity");
-	b_overlay_networks_load_factor.set_pos(scr_coord(4*(D_BUTTON_WIDTH+D_H_SPACE), 0));
 	b_overlay_networks_load_factor.set_tooltip("Color according to transport capacity left");
 	b_overlay_networks_load_factor.add_listener(this);
 	b_overlay_networks_load_factor.pressed = 0;
 	reliefkarte_t::get_karte()->show_network_load_factor = 0;
 	filter_container.add_component( &b_overlay_networks_load_factor );
+	filter_container.end_table();
 
+	filter_container.add_table(5,0)->set_force_equal_columns(true);
 	// insert filter buttons in legend container
 	for (int index=0; index<MAP_MAX_BUTTONS; index++) {
-		filter_buttons[index].init( button_t::box_state, button_init[index].button_text);
+		filter_buttons[index].init( button_t::box_state | button_t::flexible, button_init[index].button_text);
+		filter_buttons[index].text_color = SYSCOL_TEXT;
 		filter_buttons[index].set_tooltip( button_init[index].tooltip_text );
-		filter_buttons[index].pressed = button_init[index].mode&env_t::default_mapmode;
-		filter_buttons[index].background_color = color_idx_to_rgb(filter_buttons[index].pressed ? button_init[index].select_color : button_init[index].color);
-		filter_buttons[index].text_color = filter_buttons[index].pressed ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 		filter_buttons[index].add_listener(this);
 		filter_container.add_component(filter_buttons + index);
 	}
+	filter_container.end_table();
+	update_buttons();
 
 	// directory container
-	directory_container.set_pos(cursor);
+	directory_container.set_table_layout(4,0);
 	directory_container.set_visible(false);
 	add_component(&directory_container);
 
@@ -308,68 +337,68 @@ map_frame_t::map_frame_t() :
 	b_filter_factory_list.init(button_t::square_state, "Show only used");
 	b_filter_factory_list.set_tooltip("In the industry legend show only currently existing factories");
 	b_filter_factory_list.add_listener(this);
-	directory_container.add_component( &b_filter_factory_list );
+	directory_container.add_component( &b_filter_factory_list, 4 );
 	update_factory_legend();
 
 	// scale container
-	scale_container.set_pos(cursor);
+	scale_container.set_table_layout(3,0);
 	scale_container.set_visible(false);
 	add_component(&scale_container);
-	scale_container.add_component(&min_label);
-	scale_container.add_component(&max_label);
+	scale_container.new_component<gui_label_t>("min");
+	scale_container.new_component<gui_scale_t>();
+	scale_container.new_component<gui_label_t>("max");
 
 	// map scrolly
 	scrolly.set_show_scroll_x(true);
 	scrolly.set_scroll_discrete_y(false);
-	add_component(&scrolly);
+	take_component(p_scrolly);
 
 	// restore window size and options
-	set_windowsize( window_size );
 	show_hide_legend( legend_visible );
 	show_hide_scale( scale_visible );
 	show_hide_directory( directory_visible );
+
+	reset_min_windowsize();
+	set_windowsize( window_size );
 	set_resizemode(diagonal_resize);
+}
+
+
+void map_frame_t::update_buttons()
+{
+	for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
+		filter_buttons[i].pressed = (button_init[i].mode&env_t::default_mapmode)!=0;
+		filter_buttons[i].background_color = color_idx_to_rgb(filter_buttons[i].pressed ? button_init[i].select_color : button_init[i].color);
+	}
 }
 
 
 void map_frame_t::update_factory_legend()
 {
-	// When dialog is opened, update the list of industries currently in the world
-	legend.clear();
+	directory_container.remove_all();
+	directory_container.add_component( &b_filter_factory_list, 4 );
+
 	if(  directory_visible  ) {
+		vector_tpl<const factory_desc_t*> factory_types;
+		// generate list of factory types
 		if(  filter_factory_list  ) {
 			FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
 				if(  f->get_desc()->get_distribution_weight() > 0  ) {
-					std::string const label( translator::translate(f->get_desc()->get_name()) );
-					legend.append_unique( legend_entry_t(label, f->get_desc()->get_color()) );
+					factory_types.append_unique(f->get_desc());
 				}
 			}
 		}
 		else {
-			FOR(stringhashtable_tpl<factory_desc_t const*>, const& i, factory_builder_t::get_factory_table()) {
-				factory_desc_t const& d = *i.value;
-				if (d.get_distribution_weight() > 0) {
-					std::string const label(translator::translate(d.get_name()));
-					legend.append_unique(legend_entry_t(label, d.get_color()));
+			FOR(stringhashtable_tpl<factory_desc_t const*>, i, factory_builder_t::get_factory_table()) {
+				factory_desc_t const* const d = i.value;
+				if (d->get_distribution_weight() > 0) {
+					factory_types.append_unique(d);
 				}
 			}
 		}
-
-		// If any names are too long for current windows size, shorten them. Can't be done in above loop in case shortening some names cause
-		// then to become non unique and thus get clumped together
-		scr_coord_val client_width = get_windowsize().w - D_MARGIN_LEFT - D_MARGIN_RIGHT;
-		const int dot_len = proportional_string_width("..");
-		const int fac_cols = clamp(legend.get_count(), 1, client_width / ((D_DEFAULT_WIDTH-D_MARGINS_X)/3));
-
-		FOR(vector_tpl<legend_entry_t>, & l, legend) {
-			std::string label = l.text;
-			size_t i;
-			for(  i=12;  i < label.size()  &&  display_calc_proportional_string_len_width(label.c_str(), i) < (client_width / fac_cols) - dot_len - D_INDICATOR_BOX_WIDTH - 2 - D_H_SPACE;  i++  ) {}
-			if(  i < label.size()  ) {
-				label = label.substr(0, i);
-				label.append("..");
-				l.text = label;
-			}
+		// add corresponding legend entries
+		FOR(vector_tpl<const factory_desc_t*>, f, factory_types) {
+			directory_container.new_component<legend_entry_t>(f->get_name(), f->get_color());
 		}
 	}
 }
@@ -380,7 +409,7 @@ void map_frame_t::show_hide_legend(const bool show)
 	filter_container.set_visible(show);
 	b_show_legend.pressed = show;
 	legend_visible = show;
-	resize();
+	reset_min_windowsize();
 }
 
 
@@ -389,7 +418,7 @@ void map_frame_t::show_hide_scale(const bool show)
 	scale_container.set_visible(show);
 	b_show_scale.pressed = show;
 	scale_visible = show;
-	resize();
+	reset_min_windowsize();
 }
 
 
@@ -399,7 +428,8 @@ void map_frame_t::show_hide_directory(const bool show)
 	b_show_directory.pressed = show;
 	b_filter_factory_list.pressed = filter_factory_list;
 	directory_visible = show;
-	resize();
+	update_factory_legend();
+	reset_min_windowsize();
 }
 
 
@@ -482,11 +512,7 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 			}
 		}
 		reliefkarte_t::get_karte()->set_mode(  (reliefkarte_t::MAP_MODES)env_t::default_mapmode  );
-		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
-			filter_buttons[i].pressed = (button_init[i].mode&env_t::default_mapmode)!=0;
-			filter_buttons[i].background_color = color_idx_to_rgb(filter_buttons[i].pressed ? button_init[i].select_color : button_init[i].color);
-			filter_buttons[i].text_color = filter_buttons[i].pressed ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
-		}
+		update_buttons();
 	}
 	return true;
 }
@@ -496,8 +522,13 @@ void map_frame_t::zoom(bool magnify)
 {
 	if (reliefkarte_t::get_karte()->change_zoom_factor(magnify)) {
 		zoomed = true;
-		// recalc all the other data incl scrollbars
-		resize();
+
+		// update zoom factors and zoom label
+		sint16 zoom_in, zoom_out;
+		reliefkarte_t::get_karte()->get_zoom_factors(zoom_out, zoom_in);
+		zoom_value_label.buf().printf("%i:%i", zoom_in, zoom_out );
+		zoom_value_label.update();
+		zoom_row->set_size( zoom_row->get_size());
 	}
 }
 
@@ -540,9 +571,6 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		return true;
 	}
 	else if(  IS_RIGHTRELEASE(ev)  ) {
-		if(!is_dragging) {
-			resize();
-		}
 		is_dragging = false;
 		display_show_pointer(true);
 		is_cursor_hidden = false;
@@ -616,80 +644,6 @@ void map_frame_t::set_windowsize(scr_size size)
 {
 	gui_frame_t::set_windowsize( size );
 	window_size = get_windowsize();
-	scrolly.set_size( get_client_windowsize()-scrolly.get_pos()-scr_size(1,1) );
-}
-
-
-/**
- * resize window in response to a resize event
- * @author Hj. Malthaner
- * @date   01-Jun-2002
- */
-
-void map_frame_t::resize(const scr_coord delta)
-{
-	scr_coord_val offset_y = filter_container.get_pos().y;
-	scr_coord_val client_width = get_windowsize().w-D_MARGIN_LEFT - D_MARGIN_RIGHT;
-
-	// resize legend
-	if(legend_visible) {
-		scr_coord_val button_y = b_overlay_networks.get_size().h+D_V_SPACE;
-		scr_coord pos;
-
-		// calculate number of columns and rows for buttons
-		const int col = max( 1, min( client_width/(D_BUTTON_WIDTH+D_H_SPACE), MAP_MAX_BUTTONS ) );
-		const int row = ((MAP_MAX_BUTTONS-1)/col)+1;
-
-		// set button pos
-		for (int type=0; type<MAP_MAX_BUTTONS; type++) {
-			pos = scr_coord( (D_BUTTON_WIDTH+D_H_SPACE)*(type%col), button_y+(D_BUTTON_HEIGHT+D_V_SPACE)*((int)type/col) );
-			filter_buttons[type].set_pos( pos );
-		}
-
-		// calculate client height and set height
-		filter_container.set_size(scr_size(client_width, (D_BUTTON_HEIGHT+D_V_SPACE)*(row+1) ));
-		offset_y += filter_container.get_size().h + D_V_SPACE;
-
-		// resize combo boxes
-		viewed_player_c.set_max_size( scr_size(116, filter_container.get_size().h ) );
-		freight_type_c.set_max_size( scr_size(116, filter_container.get_size().h ) );
-		transport_type_c.set_max_size( scr_size(116, filter_container.get_size().h ) );
-	}
-
-	if(directory_visible) {
-		scr_coord_val button_y = b_filter_factory_list.get_size().h+D_V_SPACE;
-		scr_coord_val line_height = max(D_INDICATOR_BOX_HEIGHT,LINESPACE);
-
-		directory_container.set_pos(scr_coord(D_MARGIN_LEFT,offset_y));
-
-
-		// full program including factory texts
-		update_factory_legend();
-
-		const int fac_cols = clamp( legend.get_count(), 1, client_width / ((D_DEFAULT_WIDTH-D_MARGINS_X)/3));
-		const int fac_rows = (legend.get_count() - 1) / fac_cols + 1;
-
-		// calculate client height and set height
-		directory_container.set_size(scr_size(client_width,button_y+fac_rows*line_height));
-		offset_y += directory_container.get_size().h + D_V_SPACE;
-	}
-
-	// resize scale
-	if(scale_visible) {
-		scale_container.set_pos(scr_coord(D_MARGIN_LEFT,offset_y));
-		scale_container.set_size(scr_size(client_width,LINESPACE));
-		max_label.align_to(&scale_container,ALIGN_RIGHT,scr_coord(scale_container.get_pos().x,0));
-		offset_y += scale_container.get_size().h + D_V_SPACE;
-	}
-
-	// offset of map
-	scrolly.set_pos( scr_coord(1,offset_y) );
-
-	scr_coord_val min_width = max(BUTTON4_X+D_MARGIN_RIGHT-D_H_SPACE,D_DEFAULT_WIDTH);
-	set_min_windowsize(scr_size(min_width, D_TITLEBAR_HEIGHT+offset_y+64+D_SCROLLBAR_HEIGHT+1));
-	set_dirty();
-
-	gui_frame_t::resize(delta);
 }
 
 
@@ -701,12 +655,8 @@ void map_frame_t::resize(const scr_coord delta)
  */
 void map_frame_t::draw(scr_coord pos, scr_size size)
 {
-	char buf[16];
-	sint16 zoom_in, zoom_out;
-
 	// update our stored screen position
 	screenpos = pos;
-
 	reliefkarte_t::get_karte()->set_xy_offset_size( scr_coord(scrolly.get_scroll_x(), scrolly.get_scroll_y()), scrolly.get_client().get_size() );
 
 	// first: check if cursor within map screen size
@@ -726,40 +676,8 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 		old_ij = ij;
 	}
 
-	// update zoom factors and zoom label
-	reliefkarte_t::get_karte()->get_zoom_factors(zoom_out, zoom_in);
-	sprintf( buf, "%i:%i", zoom_in, zoom_out );
-	zoom_value_label.set_text_pointer(buf,false);
-
 	// draw all child controls
 	gui_frame_t::draw(pos, size);
-
-	// draw scale
-	if(scale_visible) {
-		scr_coord bar_pos( pos.x + scale_container.get_pos().x, pos.y + scale_container.get_pos().y + D_TITLEBAR_HEIGHT );
-		scr_coord_val bar_client_x = scale_container.get_size().w - min_label.get_size().w - max_label.get_size().w - (D_H_SPACE<<1);
-		double bar_width = (double)bar_client_x/(double)MAX_SEVERITY_COLORS;
-		// color bar
-		for(  int i=0;  i<MAX_SEVERITY_COLORS;  i++  ) {
-			display_fillbox_wh_rgb(bar_pos.x + min_label.get_size().w + D_H_SPACE + (i*bar_width), bar_pos.y+2,  bar_width+1, 7, reliefkarte_t::calc_severity_color(i, MAX_SEVERITY_COLORS-1), false);
-		}
-	}
-
-	// draw factory descriptions
-	if(directory_visible) {
-		scr_coord_val offset_y = directory_container.get_pos().y + b_filter_factory_list.get_size().h + D_V_SPACE;
-		const int columns = clamp(legend.get_count(), 1, (size.w-D_MARGIN_RIGHT-D_MARGIN_LEFT) / ((D_DEFAULT_WIDTH-D_MARGINS_X)/3));
-		scr_coord_val u = 0;
-		scr_coord_val line_height = max(D_INDICATOR_BOX_HEIGHT,LINESPACE);
-
-		FORX(vector_tpl<legend_entry_t>, const& i, legend, ++u) {
-			const int xpos = pos.x+D_MARGIN_LEFT + (u % columns) * (size.w-D_MARGIN_RIGHT-columns/2-1)/columns;
-			const int ypos = pos.y+D_TITLEBAR_HEIGHT + offset_y + (u / columns) * line_height;
-			display_fillbox_wh_rgb(xpos, ypos + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT, i.colour, false);
-			display_ddd_box_rgb(xpos, ypos + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT, SYSCOL_SHADOW, SYSCOL_SHADOW, false);
-			display_proportional_rgb(xpos + D_INDICATOR_BOX_WIDTH + 2, ypos, i.text.c_str(), ALIGN_LEFT, SYSCOL_TEXT, false);
-		}
-	}
 
 	// may add compass
 	if(  skinverwaltung_t::compass_map  &&  env_t::compass_map_position!=0  ) {
@@ -770,80 +688,41 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 
 void map_frame_t::rdwr( loadsave_t *file )
 {
-	bool is_show_schedule = (env_t::default_mapmode & reliefkarte_t::MAP_LINES);
-	bool is_show_fab = (env_t::default_mapmode & reliefkarte_t::MAP_FACTORIES);
-
-	file->rdwr_bool( reliefkarte_t::get_karte()->isometric );
-	if(  file->get_version()<111004  ) {
-		file->rdwr_bool( is_show_schedule );
-		file->rdwr_bool( is_show_fab );
-	}
-	reliefkarte_t::get_karte()->rdwr(file);
-	bool show_legend_state = legend_visible;
-	file->rdwr_bool( show_legend_state );
+	file->rdwr_bool( legend_visible );
 	file->rdwr_bool( scale_visible );
 	file->rdwr_bool( directory_visible );
-	if(  file->get_version()<111004  ) {
-		sint8 mode = log2(env_t::default_mapmode & ~reliefkarte_t::MAP_MODE_FLAGS);
-		file->rdwr_byte( mode );
-		env_t::default_mapmode = 1 << mode;
-		env_t::default_mapmode = mode>=0 ? 1 << mode : 0;
-		env_t::default_mapmode |= is_show_schedule * reliefkarte_t::MAP_LINES;
-		env_t::default_mapmode |= is_show_fab * reliefkarte_t::MAP_FACTORIES;
-	}
-	else {
-		file->rdwr_long( env_t::default_mapmode );
-	}
+	file->rdwr_long( env_t::default_mapmode );
+
 	file->rdwr_bool( b_overlay_networks_load_factor.pressed );
 
+	reliefkarte_t::get_karte()->rdwr(file);
+
+	window_size.rdwr(file);
+	scrolly.rdwr(file);
+
+	viewed_player_c.rdwr(file);
+	transport_type_c.rdwr(file);
+	freight_type_c.rdwr(file);
+
 	if(  file->is_loading()  ) {
-		scr_size savesize;
-		savesize.rdwr(file);
-		set_windowsize( savesize );
-		resize();
+		set_windowsize( window_size );
 		// notify minimap of new settings
 		reliefkarte_t::get_karte()->calc_map_size();
 		scrolly.set_size( scrolly.get_size() );
 
-		sint32 xoff;
-		file->rdwr_long( xoff );
-		sint32 yoff;
-		file->rdwr_long( yoff );
-		scrolly.set_scroll_position( xoff, yoff );
-
 		reliefkarte_t::get_karte()->set_mode((reliefkarte_t::MAP_MODES)env_t::default_mapmode);
-		for (uint i=0;i<MAP_MAX_BUTTONS;i++) {
-			filter_buttons[i].pressed = i==env_t::default_mapmode;
-		}
-		if(  legend_visible!=show_legend_state  ) {
-			action_triggered( &b_show_legend, (long)0 );
-		}
-		b_filter_factory_list.set_visible( directory_visible );
+		update_buttons();
+
+		show_hide_directory(directory_visible);
+		show_hide_legend(legend_visible);
+		show_hide_scale(scale_visible);
 
 		b_overlay_networks.pressed = (env_t::default_mapmode & reliefkarte_t::MAP_LINES)!=0;
-		// restore selection
-		sint16 idx;
-		file->rdwr_short(idx);
-		viewed_player_c.set_selection(idx);
-		file->rdwr_short(idx);
-		transport_type_c.set_selection(idx);
-		file->rdwr_short(idx);
-		freight_type_c.set_selection(idx);
-	}
-	else {
-		scr_size size = get_windowsize();
-		size.rdwr(file);
-		sint32 xoff = scrolly.get_scroll_x();
-		file->rdwr_long( xoff );
-		sint32 yoff = scrolly.get_scroll_y();
-		file->rdwr_long( yoff );
-		if(file->is_saving()) {
-			sint16 idx = viewed_player_c.get_selection();
-			file->rdwr_short(idx);
-			idx = transport_type_c.get_selection();
-			file->rdwr_short(idx);
-			idx = freight_type_c.get_selection();
-			file->rdwr_short(idx);
-		}
+
+		reliefkarte_t::get_karte()->player_showed_on_map = viewable_players[viewed_player_c.get_selection()];
+		reliefkarte_t::get_karte()->transport_type_showed_on_map = transport_type_c.get_selection();
+		reliefkarte_t::get_karte()->freight_type_group_index_showed_on_map = viewable_freight_types[freight_type_c.get_selection()];
+		reliefkarte_t::get_karte()->show_network_load_factor = b_overlay_networks_load_factor.pressed;
+		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
 	}
 }

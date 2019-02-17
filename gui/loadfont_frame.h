@@ -9,7 +9,7 @@
 #define gui_loadsave_frame_h
 
 #ifdef USE_FREETYPE
-#include "../gui/gui_theme.h"
+#include "gui_theme.h"
 #include "../simsys.h"
 
 #include <ft2build.h>
@@ -48,17 +48,19 @@ protected:
 	 * Action that's started with a button click
 	 * @author Hansjörg Malthaner
 	 */
-	virtual bool item_action (const char *filename);
-	virtual bool ok_action   (const char *fullpath);
-	virtual bool cancel_action(const char *);
+	bool item_action (const char *filename) OVERRIDE;
+	bool ok_action   (const char *fullpath) OVERRIDE;
+	bool cancel_action(const char *) OVERRIDE;
 
 	// returns extra file info
-	virtual const char *get_info(const char *fname);
+	const char *get_info(const char *fname) OVERRIDE;
 
 	// sort with respect to info, which is date
-	virtual bool compare_items ( const dir_entry_t & entry, const char *info, const char *);
+	bool compare_items ( const dir_entry_t & entry, const char *info, const char *) OVERRIDE;
 
-	virtual bool check_file( const char *filename, const char *suffix ) OVERRIDE;
+	bool check_file( const char *filename, const char *suffix ) OVERRIDE;
+
+	void fill_list() OVERRIDE;
 
 public:
 	/**
@@ -66,18 +68,16 @@ public:
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	virtual const char *get_help_filename() const { return "load_font.txt"; }
+	const char *get_help_filename() const OVERRIDE { return "load_font.txt"; }
 
 	loadfont_frame_t();
 
-	virtual void fill_list() OVERRIDE;
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	virtual void draw(scr_coord pos, scr_size size) OVERRIDE;
+	uint32 get_rdwr_id( void ) OVERRIDE { return magic_font; }
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	uint32 get_rdwr_id( void ) { return magic_font; }
-	void rdwr( loadsave_t *file );
-
-	virtual bool action_triggered(gui_action_creator_t *, value_t v) OVERRIDE;
+	bool action_triggered(gui_action_creator_t *, value_t v) OVERRIDE;
 };
 
 #endif

@@ -9,6 +9,7 @@
 #include "citylist_stats_t.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
+#include "components/gui_button_to_chart.h"
 #include "components/gui_label.h"
 #include "components/gui_chart.h"
 #include "components/gui_scrolled_list.h"
@@ -31,18 +32,22 @@ private:
 	static const uint8 hist_type_color[karte_t::MAX_WORLD_COST];
 	static const uint8 hist_type_type[karte_t::MAX_WORLD_COST];
 
-	gui_label_t sort_label;
-
 	button_t sortedby;
 	button_t sorteddir;
 
 	gui_scrolled_list_t scrolly;
 
-	button_t    show_stats;
+	gui_aligned_container_t container_year, container_month;
 	gui_chart_t chart, mchart;
-	button_t    filterButtons[karte_t::MAX_WORLD_COST];
+	gui_button_to_chart_array_t button_to_chart;
 	gui_tab_panel_t year_month_tabs;
+	gui_tab_panel_t main;
 
+	gui_aligned_container_t list, statistics;
+	gui_label_buf_t citizens;
+
+	void fill_list();
+	void update_label();
 /*
  * All filter settings are static, so they are not reset each
  * time the window closes.
@@ -58,20 +63,14 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	*/
-	void draw(scr_coord pos, scr_size size);
-
-	/**
-	 * resize window in response to a resize event
-	 * @author Hj. Malthaner
-	 */
-	void resize(const scr_coord delta);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	*/
-	const char * get_help_filename() const {return "citylist_filter.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "citylist_filter.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

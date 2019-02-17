@@ -208,7 +208,6 @@ convoi_t::~convoi_t()
 
 	// close windows
 	destroy_win( magic_convoi_info+self.get_id() );
-	destroy_win( magic_convoi_detail+self.get_id() );
 
 DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	// stop following
@@ -643,10 +642,6 @@ void convoi_t::set_name(const char *name, bool with_new_id)
 		tstrncpy(name_and_id, buf, lengthof(name_and_id));
 	}
 	// now tell the windows that we were renamed
-	convoi_detail_t *detail = dynamic_cast<convoi_detail_t*>(win_get_magic( magic_convoi_detail+self.get_id()));
-	if (detail) {
-		detail->update_data();
-	}
 	convoi_info_t *info = dynamic_cast<convoi_info_t*>(win_get_magic( magic_convoi_info+self.get_id()));
 	if (info) {
 		info->update_data();
@@ -1557,7 +1552,6 @@ void convoi_t::betrete_depot(depot_t *dep)
 	dep->convoi_arrived(self, get_schedule());
 
 	destroy_win( magic_convoi_info+self.get_id() );
-	destroy_win( magic_convoi_detail+self.get_id() );
 
 	maxspeed_average_count = 0;
 	state = INITIAL;

@@ -16,9 +16,6 @@
 
 #include "../player/simplay.h"
 
-#include "../utils/cbuffer_t.h"
-#include "../utils/simstring.h"
-
 #include "extend_edit.h"
 
 
@@ -27,63 +24,62 @@
 extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 	gui_frame_t( name, player_ ),
 	player(player_),
-	info_text(&buf, COLUMN_WIDTH),
-	scrolly(&cont),
-	scl(gui_scrolled_list_t::listskin)
+	info_text(&buf, D_BUTTON_WIDTH*4),
+	scrolly(&info_text, true, true),
+	scl(gui_scrolled_list_t::listskin, gui_scrolled_list_t::scrollitem_t::compare)
 {
-
 	is_show_trans_name = true;
 
-	const sint16 image_width = get_base_tile_raster_width()*2;
-	tab_panel_width = ( image_width>COLUMN_WIDTH ? image_width : COLUMN_WIDTH );
+	set_table_layout(2,0);
+	set_force_equal_columns(true);
+	set_alignment(ALIGN_LEFT | ALIGN_TOP);
 
-	// init scrolled list
-	scl.set_size(scr_size(tab_panel_width, SCL_HEIGHT-14));
-	scl.set_pos(scr_coord(0,1));
-	scl.set_selection(-1);
-	scl.add_listener(this);
-
+	// left column
+	add_table(1,0);
 	// tab panel
-	tabs.set_pos(scr_coord(11,5));
-	tabs.set_size(scr_size(tab_panel_width, SCL_HEIGHT));
-	tabs.add_tab(&scl, translator::translate("Translation"));//land
-	tabs.add_tab(&scl, translator::translate("Object"));//city
+	tabs.add_tab(&cont_left, translator::translate("Translation"));
+	tabs.add_tab(&cont_left, translator::translate("Object"));
 	tabs.add_listener(this);
 	add_component(&tabs);
 
-	bt_climates.init( button_t::square_state, "ignore climates", scr_coord(tab_panel_width+2*MARGIN, MARGIN) );
+	cont_left.set_table_layout(1,0);
+	cont_left.set_alignment(ALIGN_CENTER_H);
+	// add stretcher element
+	cont_left.new_component<gui_fill_t>();
+	// init scrolled list
+	cont_left.add_component(&scl);
+	scl.set_selection(-1);
+	scl.add_listener(this);
+
+	// add image
+	cont_left.add_component(&building_image);
+
+	end_table();
+
+	// right column
+	add_table(1,0);
+
+	bt_climates.init( button_t::square_state, "ignore climates");
 	bt_climates.add_listener(this);
 	add_component(&bt_climates);
 
-	bt_timeline.init( button_t::square_state, "Use timeline start year", scr_coord(tab_panel_width+2*MARGIN, D_BUTTON_HEIGHT+MARGIN) );
+	bt_timeline.init( button_t::square_state, "Use timeline start year");
 	bt_timeline.pressed = welt->get_settings().get_use_timeline();
 	bt_timeline.add_listener(this);
 	add_component(&bt_timeline);
 
-	bt_obsolete.init( button_t::square_state, "Show obsolete", scr_coord(tab_panel_width+2*MARGIN, 2*D_BUTTON_HEIGHT+MARGIN) );
+	bt_obsolete.init( button_t::square_state, "Show obsolete");
 	bt_obsolete.add_listener(this);
 	add_component(&bt_obsolete);
 
-	offset_of_comp = MARGIN+3*D_BUTTON_HEIGHT+4;
-
-	// item list
-	info_text.set_pos(scr_coord(0, 10));
-	cont.add_component(&info_text);
-	cont.set_pos( scr_coord( 0, 0 ) );
+	add_component(&cont_right);
+	cont_right.set_table_layout(1,0);
 
 	scrolly.set_visible(true);
 	add_component(&scrolly);
+	end_table();
 
-	// image placeholder
-	for(  sint16 i=3;  i>=0;  i--  ) {
-		img[i].set_image(IMG_EMPTY);
-		add_component( &img[i] );
-	}
-
-	// resize button
-	set_min_windowsize(scr_size(tab_panel_width+COLUMN_WIDTH+3*MARGIN, D_TITLEBAR_HEIGHT+SCL_HEIGHT+(get_base_tile_raster_width()*3)/2+5*MARGIN));
 	set_resizemode(diagonal_resize);
-	resize(scr_coord(0,0));
 }
 
 
@@ -133,33 +129,4 @@ bool extend_edit_gui_t::action_triggered( gui_action_creator_t *komp,value_t v) 
 		fill_list( is_show_trans_name );
 	}
 	return true;
-}
-
-
-
-/**
- * resize window in response to a resize event
- * @author Hj. Malthaner
- * @date   16-Oct-2003
- */
-void extend_edit_gui_t::resize(const scr_coord delta)
-{
-	gui_frame_t::resize(delta);
-
-	// text region
-	scr_size size = get_windowsize()-scr_coord( tab_panel_width+2*MARGIN, offset_of_comp+16 );
-	info_text.set_width(size.w - 20);
-	info_text.recalc_size();
-	cont.set_size( info_text.get_size() + scr_coord(0, 20) );
-	scrolly.set_size(size);
-	scrolly.set_pos( scr_coord( tab_panel_width+2*MARGIN, offset_of_comp ) );
-
-	// image placeholders
-	sint16 rw = get_base_tile_raster_width()/4;
-	static const scr_coord img_offsets[4]={ scr_coord(0,0), scr_coord(-2,1), scr_coord(2,1), scr_coord(0,2) };
-	for(  sint16 i=0;  i<4;  i++  ) {
-		scr_coord pos = scr_coord(((tab_panel_width-get_base_tile_raster_width())/2)+MARGIN, SCL_HEIGHT+3*MARGIN) + img_offsets[i]*rw;
-		img[i].set_pos( pos );
-	}
-
 }

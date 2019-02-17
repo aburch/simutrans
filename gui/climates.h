@@ -27,23 +27,14 @@ class climate_gui_t  : public gui_frame_t, private action_listener_t
 private:
 	settings_t* sets;
 
-	enum { MAX_CLIMATE_LABEL=14 };
-	char snowline_txt[16];
-
-	// since decrease/increase buttons always pair these ...
 	gui_numberinput_t
 		water_level,
 		mountain_height,
-		mountain_roughness;
-
-	gui_numberinput_t
-		snowline_winter;
-
-	gui_numberinput_t
+		mountain_roughness,
+		snowline_winter,
 		climate_borders_ui[rocky_climate];
 
-	gui_label_t
-		numberinput_lbl[MAX_CLIMATE_LABEL],
+	gui_label_buf_t
 		summer_snowline;
 
 	button_t
@@ -65,10 +56,10 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const {return "climates.txt";}
+	const char * get_help_filename() const OVERRIDE {return "climates.txt";}
 
 	// does not work during new world dialog
-	virtual bool has_sticky() const { return false; }
+	bool has_sticky() const OVERRIDE { return false; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

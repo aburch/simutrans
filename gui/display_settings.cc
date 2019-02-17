@@ -31,406 +31,254 @@
 #include "loadfont_frame.h"
 #include "simwin.h"
 
-// Local params
-#define L_DIALOG_WIDTH (220)
 
+/**
+ * class to visualize station names
+ */
+class gui_label_stationname_t : public gui_label_t
+{
+	karte_ptr_t welt;
+public:
+	gui_label_stationname_t(const char* text) : gui_label_t(text) {}
+
+	void draw(scr_coord offset)
+	{
+		scr_coord p = pos + offset;
+
+		FLAGGED_PIXVAL pc = welt->get_active_player() ? color_idx_to_rgb(welt->get_active_player()->get_player_color1()+4) : color_idx_to_rgb(COL_ORANGE);
+		const char *text = get_text_pointer();
+
+		switch( env_t::show_names >> 2 ) {
+			case 0:
+				display_ddd_proportional_clip( p.x, p.y + get_size().h/2, proportional_string_width(text)+7, 0, pc, color_idx_to_rgb(COL_BLACK), text, 1 );
+				break;
+			case 1:
+				display_outline_proportional_rgb( p.x, p.y, pc+1, color_idx_to_rgb(COL_BLACK), text, 1 );
+				break;
+			case 2:
+				display_outline_proportional_rgb( p.x + LINESPACE + D_H_SPACE, p.y, color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, 1 );
+				display_ddd_box_clip_rgb(         p.x,                     p.y,   LINESPACE,   LINESPACE,   pc-2, pc+2 );
+				display_fillbox_wh_clip_rgb(           p.x+1,                   p.y+1, LINESPACE-2, LINESPACE-2, pc,   true);
+				break;
+			case 3: // show nothing
+				break;
+		}
+	}
+
+	scr_size get_min_size() const
+	{
+		return gui_label_t::get_min_size() + scr_size(LINESPACE + D_H_SPACE, 4);
+	}
+};
 
 color_gui_t::color_gui_t() :
 gui_frame_t( translator::translate("Helligk. u. Farben") )
 {
-	scr_coord cursor = scr_coord( D_MARGIN_LEFT, D_MARGIN_TOP );
-
-	// Use one of the edit controls to calculate width
-	inp_underground_level.set_width_by_len(3);
-	const scr_coord_val edit_width = inp_underground_level.get_size().w;
-	const scr_coord_val label_width = L_DIALOG_WIDTH - D_MARGINS_X - D_H_SPACE - edit_width;
-
-	// Max Kielland: No need to put right aligned controls in place here.
-	// They will be positioned in the resize window function.
+	set_table_layout(1,0);
 
 	// Show thememanager
-	buttons[23].set_pos( cursor );
-	buttons[23].set_typ(button_t::roundbox_state);
-	buttons[23].set_text("Select a theme for display");
-	buttons[23].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
+	buttons[23].init(button_t::roundbox_state | button_t::flexible, "Select a theme for display");
+	add_component(buttons+23);
 
-	// CHange font
-	buttons[25].set_pos( cursor );
-	buttons[25].set_typ(button_t::roundbox_state);
-	buttons[25].set_text("Select display font");
-	buttons[25].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
+	// Change font
+	buttons[25].init(button_t::roundbox_state | button_t::flexible, "Select display font");
+	add_component(buttons+25);
 
+	add_table(2,0);
 	// Show grid checkbox
-	buttons[17].set_pos( cursor );
-	buttons[17].set_typ(button_t::square_state);
-	buttons[17].set_text("show grid");
-	buttons[17].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+	buttons[17].init(button_t::square_state, "show grid");
+	add_component(buttons+17, 2);
 
 	// Underground view checkbox
-	buttons[16].set_pos( cursor );
-	buttons[16].set_typ(button_t::square_state);
-	buttons[16].set_text("underground mode");
-	buttons[16].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+	buttons[16].init(button_t::square_state, "underground mode");
+	add_component(buttons+16, 2);
 
 	// Show slice map view checkbox
-	buttons[20].set_pos( cursor );
-	buttons[20].set_typ(button_t::square_state);
-	buttons[20].set_text("sliced underground mode");
-	buttons[20].set_width( label_width );
+	buttons[20].init(button_t::square_state, "sliced underground mode");
+	add_component(buttons+20);
 
 	// underground slice edit
-	inp_underground_level.set_pos( cursor );
-	inp_underground_level.set_width( edit_width );
-	inp_underground_level.align_to(&buttons[20], ALIGN_CENTER_V);
 	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
 	inp_underground_level.set_limits(welt->get_groundwater()-10, 32);
 	inp_underground_level.add_listener(this);
-	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+	add_component( &inp_underground_level );
 
 	// Day/night change checkbox
-	buttons[9].set_pos( cursor );
-	buttons[9].set_typ(button_t::square_state);
-	buttons[9].set_text("8WORLD_CHOOSE");
-	buttons[9].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	buttons[9].init(button_t::square_state, "8WORLD_CHOOSE");
 	buttons[9].pressed = env_t::night_shift;
-	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+	add_component(buttons+9, 2);
 
 	// Brightness label
-	brightness_label.init("1LIGHT_CHOOSE",cursor);
-	brightness_label.set_width( label_width );
-	add_component(&brightness_label);
-	cursor.y += LINESPACE + D_V_SPACE;
+	new_component<gui_label_t>("1LIGHT_CHOOSE");
 
 	// brightness edit
-	brightness.set_pos( cursor );
-	brightness.set_width( edit_width );
-	brightness.align_to(&brightness_label, ALIGN_CENTER_V);
 	brightness.set_value( env_t::daynight_level );
 	brightness.set_limits( 0, 9 );
 	brightness.add_listener(this);
+	add_component(&brightness);
 
 	// Scroll inverse checkbox
-	buttons[6].set_pos( cursor );
-	buttons[6].set_typ(button_t::square_state);
-	buttons[6].set_text("4LIGHT_CHOOSE");
-	buttons[6].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	buttons[6].init(button_t::square_state, "4LIGHT_CHOOSE");
 	buttons[6].pressed = env_t::scroll_multi < 0;
-	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+	add_component(buttons+6, 2);
 
 	// Scroll speed label
-	scrollspeed_label.init("3LIGHT_CHOOSE",cursor);
-	scrollspeed_label.set_width( label_width );
-	add_component(&scrollspeed_label);
-	cursor.y += LINESPACE;
+	new_component<gui_label_t>("3LIGHT_CHOOSE");
 
 	// Scroll speed edit
-	scrollspeed.set_pos( cursor );
-	scrollspeed.set_width( edit_width );
-	scrollspeed.align_to(&scrollspeed_label, ALIGN_CENTER_V);
 	scrollspeed.set_value( abs(env_t::scroll_multi) );
 	scrollspeed.set_limits( 1, 9 );
 	scrollspeed.add_listener(this);
+	add_component(&scrollspeed);
 
-	// Divider 1
-	divider1.set_pos( cursor );
-	add_component(&divider1);
-	cursor.y += D_DIVIDER_HEIGHT;
+	// Divider line
+	new_component_span<gui_divider_t>(2);
 
 	// Transparent instead of hidden checkbox
-	buttons[10].set_pos( cursor );
-	buttons[10].set_typ(button_t::square_state);
-	buttons[10].set_text("hide transparent");
-	buttons[10].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	buttons[10].init(button_t::square_state, "hide transparent");
 	buttons[10].pressed = env_t::hide_with_transparency;
-	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+	add_component(buttons+10, 2);
 
 	// Hide trees checkbox
-	buttons[11].set_pos( cursor );
-	buttons[11].set_typ(button_t::square_state);
-	buttons[11].set_text("hide trees");
-	buttons[11].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+	buttons[11].init(button_t::square_state, "hide trees");
+	add_component(buttons+11, 2);
 
-	// Hide buildings arrows
-	buttons[12].set_pos( cursor );
-	buttons[12].set_typ(button_t::arrowleft);
-	buttons[13].set_pos( cursor );
-	buttons[13].set_typ(button_t::arrowright);
+	// Hide buildings
+	hide_buildings.set_focusable(false);
+	hide_buildings.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("no buildings hidden"), SYSCOL_TEXT );
+	hide_buildings.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("hide city building"), SYSCOL_TEXT );
+	hide_buildings.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("hide all building"), SYSCOL_TEXT );
+	hide_buildings.set_selection( env_t::hide_buildings );
+	add_component(&hide_buildings, 2);
+	hide_buildings.add_listener(this);
 
-	// Hide buildings label
-	hide_buildings_label.set_pos( cursor + scr_coord (buttons[12].get_size().w + D_H_SPACE,0));
-	hide_buildings_label.align_to(&buttons[12], ALIGN_CENTER_V);
-	add_component(&hide_buildings_label);
-	cursor.y += buttons[12].get_size().h + D_V_SPACE;
-
-	// Hide buildings and trees under mouse cursor checkbox
-	buttons[21].set_pos( cursor );
-	buttons[21].set_typ( button_t::square_state );
-	buttons[21].set_text( "Smart hide objects" );
-	buttons[21].set_width( label_width );
 	buttons[21].set_tooltip( "hide objects under cursor" );
+	buttons[21].init( button_t::square_state ,  "Smart hide objects" );
+	add_component(buttons+21);
 
 	// Smart hide objects edit
-	cursor_hide_range.set_pos( cursor );
-	cursor_hide_range.set_width( edit_width );
-	cursor_hide_range.align_to(&buttons[21], ALIGN_CENTER_V);
 	cursor_hide_range.set_value(env_t::cursor_hide_range);
 	cursor_hide_range.set_limits( 0, 10 );
 	cursor_hide_range.add_listener(this);
-	cursor.y += D_CHECKBOX_HEIGHT;
+	add_component(&cursor_hide_range);
 
 	// Divider 2
-	divider2.set_pos( cursor );
-	add_component(&divider2);
-	cursor.y += D_DIVIDER_HEIGHT;
+	new_component_span<gui_divider_t>(2);
 
 	// Transparent station coverage
-	buttons[14].set_pos( cursor );
-	buttons[14].set_typ(button_t::square_state);
-	buttons[14].set_text("transparent station coverage");
-	buttons[14].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	buttons[14].init(button_t::square_state, "transparent station coverage");
 	buttons[14].pressed = env_t::use_transparency_station_coverage;
-	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+	add_component(buttons+14, 2);
 
 	// Show station coverage
-	buttons[15].set_pos( cursor );
-	buttons[15].set_typ(button_t::square_state);
-	buttons[15].set_text("show station coverage");
-	buttons[15].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+	buttons[15].init(button_t::square_state, "show station coverage");
+	add_component(buttons+15, 2);
 
 	// Show station names arrow
-	buttons[18].set_pos( cursor );
-	buttons[18].set_typ(button_t::arrowright);
-	buttons[18].set_tooltip("show station names");
-	cursor.y += buttons[18].get_size().h + D_V_SPACE;
+	add_table(2,1);
+	{
+		buttons[18].set_typ(button_t::arrowright);
+		buttons[18].set_tooltip("show station names");
+		add_component(buttons+18);
+		new_component<gui_label_stationname_t>("show station names");
+	}
+	end_table();
+	new_component<gui_empty_t>();
 
 	// Show waiting bars checkbox
-	buttons[19].set_pos( cursor );
-	buttons[19].set_typ(button_t::square_state);
-	buttons[19].set_text("show waiting bars");
-	buttons[19].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	buttons[19].init(button_t::square_state, "show waiting bars");
 	buttons[19].pressed = env_t::show_names&2;
-	cursor.y += D_CHECKBOX_HEIGHT;
+	add_component(buttons+19, 2);
 
 	// Divider 3
-	divider3.set_pos( cursor );
-	add_component(&divider3);
-	cursor.y += D_DIVIDER_HEIGHT;
+	new_component_span<gui_divider_t>(2);
 
 	// Pedestrians in towns checkbox
-	buttons[8].set_pos( cursor );
-	buttons[8].set_typ(button_t::square_state);
-	buttons[8].set_text("6LIGHT_CHOOSE");
-	buttons[8].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	buttons[8].init(button_t::square_state, "6LIGHT_CHOOSE");
 	buttons[8].pressed = welt->get_settings().get_random_pedestrians();
-	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+	add_component(buttons+8, 2);
 
 	// Pedestrians at stops checkbox
-	buttons[7].set_pos( cursor );
-	buttons[7].set_typ(button_t::square_state);
-	buttons[7].set_text("5LIGHT_CHOOSE");
-	buttons[7].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	buttons[7].init(button_t::square_state, "5LIGHT_CHOOSE");
 	buttons[7].pressed = welt->get_settings().get_show_pax();
-	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+	add_component(buttons+7, 2);
 
 	// Traffic density label
-	traffic_density_label.init("6WORLD_CHOOSE",cursor);
-	traffic_density_label.set_width( label_width );
-	add_component(&traffic_density_label);
+	new_component<gui_label_t>("6WORLD_CHOOSE");
 
 	// Traffic density edit
-	traffic_density.set_pos( cursor );
-	traffic_density.set_width( edit_width );
-	traffic_density.align_to(&traffic_density_label, ALIGN_CENTER_V);
 	traffic_density.set_value(welt->get_settings().get_traffic_level());
 	traffic_density.set_limits( 0, 16 );
 	traffic_density.add_listener(this);
-	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+	add_component(&traffic_density);
 
-	// Convoy tooltip left/right arrows
-	buttons[0].set_pos( cursor );
-	buttons[0].set_typ(button_t::arrowleft);
-	buttons[1].set_pos( cursor );
-	buttons[1].set_typ(button_t::arrowright);
-
-	// Convoy tooltip label
-	convoy_tooltip_label.init("", cursor + scr_coord (buttons[0].get_size().w + D_H_SPACE,0) );
-	convoy_tooltip_label.align_to(&buttons[0], ALIGN_CENTER_V);
-	add_component(&convoy_tooltip_label);
-	cursor.y += buttons[0].get_size().h + D_V_SPACE;
+	// Convoy tooltip
+	convoy_tooltip.set_focusable(false);
+	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("convoi error tooltips"), SYSCOL_TEXT );
+	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("convoi mouseover tooltips"), SYSCOL_TEXT );
+	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("all convoi tooltips"), SYSCOL_TEXT );
+	convoy_tooltip.set_selection( env_t::show_vehicle_states );
+	add_component(&convoy_tooltip, 2);
+	convoy_tooltip.add_listener(this);
 
 	// Show schedule's stop checkbox
-	buttons[22].set_pos( cursor );
-	buttons[22].set_typ( button_t::square_state );
-	buttons[22].set_text( "Highlite schedule" );
-	buttons[22].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_CHECKBOX_HEIGHT+D_V_SPACE;
+	buttons[22].init( button_t::square_state ,  "Highlite schedule" );
+	add_component(buttons+22, 2);
 
 	// convoi booking message options
-	money_booking.set_pos( cursor );
-	money_booking.set_size( scr_size(L_DIALOG_WIDTH - D_MARGINS_X, D_EDIT_HEIGHT ) );
-	money_booking.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Show all revenue messages"), SYSCOL_TEXT ));
-	money_booking.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Show only player's revenue"), SYSCOL_TEXT ));
-	money_booking.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Show no revenue messages"), SYSCOL_TEXT ));
+	money_booking.set_focusable( false );
+	money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Show all revenue messages"), SYSCOL_TEXT );
+	money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Show only player's revenue"), SYSCOL_TEXT );
+	money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Show no revenue messages"), SYSCOL_TEXT );
 	money_booking.set_selection( env_t::show_money_message );
-	add_component(&money_booking);
+	add_component(&money_booking, 2);
 	money_booking.add_listener(this);
-	cursor.y += D_EDIT_HEIGHT+D_V_SPACE;
 	
 	// ribi arrow
-	buttons[26].set_pos( cursor );
-	buttons[26].set_typ(button_t::square_state);
-	buttons[26].set_text("show connected directions");
-	buttons[26].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_CHECKBOX_HEIGHT;
+	buttons[26].init(button_t::square_state, "show connected directions");
+	buttons[26].pressed = strasse_t::show_masked_ribi;
+	add_component(buttons+26, 2);
 
 	// Toggle simple drawing for debugging
 #ifdef DEBUG
-	buttons[24].set_pos( cursor );
-	buttons[24].set_typ(button_t::square_state);
-	buttons[24].set_text("Simple drawing");
-	buttons[24].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	buttons[24].init(button_t::square_state, "Simple drawing");
 	buttons[24].pressed = env_t::simple_drawing;
-	cursor.y += D_CHECKBOX_HEIGHT;
+	add_component(buttons+24, 2);
 #endif
 
 	// Divider 4
-	divider4.set_pos( cursor );
-	add_component(&divider4);
-	cursor.y += D_DIVIDER_HEIGHT;
+	new_component_span<gui_divider_t>(2);
+
+	end_table();
 
 	// add controls to info container
-	label_container.set_pos( cursor );
-	scr_coord label_cursor = scr_coord(0,0);
-
+	container_bottom = add_table(2,0);
+	container_bottom->set_alignment(ALIGN_LEFT);
 	// Frame time label
-	frame_time_label.init("Frame time:", label_cursor, SYSCOL_TEXT );
-	sprintf(frame_time_buf," ***** ms" );
-	frame_time_value_label.init( frame_time_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
-	label_container.add_component( &frame_time_label );
-	value_container.add_component( &frame_time_value_label );
-	label_cursor.y += LINESPACE;
-
+	new_component<gui_label_t>("Frame time:");
+	add_component( &frame_time_value_label );
 	// Idle time label
-	idle_time_label.init("Idle:", label_cursor, SYSCOL_TEXT);
-	sprintf(idle_time_buf," ***** ms" );
-	idle_time_value_label.init( idle_time_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
-	label_container.add_component( &idle_time_label );
-	value_container.add_component( &idle_time_value_label );
-	label_cursor.y += LINESPACE;
-
+	new_component<gui_label_t>("Idle:");
+	add_component( &idle_time_value_label );
 	// FPS label
-	fps_label.init("FPS:", label_cursor, SYSCOL_TEXT );
-	sprintf(fps_buf," *** fps*" );
-	fps_value_label.init( fps_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
-	label_container.add_component( &fps_label );
-	value_container.add_component( &fps_value_label );
-	label_cursor.y += LINESPACE;
-
+	new_component<gui_label_t>("FPS:");
+	add_component( &fps_value_label );
 	// Simloops label
-	simloops_label.init("Sim:", label_cursor, SYSCOL_TEXT );
-	sprintf(simloops_buf," ********" );
-	simloops_value_label.init( simloops_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
-	label_container.add_component( &simloops_label );
-	value_container.add_component( &simloops_value_label );
-	label_cursor.y += LINESPACE;
-
-	// Align all values with labels
-	scr_rect bounds = label_container.get_min_boundaries();
-	label_container.set_size( bounds.get_size() );
-	value_container.set_pos( label_container.get_pos() + scr_coord( bounds.get_width()+D_H_SPACE, 0 ) );
-//	value_container.align_to( &label_container, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_TOP, scr_coord( D_H_SPACE, 0 ) );
-	value_container.set_size( scr_size( L_DIALOG_WIDTH - D_MARGINS_X - label_container.get_size().w - D_H_SPACE, bounds.get_height() ) );
+	new_component<gui_label_t>("Sim:");
+	add_component( &simloops_value_label );
+	// empty row with inf-length second column to have space for changing labels in 2nd column
+	new_component<gui_empty_t>();
+	new_component<gui_fill_t>();
+	end_table();
 
 	for(  int i = 0;  i < COLORS_MAX_BUTTONS;  i++  ) {
 		buttons[i].add_listener(this);
 	}
 
-	// add buttons for sensible keyboard tab order
-	add_component( buttons+23 );
-	add_component( buttons+25 );
-	add_component( buttons+17 );
-	add_component( buttons+16 );
-	add_component( &inp_underground_level );
-	add_component( buttons+20 );
-	add_component( buttons+9 );
-	add_component( &brightness );
-	add_component( buttons+6 );
-	add_component( &scrollspeed );
-	add_component( buttons+10 );
-	add_component( buttons+11 );
-	add_component( &cursor_hide_range );
-	add_component( buttons+21);
-	add_component( buttons+12 );
-	add_component( buttons+13 );
-	add_component( buttons+14 );
-	add_component( buttons+15 );
-	add_component( buttons+18 );
-	add_component( buttons+19 );
-	add_component( buttons+8 );
-	add_component( buttons+7 );
-	add_component( &traffic_density );
-	add_component( buttons+0 );
-	add_component( buttons+1 );
-	add_component( buttons+22);
-	add_component( buttons+26);
-#ifdef DEBUG
-	add_component( buttons+24);
-#endif
+	update_labels();
 
-	// unused buttons
-	// add_component( buttons+2 );
-	// add_component( buttons+3 );
-	// add_component( buttons+4 );
-	// add_component( buttons+5 );
-
-	add_component( &label_container );
-	add_component( &value_container );
-	cursor.y += label_container.get_size().h;
-
-	set_resizemode(gui_frame_t::horizonal_resize);
-	set_min_windowsize( scr_size(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM) );
-	set_windowsize( scr_size(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM) );
-}
-
-
-void color_gui_t::set_windowsize(scr_size size)
-{
-	scr_coord_val column;
-	scr_coord_val delta_w = size.w - get_windowsize().w;
-
-	for(  int i=0;  i<COLORS_MAX_BUTTONS;  i++  ) {
-		if(  buttons[i].get_type() == button_t::square_state  ) {
-			// resize buttons too to fix text
-			buttons[i].set_width( buttons[i].get_size().w + delta_w );
-		}
-	}
-
-	gui_frame_t::set_windowsize(size);
-
-	column = size.w - D_MARGIN_RIGHT - inp_underground_level.get_size().w;
-	inp_underground_level.set_pos ( scr_coord( column, inp_underground_level.get_pos().y ) );
-	brightness.set_pos            ( scr_coord( column, brightness.get_pos().y            ) );
-	scrollspeed.set_pos           ( scr_coord( column, scrollspeed.get_pos().y           ) );
-	traffic_density.set_pos       ( scr_coord( column, traffic_density.get_pos().y       ) );
-	cursor_hide_range.set_pos     ( scr_coord( column, cursor_hide_range.get_pos().y     ) );
-
-	column = size.w - D_MARGIN_RIGHT - D_ARROW_RIGHT_WIDTH;
-	buttons[1].set_pos            ( scr_coord( column, buttons[1].get_pos().y            ) );
-	buttons[13].set_pos           ( scr_coord( column, buttons[13].get_pos().y           ) );
-	buttons[27].set_pos           ( scr_coord( column, buttons[27].get_pos().y           ) );
-
-	column = size.w - D_MARGINS_X;
-	divider1.set_width            ( column );
-	divider2.set_width            ( column );
-	divider3.set_width            ( column );
-	divider4.set_width            ( column );
-
+	reset_min_windowsize();
+	set_windowsize(get_min_windowsize() );
 }
 
 
@@ -465,14 +313,9 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		env_t::cursor_hide_range = cursor_hide_range.get_value();
 	} else
 
-	// Convoy tooltip left arrows
-	if((buttons+0)==komp) {
-		env_t::show_vehicle_states = (env_t::show_vehicle_states+2)%3;
-	} else
-
-	// Convoy tooltip right arrow
-	if((buttons+1)==komp) {
-		env_t::show_vehicle_states = (env_t::show_vehicle_states+1)%3;
+	// Convoy tooltip
+	if (&convoy_tooltip == komp) {
+		env_t::show_vehicle_states = v.i;
 	} else
 
 	// Scroll inverse checkbox
@@ -514,14 +357,9 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		baum_t::recalc_outline_color();
 	} else
 
-	// Hide buildings left arrows
-	if((buttons+12)==komp) {
-		env_t::hide_buildings = (env_t::hide_buildings+2)%3;
-	} else
-
-	// Hide buildings right arrows
-	if((buttons+13)==komp) {
-		env_t::hide_buildings = (env_t::hide_buildings+1)%3;
+	// Hide building
+	if(&hide_buildings == komp) {
+		env_t::hide_buildings = v.i;
 	} else
 
 	// Transparent station coverage
@@ -638,50 +476,29 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 }
 
 
-void color_gui_t::draw(scr_coord pos, scr_size size)
+void color_gui_t::update_labels()
 {
-	const int x = pos.x;
-	const int y = pos.y + D_TITLEBAR_HEIGHT; // compensate for title bar
-
-	// Update button states that was changed with keyboard ...
-	buttons[ 7].pressed = welt->get_settings().get_show_pax();
-	buttons[ 8].pressed = welt->get_settings().get_random_pedestrians();
-	buttons[11].pressed = env_t::hide_trees;
-	buttons[21].pressed = env_t::hide_under_cursor;
-	buttons[15].pressed = env_t::station_coverage_show;
-	buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
-	buttons[17].pressed = grund_t::show_grid;
-	//buttons[18].pressed = env_t::show_names&1;
-	buttons[19].pressed = (env_t::show_names&2)!=0;
-	buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
-	buttons[22].pressed = env_t::visualize_schedule;
-	buttons[24].pressed = env_t::simple_drawing;
-	buttons[24].enable(welt->is_paused());
-	buttons[26].pressed = strasse_t::show_masked_ribi;
-	buttons[26].enable(skinverwaltung_t::ribi_arrow!=NULL);
-
 	// Update label buffers
-	hide_buildings_label.set_text( env_t::hide_buildings==0 ? "no buildings hidden" : (env_t::hide_buildings==1 ? "hide city building" : "hide all building") );
-	convoy_tooltip_label.set_text( env_t::show_vehicle_states==0 ? "convoi error tooltips" : (env_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
-	sprintf(frame_time_buf," %d ms", get_frame_time() );
-	sprintf(idle_time_buf, " %d ms", welt->get_idle_time() );
+	frame_time_value_label.buf().printf(" %d ms", get_frame_time() );
+	frame_time_value_label.update();
+	idle_time_value_label.buf().printf(" %d ms", welt->get_idle_time() );
+	idle_time_value_label.update();
 
 	// fps_label
-	PIXVAL color;
-	uint32 loops;
 	uint32 target_fps = welt->is_fast_forward() ? 10 : env_t::fps;
-	loops = welt->get_realFPS();
-	color = SYSCOL_TEXT_HIGHLIGHT;
+	uint32 loops = welt->get_realFPS();
+	PIXVAL color = SYSCOL_TEXT_HIGHLIGHT;
 	if(  loops < (target_fps*16*3)/4  ) {
 		color = color_idx_to_rgb(( loops <= target_fps*16/2 ) ? COL_RED : COL_YELLOW);
 	}
 	fps_value_label.set_color(color);
-	sprintf(fps_buf," %d fps", loops/16 );
+	fps_value_label.buf().printf(" %d fps", loops/16 );
 #if MSG_LEVEL >= 3
 	if(  env_t::simple_drawing  ) {
-		strcat( fps_buf, "*" );
+		fps_value_label.buf().append( "*" );
 	}
 #endif
+	fps_value_label.update();
 
 	//simloops_label
 	loops = welt->get_simloops();
@@ -690,30 +507,33 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 		color = color_idx_to_rgb((loops<=20) ? COL_RED : COL_YELLOW);
 	}
 	simloops_value_label.set_color(color);
-	sprintf(simloops_buf,  " %d%c%d", loops/10, get_fraction_sep(), loops%10 );
+	simloops_value_label.buf().printf(" %d%c%d", loops/10, get_fraction_sep(), loops%10 );
+	simloops_value_label.update();
+
+	// realign container - necessary if strings changed length
+	container_bottom->set_size( container_bottom->get_size() );
+}
+
+
+void color_gui_t::draw(scr_coord pos, scr_size size)
+{
+	// Update button states that was changed with keyboard ...
+	buttons[ 7].pressed = welt->get_settings().get_show_pax();
+	buttons[ 8].pressed = welt->get_settings().get_random_pedestrians();
+	buttons[11].pressed = env_t::hide_trees;
+	buttons[21].pressed = env_t::hide_under_cursor;
+	buttons[15].pressed = env_t::station_coverage_show;
+	buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
+	buttons[17].pressed = grund_t::show_grid;
+	buttons[19].pressed = (env_t::show_names&2)!=0;
+	buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
+	buttons[22].pressed = env_t::visualize_schedule;
+	buttons[24].pressed = env_t::simple_drawing;
+	buttons[24].enable(welt->is_paused());
+	buttons[26].enable(skinverwaltung_t::ribi_arrow!=NULL);
+
+	update_labels();
 
 	// All components are updated, now draw them...
 	gui_frame_t::draw(pos, size);
-
-	// Draw user defined components (not a component object)
-	if(  env_t::show_names&1  ) {
-
-		FLAGGED_PIXVAL pc = welt->get_active_player() ? color_idx_to_rgb(welt->get_active_player()->get_player_color1()+4) : color_idx_to_rgb(COL_ORANGE);
-		const char *text = translator::translate("show station names");
-
-		switch( env_t::show_names >> 2 ) {
-			case 0:
-				display_ddd_proportional_clip( x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE, y+buttons[18].get_pos().y+buttons[18].get_size().h/2, proportional_string_width(text)+7, 0, pc, color_idx_to_rgb(COL_BLACK), text, 1 );
-				break;
-			case 1:
-				display_outline_proportional_rgb( x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE, y+buttons[18].get_pos().y, pc+1, color_idx_to_rgb(COL_BLACK), text, 1 );
-				break;
-			case 2:
-				display_outline_proportional_rgb( x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE+LINESPACE+D_H_SPACE, y+buttons[18].get_pos().y,   color_idx_to_rgb(COL_YELLOW),  color_idx_to_rgb(COL_BLACK),   text, 1 );
-				display_ddd_box_clip_rgb(         x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE,                     y+buttons[18].get_pos().y,   LINESPACE,   LINESPACE,   pc-2, pc+2 );
-				display_fillbox_wh_rgb(           x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE+1,                   y+buttons[18].get_pos().y+1, LINESPACE-2, LINESPACE-2, pc,   true);
-				break;
-		}
-	}
-
 }

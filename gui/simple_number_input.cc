@@ -21,7 +21,7 @@ simple_number_input_frame_t::simple_number_input_frame_t (const char* frame_titl
 	val = default_val;
 	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
 	
-	input.set_width_by_len(3);
+	//input.set_width_by_len(3);
 	input.set_pos( scr_coord( L_DIALOG_WIDTH - D_MARGIN_RIGHT - input.get_size().w, cursor.y ) );
 	input.add_listener(this);
 	input.set_limits(min_val,max_val);

@@ -14,6 +14,7 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
 
 #ifdef __CYGWIN__
 extern int __argc;
@@ -194,18 +195,21 @@ bool internal_create_surfaces(const bool, int w, int h )
 	// Note that alpha is handled by simgraph16, not by SDL.
 	const Uint32 pixel_format = SDL_PIXELFORMAT_RGB565;
 
-	SDL_RendererInfo ri;
+#ifdef MSG_LEVEL
+	// List all render drivers and their supported pixel formats.
 	const int num_rend = SDL_GetNumRenderDrivers();
+	std::string formatStrBuilder;
 	for(  int i = 0;  i < num_rend;  i++  ) {
+		SDL_RendererInfo ri;
 		SDL_GetRenderDriverInfo( i, &ri );
-		char str[4096];
-		str[0] = 0;
+		formatStrBuilder.clear();
 		for(  Uint32 j = 0;  j < ri.num_texture_formats;  j++  ) {
-			strcat( str, ", " );
-			strcat( str, SDL_GetPixelFormatName( ri.texture_formats[j] ) );
+			formatStrBuilder += ", ";
+			formatStrBuilder += SDL_GetPixelFormatName(ri.texture_formats[j]);
 		}
-		DBG_DEBUG( "internal_create_surfaces()", "Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d%s", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, str );
+		DBG_DEBUG( "internal_create_surfaces()", "Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d%s", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, formatStrBuilder.c_str() );
 	}
+#endif
 
 	Uint32 flags = SDL_RENDERER_ACCELERATED;
 	if(  sync_blit  ) {
@@ -219,14 +223,15 @@ bool internal_create_surfaces(const bool, int w, int h )
 		flags |= SDL_RENDERER_SOFTWARE;
 		renderer = SDL_CreateRenderer( window, -1, flags );
 		if(  renderer == NULL  ) {
-			dbg->fatal( "internal_create_surfaces()", "No SDL2 renderer found!" );
+			dbg->error( "internal_create_surfaces()", "No suitable SDL2 renderer found!" );
+			return false;
 		}
-		SDL_GetRendererInfo( renderer, &ri );
-		dbg->warning( "internal_create_surfaces()", "Using fallback software renderer %s instead of accelerated: Performance may be low!", ri.name );
+		dbg->warning( "internal_create_surfaces()", "Using fallback software renderer instead of accelerated: Performance may be low!");
 	}
 
+	SDL_RendererInfo ri;
 	SDL_GetRendererInfo( renderer, &ri );
-	DBG_DEBUG( "internal_create_surfaces()", "Using: Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d, %s", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, SDL_GetPixelFormatName(SDL_PIXELFORMAT_RGB565) );
+	DBG_DEBUG( "internal_create_surfaces()", "Using: Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d, %s", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, SDL_GetPixelFormatName(pixel_format) );
 
 	screen_tx = SDL_CreateTexture( renderer, pixel_format, SDL_TEXTUREACCESS_STREAMING, w, h );
 	if(  screen_tx == NULL  ) {
@@ -237,9 +242,11 @@ bool internal_create_surfaces(const bool, int w, int h )
 	// Color component bitmasks for the RGB565 pixel format used by simgraph16.cc
 	int bpp;
 	Uint32 rmask, gmask, bmask, amask;
-	SDL_PixelFormatEnumToMasks( pixel_format, &bpp, &rmask, &gmask, &bmask, &amask );
-	if(  bpp != COLOUR_DEPTH  ||  amask != 0  ) {
-		dbg->error( "internal_create_surfaces()", "Pixel format error. %d != %d, %d != 0", bpp, COLOUR_DEPTH, amask );
+	if(  !SDL_PixelFormatEnumToMasks( pixel_format, &bpp, &rmask, &gmask, &bmask, &amask )  ) {
+		dbg->error( "internal_create_surfaces()", "Pixel format error. Couldn't generate masks: %s", SDL_GetError() );
+		return false;
+	} else if(  bpp != COLOUR_DEPTH  ||  amask != 0  ) {
+		dbg->error( "internal_create_surfaces()", "Pixel format error. Bpp got %d, needed %d. Amask got %d, needed 0.", bpp, COLOUR_DEPTH, amask );
 		return false;
 	}
 
@@ -268,7 +275,7 @@ int dr_os_open(int width, int height, int const fullscreen)
 	}
 	width = (w*x_scale)/32l;
 
-	Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_RESIZABLE;
+	Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP: SDL_WINDOW_RESIZABLE;
 	flags |= SDL_WINDOW_ALLOW_HIGHDPI; // apparently needed for Apple retina displays
 	window = SDL_CreateWindow( SIM_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags );
 	if(  window == NULL  ) {

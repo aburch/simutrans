@@ -12,18 +12,18 @@
 #ifndef gui_convoiinfo_h
 #define gui_convoiinfo_h
 
-#include "../../display/scr_coord.h"
-#include "gui_container.h"
+#include "gui_aligned_container.h"
+#include "gui_label.h"
+#include "gui_scrolled_list.h"
 #include "gui_speedbar.h"
 #include "../../convoihandle_t.h"
-
 
 /**
  * One element of the vehicle list display
  *
  * @author Hj. Malthaner
  */
-class gui_convoiinfo_t : public gui_world_component_t
+class gui_convoiinfo_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:
 	/**
@@ -33,6 +33,7 @@ private:
 	convoihandle_t cnv;
 
 	gui_speedbar_t filled_bar;
+	gui_label_buf_t label_name, label_profit, label_line;
 
 public:
 	/**
@@ -47,7 +48,18 @@ public:
 	* Draw the component
 	* @author Hj. Malthaner
 	*/
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
+
+	void update_label();
+
+	const char* get_text() const OVERRIDE;
+
+	bool is_valid() const OVERRIDE { return cnv.is_bound(); }
+
+	convoihandle_t get_cnv() const { return cnv; }
+
+	using gui_aligned_container_t::get_min_size;
+	using gui_aligned_container_t::get_max_size;
 };
 
 #endif

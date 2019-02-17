@@ -548,7 +548,7 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 		break;
 	}
 	// Search vehicle
-	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
+	for(  uint8 pos=1;  pos<(uint8)gr->get_top();  pos++  ) {
 		if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
 			if(  v->get_typ()==obj_t::pedestrian  ) {
 				continue;

@@ -685,8 +685,6 @@ public:
 	bool is_reservable(const grund_t *gr, convoihandle_t cnv) const;
 	uint8 get_empty_lane(const grund_t *gr, convoihandle_t cnv) const;
 
-	void info(cbuffer_t & buf) const;
-
 	/**
 	 * @param buf the buffer to fill
 	 * @return Goods description text (buf)

@@ -8,7 +8,7 @@
 #include <string.h>
 #include "../simdebug.h"
 #include "../simtool.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 #include "../simworld.h"
 
 #include "../dataobj/translator.h"
@@ -22,13 +22,11 @@
 #include "password_frame.h"
 #include "player_frame_t.h"
 
-#define L_DIALOG_WIDTH (360)
-
 
 password_frame_t::password_frame_t( player_t *player ) :
 	gui_frame_t( translator::translate("Enter Password"), player )
 {
-	scr_coord cursor = scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP);
+	set_table_layout(2,0);
 
 	this->player = player;
 
@@ -37,36 +35,24 @@ password_frame_t::password_frame_t( player_t *player ) :
 		tstrncpy( player_name_str, player->get_name(), lengthof(player_name_str) );
 		player_name.set_text(player_name_str, lengthof(player_name_str));
 		player_name.add_listener(this);
-		player_name.set_pos(cursor);
-		player_name.set_size(scr_size(L_DIALOG_WIDTH-D_MARGINS_X, D_EDIT_HEIGHT));
-		add_component(&player_name);
-		cursor.y += max(D_EDIT_HEIGHT, LINESPACE);
+		add_component(&player_name, 2);
 	}
 	else {
 		const_player_name.set_text( player->get_name() );
-		const_player_name.set_pos(scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP));
-		add_component(&const_player_name);
-		cursor.y += LINESPACE;
+		add_component(&const_player_name, 2);
 	}
-	cursor.y += D_V_SPACE;
-
 	fnlabel.set_text( "Password" );	// so we have a width now
+	add_component(&fnlabel);
 
 	// Input box for password
 	ibuf[0] = 0;
 	password.set_text(ibuf, lengthof(ibuf) );
 	password.add_listener(this);
-	password.set_pos( scr_coord( cursor.x+fnlabel.get_size().w+D_H_SPACE, cursor.y ) );
-	password.set_size( scr_size( L_DIALOG_WIDTH-D_MARGIN_RIGHT-password.get_pos().x, D_EDIT_HEIGHT ) );
 	add_component( &password );
 	set_focus( &password );
 
-	// and now we can align us too ...
-	fnlabel.align_to(&password, ALIGN_CENTER_V|ALIGN_EXTERIOR_H|ALIGN_RIGHT, scr_coord(D_H_SPACE,0) );
-	add_component(&fnlabel);
-
-	cursor.y += max(D_EDIT_HEIGHT, LINESPACE);
-	set_windowsize(scr_size(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT+cursor.y+D_MARGIN_BOTTOM));
+	reset_min_windowsize();
+	set_windowsize(get_min_windowsize() );
 }
 
 

@@ -19,16 +19,17 @@ privatesign_info_t::privatesign_info_t(roadsign_t* s) :
 {
 	for(  int i=0;  i<PLAYER_UNOWNED;  i++  ) {
 		if(  welt->get_player(i)  ) {
-			players[i].init( button_t::square_state, welt->get_player(i)->get_name(), scr_coord(4,get_windowsize().h-25-LINESPACE*(PLAYER_UNOWNED-i)), scr_size(get_windowsize().w-18,D_BUTTON_HEIGHT) );
+			players[i].init( button_t::square_state, welt->get_player(i)->get_name());
 			players[i].add_listener( this );
 		}
 		else {
-			players[i].init( button_t::square_state, "", scr_coord(4,get_windowsize().h-25-LINESPACE*(PLAYER_UNOWNED-i)), scr_size(get_windowsize().w-18,D_BUTTON_HEIGHT) );
+			players[i].init( button_t::square_state, "");
 			players[i].disable();
 		}
 		players[i].pressed = (i>=8? sign->get_ticks_ow() & (1<<(i-8)) : sign->get_ticks_ns() & (1<<i) )!=0;
 		add_component( &players[i] );
 	}
+	recalc_size();
 }
 
 

@@ -59,11 +59,39 @@ void scrollbar_t::set_size(scr_size size)
 }
 
 
+scr_size scrollbar_t::get_min_size() const
+{
+	if(type == vertical) {
+		scr_size size = D_ARROW_UP_SIZE;
+		size.clip_lefttop(D_ARROW_DOWN_SIZE);
+		size.w = max(size.w, D_SCROLLBAR_WIDTH);
+		size.h += 40;
+		return size;
+	}
+	else {
+		scr_size size = D_ARROW_LEFT_SIZE;
+		size.clip_lefttop(D_ARROW_RIGHT_SIZE);
+		size.h = max(size.h, D_SCROLLBAR_HEIGHT);
+		size.w += 40;
+		return size;
+	}
+}
+
+
+scr_size scrollbar_t::get_max_size() const
+{
+	scr_size min_size = get_min_size();
+	if(type == vertical) {
+		return scr_size(min_size.w, scr_size::inf.h);
+	}
+	else {
+		return scr_size(scr_size::inf.w, min_size.h);
+	}
+}
+
+
 void scrollbar_t::set_knob(sint32 new_visible_size, sint32 new_total_size)
 {
-	if(  new_visible_size<1  ||  new_total_size<1  ) {
-//		dbg->warning("scrollbar_t::set_knob()","size=%i, area=%i not in 1...x",size,area);
-	}
 	if(  new_total_size != total_size  ) {
 		knob_offset = (sint32)( (double)knob_offset * ( (double)new_total_size / (double) total_size ) + 0.5 );
 	}

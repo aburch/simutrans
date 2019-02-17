@@ -123,14 +123,14 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false
 
 	if(do_load) {
 		set_name(translator::translate("Laden"));
-		easy_server.init( button_t::square_automatic, "Start this as a server", scr_coord(D_MARGIN_LEFT,0) );
-		add_component(&easy_server);
-		previous_OTRP.init( button_t::square_automatic, "This is a data of OTRP v12 or v13.", scr_coord(D_MARGIN_LEFT,0) );
-		add_component(&previous_OTRP);
+		easy_server.init( button_t::square_automatic, "Start this as a server");
+		bottom_left_frame.add_component(&easy_server);
+		previous_OTRP.init( button_t::square_automatic, "This is a data of OTRP v12 or v13.");
+		bottom_left_frame.add_component(&previous_OTRP);
 	}
 	else {
-		save_as_standard.init( button_t::square_automatic, "Readable by standard.", scr_coord(D_MARGIN_LEFT,0));
-		add_component(&save_as_standard);
+		save_as_standard.init( button_t::square_automatic, "Readable by standard.");
+		bottom_left_frame.add_component(&save_as_standard);
 		env_t::previous_OTRP_data = false;
 		set_filename(welt->get_settings().get_filename());
 		set_name(translator::translate("Speichern"));
@@ -170,18 +170,6 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false
 			dr_rename( SAVE_PATH_X "_load_cached.xml", SAVE_PATH_X "_cached.xml" );
 		}
 	}
-}
-
-
-/**
- * need to shift the start server button to the lower left
- */
-void loadsave_frame_t::set_windowsize(scr_size size)
-{
-	savegame_frame_t::set_windowsize(size);
-	easy_server.align_to(&savebutton, ALIGN_CENTER_V, scr_coord( 0, 0 ) );
-	previous_OTRP.align_to(&easy_server, ALIGN_TOP | ALIGN_EXTERIOR_V);
-	save_as_standard.align_to(&savebutton, ALIGN_CENTER_V, scr_coord( 0, 0 ) );
 }
 
 

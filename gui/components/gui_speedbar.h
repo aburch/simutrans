@@ -43,7 +43,11 @@ public:
 	/**
 	 * Draw the component
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
+
+	scr_size get_min_size() const OVERRIDE;
+
+	scr_size get_max_size() const OVERRIDE;
 };
 
 #endif

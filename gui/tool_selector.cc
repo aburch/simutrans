@@ -28,6 +28,7 @@
 tool_selector_t::tool_selector_t(const char* title, const char *help_file, uint32 toolbar_id, bool allow_break) :
 	gui_frame_t( translator::translate(title) ), tools(0)
 {
+	set_table_layout(0,0); // we do our own positioning of icons (for now)
 	this->toolbar_id = toolbar_id;
 	this->allow_break = allow_break;
 	this->help_file = help_file;
@@ -186,7 +187,7 @@ void tool_selector_t::draw(scr_coord pos, scr_size)
 				display_color_img( back_img, draw_pos.x, draw_pos.y, 0, false, true );
 			}
 			else {
-				display_fillbox_wh_rgb( draw_pos.x, draw_pos.y, env_t::iconsize.w, env_t::iconsize.h, color_idx_to_rgb(MN_GREY2), false );
+				display_fillbox_wh_clip_rgb( draw_pos.x, draw_pos.y, env_t::iconsize.w, env_t::iconsize.h, color_idx_to_rgb(MN_GREY2), false );
 			}
 		}
 

@@ -16,7 +16,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 #include "../bauer/hausbauer.h"
-#include "../gui/money_frame.h"
+#include "../gui/headquarter_info.h"
 #include "../simworld.h"
 #include "../simobj.h"
 #include "../simfab.h"
@@ -547,7 +547,7 @@ void gebaeude_t::show_info()
 	bool special = is_headquarter() || is_townhall();
 
 	if(is_headquarter()) {
-		create_win( new money_frame_t(get_owner()), w_info, magic_finances_t+get_owner()->get_player_nr() );
+		create_win( new headquarter_info_t(get_owner()), w_info, magic_headquarter+get_owner()->get_player_nr() );
 	}
 	else if (is_townhall()) {
 		ptr.stadt->open_info_window();

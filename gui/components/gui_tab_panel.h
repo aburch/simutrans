@@ -15,6 +15,7 @@
 #include "gui_button.h"
 
 class image_t;
+class loadsave_t;
 
 class gui_tab_panel_t :
 	public gui_action_creator_t,
@@ -70,7 +71,7 @@ public:
 	 * Draw tabs
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	/**
 	 * Resizing must be propagated!
@@ -99,16 +100,27 @@ public:
 	 * Returns true if the hosted component of the active tab is focusable
 	 * @author Knightly
 	 */
-	virtual bool is_focusable() { return get_aktives_tab()->is_focusable(); }
+	bool is_focusable() OVERRIDE { return get_aktives_tab()->is_focusable(); }
 
-	gui_component_t *get_focus() { return get_aktives_tab()->get_focus(); }
+	gui_component_t *get_focus() OVERRIDE { return get_aktives_tab()->get_focus(); }
 
 	/**
 	 * Get the relative position of the focused component.
 	 * Used for auto-scrolling inside a scroll pane.
 	 * @author Knightly
 	 */
-	virtual scr_coord get_focus_pos() { return pos + get_aktives_tab()->get_focus_pos(); }
+	scr_coord get_focus_pos() OVERRIDE { return pos + get_aktives_tab()->get_focus_pos(); }
+
+
+	scr_size get_min_size() const OVERRIDE;
+
+	/**
+	 * Take tabs from other tab.
+	 */
+	void take_tabs(gui_tab_panel_t* other);
+
+	/// save active tab
+	void rdwr( loadsave_t *file );
 };
 
 #endif

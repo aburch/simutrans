@@ -30,15 +30,15 @@ public:
 
 	runway_t();
 
-	inline waytype_t get_waytype() const {return air_wt;}
+	inline waytype_t get_waytype() const OVERRIDE {return air_wt;}
 
 	/**
 	* @return additional info is reservation!
 	* @author prissi
 	*/
-	virtual void info(cbuffer_t & buf) const OVERRIDE;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	// the code below is only used for runways
 	// the more reservations, the higher the cost for landing there.
@@ -49,7 +49,7 @@ public:
 
 	void remove_convoi_reservation( convoihandle_t cnv ) { reservations.remove(cnv); }
 
-	virtual bool unreserve( convoihandle_t cnv ) OVERRIDE { reservations.remove(cnv); schiene_t::unreserve(cnv); return true; }
+	bool unreserve( convoihandle_t cnv ) OVERRIDE { reservations.remove(cnv); schiene_t::unreserve(cnv); return true; }
 };
 
 #endif

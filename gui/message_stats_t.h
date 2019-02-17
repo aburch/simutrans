@@ -9,7 +9,6 @@
 #define message_stats_t_h
 
 #include "components/gui_komponente.h"
-#include "../display/simimg.h"
 #include "../simmesg.h"
 #include "../tpl/slist_tpl.h"
 
@@ -28,6 +27,7 @@ private:
 	const slist_tpl<message_t::node *> *message_list;	// Knightly : points to the active message list (original or filtered)
 	slist_tpl<message_t::node *> filtered_messages;		// Knightly : cache the list of messages belonging to a certain type
 
+	scr_size min_size;
 public:
 	message_stats_t();
 	~message_stats_t() { filtered_messages.clear(); }
@@ -42,7 +42,7 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * Recalc the size required to display everything and set size.
+	 * Recalc the size required to display everything and set size and min_size.
 	 */
 	void recalc_size();
 
@@ -50,7 +50,17 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
+
+
+	scr_size get_max_size() const OVERRIDE {
+		return get_min_size();
+	}
+
+	scr_size get_min_size() const OVERRIDE {
+		return min_size;
+	}
+
 };
 
 #endif
