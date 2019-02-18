@@ -7327,13 +7327,22 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 	{
 		uint32 break_now = 0;
 		const bool is_one_train_staff = sig && sig->get_desc()->get_working_method() == one_train_staff;
+		bool last_tile_was_break = false;
 		for(int i = route_index - 1; i >= 0; i--)
 		{
 			grund_t* gr_route = route ? welt->lookup(route->at(i)) : NULL;
 			schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
 			if (!is_one_train_staff && !sch_route->is_reserved() || (sch_route && sch_route->get_reserved_convoi() != cnv->self))
 			{
-				break_now ++;
+				if (!last_tile_was_break)
+				{
+					break_now++;
+				}
+				last_tile_was_break = true;
+			}
+			else
+			{
+				last_tile_was_break = false;
 			}
 			if(sch_route && (!cnv || cnv->get_state() != convoi_t::REVERSING))
 			{
