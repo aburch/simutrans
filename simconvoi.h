@@ -766,6 +766,11 @@ private:
 	bool allow_clear_reservation = true;
 
 
+	// This obviates the need to call can_enter_tile
+	// more than once in a step on the same tile
+	koord3d checked_tile_this_step = koord3d::invalid;
+
+
 public:
 	/**
 	 * Some precalculated often used infos about a tile of the convoy's route.
@@ -1510,6 +1515,9 @@ public:
 
 	uint32 calc_current_loading_time(uint16 load_charge);
 	inline uint16 get_current_loading_time() const { return current_loading_time; }
+
+	koord3d get_checked_tile_this_step() const { return checked_tile_this_step; }
+	void set_checked_tile_this_step(koord3d value) { checked_tile_this_step = value; }
 
 	/**
 	 * Calculate the number of tiles over which this convoy

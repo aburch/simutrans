@@ -1720,6 +1720,8 @@ void convoi_t::step()
 	{
 		return;
 	}
+	
+	checked_tile_this_step = koord3d::invalid;
 
 	// moved check to here, as this will apply the same update
 	// logic/constraints convois have for manual schedule manipulation
@@ -4925,6 +4927,11 @@ void convoi_t::rdwr(loadsave_t *file)
 		bool lswd = last_stop_was_depot;
 		file->rdwr_bool(lswd);
 		last_stop_was_depot = lswd;
+	}
+
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 6))
+	{
+		checked_tile_this_step.rdwr(file);
 	}
 
 	// This must come *after* all the loading/saving.

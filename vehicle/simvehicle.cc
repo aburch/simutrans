@@ -1598,7 +1598,6 @@ grund_t* vehicle_t::hop_check()
 		// mit der spaeter weitergefahren wird
 		// "can_enter_tile() calculates the speed later continued with the" (Babelfish)
 		if(!can_enter_tile(bd, restart_speed, 0)) {
-
 			// stop convoi, when the way is not free
 			cnv->warten_bis_weg_frei(restart_speed);
 
@@ -1619,6 +1618,7 @@ grund_t* vehicle_t::hop_check()
 
 bool vehicle_t::can_enter_tile(sint32 &restart_speed, uint8 second_check_count)
 {
+	cnv->set_checked_tile_this_step(get_pos());
 	grund_t *gr = welt->lookup(pos_next);
 	if (gr) {
 		return can_enter_tile( gr, restart_speed, second_check_count );
@@ -2883,7 +2883,6 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			}
 		}
 	}
-
 
 	if (file->is_loading())
 	{
@@ -4865,7 +4864,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	if(working_method == one_train_staff && cnv->get_state() != convoi_t::LEAVING_DEPOT)
 	{
 		signal_t* signal = w->get_signal(ribi);
-		if(signal && signal->get_desc()->get_working_method() == one_train_staff)
+		if(signal && signal->get_desc()->get_working_method() == one_train_staff && cnv->get_checked_tile_this_step() != get_pos())
 		{
 			signal->set_state(roadsign_t::call_on); // Do not use the same cabinet to switch back to drive by sight immediately after releasing.
 			clear_token_reservation(signal, this, w);
@@ -5543,6 +5542,10 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	{
 		bool ok = block_reserver(cnv->get_route(), route_index, modified_sighting_distance_tiles, next_signal, 0, true, false, false, false, false, false, brake_steps, (uint16)65530U, call_on);
 		ok |= route_index == route.get_count() || next_signal > route_index;
+		if (!ok && working_method == one_train_staff)
+		{
+			set_working_method(drive_by_sight);
+		}
 		cnv->set_next_stop_index(next_signal);
 		if (exiting_one_train_staff && get_working_method() == one_train_staff)
 		{
