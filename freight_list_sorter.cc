@@ -125,36 +125,34 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 	int pos = 0;
 	ware_t* wlist = MALLOCN( ware_t, warray.get_count() );
 
+	// track any lost good amounts during packet merger
+	// only created when needed
+	uint64* categories_goods_amount_lost = NULL;
+
 	FOR(vector_tpl<ware_t>, const& ware, warray) {
 		if(  ware.get_desc() == goods_manager_t::none  ||  ware.menge == 0  ) {
 			continue;
 		}
 		wlist[pos] = ware;
 		ware_t & current_good = wlist[pos];
-		// for the sorting via the number for the next stop we unify entries
+
 		if(  sort_mode == by_via_sum  ) {
-			// only add it, if there is not another thing waiting with the same via but another destination
+			// via sort mode merges packets with a common next stop
 			for(  int i=0;  i<pos;  i++  ) {
 				ware_t& wi = wlist[i];
-				if(  wi.get_index()==ware.get_index()  &&  wi.get_zwischenziel()==ware.get_zwischenziel()  && !wi.is_goods_amount_maxed()  ) {
-					if(  wi.get_zwischenziel().is_bound()  ) {
-						if(  (  wi.get_ziel()==wi.get_zwischenziel() )==( ware.get_ziel()==ware.get_zwischenziel() ) ) {
-							current_good.menge = wi.add_goods(ware.menge);
-							if (current_good.menge == 0) {
-								--pos;
-							}
-							break;
-						}
+				if(  wi.get_index()==ware.get_index()  &&  wi.get_zwischenziel()==ware.get_zwischenziel()  &&
+					(wi.get_zwischenziel().is_bound() && (  wi.get_ziel()==wi.get_zwischenziel() )==( ware.get_ziel()==ware.get_zwischenziel() )
+					|| wi.get_ziel() == ware.get_ziel())  ) {
+					ware_t::goods_amount_t const remaining_amount = wi.add_goods(ware.menge);
+					if(  remaining_amount > 0  ) {
+						// reached goods amount limit, have to discard amount and track category totals separatly
+						if(  categories_goods_amount_lost == NULL  ) {
+							categories_goods_amount_lost = new uint64[256](); // this should be tied to a category index limit constant
+						} 
+						categories_goods_amount_lost[wi.get_desc()->get_catg_index()]+= remaining_amount;
 					}
-					else {
-						if(  wi.get_ziel() == ware.get_ziel()  ) {
-							current_good.menge = wi.add_goods(ware.menge);
-							if (current_good.menge == 0) {
-								--pos;
-							}
-							break;
-						}
-					}
+					--pos;
+					break;
 				}
 			}
 		}
@@ -172,7 +170,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		// sort the ware's list
 		std::sort( wlist, wlist + pos, compare_ware );
 
-		// print the ware's list to buffer - it should be in sort order by now!
+		// print the ware's list to buffer
 		int last_goods_index = -1;
 		int last_ware_catg = -1;
 
@@ -187,8 +185,9 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 
 			ware_t const& ware = wlist[j];
 			if(  last_goods_index!=ware.get_index()  &&  last_ware_catg!=ware.get_catg()  ) {
-				uint64 sum = 0;
+				uint64 sum = categories_goods_amount_lost != NULL ? categories_goods_amount_lost[ware.get_desc()->get_catg_index()] : 0;
 				last_goods_index = ware.get_index();
+				// special freight => handle different
 				last_ware_catg = (ware.get_catg()!=0) ? ware.get_catg() : -1;
 				for(  int i=j;  i<pos;  i++  ) {
 					ware_t const& sumware = wlist[i];
@@ -200,15 +199,12 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					sum += sumware.menge;
 				}
 
-				// special freight => handle different
-				last_ware_catg = (ware.get_catg()!=0) ? ware.get_catg() : -1;
-
-				// display all ware
 				if(  full_list == NULL  ) {
+					// display all goods
 					add_ware_heading( buf, sum, 0, &ware, what_doing );
 				}
 				else {
-					// ok, we have a list of freights
+					// display goods from a list of freights
 					while(  full_i != full_end  ) {
 						ware_t const& current = *full_i++;
 						if(  last_goods_index==current.get_index()  ||  last_ware_catg==current.get_catg()  ) {
@@ -221,9 +217,12 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					}
 				}
 			}
+
 			// detail amount
 			goods_desc_t const& desc = *ware.get_desc();
-			buf.printf("  %u%s %s > ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()));
+			char const *const good_description_format = sortby == by_via_sum  &&  ware.is_goods_amount_maxed() ? "  >=%u%s %s > " : "  %u%s %s > ";
+			buf.printf(good_description_format, ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()));
+
 			// the target name is not correct for the via sort
 			const bool is_factory_going = ( sortby!=by_via_sum  &&  ware.to_factory );	// exclude merged packets
 			if(  sortby!=by_via_sum  ||  via_halt==halt  ) {
@@ -253,6 +252,10 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			}
 			// debug end
 		}
+	}
+
+	if (categories_goods_amount_lost != NULL) {
+		delete[] categories_goods_amount_lost;
 	}
 
 	// still entire left?
