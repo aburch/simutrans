@@ -139,7 +139,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	// scl.enable_multiple_selection();
+	scl.enable_multiple_selection();
 	FOR(vector_tpl<building_desc_t const*>, const i, building_list) {
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
 		PIXVAL color;
@@ -255,15 +255,13 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 		building_image.init(desc, rot);
 
 		// the tools will be always updated, even though the data up there might be still current
-		/*
 		vector_tpl<const building_desc_t*> buildings;
 		FOR(vector_tpl<sint32>, idx, scl.get_selections()) {
 			if(  idx>=0  &&  idx<building_list.get_count()  ) {
 				buildings.append(building_list[idx]);
 			}
 		}
-		haus_tool.set_buildings(buildings);
-		*/
+		haus_tool->set_buildings(buildings);
 		param_str.clear();
 		param_str.printf("%i%c%s", bt_climates.pressed, rotation>253 ? (rotation==254 ? 'A' : '#') : '0'+rotation, desc->get_name() );
 		haus_tool->set_default_param(param_str);
