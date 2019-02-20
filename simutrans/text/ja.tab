@@ -1057,6 +1057,8 @@ Goods AI
 AI 貨物
 Goods list
 貨物一覧
+Goods needed
+貨物需要
 Gross Profit
 粗利益
 Groundobj
@@ -1624,7 +1626,11 @@ Rathaus
 Rating
 評価
 ratio_pax
-旅客輸送率(%)
+旅客輸送達成率
+ratio_mail
+郵便輸送達成率
+ratio_goods
+貨物輸送達成率
 Relevant
 取扱い貨物のみ
 Reliefkarte

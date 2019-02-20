@@ -53,9 +53,9 @@ const char citylist_frame_t::hist_type[karte_t::MAX_WORLD_COST][21] =
 	"Verkehrsteilnehmer",
 	"ratio_pax",
 	"Passagiere",
-	"sended",
+	"ratio_mail",
 	"Post",
-	"Arrived",
+	"ratio_goods",
 	"Goods",
 	"Car ownership"
 };

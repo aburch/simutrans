@@ -1811,7 +1811,7 @@ Mountain peak
 Goods supplied
 Goods supplied
 Goods
-Goods needed
+Goods
 Assets
 Assets
 Aufloesen
@@ -3890,3 +3890,9 @@ The amount of mail successfully delivered from this stop
 The amount of mail successfully delivered from this stop
 The amount of mail which could not find a route to its destination
 The amount of mail which could not find a route to its destination
+Goods needed
+Goods needed
+ratio_mail
+% mail
+ratio_goods
+% goods
