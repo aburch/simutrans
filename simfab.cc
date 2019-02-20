@@ -3116,7 +3116,6 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 #else
 		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), building->get_adjusted_jobs(), max(0, building->check_remaining_available_jobs()));
 #endif
-		buf.printf("%s: %d\n", translator::translate("Mail demand/output"), building->get_adjusted_mail_demand());
 		// Class entries:
 		building->get_class_percentage(buf);
 		buf.append("\n");
