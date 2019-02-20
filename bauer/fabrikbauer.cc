@@ -928,7 +928,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
  * sure that enough consumer industries get built.
  * @return: number of factories built
  */
-int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_beyond_target_density, bool power_stations_only, bool disallow_force_consumer )
+int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_beyond_target_density, bool power_stations_only, uint32 force_consumer )
 {
 	int nr = 0;
 
@@ -936,10 +936,10 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 	// In the future, the building of pure consumer industries other than power stations should be part of
 	// the city growth system and taken out of this entirely. That would leave this system free to complete
 	// industry chains as needed.
-	const bool force_add_consumer = 75 > simrand(100, "factory_builder_t::increase_industry_density()");
+	const bool force_add_consumer = force_consumer == 2 || (force_consumer == 0 && 75 > simrand(100, "factory_builder_t::increase_industry_density()"));
 
 	// Build a list of all industries with incomplete supply chains.
-	if((disallow_force_consumer || !force_add_consumer) && !power_stations_only && !welt->get_fab_list().empty())
+	if((!force_add_consumer) && !power_stations_only && !welt->get_fab_list().empty())
 	{
 		// A collection of all consumer industries that are not fully linked to suppliers.
 		slist_tpl<fabrik_t*> unlinked_consumers;
@@ -1122,7 +1122,7 @@ next_ware_check:
 	// now decide producer of electricity or normal ...
 	const sint64 promille = ((sint64)electric_productivity * 4000l) / total_electric_demand;
 	const sint64 target_promille = (sint64)welt->get_settings().get_electric_promille();
-	int no_electric = (force_add_consumer && !disallow_force_consumer) || (promille >= target_promille) ? 1 : 0;
+	int no_electric = force_add_consumer || (promille >= target_promille) ? 1 : 0;
 	DBG_MESSAGE( "factory_builder_t::increase_industry_density()", "production of electricity/total electrical demand is %i/%i (%i o/oo)", electric_productivity, total_electric_demand, promille );
 
 	while(  no_electric<2  ) {

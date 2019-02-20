@@ -576,7 +576,8 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			break;
 
 		case convoi_t::NO_ROUTE_TOO_COMPLEX:
-			sprintf(speed_text, translator::translate("no_route_too_complex_message"));
+			//sprintf(speed_text, translator::translate("no_route_too_complex_message"));
+			sprintf(speed_text, translator::translate("clf_chk_noroute"));
 			speed_color = COL_RED;
 			break;
 

@@ -1597,8 +1597,8 @@ grund_t* vehicle_t::hop_check()
 		// can_enter_tile() berechnet auch die Geschwindigkeit
 		// mit der spaeter weitergefahren wird
 		// "can_enter_tile() calculates the speed later continued with the" (Babelfish)
-		if(!can_enter_tile(bd, restart_speed, 0)) {
-
+		if(cnv->get_checked_tile_this_step() != get_pos() && !can_enter_tile(bd, restart_speed, 0))
+		{
 			// stop convoi, when the way is not free
 			cnv->warten_bis_weg_frei(restart_speed);
 
@@ -1619,14 +1619,22 @@ grund_t* vehicle_t::hop_check()
 
 bool vehicle_t::can_enter_tile(sint32 &restart_speed, uint8 second_check_count)
 {
+	cnv->set_checked_tile_this_step(get_pos());
 	grund_t *gr = welt->lookup(pos_next);
-	if (gr) {
-		return can_enter_tile( gr, restart_speed, second_check_count );
+	if (gr) 
+	{
+		bool ok = can_enter_tile( gr, restart_speed, second_check_count );
+		if (!ok)
+		{
+			cnv->set_checked_tile_this_step(koord3d::invalid);
+		}
+		return ok;
 	}
 	else {
 		if(  !second_check_count  ) {
 			cnv->suche_neue_route();
 		}
+		cnv->set_checked_tile_this_step(koord3d::invalid);
 		return false;
 	}
 }
@@ -2883,7 +2891,6 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			}
 		}
 	}
-
 
 	if (file->is_loading())
 	{
@@ -4758,9 +4765,24 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	route_t target_rt;
 	const uint16 first_block = start_block == 0 ? start_block : start_block - 1;
 	const uint16 second_block = start_block == 0 ? start_block + 1 : start_block;
+	const uint16 third_block = start_block == 0 ? start_block + 2 : start_block + 1;
 	const koord3d first_tile = route->at(first_block);
 	const koord3d second_tile = route->at(second_block);
+	const koord3d third_tile = route->at(third_block);
+	const grund_t* third_ground = welt->lookup(third_tile); 
 	uint8 direction = ribi_type(first_tile, second_tile);
+
+	if (third_ground)
+	{
+		const schiene_t* railway = (schiene_t*)third_ground->get_weg(get_waytype());
+		if (railway && railway->is_junction())
+		{
+			ribi_t::ribi old_direction = direction;
+			direction |= ribi_t::all;
+			direction ^= ribi_t::backward(old_direction);
+		}
+	}
+	direction |= ribi_type(second_tile, third_tile);
 	direction |= welt->lookup(second_tile)->get_weg(get_waytype())->get_ribi_unmasked();
 	cnv->set_is_choosing(true);
 	bool can_find_route;
@@ -4917,7 +4939,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 	}
 
-	if(signal_current && (working_method == time_interval || working_method == time_interval_with_telegraph) && signal_current->get_state() == roadsign_t::danger && !signal_current->get_desc()->is_choose_sign() && signal_current->get_no_junctions_to_next_signal() && (signal_current->get_desc()->get_working_method() != one_train_staff || !starting_from_stand))
+	if(signal_current && (signal_current->get_desc()->get_working_method() == time_interval || signal_current->get_desc()->get_working_method() == time_interval_with_telegraph) && signal_current->get_state() == roadsign_t::danger && !signal_current->get_desc()->is_choose_sign() && signal_current->get_no_junctions_to_next_signal() && (signal_current->get_desc()->get_working_method() != one_train_staff || !starting_from_stand))
 	{
 		restart_speed = 0;
 		return false;
@@ -5528,6 +5550,10 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	{
 		bool ok = block_reserver(cnv->get_route(), route_index, modified_sighting_distance_tiles, next_signal, 0, true, false, false, false, false, false, brake_steps, (uint16)65530U, call_on);
 		ok |= route_index == route.get_count() || next_signal > route_index;
+		if (!ok && working_method == one_train_staff)
+		{
+			set_working_method(drive_by_sight);
+		}
 		cnv->set_next_stop_index(next_signal);
 		if (exiting_one_train_staff && get_working_method() == one_train_staff)
 		{
@@ -6509,7 +6535,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						|| (check_halt.is_bound() && check_halt == last_step_halt && (next_signal_working_method == time_interval_with_telegraph || previous_time_interval_reservation == is_true || previous_time_interval_reservation == is_uncertain))); // Time interval with telegraph signals have no distance limit for reserving.
 			}
 			const bool telegraph_directional = time_interval_reservation && previous_telegraph_directional || (next_signal_working_method == time_interval_with_telegraph && (((last_longblock_signal_index == last_stop_signal_index && first_stop_signal_index == last_longblock_signal_index) && last_longblock_signal_index < INVALID_INDEX) || first_double_block_signal_index < INVALID_INDEX && next_signal_protects_no_junctions));
-			const schiene_t::reservation_type rt = directional_only || telegraph_directional ? schiene_t::directional : schiene_t::block;
+			const schiene_t::reservation_type rt = directional_only || (telegraph_directional && i > modified_sighting_distance_tiles) ? schiene_t::directional : schiene_t::block;
 			bool transitioning_from_time_interval = (working_method == time_interval || working_method == time_interval_with_telegraph) && (next_signal_working_method == absolute_block || next_signal_working_method == track_circuit_block || next_signal_working_method == token_block);
 			bool attempt_reservation = directional_only || time_interval_reservation || previous_telegraph_directional || ((next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph && ((next_signal_working_method != drive_by_sight && !transitioning_from_time_interval) || i < start_index + modified_sighting_distance_tiles + 1)) && (!stop_at_station_signal.is_bound() || stop_at_station_signal == check_halt));
 			previous_telegraph_directional = telegraph_directional;
@@ -7312,13 +7338,22 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 	{
 		uint32 break_now = 0;
 		const bool is_one_train_staff = sig && sig->get_desc()->get_working_method() == one_train_staff;
+		bool last_tile_was_break = false;
 		for(int i = route_index - 1; i >= 0; i--)
 		{
 			grund_t* gr_route = route ? welt->lookup(route->at(i)) : NULL;
 			schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
 			if (!is_one_train_staff && !sch_route->is_reserved() || (sch_route && sch_route->get_reserved_convoi() != cnv->self))
 			{
-				break_now ++;
+				if (!last_tile_was_break)
+				{
+					break_now++;
+				}
+				last_tile_was_break = true;
+			}
+			else
+			{
+				last_tile_was_break = false;
 			}
 			if(sch_route && (!cnv || cnv->get_state() != convoi_t::REVERSING))
 			{

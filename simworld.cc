@@ -1487,7 +1487,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	loadingscreen_t ls( translator::translate("distributing factories"), 16 + settings.get_city_count() * 4 + settings.get_factory_count(), true, true );
 
 	while(  fab_list.get_count() < (uint32)settings.get_factory_count()  ) {
-		if(  !factory_builder_t::increase_industry_density( false, false, false, true )  ) {
+		if(  !factory_builder_t::increase_industry_density( false, false, false, 1 )  ) {
 			if(  ++consecutive_build_failures > 3  ) {
 				// Industry chain building starts failing consecutively as map approaches full.
 				break;
@@ -4995,7 +4995,7 @@ void karte_t::new_month()
 		// Add industries if there is a shortage of electricity - power stations will be built.
 		// Also, check whether power stations are available, or else large quantities of other industries will
 		// be built instead every month.
-		factory_builder_t::increase_industry_density(true, true, true);
+		factory_builder_t::increase_industry_density(true, true, true, 1);
 	}
 
 	INT_CHECK("simworld 3130");
