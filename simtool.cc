@@ -5523,6 +5523,12 @@ const char *tool_build_station_t::check_pos( player_t*,  koord3d pos )
 		}
 		sint8 rotation;
 		const building_desc_t *desc = get_desc(rotation);
+		if(desc == NULL) {
+			// tool is in bad state, eg due to invalid tool parameters
+			DBG_DEBUG("tool_build_station_t::check_pos()", "Cannot resolve building descriptor, default_param=\"%s\".", default_param);
+			return "ENGINE ERROR: Build station tool cannot resolve a building descriptor.";
+		}
+
 		if(  grund_t *bd = welt->lookup_kartenboden( pos.get_2d() )  ) {
 			const bool underground = bd->get_hoehe()>gr->get_hoehe();
 			if(  underground  ) {
