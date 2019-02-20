@@ -25,8 +25,6 @@
 
 const goods_desc_t *ware_t::index_to_desc[256];
 
-uint32 const ware_t::MAXIMUM_GOOD_AMOUNT = (1 << 23) - 1;
-
 ware_t::ware_t() : ziel(), zwischenziel(), zielpos(-1, -1)
 {
 	menge = 0;
@@ -186,17 +184,28 @@ sint64 ware_t::calc_revenue(const goods_desc_t* desc, waytype_t wt, sint32 speed
 	return desc->get_value() * (grundwert128 > grundwert_bonus ? grundwert128 : grundwert_bonus);
 }
 
-uint32 ware_t::add_goods(uint32 const number) {
-	goods_amount_limit_t const sum = menge + number;
-	if (sum > MAXIMUM_GOOD_AMOUNT) {
-		menge = MAXIMUM_GOOD_AMOUNT;
-		return sum - MAXIMUM_GOOD_AMOUNT;
+ware_t::goods_amount_t ware_t::add_goods(goods_amount_t const number) {
+	goods_amount_t const limit = GOODS_AMOUNT_LIMIT - menge;
+	if (limit < number) {
+		menge = GOODS_AMOUNT_LIMIT;
+		return number - limit;
 	}
 
-	menge = sum;
+	menge+= number;
 	return 0;
 }
 
-bool ware_t::is_goods_amount_maxed() {
-	return (goods_amount_limit_t)menge == MAXIMUM_GOOD_AMOUNT;
+ware_t::goods_amount_t ware_t::remove_goods(goods_amount_t const number) {
+	if (menge < number) {
+		goods_amount_t const remainder = number - menge;
+		menge = 0;
+		return remainder;
+	}
+
+	menge-= number;
+	return 0;
+}
+
+bool ware_t::is_goods_amount_maxed() const {
+	return menge == GOODS_AMOUNT_LIMIT;
 }
