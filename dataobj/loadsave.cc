@@ -652,6 +652,9 @@ size_t loadsave_t::write(const void *buf, size_t len)
 
 void loadsave_t::flush_buffer(int buf_num)
 {
+#ifdef MULTI_THREAD
+	pthread_mutex_lock(&loadsave_mutex);
+#endif
 	int bse = fd->bse;
 	if(  is_zipped()  ) {
 		gzwrite(fd->gzfp, ls_buf[buf_num], buf_pos[buf_num]);
@@ -663,9 +666,6 @@ void loadsave_t::flush_buffer(int buf_num)
 	else {
 		fwrite(ls_buf[buf_num], 1, buf_pos[buf_num], fd->fp);
 	}
-#ifdef MULTI_THREAD
-	pthread_mutex_lock(&loadsave_mutex);
-#endif
 	if(  is_bzip2()  ) {
 		fd->bse = bse;
 	}

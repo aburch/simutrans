@@ -85,15 +85,15 @@ private:
 	button_t ware_keine_ab;
 	button_t ware_invers_ab;
 
-	gui_scrollpane_t ware_scrolly_ab;
 	gui_aligned_container_t ware_cont_ab;
+	gui_scrollpane_t ware_scrolly_ab;
 
 	button_t ware_alle_an;
 	button_t ware_keine_an;
 	button_t ware_invers_an;
 
-	gui_scrollpane_t ware_scrolly_an;
 	gui_aligned_container_t ware_cont_an;
+	gui_scrollpane_t ware_scrolly_an;
 
 public:
 	halt_list_filter_frame_t(player_t *player, halt_list_frame_t *main_frame);

@@ -92,21 +92,30 @@ void gui_textarea_t::draw(scr_coord offset)
 
 	// we cannot use: display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, color_idx_to_rgb(COL_BLACK));
 	// since we also want to dynamically change the size of the component
-	int new_lines=0;
+	scr_coord_val new_lines = 0;
 
 	// keep previous maximum width
-	int x_size = get_size().w - L_PADDING_RIGHT;
+	scr_coord_val x_size = get_size().w - L_PADDING_RIGHT;
 	if (  (text != NULL)  &&  (*text != '\0')  ) {
 		const char *buf=text;
 		const char *next;
-		const sint16 x = pos.x+offset.x;
-		sint16 y = pos.y+offset.y;
+		const scr_coord_val x = pos.x+offset.x;
+		scr_coord_val y = pos.y+offset.y;
 
 		do {
 			next = strchr(buf, '\n');
 
 			const size_t len = next != NULL ? next - buf : -1;
-			int px_len = display_text_proportional_len_clip_rgb(x, y + new_lines, buf, ALIGN_LEFT | DT_CLIP, SYSCOL_TEXT, true, len);
+			scr_coord_val const draw_y = y + new_lines;
+			int px_len;
+			if (  -LINESPACE <= draw_y  &&  draw_y <= display_get_height() + LINESPACE) {
+				// draw when in screen area
+				px_len = display_text_proportional_len_clip_rgb((KOORD_VAL)x, (KOORD_VAL)draw_y, buf, ALIGN_LEFT | DT_CLIP, SYSCOL_TEXT, true, len);
+			}
+			else {
+				// track required length when out of screen area
+				px_len = display_calc_proportional_string_len_width(buf, len);
+			}
 			if(px_len>x_size) {
 				x_size = px_len;
 			}
