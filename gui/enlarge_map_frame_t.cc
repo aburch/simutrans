@@ -64,8 +64,14 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	add_table(2,1);
 	{
 		// input fields
-		add_table(3,2);
+		add_table(3,3);
 		{
+			// map seed number label
+			map_number_label.init();
+			map_number_label.buf().printf(translator::translate("Map number: %d"), welt->get_settings().get_map_number());
+			map_number_label.update();
+			add_component(&map_number_label,3);
+
 			// Map X size edit
 			new_component<gui_label_t>("West To East");
 			info_x_size.init();

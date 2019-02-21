@@ -50,6 +50,11 @@ private:
 		inp_cluster_size,
 		inp_town_size;
 
+	/* 
+	 * Label to display current map seed number.
+	 */
+	gui_label_buf_t	map_number_label;
+
 	button_t
 		start_button;
 
