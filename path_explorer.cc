@@ -176,7 +176,7 @@ void path_explorer_t::full_instant_refresh()
 #endif
 	uint16 curr_step = 0;
 	// exclude empty goods (none)
-	uint16 total_steps = ((max_categories - 1) * (max_classes)) * 6;
+	uint16 total_steps = (max_categories - 1) * max_classes * 6;
 
 	processing = true;
 
