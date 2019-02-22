@@ -14,7 +14,7 @@
 class news_window : public base_infowin_t
 {
 public:
-	virtual FLAGGED_PIXVAL get_titlecolor() const { return color; }
+	FLAGGED_PIXVAL get_titlecolor() const OVERRIDE { return color; }
 
 protected:
 	news_window(const char* text, FLAGGED_PIXVAL color);
@@ -56,9 +56,9 @@ class news_loc : public news_window
 public:
 	news_loc(const char* text, koord k, FLAGGED_PIXVAL color = env_t::default_window_title_color);
 
-	void map_rotate90( sint16 new_ysize );
+	void map_rotate90( sint16 new_ysize ) OVERRIDE;
 
-	virtual koord3d get_weltpos(bool);
+	koord3d get_weltpos(bool) OVERRIDE;
 
 private:
 	location_view_t view;

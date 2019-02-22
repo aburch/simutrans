@@ -57,7 +57,7 @@ protected:
 	* Dient zur Neuberechnung des Bildes
 	* @author Hj. Malthaner
 	*/
-	void calc_image();
+	void calc_image() OVERRIDE;
 
 public:
 	// number of fractional bits for network load values
@@ -81,32 +81,32 @@ public:
 	virtual ~leitung_t();
 
 	// just book the costs for destruction
-	void cleanup(player_t *);
+	void cleanup(player_t *) OVERRIDE;
 
 	// for map rotation
-	void rotate90();
+	void rotate90() OVERRIDE;
 
-	typ get_typ() const { return leitung; }
+	typ get_typ() const OVERRIDE { return leitung; }
 
-	const char *get_name() const {return "Leitung"; }
+	const char *get_name() const OVERRIDE {return "Leitung"; }
 
 	/**
 	 * waytype associated with this object
 	 */
-	waytype_t get_waytype() const { return powerline_wt; }
+	waytype_t get_waytype() const OVERRIDE { return powerline_wt; }
 
 	/**
 	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	* Beobachtungsfenster angezeigt wird.
 	* @author Hj. Malthaner
 	*/
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
 	ribi_t::ribi get_ribi() const { return ribi; }
 
 	inline void set_image( image_id b ) { image = b; }
-	image_id get_image() const {return is_crossing ? IMG_EMPTY : image;}
-	image_id get_front_image() const {return is_crossing ? image : IMG_EMPTY;}
+	image_id get_image() const OVERRIDE {return is_crossing ? IMG_EMPTY : image;}
+	image_id get_front_image() const OVERRIDE {return is_crossing ? image : IMG_EMPTY;}
 
 	/**
 	* Recalculates the images of all neighbouring
@@ -116,14 +116,14 @@ public:
 	*/
 	void calc_neighbourhood();
 
-	virtual void rdwr(loadsave_t *file);
-	virtual void finish_rd();
+	void rdwr(loadsave_t *file) OVERRIDE;
+	void finish_rd() OVERRIDE;
 
 	/**
 	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *is_deletable(const player_t *player);
+	const char *is_deletable(const player_t *player) OVERRIDE;
 };
 
 
@@ -149,7 +149,7 @@ public:
 	pumpe_t(koord3d pos, player_t *player);
 	~pumpe_t();
 
-	virtual void set_net(powernet_t* p);
+	void set_net(powernet_t* p) OVERRIDE;
 
 	/**
 	 * Set the power supply of the transformer.
@@ -167,16 +167,16 @@ public:
 	 */
 	sint32 get_power_consumption() const;
 
-	typ get_typ() const { return pumpe; }
+	typ get_typ() const OVERRIDE { return pumpe; }
 
-	const char *get_name() const {return "Aufspanntransformator";}
+	const char *get_name() const OVERRIDE {return "Aufspanntransformator";}
 
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
-	virtual void rdwr(loadsave_t *file);
-	virtual void finish_rd();
+	void rdwr(loadsave_t *file) OVERRIDE;
+	void finish_rd() OVERRIDE;
 
-	void calc_image() {}	// otherwise it will change to leitung
+	void calc_image() OVERRIDE {}	// otherwise it will change to leitung
 
 	const fabrik_t* get_factory() const { return fab; }
 };
@@ -229,9 +229,9 @@ public:
 	senke_t(koord3d pos, player_t *player);
 	~senke_t();
 
-	virtual void set_net(powernet_t* p);
+	void set_net(powernet_t* p) OVERRIDE;
 
-	typ get_typ() const { return senke; }
+	typ get_typ() const OVERRIDE { return senke; }
 
 	/**
 	 * Set the power demand of the transformer.
@@ -249,21 +249,21 @@ public:
 	 */
 	sint32 get_power_satisfaction() const;
 
-	/** 
+	/**
 	 * Used to alternate between displaying power on and power off images.
 	 * Frequency determined by the percentage of power supplied.
 	 * Gives players a visual indication of a power network with insufficient generation.
 	 */
-	sync_result sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
-	const char *get_name() const {return "Abspanntransformator";}
+	const char *get_name() const OVERRIDE {return "Abspanntransformator";}
 
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
-	virtual void rdwr(loadsave_t *file);
-	virtual void finish_rd();
+	void rdwr(loadsave_t *file) OVERRIDE;
+	void finish_rd() OVERRIDE;
 
-	void calc_image() {}	// otherwise it will change to leitung
+	void calc_image() OVERRIDE {}	// otherwise it will change to leitung
 
 	const fabrik_t* get_factory() const { return fab; }
 };

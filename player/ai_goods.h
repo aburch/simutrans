@@ -111,22 +111,22 @@ public:
 	ai_goods_t(uint8 nr);
 
 	// this type of AIs identifier
-	virtual uint8 get_ai_id() const { return AI_GOODS; }
+	uint8 get_ai_id() const OVERRIDE { return AI_GOODS; }
 
 	// cannot do airfreight at the moment
-	virtual void set_air_transport( bool ) { air_transport = false; }
+	void set_air_transport( bool ) OVERRIDE { air_transport = false; }
 
-	virtual void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
-	virtual void report_vehicle_problem(convoihandle_t cnv,const koord3d ziel);
+	void report_vehicle_problem(convoihandle_t cnv,const koord3d ziel) OVERRIDE;
 
-	bool set_active( bool b );
+	bool set_active( bool b ) OVERRIDE;
 
-	void step();
+	void step() OVERRIDE;
 
-	void new_year();
+	void new_year() OVERRIDE;
 
-	virtual void rotate90( const sint16 y_size );
+	void rotate90( const sint16 y_size ) OVERRIDE;
 
-	virtual void notify_factory(notification_factory_t flag, const fabrik_t*);
+	void notify_factory(notification_factory_t flag, const fabrik_t*) OVERRIDE;
 };

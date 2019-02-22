@@ -25,9 +25,9 @@ public:
 	 */
 	maglev_t(loadsave_t *file);
 
-	virtual waytype_t get_waytype() const {return maglev_wt;}
+	waytype_t get_waytype() const OVERRIDE {return maglev_wt;}
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 };
 
 #endif

@@ -40,7 +40,7 @@ public:
 		init(button_t::box, "");
 	}
 
-	scr_size get_min_size() const { return scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT); }
+	scr_size get_min_size() const OVERRIDE { return scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT); }
 };
 
 

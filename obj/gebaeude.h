@@ -15,6 +15,7 @@
 class building_tile_desc_t;
 class fabrik_t;
 class stadt_t;
+
 /**
  * Asynchronous or synchronous animations for buildings.
  * @author Hj. Malthaner
@@ -85,7 +86,7 @@ public:
 	gebaeude_t(koord3d pos,player_t *player, const building_tile_desc_t *t);
 	virtual ~gebaeude_t();
 
-	void rotate90();
+	void rotate90() OVERRIDE;
 
 	void add_alter(uint32 a);
 
@@ -101,35 +102,35 @@ public:
 	fabrik_t* get_fabrik() const { return is_factory ? ptr.fab : NULL; }
 	stadt_t* get_stadt() const { return is_factory ? NULL : ptr.stadt; }
 
-	obj_t::typ get_typ() const { return obj_t::gebaeude; }
+	obj_t::typ get_typ() const OVERRIDE { return obj_t::gebaeude; }
 
 	/**
 	 * waytype associated with this object
 	 */
-	waytype_t get_waytype() const;
+	waytype_t get_waytype() const OVERRIDE;
 
-	image_id get_image() const;
-	image_id get_image(int nr) const;
-	image_id get_front_image() const;
+	image_id get_image() const OVERRIDE;
+	image_id get_image(int nr) const OVERRIDE;
+	image_id get_front_image() const OVERRIDE;
 	void mark_images_dirty() const;
 
-	image_id get_outline_image() const;
-	FLAGGED_PIXVAL get_outline_colour() const;
+	image_id get_outline_image() const OVERRIDE;
+	FLAGGED_PIXVAL get_outline_colour() const OVERRIDE;
 
 	// caches image at height 0
-	void calc_image();
+	void calc_image() OVERRIDE;
 
 	/**
 	 * Called whenever the season or snowline height changes
 	 * return false and the obj_t will be deleted
 	 */
-	bool check_season(const bool) { calc_image(); return true; }
+	bool check_season(const bool) OVERRIDE { calc_image(); return true; }
 
 	/**
 	 * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *get_name() const;
+	const char *get_name() const OVERRIDE;
 
 	bool is_townhall() const;
 
@@ -144,15 +145,15 @@ public:
 	 * Beobachtungsfenster angezeigt wird.
 	 * @author Hj. Malthaner
 	 */
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	/**
 	 * Play animations of animated buildings.
 	 * Count-down to replace construction site image by regular image.
 	 */
-	sync_result sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
 	/**
 	 * @return Den level (die Ausbaustufe) des Gebaudes
@@ -166,11 +167,11 @@ public:
 
 	const building_tile_desc_t *get_tile() const { return tile; }
 
-	virtual void show_info();
+	void show_info() OVERRIDE;
 
-	void cleanup(player_t *player);
+	void cleanup(player_t *player) OVERRIDE;
 
-	void finish_rd();
+	void finish_rd() OVERRIDE;
 
 	// currently animated
 	bool is_sync() const { return sync; }

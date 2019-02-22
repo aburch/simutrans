@@ -41,15 +41,15 @@ public:
 	* return direction or the state of the traffic light
 	* @author Hj. Malthaner
 	*/
-	ribi_t::ribi get_dir() const 	{ return dir; }
+	ribi_t::ribi get_dir() const { return dir; }
 
 	bool ist_blockiert() const {return blockend != 0;}
 
-	obj_t::typ get_typ() const 	{ return type; }
+	obj_t::typ get_typ() const OVERRIDE { return type; }
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
-	image_id get_image() const { return IMG_EMPTY; }
+	image_id get_image() const OVERRIDE { return IMG_EMPTY; }
 };
 
 

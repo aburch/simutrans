@@ -118,7 +118,7 @@ class factory_site_searcher_t: public building_placefinder_t  {
 public:
 	factory_site_searcher_t(karte_t* welt, factory_desc_t::site_t site_) : building_placefinder_t(welt), site(site_) {}
 
-	virtual bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const
+	bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const OVERRIDE
 	{
 		if(  !building_placefinder_t::is_area_ok(pos, w, h, cl)  ) {
 			return false;

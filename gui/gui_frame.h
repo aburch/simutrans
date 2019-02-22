@@ -245,7 +245,7 @@ public:
 	 * Events are notified to GUI components via this method.
 	 * @author Hj. Malthaner
 	 */
-	virtual bool infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev) OVERRIDE;
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -268,7 +268,7 @@ public:
 	 */
 	void set_focus( gui_component_t *c ) { gui_aligned_container_t::set_focus(c); }
 
-	virtual gui_component_t *get_focus() { return gui_aligned_container_t::get_focus(); }
+	gui_component_t *get_focus() OVERRIDE { return gui_aligned_container_t::get_focus(); }
 };
 
 #endif

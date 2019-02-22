@@ -38,7 +38,7 @@ public:
 		add_listener(this);
 	}
 
-	bool action_triggered(gui_action_creator_t*, value_t)
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE
 	{
 		player_t *player = welt->get_active_player();
 		if(  player == line->get_owner()  ) {
@@ -47,7 +47,7 @@ public:
 		return true;
 	}
 
-	void draw(scr_coord offset)
+	void draw(scr_coord offset) OVERRIDE
 	{
 		if (line->get_owner() == welt->get_active_player()) {
 			button_t::draw(offset);
@@ -71,7 +71,7 @@ public:
 		add_listener(this);
 	}
 
-	bool action_triggered(gui_action_creator_t*, value_t)
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE
 	{
 		convoi->open_info_window();
 		return true;
