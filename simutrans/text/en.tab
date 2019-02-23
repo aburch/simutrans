@@ -1811,7 +1811,7 @@ Mountain peak
 Goods supplied
 Goods supplied
 Goods
-Goods needed
+Goods
 Assets
 Assets
 Aufloesen
@@ -3892,3 +3892,9 @@ The amount of mail which could not find a route to its destination
 The amount of mail which could not find a route to its destination
 The amount of mail transported in the region overall
 The proportion of mail transported in the region overall
+Goods needed
+Goods needed
+ratio_mail
+% mail
+ratio_goods
+% goods
