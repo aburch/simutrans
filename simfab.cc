@@ -1768,7 +1768,6 @@ sint32 fabrik_t::liefere_an(const goods_desc_t *typ, sint32 menge)
 		{
 			building = welt->lookup(pos)->find<gebaeude_t>();
 		}
-		building->set_commute_trip(menge);
 		arrival_stats_pax.book_arrival(menge);
 		update_prodfactor_pax();
 		return menge;
