@@ -3,7 +3,7 @@ PROP_FONT_FILE
 Prop-Latin1.bdf
 ################################################################################
 #                                                                              #
-#                 Simutrans-Extended Base Translation File                 #
+#                 Simutrans-Extended Base Translation File                     #
 #                             Scenario: Base texts                             #
 #                             Language: en English                             #
 #                                Encoding: ASCII                               #
@@ -3898,3 +3898,11 @@ ratio_mail
 % mail
 ratio_goods
 % goods
+Inactive
+Inactive
+Sector
+Sector
+Commuters
+Commuters
+Consumers
+Consumers

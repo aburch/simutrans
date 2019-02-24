@@ -37,7 +37,8 @@ const char *factorylist_frame_t::sort_text[factorylist::SORT_MODES] = {
 	"Output",
 	"Produktion",
 	"Rating",
-	"Power"
+	"Power",
+	"Sector"
 };
 
 factorylist_frame_t::factorylist_frame_t() :

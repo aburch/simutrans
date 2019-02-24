@@ -97,6 +97,9 @@ class compare_factories
 				case factorylist::by_power:
 					cmp = a->get_prodfactor_electric() - b->get_prodfactor_electric();
 					break;
+				case factorylist::by_sector:
+					cmp = a->get_sector() - b->get_sector();
+					break;
 			}
 			if (cmp == 0) {
 				cmp = STRICMP(a->get_name(), b->get_name());
@@ -184,7 +187,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 		if (yoff < start) continue;
 
 		if(fab) {
-			unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
+			unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()%fabrik_t::staff_shortage];
 
 			buf.clear();
 			buf.append(fab->get_name());
@@ -210,7 +213,9 @@ void factorylist_stats_t::draw(scr_coord offset)
 			buf.append(") ");
 
 
-			//display_ddd_box_clip(xoff+7, yoff+2, 8, 8, MN_GREY0, MN_GREY4);
+			if (fab->get_status() >= fabrik_t::staff_shortage) {
+				display_ddd_box_clip(xoff + 1, yoff + 1, D_INDICATOR_WIDTH + 2, D_INDICATOR_HEIGHT + 2, COL_STAFF_SHORTAGE, COL_STAFF_SHORTAGE);
+			}
 			display_fillbox_wh_clip(xoff+2, yoff+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indikatorfarbe, true);
 
 			if(  fab->get_prodfactor_electric()>0  ) {
@@ -228,7 +233,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 
 			// goto button
 			bool selected = sel==0  ||  welt->get_viewport()->is_on_center( fab->get_pos() );
-			display_img_aligned( gui_theme_t::pos_button_img[ selected ], scr_rect( offset.x, yoff, D_POS_BUTTON_WIDTH, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+			display_img_aligned( gui_theme_t::pos_button_img[ selected ], scr_rect( offset.x+D_H_SPACE, yoff, D_POS_BUTTON_WIDTH, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 			sel --;
 
 			if(  win_get_magic( (ptrdiff_t)fab )  ) {

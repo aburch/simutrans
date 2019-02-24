@@ -3609,6 +3609,14 @@ The amount of mail which could not find a route to its destination
 郵便物の配達先がここからは配達できない場所であった数
 %d%% delivered : %d%% no route
 配達完了 %d%% : 配達不能 %d%%
+Inactive
+未稼働
+Sector
+産業分野
+Commuters
+通勤者
+Consumers
+消費者
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
