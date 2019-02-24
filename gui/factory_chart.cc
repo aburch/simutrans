@@ -95,9 +95,9 @@ static const koord button_pos[MAX_FAB_STAT] =
 	/* Boost      */  koord(1, 1), koord(2, 1), koord(3, 1),
 	/* Max Boost  */
 	/* Demand     */
-	/* Pax        */  koord(2, 5), koord(2, 5), koord(2, 4), // koord(2, 5) = unused
+	/* Commuter   */  koord(2, 5), koord(2, 5), koord(2, 4), // koord(2, 5) = unused
 	/* Mail       */  koord(2, 5), koord(3, 5), koord(3, 4),
-	/* Visitor    */  koord(1, 4)
+	/* Consumer   */  koord(1, 4)
 };
 
 static const int ref_color[MAX_FAB_REF_LINE] =
@@ -108,7 +108,7 @@ static const int ref_color[MAX_FAB_REF_LINE] =
 
 static const char *const label_text[MAX_PROD_LABEL] =
 {
-	"Power (MW)", "Boost (%)", "Max Boost (%)", "Demand", "Arrived", "Sent"
+	"Power (MW)", "Boost (%)", "Max Boost (%)", "Demand", "Arrived", "sended"
 };
 
 // Max Kielland
@@ -237,6 +237,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 			(s==FAB_BOOST_ELECTRIC  &&  (factory->get_desc()->is_electricity_producer()  ||  factory->get_desc()->get_electric_boost()==0))  ||
 			(s==FAB_BOOST_PAX  &&  factory->get_desc()->get_pax_boost()==0)  ||
 			(s==FAB_BOOST_MAIL  &&  factory->get_desc()->get_mail_boost()==0) ||
+			(s==FAB_CONSUMER_ARRIVED && factory->get_sector() != fabrik_t::end_consumer) ||
 			s == FAB_PAX_GENERATED || s == FAB_PAX_DEPARTED || s == FAB_MAIL_GENERATED
 			) {
 			prod_buttons[s].disable();
