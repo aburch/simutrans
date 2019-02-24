@@ -5050,14 +5050,14 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 				{
 					for (uint8 j = 0; j < pass_classes; j++)
 					{
-						max_loaded_pass[j] += v->get_accommodation_capacity(j);
+						max_loaded_pass[v->get_reassigned_class(j)] += v->get_accommodation_capacity(j);
 					}
 				}
 				else if (mail_veh)
 				{
 					for (uint8 j = 0; j < mail_classes; j++)
 					{
-						max_loaded_mail[j] += v->get_accommodation_capacity(j);
+						max_loaded_mail[v->get_reassigned_class(j)] += v->get_accommodation_capacity(j);
 					}
 				}
 				else if (menge > 0 && ware_desc != goods_manager_t::none) {
@@ -5082,11 +5082,11 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 					{
 						if (sort_by_accommodation && pass_veh)
 						{
-							pass_fracht[j].append(ware);
+							pass_fracht[v->get_reassigned_class(j)].append(ware);
 						}
 						else if (sort_by_accommodation && mail_veh)
 						{
-							mail_fracht[j].append(ware);
+							mail_fracht[v->get_reassigned_class(j)].append(ware);
 						}
 						else
 						{
