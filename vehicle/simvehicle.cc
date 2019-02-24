@@ -2151,7 +2151,7 @@ void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 		ware_t cargo_type = get_cargo_type();
 		for (uint8 i = 0; i < number_of_classes; i++)
 		{
-			freight_list_sorter_t::sort_freight(fracht_array[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, get_accommodation_capacity(i), &cargo_type, true);
+			freight_list_sorter_t::sort_freight(fracht_array[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", get_reassigned_class(i), get_accommodation_capacity(i), &cargo_type, true);
 		}
 	}
 	else
