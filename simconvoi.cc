@@ -1074,8 +1074,8 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 				break;
 		}
 #ifdef DEBUG_ACCELERATION
-		static const char *debug_fmt1 = "at route index: %d; next stop index: % 4u next limit of% 4d km/h, current speed% 4d km/h,% 6d steps til brake,% 6d steps til stop";
-		dbg->warning("convoi_t::calc_acceleration 1", debug_fmt1, current_route_index - 1, next_stop_index, speed_to_kmh(next_speed_limit), speed_to_kmh(akt_speed), steps_til_brake, steps_til_limit);
+		static const char *debug_fmt1 = "at tile %u,%u; at route index: %d; next stop index: % 4u next limit of% 4d km/h, current speed% 4d km/h,% 6d steps until brake,% 6d steps until stop";
+		dbg->warning("convoi_t::calc_acceleration 1", debug_fmt1, get_pos().x, get_pos().y, current_route_index - 1, next_stop_index, speed_to_kmh(next_speed_limit), speed_to_kmh(akt_speed), steps_til_brake, steps_til_limit);
 #endif
 		// Brake for upcoming speed limit?
 		sint32 min_limit = akt_speed; // no need to check limits above min_limit, as it won't lead to further restrictions
