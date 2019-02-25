@@ -19,25 +19,22 @@ trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
 	obj_infowin_t(s),
 	roadsign(s)
 {
-	ns.set_pos( scr_coord(10,get_windowsize().h-85) );
-	ns.set_size( scr_size(52, D_EDIT_HEIGHT) );
+	add_table(3,5);
+	
+	// number inputs
 	ns.set_limits( 1, 255 );
 	ns.set_value( s->get_ticks_ns() );
 	ns.wrap_mode( false );
 	ns.add_listener( this );
 	add_component( &ns );
-
-	ow.set_pos( scr_coord(66,get_windowsize().h-85) );
-	ow.set_size( scr_size(52, D_EDIT_HEIGHT) );
+	
 	ow.set_limits( 1, 255 );
 	ow.set_value( s->get_ticks_ow() );
 	ow.wrap_mode( false );
 	ow.add_listener( this );
 	add_component( &ow );
-
-	offset.set_pos( scr_coord(122,get_windowsize().h-85) );
-	offset.set_size( scr_size(52, D_EDIT_HEIGHT) );
-	offset.set_limits( 0, 255 );
+	
+	offset.set_limits( 1, 255 );
 	offset.set_value( s->get_ticks_offset() );
 	offset.wrap_mode( false );
 	offset.add_listener( this );
@@ -47,22 +44,22 @@ trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
 	const char* direction_texts[4] = {"nord","ost","sued","west"};
 	for(uint8 i=0; i<4; i++) {
 		// left side
-		direction_buttons[i].init( button_t::square_state, "", scr_coord(30,get_windowsize().h-25-LINESPACE*(4-i)), scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
+		direction_buttons[i].init( button_t::square_state, direction_texts[i]);
+		add_component( &direction_buttons[i] );
 
 		// right side
-		direction_buttons[i+4].init( button_t::square_state, "", scr_coord(90,get_windowsize().h-25-LINESPACE*(4-i)), scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
-
-		// center labels
-		direction_labels[i].init( direction_texts[i], scr_coord(40,get_windowsize().h-25-LINESPACE*(4-i)));
-		direction_labels[i].set_size( scr_size(50, D_LABEL_HEIGHT) );
-		direction_labels[i].set_align(gui_label_t::align_t::centered);
-		add_component( &direction_labels[i] );
+		direction_buttons[i+4].init( button_t::square_state, "");
+		add_component( &direction_buttons[i+4] );
+		
+		new_component<gui_fill_t>(false,false);
 	}
 	for(uint8 i=0; i<8; i++) {
 		direction_buttons[i].add_listener( this );
 		direction_buttons[i].pressed = ((roadsign->get_open_direction())&(1<<i))!=0;
-		add_component( &direction_buttons[i] );
 	}
+	
+	end_table();
+	recalc_size();
 }
 
 

@@ -31,7 +31,6 @@ private:
 	roadsign_t* roadsign;
 	gui_numberinput_t ns, ow, offset;
   button_t direction_buttons[8];
-  gui_label_t direction_labels[4];
 
 public:
 	trafficlight_info_t(roadsign_t* s);
