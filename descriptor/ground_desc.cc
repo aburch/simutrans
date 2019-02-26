@@ -267,7 +267,10 @@ static image_t* create_texture_from_tile(const image_t* image, const image_t* re
 
 #define copypixel(xx, yy) \
 	if (0 <= (yy)  &&  (yy) < ref_w  &&  0 <= (xx)  &&  (xx) < ref_w) { \
-		sp2[ (ref_w+3)*(yy) + xx+2] = p; \
+        size_t const index = (ref_w + 3) * (yy) + xx + 2; \
+        if(index < image_dest->len) { \
+		    sp2[index] = p; \
+		} \
 	}
 				// put multiple copies into dest image
 				copypixel(x, y + image->y);

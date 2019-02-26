@@ -59,18 +59,22 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 		// input fields
 		add_table(2,2);
 		{
-			// Map size label
-			size_label.init();
-			size_label.buf().printf(translator::translate("Size (%d MB):"), 9999);
-			size_label.update();
-			add_component( &size_label );
+			// map seed number label
+			map_number_label.init();
+			map_number_label.buf().printf(translator::translate("Map number: %d"), welt->get_settings().get_map_number());
+			map_number_label.update();
+			add_component(&map_number_label);
 
 			// Map X size edit
 			inp_x_size.init( sets->get_size_x(), welt->get_size().x, 32766, sets->get_size_x()>=512 ? 128 : 64, false );
 			inp_x_size.add_listener(this);
 			add_component( &inp_x_size );
 
-			new_component<gui_empty_t>(&size_label);
+			// Map size label
+			size_label.init();
+			size_label.buf().printf(translator::translate("Size (%d MB):"), 9999);
+			size_label.update();
+			add_component( &size_label );
 
 			// Map size Y edit
 			inp_y_size.init( sets->get_size_y(), sets->get_size_y(), 32766, sets->get_size_y()>=512 ? 128 : 64, false );

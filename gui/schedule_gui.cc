@@ -77,7 +77,7 @@ public:
 		stop.update();
 	}
 
-	void draw(scr_coord offset)
+	void draw(scr_coord offset) OVERRIDE
 	{
 		update_label();
 		if (is_current) {
@@ -93,7 +93,7 @@ public:
 		stop.set_color(yesno ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT);
 	}
 
-	bool infowin_event(const event_t *ev)
+	bool infowin_event(const event_t *ev) OVERRIDE
 	{
 		if( ev->ev_class == EVENT_CLICK ) {
 			if(  IS_RIGHTCLICK(ev)  ||  ev->mx < stop.get_pos().x) {
@@ -225,13 +225,13 @@ public:
 		}
 		highlight_schedule(true);
 	}
-	void draw(scr_coord offset)
+	void draw(scr_coord offset) OVERRIDE
 	{
 		update_schedule();
 
 		gui_aligned_container_t::draw(offset);
 	}
-	bool action_triggered(gui_action_creator_t *, value_t v)
+	bool action_triggered(gui_action_creator_t *, value_t v) OVERRIDE
 	{
 		// has to be one of the entries
 		call_listeners(v);

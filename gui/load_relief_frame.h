@@ -22,9 +22,9 @@ private:
 	button_t new_format;
 
 protected:
-	virtual bool item_action(const char *fullpath);
-	virtual const char *get_info(const char *fullpath);
-	virtual bool check_file(const char *fullpath, const char *suffix);
+	bool item_action(const char *fullpath) OVERRIDE;
+	const char *get_info(const char *fullpath) OVERRIDE;
+	bool check_file(const char *fullpath, const char *suffix) OVERRIDE;
 
 public:
 	/**
@@ -32,7 +32,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *get_help_filename() const { return "load_relief.txt"; }
+	const char *get_help_filename() const OVERRIDE { return "load_relief.txt"; }
 
 	load_relief_frame_t(settings_t*);
 };

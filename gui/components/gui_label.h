@@ -161,7 +161,7 @@ public:
 	 */
 	void append_money(double money);
 
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 protected:
 	using gui_label_t::get_text_pointer;

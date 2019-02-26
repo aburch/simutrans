@@ -2851,11 +2851,11 @@ void way_builder_t::build_powerline()
 // this can drive any river, even a river that has max_speed=0
 class fluss_fahrer_t : public test_driver_t
 {
-	bool check_next_tile(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt)!=0; }
-	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt); }
-	virtual waytype_t get_waytype() const { return invalid_wt; }
-	virtual int get_cost(const grund_t *, const weg_t *, const sint32, ribi_t::ribi) const { return 1; }
-	virtual bool is_target(const grund_t *cur,const grund_t *) const { return cur->is_water()  &&  cur->get_grund_hang()==slope_t::flat; }
+	bool check_next_tile(const grund_t* gr) const OVERRIDE { return gr->get_weg_ribi_unmasked(water_wt)!=0; }
+	ribi_t::ribi get_ribi(const grund_t* gr) const OVERRIDE { return gr->get_weg_ribi_unmasked(water_wt); }
+	waytype_t get_waytype() const OVERRIDE { return invalid_wt; }
+	int get_cost(const grund_t *, const weg_t *, const sint32, ribi_t::ribi) const OVERRIDE { return 1; }
+	bool is_target(const grund_t *cur,const grund_t *) const OVERRIDE { return cur->is_water()  &&  cur->get_grund_hang()==slope_t::flat; }
 };
 
 

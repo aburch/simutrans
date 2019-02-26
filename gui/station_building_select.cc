@@ -74,6 +74,7 @@ bool station_building_select_t::action_triggered( gui_action_creator_t *komp, va
 	for(int i=0; i<4; i++) {
 		if(komp == &actionbutton[i]  ||  v.i == i) {
 			static cbuffer_t default_str;
+			default_str.clear();
 			default_str.printf("%s,%i", desc->get_name(), i );
 			tool->set_default_param(default_str);
 			welt->set_tool( tool, welt->get_active_player() );

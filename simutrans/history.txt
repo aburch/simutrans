@@ -1,5 +1,7 @@
-    FIX: The stop information window in "via (amount)" order will no longer count incorrectly when more than 8,388,607 units are headed to a single destination
-    FIX: SDL2 build running on Windows 10 in fullscreen mode now minimizes and maximizes responsively
+    ADD: Map number is shown in the enlarge map window.
+    FIX: Text area GUI components no longer suffer from line wrap around when displaying an extreme number of lines.
+    FIX: Stop information window waiting list in "via (amount)" order will no longer count incorrectly when more than 8,388,607 units are headed to a single destination.
+    FIX: SDL2 build running on Windows 10 in fullscreen mode now minimizes and maximizes responsively.
 	CHG: gui overhaul: automatic placement and size calculation of elements
 	ADD: use animated water graphics on shores
 	FIX: Do not call DefWindowsProc for IME to mitigate crash on Windows1809

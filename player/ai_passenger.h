@@ -81,18 +81,18 @@ public:
 	ai_passenger_t(uint8 nr);
 
 	// this type of AIs identifier
-	virtual uint8 get_ai_id() const { return AI_PASSENGER; }
+	uint8 get_ai_id() const OVERRIDE { return AI_PASSENGER; }
 
 	// cannot do rail
-	virtual void set_rail_transport( bool ) { rail_transport = false; }
+	void set_rail_transport( bool ) OVERRIDE { rail_transport = false; }
 
-	virtual void report_vehicle_problem(convoihandle_t cnv,const koord3d ziel);
+	void report_vehicle_problem(convoihandle_t cnv,const koord3d ziel) OVERRIDE;
 
-	virtual void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
-	virtual void finish_rd();
+	void finish_rd() OVERRIDE;
 
-	bool set_active( bool b );
+	bool set_active( bool b ) OVERRIDE;
 
-	void step();
+	void step() OVERRIDE;
 };

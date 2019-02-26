@@ -66,8 +66,8 @@ public:
 	void set_state(signalstate z) {state = z; calc_image();}
 	signalstate get_state() { return (signalstate)state; }
 
-	typ get_typ() const { return roadsign; }
-	const char* get_name() const { return "Roadsign"; }
+	typ get_typ() const OVERRIDE { return roadsign; }
+	const char* get_name() const OVERRIDE { return "Roadsign"; }
 
 	// assuming this is a private way sign
 	uint16 get_player_mask() const { return (ticks_ow<<8)|ticks_ns; }
@@ -75,7 +75,7 @@ public:
 	/**
 	 * waytype associated with this object
 	 */
-	waytype_t get_waytype() const { return desc ? desc->get_wtyp() : invalid_wt; }
+	waytype_t get_waytype() const OVERRIDE { return desc ? desc->get_wtyp() : invalid_wt; }
 
 	roadsign_t(loadsave_t *file);
 	roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_desc_t* desc, bool preview = false);
@@ -89,25 +89,25 @@ public:
 	~roadsign_t();
 
 	// since traffic lights need their own window
-	void show_info();
+	void show_info() OVERRIDE;
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
 	 * @author Hj. Malthaner
 	 */
-	virtual void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
 	/**
 	 * Calculate actual image
 	 */
-	virtual void calc_image();
+	void calc_image() OVERRIDE;
 
 	// true, if a free route choose point (these are always single way the avoid recalculation of long return routes)
 	bool is_free_route(uint8 check_dir) const { return desc->is_choose_sign() &&  check_dir == dir; }
 
 	// changes the state of a traffic light
-	sync_result sync_step(uint32);
+	sync_result sync_step(uint32) OVERRIDE;
 
 	// change the phases of the traffic lights
 	uint8 get_ticks_ns() const { return ticks_ns; }
@@ -133,7 +133,7 @@ public:
 	void set_open_direction(uint8 dir) { open_direction = dir; }
 
 	inline void set_image( image_id b ) { image = b; }
-	image_id get_image() const { return image; }
+	image_id get_image() const OVERRIDE { return image; }
 
 	uint8 get_lane_affinity() const { return lane_affinity; }
 	void set_lane_affinity(uint8 lf) { lane_affinity = lf; }
@@ -143,7 +143,7 @@ public:
 	* For the front image hiding vehicles
 	* @author prissi
 	*/
-	image_id get_front_image() const { return foreground_image; }
+	image_id get_front_image() const OVERRIDE { return foreground_image; }
 
 	/**
 	* draw the part overlapping the vehicles
@@ -151,20 +151,20 @@ public:
 	* @author V. Meyer
 	*/
 #ifdef MULTI_THREAD
-	void display_after(int xpos, int ypos, const sint8 clip_num) const;
+	void display_after(int xpos, int ypos, const sint8 clip_num) const OVERRIDE;
 #else
-	void display_after(int xpos, int ypos, bool dirty) const;
+	void display_after(int xpos, int ypos, bool dirty) const OVERRIDE;
 #endif
 
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
-	void rotate90();
+	void rotate90() OVERRIDE;
 
 	// subtracts cost
-	void cleanup(player_t *player);
+	void cleanup(player_t *player) OVERRIDE;
 
-	void finish_rd();
+	void finish_rd() OVERRIDE;
 
 	// static routines from here
 private:

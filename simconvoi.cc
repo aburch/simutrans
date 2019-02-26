@@ -3062,6 +3062,7 @@ station_tile_search_ready: ;
 
 		if(  amount  ) {
 			time = max( time, (amount*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
+			v->mark_image_dirty(v->get_image(), 0);
 			v->calc_image();
 			changed_loading_level = true;
 		}

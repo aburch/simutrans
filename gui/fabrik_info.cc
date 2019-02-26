@@ -70,7 +70,7 @@ public:
 		}
 	}
 
-	void draw(scr_coord offset)
+	void draw(scr_coord offset) OVERRIDE
 	{
 		image->set_transparent(is_active() ? 0 : TRANSPARENT50_FLAG);
 		gui_aligned_container_t::draw(offset);

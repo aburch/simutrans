@@ -150,13 +150,13 @@ public:
 	/**
 	 * Actual image recalculation
 	 */
-	void calc_image();
+	void calc_image() OVERRIDE;
 
 	/**
 	 * Called whenever the season or snowline height changes
 	 * return false and the obj_t will be deleted
 	 */
-	bool check_season(const bool calc_only_season_change);
+	bool check_season(const bool calc_only_season_change) OVERRIDE;
 
 	/**
 	* Setzt die erlaubte Höchstgeschwindigkeit
@@ -184,37 +184,37 @@ public:
 	// returns a string with the "official name of the waytype"
 	static const char *waytype_to_string(waytype_t wt);
 
-	virtual void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	/**
 	* Info-text for this way
 	* @author Hj. Malthaner
 	*/
-	virtual void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
 	/**
 	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *is_deletable(const player_t *player);
+	const char *is_deletable(const player_t *player) OVERRIDE;
 
 	/**
 	* Wegtyp zurückliefern
 	*/
-	virtual waytype_t get_waytype() const = 0;
+	waytype_t get_waytype() const OVERRIDE = 0;
 
 	/**
 	* 'Jedes Ding braucht einen Typ.'
 	* @return Gibt den typ des Objekts zurück.
 	* @author Hj. Malthaner
 	*/
-	typ get_typ() const { return obj_t::way; }
+	typ get_typ() const OVERRIDE { return obj_t::way; }
 
 	/**
 	* Die Bezeichnung des Wegs
 	* @author Hj. Malthaner
 	*/
-	const char *get_name() const { return desc->get_name(); }
+	const char *get_name() const OVERRIDE { return desc->get_name(); }
 
 	/**
 	* Add direction bits (ribi) for a way.
@@ -268,7 +268,7 @@ public:
 	 * called during map rotation
 	 * @author priss
 	 */
-	virtual void rotate90();
+	virtual void rotate90() OVERRIDE;
 
 	/**
 	* book statistics - is called very often and therefore inline
@@ -317,14 +317,14 @@ public:
 	void clear_sign_flag() { flags &= ~(HAS_SIGN | HAS_SIGNAL); }
 
 	inline void set_image( image_id b ) { image = b; }
-	image_id get_image() const {return image;}
+	image_id get_image() const OVERRIDE {return image;}
 
 	inline void set_foreground_image( image_id b ) { foreground_image = b; }
-	virtual image_id get_front_image() const { return foreground_image; }
+	virtual image_id get_front_image() const OVERRIDE {return foreground_image;}
 
 
 	// correct maintenance
-	void finish_rd();
+	void finish_rd() OVERRIDE;
 } GCC_PACKED;
 
 #endif

@@ -58,7 +58,7 @@ private:
 	*/
 	sint16 directional_statistics[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS][MAX_WAY_STAT_DIRECTIONS];
 
-	void init_statistics();
+	void init_statistics() OVERRIDE;
 	
 	/**
 	* tile reservation system
@@ -85,11 +85,11 @@ public:
 	strasse_t(loadsave_t *file);
 	strasse_t();
 
-	inline waytype_t get_waytype() const {return road_wt;}
+	inline waytype_t get_waytype() const OVERRIDE {return road_wt;}
 
 	void set_gehweg(bool janein);
 
-	virtual void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	/**
 	* Overtaking mode (declared in simtypes.h)
@@ -108,21 +108,21 @@ public:
 	// used in wegbauer. param @allow is ribi in which vehicles can go. without this, ribi cannot be updated correctly at intersections.
 	void update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow);
 	ribi_t::ribi get_ribi_mask_oneway() const { return (ribi_t::ribi)ribi_mask_oneway; }
-	virtual ribi_t::ribi get_ribi() const;
+	virtual ribi_t::ribi get_ribi() const OVERRIDE;
 
-	virtual void rotate90();
+	virtual void rotate90() OVERRIDE;
 
 	void book(int amount, way_statistics type, ribi_t::ribi dir);
-	void new_month();
+	void new_month() OVERRIDE;
 	ribi_t::ribi get_prior_direction() const;
 
-	image_id get_front_image() const {return show_masked_ribi ? skinverwaltung_t::ribi_arrow->get_image_id(get_ribi()) : weg_t::get_front_image();}
+	image_id get_front_image() const OVERRIDE {return show_masked_ribi ? skinverwaltung_t::ribi_arrow->get_image_id(get_ribi()) : weg_t::get_front_image();}
 	
-	virtual FLAGGED_PIXVAL get_outline_colour() const;
+	virtual FLAGGED_PIXVAL get_outline_colour() const OVERRIDE;
 	/*
 	 * to show reservations if needed
 	 */
-	virtual image_id get_outline_image() const { return weg_t::get_image(); }
+	virtual image_id get_outline_image() const OVERRIDE { return weg_t::get_image(); }
 
 	// related to tile reservation system
 	// return true if succeeded

@@ -73,14 +73,14 @@ public:
 	public:
 		const_text_scrollitem_t(char const* const t, PIXVAL const col) : gui_label_t(NULL, col) { set_text_pointer(t); }
 
-		virtual char const* get_text() const { return get_text_pointer(); }
+		char const* get_text() const OVERRIDE { return get_text_pointer(); }
 
-		scr_size get_min_size() const;
-		scr_size get_max_size() const;
+		scr_size get_min_size() const OVERRIDE;
+		scr_size get_max_size() const OVERRIDE;
 
-		virtual void set_text(char const *) {}
+		void set_text(char const *) OVERRIDE {}
 
-		void draw(scr_coord pos);
+		void draw(scr_coord pos) OVERRIDE;
 
 		using gui_label_t::get_color;
 	private:

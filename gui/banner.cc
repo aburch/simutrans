@@ -56,12 +56,12 @@ class banner_text_t : public gui_component_t
 public:
 	banner_text_t() : last_ms(dr_time() - 70), line(0) {}
 
-	scr_size get_min_size() const
+	scr_size get_min_size() const OVERRIDE
 	{
 		return scr_size(0, L_BANNER_HEIGHT);
 	}
 
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 };
 
 banner_t::banner_t() : gui_frame_t("")

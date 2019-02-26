@@ -27,12 +27,11 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const {return "labellist_filter.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "labellist_filter.txt"; }
 
+	bool action_triggered( gui_action_creator_t *komp,value_t /* */) OVERRIDE;
 
-	bool action_triggered( gui_action_creator_t *komp,value_t /* */);
-
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * This function refreshes the list

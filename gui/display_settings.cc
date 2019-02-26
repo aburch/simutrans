@@ -41,7 +41,7 @@ class gui_label_stationname_t : public gui_label_t
 public:
 	gui_label_stationname_t(const char* text) : gui_label_t(text) {}
 
-	void draw(scr_coord offset)
+	void draw(scr_coord offset) OVERRIDE
 	{
 		scr_coord p = pos + offset;
 
@@ -65,7 +65,7 @@ public:
 		}
 	}
 
-	scr_size get_min_size() const
+	scr_size get_min_size() const OVERRIDE
 	{
 		return gui_label_t::get_min_size() + scr_size(LINESPACE + D_H_SPACE, 4);
 	}

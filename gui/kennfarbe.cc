@@ -29,7 +29,7 @@ public:
 	{
 		w = max(D_BUTTON_HEIGHT, display_get_char_width('X'));
 	}
-	scr_size get_min_size() const { return scr_size(w,w); }
+	scr_size get_min_size() const OVERRIDE { return scr_size(w,w); }
 };
 
 
