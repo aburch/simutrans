@@ -17,15 +17,15 @@ You should try OTRP because...
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitter hash tag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
-As of version 20, OTRP is based on simutrans standard nightly r8646.
+As of version 21, OTRP is based on simutrans standard nightly r8694.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.  
 
-You can download the OTRP executable binary from the links below. **(2019 January 2nd, updated to ver 20.)**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/70477/sim-WinGDI-OTRPv20.exe/  
-mac: https://osdn.net/projects/otrp/downloads/70477/sim-mac-OTRPv20.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/70477/sim-linux-OTRPv20.zip/  
+You can download the OTRP executable binary from the links below. **(2019 February 26th, updated to ver 21.)**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/70676/sim-WinGDI-OTRPv21.exe/  
+mac: https://osdn.net/projects/otrp/downloads/70676/sim-mac-OTRPv21.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/70676/sim-linux-OTRPv21.zip/  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 There is no special makeobj for OTRP. Please one of the simutrans standard.
@@ -113,4 +113,4 @@ OTRP derives from simutrans standard, so OTRP follows [Artistic License](https:/
 - Please notify Himeshi where the OTRP is distributed. twitter: [@himeshi_hob](https://twitter.com/himeshi_hob)
 
 # Contact Me
-If you have any questions or request, please feel free to ask me through the simutrans international forum or [@himeshi_hob](https://twitter.com/himeshi_hob) in Twitter. Every issue reports and your opinions are greatly appreciated.
+If you have any questions or request, please feel free to ask me through the simutrans international forum (THLeaderH) or [@himeshi_hob](https://twitter.com/himeshi_hob) in Twitter. Every issue reports and your opinions are greatly appreciated.
