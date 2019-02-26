@@ -16,11 +16,11 @@ public:
 	strasse_t(loadsave_t *file);
 	strasse_t();
 
-	inline waytype_t get_waytype() const {return road_wt;}
+	inline waytype_t get_waytype() const OVERRIDE {return road_wt;}
 
 	void set_gehweg(bool janein);
 
-	virtual void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 };
 
 #endif

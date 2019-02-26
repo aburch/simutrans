@@ -456,7 +456,7 @@ private:
 public:
 	toolbar_last_used_t(uint16 const id, char const* const t, char const* const h) : toolbar_t(id,t,h) {}
 	static toolbar_last_used_t *last_used_tools;
-	void update(player_t *);	// just refresh content
+	void update(player_t *) OVERRIDE;	// just refresh content
 	void append(tool_t *, player_t *);
 	void clear();
 };

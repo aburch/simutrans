@@ -42,7 +42,6 @@ private:
 	/// the world we are scripting in
 	karte_t *welt;
 
-
 	/// name of scenario, files are searched in scenario_path/scenario_name/...
 	/// e.g. my_scenario
 	plainstring scenario_name;

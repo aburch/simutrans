@@ -184,12 +184,12 @@ class train_schedule_t : public schedule_t
 {
 public:
 	train_schedule_t() {}
-	schedule_t* copy() { schedule_t *s = new train_schedule_t(); s->copy_from(this); return s; }
-	const char *get_error_msg() const { return "Zughalt muss auf\nSchiene liegen!\n"; }
+	schedule_t* copy() OVERRIDE { schedule_t *s = new train_schedule_t(); s->copy_from(this); return s; }
+	const char *get_error_msg() const OVERRIDE { return "Zughalt muss auf\nSchiene liegen!\n"; }
 
-	schedule_type get_type() const { return train_schedule; }
+	schedule_type get_type() const OVERRIDE { return train_schedule; }
 
-	waytype_t get_waytype() const { return track_wt; }
+	waytype_t get_waytype() const OVERRIDE { return track_wt; }
 };
 
 /**
@@ -200,11 +200,11 @@ class tram_schedule_t : public train_schedule_t
 {
 public:
 	tram_schedule_t() {}
-	schedule_t* copy() { schedule_t *s = new tram_schedule_t(); s->copy_from(this); return s; }
+	schedule_t* copy() OVERRIDE { schedule_t *s = new tram_schedule_t(); s->copy_from(this); return s; }
 
-	schedule_type get_type() const { return tram_schedule; }
+	schedule_type get_type() const OVERRIDE { return tram_schedule; }
 
-	waytype_t get_waytype() const { return tram_wt; }
+	waytype_t get_waytype() const OVERRIDE { return tram_wt; }
 };
 
 
@@ -217,12 +217,12 @@ class truck_schedule_t : public schedule_t
 {
 public:
 	truck_schedule_t() {}
-	schedule_t* copy() { schedule_t *s = new truck_schedule_t(); s->copy_from(this); return s; }
-	const char *get_error_msg() const { return "Autohalt muss auf\nStrasse liegen!\n"; }
+	schedule_t* copy() OVERRIDE { schedule_t *s = new truck_schedule_t(); s->copy_from(this); return s; }
+	const char *get_error_msg() const OVERRIDE { return "Autohalt muss auf\nStrasse liegen!\n"; }
 
-	schedule_type get_type() const { return truck_schedule; }
+	schedule_type get_type() const OVERRIDE { return truck_schedule; }
 
-	waytype_t get_waytype() const { return road_wt; }
+	waytype_t get_waytype() const OVERRIDE { return road_wt; }
 };
 
 
@@ -235,12 +235,12 @@ class ship_schedule_t : public schedule_t
 {
 public:
 	ship_schedule_t() {}
-	schedule_t* copy() { schedule_t *s = new ship_schedule_t(); s->copy_from(this); return s; }
-	const char *get_error_msg() const { return "Schiffhalt muss im\nWasser liegen!\n"; }
+	schedule_t* copy() OVERRIDE { schedule_t *s = new ship_schedule_t(); s->copy_from(this); return s; }
+	const char *get_error_msg() const OVERRIDE { return "Schiffhalt muss im\nWasser liegen!\n"; }
 
-	schedule_type get_type() const { return ship_schedule; }
+	schedule_type get_type() const OVERRIDE { return ship_schedule; }
 
-	waytype_t get_waytype() const { return water_wt; }
+	waytype_t get_waytype() const OVERRIDE { return water_wt; }
 };
 
 
@@ -253,12 +253,12 @@ class airplane_schedule_t : public schedule_t
 {
 public:
 	airplane_schedule_t() {}
-	schedule_t* copy() { schedule_t *s = new airplane_schedule_t(); s->copy_from(this); return s; }
-	const char *get_error_msg() const { return "Flugzeughalt muss auf\nRunway liegen!\n"; }
+	schedule_t* copy() OVERRIDE { schedule_t *s = new airplane_schedule_t(); s->copy_from(this); return s; }
+	const char *get_error_msg() const OVERRIDE { return "Flugzeughalt muss auf\nRunway liegen!\n"; }
 
-	schedule_type get_type() const { return airplane_schedule; }
+	schedule_type get_type() const OVERRIDE { return airplane_schedule; }
 
-	waytype_t get_waytype() const { return air_wt; }
+	waytype_t get_waytype() const OVERRIDE { return air_wt; }
 };
 
 /**
@@ -269,12 +269,12 @@ class monorail_schedule_t : public schedule_t
 {
 public:
 	monorail_schedule_t() {}
-	schedule_t* copy() { schedule_t *s = new monorail_schedule_t(); s->copy_from(this); return s; }
-	const char *get_error_msg() const { return "Monorailhalt muss auf\nMonorail liegen!\n"; }
+	schedule_t* copy() OVERRIDE { schedule_t *s = new monorail_schedule_t(); s->copy_from(this); return s; }
+	const char *get_error_msg() const OVERRIDE { return "Monorailhalt muss auf\nMonorail liegen!\n"; }
 
-	schedule_type get_type() const { return monorail_schedule; }
+	schedule_type get_type() const OVERRIDE { return monorail_schedule; }
 
-	waytype_t get_waytype() const { return monorail_wt; }
+	waytype_t get_waytype() const OVERRIDE { return monorail_wt; }
 };
 
 /**
@@ -285,12 +285,12 @@ class maglev_schedule_t : public schedule_t
 {
 public:
 	maglev_schedule_t() {}
-	schedule_t* copy() { schedule_t *s = new maglev_schedule_t(); s->copy_from(this); return s; }
-	const char *get_error_msg() const { return "Maglevhalt muss auf\nMaglevschiene liegen!\n"; }
+	schedule_t* copy() OVERRIDE { schedule_t *s = new maglev_schedule_t(); s->copy_from(this); return s; }
+	const char *get_error_msg() const OVERRIDE { return "Maglevhalt muss auf\nMaglevschiene liegen!\n"; }
 
-	schedule_type get_type() const { return maglev_schedule; }
+	schedule_type get_type() const OVERRIDE { return maglev_schedule; }
 
-	waytype_t get_waytype() const { return maglev_wt; }
+	waytype_t get_waytype() const OVERRIDE { return maglev_wt; }
 };
 
 /**
@@ -302,12 +302,12 @@ class narrowgauge_schedule_t : public schedule_t
 {
 public:
 	narrowgauge_schedule_t() {}
-	schedule_t* copy() { schedule_t *s = new narrowgauge_schedule_t(); s->copy_from(this); return s; }
-	const char *get_error_msg() const { return "On narrowgauge track only!\n"; }
+	schedule_t* copy() OVERRIDE { schedule_t *s = new narrowgauge_schedule_t(); s->copy_from(this); return s; }
+	const char *get_error_msg() const OVERRIDE { return "On narrowgauge track only!\n"; }
 
-	schedule_type get_type() const { return narrowgauge_schedule; }
+	schedule_type get_type() const OVERRIDE { return narrowgauge_schedule; }
 
-	waytype_t get_waytype() const { return narrowgauge_wt; }
+	waytype_t get_waytype() const OVERRIDE { return narrowgauge_wt; }
 };
 
 

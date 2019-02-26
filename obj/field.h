@@ -17,25 +17,25 @@ public:
 	field_t(const koord3d pos, player_t *player, const field_class_desc_t *desc, fabrik_t *fab);
 	virtual ~field_t();
 
-	const char* get_name() const { return "Field"; }
-	typ get_typ() const { return obj_t::field; }
+	const char* get_name() const OVERRIDE { return "Field"; }
+	typ get_typ() const OVERRIDE { return obj_t::field; }
 
-	image_id get_image() const;
+	image_id get_image() const OVERRIDE;
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
 	 * @author Hj. Malthaner
 	 */
-	void show_info();
+	void show_info() OVERRIDE;
 
 	/**
 	 * @return NULL when OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
-	const char * is_deletable(const player_t *);
+	const char * is_deletable(const player_t *) OVERRIDE;
 
-	void cleanup(player_t *player);
+	void cleanup(player_t *player) OVERRIDE;
 };
 
 #endif

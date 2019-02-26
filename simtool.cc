@@ -2973,11 +2973,11 @@ waytype_t tool_wayremover_t::get_waytype() const
 }
 
 class electron_t : public test_driver_t {
-	bool check_next_tile(const grund_t* gr) const { return gr->get_leitung()!=NULL; }
-	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_leitung()->get_ribi(); }
-	virtual waytype_t get_waytype() const { return invalid_wt; }
-	virtual int get_cost(const grund_t *, const weg_t *, const sint32, ribi_t::ribi) const { return 1; }
-	virtual bool is_target(const grund_t *,const grund_t *) const { return false; }
+	bool check_next_tile(const grund_t* gr) const OVERRIDE { return gr->get_leitung()!=NULL; }
+	ribi_t::ribi get_ribi(const grund_t* gr) const OVERRIDE { return gr->get_leitung()->get_ribi(); }
+	waytype_t get_waytype() const OVERRIDE { return invalid_wt; }
+	int get_cost(const grund_t *, const weg_t *, const sint32, ribi_t::ribi) const OVERRIDE { return 1; }
+	bool is_target(const grund_t *,const grund_t *) const OVERRIDE { return false; }
 };
 
 class scenario_checker_t : public test_driver_t {
@@ -3005,11 +3005,11 @@ public:
 		return test_driver;
 	}
 private:
-	bool check_next_tile(const grund_t* gr) const { return other->check_next_tile(gr)  &&  scenario->is_work_allowed_here(player, id, other->get_waytype(), gr->get_pos())==NULL;}
-	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return other->get_ribi(gr); }
-	virtual waytype_t get_waytype() const { return other->get_waytype(); }
-	virtual int get_cost(const grund_t *gr, const weg_t *w, const sint32 max_speed, ribi_t::ribi from) const { return other->get_cost(gr, w, max_speed, from); }
-	virtual bool is_target(const grund_t *gr,const grund_t *gr2) const { return other->is_target(gr,gr2); }
+	bool check_next_tile(const grund_t* gr) const OVERRIDE { return other->check_next_tile(gr)  &&  scenario->is_work_allowed_here(player, id, other->get_waytype(), gr->get_pos())==NULL;}
+	ribi_t::ribi get_ribi(const grund_t* gr) const OVERRIDE { return other->get_ribi(gr); }
+	waytype_t get_waytype() const OVERRIDE { return other->get_waytype(); }
+	int get_cost(const grund_t *gr, const weg_t *w, const sint32 max_speed, ribi_t::ribi from) const OVERRIDE { return other->get_cost(gr, w, max_speed, from); }
+	bool is_target(const grund_t *gr,const grund_t *gr2) const OVERRIDE { return other->is_target(gr,gr2); }
 };
 
 void tool_wayremover_t::mark_tiles( player_t *player, const koord3d &start, const koord3d &end )
