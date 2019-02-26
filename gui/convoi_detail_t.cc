@@ -124,7 +124,7 @@ public:
 	}
 
 
-	void draw(scr_coord offset)
+	void draw(scr_coord offset) OVERRIDE
 	{
 		update_labels();
 		gui_aligned_container_t::draw(offset);

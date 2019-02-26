@@ -24,9 +24,9 @@ class tool_t;
 class nwc_gameinfo_t : public network_command_t {
 public:
 	nwc_gameinfo_t() : network_command_t(NWC_GAMEINFO) { len = 0; }
-	virtual bool execute(karte_t *);
-	virtual void rdwr();
-	virtual const char* get_name() { return "nwc_gameinfo_t";}
+	bool execute(karte_t *) OVERRIDE;
+	void rdwr() OVERRIDE;
+	const char* get_name() OVERRIDE { return "nwc_gameinfo_t";}
 	uint32 client_id;
 	uint32 len;
 };
@@ -43,9 +43,9 @@ public:
 	nwc_nick_t(const char* nick=NULL)
 	: network_command_t(NWC_NICK), nickname(nick) {  }
 
-	virtual bool execute(karte_t *);
-	virtual void rdwr();
-	virtual const char* get_name() { return "nwc_nick_t";}
+	bool execute(karte_t *) OVERRIDE;
+	void rdwr() OVERRIDE;
+	const char* get_name() OVERRIDE { return "nwc_nick_t";}
 	plainstring nickname;
 
 	enum { WELCOME, CHANGE_NICK, FAREWELL};
@@ -74,9 +74,9 @@ public:
 	nwc_chat_t (const char* msg = NULL, sint8 pn = -1, const char* cn = NULL, const char* dn = NULL)
 	: network_command_t(NWC_CHAT), message(msg), player_nr(pn), clientname(cn), destination(dn) {}
 
-	virtual bool execute (karte_t *);
-	virtual void rdwr ();
-	virtual const char* get_name() { return "nwc_chat_t";}
+	bool execute (karte_t *) OVERRIDE;
+	void rdwr () OVERRIDE;
+	const char* get_name() OVERRIDE { return "nwc_chat_t";}
 	void add_message (karte_t*) const;
 
 	plainstring message;            // Message text
@@ -103,9 +103,9 @@ public:
 	nwc_join_t(const char* nick=NULL)
 	: nwc_nick_t(nick), client_id(0), answer(0) { id = NWC_JOIN; }
 
-	virtual bool execute(karte_t *);
-	virtual void rdwr();
-	virtual const char* get_name() { return "nwc_join_t";}
+	bool execute(karte_t *) OVERRIDE;
+	void rdwr() OVERRIDE;
+	const char* get_name() OVERRIDE { return "nwc_join_t";}
 	uint32 client_id;
 	uint8 answer;
 
@@ -135,9 +135,10 @@ class nwc_ready_t : public network_command_t {
 public:
 	nwc_ready_t() : network_command_t(NWC_READY), sync_step(0), map_counter(0) { }
 	nwc_ready_t(uint32 sync_step_, uint32 map_counter_, const checklist_t &checklist_) : network_command_t(NWC_READY), sync_step(sync_step_), map_counter(map_counter_), checklist(checklist_) { }
-	virtual bool execute(karte_t *);
-	virtual void rdwr();
-	virtual const char* get_name() { return "nwc_ready_t";}
+
+	bool execute(karte_t *) OVERRIDE;
+	void rdwr() OVERRIDE;
+	const char* get_name() OVERRIDE { return "nwc_ready_t";}
 	uint32 sync_step;
 	uint32 map_counter;
 	checklist_t checklist;
@@ -157,8 +158,9 @@ private:
 class nwc_game_t : public network_command_t {
 public:
 	nwc_game_t(uint32 len_=0) : network_command_t(NWC_GAME), len(len_) {}
-	virtual void rdwr();
-	virtual const char* get_name() { return "nwc_game_t";}
+
+	void rdwr() OVERRIDE;
+	const char* get_name() OVERRIDE { return "nwc_game_t";}
 	uint32 len;
 };
 
@@ -169,10 +171,11 @@ class network_world_command_t : public network_command_t {
 public:
 	network_world_command_t() : network_command_t(), sync_step(0), map_counter(0) {};
 	network_world_command_t(uint16 /*id*/, uint32 /*sync_step*/, uint32 /*map_counter*/);
-	virtual void rdwr();
-	virtual const char* get_name() { return "network_world_command_t";}
+
+	void rdwr() OVERRIDE;
+	const char* get_name() OVERRIDE { return "network_world_command_t";}
 	// put it to the command queue
-	virtual bool execute(karte_t *);
+	bool execute(karte_t *) OVERRIDE;
 	// apply it to the world
 	virtual void do_command(karte_t*) {}
 	uint32 get_sync_step() const { return sync_step; }
@@ -200,9 +203,10 @@ class nwc_sync_t : public network_world_command_t {
 public:
 	nwc_sync_t() : network_world_command_t(NWC_SYNC, 0, 0), client_id(0), new_map_counter(0) {};
 	nwc_sync_t(uint32 sync_steps, uint32 map_counter, uint32 send_to_client, uint32 _new_map_counter) : network_world_command_t(NWC_SYNC, sync_steps, map_counter), client_id(send_to_client), new_map_counter(_new_map_counter) { }
-	virtual void rdwr();
-	virtual void do_command(karte_t*);
-	virtual const char* get_name() { return "nwc_sync_t"; }
+
+	void rdwr() OVERRIDE;
+	void do_command(karte_t*) OVERRIDE;
+	const char* get_name() OVERRIDE { return "nwc_sync_t"; }
 	uint32 get_new_map_counter() const { return new_map_counter; }
 private:
 	uint32 client_id; // this client shall receive the game
@@ -220,13 +224,13 @@ class nwc_check_t : public network_world_command_t {
 public:
 	nwc_check_t() : network_world_command_t(NWC_CHECK, 0, 0), server_sync_step(0) { }
 	nwc_check_t(uint32 sync_steps, uint32 map_counter, const checklist_t &server_checklist_, uint32 server_sync_step_) : network_world_command_t(NWC_CHECK, sync_steps, map_counter), server_checklist(server_checklist_), server_sync_step(server_sync_step_) {};
-	virtual void rdwr();
-	virtual void do_command(karte_t*) { }
-	virtual const char* get_name() { return "nwc_check_t"; }
+	void rdwr() OVERRIDE;
+	void do_command(karte_t*) OVERRIDE { }
+	const char* get_name() OVERRIDE { return "nwc_check_t"; }
 	checklist_t server_checklist;
 	uint32 server_sync_step;
 	// no action required -> can be ignored if too old
-	virtual bool ignore_old_events() const { return true; }
+	bool ignore_old_events() const OVERRIDE { return true; }
 };
 
 /**
@@ -238,8 +242,8 @@ public:
 	network_broadcast_world_command_t(uint16 id, uint32 sync_step=0, uint32 map_counter=0)
 	: network_world_command_t(id, sync_step, map_counter), exec(false) { }
 
-	virtual void rdwr();
-	virtual bool execute(karte_t *);
+	void rdwr() OVERRIDE;
+	bool execute(karte_t *) OVERRIDE;
 
 	// clones the command to be broadcasted
 	// all validity checks must be done here
@@ -271,11 +275,11 @@ public:
 
 	~nwc_chg_player_t();
 
-	virtual void rdwr();
-	virtual void do_command(karte_t*);
+	void rdwr() OVERRIDE;
+	void do_command(karte_t*) OVERRIDE;
 	// do some special checks
-	virtual network_broadcast_world_command_t* clone(karte_t *);
-	virtual const char* get_name() { return "nwc_chg_player_t"; }
+	network_broadcast_world_command_t* clone(karte_t *) OVERRIDE;
+	const char* get_name() OVERRIDE { return "nwc_chg_player_t"; }
 
 	uint8 cmd;
 	uint8 player_nr;
@@ -319,18 +323,18 @@ public:
 	nwc_tool_t(const nwc_tool_t&);
 
 	// messages are allowed to arrive at any time
-	virtual bool ignore_old_events() const;
+	bool ignore_old_events() const OVERRIDE;
 
 	virtual ~nwc_tool_t();
 
-	virtual void rdwr();
+	void rdwr() OVERRIDE;
 
 	// clone performs authentication checks
-	virtual network_broadcast_world_command_t* clone(karte_t *);
+	network_broadcast_world_command_t* clone(karte_t *) OVERRIDE;
 
 	// really executes it, here exec should be true
-	virtual void do_command(karte_t*);
-	virtual const char* get_name() { return "nwc_tool_t"; }
+	void do_command(karte_t*) OVERRIDE;
+	const char* get_name() OVERRIDE { return "nwc_tool_t"; }
 
 	void init_tool();
 private:
@@ -366,8 +370,9 @@ class nwc_step_t : public network_world_command_t {
 public:
 	nwc_step_t() : network_world_command_t(NWC_STEP, 0, 0) { }
 	nwc_step_t(uint32 sync_steps, uint32 map_counter) : network_world_command_t(NWC_STEP, sync_steps, map_counter) {};
-	virtual bool execute(karte_t *) { return true;}
-	virtual const char* get_name() { return "nwc_step_t"; }
+
+	bool execute(karte_t *) OVERRIDE { return true;}
+	const char* get_name() OVERRIDE { return "nwc_step_t"; }
 };
 
 #endif

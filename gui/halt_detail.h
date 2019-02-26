@@ -47,17 +47,17 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const { return "station_details.txt"; }
+	const char * get_help_filename() const OVERRIDE { return "station_details.txt"; }
 
 	// only defined to update schedule, if changed
-	void draw( scr_coord pos, scr_size size );
+	void draw( scr_coord pos, scr_size size ) OVERRIDE;
 
-	void rdwr( loadsave_t *file );
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	uint32 get_rdwr_id() { return magic_halt_detail; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_halt_detail; }
 
 	// force reset on rotate
-	virtual void map_rotate90(sint16) { cached_line_count = 1<<17;}
+	void map_rotate90(sint16) OVERRIDE { cached_line_count = 1<<17;}
 };
 
 #endif

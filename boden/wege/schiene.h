@@ -43,13 +43,13 @@ public:
 
 	schiene_t();
 
-	virtual waytype_t get_waytype() const {return track_wt;}
+	waytype_t get_waytype() const OVERRIDE {return track_wt;}
 
 	/**
 	* @return additional info is reservation!
 	* @author prissi
 	*/
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
 	/**
 	* true, if this rail can be reserved
@@ -84,7 +84,7 @@ public:
 	/* called before deletion;
 	 * last chance to unreserve tiles ...
 	 */
-	virtual void cleanup(player_t *player);
+	void cleanup(player_t *player) OVERRIDE;
 
 	/**
 	* gets the related convoi
@@ -92,19 +92,19 @@ public:
 	*/
 	convoihandle_t get_reserved_convoi() const {return reserved;}
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	/**
 	 * if a function return here a value with TRANSPARENT_FLAGS set
 	 * then a transparent outline with the color form the lower 8 Bit is drawn
 	 * @author kierongreen
 	 */
-	virtual FLAGGED_PIXVAL get_outline_colour() const { return (show_reservations  &&  reserved.is_bound()) ? TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_RED) : 0;}
+	FLAGGED_PIXVAL get_outline_colour() const OVERRIDE { return (show_reservations  &&  reserved.is_bound()) ? TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_RED) : 0;}
 
 	/*
 	 * to show reservations if needed
 	 */
-	virtual image_id get_outline_image() const { return weg_t::get_image(); }
+	image_id get_outline_image() const OVERRIDE { return weg_t::get_image(); }
 };
 
 

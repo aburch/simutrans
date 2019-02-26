@@ -370,7 +370,7 @@ class obj_no_info_t : public obj_t
 public:
 	obj_no_info_t(koord3d pos) : obj_t(pos) {}
 
-	void show_info() {}
+	void show_info() OVERRIDE {}
 
 protected:
 	obj_no_info_t() : obj_t() {}

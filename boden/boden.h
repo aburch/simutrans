@@ -19,19 +19,19 @@
 class boden_t : public grund_t
 {
 protected:
-	virtual void calc_image_internal(const bool calc_only_snowline_change);
+	void calc_image_internal(const bool calc_only_snowline_change) OVERRIDE;
 
 public:
 	boden_t(loadsave_t *file, koord pos );
 	boden_t(koord3d pos, slope_t::type slope);
 
-	virtual void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
-	inline bool ist_natur() const { return !hat_wege()  &&  !is_halt(); }
+	inline bool ist_natur() const OVERRIDE { return !hat_wege()  &&  !is_halt(); }
 
-	const char *get_name() const;
+	const char *get_name() const OVERRIDE;
 
-	grund_t::typ get_typ() const {return boden;}
+	grund_t::typ get_typ() const OVERRIDE {return boden;}
 };
 
 #endif

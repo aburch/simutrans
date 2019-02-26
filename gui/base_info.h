@@ -29,11 +29,11 @@ protected:
 public:
 	base_infowin_t(const char *name, const player_t *player=NULL);
 
-	virtual void set_windowsize(scr_size size);
+	void set_windowsize(scr_size size) OVERRIDE;
 
-	virtual void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev) OVERRIDE;
 };
 
 
