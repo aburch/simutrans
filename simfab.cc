@@ -806,7 +806,6 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 	if(city != NULL)
 	{
 		city->add_city_factory(this);
-		city->update_city_stats_with_building(get_building(), false);
 	}
 
 	if(desc->get_placement() == 2 && city && desc->get_product_count() == 0 && !desc->is_electricity_producer())
@@ -976,7 +975,6 @@ fabrik_t::~fabrik_t()
 		if(city)
 		{
 			city->remove_city_factory(this);
-			city->update_city_stats_with_building(get_building(), true);
 		}
 		
 		if (desc != NULL)
@@ -2602,13 +2600,11 @@ void fabrik_t::new_month()
 	if(c && !c->get_city_factories().is_contained(this))
 	{
 		c->add_city_factory(this);
-		c->update_city_stats_with_building(get_building(), false);
 	}
 
 	if(c != city && city)
 	{
 		city->remove_city_factory(this);
-		city->update_city_stats_with_building(get_building(), true);
 	}
 
 	if(!c)
@@ -3451,7 +3447,6 @@ void fabrik_t::finish_rd()
 	if (city != NULL)
 	{
 		city->add_city_factory(this);
-		city->update_city_stats_with_building(get_building(), false);
 	}
 
 	mark_connected_roads(false);
