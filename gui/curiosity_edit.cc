@@ -158,12 +158,12 @@ bool curiosity_edit_frame_t::action_triggered( gui_action_creator_t *comp,value_
 		fill_list( is_show_trans_name );
 	}
 	else if( comp == &cb_rotation) {
-		if (cb_rotation.get_selection() < 2) {
-			// 255 = random, 254 = auto
+		if (cb_rotation.get_selection() < 1) {
+			// 255 = random
 			rotation = 255 - cb_rotation.get_selection();
 		}
 		else {
-			rotation = cb_rotation.get_selection()-2;
+			rotation = cb_rotation.get_selection() - 1;
 		}
 		change_item_info( scl.get_selection() );
 	}
