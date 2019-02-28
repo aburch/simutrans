@@ -8,7 +8,6 @@
 
 
 #include "extend_edit.h"
-#include "components/gui_combobox.h"
 
 class tool_build_house_t;
 class building_desc_t;
@@ -23,15 +22,12 @@ private:
 	static cbuffer_t param_str;
 
 	const building_desc_t *desc;
-	uint8 rotation;
 
 	vector_tpl<const building_desc_t *>building_list;
 
 	button_t bt_city_attraction;
 	button_t bt_land_attraction;
 	button_t bt_monuments;
-
-	gui_combobox_t cb_rotation;
 
 	void fill_list( bool translate ) OVERRIDE;
 

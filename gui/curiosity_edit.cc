@@ -26,14 +26,13 @@
 tool_build_house_t curiosity_edit_frame_t::haus_tool=tool_build_house_t();
 cbuffer_t curiosity_edit_frame_t::param_str;
 
-static const char* numbers[] = { "0", "1", "2", "3" };
-
 
 static bool compare_building_desc(const building_desc_t* a, const building_desc_t* b)
 {
 	int diff = strcmp(a->get_name(), b->get_name());
 	return diff < 0;
 }
+
 
 static bool compare_building_desc_trans(const building_desc_t* a, const building_desc_t* b)
 {
@@ -46,7 +45,6 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(player_t* player_) :
 	extend_edit_gui_t(translator::translate("curiosity builder"), player_),
 	building_list(16)
 {
-	rotation = 255;
 	desc = NULL;
 	haus_tool.set_default_param(NULL);
 	haus_tool.cursor = tool_t::general_tool[TOOL_BUILD_HOUSE]->cursor;
@@ -71,7 +69,7 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(player_t* player_) :
 	tbl->new_component<gui_label_t>("Rotation");
 	tbl->add_component(&cb_rotation);
 	cb_rotation.add_listener(this);
-	cb_rotation.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("random"), SYSCOL_TEXT) ;
+	cb_rotation.new_component<gui_rotation_item_t>(gui_rotation_item_t::random);
 	cont_right.end_table();
 
 	fill_list( is_show_trans_name );
@@ -158,13 +156,6 @@ bool curiosity_edit_frame_t::action_triggered( gui_action_creator_t *comp,value_
 		fill_list( is_show_trans_name );
 	}
 	else if( comp == &cb_rotation) {
-		if (cb_rotation.get_selection() < 1) {
-			// 255 = random
-			rotation = 255 - cb_rotation.get_selection();
-		}
-		else {
-			rotation = cb_rotation.get_selection() - 1;
-		}
 		change_item_info( scl.get_selection() );
 	}
 	return extend_edit_gui_t::action_triggered(comp,e);
@@ -211,20 +202,19 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 
 			// reset combobox
 			cb_rotation.clear_elements();
-			cb_rotation.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("random"), SYSCOL_TEXT) ;
+			cb_rotation.new_component<gui_rotation_item_t>(gui_rotation_item_t::random);
 			for(uint8 i = 0; i<desc->get_all_layouts(); i++) {
-				cb_rotation.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( numbers[i], SYSCOL_TEXT ) ;
+				cb_rotation.new_component<gui_rotation_item_t>(i);
 			}
 			// orientation (255=random)
 			if(desc->get_all_layouts()>1) {
-				rotation = 255; // no definition yet
 				cb_rotation.set_selection(0);
 			}
 			else {
-				rotation = 0;
 				cb_rotation.set_selection(1);
 			}
 		}
+		uint8 rotation = get_rotation();
 		uint8 rot = (rotation==255) ? 0 : rotation;
 		building_image.init(desc, rot);
 
@@ -241,7 +231,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		}
 		building_image.init(NULL, 0);
 		cb_rotation.clear_elements();
-		cb_rotation.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("random"), SYSCOL_TEXT) ;
+		cb_rotation.new_component<gui_rotation_item_t>(gui_rotation_item_t::random);
 	}
 	reset_min_windowsize();
 }
