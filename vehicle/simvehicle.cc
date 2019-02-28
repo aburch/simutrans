@@ -5399,7 +5399,8 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	{
 		// With cab signalling, even if we need do nothing else at this juncture, we may need to change the working method.
 		const uint16 check_route_index = next_block <= 0 ? 0 : next_block - 1u;
-		ribi_t::ribi ribi = next_block < INVALID_INDEX ? ribi_type(cnv->get_route()->at(max(1u, min(cnv->get_route()->get_count() - 1u, check_route_index)) - 1u), cnv->get_route()->at(min(max_element, min(cnv->get_route()->get_count() - 1, (check_route_index + 1u))))) : ribi_t::all;
+		const uint32 cnv_route_count = cnv->get_route()->get_count() - 1u;
+		ribi_t::ribi ribi = next_block < INVALID_INDEX ? ribi_type(cnv->get_route()->at(max(1u, std::min(cnv_route_count, (uint32)check_route_index)) - 1u), cnv->get_route()->at(std::min((uint32)max_element, min(cnv_route_count - 1u, ((uint32)check_route_index + 1u))))) : ribi_t::all;
 		signal_t* signal = w_current->get_signal(ribi);
 
 		if (signal && working_method == one_train_staff && starting_from_stand)
@@ -5431,7 +5432,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 	bool call_on = false;
 
-	const sint32 route_steps = brake_steps > 0 && route_index <= route_infos.get_count() - 1 ? cnv->get_route_infos().get_element((next_block > 0 ? min(next_block - 1, max_element) : 0)).steps_from_start - cnv->get_route_infos().get_element(route_index).steps_from_start : -1;
+	const sint32 route_steps = brake_steps > 0 && route_index <= route_infos.get_count() - 1 ? cnv->get_route_infos().get_element((next_block > 0 ? std::min(next_block - 1, max_element) : 0)).steps_from_start - cnv->get_route_infos().get_element(route_index).steps_from_start : -1;
 	if(route_steps <= brake_steps || brake_steps < 0)
 	{
 		sint32 check_tile = modify_check_tile ? route_index + 1 : next_block; // This might otherwise end up as -1 without the ? block, which would be an attempt to check the *previous* tile, which would be silly.
@@ -5454,8 +5455,8 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(sch1 && sch1->has_signal())
 		{
 			const uint16 check_route_index = next_block <= 0 ? 0 : next_block - 1u;
-			max_element = min(max_element, cnv->get_route()->get_count() - 1u);
-			ribi_t::ribi ribi = ribi_type(cnv->get_route()->at(max(1u, (min(max_element, check_route_index))) - 1u), cnv->get_route()->at(min(max_element, check_route_index + 1u)));
+			max_element = std::min((uint32)max_element, cnv->get_route()->get_count() - 1u);
+			ribi_t::ribi ribi = ribi_type(cnv->get_route()->at(max(1u, (std::min((uint32)max_element, (uint32)check_route_index))) - 1u), cnv->get_route()->at(std::min((uint32)max_element, check_route_index + 1u)));
 			signal_t* signal = sch1->get_signal(ribi);
 
 			if(signal && ((signal->get_desc()->get_working_method() == cab_signalling) || (check_tile - route_index <= sighting_distance_tiles)))
