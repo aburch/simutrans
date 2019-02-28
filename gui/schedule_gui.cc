@@ -748,7 +748,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	else if (comp == &line_selector) {
 		uint32 selection = p.i;
 //DBG_MESSAGE("schedule_gui_t::action_triggered()","line selection=%i",selection);
-		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(line_selector.get_element(selection))  ) {
+		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item())  ) {
 			new_line = li->get_line();
 			stats.highlight_schedule( schedule, false );
 			schedule->copy_from( new_line->get_schedule() );
