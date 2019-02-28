@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <algorithm>
 
 #include "../boden/grund.h"
 #include "../boden/wege/runway.h"
@@ -5327,8 +5328,10 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// Check for signals at restrictive aspects within the sighting distance to see whether they can now clear whereas they could not before.
 		for(uint16 tiles_to_check = 1; tiles_to_check <= modified_sighting_distance_tiles; tiles_to_check++)
 		{
-			const koord3d tile_to_check_ahead = cnv->get_route()->at(min(route.get_count() - 1u, route_index + tiles_to_check));
-			const koord3d previous_tile = cnv->get_route()->at(min(route.get_count() - 1u, route_index + tiles_to_check) -1u);
+			const uint32 route_count = route.get_count() - 1u;
+			const uint32 check_ahead_tile = route_index + tiles_to_check;
+			const koord3d tile_to_check_ahead = cnv->get_route()->at(std::min(route_count, check_ahead_tile));
+			const koord3d previous_tile = cnv->get_route()->at(std::min(route_count, check_ahead_tile -1u));
 			grund_t *gr_ahead = welt->lookup(tile_to_check_ahead);
 			weg_t *way = gr_ahead ? gr_ahead->get_weg(get_waytype()) : NULL;
 			if(!way)
@@ -5337,8 +5340,8 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				cnv->suche_neue_route();
 				return false;
 			}
-			uint16 modified_route_index = min(route_index + tiles_to_check, cnv->get_route()->get_count() - 1u);
-			ribi_t::ribi ribi = ribi_type(cnv->get_route()->at(max(1u,modified_route_index)-1u), cnv->get_route()->at(min(cnv->get_route()->get_count()-1u,modified_route_index+1u)));
+			uint16 modified_route_index = std::min(check_ahead_tile, cnv->get_route()->get_count() - 1u);
+			ribi_t::ribi ribi = ribi_type(cnv->get_route()->at(max(1u,modified_route_index)-1u), cnv->get_route()->at(std::min(cnv->get_route()->get_count()-1u,modified_route_index+1u)));
 			signal_t* signal = way->get_signal(ribi);
 
 			// There might be a station signal here, which might be operative despite facing in the opposite direction.
