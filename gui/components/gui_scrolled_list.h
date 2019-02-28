@@ -120,6 +120,7 @@ public:
 
 	void set_selection(int s);
 	sint32 get_selection() const;
+	scrollitem_t* get_selected_item() const;
 	sint32 get_count() const { return item_list.get_count(); }
 
 	/*  when rebuilding a list, be sure to call recalculate the slider
