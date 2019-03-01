@@ -478,7 +478,7 @@ bool server_frame_t::action_triggered (gui_action_creator_t *komp, value_t p)
 
 		// Prefer serverlist entry if one is selected
 		if (  serverlist.get_selection() >= 0  ) {
-			filename += ((server_scrollitem_t*)serverlist.get_element(serverlist.get_selection()))->get_dns();
+			filename += ((server_scrollitem_t*)serverlist.get_selected_item())->get_dns();
 			destroy_win( this );
 			welt->load( filename.c_str() );
 		}
@@ -500,7 +500,7 @@ bool server_frame_t::action_triggered (gui_action_creator_t *komp, value_t p)
 		else {
 			std::string msg;
 			if (  serverlist.get_selection() >= 0  ) {
-				network_compare_pakset_with_server( ((server_scrollitem_t*)serverlist.get_element(serverlist.get_selection()))->get_dns(), msg );
+				network_compare_pakset_with_server( ((server_scrollitem_t*)serverlist.get_selected_item())->get_dns(), msg );
 			}
 			else if (  custom_valid  ) {
 				network_compare_pakset_with_server( newserver_name, msg );

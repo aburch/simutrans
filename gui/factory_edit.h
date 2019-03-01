@@ -7,7 +7,6 @@
 
 #include "extend_edit.h"
 #include "components/gui_numberinput.h"
-#include "components/gui_combobox.h"
 #include "../utils/cbuffer_t.h"
 
 class factory_desc_t;
@@ -27,14 +26,11 @@ private:
 
 	const factory_desc_t *fac_desc;
 	uint32 production;
-	uint8 rotation; //255 for any
 
 	vector_tpl<const factory_desc_t *>factory_list;
 
 	button_t bt_city_chain;
 	button_t bt_land_chain;
-
-	gui_combobox_t cb_rotation;
 
 	gui_numberinput_t inp_production;
 
