@@ -36,7 +36,6 @@ tool_city_chain_t factory_edit_frame_t::city_chain_tool = tool_city_chain_t();
 tool_build_factory_t factory_edit_frame_t::fab_tool = tool_build_factory_t();
 cbuffer_t factory_edit_frame_t::param_str;
 
-static const char* numbers[] = { "0", "1", "2", "3" };
 
 static bool compare_fabrik_desc(const factory_desc_t* a, const factory_desc_t* b)
 {
@@ -163,12 +162,6 @@ bool factory_edit_frame_t::action_triggered( gui_action_creator_t *komp,value_t 
 		fill_list( is_show_trans_name );
 	}
 	else if( komp == &cb_rotation) {
-		if (cb_rotation.get_selection() < 1) {
-			rotation = 255;
-		}
-		else {
-			rotation = cb_rotation.get_selection()-1;
-		}
 		change_item_info( scl.get_selection() );
 	}
 	else if(fac_desc) {
@@ -275,18 +268,16 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 
 			// reset combobox
 			cb_rotation.clear_elements();
-			cb_rotation.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("random"), SYSCOL_TEXT) ;
+			cb_rotation.new_component<gui_rotation_item_t>(gui_rotation_item_t::random);
 			for(uint8 i = 0; i<desc->get_all_layouts(); i++) {
-				cb_rotation.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( numbers[i], SYSCOL_TEXT ) ;
+				cb_rotation.new_component<gui_rotation_item_t>(i);
 			}
 
 			// orientation (255=random)
 			if(desc->get_all_layouts()>1) {
-				rotation = 255; // no definition yet
 				cb_rotation.set_selection(0);
 			}
 			else {
-				rotation = 0;
 				cb_rotation.set_selection(1);
 			}
 
@@ -295,6 +286,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		}
 
 		const building_desc_t *desc = fac_desc->get_building();
+		uint8 rotation = get_rotation();
 		uint8 rot = (rotation==255) ? 0 : rotation;
 		building_image.init(desc, rot);
 
@@ -316,7 +308,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 	}
 	else if(fac_desc!=NULL) {
 		cb_rotation.clear_elements();
-		cb_rotation.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("random"), SYSCOL_TEXT) ;
+		cb_rotation.new_component<gui_rotation_item_t>(gui_rotation_item_t::random);
 
 		building_image.init(NULL, 0);
 		fac_desc = NULL;

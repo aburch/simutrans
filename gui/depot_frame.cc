@@ -92,10 +92,10 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	electrics(&electrics_vec),
 	loks(&loks_vec),
 	waggons(&waggons_vec),
-	scrolly_pas(&cont_pas),
-	scrolly_electrics(&cont_electrics),
-	scrolly_loks(&cont_loks),
-	scrolly_waggons(&cont_waggons),
+	scrolly_pas(&pas),
+	scrolly_electrics(&electrics),
+	scrolly_loks(&loks),
+	scrolly_waggons(&waggons),
 	line_selector(line_scrollitem_t::compare),
 	lb_vehicle_filter("Filter:", SYSCOL_TEXT, gui_label_t::right)
 {
@@ -200,19 +200,15 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	*/
 	pas.set_player_nr(depot->get_player_nr());
 	pas.add_listener(this);
-	cont_pas.add_component(&pas);
 
 	electrics.set_player_nr(depot->get_player_nr());
 	electrics.add_listener(this);
-	cont_electrics.add_component(&electrics);
 
 	loks.set_player_nr(depot->get_player_nr());
 	loks.add_listener(this);
-	cont_loks.add_component(&loks);
 
 	waggons.set_player_nr(depot->get_player_nr());
 	waggons.add_listener(this);
-	cont_waggons.add_component(&waggons);
 
 	add_component(&tabs);
 	add_component(&div_tabbottom);
@@ -405,13 +401,14 @@ void depot_frame_t::layout(scr_size *size)
 	* build_vehicle_lists() fills loks_vec and waggon_vec.
 	* Total width will be expanded to match complete columns in panel.
 	*/
-	const scr_coord_val total_h = PANEL_VSTART + VINFO_HEIGHT + D_TITLEBAR_HEIGHT + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER + D_MARGIN_BOTTOM + 1;
+	const scr_coord_val TAB_HEADER_HEIGHT = tabs.get_required_size().h;
+	const scr_coord_val total_h = PANEL_VSTART + VINFO_HEIGHT + D_TITLEBAR_HEIGHT + TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER + D_MARGIN_BOTTOM + 1;
 	scr_coord_val PANEL_ROWS = max(1, ((win_size.h - total_h) / grid.y));
 	if (size  &&  size->h == 0) {
 		PANEL_ROWS = 3;
 	}
-	const scr_coord_val PANEL_HEIGHT = PANEL_ROWS * grid.y + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER;
-	const scr_coord_val MIN_PANEL_HEIGHT = grid.y + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER;
+	const scr_coord_val PANEL_HEIGHT = PANEL_ROWS * grid.y + TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER;
+	const scr_coord_val MIN_PANEL_HEIGHT = grid.y + TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER;
 	const scr_coord_val INFO_VSTART = PANEL_VSTART + PANEL_HEIGHT + div_tabbottom.get_size().h;
 
 	/*
@@ -536,7 +533,6 @@ void depot_frame_t::layout(scr_size *size)
 	pas.set_size(tabs.get_size() - scr_size(D_SCROLLBAR_WIDTH, 0));
 	pas.recalc_size();
 	pas.set_pos(scr_coord(0, 0));
-	cont_pas.set_size(pas.get_size());
 	scrolly_pas.set_size(scrolly_pas.get_size());
 	scrolly_pas.set_scroll_amount_y(grid.y);
 	scrolly_pas.set_scroll_discrete_y(false);
@@ -547,7 +543,6 @@ void depot_frame_t::layout(scr_size *size)
 	electrics.set_size(tabs.get_size() - scr_size(D_SCROLLBAR_WIDTH, 0));
 	electrics.recalc_size();
 	electrics.set_pos(scr_coord(0, 0));
-	cont_electrics.set_size(electrics.get_size());
 	scrolly_electrics.set_size(scrolly_electrics.get_size());
 	scrolly_electrics.set_scroll_amount_y(grid.y);
 	scrolly_electrics.set_scroll_discrete_y(false);
@@ -558,7 +553,6 @@ void depot_frame_t::layout(scr_size *size)
 	loks.set_size(tabs.get_size() - scr_size(D_SCROLLBAR_WIDTH, 0));
 	loks.recalc_size();
 	loks.set_pos(scr_coord(0, 0));
-	cont_loks.set_size(loks.get_size());
 	scrolly_loks.set_size(scrolly_loks.get_size());
 	scrolly_loks.set_scroll_amount_y(grid.y);
 	scrolly_loks.set_scroll_discrete_y(false);
@@ -569,7 +563,6 @@ void depot_frame_t::layout(scr_size *size)
 	waggons.set_size(tabs.get_size() - scr_size(D_SCROLLBAR_WIDTH, 0));
 	waggons.recalc_size();
 	waggons.set_pos(scr_coord(0, 0));
-	cont_waggons.set_size(waggons.get_size());
 	scrolly_waggons.set_size(scrolly_waggons.get_size());
 	scrolly_waggons.set_scroll_amount_y(grid.y);
 	scrolly_waggons.set_scroll_discrete_y(false);
@@ -1620,7 +1613,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 	bool new_vehicle_length_sb_force_zero = false;
 	sint16 convoi_number = -1;
 	scr_coord relpos = scr_coord(0, ((gui_scrollpane_t *)tabs.get_aktives_tab())->get_scroll_y());
-	int sel_index = lst->index_at( pos + tabs.get_pos() - relpos, x, y - D_TITLEBAR_HEIGHT - D_TAB_HEADER_HEIGHT);
+	int sel_index = lst->index_at( pos + tabs.get_pos() - relpos, x, y - D_TITLEBAR_HEIGHT - tabs.get_required_size().h);
 
 	if(  (sel_index != -1)  &&  (tabs.getroffen(x - pos.x, y - pos.y - D_TITLEBAR_HEIGHT))  ) {
 		// cursor over a vehicle in the selection list
