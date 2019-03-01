@@ -44,6 +44,17 @@ static const char factory_status_type[fabrik_t::MAX_FAB_STATUS][64] =
 	"staff_shortage"
 };
 
+static const int fab_alert_level[fabrik_t::MAX_FAB_STATUS] =
+{
+	0, 0, 0, 0, 0, // status not problematic
+	1, 1,
+	2,
+	2, 2,
+	3,
+	3,
+	4,
+	0
+};
 
 fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	gui_frame_t("", fab_->get_owner()),
@@ -152,10 +163,13 @@ void fabrik_info_t::set_windowsize(scr_size size)
 {
 	gui_frame_t::set_windowsize(size);
 
+	const uint8 alert_icon_with = skinverwaltung_t::alerts ? skinverwaltung_t::alerts->get_image(0)->get_pic()->w + 4 : 0;
+
 	// would be only needed in case of enabling horizontal resizes
 	input.set_size(scr_size(get_windowsize().w-D_MARGIN_LEFT-D_MARGIN_RIGHT, D_BUTTON_HEIGHT));
 	view.set_pos(scr_coord(get_windowsize().w - view.get_size().w - D_MARGIN_RIGHT , D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE ));
-	lbl_factory_status.set_pos(scr_coord(get_windowsize().w - view.get_size().w - D_MARGIN_RIGHT, D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + view.get_size().h + 8 + D_V_SPACE));
+	lbl_factory_status.set_pos(scr_coord(get_windowsize().w - view.get_size().w - D_MARGIN_RIGHT + alert_icon_with, D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + view.get_size().h + 8 + D_V_SPACE));
+	lbl_factory_status.set_size(scr_size(view.get_size().w - alert_icon_with, LINESPACE));
 	staffing_bar.set_pos(scr_coord(view.get_pos().x + 1, view.get_pos().y + view.get_size().h));
 	staffing_bar.set_size(scr_size(view.get_size().w-2, D_INDICATOR_HEIGHT));
 
@@ -220,7 +234,7 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 	prod_buf.clear();
 
 	display_ddd_box_clip(pos.x + view.get_pos().x, pos.y + view.get_pos().y + view.get_size().h + D_TITLEBAR_HEIGHT, view.get_size().w, D_INDICATOR_HEIGHT+2, MN_GREY0, MN_GREY4);
-	//display_fillbox_wh_clip(pos.x + view.get_pos().x + 1, pos.y + view.get_pos().y + view.get_size().h + D_TITLEBAR_HEIGHT + 1, view.get_size().w - 2, D_INDICATOR_HEIGHT - 2, indikatorfarbe, true);
+
 	scr_coord_val x_view_pos = D_MARGIN_LEFT;
 	scr_coord_val x_prod_pos = left + 10;
 	if (skinverwaltung_t::electricity->get_image_id(0) != IMG_EMPTY) {
@@ -254,7 +268,9 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 		}
 	}
 	// Status line written text	
-	// TODO: Make up more factory states which we can show here
+	if(skinverwaltung_t::alerts && fab_alert_level[fab->get_status() % fabrik_t::staff_shortage]){
+		display_color_img(skinverwaltung_t::alerts->get_image_id(fab_alert_level[fab->get_status() % fabrik_t::staff_shortage]), pos.x + view.get_pos().x, pos.y + view.get_pos().y + view.get_size().h + 8 + D_V_SPACE + D_TITLEBAR_HEIGHT, 0, false, false);
+	}
 	factory_status.clear();
 	factory_status.append("");
 	if (factory_status_type[fab->get_status() % fabrik_t::staff_shortage]) {
