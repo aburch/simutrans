@@ -745,7 +745,6 @@ fabrik_t::fabrik_t(loadsave_t* file)
 	currently_producing = false;
 	transformer_connected = NULL;
 	last_sound_ms = welt->get_ticks();
-	set_sector();
 
 	if(  desc == NULL  ) {
 		dbg->warning( "fabrik_t::fabrik_t()", "No pak-file for factory at (%s) - will not be built!", pos_origin.get_str() );
@@ -811,7 +810,6 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 		city->add_city_factory(this);
 		city->update_city_stats_with_building(get_building(), false);
 	}
-	set_sector();
 
 	if(desc->get_placement() == 2 && city && desc->get_product_count() == 0 && !desc->is_electricity_producer())
 	{
@@ -1072,6 +1070,13 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 		building = hausbauer_t::build(owner, pos_origin, rotate, desc->get_building(), this);
 	}
 
+	city = check_local_city();
+	if (city)
+	{
+		city->add_city_factory(this);
+	}
+	set_sector();
+
 	pos = building->get_pos();
 	pos_origin.z = pos.z;
 
@@ -1099,8 +1104,7 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 			// make sure not to exceed initial prodbase too much
 			sint32 org_prodbase = prodbase;
 			// we will start with a minimum number and try to get closer to start_fields
-			const field_group_desc_t& field_group = *desc->get_field_group();
-			const uint16 spawn_fields = field_group.get_min_fields() + simrand( field_group.get_start_fields() - field_group.get_min_fields(), "fabrik_t::build" );
+			const uint16 spawn_fields = desc->get_field_group()->get_min_fields() + simrand(desc->get_field_group()->get_start_fields() - desc->get_field_group()->get_min_fields(), "fabrik_t::build");
 			while(  fields.get_count() < spawn_fields  &&  add_random_field(10000u)  ) 
 			{
 				/*if (fields.get_count() > desc->get_field_group()->get_min_fields()  &&  prodbase >= 2*org_prodbase) {
@@ -2741,7 +2745,8 @@ void fabrik_t::new_month()
 						upgrade_chance_percent = 33;
 					};
 					if(status >= staff_shortage){
-						upgrade_chance_percent /= 2; // TODO: review the calculation
+						// Note that there is a possibility that staff shortage is involved in the above bad status
+						upgrade_chance_percent *= (uint32)building->get_staffing_level_percentage() / 100; // TODO: review the calculation
 					}
 					if (is_end_consumer())
 					{
@@ -2928,7 +2933,7 @@ void fabrik_t::recalc_factory_status()
 	char status_ein;
 	char status_aus;
 
-	int haltcount = welt->access(pos.get_2d())->get_haltlist_count();
+	int haltcount = nearby_freight_halts.get_count();
 
 	// set bits for input
 	warenlager = 0;
@@ -3010,10 +3015,6 @@ void fabrik_t::recalc_factory_status()
 			}
 			break;
 		case manufacturing:
-			//if ((status_ein&FL_WARE_ALLENULL) != 0 && (status_aus&FL_WARE_ALLENULL) != 0 && !haltcount) {
-				// not producing
-			//	status = inactive;
-			//}
 			if (status_ein&FL_WARE_ALLELIMIT && status_aus&FL_WARE_ALLELIMIT) {
 				status = stuck; // all storages are full => Shipment and arrival are stagnant, and it can not produce anything
 			}
