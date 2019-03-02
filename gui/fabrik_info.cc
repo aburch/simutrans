@@ -35,11 +35,10 @@
 static const char factory_status_type[fabrik_t::MAX_FAB_STATUS][64] =
 {
 	"", "", "", "", "", // status not problematic
-	"Storage full", "Shipment stuck",
-	"Inactive",
+	"Storage full", 
+	"Inactive", "Shipment stuck",
 	"Material shortage", "No material",
-	"fab_bad",
-	"Overstocked",
+	"stop_some_goods_arrival", "Overstocked",
 	"fab_stuck",
 	"staff_shortage"
 };
@@ -47,11 +46,10 @@ static const char factory_status_type[fabrik_t::MAX_FAB_STATUS][64] =
 static const int fab_alert_level[fabrik_t::MAX_FAB_STATUS] =
 {
 	0, 0, 0, 0, 0, // status not problematic
-	1, 1,
-	2,
+	1,
 	2, 2,
-	3,
-	3,
+	2, 2,
+	3, 3,
 	4,
 	0
 };
@@ -223,7 +221,7 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 	if (fab->get_status() >= fabrik_t::staff_shortage) {
 		display_ddd_box_clip(pos.x + D_MARGIN_LEFT - 1, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT + 1, D_INDICATOR_WIDTH + 2, D_INDICATOR_HEIGHT + 2, COL_STAFF_SHORTAGE, COL_STAFF_SHORTAGE);
 	}
-	unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()%fabrik_t::staff_shortage];
+	unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status() % fabrik_t::staff_shortage];
 	display_fillbox_wh_clip(pos.x + D_MARGIN_LEFT, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT + 2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indikatorfarbe, true);
 	int left = D_MARGIN_LEFT + D_INDICATOR_WIDTH + 2;
 	prod_buf.clear();
