@@ -135,6 +135,7 @@ public:
 	 */
 	int get_selection() { return droplist.get_selection(); }
 
+	gui_scrolled_list_t::scrollitem_t* get_selected_item() const { return droplist.get_selected_item(); }
 	/**
 	 * sets the selection
 	 * @author hsiegeln

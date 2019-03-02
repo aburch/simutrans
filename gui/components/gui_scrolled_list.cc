@@ -115,10 +115,15 @@ void gui_scrolled_list_t::set_selection(int s)
 
 sint32 gui_scrolled_list_t::get_selection() const
 {
-	scrollitem_t* focus = dynamic_cast<scrollitem_t*>( comp->get_focus() );
-	return focus  &&  item_list.is_contained(focus) ? item_list.index_of(focus) : -1;
+	scrollitem_t* focus = get_selected_item();
+	return focus  ? item_list.index_of(focus) : -1;
 }
 
+gui_scrolled_list_t::scrollitem_t* gui_scrolled_list_t::get_selected_item() const
+{
+	scrollitem_t* focus = dynamic_cast<scrollitem_t*>( comp->get_focus() );
+	return focus  &&  item_list.is_contained(focus) ? focus : NULL;
+}
 
 vector_tpl<sint32> gui_scrolled_list_t::get_selections() const
 {

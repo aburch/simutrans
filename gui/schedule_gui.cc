@@ -576,7 +576,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 	}
 	else if(komp == &wait_load) {
 		if(!schedule->empty()) {
-			if (gui_waiting_time_item_t *item = dynamic_cast<gui_waiting_time_item_t*>( wait_load.get_element(wait_load.get_selection()) ) ) {
+			if (gui_waiting_time_item_t *item = dynamic_cast<gui_waiting_time_item_t*>( wait_load.get_selected_item())) {
 				schedule->entries[schedule->get_current_stop()].waiting_time_shift = item->get_wait_shift();
 
 				update_selection();

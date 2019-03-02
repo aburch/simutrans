@@ -30,9 +30,6 @@
 tool_build_house_t* citybuilding_edit_frame_t::haus_tool=new tool_build_house_t();
 cbuffer_t citybuilding_edit_frame_t::param_str;
 
-static const char* numbers[] = { "0", "1", "2", "3" };
-
-
 
 static bool compare_building_desc(const building_desc_t* a, const building_desc_t* b)
 {
@@ -45,7 +42,6 @@ static bool compare_building_desc(const building_desc_t* a, const building_desc_
 	}
 	return diff < 0;
 }
-
 
 
 static bool compare_building_desc_trans(const building_desc_t* a, const building_desc_t* b)
@@ -90,7 +86,7 @@ citybuilding_edit_frame_t::citybuilding_edit_frame_t(player_t* player_) :
 	tbl->new_component<gui_label_t>("Rotation");
 	tbl->add_component(&cb_rotation);
 	cb_rotation.add_listener(this);
-	cb_rotation.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("random"), SYSCOL_TEXT) ;
+	cb_rotation.new_component<gui_rotation_item_t>(gui_rotation_item_t::random);
 	cont_right.end_table();
 
 	fill_list( is_show_trans_name );
@@ -181,13 +177,6 @@ bool citybuilding_edit_frame_t::action_triggered( gui_action_creator_t *komp,val
 		fill_list( is_show_trans_name );
 	}
 	else if( komp == &cb_rotation) {
-		if (cb_rotation.get_selection() < 2) {
-			// 255 = random, 254 = auto
-			rotation = 255 - cb_rotation.get_selection();
-		}
-		else {
-			rotation = cb_rotation.get_selection()-2;
-		}
 		change_item_info( scl.get_selection() );
 	}
 	return extend_edit_gui_t::action_triggered(komp,e);
@@ -233,24 +222,22 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 
 			// reset combobox
 			cb_rotation.clear_elements();
-			cb_rotation.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("random"), SYSCOL_TEXT) ;
-			cb_rotation.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("auto"), SYSCOL_TEXT) ;
+			cb_rotation.new_component<gui_rotation_item_t>(gui_rotation_item_t::random);
+			cb_rotation.new_component<gui_rotation_item_t>(gui_rotation_item_t::automatic);
 			for(uint8 i = 0; i<desc->get_all_layouts(); i++) {
-				cb_rotation.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( numbers[i], SYSCOL_TEXT ) ;
+				cb_rotation.new_component<gui_rotation_item_t>(i);
 			}
-			// orientation (254=auto, 255=random)
 			if(desc->get_all_layouts()>1) {
-				rotation = 254; // no definition yet, choose auto
 				cb_rotation.set_selection(1);
 			}
 			else {
-				rotation = 0;
 				cb_rotation.set_selection(2);
 			}
 			reset_min_windowsize();
 
 		}
 
+		uint8 rotation = get_rotation();
 		uint8 rot = (rotation>253) ? 0 : rotation;
 		building_image.init(desc, rot);
 
@@ -274,7 +261,7 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 		}
 		building_image.init(NULL, 0);
 		cb_rotation.clear_elements();
-		cb_rotation.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("random"), SYSCOL_TEXT) ;
+		cb_rotation.new_component<gui_rotation_item_t>(gui_rotation_item_t::random);
 	}
 	info_text.recalc_size();
 	reset_min_windowsize();

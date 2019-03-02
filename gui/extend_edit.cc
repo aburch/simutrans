@@ -19,6 +19,25 @@
 #include "extend_edit.h"
 
 
+static const char* numbers[] = { "0", "1", "2", "3" };
+
+gui_rotation_item_t::gui_rotation_item_t(uint8 r) : gui_scrolled_list_t::const_text_scrollitem_t(NULL, SYSCOL_TEXT)
+{
+	rotation = r;
+
+	if (rotation <= 3) {
+		text = numbers[rotation];
+	}
+	else if (rotation == automatic) {
+		text = translator::translate("auto");
+	}
+	else if (rotation == random) {
+		text = translator::translate("random");
+	}
+	else {
+		text = "";
+	}
+}
 
 
 extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
@@ -129,4 +148,13 @@ bool extend_edit_gui_t::action_triggered( gui_action_creator_t *komp,value_t v) 
 		fill_list( is_show_trans_name );
 	}
 	return true;
+}
+
+
+uint8 extend_edit_gui_t::get_rotation() const
+{
+	if (gui_rotation_item_t *item = dynamic_cast<gui_rotation_item_t*>( cb_rotation.get_selected_item() ) ) {
+		return item->get_rotation();
+	}
+	return 0;
 }
