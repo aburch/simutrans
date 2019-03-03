@@ -5373,6 +5373,22 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				// We come accross a signal at caution: try (again) to free the block ahead.
 				const bool ok = block_reserver(cnv->get_route(), route_index, modified_sighting_distance_tiles - (tiles_to_check - 1), next_signal, 0, true, false);
 				cnv->set_next_stop_index(next_signal);
+				// For TESTing only
+				if (cnv->self.get_id() == 4233 && route_index == 100 && tiles_to_check == 7)
+				{
+					char txt[256];
+					char okay[16];
+					if (ok)
+					{
+						sprintf(okay, "TRUE");
+					}
+					else
+					{
+						sprintf(okay, "FALSE");
+					}
+					sprintf(txt, "TEST - OK: %s; next_signal: %d", okay, next_signal);
+					welt->get_message()->add_message(txt, koord::invalid, 0); 
+				}
 				if(!ok && working_method != drive_by_sight && starting_from_stand && this_halt.is_bound())
 				{
 					return false;
