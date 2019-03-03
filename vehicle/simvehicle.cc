@@ -6178,7 +6178,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							{
 								if(last_combined_signal_index < INVALID_INDEX && pre_signals.empty())
 								{
-									// Treat the last distant as a combined signal.
+									// Treat the last combined signal as a distant signal.
 									// Check whether it can be used from the current box.
 									signal_t* last_combined_signal = combined_signals.back();
 									const signalbox_t* sb = NULL;
@@ -6200,12 +6200,26 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 										last_distant_signal_was_intermediate_block = signal->get_desc()->get_intermediate_block();
 										signs.append_unique(gr);
 									}
+									// For TESTing only
+									if (cnv->self.get_id() == 4233)
+									{ 
+										char txt[256];
+										sprintf(txt, "TEST; first double block signal index, %u; last stop signal index, %u", first_double_block_signal_index, last_stop_signal_index);
+										welt->get_message()->add_message(txt, koord::invalid, 0); 
+									}
 									else if (first_double_block_signal_index != last_stop_signal_index)
 									{
 										// The last combined signal is not compatible with this signal's signalbox:
 										// do not treat it as a distant signal.
 										count --;
 										end_of_block = true;
+										// For TESTing only
+										if (cnv->self.get_id() == 4233)
+										{ 
+											char txt[256];
+											sprintf(txt, "TEST end of block 1: incompatible combined signal");
+											welt->get_message()->add_message(txt, koord::invalid, 0); 
+										}
 										if(!is_from_token)
 										{
 											next_signal_index = last_stop_signal_index;
@@ -6237,6 +6251,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 							if(first_double_block_signal_index != last_stop_signal_index)
 							{
+								// For TESTing only
+								if (cnv->self.get_id() == 4233)
+								{ 
+									char txt[256];
+									sprintf(txt, "TEST end of block 2; first double block signal index, %u; last stop signal index, %u", first_double_block_signal_index, last_stop_signal_index);
+									welt->get_message()->add_message(txt, koord::invalid, 0); 
+								}
 								end_of_block = true;
 							}
 						}
@@ -6266,6 +6287,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							last_stop_signal_index = i;
 							last_stop_signal_pos = pos;
 							end_of_block = true;
+							// For TESTing only
+							if (cnv->self.get_id() == 4233)
+							{ 
+								char txt[256];
+								sprintf(txt, "TEST end of block 3; first double block signal index, %u; last stop signal index, %u", first_double_block_signal_index, last_stop_signal_index);
+								welt->get_message()->add_message(txt, koord::invalid, 0); 
+							}
 						}
 
 						if(!directional_only && next_signal_working_method == time_interval_with_telegraph && signal->get_no_junctions_to_next_signal() && signal->get_desc()->is_longblock_signal() && (!check_halt.is_bound() || check_halt->get_station_signals_count() == 0))
