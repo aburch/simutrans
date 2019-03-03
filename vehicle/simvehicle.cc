@@ -6163,6 +6163,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							signs.append(gr);
 						}
+						// For TESTing only
+						if (cnv->self.get_id() == 4233)
+						{ 
+							char txt[256];
+							sprintf(txt, "TEST; pre-signal count, %u; combined signal count, %u; last combined signal index, %u", pre_signals.get_count(), combined_signals.get_count(), last_combined_signal_index);
+							welt->get_message()->add_message(txt, koord::invalid, 0); 
+						}
 						if (pre_signals.get_count() || combined_signals.get_count())
 						{
 							// Do not reserve after a stop signal not covered by a distant or combined signal
