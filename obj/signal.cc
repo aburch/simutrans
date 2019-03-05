@@ -986,6 +986,10 @@ void signal_t::info(cbuffer_t & buf) const
 			dbg->warning("signal_t::info()", "Signalbox could not be found from a signal on valid ground");
 		}
 	}
+	if (char const* const maker = desc->get_copyright()) {
+		buf.append("\n\n");
+		buf.printf(translator::translate("Constructed by %s"), maker);
+	}
 }
 
 

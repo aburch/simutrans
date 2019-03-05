@@ -1355,6 +1355,10 @@ void private_car_t::info(cbuffer_t & buf) const
 	const char* destination_city_name = destination_city ? destination_city->get_name() : translator::translate("keine");
 	buf.printf(translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(desc->get_name()), speed_to_kmh(current_speed), speed_to_kmh(desc->get_topspeed()), dx, dy);
 	buf.printf(translator::translate("\nOrigin: %s\nDestination: %s (%s)"), origin_city_name, destination_name, destination_city_name);
+
+	if (char const* const maker = desc->get_copyright()) {
+		buf.printf(translator::translate("Constructed by %s"), maker);
+	}
 }
 
 

@@ -369,6 +369,11 @@ void roadsign_t::info(cbuffer_t & buf) const
 	{
 		buf.append("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 	}
+
+	if (char const* const maker = desc->get_copyright()) {
+		buf.append("\n");
+		buf.printf(translator::translate("Constructed by %s"), maker);
+	}
 }
 	// Signal specific information is dealt with in void signal_t::info(cbuffer_t & buf, bool dummy) const (in signal.cc)
 

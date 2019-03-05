@@ -38,6 +38,7 @@
 #include "../dataobj/environment.h"
 
 #include "../obj/baum.h"
+#include "../obj/bruecke.h"
 #include "../obj/crossing.h"
 #include "../obj/groundobj.h"
 #include "../obj/label.h"
@@ -629,6 +630,24 @@ void grund_t::info(cbuffer_t& buf) const
 	if(!is_water()) {
 		if(flags&has_way1) {
 			obj_bei(0)->info(buf);
+			// creator of bridge or tunnel graphic
+			const char* maker = NULL;
+			if (ist_tunnel()) {
+				if (tunnel_t* tunnel = find<tunnel_t>(1)) {
+					maker = tunnel->get_desc()->get_copyright();
+				}
+			}
+			if (ist_bruecke()) {
+				if (bruecke_t* bridge = find<bruecke_t>(1)) {
+					maker = bridge->get_desc()->get_copyright();
+				}
+			}
+			if (maker) {
+				buf.printf(translator::translate("Constructed by %s"), maker);
+				buf.append("\n");
+			}
+			buf.append("\n");
+			// second way
 			has_way = true;
 			if(flags&has_way2) {
 				buf.append(translator::translate(get_weg_nr(1)->get_name()));
