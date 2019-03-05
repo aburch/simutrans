@@ -54,7 +54,9 @@ public:
 	typ get_typ() const { return pedestrian; }
 #endif
 
-	sync_result sync_step(uint32 delta_t);
+	void info(cbuffer_t & buf) const OVERRIDE;
+
+	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
 	///@ returns true if pedestrian walks on the left side of the road
 	bool is_on_left() const { return on_left; }

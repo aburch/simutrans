@@ -13,6 +13,8 @@
 #include "../boden/grund.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/translator.h"
+#include "../utils/cbuffer_t.h"
 
 #include "simpeople.h"
 #include "../descriptor/pedestrian_desc.h"
@@ -366,5 +368,16 @@ void pedestrian_t::check_timeline_pedestrians()
 		{
 			current_pedestrians.append(fd, fd->get_distribution_weight());
 		}
+	}
+}
+
+
+void pedestrian_t::info(cbuffer_t & buf) const
+{
+	char const* const owner = translator::translate("Kein Besitzer\n");
+	buf.append(owner);
+
+	if (char const* const maker = get_desc()->get_copyright()) {
+		buf.printf(translator::translate("Constructed by %s"), maker);
 	}
 }

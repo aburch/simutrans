@@ -1095,6 +1095,10 @@ void weg_t::info(cbuffer_t & buf) const
 	}
 #endif
 	buf.append("\n");
+	if (char const* const maker = get_desc()->get_copyright()) {
+		buf.printf(translator::translate("Constructed by %s"), maker);
+		buf.append("\n");
+	}
 }
 
 
