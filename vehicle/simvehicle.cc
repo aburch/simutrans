@@ -6167,7 +6167,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						if (cnv->self.get_id() == 4233)
 						{ 
 							char txt[256];
-							sprintf(txt, "TEST; pre-signal count, %u; combined signal count, %u; last combined signal index, %u", pre_signals.get_count(), combined_signals.get_count(), last_combined_signal_index);
+							sprintf(txt, "TEST; pre-signal count, %u; combined signal count, %u; last combined signal index, %u; count %u", pre_signals.get_count(), combined_signals.get_count(), last_combined_signal_index, count);
 							welt->get_message()->add_message(txt, koord::invalid, 0); 
 						}
 						if (pre_signals.get_count() || combined_signals.get_count())
@@ -6204,7 +6204,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									if (cnv->self.get_id() == 4233)
 									{ 
 										char txt[256];
-										sprintf(txt, "TEST; first double block signal index, %u; last stop signal index, %u", first_double_block_signal_index, last_stop_signal_index);
+										sprintf(txt, "TEST; first double block signal index, %u; last stop signal index, %u; count %u", first_double_block_signal_index, last_stop_signal_index, count);
 										welt->get_message()->add_message(txt, koord::invalid, 0); 
 									}
 									else if (first_double_block_signal_index != last_stop_signal_index)
