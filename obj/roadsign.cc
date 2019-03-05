@@ -205,6 +205,11 @@ void roadsign_t::info(cbuffer_t & buf) const
 			buf.append(translator::translate("\nSet phases:"));
 		}
 	}
+
+	if (char const* const maker = desc->get_copyright()) {
+		buf.append("\n");
+		buf.printf(translator::translate("Constructed by %s"), maker);
+	}
 }
 
 
