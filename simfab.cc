@@ -3909,3 +3909,14 @@ bool fabrik_t::chk_staff_shortage (uint8 ftype, sint32 staffing_level_percentage
 	}
 	return false;
 }
+
+bool fabrik_t::is_connect_own_network() const
+{
+	FOR(vector_tpl<nearby_halt_t>, const i, nearby_freight_halts)
+	{
+		if(i.halt->get_owner() == welt->get_active_player() || i.halt->get_owner() == welt->get_public_player()){
+			return true;
+		}
+	}
+	return false;
+}

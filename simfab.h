@@ -773,6 +773,9 @@ public:
 	int get_mail_level() const;
 
 	bool is_input_empty() const;
+
+	// check connected to public or current player stop
+	bool is_connect_own_network() const;
 };
 
 #endif

@@ -29,9 +29,9 @@
 #include "../utils/simstring.h"
 
 
-factorylist_stats_t::factorylist_stats_t(factorylist::sort_mode_t sortby, bool sortreverse)
+factorylist_stats_t::factorylist_stats_t(factorylist::sort_mode_t sortby, bool sortreverse, bool own_network)
 {
-	sort(sortby,sortreverse);
+	sort(sortby,sortreverse,own_network);
 	recalc_size();
 	line_selected = 0xFFFFFFFFu;
 }
@@ -175,8 +175,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 
 	if(  fab_list.get_count()!=welt->get_fab_list().get_count()  ) {
 		// some deleted/ added => resort
-		sort( sortby, sortreverse );
-		recalc_size();
+		sort( sortby, sortreverse, filter_own_network);
 	}
 
 	uint32 sel = line_selected;
@@ -243,16 +242,23 @@ void factorylist_stats_t::draw(scr_coord offset)
 	}
 }
 
-void factorylist_stats_t::sort(factorylist::sort_mode_t sb, bool sr)
+void factorylist_stats_t::sort(factorylist::sort_mode_t sb, bool sr, bool own_network)
 {
 	sortby = sb;
 	sortreverse = sr;
+	filter_own_network = own_network;
 
 	fab_list.clear();
-	fab_list.resize(welt->get_fab_list().get_count());
+	int lines = 0;
 	for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
 	{
+		// own network filter
+		if(filter_own_network && !welt->get_fab_list()[i]->is_connect_own_network()){
+			continue;
+		}
 		fab_list.insert_ordered( welt->get_fab_list()[i], compare_factories(sortby, sortreverse) );
+		lines++;
 	}
-	set_size(scr_size(210, welt->get_fab_list().get_count()*(LINESPACE+1)-10));
+	fab_list.resize(welt->get_fab_list().get_count());
+	set_size(scr_size(210, lines*(LINESPACE+1)));
 }

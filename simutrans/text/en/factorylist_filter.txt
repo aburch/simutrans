@@ -45,7 +45,7 @@ Click on an item listd in the <strong>Industry List</strong> window to see more 
 - <em>Orange red:</em> since all items are overstocked, it stopped receiving.<br>
 - <em>Red:</em> since all the storage is full, arrival and operation are stopped.<br>
 <br>
-- <em>Purple frame: the production rate is declining due to the staff shortage</em> 
+- <em>Purple frame:</em> the production rate is declining due to the staff shortage.
 </p>
 <p>
 A <em>Red lightning flash</em> is shown if the industry has an <a href="electricity.txt">electricity</a> supply.
