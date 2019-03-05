@@ -45,6 +45,8 @@ public:
 	const char *get_name() const OVERRIDE {return "Fussgaenger";}
 	typ get_typ() const OVERRIDE { return pedestrian; }
 
+	void info(cbuffer_t & buf) const OVERRIDE;
+
 	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
 	///@ returns true if pedestrian walks on the left side of the road

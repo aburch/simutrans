@@ -19,6 +19,7 @@
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/translator.h"
 
 #include "../utils/cbuffer_t.h"
 
@@ -205,5 +206,19 @@ const char *crossing_t::is_deletable(const player_t *player)
 	}
 	else {
 		return obj_t::is_deletable(player);
+	}
+}
+
+
+void crossing_t::info(cbuffer_t & buf) const
+{
+	buf.append(translator::translate(get_name()));
+	buf.append("\n");
+	logic->info(buf);
+	buf.append("\n");
+
+	if (char const* const maker = get_desc()->get_copyright()) {
+		buf.printf(translator::translate("Constructed by %s"), maker);
+		buf.append("\n\n");
 	}
 }
