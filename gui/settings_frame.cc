@@ -111,6 +111,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		routing.init( sets );
 		costs.init( sets );
 		climates.init( sets );
+		set_windowsize(get_windowsize());
 	}
 	else if(  komp==&revert_to_last_save  ) {
 		// load settings of last generated map
@@ -128,6 +129,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		routing.init( sets );
 		costs.init( sets );
 		climates.init( sets );
+		set_windowsize(get_windowsize());
 	}
 	return true;
 }
