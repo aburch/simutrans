@@ -134,21 +134,20 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			continue;
 		}
 		wlist[pos] = ware;
-		ware_t & current_good = wlist[pos];
 
 		if(  sort_mode == by_via_sum  ) {
 			// via sort mode merges packets with a common next stop
 			for(  int i=0;  i<pos;  i++  ) {
 				ware_t& wi = wlist[i];
 				if(  wi.get_index()==ware.get_index()  &&  wi.get_zwischenziel()==ware.get_zwischenziel()  &&
-					(wi.get_zwischenziel().is_bound() && (  wi.get_ziel()==wi.get_zwischenziel() )==( ware.get_ziel()==ware.get_zwischenziel() )
-					|| wi.get_ziel() == ware.get_ziel())  ) {
+					(  (wi.get_zwischenziel().is_bound() && (  wi.get_ziel()==wi.get_zwischenziel() )==( ware.get_ziel()==ware.get_zwischenziel() ) )
+					|| wi.get_ziel() == ware.get_ziel() ) ) {
 					ware_t::goods_amount_t const remaining_amount = wi.add_goods(ware.menge);
 					if(  remaining_amount > 0  ) {
 						// reached goods amount limit, have to discard amount and track category totals separatly
 						if(  categories_goods_amount_lost == NULL  ) {
 							categories_goods_amount_lost = new uint64[256](); // this should be tied to a category index limit constant
-						} 
+						}
 						categories_goods_amount_lost[wi.get_desc()->get_catg_index()]+= remaining_amount;
 					}
 					--pos;
