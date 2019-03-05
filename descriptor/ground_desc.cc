@@ -244,6 +244,8 @@ static image_t* create_texture_from_tile(const image_t* image, const image_t* re
 	image_t *image_dest = image_t::copy_image(*ref);
 	PIXVAL *const sp2 = image_dest->get_data();
 
+	assert(ref->w == ref->y + ref->h  &&  ref->x == 0);
+
 	const sint32 ref_w = ref->w;
 	const sint32 height= image->get_pic()->h;
 
@@ -265,14 +267,27 @@ static image_t* create_texture_from_tile(const image_t* image, const image_t* re
 			for(uint16 i=0; i<runlen; i++) {
 				PIXVAL p = *sp++;
 
-#define copypixel(xx, yy) \
-	if (0 <= (yy)  &&  (yy) < ref_w  &&  0 <= (xx)  &&  (xx) < ref_w) { \
-        size_t const index = (ref_w + 3) * (yy) + xx + 2; \
-        if(index < image_dest->len) { \
-		    sp2[index] = p; \
-		} \
-	}
-				// put multiple copies into dest image
+				// macro to copy pixels into rle-encoded image, with range check
+#				define copypixel(xx, yy) \
+				if (ref->y <= (yy)  &&  (yy) < ref->h  &&  0 <= (xx)  &&  (xx) < ref_w) { \
+					size_t const index = (ref_w + 3) * (yy - ref->y) + xx + 2; \
+					assert(index < image_dest->len); \
+					sp2[index] = p; \
+				}
+				/* Put multiple copies into dest image
+				 *
+				 * image is assumed to be tile shaped,
+				 * and is copied four times to cover tiles of neighboring tiles.
+				 *
+				 * copy +   copy
+				 * | /     \  |
+				 * +  image   +
+				 * | \     /  |
+				 * copy +   copy
+				 *
+				 * ref image is assumed to be rectangular,
+				 * it is used to fill holes due to missing pixels in image.
+				 */
 				copypixel(x, y + image->y);
 				copypixel(x + ref_w/2, y + image->y + ref_w/4);
 				copypixel(x - ref_w/2, y + image->y + ref_w/4);
