@@ -15,8 +15,8 @@ pakselector_t::pakselector_t() :
 {
 	// remove unnecessary buttons
 	top_frame.remove_component( &input );
-	remove_component( &savebutton );
-	remove_component( &cancelbutton );
+	savebutton.set_visible(false);
+	cancelbutton.set_visible(false);
 
 	// don't show list item labels
 	label_enabled = false;
