@@ -6430,6 +6430,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							// No distant signals: just reserve one block beyond the first stop signal and no more (unless the last signal is a double block signal).
 							count --;
+							if (cnv->self.get_id() == 4233)
+							{ 
+								char txt[256];
+								sprintf(txt, "TEST end of block 4; first double block signal index, %u; last stop signal index, %u; pre-signal count %u, last pre-signal index %u", first_double_block_signal_index, last_stop_signal_index, pre_signals.get_count(), last_pre_signal_index);
+								welt->get_message()->add_message(txt, koord::invalid, 0); 
+							}
 						}
 						else if(next_signal_working_method == time_interval && (last_longblock_signal_index >= INVALID_INDEX || !next_signal_protects_no_junctions) && signal->get_state() == roadsign_t::danger && next_signal_protects_no_junctions && pre_signals.empty())
 						{
