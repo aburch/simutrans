@@ -200,7 +200,7 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 	}
 
 	// staffing bar
-	if (fab->is_end_consumer()) {
+	if (fab->get_sector() == fabrik_t::end_consumer) {
 		staff_shortage_factor = (sint32)welt->get_settings().get_minimum_staffing_percentage_consumer_industry();
 	}
 	else if(!(welt->get_settings().get_rural_industries_no_staff_shortage() && fab->get_sector() == fabrik_t::resource)){

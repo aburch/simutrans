@@ -745,7 +745,7 @@ public:
 	uint32 get_monthly_pax_demand() const;
 	uint32 get_scaled_mail_demand() const { return scaled_mail_demand; }
 
-	bool is_end_consumer() const { return (output.empty() && !desc->is_electricity_producer()); }
+	//bool is_end_consumer() const { return (output.empty() && !desc->is_electricity_producer()); }
 	enum ftype { marine_resource = 0, resource, resource_city, manufacturing, end_consumer, power_plant, unknown };
 	// @returns industry type
 	uint8 get_sector() const { return sector; }

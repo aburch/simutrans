@@ -2748,7 +2748,7 @@ void fabrik_t::new_month()
 						// Note that there is a possibility that staff shortage is involved in the above bad status
 						upgrade_chance_percent *= (uint32)building->get_staffing_level_percentage() / 100; // TODO: review the calculation
 					}
-					if (is_end_consumer())
+					if (get_sector() == fabrik_t::end_consumer)
 					{
 						// If this is an end consumer, check whether we have a good number
 						// of customers before deciding whether to close/upgrade.

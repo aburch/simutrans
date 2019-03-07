@@ -5945,7 +5945,7 @@ void karte_t::deposit_ware_at_destination(ware_t ware)
 				// Only book arriving passengers for commuting trips.
 				fab->liefere_an(ware.get_desc(), ware.menge);
 			}
-			else if(fab->is_end_consumer())
+			else if(fab->get_sector() == fabrik_t::end_consumer)
 			{
 				// Add visiting passengers as consumers
 				fab->add_consuming_passengers(ware.menge);
@@ -6332,7 +6332,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 						route_status = destination_unavailable;
 					}
 				}
-				else if (dest_building->get_is_factory() && dest_building->get_fabrik()->is_end_consumer())
+				else if (dest_building->get_is_factory() && dest_building->get_fabrik()->get_sector() == fabrik_t::end_consumer)
 				{
 					// If the visiting passengers are bound for a shop that has run out of goods to sell, 
 					// do not allow the passengers to go here.
