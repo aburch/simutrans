@@ -6191,6 +6191,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 											sb = (signalbox_t*)gb;
 										}
 									}
+									// For TESTing only
+									if (cnv->self.get_id() == 4233)
+									{ 
+										char txt[256];
+										sprintf(txt, "TEST pre-signal: last stop signal index, %u; count %u", last_stop_signal_index, count);
+										welt->get_message()->add_message(txt, koord::invalid, 0); 
+									}
 									if(sb && sb->can_add_signal(signal) && !directional_only)
 									{
 										// This is compatible: treat it as a distant signal.
@@ -6199,14 +6206,14 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 										signalbox_last_distant_signal = signal->get_signalbox();
 										last_distant_signal_was_intermediate_block = signal->get_desc()->get_intermediate_block();
 										signs.append_unique(gr);
-									}
-									// For TESTing only
-									if (cnv->self.get_id() == 4233)
-									{ 
-										char txt[256];
-										sprintf(txt, "TEST; first double block signal index, %u; last stop signal index, %u; count %u", first_double_block_signal_index, last_stop_signal_index, count);
-										welt->get_message()->add_message(txt, koord::invalid, 0); 
-									}
+										// For TESTing only
+										if (cnv->self.get_id() == 4233)
+										{ 
+											char txt[256];
+											sprintf(txt, "TEST - compatible signal - current step, %u; last stop signal index, %u; count %u", i, last_stop_signal_index, count);
+											welt->get_message()->add_message(txt, koord::invalid, 0); 
+										}
+									}						
 									else if (first_double_block_signal_index != last_stop_signal_index)
 									{
 										// The last combined signal is not compatible with this signal's signalbox:
