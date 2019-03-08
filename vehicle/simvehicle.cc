@@ -6556,6 +6556,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								last_pre_signal_index = i;
 								signalbox_last_distant_signal = signal->get_signalbox();
 								last_distant_signal_was_intermediate_block = signal->get_desc()->get_intermediate_block();
+								// For TESTing only
+								if (cnv->self.get_id() == 4233)
+								{ 
+									char txt[256];
+									sprintf(txt, "TEST pre-signal 2: last stop signal index, %u; count %u", last_stop_signal_index, count);
+									welt->get_message()->add_message(txt, koord::invalid, 0); 
+								}
 							}
 						}
 						else if(next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling)
@@ -6569,6 +6576,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							{
 								pre_signals.append(signal);
 								last_pre_signal_index = i;
+								// For TESTing only
+								if (cnv->self.get_id() == 4233)
+								{ 
+									char txt[256];
+									sprintf(txt, "TEST pre-signal 3: last stop signal index, %u; count %u", last_stop_signal_index, count);
+									welt->get_message()->add_message(txt, koord::invalid, 0); 
+								}
 							}
 						}
 						else if((next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph) && last_pre_signal_index >= INVALID_INDEX)
