@@ -6227,11 +6227,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 											char txt_2[256];
 											if (sb)
 											{
-												sprintf(txt, "Signalbox: %u, %u", sb->get_pos().x, sb->get_pos().y);
+												sprintf(txt_2, "Signalbox: %u, %u", sb->get_pos().x, sb->get_pos().y);
 											}
 											else
 											{
-												sprintf(txt, "No signalbox");
+												sprintf(txt_2, "No signalbox");
 											}
 											sprintf(txt, "TEST end of block 1: incompatible combined signal; %s", txt_2);
 											welt->get_message()->add_message(txt, koord::invalid, 0); 
