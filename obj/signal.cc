@@ -622,14 +622,14 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			}
 			else
 			{
-				buf.append(translator::translate("TEST none 1"));
-				//buf.append(translator::translate("keine"));
+				buf.append(translator::translate("keine"));
+				dbg->warning("signal_t::info()", "Signalbox could not be found from a signal on valid ground");
 			}
 		}
 		else
 		{
-			buf.append(translator::translate("TEST none 2"));
-			//buf.append(translator::translate("keine"));
+			buf.append(translator::translate("keine"));
+			dbg->warning("signal_t::info()", "Signalbox could not be found from a signal on valid ground");
 		}
 	}
 }

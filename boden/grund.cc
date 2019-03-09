@@ -1762,7 +1762,19 @@ depot_t* grund_t::get_depot() const
 
 signalbox_t* grund_t::get_signalbox() const
 {
-	return dynamic_cast<signalbox_t *>(first_obj());
+	//return dynamic_cast<signalbox_t *>(first_obj());
+	
+	// The original code above sometimes (and semi-indeterminstically)
+	// failed to return a signalbox where there was more than one object.
+	// This can cause loss of synchronisation over the network.
+
+	// It is not clear whether this is significantly slower than the above. 
+	// It might possibly be sped up by using the old system where the number
+	// of objects is < 2.
+
+	//const uint32 count = obj_count(); 
+
+	return dynamic_cast<signalbox_t *>(suche_obj(obj_t::signalbox));
 }
 
 gebaeude_t *grund_t::get_building() const

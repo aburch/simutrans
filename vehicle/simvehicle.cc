@@ -5373,22 +5373,6 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				// We come accross a signal at caution: try (again) to free the block ahead.
 				const bool ok = block_reserver(cnv->get_route(), route_index, modified_sighting_distance_tiles - (tiles_to_check - 1), next_signal, 0, true, false);
 				cnv->set_next_stop_index(next_signal);
-				// For TESTing only
-				if (cnv->self.get_id() == 4233 && route_index == 100 && tiles_to_check == 7)
-				{
-					char txt[256];
-					char okay[16];
-					if (ok)
-					{
-						sprintf(okay, "TRUE");
-					}
-					else
-					{
-						sprintf(okay, "FALSE");
-					}
-					sprintf(txt, "TEST - OK: %s; next_signal: %d", okay, next_signal);
-					welt->get_message()->add_message(txt, koord::invalid, 0); 
-				}
 				if(!ok && working_method != drive_by_sight && starting_from_stand && this_halt.is_bound())
 				{
 					return false;
@@ -6163,13 +6147,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							signs.append(gr);
 						}
-						// For TESTing only
-						if (cnv->self.get_id() == 4233)
-						{ 
-							char txt[256];
-							sprintf(txt, "TEST; pre-signal count, %u; combined signal count, %u; last combined signal index, %u; count %u", pre_signals.get_count(), combined_signals.get_count(), last_combined_signal_index, count);
-							welt->get_message()->add_message(txt, koord::invalid, 0); 
-						}
 						if (pre_signals.get_count() || combined_signals.get_count())
 						{
 							// Do not reserve after a stop signal not covered by a distant or combined signal
@@ -6191,13 +6168,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 											sb = (signalbox_t*)gb;
 										}
 									}
-									// For TESTing only
-									if (cnv->self.get_id() == 4233)
-									{ 
-										char txt[256];
-										sprintf(txt, "TEST pre-signal: last stop signal index, %u; count %u", last_stop_signal_index, count);
-										welt->get_message()->add_message(txt, koord::invalid, 0); 
-									}
 									if(sb && sb->can_add_signal(signal) && !directional_only)
 									{
 										// This is compatible: treat it as a distant signal.
@@ -6206,13 +6176,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 										signalbox_last_distant_signal = signal->get_signalbox();
 										last_distant_signal_was_intermediate_block = signal->get_desc()->get_intermediate_block();
 										signs.append_unique(gr);
-										// For TESTing only
-										if (cnv->self.get_id() == 4233)
-										{ 
-											char txt[256];
-											sprintf(txt, "TEST - compatible signal - current step, %u; last stop signal index, %u; count %u", i, last_stop_signal_index, count);
-											welt->get_message()->add_message(txt, koord::invalid, 0); 
-										}
 									}						
 									else if (first_double_block_signal_index != last_stop_signal_index)
 									{
@@ -6220,22 +6183,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 										// do not treat it as a distant signal.
 										count --;
 										end_of_block = true;
-										// For TESTing only
-										if (cnv->self.get_id() == 4233)
-										{ 
-											char txt[256];
-											char txt_2[256];
-											if (sb)
-											{
-												sprintf(txt_2, "Signalbox: %u, %u", sb->get_pos().x, sb->get_pos().y);
-											}
-											else
-											{
-												sprintf(txt_2, "No signalbox");
-											}
-											sprintf(txt, "TEST end of block 1: incompatible combined signal; %s", txt_2);
-											welt->get_message()->add_message(txt, koord::invalid, 0); 
-										}
 										if(!is_from_token)
 										{
 											next_signal_index = last_stop_signal_index;
@@ -6267,13 +6214,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 							if(first_double_block_signal_index != last_stop_signal_index)
 							{
-								// For TESTing only
-								if (cnv->self.get_id() == 4233)
-								{ 
-									char txt[256];
-									sprintf(txt, "TEST end of block 2; first double block signal index, %u; last stop signal index, %u", first_double_block_signal_index, last_stop_signal_index);
-									welt->get_message()->add_message(txt, koord::invalid, 0); 
-								}
 								end_of_block = true;
 							}
 						}
@@ -6303,13 +6243,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							last_stop_signal_index = i;
 							last_stop_signal_pos = pos;
 							end_of_block = true;
-							// For TESTing only
-							if (cnv->self.get_id() == 4233)
-							{ 
-								char txt[256];
-								sprintf(txt, "TEST end of block 3; first double block signal index, %u; last stop signal index, %u", first_double_block_signal_index, last_stop_signal_index);
-								welt->get_message()->add_message(txt, koord::invalid, 0); 
-							}
 						}
 
 						if(!directional_only && next_signal_working_method == time_interval_with_telegraph && signal->get_no_junctions_to_next_signal() && signal->get_desc()->is_longblock_signal() && (!check_halt.is_bound() || check_halt->get_station_signals_count() == 0))
@@ -6446,12 +6379,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							// No distant signals: just reserve one block beyond the first stop signal and no more (unless the last signal is a double block signal).
 							count --;
-							if (cnv->self.get_id() == 4233)
-							{ 
-								char txt[256];
-								sprintf(txt, "TEST end of block 4; first double block signal index, %u; last stop signal index, %u; pre-signal count %u, last pre-signal index %u", first_double_block_signal_index, last_stop_signal_index, pre_signals.get_count(), last_pre_signal_index);
-								welt->get_message()->add_message(txt, koord::invalid, 0); 
-							}
 						}
 						else if(next_signal_working_method == time_interval && (last_longblock_signal_index >= INVALID_INDEX || !next_signal_protects_no_junctions) && signal->get_state() == roadsign_t::danger && next_signal_protects_no_junctions && pre_signals.empty())
 						{
@@ -6565,13 +6492,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								last_pre_signal_index = i;
 								signalbox_last_distant_signal = signal->get_signalbox();
 								last_distant_signal_was_intermediate_block = signal->get_desc()->get_intermediate_block();
-								// For TESTing only
-								if (cnv->self.get_id() == 4233)
-								{ 
-									char txt[256];
-									sprintf(txt, "TEST pre-signal 2: last stop signal index, %u; count %u", last_stop_signal_index, count);
-									welt->get_message()->add_message(txt, koord::invalid, 0); 
-								}
 							}
 						}
 						else if(next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling)
@@ -6585,13 +6505,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							{
 								pre_signals.append(signal);
 								last_pre_signal_index = i;
-								// For TESTing only
-								if (cnv->self.get_id() == 4233)
-								{ 
-									char txt[256];
-									sprintf(txt, "TEST pre-signal 3: last stop signal index, %u; count %u", last_stop_signal_index, count);
-									welt->get_message()->add_message(txt, koord::invalid, 0); 
-								}
 							}
 						}
 						else if((next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph) && last_pre_signal_index >= INVALID_INDEX)
