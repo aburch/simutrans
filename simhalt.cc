@@ -2158,14 +2158,18 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 	const uint8 ware_catg = ware.get_desc()->get_catg_index();
 
 	bool found_a_halt = false;
+
+	uint32 test_time;
+	halthandle_t test_transfer;
+	koord real_destination_pos;
+
 	for(vector_tpl<halthandle_t>::const_iterator destination_halt = destination_halts_list.begin(); destination_halt != destination_halts_list.end(); destination_halt++)
 	{
 		if (self == *destination_halt)
 		{
 			continue;
 		}
-		uint32 test_time;
-		halthandle_t test_transfer;
+		
 		path_explorer_t::get_catg_path_between(ware_catg, self, *destination_halt, test_time, test_transfer, ware.g_class);
 
 		if(!destination_halt->is_bound())
@@ -2175,8 +2179,7 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 		}
 
 		found_a_halt = true;
-
-		koord real_destination_pos = koord::invalid;
+		
 		if(destination_pos != koord::invalid)
 		{
 			// Called with a specific destination position, not set by ware
