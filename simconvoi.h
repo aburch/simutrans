@@ -1236,6 +1236,8 @@ public:
 
 	inline bool get_allow_clear_reservation() const { return allow_clear_reservation; }
 
+	bool all_vehicles_are_buildable() const; 
+
 private:
 	journey_times_map average_journey_times;
 public:

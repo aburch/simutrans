@@ -8281,3 +8281,19 @@ void convoi_t::reflesh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaki
 		}
 	}
 }
+
+bool convoi_t::all_vehicles_are_buildable() const
+{
+	for (uint32 i = 0; i < vehicle_count; i++)
+	{
+		if(get_vehicle(i)->get_desc()->is_available_only_as_upgrade())
+		{
+			return false;
+		}
+		if(!welt->get_settings().get_allow_buying_obsolete_vehicles() && get_vehicle(i)->get_desc()->is_obsolete(welt->get_timeline_year_month(), welt))
+		{
+			return false;
+		}
+	}
+	return true;
+}

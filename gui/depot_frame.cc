@@ -603,7 +603,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			depot->call_depot_tool('v', cnv, NULL);
 		}
 		else if(  comp == &bt_copy_convoi  ) {
-			if(  cnv.is_bound()  ) {
+			if(  cnv.is_bound() && cnv->all_vehicles_are_buildable() ) {
 				if(  !welt->use_timeline()  ||  welt->get_settings().get_allow_buying_obsolete_vehicles()  ||  depot->check_obsolete_inventory( cnv )  ) {
 					depot->call_depot_tool('c', cnv, NULL, gui_convoy_assembler_t::get_livery_scheme_index());
 				}
