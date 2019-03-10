@@ -5775,6 +5775,5 @@ void stadt_t::add_city_factory(fabrik_t *fab)
 
 void stadt_t::remove_city_factory(fabrik_t *fab)
 {
-	update_city_stats_with_building(fab->get_building()->access_first_tile(), true);
 	city_factories.remove(fab);
 }
