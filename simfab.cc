@@ -1033,7 +1033,7 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 		const sint64 available_jobs_by_time = building->get_available_jobs_by_time();
 		const uint16 passengers_succeeded_visiting = building->get_passengers_succeeded_visiting();
 		const uint16 passengers_succeeded_visiting_last_year = building->get_passenger_success_percent_last_year_visiting();
-		const uint16 passengers_succeeded_commuting = building->get_passenger_success_percent_this_year_commuting();
+		const uint16 passengers_succeeded_commuting = building->get_passengers_succeeded_commuting();
 		const uint16 passengers_succeeded_commuting_last_year = building->get_passenger_success_percent_last_year_commuting();
 		const uint16 adjusted_jobs = building->get_adjusted_jobs();
 		const uint16 adjusted_visitor_demand = building->get_adjusted_visitor_demand();
