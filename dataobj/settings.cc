@@ -255,6 +255,8 @@ settings_t::settings_t() :
 	cst_depot_road=-130000;
 	cst_depot_ship=-250000;
 	cst_depot_air=-500000;
+	allow_merge_distant_halt = false;
+	cst_multiply_merge_halt=-50000;
 	// alter landscape
 	cst_buy_land=-10000;
 	cst_alter_land=-100000;
@@ -644,6 +646,10 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_longlong(cst_make_public_months);
 			}
 
+			if(  file->get_version() > 120008  ) {
+				file->rdwr_longlong(cst_multiply_merge_halt);
+			}
+
 			// wayfinder
 			file->rdwr_long(way_count_straight );
 			file->rdwr_long(way_count_curve );
@@ -821,6 +827,9 @@ void settings_t::rdwr(loadsave_t *file)
 		if(  file->get_version() > 120006  ) {
 			file->rdwr_byte(world_maximum_height);
 			file->rdwr_byte(world_minimum_height);
+		}
+		if(  file->get_version() > 120008  ) {
+			file->rdwr_bool(allow_merge_distant_halt);
 		}
 		// otherwise the default values of the last one will be used
 	}
@@ -1347,6 +1356,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	cst_depot_rail = contents.get_int64("cost_depot_rail", cst_depot_rail/(-100) ) * -100;
 	cst_depot_road = contents.get_int64("cost_depot_road", cst_depot_road/(-100) ) * -100;
 	cst_depot_ship = contents.get_int64("cost_depot_ship", cst_depot_ship/(-100) ) * -100;
+
+	allow_merge_distant_halt = contents.get_int("allow_merge_distant_halt", allow_merge_distant_halt) != 0;
+	cst_multiply_merge_halt = contents.get_int64("cost_multiply_merge_halt", cst_multiply_merge_halt/(-100) ) * -100;
 
 	// alter landscape
 	cst_buy_land = contents.get_int64("cost_buy_land", cst_buy_land/(-100) ) * -100;

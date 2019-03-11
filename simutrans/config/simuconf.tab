@@ -429,6 +429,12 @@ toll_waycost_percentage = 0
 #cost_depot_road=1300
 #cost_depot_ship=2500
 
+# if allowed, you can merge station from outside of the station coverage
+#allow_merge_distant_halt=1
+
+# the cost to merge stations: the actual cost is (cost*2^distance)
+#cost_multiply_merge_halt=700
+
 # other way related stuff
 #cost_signal=500
 #cost_tunnel=10000
