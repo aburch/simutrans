@@ -56,7 +56,7 @@ public:
 	 * @return string (only used for debug at the moment)
 	 * @author prissi
 	 */
-	void info(cbuffer_t & buf) const OVERRIDE { logic->info(buf); }
+	void info(cbuffer_t & buf) const OVERRIDE;
 
 	/**
 	 * @return NULL when OK, otherwise an error message

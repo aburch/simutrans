@@ -51,12 +51,12 @@ SectionEnd
 
 
 
-Section /o "pak.Nippon (64 size) V0.3" pak64nippon
-  AddSize 43790
-  StrCpy $downloadlink "http://github.com/wa-st/pak-nippon/releases/download/v0.3.0/pak.nippon-v0.3.0.zip"
-  StrCpy $archievename "pak.nippon-v0.3.0.zip"
+Section /o "pak.Nippon (64 size) V0.4" pak64nippon
+  AddSize 44154
+  StrCpy $downloadlink "http://github.com/wa-st/pak-nippon/releases/download/v0.4.0/pak.nippon-v0.4.0.zip"
+  StrCpy $archievename "pak.nippon-v0.4.0.zip"
   StrCpy $downloadname "pak.nippon"
-  StrCpy $VersionString "pak.nippon v0.3.0"
+  StrCpy $VersionString "pak.nippon v0.4.0"
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
@@ -140,12 +140,12 @@ SectionEnd
 
 
 
-Section /o "pak128 V2.8" pak128
-  AddSize 412287
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20120.4%20%282.8%2C%20priority%20signals%29/pak128.zip"
+Section /o "pak128 V2.8.1" pak128
+  AddSize 413056
+  StrCpy $downloadlink "https://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20120.4.1%20%282.8.1%2C%20priority%20signals%20%2B%20bugfix%29/pak128.zip"
   StrCpy $archievename "pak128.zip"
   StrCpy $downloadname "pak128"
-  StrCpy $VersionString "Pak128 2.8"
+  StrCpy $VersionString "Pak128 2.8.1"
   Call DownloadInstallZip
 SectionEnd
 
@@ -162,12 +162,12 @@ SectionEnd
 
 
 
-Section "pak128.German V10.4 for 120.x" pak128german
-  AddSize 243304
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_0.10.x_for_ST_120.x/PAK128.german_0.10.4_for_ST_120.x.zip"
-  StrCpy $archievename "PAK128.german_0.10.4_for_ST_120.x.zip"
+Section "pak128.German V1.0" pak128german
+  AddSize 287642
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_1.0_for_ST_120.x/PAK128.german_1.0_for_ST_120.x.zip"
+  StrCpy $archievename "PAK128.german_1.0_for_ST_120.x.zip"
   StrCpy $downloadname "pak128.German"
-  StrCpy $VersionString "  PAK128.german V 0.10.4 (Rev. 2135)"
+  StrCpy $VersionString "  PAK128.german V 1.0 (Rev. 156)"
   Call DownloadInstallZip
 SectionEnd
 

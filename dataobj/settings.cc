@@ -255,7 +255,7 @@ settings_t::settings_t() :
 	cst_depot_road=-130000;
 	cst_depot_ship=-250000;
 	cst_depot_air=-500000;
-	allow_merge_distant_halt = true;
+	allow_merge_distant_halt = false;
 	cst_multiply_merge_halt=-50000;
 	// alter landscape
 	cst_buy_land=-10000;
@@ -655,9 +655,10 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_longlong(cst_make_public_months);
 			}
 
-			if(  file->get_OTRP_version() >= 21  ) {
+			if(  file->get_version() > 120008  ||  file->get_OTRP_version() >= 21  ) {
 				file->rdwr_longlong(cst_multiply_merge_halt);
 			}
+
 			// wayfinder
 			file->rdwr_long(way_count_straight );
 			file->rdwr_long(way_count_curve );
@@ -851,6 +852,9 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(advance_to_end);
 		}
 		if(  file->get_OTRP_version() >= 21  ) {
+			file->rdwr_bool(allow_merge_distant_halt);
+		}
+		if(  file->get_version() > 120008  ) {
 			file->rdwr_bool(allow_merge_distant_halt);
 		}
 		// otherwise the default values of the last one will be used

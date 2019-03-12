@@ -222,6 +222,11 @@ void roadsign_t::info(cbuffer_t & buf) const
 			buf.printf("%s(%d,%d,%d)\n", translator::translate("intersection:"), intersection_pos.x,intersection_pos.y,intersection_pos.z);
 		}
 	}
+
+	if (char const* const maker = desc->get_copyright()) {
+		buf.append("\n");
+		buf.printf(translator::translate("Constructed by %s"), maker);
+	}
 }
 
 

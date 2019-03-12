@@ -171,15 +171,29 @@ void fabrik_info_t::init(fabrik_t* fab_, const gebaeude_t* gb)
 
 	// factory description in tab
 	{
-		// Hajo: "About" button only if translation is available
+		bool add_tab = false;
+		details_buf.clear();
+
+		// factory details
 		char key[256];
 		sprintf(key, "factory_%s_details", fab->get_desc()->get_name());
 		const char * value = translator::translate(key);
 		if(value && *value != 'f') {
+			details_buf.append(value);
+			add_tab = true;
+		}
+
+		if (char const* const maker = fab->get_desc()->get_copyright()) {
+			details_buf.append("<p>");
+			details_buf.printf(translator::translate("Constructed by %s"), maker);
+			add_tab = true;
+		}
+
+		if (add_tab) {
 			switch_mode.add_tab(&container_details, translator::translate("Details"));
 			container_details.set_table_layout(1,0);
 			gui_flowtext_t* f = container_details.new_component<gui_flowtext_t>();
-			f->set_text(value);
+			f->set_text( (const char*)details_buf);
 		}
 	}
 	reset_min_windowsize();

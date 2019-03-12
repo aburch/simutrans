@@ -1410,6 +1410,10 @@ void private_car_t::calc_current_speed(grund_t* gr, uint32 delta)
 void private_car_t::info(cbuffer_t & buf) const
 {
 	buf.printf(translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(desc->get_name()), speed_to_kmh(current_speed), speed_to_kmh(desc->get_topspeed()), dx, dy);
+
+	if (char const* const maker = desc->get_copyright()) {
+		buf.printf(translator::translate("Constructed by %s"), maker);
+	}
 }
 
 

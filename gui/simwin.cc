@@ -401,7 +401,7 @@ void save_windowsize(simwin_t *win)
 {
 	ptrdiff_t magic = guess_magic_number(win);
 	if (magic != magic_none) {
-		saved_windowsizes.put(magic, win->gui->get_windowsize() );
+		saved_windowsizes.set(magic, win->gui->get_windowsize() );
 	}
 }
 
@@ -722,7 +722,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 
 		// restore windowsize
 		scr_size stored = get_stored_windowsize(&win);
-		if (stored != scr_size()) {
+		if (stored != gui->get_windowsize()) {
 			// send tailored resize event
 			scr_size delta = stored - gui->get_windowsize();
 			event_t wev;
