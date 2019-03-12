@@ -1155,7 +1155,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 		if (build_locations.empty()) {
 			radius++;
 		}
-	} while (radius < 10 && build_locations.empty());
+	} while (radius <= 128 && build_locations.empty());
 	// built on one of the positions
 	if (!build_locations.empty()) {
 		grund_t *gr = build_locations.at(simrand(build_locations.get_count(), "bool fabrik_t::add_random_field"));
