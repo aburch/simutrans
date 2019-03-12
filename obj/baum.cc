@@ -610,6 +610,11 @@ void baum_t::info(cbuffer_t & buf) const
 	buf.append( "\n" );
 	uint32 age = get_age();
 	buf.printf( translator::translate("%i years %i months old."), age/12, (age%12) );
+
+	if (char const* const maker = get_desc()->get_copyright()) {
+		buf.append("\n\n");
+		buf.printf(translator::translate("Constructed by %s"), maker);
+	}
 }
 
 

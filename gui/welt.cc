@@ -472,6 +472,8 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		sets->heightfield = "";
 		load_relief_frame_t* lrf = new load_relief_frame_t(sets);
 		create_win((display_get_width() - lrf->get_windowsize().w-10), 40, lrf, w_info, magic_load_t );
+		create_win(lrf, w_info, magic_load_t );
+		win_set_pos(lrf, (display_get_width() - lrf->get_windowsize().w-10), env_t::iconsize.h);
 		knr = sets->get_map_number();	// otherwise using cancel would not show the normal generated map again
 	}
 	else if(komp==&use_intro_dates) {

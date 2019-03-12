@@ -71,7 +71,7 @@
 #if CXX11(4, 7, 1400)
 #	define OVERRIDE override
 #else
-#	error "Override required!"
+#	define OVERRIDE
 #endif
 
 #define ENUM_BITSET(T) \

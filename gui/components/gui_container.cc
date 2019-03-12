@@ -53,7 +53,7 @@ void gui_container_t::remove_component(gui_component_t *comp)
 	/* since we can remove a subcomponent,
 	 * that actually contains the element with focus
 	 */
-	if(  comp_focus == comp->get_focus()  ) {
+	if(  comp_focus == comp  ||  comp_focus == comp->get_focus()  ) {
 		comp_focus = NULL;
 	}
 	components.remove(comp);

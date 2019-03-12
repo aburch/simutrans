@@ -427,7 +427,9 @@ public:
 	// just for info so far
 	sint64 calc_maintenance() const;
 
-	void make_public_and_join( player_t *player );
+	void merge_halt( halthandle_t halt_to_join );
+
+	void change_owner( player_t *player );
 
 	vector_tpl<connection_t> const& get_pax_connections()  const { return all_links[goods_manager_t::INDEX_PAS].connections;  }
 	vector_tpl<connection_t> const& get_mail_connections() const { return all_links[goods_manager_t::INDEX_MAIL].connections; }
@@ -594,6 +596,12 @@ public:
 	koord get_init_pos() const { return init_pos; }
 	koord get_basis_pos() const;
 	koord3d get_basis_pos3d() const;
+	
+public:
+	void recalc_basis_pos();
+
+	// returns ground closest to this coordinate
+	grund_t *get_ground_closest_to( const koord here ) const;
 
 	/* return the closest square that belongs to this halt
 	 * @author prissi
@@ -807,6 +815,10 @@ public:
 	 */
 	static void init_markers();
 
+	/*
+	 * check if it is in the station coverage
+	 */
+	bool is_halt_covered (const halthandle_t &halt) const;
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)
