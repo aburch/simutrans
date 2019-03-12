@@ -986,17 +986,11 @@ void senke_t::step(uint32 delta_t)
 			adjusted_power_load = ((municipal_power_load>>POWER_TO_MW) * load_proportion) / 100;
 			adjusted_power_demand = (municipal_power_demand>>POWER_TO_MW) * (load_proportion * load_proportion) / 10000;
 		}
-		else if(municipal_power_demand / KW_DIVIDER)
+		else
 		{
 			// Smaller amounts of power: measure in kW
 			adjusted_power_load = ((municipal_power_load / KW_DIVIDER) * load_proportion) / 100;
 			adjusted_power_demand = (municipal_power_demand / KW_DIVIDER) * (load_proportion * load_proportion) / 10000;
-		}
-		else
-		{
-			// Very small amounts of power: measure in W * 10
-			adjusted_power_load = ((municipal_power_load / DIVIDER_10W) * load_proportion) / 100;
-			adjusted_power_demand = (municipal_power_demand / DIVIDER_10W) * (load_proportion * load_proportion) / 10000;
 		}
 
 		city->add_power(adjusted_power_load);
