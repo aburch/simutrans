@@ -17,15 +17,15 @@ You should try OTRP because...
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitter hash tag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
-As of version 21, OTRP is based on simutrans standard nightly r8694.
+As of version 21_1, OTRP is based on simutrans standard nightly r8716.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.  
 
-You can download the OTRP executable binary from the links below. **(2019 February 26th, updated to ver 21.)**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/70676/sim-WinGDI-OTRPv21.exe/  
-mac: https://osdn.net/projects/otrp/downloads/70676/sim-mac-OTRPv21.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/70676/sim-linux-OTRPv21.zip/  
+You can download the OTRP executable binary from the links below. **(2019 March 12th, updated to ver 21_1.)**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/70742/sim-WinGDI-OTRPv21_1.exe/  
+mac: https://osdn.net/projects/otrp/downloads/70742/sim-mac-OTRPv21_1.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/70742/sim-linux-OTRPv21_1.zip/  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 There is no special makeobj for OTRP. Please one of the simutrans standard.
@@ -89,7 +89,6 @@ In OTRP, you can specify the direction from which vehicles can enter the tile. F
 - The overlaying warning of addon names is disabled in OTRP. The warning will be shown when simutrans is launched with **-showoverlay** option or is launched as a server.
 - In OTRP, a longblocksignal reserves all tiles that are checked. In other words, a longblocksignal reserves exactly till the next signal, exceeding the end of the route. This is a prior implementation of a feature that is discussed in the simutrans international forum.
 - with `-snapshot x,y,z,f` option, simutrans takes a snapshot and immediately quits. x, y, and z are the central coordinate, and f is zoom factor which takes a value from 0 to 9.
-- general_tool[41] is merge_halt_tool. If you select two stations with this tool, the stations are merged into one same station. The cost of this operation depends on the distance between two stations. (Implemented by HyperSim)
 
 # Parameters of OTRP
 Most of these are stored in the game.
