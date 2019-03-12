@@ -229,7 +229,7 @@ koord3d haltestelle_t::get_basis_pos3d() const
 
 
 // returns tile closest to this coordinate
-grund_t *haltestelle_t::get_ground_closest_to( const koord here )
+grund_t *haltestelle_t::get_ground_closest_to( const koord here ) const
 {
 	uint32 distance = 0x7FFFFFFFu;
 	grund_t *closest = NULL;
@@ -238,10 +238,26 @@ grund_t *haltestelle_t::get_ground_closest_to( const koord here )
 		if(  dist < distance  ) {
 			distance = dist;
 			closest = i.grund;
+			if(  distance == 0  ) {
+				break;
+			}
 		}
 	}
 
 	return closest;
+}
+
+
+
+/* return the closest square that belongs to this halt
+ * @author prissi
+ */
+koord haltestelle_t::get_next_pos( koord start ) const
+{
+	if(  grund_t *gr=get_ground_closest_to(start)  ) {
+		return gr->get_pos().get_2d();
+	}
+	return koord::invalid;
 }
 
 
@@ -265,8 +281,8 @@ void haltestelle_t::recalc_basis_pos()
 
 	if ( level_sum > 0 ) {
 		grund_t *new_center = get_ground_closest_to( cent/level_sum );
-		if(  new_center != tiles.front().grund  ) {
-			// have to move the name to this koordnate
+		if(  new_center != tiles.front().grund  &&  new_center->get_text()==NULL  ) {
+			// move the name to new center, if there is not yet a name on it
 			new_center->set_text( tiles.front().grund->get_text() );
 			tiles.front().grund->set_text(NULL);
 			tiles.remove( new_center );
@@ -3243,31 +3259,6 @@ bool haltestelle_t::existiert_in_welt() const
 {
 	return !tiles.empty();
 }
-
-
-/* return the closest square that belongs to this halt
- * @author prissi
- */
-koord haltestelle_t::get_next_pos( koord start ) const
-{
-	koord find = koord::invalid;
-
-	if (!tiles.empty()) {
-		// find the closest one
-		int	dist = 0x7FFF;
-		FOR(slist_tpl<tile_t>, const& i, tiles) {
-			koord const p = i.grund->get_pos().get_2d();
-			int d = koord_distance(start, p );
-			if(d<dist) {
-				// ok, this one is closer
-				dist = d;
-				find = p;
-			}
-		}
-	}
-	return find;
-}
-
 
 
 /* marks a coverage area

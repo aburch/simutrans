@@ -219,9 +219,6 @@ public:
 
 	const slist_tpl<tile_t> &get_tiles() const { return tiles; };
 
-	// returns ground closest to this coordinate
-	grund_t *get_ground_closest_to( const koord here );
-
 	/**
 	 * directly reachable halt with its connection weight
 	 * @author Knightly
@@ -602,6 +599,9 @@ public:
 	
 public:
 	void recalc_basis_pos();
+
+	// returns ground closest to this coordinate
+	grund_t *get_ground_closest_to( const koord here ) const;
 
 	/* return the closest square that belongs to this halt
 	 * @author prissi
