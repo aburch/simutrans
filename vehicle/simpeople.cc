@@ -14,6 +14,8 @@
 #include "../utils/simrandom.h"
 #include "../boden/grund.h"
 #include "../dataobj/loadsave.h"
+#include "../dataobj/translator.h"
+#include "../utils/cbuffer_t.h"
 
 #include "simpeople.h"
 #include "../descriptor/pedestrian_desc.h"
@@ -344,3 +346,13 @@ void pedestrian_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_
 	}
 }
 
+
+void pedestrian_t::info(cbuffer_t & buf) const
+{
+	char const* const owner = translator::translate("Kein Besitzer\n");
+	buf.append(owner);
+
+	if (char const* const maker = get_desc()->get_copyright()) {
+		buf.printf(translator::translate("Constructed by %s"), maker);
+	}
+}

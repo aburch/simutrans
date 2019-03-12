@@ -284,7 +284,7 @@ void savegame_frame_t::list_filled( void )
 {
 	uint cols = (delete_enabled ? 1 : 0) + 1 + (label_enabled ? 1 : 0);
 	button_frame.set_table_layout(1,0);
-	button_frame.add_table(cols,0)->set_spacing(scr_size(0,0));
+	button_frame.add_table(cols,0);
 
 	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 		button_t*    const delete_button = i.del;

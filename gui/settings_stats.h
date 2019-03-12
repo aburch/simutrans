@@ -31,6 +31,9 @@ class settings_t;
 // call this before any init is done ...
 #define INIT_INIT \
 	new_world = (win_get_magic( magic_welt_gui_t )!=NULL);\
+	numinp.clear(); \
+	button.clear(); \
+	remove_all(); \
 	set_table_layout(1,0); \
 	add_table(2,0);
 
