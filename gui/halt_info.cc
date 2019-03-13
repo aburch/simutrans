@@ -74,7 +74,7 @@ public:
 	// if nothing changed, this is the next refresh to recalculate the content of the departure board
 	sint8 next_refresh;
 
-	gui_departure_board_t(halthandle_t h) : gui_aligned_container_t()
+	gui_departure_board_t() : gui_aligned_container_t()
 	{
 		next_refresh = -1;
 		set_table_layout(3,0);
@@ -270,7 +270,7 @@ void gui_halt_type_images_t::draw(scr_coord offset)
 // main class
 halt_info_t::halt_info_t(halthandle_t halt) :
 		gui_frame_t("", NULL),
-		departure_board( new gui_departure_board_t(halt)),
+		departure_board( new gui_departure_board_t()),
 		halt_detail( new gui_halt_detail_t(halt)),
 		text_freight(&freight_info),
 		scrolly_freight(&container_freight, true, true),
