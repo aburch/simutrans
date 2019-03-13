@@ -159,15 +159,18 @@ private:
 	}
 
 public:
-	halthandle_t halt;
 	uint8 destination_counter;	// last destination counter of the halt; if mismatch to current, then redraw destinations
 
-	gui_halt_detail_t(halthandle_t h) : gui_aligned_container_t() { init(h); }
-
-	void init(halthandle_t h);
+	gui_halt_detail_t(halthandle_t h) : gui_aligned_container_t()
+	{
+		destination_counter = 0xFF;
+		cached_line_count = 0xFFFFFFFFul;
+		cached_convoy_count = 0xFFFFFFFFul;
+		update_connections(h);
+	}
 
 	// will update if schedule or connection changed
-	void update();
+	void update_connections(halthandle_t h);
 
 	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
 };
@@ -370,7 +373,7 @@ void halt_info_t::init(halthandle_t halt)
 
 	// connection info
 	switch_mode.add_tab(&scrolly_details, translator::translate("Connections"));
-	halt_detail->update();
+	halt_detail->update_connections(halt);
 	halt_detail->set_size( halt_detail->get_min_size() );
 
 	// chart
@@ -470,7 +473,7 @@ void halt_info_t::update_components()
 		departure_board->update_departures(halt);
 	}
 	if (switch_mode.get_aktives_tab() == &scrolly_details) {
-		halt_detail->update();
+		halt_detail->update_connections(halt);
 	}
 	set_dirty();
 }
@@ -492,20 +495,21 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 }
 
 
-void gui_halt_detail_t::init( halthandle_t h )
+void gui_halt_detail_t::update_connections( halthandle_t halt )
 {
 	if(  !halt.is_bound()  ) {
-		// first call
-		destination_counter = 0xFF;
-		cached_line_count = 0xFFFFFFFFul;
-		cached_convoy_count = 0xFFFFFFFFul;
-	}
-
-	halt = h;
-	if (!h.is_bound()) {
+		// first call, or invalid handle
+		remove_all();
 		return;
 	}
 
+	if(  halt->get_reconnect_counter()==destination_counter  &&
+		 halt->registered_lines.get_count()==cached_line_count  &&  halt->registered_convoys.get_count()!=cached_convoy_count  ) {
+		// all current, so do nothing
+		return;
+	}
+
+	// update connections from here
 	remove_all();
 
 	const slist_tpl<fabrik_t *> & fab_list = halt->get_fab_list();
@@ -648,19 +652,9 @@ void gui_halt_detail_t::init( halthandle_t h )
 	destination_counter = halt->get_reconnect_counter();
 	cached_line_count = halt->registered_lines.get_count();
 	cached_convoy_count = halt->registered_convoys.get_count();
-}
 
-void gui_halt_detail_t::update()
-{
-	if(halt.is_bound()) {
-		if(  halt->get_reconnect_counter()!=destination_counter
-				||  halt->registered_lines.get_count()!=cached_line_count  ||  halt->registered_convoys.get_count()!=cached_convoy_count  ) {
-			// fill buffer with halt detail
-			init(halt);
-		}
-	}
+	set_size( get_min_size() );
 }
-
 
 
 // a sophisticated guess of a convois arrival time, taking into account the braking too and the current convoi state
