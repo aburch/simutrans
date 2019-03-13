@@ -10,7 +10,6 @@
  * @author Hj. Malthaner
  */
 
-#include "halt_detail.h"
 #include "halt_info.h"
 #include "components/gui_button_to_chart.h"
 
@@ -18,6 +17,7 @@
 #include "../simware.h"
 #include "../simcolor.h"
 #include "../simconvoi.h"
+#include "../simfab.h"
 #include "../simintr.h"
 #include "../display/simgraph.h"
 #include "../display/viewport.h"
@@ -32,6 +32,8 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 
+#include "../player/simplay.h"
+
 #include "../vehicle/simvehicle.h"
 
 #include "../utils/simstring.h"
@@ -41,22 +43,22 @@
 
 #define CHART_HEIGHT (100)
 
-// helper class to compute departure board
-class dest_info_t {
-public:
-	bool compare( const dest_info_t &other ) const;
-	halthandle_t halt;
-	sint32 delta_ticks;
-	convoihandle_t cnv;
-
-	dest_info_t() : delta_ticks(0) {}
-	dest_info_t( halthandle_t h, sint32 d_t, convoihandle_t c) : halt(h), delta_ticks(d_t), cnv(c) {}
-	bool operator == (const dest_info_t &other) const { return ( this->cnv==other.cnv ); }
-};
-
 // class to compute and fill the departure board
 class gui_departure_board_t : public gui_aligned_container_t
 {
+	// helper class to compute departure board
+	class dest_info_t {
+	public:
+		bool compare( const dest_info_t &other ) const;
+		halthandle_t halt;
+		sint32 delta_ticks;
+		convoihandle_t cnv;
+
+		dest_info_t() : delta_ticks(0) {}
+		dest_info_t( halthandle_t h, sint32 d_t, convoihandle_t c) : halt(h), delta_ticks(d_t), cnv(c) {}
+		bool operator == (const dest_info_t &other) const { return ( this->cnv==other.cnv ); }
+	};
+
 	static bool compare_hi(const dest_info_t &a, const dest_info_t &b) { return a.delta_ticks <= b.delta_ticks; }
 	static karte_ptr_t welt;
 
@@ -66,23 +68,112 @@ class gui_departure_board_t : public gui_aligned_container_t
 	uint32 calc_ticks_until_arrival( convoihandle_t cnv );
 
 	void insert_image(convoihandle_t cnv);
+
 public:
-	halthandle_t halt;
 
 	// if nothing changed, this is the next refresh to recalculate the content of the departure board
 	sint8 next_refresh;
 
-	gui_departure_board_t() : gui_aligned_container_t()
+	gui_departure_board_t(halthandle_t h) : gui_aligned_container_t()
 	{
 		next_refresh = -1;
 		set_table_layout(3,0);
 	}
 
-	void update_departures();
+	void update_departures(halthandle_t halt);
 
 	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
 };
+
+// all connections
+class gui_halt_detail_t : public gui_aligned_container_t
+{
+	/**
+	 * Button to open line window
+	 */
+	class gui_line_button_t : public button_t, public action_listener_t
+	{
+		static karte_ptr_t welt;
+		linehandle_t line;
+	public:
+		gui_line_button_t(linehandle_t line) : button_t()
+		{
+			this->line = line;
+			init(button_t::posbutton, NULL);
+			add_listener(this);
+		}
+
+		bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE
+		{
+			player_t *player = welt->get_active_player();
+			if(  player == line->get_owner()  ) {
+				player->simlinemgmt.show_lineinfo(player, line);
+			}
+			return true;
+		}
+
+		void draw(scr_coord offset) OVERRIDE
+		{
+			if (line->get_owner() == welt->get_active_player()) {
+				button_t::draw(offset);
+			}
+		}
+	};
+
+	/**
+	 * Button to open convoi window
+	 */
+	class gui_convoi_button_t : public button_t, public action_listener_t
+	{
+		convoihandle_t convoi;
+	public:
+		gui_convoi_button_t(convoihandle_t convoi) : button_t() {
+			this->convoi = convoi;
+			init(button_t::posbutton, NULL);
+			add_listener(this);
+		}
+
+		bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE {
+			convoi->open_info_window();
+			return true;
+		}
+	};
+
+private:
+	static bool compare_connection(haltestelle_t::connection_t const& a, haltestelle_t::connection_t const& b)
+	{
+		return strcmp(a.halt->get_name(), b.halt->get_name()) <=0;
+	}
+
+	uint32 cached_line_count;
+	uint32 cached_convoy_count;
+
+	void insert_empty_row() {
+		new_component<gui_label_t>("     ");
+		new_component<gui_empty_t>();
+	}
+
+	void insert_show_nothing() {
+		new_component<gui_empty_t>();
+		new_component<gui_label_t>("keine");
+	}
+
+public:
+	halthandle_t halt;
+	uint8 destination_counter;	// last destination counter of the halt; if mismatch to current, then redraw destinations
+
+	gui_halt_detail_t(halthandle_t h) : gui_aligned_container_t() { init(h); }
+
+	void init(halthandle_t h);
+
+	// will update if schedule or connection changed
+	void update();
+
+	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
+};
+
 karte_ptr_t gui_departure_board_t::welt;
+karte_ptr_t gui_halt_detail_t::gui_line_button_t::welt;
 
 
 static const char *sort_text[4] = {
@@ -176,10 +267,12 @@ void gui_halt_type_images_t::draw(scr_coord offset)
 // main class
 halt_info_t::halt_info_t(halthandle_t halt) :
 		gui_frame_t("", NULL),
-		departure_board( new gui_departure_board_t()),
+		departure_board( new gui_departure_board_t(halt)),
+		halt_detail( new gui_halt_detail_t(halt)),
 		text_freight(&freight_info),
 		scrolly_freight(&container_freight, true, true),
 		scrolly_departure(departure_board, true, true),
+		scrolly_details(halt_detail, true, true),
 		view(koord3d::invalid, scr_size(max(64, get_base_tile_raster_width()), max(56, get_base_tile_raster_width() * 7 / 8)))
 {
 	if (halt.is_bound()) {
@@ -205,11 +298,6 @@ void halt_info_t::init(halthandle_t halt)
 		input.set_text(edit_name, lengthof(edit_name));
 		input.add_listener(this);
 		add_component(&input);
-
-		button.init(button_t::roundbox, "Details");
-		button.set_tooltip("Open station/stop details");
-		button.add_listener(this);
-		add_component(&button);
 
 		container_top = add_table(1,0);
 		{
@@ -277,10 +365,13 @@ void halt_info_t::init(halthandle_t halt)
 
 	// departure board
 	switch_mode.add_tab(&scrolly_departure, translator::translate("Departure board"));
-	departure_board->next_refresh = -1;
-	departure_board->halt = halt;
-	departure_board->update_departures();
+	departure_board->update_departures(halt);
 	departure_board->set_size( departure_board->get_min_size() );
+
+	// connection info
+	switch_mode.add_tab(&scrolly_details, translator::translate("Connections"));
+	halt_detail->update();
+	halt_detail->set_size( halt_detail->get_min_size() );
 
 	// chart
 	switch_mode.add_tab(&container_chart, translator::translate("Chart"));
@@ -324,6 +415,7 @@ halt_info_t::~halt_info_t()
 		delete tool;
 	}
 	delete departure_board;
+	delete halt_detail;
 }
 
 
@@ -375,7 +467,10 @@ void halt_info_t::update_components()
 	}
 
 	if (switch_mode.get_aktives_tab() == &scrolly_departure) {
-		departure_board->update_departures();
+		departure_board->update_departures(halt);
+	}
+	if (switch_mode.get_aktives_tab() == &scrolly_details) {
+		halt_detail->update();
 	}
 	set_dirty();
 }
@@ -395,6 +490,177 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 
 	gui_frame_t::draw(pos, size);
 }
+
+
+void gui_halt_detail_t::init( halthandle_t h )
+{
+	if(  !halt.is_bound()  ) {
+		// first call
+		destination_counter = 0xFF;
+		cached_line_count = 0xFFFFFFFFul;
+		cached_convoy_count = 0xFFFFFFFFul;
+	}
+
+	halt = h;
+	if (!h.is_bound()) {
+		return;
+	}
+
+	remove_all();
+
+	const slist_tpl<fabrik_t *> & fab_list = halt->get_fab_list();
+	slist_tpl<const goods_desc_t *> nimmt_an;
+
+	set_table_layout(2,0);
+	new_component_span<gui_label_t>("Fabrikanschluss", 2);
+
+	if (!fab_list.empty()) {
+		FOR(slist_tpl<fabrik_t*>, const fab, fab_list) {
+			const koord pos = fab->get_pos().get_2d();
+
+			// target button ...
+			button_t *pb = new_component<button_t>();
+			pb->init( button_t::posbutton_automatic, NULL);
+			pb->set_targetpos( pos );
+
+			// .. name
+			gui_label_buf_t *lb = new_component<gui_label_buf_t>();
+			lb->buf().printf("%s (%d, %d)\n", translator::translate(fab->get_name()), pos.x, pos.y);
+			lb->update();
+
+			FOR(array_tpl<ware_production_t>, const& i, fab->get_input()) {
+				goods_desc_t const* const ware = i.get_typ();
+				if(!nimmt_an.is_contained(ware)) {
+					nimmt_an.append(ware);
+				}
+			}
+		}
+	}
+	else {
+		insert_show_nothing();
+	}
+
+	insert_empty_row();
+	new_component_span<gui_label_t>("Angenommene Waren", 2);
+
+	if (!nimmt_an.empty()  &&  halt->get_ware_enabled()) {
+		for(uint32 i=0; i<goods_manager_t::get_count(); i++) {
+			const goods_desc_t *ware = goods_manager_t::get_info(i);
+			if(nimmt_an.is_contained(ware)) {
+
+				new_component<gui_empty_t>();
+				new_component<gui_label_t>(ware->get_name());
+			}
+		}
+	}
+	else {
+		insert_show_nothing();
+	}
+
+	insert_empty_row();
+	// add lines that serve this stop
+	new_component_span<gui_label_t>("Lines serving this stop", 2);
+
+	if(  !halt->registered_lines.empty()  ) {
+		for (unsigned int i = 0; i<halt->registered_lines.get_count(); i++) {
+
+			linehandle_t line = halt->registered_lines[i];
+			new_component<gui_line_button_t>(line);
+
+			// Line labels with color of player
+			gui_label_buf_t *lb = new_component<gui_label_buf_t>(PLAYER_FLAG | color_idx_to_rgb(line->get_owner()->get_player_color1()) );
+			lb->buf().append( line->get_name() );
+			lb->update();
+		}
+	}
+	else {
+		insert_show_nothing();
+	}
+
+	insert_empty_row();
+	// Knightly : add lineless convoys which serve this stop
+	new_component_span<gui_label_t>("Lineless convoys serving this stop", 2);
+	if(  !halt->registered_convoys.empty()  ) {
+		for(  uint32 i=0;  i<halt->registered_convoys.get_count();  ++i  ) {
+
+			convoihandle_t cnv = halt->registered_convoys[i];
+			// Convoy buttons
+			new_component<gui_convoi_button_t>(cnv);
+
+			// Line labels with color of player
+			gui_label_buf_t *lb = new_component<gui_label_buf_t>(PLAYER_FLAG | color_idx_to_rgb(cnv->get_owner()->get_player_color1()) );
+			lb->buf().append( cnv->get_name() );
+			lb->update();
+		}
+	}
+	else {
+		insert_show_nothing();
+	}
+
+	insert_empty_row();
+	new_component_span<gui_label_t>("Direkt erreichbare Haltestellen", 2);
+
+	bool has_stops = false;
+
+	for (uint i=0; i<goods_manager_t::get_max_catg_index(); i++){
+		vector_tpl<haltestelle_t::connection_t> const& connections = halt->get_connections(i);
+		if(  !connections.empty()  ) {
+
+			gui_label_buf_t *lb = new_component_span<gui_label_buf_t>(2);
+			lb->buf().append(" ·");
+			const goods_desc_t* info = goods_manager_t::get_info_catg_index(i);
+			// If it is a special freight, we display the name of the good, otherwise the name of the category.
+			lb->buf().append(translator::translate(info->get_catg()==0 ? info->get_name() : info->get_catg_name() ) );
+#if MSG_LEVEL>=4
+			if(  halt->is_transfer(i)  ) {
+				lb->buf().append("*");
+			}
+#endif
+			lb->buf().append(":\n");
+			lb->update();
+
+			vector_tpl<haltestelle_t::connection_t> sorted;
+			FOR(vector_tpl<haltestelle_t::connection_t>, const& conn, connections) {
+				if(  conn.halt.is_bound()  ) {
+					sorted.insert_unique_ordered(conn, gui_halt_detail_t::compare_connection);
+				}
+			}
+			FOR(vector_tpl<haltestelle_t::connection_t>, const& conn, sorted) {
+
+				has_stops = true;
+
+				button_t *pb = new_component<button_t>();
+				pb->init( button_t::posbutton_automatic, NULL);
+				pb->set_targetpos( conn.halt->get_basis_pos() );
+
+				gui_label_buf_t *lb = new_component<gui_label_buf_t>();
+				lb->buf().printf("%s <%u>", conn.halt->get_name(), conn.weight);
+				lb->update();
+			}
+		}
+	}
+
+	if (!has_stops) {
+		insert_show_nothing();
+	}
+
+	// ok, we have now this counter for pending updates
+	destination_counter = halt->get_reconnect_counter();
+	cached_line_count = halt->registered_lines.get_count();
+	cached_convoy_count = halt->registered_convoys.get_count();
+}
+
+void gui_halt_detail_t::update()
+{
+	if(halt.is_bound()) {
+		if(  halt->get_reconnect_counter()!=destination_counter
+				||  halt->registered_lines.get_count()!=cached_line_count  ||  halt->registered_convoys.get_count()!=cached_convoy_count  ) {
+			// fill buffer with halt detail
+			init(halt);
+		}
+	}
+}
+
 
 
 // a sophisticated guess of a convois arrival time, taking into account the braking too and the current convoi state
@@ -433,7 +699,7 @@ uint32 gui_departure_board_t::calc_ticks_until_arrival( convoihandle_t cnv )
 
 
 // refreshes the departure string
-void gui_departure_board_t::update_departures()
+void gui_departure_board_t::update_departures(halthandle_t halt)
 {
 	if (!halt.is_bound()) {
 		return;
@@ -608,10 +874,7 @@ void gui_departure_board_t::insert_image(convoihandle_t cnv)
  */
 bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
-	if (comp == &button) { 			// details button pressed
-		create_win( new halt_detail_t(halt), w_info, magic_halt_detail + halt.get_id() );
-	}
-	else if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
+	if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
 		env_t::default_sortmode = ((int)(halt->get_sortby())+1)%4;
 		halt->set_sortby((freight_list_sorter_t::sort_mode_t) env_t::default_sortmode);
 		sort_button.set_text(sort_text[env_t::default_sortmode]);
