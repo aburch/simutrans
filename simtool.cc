@@ -6320,7 +6320,7 @@ image_id tool_merge_stop_t::get_marker_image()
 	return cursor;
 }
 
-uint8 tool_merge_stop_t::is_valid_pos( player_t *player, const koord3d &pos, const char *&error, const koord3d &start )
+uint8 tool_merge_stop_t::is_valid_pos( player_t *player, const koord3d &pos, const char *&error, const koord3d &)
 {
 	grund_t *bd = welt->lookup(pos);
 	if (bd==NULL) {
