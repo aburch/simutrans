@@ -3,9 +3,6 @@
 
 utf32 const UNICODE_NUL = 0;
 
-static inline int is_1byte_seq(utf8 c) { return c<0x80; }	// normal ASCII (equivalent to (c & 0x80) == 0x00)
-static inline int is_2byte_seq(utf8 c) { return (c & 0xE0) == 0xC0; } // 2 Byte sequence, total letter value is 110xxxxx 10yyyyyy => 00000xxx xxyyyyyy
-static inline int is_3byte_seq(utf8 c) { return (c & 0xF0) == 0xE0; }	// 3 Byte sequence, total letter value is 1110xxxx 10yyyyyy 10zzzzzz => xxxxyyyy yyzzzzzz
 static inline int is_cont_char(utf8 c) { return (c & 0xC0) == 0x80; }	// the bytes in a sequence have always the format 10xxxxxx
 
 utf8_decoder_t::utf8_decoder_t(utf8 const *const str)
