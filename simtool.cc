@@ -6413,6 +6413,7 @@ const char *tool_merge_stop_t::do_work( player_t *player, const koord3d &last_po
 
 	// and now just do it ...
 	halt_be_merged_to->merge_halt(halt_be_merged_from);
+	player_t::book_construction_costs( player, workcost, halt_be_merged_to->get_basis_pos(), ignore_wt );
 
 	// nothing to do
 	return NULL;
