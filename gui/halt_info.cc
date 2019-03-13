@@ -294,16 +294,17 @@ void halt_info_t::init(halthandle_t halt)
 	set_table_layout(1,0);
 
 	// top part
-	add_table(2,2)->set_alignment(ALIGN_CENTER_H);
+	add_table(2,1)->set_alignment(ALIGN_CENTER_H);
 	{
-		// input name
-		tstrncpy(edit_name, halt->get_name(), lengthof(edit_name));
-		input.set_text(edit_name, lengthof(edit_name));
-		input.add_listener(this);
-		add_component(&input);
 
 		container_top = add_table(1,0);
 		{
+			// input name
+			tstrncpy(edit_name, halt->get_name(), lengthof(edit_name));
+			input.set_text(edit_name, lengthof(edit_name));
+			input.add_listener(this);
+			add_component(&input, 2);
+
 			// status images
 			add_table(5,1)->set_alignment(ALIGN_CENTER_V);
 			{
@@ -339,8 +340,6 @@ void halt_info_t::init(halthandle_t halt)
 
 		add_component(&view);
 		view.set_location(halt->get_basis_pos3d());
-
-		new_component<gui_empty_t>();
 	}
 	end_table();
 
