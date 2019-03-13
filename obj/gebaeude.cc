@@ -456,7 +456,7 @@ void gebaeude_t::set_fab(fabrik_t *fd)
 		{
 			// We cannot set this until we know what sort of factory that this is.
 			// If it is not an end consumer, do not allow any visitor demand by default.
-			if (fd->is_end_consumer())
+			if (fd->get_sector() == fabrik_t::end_consumer)
 			{
 				people.visitor_demand = tile->get_desc()->get_level() * welt->get_settings().get_visitor_demand_per_level();
 				adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);

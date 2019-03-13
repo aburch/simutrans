@@ -3609,6 +3609,32 @@ The amount of mail which could not find a route to its destination
 郵便物の配達先がここからは配達できない場所であった数
 %d%% delivered : %d%% no route
 配達完了 %d%% : 配達不能 %d%%
+Inactive
+未稼働
+Sector
+産業分野
+Commuters
+通勤者
+Consumers
+消費者
+Storage full
+在庫が一杯です
+Shipment stuck
+生産停止（在庫飽和）
+Material shortage
+資材不足
+No material
+資材／商品がありません
+stop_some_goods_arrival
+一部入荷停止
+Overstocked
+入荷停止（在庫飽和）
+fab_stuck
+生産停止（資材＆在庫飽和）
+Within own network
+自家輸送網内のみ表示
+Show only connected to own transport network
+アクティブプレイヤーの貨物輸送ネットワークに接続されている産業のみを表示します
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

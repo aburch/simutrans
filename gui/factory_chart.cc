@@ -66,22 +66,22 @@ static const gui_chart_t::convert_proc goods_convert[MAX_FAB_GOODS_STAT] =
 static const char *const prod_type[MAX_FAB_STAT] =
 {
 	"Produktion", "Usage/Output",
-	"Electricity", "Passagiere", "Post",
-	"Generated", "Departed", "Arrived",
-	"Generated", "Departed", "Arrived"
+	"Electricity", "Jobs", "Post",
+	"", "", "Commuters", "", "Post",
+	"Post", "Consumers"
 };
 
 static const int prod_color[MAX_FAB_STAT] =
 {
-	COL_LILAC, COL_LEMON_YELLOW,
-	COL_LIGHT_GREEN, 23, COL_LIGHT_PURPLE,
-	COL_LIGHT_TURQUOISE, 51, 49,
-	COL_LIGHT_ORANGE, COL_ORANGE, COL_DARK_ORANGE
+	COL_BROWN, COL_ELECTRICITY - 1,
+	COL_LIGHT_RED, COL_LIGHT_TURQUOISE, COL_ORANGE,
+	0, 0, COL_LIGHT_PURPLE, 0, COL_LIGHT_YELLOW,
+	COL_YELLOW, COL_GREY3
 };
 
 static const gui_chart_t::convert_proc prod_convert[MAX_FAB_STAT] =
 {
-	NULL, convert_power, convert_boost, convert_boost, convert_boost, NULL, NULL, NULL, NULL, NULL, NULL
+	NULL, convert_power, convert_boost, convert_boost, convert_boost, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const gui_chart_t::convert_proc ref_convert[MAX_FAB_REF_LINE] =
@@ -95,19 +95,20 @@ static const koord button_pos[MAX_FAB_STAT] =
 	/* Boost      */  koord(1, 1), koord(2, 1), koord(3, 1),
 	/* Max Boost  */
 	/* Demand     */
-	/* Pax        */  koord(1, 4), koord(2, 4), koord(3, 4),
-	/* Mail       */  koord(1, 5), koord(2, 5), koord(3, 5)
+	/* Commuter   */  koord(2, 5), koord(2, 5), koord(2, 4), // koord(2, 5) = unused
+	/* Mail       */  koord(2, 5), koord(3, 5), koord(3, 4),
+	/* Consumer   */  koord(1, 4)
 };
 
 static const int ref_color[MAX_FAB_REF_LINE] =
 {
-	137, COL_LIGHT_BLUE, COL_LIGHT_RED,
-	COL_DARK_GREEN, 100, 132
+	COL_RED+2, COL_TURQUOISE, COL_ORANGE_RED,
+	COL_RED, COL_DODGER_BLUE, COL_LEMON_YELLOW-2
 };
 
 static const char *const label_text[MAX_PROD_LABEL] =
 {
-	"Power (MW)", "Boost (%)", "Max Boost (%)", "Demand", "Passagiere", "Post"
+	"Power (MW)", "Boost (%)", "Max Boost (%)", "Demand", "Arrived", "sended"
 };
 
 // Max Kielland
@@ -235,7 +236,9 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 		if(
 			(s==FAB_BOOST_ELECTRIC  &&  (factory->get_desc()->is_electricity_producer()  ||  factory->get_desc()->get_electric_boost()==0))  ||
 			(s==FAB_BOOST_PAX  &&  factory->get_desc()->get_pax_boost()==0)  ||
-			(s==FAB_BOOST_MAIL  &&  factory->get_desc()->get_mail_boost()==0)
+			(s==FAB_BOOST_MAIL  &&  factory->get_desc()->get_mail_boost()==0) ||
+			(s==FAB_CONSUMER_ARRIVED && factory->get_sector() != fabrik_t::end_consumer) ||
+			s == FAB_PAX_GENERATED || s == FAB_PAX_DEPARTED || s == FAB_MAIL_GENERATED
 			) {
 			prod_buttons[s].disable();
 		}
@@ -277,7 +280,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	tab_panel.add_tab( &prod_cont, translator::translate("Production/Boost") );
 
 	add_component( &tab_panel );
-	const int max_rows = max( goods_label_row, button_pos[MAX_FAB_STAT-1].y+1 );
+	const int max_rows = max( goods_label_row, label_pos[MAX_PROD_LABEL-1].y+1 );
 	const scr_size size( 20+80+CHART_WIDTH+(input_count > 0 ? D_H_SPACE+D_BUTTON_WIDTH : 0 ), D_TAB_HEADER_HEIGHT+CHART_HEIGHT+20+max_rows*D_BUTTON_HEIGHT+(max_rows-1)*D_H_SPACE+16 );
 	set_size( size );
 	tab_panel.set_size( size );

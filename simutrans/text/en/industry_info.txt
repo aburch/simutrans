@@ -38,16 +38,31 @@ Other information about selected industry and options include:
 <em>Production</em>: the maximum rate of goods that the industry will supply (if a supplier) or consume (if it is a consumer) in units per month/day (depending on the date settings). Supplying <a href="electricity.txt">electricity</a> to the industry increases the rate both of production and consumption, thereby giving the opportunity to transport more commodities to/from that industry.
 </p>
 <p>
+The <em>Status colour bar</em> under the picture shows how and whether the industry is operating (also used in the <a href="factorylist_filter.txt">Industry List</a>):<br>
+- <em>White:</em> does not produce and consume.<br>
+- <em>Green:</em> at optimum status.<br>
+- <em>Dark skyblue:</em> at optimum status of marine resources.<br>
+- <em>Cyan:</em> some of the lines are operating normally.<br>
+- <em>Dark blue:</em> sufficient marine resources are remaining.<br>
+- <em>Dark green:</em> sufficient materials are waiting for transportation.<br>
+- <em>Gray:</em> not connected by goods transport.<br>
+- <em>Dark brown:</em> production is stopped due to excessive inventory.<br>
+- <em>Dark yellow:</em> can not operate because some materials are missing.<br>
+- <em>Yellow:</em> can not operate/open because there is no material or goods at all.<br>
+- <em>Orange:</em> since some items are overstocked, it stopped receiving the goods.<br>
+- <em>Orange red:</em> since all items are overstocked, it stopped receiving.<br>
+- <em>Red:</em> since all the storage is full, arrival and operation are stopped.<br>
+<br>
+- <em>Purple frame:</em> the production rate is declining due to the staff shortage.
+</p>
+<p>
 <em>Industry picture</em> shows a view of the industry building. Click on  thepicture to centre the main game window on the industry.
 </p>
 <p>
-The <em>Status colour bar</em> under the picture shows how and whether the industry is operating (also used in the <a href="factorylist_filter.txt">Industry List</a>):<br>
-- <em>white</em> means that the industry does not require input;<br>
-- <em>yellow</em> means that the industry is connected by transport, but the supply of input commodities is poor or non-existant;<br>
-- <em>green</em> means that the industry is at optimum status;<br>
-- <em>orange</em> means that the industry is operational but improvements are possible in the supply of goods (for example, only some commodities are supplied to an end consumer industry);<br>
-- <em>red</em> means that the industry is operational, but that part of the industry supply chain has excess supply; and<br>
-- <em>purple</em> means that the industry is short staffed.
+<em>Staffing level bar:</em> The gauge under the industry picture represents staff fulfillment level.<br>
+When the staffing level falls below a certain percentage, productivity declines according to the proportion of staff shortage. <em>Light purple</em> or <em>dark purple</em> bar indicates the current staffing level. When it became a staff shortage, the color of the gauge changes to <em>dark purple </em>.<br>
+The <em>yellow</em> bar displayed when it is staff shortage represents the staffing level required for normal operation. The required staffing level depends on the type of industry.<br>
+<em>Tip:</em> The minimum required staffing percentage for each industry type can be set in simuconf.tab.
 </p>
 <p>
 <em>Consumer:</em> lists the destinations in the industry supply chain for goods produced by the selected industry. <br>
