@@ -3627,7 +3627,7 @@ No material
 資材／商品がありません
 stop_some_goods_arrival
 一部入荷停止
-Overstocked
+Fully stocked
 入荷停止（在庫飽和）
 fab_stuck
 生産停止（資材＆在庫飽和）

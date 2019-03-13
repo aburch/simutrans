@@ -38,7 +38,7 @@ static const char factory_status_type[fabrik_t::MAX_FAB_STATUS][64] =
 	"Storage full", 
 	"Inactive", "Shipment stuck",
 	"Material shortage", "No material",
-	"stop_some_goods_arrival", "Overstocked",
+	"stop_some_goods_arrival", "Fully stocked",
 	"fab_stuck",
 	"staff_shortage"
 };
