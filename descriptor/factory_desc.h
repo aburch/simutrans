@@ -212,7 +212,7 @@ public:
 private:
 	site_t placement; 
 	uint16 productivity; 
-	uint16 range;
+	sint32 range;
 	uint16 distribution_weight;	// probability of construction of this factory
 	uint8 color; //"identification colour code" (Babelfish)
 	uint16 supplier_count; 
@@ -276,7 +276,7 @@ public:
 
 	void set_productivity(int p) { productivity=p; }
 	int get_productivity() const { return productivity; }
-	int get_range() const { return range; } 
+	sint32 get_range() const { return range; } 
 
 	/* level for mail and passenger generation */
 	int get_pax_level() const { return pax_level; }

@@ -843,8 +843,8 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 		}
 		else
 		{
-			const int percentage = (this_city_population - smallest_city_population) * 100 / (biggest_city_population - smallest_city_population);
-			production = (desc->get_range() * percentage) / 100;
+			const sint64 percentage = (this_city_population - smallest_city_population) * 100ll / (biggest_city_population - smallest_city_population);
+			production = (desc->get_range() * (sint32)percentage) / 100;
 		}
 		prodbase = desc->get_productivity() + production;
 	}
