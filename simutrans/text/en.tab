@@ -2035,7 +2035,7 @@ Vehicles: %d\nProfit: %s
 Convoys
 Convoys
 Copy Convoi
-Copy Convoy
+Copy convoy
 Copy the selected convoi and its schedule or line
 Copy the selected convoy and its schedule or line
 Create a new line based on this schedule
@@ -2531,9 +2531,9 @@ Northeast
 northwest
 Northwest
 Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-The vehicle's schedule\nmust not be changed\nuntil the operation is complete.
+The vehicle's schedule must not be changed\nuntil the operation is complete.
 Not enough fields would remain.
-Not enough fields would\nremain around this farm.
+Not enough fields would remain around this farm.
 November
 November
 Now active as %s.\n
@@ -3898,6 +3898,8 @@ ratio_mail
 % mail
 ratio_goods
 % goods
+Can't buy obsolete vehicles!
+It is not possible to buy vehicles that are either obsolete or available only as upgrades.
 Inactive
 Inactive
 Sector
