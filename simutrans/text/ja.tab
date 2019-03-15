@@ -1579,8 +1579,6 @@ Postrate
 郵便度
 Power
 電力
-Power (MW)
-電力 (MW)
 Power:
 出力：
 Power: %4d kW\n
@@ -2009,8 +2007,6 @@ upgrade HQ
 本社を拡張移転する
 Usage: %.0f %%
 稼動率: %.0f %%
-Usage/Output
-使用量/発電量
 Use beginner mode
 初心者モード
 Use timeline start year
@@ -3635,6 +3631,10 @@ Within own network
 自家輸送網内のみ表示
 Show only connected to own transport network
 アクティブプレイヤーの貨物輸送ネットワークに接続されている産業のみを表示します
+Power usage
+電力消費量
+Power output
+発電出力
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
@@ -3657,3 +3657,7 @@ No Route
 経路無し
 Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community
 ようこそSimutrans-Extendedへ! Simutrans-StandardはHj. MalthanerとSimutransコミュニティによって開発されました。Simutrans-ExtendedはSimutrans-Standardを元にしてJames E. PettsとSimutransコミュニティによって開発されました。
+Usage/Output
+使用量/発電量
+Power (MW)
+電力 (MW)
