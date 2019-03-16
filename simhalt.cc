@@ -2020,12 +2020,26 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 
 		for (uint8 i = 0; i < catg_count; i++)
 		{
+			/*
+			// The below code is probably not workable as the halts' connexions table is not updated until the last class
+			// has been processed, so we probably need always to refresh all classes. 
+			// TODO: Consider whether to adjust the code to take account of this, as there is some redundancy at present.
+			// Avoid redundancy below.
+			if((passenger_classes != NULL) && i == goods_manager_t::INDEX_PAS && categories.is_contained(goods_manager_t::INDEX_PAS) && !passenger_classes->empty())
+			{
+				continue;
+			}
+			if((mail_classes != NULL) && i == goods_manager_t::INDEX_MAIL && categories.is_contained(goods_manager_t::INDEX_MAIL) && !mail_classes->empty())
+			{
+				continue;
+			}
+			*/
+
 			path_explorer_t::refresh_category(categories[i]);
 		}
 
 		if ((passenger_classes != NULL) && categories.is_contained(goods_manager_t::INDEX_PAS))
 		{
-
 			// These minivecs should only have anything in them if their respective categories have not been refreshed entirely.
 			FOR(minivec_tpl<uint8>, const & g_class, *passenger_classes)
 			{
@@ -2035,7 +2049,6 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 
 		if ((mail_classes != NULL) && categories.is_contained(goods_manager_t::INDEX_MAIL))
 		{
-
 			// These minivecs should only have anything in them if their respective categories have not been refreshed entirely.
 			FOR(minivec_tpl<uint8>, const & g_class, *mail_classes)
 			{
