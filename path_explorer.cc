@@ -114,6 +114,22 @@ void path_explorer_t::step()
 			// perform step
 			goods_compartment[current_compartment_category][current_compartment_class].step();
 			
+			// HACK: This is a possibly sub-optimal solution to a reported problem. 
+			// The problem is that it is possible for an all class refresh to be called when some classes have and others have not started their processing.
+			// This means that the lower classes but not the higher classes will be refreshed in sequence. 
+			// Because the class data are not stored in halts' connexions table, this allows higher class data to be overwritten with lower class data in halts'
+			// connexions field, which, in turn, can destroy connexions data for higher classes until the next refresh. The below code prevents this from happening
+			// (although data may still be absent *during* a refresh). The complete solution would be to store class data in the connexions table, but this may have
+			// serious memory usage implications. 
+			if (current_compartment_category == goods_manager_t::INDEX_PAS && current_compartment_class < goods_manager_t::passengers->get_number_of_classes() - 1)
+			{
+				goods_compartment[current_compartment_category][current_compartment_class + 1].set_refresh();
+			}
+			if (current_compartment_category == goods_manager_t::INDEX_MAIL && current_compartment_class < goods_manager_t::mail->get_number_of_classes() - 1)
+			{
+				goods_compartment[current_compartment_category][current_compartment_class + 1].set_refresh();
+			}
+
 			// if refresh is completed, move on to the next category or class as appropriate
 			if ( goods_compartment[current_compartment_category][current_compartment_class].is_refresh_completed() )
 			{
@@ -1148,12 +1164,7 @@ void path_explorer_t::compartment_t::step()
 
 				// swap the old connexion hash table with a new one
 				current_halt->swap_connexions(catg, connexion_list[current_halt.get_id()].connexion_table);
-				/*
-				if (g_class == max_classes - 1)
-				{
-					current_halt->swap_connexions(catg, connexion_list[current_halt.get_id()].connexion_table);
-				}
-				*/
+
 				// transfer the value of the serving transport counter
 				current_halt->set_schedule_count( catg, connexion_list[ current_halt.get_id() ].serving_transport );
 				reset_connexion_entry( current_halt.get_id() );
