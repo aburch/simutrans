@@ -369,11 +369,17 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 
 		info_buf.clear();
 		info_buf.printf("%s", halt->get_owner()->get_name());
-		display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+		display_proportional(left, top, info_buf, ALIGN_LEFT, PLAYER_FLAG|(halt->get_owner()->get_player_color1()+0), true);
 		top += D_LABEL_HEIGHT * 2;
 
 		info_buf.clear();
-		info_buf.printf("%s: %u", translator::translate("Storage capacity"), halt->get_capacity(0));
+		info_buf.printf("%s: ", translator::translate("Storage capacity"));
+		if (halt->get_pax_enabled()) {
+			info_buf.printf("%u", halt->get_capacity(0));
+		}
+		else{
+			info_buf.append("-");
+		}
 
 		// passengers
 		left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -383,13 +389,25 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			left += 10;
 			// mail
 			info_buf.clear();
-			info_buf.printf(",  %u", halt->get_capacity(1));
+			info_buf.append(",  ");
+			if (halt->get_mail_enabled()) {
+				info_buf.printf("%u", halt->get_capacity(1));
+			}
+			else{
+				info_buf.append("-");
+			}
 			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_color_img(skinverwaltung_t::mail->get_image_id(0), left, top, 0, false, false);
 			left += 10;
 			// goods
 			info_buf.clear();
-			info_buf.printf(",  %u", halt->get_capacity(2));
+			info_buf.append(",  ");
+			if (halt->get_ware_enabled()) {
+				info_buf.printf("%u", halt->get_capacity(2));
+			}
+			else {
+				info_buf.append("-");
+			}
 			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_color_img(skinverwaltung_t::goods->get_image_id(0), left, top, 0, false, false);
 			left = 53+LINESPACE;
