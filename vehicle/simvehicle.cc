@@ -4468,7 +4468,7 @@ void rail_vehicle_t::set_convoi(convoi_t *c)
 					target_halt = halthandle_t();
 				}
 			}
-			else if(c->get_next_reservation_index() == 0 && c->get_state() != convoi_t::REVERSING)
+			else if(c->get_next_reservation_index() == 0 && c->get_next_stop_index() == 0 && c->get_state() != convoi_t::REVERSING)
 			{
 				assert(c!=NULL);
 				// eventually search new route
