@@ -3900,3 +3900,5 @@ ratio_goods
 % goods
 Can't buy obsolete vehicles!
 It is not possible to buy vehicles that are either obsolete or available only as upgrades.
+Railcar_tab
+Railcars
