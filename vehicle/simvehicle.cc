@@ -4729,9 +4729,14 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 			{
 				if(rs->get_desc()->is_end_choose_signal())
 				{
-					target = gr;
-					break_index = idx;
-					break;
+					if (!(gr->is_halt() && gr->get_halt() != target->get_halt()))
+					{
+						// Ignore end of choose signals on platforms: these make no sense
+						// and cause problems. 
+						target = gr;
+						break_index = idx;
+						break;
+					}
 				}
 			}
 		}
