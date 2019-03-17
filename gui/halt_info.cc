@@ -307,21 +307,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		//sint16 top = pos.y+36;
 		COLOR_VAL indikatorfarbe = halt->get_status_farbe();
 		display_fillbox_wh_clip(pos.x+10, top+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indikatorfarbe, true);
-
-		// now what do we accept here?
 		int left = 10+D_INDICATOR_WIDTH+2;
-		if (halt->get_pax_enabled()) {
-			display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x+left, top, 0, false, false);
-			left += 10;
-		}
-		if (halt->get_mail_enabled()) {
-			display_color_img(skinverwaltung_t::mail->get_image_id(0), pos.x+left, top, 0, false, false);
-			left += 10;
-		}
-		if (halt->get_ware_enabled()) {
-			display_color_img(skinverwaltung_t::goods->get_image_id(0), pos.x+left, top, 0, false, false);
-			left += 10;
-		}
 
 		// what kind of station?
 		left -= 20;
@@ -369,30 +355,47 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 
 		info_buf.clear();
 		info_buf.printf("%s", halt->get_owner()->get_name());
-		display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+		display_proportional(left, top, info_buf, ALIGN_LEFT, PLAYER_FLAG|(halt->get_owner()->get_player_color1()+0), true);
 		top += D_LABEL_HEIGHT * 2;
 
+		bool enabled = false;
 		info_buf.clear();
-		info_buf.printf("%s: %u", translator::translate("Storage capacity"), halt->get_capacity(0));
+		info_buf.printf("%s: ", translator::translate("Storage capacity"));
+		if (halt->get_pax_enabled()) {
+			info_buf.printf("%u", halt->get_capacity(0));
+			enabled = true;
+		}
 
 		// passengers
 		left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		if (welt->get_settings().is_separate_halt_capacities()) {
 			// here only for separate capacities
-			display_color_img(skinverwaltung_t::passengers->get_image_id(0), left, top, 0, false, false);
-			left += 10;
+			if (halt->get_pax_enabled()) {
+				display_color_img(skinverwaltung_t::passengers->get_image_id(0), left, top, 0, false, false);
+				left += 10;
+			}
 			// mail
-			info_buf.clear();
-			info_buf.printf(",  %u", halt->get_capacity(1));
-			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			display_color_img(skinverwaltung_t::mail->get_image_id(0), left, top, 0, false, false);
-			left += 10;
+			if (halt->get_mail_enabled()) {
+				info_buf.clear();
+				if (enabled) {
+					info_buf.append(",  ");
+				}
+				info_buf.printf("%u", halt->get_capacity(1));
+				enabled = true;
+				left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				display_color_img(skinverwaltung_t::mail->get_image_id(0), left, top, 0, false, false);
+				left += 10;
+			}
 			// goods
-			info_buf.clear();
-			info_buf.printf(",  %u", halt->get_capacity(2));
-			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			display_color_img(skinverwaltung_t::goods->get_image_id(0), left, top, 0, false, false);
-			left = 53+LINESPACE;
+			if (halt->get_ware_enabled()) {
+				info_buf.clear();
+				if (enabled) {
+					info_buf.append(",  ");
+				}
+				info_buf.printf("%u", halt->get_capacity(2));
+				left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				display_color_img(skinverwaltung_t::goods->get_image_id(0), left, top, 0, false, false);
+			}
 		}
 
 		// Hajo: Reuse of info_buf buffer to get and display
