@@ -2274,7 +2274,11 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 					extra_pass[0] = '\0';
 				}
 
-				n += sprintf(buf + n, translator::translate("Capacity: %3d %s%s %s\n"),
+				n += sprintf(buf + n, translator::translate("Capacity:"));
+				if (veh_type->get_freight_type()->get_catg_symbol()) {
+					n += sprintf(buf + n, "  ");
+				}
+				n += sprintf(buf + n, "  %3d %s%s %s\n",
 					veh_type->get_total_capacity(), extra_pass,
 					translator::translate(veh_type->get_freight_type()->get_mass()),
 					veh_type->get_freight_type()->get_catg() == 0 ? translator::translate(veh_type->get_freight_type()->get_name()) : translator::translate(veh_type->get_freight_type()->get_catg_name()));
@@ -2330,7 +2334,11 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			}
 			else
 			{
-				n += sprintf(buf + n, translator::translate("Capacity: %3d %s%s %s\n"),
+				n += sprintf(buf + n, translator::translate("Capacity:"));
+				if(veh_type->get_freight_type()->get_catg_symbol()){
+					n += sprintf(buf + n, "  ");
+				}
+				n += sprintf(buf + n, "  %3d %s%s %s\n",
 					veh_type->get_total_capacity(),
 					"\0",
 					translator::translate(veh_type->get_freight_type()->get_mass()),
@@ -2365,6 +2373,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				linespace_skips++;
 			}
 
+			// Category symbol:
+			display_color_img(veh_type->get_freight_type()->get_catg_symbol(), pos.x + 335 + proportional_string_width(translator::translate("Capacity: ")), pos.y + tabs.get_pos().y + tabs.get_size().h + 31 + LINESPACE * 5 + 4 + 16, 0, false, false);
 		}
 		else
 		{
@@ -2422,6 +2432,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		}
 
 		display_multiline_text(pos.x + 335/*370*/, pos.y + tabs.get_pos().y + tabs.get_size().h + 31 + LINESPACE * 2 + 4 + 16, buf, SYSCOL_TEXT);
+
 
 		// update speedbar
 		new_vehicle_length_sb = new_vehicle_length_sb_force_zero ? 0 : convoi_length_ok_sb + convoi_length_slower_sb + convoi_length_too_slow_sb + veh_type->get_length();
@@ -2603,7 +2614,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 				cbuf.clear();
 				cbuf.printf("%d%s %s", good_type_0_amount, translator::translate(goods_manager_t::get_info_catg_index(good_type_0)->get_mass()), translator::translate(goods_manager_t::get_info_catg_index(good_type_0)->get_catg_name()));
 				display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
-				display_color_img(skinverwaltung_t::goods->get_image_id(0), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
+				display_color_img(goods_manager_t::get_info_catg_index(good_type_0)->get_catg_symbol(), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
 				y += LINESPACE + 1;
 			}
 			if (good_type_1 > 0)
@@ -2611,6 +2622,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 				cbuf.clear();
 				cbuf.printf("%d%s %s", good_type_1_amount, translator::translate(goods_manager_t::get_info_catg_index(good_type_1)->get_mass()), translator::translate(goods_manager_t::get_info_catg_index(good_type_1)->get_catg_name()));
 				display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				display_color_img(goods_manager_t::get_info_catg_index(good_type_1)->get_catg_symbol(), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
 				y += LINESPACE + 1;
 			}
 			if (total_pax > 0 || total_mail > 0)
@@ -2627,6 +2639,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 					cbuf.clear();
 					cbuf.printf("%d%s %s", good_type_2_amount, translator::translate(goods_manager_t::get_info_catg_index(good_type_2)->get_mass()), translator::translate(goods_manager_t::get_info_catg_index(good_type_2)->get_catg_name()));
 					display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+					display_color_img(goods_manager_t::get_info_catg_index(good_type_2)->get_catg_symbol(), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
 					y += LINESPACE + 1;
 				}
 			}
@@ -2637,6 +2650,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 					cbuf.clear();
 					cbuf.printf("%d%s %s", good_type_2_amount, translator::translate(goods_manager_t::get_info_catg_index(good_type_2)->get_mass()), translator::translate(goods_manager_t::get_info_catg_index(good_type_2)->get_catg_name()));
 					display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+					display_color_img(goods_manager_t::get_info_catg_index(good_type_2)->get_catg_symbol(), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
 					y += LINESPACE + 1;
 				}
 				if (good_type_3 > 0)
@@ -2644,6 +2658,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 					cbuf.clear();
 					cbuf.printf("%d%s %s", good_type_3_amount, translator::translate(goods_manager_t::get_info_catg_index(good_type_3)->get_mass()), translator::translate(goods_manager_t::get_info_catg_index(good_type_3)->get_catg_name()));
 					display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+					display_color_img(goods_manager_t::get_info_catg_index(good_type_3)->get_catg_symbol(), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
 					y += LINESPACE + 1;
 				}
 				if (rest_good_amount > 0)
@@ -2658,6 +2673,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 					cbuf.clear();
 					cbuf.printf("%d%s %s", good_type_4_amount, translator::translate(goods_manager_t::get_info_catg_index(good_type_4)->get_mass()), translator::translate(goods_manager_t::get_info_catg_index(good_type_4)->get_catg_name()));
 					display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+					display_color_img(goods_manager_t::get_info_catg_index(good_type_4)->get_catg_symbol(), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
 					y += LINESPACE + 1;
 				}
 			}
