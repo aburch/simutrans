@@ -63,9 +63,12 @@ image_id goods_desc_t::get_catg_symbol() const
 		case goods_manager_t::INDEX_MAIL:
 			return skinverwaltung_t::mail->get_image_id(0);
 			break;
-			// TODO: Supports symbols for unique freight goods
 		default:
-			return IMG_EMPTY;
+			// TODO: Supports symbols for unique freight goods
+			if (skinverwaltung_t::goods_categories) {
+				return skinverwaltung_t::goods_categories->get_image_id(0);
+			}
+			return skinverwaltung_t::goods->get_image_id(0);
 			break;
 		}
 	}
