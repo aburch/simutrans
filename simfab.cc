@@ -351,7 +351,12 @@ void fabrik_t::book_weighted_sums(sint64 delta_time)
 
 	// power produced or consumed
 	weighted_sum_power += power * delta_time;
-	set_stat( power, FAB_POWER );
+	if (!desc->is_electricity_producer()) {
+		set_stat(power*1000, FAB_POWER); // convert MW to KW
+	}
+	else {
+		set_stat(power, FAB_POWER);
+	}
 }
 
 
@@ -2584,7 +2589,12 @@ void fabrik_t::new_month()
 		set_stat( weighted_sum_boost_electric / aggregate_weight, FAB_BOOST_ELECTRIC );
 		set_stat( weighted_sum_boost_pax / aggregate_weight, FAB_BOOST_PAX );
 		set_stat( weighted_sum_boost_mail / aggregate_weight, FAB_BOOST_MAIL );
-		set_stat( weighted_sum_power / aggregate_weight, FAB_POWER );
+		if (!desc->is_electricity_producer()) {
+			set_stat(weighted_sum_power*1000 / aggregate_weight, FAB_POWER);
+		}
+		else {
+			set_stat(weighted_sum_power / aggregate_weight, FAB_POWER);
+		}
 	}
 
 	// update statistics
@@ -3096,17 +3106,23 @@ void fabrik_t::show_info()
 void fabrik_t::info_prod(cbuffer_t& buf) const
 {
 	buf.clear();
+	buf.append(translator::translate("Durchsatz"));
+	buf.append(get_current_production(), 0);
+	buf.append(translator::translate("units/day"));
+	buf.append("\n");
 	if(get_desc()->is_electricity_producer())
 	{
 		buf.append(translator::translate("Electrical output: "));
+		buf.append(scaled_electric_amount >> POWER_TO_MW);
+		buf.append(" MW");
 	}
 	else
 	{
 		buf.append(translator::translate("Electrical demand: "));
+		buf.append((scaled_electric_amount * 1000) >> POWER_TO_MW);
+		buf.append(" KW");
 	}
 
-	buf.append(scaled_electric_amount>>POWER_TO_MW);
-	buf.append(" MW");
 	buf.append("\n");
 
 	if(city != NULL)
@@ -3207,8 +3223,14 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 				buf.append(", ");
 				buf.append(translator::translate(type->get_catg_name()));
 			}
-
-			buf.printf(", %u%%", (uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS));
+			// Primary industry displays monthly production
+			if (get_sector() == marine_resource || get_sector() == resource) {
+				buf.printf(", %d", get_current_production()*pfactor >> DEFAULT_PRODUCTION_FACTOR_BITS);
+				buf.printf("%s%s", translator::translate(type->get_mass()),translator::translate("/month"));
+			}
+			else {
+				buf.printf(", %u%%", (uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS));
+			}
 		}
 	}
 
