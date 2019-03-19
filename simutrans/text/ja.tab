@@ -1514,7 +1514,7 @@ Pakセットの差異
 paletten
 パレット
 Pas_tab
-旅客車
+客車
 Passagiere
 旅客
 Passagierrate
@@ -3635,6 +3635,8 @@ Power usage
 電力消費量
 Power output
 発電出力
+Railcar_tab
+気動車
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

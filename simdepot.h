@@ -88,6 +88,7 @@ public:
 	virtual const char * get_passenger_name() { return "Pas_tab"; }
 	virtual const char * get_zieher_name() { return "Lokomotive_tab"; }
 	virtual const char * get_haenger_name() { return "Waggon_tab"; }
+	virtual const char * get_passenger2_name() { return "Pas2_tab"; }
 
 	/**
 	 * Access to convoi list.

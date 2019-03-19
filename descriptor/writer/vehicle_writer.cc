@@ -22,7 +22,7 @@ using std::string;
  */
 static vehicle_desc_t::engine_t get_engine_type(char const* const engine_type)
 {
-	vehicle_desc_t::engine_t uv8 = vehicle_desc_t::diesel;
+	vehicle_desc_t::engine_t uv8 = vehicle_desc_t::unknown;
 
 	if (!STRICMP(engine_type, "diesel")) {
 		uv8 = vehicle_desc_t::diesel;

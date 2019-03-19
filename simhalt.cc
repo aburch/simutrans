@@ -2022,10 +2022,9 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 		{
 			path_explorer_t::refresh_category(categories[i]);
 		}
-
+		
 		if ((passenger_classes != NULL) && categories.is_contained(goods_manager_t::INDEX_PAS))
 		{
-
 			// These minivecs should only have anything in them if their respective categories have not been refreshed entirely.
 			FOR(minivec_tpl<uint8>, const & g_class, *passenger_classes)
 			{
@@ -2035,7 +2034,6 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 
 		if ((mail_classes != NULL) && categories.is_contained(goods_manager_t::INDEX_MAIL))
 		{
-
 			// These minivecs should only have anything in them if their respective categories have not been refreshed entirely.
 			FOR(minivec_tpl<uint8>, const & g_class, *mail_classes)
 			{

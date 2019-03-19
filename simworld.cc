@@ -5464,7 +5464,9 @@ void karte_t::step()
 		}
 	}
 
-	rands[13] = get_random_seed();	
+	rands[13] = get_random_seed();
+
+	INT_CHECK("karte_t::step 3a");
 
 	// NOTE: Original position of the start of multi-threaded convoy stepping
 
@@ -5478,6 +5480,8 @@ void karte_t::step()
 	}
 	rands[14] = get_random_seed();
 
+	INT_CHECK("karte_t::step 3b");
+
 #ifdef MULTI_THREAD
 	// The placement of this barrier must be before any code that in any way relies on the private car routes between cities, most especially the mail and passenger generation (step_passengers_and_mail(delta_t)).
 	if (check_city_routes)
@@ -5485,6 +5489,8 @@ void karte_t::step()
 		simthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished. This is the second.
 	}
 #endif	
+
+	INT_CHECK("karte_t::step 3c");
 
 	rands[24] = 0;
 	rands[25] = 0;
@@ -5519,6 +5525,8 @@ void karte_t::step()
 			set_speed_factors();
 			speed_factors_are_set = true;
 		}
+
+		INT_CHECK("karte_t::step 3d");
 
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 #ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
@@ -6510,7 +6518,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					{
 						haltestelle_t::connexion* cnx = current_halt->get_connexions(wtyp->get_catg_index())->get(pax.get_zwischenziel());
 			
-						if (current_halt->is_within_walking_distance_of(pax.get_zwischenziel()) && (!cnx || (!cnx->best_convoy.is_bound() && !cnx->best_line.is_bound())))
+						if (current_halt->is_within_walking_distance_of(pax.get_zwischenziel()) && (!cnx || (!cnx->best_convoy.is_bound() && !cnx->best_line.is_bound()) || ((cnx->best_convoy.is_bound() && !cnx->best_convoy->carries_this_or_lower_class(pax.get_catg(), pax.get_class()) || (cnx->best_line.is_bound() && !cnx->best_line->carries_this_or_lower_class(pax.get_catg(), pax.get_class()))))))
 						{
 							// Do not treat this as a public transport route: if it is a viable walking route, it will be so treated elsewhere.
 							current_journey_time = UINT32_MAX_VALUE;
