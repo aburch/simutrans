@@ -1476,15 +1476,15 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 		const char* class_name = translator::translate(class_name_untranslated);
 		if (condition == 1)
 		{
-			buf.printf("  %i%% %s\n", class_percentage[i], class_name);
+			buf.printf(" %3i%% %s\n", class_percentage[i], class_name);
 		}
 		else if (condition == 2)
 		{
-			buf.printf("  %i%% / %i%% %s\n", class_percentage[i], class_percentage_job[i], class_name);
+			buf.printf(" %3i%% /%3i%% %s\n", class_percentage[i], class_percentage_job[i], class_name);
 		}
 		if (condition == 3)
 		{
-			buf.printf("  %i%% %s\n", class_percentage_job[i], class_name);
+			buf.printf(" %3i%% %s\n", class_percentage_job[i], class_name);
 		}
 	}
 }
