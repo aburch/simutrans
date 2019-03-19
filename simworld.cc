@@ -6517,7 +6517,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					{
 						haltestelle_t::connexion* cnx = current_halt->get_connexions(wtyp->get_catg_index())->get(pax.get_zwischenziel());
 			
-						if (current_halt->is_within_walking_distance_of(pax.get_zwischenziel()) && (!cnx || (!cnx->best_convoy.is_bound() && !cnx->best_line.is_bound())))
+						if (current_halt->is_within_walking_distance_of(pax.get_zwischenziel()) && (!cnx || (!cnx->best_convoy.is_bound() && !cnx->best_line.is_bound()) || ((cnx->best_convoy.is_bound() && !cnx->best_convoy->carries_this_or_lower_class(pax.get_catg(), pax.get_class()) || (cnx->best_line.is_bound() && !cnx->best_line->carries_this_or_lower_class(pax.get_catg(), pax.get_class()))))))
 						{
 							// Do not treat this as a public transport route: if it is a viable walking route, it will be so treated elsewhere.
 							current_journey_time = UINT32_MAX_VALUE;
