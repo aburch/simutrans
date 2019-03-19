@@ -3223,8 +3223,14 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 				buf.append(", ");
 				buf.append(translator::translate(type->get_catg_name()));
 			}
-
-			buf.printf(", %u%%", (uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS));
+			// Primary industry displays monthly production
+			if (get_sector() == marine_resource || get_sector() == resource) {
+				buf.printf(", %d", get_current_production()*pfactor >> DEFAULT_PRODUCTION_FACTOR_BITS);
+				buf.printf("%s%s", translator::translate(type->get_mass()),translator::translate("/month"));
+			}
+			else {
+				buf.printf(", %u%%", (uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS));
+			}
 		}
 	}
 
