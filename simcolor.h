@@ -36,6 +36,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_DARK_YELLOW     (168)
 #define COL_LIGHT_YELLOW    (175)
 #define COL_LEMON_YELLOW    (31)
+#define COL_DODGER_BLUE     (151)
 #define COL_BLUE            (147)
 #define COL_DARK_BLUE       (144)
 #define COL_LIGHT_BLUE      (103)
@@ -47,6 +48,8 @@ typedef unsigned char COLOR_VAL;
 #define COL_LIGHT_ORANGE    (158)
 #define COL_BRIGHT_ORANGE   (133)
 #define COL_LILAC           (221)
+#define COL_DARK_ORCHID     (59)
+#define COL_ORCHID          (61)
 #define COL_MAGENTA         (63)
 #define COL_PURPLE          (76)
 #define COL_DARK_PURPLE     (73)
@@ -59,6 +62,8 @@ typedef unsigned char COLOR_VAL;
 #define COL_DARK_BROWN      (178)
 #define COL_TRAFFIC         (110)
 #define COL_ROYAL_BLUE      (100)
+#define COL_DARK_SLATEBLUE  (219)
+#define COL_ORANGE_RED      (39)
 
 // message colors
 #define CITY_KI      (209)
@@ -121,6 +126,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_HARD_CREDIT_LIMIT 77
 #define COL_CAR_OWNERSHIP   (95)
 //#define COL_DISTANCE      (87)
+#define COL_STAFF_SHORTAGE COL_DARK_ORCHID
 
 
 #define SYSCOL_TEXT                         gui_theme_t::gui_color_text

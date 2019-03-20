@@ -31,19 +31,23 @@ bool factorylist_frame_t::sortreverse = false;
  */
 factorylist::sort_mode_t factorylist_frame_t::sortby = factorylist::by_name;
 
+// filter by within current player's network
+bool factorylist_frame_t::filter_fab = false;
+
 const char *factorylist_frame_t::sort_text[factorylist::SORT_MODES] = {
 	"Fabrikname",
 	"Input",
 	"Output",
 	"Produktion",
 	"Rating",
-	"Power"
+	"Power",
+	"Sector"
 };
 
 factorylist_frame_t::factorylist_frame_t() :
 	gui_frame_t( translator::translate("fl_title") ),
 	sort_label(translator::translate("hl_txt_sort")),
-	stats(sortby,sortreverse),
+	stats(sortby,sortreverse,filter_fab),
 	scrolly(&stats)
 {
 	sort_label.set_pos(scr_coord(BUTTON1_X, 2));
@@ -56,6 +60,12 @@ factorylist_frame_t::factorylist_frame_t() :
 	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	add_component(&sorteddir);
+
+	filter_within_network.init(button_t::square_state, "Within own network", scr_coord(BUTTON3_X + D_H_SPACE, 14));
+	filter_within_network.set_tooltip("Show only connected to own transport network");
+	filter_within_network.add_listener(this);
+	filter_within_network.pressed = filter_fab;
+	add_component(&filter_within_network);
 
 	// name buttons
 	sortedby.set_text(sort_text[get_sortierung()]);
@@ -83,13 +93,19 @@ bool factorylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /
 	if(comp == &sortedby) {
 		set_sortierung((factorylist::sort_mode_t)((get_sortierung() + 1) % factorylist::SORT_MODES));
 		sortedby.set_text(sort_text[get_sortierung()]);
-		stats.sort(get_sortierung(),get_reverse());
+		stats.sort(get_sortierung(),get_reverse(), get_filter_fab());
 		stats.recalc_size();
 	}
 	else if(comp == &sorteddir) {
 		set_reverse(!get_reverse());
 		sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-		stats.sort(get_sortierung(),get_reverse());
+		stats.sort(get_sortierung(),get_reverse(), get_filter_fab());
+		stats.recalc_size();
+	}
+	else if (comp == &filter_within_network) {
+		filter_fab = !filter_fab;
+		filter_within_network.pressed = filter_fab;
+		stats.sort(get_sortierung(), get_reverse(), get_filter_fab());
 		stats.recalc_size();
 	}
 	return true;

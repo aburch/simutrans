@@ -351,7 +351,12 @@ void fabrik_t::book_weighted_sums(sint64 delta_time)
 
 	// power produced or consumed
 	weighted_sum_power += power * delta_time;
-	set_stat( power, FAB_POWER );
+	if (!desc->is_electricity_producer()) {
+		set_stat(power*1000, FAB_POWER); // convert MW to KW
+	}
+	else {
+		set_stat(power, FAB_POWER);
+	}
 }
 
 
@@ -740,6 +745,7 @@ fabrik_t::fabrik_t(loadsave_t* file)
 	delta_menge = 0;
 	menge_remainder = 0;
 	total_input = total_transit = total_output = 0;
+	sector = unknown;
 	status = nothing;
 	currently_producing = false;
 	transformer_connected = NULL;
@@ -800,6 +806,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 	power = 0;
 	power_demand = 0;
 	total_input = total_transit = total_output = 0;
+	sector = unknown;
 	status = nothing;
 	lieferziele_active_last_month = 0;
 	city = check_local_city();
@@ -1066,6 +1073,13 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 		building = hausbauer_t::build(owner, pos_origin, rotate, desc->get_building(), this);
 	}
 
+	city = check_local_city();
+	if (city)
+	{
+		city->add_city_factory(this);
+	}
+	set_sector();
+
 	pos = building->get_pos();
 	pos_origin.z = pos.z;
 
@@ -1093,8 +1107,7 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 			// make sure not to exceed initial prodbase too much
 			sint32 org_prodbase = prodbase;
 			// we will start with a minimum number and try to get closer to start_fields
-			const field_group_desc_t& field_group = *desc->get_field_group();
-			const uint16 spawn_fields = field_group.get_min_fields() + simrand( field_group.get_start_fields() - field_group.get_min_fields(), "fabrik_t::build" );
+			const uint16 spawn_fields = desc->get_field_group()->get_min_fields() + simrand(desc->get_field_group()->get_start_fields() - desc->get_field_group()->get_min_fields(), "fabrik_t::build");
 			while(  fields.get_count() < spawn_fields  &&  add_random_field(10000u)  ) 
 			{
 				/*if (fields.get_count() > desc->get_field_group()->get_min_fields()  &&  prodbase >= 2*org_prodbase) {
@@ -1610,9 +1623,15 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	if(  file->get_version() >= 110005  ) {
 		file->rdwr_short(times_expanded);
 		// statistics
+		//sint64 dummy64 = 0;
 		for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
 			for(  int m=0;  m<MAX_MONTH;  ++m  ) {
-				file->rdwr_longlong( statistics[m][s] );
+				if (((file->get_extended_version() == 14 && file->get_extended_revision() <= 6) || file->get_extended_version() < 14) && s == 11)
+				{
+					statistics[m][s] = 0;
+					continue;
+				}
+				file->rdwr_longlong(statistics[m][s]);
 			}
 		}
 		file->rdwr_longlong( weighted_sum_production );
@@ -2023,7 +2042,7 @@ void fabrik_t::step(uint32 delta_t)
 			{
 				uint32 v = prod;
 
-				if (status == staff_shortage)
+				if (status >= staff_shortage)
 				{
 					// Do not reduce production unless the staff numbers
 					// are below the shortage threshold.
@@ -2043,7 +2062,7 @@ void fabrik_t::step(uint32 delta_t)
 						power += (uint32)(((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS);
 					}
 
-					if (status == staff_shortage)
+					if (status >= staff_shortage)
 					{
 						// Do not reduce production unless the staff numbers
 						// are below the shortage threshold.
@@ -2062,7 +2081,7 @@ void fabrik_t::step(uint32 delta_t)
 						power += (uint32)((((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS) * input[index].menge / (v + 1));
 					}
 
-					if (status == staff_shortage)
+					if (status >= staff_shortage)
 					{
 						// Do not reduce production unless the staff numbers
 						// are below the shortage threshold.
@@ -2108,7 +2127,7 @@ void fabrik_t::step(uint32 delta_t)
 				// sint32 p_menge = (sint32)scale_output_production(product, prod);
 				sint32 p_menge = prod;
 
-				if (status == staff_shortage)
+				if (status >= staff_shortage)
 				{
 					// Do not reduce production unless the staff numbers
 					// are below the shortage threshold.
@@ -2570,7 +2589,12 @@ void fabrik_t::new_month()
 		set_stat( weighted_sum_boost_electric / aggregate_weight, FAB_BOOST_ELECTRIC );
 		set_stat( weighted_sum_boost_pax / aggregate_weight, FAB_BOOST_PAX );
 		set_stat( weighted_sum_boost_mail / aggregate_weight, FAB_BOOST_MAIL );
-		set_stat( weighted_sum_power / aggregate_weight, FAB_POWER );
+		if (!desc->is_electricity_producer()) {
+			set_stat(weighted_sum_power*1000 / aggregate_weight, FAB_POWER);
+		}
+		else {
+			set_stat(weighted_sum_power / aggregate_weight, FAB_POWER);
+		}
 	}
 
 	// update statistics
@@ -2692,33 +2716,45 @@ void fabrik_t::new_month()
 					// remove redundancy - they are also somewhat opaque at present.
 
 					uint32 upgrade_chance_percent;
-					switch (status)
+					switch (status % staff_shortage)
 					{ 
-					case good:
+					case mat_overstocked:
 						upgrade_chance_percent = 100;
 						break;
-					case nothing:
+					case good:
+					case water_resource:
 						upgrade_chance_percent = 90;
 						break;
+					case stuck:
+					case nothing:
 					case medium:
 						upgrade_chance_percent = 75;
 						break;
-					case staff_shortage:
-						upgrade_chance_percent = 66;
-						break;
+					//case staff_shortage:
+					//	upgrade_chance_percent = 66;
+					//	break;
 					case bad:
 						upgrade_chance_percent = 50;
 						break;
 					case inactive:
+					case material_shortage:
 						upgrade_chance_percent = 25;
+						break;
+					case storage_full:
+					case no_material:
+					case shipment_stuck:
+						upgrade_chance_percent = 10;
 						break;
 					default:
 						// Should not be reached.
 						dbg->error("void fabrik_t::new_month()", "Unknown industry status type %i", status);
 						upgrade_chance_percent = 33;
 					};
-
-					if (is_end_consumer())
+					if(status >= staff_shortage){
+						// Note that there is a possibility that staff shortage is involved in the above bad status
+						upgrade_chance_percent *= (uint32)building->get_staffing_level_percentage() / 100; // TODO: review the calculation
+					}
+					if (get_sector() == fabrik_t::end_consumer)
 					{
 						// If this is an end consumer, check whether we have a good number
 						// of customers before deciding whether to close/upgrade.
@@ -2883,7 +2919,9 @@ void fabrik_t::new_month()
 }
 
 // static !
-unsigned fabrik_t::status_to_color[6] = {COL_RED, COL_ORANGE, COL_GREEN, COL_YELLOW, COL_WHITE, COL_DARK_PURPLE };
+unsigned fabrik_t::status_to_color[MAX_FAB_STATUS] = {
+	COL_WHITE, COL_GREEN, COL_DODGER_BLUE, COL_LIGHT_TURQUOISE, COL_BLUE, COL_DARK_GREEN,
+	COL_GREY3, COL_DARK_BROWN+1, COL_YELLOW-1, COL_YELLOW, COL_ORANGE, COL_ORANGE_RED, COL_RED, COL_STAFF_SHORTAGE };
 
 #define FL_WARE_NULL           1
 #define FL_WARE_ALLENULL       2
@@ -2901,7 +2939,7 @@ void fabrik_t::recalc_factory_status()
 	char status_ein;
 	char status_aus;
 
-	int haltcount = welt->access(pos.get_2d())->get_haltlist_count();
+	int haltcount = nearby_freight_halts.get_count();
 
 	// set bits for input
 	warenlager = 0;
@@ -2930,7 +2968,7 @@ void fabrik_t::recalc_factory_status()
 
 	// one ware missing, but producing
 	if (status_ein & FL_WARE_FEHLT_WAS && !output.empty() && haltcount > 0) {
-		status = bad;
+		status = material_shortage;
 		return;
 	}
 
@@ -2960,92 +2998,82 @@ void fabrik_t::recalc_factory_status()
 	total_output = (uint32)warenlager;
 
 	// now calculate status bar
-	if (input.empty()) {
-		// does not consume anything, should just produce
-
-		if (output.empty()) {
-			// does also not produce anything
-			status = nothing;
-		}
-		else if (status_aus&FL_WARE_ALLEUEBER75 || status_aus&FL_WARE_UEBER75) {
-			status = inactive;	// not connected?
-			if (haltcount>0) {
+	if (!haltcount) { status = inactive; }
+	else {
+		switch (sector) {
+		case marine_resource:
+			// since it has a station function, it discriminates only whether stock is full or not
+			status = status_aus & FL_WARE_ALLEUEBER75 ? water_resource_full : water_resource;
+			break;
+		case resource:
+		case resource_city:
+			if (status_aus&FL_WARE_ALLEUEBER75 || status_aus & FL_WARE_UEBER75) {
 				if (status_aus&FL_WARE_ALLEUEBER75) {
-					status = bad;	// connect => needs better service
+					status = storage_full;	// connect => needs better service
 				}
 				else {
 					status = medium;	// connect => needs better service for at least one product
 				}
 			}
-		}
-		else 
-		{	
-			status = good;
-		}
-		
-		// Staff shortage takes priority over other states as this affects production
-		// TODO: Remove the check for water industries if and when a satisfactory method of conveying passengers to these can be found (helecopters might work for oil platforms; fisheries can have their workers set to zero).
-		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water) && !(welt->get_settings().get_rural_industries_no_staff_shortage() && city == NULL))
-		{
-			status = staff_shortage;
-		}
-	}
-	else if (output.empty()) {
-		// nothing to produce
-
-		if (status_ein&FL_WARE_ALLELIMIT) {
-			// we assume not served
-			status = bad;
-		}
-		else if (status_ein&FL_WARE_LIMIT) {
-			// served, but still one at limit
-			status = medium;
-		}
-		else if (status_ein&FL_WARE_ALLENULL) {
-			status = inactive;	// assume not served
-			if (haltcount>0) {
-				// there is a halt => needs better service
+			else
+			{
+				status = good;
+			}
+			break;
+		case manufacturing:
+			if (status_ein&FL_WARE_ALLELIMIT && status_aus&FL_WARE_ALLELIMIT) {
+				status = stuck; // all storages are full => Shipment and arrival are stagnant, and it can not produce anything
+			}
+			else if (status_ein&FL_WARE_ALLENULL) {
+				status = no_material;
+			}
+			else if (status_ein&FL_WARE_NULL) {
+				status = material_shortage;
+			}
+			else if (status_ein&FL_WARE_ALLELIMIT) {
+				status = mat_overstocked; // all input storages are full => lack of production speed = receiving stop
+			}
+			else if (status_aus&FL_WARE_ALLELIMIT) {
+				status = shipment_stuck; // all out storages are full => product demand is low or shipment pace is slow = shipping stop
+			}
+			else if (status_ein&FL_WARE_LIMIT || status_aus & FL_WARE_LIMIT) {
+				status = medium; // some storages are full
+			}
+			else
+			{
+				status = good;
+			}
+			break;
+		case end_consumer:
+		case power_plant:
+			if (status_ein&FL_WARE_ALLELIMIT) {
+				// Excess supply or Stagnation of shipment or Low productivity or Customer shortage => receiving stop
+				status = mat_overstocked;
+			}
+			else if (status_ein&FL_WARE_LIMIT) {
+				// served, but still one at limit => possibility of customer shortage and some delivery stops because its storage is full
 				status = bad;
 			}
+			else if (status_ein&FL_WARE_ALLENULL) {
+				// there is a halt => needs better service
+				status = no_material;
+			}
+			else if (status_ein&FL_WARE_NULL) {
+				// some items out of stock, but still active
+				status = medium;
+			}
+			else
+			{
+				status = good;
+			}
+			break;
+		default:
+			status = nothing;
+			break;
 		}
-		else
-		{
-			status = good;
-		}
-
-		// Staff shortage takes priority over other states as this affects production
-		// TODO: Remove the check for water industries if and when a satisfactory method of conveying passengers to these can be found (helecopters might work for oil platforms; fisheries can have their workers set to zero).
-		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water) && !(welt->get_settings().get_rural_industries_no_staff_shortage() && city == NULL))
-		{
-			status = staff_shortage;
-		}
-	}
-	else {
-		// produces and consumes
-		if ((status_ein&FL_WARE_ALLELIMIT) != 0 && (status_aus&FL_WARE_ALLEUEBER75) != 0) {
-			status = bad;
-		}
-		else if ((status_ein&FL_WARE_ALLELIMIT) != 0 || (status_aus&FL_WARE_ALLEUEBER75) != 0) {
-			status = medium;
-		}
-		else if ((status_ein&FL_WARE_ALLENULL) != 0 && (status_aus&FL_WARE_ALLENULL) != 0) {
-			// not producing
-			status = inactive;
-		}
-		else if (haltcount>0 && ((status_ein&FL_WARE_ALLENULL) != 0 || (status_aus&FL_WARE_ALLENULL) != 0)) {
-			// not producing but out of supply
-			status = medium;
-		}
-		else
-		{
-			status = good;
-		}
-
-		// Staff shortage takes priority over other states as this affects production
-		// TODO: Remove the check for water industries if and when a satisfactory method of conveying passengers to these can be found (helecopters might work for oil platforms; fisheries can have their workers set to zero).
-		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water) && !(welt->get_settings().get_rural_industries_no_staff_shortage() && city == NULL))
-		{
-			status = staff_shortage;
+		// staff shortage check
+		if (chk_staff_shortage(sector, building->get_staffing_level_percentage())) {
+			status += staff_shortage;
 		}
 	}
 }
@@ -3078,21 +3106,23 @@ void fabrik_t::show_info()
 void fabrik_t::info_prod(cbuffer_t& buf) const
 {
 	buf.clear();
-	buf.append( translator::translate("Durchsatz") );
-	buf.append( get_current_production(), 0 );
-	buf.append( translator::translate("units/day") );
-	buf.append( "\n" );
+	buf.append(translator::translate("Durchsatz"));
+	buf.append(get_current_production(), 0);
+	buf.append(translator::translate("units/day"));
+	buf.append("\n");
 	if(get_desc()->is_electricity_producer())
 	{
 		buf.append(translator::translate("Electrical output: "));
+		buf.append(scaled_electric_amount >> POWER_TO_MW);
+		buf.append(" MW");
 	}
 	else
 	{
 		buf.append(translator::translate("Electrical demand: "));
+		buf.append((scaled_electric_amount * 1000) >> POWER_TO_MW);
+		buf.append(" KW");
 	}
 
-	buf.append(scaled_electric_amount>>POWER_TO_MW);
-	buf.append(" MW");
 	buf.append("\n");
 
 	if(city != NULL)
@@ -3111,6 +3141,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 #else
 		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), building->get_adjusted_jobs(), max(0, building->check_remaining_available_jobs()));
 #endif
+		buf.printf("%s: %d\n", translator::translate("Mail demand/output"), building->get_adjusted_mail_demand());
 		// Class entries:
 		building->get_class_percentage(buf);
 		buf.append("\n");
@@ -3192,8 +3223,14 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 				buf.append(", ");
 				buf.append(translator::translate(type->get_catg_name()));
 			}
-
-			buf.printf(", %u%%", (uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS));
+			// Primary industry displays monthly production
+			if (get_sector() == marine_resource || get_sector() == resource) {
+				buf.printf(", %d", get_current_production()*pfactor >> DEFAULT_PRODUCTION_FACTOR_BITS);
+				buf.printf("%s%s", translator::translate(type->get_mass()),translator::translate("/month"));
+			}
+			else {
+				buf.printf(", %u%%", (uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS));
+			}
 		}
 	}
 
@@ -3831,4 +3868,72 @@ uint32 fabrik_t::get_time_to_consume_stock(uint32 index)
 uint32 fabrik_t::get_monthly_pax_demand() const
 {
 	return (scaled_pax_demand * 100) / welt->get_settings().get_job_replenishment_per_hundredths_of_months();
+}
+
+void fabrik_t::set_sector()
+{
+	if (get_desc()->is_electricity_producer()) {
+		sector = power_plant;
+	}
+	else if (get_desc()->get_placement() == factory_desc_t::Water) {
+		sector = marine_resource;
+	}
+	else if (input.empty() && !output.empty()) {
+		sector = city ? resource_city : resource;
+	}
+	else if (!input.empty() && !output.empty()) {
+		sector = manufacturing;
+	}
+	else if (!input.empty() && output.empty()) {
+		sector = end_consumer;
+	}else{
+		// both input and output enmpty, but not a power_plant
+		sector = unknown;
+	}
+}
+
+bool fabrik_t::chk_staff_shortage (uint8 ftype, sint32 staffing_level_percentage) const
+{
+	switch (ftype) {
+		//TODO: when power_plant or unknown ?
+		case marine_resource:
+			return false;
+			break;
+		case resource:
+			if (welt->get_settings().get_rural_industries_no_staff_shortage()) {
+				return false;
+			}
+			else {
+				if (staffing_level_percentage < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry()) {
+					return true;
+				}
+			}
+			break;
+		case resource_city:
+		case manufacturing:
+			if (staffing_level_percentage < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry()) {
+				return true;
+			}
+			break;
+		case end_consumer:
+			if (staffing_level_percentage < welt->get_settings().get_minimum_staffing_percentage_consumer_industry()) {
+				return true;
+			}
+			break;
+
+		default:
+			break;
+	}
+	return false;
+}
+
+bool fabrik_t::is_connect_own_network() const
+{
+	FOR(vector_tpl<nearby_halt_t>, const i, nearby_freight_halts)
+	{
+		if(i.halt->get_owner() == welt->get_active_player() || i.halt->get_owner() == welt->get_public_player()){
+			return true;
+		}
+	}
+	return false;
 }

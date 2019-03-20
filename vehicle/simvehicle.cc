@@ -5092,7 +5092,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 	//const signal_t* signal_next_tile = welt->lookup(cnv->get_route()->at(min(cnv->get_route()->get_count() - 1u, route_index)))->find<signal_t>();
 
-	if(starting_from_stand && cnv->get_next_stop_index() == route_index /*&& !signal_next_tile*/ && !signal_current && working_method != drive_by_sight && working_method != moving_block)
+	if(starting_from_stand && cnv->get_next_stop_index() <= route_index /*&& !signal_next_tile*/ && !signal_current && working_method != drive_by_sight && working_method != moving_block)
 	{
 		// If we are starting from stand, have no reservation beyond here and there is no signal, assume that it has been deleted and revert to drive by sight.
 		// This might also occur when a train in the time interval working method has had a collision from the rear and has gone into an emergency stop.

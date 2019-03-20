@@ -19,7 +19,7 @@ class fabrik_t;
 
 
 namespace factorylist {
-    enum sort_mode_t { by_name=0, by_available, by_output, by_maxprod, by_status, by_power, SORT_MODES, by_input, by_transit,  };	// the last two not used
+    enum sort_mode_t { by_name=0, by_available, by_output, by_maxprod, by_status, by_power, by_sector, SORT_MODES, by_input, by_transit,  };	// the last two not used
 };
 
 /**
@@ -34,11 +34,12 @@ private:
 
 	factorylist::sort_mode_t sortby;
 	bool sortreverse;
+	bool filter_own_network;
 
 public:
-	factorylist_stats_t(factorylist::sort_mode_t sortby, bool sortreverse);
+	factorylist_stats_t(factorylist::sort_mode_t sortby, bool sortreverse, bool own_network);
 
-	void sort(factorylist::sort_mode_t sortby, bool sortreverse);
+	void sort(factorylist::sort_mode_t sortby, bool sortreverse, bool own_network);
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

@@ -3,7 +3,7 @@ PROP_FONT_FILE
 Prop-Latin1.bdf
 ################################################################################
 #                                                                              #
-#                 Simutrans-Extended Base Translation File                 #
+#                 Simutrans-Extended Base Translation File                     #
 #                             Scenario: Base texts                             #
 #                             Language: en English                             #
 #                                Encoding: ASCII                               #
@@ -1085,6 +1085,10 @@ Loom
 Ler
 %24B_CITY_SYLL
 Mous
+%249_CITY_SYLL
+Les
+%24A_CITY_SYLL
+Bern
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -3900,5 +3904,25 @@ ratio_goods
 % goods
 Can't buy obsolete vehicles!
 It is not possible to buy vehicles that are either obsolete or available only as upgrades.
+Inactive
+Inactive
+Sector
+Sector
+Commuters
+Commuters
+Consumers
+Consumers
+Within own network
+Within own network
+Show only connected to own transport network
+Show only connected to own transport network
+Fully stocked
+Fully stocked
+Power usage
+Power usage
+Power output
+Power output
 Railcar_tab
 Railcars
+staffing_bar_tooltip_help
+This bar shows how many workers that this industry has compared to how many that it needs

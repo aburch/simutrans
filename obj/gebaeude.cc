@@ -456,7 +456,7 @@ void gebaeude_t::set_fab(fabrik_t *fd)
 		{
 			// We cannot set this until we know what sort of factory that this is.
 			// If it is not an end consumer, do not allow any visitor demand by default.
-			if (fd->is_end_consumer())
+			if (fd->get_sector() == fabrik_t::end_consumer)
 			{
 				people.visitor_demand = tile->get_desc()->get_level() * welt->get_settings().get_visitor_demand_per_level();
 				adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
@@ -1476,15 +1476,15 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 		const char* class_name = translator::translate(class_name_untranslated);
 		if (condition == 1)
 		{
-			buf.printf("  %i%% %s\n", class_percentage[i], class_name);
+			buf.printf(" %3i%% %s\n", class_percentage[i], class_name);
 		}
 		else if (condition == 2)
 		{
-			buf.printf("  %i%% / %i%% %s\n", class_percentage[i], class_percentage_job[i], class_name);
+			buf.printf(" %3i%% /%3i%% %s\n", class_percentage[i], class_percentage_job[i], class_name);
 		}
 		if (condition == 3)
 		{
-			buf.printf("  %i%% %s\n", class_percentage_job[i], class_name);
+			buf.printf(" %3i%% %s\n", class_percentage_job[i], class_name);
 		}
 	}
 }
