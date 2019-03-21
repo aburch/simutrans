@@ -655,7 +655,7 @@ int simu_main(int argc, char** argv)
 		// Again, attempt to use the Debian directory.
 		char backup_program_dir[1024];
 		strcpy(backup_program_dir, env_t::program_dir);
-		strcpy( env_t::program_dir, "/usr/share/games/simutrans-ex/" );
+		strcpy( env_t::program_dir, "/usr/share/games/simutrans-extended/" );
         chdir( env_t::program_dir );
 		xml_settings_found = file.rd_open(xml_filename);
 		if(!xml_settings_found)
