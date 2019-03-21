@@ -1,9 +1,9 @@
 #include "simthread.h"
 
-#if defined(_USE_POSIX_BARRIERS)  ||  !defined(MULTI_THREAD)
-// use native pthread barriers
-// (and do not try to compile this file for non-multithread builds)
-#else
+#ifdef MULTI_THREAD
+// do not try to compile this file for non-multithreaded builds
+
+#ifndef _USE_POSIX_BARRIERS
 // implement barriers using other pthread primitives
 #include <errno.h>
 
@@ -52,5 +52,24 @@ int simthread_barrier_wait(simthread_barrier_t *barrier)
 		return 0;
 	}
 }
+
+#endif
+
+#ifndef _SIMTHREAD_R_MUTEX_I
+// initialize a recursive mutex by calling pthread_mutex_init()
+recursive_mutex_maker_t::recursive_mutex_maker_t(pthread_mutex_t &mutex)
+{
+	pthread_mutexattr_t attr;
+
+	if (pthread_mutexattr_init(&attr) != 0 ||
+	    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE) != 0 ||
+	    pthread_mutex_init(&mutex, &attr) != 0 ||
+	    pthread_mutexattr_destroy(&attr) != 0) {
+		// Can't call dbg->error(), because this constructor
+		// may run before simu_main() calls init_logging().
+		dbg->fatal("recursive_mutex_maker_t","Can't make a recursive mutex!");
+	}
+}
+#endif
 
 #endif

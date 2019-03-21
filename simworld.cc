@@ -5117,7 +5117,8 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
 
 
 #ifdef MULTI_THREAD
-static pthread_mutex_t height_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t height_mutex;
+static recursive_mutex_maker_t height_mutex_maker(height_mutex);
 #endif
 
 
