@@ -25,13 +25,15 @@ Release of 122.0 (r9274 on 10-Oct-2020):
 
 
 Release of 121.0 (r8870 on 1-Dec-2019):
-	FIX: Make double pak warning translatable
 	ADD: Map number is shown in the enlarge map window.
 	ADD: use animated water graphics on shores
 	FIX: Do not call DefWindowsProc for IME to mitigate crash on Windows1809
+	FIX: Make double pak warning translatable
 	FIX: (ACarlotti) rotation of traffic light phases and overflow was broken for years
+	CHG: The acceleration tool now also alters the acceleration in fast forward mode
 	FIX: Prevent a crash when the schedule window is open with waypoints on bridges that were destroyed or had planning canceled.
 	CHG: Start with random midi song
+	FIX: IP4 address query for easyserver (to detect IP4 changes sometimes occuring for ADSL connections)
 	ADD: new simuconf.tab parameter follow_convoi_underground to slice through grounds to follow a convoi in sliced mode oder full underground mode
 	ADD: search for midi files first in pak folder, then user folder, then program folder
 

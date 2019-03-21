@@ -10569,15 +10569,29 @@ void karte_t::step_month( sint16 months )
 }
 
 
+sint32 karte_t::get_time_multiplier() const
+{
+	return step_mode==FAST_FORWARD ? env_t::max_acceleration : time_multiplier;
+}
+
+
+
 void karte_t::change_time_multiplier(sint32 delta)
 {
-	time_multiplier += delta;
-	if(time_multiplier<=0) {
-		time_multiplier = 1;
+	if(  step_mode == FAST_FORWARD  ) {
+		if(  env_t::max_acceleration+delta > 2  ) {
+			env_t::max_acceleration += delta;
+		}
 	}
-	if(step_mode!=NORMAL) {
-		step_mode = NORMAL;
-		reset_timer();
+	else {
+		time_multiplier += delta;
+		if(time_multiplier<=0) {
+			time_multiplier = 1;
+		}
+		if(step_mode!=NORMAL) {
+			step_mode = NORMAL;
+			reset_timer();
+		}
 	}
 }
 
