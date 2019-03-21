@@ -3005,14 +3005,15 @@ void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
  */
 void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 {
-	if (walked_between_stations > 4)
+	if (walked_between_stations > 8)
 	{
 		// With repeated walking between stations -- and as long as the walking takes no actual time
 		// (which is a bug which should be fixed [and now has been fixed]) -- there is some danger of infinite loops.
 		// Check for an excessively long number of walking steps.  If we have one, complain and fail.
 		//
 		// This was the 5th consecutive attempt to walk between stations.  Fail.
-		// UPDATE December 2016: Walking between stations now does take actual time. Is this still needed?
+		// NOTE: Although the actual transferring now takes time, this recursive calling does not, so this
+		// is still needed. 
 #ifdef MULTI_THREAD
 		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 		assert(mutex_error == 0);
