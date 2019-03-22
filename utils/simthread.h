@@ -33,7 +33,9 @@
 struct recursive_mutex_maker_t {
 #ifdef _SIMTHREAD_R_MUTEX_I
 	recursive_mutex_maker_t(pthread_mutex_t &mutex) {
-		mutex = _SIMTHREAD_R_MUTEX_I;
+		// initializer can only be used for initialization, not assignment
+		pthread_mutex_t dummy = _SIMTHREAD_R_MUTEX_I;
+		mutex = dummy;
 	}
 #else
 	recursive_mutex_maker_t(pthread_mutex_t &mutex);
