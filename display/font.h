@@ -20,9 +20,6 @@ public:
 	{
 		fname[0]= 0;
 	}
-
-	// later we may add on the fly rendering for freefont
-	uint16 get_char(uint16 i) { return char_data[i] == 0 ? 0 : i; }
 };
 
 /*
