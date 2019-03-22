@@ -320,26 +320,31 @@ void gui_aligned_container_t::compute_sizes(vector_tpl<scr_coord_val>& col_w, ve
 scr_size gui_aligned_container_t::get_size(vector_tpl<scr_coord_val>& col_w, vector_tpl<scr_coord_val>& row_h) const
 {
 	scr_coord_val sinf = scr_size::inf.w;
-	scr_size s = margin_tl + margin_br - spacing;
+	scr_size s = margin_tl + margin_br;
+	scr_coord_val space = 0; // no spacing before first element
 // 	printf("col_w ");
 	FOR(vector_tpl<scr_coord_val>, const w, col_w) {
 // 		printf("%d, ", w);
-		if (s.w > sinf - w - spacing.w) {
+		if (s.w > sinf - w - space) {
 			s.w = sinf;
 		}
 		else {
-			s.w += w + spacing.w;
+			s.w += w + space;
 		}
+		space = spacing.w;
 	}
 // 	printf("\nrow_h ");
+	space = 0;
 	FOR(vector_tpl<scr_coord_val>, const h, row_h) {
 // 		printf("%d, ", h);
-		if (s.h > sinf - h - spacing.h) {
+		if (s.h > sinf - h - space) {
 			s.h = sinf;
 		}
 		else {
-			s.h += h + spacing.h;
-		}	}
+			s.h += h + space;
+		}
+		space = spacing.w;
+	}
 // 	printf("\n");
 	return s;
 }
