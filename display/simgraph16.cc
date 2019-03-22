@@ -4537,31 +4537,29 @@ int display_calc_proportional_string_len_width(const char *text, size_t len)
 }
 
 
-/* @ see get_mask() */
-static const unsigned char byte_to_mask_array[9] = { 0xFF, 0x7F, 0x3F, 0x1F, 0x0F, 0x07, 0x03, 0x01, 0x00 };
-
-/* Helper: calculates mask for clipping *
-* Attention: xL-xR must be <=8 !!!
-* @author priss
-* @date  29.11.04
-*/
+/**
+ * Helper: calculates 8bit mask for clipping.
+ * Calculates mask to fit pixel interval [xRL,xR) to clipping interval [cL, cR).
+ */
 static unsigned char get_h_mask(const int xL, const int xR, const int cL, const int cR)
 {
 	// do not mask
-	unsigned char mask;
+	unsigned char mask = 0xff;
 
 	// check, if there is something to display
 	if (xR <= cL || xL >= cR) return 0;
-	mask = 0xFF;
+	// 8bit masks only
+	assert(xR - xL < 8);
+
 	// check for left border
-	if (xL < cL && xR > cL) {
-		// Left border clipped
-		mask = byte_to_mask_array[cL - xL];
+	if (xL < cL) {
+		// left border clipped
+		mask = 0xff >> (cL - xL);
 	}
 	// check for right border
-	if (xL < cR && xR > cR) {
+	if (xR > cR) {
 		// right border clipped
-		mask &= ~byte_to_mask_array[cR - xL];
+		mask &= 0xff << (xR - cR);
 	}
 	return mask;
 }
