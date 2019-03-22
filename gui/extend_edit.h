@@ -27,7 +27,7 @@ private:
 	uint8 rotation; ///< 0-3, 255 = random
 
 public:
-	enum {
+	enum special_rotations_t {
 		automatic = 254,
 		random = 255
 	};

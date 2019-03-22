@@ -1004,7 +1004,7 @@ void remove_port_forwarding( int port )
 #else
 // or we just get only our IP and hope we are not behind a router ...
 
-bool prepare_for_server(char *externalIPAddress, char *alter_IP, int port)
+bool prepare_for_server(char *externalIPAddress, char *, int)
 {
 	cbuffer_t myIPaddr;
 	// lets get IP by query "simutrans-forum.de/get_IP.php" for IP and assume that the redirection is working
