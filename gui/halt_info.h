@@ -32,6 +32,7 @@
 #include "simwin.h"
 
 class gui_departure_board_t;
+class gui_halt_detail_t;
 
 /**
  * Helper class to show type symbols (train, bus, etc)
@@ -45,6 +46,7 @@ public:
 
 	void draw(scr_coord offset) OVERRIDE;
 };
+
 
 /**
  * Main class: the station info window.
@@ -67,15 +69,17 @@ private:
 	// departure stuff (departure and arrival times display)
 	gui_departure_board_t *departure_board;
 
+	// halt connections plane
+	gui_halt_detail_t *halt_detail;
+
 	// other UI definitions
 	gui_aligned_container_t container_freight, container_chart;
 	gui_textarea_t text_freight;
-	gui_scrollpane_t scrolly_freight, scrolly_departure;
+	gui_scrollpane_t scrolly_freight, scrolly_departure, scrolly_details;
 
 	gui_textinput_t input;
 	gui_chart_t chart;
 	location_view_t view;
-	button_t button;
 	button_t sort_button;     // @author hsiegeln
 
 	gui_button_to_chart_array_t button_to_chart;
@@ -99,7 +103,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const OVERRIDE {return "station.txt";}
+	const char *get_help_filename() const OVERRIDE {return "station.txt";}
 
 	/**
 	 * Draw new component. The values to be passed refer to the window

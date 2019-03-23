@@ -86,6 +86,9 @@ private:
 
 
 public:
+	// dummy vehicle for the XREF reader
+	static vehicle_desc_t *any_vehicle;
+
 	// since we have a second constructor
 	vehicle_desc_t() { }
 
@@ -208,7 +211,11 @@ public:
 		}
 		for( uint8 i=0;  i<trailer_count;  i++  ) {
 			vehicle_desc_t const* const veh = get_child<vehicle_desc_t>(6 + leader_count + i);
-			if(veh==next_veh) {
+			if(  veh==next_veh  ) {
+				return true;
+			}
+			// not leading and "any" => we can follow
+			if(  next_veh!=NULL  &&  veh==vehicle_desc_t::any_vehicle  ) {
 				return true;
 			}
 		}
@@ -226,7 +233,11 @@ public:
 		}
 		for( uint8 i=0;  i<leader_count;  i++  ) {
 			vehicle_desc_t const* const veh = get_child<vehicle_desc_t>(6 + i);
-			if(veh==prev_veh) {
+			if(  veh==prev_veh  ) {
+				return true;
+			}
+			// not leading and "any" => we can follow
+			if(  prev_veh!=NULL  &&  veh==vehicle_desc_t::any_vehicle  ) {
 				return true;
 			}
 		}

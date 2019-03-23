@@ -47,7 +47,8 @@
 
 #ifdef MULTI_THREAD
 #include "../../utils/simthread.h"
-static pthread_mutex_t weg_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t weg_calc_image_mutex;
+static recursive_mutex_maker_t weg_cim_maker(weg_calc_image_mutex);
 #endif
 
 /**

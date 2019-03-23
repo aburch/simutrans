@@ -54,7 +54,6 @@
 #include "obj/wayobj.h"
 
 #include "gui/halt_info.h"
-#include "gui/halt_detail.h"
 #include "gui/karte.h"
 
 #include "utils/simrandom.h"
@@ -591,11 +590,6 @@ void haltestelle_t::set_name(const char *new_name)
 			if(new_name  &&  all_names.set(gr->get_text(),self).is_bound() ) {
  				DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",new_name);
 			}
-		}
-		// Knightly : need to update the title text of the associated halt detail and info dialogs, if present
-		halt_detail_t *const details_frame = dynamic_cast<halt_detail_t *>( win_get_magic( magic_halt_detail + self.get_id() ) );
-		if(  details_frame  ) {
-			details_frame->set_name( get_name() );
 		}
 		halt_info_t *const info_frame = dynamic_cast<halt_info_t *>( win_get_magic( magic_halt_info + self.get_id() ) );
 		if(  info_frame  ) {
