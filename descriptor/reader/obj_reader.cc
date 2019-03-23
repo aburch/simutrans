@@ -26,6 +26,7 @@
 
 #include "../obj_desc.h"
 #include "../obj_node_info.h"
+#include "../vehicle_desc.h"
 
 #include "obj_reader.h"
 
@@ -50,6 +51,12 @@ void obj_reader_t::register_reader()
  */
 bool obj_reader_t::finish_loading()
 {
+	// vehicle to follow to mark something cannot lead a convoi (prev[0]=any) or cannot end a convoi (next[0]=any)
+	vehicle_desc_t::any_vehicle = new vehicle_desc_t(ignore_wt, 1, vehicle_desc_t::unknown);
+
+	// first we add the any_vehicle to xrefs
+	obj_for_xref( obj_vehicle, "any", vehicle_desc_t::any_vehicle );
+
 	resolve_xrefs();
 
 	FOR(obj_map, const& i, *obj_reader) {

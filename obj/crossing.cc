@@ -29,7 +29,8 @@
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
-static pthread_mutex_t crossing_logic_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t crossing_logic_mutex;
+static recursive_mutex_maker_t crossing_lm_maker(crossing_logic_mutex);
 #endif
 
 

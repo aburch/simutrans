@@ -4337,31 +4337,29 @@ int display_calc_proportional_string_len_width(const char *text, size_t len)
 }
 
 
-/* @ see get_mask() */
-static const unsigned char byte_to_mask_array[9] = { 0xFF, 0x7F, 0x3F, 0x1F, 0x0F, 0x07, 0x03, 0x01, 0x00 };
-
-/* Helper: calculates mask for clipping *
- * Attention: xL-xR must be <=8 !!!
- * @author priss
- * @date  29.11.04
+/**
+ * Helper: calculates 8bit mask for clipping.
+ * Calculates mask to fit pixel interval [xRL,xR) to clipping interval [cL, cR).
  */
 static unsigned char get_h_mask(const int xL, const int xR, const int cL, const int cR)
 {
 	// do not mask
-	unsigned char mask;
+	unsigned char mask = 0xff;
 
 	// check, if there is something to display
 	if (xR <= cL || xL >= cR) return 0;
-	mask = 0xFF;
+	// 8bit masks only
+	assert(xR - xL <= 8);
+
 	// check for left border
-	if (xL < cL && xR > cL) {
-		// Left border clipped
-		mask = byte_to_mask_array[cL - xL];
+	if (xL < cL) {
+		// left border clipped
+		mask = 0xff >> (cL - xL);
 	}
 	// check for right border
-	if (xL < cR && xR > cR) {
+	if (xR > cR) {
 		// right border clipped
-		mask &= ~byte_to_mask_array[cR - xL];
+		mask &= 0xff << (xR - cR);
 	}
 	return mask;
 }
@@ -4385,7 +4383,6 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 	KOORD_VAL yy = y + fnt->height;
 	KOORD_VAL x0;	// store the initial x (for dirty marking)
 	KOORD_VAL y_offset, char_height;	// real y for display with clipping
-	unsigned char mask1, mask2;	// for horizontal clipping
 
 	// TAKE CARE: Clipping area may be larger than actual screen size ...
 	if(  (flags & DT_CLIP)  ) {
@@ -4462,29 +4459,24 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 		char_width_1 = char_data[CHARACTER_LEN-1];
 		char_yoffset = (sint8)char_data[CHARACTER_LEN-2];
 		char_width_2 = fnt->screen_width[c];
-		if (char_width_1>8) {
-			mask1 = get_h_mask(x, x + 8, cL, cR);
-			// we need to double mask 2, since only 2 Bits are used
-			mask2 = get_h_mask(x + 8, x + char_width_1, cL, cR);
-		}
-		else {
-			// char_width_1<= 8: call directly
-			mask1 = get_h_mask(x, x + char_width_1, cL, cR);
-			mask2 = 0;
-		}
-		// do the display
 
+		// do the display
 		if(  y_offset>char_yoffset  ) {
 			char_yoffset = (uint8)y_offset;
 		}
 
+		// currently max character width 16 bit supported by font.h/font.cc
 		for(  int i=0;  i<2;  i++  ) {
+
+			uint8 bits = min(8, char_width_1);
+			unsigned char mask = get_h_mask(x + i*8, x + i*8 + bits, cL, cR);
+			char_width_1 -= bits;
+
 			p = char_data + char_yoffset + i*CHARACTER_HEIGHT;
-			const uint8 m =  i ? mask2 : mask1;
-			if(  m  ) {
+			if(  mask  ) {
 				screen_pos = (y+char_yoffset) * disp_width + x + i*8;
 				for (h = char_yoffset; h < char_height; h++) {
-					unsigned int dat = *p++ & m;
+					unsigned int dat = *p++ & mask;
 					PIXVAL* dst = textur + screen_pos;
 
 					if(  dat  !=  0  ) {

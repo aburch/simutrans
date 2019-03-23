@@ -2,6 +2,10 @@
 #include "xref_desc.h"
 #include "../network/checksum.h"
 
+
+vehicle_desc_t *vehicle_desc_t::any_vehicle = NULL;
+
+
 void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 {
 	obj_desc_transport_related_t::calc_checksum(chk);
@@ -25,3 +29,4 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 		chk->input(xref ? xref->get_name() : "NULL");
 	}
 }
+

@@ -10,6 +10,8 @@
 	FIX: (ACarlotti) rotation of traffic light phases and overflow was broken for years
 	FIX: fields now check for allowed climate, not same height
 	ADD: (HyperSim inspired) new tool for merging distance stations (and lot of code cleanup of old merging tool)
+	ADD: constrait[prev][0]=any require a vehile in front (and same for [next] to require a trailing vehicle)
+	CHG: The acceleration tool now also alters the acceleration in fast forward mode
 
 
 Release of 120.4.1 (r8600 on 23-Sep-2018):
