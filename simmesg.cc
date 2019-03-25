@@ -78,7 +78,7 @@ void message_t::clear()
 	while (!list.empty()) {
 		delete list.remove_first();
 	}
-	ticker::clear_ticker();
+	ticker::clear_messages();
 }
 
 
