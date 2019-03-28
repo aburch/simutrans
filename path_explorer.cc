@@ -1870,7 +1870,7 @@ bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_
 	uint16 origin_index, target_index;
 	
 	// check if origin and target halts are both present in matrix; if yes, check the validity of the next transfer
-	if ( paths_available && origin_halt.is_bound() && target_halt.is_bound()
+	if ( paths_available /*&& origin_halt.is_bound() && target_halt.is_bound()*/
 			&& ( origin_index = finished_halt_index_map[ origin_halt.get_id() ] ) != 65535
 			&& ( target_index = finished_halt_index_map[ target_halt.get_id() ] ) != 65535
 			&& finished_matrix[origin_index][target_index].next_transfer.is_bound() )

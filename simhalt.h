@@ -617,18 +617,18 @@ public:
 	void get_destination_halts_of_ware(ware_t &ware, vector_tpl<halthandle_t>& destination_halts_list) const;
 	uint32 find_route(const vector_tpl<halthandle_t>& ziel_list, ware_t & ware, const uint32 journey_time = UINT32_MAX_VALUE, const koord destination_pos = koord::invalid) const;
 
-	bool get_pax_enabled()  const { return enables & PAX;  }
-	bool get_mail_enabled() const { return enables & POST; }
-	bool get_ware_enabled() const { return enables & WARE; }
+	inline bool get_pax_enabled()  const { return enables & PAX;  }
+	inline bool get_mail_enabled() const { return enables & POST; }
+	inline bool get_ware_enabled() const { return enables & WARE; }
 
 	// check, if we accepts this good
 	// often called, thus inline ...
-	bool is_enabled( const goods_desc_t *wtyp ) const {
+	inline bool is_enabled( const goods_desc_t *wtyp ) const {
 		return is_enabled(wtyp->get_catg_index());
 	}
 
 	// a separate version for checking with goods category index
-	bool is_enabled( const uint8 catg_index ) const
+	inline bool is_enabled( const uint8 catg_index ) const
 	{
 		if (catg_index == goods_manager_t::INDEX_PAS) {
 			return enables&PAX;

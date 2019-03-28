@@ -2154,6 +2154,8 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
  	koord destination_stop_pos = destination_pos;
 
 	const uint8 ware_catg = ware.get_desc()->get_catg_index();
+	const bool is_freight = ware.is_freight();
+	const uint8 g_class = ware.g_class;
 
 	bool found_a_halt = false;
 
@@ -2163,18 +2165,13 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 
 	for(vector_tpl<halthandle_t>::const_iterator destination_halt = destination_halts_list.begin(); destination_halt != destination_halts_list.end(); destination_halt++)
 	{
-		if (self == *destination_halt)
+		if (!destination_halt->is_bound() || self == *destination_halt)
 		{
+			// Either this halt has been deleted recently, or the origin and destination are the same.
 			continue;
 		}
 		
-		path_explorer_t::get_catg_path_between(ware_catg, self, *destination_halt, test_time, test_transfer, ware.g_class);
-
-		if(!destination_halt->is_bound())
-		{
-			// This halt has been deleted recently.  Don't go there.
-			continue;
-		}
+		path_explorer_t::get_catg_path_between(ware_catg, self, *destination_halt, test_time, test_transfer, g_class);
 
 		found_a_halt = true;
 		
@@ -2206,7 +2203,7 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 		if (test_time < UINT32_MAX_VALUE)
 		{
 			// The above check is necessary or there will be an overflow causing spurious routes to be found.
-			if (!ware.is_freight())
+			if (!is_freight)
 			{
 				// Passengers or mail.
 				// Calculate walking time from destination stop to final destination; add it.
