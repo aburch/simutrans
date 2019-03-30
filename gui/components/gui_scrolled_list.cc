@@ -82,6 +82,7 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type, item_compare_func cmp) 
 	size = scr_size(0,0);
 	pos = scr_coord(0,0);
 	max_width = scr_size::inf.w;
+	multiple_selection = false;
 }
 
 
@@ -100,7 +101,14 @@ void gui_scrolled_list_t::set_selection(int s)
 		return;
 	}
 	gui_component_t* new_focus = item_list[s];
-
+	
+	// reset selected status
+	FOR(vector_tpl<gui_component_t*>, v, item_list) {
+		scrollitem_t* item = dynamic_cast<scrollitem_t*>(v);
+		if(  item  ) {
+			item->selected = item==new_focus;
+		}
+	}
 	container.set_focus(new_focus);
 }
 
@@ -116,6 +124,19 @@ gui_scrolled_list_t::scrollitem_t* gui_scrolled_list_t::get_selected_item() cons
 	scrollitem_t* focus = dynamic_cast<scrollitem_t*>( comp->get_focus() );
 	return focus  &&  item_list.is_contained(focus) ? focus : NULL;
 }
+
+vector_tpl<sint32> gui_scrolled_list_t::get_selections() const
+{
+	vector_tpl<sint32> selections;
+	for(  uint32 i=0;  i<item_list.get_count();  i++  ) {
+		scrollitem_t* item = dynamic_cast<scrollitem_t*> (item_list[i]);
+		if(  item  &&  item->selected  ) {
+			selections.append(i);
+		}
+	}
+	return selections;
+}
+
 
 void gui_scrolled_list_t::clear_elements()
 {
@@ -181,19 +202,59 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 	}
 	if(  ev->ev_class==EVENT_KEYBOARD  && ev->ev_code == SIM_KEY_DOWN  &&  (uint32)(get_selection()+1) < item_list.get_count()) {
 		ev2.ev_code = SIM_KEY_TAB;
+		ev2.ev_key_mod &= ~1;
 	}
 
 	bool swallowed = gui_scrollpane_t::infowin_event(&ev2);
+	scrollitem_t* const new_focus = dynamic_cast<scrollitem_t*>( comp->get_focus() );
 
-	// if different element is focused, call listeners
-	if (focus != dynamic_cast<scrollitem_t*>( comp->get_focus() )   ) {
+	// if different element is focused, calculate selection and call listeners
+	if (  focus != new_focus  ) {
+		calc_selection(focus, new_focus, *ev);
 		int new_selection = get_selection();
-
 		call_listeners((long)new_selection);
 		swallowed = true;
 	}
 
 	return swallowed;
+}
+
+
+void gui_scrolled_list_t::calc_selection(scrollitem_t* old_focus, scrollitem_t* new_focus, event_t ev)
+{
+	if(  !new_focus  ) {
+		// do nothing.
+		return;
+	}
+	else if(  !old_focus  ||  !multiple_selection  ||  ev.ev_key_mod==0  ) {
+		// simply select new_focus
+		FOR(vector_tpl<gui_component_t*>, v, item_list) {
+			scrollitem_t* item = dynamic_cast<scrollitem_t*>(v);
+			if(  item  ) {
+				item->selected = item==new_focus;
+			}
+		}
+	}
+	else if(  IS_CONTROL_PRESSED(&ev)  ) {
+		// control key is pressed. select or deselect the focused one.
+		new_focus->selected = !new_focus->selected;
+	}
+	else if(  IS_SHIFT_PRESSED(&ev)  ) {
+		// shift key is pressed.
+		sint32 old_idx = item_list.index_of(old_focus);
+		sint32 new_idx = item_list.index_of(new_focus);
+		if(  old_idx==-1  ||  new_idx==-1  ) {
+			// out of index!?
+			return;
+		}
+		const bool sel = !new_focus->selected;
+		for(  sint32 i=min(old_idx,new_idx);  i<=max(old_idx,new_idx);  i++  ) {
+			scrollitem_t* item = dynamic_cast<scrollitem_t*>(item_list[i]);
+			if(  item  &&  i!=old_idx  ) {
+				item->selected = sel;
+			}
+		}
+	}
 }
 
 
@@ -219,10 +280,15 @@ void gui_scrolled_list_t::cleanup_elements()
 
 void gui_scrolled_list_t::draw(scr_coord offset)
 {
+	// set focus
 	scrollitem_t* focus = dynamic_cast<scrollitem_t*>( comp->get_focus() );
-	if (focus) {
-		focus->focused = win_get_focus() == focus;
-		focus->selected = true;
+	if(  focus  ) {
+		FOR(vector_tpl<gui_component_t*>, v, item_list) {
+			scrollitem_t* item = dynamic_cast<scrollitem_t*>(v);
+			if(  item  ) {
+				item->focused = item->selected  &&  win_get_focus()==focus;
+			}
+		}
 	}
 	cleanup_elements();
 
@@ -239,9 +305,4 @@ void gui_scrolled_list_t::draw(scr_coord offset)
 	}
 
 	gui_scrollpane_t::draw(offset);
-
-	if (focus) {
-		focus->focused = false;
-		focus->selected = false;
-	}
 }
