@@ -153,6 +153,10 @@ void ticker::draw()
 	const int start_y=display_get_height()-TICKER_YPOS_BOTTOM;
 	const int width = display_get_width();
 
+	if (width <= 0) {
+		return;
+	}
+
 	// do partial redraw
 	display_scroll_band( start_y+1, dx_since_last_draw, TICKER_HEIGHT-1 );
 	display_fillbox_wh_rgb(width-dx_since_last_draw-6, start_y+1, dx_since_last_draw+6, TICKER_HEIGHT-1, SYSCOL_TICKER_BACKGROUND, true);
