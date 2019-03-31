@@ -25,7 +25,7 @@
 
 static bool sigterm_received = false;
 
-#if COLOR_DEPTH != 0
+#if COLOUR_DEPTH != 0
 #error "Posix only compiles with color depth=0"
 #endif
 
