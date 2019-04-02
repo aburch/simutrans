@@ -53,7 +53,7 @@ void path_explorer_t::initialise(karte_t *welt)
 	{
 		world = welt;
 	}
-	compartment_t::set_absolute_limits();
+	set_absolute_limits();
 	max_categories = goods_manager_t::get_max_catg_index();
 	max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes()); 
 	category_empty = goods_manager_t::none->get_catg_index();
