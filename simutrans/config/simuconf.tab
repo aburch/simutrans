@@ -125,6 +125,22 @@ job_replenishment_per_hundredths_of_months = 100
 # Save the current game when quitting and reload it upon reopening
 reload_and_save_on_quit = 1
 
+# The path explorer is the system that calculates how passengers, mail and goods should
+# get from one place in the transport network to another. On larger maps, it takes a lot
+# of computational effort to calculate this, so the calculation is spread out over time.
+# Each step of the simulation, a certain amount of the pathing is calculated, and, once
+# the calculation is complete, the new calculated data are swapped for the old data.
+#
+# This setting allows the amount of work that the path explorer is allowed to do each 
+# step of the simulation to be customised. The higher the number, the more work that will
+# be done each step. The current default is 64. When the path explorer was first written
+# in 2010, the default was 24. Setting this number too low will result in the paths taking
+# a long time to refresh. Setting this number too high will result in the game becoming
+# less responsive to user input on larger maps. 
+#
+# Note that, in an online game, this setting is dictated by the server.
+path_explorer_time_midpoint = 64
+
 ############################### Passenger and mail settings ##############################
 # also pak dependent
 

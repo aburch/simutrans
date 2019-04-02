@@ -693,6 +693,8 @@ public:
 
 	bool rural_industries_no_staff_shortage;
 
+	uint32 path_explorer_time_midpoint;
+
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
 	 * Set to empty string in order to avoid loading.
@@ -1173,6 +1175,8 @@ public:
 	uint16 get_max_comfort_preference_percentage() const { return max_comfort_preference_percentage; }
 
 	bool get_rural_industries_no_staff_shortage() const { return rural_industries_no_staff_shortage; }
+
+	uint32 get_path_explorer_time_midpoint() const { return path_explorer_time_midpoint; }
 };
 
 #endif 

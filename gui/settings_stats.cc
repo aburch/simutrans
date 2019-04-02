@@ -13,6 +13,7 @@
 #include "../dataobj/translator.h"
 #include "../player/finance.h" // MAX_PLAYER_HISTORY_YEARS
 #include "../vehicle/simvehicle.h"
+#include "../path_explorer.h"
 #include "settings_stats.h"
 
 /* stuff not set here ....
@@ -72,7 +73,8 @@ static const char *version_ex[] =
 	".10",
 	".11",
 	".12",
-	".13"
+	".13",
+	".14"
 };
 
 static const char *revision_ex[] =
@@ -297,6 +299,11 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 		set_cell_component(tbl, new_label(scr_coord(2, 0), "default_increase_maintenance_after_years_air"), 1, row);
 		INIT_TABLE_END(tbl);
 	}	
+
+	SEPERATOR;
+
+	INIT_NUM("path_explorer_time_midpoint", sets->get_path_explorer_time_midpoint(), 1, 2048, gui_numberinput_t::PLAIN, false);
+
 	clear_dirty();
 	height = ypos;
 	set_size(settings_stats_t::get_size());
@@ -382,6 +389,10 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 			sets->set_default_increase_maintenance_after_years((waytype_t)i, default_increase_maintenance_after_years_other);
 		}
 	}
+	
+	READ_NUM_VALUE(sets->path_explorer_time_midpoint);
+
+	path_explorer_t::set_absolute_limits_external(); 
 }
 
 
@@ -504,6 +515,7 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 	SEPERATOR;
 	INIT_NUM("max_comfort_preference_percentage", sets->get_max_comfort_preference_percentage(), 100, 65535, gui_numberinput_t::AUTOLINEAR, false);
 	INIT_BOOL("rural_industries_no_staff_shortage", sets->rural_industries_no_staff_shortage); 
+	
 	clear_dirty();
 	height = ypos;
 	set_size(settings_stats_t::get_size());

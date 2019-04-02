@@ -38,6 +38,11 @@ path_explorer_t::compartment_t **path_explorer_t::goods_compartment = NULL;
 uint8 path_explorer_t::current_compartment_category = 0;
 uint8 path_explorer_t::current_compartment_class = 0;
 bool path_explorer_t::processing = false;
+uint32 path_explorer_t::compartment_t::time_midpoint;
+uint32 path_explorer_t::compartment_t::time_lower_limit;
+uint32 path_explorer_t::compartment_t::time_upper_limit;
+uint32 path_explorer_t::compartment_t::time_threshold;
+
 #ifdef MULTI_THREAD
 bool thread_local path_explorer_t::allow_path_explorer_on_this_thread = false;
 #endif
@@ -48,6 +53,7 @@ void path_explorer_t::initialise(karte_t *welt)
 	{
 		world = welt;
 	}
+	compartment_t::set_absolute_limits();
 	max_categories = goods_manager_t::get_max_catg_index();
 	max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes()); 
 	category_empty = goods_manager_t::none->get_catg_index();
@@ -612,6 +618,13 @@ void path_explorer_t::compartment_t::finalise()
 	finalise_connexion_list();
 }
 
+void path_explorer_t::compartment_t::set_absolute_limits()
+{
+	time_midpoint = get_world()->get_settings().get_path_explorer_time_midpoint();
+	time_lower_limit = time_midpoint - time_deviation;
+	time_upper_limit = time_midpoint + time_deviation;
+	time_threshold = time_midpoint / 2;
+}
 
 void path_explorer_t::compartment_t::step()
 {

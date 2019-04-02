@@ -334,11 +334,14 @@ private:
 		static const uint8 phase_reroute_goods = 6;
 
 		// absolute time limits
-		static const uint32 time_midpoint = 64; // The higher this number, the more processing will be done per step and the more quickly that a refresh will complete, but the more computationally intensive that it will be. Knightly's original setting was 24. 
+		// The higher this number, the more processing will be done per step and the more quickly that a refresh will complete, but the more computationally intensive that it will be. 
+		// Knightly's original setting was 24. The revised setting was 64.
+		// Now set by simuconf.tab.
+		static uint32 time_midpoint;
 		static const uint32 time_deviation = 2;
-		static const uint32 time_lower_limit = time_midpoint - time_deviation;
-		static const uint32 time_upper_limit = time_midpoint + time_deviation;
-		static const uint32 time_threshold = time_midpoint / 2;
+		static uint32 time_lower_limit;
+		static uint32 time_upper_limit;
+		static uint32 time_threshold;
 
 		// percentage time limits
 		static const uint32 percent_deviation = 5;
@@ -355,6 +358,8 @@ private:
 
 		static void initialise();
 		static void finalise();
+
+		static void set_absolute_limits();
 
 		void step();
 		void reset(const bool reset_finished_set);
@@ -494,6 +499,8 @@ public:
 	static uint16 get_all_halt_count(uint8 catg, uint8 g_class) { return goods_compartment[catg][g_class].get_all_halt_count(); }
 	static uint16 get_transfer_count(uint8 catg, uint8 g_class) { return goods_compartment[catg][g_class].get_transfer_count(); }
 	static uint32 get_total_iterations(uint8 catg, uint8 g_class) { return goods_compartment[catg][g_class].get_total_iterations(); }
+
+	inline static void set_absolute_limits_external() { compartment_t::set_absolute_limits();  }
 };
 
 #endif
