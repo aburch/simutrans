@@ -376,9 +376,6 @@ private:
 	// Knightly : Change into an array of pointers to connexion hash tables
 	connexions_map **connexions;
 
-	// loest warte_menge ab
-	// "solves wait mixes off" (Babelfish); "solves warte volume from" (Google)
-
 	/**
 	 * For each line/lineless convoy which serves the current halt, this
 	 * counter is incremented. Each ware category needs a separate counter.
