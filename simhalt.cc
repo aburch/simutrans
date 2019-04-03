@@ -403,13 +403,14 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 
 	cargo = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
-	non_identical_schedules = new uint8[ max_categories ];
 
-	for ( uint8 i = 0; i < max_categories; i++ ) {
+	// TODO: Allow these to be saved when path explorer saving is introduced
+	non_identical_schedules.set_count(max_categories * max_classes);
+	// CHECK: Do we need the below in light of the above? Does the above auto-initialise the values to zero?
+	for ( uint8 i = 0; i < (max_categories * max_classes); i++ ) 
+	{
 		non_identical_schedules[i] = 0;
 	}
-
-	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>*[max_categories];
 
 	// See here for an explanation of the below: http://stackoverflow.com/questions/29375797/copy-2d-array-using-memcpy/29375830#29375830
 	// This is not a true 2d array as the number of categories is not fixed.
@@ -427,10 +428,13 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 #endif
 
 	// Knightly : create the actual connexion hash tables
-	for(uint8 i = 0; i < max_categories; i ++)
+	// TODO: Allow these to be saved when path explorer saving is introduced
+	connexions.set_count(max_categories * max_classes);
+	for (uint8 i = 0; i < (max_categories * max_classes); i++)
 	{
-		connexions[i] = new quickstone_hashtable_tpl<haltestelle_t, connexion*>();
+		connexions[i] = new connexions_map(); 
 	}
+	
 	do_alternative_seats_calculation = true;
 
 	status_color = COL_YELLOW;
@@ -476,13 +480,13 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 
 	cargo = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
-	non_identical_schedules = new uint8[ max_categories ];
 
-	for ( uint8 i = 0; i < max_categories; i++ ) {
+	non_identical_schedules.set_count(max_categories * max_classes);
+	// CHECK: Do we need the below in light of the above? Does the above auto-initialise the values to zero?
+	for ( uint8 i = 0; i < (max_categories * max_classes); i++ )
+	{
 		non_identical_schedules[i] = 0;
 	}
-
-	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>*[max_categories];
 
 	// See here for an explanation of the below: http://stackoverflow.com/questions/29375797/copy-2d-array-using-memcpy/29375830#29375830
 	// This is not a true 2d array as the number of categories is not fixed.
@@ -494,10 +498,13 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	}
 
 	// Knightly : create the actual connexion hash tables
-	for(uint8 i = 0; i < max_categories; i ++)
+	// TODO: Allow these to be saved when path explorer saving is introduced
+	connexions.set_count(max_categories * max_classes);
+	for (uint8 i = 0; i < (max_categories * max_classes); i++)
 	{
-		connexions[i] = new quickstone_hashtable_tpl<haltestelle_t, connexion*>();
+		connexions[i] = new connexions_map(); 
 	}
+
 	do_alternative_seats_calculation = true;
 
 	status_color = COL_YELLOW;
@@ -665,24 +672,31 @@ haltestelle_t::~haltestelle_t()
 #ifdef MULTI_THREAD
 	welt->stop_path_explorer();
 #endif
-	for(uint8 i = 0; i < max_categories; i++)
-	{		
-		if (!welt->is_destroying())
+
+	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+	
+	if (!welt->is_destroying())
+	{
+		for (uint8 i = 0; i < max_categories; i++)
 		{
-			reset_connexions(i);
+			for (uint8 j = 0; i < max_classes; j++)
+			{
+				reset_connexions(i, j);
+			}
 			path_explorer_t::refresh_category(i);
 		}
-		delete connexions[i];
-	}		
+	}
 
-	delete[] connexions;
 	// See here for an explanation of the below: http://stackoverflow.com/questions/29375797/copy-2d-array-using-memcpy/29375830#29375830
 	// This is not a true 2d array as the number of categories is not fixed.
 	delete[] waiting_times[0];
 	delete[] waiting_times;
 
-	delete[] non_identical_schedules;
-//	delete[] all_links;
+
+	for (uint8 i = 0; i < (max_categories * max_classes); i++)
+	{
+		delete connexions[i];
+	}
 
 	delete[] transferring_cargoes;
 }
@@ -1389,7 +1403,7 @@ void haltestelle_t::step()
 
 								owner->book_revenue(-refund_amount, get_basis_pos(), ignore_wt, ATV_REVENUE_PASSENGER);
 								// Find the line the pasenger was *trying to go on* -- make it pay the refund
-								linehandle_t account_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_catg());
+								linehandle_t account_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_catg(), tmp.get_class());
 								if(account_line.is_bound())
 								{
 									account_line->book(-refund_amount, LINE_PROFIT);
@@ -1397,7 +1411,7 @@ void haltestelle_t::step()
 								}
 								else
 								{
-									convoihandle_t account_convoy = get_preferred_convoy(tmp.get_zwischenziel(), tmp.get_catg());
+									convoihandle_t account_convoy = get_preferred_convoy(tmp.get_zwischenziel(), tmp.get_catg(), tmp.get_class());
 									if(account_convoy.is_bound())
 									{
 										account_convoy->book(-refund_amount, convoi_t::CONVOI_PROFIT);
@@ -1569,8 +1583,8 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			// walk to the next transfer, go there immediately.
 			if(ware.is_passenger()
 			   && is_within_walking_distance_of(ware.get_zwischenziel())
-			   && !get_preferred_convoy(ware.get_zwischenziel(), 0).is_bound()
-			   && !get_preferred_line(ware.get_zwischenziel(), 0).is_bound())
+			   && !get_preferred_convoy(ware.get_zwischenziel(), 0, ware.get_class()).is_bound()
+			   && !get_preferred_line(ware.get_zwischenziel(), 0, ware.get_class()).is_bound())
 			{
 				pedestrian_t::generate_pedestrians_at(get_basis_pos3d(), ware.menge);
 				ware.get_zwischenziel()->liefere_an(ware, 1); // start counting walking steps at 1 again
@@ -1584,26 +1598,39 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 		// delete, if nothing connects here
 		if (new_warray->empty())
 		{
-			if(connexions[catg]->empty())
+			uint32 iterations = 1;
+			if (catg == goods_manager_t::INDEX_PAS)
 			{
-				// no connections from here => delete
-				delete new_warray;
-				new_warray = NULL;
-				ware_t ware;
+				iterations = goods_manager_t::passengers->get_number_of_classes();
+			}
+			else if (catg == goods_manager_t::INDEX_MAIL)
+			{
+				iterations = goods_manager_t::mail->get_number_of_classes();
+			}
 
-				for (uint32 i = 0; i < packet_count; i++)
+			for (uint32 i = 0; i < iterations; i++)
+			{
+				if (connexions[catg + i]->empty())
 				{
-					ware = warray->get_element(i);
-					if (ware.is_freight())
+					// no connections from here => delete
+					delete new_warray;
+					new_warray = NULL;
+					ware_t ware;
+
+					for (uint32 i = 0; i < packet_count; i++)
 					{
-						const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
-						if (gr)
+						ware = warray->get_element(i);
+						if (ware.is_freight())
 						{
-							const gebaeude_t* building = gr->get_building();
-							const fabrik_t* fab = building ? building->get_fabrik() : NULL;
-							if (fab)
+							const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
+							if (gr)
 							{
-								fab->update_transit(ware, false);
+								const gebaeude_t* building = gr->get_building();
+								const fabrik_t* fab = building ? building->get_fabrik() : NULL;
+								if (fab)
+								{
+									fab->update_transit(ware, false);
+								}
 							}
 						}
 					}
@@ -1746,8 +1773,8 @@ sint8 haltestelle_t::is_connected(halthandle_t halt, uint8 catg_index) const
 	if (!halt.is_bound()) {
 		return 0; // not connected
 	}
-	connexions_map *linka = connexions[catg_index];
-	connexions_map *linkb = halt->connexions[catg_index];
+	connexions_map* linka = connexions[catg_index];
+	connexions_map* linkb = halt->connexions[catg_index];
 	if (linka->empty() || linkb->empty()) {
 		return 0; // empty connections -> not connected
 	}
@@ -1964,40 +1991,34 @@ uint32 haltestelle_t::calc_service_frequency(halthandle_t destination, uint8 cat
 	return service_frequency;
 }
 
-linehandle_t haltestelle_t::get_preferred_line(halthandle_t transfer, uint8 category) const
+linehandle_t haltestelle_t::get_preferred_line(halthandle_t transfer, uint8 category, uint8 g_class) const
 {
-	if(connexions[category]->empty() || connexions[category]->get(transfer) == NULL)
+	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+	if(connexions[(category * max_classes) + g_class]->empty() || connexions[(category * max_classes) + g_class]->get(transfer) == NULL)
 	{
 		linehandle_t dummy;
 		return dummy;
 	}
-	linehandle_t best_line = connexions[category]->get(transfer)->best_line;
+	linehandle_t best_line = connexions[(category * max_classes) + g_class]->get(transfer)->best_line;
 	return best_line;
 }
 
-convoihandle_t haltestelle_t::get_preferred_convoy(halthandle_t transfer, uint8 category) const
+convoihandle_t haltestelle_t::get_preferred_convoy(halthandle_t transfer, uint8 category, uint8 g_class) const
 {
-	if(connexions[category]->empty() || connexions[category]->get(transfer) == NULL)
+	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+	if(connexions[(category * max_classes) + g_class]->empty() || connexions[(category * max_classes) + g_class]->get(transfer) == NULL)
 	{
 		convoihandle_t dummy;
 		return dummy;
 	}
-	convoihandle_t best_convoy = connexions[category]->get(transfer)->best_convoy;
+	convoihandle_t best_convoy = connexions[(category * max_classes) + g_class]->get(transfer)->best_convoy;
 	return best_convoy;
 }
 
-void haltestelle_t::reset_connexions(uint8 category)
+void haltestelle_t::reset_connexions(uint8 category, uint8 g_class)
 {
-	if(connexions[category]->empty())
-	{
-		// Nothing to do here
-		return;
-	}
-
-	FOR(connexions_map, & iter, *connexions[category] )
-	{
-        delete iter.value;
-	}
+	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+	connexions[(category * max_classes) + g_class]->clear();
 }
 
 // Added by		: Knightly
@@ -2972,8 +2993,8 @@ void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 
 	if(ware.is_passenger()
 	   && is_within_walking_distance_of(ware.get_zwischenziel())
-	   && !get_preferred_convoy(ware.get_zwischenziel(), 0).is_bound()
-	   && !get_preferred_line(ware.get_zwischenziel(), 0).is_bound())
+	   && !get_preferred_convoy(ware.get_zwischenziel(), 0, ware.get_class()).is_bound()
+	   && !get_preferred_line(ware.get_zwischenziel(), 0, ware.get_class()).is_bound())
 	{
 		// We allow walking from the first station because of the way passenger return journeys work;
 		// they automatically start from the destination halt for the outgoing journey
@@ -3208,8 +3229,8 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 			}
 		}
 
-		if (!get_preferred_convoy(ware.get_zwischenziel(), 0).is_bound()
-		    && !get_preferred_line(ware.get_zwischenziel(), 0).is_bound())
+		if (!get_preferred_convoy(ware.get_zwischenziel(), 0, ware.get_class()).is_bound()
+		    && !get_preferred_line(ware.get_zwischenziel(), 0, ware.get_class()).is_bound())
 		{
 			// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
 		walking:

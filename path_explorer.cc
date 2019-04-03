@@ -1176,10 +1176,10 @@ void path_explorer_t::compartment_t::step()
 				}
 
 				// swap the old connexion hash table with a new one
-				current_halt->swap_connexions(catg, connexion_list[current_halt.get_id()].connexion_table);
+				current_halt->swap_connexions(catg, g_class, max_classes, connexion_list[current_halt.get_id()].connexion_table);
 
 				// transfer the value of the serving transport counter
-				current_halt->set_schedule_count( catg, connexion_list[ current_halt.get_id() ].serving_transport );
+				current_halt->set_schedule_count( catg, g_class, max_classes, connexion_list[ current_halt.get_id() ].serving_transport );
 				reset_connexion_entry( current_halt.get_id() );
 
 				++phase_counter;
@@ -1303,6 +1303,8 @@ void path_explorer_t::compartment_t::step()
 
 			start = dr_time();	// start timing
 
+			const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+
 			while (phase_counter < working_halt_count)
 			{
 				current_halt = working_halt_list[phase_counter];
@@ -1315,14 +1317,14 @@ void path_explorer_t::compartment_t::step()
 				}
 
 				// determine if this halt is a transfer halt
-				if ( current_halt->get_schedule_count(catg) > 1 )
+				if ( current_halt->get_schedule_count(catg, g_class, max_classes) > 1 )
 				{
 					transfer_list[transfer_count] = phase_counter;
 					++transfer_count;
 				}
 
 				// iterate over the connexions of the current halt
-				FOR(connexions_map_single_remote, const& connexions_iter, *(current_halt->get_connexions(catg)))
+				FOR(connexions_map_single_remote, const& connexions_iter, *(current_halt->get_connexions(catg, g_class, max_classes)))
 				{
 					reachable_halt = connexions_iter.key;
 

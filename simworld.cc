@@ -6115,6 +6115,8 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 	route_status = initialising;
 
+	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+
 	for(uint32 trip_count = 0; trip_count < onward_trips && route_status != no_route && route_status != too_slow && route_status != overcrowded && route_status != destination_unavailable; trip_count ++)
 	{
 		// Permit onward journeys - but only for successful journeys
@@ -6516,7 +6518,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					// We cannot test this recursively within a reasonable time, so check only for the first stop.
 					if (pax.get_ziel() == pax.get_zwischenziel())
 					{
-						haltestelle_t::connexion* cnx = current_halt->get_connexions(wtyp->get_catg_index())->get(pax.get_zwischenziel());
+						haltestelle_t::connexion* cnx = current_halt->get_connexions(wtyp->get_catg_index(), pax.get_class(), max_classes)->get(pax.get_zwischenziel());
 			
 						if (current_halt->is_within_walking_distance_of(pax.get_zwischenziel()) && (!cnx || (!cnx->best_convoy.is_bound() && !cnx->best_line.is_bound()) || ((cnx->best_convoy.is_bound() && !cnx->best_convoy->carries_this_or_lower_class(pax.get_catg(), pax.get_class()) || (cnx->best_line.is_bound() && !cnx->best_line->carries_this_or_lower_class(pax.get_catg(), pax.get_class()))))))
 						{
@@ -7135,7 +7137,7 @@ no_route:
 #endif
 					{
 						halthandle_t test_halt = nearby_halt.halt;
-						haltestelle_t::connexion* cnx = test_halt->get_connexions(wtyp->get_catg_index())->get(ret_halt);
+						haltestelle_t::connexion* cnx = test_halt->get_connexions(wtyp->get_catg_index(), return_passengers.get_class(), max_classes)->get(ret_halt);
 						const uint32 jt = cnx ? cnx->journey_time : UINT32_MAX_VALUE;
 
 						if (test_halt->is_enabled(wtyp) && (ret_halt == test_halt || jt < return_journey_time))

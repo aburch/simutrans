@@ -350,7 +350,7 @@ public:
 		}
 	};
 
-	bool is_transfer(const uint8 catg) const { return non_identical_schedules[catg] > 1u; }
+	bool is_transfer(const uint8 catg, const uint8 g_class, uint8 max_classes) const { return non_identical_schedules[(catg * max_classes) + g_class] > 1u; }
 //	bool is_transfer(const uint8 catg) const { return all_links[catg].is_transfer; }
 
 	// Whether or not there are passengers/mail trying to use this station.
@@ -374,17 +374,31 @@ private:
 	// Table of all direct connexions to this halt, with routing information.
 	// Array: one entry per goods type.
 	// Knightly : Change into an array of pointers to connexion hash tables
-	connexions_map **connexions;
+	//connexions_map **connexions;
+	
+	// Note: this is an offset vector: a single dimensional vector
+	// functioning as a two dimensional vector (category, class)
+	// using offsets as described here:
+	// https://stackoverflow.com/questions/34077816/how-to-properly-work-with-dynamically-allocated-multi-dimensional-arrays-in-c
+	// This should be more reliable than an array of pointers and faster than a vector of vectors.
+	// This stores pointers to connexions_map objects to enable quick swapping.
+	vector_tpl<connexions_map*> connexions; 
 
 	/**
 	 * For each line/lineless convoy which serves the current halt, this
-	 * counter is incremented. Each ware category needs a separate counter.
+	 * counter is incremented. Each ware category and class needs a separate counter.
 	 * If this counter is more than 1, this halt is a transfer halt.
 
 	 * @author Knightly
 	 */
-	uint8 *non_identical_schedules;
+	 //uint8 *non_identical_schedules;
 
+	// Note: this is an offset vector: a single dimensional vector
+	// functioning as a two dimensional vector (category, class)
+	// using offsets as described here:
+	// https://stackoverflow.com/questions/34077816/how-to-properly-work-with-dynamically-allocated-multi-dimensional-arrays-in-c
+	// This should be more reliable than an array of pointers and faster than a vector of vectors.
+	vector_tpl<uint8> non_identical_schedules;
 
 	// Array with different categories that contains all waiting goods at this stop
 	vector_tpl<ware_t> **cargo;
@@ -513,11 +527,11 @@ private:
 
 public:
 	// Added by : Knightly
-	void swap_connexions(const uint8 category, quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* &cxns)
+	void swap_connexions(const uint8 category, const uint8 g_class, uint8 max_classes, quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* &cxns)
 	{
 		// swap the connexion hashtables
-		quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *temp = connexions[category];
-		connexions[category] = cxns;
+		connexions_map *temp = connexions[(category * max_classes) + g_class];
+		connexions[(category * max_classes) + g_class] = cxns;
 		cxns = temp;
 
 		// since this swap is equivalent to having the connexions rebuilt
@@ -525,10 +539,10 @@ public:
 	}
 
 	// Added by : Knightly
-	uint8 get_schedule_count(const uint8 category) const { return non_identical_schedules[category]; }
-	void set_schedule_count(const uint8 category, const uint8 schedule_count) { non_identical_schedules[category] = schedule_count; }
+	uint8 get_schedule_count(const uint8 category, uint8 g_class, uint8 max_classes) const { return non_identical_schedules[(category * max_classes) + g_class]; }
+	void set_schedule_count(const uint8 category, uint8 g_class, uint8 max_classes, const uint8 schedule_count) { non_identical_schedules[(category * max_classes) + g_class] = schedule_count; }
 
-	void reset_connexions(uint8 category);
+	void reset_connexions(uint8 category, uint8 g_class);
 
 	/**
 	* Called every 255 steps
@@ -938,11 +952,10 @@ public:
 
 	void add_waiting_time(uint32 time, halthandle_t halt, uint8 category, uint8 g_class, bool do_not_reset_month = false);
 
-	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*>* connexions_map_single;
-	connexions_map_single get_connexions(uint8 c) { return connexions[c]; }
+	connexions_map* get_connexions(uint8 catg, uint8 g_class, uint8 max_classes) { return connexions[(catg * max_classes) + g_class]; }
 
-	linehandle_t get_preferred_line(halthandle_t transfer, uint8 category) const;
-	convoihandle_t get_preferred_convoy(halthandle_t transfer, uint8 category) const;
+	linehandle_t get_preferred_line(halthandle_t transfer, uint8 category, uint8 g_class) const;
+	convoihandle_t get_preferred_convoy(halthandle_t transfer, uint8 category, uint8 g_class) const;
 
 	// Added by		: Knightly
 	// Adapted from : Jamespetts' code
