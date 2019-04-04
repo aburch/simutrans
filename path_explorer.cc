@@ -2012,9 +2012,12 @@ void path_explorer_t::compartment_t::rdwr(loadsave_t* file)
 			for (uint16 i = 0; i < finished_halt_count; i++)
 			{
 				//  This is a 2 dimensional array
-				file->rdwr_long(finished_matrix[i]->aggregate_time);
-				tmp_idx = finished_matrix[i]->next_transfer.get_id();
-				file->rdwr_short(tmp_idx);
+				for (uint32 j = 0; j < finished_halt_count; j++)
+				{
+					file->rdwr_long(finished_matrix[i][j].aggregate_time);
+					tmp_idx = finished_matrix[i][j].next_transfer.get_id();
+					file->rdwr_short(tmp_idx);
+				}
 			}
 		}
 		else // Loading
@@ -2022,20 +2025,23 @@ void path_explorer_t::compartment_t::rdwr(loadsave_t* file)
 			// Create the matrices 
 			if (finished_halt_count > 0)
 			{
-				// build finished matrix
+				// Build the (empty) finished matrix
 				uint16 tmp_idx;
-				working_matrix = new path_element_t*[finished_halt_count];
+				finished_matrix = new path_element_t*[finished_halt_count];
 				for (uint16 i = 0; i < finished_halt_count; ++i)
 				{
 					finished_matrix[i] = new path_element_t[finished_halt_count];
 				}
 
 				// Now load them. These are 2 dimensional arrays.
-				for (uint16 i = 0; i < (finished_halt_count * finished_halt_count); i++)
+				for (uint16 i = 0; i < finished_halt_count; i++)
 				{
-					file->rdwr_long(finished_matrix[i]->aggregate_time);
-					file->rdwr_short(tmp_idx);
-					finished_matrix[i]->next_transfer.set_id(tmp_idx);
+					for (uint32 j = 0; j < finished_halt_count; j++)
+					{
+						file->rdwr_long(finished_matrix[i][j].aggregate_time);
+						file->rdwr_short(tmp_idx);
+						finished_matrix[i][j].next_transfer.set_id(tmp_idx);
+					}
 				}
 			}
 		}
@@ -2052,15 +2058,17 @@ void path_explorer_t::compartment_t::rdwr(loadsave_t* file)
 		if (file->is_saving())
 		{
 			uint16 tmp_idx;
-			for (uint16 i = 0; i < (working_halt_count * working_halt_count); i++)
+			for (uint16 i = 0; i < working_halt_count; i++)
 			{
-				//  This is a 2 dimensional array
-				file->rdwr_long(working_matrix[i]->aggregate_time);
-				tmp_idx = working_matrix[i]->next_transfer.get_id();
-				file->rdwr_short(tmp_idx);
+				for (uint32 j = 0; j < working_halt_count; j++)
+				{
+					file->rdwr_long(working_matrix[i][j].aggregate_time);
+					tmp_idx = working_matrix[i][j].next_transfer.get_id();
+					file->rdwr_short(tmp_idx);
 
-				file->rdwr_short(transport_matrix[i]->first_transport);
-				file->rdwr_short(transport_matrix[i]->last_transport);
+					file->rdwr_short(transport_matrix[i][j].first_transport);
+					file->rdwr_short(transport_matrix[i][j].last_transport);
+				}				
 			}
 		}
 
@@ -2088,12 +2096,15 @@ void path_explorer_t::compartment_t::rdwr(loadsave_t* file)
 				// Now load them. These are 2 dimensional arrays.
 				for (uint16 i = 0; i < working_halt_count; i++)
 				{
-					file->rdwr_long(working_matrix[i]->aggregate_time);
-					file->rdwr_short(tmp_idx);
-					working_matrix[i]->next_transfer.set_id(tmp_idx);
+					for (uint32 j = 0; j < working_halt_count; j++)
+					{
+						file->rdwr_long(working_matrix[i][j].aggregate_time);
+						file->rdwr_short(tmp_idx);
+						working_matrix[i][j].next_transfer.set_id(tmp_idx);
 
-					file->rdwr_short(transport_matrix[i]->first_transport);
-					file->rdwr_short(transport_matrix[i]->last_transport);
+						file->rdwr_short(transport_matrix[i][j].first_transport);
+						file->rdwr_short(transport_matrix[i][j].last_transport);
+					}
 				}
 			}
 		}
