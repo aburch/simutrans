@@ -2137,6 +2137,11 @@ void path_explorer_t::compartment_t::rdwr(loadsave_t* file)
 
 	if(all_halts_list_live)
 	{
+		if(file->is_loading())
+		{
+			all_halts_list = new halthandle_t[all_halts_count];
+		}
+
 		for(uint32 i = 0; i < all_halts_count; i ++)
 		{
 			if (file->is_saving())
@@ -2158,6 +2163,11 @@ void path_explorer_t::compartment_t::rdwr(loadsave_t* file)
 
 	if(working_halt_list_live)
 	{
+		if(file->is_loading())
+		{
+			working_halt_list = new halthandle_t[all_halts_count];
+		}
+
 		for(uint32 i = 0; i < all_halts_count; i ++)
 		{
 			if (file->is_saving())

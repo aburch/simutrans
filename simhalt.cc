@@ -4569,8 +4569,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					}
 				}
 
-			
-
 				if (file->is_loading())
 				{
 					if (path_explorer_t::get_must_refresh_on_loading() == false)
