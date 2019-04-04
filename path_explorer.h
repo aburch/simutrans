@@ -84,6 +84,10 @@ public:
 		}
 	};
 
+	static bool must_refresh_on_loading;
+
+	static void rdwr(loadsave_t* file); 
+
 private:
 
 	class compartment_t
@@ -133,6 +137,8 @@ private:
 				{
 					connected_halts.append(halt_id);
 				}
+
+				void rdwr(loadsave_t* file); 
 			};
 
 		private:
@@ -140,7 +146,8 @@ private:
 			vector_tpl<connection_cluster_t*> connection_clusters;
 			uint32 usage_level;			// number of connection clusters used
 			uint32 halt_vector_size;	// size of connected halt vector in connection cluster object
-			inthashtable_tpl<uint16, connection_cluster_t*> cluster_map;
+			typedef  inthashtable_tpl<uint16, connection_cluster_t*> cluster_map_type;
+			cluster_map_type cluster_map;
 
 		public:
 
@@ -216,6 +223,8 @@ private:
 				}
 				return *(connection_clusters[element_id]);
 			}
+
+			void rdwr(loadsave_t* file); 
 		};
 
 		// data structure for temporarily storing lines and lineless conovys
@@ -254,8 +263,8 @@ private:
 
 		uint8 catg;				// category managed by this compartment
 		uint8 g_class;			// Class managed by this compartment
-		const char *catg_name;	// name of the category
-		char *class_name;// Name of the class
+		const char *catg_name;	// Name of the category
+		char *class_name;		// Name of the class
 		uint16 step_count;		// number of steps done so far for a path refresh request
 
 		// coordination flags
@@ -300,7 +309,7 @@ private:
 		// -> it is turned off for initial full instant search
 		static bool use_limits;
 		
-		// iteration limits
+		// iteration limitslinkages
 		static uint32 limit_rebuild_connexions;
 		static uint32 limit_filter_eligible;
 		static uint32 limit_fill_matrix;
@@ -358,6 +367,8 @@ private:
 
 		static void initialise();
 		static void finalise();
+
+		void rdwr(loadsave_t* file); 
 
 		static void set_absolute_limits();
 
@@ -501,6 +512,10 @@ public:
 	static uint32 get_total_iterations(uint8 catg, uint8 g_class) { return goods_compartment[catg][g_class].get_total_iterations(); }
 
 	inline static void set_absolute_limits_external() { compartment_t::set_absolute_limits();  }
+
+	inline static bool get_must_refresh_on_loading() { return must_refresh_on_loading; }
+	inline static void set_must_refresh_on_loading() { must_refresh_on_loading = true; }
+	inline static void reset_must_refresh_on_loading() { must_refresh_on_loading = false; }
 };
 
 #endif

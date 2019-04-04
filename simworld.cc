@@ -8281,6 +8281,11 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 		}
 	}
 
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 8))
+	{
+		path_explorer_t::rdwr(file);
+	}
+
 	// MUST be at the end of the load/save routine.
 	// save all open windows (upon request)
 	file->rdwr_byte( active_player_nr );
@@ -9427,8 +9432,20 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		i->check_road_tiles(false);
 	}
 
-	// Added by : Knightly
-	path_explorer_t::full_instant_refresh();
+	// Either reload the path explorer data or refresh the routing.
+	bool path_explorer_data_saved = false;
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 8))
+	{
+		path_explorer_data_saved = true;
+		path_explorer_t::rdwr(file); 
+	}
+
+	if (!path_explorer_data_saved || path_explorer_t::must_refresh_on_loading)
+	{
+		path_explorer_t::full_instant_refresh();
+	}
+
+	path_explorer_t::reset_must_refresh_on_loading(); 
 
 	file->set_buffered(false);
 	clear_random_mode(LOAD_RANDOM);

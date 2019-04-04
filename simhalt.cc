@@ -397,6 +397,7 @@ void haltestelle_t::destroy_all()
 
 haltestelle_t::haltestelle_t(loadsave_t* file)
 {
+	// NOTE: This is not called when saving.
 	last_loading_step = welt->get_steps();
 
 	const uint8 max_categories = goods_manager_t::get_max_catg_index();
@@ -404,7 +405,6 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 
 	cargo = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
 
-	// TODO: Allow these to be saved when path explorer saving is introduced
 	non_identical_schedules.set_count(max_categories * max_classes);
 	// CHECK: Do we need the below in light of the above? Does the above auto-initialise the values to zero?
 	for ( uint8 i = 0; i < (max_categories * max_classes); i++ ) 
@@ -428,7 +428,6 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 #endif
 
 	// Knightly : create the actual connexion hash tables
-	// TODO: Allow these to be saved when path explorer saving is introduced
 	connexions.set_count(max_categories * max_classes);
 	for (uint8 i = 0; i < (max_categories * max_classes); i++)
 	{
@@ -2737,53 +2736,62 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 		return;
 	}
 
-	int catg_index = goods_manager_t::passengers->get_catg_index();
-	FOR(connexions_map, const& iter, *(connexions[catg_index]))
-	{
-		iter.value->alternative_seats = 0;
-	}
+	const uint8 catg_index = goods_manager_t::passengers->get_catg_index();
+	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 
-	if (loading_here.get_count() < 2 ) { // Alternatives don't exist, only one convoy here
-		do_alternative_seats_calculation = false; // so we will not do clean-up again
-		return;
-	}
-
-	for (slist_tpl<convoihandle_t>::iterator cnv_i = loading_here.begin(), end = loading_here.end();  cnv_i != end;  ++cnv_i)
+	for (uint8 i = 0; i < max_classes; i++)
 	{
-		if (!(*cnv_i).is_bound() || (*cnv_i) == cnv || ! (*cnv_i)->get_free_seats() )
+		FOR(connexions_map, const& iter, *(connexions[(catg_index * max_classes) + i]))
 		{
-			continue;
+			iter.value->alternative_seats = 0;
 		}
-		const schedule_t *schedule = (*cnv_i)->get_schedule();
-		const player_t *player = (*cnv_i)->get_owner();
-		const uint8 count = schedule->get_count();
 
-		// uses schedule->increment_index to iterate over stops
-		uint8 index = schedule->get_current_stop();
-		bool reverse = cnv->get_reverse_schedule();
-		schedule->increment_index(&index, &reverse);
+		if (loading_here.get_count() < 2) // Alternatives don't exist, only one convoy here
+		{
+			do_alternative_seats_calculation = false; // so we will not do clean-up again
+			return;
+		}
 
-		while (index != schedule->get_current_stop()) {
-			const halthandle_t plan_halt = haltestelle_t::get_halt(schedule->entries[index].pos, player);
-			if(plan_halt == self)
+		for (slist_tpl<convoihandle_t>::iterator cnv_i = loading_here.begin(), end = loading_here.end(); cnv_i != end; ++cnv_i)
+		{
+			if (!(*cnv_i).is_bound() || (*cnv_i) == cnv || !(*cnv_i)->get_free_seats())
 			{
-				// we will come later here again ...
-				break;
+				continue;
 			}
-			if(plan_halt.is_bound() && plan_halt->get_pax_enabled())
-			{
-				connexion * const next_connexion = connexions[catg_index]->get(plan_halt);
-				if (next_connexion) {
-					next_connexion->alternative_seats += (*cnv_i)->get_free_seats();
-				}
-			}
+			const schedule_t *schedule = (*cnv_i)->get_schedule();
+			const player_t *player = (*cnv_i)->get_owner();
+			const uint8 count = schedule->get_count();
 
-			// if the schedule is mirrored and has reached its end, break
-			// as the convoi will be returning this way later.
-			if( schedule->is_mirrored() && (index==0 || index==(count-1)) ) {
-				break;
-			}
+			// uses schedule->increment_index to iterate over stops
+			uint8 index = schedule->get_current_stop();
+			bool reverse = cnv->get_reverse_schedule();
 			schedule->increment_index(&index, &reverse);
+
+			while (index != schedule->get_current_stop()) 
+			{
+				const halthandle_t plan_halt = haltestelle_t::get_halt(schedule->entries[index].pos, player);
+				if (plan_halt == self)
+				{
+					// we will come later here again ...
+					break;
+				}
+				if (plan_halt.is_bound() && plan_halt->get_pax_enabled())
+				{
+					connexion * const next_connexion = connexions[(catg_index * max_classes) + i]->get(plan_halt);
+					if (next_connexion) 
+					{
+						next_connexion->alternative_seats += (*cnv_i)->get_free_seats();
+					}
+				}
+
+				// if the schedule is mirrored and has reached its end, break
+				// as the convoi will be returning this way later.
+				if (schedule->is_mirrored() && (index == 0 || index == (count - 1))) 
+				{
+					break;
+				}
+				schedule->increment_index(&index, &reverse);
+			}
 		}
 	}
 }
@@ -4481,6 +4489,116 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						fab->update_transit(tc.ware, true);
 					}
 
+				}
+			}
+		}
+	}
+
+	// Load/save connexions data for the path explorer.
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 8))
+	{
+		const uint8 max_categories = goods_manager_t::get_max_catg_index();
+		const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+		uint32 iteration_limit = (uint32)max_classes * (uint32)max_categories;
+		const uint32 il = iteration_limit;
+
+		file->rdwr_long(iteration_limit);
+
+		if (file->is_loading() && il != iteration_limit)
+		{
+			// The number of categories or classes in the pakset has changed since loading. We cannot load pathing data and must fall back to reconstructing it.
+			// We must still go through the motions of reading the data to move the file onto the correct place, however.
+			path_explorer_t::set_must_refresh_on_loading();
+		}
+
+		for (uint8 i = 0; i < iteration_limit; i++)
+		{
+			uint8 tmp_nis;
+
+			if (file->is_saving())
+			{
+				tmp_nis = non_identical_schedules[i];
+			}
+			file->rdwr_byte(tmp_nis);
+			if (file->is_loading())
+			{
+				non_identical_schedules[i] = tmp_nis;
+			}
+		}
+
+		uint16 tmp_idx;
+
+		uint32 tmp_journey_time;
+		uint32 tmp_waiting_time;
+		uint32 tmp_transfer_time;
+		uint16 tmp_best_line_idx;
+		uint16 tmp_best_convoy_idx;
+		uint16 tmp_alternative_seats;
+		// TODO: Consider whether to add comfort
+
+		halthandle_t tmp_halt; 
+
+		for (uint8 catg_index = 0; catg_index < max_categories; catg_index++)
+		{
+			for (uint8 i = 0; i < max_classes; i++)
+			{
+				uint32 connexions_map_count = 0;
+				if (file->is_saving())
+				{
+					connexions_map_count = connexions[(catg_index * max_classes) + i]->get_count();
+					file->rdwr_long(connexions_map_count); 
+
+					FOR(connexions_map, const& iter, *(connexions[(catg_index * max_classes) + i]))
+					{
+						tmp_idx = iter.key.get_id();
+
+						tmp_journey_time = iter.value->journey_time;
+						tmp_waiting_time = iter.value->waiting_time;
+						tmp_transfer_time = iter.value->transfer_time;
+						tmp_best_line_idx = iter.value->best_line.get_id();
+						tmp_best_convoy_idx = iter.value->best_convoy.get_id();
+						tmp_alternative_seats = iter.value->alternative_seats;
+
+						file->rdwr_short(tmp_idx);
+						file->rdwr_long(tmp_journey_time);
+						file->rdwr_long(tmp_waiting_time);
+						file->rdwr_long(tmp_transfer_time);
+						file->rdwr_short(tmp_best_convoy_idx);
+						file->rdwr_short(tmp_best_line_idx);
+						file->rdwr_short(tmp_alternative_seats);
+					}
+				}
+
+			
+
+				if (file->is_loading())
+				{
+					if (path_explorer_t::get_must_refresh_on_loading() == false)
+					{
+						file->rdwr_long(connexions_map_count); 
+						for (uint32 j = 0; j < connexions_map_count; j++)
+						{
+							file->rdwr_short(tmp_idx);
+							file->rdwr_long(tmp_journey_time);
+							file->rdwr_long(tmp_waiting_time);
+							file->rdwr_long(tmp_transfer_time);
+							file->rdwr_short(tmp_best_convoy_idx);
+							file->rdwr_short(tmp_best_line_idx);
+							file->rdwr_short(tmp_alternative_seats);
+							
+							connexion* tmp_cnx = new connexion();
+
+							tmp_halt.set_id(tmp_idx);
+							tmp_cnx->journey_time = tmp_journey_time;
+							tmp_cnx->waiting_time = tmp_waiting_time;
+							tmp_cnx->transfer_time = tmp_transfer_time;
+							tmp_cnx->best_line.set_id(tmp_best_line_idx);
+							tmp_cnx->best_convoy.set_id(tmp_best_convoy_idx);
+							tmp_cnx->alternative_seats = tmp_alternative_seats;
+
+							connexions[(catg_index * max_classes) + i]->set(tmp_halt, tmp_cnx);
+						}
+					}
 				}
 			}
 		}
