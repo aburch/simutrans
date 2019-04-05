@@ -384,7 +384,8 @@ public:
 	bool get_loaded_passenger_and_mail_figres() const { return loaded_passenger_and_mail_figres; }
 	void set_loaded_passenger_and_mail_figres(bool value) { loaded_passenger_and_mail_figres = value; }
 	
-	const minivec_tpl<const planquadrat_t*> &get_tiles();
+	const minivec_tpl<const planquadrat_t*> &get_tiles() { return building_tiles; }
+	void set_tiles();
 
 	void reset_tile_list() { building_tiles.clear(); }
 
