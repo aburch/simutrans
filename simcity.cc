@@ -4308,7 +4308,7 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 	}
 
 	if (h == NULL  &&  ((sum_residential > sum_industrial  &&  sum_residential > sum_commercial) || worker_shortage)) {
-		if (!job_shortage)
+		if (!job_shortage || worker_shortage)
 		{
 			h = hausbauer_t::get_residential(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
 		}
