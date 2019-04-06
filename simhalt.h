@@ -1067,6 +1067,8 @@ public:
 	uint32 get_station_signals_count() const { return station_signals.get_count(); }
 	koord3d get_station_signal(uint32 value) const { return station_signals[value]; }
 	bool is_station_signal_contained(koord3d pos) const { return station_signals.is_contained(pos); }
+
+	void set_all_building_tiles(); 
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

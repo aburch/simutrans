@@ -4719,6 +4719,15 @@ void stadt_t::add_all_buildings_to_world_list()
 	}
 }
 
+void stadt_t::reset_tiles_for_all_buildings()
+{
+	for(weighted_vector_tpl<gebaeude_t*>::const_iterator i = buildings.begin(); i != buildings.end(); ++i)
+	{
+		gebaeude_t* building = *i;
+		building->set_tiles();
+	}
+}
+
 void stadt_t::generate_private_cars(koord pos, uint32 journey_tenths_of_minutes, koord target, uint8 number_of_passengers)
 {
 #ifdef FORBID_SYNC_OBJECTS

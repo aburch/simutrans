@@ -5988,3 +5988,20 @@ bool haltestelle_t::is_using() const {
 	}
 	return false;
 }
+
+void haltestelle_t::set_all_building_tiles()
+{
+	koord find = koord::invalid;
+
+	if (!tiles.empty()) 
+	{
+		FOR(slist_tpl<tile_t>, const& i, tiles)
+		{
+			gebaeude_t* building = i.grund->get_building();
+			if(building)
+			{
+				building->set_tiles();
+			}
+		}
+	}
+}
