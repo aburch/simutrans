@@ -114,6 +114,113 @@ void path_explorer_t::rdwr(loadsave_t* file)
 			}
 		}
 	}
+
+	// Load/save the connexion_list, which is static
+	uint8 serving_transport;
+	for (uint32 i = 0; i < 63336; ++i)
+	{
+		file->rdwr_byte(compartment_t::connexion_list[i].serving_transport);
+
+		if (file->is_saving())
+		{
+			uint16 tmp_idx;
+
+			uint32 tmp_journey_time;
+			uint32 tmp_waiting_time;
+			uint32 tmp_transfer_time;
+			uint16 tmp_best_line_idx;
+			uint16 tmp_best_convoy_idx;
+			uint16 tmp_alternative_seats;
+			// TODO: Consider whether to add comfort
+
+			uint32 connexion_table_count = compartment_t::connexion_list[i].connexion_table ? compartment_t::connexion_list[i].connexion_table->get_count() : 0;
+			file->rdwr_long(connexion_table_count);
+
+			if (connexion_table_count)
+			{
+				FOR(compartment_t::connexion_table_map, iter, *compartment_t::connexion_list[i].connexion_table)
+				{
+					tmp_idx = iter.key.get_id();
+					file->rdwr_short(tmp_idx);
+
+					tmp_journey_time = iter.value->journey_time;
+					tmp_waiting_time = iter.value->waiting_time;
+					tmp_transfer_time = iter.value->transfer_time;
+					tmp_best_line_idx = iter.value->best_line.get_id();
+					tmp_best_convoy_idx = iter.value->best_convoy.get_id();
+					tmp_alternative_seats = iter.value->alternative_seats;
+
+					file->rdwr_long(tmp_journey_time);
+					file->rdwr_long(tmp_waiting_time);
+					file->rdwr_long(tmp_transfer_time);
+					file->rdwr_short(tmp_best_line_idx);
+					file->rdwr_short(tmp_best_convoy_idx);
+					file->rdwr_short(tmp_alternative_seats);
+				}
+			}
+		}
+
+		if (file->is_loading())
+		{
+			bool any_table_initialised = false;
+			uint32 connexion_table_count;
+			file->rdwr_long(connexion_table_count);
+
+			if (connexion_table_count)
+			{
+				compartment_t::connexion_list[i].connexion_table = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
+
+				halthandle_t tmp_halt;
+
+				if (!any_table_initialised)
+				{
+					any_table_initialised = true;
+					for (uint32 n = 0; n < i; n++)
+					{
+						compartment_t::connexion_list[n].connexion_table = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
+					}
+				}
+
+
+				for (uint32 j = 0; j < connexion_table_count; j++)
+				{
+					uint16 tmp_idx;
+					file->rdwr_short(tmp_idx);
+					tmp_halt.set_id(tmp_idx);
+
+					haltestelle_t::connexion* tmp_cnx = new haltestelle_t::connexion();
+
+					uint32 tmp_journey_time;
+					uint32 tmp_waiting_time;
+					uint32 tmp_transfer_time;
+					uint16 tmp_best_line_idx;
+					uint16 tmp_best_convoy_idx;
+					uint16 tmp_alternative_seats;
+					// TODO: Consider whether to add comfort
+
+					file->rdwr_long(tmp_journey_time);
+					file->rdwr_long(tmp_waiting_time);
+					file->rdwr_long(tmp_transfer_time);
+					file->rdwr_short(tmp_best_line_idx);
+					file->rdwr_short(tmp_best_convoy_idx);
+					file->rdwr_short(tmp_alternative_seats);
+
+					tmp_cnx->journey_time = tmp_journey_time;
+					tmp_cnx->waiting_time = tmp_waiting_time;
+					tmp_cnx->transfer_time = tmp_transfer_time;
+					tmp_cnx->best_line.set_id(tmp_best_line_idx);
+					tmp_cnx->best_convoy.set_id(tmp_best_convoy_idx);
+					tmp_cnx->alternative_seats = tmp_alternative_seats;
+
+					compartment_t::connexion_list[i].connexion_table->put(tmp_halt, tmp_cnx);
+				}
+			}
+			else if(any_table_initialised)
+			{
+				compartment_t::connexion_list[i].connexion_table = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
+			}
+		}
+	}
 }
 
 void path_explorer_t::step()
@@ -2208,6 +2315,11 @@ void path_explorer_t::compartment_t::rdwr(loadsave_t* file)
 		
 		file->rdwr_long(linkages_count);
 
+		if(file->is_loading())
+		{
+			linkages = new vector_tpl<linkage_t>(linkages_count);
+		}
+
 		uint16 cnv_id;
 		uint16 line_id;
 		for (uint32 i = 0; i < linkages_count; i++)
@@ -2226,6 +2338,7 @@ void path_explorer_t::compartment_t::rdwr(loadsave_t* file)
 				linkage_t tmp;
 				tmp.convoy.set_id(cnv_id);
 				tmp.line.set_id(line_id);
+				linkages->append(tmp); 
 			}
 		}
 	}

@@ -25,7 +25,6 @@
 class path_explorer_t
 {
 public:
-
 	struct limit_set_t
 	{
 		uint32 rebuild_connexions;
@@ -93,14 +92,18 @@ private:
 	class compartment_t
 	{
 	
-	private:
+		friend class path_explorer_t;
 
+	protected:
+		typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexion_table_map;
 		// structure for storing connexion hashtable and serving transport counter
 		struct connexion_list_entry_t
 		{
-			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *connexion_table;
+			connexion_table_map *connexion_table;
 			uint8 serving_transport;
 		};
+
+	private:
 
 		// element used during path search and for storing calculated paths
 		struct path_element_t
@@ -297,9 +300,12 @@ private:
 
 		// an array of names for the various phases
 		static const char *const phase_name[];
-
+		
+protected:
 		// an array for keeping a list of connexion hash table
 		static connexion_list_entry_t connexion_list[65536];
+		
+private:
 
 		// iteration representative
 		static uint16 representative_halt_count;
