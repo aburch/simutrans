@@ -385,9 +385,7 @@ public:
 	void set_loaded_passenger_and_mail_figres(bool value) { loaded_passenger_and_mail_figres = value; }
 	
 	const minivec_tpl<const planquadrat_t*> &get_tiles() { return building_tiles; }
-	void set_tiles();
-
-	void reset_tile_list() { building_tiles.clear(); }
+	void set_building_tiles();
 
 private:
 	// Calculate last 2 years(13-24 months) average percentage

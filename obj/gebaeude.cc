@@ -434,7 +434,7 @@ void gebaeude_t::rotate90()
 	}
 
 	// These will be re-initialised where necessary.
-	building_tiles.clear();
+	set_building_tiles();
 }
 
 
@@ -1886,7 +1886,7 @@ void gebaeude_t::finish_rd()
 		// This will save much time in looking this up when generating passengers/mail.
 		ptr.stadt = welt->get_city(get_pos().get_2d());
 	}
-	set_tiles();
+	set_building_tiles();
 }
 
 
@@ -2151,7 +2151,7 @@ uint8 gebaeude_t::get_random_class(const goods_desc_t * wtyp)
 	return g_class;
 }
 
-void gebaeude_t::set_tiles()
+void gebaeude_t::set_building_tiles()
 {
 	building_tiles.clear();
 	const building_tile_desc_t* tile = get_tile();
@@ -2187,7 +2187,10 @@ void gebaeude_t::set_tiles()
 					if (gb_part && gb_part->get_tile()->get_desc() == bdsc)
 					{
 						const planquadrat_t* plan = welt->access_nocheck(k.get_2d());
-						building_tiles.append(plan);
+						if (!plan->is_being_deleted())
+						{
+							building_tiles.append(plan);
+						}
 					}
 				}
 			}

@@ -4724,7 +4724,7 @@ void stadt_t::reset_tiles_for_all_buildings()
 	for(weighted_vector_tpl<gebaeude_t*>::const_iterator i = buildings.begin(); i != buildings.end(); ++i)
 	{
 		gebaeude_t* building = *i;
-		building->set_tiles();
+		building->set_building_tiles();
 	}
 }
 

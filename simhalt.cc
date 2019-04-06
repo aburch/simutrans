@@ -6000,7 +6000,7 @@ void haltestelle_t::set_all_building_tiles()
 			gebaeude_t* building = i.grund->get_building();
 			if(building)
 			{
-				building->set_tiles();
+				building->set_building_tiles();
 			}
 		}
 	}

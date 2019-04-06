@@ -2828,7 +2828,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 	FOR(weighted_vector_tpl<gebaeude_t*>, const attraction, world_attractions)
 	{
-		attraction->set_tiles();
+		attraction->set_building_tiles();
 	}
 
 	FOR(const vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen())
@@ -2905,7 +2905,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	// Don't try to be clever; we don't do map enlargements often.
 	FOR(vector_tpl<fabrik_t*>, const fab, fab_list)
 	{
-		fab->get_building()->set_tiles();
+		fab->get_building()->set_building_tiles();
 		fab->recalc_nearby_halts();
 	}
 	clear_random_mode( MAP_CREATE_RANDOM );
