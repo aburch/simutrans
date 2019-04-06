@@ -593,11 +593,6 @@ sync_result gebaeude_t::sync_step(uint32 delta_t)
 			}
 		}
 	}
-
-	if(building_tiles.empty())
-	{
-		set_tiles();
-	}
 	return SYNC_OK;
 }
 
@@ -1891,6 +1886,7 @@ void gebaeude_t::finish_rd()
 		// This will save much time in looking this up when generating passengers/mail.
 		ptr.stadt = welt->get_city(get_pos().get_2d());
 	}
+	set_tiles();
 }
 
 
