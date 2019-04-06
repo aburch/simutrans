@@ -141,6 +141,12 @@ reload_and_save_on_quit = 1
 # Note that, in an online game, this setting is dictated by the server.
 path_explorer_time_midpoint = 64
 
+# If the below setting should be enabled, the pathing data representing all the routes
+# between all the various stops are saved. This greatly reduces the time that it takes
+# to load very large saved games, but also very considerably increases the size of those
+# saved games (by >4x). 
+save_path_explorer_data = 1
+
 ############################### Passenger and mail settings ##############################
 # also pak dependent
 

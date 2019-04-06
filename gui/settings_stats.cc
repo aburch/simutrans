@@ -303,6 +303,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	SEPERATOR;
 
 	INIT_NUM("path_explorer_time_midpoint", sets->get_path_explorer_time_midpoint(), 1, 2048, gui_numberinput_t::PLAIN, false);
+	INIT_BOOL("save_path_explorer_data", sets->get_save_path_explorer_data()); 
 
 	clear_dirty();
 	height = ypos;
@@ -391,6 +392,7 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	}
 	
 	READ_NUM_VALUE(sets->path_explorer_time_midpoint);
+	READ_BOOL_VALUE(sets->save_path_explorer_data); 
 
 	path_explorer_t::set_absolute_limits_external(); 
 }
