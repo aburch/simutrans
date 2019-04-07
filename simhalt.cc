@@ -678,7 +678,7 @@ haltestelle_t::~haltestelle_t()
 	{
 		for (uint8 i = 0; i < max_categories; i++)
 		{
-			for (uint8 j = 0; i < max_classes; j++)
+			for (uint8 j = 0; j < max_classes; j++)
 			{
 				reset_connexions(i, j);
 			}
