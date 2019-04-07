@@ -2417,9 +2417,17 @@ void path_explorer_t::compartment_t::connection_t::rdwr(loadsave_t* file)
 	
 	file->rdwr_long(connection_cluster_count);
 
-	if(file->is_loading())
+	for(uint32 i = 0; i < connection_cluster_count; i ++)
 	{
-		connection_clusters.set_count(connection_cluster_count);
+		if(file->is_saving())
+		{
+			connection_clusters[i]->rdwr(file); 
+		}
+		else
+		{
+			connection_cluster_t* tmp_cnx = new connection_cluster_t(file); 
+			connection_clusters.append(tmp_cnx); 
+		}
 	}
 
 	file->rdwr_long(usage_level);
@@ -2427,7 +2435,8 @@ void path_explorer_t::compartment_t::connection_t::rdwr(loadsave_t* file)
 
 	if (file->is_saving())
 	{
-		uint32 cluster_map_count = 0;
+		uint32 cluster_map_count = cluster_map.get_count();
+		file->rdwr_long(cluster_map_count); 
 		FOR(cluster_map_type, iter, cluster_map)
 		{
 			file->rdwr_short(iter.key);
@@ -2435,18 +2444,17 @@ void path_explorer_t::compartment_t::connection_t::rdwr(loadsave_t* file)
 
 			cluster_map_count++;
 		}
-		assert(connection_cluster_count == cluster_map_count); 
 	}
 	else if (file->is_loading())
 	{
+		uint32 cluster_map_count;
+		file->rdwr_long(cluster_map_count); 
 		uint16 key;
-		for(uint32 i = 0; i < connection_cluster_count; i ++)
+		for(uint32 i = 0; i < cluster_map_count; i ++)
 		{
 			file->rdwr_short(key);
 			connection_cluster_t* value = new connection_cluster_t(file); 
 			cluster_map.put(key, value); 
-			// The two collection classes both hold the same data.
-			connection_clusters.append(value);
 		}
 	}
 }
@@ -2469,6 +2477,7 @@ path_explorer_t::compartment_t::connection_t::connection_cluster_t::connection_c
 	file->rdwr_short(transport); 
 	uint32 connected_halts_count;
 	file->rdwr_long(connected_halts_count);
+	connected_halts.resize(connected_halts_count);
 
 	for(uint32 i = 0; i < connected_halts_count; i ++)
 	{
