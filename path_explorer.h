@@ -141,6 +141,8 @@ private:
 					connected_halts.append(halt_id);
 				}
 
+				connection_cluster_t(loadsave_t* file); 
+
 				void rdwr(loadsave_t* file); 
 			};
 

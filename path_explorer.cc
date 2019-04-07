@@ -2382,6 +2382,10 @@ void path_explorer_t::compartment_t::rdwr(loadsave_t* file)
 
 	if(inbound_connections_live)
 	{
+		if(file->is_loading())
+		{
+			inbound_connections = new connection_t(64u, working_halt_count);
+		}
 		inbound_connections->rdwr(file);
 	}
 
@@ -2390,6 +2394,10 @@ void path_explorer_t::compartment_t::rdwr(loadsave_t* file)
 
 	if(outbound_connections_live)
 	{
+		if(file->is_loading())
+		{
+			outbound_connections = new connection_t(64u, working_halt_count);
+		}
 		outbound_connections->rdwr(file);
 	}
 
@@ -2414,18 +2422,12 @@ void path_explorer_t::compartment_t::connection_t::rdwr(loadsave_t* file)
 		connection_clusters.set_count(connection_cluster_count);
 	}
 
-	for(uint32 i = 0; i < connection_cluster_count; i ++)
-	{
-		connection_clusters[i]->rdwr(file); 
-	}
-
 	file->rdwr_long(usage_level);
 	file->rdwr_long(halt_vector_size);
-	
-	uint32 cluster_map_count = 0;
 
 	if (file->is_saving())
 	{
+		uint32 cluster_map_count = 0;
 		FOR(cluster_map_type, iter, cluster_map)
 		{
 			file->rdwr_short(iter.key);
@@ -2433,36 +2435,45 @@ void path_explorer_t::compartment_t::connection_t::rdwr(loadsave_t* file)
 
 			cluster_map_count++;
 		}
+		assert(connection_cluster_count == cluster_map_count); 
 	}
-
-	if (file->is_loading())
+	else if (file->is_loading())
 	{
 		uint16 key;
-		connection_cluster_t* value = new connection_cluster_t(0, 0, 0); 
-		for(uint32 i = 0; i < cluster_map_count; i ++)
+		for(uint32 i = 0; i < connection_cluster_count; i ++)
 		{
 			file->rdwr_short(key);
-			value->rdwr(file); 
+			connection_cluster_t* value = new connection_cluster_t(file); 
 			cluster_map.put(key, value); 
+			// The two collection classes both hold the same data.
+			connection_clusters.append(value);
 		}
 	}
 }
 
 void path_explorer_t::compartment_t::connection_t::connection_cluster_t::rdwr(loadsave_t* file)
 {
+	assert(file->is_saving()); 
 	file->rdwr_short(transport); 
-	uint32 connected_halts_count;
-	if(file->is_saving())
-	{
-		connected_halts_count = connected_halts.get_count();
-	}
+	uint32 connected_halts_count = connected_halts.get_count();
 	file->rdwr_long(connected_halts_count);
-	if(file->is_loading())
-	{
-		connected_halts.set_count(connected_halts_count);
-	}
 	for(uint32 i = 0; i < connected_halts_count; i ++)
 	{
 		file->rdwr_short(connected_halts[i]); 
+	}
+}
+
+path_explorer_t::compartment_t::connection_t::connection_cluster_t::connection_cluster_t(loadsave_t* file)
+{
+	assert(file->is_loading()); 
+	file->rdwr_short(transport); 
+	uint32 connected_halts_count;
+	file->rdwr_long(connected_halts_count);
+
+	for(uint32 i = 0; i < connected_halts_count; i ++)
+	{
+		uint16 tmp;
+		file->rdwr_short(tmp);
+		connected_halts.append(tmp); 
 	}
 }
