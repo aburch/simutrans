@@ -117,6 +117,7 @@ void path_explorer_t::rdwr(loadsave_t* file)
 
 	// Load/save the connexion_list, which is static
 	uint8 serving_transport;
+	bool any_table_initialised = false;
 	for (uint32 i = 0; i < 63336; ++i)
 	{
 		file->rdwr_byte(compartment_t::connexion_list[i].serving_transport);
@@ -162,7 +163,6 @@ void path_explorer_t::rdwr(loadsave_t* file)
 
 		if (file->is_loading())
 		{
-			bool any_table_initialised = false;
 			uint32 connexion_table_count;
 			file->rdwr_long(connexion_table_count);
 
