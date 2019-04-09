@@ -191,7 +191,7 @@ private:
 	 * Above this threshold the engine works as constant power engine.
 	 * @author Bernd Gabriel, Nov 4, 2009
 	 */
-	uint32 force_threshold_playerseed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
+	uint32 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
 
 	// Obsolescence settings
 	// @author: jamespetts

@@ -658,7 +658,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 	bool ok = true;
 
 	// check scenario conditions
-	if (welt->get_scenario()->is_work_allowed_here(player, (bautyp&tunnel_flag ? TOOL_BUILD_TUNNEL : TOOL_BUILD_WAY)|GENERAL_TOOL, bautyp&bautyp_mask, to->get_pos()) != NULL) {
+	if (welt->get_scenario()->is_work_allowed_here(player_builder, (bautyp&tunnel_flag ? TOOL_BUILD_TUNNEL : TOOL_BUILD_WAY)|GENERAL_TOOL, bautyp&bautyp_mask, to->get_pos()) != NULL) {
 		return false;
 	}
 
@@ -706,7 +706,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		if(to2) {
 			if(to2->get_weg_nr(0)) {
 				// already an elevated ground here => it will have always a way object, that indicates ownership
-				ok = to2->get_typ()==grund_t::monorailboden  &&  check_owner(to2->obj_bei(0)->get_owner(),player);
+				ok = to2->get_typ()==grund_t::monorailboden  &&  check_owner(to2->obj_bei(0)->get_owner(),player_builder);
 				ok &= to2->get_weg_nr(0)->get_desc()->get_wtyp()==desc->get_wtyp();
 			}
 			else {
@@ -783,7 +783,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 	// universal check for crossings
 	if (to!=from  &&  (bautyp&bautyp_mask)!=leitung) {
 		waytype_t const wtyp = (bautyp == river) ? water_wt : (waytype_t)(bautyp & bautyp_mask);
-		if(!check_crossing(zv,to,wtyp,player)  ||  !check_crossing(-zv,from,wtyp,player)) {
+		if(!check_crossing(zv,to,wtyp,player_builder)  ||  !check_crossing(-zv,from,wtyp,player_builder)) {
 			return false;
 		}
 	}
@@ -837,7 +837,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 			}
 			// ok, regular construction here
 			// if no way there: check for right ground type, otherwise check owner
-			ok = sch == NULL ? (!fundament && !to->is_water()) : check_owner(sch->get_owner(),player) || check_access(sch, player);
+			ok = sch == NULL ? (!fundament && !to->is_water()) : check_owner(sch->get_owner(),player_builder) || check_access(sch, player_builder);
 			if(!ok) {
 				return false;
 			}
@@ -864,7 +864,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 			const weg_t *sch=to->get_weg(track_wt);
 			// roads are checked in check_crossing
 			// if no way there: check for right ground type, otherwise check owner
-			ok = sch == NULL ? (!fundament && !to->is_water()) : check_owner(sch->get_owner(),player) || check_access(sch, player);
+			ok = sch == NULL ? (!fundament && !to->is_water()) : check_owner(sch->get_owner(),player_builder) || check_access(sch, player_builder);
 			// tram track allowed in road tunnels, but only along existing roads / tracks
 			if(from!=to) {
 				if(from->ist_tunnel()) {
@@ -907,7 +907,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 			// do not connect to other powerlines
 			{
 				leitung_t *lt = to->get_leitung();
-				ok &= (lt==NULL)  || !lt->get_owner() || lt->get_owner()->allows_access_to(player->get_player_nr()) || check_owner(player, lt->get_owner());
+				ok &= (lt==NULL)  || !lt->get_owner() || lt->get_owner()->allows_access_to(player_builder->get_player_nr()) || check_owner(player_builder, lt->get_owner());
 			}
 
 			if(to->get_typ()!=grund_t::tunnelboden) {
@@ -933,7 +933,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		{
 			const weg_t *canal = to->get_weg(water_wt);
 			// if no way there: check for right ground type, otherwise check owner
-			ok = canal == NULL ? !fundament : check_owner(canal->get_owner(), player) || check_access(canal, player);
+			ok = canal == NULL ? !fundament : check_owner(canal->get_owner(), player_builder) || check_access(canal, player_builder);
 			// calculate costs
 			if(ok) {
 				*costs = to->is_water() ||  canal  ? s.way_count_straight : s.way_count_leaving_road; // prefer water very much
@@ -1123,7 +1123,7 @@ void way_builder_t::do_terraforming()
 			changed = true;
 			if (last_terraformed != i) {
 				// charge player
-				player_t::book_construction_costs(player, welt->get_settings().cst_set_slope, from->get_pos().get_2d(), ignore_wt);
+				player_t::book_construction_costs(player_builder, welt->get_settings().cst_set_slope, from->get_pos().get_2d(), ignore_wt);
 			}
 		}
 		// change slope of to
@@ -1149,7 +1149,7 @@ void way_builder_t::do_terraforming()
 			}
 			changed = true;
 			// charge player
-			player_t::book_construction_costs(player, welt->get_settings().cst_set_slope, to->get_pos().get_2d(), ignore_wt);
+			player_t::book_construction_costs(player_builder, welt->get_settings().cst_set_slope, to->get_pos().get_2d(), ignore_wt);
 			last_terraformed = i+1; // do not pay twice for terraforming one tile
 		}
 		// recalc slope image of neighbors
@@ -1230,7 +1230,7 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 
 	// ok, so now we do a closer investigation
 	if(  bridge_desc  && (  ribi_type(from->get_grund_hang()) == ribi_t::backward(ribi_type(zv))  ||  from->get_grund_hang() == 0  )
-		&&  bridge_builder_t::can_place_ramp(player, from, desc->get_wtyp(),ribi_t::backward(ribi_type(zv)))  ) {
+		&&  bridge_builder_t::can_place_ramp(player_builder, from, desc->get_wtyp(),ribi_t::backward(ribi_type(zv)))  ) {
 		// Try a bridge.
 		const sint32 cost_difference=desc->get_maintenance()>0 ? (bridge_desc->get_maintenance()*4l+3l)/desc->get_maintenance() : 16;
 		// try eight possible lengths ..
@@ -1238,7 +1238,7 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 		for (uint8 i = 0; i < 8 && min_length <= welt->get_settings().way_max_bridge_len; ++i) {
 			sint8 bridge_height;
 			const char *error = NULL;
-			koord3d end = bridge_builder_t::find_end_pos( player, from->get_pos(), zv, bridge_desc, error, bridge_height, true, min_length );
+			koord3d end = bridge_builder_t::find_end_pos( player_builder, from->get_pos(), zv, bridge_desc, error, bridge_height, true, min_length );
 			const grund_t* gr_end = welt->lookup(end);
 			if(  gr_end == NULL) {
 				// no valid end point found
@@ -1246,7 +1246,7 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 				continue;
 			}
 			uint32 length = koord_distance(from->get_pos(), end);
-			if(!ziel.is_contained(end)  &&  bridge_builder_t::can_place_ramp(player, gr_end, desc->get_wtyp(), ribi_type(zv))) {
+			if(!ziel.is_contained(end)  &&  bridge_builder_t::can_place_ramp(player_builder, gr_end, desc->get_wtyp(), ribi_type(zv))) {
 				// If there is a slope on the starting tile, it's taken into account in is_allowed_step, but a bridge will be flat!
 				sint8 num_slopes = (from->get_grund_hang() == slope_t::flat) ? 1 : -1;
 				// On the end tile, we haven't to subtract way_count_slope, since is_allowed_step isn't called with this tile.
@@ -1264,7 +1264,7 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 	if(  tunnel_desc  &&  ribi_type(from->get_grund_hang()) == ribi_type(zv)  ) {
 		// uphill hang ... may be tunnel?
 		const sint32 cost_difference = desc->get_maintenance() > 0 ? (tunnel_desc->get_maintenance() * 4l + 3l) / desc->get_maintenance() : 16;
-		koord3d end = tunnel_builder_t::find_end_pos( player, from->get_pos(), zv, tunnel_desc);
+		koord3d end = tunnel_builder_t::find_end_pos( player_builder, from->get_pos(), zv, tunnel_desc);
 		if(  end != koord3d::invalid  &&  !ziel.is_contained(end)  ) {
 			uint32 length = koord_distance(from->get_pos(), end);
 			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference, build_straight | build_tunnel_bridge ));
@@ -1274,9 +1274,9 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 }
 
 
-way_builder_t::way_builder_t(player_t* player_) : next_gr(32)
+way_builder_t::way_builder_t(player_t* player) : next_gr(32)
 {
-	player     = player_;
+	player_builder     = player;
 	bautyp = strasse;   // kann mit init_builder() gesetzt werden
 	maximum = 2000;// CA $ PER TILE
 	overtaking_mode = twoway_mode;
@@ -1835,7 +1835,7 @@ bool way_builder_t::intern_calc_route_runways(koord3d start3d, const koord3d zie
 	//	 !(welt->is_within_limits(ziel-koord(5,5))  &&  welt->is_within_limits(ziel+koord(5,5)))  ) {
 	if(	 !(welt->is_within_limits(start-koord(border,border))  &&  welt->is_within_limits(start+koord(border,border)))  ||
 		 !(welt->is_within_limits(ziel-koord(border,border))  &&  welt->is_within_limits(ziel+koord(border,border)))  ) {
-		if(player==welt->get_active_player()) {
+		if(player_builder==welt->get_active_player()) {
 			create_win( new news_img("Zu nah am Kartenrand"), w_time_delete, magic_none);
 			return false;
 		}
@@ -2020,11 +2020,11 @@ void way_builder_t::build_tunnel_and_bridges()
 
 			if(start->get_grund_hang()==0  ||  start->get_grund_hang()==slope_type(zv*(-1))) {
 				// bridge here, since the route is saved backwards, we have to build it at the posterior end
-				bridge_builder_t::build( player, route[i+1], bridge_desc, overtaking_mode);
+				bridge_builder_t::build( player_builder, route[i+1], bridge_desc, overtaking_mode);
 			}
 			else {
 				// tunnel
-				tunnel_builder_t::build( player, route[i].get_2d(), tunnel_desc, true, overtaking_mode );
+				tunnel_builder_t::build( player_builder, route[i].get_2d(), tunnel_desc, true, overtaking_mode );
 			}
 			INT_CHECK( "wegbauer 1584" );
 		}
@@ -2043,21 +2043,21 @@ void way_builder_t::build_tunnel_and_bridges()
 				// now: check ownership
 				weg_t *wi = gr_i->get_weg(wt);
 				weg_t *wi1 = gr_i1->get_weg(wt);
-				if(wi->get_owner()==player  &&  wi1->get_owner()==player) {
+				if(wi->get_owner()==player_builder  &&  wi1->get_owner()==player_builder) {
 					// we are the owner
 					if(  h != slope_type(zv)  ) {
 						// its a bridge
 						if( bridge_desc ) {
 							wi->set_ribi(ribi_type(h));
 							wi1->set_ribi(ribi_type(slope_t::opposite(h)));
-							bridge_builder_t::build( player, route[i], bridge_desc, overtaking_mode);
+							bridge_builder_t::build( player_builder, route[i], bridge_desc, overtaking_mode);
 						}
 					}
 					else if( tunnel_desc ) {
 						// make a short tunnel
 						wi->set_ribi(ribi_type(slope_t::opposite(h)));
 						wi1->set_ribi(ribi_type(h));
-						tunnel_builder_t::build( player, route[i].get_2d(), tunnel_desc, true, overtaking_mode, desc);
+						tunnel_builder_t::build( player_builder, route[i].get_2d(), tunnel_desc, true, overtaking_mode, desc);
 					}
 					INT_CHECK( "wegbauer 1584" );
 				}
@@ -2119,7 +2119,7 @@ sint64 way_builder_t::calc_costs()
 	}
 
 	for(uint32 i=0; i<get_count(); i++) {
-		sint32 old_playerseedlimit = -1;
+		sint32 old_speedlimit = -1;
 		sint64 replace_cost = 0;
 		bool upgrading = false;
 
@@ -2131,14 +2131,14 @@ sint64 way_builder_t::calc_costs()
 				if( tunnel->get_desc() == tunnel_desc ) {
 					continue; // Nothing to pay on this tile.
 				}
-				old_playerseedlimit = tunnel->get_desc()->get_topspeed();
+				old_speedlimit = tunnel->get_desc()->get_topspeed();
 				single_cost = tunnel_desc->get_value();
 			}
 			else {
 				single_cost = desc->get_value();
 				if(  desc->get_wtyp() == powerline_wt  ) {
 					if( leitung_t *lt=gr->get_leitung() ) {
-						old_playerseedlimit = lt->get_desc()->get_topspeed();
+						old_speedlimit = lt->get_desc()->get_topspeed();
 					}
 				}
 				else {
@@ -2152,10 +2152,10 @@ sint64 way_builder_t::calc_costs()
 							// Don't replace a tram on a road with a normal track.
 							continue;
 						}
-						old_playerseedlimit = weg->get_desc()->get_topspeed();
+						old_speedlimit = weg->get_desc()->get_topspeed();
 					}
 					else if (desc->get_wtyp()==water_wt  &&  gr->is_water()) {
-						old_playerseedlimit = new_speedlimit;
+						old_speedlimit = new_speedlimit;
 					}
 				}
 			}
@@ -2195,7 +2195,7 @@ sint64 way_builder_t::calc_costs()
 			single_cost += forge_cost;
 
 			const obj_t* obj = gr->obj_bei(0);
-			if(!upgrading && (obj == NULL || obj->get_owner() != player))
+			if(!upgrading && (obj == NULL || obj->get_owner() != player_builder))
 			{
 				// Only add the cost of the land if the player does not
 				// already own this land.
@@ -2292,8 +2292,8 @@ bool way_builder_t::build_tunnel_tile()
 			if(tunnel_desc->get_waytype()!=powerline_wt) {
 				weg_t *weg = weg_t::alloc(tunnel_desc->get_waytype());
 				weg->set_desc(desc);
-				tunnel->neuen_weg_bauen(weg, route.get_ribi(i), player);
-				tunnel->obj_add(new tunnel_t(route[i], player, tunnel_desc));
+				tunnel->neuen_weg_bauen(weg, route.get_ribi(i), player_builder);
+				tunnel->obj_add(new tunnel_t(route[i], player_builder, tunnel_desc));
 				if(  tunnel_desc->get_waytype()==road_wt  ) {
 					strasse_t* str = (strasse_t*) weg;
 					assert(str);
@@ -2320,16 +2320,16 @@ bool way_builder_t::build_tunnel_tile()
 				weg->set_max_axle_load(tunnel_desc->get_max_axle_load());
 				weg->add_way_constraints(desc->get_way_constraints());
 			} else {
-				tunnel->obj_add(new tunnel_t(route[i], player, tunnel_desc));
-				leitung_t *lt = new leitung_t(tunnel->get_pos(), player);
+				tunnel->obj_add(new tunnel_t(route[i], player_builder, tunnel_desc));
+				leitung_t *lt = new leitung_t(tunnel->get_pos(), player_builder);
 				lt->set_desc(desc);
 				tunnel->obj_add( lt );
 				lt->finish_rd();
-				player_t::add_maintenance( player, -lt->get_desc()->get_maintenance(), powerline_wt);
+				player_t::add_maintenance( player_builder, -lt->get_desc()->get_maintenance(), powerline_wt);
 			}
 			tunnel->calc_image();
 			cost -= tunnel_desc->get_value();
-			player_t::add_maintenance( player,  tunnel_desc->get_maintenance(), tunnel_desc->get_finance_waytype() );
+			player_t::add_maintenance( player_builder,  tunnel_desc->get_maintenance(), tunnel_desc->get_finance_waytype() );
 		}
 		else if(gr->get_typ()==grund_t::tunnelboden) {
 			// check for extension only ...
@@ -2366,12 +2366,12 @@ bool way_builder_t::build_tunnel_tile()
 			} else {
 				leitung_t *lt = gr->get_leitung();
 				if(!lt) {
-					lt = new leitung_t(gr->get_pos(), player);
+					lt = new leitung_t(gr->get_pos(), player_builder);
 					lt->set_desc(desc);
 					gr->obj_add( lt );
 				} else {
 					lt->leitung_t::finish_rd();	// only change powerline aspect
-					player_t::add_maintenance( player, -lt->get_desc()->get_maintenance(), powerline_wt);
+					player_t::add_maintenance( player_builder, -lt->get_desc()->get_maintenance(), powerline_wt);
 				}
 			}
 
@@ -2415,7 +2415,7 @@ bool way_builder_t::build_tunnel_tile()
 			}
 		}
 	}
-	player_t::book_construction_costs(player, cost, route[0].get_2d(), tunnel_desc->get_waytype());
+	player_t::book_construction_costs(player_builder, cost, route[0].get_2d(), tunnel_desc->get_waytype());
 	return true;
 }
 
@@ -2445,14 +2445,14 @@ void way_builder_t::build_elevated()
 void way_builder_t::build_road()
 {
 	// This is somewhat strange logic --neroden
-	if ( player != NULL && build_sidewalk && player->is_public_service() ) {
-		player = NULL;
+	if ( player_builder != NULL && build_sidewalk && player_builder->is_public_service() ) {
+		player_builder = NULL;
 	}
 
 	// init undo
-	if(player!=NULL) {
+	if(player_builder!=NULL) {
 		// Some roads have no owner, so we must check for an owner
-		player->init_undo(road_wt,get_count());
+		player_builder->init_undo(road_wt,get_count());
 	}
 
 	for(  uint32 i=0;  i<get_count();  i++  ) {
@@ -2471,8 +2471,8 @@ void way_builder_t::build_road()
 			// keep faster ways or if it is the same way ... (@author prissi)
 			if(  way->get_replacement_way() == desc ||  keep_existing_ways
 				||  (  keep_existing_city_roads  &&  way->hat_gehweg()  )
-				||  (  ( keep_existing_faster_ways || ((player && !player->is_public_service()) && way->is_public_right_of_way())) &&  ! ( desc->is_at_least_as_good_as(way->get_desc()) )  )
-				||  (  player!=NULL  &&  way-> is_deletable(player)!=NULL  )
+				||  (  ( keep_existing_faster_ways || ((player_builder && !player_builder->is_public_service()) && way->is_public_right_of_way())) &&  ! ( desc->is_at_least_as_good_as(way->get_desc()) )  )
+				||  (  player_builder!=NULL  &&  way-> is_deletable(player_builder)!=NULL  )
 				||  (  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  )
 				) {
 				//nothing to be done
@@ -2502,8 +2502,8 @@ void way_builder_t::build_road()
 				// keep faster ways or if it is the same way ... (@author prissi)
 				else if(  str->get_desc()==desc  ||  keep_existing_ways
 					||  (  keep_existing_city_roads  &&  str->hat_gehweg()  )
-					||  (  ( keep_existing_faster_ways || ((player && !player->is_public_service()) && str->is_public_right_of_way())) &&  ! ( desc->is_at_least_as_good_as(str->get_desc()) )  )
-					||  (  player!=NULL  &&  str-> is_deletable(player)!=NULL  )
+					||  (  ( keep_existing_faster_ways || ((player_builder && !player_builder->is_public_service()) && str->is_public_right_of_way())) &&  ! ( desc->is_at_least_as_good_as(str->get_desc()) )  )
+					||  (  player_builder!=NULL  &&  str-> is_deletable(player_builder)!=NULL  )
 					) {
 					// only update overtaking_mode
 					str->set_overtaking_mode(overtaking_mode);
@@ -2533,7 +2533,7 @@ void way_builder_t::build_road()
 					// For now, have the city fix adoption/sidewalk issues during road upgrade.
 					// These issues arise from city expansion and contraction, so reconsider this
 					// after city limits work better.
-					bool city_adopts_this = str->should_city_adopt_this(player);
+					bool city_adopts_this = str->should_city_adopt_this(player_builder);
 					if(build_sidewalk || str->hat_gehweg() || city_adopts_this) {
 						str->set_gehweg(true);
 						str->set_public_right_of_way();
@@ -2545,7 +2545,7 @@ void way_builder_t::build_road()
 					}
 					else
 					{
-						str->set_owner(player);
+						str->set_owner(player_builder);
 						// Set maintenance costs here
 						// including corrections for diagonals.
 						str->finish_rd();
@@ -2567,17 +2567,17 @@ void way_builder_t::build_road()
 					str->set_gehweg(build_sidewalk);
 					str->set_public_right_of_way();
 				}
-				cost += gr->neuen_weg_bauen(str, route.get_short_ribi(i), player, &route) - desc->get_value();
+				cost += gr->neuen_weg_bauen(str, route.get_short_ribi(i), player_builder, &route) - desc->get_value();
 				// respect speed limit of crossing
 				str->count_sign();
 				// prissi: into UNDO-list, so we can remove it later
-				if(player!=NULL)
+				if(player_builder!=NULL)
 				{
 					// intercity roads have no owner, so we must check for an owner
-					player->add_undo( route[i] );
+					player_builder->add_undo( route[i] );
 				}
 
-				if(player == NULL || player->is_public_service())
+				if(player_builder == NULL || player_builder->is_public_service())
 				{
 					// If there is no owner here, this is an inter-city road built by the game on initiation;
 					// therefore, set it as a public right of way.
@@ -2590,7 +2590,7 @@ void way_builder_t::build_road()
 			gr->calc_image();	// because it may be a crossing ...
 
 			reliefkarte_t::get_karte()->calc_map_pixel(k);
-			player_t::book_construction_costs(player, cost, k, road_wt);
+			player_t::book_construction_costs(player_builder, cost, k, road_wt);
 		}
 		welt->set_recheck_road_connexions();
 	} // for
@@ -2601,7 +2601,7 @@ void way_builder_t::build_track()
 {
 	if(get_count() > 1) {
 		// init undo
-		player->init_undo(desc->get_wtyp(), get_count());
+		player_builder->init_undo(desc->get_wtyp(), get_count());
 
 		// built tracks
 		for(  uint32 i=0;  i<get_count();  i++  ) {
@@ -2620,8 +2620,8 @@ void way_builder_t::build_track()
 				weg_t* const way = gr->get_weg(desc->get_wtyp());
 				// keep faster ways or if it is the same way ... (@author prissi)
 				if(  way->get_replacement_way() == desc ||  keep_existing_ways
-					||  (  ( keep_existing_faster_ways || ((player && !player->is_public_service()) && way->is_public_right_of_way())) &&  ! ( desc->is_at_least_as_good_as(way->get_desc()) )  )
-					||  (  player!=NULL  &&  way-> is_deletable(player)!=NULL  )
+					||  (  ( keep_existing_faster_ways || ((player_builder && !player_builder->is_public_service()) && way->is_public_right_of_way())) &&  ! ( desc->is_at_least_as_good_as(way->get_desc()) )  )
+					||  (  player_builder!=NULL  &&  way-> is_deletable(player_builder)!=NULL  )
 					||  (  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  )
 					) {
 					//nothing to be done
@@ -2645,8 +2645,8 @@ void way_builder_t::build_track()
 					if (weg->get_desc() == desc																	||
 							(desc->get_styp() == 0 && weg->get_desc()->get_styp() == type_tram && gr->has_two_ways())     ||
 							keep_existing_ways                                                                      ||
-							(player != NULL && weg-> is_deletable(player) != NULL)											||
-							((keep_existing_faster_ways || ((player && !player->is_public_service()) && weg->is_public_right_of_way())) && !(desc->is_at_least_as_good_as(weg->get_desc()))) ||
+							(player_builder != NULL && weg-> is_deletable(player_builder) != NULL)											||
+							((keep_existing_faster_ways || ((player_builder && !player_builder->is_public_service()) && weg->is_public_right_of_way())) && !(desc->is_at_least_as_good_as(weg->get_desc()))) ||
 							(gr->get_typ() == grund_t::monorailboden && !(bautyp & elevated_flag)  &&  gr->get_weg_nr(0)->get_waytype()==desc->get_wtyp()))
 					{
 						//nothing to be done
@@ -2658,7 +2658,7 @@ void way_builder_t::build_track()
 						if(  crossing_t *cr = gr->find<crossing_t>(2)  ) {
 							// change to tram track
 							cr->mark_image_dirty( cr->get_image(), 0);
-							cr->cleanup(player);
+							cr->cleanup(player_builder);
 							delete cr;
 							change_desc = true;
 							// tell way we have no crossing any more, restore speed limit
@@ -2680,13 +2680,13 @@ void way_builder_t::build_track()
 							tunnel_t *tunnel = gr ? gr->find<tunnel_t>() : NULL;
 							if (bridge && bridge->get_owner() == NULL)
 							{
-								bridge->set_owner(player);
-								player_t::add_maintenance(player, bridge->get_desc()->get_maintenance(), bridge->get_desc()->get_finance_waytype());
+								bridge->set_owner(player_builder);
+								player_t::add_maintenance(player_builder, bridge->get_desc()->get_maintenance(), bridge->get_desc()->get_finance_waytype());
 							}
 							else if (tunnel && tunnel->get_owner() == NULL)
 							{
-								tunnel->set_owner(player);
-								player_t::add_maintenance(player, tunnel->get_desc()->get_maintenance(), tunnel->get_desc()->get_finance_waytype());
+								tunnel->set_owner(player_builder);
+								player_t::add_maintenance(player_builder, tunnel->get_desc()->get_maintenance(), tunnel->get_desc()->get_finance_waytype());
 							}
 						}
 
@@ -2706,7 +2706,7 @@ void way_builder_t::build_track()
 						{
 							weg->add_way_constraints(wayobj->get_desc()->get_way_constraints());
 						}
-						weg->set_owner(player);
+						weg->set_owner(player_builder);
 						// respect speed limit of crossing
 						weg->count_sign();
 					}
@@ -2723,7 +2723,7 @@ void way_builder_t::build_track()
 					{
 						sch->add_way_constraints(wayobj->get_desc()->get_way_constraints());
 					}
-					cost = gr->neuen_weg_bauen(sch, ribi, player, &route) - desc->get_value();
+					cost = gr->neuen_weg_bauen(sch, ribi, player_builder, &route) - desc->get_value();
 					// respect speed limit of crossing
 					sch->count_sign();
 					// connect canals to sea
@@ -2737,10 +2737,10 @@ void way_builder_t::build_track()
 						}
 					}
 					// prissi: into UNDO-list, so we can remove it later
-					player->add_undo( route[i] );
+					player_builder->add_undo( route[i] );
 				}
 
-				player_t::book_construction_costs(player, cost, gr->get_pos().get_2d(), desc->get_finance_waytype());
+				player_t::book_construction_costs(player_builder, cost, gr->get_pos().get_2d(), desc->get_finance_waytype());
 			}
 
 			gr->calc_image();
@@ -2763,7 +2763,7 @@ void way_builder_t::build_powerline()
 	}
 
 	// no undo
-	player->init_undo(powerline_wt,get_count());
+	player_builder->init_undo(powerline_wt,get_count());
 
 	for(  uint32 i=0;  i<get_count();  i++  ) {
 		grund_t* gr = welt->lookup(route[i]);
@@ -2775,13 +2775,13 @@ void way_builder_t::build_powerline()
 			if(gr->ist_natur()) {
 				// remove trees etc.
 				sint64 cost = gr->remove_trees();
-				player_t::book_construction_costs(player, -cost, gr->get_pos().get_2d(), powerline_wt);
+				player_t::book_construction_costs(player_builder, -cost, gr->get_pos().get_2d(), powerline_wt);
 			}
-			lt = new leitung_t(route[i], player );
+			lt = new leitung_t(route[i], player_builder );
 			gr->obj_add(lt);
 
 			// prissi: into UNDO-list, so we can remove it later
-			player->add_undo( route[i] );
+			player_builder->add_undo( route[i] );
 			build_powerline = true;
 		}
 		else {
@@ -2793,7 +2793,7 @@ void way_builder_t::build_powerline()
 		}
 		if (build_powerline) {
 			lt->set_desc(desc);
-			player_t::book_construction_costs(player, -desc->get_value(), gr->get_pos().get_2d(), powerline_wt);
+			player_t::book_construction_costs(player_builder, -desc->get_value(), gr->get_pos().get_2d(), powerline_wt);
 			// this adds maintenance
 			lt->leitung_t::finish_rd();
 			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );

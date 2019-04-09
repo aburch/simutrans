@@ -152,7 +152,7 @@ void vehicle_desc_t::loaded()
 
 	static const float32e8_t gear_factor((uint32)GEAR_FACTOR); 
 	float32e8_t power_force_ratio = get_power_force_ratio();
-	force_threshold_playerseed = (uint16)(power_force_ratio + float32e8_t::half);
+	force_threshold_speed = (uint16)(power_force_ratio + float32e8_t::half);
 	float32e8_t g_power = float32e8_t(power) * (/*(uint32) 1000L * */ (uint32)gear);
 	float32e8_t g_force = float32e8_t(tractive_effort) * (/*(uint32) 1000L * */ (uint32)gear);
 	if (g_power != 0)
@@ -182,12 +182,12 @@ void vehicle_desc_t::loaded()
 		geared_power = new uint32[speed+1];
 		geared_force = new uint32[speed+1];
 
-		for (; speed > force_threshold_playerseed; --speed)
+		for (; speed > force_threshold_speed; --speed)
 		{
 			geared_force[speed] = g_power / speed + float32e8_t::half;
 			geared_power[speed] = g_power + float32e8_t::half;
 		}
-		for (; speed <= force_threshold_playerseed; --speed)
+		for (; speed <= force_threshold_speed; --speed)
 		{
 			geared_force[speed] = g_force + float32e8_t::half;
 			geared_power[speed] = g_force * speed + float32e8_t::half;
@@ -206,7 +206,7 @@ uint32 vehicle_desc_t::get_effective_force_index(sint32 speed /* in m/s */ ) con
 		// no force at all
 		return 0;
 	}
-	//return speed <= force_threshold_playerseed ? geared_force : geared_power / speed;
+	//return speed <= force_threshold_speed ? geared_force : geared_power / speed;
 	return geared_force[min(speed, max_speed)];
 }
 
@@ -221,7 +221,7 @@ uint32 vehicle_desc_t::get_effective_power_index(sint32 speed /* in m/s */ ) con
 		// no power at all
 		return 0;
 	}
-	///return speed <= force_threshold_playerseed ? geared_force * speed : geared_power;
+	///return speed <= force_threshold_speed ? geared_force * speed : geared_power;
 	return geared_power[min(speed, max_speed)];
 }
 

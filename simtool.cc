@@ -8940,7 +8940,7 @@ bool tool_change_depot_t::init( player_t *player )
  * 'f' : activates/deactivates freeplay
  * 'c' : change player color
  */
-bool tool_change_player_t::init( player_t *player)
+bool tool_change_player_t::init( player_t *player_in)
 {
 	if(  default_param==NULL  ) {
 		dbg->warning( "tool_change_player_t::init()", "nothing to do!" );
@@ -8958,18 +8958,18 @@ bool tool_change_player_t::init( player_t *player)
 	}
 	sscanf( p, "%c,%i,%i", &tool, &id, &state );
 
-	player_t *setting_player = welt->get_player(id);
+	player_t *player = welt->get_player(id);
 
 	// ok now do our stuff
 	switch(  tool  ) {
 		case 'a': // activate/deactivate AI
-			if(  player  &&  player->get_ai_id()!=player_t::HUMAN  &&  (setting_player==welt->get_public_player()  ||  !env_t::networkmode)  ) {
+			if(  player  &&  player->get_ai_id()!=player_t::HUMAN  &&  (player_in==welt->get_public_player()  ||  !env_t::networkmode)  ) {
 				player->set_active(state);
 				welt->get_settings().set_player_active(id, player->is_active());
 			}
 			break;
 		case 'c': // change player color
-			if(  player  &&  player==setting_player  ) {
+			if(  player  &&  player==player_in  ) {
 				int c1, c2, dummy;
 				sscanf( p, "%c,%i,%i,%i", &tool, &dummy, &c1, &c2 );
 				player->set_player_color( c1, c2 );
