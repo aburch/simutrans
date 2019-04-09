@@ -406,13 +406,13 @@ void fabrik_t::update_scaled_pax_demand(bool is_from_saved_game)
 			const uint32 percentage = (uint32)(get_base_production() * 100) / std::max(1u, (uint32)get_desc()->get_productivity());
 			if (percentage > 100u)
 			{
-				get_building()->set_adjusted_jobs((uint16)std::max(65535u, (scaled_pax_demand * percentage) / 100u));
-				get_building()->set_adjusted_visitor_demand((uint16)std::max(65535u, (scaled_visitor_demand * percentage) / 100u)); 
+				get_building()->set_adjusted_jobs((uint16)std::min(65535u, (scaled_pax_demand * percentage) / 100u));
+				get_building()->set_adjusted_visitor_demand((uint16)std::min(65535u, (scaled_visitor_demand * percentage) / 100u)); 
 			}
 			else
 			{
-				building->set_adjusted_jobs((uint16)std::max(65535u, scaled_pax_demand));
-				building->set_adjusted_visitor_demand((uint16)std::max(65535u, scaled_visitor_demand));
+				building->set_adjusted_jobs((uint16)std::min(65535u, scaled_pax_demand));
+				building->set_adjusted_visitor_demand((uint16)std::min(65535u, scaled_visitor_demand));
 			}
 			// Must update the world building list to take into account the new passenger demand (weighting)
 			welt->update_weight_of_building_in_world_list(building);
@@ -464,11 +464,11 @@ void fabrik_t::update_scaled_mail_demand(bool is_from_saved_game)
 			const uint32 percentage = (uint32)(get_base_production() * 100) / (uint32)max(1, get_desc()->get_productivity());
 			if (percentage > 100u)
 			{
-				get_building()->set_adjusted_mail_demand((uint16)std::max(65535u, (scaled_mail_demand * percentage) / 100));
+				get_building()->set_adjusted_mail_demand((uint16)std::min(65535u, (scaled_mail_demand * percentage) / 100));
 			}
 			else
 			{
-				building->set_adjusted_mail_demand((uint16)std::max(65535u, scaled_mail_demand));
+				building->set_adjusted_mail_demand((uint16)std::min(65535u, scaled_mail_demand));
 			}
 
 			// Must update the world building list to take into account the new passenger demand (weighting)
