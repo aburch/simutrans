@@ -371,8 +371,8 @@ void fabrik_t::update_scaled_electric_amount()
 	}
 
 	// If the demand is specified in the pakset, do not use the Extended electricity proportion.
-	const sint64 prod = max(1, desc->get_productivity());
-	scaled_electric_amount = (uint32)( (( (sint64)(desc->get_electric_amount()) * (sint64)prodbase + (prod >> 1) ) / prod) << POWER_TO_MW );
+	const sint64 prod = std::max(1ll, (sint64)desc->get_productivity());
+	scaled_electric_amount = (uint32)( (( (sint64)(desc->get_electric_amount()) * (sint64)prodbase + (prod >> 1ll) ) / prod) << (sint64)POWER_TO_MW );
 
 	if(  scaled_electric_amount == 0  ) {
 		prodfactor_electric = 0;
@@ -403,7 +403,7 @@ void fabrik_t::update_scaled_pax_demand(bool is_from_saved_game)
 		
 		if(building && (!is_from_saved_game || !building->get_loaded_passenger_and_mail_figres()))
 		{		
-			const uint32 percentage = (uint32)(get_base_production() * 100) / std::max(1u, (uint32)get_desc()->get_productivity());
+			const uint32 percentage = std::max(1u, ((uint32)get_desc()->get_productivity() * 100)) / std::max(1u, (uint32)(get_base_production()));
 			if (percentage > 100u)
 			{
 				get_building()->set_adjusted_jobs((uint16)std::min(65535u, (scaled_pax_demand * percentage) / 100u));
@@ -461,7 +461,7 @@ void fabrik_t::update_scaled_mail_demand(bool is_from_saved_game)
 		arrival_stats_mail.set_scaled_demand(mail_demand);
 		if (building && (!is_from_saved_game || !building->get_loaded_passenger_and_mail_figres()))
 		{
-			const uint32 percentage = (uint32)(get_base_production() * 100) / (uint32)max(1, get_desc()->get_productivity());
+			const uint32 percentage = std::max(1u, ((uint32)get_desc()->get_productivity() * 100)) / std::max(1u, (uint32)(get_base_production()));
 			if (percentage > 100u)
 			{
 				get_building()->set_adjusted_mail_demand((uint16)std::min(65535u, (scaled_mail_demand * percentage) / 100));
