@@ -748,13 +748,15 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 	// first use ground color
 	set_relief_farbe( k, calc_relief_farbe(gr) );
 
+	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+
 	switch(mode&~MAP_MODE_FLAGS) {
 		// show passenger coverage
 		// display coverage
 		case MAP_PASSENGER:
 			if(  plan->get_haltlist_count()>0  ) {
 				halthandle_t halt = plan->get_haltlist()[0].halt;
-				if(  halt->get_pax_enabled()  &&  !halt->get_connexions(0)->empty() ){
+				if(  halt->get_pax_enabled()  &&  !halt->get_connexions(goods_manager_t::INDEX_PAS, goods_manager_t::passengers->get_number_of_classes() - 1, max_classes)->empty() ){
 					set_relief_farbe( k, halt->get_owner()->get_player_color1() + 3 );
 				}
 			}
@@ -765,7 +767,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		case MAP_MAIL:
 			if(  plan->get_haltlist_count()>0  ) {
 				halthandle_t halt = plan->get_haltlist()[0].halt;
-				if(  halt->get_mail_enabled()  &&  !halt->get_connexions(1)->empty()  ) {
+				if(  halt->get_mail_enabled()  &&  !halt->get_connexions(goods_manager_t::INDEX_MAIL, goods_manager_t::mail->get_number_of_classes() - 1, max_classes)->empty()  ) {
 					set_relief_farbe( k, halt->get_owner()->get_player_color1() + 3 );
 				}
 			}
@@ -1511,6 +1513,8 @@ void reliefkarte_t::draw(scr_coord pos)
 		}
 	}
 
+	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+
 	// display station information here (even without overlay)
 	halthandle_t display_station;
 	// only fill cache if needed
@@ -1524,14 +1528,14 @@ void reliefkarte_t::draw(scr_coord pos)
 		}
 		else if(  mode & MAP_TRANSFER  ) {
 			FOR( const vector_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
-				if(  halt->is_transfer(goods_manager_t::INDEX_PAS)  ||  halt->is_transfer(goods_manager_t::INDEX_MAIL)  ) {
+				if(  halt->is_transfer(goods_manager_t::INDEX_PAS, goods_manager_t::passengers->get_number_of_classes() - 1, max_classes)  ||  halt->is_transfer(goods_manager_t::INDEX_MAIL, goods_manager_t::mail->get_number_of_classes() - 1, max_classes)  ) {
 					stop_cache.append( halt );
 				}
 				else {
-					// good transfer?
+					// goods transfer?
 					bool transfer = false;
 					for(  int i=goods_manager_t::INDEX_NONE+1  &&  !transfer;  i<=goods_manager_t::get_max_catg_index();  i ++  ) {
-						transfer = halt->is_transfer( i );
+						transfer = halt->is_transfer( i, 0, max_classes );
 					}
 					if(  transfer  ) {
 						stop_cache.append( halt );
@@ -1598,7 +1602,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			if(  !station->get_pax_enabled()  &&  !station->get_mail_enabled()  ) {
 				continue;
 			}
-			const sint32 pax_origin = (sint32)(station->get_finance_history( 1, HALT_HAPPY ) + station->get_finance_history( 1, HALT_UNHAPPY ) + station->get_finance_history( 1, HALT_NOROUTE ));
+			const sint32 pax_origin = (sint32)(station->get_finance_history( 1, HALT_HAPPY ) + station->get_finance_history( 1, HALT_UNHAPPY ) + station->get_finance_history(1, HALT_TOO_WAITING) + station->get_finance_history(1, HALT_NOROUTE) + station->get_finance_history( 1, HALT_TOO_SLOW ));
 			if(  pax_origin > max_origin  ) {
 				max_origin = pax_origin;
 			}

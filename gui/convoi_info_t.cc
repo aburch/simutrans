@@ -576,7 +576,8 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			break;
 
 		case convoi_t::NO_ROUTE_TOO_COMPLEX:
-			sprintf(speed_text, translator::translate("no_route_too_complex_message"));
+			//sprintf(speed_text, translator::translate("no_route_too_complex_message"));
+			sprintf(speed_text, translator::translate("clf_chk_noroute"));
 			speed_color = COL_RED;
 			break;
 
@@ -1108,26 +1109,34 @@ void convoi_info_t::set_windowsize(scr_size size)
 	line_button.set_pos(scr_coord(D_MARGIN_LEFT, y0 - LINESPACE));
 
 	view.set_pos(scr_coord(right - view.get_size().w, y));
-	y += view.get_size().h + 8;
+	follow_button.set_pos(scr_coord(view.get_pos().x, y + view.get_size().h + 8));
+	y += max(view.get_size().h + 8, LINESPACE * 7 + D_V_SPACE);
 
-	follow_button.set_pos(scr_coord(view.get_pos().x, y));
-
-	bool too_small_for_5_buttons = view.get_pos().x < BUTTON_X(4);
-	if (y0 + D_V_SPACE + D_BUTTON_HEIGHT <= y && too_small_for_5_buttons)
-	{
-		replace_button.set_pos(scr_coord(BUTTON3_X, y - D_V_SPACE - D_BUTTON_HEIGHT));
-	}
-	else
+	bool too_small_for_5_buttons = view.get_pos().x < 5*(D_BUTTON_WIDTH + D_H_SPACE) - min(view.get_size().w, D_BUTTON_WIDTH);
+	if (y0 + D_V_SPACE + D_BUTTON_HEIGHT <= y)
 	{
 		if (too_small_for_5_buttons)
 		{
+			replace_button.set_pos(scr_coord(BUTTON3_X, y - D_V_SPACE - D_BUTTON_HEIGHT));
+		}
+		else {
+			replace_button.set_pos(scr_coord(BUTTON4_X, y));
+		}
+		times_history_button.set_pos(scr_coord(BUTTON1_X, y - D_V_SPACE - D_BUTTON_HEIGHT));
+	}
+	else {
+		if (too_small_for_5_buttons)
+		{
 			y += D_BUTTON_HEIGHT + D_V_SPACE;
+			times_history_button.set_pos(scr_coord(BUTTON1_X, y - D_V_SPACE - D_BUTTON_HEIGHT));
+		}
+		else {
+			times_history_button.set_pos(scr_coord(BUTTON4_X + D_BUTTON_WIDTH + D_H_SPACE, y));
 		}
 		replace_button.set_pos(scr_coord(BUTTON4_X, y));
 	}
 
 	button.set_pos(scr_coord(BUTTON1_X, y));
-	times_history_button.set_pos(scr_coord(BUTTON1_X, y - D_V_SPACE - D_BUTTON_HEIGHT));
 	go_home_button.set_pos(scr_coord(BUTTON2_X, y));
 	no_load_button.set_pos(scr_coord(BUTTON3_X, y));
 	y += D_BUTTON_HEIGHT + D_V_SPACE; 

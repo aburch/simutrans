@@ -240,7 +240,7 @@ public:
 	 * @return the index into the tombstone table. May be used as
 	 * an ID for the referenced object.
 	 */
-	uint16 get_id() const { return entry; }
+	inline uint16 get_id() const { return entry; }
 
 	/**
 	 * For read/write from/to any storage (file or memory) with the appropriate interface

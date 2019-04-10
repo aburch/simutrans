@@ -3716,7 +3716,7 @@ void stadt_t::check_bau_factory(bool new_town)
 				// Only add an industry if there is a need for it: if the actual industry density is less than the target density.
 				// @author: jamespetts
 				DBG_MESSAGE("stadt_t::check_bau_factory", "adding new industry at %i inhabitants.", get_einwohner());
-				factory_builder_t::increase_industry_density( true, true );
+				factory_builder_t::increase_industry_density( true, true, false, 2 );
 			}
 		}
 	}
@@ -4308,7 +4308,7 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 	}
 
 	if (h == NULL  &&  ((sum_residential > sum_industrial  &&  sum_residential > sum_commercial) || worker_shortage)) {
-		if (!job_shortage)
+		if (!job_shortage || worker_shortage)
 		{
 			h = hausbauer_t::get_residential(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
 		}
@@ -4716,6 +4716,15 @@ void stadt_t::add_all_buildings_to_world_list()
 		gebaeude_t* building = *i;
 		update_city_stats_with_building(building, false);
 		welt->add_building_to_world_list(building);
+	}
+}
+
+void stadt_t::reset_tiles_for_all_buildings()
+{
+	for(weighted_vector_tpl<gebaeude_t*>::const_iterator i = buildings.begin(); i != buildings.end(); ++i)
+	{
+		gebaeude_t* building = *i;
+		building->set_building_tiles();
 	}
 }
 
@@ -5775,6 +5784,5 @@ void stadt_t::add_city_factory(fabrik_t *fab)
 
 void stadt_t::remove_city_factory(fabrik_t *fab)
 {
-	update_city_stats_with_building(fab->get_building()->access_first_tile(), true);
 	city_factories.remove(fab);
 }

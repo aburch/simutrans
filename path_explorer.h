@@ -25,7 +25,6 @@
 class path_explorer_t
 {
 public:
-
 	struct limit_set_t
 	{
 		uint32 rebuild_connexions;
@@ -84,19 +83,27 @@ public:
 		}
 	};
 
+	static bool must_refresh_on_loading;
+
+	static void rdwr(loadsave_t* file); 
+
 private:
 
 	class compartment_t
 	{
 	
-	private:
+		friend class path_explorer_t;
 
+	protected:
+		typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexion_table_map;
 		// structure for storing connexion hashtable and serving transport counter
 		struct connexion_list_entry_t
 		{
-			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *connexion_table;
+			connexion_table_map *connexion_table;
 			uint8 serving_transport;
 		};
+
+	private:
 
 		// element used during path search and for storing calculated paths
 		struct path_element_t
@@ -133,6 +140,10 @@ private:
 				{
 					connected_halts.append(halt_id);
 				}
+
+				connection_cluster_t(loadsave_t* file); 
+
+				void rdwr(loadsave_t* file); 
 			};
 
 		private:
@@ -140,7 +151,8 @@ private:
 			vector_tpl<connection_cluster_t*> connection_clusters;
 			uint32 usage_level;			// number of connection clusters used
 			uint32 halt_vector_size;	// size of connected halt vector in connection cluster object
-			inthashtable_tpl<uint16, connection_cluster_t*> cluster_map;
+			typedef  inthashtable_tpl<uint16, connection_cluster_t*> cluster_map_type;
+			cluster_map_type cluster_map;
 
 		public:
 
@@ -216,6 +228,8 @@ private:
 				}
 				return *(connection_clusters[element_id]);
 			}
+
+			void rdwr(loadsave_t* file); 
 		};
 
 		// data structure for temporarily storing lines and lineless conovys
@@ -254,8 +268,8 @@ private:
 
 		uint8 catg;				// category managed by this compartment
 		uint8 g_class;			// Class managed by this compartment
-		const char *catg_name;	// name of the category
-		char *class_name;// Name of the class
+		const char *catg_name;	// Name of the category
+		char *class_name;		// Name of the class
 		uint16 step_count;		// number of steps done so far for a path refresh request
 
 		// coordination flags
@@ -288,9 +302,12 @@ private:
 
 		// an array of names for the various phases
 		static const char *const phase_name[];
-
+		
+protected:
 		// an array for keeping a list of connexion hash table
 		static connexion_list_entry_t connexion_list[65536];
+		
+private:
 
 		// iteration representative
 		static uint16 representative_halt_count;
@@ -300,7 +317,7 @@ private:
 		// -> it is turned off for initial full instant search
 		static bool use_limits;
 		
-		// iteration limits
+		// iteration limitslinkages
 		static uint32 limit_rebuild_connexions;
 		static uint32 limit_filter_eligible;
 		static uint32 limit_fill_matrix;
@@ -334,11 +351,14 @@ private:
 		static const uint8 phase_reroute_goods = 6;
 
 		// absolute time limits
-		static const uint32 time_midpoint = 64; // The higher this number, the more processing will be done per step and the more quickly that a refresh will complete, but the more computationally intensive that it will be. Knightly's original setting was 24. 
+		// The higher this number, the more processing will be done per step and the more quickly that a refresh will complete, but the more computationally intensive that it will be. 
+		// Knightly's original setting was 24. The revised setting was 64.
+		// Now set by simuconf.tab.
+		static uint32 time_midpoint;
 		static const uint32 time_deviation = 2;
-		static const uint32 time_lower_limit = time_midpoint - time_deviation;
-		static const uint32 time_upper_limit = time_midpoint + time_deviation;
-		static const uint32 time_threshold = time_midpoint / 2;
+		static uint32 time_lower_limit;
+		static uint32 time_upper_limit;
+		static uint32 time_threshold;
 
 		// percentage time limits
 		static const uint32 percent_deviation = 5;
@@ -355,6 +375,10 @@ private:
 
 		static void initialise();
 		static void finalise();
+
+		void rdwr(loadsave_t* file); 
+
+		static void set_absolute_limits();
 
 		void step();
 		void reset(const bool reset_finished_set);
@@ -494,6 +518,12 @@ public:
 	static uint16 get_all_halt_count(uint8 catg, uint8 g_class) { return goods_compartment[catg][g_class].get_all_halt_count(); }
 	static uint16 get_transfer_count(uint8 catg, uint8 g_class) { return goods_compartment[catg][g_class].get_transfer_count(); }
 	static uint32 get_total_iterations(uint8 catg, uint8 g_class) { return goods_compartment[catg][g_class].get_total_iterations(); }
+
+	inline static void set_absolute_limits_external() { compartment_t::set_absolute_limits();  }
+
+	inline static bool get_must_refresh_on_loading() { return must_refresh_on_loading; }
+	inline static void set_must_refresh_on_loading() { must_refresh_on_loading = true; }
+	inline static void reset_must_refresh_on_loading() { must_refresh_on_loading = false; }
 };
 
 #endif

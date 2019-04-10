@@ -1487,7 +1487,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	loadingscreen_t ls( translator::translate("distributing factories"), 16 + settings.get_city_count() * 4 + settings.get_factory_count(), true, true );
 
 	while(  fab_list.get_count() < (uint32)settings.get_factory_count()  ) {
-		if(  !factory_builder_t::increase_industry_density( false, false, false, true )  ) {
+		if(  !factory_builder_t::increase_industry_density( false, false, false, 1 )  ) {
 			if(  ++consecutive_build_failures > 3  ) {
 				// Industry chain building starts failing consecutively as map approaches full.
 				break;
@@ -2823,6 +2823,17 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	FOR(weighted_vector_tpl<stadt_t*>, const city, stadt)
 	{
 		city->add_all_buildings_to_world_list();
+		city->reset_tiles_for_all_buildings();
+	}
+
+	FOR(weighted_vector_tpl<gebaeude_t*>, const attraction, world_attractions)
+	{
+		attraction->set_building_tiles();
+	}
+
+	FOR(const vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen())
+	{
+		halt->set_all_building_tiles();
 	}
 
 	// hausbauer_t::new_world(); <- this would reinit monuments! do not do this!
@@ -2894,6 +2905,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	// Don't try to be clever; we don't do map enlargements often.
 	FOR(vector_tpl<fabrik_t*>, const fab, fab_list)
 	{
+		fab->get_building()->set_building_tiles();
 		fab->recalc_nearby_halts();
 	}
 	clear_random_mode( MAP_CREATE_RANDOM );
@@ -4995,7 +5007,7 @@ void karte_t::new_month()
 		// Add industries if there is a shortage of electricity - power stations will be built.
 		// Also, check whether power stations are available, or else large quantities of other industries will
 		// be built instead every month.
-		factory_builder_t::increase_industry_density(true, true, true);
+		factory_builder_t::increase_industry_density(true, true, true, 1);
 	}
 
 	INT_CHECK("simworld 3130");
@@ -5464,7 +5476,9 @@ void karte_t::step()
 		}
 	}
 
-	rands[13] = get_random_seed();	
+	rands[13] = get_random_seed();
+
+	INT_CHECK("karte_t::step 3a");
 
 	// NOTE: Original position of the start of multi-threaded convoy stepping
 
@@ -5478,6 +5492,8 @@ void karte_t::step()
 	}
 	rands[14] = get_random_seed();
 
+	INT_CHECK("karte_t::step 3b");
+
 #ifdef MULTI_THREAD
 	// The placement of this barrier must be before any code that in any way relies on the private car routes between cities, most especially the mail and passenger generation (step_passengers_and_mail(delta_t)).
 	if (check_city_routes)
@@ -5485,6 +5501,8 @@ void karte_t::step()
 		simthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished. This is the second.
 	}
 #endif	
+
+	INT_CHECK("karte_t::step 3c");
 
 	rands[24] = 0;
 	rands[25] = 0;
@@ -5519,6 +5537,8 @@ void karte_t::step()
 			set_speed_factors();
 			speed_factors_are_set = true;
 		}
+
+		INT_CHECK("karte_t::step 3d");
 
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 #ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
@@ -5945,10 +5965,11 @@ void karte_t::deposit_ware_at_destination(ware_t ware)
 				// Only book arriving passengers for commuting trips.
 				fab->liefere_an(ware.get_desc(), ware.menge);
 			}
-			else if(fab->is_end_consumer())
+			else if(fab->get_sector() == fabrik_t::end_consumer)
 			{
 				// Add visiting passengers as consumers
 				fab->add_consuming_passengers(ware.menge);
+				fab->book_stat(ware.menge, FAB_CONSUMER_ARRIVED);
 			}
 			gb_dest =lookup(fab->get_pos())->find<gebaeude_t>();
 		}
@@ -6105,6 +6126,8 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 	const uint16 onward_trips = simrand(100, "void stadt_t::generate_passengers_and_mail() (any onward trips?)") < settings.get_onward_trip_chance_percent() &&	wtyp == goods_manager_t::passengers ? simrand(max_onward_trips, "void stadt_t::step_passengers() (how many onward trips?)") + 1 : 1;
 
 	route_status = initialising;
+
+	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 
 	for(uint32 trip_count = 0; trip_count < onward_trips && route_status != no_route && route_status != too_slow && route_status != overcrowded && route_status != destination_unavailable; trip_count ++)
 	{
@@ -6331,7 +6354,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 						route_status = destination_unavailable;
 					}
 				}
-				else if (dest_building->get_is_factory() && dest_building->get_fabrik()->is_end_consumer())
+				else if (dest_building->get_is_factory() && dest_building->get_fabrik()->get_sector() == fabrik_t::end_consumer)
 				{
 					// If the visiting passengers are bound for a shop that has run out of goods to sell, 
 					// do not allow the passengers to go here.
@@ -6507,9 +6530,9 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					// We cannot test this recursively within a reasonable time, so check only for the first stop.
 					if (pax.get_ziel() == pax.get_zwischenziel())
 					{
-						haltestelle_t::connexion* cnx = current_halt->get_connexions(wtyp->get_catg_index())->get(pax.get_zwischenziel());
+						haltestelle_t::connexion* cnx = current_halt->get_connexions(wtyp->get_catg_index(), pax.get_class(), max_classes)->get(pax.get_zwischenziel());
 			
-						if (current_halt->is_within_walking_distance_of(pax.get_zwischenziel()) && (!cnx || (!cnx->best_convoy.is_bound() && !cnx->best_line.is_bound())))
+						if (current_halt->is_within_walking_distance_of(pax.get_zwischenziel()) && (!cnx || (!cnx->best_convoy.is_bound() && !cnx->best_line.is_bound()) || ((cnx->best_convoy.is_bound() && !cnx->best_convoy->carries_this_or_lower_class(pax.get_catg(), pax.get_class()) || (cnx->best_line.is_bound() && !cnx->best_line->carries_this_or_lower_class(pax.get_catg(), pax.get_class()))))))
 						{
 							// Do not treat this as a public transport route: if it is a viable walking route, it will be so treated elsewhere.
 							current_journey_time = UINT32_MAX_VALUE;
@@ -6999,7 +7022,13 @@ no_route:
 #endif
 				if(start_halt.is_bound())
 				{
-					start_halt->add_pax_no_route(units_this_step);
+					if (trip == mail_trip)
+					{
+						start_halt->add_mail_no_route(units_this_step);
+					}
+					else {
+						start_halt->add_pax_no_route(units_this_step);
+					}
 				}
 			}
 		};
@@ -7053,22 +7082,6 @@ no_route:
 				// Cannot add success figures for buildings here as cannot get a building from a koord. 
 				// However, this should not matter much, as equally not recording generated passengers
 				// for all return journeys should still show accurate percentages overall. 
-			}
-			if(current_destination.type == factory && (trip == commuting_trip || trip == mail_trip))
-			{
-				// The only passengers generated by a factory are returning passengers who have already reached the factory somehow or another
-				// from home (etc.).
-#ifndef FORBID_RECORDING_RETURN_FACTORY_PASSENGERS
-#ifdef MULTI_THREAD
-				mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
-				assert(mutex_error == 0);
-#endif
-				current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == goods_manager_t::passengers ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED));
-#ifdef MULTI_THREAD
-				mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
-				assert(mutex_error == 0);
-#endif
-#endif
 			}
 		
 			ret_halt = pax.get_ziel();
@@ -7136,7 +7149,7 @@ no_route:
 #endif
 					{
 						halthandle_t test_halt = nearby_halt.halt;
-						haltestelle_t::connexion* cnx = test_halt->get_connexions(wtyp->get_catg_index())->get(ret_halt);
+						haltestelle_t::connexion* cnx = test_halt->get_connexions(wtyp->get_catg_index(), return_passengers.get_class(), max_classes)->get(ret_halt);
 						const uint32 jt = cnx ? cnx->journey_time : UINT32_MAX_VALUE;
 
 						if (test_halt->is_enabled(wtyp) && (ret_halt == test_halt || jt < return_journey_time))
@@ -7179,7 +7192,9 @@ no_route:
 								mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 								assert(mutex_error == 0);
 #endif
-								current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == goods_manager_t::passengers ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
+								if (trip == mail_trip) {
+									current_destination.building->get_fabrik()->book_stat(units_this_step, FAB_MAIL_DEPARTED);
+								}
 #ifdef MULTI_THREAD
 								mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 								assert(mutex_error == 0);
@@ -7267,9 +7282,9 @@ no_route:
 #ifdef DESTINATION_CITYCARS
 					city->generate_private_cars(current_destination.location, car_minutes, origin_pos.get_2d(), units_this_step);
 #endif
-					if(current_destination.type == factory && (trip == commuting_trip || trip == mail_trip))
+					if(current_destination.type == factory && trip == mail_trip)
 					{
-						current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == goods_manager_t::passengers ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
+						current_destination.building->get_fabrik()->book_stat(units_this_step, FAB_MAIL_DEPARTED);
 					}
 				}
 				else
@@ -7328,9 +7343,9 @@ return_on_foot:
 						city->add_transported_mail(units_this_step);
 					}
 				}
-				if(current_destination.type == factory && (trip == commuting_trip || trip == mail_trip))
+				if(current_destination.type == factory && trip == mail_trip)
 				{
-					current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp==goods_manager_t::passengers ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
+					current_destination.building->get_fabrik()->book_stat(units_this_step, FAB_MAIL_DEPARTED);
 				}
 #ifdef MULTI_THREAD
 				mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
@@ -7557,6 +7572,7 @@ void karte_t::update_history()
 	sint64 transported_year = 0;
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
 		if(  players[i]!=NULL  ) {
+			players[i]->get_finance()->calc_finance_history();
 			transported += players[i]->get_finance()->get_history_veh_month( TT_ALL, 0, ATV_TRANSPORTED_GOOD );
 			transported_year += players[i]->get_finance()->get_history_veh_year( TT_ALL, 0, ATV_TRANSPORTED_GOOD );
 		}
@@ -8275,6 +8291,11 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 			plainstring motd("");
 			file->rdwr_str( motd );
 		}
+	}
+
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 8) && get_settings().get_save_path_explorer_data())
+	{
+		path_explorer_t::rdwr(file);
 	}
 
 	// MUST be at the end of the load/save routine.
@@ -9402,6 +9423,21 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		}
 	}
 
+	// Either reload the path explorer data or refresh the routing.
+	bool path_explorer_data_saved = false;
+	if ((file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 8)) && get_settings().get_save_path_explorer_data())
+	{
+		path_explorer_data_saved = true;
+		path_explorer_t::rdwr(file); 
+	}
+
+	if (!path_explorer_data_saved || path_explorer_t::must_refresh_on_loading)
+	{
+		path_explorer_t::full_instant_refresh();
+	}
+
+	path_explorer_t::reset_must_refresh_on_loading(); 
+
 	vehicle_t::sound_ticks = 0;
 
 	// MUST be at the end of the load/save routine.
@@ -9422,9 +9458,6 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	{
 		i->check_road_tiles(false);
 	}
-
-	// Added by : Knightly
-	path_explorer_t::full_instant_refresh();
 
 	file->set_buffered(false);
 	clear_random_mode(LOAD_RANDOM);

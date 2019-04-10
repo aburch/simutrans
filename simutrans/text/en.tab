@@ -3,7 +3,7 @@ PROP_FONT_FILE
 Prop-Latin1.bdf
 ################################################################################
 #                                                                              #
-#                 Simutrans-Extended Base Translation File                 #
+#                 Simutrans-Extended Base Translation File                     #
 #                             Scenario: Base texts                             #
 #                             Language: en English                             #
 #                                Encoding: ASCII                               #
@@ -1085,6 +1085,10 @@ Loom
 Ler
 %24B_CITY_SYLL
 Mous
+%249_CITY_SYLL
+Les
+%24A_CITY_SYLL
+Bern
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -1811,7 +1815,7 @@ Mountain peak
 Goods supplied
 Goods supplied
 Goods
-Goods needed
+Goods
 Assets
 Assets
 Aufloesen
@@ -2035,7 +2039,7 @@ Vehicles: %d\nProfit: %s
 Convoys
 Convoys
 Copy Convoi
-Copy Convoy
+Copy convoy
 Copy the selected convoi and its schedule or line
 Copy the selected convoy and its schedule or line
 Create a new line based on this schedule
@@ -2531,9 +2535,9 @@ Northeast
 northwest
 Northwest
 Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-The vehicle's schedule\nmust not be changed\nuntil the operation is complete.
+The vehicle's schedule must not be changed\nuntil the operation is complete.
 Not enough fields would remain.
-Not enough fields would\nremain around this farm.
+Not enough fields would remain around this farm.
 November
 November
 Now active as %s.\n
@@ -3838,3 +3842,87 @@ Show also vehicles whose maintenance costs have increased due to obsolescence.
 Show vehicles that are obsolete and more expensive to maintain.
 Upgrade price:
 Upgrade price:
+Commuting
+Commuting
+Visiting
+Visiting
+Staffing
+Staffing
+Mail delivery
+Mail delivery
+Show the success rate for commuting passengers
+Show the success rate for commuting passengers
+Show the success rate for visiting passengers
+Show the success rate for visiting passengers
+Show the staff shortage rate
+Show the staff shortage rate
+Show the success rate for mail delivery
+Show the success rate for mail delivery
+Mail delivery success this year:
+Mail delivery success this year:
+Mail delivery success last year:
+Mail delivery success last year:
+Mail sent this year:
+Mail sent this year:
+Mail sent last year:
+Mail sent last year:
+Evaluation:
+Evaluation:
+No passenger service
+No passenger service
+No mail service
+No mail service
+This stop has no user
+This stop has no user
+This stop does not have mail customers
+This stop does not have mail customers
+Turned away
+Turned away
+Gave up waiting
+Gave up waiting
+Mail delivered
+Mail delivered
+No route (pass.)
+No route (pass.)
+No route (mail)
+No route (mail)
+The number of passengers who have been turned away from this stop because it is overcrowded
+The number of passengers who have been turned away from this stop because it is overcrowded
+The number of passengers who had to wait so long that they gave up
+The number of passengers who had to wait so long that they gave up
+The amount of mail successfully delivered from this stop
+The amount of mail successfully delivered from this stop
+The amount of mail which could not find a route to its destination
+The amount of mail which could not find a route to its destination
+The amount of mail transported in the region overall
+The percentage of mail transported successfully in the region overall
+Goods needed
+Goods needed
+ratio_mail
+% mail
+ratio_goods
+% goods
+Can't buy obsolete vehicles!
+It is not possible to buy vehicles that are either obsolete or available only as upgrades.
+Inactive
+Inactive
+Sector
+Sector
+Commuters
+Commuters
+Consumers
+Consumers
+Within own network
+Within own network
+Show only connected to own transport network
+Show only connected to own transport network
+Fully stocked
+Fully stocked
+Power usage
+Power usage
+Power output
+Power output
+Railcar_tab
+Railcars
+staffing_bar_tooltip_help
+This bar shows how many workers that this industry has compared to how many that it needs

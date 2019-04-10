@@ -1697,7 +1697,7 @@ public:
 	 * Conversion from walking distance in tiles to walking time
 	 * Returns tenths of minutes
 	 */
-	uint32 walking_time_tenths_from_distance(uint32 distance) const {
+	inline uint32 walking_time_tenths_from_distance(uint32 distance) const {
 		if (!speed_factors_are_set) {
 			set_speed_factors();
 		}

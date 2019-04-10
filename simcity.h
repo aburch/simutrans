@@ -340,6 +340,8 @@ public:
 
 	void add_all_buildings_to_world_list();
 
+	void reset_tiles_for_all_buildings();
+
 	/* end of history related things */
 private:
 	sint32 best_haus_wert;

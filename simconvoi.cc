@@ -1074,8 +1074,8 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 				break;
 		}
 #ifdef DEBUG_ACCELERATION
-		static const char *debug_fmt1 = "%d) at tile% 4u next limit of% 4d km/h, current speed% 4d km/h,% 6d steps til brake,% 6d steps til stop";
-		dbg->warning("convoi_t::calc_acceleration 1", debug_fmt1, current_route_index - 1, next_stop_index, speed_to_kmh(next_speed_limit), speed_to_kmh(akt_speed), steps_til_brake, steps_til_limit);
+		static const char *debug_fmt1 = "at tile %u,%u; at route index: %d; next stop index: % 4u next limit of% 4d km/h, current speed% 4d km/h,% 6d steps until brake,% 6d steps until stop";
+		dbg->warning("convoi_t::calc_acceleration 1", debug_fmt1, get_pos().x, get_pos().y, current_route_index - 1, next_stop_index, speed_to_kmh(next_speed_limit), speed_to_kmh(akt_speed), steps_til_brake, steps_til_limit);
 #endif
 		// Brake for upcoming speed limit?
 		sint32 min_limit = akt_speed; // no need to check limits above min_limit, as it won't lead to further restrictions
@@ -1720,6 +1720,8 @@ void convoi_t::step()
 	{
 		return;
 	}
+	
+	checked_tile_this_step = koord3d::invalid;
 
 	// moved check to here, as this will apply the same update
 	// logic/constraints convois have for manual schedule manipulation
@@ -4927,6 +4929,11 @@ void convoi_t::rdwr(loadsave_t *file)
 		last_stop_was_depot = lswd;
 	}
 
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 6))
+	{
+		checked_tile_this_step.rdwr(file);
+	}
+
 	// This must come *after* all the loading/saving.
 	if(  file->is_loading()  ) {
 		recalc_catg_index();
@@ -5043,14 +5050,14 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 				{
 					for (uint8 j = 0; j < pass_classes; j++)
 					{
-						max_loaded_pass[j] += v->get_accommodation_capacity(j);
+						max_loaded_pass[v->get_reassigned_class(j)] += v->get_accommodation_capacity(j);
 					}
 				}
 				else if (mail_veh)
 				{
 					for (uint8 j = 0; j < mail_classes; j++)
 					{
-						max_loaded_mail[j] += v->get_accommodation_capacity(j);
+						max_loaded_mail[v->get_reassigned_class(j)] += v->get_accommodation_capacity(j);
 					}
 				}
 				else if (menge > 0 && ware_desc != goods_manager_t::none) {
@@ -5075,11 +5082,11 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 					{
 						if (sort_by_accommodation && pass_veh)
 						{
-							pass_fracht[j].append(ware);
+							pass_fracht[v->get_reassigned_class(j)].append(ware);
 						}
 						else if (sort_by_accommodation && mail_veh)
 						{
-							mail_fracht[j].append(ware);
+							mail_fracht[v->get_reassigned_class(j)].append(ware);
 						}
 						else
 						{
@@ -7773,10 +7780,29 @@ void convoi_t::clear_replace()
 				const sint64 max_waiting_time = schedule->get_current_entry().waiting_time_shift ? welt->ticks_per_world_month >> (16ll - (sint64)schedule->get_current_entry().waiting_time_shift) : WAIT_INFINITE;
 				if((schedule->entries[schedule_entry].minimum_loading > 0 || schedule->entries[schedule_entry].wait_for_time) && schedule->get_spacing() > 0)
 				{
+					sint64 spacing_multiplier = 1;
+
+					// This may not be the next convoy on this line to depart from this forthcoming stop, so the spacing may have to be multiplied. 
+					//const haltestelle_t::arrival_times_map departure_table = halt->get_estimated_convoy_departure_times();
+					FOR(const haltestelle_t::arrival_times_map, const& iter, halt->get_estimated_convoy_departure_times())
+					{
+						const uint16 id = iter.key;
+						convoihandle_t tmp_cnv;
+						tmp_cnv.set_id(id); 
+						if(tmp_cnv.is_bound() && tmp_cnv->get_line() == get_line())
+						{
+							// This is on the same line. Any earlier departure from the target stop is therefore relevant. 
+							if(iter.value < etd + current_loading_time)
+							{
+								spacing_multiplier ++;
+							}
+						}
+					}
+
 					// Add spacing time.
 					const sint64 spacing = welt->ticks_per_world_month / (sint64)schedule->get_spacing();
 					const sint64 spacing_shift = (sint64)schedule->get_current_entry().spacing_shift * welt->ticks_per_world_month / (sint64)welt->get_settings().get_spacing_shift_divisor();
-					const sint64 wait_from_ticks = ((eta - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
+					const sint64 wait_from_ticks = ((eta - spacing_shift) / spacing) * spacing * spacing_multiplier + spacing_shift; // remember, it is integer division
 					const sint64 spaced_departure = min(max_waiting_time, (wait_from_ticks + spacing)) - reverse_delay;
 					etd += (spaced_departure - eta);
 				}
@@ -8273,4 +8299,20 @@ void convoi_t::reflesh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaki
 			}
 		}
 	}
+}
+
+bool convoi_t::all_vehicles_are_buildable() const
+{
+	for (uint32 i = 0; i < vehicle_count; i++)
+	{
+		if(get_vehicle(i)->get_desc()->is_available_only_as_upgrade())
+		{
+			return false;
+		}
+		if(!welt->get_settings().get_allow_buying_obsolete_vehicles() && get_vehicle(i)->get_desc()->is_obsolete(welt->get_timeline_year_month(), welt))
+		{
+			return false;
+		}
+	}
+	return true;
 }

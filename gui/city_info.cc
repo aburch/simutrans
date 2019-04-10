@@ -47,7 +47,7 @@ const char *hist_type[MAX_CITY_HISTORY] =
 	"sended", 
 	"Post",
 	"Goods supplied",  
-	"Goods", 
+	"Goods needed", 
 	"Power supply", 
 	"Power demand", 
 	"Congestion"
