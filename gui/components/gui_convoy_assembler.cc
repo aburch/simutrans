@@ -1884,7 +1884,6 @@ void gui_convoy_assembler_t::update_tabs()
 
 	bool one = false;
 
-	cont_pas.add_component(&pas);
 	scrolly_pas.set_show_scroll_x(false);
 	scrolly_pas.set_size_corner(false);
 	// add only if there are any
@@ -1893,7 +1892,6 @@ void gui_convoy_assembler_t::update_tabs()
 		one = true;
 	}
 
-	cont_pas2.add_component(&pas2);
 	scrolly_pas2.set_show_scroll_x(false);
 	scrolly_pas2.set_size_corner(false);
 	// add only if there are any
@@ -1902,7 +1900,6 @@ void gui_convoy_assembler_t::update_tabs()
 		one = true;
 	}
 
-	cont_electrics.add_component(&electrics);
 	scrolly_electrics.set_show_scroll_x(false);
 	scrolly_electrics.set_size_corner(false);
 	// add only if there are any trolleybuses
@@ -1914,7 +1911,6 @@ void gui_convoy_assembler_t::update_tabs()
 		one = true;
 	}
 
-	cont_loks.add_component(&loks);
 	scrolly_loks.set_show_scroll_x(false);
 	scrolly_loks.set_size_corner(false);
 	// add, if waggons are there ...
@@ -1923,7 +1919,6 @@ void gui_convoy_assembler_t::update_tabs()
 		one = true;
 	}
 
-	cont_waggons.add_component(&waggons);
 	scrolly_waggons.set_show_scroll_x(false);
 	scrolly_waggons.set_size_corner(false);
 	// only add, if there are waggons
