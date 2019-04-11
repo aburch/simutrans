@@ -8,7 +8,7 @@
 #ifndef message_stats_t_h
 #define message_stats_t_h
 
-#include "components/gui_komponente.h"
+#include "components/gui_component.h"
 #include "../simmesg.h"
 #include "../tpl/slist_tpl.h"
 

@@ -28,7 +28,7 @@ extern char **__argv;
 #include "simdebug.h"
 #include "gui/simwin.h"
 #include "gui/gui_frame.h"
-#include "gui/components/gui_komponente.h"
+#include "gui/components/gui_component.h"
 #include "gui/components/gui_textinput.h"
 
 

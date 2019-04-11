@@ -11,7 +11,7 @@
 #define gui_scrollpane_h
 
 
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "gui_scrollbar.h"
 
 class loadsave_t;

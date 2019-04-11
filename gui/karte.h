@@ -1,7 +1,7 @@
 #ifndef gui_karte_h
 #define gui_karte_h
 
-#include "components/gui_komponente.h"
+#include "components/gui_component.h"
 #include "../halthandle_t.h"
 #include "../simline.h"
 #include "../convoihandle_t.h"

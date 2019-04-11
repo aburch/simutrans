@@ -72,19 +72,19 @@ void labellist_frame_t::fill_list()
  * This method is called if an action is triggered
  * @author Markus Weber/Volker Meyer
  */
-bool labellist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool labellist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
-	if(komp == &sortedby) {
+	if(comp == &sortedby) {
 		labellist_stats_t::sortby = (labellist::sort_mode_t)( (labellist_stats_t::sortby + 1) % labellist::SORT_MODES);
 		sortedby.set_text(sort_text[labellist_stats_t::sortby]);
 		scrolly.sort(0);
 	}
-	else if(komp == &sorteddir) {
+	else if(comp == &sorteddir) {
 		labellist_stats_t::sortreverse = !labellist_stats_t::sortreverse;
 		sorteddir.set_text(labellist_stats_t::sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 		scrolly.sort(0);
 	}
-	else if (komp == &filter) {
+	else if (comp == &filter) {
 		labellist_stats_t::filter = !labellist_stats_t::filter;
 		fill_list();
 	}

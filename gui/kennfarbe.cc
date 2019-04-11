@@ -98,12 +98,12 @@ farbengui_t::farbengui_t(player_t *player_) :
  * This method is called if an action is triggered
  * @author V. Meyer
  */
-bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool farbengui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	for(unsigned i=0;  i<28;  i++) {
 
 		// new player 1 color?
-		if(komp==player_color_1[i]) {
+		if(comp==player_color_1[i]) {
 			for(unsigned j=0;  j<28;  j++) {
 				player_color_1[j]->pressed = false;
 			}
@@ -115,7 +115,7 @@ bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		}
 
 		// new player color 2?
-		if(komp==player_color_2[i]) {
+		if(comp==player_color_2[i]) {
 			for(unsigned j=0;  j<28;  j++) {
 				player_color_2[j]->pressed = false;
 			}

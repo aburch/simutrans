@@ -294,7 +294,7 @@ Railroads:              sch
 Generic way:            weg
 Buildings:              gb
 Factories:              fab
-UI components:		komp, c (temporary component variables) seldom directly used
+UI components:		comp, c (temporary component variables) seldom directly used
 UI windows:		??? (win is preferred)
 UI events:              ev
 Button:                 button

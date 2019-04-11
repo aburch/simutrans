@@ -52,14 +52,14 @@ factorylist_frame_t::factorylist_frame_t() :
  * This method is called if an action is triggered
  * @author Markus Weber/Volker Meyer
  */
-bool factorylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool factorylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
-	if(komp == &sortedby) {
+	if(comp == &sortedby) {
 		factorylist_stats_t::sort_mode = (factorylist_stats_t::sort_mode + 1) % factorylist::SORT_MODES;
 		sortedby.set_text(sort_text[factorylist_stats_t::sort_mode]);
 		scrolly.sort(0);
 	}
-	else if(komp == &sorteddir) {
+	else if(comp == &sorteddir) {
 		factorylist_stats_t::reverse = !factorylist_stats_t::reverse;
 		sorteddir.set_text( factorylist_stats_t::reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 		scrolly.sort(0);

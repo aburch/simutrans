@@ -72,9 +72,9 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 
 
  /* triggered, when button clicked; only single button registered, so the action is clear ... */
-bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
+bool settings_frame_t::action_triggered( gui_action_creator_t *comp, value_t )
 {
-	if(  komp==&revert_to_default  ) {
+	if(  comp==&revert_to_default  ) {
 		// reread from simucon.tab(s) the settings and apply them
 		tabfile_t simuconf;
 		env_t::init();
@@ -113,7 +113,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		climates.init( sets );
 		set_windowsize(get_windowsize());
 	}
-	else if(  komp==&revert_to_last_save  ) {
+	else if(  comp==&revert_to_last_save  ) {
 		// load settings of last generated map
 		loadsave_t file;
 		dr_chdir( env_t::user_dir  );

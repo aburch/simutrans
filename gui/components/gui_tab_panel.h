@@ -11,7 +11,7 @@
 #include "../../descriptor/skin_desc.h"
 
 #include "gui_action_creator.h"
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "gui_button.h"
 
 class image_t;

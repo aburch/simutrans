@@ -51,20 +51,20 @@ trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
  * components should be triggered.
  * V.Meyer
    */
-bool trafficlight_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
+bool trafficlight_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
 	char param[256];
-	if(komp == &ns) {
+	if(comp == &ns) {
 		sprintf( param, "%s,1,%i", roadsign->get_pos().get_str(), (int)v.i );
 		tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT]->set_default_param( param );
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT], welt->get_active_player() );
 	}
-	else if(komp == &ow) {
+	else if(comp == &ow) {
 		sprintf( param, "%s,0,%i", roadsign->get_pos().get_str(), (int)v.i );
 		tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT]->set_default_param( param );
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT], welt->get_active_player() );
 	}
- 	else if(komp == &offset) {
+	else if(comp == &offset) {
 		sprintf( param, "%s,2,%i", roadsign->get_pos().get_str(), (int)v.i );
 		tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT]->set_default_param( param );
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT], welt->get_active_player() );

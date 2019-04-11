@@ -116,9 +116,9 @@ bool extend_edit_gui_t::infowin_event(const event_t *ev)
 
 
 
-bool extend_edit_gui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
+bool extend_edit_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
 {
-	if (komp == &tabs) {
+	if (comp == &tabs) {
 		// switch list translation or object name
 		if (tabs.get_active_tab_index() == 0 && !is_show_trans_name) {
 			// show translation list
@@ -131,19 +131,19 @@ bool extend_edit_gui_t::action_triggered( gui_action_creator_t *komp,value_t /* 
 			fill_list( is_show_trans_name );
 		}
 	}
-	else if (komp == &scl) {
+	else if (comp == &scl) {
 		// select an item of scroll list ?
 		change_item_info(scl.get_selection());
 	}
-	else if(  komp==&bt_obsolete  ) {
+	else if(  comp==&bt_obsolete  ) {
 		bt_obsolete.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}
-	else if(  komp==&bt_climates  ) {
+	else if(  comp==&bt_climates  ) {
 		bt_climates.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}
-	else if(  komp==&bt_timeline  ) {
+	else if(  comp==&bt_timeline  ) {
 		bt_timeline.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}

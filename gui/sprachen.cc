@@ -194,12 +194,12 @@ sprachengui_t::sprachengui_t() :
 }
 
 
-bool sprachengui_t::action_triggered( gui_action_creator_t *komp, value_t)
+bool sprachengui_t::action_triggered( gui_action_creator_t *comp, value_t)
 {
 	for(int i=0; i<translator::get_language_count(); i++) {
 		button_t *b = buttons[i].button;
 
-		if(b == komp) {
+		if(b == comp) {
 			b->pressed = true;
 			translator::set_language(buttons[i].id);
 			init_font_from_lang(true);
