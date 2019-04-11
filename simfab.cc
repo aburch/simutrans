@@ -810,10 +810,6 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 	status = nothing;
 	lieferziele_active_last_month = 0;
 	city = check_local_city();
-	if(city != NULL)
-	{
-		city->add_city_factory(this);
-	}
 
 	if(desc->get_placement() == 2 && city && desc->get_product_count() == 0 && !desc->is_electricity_producer())
 	{
@@ -2552,18 +2548,26 @@ void fabrik_t::verteile_waren(const uint32 product)
 stadt_t* fabrik_t::check_local_city()
 {
 	stadt_t* c = NULL;
-	vector_tpl<koord> tile_list;
-	get_tile_list(tile_list);
-	FOR(vector_tpl<koord>, const k, tile_list)
+	// We cannot use the tile list here since this is called in many cases before that list can be generated.
+	koord pos_2d = pos.get_2d();
+	koord size = desc->get_building()->get_size(this->get_rotate());
+	koord test;
+	koord k;
+	// Which tiles belong to the fab?
+	for (test.x = 0; test.x < size.x; test.x++) 
 	{
-		for(uint8 i = 0; i < 8; i ++)
+		for (test.y = 0; test.y < size.y; test.y++)
 		{
-			// We need to check neighbouring tiles, since city borders can be very tightly drawn.
-			const koord city_pos(k + k.neighbours[i]);
-			c = welt->get_city(city_pos);
-			if(c)
+			k = pos_2d + test;
+			for (uint8 i = 0; i < 8; i++)
 			{
-				goto out_of_loop;
+				// We need to check neighbouring tiles, since city borders can be very tightly drawn.
+				const koord city_pos(k + k.neighbours[i]);
+				c = welt->get_city(city_pos);
+				if (c)
+				{
+					goto out_of_loop;
+				}
 			}
 		}
 	}
