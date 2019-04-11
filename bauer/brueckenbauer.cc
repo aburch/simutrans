@@ -238,7 +238,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 			return err_msg;
 		}
 	}
-	return "";	// could end here but must not end here
+	return "";	// could end here but need not end here
 }
 
 bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, const char *&error_msg)

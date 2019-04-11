@@ -104,11 +104,11 @@ class dialog_lines_t : public tool_t {
 public:
 	dialog_lines_t() : tool_t(DIALOG_LINEOVERVIEW | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Line Management"); }
-	image_id get_icon(player_t* player_) const OVERRIDE{ return player_->get_player_nr() == 1 ? IMG_EMPTY : icon; }
+	image_id get_icon(player_t* player) const OVERRIDE{ return player->get_player_nr() == 1 ? IMG_EMPTY : icon; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_line_management_t + welt->get_active_player_nr()); }
-	bool init(player_t* player_) OVERRIDE{
-		if (player_->get_player_nr() != welt->get_public_player()->get_player_nr()) {
-			create_win(new schedule_list_gui_t(player_), w_info, magic_line_management_t + player_->get_player_nr());
+	bool init(player_t* player) OVERRIDE{
+		if (player->get_player_nr() != welt->get_public_player()->get_player_nr()) {
+			create_win(new schedule_list_gui_t(player), w_info, magic_line_management_t + player->get_player_nr());
 		}
 		return false;
 	}
@@ -138,8 +138,8 @@ public:
 	dialog_finances_t() : tool_t(DIALOG_FINANCES | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Finanzen"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_finances_t + welt->get_active_player_nr()); }
-	bool init(player_t* player_) OVERRIDE{
-		create_win(new money_frame_t(player_), w_info, magic_finances_t + player_->get_player_nr());
+	bool init(player_t* player) OVERRIDE{
+		create_win(new money_frame_t(player), w_info, magic_finances_t + player->get_player_nr());
 		return false;
 	}
 	bool exit(player_t* const player) OVERRIDE{ destroy_win(magic_finances_t + player->get_player_nr()); return false; }
@@ -213,8 +213,8 @@ public:
 	dialog_playercolor_t() : tool_t(DIALOG_PLAYERCOLOR | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Farbe"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_farbengui_t); }
-	bool init(player_t* player_) OVERRIDE{
-		create_win(new farbengui_t(player_), w_info, magic_farbengui_t);
+	bool init(player_t* player) OVERRIDE{
+		create_win(new farbengui_t(player), w_info, magic_farbengui_t);
 		return false;
 	}
 	bool exit(player_t*) OVERRIDE{ destroy_win(magic_farbengui_t); return false; }
@@ -318,8 +318,8 @@ public:
 	dialog_list_halt_t() : tool_t(DIALOG_LIST_HALT | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("hl_title"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_halt_list_t); }
-	bool init(player_t* player_) OVERRIDE{
-		create_win(new halt_list_frame_t(player_), w_info, magic_halt_list_t);
+	bool init(player_t* player) OVERRIDE{
+		create_win(new halt_list_frame_t(player), w_info, magic_halt_list_t);
 		return false;
 	}
 	bool exit(player_t*) OVERRIDE{ destroy_win(magic_halt_list_t); return false; }
@@ -333,8 +333,8 @@ public:
 	dialog_list_convoi_t() : tool_t(DIALOG_LIST_CONVOI | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("cl_title"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_convoi_list + welt->get_active_player_nr()); }
-	bool init(player_t* player_) OVERRIDE{
-		create_win(new convoi_frame_t(player_), w_info, magic_convoi_list + player_->get_player_nr());
+	bool init(player_t* player) OVERRIDE{
+		create_win(new convoi_frame_t(player), w_info, magic_convoi_list + player->get_player_nr());
 		return false;
 	}
 	bool exit(player_t* const player) OVERRIDE{ destroy_win(magic_convoi_list + player->get_player_nr()); return false; }
@@ -408,9 +408,9 @@ public:
 	dialog_edit_factory_t() : tool_t(DIALOG_EDIT_FACTORY | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("factorybuilder"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_edit_factory); }
-	bool init(player_t* player_) OVERRIDE{
+	bool init(player_t* player) OVERRIDE{
 		if (!is_selected()) {
-			create_win(new factory_edit_frame_t(player_), w_info, magic_edit_factory);
+			create_win(new factory_edit_frame_t(player), w_info, magic_edit_factory);
 		}
 		return false;
 	}
@@ -425,9 +425,9 @@ public:
 	dialog_edit_attraction_t() : tool_t(DIALOG_EDIT_ATTRACTION | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("curiosity builder"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_edit_attraction); }
-	bool init(player_t* player_) OVERRIDE{
+	bool init(player_t* player) OVERRIDE{
 		if (!is_selected()) {
-			create_win(new curiosity_edit_frame_t(player_), w_info, magic_edit_attraction);
+			create_win(new curiosity_edit_frame_t(player), w_info, magic_edit_attraction);
 		}
 		return false;
 	}
@@ -442,9 +442,9 @@ public:
 	dialog_edit_house_t() : tool_t(DIALOG_EDIT_HOUSE | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("citybuilding builder"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_edit_house); }
-	bool init(player_t* player_) OVERRIDE{
+	bool init(player_t* player) OVERRIDE{
 		if (!is_selected()) {
-			create_win(new citybuilding_edit_frame_t(player_), w_info, magic_edit_house);
+			create_win(new citybuilding_edit_frame_t(player), w_info, magic_edit_house);
 		}
 		return false;
 	}
@@ -460,9 +460,9 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("baum builder"); }
 	image_id get_icon(player_t *) const OVERRIDE { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_edit_tree); }
-	bool init(player_t* player_) OVERRIDE{
+	bool init(player_t* player) OVERRIDE{
 		if (baum_t::get_count() > 0 && !is_selected()) {
-			create_win(new baum_edit_frame_t(player_), w_info, magic_edit_tree);
+			create_win(new baum_edit_frame_t(player), w_info, magic_edit_tree);
 		}
 		return false;
 	}

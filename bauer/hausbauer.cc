@@ -451,7 +451,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 }
 
 
-gebaeude_t* hausbauer_t::build(player_t* player_, koord3d pos, int org_layout, const building_desc_t* desc, void* param)
+gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, const building_desc_t* desc, void* param)
 {
 	gebaeude_t* first_building = NULL;
 	koord k;
@@ -476,7 +476,7 @@ gebaeude_t* hausbauer_t::build(player_t* player_, koord3d pos, int org_layout, c
 						DBG_MESSAGE("hausbauer_t::build()","get_tile() empty at %i,%i",k.x,k.y);
 				continue;
 			}
-			gebaeude_t *gb = new gebaeude_t(pos + k, player_, tile);
+			gebaeude_t *gb = new gebaeude_t(pos + k, player, tile);
 			if (first_building == NULL) {
 				first_building = gb;
 			}
@@ -515,7 +515,7 @@ gebaeude_t* hausbauer_t::build(player_t* player_, koord3d pos, int org_layout, c
 					}
 
 					// delete everything except vehicles
-					gr->obj_loesche_alle(player_);
+					gr->obj_loesche_alle(player);
 				}
 
 				// build new foundation

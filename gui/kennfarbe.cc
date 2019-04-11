@@ -37,7 +37,7 @@ farbengui_t::farbengui_t(player_t *player_) :
 	gui_frame_t( translator::translate("Farbe"), player_ ),
 	txt(&buf)
 {
-	this->player = player_;
+	player = player_;
 	buf.clear();
 	buf.append(translator::translate("COLOR_CHOOSE\n"));
 
@@ -49,7 +49,7 @@ farbengui_t::farbengui_t(player_t *player_) :
 	add_component( &txt );
 
 	// Picture
-	new_component<gui_image_t>(skinverwaltung_t::color_options->get_image_id(0), player_->get_player_nr(), ALIGN_NONE, true);
+	new_component<gui_image_t>(skinverwaltung_t::color_options->get_image_id(0), player->get_player_nr(), ALIGN_NONE, true);
 	end_table();
 
 	// Player's primary color label
@@ -59,7 +59,7 @@ farbengui_t::farbengui_t(player_t *player_) :
 	uint32 used_colors1 = 0;
 	uint32 used_colors2 = 0;
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		if(  i!=player_->get_player_nr()  &&  welt->get_player(i)  ) {
+		if(  i!=player->get_player_nr()  &&  welt->get_player(i)  ) {
 			used_colors1 |= 1 << (welt->get_player(i)->get_player_color1() / 8);
 			used_colors2 |= 1 << (welt->get_player(i)->get_player_color2() / 8);
 		}
@@ -73,7 +73,7 @@ farbengui_t::farbengui_t(player_t *player_) :
 		player_color_1[i]->background_color = color_idx_to_rgb(i*8+4);
 		player_color_1[i]->add_listener(this);
 	}
-	player_color_1[player_->get_player_color1()/8]->pressed = true;
+	player_color_1[player->get_player_color1()/8]->pressed = true;
 	end_table();
 
 	// Player's secondary color label
@@ -87,7 +87,7 @@ farbengui_t::farbengui_t(player_t *player_) :
 		player_color_2[i]->background_color = color_idx_to_rgb(i*8+4);
 		player_color_2[i]->add_listener(this);
 	}
-	player_color_2[player_->get_player_color2()/8]->pressed = true;
+	player_color_2[player->get_player_color2()/8]->pressed = true;
 	end_table();
 
 	reset_min_windowsize();

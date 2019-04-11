@@ -328,7 +328,7 @@ void way_builder_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wt
 /* allow for railroad crossing
  * @author prissi
  */
-bool way_builder_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wtyp0, const player_t *player_) const
+bool way_builder_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wtyp0, const player_t *player) const
 {
 	const waytype_t wtyp = wtyp0==tram_wt ? track_wt : wtyp0;
 	// nothing to cross here
@@ -356,7 +356,7 @@ bool way_builder_t::check_crossing(const koord zv, const grund_t *bd, waytype_t 
 		return true;
 	}
 	// right owner of the other way
-	if(!check_owner(w->get_owner(),player_)) {
+	if(!check_owner(w->get_owner(),player)) {
 		return false;
 	}
 	// check for existing crossing
@@ -1161,9 +1161,9 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 }
 
 
-way_builder_t::way_builder_t(player_t* player_) : next_gr(32)
+way_builder_t::way_builder_t(player_t* player) : next_gr(32)
 {
-	player_builder     = player_;
+	player_builder     = player;
 	bautyp = strasse;   // kann mit init_builder() gesetzt werden
 	maximum = 2000;// CA $ PER TILE
 
