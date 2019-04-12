@@ -893,3 +893,4 @@ void depot_t::add_to_world_list(bool lock)
 		city->update_city_stats_with_building(this, false);
 	}
 }
+

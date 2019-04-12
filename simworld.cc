@@ -2827,15 +2827,29 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		city->reset_tiles_for_all_buildings();
 	}
 
-	FOR(weighted_vector_tpl<gebaeude_t*>, const attraction, world_attractions)
+	for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
 	{
-		attraction->set_building_tiles();
+		FOR(weighted_vector_tpl<gebaeude_t*>, const target, commuter_targets[i])
+		{
+			target->set_building_tiles();
+		}
+
+		FOR(weighted_vector_tpl<gebaeude_t*>, const target, visitor_targets[i])
+		{
+			target->set_building_tiles();
+		}
+	}
+
+	FOR(weighted_vector_tpl<gebaeude_t*>, const target, mail_origins_and_targets)
+	{
+		target->set_building_tiles();
 	}
 
 	FOR(const vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen())
 	{
 		halt->set_all_building_tiles();
 	}
+
 
 	// hausbauer_t::new_world(); <- this would reinit monuments! do not do this!
 	factory_builder_t::new_world();
