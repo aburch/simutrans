@@ -1606,10 +1606,12 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			{
 				iterations = goods_manager_t::mail->get_number_of_classes();
 			}
+			
+			const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 
-			for (uint32 i = 0; i < iterations; i++)
+			for (uint32 n = 0; n < iterations; n++)
 			{
-				if (connexions[catg + i]->empty())
+				if (get_connexions(catg, n, max_classes)->empty())
 				{
 					// no connections from here => delete
 					delete new_warray;
@@ -2381,6 +2383,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 {
 	bool skipped = false;
 	const uint8 catg_index = good_category->get_catg_index();
+	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 	vector_tpl<ware_t> *warray = cargo[catg_index];
 	if(warray && warray->get_count() > 0)
 	{
@@ -2671,7 +2674,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 					}
 
 					// Refuse to be overcrowded if alternative exists
-					connexion * const next_connexion = connexions[catg_index]->get(check_halt);
+					connexion * const next_connexion = get_connexions(catg_index, g_class, max_classes)->get(check_halt);
 					if(next_connexion  &&  overcrowded  &&  next_connexion->alternative_seats)
 					{
 						schedule->increment_index(&index, &reverse);
@@ -5795,7 +5798,8 @@ void haltestelle_t::remove_line(linehandle_t line)
 	if(registered_convoys.empty() && registered_lines.empty() && !welt->is_destroying())
 	{
 		const uint8 max_categories = goods_manager_t::get_max_catg_index();
-		for(uint8 i = 0; i < max_categories; i++)
+		const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+		for(uint8 i = 0; i < max_categories *  max_classes; i++)
 		{
 			connexions[i]->clear();
 		}
@@ -5819,7 +5823,8 @@ void haltestelle_t::remove_convoy(convoihandle_t convoy)
 	if(registered_convoys.empty() && registered_lines.empty() && !welt->is_destroying())
 	{
 		const uint8 max_categories = goods_manager_t::get_max_catg_index();
-		for(uint8 i = 0; i < max_categories; i++)
+		const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+		for(uint8 i = 0; i < max_categories * max_classes; i++)
 		{
 			connexions[i]->clear();
 		}
