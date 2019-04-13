@@ -219,6 +219,10 @@ private:
 
 	int get_add_to_node() const 
 	{ 
+		if(freight_image_type > 1 && livery_image_type > 1)
+		{
+			return 6; 
+		}
 		int i = freight_image_type == 255 ? 1 : 0;
 		return livery_image_type > 0 ? 5 + i : 6;
 	}
