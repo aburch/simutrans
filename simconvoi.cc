@@ -7788,7 +7788,7 @@ void convoi_t::clear_replace()
 				const sint64 max_waiting_time = schedule->get_current_entry().waiting_time_shift ? welt->ticks_per_world_month >> (16ll - (sint64)schedule->get_current_entry().waiting_time_shift) : WAIT_INFINITE;
 				if((schedule->entries[schedule_entry].minimum_loading > 0 || schedule->entries[schedule_entry].wait_for_time) && schedule->get_spacing() > 0)
 				{
-					sint64 spacing_multiplier = 0;
+					sint64 spacing_multiplier = 1;
 
 					// This may not be the next convoy on this line to depart from this forthcoming stop, so the spacing may have to be multiplied. 
 					FOR(const haltestelle_t::arrival_times_map, const& iter, halt->get_estimated_convoy_departure_times())
@@ -7799,7 +7799,7 @@ void convoi_t::clear_replace()
 						if(tmp_cnv.is_bound() && tmp_cnv->get_line() == get_line())
 						{
 							// This is on the same line. Any earlier departure from the target stop is therefore relevant. 
-							if(iter.value < etd + current_loading_time)
+							if(iter.value < earliest_departure_time)
 							{
 								spacing_multiplier ++;
 							}
@@ -7820,10 +7820,7 @@ void convoi_t::clear_replace()
 					else
 					{
 						// Calculate the departure time based on the spacing
-						if (spacing_multiplier == 0)
-						{
-							spacing_multiplier = 1;
-						}
+						
 						const sint64 tmp_etd = ((spacing_ticks - spacing_ticks_remainder) * spacing_multiplier) + earliest_departure_time;
 
 						// The loading time and reverse delay will be added later
