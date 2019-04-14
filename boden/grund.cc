@@ -1757,7 +1757,21 @@ ribi_t::ribi grund_t::get_weg_ribi_unmasked(waytype_t typ) const
 */
 depot_t* grund_t::get_depot() const
 {
-	return dynamic_cast<depot_t *>(first_obj());
+	depot_t* dep = dynamic_cast<depot_t*>(suche_obj(obj_t::strassendepot)); 
+	if (dep)
+	{
+		return dep;
+	}
+	dep = dynamic_cast<depot_t*>(suche_obj(obj_t::bahndepot)); 
+	if (dep)
+	{
+		return dep;
+	}
+	dep = dynamic_cast<depot_t*>(suche_obj(obj_t::schiffdepot)); 
+
+	return dep;
+
+	//return dynamic_cast<depot_t *>(first_obj());
 }
 
 signalbox_t* grund_t::get_signalbox() const
