@@ -2518,13 +2518,21 @@ bool tool_build_way_t::exit( player_t *player )
 
 void tool_build_way_t::draw_after(scr_coord k, bool dirty) const
 {
-	if(  desc  &&  desc->get_waytype()==road_wt  ) {
+	if(  desc  &&  (desc->get_waytype()==road_wt  ||  desc->get_styp()==type_elevated)  ) {
 		if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
-			char level_str[16];
-			tool_build_way_t::set_mode_str(level_str, overtaking_mode);
-			uint8 color = tool_build_way_t::get_flag_color(street_flag);
-			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(color), true );
+			char mode_str[8], offset_str[8];
+			// show overtaking_mode when this way is road_wt.
+			if(  desc->get_waytype()==road_wt  ) {
+				tool_build_way_t::set_mode_str(mode_str, overtaking_mode);
+				uint8 color = tool_build_way_t::get_flag_color(street_flag);
+				display_proportional_rgb( k.x+4, k.y+4, mode_str, ALIGN_LEFT, color_idx_to_rgb(color), true );
+			}
+			// show height offset when height offset is set for this elevated way.
+			if(  desc->get_styp()==type_elevated  &&  height_offset!=0  ) {
+				sprintf(offset_str, "%d", height_offset);
+				display_proportional_rgb( k.x+28, k.y+4, offset_str, ALIGN_RIGHT, color_idx_to_rgb(COL_YELLOW), true );
+			}
 		}
 	} else {
 		two_click_tool_t::draw_after(k,dirty);
