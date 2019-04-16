@@ -409,6 +409,13 @@ void grund_t::rdwr(loadsave_t *file)
 					else {
 						assert((flags&has_way2)==0);	// maximum two ways on one tile ...
 						weg->set_pos(pos);
+						// check illegal overtaking_mode
+						if(  wtyp==road_wt  ) {
+							const overtaking_mode_t ov = ((strasse_t*)weg)->get_overtaking_mode();
+							if(  ov<halt_mode  ||  ov>inverted_mode  ) {
+								dbg->error( "grund_t::rdwr()", "Road %s has illegal overtaking mode %d.", get_pos().get_str(), ov );
+							}
+						}
 						if(owner_n!=-1) {
 							weg->set_owner(welt->get_player(owner_n));
 						}
