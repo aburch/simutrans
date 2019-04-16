@@ -361,7 +361,6 @@ grund_t* movingobj_t::hop_check()
 	 * Else pos_next_next is a single step from pos_next.
 	 * otherwise objects would jump left/right on some diagonals
 	 */
-	koord k(direction);
 	if (timetochange != 0) {
 		koord k(direction);
 		if(k.x&k.y) {
