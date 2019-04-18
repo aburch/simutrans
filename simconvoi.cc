@@ -163,6 +163,7 @@ void convoi_t::init(player_t *player)
 	vehicle_count = 0;
 	steps_driven = -1;
 	wait_lock = 0;
+	wait_lock_next_step = 0;
 	go_on_ticks = WAIT_INFINITE;
 
 	requested_change_lane = false;
@@ -1554,12 +1555,12 @@ bool convoi_t::drive_to()
 		if (success == route_t::route_too_complex)
 		{
 			// 2 minutes
-			wait_lock = 7200000;
+			wait_lock_next_step = 7200000;
 		}
 		else
 		{
 			// 25 seconds
-			wait_lock = 25000;
+			wait_lock_next_step = 25000;
 		}
 	}
 	else {
@@ -1614,7 +1615,7 @@ bool convoi_t::drive_to()
 #endif
 					}
 					// wait 25s before next attempt
-					wait_lock = 25000;
+					wait_lock_next_step = 25000;
 					route_ok = false;
 					break;
 				}
@@ -1718,6 +1719,13 @@ void convoi_t::step()
 {
 	if(wait_lock !=0)
 	{
+		return;
+	}
+
+	if (wait_lock_next_step != 0) {
+		// threaded_step cannot update wait_lock directly
+		wait_lock = wait_lock_next_step;
+		wait_lock_next_step = 0;
 		return;
 	}
 	
