@@ -3843,6 +3843,9 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_long(dummy);
 	}
 
+	wait_lock += wait_lock_next_step;
+	wait_lock_next_step = 0;
+
 	file->rdwr_long(wait_lock);
 	// some versions may produce broken savegames apparently
 	if(wait_lock > 1470000 && file->get_extended_version() < 11)
