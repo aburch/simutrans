@@ -1762,12 +1762,48 @@ depot_t* grund_t::get_depot() const
 	{
 		return dep;
 	}
+
 	dep = dynamic_cast<depot_t*>(suche_obj(obj_t::bahndepot)); 
 	if (dep)
 	{
 		return dep;
 	}
+
 	dep = dynamic_cast<depot_t*>(suche_obj(obj_t::schiffdepot)); 
+	if (dep)
+	{
+		return dep;
+	}
+
+	dep = dynamic_cast<depot_t*>(suche_obj(obj_t::monoraildepot)); 
+	if (dep)
+	{
+		return dep;
+	}
+
+	dep = dynamic_cast<depot_t*>(suche_obj(obj_t::maglevdepot)); 
+	if (dep)
+	{
+		return dep;
+	}
+
+	dep = dynamic_cast<depot_t*>(suche_obj(obj_t::tramdepot)); 
+	if (dep)
+	{
+		return dep;
+	}
+
+	dep = dynamic_cast<depot_t*>(suche_obj(obj_t::narrowgaugedepot)); 
+	if (dep)
+	{
+		return dep;
+	}
+
+	dep = dynamic_cast<depot_t*>(suche_obj(obj_t::airdepot)); 
+	if (dep)
+	{
+		return dep;
+	}
 
 	return dep;
 
