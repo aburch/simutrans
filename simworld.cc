@@ -7867,6 +7867,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "start");
 	}
 #ifdef MULTI_THREAD
 	stop_path_explorer(); 
+	await_convoy_threads();
 #endif
 	// rotate the map until it can be saved completely
 	for( int i=0;  i<4  &&  nosave_warning;  i++  ) {
