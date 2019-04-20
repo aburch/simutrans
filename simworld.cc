@@ -5632,14 +5632,6 @@ void karte_t::step()
 		path_explorer_t::refresh_all_categories(true);
 	}
 	
-#ifdef MULTI_THREAD_CONVOYS
-	// Start the convoys' route finding again immediately after the convoys have been stepped: this maximises efficiency and concurrency.
-	// Since it is purely route finding in the multi-threaded convoy step, it is safe to have this concurrent with everything but the single-
-	// threaded convoy step.
-	// Also can't run concurrently with any modifications to ways.
-	start_convoy_threads(); // Start the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. This will end in the next step
-#endif
-
 	INT_CHECK("karte_t::step 8");
 
 	check_transferring_cargoes();
@@ -5648,6 +5640,15 @@ void karte_t::step()
 	// Start the path explorer ready for the next step. This can be very 
 	// computationally intensive, but intermittently so.
 	start_path_explorer();
+#endif
+
+#ifdef MULTI_THREAD_CONVOYS
+	// Start the convoys' route finding as soon as possible after the convoys have been stepped: this maximises efficiency and concurrency.
+	// Since it is mostly route finding in the multi-threaded convoy step, it is safe to have this concurrent with everything but the single-
+	// threaded convoy step, and anything that modifies potential routes.
+	// This also (probably) needs to start after the path explorer, as it can modify the reversing flag of schedules/lines. Starting before
+	// the path explorer would thus lead to a race condition.
+	start_convoy_threads();
 #endif
 
 	// ok, next step
