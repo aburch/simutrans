@@ -485,9 +485,6 @@ uint32 convoi_t::move_to(uint16 const start_index)
 
 void convoi_t::finish_rd()
 {
-#ifdef MULTI_THREAD
-	world()->stop_path_explorer();
-#endif
 	if(schedule==NULL) {
 		if(  state!=INITIAL  ) {
 			emergency_go_to_depot();
@@ -1519,7 +1516,7 @@ bool convoi_t::drive_to()
 		{
 #ifdef MULTI_THREAD
 			pthread_mutex_lock(&step_convois_mutex);
-			world()->stop_path_explorer();
+			world()->await_path_explorer();
 #endif
 			// There is no need to renew stops here, as this update can only ever come
 			// from a change in reversing status, which does not require renewing stops.

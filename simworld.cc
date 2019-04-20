@@ -142,22 +142,20 @@ static pthread_mutexattr_t mutex_attributes;
 
 //static pthread_mutex_t private_car_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 //pthread_mutex_t karte_t::step_passengers_and_mail_mutex = PTHREAD_MUTEX_INITIALIZER;
-//static pthread_mutex_t path_explorer_mutex = PTHREAD_MUTEX_INITIALIZER;
+//static pthread_mutex_t path_explorer_await_mutex = PTHREAD_MUTEX_INITIALIZER;
 //pthread_mutex_t karte_t::unreserve_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static pthread_mutex_t private_car_route_mutex;
 pthread_mutex_t karte_t::step_passengers_and_mail_mutex;
-static pthread_mutex_t path_explorer_mutex;
+static pthread_mutex_t path_explorer_await_mutex;
 pthread_mutex_t karte_t::unreserve_route_mutex;
 
 static simthread_barrier_t private_car_barrier;
 simthread_barrier_t karte_t::unreserve_route_barrier;
 static simthread_barrier_t step_passengers_and_mail_barrier;
-static simthread_barrier_t start_path_explorer_barrier;
+static simthread_barrier_t path_explorer_barrier;
 static simthread_barrier_t step_convoys_barrier_internal;
 simthread_barrier_t karte_t::step_convoys_barrier_external;
-
-static pthread_cond_t path_explorer_conditional_end = PTHREAD_COND_INITIALIZER;
 
 bool karte_t::threads_initialised = false;
 
@@ -166,7 +164,6 @@ thread_local uint32 karte_t::marker_index = UINT32_MAX_VALUE;
 
 sint32 karte_t::cities_to_process = 0;
 vector_tpl<convoihandle_t> convoys_next_step;
-sint32 karte_t::path_explorer_step_progress = -1;
 
 vector_tpl<pedestrian_t*> *karte_t::pedestrians_added_threaded;
 vector_tpl<private_car_t*> *karte_t::private_cars_added_threaded;
@@ -1886,85 +1883,48 @@ void karte_t::await_convoy_threads()
 
 void* path_explorer_threaded(void* args)
 {
-	karte_t* world = (karte_t*)args;
-	path_explorer_t::allow_path_explorer_on_this_thread = true;
-	karte_t::path_explorer_step_progress = 2;
-
-	do
+	while (true)
 	{
-		simthread_barrier_wait(&start_path_explorer_barrier);
-		karte_t::path_explorer_step_progress = 0;
-		simthread_barrier_wait(&start_path_explorer_barrier);
-		int error = pthread_mutex_lock(&path_explorer_mutex);
-		assert(error == 0);
-
+		simthread_barrier_wait(&path_explorer_barrier);
 		if (karte_t::world->is_terminating_threads())
 		{
-			karte_t::path_explorer_step_progress = -1;
-			error = pthread_mutex_unlock(&path_explorer_mutex);
-			assert(error == 0);
-			break;
+			return NULL;
 		}
-
 		path_explorer_t::step();
+		simthread_barrier_wait(&path_explorer_barrier);
+	}
 
-		karte_t::path_explorer_step_progress = 1;
-
-		pthread_cond_signal(&path_explorer_conditional_end);
-		karte_t::path_explorer_step_progress = 2;
-		error = pthread_mutex_unlock(&path_explorer_mutex);
-		assert(error == 0);
-	} while (!karte_t::world->is_terminating_threads());
-
-	karte_t::path_explorer_step_progress = -1;
-	pthread_exit(NULL);
 	return args;
 }
 
 
-void karte_t::stop_path_explorer()
+void karte_t::await_path_explorer()
 {
 #ifdef MULTI_THREAD_PATH_EXPLORER
-	if (path_explorer_step_progress == -1)
+	// This first check isn't entirely redundant, because we need to
+	// protect against trying to lock a destroyed mutex.
+	if (path_explorer_working)
 	{
-		return;
+		// This can be accessed by multiple threads, so we need to
+		// ensure only one thread reaches the barrier.
+		int error = pthread_mutex_lock(&path_explorer_await_mutex);
+		assert(error == 0);
+		if (path_explorer_working)
+		{
+			simthread_barrier_wait(&path_explorer_barrier);
+			path_explorer_working = false;
+		}
+		error = pthread_mutex_unlock(&path_explorer_await_mutex);
+		assert(error == 0);
 	}
-
-	int error = pthread_mutex_lock(&path_explorer_mutex);
-	assert(error == 0);
-
-	while (path_explorer_step_progress == 0 || path_explorer_step_progress == 1)
-	{
-		pthread_cond_wait(&path_explorer_conditional_end, &path_explorer_mutex);
-	}
-
-	error = pthread_mutex_unlock(&path_explorer_mutex);
-	assert(error == 0);
-
 #endif
 }
 
 void karte_t::start_path_explorer()
 {
 #ifdef MULTI_THREAD_PATH_EXPLORER
-	if (path_explorer_step_progress == -1)
-	{
-		// The threaded path explorer has been terminated, so do not wait
-		// or else we will get a thread deadlock.
-		return;
-	}
-	int error = pthread_mutex_lock(&path_explorer_mutex);
-	assert(error == 0); 
-	if (path_explorer_step_progress > 0)
-	{
-		simthread_barrier_wait(&start_path_explorer_barrier);
-	}
-	if (path_explorer_step_progress > -1)
-	{
-		simthread_barrier_wait(&start_path_explorer_barrier);
-	}
-	error = pthread_mutex_unlock(&path_explorer_mutex);
-	assert(error == 0); 
+	simthread_barrier_wait(&path_explorer_barrier);
+	path_explorer_working = true;
 #endif 
 }
 
@@ -2038,7 +1998,7 @@ void karte_t::init_threads()
 	simthread_barrier_init(&step_passengers_and_mail_barrier, NULL, parallel_operations + 2); 
 	simthread_barrier_init(&step_convoys_barrier_external, NULL, 2);
 	simthread_barrier_init(&step_convoys_barrier_internal, NULL, parallel_operations + 1);	
-	simthread_barrier_init(&start_path_explorer_barrier, NULL, 2);
+	simthread_barrier_init(&path_explorer_barrier, NULL, 2);
 
 	// Initialise mutexes
 	pthread_mutexattr_init(&mutex_attributes);
@@ -2046,7 +2006,7 @@ void karte_t::init_threads()
 
 	pthread_mutex_init(&private_car_route_mutex, &mutex_attributes);
 	pthread_mutex_init(&step_passengers_and_mail_mutex, &mutex_attributes);
-	pthread_mutex_init(&path_explorer_mutex, &mutex_attributes);
+	pthread_mutex_init(&path_explorer_await_mutex, &mutex_attributes);
 	pthread_mutex_init(&unreserve_route_mutex, &mutex_attributes);
 
 	pthread_t thread;
@@ -2129,6 +2089,7 @@ void karte_t::init_threads()
 	{
 		dbg->fatal("void karte_t::init_threads()", "Failed to create path explorer thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
 	}
+	path_explorer_working = false;
 #endif
 
 	threads_initialised = true;
@@ -2143,6 +2104,9 @@ void karte_t::destroy_threads()
 #ifdef MULTI_THREAD_CONVOYS
 		await_convoy_threads();
 #endif
+#ifdef MULTI_THREAD_PASSENGER_GENERATION
+		await_path_explorer();
+#endif
 
 		terminating_threads = true;
 #ifdef MULTI_THREAD_CONVOYS
@@ -2155,9 +2119,7 @@ void karte_t::destroy_threads()
 		simthread_barrier_wait(&private_car_barrier);
 		simthread_barrier_wait(&unreserve_route_barrier);
 #ifdef MULTI_THREAD_PATH_EXPLORER
-		start_path_explorer();
-#endif
-#ifdef MULTI_THREAD_PATH_EXPLORER
+		simthread_barrier_wait(&path_explorer_barrier);
 		pthread_join(path_explorer_thread, 0);
 #endif
 #ifdef MULTI_THREAD_CONVOYS
@@ -2185,13 +2147,13 @@ void karte_t::destroy_threads()
 		simthread_barrier_destroy(&private_car_barrier);
 		simthread_barrier_destroy(&unreserve_route_barrier);
 #ifdef MULTI_THREAD_PATH_EXPLORER
-		simthread_barrier_destroy(&start_path_explorer_barrier);
+		simthread_barrier_destroy(&path_explorer_barrier);
 #endif 
 
 		// Destroy mutexes
 		pthread_mutex_destroy(&private_car_route_mutex);
 		pthread_mutex_destroy(&step_passengers_and_mail_mutex);
-		pthread_mutex_destroy(&path_explorer_mutex);
+		pthread_mutex_destroy(&path_explorer_await_mutex);
 		pthread_mutex_destroy(&unreserve_route_mutex);
 
 		pthread_mutexattr_destroy(&mutex_attributes);
@@ -2827,7 +2789,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	factory_builder_t::new_world();
 
 #ifdef MULTI_THREAD
-	stop_path_explorer();
+	await_path_explorer();
 #endif
 	// Modified by : Knightly
 	path_explorer_t::refresh_all_categories(true);
@@ -3019,6 +2981,7 @@ karte_t::karte_t() :
 
 #ifdef MULTI_THREAD
 	convoy_threads_working = false;
+	path_explorer_working = false;
 #endif
 }
 
@@ -5094,7 +5057,7 @@ void karte_t::new_month()
 	pedestrian_t::check_timeline_pedestrians();
 
 #ifdef MULTI_THREAD
-	stop_path_explorer();
+	await_path_explorer();
 #endif
 
 	// Added by : Knightly
@@ -5416,7 +5379,7 @@ void karte_t::step()
 
 #ifdef MULTI_THREAD_PATH_EXPLORER
 	// Stop the path explorer before we use its results.
-	stop_path_explorer();
+	await_path_explorer();
 #else
 	// Knightly : calling global path explorer
 	path_explorer_t::step();
@@ -7866,7 +7829,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "start");
 		ls = new loadingscreen_t( translator::translate("Saving map ..."), get_size().y );
 	}
 #ifdef MULTI_THREAD
-	stop_path_explorer(); 
+	await_path_explorer(); 
 	await_convoy_threads();
 #endif
 	// rotate the map until it can be saved completely

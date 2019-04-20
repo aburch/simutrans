@@ -193,7 +193,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 			acnv->unregister_stops();
 		}
 #ifdef MULTI_THREAD
-		world()->stop_path_explorer();
+		world()->await_path_explorer();
 #endif
 		path_explorer_t::refresh_all_categories(true);
 	}

@@ -926,6 +926,7 @@ private:
 
 #ifdef MULTI_THREAD
 	bool convoy_threads_working;
+	bool path_explorer_working;
 public:
 	static simthread_barrier_t step_convoys_barrier_external;
 	static simthread_barrier_t unreserve_route_barrier;
@@ -933,7 +934,7 @@ public:
 	static pthread_mutex_t step_passengers_and_mail_mutex;
 	void start_convoy_threads();
 	void await_convoy_threads();
-	void stop_path_explorer(); 
+	void await_path_explorer(); 
 	void start_path_explorer();
 
 #else
@@ -976,7 +977,6 @@ private:
 	static sint32 cities_to_process;
 	static vector_tpl<convoihandle_t> convoys_next_step;
 	public:
-	static sint32 path_explorer_step_progress;
 	static bool threads_initialised; 
 	
 	// These are both intended to be arrays of vectors

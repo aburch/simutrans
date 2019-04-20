@@ -7386,7 +7386,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 
 		// Modified by : Knightly
 #ifdef MULTI_THREAD
-		world()->stop_path_explorer();
+		world()->await_path_explorer();
 #endif
 		path_explorer_t::refresh_all_categories(true);
 	}
@@ -9424,7 +9424,7 @@ bool tool_access_t::init(player_t *player)
 			}
 		}
 #ifdef MULTI_THREAD
-		world()->stop_path_explorer();
+		world()->await_path_explorer();
 #endif
 		path_explorer_t::refresh_all_categories(false);
 		if (cnv.is_bound())
