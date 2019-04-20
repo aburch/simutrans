@@ -925,16 +925,14 @@ private:
 	void recalc_passenger_destination_weights();
 
 #ifdef MULTI_THREAD
-	// Check whether this is the first time that karte_t::step() has been run
-	// in order to know when to launch the background threads. 
-	sint32 first_step;
+	bool convoy_threads_working;
 public:
 	static simthread_barrier_t step_convoys_barrier_external;
 	static simthread_barrier_t unreserve_route_barrier;
 	static pthread_mutex_t unreserve_route_mutex;
 	static pthread_mutex_t step_passengers_and_mail_mutex;
-	sint32 get_first_step() const { return first_step; }
-	void set_first_step(sint32 value) { first_step = value;  }
+	void start_convoy_threads();
+	void await_convoy_threads();
 	void stop_path_explorer(); 
 	void start_path_explorer();
 

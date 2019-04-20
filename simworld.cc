@@ -1573,7 +1573,6 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 #ifdef MULTI_THREAD
 	init_threads();
-	first_step = 1;
 #else
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[1];
 #endif
@@ -1810,71 +1809,45 @@ void *step_convoys_threaded(void* args)
 	karte_t* world = (karte_t*)args;
 	const sint32 parallel_operations = world->get_parallel_operations();
 
-	do
+	while (true)
 	{	
 		simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
 		if (world->is_terminating_threads())
 		{
-			break;
+			return NULL;
 		}
+
 		// since convois will be deleted during stepping, we need to step backwards
 		for (uint32 i = world->convoi_array.get_count(); i-- != 0;)
 		{
 			convoihandle_t cnv = world->convoi_array[i];
 			convoys_next_step.append(cnv);
-
-			//  Needed here as the new method does not do this.
-			if (world->is_terminating_threads())
-			{
-				simthread_barrier_wait(&step_convoys_barrier_internal);
-				simthread_barrier_wait(&step_convoys_barrier_internal); // The multiples of these is intentional: we must stop the individual threads before the clear() command is executed.
-				convoys_next_step.clear();
-				break;
-			}
-			
-			// Old method: less efficient, as only processed 4 convoys at a time.
-			/*
-			if ((convoys_next_step.get_count() == parallel_operations - 2) || (i == world->convoi_array.get_count() - 1))
-			{
-				simthread_barrier_wait(&step_convoys_barrier_internal); 
-				simthread_barrier_wait(&step_convoys_barrier_internal); // The multiples of these is intentional: we must stop the individual threads before the clear() command is executed.
-				convoys_next_step.clear();
-				if (world->is_terminating_threads())
-				{
-					break;
-				}
-			}*/
 		}
 
-		// New method: process all convoys at once in all threads.
-		if (!world->is_terminating_threads())
-		{
-			simthread_barrier_wait(&step_convoys_barrier_internal);
-			simthread_barrier_wait(&step_convoys_barrier_internal); // The multiples of these is intentional: we must stop the individual threads before the clear() command is executed.
-			convoys_next_step.clear();
-		}
+		simthread_barrier_wait(&step_convoys_barrier_internal);
+		simthread_barrier_wait(&step_convoys_barrier_internal); // The multiples of these is intentional: we must wait for the individual threads to finish before the clear() command is executed.
+		convoys_next_step.clear();
 
 		simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
-	} while (!world->is_terminating_threads());
+	}
 
-	pthread_exit(NULL);
 	return args;
 }
 
 void* step_individual_convoy_threaded(void* args)
 {
-	//pthread_cleanup_push(&route_t::TERM_NODES, NULL);
 	const uint32* thread_number_ptr = (const uint32*)args;
 	const uint32 thread_number = *thread_number_ptr; 
 	karte_t::marker_index = thread_number;
 	delete thread_number_ptr;
 
-	do
+	while (true)
 	{
 		simthread_barrier_wait(&step_convoys_barrier_internal);
 		if (karte_t::world->is_terminating_threads())
 		{
-			break;
+			route_t::TERM_NODES(); 
+			return NULL;
 		}
 		
 		const uint32 convoys_next_step_count = convoys_next_step.get_count();
@@ -1887,26 +1860,28 @@ void* step_individual_convoy_threaded(void* args)
 			}
 		}
 
-		/*
-		// Old method
-		if (convoys_next_step.get_count() > thread_number)
-		{
-			convoihandle_t cnv = convoys_next_step[thread_number];
-			if (cnv.is_bound())
-			{
-				cnv->threaded_step();
-			}
-		} 
-		*/
-
 		simthread_barrier_wait(&step_convoys_barrier_internal);
-	} while (!karte_t::world->is_terminating_threads());
-	
-	//pthread_cleanup_pop(1); 
-	route_t::TERM_NODES(); 
+	}
 
-	pthread_exit(NULL);
 	return args;
+}
+
+void karte_t::start_convoy_threads()
+{
+	simthread_barrier_wait(&step_convoys_barrier_external);
+	convoy_threads_working = true;
+}
+
+void karte_t::await_convoy_threads()
+{
+#ifndef MULTI_THREAD_CONVOYS
+	return;
+#endif
+	if (convoy_threads_working)
+	{
+		simthread_barrier_wait(&step_convoys_barrier_external);
+		convoy_threads_working = false;
+	}
 }
 
 void* path_explorer_threaded(void* args)
@@ -2144,6 +2119,7 @@ void karte_t::init_threads()
 	{
 		dbg->fatal("void karte_t::init_threads()", "Failed to create convoy master thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
 	}
+	convoy_threads_working = false;
 #endif
 
 #ifdef MULTI_THREAD_PATH_EXPLORER
@@ -2164,11 +2140,9 @@ void karte_t::destroy_threads()
 	{
 		pthread_attr_destroy(&thread_attributes);
 
-		// Send waiting threads to their doom
-
-		// HACK: The below sleep allows the convoy threads to synchronise to avoid
-		// thread deadlocks that otherwise might result.
-		dr_sleep(100);
+#ifdef MULTI_THREAD_CONVOYS
+		await_convoy_threads();
+#endif
 
 		terminating_threads = true;
 #ifdef MULTI_THREAD_CONVOYS
@@ -2222,8 +2196,6 @@ void karte_t::destroy_threads()
 
 		pthread_mutexattr_destroy(&mutex_attributes);
 	}
-
-	first_step = 1;
 
 	delete[] private_cars_added_threaded; 
 	private_cars_added_threaded = NULL;
@@ -3046,7 +3018,7 @@ karte_t::karte_t() :
 	visitor_targets = new weighted_vector_tpl<gebaeude_t*>[number_of_passenger_classes];
 
 #ifdef MULTI_THREAD
-	first_step = 1;
+	convoy_threads_working = false;
 #endif
 }
 
@@ -5410,13 +5382,6 @@ void karte_t::step()
 
 	rands[10] = get_random_seed();
 
-#ifdef MULTI_THREAD_CONVOYS
-	if (first_step == 1)
-	{
-		simthread_barrier_wait(&step_convoys_barrier_external); // Start the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. 
-	}
-#endif
-
 	// check for pending seasons change
 	// This is not very computationally intensive.
 	const bool season_change = pending_season_change > 0;
@@ -5461,17 +5426,8 @@ void karte_t::step()
 	INT_CHECK("karte_t::step 2");
 
 #ifdef MULTI_THREAD_CONVOYS
-	simthread_barrier_wait(&step_convoys_barrier_external); 
 	// Finish the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. 
-	if (first_step == 1)
-	{
-		first_step = 2;
-	}
-	else if (first_step == 0)
-	{
-		// We need this to know whether the convoy thread loop is at the top or bottom barrier.
-		first_step = 3;
-	}
+	await_convoy_threads();
 #else
 	for (uint32 i = convoi_array.get_count(); i-- != 0;)
 	{
@@ -5714,22 +5670,11 @@ void karte_t::step()
 	}
 	
 #ifdef MULTI_THREAD_CONVOYS
-	// This must start after the multi-threaded path explorer starts
-
 	// Start the convoys' route finding again immediately after the convoys have been stepped: this maximises efficiency and concurrency.
 	// Since it is purely route finding in the multi-threaded convoy step, it is safe to have this concurrent with everything but the single-
 	// threaded convoy step.
-	if (first_step == 3 || first_step == 2)
-	{
-		simthread_barrier_wait(&step_convoys_barrier_external); // Start the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. This will end in the next step
-	}
-
-	if (first_step == 2 || first_step == 3)
-	{
-		// Convoys cannot be stepped concurrently with sync_step running in network mode because whether they need routing may depend on a command executed in sync_step,
-		// and it will be entirely by distribution_weight whether that command is executed before or after the threads get to processing that particular convoy.
-		first_step = 0;
-	}
+	// Also can't run concurrently with any modifications to ways.
+	start_convoy_threads(); // Start the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. This will end in the next step
 #endif
 
 	INT_CHECK("karte_t::step 8");
@@ -8638,7 +8583,6 @@ void karte_t::load(loadsave_t *file)
 #ifdef MULTI_THREAD
 	// destroy() destroys the threads, so this must be here.
 	init_threads();
-	first_step = 1;
 #endif
 
 	tile_counter = 0;

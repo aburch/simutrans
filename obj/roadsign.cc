@@ -107,17 +107,13 @@ void roadsign_t::init(player_t *player, ribi_t::ribi dir, const roadsign_desc_t 
 roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_desc_t *desc, bool preview) : obj_t(pos)
 #endif
 {
-#ifdef MULTI_THREAD
+#ifdef MULTI_THREAD_CONVOYS
 	if (env_t::networkmode)
 	{
 		// In network mode, we cannot have a sign being created concurrently with
 		// convoy path-finding because  whether the convoy path-finder is called
 		// on this tile of way before or after this function is indeterminate.
-		if (!world()->get_first_step())
-		{
-			simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
-			welt->set_first_step(1);
-		}
+		world()->await_convoy_threads();
 	}
 #endif
 	this->desc = desc;

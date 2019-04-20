@@ -182,18 +182,13 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 	const tunnel_t *tunnel = gr ? gr->find<tunnel_t>() : NULL;
 	const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
 
-#if MULTI_THREAD
-	const bool is_destroying = welt->is_destroying();
-	if (env_t::networkmode && !is_destroying)
+#ifdef MULTI_THREAD_CONVOYS
+	if (env_t::networkmode)
 	{
 		// In network mode, we cannot have set_desc running concurrently with
 		// convoy path-finding because  whether the convoy path-finder is called
 		// on this tile of way before or after this function is indeterminate.
-		if (!world()->get_first_step())
-		{
-			simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
-			welt->set_first_step(1);
-		}
+		world()->await_convoy_threads();
 	}
 #endif
 
