@@ -1177,7 +1177,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 
 void vehicle_t::fix_class_accommodations()
 {
-	if (desc->get_total_capacity() == 0)
+	if (!desc || desc->get_total_capacity() == 0)
 	{
 		// Vehicle ought to be empty - perhaps we should check this.
 		return;
