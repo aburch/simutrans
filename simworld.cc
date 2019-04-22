@@ -1883,6 +1883,7 @@ void karte_t::await_convoy_threads()
 
 void* path_explorer_threaded(void* args)
 {
+	path_explorer_t::allow_path_explorer_on_this_thread = true;
 	while (true)
 	{
 		simthread_barrier_wait(&path_explorer_barrier);
