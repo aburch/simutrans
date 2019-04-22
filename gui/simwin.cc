@@ -1530,7 +1530,7 @@ void win_poll_event(event_t* const ev)
 	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RESIZE  ) {
 		// main window resized
 		simgraph_resize( ev->size_x, ev->size_y );
-		ticker::redraw_ticker();
+		ticker::redraw();
 		wl->set_dirty();
 		wl->get_viewport()->metrics_updated();
 		ev->ev_class = EVENT_NONE;
@@ -1551,7 +1551,7 @@ void win_poll_event(event_t* const ev)
 		}
 		wl->set_dirty();
 		ev->ev_class = EVENT_NONE;
-		ticker::redraw_ticker();
+		ticker::redraw();
 	}
 	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_THEME_CHANGED  ) {
 		// called when font is changed
@@ -1560,7 +1560,7 @@ void win_poll_event(event_t* const ev)
 			i.gui->infowin_event(ev);
 		}
 		ev->ev_class = EVENT_NONE;
-		ticker::redraw_ticker();
+		ticker::redraw();
 	}
 }
 
@@ -1612,19 +1612,17 @@ void win_display_flush(double konto)
 	display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height+1 );
 
 	show_ticker = false;
-	if( !ticker::empty() ) {
-		ticker::draw();
-		if (ticker::empty()) {
-			// set dirty background for removing ticker
-			if(wl) {
-				wl->set_background_dirty();
-			}
+	ticker::draw();
+	if (ticker::empty()) {
+		// set dirty background for removing ticker
+		if(wl) {
+			wl->set_background_dirty();
 		}
-		else {
-			show_ticker = true;
-			// need to adapt tooltip_y coordinates
-			tooltip_ypos = min(tooltip_ypos, disp_height-15-10-16);
-		}
+	}
+	else {
+		show_ticker = true;
+		// need to adapt tooltip_y coordinates
+		tooltip_ypos = min(tooltip_ypos, disp_height-15-10-16);
 	}
 
 	if(  skinverwaltung_t::compass_iso  &&  env_t::compass_screen_position  ) {

@@ -26,6 +26,10 @@
 
 static bool sigterm_received = false;
 
+#if COLOUR_DEPTH != 0
+#error "Posix only compiles with color depth=0"
+#endif
+
 // no autoscaling as we have no display ...
 bool dr_auto_scale(bool)
 {

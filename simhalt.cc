@@ -2350,7 +2350,6 @@ void haltestelle_t::change_owner( player_t *player )
 		}
 
 		// make way object public if any suitable
-		wayobj_t *wo = NULL;
 		for(  uint8 i = 1;  i < gr->get_top();  i++  ) {
 			if(  wayobj_t *const wo = obj_cast<wayobj_t>(gr->obj_bei(i))  ) {
 				player_t *woplayer = wo->get_owner();
@@ -2359,18 +2358,16 @@ void haltestelle_t::change_owner( player_t *player )
 					// change ownership
 					wo->set_owner( player );
 					wo->set_flag(obj_t::dirty);
-					player_t *const woowner = wo->get_owner();
 					waytype_t const financetype = wo->get_desc()->get_waytype();
 					player_t::add_maintenance( woplayer, -cost, financetype);
 					player_t::add_maintenance( player, cost, financetype);
-					sint64 const workcost = -welt->scale_with_month_length(cost * welt->get_settings().cst_make_public_months);
 					player_t::book_construction_costs( woplayer, cost, koord::invalid, financetype);
 				}
 			}
 		}
 	}
 
-	// now finallz change owner
+	// now finally change owner
 	owner_p = player;
 	rebuild_connections();
 	rebuild_linked_connections();
