@@ -1534,7 +1534,7 @@ void reliefkarte_t::draw(scr_coord pos)
 				else {
 					// goods transfer?
 					bool transfer = false;
-					for(  int i=goods_manager_t::INDEX_NONE+1  &&  !transfer;  i<=goods_manager_t::get_max_catg_index();  i ++  ) {
+					for(  int i=goods_manager_t::INDEX_NONE+1  &&  !transfer;  i<goods_manager_t::get_max_catg_index();  i ++  ) {
 						transfer = halt->is_transfer( i, 0, max_classes );
 					}
 					if(  transfer  ) {
