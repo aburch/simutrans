@@ -851,11 +851,12 @@ void settings_t::rdwr(loadsave_t *file)
 		if(  file->get_OTRP_version() >= 19  ) {
 			file->rdwr_bool(advance_to_end);
 		}
-		if(  file->get_OTRP_version() >= 21  ) {
-			file->rdwr_bool(allow_merge_distant_halt);
-		}
 		if(  file->get_version() > 120008  ) {
 			file->rdwr_long(allow_merge_distant_halt);
+		} else if(  file->get_OTRP_version() >= 21  ) {
+			bool m = allow_merge_distant_halt > 0;
+			file->rdwr_bool(m);
+			allow_merge_distant_halt = m ? 10000 : 0;
 		}
 		// otherwise the default values of the last one will be used
 	}
