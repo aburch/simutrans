@@ -1757,7 +1757,7 @@ ribi_t::ribi grund_t::get_weg_ribi_unmasked(waytype_t typ) const
 */
 depot_t* grund_t::get_depot() const
 {
-	depot_t* dep = dynamic_cast<depot_t*>(suche_obj(obj_t::strassendepot)); 
+	/*depot_t* dep = dynamic_cast<depot_t*>(suche_obj(obj_t::strassendepot)); 
 	if (dep)
 	{
 		return dep;
@@ -1805,9 +1805,18 @@ depot_t* grund_t::get_depot() const
 		return dep;
 	}
 
-	return dep;
+	return dep;*/
 
-	//return dynamic_cast<depot_t *>(first_obj());
+	// FIXME: The above can lead to crashes. The below - the earlier code from Standard -
+	// might not be thread safe as it is possible for the object list to be indeterminate
+	// in order. However, this indeterminacy is suspected to be a bug itself. 
+
+	// Since the below code for depots (as opposed to signalboxes) is not known to have caused
+	// any actual losses of synchronisation in network games, whereas the above is known
+	// to cause crashes, the below code is preferred for the present, but this will
+	// need furhter investigation in due course.
+
+	return dynamic_cast<depot_t *>(first_obj());
 }
 
 signalbox_t* grund_t::get_signalbox() const
