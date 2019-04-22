@@ -266,7 +266,6 @@
     <ClCompile Include="gui\components\gui_textarea.cc" />
     <ClCompile Include="gui\components\gui_textinput.cc" />
     <ClCompile Include="gui\components\gui_world_view_t.cc" />
-    <ClCompile Include="gui\halt_detail.cc" />
     <ClCompile Include="gui\halt_info.cc" />
     <ClCompile Include="gui\halt_list_filter_frame.cc" />
     <ClCompile Include="gui\halt_list_frame.cc" />
@@ -576,7 +575,6 @@
     <ClInclude Include="gui\components\gui_textarea.h" />
     <ClInclude Include="gui\components\gui_textinput.h" />
     <ClInclude Include="gui\components\gui_world_view_t.h" />
-    <ClInclude Include="gui\halt_detail.h" />
     <ClInclude Include="gui\halt_info.h" />
     <ClInclude Include="gui\halt_list_filter_frame.h" />
     <ClInclude Include="gui\halt_list_frame.h" />

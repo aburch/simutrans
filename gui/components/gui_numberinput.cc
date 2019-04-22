@@ -61,7 +61,7 @@ void gui_numberinput_t::set_size(scr_size size_par) {
 
 scr_size gui_numberinput_t::get_max_size() const
 {
-	uint16 max_digits = max(digits, log10( max( abs(min_value), abs(max_value) )+1 )+1);
+	uint16 max_digits = max(digits, log10( max( max(1, abs(min_value)), abs(max_value) ) )+1);
 	return scr_size(display_get_char_max_width( "+-/0123456789" ) * max_digits + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH + D_H_SPACE,
 					max(LINESPACE+4, max(D_ARROW_LEFT_HEIGHT, D_ARROW_RIGHT_HEIGHT)));
 }

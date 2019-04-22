@@ -43,7 +43,8 @@
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
-static pthread_mutex_t wayobj_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t wayobj_calc_image_mutex;
+static recursive_mutex_maker_t wayobj_cim_maker(wayobj_calc_image_mutex);
 #endif
 
 // the descriptions ...

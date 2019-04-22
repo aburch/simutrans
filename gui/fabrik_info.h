@@ -68,6 +68,8 @@ private:
 	gui_scrollpane_t scroll_info;
 
 	void rename_factory();
+
+	void update_components();
 public:
 	// refreshes text, images, indicator
 	void update_info();

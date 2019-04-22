@@ -54,7 +54,6 @@
 #include "obj/wayobj.h"
 
 #include "gui/halt_info.h"
-#include "gui/halt_detail.h"
 #include "gui/karte.h"
 
 #include "utils/simrandom.h"
@@ -590,11 +589,6 @@ void haltestelle_t::set_name(const char *new_name)
 			if(new_name  &&  all_names.set(gr->get_text(),self).is_bound() ) {
  				DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",new_name);
 			}
-		}
-		// Knightly : need to update the title text of the associated halt detail and info dialogs, if present
-		halt_detail_t *const details_frame = dynamic_cast<halt_detail_t *>( win_get_magic( magic_halt_detail + self.get_id() ) );
-		if(  details_frame  ) {
-			details_frame->set_name( get_name() );
 		}
 		halt_info_t *const info_frame = dynamic_cast<halt_info_t *>( win_get_magic( magic_halt_info + self.get_id() ) );
 		if(  info_frame  ) {
@@ -2355,7 +2349,6 @@ void haltestelle_t::change_owner( player_t *player )
 		}
 
 		// make way object public if any suitable
-		wayobj_t *wo = NULL;
 		for(  uint8 i = 1;  i < gr->get_top();  i++  ) {
 			if(  wayobj_t *const wo = obj_cast<wayobj_t>(gr->obj_bei(i))  ) {
 				player_t *woplayer = wo->get_owner();
@@ -2364,18 +2357,16 @@ void haltestelle_t::change_owner( player_t *player )
 					// change ownership
 					wo->set_owner( player );
 					wo->set_flag(obj_t::dirty);
-					player_t *const woowner = wo->get_owner();
 					waytype_t const financetype = wo->get_desc()->get_waytype();
 					player_t::add_maintenance( woplayer, -cost, financetype);
 					player_t::add_maintenance( player, cost, financetype);
-					sint64 const workcost = -welt->scale_with_month_length(cost * welt->get_settings().cst_make_public_months);
 					player_t::book_construction_costs( woplayer, cost, koord::invalid, financetype);
 				}
 			}
 		}
 	}
 
-	// now finallz change owner
+	// now finally change owner
 	owner_p = player;
 	rebuild_connections();
 	rebuild_linked_connections();

@@ -257,6 +257,7 @@ void gui_scrolled_list_t::calc_selection(scrollitem_t* old_focus, scrollitem_t* 
 	}
 }
 
+
 void gui_scrolled_list_t::cleanup_elements()
 {
 	bool reset = false;
@@ -281,10 +282,12 @@ void gui_scrolled_list_t::draw(scr_coord offset)
 {
 	// set focus
 	scrollitem_t* focus = dynamic_cast<scrollitem_t*>( comp->get_focus() );
-	FOR(vector_tpl<gui_component_t*>, v, item_list) {
-		scrollitem_t* item = dynamic_cast<scrollitem_t*>(v);
-		if(  item  ) {
-			item->focused = item->selected  &&  win_get_focus()==focus;
+	if(  focus  ) {
+		FOR(vector_tpl<gui_component_t*>, v, item_list) {
+			scrollitem_t* item = dynamic_cast<scrollitem_t*>(v);
+			if(  item  ) {
+				item->focused = item->selected  &&  win_get_focus()==focus;
+			}
 		}
 	}
 	cleanup_elements();

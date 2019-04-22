@@ -7015,7 +7015,7 @@ image_id tool_merge_stop_t::get_marker_image()
 	return cursor;
 }
 
-uint8 tool_merge_stop_t::is_valid_pos( player_t *player, const koord3d &pos, const char *&error, const koord3d &start )
+uint8 tool_merge_stop_t::is_valid_pos( player_t *player, const koord3d &pos, const char *&error, const koord3d &)
 {
 	grund_t *bd = welt->lookup(pos);
 	if (bd==NULL) {
@@ -7062,19 +7062,13 @@ void tool_merge_stop_t::mark_tiles(  player_t *player, const koord3d &start, con
 		}
 	}
 
-	if(  distance > 1  &&  welt->get_settings().allow_merge_distant_halt  ) {
-		if (  !halt_be_merged_from->is_halt_covered( halt_be_merged_to )  &&  halt_be_merged_from->get_owner() == player  &&  halt_be_merged_to->get_owner() == player )	{
-			workcost = -welt->scale_with_month_length( (2 ^ distance) * welt->get_settings().cst_multiply_merge_halt);
-		}
+	if(  distance  < welt->get_settings().allow_merge_distant_halt  ) {
+		distance = clamp(distance,2,33)-2;
+		workcost = -welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", workcost) );
 	}
 	else {
-		if ( halt_be_merged_from->is_halt_covered( halt_be_merged_to ) ) {
-			win_set_static_tooltip( tooltip_with_price("Building costs estimates", workcost) );
-		}
-		else {
-			win_set_static_tooltip( "Can not merge" );
-		}
+		win_set_static_tooltip( "Too far away to merge stations!" );
 	}
 }
 
@@ -7100,24 +7094,21 @@ const char *tool_merge_stop_t::do_work( player_t *player, const koord3d &last_po
 		}
 	}
 
-	if(  distance > 1  ) {
-		if(  welt->get_settings().allow_merge_distant_halt  ) {
-			// check funds
-			if ( !halt_be_merged_from->is_halt_covered( halt_be_merged_to ) )	{
-				distance = min( 31, distance ); // to avoid overflow
-				workcost = -welt->scale_with_month_length( (1ul<<distance) * welt->get_settings().cst_multiply_merge_halt );
-			}
-			if(  player != welt->get_public_player()  ||  !player->can_afford(workcost)  ) {
-				return NOTICE_INSUFFICIENT_FUNDS;
-			}
+	if(  distance  < welt->get_settings().allow_merge_distant_halt  ) {
+		distance = clamp(distance,2,33)-2;
+		workcost = -welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
+		win_set_static_tooltip( tooltip_with_price("Building costs estimates", workcost) );
+		if(  player != welt->get_public_player()  ||  !player->can_afford(workcost)  ) {
+			return NOTICE_INSUFFICIENT_FUNDS;
 		}
-		else {
-			return "Only merge adjacent stations!";
-		}
+	}
+	else {
+		return "Too far away to merge stations!";
 	}
 
 	// and now just do it ...
 	halt_be_merged_to->merge_halt(halt_be_merged_from);
+	player_t::book_construction_costs( player, workcost, halt_be_merged_to->get_basis_pos(), ignore_wt );
 
 	// nothing to do
 	return NULL;

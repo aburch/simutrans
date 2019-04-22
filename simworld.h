@@ -1025,7 +1025,7 @@ public:
 		}
 	}
 
-	sint32 get_time_multiplier() const { return time_multiplier; }
+	sint32 get_time_multiplier() const;
 	void change_time_multiplier( sint32 delta );
 
 	/**

@@ -22,10 +22,25 @@
 
 #include <pthread.h>
 
-// Mac OS X defines this initializers without _NP.
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
-#define PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP PTHREAD_RECURSIVE_MUTEX_INITIALIZER
+#if defined PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+// Linux glibc
+#define _SIMTHREAD_R_MUTEX_I PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+#elif defined PTHREAD_RECURSIVE_MUTEX_INITIALIZER
+// Mac OS X
+#define _SIMTHREAD_R_MUTEX_I PTHREAD_RECURSIVE_MUTEX_INITIALIZER
 #endif
+
+struct recursive_mutex_maker_t {
+#ifdef _SIMTHREAD_R_MUTEX_I
+	recursive_mutex_maker_t(pthread_mutex_t &mutex) {
+		// initializer can only be used for initialization, not assignment
+		pthread_mutex_t dummy = _SIMTHREAD_R_MUTEX_I;
+		mutex = dummy;
+	}
+#else
+	recursive_mutex_maker_t(pthread_mutex_t &mutex);
+#endif
+};
 
 // use our implementation if no posix barriers are available
 #if defined(_POSIX_BARRIERS)  &&  (_POSIX_BARRIERS > 0)
