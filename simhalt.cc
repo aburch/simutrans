@@ -405,9 +405,9 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 
 	cargo = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
 
-	non_identical_schedules.set_count(max_categories * max_classes);
+	non_identical_schedules.set_count((max_categories * max_classes) + 1);
 	// CHECK: Do we need the below in light of the above? Does the above auto-initialise the values to zero?
-	for ( uint8 i = 0; i < (max_categories * max_classes); i++ ) 
+	for ( uint8 i = 0; i < (max_categories * max_classes) + 1; i++ ) 
 	{
 		non_identical_schedules[i] = 0;
 	}
@@ -480,9 +480,9 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 
 	cargo = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
 
-	non_identical_schedules.set_count(max_categories * max_classes);
+	non_identical_schedules.set_count((max_categories * max_classes) + 1);
 	// CHECK: Do we need the below in light of the above? Does the above auto-initialise the values to zero?
-	for ( uint8 i = 0; i < (max_categories * max_classes); i++ )
+	for ( uint8 i = 0; i < (max_categories * max_classes) + 1; i++ )
 	{
 		non_identical_schedules[i] = 0;
 	}
