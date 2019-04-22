@@ -3524,6 +3524,8 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 		clear_random_mode( INTERACTIVE_RANDOM );
 
 		sync.sync_step( delta_t );
+
+		ticker::update();
 	}
 
 	if(display) {

@@ -95,6 +95,9 @@ private:
 	scr_coord_val max_width; // need for overlength entries
 
 	item_compare_func compare;
+	
+	bool multiple_selection; // true when multiple selection is enabled.
+	void calc_selection(scrollitem_t*, scrollitem_t*, event_t);
 
 protected:
 	scroll_container_t container;
@@ -116,8 +119,12 @@ public:
 
 	void set_selection(int s);
 	sint32 get_selection() const;
+	vector_tpl<sint32> get_selections() const;
+	
 	scrollitem_t* get_selected_item() const;
 	sint32 get_count() const { return item_list.get_count(); }
+	
+	void enable_multiple_selection() { multiple_selection = true; }
 
 	/*  when rebuilding a list, be sure to call recalculate the slider
 	 *  with recalculate_slider() to update the scrollbar properly. */

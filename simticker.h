@@ -20,8 +20,7 @@ extern uint16 TICKER_YPOS_BOTTOM;
 class koord;
 
 /**
- * A very simple news ticker.
- * The news are displayed by karte_vollansicht_t
+ * A very simple scrolling news ticker.
  */
 namespace ticker
 {
@@ -35,26 +34,35 @@ namespace ticker
 	void add_msg(const char*, koord pos, FLAGGED_PIXVAL color = color_idx_to_rgb(COL_BLACK));
 
 	/**
-	 * Ticker infowin pops up
+	 * Remove all messages and mark for redraw
+	 */
+	void clear_messages();
+
+	/**
+	 * @returns the 2D world position of the most recent visible message
 	 */
 	koord get_welt_pos();
 
 	/**
-	 * Ticker redraw
+	 * Update message positions and remove old messages
+	 */
+	void update();
+
+	/**
+	 * Redraw the ticker partially or fully (if set_redraw_all() was called)
 	 */
 	void draw();
 
 	/**
-	 * Set true if ticker has to be redrawn
+	 * Set true if ticker has to be redrawn fully
+	 * @sa redraw
 	 */
-	void set_redraw_all(const bool);
+	void set_redraw_all(bool redraw);
 
 	/**
-	 * Ticker text redraw after resize
+	 * Force a ticker redraw (e.g. after a window resize)
 	 */
-	void redraw_ticker();
-
-	void clear_ticker();
+	void redraw();
 };
 
 #endif

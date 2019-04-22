@@ -16,8 +16,8 @@
 #include "gui/gui_frame.h"
 
 
-// how much scrolling per call?
-#define X_DIST 2
+#define X_DIST    (2)   // how much scrolling per update call?
+#define X_SPACING (18)  // spacing between messages, in pixels
 
 uint16 win_get_statusbar_height(); // simwin.h
 
@@ -33,35 +33,33 @@ struct node {
 
 
 static slist_tpl<node> list;
-static koord default_pos = koord::invalid;
-static bool redraw_all; // true, if also trigger background need redraw
-static int next_pos;
+static koord default_pos = koord::invalid; // world position of newest message
+static bool redraw_all = false;    //< true, if also trigger background need redraw
+static int next_pos;               //< Next x offset of new message. Always greater or equal to display_width
+static int dx_since_last_draw = 0; //< Increased during update(); positive values move messages to the left
 
 
 bool ticker::empty()
 {
-  return list.empty();
+	return list.empty();
 }
 
 
-void ticker::clear_ticker()
+void ticker::clear_messages()
 {
-	if (!list.empty()) {
-		const int height = display_get_height();
-		const int width  = display_get_width();
-		mark_rect_dirty_wc(0, height-TICKER_YPOS_BOTTOM, width, height);
-	}
 	list.clear();
+	set_redraw_all(true);
 }
 
-void ticker::set_redraw_all(const bool b)
+
+void ticker::set_redraw_all(bool redraw)
 {
-	redraw_all=b;
+	redraw_all = redraw;
 }
+
 
 void ticker::add_msg(const char* txt, koord pos, FLAGGED_PIXVAL color)
 {
-	// don't store more than 4 messages, it's useless.
 	const int count = list.get_count();
 
 	if(count==0) {
@@ -70,38 +68,40 @@ void ticker::add_msg(const char* txt, koord pos, FLAGGED_PIXVAL color)
 		default_pos = koord::invalid;
 	}
 
-	if(count < 4) {
-		// Don't repeat messages
-		if (count == 0 || !strstart(list.back().msg, txt)) {
-			node n;
-			int i=0;
+	// don't store more than 4 messages, it's useless.
+	if(count >= 4) {
+		return;
+	}
+	// Don't repeat messages
+	else if (count == 0 || !strstart(list.back().msg, txt)) {
+		node n;
+		int i=0;
 
-			// remove breaks
-			for(  int j=0;  i<250  &&  txt[j]!=0;  j++ ) {
-				if(  txt[j]=='\n'  ) {
-					if(  i==0  ||  n.msg[i-1]==' '  ) {
-						continue;
-					}
-					n.msg[i++] = ' ';
+		// remove breaks
+		for(  int j=0;  i<250  &&  txt[j]!=0;  j++ ) {
+			if(  txt[j]=='\n'  ) {
+				if(  i==0  ||  n.msg[i-1]==' '  ) {
+					continue;
 				}
-				else {
-					if(  txt[j]==' '  &&  (i==0  ||  n.msg[i-1]==' ')  ) {
-						// avoid double or leading spaces
-						continue;
-					}
-					n.msg[i++] = txt[j];
-				}
+				n.msg[i++] = ' ';
 			}
-			n.msg[i++] = 0;
-
-			n.pos = pos;
-			n.color = color;
-			n.xpos = next_pos;
-			n.w = proportional_string_width(n.msg);
-
-			next_pos += n.w + 18;
-			list.append(n);
+			else {
+				if(  txt[j]==' '  &&  (i==0  ||  n.msg[i-1]==' ')  ) {
+					// avoid double or leading spaces
+					continue;
+				}
+				n.msg[i++] = txt[j];
+			}
 		}
+		n.msg[i++] = 0;
+
+		n.pos = pos;
+		n.color = color;
+		n.xpos = next_pos;
+		n.w = proportional_string_width(n.msg);
+
+		next_pos += n.w + X_SPACING;
+		list.append(n);
 	}
 }
 
@@ -112,71 +112,93 @@ koord ticker::get_welt_pos()
 }
 
 
-void ticker::draw()
+void ticker::update()
 {
-	TICKER_YPOS_BOTTOM = TICKER_HEIGHT + win_get_statusbar_height();
+	const int dx = X_DIST;
+	const int display_width = display_get_width();
 
-	if (!list.empty()) {
+	FOR(slist_tpl<node>, & n, list) {
+		n.xpos -= dx;
 
-		const int start_y=display_get_height()-TICKER_YPOS_BOTTOM;
-		const int width = display_get_width();
+		if (n.xpos < display_width) {
+			default_pos = n.pos;
+		}
+	}
 
-		// redraw whole ticker
-		if(redraw_all) {
-			redraw_ticker();
-		}
-		// redraw ticker partially
-		else {
-			display_scroll_band( start_y+1, X_DIST, TICKER_HEIGHT-1 );
-			display_fillbox_wh_rgb(width-X_DIST-6, start_y+1, X_DIST+6, TICKER_HEIGHT-1, SYSCOL_TICKER_BACKGROUND, true);
-			// ok, ready for the text
-			PUSH_CLIP( 0, start_y + 1, width - 1, TICKER_HEIGHT-1 );
-			FOR(slist_tpl<node>, & n, list) {
-				n.xpos -= X_DIST;
-				if (n.xpos < width) {
-					display_proportional_clip_rgb(n.xpos, start_y + 2, n.msg, ALIGN_LEFT, n.color, true);
-					default_pos = n.pos;
-				}
-			}
-			POP_CLIP();
-		}
+	dx_since_last_draw += dx;
+	next_pos = std::max(next_pos - dx, display_width);
 
-		// remove old news
-		while (!list.empty()  &&  list.front().xpos + list.front().w < 0) {
-			list.remove_first();
-		}
-		if (list.empty()) {
-			// old: mark_rect_dirty_wc(0, start_y, width, start_y + TICKER_HEIGHT);
-			// now everything at the bottom to clear also tooltips and compass
-			mark_rect_dirty_wc(0, start_y-128, width, start_y + 128 +TICKER_HEIGHT);
-		}
-		if(next_pos>width) {
-			next_pos -= X_DIST;
-		}
+	// remove old news
+	while (!list.empty()  &&  list.front().xpos + list.front().w < 0) {
+		list.remove_first();
+	}
 
-		redraw_all = false;
+	if (list.empty()) {
+		set_redraw_all(true);
 	}
 }
 
 
-
-// complete redraw (after resizing)
-void ticker::redraw_ticker()
+void ticker::draw()
 {
+	if (redraw_all) {
+		redraw();
+		return;
+	}
+	else if (list.empty()) {
+		// ticker not visible
+		return;
+	}
+
 	TICKER_YPOS_BOTTOM = TICKER_HEIGHT + win_get_statusbar_height();
 
-	if (!list.empty()) {
-		const int start_y=display_get_height()-TICKER_YPOS_BOTTOM;
-		const int width = display_get_width();
+	const int start_y=display_get_height()-TICKER_YPOS_BOTTOM;
+	const int width = display_get_width();
 
-		// just draw the ticker in its colour ... (to be sure ... )
-		display_fillbox_wh_rgb(0, start_y+1, width, TICKER_HEIGHT-1, SYSCOL_TICKER_BACKGROUND, true);
-		FOR(slist_tpl<node>, & n, list) {
-			n.xpos -= X_DIST;
-			if (n.xpos < width) {
-				display_proportional_clip_rgb(n.xpos, start_y + 2, n.msg, ALIGN_LEFT, n.color, true);
-				default_pos = n.pos;
-			}
+	if (width <= 0) {
+		return;
+	}
+
+	// do partial redraw
+	display_scroll_band( start_y+1, dx_since_last_draw, TICKER_HEIGHT-1 );
+	display_fillbox_wh_rgb(width-dx_since_last_draw-6, start_y+1, dx_since_last_draw+6, TICKER_HEIGHT-1, SYSCOL_TICKER_BACKGROUND, true);
+
+	// ok, ready for the text
+	PUSH_CLIP( 0, start_y + 1, width - 1, TICKER_HEIGHT-1 );
+	FOR(slist_tpl<node>, & n, list) {
+		if (n.xpos < width) {
+			display_proportional_clip_rgb(n.xpos, start_y + 2, n.msg, ALIGN_LEFT, n.color, true);
+		}
+	}
+	POP_CLIP();
+
+	dx_since_last_draw = 0;
+}
+
+
+void ticker::redraw()
+{
+	set_redraw_all(false);
+	dx_since_last_draw = 0;
+
+	if (list.empty()) {
+		const int start_y=display_get_height()-TICKER_YPOS_BOTTOM;
+
+		// mark everything at the bottom as dirty to clear also tooltips and compass
+		mark_rect_dirty_wc(0, start_y-128, display_get_width(), start_y + 128 +TICKER_HEIGHT);
+		return;
+	}
+
+	TICKER_YPOS_BOTTOM = TICKER_HEIGHT + win_get_statusbar_height();
+
+	const int start_y=display_get_height()-TICKER_YPOS_BOTTOM;
+	const int width = display_get_width();
+
+	// just draw the ticker in its colour ... (to be sure ... )
+	display_fillbox_wh_rgb(0, start_y+1, width, TICKER_HEIGHT-1, SYSCOL_TICKER_BACKGROUND, true);
+	FOR(slist_tpl<node>, & n, list) {
+		if (n.xpos < width) {
+			display_proportional_clip_rgb(n.xpos, start_y + 2, n.msg, ALIGN_LEFT, n.color, true);
 		}
 	}
 }
