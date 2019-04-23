@@ -4,6 +4,9 @@
  */
 
 #include <string.h>
+
+#include <algorithm>
+
 #include "dataobj/koord.h"
 #include "simdebug.h"
 #include "simticker.h"
