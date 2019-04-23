@@ -439,7 +439,7 @@ public:
 	factory_set_t& access_target_factories_for_mail() { return target_factories_mail; }
 
 	// calculated the "best" orietation of city buildings, also used by editor, thus public
-	static int orient_city_building(const koord k, const building_desc_t *h );
+	static int orient_city_building(const koord k, const building_desc_t *h, koord maxarea );
 
 	// this function removes houses from the city house list
 	// (called when removed by player, or by town)
