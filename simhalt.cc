@@ -3970,7 +3970,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if ((file->get_extended_version() == 14 && file->get_extended_revision() > 8) || file->get_extended_version() > 15)
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() > 5) || file->get_extended_version() > 15)
 	{
 		for (int j = 0; j < 11  /*MAX_HALT_COST*/; j++)
 		{
