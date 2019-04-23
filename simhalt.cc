@@ -3970,32 +3970,18 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if ((file->get_extended_version() == 14 && file->get_extended_revision() > 5) || file->get_extended_version() > 15)
+	if (file->get_extended_version() >= 5)
 	{
-		for (int j = 0; j < 11  /*MAX_HALT_COST*/; j++)
+		const int max_j = (file->get_extended_version() == 14 && file->get_extended_revision() >= 9) || file->get_extended_version() >= 15 ? 11 : 9;
+		for (int j = 0; j < max_j /*MAX_HALT_COST*/; j++)
 		{
+			if (((file->get_extended_version() == 14 && file->get_extended_revision() < 5) || file->get_extended_version() < 14) && j==8)
+			{
+				break;
+			}
 			for (int k = MAX_MONTHS - 1; k >= 0; k--)
 			{
 				file->rdwr_longlong(financial_history[k][j]);
-			}
-		}
-	}
-	else if (file->get_extended_version() >= 5)
-	{
-		for (int j = 0; j < 8 /*MAX_HALT_COST*/; j++)
-		{
-			for (int k = MAX_MONTHS - 1; k >= 0; k--)
-			{
-				file->rdwr_longlong(financial_history[k][j]);
-			}
-		}
-		for (int k = MAX_MONTHS - 1; k >= 0; k--)
-		{
-			if (file->is_loading())
-			{
-				financial_history[k][HALT_TOO_WAITING] = 0;
-				financial_history[k][HALT_MAIL_DELIVERED] = 0;
-				financial_history[k][HALT_MAIL_NOROUTE] = 0;
 			}
 		}
 	}
