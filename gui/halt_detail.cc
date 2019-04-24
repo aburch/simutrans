@@ -323,7 +323,7 @@ void halt_detail_t::halt_detail_info()
 			// If it is a special freight, we display the name of the good, otherwise the name of the category.
 			buf.append( translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()) );
 #if MSG_LEVEL>=4
-			if(  halt->is_transfer(i)  ) {
+			if(  halt->is_transfer(i, g_class, max_classes)  ) {
 				buf.append("*");
 			}
 #endif
