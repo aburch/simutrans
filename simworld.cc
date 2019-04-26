@@ -4343,6 +4343,27 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 		f->recalc_nearby_halts();
 	}
 
+	for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+	{
+		FOR(weighted_vector_tpl<gebaeude_t*>, const building, visitor_targets[i])
+		{
+			building->set_building_tiles();
+		}
+		FOR(weighted_vector_tpl<gebaeude_t*>, const building, commuter_targets[i])
+		{
+			building->set_building_tiles();
+		}
+	}
+	FOR(weighted_vector_tpl<gebaeude_t*>, const building, passenger_origins)
+	{
+		building->set_building_tiles();
+	}
+	FOR(weighted_vector_tpl<gebaeude_t*>, const building, mail_origins_and_targets)
+	{
+		building->set_building_tiles();
+	}
+
+
 	FOR(vector_tpl<convoihandle_t>, const i, convoi_array) {
 		i->rotate90(cached_size.x);
 	}
