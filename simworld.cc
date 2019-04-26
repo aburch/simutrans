@@ -1676,7 +1676,7 @@ void *step_passengers_and_mail_threaded(void* args)
 	sint32 total_units_passenger;
 	sint32 total_units_mail;
 
-	do
+	while (true)
 	{
 	top:
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
@@ -1795,10 +1795,36 @@ void *step_passengers_and_mail_threaded(void* args)
 		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 		assert(mutex_error == 0);
-	} while (!karte_t::world->is_terminating_threads());
+	}
 
-	pthread_exit(NULL);
 	return args;
+}
+
+void karte_t::start_passengers_and_mail_threads()
+{
+	simthread_barrier_wait(&step_passengers_and_mail_barrier);
+	passengers_and_mail_threads_working = true;
+}
+
+void karte_t::await_passengers_and_mail_threads()
+{
+#ifndef MULTI_THREAD_PASSENGER_GENERATION
+	return;
+#endif
+#ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
+	if (!env_t::networkmode)
+	{
+#endif
+		if (passengers_and_mail_threads_working)
+		{
+			// Two barriers, to allow synchronised update of generation figures
+			simthread_barrier_wait(&step_passengers_and_mail_barrier);
+			simthread_barrier_wait(&step_passengers_and_mail_barrier);
+			passengers_and_mail_threads_working = false;
+		}
+#ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
+	}
+#endif
 }
 
 void *step_convoys_threaded(void* args)
@@ -1975,6 +2001,14 @@ void* unreserve_route_threaded(void* args)
 	return args;
 }
 
+void karte_t::await_all_threads()
+{
+	// Call this when saving or doing disruptive stuff like map rotation.
+	await_convoy_threads();
+	await_path_explorer();
+	await_passengers_and_mail_threads();
+}
+
 void karte_t::init_threads()
 {
 	marker_index = UINT32_MAX_VALUE;
@@ -2083,6 +2117,10 @@ void karte_t::init_threads()
 	convoy_threads_working = false;
 #endif
 
+#ifdef MULTI_THREAD_PASSENGER_GENERATION
+	passengers_and_mail_threads_working = false;
+#endif
+
 #ifdef MULTI_THREAD_PATH_EXPLORER
 
 	rc = pthread_create(&path_explorer_thread, &thread_attributes, &path_explorer_threaded, (void*)this); 
@@ -2105,8 +2143,11 @@ void karte_t::destroy_threads()
 #ifdef MULTI_THREAD_CONVOYS
 		await_convoy_threads();
 #endif
-#ifdef MULTI_THREAD_PASSENGER_GENERATION
+#ifdef MULTI_THREAD_PATH_EXPLORER
 		await_path_explorer();
+#endif
+#ifdef MULTI_THREAD_PASSENGER_GENERATION
+		await_passengers_and_mail_threads();
 #endif
 
 		terminating_threads = true;
@@ -2981,6 +3022,7 @@ karte_t::karte_t() :
 	visitor_targets = new weighted_vector_tpl<gebaeude_t*>[number_of_passenger_classes];
 
 #ifdef MULTI_THREAD
+	passengers_and_mail_threads_working = false;
 	convoy_threads_working = false;
 	path_explorer_working = false;
 #endif
@@ -4255,6 +4297,9 @@ void karte_t::rotate90_plans(sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_
 void karte_t::rotate90()
 {
 DBG_MESSAGE( "karte_t::rotate90()", "called" );
+	// Wait for any threaded work
+	await_all_threads();
+
 	// assume we can save this rotation
 	nosave_warning = nosave = false;
 
@@ -5496,7 +5541,7 @@ void karte_t::step()
 
 		INT_CHECK("karte_t::step 3d");
 
-		simthread_barrier_wait(&step_passengers_and_mail_barrier);
+		start_passengers_and_mail_threads();
 #ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
 	}
 	else
@@ -5532,19 +5577,8 @@ void karte_t::step()
 
 	INT_CHECK("karte_t::step 4");
 
-#ifdef MULTI_THREAD_PASSENGER_GENERATION
-#ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
-	if (!env_t::networkmode)
-	{
-#endif
-		// Stop the passenger and mail generation.
-		simthread_barrier_wait(&step_passengers_and_mail_barrier);
-		// The extra barrier is needed to synchronise the generation figures.
-		simthread_barrier_wait(&step_passengers_and_mail_barrier);
-#ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
-	}
-#endif
-#endif
+	// This does nothing if the threading is disabled.
+	await_passengers_and_mail_threads();
 
 #ifdef MULTI_THREAD
 	// This is necessary in network mode to ensure that all cars set in motion
@@ -7852,8 +7886,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "start");
 		ls = new loadingscreen_t( translator::translate("Saving map ..."), get_size().y );
 	}
 #ifdef MULTI_THREAD
-	await_path_explorer(); 
-	await_convoy_threads();
+	await_all_threads(); 
 #endif
 	// rotate the map until it can be saved completely
 	for( int i=0;  i<4  &&  nosave_warning;  i++  ) {
