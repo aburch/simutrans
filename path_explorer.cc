@@ -410,14 +410,14 @@ void path_explorer_t::refresh_category(uint8 category)
 	{
 		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
 		{
-			goods_compartment[category][i].set_refresh();
+			goods_compartment[goods_manager_t::INDEX_PAS][i].set_refresh();
 		}
 	}
 	else if (category == goods_manager_t::INDEX_MAIL)
 	{
 		for (uint8 i = 0; i < goods_manager_t::mail->get_number_of_classes(); i++)
 		{
-			goods_compartment[category][i].set_refresh();
+			goods_compartment[goods_manager_t::INDEX_MAIL][i].set_refresh();
 		}
 	}
 	else
