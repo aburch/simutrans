@@ -7388,7 +7388,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 #ifdef MULTI_THREAD
 		world()->await_path_explorer();
 #endif
-		path_explorer_t::refresh_all_categories(true);
+		path_explorer_t::refresh_all_categories(false);
 	}
 	return NULL;
 }

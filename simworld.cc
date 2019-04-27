@@ -2834,7 +2834,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	await_path_explorer();
 #endif
 	// Modified by : Knightly
-	path_explorer_t::refresh_all_categories(true);
+	path_explorer_t::refresh_all_categories(false);
 
 	set_schedule_counter();
 
@@ -4451,7 +4451,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 
 	// finally recalculate schedules for goods in transit ...
 	// Modified by : Knightly
-	path_explorer_t::refresh_all_categories(true);
+	path_explorer_t::refresh_all_categories(false);
 
 	set_dirty();
 }
@@ -5129,7 +5129,7 @@ void karte_t::new_month()
 
 	// Added by : Knightly
 	// Note		: This should be done after all lines and convoys have rolled their statistics
-	path_explorer_t::refresh_all_categories(true);
+	path_explorer_t::refresh_all_categories(false);
 }
 
 
@@ -5685,7 +5685,7 @@ void karte_t::step()
 	// This is not the computationally intensive bit of the path explorer.
 	if((steps % get_settings().get_reroute_check_interval_steps()) == 0)
 	{
-		path_explorer_t::refresh_all_categories(true);
+		path_explorer_t::refresh_all_categories(false);
 	}
 	
 	INT_CHECK("karte_t::step 8");
