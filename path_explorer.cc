@@ -115,6 +115,12 @@ void path_explorer_t::rdwr(loadsave_t* file)
 		}
 	}
 
+	if (file->get_extended_version() > 14 | (file->get_extended_version() == 14 && file->get_extended_revision() > 9))
+	{
+		file->rdwr_byte(current_compartment_category);
+		file->rdwr_byte(current_compartment_class);
+	}
+
 	// Load/save the connexion_list, which is static
 	uint8 serving_transport;
 	bool any_table_initialised = false;
