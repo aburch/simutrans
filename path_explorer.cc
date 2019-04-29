@@ -103,7 +103,7 @@ void path_explorer_t::finalise()
 
 void path_explorer_t::rdwr(loadsave_t* file)
 {
-	if (file->get_extended_version() < 14 | (file->get_extended_version() == 14 && file->get_extended_revision() <= 9))
+	if (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 10))
 	{
 		// Iterate through the compartments and load/save these
 		for (uint8 ca = 0; ca < max_categories; ++ca)
