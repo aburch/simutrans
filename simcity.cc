@@ -2336,12 +2336,12 @@ void stadt_t::rotate90( const sint16 y_size )
 	swap<uint8>( pax_destinations_temp, pax_destinations_old );
 
 	vector_tpl<koord> k_list(connected_cities.get_count());
-	vector_tpl<uint16> f_list(connected_cities.get_count());
+	vector_tpl<uint32> f_list(connected_cities.get_count());
 
 	for (connexion_map::iterator iter = connected_cities.begin(); iter != connected_cities.end(); )
 	{
 		koord k = iter->key;
-		uint16 f = iter->value;
+		uint32 f = iter->value;
 		iter = connected_cities.erase(iter);
 		k.rotate90(y_size);
 		k_list.append(k);
@@ -2359,7 +2359,7 @@ void stadt_t::rotate90( const sint16 y_size )
 	for (connexion_map::iterator iter = connected_industries.begin(); iter != connected_industries.end(); )
 	{
 		koord k = iter->key;
-		uint16 f = iter->value;
+		uint32 f = iter->value;
 		iter = connected_industries.erase(iter);
 		k.rotate90(y_size);
 		k_list.append(k);
@@ -2377,7 +2377,7 @@ void stadt_t::rotate90( const sint16 y_size )
 	for (connexion_map::iterator iter = connected_attractions.begin(); iter != connected_attractions.end(); )
 	{
 		koord k = iter->key;
-		uint16 f = iter->value;
+		uint32 f = iter->value;
 		iter = connected_attractions.erase(iter);
 		k.rotate90(y_size);
 		k_list.append(k);
@@ -2948,14 +2948,14 @@ uint32 stadt_t::check_road_connexion_to(stadt_t* city) const
 {
 	if(welt->get_settings().get_assume_everywhere_connected_by_road())
 	{
-		const uint16 journey_time_per_tile = city == this ? welt->get_generic_road_time_per_tile_city() : welt->get_generic_road_time_per_tile_intercity();
+		const uint32 journey_time_per_tile = city == this ? welt->get_generic_road_time_per_tile_city() : welt->get_generic_road_time_per_tile_intercity();
 		// With this setting, we add congestion factoring at a later stage.
 		return journey_time_per_tile;
 	}
 
 	if(connected_cities.is_contained(city->get_pos()))
 	{
-		const uint16 journey_time_per_tile = connected_cities.get(city->get_pos());
+		const uint32 journey_time_per_tile = connected_cities.get(city->get_pos());
 		if(city != this || journey_time_per_tile < UINT32_MAX_VALUE)
 		{
 			return journey_time_per_tile;
