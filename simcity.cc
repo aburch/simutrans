@@ -2344,16 +2344,6 @@ void stadt_t::rotate90( const sint16 y_size )
 		uint16 f = iter->value;
 		iter = connected_cities.erase(iter);
 		k.rotate90(y_size);
-		if(connected_cities.is_contained(k))
-		{
-			uint16 f_2 = connected_cities.remove(k);
-			koord k_2 = k;
-			k_2.rotate90(y_size);
-			assert(k_2 != koord::invalid);
-			k_list.append(k_2);
-			f_list.append(f_2);
-		}
-		assert(k != koord::invalid);
 		k_list.append(k);
 		f_list.append(f);
 	}
@@ -2372,16 +2362,6 @@ void stadt_t::rotate90( const sint16 y_size )
 		uint16 f = iter->value;
 		iter = connected_industries.erase(iter);
 		k.rotate90(y_size);
-		if(connected_industries.is_contained(k))
-		{
-			uint16 f_2 = connected_industries.remove(k);
-			koord k_2 = k;
-			k_2.rotate90(y_size);
-			assert(k_2 != koord::invalid);
-			k_list.append(k_2);
-			f_list.append(f_2);
-		}
-		assert(k != koord::invalid);
 		k_list.append(k);
 		f_list.append(f);
 	}
@@ -2400,16 +2380,6 @@ void stadt_t::rotate90( const sint16 y_size )
 		uint16 f = iter->value;
 		iter = connected_attractions.erase(iter);
 		k.rotate90(y_size);
-		if(connected_attractions.is_contained(k))
-		{
-			uint16 f_2 = connected_attractions.remove(k);
-			koord k_2 = k;
-			k_2.rotate90(y_size);
-			assert(k_2 != koord::invalid);
-			k_list.append(k_2);
-			f_list.append(f_2);
-		}
-		assert(k != koord::invalid);
 		k_list.append(k);
 		f_list.append(f);
 	}
