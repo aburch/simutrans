@@ -17,15 +17,15 @@ You should try OTRP because...
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitter hash tag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
-As of version 21_1, OTRP is based on simutrans standard nightly r8716.
+As of version 21_2, OTRP is based on simutrans standard nightly r8745.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.  
 
 You can download the OTRP executable binary from the links below. **(2019 March 12th, updated to ver 21_1.)**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/70742/sim-WinGDI-OTRPv21_1.exe/  
-mac: https://osdn.net/projects/otrp/downloads/70742/sim-mac-OTRPv21_1.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/70742/sim-linux-OTRPv21_1.zip/  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/71065/sim-WinGDI-OTRPv21_2.exe/  
+mac: https://osdn.net/projects/otrp/downloads/71065/sim-mac-OTRPv21_2.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/71065/sim-linux-OTRPv21_2.zip/  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 There is no special makeobj for OTRP. Please one of the simutrans standard.
