@@ -1514,7 +1514,7 @@ Pakセットの差異
 paletten
 パレット
 Pas_tab
-旅客車
+客車
 Passagiere
 旅客
 Passagierrate
@@ -1579,8 +1579,6 @@ Postrate
 郵便度
 Power
 電力
-Power (MW)
-電力 (MW)
 Power:
 出力：
 Power: %4d kW\n
@@ -2009,8 +2007,6 @@ upgrade HQ
 本社を拡張移転する
 Usage: %.0f %%
 稼動率: %.0f %%
-Usage/Output
-使用量/発電量
 Use beginner mode
 初心者モード
 Use timeline start year
@@ -3609,6 +3605,38 @@ The amount of mail which could not find a route to its destination
 郵便物の配達先がここからは配達できない場所であった数
 %d%% delivered : %d%% no route
 配達完了 %d%% : 配達不能 %d%%
+Inactive
+未稼働
+Sector
+産業分野
+Commuters
+通勤者
+Consumers
+消費者
+Storage full
+在庫が一杯です
+Shipment stuck
+生産停止（在庫飽和）
+Material shortage
+資材不足
+No material
+資材／商品がありません
+stop_some_goods_arrival
+一部入荷停止
+Fully stocked
+入荷停止（在庫飽和）
+fab_stuck
+生産停止（資材＆在庫飽和）
+Within own network
+自家輸送網内のみ表示
+Show only connected to own transport network
+アクティブプレイヤーの貨物輸送ネットワークに接続されている産業のみを表示します
+Power usage
+電力消費量
+Power output
+発電出力
+Railcar_tab
+気動車
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
@@ -3631,3 +3659,7 @@ No Route
 経路無し
 Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community
 ようこそSimutrans-Extendedへ! Simutrans-StandardはHj. MalthanerとSimutransコミュニティによって開発されました。Simutrans-ExtendedはSimutrans-Standardを元にしてJames E. PettsとSimutransコミュニティによって開発されました。
+Usage/Output
+使用量/発電量
+Power (MW)
+電力 (MW)

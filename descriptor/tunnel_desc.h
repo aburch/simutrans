@@ -113,6 +113,12 @@ private:
 	image_id get_slope_image_nr(slope_t::type slope,  bool front) const
 	{
 		int const n = front ? 11 : 8;
+
+		if(slope_indices[n] < 0)
+		{
+			return IMG_EMPTY;
+		}
+
 		int nr;
 		switch (slope)
 		{

@@ -448,9 +448,9 @@ public:
 /*
  * Builds a single new factory.
  */
-fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d pos, player_t* spieler)
+fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d pos, player_t* owner)
 {
-	fabrik_t * fab = new fabrik_t(pos, spieler, info, initial_prod_base);
+	fabrik_t * fab = new fabrik_t(pos, owner, info, initial_prod_base);
 
 	// now build factory
 	fab->build(rotate, true /*add fields*/, initial_prod_base != -1 /* force initial prodbase ? */);

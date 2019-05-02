@@ -46,7 +46,7 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>..\OpenTTD\win32\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\OpenTTD\shared\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\OpenTTD\win32\library;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -81,7 +81,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <PreprocessorDefinitions>_USING_V110_SDK71_;NDEBUG;_CONSOLE;MAKEOBJ;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>utils/openttd;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -133,6 +133,7 @@
     <ClCompile Include="utils\log.cc" />
     <ClCompile Include="utils\searchfolder.cc" />
     <ClCompile Include="simmem.cc" />
+    <ClCompile Include="utils\simrandom.cc" />
     <ClCompile Include="utils\simstring.cc" />
     <ClCompile Include="dataobj\tabfile.cc" />
   </ItemGroup>
@@ -173,8 +174,8 @@
     <ClInclude Include="utils\searchfolder.h" />
     <ClInclude Include="simdebug.h" />
     <ClInclude Include="simmem.h" />
+    <ClInclude Include="utils\simrandom.h" />
     <ClInclude Include="utils\simstring.h" />
-    <ClInclude Include="simtools.h" />
     <ClInclude Include="besch\skin_besch.h" />
     <ClInclude Include="besch\sound_besch.h" />
     <ClInclude Include="dataobj\tabfile.h" />

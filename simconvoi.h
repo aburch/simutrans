@@ -492,13 +492,6 @@ private:
 	sint64 steps_since_last_odometer_increment;
 
 	/**
-	* Set, when there was a income calculation (avoids some cheats)
-	* Since 99.15 it will stored directly in the vehicle_t
-	* @author prissi
-	*/
-	koord3d last_stop_pos;
-
-	/**
 	* Necessary for registering departure and waiting times.
 	* last_stop_pos cannot be used because sea-going ships do not
 	* stop on a halt tile.
@@ -899,14 +892,13 @@ public:
 	// true if this is a waypoint
 	bool is_waypoint( koord3d ) const;
 
-	/* changes the state of a convoi via tool_t; mandatory for networkmode! *
+	/* changes the state of a convoi via tool_t; mandatory for networkmode!
 	 * for list of commands and parameter see tool_t::tool_change_convoi_t
 	 */
 	void call_convoi_tool( const char function, const char *extra = NULL );
 
 	/**
-	* set state: only use by tool_t convoi tool, or not networking!
-	* @author hsiegeln
+	* set state: only use by tool_t::tool_change_convoi_t
 	*/
 	void set_state( uint16 new_state ) { assert(new_state<MAX_STATES); state = (states)new_state; }
 
@@ -1235,6 +1227,8 @@ public:
 	bool has_tall_vehicles();
 
 	inline bool get_allow_clear_reservation() const { return allow_clear_reservation; }
+
+	bool all_vehicles_are_buildable() const; 
 
 private:
 	journey_times_map average_journey_times;

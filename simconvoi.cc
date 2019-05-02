@@ -355,7 +355,7 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 void convoi_t::unreserve_route_range(route_range_specification range)
 {
 	const vector_tpl<weg_t *> &all_ways = weg_t::get_alle_wege();
-	for (uint32 i = range.start; i < range.end; i++)
+	for (uint32 i = range.start; i <= range.end; i++)
 	{
 		weg_t* const way = all_ways[i];
 		//schiene_t* const sch = obj_cast<schiene_t>(way);
@@ -713,16 +713,16 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 // since now convoi states go via tool_t
 void convoi_t::call_convoi_tool( const char function, const char *extra)
 {
-	tool_t *tool = create_tool( TOOL_CHANGE_CONVOI | SIMPLE_TOOL );
+	tool_t *tmp_tool = create_tool( TOOL_CHANGE_CONVOI | SIMPLE_TOOL );
 	cbuffer_t param;
 	param.printf("%c,%u", function, self.get_id());
 	if(  extra  &&  *extra  ) {
 		param.printf(",%s", extra);
 	}
-	tool->set_default_param(param);
-	welt->set_tool( tool, get_owner() );
+	tmp_tool->set_default_param(param);
+	welt->set_tool( tmp_tool, get_owner() );
 	// since init always returns false, it is safe to delete immediately
-	delete tool;
+	delete tmp_tool;
 }
 
 
@@ -1074,8 +1074,8 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 				break;
 		}
 #ifdef DEBUG_ACCELERATION
-		static const char *debug_fmt1 = "%d) at tile% 4u next limit of% 4d km/h, current speed% 4d km/h,% 6d steps til brake,% 6d steps til stop";
-		dbg->warning("convoi_t::calc_acceleration 1", debug_fmt1, current_route_index - 1, next_stop_index, speed_to_kmh(next_speed_limit), speed_to_kmh(akt_speed), steps_til_brake, steps_til_limit);
+		static const char *debug_fmt1 = "at tile %u,%u; at route index: %d; next stop index: % 4u next limit of% 4d km/h, current speed% 4d km/h,% 6d steps until brake,% 6d steps until stop";
+		dbg->warning("convoi_t::calc_acceleration 1", debug_fmt1, get_pos().x, get_pos().y, current_route_index - 1, next_stop_index, speed_to_kmh(next_speed_limit), speed_to_kmh(akt_speed), steps_til_brake, steps_til_limit);
 #endif
 		// Brake for upcoming speed limit?
 		sint32 min_limit = akt_speed; // no need to check limits above min_limit, as it won't lead to further restrictions
@@ -7776,16 +7776,60 @@ void convoi_t::clear_replace()
 
 			if(halt.is_bound() && !halts_already_processed.is_contained(halt.get_id()))
 			{
+				sint64 earliest_departure_time = eta + current_loading_time;
+
+				if(schedule->entries[schedule_entry].reverse == 1)
+				{
+					// Add reversing time if this must reverse.
+					earliest_departure_time += reverse_delay;
+				}
+				
 				halt->set_estimated_arrival_time(self.get_id(), eta);
 				const sint64 max_waiting_time = schedule->get_current_entry().waiting_time_shift ? welt->ticks_per_world_month >> (16ll - (sint64)schedule->get_current_entry().waiting_time_shift) : WAIT_INFINITE;
 				if((schedule->entries[schedule_entry].minimum_loading > 0 || schedule->entries[schedule_entry].wait_for_time) && schedule->get_spacing() > 0)
 				{
+					sint64 spacing_multiplier = 1;
+
+					// This may not be the next convoy on this line to depart from this forthcoming stop, so the spacing may have to be multiplied. 
+					FOR(const haltestelle_t::arrival_times_map, const& iter, halt->get_estimated_convoy_departure_times())
+					{
+						const uint16 id = iter.key;
+						convoihandle_t tmp_cnv;
+						tmp_cnv.set_id(id); 
+						if(tmp_cnv.is_bound() && tmp_cnv->get_line() == get_line())
+						{
+							// This is on the same line. Any earlier departure from the target stop is therefore relevant. 
+							if(iter.value < earliest_departure_time)
+							{
+								spacing_multiplier ++;
+							}
+						}
+					}
+
 					// Add spacing time.
-					const sint64 spacing = welt->ticks_per_world_month / (sint64)schedule->get_spacing();
+					const sint64 spacing_ticks = welt->ticks_per_world_month / (sint64)schedule->get_spacing(); // There is a departure from each spaced stop once every this number of ticks
 					const sint64 spacing_shift = (sint64)schedule->get_current_entry().spacing_shift * welt->ticks_per_world_month / (sint64)welt->get_settings().get_spacing_shift_divisor();
-					const sint64 wait_from_ticks = ((eta - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
-					const sint64 spaced_departure = min(max_waiting_time, (wait_from_ticks + spacing)) - reverse_delay;
-					etd += (spaced_departure - eta);
+
+					// Use earliest departure time (ready to depart exactly at the scheduled departure time?)
+					const sint64 spacing_ticks_remainder = (earliest_departure_time + spacing_shift) % spacing_ticks;
+					if(spacing_multiplier == 0 && spacing_ticks_remainder == 0)
+					{
+						// The loading and reversing will be added back later
+						etd = eta;
+					}
+					else
+					{
+						// Calculate the departure time based on the spacing
+						
+						const sint64 tmp_etd = ((spacing_ticks - spacing_ticks_remainder) * spacing_multiplier) + earliest_departure_time;
+
+						// The loading time and reverse delay will be added later
+						etd = tmp_etd - current_loading_time;
+						if (schedule->entries[schedule_entry].reverse == 1)
+						{
+							etd -= reverse_delay;
+						}
+					}
 				}
 				else if(schedule->entries[schedule_entry].minimum_loading > 0 && schedule->get_spacing() == 0)
 				{
@@ -8280,4 +8324,20 @@ void convoi_t::reflesh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaki
 			}
 		}
 	}
+}
+
+bool convoi_t::all_vehicles_are_buildable() const
+{
+	for (uint32 i = 0; i < vehicle_count; i++)
+	{
+		if(get_vehicle(i)->get_desc()->is_available_only_as_upgrade())
+		{
+			return false;
+		}
+		if(!welt->get_settings().get_allow_buying_obsolete_vehicles() && get_vehicle(i)->get_desc()->is_obsolete(welt->get_timeline_year_month(), welt))
+		{
+			return false;
+		}
+	}
+	return true;
 }

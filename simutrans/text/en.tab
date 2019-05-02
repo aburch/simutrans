@@ -3,7 +3,7 @@ PROP_FONT_FILE
 Prop-Latin1.bdf
 ################################################################################
 #                                                                              #
-#                 Simutrans-Extended Base Translation File                 #
+#                 Simutrans-Extended Base Translation File                     #
 #                             Scenario: Base texts                             #
 #                             Language: en English                             #
 #                                Encoding: ASCII                               #
@@ -1085,6 +1085,10 @@ Loom
 Ler
 %24B_CITY_SYLL
 Mous
+%249_CITY_SYLL
+Les
+%24A_CITY_SYLL
+Bern
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -2035,7 +2039,7 @@ Vehicles: %d\nProfit: %s
 Convoys
 Convoys
 Copy Convoi
-Copy Convoy
+Copy convoy
 Copy the selected convoi and its schedule or line
 Copy the selected convoy and its schedule or line
 Create a new line based on this schedule
@@ -2531,9 +2535,9 @@ Northeast
 northwest
 Northwest
 Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-The vehicle's schedule\nmust not be changed\nuntil the operation is complete.
+The vehicle's schedule must not be changed\nuntil the operation is complete.
 Not enough fields would remain.
-Not enough fields would\nremain around this farm.
+Not enough fields would remain around this farm.
 November
 November
 Now active as %s.\n
@@ -3898,3 +3902,27 @@ ratio_mail
 % mail
 ratio_goods
 % goods
+Can't buy obsolete vehicles!
+It is not possible to buy vehicles that are either obsolete or available only as upgrades.
+Inactive
+Inactive
+Sector
+Sector
+Commuters
+Commuters
+Consumers
+Consumers
+Within own network
+Within own network
+Show only connected to own transport network
+Show only connected to own transport network
+Fully stocked
+Fully stocked
+Power usage
+Power usage
+Power output
+Power output
+Railcar_tab
+Railcars
+staffing_bar_tooltip_help
+This bar shows how many workers that this industry has compared to how many that it needs

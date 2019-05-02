@@ -110,7 +110,7 @@ private:
 	};
 	vector_tpl<next_gr_t> next_gr;
 
-	player_t *player;
+	player_t *player_builder;
 
 	/**
 	 * Type of building operation
@@ -247,7 +247,7 @@ public:
 
 	void set_desc(const way_desc_t* way_desc) { desc = way_desc; }
 
-	way_builder_t(player_t *player_);
+	way_builder_t(player_t *player);
 
 	void calc_straight_route(const koord3d start, const koord3d ziel);
 	void calc_route(const koord3d &start3d, const koord3d &ziel);

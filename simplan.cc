@@ -48,15 +48,11 @@ void swap(planquadrat_t& a, planquadrat_t& b)
 // deletes also all grounds in this array!
 planquadrat_t::~planquadrat_t()
 {
+	gebaeude_t *gb = NULL;
 	if (!welt->is_destroying())
 	{
 		grund_t *gr = get_kartenboden();
-		gebaeude_t *gb = gr ? gr->find<gebaeude_t>() : NULL;
-		if (gb)
-		{
-			// If this is a building tile, make sure to delete the building's tile list.
-			gb->reset_tile_list();
-		}
+		gb = gr ? gr->find<gebaeude_t>() : NULL;
 	}
 
 	if(ground_size==0) {
@@ -78,6 +74,11 @@ planquadrat_t::~planquadrat_t()
 	// to avoid access to this tile
 	ground_size = 0;
 	data.one = NULL;
+	if (gb)
+	{
+		// If this is a building tile, make sure to delete the building's tile list.
+		gb->set_building_tiles();
+	}
 }
 
 
@@ -637,9 +638,9 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			// The intention of this seems to be to overlay and blend different players' colours in the display of station coverage.
 			// plot player outline colours - we always plot in order of players so that the order of the stations in halt_list
 			// doesn't affect the colour displayed [since blend(col1,blend(col2,screen)) != blend(col2,blend(col1,screen))]
-			for(int spieler_count = 0; spieler_count<MAX_PLAYER_COUNT; spieler_count++)
+			for(int player_count = 0; player_count<MAX_PLAYER_COUNT; player_count++)
 			{
-				player_t *display_player = welt->get_player(spieler_count);
+				player_t *display_player = welt->get_player(player_count);
 				if(display_player)
 				{
 					const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);

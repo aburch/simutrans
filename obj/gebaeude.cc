@@ -27,7 +27,6 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../gui/simwin.h"
 #include "../simcity.h"
 #include "../player/simplay.h"
-#include "../utils/simrandom.h"
 #include "../simdebug.h"
 #include "../simintr.h"
 #include "../simskin.h"
@@ -43,6 +42,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../descriptor/ground_desc.h"
 
 #include "../utils/cbuffer_t.h"
+#include "../utils/simrandom.h"
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
@@ -211,7 +211,6 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const building_tile_desc_t
 	if (gr  &&  gr->get_weg_hang() != gr->get_grund_hang()) {
 		set_yoff(-gr->get_weg_yoff());
 	}
-
 	check_road_tiles(false);
 
 	// This sets the number of jobs per building at initialisation to zero. As time passes,
@@ -435,7 +434,7 @@ void gebaeude_t::rotate90()
 	}
 
 	// These will be re-initialised where necessary.
-	building_tiles.clear();
+	set_building_tiles();
 }
 
 
@@ -456,7 +455,7 @@ void gebaeude_t::set_fab(fabrik_t *fd)
 		{
 			// We cannot set this until we know what sort of factory that this is.
 			// If it is not an end consumer, do not allow any visitor demand by default.
-			if (fd->is_end_consumer())
+			if (fd->get_sector() == fabrik_t::end_consumer)
 			{
 				people.visitor_demand = tile->get_desc()->get_level() * welt->get_settings().get_visitor_demand_per_level();
 				adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
@@ -1476,15 +1475,15 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 		const char* class_name = translator::translate(class_name_untranslated);
 		if (condition == 1)
 		{
-			buf.printf("  %i%% %s\n", class_percentage[i], class_name);
+			buf.printf(" %3i%% %s\n", class_percentage[i], class_name);
 		}
 		else if (condition == 2)
 		{
-			buf.printf("  %i%% / %i%% %s\n", class_percentage[i], class_percentage_job[i], class_name);
+			buf.printf(" %3i%% /%3i%% %s\n", class_percentage[i], class_percentage_job[i], class_name);
 		}
 		if (condition == 3)
 		{
-			buf.printf("  %i%% %s\n", class_percentage_job[i], class_name);
+			buf.printf(" %3i%% %s\n", class_percentage_job[i], class_name);
 		}
 	}
 }
@@ -1887,6 +1886,7 @@ void gebaeude_t::finish_rd()
 		// This will save much time in looking this up when generating passengers/mail.
 		ptr.stadt = welt->get_city(get_pos().get_2d());
 	}
+	set_building_tiles();
 }
 
 
@@ -2151,59 +2151,49 @@ uint8 gebaeude_t::get_random_class(const goods_desc_t * wtyp)
 	return g_class;
 }
 
-const minivec_tpl<const planquadrat_t*> &gebaeude_t::get_tiles()
+void gebaeude_t::set_building_tiles()
 {
+	building_tiles.clear();
 	const building_tile_desc_t* tile = get_tile();
 	const building_desc_t *bdsc = tile->get_desc();
 	const koord size = bdsc->get_size(tile->get_layout());
-	if (building_tiles.empty())
+	if (size == koord(1, 1))
 	{
-#ifdef MULTI_THREAD
-		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
-		assert(mutex_error == 0);
-#endif
-		// Clear just in case another thread has just run this algorithm on the same building.
-		building_tiles.clear();
-		if (size == koord(1, 1))
+		// A single tiled building - just add the single tile.
+		building_tiles.append(welt->access_nocheck(get_pos().get_2d()));
+	}
+	else
+	{
+		// A multi-tiled building: check all tiles. Any tile within the
+		// coverage radius of a building connects the whole building.
+
+		// Then, store these tiles here, as this is computationally expensive
+		// and frequently requested by the passenger/mail generation algorithm.
+
+		koord3d k = get_pos();
+		const koord start_pos = k.get_2d() - tile->get_offset();
+		const koord end_pos = k.get_2d() + size;
+
+		for (k.y = start_pos.y; k.y < end_pos.y; k.y++)
 		{
-			// A single tiled building - just add the single tile.
-			building_tiles.append(welt->access_nocheck(get_pos().get_2d()));
-		}
-		else
-		{
-			// A multi-tiled building: check all tiles. Any tile within the
-			// coverage radius of a building connects the whole building.
-
-			// Then, store these tiles here, as this is computationally expensive
-			// and frequently requested by the passenger/mail generation algorithm.
-
-			koord3d k = get_pos();
-			const koord start_pos = k.get_2d() - tile->get_offset();
-			const koord end_pos = k.get_2d() + size;
-
-			for (k.y = start_pos.y; k.y < end_pos.y; k.y++)
+			for (k.x = start_pos.x; k.x < end_pos.x; k.x++)
 			{
-				for (k.x = start_pos.x; k.x < end_pos.x; k.x++)
+				grund_t *gr = welt->lookup(k);
+				if (gr)
 				{
-					grund_t *gr = welt->lookup(k);
-					if (gr)
+					/* This would fail for depots, but those are 1x1 buildings */
+					gebaeude_t *gb_part = gr->find<gebaeude_t>();
+					// There may be buildings with holes.
+					if (gb_part && gb_part->get_tile()->get_desc() == bdsc)
 					{
-						/* This would fail for depots, but those are 1x1 buildings */
-						gebaeude_t *gb_part = gr->find<gebaeude_t>();
-						// There may be buildings with holes.
-						if (gb_part && gb_part->get_tile()->get_desc() == bdsc)
+						const planquadrat_t* plan = welt->access_nocheck(k.get_2d());
+						if (!plan->is_being_deleted())
 						{
-							const planquadrat_t* plan = welt->access_nocheck(k.get_2d());
 							building_tiles.append(plan);
 						}
 					}
 				}
 			}
 		}
-#ifdef MULTI_THREAD
-		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
-		assert(mutex_error == 0);
-#endif
 	}
-	return building_tiles;
 }

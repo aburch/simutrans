@@ -99,7 +99,7 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_BUILD_WAYOBJ:           tool = new tool_build_wayobj_t(); break;
 		case TOOL_BUILD_STATION:          tool = new tool_build_station_t(); break;
 		case TOOL_BUILD_ROADSIGN:         tool = new tool_build_roadsign_t(); break;
-		case TOOL_BUILD_DEPOT:            tool = new tool_depot_t(); break;
+		case TOOL_BUILD_DEPOT:            tool = new tool_build_depot_t(); break;
 		case TOOL_BUILD_SIGNALBOX:		  tool = new tool_signalbox_t(); break;
 		case TOOL_BUILD_HOUSE:       tool = new tool_build_house_t(); break;
 		case TOOL_BUILD_LAND_CHAIN:       tool = new tool_build_land_chain_t(); break;
@@ -110,9 +110,9 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_LOCK_GAME:        tool = new tool_lock_game_t(); break;
 		case TOOL_ADD_CITYCAR:      tool = new tool_add_citycar_t(); break;
 		case TOOL_FOREST:           tool = new tool_forest_t(); break;
-		case TOOL_STOP_MOVER:       tool = new tool_stop_moving_t(); break;
+		case TOOL_STOP_MOVER:       tool = new tool_stop_mover_t(); break;
 		case TOOL_MAKE_STOP_PUBLIC: tool = new tool_make_stop_public_t(); break;
-		case TOOL_REMOVE_WAYOBJ:    tool = new tool_wayobj_remover_t(); break;
+		case TOOL_REMOVE_WAYOBJ:    tool = new tool_remove_wayobj_t(); break;
 		case TOOL_SLICED_AND_UNDERGROUND_VIEW: tool = new tool_show_underground_t(); break;
 		case TOOL_BUY_HOUSE:        tool = new tool_buy_house_t(); break;
 		case TOOL_BUILD_CITYROAD:         tool = new tool_build_cityroad(); break;
@@ -158,7 +158,7 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_TRAFFIC_LEVEL:     tool = new tool_traffic_level_t(); break;
 		case TOOL_CHANGE_CONVOI:       tool = new tool_change_convoi_t(); break;
 		case TOOL_CHANGE_LINE:         tool = new tool_change_line_t(); break;
-		case TOOL_BUILD_DEPOT_TOOL:        tool = new tool_change_depot_t(); break;
+		case TOOL_CHANGE_DEPOT:        tool = new tool_change_depot_t(); break;
 		case UNUSED_WKZ_PWDHASH_TOOL: dbg->warning("create_simple_tool()","deprecated tool [%i] requested", toolnr); return NULL;
 		case TOOL_CHANGE_PLAYER:   tool = new tool_change_player_t(); break;
 		case TOOL_CHANGE_TRAFFIC_LIGHT:tool = new tool_change_traffic_light_t(); break;
@@ -186,7 +186,7 @@ tool_t *create_dialog_tool(int toolnr)
 	tool_t* tool = NULL;
 	switch(toolnr) {
 		case DIALOG_HELP:           tool = new dialog_help_t(); break;
-		case DIALOG_OPTIONS:       tool = new dialog_options_t(); break;
+		case DIALOG_OPTIONS:        tool = new dialog_options_t(); break;
 		case DIALOG_MINIMAP:        tool = new dialog_minimap_t(); break;
 		case DIALOG_LINEOVERVIEW:   tool = new dialog_lines_t(); break;
 		case DIALOG_MESSAGES:       tool = new dialog_messages_t(); break;
@@ -315,7 +315,7 @@ void tool_t::exit_menu()
 
 
 // for sorting: compare tool key
-static bool compare_werkzeug(tool_t const* const a, tool_t const* const b)
+static bool compare_tool(tool_t const* const a, tool_t const* const b)
 {
 	uint16 const ac = a->command_key & ~32;
 	uint16 const bc = b->command_key & ~32;
@@ -631,7 +631,7 @@ void tool_t::read_menu(const std::string &objfilename)
 		}
 	}
 	// sort characters
-	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_werkzeug);
+	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_tool);
 }
 
 
@@ -787,7 +787,7 @@ void toolbar_t::update(player_t *player)
 					waytype_t way = (waytype_t)(*c!=0 ? atoi(++c) : 0);
 					hausbauer_t::fill_menu( tool_selector, utype, way, get_sound(c));
 				} else if (param[0] == '-') {
-					// add dummy werkzeug as separator
+					// add dummy tool_t as separator
 					tool_selector->add_tool_selector( dummy );
 				}
 			}

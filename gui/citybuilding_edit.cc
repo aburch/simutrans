@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <stdio.h>
 
-#include "../utils/simrandom.h"
 #include "../simworld.h"
 #include "../simtool.h"
 
@@ -24,6 +23,7 @@
 #include "../dataobj/translator.h"
 
 #include "../utils/cbuffer_t.h"
+#include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 
 #include "citybuilding_edit.h"

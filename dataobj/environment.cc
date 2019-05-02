@@ -4,10 +4,11 @@
 #include "../simversion.h"
 #include "../simconst.h"
 #include "../simtypes.h"
-#include "../utils/simrandom.h"
 #include "../simcolor.h"
 #include "../simmesg.h"
 #include "../display/simgraph.h"
+
+#include "../utils/simrandom.h"
 
 sint8 env_t::pak_tile_height_step = 16;
 sint8 env_t::pak_height_conversion_factor = 1;

@@ -22,6 +22,7 @@
 #include "components/gui_obj_view_t.h"
 #include "components/gui_container.h"
 #include "../utils/cbuffer_t.h"
+#include "components/gui_speedbar.h"
 
 class welt_t;
 class fabrik_t;
@@ -60,6 +61,10 @@ private:
 	factory_chart_t chart;
 	button_t chart_button;
 	gui_label_t lbl_factory_status;
+	gui_speedbar_t staffing_bar;
+	sint32 staffing_level;
+	sint32 staffing_level2;
+	sint32 staff_shortage_factor;
 
 	button_t details_button;
 

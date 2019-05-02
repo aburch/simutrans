@@ -12,7 +12,6 @@
 #include "../simobj.h"
 #include "../display/simimg.h"
 #include "../player/simplay.h"
-#include "../utils/simrandom.h"
 #include "../simtypes.h"
 #include "../simunits.h"
 
@@ -21,6 +20,7 @@
 #include "../descriptor/groundobj_desc.h"
 
 #include "../utils/cbuffer_t.h"
+#include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 
 #include "../dataobj/loadsave.h"

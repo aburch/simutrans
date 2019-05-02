@@ -104,7 +104,7 @@ public:
 	 * @param rotate building rotation (0..3)
 	 * @returns The newly constructed factory.
 	 */
-	static fabrik_t* build_factory(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d pos, player_t* spieler);
+	static fabrik_t* build_factory(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d pos, player_t* owner);
 
 	/**
 	 * Builds a new full chain of factories. Precondition before calling this function:

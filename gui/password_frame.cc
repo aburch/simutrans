@@ -121,11 +121,11 @@ bool password_frame_t::action_triggered( gui_action_creator_t *comp, value_t p )
 		// rename a player
 		cbuffer_t buf;
 		buf.printf( "p%u,%s", player->get_player_nr(), player_name.get_text() );
-		tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
-		tool->set_default_param( buf );
-		welt->set_tool( tool, player );
+		tool_t *tmp_tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
+		tmp_tool->set_default_param( buf );
+		welt->set_tool( tmp_tool, player );
 		// since init always returns false, it is safe to delete immediately
-		delete tool;
+		delete tmp_tool;
 	}
 
 	if(  p.i==1  ) {
