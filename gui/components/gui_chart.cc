@@ -36,9 +36,25 @@ gui_chart_t::gui_chart_t() : gui_component_t()
 	show_x_axis = true;
 	show_y_axis = true;
 	x_elements = 0;
+	min_size = scr_size(0,0);
 
 	// Hajo: transparent by default
 	background = TRANSPARENT_FLAGS;
+}
+
+void gui_chart_t::set_min_size(scr_size s)
+{
+	min_size = s;
+}
+
+scr_size gui_chart_t::get_min_size() const
+{
+	return min_size;
+}
+
+scr_size gui_chart_t::get_max_size() const
+{
+	return scr_size::inf;
 }
 
 
@@ -214,7 +230,7 @@ void gui_chart_t::draw(scr_coord offset)
 
 						if(  env_t::left_to_right_graphs  ) {
 							const sint16 width = proportional_string_width(cmin)+7;
-							display_ddd_proportional( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, color_idx_to_rgb(COL_GREY4), c.color, cmin, true);
+							display_ddd_proportional_clip( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, color_idx_to_rgb(COL_GREY4), c.color, cmin, true);
 						}
 						else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < chart_size.h  &&  abs((int)(tmp/scale)) > 9  ) {
 							display_proportional_clip_rgb(tmpx - 4, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, c.color, true );

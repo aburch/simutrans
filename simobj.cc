@@ -28,6 +28,7 @@
 #include "vehicle/simvehicle.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
+#include "dataobj/repositioning.h"
 #include "boden/grund.h"
 #include "gui/obj_info.h"
 #include "utils/cbuffer_t.h"
@@ -206,6 +207,12 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 		if (vehicle_base_t const* const v = obj_cast<vehicle_base_t>(this)) {
 			// vehicles need finer steps to appear smoother
 			v->get_screen_offset( xpos, ypos, raster_width );
+		}
+		if(  vehicle_t const* const vt = obj_cast<vehicle_t>(this)  ) {
+			// vehicles may need extra offset.
+			koord offset = repositioning_t::get_instance().get_offset(vt->get_desc()->get_name());
+			xpos += offset.x;
+			ypos += offset.y;
 		}
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
 		ypos += tile_raster_scale_y(get_yoff(), raster_width);

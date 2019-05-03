@@ -17,7 +17,8 @@
 #include "../../macros.h"
 #include "../../dataobj/translator.h"
 
-#define ARROW_GAP (1)
+uint32 log10( uint32 ); // simrandom.h
+
 
 char gui_numberinput_t::tooltip[256];
 
@@ -25,6 +26,7 @@ gui_numberinput_t::gui_numberinput_t() :
 	gui_component_t(true)
 {
 	bt_left.set_typ(button_t::repeatarrowleft );
+	bt_left.set_pos( scr_coord(0,2) );
 	bt_left.add_listener(this );
 
 	textinp.set_alignment( ALIGN_RIGHT );
@@ -36,10 +38,12 @@ gui_numberinput_t::gui_numberinput_t() :
 
 	set_limits(0, 9999);
 	textbuffer[0] = 0;	// start with empty buffer
+	value = 0;
 	textinp.set_text(textbuffer, 20);
 	set_increment_mode( 1 );
 	wrap_mode( true );
 	b_enabled = true;
+	digits = 5;
 
 	set_size( scr_size( D_BUTTON_WIDTH, D_EDIT_HEIGHT ) );
 }
@@ -48,13 +52,25 @@ void gui_numberinput_t::set_size(scr_size size_par) {
 
 	gui_component_t::set_size(size_par);
 
-	textinp.set_size( scr_size( size_par.w - bt_left.get_size().w - bt_right.get_size().w, size_par.h) );
-	bt_left.align_to(&textinp, ALIGN_CENTER_V);
-	textinp.align_to(&bt_left, ALIGN_EXTERIOR_H | ALIGN_LEFT);
-	bt_right.align_to(&textinp, ALIGN_CENTER_V | ALIGN_EXTERIOR_H | ALIGN_LEFT);
+	textinp.set_size( scr_size( size_par.w - bt_left.get_size().w - bt_right.get_size().w - D_H_SPACE, size_par.h) );
 
+	bt_left.set_pos( scr_coord(0,(size.h-D_POS_BUTTON_HEIGHT)/2) );
+	textinp.align_to( &bt_left, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( D_H_SPACE / 2, 0) );
+	bt_right.align_to( &textinp, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( D_H_SPACE / 2, 0) );
 }
 
+scr_size gui_numberinput_t::get_max_size() const
+{
+	uint16 max_digits = max(digits, log10( max( max(1, abs(min_value)), abs(max_value) ) )+1);
+	return scr_size(display_get_char_max_width( "+-/0123456789" ) * max_digits + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH + D_H_SPACE,
+					max(LINESPACE+4, max(D_ARROW_LEFT_HEIGHT, D_ARROW_RIGHT_HEIGHT)));
+}
+
+scr_size gui_numberinput_t::get_min_size() const
+{
+	return scr_size(display_get_char_max_width( "+-/0123456789" ) * digits + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH + D_H_SPACE,
+					max(LINESPACE+4, max(D_ARROW_LEFT_HEIGHT, D_ARROW_RIGHT_HEIGHT)));
+}
 
 void gui_numberinput_t::set_value(sint32 new_value)
 {	// range check
@@ -215,12 +231,13 @@ sint32 gui_numberinput_t::get_prev_value()
 
 
 // all init in one ...
-void gui_numberinput_t::init( sint32 value, sint32 min, sint32 max, sint32 mode, bool wrap )
+void gui_numberinput_t::init( sint32 value, sint32 min, sint32 max, sint32 mode, bool wrap,  uint16 digits_ )
 {
 	set_limits( min, max );
 	set_value( value );
 	set_increment_mode( mode );
 	wrap_mode( wrap );
+	digits = digits_;
 }
 
 

@@ -128,7 +128,8 @@ class tabfileobj_t {
 private:
 	stringhashtable_tpl<obj_info_t> objinfo;
 
-	bool get_x_y( const char *key, sint16 &x, sint16 &y );
+	template<class I>
+	bool get_x_y( const char *key, I &x, I &y );
 
 public:
 	tabfileobj_t() { ; }

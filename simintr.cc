@@ -137,18 +137,21 @@ void intr_enable()
 	enabled = true;
 }
 
-
-// returns a time string in the desired format
 char const *tick_to_string( sint32 ticks, bool show_full )
 {
 	static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
 	static char const* const seasons[] = { "q2", "q3", "q4", "q1" };
 	static char time [128];
 
+	time[0] = 0;
+
+	// World model might not be initalized if this is called while reading saved windows.
+	if (welt_modell == NULL) {
+		return time;
+	}
+
 	sint32 month = welt_modell->get_last_month();
 	sint32 year = welt_modell->get_last_year();
-
-	time[0] = 0;
 
 	// calculate right month first
 	const uint32 ticks_this_month = ticks % welt_modell->ticks_per_world_month;

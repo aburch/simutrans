@@ -69,6 +69,8 @@ public:
 	crossing_state_t get_state() { return state; }
 
 	void append_crossing( crossing_t *cr ) { crossings.append_unique(cr); }
+	
+	uint8 get_crossing_length() const { return crossings.get_count(); }
 
 	// static routines from here
 private:

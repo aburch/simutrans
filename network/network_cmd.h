@@ -120,12 +120,12 @@ public:
 	~nwc_service_t();
 
 #ifndef NETTOOL
-	virtual bool execute(karte_t *);
+	bool execute(karte_t *) OVERRIDE;
 #endif
 
-	virtual void rdwr();
+	void rdwr() OVERRIDE;
 
-	virtual const char* get_name() { return "nwc_service_t";}
+	const char* get_name() OVERRIDE { return "nwc_service_t";}
 };
 
 
@@ -142,10 +142,10 @@ public:
 	nwc_auth_player_t(uint8 nr, const pwd_hash_t& hash_) : network_command_t(NWC_AUTH_PLAYER), hash(hash_), player_unlocked(0), player_nr(nr)  { }
 
 #ifndef NETTOOL
-	virtual bool execute(karte_t *);
+	bool execute(karte_t *) OVERRIDE;
 #endif
-	virtual void rdwr();
-	virtual const char* get_name() { return "nwc_auth_player_t";}
+	void rdwr() OVERRIDE;
+	const char* get_name() OVERRIDE { return "nwc_auth_player_t";}
 	pwd_hash_t hash;
 	uint16 player_unlocked;
 	uint8  player_nr;

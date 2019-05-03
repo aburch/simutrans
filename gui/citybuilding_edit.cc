@@ -22,17 +22,13 @@
 
 #include "../dataobj/translator.h"
 
-#include "../utils/cbuffer_t.h"
-#include "../utils/simrandom.h"
-#include "../utils/simstring.h"
-
 #include "citybuilding_edit.h"
+#include "components/gui_label.h"
 
 
 // new tool definition
 tool_build_house_t* citybuilding_edit_frame_t::haus_tool=new tool_build_house_t();
-char citybuilding_edit_frame_t::param_str[256];
-
+cbuffer_t citybuilding_edit_frame_t::param_str;
 
 
 static bool compare_building_desc(const building_desc_t* a, const building_desc_t* b)
@@ -46,7 +42,6 @@ static bool compare_building_desc(const building_desc_t* a, const building_desc_
 	}
 	return diff < 0;
 }
-
 
 
 static bool compare_building_desc_trans(const building_desc_t* a, const building_desc_t* b)
@@ -65,53 +60,38 @@ static bool compare_building_desc_trans(const building_desc_t* a, const building
 
 citybuilding_edit_frame_t::citybuilding_edit_frame_t(player_t* player_) :
 	extend_edit_gui_t(translator::translate("citybuilding builder"), player_),
-	building_list(16),
-	lb_rotation( rot_str, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right ),
-	lb_rotation_info( translator::translate("Rotation"), SYSCOL_TEXT, gui_label_t::left )
+	building_list(16)
 {
-	rot_str[0] = 0;
 	desc = NULL;
 	haus_tool->set_default_param(NULL);
 	haus_tool->cursor = tool_t::general_tool[TOOL_BUILD_HOUSE]->cursor;
 
-	bt_res.init( button_t::square_state, "residential house", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
+	bt_res.init( button_t::square_state, "residential house");
 	bt_res.add_listener(this);
 	bt_res.pressed = true;
-	add_component(&bt_res);
-	offset_of_comp += D_BUTTON_HEIGHT;
+	cont_right.add_component(&bt_res);
 
-	bt_com.init( button_t::square_state, "shops and stores", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
+	bt_com.init( button_t::square_state, "shops and stores");
 	bt_com.add_listener(this);
 	bt_com.pressed = true;
-	add_component(&bt_com);
-	offset_of_comp += D_BUTTON_HEIGHT;
+	cont_right.add_component(&bt_com);
 
-	bt_ind.init( button_t::square_state, "industrial building", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
+	bt_ind.init( button_t::square_state, "industrial building");
 	bt_ind.add_listener(this);
-	add_component(&bt_ind);
+	cont_right.add_component(&bt_ind);
 	bt_com.pressed = true;
-	offset_of_comp += D_BUTTON_HEIGHT;
 
-	lb_rotation_info.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
-	add_component(&lb_rotation_info);
-
-	bt_left_rotate.init( button_t::repeatarrowleft, NULL, scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4 ) );
-	bt_left_rotate.add_listener(this);
-	add_component(&bt_left_rotate);
-
-	bt_right_rotate.init( button_t::repeatarrowright, NULL, scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+50, offset_of_comp-4 ) );
-	bt_right_rotate.add_listener(this);
-	add_component(&bt_right_rotate);
-
-	//lb_rotation.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
-	lb_rotation.set_width( bt_right_rotate.get_pos().x - bt_left_rotate.get_pos().x - bt_left_rotate.get_size().w );
-	lb_rotation.align_to(&bt_left_rotate, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V);
-	add_component(&lb_rotation);
-	offset_of_comp += D_BUTTON_HEIGHT;
+	// rotation
+	gui_aligned_container_t *tbl = cont_right.add_table(2,0);
+	tbl->new_component<gui_label_t>("Rotation");
+	tbl->add_component(&cb_rotation);
+	cb_rotation.add_listener(this);
+	cb_rotation.new_component<gui_rotation_item_t>(gui_rotation_item_t::random);
+	cont_right.end_table();
 
 	fill_list( is_show_trans_name );
 
-	resize(scr_coord(0,0));
+	reset_min_windowsize();
 }
 
 
@@ -165,13 +145,18 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 			default:                        color = SYSCOL_TEXT;                      break;
 		}
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
-		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));
+		scl.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(name, color);
 		if (i == desc) {
 			scl.set_selection(scl.get_count()-1);
 		}
 	}
+
+	scr_coord_val em = display_get_char_width('m');
+	scl.set_max_width(15*em);
 	// always update current selection (since the tool may depend on it)
 	change_item_info( scl.get_selection() );
+
+	reset_min_windowsize();
 }
 
 
@@ -191,26 +176,7 @@ bool citybuilding_edit_frame_t::action_triggered( gui_action_creator_t *komp,val
 		bt_ind.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}
-	else if(desc) {
-		if(  komp==&bt_left_rotate  ) {
-			// random, auto, max_rotaions-1 ... 0
-			if(rotation==254) {
-				rotation = desc->get_all_layouts()-1;
-			}
-			else {
-				rotation --;
-			}
-		}
-		else if(  komp==&bt_right_rotate  ) {
-			// 0...max-rotation, auto, random
-			if(  rotation==desc->get_all_layouts()-1  ) {
-				rotation = 254;
-			}
-			else {
-				rotation ++;
-			}
-		}
-		// update info ...
+	else if( komp == &cb_rotation) {
 		change_item_info( scl.get_selection() );
 	}
 	return extend_edit_gui_t::action_triggered(komp,e);
@@ -254,37 +220,26 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 				buf.append("\n");
 			}
 
-			info_text.recalc_size();
-			cont.set_size( info_text.get_size() + scr_size(0, 20) );
-
-			// orientation (254=auto, 255=random)
+			// reset combobox
+			cb_rotation.clear_elements();
+			cb_rotation.new_component<gui_rotation_item_t>(gui_rotation_item_t::random);
+			cb_rotation.new_component<gui_rotation_item_t>(gui_rotation_item_t::automatic);
+			for(uint8 i = 0; i<desc->get_all_layouts(); i++) {
+				cb_rotation.new_component<gui_rotation_item_t>(i);
+			}
 			if(desc->get_all_layouts()>1) {
-				rotation = 254; // no definition yet, choose auto
+				cb_rotation.set_selection(1);
 			}
 			else {
-				rotation = 0;
+				cb_rotation.set_selection(2);
 			}
+			reset_min_windowsize();
+
 		}
 
-		// change label numbers
-		if(rotation == 255) {
-			tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
-		}
-		else if(rotation == 254) {
-			tstrncpy(rot_str, translator::translate("auto"), lengthof(rot_str));
-		}
-		else {
-			sprintf( rot_str, "%i", rotation );
-		}
-
-		// now the images (maximum is 2x2 size)
-		// since these may be affected by rotation, we do this every time ...
-		for(int i=0;  i<3;  i++  ) {
-			img[i].set_image( IMG_EMPTY );
-		}
-
+		uint8 rotation = get_rotation();
 		uint8 rot = (rotation>253) ? 0 : rotation;
-		img[3].set_image( desc->get_tile(rot,0,0)->get_background(0,0,0) );
+		building_image.init(desc, rot);
 
 		// the tools will be always updated, even though the data up there might be still current
 		vector_tpl<const building_desc_t*> buildings;
@@ -294,12 +249,20 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 			}
 		}
 		haus_tool->set_buildings(buildings);
-		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation>253 ? (rotation==254 ? 'A' : '#') : '0'+rotation, desc->get_name() );
+		param_str.clear();
+		param_str.printf("%i%c%s", bt_climates.pressed, rotation>253 ? (rotation==254 ? 'A' : '#') : '0'+rotation, desc->get_name() );
 		haus_tool->set_default_param(param_str);
 		welt->set_tool( haus_tool, player );
 	}
-	else if(welt->get_tool(player->get_player_nr())==haus_tool) {
+	else {
 		desc = NULL;
-		welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
+		if(welt->get_tool(player->get_player_nr())==haus_tool) {
+			welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
+		}
+		building_image.init(NULL, 0);
+		cb_rotation.clear_elements();
+		cb_rotation.new_component<gui_rotation_item_t>(gui_rotation_item_t::random);
 	}
+	info_text.recalc_size();
+	reset_min_windowsize();
 }

@@ -23,6 +23,8 @@
 #include "goods_stats_t.h"
 #include "../utils/cbuffer_t.h"
 
+class goods_desc_t;
+
 /**
  * Shows statistics. Only goods so far.
  * @author Hj. Malthaner
@@ -39,18 +41,17 @@ private:
 	static sort_mode_t sortby;
 	static bool filter_goods;
 
-	cbuffer_t	speed_message, speed_message2;
-	uint16 good_list[256];
+	cbuffer_t	speed_message;
+	vector_tpl<const goods_desc_t*> good_list;
 
-	gui_label_t sort_label;
 	button_t	sortedby;
 	button_t	sorteddir;
 
-	gui_label_t tile_speed;
 	gui_numberinput_t	speed;
 	gui_combobox_t	scheduletype;
 
 	gui_fixedwidth_textarea_t speed_text;
+	gui_aligned_container_t *sort_row;
 
 	button_t	filter_goods_toggle;
 
@@ -58,31 +59,24 @@ private:
 	gui_scrollpane_t scrolly;
 
 	// creates the list and pass it to the child function good_stats, which does the display stuff ...
-	static bool compare_goods(uint16, uint16);
+	static bool compare_goods(goods_desc_t const* const w1, goods_desc_t const* const w2);
 	void sort_list();
 
 public:
 	goods_frame_t();
 
 	// yes we can reload
-	uint32 get_rdwr_id();
-	void rdwr( loadsave_t *file );
+	uint32 get_rdwr_id() OVERRIDE;
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	/**
-	* resize window in response to a resize event
-	* @author Hj. Malthaner
-	* @date   16-Oct-2003
-	*/
-	void resize(const scr_coord delta);
-
-	bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const {return "goods_filter.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "goods_filter.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

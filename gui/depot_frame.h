@@ -44,7 +44,7 @@ private:
 public:
 	depot_convoi_capacity_t();
 	void set_totals(uint32 pax, uint32 mail, uint32 goods);
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 };
 
 
@@ -144,8 +144,8 @@ private:
 	vector_tpl<gui_image_list_t::image_data_t*> convoi_pics;
 	gui_image_list_t convoi;
 
-	gui_scrollpane_t scrolly_convoi;
 	gui_container_t cont_convoi;
+	gui_scrollpane_t scrolly_convoi;
 
 	/// image list of passenger cars
 	vector_tpl<gui_image_list_t::image_data_t*> pas_vec;
@@ -164,10 +164,6 @@ private:
 	gui_scrollpane_t scrolly_electrics;
 	gui_scrollpane_t scrolly_loks;
 	gui_scrollpane_t scrolly_waggons;
-	gui_container_t cont_pas;
-	gui_container_t cont_electrics;
-	gui_container_t cont_loks;
-	gui_container_t cont_waggons;
 
 	/// contains the current translation of "<no schedule set>"
 	const char* no_schedule_text;
@@ -204,7 +200,8 @@ private:
 	scr_coord_val second_column_x; // x position of the second text column
 	scr_coord_val second_column_w;
 
-	enum { va_append, va_insert, va_sell };
+	// va_set_offset is a mode to set repositioning of vehicles.
+	enum { va_append, va_insert, va_sell, va_set_offset, va_cancel_offset };
 	uint8 veh_action;
 
 	/**
@@ -237,7 +234,7 @@ private:
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	// true if already stored here
 	bool is_in_vehicle_list(const vehicle_desc_t *info);
@@ -294,7 +291,7 @@ public:
 	 * @author (Mathew Hounsell)
 	 * @date   11-Mar-2003
 	 */
-	void set_windowsize(scr_size size);
+	void set_windowsize(scr_size size) OVERRIDE;
 
 	/**
 	 * Create and fill loks_vec and waggons_vec.
@@ -315,17 +312,17 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const {return "depot.txt";}
+	const char * get_help_filename() const OVERRIDE {return "depot.txt";}
 
 	/**
 	 * Does this window need a next button in the title bar?
 	 * @return true if such a button is needed
 	 * @author Volker Meyer
 	 */
-	bool has_next() const {return true;}
+	bool has_next() const OVERRIDE {return true;}
 
-	virtual koord3d get_weltpos(bool);
-	virtual bool is_weltpos();
+	koord3d get_weltpos(bool) OVERRIDE;
+	bool is_weltpos() OVERRIDE;
 
 	/**
 	 * Open dialog for schedule entry.
@@ -339,7 +336,7 @@ public:
 	 * Draw the Frame
 	 * @author Hansjörg Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	// @author hsiegeln
 	void apply_line();

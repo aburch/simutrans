@@ -6,8 +6,10 @@
 #include "../simconst.h"
 #include "../simtypes.h"
 #include "../simmesg.h"
+#include "koord3d.h"
 
 #include "../utils/simrandom.h"
+void rdwr_win_settings(loadsave_t *file); // simwin
 
 sint8 env_t::pak_tile_height_step = 16;
 sint8 env_t::pak_height_conversion_factor = 1;
@@ -157,10 +159,8 @@ bool env_t::hide_keyboard = false;
 bool env_t::previous_OTRP_data;
 
 bool  env_t::commandline_snapshot = false;
-koord env_t::commandline_snapshot_world_position = koord(0, 0);
-sint8 env_t::commandline_snapshot_world_position_z = 0;
-int   env_t::commandline_snapshot_zoom_factor = 3; // ZOOM_NEUTRAL (3)
-
+koord3d env_t::commandline_snapshot_world_position = koord3d(0, 0, 0);
+sint8   env_t::commandline_snapshot_zoom_factor = 3; // ZOOM_NEUTRAL (3)
 
 // Hajo: Define default settings.
 void env_t::init()
@@ -478,6 +478,10 @@ void env_t::rdwr(loadsave_t *file)
 	}
 	if(  file->get_version()>=120007  ||  file->get_OTRP_version()>=15  ) {
 		file->rdwr_byte(show_money_message);
+	}
+
+	if (file->get_version()>120007) {
+		rdwr_win_settings(file);
 	}
 	// server settings are not saved, since they are server specific and could be different on different servers on the save computers
 }

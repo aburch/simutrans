@@ -534,7 +534,9 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		}
 	}
 	else {
+#ifdef DEBUG
 		uint32 best = tmp->g;
+#endif
 		// reached => construct route
 		route.store_at( tmp->count, tmp->gr->get_pos() );
 		while(tmp != NULL) {

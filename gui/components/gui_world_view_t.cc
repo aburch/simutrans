@@ -9,7 +9,6 @@
 
 #include "gui_world_view_t.h"
 #include "../../simworld.h"
-#include "../../display/simview.h"
 #include "../../display/viewport.h"
 #include "../../simobj.h"
 #include "../../display/simgraph.h"
@@ -36,6 +35,8 @@ world_view_t::world_view_t(scr_size size ) :
 	raster(get_base_tile_raster_width())
 {
 	set_size( size );
+	min_size = size;
+
 	world_view_t::view_list.append(this);
 }
 
@@ -140,10 +141,10 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 	/* Not very elegant, but works: Fill everything with black for underground
 	 * mode. */
 	if(  grund_t::underground_mode  ) {
-		display_fillbox_wh_rgb(pos.x, pos.y, size.w, size.h, color_idx_to_rgb(COL_BLACK), true);
+		display_fillbox_wh_clip_rgb(pos.x, pos.y, size.w, size.h, color_idx_to_rgb(COL_BLACK), true);
 	}
 	else {
-		welt->get_view()->display_background(pos.x, pos.y, size.w, size.h, true);
+		display_fillbox_wh_clip_rgb(pos.x, pos.y, size.w, size.h, env_t::background_color, true);
 	}
 
 	const sint16 yoff = obj && obj->is_moving() ?

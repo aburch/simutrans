@@ -13,8 +13,9 @@
 #include "messagebox.h"
 
 #include "../display/simgraph.h"
+#include "../display/simimg.h"
 #include "../display/viewport.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 #include "../simworld.h"
 #include "../simskin.h"
 
@@ -22,7 +23,7 @@
 
 
 message_stats_t::message_stats_t() :
-	msg(welt->get_message()), message_type(0), last_count(0), message_selected(-1), message_list(NULL)
+	msg(welt->get_message()), message_type(0), last_count(0), message_selected(-1), message_list(NULL), min_size(0,0)
 {
 	filter_messages(-1);
 }
@@ -163,7 +164,9 @@ void message_stats_t::recalc_size()
 		}
 	}
 
-	set_size(scr_size(x_size+4,y_size));
+	min_size = scr_size(x_size+4,y_size);
+	// wont do any harm as we are anyway inside a scroll-pane
+	set_size(min_size);
 }
 
 

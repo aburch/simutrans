@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "gui_speedbar.h"
+#include "../gui_theme.h"
 #include "../../display/simgraph.h"
 #include "../../simcolor.h"
 #include "../../simtypes.h"
@@ -25,6 +26,16 @@ void gui_speedbar_t::add_color_value(const sint32 *value, PIXVAL color)
 	values.insert(next);
 }
 
+
+scr_size gui_speedbar_t::get_min_size() const
+{
+	return D_INDICATOR_SIZE;
+}
+
+scr_size gui_speedbar_t::get_max_size() const
+{
+	return scr_size(scr_size::inf.w, D_INDICATOR_HEIGHT);
+}
 
 void gui_speedbar_t::draw(scr_coord offset)
 {

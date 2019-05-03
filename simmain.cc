@@ -62,6 +62,7 @@
 #include "dataobj/tabfile.h"
 #include "dataobj/settings.h"
 #include "dataobj/translator.h"
+#include "dataobj/repositioning.h"
 #include "network/pakset_info.h"
 
 #include "descriptor/reader/obj_reader.h"
@@ -340,7 +341,12 @@ static bool wait_for_key()
 static void ask_objfilename()
 {
 	pakselector_t* sel = new pakselector_t();
-	sel->fill_list();
+	// notify gui to load list of paksets
+	event_t ev;
+	ev.ev_class = INFOWIN;
+	ev.ev_code  = WIN_OPEN;
+	sel->infowin_event(&ev);
+
 	if(sel->has_pak()) {
 		destroy_all_win(true);	// since eventually the successful load message is still there ....
 		modal_dialogue( sel, magic_none, NULL, empty_objfilename );
@@ -430,7 +436,7 @@ int simu_main(int argc, char** argv)
 			"  <markus@pristovsek.de>\n"
 			"\n"
 			"  Based on Simutrans 0.84.21.2\n"
-			"  by Hansjï¿½rg Malthaner et. al.\n"
+			"  by Hansjörg Malthaner et. al.\n"
 			"---------------------------------------\n"
 			"command line parameters available: \n"
 			" -addons             loads also addons (with -objects)\n"
@@ -971,6 +977,10 @@ int simu_main(int argc, char** argv)
 		env_t::default_settings.parse_colours( simuconf );
 		simuconf.close();
 	}
+	//parse reposition.tab
+	sprintf(path_to_simuconf, "config%creposition.tab", PATH_SEPARATOR[0]);
+	obj_conf = env_t::program_dir + env_t::objfilename + path_to_simuconf;
+	repositioning_t::get_instance().read_tabfile(obj_conf.c_str());
 
 	// load with private addons (now in addons/pak-name either in simutrans main dir or in userdir)
 	if(  gimme_arg(argc, argv, "-objects", 1) != NULL  ) {
@@ -1125,7 +1135,7 @@ int simu_main(int argc, char** argv)
 	if(  translator::get_language()==-1  ) {
 		ask_language();
 	}
-
+	
 	env_t::commandline_snapshot = false;
 	if(  gimme_arg(argc, argv, "-snapshot", 0) != NULL  ) {
 		const char *s = gimme_arg(argc, argv, "-snapshot", 1);
@@ -1134,8 +1144,7 @@ int simu_main(int argc, char** argv)
 			if(  sscanf(s,"%d,%d,%d,%d",&x,&y,&z,&f) == 4  ) {
 				dbg->message("simmain()", "-snapshot x,y,z,f=%d,%d,%d,%d", x, y, z, f );
 				env_t::commandline_snapshot = true;
-				env_t::commandline_snapshot_world_position = koord(x,y);
-				env_t::commandline_snapshot_world_position_z = (sint8)z;
+				env_t::commandline_snapshot_world_position = koord3d(x,y,z);
 				env_t::commandline_snapshot_zoom_factor = f;
 			}
 		}
@@ -1476,6 +1485,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		env_t::default_settings.rdwr(&file);
 		file.close();
 	}
+	repositioning_t::get_instance().write_tabfile();
 
 	destroy_all_win( true );
 	tool_t::exit_menu();

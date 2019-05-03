@@ -580,12 +580,12 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 				*costs += 4;
 			}
 			// absolutely nothing allowed here for set which want double clearance
-			if(  welt->get_settings().get_way_height_clearance()==2  &&  welt->lookup( to->get_pos()+koord3d(0,0,1) )  ) {
+			if(  welt->get_settings().get_way_height_clearance()==2  &&  welt->lookup( to->get_pos()+koord3d(0,0,1+height_offset) )  ) {
 				return false;
 			}
 			// up to now 'to' and 'from' referred to the ground one height step below the elevated way
 			// now get the grounds at the right height
-			koord3d pos = to->get_pos() + koord3d( 0, 0, welt->get_settings().get_way_height_clearance() );
+			koord3d pos = to->get_pos() + koord3d( 0, 0, welt->get_settings().get_way_height_clearance()+height_offset );
 			grund_t *to2 = welt->lookup(pos);
 			if(to2) {
 				if(to2->get_weg_nr(0)) {
@@ -608,7 +608,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 				to = &to_dummy;
 			}
 
-			pos = from->get_pos() + koord3d( 0, 0, env_t::pak_height_conversion_factor );
+			pos = from->get_pos() + koord3d( 0, 0, welt->get_settings().get_way_height_clearance()+height_offset );
 			grund_t *from2 = welt->lookup(pos);
 			if(from2) {
 				from = from2;
@@ -625,12 +625,12 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 
 	if(  welt->get_settings().get_way_height_clearance()==2  ) {
 		// cannot build if conversion factor 2, we aren't powerline and way with maximum speed > 0 or powerline 1 tile below
-		grund_t *to2 = welt->lookup( to->get_pos() + koord3d(0, 0, -1) );
+		grund_t *to2 = welt->lookup( to->get_pos() + koord3d(0, 0, -1+height_offset) );
 		if(  to2 && (((bautyp&bautyp_mask)!=leitung  &&  to2->get_weg_nr(0)  &&  to2->get_weg_nr(0)->get_desc()->get_topspeed()>0) || to2->get_leitung())  ) {
 			return false;
 		}
 		// tile above cannot have way unless we are a way (not powerline) with a maximum speed of 0, or be surface if we are underground
-		to2 = welt->lookup( to->get_pos() + koord3d(0, 0, 1) );
+		to2 = welt->lookup( to->get_pos() + koord3d(0, 0, 1+height_offset) );
 		if(  to2  &&  ((to2->get_weg_nr(0)  &&  (desc->get_topspeed()>0  ||  (bautyp&bautyp_mask)==leitung))  ||  (bautyp & tunnel_flag) != 0)  ) {
 			return false;
 		}
@@ -2332,7 +2332,7 @@ void way_builder_t::build_tunnel_and_bridges()
 sint64 way_builder_t::calc_costs()
 {
 	sint64 costs=0;
-	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? welt->get_settings().get_way_height_clearance() : 0 );
+	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? welt->get_settings().get_way_height_clearance()+height_offset : 0 );
 
 	sint32 single_cost;
 	sint32 new_speedlimit;
@@ -2851,11 +2851,11 @@ void way_builder_t::build_powerline()
 // this can drive any river, even a river that has max_speed=0
 class fluss_fahrer_t : public test_driver_t
 {
-	bool check_next_tile(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt)!=0; }
-	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt); }
-	virtual waytype_t get_waytype() const { return invalid_wt; }
-	virtual int get_cost(const grund_t *, const weg_t *, const sint32, ribi_t::ribi) const { return 1; }
-	virtual bool is_target(const grund_t *cur,const grund_t *) const { return cur->is_water()  &&  cur->get_grund_hang()==slope_t::flat; }
+	bool check_next_tile(const grund_t* gr) const OVERRIDE { return gr->get_weg_ribi_unmasked(water_wt)!=0; }
+	ribi_t::ribi get_ribi(const grund_t* gr) const OVERRIDE { return gr->get_weg_ribi_unmasked(water_wt); }
+	waytype_t get_waytype() const OVERRIDE { return invalid_wt; }
+	int get_cost(const grund_t *, const weg_t *, const sint32, ribi_t::ribi) const OVERRIDE { return 1; }
+	bool is_target(const grund_t *cur,const grund_t *) const OVERRIDE { return cur->is_water()  &&  cur->get_grund_hang()==slope_t::flat; }
 };
 
 

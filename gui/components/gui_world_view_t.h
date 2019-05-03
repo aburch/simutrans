@@ -53,6 +53,7 @@ private:
 	vector_tpl<koord> offsets; /**< Offsets are stored. */
 
 	sint16            raster;  /**< For this rastersize. */
+	scr_size min_size;  ///< set by constructor
 
 protected:
 	virtual koord3d get_location() = 0;
@@ -87,6 +88,12 @@ public:
 	 * @author prissi
 	 */
 	void set_size(scr_size size) OVERRIDE;
+
+
+
+	scr_size get_min_size() const OVERRIDE { return min_size; }
+
+	scr_size get_max_size() const OVERRIDE { return min_size; }
 };
 
 #endif

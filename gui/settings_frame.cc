@@ -8,7 +8,7 @@
 #include <string>
 #include "../simcity.h"
 #include "../simsys.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
@@ -24,19 +24,25 @@ using std::string;
 settings_frame_t::settings_frame_t(settings_t* const s) :
 	gui_frame_t( translator::translate("Setting") ),
 	sets(s),
-	scrolly_general(&general),
-	scrolly_display(&display),
-	scrolly_economy(&economy),
-	scrolly_routing(&routing),
-	scrolly_costs(&costs),
-	scrolly_climates(&climates)
+	scrolly_general(&general, true, true),
+	scrolly_display(&display, true, true),
+	scrolly_economy(&economy, true, true),
+	scrolly_routing(&routing, true, true),
+	scrolly_costs(&costs, true, true),
+	scrolly_climates(&climates, true, true)
 {
-	revert_to_default.init( button_t::roundbox, "Simuconf.tab", scr_coord( BUTTON1_X, 0) );
-	revert_to_default.add_listener( this );
-	add_component( &revert_to_default );
-	revert_to_last_save.init( button_t::roundbox, "Default.sve", scr_coord( BUTTON2_X, 0) );
-	revert_to_last_save.add_listener( this );
-	add_component( &revert_to_last_save );
+	set_table_layout(1,0);
+	add_table(2,1);
+	{
+		revert_to_default.init( button_t::roundbox, "Simuconf.tab");
+		revert_to_default.add_listener( this );
+		add_component( &revert_to_default );
+
+		revert_to_last_save.init( button_t::roundbox, "Default.sve");
+		revert_to_last_save.add_listener( this );
+		add_component( &revert_to_last_save );
+	}
+	end_table();
 
 	general.init( sets );
 	display.init( sets );
@@ -51,7 +57,6 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	scrolly_costs.set_scroll_amount_y(D_BUTTON_HEIGHT/2);
 	scrolly_climates.set_scroll_amount_y(D_BUTTON_HEIGHT/2);
 
-	tabs.set_pos(scr_coord(D_MARGIN_LEFT,D_BUTTON_HEIGHT));
 	tabs.add_tab(&scrolly_general, translator::translate("General"));
 	tabs.add_tab(&scrolly_display, translator::translate("Helligk."));
 	tabs.add_tab(&scrolly_economy, translator::translate("Economy"));
@@ -60,27 +65,10 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	tabs.add_tab(&scrolly_climates, translator::translate("Climate Control"));
 	add_component(&tabs);
 
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+D_TAB_HEADER_HEIGHT+18*(D_BUTTON_HEIGHT/2)+2+1));
-	set_min_windowsize(scr_size(BUTTON3_X, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+D_TAB_HEADER_HEIGHT+6*(D_BUTTON_HEIGHT/2)+2+1));
-
+	reset_min_windowsize();
+	set_windowsize(get_min_windowsize() + general.get_min_size());
 	set_resizemode(diagonal_resize);
-	resize(scr_coord(0,0));
 }
-
-
-
-/**
- * resize window in response to a resize event
- * @author Hj. Malthaner
- * @date   16-Oct-2003
- */
-void settings_frame_t::resize(const scr_coord delta)
-{
-	gui_frame_t::resize(delta);
-	scr_size size = get_windowsize()-scr_size(D_MARGIN_LEFT,D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT/*+D_MARGIN_BOTTOM*/);
-	tabs.set_size(size);
-}
-
 
 
  /* triggered, when button clicked; only single button registered, so the action is clear ... */
@@ -123,6 +111,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		routing.init( sets );
 		costs.init( sets );
 		climates.init( sets );
+		set_windowsize(get_windowsize());
 	}
 	else if(  komp==&revert_to_last_save  ) {
 		// load settings of last generated map
@@ -140,6 +129,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		routing.init( sets );
 		costs.init( sets );
 		climates.init( sets );
+		set_windowsize(get_windowsize());
 	}
 	return true;
 }

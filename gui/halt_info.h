@@ -19,73 +19,82 @@
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
 #include "components/gui_button.h"
+#include "components/gui_button_to_chart.h"
 #include "components/gui_location_view_t.h"
+#include "components/gui_tab_panel.h"
 #include "components/action_listener.h"
 #include "components/gui_chart.h"
+#include "components/gui_image.h"
+#include "components/gui_colorbox.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../simhalt.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
+
+class gui_departure_board_t;
+class gui_halt_detail_t;
+
+/**
+ * Helper class to show type symbols (train, bus, etc)
+ */
+class gui_halt_type_images_t : public gui_aligned_container_t
+{
+	halthandle_t halt;
+	gui_image_t img_transport[9];
+public:
+	gui_halt_type_images_t(halthandle_t h);
+
+	void draw(scr_coord offset) OVERRIDE;
+};
 
 
+/**
+ * Main class: the station info window.
+ */
 class halt_info_t : public gui_frame_t, private action_listener_t
 {
 private:
 
+	gui_aligned_container_t *container_top;
+	gui_label_buf_t lb_capacity[3], lb_happy;
+	gui_colorbox_t indicator_color;
+	gui_image_t img_enable[3];
+	gui_halt_type_images_t *img_types;
 	/**
 	* Buffer for freight info text string.
 	* @author Hj. Malthaner
 	*/
 	cbuffer_t freight_info;
-	cbuffer_t info_buf, joined_buf;
+
+	// departure stuff (departure and arrival times display)
+	gui_departure_board_t *departure_board;
+
+	// halt connections plane
+	gui_halt_detail_t *halt_detail;
 
 	// other UI definitions
-	gui_scrollpane_t scrolly;
-	gui_textarea_t text;
+	gui_aligned_container_t container_freight, container_chart;
+	gui_textarea_t text_freight;
+	gui_scrollpane_t scrolly_freight, scrolly_departure, scrolly_details;
+
 	gui_textinput_t input;
 	gui_chart_t chart;
-	gui_label_t sort_label;
 	location_view_t view;
-	button_t button;
 	button_t sort_button;     // @author hsiegeln
-	button_t filterButtons[MAX_HALT_COST];
-	button_t toggler, toggler_departures;
-	sint16 chart_total_size;
+
+	gui_button_to_chart_array_t button_to_chart;
+
+	gui_tab_panel_t switch_mode;
 
 	halthandle_t halt;
 	char edit_name[256];
 
-	void show_hide_statistics( bool show );
+	void update_components();
 
-	// departure stuff (departure and arrival times display)
-	class dest_info_t {
-	public:
-		bool compare( const dest_info_t &other ) const;
-		halthandle_t halt;
-		sint32 delta_ticks;
-		convoihandle_t cnv;
-		dest_info_t() : delta_ticks(0) {}
-		dest_info_t( halthandle_t h, sint32 d_t, convoihandle_t c ) : halt(h), delta_ticks(d_t), cnv(c) {}
-		bool operator == (const dest_info_t &other) const { return ( this->cnv==other.cnv ); }
-	};
-
-	static bool compare_hi(const dest_info_t &a, const dest_info_t &b) { return a.delta_ticks <= b.delta_ticks; }
-
-	vector_tpl<dest_info_t> destinations;
-	vector_tpl<dest_info_t> origins;
-	cbuffer_t departure_buf;
-
-	// if nothing changed, this is the next refresh to recalculate the content of the departure board
-	sint8 next_refresh;
-
-	uint32 calc_ticks_until_arrival( convoihandle_t cnv );
-
-	void update_departures();
-
-	void show_hide_departures( bool show );
+	void init(halthandle_t halt);
 
 public:
-	halt_info_t(halthandle_t halt);
+	halt_info_t(halthandle_t halt = halthandle_t());
 
 	virtual ~halt_info_t();
 
@@ -94,7 +103,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const {return "station.txt";}
+	const char *get_help_filename() const OVERRIDE {return "station.txt";}
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -102,28 +111,19 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	/**
-	 * Set window size and adjust component sizes and/or positions accordingly
-	 * @author Hj. Malthaner
-	 */
-	virtual void set_windowsize(scr_size size);
+	koord3d get_weltpos(bool) OVERRIDE;
 
-	virtual koord3d get_weltpos(bool);
-
-	virtual bool is_weltpos();
+	bool is_weltpos() OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	void map_rotate90( sint16 );
+	void map_rotate90( sint16 ) OVERRIDE;
 
-	// this constructor is only used during loading
-	halt_info_t();
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	void rdwr( loadsave_t *file );
-
-	uint32 get_rdwr_id() { return magic_halt_info; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_halt_info; }
 };
 
 #endif

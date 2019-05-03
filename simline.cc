@@ -288,6 +288,12 @@ void simline_t::rdwr(loadsave_t *file)
 	if(file->get_version()>=102002) {
 		file->rdwr_bool(withdraw);
 	}
+	
+	if(file->get_OTRP_version()>=20) {
+		// preparation for line max speed
+		sint32 dummy = 0;
+		file->rdwr_long(dummy);
+	}
 
 	// otherwise initialized to zero if loading ...
 	financial_history[0][LINE_CONVOIS] = count_convoys();

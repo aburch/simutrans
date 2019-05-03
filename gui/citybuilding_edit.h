@@ -7,7 +7,8 @@
 
 #include "extend_edit.h"
 
-#include "components/gui_label.h"
+#include "components/gui_building.h"
+#include "../utils/cbuffer_t.h"
 
 class building_desc_t;
 class tool_build_house_t;
@@ -17,12 +18,9 @@ class citybuilding_edit_frame_t : public extend_edit_gui_t
 {
 private:
 	static tool_build_house_t* haus_tool;
-	static char param_str[256];
+	static cbuffer_t param_str;
 
 	const building_desc_t *desc;
-	uint8 rotation;
-
-	char rot_str[16];
 
 	vector_tpl<const building_desc_t *>building_list;
 
@@ -30,12 +28,9 @@ private:
 	button_t bt_com;
 	button_t bt_ind;
 
-	button_t bt_left_rotate, bt_right_rotate;
-	gui_label_t lb_rotation, lb_rotation_info;
+	void fill_list( bool translate ) OVERRIDE;
 
-	void fill_list( bool translate );
-
-	virtual void change_item_info( sint32 i );
+	void change_item_info( sint32 i ) OVERRIDE;
 
 public:
 	citybuilding_edit_frame_t(player_t* player);
@@ -52,7 +47,7 @@ public:
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	const char* get_help_filename() const { return "citybuilding_build.txt"; }
+	const char* get_help_filename() const OVERRIDE { return "citybuilding_build.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

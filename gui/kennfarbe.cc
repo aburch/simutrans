@@ -9,44 +9,51 @@
  * Company colors window
  */
 #include "kennfarbe.h"
-#include "../simdebug.h"
-#include "../simevent.h"
-#include "../display/simimg.h"
 #include "../simworld.h"
 #include "../descriptor/skin_desc.h"
 #include "../simskin.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
+#include "components/gui_label.h"
+#include "components/gui_image.h"
+
+/**
+ * Buttons forced to be square ...
+ */
+class choose_color_button_t : public button_t
+{
+	scr_coord_val w;
+public:
+	choose_color_button_t() : button_t()
+	{
+		w = max(D_BUTTON_HEIGHT, display_get_char_width('X'));
+	}
+	scr_size get_min_size() const OVERRIDE { return scr_size(w,w); }
+};
+
 
 farbengui_t::farbengui_t(player_t *player_) :
 	gui_frame_t( translator::translate("Farbe"), player_ ),
-	txt(&buf),
-	c1( "Your primary color:" ),
-	c2( "Your secondary color:" ),
-	image( skinverwaltung_t::color_options->get_image_id(0), player_->get_player_nr() )
+	txt(&buf)
 {
-	scr_coord cursor = scr_coord (D_MARGIN_TOP, D_MARGIN_LEFT);
-
 	this->player = player_;
 	buf.clear();
 	buf.append(translator::translate("COLOR_CHOOSE\n"));
 
+	set_table_layout(1,0);
+
+	add_table(2,1);
 	// Info text
-	txt.set_pos( cursor );
 	txt.recalc_size();
 	add_component( &txt );
 
 	// Picture
-	image.set_pos(cursor);
-	image.enable_offset_removal(true);
-	add_component( &image );
-	cursor.y += max( txt.get_size().h, image.get_size().h );
+	new_component<gui_image_t>(skinverwaltung_t::color_options->get_image_id(0), player_->get_player_nr(), ALIGN_NONE, true);
+	end_table();
 
 	// Player's primary color label
-	c1.set_pos( cursor );
-	add_component( &c1 );
-	cursor.y += LINESPACE+D_V_SPACE;
+	new_component<gui_label_t>("Your primary color:");
 
 	// Get all colors (except the current player's)
 	uint32 used_colors1 = 0;
@@ -58,35 +65,32 @@ farbengui_t::farbengui_t(player_t *player_) :
 		}
 	}
 
+	add_table(14,2);
 	// Primary color buttons
 	for(unsigned i=0;  i<28;  i++) {
-		player_color_1[i].init( button_t::box_state, (used_colors1 & (1<<i) ? "X" : ""), scr_coord( cursor.x+(i%14)*(D_BUTTON_HEIGHT+D_H_SPACE), cursor.y+(i/14)*(D_BUTTON_HEIGHT+D_V_SPACE) ) , scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
-		player_color_1[i].background_color = color_idx_to_rgb(i*8+4);
-		player_color_1[i].add_listener(this);
-		add_component( player_color_1+i );
+		player_color_1[i] = new_component<choose_color_button_t>();
+		player_color_1[i]->init( button_t::box_state, (used_colors1 & (1<<i) ? "X" : " "));
+		player_color_1[i]->background_color = color_idx_to_rgb(i*8+4);
+		player_color_1[i]->add_listener(this);
 	}
-	player_color_1[player_->get_player_color1()/8].pressed = true;
-	cursor.y += 2*(D_BUTTON_HEIGHT+D_H_SPACE)+LINESPACE;
+	player_color_1[player_->get_player_color1()/8]->pressed = true;
+	end_table();
 
 	// Player's secondary color label
-	c2.set_pos( scr_coord(D_MARGIN_LEFT,cursor.y) );
-	add_component( &c2 );
-	cursor.y += LINESPACE+D_V_SPACE;
+	new_component<gui_label_t>("Your secondary color:");
 
+	add_table(14,2);
 	// Secondary color buttons
 	for(unsigned i=0;  i<28;  i++) {
-		player_color_2[i].init( button_t::box_state, (used_colors2 & (1<<i) ? "X" : ""), scr_coord( cursor.x+(i%14)*(D_BUTTON_HEIGHT+D_H_SPACE), cursor.y+(i/14)*(D_BUTTON_HEIGHT+D_V_SPACE) ), scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
-		player_color_2[i].background_color = color_idx_to_rgb(i*8+4);
-		player_color_2[i].add_listener(this);
-		add_component( player_color_2+i );
+		player_color_2[i] = new_component<choose_color_button_t>();
+		player_color_2[i]->init( button_t::box_state, (used_colors2 & (1<<i) ? "X" : " "));
+		player_color_2[i]->background_color = color_idx_to_rgb(i*8+4);
+		player_color_2[i]->add_listener(this);
 	}
-	player_color_2[player_->get_player_color2()/8].pressed = true;
-	cursor.y += 2*D_BUTTON_HEIGHT+D_H_SPACE;
+	player_color_2[player_->get_player_color2()/8]->pressed = true;
+	end_table();
 
-	// Put picture in place
-	image.align_to(&player_color_1[13],ALIGN_RIGHT);
-
-	set_windowsize( scr_size( D_MARGIN_LEFT + 14*D_BUTTON_HEIGHT + 13*D_H_SPACE + D_MARGIN_RIGHT, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
+	reset_min_windowsize();
 }
 
 
@@ -99,11 +103,11 @@ bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	for(unsigned i=0;  i<28;  i++) {
 
 		// new player 1 color?
-		if(komp==player_color_1+i) {
+		if(komp==player_color_1[i]) {
 			for(unsigned j=0;  j<28;  j++) {
-				player_color_1[j].pressed = false;
+				player_color_1[j]->pressed = false;
 			}
-			player_color_1[i].pressed = true;
+			player_color_1[i]->pressed = true;
 			player->set_player_color( i*8, player->get_player_color2() );
 			env_t::default_settings.set_default_player_color(player->get_player_nr(), player->get_player_color1(), player->get_player_color2());
 
@@ -111,11 +115,11 @@ bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		}
 
 		// new player color 2?
-		if(komp==player_color_2+i) {
+		if(komp==player_color_2[i]) {
 			for(unsigned j=0;  j<28;  j++) {
-				player_color_2[j].pressed = false;
+				player_color_2[j]->pressed = false;
 			}
-			player_color_2[i].pressed = true;
+			player_color_2[i]->pressed = true;
 			player->set_player_color( player->get_player_color1(), i*8 );
 			env_t::default_settings.set_default_player_color(player->get_player_nr(), player->get_player_color1(), player->get_player_color2());
 

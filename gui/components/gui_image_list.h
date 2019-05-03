@@ -98,7 +98,7 @@ public:
 	 * Draw/record the picture
 	 * @author Hj. Malthaner
 	 */
-	virtual void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	/**
 	 * Looks for the image at given position.
@@ -110,6 +110,10 @@ public:
 	int index_at(scr_coord parent_pos, int xpos, int ypos) const;
 
 	void recalc_size();
+
+	// FIXME
+	scr_size get_min_size() const OVERRIDE { return get_size(); }
+	scr_size get_max_size() const OVERRIDE { return get_size(); }
 };
 
 #endif

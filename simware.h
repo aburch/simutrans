@@ -19,11 +19,17 @@ private:
 	static const goods_desc_t *index_to_desc[256];
 
 public:
+	// Type used to specify an amount of goods. Always positive.
+	typedef uint32 goods_amount_t;
+
+	// Maximum number of goods per ware package. Limited by the bit field used.
+	static goods_amount_t const GOODS_AMOUNT_LIMIT = (1 << 23) - 1;
+
 	/// type of good, used as index into goods-types array
 	uint32 index: 8;
 
 	/// amount of goods
-	uint32 menge : 23;
+	goods_amount_t menge : 23;
 
 	/**
 	 * To indicate that the ware's destination is a factory/consumer store
@@ -121,6 +127,26 @@ public:
 	 * @param speedkmh actual achieved speed in km/h
 	 */
 	static sint64 calc_revenue(const goods_desc_t* desc, waytype_t wt, sint32 speedkmh);
+
+	/**
+	 * Adds the number of goods to this goods packet.
+	 * @param number The number of goods to add to this packet.
+	 * @return Any excess goods that could not be added, eg due to logical limits.
+	 */
+	goods_amount_t add_goods(goods_amount_t const number);
+
+	/**
+	* Removes the number of goods from this goods packet.
+	* @param number The number of goods to remove from this packet.
+	* @return Any excess goods that could not be removed, eg due to logical limits.
+	*/
+	goods_amount_t remove_goods(goods_amount_t const number);
+
+	/**
+	 * Checks if the goods amount is maxed.
+	 * @return True if goods amount is maxed out so no more goods can be added.
+	 */
+	bool is_goods_amount_maxed() const;
 };
 
 #endif

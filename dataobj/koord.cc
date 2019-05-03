@@ -12,6 +12,7 @@ uint32 koord::locality_factor = 10000;
 const scr_coord scr_coord::invalid(-1, -1);
 
 const scr_size scr_size::invalid(-1, -1);
+const scr_size scr_size::inf(0x7fffffff, 0x7fffffff);
 
 const koord koord::invalid(-1, -1);
 const koord koord::north(    0, -1);

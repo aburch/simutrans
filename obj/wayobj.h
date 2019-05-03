@@ -48,12 +48,12 @@ public:
 
 	const way_obj_desc_t *get_desc() const {return desc;}
 
-	void rotate90();
+	void rotate90() OVERRIDE;
 
 	/**
 	* the back image, drawn before vehicles
 	*/
-	image_id get_image() const {
+	image_id get_image() const OVERRIDE {
 		return hang ? desc->get_back_slope_image_id(hang) :
 			(dir>16 ? desc->get_crossing_image_id(dir,nw,false) :
 				(diagonal ? desc->get_back_diagonal_image_id(dir) : desc->get_back_image_id(dir))
@@ -63,29 +63,29 @@ public:
 	/**
 	 * the front image, drawn after everything else
 	 */
-	image_id get_front_image() const {
+	image_id get_front_image() const OVERRIDE {
 		return hang ? desc->get_front_slope_image_id(hang) :
 			(dir>16 ? desc->get_crossing_image_id(dir,nw,true) :
 				(diagonal ? desc->get_front_diagonal_image_id(dir) : desc->get_front_image_id(dir))
 				);
 	}
 
-	typ get_typ() const { return wayobj; }
+	typ get_typ() const OVERRIDE { return wayobj; }
 
 	/**
 	 * waytype associated with this object
 	 */
-	waytype_t get_waytype() const { return desc ? desc->get_wtyp() : invalid_wt; }
+	waytype_t get_waytype() const OVERRIDE { return desc ? desc->get_wtyp() : invalid_wt; }
 
-	void calc_image();
+	void calc_image() OVERRIDE;
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
-	void cleanup(player_t *player);
+	void cleanup(player_t *player) OVERRIDE;
 
 	const char* is_deletable(const player_t *player) OVERRIDE;
 
-	void finish_rd();
+	void finish_rd() OVERRIDE;
 
 	// specific for wayobj
 	void set_dir(ribi_t::ribi d) { dir = d; calc_image(); }

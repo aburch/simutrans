@@ -14,6 +14,8 @@
 #include "../utils/simrandom.h"
 #include "../boden/grund.h"
 #include "../dataobj/loadsave.h"
+#include "../dataobj/translator.h"
+#include "../utils/cbuffer_t.h"
 
 #include "simpeople.h"
 #include "../descriptor/pedestrian_desc.h"
@@ -322,7 +324,7 @@ void pedestrian_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_
 {
 	// vehicles needs finer steps to appear smoother
 	sint32 display_steps = (uint32)(steps + steps_offset)*(uint16)raster_width;
-	if(dx*dy) {
+	if(  dx && dy  ) {
 		display_steps &= 0xFFFFFC00;
 	}
 	else {
@@ -344,3 +346,13 @@ void pedestrian_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_
 	}
 }
 
+
+void pedestrian_t::info(cbuffer_t & buf) const
+{
+	char const* const owner = translator::translate("Kein Besitzer\n");
+	buf.append(owner);
+
+	if (char const* const maker = get_desc()->get_copyright()) {
+		buf.printf(translator::translate("Constructed by %s"), maker);
+	}
+}

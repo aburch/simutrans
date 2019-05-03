@@ -34,7 +34,7 @@ class privatesign_info_t : public obj_infowin_t, public action_listener_t
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *get_help_filename() const {return "privatesign_info.txt";}
+	const char *get_help_filename() const OVERRIDE {return "privatesign_info.txt";}
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

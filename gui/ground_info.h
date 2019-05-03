@@ -37,13 +37,13 @@ protected:
 public:
 	grund_info_t(const grund_t* gr);
 
-	virtual koord3d get_weltpos(bool);
+	koord3d get_weltpos(bool) OVERRIDE;
 
-	virtual bool is_weltpos();
+	bool is_weltpos() OVERRIDE;
 
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	virtual void map_rotate90( sint16 );
+	void map_rotate90( sint16 ) OVERRIDE;
 };
 
 #endif

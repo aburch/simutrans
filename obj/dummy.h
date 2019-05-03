@@ -19,8 +19,8 @@ class dummy_obj_t : public obj_t
 			obj_t::set_flag(obj_t::not_on_map);
 		}
 
-		typ      get_typ()  const { return obj_t::undefined; }
-		image_id get_image() const { return IMG_EMPTY; }
+		typ      get_typ()   const OVERRIDE { return obj_t::undefined; }
+		image_id get_image() const OVERRIDE { return IMG_EMPTY; }
 };
 
 #endif

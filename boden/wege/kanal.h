@@ -12,15 +12,14 @@
  */
 class kanal_t : public weg_t
 {
-
 public:
 	static const way_desc_t *default_kanal;
 
 	kanal_t(loadsave_t *file);
 	kanal_t();
 
-	waytype_t get_waytype() const {return water_wt;}
-	virtual void rdwr(loadsave_t *file);
+	waytype_t get_waytype() const OVERRIDE {return water_wt;}
+	void rdwr(loadsave_t *file) OVERRIDE;
 };
 
 #endif

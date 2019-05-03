@@ -29,15 +29,15 @@ protected:
 	const crossing_desc_t *desc;
 
 public:
-	typ get_typ() const { return crossing; }
-	const char* get_name() const { return "Kreuzung"; }
+	typ get_typ() const OVERRIDE { return crossing; }
+	const char* get_name() const OVERRIDE { return "Kreuzung"; }
 
 	/**
 	 * waytype associated with this object
 	 * for crossings: return invalid_wt since they do not need a way
 	 * if the way is deleted the crossing will be deleted, too
 	 */
-	waytype_t get_waytype() const { return invalid_wt; }
+	waytype_t get_waytype() const OVERRIDE { return invalid_wt; }
 
 	crossing_t(loadsave_t *file);
 	crossing_t(player_t *player, koord3d pos, const crossing_desc_t *desc, uint8 ns = 0);
@@ -48,7 +48,7 @@ public:
 	 */
 	virtual ~crossing_t();
 
-	void rotate90();
+	void rotate90() OVERRIDE;
 
 	const crossing_desc_t *get_desc() const { return desc; }
 
@@ -56,13 +56,13 @@ public:
 	 * @return string (only used for debug at the moment)
 	 * @author prissi
 	 */
-	void info(cbuffer_t & buf) const { logic->info(buf); }
+	void info(cbuffer_t & buf) const OVERRIDE;
 
 	/**
 	 * @return NULL when OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *is_deletable(const player_t *player);
+	const char *is_deletable(const player_t *player) OVERRIDE;
 
 	// returns true, if the crossing can be passed by this vehicle
 	bool request_crossing( const vehicle_base_t *v ) { return logic->request_crossing( v ); }
@@ -82,31 +82,33 @@ public:
 
 	void set_logic( crossing_logic_t *l ) { logic = l; }
 	crossing_logic_t *get_logic() { return logic; }
+	
+	uint8 get_length() const { return logic->get_crossing_length(); }
 
 	/**
 	 * Dient zur Neuberechnung des Bildes
 	 * @author Hj. Malthaner
 	 */
-	void calc_image();
+	void calc_image() OVERRIDE;
 
 	/**
 	* Called whenever the season or snowline height changes
 	* return false and the obj_t will be deleted
 	*/
-	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_image(); } return true; }  // depends on snowline only
+	bool check_season(const bool calc_only_season_change) OVERRIDE { if(  !calc_only_season_change  ) { calc_image(); } return true; }  // depends on snowline only
 
 	// changes the state of a traffic light
-	image_id get_image() const { return image; }
+	image_id get_image() const OVERRIDE { return image; }
 
 	/**
 	* For the front image hiding vehicles
 	* @author prissi
 	*/
-	image_id get_front_image() const { return foreground_image; }
+	image_id get_front_image() const OVERRIDE { return foreground_image; }
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
-	void finish_rd();
+	void finish_rd() OVERRIDE;
 };
 
 #endif

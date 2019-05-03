@@ -9,7 +9,7 @@
 #include "components/gui_label.h"
 #include "components/action_listener.h"
 #include "components/gui_numberinput.h"
-#include "components/gui_divider.h"
+#include "components/gui_map_preview.h"
 
 class settings_t;
 
@@ -19,13 +19,13 @@ private:
 	// local settings of the new world ...
 	settings_t* sets;
 
-	enum { preview_size = 64 };
-
 	/**
 	* Mini Map-Preview
 	* @author Hj. Malthaner
 	*/
-	PIXVAL karte[preview_size*preview_size];
+	array2d_tpl<PIXVAL> map;
+	gui_map_preview_t
+		map_preview;
 
 	bool changed_number_of_towns;
 
@@ -35,18 +35,16 @@ private:
 		inp_number_of_towns,
 		inp_town_size;
 
+	/* 
+	 * Label to display current map seed number.
+	 */
+	gui_label_buf_t	map_number_label;
+
 	button_t
 		start_button;
 
-	gui_label_t
-		memory, // memory requirement
-		cities_label,
-		median_label;
-
-	gui_divider_t
-		divider_1;
-
-	char memory_str[256];
+	gui_label_buf_t
+		size_label; // memory requirement
 
 
 public:
@@ -69,7 +67,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const { return "enlarge_map.txt";}
+	const char * get_help_filename() const OVERRIDE { return "enlarge_map.txt";}
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -77,7 +75,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 };
 
 #endif

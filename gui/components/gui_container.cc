@@ -13,6 +13,8 @@
  * @date 03-Mar-01
  */
 
+// #define SHOW_BBOX
+
 /*
  * [Mathew Hounsell] Min Size Button On Map Window 20030313
  */
@@ -20,24 +22,11 @@
 #include "gui_container.h"
 #include "../gui_theme.h"
 
+
 gui_container_t::gui_container_t() : gui_component_t(), comp_focus(NULL)
 {
 	list_dirty = false;
 	inside_infowin_event = false;
-}
-
-/**
- * Returns the minimum rectangle which encloses all children
- * @author Max Kielland
- */
-scr_rect gui_container_t::get_min_boundaries() const
-{
-	scr_rect client_bound;
-
-	FOR( slist_tpl<gui_component_t*>, const c, components ) {
-		client_bound.outer_bounds( scr_rect( c->get_pos(), c->get_size().w, c->get_size().h ) );
-	}
-	return client_bound;
 }
 
 
@@ -50,7 +39,7 @@ void gui_container_t::add_component(gui_component_t *comp)
 	/* Inserts/builds the dialog from bottom to top:
 	 * Essential for combo-boxes, so they overlap lower elements
 	 */
-	components.insert(comp);
+	components.append(comp);
 	list_dirty = true;
 }
 
@@ -64,7 +53,7 @@ void gui_container_t::remove_component(gui_component_t *comp)
 	/* since we can remove a subcomponent,
 	 * that actually contains the element with focus
 	 */
-	if(  comp_focus == comp->get_focus()  ) {
+	if(  comp_focus == comp  ||  comp_focus == comp->get_focus()  ) {
 		comp_focus = NULL;
 	}
 	components.remove(comp);
@@ -80,7 +69,7 @@ void gui_container_t::remove_all()
 {
 	// clear also focus
 	while(  !components.empty()  ) {
-		remove_component( components.remove_first() );
+		remove_component( components.pop_back() );
 	}
 }
 
@@ -111,9 +100,9 @@ bool gui_container_t::infowin_event(const event_t *ev)
 			if(  ev->ev_code==SIM_KEY_TAB  ) {
 				// TAB: find new focus
 				new_focus = NULL;
-				if(  !IS_SHIFT_PRESSED(ev)  ) {
-					// find next textinput field
-					FOR(slist_tpl<gui_component_t*>, const c, components) {
+				if(  IS_SHIFT_PRESSED(ev)  ) {
+					// find previous textinput field
+					FOR(vector_tpl<gui_component_t*>, const c, components) {
 						if (c == comp_focus) break;
 						if (c->is_focusable()) {
 							new_focus = c;
@@ -121,9 +110,9 @@ bool gui_container_t::infowin_event(const event_t *ev)
 					}
 				}
 				else {
-					// or previous input field
+					// or next input field
 					bool valid = comp_focus==NULL;
-					FOR(slist_tpl<gui_component_t*>, const c, components) {
+					FOR(vector_tpl<gui_component_t*>, const c, components) {
 						if (valid && c->is_focusable()) {
 							new_focus = c;
 							break;
@@ -178,13 +167,13 @@ bool gui_container_t::infowin_event(const event_t *ev)
 
 		if(  !swallowed  ) {
 
-			slist_tpl<gui_component_t *>handle_mouseover;
-			FOR(  slist_tpl<gui_component_t*>,  const comp,  components  ) {
-				
+			vector_tpl<gui_component_t *>handle_mouseover;
+			FOR(  vector_tpl<gui_component_t*>,  const comp,  components  ) {
+
 				if(  list_dirty  ) {
 					break;
 				}
-	
+
 				if(  comp == comp_focus  ) {
 					// do not handle focus objects twice
 					continue;
@@ -200,7 +189,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 					}
 					else if(  comp->is_visible()  ) {
 						if(  comp->getroffen(x, y)  ) {
-							handle_mouseover.insert( comp );
+							handle_mouseover.append( comp );
 						}
 					}
 
@@ -210,7 +199,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 			/* since the last drawn are overlaid over all others
 			 * the event-handling must go reverse too
 			 */
-			FOR(  slist_tpl<gui_component_t*>,  const comp,  handle_mouseover  ) {
+			FOR(  vector_tpl<gui_component_t*>,  const comp,  handle_mouseover  ) {
 
 				if (list_dirty) {
 					break;
@@ -277,15 +266,35 @@ void gui_container_t::draw(scr_coord offset)
 	const scr_coord screen_pos = pos + offset;
 	bool redraw_focus = false;
 
-	// For debug purpose, draw the container's boundary
-	// display_ddd_box_rgb(screen_pos.x,screen_pos.y,get_size().w, get_size().h, color_idx_to_rgb(COL_RED), color_idx_to_rgb(COL_RED), true);
+	clip_dimension cd = display_get_clip_wh();
+	scr_rect clip_rect(cd.x, cd.y, cd.w, cd.h);
 
-	FOR(slist_tpl<gui_component_t*>, const c, components) {
-		if(  c->is_visible()  ) {
+	// For debug purpose, draw the container's boundary
+#ifdef SHOW_BBOX
+#define shorten(d) max(0, min(d, 0x4fff))
+	display_ddd_box_clip_rgb(shorten(screen_pos.x), shorten(screen_pos.y), shorten(get_size().w), shorten(get_size().h), color_idx_to_rgb(COL_RED), color_idx_to_rgb(COL_RED));
+#endif
+	// iterate backwards
+	for(  uint32 iter = components.get_count(); iter > 0; iter--) {
+		gui_component_t*const c = components[iter-1];
+		if (c->is_visible()) {
+
+			// check if component is in the drawing region
+			// also fixes integer overflow as KOORDVAL in simgraph is 16bit, while scr_coord is 32bit
+			if (!clip_rect.is_overlapping( scr_rect(screen_pos + c->get_pos(), c->get_size()) ) ) {
+				continue;
+			}
+
 			if(  c == comp_focus  ) {
 				redraw_focus = true;
 				continue;
 			}
+#ifdef SHOW_BBOX
+			if (dynamic_cast<gui_container_t*>(c) == NULL) {
+				scr_coord c_pos = screen_pos + c->get_pos();
+				display_ddd_box_clip_rgb(shorten(c_pos.x), shorten(c_pos.y), shorten(c->get_size().w), shorten(c->get_size().h), color_idx_to_rgb(COL_YELLOW),color_idx_to_rgb(COL_YELLOW));
+			}
+#endif
 			// @author hsiegeln; check if component is hidden or displayed
 			c->draw(screen_pos);
 		}
@@ -299,7 +308,7 @@ void gui_container_t::draw(scr_coord offset)
 
 bool gui_container_t::is_focusable()
 {
-	FOR( slist_tpl<gui_component_t*>, const c, components ) {
+	FOR( vector_tpl<gui_component_t*>, const c, components ) {
 		if(  c->is_focusable()  ) {
 			return true;
 		}
@@ -311,6 +320,7 @@ bool gui_container_t::is_focusable()
 void gui_container_t::set_focus( gui_component_t *c )
 {
 	if(  inside_infowin_event  ) {
+		assert(false);
 		dbg->error("gui_container_t::set_focus", "called from inside infowin_event, will have no effect");
 	}
 	if(  components.is_contained(c)  ||  c==NULL  ) {

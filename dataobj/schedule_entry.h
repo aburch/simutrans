@@ -39,4 +39,10 @@ public:
 	sint8 waiting_time_shift;
 };
 
+inline bool operator ==(const schedule_entry_t &a, const schedule_entry_t &b)
+{
+	return a.pos == b.pos  &&  a.minimum_loading == b.minimum_loading  &&  a.waiting_time_shift == b.waiting_time_shift;
+}
+
+
 #endif

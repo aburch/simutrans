@@ -16,7 +16,7 @@ protected:
 	* The foundation always have the same image.
 	* @author Hj. Malthaner
 	*/
-	void calc_image_internal(const bool calc_only_snowline_change);
+	void calc_image_internal(const bool calc_only_snowline_change) OVERRIDE;
 
 public:
 	fundament_t(loadsave_t *file, koord pos );
@@ -27,9 +27,9 @@ public:
 	* @return 'Fundament'.
 	* @author Hj. Malthaner
 	*/
-	const char *get_name() const {return "Fundament";}
+	const char *get_name() const OVERRIDE {return "Fundament";}
 
-	typ get_typ() const { return fundament; }
+	typ get_typ() const OVERRIDE { return fundament; }
 
 	bool set_slope(slope_t::type) { slope = 0; return false; }
 };

@@ -29,24 +29,19 @@ public:
 
 	obj_t const* get_obj() const { return view.get_obj(); }
 
-	virtual koord3d get_weltpos(bool) { return get_obj()->get_pos(); }
+	koord3d get_weltpos(bool) OVERRIDE { return get_obj()->get_pos(); }
 
-	virtual bool is_weltpos();
+	bool is_weltpos() OVERRIDE;
 
-	/**
-	 * @return the text to display in the info window
-	 *
-	 * @author Hj. Malthaner
-	 * @see simwin
-	 */
-	virtual void info(cbuffer_t& buf) const { get_obj()->info(buf); }
+	// refill buffer
+	void fill_buffer();
 
 	/**
 	* Draw new component. The values to be passed refer to the window
 	* i.e. It's the screen coordinates of the window where the
 	* component is displayed.
 	*/
-	virtual void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 };
 
 

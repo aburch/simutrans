@@ -17,12 +17,12 @@
 
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
 // ==> These have no direct connection at all!
-#define SIM_SAVE_MINOR      7
-#define SIM_SERVER_MINOR    7
+#define SIM_SAVE_MINOR      8
+#define SIM_SERVER_MINOR    8
 // NOTE: increment before next release to enable save/load of new features
 
-#define OTRP_VERSION_MAJOR 19
-#define OTRP_VERSION_MINOR  3
+#define OTRP_VERSION_MAJOR 21
+#define OTRP_VERSION_MINOR 2
 // NOTE: increment OTRP_VERSION_MAJOR when the save data structure changes.
 
 #define MAKEOBJ_VERSION "60.2"

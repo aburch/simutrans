@@ -30,33 +30,29 @@ class gui_map_preview_t : public gui_component_t
 
 	private:
 		array2d_tpl<PIXVAL> *map_data;
-		scr_size map_size;
 
 	public:
-		gui_map_preview_t(void);
+		gui_map_preview_t();
 
-		void init( scr_coord pos, scr_size size = scr_size(MAP_PREVIEW_SIZE_X,MAP_PREVIEW_SIZE_Y) ) {
-			set_pos( pos );
-			set_size( size );
-		}
-
-		void set_map_data(array2d_tpl<PIXVAL> *map_data_par, scr_size max_size_par) {
+		void set_map_data(array2d_tpl<PIXVAL> *map_data_par) {
 			map_data = map_data_par;
-			map_size = max_size_par;
 		}
 
 		/**
 		 * Draws the component.
 		 * @author Max Kielland, (Hj. Malthaner)
 		 */
-		virtual void draw(scr_coord offset) {
-			display_ddd_box_clip_rgb(pos.x + offset.x, pos.y + offset.y, size.w, size.w, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
+		void draw(scr_coord offset) OVERRIDE {
+			display_ddd_box_clip_rgb(pos.x + offset.x, pos.y + offset.y, size.w, size.h, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
 
 			if(map_data) {
-				display_array_wh(pos.x + offset.x + 1, pos.y + offset.y + 1, map_size.w, map_size.h, map_data->to_array());
+				display_array_wh(pos.x + offset.x + 1, pos.y + offset.y + 1, map_data->get_width(), map_data->get_height(), map_data->to_array());
 			}
 		}
 
+		scr_size get_min_size() const OVERRIDE { return scr_size(MAP_PREVIEW_SIZE_X, MAP_PREVIEW_SIZE_Y); }
+
+		scr_size get_max_size() const OVERRIDE { return scr_size(MAP_PREVIEW_SIZE_X, MAP_PREVIEW_SIZE_Y); }
 };
 
 #endif

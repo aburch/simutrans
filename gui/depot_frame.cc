@@ -45,6 +45,7 @@
 #include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/repositioning.h"
 
 #include "../player/simplay.h"
 
@@ -92,10 +93,11 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	electrics(&electrics_vec),
 	loks(&loks_vec),
 	waggons(&waggons_vec),
-	scrolly_pas(&cont_pas),
-	scrolly_electrics(&cont_electrics),
-	scrolly_loks(&cont_loks),
-	scrolly_waggons(&cont_waggons),
+	scrolly_pas(&pas),
+	scrolly_electrics(&electrics),
+	scrolly_loks(&loks),
+	scrolly_waggons(&waggons),
+	line_selector(line_scrollitem_t::compare),
 	lb_vehicle_filter("Filter:", SYSCOL_TEXT, gui_label_t::right)
 {
 	scr_size size = scr_size(0,0);
@@ -199,19 +201,15 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	*/
 	pas.set_player_nr(depot->get_player_nr());
 	pas.add_listener(this);
-	cont_pas.add_component(&pas);
 
 	electrics.set_player_nr(depot->get_player_nr());
 	electrics.add_listener(this);
-	cont_electrics.add_component(&electrics);
 
 	loks.set_player_nr(depot->get_player_nr());
 	loks.add_listener(this);
-	cont_loks.add_component(&loks);
 
 	waggons.set_player_nr(depot->get_player_nr());
 	waggons.add_listener(this);
-	cont_waggons.add_component(&waggons);
 
 	add_component(&tabs);
 	add_component(&div_tabbottom);
@@ -404,13 +402,14 @@ void depot_frame_t::layout(scr_size *size)
 	* build_vehicle_lists() fills loks_vec and waggon_vec.
 	* Total width will be expanded to match complete columns in panel.
 	*/
-	const scr_coord_val total_h = PANEL_VSTART + VINFO_HEIGHT + D_TITLEBAR_HEIGHT + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER + D_MARGIN_BOTTOM + 1;
+	const scr_coord_val TAB_HEADER_HEIGHT = tabs.get_required_size().h;
+	const scr_coord_val total_h = PANEL_VSTART + VINFO_HEIGHT + D_TITLEBAR_HEIGHT + TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER + D_MARGIN_BOTTOM + 1;
 	scr_coord_val PANEL_ROWS = max(1, ((win_size.h - total_h) / grid.y));
 	if (size  &&  size->h == 0) {
 		PANEL_ROWS = 3;
 	}
-	const scr_coord_val PANEL_HEIGHT = PANEL_ROWS * grid.y + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER;
-	const scr_coord_val MIN_PANEL_HEIGHT = grid.y + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER;
+	const scr_coord_val PANEL_HEIGHT = PANEL_ROWS * grid.y + TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER;
+	const scr_coord_val MIN_PANEL_HEIGHT = grid.y + TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER;
 	const scr_coord_val INFO_VSTART = PANEL_VSTART + PANEL_HEIGHT + div_tabbottom.get_size().h;
 
 	/*
@@ -535,7 +534,6 @@ void depot_frame_t::layout(scr_size *size)
 	pas.set_size(tabs.get_size() - scr_size(D_SCROLLBAR_WIDTH, 0));
 	pas.recalc_size();
 	pas.set_pos(scr_coord(0, 0));
-	cont_pas.set_size(pas.get_size());
 	scrolly_pas.set_size(scrolly_pas.get_size());
 	scrolly_pas.set_scroll_amount_y(grid.y);
 	scrolly_pas.set_scroll_discrete_y(false);
@@ -546,7 +544,6 @@ void depot_frame_t::layout(scr_size *size)
 	electrics.set_size(tabs.get_size() - scr_size(D_SCROLLBAR_WIDTH, 0));
 	electrics.recalc_size();
 	electrics.set_pos(scr_coord(0, 0));
-	cont_electrics.set_size(electrics.get_size());
 	scrolly_electrics.set_size(scrolly_electrics.get_size());
 	scrolly_electrics.set_scroll_amount_y(grid.y);
 	scrolly_electrics.set_scroll_discrete_y(false);
@@ -557,7 +554,6 @@ void depot_frame_t::layout(scr_size *size)
 	loks.set_size(tabs.get_size() - scr_size(D_SCROLLBAR_WIDTH, 0));
 	loks.recalc_size();
 	loks.set_pos(scr_coord(0, 0));
-	cont_loks.set_size(loks.get_size());
 	scrolly_loks.set_size(scrolly_loks.get_size());
 	scrolly_loks.set_scroll_amount_y(grid.y);
 	scrolly_loks.set_scroll_discrete_y(false);
@@ -568,7 +564,6 @@ void depot_frame_t::layout(scr_size *size)
 	waggons.set_size(tabs.get_size() - scr_size(D_SCROLLBAR_WIDTH, 0));
 	waggons.recalc_size();
 	waggons.set_pos(scr_coord(0, 0));
-	cont_waggons.set_size(waggons.get_size());
 	scrolly_waggons.set_size(scrolly_waggons.get_size());
 	scrolly_waggons.set_scroll_amount_y(grid.y);
 	scrolly_waggons.set_scroll_discrete_y(false);
@@ -805,7 +800,7 @@ static void get_line_list(const depot_t* depot, vector_tpl<linehandle_t>* lines)
 
 void depot_frame_t::update_data()
 {
-	static const char *txt_veh_action[3] = { "anhaengen", "voranstellen", "verkaufen" };
+	static const char *txt_veh_action[5] = { "anhaengen", "voranstellen", "verkaufen", "set offset", "cancel offset" };
 	static const char *txt_sort_by[sb_length] = { "Vehicle Name", "Capacity", "Price", "Cost", "Cost per unit", "Max. speed", "Vehicle Power", "Weight", "Intro. date", "Retire date" };
 
 	// change green into blue for retired vehicles
@@ -846,12 +841,12 @@ void depot_frame_t::update_data()
 
 	// update convoy selector
 	convoy_selector.clear_elements();
-	convoy_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_convoy_text, SYSCOL_TEXT ) );
+	convoy_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( new_convoy_text, SYSCOL_TEXT ) ;
 	convoy_selector.set_selection(0);
 
 	// check all matching convoys
 	FOR(slist_tpl<convoihandle_t>, const c, depot->get_convoy_list()) {
-		convoy_selector.append_element( new convoy_scrollitem_t(c) );
+		convoy_selector.new_component<convoy_scrollitem_t>(c) ;
 		if(  cnv.is_bound()  &&  c == cnv  ) {
 			convoy_selector.set_selection( convoy_selector.count_elements() - 1 );
 		}
@@ -898,6 +893,8 @@ void depot_frame_t::update_data()
 		veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_desc();
 	}
 
+	repositioning_t& rep = repositioning_t::get_instance();
+	
 	FOR(vehicle_image_map, const& i, vehicle_map) {
 		vehicle_desc_t const* const    info = i.key;
 		gui_image_list_t::image_data_t& img  = *i.value;
@@ -937,6 +934,23 @@ void depot_frame_t::update_data()
 			img.lcolor = color_idx_to_rgb(COL_RED);
 			img.rcolor = color_idx_to_rgb(COL_RED);
 		}
+		else if(  veh_action == va_set_offset  ) {
+			if(  rep.get_offset(info->get_name())==rep.get_default_offset()  ) {
+				// default offset is set.
+				img.lcolor = color_idx_to_rgb(COL_RED);
+				img.rcolor = color_idx_to_rgb(COL_RED);
+			} else if(  rep.get_offset(info->get_name())!=koord(0,0)  ) {
+				// offset is other than default but not zero.
+				img.lcolor = color_idx_to_rgb(COL_YELLOW);
+				img.rcolor = color_idx_to_rgb(COL_YELLOW);
+			}
+		}
+		else if(  veh_action == va_cancel_offset  ) {
+			if(  rep.get_offset(info->get_name())==koord(0,0)  ) {
+				img.lcolor = color_idx_to_rgb(COL_RED);
+				img.rcolor = color_idx_to_rgb(COL_RED);
+			}
+		}
 	}
 
 	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
@@ -969,28 +983,28 @@ void depot_frame_t::update_data()
 			}
 		}
 	}
-	if(  last_selected_line.is_bound()  ) {
-		line_selector.insert_element( new line_scrollitem_t( last_selected_line ) );
-	}
 	if(  cnv.is_bound()  &&  cnv->get_schedule()  &&  !cnv->get_schedule()->empty()  ) {
 		if(  cnv->get_line().is_bound()  ) {
-			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, SYSCOL_TEXT ) );
-			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( clear_schedule_text, SYSCOL_TEXT ) );
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( clear_schedule_text, SYSCOL_TEXT ) ;
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( new_line_text, SYSCOL_TEXT ) ;
 		}
 		else {
-			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( promote_to_line_text, SYSCOL_TEXT ) );
-			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( unique_schedule_text, SYSCOL_TEXT ) );
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( unique_schedule_text, SYSCOL_TEXT ) ;
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( promote_to_line_text, SYSCOL_TEXT ) ;
 		}
 	}
 	else {
-		line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, SYSCOL_TEXT ) );
-		line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_schedule_text, SYSCOL_TEXT ) );
+		line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( no_schedule_text, SYSCOL_TEXT ) ;
+		line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( new_line_text, SYSCOL_TEXT ) ;
+	}
+	if(  last_selected_line.is_bound()  ) {
+		line_selector.new_component<line_scrollitem_t>( last_selected_line ) ;
 	}
 	if(  !selected_line.is_bound()  ) {
 		// select "create new schedule"
 		line_selector.set_selection( 0 );
 	}
-	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, SYSCOL_TEXT ) );
+	line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( line_seperator, SYSCOL_TEXT ) ;
 
 	// check all matching lines
 	if(  cnv.is_bound()  ) {
@@ -1000,7 +1014,7 @@ void depot_frame_t::update_data()
 	get_line_list(depot, &lines);
 	line_selector.set_selection( 0 );
 	FOR(  vector_tpl<linehandle_t>,  const line,  lines  ) {
-		line_selector.append_element( new line_scrollitem_t(line) );
+		line_selector.new_component<line_scrollitem_t>(line) ;
 		if(  selected_line.is_bound()  &&  selected_line == line  ) {
 			line_selector.set_selection( line_selector.count_elements() - 1 );
 		}
@@ -1009,15 +1023,15 @@ void depot_frame_t::update_data()
 		// no line selected
 		selected_line = linehandle_t();
 	}
-	line_selector.sort( last_selected_line.is_bound()+3, NULL );
+	line_selector.sort( last_selected_line.is_bound()+3 );
 
 	// Update vehicle filter
 	vehicle_filter.clear_elements();
-	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), SYSCOL_TEXT));
-	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Relevant"), SYSCOL_TEXT));
+	vehicle_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
+	vehicle_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Relevant"), SYSCOL_TEXT);
 
 	FOR(vector_tpl<goods_desc_t const*>, const i, welt->get_goods_list()) {
-		vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(i->get_name()), SYSCOL_TEXT));
+		vehicle_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(i->get_name()), SYSCOL_TEXT);
 	}
 
 	if(  depot->selected_filter > vehicle_filter.count_elements()  ) {
@@ -1028,7 +1042,7 @@ void depot_frame_t::update_data()
 	sort_by.clear_elements();
 	for(int i = 0; i < sb_length; i++)
 	{
-		sort_by.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_sort_by[i]), SYSCOL_TEXT));
+		sort_by.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(txt_sort_by[i]), SYSCOL_TEXT);
 	}
 	if(  depot->selected_sort_by > sort_by.count_elements()  ) {
 		depot->selected_sort_by = sb_name;
@@ -1238,7 +1252,15 @@ sint64 depot_frame_t::calc_restwert(const vehicle_desc_t *veh_type)
 void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *image_data)
 {
 	if(  image_data->lcolor != color_idx_to_rgb(COL_RED)  &&  image_data->rcolor != color_idx_to_rgb(COL_RED)  ) {
-		if(  veh_action == va_sell  ) {
+		if(  veh_action == va_set_offset  ) {
+			repositioning_t::get_instance().set_offset(image_data->text);
+			welt->set_dirty();
+		}
+		else if(  veh_action == va_cancel_offset  ) {
+			repositioning_t::get_instance().cancel_offset(image_data->text);
+			welt->set_dirty();
+		}
+		else if(  veh_action == va_sell  ) {
 			depot->call_depot_tool('s', convoihandle_t(), image_data->text );
 		}
 		else {
@@ -1357,7 +1379,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			depot_t::update_all_win();
 		}
 		else if(  comp == &bt_veh_action  ) {
-			if(  veh_action == va_sell  ) {
+			if(  veh_action == va_cancel_offset  ||  (get_base_tile_raster_width()!=128  &&  veh_action ==va_sell)  ) {
 				veh_action = va_append;
 			}
 			else {
@@ -1619,7 +1641,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 	bool new_vehicle_length_sb_force_zero = false;
 	sint16 convoi_number = -1;
 	scr_coord relpos = scr_coord(0, ((gui_scrollpane_t *)tabs.get_aktives_tab())->get_scroll_y());
-	int sel_index = lst->index_at( pos + tabs.get_pos() - relpos, x, y - D_TITLEBAR_HEIGHT - D_TAB_HEADER_HEIGHT);
+	int sel_index = lst->index_at( pos + tabs.get_pos() - relpos, x, y - D_TITLEBAR_HEIGHT - tabs.get_required_size().h);
 
 	if(  (sel_index != -1)  &&  (tabs.getroffen(x - pos.x, y - pos.y - D_TITLEBAR_HEIGHT))  ) {
 		// cursor over a vehicle in the selection list

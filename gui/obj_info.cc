@@ -22,9 +22,16 @@ obj_infowin_t::obj_infowin_t(const obj_t* obj) :
 	base_infowin_t(translator::translate( obj->get_name() ), obj->get_owner()),
 	view(obj, scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
 {
-	buf.clear();
-	info(buf);
+	textarea.set_width( textarea.get_size().w + get_base_tile_raster_width() - 64);
+	fill_buffer();
 	set_embedded(&view);
+}
+
+
+void obj_infowin_t::fill_buffer()
+{
+	buf.clear();
+	get_obj()->info(buf);
 }
 
 
@@ -36,13 +43,12 @@ obj_infowin_t::obj_infowin_t(const obj_t* obj) :
 void obj_infowin_t::draw(scr_coord pos, scr_size size)
 {
 	const cbuffer_t old_buf(buf);
-	buf.clear();
-	info(buf);
+	fill_buffer();
 	if(  strcmp( buf, old_buf )  ) {
 		recalc_size();
 	}
 
-	gui_frame_t::draw( pos, size );
+	base_infowin_t::draw( pos, size );
 }
 
 

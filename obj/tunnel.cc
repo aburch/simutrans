@@ -26,7 +26,8 @@
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
-static pthread_mutex_t tunnel_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t tunnel_calc_image_mutex;
+static recursive_mutex_maker_t tunnel_cim_maker(tunnel_calc_image_mutex);
 #endif
 
 

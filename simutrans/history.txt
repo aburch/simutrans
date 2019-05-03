@@ -1,8 +1,17 @@
+    ADD: Map number is shown in the enlarge map window.
+    FIX: Text area GUI components no longer suffer from line wrap around when displaying an extreme number of lines.
+    FIX: Stop information window waiting list in "via (amount)" order will no longer count incorrectly when more than 8,388,607 units are headed to a single destination.
+    FIX: SDL2 build running on Windows 10 in fullscreen mode now minimizes and maximizes responsively.
+	CHG: gui overhaul: automatic placement and size calculation of elements
+	ADD: use animated water graphics on shores
 	FIX: Do not call DefWindowsProc for IME to mitigate crash on Windows1809
 	ADD: always use temporary save name *.sv_ during saving before deleting main file
 	CHG: Make double pak warning translatable
 	FIX: (ACarlotti) rotation of traffic light phases and overflow was broken for years
 	FIX: fields now check for allowed climate, not same height
+	ADD: (HyperSim inspired) new tool for merging distance stations (and lot of code cleanup of old merging tool)
+	ADD: constrait[prev][0]=any require a vehile in front (and same for [next] to require a trailing vehicle)
+	CHG: The acceleration tool now also alters the acceleration in fast forward mode
 
 
 Release of 120.4.1 (r8600 on 23-Sep-2018):

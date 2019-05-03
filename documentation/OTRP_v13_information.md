@@ -17,15 +17,15 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version19_3現在、simutrans standard nightly r8646をベースにしています。
+version21_2現在、simutrans standard nightly r8745をベースにしています。
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2018年12月12日PM6時　ver19_3に更新）**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/70392/sim-WinGDI-OTRPv19_3.exe/  
-mac: https://osdn.net/projects/otrp/downloads/70392/sim-mac-OTRPv19_3.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/70392/sim-linux-OTRPv19_3.zip/  
+本体は下のリンクからどうぞ。**（2019年5月3日AM0時　ver21_2に更新）**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/71065/sim-WinGDI-OTRPv21_2.exe/  
+mac: https://osdn.net/projects/otrp/downloads/71065/sim-mac-OTRPv21_2.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/71065/sim-linux-OTRPv21_2.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 OTRP専用のmakeobjはありません。simutrans standardのmakeobjをご利用ください。
@@ -80,6 +80,18 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 実際の接続方向は「接続方向」の数字で確認できます。この数字は北=1、東=2、南=4、西=8を足し合わせたもので、例えば北と東方向に開通していれば1+2=3と表示されます。  
 デフォルトでは進入許可方向は南北-東西で設定されていますが、変更すると「南北：東西：オフセット」の文字列は意味を成していないので気になる方はja.tabの「Set phases」を書き換えてください。
 
+## 車両描画位置の変更
+pak128では鉄道車両の描画位置変更が行われた影響で、古い車両アドオンが新描画位置軌道から浮く現象が発生しています。  
+
+![fig10](images/fig10.png)  
+713氏作　[Emu]JRK Limited Express Electric Cars "Intercity Kyushu" Set/ＪＲ九州　特急列車「インターシティ九州」セット　より
+
+車庫画面で下図赤枠のボタンを押し、「set offset」と表示されるようにしてから車両を選択すると、その車種は4px下に描画されるようになります。これで、新描画位置軌道上に走らせても車両の位置が正しくなります。  
+![fig11](images/fig11.png)  
+
+オフセットの設定は、pakxyz/config/reposition.tabに保存されます。reposition.tabはテキストファイルなので手で編集することもできます。  
+なお、車庫画面でset offsetが出てくるのと、reposition.tabが保存されるのは128系のpakサイズでsimutransを起動したときのみです。reposition.tabの読み込みはその他のサイズのpakで起動したときも行われます。
+
 ## その他
 - 運賃収受に伴う金額表示をON/OFFできるようになりました。表示設定ウィンドウから切り替えられるほか、simple_tool[38]にキーを割り当てることでも切り替えることができます。
 - 交差点でのスムーズな通行を実現するため、交差点タイルでは車両がタイルを予約しています。予約状況は鉄道の閉塞予約解除ツール（bキー）を使うことで確認できます。タイルをクリックすることで予約を手動で解除することもできます。
@@ -90,6 +102,7 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 - ctrlキーを押しながら高架建設ツールを使うと、高架の高度オフセットを指定できます。1高度だけ地面から浮いた高架や、高高度の高架を建設するときに便利です。
 - 起動時に出現するアドオン名重複警告はOTRPでは無効化されています。ただし、**-showoverlay** オプションをつけて起動したとき及びサーバーモードで起動したときはアドオン名重複警告が表示されます。
 - longblocksignal（多閉塞信号）は検査した範囲をすべて予約するようになっています。すなはち、停車駅をこえて次の信号まで予約するようになっています。これは本家フォーラムで議論中の機能の先行実装です。
+- 起動時に`-snapshot x,y,z,f`オプションで起動すると、スナップショットを撮影して終了します。x,y,zは中心座標、fはズーム率（0から9まで）です。異なるセーブファイルである固定地点のスクリーンショットを撮りたいときなどに便利です。
 
 # 設定項目
 主にsimuconf.tabや「高度な設定」で編集する項目です。  
@@ -121,8 +134,14 @@ v12,13を使っていた方で初めてv14を使うときは**autosave.sveを削
 - 一度セーブデータを読み込んでそれを**保存した瞬間に**そのデータは**OTRP専用**になります。既存のデータをOTRPに移行する場合はバックアップを取った上で別ファイルとして保存することを強く推奨します。
 - データセーブ時に「Readable by standard」ボタンを押して保存するとstandardで読み書きできる形式で保存されます。この形式では**OTRP固有の情報が失われる**ので注意してください。
 
+# ライセンス
+OTRPはSimutrans Standardからの派生物ですので、Standardのライセンスである[Artistic License](https://github.com/aburch/simutrans/blob/master/simutrans/license.txt) に従います。OTRPの再配布および改造したものの配布などについては以下の条件下で自由です。
+- Artistic Licenseに違反しない条件下で配布してください。
+- 配布する場所をひめしにご連絡ください。 twitter: [@himeshi_hob](https://twitter.com/himeshi_hob)
+
 # おねがい
 バグ探しには皆さんのお力が必要です。バグと思われる挙動があればtwitter [@himeshi_hob](https://twitter.com/himeshi_hob) に報告していただけるとありがたいです。  
 特に「ネットワークプレイ」が安定動作するかが確認取れてないので遊んでみて動作状況を教えていただけるとうれしいです。ぜひOTRPでNSを楽しんでみてください。
 
 [1]:https://twitter.com/shingoushori
+[2]:https://twitter.com/hypersimu

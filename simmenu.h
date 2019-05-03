@@ -73,6 +73,7 @@ enum {
 	TOOL_CHANGE_WATER_HEIGHT,
 	TOOL_SET_CLIMATE,
 	TOOL_ROTATE_BUILDING,
+	TOOL_MERGE_STOP,
 	GENERAL_TOOL_COUNT,
 	GENERAL_TOOL = 0x1000
 };
@@ -436,7 +437,7 @@ class two_click_kartenboden_tool_t : public two_click_tool_t {
 public:
 	two_click_kartenboden_tool_t(uint16 const id) : two_click_tool_t(id){}
 
-	char const* check_pos(player_t*, koord3d);
+	char const* check_pos(player_t*, koord3d) OVERRIDE;
 	
 	char const* do_work(player_t* player, koord3d const&, koord3d const& pos) OVERRIDE {return work(player, pos);};
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE {};
@@ -478,7 +479,7 @@ private:
 public:
 	toolbar_last_used_t(uint16 const id, char const* const t, char const* const h) : toolbar_t(id,t,h) {}
 	static toolbar_last_used_t *last_used_tools;
-	void update(player_t *);	// just refresh content
+	void update(player_t *) OVERRIDE;	// just refresh content
 	void append(tool_t *, player_t *);
 	void clear();
 };

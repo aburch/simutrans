@@ -24,25 +24,25 @@ protected:
 	/**
 	 * Action that's started by the press of a button.
 	 */
-	virtual bool item_action(const char *fullpath);
+	bool item_action(const char *fullpath) OVERRIDE;
 
 	/**
 	 * Action, started after X-Button pressing
 	 */
-	virtual bool del_action(const char *f) { return item_action(f); }
+	bool del_action(const char *f) OVERRIDE { return item_action(f); }
 
 	// returns extra file info
-	virtual const char *get_info(const char *fname);
+	const char *get_info(const char *fname) OVERRIDE;
 
 	// true, if valid
-	virtual bool check_file( const char *filename, const char *suffix );
+	bool check_file( const char *filename, const char *suffix ) OVERRIDE;
 public:
 	/**
 	* Set the window associated helptext
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	virtual const char * get_help_filename() const { return "ai_selector.txt"; }
+	const char * get_help_filename() const OVERRIDE { return "ai_selector.txt"; }
 
 	ai_selector_t(uint8 plnr_);
 };

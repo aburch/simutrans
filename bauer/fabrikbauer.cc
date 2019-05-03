@@ -92,7 +92,7 @@ void init_fab_map( karte_t *welt )
 
 
 /**
- * @param x,y world position
+ * @param x,y world position, needs to be valid coordinates
  * @returns true, if factory coordinate
  */
 inline bool is_factory_at( sint16 x, sint16 y)
@@ -118,7 +118,7 @@ class factory_site_searcher_t: public building_placefinder_t  {
 public:
 	factory_site_searcher_t(karte_t* welt, factory_desc_t::site_t site_) : building_placefinder_t(welt), site(site_) {}
 
-	virtual bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const
+	bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const OVERRIDE
 	{
 		if(  !building_placefinder_t::is_area_ok(pos, w, h, cl)  ) {
 			return false;
@@ -362,7 +362,7 @@ bool factory_builder_t::check_construction_site(koord pos, koord size, factory_d
 		else {
 			// check on land
 			// do not build too close or on an existing factory
-			if( is_factory_at(pos.x, pos.y)  ) {
+			if( !welt->is_within_limits(pos)  || is_factory_at(pos.x, pos.y)  ) {
 				return false;
 			}
 			return welt->square_is_free(pos, size.x, size.y, NULL, cl);

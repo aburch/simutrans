@@ -176,6 +176,7 @@ void convoi_t::init(player_t *player)
 	prev_tiles_overtaking = 0;
 	
 	longblock_signal_request.valid = false;
+	crossing_reservation_index.clear();
 }
 
 
@@ -207,7 +208,6 @@ convoi_t::~convoi_t()
 
 	// close windows
 	destroy_win( magic_convoi_info+self.get_id() );
-	destroy_win( magic_convoi_detail+self.get_id() );
 
 DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	// stop following
@@ -642,10 +642,6 @@ void convoi_t::set_name(const char *name, bool with_new_id)
 		tstrncpy(name_and_id, buf, lengthof(name_and_id));
 	}
 	// now tell the windows that we were renamed
-	convoi_detail_t *detail = dynamic_cast<convoi_detail_t*>(win_get_magic( magic_convoi_detail+self.get_id()));
-	if (detail) {
-		detail->update_data();
-	}
 	convoi_info_t *info = dynamic_cast<convoi_info_t*>(win_get_magic( magic_convoi_info+self.get_id()));
 	if (info) {
 		info->update_data();
@@ -1556,7 +1552,6 @@ void convoi_t::betrete_depot(depot_t *dep)
 	dep->convoi_arrived(self, get_schedule());
 
 	destroy_win( magic_convoi_info+self.get_id() );
-	destroy_win( magic_convoi_detail+self.get_id() );
 
 	maxspeed_average_count = 0;
 	state = INITIAL;
@@ -2204,6 +2199,10 @@ void convoi_t::vorfahren()
 			}
 		}
 	}
+	// and calculate crossing reservation.
+	if(  fahr[0]->get_waytype()==track_wt  ) {
+		calc_crossing_reservation();
+	}
 
 	wait_lock = 0;
 	INT_CHECK("simconvoi 711");
@@ -2641,6 +2640,13 @@ void convoi_t::rdwr(loadsave_t *file)
 			next_reservation_index = route.get_count()-1;
 		}
 		file->rdwr_short( next_reservation_index );
+		// If this convoy is an aircraft, next_reservation_index must be 0. sanitaze next_reservation_index because next_reservation_index often be an illegal number. The cause of this problem is still not found!
+		const waytype_t typ = front()->get_waytype();
+		const bool rail_convoy = typ==track_wt  ||  typ==tram_wt  ||  typ==maglev_wt  ||  typ==monorail_wt  ||  typ==narrowgauge_wt;
+		if(  !rail_convoy  &&  next_reservation_index!=0  &&  file->is_loading()  ) {
+			dbg->warning( "convoi_t::rdwr()","next_reservation_index of convoy %d is %d while this is not a rail convoy. next_reservation_index is sanitized to 0.", self.get_id(), next_reservation_index );
+			next_reservation_index = 0;
+		}
 	}
 	
 	// for new reservation system with reserved_tiles
@@ -2666,6 +2672,26 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_long(yielding_quit_index);
 		file->rdwr_byte(lane_affinity);
 		file->rdwr_long(lane_affinity_end_index);
+	}
+	
+	if(  file->get_OTRP_version()>=20  ) {
+		uint16 cnt = crossing_reservation_index.get_count();
+		file->rdwr_short(cnt);
+		if(  file->is_loading()  ) {
+			crossing_reservation_index.clear();
+			for(uint16 i=0; i<cnt; i++) {
+				uint16 first, second;
+				file->rdwr_short(first);
+				file->rdwr_short(second);
+				crossing_reservation_index.append(std::pair<uint16,uint16>(first, second));
+			}
+		}
+		else {
+			for(uint16 i=0; i<crossing_reservation_index.get_count(); i++) {
+				file->rdwr_short(crossing_reservation_index[i].first);
+				file->rdwr_short(crossing_reservation_index[i].second);
+			}
+		}
 	}
 
 	if(  file->is_loading()  ) {
@@ -3043,6 +3069,7 @@ station_tile_search_ready: ;
 
 		if(  amount  ) {
 			time = max( time, (amount*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
+			v->mark_image_dirty(v->get_image(), 0);
 			v->calc_image();
 			changed_loading_level = true;
 		}
@@ -4191,4 +4218,32 @@ void convoi_t::clear_reserved_tiles(){
 		}
 	}
 	reserved_tiles.clear();
+}
+
+// this function should be called from rail vehicles
+void convoi_t::calc_crossing_reservation() {
+	crossing_reservation_index.clear();
+	for(  uint32 i=route.get_count()-1;  i>0;  i--  ) {
+		const grund_t *gr = welt->lookup(route.at(i));
+		const schiene_t *sch1 = dynamic_cast<schiene_t*>(gr ? gr->get_weg(front()->get_waytype()) : NULL);
+		const crossing_t* cr = (sch1  &&  sch1->is_crossing()) ? gr->find<crossing_t>(2) : NULL;
+		if(  !cr  ) {
+			// this tile is not a crossing.
+			continue;
+		}
+		// calculate distance to reserve
+		const weg_t* w1 = gr->get_weg_nr(0);
+		const weg_t* w2 = gr->get_weg_nr(1);
+		if(  !w1  ||  !w2  ) {
+			// way does not exist?
+			continue;
+		}
+		uint16 max_speed_1 = w1->get_waytype()==front()->get_waytype() ? w1->get_max_speed() : w2->get_max_speed();
+		max_speed_1 = min(max_speed_1, speed_to_kmh(min_top_speed));
+		const uint16 max_speed_2 = w1->get_waytype()==front()->get_waytype() ? w2->get_max_speed() : w1->get_max_speed();
+		// max_speed_2 can be 0. ex) crossing with a narrow river
+		const uint8 distance = max_speed_2>0 ? cr->get_length()*max_speed_1/max_speed_2 : 1;
+		const uint16 res_start_idx = max(i-distance,1);
+		crossing_reservation_index.append(std::pair<uint16, uint16>(res_start_idx,i));
+	}
 }

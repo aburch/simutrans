@@ -384,7 +384,7 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 			gr->set_pos( koord3d( k, height) );
 			if(  gr->get_typ() != grund_t::wasser  &&  max_hgt_nocheck(k) <= water_hgt  ) {
 				// below water but ground => convert
-				pl->kartenboden_setzen( new wasser_t(gr->get_pos()) );
+				pl->kartenboden_setzen( new wasser_t(gr->get_pos()), true /* do not calc_image for water tiles */ );
 			}
 			else if(  gr->get_typ() == grund_t::wasser  &&  max_hgt_nocheck(k) > water_hgt  ) {
 				// water above ground => to ground
@@ -3524,6 +3524,8 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 		clear_random_mode( INTERACTIVE_RANDOM );
 
 		sync.sync_step( delta_t );
+
+		ticker::update();
 	}
 
 	if(display) {
@@ -5117,7 +5119,8 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
 
 
 #ifdef MULTI_THREAD
-static pthread_mutex_t height_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t height_mutex;
+static recursive_mutex_maker_t height_mutex_maker(height_mutex);
 #endif
 
 
@@ -6186,15 +6189,28 @@ void karte_t::step_month( sint16 months )
 }
 
 
+sint32 karte_t::get_time_multiplier() const
+{
+	return step_mode==FAST_FORWARD ? env_t::max_acceleration : time_multiplier;
+}
+
+
 void karte_t::change_time_multiplier(sint32 delta)
 {
-	time_multiplier += delta;
-	if(time_multiplier<=0) {
-		time_multiplier = 1;
+	if(  step_mode == FAST_FORWARD  ) {
+		if(  env_t::max_acceleration+delta > 2  ) {
+			env_t::max_acceleration += delta;
+		}
 	}
-	if(step_mode!=NORMAL) {
-		step_mode = NORMAL;
-		reset_timer();
+	else {
+		time_multiplier += delta;
+		if(time_multiplier<=0) {
+			time_multiplier = 1;
+		}
+		if(step_mode!=NORMAL) {
+			step_mode = NORMAL;
+			reset_timer();
+		}
 	}
 }
 
@@ -6724,8 +6740,8 @@ bool karte_t::interactive(uint32 quit_month)
 		if(  (sint32)next_step_time - (sint32)time <= 0  ) {
 			if(  env_t::commandline_snapshot  ) {
 				destroy_all_win(true);
-				get_viewport()->change_world_position( koord3d( env_t::commandline_snapshot_world_position, env_t::commandline_snapshot_world_position_z ) );
-				set_zoom_factor_safe( env_t::commandline_snapshot_zoom_factor );
+				get_viewport()->change_world_position(env_t::commandline_snapshot_world_position);
+				set_zoom_factor_safe( (int)env_t::commandline_snapshot_zoom_factor );
 				get_viewport()->metrics_updated();
 				sync_step( 0, false, true );
 				display_snapshot( 0, 0, display_get_width(), display_get_height() );

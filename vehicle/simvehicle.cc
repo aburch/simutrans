@@ -68,12 +68,10 @@
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
-
 #include "../bauer/vehikelbauer.h"
 
 #include "simvehicle.h"
 #include "simroadtraffic.h"
-
 
 
 /* get dx and dy from dir (just to remind you)
@@ -548,7 +546,7 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 		break;
 	}
 	// Search vehicle
-	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
+	for(  uint8 pos=1;  pos<(uint8)gr->get_top();  pos++  ) {
 		if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
 			if(  v->get_typ()==obj_t::pedestrian  ) {
 				continue;
@@ -1837,7 +1835,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			case convoi_t::CAN_START:
 			case convoi_t::CAN_START_ONE_MONTH:
 				if(  state>=2  ) {
-					tstrncpy( tooltip_text, translator::translate("Waiting for clearance!"), lengthof(tooltip_text) );
+					snprintf( tooltip_text, lengthof(tooltip_text), "%s (%s)", translator::translate("Waiting for clearance!"), cnv->get_schedule()->get_current_entry().pos.get_str() );
 					color = color_idx_to_rgb(COL_YELLOW);
 				}
 				break;
@@ -1880,7 +1878,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 
 			case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
 			case convoi_t::CAN_START_TWO_MONTHS:
-				tstrncpy( tooltip_text, translator::translate("clf_chk_stucked"), lengthof(tooltip_text) );
+				snprintf( tooltip_text, lengthof(tooltip_text), "%s (%s)", translator::translate("clf_chk_stucked"), cnv->get_schedule()->get_current_entry().pos.get_str() );
 				color = color_idx_to_rgb(COL_ORANGE);
 				break;
 
@@ -2842,12 +2840,6 @@ overtaker_t* road_vehicle_t::get_overtaker()
 	return cnv;
 }
 
-//return overtaker in "convoi_t"
-convoi_t* road_vehicle_t::get_overtaker_cv()
-{
-	return cnv;
-}
-
 vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, sint8 offset) const{
 	// This function calculate whether the convoi can change lane.
 	// only_search_top == false: check whether there's no car in -1 ~ +1 section.
@@ -3762,6 +3754,25 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 		return ok;
 		// if reservation was not possible the train will wait on the track until block is free
+	}
+
+	// reserve crossing in advance
+	vector_tpl<std::pair< uint16, uint16> > crossing_reservation_index = cnv->get_crossing_reservation_index();
+	for(  sint16 i=crossing_reservation_index.get_count()-1;  i>=0;  i--  ) {
+		// check whether target index is valid
+		if(  crossing_reservation_index[i].second >= cnv->get_route()->get_count()  ||  crossing_reservation_index[i].second <= route_index  ) {
+			// this reservation index is invalid or already obsolete.
+			cnv->remove_crossing_reservation_at(i);
+			continue;
+		}
+		else if(  crossing_reservation_index[i].first <= route_index  &&  crossing_reservation_index[i].second > route_index  ) {
+			grund_t* cr_gr = welt->lookup(cnv->get_route()->at(crossing_reservation_index[i].second));
+			crossing_t* cr = cr_gr ? cr_gr->find<crossing_t>(2) : NULL;
+			if(  cr  ) {
+				cr->request_crossing(this);
+			}
+			cnv->remove_crossing_reservation_at(i);
+		}
 	}
 
 	if(  next_block <= route_index+3  ) {

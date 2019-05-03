@@ -48,7 +48,8 @@
 
 #ifdef MULTI_THREAD
 #include "../../utils/simthread.h"
-static pthread_mutex_t weg_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t weg_calc_image_mutex;
+static recursive_mutex_maker_t weg_cim_maker(weg_calc_image_mutex);
 #endif
 
 /**
@@ -260,7 +261,7 @@ void weg_t::info(cbuffer_t & buf) const
 				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("inverted"));
 				break;
 			default:
-				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("ERROR"));
+				buf.printf("%s %s %d\n", translator::translate("Overtaking:"),translator::translate("ERROR"),str->get_overtaking_mode());
 				break;
 		}
 		
@@ -310,6 +311,10 @@ void weg_t::info(cbuffer_t & buf) const
 	}
 #endif
 	buf.append("\n");
+	if (char const* const maker = get_desc()->get_copyright()) {
+		buf.printf(translator::translate("Constructed by %s"), maker);
+		buf.append("\n");
+	}
 }
 
 

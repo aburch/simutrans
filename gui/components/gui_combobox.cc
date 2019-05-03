@@ -19,13 +19,14 @@
 #include "../../display/simgraph.h"
 #include "../../display/scr_coord.h"
 #include "../../simcolor.h"
-#include "../../gui/simwin.h"
+#include "../simwin.h"
+#include "../../dataobj/loadsave.h"
 #include "../../utils/simstring.h"
 
 
-gui_combobox_t::gui_combobox_t() :
+gui_combobox_t::gui_combobox_t(gui_scrolled_list_t::item_compare_func cmp) :
 	gui_component_t(true),
-	droplist(gui_scrolled_list_t::listskin)
+	droplist(gui_scrolled_list_t::listskin, cmp)
 {
 	bt_prev.set_typ(button_t::arrowleft);
 	bt_prev.set_pos( scr_coord(0,2) );
@@ -45,7 +46,8 @@ gui_combobox_t::gui_combobox_t() :
 	droplist.add_listener(this);
 	closed_size = get_size();
 	max_size = scr_size(0,10*LINESPACE);
-	opened_at_bottom = false;
+	opened_above = false;
+	last_draw_offset = scr_coord(0,0);
 }
 
 
@@ -128,14 +130,22 @@ DBG_MESSAGE("event","HOWDY!");
 
 			// else prepare for selection (after a left mbutton release event!)
 			droplist.set_visible(true);
-			droplist.set_pos( gui_component_t::get_pos() + scr_size(0,textinp.get_size().h) );
-			droplist.request_size(scr_size(this->size.w, max_size.h - closed_size.h) );
-			gui_component_t::set_size( droplist.get_size() + scr_size(0, (closed_size.h + D_V_SPACE) / 2) );
-			// find out if list is outside window
-			opened_at_bottom = ( pos.y + textinp.get_size().h + D_V_SPACE/2 + droplist.get_size().h + D_TITLEBAR_HEIGHT > win_get_top()->get_windowsize().h );
-			if(  opened_at_bottom  ) {
-				droplist.set_pos( gui_component_t::get_pos() + scr_size(0,D_V_SPACE/4 - droplist.get_size().h) );
-			}
+
+			// determine possible size of droplist and whether open below/above input field
+			scr_coord_val win_height = win_get_top()->get_windowsize().h - D_TITLEBAR_HEIGHT;
+			scr_coord_val last_draw_y = last_draw_offset.y  + get_pos().y - win_get_pos(win_get_top()).y- D_TITLEBAR_HEIGHT;
+			scr_coord_val height_above = last_draw_y - D_V_SPACE;
+			scr_coord_val height_below = win_height - (last_draw_y + textinp.get_size().h + D_V_SPACE);
+			scr_coord_val request_height = min(max_size.h - closed_size.h, droplist.get_max_size().h);
+
+			// request size of droplist, should stay inside window
+			// call returns actual height, might be smaller than request_height
+			request_height = droplist.request_size(scr_size(this->size.w, min(request_height, max(height_above, height_below))) ).h;
+
+			gui_component_t::set_size( scr_size(this->size.w, (closed_size.h + D_V_SPACE) / 2 + droplist.get_size().h) );
+			// open below if enough space or more space than above
+			opened_above = request_height > height_below  &&  height_below < height_above;
+			set_pos(get_pos());
 
 			int sel = droplist.get_selection();
 			if((uint32)sel>=(uint32)droplist.get_count()  ||  !droplist.get_element(sel)->is_valid()) {
@@ -145,12 +155,8 @@ DBG_MESSAGE("event","HOWDY!");
 		}
 		else if (droplist.is_visible()) {
 			event_t ev2 = *ev;
-			if(  opened_at_bottom  ) {
-				translate_event(&ev2, 0, D_V_SPACE/2 + droplist.get_size().h );
-			}
-			else {
-				translate_event(&ev2, 0, -D_EDIT_HEIGHT - D_V_SPACE/2);
-			}
+			scr_coord diff = droplist.get_pos() - gui_component_t::get_pos();
+			translate_event(&ev2, -diff.x, -diff.y);
 
 			if( droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)  ) {
 				int old_selection = droplist.get_selection();
@@ -183,7 +189,7 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 	}
 	else {
 		// finally handle textinput
-		gui_scrolled_list_t::scrollitem_t *item = droplist.get_element(droplist.get_selection());
+		gui_scrolled_list_t::scrollitem_t *item = droplist.get_selected_item();
 		if(  item==NULL  ||  item->is_editable()) {
 			event_t ev2 = *ev;
 			translate_event(&ev2, -textinp.get_pos().x, -textinp.get_pos().y);
@@ -215,8 +221,9 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",p.i);
  */
 void gui_combobox_t::draw(scr_coord offset)
 {
+	last_draw_offset = offset;
 	// text changed? Then update it
-	gui_scrolled_list_t::scrollitem_t *item = droplist.get_element( droplist.get_selection() );
+	gui_scrolled_list_t::scrollitem_t *item = droplist.get_selected_item();
 	if(  item  &&  item->is_valid()  &&  item->is_editable()  &&  strncmp( item->get_text(), old_editstr, 127 )  ) {
 		reset_selected_item_name();
 	}
@@ -232,6 +239,23 @@ void gui_combobox_t::draw(scr_coord offset)
 		bt_prev.draw(offset);
 		bt_next.draw(offset);
 	}
+}
+
+
+void gui_combobox_t::enable()
+{
+	set_focusable(true);
+	bt_next.enable();
+	bt_prev.enable();
+	textinp.set_color(SYSCOL_EDIT_TEXT);
+}
+
+void gui_combobox_t::disable()
+{
+	set_focusable(false);
+	bt_next.disable();
+	bt_prev.disable();
+	textinp.set_color(SYSCOL_EDIT_TEXT_DISABLED);
 }
 
 /**
@@ -262,12 +286,12 @@ void gui_combobox_t::set_selection(int s)
  */
 void gui_combobox_t::rename_selected_item()
 {
-	gui_scrolled_list_t::scrollitem_t *item = droplist.get_element(droplist.get_selection());
+	gui_scrolled_list_t::scrollitem_t *item = droplist.get_selected_item();
 	// if name was not changed in the meantime, we can rename it
 	if(  item  &&  item->is_valid()  &&  item->is_editable()  ) {
 		const char *current_str = ((gui_scrolled_list_t::const_text_scrollitem_t *)item)->get_text();
 		if(  strncmp( current_str, old_editstr, 127 )==0  &&  strncmp( current_str, editstr, 127 )!=0  ) {
-			((gui_scrolled_list_t::const_text_scrollitem_t *)item)->set_text(editstr);
+			item->set_text(editstr);
 		}
 	}
 }
@@ -275,7 +299,7 @@ void gui_combobox_t::rename_selected_item()
 
 void gui_combobox_t::reset_selected_item_name()
 {
-	gui_scrolled_list_t::scrollitem_t *item = droplist.get_element(droplist.get_selection());
+	gui_scrolled_list_t::scrollitem_t *item = droplist.get_selected_item();
 	if(  item==NULL  ) {
 		editstr[0] = 0;
 		textinp.set_text( editstr, 0  );
@@ -313,23 +337,24 @@ void gui_combobox_t::set_pos(scr_coord pos_par)
 {
 	gui_component_t::set_pos( pos_par );
 
-	droplist.set_pos( scr_coord( pos_par.x, pos_par.y + textinp.get_size().h ) );
+	if(  opened_above  ) {
+		droplist.set_pos( gui_component_t::get_pos() + scr_size( (get_size().w -droplist.get_size().w)/2, D_V_SPACE/4 - droplist.get_size().h) );
+	}
+	else {
+		droplist.set_pos( gui_component_t::get_pos() + scr_size( (get_size().w -droplist.get_size().w)/2, textinp.get_size().h) );
+	}
 }
 
 
 void gui_combobox_t::set_size(scr_size size)
 {
 	closed_size = size;
-
 	gui_component_t::set_size( size );
 
-	textinp.set_size( scr_size( size.w - bt_prev.get_size().w - bt_next.get_size().w - 2 * D_H_SPACE, closed_size.h-D_V_SPACE/2  ) );
-	if(  opened_at_bottom  ) {
-		droplist.set_pos( gui_component_t::get_pos() + scr_size(0,D_V_SPACE/4 - droplist.get_size().h) );
-	}
-	else {
-		droplist.set_pos( gui_component_t::get_pos() + scr_size(0,textinp.get_size().h) );
-	}
+	droplist.request_size(scr_size(this->size.w, droplist.get_size().h));
+
+	textinp.set_size( scr_size( size.w - bt_prev.get_size().w - bt_next.get_size().w - D_H_SPACE, closed_size.h-D_V_SPACE/2  ) );
+	set_pos(get_pos());
 
 	bt_prev.set_pos( scr_coord(0,(size.h-D_POS_BUTTON_HEIGHT)/2) );
 	textinp.align_to( &bt_prev, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( pos.x + D_H_SPACE / 2, pos.y ) );
@@ -347,6 +372,39 @@ void gui_combobox_t::set_max_size(scr_size max)
 	droplist.request_size( scr_size( size.w, max_size.h - closed_size.h ) );
 	if(  droplist.is_visible()  ) {
 		gui_component_t::set_size( droplist.get_size() + scr_size( 0, closed_size.h ) );
-		droplist.adjust_scrollbar();
 	}
+}
+
+
+scr_size gui_combobox_t::get_min_size() const
+{
+	scr_size bl = bt_prev.get_min_size();
+	scr_size ti = textinp.get_min_size();
+	scr_size sl = droplist.get_min_size();
+	scr_size br = bt_next.get_min_size();
+
+	if (sl.w == scr_size::inf.w) {
+		// contains editable items, use min-width of input
+		return scr_size(bl.w + ti.w + br.w + D_H_SPACE, max(max(bl.h, ti.h), br.h));
+	}
+	else {
+		return scr_size(max(bl.w + br.w + D_H_SPACE, sl.w), max(max(bl.h, ti.h), br.h));
+	}
+}
+
+
+scr_size gui_combobox_t::get_max_size() const
+{
+	scr_size msize = get_min_size();
+	msize.w = droplist.get_max_size().w;
+
+	return msize;
+}
+
+
+void gui_combobox_t::rdwr( loadsave_t *file )
+{
+	sint32 i = get_selection();
+	file->rdwr_long(i);
+	set_selection(i);
 }
