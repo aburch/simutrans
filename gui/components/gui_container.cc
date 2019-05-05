@@ -7,7 +7,7 @@
 
 /**
  * A container for other gui_components. Is itself
- * a gui_component, and can therefor be nested.
+ * a gui_component, and can therefore be nested.
  *
  * @author Hj. Malthaner
  * @date 03-Mar-01

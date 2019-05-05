@@ -69,10 +69,10 @@ station_building_select_t::station_building_select_t(const building_desc_t *desc
  * This method is called if an action is triggered
  * @author V. Meyer
  */
-bool station_building_select_t::action_triggered( gui_action_creator_t *komp, value_t v)
+bool station_building_select_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
 	for(int i=0; i<4; i++) {
-		if(komp == &actionbutton[i]  ||  v.i == i) {
+		if(comp == &actionbutton[i]  ||  v.i == i) {
 			static cbuffer_t default_str;
 			default_str.clear();
 			default_str.printf("%s,%i", desc->get_name(), i );

@@ -132,25 +132,25 @@ enlarge_map_frame_t::~enlarge_map_frame_t()
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v)
+bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {
-	if(komp==&inp_x_size) {
+	if(comp==&inp_x_size) {
 		sets->set_size_x( v.i );
 		inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
 		update_preview();
 	}
-	else if(komp==&inp_y_size) {
+	else if(comp==&inp_y_size) {
 		sets->set_size_y( v.i );
 		inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
 		update_preview();
 	}
-	else if(komp==&inp_number_of_towns) {
+	else if(comp==&inp_number_of_towns) {
 		sets->set_city_count( v.i );
 	}
-	else if(komp==&inp_town_size) {
+	else if(comp==&inp_town_size) {
 		sets->set_mean_citizen_count( v.i );
 	}
-	else if(komp==&start_button) {
+	else if(comp==&start_button) {
 		destroy_all_win( true );
 		welt->enlarge_map(sets, NULL);
 	}

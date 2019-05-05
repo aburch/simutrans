@@ -968,7 +968,7 @@ scr_size reliefkarte_t::get_max_size() const
 
 void reliefkarte_t::calc_map_size()
 {
-	set_size( get_max_size() ); // of the gui_komponete to adjust scroll bars
+	set_size( get_max_size() ); // of the gui_component to adjust scroll bars
 	needs_redraw = true;
 }
 

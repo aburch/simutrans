@@ -2,7 +2,7 @@
 #define GUI_BUILDING_H
 
 
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "gui_action_creator.h"
 #include "../../tpl/vector_tpl.h"
 

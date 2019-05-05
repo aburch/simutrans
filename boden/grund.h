@@ -782,7 +782,7 @@ public:
 	 * A new way is built with the given ribis. Registered and assigned to the builder.
 	 * @param weg	    der neue Weg
 	 * @param ribi	    die neuen ribis
-	 * @param sp	    Player building the way
+	 * @param player    Player building the way
 	 *
 	 * @author V. Meyer
 	 */

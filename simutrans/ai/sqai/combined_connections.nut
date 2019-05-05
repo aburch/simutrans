@@ -165,8 +165,8 @@ class amphibious_pathfinder_t extends astar
 						continue;
 					}
 					// estimate moving cost
-					local move = ((dir.double(d) & cnode.dir) != 0) ? /* straight */ 14 : /* curve */ 10
-					local dist   = 10*estimate_distance(to)
+					local move   = cnode.is_straight_move(d)  ?  cost_straight  :  cost_curve
+					local dist   = estimate_distance(to)
 
 					local cost   = cnode.cost + move
 					local weight = cost + dist
@@ -186,7 +186,7 @@ class amphibious_pathfinder_t extends astar
 						continue
 					}
 					local move   = 333;
-					local dist   = 10*estimate_distance(to)
+					local dist   = estimate_distance(to)
 					local weight = cnode.cost + dist
 
 					local node = ab_node(to, cnode, cnode.cost + move, weight, dist, d, 0x10)
@@ -202,14 +202,14 @@ class amphibious_pathfinder_t extends astar
 					}
 					if (cnode.previous) {
 						local fromfrom = tile_x(cnode.previous.x, cnode.previous.y, cnode.previous.z)
-						// want to build station here
-						if (fromfrom == null  ||  !fromfrom.is_empty()  ||  fromfrom.get_slope()!=0) {
+						// want to build station here with one connecting road
+						if (fromfrom == null  ||  !fromfrom.is_empty()  ||  fromfrom.get_slope()!=0  ||  cnode.previous.previous == null) {
 							continue
 						}
 					}
 
 					local move   = 333;
-					local dist   = 10*estimate_distance(to)
+					local dist   = estimate_distance(to)
 					local weight = cnode.cost + dist
 
 					local node = ab_node(to, cnode, cnode.cost + move, weight, dist, d, 0x0f)
@@ -222,7 +222,6 @@ class amphibious_pathfinder_t extends astar
 	function process_node_to_land(cnode, from)
 	{
 		local pos = coord(cnode.x, cnode.y)
-		//label_x.create(cnode, our_player, "n2l")
 
 		for(local d0 = 1; d0<16; d0*=2) {
 			for (local d = d0; d <= 3*d0; d+=2*d0) {
@@ -234,7 +233,7 @@ class amphibious_pathfinder_t extends astar
 					if (to  &&  to.is_empty()  &&  to.get_slope()==0) {
 						// can place station here
 						local move   = 17
-						local dist   = 10*estimate_distance(to)
+						local dist   = estimate_distance(to)
 
 						local cost   = cnode.cost + move
 						local weight = cost + dist

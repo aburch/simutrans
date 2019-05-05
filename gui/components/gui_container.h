@@ -20,7 +20,7 @@
 #include "../../simdebug.h"
 #include "../../simevent.h"
 #include "../../tpl/vector_tpl.h"
-#include "gui_komponente.h"
+#include "gui_component.h"
 
 class gui_container_t : virtual public gui_component_t
 {

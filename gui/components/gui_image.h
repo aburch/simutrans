@@ -12,7 +12,7 @@
 
 #include "../../display/simimg.h"
 #include "../../display/simgraph.h"
-#include "gui_komponente.h"
+#include "gui_component.h"
 
 
 

@@ -428,7 +428,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 }
 
 
-haltestelle_t::haltestelle_t(koord k, player_t* player_)
+haltestelle_t::haltestelle_t(koord k, player_t* player)
 {
 	self = halthandle_t(this);
 	assert( !alle_haltestellen.is_contained(self) );
@@ -439,7 +439,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player_)
 	last_loading_step = welt->get_steps();
 
 	this->init_pos = k;
-	owner_p = player_;
+	owner = player;
 
 	enables = NOT_ENABLED;
 	// force total re-routing
@@ -964,10 +964,10 @@ bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
  */
 void haltestelle_t::new_month()
 {
-	if(  welt->get_active_player()==owner_p  &&  status_color==color_idx_to_rgb(COL_RED)  ) {
+	if(  welt->get_active_player()==owner  &&  status_color==color_idx_to_rgb(COL_RED)  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("%s\nis crowded."), get_name() );
-		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|owner_p->get_player_nr(), IMG_EMPTY );
+		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|owner->get_player_nr(), IMG_EMPTY );
 		enables &= (PAX|POST|WARE);
 	}
 
@@ -2294,7 +2294,7 @@ sint64 haltestelle_t::calc_maintenance() const
 void haltestelle_t::change_owner( player_t *player )
 {
 	// check if already public
-	if(  owner_p == player  ) {
+	if(  owner == player  ) {
 		return;
 	}
 
@@ -2368,7 +2368,7 @@ void haltestelle_t::change_owner( player_t *player )
 	}
 
 	// now finally change owner
-	owner_p = player;
+	owner = player;
 	rebuild_connections();
 	rebuild_linked_connections();
 
@@ -2388,7 +2388,7 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 		return;
 	}
 
-	halt_merged->change_owner( owner_p );
+	halt_merged->change_owner( owner );
 
 	// add statistics
 	for(  int month=0;  month<MAX_MONTHS;  month++  ) {
@@ -2622,7 +2622,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->is_saving()) {
-		owner_n = welt->sp2num( owner_p );
+		owner_n = welt->sp2num( owner );
 	}
 
 	if(file->get_version()<99008) {
@@ -2638,7 +2638,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->is_loading()) {
-		owner_p = welt->get_player(owner_n);
+		owner = welt->get_player(owner_n);
 		k.rdwr( file );
 		while(k!=koord3d::invalid) {
 			grund_t *gr = welt->lookup(k);

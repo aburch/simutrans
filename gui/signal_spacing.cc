@@ -1,6 +1,6 @@
 /*
  * Dialogue to set the signal spacing, when CTRL+clicking a signal on toolbar
- * Used by tool_roadsign_t
+ * Used by tool_build_roadsign_t
  */
 
 #include "gui_frame.h"
@@ -48,16 +48,16 @@ signal_spacing_frame_t::signal_spacing_frame_t(player_t *player_, tool_build_roa
 	set_windowsize(get_min_windowsize() );
 }
 
-bool signal_spacing_frame_t::action_triggered( gui_action_creator_t *komp, value_t)
+bool signal_spacing_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 {
-	if( komp == &signal_spacing_inp ) {
+	if( comp == &signal_spacing_inp ) {
 		signal_spacing = signal_spacing_inp.get_value();
 	}
-	else if( komp == &remove_button ) {
+	else if( comp == &remove_button ) {
 		remove = !remove;
 		remove_button.pressed = remove;
 	}
-	else if( komp == &replace_button ) {
+	else if( comp == &replace_button ) {
 		replace = !replace;
 		replace_button.pressed = replace;
 	}

@@ -285,7 +285,7 @@ class tramdepot_t : public bahndepot_t
 {
 public:
 	tramdepot_t(loadsave_t *file):bahndepot_t(file) {}
-	tramdepot_t(koord3d pos,player_t *player_, const building_tile_desc_t *t): bahndepot_t(pos,player_,t) {}
+	tramdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {}
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::tramline; }
 

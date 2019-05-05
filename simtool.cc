@@ -3499,7 +3499,7 @@ const char *tool_build_station_t::tool_station_building_aux(player_t *player, bo
 	}
 DBG_MESSAGE("tool_station_building_aux()", "building mail office/station building on square %d,%d", k.x, k.y);
 
-	// Player pays for the construction
+	// Player player pays for the construction
 	// but we try to extend stations of Player new_owner that may be the public player
 	player_t *new_owner = extend_public_halt ? welt->get_public_player() : player;
 
@@ -4612,7 +4612,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 		}
 
 		default:
-			dbg->warning("tool_station_t::work()","tool called for illegal desc \"%\"", default_param );
+			dbg->warning("tool_build_station_t::work()","tool called for illegal desc \"%\"", default_param );
 			msg = "Illegal station tool";
 	}
 	return msg;
@@ -5290,7 +5290,7 @@ const char *tool_build_depot_t::work( player_t *player, koord3d pos )
 		case tram_wt:
 			return tool_build_depot_t::tool_depot_aux(player, pos, desc, track_wt);
 		default:
-			dbg->warning("tool_depot()","called with unknown desc %s",desc->get_name() );
+			dbg->warning("tool_build_depot()","called with unknown desc %s",desc->get_name() );
 			return "Unknown depot object";
 	}
 	return NULL;
@@ -5352,7 +5352,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 	else if(  default_param[1]=='A'  ) {
 		if(  desc->get_type()!=building_desc_t::attraction_land  &&  desc->get_type()!=building_desc_t::attraction_city  ) {
 			// auto rotation only valid for city buildings
-			rotation = stadt_t::orient_city_building( k, desc );
+			rotation = stadt_t::orient_city_building( k, desc, desc->get_size() );
 			if(  rotation < 0 ) {
 				return NOTICE_UNSUITABLE_GROUND;
 			}

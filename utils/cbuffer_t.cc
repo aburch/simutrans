@@ -179,7 +179,7 @@ static void get_format_mask(const char* format, char *typemask, int max_params, 
 		for(uint16 i=0; i<found; i++) {
 			if (typemask[i]==0) {
 				// unspecified
-				error.printf("Positional parameter %d not specified.", i+1);
+				error.printf("Positional parameter %d not specified.", i);
 				return;
 			}
 		}

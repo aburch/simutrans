@@ -48,9 +48,9 @@ static char const* const version[] =
 };
 
 
-bool settings_general_stats_t::action_triggered(gui_action_creator_t *komp, value_t v)
+bool settings_general_stats_t::action_triggered(gui_action_creator_t *comp, value_t v)
 {
-	assert( komp==&savegame ); (void)komp;
+	assert( comp==&savegame ); (void)comp;
 
 	if(  v.i==-1  ) {
 		savegame.set_selection( 0 );
@@ -575,13 +575,13 @@ void settings_climates_stats_t::read(settings_t* const sets)
 }
 
 
-bool settings_climates_stats_t::action_triggered(gui_action_creator_t *komp, value_t)
+bool settings_climates_stats_t::action_triggered(gui_action_creator_t *comp, value_t)
 {
 	welt_gui_t *welt_gui = dynamic_cast<welt_gui_t *>(win_get_magic( magic_welt_gui_t ));
 	read( local_sets );
 	uint i = 0;
 	FORX(slist_tpl<gui_numberinput_t*>, const n, numinp, ++i) {
-		if (n == komp && i < 3 && welt_gui) {
+		if (n == comp && i < 3 && welt_gui) {
 			// update world preview
 			welt_gui->update_preview();
 		}

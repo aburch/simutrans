@@ -313,7 +313,7 @@ private:
 	 */
 	slist_tpl<fabrik_t *> fab_list;
 
-	player_t *owner_p;
+	player_t *owner;
 	static karte_ptr_t welt;
 
 	/**
@@ -422,7 +422,7 @@ public:
 
 	void rotate90( const sint16 y_size );
 
-	player_t *get_owner() const {return owner_p;}
+	player_t *get_owner() const {return owner;}
 
 	// just for info so far
 	sint64 calc_maintenance() const;

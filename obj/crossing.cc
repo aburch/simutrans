@@ -42,14 +42,14 @@ crossing_t::crossing_t(loadsave_t* const file) : obj_no_info_t()
 }
 
 
-crossing_t::crossing_t(player_t* const player_, koord3d const pos, crossing_desc_t const* const desc, uint8 const ns) : obj_no_info_t(pos)
+crossing_t::crossing_t(player_t* const player, koord3d const pos, crossing_desc_t const* const desc, uint8 const ns) : obj_no_info_t(pos)
 {
 	this->ns = ns;
 	this->desc = desc;
 	logic = NULL;
 	state = crossing_logic_t::CROSSING_INVALID;
 	image = foreground_image = IMG_EMPTY;
-	set_owner( player_ );
+	set_owner( player );
 }
 
 

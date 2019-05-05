@@ -54,9 +54,9 @@ label_info_t::label_info_t(label_t* l) :
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool label_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool label_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
-	if(komp == &input  &&  welt->get_active_player()==label->get_owner()) {
+	if(comp == &input  &&  welt->get_active_player()==label->get_owner()) {
 		// check owner to change text
 		grund_t *gd = welt->lookup(label->get_pos());
 		if(  strcmp(gd->get_text(),edit_name)  ) {
