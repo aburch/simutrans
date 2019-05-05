@@ -213,10 +213,10 @@ public:
 	static ribi backward(ribi x) { return backwards[x]; }
 
 	/**
-	* Same as rueckwaerts, but for single directions only.
-	* Effectively does bit rotation. Avoids lookup table backwards.
-	* @returns rueckwaerts(x) for single ribis, 0 for x==0.
-	*/
+	 * Same as rueckwaerts, but for single directions only.
+	 * Effectively does bit rotation. Avoids lookup table backwards.
+	 * @returns rueckwaerts(x) for single ribis, 0 for x==0.
+	 */
 	static inline ribi reverse_single(ribi x) {
 		return ((x | x << 4) >> 2) & 0xf;
 	}

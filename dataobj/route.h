@@ -103,7 +103,7 @@ public:
 	uint32 index_of(const koord3d &k) const { return (uint32)(route.index_of(k)); }
 
 	/**
-	 * return Coordinate at index @p n.
+	 * @return Coordinate at index @p n.
 	 * @author Hj. Malthaner
 	 */
 	const koord3d& at(const uint16 n) const { return route[n]; }
@@ -135,13 +135,13 @@ public:
 	inline void append(koord3d k) { route.append(k); }
 
 	/**
-	 * Removes all tiles at indices >@p i.
+	 * removes all tiles from the route
 	 * @author prissi
 	 */
 	void clear() { route.clear(); }
 
 	/**
-	 * removes all tiles behind this position
+	 * Removes all tiles at indices >@p i.
 	 * @author prissi
 	 */
 	void remove_koord_from(uint32 i);
@@ -162,10 +162,10 @@ public:
 	enum find_route_flags { none, private_car_checker, choose_signal };
 
 	/**
-	* Finds route to a location, where @p tdriver-> is_target becomes true.
-	* @param max_depth is the maximum length of a route
-	* @author prissi
-	*/
+	 * Finds route to a location, where @p tdriver-> is_target becomes true.
+	 * @param max_depth is the maximum length of a route
+	 * @author prissi
+	 */
 	bool find_route(karte_t *w, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 axle_load, sint32 max_tile_len, uint32 total_weight, uint32 max_depth, bool is_tall, find_route_flags flags = none);
 
 	/**

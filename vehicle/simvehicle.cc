@@ -1366,6 +1366,7 @@ void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 			pos_next = r.at(route_index);
 		}
 		else {
+			// already at end of route
 			check_for_finish = true;
 		}
 		set_pos(r.at(start_route_index));
