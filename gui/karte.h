@@ -1,7 +1,7 @@
 #ifndef gui_karte_h
 #define gui_karte_h
 
-#include "components/gui_komponente.h"
+#include "components/gui_component.h"
 #include "../halthandle_t.h"
 #include "../simline.h"
 #include "../convoihandle_t.h"
@@ -88,10 +88,10 @@ private:
 		uint8 end_offset;
 		bool start_diagonal;
 		line_segment_t() {}
-		line_segment_t( koord s, uint8 so, koord e, uint8 eo, schedule_t *f, player_t *player_, uint8 cc, bool diagonal ) {
+		line_segment_t( koord s, uint8 so, koord e, uint8 eo, schedule_t *f, player_t *p, uint8 cc, bool diagonal ) {
 			schedule = f;
 			waytype = f->get_waytype();
-			player = player_;
+			player = p;
 			colorcount = cc;
 			start_diagonal = diagonal;
 			if(  s.x<e.x  ||  (s.x==e.x  &&  s.y<e.y)  ) {

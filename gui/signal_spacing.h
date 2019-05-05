@@ -1,6 +1,6 @@
 /*
  * Dialogue to set the signal spacing, when CTRL+clicking a signal on toolbar
- * Used by tool_roadsign_t
+ * Used by tool_build_roadsign_t
  */
 
 #ifndef signal_spacing_h

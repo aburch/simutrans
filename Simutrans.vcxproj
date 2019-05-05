@@ -140,7 +140,7 @@
     <ClCompile Include="gui\components\gui_container.cc" />
     <ClCompile Include="gui\components\gui_convoiinfo.cc" />
     <ClCompile Include="gui\components\gui_image.cc" />
-    <ClCompile Include="gui\components\gui_komponente.cc" />
+    <ClCompile Include="gui\components\gui_component.cc" />
     <ClCompile Include="gui\components\gui_map_preview.cc" />
     <ClCompile Include="gui\gui_theme.cc" />
     <ClCompile Include="gui\headquarter_info.cc" />
@@ -564,7 +564,7 @@
     <ClInclude Include="gui\gui_frame.h" />
     <ClInclude Include="gui\components\gui_image.h" />
     <ClInclude Include="gui\components\gui_image_list.h" />
-    <ClInclude Include="gui\components\gui_komponente.h" />
+    <ClInclude Include="gui\components\gui_component.h" />
     <ClInclude Include="gui\components\gui_label.h" />
     <ClInclude Include="gui\components\gui_numberinput.h" />
     <ClInclude Include="gui\components\gui_scrollbar.h" />

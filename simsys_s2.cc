@@ -30,7 +30,7 @@ extern char **__argv;
 #include "simdebug.h"
 #include "dataobj/environment.h"
 #include "gui/simwin.h"
-#include "gui/components/gui_komponente.h"
+#include "gui/components/gui_component.h"
 #include "gui/components/gui_textinput.h"
 
 // Maybe Linux is not fine too, had critical bugs...

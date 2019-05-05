@@ -389,16 +389,16 @@ void city_info_t::draw(scr_coord pos, scr_size size)
 }
 
 
-bool city_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool city_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	static char param[16];
-	if(  komp==&allow_growth  ) {
+	if(  comp==&allow_growth  ) {
 		sprintf(param,"g%hi,%hi,%hi", city->get_pos().x, city->get_pos().y, (short)(!city->get_citygrowth()) );
 		tool_t::simple_tool[TOOL_CHANGE_CITY]->set_default_param( param );
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_CITY], welt->get_public_player());
 		return true;
 	}
-	if(  komp==&name_input  ) {
+	if(  comp==&name_input  ) {
 		// send rename command if necessary
 		rename_city();
 	}

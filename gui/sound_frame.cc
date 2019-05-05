@@ -95,37 +95,37 @@ sound_frame_t::sound_frame_t()
 }
 
 
-bool sound_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
+bool sound_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 {
-	if (komp == &next_song_button) {
+	if (comp == &next_song_button) {
 		midi_stop();
 		midi_next_track();
 		check_midi();
 		update_song_name();
 	}
-	else if (komp == &previous_song_button) {
+	else if (comp == &previous_song_button) {
 		midi_stop();
 		midi_last_track();
 		check_midi();
 		update_song_name();
 	}
-	else if (komp == &shuffle_song_button) {
+	else if (comp == &shuffle_song_button) {
 		sound_set_shuffle_midi( !sound_get_shuffle_midi() );
 		shuffle_song_button.pressed = sound_get_shuffle_midi();
 	}
-	else if (komp == &sound_mute_button) {
+	else if (comp == &sound_mute_button) {
 		sound_set_mute( !sound_mute_button.pressed );
 		sound_mute_button.pressed = sound_get_mute();
 	}
-	else if (komp == &music_mute_button) {
+	else if (comp == &music_mute_button) {
 		midi_set_mute( !music_mute_button.pressed );
 		music_mute_button.pressed = midi_get_mute();
 		previous_song_button.enable(!music_mute_button.pressed);
 	}
-	else if (komp == &sound_volume_scrollbar) {
+	else if (comp == &sound_volume_scrollbar) {
 		sound_set_global_volume(p.i);
 	}
-	else if (komp == &music_volume_scrollbar) {
+	else if (comp == &music_volume_scrollbar) {
 		sound_set_midi_volume(p.i);
 	}
 	return true;

@@ -187,13 +187,13 @@ void simlinemgmt_t::new_month()
 }
 
 
-linehandle_t simlinemgmt_t::create_line(int ltype, player_t * player_)
+linehandle_t simlinemgmt_t::create_line(int ltype, player_t * player)
 {
 	if(ltype < simline_t::truckline  ||  ltype > simline_t::narrowgaugeline) {
 			dbg->fatal( "simlinemgmt_t::create_line()", "Cannot create default line!" );
 	}
 
-	simline_t * line = new simline_t(player_, (simline_t::linetype)ltype);
+	simline_t * line = new simline_t(player, (simline_t::linetype)ltype);
 
 	add_line( line->get_handle() );
 	sort_lines();
@@ -201,9 +201,9 @@ linehandle_t simlinemgmt_t::create_line(int ltype, player_t * player_)
 }
 
 
-linehandle_t simlinemgmt_t::create_line(int ltype, player_t * player_, schedule_t * schedule)
+linehandle_t simlinemgmt_t::create_line(int ltype, player_t * player, schedule_t * schedule)
 {
-	linehandle_t line = create_line( ltype, player_ );
+	linehandle_t line = create_line( ltype, player );
 	if(schedule) {
 		line->get_schedule()->copy_from(schedule);
 	}

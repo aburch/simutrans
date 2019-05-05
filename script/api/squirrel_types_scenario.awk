@@ -56,6 +56,7 @@ BEGIN {
 	export_types["convoy_x::is_withdrawn"] = "bool()"
 	export_types["convoy_x::is_in_depot"] = "bool()"
 	export_types["convoy_x::destroy"] = "string(player_x)"
+	export_types["convoy_x::is_schedule_editor_open"] = "bool()"
 	export_types["convoy_x::calc_max_speed"] = "integer(integer, integer, integer)"
 	export_types["convoy_x::speed_to_tiles_per_month"] = "integer(integer)"
 	export_types["factory_x::is_valid"] = "bool()"

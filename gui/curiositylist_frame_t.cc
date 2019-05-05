@@ -76,14 +76,14 @@ void curiositylist_frame_t::fill_list()
  * This method is called if an action is triggered
  * @author Markus Weber/Volker Meyer
  */
-bool curiositylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool curiositylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
-	if(komp == &sortedby) {
+	if(comp == &sortedby) {
 		curiositylist_stats_t::sortby = (curiositylist::sort_mode_t) ((curiositylist_stats_t::sortby + 1) % curiositylist::SORT_MODES);
 		sortedby.set_text(sort_text[curiositylist_stats_t::sortby]);
 		scrolly.sort(0);
 	}
-	else if(komp == &sorteddir) {
+	else if(comp == &sorteddir) {
 		curiositylist_stats_t::sortreverse = !curiositylist_stats_t::sortreverse;
 		sorteddir.set_text( curiositylist_stats_t::sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 		scrolly.sort(0);

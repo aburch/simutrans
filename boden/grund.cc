@@ -1947,7 +1947,7 @@ int grund_t::get_max_speed() const
 }
 
 
-bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t::ribi rem)
+bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t::ribi rem)
 {
 	// check, if the way must be totally removed?
 	weg_t *weg = get_weg(wt);
@@ -1957,7 +1957,7 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 		const koord here = pos.get_2d();
 
 		// stops
-		if(flags&is_halt_flag  &&  (get_halt()->get_owner()==player_  || player_==welt->get_public_player())) {
+		if(flags&is_halt_flag  &&  (get_halt()->get_owner()==player  || player==welt->get_public_player())) {
 			bool remove_halt = get_typ()!=boden;
 			// remove only if there is no other way
 			if(get_weg_nr(1)==NULL) {
@@ -1978,7 +1978,7 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 #endif
 			}
 			if (remove_halt) {
-				if (!haltestelle_t::remove(player_, pos)) {
+				if (!haltestelle_t::remove(player, pos)) {
 					return false;
 				}
 			}
@@ -2046,7 +2046,7 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 					if((flags&has_way2)==0) {
 						if (add==ribi_t::none) {
 							// last way was belonging to this tunnel
-							tunnel->cleanup(player_);
+							tunnel->cleanup(player);
 							delete tunnel;
 						}
 					}
@@ -2074,7 +2074,7 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 				// make tunnel portals to normal ground
 				if (get_typ()==tunnelboden  &&  (flags&has_way1)==0) {
 					// remove remaining objs
-					obj_loesche_alle( player_ );
+					obj_loesche_alle( player );
 					// set to normal ground
 					welt->access(here)->kartenboden_setzen( new boden_t( pos, slope ) );
 					// now this is already deleted !
@@ -2089,7 +2089,7 @@ DBG_MESSAGE("tool_wayremover()","change remaining way to ribi %d",add);
 		}
 		// we have to pay?
 		if(costs) {
-			player_t::book_construction_costs(player_, costs, here, finance_wt);
+			player_t::book_construction_costs(player, costs, here, finance_wt);
 		}
 	}
 	return true;

@@ -1,4 +1,4 @@
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../display/scr_coord.h"
 
 #include "../../simworld.h"

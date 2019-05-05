@@ -64,7 +64,7 @@ ki_kontroll_t::ki_kontroll_t() :
 
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
 
-		const player_t *const player_ = welt->get_player(i);
+		const player_t *const player = welt->get_player(i);
 
 		// activate player buttons
 		// .. not available for the two first players (first human and second public)
@@ -73,7 +73,7 @@ ki_kontroll_t::ki_kontroll_t() :
 			player_active[i-2].init(button_t::square_state, "");
 			player_active[i-2].add_listener(this);
 			player_active[i-2].set_rigid(true);
-			player_active[i-2].set_visible(player_  &&  player_->get_ai_id()!=player_t::HUMAN  &&  player_tools_allowed);
+			player_active[i-2].set_visible(player  &&  player->get_ai_id()!=player_t::HUMAN  &&  player_tools_allowed);
 			add_component( player_active+i-2 );
 		}
 		else {
@@ -87,11 +87,11 @@ ki_kontroll_t::ki_kontroll_t() :
 		add_component(player_change_to+i);
 
 		// Allow player change to human and public only (no AI)
-		player_change_to[i].set_visible(player_  &&  player_change_allowed);
+		player_change_to[i].set_visible(player  &&  player_change_allowed);
 
 		// Prepare finances button
 		player_get_finances[i].init( button_t::box | button_t::flexible, "");
-		player_get_finances[i].background_color = PLAYER_FLAG | color_idx_to_rgb((player_ ? player_->get_player_color1():i*8)+4);
+		player_get_finances[i].background_color = PLAYER_FLAG | color_idx_to_rgb((player ? player->get_player_color1():i*8)+4);
 		player_get_finances[i].add_listener(this);
 
 		// Player type selector, Combobox
@@ -115,8 +115,8 @@ ki_kontroll_t::ki_kontroll_t() :
 
 		add_component( player_get_finances+i );
 		add_component( player_select+i );
-		if(  player_ != NULL  ) {
-			player_get_finances[i].set_text( player_->get_name() );
+		if(  player != NULL  ) {
+			player_get_finances[i].set_text( player->get_name() );
 			player_select[i].set_visible(false);
 		}
 		else {
@@ -126,7 +126,7 @@ ki_kontroll_t::ki_kontroll_t() :
 
 		// password/locked button
 		player_lock[i] = new_component<password_button_t>();
-		player_lock[i]->background_color = color_idx_to_rgb((player_ && player_->is_locked()) ? (player_->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN);
+		player_lock[i]->background_color = color_idx_to_rgb((player && player->is_locked()) ? (player->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN);
 		player_lock[i]->enable( welt->get_player(i) );
 		player_lock[i]->add_listener(this);
 		player_lock[i]->set_rigid(true);

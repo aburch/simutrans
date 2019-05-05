@@ -146,25 +146,25 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 
 
 
-bool curiosity_edit_frame_t::action_triggered( gui_action_creator_t *komp,value_t e)
+bool curiosity_edit_frame_t::action_triggered( gui_action_creator_t *comp,value_t e)
 {
 	// only one chain can be shown
-	if(  komp==&bt_city_attraction  ) {
+	if(  comp==&bt_city_attraction  ) {
 		bt_city_attraction.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}
-	else if(  komp==&bt_land_attraction  ) {
+	else if(  comp==&bt_land_attraction  ) {
 		bt_land_attraction.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}
-	else if(  komp==&bt_monuments  ) {
+	else if(  comp==&bt_monuments  ) {
 		bt_monuments.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}
-	else if( komp == &cb_rotation) {
+	else if( comp == &cb_rotation) {
 		change_item_info( scl.get_selection() );
 	}
-	return extend_edit_gui_t::action_triggered(komp,e);
+	return extend_edit_gui_t::action_triggered(comp,e);
 }
 
 

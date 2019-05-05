@@ -66,10 +66,12 @@ class road_connector_t extends manager_t
 					local err = command_x.build_station(pl, c_start, planned_station )
 					if (err) {
 						print("Failed to build station at " + coord_to_string(c_start))
+						gui.add_message_at(pl, "Failed to build road station at  " + coord_to_string(c_start) + "\n" + err, c_start)
 						return error_handler()
 					}
 					local err = command_x.build_station(pl, c_end, planned_station )
 					if (err) {
+						gui.add_message_at(pl "Failed to build road station at  " + coord_to_string(c_end) + "\n" + err, c_end)
 						print("Failed to build station at " + coord_to_string(c_end))
 						return error_handler()
 					}
@@ -322,7 +324,7 @@ class depot_pathfinder extends astar_builder
 			for (local i = 1; i<route.len(); i++) {
 				local err = command_x.build_way(our_player, route[i-1], route[i], way, false )
 				if (err) {
-					label_x.create(node, our_player, "<" + err + ">")
+					gui.add_message_at(our_player, "Failed to build road from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 					return { err =  err }
 				}
 			}

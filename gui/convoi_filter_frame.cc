@@ -168,38 +168,38 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
  * This method is called if an action is triggered
  * @author V. Meyer
  */
-bool convoi_filter_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool convoi_filter_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	for( int i = 0; i < FILTER_BUTTONS; i++) {
-		if(komp == filter_buttons + i) {
+		if(comp == filter_buttons + i) {
 			filter_buttons[i].pressed ^= 1;
 			set_filter( filter_buttons_types[i], !get_filter(filter_buttons_types[i]) );
 			sort_list();
 			return true;
 		}
 	}
-	if(komp == &ware_alle) {
+	if(comp == &ware_alle) {
 		FOR( slist_tpl<ware_item_t *>, wi, all_ware ) {
 			wi->pressed = true;
 		}
 		sort_list();
 		return true;
 	}
-	if(komp == &ware_keine) {
+	if(comp == &ware_keine) {
 		FOR( slist_tpl<ware_item_t *>, wi, all_ware ) {
 			wi->pressed = false;
 		}
 		sort_list();
 		return true;
 	}
-	if(  komp == &ware_invers  ) {
+	if(  comp == &ware_invers  ) {
 		FOR( slist_tpl<ware_item_t *>, wi, all_ware ) {
 			wi->pressed ^= true;
 		}
 		sort_list();
 		return true;
 	}
-	if(  komp == &name_filter_input  &&  filter_flags&name_filter  ) {
+	if(  comp == &name_filter_input  &&  filter_flags&name_filter  ) {
 		sort_list();
 		return true;
 	}

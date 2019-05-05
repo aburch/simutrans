@@ -556,3 +556,7 @@ table_with_extend_get <- {
  */
 world <- {}
 world.setdelegate(table_with_extend_get)
+
+
+// table to hold routines for gui access
+gui <- {}

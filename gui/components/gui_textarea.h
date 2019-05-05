@@ -14,7 +14,7 @@
 #ifndef gui_textarea_h
 #define gui_textarea_h
 
-#include "gui_komponente.h"
+#include "gui_component.h"
 
 class cbuffer_t;
 

@@ -32,7 +32,7 @@ class scenario_t;
 class schedule_t;
 class settings_t;
 class simline_t;
-class spieler_t;
+class player_t;
 class stadt_t;
 class tool_t;
 class ware_production_t;

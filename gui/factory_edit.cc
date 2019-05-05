@@ -144,34 +144,34 @@ void factory_edit_frame_t::fill_list( bool translate )
 
 
 
-bool factory_edit_frame_t::action_triggered( gui_action_creator_t *komp,value_t e)
+bool factory_edit_frame_t::action_triggered( gui_action_creator_t *comp,value_t e)
 {
 	// only one chain can be shown
-	if(  komp==&bt_city_chain  ) {
+	if(  comp==&bt_city_chain  ) {
 		bt_city_chain.pressed ^= 1;
 		if(bt_city_chain.pressed) {
 			bt_land_chain.pressed = 0;
 		}
 		fill_list( is_show_trans_name );
 	}
-	else if(  komp==&bt_land_chain  ) {
+	else if(  comp==&bt_land_chain  ) {
 		bt_land_chain.pressed ^= 1;
 		if(bt_land_chain.pressed) {
 			bt_city_chain.pressed = 0;
 		}
 		fill_list( is_show_trans_name );
 	}
-	else if( komp == &cb_rotation) {
+	else if( comp == &cb_rotation) {
 		change_item_info( scl.get_selection() );
 	}
 	else if(fac_desc) {
-		if (komp==&inp_production) {
+		if (comp==&inp_production) {
 			production = inp_production.get_value();
 		}
 		// update info ...
 		change_item_info( scl.get_selection() );
 	}
-	return extend_edit_gui_t::action_triggered(komp,e);
+	return extend_edit_gui_t::action_triggered(comp,e);
 }
 
 

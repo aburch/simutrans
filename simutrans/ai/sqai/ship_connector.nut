@@ -277,12 +277,14 @@ class ship_connector_t extends manager_t
 				}
 			}
 			err = command_x.build_station(our_player, tile, planned_station)
+			if (err) gui.add_message_at(our_player, "Failed to harbour at " + coord_to_string(tile) +"\n" + err, tile)
 
 			local size = planned_station.get_size(0)
 			len = size.x*size.y
 		}
 		else {
 			err = command_x.build_station(our_player, tile, planned_harbour_flat)
+			if (err) gui.add_message_at(our_player, "Failed to flat harbour at " + coord_to_string(tile) +"\n" + err, tile)
 
 			local size = planned_harbour_flat.get_size(0)
 			len = size.x*size.y
@@ -370,8 +372,8 @@ class route_finder_water extends astar
 			if (to) {
 				if (::finder._tile_water_way(to)  &&  !is_closed(to)) {
 					// estimate moving cost
-					local move = ((dir.double(d) & cnode.dir) != 0) ? /* straight */ 14 : /* curve */ 10
-					local dist   = 10*estimate_distance(to)
+					local move   = cnode.is_straight_move(d)  ?  cost_straight  :  cost_curve
+					local dist   = estimate_distance(to)
 
 					local cost   = cnode.cost + move
 					local weight = cost + dist

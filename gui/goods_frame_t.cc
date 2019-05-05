@@ -210,20 +210,20 @@ void goods_frame_t::sort_list()
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool goods_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
-	if(komp == &sortedby) {
+	if(comp == &sortedby) {
 		// sort by what
 		sortby = (sort_mode_t)((int)(sortby+1)%(int)SORT_MODES);
 	}
-	else if(komp == &sorteddir) {
+	else if(comp == &sorteddir) {
 		// order
 		sortreverse ^= 1;
 	}
-	else if(komp == &filter_goods_toggle) {
+	else if(comp == &filter_goods_toggle) {
 		filter_goods = !filter_goods;
 	}
-	else if(komp == &scheduletype) {
+	else if(comp == &scheduletype) {
 		double relative_speed_change = speed.get_value()/(double)welt->get_average_speed(simline_t::linetype_to_waytype(last_scheduletype));
 		last_scheduletype = (simline_t::linetype)(scheduletype.get_selection()+1);
 		speed.set_value( (welt->get_average_speed(simline_t::linetype_to_waytype(last_scheduletype))*relative_speed_change)+0.5 );

@@ -9,7 +9,7 @@
 #ifndef gui_components_gui_divider_h
 #define gui_components_gui_divider_h
 
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../gui_theme.h"
 
 /**
