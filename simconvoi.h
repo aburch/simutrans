@@ -470,6 +470,12 @@ private:
 	sint32 wait_lock;
 
 	/**
+	 * threaded_step needs to be able to set wait_lock indirectly, because
+	 * it can run after an indeterminate number of sync_steps.
+	 */
+	sint32 wait_lock_next_step;
+
+	/**
 	 * The flag whether this convoi is requested to change lane by the convoi behind this.
 	 * @author THLeaderH
 	 */
@@ -490,13 +496,6 @@ private:
 	// Used for converting tiles to km.
 	// @author: jamespetts
 	sint64 steps_since_last_odometer_increment;
-
-	/**
-	* Set, when there was a income calculation (avoids some cheats)
-	* Since 99.15 it will stored directly in the vehicle_t
-	* @author prissi
-	*/
-	koord3d last_stop_pos;
 
 	/**
 	* Necessary for registering departure and waiting times.
@@ -899,14 +898,13 @@ public:
 	// true if this is a waypoint
 	bool is_waypoint( koord3d ) const;
 
-	/* changes the state of a convoi via tool_t; mandatory for networkmode! *
+	/* changes the state of a convoi via tool_t; mandatory for networkmode!
 	 * for list of commands and parameter see tool_t::tool_change_convoi_t
 	 */
 	void call_convoi_tool( const char function, const char *extra = NULL );
 
 	/**
-	* set state: only use by tool_t convoi tool, or not networking!
-	* @author hsiegeln
+	* set state: only use by tool_t::tool_change_convoi_t
 	*/
 	void set_state( uint16 new_state ) { assert(new_state<MAX_STATES); state = (states)new_state; }
 

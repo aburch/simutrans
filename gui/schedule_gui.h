@@ -45,7 +45,7 @@ private:
 	player_t* player;
 
 public:
-	schedule_gui_stats_t(player_t *s);
+	schedule_gui_stats_t(player_t *player_);
 	~schedule_gui_stats_t();
 
 	void set_schedule( schedule_t* f ) { schedule = f; }
@@ -72,13 +72,13 @@ class schedule_gui_t :	public gui_frame_t,
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static void gimme_stop_name(cbuffer_t & buf, const player_t *player, const schedule_entry_t &entry, bool no_control_tower = false );
+	static void gimme_stop_name(cbuffer_t & buf, const player_t *player_, const schedule_entry_t &entry, bool no_control_tower = false );
 
 	/**
 	 * Append description of entry to buf.
 	 * short version, without loading level and position
 	 */
-	static void gimme_short_stop_name(cbuffer_t& buf, player_t const* player, const schedule_t *schedule, int i, int max_chars);
+	static void gimme_short_stop_name(cbuffer_t& buf, player_t const* player_, const schedule_t *schedule, int i, int max_chars);
 
 private:
 	enum mode_t {adding, inserting, removing, undefined_mode};
@@ -136,7 +136,7 @@ protected:
 	linehandle_t new_line, old_line;
 
 public:
-	schedule_gui_t(schedule_t* schedule, player_t* player, convoihandle_t cnv);
+	schedule_gui_t(schedule_t* schedule, player_t* player_, convoihandle_t cnv);
 
 	virtual ~schedule_gui_t();
 

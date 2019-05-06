@@ -925,18 +925,21 @@ private:
 	void recalc_passenger_destination_weights();
 
 #ifdef MULTI_THREAD
-	// Check whether this is the first time that karte_t::step() has been run
-	// in order to know when to launch the background threads. 
-	sint32 first_step;
+	bool passengers_and_mail_threads_working;
+	bool convoy_threads_working;
+	bool path_explorer_working;
 public:
 	static simthread_barrier_t step_convoys_barrier_external;
 	static simthread_barrier_t unreserve_route_barrier;
 	static pthread_mutex_t unreserve_route_mutex;
 	static pthread_mutex_t step_passengers_and_mail_mutex;
-	sint32 get_first_step() const { return first_step; }
-	void set_first_step(sint32 value) { first_step = value;  }
-	void stop_path_explorer(); 
+	void start_passengers_and_mail_threads();
+	void await_passengers_and_mail_threads();
+	void start_convoy_threads();
+	void await_convoy_threads();
+	void await_path_explorer(); 
 	void start_path_explorer();
+	void await_all_threads();
 
 #else
 public:
@@ -978,7 +981,6 @@ private:
 	static sint32 cities_to_process;
 	static vector_tpl<convoihandle_t> convoys_next_step;
 	public:
-	static sint32 path_explorer_step_progress;
 	static bool threads_initialised; 
 	
 	// These are both intended to be arrays of vectors
@@ -1697,7 +1699,7 @@ public:
 	 * Conversion from walking distance in tiles to walking time
 	 * Returns tenths of minutes
 	 */
-	uint32 walking_time_tenths_from_distance(uint32 distance) const {
+	inline uint32 walking_time_tenths_from_distance(uint32 distance) const {
 		if (!speed_factors_are_set) {
 			set_speed_factors();
 		}
@@ -1936,12 +1938,12 @@ public:
 	/**
 	 * Set a new tool as current: calls local_set_tool or sends to server.
 	 */
-	void set_tool( tool_t *tool, player_t * player );
+	void set_tool( tool_t *tool_in, player_t * player );
 
 	/**
 	 * Set a new tool on our client, calls init.
 	 */
-	void local_set_tool( tool_t *tool, player_t * player );
+	void local_set_tool( tool_t *tool_in, player_t * player );
 	tool_t *get_tool(uint8 nr) const { return selected_tool[nr]; }
 
 	/**

@@ -26,7 +26,6 @@
 #include "simfab.h"
 #include "simcity.h"
 #include "simhalt.h"
-#include "utils/simrandom.h"
 #include "simware.h"
 #include "simworld.h"
 #include "descriptor/building_desc.h"
@@ -54,6 +53,7 @@
 
 #include "gui/fabrik_info.h"
 
+#include "utils/simrandom.h"
 #include "utils/cbuffer_t.h"
 
 #include "gui/simwin.h"
@@ -371,8 +371,8 @@ void fabrik_t::update_scaled_electric_amount()
 	}
 
 	// If the demand is specified in the pakset, do not use the Extended electricity proportion.
-	const sint64 prod = max(1, desc->get_productivity());
-	scaled_electric_amount = (uint32)( (( (sint64)(desc->get_electric_amount()) * (sint64)prodbase + (prod >> 1) ) / prod) << POWER_TO_MW );
+	const sint64 prod = std::max(1ll, (sint64)desc->get_productivity());
+	scaled_electric_amount = (uint32)( (( (sint64)(desc->get_electric_amount()) * (sint64)prodbase + (prod >> 1ll) ) / prod) << (sint64)POWER_TO_MW );
 
 	if(  scaled_electric_amount == 0  ) {
 		prodfactor_electric = 0;
@@ -390,12 +390,12 @@ void fabrik_t::update_scaled_pax_demand(bool is_from_saved_game)
 		const int passenger_level = get_passenger_level_jobs();
 
 		const sint64 base_visitor_demand_raw = building ? building->get_visitor_demand() : desc->get_building()->get_population_and_visitor_demand_capacity();
-		const sint64 base_visitor_demand = base_visitor_demand_raw == 65535 ? (sint64)get_passenger_level_visitors() : base_visitor_demand_raw;
-		const sint64 base_worker_demand = employment_capacity == 65535 ? passenger_level : employment_capacity;
+		const sint64 base_visitor_demand = base_visitor_demand_raw == 65535u ? (sint64)get_passenger_level_visitors() : base_visitor_demand_raw;
+		const sint64 base_worker_demand = employment_capacity == 65535u ? (sint64)passenger_level : (sint64)employment_capacity;
 
 		// then, scaling based on month length
 		scaled_pax_demand = std::max(welt->calc_adjusted_monthly_figure(base_worker_demand), 1ll);
-		const uint32 scaled_visitor_demand = max(welt->calc_adjusted_monthly_figure(base_visitor_demand), 1);
+		const uint32 scaled_visitor_demand = std::max(welt->calc_adjusted_monthly_figure(base_visitor_demand), 1ll);
 
 		// pax demand for fixed period length
 		// Intentionally not the scaled value.
@@ -403,16 +403,16 @@ void fabrik_t::update_scaled_pax_demand(bool is_from_saved_game)
 		
 		if(building && (!is_from_saved_game || !building->get_loaded_passenger_and_mail_figres()))
 		{		
-			const uint32 percentage = (get_base_production() * 100) / max(1, get_desc()->get_productivity());
-			if (percentage > 100)
+			const uint32 percentage = std::max(1u, ((uint32)get_desc()->get_productivity() * 100)) / std::max(1u, (uint32)(get_base_production()));
+			if (percentage > 100u)
 			{
-				get_building()->set_adjusted_jobs((scaled_pax_demand * percentage) / 100);
-				get_building()->set_adjusted_visitor_demand((scaled_visitor_demand * percentage) / 100);
+				get_building()->set_adjusted_jobs((uint16)std::min(65535u, (scaled_pax_demand * percentage) / 100u));
+				get_building()->set_adjusted_visitor_demand((uint16)std::min(65535u, (scaled_visitor_demand * percentage) / 100u)); 
 			}
 			else
 			{
-				building->set_adjusted_jobs(scaled_pax_demand);
-				building->set_adjusted_visitor_demand(scaled_visitor_demand);
+				building->set_adjusted_jobs((uint16)std::min(65535u, scaled_pax_demand));
+				building->set_adjusted_visitor_demand((uint16)std::min(65535u, scaled_visitor_demand));
 			}
 			// Must update the world building list to take into account the new passenger demand (weighting)
 			welt->update_weight_of_building_in_world_list(building);
@@ -426,7 +426,7 @@ void fabrik_t::update_scaled_mail_demand(bool is_from_saved_game)
 	if(!welt->is_destroying())
 	{
 		// first, scaling based on current production base
-		const sint64 prod = desc->get_productivity() > 0 ? desc->get_productivity() : 1;
+		const sint64 prod = desc->get_productivity() > 0 ? desc->get_productivity() : 1ll;
 		// Take into account fields
 		sint64 prod_adjust = prod;
 		const field_group_desc_t *fd = desc->get_field_group();
@@ -451,24 +451,24 @@ void fabrik_t::update_scaled_mail_demand(bool is_from_saved_game)
 		const uint16 mail_capacity = desc->get_building()->get_mail_demand_and_production_capacity();
 		const int mail_level = get_mail_level();
 
-		const sint64 base_mail_demand =  mail_capacity == 65535 ? mail_level : mail_capacity;
-		const uint32 mail_demand = (uint32)((base_mail_demand * (sint64)prodbase + (prod_adjust >> 1) ) / prod_adjust);
+		const sint64 base_mail_demand =  mail_capacity == 65535u ? mail_level : mail_capacity;
+		const uint32 mail_demand = (uint32)((base_mail_demand * (sint64)prodbase + (prod_adjust >> 1ll) ) / prod_adjust);
 		// then, scaling based on month length
-		scaled_mail_demand = max(welt->calc_adjusted_monthly_figure(mail_demand), 1);
+		scaled_mail_demand = std::max(welt->calc_adjusted_monthly_figure(mail_demand), 1u);
 
 		// mail demand for fixed period length
 		// Intentionally not the scaled value.
 		arrival_stats_mail.set_scaled_demand(mail_demand);
 		if (building && (!is_from_saved_game || !building->get_loaded_passenger_and_mail_figres()))
 		{
-			const uint32 percentage = (get_base_production() * 100) / max(1, get_desc()->get_productivity());
-			if (percentage > 100)
+			const uint32 percentage = std::max(1u, ((uint32)get_desc()->get_productivity() * 100)) / std::max(1u, (uint32)(get_base_production()));
+			if (percentage > 100u)
 			{
-				get_building()->set_adjusted_mail_demand((scaled_mail_demand * percentage) / 100);
+				get_building()->set_adjusted_mail_demand((uint16)std::min(65535u, (scaled_mail_demand * percentage) / 100));
 			}
 			else
 			{
-				building->set_adjusted_mail_demand(scaled_mail_demand);
+				building->set_adjusted_mail_demand((uint16)std::min(65535u, scaled_mail_demand));
 			}
 
 			// Must update the world building list to take into account the new passenger demand (weighting)
@@ -486,7 +486,7 @@ int fabrik_t::get_passenger_level_jobs() const
 		return base_passenger_level;
 	}
 
-	return desc->get_building()->get_level() * welt->get_settings().get_jobs_per_level();
+	return (int)desc->get_building()->get_level() * (int)welt->get_settings().get_jobs_per_level();
 }
 
 int fabrik_t::get_passenger_level_visitors() const
@@ -777,7 +777,7 @@ fabrik_t::fabrik_t(loadsave_t* file)
 }
 
 
-fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, sint32 initial_prod_base) :
+fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* desc, sint32 initial_prod_base) :
 	desc(desc),
 	pos(pos_)
 {
@@ -785,8 +785,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 	pos_origin = pos;
 	building = NULL;
 
-	owner = player;
-
+	this->owner = owner;
 	prodfactor_electric = 0;
 	prodfactor_pax = 0;
 	prodfactor_mail = 0;
@@ -810,10 +809,6 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 	status = nothing;
 	lieferziele_active_last_month = 0;
 	city = check_local_city();
-	if(city != NULL)
-	{
-		city->add_city_factory(this);
-	}
 
 	if(desc->get_placement() == 2 && city && desc->get_product_count() == 0 && !desc->is_electricity_producer())
 	{
@@ -2552,18 +2547,26 @@ void fabrik_t::verteile_waren(const uint32 product)
 stadt_t* fabrik_t::check_local_city()
 {
 	stadt_t* c = NULL;
-	vector_tpl<koord> tile_list;
-	get_tile_list(tile_list);
-	FOR(vector_tpl<koord>, const k, tile_list)
+	// We cannot use the tile list here since this is called in many cases before that list can be generated.
+	koord pos_2d = pos.get_2d();
+	koord size = desc->get_building()->get_size(this->get_rotate());
+	koord test;
+	koord k;
+	// Which tiles belong to the fab?
+	for (test.x = 0; test.x < size.x; test.x++) 
 	{
-		for(uint8 i = 0; i < 8; i ++)
+		for (test.y = 0; test.y < size.y; test.y++)
 		{
-			// We need to check neighbouring tiles, since city borders can be very tightly drawn.
-			const koord city_pos(k + k.neighbours[i]);
-			c = welt->get_city(city_pos);
-			if(c)
+			k = pos_2d + test;
+			for (uint8 i = 0; i < 8; i++)
 			{
-				goto out_of_loop;
+				// We need to check neighbouring tiles, since city borders can be very tightly drawn.
+				const koord city_pos(k + k.neighbours[i]);
+				c = welt->get_city(city_pos);
+				if (c)
+				{
+					goto out_of_loop;
+				}
 			}
 		}
 	}
@@ -2841,8 +2844,8 @@ void fabrik_t::new_month()
 							}
 							else
 							{
-								const int percentage = (this_city_population - smallest_city_population) * 100 / (biggest_city_population - smallest_city_population);
-								production = (desc->get_range() * percentage) / 100;
+								const sint64 percentage = (this_city_population - smallest_city_population) * 100ll / (biggest_city_population - smallest_city_population);
+								production = (desc->get_range() * (sint32)percentage) / 100;
 							}
 							prodbase = desc->get_productivity() + production;
 						}

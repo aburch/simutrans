@@ -30,6 +30,8 @@ Global
 		Debug-64|x64 = Debug-64|x64
 		Dr. Memory|Win32 = Dr. Memory|Win32
 		Dr. Memory|x64 = Dr. Memory|x64
+		Optimised debug|Win32 = Optimised debug|Win32
+		Optimised debug|x64 = Optimised debug|x64
 		Release (command-line server)|Win32 = Release (command-line server)|Win32
 		Release (command-line server)|x64 = Release (command-line server)|x64
 		Release (IP v. 4 only)|Win32 = Release (IP v. 4 only)|Win32
@@ -98,6 +100,10 @@ Global
 		{0621B295-BEB7-4767-82F1-F27995610323}.Dr. Memory|Win32.Build.0 = Dr. Memory|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Dr. Memory|x64.ActiveCfg = Dr. Memory|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Dr. Memory|x64.Build.0 = Dr. Memory|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Optimised debug|Win32.ActiveCfg = Optimised debug|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Optimised debug|Win32.Build.0 = Optimised debug|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Optimised debug|x64.ActiveCfg = Optimised debug|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Optimised debug|x64.Build.0 = Optimised debug|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (command-line server)|Win32.ActiveCfg = Release (command-line server)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (command-line server)|Win32.Build.0 = Release (command-line server)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (command-line server)|x64.ActiveCfg = Release (command-line server)|x64

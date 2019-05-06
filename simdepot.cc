@@ -151,17 +151,17 @@ unsigned depot_t::get_max_convoy_length(waytype_t wt)
 void depot_t::call_depot_tool( char tool, convoihandle_t cnv, const char *extra, uint16 livery_scheme_index)
 {
 	// call depot tool
-	tool_t *tool_tmp = create_tool( TOOL_BUILD_DEPOT_TOOL | SIMPLE_TOOL );
+	tool_t *tmp_tool = create_tool( TOOL_CHANGE_DEPOT | SIMPLE_TOOL );
 	cbuffer_t buf;
 	buf.printf( "%c,%s,%hu,%hu", tool, get_pos().get_str(), cnv.get_id(), livery_scheme_index );
 	if(  extra  ) {
 		buf.append( "," );
 		buf.append( extra );
 	}
-	tool_tmp->set_default_param(buf);
-	welt->set_tool( tool_tmp, get_owner() );
+	tmp_tool->set_default_param(buf);
+	welt->set_tool( tmp_tool, get_owner() );
 	// since init always returns false, it is safe to delete immediately
-	delete tool_tmp;
+	delete tmp_tool;
 }
 
 
@@ -193,9 +193,9 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 			acnv->unregister_stops();
 		}
 #ifdef MULTI_THREAD
-		world()->stop_path_explorer();
+		world()->await_path_explorer();
 #endif
-		path_explorer_t::refresh_all_categories(true);
+		path_explorer_t::refresh_all_categories(false);
 	}
 
 	// Clean up the vehicles -- get rid of freight, etc.  Do even when loading, just in case.
@@ -893,3 +893,4 @@ void depot_t::add_to_world_list(bool lock)
 		city->update_city_stats_with_building(this, false);
 	}
 }
+

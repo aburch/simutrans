@@ -287,7 +287,7 @@ public:
 	*/
 	waytype_t get_waytype() const { return wtyp; }
 
-	bool is_rail_type() const { return wtyp == track_wt || wtyp == maglev_wt || wtyp == tram_wt || wtyp == narrowgauge_wt || wtyp == monorail_wt;  }
+	inline bool is_rail_type() const { return wtyp == track_wt || wtyp == maglev_wt || wtyp == tram_wt || wtyp == narrowgauge_wt || wtyp == monorail_wt;  }
 
 	/**
 	* 'Jedes Ding braucht einen Typ.'

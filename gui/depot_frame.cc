@@ -25,7 +25,6 @@
 #include "../simlinemgmt.h"
 #include "../simmenu.h"
 #include "../simskin.h"
-#include "../utils/simrandom.h"
 
 #include "../descriptor/building_desc.h"
 
@@ -45,6 +44,7 @@
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
+#include "../utils/simrandom.h"
 
 #include "../boden/wege/weg.h"
 

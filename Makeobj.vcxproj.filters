@@ -84,10 +84,10 @@
     <ClCompile Include="simmem.cc">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="utils\simstring.cc">
+    <ClCompile Include="utils\simrandom.cc">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="simtools.cc">
+    <ClCompile Include="utils\simstring.cc">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="besch\writer\skin_writer.cc">
@@ -254,10 +254,10 @@
     <ClInclude Include="simmem.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="utils\simstring.h">
+    <ClInclude Include="utils\simrandom.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="simtools.h">
+    <ClInclude Include="utils\simstring.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="besch\skin_besch.h">

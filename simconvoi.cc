@@ -163,6 +163,7 @@ void convoi_t::init(player_t *player)
 	vehicle_count = 0;
 	steps_driven = -1;
 	wait_lock = 0;
+	wait_lock_next_step = 0;
 	go_on_ticks = WAIT_INFINITE;
 
 	requested_change_lane = false;
@@ -355,7 +356,7 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 void convoi_t::unreserve_route_range(route_range_specification range)
 {
 	const vector_tpl<weg_t *> &all_ways = weg_t::get_alle_wege();
-	for (uint32 i = range.start; i < range.end; i++)
+	for (uint32 i = range.start; i <= range.end; i++)
 	{
 		weg_t* const way = all_ways[i];
 		//schiene_t* const sch = obj_cast<schiene_t>(way);
@@ -484,9 +485,6 @@ uint32 convoi_t::move_to(uint16 const start_index)
 
 void convoi_t::finish_rd()
 {
-#ifdef MULTI_THREAD
-	world()->stop_path_explorer();
-#endif
 	if(schedule==NULL) {
 		if(  state!=INITIAL  ) {
 			emergency_go_to_depot();
@@ -713,16 +711,16 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 // since now convoi states go via tool_t
 void convoi_t::call_convoi_tool( const char function, const char *extra)
 {
-	tool_t *tool = create_tool( TOOL_CHANGE_CONVOI | SIMPLE_TOOL );
+	tool_t *tmp_tool = create_tool( TOOL_CHANGE_CONVOI | SIMPLE_TOOL );
 	cbuffer_t param;
 	param.printf("%c,%u", function, self.get_id());
 	if(  extra  &&  *extra  ) {
 		param.printf(",%s", extra);
 	}
-	tool->set_default_param(param);
-	welt->set_tool( tool, get_owner() );
+	tmp_tool->set_default_param(param);
+	welt->set_tool( tmp_tool, get_owner() );
 	// since init always returns false, it is safe to delete immediately
-	delete tool;
+	delete tmp_tool;
 }
 
 
@@ -1518,7 +1516,7 @@ bool convoi_t::drive_to()
 		{
 #ifdef MULTI_THREAD
 			pthread_mutex_lock(&step_convois_mutex);
-			world()->stop_path_explorer();
+			world()->await_path_explorer();
 #endif
 			// There is no need to renew stops here, as this update can only ever come
 			// from a change in reversing status, which does not require renewing stops.
@@ -1554,12 +1552,12 @@ bool convoi_t::drive_to()
 		if (success == route_t::route_too_complex)
 		{
 			// 2 minutes
-			wait_lock = 7200000;
+			wait_lock_next_step = 7200000;
 		}
 		else
 		{
 			// 25 seconds
-			wait_lock = 25000;
+			wait_lock_next_step = 25000;
 		}
 	}
 	else {
@@ -1614,7 +1612,7 @@ bool convoi_t::drive_to()
 #endif
 					}
 					// wait 25s before next attempt
-					wait_lock = 25000;
+					wait_lock_next_step = 25000;
 					route_ok = false;
 					break;
 				}
@@ -1718,6 +1716,13 @@ void convoi_t::step()
 {
 	if(wait_lock !=0)
 	{
+		return;
+	}
+
+	if (wait_lock_next_step != 0) {
+		// threaded_step cannot update wait_lock directly
+		wait_lock = wait_lock_next_step;
+		wait_lock_next_step = 0;
 		return;
 	}
 	
@@ -3834,6 +3839,9 @@ void convoi_t::rdwr(loadsave_t *file)
 		// was anz_ready
 		file->rdwr_long(dummy);
 	}
+
+	wait_lock += wait_lock_next_step;
+	wait_lock_next_step = 0;
 
 	file->rdwr_long(wait_lock);
 	// some versions may produce broken savegames apparently
@@ -7776,16 +7784,60 @@ void convoi_t::clear_replace()
 
 			if(halt.is_bound() && !halts_already_processed.is_contained(halt.get_id()))
 			{
+				sint64 earliest_departure_time = eta + current_loading_time;
+
+				if(schedule->entries[schedule_entry].reverse == 1)
+				{
+					// Add reversing time if this must reverse.
+					earliest_departure_time += reverse_delay;
+				}
+				
 				halt->set_estimated_arrival_time(self.get_id(), eta);
 				const sint64 max_waiting_time = schedule->get_current_entry().waiting_time_shift ? welt->ticks_per_world_month >> (16ll - (sint64)schedule->get_current_entry().waiting_time_shift) : WAIT_INFINITE;
 				if((schedule->entries[schedule_entry].minimum_loading > 0 || schedule->entries[schedule_entry].wait_for_time) && schedule->get_spacing() > 0)
 				{
+					sint64 spacing_multiplier = 1;
+
+					// This may not be the next convoy on this line to depart from this forthcoming stop, so the spacing may have to be multiplied. 
+					FOR(const haltestelle_t::arrival_times_map, const& iter, halt->get_estimated_convoy_departure_times())
+					{
+						const uint16 id = iter.key;
+						convoihandle_t tmp_cnv;
+						tmp_cnv.set_id(id); 
+						if(tmp_cnv.is_bound() && tmp_cnv->get_line() == get_line())
+						{
+							// This is on the same line. Any earlier departure from the target stop is therefore relevant. 
+							if(iter.value < earliest_departure_time)
+							{
+								spacing_multiplier ++;
+							}
+						}
+					}
+
 					// Add spacing time.
-					const sint64 spacing = welt->ticks_per_world_month / (sint64)schedule->get_spacing();
+					const sint64 spacing_ticks = welt->ticks_per_world_month / (sint64)schedule->get_spacing(); // There is a departure from each spaced stop once every this number of ticks
 					const sint64 spacing_shift = (sint64)schedule->get_current_entry().spacing_shift * welt->ticks_per_world_month / (sint64)welt->get_settings().get_spacing_shift_divisor();
-					const sint64 wait_from_ticks = ((eta - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
-					const sint64 spaced_departure = min(max_waiting_time, (wait_from_ticks + spacing)) - reverse_delay;
-					etd += (spaced_departure - eta);
+
+					// Use earliest departure time (ready to depart exactly at the scheduled departure time?)
+					const sint64 spacing_ticks_remainder = (earliest_departure_time + spacing_shift) % spacing_ticks;
+					if(spacing_multiplier == 0 && spacing_ticks_remainder == 0)
+					{
+						// The loading and reversing will be added back later
+						etd = eta;
+					}
+					else
+					{
+						// Calculate the departure time based on the spacing
+						
+						const sint64 tmp_etd = ((spacing_ticks - spacing_ticks_remainder) * spacing_multiplier) + earliest_departure_time;
+
+						// The loading time and reverse delay will be added later
+						etd = tmp_etd - current_loading_time;
+						if (schedule->entries[schedule_entry].reverse == 1)
+						{
+							etd -= reverse_delay;
+						}
+					}
 				}
 				else if(schedule->entries[schedule_entry].minimum_loading > 0 && schedule->get_spacing() == 0)
 				{

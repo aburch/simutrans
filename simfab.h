@@ -232,7 +232,7 @@ private:
 	 */
 	void verteile_waren(const uint32 product);
 
-	player_t *owner;		// player_t* owner_p
+	player_t *owner;
 	static karte_ptr_t welt;
 
 	const factory_desc_t *desc;
@@ -443,7 +443,7 @@ protected:
 
 public:
 	fabrik_t(loadsave_t *file);
-	fabrik_t(koord3d pos, player_t* player, const factory_desc_t* desc, sint32 initial_prod_base);
+	fabrik_t(koord3d pos, player_t* owner, const factory_desc_t* desc, sint32 initial_prod_base);
 	~fabrik_t();
 
 	gebaeude_t* get_building();

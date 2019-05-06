@@ -54,7 +54,7 @@ private:
 	 * Name of the help file
 	 * @author Hj. Malthaner
 	 */
-	const char *hilfe_datei;
+	const char *help_file;
 
 	// needs dirty redraw (only when changed)
 	bool dirty;
@@ -62,13 +62,13 @@ private:
 	bool allow_break;
 
 public:
-	tool_selector_t(const char *title, const char *helpfile, uint32 toolbar_id, bool allow_break=true );
+	tool_selector_t(const char *title, const char *help_file, uint32 toolbar_id, bool allow_break=true );
 
 	/**
 	 * Add a new tool with values and tooltip text.
 	 * @author Hj. Malthaner
 	 */
-	void add_tool_selector(tool_t *tool);
+	void add_tool_selector(tool_t *tool_in);
 
 	// purges toolbar
 	void reset_tools();
@@ -81,7 +81,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *get_help_filename() const {return hilfe_datei;}
+	const char *get_help_filename() const {return help_file;}
 
 	PLAYER_COLOR_VAL get_titlecolor() const { return WIN_TITLE; }
 

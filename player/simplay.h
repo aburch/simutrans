@@ -83,7 +83,7 @@ public:
 
 protected:
 	/**
-	 * Kennfarbe (Fahrzeuge, Gebäude) des Speielers
+	 * Colors of the player
 	 * @author Hj. Malthaner
 	 */
 	uint8 player_color_1, player_color_2;
@@ -293,8 +293,8 @@ public:
 	void set_player_color_no_message(uint8 col1, uint8 col2);
 
 	/**
-	 * Name of the player; "player -1" sits in front of the screen
-	 * @author player
+	 * @return the name of the player; "player -1" sits in front of the screen
+	 * @author prissi
 	 */
 	const char* get_name() const;
 	void set_name(const char *);
@@ -309,7 +309,7 @@ public:
 
 	/**
 	 * @param welt World this players belong to.
-	 * @param player_nr Number assigned to this player, which is the player's identification
+	 * @param player_nr Number assigned to this player - it's an ID.
 	 * @author Hj. Malthaner
 	 */
 	player_t(karte_t *welt, uint8 player_nr );
@@ -350,7 +350,7 @@ public:
 	/**
 	 * Displays messages from the queue of the player on the screen
 	 * Show income messages
-	 * @author Hj. Malthaner
+	 * @author prissi
 	 */
 	void display_messages();
 
@@ -433,22 +433,22 @@ private:
 
 public:
 	/**
-	* Function for UNDO
-	* @date 7-Feb-2005
-	* @author prissi
-	*/
+	 * Function for UNDO
+	 * @date 7-Feb-2005
+	 * @author prissi
+	 */
 	void init_undo(waytype_t t, unsigned short max );
 	/**
-	* Function for UNDO
-	* @date 7-Feb-2005
-	* @author prissi
-	*/
+	 * Function for UNDO
+	 * @date 7-Feb-2005
+	 * @author prissi
+	 */
 	void add_undo(koord3d k);
 	/**
-	* Function for UNDO
-	* @date 7-Feb-2005
-	* @author prissi
-	*/
+	 * Function for UNDO
+	 * @date 7-Feb-2005
+	 * @author prissi
+	 */
 	sint64 undo();
 
 private:

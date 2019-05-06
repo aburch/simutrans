@@ -1,5 +1,5 @@
-#ifndef SIMTOOLS_H
-#define SIMTOOLS_H
+#ifndef SIMRANDOM_H
+#define SIMRANDOM_H
 
 #include <stddef.h>
 #include "../simtypes.h"

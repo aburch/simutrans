@@ -1177,7 +1177,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 
 void vehicle_t::fix_class_accommodations()
 {
-	if (desc->get_total_capacity() == 0)
+	if (!desc || desc->get_total_capacity() == 0)
 	{
 		// Vehicle ought to be empty - perhaps we should check this.
 		return;
@@ -4771,7 +4771,8 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	route_t target_rt;
 	const uint16 first_block = start_block == 0 ? start_block : start_block - 1;
 	const uint16 second_block = start_block == 0 ? start_block + 1 : start_block;
-	const uint16 third_block = start_block == 0 ? start_block + 2 : start_block + 1;
+	uint16 third_block = start_block == 0 ? start_block + 2 : start_block + 1;
+	third_block = min(third_block, route->get_count() - 1); 
 	const koord3d first_tile = route->at(first_block);
 	const koord3d second_tile = route->at(second_block);
 	const koord3d third_tile = route->at(third_block);
@@ -6596,7 +6597,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							next_signal_index = first_stop_signal_index;
 						}
-						if(next_signal_index == start_index)
+						if(next_signal_index == start_index && !is_choosing)
 						{
 							success = false;
 							directional_reservation_succeeded = false;
@@ -6947,7 +6948,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	// or alternatively free that section reserved beyond the last signal to which reservation can take place
 	if(!success || !directional_reservation_succeeded || ((next_signal_index < INVALID_INDEX) && (next_signal_working_method == absolute_block || next_signal_working_method == token_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling || ((next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph) && !next_signal_protects_no_junctions))))
 	{
-		const bool will_choose = last_choose_signal_index < INVALID_INDEX && !is_choosing && not_entirely_free && last_choose_signal_index == first_stop_signal_index;
+		const bool will_choose = (last_choose_signal_index < INVALID_INDEX) && !is_choosing && not_entirely_free && (last_choose_signal_index == first_stop_signal_index) && !is_from_token;
 		// free reservation
 		uint16 curtailment_index;
 		bool do_not_increment_curtailment_index_directional = false;
@@ -6991,7 +6992,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			curtailment_index ++;
 		}
 
-		if(next_signal_index < INVALID_INDEX && (next_signal_index == start_index || platform_starter) && !is_from_token)
+		if(next_signal_index < INVALID_INDEX && (next_signal_index == start_index || platform_starter) && !is_from_token && !is_choosing)
 		{
 			// Cannot go anywhere either because this train is already on the tile of the last signal to which it can go, or is in the same station as it.
 			success = false;
@@ -7288,7 +7289,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 	if(next_signal_index != INVALID_INDEX && (next_signal_working_method == track_circuit_block || next_signal_working_method == absolute_block || next_signal_working_method == cab_signalling || next_signal_working_method == token_block))
 	{
-		if(platform_starter && !is_from_token && !is_from_starter)
+		if(platform_starter && !is_from_token && !is_from_starter && !is_choosing)
 		{
 			// This is a platform starter signal for this station: do not move until it clears.
 			/*const koord3d signal_dir = signal_pos - (route->at(min(next_signal_index + 1u, route->get_count() - 1u)));

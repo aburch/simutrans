@@ -25,7 +25,6 @@
 #include "simplan.h"
 #include "display/simimg.h"
 #include "vehicle/simroadtraffic.h"
-#include "utils/simrandom.h"
 #include "simhalt.h"
 #include "simfab.h"
 #include "simcity.h"
@@ -66,6 +65,7 @@
 #include "bauer/hausbauer.h"
 #include "bauer/fabrikbauer.h"
 #include "utils/cbuffer_t.h"
+#include "utils/simrandom.h"
 #include "utils/simstring.h"
 #ifdef DEBUG_WEIGHTMAPS
 #include "utils/dbg_weightmap.h"
@@ -2336,24 +2336,14 @@ void stadt_t::rotate90( const sint16 y_size )
 	swap<uint8>( pax_destinations_temp, pax_destinations_old );
 
 	vector_tpl<koord> k_list(connected_cities.get_count());
-	vector_tpl<uint16> f_list(connected_cities.get_count());
+	vector_tpl<uint32> f_list(connected_cities.get_count());
 
 	for (connexion_map::iterator iter = connected_cities.begin(); iter != connected_cities.end(); )
 	{
 		koord k = iter->key;
-		uint16 f = iter->value;
+		uint32 f = iter->value;
 		iter = connected_cities.erase(iter);
 		k.rotate90(y_size);
-		if(connected_cities.is_contained(k))
-		{
-			uint16 f_2 = connected_cities.remove(k);
-			koord k_2 = k;
-			k_2.rotate90(y_size);
-			assert(k_2 != koord::invalid);
-			k_list.append(k_2);
-			f_list.append(f_2);
-		}
-		assert(k != koord::invalid);
 		k_list.append(k);
 		f_list.append(f);
 	}
@@ -2369,19 +2359,9 @@ void stadt_t::rotate90( const sint16 y_size )
 	for (connexion_map::iterator iter = connected_industries.begin(); iter != connected_industries.end(); )
 	{
 		koord k = iter->key;
-		uint16 f = iter->value;
+		uint32 f = iter->value;
 		iter = connected_industries.erase(iter);
 		k.rotate90(y_size);
-		if(connected_industries.is_contained(k))
-		{
-			uint16 f_2 = connected_industries.remove(k);
-			koord k_2 = k;
-			k_2.rotate90(y_size);
-			assert(k_2 != koord::invalid);
-			k_list.append(k_2);
-			f_list.append(f_2);
-		}
-		assert(k != koord::invalid);
 		k_list.append(k);
 		f_list.append(f);
 	}
@@ -2397,19 +2377,9 @@ void stadt_t::rotate90( const sint16 y_size )
 	for (connexion_map::iterator iter = connected_attractions.begin(); iter != connected_attractions.end(); )
 	{
 		koord k = iter->key;
-		uint16 f = iter->value;
+		uint32 f = iter->value;
 		iter = connected_attractions.erase(iter);
 		k.rotate90(y_size);
-		if(connected_attractions.is_contained(k))
-		{
-			uint16 f_2 = connected_attractions.remove(k);
-			koord k_2 = k;
-			k_2.rotate90(y_size);
-			assert(k_2 != koord::invalid);
-			k_list.append(k_2);
-			f_list.append(f_2);
-		}
-		assert(k != koord::invalid);
 		k_list.append(k);
 		f_list.append(f);
 	}
@@ -2978,14 +2948,14 @@ uint32 stadt_t::check_road_connexion_to(stadt_t* city) const
 {
 	if(welt->get_settings().get_assume_everywhere_connected_by_road())
 	{
-		const uint16 journey_time_per_tile = city == this ? welt->get_generic_road_time_per_tile_city() : welt->get_generic_road_time_per_tile_intercity();
+		const uint32 journey_time_per_tile = city == this ? welt->get_generic_road_time_per_tile_city() : welt->get_generic_road_time_per_tile_intercity();
 		// With this setting, we add congestion factoring at a later stage.
 		return journey_time_per_tile;
 	}
 
 	if(connected_cities.is_contained(city->get_pos()))
 	{
-		const uint16 journey_time_per_tile = connected_cities.get(city->get_pos());
+		const uint32 journey_time_per_tile = connected_cities.get(city->get_pos());
 		if(city != this || journey_time_per_tile < UINT32_MAX_VALUE)
 		{
 			return journey_time_per_tile;
@@ -4308,7 +4278,7 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 	}
 
 	if (h == NULL  &&  ((sum_residential > sum_industrial  &&  sum_residential > sum_commercial) || worker_shortage)) {
-		if (!job_shortage)
+		if (!job_shortage || worker_shortage)
 		{
 			h = hausbauer_t::get_residential(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
 		}
@@ -4716,6 +4686,15 @@ void stadt_t::add_all_buildings_to_world_list()
 		gebaeude_t* building = *i;
 		update_city_stats_with_building(building, false);
 		welt->add_building_to_world_list(building);
+	}
+}
+
+void stadt_t::reset_tiles_for_all_buildings()
+{
+	for(weighted_vector_tpl<gebaeude_t*>::const_iterator i = buildings.begin(); i != buildings.end(); ++i)
+	{
+		gebaeude_t* building = *i;
+		building->set_building_tiles();
 	}
 }
 

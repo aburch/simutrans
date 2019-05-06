@@ -1762,19 +1762,7 @@ depot_t* grund_t::get_depot() const
 
 signalbox_t* grund_t::get_signalbox() const
 {
-	//return dynamic_cast<signalbox_t *>(first_obj());
-	
-	// The original code above sometimes (and semi-indeterminstically)
-	// failed to return a signalbox where there was more than one object.
-	// This can cause loss of synchronisation over the network.
-
-	// It is not clear whether this is significantly slower than the above. 
-	// It might possibly be sped up by using the old system where the number
-	// of objects is < 2.
-
-	//const uint32 count = obj_count(); 
-
-	return dynamic_cast<signalbox_t *>(suche_obj(obj_t::signalbox));
+	return dynamic_cast<signalbox_t *>(first_obj());
 }
 
 gebaeude_t *grund_t::get_building() const
@@ -1980,17 +1968,13 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 
 		weg->mark_image_dirty(get_image(), 0);
 
-#ifdef MULTI_THREAD
+#ifdef MULTI_THREAD_CONVOYS
 		if (env_t::networkmode)
 		{
 			// In network mode, we cannot have anything that alters a way running concurrently with
 			// convoy path-finding because whether the convoy path-finder is called
 			// on this tile of way before or after this function is indeterminate.
-			if (!world()->get_first_step())
-			{
-				simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
-				welt->set_first_step(1);
-			}
+			world()->await_convoy_threads();
 		}
 #endif
 

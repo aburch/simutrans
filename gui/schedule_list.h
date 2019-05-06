@@ -87,7 +87,7 @@ public:
 	static linehandle_t selected_line[MAX_PLAYER_COUNT][simline_t::MAX_LINE_TYPE];
 
 
-	schedule_list_gui_t(player_t* player);
+	schedule_list_gui_t(player_t* player_);
 	~schedule_list_gui_t();
 	/**
 	* in top-level windows the name is displayed in titlebar
