@@ -720,16 +720,16 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			break;
 	}
 	switch (obj.get_int("fixed_coupling_next", 255)) {
-	case 0:
-		if ((coupling_constraint & vehicle_desc_t::permanent_coupling_next) == 0) {
-			coupling_constraint &= ~vehicle_desc_t::fixed_coupling_next;
-		}
-		break;
-	case 1:
-		coupling_constraint |= vehicle_desc_t::fixed_coupling_next;
-		break;
-	default:
-		break;
+		case 0:
+			if ((coupling_constraint & vehicle_desc_t::permanent_coupling_next) == 0) {
+				coupling_constraint &= ~vehicle_desc_t::fixed_coupling_next;
+			}
+			break;
+		case 1:
+			coupling_constraint |= vehicle_desc_t::fixed_coupling_next;
+			break;
+		default:
+			break;
 	}
 
 	// Upgrades: these are the vehicle types to which this vehicle

@@ -269,9 +269,8 @@ void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVA
 #define display_veh_form( x, y, w, color, d, flags, interactivity, right, reversed ) display_veh_form_wh_clip_rgb( (x), (y), (w), specialcolormap_all_day[(color)&0xFF], (d), (flags), (interactivity), (right), (reversed))
 
 enum {
-	BIDIRECTIONAL = 1, // coach, wagon
-	HAS_POWER = 2,
-	DOUBLE_HEADED_LOCO = (BIDIRECTIONAL && HAS_POWER)
+	BIDIRECTIONAL = 1,
+	HAS_POWER = 2
 };
 
 void display_vline_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PIXVAL color, bool dirty);
