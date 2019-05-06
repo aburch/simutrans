@@ -97,7 +97,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	placement.x=placement.x* get_base_tile_raster_width() / 64 + 2;
 	placement.y=placement.y* get_base_tile_raster_width() / 64 + 2;
 	grid.x=grid.x* get_base_tile_raster_width() / 64 + 4;
-	grid.y=grid.y* get_base_tile_raster_width() / 64 + 6;
+	grid.y=grid.y* get_base_tile_raster_width() / 64 + 2 + VEHICLE_BAR_HEIGHT;
 	//if(wt==road_wt  &&  welt->get_settings().is_drive_left()) {
 	//	// correct for dive on left
 	//	placement.x -= (12*get_base_tile_raster_width())/64;
@@ -490,7 +490,7 @@ void gui_convoy_assembler_t::layout()
 	lb_vehicle_count.set_pos(scr_coord(c2_x, y));
 	lb_vehicle_count.set_size(lb_size);
 	
-	y += 7;
+	y += LINESPACE;
 
 	tabs.set_pos(scr_coord(0, y));
 	tabs.set_size(scr_size(size.w, get_panel_height()));
@@ -972,6 +972,10 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			bt_class_management.set_visible(true);
 		}
 	}
+	else{
+		draw_vehicle_bar_help(parent_pos+pos);
+	}
+
 	bt_outdated.pressed = show_outdated_vehicles;	// otherwise the button would not show depressed
 	bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
 	bt_show_all.pressed = show_all;					// otherwise the button would not show depressed
@@ -1561,15 +1565,21 @@ void gui_convoy_assembler_t::update_data()
 
 		/* color bars for current convoi: */
 		convoi_pics[0]->lcolor = vehicles[0]->can_follow(NULL) ? COL_DARK_GREEN : COL_YELLOW;
+		convoi_pics[0]->basic_coupling_constraint = vehicles[0]->get_coupling_constraint();
+		convoi_pics[0]->interactivity = vehicles[0]->get_interactivity();
 		for(  i=1;  i<vehicles.get_count(); i++) {
 			convoi_pics[i - 1]->rcolor = vehicles[i - 1]->can_lead(vehicles[i]) ? COL_DARK_GREEN : COL_RED;
 			convoi_pics[i]->lcolor     = vehicles[i]->can_follow(vehicles[i - 1]) ? COL_DARK_GREEN : COL_RED;
+			convoi_pics[i]->basic_coupling_constraint = vehicles[i]->get_coupling_constraint();
+			convoi_pics[i]->interactivity = vehicles[i]->get_interactivity();
 		}
 		convoi_pics[i - 1]->rcolor = vehicles[i - 1]->can_lead(NULL) ? COL_DARK_GREEN : COL_YELLOW;
 
 		// change green into blue for retired vehicles
 		for(i=0;  i<vehicles.get_count(); i++) {
 			if(vehicles[i]->is_future(month_now) || vehicles[i]->is_retired(month_now)) {
+				convoi_pics[i]->basic_coupling_constraint = vehicles[i]->get_coupling_constraint();
+				convoi_pics[i]->interactivity = vehicles[i]->get_interactivity();
 				if (convoi_pics[i]->lcolor == COL_DARK_GREEN) {
 					if (vehicles[i]->is_obsolete(month_now, welt)) {
 						convoi_pics[i]->lcolor = COL_DARK_BLUE;
@@ -1611,6 +1621,8 @@ void gui_convoy_assembler_t::update_data()
 		img.count = 0;
 		img.lcolor = ok_color;
 		img.rcolor = ok_color;
+		img.basic_coupling_constraint = info->get_coupling_constraint();
+		img.interactivity = info->get_interactivity();
 
 		/*
 		* color bars for current convoi:
@@ -2666,4 +2678,109 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 		display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		y += LINESPACE + 1;
 	}
+}
+
+//#define VEHICLE_BAR_COLORS 9
+//
+//static uint8 bar_colors[VEHICLE_BAR_COLORS] =
+//{
+//	COL_DARK_GREEN,
+//	COL_YELLOW,
+//	COL_ROYAL_BLUE,
+//	COL_BLUE,
+//	COL_RED,
+//	COL_DARK_ORANGE,
+//	COL_GREY3,
+//	COL_PURPLE,
+//	COL_DARK_PURPLE
+//};
+//static const char bar_color_helptexts[VEHICLE_BAR_COLORS][64] =
+//{
+//	"help_text0",
+//	"need to connect vehicle",
+//	"out of production",
+//	"become obsolete",
+//	"cannot select",
+//	"lack of money",
+//	"axle weight is excessive",
+//	"appears only in upgrades",
+//	"cannot upgrade"
+//};
+
+
+void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
+{
+	int left;
+	sint16 top;
+	top = offset.y + D_V_SPACE + grid.y;
+	left = offset.x + D_MARGIN_LEFT;
+	display_proportional(left + grid.x/2, top - grid.y/2 - LINESPACE, translator::translate("select vehicles from the list and assemble conboy"), ALIGN_LEFT, MN_GREY0, true);
+
+//	// color help
+//	display_proportional(left, top - LINESPACE, translator::translate("Vehicle bar color legends:"), ALIGN_LEFT, SYSCOL_TEXT, true);
+//
+//	// draw help text about color
+//	left += D_MARGIN_LEFT;
+//	//display_proportional(left, top, translator::translate("Color"), ALIGN_LEFT, SYSCOL_TEXT, true);
+	int padding = 0;
+//	for (int i = 0; i < VEHICLE_BAR_COLORS; ++i) {
+//		if(i && i%5 == 0){
+//			left += padding + VEHICLE_BAR_HEIGHT * 2 + 3 + D_H_SPACE;
+//			top = offset.y + D_V_SPACE + grid.y;
+//		}
+//		display_fillbox_wh_clip(left, top+2, VEHICLE_BAR_HEIGHT*2, VEHICLE_BAR_HEIGHT, bar_colors[i], true);
+//		padding = max(padding, display_proportional(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate(bar_color_helptexts[i]), ALIGN_LEFT, CITY_KI, true));
+//
+//		//;
+//
+//		top += LINESPACE;
+//	}
+//	left += padding + VEHICLE_BAR_HEIGHT * 2 + 3 + D_H_SPACE;
+
+	// draw help text about shape
+	top = offset.y + D_V_SPACE + grid.y;
+	display_proportional(left, top - LINESPACE, translator::translate("Vehicle bar shape legends:"), ALIGN_LEFT, SYSCOL_TEXT, true);
+	left += D_MARGIN_LEFT;
+	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, 5, 0, false, false);
+	display_veh_form(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, vehicle_desc_t::can_be_tail_next, 0, true, false);
+	padding = display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_one_direction"), ALIGN_LEFT, CITY_KI, true);
+
+	top += LINESPACE;
+	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, 15, 1, false, false);
+	display_veh_form(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, 15, 1, true, false);
+	padding = max(padding, display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_cab_head"), ALIGN_LEFT, CITY_KI, true));
+
+	top += LINESPACE;
+	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, 12, 1, false, false);
+	display_veh_form(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, 12, 1, true, false);
+	padding = max(padding, display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_can_be_at_rear"), ALIGN_LEFT, CITY_KI, true));
+
+	top += LINESPACE;
+	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, 0, 0, false, false);
+	display_veh_form(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, 0, 0, true, false);
+	padding = max(padding, display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_intermediate"), ALIGN_LEFT, CITY_KI, true));
+
+	top += LINESPACE;
+	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, vehicle_desc_t::fixed_coupling_prev, 0, false, false);
+	display_veh_form(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, vehicle_desc_t::fixed_coupling_next, 0, true, false);
+	padding = max(padding, display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_fixed_outside_depot"), ALIGN_LEFT, CITY_KI, true));
+
+	// 2nd colmn
+	top = offset.y + D_V_SPACE + grid.y;
+	left += padding + VEHICLE_BAR_HEIGHT * 4 + D_H_SPACE + D_MARGIN_LEFT;
+
+	display_fillbox_wh_clip(left+1, top+2, VEHICLE_BAR_HEIGHT*4-2, VEHICLE_BAR_HEIGHT, COL_DARK_GREEN, true);
+	display_proportional(left + VEHICLE_BAR_HEIGHT * 4 + 3, top, translator::translate("helptxt_powerd_vehicle"), ALIGN_LEFT, CITY_KI, true);
+
+	top += LINESPACE;
+	display_fillbox_wh_clip(left+1, top + 2, VEHICLE_BAR_HEIGHT*4 - 2, VEHICLE_BAR_HEIGHT, COL_DARK_GREEN, true);
+	display_blend_wh(left+3, top + 3, VEHICLE_BAR_HEIGHT*4 - 6, VEHICLE_BAR_HEIGHT - 2, COL_WHITE, 30);
+	display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_unpowerd_vehicle"), ALIGN_LEFT, CITY_KI, true);
+
+	top += LINESPACE*3;
+
+	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT*2 - 1, COL_DARK_GREEN, true, (vehicle_desc_t::permanent_coupling_next + vehicle_desc_t::fixed_coupling_next), 0, true, false);
+	display_veh_form(left + VEHICLE_BAR_HEIGHT*2 + 1, top + 2, VEHICLE_BAR_HEIGHT*2 - 1, COL_DARK_GREEN, true, (vehicle_desc_t::permanent_coupling_prev + vehicle_desc_t::fixed_coupling_prev), 0, false, false);
+	display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_permanent_couple"), ALIGN_LEFT, CITY_KI, true);
+
 }

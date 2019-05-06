@@ -105,6 +105,17 @@ public:
 		}
 	}
 
+	enum veh_constraint_t {
+		can_be_head_prev = 1,
+		can_be_head_next = 2,
+		can_be_tail_prev = 4,
+		can_be_tail_next = 8,
+		fixed_coupling_prev = 16,
+		fixed_coupling_next = 32,
+		permanent_coupling_prev = 64,
+		permanent_coupling_next = 128
+	};
+
 
 private:
 	uint32 upgrade_price;			// Price if this vehicle is bought as an upgrade, not a new vehicle.
@@ -138,8 +149,9 @@ private:
 	uint8 catering_level;			// The level of catering. 0 for no catering. Higher numbers for better catering.
 
 	bool bidirectional;				// Whether must always travel in one direction
-	bool can_lead_from_rear;		// Whether vehicle can lead a convoy when it is at the rear.
-	bool can_be_at_rear;			// Whether the vehicle may be at the rear of a convoy (default = true).
+	bool can_lead_from_rear;		// Whether vehicle can lead a convoy when it is at the rear.            Ranran: This parameter is obsolete and is now included in coupling_constraint.
+	bool can_be_at_rear;			// Whether the vehicle may be at the rear of a convoy (default = true). Ranran: It is used to read the old pak, and the flag takes over to the coupling_constraint.
+	uint8 coupling_constraint;		// Constraints on both sides. Values defined in veh_constraint_t. (@Ranran, March 2019)
 
 	uint8 *comfort;					// How comfortable that a vehicle is for passengers. (Pointer to an array of comfort levels per class)
 
@@ -221,7 +233,7 @@ private:
 	{ 
 		if(freight_image_type > 1 && livery_image_type > 1)
 		{
-			return 6; 
+			return 6;
 		}
 		int i = freight_image_type == 255 ? 1 : 0;
 		return livery_image_type > 0 ? 5 + i : 6;
@@ -522,7 +534,7 @@ public:
 	{
 		if(trailer_count == 0) 
 		{
-			if(can_be_at_rear)
+			if(coupling_constraint & can_be_tail_next)
 			{
 				return true;
 			}
@@ -551,7 +563,17 @@ public:
 	bool can_follow(const vehicle_desc_t *prev_veh) const
 	{
 		if(  leader_count==0  ) {
-			return true;
+			if (coupling_constraint & can_be_head_prev)
+			{
+				return true;
+			}
+			else
+			{
+				if (prev_veh != NULL)
+				{
+					return true;
+				}
+			}
 		}
 		for( int i=0;  i<leader_count;  i++  ) 
 		{
@@ -579,6 +601,8 @@ public:
 	}
 
 	int get_upgrades_count() const { return upgrades; }
+	// returns this vehicle has available upgrades @Ranran
+	bool has_available_upgrade(const uint16 month_now) const;
 
 	bool can_follow_any() const { return trailer_count==0; }
 
@@ -602,7 +626,6 @@ public:
 	uint32 get_adjusted_monthly_fixed_cost(class karte_t *welt) const; // includes increase for obsolescence and adjustment for monthly figures
 	sint16 get_sound() const { return sound; }
 	bool is_bidirectional() const { return bidirectional; }
-	bool get_can_lead_from_rear() const { return can_lead_from_rear; }
 	uint8 get_comfort(uint32 g_class = 0) const { return  classes == 0 ? 0: g_class >= classes ? comfort[0] : comfort[g_class]; }
 	uint16 get_overcrowded_capacity() const { return overcrowded_capacity; }
 	uint32 get_min_loading_time() const { return get_total_capacity() > 0 ? min_loading_time : 0; }
@@ -670,6 +693,9 @@ public:
 
 	uint16 get_range() const { return range; }
 	
+	// returns bit flags of bidirectional and has power (v14.6 - 2019 @Ranran)
+	uint8 get_interactivity() const;
+
 	/**
 	* @return introduction year
 	* @author Hj. Malthaner
@@ -737,7 +763,26 @@ public:
 	*@author: jamespetts*/
 	bool get_tilting() const { return is_tilting;	}
 
-	bool get_can_be_at_rear() const { return can_be_at_rear; }
+	// Returns whether one side of the vehicle can be "head".
+	// Note: Normally the front side is checked, but it is necessary to check the rear side when vehicle is reversed or before reversing convoy. (Ranran)
+	bool get_can_be_at_front(bool chk_rear_end) const {
+		if (chk_rear_end ? coupling_constraint & can_be_head_next : coupling_constraint & can_be_head_prev) {
+			return true;
+		}
+		return false;
+	}
+	// Returns whether one side of the vehicle can be "tail end".
+	// Note: Normally the rear side is checked, but it is necessary to check the front side when vehicle is reversed or before reversing convoy. (Ranran)
+	bool get_can_be_at_rear(bool chk_front_end) const {
+		if (chk_front_end ? coupling_constraint & can_be_head_prev || coupling_constraint & can_be_tail_prev
+			: coupling_constraint & can_be_head_next || coupling_constraint & can_be_tail_next)
+		{
+			return true;
+		}
+		return false;
+	}
+	// return basic coupling constraint flags
+	uint8 get_coupling_constraint() const { return coupling_constraint; }
 
 	float32e8_t get_air_resistance() const { return air_resistance; }
 	float32e8_t get_rolling_resistance() const { return rolling_resistance; }

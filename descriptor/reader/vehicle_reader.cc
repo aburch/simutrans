@@ -62,6 +62,9 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		extended_version -= 1;
 	}
 
+	// Covert olad data falg for basic constraint @Ranran
+	bool convert_coupling_constraint = false;
+
 	way_constraints_of_vehicle_t way_constraints;
 
 	if(version == 1) {
@@ -466,7 +469,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->freight_image_type = decode_uint8(p);
 		if(extended)
 		{
-			if(extended_version < 5)
+			if(extended_version < 6)
 			{
 				// NOTE: Extended version reset to 1 with incrementing of
 				// Standard version to 10.
@@ -496,7 +499,15 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->tractive_effort = decode_uint16(p);
 				uint32 air_resistance_hundreds = decode_uint16(p);
 				desc->air_resistance = air_resistance_hundreds * float32e8_t::centi;
-				desc->can_be_at_rear = (bool)decode_uint8(p);
+				if (extended && extended_version >= 5)
+				{
+					desc->coupling_constraint = decode_uint8(p);
+				}
+				else
+				{
+					desc->can_be_at_rear = (bool)decode_uint8(p);
+					convert_coupling_constraint = true;
+				}
 				desc->increase_maintenance_after_years = decode_uint16(p);
 				desc->increase_maintenance_by_percent = decode_uint16(p);
 				desc->years_before_maintenance_max_reached = decode_uint8(p);
@@ -649,6 +660,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->range = 0;
 		desc->way_wear_factor = 1;
 		desc->is_tall = false;
+		convert_coupling_constraint = true;
 	}
 	desc->set_way_constraints(way_constraints);
 
@@ -662,6 +674,31 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->weight *= 1000;
 		desc->range = 0;
 		desc->way_wear_factor = UINT32_MAX_VALUE;
+	}
+
+	// Convert flag
+
+	if (desc->can_lead_from_rear == true && desc->bidirectional == false){
+		desc->bidirectional = true;
+	}
+	// give old vehicle pak a tentative value.
+	if (convert_coupling_constraint) {
+		desc->coupling_constraint = 0;
+		desc->coupling_constraint |= vehicle_desc_t::can_be_head_prev | vehicle_desc_t::can_be_head_next | vehicle_desc_t::can_be_tail_prev | vehicle_desc_t::can_be_tail_next;
+		if (desc->can_be_at_rear == false) {
+			desc->coupling_constraint &= ~(vehicle_desc_t::can_be_head_next | vehicle_desc_t::can_be_tail_next);
+			if (desc->can_lead_from_rear) {
+				desc->coupling_constraint |= vehicle_desc_t::fixed_coupling_next;
+			}
+		}
+		if (desc->bidirectional && !desc->can_lead_from_rear) {
+			if (!desc->power) {
+				desc->coupling_constraint &= ~(vehicle_desc_t::can_be_head_prev | vehicle_desc_t::can_be_head_next); // coaches and brake van
+			}
+		}
+		else if (!desc->bidirectional) {
+			desc->coupling_constraint &= ~vehicle_desc_t::can_be_head_next;
+		}
 	}
 
 	if(desc->sound==LOAD_SOUND) {
@@ -686,7 +723,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc-
 		"way=%d classes=%d capacity=%d comfort=%d cost=%d topspeed=%d weight=%g axle_load=%d power=%d "
 		"betrieb=%d sound=%d vor=%d nach=%d "
 		"date=%d/%d gear=%d engine_type=%d len=%d is_tilting=%d catering_level=%d "
-		"way_constraints_permissive=%d way_constraints_prohibitive%d bidirectional%d can_lead_from_rear%d",
+		"way_constraints_permissive=%d way_constraints_prohibitive%d bidirectional%d can_lead_from_rear%d coupling_constraint%d",
 		version,
 		desc->wtyp,
 		desc->classes,
@@ -711,7 +748,8 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc-
 		desc->get_way_constraints().get_permissive(),
 		desc->get_way_constraints().get_prohibitive(),
 		desc->bidirectional,
-		desc->can_lead_from_rear);
+		desc->can_lead_from_rear,
+		desc->coupling_constraint);
 
 	return desc;
 }

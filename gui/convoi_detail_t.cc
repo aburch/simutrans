@@ -45,7 +45,9 @@
 convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 : gui_frame_t( cnv->get_name(), cnv->get_owner() ),
   scrolly(&veh_info),
-  veh_info(cnv)
+	scrolly_formation(&formation),
+	formation(cnv),
+	veh_info(cnv)
 {
 	this->cnv = cnv;
 
@@ -70,24 +72,25 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	class_management_button.add_listener(this);
 
 
-	int header_height = 2 + 16 + 6 * LINESPACE;
-	if (any_obsoletes)
-	{
-		header_height += LINESPACE;
-	}
-	if (any_upgrades)
-	{
-		header_height += LINESPACE;
-	}
+	scrolly_formation.set_pos(scr_coord(0, LINESPACE*7));
+	scrolly_formation.set_show_scroll_x(true);
+	scrolly_formation.set_show_scroll_y(false);
+	scrolly_formation.set_scroll_discrete_x(false);
+	scrolly_formation.set_scrollbar_mode(scrollbar_t::show_auto);
+	scrolly_formation.set_size_corner(false);
+	add_component(&scrolly_formation);
 
-	scrolly.set_pos(scr_coord(0, header_height));
+	int header_height = D_TITLEBAR_HEIGHT + LINESPACE * 9 + 4;
+
 	scrolly.set_show_scroll_x(true);
-	add_component(&scrolly);
-
+	tabs.add_tab(&scrolly, translator::translate("General"));
+	tabs.set_pos(scr_coord(0, header_height));
+	add_component(&tabs);
+	tabs.add_listener(this);
 	
 
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+17*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-6));
-	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+3*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-3));
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+10*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-3));
 
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0,0));
@@ -101,7 +104,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 	}
 	else {
 		bool any_class = false;
-		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); ++veh)
 		{
 			vehicle_t* v = cnv->get_vehicle(veh);
 			if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS || v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
@@ -167,16 +170,16 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 		offset_y += LINESPACE;
 
-		buf.clear();
-		buf.printf("%s %i", translator::translate("Station tiles:"), cnv->get_tile_length() );
-		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
-		offset_y += LINESPACE;
-
 		// current resale value
 		money_to_string( number, cnv->calc_sale_value() / 100.0 );
 		buf.clear();
 		buf.printf("%s %s", translator::translate("Restwert:"), number );
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+		offset_y += LINESPACE;
+
+		buf.clear();
+		buf.printf("%s %i", translator::translate("Station tiles:"), cnv->get_tile_length() );
+		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 		offset_y += LINESPACE;
 
 		vehicle_t* v1 = cnv->get_vehicle(0); 
@@ -190,100 +193,6 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 			buf.printf("%s: %s", translator::translate("Current working method"), translator::translate(rv1->is_leading() ? roadsign_t::get_working_method_name(rv1->get_working_method()) : roadsign_t::get_working_method_name(rv2->get_working_method()))); 
 			display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 			offset_y += LINESPACE;
-		}
-
-		uint16 vehicle_count = cnv->get_vehicle_count();
-
-		// Upgrades
-		const uint16 month_now = welt->get_timeline_year_month();
-		int amount_of_upgradeable_vehicles = 0;
-
-		for (uint16 i = 0; i < vehicle_count; i++)
-		{
-			const vehicle_desc_t *desc = cnv->get_vehicle(i)->get_desc();
-			for (int i = 0; i < desc->get_upgrades_count(); i++)
-			{
-				const vehicle_desc_t *upgrade_desc = desc->get_upgrades(i);
-				if (upgrade_desc && !upgrade_desc->is_future(month_now) && (!upgrade_desc->is_retired(month_now)))
-				{
-					amount_of_upgradeable_vehicles++;
-					break;
-				}
-			}
-		}
-		if (amount_of_upgradeable_vehicles > 0)
-		{
-			buf.clear();
-			buf.printf("%s: %i", translator::translate("upgradeable_vehicles"), amount_of_upgradeable_vehicles);
-			display_proportional_clip(pos.x + 10, offset_y, buf, ALIGN_LEFT, COL_PURPLE, true);
-			offset_y += LINESPACE;
-		}
-		
-		// Bernd Gabriel, 16.06.2009: current average obsolescence increase percentage
-		
-		if (vehicle_count > 0)
-		{
-			any_obsoletes = false;
-		/* Bernd Gabriel, 17.06.2009:
-		The average percentage tells nothing about the real cost increase: If a cost-intensive 
-		loco is very old and at max increase (1 * 400% * 1000 cr/month, but 15 low-cost cars are 
-		brand new (15 * 100% * 100 cr/month), an average percentage of 
-		(1 * 400% + 15 * 100%) / 16 = 118.75% does not tell the truth. Actually we pay
-		(1 * 400% * 1000 + 15 * 100% * 100) / (1 * 1000 + 15 * 100) = 220% twice as much as in the
-		early years of the loco.
-
-			uint32 percentage = 0;
-			for (uint16 i = 0; i < vehicle_count; i++) {
-				percentage += cnv->get_vehicle(i)->get_desc()->calc_running_cost(welt, 10000);
-			}
-			percentage = percentage / (vehicle_count * 100) - 100;
-			if (percentage > 0)
-			{
-				sprintf( tmp, "%s: %d%%", translator::translate("Obsolescence increase"), percentage);
-				display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_DARK_BLUE, true );
-				offset_y += LINESPACE;
-			}
-		On the other hand: a single effective percentage does not tell the truth as well. Supposed we 
-		calculate the percentage from the costs per km, the relations for the month costs can widely differ.
-		Therefore I show different values for running and monthly costs:
-		*/
-			uint32 run_actual = 0, run_nominal = 0, run_percent = 0;
-			uint32 mon_actual = 0, mon_nominal = 0, mon_percent = 0;
-			for (uint16 i = 0; i < vehicle_count; i++) {
-				const vehicle_desc_t *desc = cnv->get_vehicle(i)->get_desc();
-				run_nominal += desc->get_running_cost();
-				run_actual  += desc->get_running_cost(welt);
-				mon_nominal += welt->calc_adjusted_monthly_figure(desc->get_fixed_cost());
-				mon_actual  += welt->calc_adjusted_monthly_figure(desc->get_fixed_cost(welt));
-			}
-			buf.clear();
-			if (run_nominal) run_percent = ((run_actual - run_nominal) * 100) / run_nominal;
-			if (mon_nominal) mon_percent = ((mon_actual - mon_nominal) * 100) / mon_nominal;
-			if (run_percent)
-			{
-				if (mon_percent)
-				{
-					buf.printf("%s: %d%%/km %d%%/mon", translator::translate("Obsolescence increase"), run_percent, mon_percent);
-				}
-				else
-				{
-					buf.printf("%s: %d%%/km", translator::translate("Obsolescence increase"), run_percent);
-				}
-			}
-			else
-			{
-				if (mon_percent)
-				{
-					buf.printf("%s: %d%%/mon", translator::translate("Obsolescence increase"), mon_percent);
-				}
-			}
-			if (buf.len() > 0)
-			{
-				display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_DARK_BLUE, true );
-				offset_y += LINESPACE;
-				any_obsoletes = true;
-			}
-
 		}
 	}
 }
@@ -326,7 +235,9 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t v/* */
 void convoi_detail_t::set_windowsize(scr_size size)
 {
 	gui_frame_t::set_windowsize(size);
-	scrolly.set_size(get_client_windowsize()-scrolly.get_pos());
+	//scrolly.set_size(get_client_windowsize()-scrolly.get_pos());
+	tabs.set_size(get_client_windowsize() - tabs.get_pos());
+	scrolly_formation.set_size(scr_size(size.w-1, LINESPACE + VEHICLE_BAR_HEIGHT + 12 + 10 + D_SCROLLBAR_HEIGHT)); // (margin + indicator bar height) + goods symbol height
 }
 
 
@@ -334,7 +245,9 @@ void convoi_detail_t::set_windowsize(scr_size size)
 convoi_detail_t::convoi_detail_t()
 : gui_frame_t("", NULL ),
   scrolly(&veh_info),
-  veh_info(convoihandle_t())
+	scrolly_formation(&formation),
+	formation(convoihandle_t()),
+	veh_info(convoihandle_t())
 {
 	cnv = convoihandle_t();
 }
@@ -359,6 +272,8 @@ void convoi_detail_t::rdwr(loadsave_t *file)
 	scr_size size = get_windowsize();
 	sint32 xoff = scrolly.get_scroll_x();
 	sint32 yoff = scrolly.get_scroll_y();
+	sint32 formation_xoff = scrolly_formation.get_scroll_x();
+	sint32 formation_yoff = scrolly_formation.get_scroll_y();
 
 	size.rdwr( file );
 	file->rdwr_long( xoff );
@@ -378,6 +293,7 @@ void convoi_detail_t::rdwr(loadsave_t *file)
 		create_win(pos.x, pos.y, w, w_info, magic_convoi_detail + cnv.get_id());
 		w->set_windowsize( size );
 		w->scrolly.set_scroll_position( xoff, yoff );
+		w->scrolly_formation.set_scroll_position(formation_xoff, formation_yoff);
 		// we must invalidate halthandle
 		cnv = convoihandle_t();
 		destroy_win( this );
@@ -402,13 +318,83 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 	// keep previous maximum width
 	int x_size = get_size().w - 51 - pos.x;
 	karte_t *welt = world();
-	offset.y += LINESPACE;
+	offset.y += LINESPACE/2;
 
 	int total_height = 0;
 	if (cnv.is_bound()) {
 		char number[64];
 		cbuffer_t buf;
 		cbuffer_t freight_info_class;
+
+		uint16 vehicle_count = cnv->get_vehicle_count();
+
+		// Bernd Gabriel, 16.06.2009: current average obsolescence increase percentage
+		if (vehicle_count > 0)
+		{
+			any_obsoletes = false;
+			/* Bernd Gabriel, 17.06.2009:
+			The average percentage tells nothing about the real cost increase: If a cost-intensive
+			loco is very old and at max increase (1 * 400% * 1000 cr/month, but 15 low-cost cars are
+			brand new (15 * 100% * 100 cr/month), an average percentage of
+			(1 * 400% + 15 * 100%) / 16 = 118.75% does not tell the truth. Actually we pay
+			(1 * 400% * 1000 + 15 * 100% * 100) / (1 * 1000 + 15 * 100) = 220% twice as much as in the
+			early years of the loco.
+
+				uint32 percentage = 0;
+				for (uint16 i = 0; i < vehicle_count; i++) {
+					percentage += cnv->get_vehicle(i)->get_desc()->calc_running_cost(welt, 10000);
+				}
+				percentage = percentage / (vehicle_count * 100) - 100;
+				if (percentage > 0)
+				{
+					sprintf( tmp, "%s: %d%%", translator::translate("Obsolescence increase"), percentage);
+					display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_DARK_BLUE, true );
+					offset_y += LINESPACE;
+				}
+			On the other hand: a single effective percentage does not tell the truth as well. Supposed we
+			calculate the percentage from the costs per km, the relations for the month costs can widely differ.
+			Therefore I show different values for running and monthly costs:
+			*/
+			uint32 run_actual = 0, run_nominal = 0, run_percent = 0;
+			uint32 mon_actual = 0, mon_nominal = 0, mon_percent = 0;
+			for (uint16 i = 0; i < vehicle_count; i++) {
+				const vehicle_desc_t *desc = cnv->get_vehicle(i)->get_desc();
+				run_nominal += desc->get_running_cost();
+				run_actual += desc->get_running_cost(welt);
+				mon_nominal += welt->calc_adjusted_monthly_figure(desc->get_fixed_cost());
+				mon_actual += welt->calc_adjusted_monthly_figure(desc->get_fixed_cost(welt));
+			}
+			buf.clear();
+			if (run_nominal) run_percent = ((run_actual - run_nominal) * 100) / run_nominal;
+			if (mon_nominal) mon_percent = ((mon_actual - mon_nominal) * 100) / mon_nominal;
+			if (run_percent)
+			{
+				if (mon_percent)
+				{
+					buf.printf("%s: %d%%/km %d%%/mon", translator::translate("Obsolescence increase"), run_percent, mon_percent);
+				}
+				else
+				{
+					buf.printf("%s: %d%%/km", translator::translate("Obsolescence increase"), run_percent);
+				}
+			}
+			else
+			{
+				if (mon_percent)
+				{
+					buf.printf("%s: %d%%/mon", translator::translate("Obsolescence increase"), mon_percent);
+				}
+			}
+			if (buf.len() > 0)
+			{
+				if (skinverwaltung_t::alerts) {
+					display_color_img(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y, 0, false, false);
+				}
+				display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT + 13, offset.y, buf, ALIGN_LEFT, COL_DARK_BLUE, true);
+				offset.y += LINESPACE*1.5;
+				any_obsoletes = true;
+			}
+		}
 
 		static cbuffer_t freight_info;
 		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++) {
@@ -760,3 +746,137 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 	}
 }
 
+// component for vehicle display
+gui_convoy_formaion_t::gui_convoy_formaion_t(convoihandle_t cnv)
+{
+	this->cnv = cnv;
+}
+
+void gui_convoy_formaion_t::draw(scr_coord offset)
+{
+	if (cnv.is_bound()) {
+		offset.y += 2; // margin top
+		offset.x += D_MARGIN_LEFT;
+		karte_t *welt = world();
+		const uint16 month_now = welt->get_timeline_year_month();
+		bool is_return_trip = cnv->is_reversed();
+		const uint8 grid_width = D_BUTTON_WIDTH / 3;
+
+		int loco_cnt = 0;
+		int brake_van_cnt = 0;
+		int normal_car_cnt = is_return_trip ? -1 : 0;
+		uint8 color;
+		cbuffer_t buf;
+		bool is_loco = true;
+		bool fixed = true; // for articulated locomotive. Check the constraints between the two cars
+
+		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); ++veh) {
+			buf.clear();
+			vehicle_t *v = cnv->get_vehicle(veh);
+
+			// set the crowding indicator color
+			if (v->get_desc()->get_total_capacity() > 0) {
+				is_loco = false;
+
+				// total loading rate of this vehicle. multiple classes are summed.
+				int boarding_rate = v->get_total_cargo()*100 / v->get_cargo_max();
+
+				color = COL_GREEN;
+				if (!v->get_total_cargo()) {
+					color = COL_YELLOW; // empty
+				}
+				else if (boarding_rate == 100) {
+					color = COL_ORANGE;
+				}
+				else if (boarding_rate > 100) {
+					color = COL_OVERCROWD;
+				}
+				// TODO: If it has multiple classes, there may be passengers standing.
+
+				normal_car_cnt++;
+				buf.printf("%d", is_return_trip ? cnv->get_vehicle_count() - normal_car_cnt - loco_cnt : normal_car_cnt);
+
+				// [goods symbol]
+				// assume that the width of the goods symbol is 10px
+				if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS) {
+					display_color_img(skinverwaltung_t::passengers->get_image_id(0), offset.x + grid_width/2 - 5, offset.y + LINESPACE + VEHICLE_BAR_HEIGHT + 8, 0, false, false);
+				}
+				else if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL) {
+					display_color_img(skinverwaltung_t::mail->get_image_id(0), offset.x + grid_width / 2 - 5, offset.y + LINESPACE + VEHICLE_BAR_HEIGHT + 8, 0, false, false);
+				}
+				else {
+					// TODO: change ware symbol to category symbol
+					display_color_img(skinverwaltung_t::goods->get_image_id(0), offset.x + grid_width / 2 - 5, offset.y + LINESPACE + VEHICLE_BAR_HEIGHT + 8, 0, false, false);
+				}
+			}
+			else {
+				color = MN_GREY0;
+				// Check the front side constraints...
+				// fixed from prev loco or 1st loco, then this is part of a locomotive. 
+				if (!fixed) {
+					if (v->get_desc()->get_power()) {
+						// The second and subsequent locomotives. Note the example at the end. e.g. two locomotive push-pull.
+						is_loco = true;
+					}
+					// If not fixed from either, it is considered not to be a locomotive. e.g. brake van behind a locomotive
+					if ((v->is_reversed() ? (v->get_desc()->get_coupling_constraint() & vehicle_desc_t::fixed_coupling_next) == 0 : (v->get_desc()->get_coupling_constraint() & vehicle_desc_t::fixed_coupling_prev) == 0)
+						&& !v->get_desc()->get_power()) {
+						is_loco = false;
+					}
+				}
+
+				// Check the back side constraints...
+				if (v->is_reversed() ? v->get_desc()->get_coupling_constraint() & vehicle_desc_t::fixed_coupling_prev : v->get_desc()->get_coupling_constraint() & vehicle_desc_t::fixed_coupling_next) {
+					fixed = true; // This locomotive needs a fixed partner behind. 
+				}
+				else {
+					fixed = false;
+				}
+				// display the car no.
+				if (v->get_waytype() == track_wt || v->get_waytype() == tram_wt || v->get_waytype() == narrowgauge_wt)
+				{
+					if (is_loco) {
+						buf.printf("%s%d", translator::translate("LOCO_SYM"), ++loco_cnt); // This also applies to horses and tractors and push locomotives.
+					}
+					else {
+						// This vehicle does not carry a load but is not a locomotive. brake van or something.
+						normal_car_cnt++;
+						buf.printf("%d", is_return_trip ? cnv->get_vehicle_count() - normal_car_cnt - loco_cnt : normal_car_cnt);
+					}
+				}
+				else {
+					buf.printf("%d", veh+1);
+				}
+			}
+			// TODO: Possibility of class display
+			// [loading indicator]
+			display_fillbox_wh_clip(offset.x+2, offset.y + LINESPACE + VEHICLE_BAR_HEIGHT + 3, grid_width - 4, 3, color, true);
+
+			// [cars no.]
+			color = COL_GREY2;
+			if(v->get_desc()->has_available_upgrade(month_now)){
+				color = COL_PURPLE;
+			}
+			int left = display_proportional_clip(offset.x+2, offset.y, buf, ALIGN_LEFT, color, true);
+#ifdef DEBUG
+			if (v->is_reversed()) {
+				display_proportional_clip(offset.x + 2 + left, offset.y-2, "*", ALIGN_LEFT, COL_YELLOW, true);
+			}
+#endif
+
+			color = v->get_desc()->is_future(month_now) || v->get_desc()->is_retired(month_now) ? COL_ROYAL_BLUE : COL_DARK_GREEN;
+			if (v->get_desc()->is_obsolete(month_now, welt)) {
+				color = COL_DARK_BLUE;
+			}
+			display_veh_form(offset.x+1, offset.y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, color, true, v->get_desc()->get_coupling_constraint(), v->get_desc()->get_interactivity(), false, v->is_reversed());
+			display_veh_form(offset.x + grid_width / 2, offset.y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, color, true, v->get_desc()->get_coupling_constraint(), v->get_desc()->get_interactivity(), true, v->is_reversed());
+
+			offset.x += grid_width;
+		}
+
+		scr_size size(grid_width*cnv->get_vehicle_count() + D_MARGIN_LEFT*2, LINESPACE + VEHICLE_BAR_HEIGHT + 10 + D_SCROLLBAR_HEIGHT);
+		if (size != get_size()) {
+			set_size(size);
+		}
+	}
+}

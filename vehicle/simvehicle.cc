@@ -2310,7 +2310,7 @@ ribi_t::ribi vehicle_t::get_direction_of_travel() const
 
 void vehicle_t::set_reversed(bool value)
 {
-	if(desc->is_bidirectional() || (cnv != NULL && cnv->get_reversable()))
+	if(desc->is_bidirectional())
 	{
 		reversed = value;
 	}
@@ -2460,6 +2460,8 @@ uint8 vehicle_t::get_comfort(uint8 catering_level, uint8 g_class) const
 	// Average comfort of seated and standing
 	return ((total_seated_passengers * base_comfort) + (total_standing_passengers * standing_comfort)) / passenger_count;
 }
+
+
 
 void vehicle_t::rdwr(loadsave_t *file)
 {
@@ -3128,7 +3130,18 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				{
 					char reversing_time[64];
 					cnv->snprintf_remaining_reversing_time(reversing_time, sizeof(reversing_time));
-					sprintf( tooltip_text, translator::translate("Reversing. %s left"), reversing_time);
+					switch (cnv->get_terminal_shunt_mode()) {
+						case convoi_t::rearrange:
+						case convoi_t::shunting_loco:
+							sprintf(tooltip_text, translator::translate("Shunting. %s left"), reversing_time);
+							break;
+						case convoi_t::change_direction:
+							sprintf(tooltip_text, translator::translate("Changing direction. %s left"), reversing_time);
+							break;
+						default:
+							sprintf(tooltip_text, translator::translate("Reversing. %s left"), reversing_time);
+							break;
+					}
 					color = COL_YELLOW;
 				}
 				break;

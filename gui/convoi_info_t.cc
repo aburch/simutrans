@@ -543,7 +543,18 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 			char reversing_time[64];
 			cnv->snprintf_remaining_reversing_time(reversing_time, sizeof(reversing_time));
-			sprintf(speed_text, translator::translate("Reversing. %s left"), reversing_time);
+			switch (cnv->get_terminal_shunt_mode()) {
+			case convoi_t::rearrange:
+			case convoi_t::shunting_loco:
+				sprintf(speed_text, translator::translate("Shunting. %s left"), reversing_time);
+				break;
+			case convoi_t::change_direction:
+				sprintf(speed_text, translator::translate("Changing direction. %s left"), reversing_time);
+				break;
+			default:
+				sprintf(speed_text, translator::translate("Reversing. %s left"), reversing_time);
+				break;
+			}
 			speed_color = COL_BLACK;
 			break;
 

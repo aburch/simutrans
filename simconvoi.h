@@ -117,6 +117,13 @@ public:
 		MAX_STATES
 	};
 
+	enum terminal_shunt_mode {
+		wye = 0,
+		rearrange = 1,
+		shunting_loco = 2,
+		change_direction = 3
+	};
+
 	/**
 	* time, when a convoi waiting for full load will drive on
 	* @author prissi
@@ -1617,6 +1624,18 @@ public:
 			return NULL;
 		}
 	}
+
+	// Returns this convoy's reversing method. (v14.6 - 2019 @Ranran)
+	uint8 get_terminal_shunt_mode() const;
+
+private:
+	/** Train formation checks
+	 *  v14.6 - 2019 @Ranran
+	 */
+	bool is_fixed(uint8 car_no, bool rear_side) const;
+	uint8 get_front_loco_count() const;
+	uint8 check_new_tail(uint8 start) const;
+	bool check_need_turntable() const;
 };
 
 #endif
