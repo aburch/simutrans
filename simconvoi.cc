@@ -8355,6 +8355,24 @@ uint8 convoi_t::get_front_loco_count() const
 	bool another_chunk_has_power = false;
 	for (uint32 i = 1; i < vehicle_count; ++i)
 	{
+		// Check the relationship with the previous vehicle.
+		if (first_loco && is_fixed(i, false)) {
+			loco_count++;
+			continue;
+		}
+		if (get_vehicle(i - 1)->is_reversed() ? get_vehicle(i - 1)->get_desc()->get_coupling_constraint() & vehicle_desc_t::can_be_tail_prev
+			: get_vehicle(i - 1)->get_desc()->get_coupling_constraint() & vehicle_desc_t::can_be_tail_next)
+		{
+			// can devide. so this vehicle seems another chunk from prev powered chunk.
+			first_loco = false;
+			if(another_chunk_has_cab && another_chunk_has_power){
+				loco_count = i; // the previous vehicle is considered a different powered chunk
+			}
+			another_chunk_has_cab = false;
+			another_chunk_has_power = false;
+		}
+
+		// check this vehicle
 		if (get_vehicle(i)->get_desc()->get_power()) {
 			another_chunk_has_power = true;
 		}
@@ -8362,18 +8380,7 @@ uint8 convoi_t::get_front_loco_count() const
 			another_chunk_has_cab = true;
 		}
 		if (is_fixed(i, false)) {
-			if (first_loco) {
-				loco_count++;
-				another_chunk_has_cab = false;
-				another_chunk_has_power = false;
-			}
-			continue;
-		}
-		else if (get_vehicle(i - 1)->is_reversed() ? get_vehicle(i - 1)->get_desc()->get_coupling_constraint() & vehicle_desc_t::can_be_tail_prev
-			: get_vehicle(i - 1)->get_desc()->get_coupling_constraint() & vehicle_desc_t::can_be_tail_next)
-		{
-			// can devide. so this vehicle seems another chunk from first loco.
-			first_loco = false;
+			continue; // judgment postponed
 		}
 		if (!get_vehicle(i)->get_desc()->is_bidirectional()) {
 			// something that should not be left...

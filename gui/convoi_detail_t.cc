@@ -862,6 +862,9 @@ void gui_convoy_formaion_t::draw(scr_coord offset)
 			if (v->is_reversed()) {
 				display_proportional_clip(offset.x + 2 + left, offset.y-2, "*", ALIGN_LEFT, COL_YELLOW, true);
 			}
+			if (!v->get_desc()->is_bidirectional()) {
+				display_proportional_clip(offset.x + 2 + left, offset.y - 2, "<", ALIGN_LEFT, COL_LIGHT_TURQUOISE, true);
+			}
 #endif
 
 			color = v->get_desc()->is_future(month_now) || v->get_desc()->is_retired(month_now) ? COL_ROYAL_BLUE : COL_DARK_GREEN;
