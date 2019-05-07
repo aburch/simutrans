@@ -8383,11 +8383,14 @@ uint8 convoi_t::get_front_loco_count() const
 			continue; // judgment postponed
 		}
 		if (!get_vehicle(i)->get_desc()->is_bidirectional()) {
-			// something that should not be left...
-			loco_count = i + 1;
-			another_chunk_has_cab = false;
-			another_chunk_has_power = false;
-			continue;
+			if (!is_fixed(i, true)) {
+				// something that should not be left...
+				loco_count = i + 1;
+				another_chunk_has_cab = false;
+				another_chunk_has_power = false;
+				continue;
+			}
+			continue; // judgment postponed, possibility of single direction locomotives
 		}
 		if (get_vehicle(i)->is_reversed() ? get_vehicle(i)->get_desc()->get_coupling_constraint() & vehicle_desc_t::can_be_tail_next
 			: get_vehicle(i)->get_desc()->get_coupling_constraint() & vehicle_desc_t::can_be_tail_prev)
@@ -8506,9 +8509,13 @@ bool convoi_t::check_need_turntable() const
 {
 	if (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
 	{
-		if (!front()->get_desc()->is_bidirectional()) {
-			return true;
+		for (uint32 i = 0; i < get_front_loco_count(); ++i)
+		{
+			if (!get_vehicle(i)->get_desc()->is_bidirectional()) {
+				return true;
+			}
 		}
+		// the last locomotive must not be a single head facing the front
 		if (get_vehicle(get_front_loco_count() - 1)->is_reversed() ?
 			(get_vehicle(get_front_loco_count()-1)->get_desc()->get_coupling_constraint() & vehicle_desc_t::can_be_head_prev == 0)
 			: (get_vehicle(get_front_loco_count() - 1)->get_desc()->get_coupling_constraint() & vehicle_desc_t::can_be_head_next == 0))

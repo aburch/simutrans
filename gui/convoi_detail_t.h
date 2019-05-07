@@ -75,10 +75,6 @@ public:
 
 	void set_cnv(convoihandle_t c) { cnv = c; }
 
-	/**
-	 * Draw the component
-	 * @author Hj. Malthaner
-	 */
 	void draw(scr_coord offset);
 };
 
