@@ -4549,27 +4549,30 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				uint32 connexions_map_count = 0;
 				if (file->is_saving())
 				{
-					connexions_map_count = connexions[(catg_index * max_classes) + i]->get_count();
+					connexions_map_count = connexions[(catg_index * max_classes) + i] ? connexions[(catg_index * max_classes) + i]->get_count() : 0;
 					file->rdwr_long(connexions_map_count); 
 
-					FOR(connexions_map, const& iter, *(connexions[(catg_index * max_classes) + i]))
+					if (connexions_map_count > 0)
 					{
-						tmp_idx = iter.key.get_id();
+						FOR(connexions_map, const& iter, *(connexions[(catg_index * max_classes) + i]))
+						{
+							tmp_idx = iter.key.get_id();
 
-						tmp_journey_time = iter.value->journey_time;
-						tmp_waiting_time = iter.value->waiting_time;
-						tmp_transfer_time = iter.value->transfer_time;
-						tmp_best_line_idx = iter.value->best_line.get_id();
-						tmp_best_convoy_idx = iter.value->best_convoy.get_id();
-						tmp_alternative_seats = iter.value->alternative_seats;
+							tmp_journey_time = iter.value->journey_time;
+							tmp_waiting_time = iter.value->waiting_time;
+							tmp_transfer_time = iter.value->transfer_time;
+							tmp_best_line_idx = iter.value->best_line.get_id();
+							tmp_best_convoy_idx = iter.value->best_convoy.get_id();
+							tmp_alternative_seats = iter.value->alternative_seats;
 
-						file->rdwr_short(tmp_idx);
-						file->rdwr_long(tmp_journey_time);
-						file->rdwr_long(tmp_waiting_time);
-						file->rdwr_long(tmp_transfer_time);
-						file->rdwr_short(tmp_best_convoy_idx);
-						file->rdwr_short(tmp_best_line_idx);
-						file->rdwr_short(tmp_alternative_seats);
+							file->rdwr_short(tmp_idx);
+							file->rdwr_long(tmp_journey_time);
+							file->rdwr_long(tmp_waiting_time);
+							file->rdwr_long(tmp_transfer_time);
+							file->rdwr_short(tmp_best_convoy_idx);
+							file->rdwr_short(tmp_best_line_idx);
+							file->rdwr_short(tmp_alternative_seats);
+						}
 					}
 				}
 

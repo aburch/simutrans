@@ -1334,7 +1334,7 @@ void path_explorer_t::compartment_t::step()
 					continue;
 				}
 
-				if ( ! connexion_list[ current_halt.get_id() ].connexion_table->empty() )
+				if (connexion_list[current_halt.get_id()].connexion_table != NULL && !connexion_list[ current_halt.get_id() ].connexion_table->empty())
 				{
 					// valid connexion(s) found -> add to working halt list and update halt index map
 					working_halt_list[working_halt_count] = current_halt;
