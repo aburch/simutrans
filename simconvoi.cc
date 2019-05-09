@@ -8388,7 +8388,6 @@ uint8 convoi_t::get_front_loco_count() const
 				loco_count = i + 1;
 				another_chunk_has_cab = false;
 				another_chunk_has_power = false;
-				continue;
 			}
 			continue; // judgment postponed, possibility of single direction locomotives
 		}
