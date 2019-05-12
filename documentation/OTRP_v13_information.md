@@ -17,15 +17,15 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version21_2現在、simutrans standard nightly r8745をベースにしています。
+version21_3現在、simutrans standard nightly r8756をベースにしています。
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2019年5月3日AM0時　ver21_2に更新）**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/71065/sim-WinGDI-OTRPv21_2.exe/  
-mac: https://osdn.net/projects/otrp/downloads/71065/sim-mac-OTRPv21_2.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/71065/sim-linux-OTRPv21_2.zip/  
+本体は下のリンクからどうぞ。**（2019年5月12日PM22時　ver21_3に更新）**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/71112/sim-WinGDI-OTRPv21_3.exe/  
+mac: https://osdn.net/projects/otrp/downloads/71112/sim-mac-OTRPv21_3.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/71112/sim-linux-OTRPv21_3.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 OTRP専用のmakeobjはありません。simutrans standardのmakeobjをご利用ください。
@@ -97,6 +97,7 @@ pak128では鉄道車両の描画位置変更が行われた影響で、古い�
 - 交差点でのスムーズな通行を実現するため、交差点タイルでは車両がタイルを予約しています。予約状況は鉄道の閉塞予約解除ツール（bキー）を使うことで確認できます。タイルをクリックすることで予約を手動で解除することもできます。
 - 駅/停留所の公共化ツールをshiftを押しながら使うと、現在有効なプレイヤー所属の停留所になります。なおctrlキーを押しながらだと費用ナシで民営化できます。
 - 建築物建設ツールで範囲選択ができるようになりました。選択された範囲に現在有効な建築物を配置します。（[shingoushori][1]氏による実装）なお、市内建築物に限り複数種類を選択することが可能です。
+- 撤去ツールでも範囲選択が可能です．shiftキーを押すと選択された範囲の全オブジェクトを削除（立体的な選択も可能），shift+ctrlキーで選択された範囲から上の高度に対しても全オブジェクトを削除します．（[shingoushori][1]氏による実装）
 - ctrlキーを押しながら土地上げ下げツールを使うと、選択された範囲が始点と同じ高度になります。（[shingoushori][1]氏による実装）
 - ctrlキーを押しながらwayobj（架線）建設ツールを使うと、wayobjの設置間隔を設定できます。景観架線で架線柱を2マスごとに置く時などに便利です。
 - ctrlキーを押しながら高架建設ツールを使うと、高架の高度オフセットを指定できます。1高度だけ地面から浮いた高架や、高高度の高架を建設するときに便利です。
