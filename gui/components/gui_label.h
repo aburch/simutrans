@@ -10,7 +10,7 @@
 #ifndef gui_gui_label_h
 #define gui_gui_label_h
 
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../simcolor.h"
 #include "../gui_theme.h"
 #include "../../simskin.h"

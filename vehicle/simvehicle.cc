@@ -1011,12 +1011,12 @@ void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 }
 
 
-vehicle_t::vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_) :
+vehicle_t::vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player) :
 	vehicle_base_t(pos)
 {
 	this->desc = desc;
 
-	set_owner( player_ );
+	set_owner( player );
 	purchase_time = welt->get_current_month();
 	cnv = NULL;
 	speed_limit = SPEED_UNLIMITED;
@@ -1904,8 +1904,8 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 
 
 
-road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t* cn) :
-	vehicle_t(pos, desc, player_)
+road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
+	vehicle_t(pos, desc, player)
 {
 	cnv = cn;
 	pos_prev = koord3d::invalid;
@@ -3142,8 +3142,8 @@ DBG_MESSAGE("rail_vehicle_t::rail_vehicle_t()","replaced by %s",desc->get_name()
 }
 
 
-rail_vehicle_t::rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t* cn) :
-	vehicle_t(pos, desc, player_)
+rail_vehicle_t::rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
+	vehicle_t(pos, desc, player)
 {
     cnv = cn;
 }
@@ -4020,8 +4020,8 @@ schedule_t * narrowgauge_vehicle_t::generate_new_schedule() const
 }
 
 
-water_vehicle_t::water_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t* cn) :
-	vehicle_t(pos, desc, player_)
+water_vehicle_t::water_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
+	vehicle_t(pos, desc, player)
 {
 	cnv = cn;
 }
@@ -4844,8 +4844,8 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : ve
 }
 
 
-air_vehicle_t::air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t* cn) :
-	vehicle_t(pos, desc, player_)
+air_vehicle_t::air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
+	vehicle_t(pos, desc, player)
 {
 	cnv = cn;
 	state = taxiing;

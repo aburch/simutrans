@@ -321,16 +321,14 @@ static bool wait_for_key()
 {
 	event_t ev;
 	display_poll_event(&ev);
-	if(  ev.ev_class != EVENT_NONE  ) {
-		if(  ev.ev_class==EVENT_KEYBOARD  ) {
-			if(  ev.ev_code==SIM_KEY_ESCAPE  ||  ev.ev_code==SIM_KEY_SPACE  ||  ev.ev_code==SIM_KEY_BACKSPACE  ) {
-				return true;
-			}
+	if(  ev.ev_class==EVENT_KEYBOARD  ) {
+		if(  ev.ev_code==SIM_KEY_ESCAPE  ||  ev.ev_code==SIM_KEY_SPACE  ||  ev.ev_code==SIM_KEY_BACKSPACE  ) {
+			return true;
 		}
-		event_t *nev = new event_t();
-		*nev = ev;
-		queue_event(nev);
 	}
+	event_t *nev = new event_t();
+	*nev = ev;
+	queue_event(nev);
 	return false;
 }
 

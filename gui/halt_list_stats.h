@@ -9,7 +9,7 @@
 #ifndef halt_list_stats_h
 #define halt_list_stats_h
 
-#include "components/gui_komponente.h"
+#include "components/gui_component.h"
 
 #include "components/gui_aligned_container.h"
 #include "components/gui_colorbox.h"

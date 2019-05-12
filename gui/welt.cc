@@ -407,16 +407,16 @@ void welt_gui_t::resize_preview()
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
+bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {
 	// check for changed map (update preview for any event)
 	int knr = inp_map_number.get_value(); //
 
-	if(komp==&inp_map_number) {
+	if(comp==&inp_map_number) {
 		sets->heightfield = "";
 		loaded_heightfield = false;
 	}
-	else if(komp==&inp_x_size) {
+	else if(comp==&inp_x_size) {
 		if(  !loaded_heightfield  ) {
 			sets->set_size_x( v.i );
 			inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
@@ -427,7 +427,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 			inp_x_size.set_value(sets->get_size_x()); // can't change size with heightfield loaded
 		}
 	}
-	else if(komp==&inp_y_size) {
+	else if(comp==&inp_y_size) {
 		if(  !loaded_heightfield  ) {
 			sets->set_size_y( v.i );
 			inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
@@ -438,35 +438,35 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 			inp_y_size.set_value(sets->get_size_y()); // can't change size with heightfield loaded
 		}
 	}
-	else if(komp==&inp_number_of_towns) {
+	else if(comp==&inp_number_of_towns) {
 		sets->set_city_count( v.i );
 		city_density = sets->get_city_count() ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_city_count() : 0.0;
 	}
-	else if(komp==&inp_town_size) {
+	else if(comp==&inp_town_size) {
 		sets->set_mean_citizen_count( v.i );
 	}
-	else if(komp==&inp_intercity_road_len) {
+	else if(comp==&inp_intercity_road_len) {
 		env_t::intercity_road_length = v.i;
 		inp_intercity_road_len.set_increment_mode( v.i>=1000 ? 100 : 20 );
 	}
-	else if(komp==&inp_other_industries) {
+	else if(comp==&inp_other_industries) {
 		sets->set_factory_count( v.i );
 		industry_density = sets->get_factory_count() ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_factory_count() : 0.0;
 	}
-	else if(komp==&inp_tourist_attractions) {
+	else if(comp==&inp_tourist_attractions) {
 		sets->set_tourist_attractions( v.i );
 		attraction_density = sets->get_tourist_attractions() ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_tourist_attractions() : 0.0;
 	}
-	else if(komp==&inp_intro_date) {
+	else if(comp==&inp_intro_date) {
 		sets->set_starting_year( (sint16)(v.i) );
 	}
-	else if(komp==&random_map) {
+	else if(comp==&random_map) {
 		knr = simrand(9999);
 		inp_map_number.set_value(knr);
 		sets->heightfield = "";
 		loaded_heightfield = false;
 	}
-	else if(komp==&load_map) {
+	else if(comp==&load_map) {
 		// load relief
 		loaded_heightfield = false;
 		sets->heightfield = "";
@@ -476,7 +476,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		win_set_pos(lrf, (display_get_width() - lrf->get_windowsize().w-10), env_t::iconsize.h);
 		knr = sets->get_map_number();	// otherwise using cancel would not show the normal generated map again
 	}
-	else if(komp==&use_intro_dates) {
+	else if(comp==&use_intro_dates) {
 		// 0,1 should force setting to new game as well. don't allow to change
 		// 2,3 allow to change
 		if(sets->get_use_timeline()&2) {
@@ -485,11 +485,11 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 			use_intro_dates.pressed = sets->get_use_timeline()&1;
 		}
 	}
-	else if(komp==&use_beginner_mode) {
+	else if(comp==&use_beginner_mode) {
 		sets->beginner_mode = sets->get_beginner_mode()^1;
 		use_beginner_mode.pressed = sets->get_beginner_mode();
 	}
-	else if(komp==&open_setting_gui) {
+	else if(comp==&open_setting_gui) {
 		gui_frame_t *sg = win_get_magic( magic_settings_frame_t );
 		if(  sg  ) {
 			destroy_win( sg );
@@ -500,7 +500,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 			open_setting_gui.pressed = true;
 		}
 	}
-	else if(komp==&open_climate_gui) {
+	else if(comp==&open_climate_gui) {
 		gui_frame_t *climate_gui = win_get_magic( magic_climate );
 		if(  climate_gui  ) {
 			destroy_win( climate_gui );
@@ -512,16 +512,16 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 			open_climate_gui.pressed = true;
 		}
 	}
-	else if(komp==&load_game) {
+	else if(comp==&load_game) {
 		welt->get_message()->clear();
 		create_win( new loadsave_frame_t(true), w_info, magic_load_t);
 	}
-	else if(komp==&load_scenario) {
+	else if(comp==&load_scenario) {
 		destroy_all_win(true);
 		welt->get_message()->clear();
 		create_win( new scenario_frame_t(), w_info, magic_load_t );
 	}
-	else if(komp==&start_game) {
+	else if(comp==&start_game) {
 		destroy_all_win(true);
 		welt->get_message()->clear();
 		create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_image_id(0)), w_info, magic_none);
@@ -543,7 +543,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 			file.close();
 		}
 	}
-	else if(komp==&quit_game) {
+	else if(comp==&quit_game) {
 		destroy_all_win(true);
 		env_t::quit_simutrans = true;
 	}

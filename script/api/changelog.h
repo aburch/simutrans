@@ -4,6 +4,7 @@
  *
  * @section api-trunk Current trunk
  * - Added functions to mark tiles, see @ref tile_x::mark
+ * - Added @ref convoy_x::is_schedule_editor_open
  *
  * @section api-120-3 Release 120.3
  *

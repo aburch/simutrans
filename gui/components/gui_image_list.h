@@ -2,7 +2,7 @@
 #define gui_image_list_h
 
 #include "gui_action_creator.h"
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../tpl/vector_tpl.h"
 #include "../../display/simimg.h"
 #include "../../simcolor.h"

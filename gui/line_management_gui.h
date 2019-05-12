@@ -14,7 +14,7 @@ class loadsave_t;
 class line_management_gui_t : public schedule_gui_t
 {
 public:
-	line_management_gui_t(linehandle_t line = linehandle_t(), player_t* player = NULL);
+	line_management_gui_t(linehandle_t line = linehandle_t(), player_t* player_ = NULL);
 	virtual ~line_management_gui_t();
 
 	bool infowin_event(event_t const*) OVERRIDE;

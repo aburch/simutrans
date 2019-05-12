@@ -1512,7 +1512,7 @@ void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
 void ai_goods_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 {
 	if(  cnv->get_state() == convoi_t::NO_ROUTE  &&  this!=welt->get_active_player()  ) {
-			DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
+			DBG_MESSAGE("ai_passenger_t::report_vehicle_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
 			cnv->self_destruct();
 			return;
 	}

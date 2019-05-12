@@ -229,7 +229,7 @@ public:
 	void set_street_flag(uint8 a) { street_flag = a; }
 	void set_height_offset(uint8 a) { height_offset = a; }
 
-	way_builder_t(player_t *player_);
+	way_builder_t(player_t *player);
 
 	void calc_straight_route(const koord3d start, const koord3d ziel);
 	void calc_route(const koord3d &start3d, const koord3d &ziel);
@@ -240,7 +240,7 @@ public:
 	*/
 	sint64 calc_costs();
 
-	bool check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp, const player_t *player_) const;
+	bool check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp, const player_t *player) const;
 	bool check_powerline(const koord zv, const grund_t *bd) const;
 	// allowed owner?
 	bool check_owner( const player_t *player1, const player_t *player2 ) const;

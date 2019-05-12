@@ -215,8 +215,8 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 			return "A bridge must start on a way!";
 		}
 
-		// same waytype, any direction, no stop or depot or any other stuff */
-		if(  w->get_waytype() == wt  ) {
+		// same waytype, check direction
+		if(  w->get_waytype() == wt   &&  ribi_check(ribi, check_ribi ) ) {
 			// ok too
 			return NULL;
 		}
@@ -239,7 +239,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 			return err_msg;
 		}
 	}
-	return "";	// could end here but must not end here
+	return "";	// could end here but need not end here
 }
 
 bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, const char *&error_msg)

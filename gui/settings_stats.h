@@ -15,7 +15,7 @@
 #include "../utils/cbuffer_t.h"
 
 #include "components/gui_container.h"
-#include "components/gui_komponente.h"
+#include "components/gui_component.h"
 #include "components/gui_numberinput.h"
 #include "components/gui_label.h"
 

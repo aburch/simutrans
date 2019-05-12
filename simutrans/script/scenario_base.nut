@@ -17,9 +17,6 @@ scenario.version <- ""
 scenario.translation <- ""
 scenario.api <- "112.3"
 
-// table to hold routines for gui access
-gui <- {}
-
 // table to hold routines for forbidding/allowing player tools
 rules <- {}
 

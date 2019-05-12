@@ -637,7 +637,7 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 	if( ground_outside) {
 		weg_t *way_outside = ground_outside->get_weg( desc->get_waytype() );
 		if( way_outside ) {
-			// use the check_owner routine of way_builder_t (not spieler_t!), needs an instance
+			// use the check_owner routine of way_builder_t (not player_t!), needs an instance
 			way_builder_t bauigel(player);
 			bauigel.init_builder( (way_builder_t::bautyp_t)desc->get_waytype(), way_outside->get_desc());
 			sint32 dummy;
