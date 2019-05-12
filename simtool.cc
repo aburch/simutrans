@@ -806,19 +806,12 @@ void tool_remover_t::mark_tiles(  player_t *, const koord3d &start, const koord3
 	if (start.z != gr_kartenboden->get_pos().z) { is_lock_z_with_start = true; }
 	bool is_box_proc = false;
 	bool is_remove_all_upper = false;
-	bool is_remove_all_lower = false;
 	if (is_shift_pressed()) {
 		is_lock_z_with_start = false;
 		is_box_proc = true;
-		if(is_ctrl_pressed()) {
-			is_remove_all_lower = true;
+		if (is_ctrl_pressed()) {
 			is_remove_all_upper = true;
 		}
-	}
-	else if(is_ctrl_pressed()) {
-		is_lock_z_with_start = false;
-		is_box_proc = true;
-		is_remove_all_upper = true;
 	}
 
 	koord3d k1, k2;
@@ -829,7 +822,6 @@ void tool_remover_t::mark_tiles(  player_t *, const koord3d &start, const koord3
 	k2.y = start.y + end.y - k1.y;
 	k2.z = start.z + end.z - k1.z;
 	if (is_remove_all_upper) { k2.z = welt->get_maximumheight(); }
-	if (is_remove_all_lower) { k1.z = welt->get_minimumheight(); }
 	koord3d k;
 	grund_t *gr;
 	for(  k.x = k1.x;  k.x <= k2.x;  k.x++  ) {
@@ -882,13 +874,11 @@ const char *tool_remover_t::do_work( player_t *player, const koord3d &start, con
 	}
 	if (end == koord3d::invalid) {
 		if (is_shift_pressed()){
-			uint8 proc_count = -1;
 			const char* msg = NULL;
-			while (msg == NULL) { 
-				proc_count++; 
+			while (msg == NULL) {
 				msg = process(player, start);
 			}
-			return proc_count == 0 ? msg : NULL;
+			return msg;
 		}
 		return process(player, start);
 	}
@@ -897,19 +887,12 @@ const char *tool_remover_t::do_work( player_t *player, const koord3d &start, con
 	if (start.z != gr_kartenboden->get_pos().z) { is_lock_z_with_start = true; }
 	bool is_box_proc = false;
 	bool is_remove_all_upper = false;
-	bool is_remove_all_lower = false;
 	if (is_shift_pressed()) {
 		is_lock_z_with_start = false;
 		is_box_proc = true;
-		if(is_ctrl_pressed()) {
-			is_remove_all_lower = true;
+		if (is_ctrl_pressed()) {
 			is_remove_all_upper = true;
 		}
-	}
-	else if(is_ctrl_pressed()) {
-		is_lock_z_with_start = false;
-		is_box_proc = true;
-		is_remove_all_upper = true;
 	}
 
 	koord3d k1, k2;
@@ -920,7 +903,6 @@ const char *tool_remover_t::do_work( player_t *player, const koord3d &start, con
 	k2.y = start.y + end.y - k1.y;
 	k2.z = start.z + end.z - k1.z;
 	if (is_remove_all_upper) { k2.z = welt->get_maximumheight(); }
-	if (is_remove_all_lower) { k1.z = welt->get_minimumheight(); }
 	koord3d k;
 	grund_t *gr;
 	const char* msg = NULL;
@@ -944,15 +926,18 @@ const char *tool_remover_t::do_work( player_t *player, const koord3d &start, con
 				if (gr == NULL) {
 					continue;
 				}
-				const char* msg = NULL;
-				while (msg == NULL) {
-					msg = process(player, gr->get_pos());
+				const char* err = NULL;
+				while (err == NULL) {
+					err = process(player, gr->get_pos());
+					if (  msg == NULL  ||  strcmp(msg,"")==0  ) {
+						msg = err;
+					}
 				}
 			}
 		}
 	}
 
-	return NULL;
+	return msg;
 }
 
 
