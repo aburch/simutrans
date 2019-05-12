@@ -262,7 +262,7 @@ public:
 	static bool check_owner( const player_t *owner, const player_t *test );
 
 	/**
-	 * @param player_nr Number assigned to this player, it's a ID.
+	 * @param player_nr Number assigned to this player - it's an ID.
 	 * @author Hj. Malthaner
 	 */
 	player_t(uint8 player_nr );
@@ -300,9 +300,8 @@ public:
 	/**
 	 * Displays messages from the queue of the player on the screen
 	 * Show income messages
-	 * @author Hj. Malthaner
-     * @author prissi
-     */
+	 * @author prissi
+	 */
 	void display_messages();
 
 	/**
@@ -326,10 +325,10 @@ public:
 	virtual void new_year() {}
 
 	/**
-     * Stores/loads the player state
-     * @param file where the data will be saved/loaded
-     * @author Hj. Malthaner
-     */
+	 * Stores/loads the player state
+	 * @param file where the data will be saved/loaded
+	 * @author Hj. Malthaner
+	 */
 	virtual void rdwr(loadsave_t *file);
 
 	/*
@@ -389,17 +388,17 @@ public:
 	void init_undo(waytype_t t, unsigned short max );
 
 	/**
-     * Function for UNDO
-     * @date 7-Feb-2005
-     * @author prissi
-     */
+	 * Function for UNDO
+	 * @date 7-Feb-2005
+	 * @author prissi
+	 */
 	void add_undo(koord3d k);
 
 	/**
-     * Function for UNDO
-     * @date 7-Feb-2005
-     * @author prissi
-     */
+	 * Function for UNDO
+	 * @date 7-Feb-2005
+	 * @author prissi
+	 */
 	sint64 undo();
 
 private:

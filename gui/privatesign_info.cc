@@ -41,12 +41,12 @@ privatesign_info_t::privatesign_info_t(roadsign_t* s) :
  * components should be triggered.
  * V.Meyer
    */
-bool privatesign_info_t::action_triggered( gui_action_creator_t *komp, value_t /* */)
+bool privatesign_info_t::action_triggered( gui_action_creator_t *comp, value_t /* */)
 {
 	if(  welt->get_active_player() ==  sign->get_owner()  ) {
 		char param[256];
 		for(  int i=0;  i<PLAYER_UNOWNED;  i++  ) {
-			if(komp == &players[i]) {
+			if(comp == &players[i]) {
 				uint16 mask = sign->get_player_mask();
 				mask ^= 1 << i;
 				// change active player mask for this private sign

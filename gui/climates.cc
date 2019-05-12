@@ -116,18 +116,18 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
+bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
 	welt_gui_t *welt_gui = dynamic_cast<welt_gui_t *>(win_get_magic( magic_welt_gui_t ));
-	if(komp==&no_tree) {
+	if(comp==&no_tree) {
 		no_tree.pressed ^= 1;
 		sets->set_no_trees(no_tree.pressed);
 	}
-	else if(komp==&lake) {
+	else if(comp==&lake) {
 		lake.pressed ^= 1;
 		sets->set_lake(lake.pressed);
 	}
-	else if(komp==&water_level) {
+	else if(comp==&water_level) {
 		sets->groundwater = (sint16)v.i;
 
 		// Update borders if necessary
@@ -140,32 +140,32 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			welt_gui->update_preview();
 		}
 	}
-	else if(komp==&mountain_height) {
+	else if(comp==&mountain_height) {
 		sets->max_mountain_height = v.i;
 		mountain_roughness.set_limits(0,min(10,11-((v.i+99)/100)));
 		if(  welt_gui  ) {
 			welt_gui->update_preview();
 		}
 	}
-	else if(komp==&mountain_roughness) {
+	else if(comp==&mountain_roughness) {
 		sets->map_roughness = (double)(v.i+8)/20.0;
 		mountain_height.set_limits(0,min(1000,100*(11-v.i)));
 		if(  welt_gui  ) {
 			welt_gui->update_preview();
 		}
 	}
-	else if(komp==&river_n) {
+	else if(comp==&river_n) {
 		sets->river_number = (sint16)v.i;
 	}
-	else if(komp==&river_min) {
+	else if(comp==&river_min) {
 		sets->min_river_length = (sint16)v.i;
 		river_max.set_limits(v.i+16,1024);
 	}
-	else if(komp==&river_max) {
+	else if(comp==&river_max) {
 		sets->max_river_length = (sint16)v.i;
 		river_min.set_limits(0,max(16,v.i)-16);
 	}
-	else if(komp==&snowline_winter) {
+	else if(comp==&snowline_winter) {
 		sets->winter_snowline = (sint16)v.i;
 	}
 
@@ -173,7 +173,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	// Arctic starts at maximum end of climate
 	sint16 arctic = 0;
 	for(  int i=desert_climate;  i<=rocky_climate;  i++  ) {
-		if(  komp==climate_borders_ui+i-1  ) {
+		if(  comp==climate_borders_ui+i-1  ) {
 			sets->climate_borders[i] = (sint16)v.i;
 		}
 

@@ -180,16 +180,16 @@ void citylist_frame_t::fill_list()
 }
 
 
-bool citylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool citylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
-	if(komp == &sortedby) {
+	if(comp == &sortedby) {
 		int i = citylist_stats_t::sort_mode & ~citylist_stats_t::SORT_REVERSE;
 		i = (i + 1) % citylist_stats_t::SORT_MODES;
 		sortedby.set_text(sort_text[i]);
 		citylist_stats_t::sort_mode = (citylist_stats_t::sort_mode_t)(i | (citylist_stats_t::sort_mode & citylist_stats_t::SORT_REVERSE));
 		scrolly.sort(0);
 	}
-	else if(komp == &sorteddir) {
+	else if(comp == &sorteddir) {
 		bool reverse = citylist_stats_t::sort_mode <= citylist_stats_t::SORT_MODES;
 		sorteddir.set_text(reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 		citylist_stats_t::sort_mode = (citylist_stats_t::sort_mode_t)((citylist_stats_t::sort_mode & ~citylist_stats_t::SORT_REVERSE) + (reverse*citylist_stats_t::SORT_REVERSE) );

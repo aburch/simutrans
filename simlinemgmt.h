@@ -42,7 +42,7 @@ public:
 	/*
 	 * load or save the linemanagement
 	 */
-	void rdwr(loadsave_t * file, player_t * player_);
+	void rdwr(loadsave_t * file, player_t * player);
 
 	/*
 	 * sort the lines by name
@@ -67,13 +67,13 @@ public:
 	 * creates a line with an empty schedule
 	 * @author hsiegeln
 	 */
-	linehandle_t create_line(int ltype, player_t * player_);
+	linehandle_t create_line(int ltype, player_t * player);
 
 	/**
 	 * Creates a line and sets its schedule
 	 * @author prissi
 	 */
-	linehandle_t create_line(int ltype, player_t * player_, schedule_t * schedule);
+	linehandle_t create_line(int ltype, player_t * player, schedule_t * schedule);
 
 
 	/**

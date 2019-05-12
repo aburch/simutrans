@@ -282,16 +282,16 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 }
 
 
-bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
+bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
 
 	// Brightness edit
-	if(&brightness==komp) {
+	if(&brightness==comp) {
 	  env_t::daynight_level = (sint8)v.i;
 	} else
 
 	// Traffic density edit
-	if(&traffic_density==komp) {
+	if(&traffic_density==comp) {
 		if(  !env_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			static char level[16];
 			sprintf(level, "%li", v.i);
@@ -304,77 +304,77 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else
 
 	// Scroll speed edit
-	if(&scrollspeed==komp) {
+	if(&scrollspeed==comp) {
 		env_t::scroll_multi = (sint16)( buttons[6].pressed ? -v.i : v.i );
 	} else
 
 	// Smart hide objects edit
-	if(&cursor_hide_range==komp) {
+	if(&cursor_hide_range==comp) {
 		env_t::cursor_hide_range = cursor_hide_range.get_value();
 	} else
 
 	// Convoy tooltip
-	if (&convoy_tooltip == komp) {
+	if (&convoy_tooltip == comp) {
 		env_t::show_vehicle_states = v.i;
 	} else
 
 	// Scroll inverse checkbox
-	if((buttons+6)==komp) {
+	if((buttons+6)==comp) {
 		buttons[6].pressed ^= 1;
 		env_t::scroll_multi = -env_t::scroll_multi;
 	} else
 
 	// Pedestrians at stops checkbox
-	if((buttons+7)==komp) {
+	if((buttons+7)==comp) {
 		if(  !env_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			welt->set_tool( tool_t::simple_tool[TOOL_TOOGLE_PAX&0xFFF], welt->get_active_player() );
 		}
 	} else
 
 	// Pedestrians in towns checkbox
-	if((buttons+8)==komp) {
+	if((buttons+8)==comp) {
 		if(  !env_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			welt->set_tool( tool_t::simple_tool[TOOL_TOOGLE_PEDESTRIANS&0xFFF], welt->get_active_player() );
 		}
 	} else
 
 	// Day/night change checkbox
-	if((buttons+9)==komp) {
+	if((buttons+9)==comp) {
 		env_t::night_shift = !env_t::night_shift;
 		buttons[9].pressed ^= 1;
 	} else
 
 	// Transparent instead of hidden checkbox
-	if((buttons+10)==komp) {
+	if((buttons+10)==comp) {
 		env_t::hide_with_transparency = !env_t::hide_with_transparency;
 		buttons[10].pressed ^= 1;
 		baum_t::recalc_outline_color();
 	} else
 
 	// Hide trees checkbox
-	if((buttons+11)==komp) {
+	if((buttons+11)==comp) {
 		env_t::hide_trees = !env_t::hide_trees;
 		baum_t::recalc_outline_color();
 	} else
 
 	// Hide building
-	if(&hide_buildings == komp) {
+	if(&hide_buildings == comp) {
 		env_t::hide_buildings = v.i;
 	} else
 
 	// Transparent station coverage
-	if((buttons+14)==komp) {
+	if((buttons+14)==comp) {
 		env_t::use_transparency_station_coverage = !env_t::use_transparency_station_coverage;
 		buttons[14].pressed ^= 1;
 	} else
 
 	// Show station coverage
-	if((buttons+15)==komp) {
+	if((buttons+15)==comp) {
 		env_t::station_coverage_show = env_t::station_coverage_show==0 ? 0xFF : 0;
 	} else
 
 	// Underground view checkbox
-	if((buttons+16)==komp) {
+	if((buttons+16)==comp) {
 
 		// see simtool.cc::tool_show_underground_t::init
 		grund_t::set_underground_mode(buttons[16].pressed ? grund_t::ugm_none : grund_t::ugm_all, inp_underground_level.get_value());
@@ -388,12 +388,12 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else
 
 	// Show grid checkbox
-	if((buttons+17)==komp) {
+	if((buttons+17)==comp) {
 		grund_t::toggle_grid();
 	} else
 
 	// Show station names arrow
-	if((buttons+18)==komp) {
+	if((buttons+18)==comp) {
 		if(  env_t::show_names&1  ) {
 			if(  (env_t::show_names>>2) == 2  ) {
 				env_t::show_names &= 2;
@@ -409,12 +409,12 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else
 
 	// Show waiting bars checkbox
-	if((buttons+19)==komp) {
+	if((buttons+19)==comp) {
 		env_t::show_names ^= 2;
 	} else
 
 	// Show slice map view checkbox
-	if((buttons+20)==komp) {
+	if((buttons+20)==comp) {
 
 		// see simtool.cc::tool_show_underground_t::init
 		grund_t::set_underground_mode(buttons[20].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
@@ -428,7 +428,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else
 
 	// Hide buildings and trees under mouse cursor checkbox
-	if((buttons+21)==komp) {
+	if((buttons+21)==comp) {
 
 		// see simtool.cc::tool_hide_under_cursor_t::init
 		env_t::hide_under_cursor = !env_t::hide_under_cursor  &&  env_t::cursor_hide_range>0;
@@ -439,13 +439,13 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else
 
 	// Show schedule's stop checkbox
-	if((buttons+22)==komp) {
+	if((buttons+22)==comp) {
 		env_t::visualize_schedule = !env_t::visualize_schedule;
 		buttons[22].pressed = env_t::visualize_schedule;
 	} else
 
 	// underground slice edit
-	if (komp == &inp_underground_level) {
+	if (comp == &inp_underground_level) {
 		if(grund_t::underground_mode==grund_t::ugm_level) {
 			grund_t::underground_level = inp_underground_level.get_value();
 
@@ -454,21 +454,21 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		}
 	} else
 
-	if((buttons+23)==komp) {
+	if((buttons+23)==comp) {
 		create_win(new themeselector_t(), w_info, magic_themes);
 	}
-	if((buttons+24)==komp) {
+	if((buttons+24)==comp) {
 		env_t::simple_drawing = !env_t::simple_drawing;
 		buttons[24].pressed = env_t::simple_drawing;
 	}
-	if((buttons+25)==komp) {
+	if((buttons+25)==comp) {
 		create_win(new loadfont_frame_t(), w_info, magic_font);
 	}
-	if((buttons+26)==komp  &&  skinverwaltung_t::ribi_arrow) {
+	if((buttons+26)==comp  &&  skinverwaltung_t::ribi_arrow) {
 		strasse_t::show_masked_ribi ^= 1;
 		welt->set_dirty();
 	}
-	if(  &money_booking==komp  ) {
+	if(  &money_booking==comp  ) {
 		env_t::show_money_message = v.i;
 	}
 	welt->set_dirty();

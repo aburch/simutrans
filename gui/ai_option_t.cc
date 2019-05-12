@@ -89,21 +89,21 @@ ai_option_t::ai_option_t( player_t *player ) :
 }
 
 
-bool ai_option_t::action_triggered( gui_action_creator_t *komp, value_t v )
+bool ai_option_t::action_triggered( gui_action_creator_t *comp, value_t v )
 {
-	if(  komp==&construction_speed  ) {
+	if(  comp==&construction_speed  ) {
 		ai->set_construction_speed( v.i );
 	}
-	else if(  komp==buttons+0  ) {
+	else if(  comp==buttons+0  ) {
 		toggle_ai_button(buttons+0, ai, &ai_t::has_road_transport, &ai_t::set_road_transport);
 	}
-	else if(  komp==buttons+1  ) {
+	else if(  comp==buttons+1  ) {
 		toggle_ai_button(buttons+1, ai, &ai_t::has_rail_transport, &ai_t::set_rail_transport);
 	}
-	else if(  komp==buttons+2  ) {
+	else if(  comp==buttons+2  ) {
 		toggle_ai_button(buttons+2, ai, &ai_t::has_ship_transport, &ai_t::set_ship_transport);
 	}
-	else if(  komp==buttons+3  ) {
+	else if(  comp==buttons+3  ) {
 		toggle_ai_button(buttons+3, ai, &ai_t::has_air_transport, &ai_t::set_air_transport);
 	}
 	return true;

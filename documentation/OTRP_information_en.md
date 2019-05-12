@@ -17,15 +17,15 @@ You should try OTRP because...
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitter hash tag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
-As of version 21_2, OTRP is based on simutrans standard nightly r8745.
+As of version 21_3, OTRP is based on simutrans standard nightly r8756.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.  
 
-You can download the OTRP executable binary from the links below. **(2019 March 12th, updated to ver 21_1.)**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/71065/sim-WinGDI-OTRPv21_2.exe/  
-mac: https://osdn.net/projects/otrp/downloads/71065/sim-mac-OTRPv21_2.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/71065/sim-linux-OTRPv21_2.zip/  
+You can download the OTRP executable binary from the links below. **(2019 May 12th, updated to ver 21_3.)**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/71112/sim-WinGDI-OTRPv21_3.exe/  
+mac: https://osdn.net/projects/otrp/downloads/71112/sim-mac-OTRPv21_3.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/71112/sim-linux-OTRPv21_3.zip/  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 There is no special makeobj for OTRP. Please one of the simutrans standard.
@@ -83,6 +83,8 @@ In OTRP, you can specify the direction from which vehicles can enter the tile. F
 - To realize smooth traffic in an intersection, vehicles reserve tiles in the intersection. With b key, you can check and cancel the reservation of road.
 - Use "make halt public" tool with the shift key, and the halt belongs to the current activated player. With the control key, this operation can be done with no cost.
 - If you use the land raise/lower tool with ctrl key, the height of selected area are set to the height of the original coordinate. (Implemented by shingoushori)
+- Area selecting is available for the building construction tool. The selected building is built across the selected area. (Implemented by shingoushori)
+- Area selecting is available for the removing tool. With shift key, 3D area selection is available. With shift+ctrl keys, the tool removes all objects on and above the selected area. (Implemented by shingoushori)
 - In the city building construction window, multiple kinds of city buildings can be chosen at once. City buildings are randomly chosen from the selected items and are constructed in the designated area.
 - If you use the wayobj construction tool with ctrl key, you can specify the interval of wayobj placement.
 - If you use the elevated way construction tool with ctrl key, you can specify the height offset. This is convenient when you build elevated way at very high altitude.

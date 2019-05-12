@@ -356,7 +356,7 @@ public:
 	void initialise_journey( uint16 start_route_index, bool recalc );
 
 	vehicle_t();
-	vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_);
+	vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player);
 
 	~vehicle_t();
 
@@ -531,7 +531,7 @@ public:
 	waytype_t get_waytype() const OVERRIDE { return road_wt; }
 
 	road_vehicle_t(loadsave_t *file, bool first, bool last);
-	road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t* cnv); // start and schedule
+	road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv); // start and schedule
 	
 	~road_vehicle_t();
 
@@ -618,7 +618,7 @@ public:
 	typ get_typ() const OVERRIDE { return rail_vehicle; }
 
 	rail_vehicle_t(loadsave_t *file, bool is_first, bool is_last);
-	rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t *cnv);
+	rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t *cnv);
 	~rail_vehicle_t();
 
 	void set_convoi(convoi_t *c) OVERRIDE;
@@ -643,7 +643,7 @@ public:
 
 	// all handled by rail_vehicle_t
 	monorail_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : rail_vehicle_t(file,is_first, is_last) {}
-	monorail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t* cnv) : rail_vehicle_t(pos, desc, player_, cnv) {}
+	monorail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, desc, player, cnv) {}
 
 	typ get_typ() const OVERRIDE { return monorail_vehicle; }
 
@@ -664,7 +664,7 @@ public:
 
 	// all handled by rail_vehicle_t
 	maglev_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : rail_vehicle_t(file, is_first, is_last) {}
-	maglev_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t* cnv) : rail_vehicle_t(pos, desc, player_, cnv) {}
+	maglev_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, desc, player, cnv) {}
 
 	typ get_typ() const OVERRIDE { return maglev_vehicle; }
 
@@ -685,7 +685,7 @@ public:
 
 	// all handled by rail_vehicle_t
 	narrowgauge_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : rail_vehicle_t(file, is_first, is_last) {}
-	narrowgauge_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t* cnv) : rail_vehicle_t(pos, desc, player_, cnv) {}
+	narrowgauge_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, desc, player, cnv) {}
 
 	typ get_typ() const OVERRIDE { return narrowgauge_vehicle; }
 
@@ -722,7 +722,7 @@ public:
 	bool is_target(const grund_t *,const grund_t *) const OVERRIDE {return 0;}
 
 	water_vehicle_t(loadsave_t *file, bool is_first, bool is_last);
-	water_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t* cnv);
+	water_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv);
 
 	obj_t::typ get_typ() const OVERRIDE { return water_vehicle; }
 
@@ -773,7 +773,7 @@ protected:
 
 public:
 	air_vehicle_t(loadsave_t *file, bool is_first, bool is_last);
-	air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t* cnv); // start and schedule
+	air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv); // start and schedule
 
 	// to shift the events around properly
 	void get_event_index( flight_state &state_, uint32 &takeoff_, uint32 &stopsearch_, uint32 &landing_ ) { state_ = state; takeoff_ = takeoff; stopsearch_ = searchforstop; landing_ = touchdown; }

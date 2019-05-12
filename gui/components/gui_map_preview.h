@@ -10,7 +10,7 @@
 #ifndef gui_gui_map_preview_h
 #define gui_gui_map_preview_h
 
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../simcolor.h"
 #include "../../display/simgraph.h"
 #include "../../tpl/array2d_tpl.h"

@@ -179,46 +179,46 @@ halt_list_filter_frame_t::~halt_list_filter_frame_t()
  * This method is called if an action is triggered
  * @author V. Meyer
  */
-bool halt_list_filter_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool halt_list_filter_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	for (int i = 0; i < FILTER_BUTTONS; i++) {
-		if (komp == filter_buttons + i) {
+		if (comp == filter_buttons + i) {
 			main_frame->set_filter(filter_buttons_types[i], !main_frame->get_filter(filter_buttons_types[i]));
 			main_frame->sort_list();
 			return true;
 		}
 	}
-	if (komp == &ware_alle_ab) {
+	if (comp == &ware_alle_ab) {
 		main_frame->set_alle_ware_filter_ab(1);
 		main_frame->sort_list();
 		return true;
 	}
-	if (komp == &ware_keine_ab) {
+	if (comp == &ware_keine_ab) {
 		main_frame->set_alle_ware_filter_ab(0);
 		main_frame->sort_list();
 		return true;
 	}
-	if (komp == &ware_invers_ab) {
+	if (comp == &ware_invers_ab) {
 		main_frame->set_alle_ware_filter_ab(-1);
 		main_frame->sort_list();
 		return true;
 	}
-	if (komp == &ware_alle_an) {
+	if (comp == &ware_alle_an) {
 		main_frame->set_alle_ware_filter_an(1);
 		main_frame->sort_list();
 		return true;
 	}
-	if (komp == &ware_keine_an) {
+	if (comp == &ware_keine_an) {
 		main_frame->set_alle_ware_filter_an(0);
 		main_frame->sort_list();
 		return true;
 	}
-	if (komp == &ware_invers_an) {
+	if (comp == &ware_invers_an) {
 		main_frame->set_alle_ware_filter_an(-1);
 		main_frame->sort_list();
 		return true;
 	}
-	if (komp == &name_filter_input) {
+	if (comp == &name_filter_input) {
 		main_frame->sort_list();
 		return true;
 	}

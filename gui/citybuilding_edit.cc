@@ -161,25 +161,25 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 
 
 
-bool citybuilding_edit_frame_t::action_triggered( gui_action_creator_t *komp,value_t e)
+bool citybuilding_edit_frame_t::action_triggered( gui_action_creator_t *comp,value_t e)
 {
 	// only one chain can be shown
-	if(  komp==&bt_res  ) {
+	if(  comp==&bt_res  ) {
 		bt_res.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}
-	else if(  komp==&bt_com  ) {
+	else if(  comp==&bt_com  ) {
 		bt_com.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}
-	else if(  komp==&bt_ind  ) {
+	else if(  comp==&bt_ind  ) {
 		bt_ind.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}
-	else if( komp == &cb_rotation) {
+	else if( comp == &cb_rotation) {
 		change_item_info( scl.get_selection() );
 	}
-	return extend_edit_gui_t::action_triggered(komp,e);
+	return extend_edit_gui_t::action_triggered(comp,e);
 }
 
 

@@ -62,9 +62,9 @@ password_frame_t::password_frame_t( player_t *player ) :
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
+bool password_frame_t::action_triggered( gui_action_creator_t *comp, value_t p )
 {
-	if(komp == &password  &&  (ibuf[0]!=0  ||  p.i == 1)) {
+	if(comp == &password  &&  (ibuf[0]!=0  ||  p.i == 1)) {
 		if (player->is_unlock_pending()) {
 			// unlock already pending, do not do everything twice
 			return true;
@@ -103,7 +103,7 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		}
 	}
 
-	if(  komp == &player_name  ) {
+	if(  comp == &player_name  ) {
 		// rename a player
 		cbuffer_t buf;
 		buf.printf( "p%u,%s", player->get_player_nr(), player_name.get_text() );

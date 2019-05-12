@@ -67,20 +67,20 @@ message_option_t::message_option_t() :
 }
 
 
-bool message_option_t::action_triggered( gui_action_creator_t *komp, value_t )
+bool message_option_t::action_triggered( gui_action_creator_t *comp, value_t )
 {
-	((button_t*)komp)->pressed ^= 1;
+	((button_t*)comp)->pressed ^= 1;
 	for(  int i=0;  i<message_t::MAX_MESSAGE_TYPE;  i++  ) {
-		if(&buttons[i*4+0]==komp) {
+		if(&buttons[i*4+0]==comp) {
 			ignore_msg ^= (1<<i);
 		}
-		if(&buttons[i*4+1]==komp) {
+		if(&buttons[i*4+1]==comp) {
 			ticker_msg ^= (1<<i);
 		}
-		if(&buttons[i*4+2]==komp) {
+		if(&buttons[i*4+2]==comp) {
 			auto_msg ^= (1<<i);
 		}
-		if(&buttons[i*4+3]==komp) {
+		if(&buttons[i*4+3]==comp) {
 			window_msg ^= (1<<i);
 		}
 	}

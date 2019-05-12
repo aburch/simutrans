@@ -108,19 +108,19 @@ message_frame_t::message_frame_t() :
 
 
 /* triggered, when button clicked; only single button registered, so the action is clear ... */
-bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
+bool message_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 {
-	if(  komp==&option_bt  ) {
+	if(  comp==&option_bt  ) {
 		create_win(320, 200, new message_option_t(), w_info, magic_message_options );
 	}
-	else if(  komp==&input  &&  ibuf[0]!=0  ) {
+	else if(  comp==&input  &&  ibuf[0]!=0  ) {
 		// Send chat message to server for distribution
 		nwc_chat_t* nwchat = new nwc_chat_t( ibuf, welt->get_active_player()->get_player_nr(), env_t::nickname.c_str() );
 		network_send_server( nwchat );
 
 		ibuf[0] = 0;
 	}
-	else if(  komp==&tabs  ) {
+	else if(  comp==&tabs  ) {
 		// Knightly : filter messages by type where necessary
 		if(  stats.filter_messages( tab_categories[v.i] )  ) {
 			scrolly.set_scroll_position(0, 0);

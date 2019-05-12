@@ -326,14 +326,14 @@ bool schedule_list_gui_t::infowin_event(const event_t *ev)
 }
 
 
-bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t v )           // 28-Dec-01    Markus Weber    Added
+bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t v )           // 28-Dec-01    Markus Weber    Added
 {
-	if(  komp == &bt_edit_line  ) {
+	if(  comp == &bt_edit_line  ) {
 		if(  line.is_bound()  ) {
 			create_win( new line_management_gui_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
 		}
 	}
-	else if(  komp == &bt_new_line  ) {
+	else if(  comp == &bt_new_line  ) {
 		// create typed line
 		assert(  tabs.get_active_tab_index() > 0  &&  tabs.get_active_tab_index()<max_idx  );
 		// update line schedule via tool!
@@ -347,7 +347,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		delete tmp_tool;
 		depot_t::update_all_win();
 	}
-	else if(  komp == &bt_delete_line  ) {
+	else if(  comp == &bt_delete_line  ) {
 		if(  line.is_bound()  ) {
 			tool_t *tmp_tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 			cbuffer_t buf;
@@ -359,7 +359,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 			depot_t::update_all_win();
 		}
 	}
-	else if(  komp == &bt_withdraw_line  ) {
+	else if(  comp == &bt_withdraw_line  ) {
 		bt_withdraw_line.pressed ^= 1;
 		if (  line.is_bound()  ) {
 			tool_t *tmp_tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
@@ -371,7 +371,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 			delete tmp_tool;
 		}
 	}
-	else if(  komp == &tabs  ) {
+	else if(  comp == &tabs  ) {
 		int const tab = tabs.get_active_tab_index();
 		uint8 old_selected_tab = selected_tab[player->get_player_nr()];
 		selected_tab[player->get_player_nr()] = tabs_to_lineindex[tab];
@@ -389,7 +389,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 			bt_new_line.disable();
 		}
 	}
-	else if(  komp == &scl  ) {
+	else if(  comp == &scl  ) {
 		if(  line_scrollitem_t *li=(line_scrollitem_t *)scl.get_element(v.i)  ) {
 			update_lineinfo( li->get_line() );
 		}
@@ -400,19 +400,19 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		selected_line[player->get_player_nr()][selected_tab[player->get_player_nr()]] = line;
 		selected_line[player->get_player_nr()][0] = line; // keep these the same in overview
 	}
-	else if(  komp == &inp_filter  ) {
+	else if(  comp == &inp_filter  ) {
 		if(  strcmp(old_schedule_filter,schedule_filter)  ) {
 			build_line_list(tabs.get_active_tab_index());
 			strcpy(old_schedule_filter,schedule_filter);
 		}
 	}
-	else if(  komp == &inp_name  ) {
+	else if(  comp == &inp_name  ) {
 		rename_line();
 	}
 	else {
 		if(  line.is_bound()  ) {
 			for(  int i=0;  i<MAX_LINE_COST;  i++  ) {
-				if(  komp == &filterButtons[i]  ) {
+				if(  comp == &filterButtons[i]  ) {
 					filterButtons[i].pressed ^= 1;
 					if(  filterButtons[i].pressed  ) {
 						chart.show_curve(i);

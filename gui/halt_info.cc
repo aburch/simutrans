@@ -503,7 +503,7 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 	}
 
 	if(  halt->get_reconnect_counter()==destination_counter  &&
-		 halt->registered_lines.get_count()==cached_line_count  &&  halt->registered_convoys.get_count()!=cached_convoy_count  ) {
+		 halt->registered_lines.get_count()==cached_line_count  &&  halt->registered_convoys.get_count()==cached_convoy_count  ) {
 		// all current, so do nothing
 		return;
 	}

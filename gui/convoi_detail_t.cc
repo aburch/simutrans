@@ -233,14 +233,14 @@ void convoi_detail_t::draw(scr_coord offset)
  * This method is called if an action is triggered
  * @author Markus Weber
  */
-bool convoi_detail_t::action_triggered(gui_action_creator_t *komp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
+bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
 {
 	if(cnv.is_bound()) {
-		if(komp==&sale_button) {
+		if(comp==&sale_button) {
 			cnv->call_convoi_tool( 'x', NULL );
 			return true;
 		}
-		else if(komp==&withdraw_button) {
+		else if(comp==&withdraw_button) {
 			cnv->call_convoi_tool( 'w', NULL );
 			return true;
 		}

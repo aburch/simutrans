@@ -148,6 +148,11 @@ call_tool_init convoy_generic_tool(convoi_t *cnv, player_t *player, uint8 cnvtoo
 	return call_tool_init(TOOL_CHANGE_CONVOI | SIMPLE_TOOL, buf, 0, player);
 }
 
+bool convoy_is_schedule_editor_open(convoi_t *cnv)
+{
+	return cnv->get_state() == convoi_t::EDIT_SCHEDULE;
+}
+
 void export_convoy(HSQUIRRELVM vm)
 {
 	/**
@@ -323,6 +328,10 @@ void export_convoy(HSQUIRRELVM vm)
 	 * @ingroup game_cmd
 	 */
 	register_method_fv(vm, convoy_generic_tool, "destroy", freevariable<uint8>('x'), true);
+	/**
+	 * @returns returns true if the schedule of the convoy is currently being edited.
+	 */
+	register_method(vm, convoy_is_schedule_editor_open, "is_schedule_editor_open", true);
 
 #define STATIC
 	/**

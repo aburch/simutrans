@@ -40,7 +40,7 @@ public:
 	 * -#  If ai_bridge==false then looks for end location at a sloped tile.
 	 * -#  If ai_bridge==true returns the first location (taking min_length into account)
 	 *     for the bridge end (including flat tiles).
-	 * @param sp active player, needed to check scenario conditions
+	 * @param player active player, needed to check scenario conditions
 	 * @param pos  the position of the start of the bridge
 	 * @param zv   desired direction of the bridge
 	 * @param desc the description of the bridge
@@ -55,7 +55,7 @@ public:
 	/**
 	 * Checks whether given tile @p gr is suitable for placing bridge ramp.
 	 *
-	 * @param sp the player wanting to build the  bridge.
+	 * @param player the player wanting to build the  bridge.
 	 * @param gr the ground to check.
 	 * @return true, if bridge ramp can be built here.
 	 */
@@ -72,7 +72,7 @@ public:
 	/**
 	 * Build a bridge ramp.
 	 *
-	 * @param sp the player wanting to build the bridge
+	 * @param player the player wanting to build the bridge
 	 * @param end the position of the ramp
 	 * @param zv direction the bridge will face
 	 * @param desc the bridge description.
@@ -86,7 +86,7 @@ public:
 	 * Therefore checks should be done before in
 	 * bridge_builder_t::build().
 	 *
-	 * @param sp the master builder of the bridge.
+	 * @param player the master builder of the bridge.
 	 * @param start start position.
 	 * @param end end position
 	 * @param zv direction the bridge will face
@@ -117,7 +117,7 @@ public:
 	 * Builds the bridge and performs all checks.
 	 * This is the main construction routine.
 	 *
-	 * @param sp The player wanting to build the bridge.
+	 * @param player The player wanting to build the bridge.
 	 * @param pos the start of the bridge.
 	 * @param desc Description of the bridge to build
 	 * @param overtaking_mode condition of overtaking. This is applied only to road.
@@ -127,7 +127,7 @@ public:
 
 	/**
 	 * Removes a bridge
-	 * @param sp the demolisher and owner of the bridge
+	 * @param player the demolisher and owner of the bridge
 	 * @param pos position anywhere on a bridge.
 	 * @param wegtyp way type of the bridge
 	 * @return An error message if the bridge could not be removed, NULL otherwise

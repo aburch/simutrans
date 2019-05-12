@@ -149,7 +149,7 @@ private:
 	* Convoi owner
 	* @author Hj. Malthaner
 	*/
-	player_t *owner_p;
+	player_t *owner;
 
 	/**
 	* Current map
@@ -537,7 +537,7 @@ public:
 	*/
 	convoi_t(loadsave_t *file);
 
-	convoi_t(player_t* player_);
+	convoi_t(player_t* player);
 
 	virtual ~convoi_t();
 
@@ -732,7 +732,7 @@ public:
 	* @return Owner of this convoi
 	* @author Hj. Malthaner
 	*/
-	player_t * get_owner() const { return owner_p; }
+	player_t * get_owner() const { return owner; }
 
 	/**
 	* Opens an information window

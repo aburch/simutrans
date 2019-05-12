@@ -1,7 +1,7 @@
 #ifndef gui_colorbox_h
 #define gui_colorbox_h
 
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../simcolor.h"
 
 /**
