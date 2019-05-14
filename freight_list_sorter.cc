@@ -503,7 +503,6 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					sprintf(g_class_untranslated, "m_class[%u]", ware.get_class());
 				}
 				sprintf(g_class_text, "%s", translator::translate(g_class_untranslated));
-				//sprintf(g_class_alone, " (%s)", translator::translate(g_class_untranslated));
 
 			}
 			// detail amount
@@ -574,17 +573,23 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 
 				if (ware.is_passenger() && (sortby == by_destination_detail || sortby == by_wealth_detail || sortby == by_accommodation_detail))
 				{
-					if (city && sortby != by_wealth_detail)
+					if (city)
 					{
-						buf.printf("%s <%i, %i> (%s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), g_class_text);
-					}
-					else if (city && sortby == by_wealth_detail)
-					{
-						buf.printf("%s <%i, %i> (%s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name());
+						if (sortby == by_wealth_detail) {
+							buf.printf("%s <%i, %i> (%s) ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name());
+						}
+						else {
+							buf.printf("%s <%i, %i> (%s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), g_class_text);
+						}
 					}
 					else
 					{
-						buf.printf("%s <%i, %i> (%s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, g_class_text);
+						if (sortby == by_wealth_detail) {
+							buf.printf("%s <%i, %i> ", dbuf.get_str(), zielpos.x, zielpos.y);
+						}
+						else {
+							buf.printf("%s <%i, %i> (%s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, g_class_text);
+						}
 					}
 				}
 				else if (ware.is_mail() && (sortby == by_wealth_detail || sortby == by_accommodation_detail))
