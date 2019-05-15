@@ -429,6 +429,169 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate("\n\n"));
 	}
 
+	// Check wether this signal protects a junction otherwise count how far the next stop signal is
+	bool stop_loop = false;
+	koord3d pos = get_pos();
+	const waytype_t waytype = sig->get_waytype();
+	uint8 initial_direction = get_dir();
+	uint8 initial_direction_2 = get_dir();
+	uint8 directions = 1;
+	uint8 coming_from_direction = get_dir();
+	int tiles = 0;
+	int tiles_other_way = 0;
+	bool dead_end = false;
+	bool crossing = false;
+	bool signal = false;
+	int max_tiles_to_look = 1000;
+	char direction[20];
+
+	if (desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block))
+	{
+		if (get_dir() == 1 || get_dir() == 4)
+		{
+			//North and South
+			initial_direction = 1;
+			initial_direction_2 = 4;
+		}
+		else
+		{
+			//East and West
+			initial_direction = 2;
+			initial_direction_2 = 8;
+		}
+		directions = 2;
+	}
+	else
+	{
+		// Reorder the directions so the RIBI understands them.
+		initial_direction = get_dir() == 1 ? 4 : get_dir() == 2 ? 8 : get_dir() == 4 ? 1 : get_dir() == 8 ? 2 : initial_direction;
+		// If signal is double headed, save the directions for each head.
+		switch (get_dir())
+		{
+		case 3: // north_and_east
+			initial_direction = 1;
+			initial_direction_2 = 2;
+			directions = 2;
+			break;
+		case 5: // north_and_south
+			initial_direction = 1;
+			initial_direction_2 = 4;
+			directions = 2;
+			break;
+		case 6: // south_and_east
+			initial_direction = 4;
+			initial_direction_2 = 2;
+			directions = 2;
+			break;
+		case 9: // north_and_west
+			initial_direction = 1;
+			initial_direction_2 = 8;
+			directions = 2;
+			break;
+		case 10: // east_and_west
+			initial_direction = 2;
+			initial_direction_2 = 8;
+			directions = 2;
+			break;
+		case 12: // south_and_west
+			initial_direction = 4;
+			initial_direction_2 = 8;
+			directions = 2;
+			break;
+		default:
+			break;
+
+		}
+	}
+
+	// Signal get_dir() values
+	//1 = South
+	//2 = West
+	//4 = North
+	//8 = East
+
+	// Ribi enum direction values
+	// 1 = North
+	// 4 = South
+	// 2 = East
+	// 8 = West
+
+	bool track_pos_z = false;
+	grund_t *gr;
+	koord3d weg_pos;
+	for (int j = 0; j < directions; j++)
+	{
+		initial_direction = j == 1 ? initial_direction_2 : initial_direction;
+		// Need to turn the direction syntax around again due to the translations list...
+		directions == 2 ? sprintf(direction, " (%s)", translator::translate(get_directions_name(initial_direction == 1 ? 4 : initial_direction == 2 ? 8 : initial_direction == 4 ? 1 : initial_direction == 8 ? 2 : initial_direction))) : sprintf(direction, "");
+
+		gr = welt->lookup(get_pos());
+		tiles = 0;
+		coming_from_direction = get_dir();
+		crossing = false;
+		dead_end = false;
+		signal = false;
+		for (uint32 i = 0; i < max_tiles_to_look; i++)
+		{
+			grund_t* to;
+			dead_end = true;
+			for (int r = 0; r < 4; r++)
+			{
+				if (((ribi_t::nsew[r] & initial_direction) != 0 || (ribi_t::nsew[r] & coming_from_direction) == 0) && gr->get_neighbour(to, waytype, ribi_t::nsew[r]))
+				{
+					weg_t* weg = to->get_weg(waytype);
+					weg_pos = weg->get_pos();
+					initial_direction = 0; // reset initial direction and start record what direction we came from
+					uint8 new_from_direction = r == 0 ? 1 : r == 1 ? 0 : r == 2 ? 3 : r == 3 ? 2 : 0;
+					coming_from_direction = ribi_t::nsew[new_from_direction];
+					gr = welt->lookup(weg_pos);
+					dead_end = false;
+
+					if (weg->has_signal())
+					{
+						signal_t* next_signal = gr->find<signal_t>();
+						if (next_signal)
+						{
+							signal = true;
+							break;
+						}
+					}
+					ribi_t::ribi ribi = weg->get_ribi_unmasked();
+					switch (ribi)
+					{
+					case ribi_t::_ribi::northsoutheast:
+					case ribi_t::_ribi::northeastwest:
+					case ribi_t::_ribi::northsouthwest:
+					case ribi_t::_ribi::southeastwest:
+					case ribi_t::_ribi::all:
+						crossing = true;
+						break;
+					default:
+						break;
+					}
+					break;
+				}
+			}
+			tiles++;
+			if (crossing || dead_end || signal)
+			{
+				break;
+			}
+		}
+		if (signal)
+		{
+			buf.printf("%s%s: %i\n", translator::translate("distance_to_next_stop_signal"), direction, tiles);
+		}
+		else if (crossing)
+		{
+			buf.printf("%s%s %i\n", translator::translate("this_signal_protects_a_junction"), direction, tiles);
+		}
+		else if (dead_end)
+		{
+			buf.printf("%s%s %i\n", translator::translate("distance_to_dead_end"), direction, tiles);
+		}
+	}
+
 	// Deal with station signals where the time since the train last passed is standardised for the whole station.
 	halthandle_t this_tile_halt = haltestelle_t::get_halt(sig->get_pos(), get_owner()); 
 	uint32 station_signals_count = this_tile_halt.is_bound() ? this_tile_halt->get_station_signals_count() : 0;
