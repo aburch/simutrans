@@ -430,166 +430,218 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	}
 
 	// Check wether this signal protects a junction otherwise count how far the next stop signal is
-	bool stop_loop = false;
-	koord3d pos = get_pos();
-	const waytype_t waytype = sig->get_waytype();
-	uint8 initial_direction = get_dir();
-	uint8 initial_direction_2 = get_dir();
-	uint8 directions = 1;
-	uint8 coming_from_direction = get_dir();
-	int tiles = 0;
-	int tiles_other_way = 0;
-	bool dead_end = false;
-	bool crossing = false;
-	bool signal = false;
-	int max_tiles_to_look = 1000;
-	char direction[20];
-
-	if (desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block))
+	// However, display nothing for station signals, since the information would be very random dependent on where you put the signal and would not be very informative anyway
+	if (!(desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block)))
 	{
-		if (get_dir() == 1 || get_dir() == 4)
+		const waytype_t waytype = sig->get_waytype();
+		uint8 initial_direction = get_dir();
+		uint8 initial_direction_2 = get_dir();
+		uint8 directions = 1;
+		uint8 coming_from_direction = get_dir();
+		int tiles = 0;
+		bool dead_end = false;
+		bool crossing = false;
+		bool signal = false;
+		int max_tiles_to_look = 1000;
+		char direction[20];
+
 		{
-			//North and South
-			initial_direction = 1;
-			initial_direction_2 = 4;
-		}
-		else
-		{
-			//East and West
-			initial_direction = 2;
-			initial_direction_2 = 8;
-		}
-		directions = 2;
-	}
-	else
-	{
-		// Reorder the directions so the RIBI understands them.
-		initial_direction = get_dir() == 1 ? 4 : get_dir() == 2 ? 8 : get_dir() == 4 ? 1 : get_dir() == 8 ? 2 : initial_direction;
-		// If signal is double headed, save the directions for each head.
-		switch (get_dir())
-		{
-		case 3: // north_and_east
-			initial_direction = 1;
-			initial_direction_2 = 2;
-			directions = 2;
-			break;
-		case 5: // north_and_south
-			initial_direction = 1;
-			initial_direction_2 = 4;
-			directions = 2;
-			break;
-		case 6: // south_and_east
-			initial_direction = 4;
-			initial_direction_2 = 2;
-			directions = 2;
-			break;
-		case 9: // north_and_west
-			initial_direction = 1;
-			initial_direction_2 = 8;
-			directions = 2;
-			break;
-		case 10: // east_and_west
-			initial_direction = 2;
-			initial_direction_2 = 8;
-			directions = 2;
-			break;
-		case 12: // south_and_west
-			initial_direction = 4;
-			initial_direction_2 = 8;
-			directions = 2;
-			break;
-		default:
-			break;
-
-		}
-	}
-
-	// Signal get_dir() values
-	//1 = South
-	//2 = West
-	//4 = North
-	//8 = East
-
-	// Ribi enum direction values
-	// 1 = North
-	// 4 = South
-	// 2 = East
-	// 8 = West
-
-	bool track_pos_z = false;
-	grund_t *gr;
-	koord3d weg_pos;
-	for (int j = 0; j < directions; j++)
-	{
-		initial_direction = j == 1 ? initial_direction_2 : initial_direction;
-		// Need to turn the direction syntax around again due to the translations list...
-		directions == 2 ? sprintf(direction, " (%s)", translator::translate(get_directions_name(initial_direction == 1 ? 4 : initial_direction == 2 ? 8 : initial_direction == 4 ? 1 : initial_direction == 8 ? 2 : initial_direction))) : sprintf(direction, "");
-
-		gr = welt->lookup(get_pos());
-		tiles = 0;
-		coming_from_direction = get_dir();
-		crossing = false;
-		dead_end = false;
-		signal = false;
-		for (uint32 i = 0; i < max_tiles_to_look; i++)
-		{
-			grund_t* to;
-			dead_end = true;
-			for (int r = 0; r < 4; r++)
+			// If signal is double headed, save the directions for each head.
+			switch (get_dir())
 			{
-				if (((ribi_t::nsew[r] & initial_direction) != 0 || (ribi_t::nsew[r] & coming_from_direction) == 0) && gr->get_neighbour(to, waytype, ribi_t::nsew[r]))
-				{
-					weg_t* weg = to->get_weg(waytype);
-					weg_pos = weg->get_pos();
-					initial_direction = 0; // reset initial direction and start record what direction we came from
-					uint8 new_from_direction = r == 0 ? 1 : r == 1 ? 0 : r == 2 ? 3 : r == 3 ? 2 : 0;
-					coming_from_direction = ribi_t::nsew[new_from_direction];
-					gr = welt->lookup(weg_pos);
-					dead_end = false;
+			case 3: // north_and_east
+				initial_direction = 1;
+				initial_direction_2 = 2;
+				directions = 2;
+				break;
+			case 5: // north_and_south
+				initial_direction = 1;
+				initial_direction_2 = 4;
+				directions = 2;
+				break;
+			case 6: // south_and_east
+				initial_direction = 4;
+				initial_direction_2 = 2;
+				directions = 2;
+				break;
+			case 9: // north_and_west
+				initial_direction = 1;
+				initial_direction_2 = 8;
+				directions = 2;
+				break;
+			case 10: // east_and_west
+				initial_direction = 2;
+				initial_direction_2 = 8;
+				directions = 2;
+				break;
+			case 12: // south_and_west
+				initial_direction = 4;
+				initial_direction_2 = 8;
+				directions = 2;
+				break;
+			default:
+				break;
+			}
+			// Otherwise just reorder the directions so that the RIBI understands them.
+			initial_direction = get_dir() == 1 ? 4 : get_dir() == 2 ? 8 : get_dir() == 4 ? 1 : get_dir() == 8 ? 2 : initial_direction;
+		}
 
-					if (weg->has_signal())
+		// Signal get_dir() values
+		//1 = South
+		//2 = West
+		//4 = North
+		//8 = East
+
+		// Ribi enum direction values
+		// 1 = North
+		// 4 = South
+		// 2 = East
+		// 8 = West
+
+		//bool track_pos_z = false;
+		grund_t *gr;
+		koord3d weg_pos;
+		for (int j = 0; j < directions; j++)
+		{
+			// If the signal is doubleheaded we need to display a heading for the entry
+			initial_direction = j == 1 ? initial_direction_2 : initial_direction;
+			directions == 2 ? sprintf(direction, " (%s)", translator::translate(get_directions_name(initial_direction == 1 ? 4 : initial_direction == 2 ? 8 : initial_direction == 4 ? 1 : initial_direction == 8 ? 2 : initial_direction))) : sprintf(direction, "");
+
+			gr = welt->lookup(get_pos());
+			tiles = 0;
+			coming_from_direction = get_dir();
+			crossing = false;
+			dead_end = false;
+			signal = false;
+			for (uint32 i = 0; i < max_tiles_to_look; i++)
+			{
+				grund_t* to;
+				dead_end = true;
+				for (int r = 0; r < 4; r++)
+				{
+					if (((ribi_t::nsew[r] & initial_direction) != 0 || (ribi_t::nsew[r] & coming_from_direction) == 0) && gr->get_neighbour(to, waytype, ribi_t::nsew[r]))
 					{
-						signal_t* next_signal = gr->find<signal_t>();
-						if (next_signal)
+						weg_t* weg = to->get_weg(waytype);
+						weg_pos = weg->get_pos();
+						gr = welt->lookup(weg_pos);
+						initial_direction = 0; // reset initial direction and start record what direction we came from by reversing the direction in which we are traveling
+						uint8 new_from_direction = r == 0 ? 1 : r == 1 ? 0 : r == 2 ? 3 : r == 3 ? 2 : 0;
+						coming_from_direction = ribi_t::nsew[new_from_direction];
+						dead_end = false;
+
+						// Is this new tile a junction of some sorth?
+						ribi_t::ribi ribi = weg->get_ribi_unmasked();
+						switch (ribi)
 						{
-							signal = true;
+						case ribi_t::_ribi::northsoutheast:
+						case ribi_t::_ribi::northeastwest:
+						case ribi_t::_ribi::northsouthwest:
+						case ribi_t::_ribi::southeastwest:
+						case ribi_t::_ribi::all:
+							crossing = true;
 							break;
+						//default:
+							//break;
 						}
-					}
-					ribi_t::ribi ribi = weg->get_ribi_unmasked();
-					switch (ribi)
-					{
-					case ribi_t::_ribi::northsoutheast:
-					case ribi_t::_ribi::northeastwest:
-					case ribi_t::_ribi::northsouthwest:
-					case ribi_t::_ribi::southeastwest:
-					case ribi_t::_ribi::all:
-						crossing = true;
+
+						// Does this tile have a signal?
+						if (weg->has_signal())
+						{
+							signal_t* next_signal = gr->find<signal_t>();
+							if (next_signal)
+							{
+								const roadsign_desc_t * next_desc = next_signal->get_desc();
+								// Next signal is only a presignal?
+								if (!next_desc->is_pre_signal())
+								{
+									// Determine if the signal are facing the wrong way.
+									uint8 sig_dir = next_signal->get_dir();
+									uint8 sig_ribi_dir;
+
+									if (next_desc->is_longblock_signal() && (next_desc->get_working_method() == time_interval || next_desc->get_working_method() == time_interval_with_telegraph || next_desc->get_working_method() == absolute_block))
+									{
+										// Station signal, always true.
+										signal = true;
+										break;
+									}
+									else
+									{
+										// If signal is double headed, also assume always true
+										switch (sig_dir)
+										{
+										case 3: // north_and_east
+										case 5: // north_and_south
+										case 6: // south_and_east
+										case 9: // north_and_west
+										case 10: // east_and_west
+										case 12: // south_and_west
+											signal = true;
+											break;
+											break; // second break, to get out of the for loop
+										default:
+											break;
+										}
+										// Single headed. Reorder the directions so the RIBI understands them.
+										sig_ribi_dir = sig_dir == 1 ? 4 : sig_dir == 2 ? 8 : sig_dir == 4 ? 1 : sig_dir == 8 ? 2 : sig_ribi_dir;
+										if (ribi_t::nsew[r] == sig_ribi_dir)
+										{
+											signal = true;
+											break;
+										}
+									}									
+								}
+							}
+						}
 						break;
-					default:
-						break;
 					}
+				}
+				tiles++;
+				if (crossing || dead_end || signal)
+				{
 					break;
 				}
 			}
-			tiles++;
-			if (crossing || dead_end || signal)
+
+			// Convert the tiles counted to actual distance
+			const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
+			const double distance_km = (double)tiles * km_per_tile;
+			char distance[10];
+
+			if (distance_km < 1)
 			{
-				break;
+				float distance_m = distance_km * 1000;
+				sprintf(distance, "%i%s", (int)distance_m, "m");
+			}
+			else
+			{
+				uint decimal;
+				if (distance_km < 20)
+				{
+					decimal = 1;
+				}
+				else
+				{
+					decimal = 0;
+				}
+				char number_actual[10];
+				number_to_string(number_actual, distance_km, decimal);
+				sprintf(distance, "%s%s", number_actual, "km");
+			}
+
+			if (crossing)
+			{
+				buf.printf("%s%s: %s\n", translator::translate("this_signal_protects_a_junction"), direction, distance);
+			}
+			else if (signal)
+			{
+				buf.printf("%s%s: %s\n", translator::translate("distance_to_next_stop_signal"), direction, distance);
+			}
+			else if (dead_end)
+			{
+				buf.printf("%s%s: %s\n", translator::translate("distance_to_dead_end"), direction, distance);
 			}
 		}
-		if (signal)
-		{
-			buf.printf("%s%s: %i\n", translator::translate("distance_to_next_stop_signal"), direction, tiles);
-		}
-		else if (crossing)
-		{
-			buf.printf("%s%s %i\n", translator::translate("this_signal_protects_a_junction"), direction, tiles);
-		}
-		else if (dead_end)
-		{
-			buf.printf("%s%s %i\n", translator::translate("distance_to_dead_end"), direction, tiles);
-		}
+		buf.append("\n");
 	}
 
 	// Deal with station signals where the time since the train last passed is standardised for the whole station.
