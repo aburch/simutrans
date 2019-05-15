@@ -1805,12 +1805,11 @@ void karte_t::start_passengers_and_mail_threads()
 	simthread_barrier_wait(&step_passengers_and_mail_barrier);
 	passengers_and_mail_threads_working = true;
 }
+#endif //MULTI_THREAD
 
 void karte_t::await_passengers_and_mail_threads()
 {
-#ifndef MULTI_THREAD_PASSENGER_GENERATION
-	return;
-#endif
+#ifdef MULTI_THREAD_PASSENGER_GENERATION
 #ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
 	if (!env_t::networkmode)
 	{
@@ -1825,8 +1824,10 @@ void karte_t::await_passengers_and_mail_threads()
 #ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
 	}
 #endif
+#endif
 }
 
+#ifdef MULTI_THREAD
 void *step_convoys_threaded(void* args)
 {
 	karte_t* world = (karte_t*)args;
@@ -1894,19 +1895,20 @@ void karte_t::start_convoy_threads()
 	simthread_barrier_wait(&step_convoys_barrier_external);
 	convoy_threads_working = true;
 }
+#endif
 
 void karte_t::await_convoy_threads()
 {
-#ifndef MULTI_THREAD_CONVOYS
-	return;
-#endif
+#ifdef MULTI_THREAD_CONVOYS
 	if (convoy_threads_working)
 	{
 		simthread_barrier_wait(&step_convoys_barrier_external);
 		convoy_threads_working = false;
 	}
+#endif
 }
 
+#ifdef MULTI_THREAD
 void* path_explorer_threaded(void* args)
 {
 	path_explorer_t::allow_path_explorer_on_this_thread = true;
@@ -1923,7 +1925,7 @@ void* path_explorer_threaded(void* args)
 
 	return args;
 }
-
+#endif
 
 void karte_t::await_path_explorer()
 {
@@ -1947,6 +1949,7 @@ void karte_t::await_path_explorer()
 #endif
 }
 
+#ifdef MULTI_THREAD
 void karte_t::start_path_explorer()
 {
 #ifdef MULTI_THREAD_PATH_EXPLORER
@@ -2000,15 +2003,19 @@ void* unreserve_route_threaded(void* args)
 	pthread_exit(NULL);
 	return args;
 }
+#endif
 
 void karte_t::await_all_threads()
 {
+#ifdef MULTI_THREAD
 	// Call this when saving or doing disruptive stuff like map rotation.
 	await_convoy_threads();
 	await_path_explorer();
 	await_passengers_and_mail_threads();
+#endif
 }
 
+#ifdef MULTI_THREAD
 void karte_t::init_threads()
 {
 	marker_index = UINT32_MAX_VALUE;
