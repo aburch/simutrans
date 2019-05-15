@@ -7386,9 +7386,9 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 
 		// Modified by : Knightly
 #ifdef MULTI_THREAD
-		world()->stop_path_explorer();
+		world()->await_path_explorer();
 #endif
-		path_explorer_t::refresh_all_categories(true);
+		path_explorer_t::refresh_all_categories(false);
 	}
 	return NULL;
 }
@@ -7699,17 +7699,13 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					construction_cost = welt->calc_adjusted_monthly_figure(maintenance_cost * welt->get_settings().cst_make_public_months);
 				}
 
-#ifdef MULTI_THREAD
+#ifdef MULTI_THREAD_CONVOYS
 				if (env_t::networkmode)
 				{
 					// In network mode, we cannot have anything that alters a way running concurrently with
 					// convoy path-finding because  whether the convoy path-finder is called
 					// on this tile of way before or after this function is indeterminate.
-					if (!world()->get_first_step())
-					{
-						simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
-						welt->set_first_step(1);
-					}
+					world()->await_convoy_threads();
 				}
 #endif
 
@@ -9428,7 +9424,7 @@ bool tool_access_t::init(player_t *player)
 			}
 		}
 #ifdef MULTI_THREAD
-		world()->stop_path_explorer();
+		world()->await_path_explorer();
 #endif
 		path_explorer_t::refresh_all_categories(false);
 		if (cnv.is_bound())

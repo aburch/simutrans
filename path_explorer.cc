@@ -103,16 +103,76 @@ void path_explorer_t::finalise()
 
 void path_explorer_t::rdwr(loadsave_t* file)
 {
-	// Iterate through the compartments and load/save these
-	for (uint8 ca = 0; ca < max_categories; ++ca)
+	if (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 10))
 	{
-		for (uint8 cl = 0; cl < max_classes; ++cl)
+		// Iterate through the compartments and load/save these
+		for (uint8 ca = 0; ca < max_categories; ++ca)
 		{
-			if (ca != category_empty)
+			for (uint8 cl = 0; cl < max_classes; ++cl)
 			{
-				goods_compartment[ca][cl].rdwr(file); 
+				if (ca != category_empty)
+				{
+					goods_compartment[ca][cl].rdwr(file);
+				}
 			}
 		}
+	}
+	else
+	{
+		uint8 file_max_categories = max_categories;
+		file->rdwr_byte(file_max_categories);
+
+		uint8 file_passenger_classes = goods_manager_t::passengers->get_number_of_classes();
+		file->rdwr_byte(file_passenger_classes);
+		for (uint8 cl = 0; cl < file_passenger_classes; cl++)
+		{
+			if (cl < max_classes)
+			{
+				goods_compartment[goods_manager_t::INDEX_PAS][cl].rdwr(file);
+			}
+			else
+			{
+				compartment_t* dummy_goods_compartment = new compartment_t;
+				dummy_goods_compartment->rdwr(file);
+				delete dummy_goods_compartment;
+			}
+		}
+
+		uint8 file_mail_classes = goods_manager_t::mail->get_number_of_classes();
+		file->rdwr_byte(file_mail_classes);
+		for (uint8 cl = 0; cl < file_mail_classes; cl++)
+		{
+			if (cl < max_classes)
+			{
+				goods_compartment[goods_manager_t::INDEX_MAIL][cl].rdwr(file);
+			}
+			else
+			{
+				compartment_t* dummy_goods_compartment = new compartment_t;
+				dummy_goods_compartment->rdwr(file);
+				delete dummy_goods_compartment;
+			}
+		}
+
+		for (uint8 ca = 0; ca < file_max_categories; ca++)
+		{
+			if (ca != category_empty && ca != goods_manager_t::INDEX_PAS && ca != goods_manager_t::INDEX_MAIL)
+			{
+				if (ca < max_categories)
+				{
+					goods_compartment[ca][0].rdwr(file);
+				}
+				else
+				{
+					compartment_t* dummy_goods_compartment = new compartment_t;
+					dummy_goods_compartment->rdwr(file);
+					delete dummy_goods_compartment;
+				}
+			}
+		}
+
+		file->rdwr_byte(current_compartment_category);
+		file->rdwr_byte(current_compartment_class);
 	}
 
 	// Load/save the connexion_list, which is static
@@ -410,14 +470,14 @@ void path_explorer_t::refresh_category(uint8 category)
 	{
 		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
 		{
-			goods_compartment[category][i].set_refresh();
+			goods_compartment[goods_manager_t::INDEX_PAS][i].set_refresh();
 		}
 	}
 	else if (category == goods_manager_t::INDEX_MAIL)
 	{
 		for (uint8 i = 0; i < goods_manager_t::mail->get_number_of_classes(); i++)
 		{
-			goods_compartment[category][i].set_refresh();
+			goods_compartment[goods_manager_t::INDEX_MAIL][i].set_refresh();
 		}
 	}
 	else

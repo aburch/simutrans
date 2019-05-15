@@ -1177,7 +1177,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 
 void vehicle_t::fix_class_accommodations()
 {
-	if (desc->get_total_capacity() == 0)
+	if (!desc || desc->get_total_capacity() == 0)
 	{
 		// Vehicle ought to be empty - perhaps we should check this.
 		return;
@@ -4771,7 +4771,8 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	route_t target_rt;
 	const uint16 first_block = start_block == 0 ? start_block : start_block - 1;
 	const uint16 second_block = start_block == 0 ? start_block + 1 : start_block;
-	const uint16 third_block = start_block == 0 ? start_block + 2 : start_block + 1;
+	uint16 third_block = start_block == 0 ? start_block + 2 : start_block + 1;
+	third_block = min(third_block, route->get_count() - 1); 
 	const koord3d first_tile = route->at(first_block);
 	const koord3d second_tile = route->at(second_block);
 	const koord3d third_tile = route->at(third_block);

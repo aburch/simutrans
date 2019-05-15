@@ -163,6 +163,7 @@ void convoi_t::init(player_t *player)
 	vehicle_count = 0;
 	steps_driven = -1;
 	wait_lock = 0;
+	wait_lock_next_step = 0;
 	go_on_ticks = WAIT_INFINITE;
 
 	requested_change_lane = false;
@@ -484,9 +485,6 @@ uint32 convoi_t::move_to(uint16 const start_index)
 
 void convoi_t::finish_rd()
 {
-#ifdef MULTI_THREAD
-	world()->stop_path_explorer();
-#endif
 	if(schedule==NULL) {
 		if(  state!=INITIAL  ) {
 			emergency_go_to_depot();
@@ -1518,7 +1516,7 @@ bool convoi_t::drive_to()
 		{
 #ifdef MULTI_THREAD
 			pthread_mutex_lock(&step_convois_mutex);
-			world()->stop_path_explorer();
+			world()->await_path_explorer();
 #endif
 			// There is no need to renew stops here, as this update can only ever come
 			// from a change in reversing status, which does not require renewing stops.
@@ -1554,12 +1552,12 @@ bool convoi_t::drive_to()
 		if (success == route_t::route_too_complex)
 		{
 			// 2 minutes
-			wait_lock = 7200000;
+			wait_lock_next_step = 7200000;
 		}
 		else
 		{
 			// 25 seconds
-			wait_lock = 25000;
+			wait_lock_next_step = 25000;
 		}
 	}
 	else {
@@ -1614,7 +1612,7 @@ bool convoi_t::drive_to()
 #endif
 					}
 					// wait 25s before next attempt
-					wait_lock = 25000;
+					wait_lock_next_step = 25000;
 					route_ok = false;
 					break;
 				}
@@ -1718,6 +1716,13 @@ void convoi_t::step()
 {
 	if(wait_lock !=0)
 	{
+		return;
+	}
+
+	if (wait_lock_next_step != 0) {
+		// threaded_step cannot update wait_lock directly
+		wait_lock = wait_lock_next_step;
+		wait_lock_next_step = 0;
 		return;
 	}
 	
@@ -3834,6 +3839,9 @@ void convoi_t::rdwr(loadsave_t *file)
 		// was anz_ready
 		file->rdwr_long(dummy);
 	}
+
+	wait_lock += wait_lock_next_step;
+	wait_lock_next_step = 0;
 
 	file->rdwr_long(wait_lock);
 	// some versions may produce broken savegames apparently

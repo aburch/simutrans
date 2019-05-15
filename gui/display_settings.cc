@@ -80,9 +80,10 @@
 #define PHASE_EXPLORE_PATHS				(PHASE_FILL_MATRIX+13)
 #define PHASE_REROUTE_GOODS				(PHASE_EXPLORE_PATHS+13)
 #define PATH_EXPLORE_STATUS				(PHASE_REROUTE_GOODS+13)
+#define PATH_EXPLORE_STATUS_TEXT		(PATH_EXPLORE_STATUS+13)
 
 
-#define L_DIALOG_HEIGHT					(PATH_EXPLORE_STATUS+30)
+#define L_DIALOG_HEIGHT					(PATH_EXPLORE_STATUS_TEXT+30)
 
 // Local params
 #define L_DIALOG_WIDTH (220)
@@ -571,5 +572,5 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	display_proportional_clip(x+len, y+PHASE_REROUTE_GOODS, ntos(path_explorer_t::get_limit_reroute_goods(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
 	len = 15+display_proportional_clip(x+10, y+PATH_EXPLORE_STATUS, translator::translate("Status:"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PATH_EXPLORE_STATUS, status_string, ALIGN_LEFT, figure_colour, true);
+	display_proportional_clip(x+10, y+PATH_EXPLORE_STATUS_TEXT, status_string, ALIGN_LEFT, figure_colour, true);
 }

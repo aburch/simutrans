@@ -470,6 +470,12 @@ private:
 	sint32 wait_lock;
 
 	/**
+	 * threaded_step needs to be able to set wait_lock indirectly, because
+	 * it can run after an indeterminate number of sync_steps.
+	 */
+	sint32 wait_lock_next_step;
+
+	/**
 	 * The flag whether this convoi is requested to change lane by the convoi behind this.
 	 * @author THLeaderH
 	 */

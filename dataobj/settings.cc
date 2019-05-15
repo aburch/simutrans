@@ -2945,7 +2945,7 @@ void settings_t::set_allow_routing_on_foot(bool value)
 { 
 	allow_routing_on_foot = value; 
 #ifdef MULTI_THREAD
-	world()->stop_path_explorer();
+	world()->await_path_explorer();
 #endif
 	path_explorer_t::refresh_category(0);
 }

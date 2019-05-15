@@ -669,7 +669,7 @@ haltestelle_t::~haltestelle_t()
 	free(cargo);
 	
 #ifdef MULTI_THREAD
-	welt->stop_path_explorer();
+	welt->await_path_explorer();
 #endif
 
 	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
@@ -2036,7 +2036,7 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 #ifdef MULTI_THREAD
 		if (!welt->is_destroying())
 		{
-			world()->stop_path_explorer();
+			world()->await_path_explorer();
 		}
 #endif
 
@@ -3972,7 +3972,8 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	if (file->get_extended_version() >= 5)
 	{
-		for (int j = 0; j < 9 /*MAX_HALT_COST*/; j++)
+		const int max_j = (file->get_extended_version() == 14 && file->get_extended_revision() >= 9) || file->get_extended_version() >= 15 ? 11 : 9;
+		for (int j = 0; j < max_j /*MAX_HALT_COST*/; j++)
 		{
 			if (((file->get_extended_version() == 14 && file->get_extended_revision() < 5) || file->get_extended_version() < 14) && j==8)
 			{
@@ -5125,7 +5126,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories, bool recalc_ne
 	calc_transfer_time();
 
 #ifdef MULTI_THREAD
-	world()->stop_path_explorer();
+	world()->await_path_explorer();
 #endif
 	path_explorer_t::refresh_all_categories(false);
 
@@ -5162,7 +5163,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// now remove tile from list
 	tiles.erase(i);
 #ifdef MULTI_THREAD
-	world()->stop_path_explorer();
+	world()->await_path_explorer();
 #endif
 	path_explorer_t::refresh_all_categories(false);
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
@@ -5266,7 +5267,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	check_nearby_halts();
 	calc_transfer_time();
 #ifdef MULTI_THREAD
-	world()->stop_path_explorer();
+	world()->await_path_explorer();
 #endif
 	path_explorer_t::refresh_all_categories(false);
 
@@ -5618,7 +5619,7 @@ void haltestelle_t::check_nearby_halts()
 	}
 	// Must refresh here, but only passengers can walk, so only refresh passengers.
 #ifdef MULTI_THREAD
-	world()->stop_path_explorer();
+	world()->await_path_explorer();
 #endif
 	path_explorer_t::refresh_category(0);
 }
