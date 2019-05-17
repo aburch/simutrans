@@ -448,59 +448,48 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		char direction[20];
 
 		{
-			// If signal is double headed, save the directions for each head.
-			switch (get_dir())
-			{
-			case 3: // north_and_east
-				initial_direction = 1;
-				initial_direction_2 = 2;
-				directions = 2;
-				break;
-			case 5: // north_and_south
-				initial_direction = 1;
-				initial_direction_2 = 4;
-				directions = 2;
-				break;
-			case 6: // south_and_east
-				initial_direction = 4;
-				initial_direction_2 = 2;
-				directions = 2;
-				break;
-			case 9: // north_and_west
-				initial_direction = 1;
-				initial_direction_2 = 8;
-				directions = 2;
-				break;
-			case 10: // east_and_west
-				initial_direction = 2;
-				initial_direction_2 = 8;
-				directions = 2;
-				break;
-			case 12: // south_and_west
-				initial_direction = 4;
-				initial_direction_2 = 8;
-				directions = 2;
-				break;
-			default:
-				break;
-			}
-			// Otherwise just reorder the directions so that the RIBI understands them.
-			initial_direction = get_dir() == 1 ? 4 : get_dir() == 2 ? 8 : get_dir() == 4 ? 1 : get_dir() == 8 ? 2 : initial_direction;
 		}
 
-		// Signal get_dir() values
-		//1 = South
-		//2 = West
-		//4 = North
-		//8 = East
+		// Reorder the directions so that the RIBI understands them.
+		/*
+		* Signal get_dir() values
+		* 1 = South
+		* 2 = West
+		* 4 = North
+		* 8 = East
+		--------------------
+		* Ribi enum direction values
+		* 1 = North
+		* 4 = South
+		* 2 = East
+		* 8 = West
+		*/
+		initial_direction =
+			get_dir() == 1 ? 4 : /*South*/
+			get_dir() == 2 ? 8 : /*West*/
+			get_dir() == 3 ? 1 : /*north_and_east*/
+			get_dir() == 4 ? 1 : /*North*/
+			get_dir() == 5 ? 1 : /*north_and_south*/
+			get_dir() == 6 ? 4 : /*south_and_east*/
+			get_dir() == 8 ? 2 : /*East*/
+			get_dir() == 9 ? 1 : /*north_and_west*/
+			get_dir() == 10 ? 2 : /*east_and_west*/
+			get_dir() == 12 ? 4 : /*south_and_west*/
+			initial_direction;
 
-		// Ribi enum direction values
-		// 1 = North
-		// 4 = South
-		// 2 = East
-		// 8 = West
+		// For bidirectional signals, add the "backwards" direction to initial_direction_2.
+		initial_direction_2 =
+			get_dir() == 3 ? 2 : /*north_and_east*/
+			get_dir() == 5 ? 4 : /*north_and_south*/
+			get_dir() == 6 ? 2 : /*south_and_east*/
+			get_dir() == 9 ? 8 : /*north_and_west*/
+			get_dir() == 10 ? 8 : /*east_and_west*/
+			get_dir() == 12 ? 8 : /*south_and_west*/
+			0;
 
-		//bool track_pos_z = false;
+		// Set the amount of directions this signal has (1 or 2)
+		directions = initial_direction_2 > 0 ? 2 : 1;
+	
 		grund_t *gr;
 		koord3d weg_pos;
 		for (int j = 0; j < directions; j++)
