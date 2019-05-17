@@ -131,6 +131,8 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	// well, needs to be done
 	obj_t::info(buf);
 	signal_t* sig = (signal_t*)this;
+
+	bool is_station_signal = desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block);
 	
 	buf.append(translator::translate(desc->get_name()));
 	buf.append("\n\n");
