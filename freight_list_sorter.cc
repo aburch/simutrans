@@ -149,10 +149,9 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 			int const class_order = w2.get_class() - w1.get_class();
 			if (class_order == 0)
 			{
-				int const via_order = strcmp(v1->get_name(), v2->get_name());
-				if (via_order != 0)
-				{
-					return via_order < 0;
+				int const order = w2.menge - w1.menge;
+				if (order != 0) {
+					return order < 0;
 				}
 			}
 			else
@@ -372,7 +371,6 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			{
 				if (wlist[i].get_index() == wlist[pos].get_index() &&
 					wlist[i].get_zwischenziel() == wlist[pos].get_zwischenziel() &&
-					(wlist[i].get_ziel() == wlist[i].get_zwischenziel()) == (wlist[pos].get_ziel() == wlist[pos].get_zwischenziel()) &&
 					wlist[i].get_class() == wlist[pos].get_class())
 				{
 					wlist[i].menge += wlist[pos--].menge;
@@ -542,14 +540,21 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					else {
 						buf.printf(" %s", translator::translate(desc.get_name()));
 					}
+					buf.append(" > ");
+					break;
+				case by_via_sum:
+				case by_wealth_via:
+					if (ware.is_freight()) {
+						buf.printf(" %s", translator::translate(desc.get_name()));
+					}
 					break;
 				default:
 					if(ware.is_freight()) {
 						buf.printf(" %s", translator::translate(desc.get_name()));
 					}
+					buf.printf(" %c ", ">>>>><>>>>>"[sortby]); // one ">" per sort mode..
 					break;
 			}
-			buf.printf(" %c ", ">>>>><>>>>>"[sortby]); // one ">" per sort mode..
 
 			{
 			/*	const sint64 current_time = welt->get_ticks();
@@ -627,14 +632,14 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				}
 			}
 
-			if (sortby == by_name || sortby == by_destination_detail || sortby == by_amount || sortby == by_origin || sortby == by_via_sum || sortby == by_via || sortby == by_wealth_detail || (sortby == by_wealth_via && via_halt == halt) || sortby == by_accommodation_detail || (sortby == by_accommodation_via && via_halt == halt))
+			if (sortby == by_name || sortby == by_destination_detail || sortby == by_amount || sortby == by_origin || sortby == by_via_sum || sortby == by_via || sortby == by_wealth_detail || sortby == by_wealth_via || sortby == by_accommodation_detail || (sortby == by_accommodation_via && via_halt == halt))
 			{
 				const char *destination_name = translator::translate("unknown");
 				if (halt.is_bound())
 				{
 					destination_name = halt->get_name();
 				}
-				if (sortby == by_destination_detail || sortby == by_wealth_detail || sortby == by_accommodation_detail)
+				if (sortby == by_destination_detail || sortby == by_wealth_detail || sortby == by_accommodation_detail || sortby == by_via_sum || sortby == by_wealth_via)
 				{
 					buf.printf(translator::translate(" via %s"), destination_name);
 				}
@@ -654,7 +659,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				buf.printf(origin_name);
 			}
 
-			if (via_halt != halt && (sortby == by_via || sortby == by_wealth_via || sortby == by_accommodation_via))
+			if (via_halt != halt && (sortby == by_via || sortby == by_accommodation_via))
 			{
 				const char *via_name = translator::translate("unknown");
 				if (via_halt.is_bound())
