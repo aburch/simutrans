@@ -150,7 +150,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate("double_block_signal"));
 		buf.append("\n");
 	}
-	if (desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block))
+	if (is_station_signal)
 	{
 		buf.append(translator::translate("station_signal"));
 		buf.append("\n");
@@ -228,7 +228,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 
 	buf.append(translator::translate("Direction"));
 	buf.append(": ");
-	if (desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block))
+	if (is_station_signal)
 	{
 		if (get_dir() == 1 || get_dir() == 4)
 		{
@@ -296,7 +296,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			else
 			{
 				// Is this a "station signal"?
-				if (desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block))
+				if (is_station_signal)
 				{
 					// Is the station signal using a 'normal' working method?
 					if (desc->get_working_method() != time_interval && desc->get_working_method() != time_interval_with_telegraph)
