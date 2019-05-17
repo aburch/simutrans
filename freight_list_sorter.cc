@@ -149,10 +149,9 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 			int const class_order = w2.get_class() - w1.get_class();
 			if (class_order == 0)
 			{
-				int const via_order = strcmp(v1->get_name(), v2->get_name());
-				if (via_order != 0)
-				{
-					return via_order < 0;
+				int const order = w2.menge - w1.menge;
+				if (order != 0) {
+					return order < 0;
 				}
 			}
 			else
