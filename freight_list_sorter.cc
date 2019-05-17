@@ -541,14 +541,21 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					else {
 						buf.printf(" %s", translator::translate(desc.get_name()));
 					}
+					buf.append(" > ");
+					break;
+				case by_via_sum:
+				case by_wealth_via:
+					if (ware.is_freight()) {
+						buf.printf(" %s", translator::translate(desc.get_name()));
+					}
 					break;
 				default:
 					if(ware.is_freight()) {
 						buf.printf(" %s", translator::translate(desc.get_name()));
 					}
+					buf.printf(" %c ", ">>>>><>>>>>"[sortby]); // one ">" per sort mode..
 					break;
 			}
-			buf.printf(" %c ", ">>>>><>>>>>"[sortby]); // one ">" per sort mode..
 
 			{
 			/*	const sint64 current_time = welt->get_ticks();
@@ -633,7 +640,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				{
 					destination_name = halt->get_name();
 				}
-				if (sortby == by_destination_detail || sortby == by_wealth_detail || sortby == by_accommodation_detail)
+				if (sortby == by_destination_detail || sortby == by_wealth_detail || sortby == by_accommodation_detail || sortby == by_via_sum || sortby == by_wealth_via)
 				{
 					buf.printf(translator::translate(" via %s"), destination_name);
 				}
