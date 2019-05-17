@@ -432,8 +432,8 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	}
 
 	// Check wether this signal protects a junction otherwise count how far the next stop signal is
-	// However, display nothing for station signals, since the information would be very random dependent on where you put the signal and would not be very informative anyway
-	if (!(desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block)))
+	// However, display nothing for station signals and one train staffs, since the information would be very random dependent on where you put the signal and would not be very informative anyway.
+	if (!is_station_signal && desc->get_working_method() != one_train_staff)
 	{
 		const waytype_t waytype = sig->get_waytype();
 		uint8 initial_direction = get_dir();
