@@ -632,7 +632,8 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				}
 			}
 
-			if (sortby == by_name || sortby == by_destination_detail || sortby == by_amount || sortby == by_origin || sortby == by_via_sum || sortby == by_via || sortby == by_wealth_detail || sortby == by_wealth_via || sortby == by_accommodation_detail || (sortby == by_accommodation_via && via_halt == halt))
+			if (sortby == by_name || sortby == by_destination_detail || sortby == by_amount || sortby == by_origin || (sortby == by_via_sum && via_halt == halt)
+				|| sortby == by_via || sortby == by_wealth_detail || (sortby == by_wealth_via && via_halt == halt) || sortby == by_accommodation_detail || (sortby == by_accommodation_via && via_halt == halt))
 			{
 				const char *destination_name = translator::translate("unknown");
 				if (halt.is_bound())
@@ -659,7 +660,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				buf.printf(origin_name);
 			}
 
-			if (via_halt != halt && (sortby == by_via || sortby == by_accommodation_via))
+			if (via_halt != halt && (sortby == by_via || sortby == by_via_sum || sortby == by_wealth_via || sortby == by_accommodation_via))
 			{
 				const char *via_name = translator::translate("unknown");
 				if (via_halt.is_bound())
