@@ -3094,9 +3094,9 @@ void vehicle_t::display_overlay(int xpos, int ypos) const
 {
 	if(  cnv  &&  leading  ) {
 #else
-void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
+void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 {
-	if(  is_gobal  &&  cnv  &&  leading  ) {
+	if(  is_global  &&  cnv  &&  leading  ) {
 #endif
 		PIXVAL color = 0; // not used, but stop compiler warning about uninitialized
 		char tooltip_text[1024];
