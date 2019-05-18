@@ -1072,7 +1072,7 @@ grund_t* private_car_t::hop_check()
 		// only stumps at single way crossing, all other blocked => turn around
 		if(ribi==0) {
 			pos_next_next = get_pos();
-			return can_enter_tile(from);
+			return can_enter_tile(from) ? from : NULL;
 		}
 #endif
 	}

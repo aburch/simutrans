@@ -2394,7 +2394,7 @@ uint16 convoi_t::get_overcrowded() const
 	return overcrowded;
 }
 
-uint8 convoi_t::get_comfort(uint8 g_class) const
+uint8 convoi_t::get_comfort(uint8 g_class, bool check_reassigned) const
 {
 	uint32 comfort = 0;
 	uint8 passenger_vehicles = 0;
@@ -2405,11 +2405,19 @@ uint8 convoi_t::get_comfort(uint8 g_class) const
 
 	for(uint8 i = 0; i < vehicle_count; i ++)
 	{
-		if(vehicle[i]->get_cargo_type()->get_catg_index() == 0)
+		if (vehicle[i]->get_cargo_type()->get_catg_index() == 0)
 		{
-			passenger_vehicles ++;
+			passenger_vehicles++;
+
 			capacity = vehicle[i]->get_accommodation_capacity(g_class);
-			comfort += vehicle[i]->get_comfort(catering_level, g_class) * capacity;
+			if (check_reassigned)
+			{
+				comfort += vehicle[i]->get_comfort(catering_level, vehicle[i]->get_reassigned_class(g_class)) * capacity;
+			}
+			else
+			{
+				comfort += vehicle[i]->get_comfort(catering_level, g_class) * capacity;
+			}
 			passenger_seating += capacity;
 		}
 	}
@@ -5411,13 +5419,34 @@ void convoi_t::laden() //"load" (Babelfish)
 		}
 
 		// Recalculate comfort
-		// TODO: This currently gives only the comfort of class 0.
-		// Consider whether to use the average of all comfort types, or
-		// to add a graph for the comfort of all classes.
-		const uint8 g_class = 0;
+		// This is an average of comfort for all classes,
+		// weighted by capacity.
+		
+		// TODO: Consider whether to have separate graphs for different classes of comfort.
+		
+		const uint8 number_of_classes = goods_manager_t::passengers->get_number_of_classes();
+		sint64 comfort_capacity = 0;
+		uint16 class_capacity;
+		sint64 total_capacity = 0;
 
-		const uint8 comfort = get_comfort(g_class);
-		if(comfort)
+		for (uint8 i = 0; i < number_of_classes; i++)
+		{
+			class_capacity = 0;
+			for (uint8 j = 0; j < vehicle_count; j++)
+			{
+				if (vehicle[j]->get_cargo_type()->get_catg_index() == 0)
+				{
+					class_capacity += vehicle[j]->get_accommodation_capacity(i);
+				}
+			}
+			total_capacity += class_capacity;
+			const uint8 comfort = get_comfort(i, true);
+			comfort_capacity += (comfort * class_capacity); 
+		}
+
+		const sint64 comfort = total_capacity > 0 ? comfort_capacity / total_capacity : 0;
+
+		if (comfort)
 		{
 			book(comfort, CONVOI_COMFORT);
 		}
