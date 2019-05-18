@@ -2865,7 +2865,7 @@ uint8 tool_build_tunnel_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 	if(  gr  ) {
 		if( gr->hat_wege() ) {
 			const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
-			// use the check_owner routine of way_builder_t (not spieler_t!), needs an instance
+			// use the check_owner routine of way_builder_t (not player_t!), needs an instance
 			weg_t *w = gr->get_weg_nr(0);
 			if(  w==NULL  ||  w->get_desc()->get_wtyp()!=desc->get_waytype()  ) {
 				error = NOTICE_UNSUITABLE_GROUND;
