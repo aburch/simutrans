@@ -171,7 +171,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Standard 10, 0x300 - whether tall (for height restricted bridges)
 	// Standard 11, 0x400 - 16-bit sound 
 	// Standard 11, 0x500 - classes
-	version += 0x500;
+	// Standard 11, 0x600 - prev=any, fixed_coupling (currently only affect depot display)
+	version += 0x600;
 
 	node.write_uint16(fp, version, pos);
 
@@ -588,11 +589,21 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		}
 	}
 
-	//
 	// following/leader vehicle constrains
-	//
+	// can_lead_from_rear is deprecated but used for conversion processing to maintain compatibility
+	uint8 bidirectional = (obj.get_int("bidirectional", 0));
+	uint8 can_lead_from_rear = (obj.get_int("can_lead_from_rear", 0));
+	if (can_lead_from_rear) { bidirectional = 1; }
+
+	uint8 has_front_cab = (obj.get_int("has_front_cab", 255));
+	uint8 has_rear_cab = (obj.get_int("has_rear_cab", 255));
+	uint8 coupling_constraint = 0; // constraint flags
+	coupling_constraint |= vehicle_desc_t::can_be_tail_prev | vehicle_desc_t::can_be_head_prev | vehicle_desc_t::can_be_tail_next | vehicle_desc_t::can_be_head_next;
+
 	uint8 leader_count = 0;
+	bool can_be_at_front = true;
 	bool found;
+	bool prev_has_none = false;
 	do {
 		char buf[40];
 
@@ -605,14 +616,45 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		if (found) {
 			if (!STRICMP(str.c_str(), "none")) {
 				str = "";
+				prev_has_none = true;
 			}
-			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
-			leader_count++;
+			if (!STRICMP(str.c_str(), "any"))
+			{
+				// "Any" should not be specified with anything else.
+				can_be_at_front = false;
+				break;
+			}
+			else
+			{
+				xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
+				leader_count++;
+			}
 		}
 	} while (found);
 
+	// set front-end flags
+	if (has_front_cab==0 && can_be_at_front && bidirectional && !can_lead_from_rear) {
+		coupling_constraint &= ~vehicle_desc_t::can_be_head_prev; // brake van
+	}
+	if (!can_be_at_front || (!prev_has_none && leader_count)) {
+		coupling_constraint &= ~(vehicle_desc_t::can_be_head_prev | vehicle_desc_t::can_be_tail_prev);
+		if (can_lead_from_rear) {
+			coupling_constraint |= vehicle_desc_t::fixed_coupling_prev; // TODO: CLFR is deprecated, please set it to the correct value and remove this.
+		}
+	}
+	if(leader_count == 1 && !prev_has_none){
+		coupling_constraint |= vehicle_desc_t::fixed_coupling_prev | vehicle_desc_t::permanent_coupling_prev;
+	}
+	// auto setting
+	if (has_front_cab == 255 && (coupling_constraint & vehicle_desc_t::can_be_head_prev)) {
+		if (bidirectional && !can_lead_from_rear && !power) {
+			coupling_constraint &= ~vehicle_desc_t::can_be_head_prev; // brake van
+		}
+	}
+
 	uint8 trailer_count = 0;
-	bool can_be_at_rear = true;
+	bool can_be_at_end = true;
+	bool next_has_none = false;
 	do {
 		char buf[40];
 
@@ -628,11 +670,12 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			if (!STRICMP(str.c_str(), "none")) 
 			{
 				str = "";
+				next_has_none = true;
 			}
 			if(!STRICMP(str.c_str(), "any"))
 			{
 				// "Any" should not be specified with anything else.
-				can_be_at_rear = false;
+				can_be_at_end = false;
 				break;
 			}
 			else
@@ -642,6 +685,52 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			}
 		}
 	} while (found);
+
+	// set back-end flags
+	if (has_rear_cab==0 && !can_lead_from_rear) {
+		coupling_constraint &= ~vehicle_desc_t::can_be_head_next; // brake van and one directional tail
+	}
+	if (!can_be_at_end || (!next_has_none && trailer_count)) {
+		coupling_constraint &= ~(vehicle_desc_t::can_be_head_next |vehicle_desc_t::can_be_tail_next);
+		if (can_lead_from_rear) {
+			coupling_constraint |= vehicle_desc_t::fixed_coupling_next; // TODO: CLFR is deprecated, please set it to the correct value and remove this.
+		}
+	}
+	if (trailer_count == 1 && !next_has_none) {
+		coupling_constraint |= vehicle_desc_t::fixed_coupling_next | vehicle_desc_t::permanent_coupling_next;
+	}
+	// auto setting
+	if (has_rear_cab == 255 && (coupling_constraint & vehicle_desc_t::can_be_head_next)) {
+		if ((bidirectional && !can_lead_from_rear && !power) || !bidirectional) {
+			coupling_constraint &= ~vehicle_desc_t::can_be_head_next; // brake van or single derection vehicle 
+		}
+	}
+
+	// set de-coupling outside depot flags
+	switch(obj.get_int("fixed_coupling[prev]", 255)) {
+		case 0:
+			if ((coupling_constraint & vehicle_desc_t::permanent_coupling_prev) == 0) {
+				coupling_constraint &= ~vehicle_desc_t::fixed_coupling_prev;
+			}
+			break;
+		case 1:
+			coupling_constraint |= vehicle_desc_t::fixed_coupling_prev;
+			break;
+		default:
+			break;
+	}
+	switch (obj.get_int("fixed_coupling[next]", 255)) {
+		case 0:
+			if ((coupling_constraint & vehicle_desc_t::permanent_coupling_next) == 0) {
+				coupling_constraint &= ~vehicle_desc_t::fixed_coupling_next;
+			}
+			break;
+		case 1:
+			coupling_constraint |= vehicle_desc_t::fixed_coupling_next;
+			break;
+		default:
+			break;
+	}
 
 	// Upgrades: these are the vehicle types to which this vehicle
 	// can be upgraded. "None" means that it cannot be upgraded. 
@@ -796,12 +885,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	// Bidirectional: vehicle can travel backwards without turning around.
 	// Function is disabled for road and air vehicles.
-	uint8 bidirectional = (obj.get_int("bidirectional", 0));
 	node.write_uint8(fp, bidirectional, pos);
 	pos += sizeof(uint8);
 
 	// Can lead from rear: train can run backwards without turning around.
-	uint8 can_lead_from_rear = (obj.get_int("can_lead_from_rear", 0));
 	node.write_uint8(fp, can_lead_from_rear, pos);
 	pos += sizeof(uint8);
 
@@ -941,7 +1028,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, air_resistance_hundreds, pos);
 	pos += sizeof(uint16);
 
-	node.write_uint8(fp, (uint8)can_be_at_rear, pos);
+	// can_be_at_rear was integrated into one variable
+	node.write_uint8(fp, coupling_constraint, pos);
 	pos += sizeof(uint8);
 
 	// Obsolescence. Zeros indicate that simuconf.tab values should be used.

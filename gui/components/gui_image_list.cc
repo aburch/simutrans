@@ -89,10 +89,10 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 
 			// display mark
 			if(idata.lcolor!=EMPTY_IMAGE_BAR) {
-				display_fillbox_wh_clip( xpos + 1, ypos + grid.y - 5, grid.x/2 - 1, 4, idata.lcolor, true);
+				display_veh_form(xpos + 1, ypos + grid.y - VEHICLE_BAR_HEIGHT - 1, grid.x/2 - 1, idata.lcolor, true, idata.basic_coupling_constraint, idata.interactivity, false, false);
 			}
 			if(idata.rcolor!=EMPTY_IMAGE_BAR) {
-				display_fillbox_wh_clip( xpos + grid.x/2, ypos + grid.y - 5, grid.x - grid.x/2 - 1, 4, idata.rcolor, true);
+				display_veh_form(xpos + grid.x/2, ypos + grid.y - VEHICLE_BAR_HEIGHT - 1, grid.x - grid.x/2 - 1, idata.rcolor, true, idata.basic_coupling_constraint, idata.interactivity, true, false);
 			}
 			if (sel_index-- == 0) {
 				display_ddd_box_clip(xpos, ypos, grid.x, grid.y, MN_GREY4, MN_GREY0);
@@ -103,7 +103,7 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 			display_get_base_image_offset( idata.image, &x, &y, &w, &h );
 
 			// calculate image offsets
-			y = -y + (grid.y-h) - 6; // align to bottom mark
+			y = -y + (grid.y-h) - VEHICLE_BAR_HEIGHT - 2; // align to bottom mark
 			x = -x + 2;              // Add 2 pixel margin
 			//display_base_img(idata.image, xpos + placement.x, ypos + placement.y, player_nr, false, true);
 			display_base_img(idata.image, xpos + x, ypos + y, player_nr, false, true);
@@ -117,11 +117,11 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 				// Let's make a black background to ensure visibility
 				for(int iy = -3; iy < 0; iy++) {
 					for(int ix = 1; ix < 4; ix++) {
-						display_proportional_clip(xpos + ix, ypos + iy, text, ALIGN_LEFT, COL_BLACK, true);
+						display_proportional_clip(xpos + ix, ypos + iy + 1, text, ALIGN_LEFT, COL_BLACK, true);
 					}
 				}
 				// Display the number white on black
-				display_proportional_clip(xpos + 2, ypos - 2, text, ALIGN_LEFT, COL_WHITE, true);
+				display_proportional_clip(xpos + 2, ypos - 1, text, ALIGN_LEFT, COL_WHITE, true);
 			}
 		}
 		// advance x, y to next position

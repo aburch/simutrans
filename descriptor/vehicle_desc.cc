@@ -322,7 +322,7 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(way_constraints.get_permissive());
 	chk->input(way_constraints.get_prohibitive());
 	chk->input(bidirectional ? 1 : 0);
-	chk->input(can_lead_from_rear ? 1 : 0);
+	chk->input(can_lead_from_rear ? 1 : 0); // not used
 	chk->input(can_be_at_rear ? 1 : 0);
 	for (uint32 i = 0; i < classes; i++)
 	{
@@ -338,4 +338,25 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	const uint16 rr = rolling_resistance * float32e8_t((uint32)100);
 	chk->input(ar);
 	chk->input(rr);
+}
+
+uint8 vehicle_desc_t::get_interactivity() const
+{
+	uint8 flags = 0;
+	if (bidirectional) { flags |= 1; }
+	if (power) { flags |= 2; }
+	return flags;
+}
+
+bool vehicle_desc_t::has_available_upgrade(uint16 month_now) const
+{
+	for (int i = 0; i < upgrades; i++)
+	{
+		const vehicle_desc_t *upgrade_desc = get_upgrades(i);
+		if (upgrade_desc && !upgrade_desc->is_future(month_now) && (!upgrade_desc->is_retired(month_now)))
+		{
+			return true;
+		}
+	}
+	return false;
 }

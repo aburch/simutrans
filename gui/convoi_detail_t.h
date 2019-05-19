@@ -18,6 +18,7 @@
 #include "components/gui_button.h"
 #include "components/gui_label.h"                  // 09-Dec-2001      Markus Weber    Added
 #include "components/gui_combobox.h"
+#include "components/gui_tab_panel.h"
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
 #include "../gui/simwin.h"
@@ -43,6 +44,8 @@ private:
 
 	vector_tpl<uint16> class_indices;
 
+	bool any_obsoletes;
+
 public:
 	/**
 	 * @param cnv, the handler for displaying the convoi.
@@ -56,6 +59,22 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
+	void draw(scr_coord offset);
+};
+
+class gui_convoy_formaion_t : public gui_container_t
+{
+private:
+	convoihandle_t cnv;
+
+	enum { OK=0, out_of_producton=1, obsolete=2, STAT_COLORS  };
+	uint8 status_to_color[STAT_COLORS] { COL_DARK_GREEN, COL_ROYAL_BLUE, COL_DARK_BLUE };
+
+public:
+	gui_convoy_formaion_t(convoihandle_t cnv);
+
+	void set_cnv(convoihandle_t c) { cnv = c; }
+
 	void draw(scr_coord offset);
 };
 
@@ -74,16 +93,16 @@ public:
 private:
 
 	gui_scrollpane_t scrolly;
+	gui_scrollpane_t scrolly_formation;
 	gui_vehicleinfo_t veh_info;
+	gui_convoy_formaion_t formation;
+	gui_tab_panel_t tabs;
 
 	convoihandle_t cnv;
 	button_t	sale_button;
 	button_t	withdraw_button;
 	button_t	retire_button;
 	button_t	class_management_button;
-
-	bool any_upgrades;
-	bool any_obsoletes;
 
 public:
 	convoi_detail_t(convoihandle_t cnv);
