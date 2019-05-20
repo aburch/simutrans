@@ -77,7 +77,7 @@ signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsig
 		}
 	}
 
-	if(desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block))
+	if(desc->is_station_signal())
 	{
 		// Register station signals at the halt.
 		halthandle_t halt = haltestelle_t::get_halt(pos, player);
@@ -101,7 +101,7 @@ signal_t::~signal_t()
 		}
 	}
 	welt->remove_time_interval_signal_to_check(this); 
-	if(desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph))
+	if(desc->is_station_signal())
 	{
 		// De-register station signals at the halt.
 		halthandle_t halt = haltestelle_t::get_halt(get_pos(), get_owner());
@@ -148,7 +148,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate("double_block_signal"));
 		buf.append("\n");
 	}
-	if (desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block))
+	if (desc->is_station_signal())
 	{
 		buf.append(translator::translate("station_signal"));
 		buf.append("\n");
@@ -226,7 +226,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 
 	buf.append(translator::translate("Direction"));
 	buf.append(": ");
-	if (desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block))
+	if (desc->is_station_signal())
 	{
 		if (get_dir() == 1 || get_dir() == 4)
 		{
@@ -294,7 +294,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			else
 			{
 				// Is this a "station signal"?
-				if (desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block))
+				if (desc->is_station_signal())
 				{
 					// Is the station signal using a 'normal' working method?
 					if (desc->get_working_method() != time_interval && desc->get_working_method() != time_interval_with_telegraph)
@@ -786,7 +786,7 @@ void signal_t::calc_image()
 
 			const schiene_t* sch1 = (schiene_t*)sch; 
 			ribi_t::ribi reserved_direction = sch1->get_reserved_direction();
-			if(desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph))
+			if(desc->is_station_signal())
 			{
 				// Allow both directions for a station signal
 				//reserved_direction |= ribi_t::backward(reserved_direction);
