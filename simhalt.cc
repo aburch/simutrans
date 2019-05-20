@@ -5054,8 +5054,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories, bool recalc_ne
 
 	signal_t* signal = gr->find<signal_t>();
 
-	if(signal && signal->get_desc()->is_longblock_signal() && (signal->get_desc()->get_working_method() == time_interval || signal->get_desc()->get_working_method() == time_interval_with_telegraph || signal->get_desc()->get_working_method() == absolute_block))
-	{
+	if (signal && signal->get_desc()->is_station_signal())		{
 		// Register station signals at the halt.
 		station_signals.append(gr->get_pos());
 	}

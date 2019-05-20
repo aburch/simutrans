@@ -5974,7 +5974,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					// An ordinary signal on plain track
 					signal = gr->get_weg(get_waytype())->get_signal(ribi);
 					// But, do not select a station signal here, as this will lead to capricious behaviour depending on whether the train passes the track on which the station signal happens to be situated or not.
-					if(signal && signal->get_desc()->is_longblock_signal() && check_halt.is_bound() && (signal->get_desc()->get_working_method() == time_interval || signal->get_desc()->get_working_method() == time_interval_with_telegraph || signal->get_desc()->get_working_method() == absolute_block))
+					if(signal && check_halt.is_bound() && signal->get_desc()->is_station_signal())
 					{
 						signal = NULL;
 					}
