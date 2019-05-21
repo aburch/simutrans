@@ -6369,7 +6369,7 @@ void tool_merge_stop_t::mark_tiles(  player_t *player, const koord3d &start, con
 
 	if(  distance  < welt->get_settings().allow_merge_distant_halt  ) {
 		distance = clamp(distance,2,33)-2;
-		workcost = -welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
+		workcost = welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", workcost) );
 	}
 	else {
@@ -6401,7 +6401,7 @@ const char *tool_merge_stop_t::do_work( player_t *player, const koord3d &last_po
 
 	if(  distance  < welt->get_settings().allow_merge_distant_halt  ) {
 		distance = clamp(distance,2,33)-2;
-		workcost = -welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
+		workcost = welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", workcost) );
 		if(  player != welt->get_public_player()  &&  !player->can_afford(workcost)  ) {
 			return NOTICE_INSUFFICIENT_FUNDS;
