@@ -3926,3 +3926,5 @@ Railcar_tab
 Railcars
 staffing_bar_tooltip_help
 This bar shows how many workers that this industry has compared to how many that it needs
+Runway too short, require %dm
+Runway too short: at least %dm needed
