@@ -934,16 +934,16 @@ public:
 	static pthread_mutex_t unreserve_route_mutex;
 	static pthread_mutex_t step_passengers_and_mail_mutex;
 	void start_passengers_and_mail_threads();
-	void await_passengers_and_mail_threads();
 	void start_convoy_threads();
-	void await_convoy_threads();
-	void await_path_explorer(); 
 	void start_path_explorer();
-	void await_all_threads();
-
 #else
 public:
 #endif
+	// These will do nothing if multi-threading is disabled.
+	void await_passengers_and_mail_threads();
+	void await_convoy_threads();
+	void await_path_explorer(); 
+	void await_all_threads();
 
 	enum building_type { passenger_origin, commuter_target, visitor_target, mail_origin_or_target, none };
 	enum trip_type { commuting_trip, visiting_trip, mail_trip };
