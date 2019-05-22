@@ -587,7 +587,12 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 												break;
 											}
 											// Single headed. Reorder the directions so the RIBI understands them.
-											sig_ribi_dir = sig_dir == 1 ? 4 : sig_dir == 2 ? 8 : sig_dir == 4 ? 1 : sig_dir == 8 ? 2 : sig_ribi_dir;
+											sig_ribi_dir = 
+												sig_dir == 1 ? 4 :
+												sig_dir == 2 ? 8 :
+												sig_dir == 4 ? 1 :
+												sig_dir == 8 ? 2 :
+												sig_ribi_dir;
 											if (ribi_t::nsew[r] == sig_ribi_dir)
 											{
 												signal = true;
