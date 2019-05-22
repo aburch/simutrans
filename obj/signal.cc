@@ -435,8 +435,8 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	}
 
 	// Check wether this signal protects a junction otherwise count how far the next stop signal is
-	// However, display nothing for station signals and one train staffs, since the information would be very random dependent on where you put the signal and would not be very informative anyway.
-	if (!desc->is_station_signal() && desc->get_working_method() != one_train_staff)
+	// However, display nothing for station signals, one train staffs and drive by sight, since the information would be very random dependent on where you put the signal and would not be very informative anyway.
+	if (!desc->is_station_signal() && desc->get_working_method() != one_train_staff && desc->get_working_method() != drive_by_sight)
 	{
 		const waytype_t waytype = sig->get_waytype();
 		uint8 initial_direction = get_dir();
