@@ -20,8 +20,13 @@
 signal_info_t::signal_info_t(signal_t* const s) :
 	obj_infowin_t(s),
 	sig(s)
-
 {
+	signalbox_button.init(button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, get_windowsize().h - 26 - (sig->get_textlines() * LINESPACE)));
+	signalbox_button.set_visible(false);
+	signalbox_button.set_tooltip(translator::translate("goto_signalbox"));
+	add_component(&signalbox_button);
+	signalbox_button.add_listener(this);
+
 	koord3d sb = sig->get_signalbox();
 	if (sb == koord3d::invalid)
 	{
@@ -35,22 +40,11 @@ signal_info_t::signal_info_t(signal_t* const s) :
 			const gebaeude_t* gb = gr->get_building();
 			if (gb)
 			{
-				signalbox_button.init(button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, get_windowsize().h - 26 - (sig->get_textlines() * LINESPACE)));
-				signalbox_button.set_tooltip(translator::translate("goto_signalbox"));
-				add_component(&signalbox_button);
-				signalbox_button.add_listener(this);
-
+				signalbox_button.set_visible(true);
 			}
-			else
-			{
-				// No signalbox
-			}
-		}
-		else
-		{
-			// No signalbox
 		}
 	}
+
 }
 
 
