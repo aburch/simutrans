@@ -569,7 +569,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 										{
 											// Station signal, always true.
 											signal = true;
-											break;
 										}
 										else
 										{
@@ -584,7 +583,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 											case 12: // south_and_west
 												signal = true;
 												break;
-												break; // second break, to get out of the for loop
 											default:
 												break;
 											}
@@ -593,6 +591,9 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 											if (ribi_t::nsew[r] == sig_ribi_dir)
 											{
 												signal = true;
+											}
+											if (signal)
+											{
 												previous_signal = next_signal;
 												break;
 											}
