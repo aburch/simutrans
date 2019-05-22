@@ -506,8 +506,10 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		signal_t* previous_signal = NULL;
 		for (int j = 0; j < directions; j++)
 		{
-			// If the signal is doubleheaded, apply the new "initial_direction"
-			initial_direction = j == 1 ? initial_direction_2 : initial_direction;
+			// If the signal is doubleheaded, apply the new "initial_direction" and write the direction to char
+			initial_direction = j == 1 ? initial_direction_2 : initial_direction;		
+			directions == 2 ? sprintf(direction, "%s:", translator::translate(get_directions_name(initial_direction == 1 ? 4 : initial_direction == 2 ? 8 : initial_direction == 4 ? 1 : initial_direction == 8 ? 2 : initial_direction))) : sprintf(direction, "");
+			directions == 2 ? sprintf(spaces, "  ") : sprintf(spaces, "");
 			coming_from_direction = get_dir();
 			tiles = 0;
 			crossing = false;
@@ -516,10 +518,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			for (int b = 0; b < blocks_amount; b++)
 			{
 				gr = previous_signal ? welt->lookup(previous_signal->get_pos()) : welt->lookup(get_pos());
-				directions == 2 ? sprintf(direction, "%s:", translator::translate(get_directions_name(initial_direction == 1 ? 4 : initial_direction == 2 ? 8 : initial_direction == 4 ? 1 : initial_direction == 8 ? 2 : initial_direction))) : sprintf(direction, "");
-				directions == 2 ? sprintf(spaces, "  ") : sprintf(spaces, "");
-				blocks_amount > 1 ? sprintf(block_text, translator::translate(" (block %i)"), b+1) : sprintf(block_text, "");
-				
+				blocks_amount > 1 ? sprintf(block_text, translator::translate(" (block %i)"), b+1) : sprintf(block_text, "");				
 				signal = false;
 
 				for (uint32 i = 0; i < max_tiles_to_look; i++)
