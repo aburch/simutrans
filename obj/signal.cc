@@ -648,9 +648,10 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 					sprintf(distance, "%s%s", number_actual, "km");
 				}
 
-				if (b == 0)
+				if (direction[0] != '\0')
 				{
 					buf.printf("%s\n", direction);
+					sprintf(direction, "");
 				}
 
 				if (crossing)
