@@ -131,7 +131,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	// well, needs to be done
 	obj_t::info(buf);
 	signal_t* sig = (signal_t*)this;
-
 	
 	buf.append(translator::translate(desc->get_name()));
 	buf.append("\n\n");
@@ -248,6 +247,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	// Does this signal have any aspects to show?
 	if (desc->get_working_method() == drive_by_sight || desc->get_aspects() <= 1)
 	{
+		buf.append("\n\n");
 	}
 	else
 	{
@@ -278,7 +278,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			{
 				buf.append(translator::translate("callon"));
 			}
-			
+
 		}
 
 		buf.append("\n");
@@ -409,24 +409,28 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			}
 		}
 		else
+		{
 			buf.append(translator::translate("danger"));
-			buf.append(translator::translate("\n"));
+		}
 	}
+	buf.append(translator::translate("\n"));
+	buf.append(translator::translate("\n"));
 	if (get_state() != danger)
 	{
 		// Possible information about how many blocks are reserved, or speed restrictions for time interval signals
 	}
-	buf.append(translator::translate("\n"));
 
 	if (((desc->is_longblock_signal() || get_dir() == 3 || get_dir() == 6 || get_dir() == 9 || get_dir() == 12 || get_dir() == 5 || get_dir() == 10) && (desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == track_circuit_block || desc->get_working_method() == cab_signalling || desc->get_working_method() == moving_block)) && (desc->is_pre_signal()) == false)
 	{
 		buf.append(translator::translate("This signal creates directional reservations"));
+		buf.append(translator::translate("\n"));
 		buf.append(translator::translate("\n"));
 	}
 
 	if (desc->get_double_block() == true)
 	{
 		buf.append(translator::translate("this_signal_will_not_clear_until_next_signal_is_clear"));
+		buf.append(translator::translate("\n"));
 		buf.append(translator::translate("\n"));
 	}
 
