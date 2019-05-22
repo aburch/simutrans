@@ -656,19 +656,22 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 
 				if (crossing)
 				{
+					// If there is no signal before the first crossing, erase the "(block X)" display
 					if (b == 0)
 					{
 						sprintf(block_text, "");
 					}
-					if (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph)
+					// We want to emphasize the crossings importance in time interval (with telegraph) working method, by explicitly saying that the signal is protecting the crossing
+					// However, presignals in that WM would not protect the crossing, so just tell the distance.
+					if (!desc->is_pre_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph))
 					{
-						// Put a more notable text for time interval signals, due to their mechanism relying much on locations of junctions
 						buf.printf("%s%s (%s)\n", spaces, translator::translate("this_signal_protects_a_junction"), distance);
 					}
 					else
 					{
 						buf.printf("%s%s%s: %s\n", spaces, translator::translate("distance_to_junction"), block_text, distance);
 					}
+
 					break; // break out of the "block counts"
 				}
 				else if (signal)
@@ -677,12 +680,21 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 				}
 				else if (dead_end)
 				{
-					if (b == 0)
+					// A presignal in this position would be pointles. Tell the player!
+					if (desc->is_pre_signal() && b == 0)
 					{
-						sprintf(block_text, "");
+						buf.printf("%s (%s)\n", spaces, translator::translate("no_signal_before_dead_end"), distance);
+						break; // break out of the "block counts"
 					}
-					buf.printf("%s%s%s: %s\n", spaces, translator::translate("distance_to_dead_end"), block_text, distance);
-					break; // break out of the "block counts"
+					else
+					{
+						if (b == 0)
+						{
+							sprintf(block_text, "");
+						}
+						buf.printf("%s%s%s: %s\n", spaces, translator::translate("distance_to_dead_end"), block_text, distance);
+						break; // break out of the "block counts"
+					}
 				}
 			}
 			buf.append("\n");
