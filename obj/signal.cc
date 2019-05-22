@@ -239,7 +239,34 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	}
 	else
 	{
-		buf.append(translator::translate(get_directions_name(get_dir())));
+		const grund_t* sig_gr3d = welt->lookup(sig_pos);
+		const weg_t* way = sig_gr3d->get_weg(desc->get_wtyp() != tram_wt ? desc->get_wtyp() : track_wt);
+		uint8 direction = get_dir();
+
+		ribi_t::ribi ribi = way->get_ribi_unmasked();
+
+		// If signal is single headed, we need to alter the direction for diagonals, as those will display wrong
+		if (get_dir() == 1 || get_dir() == 2 || get_dir() == 4 || get_dir() == 8)
+		{
+			switch (ribi)
+			{
+			case ribi_t::_ribi::northeast:
+				direction = get_dir() == 1 ? 8 : 4;
+				break;
+			case ribi_t::_ribi::northwest:
+				direction = get_dir() == 1 ? 2 : 4;
+				break;
+			case ribi_t::_ribi::southeast:
+				direction = get_dir() == 4 ? 8 : 1;
+				break;
+			case ribi_t::_ribi::southwest:
+				direction = get_dir() == 4 ? 2 : 1;
+				break;
+			default:
+				break;
+			}
+		}
+		buf.append(translator::translate(get_directions_name(direction)));
 	}
 	buf.append("\n");
 
