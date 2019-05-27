@@ -813,41 +813,76 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append("\n\n");
 	}
 
-	
+	// "Controled from signalbox" section. The "\n" is in this first section set before the entry to help accommodate the layout in the name, coordinates etc.
 	buf.append(translator::translate("Controlled from"));
-	buf.append(":\n");
+	buf.append(":");
 	koord3d sb = sig->get_signalbox();
 	if(sb == koord3d::invalid)
 	{
+		buf.append("\n");
 		buf.append(translator::translate("keine"));
+		buf.append("\n");
 	}
 	else
 	{
 		const grund_t* gr = welt->lookup(sb);
-		if(gr)
+		if (gr)
 		{
 			const gebaeude_t* gb = gr->get_building();
-			if(gb)
+			if (gb)
 			{
-				uint8 textlines = 2; // to locate the clickable signalbox button
+				uint8 textlines = 1; // to locate the clickable signalbox button
 				const grund_t *ground = welt->lookup_kartenboden(sb.x, sb.y);
 				bool sb_underground = ground->get_hoehe() > sb.z;
 
-				buf.append("   ");
-				buf.append(translator::translate(gb->get_name()));
-				if (sb_underground)
-				{
-					buf.append("\n  ");
-					textlines += 1;
-				}
-				buf.append(" <");
-				buf.append(sb.x);
-				buf.append(",");
-				buf.append(sb.y);
-				buf.append(">"); 
+				char sb_coordinates[20];
+				sprintf(sb_coordinates, "<%i,%i>", sb.x, sb.y);
+				buf.printf("  %s", sb_coordinates);
 				if (sb_underground)
 				{
 					buf.printf(" (%s)", translator::translate("underground"));
+				}
+				char sb_name[1024] = { '\0' };
+				int max_width = 250;
+				int offset = 0;
+				int max_lines = 5; // Set a limit
+				sprintf(sb_name, translator::translate(gb->get_name()));
+				//sprintf(sb_name,"This is a very very long signal box name which is so long that no one remembers what it was actually called before the super long name of the signalbox got changed to its current slightly longer name which is still too long to display in only one line therefore splitting this very long signalbox name into several lines although maximum five lines which should suffice more than enough to guard against silly long signal box names");
+				int next_char_index = 0;
+				int old_next_char_index = 0;
+
+				for (int l = 0; l < max_lines; l++)
+				{
+					textlines += 1;
+					char temp_name[1024] = { '\0' };
+					next_char_index = display_fit_proportional(sb_name, max_width, 0);
+
+					if (sb_name[next_char_index] == '\0')
+					{
+						buf.append("\n   ");
+						buf.append(sb_name);
+						break;
+					}
+					else
+					{
+						for (int i = 0; i < next_char_index; i++)
+						{
+							temp_name[i] = sb_name[i];
+						}
+						buf.append("\n   ");
+						buf.append(temp_name);		
+						if (l + 1 == max_lines)
+						{
+							buf.append("...");
+						}
+
+						for (int i = 0; sb_name[i] != '\0'; i++)
+						{
+							sb_name[i] = sb_name[i + next_char_index];
+						}
+						old_next_char_index = next_char_index;
+					}
+
 				}
 				buf.append("\n   ");
 				
@@ -925,12 +960,14 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			}
 			else
 			{
+				buf.append("\n");
 				buf.append(translator::translate("keine"));
 				dbg->warning("signal_t::info()", "Signalbox could not be found from a signal on valid ground");
 			}
 		}
 		else
 		{
+			buf.append("\n");
 			buf.append(translator::translate("keine"));
 			dbg->warning("signal_t::info()", "Signalbox could not be found from a signal on valid ground");
 		}
