@@ -813,7 +813,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append("\n\n");
 	}
 
-	// "Controled from signalbox" section. The "\n" is in this first section set before the entry to help accommodate the layout in the name, coordinates etc.
+	// "Controlled from signalbox" section. The "\n" is in this first section set before the entry to help accommodate the layout in the name, coordinates etc.
 	buf.append(translator::translate("Controlled from"));
 	buf.append(":");
 	koord3d sb = sig->get_signalbox();
