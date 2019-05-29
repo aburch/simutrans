@@ -987,6 +987,12 @@ private:
 
 	// only used for  is_target() (do not need saving)
 	ribi_t::ribi approach_dir;
+
+	// Used to re-run the routing algorithm without
+	// checking runway length in order to display
+	// the correct error message.
+	bool ignore_runway_length = false; 
+
 #ifdef USE_DIFFERENT_WIND
 	static uint8 get_approach_ribi( koord3d start, koord3d ziel );
 #endif
