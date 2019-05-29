@@ -1632,9 +1632,9 @@ const char *tool_clear_reservation_t::work( player_t *player, koord3d pos )
 				continue;
 			}
 
-			// Does this way belong to the player using the tool?
+			// Does this way belong to the player using the tool? If not, does the vehicle reserving the way belong to the player using the tool?
 			// The public player can use it universally.
-			if(player->get_player_nr() != 1 && w->get_player_nr() != player->get_player_nr())
+			if(!player->is_public_service() && w->get_owner() != player && w->get_reserved_convoi()->get_owner() != player)
 			{
 				err = "Cannot edit block reservations on another player's way.";
 				continue;
