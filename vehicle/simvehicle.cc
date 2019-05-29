@@ -2985,12 +2985,17 @@ bool vehicle_t::check_access(const weg_t* way) const
 		return true;
 	}
 	const grund_t* const gr = welt->lookup(get_pos());
-	const weg_t* const current_way = gr ? gr->get_weg(get_waytype()) : NULL;
-	if(current_way == NULL)
+	const weg_t* const current_way = gr ? gr->get_weg(get_waytype()) : nullptr;
+	if(current_way == nullptr)
 	{
 		return true;
 	}
-	return way && (way->is_public_right_of_way() || way->get_owner() == NULL || way->get_owner() == get_owner() || get_owner() == NULL || way->get_owner() == current_way->get_owner() || way->get_owner()->allows_access_to(get_owner()->get_player_nr()));
+	if (desc->get_engine_type() == vehicle_desc_t::MAX_TRACTION_TYPE && desc->get_topspeed() == 8888)
+	{
+		// This is a wayobj checker - only allow on ways actually owned by the player or wholly unowned.
+		return way && (way->get_owner() == nullptr || (way->get_owner() == get_owner())); 
+	}
+	return way && (way->is_public_right_of_way() || way->get_owner() == nullptr || way->get_owner() == get_owner() || get_owner() == nullptr || way->get_owner() == current_way->get_owner() || way->get_owner()->allows_access_to(get_owner()->get_player_nr()));
 }
 
 
