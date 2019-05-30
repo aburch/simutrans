@@ -3926,3 +3926,15 @@ Railcar_tab
 Railcars
 staffing_bar_tooltip_help
 This bar shows how many workers that this industry has compared to how many that it needs
+ (block %i)
+ (block %i)
+this_signal_protects_a_junction
+This signal protects a junction
+distance_to_junction
+Distance to junction
+distance_to_stop_signal
+Distance to stop signal
+no_signal_before_dead_end
+No signal before dead end
+distance_to_dead_end
+Distance to dead end
