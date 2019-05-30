@@ -3703,9 +3703,9 @@ Equipped with
 tilting_vehicle_equipment
 Tilting vehicle equipment
 classes
-classes
+price classes
 class
-class
+price class
 good_units
 good units
 no_cargo_capacity
@@ -3741,7 +3741,7 @@ this vehicle can upgrade to
 additional_upgrades
 additional upgrades
 reassign_classes
-Reassign classes
+Reassign prices
 line_no_convoys
 This line has no convoys assigned
 line_loss_making
@@ -3759,13 +3759,13 @@ This line has obsolete vehicles with upgrades
 staff_shortage
 Staff shortage
 reset_all_pass_classes
-Reset all passenger classes
+Reset all passenger prices
 resets_all_passenger_classes_to_their_defaults
-Resets all passenger classes to their defaults
+Resets all passenger prices to their defaults
 reset_all_mail_classes
-Reset all mail classes
+Reset all mail prices
 resets_all_mail_classes_to_their_defaults
-Resets all mail classes to their defaults
+Resets all mail prices to their defaults
 reassigned_to_multiple
 Reassigned to multiple
 catering_cars: %i
@@ -3779,9 +3779,9 @@ Change prices
 change_the_classes_for_the_entire_line
 Change the prices for the entire line
 reassigned_class
-reassigned class
+reassigned price
 reassigned_classes
-reassigned classes
+reassigned prices
 times_history
 Times History
 view_journey_times_history_of_this_line
