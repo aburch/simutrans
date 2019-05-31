@@ -1632,9 +1632,9 @@ const char *tool_clear_reservation_t::work( player_t *player, koord3d pos )
 				continue;
 			}
 
-			// Does this way belong to the player using the tool?
+			// Does this way belong to the player using the tool? If not, does the vehicle reserving the way belong to the player using the tool?
 			// The public player can use it universally.
-			if(player->get_player_nr() != 1 && w->get_player_nr() != player->get_player_nr())
+			if(!player->is_public_service() && w->get_owner() != player && w->get_reserved_convoi()->get_owner() != player)
 			{
 				err = "Cannot edit block reservations on another player's way.";
 				continue;
@@ -3902,7 +3902,7 @@ bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, con
 		waytype = welt->lookup(start)->get_weg(wt)->get_waytype();
 	}
 	// get a default vehicle
-	vehicle_desc_t remover_desc(waytype, 500, vehicle_desc_t::diesel );
+	vehicle_desc_t remover_desc(waytype, 8888, vehicle_desc_t::MAX_TRACTION_TYPE );
 	vehicle_t* test_vehicle = vehicle_builder_t::build(start, player, NULL, &remover_desc);
 	test_vehicle->set_flag( obj_t::not_on_map );
 	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);

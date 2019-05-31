@@ -3926,6 +3926,8 @@ Railcar_tab
 Railcars
 staffing_bar_tooltip_help
 This bar shows how many workers that this industry has compared to how many that it needs
+Runway too short, require %dm
+Runway too short: at least %dm needed
  (block %i)
  (block %i)
 this_signal_protects_a_junction
@@ -3937,4 +3939,3 @@ Distance to stop signal
 no_signal_before_dead_end
 No signal before dead end
 distance_to_dead_end
-Distance to dead end
