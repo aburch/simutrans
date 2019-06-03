@@ -119,12 +119,13 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_ERROR_MESSAGE: tool = new tool_error_message_t(); break;
 		case TOOL_CHANGE_WATER_HEIGHT: tool = new tool_change_water_height_t(); break;
 		case TOOL_SET_CLIMATE:      tool = new tool_set_climate_t(); break;
+		case TOOL_REASSIGN_SIGNAL_DEPRECATED:
 		case TOOL_REASSIGN_SIGNAL:      tool = new tool_reassign_signal_t(); break;
 		default:                   dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 		                           return NULL;
 	}
 	// check for right id (exception: TOOL_SLICED_AND_UNDERGROUND_VIEW)
-	assert(tool->get_id()  ==  (toolnr | GENERAL_TOOL)  ||  toolnr==TOOL_SLICED_AND_UNDERGROUND_VIEW);
+	assert(tool->get_id()  ==  (toolnr | GENERAL_TOOL)  ||  toolnr == TOOL_SLICED_AND_UNDERGROUND_VIEW  ||  toolnr == TOOL_REASSIGN_SIGNAL_DEPRECATED);
 	return tool;
 }
 
@@ -168,15 +169,18 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_TOGGLE_RESERVATION:tool = new tool_toggle_reservation_t(); break;
 		case TOOL_VIEW_OWNER:        tool = new tool_view_owner_t(); break;
 		case TOOL_HIDE_UNDER_CURSOR: tool = new tool_hide_under_cursor_t(); break;
+		case TOOL_CHANGE_ROADSIGN_DEPRECATED:
 		case TOOL_CHANGE_ROADSIGN:   tool = new tool_change_roadsign_t(); break;
+		case TOOL_SHOW_RIBI_DEPRECATED:
 		case TOOL_SHOW_RIBI:    tool = new tool_show_ribi_t(); break;
-		// Extended non-UI tools - should be at the end.
+		case TOOL_RECOLOUR_TOOL_DEPRECATED:
 		case TOOL_RECOLOUR_TOOL:		tool = new tool_recolour_t(); break;
+		case TOOL_ACCESS_TOOL_DEPRECATED:
 		case TOOL_ACCESS_TOOL:		tool = new tool_access_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 		                            return NULL;
 	}
-	assert(tool->get_id()  ==  (toolnr | SIMPLE_TOOL));
+	assert(tool->get_id()  ==  (toolnr | SIMPLE_TOOL)  ||  (toolnr >= TOOL_CHANGE_ROADSIGN_DEPRECATED  &&  toolnr <= TOOL_ACCESS_TOOL_DEPRECATED));
 	return tool;
 }
 
@@ -293,15 +297,33 @@ static uint16 str_to_key( const char *str )
 void tool_t::init_menu()
 {
 	for(  uint16 i=0;  i<GENERAL_TOOL_COUNT;  i++  ) {
-		tool_t *tool = create_general_tool( i );
+		tool_t *tool;
+		if(  i>=GENERAL_TOOL_STANDARD_COUNT  &&  i<0x80  ) {
+			tool = new tool_dummy_t;
+		}
+		else {
+			tool = create_general_tool( i );
+		}
 		general_tool.append(tool);
 	}
 	for(  uint16 i=0;  i<SIMPLE_TOOL_COUNT;  i++  ) {
-		tool_t *tool = create_simple_tool( i );
+		tool_t *tool;
+		if(  i>=SIMPLE_TOOL_STANDARD_COUNT  &&  i<0x80  ) {
+			tool = new tool_dummy_t;
+		}
+		else {
+			tool = create_simple_tool( i );
+		}
 		simple_tool.append(tool);
 	}
 	for(  uint16 i=0;  i<DIALOGE_TOOL_COUNT;  i++  ) {
-		tool_t *tool = create_dialog_tool( i );
+		tool_t *tool;
+		if(  i>=DIALOGE_TOOL_STANDARD_COUNT  &&  i<0x80  ) {
+			tool = new tool_dummy_t;
+		}
+		else {
+			tool = create_dialog_tool( i );
+		}
 		dialog_tool.append(tool);
 	}
 }
@@ -339,6 +361,7 @@ void tool_t::read_menu(const std::string &objfilename)
 	// structure to hold information for iterating through different tool types
 	struct tool_class_info_t {
 		const char* type;
+		uint16 standard_count;
 		uint16 count;
 		vector_tpl<tool_t *> &tools;
 		const skin_desc_t *icons;
@@ -347,15 +370,18 @@ void tool_t::read_menu(const std::string &objfilename)
 
 	};
 	tool_class_info_t info[] = {
-		{ "general_tool", GENERAL_TOOL_COUNT, general_tool, skinverwaltung_t::tool_icons_general, skinverwaltung_t::cursor_general, true },
-		{ "simple_tool",  SIMPLE_TOOL_COUNT,  simple_tool,  skinverwaltung_t::tool_icons_simple,  NULL, false},
-		{ "dialog_tool",  DIALOGE_TOOL_COUNT, dialog_tool,  skinverwaltung_t::tool_icons_dialoge, NULL, false }
+		{ "general_tool", GENERAL_TOOL_STANDARD_COUNT, GENERAL_TOOL_COUNT, general_tool, skinverwaltung_t::tool_icons_general, skinverwaltung_t::cursor_general, true },
+		{ "simple_tool",  SIMPLE_TOOL_STANDARD_COUNT, SIMPLE_TOOL_COUNT,  simple_tool,  skinverwaltung_t::tool_icons_simple,  NULL, false},
+		{ "dialog_tool",  DIALOGE_TOOL_STANDARD_COUNT, DIALOGE_TOOL_COUNT, dialog_tool,  skinverwaltung_t::tool_icons_dialoge, NULL, false }
 	};
 
 	// first init all tools
 	DBG_MESSAGE( "tool_t::init_menu()", "Reading general menu" );
 	for(  uint16 t=0; t<3; t++) {
 		for(  uint16 i=0;  i<info[t].count;  i++  ) {
+			if(  i>=info[t].standard_count  &&  i<0x80  ) {
+				continue;
+			}
 			char id[256];
 			sprintf( id, "%s[%i]", info[t].type, i );
 			const char *str = contents.get( id );
@@ -367,6 +393,19 @@ void tool_t::read_menu(const std::string &objfilename)
 			 * -1 will disable any of them
 			 */
 			tool_t *tool = info[t].tools[i];
+			if(*str) {
+				// Check if tool is deprecated
+				if(  (  t==0  &&  i>=TOOL_BUILD_SIGNALBOX_DEPRECATED && i<=TOOL_REASSIGN_SIGNAL_DEPRECATED  )
+				   || (  t==1  &&  i>=TOOL_CHANGE_ROADSIGN_DEPRECATED && i<=TOOL_ACCESS_TOOL_DEPRECATED  )  ) {
+					// Do not warn if new id also appears in menuconf:
+					char new_id[256];
+					sprintf( new_id, "%s[%i]", info[t].type, tool->get_id()&0xFFF );
+					const char *new_str = contents.get( new_id );
+					if(! *new_str) {
+						dbg->warning( "tool_t::read_menu()", "deprecated tool number used in %s; menuconf.tab will need updating", id);
+					}
+				}
+			}
 			if(*str  &&  *str!=',') {
 				// ok, first comes icon
 				while(*str==' ') {
@@ -535,7 +574,7 @@ void tool_t::read_menu(const std::string &objfilename)
 
 			if (char const* const c = strstart(toolname, "general_tool[")) {
 				uint8 toolnr = atoi(c);
-				if(  toolnr<GENERAL_TOOL_COUNT  ) {
+				if(  toolnr<GENERAL_TOOL_COUNT  &&  ( toolnr<GENERAL_TOOL_STANDARD_COUNT || toolnr>=0x80 )  ) {
 					if(create_tool) {
 						// compatibility mode: tool_cityroad is used for tool_wegebau with defaultparam 'cityroad'
 						if(  toolnr==TOOL_BUILD_WAY  &&  param_str  &&  strcmp(param_str,"city_road")==0) {
@@ -559,12 +598,12 @@ void tool_t::read_menu(const std::string &objfilename)
 					}
 				}
 				else {
-					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No general tool %i defined (max %i)!", toolnr, GENERAL_TOOL_COUNT );
+					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No general tool %i defined (max %i)!", toolnr, (toolnr<0x80) ? GENERAL_TOOL_STANDARD_COUNT : GENERAL_TOOL_COUNT );
 				}
 			}
 			else if (char const* const c = strstart(toolname, "simple_tool[")) {
 				uint8 const toolnr = atoi(c);
-				if(  toolnr<SIMPLE_TOOL_COUNT  ) {
+				if(  toolnr<SIMPLE_TOOL_COUNT  &&  ( toolnr<SIMPLE_TOOL_STANDARD_COUNT || toolnr>=0x80 )  ) {
 					if(create_tool) {
 						addtool = create_simple_tool( toolnr );
 						*addtool = *(simple_tool[toolnr]);
@@ -575,11 +614,11 @@ void tool_t::read_menu(const std::string &objfilename)
 					}
 				}
 				else {
-					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No simple tool %i defined (max %i)!", toolnr, SIMPLE_TOOL_COUNT );
+					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No simple tool %i defined (max %i)!", toolnr, (toolnr<0x80) ? SIMPLE_TOOL_STANDARD_COUNT : SIMPLE_TOOL_COUNT );
 				}
 			} else if (char const* const c = strstart(toolname, "dialog_tool[")) {
 				uint8 const toolnr = atoi(c);
-				if(  toolnr<DIALOGE_TOOL_COUNT  ) {
+				if(  toolnr<DIALOGE_TOOL_COUNT  &&  ( toolnr<DIALOGE_TOOL_STANDARD_COUNT || toolnr>=0x80 )  ) {
 					if(create_tool) {
 						addtool = create_dialog_tool( toolnr );
 						*addtool = *(dialog_tool[toolnr]);
@@ -590,7 +629,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					}
 				}
 				else {
-					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No dialog tool %i defined (max %i)!", toolnr, DIALOGE_TOOL_COUNT );
+					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No dialog tool %i defined (max %i)!", toolnr, (toolnr<0x80) ? DIALOGE_TOOL_STANDARD_COUNT : DIALOGE_TOOL_COUNT );
 				}
 			} else if (char const* const c = strstart(toolname, "toolbar[")) {
 				uint8 const toolnr = atoi(c);
