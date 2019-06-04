@@ -52,7 +52,7 @@ vector_tpl<tool_t *>tool_t::char_to_tool(0);
 // here are the default values, icons, cursor, sound definitions ...
 vector_tpl<tool_t *>tool_t::general_tool(GENERAL_TOOL_COUNT);
 vector_tpl<tool_t *>tool_t::simple_tool(SIMPLE_TOOL_COUNT);
-vector_tpl<tool_t *>tool_t::dialog_tool(DIALOGE_TOOL_COUNT);
+vector_tpl<tool_t *>tool_t::dialog_tool(DIALOG_TOOL_COUNT);
 
 // the number of toolbars is not known yet
 vector_tpl<toolbar_t *>tool_t::toolbar_tool(0);
@@ -222,7 +222,7 @@ tool_t *create_dialog_tool(int toolnr)
 		default:                 dbg->error("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
 		                         return NULL;
 	}
-	assert(tool->get_id() == (toolnr | DIALOGE_TOOL));
+	assert(tool->get_id() == (toolnr | DIALOG_TOOL));
 	return tool;
 }
 
@@ -235,7 +235,7 @@ tool_t *create_tool(int toolnr)
 	else if(  toolnr & SIMPLE_TOOL  ) {
 		tool = create_simple_tool(toolnr & 0xFFF);
 	}
-	else if(  toolnr & DIALOGE_TOOL  ) {
+	else if(  toolnr & DIALOG_TOOL  ) {
 		tool = create_dialog_tool(toolnr & 0xFFF);
 	}
 	if (tool == NULL) {
@@ -316,9 +316,9 @@ void tool_t::init_menu()
 		}
 		simple_tool.append(tool);
 	}
-	for(  uint16 i=0;  i<DIALOGE_TOOL_COUNT;  i++  ) {
+	for(  uint16 i=0;  i<DIALOG_TOOL_COUNT;  i++  ) {
 		tool_t *tool;
-		if(  i>=DIALOGE_TOOL_STANDARD_COUNT  &&  i<0x80  ) {
+		if(  i>=DIALOG_TOOL_STANDARD_COUNT  &&  i<0x80  ) {
 			tool = new tool_dummy_t;
 		}
 		else {
@@ -372,7 +372,7 @@ void tool_t::read_menu(const std::string &objfilename)
 	tool_class_info_t info[] = {
 		{ "general_tool", GENERAL_TOOL_STANDARD_COUNT, GENERAL_TOOL_COUNT, general_tool, skinverwaltung_t::tool_icons_general, skinverwaltung_t::cursor_general, true },
 		{ "simple_tool",  SIMPLE_TOOL_STANDARD_COUNT, SIMPLE_TOOL_COUNT,  simple_tool,  skinverwaltung_t::tool_icons_simple,  NULL, false},
-		{ "dialog_tool",  DIALOGE_TOOL_STANDARD_COUNT, DIALOGE_TOOL_COUNT, dialog_tool,  skinverwaltung_t::tool_icons_dialoge, NULL, false }
+		{ "dialog_tool",  DIALOG_TOOL_STANDARD_COUNT, DIALOG_TOOL_COUNT, dialog_tool,  skinverwaltung_t::tool_icons_dialoge, NULL, false }
 	};
 
 	// first init all tools
@@ -618,7 +618,7 @@ void tool_t::read_menu(const std::string &objfilename)
 				}
 			} else if (char const* const c = strstart(toolname, "dialog_tool[")) {
 				uint8 const toolnr = atoi(c);
-				if(  toolnr<DIALOGE_TOOL_COUNT  &&  ( toolnr<DIALOGE_TOOL_STANDARD_COUNT || toolnr>=0x80 )  ) {
+				if(  toolnr<DIALOG_TOOL_COUNT  &&  ( toolnr<DIALOG_TOOL_STANDARD_COUNT || toolnr>=0x80 )  ) {
 					if(create_tool) {
 						addtool = create_dialog_tool( toolnr );
 						*addtool = *(dialog_tool[toolnr]);
@@ -629,7 +629,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					}
 				}
 				else {
-					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No dialog tool %i defined (max %i)!", toolnr, (toolnr<0x80) ? DIALOGE_TOOL_STANDARD_COUNT : DIALOGE_TOOL_COUNT );
+					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No dialog tool %i defined (max %i)!", toolnr, (toolnr<0x80) ? DIALOG_TOOL_STANDARD_COUNT : DIALOG_TOOL_COUNT );
 				}
 			} else if (char const* const c = strstart(toolname, "toolbar[")) {
 				uint8 const toolnr = atoi(c);
