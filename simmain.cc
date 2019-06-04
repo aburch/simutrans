@@ -37,7 +37,6 @@
 #include "simsys.h"
 #include "display/simgraph.h"
 #include "simevent.h"
-#include "utils/simrandom.h"
 
 #include "simversion.h"
 
@@ -73,6 +72,7 @@
 #include "sound/sound.h"
 
 #include "utils/cbuffer_t.h"
+#include "utils/simrandom.h"
 
 #include "bauer/vehikelbauer.h"
 
@@ -116,7 +116,7 @@ static void show_sizes()
 
 
 // render tests ...
-static void show_times(karte_t *welt, karte_ansicht_t *view)
+static void show_times(karte_t *welt, main_view_t *view)
 {
  	intr_set(welt, view);
 	welt->set_fast_forward(true);
@@ -527,6 +527,7 @@ int simu_main(int argc, char** argv)
 	// only the specified pak conf should override this!
 	uint16 pak_diagonal_multiplier = env_t::default_settings.get_pak_diagonal_multiplier();
 	sint8 pak_tile_height = TILE_HEIGHT_STEP;
+	sint8 pak_height_conversion_factor = env_t::pak_height_conversion_factor;
 
 	// parsing config/simuconf.tab
 	printf("Reading low level config data ...\n");
@@ -594,10 +595,10 @@ int simu_main(int argc, char** argv)
 #ifdef SYSLOG
 	bool cli_syslog_enabled = (gimme_arg( argc, argv, "-syslog", 0 ) != NULL);
 	const char* cli_syslog_tag = gimme_arg( argc, argv, "-tag", 1 );
-#else //SYSLOG
+#else
 	bool cli_syslog_enabled = false;
 	const char* cli_syslog_tag = NULL;
-#endif //SYSLOG
+#endif
 
 	env_t::verbose_debug = 0;
 	if(  gimme_arg(argc, argv, "-debug", 0) != NULL  ) {
@@ -654,7 +655,7 @@ int simu_main(int argc, char** argv)
 		// Again, attempt to use the Debian directory.
 		char backup_program_dir[1024];
 		strcpy(backup_program_dir, env_t::program_dir);
-		strcpy( env_t::program_dir, "/usr/share/games/simutrans-ex/" );
+		strcpy( env_t::program_dir, "/usr/share/games/simutrans-extended/" );
         chdir( env_t::program_dir );
 		xml_settings_found = file.rd_open(xml_filename);
 		if(!xml_settings_found)
@@ -780,6 +781,17 @@ int simu_main(int argc, char** argv)
 			themes_ok = gui_theme_t::themes_init(themestr);
 		}
 	}
+	// next try the last used theme
+	if(  !themes_ok  &&  env_t::default_theme.c_str()!=NULL  ) {
+		chdir( env_t::user_dir );
+		chdir( "themes" );
+		themes_ok = gui_theme_t::themes_init( env_t::default_theme );
+		if(  !themes_ok  ) {
+			chdir( env_t::program_dir );
+			chdir( "themes" );
+			themes_ok = gui_theme_t::themes_init( env_t::default_theme );
+		}
+	}
 	// specified themes not found => try default themes
 	if(  !themes_ok  ) {
 		chdir( env_t::program_dir );
@@ -855,7 +867,8 @@ int simu_main(int argc, char** argv)
 		if (fullscreen) {
 			disp_width  = res.w;
 			disp_height = res.h;
-		} else {
+		}
+		else {
 			disp_width  = min(704, res.w);
 			disp_height = min(560, res.h);
 		}
@@ -917,10 +930,16 @@ int simu_main(int argc, char** argv)
 	if(  simuconf.open(obj_conf.c_str())  ) {
 		sint16 idummy;
 		string dummy;
-		printf("parse_simuconf() in pak (%s): ", obj_conf.c_str());
+		env_t::default_settings.set_way_height_clearance( 0 );
+		dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
 		env_t::default_settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		pak_diagonal_multiplier = env_t::default_settings.get_pak_diagonal_multiplier();
+		pak_height_conversion_factor = env_t::pak_height_conversion_factor;
 		pak_tile_height = TILE_HEIGHT_STEP;
+		if(  env_t::default_settings.get_way_height_clearance() == 0  ) {
+			// ok, set default as conversion factor
+			env_t::default_settings.set_way_height_clearance( pak_height_conversion_factor );
+		}
 		simuconf.close();
 	}
 	// and parse again the user settings
@@ -962,9 +981,10 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	// now (re)set the correct length from the pak
+	// now (re)set the correct length and other pak set only settings
 	env_t::default_settings.set_pak_diagonal_multiplier( pak_diagonal_multiplier );
 	vehicle_base_t::set_diagonal_multiplier( pak_diagonal_multiplier, pak_diagonal_multiplier );
+	env_t::pak_height_conversion_factor = pak_height_conversion_factor;
 	TILE_HEIGHT_STEP = pak_tile_height;
 
 	convoihandle_t::init( 1024 );
@@ -1011,7 +1031,7 @@ int simu_main(int argc, char** argv)
 			translator::set_language( iso );
 		}
 		if(  translator::get_language()==-1  ) {
-			dbg->fatal("simmain", "Illegal language defintion \"%s\"", iso );
+			dbg->fatal("simmain", "Illegal language definition \"%s\"", iso );
 		}
 		env_t::language_iso = translator::get_lang()->iso_base;
 	}
@@ -1186,7 +1206,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 	}
 
 	karte_t *welt = new karte_t();
-	karte_ansicht_t *view = new karte_ansicht_t(welt);
+	main_view_t *view = new main_view_t(welt);
 	welt->set_view( view );
 
 	interaction_t *eventmanager = new interaction_t();

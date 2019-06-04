@@ -4,13 +4,8 @@
  * This file is part of the Simutrans project under the artistic license.
  */
 
-// define before all includes!
-#define UNICODE 1
-
 #include <stdio.h>
 
-// windows.h defines min and max macros which we don't want
-#define NOMINMAX 1
 #include <windows.h>
 #include <mmsystem.h>
 
@@ -88,11 +83,6 @@ void dr_play_sample(int sample_number, int volume)
 
 		SetCooperativeLevel(this_window, DSSCL_NORMAL);*/
 
-		static int last_sample_nr = -1;
-		if(  last_sample_nr==-1) {
-			last_sample_nr = sample_number;
-		}
-
 		static int oldvol = -1;
 		volume = (volume<<8)-1;
 		if(oldvol!=volume) {
@@ -101,13 +91,12 @@ void dr_play_sample(int sample_number, int volume)
 			oldvol = volume;
 		}
 
-		// XXX this cast seems wrong, samples[] contains char strings, not wide char strings.
-		if(  !sndPlaySound(static_cast<WCHAR const*>(samples[sample_number]), SND_MEMORY | SND_ASYNC | SND_NODEFAULT | SND_NOSTOP )  &&  last_sample_nr!=sample_number  ) {
-			// terminate the current sound, if not already the requeste one ...
-			sndPlaySound( NULL, SND_ASYNC );
-			// and play the new sample ...
-			sndPlaySound(static_cast<WCHAR const*>(samples[sample_number]), SND_MEMORY | SND_ASYNC | SND_NODEFAULT | SND_NOSTOP );
-		}
+		UINT flags = SND_MEMORY | SND_ASYNC | SND_NODEFAULT;
+		// Terminate the current sound, if not already the requested one.
+		static int last_sample_nr = -1;
+		if (last_sample_nr == sample_number)
+			flags |= SND_NOSTOP;
 		last_sample_nr = sample_number;
+		sndPlaySound(static_cast<TCHAR const*>(samples[sample_number]), flags);
 	}
 }

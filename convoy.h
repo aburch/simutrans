@@ -130,7 +130,7 @@ struct vehicle_summary_t
 	inline void update_summary(uint8 length_of_last_vehicle)
 	{
 		// this correction corresponds to the correction in convoi_t::get_tile_length()
-		tiles = (length + (max(8, length_of_last_vehicle) - length_of_last_vehicle) + OBJECT_OFFSET_STEPS - 1) / OBJECT_OFFSET_STEPS;
+		tiles = (length + (max(CARUNITS_PER_TILE/2, length_of_last_vehicle) - length_of_last_vehicle) + CARUNITS_PER_TILE - 1) / CARUNITS_PER_TILE;
 		max_sim_speed = kmh_to_speed(max_speed);
 	}
 };
@@ -304,8 +304,9 @@ public:
 	/**
 	 * Update adverse.max_speed. If given speed is less than current adverse.max_speed, then speed becomes the new adverse.max_speed.
 	 */
-	void update_max_speed(const int speed) { 
-		if (adverse.max_speed > speed ) adverse.max_speed = speed; 
+	void update_max_speed(const int speed)
+	{ 
+		if (adverse.max_speed > speed || adverse.max_speed == 0) adverse.max_speed = speed; 
 	}
 
 	/**

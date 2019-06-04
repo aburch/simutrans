@@ -30,7 +30,7 @@ class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 private:
 	player_t *player;
 
-	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line, bt_line_class_manager;
+	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line, bt_line_class_manager, bt_times_history;
 	gui_container_t cont, cont_haltestellen;
 	gui_scrollpane_t scrolly_convois, scrolly_haltestellen;
 	gui_scrolled_list_t scl;
@@ -83,7 +83,11 @@ private:
 	vector_tpl<uint16> livery_scheme_indices;
 
 public:
-	schedule_list_gui_t(player_t* player);
+	/// last selected line per tab
+	static linehandle_t selected_line[MAX_PLAYER_COUNT][simline_t::MAX_LINE_TYPE];
+
+
+	schedule_list_gui_t(player_t* player_);
 	~schedule_list_gui_t();
 	/**
 	* in top-level windows the name is displayed in titlebar

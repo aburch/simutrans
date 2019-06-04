@@ -1,6 +1,7 @@
 #include "../simevent.h"
 #include "../simcolor.h"
 #include "../simconvoi.h"
+#include "../vehicle/simvehicle.h"
 #include "../simworld.h"
 #include "../simdepot.h"
 #include "../simhalt.h"
@@ -20,6 +21,7 @@
 
 #include "../boden/wege/schiene.h"
 #include "../obj/leitung2.h"
+#include "../obj/gebaeude.h"
 #include "../utils/cbuffer_t.h"
 #include "../display/scr_coord.h"
 #include "../display/simgraph.h"
@@ -81,7 +83,8 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 #define POWERLINE_KENN    (55)
 #define HALT_KENN         COL_RED
 #define BUILDING_KENN     COL_GREY3
-
+// when building have no record
+#define MAP_COL_NODATA     (218)
 
 // helper function for line segment_t
 bool reliefkarte_t::line_segment_t::operator == (const line_segment_t & k) const
@@ -113,12 +116,49 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 		return;
 	}
 	schedule_t *schedule = cnv->get_schedule();
+	if(  !show_network_load_factor  ) {
+		colore += 8;
+		if(  colore >= 208  ) {
+			colore = (colore % 8) + 1;
+			if(  colore == 7  ) {
+				colore = 0;
+			}
+		}
+	}
+	else {
+		//TODO: extract common part from with schedule_list_gui_t::display()
+		int capacity = 0, load = 0; // total capacity and load of line (=sum of all conv's cap/load)
 
-	colore += 8;
-	if(  colore >= 208  ) {
-		colore = (colore % 8) + 1;
-		if(  colore == 7  ) {
-			colore = 0;
+		if(cnv->get_line().is_bound()) {
+			for(  uint i = 0;  i < cnv->get_line()->count_convoys();  i++  ) {
+				convoihandle_t const cnv_in_line = cnv->get_line()->get_convoy(i);
+				// we do not want to count the capacity of depot convois
+				if(  !cnv_in_line->in_depot()  ) {
+					for(  unsigned j = 0;  j < cnv_in_line->get_vehicle_count();  j++  ) {
+						capacity += cnv_in_line->get_vehicle(j)->get_cargo_max();
+						load += cnv_in_line->get_vehicle(j)->get_total_cargo();
+					}
+				}
+			}
+		}
+		else {
+			// we do not want to count the capacity of depot convois
+			if(!cnv->in_depot()) {
+				for(unsigned j = 0; j < cnv->get_vehicle_count(); j++) {
+					capacity += cnv->get_vehicle(j)->get_cargo_max();
+					load += cnv->get_vehicle(j)->get_total_cargo();
+				}
+			}
+		}
+
+		// we check if cap is zero, since theoretically a
+		// conv can consist of only 1 vehicle, which has no cap (eg. locomotive)
+		// and we do not like to divide by zero, do we?
+		if(capacity > 0) {
+			colore = severity_color[MAX_SEVERITY_COLORS-load * MAX_SEVERITY_COLORS / capacity];
+		}
+		else {
+			colore = severity_color[MAX_SEVERITY_COLORS-1];
 		}
 	}
 
@@ -708,13 +748,15 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 	// first use ground color
 	set_relief_farbe( k, calc_relief_farbe(gr) );
 
+	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+
 	switch(mode&~MAP_MODE_FLAGS) {
 		// show passenger coverage
 		// display coverage
 		case MAP_PASSENGER:
 			if(  plan->get_haltlist_count()>0  ) {
 				halthandle_t halt = plan->get_haltlist()[0].halt;
-				if(  halt->get_pax_enabled()  &&  !halt->get_connexions(0)->empty() ){
+				if(  halt->get_pax_enabled()  &&  !halt->get_connexions(goods_manager_t::INDEX_PAS, goods_manager_t::passengers->get_number_of_classes() - 1, max_classes)->empty() ){
 					set_relief_farbe( k, halt->get_owner()->get_player_color1() + 3 );
 				}
 			}
@@ -725,7 +767,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		case MAP_MAIL:
 			if(  plan->get_haltlist_count()>0  ) {
 				halthandle_t halt = plan->get_haltlist()[0].halt;
-				if(  halt->get_mail_enabled()  &&  !halt->get_connexions(1)->empty()  ) {
+				if(  halt->get_mail_enabled()  &&  !halt->get_connexions(goods_manager_t::INDEX_MAIL, goods_manager_t::mail->get_number_of_classes() - 1, max_classes)->empty()  ) {
 					set_relief_farbe( k, halt->get_owner()->get_player_color1() + 3 );
 				}
 			}
@@ -858,7 +900,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				const leitung_t* lt = gr->find<leitung_t>();
 				if(lt!=NULL) {
-					set_relief_farbe(k, calc_severity_color(lt->get_net()->get_demand(),lt->get_net()->get_supply()) );
+					set_relief_farbe(k, calc_severity_color((sint32)lt->get_net()->get_demand(),(sint32)lt->get_net()->get_supply()) );
 				}
 			}
 			break;
@@ -900,6 +942,89 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 							max_building_level = level;
 						}
 						set_relief_farbe(k, calc_severity_color(level, max_building_level));
+					}
+				}
+			}
+			break;
+
+		case MAP_ACCESSIBILITY_COMMUTING:
+			{
+				if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+					gb = gb->access_first_tile();
+					if (gb->get_adjusted_population()) {
+						const uint16 passengers_succeeded_commuting = gb->get_average_passenger_success_percent_commuting();
+						if(passengers_succeeded_commuting < 65535){
+							set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_commuting, 100));
+						}
+						else {
+							set_relief_farbe(k, MAP_COL_NODATA);
+						}
+					}
+				}
+			}
+			break;
+
+		case MAP_ACCESSIBILITY_TRIP:
+			{
+				if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+					gb = gb->access_first_tile();
+					if (gb->get_adjusted_population()) {
+						const uint16 passengers_succeeded_visiting = gb->get_average_passenger_success_percent_visiting();
+						if (passengers_succeeded_visiting < 65535) {
+							set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_visiting, 100));
+						}
+						else {
+							set_relief_farbe(k, MAP_COL_NODATA);
+						}
+					}
+				}
+			}
+			break;
+
+		case MAP_STAFF_FULFILLMENT:
+			{
+				if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+					gb = gb->access_first_tile();
+					if (gb->get_adjusted_jobs()) {
+						if (fabrik_t *fab = gb->get_fabrik()) {
+							// use this for primary industry or not
+							const uint32 input_count = fab->get_input().get_count();
+							// Factories not in operation
+							if (gb->get_passengers_succeeded_commuting() == 65535 && input_count) {
+								set_relief_farbe(k, COL_DARK_PURPLE);
+							}
+							else {
+								const sint32 staffing_percentage = gb->get_staffing_level_percentage();
+								if (staffing_percentage < 65535) {
+									set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
+								}
+								else {
+									set_relief_farbe(k, MAP_COL_NODATA);
+								}
+							}
+						}
+						else {
+							const sint32 staffing_percentage = gb->get_staffing_level_percentage();
+							set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
+						}
+					}
+				
+				}
+			}
+			break;
+
+		case MAP_MAIL_DELIVERY:
+			{
+				if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+					gb = gb->access_first_tile();
+					if (gb->get_adjusted_mail_demand()) {
+						const uint16 recent_mail_delivery_success_per = gb->get_average_mail_delivery_success_percent();
+						if (recent_mail_delivery_success_per < 65535) {
+							set_relief_farbe(k, calc_severity_color(100 - recent_mail_delivery_success_per, 100));
+						}
+						else {
+							set_relief_farbe(k, MAP_COL_NODATA);
+						}
 					}
 				}
 			}
@@ -1018,14 +1143,13 @@ reliefkarte_t::reliefkarte_t()
 	cur_off = new_off = scr_coord(0,0);
 	cur_size = new_size = scr_size(0,0);
 	needs_redraw = true;
+	transport_type_showed_on_map = simline_t::line;
 }
 
 
 reliefkarte_t::~reliefkarte_t()
 {
-	if(relief != NULL) {
-		delete relief;
-	}
+	delete relief;
 }
 
 
@@ -1040,10 +1164,8 @@ reliefkarte_t *reliefkarte_t::get_karte()
 
 void reliefkarte_t::init()
 {
-	if(relief) {
-		delete relief;
-		relief = NULL;
-	}
+	delete relief;
+	relief = NULL;
 	needs_redraw = true;
 	is_visible = false;
 
@@ -1064,6 +1186,12 @@ void reliefkarte_t::set_mode(MAP_MODES new_mode)
 
 void reliefkarte_t::new_month()
 {
+	needs_redraw = true;
+}
+
+void reliefkarte_t::invalidate_map_lines_cache()
+{
+	last_schedule_counter = welt->get_schedule_counter() - 1;
 	needs_redraw = true;
 }
 
@@ -1235,6 +1363,9 @@ void reliefkarte_t::draw(scr_coord pos)
 			colore = 0;
 
 			for(  int np = 0;  np < MAX_PLAYER_COUNT;  np++  ) {
+				if(  player_showed_on_map != -1  &&  player_showed_on_map != np  ) {
+					continue;
+				}
 				//cycle on players
 				if(  welt->get_player( np )  &&  welt->get_player( np )->simlinemgmt.get_line_count() > 0   ) {
 
@@ -1242,30 +1373,12 @@ void reliefkarte_t::draw(scr_coord pos)
 					for(  uint32 j = 0;  j < linee.get_count();  j++  ) {
 						//cycle on lines
 
-						// does this line has a matching freight
-						if(  mode & MAP_PASSENGER  ) {
-							if(  !linee[j]->get_goods_catg_index().is_contained( goods_manager_t::INDEX_PAS )  ) {
-								// no passengers
-								continue;
-							}
+						if(  transport_type_showed_on_map != simline_t::line  &&  linee[j]->get_linetype() != transport_type_showed_on_map  ) {
+							continue;
 						}
-						else if(  mode & MAP_MAIL  ) {
-							if(  !linee[j]->get_goods_catg_index().is_contained( goods_manager_t::INDEX_MAIL )  ) {
-								// no mail
-								continue;
-							}
-						}
-						else if(  mode & MAP_FREIGHT  ) {
-							uint8 i=0;
-							for(  ;  i < linee[j]->get_goods_catg_index().get_count();  i++  ) {
-								if(  linee[j]->get_goods_catg_index()[i] > goods_manager_t::INDEX_NONE  ) {
-									break;
-								}
-							}
-							if(  i >= linee[j]->get_goods_catg_index().get_count()  ) {
-								// not any freight here ...
-								continue;
-							}
+
+						if(  !is_matching_freight_catg( linee[j]->get_goods_catg_index() )  ) {
+							continue;
 						}
 
 						// ware matches; now find at least a running convoi on this line ...
@@ -1292,37 +1405,27 @@ void reliefkarte_t::draw(scr_coord pos)
 			}
 
 			// now add all unbound convois
+			player_t * required_vehicle_owner = NULL;
+			if (player_showed_on_map != -1) {
+				required_vehicle_owner = welt->get_player(player_showed_on_map);
+			}
 			FOR( vector_tpl<convoihandle_t>, cnv, welt->convoys() ) {
 				if(  !cnv.is_bound()  ||  cnv->get_line().is_bound()  ) {
 					// not there or already part of a line
 					continue;
 				}
+				if(  required_vehicle_owner!= NULL  &&  required_vehicle_owner != cnv->get_owner()  ) {
+					continue;
+				}
+				if(  transport_type_showed_on_map != simline_t::line  ) {
+					if(  transport_type_showed_on_map != simline_t::get_linetype(cnv->front()->get_waytype())  ) {
+						continue;
+					}
+				}
 				int state = cnv->get_state();
-				if( state != convoi_t::INITIAL  &&  state != convoi_t::ENTERING_DEPOT  &&  state != convoi_t::SELF_DESTRUCT  ) {
-					// does this line has a matching freight
-					if(  mode & MAP_PASSENGER  ) {
-						if(  !cnv->get_goods_catg_index().is_contained( goods_manager_t::INDEX_PAS )  ) {
-							// no passengers
-							continue;
-						}
-					}
-					else if(  mode & MAP_MAIL  ) {
-						if(  !cnv->get_goods_catg_index().is_contained( goods_manager_t::INDEX_MAIL )  ) {
-							// no mail
-							continue;
-						}
-					}
-					else if(  mode & MAP_FREIGHT  ) {
-						uint8 i=0;
-						for(  ;  i < cnv->get_goods_catg_index().get_count();  i++  ) {
-							if(  cnv->get_goods_catg_index()[i] > goods_manager_t::INDEX_NONE  ) {
-								break;
-							}
-						}
-						if(  i >= cnv->get_goods_catg_index().get_count()  ) {
-							// not any freight here ...
-							continue;
-						}
+				if(  state != convoi_t::INITIAL  &&  state != convoi_t::ENTERING_DEPOT  &&  state != convoi_t::SELF_DESTRUCT  ) {
+					if(  !is_matching_freight_catg(cnv->get_goods_catg_index())  ) {
+						continue;
 					}
 					add_to_schedule_cache( cnv, false );
 				}
@@ -1410,27 +1513,29 @@ void reliefkarte_t::draw(scr_coord pos)
 		}
 	}
 
+	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+
 	// display station information here (even without overlay)
 	halthandle_t display_station;
 	// only fill cache if needed
 	if(  mode & MAP_MODE_HALT_FLAGS  &&  stop_cache.empty()  ) {
-		if(  mode&MAP_ORIGIN  ) {
+		if(  mode & MAP_ORIGIN  ) {
 			FOR( const vector_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
 				if(  halt->get_pax_enabled()  ||  halt->get_mail_enabled()  ) {
 					stop_cache.append( halt );
 				}
 			}
 		}
-		else if(  mode&MAP_TRANSFER  ) {
+		else if(  mode & MAP_TRANSFER  ) {
 			FOR( const vector_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
-				if(  halt->is_transfer(goods_manager_t::INDEX_PAS)  ||  halt->is_transfer(goods_manager_t::INDEX_MAIL)  ) {
+				if(  halt->is_transfer(goods_manager_t::INDEX_PAS, goods_manager_t::passengers->get_number_of_classes() - 1, max_classes)  ||  halt->is_transfer(goods_manager_t::INDEX_MAIL, goods_manager_t::mail->get_number_of_classes() - 1, max_classes)  ) {
 					stop_cache.append( halt );
 				}
 				else {
-					// good transfer?
+					// goods transfer?
 					bool transfer = false;
-					for(  int i=goods_manager_t::INDEX_NONE+1  &&  !transfer;  i<=goods_manager_t::get_max_catg_index();  i ++  ) {
-						transfer = halt->is_transfer( i );
+					for(  int i=goods_manager_t::INDEX_NONE+1  &&  !transfer;  i<goods_manager_t::get_max_catg_index();  i ++  ) {
+						transfer = halt->is_transfer( i, 0, max_classes );
 					}
 					if(  transfer  ) {
 						stop_cache.append( halt );
@@ -1449,7 +1554,7 @@ void reliefkarte_t::draw(scr_coord pos)
 	sint32 new_max_waiting_change = 1;
 	FOR(  vector_tpl<halthandle_t>, station, stop_cache  ) {
 
-		if (!station.is_bound()) {
+		if(  !station.is_bound()  ) {
 			// maybe deleted in the meanwhile
 			continue;
 		}
@@ -1465,7 +1570,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			radius = number_to_radius( station->get_capacity(0) );
 		}
 		else if( mode & MAP_SERVICE  ) {
-			const sint32 service = station->get_finance_history( 1, HALT_CONVOIS_ARRIVED );
+			const sint32 service = (sint32)station->get_finance_history( 1, HALT_CONVOIS_ARRIVED );
 			if(  service > max_service  ) {
 				max_service = service;
 			}
@@ -1473,7 +1578,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			radius = log2( (uint32)( (service << 7) / max_service ) );
 		}
 		else if( mode & MAP_WAITING  ) {
-			const sint32 waiting = station->get_finance_history( 0, HALT_WAITING );
+			const sint32 waiting = (sint32)station->get_finance_history( 0, HALT_WAITING );
 			if(  waiting > max_waiting  ) {
 				max_waiting = waiting;
 			}
@@ -1481,7 +1586,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			radius = number_to_radius( waiting );
 		}
 		else if( mode & MAP_WAITCHANGE  ) {
-			const sint32 waiting_diff = station->get_finance_history( 0, HALT_WAITING ) - station->get_finance_history( 1, HALT_WAITING );
+			const sint32 waiting_diff = (sint32)(station->get_finance_history( 0, HALT_WAITING ) - station->get_finance_history( 1, HALT_WAITING ));
 			if(  waiting_diff > new_max_waiting_change  ) {
 				new_max_waiting_change = waiting_diff;
 			}
@@ -1497,7 +1602,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			if(  !station->get_pax_enabled()  &&  !station->get_mail_enabled()  ) {
 				continue;
 			}
-			const sint32 pax_origin = station->get_finance_history( 1, HALT_HAPPY ) + station->get_finance_history( 1, HALT_UNHAPPY ) + station->get_finance_history( 1, HALT_NOROUTE );
+			const sint32 pax_origin = (sint32)(station->get_finance_history( 1, HALT_HAPPY ) + station->get_finance_history( 1, HALT_UNHAPPY ) + station->get_finance_history(1, HALT_TOO_WAITING) + station->get_finance_history(1, HALT_NOROUTE) + station->get_finance_history( 1, HALT_TOO_SLOW ));
 			if(  pax_origin > max_origin  ) {
 				max_origin = pax_origin;
 			}
@@ -1505,7 +1610,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			radius = number_to_radius( pax_origin );
 		}
 		else if( mode & MAP_TRANSFER  ) {
-			const sint32 transfer = station->get_finance_history( 1, HALT_ARRIVED ) + station->get_finance_history( 1, HALT_DEPARTED );
+			const sint32 transfer = (sint32)(station->get_finance_history( 1, HALT_ARRIVED ) + station->get_finance_history( 1, HALT_DEPARTED ));
 			if(  transfer > max_transfer  ) {
 				max_transfer = transfer;
 			}
@@ -1664,9 +1769,16 @@ void reliefkarte_t::draw(scr_coord pos)
 		}
 	}
 
-	if(  mode & MAP_FACTORIES) {
+	if(  mode & MAP_FACTORIES  ) {
 		FOR(  vector_tpl<fabrik_t*>,  const f,  welt->get_fab_list()  ) {
-			scr_coord fab_pos = karte_to_screen( f->get_pos().get_2d() );
+			// find top-left tile position
+			koord3d fab_tl_pos = f->get_pos();
+			if (grund_t *gr = welt->lookup(f->get_pos())) {
+				if (gebaeude_t* gb = gr->find<gebaeude_t>()) {
+					fab_tl_pos = gb->get_pos() - gb->get_tile()->get_offset();
+				}
+			}
+			scr_coord fab_pos = karte_to_screen( fab_tl_pos.get_2d() );
 			fab_pos = fab_pos + pos;
 			koord size = f->get_desc()->get_building()->get_size(f->get_rotate());
 			sint16 x_size = max( 5, size.x*zoom_in );
@@ -1763,4 +1875,51 @@ void reliefkarte_t::rdwr(loadsave_t *file)
 {
 	file->rdwr_short(zoom_out);
 	file->rdwr_short(zoom_in);
+}
+
+
+bool reliefkarte_t::is_matching_freight_catg(const minivec_tpl<uint8> &goods_catg_index)
+{
+	// does this line/convoi has a matching freight
+	if(  freight_type_group_index_showed_on_map == goods_manager_t::passengers  ) {
+		return goods_catg_index.is_contained(goods_manager_t::INDEX_PAS);
+	}
+	else if(  freight_type_group_index_showed_on_map == goods_manager_t::mail  ) {
+		return goods_catg_index.is_contained(goods_manager_t::INDEX_MAIL);
+	}
+	else if(  freight_type_group_index_showed_on_map == goods_manager_t::none  ) {
+		// all freights but not pax or mail
+		for(  uint8 i = 0;  i < goods_catg_index.get_count();  i++  ) {
+			if(  goods_catg_index[i] > goods_manager_t::INDEX_NONE  ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	else if(  freight_type_group_index_showed_on_map != NULL  ) {
+		for(  uint8 i = 0;  i < goods_catg_index.get_count();  i++  ) {
+			if(  goods_catg_index[i] == freight_type_group_index_showed_on_map->get_catg_index()  ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	// NULL show all but obey modes
+	if(  mode & MAP_PASSENGER  ) {
+		return goods_catg_index.is_contained(goods_manager_t::INDEX_PAS);
+	}
+	else if(  mode & MAP_MAIL  ) {
+		return goods_catg_index.is_contained(goods_manager_t::INDEX_MAIL);
+	}
+	else if(  mode & MAP_FREIGHT  ) {
+		// all freights but not pax or mail
+		for(  uint8 i = 0;  i < goods_catg_index.get_count();  i++  ) {
+			if(  goods_catg_index[i]>2  ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	// all true
+	return true;
 }

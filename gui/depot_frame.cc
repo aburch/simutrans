@@ -16,7 +16,7 @@
 #include "../vehicle/simvehicle.h"
 #include "../simconvoi.h"
 #include "../simdepot.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 #include "../simcolor.h"
 #include "../simdebug.h"
 #include "../display/simgraph.h"
@@ -25,7 +25,6 @@
 #include "../simlinemgmt.h"
 #include "../simmenu.h"
 #include "../simskin.h"
-#include "../utils/simrandom.h"
 
 #include "../descriptor/building_desc.h"
 
@@ -35,6 +34,7 @@
 #include "line_item.h"
 #include "convoy_item.h"
 #include "messagebox.h"
+#include "schedule_list.h"
 
 #include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
@@ -44,6 +44,7 @@
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
+#include "../utils/simrandom.h"
 
 #include "../boden/wege/weg.h"
 
@@ -455,6 +456,22 @@ void depot_frame_t::update_data()
 	// update the line selector
 	line_selector.clear_elements();
 
+	if(  !last_selected_line.is_bound()  ) {
+		// new line may have a valid line now
+		last_selected_line = selected_line;
+		// if still nothing, resort to line management dialoge
+		if(  !last_selected_line.is_bound()  ) {
+			// try last specific line
+			last_selected_line = schedule_list_gui_t::selected_line[ depot->get_owner()->get_player_nr() ][ depot->get_line_type() ];
+		}
+		if(  !last_selected_line.is_bound()  ) {
+			// try last general line
+			last_selected_line = schedule_list_gui_t::selected_line[ depot->get_owner()->get_player_nr() ][ 0 ];
+			if(  last_selected_line.is_bound()  &&  last_selected_line->get_linetype() != depot->get_line_type()  ) {
+				last_selected_line = linehandle_t();
+			}
+		}
+	}
 	if(  last_selected_line.is_bound()  ) {
 		line_selector.insert_element( new line_scrollitem_t( last_selected_line ) );
 	}
@@ -479,16 +496,21 @@ void depot_frame_t::update_data()
 	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_separator, SYSCOL_TEXT ) );
 
 	// check all matching lines
-	selected_line = linehandle_t();
+	if(  cnv.is_bound()  ) {
+		selected_line = cnv->get_line();
+	}
 	vector_tpl<linehandle_t> lines;
 	get_line_list(depot, &lines);
 	line_selector.set_selection( 0 );
 	FOR(  vector_tpl<linehandle_t>,  const line,  lines  ) {
 		line_selector.append_element( new line_scrollitem_t(line) );
-		if(  cnv.is_bound()  &&  line == cnv->get_line()  ) {
+		if(  selected_line.is_bound()  &&  selected_line == line  ) {
 			line_selector.set_selection( line_selector.count_elements() - 1 );
-			selected_line = line;
 		}
+	}
+	if(  line_selector.get_selection() == 0  ) {
+		// no line selected
+		selected_line = linehandle_t();
 	}
 	line_selector.sort( last_selected_line.is_bound()+3, NULL );
 
@@ -581,7 +603,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			depot->call_depot_tool('v', cnv, NULL);
 		}
 		else if(  comp == &bt_copy_convoi  ) {
-			if(  cnv.is_bound()  ) {
+			if(  cnv.is_bound() && cnv->all_vehicles_are_buildable() ) {
 				if(  !welt->use_timeline()  ||  welt->get_settings().get_allow_buying_obsolete_vehicles()  ||  depot->check_obsolete_inventory( cnv )  ) {
 					depot->call_depot_tool('c', cnv, NULL, gui_convoy_assembler_t::get_livery_scheme_index());
 				}
@@ -624,6 +646,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 						}
 					}
 					line_selector.set_focusable( false );
+					last_selected_line = linehandle_t();	// clear last selected line so we can get a new one ...
 					depot->call_depot_tool('l', convoihandle_t(), buf);
 				}
 				return true;

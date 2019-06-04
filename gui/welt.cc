@@ -18,7 +18,6 @@
 #include "../display/simimg.h"
 #include "../simmesg.h"
 #include "../simskin.h"
-#include "../utils/simrandom.h"
 #include "../simversion.h"
 
 #include "../bauer/hausbauer.h"
@@ -46,6 +45,7 @@
 
 #include "../simsys.h"
 #include "../utils/simstring.h"
+#include "../utils/simrandom.h"
 
 #include "sprachen.h"
 #include "climates.h"
@@ -70,7 +70,6 @@
 #define L_BUTTON_WIDE   (((L_DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT - D_V_SPACE) * 2) / 3 )
 
 uint32 welt_gui_t::max_map_dimension_fixed = 32766;
-uint32 welt_gui_t::max_map_dimension_numerator = 33554432;
 
 
 welt_gui_t::welt_gui_t(settings_t* const sets_par) :
@@ -179,7 +178,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	cursor.y += LINESPACE;
 
 	// Map X size edit
-	inp_x_size.init( sets->get_size_x(), 8, min(max_map_dimension_fixed,min(max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator/sets->get_size_y())), sets->get_size_x()>=512 ? 128 : 64, false );
+	inp_x_size.init( sets->get_size_x(), 8, max_map_dimension_fixed, sets->get_size_x()>=512 ? 128 : 64, false );
 	inp_x_size.set_pos( scr_coord(L_COLUMN2_X,cursor.y) );
 	inp_x_size.set_size(edit_size);
 	inp_x_size.add_listener(this);
@@ -196,7 +195,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Map size Y edit
-	inp_y_size.init( sets->get_size_y(), 8, min(max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator/sets->get_size_x()), sets->get_size_y()>=512 ? 128 : 64, false );
+	inp_y_size.init( sets->get_size_y(), 8, max_map_dimension_fixed, sets->get_size_y()>=512 ? 128 : 64, false );
 	inp_y_size.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
 	inp_y_size.set_size(edit_size);
 	inp_y_size.add_listener(this);
@@ -542,7 +541,6 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		if(  !loaded_heightfield  ) {
 			sets->set_size_x( v.i );
 			inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-			inp_y_size.set_limits( 8, min(max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator /sets->get_size_x()) );
 			update_densities();
 		}
 		else {
@@ -553,7 +551,6 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		if(  !loaded_heightfield  ) {
 			sets->set_size_y( v.i );
 			inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-			inp_x_size.set_limits( 8, min(max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator /sets->get_size_y()) );
 			update_densities();
 		}
 		else {
@@ -622,7 +619,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		// load relief
 		loaded_heightfield = false;
 		sets->heightfield = "";
-		sets->groundwater = -2*env_t::pak_height_conversion_factor;
+		sets->groundwater = -2;
 		load_relief_frame_t* lrf = new load_relief_frame_t(sets);
 		create_win((display_get_width() - lrf->get_windowsize().w-10), 40, lrf, w_info, magic_load_t );
 		knr = sets->get_map_number();	// otherwise using cancel would not show the normal generated map again
@@ -756,8 +753,8 @@ void welt_gui_t::draw(scr_coord pos, scr_size size)
 	// Calculate map memory
 	const uint sx = sets->get_size_x();
 	const uint sy = sets->get_size_y();
-	const long memory = (
-		sizeof(karte_t) +
+	const uint64 memory = (
+		(uint64)sizeof(karte_t) +
 		sizeof(player_t) * 8 +
 		sizeof(convoi_t) * 1000 +
 		(sizeof(schiene_t) + sizeof(vehicle_t)) * 10 * (sx + sy) +
@@ -765,15 +762,13 @@ void welt_gui_t::draw(scr_coord pos, scr_size size)
 		(
 			sizeof(grund_t) +
 			sizeof(planquadrat_t) +
-			sizeof(baum_t) * 2 +
-			sizeof(void*) * 4
-		) * sx * sy
-	) / (1024 * 1024);
-
+			sizeof(baum_t)*(1-sets->get_no_trees()) + /* only one since a lot will be water */
+			sizeof(void*)*2
+		) * (uint64)sx * (uint64)sy
+	) / (1024ll * 1024ll);
 
 	const double tile_km = sets->get_meters_per_tile() / 1000.0;
-	
-	buf.printf("%s (%ld MByte, %.3f km/%s):", translator::translate("Size"), memory, tile_km, translator::translate("tile"));
+	buf.printf("%s (%d MByte, %.3f km/%s):", translator::translate("Size"), (uint32)memory, tile_km, translator::translate("tile"));
 	size_label.set_text(buf);
 
 	cbuffer_t buf_x;

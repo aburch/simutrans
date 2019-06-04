@@ -35,17 +35,17 @@ public:
 	uint16 minimum_loading;
 
 	/**
-	 * maximum waiting time in 1/2^(16-n) parts of a month
-	 * (only active if minimum_loading!=0)
-	 * @author prissi
-	 */
-	sint8 waiting_time_shift;
-
-	/**
 	 * spacing shift
 	 * @author Inkelyad
 	 */
 	sint16 spacing_shift;
+
+	/**
+	* maximum waiting time in 1/2^(16-n) parts of a month
+	* (only active if minimum_loading!=0)
+	* @author prissi
+	*/
+	sint8 waiting_time_shift;
 
 	/**
 	 * Whether a convoy needs to reverse after this entry.

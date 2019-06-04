@@ -37,4 +37,4 @@ struct SQUserData : SQDelegable
 	//SQChar _val[1];
 };
 
-#endif //_SQUSERDATA_H_
+#endif

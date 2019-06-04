@@ -466,6 +466,47 @@ public:
 		}
 		return t ? index : -1;
 	}
+
+	/**
+	 * sorts list using specified comparator
+	 */
+	void sort( int (*compare)(const T &l, const T &r) ){
+		if(  NULL == head  ||  head == tail  ) {
+			return;
+		}
+
+		for(  uint i=1;  i < node_count;  ++i  ) {
+			int changes = 0;
+			if(  compare( head->data, head->next->data ) > 0  ) {
+				node_t * tmp = head;
+				head = head->next;
+				tmp->next = head->next;
+				head->next = tmp;
+				++changes;
+				if(  head == tail  ) {
+					tail = tail->next;
+					break;
+				}
+			}
+			for(  node_t *node = head;  node != tail  &&  node->next != tail;  node = node->next  )	{
+				if(  compare( node->next->data, node->next->next->data ) > 0  ) {
+					node_t * tmp = node->next;
+					node->next = node->next->next;
+					tmp->next = node->next->next;
+					node->next->next = tmp;
+					++changes;
+					if(  node->next == tail  ){
+						tail = tail->next;
+						break;
+					}
+				}
+			}
+			if(  changes == 0  ) {
+				break;
+			}
+		}
+	}
+
 private:
 	slist_tpl(const slist_tpl& slist_tpl);
 	slist_tpl& operator=( slist_tpl const& other );

@@ -95,9 +95,9 @@ void schedule_gui_stats_t::highlight_schedule( schedule_t *markschedule, bool ma
 /**
  * Append description of entry to buf.
  */
-void schedule_gui_t::gimme_stop_name(cbuffer_t & buf, const player_t *player, const schedule_entry_t &entry, bool no_control_tower )
+void schedule_gui_t::gimme_stop_name(cbuffer_t & buf, const player_t *player_, const schedule_entry_t &entry, bool no_control_tower )
 {
-	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player);
+	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_);
 	if(halt.is_bound()) 
 	{
 		char modified_name[320];
@@ -144,7 +144,7 @@ void schedule_gui_t::gimme_stop_name(cbuffer_t & buf, const player_t *player, co
 }
 
 
-void schedule_gui_t::gimme_short_stop_name(cbuffer_t& buf, player_t const* const player, const schedule_t *schedule, int i, int max_chars)
+void schedule_gui_t::gimme_short_stop_name(cbuffer_t& buf, player_t const* const player_, const schedule_t *schedule, int i, int max_chars)
 {
 	if (i < 0 || schedule == NULL || i >= schedule->get_count()) {
 		dbg->warning("void schedule_gui_t::gimme_short_stop_name()", "tried to receive unused entry %i in schedule %p.", i, schedule);
@@ -152,7 +152,7 @@ void schedule_gui_t::gimme_short_stop_name(cbuffer_t& buf, player_t const* const
 	}
 	const schedule_entry_t& entry = schedule->entries[i];
 	const char* p;
-	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player);
+	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_);
 	if (halt.is_bound()) {
 		p = halt->get_name();
 	}
@@ -288,7 +288,7 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 		}
 		distance = (double)(shortest_distance(last_stop_pos, schedule->entries[0].pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000;
 		buf.printf(" %.1f%s", distance, "km");
-		PLAYER_COLOR_VAL c = sel == 0 ? COL_WHITE : COL_BLACK;
+		PLAYER_COLOR_VAL c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 		sint16           w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
 		if (width < w) 
 		{
@@ -305,10 +305,10 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 
 
 
-schedule_gui_stats_t::schedule_gui_stats_t(player_t *s)
+schedule_gui_stats_t::schedule_gui_stats_t(player_t *player_)
 {
 	schedule = NULL;
-	player = s;
+	player = player_;
 	if(  current_stop_mark==NULL  ) {
 		current_stop_mark = new zeiger_t(koord3d::invalid, NULL );
 		current_stop_mark->set_image( tool_t::general_tool[TOOL_SCHEDULE_ADD]->cursor );
@@ -343,7 +343,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 	gui_frame_t( translator::translate("Fahrplan"), player_),
 	lb_line("Serves Line:"),
 	lb_wait("month wait time"),
-	lb_waitlevel_as_clock(NULL, COL_WHITE, gui_label_t::right),
+	lb_waitlevel_as_clock(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 	lb_load("Full load"),
 	lb_spacing("Spacing cnv/month, shift"),
 	lb_spacing_as_clock(NULL, SYSCOL_TEXT, gui_label_t::right),
@@ -399,7 +399,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 
 	numimp_load.set_pos( scr_coord( D_MARGIN_LEFT + label_width + D_H_SPACE, ypos ) );
 	numimp_load.set_width( 60 );
-	numimp_load.set_value( schedule->get_current_eintrag().minimum_loading );
+	numimp_load.set_value( schedule->get_current_entry().minimum_loading );
 	numimp_load.set_limits( 0, 100 );
 	numimp_load.set_increment_mode(10);
 	numimp_load.add_listener(this);
@@ -421,14 +421,14 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 	lb_wait.set_pos( scr_coord( D_MARGIN_LEFT, ypos+2 ) );
 	add_component(&lb_wait);
 
-	if(  schedule->get_current_eintrag().waiting_time_shift==0  ) {
+	if(  schedule->get_current_entry().waiting_time_shift==0  ) {
 		strcpy( str_parts_month, translator::translate("off") );
 		strcpy( str_parts_month_as_clock, translator::translate("off") );
 
 	}
 	else {
-		sprintf( str_parts_month, "1/%d",  1<<(16-schedule->get_current_eintrag().waiting_time_shift) );
-		sint64 ticks_waiting = welt->ticks_per_world_month >> (16-schedule->get_current_eintrag().waiting_time_shift);
+		sprintf( str_parts_month, "1/%d",  1<<(16-schedule->get_current_entry().waiting_time_shift) );
+		sint64 ticks_waiting = welt->ticks_per_world_month >> (16-schedule->get_current_entry().waiting_time_shift);
 		welt->sprintf_ticks(str_parts_month_as_clock, sizeof(str_parts_month_as_clock), ticks_waiting + 1);
 	}
 
@@ -458,7 +458,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 		// Wait for time
 		bt_wait_for_time.init(button_t::square_automatic, "Wait for time", scr_coord( BUTTON1_X, ypos+12 ), scr_size(D_BUTTON_WIDTH*2,D_BUTTON_HEIGHT) );
 		bt_wait_for_time.set_tooltip("If this is set, convoys will wait until one of the specified times before departing, the specified times being fractions of a month.");
-		bt_wait_for_time.pressed = schedule->get_current_eintrag().wait_for_time;
+		bt_wait_for_time.pressed = schedule->get_current_entry().wait_for_time;
 		bt_wait_for_time.add_listener(this);
 		add_component(&bt_wait_for_time);
 	}
@@ -493,7 +493,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 			numimp_spacing_shift.set_pos( scr_coord( numimp_spacing.get_pos().x + numimp_spacing.get_size().w + D_H_SPACE, ypos+2 ) );
 			//numimp_spacing_shift.set_width( 60 );
 			numimp_spacing_shift.set_width_by_len(3);
-			numimp_spacing_shift.set_value( schedule->get_current_eintrag().spacing_shift  );
+			numimp_spacing_shift.set_value( schedule->get_current_entry().spacing_shift  );
 			numimp_spacing_shift.set_limits( 0,welt->get_settings().get_spacing_shift_divisor() );
 			numimp_spacing_shift.set_increment_mode( 1 ); 
 			numimp_spacing_shift.add_listener(this);
@@ -616,9 +616,9 @@ void schedule_gui_t::update_selection()
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
 		const uint8 current_stop = schedule->get_current_stop();
-		bt_wait_for_time.pressed = schedule->get_current_eintrag().wait_for_time;
+		bt_wait_for_time.pressed = schedule->get_current_entry().wait_for_time;
 		if(  haltestelle_t::get_halt(schedule->entries[current_stop].pos, player).is_bound()  ) {
-			if(!schedule->get_current_eintrag().wait_for_time)
+			if(!schedule->get_current_entry().wait_for_time)
 			{
 				lb_load.set_color( SYSCOL_TEXT );
 				numimp_load.enable();
@@ -637,7 +637,7 @@ void schedule_gui_t::update_selection()
 				lb_spacing.set_color( SYSCOL_TEXT );
 				numimp_spacing.enable();
 				numimp_spacing_shift.enable();
-				numimp_spacing_shift.set_value(schedule->get_current_eintrag().spacing_shift);
+				numimp_spacing_shift.set_value(schedule->get_current_entry().spacing_shift);
 				if (schedule->get_spacing() ) {
 					lb_spacing_shift.set_color( SYSCOL_TEXT );
 					lb_spacing_as_clock.set_color( SYSCOL_TEXT );
@@ -652,7 +652,7 @@ void schedule_gui_t::update_selection()
 			}
 			if(  (schedule->entries[current_stop].minimum_loading>0 || schedule->entries[current_stop].wait_for_time) &&  schedule->entries[current_stop].waiting_time_shift>0  ) {
 				sprintf( str_parts_month, "1/%d",  1<<(16-schedule->entries[current_stop].waiting_time_shift) );
-				sint64 ticks_waiting = welt->ticks_per_world_month >> (16-schedule->get_current_eintrag().waiting_time_shift);
+				sint64 ticks_waiting = welt->ticks_per_world_month >> (16-schedule->get_current_entry().waiting_time_shift);
 				welt->sprintf_ticks(str_parts_month_as_clock, sizeof(str_parts_month_as_clock), ticks_waiting + 1);
 			}
 			else {
@@ -947,6 +947,7 @@ void schedule_gui_t::draw(scr_coord pos, scr_size size)
 		// lines added or deleted
 		init_line_selector();
 		last_schedule_count = schedule->get_count();
+		update_selection();
 	}
 
 	// after loading in network games, the schedule might still being updated
@@ -989,7 +990,7 @@ schedule_gui_t::schedule_gui_t():
 gui_frame_t( translator::translate("Fahrplan"), NULL),
 	lb_line("Serves Line:"),
 	lb_wait("month wait time"),
-	lb_waitlevel_as_clock(NULL, COL_WHITE, gui_label_t::right),
+	lb_waitlevel_as_clock(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 	lb_load("Full load"),
 	stats(NULL),
 	scrolly(&stats),

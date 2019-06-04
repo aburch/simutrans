@@ -4,13 +4,13 @@
 
 #include "../api_class.h"
 #include "../api_function.h"
+#include "../../dataobj/koord.h"
+#include "../../dataobj/koord3d.h"
 #include "../../dataobj/scenario.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
 
 using namespace script_api;
-
-#define STATIC
 
 static char buf[40];
 
@@ -31,6 +31,16 @@ static plainstring money_to_string_intern(sint64 m)
 {
 	money_to_string(buf, m, false);
 	return buf;
+}
+
+static plainstring koord_to_string_intern(koord k)
+{
+	return k.get_str();
+}
+
+static plainstring koord3d_to_string_intern(koord3d k)
+{
+	return k.get_str();
 }
 
 
@@ -80,6 +90,20 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @returns a nice string with trailing dollar-sign
 	 */
 	register_method(vm, &money_to_string_intern, "money_to_string");
+
+	/**
+	 * Print coordinates, does automatic rotation.
+	 * @param c coordinate
+	 * @returns a nice string
+	 */
+	register_method(vm, &koord_to_string_intern, "coord_to_string");
+
+	/**
+	 * Print coordinates, does automatic rotation.
+	 * @param c coordinate
+	 * @returns a nice string
+	 */
+	register_method(vm, &koord3d_to_string_intern, "coord3d_to_string");
 
 	/**
 	 * Get name of given month.
@@ -200,6 +224,19 @@ void export_scenario(HSQUIRRELVM vm)
 	 * The result of ::is_tool_allowed and ::is_work_allowed_here is not influenced.
 	 */
 	STATIC register_method(vm, &scenario_t::clear_rules,  "clear");
+
+	end_class(vm);
+
+
+	/**
+	 * Table with methods help debugging.
+	 */
+	begin_class(vm, "debug", 0);
+
+	/**
+	 * @returns text containing all active rules, can be used in @ref get_debug_text
+	 */
+	STATIC register_method(vm, &scenario_t::get_forbidden_text,  "get_forbidden_text");
 
 	end_class(vm);
 }

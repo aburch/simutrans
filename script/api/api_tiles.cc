@@ -6,6 +6,7 @@
 #include "get_next.h"
 #include "../api_class.h"
 #include "../api_function.h"
+#include "../../simtool.h"
 #include "../../simworld.h"
 
 using namespace script_api;
@@ -29,6 +30,20 @@ SQInteger get_object_index(HSQUIRRELVM vm)
 	return param<obj_t*>::push(vm, obj);
 }
 
+
+const char* tile_remove_object(grund_t* gr, player_t* player, obj_t::typ type)
+{
+	if (gr == NULL  ||  player == NULL) {
+		return "";
+	}
+	tool_remover_t w;
+	// default param is object type
+	char buf[5];
+	sprintf(buf, "%d", (int)type);
+	w.set_default_param(buf);
+
+	return w.work(player, gr->get_pos());
+}
 
 // return way ribis, have to implement a wrapper, to correctly rotate ribi
 static SQInteger get_way_ribi(HSQUIRRELVM vm)
@@ -95,8 +110,14 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @return some instance or null if not found
 	 */
 	register_method(vm, &grund_t::suche_obj, "find_object");
-
-
+	/**
+	 * Remove object of given type from the tile.
+	 * @param pl player that pays for removal
+	 * @param type object type
+	 * @returns null upon success, an error message otherwise
+	 * @warning Cannot be used in network games. Does not work with all object types.
+	 */
+	register_method(vm, &tile_remove_object, "remove_object", true);
 	/**
 	 * Access halt at this tile.
 	 * @returns halt_x instance or null/false if no halt is present

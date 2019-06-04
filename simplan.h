@@ -261,6 +261,8 @@ public:
 	void display_overlay(sint16 xpos, sint16 ypos) const;
 
 	static void toggle_horizontal_clip(CLIP_NUM_DEF0);
+
+	bool is_being_deleted() const { return data.one == NULL; }
 };
 
 #endif

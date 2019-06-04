@@ -319,15 +319,16 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	uint16 current_class_proportion;
 	vector_tpl<uint16> class_proportions(2); 
-	for (uint8 i = 0; i < 256; i++)
+	uint8 j = 0;
+	do
 	{
 		// Check for multiple classes with a separate proportion each
 		char buf[21];
-		sprintf(buf, "class_proportion[%u]", i);
+		sprintf(buf, "class_proportion[%u]", j);
 		current_class_proportion = obj.get_int(buf, 65535);
 		if (current_class_proportion == 65535)
 		{
-			if (i != 0)
+			if (j != 0)
 			{
 				// Increase the length of the header by 2 for each additional 
 				// class proportion stored (for uint16).
@@ -342,22 +343,23 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 			total_len += 2;
 			class_proportions.append(current_class_proportion);
 		}
-	}
+	} while (j++ < 255);
 
 	// The number of classes.
 	uint8 number_of_classes = min(255, class_proportions.get_count());
 	total_len += 1;
 
 	vector_tpl<uint16> class_proportions_jobs(2);
-	for (uint8 i = 0; i < 256; i++)
+	j = 0;
+	do
 	{
 		// Check for multiple classes with a separate proportion each
 		char buf[25];
-		sprintf(buf, "class_proportion_jobs[%u]", i);
+		sprintf(buf, "class_proportion_jobs[%u]", j);
 		current_class_proportion = obj.get_int(buf, 65535);
 		if (current_class_proportion == 65535)
 		{
-			if (i != 0)
+			if (j != 0)
 			{
 				// Increase the length of the header by 2 for each additional 
 				// class proportion stored (for uint16).
@@ -372,7 +374,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 			total_len += 2;
 			class_proportions_jobs.append(current_class_proportion);
 		}
-	}
+	} while (j++ < 255);
 
 	// The number of classes.
 	uint8 number_of_classes_jobs = min(255, class_proportions_jobs.get_count());

@@ -49,10 +49,7 @@ protected:
 	sint32 construction_speed;
 
 public:
-	ai_t(karte_t *wl, uint8 nr) : player_t( wl, nr ) {
-		road_transport = rail_transport = air_transport = ship_transport = false;
-		construction_speed = 8000;
-	}
+	ai_t(karte_t *wl, uint8 nr);
 
 	bool has_road_transport() const { return road_transport; }
 	virtual void set_road_transport( bool yesno ) { road_transport = yesno; }

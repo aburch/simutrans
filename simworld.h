@@ -34,10 +34,6 @@
 #include "simplan.h"
 
 #include "simdebug.h"
-#ifdef DEBUG_SIMRAND_CALLS
-#include "utils/cbuffer_t.h"
-#include "tpl/fixed_list_tpl.h"
-#endif
 
 #ifdef _MSC_VER
 #define snprintf sprintf_s
@@ -56,7 +52,7 @@ class gebaeude_t;
 class zeiger_t;
 class grund_t;
 class planquadrat_t;
-class karte_ansicht_t;
+class main_view_t;
 class interaction_t;
 class sync_steppable;
 class tool_t;
@@ -71,17 +67,14 @@ class viewport_t;
 class records_t;
 
 #define CHK_RANDS 32
-
-// Without this, the in-transit numbers are recalculated on every load/save
-// and this goes wrong. 
-//#define CACHE_TRANSIT
+#define CHK_DEBUG_SUMS 8
 
 #ifdef MULTI_THREAD
 //#define FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
 //#define FORBID_MULTI_THREAD_PATH_EXPLORER
 #define MULTI_THREAD_PASSENGER_GENERATION 
 #ifndef FORBID_MULTI_THREAD_CONVOYS
-#define MULTI_THREAD_CONVOYS 
+#define MULTI_THREAD_CONVOYS
 #endif
 #ifndef FORBID_MULTI_THREAD_PATH_EXPLORER
 #define MULTI_THREAD_PATH_EXPLORER 
@@ -120,13 +113,17 @@ struct checklist_t
 	uint16 convoy_entry;
 
 	uint32 rand[CHK_RANDS];
+	uint32 debug_sum[CHK_DEBUG_SUMS];
 
 
-	checklist_t(uint32 _ss, uint32 _st, uint8 _nfc, uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, uint32 *_rands);
+	checklist_t(uint32 _ss, uint32 _st, uint8 _nfc, uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, uint32 *_rands, uint32 *_debug_sums);
 	checklist_t() : ss(0), st(0), nfc(0), random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0)
 	{
 		for(  uint8 i = 0;  i < CHK_RANDS;  i++  ) {
 			rand[i] = 0;
+		}
+		for(  uint8 i = 0;  i < CHK_DEBUG_SUMS;  i++  ) {
+			debug_sum[i] = 0;
 		}
 	}
 
@@ -136,8 +133,14 @@ struct checklist_t
 		for(  uint8 i = 0;  i < CHK_RANDS  &&  rands_equal;  i++  ) {
 			rands_equal = rands_equal  &&  rand[i] == other.rand[i];
 		}
-
+		bool debugs_equal = true;
+		for(  uint8 i = 0;  i < CHK_DEBUG_SUMS  &&  debugs_equal;  i++  ) {
+			// If debug sums are too expensive, then this test below would allow them to be switched off independently at either end:
+			// debugs_equal = debugs_equal  &&  (debug_sum[i] == 0  ||  other.debug_sum[i] == 0  ||  debug_sum[i] == other.debug_sum[i]);
+			debugs_equal = debugs_equal  &&  debug_sum[i] == other.debug_sum[i];
+		}
 		return ( rands_equal &&
+			debugs_equal &&
 			ss == other.ss &&
 			st == other.st &&
 			nfc == other.nfc &&
@@ -201,11 +204,6 @@ class karte_t
 	static karte_t* world; ///< static single instance
 
 public:
-
-#ifdef DEBUG_SIMRAND_CALLS
-	static bool print_randoms;
-	static int random_calls;
-#endif
 	/**
 	 * Height of a point of the map with "perlin noise"
 	 *
@@ -297,10 +295,7 @@ private:
 	 * Maximum size for waiting bars etc.
 	 */
 	int cached_size_max;
-
-	/**
-	 * @}
-	 */
+	/** @} */
 
 	/**
 	 * All cursor interaction goes via this function, it will call save_mouse_funk first with
@@ -351,10 +346,7 @@ private:
 	 * @brief Map mouse cursor tool.
 	 */
 	zeiger_t *zeiger;
-
-	/**
-	 * @}
-	 */
+	/** @} */
 
 	/**
 	 * Time when last mouse moved to check for ambient sound events.
@@ -460,7 +452,7 @@ private:
 	/**
 	 * Attached view to this world.
 	 */
-	karte_ansicht_t *view;
+	main_view_t *view;
 
 	/**
 	 * Event manager of this world.
@@ -558,10 +550,7 @@ private:
 	 * @see cached_grid_size
 	 */
 	sint8 *water_hgts;
-
-	/**
-	 * @}
-	 */
+	/** @} */
 
 	/**
 	 * @name Player management
@@ -589,10 +578,7 @@ private:
 	 * Locally stored password hashes, will be used after reconnect to a server.
 	 */
 	pwd_hash_t player_password_hash[MAX_PLAYER_COUNT];
-
-	/**
-	 * @}
-	 */
+	/** @} */
 
 	/*
 	 * Counter for schedules.
@@ -649,6 +635,7 @@ private:
 	checklist_t last_checklists[LAST_CHECKLISTS_COUNT];
 #define LCHKLST(x) (last_checklists[(x) % LAST_CHECKLISTS_COUNT])
 	uint32 rands[CHK_RANDS];
+	uint32 debug_sums[CHK_DEBUG_SUMS];
 
 
 	/// @note variable used in interactive()
@@ -700,10 +687,7 @@ private:
 
 	/// To calculate the fps and the simloops.
 	uint32 idle_time;
-
-	/**
-	 * @}
-	 */
+	/** @} */
 
 	/**
 	 * Current accumulated month number, counting January of year 0 as 0.
@@ -941,22 +925,25 @@ private:
 	void recalc_passenger_destination_weights();
 
 #ifdef MULTI_THREAD
-	// Check whether this is the first time that karte_t::step() has been run
-	// in order to know when to launch the background threads. 
-	sint32 first_step;
+	bool passengers_and_mail_threads_working;
+	bool convoy_threads_working;
+	bool path_explorer_working;
 public:
 	static simthread_barrier_t step_convoys_barrier_external;
 	static simthread_barrier_t unreserve_route_barrier;
 	static pthread_mutex_t unreserve_route_mutex;
 	static pthread_mutex_t step_passengers_and_mail_mutex;
-	sint32 get_first_step() const { return first_step; }
-	void set_first_step(sint32 value) { first_step = value;  }
-	void stop_path_explorer(); 
+	void start_passengers_and_mail_threads();
+	void start_convoy_threads();
 	void start_path_explorer();
-
 #else
 public:
 #endif
+	// These will do nothing if multi-threading is disabled.
+	void await_passengers_and_mail_threads();
+	void await_convoy_threads();
+	void await_path_explorer(); 
+	void await_all_threads();
 
 	enum building_type { passenger_origin, commuter_target, visitor_target, mail_origin_or_target, none };
 	enum trip_type { commuting_trip, visiting_trip, mail_trip };
@@ -994,7 +981,6 @@ private:
 	static sint32 cities_to_process;
 	static vector_tpl<convoihandle_t> convoys_next_step;
 	public:
-	static sint32 path_explorer_step_progress;
 	static bool threads_initialised; 
 	
 	// These are both intended to be arrays of vectors
@@ -1003,10 +989,19 @@ private:
 
 	static thread_local uint32 passenger_generation_thread_number;
 	static thread_local uint32 marker_index;
+
+	// These are used so as to obviate the need to create and
+	// destroy a vector of start halts every time that the
+	// passenger generation is run.
+	static vector_tpl<nearby_halt_t> *start_halts;
+	static vector_tpl<halthandle_t> *destination_list;
+
 	private:
 #else
 	public:
 	static const uint32 marker_index = UINT32_MAX_VALUE;
+	static vector_tpl<nearby_halt_t> start_halts;
+	static vector_tpl<halthandle_t> destination_list;
 #endif
 
 public:
@@ -1027,6 +1022,7 @@ public:
 
 	void set_rands(uint8 num, uint32 val) { rands[num] = val; }
 	void inc_rands(uint8 num) { rands[num]++; }
+	inline void add_to_debug_sums(uint8 num, uint32 val) { debug_sums[num] += val; }
 
 
 	/**
@@ -1161,7 +1157,7 @@ public:
 	/**
 	 * Gets the world view.
 	 */
-	karte_ansicht_t *get_view() const { return view; }
+	main_view_t *get_view() const { return view; }
 
 	/**
 	 * Gets the world viewport.
@@ -1171,7 +1167,7 @@ public:
 	/**
 	 * Sets the world view.
 	 */
-	void set_view(karte_ansicht_t *v) { view = v; }
+	void set_view(main_view_t *v) { view = v; }
 
 	/**
 	 * Sets the world event manager.
@@ -1337,6 +1333,7 @@ public:
 			return value >> (-left_shift);
 		}
 	}
+
 	/**
 	 * Scales value inverse proportionally with month length.
 	 * Used to scale monthly maintenance costs and factory production.
@@ -1600,12 +1597,18 @@ public:
 	*/
 	void remove_building_from_world_list(gebaeude_t *gb);
 
-/**
+	/**
 	* Updates the weight of a building in the world list if it changes its
 	* passenger/mail demand	
 	* @author: jamespetts
 	*/
 	void update_weight_of_building_in_world_list(gebaeude_t *gb);
+
+	/**
+	* Removes all references to a city from every building in
+	* the world. Used when deleting cities.
+	*/
+	void remove_all_building_references_to_city(stadt_t* city); 
 
 private:
 	/*
@@ -1696,7 +1699,7 @@ public:
 	 * Conversion from walking distance in tiles to walking time
 	 * Returns tenths of minutes
 	 */
-	uint32 walking_time_tenths_from_distance(uint32 distance) const {
+	inline uint32 walking_time_tenths_from_distance(uint32 distance) const {
 		if (!speed_factors_are_set) {
 			set_speed_factors();
 		}
@@ -1741,11 +1744,8 @@ public:
 	uint8 get_season() const { return season; }
 
 	/**
-	 * Time since map creation or the last load in ms.
+	 * Time since map creation in ms.
 	 * @author Hj. Malthaner
-	 *
-	 * 	
-	 * Time cards since creation / the last load in ms (Google)
 	 */
 	sint64 get_ticks() const { return ticks; }
 
@@ -1938,12 +1938,12 @@ public:
 	/**
 	 * Set a new tool as current: calls local_set_tool or sends to server.
 	 */
-	void set_tool( tool_t *tool, player_t * player );
+	void set_tool( tool_t *tool_in, player_t * player );
 
 	/**
 	 * Set a new tool on our client, calls init.
 	 */
-	void local_set_tool( tool_t *tool, player_t * player );
+	void local_set_tool( tool_t *tool_in, player_t * player );
 	tool_t *get_tool(uint8 nr) const { return selected_tool[nr]; }
 
 	/**
@@ -2628,6 +2628,8 @@ public:
 
 	uint32 get_max_road_check_depth() const { return max_road_check_depth; }
 
+	sint64 calc_monthly_job_demand() const;
+
 	/**
 	 * To identify the current map.
 	 */
@@ -2690,10 +2692,6 @@ public:
 	inline void add_time_interval_signal_to_check(signal_t* sig) { time_interval_signals_to_check.append_unique(sig); }
 	inline bool remove_time_interval_signal_to_check(signal_t* sig) { return time_interval_signals_to_check.remove(sig); }
 
-#ifdef DEBUG_SIMRAND_CALLS
-	static vector_tpl<const char*> random_callers;
-#endif
-
 private:
 
 	void calc_generic_road_time_per_tile_city() { generic_road_time_per_tile_city = calc_generic_road_time_per_tile(city_road); }
@@ -2704,8 +2702,7 @@ private:
 	void do_network_world_command(network_world_command_t *nwc);
 	uint32 get_next_command_step();
 
-	sint32 get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const planquadrat_t*> &tile_list) const;
-	void get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &tile_list, const goods_desc_t * wtyp, vector_tpl<nearby_halt_t> &halts) const;
+	void get_nearby_halts_of_tiles(const minivec_tpl<const planquadrat_t*> &tile_list, const goods_desc_t * wtyp, vector_tpl<nearby_halt_t> &halts) const;
 };
 
 

@@ -34,6 +34,7 @@
 
 #include "../gui/trafficlight_info.h"
 #include "../gui/privatesign_info.h"
+#include "../gui/onewaysign_info.h"
 #include "../gui/tool_selector.h"
 
 #include "../tpl/stringhashtable_tpl.h"
@@ -106,17 +107,13 @@ void roadsign_t::init(player_t *player, ribi_t::ribi dir, const roadsign_desc_t 
 roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_desc_t *desc, bool preview) : obj_t(pos)
 #endif
 {
-#ifdef MULTI_THREAD
+#ifdef MULTI_THREAD_CONVOYS
 	if (env_t::networkmode)
 	{
 		// In network mode, we cannot have a sign being created concurrently with
 		// convoy path-finding because  whether the convoy path-finder is called
 		// on this tile of way before or after this function is indeterminate.
-		if (!world()->get_first_step())
-		{
-			simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
-			welt->set_first_step(1);
-		}
+		world()->await_convoy_threads();
 	}
 #endif
 	this->desc = desc;
@@ -126,6 +123,8 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	state = 0;
 	ticks_ns = ticks_ow = 16;
 	ticks_offset = 0;
+	lane_affinity = 4;
+	open_direction = 0xA5; // north-south <-> east-west
 	set_owner( player );
 	if(  desc->is_private_way()  ) {
 		// init ownership of private ways
@@ -155,19 +154,19 @@ roadsign_t::~roadsign_t()
 		if(gr) {
 			weg_t* weg = gr->get_weg(desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt);
 			if(weg) {
-				player_t* owner = get_owner();
-				if(owner)
-				{
-					// Remove maintenance cost
-					sint32 maint = get_desc()->get_maintenance();
-					player_t::add_maintenance(owner, -maint, weg->get_waytype()); 
-				}
 				if (!preview) {
+					player_t* owner = get_owner();
+					if(owner)
+					{
+						// Remove maintenance cost
+						sint32 maint = get_desc()->get_maintenance();
+						player_t::add_maintenance(owner, -maint, weg->get_waytype());
+					}
 					if (desc->is_single_way() || desc->is_signal_type()) {
 						// signal removed, remove direction mask
 						weg->set_ribi_maske(ribi_t::none);
 					}
-				weg->clear_sign_flag();
+					weg->clear_sign_flag();
 				}
 			}
 			else {
@@ -225,6 +224,17 @@ void roadsign_t::show_info()
 	}
 	else if(  automatic  ) {
 		create_win(new trafficlight_info_t(this), w_info, (ptrdiff_t)this );
+	}
+	else if(  desc->is_single_way()  ) {
+		if(  (intersection_pos = get_intersection()) == koord3d::invalid  ) {
+			set_lane_affinity(4);
+			obj_t::show_info();
+		}
+		else {
+			// off the "not applied" bit flag
+			lane_affinity = ~((~lane_affinity)|4);
+			create_win(new onewaysign_info_t(this, intersection_pos), w_info, (ptrdiff_t)this );
+		}
 	}
 	else {
 		obj_t::show_info();
@@ -295,7 +305,7 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 		}
 		buf.append("\n");
 	}
-	
+
 
 	const grund_t *rs_gr = welt->lookup_kartenboden(rs_pos.x, rs_pos.y);
 	if (rs_gr->get_hoehe() > rs_pos.z == true)
@@ -336,6 +346,10 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append("\n");
 	}
 
+	if(desc->is_single_way() && intersection_pos != koord3d::invalid) {
+			buf.printf("%s:(%d,%d,%d)\n", translator::translate("intersection"), intersection_pos.x,intersection_pos.y,intersection_pos.z);
+		}
+
 	// Did not figure out how to make the sign registrate a passing train // Ves
 	/*
 	buf.append(translator::translate("Time since a train last passed"));
@@ -353,7 +367,7 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 	if (desc->is_traffic_light())
 	{
 		buf.append(translator::translate("\nSet phases:"));
-		buf.append("\n\n");
+		buf.append("\n\n\n\n\n\n");
 	}
 	if (desc->is_private_way()) // Must be last, as the \n\n\n... section is the free height for the buttons // Ves
 	{
@@ -627,12 +641,13 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 	}
 	else {
 		// change every ~32s
-		uint32 ticks = ((welt->get_ticks()>>10)+ticks_offset) % (ticks_ns+ticks_ow);
+		// Must not overflow if ticks_ns+ticks_ow=256
+		uint32 ticks = ((welt->get_ticks()>>10)+ticks_offset) % ((uint32)ticks_ns+(uint32)ticks_ow);
 
-		uint8 new_state = (ticks >= ticks_ns) ^ (welt->get_settings().get_rotation() & 1);
+		uint8 new_state = (ticks >= ticks_ns);
 		if(state!=new_state) {
 			state = new_state;
-			dir = (new_state==0) ? ribi_t::northsouth : ribi_t::eastwest;
+			dir = (new_state==0) ? open_direction&0x0F : (open_direction>>4)&0x0F;
 			calc_image();
 		}
 	}
@@ -645,10 +660,9 @@ void roadsign_t::rotate90()
 	// only meaningful for traffic lights
 	obj_t::rotate90();
 	if(automatic  &&  !desc->is_private_way()) {
-		state = (state+1)&1;
-		uint8 temp = ticks_ns;
-		ticks_ns = ticks_ow;
-		ticks_ow = temp;
+		uint8 first_dir = ribi_t::rotate90(open_direction&0x0F);
+		uint8 second_dir = ribi_t::rotate90((open_direction>>4)&0x0F);
+		open_direction = first_dir + (second_dir << 4);
 
 		trafficlight_info_t *const trafficlight_win = dynamic_cast<trafficlight_info_t *>( win_get_magic( (ptrdiff_t)this ) );
 		if(  trafficlight_win  ) {
@@ -693,6 +707,12 @@ void roadsign_t::rdwr(loadsave_t *file)
 	obj_t::rdwr(file);
 
 	uint8 dummy=0;
+	if(  file->get_extended_version() >= 14  ) {
+		file->rdwr_byte(lane_affinity);
+	}
+	else {
+		lane_affinity = 4; // not applied
+	}
 	if(  file->get_version()<=102002  ) {
 		file->rdwr_byte(dummy);
 		if(  file->is_loading()  ) {
@@ -712,6 +732,11 @@ void roadsign_t::rdwr(loadsave_t *file)
 		}
 	}
 
+	if((file->get_extended_version() == 13 && file->get_extended_revision() >= 6) || file->get_extended_version() >= 14) {
+		file->rdwr_byte(open_direction);
+	} else if(  file->is_loading()  ) {
+		open_direction = 0xA5;
+	}
 	dummy = state;
 	file->rdwr_byte(dummy);
 	state = dummy;
@@ -867,9 +892,9 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 	FOR(stringhashtable_tpl<roadsign_desc_t const*>, const& i, table) {
 		roadsign_desc_t const* const desc = i.value;
 
-		bool allowed_given_current_signalbox; 
+		bool allowed_given_current_signalbox;
 		uint32 signal_group = desc->get_signal_group();
-		
+
 		if(signal_group)
 		{
 			player_t* player = welt->get_active_player();
@@ -882,7 +907,7 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 				}
 				else
 				{
-					allowed_given_current_signalbox = sb->can_add_signal(desc); 
+					allowed_given_current_signalbox = sb->can_add_signal(desc);
 				}
 			}
 			else
@@ -905,7 +930,7 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 		{
 			allowed_given_underground_state = desc->get_allow_underground() == 1 || desc->get_allow_underground() == 2;
 		}
-		
+
 		if(desc->is_available(time) && desc->get_wtyp() == wtyp && desc->get_builder() && allowed_given_current_signalbox && allowed_given_underground_state)
 		{
 			// only add items with a cursor
@@ -944,7 +969,7 @@ const roadsign_desc_t* roadsign_t::find_best_upgrade(bool underground)
 		if(new_roadsign_type->is_available(time)
 			&& new_roadsign_type->get_upgrade_group() == desc->get_upgrade_group()
 			&& new_roadsign_type->get_wtyp() == desc->get_wtyp()
-			&& new_roadsign_type->get_flags() == desc->get_flags() 
+			&& new_roadsign_type->get_flags() == desc->get_flags()
 			&& (new_roadsign_type->get_working_method() == desc->get_working_method() || (new_roadsign_type->get_working_method() == cab_signalling && desc->get_working_method() == track_circuit_block) || (new_roadsign_type->get_working_method() == track_circuit_block && desc->get_working_method() == cab_signalling))
 			&& (new_roadsign_type->get_allow_underground() == 2
 			|| (underground && new_roadsign_type->get_allow_underground() == 1)
@@ -965,7 +990,7 @@ const roadsign_desc_t* roadsign_t::find_best_upgrade(bool underground)
 		}
 	}
 
-	return best_candidate; 
+	return best_candidate;
 }
 
  void roadsign_t::set_scale(uint16 scale_factor)
@@ -973,7 +998,7 @@ const roadsign_desc_t* roadsign_t::find_best_upgrade(bool underground)
 	// Called from the world's set_scale method so as to avoid having to export the internal data structures of this class.
 	FOR(vector_tpl<roadsign_desc_t *>, sign, list)
 	{
-		sign->set_scale(scale_factor); 
+		sign->set_scale(scale_factor);
 	}
 }
 
@@ -985,7 +1010,7 @@ const roadsign_desc_t* roadsign_t::find_best_upgrade(bool underground)
 	 }
 
 	 if(desc->get_upgrade_group() == 0)
-	 { 
+	 {
 		 // Can only upgrade if an upgrade group is defined.
 		 return false;
 	 }
@@ -1002,10 +1027,51 @@ const roadsign_desc_t* roadsign_t::find_best_upgrade(bool underground)
 	 }
 
 	 sint32 diff = new_desc->get_maintenance() - old_desc->get_maintenance();
-	 player_t::add_maintenance(get_owner(), diff, get_waytype()); 
-	 player_t::book_construction_costs(get_owner(), new_desc->get_way_only_cost(), get_pos().get_2d(), get_waytype()); 
+	 player_t::add_maintenance(get_owner(), diff, get_waytype());
+	 player_t::book_construction_costs(get_owner(), new_desc->get_way_only_cost(), get_pos().get_2d(), get_waytype());
 
 	 desc = new_desc;
-	 welt->set_dirty(); 
+	 welt->set_dirty();
 	 return true;
+ }
+
+ const koord3d roadsign_t::get_intersection() const {
+	 grund_t* current_gr = welt->lookup(get_pos());
+	 strasse_t* first_str = (strasse_t*)current_gr->get_weg(road_wt);
+	 ribi_t::ribi current_ribi = ribi_t::none;
+	 if(  !first_str  ) {
+		 return koord3d::invalid;
+	 } else {
+		 current_ribi = first_str->get_ribi_unmasked()&(~dir);
+	 }
+	 for(int step = 0; step < 500; step++) {
+		 grund_t *next_gr;
+		 if(  ribi_t::is_single(current_ribi)  ) {
+			 if(  current_gr->get_neighbour(next_gr,road_wt,current_ribi)  ) {
+				 // grund found
+				 strasse_t *str = (strasse_t *)next_gr->get_weg(road_wt);
+				 if(  str  &&  str->get_overtaking_mode() <= oneway_mode  ) {
+					 ribi_t::ribi str_ribi = str->get_ribi_unmasked();
+					 if(  str_ribi == ribi_t::all  ||  ribi_t::is_threeway(str_ribi)  ) {
+						 // This point is a crossing!
+						 return next_gr->get_pos();
+					 }
+					 else {
+						 // go forward
+						 current_gr = next_gr;
+						 current_ribi = ~((~str_ribi)|ribi_t::reverse_single(current_ribi));
+					 }
+				 }
+				 else {
+					 // there is no street or the street is not one-way road.
+					 return koord3d::invalid;
+				 }
+			 }
+			 else {
+				 // grund not found
+				 return koord3d::invalid;
+			 }
+		 }
+	 }
+	 return koord3d::invalid;
  }

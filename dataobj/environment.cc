@@ -4,10 +4,11 @@
 #include "../simversion.h"
 #include "../simconst.h"
 #include "../simtypes.h"
-#include "../utils/simrandom.h"
 #include "../simcolor.h"
 #include "../simmesg.h"
 #include "../display/simgraph.h"
+
+#include "../utils/simrandom.h"
 
 sint8 env_t::pak_tile_height_step = 16;
 sint8 env_t::pak_height_conversion_factor = 1;
@@ -47,9 +48,9 @@ bool env_t::server_save_game_on_quit = false;
 bool env_t::reload_and_save_on_quit = true;
 
 sint32 env_t::server_frames_ahead = 4;
-sint32 env_t::additional_client_frames_behind = 0;
+sint32 env_t::additional_client_frames_behind = 4;
 sint32 env_t::network_frames_per_step = 4;
-uint32 env_t::server_sync_steps_between_checks = 256;
+uint32 env_t::server_sync_steps_between_checks = 24;
 bool env_t::pause_server_no_clients = false;
 
 std::string env_t::nickname = "";
@@ -150,6 +151,8 @@ uint8 env_t::bottom_window_text_color;
 uint16 env_t::compass_map_position;
 uint16 env_t::compass_screen_position;
 
+uint32 env_t::default_ai_construction_speed;
+
 bool env_t::hide_keyboard = false;
 
 // Hajo: Define default settings.
@@ -205,7 +208,7 @@ void env_t::init()
 
 	show_month = DATE_FMT_US;
 
-	intercity_road_length = 200;
+	intercity_road_length = 512;
 
 	river_types = 0;
 
@@ -258,6 +261,8 @@ void env_t::init()
 	front_window_text_color = COL_WHITE; // 215
 	bottom_window_bar_color = 4;
 	bottom_window_text_color = 209;	// dark grey
+
+	default_ai_construction_speed = 8000;
 
 	// upper right
 	compass_map_position = ALIGN_RIGHT|ALIGN_TOP;

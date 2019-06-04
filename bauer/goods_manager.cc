@@ -54,9 +54,10 @@ bool goods_manager_t::successfully_loaded()
 		dbg->fatal("goods_manager_t::successfully_loaded()","Too many different goods %i>255",goods.get_count()-1 );
 	}
 
-	// assign indexes
+	// assign indexes, and fix number_of_classes
 	for(  uint8 i=3;  i<goods.get_count();  i++  ) {
 		goods[i]->goods_index = i;
+		goods[i]->fix_number_of_classes();
 	}
 
 	// now assign unique category indexes for unique categories
@@ -157,6 +158,11 @@ const goods_desc_t *goods_manager_t::get_info(const char* name)
 	const goods_desc_t *ware = desc_names.get(name);
 	if(  ware==NULL  ) {
 		ware = desc_names.get(translator::compatibility_name(name));
+	}
+	if(  ware == NULL  ) {
+		// to avoid crashed with NULL pointer in skripts return good NONE
+		dbg->warning( "goods_manager_t::get_info()", "No desc for %s", name );
+		ware = goods_manager_t::none;
 	}
 	return ware;
 }

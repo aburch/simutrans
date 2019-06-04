@@ -36,18 +36,21 @@
 #include "tpl/binary_heap_tpl.h"
 #include "tpl/minivec_tpl.h"
 
-#define MAX_HALT_COST				8 // Total number of cost items
+#define MAX_HALT_COST				11 // Total number of cost items
 #define MAX_MONTHS					12 // Max history
-#define MAX_HALT_NON_MONEY_TYPES	7 // number of non money types in HALT's financial statistic
+#define MAX_HALT_NON_MONEY_TYPES	8 // number of non money types in HALT's financial statistic
 #define HALT_ARRIVED				0 // the amount of ware that arrived here
 #define HALT_DEPARTED				1 // the amount of ware that has departed from here
 #define HALT_WAITING				2 // the amount of ware waiting
-#define HALT_HAPPY					3 // number of happy passangers
-#define HALT_UNHAPPY				4 // number of unhappy passangers
-#define HALT_NOROUTE				5 // number of no-route passangers
+#define HALT_HAPPY					3 // number of happy passengers
+#define HALT_UNHAPPY				4 // number of unhappy passengers
+#define HALT_NOROUTE				5 // number of no-route passengers
 #define HALT_CONVOIS_ARRIVED        6 // number of convois arrived this month
-#define HALT_TOO_SLOW		        7 // The number of passengers whose estimated journey time exceeds their tolerance.
-/* NOTE - Standard has HALT_WALKED here as no. 7. In Extended, this is in cities, not stops.*/
+#define HALT_TOO_SLOW               7 // The number of passengers whose estimated journey time exceeds their tolerance.
+#define HALT_TOO_WAITING            8 // The number of passengers who waited so long at the station.
+#define HALT_MAIL_DELIVERED         9 // amount of delivered mail from here
+#define HALT_MAIL_NOROUTE          10 // amount of no-route mail
+ /* NOTE - Standard has HALT_WALKED here as no. 7. In Extended, this is in cities, not stops.*/
 
 // This should be network safe multi-threadedly (this has been considered carefully and tested somewhat,
 // although the test was run at a time (March 2017) when there was another known bug, hard to find, causing
@@ -209,7 +212,7 @@ public:
 	void recalc_status();
 
 	/**
-	 * Handles changes of schedules and the resulting rerouting.
+	 * Handles changes of schedules and the resulting re-routing.
 	 */
 	static void step_all();
 
@@ -287,7 +290,7 @@ public:
 		bool operator !=(const tile_t& o) { return grund != o.grund; }
 
 		grund_t*       grund;
-		convoihandle_t reservation;
+		convoihandle_t reservation[2];
 	};
 
 	// Data on direct connexions from one station to the next.
@@ -347,8 +350,16 @@ public:
 		}
 	};
 
-	bool is_transfer(const uint8 catg) const { return non_identical_schedules[catg] > 1u; }
+	bool is_transfer(const uint8 catg, const uint8 g_class, uint8 max_classes) const { return non_identical_schedules[(catg * max_classes) + g_class] > 1u; }
 //	bool is_transfer(const uint8 catg) const { return all_links[catg].is_transfer; }
+
+	// Whether or not there are passengers/mail trying to use this station.
+	// demand_check = false : Confirm existence of transport history of corresponding category
+	bool has_pax_user(const uint8 months, bool demand_check) const;
+	bool has_mail_user(const uint8 months, bool demand_check) const;
+
+	bool is_using() const;
+
 
 	typedef inthashtable_tpl<uint16, sint64> arrival_times_map;
 #ifdef MULTI_THREAD
@@ -363,22 +374,33 @@ private:
 	// Table of all direct connexions to this halt, with routing information.
 	// Array: one entry per goods type.
 	// Knightly : Change into an array of pointers to connexion hash tables
-	connexions_map **connexions;
-
-	// loest warte_menge ab
-	// "solves wait mixes off" (Babelfish); "solves warte volume from" (Google)
+	//connexions_map **connexions;
+	
+	// Note: this is an offset vector: a single dimensional vector
+	// functioning as a two dimensional vector (category, class)
+	// using offsets as described here:
+	// https://stackoverflow.com/questions/34077816/how-to-properly-work-with-dynamically-allocated-multi-dimensional-arrays-in-c
+	// This should be more reliable than an array of pointers and faster than a vector of vectors.
+	// This stores pointers to connexions_map objects to enable quick swapping.
+	vector_tpl<connexions_map*> connexions; 
 
 	/**
 	 * For each line/lineless convoy which serves the current halt, this
-	 * counter is incremented. Each ware category needs a separate counter.
+	 * counter is incremented. Each ware category and class needs a separate counter.
 	 * If this counter is more than 1, this halt is a transfer halt.
 
 	 * @author Knightly
 	 */
-	uint8 *non_identical_schedules;
+	 //uint8 *non_identical_schedules;
 
+	// Note: this is an offset vector: a single dimensional vector
+	// functioning as a two dimensional vector (category, class)
+	// using offsets as described here:
+	// https://stackoverflow.com/questions/34077816/how-to-properly-work-with-dynamically-allocated-multi-dimensional-arrays-in-c
+	// This should be more reliable than an array of pointers and faster than a vector of vectors.
+	vector_tpl<uint8> non_identical_schedules;
 
-	// Array with different categries that contains all waiting goods at this stop
+	// Array with different categories that contains all waiting goods at this stop
 	vector_tpl<ware_t> **cargo;
 
 	/**
@@ -504,17 +526,12 @@ private:
 	void check_transferring_cargoes();
 
 public:
-#ifdef DEBUG_SIMRAND_CALLS
-	bool loading;
-	vector_tpl<ware_t> *get_warray(uint8 catg) { return goods[catg]; }
-#endif
-
 	// Added by : Knightly
-	void swap_connexions(const uint8 category, quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* &cxns)
+	void swap_connexions(const uint8 category, const uint8 g_class, uint8 max_classes, quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* &cxns)
 	{
 		// swap the connexion hashtables
-		quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *temp = connexions[category];
-		connexions[category] = cxns;
+		connexions_map *temp = connexions[(category * max_classes) + g_class];
+		connexions[(category * max_classes) + g_class] = cxns;
 		cxns = temp;
 
 		// since this swap is equivalent to having the connexions rebuilt
@@ -522,10 +539,10 @@ public:
 	}
 
 	// Added by : Knightly
-	uint8 get_schedule_count(const uint8 category) const { return non_identical_schedules[category]; }
-	void set_schedule_count(const uint8 category, const uint8 schedule_count) { non_identical_schedules[category] = schedule_count; }
+	uint8 get_schedule_count(const uint8 category, uint8 g_class, uint8 max_classes) const { return non_identical_schedules[(category * max_classes) + g_class]; }
+	void set_schedule_count(const uint8 category, uint8 g_class, uint8 max_classes, const uint8 schedule_count) { non_identical_schedules[(category * max_classes) + g_class] = schedule_count; }
 
-	void reset_connexions(uint8 category);
+	void reset_connexions(uint8 category, uint8 g_class);
 
 	/**
 	* Called every 255 steps
@@ -593,7 +610,7 @@ public:
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
 	/**
-	 * Haltestellen messen regelmaessig die Fahrplaene pruefen
+	 * called regularly to update status and reroute stuff
 	 * @author Hj. Malthaner
 	 */
 
@@ -611,18 +628,18 @@ public:
 	void get_destination_halts_of_ware(ware_t &ware, vector_tpl<halthandle_t>& destination_halts_list) const;
 	uint32 find_route(const vector_tpl<halthandle_t>& ziel_list, ware_t & ware, const uint32 journey_time = UINT32_MAX_VALUE, const koord destination_pos = koord::invalid) const;
 
-	bool get_pax_enabled()  const { return enables & PAX;  }
-	bool get_mail_enabled() const { return enables & POST; }
-	bool get_ware_enabled() const { return enables & WARE; }
+	inline bool get_pax_enabled()  const { return enables & PAX;  }
+	inline bool get_mail_enabled() const { return enables & POST; }
+	inline bool get_ware_enabled() const { return enables & WARE; }
 
 	// check, if we accepts this good
 	// often called, thus inline ...
-	bool is_enabled( const goods_desc_t *wtyp ) const {
+	inline bool is_enabled( const goods_desc_t *wtyp ) const {
 		return is_enabled(wtyp->get_catg_index());
 	}
 
 	// a separate version for checking with goods category index
-	bool is_enabled( const uint8 catg_index ) const
+	inline bool is_enabled( const uint8 catg_index ) const
 	{
 		if (catg_index == goods_manager_t::INDEX_PAS) {
 			return enables&PAX;
@@ -651,6 +668,10 @@ public:
 	 */
 	void add_pax_no_route(int n);
 
+	// count mail no route or delivered
+	void add_mail_delivered(int n);
+	void add_mail_no_route(int n);
+
 	/**
 	 * Station crowded
 	 * @author Hj. Malthaner
@@ -662,10 +683,16 @@ public:
 	// @author: jamespetts
 	void add_pax_too_slow(int n);
 
+	// Waiting so long at the station. added 01/2019(EX14.3)
+	void add_pax_too_waiting(int n);
+
 	int get_pax_happy()    const { return (int)financial_history[0][HALT_HAPPY]; }
 	int get_pax_no_route() const { return (int)financial_history[0][HALT_NOROUTE]; }
 	int get_pax_unhappy()  const { return (int)financial_history[0][HALT_UNHAPPY]; }
 	int get_pax_too_slow()  const { return (int)financial_history[0][HALT_TOO_SLOW]; }
+	int get_pax_too_waiting() const { return (int)financial_history[0][HALT_TOO_WAITING]; }
+	int get_mail_delivered()  const { return (int)financial_history[0][HALT_MAIL_DELIVERED]; }
+	int get_mail_no_route()   const { return (int)financial_history[0][HALT_MAIL_NOROUTE]; }
 
 	/**
 	 * Add tile to list of station tiles.
@@ -687,7 +714,7 @@ public:
 	 */
 	koord get_next_pos( koord start, bool square = false ) const;
 
-	// true, if this station is overcroded for this ware
+	// true, if this station is overcrowded for this category
 	bool is_overcrowded( const uint8 idx ) const { return (overcrowded[idx/8] & (1<<(idx%8)))!=0; }
 
 	/**
@@ -713,11 +740,16 @@ public:
 	bool recall_ware( ware_t& w, uint32 menge );
 
 	/**
-	 * fetches goods from this halt. returns true if other convois on the same line should try loading these goods because this convoi is awaiting spacing, if not preferred, or is overcrowded
-	 * @param fracht goods will be put into this list, vehicle has to load it
-	 * @author Hj. Malthaner, dwachs
+	 * Fetches goods from this halt. Returns true if other convois on the same line should try loading these goods because this convoi is awaiting spacing, if not preferred, or is overcrowded
+	 * Fetches goods from this halt
+	 * @param load Output parameter. Goods will be put into this list, the vehicle has to load them.
+	 * @param good_category Specifies the kind of good (or compatible goods) we are requesting to fetch from this stop.
+	 * @param amount How many units of the cargo we can fetch.
+	 * @param schedule Schedule of the vehicle requesting the fetch.
+	 * @param player Company that's requesting the fetch.
+	 * @author Dwachs
 	 */
-	bool fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowd, const uint8 g_class, const bool use_lower_classes, bool& other_classes_available);
+	bool fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *good_category, sint32 requested_amount, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowd, const uint8 g_class, const bool use_lower_classes, bool& other_classes_available);
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach
@@ -757,8 +789,9 @@ public:
 	* @author prissi
 	*/
 	bool is_reservable(const grund_t *gr, convoihandle_t cnv) const;
+	uint8 get_empty_lane(const grund_t *gr, convoihandle_t cnv) const;
 
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	//void info(cbuffer_t & buf, bool dummy = false) const;
 
 	/**
 	 * @param buf the buffer to fill
@@ -798,7 +831,7 @@ public:
 
 	void set_name(const char *name);
 
-	// create an unique name: better to be called with valid handle, althoug it will work without
+	// create an unique name: better to be called with valid handle, although it will work without
 	char* create_name(koord k, char const* typ);
 
 	void rdwr(loadsave_t *file);
@@ -891,7 +924,7 @@ public:
 	sint64 get_finance_history(int month, int cost_type) const { return financial_history[month][cost_type]; }
 
 	// flags station for a crowded message at the beginning of next month
-	void desceid_station_voll() { enables |= CROWDED; status_color = COL_RED; }
+//	void desceid_station_voll() { enables |= CROWDED; status_color = COL_RED; }
 
 	/* marks a coverage area
 	* @author prissi
@@ -919,11 +952,10 @@ public:
 
 	void add_waiting_time(uint32 time, halthandle_t halt, uint8 category, uint8 g_class, bool do_not_reset_month = false);
 
-	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*>* connexions_map_single;
-	connexions_map_single get_connexions(uint8 c) { return connexions[c]; }
+	connexions_map* get_connexions(uint8 catg, uint8 g_class, uint8 max_classes) { return connexions[(catg * max_classes) + g_class]; }
 
-	linehandle_t get_preferred_line(halthandle_t transfer, uint8 category) const;
-	convoihandle_t get_preferred_convoy(halthandle_t transfer, uint8 category) const;
+	linehandle_t get_preferred_line(halthandle_t transfer, uint8 category, uint8 g_class) const;
+	convoihandle_t get_preferred_convoy(halthandle_t transfer, uint8 category, uint8 g_class) const;
 
 	// Added by		: Knightly
 	// Adapted from : Jamespetts' code
@@ -1035,6 +1067,8 @@ public:
 	uint32 get_station_signals_count() const { return station_signals.get_count(); }
 	koord3d get_station_signal(uint32 value) const { return station_signals[value]; }
 	bool is_station_signal_contained(koord3d pos) const { return station_signals.is_contained(pos); }
+
+	void set_all_building_tiles(); 
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

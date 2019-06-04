@@ -19,7 +19,8 @@ Click on the buttons to cycle through the options (changes name of the option bu
 - <em>Output</em> orders by output storage capacity.<br>
 - <em>Production</em> orders by production capacity.<br>
 - <em>Status</em> orders by status colour bar (see below).<br>
-- <em>Power</em> orders by electricity supplied.
+- <em>Power</em> orders by electricity supplied.<br>
+- <em>Sector</em> orders by economic sectors.
 </p>
 <p>
 - <em>ascending</em> / <em>descending</em> reverses the order of the list.
@@ -29,12 +30,22 @@ Click on an item listd in the <strong>Industry List</strong> window to see more 
 <br>Items listd for each industry include:
 </p>
 <p>
-<em>Status colour bar:</em> colours indicate the status of the tndustry (also used in <a href="industry_info.txt">Industry Information</a>):<br>
-- <em>White:</em> does not require input.<br>
-- <em>Yellow:</em> connected by transport, but the supply of input commodities is poor or non-existant.<br>
+<em>Status colour bar:</em> colours indicate the status of the industry (also used in <a href="industry_info.txt">Industry Information</a>):<br>
+- <em>White:</em> does not produce and consume.<br>
 - <em>Green:</em> at optimum status.<br>
-- <em>Orange:</em> operational but improvements are possible.<br>
-- <em>Red:</em> operational, but part of the industry supply chain has excess supply.
+- <em>Dark skyblue:</em> at optimum status of marine resources.<br>
+- <em>Cyan:</em> some of the lines are operating normally.<br>
+- <em>Dark blue:</em> sufficient marine resources are remaining.<br>
+- <em>Dark green:</em> sufficient materials are waiting for transportation.<br>
+- <em>Gray:</em> not connected by goods transport.<br>
+- <em>Dark brown:</em> production is stopped due to excessive inventory.<br>
+- <em>Dark yellow:</em> can not operate because some materials are missing.<br>
+- <em>Yellow:</em> can not operate/open because there is no material or goods at all.<br>
+- <em>Orange:</em> since some items are overstocked, it stopped receiving the goods.<br>
+- <em>Orange red:</em> since all items are overstocked, it stopped receiving.<br>
+- <em>Red:</em> since all the storage is full, arrival and operation are stopped.<br>
+<br>
+- <em>Purple frame:</em> the production rate is declining due to the staff shortage.
 </p>
 <p>
 A <em>Red lightning flash</em> is shown if the industry has an <a href="electricity.txt">electricity</a> supply.

@@ -9,7 +9,7 @@
 #include "../vehicle/simvehicle.h"
 #include "../player/simplay.h"
 #include "../simdebug.h"
-#include "../utils/simrandom.h"  // for simrand
+#include "../utils/simrandom.h"
 #include "../simtypes.h"
 
 #include "../simconvoi.h"
@@ -211,9 +211,13 @@ bool vehicle_builder_t::successfully_loaded()
 		std::sort(tmp, tmp_end, compare_vehicle_desc);
 		for(  vehicle_desc_t** tmpptr = tmp;  tmpptr != tmp_end;  tmpptr++  ) {
 			typ_liste.append(*tmpptr);
+
+			(*tmpptr)->fix_number_of_classes();
 		}
 		delete [] tmp;
 	}
+
+
 	return true;
 }
 
@@ -224,7 +228,7 @@ const vehicle_desc_t *vehicle_builder_t::get_info(const char *name)
 	return name_fahrzeuge.get(name);
 }
 
-slist_tpl<vehicle_desc_t*>& vehicle_builder_t::get_info(waytype_t typ)
+slist_tpl<vehicle_desc_t*> const & vehicle_builder_t::get_info(waytype_t typ)
 {
 	return typ_fahrzeuge[GET_WAYTYPE_INDEX(typ)];
 }

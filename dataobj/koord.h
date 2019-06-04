@@ -7,7 +7,6 @@
 #include <stdlib.h>
 
 class loadsave_t;
-class scr_coord;
 
 /**
  * 2D Coordinates

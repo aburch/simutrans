@@ -18,12 +18,6 @@
 
 class checksum_t;
 
-// This has to have internal computations in uint64 to avoid internal computational overflow
-// in worst-case scenario.
-// distance: uint32, speedbonus: uint16, computation: sint64
-// Signed computation is needed because the speedbonus values may *drop* as distance increases
-typedef piecewise_linear_tpl<uint32, uint16, sint64> adjusted_speed_bonus_t;
-
 struct fare_stage_t
 {
 	fare_stage_t(uint32 d, uint16 p)
@@ -55,8 +49,6 @@ class goods_desc_t : public obj_named_desc_t {
 	vector_tpl<fare_stage_t> values;
 	vector_tpl<fare_stage_t> base_values;
 	vector_tpl<fare_stage_t> scaled_values;
-
-	adjusted_speed_bonus_t adjusted_speed_bonus;
 
 	/**
 	* Category of the good
@@ -186,23 +178,10 @@ public:
 	/**
 	* @return speed bonus value of the good
 	* @author Hj. Malthaner
+	* Now deprecated for most purposes, retained just to check
+	* whether to discard goods that have been waiting too long.
 	*/
 	uint16 get_speed_bonus() const { return speed_bonus; }
-
-	/**
-	 * Extended has two special effects:
-	 * (1) Below a certain distance the speed bonus rating is zero;
-	 * (2) The speed bonus "fades in" above that distance and enlarges as distance continues,
-	 *     until a "maximum distance".
-	 * This returns the actual speed bonus rating.
-	 * Distance is given in METERS
-	 *
-	 */
-	uint16 get_adjusted_speed_bonus(uint32 distance) const
-	{
-		// Use the functional... it should be loaded by goods_manager_t::cache_speedbonuses
-		return adjusted_speed_bonus(distance);
-	}
 	
 	/*
 	* This gets the total fare taking into account fare stages, comfort and catering, as well as the class
@@ -236,6 +215,8 @@ public:
 	{
 		return class_revenue_percentages[g_class];
 	}
+
+	void fix_number_of_classes();
 };
 
 #endif

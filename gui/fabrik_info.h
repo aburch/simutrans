@@ -22,6 +22,7 @@
 #include "components/gui_obj_view_t.h"
 #include "components/gui_container.h"
 #include "../utils/cbuffer_t.h"
+#include "components/gui_speedbar.h"
 
 class welt_t;
 class fabrik_t;
@@ -51,9 +52,8 @@ public:
  */
 class fabrik_info_t : public gui_frame_t, public action_listener_t
 {
- private:
+private:
 	fabrik_t *fab;
-	karte_ptr_t welt;
 
 	cbuffer_t info_buf, prod_buf;
 	cbuffer_t factory_status;
@@ -61,6 +61,10 @@ class fabrik_info_t : public gui_frame_t, public action_listener_t
 	factory_chart_t chart;
 	button_t chart_button;
 	gui_label_t lbl_factory_status;
+	gui_speedbar_t staffing_bar;
+	sint32 staffing_level;
+	sint32 staffing_level2;
+	sint32 staff_shortage_factor;
 
 	button_t details_button;
 

@@ -14,7 +14,10 @@ scenario.short_description = "Template Scenario"
 
 scenario.author = "User"
 scenario.version = "0.0"
+scenario.translation = "The Unknown Translators"
 
+/// scenario relies on this version of the api
+scenario.api = "120.0"
 
 /**
  * These functions should return text strings (or ttext instances)

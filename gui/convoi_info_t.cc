@@ -30,6 +30,7 @@
 #include "../dataobj/environment.h"
 #include "../dataobj/loadsave.h"
 #include "schedule_gui.h"
+#include "times_history.h"
 // @author hsiegeln
 #include "../simlinemgmt.h"
 #include "../simline.h"
@@ -137,6 +138,8 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	this->mean_convoi_speed = speed_to_kmh(cnv->get_akt_speed()*4);
 	this->max_convoi_speed = speed_to_kmh(cnv->get_min_top_speed()*4);
 
+	const sint16 offset_below_viewport = D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + view.get_size().h;
+
 	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
 	input.set_pos( cursor );
 	cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
@@ -170,7 +173,12 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_component(&replace_button);
 	replace_button.add_listener(this);
 
-	//Position is set in convoi_info_t::set_fenstergroesse()
+	times_history_button.init(button_t::roundbox, "times_history", dummy, D_BUTTON_SIZE);
+	times_history_button.set_tooltip("view_journey_times_history_of_this_convoy");
+	add_component(&times_history_button);
+	times_history_button.add_listener(this);
+
+	//Position is set in convoi_info_t::set_windowsize()
 	follow_button.init(button_t::roundbox_state, "follow me", dummy, scr_size(view.get_size().w, D_BUTTON_HEIGHT));
 	follow_button.set_tooltip("Follow the convoi on the map.");
 	follow_button.add_listener(this);
@@ -183,11 +191,15 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	chart.set_visible(false);
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	chart.set_ltr(env_t::left_to_right_graphs);
+	const sint16 offset_below_chart = offset_below_viewport+D_BUTTON_HEIGHT+11 // chart position
+	                                  +88                                      // chart size
+	                                  +6+LINESPACE+D_V_SPACE;                  // chart x-axis labels plus space
+
 	int btn;
 	for (btn = 0; btn < convoi_t::MAX_CONVOI_COST; btn++) {
 		chart.add_curve( cost_type_color[btn], cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, btn, MAX_MONTHS, cost_type_money[btn], false, true, cost_type_money[btn]*2 );
 		filterButtons[btn].init(button_t::box_state, cost_type[btn], 
-			scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(btn%4), view.get_size().h+174+(D_BUTTON_HEIGHT+D_H_SPACE)*(btn/4)), 
+			scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(btn%4), offset_below_chart+(D_BUTTON_HEIGHT+D_V_SPACE)*(btn/4)), 
 			D_BUTTON_SIZE);
 		filterButtons[btn].add_listener(this);
 		filterButtons[btn].background_color = cost_type_color[btn];
@@ -225,6 +237,8 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	statistics_height = 16 + view.get_size().h+174+(D_BUTTON_HEIGHT+D_H_SPACE)*(btn/4 + 1) - chart.get_pos().y;
 
 	add_component(&chart);
+	
+	chart_total_size = filterButtons[convoi_t::MAX_CONVOI_COST-1].get_pos().y + D_BUTTON_HEIGHT + D_V_SPACE - (chart.get_pos().y - 11);
 
 	add_component(&sort_label);
 
@@ -353,7 +367,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			details_button.pressed = win_get_magic(magic_convoi_detail + cnv.get_id());
 			go_home_button.enable(); // Will be disabled, if convoy goes to a depot.
 			if (!cnv->get_schedule()->empty()) {
-				const grund_t* g = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos);
+				const grund_t* g = welt->lookup(cnv->get_schedule()->get_current_entry().pos);
 				if (g != NULL && g->get_depot()) {
 					go_home_button.disable();
 				}
@@ -367,7 +381,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				go_home_button.enable();
 			}
 
-			if (grund_t* gr = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos)) {
+			if (grund_t* gr = welt->lookup(cnv->get_schedule()->get_current_entry().pos)) {
 				go_home_button.pressed = gr->get_depot() != NULL;
 			}
 			details_button.pressed = win_get_magic(magic_convoi_detail + cnv.get_id());
@@ -379,6 +393,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			replace_button.enable();
 			reverse_button.pressed = cnv->get_reverse_schedule();
 			reverse_button.enable();
+			times_history_button.enable();
 		}
 		else {
 			if (line_bound) {
@@ -391,6 +406,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			no_load_button.disable();
 			replace_button.disable();
 			reverse_button.disable();
+			times_history_button.disable();
 		}
 		follow_button.pressed = (welt->get_viewport()->get_follow_convoi() == cnv);
 
@@ -428,7 +444,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				break;
 
 			default:
-				if (cnv->get_state() == convoi_t::NO_ROUTE)
+				if (cnv->get_state() == convoi_t::NO_ROUTE || cnv->get_state() == convoi_t::NO_ROUTE_TOO_COMPLEX)
 					color = COL_RED;
 			}
 			display_ddd_box_clip(ipos.x, ipos.y, isize.w, 8, MN_GREY0, MN_GREY4);
@@ -497,7 +513,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 			char waiting_time[64];
 			cnv->snprintf_remaining_loading_time(waiting_time, sizeof(waiting_time));
-			if (cnv->get_schedule()->get_current_eintrag().wait_for_time)
+			if (cnv->get_schedule()->get_current_entry().wait_for_time)
 			{
 				sprintf(speed_text, translator::translate("Waiting for schedule. %s left"), waiting_time);
 				speed_color = COL_YELLOW;
@@ -556,6 +572,12 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			{
 				sprintf(speed_text, translator::translate("clf_chk_noroute"));
 			}
+			speed_color = COL_RED;
+			break;
+
+		case convoi_t::NO_ROUTE_TOO_COMPLEX:
+			//sprintf(speed_text, translator::translate("no_route_too_complex_message"));
+			sprintf(speed_text, translator::translate("clf_chk_noroute"));
 			speed_color = COL_RED;
 			break;
 
@@ -665,32 +687,27 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			pos_y = pos_y0 + 5 * LINESPACE; // line 6
 			sint32 cnv_route_index_left = cnv->get_route()->get_count() - 1 - cnv_route_index;
 			info_buf.clear();
-			const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
-			const double km_left = (double)cnv_route_index_left * km_per_tile;
 
-			if (km_left < 1)
+			double distance;
+			char distance_display[10];
+			distance = (double)(cnv_route_index_left * welt->get_settings().get_meters_per_tile()) / 1000.0;
+
+			if (distance <= 0)
 			{
-				float m_left = km_left * 1000;
-				info_buf.append(m_left);
-				info_buf.append("m ");
+				sprintf(distance_display, "0km");
+			}
+			else if (distance < 1)
+			{
+				sprintf(distance_display, "%.0fm", distance * 1000);
 			}
 			else
 			{
-				uint n_actual;
-				if (km_left < 5)
-				{
-					n_actual = 1;
-				}
-				else
-				{
-					n_actual = 0;
-				}
-				char number_actual[10];
-				number_to_string(number_actual, km_left, n_actual);
-				info_buf.append(number_actual);
-				info_buf.append("km ");
+				uint n_actual = distance < 5 ? 1 : 0;
+				char tmp[10];
+				number_to_string(tmp, distance, n_actual);
+				sprintf(distance_display, "%skm", tmp);
 			}
-			info_buf.append(translator::translate("left"));
+			info_buf.printf("%s %s", distance_display, translator::translate("left"));
 			int offset = 189;
 			display_proportional_clip(pos_x + offset, pos_y, info_buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 		}
@@ -805,6 +822,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				case convoi_t::ROUTING_2:		sprintf(state_text, "ROUTING_2");	break;
 				case convoi_t::DUMMY5:			sprintf(state_text, "DUMMY5");	break;
 				case convoi_t::NO_ROUTE:		sprintf(state_text, "NO_ROUTE");	break;
+				case convoi_t::NO_ROUTE_TOO_COMPLEX:		sprintf(state_text, "NO_ROUTE_TOO_COMPLEX");	break;
 				case convoi_t::DRIVING:			sprintf(state_text, "DRIVING");	break;
 				case convoi_t::LOADING:			sprintf(state_text, "LOADING");	break;
 				case convoi_t::WAITING_FOR_CLEARANCE:			sprintf(state_text, "WAITING_FOR_CLEARANCE");	break;
@@ -913,7 +931,7 @@ koord3d convoi_info_t::get_weltpos( bool set )
 void convoi_info_t::show_hide_statistics( bool show )
 {
 	toggler.pressed = show;
-	const scr_coord offset = show ? scr_coord(0, 155) : scr_coord(0, -155);
+	const scr_coord offset = show ? scr_coord(0, chart_total_size) : scr_coord(0, -chart_total_size);
 	set_min_windowsize(get_min_windowsize() + offset);
 	scrolly.set_pos(scrolly.get_pos() + offset);
 	chart.set_visible(show);
@@ -988,6 +1006,12 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		if(comp == &replace_button) 
 		{
 			create_win(20, 20, new replace_frame_t(cnv, get_name()), w_info, magic_replace + cnv.get_id() );
+			return true;
+		}
+
+		if(comp == &times_history_button) 
+		{
+			create_win(20, 20, new times_history_t(linehandle_t(), cnv), w_info, magic_convoi_time_history + cnv.get_id() );
 			return true;
 		}
 
@@ -1085,20 +1109,29 @@ void convoi_info_t::set_windowsize(scr_size size)
 	line_button.set_pos(scr_coord(D_MARGIN_LEFT, y0 - LINESPACE));
 
 	view.set_pos(scr_coord(right - view.get_size().w, y));
-	y += view.get_size().h + 8;
+	follow_button.set_pos(scr_coord(view.get_pos().x, y + view.get_size().h + 8));
+	y += max(view.get_size().h + 8, LINESPACE * 7 + D_V_SPACE);
 
-	follow_button.set_pos(scr_coord(view.get_pos().x, y));
-
-	bool too_small_for_5_buttons = view.get_pos().x < BUTTON_X(4);
-	if (y0 + D_V_SPACE + D_BUTTON_HEIGHT <= y && too_small_for_5_buttons)
-	{
-		replace_button.set_pos(scr_coord(BUTTON3_X, y - D_V_SPACE - D_BUTTON_HEIGHT));
-	}
-	else
+	bool too_small_for_5_buttons = view.get_pos().x < 5*(D_BUTTON_WIDTH + D_H_SPACE) - min(view.get_size().w, D_BUTTON_WIDTH);
+	if (y0 + D_V_SPACE + D_BUTTON_HEIGHT <= y)
 	{
 		if (too_small_for_5_buttons)
 		{
+			replace_button.set_pos(scr_coord(BUTTON3_X, y - D_V_SPACE - D_BUTTON_HEIGHT));
+		}
+		else {
+			replace_button.set_pos(scr_coord(BUTTON4_X, y));
+		}
+		times_history_button.set_pos(scr_coord(BUTTON1_X, y - D_V_SPACE - D_BUTTON_HEIGHT));
+	}
+	else {
+		if (too_small_for_5_buttons)
+		{
 			y += D_BUTTON_HEIGHT + D_V_SPACE;
+			times_history_button.set_pos(scr_coord(BUTTON1_X, y - D_V_SPACE - D_BUTTON_HEIGHT));
+		}
+		else {
+			times_history_button.set_pos(scr_coord(BUTTON4_X + D_BUTTON_WIDTH + D_H_SPACE, y));
 		}
 		replace_button.set_pos(scr_coord(BUTTON4_X, y));
 	}

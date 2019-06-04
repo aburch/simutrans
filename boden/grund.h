@@ -82,10 +82,10 @@ template<typename T> static inline T* obj_cast(obj_t* const d)
 
 
 /**
- * <p>Abstrakte Basisklasse für Untergründe in Simutrans.</p>
+ * <p>Abstract basic class for ground in Simutrans.</p>
  *
- * <p>Von der Klasse grund_t sind all Untergruende (Land, Water, Strassen ...)
- * in simu abgeleitet. Jedes Planquadrat hat einen Untergrund.</p>
+ * <p>All ground types (Land, Water, Roads ...) are derived of
+ * the class grund_t in Simutrans. Every tile has a ground type.</p>
  *
  * <p>Der Boden hat Eigenschaften, die abgefragt werden koennen
  * ist_natur(), is_water(), hat_wegtyp(), ist_bruecke().
@@ -163,7 +163,7 @@ protected:
 	/**
 	 * Image of the walls
 	 */
-	sint8 back_image_nr;
+	sint8 back_imageid;
 
 	/**
 	 * Flags to indicate existence of halts, ways, to mark dirty
@@ -219,7 +219,7 @@ public:
 	static void set_underground_mode(const uint8 ugm, const sint8 level);
 
 	/**
-	* Setzt Flags für das neuzeichnen geänderter Untergründe
+	* Set Flags for the newly drawn changed ground
 	* @author Hj. Malthaner
 	*/
 	inline void set_flag(flag_values flag) {flags |= flag;}
@@ -246,8 +246,8 @@ public:
 	void calc_image();
 
 	/**
-	* Gibt die Nummer des Bildes des Untergrundes zurueck.
-	* @return Die Nummer des Bildes des Untergrundes.
+	* Return the number of images the ground have.
+	* @return The number of images.
 	* @author Hj. Malthaner
 	*/
 	inline image_id get_image() const {return imageid;}
@@ -257,7 +257,7 @@ public:
 	* @author prissi
 	*/
 	image_id get_back_image(int leftback) const;
-	virtual void clear_back_image() {back_image_nr=0;}
+	virtual void clear_back_image() {back_imageid=0;}
 
 	/**
 	* if ground is deleted mark the old spot as dirty
@@ -265,22 +265,22 @@ public:
 	void mark_image_dirty();
 
 	/**
-	* Gibt den Namen des Untergrundes zurueck.
-	* @return Den Namen des Untergrundes.
+	* Return the name of the ground.
+	* @return The name of the ground.
 	* @author Hj. Malthaner
 	*/
 	virtual const char* get_name() const = 0;
 
 	/**
-	* Gibt den Typ des Untergrundes zurueck.
-	* @return Der Typ des Untergrundes.
+	* Return the ground type.
+	* @return The ground type.
 	* @author Hj. Malthaner
 	*/
 	virtual typ get_typ() const = 0;
 
 	/**
-	* Gibt eine Description des Untergrundes (informell) zurueck.
-	* @return Einen Beschreibungstext zum Untergrund.
+	* Return the ground description texts.
+	* @return A description for the ground.
 	* @author Hj. Malthaner
 	*/
 	const char* get_text() const;
@@ -357,10 +357,10 @@ public:
 	// map rotation
 	virtual void rotate90();
 
-	// we must put the text back to thier proper location after roation ...
+	// we must put the text back to their proper location after rotation ...
 	static void finish_rotate90();
 
-	// since enlargement will require new hases
+	// since enlargement will require new hashes
 	static void enlarge_map( sint16 new_size_x, sint16 new_size_y );
 
 	void sort_trees();
@@ -429,7 +429,7 @@ public:
 	// Helper functions for underground modes
 	//
 	// returns the height for the use in underground-mode,
-	// heights above underground_level are cutted
+	// heights above underground_level are cut
 	inline sint8 get_disp_height() const {
 		return (underground_mode & ugm_level )
 			? (pos.z > underground_level ? underground_level : pos.z)
@@ -447,7 +447,9 @@ public:
 		/*switch(underground_mode) {// long version of the return statement above
 			case ugm_none: return(get_grund_hang());
 			case ugm_all:  return(get_grund_hang()); // get_typ()==tunnelboden && !ist_karten? slope_t::flat : get_grund_hang());
-			case ugm_level:return pos.z == underground_level || pos.z+max(max(corner_sw(slope),corner_se(slope)),max(corner_ne(slope),corner_nw(slope))) == underground_level || (ist_karten_boden() && pos.z <= underground_level);
+			case ugm_level:return((pos.z > underground_level || (get_typ()==tunnelboden && ist_karten_boden() && pos.z == underground_level))
+							? slope_t::flat
+							: get_grund_hang());
 		}*/
 	}
 
@@ -456,7 +458,7 @@ public:
 			switch(underground_mode) {
 				case ugm_none: return ist_karten_boden();
 				case ugm_all:  return true;
-				case ugm_level:return  pos.z == underground_level  ||  (ist_karten_boden()  &&  pos.z <= underground_level);
+				case ugm_level:return  pos.z == underground_level  ||  pos.z+max(max(corner_sw(slope),corner_se(slope)),max(corner_ne(slope),corner_nw(slope))) == underground_level  ||  (ist_karten_boden()  &&  pos.z <= underground_level);
 			}
 		}
 		else {
@@ -518,7 +520,7 @@ void display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width CL
 void display_obj_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global CLIP_NUM_DEF) const;
 
 	/**
-	 * similar to above but yieleds clipping error
+	 * similar to above but yields clipping error
 	 * => only used for zoom out
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @author prissi
@@ -552,7 +554,7 @@ uint8 display_obj_vh(const sint16 xpos, const sint16 ypos, const uint8 start_off
 void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset  CLIP_NUM_DEF) const;
 
 	/**
-	 * overlayer with signs, good levels and station coverage
+	 * overlay with signs, good levels and station coverage
 	 * resets the dirty flag
 	 * @author kierongreen
 	 */
@@ -604,7 +606,7 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	*/
 
 	/**
-	* The only way to get the typ of a way on a tile
+	* The only way to get the type (typ) of a way on a tile
 	* @author Hj. Malthaner
 	*/
 	weg_t *get_weg_nr(int i) const { return (flags&(has_way1<<i)) ? static_cast<weg_t *>(obj_bei(i)) : NULL; }
@@ -697,7 +699,7 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)objlist.bei(1))->get_desc()->get_styp()!=type_tram; }
 
 	/**
-	* returns the vehcile of a convoi (if there)
+	* returns the vehicle of a convoi (if there)
 	* @author V. Meyer
 	*/
 	obj_t *get_convoi_vehicle() const { return objlist.get_convoi_vehicle(); }
@@ -722,12 +724,10 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	sint64 remove_trees();
 
 	/**
-	 * Bauhilfsfunktion - ein neuer weg wird mit den vorgegebenen ribis
-	 * eingetragen und der Grund dem Erbauer zugeordnet.
-	 *
+	 * A new way is built with the given ribis. Registered and assigned to the builder.
 	 * @param weg	    der neue Weg
 	 * @param ribi	    die neuen ribis
-	 * @param player	    Spieler, dem der Boden zugeordnet wird
+	 * @param player    Player building the way
 	 *
 	 * @author V. Meyer
 	 */

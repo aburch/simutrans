@@ -158,7 +158,6 @@ leitung_t::~leitung_t()
 		gr->obj_remove(this);
 		set_flag( obj_t::not_on_map );
 
-		powernet_t *new_net = NULL;
 		if(neighbours>1) {
 			// only reconnect if two connections ...
 			bool first = true;
@@ -166,7 +165,7 @@ leitung_t::~leitung_t()
 				if(conn[i]!=NULL) {
 					if(!first) {
 						// replace both nets
-						new_net = new powernet_t();
+						powernet_t *new_net = new powernet_t();
 						conn[i]->replace(new_net);
 					}
 					first = false;
@@ -401,7 +400,7 @@ void leitung_t::info(cbuffer_t & buf, bool dummy) const
 	const uint64 demand = get_net()->get_demand();
 	const uint64 load = demand>supply ? supply:demand;
 
-	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
+	buf.printf( translator::translate("Net ID: %u\n"), get_net() );
 	print_power(buf, get_net()->get_max_capacity(), "Capacity: %u MW\n", "Capacity: %u KW\n");
 	print_power(buf, demand, "Demand: %u MW\n", "Demand: %u KW\n");
 	print_power(buf, supply, "Generation: %u MW\n", "Generation: %u KW\n");
@@ -561,6 +560,17 @@ void leitung_t::rdwr(loadsave_t *file)
 }
 
 
+// returns NULL, if removal is allowed
+// players can remove public owned powerlines
+const char *leitung_t::is_deletable(const player_t *player)
+{
+	if(  get_player_nr()==welt->get_public_player()->get_player_nr()  &&  player  ) {
+		return NULL;
+	}
+	return obj_t::is_deletable(player);
+}
+
+
 /************************************ from here on pump (source) stuff ********************************************/
 
 slist_tpl<pumpe_t *> pumpe_t::pumpe_list;
@@ -690,7 +700,7 @@ void pumpe_t::info(cbuffer_t & buf, bool dummy) const
 {
 	obj_t::info( buf );
 
-	buf.printf( translator::translate("Net ID: %lu\n"), (unsigned long)get_net() );
+	buf.printf( translator::translate("Net ID: %lu\n"), get_net() );
 	buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
 	buf.printf("\n\n"); // pad for consistent dialog size
 }
@@ -976,17 +986,11 @@ void senke_t::step(uint32 delta_t)
 			adjusted_power_load = ((municipal_power_load>>POWER_TO_MW) * load_proportion) / 100;
 			adjusted_power_demand = (municipal_power_demand>>POWER_TO_MW) * (load_proportion * load_proportion) / 10000;
 		}
-		else if(municipal_power_demand / KW_DIVIDER)
+		else
 		{
 			// Smaller amounts of power: measure in kW
 			adjusted_power_load = ((municipal_power_load / KW_DIVIDER) * load_proportion) / 100;
 			adjusted_power_demand = (municipal_power_demand / KW_DIVIDER) * (load_proportion * load_proportion) / 10000;
-		}
-		else
-		{
-			// Very small amounts of power: measure in W * 10
-			adjusted_power_load = ((municipal_power_load / DIVIDER_10W) * load_proportion) / 100;
-			adjusted_power_demand = (municipal_power_demand / DIVIDER_10W) * (load_proportion * load_proportion) / 10000;
 		}
 
 		city->add_power(adjusted_power_load);
@@ -995,7 +999,9 @@ void senke_t::step(uint32 delta_t)
 	// Income
 	
 	max_einkommen += (last_power_demand * delta_t / modified_production_delta_t);
-	einkommen += (power_load * delta_t / modified_production_delta_t);
+	// modified by Phystam, in order to balance the cost/revenue
+	// 1st Feb. 2018
+	einkommen += (power_load * delta_t / modified_production_delta_t) * welt->get_settings().get_power_revenue_factor_percentage() /100;
 
 
 	// Income rollover
@@ -1126,7 +1132,7 @@ void senke_t::info(cbuffer_t & buf, bool dummy) const
 {
 	obj_t::info( buf );
 
-	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
+	buf.printf( translator::translate("Net ID: %u\n"), get_net() );
 	print_power(buf, last_power_demand, "Demand: %u MW\n", "Demand: %.2f KW\n");
 	print_power(buf, power_load, "Act. load: %u MW\n", "Act. load: %.2f KW\n");
 	buf.printf( translator::translate("Usage: %u %%"), (100*power_load)/(last_power_demand>0?last_power_demand:1) );

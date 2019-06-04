@@ -177,6 +177,7 @@ public:
 	 */
 	scr_size get_windowsize() const { return size; }
 
+protected:
 	/**
 	 * Sets the window sizes
 	 * @author Hj. Malthaner
@@ -190,8 +191,9 @@ public:
 	 */
 	void set_min_windowsize(scr_size size) { min_windowsize = size; }
 
+public:
 	/**
-	 * Set minimum size of the window
+	 * Get minimum size of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	 */
@@ -235,9 +237,16 @@ public:
 	 */
 	virtual bool has_prev() const {return has_next();}
 
+	/**
+	 * Does this window need a sticky in the title bar?
+	 * @return true if such a button is needed
+	 */
 	virtual bool has_sticky() const { return true; }
 
-	// if false, title and all gadgets will be not drawn
+	/**
+	 * Does this window need its title to be shown?
+	 * @return if false title and all gadgets will be not drawn
+	 */
 	virtual bool has_title() const { return true; }
 
 	// position of a connected thing on the map
@@ -273,8 +282,7 @@ public:
 	}
 
 	/**
-	 * Events werden hiermit an die GUI-components
-	 * gemeldet
+	 * Events are notified to GUI components via this method.
 	 * @author Hj. Malthaner
 	 */
 	virtual bool infowin_event(const event_t *ev);

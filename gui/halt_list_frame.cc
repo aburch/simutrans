@@ -149,10 +149,21 @@ static bool passes_filter_special(haltestelle_t & s)
 		bool walking_connexion_only = true; // Walking connexion or no connexion at all.
 		for(uint8 i = 0; i < goods_manager_t::get_max_catg_index(); ++i)
 		{
-			if(!s.get_connexions(i)->empty()) 
+			// TODO: Add UI to show different connexions for multiple classes
+			uint8 g_class = 0;
+			if(i == goods_manager_t::INDEX_PAS)
+			{
+				g_class = goods_manager_t::passengers->get_number_of_classes() - 1;
+			}
+			else if(i == goods_manager_t::INDEX_MAIL)
+			{
+				g_class = goods_manager_t::mail->get_number_of_classes() - 1;
+			}
+
+			if(!s.get_connexions(i, g_class, g_class + 1)->empty())
 			{
 				// There might be a walking connexion here - do not count a walking connexion.
-				FOR(connexions_map_single_remote, &c, *s.get_connexions(i) )
+				FOR(connexions_map_single_remote, &c, *s.get_connexions(i, g_class, g_class + 1) )
 				{
 					if(c.value->best_line.is_bound() || c.value->best_convoy.is_bound())
 					{

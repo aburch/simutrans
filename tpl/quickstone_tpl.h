@@ -102,9 +102,7 @@ public:
 	 */
 	static void init(const uint16 n)
 	{
-		if(data) {
-			delete [] data;
-		}
+		delete [] data;
 		size = n;
 		data = new T* [size];
 
@@ -179,7 +177,6 @@ public:
 			if(  id!=0  ) {
 				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","wants to assign null pointer to non-null index");
 			}
-			assert(id==0);
 			// all NULL pointers are mapped to entry 0
 			entry = 0;
 		}
@@ -243,7 +240,7 @@ public:
 	 * @return the index into the tombstone table. May be used as
 	 * an ID for the referenced object.
 	 */
-	uint16 get_id() const { return entry; }
+	inline uint16 get_id() const { return entry; }
 
 	/**
 	 * For read/write from/to any storage (file or memory) with the appropriate interface

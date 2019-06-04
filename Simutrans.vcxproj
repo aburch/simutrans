@@ -54,7 +54,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;REVISION_FROM_FILE;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16;MULTI_THREAD=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;ZLIB_WINAPI;REVISION_FROM_FILE;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16;MULTI_THREAD=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -67,7 +67,7 @@
       <DisableSpecificWarnings>4200;4800;4311;4996;4373;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;shell32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;pthreadVC2.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;shell32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;imm32.lib;libbz2.lib;pthreadVC2.lib;libfreetype2.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -88,7 +88,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16;MULTI_THREAD=4;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;ZLIB_WINAPI;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16;MULTI_THREAD=4;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Sync</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -149,6 +149,8 @@
     <ClCompile Include="script\api\api_factory.cc" />
     <ClCompile Include="script\api_function.cc" />
     <ClCompile Include="script\api\api_halt.cc" />
+    <ClCompile Include="script\api\api_include.cc" />
+    <ClCompile Include="script\api\api_line.cc" />
     <ClCompile Include="script\api_param.cc" />
     <ClCompile Include="script\api\api_player.cc" />
     <ClCompile Include="script\api\api_scenario.cc" />
@@ -156,6 +158,7 @@
     <ClCompile Include="script\api\api_tiles.cc" />
     <ClCompile Include="script\api\api_world.cc" />
     <ClCompile Include="gui\banner.cc" />
+    <ClCompile Include="gui\base_info.cc" />
     <ClCompile Include="obj\baum.cc" />
     <ClCompile Include="gui\baum_edit.cc" />
     <ClCompile Include="besch\bild_besch.cc" />
@@ -345,6 +348,7 @@
     <ClCompile Include="vehicle\simpeople.cc" />
     <ClCompile Include="simplan.cc" />
     <ClCompile Include="player\simplay.cc" />
+    <ClCompile Include="utils\simrandom.cc" />
     <ClCompile Include="simskin.cc" />
     <ClCompile Include="simsound.cc" />
     <ClCompile Include="utils\simstring.cc" />
@@ -352,11 +356,10 @@
     <ClCompile Include="simsys_w.cc" />
     <ClCompile Include="simsys_w32_png.cc" />
     <ClCompile Include="simticker.cc" />
-    <ClCompile Include="simtools.cc" />
+    <ClCompile Include="simtool.cc" />
     <ClCompile Include="vehicle\simvehikel.cc" />
     <ClCompile Include="vehicle\simverkehr.cc" />
     <ClCompile Include="simware.cc" />
-    <ClCompile Include="simwerkz.cc" />
     <ClCompile Include="simworld.cc" />
     <ClCompile Include="besch\reader\skin_reader.cc" />
     <ClCompile Include="besch\sound_besch.cc" />
@@ -414,7 +417,7 @@
     <ClCompile Include="boden\wege\weg.cc" />
     <ClCompile Include="bauer\wegbauer.cc" />
     <ClCompile Include="gui\welt.cc" />
-    <ClCompile Include="gui\werkzeug_waehler.cc" />
+    <ClCompile Include="gui\tool_selector.cc" />
     <ClCompile Include="sound\win32_sound.cc" />
     <ClCompile Include="obj\wolke.cc" />
     <ClCompile Include="besch\reader\xref_reader.cc" />
@@ -448,6 +451,7 @@
     <ClInclude Include="tpl\array2d_tpl.h" />
     <ClInclude Include="tpl\array_tpl.h" />
     <ClInclude Include="gui\banner.h" />
+    <ClInclude Include="gui\base_info.h" />
     <ClInclude Include="obj\baum.h" />
     <ClInclude Include="besch\baum_besch.h" />
     <ClInclude Include="gui\baum_edit.h" />
@@ -667,20 +671,20 @@
     <ClInclude Include="vehicle\simpeople.h" />
     <ClInclude Include="simplan.h" />
     <ClInclude Include="player\simplay.h" />
+    <ClInclude Include="utils\simrandom.h" />
     <ClInclude Include="simskin.h" />
     <ClInclude Include="simsound.h" />
     <ClInclude Include="utils\simstring.h" />
     <ClInclude Include="simsys.h" />
     <ClInclude Include="simsys_w32_png.h" />
     <ClInclude Include="simticker.h" />
-    <ClInclude Include="simtools.h" />
+    <ClInclude Include="simtool.h" />
+    <ClInclude Include="simtool-dialogs.h" />
     <ClInclude Include="simtypes.h" />
     <ClInclude Include="vehicle\simvehikel.h" />
     <ClInclude Include="vehicle\simverkehr.h" />
     <ClInclude Include="simversion.h" />
     <ClInclude Include="simware.h" />
-    <ClInclude Include="simwerkz-dialogs.h" />
-    <ClInclude Include="simwerkz.h" />
     <ClInclude Include="simworld.h" />
     <ClInclude Include="besch\skin_besch.h" />
     <ClInclude Include="besch\reader\skin_reader.h" />
@@ -749,7 +753,7 @@
     <ClInclude Include="bauer\wegbauer.h" />
     <ClInclude Include="tpl\weighted_vector_tpl.h" />
     <ClInclude Include="gui\welt.h" />
-    <ClInclude Include="gui\werkzeug_waehler.h" />
+    <ClInclude Include="gui\tool_selector.h" />
     <ClInclude Include="obj\wolke.h" />
     <ClInclude Include="besch\xref_besch.h" />
     <ClInclude Include="besch\reader\xref_reader.h" />

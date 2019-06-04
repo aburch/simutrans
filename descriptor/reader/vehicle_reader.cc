@@ -215,7 +215,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->available_only_as_upgrade = decode_uint8(p);
 				desc->brake_force = BRAKE_FORCE_UNKNOWN;
 				desc->minimum_runway_length = 10;
-				desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wtyp) / float32e8_t::tenthousand;
+				desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wtyp) * float32e8_t::ten_thousandth;
 				if(extended_version == 1)
 				{
 					desc->base_fixed_cost = decode_uint16(p);
@@ -240,7 +240,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				if(extended_version >=4)
 				{
 					uint32 air_resistance_hundreds = decode_uint16(p);
-					desc->air_resistance = air_resistance_hundreds / float32e8_t::hundred;
+					desc->air_resistance = air_resistance_hundreds * float32e8_t::centi;
 					desc->can_be_at_rear = (bool)decode_uint8(p);
 					desc->increase_maintenance_after_years = decode_uint16(p);
 					desc->increase_maintenance_by_percent = decode_uint16(p);
@@ -248,7 +248,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					desc->air_resistance = vehicle_desc_t::get_air_default(desc->wtyp) / float32e8_t::hundred;
+					desc->air_resistance = vehicle_desc_t::get_air_default(desc->wtyp) * float32e8_t::centi;
 					desc->can_be_at_rear = true;
 					desc->increase_maintenance_after_years = 0;
 					desc->increase_maintenance_by_percent = 0;
@@ -354,7 +354,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				if(extended_version >= 4)
 				{
 					uint32 air_resistance_hundreds = decode_uint16(p);
-					desc->air_resistance = air_resistance_hundreds / float32e8_t::hundred;
+					desc->air_resistance = air_resistance_hundreds * float32e8_t::centi;
 					desc->can_be_at_rear = (bool)decode_uint8(p);
 					desc->increase_maintenance_after_years = decode_uint16(p);
 					desc->increase_maintenance_by_percent = decode_uint16(p);
@@ -362,7 +362,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					desc->air_resistance = vehicle_desc_t::get_air_default(desc->wtyp) / float32e8_t::hundred;
+					desc->air_resistance = vehicle_desc_t::get_air_default(desc->wtyp) * float32e8_t::centi;
 					desc->can_be_at_rear = true;
 					desc->increase_maintenance_after_years = 0;
 					desc->increase_maintenance_by_percent = 0;
@@ -389,13 +389,13 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				if(extended_version >= 7)
 				{
 					uint32 rolling_resistance_tenths_thousands = decode_uint16(p);
-					desc->rolling_resistance = rolling_resistance_tenths_thousands / float32e8_t::tenthousand;
+					desc->rolling_resistance = rolling_resistance_tenths_thousands * float32e8_t::ten_thousandth;
 					desc->brake_force = decode_uint16(p);
 					desc->minimum_runway_length = decode_uint16(p);
 				}
 				else
 				{
-					desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wtyp) / float32e8_t::tenthousand;
+					desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wtyp) * float32e8_t::ten_thousandth;
 					desc->brake_force = BRAKE_FORCE_UNKNOWN;
 					desc->minimum_runway_length = 10;
 				}
@@ -495,7 +495,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				desc->tractive_effort = decode_uint16(p);
 				uint32 air_resistance_hundreds = decode_uint16(p);
-				desc->air_resistance = air_resistance_hundreds / float32e8_t::hundred;
+				desc->air_resistance = air_resistance_hundreds * float32e8_t::centi;
 				desc->can_be_at_rear = (bool)decode_uint8(p);
 				desc->increase_maintenance_after_years = decode_uint16(p);
 				desc->increase_maintenance_by_percent = decode_uint16(p);
@@ -504,7 +504,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->min_loading_time_seconds = decode_uint16(p);
 				desc->max_loading_time_seconds = decode_uint16(p);
 				uint32 rolling_resistance_tenths_thousands = decode_uint16(p);
-				desc->rolling_resistance = rolling_resistance_tenths_thousands / float32e8_t::tenthousand;
+				desc->rolling_resistance = rolling_resistance_tenths_thousands * float32e8_t::ten_thousandth;
 				desc->brake_force = decode_uint16(p);
 				desc->minimum_runway_length = decode_uint16(p);
 				if(extended_version == 0)
@@ -631,8 +631,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			break;
 		}
 
-		desc->air_resistance = vehicle_desc_t::get_air_default(desc->wtyp) / float32e8_t::hundred;
-		desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wtyp) / float32e8_t::tenthousand;
+		desc->air_resistance = vehicle_desc_t::get_air_default(desc->wtyp) * float32e8_t::centi;
+		desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wtyp) * float32e8_t::ten_thousandth;
 		desc->upgrades = 0;
 		desc->base_upgrade_price = desc->base_cost;
 		desc->available_only_as_upgrade = false;

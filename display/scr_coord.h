@@ -2,10 +2,10 @@
 #define scr_coord_h
 
 #include <assert.h>
-#include "../dataobj/koord.h"
 #include "../dataobj/loadsave.h"
 #include "../simtypes.h"
 
+class koord;
 
 // Screen coordinate type
 typedef sint16 scr_coord_val;
@@ -82,8 +82,8 @@ public:
 
 private:
 	// conversions to/from koord not allowed anymore
-	scr_coord( const koord pos_par) { x = pos_par.x; y = pos_par.y; }
-	operator koord() const { return koord(x,y); }
+	scr_coord( const koord);
+	operator koord() const;
 };
 
 
@@ -175,7 +175,7 @@ public:
 
 private:
 	// conversions to/from koord not allowed anymore
-	operator koord() const { return koord(w,h); }
+	operator koord() const;
 };
 
 
@@ -202,7 +202,7 @@ public:
 	scr_rect( const scr_coord& pt, scr_coord_val w, scr_coord_val h ) { set( pt.x, pt.y, w, h ); }
 	scr_rect( const scr_coord& pt, const scr_size& sz ) { set( pt.x, pt.y, sz.w, sz.h ); }
 	scr_rect( scr_coord_val x, scr_coord_val y, scr_coord_val w, scr_coord_val h ) { set( x, y, w, h ); }
-	scr_rect( scr_size size ) { w = size.w; h=size.h; }
+	scr_rect( scr_size size ) { w = size.w; h=size.h; x=0; y=0; }
 	scr_rect( const scr_coord& point1, const scr_coord& point2 ) { set( point1.x, point1.y, point2.x-point1.x, point2.y-point1.y ); }
 
 	// Type cast operators
@@ -357,9 +357,7 @@ public:
 	}
 private:
 	// conversions to/from koord not allowed anymore
-	scr_rect( const koord& pt ) { set( pt.x, pt.y, 0, 0 ); }
-	scr_rect( const koord& pt, const koord& size ) { set( pt.x, pt.y, size.x, size.y ); }
-	scr_rect( const koord& pt, scr_coord_val w, scr_coord_val h ) { set( pt.x, pt.y, w, h ); }
-	operator koord()     const { return koord(w,h); }
+	scr_rect( const koord&);
+	operator koord() const;
 };
 #endif

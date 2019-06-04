@@ -1,19 +1,19 @@
 #include <string>
 #include <string.h>
 
+#ifndef _WIN32
+#	include <dirent.h>
+#else
+#	ifndef NOMINMAX
+#		define NOMINMAX
+#	endif
+#	include <windows.h>
+#	include <io.h>
+#endif
+
 #include "../simdebug.h"
 #include "../simmem.h"
 #include "simstring.h"
-
-
-#ifndef _MSC_VER
-#include <dirent.h>
-#else
-#define NOMINMAX
-#include <Windows.h>
-#include <io.h>
-#endif
-
 #include "searchfolder.h"
 
 /*
@@ -70,6 +70,15 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 	std::string lookfor;
 	std::string ext;
 
+#ifdef _WIN32
+	// since we assume hardcoded path are using / we need to correct this for windows
+	for(  uint i=0;  i<path.size();  i++  ) {
+		if(  path[i]=='\\'  ) {
+			path[i] = '/';
+		}
+	}
+#endif
+
 	if(extension.empty()) {
 		//path=name;
 		name = std::string("*");
@@ -97,30 +106,42 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 			path = path.substr(0, slash + 1);
 		}
 	}
-#ifdef _MSC_VER
+#ifdef _WIN32
 	lookfor = path + name + ext;
-	struct _wfinddata_t entry;
-	WCHAR path_inW[1024];
-	MultiByteToWideChar( CP_UTF8, 0, lookfor.c_str(), -1, path_inW, lengthof(path_inW) );
-	intptr_t hfind = _wfindfirst( path_inW, &entry);
 
-	if(hfind != -1) {
-		lookfor = ext;
-		do {
-			char entry_name[512];
-			WideCharToMultiByte( CP_UTF8, 0, entry.name, -1, entry_name, lengthof(entry_name), NULL, NULL );
-			size_t entry_len = strlen(entry_name);
-
-			if(  stricmp( entry_name + entry_len - lookfor.length(), lookfor.c_str() ) == 0  ) {
-				if(only_directories) {
-					if ((entry.attrib & _A_SUBDIR)==0) {
-						continue;
-					}
-				}
-				add_entry(path,entry_name,prepend_path);
-			}
-		} while(_wfindnext(hfind, &entry) == 0 );
+	WCHAR path_inW[MAX_PATH];
+	if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, lookfor.c_str(), -1, path_inW, MAX_PATH) == 0) {
+		// Conversion failed so results will be nonsense anyway.
+		return files.get_count();
 	}
+
+	struct _wfinddata_t entry;
+	intptr_t const hfind = _wfindfirst(path_inW, &entry);
+	if(hfind == -1) {
+		// Search failed.
+		return files.get_count();
+	}
+
+	lookfor = ext;
+	do {
+		// Convert entry name.
+		int const entry_name_size = WideCharToMultiByte( CP_UTF8, 0, entry.name, -1, NULL, 0, NULL, NULL );
+		char *const entry_name = new char[entry_name_size];
+		WideCharToMultiByte( CP_UTF8, 0, entry.name, -1, entry_name, entry_name_size, NULL, NULL );
+
+		size_t entry_len = strlen(entry_name);
+		if(  stricmp( entry_name + entry_len - lookfor.length(), lookfor.c_str() ) == 0  ) {
+			if(only_directories) {
+				if ((entry.attrib & _A_SUBDIR)==0) {
+					delete[] entry_name;
+					continue;
+				}
+			}
+			add_entry(path,entry_name,prepend_path);
+		}
+		delete[] entry_name;
+	} while(_wfindnext(hfind, &entry) == 0 );
+	_findclose(hfind);
 #else
 	lookfor = path + ".";
 
@@ -142,8 +163,21 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 	return files.get_count();
 }
 
+
+#ifdef _WIN32
+std::string searchfolder_t::complete(const std::string &filepath_raw, const std::string &extension)
+{
+	std::string filepath(filepath_raw);
+	// since we assume hardcoded path are using / we need to correct this for windows
+	for(  uint i=0;  i<filepath.size();  i++  ) {
+		if(  filepath[i]=='\\'  ) {
+			filepath[i] = '/';
+		}
+	}
+#else
 std::string searchfolder_t::complete(const std::string &filepath, const std::string &extension)
 {
+#endif
 	if(filepath[filepath.size() - 1] != '/') {
 		int slash = filepath.rfind('/');
 		int dot = filepath.rfind('.');

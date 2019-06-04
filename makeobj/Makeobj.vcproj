@@ -284,11 +284,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\utils\simstring.cc"
+				RelativePath="..\utils\simrandom.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\simtools.cc"
+				RelativePath="..\utils\simstring.cc"
 				>
 			</File>
 			<File
@@ -446,11 +446,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\utils\simstring.h"
+				RelativePath="..\utils\simrandom.h"
 				>
 			</File>
 			<File
-				RelativePath="..\simtools.h"
+				RelativePath="..\utils\simstring.h"
 				>
 			</File>
 			<File

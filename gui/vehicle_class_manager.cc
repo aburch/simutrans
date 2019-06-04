@@ -111,7 +111,7 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 	//	{
 	//		for (int i = 0; i < classes_amount; i++)
 	//		{
-	//			if (v->get_capacity(i) > 0)
+	//			if (v->get_fare_capacity(i) > 0)
 	//			{
 	//				gui_combobox_t *class_selector = new (nothrow) gui_combobox_t();
 	//				if (class_selector != nullptr)
@@ -149,11 +149,9 @@ void vehicle_class_manager_t::build_class_entries()
 {
 	uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
 	uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
-	uint8 display_class;
 
 	for (int i = 0; i < pass_classes; i++) // i = the class this combobox represents
 	{
-		display_class = i;
 		pass_class_sel.at(i)->clear_elements();
 		for (int j = 0; j < pass_classes; j++) // j = the entries of this combobox
 		{
@@ -161,33 +159,75 @@ void vehicle_class_manager_t::build_class_entries()
 		}
 
 		// Below will preset the selection to the most appropriate entry
+		// We can't currently reassign to multiple within an existing convoy,
+		// but we might end up with inconsistent reassignments while
+		// extending a convoy with reassigned classes.
+		bool multiple_classes = false;
+		int old_reassigned_class = -1;
+		uint8 display_class = i;
+
 		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 		{
 			vehicle_t* v = cnv->get_vehicle(veh);
-			if (v->get_capacity(i) != v->get_desc()->get_capacity(i))
+			if (v->get_accommodation_capacity(i) > 0 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
 			{
-				display_class = v->get_reassigned_class(i);
+				if (old_reassigned_class != v->get_reassigned_class(i))
+				{
+					if (old_reassigned_class == -1)
+					{
+						old_reassigned_class = v->get_reassigned_class(i);
+						display_class = old_reassigned_class;
+					}
+					else
+					{
+						multiple_classes = true;
+					}
+				}
 			}
-		}	
+		}
+		if (multiple_classes)
+		{
+			pass_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("reassigned_to_multiple"), SYSCOL_TEXT));
+			display_class = pass_classes;
+		}
 		pass_class_sel.at(i)->set_selection(display_class);
 	}
 
 	for (int i = 0; i < mail_classes; i++)
 	{
-		display_class = i;
 		for (int j = 0; j < mail_classes; j++)
 		{
 			mail_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(mail_class_name_untranslated[j]), SYSCOL_TEXT));
 		}
 
 		// Below will preset the selection to the most appropriate entry
+		bool multiple_classes = false;
+		int old_reassigned_class = -1;
+		uint8 display_class = i;
+
 		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 		{
 			vehicle_t* v = cnv->get_vehicle(veh);
-			if (v->get_capacity(i) != v->get_desc()->get_capacity(i))
+			if (v->get_accommodation_capacity(i) > 0 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
 			{
-				display_class = v->get_reassigned_class(i);
+				if (old_reassigned_class != v->get_reassigned_class(i))
+				{
+					if (old_reassigned_class == -1)
+					{
+						old_reassigned_class = v->get_reassigned_class(i);
+						display_class = old_reassigned_class;
+					}
+					else
+					{
+						multiple_classes = true;
+					}
+				}
 			}
+		}
+		if (multiple_classes)
+		{
+			mail_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("reassigned_to_multiple"), SYSCOL_TEXT));
+			display_class = mail_classes;
 		}
 		mail_class_sel.at(i)->set_selection(display_class);
 	}
@@ -225,7 +265,7 @@ void vehicle_class_manager_t::layout(scr_coord pos)
 		{
 			for (int i = 0; i < classes_amount; i++)
 			{
-				pass_capacity_at_accommodation[i] += v->get_desc()->get_capacity(i);
+				pass_capacity_at_accommodation[i] += v->get_accommodation_capacity(i);
 			}
 			if (v->get_desc()->get_catering_level() > highest_catering)
 			{
@@ -236,7 +276,7 @@ void vehicle_class_manager_t::layout(scr_coord pos)
 		{
 			for (int i = 0; i < classes_amount; i++)
 			{
-				mail_capacity_at_accommodation[i] += v->get_desc()->get_capacity(i);
+				mail_capacity_at_accommodation[i] += v->get_accommodation_capacity(i);
 			}
 			if (v->get_desc()->get_catering_level() > 0)
 			{
@@ -411,14 +451,14 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					overcrowded_capacity += v->get_desc()->get_overcrowded_capacity();
 					for (int i = 0; i < pass_classes; i++)
 					{
-						pass_capacity_at_class[i] += v->get_capacity(i);
+						pass_capacity_at_class[i] += v->get_fare_capacity(i);
 					}
 				}
 				if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
 				{
 					for (int i = 0; i < mail_classes; i++)
 					{
-						mail_capacity_at_class[i] += v->get_capacity(i);
+						mail_capacity_at_class[i] += v->get_fare_capacity(i);
 					}
 				}
 			}
@@ -494,50 +534,71 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
  */
 bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t p)
 {
-	for (int i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+	int number_of_classes;
+	number_of_classes = goods_manager_t::passengers->get_number_of_classes();
+	for (int i = 0; i < number_of_classes; i++)
 	{
 		if (comp == pass_class_sel.at(i))
 		{
 			sint32 new_class = pass_class_sel.at(i)->get_selection();
-			//sint32 new_class = goods_manager_t::passengers->get_number_of_classes() - pass_class_sel[i].get_selection() - 1;
-			if (new_class < 0)
+			int selection_count = pass_class_sel.at(i)->count_elements();
+			if (new_class < 0 || new_class >= selection_count)
 			{
 				pass_class_sel.at(i)->set_selection(0);
 				new_class = 0;
+			}
+			else if (new_class >= number_of_classes)
+			{
+				// Selection is 'reassigned to multiple'
+				return false;
 			}
 			int good_type = 0; // 0 = Passenger, 1 = Mail,
 			int reset = 0; // 0 = reset only single class, 1 = reset all classes
 			cbuffer_t buf;
 			buf.printf("%i,%i,%i,%i", i, new_class, good_type, reset);
 			cnv->call_convoi_tool('c', buf);
-
-			if (i < 0)
+			if (selection_count > number_of_classes)
 			{
-				break;
+				// Remove 'reassigned to multiple' from list
+				pass_class_sel.at(i)->clear_elements();
+				for (int j = 0; j < number_of_classes; j++) // j = the entries of this combobox
+				{
+					pass_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
+				}
 			}
 			return false;
 		}
 	}
-	for (int i = 0; i < goods_manager_t::mail->get_number_of_classes(); i++)
+	number_of_classes = goods_manager_t::mail->get_number_of_classes();
+	for (int i = 0; i < number_of_classes; i++)
 	{
 		if (comp == mail_class_sel.at(i))
 		{
 			sint32 new_class = mail_class_sel.at(i)->get_selection();
-			//sint32 new_class = goods_manager_t::mail->get_number_of_classes() - mail_class_sel[i].get_selection() - 1;
-			if (new_class < 0)
+			int selection_count = mail_class_sel.at(i)->count_elements();
+			if (new_class < 0 || new_class >= selection_count)
 			{
 				mail_class_sel.at(i)->set_selection(0);
 				new_class = 0;
+			}
+			else if (new_class >= number_of_classes)
+			{
+				// Selection is 'reassigned to multiple'
+				return false;
 			}
 			int good_type = 1; // 0 = Passenger, 1 = Mail,
 			int reset = 0; // 0 = reset only single class, 1 = reset all classes
 			cbuffer_t buf;
 			buf.printf("%i,%i,%i,%i", i, new_class, good_type, reset);
 			cnv->call_convoi_tool('c', buf);
-
-			if (i < 0)
+			if (selection_count > number_of_classes)
 			{
-				break;
+				// Remove 'reassigned to multiple' from list
+				mail_class_sel.at(i)->clear_elements();
+				for (int j = 0; j < number_of_classes; j++) // j = the entries of this combobox
+				{
+					mail_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(mail_class_name_untranslated[j]), SYSCOL_TEXT));
+				}
 			}
 			return false;
 		}
@@ -568,6 +629,7 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 		return true;
 
 	}
+	return false;
 }
 
 
@@ -706,7 +768,7 @@ gui_class_vehicleinfo_t::gui_class_vehicleinfo_t(convoihandle_t cnv)
 	//	{
 	//		for (uint8 i = 0; i < v->get_desc()->get_number_of_classes(); i++)
 	//		{
-	//			if (v->get_desc()->get_capacity(i) > 0)
+	//			if (v->get_accommodation_capacity(i) > 0)
 	//			{
 	//				gui_combobox_t *class_selector = new (nothrow) gui_combobox_t();
 	//				if (class_selector != nullptr)
@@ -731,7 +793,7 @@ gui_class_vehicleinfo_t::gui_class_vehicleinfo_t(convoihandle_t cnv)
 	//	{
 	//		for (uint8 i = 0; i < v->get_desc()->get_number_of_classes(); i++)
 	//		{
-	//			if (v->get_desc()->get_capacity(i) > 0)
+	//			if (v->get_accommodation_capacity(i) > 0)
 	//			{
 	//				gui_combobox_t *class_selector = new (nothrow) gui_combobox_t();
 	//				if (class_selector != nullptr)
@@ -852,7 +914,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 				{
 					reassigned = false;
 					reassigned_w = 0;
-					if (v->get_desc()->get_capacity(i) > 0)
+					if (v->get_accommodation_capacity(i) > 0)
 					{
 						if (v->get_reassigned_class(i) != i)
 						{
@@ -888,7 +950,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 
 						buf.clear();
 						char capacity[32];
-						sprintf(capacity, v->get_overcrowding(i) > 0 ? "%i (%i)" : "%i", v->get_desc()->get_capacity(i), v->get_overcrowding(i));
+						sprintf(capacity, v->get_overcrowded_capacity(i) > 0 ? "%i (%i)" : "%i", v->get_accommodation_capacity(i), v->get_overcrowded_capacity(i));
 						buf.printf(translator::translate("capacity: %s %s"), capacity, name);
 						display_proportional_clip(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						extra_y += LINESPACE;
@@ -921,7 +983,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 						int len = 5 + display_proportional_clip(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, translator::translate("income_pr_km_(when_full):"), ALIGN_LEFT, SYSCOL_TEXT, true);
 						// Revenue for moving 1 unit 1000 meters -- comes in 1/4096 of simcent, convert to simcents
 						sint64 fare = v->get_cargo_type()->get_total_fare(1000, 0, base_comfort + additional_comfort, v->get_desc()->get_catering_level(), v->get_reassigned_class(i));
-						sint64 profit = (v->get_desc()->get_capacity(i)*fare + 2048ll) / 4096ll;
+						sint64 profit = (v->get_accommodation_capacity(i)*fare + 2048ll) / 4096ll;
 						money_to_string(number, profit / 100.0);
 						display_proportional_clip(pos.x + w + offset.x + len + extra_w, pos.y + offset.y + total_height + extra_y, number, ALIGN_LEFT, profit > 0 ? MONEY_PLUS : MONEY_MINUS, true);
 							
@@ -978,7 +1040,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 				if (v->get_desc()->get_catering_level() > 0)
 				{
 					uint32 unit_count = 0;
-					char catering_service[32];
+					char catering_service[64];
 					if (mail_veh)
 					{
 						sprintf(catering_service, translator::translate("tpo_income_pr_km_(full_convoy):"));

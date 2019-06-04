@@ -191,7 +191,7 @@ private:
 	 * Above this threshold the engine works as constant power engine.
 	 * @author Bernd Gabriel, Nov 4, 2009
 	 */
-	uint32 force_threshold_playerseed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
+	uint32 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
 
 	// Obsolescence settings
 	// @author: jamespetts
@@ -219,6 +219,10 @@ private:
 
 	int get_add_to_node() const 
 	{ 
+		if(freight_image_type > 1 && livery_image_type > 1)
+		{
+			return 6; 
+		}
 		int i = freight_image_type == 255 ? 1 : 0;
 		return livery_image_type > 0 ? 5 + i : 6;
 	}
@@ -589,6 +593,7 @@ public:
 		}
 		return cap;
 	}
+	void fix_number_of_classes();
 	uint32 get_weight() const { return weight; }
 	uint16 get_running_cost() const { return running_cost; }
 	uint16 get_running_cost(const class karte_t *welt) const; //Overloaded method - includes increase for obsolescence.

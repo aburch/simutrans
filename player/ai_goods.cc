@@ -15,7 +15,6 @@
 #include "../simintr.h"
 #include "../simline.h"
 #include "../simmesg.h"
-#include "../utils/simrandom.h"
 #include "../simworld.h"
 
 #include "../bauer/brueckenbauer.h"
@@ -29,6 +28,7 @@
 
 #include "../obj/wayobj.h"
 
+#include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
@@ -188,11 +188,16 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 		return 0;
 	}
 
+	bool complete = false;	// found at least one factory
+	
 	// now check for all
 	for (int i = 0; i < d.get_supplier_count(); ++i) {
 		goods_desc_t const* const ware = d.get_supplier(i)->get_input_type();
 
-		bool complete = false;	// found at least one factory
+		if (!d.is_consumer_only())
+		{
+			complete = false;
+		}
 		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
 			fabrik_t* const qfab = fabrik_t::get_fab(q);
 			if(!qfab) {
@@ -252,7 +257,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 	if(qfab->get_desc()->get_placement()!=factory_desc_t::Water) {
 		if( length == 0 ) {
 			vector_tpl<koord3d> tile_list[2];
-			uint16 const cov = welt->get_settings().get_station_coverage_factories();
+			uint16 const cov = welt->get_settings().get_station_coverage_factories() - 1;
 			koord test;
 			for( uint8 i = 0; i < 2; i++ ) {
 				fabrik_t *fab =  i==0 ? qfab : zfab;
@@ -394,7 +399,7 @@ bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int vehicle_count
 	halthandle_t halt = haltestelle_t::get_halt(gr->get_pos(),this);
 	koord pos1 = platz1 - koord(gr->get_grund_hang())*h->get_size().y;
 	koord best_pos = pos1;
-	uint16 const cov = welt->get_settings().get_station_coverage_factories();
+	uint16 const cov = welt->get_settings().get_station_coverage_factories() - 1;
 	for (int y = pos1.y - cov; y <= pos1.y + cov; ++y) {
 		for (int x = pos1.x - cov; x <= pos1.x + cov; ++x) {
 			koord p(x,y);
@@ -439,7 +444,6 @@ bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int vehicle_count
 			cnv->add_vehicle( v );
 		}
 
-		welt->sync.add( cnv );
 		cnv->set_line(line);
 		cnv->start();
 	}
@@ -497,7 +501,6 @@ void ai_goods_t::create_road_transport_vehicle(fabrik_t *qfab, int vehicle_count
 			cnv->set_name(v->get_desc()->get_name());
 			cnv->add_vehicle( v );
 
-			welt->sync.add( cnv );
 			cnv->set_line(line);
 			cnv->start();
 		}
@@ -558,7 +561,6 @@ void ai_goods_t::create_rail_transport_vehicle(const koord platz1, const koord p
 	schedule->finish_editing();
 
 	cnv->set_schedule(schedule);
-	welt->sync.add( cnv );
 	cnv->start();
 }
 
@@ -656,8 +658,16 @@ bool ai_goods_t::create_simple_rail_transport()
 	koord diff1( sgn(size1.x), sgn(size1.y) );
 	koord perpend( sgn(size1.y), sgn(size1.x) );
 	while(k!=size1+platz1) {
+		climate c = welt->get_climate(k);
 		if(!welt->flatten_tile( this, k, z1 )) {
 			return false;
+		}
+		// ensure is land
+		grund_t* bd = welt->lookup_kartenboden(k);
+		if (bd->get_typ() == grund_t::wasser) {
+			welt->set_water_hgt(k, bd->get_hoehe()-1);
+			welt->access(k)->correct_water();
+			welt->set_climate(k, c, true);
 		}
 		k += diff1;
 	}
@@ -668,8 +678,16 @@ bool ai_goods_t::create_simple_rail_transport()
 	perpend = koord( sgn(size2.y), sgn(size2.x) );
 	koord diff2( sgn(size2.x), sgn(size2.y) );
 	while(k!=size2+platz2) {
+		climate c = welt->get_climate(k);
 		if(!welt->flatten_tile(this,k,z2)) {
 			return false;
+		}
+		// ensure is land
+		grund_t* bd = welt->lookup_kartenboden(k);
+		if (bd->get_typ() == grund_t::wasser) {
+			welt->set_water_hgt(k, bd->get_hoehe()-1);
+			welt->access(k)->correct_water();
+			welt->set_climate(k, c, true);
 		}
 		k += diff2;
 	}
@@ -791,7 +809,7 @@ void ai_goods_t::step()
 				weighted_vector_tpl<fabrik_t *> start_fabs(20);
 				FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 					// consumer and not completely overcrowded
-					if(  fab->get_desc()->is_consumer_only()  &&  fab->get_status() != fabrik_t::bad  ) {
+					if(  fab->get_desc()->is_consumer_only()  &&  fab->get_status() < fabrik_t::bad  ) {
 						int missing = get_factory_tree_missing_count( fab );
 						if(  missing>0  ) {
 							start_fabs.append( fab, 100/(missing+1)+1 );
@@ -863,7 +881,7 @@ void ai_goods_t::step()
 
 			// guess the "optimum" speed (usually a little too low)
 			sint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->get_speed_bonus()*5, 140 );
-			sint32 best_road_speed = min(60+freight->get_adjusted_speed_bonus(distance_meters)*5, 130 ); //TODO: Consider what to do about this once the speed bonus is removed. The AI is largely deprecated in any event, so a hard coded number may suffice.
+			sint32 best_road_speed = world()->get_settings().get_intercity_road_type(world()->get_timeline_year_month())->get_topspeed(); // was: min(60+freight->get_adjusted_speed_bonus(distance_meters)*5, 130 );
 
 			INT_CHECK("simplay 1265");
 

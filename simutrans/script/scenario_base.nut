@@ -14,12 +14,16 @@ scenario.short_description <- "This is a random scripted scenario"
 
 scenario.author <- ""
 scenario.version <- ""
+scenario.translation <- ""
 
 // table to hold routines for gui access
 gui <- {}
 
 // table to hold routines for forbidding/allowing player tools
 rules <- {}
+
+// table to hold routines for debug
+debug <- {}
 
 // table containing all waytypes
 all_waytypes <- [wt_road, wt_rail, wt_water, wt_monorail, wt_maglev, wt_tram, wt_narrowgauge, wt_air, wt_power]
@@ -79,17 +83,23 @@ function get_short_description(pl)
 {
 	return scenario.short_description;
 }
+function get_api_version()
+{
+	return ("api" in scenario) ? scenario.api : "112.3"
+}
 function get_about_text(pl)
 {
 	return "<em>Scenario:</em>  " +  scenario.short_description
 	+ "<br><br><em>Author:</em> " +  scenario.author
 	+ "<br><br><em>Version:</em> " +  scenario.version
+	+ "<br><br><em>Translation:</em> " +  scenario.translation
 }
 
 function get_rule_text(pl) { return "Do what you want." }
 function get_goal_text(pl) { return "The way is the target." }
 function get_info_text(pl) { return "Random scenario." }
 function get_result_text(pl) { return "You are owned." }
+function get_debug_text(pl)  { return debug.get_forbidden_text() }
 
 function min(a, b) { return a < b ? a : b }
 function max(a, b) { return a > b ? a : b }
@@ -171,10 +181,14 @@ function recursive_save(table, indent, table_stack)
 				break
 			case "array":
 			case "table":
-				if (!(val in table_stack)) {
+				if (!table_stack.find(val)) {
 						table_stack.push( table )
 						str += recursive_save(val, indent + "\t", table_stack )
 						table_stack.pop()
+				}
+				else {
+					// cyclic reference - good luck with resolving
+					str += "null"
 				}
 				break
 			case "instance":
@@ -407,6 +421,27 @@ class halt_x extends extend_get {
 	}
 }
 
+
+/**
+ * class that contains data to get access to a line of convoys
+ */
+class line_x extends extend_get {
+	id = 0 /// linehandle_t
+
+	constructor(i_) {
+		id = i_
+	}
+}
+
+/**
+ * class to provide access to line lists
+ */
+class line_list_x {
+
+	halt_id = 0
+	player_id = 0
+}
+
 /**
  * class that contains data to get access to a tile (grund_t)
  */
@@ -457,17 +492,13 @@ class square_x extends extend_get {
 
 
 /**
- * class to provide access to the game's list of all convoys
+ * class to provide access to convoy lists
  */
 class convoy_list_x {
 
-	/// meta-method to be called in a foreach loop
-	function _nexti(prev_index) {
-	}
-
-	/// meta method to retrieve convoy by index in the global C++ array
-	function _get(index) {
-	}
+	use_world = 0
+	halt_id = 0
+	line_id = 0
 }
 
 
@@ -597,10 +628,34 @@ class time_ticks_x extends time_x {
 class coord {
 	x = -1
 	y = -1
+
+	constructor(_x, _y)  { x = _x; y = _y }
+	function _add(other) { return coord(x + other.x, y + other.y) }
+	function _sub(other) { return coord(x - other.x, y - other.y) }
+	function _mul(fac)   { return coord(x * fac, y * fac) }
+	function _div(fac)   { return coord(x / fac, y / fac) }
+	function _unm()      { return coord(-x, -y) }
+	function _typeof()   { return "coord" }
+	function _tostring() { return coord_to_string(this) }
+	function _save()     { return "coord(" + x + ", " + y + ")" }
+	function href(text)  { return "<a href='(" + x + ", " + y + ")'>" + text + "</a>" }
 }
 
 class coord3d extends coord {
 	z = -1
+
+	constructor(_x, _y, _z)  { x = _x; y = _y; z = _z }
+	function _add(other) { return coord3d(x + other.x, y + other.y, z + getz(other)) }
+	function _sub(other) { return coord3d(x - other.x, y - other.y, z - getz(other)) }
+	function _mul(fac)   { return coord3d(x * fac, y * fac, z * fac) }
+	function _div(fac)   { return coord3d(x / fac, y / fac, z / fac) }
+	function _unm()      { return coord3d(-x, -y, -z) }
+	function _typeof()   { return "coord3d" }
+	function _tostring() { return coord3d_to_string(this) }
+	function _save()     { return "coord3d(" + x + ", " + y + ", " + z + ")" }
+	function href(text)  { return "<a href='(" + x + ", " + y + ", " + z + ")'>" + text + "</a>" }
+
+	function getz(other) { return (z in other) ? other.z : 0 }
 }
 
 /**

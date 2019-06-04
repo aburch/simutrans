@@ -295,10 +295,24 @@ void halt_detail_t::halt_detail_info()
 
 	bool has_stops = false;
 
+	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+
 	for (uint i=0; i<goods_manager_t::get_max_catg_index(); i++)
 	{
 		typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
-		connexions_map_single_remote *connexions = halt->get_connexions(i);
+
+		// TODO: Add UI to show different connexions for multiple classes
+		uint8 g_class = 0;
+		if(i == goods_manager_t::INDEX_PAS)
+		{
+			g_class = goods_manager_t::passengers->get_number_of_classes() - 1;
+		}
+		else if(i == goods_manager_t::INDEX_MAIL)
+		{
+			g_class = goods_manager_t::mail->get_number_of_classes() - 1;
+		}
+
+		connexions_map_single_remote *connexions = halt->get_connexions(i, g_class, max_classes);
 
 		if(!connexions->empty())
 		{
@@ -309,7 +323,7 @@ void halt_detail_t::halt_detail_info()
 			// If it is a special freight, we display the name of the good, otherwise the name of the category.
 			buf.append( translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()) );
 #if MSG_LEVEL>=4
-			if(  halt->is_transfer(i)  ) {
+			if(  halt->is_transfer(i, g_class, max_classes)  ) {
 				buf.append("*");
 			}
 #endif

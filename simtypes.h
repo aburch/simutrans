@@ -122,6 +122,20 @@ enum systemtype_t {
 	type_all = 255,	///< special ?
 };
 
+/**
+ * conditions for overtaking on roads
+ * @author teamhimeH
+ */
+ enum overtaking_mode_t {
+	 halt_mode         = -1, // vehicles can stop on passing lane
+	 oneway_mode       = 0,  // condition for one-way road
+	 twoway_mode       = 1,  // condition for two-way road
+	 loading_only_mode = 2,  // overtake a loading convoy only
+	 prohibited_mode   = 3,  // overtaking is completely forbidden
+	 inverted_mode     = 4,  // vehicles can go only on passing lane
+	 invalid_mode      = 63
+ };
+
 enum working_method_t { drive_by_sight, time_interval, absolute_block, token_block, track_circuit_block, cab_signalling, moving_block, one_train_staff, time_interval_with_telegraph };
 
 // makros are not very safe: thus use these macro like functions
@@ -140,7 +154,7 @@ typedef   signed int        sint32;
 #define SINT32_MAX_VALUE	INT_MAX
 #ifndef NO_UINT32_TYPES
 typedef unsigned int        uint32;
-#define UINT32_MAX_VALUE	UINT_MAX	
+#define UINT32_MAX_VALUE	UINT_MAX
 #define SINT64_MAX_VALUE	LLONG_MAX
 #endif
 #else
@@ -149,7 +163,7 @@ typedef   signed long       sint32;
 #define SINT32_MAX_VALUE	LONG_MAX
 #ifndef NO_UINT32_TYPES
 typedef unsigned long       uint32;
-#define UINT32_MAX_VALUE	ULONG_MAX	
+#define UINT32_MAX_VALUE	ULONG_MAX
 #define SINT64_MAX_VALUE	LLONG_MAX
 #endif
 #endif
@@ -171,7 +185,7 @@ typedef unsigned long long  uint64;
 #ifndef  MULTI_THREAD
 #if defined _MSC_VER
 #include <xkeycheck.h>
-#define thread_local  
+#define thread_local
 #endif
 #endif // ! MULTI_THREAD
 
@@ -233,15 +247,15 @@ public:
 	{
 		if((reduce_at % 2) != 0)
 		{
-			// This *must* be an even number, or else the 
+			// This *must* be an even number, or else the
 			// average will drift too high as "count"
-			// is truncated at each reduction. 
+			// is truncated at each reduction.
 			reduce_at++;
 		}
 
 		sint64 new_total = (sint64)total + (sint64)value;
 		count++;
-		
+
 		if(count >= reduce_at)
 		{
 			new_total /= 2;
@@ -273,7 +287,7 @@ public:
 	{
 		total = 0;
 		count = 0;
-	}		
+	}
 
 	/**
 	* This compresses all values to give new numbers added
@@ -285,7 +299,7 @@ public:
 	{
 		total = get_average();
 		count = 1;
-		return total; 
+		return total;
 	}
 };
 
@@ -338,8 +352,8 @@ static inline uint16 endian(uint16 v)
 static inline uint32 endian(uint32 v)
 {
 #ifdef SIM_BIG_ENDIAN
-	v = v << 16              | v >> 16;              // 0x22330011
-	v = v <<  8 & 0xFF00FF00 | v >>  8 & 0x00FF00FF; // 0x33221100
+	v = (v << 16)              | (v >> 16);              // 0x22330011
+	v = (v <<  8) & 0xFF00FF00 | (v >>  8) & 0x00FF00FF; // 0x33221100
 #endif
 	return v;
 }
@@ -347,9 +361,9 @@ static inline uint32 endian(uint32 v)
 static inline uint64 endian(uint64 v)
 {
 #ifdef SIM_BIG_ENDIAN
-	v = v << 32                         | v >> 32;                         // 0x4455667700112233
-	v = v << 16 & 0xFFFF0000FFFF0000ULL | v >> 16 & 0x0000FFFF0000FFFFULL; // 0x6677445522330011
-	v = v <<  8 & 0xFF00FF00FF00FF00ULL | v >>  8 & 0x00FF00FF00FF00FFULL; // 0x7766554433221100
+	v = (v << 32)                         | (v >> 32);                         // 0x4455667700112233
+	v = (v << 16) & 0xFFFF0000FFFF0000ULL | (v >> 16) & 0x0000FFFF0000FFFFULL; // 0x6677445522330011
+	v = (v <<  8) & 0xFF00FF00FF00FF00ULL | (v >>  8) & 0x00FF00FF00FF00FFULL; // 0x7766554433221100
 #endif
 	return v;
 }

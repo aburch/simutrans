@@ -7,6 +7,7 @@
 #include "../simobj.h"
 #include "../simtypes.h"
 #include "../halthandle_t.h"
+#include "../linehandle_t.h"
 #include "../utils/cbuffer_t.h"
 
 class baum_t;
@@ -19,11 +20,13 @@ class karte_ptr_t;
 class koord;
 class koord3d;
 struct schedule_entry_t;
+class label_t;
 class planquadrat_t;
 class plainstring;
 class scenario_t;
 class schedule_t;
 class settings_t;
+class simline_t;
 class player_t;
 class stadt_t;
 class ware_production_t;
@@ -327,11 +330,14 @@ namespace script_api {
 	declare_specialized_param(karte_t*, ".", "world");
 	declare_specialized_param(planquadrat_t*, "t|x|y", "square_x");
 	declare_specialized_param(settings_t*, "t|x|y", "settings");
+	declare_specialized_param(schedule_t*, "t|x|y", "schedule_x");
 	declare_specialized_param(const schedule_t*, "t|x|y", "schedule_x");
 	declare_specialized_param(schedule_entry_t, "t|x|y", "schedule_entry_x");
 	declare_specialized_param(mytime_t, "i|t|x|y", "time_x");
 	declare_specialized_param(mytime_ticks_t, "i|t|x|y", "time_ticks_x");
 	declare_specialized_param(scenario_t*, "t|x|y", "");
+	declare_specialized_param(linehandle_t, "t|x|y", "line_x");
+	declare_specialized_param(simline_t*, "t|x|y", "line_x");
 	declare_specialized_param(player_t*, "t|x|y", "player_x");
 	declare_specialized_param(stadt_t*, "t|x|y", "city_x");
 	declare_specialized_param(const ware_production_t*, "t|x|y", "factory_production_x");
@@ -341,6 +347,7 @@ namespace script_api {
 	declare_specialized_param(obj_t*, "t|x|y", "map_object_x");
 	declare_specialized_param(baum_t*, "t|x|y", "tree_x");
 	declare_specialized_param(gebaeude_t*, "t|x|y", "building_x");
+	declare_specialized_param(label_t*, "t|x|y", "label_x");
 	declare_specialized_param(weg_t*, "t|x|y", "way_x");
 
 	/**

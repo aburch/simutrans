@@ -12,13 +12,13 @@
 #include "settings.h"
 #include "environment.h"
 #include "../simconst.h"
-#include "../utils/simrandom.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../path_explorer.h"
 #include "../bauer/wegbauer.h"
 #include "../descriptor/way_desc.h"
+#include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 #include "../utils/float32e8_t.h"
 #include "../vehicle/simvehicle.h"
@@ -190,8 +190,13 @@ settings_t::settings_t() :
 	 */
 	pak_diagonal_multiplier = 724;
 
-	// assume single level is enough
-	way_height_clearance = 1;
+	// read default from env_t
+	// should be set in simmain.cc (taken from pak-set simuconf.tab
+	way_height_clearance = env_t::default_settings.get_way_height_clearance();
+	if (way_height_clearance < 0 || way_height_clearance >2) {
+		// if outside bounds, then set to default = 1
+		way_height_clearance = 1;
+	}
 
 	strcpy( language_code_names, "en" );
 
@@ -218,6 +223,7 @@ settings_t::settings_t() :
 		default_player_color[i][1] = 255;
 	}
 	default_player_color_random = false;
+	default_ai_construction_speed = env_t::default_ai_construction_speed;
 
 	/* the big cost section */
 	freeplay = false;
@@ -402,7 +408,7 @@ settings_t::settings_t() :
 
 	allow_airports_without_control_towers = true;
 
-	allow_buying_obsolete_vehicles = true;
+	allow_buying_obsolete_vehicles = 1;
 
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
@@ -445,6 +451,8 @@ settings_t::settings_t() :
 	max_small_city_size = 1000;
 	max_city_size = 5000;
 
+	power_revenue_factor_percentage=100;
+	
 	allow_making_public = true;
 
 	reroute_check_interval_steps = 8192;
@@ -523,6 +531,11 @@ settings_t::settings_t() :
 	minimum_staffing_percentage_full_production_producer_industry = 80;
 
 	max_comfort_preference_percentage = 500;
+
+	rural_industries_no_staff_shortage = true;
+
+	path_explorer_time_midpoint = 64;
+	save_path_explorer_data = true;
 }
 
 void settings_t::set_default_climates()
@@ -710,7 +723,7 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		else {
 			uint16 old_multiplier = pak_diagonal_multiplier;
-			file->rdwr_short(old_multiplier );
+			file->rdwr_short( old_multiplier );
 			vehicle_base_t::set_diagonal_multiplier( pak_diagonal_multiplier, old_multiplier );
 			// since vehicle will need realignment afterwards!
 		}
@@ -958,7 +971,17 @@ void settings_t::rdwr(loadsave_t *file)
 				frames_per_second = env_t::fps;	// update it on the server to the current setting
 				frames_per_step = env_t::network_frames_per_step;
 			}
-			file->rdwr_bool( allow_buying_obsolete_vehicles);
+			if(file->get_extended_version() >= 14 && file->get_extended_revision() > 1)
+			{
+				file->rdwr_byte( allow_buying_obsolete_vehicles);
+			} else {
+				bool compat = allow_buying_obsolete_vehicles > 0;
+				file->rdwr_bool( compat );
+				allow_buying_obsolete_vehicles = 0;
+				if (compat) {
+					allow_buying_obsolete_vehicles = 1;
+				}
+			}
 			if(file->get_extended_version() < 12 && (file->get_extended_version() >= 8 || file->get_extended_version() == 0))
 			{
 				// Was factory_worker_minimum_towns and factory_worker_maximum_towns
@@ -1386,10 +1409,32 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_extended_version() >= 5)
 		{
-			file->rdwr_short(min_visiting_tolerance);
-			file->rdwr_short(range_commuting_tolerance);
-			file->rdwr_short(min_commuting_tolerance);
-			file->rdwr_short(range_visiting_tolerance);
+			if((file->get_extended_version() >= 14 && file->get_extended_revision() >= 1) || file->get_extended_version() >= 15)
+			{
+				file->rdwr_long(min_visiting_tolerance);
+				file->rdwr_long(range_commuting_tolerance);
+				file->rdwr_long(min_commuting_tolerance);
+				file->rdwr_long(range_visiting_tolerance);
+			}
+			else
+			{
+				uint16 temp = (uint16)min_visiting_tolerance;
+				file->rdwr_short(temp);
+				min_visiting_tolerance = temp; 
+
+				temp = (uint16)range_commuting_tolerance;
+				file->rdwr_short(temp);
+				range_commuting_tolerance = temp; 
+
+				temp = (uint16)min_commuting_tolerance;
+				file->rdwr_short(temp);
+				min_commuting_tolerance = temp; 
+
+				temp = (uint16)range_visiting_tolerance;
+				file->rdwr_short(temp);
+				range_visiting_tolerance = temp; 
+			}
+			
 			if(file->get_extended_version() < 12)
 			{
 				// Was min_longdistance_tolerance and max_longdistance_tolerance
@@ -1590,9 +1635,11 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte( way_height_clearance );
 		}
 		if(  file->get_version()>=120002 && file->get_extended_version() == 0 ) {
-			uint32 default_ai_construction_speed;
 			file->rdwr_long( default_ai_construction_speed );
 			// This feature is used in Standard only
+		}
+		else if(  file->is_loading()  ) {
+			default_ai_construction_speed = env_t::default_ai_construction_speed;
 		}
 		if(  file->get_version() >=120002 && (file->get_extended_revision() >= 9 || file->get_extended_version() == 0 || file->get_extended_version() >= 13)) {
 			file->rdwr_bool(lake);
@@ -1720,36 +1767,33 @@ void settings_t::rdwr(loadsave_t *file)
 		{
 			max_comfort_preference_percentage = 500;
 		}
+
+		if (file->get_extended_version() >= 13 && file->get_extended_revision() >= 3)
+		{
+			file->rdwr_bool(rural_industries_no_staff_shortage);
+		}
+		else if (file->is_loading())
+		{
+			rural_industries_no_staff_shortage = true;
+		}
+		if (file->get_extended_version() >= 13 && file->get_extended_revision() >= 4)
+		{
+			file->rdwr_long(power_revenue_factor_percentage);
+		}
+
+		if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 8))
+		{
+			file->rdwr_long(path_explorer_time_midpoint); 
+			file->rdwr_bool(save_path_explorer_data); 
+		}
 	}
 
 #ifdef DEBUG_SIMRAND_CALLS
-	for (vector_tpl<const char *>::iterator i = karte_t::random_callers.begin(); i < karte_t::random_callers.end(); ++i)
-	{
-		free((void*)(*i));
-	}
-	karte_t::random_callers.clear();
-	karte_t::random_calls = 0;
 	char buf[256];
 	sprintf(buf,"Initial counter: %i; seed: %i", get_random_counter(), get_random_seed());
 	dbg->message("settings_t::rdwr", buf);
-	karte_t::random_callers.append(strdup(buf));
-
-	if(  env_t::networkmode  ) {
-		// to have games synchronized, transfer random counter too
-		setsimrand(get_random_counter(), 0xFFFFFFFFu );
-
-		sprintf(buf,"Initial counter: %i; seed: %i", get_random_counter(), get_random_seed());
-		dbg->message("settings_t::rdwr", buf);
-		karte_t::random_callers.append(strdup(buf));
-
-		translator::init_custom_names(get_name_language_id());
-
-	}
 #endif
 }
-
-
-
 
 // read the settings from this file
 void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16& disp_height, sint16 &fullscreen, std::string& objfilename)
@@ -2171,6 +2215,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 			default_player_color[i][1] = c2;
 		}
 	}
+	default_ai_construction_speed = env_t::default_ai_construction_speed = contents.get_int("ai_construction_speed", env_t::default_ai_construction_speed );
 
 	sint64 new_maintenance_building = contents.get_int64("maintenance_building", -1);
 	if (new_maintenance_building > 0) {
@@ -2210,10 +2255,11 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// the height in z-direction will only cause pixel errors but not a different behaviour
 	env_t::pak_tile_height_step = contents.get_int("tile_height", env_t::pak_tile_height_step );
 	// new height for old slopes after conversion - 1=single height, 2=double height
+	// Must be only overwrite when reading from pak dir ...
 	env_t::pak_height_conversion_factor = contents.get_int("height_conversion_factor", env_t::pak_height_conversion_factor );
 
 	// minimum clearance under under bridges: 1 or 2? (HACK: value only zero during loading of pak set config)
-	bool bounds = way_height_clearance!=0;
+	const uint32 bounds = way_height_clearance != 0 ? 1 : 0;
 	way_height_clearance  = contents.get_int("way_height_clearance", way_height_clearance );
 	if(  way_height_clearance > 2  &&  way_height_clearance < bounds  ) {
 		sint8 new_whc = clamp( way_height_clearance, bounds, 2 );
@@ -2450,14 +2496,14 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	// Multiply by 10 because journey times are measured in tenths of minutes.
 	//@author: jamespetts
-	const uint16 min_visiting_tolerance_minutes = contents.get_int("min_visiting_tolerance", (min_visiting_tolerance / 10));
-	min_visiting_tolerance = min_visiting_tolerance_minutes * 10;
-	const uint16 range_commuting_tolerance_minutes = contents.get_int("range_commuting_tolerance", (range_commuting_tolerance / 10));
-	range_commuting_tolerance = range_commuting_tolerance_minutes * 10;
-	const uint16 min_commuting_tolerance_minutes = contents.get_int("min_commuting_tolerance", (min_commuting_tolerance/ 10));
-	min_commuting_tolerance = min_commuting_tolerance_minutes * 10;
-	const uint16 range_visiting_tolerance_minutes = contents.get_int("range_visiting_tolerance", (range_visiting_tolerance / 10));
-	range_visiting_tolerance = range_visiting_tolerance_minutes * 10;
+	const uint32 min_visiting_tolerance_minutes = contents.get_int("min_visiting_tolerance", (min_visiting_tolerance / 10u));
+	min_visiting_tolerance = min_visiting_tolerance_minutes * 10u;
+	const uint32 range_commuting_tolerance_minutes = contents.get_int("range_commuting_tolerance", (range_commuting_tolerance / 10u));
+	range_commuting_tolerance = range_commuting_tolerance_minutes * 10u;
+	const uint32 min_commuting_tolerance_minutes = contents.get_int("min_commuting_tolerance", (min_commuting_tolerance/ 10u));
+	min_commuting_tolerance = min_commuting_tolerance_minutes * 10u;
+	const uint32 range_visiting_tolerance_minutes = contents.get_int("range_visiting_tolerance", (range_visiting_tolerance / 10u));
+	range_visiting_tolerance = range_visiting_tolerance_minutes * 10u;
 
 	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
 
@@ -2583,6 +2629,11 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	max_comfort_preference_percentage = contents.get_int("max_comfort_preference_percentage", max_comfort_preference_percentage);
 
+	rural_industries_no_staff_shortage = contents.get_int("rural_industries_no_staff_shortage", rural_industries_no_staff_shortage); 
+
+	path_explorer_time_midpoint = contents.get_int("path_explorer_time_midpoint", path_explorer_time_midpoint); 
+	save_path_explorer_data = contents.get_int("save_path_explorer_data", save_path_explorer_data); 
+
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.
 	// On the other hand, we are also at risk of wiping out our livery schemes with blank space.
@@ -2649,15 +2700,20 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	while (*str == ' ') str++;
 	if (strcmp(str, "binary") == 0) {
 		loadsave_t::set_savemode(loadsave_t::binary );
-	} else if(strcmp(str, "zipped") == 0) {
+	}
+	else if(strcmp(str, "zipped") == 0) {
 		loadsave_t::set_savemode(loadsave_t::zipped );
-	} else if(strcmp(str, "xml") == 0) {
+	}
+	else if(strcmp(str, "xml") == 0) {
 		loadsave_t::set_savemode(loadsave_t::xml );
-	} else if(strcmp(str, "xml_zipped") == 0) {
+	}
+	else if(strcmp(str, "xml_zipped") == 0) {
 		loadsave_t::set_savemode(loadsave_t::xml_zipped );
-	} else if(strcmp(str, "bzip2") == 0) {
+	}
+	else if(strcmp(str, "bzip2") == 0) {
 		loadsave_t::set_savemode(loadsave_t::bzip2 );
-	} else if(strcmp(str, "xml_bzip2") == 0) {
+	}
+	else if(strcmp(str, "xml_bzip2") == 0) {
 		loadsave_t::set_savemode(loadsave_t::xml_bzip2 );
 	}
 
@@ -2665,15 +2721,20 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	while (*str == ' ') str++;
 	if (strcmp(str, "binary") == 0) {
 		loadsave_t::set_autosavemode(loadsave_t::binary );
-	} else if(strcmp(str, "zipped") == 0) {
+	}
+	else if(strcmp(str, "zipped") == 0) {
 		loadsave_t::set_autosavemode(loadsave_t::zipped );
-	} else if(strcmp(str, "xml") == 0) {
+	}
+	else if(strcmp(str, "xml") == 0) {
 		loadsave_t::set_autosavemode(loadsave_t::xml );
-	} else if(strcmp(str, "xml_zipped") == 0) {
+	}
+	else if(strcmp(str, "xml_zipped") == 0) {
 		loadsave_t::set_autosavemode(loadsave_t::xml_zipped );
-	} else if(strcmp(str, "bzip2") == 0) {
+	}
+	else if(strcmp(str, "bzip2") == 0) {
 		loadsave_t::set_autosavemode(loadsave_t::bzip2 );
-	} else if(strcmp(str, "xml_bzip2") == 0) {
+	}
+	else if(strcmp(str, "xml_bzip2") == 0) {
 		loadsave_t::set_autosavemode(loadsave_t::xml_bzip2 );
 	}
 
@@ -2884,7 +2945,7 @@ void settings_t::set_allow_routing_on_foot(bool value)
 { 
 	allow_routing_on_foot = value; 
 #ifdef MULTI_THREAD
-	world()->stop_path_explorer();
+	world()->await_path_explorer();
 #endif
 	path_explorer_t::refresh_category(0);
 }

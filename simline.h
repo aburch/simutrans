@@ -15,6 +15,7 @@
 #include "tpl/vector_tpl.h"
 #include "utils/plainstring.h"
 #include "tpl/koordhashtable_tpl.h"
+#include "dataobj/schedule.h"
 
 #define MAX_MONTHS				12 // Max history
 #define MAX_NON_MONEY_TYPES		4 // number of non money types in line's financial statistic
@@ -29,7 +30,7 @@ enum line_cost_t {
 	LINE_OPERATIONS,			//  5 | 4 | the cost of operations this line generated
 	LINE_PROFIT,				//  6 | 5 | total profit of line
 	LINE_CONVOIS,				//  7 | 2 | number of convois for this line
-	LINE_DISTANCE,				//  8 | 6 | distance converd by all convois
+	LINE_DISTANCE,				//  8 | 6 | distance covered by all convois
 	LINE_REFUNDS,				//  9 |   | Total refunds paid to passengers/goods owners desiring to use this line but kept waiting too long to do so.
 	LINE_DEPARTURES,			// 10 |   | number of departures of convoys on this line from scheduled points
 	LINE_DEPARTURES_SCHEDULED,	// 11 |   | number of departures scheduled on this line from scheduled departure points
@@ -117,6 +118,9 @@ private:
 	* @author jamespetts
 	*/
 	journey_times_map average_journey_times;
+
+	// @author: suitougreentea
+	times_history_map journey_times_history;
 
 	states state;
 
@@ -211,6 +215,7 @@ public:
 	sint64* get_finance_history() { return *financial_history; }
 
 	sint64 get_finance_history(int month, line_cost_t cost_type) const { return financial_history[month][cost_type]; }
+	sint64 get_stat_converted(int month, int cost_type) const;
 
 	void book(sint64 amount, line_cost_t cost_type) 
 	{
@@ -238,6 +243,7 @@ public:
 	void new_month();
 
 	linetype get_linetype() { return type; }
+	static linetype get_linetype( const waytype_t wt );
 
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 
@@ -270,6 +276,8 @@ public:
 	void propogate_livery_scheme();
 
 	inline journey_times_map& get_average_journey_times() { return average_journey_times; }
+
+	inline times_history_map& get_journey_times_history() { return journey_times_history; }
 
 	sint64 calc_departures_scheduled();
 };

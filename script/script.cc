@@ -5,7 +5,7 @@
 #include "../squirrel/sqstdaux.h" // for error handlers
 #include "../squirrel/sqstdio.h" // for loadfile
 #include "../squirrel/sqstdstring.h" // export for scripts
-#include "../squirrel/sq_extensions.h" // for loadfile
+#include "../squirrel/sq_extensions.h" // for sq_call_restricted
 
 #include "../utils/log.h"
 
@@ -71,9 +71,10 @@ void script_vm_t::errorfunc(HSQUIRRELVM vm, const SQChar *s_, ...)
 	free(s_dup);
 }
 
+void export_include(HSQUIRRELVM vm, const char* include_path); // api_include.cc
 
 // virtual machine
-script_vm_t::script_vm_t()
+script_vm_t::script_vm_t(const char* include_path_)
 {
 	vm = sq_open(1024);
 	sqstd_seterrorhandlers(vm);
@@ -83,10 +84,13 @@ script_vm_t::script_vm_t()
 	}
 	all_scripts.append(this);
 	error_msg = NULL;
+	include_path = include_path_;
 	// register libraries
 	sq_pushroottable(vm);
 	sqstd_register_stringlib(vm);
 	sq_pop(vm, 1);
+	// export include command
+	export_include(vm, include_path);
 }
 
 

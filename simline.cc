@@ -8,7 +8,9 @@
 #include "dataobj/schedule.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
+#include "gui/gui_theme.h"
 #include "player/simplay.h"
+#include "player/finance.h" // convert_money
 #include "vehicle/simvehicle.h"
 #include "simconvoi.h"
 #include "convoihandle_t.h"
@@ -99,6 +101,21 @@ simline_t::~simline_t()
 	delete schedule;
 	self.detach();
 	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", self.get_id(), this);
+}
+
+simline_t::linetype simline_t::get_linetype(const waytype_t wt)
+{
+	switch (wt) {
+		case road_wt: return simline_t::truckline;
+		case track_wt: return simline_t::trainline;
+		case water_wt: return simline_t::shipline;
+		case monorail_wt: return simline_t::monorailline;
+		case maglev_wt: return simline_t::maglevline;
+		case tram_wt: return simline_t::tramline;
+		case narrowgauge_wt: return simline_t::narrowgaugeline;
+		case air_wt: return simline_t::airline;
+		default: return simline_t::MAX_LINE_TYPE;
+	}
 }
 
 void simline_t::create_schedule()
@@ -398,6 +415,50 @@ void simline_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
+	if ((file->get_extended_version() == 13 && file->get_extended_revision() >= 2) || file->get_extended_version() >= 14)
+	{
+		if(file->is_saving())
+		{
+			uint32 count = journey_times_history.get_count();
+			file->rdwr_long(count);
+
+			FOR(times_history_map, const& iter, journey_times_history)
+			{
+				departure_point_t idp = iter.key;
+				file->rdwr_short(idp.x);
+				file->rdwr_short(idp.y);
+				times_history_data_t value = iter.value;
+				for (int j = 0; j < TIMES_HISTORY_SIZE; j++) 
+				{
+					uint32 time = value.get_entry(j);
+					file->rdwr_long(time);
+				}
+			}
+		}
+		else
+		{
+			uint32 count = 0;
+			file->rdwr_long(count);
+			journey_times_history.clear();
+
+			for (uint32 i = 0; i < count; i++)
+			{
+				departure_point_t idp;
+				file->rdwr_short(idp.x);
+				file->rdwr_short(idp.y);
+
+				times_history_data_t data;
+
+				for (int j = 0; j < TIMES_HISTORY_SIZE; j++) {
+					uint32 time;
+					file->rdwr_long(time);
+					data.set(j, time);
+				}
+
+				journey_times_history.put(idp, data);
+			}
+		}
+	}
 	if(file->get_version() >= 111002 && file->get_extended_version() >= 10 && file->get_extended_version() < 12)
 	{
 		bool dummy_is_alternating_circle_route = false; // Deprecated. 
@@ -495,6 +556,7 @@ void simline_t::unregister_stops(schedule_t * schedule)
 			halt->remove_line(self);
 		}
 	}
+	journey_times_history.clear();
 	financial_history[0][LINE_DEPARTURES_SCHEDULED] = calc_departures_scheduled();
 }
 
@@ -584,13 +646,13 @@ void simline_t::recalc_status()
 	// normal state
 	// Moved from an else statement at bottom
 	// to ensure that this value is always initialised.
-	state_color = COL_BLACK;
+	state_color = SYSCOL_TEXT;
 	state = line_normal_state;
 
 	if(financial_history[0][LINE_CONVOIS]==0) 
 	{
 		// no convoys assigned to this line
-		state_color = COL_WHITE;
+		state_color = SYSCOL_TEXT_HIGHLIGHT;
 		state = line_no_convoys;
 		withdraw = false;
 	}
@@ -674,12 +736,6 @@ void simline_t::recalc_status()
 			state_color = COL_DARK_BLUE;
 			state = line_has_obsolete_vehicles;
 		}
-		else
-		{
-			state_color = COL_BLACK;
-			state = line_normal_state;
-		}
-
 	}
 }
 
@@ -712,7 +768,7 @@ void simline_t::calc_classes_carried()
 		{
 			FOR(const minivec_tpl<uint8>, const& g_class, *cnv.get_classes_carried(goods_manager_t::INDEX_PAS))
 			{
-				passenger_classes_carried.append(g_class);
+				passenger_classes_carried.append_unique(g_class);
 			}
 		}
 
@@ -720,30 +776,30 @@ void simline_t::calc_classes_carried()
 		{
 			FOR(const minivec_tpl<uint8>, const& g_class, *cnv.get_classes_carried(goods_manager_t::INDEX_MAIL))
 			{
-				mail_classes_carried.append(g_class);
+				mail_classes_carried.append_unique(g_class);
 			}
 		}
 		
 		/*
 
-		for (uint8 j = 0; j < cnv.get_classes_carried(goods_manager_t::INDEX_PAS)->get_count(); j++)
+		for (uint32 j = 0; j < cnv.get_classes_carried(goods_manager_t::INDEX_PAS)->get_count(); j++)
 		{
 			if (cnv.get_goods_catg_index().is_contained(goods_manager_t::INDEX_PAS))
 			{
 				if (cnv.carries_this_or_lower_class(goods_manager_t::INDEX_PAS, j))
 				{
-					passenger_classes_carried.append(j);
+					passenger_classes_carried.append_unique(j);
 				}
 			}
 		}
 
-		for (uint8 j = 0; j < cnv.get_classes_carried(goods_manager_t::INDEX_MAIL)->get_count(); j++)
+		for (uint32 j = 0; j < cnv.get_classes_carried(goods_manager_t::INDEX_MAIL)->get_count(); j++)
 		{
 			if (cnv.get_goods_catg_index().is_contained(goods_manager_t::INDEX_MAIL))
 			{
 				if (cnv.carries_this_or_lower_class(goods_manager_t::INDEX_MAIL, j))
 				{
-					mail_classes_carried.append(j);
+					mail_classes_carried.append_unique(j);
 				}
 			}
 		}*/
@@ -776,12 +832,12 @@ void simline_t::recalc_catg_index()
 	minivec_tpl<uint8> old_passenger_classes_carried;
 	minivec_tpl<uint8> old_mail_classes_carried;
 
-	for (uint8 i = 0; i < passenger_classes_carried.get_count(); i++)
+	for (uint32 i = 0; i < passenger_classes_carried.get_count(); i++)
 	{
 		old_passenger_classes_carried.append(i);
 	}
 
-	for (uint8 i = 0; i < mail_classes_carried.get_count(); i++)
+	for (uint32 i = 0; i < mail_classes_carried.get_count(); i++)
 	{
 		old_mail_classes_carried.append(i);
 	}
@@ -946,4 +1002,19 @@ sint64 simline_t::calc_departures_scheduled()
 	}
 
 	return timed_departure_points_count * (sint64) schedule->get_spacing();
+}
+
+sint64 simline_t::get_stat_converted(int month, int cost_type) const
+{
+	sint64 value = financial_history[month][cost_type];
+	switch(cost_type) {
+		case LINE_REVENUE:
+		case LINE_OPERATIONS:
+		case LINE_PROFIT:
+		// case LINE_WAYTOLL:
+			value = convert_money(value);
+			break;
+		default: ;
+	}
+	return value;
 }

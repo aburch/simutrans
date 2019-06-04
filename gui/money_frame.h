@@ -20,7 +20,7 @@
 #include "../player/finance.h"
 #include "../player/simplay.h"
 
-#define MAX_PLAYER_COST_BUTTON (16)
+#define MAX_PLAYER_COST_BUTTON (17)
 
 /**
  * Finances dialog
@@ -32,7 +32,7 @@
 class money_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	char money_frame_title[80];
+	char money_frame_title[512];
 
 	gui_chart_t chart, mchart;
 
@@ -74,7 +74,7 @@ private:
 	gui_label_t maintenance_label;
 	gui_label_t maintenance_label2;
 	gui_label_t maintenance_money;
-	// gui_label_t vehicle_maintenance_money;
+	gui_label_t vehicle_maintenance_money, old_vehicle_maintenance_money;
 
 	gui_label_t warn;
 	gui_label_t scenario;

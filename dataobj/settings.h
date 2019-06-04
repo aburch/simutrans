@@ -509,17 +509,17 @@ public:
 
 	// The ranges for the journey time tolerance for passengers.
 	// @author: jamespetts
-	uint16 range_commuting_tolerance;
-	uint16 min_commuting_tolerance;
-	uint16 min_visiting_tolerance;
-	uint16 range_visiting_tolerance;
+	uint32 range_commuting_tolerance;
+	uint32 min_commuting_tolerance;
+	uint32 min_visiting_tolerance;
+	uint32 range_visiting_tolerance;
 	
 private:
 	/// what is the minimum clearance required under bridges
 	sint8 way_height_clearance;
 
-	// if true, you can buy obsolete stuff
-	bool allow_buying_obsolete_vehicles;
+	// 1 = allow purchase of all out of production vehicles, including obsolete vehicles 2 = allow purchase of out of produciton vehicles that are not obsolete only
+	uint8 allow_buying_obsolete_vehicles;
 	// vehicle value is decrease by this factor/1000 when a vehicle leaved the depot
 	sint16 used_vehicle_reduction;
 
@@ -619,6 +619,15 @@ public:
 	uint32 max_small_city_size;
 	uint32 max_city_size;
 
+	// The factor percentage of power revenue
+	// default: 100
+	// @author: Phystam
+	uint32 power_revenue_factor_percentage;
+
+	// how fast new AI will built something
+	// Only used in Standard
+	uint32 default_ai_construction_speed;
+
 	// player color suggestions for new games
 	bool default_player_color_random;
 	uint8 default_player_color[MAX_PLAYER_COUNT][2];
@@ -681,6 +690,11 @@ public:
 	uint32 minimum_staffing_percentage_full_production_producer_industry;
 
 	uint16 max_comfort_preference_percentage;
+
+	bool rural_industries_no_staff_shortage;
+
+	uint32 path_explorer_time_midpoint;
+	bool save_path_explorer_data;
 
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -958,13 +972,13 @@ public:
 	bool get_with_private_paks() const { return with_private_paks; }
 
 	// @author: jamespetts
-	uint16 get_min_visiting_tolerance() const { return min_visiting_tolerance; }
+	uint32 get_min_visiting_tolerance() const { return min_visiting_tolerance; }
 	void set_min_visiting_tolerance(uint16 value) { min_visiting_tolerance = value; }
-	uint16 get_range_commuting_tolerance() const { return range_commuting_tolerance; }
+	uint32 get_range_commuting_tolerance() const { return range_commuting_tolerance; }
 	void set_range_commuting_tolerance(uint16 value) { range_commuting_tolerance = value; }
-	uint16 get_min_commuting_tolerance() const { return min_commuting_tolerance; }
+	uint32 get_min_commuting_tolerance() const { return min_commuting_tolerance; }
 	void set_min_commuting_tolerance(uint16 value) { min_commuting_tolerance = value; }
-	uint16 get_range_visiting_tolerance() const { return range_visiting_tolerance; }
+	uint32 get_range_visiting_tolerance() const { return range_visiting_tolerance; }
 	void set_range_visiting_tolerance(uint16 value) { range_visiting_tolerance = value; }
 
 	// town growth stuff
@@ -987,7 +1001,7 @@ public:
 	uint16 get_factory_maximum_intransit_percentage() const { return factory_maximum_intransit_percentage; }
 
 	// disallow using obsolete vehicles in depot
-	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }
+	uint8 get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }
 
 	// forest stuff
 	uint8 get_forest_base_size() const { return forest_base_size; }
@@ -1093,6 +1107,7 @@ public:
 	uint16 get_visitor_demand_per_level() const { return visitor_demand_per_level; }
 	uint16 get_jobs_per_level() const { return jobs_per_level; }
 	uint16 get_mail_per_level() const { return mail_per_level; }
+	uint32 get_power_revenue_factor_percentage() const { return power_revenue_factor_percentage; }
 
 	uint32 get_passenger_trips_per_month_hundredths() const { return passenger_trips_per_month_hundredths; }
 	uint32 get_mail_packets_per_month_hundredths() const { return mail_packets_per_month_hundredths; }
@@ -1132,6 +1147,9 @@ public:
 	sint8 get_way_height_clearance() const { return way_height_clearance; }
 	void set_way_height_clearance( sint8 n ) { way_height_clearance = n; }
 
+	uint32 get_default_ai_construction_speed() const { return default_ai_construction_speed; }
+	void set_default_ai_construction_speed( uint32 n ) { default_ai_construction_speed = n; }
+
 	uint32 get_way_degradation_fraction() const { return way_degradation_fraction; }
 
 	uint32 get_way_wear_power_factor_road_type() const { return way_wear_power_factor_road_type; }
@@ -1156,6 +1174,11 @@ public:
 	uint32 get_minimum_staffing_percentage_full_production_producer_industry() const { return minimum_staffing_percentage_full_production_producer_industry; }
 
 	uint16 get_max_comfort_preference_percentage() const { return max_comfort_preference_percentage; }
+
+	bool get_rural_industries_no_staff_shortage() const { return rural_industries_no_staff_shortage; }
+
+	uint32 get_path_explorer_time_midpoint() const { return path_explorer_time_midpoint; }
+	bool get_save_path_explorer_data() const { return save_path_explorer_data; }
 };
 
 #endif 

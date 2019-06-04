@@ -30,4 +30,4 @@ SQUIRREL_API SQRESULT sqstd_register_stringlib(HSQUIRRELVM v);
 } /*extern "C"*/
 #endif
 
-#endif /*_SQSTD_STRING_H_*/
+#endif

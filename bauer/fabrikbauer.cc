@@ -448,9 +448,9 @@ public:
 /*
  * Builds a single new factory.
  */
-fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d pos, player_t* spieler)
+fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d pos, player_t* owner)
 {
-	fabrik_t * fab = new fabrik_t(pos, spieler, info, initial_prod_base);
+	fabrik_t * fab = new fabrik_t(pos, owner, info, initial_prod_base);
 
 	// now build factory
 	fab->build(rotate, true /*add fields*/, initial_prod_base != -1 /* force initial prodbase ? */);
@@ -641,7 +641,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		 */
 #if 0
 		k = find_random_construction_site(welt, welt->lookup(city->get_pos())->get_boden()->get_pos(), 3, land_bau.dim).get_2d();
-#endif /* 0 */
+#endif
 
 		/* C:
 		 * A building site, as near as possible to the city hall.
@@ -650,7 +650,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		 */
 #if 0
 		k = building_placefinder_t(welt).find_place(city->get_pos(), land_bau.dim.x, land_bau.dim.y, info->get_building()->get_allowed_climate_bits(), &is_rotate);
-#endif /* 0 */
+#endif
 
 		if(k != koord::invalid) {
 			*pos = welt->lookup_kartenboden(k)->get_pos();
@@ -721,7 +721,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 	int lcount = supplier->get_supplier_count();
 	int lfound = 0;	// number of found producers
 
-DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need %i of %s)",info->get_supplier_count(),lcount,consumption,ware->get_name());
+	DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need %i of %s)",info->get_supplier_count(),lcount,consumption,ware->get_name());
 
 	// Hajo: search if there already is one or two (crossconnect everything if possible)
 	FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
@@ -928,7 +928,7 @@ DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need 
  * sure that enough consumer industries get built.
  * @return: number of factories built
  */
-int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_beyond_target_density, bool power_stations_only, bool disallow_force_consumer )
+int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_beyond_target_density, bool power_stations_only, uint32 force_consumer )
 {
 	int nr = 0;
 
@@ -936,10 +936,10 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 	// In the future, the building of pure consumer industries other than power stations should be part of
 	// the city growth system and taken out of this entirely. That would leave this system free to complete
 	// industry chains as needed.
-	const bool force_add_consumer = 75 > simrand(100, "factory_builder_t::increase_industry_density()");
+	const bool force_add_consumer = force_consumer == 2 || (force_consumer == 0 && 75 > simrand(100, "factory_builder_t::increase_industry_density()"));
 
 	// Build a list of all industries with incomplete supply chains.
-	if((disallow_force_consumer || !force_add_consumer) && !power_stations_only && !welt->get_fab_list().empty())
+	if((!force_add_consumer) && !power_stations_only && !welt->get_fab_list().empty())
 	{
 		// A collection of all consumer industries that are not fully linked to suppliers.
 		slist_tpl<fabrik_t*> unlinked_consumers;
@@ -947,6 +947,8 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 
 		FOR(vector_tpl<fabrik_t*>, fab, welt->get_fab_list())
 		{
+			sint32 available_for_consumption;
+			sint32 consumption_level;
 			for(uint16 l = 0; l < fab->get_desc()->get_supplier_count(); l ++)
 			{
 				// Check the list of possible suppliers for this factory type.
@@ -956,7 +958,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 				const vector_tpl<koord> suppliers = fab->get_suppliers();
 				
 				// Check how much of this product that the current factory needs
-				const sint32 consumption_level = fab->get_base_production() * (supplier_type ? supplier_type->get_consumption() : 1);
+				consumption_level = fab->get_base_production() * (supplier_type ? supplier_type->get_consumption() : 1);
 				
 				FOR(vector_tpl<koord>, supplier_koord, suppliers)
 				{
@@ -966,7 +968,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 					{
 						continue;
 					}
-					sint32 available_for_consumption = 0;
+					available_for_consumption = 0;
 					for(uint p = 0; p < supplier->get_desc()->get_product_count(); p ++)
 					{
 						const factory_product_desc_t* consumer_type = supplier->get_desc()->get_product(p);
@@ -1120,7 +1122,7 @@ next_ware_check:
 	// now decide producer of electricity or normal ...
 	const sint64 promille = ((sint64)electric_productivity * 4000l) / total_electric_demand;
 	const sint64 target_promille = (sint64)welt->get_settings().get_electric_promille();
-	int no_electric = (force_add_consumer && !disallow_force_consumer) || (promille >= target_promille) ? 1 : 0;
+	int no_electric = force_add_consumer || (promille >= target_promille) ? 1 : 0;
 	DBG_MESSAGE( "factory_builder_t::increase_industry_density()", "production of electricity/total electrical demand is %i/%i (%i o/oo)", electric_productivity, total_electric_demand, promille );
 
 	while(  no_electric<2  ) {

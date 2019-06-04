@@ -40,14 +40,10 @@ class sparse_tpl
 		}
 
 		~sparse_tpl() {
-			if( data ) {
-				delete[] data;
-				data = NULL;
-			}
-			if( col_ind ) {
-				delete[] col_ind;
-				col_ind = NULL;
-			}
+			delete[] data;
+			data = NULL;
+			delete[] col_ind;
+			col_ind = NULL;
 			delete[] row_ptr;
 			row_ptr = NULL;
 		}
@@ -60,7 +56,7 @@ class sparse_tpl
 			resize_data(0);
 		}
 
-		koord& get_size() const {
+		const koord& get_size() const {
 			return size;
 		}
 

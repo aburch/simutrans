@@ -53,14 +53,14 @@ class vehicle_base_t : public obj_t
 	grund_t* gr;
 	weg_t* weg;
 public:
-	inline grund_t* get_grund() const 
-	{ 
-		if (!gr) 
+	inline grund_t* get_grund() const
+	{
+		if (!gr)
 			return welt->lookup(get_pos());
-		return gr; 
+		return gr;
 	}
-	inline weg_t* get_weg() const 
-	{ 
+	inline weg_t* get_weg() const
+	{
 		if (!weg)
 		{
 			// gr and weg are both initialized in enter_tile(). If there is a gr but no weg, then e.g. for ships there IS no way.
@@ -72,7 +72,7 @@ public:
 					return gr2->get_weg(get_waytype());
 			}
 		}
-		return weg; 
+		return weg;
 	}
 protected:
 	// offsets for different directions
@@ -100,6 +100,19 @@ protected:
 	// if true, use offsets to emulate driving on other side
 	uint8 drives_on_left:1;
 
+	/**
+	* Thing is moving on this lane.
+	* Possible values:
+	* (Back)
+	* 0 - sidewalk (going on the right side to w/sw/s)
+	* 1 - road     (going on the right side to w/sw/s)
+	* 2 - middle   (everything with waytype != road)
+	* 3 - road     (going on the right side to se/e/../nw)
+	* 4 - sidewalk (going on the right side to se/e/../nw)
+	* (Front)
+	*/
+	uint8 disp_lane : 3;
+
 	sint8 dx, dy;
 
 	// number of steps in this tile (255 per tile)
@@ -112,10 +125,9 @@ protected:
 	koord3d pos_next;
 
 	/**
-	 * Offsets for uphill/downhill
+	 * Offsets for uphill/downhill.
 	 * Have to be multiplied with -TILE_HEIGHT_STEP/2.
 	 * To obtain real z-offset, interpolate using steps, steps_next.
-	 * @author Hj. Malthaner
 	 */
 	uint8 zoff_start:4, zoff_end:4;
 
@@ -125,6 +137,14 @@ protected:
 	// The current livery of this vehicle.
 	// @author: jamespetts, April 2011
 	std::string current_livery;
+
+	/**
+	 * this vehicle will enter passing lane in the next tile -> 1
+	 * this vehicle will enter traffic lane in the next tile -> -1
+	 * Unclear -> 0
+	 * @author THLeaderH
+	 */
+	sint8 next_lane;
 
 	/**
 	 * Vehicle movement: check whether this vehicle can enter the next tile (pos_next).
@@ -143,7 +163,10 @@ protected:
 	virtual void calc_image() = 0;
 
 	// check for road vehicle, if next tile is free
-	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction );
+	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction, const private_car_t *pcar, sint8 lane_on_the_tile );
+
+	// If true, two vehicles might crash by lane crossing.
+	bool judge_lane_crossing( const uint8 current_direction, const uint8 next_direction, const uint8 other_next_direction, const bool is_overtaking, const bool forced_to_change_lane ) const;
 
 	// only needed for old way of moving vehicles to determine position at loading time
 	bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const;
@@ -172,24 +195,33 @@ public:
 	uint8 get_steps() const {return steps;} // number of steps pass on the current tile.
 	uint8 get_steps_next() const {return steps_next;} // total number of steps to pass on the current tile - 1. Mostly VEHICLE_STEPS_PER_TILE - 1 for straight route or diagonal_vehicle_steps_per_tile - 1 for a diagonal route.
 
+	uint8 get_disp_lane() const { return disp_lane; }
+
 	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
 
 	/**
-	* Vehicle movement: calculates z-offset of vehicles on slopes,
-	* handles vehicles that are invisible in tunnels.
-	* @param gr vehicle is on this ground
-	* @note has to be called after loading to initialize z-offsets
-	*/
+	 * Vehicle movement: calculates z-offset of vehicles on slopes,
+	 * handles vehicles that are invisible in tunnels.
+	 * @param gr vehicle is on this ground
+	 * @note has to be called after loading to initialize z-offsets
+	 */
 	void calc_height(grund_t *gr = NULL);
 
 	virtual void rotate90();
 
-	static ribi_t::ribi calc_direction(koord start, koord ende);
+	template<class K1, class K2>
+	static ribi_t::ribi calc_direction(const K1& from, const K2& to)
+	{
+		return ribi_type(from, to);
+	}
+
 	ribi_t::ribi calc_set_direction(const koord3d& start, const koord3d& ende);
 	uint16 get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &direction) const;
 
 	ribi_t::ribi get_direction() const {return direction;}
+
+	ribi_t::ribi get_90direction() const {return ribi_type(get_pos(), get_pos_next());}
 
 	koord3d get_pos_next() const {return pos_next;}
 
@@ -213,6 +245,7 @@ public:
 	virtual void leave_tile();
 
 	virtual overtaker_t *get_overtaker() { return NULL; }
+	virtual convoi_t* get_overtaker_cv() { return NULL; }
 
 #ifdef INLINE_OBJ_TYPE
 protected:
@@ -265,7 +298,7 @@ private:
 	virtual void calc_drag_coefficient(const grund_t *gr);
 
 	sint32 calc_modified_speed_limit(koord3d position, ribi_t::ribi current_direction, bool is_corner);
-	
+
 	bool load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehicles, bool use_lower_classes);
 
 	// @author: jamespetts
@@ -361,6 +394,8 @@ public:
 
 	virtual void rotate90();
 
+	ribi_t::ribi get_previous_direction() const { return previous_direction; }
+
 	/**
 	 * Method checks whether next tile is free to move on.
 	 * Looks up next tile, and calls @ref can_enter_tile(const grund_t*, sint32&, uint8).
@@ -395,7 +430,7 @@ public:
 	void set_route_index(uint16 value) { route_index = value; }
 	const koord3d get_pos_prev() const {return pos_prev;}
 
-    virtual bool reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route = NULL);
+	virtual route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route = NULL);
 
 	/**
 	* Get the base image.
@@ -436,14 +471,18 @@ public:
 	void play_sound() const;
 
 	/**
-	* Prepare vehicle for new ride.
-	* Sets route_index, pos_next, steps_next.
-	* If @p recalc is true this sets position and recalculates/resets movement parameters. a new route
-	* @author Hj. Malthaner
-	*/
+	 * Prepare vehicle for new ride.
+	 * Sets route_index, pos_next, steps_next.
+	 * If @p recalc is true this sets position and recalculates/resets movement parameters.
+	 * @author Hj. Malthaner
+	 */
 	void initialise_journey( uint16 start_route_index, bool recalc );
 
 	void set_direction_steps(sint16 value) { direction_steps = value; }
+
+	void fix_class_accommodations();
+
+	inline koord3d get_last_stop_pos() const { return last_stop_pos;  }
 
 #ifdef INLINE_OBJ_TYPE
 protected:
@@ -494,7 +533,7 @@ public:
 	sint32 get_speed_limit() const { return speed_limit; }
 	static inline sint32 speed_unlimited() {return (std::numeric_limits<sint32>::max)(); }
 
-	const slist_tpl<ware_t> & get_cargo(uint8 g_class) const { return fracht[g_class];}   // list of goods being transported (indexed by class)
+	const slist_tpl<ware_t> & get_cargo(uint8 g_class) const { return fracht[g_class];}   // list of goods being transported (indexed by accommodation class)
 
 	/**
 	 * Rotate freight target coordinates, has to be called after rotating factories.
@@ -528,6 +567,8 @@ public:
 	*/
 	uint16 get_cargo_max() const {return desc->get_total_capacity(); }
 
+	ribi_t::ribi get_next_90direction() const;
+
 	const char * get_cargo_mass() const;
 
 	/**
@@ -536,8 +577,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void get_cargo_info(cbuffer_t & buf) const;
-
-	void get_cargo_class_info(cbuffer_t & buf) const;
 
 	// Check for straightness of way.
 	//@author jamespetts
@@ -574,7 +613,7 @@ public:
 
 
 	// sets or querey begin and end of convois
-	void set_leading(bool value) {leading = value;} 
+	void set_leading(bool value) {leading = value;}
 	bool is_leading() const {return leading;}
 
 	void set_last(bool value) {last = value;}
@@ -637,13 +676,15 @@ public:
 
 	uint16 get_sum_weight() const { return (sum_weight + 499) / 1000; }
 
+	uint16 get_overcrowded_capacity(uint8 g_class) const;
 	// @author: jamespetts
 	uint16 get_overcrowding(uint8 g_class) const;
 
 	// @author: jamespetts
 	uint8 get_comfort(uint8 catering_level = 0, uint8 g_class = 0) const;
 
-	uint16 get_capacity(uint8 g_class, bool include_lower_classes = false) const;
+	uint16 get_accommodation_capacity(uint8 g_class, bool include_lower_classes = false) const;
+	uint16 get_fare_capacity(uint8 g_class, bool include_lower_classes = false) const;
 
 	// BG, 06.06.2009: update player's fixed maintenance
 	void finish_rd();
@@ -686,6 +727,10 @@ protected:
 public:
 	virtual void enter_tile(grund_t*);
 
+	virtual void rotate90();
+
+	void calc_disp_lane();
+
 	virtual waytype_t get_waytype() const { return road_wt; }
 
 	road_vehicle_t(loadsave_t *file, bool first, bool last);
@@ -705,7 +750,8 @@ public:
 	virtual bool  is_target(const grund_t *,const grund_t *);
 
 	// since we must consider overtaking, we use this for offset calculation
-	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
+	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width, bool prev_based ) const;
+	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const { get_screen_offset(xoff,yoff,raster_width,false); }
 
 #ifdef INLINE_OBJ_TYPE
 #else
@@ -715,6 +761,10 @@ public:
 	schedule_t * generate_new_schedule() const;
 
 	virtual overtaker_t* get_overtaker();
+	virtual convoi_t* get_overtaker_cv();
+
+	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top = false, sint8 offset = 0) const;
+	virtual vehicle_base_t* other_lane_blocked_offset() const { return other_lane_blocked(false,1); }
 };
 
 
@@ -733,7 +783,7 @@ protected:
 	void enter_tile(grund_t*);
 
 	sint32 activate_choose_signal(uint16 start_index, uint16 &next_signal_index, uint32 brake_steps, uint16 modified_sighting_distance_tiles, route_t* route, sint32 modified_route_index);
-	
+
 	working_method_t working_method;
 
 public:
@@ -760,6 +810,10 @@ public:
 	// needed for setting signal aspects in some cases).
 	sint32 block_reserver(route_t *route, uint16 start_index, uint16 modified_sighting_distance_tiles, uint16 &next_signal, int signal_count, bool reserve, bool force_unreserve, bool is_choosing = false, bool is_from_token = false, bool is_from_starter = false, bool is_from_directional = false, uint32 brake_steps = 1, uint16 first_one_train_staff_index = INVALID_INDEX, bool from_call_on = false, bool *break_loop = NULL);
 
+	// Finds the next signal without reserving any tiles.
+	// Used for time interval (with and without telegraph) signals on plain track.
+	void find_next_signal(route_t* route, uint16 start_index, uint16 &next_signal);
+
 	void leave_tile();
 
 	/// Unreserve behind the train using the current route
@@ -768,7 +822,7 @@ public:
 	/// Unreserve behind the train (irrespective of route) all station tiles in rear
 	void unreserve_station();
 
-	void clear_token_reservation(signal_t* sig, rail_vehicle_t* w, schiene_t* sch); 
+	void clear_token_reservation(signal_t* sig, rail_vehicle_t* w, schiene_t* sch);
 
 #ifdef INLINE_OBJ_TYPE
 protected:
@@ -933,6 +987,12 @@ private:
 
 	// only used for  is_target() (do not need saving)
 	ribi_t::ribi approach_dir;
+
+	// Used to re-run the routing algorithm without
+	// checking runway length in order to display
+	// the correct error message.
+	bool ignore_runway_length = false; 
+
 #ifdef USE_DIFFERENT_WIND
 	static uint8 get_approach_ribi( koord3d start, koord3d ziel );
 #endif
@@ -955,7 +1015,7 @@ private:
 		landing_distance = altitude_level - 1;
 	}
 	// BG, 07.08.2012: extracted from calc_route()
-	bool calc_route_internal(
+	route_t::route_result_t calc_route_internal(
 		karte_t *welt,
 		const koord3d &start,
 		const koord3d &ziel,
@@ -1015,7 +1075,7 @@ public:
 	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route);
 
 	// BG, 08.08.2012: extracted from can_enter_tile()
-    bool reroute(const uint16 reroute_index, const koord3d &ziel);
+	route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel);
 
 #ifdef INLINE_OBJ_TYPE
 #else

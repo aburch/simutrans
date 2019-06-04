@@ -23,6 +23,8 @@
 
 const way_desc_t *strasse_t::default_strasse=NULL;
 
+bool strasse_t::show_masked_ribi = false;
+
 
 void strasse_t::set_gehweg(bool janein)
 {
@@ -34,7 +36,7 @@ void strasse_t::set_gehweg(bool janein)
 	}
 
 	weg_t::set_gehweg(janein);
-	if(janein && get_desc()) 
+	if(janein && get_desc())
 	{
 		if(welt->get_settings().get_town_road_speed_limit())
 		{
@@ -65,15 +67,9 @@ strasse_t::strasse_t() : weg_t(road_wt)
 {
 	set_gehweg(false);
 	set_desc(default_strasse);
+	ribi_mask_oneway =ribi_t::none;
+	overtaking_mode = twoway_mode;
 }
-
-strasse_t::~strasse_t()
-{
-	// The below was implemented for testing but seems to have no 
-	// effect on the heap corruption issue from 10 Dec. 2017
-	//connected_buildings.clear();
-}
-
 
 
 void strasse_t::rdwr(loadsave_t *file)
@@ -82,19 +78,32 @@ void strasse_t::rdwr(loadsave_t *file)
 
 	weg_t::rdwr(file);
 
+	if(  file->get_extended_version() >= 14  ) {
+		uint8 mask_oneway = get_ribi_mask_oneway();
+		file->rdwr_byte(mask_oneway);
+		set_ribi_mask_oneway(mask_oneway);
+		sint8 ov = get_overtaking_mode();
+		file->rdwr_byte(ov);
+		overtaking_mode_t nov = (overtaking_mode_t)ov;
+		set_overtaking_mode(nov);
+	} else {
+		set_ribi_mask_oneway(ribi_t::none);
+		set_overtaking_mode(twoway_mode);
+	}
+
 	if(file->get_version()<89000) {
 		bool gehweg;
 		file->rdwr_bool(gehweg);
 		set_gehweg(gehweg);
 	}
 
-	if(file->is_saving()) 
+	if(file->is_saving())
 	{
 		const char *s = get_desc()->get_name();
 		file->rdwr_str(s);
 		if(file->get_extended_version() >= 12)
 		{
-			s = replacement_way ? replacement_way->get_name() : ""; 
+			s = replacement_way ? replacement_way->get_name() : "";
 			file->rdwr_str(s);
 		}
 	}
@@ -150,7 +159,7 @@ void strasse_t::rdwr(loadsave_t *file)
 		const tunnel_t *tunnel = gr ? gr->find<tunnel_t>() : NULL;
 		const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
 
-		if(hang != slope_t::flat) 
+		if(hang != slope_t::flat)
 		{
 			const uint slope_height = (hang & 7) ? 1 : 2;
 			if(slope_height == 1)
@@ -199,10 +208,50 @@ void strasse_t::rdwr(loadsave_t *file)
 					set_max_speed(desc->get_topspeed());
 				}
 		}
- 
+
 		if(hat_gehweg() && desc->get_wtyp() == road_wt)
 		{
 			set_max_speed(min(get_max_speed(), 50));
 		}
 	}
+}
+
+void strasse_t::update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow)
+{
+	// assertion. @mask and @allow must be single or none.
+	if(!(ribi_t::is_single(mask)||(mask==ribi_t::none))) dbg->error( "weg_t::update_ribi_mask_oneway()", "mask is not single or none.");
+	if(!(ribi_t::is_single(allow)||(allow==ribi_t::none))) dbg->error( "weg_t::update_ribi_mask_oneway()", "allow is not single or none.");
+
+	if(  mask==ribi_t::none  ) {
+		if(  ribi_t::is_twoway(get_ribi_unmasked())  ) {
+			// auto complete
+			ribi_mask_oneway |= (get_ribi_unmasked()-allow);
+		}
+	} else {
+		ribi_mask_oneway |= mask;
+	}
+	// remove backward ribi
+	if(  allow==ribi_t::none  ) {
+		if(  ribi_t::is_twoway(get_ribi_unmasked())  ) {
+			// auto complete
+			ribi_mask_oneway &= ~(get_ribi_unmasked()-mask);
+		}
+	} else {
+		ribi_mask_oneway &= ~allow;
+	}
+}
+
+ribi_t::ribi strasse_t::get_ribi() const {
+	ribi_t::ribi ribi = get_ribi_unmasked();
+	ribi_t::ribi ribi_maske = get_ribi_maske();
+	if(  get_waytype()==road_wt  &&  overtaking_mode<=oneway_mode  ) {
+		return (ribi_t::ribi)((ribi & ~ribi_maske) & ~ribi_mask_oneway);
+	} else {
+		return (ribi_t::ribi)(ribi & ~ribi_maske);
+	}
+}
+
+void strasse_t::rotate90() {
+	weg_t::rotate90();
+	ribi_mask_oneway = ribi_t::rotate90( ribi_mask_oneway );
 }

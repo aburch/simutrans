@@ -16,6 +16,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 #include "../bauer/hausbauer.h"
+#include "../bauer/goods_manager.h"
 #include "../gui/money_frame.h"
 #include "../simworld.h"
 #include "../simobj.h"
@@ -26,7 +27,6 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../gui/simwin.h"
 #include "../simcity.h"
 #include "../player/simplay.h"
-#include "../utils/simrandom.h"
 #include "../simdebug.h"
 #include "../simintr.h"
 #include "../simskin.h"
@@ -42,6 +42,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../descriptor/ground_desc.h"
 
 #include "../utils/cbuffer_t.h"
+#include "../utils/simrandom.h"
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
@@ -78,7 +79,11 @@ void gebaeude_t::init()
 	passengers_succeeded_visiting = 0;
 	passenger_success_percent_last_year_visiting = 65535;
 	available_jobs_by_time = -9223372036854775808ll;
-	is_in_world_list = false;
+	mail_generated = 0;
+	mail_delivery_succeeded_last_year = 65535;
+	mail_delivery_succeeded = 0;
+	mail_delivery_success_percent_last_year = 65535;
+	is_in_world_list = 0;
 	loaded_passenger_and_mail_figres = false;
 }
 
@@ -94,7 +99,7 @@ gebaeude_t::gebaeude_t(obj_t::typ type) :
 }
 
 
-gebaeude_t::gebaeude_t(loadsave_t *file) :
+gebaeude_t::gebaeude_t(loadsave_t *file, bool do_not_add_to_world_list) :
 #ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::gebaeude)
 #else
@@ -102,6 +107,10 @@ gebaeude_t::gebaeude_t(loadsave_t *file) :
 #endif
 {
 	init();
+	if (do_not_add_to_world_list)
+	{
+		is_in_world_list = -1;
+	}
 	rdwr(file);
 	if (file->get_version()<88002) {
 		set_yoff(0);
@@ -202,7 +211,6 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const building_tile_desc_t
 	if (gr  &&  gr->get_weg_hang() != gr->get_grund_hang()) {
 		set_yoff(-gr->get_weg_yoff());
 	}
-
 	check_road_tiles(false);
 
 	// This sets the number of jobs per building at initialisation to zero. As time passes,
@@ -222,7 +230,7 @@ stadt_t* gebaeude_t::get_stadt() const
 }
 
 /**
-* Destructor. Removes this from the list of sync objects if neccesary.
+* Destructor. Removes this from the list of sync objects if necessary.
 *
 * @author Hj. Malthaner
 */
@@ -246,9 +254,9 @@ gebaeude_t::~gebaeude_t()
 	}
 	if (our_city)
 	{
-		our_city->remove_gebaeude_from_stadt(this, !has_city_defined);
+		our_city->remove_gebaeude_from_stadt(this, !has_city_defined, false);
 	}
-	else
+	else if(is_in_world_list > 0)
 	{
 		welt->remove_building_from_world_list(this);
 	}
@@ -394,14 +402,14 @@ void gebaeude_t::rotate90()
 				// rotate 180 degree
 				new_offset = koord(building_desc->get_x() - 1 - new_offset.x, building_desc->get_y() - 1 - new_offset.y);
 			}
-			// do nothing here, since we cannot fix it porperly
+			// do nothing here, since we cannot fix it properly
 		}
 		else {
 			// rotate on ...
 			new_offset = koord(building_desc->get_y(tile->get_layout()) - 1 - new_offset.y, new_offset.x);
 		}
 
-		// suche a tile exist?
+		// such a tile exist?
 		if (building_desc->get_x(layout) > new_offset.x  &&  building_desc->get_y(layout) > new_offset.y) {
 			const building_tile_desc_t* const new_tile = building_desc->get_tile(layout, new_offset.x, new_offset.y);
 			// add new tile: but make them old (no construction)
@@ -444,7 +452,7 @@ void gebaeude_t::set_fab(fabrik_t *fd)
 		{
 			// We cannot set this until we know what sort of factory that this is.
 			// If it is not an end consumer, do not allow any visitor demand by default.
-			if (fd->is_end_consumer())
+			if (fd->get_sector() == fabrik_t::end_consumer)
 			{
 				people.visitor_demand = tile->get_desc()->get_level() * welt->get_settings().get_visitor_demand_per_level();
 				adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
@@ -535,7 +543,7 @@ sync_result gebaeude_t::sync_step(uint32 delta_t)
 {
 	if (purchase_time > welt->get_ticks())
 	{
-		// There were some integer overflow issues with 
+		// There were some integer overflow issues with
 		// this when some intermediate values were uint32.
 		purchase_time = welt->get_ticks() - 5000ll;
 	}
@@ -628,7 +636,7 @@ image_id gebaeude_t::get_image() const
 			// hide with transparency or tile without information
 			if (env_t::hide_with_transparency) {
 				if (tile->get_desc()->get_type() == building_desc_t::factory  &&  ptr.fab->get_desc()->get_placement() == factory_desc_t::Water) {
-					// no ground tiles for water thingies
+					// no ground tiles for water things
 					return IMG_EMPTY;
 				}
 				return skinverwaltung_t::fussweg->get_image_id(0);
@@ -670,7 +678,7 @@ PLAYER_COLOR_VAL gebaeude_t::get_outline_colour() const
 			disp_colour = colours[0] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 		else if (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING && tile->get_desc()->get_type() < building_desc_t::others) {
-			// special bilding
+			// special building
 			disp_colour = colours[tile->get_desc()->get_type()] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 	}
@@ -755,7 +763,7 @@ bool gebaeude_t::is_monument() const
 
 bool gebaeude_t::is_headquarter() const
 {
-	return tile->get_desc()->is_headquarter();
+	return tile->get_desc()->is_headquarters();
 }
 
 bool gebaeude_t::is_attraction() const
@@ -784,7 +792,7 @@ void gebaeude_t::show_info()
 		create_win(new money_frame_t(get_owner()), w_info, magic_finances_t + get_owner()->get_player_nr());
 	}
 	else if (is_townhall()) {
-		welt->find_nearest_city(get_pos().get_2d())->show_info();
+		get_stadt()->show_info();
 	}
 
 	if (!tile->get_desc()->no_info_window()) {
@@ -1051,6 +1059,19 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				buf.printf(" 0%%");
 			}
 			buf.printf("\n");
+			if (adjusted_mail_demand)
+			{
+				buf.printf("%s", translator::translate("Mail delivery success this year:"));
+				if (get_mail_delivery_success_percent_this_year() < 65535)
+				{
+					buf.printf(" %i%%", get_mail_delivery_success_percent_this_year());
+				}
+				else {
+					buf.printf(" 0%%");
+				}
+				buf.printf("\n");
+			}
+			buf.printf("\n");
 
 			if (get_passenger_success_percent_last_year_commuting() < 65535)
 			{
@@ -1065,19 +1086,59 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				buf.printf(" %i%%", get_passenger_success_percent_last_year_visiting());
 				buf.printf("\n");
 			}
+			if (adjusted_mail_demand && mail_delivery_succeeded_last_year < 65535)
+			{
+				buf.printf("%s", translator::translate("Mail delivery success last year:"));
+				if (get_mail_delivery_success_percent_last_year() < 65535)
+				{
+					buf.printf(" %i%%", mail_delivery_success_percent_last_year);
+				}
+				else {
+					buf.printf(" 0%%");
+				}
+				buf.printf("\n");
+			}
 		}
 		else
 		{
-			buf.printf("%s %i\n", translator::translate("Visitors this year:"), passengers_succeeded_visiting);
+			if (get_adjusted_visitor_demand())
+			{
+				buf.printf("%s %i\n", translator::translate("Visitors this year:"), passengers_succeeded_visiting);
+			}
 			buf.printf("%s %i\n", translator::translate("Commuters this year:"), passengers_succeeded_commuting);
+			if (adjusted_mail_demand)
+			{
+				buf.printf("%s", translator::translate("Mail sent this year:"));
+				if (get_mail_delivery_success_percent_this_year() < 65535)
+				{
+					buf.printf(" %i (%i%%)", mail_delivery_succeeded, get_mail_delivery_success_percent_this_year());
+				}
+				else {
+					buf.printf(" 0 (0%%)");
+				}
+				buf.printf("\n");
+			}
+			buf.printf("\n");
 
+			if (get_adjusted_visitor_demand() && passenger_success_percent_last_year_visiting < 65535)
+			{
+				buf.printf("%s %i\n", translator::translate("Visitors last year:"), passenger_success_percent_last_year_visiting);
+			}
 			if (passenger_success_percent_last_year_commuting < 65535)
 			{
-				buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), passenger_success_percent_last_year_visiting);
-			}
-			if (passenger_success_percent_last_year_visiting < 65535)
-			{
 				buf.printf("%s %i\n", translator::translate("Commuters last year:"), passenger_success_percent_last_year_commuting);
+			}
+			if (adjusted_mail_demand && mail_delivery_succeeded_last_year < 65535)
+			{
+				buf.printf("%s", translator::translate("Mail sent last year:"));
+				if (get_mail_delivery_success_percent_last_year() < 65535)
+				{
+					buf.printf(" %i (%i%%)", mail_delivery_succeeded_last_year, mail_delivery_success_percent_last_year);
+				}
+				else {
+					buf.printf(" 0 (0%%)");
+				}
+				buf.printf("\n");
 			}
 		}
 
@@ -1295,11 +1356,11 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 {
 	building_desc_t const& h = *tile->get_desc();
 	uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
-	int class_percentage[255] = { 0 };
-	int class_percentage_job[255] = { 0 };
+	uint8 class_percentage[256] = { 0 };
+	uint8 class_percentage_job[256] = { 0 };
 
 	// Does this building have any class related stuff assigned?
-	if (h.get_number_of_class_proportions() == 0)
+	if (h.get_class_proportions_sum() == 0)
 	{
 		for (int i = 0; i < pass_classes; i++)
 		{
@@ -1307,60 +1368,35 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 		}
 	}
 
-	// Apparently it does (if it continues past this point), so lets get on with the calculations!
+	// Apparently it does (if it continues past this point), so let's get on with the calculations!
 	else
 	{
-		long double class_proportions_sum = h.get_class_proportions_sum();
+		int class_proportions_sum = h.get_class_proportions_sum();
 		int count_to_hundred = 0;
 
 		// Calculate how much each class is as a percentage of the total amount
 		// Remember, each class proportion is *cumulative* with all previous class proportions.
-		long double last_class_proportion = 0.0;
-		for (int i = 0; i < h.get_number_of_class_proportions(); i++)
+		int last_class_proportion = 0;
+		for (int i = 0; i < pass_classes; i++)
 		{
-			class_percentage[i] = (h.get_class_proportion(i) - last_class_proportion) / class_proportions_sum * 100;
+			class_percentage[i] = (h.get_class_proportion(i) - last_class_proportion) * 100 / class_proportions_sum;
 			last_class_proportion = h.get_class_proportion(i);
 			count_to_hundred += class_percentage[i];
 		}
 
-		// Since rounding errors occur, we need to correct that, so the total percentage stays at 100%
-		if (count_to_hundred < 100)
+		//  We rounded down, so let's increase some of the figures to make the sum 100%
+		while (count_to_hundred < 100)
 		{
-			bool hundred_yet = false;
-			for (int i = 0; hundred_yet == false; i++)
+			for (int i = 0; i < pass_classes; i++)
 			{
-				for (int j = 0; j < h.get_number_of_class_proportions(); j++)
+				if (h.get_class_proportion(i) != 0)
 				{
-					if (class_percentage[j] != 0 && count_to_hundred < 100)
-					{
-						class_percentage[j]++;
-						count_to_hundred++;
-					}
+					class_percentage[i]++;
+					count_to_hundred++;
 				}
 				if (count_to_hundred >= 100)
 				{
-					hundred_yet = true;
-				}
-			}
-		}
-
-		// And just to make sure there is no rounding errors the other way too..
-		if (count_to_hundred > 100)
-		{
-			bool hundred_yet = false;
-			for (int i = 0; hundred_yet == false; i++)
-			{
-				for (int j = 0; j < h.get_number_of_class_proportions(); j++)
-				{
-					if (class_percentage[j] != 0 && count_to_hundred > 100)
-					{
-						class_percentage[j]--;
-						count_to_hundred--;
-					}
-				}
-				if (count_to_hundred <= 100)
-				{
-					hundred_yet = true;
+					break;
 				}
 			}
 		}
@@ -1368,7 +1404,7 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 
 
 	// And now the poor commuters deserves the same threatment..
-	if (h.get_number_of_class_proportions_jobs() == 0)
+	if (h.get_class_proportions_sum_jobs() == 0)
 	{
 		for (int i = 0; i < pass_classes; i++)
 		{
@@ -1377,57 +1413,36 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 	}
 	else
 	{
-		long double class_proportions_sum = h.get_class_proportions_sum_jobs();
+		int class_proportions_sum = h.get_class_proportions_sum_jobs();
 		int count_to_hundred = 0;
-		long double last_class_proportion = 0.0;
+		int last_class_proportion = 0;
 
-		for (int i = 0; i < h.get_number_of_class_proportions_jobs(); i++)
+		for (int i = 0; i < pass_classes; i++)
 		{
-			class_percentage_job[i] = (h.get_class_proportion_jobs(i) - last_class_proportion) / class_proportions_sum * 100;
+			class_percentage_job[i] = (h.get_class_proportion_jobs(i) - last_class_proportion) * 100 / class_proportions_sum;
 			last_class_proportion = h.get_class_proportion_jobs(i);
 			count_to_hundred += class_percentage_job[i];
 		}
-		if (count_to_hundred < 100)
+
+		//  We rounded down, so lets increase some of the figures to make the sum 100%
+		while (count_to_hundred < 100)
 		{
-			bool hundred_yet = false;
-			for (int i = 0; hundred_yet == false; i++)
+			for (int i = 0; i < pass_classes; i++)
 			{
-				for (int j = 0; j < h.get_number_of_class_proportions_jobs(); j++)
+				if (h.get_class_proportion_jobs(i) != 0)
 				{
-					if (class_percentage_job[j] != 0 && count_to_hundred < 100)
-					{
-						class_percentage_job[j]++;
-						count_to_hundred++;
-					}
+					class_percentage_job[i]++;
+					count_to_hundred++;
 				}
 				if (count_to_hundred >= 100)
 				{
-					hundred_yet = true;
-				}
-			}
-		}
-		if (count_to_hundred > 100)
-		{
-			bool hundred_yet = false;
-			for (int i = 0; hundred_yet == false; i++)
-			{
-				for (int j = 0; j < h.get_number_of_class_proportions_jobs(); j++)
-				{
-					if (class_percentage_job[j] != 0 && count_to_hundred > 100)
-					{
-						class_percentage_job[j]--;
-						count_to_hundred--;
-					}
-				}
-				if (count_to_hundred <= 100)
-				{
-					hundred_yet = true;
+					break;
 				}
 			}
 		}
 	}
 
-	
+
 	int condition = 0; // 1 = visitors only, 2 = visitors + commuters, 3 = commuters only
 
 	if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
@@ -1457,19 +1472,18 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 		const char* class_name = translator::translate(class_name_untranslated);
 		if (condition == 1)
 		{
-			buf.printf("  %i%% %s\n", class_percentage[i], class_name);
+			buf.printf(" %3i%% %s\n", class_percentage[i], class_name);
 		}
 		else if (condition == 2)
 		{
-			buf.printf("  %i%% / %i%% %s\n", class_percentage[i], class_percentage_job[i], class_name);
+			buf.printf(" %3i%% /%3i%% %s\n", class_percentage[i], class_percentage_job[i], class_name);
 		}
 		if (condition == 3)
 		{
-			buf.printf("  %i%% %s\n", class_percentage_job[i], class_name);
+			buf.printf(" %3i%% %s\n", class_percentage_job[i], class_name);
 		}
 	}
 }
-	
 
 void gebaeude_t::new_year()
 {
@@ -1487,8 +1501,10 @@ void gebaeude_t::new_year()
 		passenger_success_percent_last_year_commuting = passengers_succeeded_commuting;
 		passenger_success_percent_last_year_visiting = passengers_succeeded_visiting;
 	}
+	mail_delivery_succeeded_last_year = mail_delivery_succeeded;
+	mail_delivery_success_percent_last_year = get_mail_delivery_success_percent_this_year();
 
-	passengers_succeeded_commuting = passengers_generated_commuting = passengers_succeeded_visiting = passengers_generated_visiting = 0;
+	passengers_succeeded_commuting = passengers_generated_commuting = passengers_succeeded_visiting = passengers_generated_visiting = mail_delivery_succeeded = mail_delivery_succeeded = 0;
 }
 
 
@@ -1589,12 +1605,14 @@ void gebaeude_t::rdwr(loadsave_t *file)
 				}
 				// we try to replace citybuildings with their matching counterparts
 				// if none are matching, we try again without climates and timeline!
+				// only 1x1 buildings can fill the empty tile to avoid overlap.
+				const koord single(1,1);
 				switch (type) {
 				case building_desc_t::city_res:
 				{
-					const building_desc_t *bdsc = hausbauer_t::get_residential(level, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z));
+					const building_desc_t *bdsc = hausbauer_t::get_residential(level, single, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z));
 					if (bdsc == NULL) {
-						bdsc = hausbauer_t::get_residential(level, 0, MAX_CLIMATES);
+						bdsc = hausbauer_t::get_residential(level, single, 0, MAX_CLIMATES);
 					}
 					if (bdsc) {
 						dbg->message("gebaeude_t::rwdr", "replace unknown building %s with residence level %i by %s", buf, level, bdsc->get_name());
@@ -1605,9 +1623,9 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 				case building_desc_t::city_com:
 				{
-					const building_desc_t *bdsc = hausbauer_t::get_commercial(level, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z));
+					const building_desc_t *bdsc = hausbauer_t::get_commercial(level, single, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z));
 					if (bdsc == NULL) {
-						bdsc = hausbauer_t::get_commercial(level, 0, MAX_CLIMATES);
+						bdsc = hausbauer_t::get_commercial(level, single, 0, MAX_CLIMATES);
 					}
 					if (bdsc) {
 						dbg->message("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i by %s", buf, level, bdsc->get_name());
@@ -1618,11 +1636,11 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 				case building_desc_t::city_ind:
 				{
-					const building_desc_t *bdsc = hausbauer_t::get_industrial(level, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z));
+					const building_desc_t *bdsc = hausbauer_t::get_industrial(level, single, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z));
 					if (bdsc == NULL) {
-						bdsc = hausbauer_t::get_industrial(level, 0, MAX_CLIMATES);
+						bdsc = hausbauer_t::get_industrial(level, single, 0, MAX_CLIMATES);
 						if (bdsc == NULL) {
-							bdsc = hausbauer_t::get_residential(level, 0, MAX_CLIMATES);
+							bdsc = hausbauer_t::get_residential(level, single, 0, MAX_CLIMATES);
 						}
 					}
 					if (bdsc) {
@@ -1727,11 +1745,19 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 		file->rdwr_short(jobs);
 		file->rdwr_short(people.visitor_demand);
-		file->rdwr_short(mail_demand); 
+		file->rdwr_short(mail_demand);
 
 		file->rdwr_short(adjusted_jobs);
-		file->rdwr_short(adjusted_people.visitor_demand); 
+		file->rdwr_short(adjusted_people.visitor_demand);
 		file->rdwr_short(adjusted_mail_demand);
+	}
+
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 4) || file->get_extended_version() >= 15)
+	{
+		file->rdwr_short(mail_generated);
+		file->rdwr_short(mail_delivery_succeeded_last_year);
+		file->rdwr_short(mail_delivery_succeeded);
+		file->rdwr_short(mail_delivery_success_percent_last_year);
 	}
 
 	if (file->is_loading())
@@ -1789,10 +1815,18 @@ void gebaeude_t::rdwr(loadsave_t *file)
 			welt->add_attraction(this);
 		}
 
-		// Add this here: there is no advantage to adding buildings multi-threadedly
-		// to a single list, especially when that requires an insertion sort, and
-		// adding it here, single-threadedly, does not.
-		welt->add_building_to_world_list(this);
+		if (is_in_world_list == 0)
+		{
+			// Do not add this to the world list when loading a building from a factory,
+			// as this needs to be taken out of the world list again, and this increases
+			// loading time considerably.
+
+			// Add this here: there is no advantage to adding buildings multi-threadedly
+			// to a single list, especially when that requires an insertion sort, and
+			// adding it here, single-threadedly, does not.
+
+			welt->add_building_to_world_list(this);
+		}
 	}
 }
 
@@ -1849,6 +1883,7 @@ void gebaeude_t::finish_rd()
 		// This will save much time in looking this up when generating passengers/mail.
 		ptr.stadt = welt->get_city(get_pos().get_2d());
 	}
+	set_building_tiles();
 }
 
 
@@ -1892,7 +1927,7 @@ void gebaeude_t::cleanup(player_t *player)
 
 		// tearing down halts is always single costs only
 		cost = desc->get_price();
-		// This check is necessary because the number of PRICE_MAGIC is used if no price is specified. 
+		// This check is necessary because the number of PRICE_MAGIC is used if no price is specified.
 		if (desc->get_base_price() == PRICE_MAGIC)
 		{
 			// TODO: find a way of checking what *kind* of stop that this is. This assumes railway.
@@ -2074,11 +2109,13 @@ bool gebaeude_t::jobs_available() const
 
 uint8 gebaeude_t::get_random_class(const goods_desc_t * wtyp)
 {
-	// This currently simply uses the building type's proportions. 
+	// This currently simply uses the building type's proportions.
 	// TODO: Allow this to be modified when dynamic building occupation
 	// is introduced with the (eventual) new town growth code.
 
-	const uint8 number_of_classes = wtyp->get_number_of_classes();
+	// At present, mail classes are handled rather badly.
+
+	const uint8 number_of_classes = goods_manager_t::passengers->get_number_of_classes();
 
 	if (number_of_classes == 1)
 	{
@@ -2087,21 +2124,21 @@ uint8 gebaeude_t::get_random_class(const goods_desc_t * wtyp)
 
 	const uint32 sum = get_tile()->get_desc()->get_class_proportions_sum();
 
-	if (sum == 0)
+	if (sum == 0 || wtyp != goods_manager_t::passengers)
 	{
 		// If the building has a zero sum of class proportions, as is the default, assume
 		// an equal chance of any given class being generated from here.
-		return (uint8)simrand(number_of_classes, "uint8 gebaeude_t::get_random_class() const (fixed)");
+		// Also, we don't have sensible figures to use for mail.
+		return (uint8)simrand(wtyp->get_number_of_classes(), "uint8 gebaeude_t::get_random_class() const (fixed)");
 	}
 
-	const uint8 iterations = min(get_tile()->get_desc()->get_number_of_class_proportions(), number_of_classes);
-	const uint16 random = simrand(sum + 1, "uint8 gebaeude_t::get_random_class() const (multiple classes)");
+	const uint16 random = simrand(sum, "uint8 gebaeude_t::get_random_class() const (multiple classes)");
 
 	uint8 g_class = 0;
 
-	for (uint8 i = 0; i < iterations; i++)
+	for (uint8 i = 0; i < number_of_classes; i++)
 	{
-		if (random <= get_tile()->get_desc()->get_class_proportion(i))
+		if (random < get_tile()->get_desc()->get_class_proportion(i))
 		{
 			g_class = i;
 			break;
@@ -2109,4 +2146,51 @@ uint8 gebaeude_t::get_random_class(const goods_desc_t * wtyp)
 	}
 
 	return g_class;
+}
+
+void gebaeude_t::set_building_tiles()
+{
+	building_tiles.clear();
+	const building_tile_desc_t* tile = get_tile();
+	const building_desc_t *bdsc = tile->get_desc();
+	const koord size = bdsc->get_size(tile->get_layout());
+	if (size == koord(1, 1))
+	{
+		// A single tiled building - just add the single tile.
+		building_tiles.append(welt->access_nocheck(get_pos().get_2d()));
+	}
+	else
+	{
+		// A multi-tiled building: check all tiles. Any tile within the
+		// coverage radius of a building connects the whole building.
+
+		// Then, store these tiles here, as this is computationally expensive
+		// and frequently requested by the passenger/mail generation algorithm.
+
+		koord3d k = get_pos();
+		const koord start_pos = k.get_2d() - tile->get_offset();
+		const koord end_pos = k.get_2d() + size;
+
+		for (k.y = start_pos.y; k.y < end_pos.y; k.y++)
+		{
+			for (k.x = start_pos.x; k.x < end_pos.x; k.x++)
+			{
+				grund_t *gr = welt->lookup(k);
+				if (gr)
+				{
+					/* This would fail for depots, but those are 1x1 buildings */
+					gebaeude_t *gb_part = gr->find<gebaeude_t>();
+					// There may be buildings with holes.
+					if (gb_part && gb_part->get_tile()->get_desc() == bdsc)
+					{
+						const planquadrat_t* plan = welt->access_nocheck(k.get_2d());
+						if (!plan->is_being_deleted())
+						{
+							building_tiles.append(plan);
+						}
+					}
+				}
+			}
+		}
+	}
 }

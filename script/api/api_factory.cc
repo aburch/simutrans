@@ -174,10 +174,15 @@ void export_factory(HSQUIRRELVM vm)
 	register_method(vm, &fabrik_t::get_suppliers, "get_suppliers");
 
 	/**
-	 * Get (untranslated) name of factory.
+	 * Get (translated or custom) name of factory.
 	 * @returns name
 	 */
 	register_method(vm, &fabrik_t::get_name, "get_name");
+
+	/**
+	 * Change name.
+	 */
+	register_method(vm, &fabrik_t::set_name, "set_name");
 
 	/**
 	 * Get monthly statistics of production.
@@ -213,13 +218,13 @@ void export_factory(HSQUIRRELVM vm)
 	 * Get monthly statistics of generated passengers.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_factory_stat, "get_pax_generated",  freevariable<sint32>(FAB_PAX_GENERATED), true);
+	//register_method_fv(vm, &get_factory_stat, "get_pax_generated",  freevariable<sint32>(FAB_PAX_GENERATED), true);
 
 	/**
 	 * Get monthly statistics of departed passengers.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_factory_stat, "get_pax_departed",   freevariable<sint32>(FAB_PAX_DEPARTED), true);
+	//register_method_fv(vm, &get_factory_stat, "get_pax_departed", freevariable<sint32>(FAB_PAX_DEPARTED), true);
 
 	/**
 	 * Get monthly statistics of arrived passengers.
@@ -231,7 +236,7 @@ void export_factory(HSQUIRRELVM vm)
 	 * Get monthly statistics of generated mail.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_factory_stat, "get_mail_generated", freevariable<sint32>(FAB_MAIL_GENERATED), true);
+	//register_method_fv(vm, &get_factory_stat, "get_mail_generated", freevariable<sint32>(FAB_MAIL_GENERATED), true);
 
 	/**
 	 * Get monthly statistics of departed mail.
@@ -244,6 +249,12 @@ void export_factory(HSQUIRRELVM vm)
 	 * @returns array, index [0] corresponds to current month
 	 */
 	register_method_fv(vm, &get_factory_stat, "get_mail_arrived",   freevariable<sint32>(FAB_MAIL_ARRIVED), true);
+
+	/**
+	 * Get monthly statistics of arrived visitors.
+	 * @returns array, index [0] corresponds to current month
+	 */
+	register_method_fv(vm, &get_factory_stat, "get_visitor_arrived", freevariable<sint32>(FAB_CONSUMER_ARRIVED), true);
 
 	// pop class
 	end_class(vm);
@@ -277,6 +288,12 @@ void export_factory(HSQUIRRELVM vm)
 	 * @returns array, index [0] corresponds to current month
 	 */
 	register_method_fv(vm, &get_factory_production_stat, "get_consumed",  freevariable<sint32>(FAB_GOODS_CONSUMED), true);
+
+	/**
+	 * Get monthly statistics of in-transit goods (for input slots).
+	 * @returns array, index [0] corresponds to current month
+	 */
+	register_method_fv(vm, &get_factory_production_stat, "get_in_transit",freevariable<sint32>(FAB_GOODS_TRANSIT), true);
 
 	/**
 	 * Get monthly statistics of delivered goods (for output slots).

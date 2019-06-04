@@ -99,7 +99,7 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_BUILD_WAYOBJ:           tool = new tool_build_wayobj_t(); break;
 		case TOOL_BUILD_STATION:          tool = new tool_build_station_t(); break;
 		case TOOL_BUILD_ROADSIGN:         tool = new tool_build_roadsign_t(); break;
-		case TOOL_BUILD_DEPOT:            tool = new tool_depot_t(); break;
+		case TOOL_BUILD_DEPOT:            tool = new tool_build_depot_t(); break;
 		case TOOL_BUILD_SIGNALBOX:		  tool = new tool_signalbox_t(); break;
 		case TOOL_BUILD_HOUSE:       tool = new tool_build_house_t(); break;
 		case TOOL_BUILD_LAND_CHAIN:       tool = new tool_build_land_chain_t(); break;
@@ -110,16 +110,16 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_LOCK_GAME:        tool = new tool_lock_game_t(); break;
 		case TOOL_ADD_CITYCAR:      tool = new tool_add_citycar_t(); break;
 		case TOOL_FOREST:           tool = new tool_forest_t(); break;
-		case TOOL_STOP_MOVER:       tool = new tool_stop_moving_t(); break;
+		case TOOL_STOP_MOVER:       tool = new tool_stop_mover_t(); break;
 		case TOOL_MAKE_STOP_PUBLIC: tool = new tool_make_stop_public_t(); break;
-		case TOOL_REMOVE_WAYOBJ:    tool = new tool_wayobj_remover_t(); break;
+		case TOOL_REMOVE_WAYOBJ:    tool = new tool_remove_wayobj_t(); break;
 		case TOOL_SLICED_AND_UNDERGROUND_VIEW: tool = new tool_show_underground_t(); break;
 		case TOOL_BUY_HOUSE:        tool = new tool_buy_house_t(); break;
 		case TOOL_BUILD_CITYROAD:         tool = new tool_build_cityroad(); break;
 		case TOOL_ERROR_MESSAGE: tool = new tool_error_message_t(); break;
 		case TOOL_CHANGE_WATER_HEIGHT: tool = new tool_change_water_height_t(); break;
 		case TOOL_SET_CLIMATE:      tool = new tool_set_climate_t(); break;
-		case TOOL_REASSIGN_SIGNAL:      tool = new tool_reassign_signal_t(); break; 
+		case TOOL_REASSIGN_SIGNAL:      tool = new tool_reassign_signal_t(); break;
 		default:                   dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 		                           return NULL;
 	}
@@ -158,7 +158,7 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_TRAFFIC_LEVEL:     tool = new tool_traffic_level_t(); break;
 		case TOOL_CHANGE_CONVOI:       tool = new tool_change_convoi_t(); break;
 		case TOOL_CHANGE_LINE:         tool = new tool_change_line_t(); break;
-		case TOOL_BUILD_DEPOT_TOOL:        tool = new tool_change_depot_t(); break;
+		case TOOL_CHANGE_DEPOT:        tool = new tool_change_depot_t(); break;
 		case UNUSED_WKZ_PWDHASH_TOOL: dbg->warning("create_simple_tool()","deprecated tool [%i] requested", toolnr); return NULL;
 		case TOOL_CHANGE_PLAYER:   tool = new tool_change_player_t(); break;
 		case TOOL_CHANGE_TRAFFIC_LIGHT:tool = new tool_change_traffic_light_t(); break;
@@ -168,6 +168,8 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_TOGGLE_RESERVATION:tool = new tool_toggle_reservation_t(); break;
 		case TOOL_VIEW_OWNER:        tool = new tool_view_owner_t(); break;
 		case TOOL_HIDE_UNDER_CURSOR: tool = new tool_hide_under_cursor_t(); break;
+		case TOOL_CHANGE_ROADSIGN:   tool = new tool_change_roadsign_t(); break;
+		case TOOL_SHOW_RIBI:    tool = new tool_show_ribi_t(); break;
 		// Extended non-UI tools - should be at the end.
 		case TOOL_RECOLOUR_TOOL:		tool = new tool_recolour_t(); break;
 		case TOOL_ACCESS_TOOL:		tool = new tool_access_t(); break;
@@ -184,7 +186,7 @@ tool_t *create_dialog_tool(int toolnr)
 	tool_t* tool = NULL;
 	switch(toolnr) {
 		case DIALOG_HELP:           tool = new dialog_help_t(); break;
-		case DIALOG_OPTIONS:       tool = new dialog_options_t(); break;
+		case DIALOG_OPTIONS:        tool = new dialog_options_t(); break;
 		case DIALOG_MINIMAP:        tool = new dialog_minimap_t(); break;
 		case DIALOG_LINEOVERVIEW:   tool = new dialog_lines_t(); break;
 		case DIALOG_MESSAGES:       tool = new dialog_messages_t(); break;
@@ -313,7 +315,7 @@ void tool_t::exit_menu()
 
 
 // for sorting: compare tool key
-static bool compare_werkzeug(tool_t const* const a, tool_t const* const b)
+static bool compare_tool(tool_t const* const a, tool_t const* const b)
 {
 	uint16 const ac = a->command_key & ~32;
 	uint16 const bc = b->command_key & ~32;
@@ -545,6 +547,11 @@ void tool_t::read_menu(const std::string &objfilename)
 						// copy defaults
 						*addtool = *(general_tool[toolnr]);
 
+						if(  toolnr==TOOL_BUILD_WAY  ) {
+							tool_build_way_t* way_tool = dynamic_cast<tool_build_way_t*> (addtool);
+							if(  way_tool  ) way_tool->set_look_toolbar();
+						}
+
 						general_tool.append( addtool );
 					}
 					else {
@@ -624,7 +631,7 @@ void tool_t::read_menu(const std::string &objfilename)
 		}
 	}
 	// sort characters
-	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_werkzeug);
+	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_tool);
 }
 
 
@@ -780,7 +787,7 @@ void toolbar_t::update(player_t *player)
 					waytype_t way = (waytype_t)(*c!=0 ? atoi(++c) : 0);
 					hausbauer_t::fill_menu( tool_selector, utype, way, get_sound(c));
 				} else if (param[0] == '-') {
-					// add dummy werkzeug as separator
+					// add dummy tool_t as separator
 					tool_selector->add_tool_selector( dummy );
 				}
 			}
@@ -944,7 +951,12 @@ const char *two_click_tool_t::move(player_t *player, uint16 buttonstate, koord3d
 	}
 
 	if(  start == pos  ) {
-		init( player );
+		if(tool_build_way_t* t = dynamic_cast<tool_build_way_t*>(this)) {
+			// This is tool_build_way_t. The mode selection window should not be called.
+			t->init( player, true );
+		} else {
+			init( player );
+		}
 	}
 
 	const char *error = NULL;
@@ -1015,8 +1027,9 @@ void two_click_tool_t::cleanup( bool delete_start_marker )
 		koord3d pos = z->get_pos();
 		grund_t *gr = welt->lookup( pos );
 		delete z;
-		// Remove dummy ground (placed by tool_build_tunnel_t and tool_build_way_t):
-		if(gr  &&   (gr->get_typ() == grund_t::tunnelboden  ||  gr->get_typ() == grund_t::monorailboden)  &&  gr->get_weg_nr(0) == NULL && !gr->get_leitung() ) {
+		// Remove dummy ground (placed by tool_build_tunnel_t and tool_build_way_t) unless it has vehicles on it
+		if(gr  &&   (gr->get_typ() == grund_t::tunnelboden  ||  gr->get_typ() == grund_t::monorailboden)  &&  gr->get_weg_nr(0) == NULL && !gr->get_leitung() && !gr->get_convoi_vehicle()) 
+		{
 			welt->access(pos.get_2d())->boden_entfernen(gr);
 			delete gr;
 			assert( !welt->lookup(pos));

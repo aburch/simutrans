@@ -22,6 +22,7 @@ class karte_ptr_t;
 class player_t;
 class grund_t;
 class tool_selector_t;
+class strasse_t;
 
 
 /**
@@ -46,9 +47,9 @@ public:
 	 */
 	static const way_desc_t * weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const systemtype_t system_type, const uint32 wear_capacity_limit, way_constraints_of_vehicle_t way_constraints = way_constraints_of_vehicle_t());
 	static const way_desc_t * weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint16 time, const systemtype_t system_type);
-	
+
 	/**
-	 * Finds a mothballed way for a given waytype. 
+	 * Finds a mothballed way for a given waytype.
 	 * Returns NULL if there is no mothballed way for such a type.
 	 * @author jamespetts
 	 */
@@ -109,7 +110,7 @@ private:
 	};
 	vector_tpl<next_gr_t> next_gr;
 
-	player_t *player;
+	player_t *player_builder;
 
 	/**
 	 * Type of building operation
@@ -134,6 +135,12 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	const tunnel_desc_t * tunnel_desc;
+
+	/**
+	 * Only for road
+	 * @author THLeaderH
+	 */
+	 overtaking_mode_t overtaking_mode;
 
 	/**
 	 * If a way is built on top of another way, should the type
@@ -162,6 +169,8 @@ private:
 	koord3d_vector_t route;
 	// index in route with terraformed tiles
 	vector_tpl<uint32> terraform_index;
+
+	bool route_reversed;
 
 public:
 	/* This is the core routine for the way search
@@ -199,6 +208,8 @@ private:
 
 	uint32 calc_distance( const koord3d &pos, const koord3d &mini, const koord3d &maxi );
 
+	void update_ribi_mask_oneway(strasse_t* str, uint32 i);
+
 	bool check_access(const weg_t* way, const player_t* player) const;
 
 public:
@@ -232,9 +243,11 @@ public:
 
 	void set_maximum(uint32 n) { maximum = n; }
 
+	void set_overtaking_mode(overtaking_mode_t o) { overtaking_mode = o; }
+
 	void set_desc(const way_desc_t* way_desc) { desc = way_desc; }
 
-	way_builder_t(player_t *player_);
+	way_builder_t(player_t *player);
 
 	void calc_straight_route(const koord3d start, const koord3d ziel);
 	void calc_route(const koord3d &start3d, const koord3d &ziel);

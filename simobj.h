@@ -344,7 +344,7 @@ public:
 	virtual const char * is_deletable(const player_t *player);
 
 	/**
-	 * Draw backgroung image of object
+	 * Draw background image of object
 	 * (everything that could be potentially behind vehicles)
 	 */
 	void display(int xpos, int ypos  CLIP_NUM_DEF) const;
@@ -370,7 +370,7 @@ public:
 	/**
 	* When a vehicle moves or a cloud moves, it needs to mark the old spot as dirty (to copy to screen).
 	* This routine already takes position, and offsets (x_off, y_off) into account.
-	* @param yoff extra y-offset, in most cases 0.
+	* @param yoff extra y-offset, in most cases 0, in pixels.
 	* @author prissi
 	*/
 	void mark_image_dirty(image_id image, sint16 yoff) const;

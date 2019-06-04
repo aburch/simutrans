@@ -11,7 +11,6 @@
 
 #include <stdio.h>
 
-#include "../utils/simrandom.h"
 #include "../simworld.h"
 #include "../simtool.h"
 #include "../simmenu.h"
@@ -23,6 +22,7 @@
 #include "../descriptor/ground_desc.h"
 
 #include "../utils/cbuffer_t.h"
+#include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 
 #include "baum_edit.h"

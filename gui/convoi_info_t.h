@@ -80,6 +80,7 @@ private:
 	button_t go_home_button;
 	button_t no_load_button;
 	button_t replace_button;
+	button_t times_history_button;
 	button_t filterButtons[BUTTON_COUNT];
 	int statistics_height;
 
@@ -88,6 +89,8 @@ private:
 	button_t reverse_button;
 
 	gui_combobox_t freight_sort_selector;
+
+	sint16 chart_total_size;
 
 	button_t line_button;	// goto line ...
 	bool line_bound;

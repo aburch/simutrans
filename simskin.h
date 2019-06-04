@@ -105,6 +105,15 @@ public:
 	static const skin_desc_t *goods;
 	/// @}
 
+	/// @name icons used to passenger/mail evaluations
+	/// @{
+	static const skin_desc_t *pax_evaluation_icons;
+	static const skin_desc_t *mail_evaluation_icons;
+	/// @}
+
+	/// images used to alert in line with message text
+	static const skin_desc_t *alerts;
+
 	/// images shown in display of lines in mini-map
 	static const skin_desc_t *station_type;
 
@@ -137,6 +146,8 @@ public:
 	static const skin_desc_t *senke;
 	/// texture to be shown beneath ways in tunnel
 	static const skin_desc_t *tunnel_texture;
+	/// arrow that shows way's ribi masked
+	static const skin_desc_t *ribi_arrow;
 
 	static bool register_desc(skintyp_t type, const skin_desc_t *desc);
 	static bool successfully_loaded(skintyp_t type);

@@ -12,19 +12,13 @@
 #include "../../simworld.h"
 #include "../../player/simplay.h"
 
-// for manipulation of lines
-#include "../../simmenu.h"
-#include "../../dataobj/schedule.h"
-
-// template<> schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM, SQInteger);
-
 using namespace script_api;
 
-vector_tpl<sint64> const& get_line_stat(simline_t *line, sint32 INDEX)
+vector_tpl<sint64> const& get_line_stat(linehandle_t line, sint32 INDEX)
 {
 	static vector_tpl<sint64> v;
 	v.clear();
-	if (line  &&  0<=INDEX  &&  INDEX<MAX_LINE_COST) {
+	if (line.is_bound()  &&  0<=INDEX  &&  INDEX<MAX_LINE_COST) {
 		for(uint16 i = 0; i < MAX_MONTHS; i++) {
 			v.append( line->get_finance_history(i, (line_cost_t)INDEX) );
 		}
@@ -32,43 +26,6 @@ vector_tpl<sint64> const& get_line_stat(simline_t *line, sint32 INDEX)
 	return v;
 }
 
-
-waytype_t line_way_type(simline_t *line)
-{
-	if (line) {
-		switch (line->get_linetype()) {
-			case simline_t::truckline: return road_wt;
-			case simline_t::trainline: return track_wt;
-			case simline_t::shipline: return water_wt;
-			case simline_t::monorailline: return monorail_wt;
-			case simline_t::maglevline: return maglev_wt;
-			case simline_t::narrowgaugeline: return narrowgauge_wt;
-			case simline_t::airline: return air_wt;
-			case simline_t::tramline: return tram_wt;
-			default: ;
-		}
-	}
-	return invalid_wt;
-}
-
-
-bool line_is_valid(linehandle_t line)
-{
-	return line.is_bound();
-}
-
-call_tool_init line_change_schedule(simline_t* line, player_t *player, schedule_t *sched)
-{
-	if (sched) {
-		// build param string (see line_management_gui_t::infowin_event)
-		cbuffer_t buf;
-		buf.printf( "g,%i,", line->get_handle().get_id() );
-		sched->sprintf_schedule( buf );
-
-		return call_tool_init(TOOL_CHANGE_LINE | SIMPLE_TOOL, buf, 0, player);
-	}
-	return "Invalid schedule provided";
-}
 
 SQInteger line_export_convoy_list(HSQUIRRELVM vm)
 {
@@ -81,10 +38,6 @@ SQInteger line_export_convoy_list(HSQUIRRELVM vm)
 	return SQ_ERROR;
 }
 
-call_tool_init line_set_name(simline_t* line, const char* name)
-{
-	return command_rename(line->get_owner(), 'l', line->get_handle().get_id(), name);
-}
 
 vector_tpl<linehandle_t> const* generic_get_line_list(HSQUIRRELVM vm, SQInteger index)
 {
@@ -156,21 +109,10 @@ void export_line(HSQUIRRELVM vm)
 	begin_class(vm, "line_x", "extend_get");
 
 	/**
-	 * Is line a valid object:
-	 */
-	register_method(vm, line_is_valid, "is_valid", true);
-
-	/**
 	 * Line name.
 	 * @returns name
 	 */
 	register_method(vm, &simline_t::get_name, "get_name");
-	/**
-	 * Sets line name.
-	 * @ingroup rename_func
-	 * @typemask void(string)
-	 */
-	register_method(vm, &line_set_name, "set_name", true);
 	/**
 	 * Line owner.
 	 * @returns owner
@@ -224,23 +166,13 @@ void export_line(HSQUIRRELVM vm)
 	 * Get monthly statistics of income/loss due to way tolls.
 	 * @returns array, index [0] corresponds to current month
 	 */
+	// LINE_WAYTOLL not in Extended. Possibly unsafe to just comment this out - ACarlotti
 	//register_method_fv(vm, &get_line_stat, "get_way_tolls",         freevariable<sint32>(LINE_WAYTOLL), true );
 	/**
 	 * Exports list of convoys belonging to this line.
 	 * @typemask convoy_list_x()
 	 */
 	register_function(vm, &line_export_convoy_list, "get_convoy_list", 1, param<linehandle_t>::typemask());
-
-	/**
-	 * @return waytype of the line
-	 */
-	register_method(vm, &line_way_type, "get_waytype", true);
-
-	/**
-	 * Change schedule of line
-	 * @ingroup game_cmd
-	 */
-	register_method(vm, line_change_schedule, "change_schedule", true);
 
 	end_class(vm);
 }

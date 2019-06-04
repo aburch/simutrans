@@ -76,8 +76,8 @@ player_t::player_t(karte_t *wl, uint8 nr) :
 	welt = wl;
 	player_nr = nr;
 	player_age = 0;
-	active = false;		// Start nicht als automatischer Spieler
-	locked = false;	/* allowe to change anything */
+	active = false;			// Don't start as an AI player
+	locked = false;			// allowed to change anything
 	unlock_pending = false;
 	has_been_warned_about_no_money_for_renewals = false;
 	selected_signalbox = NULL;
@@ -111,10 +111,8 @@ player_t::~player_t()
 		delete messages.remove_first();
 	}
 	destroy_win(magic_finances_t + get_player_nr());
-	if( finance !=NULL) {
-		delete finance;
-		finance = NULL;
-	}
+	delete finance;
+	finance = NULL;
 }
 
 
@@ -129,12 +127,6 @@ void player_t::book_construction_costs(player_t * const player, const sint64 amo
 }
 
 
-/**
- * Adds some amount to the maintenance costs.
- * @param change the change
- * @return the new maintenance costs
- * @author Hj. Malthaner
- */
 sint64 player_t::add_maintenance(sint64 change, waytype_t const wt)
 {
 	int tmp = 0;
@@ -169,9 +161,6 @@ void player_t::add_money_message(const sint64 amount, const koord pos)
 }
 
 
-/**
- * amount has negative value = buy vehicle, positive value = vehicle sold
- */
 void player_t::book_new_vehicle(const sint64 amount, const koord k, const waytype_t wt)
 {
 	finance->book_new_vehicle(amount, wt);
@@ -240,9 +229,6 @@ bool player_t::can_afford(player_t* player, sint64 price)
 	}
 }
 
-/* returns the name of the player; "player -1" sits in front of the screen
- * @author prissi
- */
 const char* player_t::get_name() const
 {
 	return translator::translate(player_name_buf);
@@ -260,9 +246,6 @@ void player_t::set_name(const char *new_name)
 }
 
 
-/**
- * floating massages for all players here
- */
 player_t::income_message_t::income_message_t( sint64 betrag, koord p )
 {
 	money_to_string(str, betrag/100.0);
@@ -284,10 +267,6 @@ void player_t::income_message_t::operator delete(void *p)
 }
 
 
-/**
- * Show income messages
- * @author prissi
- */
 void player_t::display_messages()
 {
 	const viewport_t *vp = welt->get_viewport();
@@ -305,10 +284,6 @@ void player_t::display_messages()
 }
 
 
-/**
- * Age messages (move them upwards), delete too old ones
- * @author prissi
- */
 void player_t::age_messages(uint32 /*delta_t*/)
 {
 	for(slist_tpl<income_message_t *>::iterator iter = messages.begin(); iter != messages.end(); ) {
@@ -351,7 +326,7 @@ void player_t::set_player_color(uint8 col1, uint8 col2)
 		message.printf(player_name);
 		welt->get_message()->add_message(message, koord::invalid, message_t::ai, player_color_1);
 		message.clear();
-		message.printf("has changed its colour scheme.");
+		message.printf(translator::translate("has changed its colour scheme."));
 		welt->get_message()->add_message(message, koord::invalid, message_t::ai, col1);
 	}
 	set_player_color_no_message(col1, col2);
@@ -365,10 +340,6 @@ void player_t::set_player_color_no_message(uint8 col1, uint8 col2)
 }
 
 
-/**
- * Any action goes here (only need for AI at the moment)
- * @author Hj. Malthaner
- */
 void player_t::step()
 {
 	/*
@@ -389,10 +360,6 @@ void player_t::step()
 }
 
 
-/**
- * wird von welt nach jedem monat aufgerufen
- * @author Hj. Malthaner
- */
 bool player_t::new_month()
 {
 	// since the messages must remain on the screen longer ...
@@ -417,7 +384,7 @@ bool player_t::new_month()
 
 	// Insolvency settings.
 	// Modified by jamespetts, February 2009
-	// Bankrott ?
+	// Bankrupt ?
 	sint64 account_balance = finance->get_account_balance();
 	if(  account_balance < 0  )
 	{
@@ -652,7 +619,7 @@ void player_t::ai_bankrupt()
 	// deactivate active tool (remove dummy grounds)
 	welt->set_tool(tool_t::general_tool[TOOL_QUERY], this);
 
-	// next, mothball all ways, depot etc, that are not road or canals if a mothballed type is available, or else remove them.
+	// next, mothball all ways, depot etc, that are not road or canals if a mothballed type is available, or else convert to unowned
 	for( int y=0;  y<welt->get_size().y;  y++  ) {
 		for( int x=0;  x<welt->get_size().x;  x++  ) {
 			planquadrat_t *plan = welt->access(x,y);
@@ -674,6 +641,7 @@ void player_t::ai_bankrupt()
 							case obj_t::pumpe:
 							case obj_t::wayobj:
 							case obj_t::label:
+							case obj_t::signalbox:
 								obj->cleanup(this);
 								delete obj;
 								break;
@@ -693,27 +661,42 @@ void player_t::ai_bankrupt()
 								break;
 							case obj_t::way:
 							{
-								weg_t *w=(weg_t *)obj;
-								if (gr->ist_bruecke()  ||  gr->ist_tunnel()) {
-									w->set_owner( NULL );
+								weg_t *w = (weg_t *)obj;
+								bool mothball = false;
+								if (gr->ist_bruecke() || gr->ist_tunnel())
+								{
+									w->set_owner(NULL);
+									if (!w->is_public_right_of_way())
+									{
+										mothball = true;
+									}
 								}
-								else if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
-									add_maintenance( -w->get_desc()->get_maintenance(), w->get_waytype() );
-									w->set_owner( NULL );
+								else if (w->get_waytype() == road_wt || w->get_waytype() == water_wt) {
+									add_maintenance(-w->get_desc()->get_maintenance(), w->get_waytype());
+									w->set_owner(NULL);
 								}
-								else {
+								else
+								{
+									mothball = true;
+								}
+
+								if (mothball)
+								{
 									weg_t *way = (weg_t *)obj;
 									const way_desc_t* mothballed_type = way_builder_t::way_search_mothballed(way->get_waytype(), (systemtype_t)way->get_desc()->get_styp());
-									if(mothballed_type && way->get_waytype())
+									if (mothballed_type && way->get_waytype())
 									{
 										way->set_desc(mothballed_type);
 									}
 									else
 									{
-										gr->weg_entfernen( w->get_waytype(), true );
+										way->degrade();
+										// Run this a second time to make sure that this degrades fully - running it once with wear capacity left simply reduces the speed limit.
+										way->degrade();
 									}
 									way->set_owner(NULL);
 								}
+
 								break;
 							}
 							case obj_t::bruecke:
@@ -750,14 +733,9 @@ void player_t::ai_bankrupt()
 }
 
 
-/**
- * Speichert Zustand des Spielers
- * @param file Datei, in die gespeichert wird
- * @author Hj. Malthaner
- */
 void player_t::rdwr(loadsave_t *file)
 {
-	xml_tag_t sss( file, "player_t" );
+	xml_tag_t sss( file, "spieler_t" );
 
 	if(file->get_version() < 112005) {
 		sint64 konto = finance->get_account_balance();
@@ -849,7 +827,7 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 		}
 	}
 
-	// linemanagement
+	// line management
 	if(file->get_version()>=88003) {
 		simlinemgmt.rdwr(file,this);
 	}
@@ -913,17 +891,22 @@ void player_t::rotate90( const sint16 y_size )
 }
 
 
-/**
- * Rückruf, um uns zu informieren, dass ein Vehikel ein Problem hat
- * @author Hansjörg Malthaner
- * @date 26-Nov-2001
- */
-void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
+void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d position)
 {
 	switch(cnv->get_state())
 	{
-		case convoi_t::NO_ROUTE:
-DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
+	case convoi_t::NO_ROUTE_TOO_COMPLEX:
+		DBG_MESSAGE("player_t::report_vehicle_problem", "Vehicle %s can't find a route to (%i,%i) because the route is too long/complex", cnv->get_name(), position.x, position.y);
+		if (this == welt->get_active_player()) {
+			cbuffer_t buf;
+			buf.printf("%s ", cnv->get_name());
+			buf.printf(translator::translate("no_route_too_complex_message")); 
+			welt->get_message()->add_message((const char *)buf, cnv->get_pos().get_2d(), message_t::problems, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
+		}
+		break;
+
+	case convoi_t::NO_ROUTE:
+		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),position.x,position.y);
 			if(this==welt->get_active_player()) {
 				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
@@ -940,7 +923,7 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s can't find a route to
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 		case convoi_t::CAN_START_ONE_MONTH:
 		case convoi_t::CAN_START_TWO_MONTHS:
-DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stucked!", cnv->get_name(),ziel.x,ziel.y);
+		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stuck!", cnv->get_name(),position.x,position.y);
 			{
 				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s is stucked!"), cnv->get_name());
@@ -950,7 +933,7 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stucked!", cnv->get_n
 		
 		case convoi_t::OUT_OF_RANGE:
 			{
-				koord destination = ziel.get_2d();
+				koord destination = position.get_2d();
 				schedule_t* const sch = cnv->get_schedule();
 				const uint8 entries = sch->get_count();
 				uint8 count = 0;
@@ -963,30 +946,29 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stucked!", cnv->get_n
 					destination = sch->entries.get_element(index).pos.get_2d(); 
 					count++;
 				}
-				const uint16 distance = (shortest_distance(cnv->get_pos().get_2d(), destination) * welt->get_settings().get_meters_per_tile()) / 1000u;
-				const uint16 excess = distance - cnv->get_min_range();
-				DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s cannot travel %ikm to (%i,%i) because it would exceed its range of %i by %ikm", cnv->get_name(), distance, ziel.x, ziel.y, cnv->get_min_range(), excess);
+				const uint32 distance_from_last_stop_to_here_tiles = shortest_distance(cnv->get_pos().get_2d(), cnv->front()->get_last_stop_pos().get_2d());
+				const uint32 distance_tiles = distance_from_last_stop_to_here_tiles + (shortest_distance(cnv->get_pos().get_2d(), destination));
+				const double distance = (double)(distance_tiles * (double)welt->get_settings().get_meters_per_tile()) / 1000.0;
+				const double excess = distance - (double)cnv->get_min_range();
+				DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s cannot travel %.2fkm to (%i,%i) because it would exceed its range of %i by %.2fkm", cnv->get_name(), distance, position.x, position.y, cnv->get_min_range(), excess);
 				if(this == welt->get_active_player())
 				{
 					cbuffer_t buf;
-					const halthandle_t destination_halt = haltestelle_t::get_halt(ziel, welt->get_active_player());
-					const char* name = destination_halt.is_bound() ? destination_halt->get_name() : translator::translate("unknown");
-					buf.printf( translator::translate("Vehicle %s cannot travel %ikm to %s because that would exceed its range of %ikm by %ikm"), cnv->get_name(), distance, name, cnv->get_min_range(), excess);
+					const halthandle_t destination_halt = haltestelle_t::get_halt(position, welt->get_active_player());
+					const bool destination_is_depot = welt->lookup(position) && welt->lookup(position)->get_depot();
+					const char* name = destination_is_depot ? translator::translate(welt->lookup(position)->get_depot()->get_name()) : destination_halt.is_bound() ? destination_halt->get_name() : translator::translate("unknown");
+					buf.printf( translator::translate("Vehicle %s cannot travel %.2fkm to %s because that would exceed its range of %ikm by %.2fkm"), cnv->get_name(), distance, name, cnv->get_min_range(), excess);
 					welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
 				}
 			}
 			break;
 		default:
-DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s, state %i!", cnv->get_name(), cnv->get_state());
+		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s, state %i!", cnv->get_name(), cnv->get_state());
 	}
-	(void)ziel;
+	(void)position;
 }
 
 
-/* Here functions for UNDO
- * @date 7-Feb-2005
- * @author prissi
- */
 void player_t::init_undo( waytype_t wtype, unsigned short max )
 {
 	// only human player
@@ -1041,7 +1023,7 @@ sint64 player_t::undo()
 					case obj_t::movingobj:
 						break;
 					// special case airplane
-					// they can be everywhere, so we allow for everythign but runway undo
+					// they can be everywhere, so we allow for everything but runway undo
 					case obj_t::air_vehicle: {
 						if(undo_type!=air_wt) {
 							break;

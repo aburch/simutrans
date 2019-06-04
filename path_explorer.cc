@@ -38,6 +38,12 @@ path_explorer_t::compartment_t **path_explorer_t::goods_compartment = NULL;
 uint8 path_explorer_t::current_compartment_category = 0;
 uint8 path_explorer_t::current_compartment_class = 0;
 bool path_explorer_t::processing = false;
+uint32 path_explorer_t::compartment_t::time_midpoint;
+uint32 path_explorer_t::compartment_t::time_lower_limit;
+uint32 path_explorer_t::compartment_t::time_upper_limit;
+uint32 path_explorer_t::compartment_t::time_threshold;
+bool path_explorer_t::must_refresh_on_loading;
+
 #ifdef MULTI_THREAD
 bool thread_local path_explorer_t::allow_path_explorer_on_this_thread = false;
 #endif
@@ -48,6 +54,7 @@ void path_explorer_t::initialise(karte_t *welt)
 	{
 		world = welt;
 	}
+	compartment_t::set_absolute_limits();
 	max_categories = goods_manager_t::get_max_catg_index();
 	max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes()); 
 	category_empty = goods_manager_t::none->get_catg_index();
@@ -94,6 +101,173 @@ void path_explorer_t::finalise()
 	compartment_t::finalise();
 }
 
+void path_explorer_t::rdwr(loadsave_t* file)
+{
+	if (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 10))
+	{
+		// Iterate through the compartments and load/save these
+		for (uint8 ca = 0; ca < max_categories; ++ca)
+		{
+			for (uint8 cl = 0; cl < max_classes; ++cl)
+			{
+				if (ca != category_empty)
+				{
+					goods_compartment[ca][cl].rdwr(file);
+				}
+			}
+		}
+	}
+	else
+	{
+		uint8 file_max_categories = max_categories;
+		file->rdwr_byte(file_max_categories);
+
+		uint8 file_passenger_classes = goods_manager_t::passengers->get_number_of_classes();
+		file->rdwr_byte(file_passenger_classes);
+		for (uint8 cl = 0; cl < file_passenger_classes; cl++)
+		{
+			if (cl < max_classes)
+			{
+				goods_compartment[goods_manager_t::INDEX_PAS][cl].rdwr(file);
+			}
+			else
+			{
+				compartment_t* dummy_goods_compartment = new compartment_t;
+				dummy_goods_compartment->rdwr(file);
+				delete dummy_goods_compartment;
+			}
+		}
+
+		uint8 file_mail_classes = goods_manager_t::mail->get_number_of_classes();
+		file->rdwr_byte(file_mail_classes);
+		for (uint8 cl = 0; cl < file_mail_classes; cl++)
+		{
+			if (cl < max_classes)
+			{
+				goods_compartment[goods_manager_t::INDEX_MAIL][cl].rdwr(file);
+			}
+			else
+			{
+				compartment_t* dummy_goods_compartment = new compartment_t;
+				dummy_goods_compartment->rdwr(file);
+				delete dummy_goods_compartment;
+			}
+		}
+
+		for (uint8 ca = 0; ca < file_max_categories; ca++)
+		{
+			if (ca != category_empty && ca != goods_manager_t::INDEX_PAS && ca != goods_manager_t::INDEX_MAIL)
+			{
+				if (ca < max_categories)
+				{
+					goods_compartment[ca][0].rdwr(file);
+				}
+				else
+				{
+					compartment_t* dummy_goods_compartment = new compartment_t;
+					dummy_goods_compartment->rdwr(file);
+					delete dummy_goods_compartment;
+				}
+			}
+		}
+
+		file->rdwr_byte(current_compartment_category);
+		file->rdwr_byte(current_compartment_class);
+	}
+
+	// Load/save the connexion_list, which is static
+	uint8 serving_transport;
+
+	uint32 connexion_list_size = 65536;
+	if (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 11))
+	{
+		// Wrong number was used in original code
+		connexion_list_size = 63336;
+	}
+
+	for (uint32 i = 0; i < connexion_list_size; ++i)
+	{
+		file->rdwr_byte(compartment_t::connexion_list[i].serving_transport);
+
+		if (file->is_saving())
+		{
+			uint16 tmp_idx;
+
+			uint32 tmp_journey_time;
+			uint32 tmp_waiting_time;
+			uint32 tmp_transfer_time;
+			uint16 tmp_best_line_idx;
+			uint16 tmp_best_convoy_idx;
+			uint16 tmp_alternative_seats;
+			// TODO: Consider whether to add comfort
+
+			uint32 connexion_table_count = compartment_t::connexion_list[i].connexion_table->get_count();
+			file->rdwr_long(connexion_table_count);
+
+			FOR(compartment_t::connexion_table_map, iter, *compartment_t::connexion_list[i].connexion_table)
+			{
+				tmp_idx = iter.key.get_id();
+				file->rdwr_short(tmp_idx);
+
+				tmp_journey_time = iter.value->journey_time;
+				tmp_waiting_time = iter.value->waiting_time;
+				tmp_transfer_time = iter.value->transfer_time;
+				tmp_best_line_idx = iter.value->best_line.get_id();
+				tmp_best_convoy_idx = iter.value->best_convoy.get_id();
+				tmp_alternative_seats = iter.value->alternative_seats;
+
+				file->rdwr_long(tmp_journey_time);
+				file->rdwr_long(tmp_waiting_time);
+				file->rdwr_long(tmp_transfer_time);
+				file->rdwr_short(tmp_best_line_idx);
+				file->rdwr_short(tmp_best_convoy_idx);
+				file->rdwr_short(tmp_alternative_seats);
+			}
+		}
+
+		if (file->is_loading())
+		{
+			uint32 connexion_table_count;
+			file->rdwr_long(connexion_table_count);
+
+			halthandle_t tmp_halt;
+
+			for (uint32 j = 0; j < connexion_table_count; j++)
+			{
+				uint16 tmp_idx;
+				file->rdwr_short(tmp_idx);
+				tmp_halt.set_id(tmp_idx);
+
+				haltestelle_t::connexion* tmp_cnx = new haltestelle_t::connexion();
+
+				uint32 tmp_journey_time;
+				uint32 tmp_waiting_time;
+				uint32 tmp_transfer_time;
+				uint16 tmp_best_line_idx;
+				uint16 tmp_best_convoy_idx;
+				uint16 tmp_alternative_seats;
+				// TODO: Consider whether to add comfort
+
+				file->rdwr_long(tmp_journey_time);
+				file->rdwr_long(tmp_waiting_time);
+				file->rdwr_long(tmp_transfer_time);
+				file->rdwr_short(tmp_best_line_idx);
+				file->rdwr_short(tmp_best_convoy_idx);
+				file->rdwr_short(tmp_alternative_seats);
+
+				tmp_cnx->journey_time = tmp_journey_time;
+				tmp_cnx->waiting_time = tmp_waiting_time;
+				tmp_cnx->transfer_time = tmp_transfer_time;
+				tmp_cnx->best_line.set_id(tmp_best_line_idx);
+				tmp_cnx->best_convoy.set_id(tmp_best_convoy_idx);
+				tmp_cnx->alternative_seats = tmp_alternative_seats;
+
+				compartment_t::connexion_list[i].connexion_table->put(tmp_halt, tmp_cnx);
+			}
+		}
+	}
+}
+
 void path_explorer_t::step()
 {
 #ifdef MULTI_THREAD
@@ -113,7 +287,7 @@ void path_explorer_t::step()
 			processing = true;	// this step performs something
 			// perform step
 			goods_compartment[current_compartment_category][current_compartment_class].step();
-			
+
 			// if refresh is completed, move on to the next category or class as appropriate
 			if ( goods_compartment[current_compartment_category][current_compartment_class].is_refresh_completed() )
 			{
@@ -176,7 +350,7 @@ void path_explorer_t::full_instant_refresh()
 #endif
 	uint16 curr_step = 0;
 	// exclude empty goods (none)
-	uint16 total_steps = ((max_categories - 1) * (max_classes - 1) ) * 6;
+	uint16 total_steps = (max_categories - 1) * max_classes * 6;
 
 	processing = true;
 
@@ -281,14 +455,14 @@ void path_explorer_t::refresh_category(uint8 category)
 	{
 		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
 		{
-			goods_compartment[category][i].set_refresh();
+			goods_compartment[goods_manager_t::INDEX_PAS][i].set_refresh();
 		}
 	}
 	else if (category == goods_manager_t::INDEX_MAIL)
 	{
 		for (uint8 i = 0; i < goods_manager_t::mail->get_number_of_classes(); i++)
 		{
-			goods_compartment[category][i].set_refresh();
+			goods_compartment[goods_manager_t::INDEX_MAIL][i].set_refresh();
 		}
 	}
 	else
@@ -596,6 +770,13 @@ void path_explorer_t::compartment_t::finalise()
 	finalise_connexion_list();
 }
 
+void path_explorer_t::compartment_t::set_absolute_limits()
+{
+	time_midpoint = get_world()->get_settings().get_path_explorer_time_midpoint();
+	time_lower_limit = time_midpoint - time_deviation;
+	time_upper_limit = time_midpoint + time_deviation;
+	time_threshold = time_midpoint / 2;
+}
 
 void path_explorer_t::compartment_t::step()
 {
@@ -668,11 +849,7 @@ void path_explorer_t::compartment_t::step()
 				all_halts_list[i] = *halt_iter;
 				++halt_iter;
 
-				// create an empty connexion hash table if the current halt does not already have one
-				if ( connexion_list[ all_halts_list[i].get_id() ].connexion_table == NULL )
-				{
-					connexion_list[ all_halts_list[i].get_id() ].connexion_table = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
-				}
+				connexion_list[ all_halts_list[i].get_id() ].connexion_table = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
 
 				// Connect halts within walking distance of each other (for passengers only)
 				// @author: jamespetts, July 2011
@@ -1138,7 +1315,7 @@ void path_explorer_t::compartment_t::step()
 					continue;
 				}
 
-				if ( ! connexion_list[ current_halt.get_id() ].connexion_table->empty() )
+				if (!connexion_list[ current_halt.get_id() ].connexion_table->empty())
 				{
 					// valid connexion(s) found -> add to working halt list and update halt index map
 					working_halt_list[working_halt_count] = current_halt;
@@ -1147,9 +1324,10 @@ void path_explorer_t::compartment_t::step()
 				}
 
 				// swap the old connexion hash table with a new one
-				current_halt->swap_connexions( catg, connexion_list[ current_halt.get_id() ].connexion_table );
+				current_halt->swap_connexions(catg, g_class, max_classes, connexion_list[current_halt.get_id()].connexion_table);
+
 				// transfer the value of the serving transport counter
-				current_halt->set_schedule_count( catg, connexion_list[ current_halt.get_id() ].serving_transport );
+				current_halt->set_schedule_count( catg, g_class, max_classes, connexion_list[ current_halt.get_id() ].serving_transport );
 				reset_connexion_entry( current_halt.get_id() );
 
 				++phase_counter;
@@ -1273,6 +1451,8 @@ void path_explorer_t::compartment_t::step()
 
 			start = dr_time();	// start timing
 
+			const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+
 			while (phase_counter < working_halt_count)
 			{
 				current_halt = working_halt_list[phase_counter];
@@ -1285,14 +1465,14 @@ void path_explorer_t::compartment_t::step()
 				}
 
 				// determine if this halt is a transfer halt
-				if ( current_halt->get_schedule_count(catg) > 1 )
+				if ( current_halt->get_schedule_count(catg, g_class, max_classes) > 1 )
 				{
 					transfer_list[transfer_count] = phase_counter;
 					++transfer_count;
 				}
 
 				// iterate over the connexions of the current halt
-				FOR(connexions_map_single_remote, const& connexions_iter, *(current_halt->get_connexions(catg)))
+				FOR(connexions_map_single_remote, const& connexions_iter, *(current_halt->get_connexions(catg, g_class, max_classes)))
 				{
 					reachable_halt = connexions_iter.key;
 
@@ -1853,7 +2033,7 @@ bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_
 	uint16 origin_index, target_index;
 	
 	// check if origin and target halts are both present in matrix; if yes, check the validity of the next transfer
-	if ( paths_available && origin_halt.is_bound() && target_halt.is_bound()
+	if ( paths_available /*&& origin_halt.is_bound() && target_halt.is_bound()*/
 			&& ( origin_index = finished_halt_index_map[ origin_halt.get_id() ] ) != 65535
 			&& ( target_index = finished_halt_index_map[ target_halt.get_id() ] ) != 65535
 			&& finished_matrix[origin_index][target_index].next_transfer.is_bound() )
@@ -1900,9 +2080,9 @@ void path_explorer_t::compartment_t::set_class(uint8 value)
 
 void path_explorer_t::compartment_t::initialise_connexion_list()
 {
-	for (uint32 i = 0; i < 63336; ++i)
+	for (uint32 i = 0; i < 65536; ++i)
 	{
-		connexion_list[i].connexion_table = NULL;
+		connexion_list[i].connexion_table = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
 		connexion_list[i].serving_transport = 0;
 	}
 }
@@ -1910,7 +2090,7 @@ void path_explorer_t::compartment_t::initialise_connexion_list()
 
 void path_explorer_t::compartment_t::reset_connexion_entry(const uint16 halt_id)
 {
-	if ( connexion_list[halt_id].connexion_table && !connexion_list[halt_id].connexion_table->empty() )
+	if ( !connexion_list[halt_id].connexion_table->empty() )
 	{
 		FOR(haltestelle_t::connexions_map, const& iter, (*(connexion_list[halt_id].connexion_table)))
 		{
@@ -1925,7 +2105,7 @@ void path_explorer_t::compartment_t::reset_connexion_entry(const uint16 halt_id)
 
 void path_explorer_t::compartment_t::reset_connexion_list()
 {
-	for (uint32 i = 0; i < 63356; ++i)
+	for (uint32 i = 0; i < 65536; ++i)
 	{
 		if ( connexion_list[i].connexion_table )
 		{
@@ -1937,14 +2117,410 @@ void path_explorer_t::compartment_t::reset_connexion_list()
 
 void path_explorer_t::compartment_t::finalise_connexion_list()
 {
-	for (uint32 i = 0; i < 63356; ++i)
+	for (uint32 i = 0; i < 65536; ++i)
 	{
-		if ( connexion_list[i].connexion_table )
+		reset_connexion_entry(i);
+		delete connexion_list[i].connexion_table;
+		connexion_list[i].connexion_table = NULL;
+	}
+}
+
+void path_explorer_t::compartment_t::rdwr(loadsave_t* file)
+{
+	file->rdwr_longlong(refresh_start_time);
+
+	file->rdwr_short(finished_halt_count);
+
+	bool finished_halt_index_map_live = finished_halt_index_map != NULL;
+	file->rdwr_bool(finished_halt_index_map_live);
+
+	if (finished_halt_index_map_live)
+	{
+		if (file->is_loading())
 		{
-			reset_connexion_entry(i);
-			delete connexion_list[i].connexion_table;
-			connexion_list[i].connexion_table = NULL;
+			finished_halt_index_map = new uint16[65536];
+		}
+		for (uint32 i = 0; i < 65536; ++i)
+		{
+			file->rdwr_short(finished_halt_index_map[i]);
+		}
+	}
+
+	bool finished_matrix_live = finished_matrix != NULL;
+	file->rdwr_bool(finished_matrix_live);
+
+	if (finished_matrix_live)
+	{
+		if (file->is_saving())
+		{
+			uint16 tmp_idx;
+			for (uint16 i = 0; i < finished_halt_count; i++)
+			{
+				//  This is a 2 dimensional array
+				for (uint32 j = 0; j < finished_halt_count; j++)
+				{
+					file->rdwr_long(finished_matrix[i][j].aggregate_time);
+					tmp_idx = finished_matrix[i][j].next_transfer.get_id();
+					file->rdwr_short(tmp_idx);
+				}
+			}
+		}
+		else // Loading
+		{
+			// Create the matrices 
+			if (finished_halt_count > 0)
+			{
+				// Build the (empty) finished matrix
+				uint16 tmp_idx;
+				finished_matrix = new path_element_t*[finished_halt_count];
+				for (uint16 i = 0; i < finished_halt_count; ++i)
+				{
+					finished_matrix[i] = new path_element_t[finished_halt_count];
+				}
+
+				// Now load them. These are 2 dimensional arrays.
+				for (uint16 i = 0; i < finished_halt_count; i++)
+				{
+					for (uint32 j = 0; j < finished_halt_count; j++)
+					{
+						file->rdwr_long(finished_matrix[i][j].aggregate_time);
+						file->rdwr_short(tmp_idx);
+						finished_matrix[i][j].next_transfer.set_id(tmp_idx);
+					}
+				}
+			}
+		}
+	}
+
+	file->rdwr_short(working_halt_count);
+
+	// Working matrix
+	bool working_matrix_live = working_matrix != NULL;
+	file->rdwr_bool(working_matrix_live);
+
+	if (working_matrix_live)
+	{
+		if (file->is_saving())
+		{
+			uint16 tmp_idx;
+			for (uint16 i = 0; i < working_halt_count; i++)
+			{
+				for (uint32 j = 0; j < working_halt_count; j++)
+				{
+					file->rdwr_long(working_matrix[i][j].aggregate_time);
+					tmp_idx = working_matrix[i][j].next_transfer.get_id();
+					file->rdwr_short(tmp_idx);
+
+					file->rdwr_short(transport_matrix[i][j].first_transport);
+					file->rdwr_short(transport_matrix[i][j].last_transport);
+				}				
+			}
+		}
+
+		else // Loading
+		{
+			// Create the matrices 
+			if (working_halt_count > 0)
+			{
+				// build working matrix
+				uint16 tmp_idx;
+				working_matrix = new path_element_t*[working_halt_count];
+				for (uint16 i = 0; i < working_halt_count; ++i)
+				{
+					working_matrix[i] = new path_element_t[working_halt_count];
+
+				}
+
+				// build transport matrix
+				transport_matrix = new transport_element_t*[working_halt_count];
+				for (uint16 i = 0; i < working_halt_count; ++i)
+				{
+					transport_matrix[i] = new transport_element_t[working_halt_count];
+				}
+
+				// Now load them. These are 2 dimensional arrays.
+				for (uint16 i = 0; i < working_halt_count; i++)
+				{
+					for (uint32 j = 0; j < working_halt_count; j++)
+					{
+						file->rdwr_long(working_matrix[i][j].aggregate_time);
+						file->rdwr_short(tmp_idx);
+						working_matrix[i][j].next_transfer.set_id(tmp_idx);
+
+						file->rdwr_short(transport_matrix[i][j].first_transport);
+						file->rdwr_short(transport_matrix[i][j].last_transport);
+					}
+				}
+			}
+		}
+	}
+
+	bool working_halt_index_map_live = working_halt_index_map != NULL;
+	file->rdwr_bool(working_halt_index_map_live);
+
+	if (working_halt_index_map_live)
+	{
+		if (file->is_loading())
+		{
+			working_halt_index_map = new uint16[65536];
+		}
+		for (uint32 i = 0; i < 65536; ++i)
+		{
+			file->rdwr_short(working_halt_index_map[i]);
+		}
+	}
+
+	bool transport_index_map_live = transport_index_map != NULL;
+	file->rdwr_bool(transport_index_map_live);
+
+	if (transport_index_map_live)
+	{
+		if (file->is_loading())
+		{
+			transport_index_map = new uint16[131072]();		// initialise all elements to zero
+		}
+
+		for (uint32 i = 0; i < 131072; i++)
+		{
+			file->rdwr_short(transport_index_map[i]);
+		}
+	}	
+
+	file->rdwr_short(all_halts_count);
+
+	bool all_halts_list_live = all_halts_list != NULL;
+	file->rdwr_bool(all_halts_list_live);
+
+	if(all_halts_list_live)
+	{
+		if(file->is_loading())
+		{
+			all_halts_list = new halthandle_t[all_halts_count];
+		}
+
+		for(uint32 i = 0; i < all_halts_count; i ++)
+		{
+			if (file->is_saving())
+			{
+				uint16 id = all_halts_list[i].get_id();
+				file->rdwr_short(id);
+			}
+			else
+			{
+				uint16 id;
+				file->rdwr_short(id);
+				all_halts_list[i].set_id(id); 
+			}
+		}
+	}
+
+	bool working_halt_list_live = working_halt_list != NULL;
+	file->rdwr_bool(working_halt_list_live);
+
+	if(working_halt_list_live)
+	{
+		if(file->is_loading())
+		{
+			working_halt_list = new halthandle_t[all_halts_count];
+		}
+
+		for(uint32 i = 0; i < all_halts_count; i ++)
+		{
+			if (file->is_saving())
+			{
+				uint16 id = working_halt_list[i].get_id();
+				file->rdwr_short(id);
+			}
+			else
+			{
+				uint16 id;
+				file->rdwr_short(id);
+				working_halt_list[i].set_id(id); 
+			}
+		}
+	}
+
+	bool linkages_live = linkages != NULL;
+	file->rdwr_bool(linkages_live);
+
+	if(linkages_live)
+	{
+		uint32 linkages_count;
+		if(file->is_saving())
+		{
+			linkages_count = linkages->get_count();
+		}
+		
+		file->rdwr_long(linkages_count);
+
+		if(file->is_loading())
+		{
+			linkages = new vector_tpl<linkage_t>(linkages_count);
+		}
+
+		uint16 cnv_id;
+		uint16 line_id;
+		for (uint32 i = 0; i < linkages_count; i++)
+		{
+			if (file->is_saving())
+			{
+				cnv_id = linkages->get_element(i).convoy.get_id();
+				line_id = linkages->get_element(i).line.get_id();
+			}
+
+			file->rdwr_short(cnv_id);
+			file->rdwr_short(line_id);
+
+			if(file->is_loading())
+			{
+				linkage_t tmp;
+				tmp.convoy.set_id(cnv_id);
+				tmp.line.set_id(line_id);
+				linkages->append(tmp); 
+			}
+		}
+	}
+
+	file->rdwr_short(transfer_count);
+	if (file->is_loading())
+	{
+		// build transfer list
+		transfer_list = new uint16[working_halt_count];
+	}
+
+	for(uint16 i = 0; i < transfer_count; i ++)
+	{
+		file->rdwr_short(transfer_list[i]); 
+	}
+
+	file->rdwr_byte(catg);
+	set_category(catg); // Necessary to set the name
+	file->rdwr_byte(g_class);
+	set_class(g_class); // Necessary to set the name
+
+	file->rdwr_short(step_count);
+
+	file->rdwr_bool(paths_available);
+	file->rdwr_bool(refresh_completed);
+	file->rdwr_bool(refresh_requested); 
+
+	file->rdwr_byte(current_phase);
+
+	file->rdwr_short(phase_counter);
+	file->rdwr_long(iterations);
+	file->rdwr_long(total_iterations);
+
+	file->rdwr_short(via_index);
+	file->rdwr_long(origin_cluster_index);
+	file->rdwr_long(target_cluster_index);
+	file->rdwr_long(origin_member_index);
+
+	bool inbound_connections_live = inbound_connections != NULL;
+	file->rdwr_bool(inbound_connections_live); 
+
+	if(inbound_connections_live)
+	{
+		if(file->is_loading())
+		{
+			inbound_connections = new connection_t(64u, working_halt_count);
+		}
+		inbound_connections->rdwr(file);
+	}
+
+	bool outbound_connections_live = outbound_connections != NULL;
+	file->rdwr_bool(outbound_connections_live); 
+
+	if(outbound_connections_live)
+	{
+		if(file->is_loading())
+		{
+			outbound_connections = new connection_t(64u, working_halt_count);
+		}
+		outbound_connections->rdwr(file);
+	}
+
+	file->rdwr_bool(process_next_transfer);
+
+	file->rdwr_long(statistic_duration);
+	file->rdwr_long(statistic_iteration);
+}
+
+void path_explorer_t::compartment_t::connection_t::rdwr(loadsave_t* file)
+{
+	uint32 connection_cluster_count;
+	if(file->is_saving())
+	{
+		connection_cluster_count = connection_clusters.get_count();
+	}
+	
+	file->rdwr_long(connection_cluster_count);
+
+	for(uint32 i = 0; i < connection_cluster_count; i ++)
+	{
+		if(file->is_saving())
+		{
+			connection_clusters[i]->rdwr(file); 
+		}
+		else
+		{
+			connection_cluster_t* tmp_cnx = new connection_cluster_t(file); 
+			connection_clusters.append(tmp_cnx); 
+		}
+	}
+
+	file->rdwr_long(usage_level);
+	file->rdwr_long(halt_vector_size);
+
+	if (file->is_saving())
+	{
+		uint32 cluster_map_count = cluster_map.get_count();
+		file->rdwr_long(cluster_map_count); 
+		FOR(cluster_map_type, iter, cluster_map)
+		{
+			file->rdwr_short(iter.key);
+			iter.value->rdwr(file);
+
+			cluster_map_count++;
+		}
+	}
+	else if (file->is_loading())
+	{
+		uint32 cluster_map_count;
+		file->rdwr_long(cluster_map_count); 
+		uint16 key;
+		for(uint32 i = 0; i < cluster_map_count; i ++)
+		{
+			file->rdwr_short(key);
+			connection_cluster_t* value = new connection_cluster_t(file); 
+			cluster_map.put(key, value); 
 		}
 	}
 }
 
+void path_explorer_t::compartment_t::connection_t::connection_cluster_t::rdwr(loadsave_t* file)
+{
+	assert(file->is_saving()); 
+	file->rdwr_short(transport); 
+	uint32 connected_halts_count = connected_halts.get_count();
+	file->rdwr_long(connected_halts_count);
+	for(uint32 i = 0; i < connected_halts_count; i ++)
+	{
+		file->rdwr_short(connected_halts[i]); 
+	}
+}
+
+path_explorer_t::compartment_t::connection_t::connection_cluster_t::connection_cluster_t(loadsave_t* file)
+{
+	assert(file->is_loading()); 
+	file->rdwr_short(transport); 
+	uint32 connected_halts_count;
+	file->rdwr_long(connected_halts_count);
+	connected_halts.resize(connected_halts_count);
+
+	for(uint32 i = 0; i < connected_halts_count; i ++)
+	{
+		uint16 tmp;
+		file->rdwr_short(tmp);
+		connected_halts.append(tmp); 
+	}
+}

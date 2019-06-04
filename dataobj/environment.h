@@ -43,7 +43,6 @@ public:
 	/// this the the preferred GUI theme at startup
 	static plainstring default_theme; // TODO: Implement the actual mechanism for themes from Standard. This is just for save compatibility at present.
 
-
 	/**
 	 * @name Network-related settings
 	 */
@@ -264,10 +263,8 @@ public:
 	/// buildings and trees near mouse cursor will be hidden.
 	static bool hide_under_cursor;
 
-
 	/// Hide buildings and trees within range of mouse cursor
 	static uint16 cursor_hide_range;
-
 
 	/// color used for cursor overlay blending
 	static uint8 cursor_overlay_color;
@@ -294,11 +291,11 @@ public:
 	/// time per water animation frame (0=off)
 	static uint32 water_animation;
 
-
 	/// how many internal pixel per height step (default 16)
 	static sint8 pak_tile_height_step;
 
 	/// new height for old slopes after conversion - 1=single height, 2=double height
+	/// Only use during loading of old games!
 	static sint8 pak_height_conversion_factor;
 
 	// load old height maps (false) or use as many available height levels as possible
@@ -326,7 +323,8 @@ public:
 		DATE_FMT_JAPANESE_NO_SEASON = 5,
 		DATE_FMT_US_NO_SEASON       = 6,
 		DATE_FMT_GERMAN_NO_SEASON   = 7,
-		DATE_FMT_INTERNAL_MINUTE = 8
+		DATE_FMT_INTERNAL_MINUTE = 8,
+		DATE_FMT_JAPANESE_INTERNAL_MINUTE = 9
 	};
 
 	/**
@@ -382,6 +380,9 @@ public:
 	static uint32 cluster_size;
 	static bool cities_ignore_height;
 	static uint8 cities_like_water;
+
+	// AI construction speed for new games (default 8000)
+	static uint32 default_ai_construction_speed;
 
 	/**
 	 * Name of rivers; first the river with the lowest number

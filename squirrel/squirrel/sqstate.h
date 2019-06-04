@@ -139,4 +139,4 @@ private:
 bool CompileTypemask(SQIntVec &res,const SQChar *typemask);
 
 
-#endif //_SQSTATE_H_
+#endif

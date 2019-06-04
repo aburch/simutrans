@@ -197,21 +197,17 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		// Upgrades
 		const uint16 month_now = welt->get_timeline_year_month();
 		int amount_of_upgradeable_vehicles = 0;
-		bool any_upgrades = false;
 
 		for (uint16 i = 0; i < vehicle_count; i++)
 		{
-			any_upgrades = false;
 			const vehicle_desc_t *desc = cnv->get_vehicle(i)->get_desc();
 			for (int i = 0; i < desc->get_upgrades_count(); i++)
 			{
-				if (any_upgrades == false)
+				const vehicle_desc_t *upgrade_desc = desc->get_upgrades(i);
+				if (upgrade_desc && !upgrade_desc->is_future(month_now) && (!upgrade_desc->is_retired(month_now)))
 				{
-					if (!desc->get_upgrades(i)->is_future(month_now) && (!desc->get_upgrades(i)->is_retired(month_now)))
-					{
-						amount_of_upgradeable_vehicles++;
-						any_upgrades = true;
-					}
+					amount_of_upgradeable_vehicles++;
+					break;
 				}
 			}
 		}
@@ -442,7 +438,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			buf.clear();
 			{
 				const sint32 month = v->get_purchase_time();
-				buf.printf("%s %s %i", translator::translate("Manufactured:"), translator::get_month_name(month % 12), month / 12);
+				buf.printf("%s %s", translator::translate("Manufactured:"), translator::get_year_month(month));
 			}
 			display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			extra_y += LINESPACE;
@@ -524,7 +520,8 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				int max_display_of_upgrades = 3;
 				for (int i = 0; i < v->get_desc()->get_upgrades_count(); i++)
 				{
-					if (!v->get_desc()->get_upgrades(i)->is_future(month_now) && (!v->get_desc()->get_upgrades(i)->is_retired(month_now)))
+					const vehicle_desc_t* desc = v->get_desc()->get_upgrades(i);
+					if (desc && !desc->is_future(month_now) && !desc->is_retired(month_now))
 					{
 						amount_of_upgrades++;
 					}
@@ -535,15 +532,22 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					buf.printf("%s:", translator::translate("this_vehicle_can_upgrade_to"));
 					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, COL_PURPLE, true);
 					extra_y += LINESPACE;
-					for (uint8 i = 0; i < min(v->get_desc()->get_upgrades_count(), max_display_of_upgrades); i++)
+					uint8 upgrades_displayed = 0;
+					for (uint8 i = 0; i < v->get_desc()->get_upgrades_count(); i++)
 					{
-						if (!v->get_desc()->get_upgrades(i)->is_future(month_now) && (!v->get_desc()->get_upgrades(i)->is_retired(month_now)))
+						const vehicle_desc_t* desc = v->get_desc()->get_upgrades(i);
+						if (desc && !desc->is_future(month_now) && !desc->is_retired(month_now))
 						{
 							buf.clear();
-							money_to_string(number, v->get_desc()->get_upgrades(i)->get_upgrade_price() / 100);
+							money_to_string(number, desc->get_upgrade_price() / 100);
 							buf.printf("%s (%8s)", translator::translate(v->get_desc()->get_upgrades(i)->get_name()), number);
 							display_proportional_clip(pos.x + w + offset.x + even_more_extra_w, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 							extra_y += LINESPACE;
+							upgrades_displayed++;
+							if (upgrades_displayed >= max_display_of_upgrades)
+							{
+								break;
+							}
 						}
 					}
 					if (amount_of_upgrades > max_display_of_upgrades)
@@ -629,7 +633,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					int classes_to_check = pass_veh ? pass_classes : mail_classes;
 					for (uint8 i = 0; i < classes_to_check; i++)
 					{
-						if (v->get_capacity(i) > 0)
+						if (v->get_fare_capacity(i) > 0)
 						{
 							classes_counter++;
 						}
@@ -637,7 +641,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 					for (uint8 i = 0; i < v->get_desc()->get_number_of_classes(); i++)
 					{
-						if (v->get_desc()->get_capacity(i) > 0)
+						if (v->get_accommodation_capacity(i) > 0)
 						{
 							if (v->get_reassigned_class(i) != i)
 							{
@@ -656,29 +660,12 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					{
 						buf.clear();
 						sprintf(classes_display, classes_counter > 1 ? "reassigned_classes" : "reassigned_class");
-						buf.printf(" (%i %s)", classes_reassigned_counter, classes_display);
+						buf.printf(" (%i %s)", classes_reassigned_counter, translator::translate(classes_display));
 						display_proportional_clip(pos.x + w + offset.x + reassigned_w + w_icon, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_EDIT_TEXT_DISABLED, true);
 					}
 					extra_y += LINESPACE + 2;
-
-					//for (uint8 i = 0; i < classes_to_check; i++)
-					//{
-					//	if (v->get_total_cargo_by_class(i) > 0 && v->get_capacity(i) == 0) // make sure this is only showed when there is no current capacity for the class, ie its been reassigned to another one.
-					//	{
-					//		{
-					//			freight_info_class.clear();
-
-					//			char class_name_untranslated[32];
-					//			sprintf(class_name_untranslated, pass_veh ? "p_class[%u]" : "m_class[%u]", i);
-					//			const char* class_name = translator::translate(class_name_untranslated);
-
-					//			freight_info_class.printf("%u%s %s (%s, %s)", v->get_total_cargo_by_class(i), translator::translate(v->get_cargo_mass()), name, translator::translate("previously"), class_name);
-					//			const int px_len = display_multiline_text(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, freight_info_class, SYSCOL_EDIT_TEXT_DISABLED);
-					//			extra_y += LINESPACE;
-					//		}
-					//	}
-					//}
 				}
+
 				// We get the freight info via the freight_list_sorter now, so no need to do anything but fetch it
 				v->get_cargo_info(freight_info);
 				// show it
@@ -714,12 +701,23 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					buf.clear();
 					char tmpbuf1[13];
 					sprintf(tmpbuf1, "\nMUST USE: ");
-					char tmpbuf[14];
-					sprintf(tmpbuf, "Permissive %i", i);
+					char tmpbuf[15];
+					sprintf(tmpbuf, "Permissive %i-%i", v->get_desc()->get_waytype(), i);
 					buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
 					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					extra_y += LINESPACE;
 				}
+			}		
+			if (v->get_desc()->get_is_tall())
+			{
+				buf.clear();
+				char tmpbuf1[13];
+				sprintf(tmpbuf1, "\nMUST USE: ");
+				char tmpbuf[46];
+				sprintf(tmpbuf, "high_clearance_under_bridges_(no_low_bridges)");
+				buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
+				display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				extra_y += LINESPACE;
 			}
 
 			// Prohibitive way constraints
@@ -732,12 +730,23 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					buf.clear();
 					char tmpbuf1[13];
 					sprintf(tmpbuf1, "\nMAY USE: ");
-					char tmpbuf[14];
-					sprintf(tmpbuf, "Prohibitive %i", i);
+					char tmpbuf[16];
+					sprintf(tmpbuf, "Prohibitive %i-%i", v->get_desc()->get_waytype(), i);
 					buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
 					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					extra_y += LINESPACE;
 				}
+			}
+			if (v->get_desc()->get_tilting())
+			{
+				buf.clear();
+				char tmpbuf1[14];
+				sprintf(tmpbuf1, "equipped_with");
+				char tmpbuf[26];
+				sprintf(tmpbuf, "tilting_vehicle_equipment");
+				buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
+				display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				extra_y += LINESPACE;
 			}
 
 			//skip at least five lines

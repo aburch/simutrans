@@ -60,6 +60,11 @@ const skin_desc_t* skinverwaltung_t::color_options      = NULL;
 const skin_desc_t* skinverwaltung_t::compass_iso        = NULL;
 const skin_desc_t* skinverwaltung_t::compass_rect       = NULL;	// compass rectangular (for minimap)
 
+const skin_desc_t* skinverwaltung_t::pax_evaluation_icons = NULL;
+const skin_desc_t* skinverwaltung_t::mail_evaluation_icons = NULL;
+
+const skin_desc_t* skinverwaltung_t::alerts             = NULL;
+
 // cursors
 const skin_desc_t* skinverwaltung_t::cursor_general     = NULL;	// new cursors
 const skin_desc_t* skinverwaltung_t::bauigelsymbol      = NULL;
@@ -72,11 +77,13 @@ const skin_desc_t* skinverwaltung_t::fussweg            = NULL;
 const skin_desc_t* skinverwaltung_t::pumpe              = NULL;
 const skin_desc_t* skinverwaltung_t::senke              = NULL;
 const skin_desc_t* skinverwaltung_t::tunnel_texture     = NULL;
+const skin_desc_t* skinverwaltung_t::ribi_arrow         = NULL;
 
 slist_tpl<const skin_desc_t *>skinverwaltung_t::extra_obj;
 
 
 static spezial_obj_tpl<skin_desc_t> const misc_objekte[] = {
+	{ &skinverwaltung_t::ribi_arrow,        "RibiArrow"    },
 	{ &skinverwaltung_t::senke,             "PowerDest"    },
 	{ &skinverwaltung_t::pumpe,             "PowerSource"  },
 	{ &skinverwaltung_t::construction_site, "Construction" },
@@ -105,6 +112,9 @@ static spezial_obj_tpl<skin_desc_t> const menu_objekte[] = {
 };
 
 static spezial_obj_tpl<skin_desc_t> const symbol_objekte[] = {
+	{ &skinverwaltung_t::pax_evaluation_icons, "PassengersEvaluation" },
+	{ &skinverwaltung_t::mail_evaluation_icons, "MailEvaluation" },
+	{ &skinverwaltung_t::alerts,             "Alerts"         },
 	{ &skinverwaltung_t::seasons_icons,      "Seasons"        },
 	{ &skinverwaltung_t::message_options,    "MessageOptions" },
 	{ &skinverwaltung_t::color_options,      "ColorOptions"   },
@@ -158,11 +168,11 @@ bool skinverwaltung_t::successfully_loaded(skintyp_t type)
 {
 	spezial_obj_tpl<skin_desc_t> const* sb;
 	switch (type) {
-		case menu:    sb = menu_objekte+1;       break;
+		case menu:    sb = menu_objekte+1;     break;
 		case cursor:  sb = cursor_objekte;     break;
-		case symbol:  sb = symbol_objekte;     break;
+		case symbol:  sb = symbol_objekte+3;   break;
 		case misc:
-			sb = misc_objekte+2;
+			sb = misc_objekte+3;
 			// for compatibility: use sidewalk as tunneltexture
 			if (tunnel_texture==NULL) {
 				tunnel_texture = fussweg;

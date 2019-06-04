@@ -2367,7 +2367,13 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				}
 				else {
 #ifdef LOW_LEVEL
-					// low level c++
+#ifdef SIM_BIG_ENDIAN
+					// low level c++ without any unrolling
+					while (runlen--) {
+						*sp++ = *p++;
+					}
+#else
+					// trying to merge reads and writes
 					if (runlen) {
 						// align to 4 bytes, should use uintptr_t but not available
 						if (reinterpret_cast<size_t>(p) & 0x2) {
@@ -2378,19 +2384,22 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 						bool const postalign = runlen & 1;
 						runlen >>= 1;
 						uint32 *ld = (uint32 *)p;
-						//const uint32 *ls = (const uint32 *)sp;
 						while (runlen--) {
-							//*ld++ = *ls++;
+#if defined _MSC_VER // MSVC can read unaligned
+							*ld++ = *(uint32 const *const)sp;
+#else
+							// little endian order, assumed by default
 							*ld++ = (uint32(sp[1]) << 16) | uint32(sp[0]);
+#endif
 							sp += 2;
 						}
 						p = (PIXVAL*)ld;
-						//sp = (const PIXVAL*)ls;
 						// finish unaligned remainder
 						if (postalign) {
 							*p++ = *sp++;
 						}
 					}
+#endif
 #else
 					// high level c++
 					const PIXVAL *const splast = sp + runlen;
@@ -2476,11 +2485,11 @@ void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 p
 		yp += images[n].y;
 		KOORD_VAL h = images[n].h; // may change due to vertical clipping
 
-								   // in the next line the vertical clipping will be handled
-								   // by that way the drawing routines must only take into account the horizontal clipping
-								   // this should be much faster in most cases
+		// in the next line the vertical clipping will be handled
+		// by that way the drawing routines must only take into account the horizontal clipping
+		// this should be much faster in most cases
 
-								   // must the height be reduced?
+		// must the height be reduced?
 		KOORD_VAL reduce_h = yp + h - CR.clip_rect.yy;
 		if (reduce_h > 0) {
 			h -= reduce_h;
@@ -3946,9 +3955,9 @@ uint16 display_load_font(const char* fname)
 {
 	font_type fnt;
 
-	if (fname == NULL) {
+	if(  fname == NULL  ) {
 		// reload last font
-		if (load_font(&fnt, large_font.fname)) {
+		if(  load_font(&fnt, large_font.fname)  ) {
 			free(large_font.screen_width);
 			free(large_font.char_data);
 			large_font = fnt;

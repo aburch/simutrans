@@ -2,6 +2,7 @@
 #include "xref_desc.h"
 #include "../network/checksum.h"
 #include "../simworld.h"
+#include "../bauer/goods_manager.h"
 
 uint32 vehicle_desc_t::calc_running_cost(const karte_t *welt, uint32 base_cost) const
 {
@@ -25,7 +26,7 @@ uint32 vehicle_desc_t::calc_running_cost(const karte_t *welt, uint32 base_cost) 
 
 	// I am obsolete --> obsolescence cost increase.
 	uint16 running_cost_increase_percent = increase_maintenance_by_percent ? increase_maintenance_by_percent :welt->get_settings().get_obsolete_running_cost_increase_percent();
-	uint32 max_cost = base_cost * (running_cost_increase_percent / 100);
+	uint32 max_cost = (base_cost * running_cost_increase_percent) / 100;
 	if (max_cost == base_cost)
 	{
 		return max_cost;
@@ -151,7 +152,7 @@ void vehicle_desc_t::loaded()
 
 	static const float32e8_t gear_factor((uint32)GEAR_FACTOR); 
 	float32e8_t power_force_ratio = get_power_force_ratio();
-	force_threshold_playerseed = (uint16)(power_force_ratio + float32e8_t::half);
+	force_threshold_speed = (uint16)(power_force_ratio + float32e8_t::half);
 	float32e8_t g_power = float32e8_t(power) * (/*(uint32) 1000L * */ (uint32)gear);
 	float32e8_t g_force = float32e8_t(tractive_effort) * (/*(uint32) 1000L * */ (uint32)gear);
 	if (g_power != 0)
@@ -181,12 +182,12 @@ void vehicle_desc_t::loaded()
 		geared_power = new uint32[speed+1];
 		geared_force = new uint32[speed+1];
 
-		for (; speed > force_threshold_playerseed; --speed)
+		for (; speed > force_threshold_speed; --speed)
 		{
 			geared_force[speed] = g_power / speed + float32e8_t::half;
 			geared_power[speed] = g_power + float32e8_t::half;
 		}
-		for (; speed <= force_threshold_playerseed; --speed)
+		for (; speed <= force_threshold_speed; --speed)
 		{
 			geared_force[speed] = g_force + float32e8_t::half;
 			geared_power[speed] = g_force * speed + float32e8_t::half;
@@ -205,7 +206,7 @@ uint32 vehicle_desc_t::get_effective_force_index(sint32 speed /* in m/s */ ) con
 		// no force at all
 		return 0;
 	}
-	//return speed <= force_threshold_playerseed ? geared_force : geared_power / speed;
+	//return speed <= force_threshold_speed ? geared_force : geared_power / speed;
 	return geared_force[min(speed, max_speed)];
 }
 
@@ -220,7 +221,7 @@ uint32 vehicle_desc_t::get_effective_power_index(sint32 speed /* in m/s */ ) con
 		// no power at all
 		return 0;
 	}
-	///return speed <= force_threshold_playerseed ? geared_force * speed : geared_power;
+	///return speed <= force_threshold_speed ? geared_force * speed : geared_power;
 	return geared_power[min(speed, max_speed)];
 }
 
@@ -233,6 +234,53 @@ uint16 vehicle_desc_t::get_obsolete_year_month(const karte_t *welt) const
 	else
 	{
 		return retire_date + (welt->get_settings().get_default_increase_maintenance_after_years((waytype_t)wtyp) * 12);
+	}
+}
+
+void vehicle_desc_t::fix_number_of_classes()
+{
+	// We can call this safely since we fixed the number of classes
+	// stored in the good desc earlier when registering it.
+	uint8 actual_number_of_classes = get_freight_type()->get_number_of_classes();
+
+	if (actual_number_of_classes == 0)
+	{
+		classes = 0;
+		return;
+	}
+
+	while (classes > actual_number_of_classes)
+	{
+		capacity[classes-2]+=capacity[classes-1];
+		classes --;
+	}
+
+	if (classes < actual_number_of_classes)
+	{
+		uint8 *comfort_copy = new uint8[classes];
+		uint16 *capacity_copy = new uint16[classes];
+		for (uint8 i = 0; i < classes; i++)
+		{
+			comfort_copy[i] = comfort[i];
+			capacity_copy[i] = capacity[i];
+		}
+		delete[] comfort;
+		delete[] capacity;
+		comfort = new uint8[actual_number_of_classes];
+		capacity = new uint16[actual_number_of_classes];
+		for (uint8 i = 0; i < classes; i++)
+		{
+			comfort[i] = comfort_copy[i];
+			capacity[i] = capacity_copy[i];
+		}
+		for (uint8 i = classes; i < actual_number_of_classes; i++)
+		{
+			comfort[i] = 0;
+			capacity[i] = 0;
+		}
+		classes = actual_number_of_classes;
+		delete[] comfort_copy;
+		delete[] capacity_copy;
 	}
 }
 
