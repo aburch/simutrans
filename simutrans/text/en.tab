@@ -3937,5 +3937,6 @@ Distance to junction
 distance_to_stop_signal
 Distance to stop signal
 no_signal_before_dead_end
-No signal before dead end
+No signal before buffers
 distance_to_dead_end
+Distance to buffers
