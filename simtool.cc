@@ -6110,6 +6110,24 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 
+	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % desc->get_all_layouts() : simrand(desc->get_all_layouts(), "const char *tool_build_factory_t::work");
+	koord size = desc->get_size(rotation);
+
+	const climate_bits cl = desc->get_allowed_climate_bits();
+	bool can_be_placed = welt->square_is_free( pos.get_2d(), desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
+
+	if(!can_be_placed  &&  size.y!=size.x  &&  desc->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#'))
+	{
+		// try other rotation too ...
+		rotation = (rotation+1) % desc->get_all_layouts();
+		can_be_placed = welt->square_is_free( pos.get_2d(), desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
+	}
+
+	if (!can_be_placed)
+	{
+		return "A signalbox cannot be built here.";
+	}
+
 	if(welt->is_within_limits(pos.get_2d()))
 	{
 		// full underground mode: coordinate is on ground, adjust it to one level below ground
