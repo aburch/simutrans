@@ -1,0 +1,46 @@
+# Simutranslator settings for Simutrans-Extended texts
+# Addendum for the reorganisation of the depot window
+#
+# Author: jamespetts
+# Created: April 2013
+#
+obj=program_text
+name= (block %i)
+note=Appears in the signal info window in the "next signal" section
+-
+obj=program_text
+name=this_signal_protects_a_junction
+note=Appears in the signal info window in the "next signal" section
+-
+obj=program_text
+name=distance_to_junction
+note=Appears in the signal info window in the "next signal" section
+-
+obj=program_text
+name=distance_to_stop_signal
+note=Appears in the signal info window in the "next signal" section
+-
+obj=program_text
+name=no_signal_before_dead_end
+note=Appears in the signal info window in the "next signal" section
+-
+obj=program_text
+name=distance_to_dead_end
+note=Appears in the signal info window in the "next signal" section
+-
+obj=program_text
+name=
+note=Appears in the signal info window in the "next signal" section
+-
+obj=program_text
+name=
+note=Appears in the signal info window in the "next signal" section
+-
+obj=program_text
+name=
+note=Appears in the signal info window in the "next signal" section
+-
+obj=program_text
+name=
+note=Appears in the signal info window in the "next signal" section
+-

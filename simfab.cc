@@ -1957,11 +1957,36 @@ sint32 fabrik_t::goods_needed(const goods_desc_t *typ) const
 		{
 			// not needed (< 1) if overflowing or too much already sent	
 
-			const uint32 prod_factor = desc->get_supplier(in)->get_consumption();
-			const uint32 transit_internal_units = (((ware.get_in_transit() << fabrik_t::precision_bits) << DEFAULT_PRODUCTION_FACTOR_BITS) + prod_factor - 1) / prod_factor;
+			const sint32 prod_factor = desc->get_supplier(in)->get_consumption();
+			const sint32 transit_internal_units = (((ware.get_in_transit() << fabrik_t::precision_bits) << DEFAULT_PRODUCTION_FACTOR_BITS) + prod_factor - 1) / prod_factor;
 			
 			// Version that respects the new industry internal scale and properly deals with the just in time setting being disabled
-			return typ->get_catg() == 0 || !welt->get_settings().get_just_in_time() ? ware.max - ware.menge : ware.max_transit - (transit_internal_units + ware.menge - ware.max);
+			if(typ->get_catg() == 0 || !welt->get_settings().get_just_in_time())
+			{
+				// The simple system
+				return ware.max - ware.menge;
+			}
+			else if(welt->get_settings().get_just_in_time() == 1)
+			{
+				// Original just in time with industries always demanding enough goods to fill their storage but no more.
+				return ware.max_transit - (transit_internal_units + ware.menge - ware.max);
+			}
+			else // just_in_time > 1
+			{
+				// Modified just in time, with industries not filling more of their storage than they are likely to need.
+				sint32 adjusted_factory_value = ware.menge - ware.max_transit;
+				adjusted_factory_value = max(adjusted_factory_value, 0);
+				const sint32 overall_maximum = ware.max + ware.max_transit;
+				if (welt->get_settings().get_just_in_time() == 2)
+				{
+					return min(overall_maximum, ware.max_transit - (transit_internal_units + adjusted_factory_value));
+				}
+				else // just_in_time >= 3
+				{
+					// In this state, the size of the consumer's storage is ignored.
+					return ware.max_transit - (transit_internal_units + adjusted_factory_value);
+				}
+			}	
 		}
 	}
 	return -1;  // not needed here

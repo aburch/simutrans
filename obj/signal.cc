@@ -77,7 +77,7 @@ signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsig
 		}
 	}
 
-	if(desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block))
+	if(desc->is_station_signal())
 	{
 		// Register station signals at the halt.
 		halthandle_t halt = haltestelle_t::get_halt(pos, player);
@@ -101,7 +101,7 @@ signal_t::~signal_t()
 		}
 	}
 	welt->remove_time_interval_signal_to_check(this); 
-	if(desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph))
+	if(desc->is_station_signal())
 	{
 		// De-register station signals at the halt.
 		halthandle_t halt = haltestelle_t::get_halt(get_pos(), get_owner());
@@ -148,7 +148,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate("double_block_signal"));
 		buf.append("\n");
 	}
-	if (desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block))
+	if (desc->is_station_signal())
 	{
 		buf.append(translator::translate("station_signal"));
 		buf.append("\n");
@@ -226,7 +226,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 
 	buf.append(translator::translate("Direction"));
 	buf.append(": ");
-	if (desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block))
+	if (desc->is_station_signal())
 	{
 		if (get_dir() == 1 || get_dir() == 4)
 		{
@@ -239,7 +239,34 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	}
 	else
 	{
-		buf.append(translator::translate(get_directions_name(get_dir())));
+		const grund_t* sig_gr3d = welt->lookup(sig_pos);
+		const weg_t* way = sig_gr3d->get_weg(desc->get_wtyp() != tram_wt ? desc->get_wtyp() : track_wt);
+		uint8 direction = get_dir();
+
+		ribi_t::ribi ribi = way->get_ribi_unmasked();
+
+		// If signal is single headed, we need to alter the direction for diagonals, as those will display wrong
+		if (get_dir() == 1 || get_dir() == 2 || get_dir() == 4 || get_dir() == 8)
+		{
+			switch (ribi)
+			{
+			case ribi_t::_ribi::northeast:
+				direction = get_dir() == 1 ? 8 : 4;
+				break;
+			case ribi_t::_ribi::northwest:
+				direction = get_dir() == 1 ? 2 : 4;
+				break;
+			case ribi_t::_ribi::southeast:
+				direction = get_dir() == 4 ? 8 : 1;
+				break;
+			case ribi_t::_ribi::southwest:
+				direction = get_dir() == 4 ? 2 : 1;
+				break;
+			default:
+				break;
+			}
+		}
+		buf.append(translator::translate(get_directions_name(direction)));
 	}
 	buf.append("\n");
 
@@ -247,6 +274,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	// Does this signal have any aspects to show?
 	if (desc->get_working_method() == drive_by_sight || desc->get_aspects() <= 1)
 	{
+		buf.append("\n\n");
 	}
 	else
 	{
@@ -277,7 +305,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			{
 				buf.append(translator::translate("callon"));
 			}
-			
+
 		}
 
 		buf.append("\n");
@@ -294,7 +322,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			else
 			{
 				// Is this a "station signal"?
-				if (desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block))
+				if (desc->is_station_signal())
 				{
 					// Is the station signal using a 'normal' working method?
 					if (desc->get_working_method() != time_interval && desc->get_working_method() != time_interval_with_telegraph)
@@ -408,25 +436,299 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			}
 		}
 		else
+		{
 			buf.append(translator::translate("danger"));
-			buf.append(translator::translate("\n"));
-	}
-	if (get_state() != danger)
-	{
-		// Possible information about how many blocks are reserved, or speed restrictions for time interval signals
+		}
 	}
 	buf.append(translator::translate("\n"));
+	if (get_state() == danger)
+	{
+	}
+	else
+	{
+		// Signal is not at danger! Display info about the reservation that is made through this signal
+	}
+	buf.append(translator::translate("\n"));
+		// When the signal is at danger, we display some properties of the signal.
+		// Check wether this signal protects a junction otherwise count how far the next stop signal is
+		// However, display nothing for station signals, one train staffs and drive by sight, since the information would be very random dependent on where you put the signal and would not be very informative anyway.
+	if (!desc->is_station_signal() && desc->get_working_method() != one_train_staff && desc->get_working_method() != drive_by_sight)
+	{
+		const waytype_t waytype = sig->get_waytype();
+		uint8 initial_direction = get_dir();
+		uint8 initial_direction_2 = get_dir();
+		uint8 directions = 1;
+		uint8 coming_from_direction = get_dir();
+		uint8 blocks_amount = desc->get_aspects();
+		int tiles = 0;
+		bool dead_end = false;
+		bool crossing = false;
+		bool signal = false;
+		int max_tiles_to_look = 1000;
+		char direction[20];
+		char spaces[5];
+		char block_text[20];
+
+		if (desc->get_working_method() == track_circuit_block || (desc->get_working_method() == absolute_block && desc->is_combined_signal()))
+		{
+			blocks_amount = desc->get_aspects() - 1;
+		}
+		else
+		{
+			blocks_amount = 1;
+		}
+
+		// Reorder the directions so that the RIBI understands them.
+		/*
+		* Signal get_dir() values
+		* 1 = South
+		* 2 = West
+		* 4 = North
+		* 8 = East
+		--------------------
+		* Ribi enum direction values
+		* 1 = North
+		* 4 = South
+		* 2 = East
+		* 8 = West
+		*/
+		initial_direction =
+			get_dir() == 1 ? 4 : /*South*/
+			get_dir() == 2 ? 8 : /*West*/
+			get_dir() == 3 ? 1 : /*north_and_east*/
+			get_dir() == 4 ? 1 : /*North*/
+			get_dir() == 5 ? 1 : /*north_and_south*/
+			get_dir() == 6 ? 4 : /*south_and_east*/
+			get_dir() == 8 ? 2 : /*East*/
+			get_dir() == 9 ? 1 : /*north_and_west*/
+			get_dir() == 10 ? 2 : /*east_and_west*/
+			get_dir() == 12 ? 4 : /*south_and_west*/
+			initial_direction;
+
+		// For bidirectional signals, add the "backwards" direction to initial_direction_2.
+		initial_direction_2 =
+			get_dir() == 3 ? 2 : /*north_and_east*/
+			get_dir() == 5 ? 4 : /*north_and_south*/
+			get_dir() == 6 ? 2 : /*south_and_east*/
+			get_dir() == 9 ? 8 : /*north_and_west*/
+			get_dir() == 10 ? 8 : /*east_and_west*/
+			get_dir() == 12 ? 8 : /*south_and_west*/
+			0;
+
+		// Set the amount of directions this signal has (1 or 2)
+		directions = initial_direction_2 > 0 ? 2 : 1;
+
+		grund_t *gr;
+		signal_t* previous_signal = NULL;
+		for (int j = 0; j < directions; j++)
+		{
+			// If the signal is doubleheaded, apply the new "initial_direction" and write the direction to char
+			initial_direction = j == 1 ? initial_direction_2 : initial_direction;
+			directions == 2 ? sprintf(direction, "%s:", translator::translate(get_directions_name(initial_direction == 1 ? 4 : initial_direction == 2 ? 8 : initial_direction == 4 ? 1 : initial_direction == 8 ? 2 : initial_direction))) : sprintf(direction, "");
+			directions == 2 ? sprintf(spaces, "  ") : sprintf(spaces, "");
+			coming_from_direction = get_dir();
+			tiles = 0;
+			crossing = false;
+			dead_end = false;
+			previous_signal = NULL;
+			for (int b = 0; b < blocks_amount; b++)
+			{
+				gr = previous_signal ? welt->lookup(previous_signal->get_pos()) : welt->lookup(get_pos());
+				blocks_amount > 1 ? sprintf(block_text, translator::translate(" (block %i)"), b + 1) : sprintf(block_text, "");
+				signal = false;
+
+				for (uint32 i = 0; i < max_tiles_to_look; i++)
+				{
+					grund_t* to;
+					dead_end = true;
+					for (int r = 0; r < 4; r++)
+					{
+						if (((ribi_t::nsew[r] & initial_direction) != 0 || (ribi_t::nsew[r] & coming_from_direction) == 0) && gr->get_neighbour(to, waytype, ribi_t::nsew[r]))
+						{
+							weg_t* weg = to->get_weg(waytype);
+							gr = welt->lookup(weg->get_pos());
+							initial_direction = 0; // reset initial direction and start record what direction we came from by reversing the direction in which we are traveling
+							uint8 new_from_direction = r == 0 ? 1 : r == 1 ? 0 : r == 2 ? 3 : r == 3 ? 2 : 0;
+							coming_from_direction = ribi_t::nsew[new_from_direction];
+							dead_end = false;
+
+							// Is this new tile a junction of some sorth?
+							ribi_t::ribi ribi = weg->get_ribi_unmasked();
+							switch (ribi)
+							{
+							case ribi_t::_ribi::northsoutheast:
+							case ribi_t::_ribi::northeastwest:
+							case ribi_t::_ribi::northsouthwest:
+							case ribi_t::_ribi::southeastwest:
+							case ribi_t::_ribi::all:
+								crossing = true;
+								break;
+								//default:
+									//break;
+							}
+
+							// Does this tile have a signal?
+							if (weg->has_signal())
+							{
+								signal_t* next_signal = gr->find<signal_t>();
+								if (next_signal)
+								{
+									const roadsign_desc_t * next_desc = next_signal->get_desc();
+									// Next signal is only a presignal?
+									if (!next_desc->is_pre_signal())
+									{
+										// Determine if the signal are facing the right way.
+										uint8 sig_dir = next_signal->get_dir();
+										uint8 sig_ribi_dir;
+
+										if (next_signal->get_desc()->is_station_signal())
+										{
+											// Station signal, always true.
+											signal = true;
+										}
+										else
+										{
+											// If signal is double headed, also assume always true
+											switch (sig_dir)
+											{
+											case 3: // north_and_east
+											case 5: // north_and_south
+											case 6: // south_and_east
+											case 9: // north_and_west
+											case 10: // east_and_west
+											case 12: // south_and_west
+												signal = true;
+												break;
+											default:
+												break;
+											}
+											// Single headed. Reorder the directions so the RIBI understands them.
+											sig_ribi_dir =
+												sig_dir == 1 ? 4 :
+												sig_dir == 2 ? 8 :
+												sig_dir == 4 ? 1 :
+												sig_dir == 8 ? 2 :
+												sig_ribi_dir;
+											if (ribi_t::nsew[r] == sig_ribi_dir)
+											{
+												signal = true;
+											}
+											if (signal)
+											{
+												previous_signal = next_signal;
+												break;
+											}
+										}
+									}
+								}
+							}
+							break;
+						}
+					}
+					// If the last tile is a signal or a dead end, count that tile as well. The 'break' will make sure we dont count the tile twice
+					// It it is a crossing, dont count the tile since the crossing starts at the edge of the tile
+					if (signal)
+					{
+						tiles++;
+						break;
+					}
+					if (dead_end)
+					{
+						tiles++;
+						previous_signal = NULL;
+						break;
+					}
+					if (crossing)
+					{
+						previous_signal = NULL;
+						break;
+					}
+					tiles++;
+				}
+
+				// Convert the tiles counted to actual distance
+				const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
+				const double distance_km = (double)tiles * km_per_tile;
+				char distance[10];
+
+				if (distance_km < 1)
+				{
+					float distance_m = distance_km * 1000;
+					sprintf(distance, "%i%s", (int)distance_m, "m");
+				}
+				else
+				{
+					uint decimal = distance_km < 20 ? 1 : 0;
+					char number_actual[10];
+					number_to_string(number_actual, distance_km, decimal);
+					sprintf(distance, "%s%s", number_actual, "km");
+				}
+
+				if (direction[0] != '\0')
+				{
+					buf.printf("%s\n", direction);
+					sprintf(direction, "");
+				}
+
+				if (crossing)
+				{
+					// If there is no signal before the first crossing, erase the "(block X)" display
+					if (b == 0)
+					{
+						sprintf(block_text, "");
+					}
+					// We want to emphasize the crossings importance in time interval (with telegraph) working method, by explicitly saying that the signal is protecting the crossing
+					// However, presignals in that WM would not protect the crossing, so just tell the distance.
+					if (!desc->is_pre_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph))
+					{
+						buf.printf("%s%s (%s)\n", spaces, translator::translate("this_signal_protects_a_junction"), distance);
+					}
+					else
+					{
+						buf.printf("%s%s%s: %s\n", spaces, translator::translate("distance_to_junction"), block_text, distance);
+					}
+
+					break; // break out of the "block counts"
+				}
+				else if (signal)
+				{
+					buf.printf("%s%s%s: %s\n", spaces, translator::translate("distance_to_stop_signal"), block_text, distance);
+				}
+				else if (dead_end)
+				{
+					// A presignal in this position would be pointles. Tell the player!
+					if (desc->is_pre_signal() && b == 0)
+					{
+						buf.printf("%s (%s)\n", spaces, translator::translate("no_signal_before_dead_end"), distance);
+						break; // break out of the "block counts"
+					}
+					else
+					{
+						if (b == 0)
+						{
+							sprintf(block_text, "");
+						}
+						buf.printf("%s%s%s: %s\n", spaces, translator::translate("distance_to_dead_end"), block_text, distance);
+						break; // break out of the "block counts"
+					}
+				}
+			}
+			buf.append("\n");
+		}
+	}
 
 	if (((desc->is_longblock_signal() || get_dir() == 3 || get_dir() == 6 || get_dir() == 9 || get_dir() == 12 || get_dir() == 5 || get_dir() == 10) && (desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == track_circuit_block || desc->get_working_method() == cab_signalling || desc->get_working_method() == moving_block)) && (desc->is_pre_signal()) == false)
 	{
 		buf.append(translator::translate("This signal creates directional reservations"));
-		buf.append(translator::translate("\n\n"));
+		buf.append(translator::translate("\n"));
+		buf.append(translator::translate("\n"));
 	}
 
 	if (desc->get_double_block() == true)
 	{
 		buf.append(translator::translate("this_signal_will_not_clear_until_next_signal_is_clear"));
-		buf.append(translator::translate("\n\n"));
+		buf.append(translator::translate("\n"));
+		buf.append(translator::translate("\n"));
 	}
 
 	// Deal with station signals where the time since the train last passed is standardised for the whole station.
@@ -510,41 +812,76 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append("\n\n");
 	}
 
-	
+	// "Controlled from signalbox" section. The "\n" is in this first section set before the entry to help accommodate the layout in the name, coordinates etc.
 	buf.append(translator::translate("Controlled from"));
-	buf.append(":\n");
+	buf.append(":");
 	koord3d sb = sig->get_signalbox();
 	if(sb == koord3d::invalid)
 	{
+		buf.append("\n");
 		buf.append(translator::translate("keine"));
+		buf.append("\n");
 	}
 	else
 	{
 		const grund_t* gr = welt->lookup(sb);
-		if(gr)
+		if (gr)
 		{
 			const gebaeude_t* gb = gr->get_building();
-			if(gb)
+			if (gb)
 			{
-				uint8 textlines = 2; // to locate the clickable signalbox button
+				uint8 textlines = 1; // to locate the clickable signalbox button
 				const grund_t *ground = welt->lookup_kartenboden(sb.x, sb.y);
 				bool sb_underground = ground->get_hoehe() > sb.z;
 
-				buf.append("   ");
-				buf.append(translator::translate(gb->get_name()));
-				if (sb_underground)
-				{
-					buf.append("\n  ");
-					textlines += 1;
-				}
-				buf.append(" <");
-				buf.append(sb.x);
-				buf.append(",");
-				buf.append(sb.y);
-				buf.append(">"); 
+				char sb_coordinates[20];
+				sprintf(sb_coordinates, "<%i,%i>", sb.x, sb.y);
+				buf.printf("  %s", sb_coordinates);
 				if (sb_underground)
 				{
 					buf.printf(" (%s)", translator::translate("underground"));
+				}
+				char sb_name[1024] = { '\0' };
+				int max_width = 250;
+				int offset = 0;
+				int max_lines = 5; // Set a limit
+				sprintf(sb_name, translator::translate(gb->get_name()));
+				//sprintf(sb_name,"This is a very very long signal box name which is so long that no one remembers what it was actually called before the super long name of the signalbox got changed to its current slightly longer name which is still too long to display in only one line therefore splitting this very long signalbox name into several lines although maximum five lines which should suffice more than enough to guard against silly long signal box names");
+				int next_char_index = 0;
+				int old_next_char_index = 0;
+
+				for (int l = 0; l < max_lines; l++)
+				{
+					textlines += 1;
+					char temp_name[1024] = { '\0' };
+					next_char_index = display_fit_proportional(sb_name, max_width, 0);
+
+					if (sb_name[next_char_index] == '\0')
+					{
+						buf.append("\n   ");
+						buf.append(sb_name);
+						break;
+					}
+					else
+					{
+						for (int i = 0; i < next_char_index; i++)
+						{
+							temp_name[i] = sb_name[i];
+						}
+						buf.append("\n   ");
+						buf.append(temp_name);		
+						if (l + 1 == max_lines)
+						{
+							buf.append("...");
+						}
+
+						for (int i = 0; sb_name[i] != '\0'; i++)
+						{
+							sb_name[i] = sb_name[i + next_char_index];
+						}
+						old_next_char_index = next_char_index;
+					}
+
 				}
 				buf.append("\n   ");
 				
@@ -622,12 +959,14 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			}
 			else
 			{
+				buf.append("\n");
 				buf.append(translator::translate("keine"));
 				dbg->warning("signal_t::info()", "Signalbox could not be found from a signal on valid ground");
 			}
 		}
 		else
 		{
+			buf.append("\n");
 			buf.append(translator::translate("keine"));
 			dbg->warning("signal_t::info()", "Signalbox could not be found from a signal on valid ground");
 		}
@@ -786,7 +1125,7 @@ void signal_t::calc_image()
 
 			const schiene_t* sch1 = (schiene_t*)sch; 
 			ribi_t::ribi reserved_direction = sch1->get_reserved_direction();
-			if(desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph))
+			if(desc->is_station_signal())
 			{
 				// Allow both directions for a station signal
 				//reserved_direction |= ribi_t::backward(reserved_direction);

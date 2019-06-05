@@ -2171,7 +2171,7 @@ Freight
 Frame time:
 Frame Time:
 Free Capacity
-Total Capacity
+Free capacity
 Friction:
 Current friction:
 fuel_cell
@@ -3703,9 +3703,9 @@ Equipped with
 tilting_vehicle_equipment
 Tilting vehicle equipment
 classes
-classes
+price classes
 class
-class
+price class
 good_units
 good units
 no_cargo_capacity
@@ -3741,7 +3741,7 @@ this vehicle can upgrade to
 additional_upgrades
 additional upgrades
 reassign_classes
-Reassign classes
+Reassign prices
 line_no_convoys
 This line has no convoys assigned
 line_loss_making
@@ -3759,13 +3759,13 @@ This line has obsolete vehicles with upgrades
 staff_shortage
 Staff shortage
 reset_all_pass_classes
-Reset all passenger classes
+Reset all passenger prices
 resets_all_passenger_classes_to_their_defaults
-Resets all passenger classes to their defaults
+Resets all passenger prices to their defaults
 reset_all_mail_classes
-Reset all mail classes
+Reset all mail prices
 resets_all_mail_classes_to_their_defaults
-Resets all mail classes to their defaults
+Resets all mail prices to their defaults
 reassigned_to_multiple
 Reassigned to multiple
 catering_cars: %i
@@ -3779,9 +3779,9 @@ Change prices
 change_the_classes_for_the_entire_line
 Change the prices for the entire line
 reassigned_class
-reassigned class
+reassigned price
 reassigned_classes
-reassigned classes
+reassigned prices
 times_history
 Times History
 view_journey_times_history_of_this_line
@@ -3926,3 +3926,16 @@ Railcar_tab
 Railcars
 staffing_bar_tooltip_help
 This bar shows how many workers that this industry has compared to how many that it needs
+Runway too short, require %dm
+Runway too short: at least %dm needed
+ (block %i)
+ (block %i)
+this_signal_protects_a_junction
+This signal protects a junction
+distance_to_junction
+Distance to junction
+distance_to_stop_signal
+Distance to stop signal
+no_signal_before_dead_end
+No signal before dead end
+distance_to_dead_end
