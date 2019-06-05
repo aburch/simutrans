@@ -1649,7 +1649,7 @@ heath
 %d convois
 %d convoys
 %d Einzelfahrzeuge im Depot
-%d vehicles stored here.
+%d vehicles are stored here.
 %i km/h (max. %ikm/h)
 %i km/h (max. %ikm/h)
 %s building %s %s
@@ -3937,5 +3937,28 @@ Distance to junction
 distance_to_stop_signal
 Distance to stop signal
 no_signal_before_dead_end
-No signal before dead end
+No signal before buffers
 distance_to_dead_end
+Distance to buffers
+LOCO_SYM
+L
+helptxt_one_direction
+Unidirectional vehicle
+helptxt_cab_head
+Driving vehicle
+helptxt_can_be_at_rear
+End vehicle
+helptxt_intermediate
+Intermediate vehicle
+helptxt_fixed_outside_depot
+Non-uncouplable vehicle
+helptxt_powered_vehicle
+Powered vehicle
+helptxt_unpowered_vehicle
+Unpowered vehicle
+helptxt_permanent_couple
+Multi-part vehicle (cannot be split)
+Select vehicles from the list and assemble a convoy
+Select vehicles to make up a convoy
+Vehicle bar shape legends:
+Legend:

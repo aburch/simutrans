@@ -2714,7 +2714,7 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 	sint16 top;
 	top = offset.y + D_V_SPACE + grid.y;
 	left = offset.x + D_MARGIN_LEFT;
-	display_proportional(left + grid.x/2, top - grid.y/2 - LINESPACE, translator::translate("select vehicles from the list and assemble conboy"), ALIGN_LEFT, MN_GREY0, true);
+	display_proportional(left + grid.x/2, top - grid.y/2 - LINESPACE, translator::translate("Select vehicles from the list and assemble a convoy"), ALIGN_LEFT, MN_GREY0, true);
 
 //	// color help
 //	display_proportional(left, top - LINESPACE, translator::translate("Vehicle bar color legends:"), ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -2770,12 +2770,12 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 	left += padding + VEHICLE_BAR_HEIGHT * 4 + D_H_SPACE + D_MARGIN_LEFT;
 
 	display_fillbox_wh_clip(left+1, top+2, VEHICLE_BAR_HEIGHT*4-2, VEHICLE_BAR_HEIGHT, COL_DARK_GREEN, true);
-	display_proportional(left + VEHICLE_BAR_HEIGHT * 4 + 3, top, translator::translate("helptxt_powerd_vehicle"), ALIGN_LEFT, CITY_KI, true);
+	display_proportional(left + VEHICLE_BAR_HEIGHT * 4 + 3, top, translator::translate("helptxt_powered_vehicle"), ALIGN_LEFT, CITY_KI, true);
 
 	top += LINESPACE;
 	display_fillbox_wh_clip(left+1, top + 2, VEHICLE_BAR_HEIGHT*4 - 2, VEHICLE_BAR_HEIGHT, COL_DARK_GREEN, true);
 	display_blend_wh(left+3, top + 3, VEHICLE_BAR_HEIGHT*4 - 6, VEHICLE_BAR_HEIGHT - 2, COL_WHITE, 30);
-	display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_unpowerd_vehicle"), ALIGN_LEFT, CITY_KI, true);
+	display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_unpowered_vehicle"), ALIGN_LEFT, CITY_KI, true);
 
 	top += LINESPACE*3;
 
