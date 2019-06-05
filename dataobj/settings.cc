@@ -155,7 +155,7 @@ settings_t::settings_t() :
 	max_factory_spacing_percentage = 0; // off
 
 	/* prissi: do not distribute goods to overflowing factories */
-	just_in_time = true;
+	just_in_time = 1;
 
 	random_pedestrians = true;
 	stadtauto_duration = 36;	// three years
@@ -679,14 +679,14 @@ void settings_t::rdwr(loadsave_t *file)
 		else {
 			beginner_mode = false;
 		}
-		uint8 jit = just_in_time ? 1 : 0;
 		if(  file->get_version()>120000  ){
-			file->rdwr_byte( jit );
+			file->rdwr_byte( just_in_time );
 		}
 		else if(file->get_version()>=89004) {
-			file->rdwr_bool(just_in_time);
+			bool jit = just_in_time;
+			file->rdwr_bool(jit);
+			just_in_time = jit ? 1 : 0;
 		}
-		just_in_time = jit; 
 		// rotation of the map with respect to the original value
 		if(file->get_version()>=99015) {
 			file->rdwr_byte(rotation);
@@ -2275,7 +2275,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	crossconnect_factor = contents.get_int("crossconnect_factories_percentage", crossconnect_factor );
 	electric_promille = contents.get_int("electric_promille", electric_promille );
 
-	just_in_time = contents.get_int("just_in_time", just_in_time) != 0;
+	just_in_time = contents.get_int("just_in_time", just_in_time);
 	beginner_price_factor = contents.get_int("beginner_price_factor", beginner_price_factor ); /* this manipulates the good prices in beginner mode */
 	beginner_mode = contents.get_int("first_beginner", beginner_mode ); /* start in beginner mode */
 

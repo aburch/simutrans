@@ -306,11 +306,15 @@ electric_promille = 1100
 # true if transformers are allowed underground (default)
 allow_underground_transformers = 1
 
-# with this switch on (default), overcrowded factories will not recieve goods any more
-just_in_time = 1
+# This setting determines the behaviour of industry demand.
+# At 0, industries will always demand goods until their internal storage is full, no matter how many goods are already in transit.
+# At 1, industries will demand enough goods to fill their internal storage initially, then will demand only enough goods to keep up with the demand of their consumers.
+# At 2, industries will demand only enough goods to keep up with the demand of their consumers without trying to fill their internal storage first, but will not demand so many goods that their internal storage is likely to overflow.
+# At 3, industries behave as in 2, save that the internal storage of consumer industries is ignored.
+just_in_time = 2
 
 # How much amount in transport is sent before further distribution stops
-# This is only enabled when "just_in_time" is enabled
+# This is only enabled when "just_in_time" is enabled (i.e. set to a value > 0)
 # The limit is given in percent of factory storage (0=off)
 #
 # This number is scaled to the ratio of the time that it takes the industry to
