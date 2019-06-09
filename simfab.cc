@@ -3858,7 +3858,35 @@ uint32 fabrik_t::get_time_to_consume_stock(uint32 index)
 	const factory_supplier_desc_t* flb = desc->get_supplier(index);
 	const uint32 vb = flb ? flb->get_consumption() : 0;
 	const sint32 base_production = get_current_production();
-	const sint32 consumed_per_month = max(((base_production * vb) >> 8), 1);
+	sint32 consumed_per_month = max(((base_production * vb) >> 8), 1);
+
+	if(desc->is_consumer_only())
+	{
+		// Consumer industries adjust their consumption according to the number of visitors. Adjust for this.
+		// We cannot use actual consumption figures, as this could lead to deadlocks. 
+
+		// Do not use the current month, as this is not complete yet, and the number of visitors will therefore be low.
+		sint64 average_consumers = 0;
+		if(get_stat(3, FAB_CONSUMER_ARRIVED))
+		{
+			average_consumers = (get_stat(1, FAB_CONSUMER_ARRIVED) + get_stat(2, FAB_CONSUMER_ARRIVED) + get_stat(3, FAB_CONSUMER_ARRIVED)) / 3ll;
+		}
+		else if(get_stat(2, FAB_CONSUMER_ARRIVED))
+		{
+			average_consumers = (get_stat(1, FAB_CONSUMER_ARRIVED) + get_stat(2, FAB_CONSUMER_ARRIVED) / 2ll);
+		}
+		else 
+		{
+			average_consumers = get_stat(1, FAB_CONSUMER_ARRIVED);
+		}
+		// Only make the adjustment if we have data.
+		if (average_consumers)
+		{
+			const sint64 visitor_demand = (sint64)building->get_adjusted_visitor_demand();
+			const sint64 percentage = (average_consumers * 100ll) / visitor_demand;
+			consumed_per_month = (consumed_per_month * (sint32)percentage) / 100;
+		}
+	}
 
 	const sint32 input_capacity = max((input[index].max >> fabrik_t::precision_bits), 1);
 
