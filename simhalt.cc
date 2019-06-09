@@ -1562,7 +1562,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			if(fabrik_t* fab = fabrik_t::get_fab(ware.get_zielpos()))
 			{
 				// If there's no factory there, wait.
-				if ( fab_list.is_contained(fab) ) {
+				if ( fab_list.is_contained(fab) )	{
 					// If this factory is on our list of connected factories... we're there!
 
 					add_to_waiting_list(ware, calc_ready_time(ware, true));
