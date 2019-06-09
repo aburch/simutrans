@@ -3883,7 +3883,7 @@ uint32 fabrik_t::get_time_to_consume_stock(uint32 index)
 		if (average_consumers)
 		{
 			const sint64 visitor_demand = (sint64)building->get_adjusted_visitor_demand();
-			const sint64 percentage = (average_consumers * 100ll) / visitor_demand;
+			const sint64 percentage = std::max(100ll, (average_consumers * 100ll) / visitor_demand);
 			consumed_per_month = (consumed_per_month * (sint32)percentage) / 100;
 		}
 	}
