@@ -906,7 +906,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 				//}
 
 				goods_desc_t const& g = *v->get_cargo_type();
-				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
+				char const*  const  name = translator::translate(g.get_catg_name());
 				uint8 base_comfort = 0;
 				uint8 additional_comfort = 0;
 

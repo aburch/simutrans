@@ -50,6 +50,9 @@ static const char * catg_names[32] = {
  */
 const char * goods_desc_t::get_catg_name() const
 {
+	if (catg == 0) {
+		return get_name();
+	}
 	return catg_names[catg & 31];
 }
 
