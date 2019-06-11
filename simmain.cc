@@ -200,7 +200,7 @@ static void show_times(karte_t *welt, main_view_t *view)
 void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*quit)() )
 {
 	if(  display_get_width()==0  ) {
-		dbg->error( "modal_dialogue()", "called without a display driver => nothing will be shown!" );
+		dbg->error( "modal_dialogue", "called without a display driver => nothing will be shown!" );
 		env_t::quit_simutrans = true;
 		// cannot handle this!
 		return;
@@ -221,9 +221,10 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 		uint32 ms_pause = max( 25, 1000/env_t::fps );
 		uint32 last_step = dr_time();
 		uint step_count = 5;
+
 		while(  win_is_open(gui)  &&  !env_t::quit_simutrans  &&  !quit()  ) {
 			do {
-				DBG_DEBUG4("zeige_banner", "calling win_poll_event");
+				DBG_DEBUG4("modal_dialogue", "calling win_poll_event");
 				win_poll_event(&ev);
 				// no toolbar events
 				if(  ev.my < env_t::iconsize.h  ) {
@@ -240,7 +241,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 						}
 					}
 				}
-				DBG_DEBUG4("zeige_banner", "calling check_pos_win");
+				DBG_DEBUG4("modal_dialogue", "calling check_pos_win");
 				check_pos_win(&ev);
 				if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
 					env_t::quit_simutrans = true;
@@ -248,10 +249,13 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 				}
 				dr_sleep(5);
 			} while(  dr_time() - last_step < ms_pause );
-			DBG_DEBUG4("zeige_banner", "calling welt->sync_step");
+
+			DBG_DEBUG4("modal_dialogue", "calling welt->sync_step");
 			welt->sync_step( ms_pause, true, true );
-			DBG_DEBUG4("zeige_banner", "calling welt->step");
+
 			if(  step_count--==0  ) {
+				DBG_DEBUG4("modal_dialogue", "calling welt->step");
+				intr_set_last_time(last_step); // do not call sync_step twice unless step takes too long
 				welt->step();
 				step_count = 5;
 			}

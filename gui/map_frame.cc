@@ -82,7 +82,6 @@ public:
 	{
 		scr_coord pos = get_pos() + offset;
 		display_fillbox_wh_clip_rgb(pos.x, pos.y + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT, color, false);
-		display_fillbox_wh_clip_rgb(pos.x, pos.y + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT, SYSCOL_SHADOW, false);
 		label.draw(pos + scr_size(D_INDICATOR_BOX_WIDTH + D_H_SPACE, 0));
 	}
 };
