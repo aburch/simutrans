@@ -830,6 +830,21 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
+class tool_show_signalbox_coverage_t : public tool_t {
+public:
+	tool_show_signalbox_coverage_t() : tool_t(TOOL_SHOW_SIGNALBOX_COVERAGE | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("show signalbox coverage"); }
+	bool is_selected() const OVERRIDE { return env_t::signalbox_coverage_show; }
+	bool init(player_t *) {
+		env_t::signalbox_coverage_show = !env_t::signalbox_coverage_show;
+		welt->set_dirty();
+		return false;
+	}
+	bool exit(player_t *s) { return init(s); }
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+};
+
 class tool_show_name_t : public tool_t {
 public:
 	tool_show_name_t() : tool_t(TOOL_SHOW_NAME | SIMPLE_TOOL) {}
