@@ -1370,44 +1370,24 @@ void gebaeude_t::display_coverage_radius(bool display)
 			// Display coverage radius
 			uint32 const radius = gb->get_tile()->get_desc()->get_radius();
 			uint16 const cov = radius / welt->get_settings().get_meters_per_tile();
-			koord3d pos_center = gb->get_pos();
-
-			// Set each starting point for circle drawing
-			koord3d pos_north = koord3d(pos_center.x, pos_center.y - cov, pos_center.z);
-			koord3d pos_south = koord3d(pos_center.x, pos_center.y + cov, pos_center.z);
-			koord3d pos_east = koord3d(pos_center.x + cov, pos_center.y, pos_center.z);
-			koord3d pos_west = koord3d(pos_center.x - cov, pos_center.y, pos_center.z);
-
-			// Set the reference point
-			koord3d pos_initial = pos_north;
-			
-			for (int i = 0; pos_west != pos_initial; i++)
+			for (int x = 0; x <= cov * 2; x++)
 			{
-				// Mark the circle from the four corners of the world at the same time
-				welt->mark_area(koord3d(pos_north.x, pos_north.y, gb->get_pos().z), koord(1, 1), display); // Northeastern hemisphere
-				welt->mark_area(koord3d(pos_west.x, pos_west.y, gb->get_pos().z), koord(1, 1), display); // Northwestern hemisphere
-				welt->mark_area(koord3d(pos_east.x, pos_east.y, gb->get_pos().z), koord(1, 1), display); // Southeastern hemisphere
-				welt->mark_area(koord3d(pos_south.x, pos_south.y, gb->get_pos().z), koord(1, 1), display); // Southwestern hemisphere
-				grund_t* gr_north = welt->lookup(pos_north);
-				grund_t* gr_south = welt->lookup(pos_south);
-				grund_t* gr_east = welt->lookup(pos_east);
-				grund_t* gr_west = welt->lookup(pos_west);
-
-				if (pos_north.y < pos_center.y && pos_north.x >= pos_center.x)
+				for (int y = 0; y <= cov * 2; y++)
 				{
-					if (shortest_distance(koord(pos_north.x + 1, pos_north.y), pos_center.get_2d()) > cov)
+					koord gb_pos = koord(gb->get_pos().get_2d());
+					koord check_pos = koord(gb_pos.x - cov + x, gb_pos.y - cov + y);
+					// Mark a 5x5 cross at center of circle
+					if (shortest_distance(gb_pos, check_pos) <= cov)
 					{
-						pos_north.y++;
-						pos_south.y--;
-						pos_east.x--;
-						pos_west.x++;
-					}
-					else
-					{
-						pos_north.x++;
-						pos_south.x--;
-						pos_east.y++;
-						pos_west.y--;
+						if ((check_pos.x == gb->get_pos().x && (check_pos.y >= gb->get_pos().y - 2 && check_pos.y <= gb->get_pos().y + 2)) || (check_pos.y == gb->get_pos().y && (check_pos.x >= gb->get_pos().x - 2 && check_pos.x <= gb->get_pos().x + 2)))
+						{
+							welt->mark_area(koord3d(check_pos, gb->get_pos().z), koord(1, 1), display);
+						}
+						// Mark the circle
+						if (shortest_distance(gb_pos, check_pos) >= cov)
+						{
+							welt->mark_area(koord3d(check_pos, gb->get_pos().z), koord(1, 1), display);
+						}
 					}
 				}
 			}
