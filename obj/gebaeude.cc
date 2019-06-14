@@ -777,6 +777,11 @@ bool gebaeude_t::is_city_building() const
 	return tile->get_desc()->is_city_building();
 }
 
+bool gebaeude_t::is_signalbox() const
+{
+	return tile->get_desc()->is_signalbox();
+}
+
 
 void gebaeude_t::show_info()
 {
