@@ -813,7 +813,6 @@ void gebaeude_t::show_info()
 	}
 }
 
-
 bool gebaeude_t::is_same_building(gebaeude_t* other) const
 {
 	return (other != NULL) && (get_tile()->get_desc() == other->get_tile()->get_desc())
@@ -1360,6 +1359,8 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		}
 
 	}
+}
+
 void gebaeude_t::display_coverage_radius(bool display)
 {
 	gebaeude_t* gb = (gebaeude_t*)welt->get_active_player()->get_selected_signalbox();
@@ -1367,7 +1368,6 @@ void gebaeude_t::display_coverage_radius(bool display)
 	{
 		if (is_signalbox())
 		{
-			// Display coverage radius
 			uint32 const radius = gb->get_tile()->get_desc()->get_radius();
 			uint16 const cov = radius / welt->get_settings().get_meters_per_tile();
 			for (int x = 0; x <= cov * 2; x++)
@@ -1394,6 +1394,7 @@ void gebaeude_t::display_coverage_radius(bool display)
 		}
 	}
 }
+
 
 void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 {
