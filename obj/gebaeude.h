@@ -254,6 +254,8 @@ public:
 
 	bool is_city_building() const;
 
+	bool is_signalbox() const;
+
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
