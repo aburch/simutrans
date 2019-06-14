@@ -10006,6 +10006,14 @@ void karte_t::remove_player(uint8 player_nr)
 /* goes to next active player */
 void karte_t::switch_active_player(uint8 new_player, bool silent)
 {
+	// Disable the signalbox overlay on the ground
+	signalbox_t* old_selected = active_player->get_selected_signalbox();
+	gebaeude_t* gb_old = (gebaeude_t*)old_selected;
+	if (gb_old)
+	{
+		gb_old->display_coverage_radius(false);
+	}
+
 	for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		if(  players[(i+new_player)%MAX_PLAYER_COUNT] != NULL  ) {
 			new_player = (i+new_player)%MAX_PLAYER_COUNT;
