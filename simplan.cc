@@ -670,8 +670,33 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 		}
 	}
 
-	gr->display_overlay( xpos, ypos );
-	if(  ground_size > 1  ) {
+	if (welt->get_active_player()->get_selected_signalbox() != NULL)
+	{
+		gebaeude_t* gb = (gebaeude_t*)welt->get_active_player()->get_selected_signalbox();
+		if (gb)
+		{
+			uint32 const radius = gb->get_tile()->get_desc()->get_radius();
+			uint16 const cov = radius / welt->get_settings().get_meters_per_tile();
+			if (shortest_distance(gb->get_pos().get_2d(), gr->get_pos().get_2d()) <= cov)
+			{
+				// Mark a 5x5 cross at center of circle
+				if ((gr->get_pos().x == gb->get_pos().x && (gr->get_pos().y >= gb->get_pos().y - 2 && gr->get_pos().y <= gb->get_pos().y + 2)) || (gr->get_pos().y == gb->get_pos().y && (gr->get_pos().x >= gb->get_pos().x - 2 && gr->get_pos().x <= gb->get_pos().x + 2)))
+				{
+					welt->mark_area(gr->get_pos(), koord(1, 1), env_t::signalbox_coverage_show);
+				}
+				// Mark the circle
+				if (shortest_distance(gb->get_pos().get_2d(), gr->get_pos().get_2d()) >= cov)
+				{
+					welt->mark_area(gr->get_pos(), koord(1, 1), env_t::signalbox_coverage_show);
+				}
+			}
+		}
+	}
+
+
+
+	gr->display_overlay(xpos, ypos);
+	if (ground_size > 1) {
 		const sint8 h0 = gr->get_disp_height();
 		for(  uint8 i = 1;  i < ground_size;  i++  ) {
 			grund_t* gr = data.some[i];
