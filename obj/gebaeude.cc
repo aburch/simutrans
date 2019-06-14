@@ -242,6 +242,11 @@ gebaeude_t::~gebaeude_t()
 		// avoid book-keeping
 	}
 
+	if (tile->get_desc()->is_signalbox())
+	{
+		display_coverage_radius(false);
+	}
+
 	stadt_t* our_city = get_stadt();
 	const bool has_city_defined = our_city != NULL;
 	if (!our_city /* && tile->get_desc()->get_type() == building_desc_t::townhall*/)
