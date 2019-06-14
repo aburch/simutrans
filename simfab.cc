@@ -303,7 +303,7 @@ void fabrik_t::update_transit_intern( const ware_t& ware, bool add )
 	FOR(  array_tpl<ware_production_t>,  &w,  input ) {
 		if(  w.get_typ()->get_index() == ware.index  ) {
 
-			w.book_stat(add ? (sint64)ware.menge : -(sint64)ware.menge, FAB_GOODS_TRANSIT );
+			w.book_stat_no_negative(add ? (sint64)ware.menge : -(sint64)ware.menge, FAB_GOODS_TRANSIT );
 			return;
 		}
 	}
@@ -1798,7 +1798,7 @@ sint32 fabrik_t::liefere_an(const goods_desc_t *typ, sint32 menge)
 			if(  ware.get_typ() == typ  ) {
 				// Can't use update_transit for interface reasons; we don't take a ware argument.
 				// We should, however.
-				ware.book_stat( -menge, FAB_GOODS_TRANSIT );
+				ware.book_stat_no_negative( -menge, FAB_GOODS_TRANSIT );
 
 				// Resolve how much normalized production arrived, rounding up (since we rounded up when we removed it).
 				const uint32 prod_factor = desc->get_supplier(in) ? desc->get_supplier(in)->get_consumption() : 1;
@@ -3582,14 +3582,9 @@ void fabrik_t::add_supplier(koord ziel)
 				const ware_production_t &w_out = fab->get_output()[i];
 				// now update transit limits
 				FOR(  array_tpl<ware_production_t>,  &w,  input ) {
-					if(  w_out.get_typ() == w.get_typ()  ) {
-						const sint32 max_storage = (sint32)(((sint64)w_out.max * (sint64)welt->get_settings().get_factory_maximum_intransit_percentage()) / 100);
-						const sint32 old_max_transit = w.max_transit;
-						w.max_transit += max_storage;
-						if(  w.max_transit < old_max_transit  ) {
-							// we have overflown, so we use the max value
-							w.max_transit = 0x7fffffff;
-						}
+					if(  w_out.get_typ() == w.get_typ()  )
+					{
+						calc_max_intransit_percentages();
 						break;
 					}
 				}
@@ -3617,17 +3612,9 @@ void fabrik_t::rem_supplier(koord pos)
 				for(  uint32 i=0;  i < fab->get_output().get_count();  i++   ) {
 					const ware_production_t &w_out = fab->get_output()[i];
 					// now update transit limits
-					FOR(  array_tpl<ware_production_t>,  &w,  input ) {
-						if(  w_out.get_typ() == w.get_typ()  ) {
-							const sint32 max_storage = (sint32)(((sint64)w_out.max * (sint64)welt->get_settings().get_factory_maximum_intransit_percentage()) / 100);
-							const sint32 old_max_transit = w.max_transit;
-							w.max_transit += max_storage;
-							if(  w.max_transit < old_max_transit  ) {
-								// we have overflown, so we use the max value
-								w.max_transit = 0x7fffffff;
-							}
-							break;
-						}
+					FOR(  array_tpl<ware_production_t>,  &w,  input ) 
+					{
+						calc_max_intransit_percentages();
 					}
 				}
 				// since there could be more than one good, we have to iterate over all of them
@@ -3787,6 +3774,7 @@ void fabrik_t::calc_max_intransit_percentages()
 		{
 			// No factories connected; use the default intransit percentage for now.
 			max_intransit_percentages.put(catg, base_max_intransit_percentage);
+			input[index].max_transit = max(1, (base_max_intransit_percentage * input[index].max) / 100); // This puts max_transit in internal units
 			index ++;
 			continue;
 		}
@@ -3870,7 +3858,35 @@ uint32 fabrik_t::get_time_to_consume_stock(uint32 index)
 	const factory_supplier_desc_t* flb = desc->get_supplier(index);
 	const uint32 vb = flb ? flb->get_consumption() : 0;
 	const sint32 base_production = get_current_production();
-	const sint32 consumed_per_month = max(((base_production * vb) >> 8), 1);
+	sint32 consumed_per_month = max(((base_production * vb) >> 8), 1);
+
+	if(desc->is_consumer_only())
+	{
+		// Consumer industries adjust their consumption according to the number of visitors. Adjust for this.
+		// We cannot use actual consumption figures, as this could lead to deadlocks. 
+
+		// Do not use the current month, as this is not complete yet, and the number of visitors will therefore be low.
+		sint64 average_consumers = 0;
+		if(get_stat(3, FAB_CONSUMER_ARRIVED))
+		{
+			average_consumers = (get_stat(1, FAB_CONSUMER_ARRIVED) + get_stat(2, FAB_CONSUMER_ARRIVED) + get_stat(3, FAB_CONSUMER_ARRIVED)) / 3ll;
+		}
+		else if(get_stat(2, FAB_CONSUMER_ARRIVED))
+		{
+			average_consumers = (get_stat(1, FAB_CONSUMER_ARRIVED) + get_stat(2, FAB_CONSUMER_ARRIVED) / 2ll);
+		}
+		else 
+		{
+			average_consumers = get_stat(1, FAB_CONSUMER_ARRIVED);
+		}
+		// Only make the adjustment if we have data.
+		if (average_consumers)
+		{
+			const sint64 visitor_demand = (sint64)building->get_adjusted_visitor_demand();
+			const sint64 percentage = std::max(100ll, (average_consumers * 100ll) / visitor_demand);
+			consumed_per_month = (consumed_per_month * (sint32)percentage) / 100;
+		}
+	}
 
 	const sint32 input_capacity = max((input[index].max >> fabrik_t::precision_bits), 1);
 
