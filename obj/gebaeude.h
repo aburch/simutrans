@@ -265,6 +265,8 @@ public:
 
 	void rdwr(loadsave_t *file);
 
+	void display_coverage_radius(bool display);
+
 	/**
 	 * Play animations of animated buildings.
 	 * Count-down to replace construction site image by regular image.

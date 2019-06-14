@@ -1350,6 +1350,59 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		}
 
 	}
+void gebaeude_t::display_coverage_radius(bool display)
+{
+	gebaeude_t* gb = (gebaeude_t*)welt->get_active_player()->get_selected_signalbox();
+	if (gb)
+	{
+		if (is_signalbox())
+		{
+			// Display coverage radius
+			uint32 const radius = gb->get_tile()->get_desc()->get_radius();
+			uint16 const cov = radius / welt->get_settings().get_meters_per_tile();
+			koord3d pos_center = gb->get_pos();
+
+			// Set each starting point for circle drawing
+			koord3d pos_north = koord3d(pos_center.x, pos_center.y - cov, pos_center.z);
+			koord3d pos_south = koord3d(pos_center.x, pos_center.y + cov, pos_center.z);
+			koord3d pos_east = koord3d(pos_center.x + cov, pos_center.y, pos_center.z);
+			koord3d pos_west = koord3d(pos_center.x - cov, pos_center.y, pos_center.z);
+
+			// Set the reference point
+			koord3d pos_initial = pos_north;
+			
+			for (int i = 0; pos_west != pos_initial; i++)
+			{
+				// Mark the circle from the four corners of the world at the same time
+				welt->mark_area(koord3d(pos_north.x, pos_north.y, gb->get_pos().z), koord(1, 1), display); // Northeastern hemisphere
+				welt->mark_area(koord3d(pos_west.x, pos_west.y, gb->get_pos().z), koord(1, 1), display); // Northwestern hemisphere
+				welt->mark_area(koord3d(pos_east.x, pos_east.y, gb->get_pos().z), koord(1, 1), display); // Southeastern hemisphere
+				welt->mark_area(koord3d(pos_south.x, pos_south.y, gb->get_pos().z), koord(1, 1), display); // Southwestern hemisphere
+				grund_t* gr_north = welt->lookup(pos_north);
+				grund_t* gr_south = welt->lookup(pos_south);
+				grund_t* gr_east = welt->lookup(pos_east);
+				grund_t* gr_west = welt->lookup(pos_west);
+
+				if (pos_north.y < pos_center.y && pos_north.x >= pos_center.x)
+				{
+					if (shortest_distance(koord(pos_north.x + 1, pos_north.y), pos_center.get_2d()) > cov)
+					{
+						pos_north.y++;
+						pos_south.y--;
+						pos_east.x--;
+						pos_west.x++;
+					}
+					else
+					{
+						pos_north.x++;
+						pos_south.x--;
+						pos_east.y++;
+						pos_west.y--;
+					}
+				}
+			}
+		}
+	}
 }
 
 void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
