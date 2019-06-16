@@ -2283,7 +2283,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				buf.printf("  %3d %s%s %s\n",
 					veh_type->get_total_capacity(), extra_pass,
 					translator::translate(veh_type->get_freight_type()->get_mass()),
-					veh_type->get_freight_type()->get_catg() == 0 ? translator::translate(veh_type->get_freight_type()->get_name()) : translator::translate(veh_type->get_freight_type()->get_catg_name()));
+					translator::translate(veh_type->get_freight_type()->get_catg_name()));
 				display_proportional(pos.x + 335+left, top, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				buf.clear();
 				top += LINESPACE;
@@ -2343,7 +2343,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 					veh_type->get_total_capacity(),
 					"\0",
 					translator::translate(veh_type->get_freight_type()->get_mass()),
-					veh_type->get_freight_type()->get_catg() == 0 ? translator::translate(veh_type->get_freight_type()->get_name()) : translator::translate(veh_type->get_freight_type()->get_catg_name()));
+					translator::translate(veh_type->get_freight_type()->get_catg_name()));
 				display_proportional(pos.x + 335 + left, top, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				buf.clear();
 				top += LINESPACE;
