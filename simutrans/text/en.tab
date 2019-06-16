@@ -3942,3 +3942,7 @@ distance_to_dead_end
 Distance to buffers
 Jobs
 Jobs
+show signalbox coverage
+Show signalbox coverage
+Show coverage radius of the signalbox.
+Show coverage radius of the signalbox.
