@@ -103,6 +103,7 @@ public:
 	static const skin_desc_t *passengers;
 	static const skin_desc_t *mail;
 	static const skin_desc_t *goods;
+	static const skin_desc_t *goods_categories;
 	/// @}
 
 	/// @name icons used to passenger/mail evaluations

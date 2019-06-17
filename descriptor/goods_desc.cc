@@ -2,6 +2,8 @@
 #include "../simworld.h"
 #include "../dataobj/settings.h"
 #include "../bauer/goods_manager.h"
+#include "../simskin.h"
+#include "../descriptor/skin_desc.h"
 
 static const char * catg_names[32] = {
   "special freight",
@@ -48,9 +50,38 @@ static const char * catg_names[32] = {
  */
 const char * goods_desc_t::get_catg_name() const
 {
+	if (catg == 0) {
+		return get_name();
+	}
 	return catg_names[catg & 31];
 }
 
+image_id goods_desc_t::get_catg_symbol() const
+{
+	if (!catg) {
+		switch (goods_index) {
+		case goods_manager_t::INDEX_PAS:
+			return skinverwaltung_t::passengers->get_image_id(0);
+			break;
+		case goods_manager_t::INDEX_MAIL:
+			return skinverwaltung_t::mail->get_image_id(0);
+			break;
+		default:
+			// TODO: Supports symbols for unique freight goods
+			if (skinverwaltung_t::goods_categories) {
+				return skinverwaltung_t::goods_categories->get_image_id(0);
+			}
+			return skinverwaltung_t::goods->get_image_id(0);
+			break;
+		}
+	}
+	else if (!skinverwaltung_t::goods_categories) {
+		return IMG_EMPTY;
+	}
+	else {
+		return skinverwaltung_t::goods_categories->get_image_id(catg);
+	}
+}
 
 /**
  * Reset the scaled values.
