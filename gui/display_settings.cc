@@ -192,7 +192,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[++b].set_pos(scr_coord(10, SHOW_SIGNALBOX_COVERAGE));
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("show signalbox coverage");
-	buttons[b].set_tooltip("Show coverage radius of the signalbox. Toggle with the  key.");
+	buttons[b].set_tooltip("Show coverage radius of the signalbox.");
 
 
 	//17
