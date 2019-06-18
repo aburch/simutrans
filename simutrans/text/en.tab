@@ -3946,3 +3946,5 @@ show signalbox coverage
 Show signalbox coverage
 Show coverage radius of the signalbox.
 Show coverage radius of the signalbox.
+Protocol error (expected NWC_GAME)
+Network connect timeout: did not receive NWC_GAME packet within 10 minutes.

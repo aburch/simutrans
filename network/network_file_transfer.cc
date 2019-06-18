@@ -208,12 +208,12 @@ const char *network_connect(const char *cp, karte_t *world)
 #ifndef NETTOOL // no display, no translator available
 			loadingscreen_t ls(translator::translate("Server preparing game ..."),300,true,true);
 #endif
-			// wait for game command for 5 min (tolerate some wrong commands) to leave it enough time for saving
+			// wait for game command for 10 min (tolerate some wrong commands) to leave it enough time for saving
 			for(uint32 i=0; i<300; i++) {
 #ifndef NETTOOL // no display, no translator available
 				ls.set_progress(i);
 #endif
-				nwc = network_check_activity( NULL, 1000 );
+				nwc = network_check_activity( NULL, 2000 );
 				if (nwc  &&  nwc->get_id() == NWC_GAME) {
 					break;
 				}
