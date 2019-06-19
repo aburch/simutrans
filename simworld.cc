@@ -2016,7 +2016,7 @@ karte_t::karte_t() :
 	set_dirty();
 
 	// for new world just set load version to current savegame version
-	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );;
+	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL );
 
 	// standard prices
 	goods_manager_t::set_multiplier( 1000 );
@@ -4976,7 +4976,7 @@ bool karte_t::load(const char *filename)
 
 	if(!file.rd_open(name)) {
 
-		if(  (sint32)file.get_version()==-1  ||  file.get_version()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL )  ) {
+		if(  file.get_version_int()==-1  ||  file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL )  ) {
 			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
@@ -4991,7 +4991,7 @@ bool karte_t::load(const char *filename)
 		create_win(new news_img("WRONGSAVE"), w_info, magic_none);
 	}
 	else {
-DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
+DBG_MESSAGE("karte_t::load()","Savegame version is %u", file.get_version_raw());
 
 		load(&file);
 
@@ -5202,13 +5202,13 @@ void karte_t::load(loadsave_t *file)
 	file->set_buffered(true);
 
 	// jetzt geht das laden los
-	dbg->warning("karte_t::load", "Fileversion: %d", file->get_version());
+	dbg->warning("karte_t::load", "Fileversion: %u", file->get_version_int());
 	settings = env_t::default_settings;
 	settings.rdwr(file);
 	loaded_rotation = settings.get_rotation();
 
 	// some functions (finish_rd) need to know what version was loaded
-	load_version = file->get_version();
+	load_version = file->get_version_int();
 
 	if(  env_t::networkmode  ) {
 		// to have games synchronized, transfer random counter too
@@ -5733,7 +5733,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	clear_random_mode(LOAD_RANDOM);
 
 	// loading finished, reset savegame version to current
-	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );;
+	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL );
 
 	dbg->warning("karte_t::load()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",last_month,last_year,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }
