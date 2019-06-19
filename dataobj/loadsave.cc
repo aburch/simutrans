@@ -333,7 +333,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 	saving = false;
 
 	if (strstart(buf, SAVEGAME_PREFIX)) {
-		combined_version versions = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode, pak_extension);
+		combined_version versions = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, pak_extension);
 		version = versions.version;
 		extended_version = versions.extended_version;
 		if(  version == 0  ) {
@@ -364,7 +364,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 			*s++ = c;
 		}
 		*s = 0;
-		combined_version versions = int_version(str, &mode, pak_extension);
+		combined_version versions = int_version(str, pak_extension);
 		version = versions.version;
 		extended_version = versions.extended_version;
 		if(  version == 0  ) {
@@ -509,7 +509,7 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 	// delete trailing path separator
 	this->pak_extension[strlen(this->pak_extension)-1] = 0;
 
-	loadsave_t::combined_version combined_version = int_version(savegame_version, NULL, NULL);
+	loadsave_t::combined_version combined_version = int_version(savegame_version,  NULL);
 	version = combined_version.version;
 
 	const char* pakset_string = this->pak_extension;
@@ -1401,7 +1401,7 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 }
 
 
-loadsave_t::combined_version loadsave_t::int_version(const char *version_text, int * /*mode*/, char *pak_extension_str)
+loadsave_t::combined_version loadsave_t::int_version(const char *version_text, char *pak_extension_str)
 {
 	uint32 extended_version = 0;
 	// major number (0..)
@@ -1462,20 +1462,22 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 	}
 
 	if(  version<=102002  ) {
-		/* the compression and the mode we determined already ourselves (otherwise we cannot read this
-		 * => leave the mode alone but for unknown modes!
+		/* the compression and the mode we determined already ourselves
+		 * (otherwise we cannot read this => leave the mode alone but for unknown modes!)
 		 */
 		if (strstart(version_text, "bin")) {
-			//*mode = binary;
 			version_text += 3;
-		} else if (strstart(version_text, "zip")) {
-			//*mode = zipped;
+		}
+		else if (strstart(version_text, "zip")) {
 			version_text += 3;
 		}
 		else if(  *version_text  ) {
 			// illegal version ...
-			strcpy(pak_extension_str,"(broken)");
-			version = 999999999;
+			if (pak_extension_str) {
+				std::strcpy(pak_extension_str,"(broken)");
+				version = 999999999;
+			}
+			return 0;
 		}
 	}
 	else {

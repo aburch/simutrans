@@ -689,8 +689,8 @@ int simu_main(int argc, char** argv)
 
 	if(xml_settings_found)
 	{
-		if(file.get_version() > loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).version
-			|| file.get_extended_version() > loadsave_t::int_version(EXTENDED_SAVEGAME_VERSION, NULL, NULL).extended_version
+		if(file.get_version_int() > loadsave_t::int_version(SAVEGAME_VER_NR, NULL).version
+			|| file.get_extended_version() > loadsave_t::int_version(EXTENDED_SAVEGAME_VERSION, NULL).extended_version
 			|| file.get_extended_revision() > EX_SAVE_MINOR)
 		{
 			// too new => remove it
