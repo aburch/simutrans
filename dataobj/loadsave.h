@@ -46,7 +46,7 @@ private:
 	unsigned buf_pos[2];
 	unsigned buf_len[2];
 	char* ls_buf[2];
-	int version;
+	uint32 version;
 	int ident;		// only for XML formatting
 	char pak_extension[64];	// name of the pak folder during savetime
 
@@ -108,8 +108,12 @@ public:
 	bool is_zipped() const { return mode&zipped; }
 	bool is_bzip2() const { return mode&bzip2; }
 	bool is_xml() const { return mode&xml; }
-	uint32 get_version() const { return version; }
 	const char *get_pak_extension() const { return pak_extension; }
+
+	uint32 get_version() const { return version; }
+	inline bool is_version_atleast(uint32 major, uint32 save_minor) const { return !is_version_less(major, save_minor); }
+	inline bool is_version_less(uint32 major, uint32 save_minor) const    { return version < major * 1000U + save_minor; }
+	inline bool is_version_equal(uint32 major, uint32 save_minor) const   { return version == major * 1000U + save_minor; }
 
 	void rdwr_byte(sint8 &c);
 	void rdwr_byte(uint8 &c);

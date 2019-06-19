@@ -48,7 +48,7 @@ void strasse_t::rdwr(loadsave_t *file)
 
 	weg_t::rdwr(file);
 
-	if(file->get_version()<89000) {
+	if(file->is_version_less(89, 0)) {
 		bool gehweg;
 		file->rdwr_bool(gehweg);
 		set_gehweg(gehweg);

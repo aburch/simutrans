@@ -2417,7 +2417,7 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 	}
 
 	assert(!halt_merged->existiert_in_welt());
-	
+
 	// transfer goods
 	halt_merged->transfer_goods(self);
 	destroy(halt_merged);
@@ -2606,7 +2606,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	koord3d k;
 
 	// will restore halthandle_t after loading
-	if(file->get_version() > 110005) {
+	if(file->is_version_atleast(110, 6)) {
 		if(file->is_saving()) {
 			uint16 halt_id = self.is_bound() ? self.get_id() : 0;
 			file->rdwr_short(halt_id);
@@ -2628,12 +2628,12 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		owner_n = welt->sp2num( owner );
 	}
 
-	if(file->get_version()<99008) {
+	if(file->is_version_less(99, 8)) {
 		init_pos.rdwr( file );
 	}
 	file->rdwr_long(owner_n);
 
-	if(file->get_version()<=88005) {
+	if(file->is_version_less(88, 6)) {
 		bool dummy;
 		file->rdwr_bool(dummy); // pax
 		file->rdwr_bool(dummy); // mail
@@ -2685,7 +2685,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			if(warray) {
 				s = "y";	// needs to be non-empty
 				file->rdwr_str(s);
-				if(  file->get_version() <= 112002  ) {
+				if(  file->is_version_less(112, 3)  ) {
 					uint16 count = warray->get_count();
 					file->rdwr_short(count);
 				}
@@ -2707,7 +2707,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s, lengthof(s));
 		while(*s) {
 			uint32 count;
-			if(  file->get_version() <= 112002  ) {
+			if(  file->is_version_less(112, 3)  ) {
 				uint16 scount;
 				file->rdwr_short(scount);
 				count = scount;
@@ -2739,7 +2739,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 		// old games save the list with stations
 		// however, we have to rebuilt them anyway for the new format
-		if(file->get_version()<99013) {
+		if(file->is_version_less(99, 13)) {
 			uint16 count;
 			file->rdwr_short(count);
 			for(int i=0; i<count; i++) {
@@ -2749,7 +2749,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	}
 
-	if(  file->get_version()>=111001  ) {
+	if(  file->is_version_atleast(111, 1)  ) {
 		for (int j = 0; j<MAX_HALT_COST; j++) {
 			for (size_t k = MAX_MONTHS; k-- != 0;) {
 				file->rdwr_longlong(financial_history[k][j]);

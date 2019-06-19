@@ -81,7 +81,7 @@ gebaeude_t::gebaeude_t(loadsave_t *file) : obj_t()
 {
 	init();
 	rdwr(file);
-	if(file->get_version()<88002) {
+	if(file->is_version_less(88, 2)) {
 		set_yoff(0);
 	}
 	if(tile  &&  tile->get_phases()>1) {
@@ -844,14 +844,14 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->get_version()<99006) {
+	if(file->is_version_less(99, 6)) {
 		// ignore the sync flag
 		uint8 dummy=sync;
 		file->rdwr_byte(dummy);
 	}
 
 	// restore city pointer here
-	if(  file->get_version()>=99014  ) {
+	if(  file->is_version_atleast(99, 14)  ) {
 		sint32 city_index = -1;
 		if(  file->is_saving()  &&  ptr.stadt!=NULL  ) {
 			city_index = welt->get_cities().index_of( ptr.stadt );

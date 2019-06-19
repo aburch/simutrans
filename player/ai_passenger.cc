@@ -1382,7 +1382,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 
 void ai_passenger_t::rdwr(loadsave_t *file)
 {
-	if(  file->get_version()<102002  ) {
+	if(  file->is_version_less(102, 2)  ) {
 		// due to an error the player was never saved correctly
 		player_t::rdwr(file);
 		return;
@@ -1393,7 +1393,7 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 	ai_t::rdwr(file);
 
 	// then check, if we have to do something or the game is too old ...
-	if(file->get_version()<101000) {
+	if(file->is_version_less(101, 0)) {
 		// ignore saving, reinit on loading
 		if(  file->is_loading()  ) {
 			next_construction_steps = welt->get_steps()+simrand(ai_t::construction_speed);
@@ -1403,7 +1403,7 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 
 	// now save current state ...
 	file->rdwr_enum(state);
-	if(  file->get_version()<111001  ) {
+	if(  file->is_version_less(111, 1)  ) {
 		file->rdwr_long(ai_t::construction_speed);
 		file->rdwr_bool(air_transport);
 		file->rdwr_bool(ship_transport);
