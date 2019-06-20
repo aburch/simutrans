@@ -194,6 +194,18 @@ const goods_desc_t *goods_manager_t::get_info_catg_index(const uint8 catg_index)
 }
 
 
+const uint8 goods_manager_t::get_classes_catg_index(const uint8 catg_index)
+{
+	if (catg_index == goods_manager_t::INDEX_PAS) {
+		return goods_manager_t::passengers->get_number_of_classes();
+	}
+	if (catg_index == goods_manager_t::INDEX_MAIL) {
+		return goods_manager_t::mail->get_number_of_classes();
+	}
+	return 1;
+}
+
+
 // adjuster for dummies ...
 void goods_manager_t::set_multiplier(sint32 multiplier, uint16 scale_factor)
 {
