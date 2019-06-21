@@ -944,7 +944,7 @@ public:
 
 	void add_waiting_time(uint32 time, halthandle_t halt, uint8 category, uint8 g_class, bool do_not_reset_month = false);
 
-	connexions_map* get_connexions(uint8 catg, uint8 g_class, uint8 max_classes) { return connexions[catg][g_class]; }
+	connexions_map* get_connexions(uint8 catg, uint8 g_class) { return connexions[catg][g_class]; }
 
 	linehandle_t get_preferred_line(halthandle_t transfer, uint8 category, uint8 g_class) const;
 	convoihandle_t get_preferred_convoy(halthandle_t transfer, uint8 category, uint8 g_class) const;

@@ -1611,11 +1611,9 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 				iterations = goods_manager_t::mail->get_number_of_classes();
 			}
 			
-			const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-
 			for (uint32 n = 0; n < iterations; n++)
 			{
-				if (get_connexions(catg, n, max_classes)->empty())
+				if (get_connexions(catg, n)->empty())
 				{
 					// no connections from here => delete
 					delete new_warray;
@@ -2387,7 +2385,6 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 {
 	bool skipped = false;
 	const uint8 catg_index = good_category->get_catg_index();
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 	vector_tpl<ware_t> *warray = cargo[catg_index];
 	if(warray && warray->get_count() > 0)
 	{
@@ -2678,7 +2675,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 					}
 
 					// Refuse to be overcrowded if alternative exists
-					connexion * const next_connexion = get_connexions(catg_index, g_class, max_classes)->get(check_halt);
+					connexion * const next_connexion = get_connexions(catg_index, g_class)->get(check_halt);
 					if(next_connexion  &&  overcrowded  &&  next_connexion->alternative_seats)
 					{
 						schedule->increment_index(&index, &reverse);

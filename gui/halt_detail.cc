@@ -312,7 +312,7 @@ void halt_detail_t::halt_detail_info()
 			g_class = goods_manager_t::mail->get_number_of_classes() - 1;
 		}
 
-		connexions_map_single_remote *connexions = halt->get_connexions(i, g_class, max_classes);
+		connexions_map_single_remote *connexions = halt->get_connexions(i, g_class);
 
 		if(!connexions->empty())
 		{

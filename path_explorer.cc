@@ -1451,8 +1451,6 @@ void path_explorer_t::compartment_t::step()
 
 			start = dr_time();	// start timing
 
-			const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-
 			while (phase_counter < working_halt_count)
 			{
 				current_halt = working_halt_list[phase_counter];
@@ -1472,7 +1470,7 @@ void path_explorer_t::compartment_t::step()
 				}
 
 				// iterate over the connexions of the current halt
-				FOR(connexions_map_single_remote, const& connexions_iter, *(current_halt->get_connexions(catg, g_class, max_classes)))
+				FOR(connexions_map_single_remote, const& connexions_iter, *(current_halt->get_connexions(catg, g_class)))
 				{
 					reachable_halt = connexions_iter.key;
 
