@@ -372,17 +372,9 @@ private:
 	slist_tpl<tile_t> tiles;
 
 	// Table of all direct connexions to this halt, with routing information.
-	// Array: one entry per goods type.
-	// Knightly : Change into an array of pointers to connexion hash tables
-	//connexions_map **connexions;
-	
-	// Note: this is an offset vector: a single dimensional vector
-	// functioning as a two dimensional vector (category, class)
-	// using offsets as described here:
-	// https://stackoverflow.com/questions/34077816/how-to-properly-work-with-dynamically-allocated-multi-dimensional-arrays-in-c
-	// This should be more reliable than an array of pointers and faster than a vector of vectors.
+	// One entry per goods type and class.
 	// This stores pointers to connexions_map objects to enable quick swapping.
-	vector_tpl<connexions_map*> connexions; 
+	vector_tpl<vector_tpl<connexions_map*>> connexions;
 
 	/**
 	 * For each line/lineless convoy which serves the current halt, this
@@ -487,7 +479,7 @@ private:
 	// Getter method will need to average the waiting times.
 	// @author: jamespetts
 
-	waiting_time_map **waiting_times;
+	vector_tpl<vector_tpl<waiting_time_map*>> waiting_times;
 
 	// Store the service frequencies to all other halts so that this does not need to be
 	// recalculated frequently. These are used as proxies for waiting times when no
@@ -530,8 +522,8 @@ public:
 	void swap_connexions(const uint8 category, const uint8 g_class, uint8 max_classes, quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* &cxns)
 	{
 		// swap the connexion hashtables
-		connexions_map *temp = connexions[(category * max_classes) + g_class];
-		connexions[(category * max_classes) + g_class] = cxns;
+		connexions_map *temp = connexions[category][g_class];
+		connexions[category][g_class] = cxns;
 		cxns = temp;
 
 		// since this swap is equivalent to having the connexions rebuilt
@@ -952,7 +944,7 @@ public:
 
 	void add_waiting_time(uint32 time, halthandle_t halt, uint8 category, uint8 g_class, bool do_not_reset_month = false);
 
-	connexions_map* get_connexions(uint8 catg, uint8 g_class, uint8 max_classes) { return connexions[(catg * max_classes) + g_class]; }
+	connexions_map* get_connexions(uint8 catg, uint8 g_class, uint8 max_classes) { return connexions[catg][g_class]; }
 
 	linehandle_t get_preferred_line(halthandle_t transfer, uint8 category, uint8 g_class) const;
 	convoihandle_t get_preferred_convoy(halthandle_t transfer, uint8 category, uint8 g_class) const;

@@ -371,7 +371,7 @@ void path_explorer_t::full_instant_refresh()
 
 	for (uint8 ca = 0; ca < max_categories; ++ca)
 	{
-		for(uint8 cl = 0; cl < max_classes; ++cl)
+		for(uint8 cl = 0; cl < goods_manager_t::get_classes_catg_index(ca); ++cl)
 		{
 			if (ca != category_empty)
 			{
