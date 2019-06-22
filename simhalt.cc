@@ -1504,7 +1504,7 @@ void haltestelle_t::new_month()
 					}
 					else if (iter.value.month > 2)
 					{
-						const uint32 max_iteration = average_waiting_time > average_waiting_time ? min(8, iter.value.month) : 1;
+						const uint32 max_iteration = average_waiting_time > estimated_waiting_time ? min(8, iter.value.month) : 1;
 						for (uint32 i = 0; i < max_iteration; i++)
 						{
 							iter.value.times.add_to_tail(estimated_waiting_time);
