@@ -2014,7 +2014,7 @@ void path_explorer_t::compartment_t::set_category(uint8 category)
 { 
 	catg = category;
 	const goods_desc_t *ware_type = goods_manager_t::get_info_catg_index(catg);
-	catg_name = ware_type->get_catg() == 0 ? ware_type->get_name() : ware_type->get_catg_name();
+	catg_name = ware_type->get_catg_name();
 }
 
 void path_explorer_t::compartment_t::set_class(uint8 value)
