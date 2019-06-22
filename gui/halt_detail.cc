@@ -302,15 +302,7 @@ void halt_detail_t::halt_detail_info()
 		typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
 
 		// TODO: Add UI to show different connexions for multiple classes
-		uint8 g_class = 0;
-		if(i == goods_manager_t::INDEX_PAS)
-		{
-			g_class = goods_manager_t::passengers->get_number_of_classes() - 1;
-		}
-		else if(i == goods_manager_t::INDEX_MAIL)
-		{
-			g_class = goods_manager_t::mail->get_number_of_classes() - 1;
-		}
+		uint8 g_class = goods_manager_t::get_classes_catg_index(i)-1;
 
 		connexions_map_single_remote *connexions = halt->get_connexions(i, g_class);
 

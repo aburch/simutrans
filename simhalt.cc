@@ -576,19 +576,7 @@ haltestelle_t::~haltestelle_t()
 			{
 				for(uint8 category = 0; category < goods_manager_t::get_max_catg_index(); category++)
 				{
-					uint8 number_of_classes;
-					if (category == goods_manager_t::INDEX_PAS)
-					{
-						number_of_classes = goods_manager_t::passengers->get_number_of_classes();
-					}
-					else if (category == goods_manager_t::INDEX_MAIL)
-					{
-						number_of_classes = goods_manager_t::mail->get_number_of_classes();
-					}
-					else
-					{
-						number_of_classes = 1;
-					}
+					uint8 number_of_classes = goods_manager_t::get_classes_catg_index(category);
 
 					for (uint8 g_class = 0; g_class < number_of_classes; g_class++ )
 					{
@@ -677,8 +665,6 @@ haltestelle_t::~haltestelle_t()
 	welt->await_path_explorer();
 #endif
 
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-	
 	if (!welt->is_destroying())
 	{
 		for (uint8 i = 0; i < max_categories; i++)
@@ -1470,19 +1456,7 @@ void haltestelle_t::new_month()
 	// If the waiting times have not been updated for too long, gradually re-set them; also increment the timing records.
 	for (uint8 category = 0; category < goods_manager_t::get_max_catg_index(); category++)
 	{
-		uint8 number_of_classes;
-		if (category == goods_manager_t::INDEX_PAS)
-		{
-			number_of_classes = goods_manager_t::passengers->get_number_of_classes();
-		}
-		else if (category == goods_manager_t::INDEX_MAIL)
-		{
-			number_of_classes = goods_manager_t::mail->get_number_of_classes();
-		}
-		else
-		{
-			number_of_classes = 1;
-		}
+		uint8 number_of_classes = goods_manager_t::get_classes_catg_index(category);
 
 		for (uint8 g_class = 0; g_class < number_of_classes; g_class++)
 		{
@@ -1601,16 +1575,8 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 		// delete, if nothing connects here
 		if (new_warray->empty())
 		{
-			uint32 iterations = 1;
-			if (catg == goods_manager_t::INDEX_PAS)
-			{
-				iterations = goods_manager_t::passengers->get_number_of_classes();
-			}
-			else if (catg == goods_manager_t::INDEX_MAIL)
-			{
-				iterations = goods_manager_t::mail->get_number_of_classes();
-			}
-			
+			uint32 iterations = goods_manager_t::get_classes_catg_index(catg);
+
 			for (uint32 n = 0; n < iterations; n++)
 			{
 				if (get_connexions(catg, n)->empty())
@@ -1997,7 +1963,6 @@ uint32 haltestelle_t::calc_service_frequency(halthandle_t destination, uint8 cat
 
 linehandle_t haltestelle_t::get_preferred_line(halthandle_t transfer, uint8 category, uint8 g_class) const
 {
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 	if(connexions[category][g_class]->empty() || connexions[category][g_class]->get(transfer) == NULL)
 	{
 		linehandle_t dummy;
@@ -2009,7 +1974,6 @@ linehandle_t haltestelle_t::get_preferred_line(halthandle_t transfer, uint8 cate
 
 convoihandle_t haltestelle_t::get_preferred_convoy(halthandle_t transfer, uint8 category, uint8 g_class) const
 {
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 	if(connexions[category][g_class]->empty() || connexions[category][g_class]->get(transfer) == NULL)
 	{
 		convoihandle_t dummy;

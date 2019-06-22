@@ -306,38 +306,13 @@ void path_explorer_t::step()
 
 void path_explorer_t::next_compartment()
 {
-	if (current_compartment_category == goods_manager_t::INDEX_PAS)
+	if (current_compartment_class < goods_manager_t::get_classes_catg_index(current_compartment_category) - 1)
 	{
-		if (current_compartment_class < goods_manager_t::passengers->get_number_of_classes() - 1)
-		{
-			//  Only process the relevant number of passenger classes
-			current_compartment_class = (current_compartment_class + 1) % max_classes;
-		}
-		else
-		{
-			// Move onto the next category only when all classes are processed
-			current_compartment_category = (current_compartment_category + 1) % max_categories;
-			current_compartment_class = 0;
-		}
-	}
-	else if (current_compartment_category == goods_manager_t::INDEX_MAIL)
-	{
-		if (current_compartment_class < goods_manager_t::mail->get_number_of_classes() - 1)
-		{
-			//  Only process the relevant number of passenger classes
-			current_compartment_class = (current_compartment_class + 1) % max_classes;
-		}
-		else
-		{
-			// Move onto the next category only when all classes are processed
-			current_compartment_category = (current_compartment_category + 1) % max_categories;
-			current_compartment_class = 0;
-		}
+		current_compartment_class += 1;
 	}
 	else
 	{
-		// If not passengers or mail, then always simply advance the category, as there are not multiple classes of goods
-		// that are distinct from the categories.
+		current_compartment_class = 0;
 		current_compartment_category = (current_compartment_category + 1) % max_categories;
 	}
 }
@@ -451,23 +426,10 @@ void path_explorer_t::refresh_all_categories(const bool reset_working_set)
 
 void path_explorer_t::refresh_category(uint8 category)
 {
-	if (category == goods_manager_t::INDEX_PAS)
+	uint8 number_of_classes = goods_manager_t::get_classes_catg_index(category);
+	for (uint8 i = 0; i < number_of_classes; i++)
 	{
-		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
-		{
-			goods_compartment[goods_manager_t::INDEX_PAS][i].set_refresh();
-		}
-	}
-	else if (category == goods_manager_t::INDEX_MAIL)
-	{
-		for (uint8 i = 0; i < goods_manager_t::mail->get_number_of_classes(); i++)
-		{
-			goods_compartment[goods_manager_t::INDEX_MAIL][i].set_refresh();
-		}
-	}
-	else
-	{
-		goods_compartment[category][0].set_refresh();
+		goods_compartment[category][i].set_refresh();
 	}
 }
 
