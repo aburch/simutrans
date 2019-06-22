@@ -3077,7 +3077,7 @@ PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_bl
 
 		default:
 			// any percentage blending: SLOW!
-			if(  bitdepth == 16  ) {
+			if(  bitdepth == 15  ) {
 				// 555 BITMAPS
 				const PIXVAL r_src = (background >> 10) & 0x1F;
 				const PIXVAL g_src = (background >> 5) & 0x1F;
