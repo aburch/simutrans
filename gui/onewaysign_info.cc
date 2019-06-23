@@ -13,7 +13,7 @@
 #include "../simmenu.h"
 #include "../simworld.h"
 
-onewaysign_info_t::onewaysign_info_t(roadsign_t* s, koord3d first_intersection) :
+onewaysign_info_t::onewaysign_info_t(roadsign_t* s, koord3d) :
 	obj_infowin_t(s),
 	sign(s)
 {
