@@ -387,7 +387,7 @@ void leitung_t::rdwr(loadsave_t *file)
 	obj_t::rdwr(file);
 
 	// no longer save power net pointer as it is no longer used
-	if(  file->get_version()  <=  120003  ) {
+	if(  file->is_version_less(120, 4)  ) {
 		uint32 value = 0;
 		file->rdwr_long(value);
 	}
@@ -399,7 +399,7 @@ void leitung_t::rdwr(loadsave_t *file)
 		/* ATTENTION: during loading thus MUST not be called from the constructor!!!
 		* (Otherwise it will be always true!
 		*/
-		if(file->get_version() > 102002) {
+		if(file->is_version_atleast(102, 3)) {
 			if(file->is_saving()) {
 				const char *s = desc->get_name();
 				file->rdwr_str(s);
@@ -551,7 +551,7 @@ void pumpe_t::rdwr(loadsave_t * file) {
 	leitung_t::rdwr(file);
 
 	// current power state
-	if(  file->get_version()  >  120003  ) {
+	if(  file->is_version_atleast(120, 4)  ) {
 		file->rdwr_long(power_supply);
 	}
 }
@@ -621,7 +621,7 @@ void senke_t::new_world()
 
 void senke_t::static_rdwr(loadsave_t *file)
 {
-	if(  file->get_version()  >  120003  ) {
+	if(  file->is_version_atleast(120, 4)  ) {
 		file->rdwr_long(payment_timer);
 	}
 }
@@ -816,7 +816,7 @@ void senke_t::rdwr(loadsave_t *file)
 	leitung_t::rdwr(file);
 
 	// current power state
-	if(  file->get_version()  >  120003  ) {
+	if(  file->is_version_atleast(120, 4)  ) {
 		file->rdwr_longlong((sint64 &)energy_acc);
 		file->rdwr_long(power_demand);
 	}

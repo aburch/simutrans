@@ -3329,7 +3329,7 @@ uint8 tool_build_tunnel_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 	if(  gr  ) {
 		if( gr->hat_wege() ) {
 			const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
-			// use the check_owner routine of way_builder_t (not spieler_t!), needs an instance
+			// use the check_owner routine of way_builder_t (not player_t!), needs an instance
 			weg_t *w = gr->get_weg_nr(0);
 			if(  w==NULL  ||  w->get_desc()->get_wtyp()!=desc->get_waytype()  ) {
 				error = NOTICE_UNSUITABLE_GROUND;
@@ -7116,7 +7116,7 @@ void tool_merge_stop_t::mark_tiles(  player_t *player, const koord3d &start, con
 
 	if(  distance  < welt->get_settings().allow_merge_distant_halt  ) {
 		distance = clamp(distance,2,33)-2;
-		workcost = -welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
+		workcost = welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", workcost) );
 	}
 	else {
@@ -7148,9 +7148,9 @@ const char *tool_merge_stop_t::do_work( player_t *player, const koord3d &last_po
 
 	if(  distance  < welt->get_settings().allow_merge_distant_halt  ) {
 		distance = clamp(distance,2,33)-2;
-		workcost = -welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
+		workcost = welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", workcost) );
-		if(  player != welt->get_public_player()  ||  !player->can_afford(workcost)  ) {
+		if(  player != welt->get_public_player()  &&  !player->can_afford(workcost)  ) {
 			return NOTICE_INSUFFICIENT_FUNDS;
 		}
 	}

@@ -211,7 +211,7 @@ void finance_t::new_month()
 void finance_t::rdwr(loadsave_t *file)
 {
 	// detailed statistic were introduced in this version
-	if( file->get_version() < 112005 ) {
+	if( file->is_version_less(112, 5) ) {
 		rdwr_compatibility(file);
 		return;
 	}
@@ -594,15 +594,15 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 		}
 	}
 
-	if( ( file->get_version() < 112005 ) && ( ! file->is_loading() ) ) { // for saving of game in old format
+	if( ( file->is_version_less(112, 5) ) && ( ! file->is_loading() ) ) { // for saving of game in old format
 		export_to_cost_month( finance_history_month );
 		export_to_cost_year( finance_history_year );
 	}
-	if (file->get_version() < 84008) {
+	if (file->is_version_less(84, 8)) {
 		// not so old save game
 		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<OLD_MAX_PLAYER_COST; cost_type++) {
-				if (file->get_version() < 84007) {
+				if (file->is_version_less(84, 7)) {
 					// a cost_type has has been added. For old savegames we only have 9 cost_types, now we have 10.
 					// for old savegames only load 9 types and calculate the 10th; for new savegames load all 10 values
 					if (cost_type < 9) {
@@ -616,7 +616,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (file->get_version() < 86000) {
+	else if (file->is_version_less(86, 0)) {
 		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<10; cost_type++) {
 				file->rdwr_longlong(finance_history_year[year][cost_type]);
@@ -629,7 +629,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (file->get_version() < 99011) {
+	else if (file->is_version_less(99, 11)) {
 		// powerline category missing
 		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<12; cost_type++) {
@@ -642,7 +642,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (file->get_version() < 99017) {
+	else if (file->is_version_less(99, 17)) {
 		// without detailed goo statistics
 		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<13; cost_type++) {
@@ -655,7 +655,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if(  file->get_version()<=102002  ) {
+	else if(  file->is_version_less(102, 3)  ) {
 		// saved everything
 		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<18; cost_type++) {
@@ -668,7 +668,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if(  file->get_version()<=110006  ) {
+	else if(  file->is_version_less(110, 7)  ) {
 		// only save what is needed
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			for(  int cost_type = 0;   cost_type<18;   cost_type++  ) {
@@ -685,7 +685,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (  file->get_version() < 112005  ) {
+	else if (  file->is_version_less(112, 5)  ) {
 		// savegame version: now with toll
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			for(  int cost_type = 0;   cost_type<OLD_MAX_PLAYER_COST;   cost_type++  ) {
@@ -703,12 +703,12 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 		}
 	}
 
-	if(  file->get_version()>102002  ) {
+	if(  file->is_version_atleast(102, 3)  ) {
 		file->rdwr_longlong(starting_money);
 	}
 
 	// we have to pay maintenance at the beginning of a month
-	if(file->get_version()<99018  &&  file->is_loading()) {
+	if(file->is_version_less(99, 18)  &&  file->is_loading()) {
 		finance_history_month[0][COST_MAINTENANCE] -= finance_history_month[1][COST_MAINTENANCE];
 		finance_history_year [0][COST_MAINTENANCE] -= finance_history_month[1][COST_MAINTENANCE];
 		set_account_balance(get_account_balance() - finance_history_month[1][COST_MAINTENANCE]);

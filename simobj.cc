@@ -176,7 +176,7 @@ const char *obj_t::is_deletable(const player_t *player)
 void obj_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t d( file, "obj_t" );
-	if(  file->get_version()<101000) {
+	if(  file->is_version_less(101, 0)  ) {
 		pos.rdwr( file );
 	}
 

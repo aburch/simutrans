@@ -203,7 +203,7 @@ void schedule_t::rdwr(loadsave_t *file)
 	make_current_stop_valid();
 
 	uint8 size = entries.get_count();
-	if(  file->get_version()<=101000  ) {
+	if(  file->is_version_less(101, 1)  ) {
 		uint32 dummy=current_stop;
 		file->rdwr_long(dummy);
 		current_stop = (uint8)dummy;
@@ -211,7 +211,7 @@ void schedule_t::rdwr(loadsave_t *file)
 		sint32 maxi=size;
 		file->rdwr_long(maxi);
 		DBG_MESSAGE("schedule_t::rdwr()","read schedule %p with %i entries",this,maxi);
-		if(file->get_version()<86010) {
+		if(file->is_version_less(86, 10)) {
 			// old array had different maxi-counter
 			maxi ++;
 		}
@@ -223,7 +223,7 @@ void schedule_t::rdwr(loadsave_t *file)
 	}
 	entries.resize(size);
 
-	if(file->get_version()<99012) {
+	if(file->is_version_less(99, 12)) {
 		for(  uint8 i=0; i<size; i++  ) {
 			koord3d pos;
 			uint32 dummy;
@@ -241,7 +241,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			}
 			entries[i].pos.rdwr(file);
 			file->rdwr_byte(entries[i].minimum_loading);
-			if(file->get_version()>=99018) {
+			if(file->is_version_atleast(99, 18)) {
 				file->rdwr_byte(entries[i].waiting_time_shift);
 			}
 		}
@@ -258,7 +258,6 @@ void schedule_t::rdwr(loadsave_t *file)
 }
 
 
-
 void schedule_t::rotate90( sint16 y_size )
 {
 	// now we have to rotate all entries ...
@@ -266,7 +265,6 @@ void schedule_t::rotate90( sint16 y_size )
 		i.pos.rotate90(y_size);
 	}
 }
-
 
 
 /*

@@ -2849,7 +2849,7 @@ void way_builder_t::build_powerline()
 
 
 // this can drive any river, even a river that has max_speed=0
-class fluss_fahrer_t : public test_driver_t
+class fluss_test_driver_t : public test_driver_t
 {
 	bool check_next_tile(const grund_t* gr) const OVERRIDE { return gr->get_weg_ribi_unmasked(water_wt)!=0; }
 	ribi_t::ribi get_ribi(const grund_t* gr) const OVERRIDE { return gr->get_weg_ribi_unmasked(water_wt); }
@@ -2938,8 +2938,8 @@ void way_builder_t::build_river()
 		 * thus we use the routefinder to find the sea
 		 */
 		route_t to_the_sea;
-		fluss_fahrer_t ff;
-		if (to_the_sea.find_route(welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), &ff, 0, ribi_t::all, 0x7FFFFFFF)) {
+		fluss_test_driver_t river_tester;
+		if (to_the_sea.find_route(welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), &river_tester, 0, ribi_t::all, 0x7FFFFFFF)) {
 			FOR(koord3d_vector_t, const& i, to_the_sea.get_route()) {
 				if (weg_t* const w = welt->lookup(i)->get_weg(water_wt)) {
 					int type;

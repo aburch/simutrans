@@ -41,7 +41,7 @@ slist_tpl<depot_t *> depot_t::all_depots;
 depot_t::depot_t(loadsave_t *file) : gebaeude_t()
 {
 	rdwr(file);
-	if(file->get_version()<88002) {
+	if(file->is_version_less(88, 2)) {
 		set_yoff(0);
 	}
 	all_depots.append(this);
@@ -483,7 +483,7 @@ void depot_t::rdwr(loadsave_t *file)
 	gebaeude_t::rdwr(file);
 
 	rdwr_vehikel(vehicles, file);
-	if (file->get_version() < 81033) {
+	if (file->is_version_less(81, 33)) {
 		// wagons are stored extra, just add them to vehicles
 		assert(file->is_loading());
 		rdwr_vehikel(vehicles, file);

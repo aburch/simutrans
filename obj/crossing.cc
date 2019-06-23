@@ -121,12 +121,12 @@ void crossing_t::rdwr(loadsave_t *file)
 	state = logic==NULL ? crossing_logic_t::CROSSING_INVALID : logic->get_state();
 	file->rdwr_byte(state);
 	file->rdwr_byte(ns);
-	if(file->get_version()<99016) {
+	if(file->is_version_less(99, 16)) {
 		uint32 ldummy=0;
 		uint8 bdummy=0;
 		file->rdwr_byte(bdummy);
 		file->rdwr_long(ldummy);
-		dbg->fatal("crossing_t::rdwr()","I should be never force to load old style crossings!" );
+		dbg->fatal("crossing_t::rdwr()","I should be never forced to load old style crossings!" );
 	}
 	// which waytypes?
 	uint8 w1, w2;
@@ -141,10 +141,10 @@ void crossing_t::rdwr(loadsave_t *file)
 
 	file->rdwr_byte(w1);
 	file->rdwr_byte(w2);
-	if(  file->get_version()>=110000  ) {
+	if(  file->is_version_atleast(110, 0)  ) {
 		file->rdwr_long( speedlimit0 );
 	}
-	if(  file->get_version()>=110001  ) {
+	if(  file->is_version_atleast(110, 1)  ) {
 		file->rdwr_long( speedlimit1 );
 	}
 

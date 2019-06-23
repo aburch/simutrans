@@ -39,7 +39,7 @@ void kanal_t::rdwr(loadsave_t *file)
 {
 	weg_t::rdwr(file);
 
-	if(file->get_version() <= 87000) {
+	if(file->is_version_less(87, 1)) {
 		set_desc(default_kanal);
 		return;
 	}

@@ -118,7 +118,7 @@ void pillar_t::rdwr(loadsave_t *file)
 		}
 		asymmetric = desc && desc->has_pillar_asymmetric();
 
-		if(  file->get_version() < 112007 && env_t::pak_height_conversion_factor==2  ) {
+		if(  file->is_version_less(112, 7) && env_t::pak_height_conversion_factor==2  ) {
 			switch(dir) {
 				case bridge_desc_t::OW_Pillar:  dir = bridge_desc_t::OW_Pillar2;  break;
 				case bridge_desc_t::NS_Pillar:  dir = bridge_desc_t::NS_Pillar2;  break;
@@ -138,8 +138,8 @@ void pillar_t::rotate90()
 
 	// the rotated image parameter is just one in front/back
 	switch(dir) {
-		case bridge_desc_t::NS_Pillar:  dir=bridge_desc_t::OW_Pillar ; break;
-		case bridge_desc_t::OW_Pillar:  dir=bridge_desc_t::NS_Pillar ; break;
+		case bridge_desc_t::NS_Pillar:  dir=bridge_desc_t::OW_Pillar  ; break;
+		case bridge_desc_t::OW_Pillar:  dir=bridge_desc_t::NS_Pillar  ; break;
 		case bridge_desc_t::NS_Pillar2: dir=bridge_desc_t::OW_Pillar2 ; break;
 		case bridge_desc_t::OW_Pillar2: dir=bridge_desc_t::NS_Pillar2 ; break;
 	}

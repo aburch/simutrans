@@ -2211,7 +2211,7 @@ void convoi_t::vorfahren()
 
 void convoi_t::rdwr_convoihandle_t(loadsave_t *file, convoihandle_t &cnv)
 {
-	if(  file->get_version()>112002  ) {
+	if(  file->is_version_atleast(112, 3)  ) {
 		uint16 id = (file->is_saving()  &&  cnv.is_bound()) ? cnv.get_id() : 0;
 		file->rdwr_short( id );
 		if (file->is_loading()) {
@@ -2229,7 +2229,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	sint32 owner_n = welt->sp2num(owner);
 
 	if(file->is_saving()) {
-		if(  file->get_version()<101000  ) {
+		if(  file->is_version_less(101, 0)  ) {
 			file->wr_obj_id("Convoi");
 			// the matching read is in karte_t::laden(loadsave*)...
 		}
@@ -2244,7 +2244,7 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	// we want persistent convoihandles so we can keep dialogues open in network games
 	if(  file->is_loading()  ) {
-		if(  file->get_version()<=112002  ) {
+		if(  file->is_version_less(112, 3)  ) {
 			self = convoihandle_t( this );
 		}
 		else {
@@ -2253,7 +2253,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			self = convoihandle_t( this, id );
 		}
 	}
-	else if(  file->get_version()>112002  ) {
+	else if(  file->is_version_atleast(112, 3)  ) {
 		uint16 id = self.get_id();
 		file->rdwr_short( id );
 	}
@@ -2262,7 +2262,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	file->rdwr_long(dummy);
 	anz_vehikel = (uint8)dummy;
 
-	if(file->get_version()<99014) {
+	if(file->is_version_less(99, 14)) {
 		// was anz_ready
 		file->rdwr_long(dummy);
 	}
@@ -2285,7 +2285,7 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	// read the yearly income (which has since then become a 64 bit value)
 	// will be recalculated later directly from the history
-	if(file->get_version()<=89003) {
+	if(file->is_version_less(89, 4)) {
 		file->rdwr_long(dummy);
 	}
 
@@ -2368,7 +2368,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				v = v_neu;
 			}
 
-			if(file->get_version()<99004) {
+			if(file->is_version_less(99, 4)) {
 				dummy_pos.rdwr(file);
 			}
 
@@ -2466,7 +2466,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	// Hajo: since sp_ist became obsolete, sp_soll is used modulo 65536
 	sp_soll &= 65535;
 
-	if(file->get_version()<=88003) {
+	if(file->is_version_less(88, 4)) {
 		// load statistics
 		int j;
 		for (j = 0; j<3; j++) {
@@ -2485,7 +2485,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			financial_history[k][CONVOI_WAYTOLL] = 0;
 		}
 	}
-	else if(  file->get_version()<=102002  ){
+	else if(  file->is_version_less(102, 3)  ){
 		// load statistics
 		for (int j = 0; j<5; j++) {
 			for (size_t k = MAX_MONTHS; k-- != 0;) {
@@ -2498,7 +2498,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			financial_history[k][CONVOI_WAYTOLL] = 0;
 		}
 	}
-	else if(  file->get_version()<111001  ){
+	else if(  file->is_version_less(111, 1)  ){
 		// load statistics
 		for (int j = 0; j<6; j++) {
 			for (size_t k = MAX_MONTHS; k-- != 0;) {
@@ -2510,7 +2510,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			financial_history[k][CONVOI_WAYTOLL] = 0;
 		}
 	}
-	else if(  file->get_version()<112008  ){
+	else if(  file->is_version_less(112, 8)  ){
 		// load statistics
 		for (int j = 0; j<7; j++) {
 			for (size_t k = MAX_MONTHS; k-- != 0;) {
@@ -2532,7 +2532,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// the convoi odometer
-	if(  file->get_version()>102002  ){
+	if(  file->is_version_atleast(102, 3)  ){
 		file->rdwr_longlong( total_distance_traveled);
 	}
 
@@ -2546,14 +2546,14 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// save/restore pending line updates
-	if(file->get_version()>84008   &&  file->get_version()<99013) {
+	if(file->is_version_atleast(84, 9)  &&  file->is_version_less(99, 13)) {
 		file->rdwr_long(dummy);	// ignore
 	}
 	if(file->is_loading()) {
 		line_update_pending = linehandle_t();
 	}
 
-	if(file->get_version() > 84009) {
+	if(file->is_version_atleast(84, 10)) {
 		home_depot.rdwr(file);
 	}
 
@@ -2562,18 +2562,18 @@ void convoi_t::rdwr(loadsave_t *file)
 	if (anz_vehikel !=0) {
 		last_stop_pos_convoi = fahr[0]->last_stop_pos;
 	}
-	if(file->get_version()>=87001) {
+	if(file->is_version_atleast(87, 1)) {
 		last_stop_pos_convoi.rdwr(file);
 	}
 	else {
 		last_stop_pos_convoi =
-		!route.empty()   ? route.front()      :
-		anz_vehikel != 0 ? fahr[0]->get_pos() :
-		koord3d(0, 0, 0);
+			!route.empty()   ? route.front()      :
+			anz_vehikel != 0 ? fahr[0]->get_pos() :
+			koord3d(0, 0, 0);
 	}
 
 	// for leaving the depot routine
-	if(file->get_version()<99014) {
+	if(file->is_version_less(99, 14)) {
 		steps_driven = -1;
 	}
 	else {
@@ -2581,7 +2581,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// waiting time left ...
-	if(file->get_version()>=99017) {
+	if(file->is_version_atleast(99, 17)) {
 		if(file->is_saving()) {
 			if(  has_schedule  &&  schedule->get_current_entry().waiting_time_shift > 0  ) {
 				uint32 diff_ticks = arrived_time + (welt->ticks_per_world_month >> (16 - schedule->get_current_entry().waiting_time_shift)) - welt->get_ticks();
@@ -2600,14 +2600,14 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// since 99015, the last stop will be maintained by the vehikels themselves
-	if(file->get_version()<99015) {
+	if(file->is_version_less(99, 15)) {
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			fahr[i]->last_stop_pos = last_stop_pos_convoi;
 		}
 	}
 
 	// overtaking status
-	if(file->get_version()<100001) {
+	if(file->is_version_less(100, 1)) {
 		set_tiles_overtaking( 0 );
 	}
 	else {
@@ -2615,7 +2615,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		set_tiles_overtaking( tiles_overtaking );
 	}
 	// no_load, withdraw
-	if(file->get_version()<102001) {
+	if(file->is_version_less(102, 1)) {
 		no_load = false;
 		withdraw = false;
 	}
@@ -2624,16 +2624,16 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(withdraw);
 	}
 
-	if(file->get_version()>=111001) {
+	if(file->is_version_atleast(111, 1)) {
 		file->rdwr_long( distance_since_last_stop );
 		file->rdwr_long( sum_speed_limit );
 	}
 
-	if(  file->get_version()>=111002  ) {
+	if(  file->is_version_atleast(111, 2)  ) {
 		file->rdwr_long( maxspeed_average_count );
 	}
 
-	if(  file->get_version()>=111003  ) {
+	if(  file->is_version_atleast(111, 3)  ) {
 		file->rdwr_short( next_stop_index );
 		if(  !file->is_loading()  &&  next_reservation_index>=route.get_count()  ) {
 			// sanitize next_reservation_index because a longblocksignal can set next_reservation_index an illegal number.
