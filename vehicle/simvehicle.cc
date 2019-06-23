@@ -1948,7 +1948,7 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 
 void road_vehicle_t::rdwr_from_convoi(loadsave_t *file){
 	vehicle_t::rdwr_from_convoi(file);
-	if(  (env_t::previous_OTRP_data  &&  file->get_version() >= 120006)  ||  file->get_OTRP_version() >= 14  ) {
+	if(  (env_t::previous_OTRP_data  &&  file->is_version_atleast(120, 6))  ||  file->get_OTRP_version() >= 14  ) {
 		koord3d pos_prev_rdwr = this->pos_prev;
 		pos_prev_rdwr.rdwr(file);
 		this->pos_prev = pos_prev_rdwr;
