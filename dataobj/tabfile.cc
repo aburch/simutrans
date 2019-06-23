@@ -299,7 +299,7 @@ void tabfileobj_t::unused( const char *exclude_start_chars )
 }
 
 
-bool tabfile_t::read(tabfileobj_t &objinfo)
+bool tabfile_t::read(tabfileobj_t &objinfo, FILE *fp)
 {
 	bool lines = false;
 	char line[4096];
@@ -449,10 +449,16 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 
 						printf("%s = %s\n", line_expand, delim_expand);
 						objinfo.put(line_expand, delim_expand);
+						if (fp != NULL) {
+							fprintf(fp, "%s=%s\n", line_expand, delim_expand);
+						}
 					}
 				}
 				else {
 					objinfo.put(line, delim);
+					if (fp != NULL) {
+						fprintf(fp, "%s=%s\n", line, delim);
+					}
 				}
 				lines = true;
 			}
