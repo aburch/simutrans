@@ -1376,16 +1376,6 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, c
 	while(*version_text  &&  isdigit(*version_text)) {
 		version_text++;
 	}
-	// simutrans-experimental savegame?
-	// the next char is either 'b'/'z'/'-',
-	// if it is '.' the we try to load a simutrans-experimental savegame
-	if(*version_text == '.') {
-		// Simutrans Extended savegame, we can't load it, return version=0
-		if (pak_extension_str) {
-			std::strcpy(pak_extension_str,"(st-exp)");
-		}
-		return dud;
-	}
 
 	if(  loadsave_version.version<=102002  ) {
 		/* the compression and the mode we determined already ourselves
