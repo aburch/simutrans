@@ -561,7 +561,7 @@ void baum_t::rdwr(loadsave_t *file)
 	}
 
 	// z-offset
-	if(file->get_version() > 111000) {
+	if(file->is_version_atleast(111, 1)) {
 		uint8 zoff_ = zoff;
 		file->rdwr_byte(zoff_);
 		zoff = zoff_;

@@ -1433,7 +1433,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	obj_t::rdwr(file);
 
 	// since obj_t does no longer save positions
-	if(  file->get_version()>=101000  ) {
+	if(  file->is_version_atleast(101, 0)  ) {
 		koord3d pos = get_pos();
 		pos.rdwr(file);
 		set_pos(pos);
@@ -1442,7 +1442,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 
 	sint8 hoff = file->is_saving() ? get_hoff() : 0;
 
-	if(file->get_version()<86006) {
+	if(file->is_version_less(86, 6)) {
 		sint32 l;
 		file->rdwr_long(purchase_time);
 		file->rdwr_long(l);
@@ -1463,7 +1463,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	else {
 		// prissi: changed several data types to save runtime memory
 		file->rdwr_long(purchase_time);
-		if(file->get_version()<99018) {
+		if(file->is_version_less(99, 18)) {
 			file->rdwr_byte(dx);
 			file->rdwr_byte(dy);
 		}
@@ -1489,7 +1489,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	}
 
 	// convert steps to position
-	if(file->get_version()<99018) {
+	if(file->is_version_less(99, 18)) {
 		sint8 ddx=get_xoff(), ddy=get_yoff()-hoff;
 		sint8 i=1;
 		dx = dxdy[ ribi_t::get_dir(direction)*2];
@@ -1515,7 +1515,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	}
 
 	// information about the target halt
-	if(file->get_version()>=88007) {
+	if(file->is_version_atleast(88, 7)) {
 		bool target_info;
 		if(file->is_loading()) {
 			file->rdwr_bool(target_info);
@@ -1531,12 +1531,12 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			cnv = NULL;	// no reservation too
 		}
 	}
-	if(file->get_version()<=112008) {
+	if(file->is_version_less(112, 9)) {
 		koord3d pos_prev(koord3d::invalid);
 		pos_prev.rdwr(file);
 	}
 
-	if(file->get_version()<=99004) {
+	if(file->is_version_less(99, 5)) {
 		koord3d dummy;
 		dummy.rdwr(file);	// current pos (is already saved as ding => ignore)
 	}
@@ -1582,7 +1582,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 				// also add, of the desc is unknown to find matching replacement
 				fracht.insert(ware);
 #ifdef CACHE_TRANSIT
-				if(  file->get_version() <= 112000  )
+				if(  file->is_version_less(112, 1)  )
 #endif
 					// restore in-transit information
 					fabrik_t::update_transit( &ware, true );
@@ -1599,16 +1599,16 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	}
 
 	// skip first last info (the convoi will know this better than we!)
-	if(file->get_version()<88007) {
+	if(file->is_version_less(88, 7)) {
 		bool dummy = 0;
 		file->rdwr_bool(dummy);
 		file->rdwr_bool(dummy);
 	}
 
 	// koordinate of the last stop
-	if(file->get_version()>=99015) {
+	if(file->is_version_atleast(99, 15)) {
 		// This used to be 2d, now it's 3d.
-		if(file->get_version() < 112008) {
+		if(file->is_version_less(112, 8)) {
 			if(file->is_saving()) {
 				koord last_stop_pos_2d = last_stop_pos.get_2d();
 				last_stop_pos_2d.rdwr(file);
@@ -1648,7 +1648,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		}
 	}
 
-	if(  file->get_version()>=110000  ) {
+	if(  file->is_version_atleast(110, 0)  ) {
 		bool hd = has_driven;
 		file->rdwr_bool( hd );
 		has_driven = hd;

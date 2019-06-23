@@ -136,7 +136,7 @@ void road_user_t::rdwr(loadsave_t *file)
 	sint8 hoff = file->is_saving() ? get_hoff() : 0;
 
 	// correct old offsets ... REMOVE after savegame increase ...
-	if(file->get_version()<99018  &&  file->is_saving()) {
+	if(file->is_version_less(99, 18)  &&  file->is_saving()) {
 		dx = dxdy[ ribi_t::get_dir(direction)*2 ];
 		dy = dxdy[ ribi_t::get_dir(direction)*2+1 ];
 		sint8 i = steps/16;
@@ -146,7 +146,7 @@ void road_user_t::rdwr(loadsave_t *file)
 
 	vehicle_base_t::rdwr(file);
 
-	if(file->get_version() < 86006) {
+	if(file->is_version_less(86, 6)) {
 		sint32 l;
 		file->rdwr_long(l);
 		file->rdwr_long(l);
@@ -160,12 +160,12 @@ void road_user_t::rdwr(loadsave_t *file)
 		hoff = (sint8)l;
 	}
 	else {
-		if(file->get_version()<99005) {
+		if(file->is_version_less(99, 5)) {
 			sint32 dummy32;
 			file->rdwr_long(dummy32);
 		}
 		file->rdwr_long(weg_next);
-		if(file->get_version()<99018) {
+		if(file->is_version_less(99, 18)) {
 			file->rdwr_byte(dx);
 			file->rdwr_byte(dy);
 		}
@@ -176,7 +176,7 @@ void road_user_t::rdwr(loadsave_t *file)
 		file->rdwr_enum(direction);
 		dx = dxdy[ ribi_t::get_dir(direction)*2];
 		dy = dxdy[ ribi_t::get_dir(direction)*2+1];
-		if(file->get_version()<99005  ||  file->get_version()>99016) {
+		if(file->is_version_less(99, 5)  ||  file->is_version_atleast(99, 17)) {
 			sint16 dummy16 = ((16*(sint16)hoff)/OBJECT_OFFSET_STEPS);
 			file->rdwr_short(dummy16);
 			hoff = (sint8)((OBJECT_OFFSET_STEPS*(sint16)dummy16)/16);
@@ -188,7 +188,7 @@ void road_user_t::rdwr(loadsave_t *file)
 	pos_next.rdwr(file);
 
 	// convert steps to position
-	if(file->get_version()<99018) {
+	if(file->is_version_less(99, 18)) {
 		sint8 ddx=get_xoff(), ddy=get_yoff()-hoff;
 		sint8 i=0;
 
@@ -210,7 +210,7 @@ void road_user_t::rdwr(loadsave_t *file)
 	}
 
 	// the lifetime in ms
-	if(file->get_version()>89004) {
+	if(file->is_version_atleast(89, 5)) {
 		file->rdwr_long(time_to_life);
 	}
 	// there might be crashes if world is destroyed after loading
@@ -427,15 +427,15 @@ void private_car_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->get_version() <= 86001) {
+	if(file->is_version_less(86, 2)) {
 		time_to_life = simrand(1000000)+10000;
 	}
-	else if(file->get_version() <= 89004) {
+	else if(file->is_version_less(89, 5)) {
 		file->rdwr_long(time_to_life);
 		time_to_life *= 10000;	// converting from hops left to ms since start
 	}
 
-	if(file->get_version() <= 86004) {
+	if(file->is_version_less(86, 5)) {
 		// default starting speed for old games
 		if(file->is_loading()) {
 			current_speed = 48;
@@ -447,7 +447,7 @@ void private_car_t::rdwr(loadsave_t *file)
 		current_speed = dummy32;
 	}
 
-	if(file->get_version() <= 99010) {
+	if(file->is_version_less(99, 10)) {
 		pos_next_next = koord3d::invalid;
 	}
 	else {
@@ -455,7 +455,7 @@ void private_car_t::rdwr(loadsave_t *file)
 	}
 
 	// overtaking status
-	if(file->get_version()<100001) {
+	if(file->is_version_less(100, 1)) {
 		set_tiles_overtaking( 0 );
 	}
 	else {

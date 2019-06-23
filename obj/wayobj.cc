@@ -134,7 +134,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "wayobj_t" );
 	obj_t::rdwr(file);
-	if(file->get_version()>=89000) {
+	if(file->is_version_atleast(89, 0)) {
 		uint8 ddir = dir;
 		file->rdwr_byte(ddir);
 		dir = ddir;

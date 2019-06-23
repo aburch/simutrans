@@ -442,7 +442,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 */
 void stadt_t::cityrules_rdwr(loadsave_t *file)
 {
-	if(  file->get_version() >= 112008  ) {
+	if(  file->is_version_atleast(112, 8)  ) {
 		file->rdwr_long( cluster_factor );
 	}
 
@@ -733,7 +733,7 @@ void stadt_t::init_pax_destinations()
 
 void stadt_t::factory_entry_t::rdwr(loadsave_t *file)
 {
-	if(  file->get_version()>=110005  ) {
+	if(  file->is_version_atleast(110, 5)  ) {
 		koord factory_pos;
 		if(  file->is_saving()  ) {
 			factory_pos = factory->get_pos().get_2d();
@@ -912,7 +912,7 @@ void stadt_t::factory_set_t::new_month()
 
 void stadt_t::factory_set_t::rdwr(loadsave_t *file)
 {
-	if(  file->get_version()>=110005  ) {
+	if(  file->is_version_atleast(110, 5)  ) {
 		uint32 entry_count = entries.get_count();
 		file->rdwr_long(entry_count);
 		if(  file->is_loading()  ) {
@@ -1149,7 +1149,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	file->rdwr_long(arb);
 	file->rdwr_long(won);
 
-	if(  file->get_version()>=112009  ) {
+	if(  file->is_version_atleast(112, 9)  ) {
 		// Must record the partial (less than 1 citizen) growth factor
 		// Otherwise we will get network desyncs
 		// Also allows accumulation of small growth factors
@@ -1159,7 +1159,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		unsupplied_city_growth = 0;
 	}
 	// old values zentrum_namen_cnt : aussen_namen_cnt
-	if(file->get_version()<99018) {
+	if(file->is_version_less(99, 18)) {
 		sint32 dummy=0;
 		file->rdwr_long(dummy);
 		file->rdwr_long(dummy);
@@ -1186,9 +1186,9 @@ void stadt_t::rdwr(loadsave_t* file)
 	}
 
 	// we probably need to load/save the city history
-	if (file->get_version() < 86000) {
+	if (file->is_version_less(86, 0)) {
 		DBG_DEBUG("stadt_t::rdwr()", "is old version: No history!");
-	} else if(file->get_version()<99016) {
+	} else if(file->is_version_less(99, 16)) {
 		// 86.00.0 introduced city history
 		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
 			for (uint hist_type = 0; hist_type < 2; hist_type++) {
@@ -1213,7 +1213,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		file->rdwr_long(dummy);
 		file->rdwr_long(dummy);
 	}
-	else if(  file->get_version() <= 120000  ) {
+	else if(  file->is_version_less(120, 1)  ) {
 		// 99.17.0 extended city history
 		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
 			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
@@ -1251,7 +1251,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	}
 
 	// differential history
-	if (  file->get_version() <= 120000  ) {
+	if (  file->is_version_less(120, 1)  ) {
 		if (  file->is_loading()  ) {
 			// Initalize differential statistics assuming a differential of 0.
 			city_growth_get_factors(city_growth_factor_previous, 0);
@@ -1265,21 +1265,21 @@ void stadt_t::rdwr(loadsave_t* file)
 		}
 	}
 
-	if(file->get_version()>99014  &&  file->get_version()<99016) {
+	if(file->is_version_atleast(99, 15)  &&  file->is_version_less(99, 16)) {
 		sint32 dummy = 0;
 		file->rdwr_long(dummy);
 		file->rdwr_long(dummy);
 	}
 
 	// since 102.2 there are static cities
-	if(file->get_version()>102001) {
+	if(file->is_version_atleast(102, 2)) {
 		file->rdwr_bool(allow_citygrowth);
 	}
 	else if(  file->is_loading()  ) {
 		allow_citygrowth = true;
 	}
 	// save townhall road position
-	if(file->get_version()>102002) {
+	if(file->is_version_atleast(102, 3)) {
 		townhall_road.rdwr(file);
 	}
 	else if(  file->is_loading()  ) {
@@ -2897,7 +2897,7 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 		int max_layout = h->get_all_layouts()-1;
 		if(  max_layout  ) {
 
-			// we counting the streetiles, but asymmetric buildings will have an uneven number; we init with negative width 
+			// we counting the streetiles, but asymmetric buildings will have an uneven number; we init with negative width
 			int streetdir[4];
 			for(  int i = 0;  i < 4;  i++  ) {
 				streetdir[i] = -h->get_x(i&1);
@@ -3037,7 +3037,7 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 		}
 
 	}
-			
+
 	return -1;
 }
 
@@ -3192,7 +3192,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	// Now we are sure that this is a city building
 	const building_desc_t *gb_desc = gb->get_tile()->get_desc();
 	const int level = gb_desc->get_level();
-	
+
 	koord k = gb->get_pos().get_2d() - gb->get_tile()->get_offset();
 
 	// Divide unemployed by 4, because it counts towards commercial and industrial,
@@ -3317,7 +3317,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 
 		int rotation = 0;
 		if(  h->get_all_layouts()>1  ) {
-		
+
 			// only do this of symmetric of small enough building
 			if(  h->get_x()==h->get_y()  ||  (h->get_x()<maxsize.y  &&  h->get_x()<maxsize.x)  ) {
 				// check for pavement

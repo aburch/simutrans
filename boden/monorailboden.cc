@@ -25,9 +25,9 @@ void monorailboden_t::rdwr(loadsave_t *file)
 {
 	grund_t::rdwr(file);
 
-	if(file->get_version()<88009) {
+	if(file->is_version_less(88, 9)) {
 		// save slope locally
-		if(file->get_version()>88005) {
+		if(file->is_version_atleast(88, 6)) {
 			uint8 sl;
 			file->rdwr_byte(sl);
 			// convert slopes from old single height saved game

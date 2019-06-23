@@ -553,10 +553,11 @@ void ai_t::rdwr(loadsave_t *file)
 {
 	player_t::rdwr(file);
 
-	if(  file->get_version()<111001  ) {
+	if(  file->is_version_less(111, 1)  ) {
 		// do not know about ai_t
 		return;
 	}
+
 	file->rdwr_long( construction_speed );
 	file->rdwr_bool( road_transport );
 	file->rdwr_bool( rail_transport );
