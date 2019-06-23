@@ -265,21 +265,24 @@ koord haltestelle_t::get_next_pos( koord start ) const
  * It is the avarage of all tiles' coordinate weighed by level of the building */
 void haltestelle_t::recalc_basis_pos()
 {
-	koord cent;
-	sint32 level_sum;
-	cent = koord();
+	sint64 cent_x, cent_y;
+	cent_x = cent_y = 0;
+	uint64 level_sum;
 	level_sum = 0;
 	FOR(slist_tpl<tile_t>, const& i, tiles) {
 		if(  gebaeude_t* const gb = i.grund->find<gebaeude_t>()  ) {
-			sint16 lv;
+			uint32 lv;
 			lv = gb->get_tile()->get_desc()->get_level() + 1;
-			cent += gb->get_pos().get_2d() * lv;
+			cent_x += gb->get_pos().get_2d().x * lv;
+			cent_y += gb->get_pos().get_2d().y * lv;
 			level_sum += lv;
 		}
 	}
+	koord cent;
+	cent = koord((sint16)(cent_x/level_sum),(sint16)(cent_y/level_sum));
 
 	if ( level_sum > 0 ) {
-		grund_t *new_center = get_ground_closest_to( cent/level_sum );
+		grund_t *new_center = get_ground_closest_to( cent );
 		if(  new_center != tiles.front().grund  &&  new_center->get_text()==NULL  ) {
 			// move the name to new center, if there is not yet a name on it
 			new_center->set_text( tiles.front().grund->get_text() );
@@ -2414,7 +2417,7 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 	}
 
 	assert(!halt_merged->existiert_in_welt());
-	
+
 	// transfer goods
 	halt_merged->transfer_goods(self);
 	destroy(halt_merged);
@@ -2603,7 +2606,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	koord3d k;
 
 	// will restore halthandle_t after loading
-	if(file->get_version() > 110005) {
+	if(file->is_version_atleast(110, 6)) {
 		if(file->is_saving()) {
 			uint16 halt_id = self.is_bound() ? self.get_id() : 0;
 			file->rdwr_short(halt_id);
@@ -2625,12 +2628,12 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		owner_n = welt->sp2num( owner );
 	}
 
-	if(file->get_version()<99008) {
+	if(file->is_version_less(99, 8)) {
 		init_pos.rdwr( file );
 	}
 	file->rdwr_long(owner_n);
 
-	if(file->get_version()<=88005) {
+	if(file->is_version_less(88, 6)) {
 		bool dummy;
 		file->rdwr_bool(dummy); // pax
 		file->rdwr_bool(dummy); // mail
@@ -2682,7 +2685,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			if(warray) {
 				s = "y";	// needs to be non-empty
 				file->rdwr_str(s);
-				if(  file->get_version() <= 112002  ) {
+				if(  file->is_version_less(112, 3)  ) {
 					uint16 count = warray->get_count();
 					file->rdwr_short(count);
 				}
@@ -2704,7 +2707,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s, lengthof(s));
 		while(*s) {
 			uint32 count;
-			if(  file->get_version() <= 112002  ) {
+			if(  file->is_version_less(112, 3)  ) {
 				uint16 scount;
 				file->rdwr_short(scount);
 				count = scount;
@@ -2736,7 +2739,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 		// old games save the list with stations
 		// however, we have to rebuilt them anyway for the new format
-		if(file->get_version()<99013) {
+		if(file->is_version_less(99, 13)) {
 			uint16 count;
 			file->rdwr_short(count);
 			for(int i=0; i<count; i++) {
@@ -2746,7 +2749,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	}
 
-	if(  file->get_version()>=111001  ) {
+	if(  file->is_version_atleast(111, 1)  ) {
 		for (int j = 0; j<MAX_HALT_COST; j++) {
 			for (size_t k = MAX_MONTHS; k-- != 0;) {
 				file->rdwr_longlong(financial_history[k][j]);

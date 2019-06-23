@@ -3046,7 +3046,7 @@ PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_bl
 
 		default:
 			// any percentage blending: SLOW!
-			if(  bitdepth == 16  ) {
+			if(  bitdepth == 15  ) {
 				// 555 BITMAPS
 				const PIXVAL r_src = (background >> 10) & 0x1F;
 				const PIXVAL g_src = (background >> 5) & 0x1F;
@@ -3054,9 +3054,10 @@ PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_bl
 				const PIXVAL r_dest = (foreground >> 10) & 0x1F;
 				const PIXVAL g_dest = (foreground >> 5) & 0x1F;
 				const PIXVAL b_dest = (foreground & 0x1F);
-				const PIXVAL r = r_dest + ( ( (r_src - r_dest) * alpha ) >> 6 );
-				const PIXVAL g = g_dest + ( ( (g_src - g_dest) * alpha ) >> 6 );
-				const PIXVAL b = b_dest + ( ( (b_src - b_dest) * alpha ) >> 6 );
+
+				const PIXVAL r = (r_dest * alpha + r_src * (64-alpha) + 32) >> 6;
+				const PIXVAL g = (g_dest * alpha + g_src * (64-alpha) + 32) >> 6;
+				const PIXVAL b = (b_dest * alpha + b_src * (64-alpha) + 32) >> 6;
 				return (r << 10) | (g << 5) | b;
 			}
 			else {
@@ -3067,9 +3068,9 @@ PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_bl
 				const PIXVAL r_dest = (foreground >> 11);
 				const PIXVAL g_dest = (foreground >> 5) & 0x3F;
 				const PIXVAL b_dest = (foreground & 0x1F);
-				const PIXVAL r = r_dest + ( ( (r_src - r_dest) * alpha ) >> 6 );
-				const PIXVAL g = g_dest + ( ( (g_src - g_dest) * alpha ) >> 6 );
-				const PIXVAL b = b_dest + ( ( (b_src - b_dest) * alpha ) >> 6 );
+				const PIXVAL r = (r_dest * alpha + r_src * (64-alpha) + 32) >> 6;
+				const PIXVAL g = (g_dest * alpha + g_src * (64-alpha) + 32) >> 6;
+				const PIXVAL b = (b_dest * alpha + b_src * (64-alpha) + 32) >> 6;
 				return (r << 11) | (g << 5) | b;
 			}
 			break;

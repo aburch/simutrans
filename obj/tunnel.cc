@@ -110,7 +110,7 @@ void tunnel_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "tunnel_t" );
 	obj_t::rdwr(file);
-	if(  file->get_version() >= 99001 ) {
+	if(  file->is_version_atleast(99, 1) ) {
 		char  buf[256];
 		if(  file->is_loading()  ) {
 			file->rdwr_str(buf, lengthof(buf));

@@ -206,14 +206,15 @@ void simline_t::rdwr_linehandle_t(loadsave_t *file, linehandle_t &line)
 {
 	uint16 id;
 	if (file->is_saving()) {
-		id = line.is_bound() ? line.get_id(): (file->get_version() < 110000  ? INVALID_LINE_ID_OLD : INVALID_LINE_ID);
+		id = line.is_bound() ? line.get_id() :
+			 (file->is_version_less(110, 0)  ? INVALID_LINE_ID_OLD : INVALID_LINE_ID);
 	}
 	else {
 		// to avoid undefined errors during loading
 		id = 0;
 	}
 
-	if(file->get_version()<88003) {
+	if(file->is_version_less(88, 3)) {
 		sint32 dummy=id;
 		file->rdwr_long(dummy);
 		id = (uint16)dummy;
@@ -244,7 +245,7 @@ void simline_t::rdwr(loadsave_t *file)
 	schedule->rdwr(file);
 
 	//financial history
-	if(  file->get_version()<=102002  ) {
+	if(  file->is_version_less(102, 3)  ) {
 		for (int j = 0; j<6; j++) {
 			for (size_t k = MAX_MONTHS; k-- != 0;) {
 				file->rdwr_longlong(financial_history[k][j]);
@@ -256,7 +257,7 @@ void simline_t::rdwr(loadsave_t *file)
 			financial_history[k][LINE_WAYTOLL] = 0;
 		}
 	}
-	else if(  file->get_version()<111001  ) {
+	else if(  file->is_version_less(111, 1)  ) {
 		for (int j = 0; j<7; j++) {
 			for (size_t k = MAX_MONTHS; k-- != 0;) {
 				file->rdwr_longlong(financial_history[k][j]);
@@ -267,7 +268,7 @@ void simline_t::rdwr(loadsave_t *file)
 			financial_history[k][LINE_WAYTOLL] = 0;
 		}
 	}
-	else if(  file->get_version()<112008  ) {
+	else if(  file->is_version_less(112, 8)  ) {
 		for (int j = 0; j<8; j++) {
 			for (size_t k = MAX_MONTHS; k-- != 0;) {
 				file->rdwr_longlong(financial_history[k][j]);
@@ -285,7 +286,7 @@ void simline_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->get_version()>=102002) {
+	if(file->is_version_atleast(102, 2)) {
 		file->rdwr_bool(withdraw);
 	}
 

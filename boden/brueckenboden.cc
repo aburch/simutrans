@@ -55,12 +55,12 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 
 	grund_t::rdwr(file);
 
-	if(file->get_version()<88009) {
+	if(file->is_version_less(88, 9)) {
 		uint8 sl;
 		file->rdwr_byte(sl);
 		slope = sl;
 	}
-	if(  file->is_saving()  &&  file->get_version() < 112007  ) {
+	if(  file->is_saving()  &&  file->is_version_less(112, 7)  ) {
 		// truncate double weg_hang to single weg_hang, better than nothing
 		uint8 sl = min( corner_sw(weg_hang), 1 ) + min( corner_se(weg_hang), 1 ) * 2 + min( corner_ne(weg_hang), 1 ) * 4 + min( corner_nw(weg_hang), 1 ) * 8;
 		file->rdwr_byte(sl);
@@ -69,7 +69,7 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(weg_hang);
 	}
 
-	if(  file->is_loading()  &&  file->get_version() < 112007  ) {
+	if(  file->is_loading()  &&  file->is_version_less(112, 7)  ) {
 		// convert slopes from old single height saved game
 		weg_hang = (scorner_sw(weg_hang) + scorner_se(weg_hang) * 3 + scorner_ne(weg_hang) * 9 + scorner_nw(weg_hang) * 27) * env_t::pak_height_conversion_factor;
 	}

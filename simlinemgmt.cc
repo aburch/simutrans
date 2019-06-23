@@ -74,7 +74,7 @@ void simlinemgmt_t::rdwr(loadsave_t *file, player_t *player)
 
 	if(file->is_saving()) {
 		// on old versions
-		if(  file->get_version()<101000  ) {
+		if(  file->is_version_less(101, 0)  ) {
 			file->wr_obj_id("Linemanagement");
 		}
 
@@ -91,7 +91,7 @@ void simlinemgmt_t::rdwr(loadsave_t *file, player_t *player)
 	}
 	else {
 		// on old versions
-		if(  file->get_version()<101000  ) {
+		if(  file->is_version_less(101, 0)  ) {
 			char buf[80];
 			file->rd_obj_id(buf, 79);
 			all_managed_lines.clear();

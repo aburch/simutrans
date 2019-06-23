@@ -34,19 +34,35 @@ struct file_descriptors_t;
 
 class loadsave_t {
 public:
-	enum mode_t { text=1, xml=2, binary=0, zipped=4, xml_zipped=6, bzip2=8, xml_bzip2=10 };
-	enum file_error_t { FILE_ERROR_OK=0, FILE_ERROR_NOT_EXISTING, FILE_ERROR_BZ_CORRUPT, FILE_ERROR_GZ_CORRUPT, FILE_ERROR_NO_VERSION, FILE_ERROR_FUTURE_VERSION };
+	enum mode_t {
+		binary=0,
+		text=1,
+		xml=2,
+		zipped=4,
+		xml_zipped=6,
+		bzip2=8,
+		xml_bzip2=10
+	};
+
+	enum file_error_t {
+		FILE_ERROR_OK=0,
+		FILE_ERROR_NOT_EXISTING,
+		FILE_ERROR_BZ_CORRUPT,
+		FILE_ERROR_GZ_CORRUPT,
+		FILE_ERROR_NO_VERSION,
+		FILE_ERROR_FUTURE_VERSION
+	};
 
 private:
 	file_error_t last_error;
-	int mode;
+	int mode; ///< See mode_t
 	bool saving;
 	bool buffered;
 	unsigned curr_buff;
 	unsigned buf_pos[2];
 	unsigned buf_len[2];
 	char* ls_buf[2];
-	int version;
+	uint32 version; ///< savegame version
 	int ident;		// only for XML formatting
 	char pak_extension[64];	// name of the pak folder during savetime
 
@@ -79,9 +95,17 @@ private:
 	void flush_buffer(int buf_num);
 
 public:
-	static mode_t save_mode;	// default to use for saving
-	static mode_t autosave_mode; // default to use for autosaves and network mode client temp saves
-	static uint32 int_version(const char *version_text, int *mode, char *pak);
+	static mode_t save_mode;     ///< default to use for saving
+	static mode_t autosave_mode; ///< default to use for autosaves and network mode client temp saves
+
+	/**
+	 * Parses the version information from @p version_text to a version number.
+	 * @param[out] pak Pointer to a sufficiently large buffer (>= 64 chars); when the function returns,
+	 *                 @p pak contains the pakset extension string. May be NULL.
+	 * @retval 0   if an error occurred or the save cannot be loaded
+	 * @retval !=0 the save version; in this case we can read the save file.
+	 */
+	static uint32 int_version(const char *version_text, char *pak);
 
 	loadsave_t();
 	~loadsave_t();
@@ -108,8 +132,12 @@ public:
 	bool is_zipped() const { return mode&zipped; }
 	bool is_bzip2() const { return mode&bzip2; }
 	bool is_xml() const { return mode&xml; }
-	uint32 get_version() const { return version; }
 	const char *get_pak_extension() const { return pak_extension; }
+
+	uint32 get_version_int() const { return version; }
+	inline bool is_version_atleast(uint32 major, uint32 save_minor) const { return !is_version_less(major, save_minor); }
+	inline bool is_version_less(uint32 major, uint32 save_minor)    const { return version <  major * 1000U + save_minor; }
+	inline bool is_version_equal(uint32 major, uint32 save_minor)   const { return version == major * 1000U + save_minor; }
 
 	void rdwr_byte(sint8 &c);
 	void rdwr_byte(uint8 &c);

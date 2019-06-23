@@ -320,7 +320,7 @@ void settings_t::rdwr(loadsave_t *file)
 	// used to be called einstellungen_t - keep old name during save/load for compatibility
 	xml_tag_t e( file, "einstellungen_t" );
 
-	if(file->get_version() < 86000) {
+	if(file->is_version_less(86, 0)) {
 		uint32 dummy;
 
 		file->rdwr_long(size_x );
@@ -365,7 +365,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 		// industries
 		file->rdwr_long(factory_count );
-		if(file->get_version()<99018) {
+		if(file->is_version_less(99, 18)) {
 			uint32 dummy;	// was city chains
 			file->rdwr_long(dummy );
 		}
@@ -379,7 +379,7 @@ void settings_t::rdwr(loadsave_t *file)
 		file->rdwr_long(city_count );
 
 		// rest
-		if(file->get_version() < 101000) {
+		if(file->is_version_less(101, 0)) {
 			uint32 dummy;	// was scroll dir
 			file->rdwr_long(dummy );
 		}
@@ -387,7 +387,7 @@ void settings_t::rdwr(loadsave_t *file)
 		file->rdwr_long(show_pax );
 		sint32 dummy = groundwater;
 		file->rdwr_long(dummy );
-		if(file->get_version() < 99005) {
+		if(file->is_version_less(99, 5)) {
 			groundwater = (sint16)(dummy/16);
 		}
 		else {
@@ -396,13 +396,13 @@ void settings_t::rdwr(loadsave_t *file)
 		file->rdwr_double(max_mountain_height );
 		file->rdwr_double(map_roughness );
 
-		if(file->get_version() >= 86003) {
+		if(file->is_version_atleast(86, 3)) {
 			dummy = station_coverage_size;
 			file->rdwr_long(dummy );
 			station_coverage_size = (uint16)dummy;
 		}
 
-		if(file->get_version() >= 86006) {
+		if(file->is_version_atleast(86, 6)) {
 			// handle also size on y direction
 			file->rdwr_long(size_y );
 		}
@@ -410,7 +410,7 @@ void settings_t::rdwr(loadsave_t *file)
 			size_y = size_x;
 		}
 
-		if(file->get_version() >= 86011) {
+		if(file->is_version_atleast(86, 11)) {
 			// some more settings
 			file->rdwr_byte(allow_player_change );
 			file->rdwr_byte(use_timeline );
@@ -422,23 +422,23 @@ void settings_t::rdwr(loadsave_t *file)
 			starting_year = 1930;
 		}
 
-		if(file->get_version()>=88005) {
+		if(file->is_version_atleast(88, 5)) {
 			file->rdwr_short(bits_per_month );
 		}
 		else {
 			bits_per_month = 18;
 		}
 
-		if(file->get_version()>=89003) {
+		if(file->is_version_atleast(89, 3)) {
 			file->rdwr_bool(beginner_mode );
 		}
 		else {
 			beginner_mode = false;
 		}
-		if(  file->get_version()>120000  ){
+		if(  file->is_version_atleast(120, 1)  ){
 			file->rdwr_byte( just_in_time );
 		}
-		else if(  file->get_version()>=89004  ) {
+		else if(  file->is_version_atleast(89, 4)  ) {
 			bool compat = just_in_time > 0;
 			file->rdwr_bool( compat );
 			just_in_time = 0;
@@ -447,7 +447,7 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 		}
 		// rotation of the map with respect to the original value
-		if(file->get_version()>=99015) {
+		if(file->is_version_atleast(99, 15)) {
 			file->rdwr_byte(rotation );
 		}
 		else {
@@ -460,20 +460,20 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 
 		// climate borders
-		if(file->get_version()>=91000) {
-			if(  file->get_version()<120006  ) {
+		if(file->is_version_atleast(91, 0)) {
+			if(  file->is_version_less(120, 6)  ) {
 				climate_borders[arctic_climate] -= groundwater;
 			}
 			for(  int i=0;  i<8;  i++ ) {
 				file->rdwr_short(climate_borders[i] );
 			}
-			if(  file->get_version()<120006  ) {
+			if(  file->is_version_less(120, 6)  ) {
 				climate_borders[arctic_climate] += groundwater;
 			}
 			file->rdwr_short(winter_snowline );
 		}
 
-		if(  file->is_loading()  &&  file->get_version() < 112007  ) {
+		if(  file->is_loading()  &&  file->is_version_less(112, 7)  ) {
 			groundwater *= env_t::pak_height_conversion_factor;
 			for(  int i = 0;  i < 8;  i++  ) {
 				climate_borders[i] *= env_t::pak_height_conversion_factor;
@@ -483,7 +483,7 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 
 		// since vehicle will need realignment afterwards!
-		if(file->get_version()<=99018) {
+		if(file->is_version_less(99, 19)) {
 			vehicle_base_t::set_diagonal_multiplier( pak_diagonal_multiplier, 1024 );
 		}
 		else {
@@ -493,7 +493,7 @@ void settings_t::rdwr(loadsave_t *file)
 			// since vehicle will need realignment afterwards!
 		}
 
-		if(file->get_version()>=101000) {
+		if(file->is_version_atleast(101, 0)) {
 			// game mechanics
 			file->rdwr_short(origin_x );
 			file->rdwr_short(origin_y );
@@ -501,7 +501,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(passenger_factor );
 
 			// town grow stuff
-			if(file->get_version()>102001) {
+			if(file->is_version_atleast(102, 2)) {
 				file->rdwr_long(passenger_multiplier );
 				file->rdwr_long(mail_multiplier );
 				file->rdwr_long(goods_multiplier );
@@ -524,7 +524,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(stadtauto_duration );
 
 			file->rdwr_bool(numbered_stations );
-			if(  file->get_version()<=102002  ) {
+			if(  file->is_version_less(102, 3)  ) {
 				if(  file->is_loading()  ) {
 					num_city_roads = 1;
 					city_roads[0].intro = 0;
@@ -569,7 +569,7 @@ void settings_t::rdwr(loadsave_t *file)
 			for(  int i=0;  i<15;  i++  ) {
 				file->rdwr_bool(player_active[i] );
 				file->rdwr_byte(player_type[i] );
-				if(  file->get_version()<=102002  ) {
+				if(  file->is_version_less(102, 3)  ) {
 					char dummy[2] = { 0, 0 };
 					file->rdwr_str(dummy, lengthof(dummy) );
 				}
@@ -577,7 +577,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 			// cost section ...
 			file->rdwr_bool(freeplay );
-			if(  file->get_version()>102002  ) {
+			if(  file->is_version_atleast(102, 3)  ) {
 				file->rdwr_longlong(starting_money );
 				// these must be saved, since new player will get different amounts eventually
 				for(  int i=0;  i<10;  i++  ) {
@@ -623,7 +623,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_longlong(cst_depot_road );
 			file->rdwr_longlong(cst_depot_ship );
 			file->rdwr_longlong(cst_depot_air );
-			if(  file->get_version()<=102001  ) {
+			if(  file->is_version_less(102, 2)  ) {
 				sint64 dummy64 = 100000;
 				file->rdwr_longlong(dummy64 );
 				file->rdwr_longlong(dummy64 );
@@ -642,11 +642,11 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_longlong(cst_transformer );
 			file->rdwr_longlong(cst_maintain_transformer );
 
-			if(  file->get_version() > 120002  ) {
+			if(  file->is_version_atleast(120, 3)  ) {
 				file->rdwr_longlong(cst_make_public_months);
 			}
 
-			if(  file->get_version() > 120008  ) {
+			if(  file->is_version_atleast(120, 9)  ) {
 				file->rdwr_longlong(cst_multiply_merge_halt);
 			}
 
@@ -682,7 +682,7 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 		}
 
-		if(file->get_version()>101000) {
+		if(file->is_version_atleast(101, 1)) {
 			file->rdwr_bool( separate_halt_capacities );
 			file->rdwr_byte( pay_for_total_distance );
 
@@ -693,14 +693,14 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short( max_river_length );
 		}
 
-		if(file->get_version()>102000) {
+		if(file->is_version_atleast(102, 1)) {
 			file->rdwr_bool( avoid_overcrowding );
 		}
-		if(file->get_version()>102001) {
+		if(file->is_version_atleast(102, 2)) {
 			file->rdwr_bool( no_routing_over_overcrowding );
 			file->rdwr_bool( with_private_paks );
 		}
-		if(file->get_version()>=102003) {
+		if(file->is_version_atleast(102, 3)) {
 			// network stuff
 			random_counter = get_random_seed( );
 			file->rdwr_long( random_counter );
@@ -729,7 +729,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long( minimum_city_distance );
 			file->rdwr_long( industry_increase );
 		}
-		if(  file->get_version()>=110000  ) {
+		if(  file->is_version_atleast(110, 0)  ) {
 			if(  !env_t::networkmode  ||  env_t::server  ) {
 				server_frames_ahead = env_t::server_frames_ahead;
 			}
@@ -740,7 +740,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short( used_vehicle_reduction );
 		}
 
-		if(  file->get_version()>=110001  ) {
+		if(  file->is_version_atleast(110, 1)  ) {
 			file->rdwr_bool( default_player_color_random );
 			for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 				file->rdwr_byte( default_player_color[i][0] );
@@ -756,12 +756,12 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 		}
 
-		if(  file->get_version()>=110005  ) {
+		if(  file->is_version_atleast(110, 5)  ) {
 			file->rdwr_short(factory_arrival_periods);
 			file->rdwr_bool(factory_enforce_demand);
 		}
 
-		if(  file->get_version()>=110007  ) {
+		if(  file->is_version_atleast(110, 7)  ) {
 			for(  int i=0;  i<10;  i++  ) {
 				file->rdwr_short(locality_factor_per_year[i].year );
 				file->rdwr_long(locality_factor_per_year[i].factor );
@@ -772,63 +772,63 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long( way_toll_waycost_percentage );
 		}
 
-		if(  file->get_version()>=111002  ) {
+		if(  file->is_version_atleast(111, 2)  ) {
 			file->rdwr_long( bonus_basefactor );
 		}
 		else if(  file->is_loading()  ) {
 			bonus_basefactor = 125;
 		}
 
-		if(  file->get_version()>=111004  ) {
+		if(  file->is_version_atleast(111, 4)  ) {
 			file->rdwr_bool( allow_underground_transformers );
 		}
 
-		if(  file->get_version()>=111005  ) {
+		if(  file->is_version_atleast(111, 5)  ) {
 			file->rdwr_short( special_building_distance );
 		}
 
-		if(  file->get_version()>=112001  ) {
+		if(  file->is_version_atleast(112, 1)  ) {
 			file->rdwr_short( factory_maximum_intransit_percentage );
 		}
 
-		if(  file->get_version()>=112002  ) {
+		if(  file->is_version_atleast(112, 2)  ) {
 			file->rdwr_short( remove_dummy_player_months );
 			file->rdwr_short( unprotect_abandoned_player_months );
 		}
 
-		if(  file->get_version()>=112003  ) {
+		if(  file->is_version_atleast(112, 3)  ) {
 			file->rdwr_short( max_factory_spacing );
 			file->rdwr_short( max_factory_spacing_percentage );
 		}
-		if(  file->get_version()>=112008  ) {
+		if(  file->is_version_atleast(112, 8)  ) {
 			file->rdwr_longlong( cst_alter_climate );
 			file->rdwr_byte( way_height_clearance );
 		}
-		if(  file->get_version()>=120002  ) {
+		if(  file->is_version_atleast(120, 2)  ) {
 			file->rdwr_long( default_ai_construction_speed );
 		}
 		else if(  file->is_loading()  ) {
 			default_ai_construction_speed = env_t::default_ai_construction_speed;
 		}
-		if(  file->get_version() >=120002 ) {
+		if(  file->is_version_atleast(120, 2) ) {
 			file->rdwr_bool(lake);
 			file->rdwr_bool(no_trees);
 			file->rdwr_long( max_choose_route_steps );
 		}
-		if(  file->get_version() > 120003  ) {
+		if(  file->is_version_atleast(120, 4)  ) {
 			file->rdwr_bool(disable_make_way_public);
 		}
-		if(  file->get_version() > 120005  ) {
+		if(  file->is_version_atleast(120, 6)  ) {
 			file->rdwr_byte(max_rail_convoi_length);
 			file->rdwr_byte(max_road_convoi_length);
 			file->rdwr_byte(max_ship_convoi_length);
 			file->rdwr_byte(max_air_convoi_length);
 		}
-		if(  file->get_version() > 120006  ) {
+		if(  file->is_version_atleast(120, 7) ) {
 			file->rdwr_byte(world_maximum_height);
 			file->rdwr_byte(world_minimum_height);
 		}
-		if(  file->get_version() > 120008  ) {
+		if(  file->is_version_atleast(120, 9)  ) {
 			file->rdwr_long(allow_merge_distant_halt);
 		}
 		// otherwise the default values of the last one will be used
