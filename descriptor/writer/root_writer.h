@@ -32,6 +32,19 @@ class root_writer_t : public obj_writer_t {
 		void list(int argc, char* argv[]);
 		void copy(const char* name, int argc, char* argv[]);
 
+		/**
+		 * @brief Expands makeobj pre-processor stuff
+		 *
+		 * Dat files can contain 'minified' pre-processor-like features, this
+		 * function will run the dat on the tabfile reader and return write
+		 * its output to a $filename-expanded.dat file.
+		 *
+		 * @param name Filename of the output file or folder
+		 * @param argc Number of input files
+		 * @param argv List of input files' paths
+		 */
+		void expand_dat(const char* name, int argc, char* argv[]);
+
 		/* makes single files from a merged file */
 		void uncopy(const char* name);
 
