@@ -295,7 +295,10 @@ void env_t::rdwr(loadsave_t *file)
 
 	file->rdwr_bool( use_transparency_station_coverage );
 	file->rdwr_byte( station_coverage_show );
-	file->rdwr_byte( signalbox_coverage_show );
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 12) || file->get_extended_version() >= 15)
+	{
+		file->rdwr_byte(signalbox_coverage_show);
+	}
 	file->rdwr_long( show_names );
 
 	file->rdwr_bool( hide_with_transparency );

@@ -65,6 +65,9 @@ public:
 	// good by catg_index
 	static const goods_desc_t *get_info_catg_index(const uint8 catg_index);
 
+	// Number of classes for a given category index
+	static const uint8 get_classes_catg_index(const uint8 catg_index);
+
 	/*
 	 * allow to multiply all prices, 1000=1.0
 	 * used for the beginner mode
