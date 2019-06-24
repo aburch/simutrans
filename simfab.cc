@@ -2444,7 +2444,7 @@ void fabrik_t::verteile_waren(const uint32 product)
 
 					const bool needs_max_amount = needed >= ziel_fab->get_input()[w].max;
 
-					if (needs_max_amount && (needed_base_units == 0))
+					if ((needs_max_amount || ziel_fab->get_input()[w].menge <= 1) && needed_base_units == 0)
 					{
 						needed_base_units = 1;
 					}
