@@ -125,10 +125,9 @@ protected:
 	koord3d pos_next;
 
 	/**
-	 * Offsets for uphill/downhill
+	 * Offsets for uphill/downhill.
 	 * Have to be multiplied with -TILE_HEIGHT_STEP/2.
 	 * To obtain real z-offset, interpolate using steps, steps_next.
-	 * @author Hj. Malthaner
 	 */
 	uint8 zoff_start:4, zoff_end:4;
 
@@ -202,11 +201,11 @@ public:
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
 
 	/**
-	* Vehicle movement: calculates z-offset of vehicles on slopes,
-	* handles vehicles that are invisible in tunnels.
-	* @param gr vehicle is on this ground
-	* @note has to be called after loading to initialize z-offsets
-	*/
+	 * Vehicle movement: calculates z-offset of vehicles on slopes,
+	 * handles vehicles that are invisible in tunnels.
+	 * @param gr vehicle is on this ground
+	 * @note has to be called after loading to initialize z-offsets
+	 */
 	void calc_height(grund_t *gr = NULL);
 
 	virtual void rotate90();
@@ -472,11 +471,11 @@ public:
 	void play_sound() const;
 
 	/**
-	* Prepare vehicle for new ride.
-	* Sets route_index, pos_next, steps_next.
-	* If @p recalc is true this sets position and recalculates/resets movement parameters. a new route
-	* @author Hj. Malthaner
-	*/
+	 * Prepare vehicle for new ride.
+	 * Sets route_index, pos_next, steps_next.
+	 * If @p recalc is true this sets position and recalculates/resets movement parameters.
+	 * @author Hj. Malthaner
+	 */
 	void initialise_journey( uint16 start_route_index, bool recalc );
 
 	void set_direction_steps(sint16 value) { direction_steps = value; }
@@ -988,6 +987,12 @@ private:
 
 	// only used for  is_target() (do not need saving)
 	ribi_t::ribi approach_dir;
+
+	// Used to re-run the routing algorithm without
+	// checking runway length in order to display
+	// the correct error message.
+	bool ignore_runway_length = false; 
+
 #ifdef USE_DIFFERENT_WIND
 	static uint8 get_approach_ribi( koord3d start, koord3d ziel );
 #endif

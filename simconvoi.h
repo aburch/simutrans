@@ -1540,7 +1540,7 @@ public:
 	// @author: jamespetts
 	// Returns the average comfort of this convoy,
 	// taking into account any catering.
-	uint8 get_comfort(uint8 g_class) const;
+	uint8 get_comfort(uint8 g_class, bool check_reassigned = false) const;
 
 	/** The new revenue calculation method for per-leg
 	 * based revenue calculation, rather than per-hop

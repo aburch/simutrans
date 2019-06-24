@@ -236,9 +236,12 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 				for (uint i = 0; i < fac_desc->get_product_count(); i++) {
 					buf.append(" - ");
 					buf.append( translator::translate(fac_desc->get_product(i)->get_output_type()->get_name()) );
-					buf.append( " (" );
-					buf.append( translator::translate(fac_desc->get_product(i)->get_output_type()->get_catg_name()) );
-					buf.append( ")\n" );
+					if (fac_desc->get_product(i)->get_output_type()->get_catg() != 0) {
+						buf.append(" (");
+						buf.append(translator::translate(fac_desc->get_product(i)->get_output_type()->get_catg_name()));
+						buf.append(")");
+					}
+					buf.append( "\n");
 				}
 				buf.append("\n");
 			}
@@ -249,10 +252,13 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 				buf.append("\n");
 				for(  int i=0;  i<fac_desc->get_supplier_count();  i++  ) {
 					buf.append(" - ");
-					buf.append( translator::translate(fac_desc->get_supplier(i)->get_input_type()->get_name()) );
-					buf.append( " (" );
-					buf.append( translator::translate(fac_desc->get_supplier(i)->get_input_type()->get_catg_name()) );
-					buf.append( ")\n" );
+					buf.append(translator::translate(fac_desc->get_supplier(i)->get_input_type()->get_name()));
+					if (fac_desc->get_supplier(i)->get_input_type()->get_catg() != 0) {
+						buf.append(" (");
+						buf.append(translator::translate(fac_desc->get_supplier(i)->get_input_type()->get_catg_name()));
+						buf.append(")");
+					}
+					buf.append("\n");
 				}
 				buf.append("\n");
 			}

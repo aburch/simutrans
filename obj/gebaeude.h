@@ -254,6 +254,8 @@ public:
 
 	bool is_city_building() const;
 
+	bool is_signalbox() const;
+
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
@@ -264,6 +266,8 @@ public:
 	void get_class_percentage(cbuffer_t & buf) const;
 
 	void rdwr(loadsave_t *file);
+
+	void display_coverage_radius(bool display);
 
 	/**
 	 * Play animations of animated buildings.

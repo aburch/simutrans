@@ -88,6 +88,7 @@ bool env_t::hide_under_cursor;
 uint16 env_t::cursor_hide_range;
 bool env_t::use_transparency_station_coverage;
 uint8 env_t::station_coverage_show;
+uint8 env_t::signalbox_coverage_show;
 sint32 env_t::show_names;
 sint32 env_t::message_flags[4];
 uint32 env_t::water_animation;
@@ -177,6 +178,8 @@ void env_t::init()
 	/* station stuff */
 	use_transparency_station_coverage = true;
 	station_coverage_show = 0;
+
+	signalbox_coverage_show = 0;
 
 	show_names = 3;
 	player_finance_display_account = true;
@@ -292,6 +295,10 @@ void env_t::rdwr(loadsave_t *file)
 
 	file->rdwr_bool( use_transparency_station_coverage );
 	file->rdwr_byte( station_coverage_show );
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 12) || file->get_extended_version() >= 15)
+	{
+		file->rdwr_byte(signalbox_coverage_show);
+	}
 	file->rdwr_long( show_names );
 
 	file->rdwr_bool( hide_with_transparency );

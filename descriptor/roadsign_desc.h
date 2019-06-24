@@ -149,6 +149,9 @@ public:
 		return (flags&(SIGN_SIGNAL|SIGN_PRE_SIGNAL|SIGN_LONGBLOCK_SIGNAL))!=0;
 	}
 
+	// This is currently the definition of a station signal
+	inline bool is_station_signal() const {return is_longblock_signal() && (get_working_method() == time_interval || get_working_method() == time_interval_with_telegraph || get_working_method() == absolute_block);}
+
 	types get_flags() const { return (types)flags; }
 
 	sint8 get_offset_left() const { return offset_left; }

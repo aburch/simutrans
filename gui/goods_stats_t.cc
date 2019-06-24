@@ -97,6 +97,7 @@ void goods_stats_t::draw(scr_coord offset)
 		buf.clear();
 		buf.printf( "%s",	translator::translate(wtyp->get_catg_name()));
 		display_proportional_clip(offset.x + 220, yoff, buf, 	ALIGN_LEFT, SYSCOL_TEXT, 	true);
+		display_color_img(wtyp->get_catg_symbol(), offset.x + 205, yoff, 0, false, false);
 
 		buf.clear();
 		buf.printf("%dKg", wtyp->get_weight_per_unit());

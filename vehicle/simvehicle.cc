@@ -1366,6 +1366,7 @@ void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 			pos_next = r.at(route_index);
 		}
 		else {
+			// already at end of route
 			check_for_finish = true;
 		}
 		set_pos(r.at(start_route_index));
@@ -2986,12 +2987,17 @@ bool vehicle_t::check_access(const weg_t* way) const
 		return true;
 	}
 	const grund_t* const gr = welt->lookup(get_pos());
-	const weg_t* const current_way = gr ? gr->get_weg(get_waytype()) : NULL;
-	if(current_way == NULL)
+	const weg_t* const current_way = gr ? gr->get_weg(get_waytype()) : nullptr;
+	if(current_way == nullptr)
 	{
 		return true;
 	}
-	return way && (way->is_public_right_of_way() || way->get_owner() == NULL || way->get_owner() == get_owner() || get_owner() == NULL || way->get_owner() == current_way->get_owner() || way->get_owner()->allows_access_to(get_owner()->get_player_nr()));
+	if (desc->get_engine_type() == vehicle_desc_t::MAX_TRACTION_TYPE && desc->get_topspeed() == 8888)
+	{
+		// This is a wayobj checker - only allow on ways actually owned by the player or wholly unowned.
+		return way && (way->get_owner() == nullptr || (way->get_owner() == get_owner())); 
+	}
+	return way && (way->is_public_right_of_way() || way->get_owner() == nullptr || way->get_owner() == get_owner() || get_owner() == nullptr || way->get_owner() == current_way->get_owner() || way->get_owner()->allows_access_to(get_owner()->get_player_nr()));
 }
 
 
@@ -5986,7 +5992,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					// An ordinary signal on plain track
 					signal = gr->get_weg(get_waytype())->get_signal(ribi);
 					// But, do not select a station signal here, as this will lead to capricious behaviour depending on whether the train passes the track on which the station signal happens to be situated or not.
-					if(signal && signal->get_desc()->is_longblock_signal() && check_halt.is_bound() && (signal->get_desc()->get_working_method() == time_interval || signal->get_desc()->get_working_method() == time_interval_with_telegraph || signal->get_desc()->get_working_method() == absolute_block))
+					if(signal && check_halt.is_bound() && signal->get_desc()->is_station_signal())
 					{
 						signal = NULL;
 					}
@@ -8064,62 +8070,67 @@ bool air_vehicle_t:: is_target(const grund_t *gr,const grund_t *)
 			if(ribi_t::is_single(ribi)  &&  (ribi&approach_dir)!=0)
 			{
 				// pointing in our direction
-				return true;
-				/* BELOW CODE NOT WORKING
+				
 				// Check for length
 				const uint16 min_runway_length_meters = desc->get_minimum_runway_length();
-				const uint16 min_runway_length_tiles = min_runway_length_meters / welt->get_settings().get_meters_per_tile();
-				for(uint16 i = 0; i <= min_runway_length_tiles; i ++)
-				{
-					if (const ribi_t::ribi dir = ribi & approach_dir & ribi_t::nsew[i])
-					{
-						const grund_t* gr2 = welt->lookup_kartenboden(gr->get_pos().get_2d() + koord(dir));
-						if(gr2)
-						{
-							const weg_t* w2 = gr2->get_weg(air_wt);
-							if(
-								w2 &&
-								w2->get_desc()->get_styp() == 1 &&
-								ribi_t::is_single(w2->get_ribi_unmasked()) &&
-								(w2->get_ribi_unmasked() & approach_dir) != 0
-								)
-							{
-								// All is well - there is runway here.
-								continue;
-							}
-							else
-							{
-								goto bad_runway;
-							}
-						}
-						else
-						{
-							goto bad_runway;
-						}
-					}
+				const uint16 min_runway_length_tiles = ignore_runway_length ? 0 : min_runway_length_meters / welt->get_settings().get_meters_per_tile();
+				uint32 runway_length_tiles;
 
-					else
-					{
-bad_runway:
-						// Reached end of runway before iteration for total number of minimum runway tiles exhausted:
-						// runway too short.
-						success = 0;
-						break;
-					}
+				bool runway_36_18 = false;
+				bool runway_09_27 = false;
+				
+				switch (ribi)
+				{
+				case 1: // north
+				case 4: // south
+				case 5: // north-south
+				case 7: // north-south-east
+				case 13: // north-south-west
+					runway_36_18 = true;
+					break;
+				case 2: // east
+				case 8: // west
+				case 10: // east-west
+				case 11: // east-west-north
+				case 14: // east-west-south
+					runway_09_27 = true;
+					break;
+				case 15: // all
+					runway_36_18 = true;
+					runway_09_27 = true;
+					break;
+				default:
+					runway_36_18 = false;
+					runway_09_27 = false;
+					break;
 				}
 
-				//return true;
-				return success;*/
+				if (!runway_36_18 && !runway_09_27)
+				{
+					dbg->warning("bool air_vehicle_t:: is_target(const grund_t *gr,const grund_t *)", "Invalid runway directions for %u at %u, %u", cnv->self.get_id(), w->get_pos().x, w->get_pos().y);
+					return false;
+				}
+
+				if (runway_36_18)
+				{
+					runway_length_tiles = w->get_runway_length(true);
+				}
+				else
+				{
+					runway_length_tiles = w->get_runway_length(false);
+				}
+
+				return runway_length_tiles >= min_runway_length_tiles;
 			}
 		}
 	}
 	else {
 		// otherwise we just check, if we reached a free stop position of this halt
 		if(gr->get_halt()==target_halt  &&  target_halt->is_reservable(gr,cnv->self)) {
-			return 1;
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 
@@ -8314,8 +8325,7 @@ route_t::route_result_t air_vehicle_t::calc_route(koord3d start, koord3d ziel, s
 	target_halt = halthandle_t();	// no block reserved
 
 	takeoff = touchdown = search_for_stop = INVALID_INDEX;
-	const bool pre_result = calc_route_internal(welt, start, ziel, max_speed, cnv->get_highest_axle_load(), state, flying_height, target_height, runway_too_short, airport_too_close_to_the_edge, takeoff, touchdown, search_for_stop, *route);
-	const route_t::route_result_t result = pre_result ? route_t::valid_route : route_t::no_route;
+	const route_t::route_result_t result = calc_route_internal(welt, start, ziel, max_speed, cnv->get_highest_axle_load(), state, flying_height, target_height, runway_too_short, airport_too_close_to_the_edge, takeoff, touchdown, search_for_stop, *route);
 	cnv->set_next_stop_index(INVALID_INDEX);
 	return result;
 }
@@ -8413,9 +8423,21 @@ route_t::route_result_t air_vehicle_t::calc_route_internal(
 		approach_dir = ribi_t::northeast;	// reverse
 		DBG_MESSAGE("air_vehicle_t::calc_route()","search runway start near (%s)",start.get_str());
 #endif
-		if(!route.find_route( welt, start, this, max_speed, ribi_t::all, weight, cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, welt->get_settings().get_max_route_steps(), cnv->has_tall_vehicles())) {
-			DBG_MESSAGE("air_vehicle_t::calc_route()","failed");
-			return route_t::no_route;
+		if (!route.find_route(welt, start, this, max_speed, ribi_t::all, weight, cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, welt->get_settings().get_max_route_steps(), cnv->has_tall_vehicles()))
+		{
+			// There might be no route at all, or the runway might be too short. Test this case.
+			ignore_runway_length = true;
+			if (!route.find_route(welt, start, this, max_speed, ribi_t::all, weight, cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, welt->get_settings().get_max_route_steps(), cnv->has_tall_vehicles()))
+			{
+				DBG_MESSAGE("air_vehicle_t::calc_route()", "failed");
+				ignore_runway_length = false;
+				return route_t::no_route;
+			}
+			else
+			{
+				ignore_runway_length = false;
+				runway_too_short = true;
+			}
 		}
 		// save the route
 		search_start = route.back();
@@ -8800,7 +8822,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 			const int runway_state = block_reserver(takeoff,takeoff+100,true);
 			if(runway_state != 1)
 			{
-				// runway already blocked ...
+				// runway already blocked or too short
 				restart_speed = 0;
 
 				if(runway_state == 2)

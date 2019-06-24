@@ -412,13 +412,13 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 		non_identical_schedules[i] = 0;
 	}
 
-	// See here for an explanation of the below: http://stackoverflow.com/questions/29375797/copy-2d-array-using-memcpy/29375830#29375830
-	// This is not a true 2d array as the number of categories is not fixed.
-	waiting_times = new inthashtable_tpl<uint32, waiting_time_set >*[max_categories];
-	waiting_times[0] = new inthashtable_tpl<uint32, waiting_time_set >[max_categories * max_classes];
-	for (uint8 i = 1; i < max_categories; i++)
+	waiting_times.set_count(max_categories);
+	for (uint8 i = 0; i < max_categories; i++)
 	{
-		waiting_times[i] = waiting_times[i - 1] + max_classes;
+		for (uint j = 0; j < goods_manager_t::get_classes_catg_index(i); j++)
+		{
+			waiting_times[i].append(new waiting_time_map);
+		}
 	}
 
 #ifdef MULTI_THREAD
@@ -427,11 +427,13 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[1];
 #endif
 
-	// Knightly : create the actual connexion hash tables
-	connexions.set_count(max_categories * max_classes);
-	for (uint8 i = 0; i < (max_categories * max_classes); i++)
+	connexions.set_count(max_categories);
+	for (uint8 i = 0; i < max_categories; i++)
 	{
-		connexions[i] = new connexions_map(); 
+		for (uint j = 0; j < goods_manager_t::get_classes_catg_index(i); j++)
+		{
+			connexions[i].append(new connexions_map);
+		}
 	}
 	
 	do_alternative_seats_calculation = true;
@@ -487,21 +489,24 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 		non_identical_schedules[i] = 0;
 	}
 
-	// See here for an explanation of the below: http://stackoverflow.com/questions/29375797/copy-2d-array-using-memcpy/29375830#29375830
-	// This is not a true 2d array as the number of categories is not fixed.
-	waiting_times = new inthashtable_tpl<uint32, waiting_time_set >*[max_categories];
-	waiting_times[0] = new inthashtable_tpl<uint32, waiting_time_set >[max_categories * max_classes];
-	for (uint8 i = 1; i < max_categories; i++)
+
+	waiting_times.set_count(max_categories);
+	for (uint8 i = 0; i < max_categories; i++)
 	{
-	waiting_times[i] = waiting_times[i - 1] + max_classes;
+		for (uint j = 0; j < goods_manager_t::get_classes_catg_index(i); j++)
+		{
+			waiting_times[i].append(new waiting_time_map);
+		}
 	}
 
-	// Knightly : create the actual connexion hash tables
 	// TODO: Allow these to be saved when path explorer saving is introduced
-	connexions.set_count(max_categories * max_classes);
-	for (uint8 i = 0; i < (max_categories * max_classes); i++)
+	connexions.set_count(max_categories);
+	for (uint8 i = 0; i < max_categories; i++)
 	{
-		connexions[i] = new connexions_map(); 
+		for (uint j = 0; j < goods_manager_t::get_classes_catg_index(i); j++)
+		{
+			connexions[i].append(new connexions_map);
+		}
 	}
 
 	do_alternative_seats_calculation = true;
@@ -567,27 +572,15 @@ haltestelle_t::~haltestelle_t()
 		FOR(vector_tpl<halthandle_t>, & current_halt, alle_haltestellen)
 		{
 			// If it's not bound, or waiting_times isn't initialized, this could crash
-			if(current_halt.is_bound() && current_halt->waiting_times)
+			if(current_halt.is_bound() && !current_halt->waiting_times.empty())
 			{
 				for(uint8 category = 0; category < goods_manager_t::get_max_catg_index(); category++)
 				{
-					uint8 number_of_classes;
-					if (category == goods_manager_t::INDEX_PAS)
-					{
-						number_of_classes = goods_manager_t::passengers->get_number_of_classes();
-					}
-					else if (category == goods_manager_t::INDEX_MAIL)
-					{
-						number_of_classes = goods_manager_t::mail->get_number_of_classes();
-					}
-					else
-					{
-						number_of_classes = 1;
-					}
+					uint8 number_of_classes = goods_manager_t::get_classes_catg_index(category);
 
 					for (uint8 g_class = 0; g_class < number_of_classes; g_class++ )
 					{
-						current_halt->waiting_times[category][g_class].remove(self.get_id());
+						current_halt->waiting_times[category][g_class]->remove(self.get_id());
 					}
 				}
 			}
@@ -672,13 +665,11 @@ haltestelle_t::~haltestelle_t()
 	welt->await_path_explorer();
 #endif
 
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-	
 	if (!welt->is_destroying())
 	{
 		for (uint8 i = 0; i < max_categories; i++)
 		{
-			for (uint8 j = 0; j < max_classes; j++)
+			for (uint8 j = 0; j < goods_manager_t::get_classes_catg_index(i); j++)
 			{
 				reset_connexions(i, j);
 			}
@@ -686,15 +677,14 @@ haltestelle_t::~haltestelle_t()
 		}
 	}
 
-	// See here for an explanation of the below: http://stackoverflow.com/questions/29375797/copy-2d-array-using-memcpy/29375830#29375830
-	// This is not a true 2d array as the number of categories is not fixed.
-	delete[] waiting_times[0];
-	delete[] waiting_times;
-
-
-	for (uint8 i = 0; i < (max_categories * max_classes); i++)
+	FOR(vector_tpl<vector_tpl<waiting_time_map*>>, waiting_time_vector, waiting_times)
 	{
-		delete connexions[i];
+		clear_ptr_vector(waiting_time_vector);
+	}
+
+	FOR(vector_tpl<vector_tpl<connexions_map*>>, connexions_vector, connexions)
+	{
+		clear_ptr_vector(connexions_vector);
 	}
 
 	delete[] transferring_cargoes;
@@ -1466,23 +1456,11 @@ void haltestelle_t::new_month()
 	// If the waiting times have not been updated for too long, gradually re-set them; also increment the timing records.
 	for (uint8 category = 0; category < goods_manager_t::get_max_catg_index(); category++)
 	{
-		uint8 number_of_classes;
-		if (category == goods_manager_t::INDEX_PAS)
-		{
-			number_of_classes = goods_manager_t::passengers->get_number_of_classes();
-		}
-		else if (category == goods_manager_t::INDEX_MAIL)
-		{
-			number_of_classes = goods_manager_t::mail->get_number_of_classes();
-		}
-		else
-		{
-			number_of_classes = 1;
-		}
+		uint8 number_of_classes = goods_manager_t::get_classes_catg_index(category);
 
 		for (uint8 g_class = 0; g_class < number_of_classes; g_class++)
 		{
-			FOR(waiting_time_map, &iter, waiting_times[category][g_class])
+			FOR(waiting_time_map, iter, *waiting_times[category][g_class])
 			{
 				// If the waiting time data are stale (more than two months old), gradually flush them.
 				// After a month, values of the estimated waiting time are appended to the list of waiting times.
@@ -1504,7 +1482,7 @@ void haltestelle_t::new_month()
 					}
 					else if (iter.value.month > 2)
 					{
-						const uint32 max_iteration = average_waiting_time > average_waiting_time ? min(8, iter.value.month) : 1;
+						const uint32 max_iteration = average_waiting_time > estimated_waiting_time ? min(8, iter.value.month) : 1;
 						for (uint32 i = 0; i < max_iteration; i++)
 						{
 							iter.value.times.add_to_tail(estimated_waiting_time);
@@ -1562,7 +1540,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			if(fabrik_t* fab = fabrik_t::get_fab(ware.get_zielpos()))
 			{
 				// If there's no factory there, wait.
-				if ( fab_list.is_contained(fab) ) {
+				if ( fab_list.is_contained(fab) )	{
 					// If this factory is on our list of connected factories... we're there!
 
 					add_to_waiting_list(ware, calc_ready_time(ware, true));
@@ -1597,21 +1575,11 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 		// delete, if nothing connects here
 		if (new_warray->empty())
 		{
-			uint32 iterations = 1;
-			if (catg == goods_manager_t::INDEX_PAS)
-			{
-				iterations = goods_manager_t::passengers->get_number_of_classes();
-			}
-			else if (catg == goods_manager_t::INDEX_MAIL)
-			{
-				iterations = goods_manager_t::mail->get_number_of_classes();
-			}
-			
-			const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+			uint32 iterations = goods_manager_t::get_classes_catg_index(catg);
 
 			for (uint32 n = 0; n < iterations; n++)
 			{
-				if (get_connexions(catg, n, max_classes)->empty())
+				if (get_connexions(catg, n)->empty())
 				{
 					// no connections from here => delete
 					delete new_warray;
@@ -1769,13 +1737,14 @@ void haltestelle_t::remove_fabriken(fabrik_t *fab)
 }
 
 // TODO: Check whether this can be removed entirely.
+// It's 'used' in api_halt.cc
 sint8 haltestelle_t::is_connected(halthandle_t halt, uint8 catg_index) const
 {
 	if (!halt.is_bound()) {
 		return 0; // not connected
 	}
-	connexions_map* linka = connexions[catg_index];
-	connexions_map* linkb = halt->connexions[catg_index];
+	connexions_map* linka = connexions[catg_index][goods_manager_t::get_classes_catg_index(catg_index)-1];
+	connexions_map* linkb = halt->connexions[catg_index][goods_manager_t::get_classes_catg_index(catg_index)-1];
 	if (linka->empty() || linkb->empty()) {
 		return 0; // empty connections -> not connected
 	}
@@ -1784,10 +1753,10 @@ sint8 haltestelle_t::is_connected(halthandle_t halt, uint8 catg_index) const
 
 uint32 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category, uint8 g_class)
 {
-	inthashtable_tpl<uint32, haltestelle_t::waiting_time_set> * const wt = &waiting_times[category][g_class];
+	inthashtable_tpl<uint32, haltestelle_t::waiting_time_set> * const wt = waiting_times[category][g_class];
 	if(wt->is_contained((halt.get_id())))
 	{
-		fixed_list_tpl<uint32, 32> times = waiting_times[category][g_class].get(halt.get_id()).times;
+		fixed_list_tpl<uint32, 32> times = waiting_times[category][g_class]->get(halt.get_id()).times;
 		const uint32 count = times.get_count();
 		if(count > 0 && halt.is_bound())
 		{
@@ -1994,32 +1963,29 @@ uint32 haltestelle_t::calc_service_frequency(halthandle_t destination, uint8 cat
 
 linehandle_t haltestelle_t::get_preferred_line(halthandle_t transfer, uint8 category, uint8 g_class) const
 {
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-	if(connexions[(category * max_classes) + g_class]->empty() || connexions[(category * max_classes) + g_class]->get(transfer) == NULL)
+	if(connexions[category][g_class]->empty() || connexions[category][g_class]->get(transfer) == NULL)
 	{
 		linehandle_t dummy;
 		return dummy;
 	}
-	linehandle_t best_line = connexions[(category * max_classes) + g_class]->get(transfer)->best_line;
+	linehandle_t best_line = connexions[category][g_class]->get(transfer)->best_line;
 	return best_line;
 }
 
 convoihandle_t haltestelle_t::get_preferred_convoy(halthandle_t transfer, uint8 category, uint8 g_class) const
 {
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-	if(connexions[(category * max_classes) + g_class]->empty() || connexions[(category * max_classes) + g_class]->get(transfer) == NULL)
+	if(connexions[category][g_class]->empty() || connexions[category][g_class]->get(transfer) == NULL)
 	{
 		convoihandle_t dummy;
 		return dummy;
 	}
-	convoihandle_t best_convoy = connexions[(category * max_classes) + g_class]->get(transfer)->best_convoy;
+	convoihandle_t best_convoy = connexions[category][g_class]->get(transfer)->best_convoy;
 	return best_convoy;
 }
 
 void haltestelle_t::reset_connexions(uint8 category, uint8 g_class)
 {
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-	connexions[(category * max_classes) + g_class]->clear();
+	connexions[category][g_class]->clear();
 }
 
 // Added by		: Knightly
@@ -2383,7 +2349,6 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 {
 	bool skipped = false;
 	const uint8 catg_index = good_category->get_catg_index();
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 	vector_tpl<ware_t> *warray = cargo[catg_index];
 	if(warray && warray->get_count() > 0)
 	{
@@ -2674,7 +2639,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 					}
 
 					// Refuse to be overcrowded if alternative exists
-					connexion * const next_connexion = get_connexions(catg_index, g_class, max_classes)->get(check_halt);
+					connexion * const next_connexion = get_connexions(catg_index, g_class)->get(check_halt);
 					if(next_connexion  &&  overcrowded  &&  next_connexion->alternative_seats)
 					{
 						schedule->increment_index(&index, &reverse);
@@ -2740,11 +2705,10 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 	}
 
 	const uint8 catg_index = goods_manager_t::passengers->get_catg_index();
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 
-	for (uint8 i = 0; i < max_classes; i++)
+	for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
 	{
-		FOR(connexions_map, const& iter, *(connexions[(catg_index * max_classes) + i]))
+		FOR(connexions_map, const iter, *(connexions[catg_index][i]))
 		{
 			iter.value->alternative_seats = 0;
 		}
@@ -2780,7 +2744,7 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 				}
 				if (plan_halt.is_bound() && plan_halt->get_pax_enabled())
 				{
-					connexion * const next_connexion = connexions[(catg_index * max_classes) + i]->get(plan_halt);
+					connexion * const next_connexion = connexions[catg_index][i]->get(plan_halt);
 					if (next_connexion) 
 					{
 						next_connexion->alternative_seats += (*cnv_i)->get_free_seats();
@@ -4064,11 +4028,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				for (uint8 j = 0; j < class_count_this_catg; j++)
 				{
 					uint16 halts_count;
-					halts_count = waiting_times[i][j].get_count();
+					halts_count = waiting_times[i][j]->get_count();
 					file->rdwr_short(halts_count);
 					halthandle_t halt;
 
-					FOR(waiting_time_map, &iter, waiting_times[i][j])
+					FOR(waiting_time_map, iter, *waiting_times[i][j])
 					{
 						uint16 id = iter.key;
 
@@ -4161,7 +4125,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				for (uint8 j = 0; j < class_count_this_catg; j++)
 				{
 
-					waiting_times[i][j].clear();
+					waiting_times[i][j]->clear();
 					uint16 halts_count;
 					file->rdwr_short(halts_count);
 					uint16 id = 0;
@@ -4230,7 +4194,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 						// Discard the data if we have fewer classes than the savegame
 						if (j < actual_class_count_this_catg){
-							waiting_times[i][j].put(id, set);
+							waiting_times[i][j]->put(id, set);
 						}
 					}
 				}
@@ -4549,27 +4513,30 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				uint32 connexions_map_count = 0;
 				if (file->is_saving())
 				{
-					connexions_map_count = connexions[(catg_index * max_classes) + i]->get_count();
+					connexions_map_count = (i < goods_manager_t::get_classes_catg_index(catg_index) && connexions[catg_index][i]) ? connexions[catg_index][i]->get_count() : 0;
 					file->rdwr_long(connexions_map_count); 
 
-					FOR(connexions_map, const& iter, *(connexions[(catg_index * max_classes) + i]))
+					if (connexions_map_count > 0)
 					{
-						tmp_idx = iter.key.get_id();
+						FOR(connexions_map, const& iter, *(connexions[catg_index][i]))
+						{
+							tmp_idx = iter.key.get_id();
 
-						tmp_journey_time = iter.value->journey_time;
-						tmp_waiting_time = iter.value->waiting_time;
-						tmp_transfer_time = iter.value->transfer_time;
-						tmp_best_line_idx = iter.value->best_line.get_id();
-						tmp_best_convoy_idx = iter.value->best_convoy.get_id();
-						tmp_alternative_seats = iter.value->alternative_seats;
+							tmp_journey_time = iter.value->journey_time;
+							tmp_waiting_time = iter.value->waiting_time;
+							tmp_transfer_time = iter.value->transfer_time;
+							tmp_best_line_idx = iter.value->best_line.get_id();
+							tmp_best_convoy_idx = iter.value->best_convoy.get_id();
+							tmp_alternative_seats = iter.value->alternative_seats;
 
-						file->rdwr_short(tmp_idx);
-						file->rdwr_long(tmp_journey_time);
-						file->rdwr_long(tmp_waiting_time);
-						file->rdwr_long(tmp_transfer_time);
-						file->rdwr_short(tmp_best_convoy_idx);
-						file->rdwr_short(tmp_best_line_idx);
-						file->rdwr_short(tmp_alternative_seats);
+							file->rdwr_short(tmp_idx);
+							file->rdwr_long(tmp_journey_time);
+							file->rdwr_long(tmp_waiting_time);
+							file->rdwr_long(tmp_transfer_time);
+							file->rdwr_short(tmp_best_convoy_idx);
+							file->rdwr_short(tmp_best_line_idx);
+							file->rdwr_short(tmp_alternative_seats);
+						}
 					}
 				}
 
@@ -4588,17 +4555,20 @@ void haltestelle_t::rdwr(loadsave_t *file)
 							file->rdwr_short(tmp_best_line_idx);
 							file->rdwr_short(tmp_alternative_seats);
 							
-							connexion* tmp_cnx = new connexion();
+							if (i < goods_manager_t::get_classes_catg_index(catg_index))
+							{
+								connexion* tmp_cnx = new connexion();
 
-							tmp_halt.set_id(tmp_idx);
-							tmp_cnx->journey_time = tmp_journey_time;
-							tmp_cnx->waiting_time = tmp_waiting_time;
-							tmp_cnx->transfer_time = tmp_transfer_time;
-							tmp_cnx->best_line.set_id(tmp_best_line_idx);
-							tmp_cnx->best_convoy.set_id(tmp_best_convoy_idx);
-							tmp_cnx->alternative_seats = tmp_alternative_seats;
+								tmp_halt.set_id(tmp_idx);
+								tmp_cnx->journey_time = tmp_journey_time;
+								tmp_cnx->waiting_time = tmp_waiting_time;
+								tmp_cnx->transfer_time = tmp_transfer_time;
+								tmp_cnx->best_line.set_id(tmp_best_line_idx);
+								tmp_cnx->best_convoy.set_id(tmp_best_convoy_idx);
+								tmp_cnx->alternative_seats = tmp_alternative_seats;
 
-							connexions[(catg_index * max_classes) + i]->set(tmp_halt, tmp_cnx);
+								connexions[catg_index][i]->set(tmp_halt, tmp_cnx);
+							}
 						}
 					}
 				}
@@ -5051,8 +5021,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories, bool recalc_ne
 
 	signal_t* signal = gr->find<signal_t>();
 
-	if(signal && signal->get_desc()->is_longblock_signal() && (signal->get_desc()->get_working_method() == time_interval || signal->get_desc()->get_working_method() == time_interval_with_telegraph || signal->get_desc()->get_working_method() == absolute_block))
-	{
+	if (signal && signal->get_desc()->is_station_signal())		{
 		// Register station signals at the halt.
 		station_signals.append(gr->get_pos());
 	}
@@ -5749,7 +5718,7 @@ void haltestelle_t::add_waiting_time(uint32 time, halthandle_t halt, uint8 categ
 {
 	if(halt.is_bound())
 	{
-		const waiting_time_map *wt = &waiting_times[category][g_class];
+		const waiting_time_map *wt = waiting_times[category][g_class];
 
 		if(!wt->is_contained(halt.get_id()))
 		{
@@ -5757,12 +5726,12 @@ void haltestelle_t::add_waiting_time(uint32 time, halthandle_t halt, uint8 categ
 			waiting_time_set set;
 			set.times = tmp;
 			set.month = 0;
-			waiting_times[category][g_class].put(halt.get_id(), set);
+			waiting_times[category][g_class]->put(halt.get_id(), set);
 		}
-		waiting_times[category][g_class].access(halt.get_id())->times.add_to_tail(time);
+		waiting_times[category][g_class]->access(halt.get_id())->times.add_to_tail(time);
 		if(!do_not_reset_month)
 		{
-			waiting_times[category][g_class].access(halt.get_id())->month = 0;
+			waiting_times[category][g_class]->access(halt.get_id())->month = 0;
 		}
 	}
 }
@@ -5799,10 +5768,12 @@ void haltestelle_t::remove_line(linehandle_t line)
 	if(registered_convoys.empty() && registered_lines.empty() && !welt->is_destroying())
 	{
 		const uint8 max_categories = goods_manager_t::get_max_catg_index();
-		const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-		for(uint8 i = 0; i < max_categories *  max_classes; i++)
+		for(uint8 i = 0; i < max_categories; i++)
 		{
-			connexions[i]->clear();
+			for(uint8 j = 0; j < goods_manager_t::get_classes_catg_index(i); j++)
+			{
+				connexions[i][j]->clear();
+			}
 		}
 	}
 	update_service_intervals(line->get_schedule());
@@ -5824,10 +5795,12 @@ void haltestelle_t::remove_convoy(convoihandle_t convoy)
 	if(registered_convoys.empty() && registered_lines.empty() && !welt->is_destroying())
 	{
 		const uint8 max_categories = goods_manager_t::get_max_catg_index();
-		const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-		for(uint8 i = 0; i < max_categories * max_classes; i++)
+		for(uint8 i = 0; i < max_categories; i++)
 		{
-			connexions[i]->clear();
+			for(uint8 j = 0; j < goods_manager_t::get_classes_catg_index(i); j++)
+			{
+				connexions[i][j]->clear();
+			}
 		}
 	}
 	if (!welt->is_destroying())

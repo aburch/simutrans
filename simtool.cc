@@ -1632,9 +1632,9 @@ const char *tool_clear_reservation_t::work( player_t *player, koord3d pos )
 				continue;
 			}
 
-			// Does this way belong to the player using the tool?
+			// Does this way belong to the player using the tool? If not, does the vehicle reserving the way belong to the player using the tool?
 			// The public player can use it universally.
-			if(player->get_player_nr() != 1 && w->get_player_nr() != player->get_player_nr())
+			if(!player->is_public_service() && w->get_owner() != player && w->get_reserved_convoi()->get_owner() != player)
 			{
 				err = "Cannot edit block reservations on another player's way.";
 				continue;
@@ -3902,7 +3902,7 @@ bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, con
 		waytype = welt->lookup(start)->get_weg(wt)->get_waytype();
 	}
 	// get a default vehicle
-	vehicle_desc_t remover_desc(waytype, 500, vehicle_desc_t::diesel );
+	vehicle_desc_t remover_desc(waytype, 8888, vehicle_desc_t::MAX_TRACTION_TYPE );
 	vehicle_t* test_vehicle = vehicle_builder_t::build(start, player, NULL, &remover_desc);
 	test_vehicle->set_flag( obj_t::not_on_map );
 	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
@@ -6109,6 +6109,24 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 	}
 
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+
+	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % desc->get_all_layouts() : simrand(desc->get_all_layouts(), "const char *tool_build_factory_t::work");
+	koord size = desc->get_size(rotation);
+
+	const climate_bits cl = desc->get_allowed_climate_bits();
+	bool can_be_placed = welt->square_is_free( pos.get_2d(), desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
+
+	if(!can_be_placed  &&  size.y!=size.x  &&  desc->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#'))
+	{
+		// try other rotation too ...
+		rotation = (rotation+1) % desc->get_all_layouts();
+		can_be_placed = welt->square_is_free( pos.get_2d(), desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
+	}
+
+	if (!can_be_placed)
+	{
+		return "A signalbox cannot be built here.";
+	}
 
 	if(welt->is_within_limits(pos.get_2d()))
 	{

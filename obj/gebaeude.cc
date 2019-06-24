@@ -242,6 +242,11 @@ gebaeude_t::~gebaeude_t()
 		// avoid book-keeping
 	}
 
+	if (tile->get_desc()->is_signalbox())
+	{
+		display_coverage_radius(false);
+	}
+
 	stadt_t* our_city = get_stadt();
 	const bool has_city_defined = our_city != NULL;
 	if (!our_city /* && tile->get_desc()->get_type() == building_desc_t::townhall*/)
@@ -777,6 +782,11 @@ bool gebaeude_t::is_city_building() const
 	return tile->get_desc()->is_city_building();
 }
 
+bool gebaeude_t::is_signalbox() const
+{
+	return tile->get_desc()->is_signalbox();
+}
+
 
 void gebaeude_t::show_info()
 {
@@ -802,7 +812,6 @@ void gebaeude_t::show_info()
 		}
 	}
 }
-
 
 bool gebaeude_t::is_same_building(gebaeude_t* other) const
 {
@@ -1351,6 +1360,41 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 	}
 }
+
+void gebaeude_t::display_coverage_radius(bool display)
+{
+	gebaeude_t* gb = (gebaeude_t*)welt->get_active_player()->get_selected_signalbox();
+	if (gb)
+	{
+		if (is_signalbox())
+		{
+			uint32 const radius = gb->get_tile()->get_desc()->get_radius();
+			uint16 const cov = radius / welt->get_settings().get_meters_per_tile();
+			for (int x = 0; x <= cov * 2; x++)
+			{
+				for (int y = 0; y <= cov * 2; y++)
+				{
+					koord gb_pos = koord(gb->get_pos().get_2d());
+					koord check_pos = koord(gb_pos.x - cov + x, gb_pos.y - cov + y);
+					// Mark a 5x5 cross at center of circle
+					if (shortest_distance(gb_pos, check_pos) <= cov)
+					{
+						if ((check_pos.x == gb->get_pos().x && (check_pos.y >= gb->get_pos().y - 2 && check_pos.y <= gb->get_pos().y + 2)) || (check_pos.y == gb->get_pos().y && (check_pos.x >= gb->get_pos().x - 2 && check_pos.x <= gb->get_pos().x + 2)))
+						{
+							welt->mark_area(koord3d(check_pos, gb->get_pos().z), koord(1, 1), display);
+						}
+						// Mark the circle
+						if (shortest_distance(gb_pos, check_pos) >= cov)
+						{
+							welt->mark_area(koord3d(check_pos, gb->get_pos().z), koord(1, 1), display);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 
 void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 {

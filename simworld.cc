@@ -1805,12 +1805,11 @@ void karte_t::start_passengers_and_mail_threads()
 	simthread_barrier_wait(&step_passengers_and_mail_barrier);
 	passengers_and_mail_threads_working = true;
 }
+#endif //MULTI_THREAD
 
 void karte_t::await_passengers_and_mail_threads()
 {
-#ifndef MULTI_THREAD_PASSENGER_GENERATION
-	return;
-#endif
+#ifdef MULTI_THREAD_PASSENGER_GENERATION
 #ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
 	if (!env_t::networkmode)
 	{
@@ -1825,8 +1824,10 @@ void karte_t::await_passengers_and_mail_threads()
 #ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
 	}
 #endif
+#endif
 }
 
+#ifdef MULTI_THREAD
 void *step_convoys_threaded(void* args)
 {
 	karte_t* world = (karte_t*)args;
@@ -1894,19 +1895,20 @@ void karte_t::start_convoy_threads()
 	simthread_barrier_wait(&step_convoys_barrier_external);
 	convoy_threads_working = true;
 }
+#endif
 
 void karte_t::await_convoy_threads()
 {
-#ifndef MULTI_THREAD_CONVOYS
-	return;
-#endif
+#ifdef MULTI_THREAD_CONVOYS
 	if (convoy_threads_working)
 	{
 		simthread_barrier_wait(&step_convoys_barrier_external);
 		convoy_threads_working = false;
 	}
+#endif
 }
 
+#ifdef MULTI_THREAD
 void* path_explorer_threaded(void* args)
 {
 	path_explorer_t::allow_path_explorer_on_this_thread = true;
@@ -1923,7 +1925,7 @@ void* path_explorer_threaded(void* args)
 
 	return args;
 }
-
+#endif
 
 void karte_t::await_path_explorer()
 {
@@ -1947,6 +1949,7 @@ void karte_t::await_path_explorer()
 #endif
 }
 
+#ifdef MULTI_THREAD
 void karte_t::start_path_explorer()
 {
 #ifdef MULTI_THREAD_PATH_EXPLORER
@@ -2000,15 +2003,19 @@ void* unreserve_route_threaded(void* args)
 	pthread_exit(NULL);
 	return args;
 }
+#endif
 
 void karte_t::await_all_threads()
 {
+#ifdef MULTI_THREAD
 	// Call this when saving or doing disruptive stuff like map rotation.
 	await_convoy_threads();
 	await_path_explorer();
 	await_passengers_and_mail_threads();
+#endif
 }
 
+#ifdef MULTI_THREAD
 void karte_t::init_threads()
 {
 	marker_index = UINT32_MAX_VALUE;
@@ -6107,8 +6114,6 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 	route_status = initialising;
 
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-
 	for(uint32 trip_count = 0; trip_count < onward_trips && route_status != no_route && route_status != too_slow && route_status != overcrowded && route_status != destination_unavailable; trip_count ++)
 	{
 		// Permit onward journeys - but only for successful journeys
@@ -6510,7 +6515,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					// We cannot test this recursively within a reasonable time, so check only for the first stop.
 					if (pax.get_ziel() == pax.get_zwischenziel())
 					{
-						haltestelle_t::connexion* cnx = current_halt->get_connexions(wtyp->get_catg_index(), pax.get_class(), max_classes)->get(pax.get_zwischenziel());
+						haltestelle_t::connexion* cnx = current_halt->get_connexions(wtyp->get_catg_index(), pax.get_class())->get(pax.get_zwischenziel());
 			
 						if (current_halt->is_within_walking_distance_of(pax.get_zwischenziel()) && (!cnx || (!cnx->best_convoy.is_bound() && !cnx->best_line.is_bound()) || ((cnx->best_convoy.is_bound() && !cnx->best_convoy->carries_this_or_lower_class(pax.get_catg(), pax.get_class()) || (cnx->best_line.is_bound() && !cnx->best_line->carries_this_or_lower_class(pax.get_catg(), pax.get_class()))))))
 						{
@@ -7129,7 +7134,7 @@ no_route:
 #endif
 					{
 						halthandle_t test_halt = nearby_halt.halt;
-						haltestelle_t::connexion* cnx = test_halt->get_connexions(wtyp->get_catg_index(), return_passengers.get_class(), max_classes)->get(ret_halt);
+						haltestelle_t::connexion* cnx = test_halt->get_connexions(wtyp->get_catg_index(), return_passengers.get_class())->get(ret_halt);
 						const uint32 jt = cnx ? cnx->journey_time : UINT32_MAX_VALUE;
 
 						if (test_halt->is_enabled(wtyp) && (ret_halt == test_halt || jt < return_journey_time))
@@ -9999,6 +10004,14 @@ void karte_t::remove_player(uint8 player_nr)
 /* goes to next active player */
 void karte_t::switch_active_player(uint8 new_player, bool silent)
 {
+	// Disable the signalbox overlay on the ground
+	signalbox_t* old_selected = active_player->get_selected_signalbox();
+	gebaeude_t* gb_old = (gebaeude_t*)old_selected;
+	if (gb_old)
+	{
+		gb_old->display_coverage_radius(false);
+	}
+
 	for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		if(  players[(i+new_player)%MAX_PLAYER_COUNT] != NULL  ) {
 			new_player = (i+new_player)%MAX_PLAYER_COUNT;

@@ -154,19 +154,19 @@ roadsign_t::~roadsign_t()
 		if(gr) {
 			weg_t* weg = gr->get_weg(desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt);
 			if(weg) {
-				player_t* owner = get_owner();
-				if(owner)
-				{
-					// Remove maintenance cost
-					sint32 maint = get_desc()->get_maintenance();
-					player_t::add_maintenance(owner, -maint, weg->get_waytype());
-				}
 				if (!preview) {
+					player_t* owner = get_owner();
+					if(owner)
+					{
+						// Remove maintenance cost
+						sint32 maint = get_desc()->get_maintenance();
+						player_t::add_maintenance(owner, -maint, weg->get_waytype());
+					}
 					if (desc->is_single_way() || desc->is_signal_type()) {
 						// signal removed, remove direction mask
 						weg->set_ribi_maske(ribi_t::none);
 					}
-				weg->clear_sign_flag();
+					weg->clear_sign_flag();
 				}
 			}
 			else {
