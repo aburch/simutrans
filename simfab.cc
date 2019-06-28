@@ -1679,10 +1679,12 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 	}
 
-	has_calculated_intransit_percentages = false;
+	if (file->is_loading())
+	{
+		has_calculated_intransit_percentages = false;
+	}
 	// Cannot calculate intransit percentages here,
 	// as this can only be done when paths are available.
-
 }
 
 
