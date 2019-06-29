@@ -5,8 +5,10 @@
 #include "components/gui_fixedwidth_textarea.h"
 #include "../utils/cbuffer_t.h"
 
+class gui_textarea_with_embedded_element_t;
+
 /**
- * Base class to show fixed-width text with an embedded object.
+ * Base class to show window with fixed-width text with an embedded object.
  */
 class base_infowin_t : public gui_frame_t
 {
@@ -17,23 +19,19 @@ protected:
 	/// displays the text
 	gui_fixedwidth_textarea_t textarea;
 
-	/// the embedded component
-	gui_component_t *embedded;
+	// special container to handle text area with embedded component
+	gui_textarea_with_embedded_element_t *container;
 
 	/// recalcs size of text, adjusts window-size if necessary
 	void recalc_size();
 
-	/// sets position and size of @p other, adds it to the window
+	/// adds @p other as embedded element within textarea
 	void set_embedded(gui_component_t *other);
+
+	gui_component_t *get_embedded() const;
 
 public:
 	base_infowin_t(const char *name, const player_t *player=NULL);
-
-	void set_windowsize(scr_size size) OVERRIDE;
-
-	void draw(scr_coord pos, scr_size size) OVERRIDE;
-
-	bool infowin_event(const event_t *ev) OVERRIDE;
 };
 
 
