@@ -720,7 +720,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 
 		// restore windowsize
 		scr_size stored = get_stored_windowsize(&win);
-		if (stored != gui->get_windowsize()) {
+		if (stored != scr_size()  &&  stored != gui->get_windowsize()) {
 			// send tailored resize event
 			scr_size delta = stored - gui->get_windowsize();
 			event_t wev;

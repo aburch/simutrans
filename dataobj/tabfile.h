@@ -113,7 +113,7 @@ public:
 	 *
 	 * @author V. Meyer
 	 */
-	bool read(tabfileobj_t &objinfo);
+	bool read(tabfileobj_t &objinfo, FILE *fp = NULL);
 };
 
 

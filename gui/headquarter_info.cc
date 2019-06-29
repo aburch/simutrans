@@ -62,7 +62,7 @@ void headquarter_info_t::draw(scr_coord pos, scr_size size)
 {
 	update();
 
-	if (embedded == NULL) {
+	if (get_embedded() == NULL) {
 		// no headquarter anymore, destroy window
 		destroy_win(this);
 		return;

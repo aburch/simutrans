@@ -1,57 +1,81 @@
 #include "base_info.h"
 
+/**
+ * Auxiliary class to handle a gui_fixedwidth_textarea_t element with
+ * some embedded element.
+ */
+class gui_textarea_with_embedded_element_t : public gui_container_t
+{
+	gui_fixedwidth_textarea_t *textarea;
+	/// the embedded component
+	gui_component_t *embedded;
+public:
+	gui_textarea_with_embedded_element_t(gui_fixedwidth_textarea_t *ta)
+	{
+		textarea = ta;
+		add_component(textarea);
+		textarea->set_pos( scr_coord(0,0) );
+		embedded = NULL;
+	}
+
+	scr_size get_min_size() const OVERRIDE { return textarea->get_min_size(); }
+	scr_size get_max_size() const OVERRIDE { return textarea->get_max_size(); }
+
+	void set_size(scr_size size) OVERRIDE
+	{
+		gui_container_t::set_size(size);
+		textarea->set_size(size);
+		// align right
+		if (embedded) {
+			embedded->set_pos( scr_coord( size.w - embedded->get_size().w, 0) );
+		}
+	}
+
+	void set_embedded(gui_component_t *other)
+	{
+		if (embedded) {
+			remove_component(embedded);
+		}
+		embedded = other;
+		if (embedded) {
+			add_component(embedded);
+			textarea->set_reserved_area( embedded->get_size() + scr_size(D_H_SPACE,D_V_SPACE) );
+			// align right
+			if (embedded) {
+				embedded->set_pos( scr_coord( size.w - embedded->get_size().w, 0) );
+			}
+		}
+		else {
+			textarea->set_reserved_area( scr_size(0,0) );
+		}
+	}
+
+	gui_component_t *get_embedded() const { return embedded; }
+};
+
 
 base_infowin_t::base_infowin_t(const char *name, const player_t *player) :
 	gui_frame_t(name, player),
-	textarea(&buf, D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT),
-	embedded(NULL)
+	textarea(&buf, D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT)
 {
 	set_table_layout(1,0);
 
 	buf.clear();
 
-	add_component(&textarea);
+	container = new_component<gui_textarea_with_embedded_element_t>(&textarea);
 }
 
 
 void base_infowin_t::set_embedded(gui_component_t *other)
 {
-	if (embedded) {
-		remove_component(embedded);
-	}
-	// add the component to the gui-container,
-	// but set to invisible/not rigid,
-	// as it will spoil the size calculations otherwise
-	embedded = other;
-	add_component(embedded);
-
-	if (embedded) {
-		embedded->set_visible(false);
-		embedded->set_rigid(false);
-		textarea.set_reserved_area( embedded->get_size() + scr_size(D_H_SPACE,D_V_SPACE) );
-	}
-	else {
-		textarea.set_reserved_area( scr_size(0,0) );
-	}
+	container->set_embedded(other);
 	recalc_size();
 }
 
-void base_infowin_t::set_windowsize(scr_size size)
-{
-	gui_frame_t::set_windowsize(size);
 
-	if (embedded) {
-		// move it to right aligned
-		embedded->set_pos( scr_coord( size.w-D_MARGIN_LEFT-embedded->get_size().w, textarea.get_pos().y) );
-	}
-}
-
-void base_infowin_t::draw(scr_coord pos, scr_size size)
+gui_component_t *base_infowin_t::get_embedded() const
 {
-	gui_frame_t::draw(pos, size);
-	if (embedded) {
-		embedded->draw(pos + get_pos());
-	}
+	return container->get_embedded();
 }
 
 
@@ -59,17 +83,4 @@ void base_infowin_t::recalc_size()
 {
 	reset_min_windowsize();
 	set_windowsize(get_min_windowsize());
-}
-
-
-bool base_infowin_t::infowin_event(const event_t *ev)
-{
-	if (embedded) {
-		embedded->set_visible(true);
-	}
-	bool swallowed = gui_frame_t::infowin_event(ev);
-	if (embedded) {
-		embedded->set_visible(false);
-	}
-	return swallowed;
 }
