@@ -171,7 +171,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Standard 10, 0x300 - whether tall (for height restricted bridges)
 	// Standard 11, 0x400 - 16-bit sound 
 	// Standard 11, 0x500 - classes
-	// Standard 11, 0x600 - prev=any, fixed_coupling (currently only affect depot display)
+	// Standard 11, 0x600 - prev=any, cab_setting
 	version += 0x600;
 
 	node.write_uint16(fp, version, pos);
@@ -597,8 +597,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	uint8 has_front_cab = (obj.get_int("has_front_cab", 255));
 	uint8 has_rear_cab = (obj.get_int("has_rear_cab", 255));
-	uint8 coupling_constraint = 0; // constraint flags
-	coupling_constraint |= vehicle_desc_t::can_be_tail_prev | vehicle_desc_t::can_be_head_prev | vehicle_desc_t::can_be_tail_next | vehicle_desc_t::can_be_head_next;
+	uint8 basic_constraint_prev = 0;
+	uint8 basic_constraint_next = 0;
 
 	uint8 leader_count = 0;
 	bool can_be_at_front = true;
@@ -633,22 +633,33 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	} while (found);
 
 	// set front-end flags
-	if (has_front_cab==0 && can_be_at_front && bidirectional && !can_lead_from_rear) {
-		coupling_constraint &= ~vehicle_desc_t::can_be_head_prev; // brake van
-	}
-	if (!can_be_at_front || (!prev_has_none && leader_count)) {
-		coupling_constraint &= ~(vehicle_desc_t::can_be_head_prev | vehicle_desc_t::can_be_tail_prev);
-		if (can_lead_from_rear) {
-			coupling_constraint |= vehicle_desc_t::fixed_coupling_prev; // TODO: CLFR is deprecated, please set it to the correct value and remove this.
+	if (can_be_at_front) {
+		if (!leader_count) {
+			basic_constraint_prev |= vehicle_desc_t::can_be_tail | vehicle_desc_t::can_be_head; // no constraint setting = free
+		}
+		else if (prev_has_none) {
+			basic_constraint_prev |= vehicle_desc_t::can_be_tail;
+			if (!bidirectional) {
+				basic_constraint_prev |= vehicle_desc_t::can_be_head;
+			}
+			if (has_front_cab || can_lead_from_rear) {
+				basic_constraint_prev |= vehicle_desc_t::can_be_head;
+			}
+			if (leader_count == 1) {
+				basic_constraint_prev |= vehicle_desc_t::not_connectable;
+			}
+		}
+		else {
+			// intermediate side
+			if (leader_count == 1) {
+				basic_constraint_prev |= vehicle_desc_t::intermediate_unique;
+			}
 		}
 	}
-	if(leader_count == 1 && !prev_has_none){
-		coupling_constraint |= vehicle_desc_t::fixed_coupling_prev | vehicle_desc_t::permanent_coupling_prev;
-	}
 	// auto setting
-	if (has_front_cab == 255 && (coupling_constraint & vehicle_desc_t::can_be_head_prev)) {
-		if (bidirectional && !can_lead_from_rear && !power) {
-			coupling_constraint &= ~vehicle_desc_t::can_be_head_prev; // brake van
+	if (has_front_cab == 255) {
+		if (!power && bidirectional && !can_lead_from_rear) {
+			basic_constraint_prev &= ~vehicle_desc_t::can_be_head; // brake van
 		}
 	}
 
@@ -687,49 +698,34 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	} while (found);
 
 	// set back-end flags
-	if (has_rear_cab==0 && !can_lead_from_rear) {
-		coupling_constraint &= ~vehicle_desc_t::can_be_head_next; // brake van and one directional tail
-	}
-	if (!can_be_at_end || (!next_has_none && trailer_count)) {
-		coupling_constraint &= ~(vehicle_desc_t::can_be_head_next |vehicle_desc_t::can_be_tail_next);
-		if (can_lead_from_rear) {
-			coupling_constraint |= vehicle_desc_t::fixed_coupling_next; // TODO: CLFR is deprecated, please set it to the correct value and remove this.
+	if (can_be_at_end) {
+		if (!trailer_count) {
+			basic_constraint_next |= vehicle_desc_t::can_be_tail | vehicle_desc_t::can_be_head; // no constraint setting = free
+		}
+		else if (next_has_none) {
+			basic_constraint_next |= vehicle_desc_t::can_be_tail;
+			if (bidirectional) {
+				basic_constraint_next |= vehicle_desc_t::can_be_head;
+			}
+			if (trailer_count == 1) {
+				basic_constraint_next |= vehicle_desc_t::not_connectable;
+			}
+			if (has_rear_cab || can_lead_from_rear) {
+				basic_constraint_next |= vehicle_desc_t::can_be_head;
+			}
+		}
+		else {
+			// intermediate side
+			if (trailer_count == 1) {
+				basic_constraint_next |= vehicle_desc_t::intermediate_unique;
+			}
 		}
 	}
-	if (trailer_count == 1 && !next_has_none) {
-		coupling_constraint |= vehicle_desc_t::fixed_coupling_next | vehicle_desc_t::permanent_coupling_next;
-	}
-	// auto setting
-	if (has_rear_cab == 255 && (coupling_constraint & vehicle_desc_t::can_be_head_next)) {
+	// auto setting (support old dat)
+	if (has_rear_cab == 255 && (basic_constraint_next & vehicle_desc_t::can_be_head)) {
 		if ((bidirectional && !can_lead_from_rear && !power) || !bidirectional) {
-			coupling_constraint &= ~vehicle_desc_t::can_be_head_next; // brake van or single derection vehicle 
+			basic_constraint_next &= ~vehicle_desc_t::can_be_head; // brake van or single derection vehicle 
 		}
-	}
-
-	// set de-coupling outside depot flags
-	switch(obj.get_int("fixed_coupling[prev]", 255)) {
-		case 0:
-			if ((coupling_constraint & vehicle_desc_t::permanent_coupling_prev) == 0) {
-				coupling_constraint &= ~vehicle_desc_t::fixed_coupling_prev;
-			}
-			break;
-		case 1:
-			coupling_constraint |= vehicle_desc_t::fixed_coupling_prev;
-			break;
-		default:
-			break;
-	}
-	switch (obj.get_int("fixed_coupling[next]", 255)) {
-		case 0:
-			if ((coupling_constraint & vehicle_desc_t::permanent_coupling_next) == 0) {
-				coupling_constraint &= ~vehicle_desc_t::fixed_coupling_next;
-			}
-			break;
-		case 1:
-			coupling_constraint |= vehicle_desc_t::fixed_coupling_next;
-			break;
-		default:
-			break;
 	}
 
 	// Upgrades: these are the vehicle types to which this vehicle
@@ -889,7 +885,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	pos += sizeof(uint8);
 
 	// Can lead from rear: train can run backwards without turning around.
-	node.write_uint8(fp, can_lead_from_rear, pos);
+	//node.write_uint8(fp, can_lead_from_rear, pos);
+	node.write_uint8(fp, basic_constraint_prev, pos);
 	pos += sizeof(uint8);
 
 	// Passenger comfort rating - affects revenue on longer journies.
@@ -1029,7 +1026,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	pos += sizeof(uint16);
 
 	// can_be_at_rear was integrated into one variable
-	node.write_uint8(fp, coupling_constraint, pos);
+	node.write_uint8(fp, basic_constraint_next, pos);
 	pos += sizeof(uint8);
 
 	// Obsolescence. Zeros indicate that simuconf.tab values should be used.
@@ -1105,3 +1102,4 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	node.write(fp);
 }
+

@@ -105,17 +105,25 @@ public:
 		}
 	}
 
+	// Will be removed later
 	enum veh_constraint_t {
 		can_be_head_prev = 1,
 		can_be_head_next = 2,
 		can_be_tail_prev = 4,
 		can_be_tail_next = 8,
 		fixed_coupling_prev = 16,
-		fixed_coupling_next = 32,
-		permanent_coupling_prev = 64,
-		permanent_coupling_next = 128
+		fixed_coupling_next = 32
 	};
 
+	enum veh_basic_constraint_t {
+		cannot_be_at_end = 0,
+		can_be_head  = 1,
+		can_be_tail  = 2,
+		not_connectable = 4,
+		intermediate_unique = 8,
+		only_at_front =(can_be_head|not_connectable),
+		only_at_end = (can_be_tail|not_connectable) // this type always be bidirectional=0
+	};
 
 private:
 	uint32 upgrade_price;			// Price if this vehicle is bought as an upgrade, not a new vehicle.
@@ -149,9 +157,10 @@ private:
 	uint8 catering_level;			// The level of catering. 0 for no catering. Higher numbers for better catering.
 
 	bool bidirectional;				// Whether must always travel in one direction
-	bool can_lead_from_rear;		// Whether vehicle can lead a convoy when it is at the rear.            Ranran: This parameter is obsolete and is now included in coupling_constraint.
-	bool can_be_at_rear;			// Whether the vehicle may be at the rear of a convoy (default = true). Ranran: It is used to read the old pak, and the flag takes over to the coupling_constraint.
-	uint8 coupling_constraint;		// Constraints on both sides. Values defined in veh_constraint_t. (@Ranran, March 2019)
+	bool can_lead_from_rear;		// Whether vehicle can lead a convoy when it is at the rear.            Ranran: This parameter is obsolete and is now included in basic_constraint_next.
+	bool can_be_at_rear;			// Whether the vehicle may be at the rear of a convoy (default = true). Ranran: It is used to read the old pak, and the flag takes over to the basic_constraint_next.
+	uint8 basic_constraint_prev;
+	uint8 basic_constraint_next;
 
 	uint8 *comfort;					// How comfortable that a vehicle is for passengers. (Pointer to an array of comfort levels per class)
 
@@ -532,9 +541,12 @@ public:
 	 */
 	bool can_lead(const vehicle_desc_t *next_veh) const
 	{
+		if (basic_constraint_next & not_connectable && next_veh) {
+			return false;
+		}
 		if(trailer_count == 0) 
 		{
-			if(coupling_constraint & can_be_tail_next)
+			if(basic_constraint_next & can_be_tail)
 			{
 				return true;
 			}
@@ -562,8 +574,11 @@ public:
 	 */
 	bool can_follow(const vehicle_desc_t *prev_veh) const
 	{
+		if (basic_constraint_prev & not_connectable && prev_veh) {
+			return false;
+		}
 		if(  leader_count==0  ) {
-			if (coupling_constraint & can_be_head_prev)
+			if (basic_constraint_prev & can_be_head)
 			{
 				return true;
 			}
@@ -766,7 +781,7 @@ public:
 	// Returns whether one side of the vehicle can be "head".
 	// Note: Normally the front side is checked, but it is necessary to check the rear side when vehicle is reversed or before reversing convoy. (Ranran)
 	bool get_can_be_at_front(bool chk_rear_end) const {
-		if (chk_rear_end ? coupling_constraint & can_be_head_next : coupling_constraint & can_be_head_prev) {
+		if (chk_rear_end ? basic_constraint_next & can_be_head_next : basic_constraint_next & can_be_head_prev) {
 			return true;
 		}
 		return false;
@@ -774,15 +789,17 @@ public:
 	// Returns whether one side of the vehicle can be "tail end".
 	// Note: Normally the rear side is checked, but it is necessary to check the front side when vehicle is reversed or before reversing convoy. (Ranran)
 	bool get_can_be_at_rear(bool chk_front_end) const {
-		if (chk_front_end ? coupling_constraint & can_be_head_prev || coupling_constraint & can_be_tail_prev
-			: coupling_constraint & can_be_head_next || coupling_constraint & can_be_tail_next)
+		if (chk_front_end ? basic_constraint_next & can_be_head_prev || basic_constraint_next & can_be_tail_prev
+			: basic_constraint_next & can_be_head_next || basic_constraint_next & can_be_tail_next)
 		{
 			return true;
 		}
 		return false;
 	}
 	// return basic coupling constraint flags
-	uint8 get_coupling_constraint() const { return coupling_constraint; }
+	uint8 get_basic_constraint_next() const { return basic_constraint_next; }
+	uint8 get_basic_constraint_prev() const { return basic_constraint_prev; }
+	uint8 get_coupling_constraint() const { return basic_constraint_next; } // Will be removed later
 
 	float32e8_t get_air_resistance() const { return air_resistance; }
 	float32e8_t get_rolling_resistance() const { return rolling_resistance; }
