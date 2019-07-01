@@ -684,7 +684,6 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	// Convert flag
-
 	if (desc->can_lead_from_rear == true && desc->bidirectional == false){
 		desc->bidirectional = true;
 	}
@@ -695,10 +694,12 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
 		}
 		else {
+			if (desc->bidirectional) {
+				desc->basic_constraint_prev |= vehicle_desc_t::can_be_tail;
+			}
+			if ((desc->bidirectional && desc->power) || desc->can_lead_from_rear || !desc->bidirectional) {
 				desc->basic_constraint_prev |= vehicle_desc_t::can_be_head;
-				if ((desc->bidirectional && desc->power) || desc->can_lead_from_rear) {
-					desc->basic_constraint_prev |= vehicle_desc_t::can_be_tail;
-				}
+			}
 		}
 
 		if (desc->trailer_count) {
