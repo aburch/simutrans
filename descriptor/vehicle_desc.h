@@ -105,24 +105,15 @@ public:
 		}
 	}
 
-	// Will be removed later
-	enum veh_constraint_t {
-		can_be_head_prev = 1,
-		can_be_head_next = 2,
-		can_be_tail_prev = 4,
-		can_be_tail_next = 8,
-		fixed_coupling_prev = 16,
-		fixed_coupling_next = 32
-	};
-
 	enum veh_basic_constraint_t {
 		cannot_be_at_end = 0,
 		can_be_head  = 1,
 		can_be_tail  = 2,
-		not_connectable = 4,
+		unconnectable = 4,
 		intermediate_unique = 8,
-		only_at_front =(can_be_head|not_connectable),
-		only_at_end = (can_be_tail|not_connectable) // this type always be bidirectional=0
+		unknown_constraint = 128,
+		only_at_front =(can_be_head|unconnectable),
+		only_at_end = (can_be_tail|unconnectable) // this type always be bidirectional=0
 	};
 
 private:
@@ -541,7 +532,7 @@ public:
 	 */
 	bool can_lead(const vehicle_desc_t *next_veh) const
 	{
-		if (basic_constraint_next & not_connectable && next_veh) {
+		if (basic_constraint_next & unconnectable && next_veh) {
 			return false;
 		}
 		if(trailer_count == 0) 
@@ -574,7 +565,7 @@ public:
 	 */
 	bool can_follow(const vehicle_desc_t *prev_veh) const
 	{
-		if (basic_constraint_prev & not_connectable && prev_veh) {
+		if (basic_constraint_prev & unconnectable && prev_veh) {
 			return false;
 		}
 		if(  leader_count==0  ) {
@@ -781,7 +772,7 @@ public:
 	// Returns whether one side of the vehicle can be "head".
 	// Note: Normally the front side is checked, but it is necessary to check the rear side when vehicle is reversed or before reversing convoy. (Ranran)
 	bool get_can_be_at_front(bool chk_rear_end) const {
-		if (chk_rear_end ? basic_constraint_next & can_be_head_next : basic_constraint_next & can_be_head_prev) {
+		if (chk_rear_end ? basic_constraint_next & can_be_head : basic_constraint_prev & can_be_head) {
 			return true;
 		}
 		return false;
@@ -789,8 +780,8 @@ public:
 	// Returns whether one side of the vehicle can be "tail end".
 	// Note: Normally the rear side is checked, but it is necessary to check the front side when vehicle is reversed or before reversing convoy. (Ranran)
 	bool get_can_be_at_rear(bool chk_front_end) const {
-		if (chk_front_end ? basic_constraint_next & can_be_head_prev || basic_constraint_next & can_be_tail_prev
-			: basic_constraint_next & can_be_head_next || basic_constraint_next & can_be_tail_next)
+		if (chk_front_end ? basic_constraint_prev & can_be_head || basic_constraint_prev & can_be_tail
+			: basic_constraint_next & can_be_head || basic_constraint_next & can_be_tail)
 		{
 			return true;
 		}

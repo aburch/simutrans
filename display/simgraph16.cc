@@ -3947,7 +3947,7 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 	}
 }
 
-void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVAL color, bool dirty, uint8 basic_constraint_flags, uint8 interactivity, bool is_rightside, bool reversed  CLIP_NUM_DEF)
+void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVAL color, bool dirty, uint8 basic_constraint_flags, uint8 interactivity, bool is_rightside  CLIP_NUM_DEF)
 {
 	uint8 h = VEHICLE_BAR_HEIGHT;
 	uint8 width = (w + 1) * 0.9;
@@ -3958,7 +3958,10 @@ void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVA
 		display_fillbox_wh_clip_rgb(xp, yp, width - h / 2, h, color, dirty);
 
 		// draw right end >
-		if (reversed ? basic_constraint_flags & vehicle_desc_t::can_be_tail_prev : basic_constraint_flags & vehicle_desc_t::can_be_tail_next) {
+		if (basic_constraint_flags & vehicle_desc_t::unknown_constraint) {
+			display_fillbox_wh_clip_rgb(xp + width - h / 2, yp, h / 2, h, color, dirty);
+		}
+		else if (basic_constraint_flags & vehicle_desc_t::can_be_tail) {
 			display_pixel(xp + width - 1, yp+h/2, color);
 			// draw "tail" shape
 			if ((interactivity & BIDIRECTIONAL) == 0) {
@@ -3968,7 +3971,7 @@ void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVA
 					display_vline_wh_clip_rgb(xp + width - 1 - i, yp, h / 2 + i + 1, color, dirty);
 				}
 			}
-			else if (reversed ? basic_constraint_flags & vehicle_desc_t::can_be_head_prev : basic_constraint_flags & vehicle_desc_t::can_be_head_next) {
+			else if (basic_constraint_flags & vehicle_desc_t::can_be_head) {
 				// cab end
 				for (int i = 1; i < h / 2; ++i) {
 					display_vline_wh_clip_rgb(xp + width -1 - i, yp + h / 2 - i, i * 2 + 1, color, dirty);
@@ -3993,10 +3996,10 @@ void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVA
 		// un-powerd vehicle
 		if (!(interactivity & HAS_POWER)) {
 			display_blend_wh(xp, yp + 1, width - h / 2, h - 2, COL_WHITE, 30);
-			if ((interactivity & BIDIRECTIONAL)==0 && basic_constraint_flags & vehicle_desc_t::can_be_tail_next) {
+			if ((interactivity & BIDIRECTIONAL)==0 && basic_constraint_flags & vehicle_desc_t::can_be_tail) {
 				display_pixel(xp + width - h / 2 - 1, yp + h - 2, color);
 			}
-			if (reversed ? basic_constraint_flags & vehicle_desc_t::can_be_head_prev : basic_constraint_flags & vehicle_desc_t::can_be_head_next) {
+			if (basic_constraint_flags & vehicle_desc_t::can_be_head) {
 				display_pixel(xp + width - h / 2 - 1, yp + h - 2, color);
 				if (interactivity & BIDIRECTIONAL) {
 					display_pixel(xp + width - h / 2 - 1, yp + 1, color);
@@ -4005,20 +4008,23 @@ void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVA
 		}
 
 		// draw the "coupler" line
-		if (reversed ? basic_constraint_flags & vehicle_desc_t::fixed_coupling_prev : basic_constraint_flags & vehicle_desc_t::fixed_coupling_next) {
-			display_blend_wh(xp + width - 1, yp + h/2-1, 3, h/2, COL_BLACK, 66);
-		}
+		//if (reversed ? basic_constraint_flags & vehicle_desc_t::fixed_coupling_prev : basic_constraint_flags & vehicle_desc_t::fixed_coupling_next) {
+		//	display_blend_wh(xp + width - 1, yp + h/2-1, 3, h/2, COL_BLACK, 66);
+		//}
 		// permanent coupling |-
-		if (reversed ? basic_constraint_flags & vehicle_desc_t::permanent_coupling_prev : basic_constraint_flags & vehicle_desc_t::permanent_coupling_next) {
-			display_vline_wh_clip(xp + width - 1, yp, h, COL_GREY1, dirty);
-		}
+		//if (reversed ? basic_constraint_flags & vehicle_desc_t::permanent_coupling_prev : basic_constraint_flags & vehicle_desc_t::permanent_coupling_next) {
+		//	display_vline_wh_clip(xp + width - 1, yp, h, COL_GREY1, dirty);
+		//}
 	}
 	else {
 		// left side of the bar - check only [prev] parameter
 		display_fillbox_wh_clip_rgb(xp + margin_left + h/2, yp, width - h/2, h, color, dirty);
 
 		// < draw left end's base color
-		if (reversed ? basic_constraint_flags & vehicle_desc_t::can_be_tail_next : basic_constraint_flags & vehicle_desc_t::can_be_tail_prev) {
+		if (basic_constraint_flags & vehicle_desc_t::unknown_constraint) {
+			display_fillbox_wh_clip_rgb(xp + margin_left, yp, h / 2, h, color, dirty);
+		}
+		else if (basic_constraint_flags & vehicle_desc_t::can_be_head) {
 			display_pixel(xp + margin_left, yp + h / 2, color);
 			// draw "head" shape
 			if((interactivity & BIDIRECTIONAL)==0){
@@ -4028,22 +4034,21 @@ void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVA
 					display_vline_wh_clip_rgb(xp + margin_left + i, yp + h / 2 - i, h/2 + i + 1, color, dirty);
 				}
 			}
-			else if (reversed ? basic_constraint_flags & vehicle_desc_t::can_be_head_next : basic_constraint_flags & vehicle_desc_t::can_be_head_prev) {
+			else {
 				// cab end
 				for (int i = 1; i < h/2; ++i) {
 					display_vline_wh_clip_rgb(xp + margin_left + i, yp + h/2 - i, i*2+1, color, dirty);
 				}
 			}
-			
-			else {
-				// bidirectional -> tail end
-				display_vline_wh_clip_rgb(xp + margin_left, yp+1, h-2, color, dirty);
-				for (int i = 1; i < h/2; ++i) {
-					display_vline_wh_clip_rgb(xp + margin_left + i, yp, h, color, dirty);
-				}
+		}
+		else if (basic_constraint_flags & vehicle_desc_t::can_be_tail) {
+			// bidirectional -> tail end
+			display_vline_wh_clip_rgb(xp + margin_left, yp+1, h-2, color, dirty);
+			for (int i = 1; i < h/2; ++i) {
+				display_vline_wh_clip_rgb(xp + margin_left + i, yp, h, color, dirty);
 			}
 		}
-		else{
+		else {
 			// intermediate end
 			display_pixel(xp+margin_left, yp, color);
 			display_pixel(xp+margin_left, yp+h-1, color);
@@ -4054,7 +4059,7 @@ void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVA
 		// un-powerd vehicle
 		if (!(interactivity & HAS_POWER)) {
 			display_blend_wh(xp + margin_left + h/2, yp + 1, width - h / 2, h - 2, COL_WHITE, 30);
-			if (reversed ? basic_constraint_flags & vehicle_desc_t::can_be_head_next : basic_constraint_flags & vehicle_desc_t::can_be_head_prev) {
+			if (basic_constraint_flags & vehicle_desc_t::can_be_head) {
 				display_pixel(xp + margin_left + h / 2, yp + 1, color);
 				if(interactivity & BIDIRECTIONAL){
 					display_pixel(xp + margin_left + h / 2, yp + h - 2, color);
@@ -4063,13 +4068,13 @@ void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVA
 		}
 
 		// draw the "coupler" line
-		if (reversed ? basic_constraint_flags & vehicle_desc_t::fixed_coupling_next : basic_constraint_flags & vehicle_desc_t::fixed_coupling_prev) {
-			display_blend_wh(xp + margin_left - 2, yp + h / 2 -1, 3, h/2, COL_BLACK, 66);
-		}
+		//if (reversed ? basic_constraint_flags & vehicle_desc_t::fixed_coupling_next : basic_constraint_flags & vehicle_desc_t::fixed_coupling_prev) {
+		//	display_blend_wh(xp + margin_left - 2, yp + h / 2 -1, 3, h/2, COL_BLACK, 66);
+		//}
 		// -| permanent coupling
-		if (reversed ? basic_constraint_flags & vehicle_desc_t::permanent_coupling_next : basic_constraint_flags & vehicle_desc_t::permanent_coupling_prev) {
-			display_vline_wh_clip(xp + margin_left, yp, h, COL_GREY1, dirty);
-		}
+		//if (reversed ? basic_constraint_flags & vehicle_desc_t::permanent_coupling_next : basic_constraint_flags & vehicle_desc_t::permanent_coupling_prev) {
+		//	display_vline_wh_clip(xp + margin_left, yp, h, COL_GREY1, dirty);
+		//}
 	}
 }
 

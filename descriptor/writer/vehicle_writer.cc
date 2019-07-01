@@ -646,7 +646,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 				basic_constraint_prev |= vehicle_desc_t::can_be_head;
 			}
 			if (leader_count == 1) {
-				basic_constraint_prev |= vehicle_desc_t::not_connectable;
+				basic_constraint_prev |= vehicle_desc_t::unconnectable;
 			}
 		}
 		else {
@@ -708,7 +708,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 				basic_constraint_next |= vehicle_desc_t::can_be_head;
 			}
 			if (trailer_count == 1) {
-				basic_constraint_next |= vehicle_desc_t::not_connectable;
+				basic_constraint_next |= vehicle_desc_t::unconnectable;
 			}
 			if (has_rear_cab || can_lead_from_rear) {
 				basic_constraint_next |= vehicle_desc_t::can_be_head;

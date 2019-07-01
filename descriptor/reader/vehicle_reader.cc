@@ -478,7 +478,14 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				way_constraints.set_prohibitive(decode_uint8(p));
 				desc->catering_level = decode_uint8(p);
 				desc->bidirectional = decode_uint8(p);
-				desc->can_lead_from_rear = decode_uint8(p);
+				if (extended && extended_version >= 5)
+				{
+					desc->basic_constraint_prev = decode_uint8(p);
+				}
+				else {
+					desc->can_lead_from_rear = decode_uint8(p);
+					convert_coupling_constraint = true;
+				}
 				for (uint32 i = 0; i < desc->classes; i++)
 				{
 					desc->comfort[i] = decode_uint8(p);
@@ -501,7 +508,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->air_resistance = air_resistance_hundreds * float32e8_t::centi;
 				if (extended && extended_version >= 5)
 				{
-					desc->coupling_constraint = decode_uint8(p);
+					desc->basic_constraint_next = decode_uint8(p);
 				}
 				else
 				{
@@ -683,21 +690,28 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	// give old vehicle pak a tentative value.
 	if (convert_coupling_constraint) {
-		desc->coupling_constraint = 0;
-		desc->coupling_constraint |= vehicle_desc_t::can_be_head_prev | vehicle_desc_t::can_be_head_next | vehicle_desc_t::can_be_tail_prev | vehicle_desc_t::can_be_tail_next;
-		if (desc->can_be_at_rear == false) {
-			desc->coupling_constraint &= ~(vehicle_desc_t::can_be_head_next | vehicle_desc_t::can_be_tail_next);
-			if (desc->can_lead_from_rear) {
-				desc->coupling_constraint |= vehicle_desc_t::fixed_coupling_next;
-			}
+		desc->basic_constraint_prev = desc->basic_constraint_next = 0;
+		if (desc->leader_count) {
+				desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
 		}
-		if (desc->bidirectional && !desc->can_lead_from_rear) {
-			if (!desc->power) {
-				desc->coupling_constraint &= ~(vehicle_desc_t::can_be_head_prev | vehicle_desc_t::can_be_head_next); // coaches and brake van
-			}
+		else {
+				desc->basic_constraint_prev |= vehicle_desc_t::can_be_head;
+				if ((desc->bidirectional && desc->power) || desc->can_lead_from_rear) {
+					desc->basic_constraint_prev |= vehicle_desc_t::can_be_tail;
+				}
 		}
-		else if (!desc->bidirectional) {
-			desc->coupling_constraint &= ~vehicle_desc_t::can_be_head_next;
+
+		if (desc->trailer_count) {
+			desc->basic_constraint_next = vehicle_desc_t::unknown_constraint;
+		}
+		else{
+			// "can_be_at_rear==false" means constraint[next]=any
+			if (desc->can_be_at_rear == true) {
+				desc->basic_constraint_next |= vehicle_desc_t::can_be_tail;
+				if (desc->can_lead_from_rear) {
+					desc->basic_constraint_next |= vehicle_desc_t::can_be_head;
+				}
+			}
 		}
 	}
 
@@ -748,8 +762,8 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc-
 		desc->get_way_constraints().get_permissive(),
 		desc->get_way_constraints().get_prohibitive(),
 		desc->bidirectional,
-		desc->can_lead_from_rear,
-		desc->coupling_constraint);
+		desc->basic_constraint_prev,
+		desc->basic_constraint_next);
 
 	return desc;
 }

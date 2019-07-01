@@ -34,11 +34,12 @@ public:
 		sint16     count;  ///< display this number as overlay
 		COLOR_VAL  lcolor; ///< color of left half of color bar, use EMPTY_IMAGE_BAR to display no bar
 		COLOR_VAL  rcolor; ///< color of right half of color bar, use EMPTY_IMAGE_BAR to display no bar
-		uint8 basic_coupling_constraint; // basic_coupling_constraint for the shape of color bar
+		uint8 basic_coupling_constraint_prev; // basic_coupling_constraint for the shape of color bar of left side
+		uint8 basic_coupling_constraint_next; // basic_coupling_constraint for the shape of color bar of right side
 		uint8 interactivity; // bidirectional flags and has_power(motor/engine) flag
 
-		image_data_t(const char *text_, image_id image_, sint16 count_=0, COLOR_VAL lcolor_=EMPTY_IMAGE_BAR, COLOR_VAL rcolor_=EMPTY_IMAGE_BAR, uint8 basic_coupling_constraint_=0, uint8 interactivity_=false)
-		: text(text_), image(image_), count(count_), lcolor(lcolor_), rcolor(rcolor_), basic_coupling_constraint(basic_coupling_constraint_), interactivity(interactivity_) {}
+		image_data_t(const char *text_, image_id image_, sint16 count_=0, COLOR_VAL lcolor_=EMPTY_IMAGE_BAR, COLOR_VAL rcolor_=EMPTY_IMAGE_BAR, uint8 basic_coupling_constraint_prev_=0, uint8 basic_coupling_constraint_next_ = 0, uint8 interactivity_=false)
+		: text(text_), image(image_), count(count_), lcolor(lcolor_), rcolor(rcolor_), basic_coupling_constraint_prev(basic_coupling_constraint_prev_), basic_coupling_constraint_next(basic_coupling_constraint_next_), interactivity(interactivity_) {}
 	};
 
 	/**
