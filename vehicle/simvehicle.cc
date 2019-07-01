@@ -2340,6 +2340,21 @@ uint16 vehicle_t::get_reassigned_class(uint8 g_class) const
 }
 
 
+uint8 vehicle_t::get_number_of_accommodation_classes() const
+{
+	uint8 accommodation_classes = 0;
+	for (uint8 i = 0; i < number_of_classes; i++) {
+		if (get_fare_capacity(i)) {
+			accommodation_classes++;
+		}
+	}
+	if (!accommodation_classes && desc->get_overcrowded_capacity()) {
+		accommodation_classes++;
+	}
+	return accommodation_classes;
+}
+
+
 uint16 vehicle_t::get_overcrowded_capacity(uint8 g_class) const
 {
 	if (g_class >= number_of_classes)
