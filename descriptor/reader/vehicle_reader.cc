@@ -62,9 +62,6 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		extended_version -= 1;
 	}
 
-	// Covert olad data falg for basic constraint @Ranran
-	bool convert_coupling_constraint = false;
-
 	way_constraints_of_vehicle_t way_constraints;
 
 	if(version == 1) {
@@ -484,7 +481,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else {
 					desc->can_lead_from_rear = decode_uint8(p);
-					convert_coupling_constraint = true;
+					desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
+					desc->basic_constraint_next = vehicle_desc_t::unknown_constraint;
 				}
 				for (uint32 i = 0; i < desc->classes; i++)
 				{
@@ -513,7 +511,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				else
 				{
 					desc->can_be_at_rear = (bool)decode_uint8(p);
-					convert_coupling_constraint = true;
+					desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
+					desc->basic_constraint_next = vehicle_desc_t::unknown_constraint;
 				}
 				desc->increase_maintenance_after_years = decode_uint16(p);
 				desc->increase_maintenance_by_percent = decode_uint16(p);
@@ -667,7 +666,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->range = 0;
 		desc->way_wear_factor = 1;
 		desc->is_tall = false;
-		convert_coupling_constraint = true;
+		desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
+		desc->basic_constraint_next = vehicle_desc_t::unknown_constraint;
 	}
 	desc->set_way_constraints(way_constraints);
 
@@ -686,34 +686,6 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// Convert flag
 	if (desc->can_lead_from_rear == true && desc->bidirectional == false){
 		desc->bidirectional = true;
-	}
-	// give old vehicle pak a tentative value.
-	if (convert_coupling_constraint) {
-		desc->basic_constraint_prev = desc->basic_constraint_next = 0;
-		if (desc->leader_count) {
-				desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
-		}
-		else {
-			if (desc->bidirectional) {
-				desc->basic_constraint_prev |= vehicle_desc_t::can_be_tail;
-			}
-			if ((desc->bidirectional && desc->power) || desc->can_lead_from_rear || !desc->bidirectional) {
-				desc->basic_constraint_prev |= vehicle_desc_t::can_be_head;
-			}
-		}
-
-		if (desc->trailer_count) {
-			desc->basic_constraint_next = vehicle_desc_t::unknown_constraint;
-		}
-		else{
-			// "can_be_at_rear==false" means constraint[next]=any
-			if (desc->can_be_at_rear == true) {
-				desc->basic_constraint_next |= vehicle_desc_t::can_be_tail;
-				if (desc->can_lead_from_rear) {
-					desc->basic_constraint_next |= vehicle_desc_t::can_be_head;
-				}
-			}
-		}
 	}
 
 	if(desc->sound==LOAD_SOUND) {

@@ -239,6 +239,7 @@ uint16 vehicle_desc_t::get_obsolete_year_month(const karte_t *welt) const
 
 void vehicle_desc_t::fix_number_of_classes()
 {
+	fix_basic_constraint();
 	// We can call this safely since we fixed the number of classes
 	// stored in the good desc earlier when registering it.
 	uint8 actual_number_of_classes = get_freight_type()->get_number_of_classes();
@@ -359,4 +360,84 @@ bool vehicle_desc_t::has_available_upgrade(uint16 month_now) const
 		}
 	}
 	return false;
+}
+
+
+// The old pak doesn't have a basic constraint, so add a value referring to the constraint.
+// Note: This is ambiguous because it does not have data of cab and constraint[prev]=any.
+inline void vehicle_desc_t::fix_basic_constraint()
+{
+	// front side
+	if (basic_constraint_prev & unknown_constraint) {
+		basic_constraint_prev = 0;
+		if (can_follow(NULL) && bidirectional) {
+			//constraints has none
+			basic_constraint_prev |= vehicle_desc_t::can_be_tail;
+		}
+
+		switch (leader_count) {
+		case 0:
+			if (bidirectional) {
+				basic_constraint_prev |= vehicle_desc_t::can_be_tail;
+			}
+			if (!bidirectional || can_lead_from_rear || (bidirectional && power)) {
+				// Consider locomotive if it has power
+				basic_constraint_prev |= vehicle_desc_t::can_be_head;
+			}
+			break;
+		case 1:
+			if (can_follow(NULL)) {
+				basic_constraint_prev |= vehicle_desc_t::unconnectable;
+				if (can_lead_from_rear) {
+					basic_constraint_prev |= vehicle_desc_t::can_be_head;
+				}
+			}
+			else {
+				basic_constraint_prev |= vehicle_desc_t::intermediate_unique;
+			}
+			break;
+		default:
+			if ((bidirectional && power) || can_lead_from_rear || !bidirectional) {
+				basic_constraint_prev |= vehicle_desc_t::can_be_head;
+			}
+			break;
+		}
+	}
+
+	// rear side
+	if (basic_constraint_next & unknown_constraint) {
+		basic_constraint_next = 0;
+		if (can_lead(NULL)) {
+			//constraints has none
+			basic_constraint_next |= vehicle_desc_t::can_be_tail;
+		}
+		switch (trailer_count) {
+		case 0:
+			if (can_be_at_rear == false) {
+				// "can_be_at_rear==false" means 
+				basic_constraint_next = 0; // constraint[next]=any
+			}
+			else {
+				basic_constraint_next |= vehicle_desc_t::can_be_tail;
+				if (can_lead_from_rear || (bidirectional && power)) {
+					// Consider locomotive if it has power
+					basic_constraint_next |= vehicle_desc_t::can_be_head;
+				}
+			}
+			break;
+		case 1:
+			if (can_lead(NULL)) {
+				basic_constraint_next |= vehicle_desc_t::unconnectable;
+				if (can_lead_from_rear) {
+					basic_constraint_next |= vehicle_desc_t::can_be_head;
+				}
+			}
+			else {
+				basic_constraint_next |= vehicle_desc_t::intermediate_unique;
+			}
+			break;
+		default:
+			break;
+		}
+	}
 }

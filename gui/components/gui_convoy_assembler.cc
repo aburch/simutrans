@@ -1580,8 +1580,6 @@ void gui_convoy_assembler_t::update_data()
 		// change green into blue for retired vehicles
 		for(i=0;  i<vehicles.get_count(); i++) {
 			if(vehicles[i]->is_future(month_now) || vehicles[i]->is_retired(month_now)) {
-				//convoi_pics[i]->basic_coupling_constraint = vehicles[i]->get_coupling_constraint();
-				//convoi_pics[i]->interactivity = vehicles[i]->get_interactivity();
 				if (convoi_pics[i]->lcolor == COL_DARK_GREEN) {
 					if (vehicles[i]->is_obsolete(month_now, welt)) {
 						convoi_pics[i]->lcolor = COL_DARK_BLUE;
@@ -2740,10 +2738,10 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 	sint16 top;
 	top = offset.y + D_V_SPACE + grid.y;
 	left = offset.x + D_MARGIN_LEFT;
-	display_proportional(left + grid.x / 2, top - grid.y / 2 - LINESPACE, translator::translate("Select vehicles from the list and assemble a convoy"), ALIGN_LEFT, MN_GREY0, true);
+	display_proportional(left + grid.x / 2, top - grid.y / 2, translator::translate("Select vehicles to make up a convoy"), ALIGN_LEFT, MN_GREY0, true);
 
 //	// color help
-//	display_proportional(left, top - LINESPACE, translator::translate("Vehicle bar color legends:"), ALIGN_LEFT, SYSCOL_TEXT, true);
+//	display_proportional(left, top - LINESPACE, translator::translate("Vehicle bar color legend:"), ALIGN_LEFT, SYSCOL_TEXT, true);
 //
 //	// draw help text about color
 //	left += D_MARGIN_LEFT;
@@ -2765,7 +2763,8 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 
 	// draw help text about shape
 	top = offset.y + D_V_SPACE + grid.y;
-	display_proportional(left, top - LINESPACE, translator::translate("Vehicle bar shape legends:"), ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional(left, top, translator::translate("Vehicle bar shape legend:"), ALIGN_LEFT, SYSCOL_TEXT, true);
+	top += LINESPACE;
 	left += D_MARGIN_LEFT;
 	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, vehicle_desc_t::can_be_head, 0, false);
 	display_veh_form(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, vehicle_desc_t::can_be_tail, 0, true);
@@ -2799,7 +2798,7 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 	*/
 
 	// 2nd colmn
-	top = offset.y + D_V_SPACE + grid.y;
+	top = offset.y + D_V_SPACE + grid.y + LINESPACE;
 	left += padding + VEHICLE_BAR_HEIGHT * 4 + D_H_SPACE + D_MARGIN_LEFT;
 
 	display_fillbox_wh_clip(left+1, top+2, VEHICLE_BAR_HEIGHT*2 - 2, VEHICLE_BAR_HEIGHT, COL_DARK_GREEN, true);

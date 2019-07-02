@@ -3958,15 +3958,15 @@ helptxt_can_be_at_rear
 End vehicle
 helptxt_intermediate
 Intermediate vehicle
-helptxt_fixed_outside_depot
-Non-uncouplable vehicle
+#helptxt_fixed_outside_depot
+#Non-uncouplable vehicle
+#helptxt_permanent_couple
+#Multi-part vehicle (cannot be split)
 helptxt_powered_vehicle
 Powered vehicle
 helptxt_unpowered_vehicle
 Unpowered vehicle
-helptxt_permanent_couple
-Multi-part vehicle (cannot be split)
-Select vehicles from the list and assemble a convoy
 Select vehicles to make up a convoy
-Vehicle bar shape legends:
+Select vehicles to make up a convoy
+Vehicle bar shape legend:
 Legend:

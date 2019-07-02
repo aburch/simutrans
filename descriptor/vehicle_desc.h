@@ -239,6 +239,9 @@ private:
 		return livery_image_type > 0 ? 5 + i : 6;
 	}
 
+	// set basic constraint to the old version data. v14.6, 2019 @Ranran
+	inline void fix_basic_constraint();
+
 public:
 	// since we have a second constructor
 	vehicle_desc_t() : geared_power(0), geared_force(0) { }
@@ -790,7 +793,6 @@ public:
 	// return basic coupling constraint flags
 	uint8 get_basic_constraint_next() const { return basic_constraint_next; }
 	uint8 get_basic_constraint_prev() const { return basic_constraint_prev; }
-	uint8 get_coupling_constraint() const { return basic_constraint_next; } // Will be removed later
 
 	float32e8_t get_air_resistance() const { return air_resistance; }
 	float32e8_t get_rolling_resistance() const { return rolling_resistance; }
