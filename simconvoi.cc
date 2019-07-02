@@ -2815,7 +2815,7 @@ DBG_MESSAGE("convoi_t::add_vehicle()","extend array_tpl to %i totals.",max_rail_
 		invalidate_vehicle_summary();
 		freight_info_resort = true;
 		// Add good_catg_index:
-		if(v->get_cargo_max() > 0)
+		if(v->get_cargo_max() > 0 || (v->get_cargo_type() == goods_manager_t::passengers && v->get_desc()->get_overcrowded_capacity() > 0))
 		{
 			const goods_desc_t *ware=v->get_cargo_type();
 			if(ware!=goods_manager_t::none  )
@@ -2876,7 +2876,7 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	// Added by		: Knightly
 	// Adapted from : simline_t
 	// Purpose		: Try to update supported goods category of this convoy
-	if (v->get_cargo_max() > 0)
+	if (v->get_cargo_max() > 0 || (v->get_cargo_type() == goods_manager_t::passengers && v->get_desc()->get_overcrowded_capacity() > 0))
 	{
 		const goods_desc_t *ware_type = v->get_cargo_type();
 		if (ware_type != goods_manager_t::none)
@@ -3018,7 +3018,8 @@ void convoi_t::recalc_catg_index()
 		// Only consider vehicles that really transport something
 		// this helps against routing errors through passenger
 		// trains pulling only freight wagons
-		if(get_vehicle(i)->get_cargo_max() == 0) {
+		if(get_vehicle(i)->get_cargo_max() == 0 && (get_vehicle(i)->get_cargo_type() != goods_manager_t::passengers || get_vehicle(i)->get_desc()->get_overcrowded_capacity() == 0)) 
+		{
 			continue;
 		}
 		const goods_desc_t *ware=get_vehicle(i)->get_cargo_type();
