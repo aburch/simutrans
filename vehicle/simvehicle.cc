@@ -8505,7 +8505,6 @@ route_t::route_result_t air_vehicle_t::calc_route_internal(
 		route.clear();
 		route.append( start );
 		state = flying;
-		play_sound();
 		calc_altitude_level( desc->get_topspeed() ); // added for AFHP
 		if(flying_height==0) {
 			flying_height = 3*TILE_HEIGHT_STEP;
