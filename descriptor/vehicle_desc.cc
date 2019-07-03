@@ -369,75 +369,88 @@ inline void vehicle_desc_t::fix_basic_constraint()
 {
 	// front side
 	if (basic_constraint_prev & unknown_constraint) {
-		basic_constraint_prev = 0;
-		if (can_follow(NULL) && bidirectional) {
-			//constraints has none
-			basic_constraint_prev |= vehicle_desc_t::can_be_tail;
+		bool prev_has_none = false;
+		for (int i = 0; i < leader_count; i++)
+		{
+			vehicle_desc_t const* const veh = get_child<vehicle_desc_t>(get_add_to_node() + i);
+			if (veh == NULL)
+			{
+				prev_has_none = true;
+				basic_constraint_prev |= can_be_tail;
+				break;
+			}
 		}
 
 		switch (leader_count) {
 		case 0:
 			if (bidirectional) {
-				basic_constraint_prev |= vehicle_desc_t::can_be_tail;
+				basic_constraint_prev |= can_be_tail;
 			}
 			if (!bidirectional || can_lead_from_rear || (bidirectional && power)) {
 				// Consider locomotive if it has power
-				basic_constraint_prev |= vehicle_desc_t::can_be_head;
+				basic_constraint_prev |= can_be_head;
 			}
 			break;
 		case 1:
-			if (can_follow(NULL)) {
-				basic_constraint_prev |= vehicle_desc_t::unconnectable;
+			if (prev_has_none) {
+				// only set "none"
+				basic_constraint_prev |= only_at_front;
 				if (can_lead_from_rear) {
-					basic_constraint_prev |= vehicle_desc_t::can_be_head;
+					basic_constraint_prev |= can_be_tail;
 				}
 			}
 			else {
-				basic_constraint_prev |= vehicle_desc_t::intermediate_unique;
+				basic_constraint_prev |= intermediate_unique;
 			}
 			break;
 		default:
-			if ((bidirectional && power) || can_lead_from_rear || !bidirectional) {
-				basic_constraint_prev |= vehicle_desc_t::can_be_head;
+			if (prev_has_none && ((bidirectional && power) || can_lead_from_rear || !bidirectional)) {
+				basic_constraint_prev |= can_be_head;
 			}
 			break;
 		}
+		basic_constraint_prev &= ~unknown_constraint;
 	}
 
 	// rear side
 	if (basic_constraint_next & unknown_constraint) {
-		basic_constraint_next = 0;
-		if (can_lead(NULL)) {
-			//constraints has none
-			basic_constraint_next |= vehicle_desc_t::can_be_tail;
+		bool next_has_none = false;
+		for (int i = 0; i < trailer_count; i++) {
+			vehicle_desc_t const* const veh = get_child<vehicle_desc_t>(get_add_to_node() + leader_count + i);
+			if (veh == NULL) {
+				next_has_none = true;
+				basic_constraint_next |= can_be_tail;
+				break;
+			}
 		}
+
 		switch (trailer_count) {
 		case 0:
 			if (can_be_at_rear == false) {
-				// "can_be_at_rear==false" means 
 				basic_constraint_next = 0; // constraint[next]=any
 			}
 			else {
-				basic_constraint_next |= vehicle_desc_t::can_be_tail;
+				basic_constraint_next |= can_be_tail;
 				if (can_lead_from_rear || (bidirectional && power)) {
 					// Consider locomotive if it has power
-					basic_constraint_next |= vehicle_desc_t::can_be_head;
+					basic_constraint_next |= can_be_head;
 				}
 			}
 			break;
 		case 1:
-			if (can_lead(NULL)) {
-				basic_constraint_next |= vehicle_desc_t::unconnectable;
+			if (next_has_none) {
+				basic_constraint_next |= unconnectable;
 				if (can_lead_from_rear) {
-					basic_constraint_next |= vehicle_desc_t::can_be_head;
+					basic_constraint_next |= can_be_head;
 				}
 			}
 			else {
-				basic_constraint_next |= vehicle_desc_t::intermediate_unique;
+				basic_constraint_next |= intermediate_unique;
 			}
 			break;
 		default:
 			break;
 		}
+		basic_constraint_next &= ~unknown_constraint;
 	}
 }
