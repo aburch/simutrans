@@ -168,11 +168,16 @@ objlist_t::objlist_t()
 objlist_t::~objlist_t()
 {
 	if(  capacity == 1  ) {
-		delete obj.one;
+		if(!obj.one->has_managed_lifecycle()) {
+			delete obj.one;
+		}
 	}
 	else {
 		for(  uint8 i=0;  i<top;  i++  ) {
-			delete obj.some[i];
+			obj_t* const object = obj.some[i];
+			if(!object->has_managed_lifecycle()) {
+				delete object;
+			}
 		}
 	}
 
