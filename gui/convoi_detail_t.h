@@ -44,8 +44,6 @@ private:
 
 	vector_tpl<uint16> class_indices;
 
-	bool any_obsoletes;
-
 public:
 	/**
 	 * @param cnv, the handler for displaying the convoi.
@@ -62,6 +60,7 @@ public:
 	void draw(scr_coord offset);
 };
 
+// content of convoy formation @Ranran
 class gui_convoy_formaion_t : public gui_container_t
 {
 private:
@@ -78,6 +77,35 @@ public:
 	void draw(scr_coord offset);
 };
 
+// content of cargo info tab @Ranran
+class gui_convoy_cargo_info_t : public gui_container_t
+{
+private:
+	convoihandle_t cnv;
+
+public:
+	gui_convoy_cargo_info_t(convoihandle_t cnv);
+
+	void set_cnv(convoihandle_t c) { cnv = c; }
+
+	void draw(scr_coord offset);
+	void display_loading_bar(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, uint16 loading, uint16 capacity, uint16 overcrowd_capacity);
+};
+
+// content of maintenance info tab @Ranran
+class gui_convoy_maintenance_info_t : public gui_container_t
+{
+private:
+	convoihandle_t cnv;
+	bool any_obsoletes;
+
+public:
+	gui_convoy_maintenance_info_t(convoihandle_t cnv);
+
+	void set_cnv(convoihandle_t c) { cnv = c; }
+
+	void draw(scr_coord offset);
+};
 
 /**
  * Displays an information window for a convoi
@@ -94,8 +122,12 @@ private:
 
 	gui_scrollpane_t scrolly;
 	gui_scrollpane_t scrolly_formation;
+	gui_scrollpane_t scrolly_cargo_info;
+	gui_scrollpane_t scrolly_maintenance;
 	gui_vehicleinfo_t veh_info;
 	gui_convoy_formaion_t formation;
+	gui_convoy_cargo_info_t cargo_info;
+	gui_convoy_maintenance_info_t maintenance;
 	gui_tab_panel_t tabs;
 
 	convoihandle_t cnv;
