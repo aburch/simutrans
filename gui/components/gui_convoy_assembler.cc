@@ -2785,12 +2785,12 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 	display_veh_form(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, 0, 0, true);
 	padding = max(padding, display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_intermediate"), ALIGN_LEFT, CITY_KI, true));
 
+	/*
 	top += LINESPACE;
 	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT * 2, COL_DARK_GREEN, true, vehicle_desc_t::unknown_constraint, 0, false);
 	display_veh_form(left + VEHICLE_BAR_HEIGHT * 2, top + 2, VEHICLE_BAR_HEIGHT * 2, COL_DARK_GREEN, true, vehicle_desc_t::unknown_constraint, 0, true);
 	padding = max(padding, display_proportional(left + VEHICLE_BAR_HEIGHT * 4 + 3, top, translator::translate("helptxt_unknown_constraint"), ALIGN_LEFT, CITY_KI, true));
 
-	/*
 	top += LINESPACE;
 	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, vehicle_desc_t::fixed_coupling_prev, 0, false, false);
 	display_veh_form(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, vehicle_desc_t::fixed_coupling_next, 0, true, false);

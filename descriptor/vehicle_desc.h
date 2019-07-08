@@ -791,8 +791,8 @@ public:
 		return false;
 	}
 	// return basic coupling constraint flags
-	uint8 get_basic_constraint_next() const { return basic_constraint_next; }
-	uint8 get_basic_constraint_prev() const { return basic_constraint_prev; }
+	uint8 get_basic_constraint_next(bool reversed = false) const { return reversed ? basic_constraint_prev : basic_constraint_next; }
+	uint8 get_basic_constraint_prev(bool reversed = false) const { return reversed ? basic_constraint_next : basic_constraint_prev; }
 
 	float32e8_t get_air_resistance() const { return air_resistance; }
 	float32e8_t get_rolling_resistance() const { return rolling_resistance; }
