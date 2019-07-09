@@ -245,7 +245,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			if(file->is_version_atleast(99, 18)) {
 				file->rdwr_byte(entries[i].waiting_time_shift);
 			}
-			if(file->is_version_atleast(120, 9)) {
+			if(file->get_OTRP_version()>=22) {
 				file->rdwr_byte(entries[i].coupling_point);
 			}
 		}
