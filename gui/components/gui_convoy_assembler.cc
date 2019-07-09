@@ -2812,13 +2812,15 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 	display_blend_wh(left+3, top + 3, VEHICLE_BAR_HEIGHT*2 - 6, VEHICLE_BAR_HEIGHT - 2, COL_WHITE, 30);
 	display_proportional(left + VEHICLE_BAR_HEIGHT*2 + 3, top, translator::translate("helptxt_unpowered_vehicle"), ALIGN_LEFT, CITY_KI, true);
 
-	top += LINESPACE;
-	display_color_img(skinverwaltung_t::upgradable->get_image_id(1), left + 1, top, 0, false, false);
-	display_proportional(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("Upgrade available"), ALIGN_LEFT, CITY_KI, true);
+	if (skinverwaltung_t::upgradable) {
+		top += LINESPACE;
+		display_color_img(skinverwaltung_t::upgradable->get_image_id(1), left + 1, top, 0, false, false);
+		display_proportional(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("Upgrade available"), ALIGN_LEFT, CITY_KI, true);
 
-	top += LINESPACE;
-	display_color_img(skinverwaltung_t::upgradable->get_image_id(0), left + 1, top, 0, false, false);
-	display_proportional(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("Upgrade is not available yet"), ALIGN_LEFT, CITY_KI, true);
+		top += LINESPACE;
+		display_color_img(skinverwaltung_t::upgradable->get_image_id(0), left + 1, top, 0, false, false);
+		display_proportional(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("Upgrade is not available yet"), ALIGN_LEFT, CITY_KI, true);
+	}
 
 	/*
 	top += LINESPACE*3;

@@ -364,6 +364,10 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 		for (unsigned veh = 0; veh < vehicle_count; veh++) {
 			vehicle_t *v = cnv->get_vehicle(veh);
+			uint8 upgradable_state = v->get_desc()->get_upgrades_count() ? 1 : 0;
+			if (upgradable_state && v->get_desc()->has_available_upgrade(month_now)) {
+				upgradable_state = 2; // has_available_upgrade
+			}
 
 			// first image
 			scr_coord_val x, y, w, h;
@@ -388,8 +392,13 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			else {
 				buf.append(car_number);
 			}
-			display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, v->get_desc()->has_available_upgrade(month_now) ? COL_PURPLE : COL_GREY2, true);
+			display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, upgradable_state == 2 ? COL_PURPLE : COL_GREY2, true);
 			buf.clear();
+
+			// upgradable symbol
+			if (upgradable_state && skinverwaltung_t::upgradable) {
+				display_color_img(skinverwaltung_t::upgradable->get_image_id(upgradable_state-1), pos.x + w + offset.x - LINESPACE, pos.y + offset.y + total_height + extra_y + h + LINESPACE, 0, false, false);
+			}
 
 			// name of this
 			display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, translator::translate(v->get_desc()->get_name()), ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -958,6 +967,10 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 
 		for (unsigned veh = 0; veh < vehicle_count; veh++) {
 			vehicle_t *v = cnv->get_vehicle(veh);
+			uint8 upgradable_state = v->get_desc()->get_upgrades_count() ? 1 : 0;
+			if (upgradable_state && v->get_desc()->has_available_upgrade(month_now)) {
+				upgradable_state = 2; // has_available_upgrade
+			}
 
 			int extra_y = 0;
 			const uint8 grid_width = D_BUTTON_WIDTH / 3;
@@ -973,7 +986,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 			else {
 				buf.append(car_number);
 			}
-			display_proportional_clip(pos.x + offset.x + 1, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, v->get_desc()->has_available_upgrade(month_now) ? COL_PURPLE : COL_GREY2, true);
+			display_proportional_clip(pos.x + offset.x + 1, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, upgradable_state == 2 ? COL_PURPLE : COL_GREY2, true);
 			buf.clear();
 
 			// vehicle color bar
@@ -1055,19 +1068,21 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 
 			// upgrade info
 			// NOTE: pakset may not have a vehicle set to upgrade[n]
-			if (v->get_desc()->get_upgrades_count() > 0)
+			if (upgradable_state)
 			{
 				int found = 0;
 				COLOR_VAL upgrade_state_color = COL_PURPLE;
 				for (int i = 0; i < v->get_desc()->get_upgrades_count(); i++)
 				{
-					//const vehicle_desc_t* desc = v->get_desc()->get_upgrades(i);
 					if (const vehicle_desc_t* desc = v->get_desc()->get_upgrades(i)) {
 						found++;
 						if (found == 1) {
+							if (skinverwaltung_t::upgradable) {
+								display_color_img(skinverwaltung_t::upgradable->get_image_id(upgradable_state-1), pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y, 0, false, false);
+							}
 							buf.clear();
 							buf.printf("%s:", translator::translate("this_vehicle_can_upgrade_to"));
-							display_proportional_clip(pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
+							display_proportional_clip(pos.x + extra_w + offset.x + 14, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 							extra_y += LINESPACE;
 						}
 
