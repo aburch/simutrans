@@ -34,6 +34,7 @@
 #include "../gui/privatesign_info.h"
 #include "../gui/onewaysign_info.h"
 #include "../gui/tool_selector.h"
+#include "../gui/signal_info.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 
@@ -41,6 +42,7 @@
 #include "../utils/simstring.h"
 
 #include "roadsign.h"
+#include "signal.h"
 
 
 const roadsign_desc_t *roadsign_t::default_signal=NULL;
@@ -84,6 +86,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	ticks_offset = 0;
 	lane_affinity = 4;
 	open_direction = 0xA5; // north-south <-> east-west
+	guide_signal = false;
 	set_owner( player );
 	if(  desc->is_private_way()  ) {
 		// init ownership of private ways
@@ -188,6 +191,17 @@ void roadsign_t::show_info()
 			// off the "not applied" bit flag
 			lane_affinity = ~((~lane_affinity)|4);
 			create_win(new onewaysign_info_t(this, intersection_pos), w_info, (ptrdiff_t)this );
+		}
+	}
+	else if(  desc->is_signal_type()  &&  desc->is_choose_sign()  ) {
+		// this should be a signal.
+		signal_t* s = dynamic_cast<signal_t*>(this);
+		if(  !s  ) {
+			dbg->error("roadsign_t::show_info","roadsign %s should be a signal but is not!", get_pos().get_str());
+			obj_t::show_info();
+		}
+		else {
+			create_win(new signal_info_t(s), w_info, (ptrdiff_t)this);
 		}
 	}
 	else {
@@ -596,6 +610,12 @@ void roadsign_t::rdwr(loadsave_t *file)
 	dir = dummy;
 	if(file->is_version_less(89, 0)) {
 		dir = ribi_t::backward(dir);
+	}
+	
+	if(file->is_version_atleast(120, 9)) {
+		file->rdwr_bool(guide_signal);
+	} else {
+		guide_signal = false;
 	}
 
 	if(file->is_saving()) {

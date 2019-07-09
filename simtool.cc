@@ -60,6 +60,7 @@
 #include "gui/privatesign_info.h"
 #include "gui/messagebox.h"
 #include "gui/simple_number_input.h"
+#include "gui/signal_info.h"
 
 #include "obj/zeiger.h"
 #include "obj/bruecke.h"
@@ -7502,6 +7503,7 @@ bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, 
  * 's' : change state to [number] (and maybe set open schedule flag)
  * 'l' : apply new line [number]
  * 'd' : go to nearest depot
+ * 'r' : release the child convoy
  */
 bool tool_change_convoi_t::init( player_t *player )
 {
@@ -7637,6 +7639,13 @@ bool tool_change_convoi_t::init( player_t *player )
 				create_win( new news_img(msg), w_time_delete, magic_none);
 			}
 		}
+		break;
+		
+		case 'r': // release the child convoy
+		{
+			cnv->uncouple_convoi();
+		}
+		break;
 	}
 
 	if(  cnv->in_depot()  &&  (tool=='g'  ||  tool=='l')  ) {
@@ -8236,28 +8245,49 @@ bool tool_change_traffic_light_t::init( player_t *player )
 	return false;
 }
 
-
-/* Sets overtaking_mode via default_param:
- *
+/*
+ * change state of roadsign
  */
-bool tool_change_roadsign_t::init( player_t *player )
+bool tool_change_roadsign_t::init( player_t* )
 {
-	koord3d pos;
-	sint16 z, inst;
-	if(  4!=sscanf( default_param, "%hi,%hi,%hi,%hi", &pos.x, &pos.y, &z, &inst )  ) {
+	sint16 x, y, z, inst;
+	char target;
+	if(  5!=sscanf( default_param, "%hi,%hi,%hi,%hi,%c", &x, &y, &z, &inst, &target )  ) {
 		return false;
 	}
-	pos.z = (sint8)z;
-	if(  grund_t *gr = welt->lookup(pos)  ) {
-		if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
-			if(  rs->get_intersection()!=koord3d::invalid  ) {
-				rs->set_lane_affinity(inst);
-			}
-			onewaysign_info_t* onewaysign_win = (onewaysign_info_t*)win_get_magic((ptrdiff_t)rs);
-			if (onewaysign_win) {
-				onewaysign_win->update_data();
+	koord3d pos = koord3d(x,y,z);
+	switch (target) {
+		case 'r':
+		// set lane affinity for oneway road sign
+		if(  grund_t *gr = welt->lookup(pos)  ) {
+			if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
+				if(  rs->get_intersection()!=koord3d::invalid  ) {
+					rs->set_lane_affinity(inst);
+				}
+				onewaysign_info_t* onewaysign_win = (onewaysign_info_t*)win_get_magic((ptrdiff_t)rs);
+				if (onewaysign_win) {
+					onewaysign_win->update_data();
+				}
 			}
 		}
+		break;
+		
+		case 's':
+		// set guide signal state for signal
+		if(  grund_t *gr = welt->lookup(pos)  ) {
+			if( roadsign_t *rs = gr->find<signal_t>()  ) {
+				rs->set_guide_signal(inst);
+				signal_info_t* signal_info_win = (signal_info_t*)win_get_magic((ptrdiff_t)rs);
+				if(  signal_info_win  ) {
+					signal_info_win->update_data();
+				}
+			}
+		}
+		break;
+		
+		default:
+		// do nothing
+		break;
 	}
 	return false;
 }

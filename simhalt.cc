@@ -924,11 +924,11 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 		// now iterate over all convois
 		for(  slist_tpl<convoihandle_t>::iterator i = loading_here.begin(), end = loading_here.end();  i != end;  ) {
 			convoihandle_t const c = *i;
-			if (c.is_bound() && c->get_state() == convoi_t::LOADING) {
+			if (c.is_bound() && c->is_loading()) {
 				// now we load into convoi
 				c->hat_gehalten(self);
 			}
-			if (c.is_bound() && c->get_state() == convoi_t::LOADING) {
+			if (c.is_bound() && c->is_loading()) {
 				++i;
 			}
 			else {

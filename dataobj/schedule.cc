@@ -7,6 +7,7 @@
 #include "../simtypes.h"
 #include "../simworld.h"
 #include "../simhalt.h"
+#include "../simtool.h"
 #include "../display/simimg.h"
 
 #include "../utils/cbuffer_t.h"
@@ -24,7 +25,7 @@
 #include "../tpl/slist_tpl.h"
 
 
-schedule_entry_t schedule_t::dummy_entry(koord3d::invalid, 0, 0);
+schedule_entry_t schedule_t::dummy_entry(koord3d::invalid, 0, 0, 0);
 
 
 // copy all entries from schedule src to this and adjusts current_stop
@@ -110,7 +111,7 @@ halthandle_t schedule_t::get_prev_halt( player_t *player ) const
 }
 
 
-bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint8 waiting_time_shift )
+bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint8 waiting_time_shift, uint8 coupling_point )
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(  entries.get_count()>=254  ) {
@@ -119,7 +120,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint8 waiting_
 	}
 
 	if(  is_stop_allowed(gr)  ) {
-		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift));
+		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, coupling_point));
 		current_stop ++;
 		make_current_stop_valid();
 		return true;
@@ -133,7 +134,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint8 waiting_
 
 
 
-bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint8 waiting_time_shift)
+bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint8 waiting_time_shift, uint8 coupling_point)
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(entries.get_count()>=254) {
@@ -142,7 +143,7 @@ bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint8 waiting_
 	}
 
 	if(is_stop_allowed(gr)) {
-		entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift), 4);
+		entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, coupling_point), 4);
 		return true;
 	}
 	else {
@@ -229,7 +230,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			uint32 dummy;
 			pos.rdwr(file);
 			file->rdwr_long(dummy);
-			entries.append(schedule_entry_t(pos, (uint8)dummy, 0));
+			entries.append(schedule_entry_t(pos, (uint8)dummy, 0, 0));
 		}
 	}
 	else {
@@ -243,6 +244,9 @@ void schedule_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(entries[i].minimum_loading);
 			if(file->is_version_atleast(99, 18)) {
 				file->rdwr_byte(entries[i].waiting_time_shift);
+			}
+			if(file->is_version_atleast(120, 9)) {
+				file->rdwr_byte(entries[i].coupling_point);
 			}
 		}
 	}
@@ -399,7 +403,7 @@ void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
 	buf.printf("%u|%d|", current_stop, (int)get_type());
 	FOR(minivec_tpl<schedule_entry_t>, const& i, entries) {
-		buf.printf("%s,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time_shift);
+		buf.printf("%s,%i,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time_shift, i.coupling_point);
 	}
 }
 
@@ -442,24 +446,25 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	p++;
 	// now scan the entries
 	while(  *p>0  ) {
-		sint16 values[5];
-		for(  sint8 i=0;  i<5;  i++  ) {
+		sint16 values[6];
+		for(  sint8 i=0;  i<6;  i++  ) {
 			values[i] = atoi( p );
 			while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
 				p++;
 			}
-			if(  i<4  &&  *p!=','  ) {
+			if(  i<5  &&  *p!=','  ) {
 				dbg->error( "schedule_t::sscanf_schedule()","incomplete string!" );
 				return false;
 			}
-			if(  i==4  &&  *p!='|'  ) {
+			if(  i==5  &&  *p!='|'  ) {
 				dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
 				return false;
 			}
 			p++;
 		}
 		// ok, now we have a complete entry
-		entries.append(schedule_entry_t(koord3d(values[0], values[1], values[2]), values[3], values[4]));
+		schedule_entry_t entry = schedule_entry_t(koord3d(values[0], values[1], values[2]), values[3], values[4], values[5]);
+		entries.append(entry);
 	}
 	return true;
 }
@@ -497,5 +502,13 @@ void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* 
 	// position (when no length restriction)
 	if (max_chars <= 0) {
 		buf.printf(" (%s)", entry.pos.get_str());
+	}
+}
+
+schedule_entry_t const& schedule_t::get_next_entry() const {
+	if(  entries.empty()  ) {
+		return dummy_entry;
+	} else {
+		return entries[(current_stop+1)%entries.get_count()];
 	}
 }

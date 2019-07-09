@@ -79,6 +79,8 @@ public:
 
 	/// returns the current stop, always a valid entry
 	schedule_entry_t const& get_current_entry() const { return current_stop >= entries.get_count() ? dummy_entry : entries[current_stop]; }
+	
+	schedule_entry_t const& get_next_entry() const;
 
 	/**
 	 * Set the current stop of the schedule .
@@ -116,12 +118,12 @@ public:
 	/**
 	 * Inserts a coordinate at current_stop into the schedule.
 	 */
-	bool insert(const grund_t* gr, uint8 minimum_loading = 0, uint8 waiting_time_shift = 0);
+	bool insert(const grund_t* gr, uint8 minimum_loading = 0, uint8 waiting_time_shift = 0, uint8 coupling_point = 0);
 
 	/**
 	 * Appends a coordinate to the schedule.
 	 */
-	bool append(const grund_t* gr, uint8 minimum_loading = 0, uint8 waiting_time_shift = 0);
+	bool append(const grund_t* gr, uint8 minimum_loading = 0, uint8 waiting_time_shift = 0, uint8 coupling_point = 0);
 
 	/**
 	 * Cleanup a schedule, removes double entries.
