@@ -1624,6 +1624,9 @@ void gui_convoy_assembler_t::update_data()
 		img.basic_coupling_constraint_prev = info->get_basic_constraint_prev();
 		img.basic_coupling_constraint_next = info->get_basic_constraint_next();
 		img.interactivity = info->get_interactivity();
+		if (info->get_upgrades_count()) {
+			img.has_upgrade = info->has_available_upgrade(month_now) ? 2 : 1;
+		}
 
 		/*
 		* color bars for current convoi:

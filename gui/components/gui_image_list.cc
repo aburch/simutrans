@@ -8,7 +8,9 @@
 #include "gui_image_list.h"
 #include "../../display/simgraph.h"
 #include "../../simevent.h"
-#include "../../simcolor.h"
+#include "../../simworld.h"
+
+
 
 
 gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t*> *images) :
@@ -122,6 +124,14 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 				}
 				// Display the number white on black
 				display_proportional_clip(xpos + 2, ypos - 1, text, ALIGN_LEFT, COL_WHITE, true);
+			}
+
+			// If necessary, display upgradable symbol: 1=upgradeable, 2=has available upgrade target
+			if (idata.has_upgrade && skinverwaltung_t::alerts) {
+				if (idata.has_upgrade > 2) {
+					break;
+				}
+				display_color_img(skinverwaltung_t::upgradable->get_image_id(idata.has_upgrade-1), xpos + grid.x - LINESPACE - 1, ypos + grid.y - VEHICLE_BAR_HEIGHT - LINESPACE - 1, 0, false, false);
 			}
 		}
 		// advance x, y to next position
