@@ -88,7 +88,7 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 
 	scrolly.set_show_scroll_x(true);
 
-	tabs.add_tab(&scrolly, translator::translate("General"));
+	tabs.add_tab(&scrolly, translator::translate("cd_spec_tab"));
 	tabs.add_tab(&scrolly_cargo_info, translator::translate("cd_cargo_tab"));
 	tabs.add_tab(&scrolly_maintenance, translator::translate("cd_maintenance_tab"));
 	tabs.set_pos(scr_coord(0, header_height));
@@ -575,12 +575,12 @@ void gui_convoy_cargo_info_t::draw(scr_coord offset)
 
 		if (cnv->get_no_load()) {
 			if (skinverwaltung_t::alerts) {
-				display_color_img(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, 0, false, false);
+				display_color_img(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + extra_w, pos.y + offset.y + total_height, 0, false, false);
 			}
 			buf.clear();
 			buf.append(translator::translate("No load setting"));
 			display_proportional_clip(pos.x + offset.x + extra_w + 14, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, false);
-			total_height += LINESPACE;
+			total_height += LINESPACE*1.5;
 		}
 
 		// display total values
@@ -993,7 +993,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 			//display_multiline_text(pos.x + offset.x, pos.y + offset.y + total_height + extra_y, translator::translate(v->get_desc()->get_name()), SYSCOL_TEXT, true);
 			display_proportional_clip(pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y, translator::translate(v->get_desc()->get_name()), ALIGN_LEFT, SYSCOL_TEXT, true);
 			// livery scheme info
-			if (v->get_current_livery()) {
+			if ( strcmp( v->get_current_livery(), "default") ) {
 				extra_y += LINESPACE;
 				buf.clear();
 				buf.printf("(%s)", translator::translate(v->get_current_livery()));
