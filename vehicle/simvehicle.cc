@@ -1075,6 +1075,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 {
 	const uint16 total_capacity = desc->get_total_capacity() + (overcrowd ? desc->get_overcrowded_capacity() : 0);
 	bool other_classes_available = false;
+	uint8 goods_restriction = 0;
 	if (total_freight < total_capacity)
 	{
 		schedule_t *schedule = cnv->get_schedule();
@@ -1085,7 +1086,13 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 		uint8 lowest_class_with_nonzero_capacity = 255;
 
 		*skip_vehicles = true;
-
+		if (!fracht[0].empty() && desc->get_mixed_load_prohibition()) {
+			FOR(slist_tpl<ware_t>, const& w, fracht[0])
+			{
+				goods_restriction = w.index;
+				break;
+			}
+		}
 		for (uint8 i = 0; i < number_of_classes; i++)
 		{
 			capacity_this_class = get_accommodation_capacity(i);
@@ -1126,7 +1133,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 			// the need for higher class passengers/mail to use lower class accommodation.
 			if (capacity_left_this_class >= 0)
 			{
-				*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left_this_class, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes, other_classes_available);
+				*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left_this_class, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes, other_classes_available, desc->get_mixed_load_prohibition(), goods_restriction);
 				if (!freight_add.empty())
 				{
 					cnv->invalidate_weight_summary();

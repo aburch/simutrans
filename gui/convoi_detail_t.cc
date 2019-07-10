@@ -775,7 +775,6 @@ void gui_convoy_cargo_info_t::draw(scr_coord offset)
 						goods_desc_t const* const wtyp = ware.get_desc();
 						cargo_sum += ware.menge;
 
-						buf.clear();
 						// draw the goods loading bar
 						int bar_end_offset = cargo_sum * LOADING_BAR_WIDTH / v->get_desc()->get_total_capacity();
 						COLOR_VAL goods_color = wtyp->get_color();
@@ -786,6 +785,12 @@ void gui_convoy_cargo_info_t::draw(scr_coord offset)
 							display_blend_wh(pos.x + extra_w + offset.x + left + bar_start_offset, pos.y + offset.y + total_height + extra_y + LOADING_BAR_HEIGHT - 1, bar_end_offset - bar_start_offset, 1, COL_BLACK, 10);
 						}
 						bar_start_offset += bar_end_offset - bar_start_offset;
+					}
+					if (v->get_desc()->get_mixed_load_prohibition()) {
+						extra_y += LINESPACE;
+						buf.clear();
+						buf.printf("%s", translator::translate("(mixed_load_prohibition)"));
+						display_proportional_clip(pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y - (LINESPACE - LOADING_BAR_HEIGHT) / 2, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					}
 					extra_y += LINESPACE + 2;
 				}

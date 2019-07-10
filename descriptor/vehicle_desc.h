@@ -226,6 +226,9 @@ private:
 	//@jamespetts January 2017
 	bool is_tall;
 
+	// if true, can not mix another goods in the same car.  @Ranran, July 2019(v14.6)
+	bool mixed_load_prohibition;
+
 	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
 	void loaded();
 
@@ -807,6 +810,7 @@ public:
 	uint32 get_way_wear_factor() const { return way_wear_factor; }
 
 	bool get_is_tall() const { return is_tall; }
+	bool get_mixed_load_prohibition() const { return mixed_load_prohibition; }
 
 	void set_scale(uint16 scale_factor, uint32 way_wear_factor_rail, uint32 way_wear_factor_road, uint16 standard_axle_load)
 	{ 

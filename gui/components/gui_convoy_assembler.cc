@@ -2360,6 +2360,11 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 					"\0",
 					translator::translate(veh_type->get_freight_type()->get_mass()),
 					translator::translate(veh_type->get_freight_type()->get_catg_name()));
+				if (veh_type->get_mixed_load_prohibition())
+				{
+					buf.printf(" %s", translator::translate("(mixed_load_prohibition)"));
+				}
+				buf.append("\n");
 				display_proportional(pos.x + 335 + left, top, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				buf.clear();
 				top += LINESPACE;
