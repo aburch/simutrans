@@ -719,7 +719,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc-
 		"version=%d "
 		"way=%d classes=%d capacity=%d comfort=%d cost=%d topspeed=%d weight=%g axle_load=%d power=%d "
 		"betrieb=%d sound=%d vor=%d nach=%d "
-		"date=%d/%d gear=%d engine_type=%d len=%d is_tilting=%d catering_level=%d "
+		"date=%d/%d gear=%d engine_type=%d len=%d is_tilting=%d mixed_load_prohibition=%d catering_level=%d "
 		"way_constraints_permissive=%d way_constraints_prohibitive%d bidirectional%d can_lead_from_rear%d coupling_constraint%d",
 		version,
 		desc->wtyp,
@@ -741,6 +741,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc-
 		desc->engine_type,
 		desc->len,
 		desc->is_tilting,
+		desc->mixed_load_prohibition,
 		desc->catering_level,
 		desc->get_way_constraints().get_permissive(),
 		desc->get_way_constraints().get_prohibitive(),
