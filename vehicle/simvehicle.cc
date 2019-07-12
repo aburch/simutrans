@@ -8095,7 +8095,12 @@ bool air_vehicle_t:: is_target(const grund_t *gr,const grund_t *)
 				
 				// Check for length
 				const uint16 min_runway_length_meters = desc->get_minimum_runway_length();
-				const uint16 min_runway_length_tiles = ignore_runway_length ? 0 : min_runway_length_meters / welt->get_settings().get_meters_per_tile();
+				uint16 min_runway_length_tiles = ignore_runway_length ? 0 : min_runway_length_meters / welt->get_settings().get_meters_per_tile();
+				if (!ignore_runway_length && min_runway_length_meters % welt->get_settings().get_meters_per_tile())
+				{
+					// Without this, this will be rounded down incorrectly.
+					min_runway_length_tiles ++; 
+				}
 				uint32 runway_length_tiles;
 
 				bool runway_36_18 = false;
@@ -8133,14 +8138,7 @@ bool air_vehicle_t:: is_target(const grund_t *gr,const grund_t *)
 					return false;
 				}
 
-				if (runway_36_18)
-				{
-					runway_length_tiles = w->get_runway_length(true);
-				}
-				else
-				{
-					runway_length_tiles = w->get_runway_length(false);
-				}
+				runway_length_tiles = w->get_runway_length(runway_36_18);
 
 				return runway_length_tiles >= min_runway_length_tiles;
 			}
@@ -8540,7 +8538,6 @@ route_t::route_result_t air_vehicle_t::calc_route_internal(
 		route.clear();
 		route.append( start );
 		state = flying;
-		play_sound();
 		calc_altitude_level( desc->get_topspeed() ); // added for AFHP
 		if(flying_height==0) {
 			flying_height = 3*TILE_HEIGHT_STEP;

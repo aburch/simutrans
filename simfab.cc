@@ -1679,10 +1679,12 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 	}
 
-	has_calculated_intransit_percentages = false;
+	if (file->is_loading())
+	{
+		has_calculated_intransit_percentages = false;
+	}
 	// Cannot calculate intransit percentages here,
 	// as this can only be done when paths are available.
-
 }
 
 
@@ -2443,8 +2445,9 @@ void fabrik_t::verteile_waren(const uint32 product)
 					}
 
 					const bool needs_max_amount = needed >= ziel_fab->get_input()[w].max;
+					const sint32 storage_base_units = (sint32)(((sint64)ziel_fab->get_input()[w].menge * (sint64)(prod_factor)) >> (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits));
 
-					if (needs_max_amount && (needed_base_units == 0))
+					if (needed > 0 && ziel_fab->get_input()[w].get_in_transit() == 0 && (needs_max_amount || storage_base_units <= 1) && needed_base_units == 0)
 					{
 						needed_base_units = 1;
 					}
