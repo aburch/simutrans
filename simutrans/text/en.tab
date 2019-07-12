@@ -3948,6 +3948,8 @@ Show coverage radius of the signalbox.
 Show coverage radius of the signalbox.
 Protocol error (expected NWC_GAME)
 Network connect timeout: did not receive NWC_GAME packet within 10 minutes.
+stop_some_goods_arrival
+Some goods out of stock
 LOCO_SYM
 L
 helptxt_one_direction
