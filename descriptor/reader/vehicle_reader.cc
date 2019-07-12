@@ -513,7 +513,6 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					desc->can_be_at_rear = (bool)decode_uint8(p);
 					desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
 					desc->basic_constraint_next = vehicle_desc_t::unknown_constraint;
-					desc->mixed_load_prohibition = false;
 				}
 				desc->increase_maintenance_after_years = decode_uint16(p);
 				desc->increase_maintenance_by_percent = decode_uint16(p);
