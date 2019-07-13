@@ -413,6 +413,8 @@ void cbuffer_t::vprintf(const char *fmt, va_list ap )
 			inc = (size_t)count;
 		}
 		extend(inc);
+
+		va_end(args);
 	}
 }
 
