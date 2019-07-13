@@ -512,7 +512,7 @@ bool objlist_t::remove(const obj_t* remove_obj)
  * removes object from map
  * deletes object if it is not a zeiger_t
  */
-void local_delete_object(obj_t *remove_obj, player_t *player)
+static void local_delete_object(obj_t *remove_obj, player_t *player)
 {
 	vehicle_base_t* const v = obj_cast<vehicle_base_t>(remove_obj);
 	if (v  &&  remove_obj->get_typ() != obj_t::pedestrian  &&  remove_obj->get_typ() != obj_t::road_user  &&  remove_obj->get_typ() != obj_t::movingobj) {
@@ -523,7 +523,7 @@ void local_delete_object(obj_t *remove_obj, player_t *player)
 		remove_obj->set_flag(obj_t::not_on_map);
 		// all objects except zeiger (pointer) are destroyed here
 		// zeiger's will be deleted if their associated tool terminates
-		if (remove_obj->get_typ() != obj_t::zeiger) {
+		if (!remove_obj->has_managed_lifecycle()) {
 			delete remove_obj;
 		}
 	}
