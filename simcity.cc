@@ -2890,8 +2890,6 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 	}
 
 	// if we arrive here, we have a multitile building
-	KOORD_VAL shortest_side = min( maxarea.x, maxarea.y );
-
 	if(  grund_t *gr = welt->lookup_kartenboden(k)  ) {
 		int rotation = -1;
 		int max_layout = h->get_all_layouts()-1;
