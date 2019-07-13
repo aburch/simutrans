@@ -353,14 +353,18 @@ void log_t::vmessage(const char *what, const char *who, const char *format, va_l
 {
 	if(debuglevel>0) {
 		va_list args2;
-#ifdef __va_copy
+
+#if __STDC_VERSION__ + 0 >= 199900L || __cplusplus + 0 >= 201103L
+		va_copy(args2, args);
+#elif defined(__va_copy)
 		__va_copy(args2, args);
 #else
-		// HACK: this is undefined behavior but should work ... hopefully ...
+#		warning("va_copy not available, using assignment instead")
 		args2 = args;
 #endif
-		if( log ) {                         /* only log when a log */
-			fprintf(log ,"%s: %s:\t", what, who);      /* is already open */
+
+		if( log ) {                               /* only log when a log */
+			fprintf(log ,"%s: %s:\t", what, who); /* is already open */
 			vfprintf(log, format, args);
 			fprintf(log,"\n");
 

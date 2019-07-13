@@ -388,12 +388,16 @@ void cbuffer_t::vprintf(const char *fmt, va_list ap )
 		size_t inc;
 
 		va_list args;
-#ifdef __va_copy
+
+#if __STDC_VERSION__ + 0 >= 199900L || __cplusplus + 0 >= 201103L
+		va_copy(args, ap);
+#elif defined(__va_copy)
 		__va_copy(args, ap);
 #else
-		// HACK: this is undefined behavior but should work ... hopefully ...
+#		warning("va_copy not available, using assignment instead")
 		args = ap;
 #endif
+
 		const int count = my_vsnprintf( buf+size, n, fmt, args );
 		if(  count < 0  ) {
 #ifdef _WIN32
