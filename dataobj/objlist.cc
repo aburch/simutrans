@@ -168,6 +168,8 @@ objlist_t::objlist_t()
 objlist_t::~objlist_t()
 {
 	if(  capacity == 1  ) {
+		obj.one->set_flag(obj_t::not_on_map);
+
 		if(!obj.one->has_managed_lifecycle()) {
 			delete obj.one;
 		}
@@ -175,6 +177,8 @@ objlist_t::~objlist_t()
 	else {
 		for(  uint8 i=0;  i<top;  i++  ) {
 			obj_t* const object = obj.some[i];
+			object->set_flag(obj_t::not_on_map);
+
 			if(!object->has_managed_lifecycle()) {
 				delete object;
 			}
