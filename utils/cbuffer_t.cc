@@ -389,13 +389,14 @@ void cbuffer_t::vprintf(const char *fmt, va_list ap )
 
 		va_list args;
 
-#if __STDC_VERSION__ + 0 >= 199900L || __cplusplus + 0 >= 201103L
+#if defined(va_copy)
 		va_copy(args, ap);
 #elif defined(__va_copy)
+		// Deprecated macro possibly used by older compilers.
 		__va_copy(args, ap);
 #else
-#		warning("va_copy not available, using assignment instead")
-		args = ap;
+		// Undefined behaviour that might work.
+		args = ap; // If this throws an error then C++11 conformance may be required.
 #endif
 
 		const int count = my_vsnprintf( buf+size, n, fmt, args );

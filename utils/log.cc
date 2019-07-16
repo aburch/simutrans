@@ -354,13 +354,14 @@ void log_t::vmessage(const char *what, const char *who, const char *format, va_l
 	if(debuglevel>0) {
 		va_list args2;
 
-#if __STDC_VERSION__ + 0 >= 199900L || __cplusplus + 0 >= 201103L
+#if defined(va_copy)
 		va_copy(args2, args);
 #elif defined(__va_copy)
+		// Deprecated macro possibly used by older compilers.
 		__va_copy(args2, args);
 #else
-#		warning("va_copy not available, using assignment instead")
-		args2 = args;
+		// Undefined behaviour that might work.
+		args2 = args; // If this throws an error then C++11 conformance may be required.
 #endif
 
 		if( log ) {                               /* only log when a log */
