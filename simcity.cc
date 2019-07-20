@@ -3043,7 +3043,6 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 void stadt_t::build_city_building(const koord k)
 {
 	grund_t* gr = welt->lookup_kartenboden(k);
-	const koord3d pos(gr->get_pos());
 
 	// Not building on ways (this was actually tested before be the cityrules), but you can construct manually
 	if(  !gr->ist_natur() ) {
