@@ -8,6 +8,7 @@
 #ifndef gui_loadsave_frame_h
 #define gui_loadsave_frame_h
 
+#include <time.h>
 
 #include "savegame_frame.h"
 #include "../tpl/stringhashtable_tpl.h"

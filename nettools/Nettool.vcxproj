@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6E485CA6-1FC1-45D2-97DC-0FD5197BF746}</ProjectGuid>
+    <RootNamespace>Nettool</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Release'">
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup>
+    <_ProjectFileVersion>16.0.28916.169</_ProjectFileVersion>
+    <OutDir>$(SolutionDir)..\build\nettool\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\build\nettool\$(Configuration)\</IntDir>
+    <IncludePath>$(SimIncludePath);$(IncludePath)</IncludePath>
+    <LibraryPath>$(SimLibraryPath);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release' Or '$(Configuration)'=='Stable'">
+    <IncludePath>$(SimIncludePath);$(IncludePath)</IncludePath>
+    <LibraryPath>$(SimLibraryPath);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <DisableSpecificWarnings>4250;4373;4800;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>zlibstat.lib;Ws2_32.lib;wsock32.lib</AdditionalDependencies>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>NETTOOL;DEBUG=3;NOMINMAX</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <DebugInformationFormat />
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <PreprocessorDefinitions>NETTOOL;NDEBUG;NOMINMAX</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="nettool.cc" />
+    <ClCompile Include="..\simdebug.cc" />
+    <ClCompile Include="..\simmem.cc" />
+    <ClCompile Include="..\dataobj\freelist.cc" />
+    <ClCompile Include="..\network\memory_rw.cc" />
+    <ClCompile Include="..\network\network.cc" />
+    <ClCompile Include="..\network\network_address.cc" />
+    <ClCompile Include="..\network\network_cmd.cc" />
+    <ClCompile Include="..\network\network_file_transfer.cc" />
+    <ClCompile Include="..\network\network_packet.cc" />
+    <ClCompile Include="..\network\network_socket_list.cc" />
+    <ClCompile Include="..\network\pwd_hash.cc" />
+    <ClCompile Include="..\utils\fetchopt.cc" />
+    <ClCompile Include="..\utils\log.cc" />
+    <ClCompile Include="..\utils\sha1.cc" />
+    <ClCompile Include="..\utils\simstring.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\convoihandle_t.h" />
+    <ClInclude Include="..\halthandle_t.h" />
+    <ClInclude Include="..\macros.h" />
+    <ClInclude Include="..\simcolor.h" />
+    <ClInclude Include="..\simconst.h" />
+    <ClInclude Include="..\simdebug.h" />
+    <ClInclude Include="..\simloadingscreen.h" />
+    <ClInclude Include="..\simmem.h" />
+    <ClInclude Include="..\simobj.h" />
+    <ClInclude Include="..\simplan.h" />
+    <ClInclude Include="..\simsys.h" />
+    <ClInclude Include="..\simtypes.h" />
+    <ClInclude Include="..\simunits.h" />
+    <ClInclude Include="..\simversion.h" />
+    <ClInclude Include="..\simworld.h" />
+    <ClInclude Include="..\unicode.h" />
+    <ClInclude Include="..\boden\grund.h" />
+    <ClInclude Include="..\boden\wege\weg.h" />
+    <ClInclude Include="..\dataobj\environment.h" />
+    <ClInclude Include="..\dataobj\freelist.h" />
+    <ClInclude Include="..\dataobj\koord.h" />
+    <ClInclude Include="..\dataobj\koord3d.h" />
+    <ClInclude Include="..\dataobj\loadsave.h" />
+    <ClInclude Include="..\dataobj\objlist.h" />
+    <ClInclude Include="..\dataobj\rect.h" />
+    <ClInclude Include="..\dataobj\ribi.h" />
+    <ClInclude Include="..\dataobj\settings.h" />
+    <ClInclude Include="..\descriptor\image.h" />
+    <ClInclude Include="..\descriptor\image_array.h" />
+    <ClInclude Include="..\descriptor\image_list.h" />
+    <ClInclude Include="..\descriptor\obj_base_desc.h" />
+    <ClInclude Include="..\descriptor\obj_desc.h" />
+    <ClInclude Include="..\descriptor\objversion.h" />
+    <ClInclude Include="..\descriptor\skin_desc.h" />
+    <ClInclude Include="..\descriptor\text_desc.h" />
+    <ClInclude Include="..\descriptor\way_desc.h" />
+    <ClInclude Include="..\display\clip_num.h" />
+    <ClInclude Include="..\display\scr_coord.h" />
+    <ClInclude Include="..\display\simgraph.h" />
+    <ClInclude Include="..\display\simimg.h" />
+    <ClInclude Include="..\network\checksum.h" />
+    <ClInclude Include="..\network\memory_rw.h" />
+    <ClInclude Include="..\network\network.h" />
+    <ClInclude Include="..\network\network_address.h" />
+    <ClInclude Include="..\network\network_cmd.h" />
+    <ClInclude Include="..\network\network_cmd_ingame.h" />
+    <ClInclude Include="..\network\network_cmd_pakset.h" />
+    <ClInclude Include="..\network\network_file_transfer.h" />
+    <ClInclude Include="..\network\network_packet.h" />
+    <ClInclude Include="..\network\network_socket_list.h" />
+    <ClInclude Include="..\network\pakset_info.h" />
+    <ClInclude Include="..\network\pwd_hash.h" />
+    <ClInclude Include="..\tpl\hashtable_tpl.h" />
+    <ClInclude Include="..\tpl\quickstone_tpl.h" />
+    <ClInclude Include="..\tpl\slist_tpl.h" />
+    <ClInclude Include="..\tpl\stringhashtable_tpl.h" />
+    <ClInclude Include="..\tpl\vector_tpl.h" />
+    <ClInclude Include="..\tpl\weighted_vector_tpl.h" />
+    <ClInclude Include="..\utils\cbuffer_t.h" />
+    <ClInclude Include="..\utils\fetchopt.h" />
+    <ClInclude Include="..\utils\for.h" />
+    <ClInclude Include="..\utils\log.h" />
+    <ClInclude Include="..\utils\plainstring.h" />
+    <ClInclude Include="..\utils\sha1.h" />
+    <ClInclude Include="..\utils\simstring.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

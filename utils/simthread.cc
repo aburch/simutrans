@@ -56,6 +56,7 @@ int simthread_barrier_wait(simthread_barrier_t *barrier)
 #endif
 
 #ifndef _SIMTHREAD_R_MUTEX_I
+#include "../simdebug.h"
 // initialize a recursive mutex by calling pthread_mutex_init()
 recursive_mutex_maker_t::recursive_mutex_maker_t(pthread_mutex_t &mutex)
 {

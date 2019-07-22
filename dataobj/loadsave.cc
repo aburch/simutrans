@@ -193,6 +193,7 @@ loadsave_t::mode_t loadsave_t::autosave_mode = zipped;	// default to use for aut
 
 loadsave_t::loadsave_t() : filename()
 {
+	last_error = FILE_ERROR_OK;
 	mode = 0;
 	saving = false;
 	buffered = false;
@@ -319,8 +320,8 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 		// and now with zlib ...
 		fd->gzfp = dr_gzopen(filename_utf8, "rb");
 		if(fd->gzfp==NULL) {
-			return false;
 			last_error = FILE_ERROR_GZ_CORRUPT;
+			return false;
 		}
 		gzgets(fd->gzfp, buf, 80);
 	}

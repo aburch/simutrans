@@ -7917,7 +7917,7 @@ bool tool_change_line_t::init( player_t *player )
 bool tool_change_depot_t::init( player_t *player )
 {
 	char tool=0;
-	koord3d pos = koord3d::invalid;
+	koord pos2d;
 	sint16 z;
 	uint16 convoi_id;
 
@@ -7926,8 +7926,9 @@ bool tool_change_depot_t::init( player_t *player )
 	while(  *p  &&  *p<=' '  ) {
 		p++;
 	}
-	sscanf( p, "%c,%hi,%hi,%hi,%hi", &tool, &pos.x, &pos.y, &z, &convoi_id );
-	pos.z = (sint8)z;
+	sscanf( p, "%c,%hi,%hi,%hi,%hi", &tool, &pos2d.x, &pos2d.y, &z, &convoi_id );
+
+	koord3d pos(pos2d, z);
 
 	// skip to the commands ...
 	z = 5;
@@ -8205,12 +8206,12 @@ bool tool_change_player_t::init( player_t *player_in)
  */
 bool tool_change_traffic_light_t::init( player_t *player )
 {
-	koord3d pos;
+	koord pos2d;
 	sint16 z, ns, ticks;
-	if(  5!=sscanf( default_param, "%hi,%hi,%hi,%hi,%hi", &pos.x, &pos.y, &z, &ns, &ticks )  ) {
+	if(  5!=sscanf( default_param, "%hi,%hi,%hi,%hi,%hi", &pos2d.x, &pos2d.y, &z, &ns, &ticks )  ) {
 		return false;
 	}
-	pos.z = (sint8)z;
+	koord3d pos(pos2d, z);
 	if(  grund_t *gr = welt->lookup(pos)  ) {
 		if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
 			if(  (  rs->get_desc()->is_traffic_light()  ||  rs->get_desc()->is_private_way()  )  &&  player_t::check_owner(rs->get_owner(),player)  ) {
@@ -8350,8 +8351,9 @@ bool tool_rename_t::init(player_t *player)
 			}
 			break;
 		case 'm':
-		case 'f':
-			if(  3!=sscanf( p, "%hi,%hi,%hi", &pos.x, &pos.y, &id )  ) {
+		case 'f': {
+			koord pos2d;
+			if(  3!=sscanf( p, "%hi,%hi,%hi", &pos2d.x, &pos2d.y, &id )  ) {
 				dbg->error( "tool_rename_t::init", "no position given for marker/factory! (%s)", default_param );
 				return false;
 			}
@@ -8361,9 +8363,10 @@ bool tool_rename_t::init(player_t *player)
 			}
 			while(  *p>0  &&  *p++!=','  ) {
 			}
-			pos.z = (sint8)id;
+			pos = koord3d(pos2d, id);
 			id = 0;
 			break;
+		}
 		default:
 			dbg->error( "tool_rename_t::init", "illegal request! (%s)", default_param );
 			return false;

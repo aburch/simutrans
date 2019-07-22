@@ -2891,8 +2891,6 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 	}
 
 	// if we arrive here, we have a multitile building
-	KOORD_VAL shortest_side = min( maxarea.x, maxarea.y );
-
 	if(  grund_t *gr = welt->lookup_kartenboden(k)  ) {
 		int rotation = -1;
 		int max_layout = h->get_all_layouts()-1;
@@ -3046,7 +3044,6 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 void stadt_t::build_city_building(const koord k)
 {
 	grund_t* gr = welt->lookup_kartenboden(k);
-	const koord3d pos(gr->get_pos());
 
 	// Not building on ways (this was actually tested before be the cityrules), but you can construct manually
 	if(  !gr->ist_natur() ) {
