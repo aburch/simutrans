@@ -1102,6 +1102,23 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 	return SYNC_OK;
 }
 
+// a helper function for convoi_t::drive_to()
+bool was_coupling_with_heading(convoi_t* cnv) {
+	const vehicle_t* v = cnv->front();
+	const grund_t* gr = world()->lookup(v->get_pos());
+	grund_t* ngr;
+	if(  !cnv->get_coupling_convoi().is_bound()  ||  !gr  ||  !gr->get_neighbour(ngr, v->get_waytype(), v->get_direction())  ) {
+		return false;
+	}
+	// Is there a car which is the coupling target?
+	for(  uint8 pos=1;  pos<(volatile uint8)ngr->get_top();  pos++  ) {
+		rail_vehicle_t* const nv = dynamic_cast<rail_vehicle_t*>(ngr->obj_bei(pos));
+		if(  nv  &&  nv->get_convoi()->self==cnv->get_coupling_convoi()  &&  nv->get_direction()==ribi_t::backward(v->get_direction())  ) {
+			return true;
+		}
+	}
+	return false;
+}
 
 /**
  * Berechne route von Start- zu Zielkoordinate
@@ -1134,7 +1151,20 @@ bool convoi_t::drive_to()
 			r->unreserve_all_tiles();
 		}
 
-		koord3d start = fahr[0]->get_pos();
+		koord3d start;
+		// after coupling with heading convoy, we have to use tail pos of coupling convoy to avoid jumping.
+		if(  was_coupling_with_heading(this)  ) {
+			// use tail of coupling convoy
+			convoihandle_t c = get_coupling_convoi();
+			while(  c.is_bound()  ) {
+				if(  !c->get_coupling_convoi().is_bound()  ) {
+					start = c->back()->get_pos();
+				}
+				c = c->get_coupling_convoi();
+			}
+		} else {
+			start = front()->get_pos();
+		}
 		koord3d ziel = schedule->get_current_entry().pos;
 
 		// avoid stopping mid-halt
