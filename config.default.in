@@ -31,7 +31,7 @@ OPTIMISE = 1 # Add umpteen optimisation flags
 #PROFILE = 1  # Enable profiling
 #PROFILE = 2  # Enable profiling with optimisation flags, can be used with `OPTIMISE = 1'
 
-AV_FOUNDATION = 0  # Use AVFoundation instead of QTKit. If you are building on macOS 10.12 or later, this must be enabled.
+AV_FOUNDATION = @av_foundation@  # Use AVFoundation instead of QTKit. If you are building on macOS 10.12 or later, this must be enabled.
 
 WITH_REVISION = @svn@ # adds the revision from svn; required for networkgames
 # if you do not use SVN, add -DREVISION="1234" to the FLAGS below

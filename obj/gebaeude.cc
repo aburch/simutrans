@@ -441,7 +441,7 @@ image_id gebaeude_t::get_front_image() const
 	if(zeige_baugrube) {
 		return IMG_EMPTY;
 	}
-	if (env_t::hide_buildings != 0 && tile->get_desc()->get_type() < building_desc_t::others) {
+	if (env_t::hide_buildings != 0   &&  (is_city_building()  ||  (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_desc()->get_type() < building_desc_t::others))) {
 		return IMG_EMPTY;
 	}
 	else {

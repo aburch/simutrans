@@ -52,6 +52,12 @@ public:
 	 * prev_veh==NULL equals leading of convoi
 	 */
 	static const vehicle_desc_t *get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const sint32 target_speed, const goods_desc_t * target_freight, bool not_obsolete, const vehicle_desc_t *prev_veh, bool is_last );
+
+	/* Resolves the fastest achieveable speed in km/h for the specified way type.
+	 * This is the speed of the fastest powered vehicle for the way type that is available within the time constraints.
+	 * This does not factor in limits applied by logically dependant vehicles or buildable ways.
+	 */
+	static sint32 get_fastest_vehicle_speed(waytype_t wt, uint16 const month_now, bool const use_timeline, bool const allow_obsolete);
 };
 
 #endif

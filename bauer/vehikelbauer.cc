@@ -574,3 +574,24 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 	}
 	return desc;
 }
+
+sint32 vehicle_builder_t::get_fastest_vehicle_speed(waytype_t wt, uint16 const month_now, bool const use_timeline, bool const allow_obsolete)
+{
+	sint32 fastest_speed = 0;
+
+	FOR(slist_tpl<vehicle_desc_t const*>, const vehicle_descriptor, typ_fahrzeuge[0][GET_WAYTYPE_INDEX(wt)]) {
+		if (vehicle_descriptor->get_power() == 0 ||
+			use_timeline && (
+				vehicle_descriptor->is_future(month_now) || 
+				!allow_obsolete && vehicle_descriptor->is_retired(month_now))) {
+			continue;
+		}
+
+		sint32 const speed = vehicle_descriptor->get_topspeed();
+		if (fastest_speed < speed) {
+			fastest_speed = speed;
+		}
+	}
+
+	return fastest_speed;
+}

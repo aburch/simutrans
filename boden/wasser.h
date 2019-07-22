@@ -16,7 +16,8 @@ protected:
 	ribi_t::ribi ribi;
 	/// helper variable, ribis to canal tiles, where ships cannot turn left or right
 	ribi_t::ribi canal_ribi;
-
+	/// helper variable ribis for displaying (tiles with harbour are not considered connected to water for displaying)
+	ribi_t::ribi display_ribi;
 	/**
 	 * This method also recalculates ribi and cache_ribi!
 	 */
@@ -40,6 +41,7 @@ public:
 	void rotate90() OVERRIDE;
 
 	ribi_t::ribi get_canal_ribi() const { return canal_ribi; }
+	ribi_t::ribi get_display_ribi() const { return display_ribi; }
 
 	// static stuff from here on for water animation
 	static int stage;
