@@ -116,3 +116,7 @@ void zeiger_t::set_area(koord new_area, bool center, koord new_offset)
 	offset = new_offset;
 	welt->mark_area( get_pos()-offset, area, true );
 }
+
+bool zeiger_t::has_managed_lifecycle() const {
+	return true;
+}

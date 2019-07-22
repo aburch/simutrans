@@ -37,7 +37,6 @@ public:
 
 	binary_heap_tpl()
 	{
-		DBG_MESSAGE("binary_heap_tpl()","initialized");
 		nodes = MALLOCN(T, 4096);
 		node_size = 4096;
 		node_count = 0;

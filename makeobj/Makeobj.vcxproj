@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{9944405A-74A3-443D-83A6-F4B9DBE23DB2}</ProjectGuid>
+    <RootNamespace>Makeobj</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Release'">
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup>
+    <_ProjectFileVersion>16.0.28916.169</_ProjectFileVersion>
+    <OutDir>$(SolutionDir)..\build\makeobj\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\build\makeobj\$(Configuration)\</IntDir>
+    <IncludePath>$(SimIncludePath);$(IncludePath)</IncludePath>
+    <LibraryPath>$(SimLibraryPath);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release' Or '$(Configuration)'=='Stable'">
+    <IncludePath>$(SimIncludePath);$(IncludePath)</IncludePath>
+    <LibraryPath>$(SimLibraryPath);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <DisableSpecificWarnings>4250;4373;4800;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>zlibstat.lib;libbz2.lib;libpng16.lib</AdditionalDependencies>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>MAKEOBJ;DEBUG=3</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <DebugInformationFormat />
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <PreprocessorDefinitions>MAKEOBJ;NDEBUG</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="makeobj.cc" />
+    <ClCompile Include="..\simdebug.cc" />
+    <ClCompile Include="..\simmem.cc" />
+    <ClCompile Include="..\dataobj\freelist.cc" />
+    <ClCompile Include="..\dataobj\tabfile.cc" />
+    <ClCompile Include="..\descriptor\image.cc" />
+    <ClCompile Include="..\descriptor\writer\bridge_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\building_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\citycar_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\crossing_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\factory_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\get_climate.cc" />
+    <ClCompile Include="..\descriptor\writer\get_waytype.cc" />
+    <ClCompile Include="..\descriptor\writer\good_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\ground_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\groundobj_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\image_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\imagelist_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\imagelist2d_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\obj_node.cc" />
+    <ClCompile Include="..\descriptor\writer\obj_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\pedestrian_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\roadsign_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\root_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\sim_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\skin_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\sound_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\text_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\tree_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\tunnel_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\vehicle_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\way_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\way_obj_writer.cc" />
+    <ClCompile Include="..\descriptor\writer\xref_writer.cc" />
+    <ClCompile Include="..\utils\dr_rdpng.cc" />
+    <ClCompile Include="..\utils\log.cc" />
+    <ClCompile Include="..\utils\searchfolder.cc" />
+    <ClCompile Include="..\utils\simstring.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\macros.h" />
+    <ClInclude Include="..\simcolor.h" />
+    <ClInclude Include="..\simconst.h" />
+    <ClInclude Include="..\simdebug.h" />
+    <ClInclude Include="..\simmem.h" />
+    <ClInclude Include="..\simsys.h" />
+    <ClInclude Include="..\simtypes.h" />
+    <ClInclude Include="..\simunits.h" />
+    <ClInclude Include="..\simversion.h" />
+    <ClInclude Include="..\unicode.h" />
+    <ClInclude Include="..\dataobj\freelist.h" />
+    <ClInclude Include="..\dataobj\koord.h" />
+    <ClInclude Include="..\dataobj\loadsave.h" />
+    <ClInclude Include="..\dataobj\ribi.h" />
+    <ClInclude Include="..\dataobj\tabfile.h" />
+    <ClInclude Include="..\descriptor\bridge_desc.h" />
+    <ClInclude Include="..\descriptor\building_desc.h" />
+    <ClInclude Include="..\descriptor\factory_desc.h" />
+    <ClInclude Include="..\descriptor\goods_desc.h" />
+    <ClInclude Include="..\descriptor\ground_desc.h" />
+    <ClInclude Include="..\descriptor\image.h" />
+    <ClInclude Include="..\descriptor\image_array.h" />
+    <ClInclude Include="..\descriptor\image_list.h" />
+    <ClInclude Include="..\descriptor\intro_dates.h" />
+    <ClInclude Include="..\descriptor\objversion.h" />
+    <ClInclude Include="..\descriptor\obj_base_desc.h" />
+    <ClInclude Include="..\descriptor\obj_desc.h" />
+    <ClInclude Include="..\descriptor\obj_node_info.h" />
+    <ClInclude Include="..\descriptor\roadsign_desc.h" />
+    <ClInclude Include="..\descriptor\skin_desc.h" />
+    <ClInclude Include="..\descriptor\sound_desc.h" />
+    <ClInclude Include="..\descriptor\text_desc.h" />
+    <ClInclude Include="..\descriptor\tunnel_desc.h" />
+    <ClInclude Include="..\descriptor\vehicle_desc.h" />
+    <ClInclude Include="..\descriptor\way_desc.h" />
+    <ClInclude Include="..\descriptor\way_obj_desc.h" />
+    <ClInclude Include="..\descriptor\writer\bridge_writer.h" />
+    <ClInclude Include="..\descriptor\writer\building_writer.h" />
+    <ClInclude Include="..\descriptor\writer\citycar_writer.h" />
+    <ClInclude Include="..\descriptor\writer\crossing_writer.h" />
+    <ClInclude Include="..\descriptor\writer\factory_writer.h" />
+    <ClInclude Include="..\descriptor\writer\get_climate.h" />
+    <ClInclude Include="..\descriptor\writer\get_waytype.h" />
+    <ClInclude Include="..\descriptor\writer\good_writer.h" />
+    <ClInclude Include="..\descriptor\writer\ground_writer.h" />
+    <ClInclude Include="..\descriptor\writer\groundobj_writer.h" />
+    <ClInclude Include="..\descriptor\writer\image_writer.h" />
+    <ClInclude Include="..\descriptor\writer\imagelist_writer.h" />
+    <ClInclude Include="..\descriptor\writer\imagelist2d_writer.h" />
+    <ClInclude Include="..\descriptor\writer\obj_node.h" />
+    <ClInclude Include="..\descriptor\writer\obj_pak_exception.h" />
+    <ClInclude Include="..\descriptor\writer\obj_writer.h" />
+    <ClInclude Include="..\descriptor\writer\pedestrian_writer.h" />
+    <ClInclude Include="..\descriptor\writer\roadsign_writer.h" />
+    <ClInclude Include="..\descriptor\writer\root_writer.h" />
+    <ClInclude Include="..\descriptor\writer\skin_writer.h" />
+    <ClInclude Include="..\descriptor\writer\sound_writer.h" />
+    <ClInclude Include="..\descriptor\writer\text_writer.h" />
+    <ClInclude Include="..\descriptor\writer\tree_writer.h" />
+    <ClInclude Include="..\descriptor\writer\tunnel_writer.h" />
+    <ClInclude Include="..\descriptor\writer\vehicle_writer.h" />
+    <ClInclude Include="..\descriptor\writer\way_obj_writer.h" />
+    <ClInclude Include="..\descriptor\writer\way_writer.h" />
+    <ClInclude Include="..\descriptor\writer\xref_writer.h" />
+    <ClInclude Include="..\display\clip_num.h" />
+    <ClInclude Include="..\display\scr_coord.h" />
+    <ClInclude Include="..\display\simgraph.h" />
+    <ClInclude Include="..\display\simimg.h" />
+    <ClInclude Include="..\network\checksum.h" />
+    <ClInclude Include="..\tpl\hashtable_tpl.h" />
+    <ClInclude Include="..\tpl\inthashtable_tpl.h" />
+    <ClInclude Include="..\tpl\stringhashtable_tpl.h" />
+    <ClInclude Include="..\tpl\slist_tpl.h" />
+    <ClInclude Include="..\tpl\vector_tpl.h" />
+    <ClInclude Include="..\tpl\weighted_vector_tpl.h" />
+    <ClInclude Include="..\utils\dr_rdpng.h" />
+    <ClInclude Include="..\utils\for.h" />
+    <ClInclude Include="..\utils\log.h" />
+    <ClInclude Include="..\utils\searchfolder.h" />
+    <ClInclude Include="..\utils\sha1.h" />
+    <ClInclude Include="..\utils\simrandom.h" />
+    <ClInclude Include="..\utils\simstring.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
