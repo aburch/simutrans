@@ -1460,7 +1460,7 @@ void haltestelle_t::new_month()
 
 		for (uint8 g_class = 0; g_class < number_of_classes; g_class++)
 		{
-			FOR(waiting_time_map, iter, *waiting_times[category][g_class])
+			FOR(waiting_time_map, &iter, *waiting_times[category][g_class])
 			{
 				// If the waiting time data are stale (more than two months old), gradually flush them.
 				// After a month, values of the estimated waiting time are appended to the list of waiting times.
@@ -4032,7 +4032,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					file->rdwr_short(halts_count);
 					halthandle_t halt;
 
-					FOR(waiting_time_map, iter, *waiting_times[i][j])
+					FOR(waiting_time_map, &iter, *waiting_times[i][j])
 					{
 						uint16 id = iter.key;
 
