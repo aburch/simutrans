@@ -17,15 +17,15 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version21_4現在、simutrans standard nightly r8776をベースにしています。
+version22現在、simutrans standard nightly r8794をベースにしています。
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2019年6月30日AM8時　ver21_4に更新）**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/71285/sim-WinGDI-OTRPv21_4.exe/  
-mac: https://osdn.net/projects/otrp/downloads/71285/sim-mac-OTRPv21_4.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/71285/sim-linux-OTRPv21_4.zip/  
+本体は下のリンクからどうぞ。**（2019年7月27日PM3時　ver22に更新）**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/71362/sim-WinGDI-OTRPv22.exe/  
+mac: https://osdn.net/projects/otrp/downloads/71362/sim-mac-OTRPv22.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/71362/sim-linux-OTRPv22.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 OTRP専用のmakeobjはありません。simutrans standardのmakeobjをご利用ください。
