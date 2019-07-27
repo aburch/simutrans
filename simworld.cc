@@ -4922,12 +4922,6 @@ void karte_t::new_month()
 		w->new_month();
 	}
 
-//	DBG_MESSAGE("karte_t::new_month()","depots");
-	// Bernd Gabriel - call new month for depots	
-	FOR(slist_tpl<depot_t *>, const dep, depot_t::get_depot_list()) {
-		dep->new_month();
-	}
-
 	// recalc old settings (and maybe update the stops with the current values)
 	reliefkarte_t::get_karte()->new_month();
 
