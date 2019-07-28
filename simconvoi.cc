@@ -3380,12 +3380,14 @@ station_tile_search_ready: ;
 			state = ROUTING_1;
 			loading_limit = 0;
 			coupling_done = false;
+			next_initial_direction = ribi_t::none;
 			// Advance schedule of coupling convoy recursively.
 			convoihandle_t c_cnv = coupling_convoi;
 			while(  c_cnv.is_bound()  ) {
 				c_cnv->get_schedule()->advance();
 				c_cnv->set_state(COUPLED);
 				c_cnv->set_coupling_done(false);
+				c_cnv->clear_next_initial_direction();
 				c_cnv = c_cnv->get_coupling_convoi();
 			}
 		}
