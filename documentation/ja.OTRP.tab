@@ -65,3 +65,11 @@ Require parent convoy to enter.
 連結相手がいる時のみ進入を許可
 release back
 後ろを解放
+A convoy waits for other convoy to couple.
+この地点で連結のために他の編成を待ちます．
+A convoy tries to find a waiting convoy to couple with.
+この地点で待機中の編成と連結を試行します．
+Uncouple the back convoy now.
+即時に後ろの編成を解放します．
+Please decouple the other convoy to edit the schedule.
+スケジュールを編集するには連結解除してください．
