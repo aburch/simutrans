@@ -853,13 +853,13 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 		}
 
 		const int thislevel = desc->get_level();
-		if(thislevel>level  &&  thislevel<start_level+6) {
-			if (selections.empty()) {
-				// Nothing of the correct level. Continue with search on a higher level.
+		if(  thislevel > level  ) {
+			if(  selections.empty()  &&  thislevel < start_level+6  ) {
+				// Nothing of the correct level. Continue with search on a higher level up to six levels
 				level = thislevel;
 			}
 			else {
-				// We already found something of the correct level; stop.
+				// We already found something of the correct level or the jump is too big; stop
 				break;
 			}
 		}
