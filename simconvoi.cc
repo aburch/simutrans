@@ -3338,13 +3338,15 @@ station_tile_search_ready: ;
 	// A coupled convoy does not have to judge the departure.
 	while(  !is_coupled()  &&  c.is_bound()  ) {
 		bool cond = c->get_loading_level() >= c->get_schedule()->get_current_entry().minimum_loading; // minimum loading
-		need_coupling_at_this_stop |= (c->get_schedule()->get_current_entry().coupling_point==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling done?
+		bool waiting_time_cond = (c->get_schedule()->get_current_entry().waiting_time_shift > 0  &&  welt->get_ticks() - arrived_time > (welt->ticks_per_world_month >> (16 - c->get_schedule()->get_current_entry().waiting_time_shift)) ); // waiting time
+		bool coupling_cond = (c->get_schedule()->get_current_entry().coupling_point==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // wait for coupling?
+		cond &= !coupling_cond;
 		cond |= c->get_no_load(); // no load
-		cond |= (c->get_schedule()->get_current_entry().waiting_time_shift > 0  &&  welt->get_ticks() - arrived_time > (welt->ticks_per_world_month >> (16 - c->get_schedule()->get_current_entry().waiting_time_shift)) ); // waiting time
+		cond |= waiting_time_cond;
 		departure_cond &= cond;
+		need_coupling_at_this_stop |= (coupling_cond  &&  !cond); // Is coupling needed at this stop?
 		c = c->get_coupling_convoi();
 	}
-	departure_cond &= !need_coupling_at_this_stop;
 	
 	if(  need_coupling_at_this_stop  &&  next_initial_direction==ribi_t::none  ) {
 		// calc the initial direction to the next stop.
