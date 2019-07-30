@@ -4927,6 +4927,32 @@ void karte_t::new_month()
 
 	INT_CHECK("simworld 3042");
 
+	// Put players before convoys and depots so as to make sure that the "fixed maintenance" graph does not always show 0 for the current month
+	// players
+	for(uint i=0; i<MAX_PLAYER_COUNT; i++) {
+		if( last_month == 0  &&  !settings.is_freeplay() ) {
+			// remove all player (but first and second) who went bankrupt during last year
+			if(  players[i] != NULL  &&  players[i]->get_finance()->is_bankrupted()  )
+			{
+				remove_player(i);
+			}
+		}
+
+		if(  players[i] != NULL  ) {
+			// if returns false -> remove player
+			if (!players[i]->new_month()) {
+				remove_player(i);
+			}
+		}
+	}
+	// update the window
+	ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
+	if(  playerwin  ) {
+		playerwin->update_data();
+	}
+
+	INT_CHECK("simworld 3175");
+
 //	DBG_MESSAGE("karte_t::new_month()","convois");
 	// hsiegeln - call new month for convois
 	FOR(vector_tpl<convoihandle_t>, const cnv, convoi_array) {
@@ -5029,31 +5055,6 @@ void karte_t::new_month()
 	}
 
 	INT_CHECK("simworld 3130");
-
-	// players
-	for(uint i=0; i<MAX_PLAYER_COUNT; i++) {
-		if( last_month == 0  &&  !settings.is_freeplay() ) {
-			// remove all player (but first and second) who went bankrupt during last year
-			if(  players[i] != NULL  &&  players[i]->get_finance()->is_bankrupted()  )
-			{
-				remove_player(i);
-			}
-		}
-
-		if(  players[i] != NULL  ) {
-			// if returns false -> remove player
-			if (!players[i]->new_month()) {
-				remove_player(i);
-			}
-		}
-	}
-	// update the window
-	ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
-	if(  playerwin  ) {
-		playerwin->update_data();
-	}
-
-	INT_CHECK("simworld 3175");
 
 //	DBG_MESSAGE("karte_t::new_month()","halts");
 	FOR(vector_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
