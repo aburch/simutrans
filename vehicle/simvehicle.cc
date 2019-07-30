@@ -3656,9 +3656,14 @@ skip_choose:
 			return false;
 		}
 		else {
+			// broadcast new route
+			convoihandle_t c = cnv->self;
+			while(  c.is_bound()  ) {
+				c->access_route()->remove_koord_from(start_block);
+				c->access_route()->append( &target_rt );
+				c = c->get_coupling_convoi();
+			}
 			// try to alloc the whole route
-			cnv->access_route()->remove_koord_from(start_block);
-			cnv->access_route()->append( &target_rt );
 			if(  !try_coupling  &&  !block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100000, true, false )  ) {
 				dbg->error( "rail_vehicle_t::is_choose_signal_clear()", "could not reserved route after find_route!" );
 				target_halt = halthandle_t();
