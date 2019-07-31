@@ -1813,7 +1813,13 @@ void convoi_t::ziel_erreicht()
 		}
 		else {
 			// Neither depot nor station: waypoint
-			schedule->advance();
+			c = self;
+			// advance schedule for all coupling convoys.
+			while(  c.is_bound()  ) {
+				c->get_schedule()->advance();
+				printf("%s) schedule advanced\n", c->get_name());
+				c = c->get_coupling_convoi();
+			}
 			state = ROUTING_1;
 		}
 	}

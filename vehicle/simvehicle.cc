@@ -1215,7 +1215,12 @@ void vehicle_t::hop(grund_t* gr)
 			cnv->set_schedule_target( koord3d::invalid );
 		}
 		else {
-			cnv->get_schedule()->advance();
+			// advance schedule for all coupling convoys.
+			convoihandle_t c = cnv->self;
+			while(  c.is_bound()  ) {
+				c->get_schedule()->advance();
+				c = c->get_coupling_convoi();
+			}
 			const koord3d ziel = cnv->get_schedule()->get_current_entry().pos;
 			cnv->set_schedule_target( cnv->is_waypoint(ziel) ? ziel : koord3d::invalid );
 		}
