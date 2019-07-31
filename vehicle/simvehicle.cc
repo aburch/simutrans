@@ -4106,12 +4106,17 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 			// ground does not exist!?
 			return false;
 		}
+		const ribi_t::ribi dir = i==start_index ? ribi_t::none : ribi_type(route->at(i-1), route->at(i));
 		for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 			if(  rail_vehicle_t* const v = dynamic_cast<rail_vehicle_t*>(gr->obj_bei(pos))  ) {
 				// there is a suitable waiting convoy for coupling -> this is coupling point.
 				if(  cnv->can_start_coupling(v->get_convoi())  &&  v->get_convoi()->is_loading()  ) {
 					if(  !v->is_last()  &&  !v->is_leading()  ) {
 						// we have to couple with either end of the convoy.
+						continue;
+					}
+					if(  i!=start_index  &&  ((v->is_last()&&(v->get_direction()&dir)==0)  ||  (v->is_leading()&&(v->get_direction()&dir)!=0))  ) {
+						// direction is bad to couple.
 						continue;
 					}
 					//reserve tiles
