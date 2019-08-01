@@ -155,6 +155,8 @@ void convoi_t::init(player_t *player)
 	coupling_done = false;
 	next_initial_direction = ribi_t::none;
 
+	coupling_convoi = convoihandle_t();
+	
 	line_update_pending = linehandle_t();
 
 	home_depot = koord3d::invalid;
