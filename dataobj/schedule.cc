@@ -478,6 +478,9 @@ void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* 
 		if (entry.minimum_loading != 0  &&  max_chars <= 0) {
 			buf.printf("%d%% ", entry.minimum_loading);
 		}
+		else if(  entry.coupling_point!=0  ) {
+			buf.printf("[#] ");
+		}
 		p = halt->get_name();
 	}
 	else {
