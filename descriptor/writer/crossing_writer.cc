@@ -103,7 +103,8 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 	node.write_uint16(fp, uv16, 4);
 	uv16 = obj.get_int("speed[1]", 0);
-	if(uv16==0) {
+        // Zero speed permissible for water as secondary type
+	if(uv16==0 && wegtyp2 != water_wt) {
 		dbg->fatal( "Crossing", "A maxspeed MUST be given for both ways!");
 		exit(1);
 	}

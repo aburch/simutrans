@@ -460,7 +460,17 @@ bool way_builder_t::check_crossing(const koord zv, const grund_t *bd, waytype_t 
 		return false;
 	}
 	// crossing available and ribis ok
-	if(crossing_logic_t::get_crossing(wtyp, w->get_waytype(), 0, 0, welt->get_timeline_year_month())!=NULL) {
+	const crossing_desc_t *crd = crossing_logic_t::get_crossing(wtyp, w->get_waytype(), 0, 0, welt->get_timeline_year_month());
+	if(crd!=NULL) {
+		// special case if crd->maxspeed(1) is zero: require maxspeed of
+		// new way to not exceed crd->maxspeed(0).
+		// This permits very low-speed fords of non-navigable streams.
+		if ((crd->get_maxspeed(1)) == 0 &&
+			( (crd->get_maxspeed(0) < desc->get_topspeed()) ||
+			  (w->get_desc()->get_topspeed() > 0) )) {
+			return false;
+		}
+
 		ribi_t::ribi w_ribi = w->get_ribi_unmasked();
 		// it is our way we want to cross: can we built a crossing here?
 		// both ways must be straight and no ends
