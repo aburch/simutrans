@@ -7359,7 +7359,7 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 		{
 			grund_t* gr_route = route ? welt->lookup(route->at(i)) : NULL;
 			schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
-			if (!is_one_train_staff && !sch_route->is_reserved() || (sch_route && sch_route->get_reserved_convoi() != cnv->self))
+			if (!is_one_train_staff && (sch_route && !sch_route->is_reserved()) || (sch_route && sch_route->get_reserved_convoi() != cnv->self))
 			{
 				if (!last_tile_was_break)
 				{
