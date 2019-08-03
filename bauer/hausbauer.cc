@@ -835,11 +835,12 @@ const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::bty
  * @param level the minimum level of the house/station
  * @param cl allowed climates
  */
-static const building_desc_t* get_city_building_from_list(const vector_tpl<const building_desc_t*>& list, int level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize )
+static const building_desc_t* get_city_building_from_list(const vector_tpl<const building_desc_t*>& list, int start_level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize )
 {
 	weighted_vector_tpl<const building_desc_t *> selections(16);
 	sint16 area = maxsize.x*maxsize.y;
 	sint16 minarea = minsize.x*minsize.y;
+	int level = start_level;
 
 //	DBG_MESSAGE("hausbauer_t::get_aus_liste()","target level %i", level );
 	const building_desc_t *desc_at_least=NULL;
@@ -852,13 +853,13 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 		}
 
 		const int thislevel = desc->get_level();
-		if(thislevel>level) {
-			if (selections.empty()) {
-				// Nothing of the correct level. Continue with search on a higher level.
+		if(  thislevel > level  ) {
+			if(  selections.empty()  &&  thislevel < start_level+6  ) {
+				// Nothing of the correct level. Continue with search on a higher level up to six levels
 				level = thislevel;
 			}
 			else {
-				// We already found something of the correct level; stop.
+				// We already found something of the correct level or the jump is too big; stop
 				break;
 			}
 		}
