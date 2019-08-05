@@ -3669,7 +3669,23 @@ skip_choose:
 				c = c->get_coupling_convoi();
 			}
 			// try to alloc the whole route
-			if(  !try_coupling  &&  !block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100000, true, false )  ) {
+			const bool reserver_result = block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100000, true, false );
+			if(  try_coupling  ) {
+				uint16 next_coupling;
+				uint8 next_c_steps;
+				if(  !can_couple(cnv->get_route(), route_index, next_coupling, next_c_steps)  ||  next_coupling==INVALID_INDEX  ) {
+					dbg->error( "rail_vehicle_t::is_choose_signal_clear()", "could not find coupling point after find_route!" );
+					target_halt = halthandle_t();
+					sig->set_state( roadsign_t::rot );
+					restart_speed = 0;
+					return false;
+				} 
+				cnv->set_next_coupling(next_coupling, next_c_steps);
+				cnv->set_next_stop_index( min(next_crossing, next_coupling) );
+				sig->set_state( roadsign_t::gruen );
+				return true;
+			}
+			else if(  !reserver_result  ) {
 				dbg->error( "rail_vehicle_t::is_choose_signal_clear()", "could not reserved route after find_route!" );
 				target_halt = halthandle_t();
 				sig->set_state(  roadsign_t::rot );
