@@ -165,6 +165,7 @@ void convoi_t::init(player_t *player)
 
 	recalc_data_front = true;
 	recalc_data = true;
+	recalc_speed_limit = true;
 
 	next_cross_lane = false;
 	request_cross_ticks = 0;
@@ -2263,6 +2264,7 @@ void convoi_t::vorfahren()
 	}
 	recalc_data_front = true;
 	recalc_data = true;
+	recalc_speed_limit = true;
 
 	koord3d k0 = route.front();
 	grund_t *gr = welt->lookup(k0);
