@@ -3626,7 +3626,7 @@ skip_choose:
 
 	target_halt = target->get_halt();
 	bool route_found = false;
-	const bool try_coupling = cnv->get_schedule()->get_current_entry().coupling_point==2;
+	bool try_coupling = cnv->get_schedule()->get_current_entry().coupling_point==2;
 	if(  !try_coupling  ) {
 		// call block_reserver only when the next halt is not a coupling point.
 		route_found = block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100000, true, false );
@@ -3652,6 +3652,7 @@ skip_choose:
 		}
 		if(  !route_found  &&  (!sig->is_guide_signal()  ||  !try_coupling)  ) {
 			route_found = target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps(), false );
+			try_coupling = false;
 		}
 		if(  !route_found  ) {
 			// nothing empty or not route with less than get_max_choose_route_steps() tiles
