@@ -4132,7 +4132,7 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 						// we have to couple with either end of the convoy.
 						continue;
 					}
-					if(  i!=start_index  &&  ((v->is_last()&&(v->get_direction()&dir)==0)  ||  (v->is_leading()&&(v->get_direction()&dir)!=0))  ) {
+					if(  i!=start_index  &&  v->get_convoi()->get_vehicle_count()>1  &&  ((v->is_last()&&(v->get_direction()&dir)==0)  ||  (v->is_leading()&&(v->get_direction()&dir)!=0))  ) {
 						// direction is bad to couple.
 						continue;
 					}
