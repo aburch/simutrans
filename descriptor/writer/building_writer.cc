@@ -121,7 +121,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	if (layouts == 0) {
 		layouts = groesse.x == groesse.y ? 1 : 2;
 	}
-	if (size.x*size.z == 0) {
+	if (size.x*size.y == 0) {
 		dbg->fatal("building_writer_t::write_obj", "Cannot create a building with zero size (%i,%i)", size.x, size.y);
 	}
 	delete [] ints;
