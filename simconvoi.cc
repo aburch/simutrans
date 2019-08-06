@@ -3327,7 +3327,7 @@ station_tile_search_ready: ;
 	}
 	
 	convoihandle_t c = self;
-	if(  recalc_min_top_speed  ) {
+	if(  !is_coupled()  &&  recalc_min_top_speed  ) {
 		check_electrification();
 		calc_min_top_speed();
 		while(  c.is_bound()  ) {
