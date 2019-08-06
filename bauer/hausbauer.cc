@@ -838,24 +838,16 @@ const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::bty
 static const building_desc_t* get_city_building_from_list(const vector_tpl<const building_desc_t*>& list, int start_level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize )
 {
 	weighted_vector_tpl<const building_desc_t *> selections(16);
-	sint16 area = maxsize.x*maxsize.y;
-	sint16 minarea = minsize.x*minsize.y;
 	int level = start_level;
 
 //	DBG_MESSAGE("hausbauer_t::get_aus_liste()","target level %i", level );
 	const building_desc_t *desc_at_least=NULL;
 	FOR(vector_tpl<building_desc_t const*>, const desc, list) {
-		if(  desc->is_allowed_climate(cl)  &&  desc->get_distribution_weight()>0  &&  desc->is_available(time)  &&  desc->get_x()*desc->get_y()<=area  &&  desc->get_x()*desc->get_y()>=minarea  ) {
-			// size check
-			if(  (desc->get_x() <= maxsize.x  ||  desc->get_y() <= maxsize.x)  &&   (desc->get_x() >= minsize.x  ||  desc->get_y() >= minsize.x)  ) {
-				desc_at_least = desc;
-			}
-		}
-
 		const int thislevel = desc->get_level();
-		if(  thislevel > level  ) {
-			if(  selections.empty()  &&  thislevel < start_level+6  ) {
-				// Nothing of the correct level. Continue with search on a higher level up to six levels
+		if (thislevel > start_level+6) break;
+		if( thislevel > level ) {
+			if (selections.empty()) {
+				// Nothing of the correct level. Continue with search on a higher level.
 				level = thislevel;
 			}
 			else {
@@ -863,33 +855,32 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 				break;
 			}
 		}
-
-		if(  thislevel == level  &&  desc->get_distribution_weight() > 0  ) {
-			if(  cl==MAX_CLIMATES  ||  desc->is_allowed_climate(cl)  ) {
-				if(  desc->is_available(time)  ) {
-					// not too big?
-					if(  desc->get_x()*desc->get_y()<=area  &&  (  desc->get_x() <= maxsize.x  ||  desc->get_y() <= maxsize.x  )  ) {
-						// or too small
-						if(  desc->get_x()*desc->get_y()>=area  &&  (  desc->get_x() >= minsize.x  ||  desc->get_y() >= minsize.x  )  ) {
-		//					DBG_MESSAGE("hausbauer_t::get_city_building_from_list()","appended %s at %i", desc->get_name(), thislevel );
-							/* Level, time period, and climate are all OK.
-							 * Now modify the chance rating by a factor based on the clusters.
-							 */
-							// FIXME: the factor should be configurable by the pakset/
-							int chance = desc->get_distribution_weight();
-							if(  clusters  ) {
-								uint32 my_clusters = desc->get_clusters();
-								if(  my_clusters & clusters  ) {
-									chance *= stadt_t::get_cluster_factor();
-								}
-								else {
-									chance /= stadt_t::get_cluster_factor();
-								}
-							}
-							selections.append(desc, chance);
-						}
+		if( (desc->is_allowed_climate(cl)   || cl==MAX_CLIMATES  )  &&
+		     desc->get_distribution_weight() > 0  &&
+		     desc->is_available(time)  &&
+		     // size check
+		  ( (desc->get_x() <= maxsize.x  &&  desc->get_y() <= maxsize.y  &&
+		     desc->get_x() >= minsize.x  &&  desc->get_y() >= minsize.y  ) ||
+		    (desc->get_x() <= maxsize.y  &&  desc->get_y() <= maxsize.x  &&
+		     desc->get_x() >= minsize.y  &&  desc->get_y() >= minsize.x  ) ) ) {
+			desc_at_least = desc;
+			if( thislevel == level ) {
+//				DBG_MESSAGE("hausbauer_t::get_city_building_from_list()","appended %s at %i", desc->get_name(), thislevel );
+				/* Level, time period, and climate are all OK.
+				 * Now modify the chance rating by a factor based on the clusters.
+				*/
+				// FIXME: the factor should be configurable by the pakset/
+				int chance = desc->get_distribution_weight();
+				if(  clusters  ) {
+					uint32 my_clusters = desc->get_clusters();
+					if(  my_clusters & clusters  ) {
+						chance *= stadt_t::get_cluster_factor();
+					}
+					else {
+						chance /= stadt_t::get_cluster_factor();
 					}
 				}
+				selections.append(desc, chance);
 			}
 		}
 	}
