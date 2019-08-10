@@ -163,6 +163,7 @@ void convoi_t::init(player_t *player)
 
 	recalc_data_front = true;
 	recalc_data = true;
+	recalc_speed_limit = true;
 }
 
 
