@@ -3959,7 +3959,9 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 		signal_t* c_sig = sch1->has_signal() ? gr_next_block->find<signal_t>() : NULL;
 		// next check for coupling. no check in front of a choose signal
-		if(  !(c_sig  &&  c_sig->get_desc()->is_choose_sign())  &&  can_couple(cnv->get_route(), next_block+1, next_coupling, next_c_steps)  &&  next_coupling!=INVALID_INDEX  ) {
+		if(  !(c_sig  &&  c_sig->get_desc()->is_choose_sign()  &&  cnv->get_schedule_target()==koord3d::invalid)
+		  &&  can_couple(cnv->get_route(), next_block+1, next_coupling, next_c_steps)  
+			&&  next_coupling!=INVALID_INDEX  ) {
 			cnv->set_next_coupling(next_coupling, next_c_steps);
 			// since signal does not exist till the coupling point...
 			cnv->set_next_stop_index(min(next_crossing,next_coupling));
@@ -4104,9 +4106,19 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 
 
 bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16 &coupling_index, uint8 &coupling_steps) {
-	const bool try_coupling = cnv->get_schedule()->get_current_entry().coupling_point==2;
 	// first, does the current schedule entry require coupling?
-	if(  !try_coupling  ) {
+	// Since current schedule entry can be a waypoint, we proceed to a genuine stop point.
+	sint16 idx = cnv->get_schedule()->get_current_stop();
+	bool stop_found = false;
+	do {
+		if(  !cnv->is_waypoint(cnv->get_schedule()->entries[idx].pos)  ) {
+			stop_found = true;
+			break;
+		}
+		idx = (idx+1)%cnv->get_schedule()->get_count();
+	} while(  idx!=cnv->get_schedule()->get_current_stop()  );
+	if(  !stop_found  ||  cnv->get_schedule()->entries[idx].coupling_point!=2  ) {
+		// all schedule entries are waypoint or the next stop point is not a coupling point.
 		return false;
 	}
 	// start_index can be invalid.

@@ -1820,7 +1820,6 @@ void convoi_t::ziel_erreicht()
 			// advance schedule for all coupling convoys.
 			while(  c.is_bound()  ) {
 				c->get_schedule()->advance();
-				printf("%s) schedule advanced\n", c->get_name());
 				c = c->get_coupling_convoi();
 			}
 			state = ROUTING_1;
@@ -4590,15 +4589,27 @@ bool convoi_t::can_continue_coupling() const {
 
 bool convoi_t::can_start_coupling(convoi_t* parent) const {
 	/* conditions to continue coupling
-	* 1) next schedule entry is same except for coupling_point parameter.
-	* 2) The next planned platform has adequate length for entire convoy length.
-	* 3) current schedule entry is same except for coupling_point parameter
-	* 4) current schedule entry has appropriate coupling_point for both convoys
-	* 5) The coming platform has adequate length for entire convoy.
+	* 1) next schedule entries have the same position.
+	* 2) current schedule entries have the same position.
+	* 3) current schedule entry has appropriate coupling_point for both convoys.
 	*/
-	const schedule_entry_t t_c = schedule->get_current_entry();
+	// Since current schedule entry of this convoy can be waypoint, we proceed to a genuine stop point.
+	sint16 t_idx = schedule->get_current_stop();
+	bool stop_found = false;
+	do {
+		if(  !is_waypoint(schedule->entries[t_idx].pos)  ) {
+			stop_found = true;
+			break;
+		}
+		t_idx = (t_idx+1)%schedule->get_count();
+	} while(  t_idx!=schedule->get_current_stop()  );
+	if(  !stop_found  ) {
+		// all schedule entries are waypoint.
+		return false;
+	}
+	const schedule_entry_t t_c = schedule->entries[t_idx];
+	const schedule_entry_t t_n = schedule->entries[(t_idx+1)%schedule->get_count()];
 	const schedule_entry_t p_c = parent->get_schedule()->get_current_entry();
-	const schedule_entry_t t_n = schedule->get_next_entry();
 	const schedule_entry_t p_n = parent->get_schedule()->get_next_entry();
 	
 	if(  p_c.coupling_point!=1  ||  t_c.coupling_point!=2  ) {
@@ -4609,7 +4620,6 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 	if(  t_c.pos!=p_c.pos  ||  t_n.pos!=p_n.pos  ) {
 		return false;
 	}
-	// Does the current and next platform has adequate length?
 	return true;
 }
 
