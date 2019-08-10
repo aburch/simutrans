@@ -1173,10 +1173,11 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 		start_info.direction = front.get_direction();
 		start_info.steps_from_start = 0;
 		const weg_t *current_weg = get_weg_on_grund(welt->lookup(current_tile), waytype);
-		start_info.speed_limit = front.calc_speed_limit(current_weg, NULL, &corner_data, start_info.direction, start_info.direction);
+		start_info.speed_limit = front.calc_speed_limit(current_weg, NULL, &corner_data, get_tile_length(), start_info.direction, start_info.direction);
 
 		sint32 takeoff_index = front.get_takeoff_route_index();
 		sint32 touchdown_index = front.get_touchdown_route_index();
+		uint32 bridge_tiles = 0;
 		for (i++; i < route_count; i++)
 		{
 			convoi_t::route_info_t &current_info = route_infos.get_element(i - 1);
@@ -1185,12 +1186,37 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 			const koord3d next_tile = route.at(min(i + 1, route_count - 1));
 			this_info.speed_limit = welt->lookup_kartenboden(this_tile.get_2d())->is_water() ? vehicle_t::speed_unlimited() : kmh_to_speed(950); // Do not alow supersonic flight over land.
 			this_info.steps_from_start = current_info.steps_from_start + front.get_tile_steps(current_tile.get_2d(), next_tile.get_2d(), this_info.direction);
-			const weg_t *this_weg = get_weg_on_grund(welt->lookup(this_tile), waytype);
+			const grund_t* this_gr = welt->lookup(this_tile);
+			const weg_t *this_weg = get_weg_on_grund(this_gr, waytype);
+			uint32 bridge_tiles_ahead = 0;
+			if (this_gr->ist_bruecke())
+			{
+				bridge_tiles++;
+				
+				for (uint32 j = i + 1; j < route_count; j++)
+				{
+					const koord3d tile = route.at(j);
+					const grund_t* gr = welt->lookup(tile); 
+					if (gr->ist_bruecke())
+					{
+						bridge_tiles_ahead++;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			else
+			{
+				bridge_tiles = 0;
+			}
+
 			if (i >= touchdown_index || i <= takeoff_index)
 			{
 				// not an aircraft (i <= takeoff_index == INVALID_INDEX == 65530u) or
 				// aircraft on ground (not between takeoff_index and touchdown_index): get speed limit
-				current_info.speed_limit = this_weg ? front.calc_speed_limit(this_weg, current_weg, &corner_data, this_info.direction, current_info.direction) : vehicle_t::speed_unlimited();
+				current_info.speed_limit = this_weg ? front.calc_speed_limit(this_weg, current_weg, &corner_data, bridge_tiles + bridge_tiles_ahead, this_info.direction, current_info.direction) : vehicle_t::speed_unlimited();
 			}
 			current_tile = this_tile;
 			current_weg = this_weg;
