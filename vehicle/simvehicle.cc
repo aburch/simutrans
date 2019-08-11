@@ -1731,7 +1731,18 @@ void vehicle_t::hop(grund_t* gr)
 	if(  weg  )	{
 		//const grund_t *gr_prev = welt->lookup(pos_prev);
 		//const weg_t * weg_prev = gr_prev != NULL ? gr_prev->get_weg(get_waytype()) : NULL;
-		speed_limit = calc_speed_limit(weg, weg_prev, &pre_corner_direction, direction, previous_direction);
+
+		// Calculating the speed limit on the fly has the advantage of using up to date data - but there is no algorithm for taking into account the number of tiles of a bridge and thus the bridge weight limit using this mehtod.
+		//speed_limit = calc_speed_limit(weg, weg_prev, &pre_corner_direction, direction, previous_direction);
+		if (get_route_index() < cnv->get_route_infos().get_count())
+		{
+			speed_limit = cnv->get_route_infos().get_element(get_route_index()).speed_limit;
+		}
+		else
+		{
+			// This does not take into account bridge length (assuming any bridge to be infinitely long)
+			speed_limit = calc_speed_limit(weg, weg_prev, &pre_corner_direction, cnv->get_tile_length(), direction, previous_direction);
+		}
 
 		// Weight limit needed for GUI flag
 		const uint32 max_axle_load = weg->get_max_axle_load() > 0 ? weg->get_max_axle_load() : 1;
@@ -1741,6 +1752,15 @@ void vehicle_t::hop(grund_t* gr)
 
 		// This is just used for the GUI display, so only set to true if the weight limit is set to enforce by speed restriction.
 		is_overweight = ((cnv->get_highest_axle_load() > max_axle_load || cnv->get_weight_summary().weight / 1000 > bridge_weight_limit) && (welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3));
+		if (is_overweight && bridge_weight_limit)
+		{
+			// This may be triggered incorrectly if the convoy is longer than the bridge and the part of the convoy that can fit onto the bridge at any one time is not overweight. Check for this.
+			const sint32 calced_speed_limit = calc_speed_limit(weg, weg_prev, &pre_corner_direction, cnv->get_tile_length(), direction, previous_direction);
+			if (speed_limit > calced_speed_limit || calced_speed_limit > calc_speed_limit(weg, weg_prev, &pre_corner_direction, 1, direction, previous_direction))
+			{
+				is_overweight = false;
+			}
+		}
 
 		if(weg->is_crossing())
 		{
@@ -1775,7 +1795,7 @@ void vehicle_t::hop(grund_t* gr)
  * taking into account the curve and weight limit.
  * @author: jamespetts/Bernd Gabriel
  */
-sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fixed_list_tpl<sint16, 192>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction)
+sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fixed_list_tpl<sint16, 192>* cornering_data, uint32 bridge_tiles, ribi_t::ribi current_direction, ribi_t::ribi previous_direction)
 {
 	if (weg_previous)
 	{
@@ -1799,14 +1819,17 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 
 	// Reduce speed for overweight vehicles
 
-	if((highest_axle_load > max_axle_load || total_weight > bridge_weight_limit) && (welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3))
+	uint32 adjusted_convoy_weight = cnv->get_tile_length() == 0 ? total_weight : (total_weight * max(bridge_tiles - 2, 1)) / cnv->get_tile_length();
+	adjusted_convoy_weight = min(adjusted_convoy_weight, total_weight);
+
+	if((highest_axle_load > max_axle_load || adjusted_convoy_weight > bridge_weight_limit) && (welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3))
 	{
-		if((max_axle_load != 0 && (highest_axle_load * 100) / max_axle_load <= 110) && (bridge_weight_limit != 0 && (total_weight * 100) / bridge_weight_limit <= 110))
+		if((max_axle_load != 0 && (highest_axle_load * 100) / max_axle_load <= 110) && (bridge_weight_limit != 0 && (adjusted_convoy_weight * 100) / bridge_weight_limit <= 110))
 		{
 			// Overweight by up to 10% - reduce speed limit to a third.
 			overweight_speed_limit = base_limit / 3;
 		}
-		else if((max_axle_load == 0 || (highest_axle_load * 100) / max_axle_load > 110) || (bridge_weight_limit == 0 || (total_weight * 100) / bridge_weight_limit > 110))
+		else if((max_axle_load == 0 || (highest_axle_load * 100) / max_axle_load > 110) || (bridge_weight_limit == 0 || (adjusted_convoy_weight * 100) / bridge_weight_limit > 110))
 		{
 			// Overweight by more than 10% - reduce speed limit by a factor of 10.
 			overweight_speed_limit = base_limit / 10;
