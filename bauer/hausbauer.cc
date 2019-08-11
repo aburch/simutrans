@@ -844,7 +844,9 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 	const building_desc_t *desc_at_least=NULL;
 	FOR(vector_tpl<building_desc_t const*>, const desc, list) {
 		const int thislevel = desc->get_level();
-		if (thislevel > start_level+6) break;
+		if (thislevel > start_level + 6) {
+			break;
+		}
 		if( thislevel > level ) {
 			if (selections.empty()) {
 				// Nothing of the correct level. Continue with search on a higher level.
