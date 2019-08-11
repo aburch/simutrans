@@ -2859,10 +2859,7 @@ bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed)
 	const roadsign_desc_t *sig_desc=sig->get_desc();
 
 	// simple signal: drive on, if next block is free
-	if(  !sig_desc->is_longblock_signal() &&
-      !sig_desc->is_choose_sign() &&
-      !sig_desc->is_pre_signal() &&
-      !sig_desc->is_priority_signal()) {
+	if(  !sig_desc->is_signal_type()   ) {
 
 		uint16 next_signal, next_crossing;
 		if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
