@@ -2487,8 +2487,9 @@ void convoi_t::new_month()
 		monthly_cost -= get_vehicle(j)->get_desc()->get_fixed_cost(welt);
 	}
 	jahresgewinn += monthly_cost;
-	book( monthly_cost, CONVOI_OPERATIONS );
-	book( monthly_cost, CONVOI_PROFIT );
+	monthly_cost = welt->calc_adjusted_monthly_figure(monthly_cost);
+	book(monthly_cost, CONVOI_OPERATIONS);
+	book(monthly_cost, CONVOI_PROFIT);
 	// This is way too tedious a way to get my waytype...
 	waytype_t my_waytype;
 	if (get_schedule()) {
