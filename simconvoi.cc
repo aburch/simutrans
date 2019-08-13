@@ -2468,6 +2468,16 @@ void convoi_t::new_month()
 		return;
 	}
 
+	// everything normal: update history
+	for (int j = 0; j<MAX_CONVOI_COST; j++)
+	{
+		for (int k = MAX_MONTHS-1; k>0; k--)
+		{
+			financial_history[k][j] = financial_history[k-1][j];
+		}
+		financial_history[0][j] = 0;
+	}
+
 	// Deduct monthly fixed maintenance costs.
 	// @author: jamespetts
 	sint64 monthly_cost = 0;
@@ -2477,8 +2487,6 @@ void convoi_t::new_month()
 		monthly_cost -= get_vehicle(j)->get_desc()->get_fixed_cost(welt);
 	}
 	jahresgewinn += monthly_cost;
-	book( monthly_cost, CONVOI_OPERATIONS );
-	book( monthly_cost, CONVOI_PROFIT );
 	// This is way too tedious a way to get my waytype...
 	waytype_t my_waytype;
 	if (get_schedule()) {
@@ -2491,16 +2499,9 @@ void convoi_t::new_month()
 		my_waytype = ignore_wt;
 	}
 	get_owner()->book_vehicle_maintenance(monthly_cost, my_waytype);
-
-	// everything normal: update history
-	for (int j = 0; j<MAX_CONVOI_COST; j++)
-	{
-		for (int k = MAX_MONTHS-1; k>0; k--)
-		{
-			financial_history[k][j] = financial_history[k-1][j];
-		}
-		financial_history[0][j] = 0;
-	}
+	monthly_cost = welt->calc_adjusted_monthly_figure(monthly_cost);
+	book(monthly_cost, CONVOI_OPERATIONS);
+	book(monthly_cost, CONVOI_PROFIT);
 
 	if(financial_history[1][CONVOI_AVERAGE_SPEED] == 0)
 	{

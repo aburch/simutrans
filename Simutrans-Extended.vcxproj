@@ -2709,6 +2709,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (open GL)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (open GL 2)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (open GL)|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="display\simgraph16.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (non-graphical server)|Win32'">true</ExcludedFromBuild>
@@ -2848,6 +2849,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded old)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (no randomness)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="simsys_opengl.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -2873,6 +2875,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (open GL 2)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (open GL)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="simsys_posix.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -2904,6 +2907,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (open GL 2)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (open GL 2)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (open GL)|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="simsys_s2.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -2929,6 +2933,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (open GL 2)|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (open GL)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="simsys_w.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">true</ExcludedFromBuild>
@@ -2977,6 +2982,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (open GL)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (open GL)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (open GL 2)|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="sound\sdl_mixer_sound.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-64|Win32'">true</ExcludedFromBuild>
@@ -3007,6 +3013,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (open GL 2)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (open GL 2)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (open GL)|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="sound\sdl_sound.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-64|Win32'">true</ExcludedFromBuild>
@@ -3037,6 +3044,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (open GL 2)|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (open GL 2)|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (open GL)|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="squirrel\sqstdlib\sqstdaux.cc" />
     <ClCompile Include="squirrel\sqstdlib\sqstdblob.cc" />
@@ -3335,6 +3343,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (open GL 2)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (open GL)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="simticker.cc" />
     <ClCompile Include="vehicle\simvehicle.cc" />
