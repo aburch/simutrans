@@ -1189,7 +1189,7 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 			const grund_t* this_gr = welt->lookup(this_tile);
 			const weg_t *this_weg = get_weg_on_grund(this_gr, waytype);
 			uint32 bridge_tiles_ahead = 0;
-			if (this_gr->ist_bruecke())
+			if (this_gr && this_gr->ist_bruecke())
 			{
 				bridge_tiles++;
 				
