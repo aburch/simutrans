@@ -781,9 +781,17 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 	}
 
 	// universal check for crossings
-	if (to!=from  &&  (bautyp&bautyp_mask)!=leitung) {
-		waytype_t const wtyp = (bautyp == river) ? water_wt : (waytype_t)(bautyp & bautyp_mask);
-		if(!check_crossing(zv,to,wtyp,player_builder)  ||  !check_crossing(-zv,from,wtyp,player_builder)) {
+	weg_t* this_way = to->get_weg_nr(0);
+	waytype_t const wtyp = (bautyp == river) ? water_wt : (waytype_t)(bautyp & bautyp_mask);
+	if (this_way && wtyp != this_way->get_waytype())
+	{
+		this_way = to->get_weg_nr(1);
+	}
+	if (to!=from  &&  (bautyp&bautyp_mask)!=leitung)
+	{
+		// Do not check crossing permissions when the player
+		if((!this_way || !this_way->get_owner()->allows_access_to(player_builder->get_player_nr())) && (!check_crossing(zv,to,wtyp,player_builder)  ||  !check_crossing(-zv,from,wtyp,player_builder)))
+		{
 			return false;
 		}
 	}
