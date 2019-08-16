@@ -3839,12 +3839,12 @@ void convoi_t::check_pending_updates()
 				 * We are already there => keep current state
 				 */
 			}
-			else {
+			else if(  !is_coupled()  ) {
 				// need re-routing
 				state = EDIT_SCHEDULE;
 			}
 			// make this change immediately
-			if(  state!=LOADING  ) {
+			if(  !is_loading()  ) {
 				wait_lock = 0;
 			}
 		}
