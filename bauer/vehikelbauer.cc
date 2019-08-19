@@ -582,7 +582,7 @@ sint32 vehicle_builder_t::get_fastest_vehicle_speed(waytype_t wt, uint16 const m
 	FOR(slist_tpl<vehicle_desc_t const*>, const vehicle_descriptor, typ_fahrzeuge[0][GET_WAYTYPE_INDEX(wt)]) {
 		if (vehicle_descriptor->get_power() == 0 ||
 			use_timeline && (
-				vehicle_descriptor->is_future(month_now) || 
+				vehicle_descriptor->is_future(month_now) ||
 				!allow_obsolete && vehicle_descriptor->is_retired(month_now))) {
 			continue;
 		}
