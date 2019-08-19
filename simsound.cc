@@ -199,7 +199,7 @@ void midi_play(const int no)
 		dbg->warning("midi_play()", "MIDI index %d too high (total loaded: %d)", no, max_midi);
 	}
 	else if(  !midi_get_mute()  ) {
-		dr_play_midi(no);
+		dr_play_midi( (no<0) ? sim_async_rand(max_midi) : no );
 	}
 }
 

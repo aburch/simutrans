@@ -647,7 +647,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @returns true if sign is signal
 	 */
-	register_method(vm, &roadsign_desc_t::is_signal, "is_signal");
+	register_method(vm, &roadsign_desc_t::is_simple_signal, "is_signal");
 	/**
 	 * @returns true if sign is pre signal (distant signal)
 	 */

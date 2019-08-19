@@ -15,7 +15,7 @@
 #include "gui_frame.h"
 #include "components/gui_button.h"
 #include "components/gui_numberinput.h"
-#include "components/gui_fixedwidth_textarea.h"
+#include "components/gui_textarea.h"
 #include "components/gui_combobox.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_label.h"
@@ -76,7 +76,7 @@ private:
 	gui_numberinput_t	speed;
 	gui_combobox_t	scheduletype;
 
-	gui_fixedwidth_textarea_t speed_text;
+	gui_textarea_t speed_text;
 	gui_aligned_container_t *sort_row;
 
 	button_t	filter_goods_toggle;
