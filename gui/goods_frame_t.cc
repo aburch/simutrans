@@ -46,7 +46,7 @@ simline_t::linetype goods_frame_t::last_scheduletype = simline_t::trainline;
 
 goods_frame_t::goods_frame_t() :
 	gui_frame_t( translator::translate("gl_title") ),
-	speed_text( &speed_message, D_BUTTON_WIDTH*4+D_V_SPACE*3 ),
+	speed_text( &speed_message),
 	goods_stats(),
 	scrolly(&goods_stats)
 {
@@ -239,7 +239,9 @@ void goods_frame_t::sort_list()
 	if (!speed.enabled()) {
 		speed_message.append(translator::translate("No vehicles are available for purchase."));
 	}
-	speed_text.recalc_size();
+	if (speed_text.get_min_size().h > speed_text.get_size().h) {
+		resize(scr_coord(0,0));
+	}
 
 	// update buttons
 	sortedby.set_text(sort_text[sortby]);

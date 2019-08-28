@@ -3782,11 +3782,8 @@ bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed)
 		cnv->clear_reserved_tiles();
 	}
 
-	// simple signal: drive on, if next block is free
-	if(  !sig_desc->is_longblock_signal() &&
-      !sig_desc->is_choose_sign() &&
-      !sig_desc->is_pre_signal() &&
-      !sig_desc->is_priority_signal()) {
+	// simple signal: fail, if next block is not free
+	if(  sig_desc->is_simple_signal()  ) {
 
 		uint16 next_signal, next_crossing;
 		if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {

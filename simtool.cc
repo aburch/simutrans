@@ -5363,7 +5363,7 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 			return error;
 		}
 
-		if(desc->is_signal()  &&  gr->find<roadsign_t>())  {
+		if(desc->is_signal_type()  &&  gr->find<roadsign_t>())  {
 			// only one sign per tile
 			return error;
 		}
@@ -5387,14 +5387,11 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 			return error;
 		}
 
-		const bool two_way = desc->is_single_way() ||
-                        desc->is_signal() ||
-                        desc->is_pre_signal() ||
-                        desc->is_priority_signal();
+		const bool two_way = desc->is_single_way()  ||  desc->is_signal_type();
 
 		if(!(desc->is_traffic_light() || two_way)  ||  (two_way  &&  ribi_t::is_twoway(dir))  ||  (desc->is_traffic_light()  &&  ribi_t::is_threeway(dir))) {
 			roadsign_t* rs;
-			if (desc->is_signal_type()) {
+			if(  desc->is_signal_type()  ) {
 				// if there is already a signal, we might need to inverse the direction
 				rs = gr->find<signal_t>();
 				if (rs) {
@@ -5657,7 +5654,7 @@ void tool_build_roadsign_t::get_values( player_t *player, uint8 &spacing, bool &
 
 const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t* gr, const roadsign_desc_t*)
 {
-	const char * error = "Hier kann kein\nSignal aufge-\nstellt werden!\n";
+	const char *error = "Hier kann kein\nSignal aufge-\nstellt werden!\n";
 	// search for starting ground
 	if(gr) {
 		// get the sign direction
@@ -5672,10 +5669,7 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 		}
 		ribi_t::ribi dir = weg->get_ribi_unmasked();
 
-		const bool two_way = desc->is_single_way() ||
-                        desc->is_signal() ||
-                        desc->is_pre_signal() ||
-                        desc->is_priority_signal();
+		const bool two_way = desc->is_single_way() || desc->is_signal_type();
 
 		if(!(desc->is_traffic_light() || two_way)  ||  (two_way  &&  ribi_t::is_twoway(dir))  ||  (desc->is_traffic_light()  &&  ribi_t::is_threeway(dir))) {
 			roadsign_t* rs;
