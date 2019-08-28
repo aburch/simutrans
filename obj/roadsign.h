@@ -38,6 +38,7 @@ protected:
 	uint8 ticks_ow;
 	uint8 ticks_offset;
 	uint8 open_direction;
+	bool guide_signal;
 
 	sint8 after_yoffset, after_xoffset;
 
@@ -144,6 +145,9 @@ public:
 	* @author prissi
 	*/
 	image_id get_front_image() const OVERRIDE { return foreground_image; }
+	
+	bool is_guide_signal() const { return guide_signal; }
+	void set_guide_signal(bool tf) { guide_signal = tf; }
 
 	/**
 	* draw the part overlapping the vehicles

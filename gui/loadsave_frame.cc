@@ -8,7 +8,6 @@
 #include "../simdebug.h"
 
 #include <sys/stat.h>
-#include <time.h>
 
 #include "loadsave_frame.h"
 

@@ -77,6 +77,8 @@ public:
 		CAN_START_TWO_MONTHS,
 		LEAVING_DEPOT,
 		ENTERING_DEPOT,
+		COUPLED,
+		COUPLED_LOADING,
 		MAX_STATES
 	};
 
@@ -150,6 +152,12 @@ private:
 	* @author Hj. Malthaner
 	*/
 	player_t *owner;
+	
+	/**
+	* a convoy that goes together with this convoy.
+	* @author THLeaderH
+	*/
+	convoihandle_t coupling_convoi;
 
 	/**
 	* Current map
@@ -229,6 +237,7 @@ private:
 	bool recalc_data_front;  ///< true, when front vehicle has to recalculate braking
 	bool recalc_data;        ///< true, when convoy has to recalculate weights and speed limits
 	bool recalc_speed_limit; ///< true, when convoy has to recalculate speed limits
+	bool recalc_min_top_speed; ///< true, when convoy has to recalculate min_top_speed and is_electric
 
 	sint64 sum_friction_weight;
 	sint32 speed_limit;
@@ -261,6 +270,17 @@ private:
 	 * @author THLeaderH
 	 */
 	vector_tpl<koord3d> reserved_tiles;
+	
+	/*
+	 * these give the index and steps of the coupling point.
+	 * Convois do the coupling process when reaching this index.
+	 * @author THLeaderH
+	 */
+	uint16 next_coupling_index;
+	uint8 next_coupling_steps;
+	
+	bool coupling_done;
+	ribi_t::ribi next_initial_direction;
 
 	/**
 	 * The convoi is not processed every sync step for various actions
@@ -340,6 +360,9 @@ private:
 	* @author Hanjsörg Malthaner
 	*/
 	bool can_go_alte_richtung();
+	
+	// alte_richtung of coupled convoy is set by the head convoy.
+	void set_alte_richtung(ribi_t::ribi r) { alte_richtung = r; }
 
 	/**
 	 * remove all track reservations (trains only)
@@ -459,6 +482,7 @@ public:
 
 	/* true, if electrification needed for this convoi */
 	bool needs_electrification() const { return is_electric; }
+	bool check_electrification();
 
 	/**
 	* set line
@@ -602,16 +626,27 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	const sint32& get_akt_speed() const { return akt_speed; }
+	
+	/*
+	 * When this convoy is coupled, akt_speed is set by the head convoy.
+	 * @author THLeaderH
+	 */
+	void set_akt_speed(sint32 s) { akt_speed = s;}
 
 	/**
 	 * @return total power of this convoi
 	 * @author Hj. Malthaner
 	 */
 	const uint32 & get_sum_power() const {return sum_power;}
+	const sint32 & get_sum_gear_and_power() const {return sum_gear_and_power;}
 	const sint32 & get_min_top_speed() const {return min_top_speed;}
 	const sint32 & get_speed_limit() const {return speed_limit;}
 
 	void set_speed_limit(sint32 s) { speed_limit = s;}
+	void set_min_top_speed(sint32 t) {min_top_speed = t;}
+	
+	// calculate min_top_speed taking coupling convoys into account. This does not broadcast min_top_speed for the coupling convoys.
+	sint32 calc_min_top_speed();
 
 	/// @returns weight of the convoy's vehicles (excluding freight)
 	const sint64 & get_sum_weight() const {return sum_weight;}
@@ -626,6 +661,7 @@ public:
 	static sint32 calc_max_speed(uint64 total_power, uint64 total_weight, sint32 speed_limit);
 
 	uint32 get_length() const;
+	uint32 get_entire_convoy_length() const;
 
 	/**
 	 * @return length of convoi in the correct units for movement
@@ -812,6 +848,8 @@ public:
 	* @date  12.06.2003
 	*/
 	const sint32 &get_loading_limit() const { return loading_limit; }
+	
+	bool is_loading() const { return state==LOADING  ||  state==COUPLED_LOADING; }
 
 	/**
 	* Schedule convois for self destruction. Will be executed
@@ -905,12 +943,22 @@ public:
 	bool is_reservation_empty() const { return reserved_tiles.empty(); }
 	vector_tpl<koord3d>& get_reserved_tiles() { return reserved_tiles; }
 	void clear_reserved_tiles();
+	/**
+	 * the index and steps of the coupling point.
+	 * Convois do the coupling process when reaching this index.
+	 * @author THLeaderH
+	 */
+	uint16 get_next_coupling_index() const {return next_coupling_index;}
+	uint8 get_next_coupling_steps() const {return next_coupling_steps;}
+	void set_next_coupling(uint16 n, uint8 m) { next_coupling_index = n; next_coupling_steps = m; }
+	
+	convoihandle_t get_coupling_convoi() const {return coupling_convoi;}
 
 	/* the current state of the convoi */
 	PIXVAL get_status_color() const;
 
 	// returns tiles needed for this convoi
-	uint16 get_tile_length() const;
+	uint16 get_tile_length(bool entire_convoy = false) const;
 
 	bool has_obsolete_vehicles() const { return has_obsolete; }
 
@@ -925,6 +973,10 @@ public:
 	void must_recalc_data() { recalc_data = true; }
 	void must_recalc_data_front() { recalc_data_front = true; }
 	void must_recalc_speed_limit() { recalc_speed_limit = true; }
+	bool get_recalc_speed_limit() const { return recalc_speed_limit; }
+	void must_recalc_min_top_speed() { recalc_min_top_speed = true; }
+	void reset_recalc_min_top_speed() { recalc_min_top_speed = false; }
+	bool get_recalc_min_top_speed() const { return recalc_min_top_speed; }
 
 	// calculates the speed used for the speedbonus base, and the max achievable speed at current power/weight for overtakers
 	void calc_speedbonus_kmh();
@@ -950,22 +1002,39 @@ public:
 	 * Functions related to lane fixing
 	 * @author teamhimeH
 	 */
-	 bool calc_lane_affinity(uint8 lane_affinity_sign); // If true, lane fixing started.
-	 uint32 get_lane_affinity_end_index() const { return lane_affinity_end_index; }
-	 sint8 get_lane_affinity() const { return lane_affinity; }
-	 void reset_lane_affinity() { lane_affinity = 0; }
+	bool calc_lane_affinity(uint8 lane_affinity_sign); // If true, lane fixing started.
+	uint32 get_lane_affinity_end_index() const { return lane_affinity_end_index; }
+	sint8 get_lane_affinity() const { return lane_affinity; }
+	void reset_lane_affinity() { lane_affinity = 0; }
 
-	 bool get_next_cross_lane();
-	 void set_next_cross_lane(bool);
+	bool get_next_cross_lane();
+	void set_next_cross_lane(bool);
 
-	 virtual void refresh(sint8,sint8) OVERRIDE;
+	virtual void refresh(sint8,sint8) OVERRIDE;
 	 
-	 void request_longblock_signal_judge(signal_t *sig, uint16 next_block);
-	 void set_longblock_signal_judge_request_invalid() { longblock_signal_request.valid = false; };
+	void request_longblock_signal_judge(signal_t *sig, uint16 next_block);
+	void set_longblock_signal_judge_request_invalid() { longblock_signal_request.valid = false; };
 	 
-	 void calc_crossing_reservation();
-	 vector_tpl<std::pair< uint16, uint16> > get_crossing_reservation_index() const { return crossing_reservation_index; }
-	 void remove_crossing_reservation_at(uint16 idx) { crossing_reservation_index.remove_at(idx); }
+	void calc_crossing_reservation();
+	vector_tpl<std::pair< uint16, uint16> > get_crossing_reservation_index() const { return crossing_reservation_index; }
+	void remove_crossing_reservation_at(uint16 idx) { crossing_reservation_index.remove_at(idx); }
+	
+	// Couple with given convoy
+	bool couple_convoi(convoihandle_t coupled);
+	convoihandle_t uncouple_convoi();
+	
+	bool is_coupled() const { return state==COUPLED  ||  state==COUPLED_LOADING; }
+	bool is_waiting_for_coupling() const;
+	
+	bool can_continue_coupling() const;
+	bool can_start_coupling(convoi_t* parent) const;
+	
+	ribi_t::ribi get_next_initial_direction() const { return next_initial_direction; }
+	void clear_next_initial_direction() { next_initial_direction = ribi_t::none; }
+	bool is_coupling_done() const { return coupling_done; }
+	void set_coupling_done(bool tf) { coupling_done = tf; }
+	
+	void set_arrived_time(uint32 t) { arrived_time = t; }
 };
 
 #endif

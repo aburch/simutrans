@@ -106,6 +106,30 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	if (argc && !STRICMP(argv[0], "expand")) {
+		argv++, argc--;
+
+		try {
+			const char* dest;
+
+			if (argc) {
+				dest = argv[0];
+				argv++, argc--;
+			}
+			else {
+				dest = "./";
+			}
+
+			root_writer_t::instance()->expand_dat(dest, argc, argv);
+		}
+		catch (const obj_pak_exception_t& e) {
+			dbg->error( e.get_class(), e.get_info() );
+			return 1;
+		}
+
+		return 0;
+	}
+
 	if (argc > 1) {
 		if (!STRICMP(argv[0], "dump")) {
 			argv++, argc--;
@@ -153,6 +177,8 @@ int main(int argc, char* argv[])
 		"         List the internal nodes of a file\n"
 		"      MakeObj MERGE <pak file library> <pak file(s)>\n"
 		"         Merges multiple pak files into one new pak file library\n"
+		"      MakeObj EXPAND <output> <dat file(s)>\n"
+		"         Expands minified notation to complete notation on dat file(s)\n"
 		"      MakeObj EXTRACT <pak file archive>\n"
 		"         Creates single files from a pak file library\n"
 		"\n"

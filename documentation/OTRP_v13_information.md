@@ -17,15 +17,15 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version21_3現在、simutrans standard nightly r8756をベースにしています。
+version22_3現在、simutrans standard nightly r8803をベースにしています。
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2019年5月12日PM22時　ver21_3に更新）**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/71112/sim-WinGDI-OTRPv21_3.exe/  
-mac: https://osdn.net/projects/otrp/downloads/71112/sim-mac-OTRPv21_3.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/71112/sim-linux-OTRPv21_3.zip/  
+本体は下のリンクからどうぞ。**（2019年8月10日PM9時　ver22_3に更新）**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/71405/sim-WinGDI-OTRPv22_3.exe/  
+mac: https://osdn.net/projects/otrp/downloads/71405/sim-mac-OTRPv22_3.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/71405/sim-linux-OTRPv22_3.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 OTRP専用のmakeobjはありません。simutrans standardのmakeobjをご利用ください。
@@ -91,6 +91,11 @@ pak128では鉄道車両の描画位置変更が行われた影響で、古い�
 
 オフセットの設定は、pakxyz/config/reposition.tabに保存されます。reposition.tabはテキストファイルなので手で編集することもできます。  
 なお、車庫画面でset offsetが出てくるのと、reposition.tabが保存されるのは128系のpakサイズでsimutransを起動したときのみです。reposition.tabの読み込みはその他のサイズのpakで起動したときも行われます。
+
+## 増解結
+本機能はInternational Forumで議論中の機能の先行実装です． [本家フォーラムのスレッドはこちら](https://forum.simutrans.com/index.php/topic,19064.0.html)
+
+増解結の使い方は [こちらを参照](how_to_convoy_coupling.pdf) してください．
 
 ## その他
 - 運賃収受に伴う金額表示をON/OFFできるようになりました。表示設定ウィンドウから切り替えられるほか、simple_tool[38]にキーを割り当てることでも切り替えることができます。

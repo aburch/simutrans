@@ -12,12 +12,15 @@
 
 #include "../dataobj/environment.h"
 
+#include "../obj/gebaeude.h"
+
 
 
 int wasser_t::stage = 0;
 bool wasser_t::change_stage = false;
 
 wasser_t::wasser_t(koord3d pos): grund_t(pos), ribi(ribi_t::none), canal_ribi(ribi_t::none)
+, display_ribi(ribi_t::none)
 {
 	set_hoehe( welt->get_water_hgt( pos.get_2d() ) );
 	slope = slope_t::flat;
@@ -65,7 +68,10 @@ void wasser_t::calc_image_internal(const bool calc_only_snowline_change)
 		// test tiles to north, south, east and west and add to ribi if water
 		ribi = ribi_t::none;
 		canal_ribi = ribi_t::none;
+		display_ribi = ribi_t::none;
 		ribi_t::ribi base_ribi = get_base_water_ribi(this);
+
+		bool harbour = find<gebaeude_t>();
 
 		for(  uint8 i = 0;  i < 4;  i++  ) {
 			grund_t *gr_neighbour = NULL;
@@ -89,6 +95,14 @@ void wasser_t::calc_image_internal(const bool calc_only_snowline_change)
 						// turning not possible, mark it as canal ribi
 						canal_ribi |= test;
 					}
+					display_ribi |= test;
+				}
+				else {
+					// if building is on one but not on the other tile
+					// pretend tiles are not connected for displaying purposes
+					if ( (gr_neighbour->find<gebaeude_t>() != NULL) == harbour) {
+						display_ribi |= test;
+					}
 				}
 			}
 		}
@@ -104,4 +118,5 @@ void wasser_t::rotate90()
 	grund_t::rotate90();
 	ribi = ribi_t::rotate90(ribi);
 	canal_ribi = ribi_t::rotate90(canal_ribi);
+	display_ribi = ribi_t::rotate90(display_ribi);
 }

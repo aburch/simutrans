@@ -532,7 +532,7 @@ bool win_is_top(const gui_frame_t *ig)
 // save/restore all dialogues
 void rdwr_all_win(loadsave_t *file)
 {
-	if(  file->get_version()>120007  ) {
+	if(  file->is_version_atleast(120, 8)  ) {
 		if(  file->is_saving()  ) {
 			FOR(vector_tpl<simwin_t>, & i, wins) {
 				uint32 id = i.gui->get_rdwr_id();
@@ -720,7 +720,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 
 		// restore windowsize
 		scr_size stored = get_stored_windowsize(&win);
-		if (stored != gui->get_windowsize()) {
+		if (stored != scr_size()  &&  stored != gui->get_windowsize()) {
 			// send tailored resize event
 			scr_size delta = stored - gui->get_windowsize();
 			event_t wev;

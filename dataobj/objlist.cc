@@ -164,11 +164,20 @@ objlist_t::objlist_t()
 objlist_t::~objlist_t()
 {
 	if(  capacity == 1  ) {
-		delete obj.one;
+		obj.one->set_flag(obj_t::not_on_map);
+
+		if(!obj.one->has_managed_lifecycle()) {
+			delete obj.one;
+		}
 	}
 	else {
 		for(  uint8 i=0;  i<top;  i++  ) {
-			delete obj.some[i];
+			obj_t* const object = obj.some[i];
+			object->set_flag(obj_t::not_on_map);
+
+			if(!object->has_managed_lifecycle()) {
+				delete object;
+			}
 		}
 	}
 
@@ -508,7 +517,7 @@ bool objlist_t::remove(const obj_t* remove_obj)
  * removes object from map
  * deletes object if it is not a zeiger_t
  */
-void local_delete_object(obj_t *remove_obj, player_t *player)
+static void local_delete_object(obj_t *remove_obj, player_t *player)
 {
 	vehicle_base_t* const v = obj_cast<vehicle_base_t>(remove_obj);
 	if (v  &&  remove_obj->get_typ() != obj_t::pedestrian  &&  remove_obj->get_typ() != obj_t::road_user  &&  remove_obj->get_typ() != obj_t::movingobj) {
@@ -519,7 +528,7 @@ void local_delete_object(obj_t *remove_obj, player_t *player)
 		remove_obj->set_flag(obj_t::not_on_map);
 		// all objects except zeiger (pointer) are destroyed here
 		// zeiger's will be deleted if their associated tool terminates
-		if (remove_obj->get_typ() != obj_t::zeiger) {
+		if (!remove_obj->has_managed_lifecycle()) {
 			delete remove_obj;
 		}
 	}
@@ -713,7 +722,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 	if(file->is_loading()) {
 
 		sint32 max_object_index;
-		if(  file->get_version()<=110000  ) {
+		if(  file->is_version_less(110, 1)  ) {
 			file->rdwr_long(max_object_index);
 			if(max_object_index>254) {
 				dbg->error("objlist_t::laden()","Too many objects (%i) at (%i,%i), some vehicle may not appear immediately.",max_object_index,current_pos.x,current_pos.y);
@@ -737,15 +746,15 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 			obj_t *new_obj = NULL;
 
 			switch(typ) {
-				case obj_t::bruecke:	    new_obj = new bruecke_t(file);	        break;
-				case obj_t::tunnel:	    new_obj = new tunnel_t(file);	        break;
-				case obj_t::pumpe:		    new_obj = new pumpe_t(file);	        break;
-				case obj_t::leitung:	    new_obj = new leitung_t(file);	        break;
-				case obj_t::senke:		    new_obj = new senke_t(file);	        break;
-				case obj_t::zeiger:	    new_obj = new zeiger_t(file);	        break;
-				case obj_t::signal:	    new_obj = new signal_t(file);   break;
-				case obj_t::label:			new_obj = new label_t(file); break;
-				case obj_t::crossing:		new_obj = new crossing_t(file); break;
+				case obj_t::bruecke:    new_obj = new bruecke_t(file);  break;
+				case obj_t::tunnel:     new_obj = new tunnel_t(file);   break;
+				case obj_t::pumpe:      new_obj = new pumpe_t(file);    break;
+				case obj_t::leitung:    new_obj = new leitung_t(file);  break;
+				case obj_t::senke:      new_obj = new senke_t(file);    break;
+				case obj_t::zeiger:     new_obj = new zeiger_t(file);   break;
+				case obj_t::signal:     new_obj = new signal_t(file);	break;
+				case obj_t::label:      new_obj = new label_t(file);    break;
+				case obj_t::crossing:   new_obj = new crossing_t(file); break;
 
 				case obj_t::wayobj:
 				{
@@ -1005,7 +1014,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				||  (new_obj->get_typ()==obj_t::gebaeude  &&  ((gebaeude_t *)new_obj)->get_fabrik())
 				// things with convoi will not be saved
 				||  (new_obj->get_typ()>=66  &&  new_obj->get_typ()<82)
-				||  (env_t::server  &&  new_obj->get_typ()==obj_t::baum  &&  file->get_version()>=110001)
+				||  (env_t::server  &&  new_obj->get_typ()==obj_t::baum  &&  file->is_version_atleast(110, 1))
 			) {
 				// these objects are simply not saved
 			}
@@ -1015,7 +1024,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 		}
 		// now we know the number of stuff to save
 		max_object_index --;
-		if(  file->get_version()<=110000  ) {
+		if(  file->is_version_less(110, 1)  ) {
 			file->rdwr_long( max_object_index );
 		}
 		else {

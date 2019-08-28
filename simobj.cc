@@ -160,6 +160,9 @@ void obj_t::show_info()
 	create_win( new obj_infowin_t(this), w_info, (ptrdiff_t)this);
 }
 
+bool obj_t::has_managed_lifecycle() const {
+	return false;
+}
 
 // returns NULL, if removal is allowed
 const char *obj_t::is_deletable(const player_t *player)
@@ -176,7 +179,7 @@ const char *obj_t::is_deletable(const player_t *player)
 void obj_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t d( file, "obj_t" );
-	if(  file->get_version()<101000) {
+	if(  file->is_version_less(101, 0)  ) {
 		pos.rdwr( file );
 	}
 

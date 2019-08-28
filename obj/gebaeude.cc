@@ -81,7 +81,7 @@ gebaeude_t::gebaeude_t(loadsave_t *file) : obj_t()
 {
 	init();
 	rdwr(file);
-	if(file->get_version()<88002) {
+	if(file->is_version_less(88, 2)) {
 		set_yoff(0);
 	}
 	if(tile  &&  tile->get_phases()>1) {
@@ -441,7 +441,7 @@ image_id gebaeude_t::get_front_image() const
 	if(zeige_baugrube) {
 		return IMG_EMPTY;
 	}
-	if (env_t::hide_buildings != 0 && tile->get_desc()->get_type() < building_desc_t::others) {
+	if (env_t::hide_buildings != 0   &&  (is_city_building()  ||  (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_desc()->get_type() < building_desc_t::others))) {
 		return IMG_EMPTY;
 	}
 	else {
@@ -844,14 +844,14 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->get_version()<99006) {
+	if(file->is_version_less(99, 6)) {
 		// ignore the sync flag
 		uint8 dummy=sync;
 		file->rdwr_byte(dummy);
 	}
 
 	// restore city pointer here
-	if(  file->get_version()>=99014  ) {
+	if(  file->is_version_atleast(99, 14)  ) {
 		sint32 city_index = -1;
 		if(  file->is_saving()  &&  ptr.stadt!=NULL  ) {
 			city_index = welt->get_cities().index_of( ptr.stadt );

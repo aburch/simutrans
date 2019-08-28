@@ -2016,7 +2016,7 @@ karte_t::karte_t() :
 	set_dirty();
 
 	// for new world just set load version to current savegame version
-	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL ).version;
+	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL ).version;
 
 	// standard prices
 	goods_manager_t::set_multiplier( 1000 );
@@ -4656,12 +4656,12 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "start");
 	senke_t::static_rdwr(file);
 
 	// rdwr cityrules for networkgames
-	if(file->get_version()>102002) {
+	if(file->is_version_atleast(102, 3)) {
 		bool do_rdwr = env_t::networkmode;
 		file->rdwr_bool(do_rdwr);
 		if (do_rdwr) {
 			stadt_t::cityrules_rdwr(file);
-			if(file->get_version()>102003) {
+			if(file->is_version_atleast(102, 4)) {
 				vehicle_builder_t::rdwr_speedbonus(file);
 			}
 		}
@@ -4688,7 +4688,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved cities ok");
 	}
 DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved tiles");
 
-	if(  file->get_version()<=102001  ) {
+	if(  file->is_version_less(102, 2)  ) {
 		// not needed any more
 		for(int j=0; j<(get_size().y+1)*(sint32)(get_size().x+1); j++) {
 			file->rdwr_byte(grid_hgts[j]);
@@ -4714,7 +4714,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved fabs");
 DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved stops");
 
 	// save number of convois
-	if(  file->get_version()>=101000  ) {
+	if(  file->is_version_atleast(101, 0)  ) {
 		uint16 i=convoi_array.get_count();
 		file->rdwr_short(i);
 	}
@@ -4722,7 +4722,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved stops");
 		// one MUST NOT call INT_CHECK here or else the convoi will be broken during reloading!
 		cnv->rdwr(file);
 	}
-	if(  file->get_version()<101000  ) {
+	if(  file->is_version_less(101, 0)  ) {
 		file->wr_obj_id("Ende Convois");
 	}
 	if(silent) {
@@ -4732,7 +4732,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved %i convois",convoi_array.g
 
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 // **** REMOVE IF SOON! *********
-		if(file->get_version()<101000) {
+		if(file->is_version_less(101, 0)) {
 			if(  i<8  ) {
 				if(  players[i]  ) {
 					players[i]->rdwr(file);
@@ -4754,7 +4754,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved %i convois",convoi_array.g
 DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved players");
 
 	// saving messages
-	if(  file->get_version()>=102005  ) {
+	if(  file->is_version_atleast(102, 5)  ) {
 		msg->rdwr(file);
 	}
 DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
@@ -4765,7 +4765,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 	dummy = viewport->get_world_position().y;
 	file->rdwr_long(dummy);
 
-	if(file->get_version()>=99018) {
+	if(file->is_version_atleast(99, 18)) {
 		// most recent version is 99018
 		for (int year = 0;  year</*MAX_WORLD_HISTORY_YEARS*/12;  year++) {
 			for (int cost_type = 0; cost_type</*MAX_WORLD_COST*/12; cost_type++) {
@@ -4782,7 +4782,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 	// finally a possible scenario
 	scenario->rdwr( file );
 
-	if(  file->get_version() >= 112008  ) {
+	if(  file->is_version_atleast(112, 8)  ) {
 		xml_tag_t t( file, "motd_t" );
 
 		dr_chdir( env_t::user_dir );
@@ -4976,7 +4976,7 @@ bool karte_t::load(const char *filename)
 
 	if(!file.rd_open(name)) {
 
-		if(  (sint32)file.get_version()==-1  ||  file.get_version()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL ).version  ) {
+		if(  file.get_version_int()==0  ||  file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL ).version  ) {
 			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
@@ -4985,13 +4985,13 @@ bool karte_t::load(const char *filename)
 			create_win(new news_img("Kann Spielstand\nnicht laden.\n"), w_info, magic_none);
 		}
 	}
-	else if(file.get_version() < 84006) {
+	else if(file.is_version_less(84, 6)) {
 		// too old
 		dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
 		create_win(new news_img("WRONGSAVE"), w_info, magic_none);
 	}
 	else {
-DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
+DBG_MESSAGE("karte_t::load()","Savegame version is %u", file.get_version_int());
 
 		load(&file);
 
@@ -5202,13 +5202,13 @@ void karte_t::load(loadsave_t *file)
 	file->set_buffered(true);
 
 	// jetzt geht das laden los
-	dbg->warning("karte_t::load", "Fileversion: %d", file->get_version());
+	dbg->warning("karte_t::load", "Fileversion: %u", file->get_version_int());
 	settings = env_t::default_settings;
 	settings.rdwr(file);
 	loaded_rotation = settings.get_rotation();
 
 	// some functions (finish_rd) need to know what version was loaded
-	load_version = file->get_version();
+	load_version = file->get_version_int();
 
 	if(  env_t::networkmode  ) {
 		// to have games synchronized, transfer random counter too
@@ -5237,7 +5237,7 @@ void karte_t::load(loadsave_t *file)
 	min_height = max_height = groundwater;
 	DBG_DEBUG("karte_t::load()","groundwater %i",groundwater);
 
-	if(  file->get_version() < 112007  ) {
+	if(  file->is_version_less(112, 7)  ) {
 		// r7930 fixed a bug in init_height_to_climate
 		// recover old behavior to not mix up climate when loading old savegames
 		groundwater = settings.get_climate_borders()[0];
@@ -5282,7 +5282,7 @@ DBG_DEBUG("karte_t::load", "init felder ok");
 	file->rdwr_long(ticks);
 	file->rdwr_long(last_month);
 	file->rdwr_long(last_year);
-	if(file->get_version()<86006) {
+	if(file->is_version_less(86, 6)) {
 		last_year += env_t::default_settings.get_starting_year();
 	}
 	// old game might have wrong month
@@ -5307,7 +5307,7 @@ DBG_MESSAGE("karte_t::load()","savegame loading at tick count %i",ticks);
 
 DBG_MESSAGE("karte_t::load()", "init player");
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		if(  file->get_version()>=101000  ) {
+		if(  file->is_version_atleast(101, 0)  ) {
 			// since we have different kind of AIs
 			delete players[i];
 			players[i] = NULL;
@@ -5329,12 +5329,12 @@ DBG_MESSAGE("karte_t::load()", "init player");
 	senke_t::static_rdwr(file);
 
 	// rdwr cityrules, speedbonus for networkgames
-	if(file->get_version()>102002) {
+	if(file->is_version_atleast(102, 3)) {
 		bool do_rdwr = env_t::networkmode;
 		file->rdwr_bool(do_rdwr);
 		if (do_rdwr) {
 			stadt_t::cityrules_rdwr(file);
-			if(file->get_version()>102003) {
+			if(file->is_version_atleast(102, 4)) {
 				vehicle_builder_t::rdwr_speedbonus(file);
 			}
 		}
@@ -5361,7 +5361,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 		ls.set_progress( y/2 );
 	}
 
-	if(file->get_version()<99005) {
+	if(file->is_version_less(99, 5)) {
 		DBG_MESSAGE("karte_t::load()","loading grid for older versions");
 		for (int y = 0; y <= get_size().y; y++) {
 			for (int x = 0; x <= get_size().x; x++) {
@@ -5372,7 +5372,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 			}
 		}
 	}
-	else if(  file->get_version()<=102001  )  {
+	else if(  file->is_version_less(102, 2)  )  {
 		// hgt now bytes
 		DBG_MESSAGE("karte_t::load()","loading grid for older versions");
 		for( sint32 i=0;  i<(get_size().y+1)*(sint32)(get_size().x+1);  i++  ) {
@@ -5380,7 +5380,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 		}
 	}
 
-	if(file->get_version()<88009) {
+	if(file->is_version_less(88, 9)) {
 		DBG_MESSAGE("karte_t::load()","loading slopes from older version");
 		// Hajo: load slopes for older versions
 		// now part of the grund_t structure
@@ -5395,7 +5395,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 		}
 	}
 
-	if(file->get_version()<=88000) {
+	if(file->is_version_less(88, 1)) {
 		// because from 88.01.4 on the foundations are handled differently
 		for (int y = 0; y < get_size().y; y++) {
 			for (int x = 0; x < get_size().x; x++) {
@@ -5413,7 +5413,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 		}
 	}
 
-	if(  file->get_version() < 112007  ) {
+	if(  file->is_version_less(112, 7)  ) {
 		// set climates
 		for(  sint16 y = 0;  y < get_size().y;  y++  ) {
 			for(  sint16 x = 0;  x < get_size().x;  x++  ) {
@@ -5452,7 +5452,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 
 	// load linemanagement status (and lines)
 	// @author hsiegeln
-	if (file->get_version() > 82003  &&  file->get_version()<88003) {
+	if (file->is_version_atleast(82, 4)  &&  file->is_version_less(88, 3)) {
 		DBG_MESSAGE("karte_t::load()", "load linemanagement");
 		get_player(0)->simlinemgmt.rdwr(file, get_player(0));
 	}
@@ -5463,7 +5463,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 	// (the players will be load later and overwrite some values,
 	//  like the total number of stops build (for the numbered station feature)
 	haltestelle_t::start_load_game();
-	if(file->get_version()>=99008) {
+	if(file->is_version_atleast(99, 8)) {
 		sint32 halt_count;
 		file->rdwr_long(halt_count);
 		DBG_MESSAGE("karte_t::load()","%d halts loaded",halt_count);
@@ -5479,13 +5479,13 @@ DBG_MESSAGE("karte_t::load()", "init player");
 	DBG_MESSAGE("karte_t::load()", "load convois");
 	uint16 convoi_nr = 65535;
 	uint16 max_convoi = 65535;
-	if(  file->get_version()>=101000  ) {
+	if(  file->is_version_atleast(101, 0)  ) {
 		file->rdwr_short(convoi_nr);
 		max_convoi = convoi_nr;
 	}
 	while(  convoi_nr-->0  ) {
 
-		if(  file->get_version()<101000  ) {
+		if(  file->is_version_less(101, 0)  ) {
 			file->rd_obj_id(buf, 79);
 			if (strcmp(buf, "Ende Convois") == 0) {
 				break;
@@ -5528,7 +5528,7 @@ DBG_MESSAGE("karte_t::load()", "%d convois/trains loaded", convoi_array.get_coun
 DBG_MESSAGE("karte_t::load()", "players loaded");
 
 	// loading messages
-	if(  file->get_version()>=102005  ) {
+	if(  file->is_version_atleast(102, 5)  ) {
 		msg->rdwr(file);
 	}
 	else if(  !env_t::networkmode  ) {
@@ -5556,7 +5556,7 @@ DBG_MESSAGE("karte_t::load()", "%d ways loaded",weg_t::get_alle_wege().get_count
 
 	world_xy_loop(&karte_t::plans_finish_rd, SYNCX_FLAG);
 
-	if(  file->get_version() < 112007  ) {
+	if(  file->is_version_less(112, 7)  ) {
 		// set transitions - has to be done after plans_finish_rd
 		world_xy_loop(&karte_t::recalc_transitions_loop, 0);
 	}
@@ -5586,7 +5586,7 @@ DBG_MESSAGE("karte_t::load()", "laden_abschliesen for tiles finished" );
 DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 
 	// old versions did not save factory connections
-	if(file->get_version()<99014) {
+	if(file->is_version_less(99, 14)) {
 		sint32 const temp_min = settings.get_factory_worker_minimum_towns();
 		sint32 const temp_max = settings.get_factory_worker_maximum_towns();
 		// this needs to avoid the first city to be connected to all town
@@ -5662,7 +5662,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 #endif
 
 	// load history/create world history
-	if(file->get_version()<99018) {
+	if(file->is_version_less(99, 18)) {
 		restore_history(false);
 	}
 	else {
@@ -5678,13 +5678,13 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		}
 		last_month_bev = finance_history_month[1][WORLD_CITICENS];
 
-		if (112005 <= file->get_version() &&  file->get_version() <= 120005) {
+		if (file->is_version_atleast(112, 5) &&  file->is_version_less(120, 6)) {
 			restore_history(true);
 		}
 	}
 
 	// finally: do we run a scenario?
-	if(file->get_version()>=99018) {
+	if(file->is_version_atleast(99, 18)) {
 		scenario->rdwr(file);
 	}
 
@@ -5705,7 +5705,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	}
 
 	// show message about server
-	if(  file->get_version() >= 112008  ) {
+	if(  file->is_version_atleast(112, 8)  ) {
 		xml_tag_t t( file, "motd_t" );
 		char msg[32766];
 		file->rdwr_str( msg, 32766 );
@@ -5717,7 +5717,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		}
 	}
 
-	if(  file->get_version()>=102004  ) {
+	if(  file->is_version_atleast(102, 4)  ) {
 		if(  env_t::restore_UI  ) {
 			file->rdwr_byte( active_player_nr );
 			active_player = players[active_player_nr];
@@ -5733,7 +5733,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	clear_random_mode(LOAD_RANDOM);
 
 	// loading finished, reset savegame version to current
-	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL ).version;
+	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL ).version;
 
 	dbg->warning("karte_t::load()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",last_month,last_year,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }

@@ -87,7 +87,7 @@ void tunnelboden_t::rdwr(loadsave_t *file)
 
 	grund_t::rdwr(file);
 
-	if(  file->get_version()<88009  ) {
+	if(  file->is_version_less(88, 9)  ) {
 		uint32 sl = slope;
 		file->rdwr_long(sl);
 		// convert slopes from old single height saved game
@@ -95,7 +95,7 @@ void tunnelboden_t::rdwr(loadsave_t *file)
 	}
 
 	// only 99.03 version save the tunnel here
-	if(file->get_version()==99003) {
+	if(file->is_version_equal(99, 3)) {
 		char  buf[256];
 		const tunnel_desc_t *desc = NULL;
 		file->rdwr_str(buf, lengthof(buf));

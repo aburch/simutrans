@@ -305,6 +305,12 @@ public:
 	virtual void show_info();
 
 	/**
+	 * @return True if the object lifecycle is managed by another system so cannot be destroyed.
+	 * False if the object can be destroyed at any time.
+	 */
+	virtual bool has_managed_lifecycle() const;
+
+	/**
 	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */

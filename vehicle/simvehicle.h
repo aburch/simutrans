@@ -271,7 +271,7 @@ protected:
 	bool check_for_finish:1;		// true, if on the last tile
 	bool has_driven:1;
 
-	bool check_next_tile(const grund_t* ) const OVERRIDE {return false;}
+	virtual bool check_next_tile(const grund_t* ) const OVERRIDE {return false;}
 
 public:
 	void calc_image() OVERRIDE;
@@ -582,7 +582,8 @@ public:
 class rail_vehicle_t : public vehicle_t
 {
 protected:
-	bool check_next_tile(const grund_t *bd) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd, bool coupling) const OVERRIDE;
+	bool check_next_tile(const grund_t *bd) const OVERRIDE { return check_next_tile(bd,false); }
 
 	void enter_tile(grund_t*) OVERRIDE;
 
@@ -605,6 +606,7 @@ public:
 
 	// returns true for the way search to an unknown target.
 	bool is_target(const grund_t *,const grund_t *) const OVERRIDE;
+	bool is_coupling_target(const grund_t *, const grund_t *, sint16 &) const OVERRIDE;
 
 	// handles all block stuff and route choosing ...
 	bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8) OVERRIDE;
@@ -612,6 +614,8 @@ public:
 	// reserves or un-reserves all blocks and returns the handle to the next block (if there)
 	// returns true on successful reservation
 	bool block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal, uint16 &next_crossing, int signal_count, bool reserve, bool force_unreserve, bool use_vector = false ) const;
+	
+	bool can_couple(const route_t* route, uint16 start_index, uint16 &coupling_index, uint8 &coupling_steps);
 
 	void leave_tile() OVERRIDE;
 
@@ -756,7 +760,7 @@ private:
 
 	sint16 flying_height;
 	sint16 target_height;
-	uint32 searchforstop, touchdown, takeoff;
+	uint32 search_for_stop, touchdown, takeoff;
 
 protected:
 	// jumps to next tile and correct the height ...
@@ -776,8 +780,8 @@ public:
 	air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv); // start and schedule
 
 	// to shift the events around properly
-	void get_event_index( flight_state &state_, uint32 &takeoff_, uint32 &stopsearch_, uint32 &landing_ ) { state_ = state; takeoff_ = takeoff; stopsearch_ = searchforstop; landing_ = touchdown; }
-	void set_event_index( flight_state state_, uint32 takeoff_, uint32 stopsearch_, uint32 landing_ ) { state = state_; takeoff = takeoff_; searchforstop = stopsearch_; touchdown = landing_; }
+	void get_event_index( flight_state &state_, uint32 &takeoff_, uint32 &stopsearch_, uint32 &landing_ ) { state_ = state; takeoff_ = takeoff; stopsearch_ = search_for_stop; landing_ = touchdown; }
+	void set_event_index( flight_state state_, uint32 takeoff_, uint32 stopsearch_, uint32 landing_ ) { state = state_; takeoff = takeoff_; search_for_stop = stopsearch_; touchdown = landing_; }
 
 	// since we are drawing ourselves, we must mark ourselves dirty during deletion
 	~air_vehicle_t();

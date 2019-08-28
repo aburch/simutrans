@@ -193,6 +193,7 @@ loadsave_t::mode_t loadsave_t::autosave_mode = zipped;	// default to use for aut
 
 loadsave_t::loadsave_t() : filename()
 {
+	last_error = FILE_ERROR_OK;
 	mode = 0;
 	saving = false;
 	buffered = false;
@@ -319,15 +320,15 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 		// and now with zlib ...
 		fd->gzfp = dr_gzopen(filename_utf8, "rb");
 		if(fd->gzfp==NULL) {
-			return false;
 			last_error = FILE_ERROR_GZ_CORRUPT;
+			return false;
 		}
 		gzgets(fd->gzfp, buf, 80);
 	}
 	saving = false;
 
 	if (strstart(buf, SAVEGAME_PREFIX)) {
-	 	combined_version versions = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode, pak_extension);
+	 	combined_version versions = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, pak_extension);
 		version = versions.version;
 		OTRP_version = versions.OTRP_version;
 		if(  version == 0  ) {
@@ -358,8 +359,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 			*s++ = c;
 		}
 		*s = 0;
-		int dummy;
-		combined_version versions = int_version(str, &dummy, pak_extension);
+		combined_version versions = int_version(str, pak_extension);
 		version = versions.version;
 		OTRP_version = versions.OTRP_version;
 		if(  version == 0  ) {
@@ -471,14 +471,14 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 	// delete trailing path separator
 	this->pak_extension[strlen(this->pak_extension)-1] = 0;
 
-	combined_version v = int_version( savegame_version, NULL, NULL );
+	combined_version v = int_version( savegame_version, NULL );
 	version = v.version;
 	OTRP_version = v.OTRP_version;
 
 	if(  !is_xml()  ) {
 		char str[4096];
 		size_t len;
-		if(  version<=102002  ) {
+		if(  is_version_less(102, 3)  ) {
 			len = sprintf( str, SAVEGAME_PREFIX "%s%s%s\n", savegame_version, "zip", this->pak_extension );
 		}
 		else {
@@ -1349,7 +1349,7 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 }
 
 
-loadsave_t::combined_version loadsave_t::int_version(const char *version_text, int * /*mode*/, char *pak_extension_str)
+loadsave_t::combined_version loadsave_t::int_version(const char *version_text, char *pak_extension_str)
 {
 	const combined_version dud = {0, 0};
 	// major number (0..)
@@ -1374,23 +1374,28 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 	loadsave_version.version = v0 * 1000000 + v1 * 1000 + v2;
 	loadsave_version.OTRP_version = 0;
 
+	while(*version_text  &&  isdigit(*version_text)) {
+		version_text++;
+	}
+
 	if(  loadsave_version.version<=102002  ) {
-		/* the compression and the mode we determined already ourselves (otherwise we cannot read this
-		 * => leave the mode alone but for unknown modes!
+		/* the compression and the mode we determined already ourselves
+		 * (otherwise we cannot read this => leave the mode alone but for unknown modes!)
 		 */
 		while(*version_text == '.'  ||  isdigit(*version_text)) {
 	 		version_text++;
 	 	}
 		if (strstart(version_text, "bin")) {
-			//*mode = binary;
 			version_text += 3;
-		} else if (strstart(version_text, "zip")) {
-			//*mode = zipped;
+		}
+		else if (strstart(version_text, "zip")) {
 			version_text += 3;
 		}
 		else if(  *version_text  ) {
 			// illegal version ...
-			strcpy(pak_extension_str,"(broken)");
+			if (pak_extension_str) {
+				std::strcpy(pak_extension_str,"(broken)");
+			}
 			return dud;
 		}
 	}

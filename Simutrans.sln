@@ -1,20 +1,52 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows Desktop
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simutrans", "Simutrans.vcxproj", "{0621B295-BEB7-4767-82F1-F27995610323}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29020.237
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simutrans-Main", "Simutrans-Main.vcxitems", "{5A9777DD-CE40-45AE-8CB4-0FF2DB4ABD27}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simutrans GDI", "Simutrans-GDI.vcxproj", "{0621B295-BEB7-4767-82F1-F27995610323}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simutrans SDL2", "Simutrans-SDL2.vcxproj", "{E74757E8-C2FD-44AD-87BD-3D55F4709484}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simutrans Server", "Simutrans-Server.vcxproj", "{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}"
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Simutrans-Main.vcxitems*{0621b295-beb7-4767-82f1-f27995610323}*SharedItemsImports = 4
+		Simutrans-Main.vcxitems*{0ee7eb1c-43c6-4548-9c60-b79f4d781b4c}*SharedItemsImports = 4
+		Simutrans-Main.vcxitems*{5a9777dd-ce40-45ae-8cb4-0ff2db4abd27}*SharedItemsImports = 9
+		Simutrans-Main.vcxitems*{e74757e8-c2fd-44ad-87bd-3d55f4709484}*SharedItemsImports = 4
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
-		Release|Win32 = Release|Win32
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+		Stable|x86 = Stable|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug|Win32.ActiveCfg = Debug|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug|Win32.Build.0 = Debug|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Release|Win32.ActiveCfg = Release|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Release|Win32.Build.0 = Release|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug|x86.ActiveCfg = Debug|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug|x86.Build.0 = Debug|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release|x86.ActiveCfg = Release|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release|x86.Build.0 = Release|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Stable|x86.ActiveCfg = Stable|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Stable|x86.Build.0 = Stable|Win32
+		{E74757E8-C2FD-44AD-87BD-3D55F4709484}.Debug|x86.ActiveCfg = Debug|Win32
+		{E74757E8-C2FD-44AD-87BD-3D55F4709484}.Debug|x86.Build.0 = Debug|Win32
+		{E74757E8-C2FD-44AD-87BD-3D55F4709484}.Release|x86.ActiveCfg = Release|Win32
+		{E74757E8-C2FD-44AD-87BD-3D55F4709484}.Release|x86.Build.0 = Release|Win32
+		{E74757E8-C2FD-44AD-87BD-3D55F4709484}.Stable|x86.ActiveCfg = Stable|Win32
+		{E74757E8-C2FD-44AD-87BD-3D55F4709484}.Stable|x86.Build.0 = Stable|Win32
+		{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}.Debug|x86.ActiveCfg = Debug|Win32
+		{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}.Debug|x86.Build.0 = Debug|Win32
+		{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}.Release|x86.ActiveCfg = Release|Win32
+		{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}.Release|x86.Build.0 = Release|Win32
+		{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}.Stable|x86.ActiveCfg = Stable|Win32
+		{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}.Stable|x86.Build.0 = Stable|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {49739D12-4369-4D44-B614-A4C97AF7D06A}
 	EndGlobalSection
 EndGlobal

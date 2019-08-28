@@ -761,7 +761,7 @@ void schedule_list_gui_t::rdwr( loadsave_t *file )
 	size.rdwr( file );
 	simline_t::rdwr_linehandle_t(file, line);
 
-	uint8 num_buttons = file->get_version()<112008 ? 8 : MAX_LINE_COST;
+	uint8 num_buttons = file->is_version_atleast(112, 8) ? MAX_LINE_COST : 8;
 	for(  int i=0;  i<num_buttons;  i++  ) {
 		bool b = filterButtons[i].pressed;
 		file->rdwr_bool( b );

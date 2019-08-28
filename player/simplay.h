@@ -136,7 +136,7 @@ public:
 	 * Accounts bought/sold vehicles.
 	 * @param price money used for purchase of vehicle,
 	 *              negative value = vehicle bought,
-	 *              negative value = vehicle sold
+	 *              positive value = vehicle sold
 	 * @param wt type of transport for accounting purpose
 	 * @author jk271
 	 */

@@ -24,7 +24,7 @@ boden_t::boden_t(loadsave_t *file, koord pos ) : grund_t( koord3d(pos,0) )
 	grund_t::rdwr( file );
 
 	// restoring trees (disadvantage: loosing offsets but much smaller savegame footprint)
-	if(  file->get_version()>=110001  ) {
+	if(  file->is_version_atleast(110, 1)  ) {
 		sint16 id = file->rd_obj_id();
 		while(  id!=-1  ) {
 			sint32 age;
@@ -55,7 +55,7 @@ void boden_t::rdwr(loadsave_t *file)
 {
 	grund_t::rdwr(file);
 
-	if(  file->get_version()>=110001  ) {
+	if(  file->is_version_atleast(110, 1)  ) {
 		// a server send the smallest possible savegames to clients, i.e. saves only types and age of trees
 		if(  env_t::server  &&  !hat_wege()  ) {
 			for(  uint8 i=0;  i<objlist.get_top();  i++  ) {

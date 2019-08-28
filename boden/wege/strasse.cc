@@ -104,7 +104,7 @@ void strasse_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(  (env_t::previous_OTRP_data  &&  file->get_version() >= 120006)  ||  file->get_OTRP_version() >= 14  ) {
+	if(  (env_t::previous_OTRP_data  &&  file->is_version_atleast(120, 6))  ||  file->get_OTRP_version() >= 14  ) {
 		uint8 mask_oneway = get_ribi_mask_oneway();
 		file->rdwr_byte(mask_oneway);
 		set_ribi_mask_oneway(mask_oneway);
@@ -117,7 +117,7 @@ void strasse_t::rdwr(loadsave_t *file)
 		set_overtaking_mode(twoway_mode);
 	}
 
-	if(file->get_version()<89000) {
+	if(file->is_version_less(89, 0)) {
 		bool gehweg;
 		file->rdwr_bool(gehweg);
 		set_gehweg(gehweg);

@@ -355,12 +355,17 @@ void cbuffer_t::vprintf(const char *fmt, va_list ap )
 		size_t inc;
 
 		va_list args;
-#ifdef __va_copy
+
+#if defined(va_copy)
+		va_copy(args, ap);
+#elif defined(__va_copy)
+		// Deprecated macro possibly used by older compilers.
 		__va_copy(args, ap);
 #else
-		// HACK: this is undefined behavior but should work ... hopefully ...
-		args = ap;
+		// Undefined behaviour that might work.
+		args = ap; // If this throws an error then C++11 conformance may be required.
 #endif
+
 		const int count = my_vsnprintf( buf+size, n, fmt, args );
 		if(  count < 0  ) {
 #ifdef _WIN32
@@ -380,6 +385,8 @@ void cbuffer_t::vprintf(const char *fmt, va_list ap )
 			inc = (size_t)count;
 		}
 		extend(inc);
+
+		va_end(args);
 	}
 }
 

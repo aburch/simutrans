@@ -60,6 +60,7 @@
 #include "gui/privatesign_info.h"
 #include "gui/messagebox.h"
 #include "gui/simple_number_input.h"
+#include "gui/signal_info.h"
 
 #include "obj/zeiger.h"
 #include "obj/bruecke.h"
@@ -3329,7 +3330,7 @@ uint8 tool_build_tunnel_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 	if(  gr  ) {
 		if( gr->hat_wege() ) {
 			const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
-			// use the check_owner routine of way_builder_t (not spieler_t!), needs an instance
+			// use the check_owner routine of way_builder_t (not player_t!), needs an instance
 			weg_t *w = gr->get_weg_nr(0);
 			if(  w==NULL  ||  w->get_desc()->get_wtyp()!=desc->get_waytype()  ) {
 				error = NOTICE_UNSUITABLE_GROUND;
@@ -7116,7 +7117,7 @@ void tool_merge_stop_t::mark_tiles(  player_t *player, const koord3d &start, con
 
 	if(  distance  < welt->get_settings().allow_merge_distant_halt  ) {
 		distance = clamp(distance,2,33)-2;
-		workcost = -welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
+		workcost = welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", workcost) );
 	}
 	else {
@@ -7148,9 +7149,9 @@ const char *tool_merge_stop_t::do_work( player_t *player, const koord3d &last_po
 
 	if(  distance  < welt->get_settings().allow_merge_distant_halt  ) {
 		distance = clamp(distance,2,33)-2;
-		workcost = -welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
+		workcost = welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", workcost) );
-		if(  player != welt->get_public_player()  ||  !player->can_afford(workcost)  ) {
+		if(  player != welt->get_public_player()  &&  !player->can_afford(workcost)  ) {
 			return NOTICE_INSUFFICIENT_FUNDS;
 		}
 	}
@@ -7502,6 +7503,7 @@ bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, 
  * 's' : change state to [number] (and maybe set open schedule flag)
  * 'l' : apply new line [number]
  * 'd' : go to nearest depot
+ * 'r' : release the child convoy
  */
 bool tool_change_convoi_t::init( player_t *player )
 {
@@ -7637,6 +7639,13 @@ bool tool_change_convoi_t::init( player_t *player )
 				create_win( new news_img(msg), w_time_delete, magic_none);
 			}
 		}
+		break;
+		
+		case 'r': // release the child convoy
+		{
+			cnv->uncouple_convoi();
+		}
+		break;
 	}
 
 	if(  cnv->in_depot()  &&  (tool=='g'  ||  tool=='l')  ) {
@@ -7908,7 +7917,7 @@ bool tool_change_line_t::init( player_t *player )
 bool tool_change_depot_t::init( player_t *player )
 {
 	char tool=0;
-	koord3d pos = koord3d::invalid;
+	koord pos2d;
 	sint16 z;
 	uint16 convoi_id;
 
@@ -7917,8 +7926,9 @@ bool tool_change_depot_t::init( player_t *player )
 	while(  *p  &&  *p<=' '  ) {
 		p++;
 	}
-	sscanf( p, "%c,%hi,%hi,%hi,%hi", &tool, &pos.x, &pos.y, &z, &convoi_id );
-	pos.z = (sint8)z;
+	sscanf( p, "%c,%hi,%hi,%hi,%hi", &tool, &pos2d.x, &pos2d.y, &z, &convoi_id );
+
+	koord3d pos(pos2d, z);
 
 	// skip to the commands ...
 	z = 5;
@@ -8196,12 +8206,12 @@ bool tool_change_player_t::init( player_t *player_in)
  */
 bool tool_change_traffic_light_t::init( player_t *player )
 {
-	koord3d pos;
+	koord pos2d;
 	sint16 z, ns, ticks;
-	if(  5!=sscanf( default_param, "%hi,%hi,%hi,%hi,%hi", &pos.x, &pos.y, &z, &ns, &ticks )  ) {
+	if(  5!=sscanf( default_param, "%hi,%hi,%hi,%hi,%hi", &pos2d.x, &pos2d.y, &z, &ns, &ticks )  ) {
 		return false;
 	}
-	pos.z = (sint8)z;
+	koord3d pos(pos2d, z);
 	if(  grund_t *gr = welt->lookup(pos)  ) {
 		if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
 			if(  (  rs->get_desc()->is_traffic_light()  ||  rs->get_desc()->is_private_way()  )  &&  player_t::check_owner(rs->get_owner(),player)  ) {
@@ -8236,28 +8246,49 @@ bool tool_change_traffic_light_t::init( player_t *player )
 	return false;
 }
 
-
-/* Sets overtaking_mode via default_param:
- *
+/*
+ * change state of roadsign
  */
-bool tool_change_roadsign_t::init( player_t *player )
+bool tool_change_roadsign_t::init( player_t* )
 {
-	koord3d pos;
-	sint16 z, inst;
-	if(  4!=sscanf( default_param, "%hi,%hi,%hi,%hi", &pos.x, &pos.y, &z, &inst )  ) {
+	sint16 x, y, z, inst;
+	char target;
+	if(  5!=sscanf( default_param, "%hi,%hi,%hi,%hi,%c", &x, &y, &z, &inst, &target )  ) {
 		return false;
 	}
-	pos.z = (sint8)z;
-	if(  grund_t *gr = welt->lookup(pos)  ) {
-		if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
-			if(  rs->get_intersection()!=koord3d::invalid  ) {
-				rs->set_lane_affinity(inst);
-			}
-			onewaysign_info_t* onewaysign_win = (onewaysign_info_t*)win_get_magic((ptrdiff_t)rs);
-			if (onewaysign_win) {
-				onewaysign_win->update_data();
+	koord3d pos = koord3d(x,y,z);
+	switch (target) {
+		case 'r':
+		// set lane affinity for oneway road sign
+		if(  grund_t *gr = welt->lookup(pos)  ) {
+			if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
+				if(  rs->get_intersection()!=koord3d::invalid  ) {
+					rs->set_lane_affinity(inst);
+				}
+				onewaysign_info_t* onewaysign_win = (onewaysign_info_t*)win_get_magic((ptrdiff_t)rs);
+				if (onewaysign_win) {
+					onewaysign_win->update_data();
+				}
 			}
 		}
+		break;
+		
+		case 's':
+		// set guide signal state for signal
+		if(  grund_t *gr = welt->lookup(pos)  ) {
+			if( roadsign_t *rs = gr->find<signal_t>()  ) {
+				rs->set_guide_signal(inst);
+				signal_info_t* signal_info_win = (signal_info_t*)win_get_magic((ptrdiff_t)rs);
+				if(  signal_info_win  ) {
+					signal_info_win->update_data();
+				}
+			}
+		}
+		break;
+		
+		default:
+		// do nothing
+		break;
 	}
 	return false;
 }
@@ -8320,8 +8351,9 @@ bool tool_rename_t::init(player_t *player)
 			}
 			break;
 		case 'm':
-		case 'f':
-			if(  3!=sscanf( p, "%hi,%hi,%hi", &pos.x, &pos.y, &id )  ) {
+		case 'f': {
+			koord pos2d;
+			if(  3!=sscanf( p, "%hi,%hi,%hi", &pos2d.x, &pos2d.y, &id )  ) {
 				dbg->error( "tool_rename_t::init", "no position given for marker/factory! (%s)", default_param );
 				return false;
 			}
@@ -8331,9 +8363,10 @@ bool tool_rename_t::init(player_t *player)
 			}
 			while(  *p>0  &&  *p++!=','  ) {
 			}
-			pos.z = (sint8)id;
+			pos = koord3d(pos2d, id);
 			id = 0;
 			break;
+		}
 		default:
 			dbg->error( "tool_rename_t::init", "illegal request! (%s)", default_param );
 			return false;
