@@ -145,11 +145,7 @@ void roadsign_t::set_dir(ribi_t::ribi dir)
 		if(  desc->get_wtyp()!=track_wt  &&  desc->get_wtyp()!=monorail_wt  &&  desc->get_wtyp()!=maglev_wt  &&  desc->get_wtyp()!=narrowgauge_wt  ) {
 			weg->count_sign();
 		}
-		if(desc->is_single_way() ||
-           desc->is_signal() ||
-           desc->is_pre_signal() ||
-           desc->is_priority_signal() ||
-           desc->is_longblock_signal()) {
+		if(desc->is_single_way()  ||  desc->is_signal_type()) {
 			// set mask, if it is a single way ...
 			weg->count_sign();
 			weg->set_ribi_maske(calc_mask());

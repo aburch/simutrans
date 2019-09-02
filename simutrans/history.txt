@@ -16,6 +16,8 @@
 	FIX: Prevent a crash when the schedule window is open with waypoints on bridges that were destroyed or had planning canceled.
 	FIX: Goods List speed field will now allow selecting speeds appropiate for very fast vehicles.
 	CHG: Revise Goods List for better clarity and usability.
+	FIX: Construction of priority and longblock signals
+	CHG: Start with random midi song
 
 
 Release of 120.4.1 (r8600 on 23-Sep-2018):

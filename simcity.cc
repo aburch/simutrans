@@ -3249,7 +3249,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 					}
 				}
 #if 0
-/* since we only replace tiles, natur is not allowed for the moment, but could be easilz changed */
+/* since we only replace tiles, natur is not allowed for the moment, but could be easily changed */
 				else if(  gr->ist_natur()  &&  gr->get_pos().z+slope_t::max_diff(gr->get_grund_hang())==zpos  ) {
 					// we can of course also build on nature
 					maxsize = area3x3[area_level]+koord(1,1);
@@ -3354,6 +3354,10 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 									// so take the roation of the next bilding with similar or more rotations
 									rotation = gb->get_tile()->get_layout();
 									max_layout = gb->get_tile()->get_desc()->get_all_layouts();
+									if(  h->get_clusters() == 0  &&  gb->get_tile()->get_desc() == h  ) {
+										// we only renovate, if there is not an identical building (unless its a cluster)
+										return;
+									}
 								}
 							}
 						}
@@ -3366,6 +3370,25 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 			}
 		}
 
+		// we only renovate, if there is not an identical building (unless its a cluster)
+		if(  !h->get_clusters() ) {
+			for( int i = 0; i < 8; i++ ) {
+				koord p = k;
+				p.x += neighbors[i].x > 0 ? h->get_x( rotation ) : neighbors[i].x;
+				p.y += neighbors[i].y > 0 ? h->get_y( rotation ) : neighbors[i].y;
+				grund_t *gr = welt->lookup_kartenboden(p);
+				if( gr  &&  gr->get_typ() == grund_t::fundament ) {
+					if( gebaeude_t *gb = gr->find<gebaeude_t>() ) {
+						if( gb->get_tile()->get_desc() == h ) {
+							// same building => do not renovate
+							return;
+						}
+					}
+				}
+			}
+		}
+
+		// ok now finally replace
 		for(  int x=0;  x<h->get_x(rotation);  x++  ) {
 			for(  int y=0;  y<h->get_y(rotation);  y++  ) {
 				koord kpos = k+koord(x,y);
