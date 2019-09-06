@@ -243,6 +243,10 @@ static uint32 bridge_success_percentage = 25;
 /*
  * distribution_weight to do renovation instead new building (in percent)
  * @author prissi
+ * 
+ * dont set this to 100 or cities wont build outward until renovation fails leading to ugly solid 
+ * blocks of highest density buildings in the centre of the city
+ * note - catasteroid
  */
 static uint32 renovation_percentage = 25;
 
@@ -276,7 +280,7 @@ static uint32 proportional_renovation_radius = 0;
 * proportional_renovation_radius is equal to 1
 * @author catasteroid
 */
-static uint32 renovation_range = 10;
+static uint32 renovation_range = 3;
 
 /*
 * enables reduction in chance of successful renovation based on the distance from
@@ -919,15 +923,15 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 		file->rdwr_long(bridge_success_percentage);
 	}
 
-	if(file->get_extended_version() >= 12 || (file->get_version() >= 112007 && file->get_extended_version() >= 11))
-	{
+	//if(file->get_extended_version() >= 12 || (file->get_version() >= 112007 && file->get_extended_version() >= 11))
+	//{
 		file->rdwr_long(renovations_try);
 		file->rdwr_long(renovations_count);
 		file->rdwr_long(renovation_influence_type);
 		file->rdwr_long(proportional_renovation_radius);
 		file->rdwr_long(renovation_range);
 		file->rdwr_long(renovation_distance_chance);
-	}
+	//}
 
 	file->rdwr_short(ind_start_score);
 	file->rdwr_short(ind_neighbour_score[0]);
@@ -5252,7 +5256,7 @@ void stadt_t::build(bool new_town, bool map_generation)
 	koord c( (ur.x + lo.x)/2 , (ur.y + lo.y)/2);
 	uint32 maxdist(koord_distance(ur,c));
 	uint32 halfdist(maxdist / 2);
-	if (maxdist < 10) {
+	if (maxdist > renovation_range) {
 		//if (renovation_range == 1)
 		if (proportional_renovation_radius == 1)
 			maxdist = halfdist;
@@ -5272,6 +5276,7 @@ void stadt_t::build(bool new_town, bool map_generation)
 			// try to find a non-player owned building
 			gebaeude_t* const gb = pick_any(buildings);
 			const uint32 dist(koord_distance(c, gb->get_pos()));
+			if (dist > maxdist) continue;
 			const uint32 distance_rate = 100 - (dist * 100) / maxdist;
 			if(  player_t::check_owner(gb->get_owner(),NULL)  && (renovation_distance_chance == 0 || simrand(100, "void stadt_t::build") < distance_rate)) {
 				if(renovate_city_building(gb, map_generation)) {
