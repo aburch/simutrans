@@ -1197,7 +1197,7 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 				{
 					const koord3d tile = route.at(j);
 					const grund_t* gr = welt->lookup(tile); 
-					if (gr->ist_bruecke())
+					if (gr && gr->ist_bruecke())
 					{
 						bridge_tiles_ahead++;
 					}
