@@ -38,7 +38,7 @@ To see the sighting distance of a train, let it run in "Drive by sight" working 
 Read more about presignals here: <a href="signals_usage.txt">Signals usage</a><br><br>
 
 <em>Signals max speed</em><br>
-At higher speeds, signs and signals get more difficult to read. Each signal has a maximum sighting speed (defined as "Max speed") which is the maximum speed that the traindrivers human eye can read the messages given from the signal. In effect, this means that a train will not pass a signal at higher speed than the signals maxspeed. Although with modern technology cab signalling allows the signal states to be shown inside the cab of the trains, thus allowing for a higher sighting speed, as it is the technology that "sees" the signal.<br><br>
+At higher speeds, signs and signals get more difficult to read. Each signal has a maximum sighting speed (defined as "Max speed") which is the maximum speed that the traindrivers human eye can read the messages given from the signal. In effect, this means that a train will not pass a signal at higher speed than the signals maxspeed. Although with modern technology cab signalling allows the signal states to be shown inside the cab of the trains, thus allowing for a much higher sighting speed.<br><br>
 
 <em>Multiple aspect signals</em><br>
 A signal may have up to 5 aspects, in addition to aspects for permissive signals and choose signals showing alternative routes. Not all paksets make use of all of the aspects and the graphics of the signals might be very different between paksets.<br>
