@@ -23,7 +23,7 @@ A signal can't just be built as a standalone signal: They need signalboxes in or
 To build and connect signals to signal boxes, start by placing a signalbox next to the track. Once the signalbox is built, a bunch of signals will become visible in the rail toolbar which will now automatically be connected to your newly built signalbox when built. If you want to build new signals to another signalbox on your map, click on that signalbox and new signals will automatically be connected to that one.<br><br>
 
 <em>Uni- and bidirectional signals</em><br>
-Signals are unidirectional signals by default that only interact with trains facing the signal, meaning that trains passing in the opposite direction will ignore the signal completely.<br>
+Signals are unidirectional signals by default that only interact with trains they are facing, meaning that trains passing in the opposite direction will ignore the signal completely.<br>
 Some working methods, however, allow signals to become bidirectional signals, controling traffic from both directions. To create a bidirectional signal, click multiple times with the signal building tool on the signal, and the signal will circle between being unidirectional in one way, the other way and eventually bidirectional.<br>
 The "station signal" though can only be built as a bidirectional signal.<br><br>
 
