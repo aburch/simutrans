@@ -54,3 +54,17 @@ Read more about how to use them here: <a href="signals_usage.txt">Signals usage<
 Permissive signals are used to increase line capacity. When a train is brought to a stand at a permissive signal at danger, it may proceed beyond the signal at "drive by sight". This is only possible where the signal controls a section of straight, unidirectional track. If there are junctions, the permissive functionality is disabled and the signal works as an ordinary signal.<br>
 Read more about how to use them here: <a href="signals_usage.txt">Signals usage</a><br><br>
 
+<em>Double block signals</em><br>
+Double block signals will not clear until the next signal in line can clear. This is typically used when lines are branching out to two (or more) different working methods. The signal creates absolute block type of reservation in the first block and whatever type of reservation in the second block.
+
+<em>Longblock signals</em><br>
+A Longblock signal is a signal which will always enforce a directional reservation which might be usefull in certain situations.
+
+<em>Combined signals</em><br>
+A combined signal is a specific Absolute block type signal which is an early type of multiple aspect. It has three aspects and the forecasting aspect can forecast either for the signals coupled to its own signalbox, or for the following signalbox, if that particular signalbox is within range.
+
+<em>Distant signals</em><br>
+Distant signals, presignals and repeater signals are all used only to tell the train at what state the upcomming signal is. In essence they extend the sighting distance of the following signal. These kinds of signals are not "real" signals, therefore trains will not stop at them.
+
+<em>Intermediate signals</em><br>
+This type of signal is a specific Absolute block type signal which allows an extra section to be inserted into an absolute block section between two signal boxes using semi-automatic signals without replacing the signalbox or existing mechanical signals
