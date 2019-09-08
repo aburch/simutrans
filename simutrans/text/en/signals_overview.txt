@@ -34,6 +34,7 @@ To create a directinal reservation you need to put either a bidirectional signal
 <em>Sighting distance</em><br>
 The traindriver can only see a certain distance in front of the train. When a train is in the "drive by sight" working method, the sighting distance is the only safety feature in existance and the train is therefore required to drive slow enough to stop within the sighting distance.<br>
 The sighting distance is also used to determine the speed that a train will approach an upcoming signal. Since the train does not know the state of an upcoming signal (except in "cab signal" and "moving block" working methods), it must drive slow enough to possibly stop if the signal is at danger. To come around this problem, presignals is used, which tells the driver at a much earlier point what state the upcoming signal is at.<br>
+To see the sighting distance of a train, let it run in "Drive by sight" working method. The red reservation in front of the train will correspond to its sighting distance.
 Read more about presignals here: <a href="signals_usage.txt">Signals usage</a><br><br>
 
 <em>Signals max speed</em><br>
