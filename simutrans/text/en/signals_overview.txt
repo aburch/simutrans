@@ -27,9 +27,9 @@ Signals are unidirectional signals by default that only interact with trains the
 Some working methods, however, allow signals to become bidirectional signals, controling traffic from both directions. To create a bidirectional signal, click multiple times with the signal building tool on the signal, and the signal will circle between being unidirectional in one way, the other way and eventually bidirectional.<br>
 The "station signal" though can only be built as a bidirectional signal.<br><br>
 
-<em>Directional reservations</em><br>
-As opposed to a normal reservation, it is possible for a signal also to create a directional reservation. A directional reservation reserves only the direction of the track, meaning that other trains still can enter the reserved track, but only travel in the same direction as the track is reserved. With the block reservation tool, the directional reservation is represented with the color BLUE. To see what direction it is reserved, open the track info window.<br>
-A directional reservation is only created during certain circumstances, namely if a train reserves through a bidirectional signal (except the station signal) or a longblock signal. Read more about that here: <a href="signals_usage.txt">Signals usage</a><br><br>
+<em>Normal reservations and Directional reservations</em><br>
+As opposed to a normal reservation, it is possible for a signal also to create a directional reservation. A directional reservation reserves only the direction of the track, not the track itself. Therefore other trains can still enter the directionally reserved track, but only travel in the same direction as the track is reserved. With the block reservation tool, the directional reservation has the color BLUE, and normal reservation has the color RED. To see what direction the reservation is, open the track info window.<br>
+To create a directinal reservation you need to put either a bidirectional signal, or a longblock signal. Read more about that here: <a href="signals_usage.txt">Signals usage</a><br><br>
 
 <em>Sighting distance</em><br>
 The traindriver can only see a certain distance in front of the train. When a train is in the "drive by sight" working method, the sighting distance is the only safety feature in existance and the train is therefore prohibited to drive slow enough to stop within the sighting distance.<br>
