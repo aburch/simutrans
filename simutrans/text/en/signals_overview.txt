@@ -14,8 +14,8 @@ A signal in Simutrans Extended will have some fundamental parameters which will 
 
 <em>Working methods</em><br>
 Since the dawn of railways, the biggest problem has always been to ensure that two trains are not running into each other. This has resulted in the development of various safety systems, rules, technical safety instruments etc.<br>
-Signals in Simutrans Extended are working with so called "working methods", which will determine how the signal behaves and which rules and "safety systems" the train will follow behind the signal. Different working methods represents different real life rail systems, and there are different signals available to the various working methods.<br>
-Whenever the train leaves the depot or leaves a platform with no signals on, it will default to the Drive by Sight working method (although with some exceptions: se the link below).<br>
+Signals in Simutrans Extended are working with so called "working methods", which will determine how the signal behaves and which rules and "safety systems" the train will follow after passing the signal. The working method is the most essential parameter of the signal, as all other functionallity will depend on it. Different working methods represents different real life rail systems, and there are different signals available to the various working methods.<br>
+Whenever a train leaves a depot or platform with no signals, it will default to the Drive by Sight working method (although with some exceptions: se the link below).<br>
 Read more about working methods here: <a href="signals_working_methods.txt">Signals working methods</a><br><br>
 
 <em>Signalboxes</em><br>
