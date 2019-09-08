@@ -358,8 +358,21 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	}
 	end_table();
 	
-	// coupling related buttons
 	add_table(2,1);
+	{
+		bt_extract_settings.init(button_t::arrowdown, "Extract advanced settings");
+		bt_extract_settings.set_tooltip("Show some more."); // TODO: fix me :(
+		bt_extract_settings.add_listener(this);
+		bt_extract_settings.pressed = false;
+		add_component(&bt_extract_settings);
+		
+		new_component<gui_label_t>("Extract advanced settings");
+	}
+	end_table();
+	
+	// Components for advanced settings
+	add_table(2,1);
+	// coupling related buttons
 	if(  schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt  ) {
 		bt_wait_for_child.init(button_t::square_state, "Wait for coupling");
 		bt_wait_for_child.set_tooltip("A convoy waits for other convoy to couple.");
@@ -374,6 +387,8 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&bt_find_parent);
 	}
 	end_table();
+	
+	extract_advanced_settings(false);
 
 	// return tickets
 	if(  !env_t::hide_rail_return_ticket  ||  schedule->get_waytype()==road_wt  ||  schedule->get_waytype()==air_wt  ||  schedule->get_waytype()==water_wt  ) {
@@ -656,6 +671,12 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			update_selection();
 		}
 	}
+	else if(comp == &bt_extract_settings) {
+		extract_advanced_settings(!bt_wait_for_child.is_visible());
+		// reload window
+		reset_min_windowsize();
+		set_windowsize(get_min_windowsize());
+	}
 	// recheck lines
 	if(  cnv.is_bound()  ) {
 		// unequal to line => remove from line ...
@@ -805,4 +826,10 @@ void schedule_gui_t::rdwr(loadsave_t *file)
 			dbg->error( "schedule_gui_t::rdwr", "Could not restore schedule window for (%d)", cnv.get_id() );
 		}
 	}
+}
+
+void schedule_gui_t::extract_advanced_settings(bool yesno) {
+	bt_extract_settings.set_typ(yesno ? button_t::arrowup : button_t::arrowdown);
+	bt_wait_for_child.set_visible(yesno);
+	bt_find_parent.set_visible(yesno);
 }

@@ -59,6 +59,9 @@ class schedule_gui_t :	public gui_frame_t,
 	gui_numberinput_t numimp_load;
 	gui_combobox_t wait_load;
 	
+	// for advanced settings
+	// coupling, load/unload only, temp schedule, departure time
+	button_t bt_extract_settings;
 	button_t bt_find_parent, bt_wait_for_child;
 
 	schedule_gui_stats_t* stats;
@@ -73,6 +76,9 @@ class schedule_gui_t :	public gui_frame_t,
 
 	// changes the waiting/loading levels if allowed
 	void update_selection();
+	
+	void extract_advanced_settings(bool yesno);
+	
 protected:
 	schedule_t *schedule;
 	schedule_t* old_schedule;
