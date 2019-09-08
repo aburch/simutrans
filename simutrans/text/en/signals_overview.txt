@@ -7,6 +7,11 @@
 <h1>Concepts:</h1>
 <p>
 
+<em>Signals in Simutrans Extended</em><br>
+Signals in Simutrans Extended is a very complex subject. The signals have evolved from Simutrans Standard and have become quite different, both in functionallity and appearence. A signal can be many things dependent on how the signal has been designed for the pakset and in some cases, a signal variant doesnt exist in some pakset while it exists in another. This signal help section will aim to describe all of the possible variants that is possible and how they would work in the game.<br>
+A signal in Simutrans Extended will have some fundamental parameters which will be described shortly on this page. To read further on some of the subjects follow the links under the subjects to get a more indepth description.
+
+
 <em>Working methods</em><br>
 Since the dawn of railways, the biggest problem has always been to ensure that two trains are not running into each other. This has resulted in the development of various safety systems, rules, technical safety instruments etc.<br>
 Signals in Simutrans Extended are working with so called "working methods", which will determine how the signal behaves and which rules and "safety systems" the train will follow behind the signal. Different working methods represents different real life rail systems, and there are different signals available to the various working methods.<br>
