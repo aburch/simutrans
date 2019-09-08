@@ -3348,7 +3348,7 @@ station_tile_search_ready: ;
 	while(  !is_coupled()  &&  c.is_bound()  ) {
 		bool cond = c->get_loading_level() >= c->get_schedule()->get_current_entry().minimum_loading; // minimum loading
 		bool waiting_time_cond = (c->get_schedule()->get_current_entry().waiting_time_shift > 0  &&  welt->get_ticks() - arrived_time > (welt->ticks_per_world_month >> (16 - c->get_schedule()->get_current_entry().waiting_time_shift)) ); // waiting time
-		bool coupling_cond = (c->get_schedule()->get_current_entry().coupling_point==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // wait for coupling?
+		bool coupling_cond = (c->get_schedule()->get_current_entry().get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // wait for coupling?
 		cond &= !coupling_cond;
 		cond |= c->get_no_load(); // no load
 		cond |= waiting_time_cond;
@@ -4612,7 +4612,7 @@ bool convoi_t::can_start_coupling(convoi_t* parent) const {
 	const schedule_entry_t p_c = parent->get_schedule()->get_current_entry();
 	const schedule_entry_t p_n = parent->get_schedule()->get_next_entry();
 	
-	if(  p_c.coupling_point!=1  ||  t_c.coupling_point!=2  ) {
+	if(  p_c.get_coupling_point()!=1  ||  t_c.get_coupling_point()!=2  ) {
 		// rejected by coupling_point condition.
 		return false;
 	}
@@ -4627,7 +4627,7 @@ bool convoi_t::is_waiting_for_coupling() const {
 	convoihandle_t c = self;
 	bool waiting_for_coupling = false;
 	while(  c.is_bound()  ) {
-		waiting_for_coupling |= (!c->get_coupling_convoi().is_bound()  &&  c->get_schedule()->get_current_entry().coupling_point==1);
+		waiting_for_coupling |= (!c->get_coupling_convoi().is_bound()  &&  c->get_schedule()->get_current_entry().get_coupling_point()==1);
 		c = c->get_coupling_convoi();
 	}
 	return waiting_for_coupling;

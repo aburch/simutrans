@@ -223,6 +223,11 @@ void schedule_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(size);
 	}
 	entries.resize(size);
+	
+	if(  file->get_OTRP_version()>=23  ) {
+		file->rdwr_bool(temporary);
+		file->rdwr_bool(same_dep_time);
+	}
 
 	if(file->is_version_less(99, 12)) {
 		for(  uint8 i=0; i<size; i++  ) {
@@ -246,7 +251,14 @@ void schedule_t::rdwr(loadsave_t *file)
 				file->rdwr_byte(entries[i].waiting_time_shift);
 			}
 			if(file->get_OTRP_version()>=22) {
-				file->rdwr_byte(entries[i].coupling_point);
+				uint8 flags = entries[i].get_stop_flags();
+				file->rdwr_byte(flags);
+				entries[i].set_stop_flags(flags);
+			}
+			if(file->get_OTRP_version()>=23) {
+				file->rdwr_short(entries[i].spacing);
+				file->rdwr_short(entries[i].spacing_shift);
+				file->rdwr_short(entries[i].delay_tolerance);
 			}
 		}
 	}
@@ -403,7 +415,7 @@ void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
 	buf.printf("%u|%d|", current_stop, (int)get_type());
 	FOR(minivec_tpl<schedule_entry_t>, const& i, entries) {
-		buf.printf("%s,%i,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time_shift, i.coupling_point);
+		buf.printf("%s,%i,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time_shift, i.get_stop_flags());
 	}
 }
 
@@ -478,7 +490,7 @@ void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* 
 		if (entry.minimum_loading != 0  &&  max_chars <= 0) {
 			buf.printf("%d%% ", entry.minimum_loading);
 		}
-		else if(  entry.coupling_point!=0  ) {
+		else if(  entry.get_coupling_point()!=0  ) {
 			buf.printf("[#] ");
 		}
 		p = halt->get_name();

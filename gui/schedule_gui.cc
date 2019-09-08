@@ -559,7 +559,7 @@ void schedule_gui_t::update_selection()
 			numimp_load.set_value( schedule->entries[current_stop].minimum_loading );
 
 			sint8 wait = 0;
-			if(  schedule->entries[current_stop].minimum_loading>0  ||  schedule->entries[current_stop].coupling_point!=0  ) {
+			if(  schedule->entries[current_stop].minimum_loading>0  ||  schedule->entries[current_stop].get_coupling_point()!=0  ) {
 				lb_wait.set_color( SYSCOL_TEXT );
 				wait_load.enable();
 
@@ -575,7 +575,7 @@ void schedule_gui_t::update_selection()
 				}
 			}
 			
-			uint8 c = schedule->entries[current_stop].coupling_point;
+			const uint8 c = schedule->entries[current_stop].get_coupling_point();
 			bt_find_parent.enable();
 			bt_find_parent.pressed = c==2;
 			bt_wait_for_child.enable();
@@ -684,14 +684,22 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	}
 	else if(comp == &bt_find_parent) {
 		if(!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].coupling_point = bt_find_parent.pressed ? 0 : 2;
+			if(  bt_find_parent.pressed  ) {
+				schedule->entries[schedule->get_current_stop()].set_try_coupling();
+			} else {
+				schedule->entries[schedule->get_current_stop()].reset_coupling();
+			}
 			bt_wait_for_child.pressed = false;
 			update_selection();
 		}
 	}
 	else if(comp == &bt_wait_for_child) {
 		if(!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].coupling_point = bt_wait_for_child.pressed ? 0 : 1;
+			if(  bt_wait_for_child.pressed  ) {
+				schedule->entries[schedule->get_current_stop()].set_wait_for_coupling();
+			} else {
+				schedule->entries[schedule->get_current_stop()].reset_coupling();
+			}
 			bt_find_parent.pressed = false;
 			update_selection();
 		}

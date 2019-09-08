@@ -3626,7 +3626,7 @@ skip_choose:
 
 	target_halt = target->get_halt();
 	bool route_found = false;
-	bool try_coupling = cnv->get_schedule()->get_current_entry().coupling_point==2;
+	bool try_coupling = cnv->get_schedule()->get_current_entry().get_coupling_point()==2;
 	if(  !try_coupling  ) {
 		// call block_reserver only when the next halt is not a coupling point.
 		route_found = block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100000, true, false );
@@ -4114,7 +4114,7 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 		}
 		idx = (idx+1)%cnv->get_schedule()->get_count();
 	} while(  idx!=cnv->get_schedule()->get_current_stop()  );
-	if(  !stop_found  ||  cnv->get_schedule()->entries[idx].coupling_point!=2  ) {
+	if(  !stop_found  ||  cnv->get_schedule()->entries[idx].get_coupling_point()!=2  ) {
 		// all schedule entries are waypoint or the next stop point is not a coupling point.
 		return false;
 	}

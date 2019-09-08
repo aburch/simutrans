@@ -23,6 +23,9 @@ class schedule_t
 {
 	bool  editing_finished;
 	uint8 current_stop;
+	
+	bool temporary;
+	bool same_dep_time;
 
 	static schedule_entry_t dummy_entry;
 
