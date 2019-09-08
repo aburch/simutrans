@@ -23,17 +23,18 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #define SIM_VERSION_BUILD SIM_BUILD_NIGHTLY
 
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
-// ==> These have no direct connection at all!
+//  These have no direct connection at all!
 #define SIM_SAVE_MINOR      4
 #define SIM_SERVER_MINOR    4
 
-#define EX_VERSION_MAJOR	12
-#define EX_VERSION_MINOR	2
-#define EX_SAVE_MINOR		21
+#define EX_VERSION_MAJOR	14
+#define EX_VERSION_MINOR	5
+#define EX_SAVE_MINOR		12
+
 // Do not forget to increment the save game versions in settings_stats.cc when changing this
 
-#define MAKEOBJ_VERSION "60.0"
-// Transparency and new factories
+#define MAKEOBJ_VERSION "60.01"
+// Transparency and new factories(60.0), railcar_tab(60.01). NOTE: standard now 60.2
 
 #ifndef QUOTEME
 #	define QUOTEME_(x) #x
@@ -78,7 +79,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #define RES_VERSION_NUMBER  SIM_VERSION_MAJOR, SIM_VERSION_MINOR, EX_VERSION_MAJOR, EX_VERSION_MINOR
 
 #ifdef REVISION
-#	define SIM_TITLE_REVISION_STRING " - r" QUOTEME(REVISION)
+#	define SIM_TITLE_REVISION_STRING " #" QUOTEME(REVISION)
 #else
 #	define SIM_TITLE_REVISION_STRING
 #endif
@@ -88,8 +89,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 /*********************** Settings related to network games ********************/
 
 /* Server to announce status to */
-//#define ANNOUNCE_SERVER "servers.extended.simutrans.org:80"
-#define ANNOUNCE_SERVER "server.exp.simutrans.com:8080"
+#define ANNOUNCE_SERVER "list.extended.simutrans.org:8080"
 
 /* Relative URL of the announce function on server */
 #define ANNOUNCE_URL "/announce"

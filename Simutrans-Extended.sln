@@ -5,16 +5,17 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simutrans-Extended", "Simutrans-Extended.vcxproj", "{0621B295-BEB7-4767-82F1-F27995610323}"
 EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug (command-line server)|Win32 = Debug (command-line server)|Win32
-		Debug (command-line server)|x64 = Debug (command-line server)|x64
 		Debug (graphical server)|Win32 = Debug (graphical server)|Win32
 		Debug (graphical server)|x64 = Debug (graphical server)|x64
 		Debug (no randomness)|Win32 = Debug (no randomness)|Win32
 		Debug (no randomness)|x64 = Debug (no randomness)|x64
+		Debug (non-graphical server)|Win32 = Debug (non-graphical server)|Win32
+		Debug (non-graphical server)|x64 = Debug (non-graphical server)|x64
+		Debug (open GL)|Win32 = Debug (open GL)|Win32
+		Debug (open GL)|x64 = Debug (open GL)|x64
+		Debug (SDL 2)|Win32 = Debug (SDL 2)|Win32
+		Debug (SDL 2)|x64 = Debug (SDL 2)|x64
 		Debug (SDL)|Win32 = Debug (SDL)|Win32
 		Debug (SDL)|x64 = Debug (SDL)|x64
 		Debug (single threaded new)|Win32 = Debug (single threaded new)|Win32
@@ -29,12 +30,18 @@ Global
 		Debug-64|x64 = Debug-64|x64
 		Dr. Memory|Win32 = Dr. Memory|Win32
 		Dr. Memory|x64 = Dr. Memory|x64
+		Optimised debug|Win32 = Optimised debug|Win32
+		Optimised debug|x64 = Optimised debug|x64
 		Release (command-line server)|Win32 = Release (command-line server)|Win32
 		Release (command-line server)|x64 = Release (command-line server)|x64
 		Release (IP v. 4 only)|Win32 = Release (IP v. 4 only)|Win32
 		Release (IP v. 4 only)|x64 = Release (IP v. 4 only)|x64
 		Release (large address)|Win32 = Release (large address)|Win32
 		Release (large address)|x64 = Release (large address)|x64
+		Release (open GL 2)|Win32 = Release (open GL 2)|Win32
+		Release (open GL 2)|x64 = Release (open GL 2)|x64
+		Release (open GL)|Win32 = Release (open GL)|Win32
+		Release (open GL)|x64 = Release (open GL)|x64
 		Release (SDL)|Win32 = Release (SDL)|Win32
 		Release (SDL)|x64 = Release (SDL)|x64
 		Release (single threaded)|Win32 = Release (single threaded)|Win32
@@ -45,10 +52,6 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (command-line server)|Win32.ActiveCfg = Debug (command-line server)|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (command-line server)|Win32.Build.0 = Debug (command-line server)|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (command-line server)|x64.ActiveCfg = Debug (command-line server)|x64
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (command-line server)|x64.Build.0 = Debug (command-line server)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (graphical server)|Win32.ActiveCfg = Debug (graphical server)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (graphical server)|Win32.Build.0 = Debug (graphical server)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (graphical server)|x64.ActiveCfg = Debug (graphical server)|x64
@@ -57,6 +60,18 @@ Global
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (no randomness)|Win32.Build.0 = Debug (no randomness)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (no randomness)|x64.ActiveCfg = Debug (no randomness)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (no randomness)|x64.Build.0 = Debug (no randomness)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (non-graphical server)|Win32.ActiveCfg = Debug (non-graphical server)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (non-graphical server)|Win32.Build.0 = Debug (non-graphical server)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (non-graphical server)|x64.ActiveCfg = Debug (non-graphical server)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (non-graphical server)|x64.Build.0 = Debug (non-graphical server)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|Win32.ActiveCfg = Debug (open GL)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|Win32.Build.0 = Debug (open GL)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|x64.ActiveCfg = Debug (open GL)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|x64.Build.0 = Debug (open GL)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL 2)|Win32.ActiveCfg = Debug (SDL 2)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL 2)|Win32.Build.0 = Debug (SDL 2)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL 2)|x64.ActiveCfg = Debug (SDL 2)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL 2)|x64.Build.0 = Debug (SDL 2)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL)|Win32.ActiveCfg = Debug (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL)|Win32.Build.0 = Debug (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL)|x64.ActiveCfg = Debug (SDL)|x64
@@ -85,6 +100,10 @@ Global
 		{0621B295-BEB7-4767-82F1-F27995610323}.Dr. Memory|Win32.Build.0 = Dr. Memory|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Dr. Memory|x64.ActiveCfg = Dr. Memory|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Dr. Memory|x64.Build.0 = Dr. Memory|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Optimised debug|Win32.ActiveCfg = Optimised debug|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Optimised debug|Win32.Build.0 = Optimised debug|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Optimised debug|x64.ActiveCfg = Optimised debug|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Optimised debug|x64.Build.0 = Optimised debug|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (command-line server)|Win32.ActiveCfg = Release (command-line server)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (command-line server)|Win32.Build.0 = Release (command-line server)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (command-line server)|x64.ActiveCfg = Release (command-line server)|x64
@@ -97,6 +116,14 @@ Global
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|Win32.Build.0 = Release (single threaded)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|x64.ActiveCfg = Release (single threaded)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|x64.Build.0 = Release (single threaded)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|Win32.ActiveCfg = Release (open GL 2)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|Win32.Build.0 = Release (open GL 2)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|x64.ActiveCfg = Release (open GL 2)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|x64.Build.0 = Release (open GL 2)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|Win32.ActiveCfg = Release (open GL)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|Win32.Build.0 = Release (open GL)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|x64.ActiveCfg = Release (open GL)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|x64.Build.0 = Release (open GL)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (SDL)|Win32.ActiveCfg = Release (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (SDL)|Win32.Build.0 = Release (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (SDL)|x64.ActiveCfg = Release (SDL)|x64

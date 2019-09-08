@@ -32,7 +32,7 @@ private:
 	static uint8 max_catg_index;
 
 public:
-	enum { INDEX_PAS=0, INDEX_MAIL=1, INDEX_NONE=2 };
+	enum { INDEX_PAS=0, INDEX_MAIL=1, INDEX_NONE=2 }; 
 
 	static const goods_desc_t *passengers;
 	static const goods_desc_t *mail;
@@ -57,7 +57,7 @@ public:
 
 	static goods_desc_t *get_modifiable_info(uint16 idx) { return goods[idx]; }
 
-	static uint16 get_count() { return goods.get_count(); }
+	static uint8 get_count() { return (uint8)goods.get_count(); }
 
 	// good by catg
 	static const goods_desc_t *get_info_catg(const uint8 catg);
@@ -65,16 +65,14 @@ public:
 	// good by catg_index
 	static const goods_desc_t *get_info_catg_index(const uint8 catg_index);
 
+	// Number of classes for a given category index
+	static const uint8 get_classes_catg_index(const uint8 catg_index);
+
 	/*
 	 * allow to multiply all prices, 1000=1.0
 	 * used for the beginner mode
 	 */
 	static void set_multiplier(sint32 multiplier, uint16 scale_factor);
-
-	/*
-	 * Update the cache of speedbonuses by distance
-	 */
-	static void cache_speedbonuses(uint32 min_d, uint32 med_d, uint32 max_d, uint16 multiplier);
 };
 
 #endif

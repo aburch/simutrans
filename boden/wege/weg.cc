@@ -67,7 +67,6 @@ static pthread_mutex_t weg_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZE
  */
 vector_tpl <weg_t *> alle_wege;
 
-
 /**
  * Get list of all ways
  * @author Hj. Malthaner
@@ -79,7 +78,7 @@ const vector_tpl <weg_t *> & weg_t::get_alle_wege()
 
 const uint32 weg_t::get_all_ways_count()
 {
-	return alle_wege.get_count();  
+	return alle_wege.get_count();
 }
 
 void weg_t::clear_list_of__ways()
@@ -158,7 +157,7 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 		}
 		player_t::add_maintenance(get_owner(), -old_maint, get_desc()->get_finance_waytype());
 	}
-	
+
 	desc = b;
 	if (!from_saved_game)
 	{
@@ -183,22 +182,17 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 	const tunnel_t *tunnel = gr ? gr->find<tunnel_t>() : NULL;
 	const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
 
-#if MULTI_THREAD
-	const bool is_destroying = welt->is_destroying();
-	if (env_t::networkmode && !is_destroying)
+#ifdef MULTI_THREAD_CONVOYS
+	if (env_t::networkmode)
 	{
 		// In network mode, we cannot have set_desc running concurrently with
 		// convoy path-finding because  whether the convoy path-finder is called
 		// on this tile of way before or after this function is indeterminate.
-		if (!world()->get_first_step())
-		{
-			simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
-			welt->set_first_step(1); 
-		}
+		world()->await_convoy_threads();
 	}
 #endif
 
-	if(hang != slope_t::flat) 
+	if(hang != slope_t::flat)
 	{
 		const uint slope_height = (hang & 7) ? 1 : 2;
 		if(slope_height == 1)
@@ -254,11 +248,11 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 	{
 		max_speed = min(max_speed, city_road_topspeed);
 	}
-	
+
 	max_axle_load = desc->get_max_axle_load();
-	
+
 	// Clear the old constraints then add all sources of constraints again.
-	// (Removing will not work in cases where a way and another object, 
+	// (Removing will not work in cases where a way and another object,
 	// such as a bridge, tunnel or wayobject, share a constraint).
 	clear_way_constraints();
 	add_way_constraints(desc->get_way_constraints()); // Add the way's own constraints
@@ -277,17 +271,22 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 	}
 
 	if(desc->is_mothballed())
-	{	
+	{
 		degraded = true;
 		remaining_wear_capacity = 0;
 		replacement_way = NULL;
+		if(!from_saved_game)
+		{
+			// We need to know when the way was degraded as well as upgraded
+			last_renewal_month_year = welt->get_timeline_year_month();
+		}
 	}
 	else if(!from_saved_game)
 	{
 		remaining_wear_capacity = desc->get_wear_capacity();
-		last_renewal_month_year = welt->get_timeline_year_month();
 		degraded = false;
 		replacement_way = desc;
+		last_renewal_month_year = welt->get_timeline_year_month();
 		const grund_t* gr = welt->lookup(get_pos());
 		if(gr)
 		{
@@ -295,11 +294,11 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 			if(!rs)
 			{
 				rs =  gr->find<signal_t>();
-			} 
+			}
 			if(rs && rs->get_desc()->is_retired(welt->get_timeline_year_month()))
 			{
 				// Upgrade obsolete signals and signs when upgrading the underlying way if possible.
-				rs->upgrade(welt->lookup_kartenboden(get_pos().get_2d())->get_hoehe() != get_pos().z); 
+				rs->upgrade(welt->lookup_kartenboden(get_pos().get_2d())->get_hoehe() != get_pos().z);
 			}
 		}
 	}
@@ -549,7 +548,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 			}
 			buf.append("\n");
 		}
-		
+
 		if (desc->get_styp() == type_elevated || wtyp == air_wt || wtyp == water_wt)
 		{
 			buf.append(translator::translate("Max. weight:"));
@@ -572,143 +571,23 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		}
 	}
 
-	if (desc->get_styp() == type_runway)
+	if (wtyp == air_wt && desc->get_styp() == type_runway)
 	{
-		bool runway_36_18 = false;
-		bool runway_09_27 = false;
-
-		switch (get_ribi())
-		{
-		case 1: // north
-		case 4: // south
-		case 5: // north-south
-		case 7: // north-south-east
-		case 13: // north-south-west
-			runway_36_18 = true;
-			break;
-		case 2: // east
-		case 8: // west
-		case 10: // east-west
-		case 11: // east-west-north
-		case 14: // east-west-south
-			runway_09_27 = true;
-			break;
-		case 15: // all
-			runway_36_18 = true;
-			runway_09_27 = true;
-			break;
-		default:
-			runway_36_18 = false;
-			runway_09_27 = false;
-			break;
-		}
-
-
-		uint32 runway_tiles = 0;
-		koord3d pos = get_pos();
-		bool more_runway_left = true;
-		bool counting_runway_forward = true;
+		runway_directions run_dirs = get_runway_directions(); 
 		const double km_per_tile = welt->get_settings().get_meters_per_tile();
 
-		if (runway_36_18 == true)
+		if(run_dirs.runway_36_18)
 		{
-			for (uint32 i = 0; more_runway_left == true; i++)
-			{
-				grund_t *gr = welt->lookup_kartenboden(pos.x, pos.y);
-				runway_t * sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
-				if (counting_runway_forward == true)
-				{
-					if (sch1 != NULL)
-					{
-						pos.y += 1;
-						if ((sch1->get_ribi_unmasked() == 1))
-						{
-							counting_runway_forward = false;
-							pos = get_pos();
-						}
-					}
-					else
-					{
-						counting_runway_forward = false;
-						pos = get_pos();
-					}
-				}
+			const double runway_meters_36_18 = (double)get_runway_length(true) * km_per_tile;
 
-				else
-				{
-					if (sch1 != NULL)
-					{
-						pos.y -= 1;
-						if ((sch1->get_ribi_unmasked() == 4))
-						{
-							more_runway_left = false;
-							runway_tiles = i;
-						}
-					}
-					else
-					{
-						more_runway_left = false;
-						runway_tiles = i;
-					}
-				}
-			}
-			const double runway_meters_36_18 = (double)runway_tiles * km_per_tile;
-
-			buf.printf("%s: ", translator::translate("runway_38/18"));
+			buf.printf("%s: ", translator::translate("runway_36/18"));
 			buf.append(runway_meters_36_18);
 			buf.append(translator::translate("meter"));
 			buf.append("\n");
 		}
-
-		runway_tiles = 0;
-		pos = get_pos();
-		more_runway_left = true;
-		counting_runway_forward = true;
-
-		if (runway_09_27 == true)
-		{
-			for (uint32 i = 0; more_runway_left == true; i++)
-			{
-				grund_t *gr = welt->lookup_kartenboden(pos.x, pos.y);
-				runway_t * sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
-				if (counting_runway_forward == true)
-				{
-					if (sch1 != NULL)
-					{
-						pos.x += 1;
-						if ((sch1->get_ribi_unmasked() == 8))
-						{
-							counting_runway_forward = false;
-							pos = get_pos();
-						}
-					}
-					else
-					{
-						counting_runway_forward = false;
-						pos = get_pos();
-					}
-				}
-
-				else
-				{
-					if (sch1 != NULL)
-					{
-						pos.x -= 1;
-						if ((sch1->get_ribi_unmasked() == 2))
-						{
-							more_runway_left = false;
-							runway_tiles = i;
-						}
-					}
-					else
-					{
-						more_runway_left = false;
-						runway_tiles = i;
-					}
-				}
-			}
-
-			const double runway_meters_09_27 = (double)runway_tiles * km_per_tile;
+		if(run_dirs.runway_9_27)
+		{		
+			const double runway_meters_09_27 = (double)get_runway_length(false) * km_per_tile;
 
 			buf.printf("%s: ", translator::translate("runway_09/27"));
 			buf.append(runway_meters_09_27);
@@ -721,9 +600,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	{
 		char maintenance_number[64];
 		money_to_string(maintenance_number, (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) / 100.0);
-		buf.printf("%s: %s", translator::translate("monthly_maintenance_cost"), maintenance_number);
-
-
+		buf.printf("%s:\n%s", translator::translate("monthly_maintenance_cost"), maintenance_number);
 
 		char maintenance_km_number[64];
 		money_to_string(maintenance_km_number, (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) / 100 * tiles_pr_km);
@@ -734,7 +611,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	{
 			char maintenance_wayobj_number[64];
 			money_to_string(maintenance_wayobj_number, ((double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) + (double)welt->calc_adjusted_monthly_figure(wayobj->get_desc()->get_maintenance())) / 100.0);
-			buf.printf("%s: %s", translator::translate("maint_incl_wayobj"), maintenance_wayobj_number);
+			buf.printf("%s:\n%s", translator::translate("maint_incl_wayobj"), maintenance_wayobj_number);
 
 			char maintenance_wayobj_km_number[64];
 			money_to_string(maintenance_wayobj_km_number, ((double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) + (double)welt->calc_adjusted_monthly_figure(wayobj->get_desc()->get_maintenance())) / 100.0 * tiles_pr_km);
@@ -747,8 +624,6 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		buf.append("\n");
 	}
 
-	
-
 	buf.append("\n");
 	buf.append(translator::translate("Condition"));
 	buf.append(": ");
@@ -759,7 +634,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(translator::translate("Built"));
 	buf.append(": ");
 	char tmpbuf_built[40];
-	sprintf(tmpbuf_built, "%s, %i", translator::get_month_name(creation_month_year % 12), creation_month_year / 12);
+	sprintf(tmpbuf_built, "%s", translator::get_year_month(creation_month_year));
 	buf.append(tmpbuf_built);
 	buf.append("\n");
 	if (!degraded)
@@ -772,7 +647,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	}
 	buf.append(": ");
 	char tmpbuf_renewed[40];
-	sprintf(tmpbuf_renewed, "%s, %i", translator::get_month_name(last_renewal_month_year % 12), last_renewal_month_year / 12);
+	sprintf(tmpbuf_renewed, "%s", translator::get_year_month(last_renewal_month_year));
 	buf.append(tmpbuf_renewed);
 	buf.append("\n");
 	buf.append(translator::translate("To be renewed with"));
@@ -782,26 +657,44 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		const uint16 time = welt->get_timeline_year_month();
 		bool is_current = !time || replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month();
 
-		if (replacement_way->get_name() != get_desc()->get_name())
+		// Publicly owned roads in towns are replaced with the latest city road type.
+		const bool public_city_road = get_waytype() == road_wt && (get_owner() == NULL || get_owner()->is_public_service()) && welt->get_city(get_pos().get_2d());
+		const way_desc_t* latest_city_road = welt->get_settings().get_city_road_type(time);
+
+		if (public_city_road)
 		{
-			if (!is_current)
-			{
-				buf.append(translator::translate(way_builder_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity())->get_name()));
-			}
-			else
-			{
-				buf.append(translator::translate(replacement_way->get_name()));
-			}
-		}
-		else
-		{
-			if (!degraded)
+			if (replacement_way == latest_city_road || latest_city_road == NULL)
 			{
 				buf.append(translator::translate("same_as_current"));
 			}
 			else
 			{
-				buf.append(translator::translate("keine"));
+				buf.append(translator::translate(latest_city_road->get_name()));
+			}
+		}
+		else
+		{
+			if (replacement_way->get_name() != get_desc()->get_name())
+			{
+				if (!is_current)
+				{
+					buf.append(translator::translate(way_builder_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity())->get_name()));
+				}
+				else
+				{
+					buf.append(translator::translate(replacement_way->get_name()));
+				}
+			}
+			else
+			{
+				if (!degraded)
+				{
+					buf.append(translator::translate("same_as_current"));
+				}
+				else
+				{
+					buf.append(translator::translate("keine"));
+				}
 			}
 		}
 		if (replacement_way->is_mothballed() == false)
@@ -812,10 +705,10 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 			buf.printf("- %s: %s", translator::translate("renewal_costs"), upgrade_cost_number);
 
 			char upgrade_cost_pr_km_number[64];
-			money_to_string(upgrade_cost_pr_km_number, (double)welt->calc_adjusted_monthly_figure(desc->get_upgrade_group() == replacement_way->get_upgrade_group() ? replacement_way->get_way_only_cost() : replacement_way->get_value()) / 100 / 2 * tiles_pr_km); 
+			money_to_string(upgrade_cost_pr_km_number, (double)welt->calc_adjusted_monthly_figure(desc->get_upgrade_group() == replacement_way->get_upgrade_group() ? replacement_way->get_way_only_cost() : replacement_way->get_value()) / 100 / 2 * tiles_pr_km);
 			buf.printf(", (%s/%s)", upgrade_cost_pr_km_number, translator::translate("km"));
 			buf.append("\n");
-			
+
 
 			if (replacement_way->get_axle_load() != desc->get_axle_load())
 			{
@@ -894,7 +787,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 				buf.printf("- %s ", translator::translate("new_way_is"));
 				if (wear_capacity_fractional_replac > wear_capacity_fractional_orig)
 				{
-					
+
 					const double way_wear_stronger = (wear_capacity_fractional_replac - wear_capacity_fractional_orig) / wear_capacity_fractional_orig * 100;
 					buf.append(way_wear_stronger);
 					buf.printf("%s", translator::translate("%_stronger"));
@@ -926,13 +819,13 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 				if (!any_permissive)
 				{
 					buf.append("\n");
-					buf.append("assets");
+					buf.append(translator::translate("assets"));
 					buf.append(":");
 					buf.append("\n");
 				}
 				any_permissive = true;
 				char tmpbuf[30];
-				sprintf(tmpbuf, "Permissive %i", i);
+				sprintf(tmpbuf, "Permissive %i-%i", desc->get_waytype(), i);
 				buf.append(translator::translate(tmpbuf));
 				buf.append("\n");
 			}
@@ -942,7 +835,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 			if (!any_permissive)
 			{
 				buf.append("\n");
-				buf.append("assets");
+				buf.append(translator::translate("assets"));
 				buf.append(":");
 				buf.append("\n");
 			}
@@ -957,12 +850,12 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 				if (!any_prohibitive)
 				{
 					buf.append("\n");
-					buf.append("Restrictions:");
+					buf.append(translator::translate("Restrictions:"));
 					buf.append("\n");
 				}
 				any_prohibitive = true;
 				char tmpbuf[30];
-				sprintf(tmpbuf, "Prohibitive %i", i);
+				sprintf(tmpbuf, "Prohibitive %i-%i", desc->get_waytype(), i);
 				buf.append(translator::translate(tmpbuf));
 				buf.append("\n");
 			}
@@ -972,14 +865,14 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 			if (!any_prohibitive)
 			{
 				buf.append("\n");
-				buf.append("Restrictions:");
+				buf.append(translator::translate("Restrictions:"));
 				buf.append("\n");
 			}
 			buf.append(translator::translate("Low bridge"));
 			buf.append("\n\n");
 		}
 	}
-	
+
 	#ifdef DEBUG
 	buf.append(translator::translate("\nRibi (unmasked)"));
 	buf.append(get_ribi_unmasked());
@@ -988,7 +881,36 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(get_ribi());
 	buf.append("\n");
 #endif
-	
+
+if(  get_waytype() == road_wt  ) {
+		strasse_t* str = (strasse_t*) this;
+		assert(str);
+		// Display overtaking_info
+		switch (str->get_overtaking_mode()) {
+			case halt_mode:
+				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("halt mode"));
+				break;
+			case oneway_mode:
+				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("oneway"));
+				break;
+			case twoway_mode:
+				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("twoway"));
+				break;
+			case loading_only_mode:
+				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("only loading convoi"));
+				break;
+			case prohibited_mode:
+				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("prohibited"));
+				break;
+			case inverted_mode:
+				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("inverted"));
+				break;
+			default:
+				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("ERROR"));
+				break;
+		}
+}
+
 #if 1
 	//buf.append("\n");
 	buf.printf(translator::translate("convoi passed last\nmonth %i\n"), statistics[1][1]);
@@ -1004,7 +926,148 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 #endif
 	buf.append("\n");
 }
+weg_t::runway_directions weg_t::get_runway_directions() const
+{
+	bool runway_36_18 = false;
+	bool runway_09_27 = false;
 
+	switch (get_ribi())
+	{
+	case 1: // north
+	case 4: // south
+	case 5: // north-south
+	case 7: // north-south-east
+	case 13: // north-south-west
+		runway_36_18 = true;
+		break;
+	case 2: // east
+	case 8: // west
+	case 10: // east-west
+	case 11: // east-west-north
+	case 14: // east-west-south
+		runway_09_27 = true;
+		break;
+	case 15: // all
+		runway_36_18 = true;
+		runway_09_27 = true;
+		break;
+	default:
+		runway_36_18 = false;
+		runway_09_27 = false;
+		break;
+	}
+
+	return runway_directions(runway_36_18, runway_09_27);
+}
+
+uint32 weg_t::get_runway_length(bool runway_36_18) const
+{
+	if(get_waytype() != air_wt)
+	{
+		return 0;
+	}
+
+	bool runway_09_27 = !runway_36_18;
+
+	uint32 runway_tiles = 0;
+	koord3d pos = get_pos();
+	bool more_runway_left = true;
+	bool counting_runway_forward = true;
+
+	if (runway_36_18 == true)
+	{
+		for (uint32 i = 0; more_runway_left == true; i++)
+		{
+			grund_t *gr = welt->lookup_kartenboden(pos.x, pos.y);
+			runway_t * sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
+			if (counting_runway_forward == true)
+			{
+				if (sch1 != NULL)
+				{
+					pos.y += 1;
+					if ((sch1->get_ribi_unmasked() == 1))
+					{
+						counting_runway_forward = false;
+						pos = get_pos();
+					}
+				}
+				else
+				{
+					counting_runway_forward = false;
+					pos = get_pos();
+				}
+			}
+
+			else
+			{
+				if (sch1 != NULL)
+				{
+					pos.y -= 1;
+					if ((sch1->get_ribi_unmasked() == 4))
+					{
+						more_runway_left = false;
+						runway_tiles = i;
+					}
+				}
+				else
+				{
+					more_runway_left = false;
+					runway_tiles = i;
+				}
+			}
+		}
+		return runway_tiles;
+	}
+	
+	// From here on in, we are testing the 9/27 direction
+
+	runway_tiles = 0;
+	pos = get_pos();
+	more_runway_left = true;
+	counting_runway_forward = true;
+
+	for (uint32 i = 0; more_runway_left == true; i++)
+	{
+		grund_t *gr = welt->lookup_kartenboden(pos.x, pos.y);
+		runway_t * sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
+		if (counting_runway_forward == true)
+		{
+			if (sch1 != NULL)
+			{
+				pos.x += 1;
+				if ((sch1->get_ribi_unmasked() == 8))
+				{
+					counting_runway_forward = false;
+					pos = get_pos();
+				}
+			}
+			else
+			{
+				counting_runway_forward = false;
+				pos = get_pos();
+			}
+		}
+
+		else
+		{
+			if (sch1 != NULL)
+			{
+				pos.x -= 1;
+				if ((sch1->get_ribi_unmasked() == 2))
+				{
+					more_runway_left = false;
+					runway_tiles = i;
+				}
+			}
+			else
+			{
+				more_runway_left = false;
+				runway_tiles = i;
+			}
+		}
+	}
+	return runway_tiles;
+}
 
 /**
  * called during map rotation
@@ -1121,10 +1184,10 @@ bool weg_t::check_season(const bool calc_only_season_change)
 		return true;
 	}
 
-	if(  is_diagonal()  ) 
+	if(  is_diagonal()  )
 	{
 		if( desc->get_diagonal_image_id(ribi, snow) != IMG_EMPTY  ||
-			desc->get_diagonal_image_id(ribi, snow, true) != IMG_EMPTY) 
+			desc->get_diagonal_image_id(ribi, snow, true) != IMG_EMPTY)
 		{
 			set_images(image_diagonal, ribi, snow);
 		}
@@ -1162,7 +1225,7 @@ void weg_t::lock_mutex()
 
 
 void weg_t::unlock_mutex()
-{ 
+{
 	pthread_mutex_unlock( &weg_calc_image_mutex );
 }
 #endif
@@ -1304,7 +1367,7 @@ void weg_t::new_month()
 		}
 		statistics[0][type] = 0;
 	}
-	wear_way(desc->get_monthly_base_wear()); 
+	wear_way(desc->get_monthly_base_wear());
 }
 
 
@@ -1312,7 +1375,7 @@ void weg_t::new_month()
 void weg_t::finish_rd()
 {
 	player_t *player=get_owner();
-	if(player && desc) 
+	if(player && desc)
 	{
 		sint32 maint = desc->get_maintenance();
 		check_diagonal();
@@ -1330,7 +1393,7 @@ void weg_t::finish_rd()
 // players can remove public owned ways (Depracated)
 const char *weg_t:: is_deletable(const player_t *player, bool allow_public)
 {
-	if(allow_public && get_owner()->is_public_serivce()) 
+	if(allow_public && get_owner() && get_owner()->is_public_service())
 	{
 		return NULL;
 	}
@@ -1347,7 +1410,7 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 	{
 		return false;
 	}
-	if(get_waytype() != road_wt) 
+	if(get_waytype() != road_wt)
 	{
 		// Cities only adopt roads
 		return false;
@@ -1357,7 +1420,7 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 		// It would be too profitable for players if cities adopted elevated roads
 		return false;
 	}
-	const grund_t* gr = welt->lookup_kartenboden(get_pos().get_2d()); 
+	const grund_t* gr = welt->lookup_kartenboden(get_pos().get_2d());
 	if(gr && get_pos().z < gr->get_hoehe())
 	{
 		// It would be too profitable for players if cities adopted tunnels
@@ -1386,7 +1449,7 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 			continue;
 		}
 		const gebaeude_t* const neighbouring_building = gr->find<gebaeude_t>();
-		if(!neighbouring_building) 
+		if(!neighbouring_building)
 		{
 			continue;
 		}
@@ -1413,7 +1476,7 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 			case building_desc_t::generic_extension:
 			case building_desc_t::headquarters: // HQ
 			case building_desc_t::dock: // dock
-			case building_desc_t::flat_dock: 
+			case building_desc_t::flat_dock:
 				has_neighbouring_building = (bool)welt->get_city(pos);
 				break;
 			case building_desc_t::depot:
@@ -1435,10 +1498,10 @@ uint32 weg_t::get_condition_percent() const
 		return 0;
 	}
 	// Necessary to avoid overflow. Speed not important as this is for the UI.
-	// Running calculations should use fractions (e.g., "if(remaining_wear_capacity < desc->get_wear_capacity() / 6)"). 
+	// Running calculations should use fractions (e.g., "if(remaining_wear_capacity < desc->get_wear_capacity() / 6)").
 	const sint64 remaining_wear_capacity_percent = (sint64)remaining_wear_capacity  * 100ll;
 	const sint64 intermediate_result = remaining_wear_capacity_percent / (sint64)desc->get_wear_capacity();
-	return (uint32)intermediate_result; 
+	return (uint32)intermediate_result;
 }
 
 void weg_t::wear_way(uint32 wear)
@@ -1461,7 +1524,7 @@ void weg_t::wear_way(uint32 wear)
 			}
 		}
 	}
-	else
+	else if(!is_degraded())
 	{
 		remaining_wear_capacity = 0;
 		if(!renew())
@@ -1478,40 +1541,65 @@ bool weg_t::renew()
 		return false;
 	}
 
-	player_t* const player = get_owner();
+	player_t* const owner = get_owner();
+
 	bool success = false;
 	const sint64 price = desc->get_upgrade_group() == replacement_way->get_upgrade_group() ? replacement_way->get_way_only_cost() : replacement_way->get_value();
-	if(welt->get_city(get_pos().get_2d()) || (player && (player->can_afford(price) || player->is_public_service())))
+	if(welt->get_city(get_pos().get_2d()) || (owner && (owner->can_afford(price) || owner->is_public_service())))
 	{
 		// Unowned ways in cities are assumed to be owned by the city and will be renewed by it.
 		waytype_t wt = replacement_way->get_waytype();
 		const uint16 time = welt->get_timeline_year_month();
+		const bool public_city_road = get_waytype() == road_wt && (owner == NULL || get_owner()->is_public_service()) && welt->get_city(get_pos().get_2d());
+		const way_desc_t* latest_city_road = welt->get_settings().get_city_road_type(time);
 		bool is_current = !time || (replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month());
-		if(!is_current)
+		if (public_city_road && desc != latest_city_road)
+		{
+			replacement_way = latest_city_road;
+		}
+		else if(!is_current)
 		{
 			way_constraints_of_vehicle_t constraints;
 			constraints.set_permissive(desc->get_way_constraints().get_permissive());
 			constraints.set_prohibitive(desc->get_way_constraints().get_prohibitive());
 			replacement_way = way_builder_t::weg_search(wt, replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity(), constraints);
 		}
-		
+
 		if(!replacement_way)
 		{
 			// If the way search cannot find a replacement way, use the current way as a fallback.
 			replacement_way = desc;
 		}
-		
+
 		set_desc(replacement_way);
 		success = true;
-		if(player)
+		if(owner)
 		{
-			player->book_way_renewal(price, wt);
+			owner->book_way_renewal(price, wt);
 		}
 	}
-	else if(player && !player->get_has_been_warned_about_no_money_for_renewals())
+	else if(owner && owner == welt->get_active_player() && !owner->get_has_been_warned_about_no_money_for_renewals())
 	{
-		welt->get_message()->add_message(translator::translate("Not enough money to carry out essential way renewal work.\n"), get_pos().get_2d(), message_t::warnings, player->get_player_nr());
-		player->set_has_been_warned_about_no_money_for_renewals(true); // Only warn once a month.
+		welt->get_message()->add_message(translator::translate("Not enough money to carry out essential way renewal work.\n"), get_pos().get_2d(), message_t::warnings, owner->get_player_nr());
+		owner->set_has_been_warned_about_no_money_for_renewals(true); // Only warn once a month.
+	}
+	else if (public_right_of_way && wtyp == road_wt)
+	{
+		// Roads that are public rights of way should be renewed with the latest type.
+		const way_desc_t* wb = welt->get_timeline_year_month() ? welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month()) : NULL; // This search only works properly when the timeline is enabled
+		bool default_way_is_better_than_current_way = false;
+		if(wb)
+		{
+			default_way_is_better_than_current_way |= wb->get_topspeed() > desc->get_topspeed();
+			default_way_is_better_than_current_way &= wb->get_max_axle_load() >= desc->get_max_axle_load();
+
+			bool no_worse_stats = wb->get_topspeed() >= desc->get_topspeed() && wb->get_max_axle_load() >= desc->get_max_axle_load();
+			bool current_way_better_cost = (wb->get_maintenance() > desc->get_maintenance()) || (wb->get_base_cost() > desc->get_base_cost()) || (wb->get_wear_capacity() < desc->get_wear_capacity());
+
+			default_way_is_better_than_current_way &= !(no_worse_stats && current_way_better_cost);
+		}
+		set_desc(wb && (!owner || default_way_is_better_than_current_way) ? wb : desc);
+		success = true;
 	}
 
 	return success;
@@ -1524,10 +1612,10 @@ void weg_t::degrade()
 		// Do not degrade public rights of way, as these should remain passable.
 		// Instead, take them out of private ownership and renew them with the default way.
 		const bool initially_unowned = get_owner() == NULL;
-		set_owner(NULL); 
+		set_owner(NULL);
 		if(wtyp == road_wt)
 		{
-			const stadt_t* city = welt->get_city(get_pos().get_2d()); 
+			const stadt_t* city = welt->get_city(get_pos().get_2d());
 			if (!initially_unowned && welt->get_timeline_year_month())
 			{
 				const way_desc_t* wb = city ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month()) : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
@@ -1558,10 +1646,10 @@ void weg_t::degrade()
 		}
 		else
 		{
-			// Totally worn out: impassable. 
+			// Totally worn out: impassable.
 			max_speed = 0;
 			degraded = true;
-			const way_desc_t* mothballed_type = way_builder_t::way_search_mothballed(get_waytype(), (systemtype_t)desc->get_styp()); 
+			const way_desc_t* mothballed_type = way_builder_t::way_search_mothballed(get_waytype(), (systemtype_t)desc->get_styp());
 			if(mothballed_type)
 			{
 				set_desc(mothballed_type);

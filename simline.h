@@ -15,6 +15,7 @@
 #include "tpl/vector_tpl.h"
 #include "utils/plainstring.h"
 #include "tpl/koordhashtable_tpl.h"
+#include "dataobj/schedule.h"
 
 #define MAX_MONTHS				12 // Max history
 #define MAX_NON_MONEY_TYPES		4 // number of non money types in line's financial statistic
@@ -29,10 +30,8 @@ enum line_cost_t {
 	LINE_OPERATIONS,			//  5 | 4 | the cost of operations this line generated
 	LINE_PROFIT,				//  6 | 5 | total profit of line
 	LINE_CONVOIS,				//  7 | 2 | number of convois for this line
-	LINE_DISTANCE,				//  8 | 6 | distance converd by all convois
+	LINE_DISTANCE,				//  8 | 6 | distance covered by all convois
 	LINE_REFUNDS,				//  9 |   | Total refunds paid to passengers/goods owners desiring to use this line but kept waiting too long to do so.
-//	LINE_MAXSPEED,				//    | 7 | maximum speed for bonus calculation of all convois
-//	LINE_WAYTOLL,				//    | 8 | way toll paid by vehicles of line
 	LINE_DEPARTURES,			// 10 |   | number of departures of convoys on this line from scheduled points
 	LINE_DEPARTURES_SCHEDULED,	// 11 |   | number of departures scheduled on this line from scheduled departure points
 	MAX_LINE_COST				// 12 | 9 | Total number of cost items
@@ -48,6 +47,8 @@ class simline_t {
 public:
 	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8, MAX_LINE_TYPE};
 
+	enum states { line_normal_state = 0, line_no_convoys = 1, line_loss_making = 2, line_nothing_moved = 3, line_overcrowded = 4, line_missing_scheduled_slots = 5, line_has_obsolete_vehicles = 6, line_has_obsolete_vehicles_with_upgrades = 7 };
+	
 protected:
 	schedule_t * schedule;
 	player_t *player;
@@ -84,6 +85,12 @@ private:
 	 */
 	minivec_tpl<uint8> goods_catg_index;
 
+	// The classes of passengers/mail carried by this line
+	// Cached to reduce recalculation times in the path
+	// explorer. 
+	vector_tpl<uint8> passenger_classes_carried;
+	vector_tpl<uint8> mail_classes_carried;
+
 	/*
 	 * struct holds new financial history for line
 	 * @author hsiegeln
@@ -111,6 +118,11 @@ private:
 	* @author jamespetts
 	*/
 	journey_times_map average_journey_times;
+
+	// @author: suitougreentea
+	times_history_map journey_times_history;
+
+	states state;
 
 public:
 	simline_t(player_t *player, linetype type);
@@ -151,6 +163,8 @@ public:
 	 * @author prissi
 	 */
 	uint8 get_state_color() const { return state_color; }
+
+	int get_state() const { return state; }
 
 	/*
 	 * return schedule of line
@@ -201,6 +215,7 @@ public:
 	sint64* get_finance_history() { return *financial_history; }
 
 	sint64 get_finance_history(int month, line_cost_t cost_type) const { return financial_history[month][cost_type]; }
+	sint64 get_stat_converted(int month, int cost_type) const;
 
 	void book(sint64 amount, line_cost_t cost_type) 
 	{
@@ -228,11 +243,16 @@ public:
 	void new_month();
 
 	linetype get_linetype() { return type; }
+	static linetype get_linetype( const waytype_t wt );
 
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 
 	// recalculates the good transported by this line and (in case of changes) will start schedule recalculation
 	void recalc_catg_index();
+
+	void calc_classes_carried();
+
+	bool carries_this_or_lower_class(uint8 catg, uint8 g_class);
 
 	int get_replacing_convoys_count() const;
 
@@ -256,6 +276,8 @@ public:
 	void propogate_livery_scheme();
 
 	inline journey_times_map& get_average_journey_times() { return average_journey_times; }
+
+	inline times_history_map& get_journey_times_history() { return journey_times_history; }
 
 	sint64 calc_departures_scheduled();
 };

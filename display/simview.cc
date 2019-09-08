@@ -25,7 +25,7 @@
 
 #include "../utils/simrandom.h"
 
-karte_ansicht_t::karte_ansicht_t(karte_t *welt)
+main_view_t::main_view_t(karte_t *welt)
 {
 	this->welt = welt;
 	outside_visible = true;
@@ -52,7 +52,7 @@ static simthread_barrier_t display_barrier_end;
 
 // to start a thread
 typedef struct{
-	karte_ansicht_t *show_routine;
+	main_view_t *show_routine;
 	koord   lt_cl, wh_cl; // pos/size of clipping rect for this thread
 	koord   lt, wh;       // pos/size of region to display. set larger than clipping for correct display of trees at thread seams
 	sint16  y_min;
@@ -90,10 +90,10 @@ static bool can_multithreading = true;
 #endif
 
 
-void karte_ansicht_t::display(bool force_dirty)
+void main_view_t::display(bool force_dirty)
 {
 #if COLOUR_DEPTH != 0
-	DBG_DEBUG4("karte_ansicht_t::display", "starting ...");
+	DBG_DEBUG4("main_view_t::display", "starting ...");
 	display_set_image_proc(true);
 
 	uint32 rs = get_random_seed();
@@ -134,16 +134,16 @@ void karte_ansicht_t::display(bool force_dirty)
 		// calculate also days if desired
 		uint32 month = welt->get_last_month();
 		const uint32 ticks_this_month = welt->get_ticks() % welt->ticks_per_world_month;
-		uint32 stunden2;
+		uint32 hours2;
 		if (env_t::show_month > env_t::DATE_FMT_MONTH) {
 			static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
-			stunden2 = (((sint64)ticks_this_month*tage_per_month[month]) >> (welt->ticks_per_world_month_shift-17));
-			stunden2 = ((stunden2*3) / 8192) % 48;
+			hours2 = (((sint64)ticks_this_month*tage_per_month[month]) >> (welt->ticks_per_world_month_shift-17));
+			hours2 = ((hours2*3) / 8192) % 48;
 		}
 		else {
-			stunden2 = ( (ticks_this_month * 3) >> (welt->ticks_per_world_month_shift-4) )%48;
+			hours2 = ( (ticks_this_month * 3) >> (welt->ticks_per_world_month_shift-4) )%48;
 		}
-		display_day_night_shift(hours2night[stunden2]+env_t::daynight_level);
+		display_day_night_shift(hours2night[hours2]+env_t::daynight_level);
 	}
 
 	// not very elegant, but works:
@@ -182,7 +182,7 @@ void karte_ansicht_t::display(bool force_dirty)
 			for(  int t = 0;  t < env_t::num_threads - 1;  t++  ) {
 				if(  pthread_create( &thread[t], &attr, display_region_thread, (void *)&ka[t] )  ) {
 					can_multithreading = false;
-					dbg->error( "karte_ansicht_t::display()", "cannot multi-thread, error at thread #%i", t+1 );
+					dbg->error( "main_view_t::display()", "cannot multi-thread, error at thread #%i", t+1 );
 					return;
 				}
 			}
@@ -258,7 +258,7 @@ void karte_ansicht_t::display(bool force_dirty)
 	}
 
 	obj_t *zeiger = welt->get_zeiger();
-	DBG_DEBUG4("karte_ansicht_t::display", "display pointer");
+	DBG_DEBUG4("main_view_t::display", "display pointer");
 	if( zeiger  &&  zeiger->get_pos() != koord3d::invalid ) {
 		bool dirty = zeiger->get_flag(obj_t::dirty);
 
@@ -308,9 +308,9 @@ void karte_ansicht_t::display(bool force_dirty)
 
 
 #ifdef MULTI_THREAD
-void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max, bool /*force_dirty*/, bool threaded, const sint8 clip_num )
+void main_view_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max, bool /*force_dirty*/, bool threaded, const sint8 clip_num )
 #else
-void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max, bool /*force_dirty*/ )
+void main_view_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max, bool /*force_dirty*/ )
 #endif
 {
 	const sint16 IMG_SIZE = get_tile_raster_width();
@@ -533,7 +533,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y
 }
 
 
-void karte_ansicht_t::display_background( KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, bool dirty )
+void main_view_t::display_background( KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, bool dirty )
 {
 	if(  !(env_t::draw_earth_border  &&  env_t::draw_outside_tile)  ) {
 		display_fillbox_wh(xp, yp, w, h, env_t::background_color, dirty );

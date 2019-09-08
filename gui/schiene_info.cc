@@ -22,8 +22,9 @@ schiene_info_t::schiene_info_t(schiene_t* const s) :
 	sch(s)
 
 {
-	bool rail_track = (sch->get_desc()->get_wtyp() == monorail_wt || maglev_wt || tram_wt || narrowgauge_wt) && sch->get_desc()->get_wtyp() != air_wt;
+	bool rail_track = (sch->get_desc()->get_wtyp() == monorail_wt || sch->get_desc()->get_wtyp() == maglev_wt || sch->get_desc()->get_wtyp() == tram_wt || sch->get_desc()->get_wtyp() == narrowgauge_wt) && sch->get_desc()->get_wtyp() != air_wt;
 	bool runway = sch->get_desc()->get_wtyp() == air_wt && sch->get_desc()->get_styp() == type_runway;
+
 	if (rail_track || runway)
 	{
 		reserving_vehicle_button.init(button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, get_windowsize().h - 26 - (sch->get_textlines() * LINESPACE)));
@@ -56,7 +57,7 @@ bool schiene_info_t::action_triggered( gui_action_creator_t *comp, value_t)
 * i.e. It's the screen coordinates of the window where the
 * component is displayed.
 */
-/*
+
 void schiene_info_t::draw(scr_coord pos, scr_size size)
 {
 	buf.clear();
@@ -66,14 +67,13 @@ void schiene_info_t::draw(scr_coord pos, scr_size size)
 
 
 	gui_frame_t::draw(pos, size);
-
-	if (sch->is_reserved() == false && sch->is_reserved_directional() == false && sch->is_reserved_priority() == false)
-	{
-		remove_component(&reserving_vehicle_button);
-	}
-
+	
 	if (sch->is_reserved() || sch->is_reserved_directional() || sch->is_reserved_priority())
 	{
-		add_component(&reserving_vehicle_button);
+		reserving_vehicle_button.set_visible(true);
 	}
-}*/
+	else
+	{
+		reserving_vehicle_button.set_visible(false);
+	}
+}

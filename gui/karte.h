@@ -3,6 +3,7 @@
 
 #include "components/gui_component.h"
 #include "../halthandle_t.h"
+#include "../simline.h"
 #include "../convoihandle_t.h"
 #include "../dataobj/schedule.h"
 #include "../tpl/array2d_tpl.h"
@@ -16,6 +17,7 @@ class stadt_t;
 class player_t;
 class schedule_t;
 class loadsave_t;
+class goods_desc_t;
 
 
 #define MAX_SEVERITY_COLORS 10
@@ -59,6 +61,10 @@ public:
 		MAP_WAITCHANGE = 1<<22,
 		MAP_CONDITION = 1<<23,
 		MAP_WEIGHTLIMIT = 1<<24,
+		MAP_ACCESSIBILITY_COMMUTING = 1 << 25,
+		MAP_ACCESSIBILITY_TRIP = 1 << 26,
+		MAP_STAFF_FULFILLMENT = 1 << 27,
+		MAP_MAIL_DELIVERY = 1 << 28,
 		MAP_MODE_HALT_FLAGS = (MAP_STATUS|MAP_SERVICE|MAP_ORIGIN|MAP_TRANSFER|MAP_WAITING|MAP_WAITCHANGE),
 		MAP_MODE_FLAGS = (MAP_TOWN|MAP_CITYLIMIT|MAP_STATUS|MAP_SERVICE|MAP_WAITING|MAP_WAITCHANGE|MAP_TRANSFER|MAP_LINES|MAP_FACTORIES|MAP_ORIGIN|MAP_DEPOT|MAP_TOURIST|MAP_PAX_DEST)
 	};
@@ -160,6 +166,8 @@ private:
 
 	void set_citycar_speed_average();
 
+	bool is_matching_freight_catg(const minivec_tpl<uint8> &goods_catg_index);
+
 public:
 	scr_coord karte_to_screen(const koord &k) const;
 
@@ -167,6 +175,11 @@ public:
 
 	// 45 rotated map
 	bool isometric;
+	bool show_network_load_factor;
+
+	int player_showed_on_map;
+	int transport_type_showed_on_map;
+	const goods_desc_t *freight_type_group_index_showed_on_map;
 
 	/**
 	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)
@@ -224,6 +237,8 @@ public:
 	// updates the map (if needed)
 	void new_month();
 
+	void invalidate_map_lines_cache();
+
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	void draw(scr_coord pos);
@@ -245,6 +260,7 @@ public:
 	}
 
 	void rdwr(loadsave_t *file);
+
 };
 
 #endif

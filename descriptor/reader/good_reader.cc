@@ -90,6 +90,10 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->color = decode_uint8(p);
 		if(extended)
 		{
+			if (extended_version >= 1)
+			{
+				desc->number_of_classes = decode_uint8(p); 
+			}
 			const uint8 fare_stages = decode_uint8(p);
 			if(fare_stages > 0)
 			{
@@ -105,6 +109,16 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				desc->base_values.append(fare_stage_t(0, base_value));
 			}
+
+			if (extended_version >= 1)
+			{
+				uint16 class_revenue_percentage;
+				for (uint8 i = 0; i < desc->number_of_classes; i++)
+				{
+					class_revenue_percentage = decode_uint16(p);
+					desc->class_revenue_percentages.append(class_revenue_percentage);
+				}
+			}
 		}
 		else
 		{
@@ -117,13 +131,20 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->catg = (uint8)decode_uint16(p);
 	}
 
+	if (!extended || extended_version < 1)
+	{
+		desc->number_of_classes = 1; 
+		desc->class_revenue_percentages.append(100);
+	}
+
 	DBG_DEBUG("goods_reader_t::read_node()", "version=%d, value=%d, catg=%d, bonus=%d, weight=%i, color=%i",
 		version, 
 		desc->base_values.get_count() > 0 ? desc->base_values[0].price : 0, 
 		desc->catg, 
 		desc->speed_bonus,
 		desc->weight_per_unit,
-		desc->color);
+		desc->color,
+		desc->number_of_classes);
 
 
   return desc;

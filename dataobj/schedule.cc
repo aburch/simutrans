@@ -149,6 +149,7 @@ bool schedule_t::insert(const grund_t* gr, uint16 minimum_loading, uint8 waiting
 	if(  is_stop_allowed(gr)  ) {
 		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, spacing_shift, -1, wait_for_time));
 		current_stop ++;
+		make_current_stop_valid();
 		return true;
 	}
 	else {
@@ -331,7 +332,7 @@ void schedule_t::rdwr(loadsave_t *file)
 				if(file->get_extended_version() >= 10)
 				{
 					file->rdwr_byte(entries[i].reverse);
-					if(file->get_extended_revision() < 4 && entries[i].reverse)
+					if(file->get_extended_revision() < 4 && file->get_extended_version() < 13 && entries[i].reverse)
 					{
 						// Older versions had true as a default: set to indeterminate. 
 						entries[i].reverse = -1;
@@ -516,6 +517,21 @@ void schedule_t::increment_index(uint8 *index, bool *reversed) const {
 }
 
 /**
+ * Same as increment_index(), but skips waypoints.
+ * @author suitougreentea
+ */
+void schedule_t::increment_index_until_next_halt(player_t *player, uint8 *index, bool *reversed) const {
+	uint32 counter = get_count();
+	while (counter --)
+	{
+		increment_index(index, reversed);
+		const koord3d halt_position = entries[*index].pos;
+		const halthandle_t halt = haltestelle_t::get_halt(halt_position, player);
+		if (halt.is_bound()) return;
+	}
+}
+
+/**
  * Ordering based on halt id
  */
 class HaltIdOrdering
@@ -666,12 +682,49 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 
 bool schedule_t::is_contained (koord3d pos)
 {
-	ITERATE(entries, i)
+	FOR(minivec_tpl<schedule_entry_t>, entry, entries)
 	{
-		if(pos == entries[i].pos)
+		if(pos == entry.pos)
 		{
 			return true;
 		}
 	}
 	return false;
+}
+
+
+times_history_data_t::times_history_data_t() {
+	for (uint16 i = 0; i < TIMES_HISTORY_SIZE; i++) {
+		history[i] = 0;
+	}
+}
+
+uint32 times_history_data_t::get_entry(uint16 index) const {
+	if (index >= TIMES_HISTORY_SIZE) return 0;
+	return history[index];
+}
+
+void times_history_data_t::put(uint32 time) {
+	for (uint16 i = TIMES_HISTORY_SIZE - 1; i >= 1; i--) {
+		history[i] = history[i - 1];
+	}
+	history[0] = time;
+}
+
+void times_history_data_t::set(uint16 index, uint32 time) {
+	if (index >= TIMES_HISTORY_SIZE) return;
+	history[index] = time;
+}
+
+uint32 times_history_data_t::get_average_seconds() const {
+	uint64 total = 0;
+	uint16 count = 0;
+	for (uint16 i = 0; i < TIMES_HISTORY_SIZE; i++) {
+		if (history[i] != 0) {
+			total += history[i] * 6;
+			count++;
+		}
+	}
+	if (count == 0) return 0;
+	return total / count;
 }

@@ -11,7 +11,6 @@
 
 #include <stdio.h>
 
-#include "../utils/simrandom.h"
 #include "../simworld.h"
 #include "../simtool.h"
 
@@ -23,6 +22,7 @@
 
 #include "../dataobj/translator.h"
 
+#include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
@@ -153,7 +153,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 		COLOR_VAL const color =
 			i->is_consumer_only() ? COL_BLUE       :
 			i->is_producer_only() ? COL_DARK_GREEN :
-			COL_BLACK;
+			SYSCOL_TEXT;
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
 		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));
 		if (i == fac_desc) {
@@ -236,9 +236,12 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 				for (uint i = 0; i < fac_desc->get_product_count(); i++) {
 					buf.append(" - ");
 					buf.append( translator::translate(fac_desc->get_product(i)->get_output_type()->get_name()) );
-					buf.append( " (" );
-					buf.append( translator::translate(fac_desc->get_product(i)->get_output_type()->get_catg_name()) );
-					buf.append( ")\n" );
+					if (fac_desc->get_product(i)->get_output_type()->get_catg() != 0) {
+						buf.append(" (");
+						buf.append(translator::translate(fac_desc->get_product(i)->get_output_type()->get_catg_name()));
+						buf.append(")");
+					}
+					buf.append( "\n");
 				}
 				buf.append("\n");
 			}
@@ -249,10 +252,13 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 				buf.append("\n");
 				for(  int i=0;  i<fac_desc->get_supplier_count();  i++  ) {
 					buf.append(" - ");
-					buf.append( translator::translate(fac_desc->get_supplier(i)->get_input_type()->get_name()) );
-					buf.append( " (" );
-					buf.append( translator::translate(fac_desc->get_supplier(i)->get_input_type()->get_catg_name()) );
-					buf.append( ")\n" );
+					buf.append(translator::translate(fac_desc->get_supplier(i)->get_input_type()->get_name()));
+					if (fac_desc->get_supplier(i)->get_input_type()->get_catg() != 0) {
+						buf.append(" (");
+						buf.append(translator::translate(fac_desc->get_supplier(i)->get_input_type()->get_catg_name()));
+						buf.append(")");
+					}
+					buf.append("\n");
 				}
 				buf.append("\n");
 			}

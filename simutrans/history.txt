@@ -1,3 +1,16 @@
+	FIX: sliced undergraound mode now ranges from lowest existing to highest existing ground
+	FIX: several issues with bridge bilding and deletion at two vertical cliffs
+	ADD: new industrial deman dmodel just_in_time=2, which models factory ordering stuff
+
+
+Release of 120.0.1: (r7373 on 15-Nov-2014):
+	FIX: waypoints on runways to force certain runways for planes work finally (hopefully)
+	FIX: some bridge starting on flat tile going done were not correct
+	FIX: Unicode input under Windows 8
+	FIX: lot of issues with new landscape code
+
+
+Release of 120.0: (r7175 on 28-Apr-2014):
 	CHG: zoom with mouse wheel zooms to the cursor position, not to the center of screen as it used to
 	CHG: system events management rearranged, simutrans should more responsive to user events, specially on low framerates
 	ADD: second_open_closes_win =1 in simuconf.tab will close open window instead top them on secod call/click
@@ -13,7 +26,7 @@
 	ADD: matching pak is loaded automatically when no -objects is given with -load on commandline
 	ADD: dragging map also with left mousebutton when the query tool is selected
 	ADD: display also fixed cost in convoi details and depot (if set)
-	ADD: enforce loading time (time will be added per full vehciles, default 1s)
+	ADD: enforce loading time (time will be long of all vehciles, default 1s)
 	ADD: makeobj can now warn about unused entries (makeobj verbose pak... or makeobj debug pak...)
 	CHG: Stretchable themes now in trunk
 	CHG: use faster route search for ships (jump-point search)
@@ -22,6 +35,7 @@
 	CHG: overcrowded message no longer for factories supplied by producer but only interchanges
 	CHG: Waypoints act no longer as signals
 	ADD: server_motd_filename for file with a greeting message in online games
+	ADD: more option to select network overlay in minimap
 
 
 Release of 112.3: (r6520 on 17-May-2013):
@@ -2540,7 +2554,7 @@ Release of 86.04
 11-Jun-2005 (prissi)
 	FIX: Jumping trains with no route/wrong depot fixed.
 	FIX: rotation for townhalls.
-	CHANGE: add schedule will be resetted after closing a window.
+	CHANGE: add schedule will be reset after closing a window.
 	ADD: Window resize of main window.
 	ADD: Input conversion for non-latin languages. CHRxx (xx is hex between 80 and FF) will be translated from tab-file. Missing entry will give default.
 	FIX: check when building docks

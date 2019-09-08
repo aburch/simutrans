@@ -151,4 +151,4 @@ public:
 	SQInstruction _instructions[1];
 };
 
-#endif //_SQFUNCTION_H_
+#endif

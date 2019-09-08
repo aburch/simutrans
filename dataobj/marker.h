@@ -48,7 +48,7 @@ public:
 	/// For running multi-threadedly
 	static marker_t* markers;
 
-	marker_t() : bits(NULL) { init(0, 0); }
+	marker_t() : bits(NULL) { bits_length = 0; init(0, 0); }
 	~marker_t();
 
 	/**

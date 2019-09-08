@@ -1,0 +1,41 @@
+# Simutranslator settings for Simutrans-Extended texts
+# Addendum for the reorganisation of the depot window
+#
+# Author: jamespetts
+# Created: April 2013
+#
+obj=program_text
+name=left
+note=Shown in convoy info window for how many km there is left
+-
+obj=program_text
+name=upgradeable_vehicles
+note=shown in convoy details window
+-
+obj=program_text
+name=possible_upgrades
+note=shown in convoy details window
+-
+obj=program_text
+name=this_vehicle_can_upgrade_to
+note=shown in convoy details window
+-
+obj=program_text
+name=additional_upgrades
+note=shown in convoy details window
+-
+obj=program_text
+name=reassign_classes
+note=shown in the class manager window
+-
+obj=program_text
+name=
+note=
+-
+obj=program_text
+name=
+note=
+-
+obj=program_text
+name=
+note=

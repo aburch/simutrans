@@ -8,6 +8,8 @@
 #ifndef simfab_h
 #define simfab_h
 
+#include <algorithm>
+
 #include "dataobj/koord3d.h"
 #include "dataobj/translator.h"
 
@@ -36,13 +38,14 @@ class ware_t;
 #define FAB_BOOST_ELECTRIC          (2)
 #define FAB_BOOST_PAX               (3)
 #define FAB_BOOST_MAIL              (4)
-#define FAB_PAX_GENERATED           (5)
-#define FAB_PAX_DEPARTED            (6)
+#define FAB_PAX_GENERATED           (5) // now unused, almost same as FAB_PAX_ARRIVED.
+#define FAB_PAX_DEPARTED            (6) // almost same as FAB_PAX_ARRIVED
 #define FAB_PAX_ARRIVED             (7)
-#define FAB_MAIL_GENERATED          (8)
+#define FAB_MAIL_GENERATED          (8) // now unused, same as FAB_MAIL_DEPARTED.
 #define FAB_MAIL_DEPARTED           (9)
 #define FAB_MAIL_ARRIVED           (10)
-#define MAX_FAB_STAT               (11)
+#define FAB_CONSUMER_ARRIVED       (11)
+#define MAX_FAB_STAT               (12)
 
 // reference lines
 #define FAB_REF_MAX_BOOST_ELECTRIC  (0)
@@ -67,7 +70,8 @@ class ware_t;
 
 
 // production happens in every second
-#define PRODUCTION_DELTA_T (1024)
+#define PRODUCTION_DELTA_T_BITS (10)
+#define PRODUCTION_DELTA_T (1 << PRODUCTION_DELTA_T_BITS)
 // default production factor
 #define DEFAULT_PRODUCTION_FACTOR_BITS (8)
 #define DEFAULT_PRODUCTION_FACTOR (1 << DEFAULT_PRODUCTION_FACTOR_BITS)
@@ -95,9 +99,6 @@ private:
 public:
 	ware_production_t() : type(NULL), menge(0), max(0)/*, transit(statistics[0][FAB_GOODS_TRANSIT])*/, max_transit(0), index_offset(0)
 	{
-#ifdef TRANSIT_DISTANCE
-		count_suppliers = 0;
-#endif
 		init_stats();
 	}
 
@@ -105,10 +106,11 @@ public:
 	void set_typ(const goods_desc_t *t) { type=t; }
 
 	// Knightly : functions for manipulating goods statistics
-	void roll_stats(sint64 aggregate_weight);
+	void roll_stats(uint32 factor, sint64 aggregate_weight);
 	void rdwr(loadsave_t *file);
 	const sint64* get_stats() const { return *statistics; }
 	void book_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_GOODS_STAT); statistics[0][stat_type] += value; }
+	void book_stat_no_negative(sint64 value, int stat_type) { assert(stat_type < MAX_FAB_GOODS_STAT); statistics[0][stat_type] += (std::max(value, -statistics[0][stat_type])); }
 	void set_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_GOODS_STAT); statistics[0][stat_type] = value; }
 	sint64 get_stat(int month, int stat_type) const { assert(stat_type<MAX_FAB_GOODS_STAT); return statistics[month][stat_type]; }
 
@@ -116,24 +118,30 @@ public:
 	 * convert internal units to displayed values
 	 */
 	sint64 get_stat_converted(int month, int stat_type) const {
-		assert(stat_type<MAX_FAB_GOODS_STAT);
+		assert(stat_type<MAX_FAB_STAT);
 		sint64 value = statistics[month][stat_type];
-		if (stat_type==FAB_GOODS_STORAGE  ||  stat_type==FAB_GOODS_CONSUMED) {
-			value = convert_goods(value);
+		switch (stat_type) {
+		case FAB_POWER:
+			value = convert_power(value);
+			break;
+		case FAB_BOOST_ELECTRIC:
+		case FAB_BOOST_PAX:
+		case FAB_BOOST_MAIL:
+			value = convert_boost(value);
+			break;
+		default:;
 		}
 		return value;
 	}
-	void book_weighted_sum_storage(sint64 delta_time);
+
+	void book_weighted_sum_storage(uint32 factor, sint64 delta_time);
 
 	sint32 menge;	// in internal units shifted by precision_bits (see step)
 	sint32 max;
 	/// Cargo currently in transit from/to this slot. Equivalent to statistics[0][FAB_GOODS_TRANSIT].
-	const sint32 get_in_transit() const { return statistics[0][FAB_GOODS_TRANSIT]; }
+	sint32 get_in_transit() const { return (sint32)statistics[0][FAB_GOODS_TRANSIT]; }
 	/// Current limit on cargo in transit, depending on suppliers mean distance.
 	sint32 max_transit;
-#ifdef TRANSIT_DISTANCE
-	sint32 count_suppliers;	// only needed for averaging
-#endif
 
 	uint32 index_offset; // used for haltlist and lieferziele searches in verteile_waren to produce round robin results
 };
@@ -227,7 +235,7 @@ private:
 	 */
 	void verteile_waren(const uint32 product);
 
-	player_t *owner;		// player_t* owner_p
+	player_t *owner;
 	static karte_ptr_t welt;
 
 	const factory_desc_t *desc;
@@ -272,8 +280,8 @@ private:
 	sint32 prodfactor_pax;
 	sint32 prodfactor_mail;
 
-	array_tpl<ware_production_t> input; ///< array for input/consumed goods
-	array_tpl<ware_production_t> output; ///< array for output/produced goods
+	array_tpl<ware_production_t> input; /// array for input/consumed goods
+	array_tpl<ware_production_t> output; /// array for output/produced goods
 
 	// The adjusted "max intransit percentage" for each type of input goods
 	// indexed against the catg of each "input" (the input goods).
@@ -309,6 +317,9 @@ private:
 
 	uint32 total_input, total_transit, total_output;
 	uint8 status;
+
+	uint8 sector;
+	void set_sector();
 
 	/// Position of a building of the factory.
 	koord3d pos;
@@ -347,8 +358,8 @@ private:
 	 * @author Knightly
 	 */
 public:
-	void update_scaled_pax_demand();
-	void update_scaled_mail_demand();
+	void update_scaled_pax_demand(bool is_from_saved_game = false);
+	void update_scaled_mail_demand(bool is_from_saved_game = false);
 private:
 
 	/**
@@ -427,7 +438,7 @@ private:
 
 	bool has_calculated_intransit_percentages;
 
-	void adjust_production_for_fields();
+	void adjust_production_for_fields(bool is_from_saved_game = false);
 
 protected:
 
@@ -435,7 +446,7 @@ protected:
 
 public:
 	fabrik_t(loadsave_t *file);
-	fabrik_t(koord3d pos, player_t* player, const factory_desc_t* desc, sint32 initial_prod_base);
+	fabrik_t(koord3d pos, player_t* owner, const factory_desc_t* desc, sint32 initial_prod_base);
 	~fabrik_t();
 
 	gebaeude_t* get_building();
@@ -577,14 +588,30 @@ public:
 	void set_transformer_connected(leitung_t* connected) { transformer_connected = connected; }
 
 	/**
-	 * @return 1 wenn consumption,
-	 * 0 wenn Produktionsstopp,
-	 * -1 wenn Ware nicht verarbeitet wird
+	 * Return the number of goods needed
+	 * in internal units
 	 */
 
-	sint8 is_needed(const goods_desc_t *) const;
+	sint32 goods_needed(const goods_desc_t *) const;
 
 	sint32 liefere_an(const goods_desc_t *, sint32 menge);
+
+	/*
+	* This method is used when visiting passengers arrive at an
+	* end consumer industry. This logs their consumption of 
+	* products sold at this end-consumer industry.
+	*/
+	void add_consuming_passengers(sint32 number_of_passengers); 
+	
+	/*
+	* Returns true if this industry has no stock left.
+	* If the industry has some types of stock left but not
+	* others, whether true or false is returned is random, 
+	* weighted by the proportions of each.
+	* This is for use in determining whether passengers may
+	* travel to this destination.
+	*/
+	bool out_of_stock_selective();
 
 	void step(uint32 delta_t);                  // factory muss auch arbeiten ("factory must also work")
 
@@ -680,14 +707,14 @@ public:
 
 	/* does not takes month length into account */
 	sint32 get_base_production() const { return prodbase; }
-	void set_base_production(sint32 p);
+	void set_base_production(sint32 p, bool is_from_saved_game = false);
 
-	// TODO: Consider refctoring so as to avoid calling this method every step (although preliminary tests indicate that this does not seem to cause much slow-down compared to the previous method).
-	sint32 get_current_production() const { return (sint32) (welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + prodfactor_pax + prodfactor_mail)))) >> 8l; }
+	// This is done this way rather than reusing get_prodfactor() because the latter causes a lack of precision (everything being rounded to the nearest 16). 
+	sint32 get_current_production() const { return (sint32)(welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + (get_sector() == fabrik_t::end_consumer ? 0 : prodfactor_pax + prodfactor_mail))))) >> 8l; }
 
-	/* prissi: returns the status of the current factory, as well as output */
-	enum { bad, medium, good, inactive, nothing };
-	static unsigned status_to_color[5];
+	/* prissi: returns the status of the current factory */
+	enum { nothing, good, water_resource, medium, water_resource_full, storage_full, inactive, shipment_stuck, material_shortage, no_material, bad, mat_overstocked, stuck, staff_shortage, MAX_FAB_STATUS };
+	static unsigned status_to_color[MAX_FAB_STATUS];
 
 	uint8  get_status() const { return status; }
 	uint32 get_total_in() const { return total_input; }
@@ -721,7 +748,12 @@ public:
 	uint32 get_monthly_pax_demand() const;
 	uint32 get_scaled_mail_demand() const { return scaled_mail_demand; }
 
-	bool is_end_consumer() const { return (output.empty() && !desc->is_electricity_producer()); }
+	//bool is_end_consumer() const { return (output.empty() && !desc->is_electricity_producer()); }
+	enum ftype { marine_resource = 0, resource, resource_city, manufacturing, end_consumer, power_plant, unknown };
+	// @returns industry type
+	uint8 get_sector() const { return sector; }
+	// Determine shortage of staff for each industry type
+	bool chk_staff_shortage(uint8 abc, sint32 staffing_level_percentage) const;
 
 	/**
 	 * Returns a list of goods produced by this factory.
@@ -742,6 +774,11 @@ public:
 	int get_passenger_level_jobs() const;
 	int get_passenger_level_visitors() const;
 	int get_mail_level() const;
+
+	bool is_input_empty() const;
+
+	// check connected to public or current player stop
+	bool is_connect_own_network() const;
 };
 
 #endif

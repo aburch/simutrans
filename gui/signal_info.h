@@ -17,6 +17,7 @@
 #include "components/action_listener.h"
 #include "components/gui_numberinput.h"
 #include "components/gui_container.h"
+#include "../player/simplay.h"
 
 /**
  * Info window for signals
@@ -26,7 +27,8 @@ class signal_info_t : public obj_infowin_t, public action_listener_t
 {
  private:
 	signal_t* sig;
-	button_t signalbox_button;
+	button_t bt_goto_signalbox;
+	button_t bt_info_signalbox;
 
  public:
 	signal_info_t(signal_t* const s);

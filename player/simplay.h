@@ -83,7 +83,7 @@ public:
 
 protected:
 	/**
-	 * Kennfarbe (Fahrzeuge, Gebäude) des Speielers
+	 * Colors of the player
 	 * @author Hj. Malthaner
 	 */
 	uint8 player_color_1, player_color_2;
@@ -100,7 +100,7 @@ protected:
 	 * @return the new maintenance costs
 	 * @author Hj. Malthaner
 	 */
-	sint32 add_maintenance(sint32 change, waytype_t const wt=ignore_wt);
+	sint64 add_maintenance(sint64 change, waytype_t const wt=ignore_wt);
 
 	/**
 	 * Is this player an AI player?
@@ -293,19 +293,13 @@ public:
 	void set_player_color_no_message(uint8 col1, uint8 col2);
 
 	/**
-	 * Name of the player; "player -1" sits in front of the screen
-	 * @author player
+	 * @return the name of the player; "player -1" sits in front of the screen
+	 * @author prissi
 	 */
 	const char* get_name() const;
 	void set_name(const char *);
 
 	sint8 get_player_nr() const {return player_nr; }
-
-	/**
-	 * Test if this player is a public service player.
-	 * @return true if the player is a public service player, otherwise false.
-	 */
-	bool is_public_serivce() const;
 
 	/**
 	 * return true, if the owner is none, myself or player(1), i.e. the ownership _can be taken by player test
@@ -315,7 +309,7 @@ public:
 
 	/**
 	 * @param welt World this players belong to.
-	 * @param player_nr Number assigned to this player, which is the player's identification
+	 * @param player_nr Number assigned to this player - it's an ID.
 	 * @author Hj. Malthaner
 	 */
 	player_t(karte_t *welt, uint8 player_nr );
@@ -325,7 +319,7 @@ public:
 	/**
 	 * This is safe to be called with player==NULL
 	 */
-	static sint32 add_maintenance(player_t *player, sint32 const change, waytype_t const wt=ignore_wt)
+	static sint64 add_maintenance(player_t *player, sint64 const change, waytype_t const wt=ignore_wt)
 	{
 		if(player) {
 			return player->add_maintenance(change, wt);
@@ -356,7 +350,7 @@ public:
 	/**
 	 * Displays messages from the queue of the player on the screen
 	 * Show income messages
-	 * @author Hj. Malthaner
+	 * @author prissi
 	 */
 	void display_messages();
 
@@ -439,22 +433,22 @@ private:
 
 public:
 	/**
-	* Function for UNDO
-	* @date 7-Feb-2005
-	* @author prissi
-	*/
+	 * Function for UNDO
+	 * @date 7-Feb-2005
+	 * @author prissi
+	 */
 	void init_undo(waytype_t t, unsigned short max );
 	/**
-	* Function for UNDO
-	* @date 7-Feb-2005
-	* @author prissi
-	*/
+	 * Function for UNDO
+	 * @date 7-Feb-2005
+	 * @author prissi
+	 */
 	void add_undo(koord3d k);
 	/**
-	* Function for UNDO
-	* @date 7-Feb-2005
-	* @author prissi
-	*/
+	 * Function for UNDO
+	 * @date 7-Feb-2005
+	 * @author prissi
+	 */
 	sint64 undo();
 
 private:
@@ -478,7 +472,7 @@ public:
 
 	void ai_bankrupt();
 
-	bool allows_access_to(uint8 other_player_nr) const { return this == NULL || player_nr == other_player_nr || access[other_player_nr]; }
+	bool allows_access_to(uint8 other_player_nr) const { return player_nr == other_player_nr || access[other_player_nr]; }
 	void set_allow_access_to(uint8 other_player_nr, bool allow) { access[other_player_nr] = allow; }
 
 	void set_selected_signalbox(signalbox_t* sb);

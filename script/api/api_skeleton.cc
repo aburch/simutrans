@@ -109,6 +109,16 @@ register_function("get_info_text");
 register_function("get_result_text");
 
 /**
+ * Text shown in the 'Debug' tab in the scenario info window.
+ *
+ * Html-like tags can be used, see @ref get_rule_text.
+ *
+ * @param pl player number of active player
+ * @typemask string(integer)
+ */
+register_function("get_debug_text");
+
+/**
  * Core function of a scenario: It returns the completion percentage for the
  * specified player.
  *

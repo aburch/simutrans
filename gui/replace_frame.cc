@@ -668,7 +668,7 @@ sint64 replace_frame_t::calc_total_cost()
 			{
 				ITERATE(current_vehicles,l)
 				{	
-					for(uint8 c = 0; c < current_vehicles[l]->get_desc()->get_upgrades_count(); c ++)
+					for(uint8 c = 0; c < current_vehicles[l]->get_desc()->get_upgrades_count(); c++)
 					{
 						//const vehicle_desc_t* possible_upgrade_test = current_vehicles[l]->get_desc()->get_upgrades(c); // unused
 						if(!keep_vehicles.is_contained(l) && (*convoy_assembler.get_vehicles())[j] == current_vehicles[l]->get_desc()->get_upgrades(c))

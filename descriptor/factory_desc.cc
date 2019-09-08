@@ -63,6 +63,7 @@ void factory_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(electric_demand);
 	chk->input(pax_demand);
 	chk->input(mail_demand);
+	chk->input(field_output_divider);
 
 	for (uint8 i=0; i<supplier_count; i++) {
 		const factory_supplier_desc_t *supp = get_supplier(i);

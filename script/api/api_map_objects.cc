@@ -8,10 +8,12 @@
 #include "../api_function.h"
 
 #include "../../simobj.h"
+#include "../../simtool.h"
 #include "../../simworld.h"
 #include "../../dataobj/scenario.h"
 #include "../../obj/baum.h"
 #include "../../obj/gebaeude.h"
+#include "../../obj/label.h"
 
 using namespace script_api;
 
@@ -64,7 +66,8 @@ template<class D> struct access_objs {
 		sint16 x = pos.x;
 		sint16 y = pos.y;
 		sint8  z = obj->get_pos().z;
-		if (!SQ_SUCCEEDED(push_instance(vm, script_api::param<D*>::squirrel_type(), x, y, z))) {
+		assert(bind_code<D>::objtype == obj->get_typ()  ||  bind_code<D>::objtype == obj_t::obj);
+		if (!SQ_SUCCEEDED(push_instance(vm, script_api::param<D*>::squirrel_type(), x, y, z, obj->get_typ()))) {
 			return SQ_ERROR;
 		}
 		sq_setinstanceup(vm, -1, obj);
@@ -147,6 +150,7 @@ template<> struct bind_code<obj_t> { static const uint8 objtype = obj_t::obj; };
 // implementation of get and push by macros
 getpush_obj_pos(baum_t, obj_t::baum);
 getpush_obj_pos(gebaeude_t, obj_t::gebaeude);
+getpush_obj_pos(label_t, obj_t::label);
 getpush_obj_pos(weg_t, obj_t::way);
 
 // return way ribis, have to implement a wrapper, to correctly rotate ribi
@@ -174,9 +178,45 @@ void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 	// store typetag to identify pointers
 	sq_settypetag(vm, -1, obj_t_tag + objtype);
 	// export constructor
-	register_function_fv(vm, exp_obj_pos_constructor, "constructor", 4, "xiii", freevariable<uint8>( objtype ));
+	register_function(vm, exp_obj_pos_constructor, "constructor", 5, "xiiii");
 	// now functions can be registered
 }
+
+// markers / labels
+label_t* create_marker(koord pos, player_t* player, const char* text)
+{
+	if (player == NULL  ||  text == NULL) {
+		return NULL;
+	}
+	tool_marker_t w;
+	w.flags = 0;
+	const char* err = w.work(player, koord3d(pos,0));
+	if (err) {
+		return NULL;
+	}
+	grund_t *gr = welt->lookup_kartenboden(pos);
+	gr->set_text(text);
+	return gr->find<label_t>();
+}
+
+/* This fails to compile in Visual Studio citing an "ambiguous symbol" error (C2872)
+ * "return void_t();" also throws error C2955
+ */
+/*
+void_ label_set_text(label_t* l, const char* text)
+{
+	if (l == NULL  ||  text == NULL) {
+		return void_t();
+	}
+	koord3d pos = l->get_pos();
+	tool_rename_t w;
+	cbuffer_t buf;
+	buf.printf("m%hi,%hi,%hi,%s", pos.x, pos.y, pos.z, text);
+	w.set_default_param(buf);
+	w.init(l->get_owner());
+
+	return void_t();
+} */
 
 
 void export_map_objects(HSQUIRRELVM vm)
@@ -197,7 +237,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @param z
 	 * @typemask void(integer,integer,integer)
 	 */
-	register_function_fv(vm, exp_obj_pos_constructor, "constructor", 4, "xiii", freevariable<uint8>( objtype ));
+	register_function(vm, exp_obj_pos_constructor, "constructor", 5, "xiiii");
 	/**
 	 * @returns owner of the object.
 	 */
@@ -335,7 +375,30 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @returns object descriptor.
 	 */
 	register_method(vm, &weg_t::get_desc, "get_desc");
+	end_class(vm);
 
+
+	/**
+	 * Labels.
+	 */
+	begin_obj_class<label_t>(vm, "label_x", "map_object_x");
+	/**
+	 * Creates a new marker.
+	 * @param pos  position
+	 * @param pl   owner
+	 * @param text text
+	 * @returns label_x instance or null if creation failed
+	 * @warning cannot be used in network games.
+	 */
+	STATIC register_method(vm, &create_marker, "create", false, true);
+	/**
+	 * Set text of marker.
+	 * @param text text
+	 * @warning cannot be used in network games.
+	 */
+	// Must comment this out as this fails to compile in Visual Studio
+	// FIXME
+	 //register_method(vm, &label_set_text, "set_text", true);
 
 	end_class(vm);
 }

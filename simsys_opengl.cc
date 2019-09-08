@@ -335,11 +335,13 @@ void inline pbo_unmap(){
 	reset_textur(pixels);
 }
 
+
 // no autoscaling yet
 bool dr_auto_scale(bool)
 {
-	+return false;
+	return false;
 }
+
 
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der
@@ -461,8 +463,8 @@ int dr_os_open(int w, int const h, int const fullscreen)
 void dr_os_close()
 {
 	SDL_FreeCursor(hourglass);
-	// Hajo: SDL doc says, screen is freed  by SDL_Quit and should not be
-	// freed  by the user
+	// Hajo: SDL doc says, screen is freed by SDL_Quit and should not be
+	// freed by the user
 	// SDL_FreeSurface(screen);
 }
 
@@ -900,7 +902,6 @@ int dr_screenshot(const char *filename, int x, int y, int w, int h)
 		return 1;
 	}
 #endif
-	(void)(x + y + w + h);
 	return SDL_SaveBMP(SDL_GetVideoSurface(), filename) == 0 ? 1 : -1;
 }
 

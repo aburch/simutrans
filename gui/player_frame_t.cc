@@ -158,7 +158,7 @@ ki_kontroll_t::ki_kontroll_t() :
 
 		// Access buttons
 		access_out[i].init(button_t::square_state, "", cursor);
-		access_out[i].pressed = player && current_player->allows_access_to(player->get_player_nr());
+		access_out[i].pressed = player && (!current_player || current_player->allows_access_to(player->get_player_nr()));
 		if(access_out[i].pressed && player)
 		{
 			tooltip_out[i].printf("Withdraw %s's access your ways and stops", player->get_name());
@@ -215,7 +215,7 @@ ki_kontroll_t::ki_kontroll_t() :
 	}
 	freeplay.pressed = welt->get_settings().is_freeplay();
 	add_component( &freeplay );
-	cursor.y += D_CHECKBOX_HEIGHT;
+	cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE);
 
 	set_windowsize( scr_size( window_width, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 	update_data();

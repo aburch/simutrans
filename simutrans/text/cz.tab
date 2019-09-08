@@ -2577,8 +2577,8 @@ That would exceed\nyour credit limit.
 Toto by pøekroèilo vá¹ úvìrový limit.
 The charges incurred or revenues earned by running on other players' ways
 Polatky za pou¾ití dopravní sítì ostatních hráèù a vlastních cest ostatními hráèi.
-The convoy has been sent\nto its home depot.\n
-Souprava byla poslána\ndo svého domovského depa.\n
+The convoy has been sent\nto its home depot.\n%s\n
+Souprava byla poslána\ndo svého domovského depa.\n%s\n
 The following %s has become obsolete:\n%s\n
 Vozidlo %s je od zaèátku mìsíce pova¾ováno za zastaralé.\n%s\n
 The maximum amount that can be borrowed without prohibiting further capital outlays

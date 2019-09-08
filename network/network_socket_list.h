@@ -6,6 +6,7 @@
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "../utils/plainstring.h"
+#include "../simconst.h"
 
 class network_command_t;
 class packet_t;
@@ -93,10 +94,10 @@ public:
 	/**
 	 * human players on this connection can play with in-game companies/players?
 	 */
-	bool is_player_unlocked(uint8 player_nr) const { return (player_nr < 15)  &&  ((player_unlocked & 1<<player_nr)!=0); }
+	bool is_player_unlocked(uint8 player_nr) const { return (player_nr < PLAYER_UNOWNED)  &&  ((player_unlocked & 1<<player_nr)!=0); }
 
-	void unlock_player(uint8 player_nr) { if (player_nr < 15) player_unlocked |= 1<<player_nr; }
-	void lock_player(uint8 player_nr) { if (player_nr < 15) player_unlocked &= ~(1<<player_nr); }
+	void unlock_player(uint8 player_nr) { if (player_nr < PLAYER_UNOWNED) player_unlocked |= 1<<player_nr; }
+	void lock_player(uint8 player_nr) { if (player_nr < PLAYER_UNOWNED) player_unlocked &= ~(1<<player_nr); }
 };
 
 /**

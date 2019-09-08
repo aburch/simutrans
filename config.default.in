@@ -1,0 +1,80 @@
+# this is config.default.in
+
+# allowed backends:
+#BACKEND = allegro
+#BACKEND = gdi
+#BACKEND = opengl
+#BACKEND = sdl
+#BACKEND = sdl2
+#BACKEND = mixer_sdl
+#BACKEND = posix
+BACKEND = @backend@
+
+# color depth either 16 or 0 (the latter needed for server)
+COLOUR_DEPTH = @color@
+
+# architecture specifi flags
+#OSTYPE = amiga
+#OSTYPE = beos
+#OSTYPE = cygwin
+#OSTYPE = freebsd
+#OSTYPE = haiku
+#OSTYPE = linux
+#OSTYPE = mingw
+#OSTYPE = mac
+
+OSTYPE = @os_type@
+
+DEBUG = 3    # Level 1-3, higher number means more debug-friendly, see Makefile
+OPTIMISE = 1 # Add umpteen optimisation flags
+#PROFILE = 1  # Enable profiling
+#PROFILE = 2  # Enable profiling with optimisation flags, can be used with `OPTIMISE = 1'
+
+
+WITH_REVISION = @svn@ # adds the revision from svn; required for networkgames
+# if you do not use SVN, add -DREVISION="1234" to the FLAGS below
+
+#WIN32_CONSOLE = 1 # adds a console for windows debugging
+
+MULTI_THREAD = @multithread@ # Enable multithreading, highly recommended
+
+# Define these as empty strings, if you don't have the respective config program
+#ALLEGRO_CONFIG = allegro-config
+#PNG_CONFIG     = pkg-config libpng
+#SDL_CONFIG     = sdl-config
+#SDL2_CONFIG    = sdl2-config
+
+#VERBOSE = 1
+
+# The following useful conditional compilation flags exist
+#
+# Needed to compile:
+# USE_C: no assembler for copying (required for not using GCC on x86)
+# SIM_BIG_ENDIAN: MUST be set for PPC/Motorola byte order! (old mac, amiga)
+#
+# Changing appearance:
+# USE_SOFTPOINTER: emulate mouse pointer (set automatically in Makefile)
+# USE_FREETYPE: use TrueType vector fonts
+#
+# Useful for debugging:
+# DEBUG_ROUTES: show routing calculation information in minimap
+# SHOW_FORE_GRUND: show which objects are drawn as foreground
+# DEBUG_FLUSH_BUFFER: show the dirty areas on the screen
+# USE_VALGRIND_MEMCHECK: make valgrind-memcheck aware of the memory allocation stuff in dataobj/freelist
+# SYSLOG: send debug output to syslog
+#
+# Following flags alter game engine (and are off for standard builds)
+# OTTD_LIKE: Enables half height tiles and crossconnects all industries
+# AUTOMATIC_BRIDGES and AUTOMATIC_TUNNELS: will be built also for player
+# AUTOJOIN_PUBLIC: stations next to a public stop will be joined to it
+# MAX_CHOOSE_BLOCK_TILES=xxx: maximum distance between choose signal and a
+#    target (undefined means no limit)
+# USE_DIFFERENT_WIND: different airplane approach directions over the map
+# DESTINATION_CITYCARS: Citycars can have a destination (not recommended)
+#
+# In order to use the flags, add a line like this: (-Dxxx)
+FLAGS = @flags@ @freetype2@ @endian@
+
+MAKEOBJ_PROGDIR = $(shell pwd)
+NETTOOL_PROGDIR = $(shell pwd)
+PROGDIR  = $(shell pwd)

@@ -11,13 +11,17 @@
 #include "../ifc/sync_steppable.h"
 #include "../simobj.h"
 #include "../simcolor.h"
+#include "../tpl/minivec_tpl.h"
+#include "../simworld.h"
 
 class building_tile_desc_t;
 class fabrik_t;
 class stadt_t;
+class goods_desc_t;
+class planquadrat_t;
 
 /**
- * Asynchron oder synchron animierte Gebaeude für Simutrans.
+ * Asynchronous or synchronous animations for buildings.
  * @author Hj. Malthaner
  */
 class gebaeude_t : public obj_t, sync_steppable
@@ -136,6 +140,11 @@ private:
 	uint16 passengers_succeeded_visiting;
 	uint16 passenger_success_percent_last_year_visiting;
 
+	uint16 mail_generated;
+	uint16 mail_delivery_succeeded_last_year;
+	uint16 mail_delivery_succeeded;
+	uint16 mail_delivery_success_percent_last_year;
+
 	/**
 	* This is the number of jobs supplied by this building
 	* multiplied by the number of ticks per month, subtracted
@@ -152,8 +161,13 @@ private:
 	*/
 	sint64 available_jobs_by_time;
 
-	// This is true of the building is in one or more world lists.
-	bool is_in_world_list;
+	// This is true if the building is in one or more world lists.
+	sint8 is_in_world_list;
+
+	// Whether the passenger and mail figures need recalculating or not.
+	bool loaded_passenger_and_mail_figres;
+
+	minivec_tpl<const planquadrat_t*> building_tiles;
 
 #ifdef INLINE_OBJ_TYPE
 protected:
@@ -162,7 +176,7 @@ protected:
 	void init(player_t *player, const building_tile_desc_t *t);
 
 public:
-	gebaeude_t(loadsave_t *file);
+	gebaeude_t(loadsave_t *file, bool do_not_add_to_world_list);
 	gebaeude_t(koord3d pos,player_t *player, const building_tile_desc_t *t);
 #else
 protected:
@@ -240,6 +254,8 @@ public:
 
 	bool is_city_building() const;
 
+	bool is_signalbox() const;
+
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
@@ -247,7 +263,11 @@ public:
 	 */
 	void info(cbuffer_t & buf, bool dummy = false) const;
 
+	void get_class_percentage(cbuffer_t & buf) const;
+
 	void rdwr(loadsave_t *file);
+
+	void display_coverage_radius(bool display);
 
 	/**
 	 * Play animations of animated buildings.
@@ -275,21 +295,39 @@ public:
 
 	gebaeude_t* access_first_tile();
 
-	void add_passengers_generated_commuting(uint16 number) { passengers_generated_commuting += number; }
-	void add_passengers_succeeded_commuting(uint16 number) { passengers_succeeded_commuting += number; }
 
 	uint16 get_passengers_succeeded_visiting() const { return passengers_succeeded_visiting; }
+	uint16 get_passengers_succeeded_commuting() const { return passengers_succeeded_commuting; }
+
+	uint16 get_mail_generated() const { return mail_generated; }
+	uint16 get_mail_delivery_succeeded_last_year() const { return mail_delivery_succeeded_last_year; }
+	uint16 get_mail_delivery_succeeded() const { return mail_delivery_succeeded; }
 
 	uint16 get_passenger_success_percent_this_year_commuting() const { return passengers_generated_commuting > 0 ? (passengers_succeeded_commuting * 100) / passengers_generated_commuting : 65535; }
 	uint16 get_passenger_success_percent_last_year_commuting() const { return passenger_success_percent_last_year_commuting; }
-	uint16 get_average_passenger_success_percent_commuting() const { return (get_passenger_success_percent_this_year_commuting() + passenger_success_percent_last_year_commuting) / 2; }
+	uint16 get_average_passenger_success_percent_commuting() const { return calc_two_years_average(get_passenger_success_percent_this_year_commuting(), passenger_success_percent_last_year_commuting);	}
+
+	uint16 get_passenger_success_percent_this_year_visiting() const { return passengers_generated_visiting > 0 ? (passengers_succeeded_visiting * 100) / passengers_generated_visiting : 65535; }
+	uint16 get_passenger_success_percent_last_year_visiting() const { return passenger_success_percent_last_year_visiting; }
+	uint16 get_average_passenger_success_percent_visiting() const {	return calc_two_years_average(get_passenger_success_percent_this_year_visiting(), passenger_success_percent_last_year_visiting); }
+
+	uint16 get_mail_delivery_success_percent_this_year() const { return mail_generated > 0 ? (mail_delivery_succeeded * 100) / mail_generated : 65535; }
+	uint16 get_mail_delivery_success_percent_last_year() const { return mail_delivery_success_percent_last_year; }
+	uint16 get_average_mail_delivery_success_percent() const { return calc_two_years_average(get_mail_delivery_success_percent_this_year(), get_mail_delivery_success_percent_last_year()); }
 
 	void add_passengers_generated_visiting(uint16 number) { passengers_generated_visiting += number; }
 	void add_passengers_succeeded_visiting(uint16 number) { passengers_succeeded_visiting += number; }
 
-	uint16 get_passenger_success_percent_this_year_visiting() const { return passengers_generated_visiting > 0 ? (passengers_succeeded_visiting * 100) / passengers_generated_visiting : 65535; }
-	uint16 get_passenger_success_percent_last_year_visiting() const { return passenger_success_percent_last_year_visiting; }
-	uint16 get_average_passenger_success_percent_visiting() const { return (get_passenger_success_percent_this_year_visiting() + passenger_success_percent_last_year_visiting) / 2; }
+	void add_passengers_generated_commuting(uint16 number) { passengers_generated_commuting += number; }
+	void add_passengers_succeeded_commuting(uint16 number) { passengers_succeeded_commuting += number; }
+
+	void set_passengers_visiting_last_year(uint16 value) { passenger_success_percent_last_year_visiting = value; }
+	void set_passengers_commuting_last_year(uint16 value) { passenger_success_percent_last_year_commuting = value; }
+
+	void add_mail_generated(uint16 number) { mail_generated += number; }
+	void add_mail_delivery_succeeded(uint16 number) { mail_delivery_succeeded += number; }
+	void set_mail_delivery_succeeded_last_year(uint16 value) { mail_delivery_succeeded_last_year = value; }
+	void set_mail_delivery_success_percent_last_year(uint16 value) { mail_delivery_success_percent_last_year = value; }
 
 	void new_year();
 
@@ -334,8 +372,40 @@ public:
 	*/
 	sint32 check_remaining_available_jobs() const;
 
-	bool get_is_in_world_list() const { return is_in_world_list; }
-	void set_in_world_list(bool value) { is_in_world_list = value; }
+	/*
+	* Returns a percentage of the staffing level for this building
+	*/
+	sint32 get_staffing_level_percentage() const;
+
+	uint8 get_random_class(const goods_desc_t* wtyp);
+
+	bool get_is_in_world_list() const { return is_in_world_list > 0; }
+	void set_in_world_list(bool value) { value ? is_in_world_list = 1 : is_in_world_list = 0; }
+
+	sint64 get_available_jobs_by_time() const { return available_jobs_by_time; }
+	void set_available_jobs_by_time(sint64 value) { available_jobs_by_time = value; }
+
+	bool get_loaded_passenger_and_mail_figres() const { return loaded_passenger_and_mail_figres; }
+	void set_loaded_passenger_and_mail_figres(bool value) { loaded_passenger_and_mail_figres = value; }
+	
+	const minivec_tpl<const planquadrat_t*> &get_tiles() { return building_tiles; }
+	void set_building_tiles();
+
+private:
+	// Calculate last 2 years(13-24 months) average percentage
+	inline uint16 calc_two_years_average(uint16 this_year, uint16 last_year) const {
+		if (last_year == 65535) {
+			return this_year;
+		}
+		else if (this_year == 65535) {
+			return last_year;
+		}
+		else {
+			uint8 month = welt->get_last_month() + 1;
+			return (last_year * 12 + this_year * month) / (12 + month);
+		}
+	}
+
 };
 
 

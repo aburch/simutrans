@@ -72,7 +72,7 @@ protected:
 	virtual void change_item_info( sint32 /*entry, -1= none */ ) {}
 
 public:
-	extend_edit_gui_t(const char *name, player_t* player);
+	extend_edit_gui_t(const char *name, player_t* player_);
 
 	/**
 	* Does this window need a min size button in the title bar?

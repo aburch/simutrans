@@ -3,7 +3,7 @@ PROP_FONT_FILE
 Prop-Latin1.bdf
 ################################################################################
 #                                                                              #
-#                 Simutrans-Extended Base Translation File                 #
+#                 Simutrans-Extended Base Translation File                     #
 #                             Scenario: Base texts                             #
 #                             Language: en English                             #
 #                                Encoding: ASCII                               #
@@ -86,9 +86,9 @@ Prop-Latin1.bdf
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 !0_STATION_CROWDED
-%s\nis crowded.
+%s is crowded.
 !1_DEPOT_REACHED
-%s \nhas entered a depot.
+%s has entered a depot.
 #
 # Town name beginning syllables.
 # There can be up to 2048 of these.
@@ -871,6 +871,224 @@ Fleck
 Carl
 %180_CITY_SYLL
 Gom
+%181_CITY_SYLL
+Lym
+%182_CITY_SYLL
+Lim
+%183_CITY_SYLL
+Bog
+%184_CITY_SYLL
+Lew
+%185_CITY_SYLL
+Lewis
+%186_CITY_SYLL
+Chid
+%187_CITY_SYLL
+Thorn
+%188_CITY_SYLL
+Syd
+%189_CITY_SYLL
+Skill
+%18A_CITY_SYLL
+Skell
+%18B_CITY_SYLL
+Dot
+%18C_CITY_SYLL
+Wash
+%18D_CITY_SYLL
+Brid
+%18E_CITY_SYLL
+Bothen
+%18F_CITY_SYLL
+Gras
+%190_CITY_SYLL
+Swy
+%191_CITY_SYLL
+Lit
+%192_CITY_SYLL
+Lyt
+%193_CITY_SYLL
+Bud
+%194_CITY_SYLL
+Wey
+%195_CITY_SYLL
+Chick
+%196_CITY_SYLL
+Gran
+%197_CITY_SYLL
+Wyk
+%198_CITY_SYLL
+Bux
+%199_CITY_SYLL
+Lul
+%19A_CITY_SYLL
+Kim
+%19B_CITY_SYLL
+Liv
+%19C_CITY_SYLL
+Durl
+%19D_CITY_SYLL
+Bland
+%19E_CITY_SYLL
+Bos
+%19F_CITY_SYLL
+Tuck
+%200_CITY_SYLL
+Mud
+%201_CITY_SYLL
+Net
+%202_CITY_SYLL
+Fare
+%203_CITY_SYLL
+Sin
+%204_CITY_SYLL
+Cos
+%205_CITY_SYLL
+Tan
+%206_CITY_SYLL
+Hay
+%207_CITY_SYLL
+Hey
+%208_CITY_SYLL
+Brackles
+%209_CITY_SYLL
+Mund
+%20A_CITY_SYLL
+Tang
+%20B_CITY_SYLL
+Bils
+%20C_CITY_SYLL
+Tort
+%20D_CITY_SYLL
+Lanc
+%20E_CITY_SYLL
+Hov
+%20F_CITY_SYLL
+Kemp
+%210_CITY_SYLL
+Bry
+%211_CITY_SYLL
+Gly
+%212_CITY_SYLL
+Cuck
+%213_CITY_SYLL
+Cook
+%214_CITY_SYLL
+Fry
+%215_CITY_SYLL
+Bak
+%216_CITY_SYLL
+Pev
+%217_CITY_SYLL
+Hast
+%218_CITY_SYLL
+Wyn
+%219_CITY_SYLL
+Lyd
+%21A_CITY_SYLL
+Lad
+%21B_CITY_SYLL
+Rom
+%21C_CITY_SYLL
+Rem
+%21D_CITY_SYLL
+Samp
+%21E_CITY_SYLL
+Buck
+%21F_CITY_SYLL
+Dov
+%220_CITY_SYLL
+Sev
+%221_CITY_SYLL
+Gal
+%222_CITY_SYLL
+Gayl
+%223_CITY_SYLL
+Hal
+%224_CITY_SYLL
+Id
+%225_CITY_SYLL
+Tat
+%226_CITY_SYLL
+Warl
+%227_CITY_SYLL
+Eg
+%228_CITY_SYLL
+Wok
+%229_CITY_SYLL
+Knap
+%22A_CITY_SYLL
+Knack
+%22B_CITY_SYLL
+Ever
+%22C_CITY_SYLL
+Finch
+%22D_CITY_SYLL
+Crook
+%22E_CITY_SYLL
+Heck
+%22F_CITY_SYLL
+Burk
+%230_CITY_SYLL
+Sher
+%231_CITY_SYLL
+Tad
+%232_CITY_SYLL
+Sil
+%233_CITY_SYLL
+Syl
+%234_CITY_SYLL
+Been
+%235_CITY_SYLL
+Buckl
+%236_CITY_SYLL
+Over
+%237_CITY_SYLL
+Under
+%238_CITY_SYLL
+Knit
+%239_CITY_SYLL
+Lam
+%23A_CITY_SYLL
+Rams
+%23B_CITY_SYLL
+Lud
+%23C_CITY_SYLL
+Croft
+%23D_CITY_SYLL
+Cobb
+%23E_CITY_SYLL
+Shrew
+%23F_CITY_SYLL
+Chip
+%240_CITY_SYLL
+Tims
+%241_CITY_SYLL
+Dunk
+%242_CITY_SYLL
+Oke
+%243_CITY_SYLL
+Hawks
+%244_CITY_SYLL
+Hart
+%245_CITY_SYLL
+Chaff
+%246_CITY_SYLL
+Misen
+%247_CITY_SYLL
+Beo
+%248_CITY_SYLL
+Frost
+%249_CITY_SYLL
+Loom
+%24A_CITY_SYLL
+Ler
+%24B_CITY_SYLL
+Mous
+%249_CITY_SYLL
+Les
+%24A_CITY_SYLL
+Bern
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -1115,6 +1333,40 @@ tun
 bourne
 &76_CITY_SYLL
 ey
+&77_CITY_SYLL
+nor
+&78_CITY_SYLL
+ingnor
+&79_CITY_SYLL
+ock
+&7A_CITY_SYLL
+ingpool
+&7B_CITY_SYLL
+ditch
+&7C_CITY_SYLL
+pole
+&7D_CITY_SYLL
+ingpole
+&7E_CITY_SYLL
+combe
+&7F_CITY_SYLL
+ingcombe
+&80_CITY_SYLL
+ridge
+&81_CITY_SYLL
+erridge
+&82_CITY_SYLL
+ingridge
+&83_CITY_SYLL
+ercombe
+&84_CITY_SYLL
+erpool
+&85_CITY_SYLL
+erpole
+&86_CITY_SYLL
+age
+&87_CITY_SYLL
+tye
 #
 # Town name prefixes.
 # There can be up to 256 of these.
@@ -1241,6 +1493,12 @@ Mount
 St. Michael 
 &3A_CITY_PREFIX
 Martin's 
+&3B_CITY_PREFIX
+Royal 
+&3C_CITY_PREFIX
+Corn 
+&3D_CITY_PREFIX
+Worth 
 #
 # Town name suffixes.
 # There can be up to 256 of these.
@@ -1363,6 +1621,26 @@ heath
  Ponds
 &37_CITY_SUFFIX
  Rise
+&38_CITY_SUFFIX
+ Spa
+&39_CITY_SUFFIX
+ Hale
+&3A_CITY_SUFFIX
+ Regis
+&3B_CITY_SUFFIX
+ Herring
+&3C_CITY_SUFFIX
+ Minster
+&3D_CITY_SUFFIX
+ Haven
+&3E_CITY_SUFFIX
+ Hoe
+&3F_CITY_SUFFIX
+ Hoo
+&40_CITY_SUFFIX
+ Mortimer
+&41_CITY_SUFFIX
+ Hundred
 # 
 # Other strings
 # 
@@ -1381,17 +1659,17 @@ heath
 %s land %d %s
 %s land %d %s
 %s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
-%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
+%s now offers a 'bus service between %s and attraction\n%s\nat (%i,%i).\n
 %s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
-%s now\noffers bus services\nbetween %s\nand industry\n%s\nat (%i,%i).\n
+%s now\noffers a 'bus service between %s and industry\n%s\nat (%i,%i).\n
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s \nbuilt a\nnew town hall\nwhen it reached\n%i inhabitants.
+%s  built a new town hall when it reached %i inhabitants.
 %s's\nheadquarter now\nat (%i,%i).
-%s's\nheadquarters now\nat (%i,%i).
+%s's headquarters now at (%i,%i).
 %s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i).
-%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s\nat (%i,%i).
+%s now operates %i lorries between %s at (%i,%i)\nand %s\nat (%i,%i).
 %s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i).
-%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s\nat (%i,%i).
+%s opened a new railway between %s at (%i,%i) and\n%s\nat (%i,%i).
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
 %s\nSpeed: %i km/h\nMax. speed: %i km/h
 %s\nwas liquidated.
@@ -1537,7 +1815,7 @@ Mountain peak
 Goods supplied
 Goods supplied
 Goods
-Goods needed
+Goods
 Assets
 Assets
 Aufloesen
@@ -1545,7 +1823,7 @@ Disassemble
 August
 August
 Autohalt muss auf\nStrasse liegen!\n
-The location specified\nis not a valid\nplace to send\na road vehicle.
+This is not a valid place to send a road vehicle.
 Available
 Available
 Bahndepot
@@ -1569,21 +1847,21 @@ station
 bio
 biological
 Blockstrecke ist\nbelegt\n
-\nRail block is in use\nby another train!\n
+\nThe block is occupied by another train.\n
 Boden
 Land
 Wasser
 Water
 Bridge is too long for this type!\n
-Bridge span is too\nlong for this type of\nbridge.\n
+Bridge span is too long for this type of bridge.\n
 bridge is too high for its type!
-Bridge span is too\nhigh for this type of\bridge.\n
+Bridge span is too high for this type of\bridge.\n
 Bridge cannot be built over deep water\n
-Bridge cannot be built over deep water.\nBuild a length restricted\nbridge instead.
+Bridge cannot be built over deep water.\n\nBuild a length restricted bridge instead.
 Bruecke
 Bridge
 Bruecke muss an\nsingleem\nHang beginnen!\n
-Bridges must\nstart on a\nstraight slope\n
+Bridges must start on a straight slope.\n
 Brueckenboden
 Bridge
 build choosesignals
@@ -1625,7 +1903,7 @@ Build a random attraction.
 Bus_tab
 Buses
 Can only move from halt to halt or waypoint to waypoint.
-Can only move from halt to\nhalt or waypoint to waypoint.
+Can only move from a stop to a stop or a waypoint to a waypoint.
 cancel
 Cancel
 Cannot built depot here!
@@ -1633,7 +1911,7 @@ Cannot build a depot here.
 No suitable ground!
 This cannot be built here.
 Cannot create generic line!\nSelect line type by\nusing filter tabs.
-Cannot create a generic line.\nSelect line type\nusing filter tabs.
+Cannot create a generic line. Select line type using filter tabs.
 Capacity: %s\nLoad: %d (%d%%)
 Capacity: %s\nLoad: %d (%d%%)
 Cars are not available yet!
@@ -1690,6 +1968,8 @@ clf_chk_noline
 No line
 clf_chk_noroute
 No route
+clf_chk_noroute_too_complex
+No route (too long/complex)
 clf_chk_noschedule
 No schedule
 clf_chk_ships
@@ -1734,6 +2014,8 @@ cl_txt_filter
 Filter:
 cl_txt_sort
 Sort by:
+no_route_too_complex_message
+This vehicle is too far from its destination to find a route automatically. Try inserting some waypoints into its schedule to help it find the right way to go.
 Clear block reservation
 Show/clear block reservations
 COLOR_CHOOSE\n
@@ -1744,20 +2026,20 @@ Construction_Btn
 Construction costs
 convoi %d of %d
 Convoy %d of %d
-Convoi has been sent\nto the nearest depot\nof appropriate type.\n
-Convoy has been sent\nto the nearest depot\nof the appropriate type.\n
+Convoi has been sent\nto the nearest depot\nof appropriate type.\n%s\n
+%s has been sent to the nearest depot of the appropriate type.\n
 Convoi is sold when all wagons are empty.
 The vehicle will be sold as soon as it is completely empty.
 Convoi is sent to depot when all wagons are empty.
 The convoy will be sent to the nearest depot as soon as it is completely empty.
 convoi passed last\nmonth %i\n
-\nConvoys that passed in the\nprevious month: %i\n
+\nConvoys that passed in the previous month: %i\n
 Convois: %d\nProfit: %s
 Vehicles: %d\nProfit: %s
 Convoys
 Convoys
 Copy Convoi
-Copy Convoy
+Copy convoy
 Copy the selected convoi and its schedule or line
 Copy the selected convoy and its schedule or line
 Create a new line based on this schedule
@@ -1767,7 +2049,7 @@ Attraction list
 Currently playing:
 Playing:
 Das Feld gehoert\neinem anderen Spieler\n
-This piece of\nland is owned by\nanother player.\n
+This land is not available to purchase.\n\nIt may be owned by another player or be a public building or object.
 December
 December
 Deccelerate time
@@ -1785,7 +2067,7 @@ Departed
 Depots
 Depots
 Der Besitzer erlaubt das Entfernen nicht
-\nYou do not have\npermission to\nremove this.\n
+This cannot be demolished or removed.\n\nIt may belong to another player or be a public building or object.
 Der Tunnel ist nicht frei!\n
 The tunnel is occupied.\n
 desert
@@ -1805,7 +2087,7 @@ Direct routes from here
 Dock
 dock
 Dock must be built on single slope!
-Docks must be built on a\nsingle, sloped tile.
+Docks must be built on a single, sloped tile.
 Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
 You have %d months to repay your debt.
 Durchsatz
@@ -1833,7 +2115,7 @@ Error
 Erzeuge neue Karte.\n
 Please wait while a new\nmap is being created.\n\n(This may take a few \nminutes for big maps.)\n
 Es wird bereits\nein Fahrplan\neingegeben\n
-A schedule is\nbeing planned.\nFinish it first\nbefore re-scheduling!\n
+A schedule is being planned.\n\nFinish it first before re-scheduling.\n
 Fabrikanschluss
 Connected industries
 Fabrikname
@@ -1841,7 +2123,7 @@ Industry name
 Factories
 Industries
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
-\n%s near %s extends its industry chain.\n%i new industry opened.
+\n%s near %s extends its industry chain.\n%i new industries opened.
 factory details
 Industry details
 Fahrplan
@@ -1849,7 +2131,7 @@ Schedule
 Fahrtziel
 Destination
 Fahrzeuge koennen so nicht entfernt werden
-Vehicles cannot be\nremoved this way.\n
+Vehicles cannot be removed this way.\n
 Fahrzeuge:
 Vehicles:
 Farbe
@@ -1869,7 +2151,7 @@ Finances of %s
 Finanzen
 Finances
 Flugzeughalt muss auf\nRunway liegen!\n
-Plane stand must\nbe on a taxiway.
+An aircraft apron may only be placed on a taxiway.
 Flug_tab
 Passenger Aircraft
 fl_title
@@ -1889,7 +2171,7 @@ Freight
 Frame time:
 Frame Time:
 Free Capacity
-Total Capacity
+Free capacity
 Friction:
 Current friction:
 fuel_cell
@@ -1907,11 +2189,9 @@ Building
 Gewicht
 Weight
 Gewinn
-Revenue
+Profit: 
 Give the selected vehicle(s) an individual schedule
 Give the selected vehicle(s) an individual schedule.
-gl_btn_sort_bonus
-by bonus
 gl_btn_sort_name
 by name
 gl_btn_sort_revenue
@@ -1967,7 +2247,7 @@ Remove intermediate signals
 replace other signals
 Replace existing signals
 Hier warten/lagern:
-Goods and passengers waiting:
+Sort passengers/freight by
 hlf_btn_alle
 all
 hlf_btn_invers
@@ -2059,9 +2339,9 @@ July
 June
 June
 Kann Spielstand\nnicht laden.\n
-Cannot load saved game!
+Cannot load saved game.
 Kann Spielstand\nnicht speichern.\n
-Cannot open\ntarget file\nfor writing!
+Cannot open\ntarget file\nfor writing.
 keine
 none
 Keine Einzelfahrzeuge im Depot
@@ -2149,9 +2429,9 @@ Max. Income:
 Max. speed:
 Max. speed:
 Maximum 254 stops\nin a schedule!\n
-Maximum of 254 stops\nin a schedule.\n
+Maximum of 254 stops in a schedule.\n
 Maximum tile height difference reached.
-The maximum height\ndifference between\ntwo tiles has\nbeen reached.
+The maximum height difference between two tiles has been reached.
 May
 May
 Median Citizen per town
@@ -2163,7 +2443,7 @@ Message
 Menge
 amount
 MessageOptionsText
-\nNew Year\n\nAI News\n\nCity News\n\nNo Route\n\nIndustry\n\nTourist\n\nNew Vehicles\n\nStation full\n\nProblems\n\nTraffic congestion\n\nChat
+\nGeneral\n\nAI news\n\nCity news\n\nProblems\n\nIndustry news\n\nChat\n\nNew vehicles\n\nStop(s) full\n\nWarnings\n\nTraffic congestion\n\nScenario
 min
 min.
 Modify the selected line
@@ -2179,9 +2459,9 @@ Elevated section (support)
 Monoraildepot
 Monorail Depot
 Monorailhalt muss auf\nMonorail liegen!\n
-Monorail stops must\nbe on monorail track.
+Monorail stops must be on monorail track.
 Maglevhalt muss auf\nMaglevschiene liegen!\n
-Maglev stops must\nbe on maglev track.
+Maglev stops must be on maglev track.
 Monorails are not available yet!
 Monorails are not yet available.
 MONORAILTOOLS
@@ -2207,25 +2487,25 @@ Create a New Game
 new convoi
 New convoy
 New factory chain\nfor %s near\n%s built with\n%i factories.
-A new industry chain\nfor %s near\n%s has been built with\n%i industries.
+A new industry chain for %s near %s has been built with %i industries.
 New Line
 New Line
 New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.
-New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.
+New line created.\nYou can assign the line now\nby selecting it from the\nline selector above.
 New %s now available:\n%s\n
 A new %s is now available:\n%s\n
 New Vehicles
 New Vehicles
 New world record for monorails: %.1f km/h by %s.
-New world record for\nmonorails: %.1f km/h\nby %s.
+New world record for monorails: %.1f km/h by %s.
 New world record for motorcars: %.1f km/h by %s.
-New world record for\nroad vehicles:\n %.1f km/h\nby %s.
+New world record for road vehicles: %.1f km/h by %s.
 New world record for planes: %.1f km/h by %s.
-New world record for\naircraft:\n %.1f km/h\nby %s.
+New world record for aircraft: %.1f km/h by %s.
 New world record for railways: %.1f km/h by %s.
-New world record for \nrailways:\n %.1f km/h \nby %s.
+New world record for railways: %.1f km/h by %s.
 New world record for ship: %.1f km/h by %s.
-New world record for\nwater craft:\n %.1f km/h\nby %s.
+New world record for water craft: %.1f km/h nby %s.
 no convois
 No convoys
 No goods are loaded onto this convoi.
@@ -2236,8 +2516,8 @@ no load
 No load
 No Route
 No Route
-No stop here!
-A stop can only\nbe placed on a matching\nway type, and not on top\nof another stop.
+No suitable way on the ground!
+A stop can only be placed on a matching way type, and not on top of another stop.
 No terminal station here!
 A terminal station can only\nbe placed on a matching\nway type, at the end of\na way. It cannot be placed\non top of another station\nor signals/signs.
 No through station here!
@@ -2255,9 +2535,9 @@ Northeast
 northwest
 Northwest
 Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-The vehicle's schedule\nmust not be changed\nuntil the operation is complete.
+The vehicle's schedule must not be changed\nuntil the operation is complete.
 Not enough fields would remain.
-Not enough fields would\nremain around this farm.
+Not enough fields would remain around this farm.
 November
 November
 Now active as %s.\n
@@ -2267,7 +2547,7 @@ OK
 Oktober
 October
 On this map, you are not\nallowed to change player!\n
-This game is locked.\nNo player changes are possible.\n
+This game is locked. No player changes are possible.\n
 Operation
 Running costs
 Ops Profit
@@ -2377,7 +2657,7 @@ Please choose vehicles first!\n
 Post
 Mail
 Post muss neben\nHaltestelle\nliegen!\n
-A station extension building\n(ex. post office, warehouse)\nmust be placed on a free tile\nnext to an existing stop/station.\n
+A station extension building (e.g. a post office or warehouse) may only be placed on a free tile next to an existing stop/station.
 Postrate
 Mail level
 Power
@@ -2387,7 +2667,7 @@ Power:
 Powerlines
 Powerlines
 Production of %s has been stopped:\n%s\n
-Production of the\nfollowing %s has been\ndiscontinued:\n%s\n
+Production of the following %s has been discontinued:\n%s\n
 Produktion
 Production
 Profit
@@ -2443,7 +2723,7 @@ Build railway tunnel
 Schiffdepot
 Shipyard
 Schiffhalt muss im\nWasser liegen!\n
-A ship stop can only\nbe placed on water\nnear a dock.\n
+A water stop can only be placed on water near a dock.\n
 water_vehicle_tab
 Ships
 Schleppkahn_tab
@@ -2451,7 +2731,7 @@ Barges
 Screenshot
 Take a screenshot
 Screenshot\ngespeichert.\n
-Screenshot\nsaved.\n
+Screenshot saved.\n
 Sehenswuerdigkeit
 Public amenity
 Sell the selected vehicle(s)
@@ -2540,8 +2820,6 @@ special freight
 Special Freight
 SPECIALTOOLS
 Special Construction Tools
-Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
-Speed bonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
 Speedlimit
 Speed limit
 Speichern
@@ -2573,7 +2851,7 @@ Dispatches the selected vehicle(s).
 Starte Spiel
 Start Game
 Station already\nhas a post office!\n
-This station already\nhas a post office,\nan additional one is \nnot necessary.\n
+This station already has a post office.\n
 Station tiles:
 Station tiles:
 Status
@@ -2603,7 +2881,7 @@ Lowlands
 tundra
 Uplands
 There are still vehicles\nstored in this depot!\n
-There are vehicles\nin this depot!\n
+Cannot delete a depot with vehicles stored in it.
 This Month
 This month
 This Year
@@ -2615,9 +2893,9 @@ Timeline enabled
 tl_title
 City list
 To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers.
-In %s, a new %s has been \n built, with the aid of\n%i rate payers.
+In %s, a new %s has been built, with the aid of %i rate payers.
 To heavy traffic\nresults in traffic jam.\n
-Traffic congestion\ndetected.\n
+Traffic congestion detected.\n
 tonnen
 t
 Total inhabitants:
@@ -2655,11 +2933,11 @@ Dune
 Truck
 Truck
 Tunnel muss an\nsingleem\nHang beginnen!\n
-Tunnels must\nstart on a straight\n double height slope\n
+Tunnels must start on a straight double height slope.\n
 Tunnel must end on single way!
-Tunnels must end on a\nsingle way with a slope.
+Tunnels must end on a single way with a slope.
 Tunnel must start on single way!
-Tunnels must start on a\nsingle way, on a slope,\nand with nmatching slope\nat the other end.
+Tunnels must start on a single way, on a double height slope, and with a matching slope at the other end.
 Tunnelboden
 Tunnel
 Tunnelmuendung
@@ -2667,7 +2945,7 @@ Tunnel entrance
 underground mode
 Underground view
 UNDO failed!
-Undo is no longer possible.\nYou can undo a route\nconstruction only as long as\nno signals/stations/stops or\nanything else has been built on\nthe way.
+Undo is not currently possible.\n\nYou can undo a way construction action only as long as nothing has been built on the way.
 Unemployed
 Com./Ind. demand
 Unhappy
@@ -2709,7 +2987,7 @@ Sell
 Verkehrsteilnehmer
 Traffic
 Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-You have %d months\nto pay off your debt.\n
+You have %d months to repay your overdraft.\n
 via
 via (detail)
 via %s\n
@@ -2743,11 +3021,11 @@ Value
 west
 West
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
-With a big festival,\n%s built\na new monument.\n%i citizens rejoiced.
+With a big festival, %s built a new monument. %i citizens rejoiced.
 withdraw
 Withdraw
 WRONGSAVE
-\nIncompatible saved game.\nCannot load file.\n
+\nIncompatible saved game.\n\nCannot load file.\n
 Year %i has started.
 Year %i has started.
 Years
@@ -2757,11 +3035,11 @@ Pointer (Zeiger)
 Zielort
 destination
 Zu nah am Kartenrand
-You cannot build\nso close to the\nedge of the map.
+You cannot build so close to the edge of the map.
 Zu nah an einem\nanderen Signal!\n
 Rail signals can't\nbe built here.\nAnother signal\nis too close.\n
 Zughalt muss auf\nSchiene liegen!\n
-Rail stations must\nbe placed on the\nrailway track.\n
+Railway stations must be placed on railway track.\n
 no tree
 No trees
 Number of rivers
@@ -2795,7 +3073,7 @@ Hide all buildings
 \nelektrified
 \nElectrified\n
 \nHeightfield has wrong image type.\n
-\nHeightfield has wrong\nimage type.\n
+\nHeightfield has wrong image type.\n
 \nis reserved by:
 \nReserved by: 
 \nminimum speed:
@@ -2811,7 +3089,7 @@ Hide all buildings
 \nwith sign/signal\n
 \nHas a sign or signal\n
 \nRibi (unmasked)
-\nDirections\n (unmasked): 
+\nDirections (unmasked): 
 month wait time
 Maximum wait time
 isometric map
@@ -2825,7 +3103,7 @@ Marker list
 koord
 Map co-ordinate
 Terraforming not possible\nhere in underground view
-Terraforming is not possible\nhere in underground view.
+Terraforming is not possible here in underground view.
 Cannot built this station/building\nin underground mode here.
 This cannot be built underground.
 sliced underground mode
@@ -2835,7 +3113,7 @@ Decrease underground view level
 increase underground view level
 Increase underground view level
 Congratulation\nScenario was complete in\n%i months %i years.
-Congratulations -\nyou completed the\nscenario successfully,\ntaking %i months\nand %i years.
+Congratulations - you completed the scenario successfully, taking %i months and %i years.
 Loading skins ...
 Loading skins ...
 Loading paks ...
@@ -2843,7 +3121,7 @@ Loading paks ...
 Loading addon paks ...
 Loading addon paks ...
 PaxDest
-Pass. dest.
+Destinations
 Passenger destinations
 Passenger destinations
 The main game window can be scrolled by right-clicking and dragging the ground.
@@ -2916,8 +3194,6 @@ replace all in line
 Replace all in line
 replace all
 Replace all
-Distance\nComfort\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
-Distance (km)\nComfort\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
 Abspanntransformator
 Downstream substation
 Aufspanntransformator
@@ -2947,7 +3223,7 @@ General
 Fundament
 Base
 %s s\nheadquarter now\nat (%i,%i).
-%s s\nhas built new headquarters\nat (%i,%i).
+%s s has built new headquarters at (%i,%i).
 %s at (%i,%i) now public stop.
 %s at (%i,%i) is now a public stop.
 Higher transport fees, crossconnect all factories
@@ -2957,7 +3233,7 @@ Ground object
 Movingobj
 Moving object
 On loan since %i month(s)
-You have been overdrawn\nfor %i months
+You have been overdrawn for %i months
 Loading. %s left!
 Loading: %s left
 Destroying map ...
@@ -2997,7 +3273,7 @@ Queueing
 Show level of city buildings
 Show the density of urban buildings
 Overlay passenger destinations when a town window is open
-Overlay passenger destinations from a city when a city information window is open
+Show where passengers from the currently selected town are trying to go and whether they got there successfully
 Highlite tourist attraction
 Show the location of attractions
 Highlite factories
@@ -3052,8 +3328,8 @@ tt_Other
 Other
 (%s) now public way.
 (%s) has been nationalised.
-No suitable depot found!\nYou need to send the\nconvoi to the depot\nmanually.
-No suitable depot can be found.
+No suitable depot found!\nYou need to send the\nconvoi to the depot\nmanually.\n%s\n
+No suitable depot can be found for %s.
 Vehicle %s cannot choose because stop too short
 %s cannot find a sufficiently long stop or platform.
 Transformer only on flat bare land!
@@ -3307,11 +3583,11 @@ km/h
 (speed_restricted_by_bridge)
 (The speed is restricted by the bridge)
 (speed_restricted_by_wayobj)
-(The speed is restricted by the wayobject)
+(The speed is restricted by the asset)
 (speed_restricted_by_city)
 (The speed is restricted by the city)
-runway_38/18
-Runway 38/18
+runway_36/18
+Runway 36/18
 runway_09/27
 Runway 09/27
 meter
@@ -3319,7 +3595,7 @@ m
 monthly_maintenance_cost
 Monthly maintenance cost
 maint_incl_wayobj
-Maint. incl. wayobj
+Maint. incl. assets
 same_as_current
 Same as current
 renewal_costs
@@ -3360,3 +3636,317 @@ alt_route_and_callon
 alt. route and call on
 emergency_stop %s left
 Emergency stop! %s until restart
+Airport too close to the edge
+Destination airport too close to the edge of the map
+cap_tram_track
+Tram track
+cap_track
+Track
+cap_monorail_track
+Monorail track
+cap_maglev_track
+Maglev track
+cap_narrowgauge_track
+Narrow gauge track
+cap_road
+Road
+cap_water_canal
+Water canal
+cap_taxiway/runway
+Taxiway/runway
+already_forged
+Already forged
+partly_forged
+Partly forged
+forge_costs
+Forge costs
+class_manager
+Change prices
+reset_all_classes
+Reset all prices
+resets_all_classes_to_their_defaults
+Resets all prices to their defaults
+accommodations
+accommodations
+capacity_per_class
+Capacity per class
+overcrowded_capacity
+Overcrowded capacity
+traveling_post_office
+Traveling post office
+capacity: %s %s
+Capacity: %s %s
+comfort: %i
+Comfort: %i
+income_pr_km_(when_full):
+Income per km (when full):
+tpo_income_pr_km_(full_convoy):
+Traveling post office income per km (full convoy):
+catering_income_pr_km_(full_convoy):
+Catering income per km (full convoy):
+see_and_change_the_class_assignments
+See and change the prices
+unlimited
+Unlimited
+range
+Range
+Minimum runway length
+Minimum runway length
+unpowered
+Unpowered
+this_vehicle_carries_no_good
+This vehicle carries no goods
+high_clearance_under_bridges_(no_low_bridges)
+High clearance under bridges (no low bridges)
+equipped_with
+Equipped with
+tilting_vehicle_equipment
+Tilting vehicle equipment
+classes
+price classes
+class
+price class
+good_units
+good units
+no_cargo_capacity
+No cargo capacity
+residents_wealth
+Residents' wealth
+wealth_of_visitors_/_commuters
+Wealth of visitors / commuters demanded
+wealth_of_commuters
+Wealth of commuters demanded
+wealth_of_visitors
+Wealth of visitors demanded
+%i_more_stops,_max_walking_time:_%s
+%i more stops, max walking time: %s
+wealth (detail)
+wealth (detail)
+wealth (via)
+wealth (via)
+accommodation (detail)
+class (detail)
+accommodation (via)
+class (via)
+left
+left
+upgradeable_vehicles
+upgradeable vehicles
+reassigned_class
+modified price
+possible_upgrades
+possible upgrades
+this_vehicle_can_upgrade_to
+this vehicle can upgrade to
+additional_upgrades
+additional upgrades
+reassign_classes
+Reassign prices
+line_no_convoys
+This line has no convoys assigned
+line_loss_making
+This line made a loss last month
+line_nothing_moved
+This line did not move any good last month
+line_overcrowded
+This line is frequently overcrowded
+line_missing_scheduled_slots
+This line was missing scheduled slots last month
+line_has_obsolete_vehicles
+This line operates with obsolete vehicles
+line_has_obsolete_vehicles_with_upgrades
+This line has obsolete vehicles with upgrades
+staff_shortage
+Staff shortage
+reset_all_pass_classes
+Reset all passenger prices
+resets_all_passenger_classes_to_their_defaults
+Resets all passenger prices to their defaults
+reset_all_mail_classes
+Reset all mail prices
+resets_all_mail_classes_to_their_defaults
+Resets all mail prices to their defaults
+reassigned_to_multiple
+Reassigned to multiple
+catering_cars: %i
+Catering cars: %i
+(catering_levels: %s)
+(levels: %s)
+tpo_cars: %i
+Traveling post offices: %i
+line_class_manager
+Change prices
+change_the_classes_for_the_entire_line
+Change the prices for the entire line
+reassigned_class
+reassigned price
+reassigned_classes
+reassigned prices
+times_history
+Times History
+view_journey_times_history_of_this_line
+View journey times history of this line.
+view_journey_times_history_of_this_convoy
+View journey times history of this convoy.
+no_time_entry
+----
+stations
+Stations
+latest_3
+Latest 3
+average
+Average
+bidirectional_order
+Bidirectional order:
+reversed_unidirectional_order
+Reversed unidirectional order:
+normal_unidirectional_order
+Normal unidirectional order:
+line_times_history
+Line Times History: 
+convoy_times_history
+Convoy Times History: 
+more_units
+more units
+distance
+Distance
+halt mode
+Parallel stop mode
+oneway
+One way
+twoway
+Two way (default)
+only loading convoi
+Overtake stationary only
+prohibited
+Overtaking prohibited
+inverted
+Opposite lane driving
+has changed its colour scheme.
+has changed its colour scheme.
+Vehicle running costs per km
+Vehicle running costs per km
+Vehicle maintenance costs per month
+Vehicle maintenance costs per month
+Vehicle maintenance
+Vehicle maintenance
+%s has withdrawn access rights from %s
+%s has withdrawn access rights from %s
+%s has allowed access rights to %s
+%s has allowed access rights to %s
+Depot found but could not be inserted in schedule.  This is a bug!%s\n
+Depot found but could not be inserted in schedule.\n\nThis is a bug! %s\n
+Show outdated
+Show out of production
+Show also vehicles whose maintenance costs have increased due to obsolescence.
+Show vehicles that are obsolete and more expensive to maintain.
+Upgrade price:
+Upgrade price:
+Commuting
+Commuting
+Visiting
+Visiting
+Staffing
+Staffing
+Mail delivery
+Mail delivery
+Show the success rate for commuting passengers
+Show the success rate for commuting passengers
+Show the success rate for visiting passengers
+Show the success rate for visiting passengers
+Show the staff shortage rate
+Show the staff shortage rate
+Show the success rate for mail delivery
+Show the success rate for mail delivery
+Mail delivery success this year:
+Mail delivery success this year:
+Mail delivery success last year:
+Mail delivery success last year:
+Mail sent this year:
+Mail sent this year:
+Mail sent last year:
+Mail sent last year:
+Evaluation:
+Evaluation:
+No passenger service
+No passenger service
+No mail service
+No mail service
+This stop has no user
+This stop has no user
+This stop does not have mail customers
+This stop does not have mail customers
+Turned away
+Turned away
+Gave up waiting
+Gave up waiting
+Mail delivered
+Mail delivered
+No route (pass.)
+No route (pass.)
+No route (mail)
+No route (mail)
+The number of passengers who have been turned away from this stop because it is overcrowded
+The number of passengers who have been turned away from this stop because it is overcrowded
+The number of passengers who had to wait so long that they gave up
+The number of passengers who had to wait so long that they gave up
+The amount of mail successfully delivered from this stop
+The amount of mail successfully delivered from this stop
+The amount of mail which could not find a route to its destination
+The amount of mail which could not find a route to its destination
+The amount of mail transported in the region overall
+The percentage of mail transported successfully in the region overall
+Goods needed
+Goods needed
+ratio_mail
+% mail
+ratio_goods
+% goods
+Can't buy obsolete vehicles!
+It is not possible to buy vehicles that are either obsolete or available only as upgrades.
+Inactive
+Inactive
+Sector
+Sector
+Commuters
+Commuters
+Consumers
+Consumers
+Within own network
+Within own network
+Show only connected to own transport network
+Show only connected to own transport network
+Fully stocked
+Fully stocked
+Power usage
+Power usage
+Power output
+Power output
+Railcar_tab
+Railcars
+staffing_bar_tooltip_help
+This bar shows how many workers that this industry has compared to how many that it needs
+Runway too short, require %dm
+Runway too short: at least %dm needed
+ (block %i)
+ (block %i)
+this_signal_protects_a_junction
+This signal protects a junction
+distance_to_junction
+Distance to junction
+distance_to_stop_signal
+Distance to stop signal
+no_signal_before_dead_end
+No signal before buffers
+distance_to_dead_end
+Distance to buffers
+Jobs
+Jobs
+show signalbox coverage
+Show signalbox coverage
+Show coverage radius of the signalbox.
+Show coverage radius of the signalbox.
+Protocol error (expected NWC_GAME)
+Network connect timeout or error: did not receive NWC_GAME packet within 10 minutes, or received bad packet.
+stop_some_goods_arrival
+Some goods out of stock

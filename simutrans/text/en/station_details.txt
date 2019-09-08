@@ -23,12 +23,15 @@ Information listd includes:<br>
 <p>
 <em>Lines serving this Stop:</em>
 <a href="linemanagement.txt">Lines</a> that use this Stop.<br>
-Lines are listd in alphabetical order, with capital letters before lower case letters. Click on the small <em>arrow</em> next to the line to open that line in the <a href="linemanagement.txt">line management</a> window.
+Lines are listed in alphabetical order, with capital letters before lower case letters. Click on the small <em>arrow</em> next to the line to open that line in the <a href="linemanagement.txt">line management</a> window.
 </p>
 <p>
-<em>Direct routes from here:</em>lists the names of stops that can be reached directly (i.e., without changing) by lines and convoys serving this stop. This is lised by the type of items (goods and passnegers) that can be transported from here.<br>
-Stops are listd are listd in alphabetical order, with capital letters before lower case letters. Click on the small <em>arrow</em> next to the line to go to that stop in the main window.
+<em>Direct routes from here:</em>lists the names of stops that can be reached directly (i.e., without changing) by lines and convoys serving this stop. This is lised by the type of items (goods, mail and passnegers) that can be transported from here.<br>
+Stops are listed are listed in alphabetical order, with capital letters before lower case letters. Click on the small <em>arrow</em> next to the line to go to that stop in the main window.
 </p>
 <p>
-Beneath each stop listd, there is a display of the average <em>travelling and waiting time</em> from the present stop to each of the destinations. Goods and passengers will always try to find the shortest route (in terms of journey time: that is, total travelling time plus total waiting time) between their origin and destination stops. Goods that care about how fast that they are transported (have a speed bonus rating of over 0%) and passengers will leave if they have to wait too long at any stop. How long is too long depends on their speed bonus rating.
+Beneath each stop listed, there is a display of the average <em>travelling and waiting time</em> from the present stop to each of the destinations. Goods and passengers will always try to find the shortest route (in terms of journey time: that is, total travelling time plus total waiting time) between their origin and destination stops. Some goods and all passengers will leave if they have to wait too long at any stop. 
+</p>
+<p>
+Also shown are the transfer and transshipment times. The transfer time is the time that it takes passengers, and the transshipment time is the time that it takes goods, to travel through the stop, i.e., to be ready to board a vehicle or leave the stop after having arrived.
 </p>

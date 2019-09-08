@@ -348,6 +348,7 @@
     <ClCompile Include="player\ai_goods.cc" />
     <ClCompile Include="player\ai_passenger.cc" />
     <ClCompile Include="gui\banner.cc" />
+    <ClCompile Include="gui\base_info.cc" />
     <ClCompile Include="gui\baum_edit.cc" />
     <ClCompile Include="besch\bild_besch.cc" />
     <ClCompile Include="boden\boden.cc" />
@@ -564,15 +565,15 @@
     <ClCompile Include="vehicle\simpeople.cc" />
     <ClCompile Include="simplan.cc" />
     <ClCompile Include="player\simplay.cc" />
+    <ClCompile Include="utils\simrandom.cc" />
     <ClCompile Include="simskin.cc" />
     <ClCompile Include="simsound.cc" />
     <ClCompile Include="utils\simstring.cc" />
     <ClCompile Include="simticker.cc" />
-    <ClCompile Include="simtools.cc" />
+    <ClCompile Include="simtool.cc" />
     <ClCompile Include="vehicle\simvehikel.cc" />
     <ClCompile Include="vehicle\simverkehr.cc" />
     <ClCompile Include="simware.cc" />
-    <ClCompile Include="simwerkz.cc" />
     <ClCompile Include="simworld.cc" />
     <ClCompile Include="besch\reader\skin_reader.cc" />
     <ClCompile Include="besch\sound_besch.cc" />
@@ -605,7 +606,7 @@
     <ClCompile Include="boden\wege\weg.cc" />
     <ClCompile Include="bauer\wegbauer.cc" />
     <ClCompile Include="gui\welt.cc" />
-    <ClCompile Include="gui\werkzeug_waehler.cc" />
+    <ClCompile Include="gui\tool_selector.cc" />
     <ClCompile Include="sound\win32_sound.cc" />
     <ClCompile Include="besch\reader\xref_reader.cc" />
   </ItemGroup>
@@ -719,6 +720,7 @@
     <ClInclude Include="tpl\array2d_tpl.h" />
     <ClInclude Include="tpl\array_tpl.h" />
     <ClInclude Include="gui\banner.h" />
+    <ClInclude Include="gui\base_info.h" />
     <ClInclude Include="besch\baum_besch.h" />
     <ClInclude Include="gui\baum_edit.h" />
     <ClInclude Include="sucher\bauplatz_sucher.h" />
@@ -941,18 +943,18 @@
     <ClInclude Include="vehicle\simpeople.h" />
     <ClInclude Include="simplan.h" />
     <ClInclude Include="player\simplay.h" />
+    <ClInclude Include="utils\simrandom.h" />
     <ClInclude Include="simskin.h" />
     <ClInclude Include="simsound.h" />
     <ClInclude Include="utils\simstring.h" />
     <ClInclude Include="simsys.h" />
     <ClInclude Include="simticker.h" />
-    <ClInclude Include="simtools.h" />
+    <ClInclude Include="simtool.h" />
     <ClInclude Include="simtypes.h" />
     <ClInclude Include="vehicle\simvehikel.h" />
     <ClInclude Include="vehicle\simverkehr.h" />
     <ClInclude Include="simversion.h" />
     <ClInclude Include="simware.h" />
-    <ClInclude Include="simwerkz.h" />
     <ClInclude Include="simworld.h" />
     <ClInclude Include="besch\skin_besch.h" />
     <ClInclude Include="besch\reader\skin_reader.h" />
@@ -1008,7 +1010,7 @@
     <ClInclude Include="bauer\wegbauer.h" />
     <ClInclude Include="tpl\weighted_vector_tpl.h" />
     <ClInclude Include="gui\welt.h" />
-    <ClInclude Include="gui\werkzeug_waehler.h" />
+    <ClInclude Include="gui\tool_selector.h" />
     <ClInclude Include="besch\xref_besch.h" />
     <ClInclude Include="besch\reader\xref_reader.h" />
     <ClInclude Include="besch\writer\xref_writer.h" />

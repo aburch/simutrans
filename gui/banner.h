@@ -32,7 +32,8 @@ private:
 		new_map,
 		load_map,
 		load_scenario,
-		join_map, quit;
+		join_map,
+		quit;
 
 	gui_image_t logo;
 

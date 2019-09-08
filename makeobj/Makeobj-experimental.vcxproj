@@ -114,8 +114,8 @@
     <ClCompile Include="..\besch\writer\sim_writer.cc" />
     <ClCompile Include="..\simdebug.cc" />
     <ClCompile Include="..\simmem.cc" />
+    <ClCompile Include="..\utils\simrandom.cc" />
     <ClCompile Include="..\utils\simstring.cc" />
-    <ClCompile Include="..\simtools.cc" />
     <ClCompile Include="..\besch\writer\skin_writer.cc" />
     <ClCompile Include="..\besch\writer\sound_writer.cc" />
     <ClCompile Include="..\dataobj\tabfile.cc" />
@@ -155,8 +155,8 @@
     <ClInclude Include="..\utils\searchfolder.h" />
     <ClInclude Include="..\simdebug.h" />
     <ClInclude Include="..\simmem.h" />
+    <ClInclude Include="..\utils\simrandom.h" />
     <ClInclude Include="..\utils\simstring.h" />
-    <ClInclude Include="..\simtools.h" />
     <ClInclude Include="..\besch\writer\skin_writer.h" />
     <ClInclude Include="..\besch\writer\sound_writer.h" />
     <ClInclude Include="..\dataobj\tabfile.h" />

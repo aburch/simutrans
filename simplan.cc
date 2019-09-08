@@ -48,6 +48,13 @@ void swap(planquadrat_t& a, planquadrat_t& b)
 // deletes also all grounds in this array!
 planquadrat_t::~planquadrat_t()
 {
+	gebaeude_t *gb = NULL;
+	if (!welt->is_destroying())
+	{
+		grund_t *gr = get_kartenboden();
+		gb = gr ? gr->find<gebaeude_t>() : NULL;
+	}
+
 	if(ground_size==0) {
 		// empty
 	}
@@ -62,13 +69,16 @@ planquadrat_t::~planquadrat_t()
 		}
 		delete [] data.some;
 	}
-	if(halt_list) {
-		delete [] halt_list;
-	}
+	delete [] halt_list;
 	halt_list_count = 0;
 	// to avoid access to this tile
 	ground_size = 0;
 	data.one = NULL;
+	if (gb)
+	{
+		// If this is a building tile, make sure to delete the building's tile list.
+		gb->set_building_tiles();
+	}
 }
 
 
@@ -582,7 +592,8 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 
 	if(tool_id==(TOOL_TRANSFORMER|GENERAL_TOOL)....	*/
 
-	if( (grund_t::underground_mode == grund_t::ugm_all  ||  (grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() == grund_t::underground_level+1) )
+	if ((grund_t::underground_mode == grund_t::ugm_all
+		 || (grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() == grund_t::underground_level + welt->get_settings().get_way_height_clearance()))
 		&&  gr->get_typ()==grund_t::fundament
 		&&  tool_t::general_tool[TOOL_TRANSFORMER]->is_selected()) {
 		gebaeude_t *gb = gr->find<gebaeude_t>();
@@ -627,9 +638,9 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			// The intention of this seems to be to overlay and blend different players' colours in the display of station coverage.
 			// plot player outline colours - we always plot in order of players so that the order of the stations in halt_list
 			// doesn't affect the colour displayed [since blend(col1,blend(col2,screen)) != blend(col2,blend(col1,screen))]
-			for(int spieler_count = 0; spieler_count<MAX_PLAYER_COUNT; spieler_count++)
+			for(int player_count = 0; player_count<MAX_PLAYER_COUNT; player_count++)
 			{
-				player_t *display_player = welt->get_player(spieler_count);
+				player_t *display_player = welt->get_player(player_count);
 				if(display_player)
 				{
 					const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
@@ -659,8 +670,33 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 		}
 	}
 
-	gr->display_overlay( xpos, ypos );
-	if(  ground_size > 1  ) {
+	if (welt->get_active_player()->get_selected_signalbox() != NULL)
+	{
+		gebaeude_t* gb = (gebaeude_t*)welt->get_active_player()->get_selected_signalbox();
+		if (gb)
+		{
+			uint32 const radius = gb->get_tile()->get_desc()->get_radius();
+			uint16 const cov = radius / welt->get_settings().get_meters_per_tile();
+			if (shortest_distance(gb->get_pos().get_2d(), gr->get_pos().get_2d()) <= cov)
+			{
+				// Mark a 5x5 cross at center of circle
+				if ((gr->get_pos().x == gb->get_pos().x && (gr->get_pos().y >= gb->get_pos().y - 2 && gr->get_pos().y <= gb->get_pos().y + 2)) || (gr->get_pos().y == gb->get_pos().y && (gr->get_pos().x >= gb->get_pos().x - 2 && gr->get_pos().x <= gb->get_pos().x + 2)))
+				{
+					welt->mark_area(gr->get_pos(), koord(1, 1), env_t::signalbox_coverage_show);
+				}
+				// Mark the circle
+				if (shortest_distance(gb->get_pos().get_2d(), gr->get_pos().get_2d()) >= cov)
+				{
+					welt->mark_area(gr->get_pos(), koord(1, 1), env_t::signalbox_coverage_show);
+				}
+			}
+		}
+	}
+
+
+
+	gr->display_overlay(xpos, ypos);
+	if (ground_size > 1) {
 		const sint8 h0 = gr->get_disp_height();
 		for(  uint8 i = 1;  i < ground_size;  i++  ) {
 			grund_t* gr = data.some[i];
@@ -749,7 +785,7 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 			
 			for(unsigned insert_pos = 0; insert_pos < halt_list_count; insert_pos++)
 			{			
-				if(koord_distance(halt_list[insert_pos].halt->get_next_pos(pos), pos) > distance) 
+				if(halt_list[insert_pos].halt.is_bound() && koord_distance(halt_list[insert_pos].halt->get_next_pos(pos), pos) > distance)
 				{
 					halt_list_insert_at(halt, insert_pos, distance);
 					return;
@@ -773,17 +809,26 @@ void planquadrat_t::remove_from_haltlist(halthandle_t halt)
 	halt_list_remove(halt);
 
 	// We might still be connected (to a different tile on the halt, in which case reconnect.
+	// NOTE: Coverage may be changed when the handling item is changed. e.g.) pax & goods -> only goods
 
 	// quick and dirty way to our 2d koodinates ...
 	const koord pos = get_kartenboden()->get_pos().get_2d();
 	int const cov = welt->get_settings().get_station_coverage();
+	halt->recalc_station_type();
+	uint16 new_cov = 0;
+	if (halt->get_pax_enabled() || halt->get_mail_enabled()) {
+		new_cov = welt->get_settings().get_station_coverage();
+	}
+	else if (halt->get_ware_enabled()) {
+		new_cov = welt->get_settings().get_station_coverage_factories();
+	}
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
 			koord test_pos = pos+koord(x,y);
 			const planquadrat_t *pl = welt->access(test_pos);
 			if (pl) {
 				for(  uint i = 0;  i < pl->get_boden_count();  i++  ) {
-					if (  pl->get_boden_bei(i)->get_halt() == halt  ) {
+					if (  pl->get_boden_bei(i)->get_halt() == halt && (abs(x)<=new_cov &&  abs(y)<=new_cov)) {
 						// still connected
 						// Reset distance computation
 						add_to_haltlist(halt);

@@ -21,6 +21,7 @@ private:
 	gui_label_t sort_label;
 	button_t	sortedby;
 	button_t	sorteddir;
+	button_t	filter_within_network;
 	factorylist_stats_t stats;
 	gui_scrollpane_t scrolly;
 
@@ -30,6 +31,7 @@ private:
 	 */
 	static factorylist::sort_mode_t sortby;
 	static bool sortreverse;
+	static bool filter_fab;
 
 public:
 	factorylist_frame_t();
@@ -52,6 +54,7 @@ public:
 
 	static bool get_reverse() { return sortreverse; }
 	static void set_reverse(const bool& reverse) { sortreverse = reverse; }
+	static bool get_filter_fab() { return filter_fab; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

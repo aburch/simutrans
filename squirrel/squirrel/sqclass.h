@@ -7,6 +7,10 @@ struct SQInstance;
 struct SQClassMember {
 	SQObjectPtr val;
 	SQObjectPtr attrs;
+	void Null() {
+		val.Null();
+		attrs.Null();
+	}
 };
 
 typedef sqvector<SQClassMember> SQClassMemberVec;
@@ -155,4 +159,4 @@ public:
 	SQObjectPtr _values[1];
 };
 
-#endif //_SQCLASS_H_
+#endif

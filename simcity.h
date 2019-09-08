@@ -49,14 +49,14 @@ enum city_cost {
 	HIST_GROWTH,			// growth (just for convenience)
 	HIST_BUILDING,			// number of buildings
 	HIST_CITYCARS,			// Amount of private traffic produced by the city
-	HIST_PAS_TRANSPORTED,	// number of passengers who could start their journey
+	HIST_PAS_TRANSPORTED,	// number of passengers that successfully complete their journeys
 	HIST_PAS_GENERATED,		// total number generated
 	HIST_PAS_WALKED,		// The number of passengers who walked to their destination.
 	HIST_MAIL_TRANSPORTED,	// letters that could be sent
 	HIST_MAIL_GENERATED,	// all letters generated
 	HIST_GOODS_RECIEVED,	// times all storages were not empty
-	HIST_GOODS_NEEDED,		// times sotrages checked
-	HIST_POWER_RECIEVED,	// power consumption 
+	HIST_GOODS_NEEDED,		// times storages checked
+	HIST_POWER_RECIEVED,	// power consumption
 	HIST_POWER_NEEDED,		// Power demand by the city.
 	HIST_CONGESTION,		// Level of congestion in the city, expressed in percent.
 	MAX_CITY_HISTORY		// Total number of items in array
@@ -95,8 +95,8 @@ private:
 	uint16 meters_per_tile_x100;
 
 public:
-	private_car_destination_finder_t(karte_t* w, road_vehicle_t* m, stadt_t* o);	
-	
+	private_car_destination_finder_t(karte_t* w, road_vehicle_t* m, stadt_t* o);
+
 	virtual waytype_t get_waytype() const { return road_wt; };
 	virtual bool check_next_tile( const grund_t* gr ) const;
 
@@ -265,7 +265,7 @@ private:
 
 	// This is needed to prevent double counting of incoming traffic.
 	sint32 incoming_private_cars;
-	
+
 	//This is needed because outgoing cars are disregarded when calculating growth.
 	sint32 outgoing_private_cars;
 
@@ -295,7 +295,7 @@ private:
 
 public:
 
-	void add_building_to_list(gebaeude_t* building, bool ordered = false, bool map_generation = false);
+	void add_building_to_list(gebaeude_t* building, bool ordered = false, bool do_not_add_to_world_list = false, bool do_not_update_stats = false);
 
 	/**
 	 * Returns pointer to history for city
@@ -306,9 +306,9 @@ public:
 
 	uint32 stadtinfo_options;
 
-	void set_private_car_trips(uint16 number) 
+	void set_private_car_trips(uint16 number)
 	{
-		// Do not add to the city's history here, as this 
+		// Do not add to the city's history here, as this
 		// will distort the statistics in the city window
 		// for the number of people who have travelled by
 		// private car *from* the city.
@@ -340,7 +340,9 @@ public:
 
 	void add_all_buildings_to_world_list();
 
-	/* end of history related thingies */
+	void reset_tiles_for_all_buildings();
+
+	/* end of history related things */
 private:
 	sint32 best_haus_wert;
 	sint32 best_strasse_wert;
@@ -400,7 +402,7 @@ private:
 	void bewerte_res_com_ind(const koord pos, int &ind, int &com, int &res);
 
 	/**
-	 * Build/renovates a city building at Planquadrat x,y
+	 * Build/renovates a city building at Planquadrat (tile) x,y
 	 */
 	void build_city_building(koord pos, bool new_town, bool map_generation);
 	bool renovate_city_building(gebaeude_t *gb, bool map_generation = false);
@@ -408,13 +410,15 @@ private:
 	// @author neroden
 	const gebaeude_t* get_citybuilding_at(const koord k) const;
 	int get_best_layout(const building_desc_t* h, const koord & k) const;
+	void get_available_building_size(const koord k, vector_tpl<koord> &sizes) const;
+	gebaeude_t* check_tiles_height(gebaeude_t* building, koord pos, uint8 layout, bool map_generation);
 
 	/**
 	 * Build a short road bridge extending from bd in direction.
 	 *
 	 * @author neroden
 	 */
-	bool build_bridge(grund_t* bd, ribi_t::ribi direction);
+	bool build_bridge(grund_t* bd, ribi_t::ribi direction, bool map_generation);
 
 	/**
 	 * baut ein Stueck Strasse
@@ -423,8 +427,8 @@ private:
 	 *
 	 * @author Hj. Malthaner, V. Meyer
 	 */
-	bool maybe_build_road(koord k);
-	bool build_road(const koord k, player_t *player, bool forced);
+	bool maybe_build_road(koord k, bool map_generation);
+	bool build_road(const koord k, player_t *player, bool forced, bool map_generation);
 
 	void build(bool new_town, bool map_generation);
 
@@ -469,7 +473,7 @@ public:
 
 	// this function removes houses from the city house list
 	// (called when removed by player, or by town)
-	void remove_gebaeude_from_stadt(gebaeude_t *gb);
+	void remove_gebaeude_from_stadt(gebaeude_t *gb, bool map_generation, bool original_pos);
 
 	// This is necessary to be separate from add/remove gebaeude_to_stadt
 	// because of the need for the present to retain the existing pattern
@@ -477,10 +481,10 @@ public:
 	void update_city_stats_with_building(gebaeude_t* building, bool remove);
 
 	/**
-	* This function adds buildings to the city building list; 
+	* This function adds buildings to the city building list;
 	* ordered for multithreaded loading.
 	*/
-	void add_gebaeude_to_stadt(gebaeude_t *gb, bool ordered = false, bool map_generation = false);
+	void add_gebaeude_to_stadt(gebaeude_t *gb, bool ordered = false, bool do_not_add_to_world_list = false, bool do_not_update_stats = false);
 
 	static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
 	{
@@ -532,8 +536,7 @@ public:
 	sint32 get_homeless()   const { return bev - won; }
 
 	/**
-	 * Gibt den Namen der City zurück.
-	 * "Specifies the name of the town." (Google)
+	 * Return the city name.
 	 * @author Hj. Malthaner
 	 */
 	const char *get_name() const { return name; }
@@ -642,7 +645,7 @@ public:
 private:
 	/**
 	 * A weighted list of distances
-	 * @author Knightly 
+	 * @author Knightly
 	 */
 	static weighted_vector_tpl<uint32> distances;
 
@@ -702,8 +705,10 @@ public:
 	// This is actually last month's congestion - but this is necessary
 	uint8 get_congestion() const { return (uint8) city_history_month[0][HIST_CONGESTION]; }
 
-	void add_city_factory(fabrik_t *fab) { city_factories.append_unique(fab); }
-	void remove_city_factory(fabrik_t *fab) { city_factories.remove(fab); }
+	void add_city_factory(fabrik_t *fab);
+
+	void remove_city_factory(fabrik_t *fab);
+
 	const vector_tpl<fabrik_t*>& get_city_factories() const { return city_factories; }
 
 	uint32 get_power_demand() const;
@@ -714,7 +719,7 @@ public:
 
 	/**
 	* These methods are used for removing a connected city (etc.)
-	* from the list when these objects are deleted, to prevent 
+	* from the list when these objects are deleted, to prevent
 	* acces violations.
 	*/
 	void remove_connected_city(stadt_t* city);

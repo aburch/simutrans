@@ -20,6 +20,7 @@ void register_export_function(HSQUIRRELVM vm)
 	export_goods_desc(vm);
 	export_gui(vm);
 	export_halt(vm);
+	export_line(vm);
 	export_map_objects(vm);
 	export_player(vm);
 	export_scenario(vm);

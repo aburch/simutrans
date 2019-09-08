@@ -12,7 +12,6 @@
 #include "../simobj.h"
 #include "../display/simimg.h"
 #include "../player/simplay.h"
-#include "../utils/simrandom.h"
 #include "../simtypes.h"
 #include "../simunits.h"
 
@@ -21,6 +20,7 @@
 #include "../descriptor/groundobj_desc.h"
 
 #include "../utils/cbuffer_t.h"
+#include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 
 #include "../dataobj/loadsave.h"
@@ -117,7 +117,6 @@ const groundobj_desc_t *movingobj_t::random_movingobj_for_climate(climate cl)
 // recalculates only the seasonal image
 void movingobj_t::calc_image()
 {
-	// alter/2048 is the age of the tree
 	const groundobj_desc_t *desc=get_desc();
 	const uint8 seasons = desc->get_seasons()-1;
 	uint8 season = 0;
@@ -362,7 +361,6 @@ grund_t* movingobj_t::hop_check()
 	 * Else pos_next_next is a single step from pos_next.
 	 * otherwise objects would jump left/right on some diagonals
 	 */
-	koord k(direction);
 	if (timetochange != 0) {
 		koord k(direction);
 		if(k.x&k.y) {

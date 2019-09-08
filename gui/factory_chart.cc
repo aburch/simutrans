@@ -63,25 +63,26 @@ static const gui_chart_t::convert_proc goods_convert[MAX_FAB_GOODS_STAT] =
 	convert_goods, NULL, convert_goods, NULL
 };
 
-static const char *const prod_type[MAX_FAB_STAT] =
+static const char *const prod_type[MAX_FAB_STAT+1] =
 {
-	"Produktion", "Usage/Output",
-	"Electricity", "Passagiere", "Post",
-	"Generated", "Departed", "Arrived",
-	"Generated", "Departed", "Arrived"
+	"Produktion", "Power usage",
+	"Electricity", "Jobs", "Post",
+	"", "", "Commuters", "", "Post",
+	"Post", "Consumers",
+	"Power output" // put this at the end
 };
 
 static const int prod_color[MAX_FAB_STAT] =
 {
-	COL_LILAC, COL_LEMON_YELLOW,
-	COL_LIGHT_GREEN, 23, COL_LIGHT_PURPLE,
-	COL_LIGHT_TURQUOISE, 51, 49,
-	COL_LIGHT_ORANGE, COL_ORANGE, COL_DARK_ORANGE
+	COL_BROWN, COL_ELECTRICITY - 1,
+	COL_LIGHT_RED, COL_LIGHT_TURQUOISE, COL_ORANGE,
+	0, 0, COL_LIGHT_PURPLE, 0, COL_LIGHT_YELLOW,
+	COL_YELLOW, COL_GREY3
 };
 
 static const gui_chart_t::convert_proc prod_convert[MAX_FAB_STAT] =
 {
-	NULL, convert_power, convert_boost, convert_boost, convert_boost, NULL, NULL, NULL, NULL, NULL, NULL
+	NULL, convert_power, convert_boost, convert_boost, convert_boost, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 static const gui_chart_t::convert_proc ref_convert[MAX_FAB_REF_LINE] =
@@ -91,23 +92,25 @@ static const gui_chart_t::convert_proc ref_convert[MAX_FAB_REF_LINE] =
 
 static const koord button_pos[MAX_FAB_STAT] =
 {
-	/* Production */  koord(0, 0),              koord(3, 0),
+	/* Production */  koord(0, 0), koord(1, 0),
 	/* Boost      */  koord(1, 1), koord(2, 1), koord(3, 1),
 	/* Max Boost  */
 	/* Demand     */
-	/* Pax        */  koord(1, 4), koord(2, 4), koord(3, 4),
-	/* Mail       */  koord(1, 5), koord(2, 5), koord(3, 5)
+	/* Commuter   */  koord(2, 5), koord(2, 5), koord(2, 4), // koord(2, 5) = unused
+	/* Mail       */  koord(2, 5), koord(3, 5), koord(3, 4),
+	/* Consumer   */  koord(1, 4)
 };
 
 static const int ref_color[MAX_FAB_REF_LINE] =
 {
-	137, COL_LIGHT_BLUE, COL_LIGHT_RED,
-	COL_DARK_GREEN, 100, 132
+	COL_RED+2, COL_TURQUOISE, COL_ORANGE_RED,
+	COL_RED, COL_DODGER_BLUE, COL_LEMON_YELLOW-2
 };
 
-static const char *const label_text[MAX_PROD_LABEL] =
+static const char *const label_text[MAX_PROD_LABEL+1] =
 {
-	"Power (MW)", "Boost (%)", "Max Boost (%)", "Demand", "Passagiere", "Post"
+	"(MW)", "Boost (%)", "Max Boost (%)", "Demand", "Arrived", "sended",
+	"(KW)" // put this at the end
 };
 
 // Max Kielland
@@ -153,7 +156,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	tab_panel.set_pos( scr_coord(0, 0) );
 
 	// GUI components for goods input/output statistics
-	goods_chart.set_pos( scr_coord(10 + 80, 10) );
+	goods_chart.set_pos( scr_coord(10 + 80, D_TAB_HEADER_HEIGHT ) );
 	goods_chart.set_size( scr_size( CHART_WIDTH, CHART_HEIGHT ) );
 	goods_chart.set_dimension(12, 10000);
 	goods_chart.set_background(SYSCOL_CHART_BACKGROUND);
@@ -228,14 +231,22 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	prod_chart.set_ltr(env_t::left_to_right_graphs);
 	for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
 		prod_chart.add_curve( prod_color[s], factory->get_stats(), MAX_FAB_STAT, s, MAX_MONTH, false, false, true, 0, prod_convert[s] );
-		prod_buttons[s].init(button_t::box_state, prod_type[s], scr_coord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*button_pos[s].y));
+		if (s==1 && factory->get_desc()->is_electricity_producer()) {
+			// if power plant, switch label to output
+			prod_buttons[s].init(button_t::box_state, prod_type[MAX_FAB_STAT], scr_coord(D_MARGIN_LEFT + (D_H_SPACE + D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart + (D_H_SPACE + D_BUTTON_HEIGHT)*button_pos[s].y));
+		}
+		else {
+			prod_buttons[s].init(button_t::box_state, prod_type[s], scr_coord(D_MARGIN_LEFT + (D_H_SPACE + D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart + (D_H_SPACE + D_BUTTON_HEIGHT)*button_pos[s].y));
+		}
 		prod_buttons[s].background_color = prod_color[s];
 		prod_buttons[s].pressed = false;
 		// only show buttons, if the is something to do ...
 		if(
 			(s==FAB_BOOST_ELECTRIC  &&  (factory->get_desc()->is_electricity_producer()  ||  factory->get_desc()->get_electric_boost()==0))  ||
 			(s==FAB_BOOST_PAX  &&  factory->get_desc()->get_pax_boost()==0)  ||
-			(s==FAB_BOOST_MAIL  &&  factory->get_desc()->get_mail_boost()==0)
+			(s==FAB_BOOST_MAIL  &&  factory->get_desc()->get_mail_boost()==0) ||
+			(s==FAB_CONSUMER_ARRIVED && factory->get_sector() != fabrik_t::end_consumer) ||
+			s == FAB_PAX_GENERATED || s == FAB_PAX_DEPARTED || s == FAB_MAIL_GENERATED
 			) {
 			prod_buttons[s].disable();
 		}
@@ -268,7 +279,12 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 		}
 	}
 	for(  int i=0;  i<MAX_PROD_LABEL;  ++i  ) {
-		prod_labels[i].set_text( label_text[i] );
+		if(!i && !factory->get_desc()->is_electricity_producer()){
+			prod_labels[i].set_text(label_text[MAX_PROD_LABEL]); // switch MW to KW
+		}
+		else {
+			prod_labels[i].set_text( label_text[i] );
+		}
 		prod_labels[i].set_pos( scr_coord( D_MARGIN_LEFT+label_pos[i].x*(D_BUTTON_WIDTH+D_H_SPACE), offset_below_chart + label_offset + (D_H_SPACE+D_BUTTON_HEIGHT) * label_pos[i].y ) );
 		prod_labels[i].set_width( D_BUTTON_WIDTH );
 		prod_cont.add_component( prod_labels + i );
@@ -277,7 +293,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	tab_panel.add_tab( &prod_cont, translator::translate("Production/Boost") );
 
 	add_component( &tab_panel );
-	const int max_rows = max( goods_label_row, button_pos[MAX_FAB_STAT-1].y+1 );
+	const int max_rows = max( goods_label_row, label_pos[MAX_PROD_LABEL-1].y+1 );
 	const scr_size size( 20+80+CHART_WIDTH+(input_count > 0 ? D_H_SPACE+D_BUTTON_WIDTH : 0 ), D_TAB_HEADER_HEIGHT+CHART_HEIGHT+20+max_rows*D_BUTTON_HEIGHT+(max_rows-1)*D_H_SPACE+16 );
 	set_size( size );
 	tab_panel.set_size( size );
@@ -348,7 +364,7 @@ bool factory_chart_t::action_triggered(gui_action_creator_t *comp, value_t)
 void factory_chart_t::draw(scr_coord pos)
 {
 	// update reference lines' data (these might change over time)
-	prod_ref_line_data[FAB_REF_DEMAND_ELECTRIC] = ( factory->get_desc()->is_electricity_producer() ? 0 : factory->get_scaled_electric_demand() );
+	prod_ref_line_data[FAB_REF_DEMAND_ELECTRIC] = ( factory->get_desc()->is_electricity_producer() ? 0 : factory->get_scaled_electric_demand()*1000 );
 	prod_ref_line_data[FAB_REF_DEMAND_PAX] = factory->get_monthly_pax_demand();
 	prod_ref_line_data[FAB_REF_DEMAND_MAIL] = factory->get_scaled_mail_demand();
 

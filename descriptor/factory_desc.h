@@ -48,11 +48,11 @@ class field_group_desc_t : public obj_desc_t {
 	friend class factory_field_group_reader_t;
 
 private:
-	uint16 probability;		// between 0 ...10000
-	uint16 max_fields;		// maximum number of fields around a single factory
-	uint16 min_fields;		// minimum number of fields around a single factory
-	uint16 start_fields;	// number of fields between min and start_fields to spawn on creation
-	uint16 field_classes;	// number of field classes
+	uint16 probability;			// between 0 ...10000
+	uint16 max_fields;			// maximum number of fields around a single factory
+	uint16 min_fields;			// minimum number of fields around a single factory
+	uint16 start_fields;		// number of fields between min and start_fields to spawn on creation
+	uint16 field_classes;		// number of field classes
 
 	weighted_vector_tpl<uint16> field_class_indices;
 
@@ -149,7 +149,7 @@ public:
 	goods_desc_t const* get_input_type() const { return get_child<goods_desc_t>(0); }
 	int get_capacity() const { return capacity; } 
 	int get_supplier_count() const { return supplier_count; } 
-	int get_consumption() const { return this ? consumption : 1; }
+	int get_consumption() const { return consumption; }
 	void calc_checksum(checksum_t *chk) const;
 };
 
@@ -210,13 +210,13 @@ public:
 	enum site_t { Land, Water, City };
 
 private:
-	site_t placement; //"placement" (Babelfish)
-	uint16 productivity; //"productivity" (Babelfish)
-	uint16 range; //"range" (Babelfish)
+	site_t placement; 
+	uint16 productivity; 
+	sint32 range;
 	uint16 distribution_weight;	// probability of construction of this factory
 	uint8 color; //"identification colour code" (Babelfish)
-	uint16 supplier_count; //"supplier" (Babelfish)
-	uint16 product_count; //"products" (Babelfish)
+	uint16 supplier_count; 
+	uint16 product_count; 
 	uint8 fields;	// only if there are any ...
 	uint16 pax_level; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
 	uint16 electricity_proportion; // Modifier of electricity consumption (a legacy setting for Extended only)
@@ -235,8 +235,9 @@ private:
 	uint16 mail_demand; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
 	uint16 base_max_distance_to_consumer;
 	uint16 max_distance_to_consumer;
-	sint16 sound_id;
+	uint16 sound_id;
 	uint32 sound_interval;
+	uint8 field_output_divider; // The number by which the total production of all fields is divided.
 
 public:
 
@@ -246,7 +247,7 @@ public:
 	smoke_desc_t const* get_smoke() const { return get_child<smoke_desc_t>(1); }
 
 	// we must take care, for the case of no producer/consumer
-	const factory_supplier_desc_t *get_supplier(int i) const //"supplier" (Babelfish)
+	const factory_supplier_desc_t *get_supplier(int i) const 
 	{
 		return 0 <= i && i < supplier_count ? get_child<factory_supplier_desc_t>(2 + i) : 0;
 	}
@@ -261,21 +262,21 @@ public:
 		return get_child<field_group_desc_t>(2 + supplier_count + product_count);
 	}
 
-	uint16 get_supplier_count() const { return supplier_count; } // Suppliers
-	uint16 get_product_count() const { return product_count; } // Consumers
+	uint16 get_supplier_count() const { return supplier_count; } 
+	uint16 get_product_count() const { return product_count; } 
 
 	bool is_consumer_only() const { return product_count    == 0; }
 	bool is_producer_only() const { return supplier_count == 0; }
 
-	/* where to built */
+	/* where to build */
 	site_t get_placement() const { return placement; }
-	int get_distribution_weight() const { return distribution_weight;     }
+	int get_distribution_weight() const { return distribution_weight; }
 
 	uint8 get_kennfarbe() const { return color; } //"identification colour code" (Babelfish)
 
 	void set_productivity(int p) { productivity=p; }
 	int get_productivity() const { return productivity; }
-	int get_range() const { return range; } //"range" (Babelfish)
+	sint32 get_range() const { return range; } 
 
 	/* level for mail and passenger generation */
 	int get_pax_level() const { return pax_level; }
@@ -287,7 +288,7 @@ public:
 
 	const factory_desc_t *get_upgrades(int i) const { return (i >= 0 && i < upgrades) ? get_child<factory_desc_t>(2 + supplier_count + product_count + fields + i) : NULL; }
 
-	int get_upgrades_count() const { return upgrades; }
+	sint32 get_upgrades_count() const { return upgrades; }
 
 	uint16 get_expand_probability() const { return expand_probability; }
 	uint16 get_expand_minumum() const { return expand_minimum; }
@@ -302,17 +303,19 @@ public:
 	uint16 get_mail_demand() const { return mail_demand; }
 
 	// more effects when producing
-	sint8 get_sound() const { return sound_id; }
+	sint16 get_sound() const { return sound_id; }
 	uint32 get_sound_interval_ms() const { return sound_interval; }
 	
 	uint16 get_max_distance_to_consumer() const { return max_distance_to_consumer; }
+
+	uint8 get_field_output_divider() const { return field_output_divider; }
 
 	void set_scale(uint16 scale_factor)
 	{
 		if(base_max_distance_to_consumer < 65535)
 		{
-			uint32 mdc = (uint32)max_distance_to_consumer;
-			mdc *= 1000;
+			uint32 mdc = (uint32)base_max_distance_to_consumer;
+			mdc *= 1000u;
 			mdc /= scale_factor;
 			max_distance_to_consumer = (uint16)mdc;
 		}

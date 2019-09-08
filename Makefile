@@ -4,7 +4,7 @@ CFG ?= default
 
 BACKENDS      = allegro gdi opengl sdl sdl2 mixer_sdl posix
 COLOUR_DEPTHS = 0 16
-OSTYPES       = amiga beos cygwin freebsd haiku linux mingw mac
+OSTYPES       = amiga beos cygwin freebsd haiku linux mingw32 mingw64 mac openbsd
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
   $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")
@@ -27,14 +27,19 @@ else
   ifeq ($(OSTYPE),beos)
     LIBS += -lnet
   else
-    ifneq ($(findstring $(OSTYPE), cygwin mingw),)
+    ifneq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
       ifeq ($(OSTYPE),cygwin)
         CFLAGS  += -I/usr/include/mingw -mwin32
       else
-        ifeq ($(OSTYPE),mingw)
+        ifeq ($(OSTYPE), mingw32)
           CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -static
-		  LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware -static
-          LIBS    += -lmingw32
+          LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware -static
+          LIBS += -lmingw32
+        endif
+        ifeq ($(OSTYPE), mingw64)
+          CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -static
+          LDFLAGS += -static-libgcc -static-libstdc++ -static
+          LIBS += -lmingw32
         endif
       endif
       SOURCES += simsys_w32_png.cc
@@ -64,15 +69,23 @@ ifeq ($(OSTYPE),mac)
   LDFLAGS += -stdlib=libstdc++
 endif
 
-ifeq ($(OSTYPE),mingw)
+ifeq ($(OSTYPE), mingw64)
   SOURCES += clipboard_w32.cc
 else
-  SOURCES += clipboard_internal.cc
+	ifeq ($(OSTYPE),mingw32)
+	  SOURCES += clipboard_w32.cc
+	else
+	  SOURCES += clipboard_internal.cc
+  endif
+endif
+
+ifeq ($(OSTYPE),openbsd)
+  CXXFLAGS +=  -std=c++11
 endif
 
 LIBS += -lbz2 -lz
 
- CFLAGS +=  -std=gnu++11
+CXXFLAGS +=  -std=gnu++11
 
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
@@ -124,7 +137,7 @@ endif
 ifneq ($(MULTI_THREAD),)
   ifeq ($(shell expr $(MULTI_THREAD) \>= 1), 1)
     CFLAGS += -DMULTI_THREAD
-    ifeq ($(OSTYPE),mingw)
+    ifeq ($(OSTYPE),mingw32 mingw64)
 #use lpthreadGC2d for debug alternatively
 #		Disabled, as this does not work for cross-compiling
 #      LDFLAGS += -lpthreadGC2
@@ -138,9 +151,15 @@ ifneq ($(MULTI_THREAD),)
 endif
 
 ifneq ($(WITH_REVISION),)
-  REV = $(shell git rev-parse --short HEAD)
-  ifneq ($(REV),)
-    CFLAGS  += -DREVISION="$(REV)"
+  ifeq ($(shell expr $(WITH_REVISION) \>= 1), 1)
+    ifeq ($(shell expr $(WITH_REVISION) \>= 2), 1)
+      REV = $(WITH_REVISION)
+    else
+      REV = $(shell git rev-parse --short=7 HEAD)
+    endif
+    ifneq ($(REV),)
+      CFLAGS  += -DREVISION="$(REV)"
+    endif
   endif
 endif
 
@@ -170,6 +189,7 @@ SOURCES += descriptor/reader/ground_reader.cc
 SOURCES += descriptor/reader/groundobj_reader.cc
 SOURCES += descriptor/reader/image_reader.cc
 SOURCES += descriptor/reader/imagelist2d_reader.cc
+SOURCES += descriptor/reader/imagelist3d_reader.cc
 SOURCES += descriptor/reader/imagelist_reader.cc
 SOURCES += descriptor/reader/obj_reader.cc
 SOURCES += descriptor/reader/pedestrian_reader.cc
@@ -247,6 +267,7 @@ SOURCES += freight_list_sorter.cc
 SOURCES += gui/ai_option_t.cc
 SOURCES += gui/banner.cc
 SOURCES += gui/baum_edit.cc
+SOURCES += gui/base_info.cc
 SOURCES += gui/citybuilding_edit.cc
 SOURCES += gui/citylist_frame_t.cc
 SOURCES += gui/citylist_stats_t.cc
@@ -308,6 +329,7 @@ SOURCES += gui/kennfarbe.cc
 SOURCES += gui/label_info.cc
 SOURCES += gui/labellist_frame_t.cc
 SOURCES += gui/labellist_stats_t.cc
+SOURCES += gui/line_class_manager.cc
 SOURCES += gui/line_item.cc
 SOURCES += gui/line_management_gui.cc
 SOURCES += gui/load_relief_frame.cc
@@ -318,7 +340,9 @@ SOURCES += gui/message_option_t.cc
 SOURCES += gui/message_stats_t.cc
 SOURCES += gui/messagebox.cc
 SOURCES += gui/money_frame.cc
+SOURCES += gui/onewaysign_info.cc
 SOURCES += gui/optionen.cc
+SOURCES += gui/overtaking_mode.cc
 SOURCES += gui/pakselector.cc
 SOURCES += gui/password_frame.cc
 SOURCES += gui/player_frame_t.cc
@@ -336,13 +360,17 @@ SOURCES += gui/signal_spacing.cc
 SOURCES += gui/simwin.cc
 SOURCES += gui/sound_frame.cc
 SOURCES += gui/sprachen.cc
+SOURCES += gui/times_history.cc
+SOURCES += gui/times_history_container.cc
+SOURCES += gui/times_history_entry.cc
 SOURCES += gui/city_info.cc
 SOURCES += gui/station_building_select.cc
 SOURCES += gui/themeselector.cc
-SOURCES += gui/obj_info.cc
-SOURCES += gui/trafficlight_info.cc
-SOURCES += gui/welt.cc
 SOURCES += gui/tool_selector
+SOURCES += gui/trafficlight_info.cc
+SOURCES += gui/obj_info.cc
+SOURCES += gui/vehicle_class_manager.cc
+SOURCES += gui/welt.cc
 SOURCES += network/checksum.cc
 SOURCES += network/memory_rw.cc
 SOURCES += network/network.cc
@@ -371,6 +399,8 @@ SOURCES += script/api/api_convoy.cc
 SOURCES += script/api/api_gui.cc
 SOURCES += script/api/api_factory.cc
 SOURCES += script/api/api_halt.cc
+SOURCES += script/api/api_include.cc
+SOURCES += script/api/api_line.cc
 SOURCES += script/api/api_map_objects.cc
 SOURCES += script/api/api_obj_desc.cc
 SOURCES += script/api/api_obj_desc_base.cc
@@ -479,18 +509,26 @@ ifeq ($(BACKEND),gdi)
   SOURCES += simsys_w.cc
   SOURCES += music/w32_midi.cc
   SOURCES += sound/win32_sound.cc
+  CFLAGS += -DGDI_SOUND
 endif
 
 ifeq ($(BACKEND),sdl)
   SOURCES += simsys_s.cc
   ifeq ($(OSTYPE),mac)
-    # Core Audio (Quicktime) base sound system routines
-    SOURCES += sound/core-audio_sound.mm
-    SOURCES += music/core-audio_midi.mm
-    LIBS    += -framework Foundation -framework QTKit
+		ifeq ($(AV_FOUNDATION),1)
+			# Core Audio (AVFoundation) base sound system routines
+			SOURCES += sound/AVF_core-audio_sound.mm
+			SOURCES += music/AVF_core-audio_midi.mm
+			LIBS    += -framework Foundation -framework AVFoundation
+		else
+			# Core Audio (Quicktime) base sound system routines
+			SOURCES += sound/core-audio_sound.mm
+			SOURCES += music/core-audio_midi.mm
+			LIBS    += -framework Foundation -framework QTKit
+		endif
   else
     SOURCES  += sound/sdl_sound.cc
-    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+    ifeq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
       SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
@@ -506,7 +544,7 @@ ifeq ($(BACKEND),sdl)
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-    ifeq ($(OSTYPE),mingw)
+    ifeq ($(OSTYPE),mingw32 mingw64)
 		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
 	else
 	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
@@ -519,13 +557,20 @@ endif
 ifeq ($(BACKEND),sdl2)
   SOURCES += simsys_s2.cc
   ifeq ($(OSTYPE),mac)
-    # Core Audio (Quicktime) base sound system routines
-    SOURCES += sound/core-audio_sound.mm
-    SOURCES += music/core-audio_midi.mm
-    LIBS    += -framework Foundation -framework QTKit
+		ifeq ($(AV_FOUNDATION),1)
+			# Core Audio (AVFoundation) base sound system routines
+			SOURCES += sound/AVF_core-audio_sound.mm
+			SOURCES += music/AVF_core-audio_midi.mm
+			LIBS    += -framework Foundation -framework AVFoundation
+		else
+			# Core Audio (Quicktime) base sound system routines
+			SOURCES += sound/core-audio_sound.mm
+			SOURCES += music/core-audio_midi.mm
+			LIBS    += -framework Foundation -framework QTKit
+		endif
   else
     SOURCES  += sound/sdl_sound.cc
-    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+    ifeq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
       SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
@@ -556,12 +601,12 @@ ifeq ($(BACKEND),mixer_sdl)
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-	ifeq ($(OSTYPE),mingw)
+	ifeq ($(OSTYPE),mingw32 mingw64)
 		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
 	else
 	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
 	endif
- 
+
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS) -lSDL_mixer
@@ -570,13 +615,20 @@ endif
 ifeq ($(BACKEND),opengl)
   SOURCES += simsys_opengl.cc
   ifeq ($(OSTYPE),mac)
-    # Core Audio (Quicktime) base sound system routines
-    SOURCES += sound/core-audio_sound.mm
-    SOURCES += music/core-audio_midi.mm
-    LIBS    += -framework Foundation -framework QTKit
+		ifeq ($(AV_FOUNDATION),1)
+			# Core Audio (AVFoundation) base sound system routines
+			SOURCES += sound/AVF_core-audio_sound.mm
+			SOURCES += music/AVF_core-audio_midi.mm
+			LIBS    += -framework Foundation -framework AVFoundation
+		else
+			# Core Audio (Quicktime) base sound system routines
+			SOURCES += sound/core-audio_sound.mm
+			SOURCES += music/core-audio_midi.mm
+			LIBS    += -framework Foundation -framework QTKit
+		endif
   else
     SOURCES  += sound/sdl_sound.cc
-    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+    ifeq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
       SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
@@ -587,7 +639,7 @@ ifeq ($(BACKEND),opengl)
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-    ifeq ($(OSTYPE),mingw)
+    ifeq ($(OSTYPE),mingw32 mingw64)
 		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
 	else
 	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
@@ -598,10 +650,10 @@ ifeq ($(BACKEND),opengl)
   ifeq ($(OSTYPE),mac)
     LIBS += -framework OpenGL
   else
-    ifeq ($(OSTYPE),mingw)
+    ifeq ($(OSTYPE),mingw32 mingw64)
       LIBS += -lglew32 -lopengl32
     else
-      LIBS += -lglew32 -lGL
+      LIBS += -lGLEW -lGL
     endif
   endif
 endif
@@ -614,10 +666,16 @@ endif
 
 CFLAGS += -DCOLOUR_DEPTH=$(COLOUR_DEPTH)
 
-ifneq ($(findstring $(OSTYPE), cygwin mingw),)
+ifneq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
   SOURCES += simres.rc
   # See https://sourceforge.net/p/mingw-w64/discussion/723798/thread/bf2a464d/
-  WINDRES ?= windres -F pe-i386
+  ifeq ($(OSTYPE), mingw32)
+    WINDRES ?= windres -F pe-i386
+  else
+    ifeq ($(OSTYPE), mingw64)
+      WINDRES ?= x86_64-w64-mingw32-windres
+    endif
+  endif
 endif
 
 CCFLAGS  += $(CFLAGS)
@@ -625,8 +683,11 @@ CXXFLAGS += $(CFLAGS)
 
 BUILDDIR ?= build/$(CFG)
 PROGDIR  ?= $(BUILDDIR)
-PROG     ?= simutrans-extended
-
+ifneq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
+  PROG     ?= Simutrans-Extended.exe
+else
+  PROG     ?= simutrans-extended
+endif
 
 include common.mk
 

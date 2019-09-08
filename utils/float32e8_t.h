@@ -74,7 +74,9 @@ public:
 	static const uint32 max_mantissa;
 	static const float32e8_t zero;
 	static const float32e8_t micro;
+	static const float32e8_t ten_thousandth;
 	static const float32e8_t milli;
+	static const float32e8_t centi;
 	static const float32e8_t tenth;
 	static const float32e8_t quarter;
 	static const float32e8_t third;
@@ -317,6 +319,9 @@ public:
 	const float32e8_t log2() const;
 	const float32e8_t exp2() const;
 
+	// For efficient use in checksums:
+	inline uint32 get_mantissa() { return m; }
+
 	void rdwr(loadsave_t *file);
 
 private:
@@ -388,12 +393,12 @@ public:
 #undef max
 #endif
 
-static inline float32e8_t min(const float32e8_t a, const float32e8_t b)
+static inline float32e8_t fl_min(const float32e8_t a, const float32e8_t b)
 {
 	return a < b ? a : b;
 }
 
-static inline float32e8_t max(const float32e8_t a, const float32e8_t b)
+static inline float32e8_t fl_max(const float32e8_t a, const float32e8_t b)
 {
 	return a > b ? a : b;
 }

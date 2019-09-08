@@ -22,6 +22,7 @@
 #include "components/gui_location_view_t.h"
 #include "components/action_listener.h"
 #include "components/gui_chart.h"
+#include "components/gui_combobox.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../simhalt.h"
@@ -37,7 +38,7 @@ private:
 	* @author Hj. Malthaner
 	*/
 	cbuffer_t freight_info;
-	cbuffer_t info_buf, joined_buf;
+	cbuffer_t info_buf, joined_buf, tooltip_buf;
 
 	// other UI definitions
 	gui_scrollpane_t scrolly;
@@ -47,9 +48,12 @@ private:
 	gui_label_t sort_label;
 	location_view_t view;
 	button_t button;
-	button_t sort_button;     // @author hsiegeln
+	// button_t sort_button;     // @author hsiegeln
 	button_t filterButtons[MAX_HALT_COST];
 	button_t toggler, toggler_departures;
+	sint16 chart_total_size;
+
+	gui_combobox_t freight_sort_selector;
 
 	halthandle_t halt;
 	char edit_name[256];
@@ -57,6 +61,8 @@ private:
 	void show_hide_statistics( bool show );
 
 	char modified_name[320];
+
+	void show_hide_classes(bool show);
 
 	// departure stuff (departure and arrival times display)
 	class dest_info_t {
@@ -81,7 +87,7 @@ private:
 	void show_hide_departures( bool show );
 
 public:
-	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, by_destination_detil = 6, SORT_MODES = 7 };
+	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, by_destination_detil = 6, by_class_detail = 7, by_class_via = 8, SORT_MODES = 9 };
 //	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, by_destination_detil = 6, by_transfer_time = 7, SORT_MODES = 8 };
 
 	halt_info_t(halthandle_t halt);

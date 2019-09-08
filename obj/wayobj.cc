@@ -84,7 +84,7 @@ wayobj_t::~wayobj_t()
 		return;
 	}
 	player_t::add_maintenance(get_owner(), -desc->get_maintenance(), get_waytype());
-	if(desc->is_overhead_line()) {
+	if(desc->is_overhead_line() && !welt->is_destroying()) {
 		grund_t *gr=welt->lookup(get_pos());
 		weg_t *weg=NULL;
 		if(gr) {
@@ -225,7 +225,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 			if(desc==NULL) {
 				desc = wayobj_t::table.get(translator::compatibility_name(bname));
 				if(desc==NULL) {
-					if(strstr(bname,"atenary")  ||  strstr(bname,"electri")) {
+					if(strstr(bname,"atenary")  ||  strstr(bname,"electri")  ||  strstr(bname,"power")  ) {
 						desc = default_oberleitung;
 					}
 				}

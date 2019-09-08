@@ -70,5 +70,23 @@ void export_settings(HSQUIRRELVM vm)
 	 */
 	register_local_method(vm, get_start_time, "get_start_time");
 
+	/// @returns station coverage
+	register_method(vm, &settings_t::get_station_coverage, "get_station_coverage");
+	// Many of these functions are commented out because they don't exist in Extended.
+	/// @returns passenger factors influences passenger generation in cities
+	// register_method(vm, &settings_t::get_passenger_factor, "get_passenger_factor");
+	/// @returns maximum distance of city to factory for supplying workers
+	// register_method(vm, &settings_t::get_factory_worker_radius, "get_factory_worker_radius");
+	/// @returns minimum number of cities to supply workers for a factory
+	// register_method(vm, &settings_t::get_factory_worker_minimum_towns, "get_factory_worker_minimum_towns");
+	/// @returns maximum number of cities to supply workers for a factory
+	// register_method(vm, &settings_t::get_factory_worker_maximum_towns, "get_factory_worker_maximum_towns");
+	/// @returns freight will not enter convoy if next transfer halt is overcrowded
+	register_method(vm, &settings_t::is_avoid_overcrowding, "avoid_overcrowding");
+	/// @returns freight will not start when best route goes through overcrowded halt
+	// register_method(vm, &settings_t::is_no_routing_over_overcrowding, "no_routing_over_overcrowding");
+	/// @returns true if halt capacity is separated between passengers, mail, freight
+	register_method(vm, &settings_t::is_separate_halt_capacities, "separate_halt_capacities");
+
 	end_class(vm);
 }

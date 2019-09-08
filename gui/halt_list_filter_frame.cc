@@ -90,7 +90,7 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 		filter_buttons[i].add_listener(this);
 		add_component(filter_buttons + i);
 		if(  filter_buttons_types[i] < halt_list_frame_t::sub_filter  ) {
-			filter_buttons[i].background_color = COL_WHITE;
+			filter_buttons[i].background_color = SYSCOL_TEXT_HIGHLIGHT;
 		}
 	}
 	name_filter_input.set_text(main_frame->access_name_filter(), 30);

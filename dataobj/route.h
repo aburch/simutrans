@@ -31,12 +31,16 @@ class route_t
 private:
 
 	enum overweight_type { not_overweight, cannot_route, slowly_only };
+public:
+	typedef enum { no_route = 0, valid_route = 1, valid_route_halt_too_short = 3, route_too_complex = 4, no_control_tower = 5 } route_result_t;
+
+private:
 
 	/**
 	 * The actual route search
 	 * @author Hj. Malthaner
 	 */
-	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, test_driver_t *tdriver, const sint32 max_kmh, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, bool is_tall, const sint32 tile_length, const koord3d avoid_tile);
+	route_result_t intern_calc_route(karte_t *w, koord3d start, koord3d ziel, test_driver_t* const tdriver, const sint32 max_kmh, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, bool is_tall, const sint32 tile_length, const koord3d avoid_tile, uint8 start_dir = ribi_t::all);
 
 protected:
 	koord3d_vector_t route;           // The coordinates for the vehicle route
@@ -53,7 +57,6 @@ protected:
 	}
 
 public:
-	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3 } route_result_t;
 
 	// Constructor: set axle load and convoy weight to maximum possible value
 	route_t() : max_axle_load(0xFFFFFFFFl), max_convoy_weight(0xFFFFFFFFl) {};
@@ -100,7 +103,7 @@ public:
 	uint32 index_of(const koord3d &k) const { return (uint32)(route.index_of(k)); }
 
 	/**
-	 * return Coordinate at index @p n.
+	 * @return Coordinate at index @p n.
 	 * @author Hj. Malthaner
 	 */
 	const koord3d& at(const uint16 n) const { return route[n]; }
@@ -132,13 +135,13 @@ public:
 	inline void append(koord3d k) { route.append(k); }
 
 	/**
-	 * Removes all tiles at indices >@p i.
+	 * removes all tiles from the route
 	 * @author prissi
 	 */
 	void clear() { route.clear(); }
 
 	/**
-	 * removes all tiles behind this position
+	 * Removes all tiles at indices >@p i.
 	 * @author prissi
 	 */
 	void remove_koord_from(uint32 i);
@@ -159,17 +162,17 @@ public:
 	enum find_route_flags { none, private_car_checker, choose_signal };
 
 	/**
-	* Finds route to a location, where @p tdriver-> is_target becomes true.
-	* @param max_depth is the maximum length of a route
-	* @author prissi
-	*/
+	 * Finds route to a location, where @p tdriver-> is_target becomes true.
+	 * @param max_depth is the maximum length of a route
+	 * @author prissi
+	 */
 	bool find_route(karte_t *w, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 axle_load, sint32 max_tile_len, uint32 total_weight, uint32 max_depth, bool is_tall, find_route_flags flags = none);
 
 	/**
 	 * Calculates the route from @p start to @p target
 	 * @author Hj. Malthaner
 	 */
-	route_result_t calc_route(karte_t *welt, koord3d start, koord3d ziel, test_driver_t *tdriver, const sint32 max_speed_kmh, const uint32 axle_load, bool is_tall, sint32 max_tile_len, const sint64 max_cost = SINT64_MAX_VALUE, const uint32 convoy_weight = 0, const koord3d avoid_tile = koord3d::invalid);
+	route_result_t calc_route(karte_t *welt, koord3d start, koord3d ziel, test_driver_t* const tdriver, const sint32 max_speed_kmh, const uint32 axle_load, bool is_tall, sint32 max_tile_len, const sint64 max_cost = SINT64_MAX_VALUE, const uint32 convoy_weight = 0, const koord3d avoid_tile = koord3d::invalid, uint8 direction = ribi_t::all);
 
 	/**
 	 * Load/Save of the route.

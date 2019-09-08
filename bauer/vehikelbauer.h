@@ -33,9 +33,8 @@ template <class T> class slist_tpl;
 class vehicle_builder_t
 {
 public:
-	static bool speedbonus_init(const std::string &objfilename);
-	static sint32 get_speedbonus( sint32 monthyear, waytype_t wt );
-	static void rdwr_speedbonus(loadsave_t *file);
+	// Retained for compatibility only
+	static void rdwr_speedbonus(loadsave_t *file); 
 
 	static bool register_desc(vehicle_desc_t *desc);
 	static bool successfully_loaded();
@@ -48,7 +47,7 @@ public:
 	static vehicle_t* build(koord3d k, player_t* player, convoi_t* cnv, const vehicle_desc_t* vb, bool upgrade, uint16 livery_scheme_index = 0 );
 
 	static const vehicle_desc_t * get_info(const char *name);
-	static slist_tpl<vehicle_desc_t*>& get_info(waytype_t);
+	static slist_tpl<vehicle_desc_t*> const& get_info(waytype_t);
 
 	/* extended search for vehicles for KI
 	* @author prissi

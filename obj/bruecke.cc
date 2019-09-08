@@ -166,7 +166,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 		}
 		guarded_free(const_cast<char *>(s));
 
-		if(  file->get_version() < 112007 && env_t::pak_height_conversion_factor==2  ) {
+		if(  file->get_version() < 112007  &&  env_t::pak_height_conversion_factor==2  ) {
 			switch(img) {
 				case bridge_desc_t::OW_Segment: img = bridge_desc_t::OW_Segment2; break;
 				case bridge_desc_t::NS_Segment: img = bridge_desc_t::NS_Segment2; break;
@@ -192,12 +192,24 @@ void bruecke_t::finish_rd()
 {
 	grund_t *gr = welt->lookup(get_pos());
 	if(desc==NULL) {
-		weg_t *weg = gr->get_weg_nr(0);
-		if(weg) {
-			desc = bridge_builder_t::find_bridge(weg->get_waytype(),weg->get_max_speed(),0);
+		if(  weg_t *weg = gr->get_weg_nr(0)  ) {
+			desc = bridge_builder_t::find_bridge( weg->get_waytype(), weg->get_max_speed(), welt->get_timeline_year_month() );
+			if(desc==NULL) {
+				desc = bridge_builder_t::find_bridge( weg->get_waytype(), weg->get_max_speed(), 0 );
+			}
+			if(desc==NULL) {
+				dbg->fatal("bruecke_t::finish_rd()","Unknown bridge for type %x at (%i,%i)", weg->get_waytype(), get_pos().x, get_pos().y );
+			}
 		}
-		if(desc==NULL) {
-			dbg->fatal("bruecke_t::rdwr()","Unknown bridge type at (%i,%i)", get_pos().x, get_pos().y );
+		else {
+			// assume this is a powerbridge, since otherwise there should be a way
+			desc = bridge_builder_t::find_bridge( powerline_wt, 0, welt->get_timeline_year_month() );
+			if(desc==NULL) {
+				desc = bridge_builder_t::find_bridge( powerline_wt, 0, 0 );
+			}
+			if(desc==NULL) {
+				dbg->fatal("bruecke_t::finish_rd()","No powerbridge to built bridge type at (%i,%i)", get_pos().x, get_pos().y );
+			}
 		}
 	}
 
@@ -205,12 +217,15 @@ void bruecke_t::finish_rd()
 	// change maintenance
 	if(desc->get_waytype()!=powerline_wt) {
 		weg_t *weg = gr->get_weg(desc->get_waytype());
-		const way_desc_t* way_desc = weg->get_desc();
+		
 		if(weg==NULL) {
 			dbg->error("bruecke_t::finish_rd()","Bridge without way at(%s)!", gr->get_pos().get_str() );
 			weg = weg_t::alloc( desc->get_waytype() );
 			gr->neuen_weg_bauen( weg, 0, welt->get_public_player());
 		}
+
+		const way_desc_t* way_desc = weg->get_desc();
+
 		const slope_t::type hang = gr->get_weg_hang();
 		if(hang != slope_t::flat) 
 		{
@@ -240,7 +255,7 @@ void bruecke_t::finish_rd()
 
 	// with double heights may need to correct image on load (not all desc have double images)
 	// at present only start images have 2 height variants, others to follow...
-	if(  !gr->is_kartenboden  ) {
+	if(  !gr->ist_karten_boden()) {
 		if(  desc->get_waytype() != powerline_wt  ) {
 			//img = desc->get_straight( gr->get_weg_ribi_unmasked( desc->get_waytype() ) );
 		}
@@ -322,7 +337,7 @@ void bruecke_t::rotate90()
 // players can remove public owned ways
 const char *bruecke_t:: is_deletable(const player_t *player, bool allow_public)
 {
-	if(allow_public && get_owner()->is_public_serivce())
+	if(allow_public && get_owner() && get_owner()->is_public_service())
 	{
 		return NULL;
 	}

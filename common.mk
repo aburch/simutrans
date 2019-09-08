@@ -52,5 +52,5 @@ $(BUILDDIR)/%.o: %.cc
 
 $(BUILDDIR)/%.o: %.rc
 	@echo "===> RES $<"
-	$(Q)$(WINDRES) --preprocessor="$(CXX) -E -xc -DRC_INVOKED -MMD -MT $@" -O COFF $< $@
 #	$(Q)$(WINDRES) --preprocessor "$(CXX) -E -xc -DRC_INVOKED -MMD -MF $(@:%.o=%.d) -MT $@" -O COFF $< $@
+	$(Q)$(WINDRES) --preprocessor "$(CXX) -E -xc -DRC_INVOKED -MMD -MT $@" -O COFF $< $@

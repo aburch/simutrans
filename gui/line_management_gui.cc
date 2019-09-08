@@ -16,8 +16,8 @@
 
 #include "line_management_gui.h"
 
-line_management_gui_t::line_management_gui_t(linehandle_t line, player_t* player) :
-	schedule_gui_t(line->get_schedule()->copy(), player, convoihandle_t() )
+line_management_gui_t::line_management_gui_t(linehandle_t line, player_t* player_) :
+	schedule_gui_t(line->get_schedule()->copy(), player_, convoihandle_t() )
 {
 	this->line = line;
 	// has this line a single running convoi?

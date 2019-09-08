@@ -4,6 +4,27 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added coord::href, coord3d::href
+ * - Added label_x, tile_x::remove_object
+ * - Added ::get_debug_text, debug::get_forbidden_text
+ * - Added operators and conversion to string to ::coord and ::coord3d classes
+ * - Added ::coord_to_string, ::coord3d_to_string
+ * - Added settings::get_station_coverage, settings::get_passenger_factor
+ * - Added settings::get_factory_worker_radius, settings::get_factory_worker_minimum_towns, settings::get_factory_worker_maximum_towns
+ * - Added settings::avoid_overcrowding, settings::no_routing_over_overcrowding, settings::separate_halt_capacities
+ *
+ * @section api-120-0-1 Release 120.0.1
+ *
+ * - Added building_desc_x::get_building_list, building_desc_x::get_headquarter_level
+ * - Added factory_production_x::get_in_transit
+ *
+ * @section api-120-0 Release 120.0
+ *
+ * - Added line_x, line_list_x
+ * - Deprecated get_convoy_list()
+ * - Added world::get_convoy_list, halt_x::get_convoy_list
+ * - Added @ref scenario.api to manage backward compatibility of scripts with the changing api
+ * - Added ::include
  * - Changed return type of world::get_time to time_ticks_x
  * - Added building_x::is_same_building.
  * - Added attraction_list_x, world::get_attraction_list
