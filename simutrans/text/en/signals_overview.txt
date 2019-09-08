@@ -25,7 +25,7 @@ To build and connect signals to signal boxes, start by placing a signalbox next 
 <em>Uni- and bidirectional signals</em><br>
 Signals are unidirectional signals by default that only interact with trains facing the signal, meaning that trains passing in the opposite direction will ignore the signal completely.<br>
 Some working methods, however, allow signals to become bidirectional signals, controling traffic from both directions. To create a bidirectional signal, click multiple times with the signal building tool on the signal, and the signal will circle between being unidirectional in one way, the other way and eventually bidirectional.<br>
-One signal type, the "station signal", can only be built as a bidirectional signal.<br><br>
+The "station signal" though can only be built as a bidirectional signal.<br><br>
 
 <em>Directional reservations</em><br>
 As opposed to a normal reservation, it is possible for a signal also to create a directional reservation. A directional reservation reserves only the direction of the track, meaning that other trains still can enter the reserved track, but only travel in the same direction as the track is reserved. With the block reservation tool, the directional reservation is represented with the color BLUE. To see what direction it is reserved, open the track info window.<br>
