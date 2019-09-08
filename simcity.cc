@@ -261,11 +261,19 @@ static uint32 renovations_count = 1;
 static uint32 renovations_try = 3;
 
 /*
-* whether renovation chance is influenced by city population density
-* renovation_chance rising with decreasing density
+* whether renovation_chance or renovation_count is influenced by city population density
+* renovation_count being set to renovation_city_size_count when this value is 1
 * @author catasteroid
 */
 static uint32 renovation_influence_type = 0;
+
+/*
+* the numbers used if renovation_influence_type is 1, the first value is used if the city
+* is a village and smaller than a city and a capital, the second for cities and
+* the third for capitals
+*/
+
+static sint16 renovation_city_size_count[] = { 1, 2,  3 };
 
 /*
 * overrides default behaviour allowing very large cities to renovate buildings
@@ -742,6 +750,9 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 	renovations_count = (uint32)contents.get_int("renovations_count", renovations_count);
 	renovations_try   = (uint32)contents.get_int("renovations_try", renovations_try);
 	renovation_influence_type = (uint32)contents.get_int("renovation_influence_type", renovation_influence_type);
+	renovation_city_size_count[0] = contents.get_int("renovation_count_village", renovation_city_size_count[0]);
+	renovation_city_size_count[1] = contents.get_int("renovation_count_city", renovation_city_size_count[1]);
+	renovation_city_size_count[2] = contents.get_int("renovation_count_capital", renovation_city_size_count[2]);
 	proportional_renovation_radius = (uint32)contents.get_int("proportional_renovation_radius", proportional_renovation_radius);
 	renovation_range = (uint32)contents.get_int("renovation_range", renovation_range);
 	renovation_distance_chance = (uint32)contents.get_int("renovation_distance_chance", renovation_distance_chance);
@@ -928,6 +939,9 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 		file->rdwr_long(renovations_try);
 		file->rdwr_long(renovations_count);
 		file->rdwr_long(renovation_influence_type);
+		file->rdwr_short(renovation_city_size_count[0]);
+		file->rdwr_short(renovation_city_size_count[1]);
+		file->rdwr_short(renovation_city_size_count[2]);
 		file->rdwr_long(proportional_renovation_radius);
 		file->rdwr_long(renovation_range);
 		file->rdwr_long(renovation_distance_chance);
@@ -5267,7 +5281,8 @@ void stadt_t::build(bool new_town, bool map_generation)
 	// villages will renovate only 1, cities 2 and capitals will renovate three
 	// todo: expose these values amongst others in cityrules.tab
 	if (renovation_influence_type == 1) {
-		renovations_count = get_city_population() < s.get_city_threshold_size() ? 1 : get_city_population() < s.get_capital_threshold_size() ? 2 : 3;
+		renovations_count = get_city_population() < s.get_city_threshold_size() ? renovation_city_size_count[0] : 
+		get_city_population() < s.get_capital_threshold_size() ? renovation_city_size_count[1] : renovation_city_size_count[2];
 	}
 	uint32 was_renovated=0;
 	uint32 try_nr = 0;
@@ -5277,8 +5292,8 @@ void stadt_t::build(bool new_town, bool map_generation)
 			gebaeude_t* const gb = pick_any(buildings);
 			const uint32 dist(koord_distance(c, gb->get_pos()));
 			if (dist > maxdist) continue;
-			const uint32 distance_rate = 100 - (dist * 100) / maxdist;
-			if(  player_t::check_owner(gb->get_owner(),NULL)  && (renovation_distance_chance == 0 || simrand(100, "void stadt_t::build") < distance_rate)) {
+			const uint32 distance_rate = renovation_distance_chance == 1 ? 100 - (dist * 100) / maxdist : 100;
+			if(  player_t::check_owner(gb->get_owner(),NULL)  && simrand(100, "void stadt_t::build") < distance_rate) {
 				if(renovate_city_building(gb, map_generation)) {
 					was_renovated++;
 				}
