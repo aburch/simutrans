@@ -371,9 +371,31 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	end_table();
 	
 	// Components for advanced settings
+	bt_tmp_schedule.init(button_t::square_state, "Temporary schedule");
+	bt_tmp_schedule.set_tooltip("This schedule does not affect the route cost calculation.");
+	bt_tmp_schedule.add_listener(this);
+	bt_tmp_schedule.pressed = false;
+	add_component(&bt_tmp_schedule);
+	
+	// load and unload settings
 	add_table(2,1);
+	{
+		bt_load.init(button_t::square_state, "Load");
+		bt_load.set_tooltip("The convoy can load goods and passengers at this stop.");
+		bt_load.add_listener(this);
+		bt_load.disable();
+		add_component(&bt_load);
+		bt_unload.init(button_t::square_state, "Unload");
+		bt_unload.set_tooltip("The convoy can unload goods and passengers at this stop.");
+		bt_unload.add_listener(this);
+		bt_unload.disable();
+		add_component(&bt_unload);
+	}
+	end_table();
+	
 	// coupling related buttons
-	if(  schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt  ) {
+	add_table(2,1);
+	{
 		bt_wait_for_child.init(button_t::square_state, "Wait for coupling");
 		bt_wait_for_child.set_tooltip("A convoy waits for other convoy to couple.");
 		bt_wait_for_child.add_listener(this);
@@ -385,8 +407,68 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		bt_find_parent.add_listener(this);
 		bt_find_parent.disable();
 		add_component(&bt_find_parent);
+	}	
+	end_table();
+	
+	// for departure time settings
+	add_table(3,3);
+	{
+		bt_wait_for_time.init(button_t::square_state, "Wait for time");
+		bt_wait_for_time.set_tooltip("If this is set, convoys will wait until one of the specified times before departing, the specified times being fractions of a month.");
+		bt_wait_for_time.add_listener(this);
+		bt_wait_for_time.disable();
+		add_component(&bt_wait_for_time);
+		
+		lb_spacing.set_align(gui_label_t::align_t::centered);
+		sprintf(lb_spacing_str,"off");
+		lb_spacing.set_text_pointer(lb_spacing_str);
+		//p==0 ? sprintf(lb_spacing_str,"off") : sprintf(lb_spacing_str,"%d",welt->get_settings().get_spacing_shift_divisor()/p);
+		add_component(&lb_spacing);
+		
+		new_component<gui_fill_t>();
+		
+		lb_title1.set_text("Spacing cnv/month, shift");
+		add_component(&lb_title1);
+		
+		numimp_spacing.set_width( 60 );
+		//numimp_spacing.set_value( schedule->get_spacing() );
+		numimp_spacing.set_value( 5 );
+		//numimp_spacing.set_limits( 0, spacing_divisor );
+		numimp_spacing.set_increment_mode(1);
+		numimp_spacing.disable();
+		numimp_spacing.add_listener(this);
+		add_component(&numimp_spacing);
+		
+		numimp_spacing_shift.set_width( 90 );
+		//numimp_spacing_shift.set_value( schedule->get_current_entry().spacing_shift );
+		numimp_spacing_shift.set_value( 0 );
+		//numimp_spacing_shift.set_limits( 0, spacing_divisor );
+		numimp_spacing_shift.set_increment_mode(1);
+		numimp_spacing_shift.disable();
+		numimp_spacing_shift.add_listener(this);
+		add_component(&numimp_spacing_shift);
+		
+		lb_title2.set_text("Delay tolerance");
+		add_component(&lb_title2);
+		
+		numimp_delay_tolerance.set_width( 90 );
+		//numimp_delay_tolerance.set_value( schedule->get_current_entry().delay_tolerance );
+		numimp_delay_tolerance.set_value( 0 );
+		//numimp_delay_tolerance.set_limits( 0, p==0 ? 0 : spacing_divisor/schedule->get_spacing()/2 );
+		numimp_delay_tolerance.set_increment_mode(1);
+		numimp_delay_tolerance.disable();
+		numimp_delay_tolerance.add_listener(this);
+		add_component(&numimp_delay_tolerance);
+		
+		new_component<gui_fill_t>();
 	}
 	end_table();
+	
+	bt_same_dep_time.init(button_t::square_automatic, "Use same departure time for all stops");
+	bt_same_dep_time.set_tooltip("Use one spacing, shift and delay tolerance value for all stops in schedule.");
+	bt_same_dep_time.add_listener(this);
+	bt_same_dep_time.pressed = false;
+	add_component(&bt_same_dep_time);
 	
 	extract_advanced_settings(false);
 
@@ -672,7 +754,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 		}
 	}
 	else if(comp == &bt_extract_settings) {
-		extract_advanced_settings(!bt_wait_for_child.is_visible());
+		extract_advanced_settings(!bt_tmp_schedule.is_visible());
 		// reload window
 		reset_min_windowsize();
 		set_windowsize(get_min_windowsize());
@@ -830,6 +912,19 @@ void schedule_gui_t::rdwr(loadsave_t *file)
 
 void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	bt_extract_settings.set_typ(yesno ? button_t::arrowup : button_t::arrowdown);
-	bt_wait_for_child.set_visible(yesno);
-	bt_find_parent.set_visible(yesno);
+	bt_tmp_schedule.set_visible(yesno);
+	bt_load.set_visible(yesno);
+	bt_unload.set_visible(yesno);
+	bt_wait_for_time.set_visible(yesno);
+	lb_spacing.set_visible(yesno);
+	lb_title1.set_visible(yesno);
+	lb_title2.set_visible(yesno);
+	numimp_spacing.set_visible(yesno);
+	numimp_spacing_shift.set_visible(yesno);
+	numimp_delay_tolerance.set_visible(yesno);
+	bt_same_dep_time.set_visible(yesno);
+	
+	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
+	bt_wait_for_child.set_visible(coupling_waytype  &&  yesno);
+	bt_find_parent.set_visible(coupling_waytype  &&  yesno);
 }
