@@ -685,9 +685,9 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	else if(comp == &bt_find_parent) {
 		if(!schedule->empty()) {
 			if(  bt_find_parent.pressed  ) {
-				schedule->entries[schedule->get_current_stop()].set_try_coupling();
-			} else {
 				schedule->entries[schedule->get_current_stop()].reset_coupling();
+			} else {
+				schedule->entries[schedule->get_current_stop()].set_try_coupling();
 			}
 			bt_wait_for_child.pressed = false;
 			update_selection();
@@ -696,9 +696,9 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	else if(comp == &bt_wait_for_child) {
 		if(!schedule->empty()) {
 			if(  bt_wait_for_child.pressed  ) {
-				schedule->entries[schedule->get_current_stop()].set_wait_for_coupling();
-			} else {
 				schedule->entries[schedule->get_current_stop()].reset_coupling();
+			} else {
+				schedule->entries[schedule->get_current_stop()].set_wait_for_coupling();
 			}
 			bt_find_parent.pressed = false;
 			update_selection();
