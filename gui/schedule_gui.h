@@ -63,7 +63,7 @@ class schedule_gui_t :	public gui_frame_t,
 	// coupling, load/unload only, temp schedule, departure time
 	button_t bt_extract_settings;
 	button_t bt_find_parent, bt_wait_for_child; // convoy coupling
-	button_t bt_load, bt_unload, bt_tmp_schedule, bt_wait_for_time, bt_same_dep_time;
+	button_t bt_no_load, bt_no_unload, bt_tmp_schedule, bt_wait_for_time, bt_same_dep_time;
 	gui_numberinput_t numimp_spacing, numimp_spacing_shift, numimp_delay_tolerance;
 	gui_label_t lb_spacing, lb_title1, lb_title2;
 	char lb_spacing_str[10];

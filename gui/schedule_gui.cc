@@ -380,16 +380,16 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	// load and unload settings
 	add_table(2,1);
 	{
-		bt_load.init(button_t::square_state, "Load");
-		bt_load.set_tooltip("The convoy can load goods and passengers at this stop.");
-		bt_load.add_listener(this);
-		bt_load.disable();
-		add_component(&bt_load);
-		bt_unload.init(button_t::square_state, "Unload");
-		bt_unload.set_tooltip("The convoy can unload goods and passengers at this stop.");
-		bt_unload.add_listener(this);
-		bt_unload.disable();
-		add_component(&bt_unload);
+		bt_no_load.init(button_t::square_state, "No Load");
+		bt_no_load.set_tooltip("The convoy does not load goods and passengers at this stop.");
+		bt_no_load.add_listener(this);
+		bt_no_load.disable();
+		add_component(&bt_no_load);
+		bt_no_unload.init(button_t::square_state, "No Unload");
+		bt_no_unload.set_tooltip("The convoy does not unload goods and passengers at this stop.");
+		bt_no_unload.add_listener(this);
+		bt_no_unload.disable();
+		add_component(&bt_no_unload);
 	}
 	end_table();
 	
@@ -580,6 +580,10 @@ void schedule_gui_t::update_selection()
 			bt_find_parent.pressed = c==2;
 			bt_wait_for_child.enable();
 			bt_wait_for_child.pressed = c==1;
+			bt_no_load.enable();
+			bt_no_load.pressed = schedule->entries[current_stop].is_no_load();
+			bt_no_unload.enable();
+			bt_no_unload.pressed = schedule->entries[current_stop].is_no_unload();
 		}
 		else {
 			lb_load.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
@@ -587,6 +591,8 @@ void schedule_gui_t::update_selection()
 			numimp_load.set_value( 0 );
 			bt_find_parent.disable();
 			bt_wait_for_child.disable();
+			bt_no_load.disable();
+			bt_no_unload.disable();
 		}
 	}
 }
@@ -767,6 +773,22 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 		reset_min_windowsize();
 		set_windowsize(get_min_windowsize());
 	}
+	else if(comp == &bt_no_load) {
+		if (!schedule->empty()) {
+			schedule->entries[schedule->get_current_stop()].set_no_load(!bt_no_load.pressed);
+			update_selection();
+		}
+	}
+	else if(comp == &bt_no_unload) {
+		if (!schedule->empty()) {
+			schedule->entries[schedule->get_current_stop()].set_no_unload(!bt_no_unload.pressed);
+			update_selection();
+		}
+	}
+	else if(comp == &bt_tmp_schedule) {
+		schedule->set_temporary(!bt_tmp_schedule.pressed);
+		bt_tmp_schedule.pressed = schedule->is_temporary();
+	}
 	// recheck lines
 	if(  cnv.is_bound()  ) {
 		// unequal to line => remove from line ...
@@ -921,8 +943,8 @@ void schedule_gui_t::rdwr(loadsave_t *file)
 void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	bt_extract_settings.set_typ(yesno ? button_t::arrowup : button_t::arrowdown);
 	bt_tmp_schedule.set_visible(yesno);
-	bt_load.set_visible(yesno);
-	bt_unload.set_visible(yesno);
+	bt_no_load.set_visible(yesno);
+	bt_no_unload.set_visible(yesno);
 	bt_wait_for_time.set_visible(yesno);
 	lb_spacing.set_visible(yesno);
 	lb_title1.set_visible(yesno);

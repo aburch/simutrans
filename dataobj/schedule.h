@@ -44,7 +44,7 @@ class schedule_t
 	}
 
 protected:
-	schedule_t() : editing_finished(false), current_stop(0) {}
+	schedule_t() : editing_finished(false), current_stop(0), temporary(false), same_dep_time(false) {}
 
 public:
 	enum schedule_type {
@@ -105,6 +105,11 @@ public:
 	inline bool is_editing_finished() const { return editing_finished; }
 	void finish_editing() { editing_finished = true; }
 	void start_editing() { editing_finished = false; }
+	
+	bool is_temporary() const { return temporary; }
+	void set_temporary(bool y) { temporary = y; }
+	bool is_same_dep_time() const { return same_dep_time; }
+	void set_same_dep_time(bool y) { same_dep_time = y; }
 
 	virtual ~schedule_t() {}
 

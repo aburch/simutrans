@@ -17,7 +17,9 @@ public:
 		minimum_loading(minimum_loading),
 		waiting_time_shift(waiting_time_shift),
 		stop_flags(stop_flags)
-	{}
+	{
+		spacing = spacing_shift = delay_tolerance = 0;
+	}
 
 	enum {
 		NONE              = 0,
@@ -58,6 +60,10 @@ public:
 	void set_wait_for_coupling() { stop_flags |= WAIT_FOR_COUPLING; stop_flags &= ~TRY_COUPLING; }
 	void set_try_coupling() { stop_flags |= TRY_COUPLING; stop_flags &= ~WAIT_FOR_COUPLING; }
 	void reset_coupling() { stop_flags &= ~TRY_COUPLING; stop_flags &= ~WAIT_FOR_COUPLING; }
+	bool is_no_load() const { return (stop_flags&NO_LOAD)>0; }
+	void set_no_load(bool y) { y ? stop_flags |= NO_LOAD : stop_flags &= ~NO_LOAD; }
+	bool is_no_unload() const { return (stop_flags&NO_UNLOAD)>0; }
+	void set_no_unload(bool y) { y ? stop_flags |= NO_UNLOAD : stop_flags &= ~NO_UNLOAD; }
 	uint8 get_stop_flags() const { return stop_flags; }
 	void set_stop_flags(uint8 f) { stop_flags = f; }
 	

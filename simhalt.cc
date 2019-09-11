@@ -1186,12 +1186,18 @@ sint32 haltestelle_t::rebuild_connections()
 			schedule = cnv->get_schedule();
 			goods_catg_index = &cnv->get_goods_catg_index();
 		}
+		
+		if(  schedule->is_temporary()  ) {
+			// this schedule does not affect connection calculation.
+			continue;
+		}
 
 		// find the index from which to start processing
 		uint8 start_index = 0;
 		while(  start_index < schedule->get_count()  &&  get_halt( schedule->entries[start_index].pos, owner ) != self  ) {
 			++start_index;
 		}
+		bool no_load = schedule->entries[start_index].is_no_load();
 		++start_index;	// the next index after self halt; it's okay to be out-of-range
 
 		// determine goods category indices supported by this halt
@@ -1210,12 +1216,15 @@ sint32 haltestelle_t::rebuild_connections()
 		}
 
 		INT_CHECK("simhalt.cc 612");
+		
+		minivec_tpl<halthandle_t> no_unload_halts;
 
 		// now we add the schedule to the connection array
 		uint16 aggregate_weight = WEIGHT_WAIT;
 		for(  uint8 j=0;  j<schedule->get_count();  ++j  ) {
 
-			halthandle_t current_halt = get_halt(schedule->entries[(start_index+j)%schedule->get_count()].pos, owner );
+			const schedule_entry_t current_entry = schedule->entries[(start_index+j)%schedule->get_count()];
+			halthandle_t current_halt = get_halt(current_entry.pos, owner );
 			if(  !current_halt.is_bound()  ) {
 				// ignore way points
 				continue;
@@ -1229,12 +1238,22 @@ sint32 haltestelle_t::rebuild_connections()
 						previous_halt[catg_index] = self;
 					}
 				}
-				// reset aggregate weight
+				// reset aggregate weight and no_load
 				aggregate_weight = WEIGHT_WAIT;
+				no_load = current_entry.is_no_load();
+				no_unload_halts.clear();
 				continue;
+			}
+			else if(  current_entry.is_no_unload()  ) {
+				no_unload_halts.append_unique(current_halt);
 			}
 
 			aggregate_weight += WEIGHT_HALT;
+			
+			if(  no_unload_halts.is_contained(current_halt)  ||  no_load  ) {
+				// do not add connection if this halt is set no_unload or if the previous self stop is set no_load.
+				continue;
+			}
 
 			FOR(minivec_tpl<uint8>, const catg_index, supported_catg_index) {
 				if(  current_halt->is_enabled(catg_index)  ) {

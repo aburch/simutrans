@@ -43,6 +43,8 @@ void schedule_t::copy_from(const schedule_t *src)
 	set_current_stop( src->get_current_stop() );
 
 	editing_finished = src->is_editing_finished();
+	temporary = src->is_temporary();
+	same_dep_time = src->is_same_dep_time();
 }
 
 
