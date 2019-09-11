@@ -374,7 +374,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	bt_tmp_schedule.init(button_t::square_state, "Temporary schedule");
 	bt_tmp_schedule.set_tooltip("This schedule does not affect the route cost calculation.");
 	bt_tmp_schedule.add_listener(this);
-	bt_tmp_schedule.pressed = false;
+	bt_tmp_schedule.pressed = schedule->is_temporary();
 	add_component(&bt_tmp_schedule);
 	
 	// load and unload settings
@@ -467,7 +467,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	bt_same_dep_time.init(button_t::square_automatic, "Use same departure time for all stops");
 	bt_same_dep_time.set_tooltip("Use one spacing, shift and delay tolerance value for all stops in schedule.");
 	bt_same_dep_time.add_listener(this);
-	bt_same_dep_time.pressed = false;
+	bt_same_dep_time.pressed = schedule->is_same_dep_time();
 	add_component(&bt_same_dep_time);
 	
 	extract_advanced_settings(false);
