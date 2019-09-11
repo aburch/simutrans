@@ -415,9 +415,10 @@ void schedule_t::add_return_way()
 
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
-	buf.printf("%u|%d|", current_stop, (int)get_type());
+	uint16 s = current_stop + (temporary<<8) + (same_dep_time<<9);
+	buf.printf("%u|%d|", s, (int)get_type());
 	FOR(minivec_tpl<schedule_entry_t>, const& i, entries) {
-		buf.printf("%s,%i,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time_shift, i.get_stop_flags());
+		buf.printf("%s,%i,%i,%i,%i,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time_shift, i.get_stop_flags(), i.spacing, i.spacing_shift, i.delay_tolerance);
 	}
 }
 
@@ -434,7 +435,10 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 		return false;
 	}
 	//  first get current_stop pointer
-	current_stop = atoi( p );
+	uint16 s = atoi( p );
+	current_stop = s & 0xff;
+	temporary = (s&(1<<8)) > 0;
+	same_dep_time = (s&(1<<9)) > 0;
 	while(  *p  &&  *p!='|'  ) {
 		p++;
 	}
@@ -460,17 +464,17 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	p++;
 	// now scan the entries
 	while(  *p>0  ) {
-		sint16 values[6];
-		for(  sint8 i=0;  i<6;  i++  ) {
+		sint16 values[9];
+		for(  sint8 i=0;  i<9;  i++  ) {
 			values[i] = atoi( p );
 			while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
 				p++;
 			}
-			if(  i<5  &&  *p!=','  ) {
+			if(  i<8  &&  *p!=','  ) {
 				dbg->error( "schedule_t::sscanf_schedule()","incomplete string!" );
 				return false;
 			}
-			if(  i==5  &&  *p!='|'  ) {
+			if(  i==8  &&  *p!='|'  ) {
 				dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
 				return false;
 			}
@@ -478,6 +482,7 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 		}
 		// ok, now we have a complete entry
 		schedule_entry_t entry = schedule_entry_t(koord3d(values[0], values[1], values[2]), values[3], values[4], values[5]);
+		entry.set_spacing(values[6], values[7], values[8]);
 		entries.append(entry);
 	}
 	return true;

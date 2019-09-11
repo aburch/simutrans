@@ -50,7 +50,7 @@ public:
 	 */
 	sint8 waiting_time_shift;
 	
-	uint16 spacing, spacing_shift, delay_tolerance;
+	sint16 spacing, spacing_shift, delay_tolerance;
 	
 private:
 	uint8 stop_flags;
@@ -67,11 +67,10 @@ public:
 	uint8 get_stop_flags() const { return stop_flags; }
 	void set_stop_flags(uint8 f) { stop_flags = f; }
 	
-	uint64 get_combined_spacing() const { return spacing+(spacing_shift<<16)+(delay_tolerance<<32); }
-	void set_combined_spacing(uint64 s) {
-		spacing = (s&0x000f);
-		spacing_shift = (s&0x00f0)>>16;
-		delay_tolerance = (s&0x0f00)>>32;
+	void set_spacing(sint16 a, sint16 b, sint16 c) {
+		spacing = a;
+		spacing_shift = b;
+		delay_tolerance = c;
 	}
 	
 	bool operator ==(const schedule_entry_t &a) {
