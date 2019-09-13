@@ -945,14 +945,14 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	bt_tmp_schedule.set_visible(yesno);
 	bt_no_load.set_visible(yesno);
 	bt_no_unload.set_visible(yesno);
-	bt_wait_for_time.set_visible(yesno);
-	lb_spacing.set_visible(yesno);
-	lb_title1.set_visible(yesno);
-	lb_title2.set_visible(yesno);
-	numimp_spacing.set_visible(yesno);
-	numimp_spacing_shift.set_visible(yesno);
-	numimp_delay_tolerance.set_visible(yesno);
-	bt_same_dep_time.set_visible(yesno);
+	bt_wait_for_time.set_visible(false);
+	lb_spacing.set_visible(false);
+	lb_title1.set_visible(false);
+	lb_title2.set_visible(false);
+	numimp_spacing.set_visible(false);
+	numimp_spacing_shift.set_visible(false);
+	numimp_delay_tolerance.set_visible(false);
+	bt_same_dep_time.set_visible(false);
 	
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
 	bt_wait_for_child.set_visible(coupling_waytype  &&  yesno);
