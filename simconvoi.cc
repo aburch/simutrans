@@ -3225,7 +3225,7 @@ station_tile_search_ready: ;
 
 	// prepare a list of all destination halts in the schedule
 	vector_tpl<halthandle_t> destination_halts(schedule->get_count());
-	if (!no_load) {
+	if (  !no_load  &&  !schedule->get_current_entry().is_no_load()  ) {
 		const uint8 count = schedule->get_count();
 		for(  uint8 i=1;  i<count;  i++  ) {
 			const uint8 wrap_i = (i + schedule->get_current_stop()) % count;
@@ -3235,7 +3235,8 @@ station_tile_search_ready: ;
 				// we will come later here again ...
 				break;
 			}
-			else if(  !plan_halt.is_bound()  ) {
+			else if(  !plan_halt.is_bound()  ||  schedule->entries[wrap_i].is_no_unload()  ) {
+				// not a halt or set no_unload. no_unload -> we cannot unload the cargo there.
 				if(  grund_t *gr = welt->lookup( schedule->entries[wrap_i].pos )  ) {
 					if(  gr->get_depot()  ) {
 						// do not load for stops after a depot
