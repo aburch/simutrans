@@ -315,6 +315,8 @@ settings_t::settings_t() :
 	
 	routecost_wait = 8;
 	routecost_halt = 1;
+	
+	spacing_shift_divisor = 24*60;
 }
 
 
@@ -864,6 +866,7 @@ void settings_t::rdwr(loadsave_t *file)
 		if(  file->get_OTRP_version() >= 23  ) {
 			file->rdwr_byte(routecost_wait);
 			file->rdwr_byte(routecost_halt);
+			file->rdwr_short(spacing_shift_divisor);
 		}
 		// otherwise the default values of the last one will be used
 	}
@@ -1495,6 +1498,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	
 	routecost_wait = contents.get_int("routecost_wait", routecost_wait);
 	routecost_halt = contents.get_int("routecost_halt", routecost_halt);
+	
+	spacing_shift_divisor = contents.get_int("spacing_shift_divisor", spacing_shift_divisor);
 
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", "" ) );

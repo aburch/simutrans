@@ -309,6 +309,9 @@ private:
 	// paramters for haltestelle_t::rebuild_connections()
 	uint8 routecost_halt;
 	uint8 routecost_wait;
+	
+	// divide a month for departure spacing
+	uint16 spacing_shift_divisor;
 
 public:
 	/* the big cost section */
@@ -638,6 +641,8 @@ public:
 	
 	uint8 get_routecost_halt() const { return routecost_halt; }
 	uint8 get_routecost_wait() const { return routecost_wait; }
+	
+	uint16 get_spacing_shift_divisor() const { return spacing_shift_divisor; }
 };
 
 #endif
