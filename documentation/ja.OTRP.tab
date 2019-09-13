@@ -73,3 +73,19 @@ Uncouple the back convoy now.
 即時に後ろの編成を解放します．
 Please decouple the other convoy to edit the schedule.
 スケジュールを編集するには連結解除してください．
+#------Schedule window related stuff------
+#------スケジュールウィンドウ関連のエントリ------
+Extract advanced settings
+詳細設定を展開
+Temporary schedule
+臨時系統
+This schedule does not affect the route cost calculation.
+このスケジュールはルートコストの計算に寄与しません．
+No Load
+乗車不可
+The convoy does not load goods and passengers at this stop.
+この停留所での積載を禁止します．
+No Unload
+降車不可
+The convoy does not unload goods and passengers at this stop.
+この停留所での降車/荷降ろしを禁止します．

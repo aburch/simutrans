@@ -17,15 +17,15 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version22_3現在、simutrans standard nightly r8803をベースにしています。
+version23現在、simutrans standard nightly r8811をベースにしています。
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2019年8月10日PM9時　ver22_3に更新）**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/71405/sim-WinGDI-OTRPv22_3.exe/  
-mac: https://osdn.net/projects/otrp/downloads/71405/sim-mac-OTRPv22_3.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/71405/sim-linux-OTRPv22_3.zip/  
+本体は下のリンクからどうぞ。**（2019年9月13日PM9時　ver23に更新）**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/71591/sim-WinGDI-OTRPv23.exe/  
+mac: https://osdn.net/projects/otrp/downloads/71591/sim-mac-OTRPv23.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/71591/sim-linux-OTRPv23.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 OTRP専用のmakeobjはありません。simutrans standardのmakeobjをご利用ください。
@@ -92,7 +92,19 @@ pak128では鉄道車両の描画位置変更が行われた影響で、古い�
 オフセットの設定は、pakxyz/config/reposition.tabに保存されます。reposition.tabはテキストファイルなので手で編集することもできます。  
 なお、車庫画面でset offsetが出てくるのと、reposition.tabが保存されるのは128系のpakサイズでsimutransを起動したときのみです。reposition.tabの読み込みはその他のサイズのpakで起動したときも行われます。
 
-## 増解結
+## スケジュール設定
+OTRPでは高度なスケジュール設定により，より柔軟な運行ができるようになっています．  
+スケジュール画面で「詳細設定を展開」の三角形アイコンをクリックすると，詳細設定が出現します．詳細設定を閉じるには，もう一度三角形アイコンをクリックします．
+![fig12](images/fig12.png)  
+
+### 臨時系統/乗車・降車不可
+- **臨時系統**：このスケジュールはRouteCostの計算に影響を与えなくなります．一時的な混雑解消用の直通路線の設定によって旅客の経由地を変更させたくない場合に便利です．
+- **乗車不可**：この停留所で乗車・積載が不可能になります．すなはち，降車専用になります．
+- **降車不可**：この停留所で降車・荷降ろしが不可能になります．すなはち，乗車専用になります．
+
+乗車不可・降車不可を両方有効にすると，乗車・降車ともにできなくなりますので，運転停車となります．
+
+### 増解結
 本機能はInternational Forumで議論中の機能の先行実装です． [本家フォーラムのスレッドはこちら](https://forum.simutrans.com/index.php/topic,19064.0.html)
 
 増解結の使い方は [こちらを参照](how_to_convoy_coupling.pdf) してください．
@@ -127,6 +139,7 @@ pak128では鉄道車両の描画位置変更が行われた影響で、古い�
 ## その他
 - **stop_at_intersection_without_traffic_light**（経済タブにあります）のチェックを入れることで、車両が信号機ナシ交差点の手前で特定の条件に従って一時停止するようになります。デフォルトでは無効です。
 - **advance_to_end**（ルートタブにあります）のチェックを外すことで列車のホームでの停車位置が実際に指定した位置になります。（デフォルトではstandardと同じく指定位置にかかわらず列車は先頭まで進みます。）なお指定した位置で編成がおさまらないときは編成全体がおさまるまで前進します。（extendedと同じです。）
+- **routecost_halt**, **routecost_wait** （ルートタブにあります）を変更することで，旅客の乗り換え駅を制御することができます．routecost_haltは1駅ごとのルートコスト，routecost_waitは1回乗り換えするごとのルートコストです．デフォルト値はそれぞれ1と8です．
 
 # データの互換性
 ## アドオンの互換性
