@@ -37,7 +37,7 @@ label_info_t::label_info_t(label_t* l) :
 	add_component( &view );
 
 	grund_t *gr = welt->lookup(l->get_pos());
-	if(gr->get_text()) {
+	if(gr && gr->get_text()) {
 		tstrncpy(edit_name, gr->get_text(), lengthof(edit_name));
 	}
 	else {
@@ -70,7 +70,7 @@ bool label_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	if(comp == &input  &&  welt->get_active_player()==label->get_owner()) {
 		// check owner to change text
 		grund_t *gd = welt->lookup(label->get_pos());
-		if((gd->get_text() == NULL && edit_name) || strcmp(gd->get_text(), edit_name)) 
+		if(gd && ((gd->get_text() == NULL && edit_name) || strcmp(gd->get_text(), edit_name)))
 		{
 			// text changed => call tool
 			cbuffer_t buf;
