@@ -312,6 +312,9 @@ settings_t::settings_t() :
 	citycar_route_weight_speed = 0;
 	
 	advance_to_end = true;
+	
+	routecost_wait = 8;
+	routecost_halt = 1;
 }
 
 
@@ -857,6 +860,10 @@ void settings_t::rdwr(loadsave_t *file)
 			bool m = allow_merge_distant_halt > 0;
 			file->rdwr_bool(m);
 			allow_merge_distant_halt = m ? 10000 : 0;
+		}
+		if(  file->get_OTRP_version() >= 23  ) {
+			file->rdwr_byte(routecost_wait);
+			file->rdwr_byte(routecost_halt);
 		}
 		// otherwise the default values of the last one will be used
 	}
@@ -1485,6 +1492,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	}
 	
 	advance_to_end = contents.get_int("advance_to_end", advance_to_end);
+	
+	routecost_wait = contents.get_int("routecost_wait", routecost_wait);
+	routecost_halt = contents.get_int("routecost_halt", routecost_halt);
 
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", "" ) );

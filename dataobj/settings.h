@@ -305,6 +305,10 @@ private:
 	
 	// only for trains. If true, trains advance to the end of the platform.
 	bool advance_to_end;
+	
+	// paramters for haltestelle_t::rebuild_connections()
+	uint8 routecost_halt;
+	uint8 routecost_wait;
 
 public:
 	/* the big cost section */
@@ -631,6 +635,9 @@ public:
 	
 	bool get_advance_to_end() const { return advance_to_end; }
 	void set_advance_to_end(bool b) { advance_to_end = b; }
+	
+	uint8 get_routecost_halt() const { return routecost_halt; }
+	uint8 get_routecost_wait() const { return routecost_wait; }
 };
 
 #endif

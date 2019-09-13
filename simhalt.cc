@@ -1118,8 +1118,8 @@ void haltestelle_t::remove_fabriken(fabrik_t *fab)
  * Returns the number of stops considered
  * @author Hj. Malthaner
  */
-#define WEIGHT_WAIT (8)
-#define WEIGHT_HALT (1)
+#define WEIGHT_WAIT welt->get_settings().get_routecost_wait()
+#define WEIGHT_HALT welt->get_settings().get_routecost_halt()
 // the minimum weight of a connection from a transfer halt
 #define WEIGHT_MIN (WEIGHT_WAIT+WEIGHT_HALT)
 sint32 haltestelle_t::rebuild_connections()
