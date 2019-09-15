@@ -18,7 +18,8 @@ public:
 		waiting_time_shift(waiting_time_shift),
 		stop_flags(stop_flags)
 	{
-		spacing = spacing_shift = delay_tolerance = 0;
+		spacing = 1;
+		spacing_shift = delay_tolerance = 0;
 	}
 
 	enum {
@@ -64,6 +65,8 @@ public:
 	void set_no_load(bool y) { y ? stop_flags |= NO_LOAD : stop_flags &= ~NO_LOAD; }
 	bool is_no_unload() const { return (stop_flags&NO_UNLOAD)>0; }
 	void set_no_unload(bool y) { y ? stop_flags |= NO_UNLOAD : stop_flags &= ~NO_UNLOAD; }
+	bool get_wait_for_time() const { return (stop_flags&WAIT_FOR_TIME)>0; }
+	void set_wait_for_time(bool y) { y ? stop_flags |= WAIT_FOR_TIME : stop_flags &= ~WAIT_FOR_TIME; }
 	uint8 get_stop_flags() const { return stop_flags; }
 	void set_stop_flags(uint8 f) { stop_flags = f; }
 	

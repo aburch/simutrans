@@ -422,7 +422,6 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		lb_spacing.set_align(gui_label_t::align_t::centered);
 		sprintf(lb_spacing_str,"off");
 		lb_spacing.set_text_pointer(lb_spacing_str);
-		//p==0 ? sprintf(lb_spacing_str,"off") : sprintf(lb_spacing_str,"%d",welt->get_settings().get_spacing_shift_divisor()/p);
 		add_component(&lb_spacing);
 		
 		new_component<gui_fill_t>();
@@ -430,31 +429,29 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		lb_title1.set_text("Spacing cnv/month, shift");
 		add_component(&lb_title1);
 		
+		const uint16 spacing_divisor = world()->get_settings().get_spacing_shift_divisor();
+		
 		numimp_spacing.set_width( 60 );
-		//numimp_spacing.set_value( schedule->get_spacing() );
 		numimp_spacing.set_value( 5 );
-		//numimp_spacing.set_limits( 0, spacing_divisor );
+		numimp_spacing.set_limits( 1, spacing_divisor );
 		numimp_spacing.set_increment_mode(1);
 		numimp_spacing.disable();
 		numimp_spacing.add_listener(this);
 		add_component(&numimp_spacing);
 		
 		numimp_spacing_shift.set_width( 90 );
-		//numimp_spacing_shift.set_value( schedule->get_current_entry().spacing_shift );
 		numimp_spacing_shift.set_value( 0 );
-		//numimp_spacing_shift.set_limits( 0, spacing_divisor );
+		numimp_spacing_shift.set_limits( 0, spacing_divisor );
 		numimp_spacing_shift.set_increment_mode(1);
-		numimp_spacing_shift.disable();
 		numimp_spacing_shift.add_listener(this);
+		numimp_spacing_shift.disable();
 		add_component(&numimp_spacing_shift);
 		
 		lb_title2.set_text("Delay tolerance");
 		add_component(&lb_title2);
 		
 		numimp_delay_tolerance.set_width( 90 );
-		//numimp_delay_tolerance.set_value( schedule->get_current_entry().delay_tolerance );
 		numimp_delay_tolerance.set_value( 0 );
-		//numimp_delay_tolerance.set_limits( 0, p==0 ? 0 : spacing_divisor/schedule->get_spacing()/2 );
 		numimp_delay_tolerance.set_increment_mode(1);
 		numimp_delay_tolerance.disable();
 		numimp_delay_tolerance.add_listener(this);
@@ -584,6 +581,14 @@ void schedule_gui_t::update_selection()
 			bt_no_load.pressed = schedule->entries[current_stop].is_no_load();
 			bt_no_unload.enable();
 			bt_no_unload.pressed = schedule->entries[current_stop].is_no_unload();
+			bt_wait_for_time.enable();
+			bt_wait_for_time.pressed = schedule->entries[current_stop].get_wait_for_time();
+			numimp_spacing.enable();
+			numimp_spacing.set_value( schedule->entries[current_stop].spacing );
+			numimp_spacing_shift.enable();
+			numimp_spacing_shift.set_value( schedule->entries[current_stop].spacing_shift );
+			numimp_delay_tolerance.enable();
+			numimp_delay_tolerance.set_value( schedule->entries[current_stop].delay_tolerance );
 		}
 		else {
 			lb_load.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
@@ -593,6 +598,10 @@ void schedule_gui_t::update_selection()
 			bt_wait_for_child.disable();
 			bt_no_load.disable();
 			bt_no_unload.disable();
+			bt_wait_for_time.disable();
+			numimp_spacing.disable();
+			numimp_spacing_shift.disable();
+			numimp_delay_tolerance.disable();
 		}
 	}
 }
@@ -788,6 +797,24 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	else if(comp == &bt_tmp_schedule) {
 		schedule->set_temporary(!bt_tmp_schedule.pressed);
 		bt_tmp_schedule.pressed = schedule->is_temporary();
+	}
+	else if(comp == &numimp_spacing) {
+		if (!schedule->empty()) {
+			schedule->entries[schedule->get_current_stop()].spacing = (uint8)p.i;
+			update_selection();
+		}
+	}
+	else if(comp == &numimp_spacing_shift) {
+		if (!schedule->empty()) {
+			schedule->entries[schedule->get_current_stop()].spacing_shift = (uint8)p.i;
+			update_selection();
+		}
+	}
+	else if(comp == &numimp_delay_tolerance) {
+		if (!schedule->empty()) {
+			schedule->entries[schedule->get_current_stop()].delay_tolerance = (uint8)p.i;
+			update_selection();
+		}
 	}
 	// recheck lines
 	if(  cnv.is_bound()  ) {

@@ -229,6 +229,8 @@ void schedule_t::rdwr(loadsave_t *file)
 	if(  file->get_OTRP_version()>=23  ) {
 		file->rdwr_bool(temporary);
 		file->rdwr_bool(same_dep_time);
+	} else {
+		temporary = same_dep_time = false;
 	}
 
 	if(file->is_version_less(99, 12)) {
@@ -261,6 +263,9 @@ void schedule_t::rdwr(loadsave_t *file)
 				file->rdwr_short(entries[i].spacing);
 				file->rdwr_short(entries[i].spacing_shift);
 				file->rdwr_short(entries[i].delay_tolerance);
+			} else {
+				entries[i].spacing = 1;
+				entries[i].spacing_shift = entries[i].delay_tolerance = 0;
 			}
 		}
 	}
