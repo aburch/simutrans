@@ -462,12 +462,8 @@ bool way_builder_t::check_crossing(const koord zv, const grund_t *bd, waytype_t 
 	// crossing available and ribis ok
 	const crossing_desc_t *crd = crossing_logic_t::get_crossing(wtyp, w->get_waytype(), 0, 0, welt->get_timeline_year_month());
 	if(crd!=NULL) {
-		// special case if crd->maxspeed(1) is zero: require maxspeed of
-		// new way to not exceed crd->maxspeed(0).
-		// This permits very low-speed fords of non-navigable streams.
-		if ((crd->get_maxspeed(1)) == 0 &&
-			( (crd->get_maxspeed(0) < desc->get_topspeed()) ||
-			  (w->get_desc()->get_topspeed() > 0) )) {
+		// If existing way is water, then only allow building if desired way (presumably road) has max axle load of 0.
+		if ( (w->get_waytype() == water_wt) && (desc->get_axle_load() > 0)) {
 			return false;
 		}
 
