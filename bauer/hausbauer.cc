@@ -502,6 +502,9 @@ void hausbauer_t::remove( player_t *player, const gebaeude_t *gb, bool map_gener
 							}
 						}
 					}
+					if (wasser_t* sea = dynamic_cast<wasser_t*>(gr)) {
+						sea->recalc_water_neighbours();
+					}
 				}
 			}
 		}
@@ -700,6 +703,10 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 				if(  desc->get_type() == building_desc_t::dock  ||  desc->get_type() == building_desc_t::flat_dock  ) {
 					// it's a dock!
 					gb->set_yoff(0);
+
+					if (wasser_t* sea = dynamic_cast<wasser_t*>(gr)) {
+						sea->recalc_water_neighbours();
+					}
 				}
 			}
 			gr->calc_image();
