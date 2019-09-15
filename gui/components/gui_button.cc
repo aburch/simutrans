@@ -29,9 +29,8 @@
 
 #include "../gui_frame.h"
 
-#define TYPE_MASK (127)
-#define STATE_BIT (128)
-#define AUTOMATIC_BIT (256)
+#define STATE_BIT (button_t::state)
+#define AUTOMATIC_BIT (button_t::automatic)
 
 #define get_state_offset() (b_enabled ? pressed : 2)
 
@@ -390,6 +389,8 @@ void button_t::draw(scr_coord offset)
 		case arrowdown:
 			display_img_aligned( gui_theme_t::arrow_button_down_img[ get_state_offset() ], area, ALIGN_CENTER_H|ALIGN_CENTER_V, true );
 			break;
+
+		default: ;
 	}
 
 	if(  translated_tooltip  &&  getroffen( get_mouse_x()-offset.x, get_mouse_y()-offset.y )  ) {
