@@ -246,7 +246,7 @@ public:
 				buf().append("%");
 				break;
 			default:
-				; // ?
+				buf().printf("%lld", value);
 		}
 		gui_label_buf_t::update();
 		set_color(color);
