@@ -87,7 +87,7 @@ void cbuffer_t::append(const char* text, size_t maxchars)
 
 void cbuffer_t::append(double n,int decimals)
 {
-	char tmp[32];
+	char tmp[128];
 	number_to_string( tmp, n, decimals );
 	append(tmp);
 }
