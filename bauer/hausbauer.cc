@@ -482,8 +482,10 @@ void hausbauer_t::remove( player_t *player, const gebaeude_t *gb, bool map_gener
 							ground_recalc = false;
 						}
 						else if(  new_hgt <= welt->get_water_hgt(newk)  &&  new_slope == slope_t::flat  ) {
-							welt->access(newk)->kartenboden_setzen( new wasser_t( koord3d( newk, new_hgt ) ) );
+							wasser_t* sea = new wasser_t( koord3d( newk, new_hgt) );
+							welt->access(newk)->kartenboden_setzen( sea );
 							welt->calc_climate( newk, true );
+							sea->recalc_water_neighbours();
 						}
 						else {
 							if(  gr->get_grund_hang() == new_slope  ) {
@@ -502,7 +504,7 @@ void hausbauer_t::remove( player_t *player, const gebaeude_t *gb, bool map_gener
 							}
 						}
 					}
-					if (wasser_t* sea = dynamic_cast<wasser_t*>(gr)) {
+					else if (wasser_t* sea = dynamic_cast<wasser_t*>(gr)) {
 						sea->recalc_water_neighbours();
 					}
 				}
