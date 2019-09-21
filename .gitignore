@@ -5,6 +5,7 @@
 /Release
 /build
 /config.*
+/compile_commands.json
 /makeobj/makeobj
 /makeobj/makeobj.exe
 *sim
