@@ -581,19 +581,20 @@ void schedule_gui_t::update_selection()
 			bt_no_load.pressed = schedule->entries[current_stop].is_no_load();
 			bt_no_unload.enable();
 			bt_no_unload.pressed = schedule->entries[current_stop].is_no_unload();
+			const bool wft = schedule->entries[current_stop].get_wait_for_time();
 			bt_wait_for_time.enable();
-			bt_wait_for_time.pressed = schedule->entries[current_stop].get_wait_for_time();
+			bt_wait_for_time.pressed = wft;
 			if(  schedule->entries[current_stop].get_wait_for_time()  ) {
 				//schedule->entries[current_stop].spacing cannot be zero.
 				sprintf(lb_spacing_str, "%d", world()->get_settings().get_spacing_shift_divisor()/schedule->entries[current_stop].spacing);
 			} else {
 				sprintf(lb_spacing_str, "off");
 			}
-			numimp_spacing.enable();
+			wft ? numimp_spacing.enable() : numimp_spacing.disable();
 			numimp_spacing.set_value( schedule->entries[current_stop].spacing );
-			numimp_spacing_shift.enable();
+			wft ? numimp_spacing_shift.enable() : numimp_spacing_shift.disable();
 			numimp_spacing_shift.set_value( schedule->entries[current_stop].spacing_shift );
-			numimp_delay_tolerance.enable();
+			wft ? numimp_delay_tolerance.enable() : numimp_delay_tolerance.disable();
 			numimp_delay_tolerance.set_value( schedule->entries[current_stop].delay_tolerance );
 		}
 		else {
