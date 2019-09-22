@@ -812,21 +812,37 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	}
 	else if(comp == &numimp_spacing) {
 		if (!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].spacing = (uint8)p.i;
+			if(  schedule->is_same_dep_time()  ) {
+				schedule->set_spacing_for_all((uint16)p.i);
+			} else {
+				schedule->entries[schedule->get_current_stop()].spacing = (uint16)p.i;
+			}
 			update_selection();
 		}
 	}
 	else if(comp == &numimp_spacing_shift) {
 		if (!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].spacing_shift = (uint8)p.i;
+			if(  schedule->is_same_dep_time()  ) {
+				schedule->set_spacing_shift_for_all((uint16)p.i);
+			} else {
+				schedule->entries[schedule->get_current_stop()].spacing_shift = (uint16)p.i;
+			}
 			update_selection();
 		}
 	}
 	else if(comp == &numimp_delay_tolerance) {
 		if (!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].delay_tolerance = (uint8)p.i;
+			if(  schedule->is_same_dep_time()  ) {
+				schedule->set_delay_tolerance_for_all((uint16)p.i);
+			} else {
+				schedule->entries[schedule->get_current_stop()].delay_tolerance = (uint16)p.i;
+			}
 			update_selection();
 		}
+	}
+	else if(comp == &bt_same_dep_time) {
+		schedule->set_same_dep_time(!schedule->is_same_dep_time());
+		bt_same_dep_time.pressed = schedule->is_same_dep_time();
 	}
 	// recheck lines
 	if(  cnv.is_bound()  ) {

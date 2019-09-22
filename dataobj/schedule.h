@@ -110,6 +110,10 @@ public:
 	void set_temporary(bool y) { temporary = y; }
 	bool is_same_dep_time() const { return same_dep_time; }
 	void set_same_dep_time(bool y) { same_dep_time = y; }
+	
+	void set_spacing_for_all(uint16);
+	void set_spacing_shift_for_all(uint16);
+	void set_delay_tolerance_for_all(uint16);
 
 	virtual ~schedule_t() {}
 

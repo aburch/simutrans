@@ -51,7 +51,7 @@ public:
 	 */
 	sint8 waiting_time_shift;
 	
-	sint16 spacing, spacing_shift, delay_tolerance;
+	uint16 spacing, spacing_shift, delay_tolerance;
 	
 private:
 	uint8 stop_flags;
@@ -70,7 +70,7 @@ public:
 	uint8 get_stop_flags() const { return stop_flags; }
 	void set_stop_flags(uint8 f) { stop_flags = f; }
 	
-	void set_spacing(sint16 a, sint16 b, sint16 c) {
+	void set_spacing(uint16 a, uint16 b, uint16 c) {
 		spacing = a;
 		spacing_shift = b;
 		delay_tolerance = c;
