@@ -17,15 +17,15 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version23現在、simutrans standard nightly r8811をベースにしています。
+version23_1現在、simutrans standard nightly r8820をベースにしています。
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2019年9月13日PM9時　ver23に更新）**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/71591/sim-WinGDI-OTRPv23.exe/  
-mac: https://osdn.net/projects/otrp/downloads/71591/sim-mac-OTRPv23.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/71591/sim-linux-OTRPv23.zip/  
+本体は下のリンクからどうぞ。**（2019年9月22日PM10時　ver23_1に更新）**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/71640/sim-WinGDI-OTRPv23_1.exe/  
+mac: https://osdn.net/projects/otrp/downloads/71640/sim-mac-OTRPv23_1.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/71640/sim-linux-OTRPv23_1.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 OTRP専用のmakeobjはありません。simutrans standardのmakeobjをご利用ください。
@@ -94,7 +94,7 @@ pak128では鉄道車両の描画位置変更が行われた影響で、古い�
 
 ## スケジュール設定
 OTRPでは高度なスケジュール設定により，より柔軟な運行ができるようになっています．  
-スケジュール画面で「詳細設定を展開」の三角形アイコンをクリックすると，詳細設定が出現します．詳細設定を閉じるには，もう一度三角形アイコンをクリックします．
+スケジュール画面で「詳細設定を展開」の三角形アイコンをクリックすると，詳細設定が出現します．詳細設定を閉じるには，もう一度三角形アイコンをクリックします．  
 ![fig12](images/fig12.png)  
 
 ### 臨時系統/乗車・降車不可
@@ -108,6 +108,17 @@ OTRPでは高度なスケジュール設定により，より柔軟な運行が�
 本機能はInternational Forumで議論中の機能の先行実装です． [本家フォーラムのスレッドはこちら](https://forum.simutrans.com/index.php/topic,19064.0.html)
 
 増解結の使い方は [こちらを参照](how_to_convoy_coupling.pdf) してください．
+
+### 発車時刻指定
+「発車時刻まで待機」を有効にすると，予めスケジュールされた時間に発車するようになります．発車時刻には，ゲーム画面左下部に表示されている時間軸が使用されます．  
+![fig13](images/fig13.png)  
+この場合，一ヶ月が1440等分され，発車時間として使用されます．ゲーム内時間を使用しないのは，ゲーム内の月日表示は月によって一日の長さが異なるためです．一ヶ月を何等分するかは，高度な設定の「全般」タブにある **spacing_shift_divisor** で設定できます．デフォルトは1440です．
+
+発車時間を指定するには，月あたりの **発車本数**，**オフセット**，**遅延許容時間** を設定します．月あたりの発車本数を**F**，オフセットを**D**とすると，1ヶ月を1440等分した時間軸で，(1440/**F**)×**n**+**D** (0≦**n**<**F**) の時間に発車します．例えば，月当たり発車本数を8，オフセットを20に設定すると，発車の間隔は1440/8=180となり，20, 200, 380, 560,...の時間に発車するようになります．
+
+遅延許容時間を設定すると，正規の発車時刻から許容時間以内は発車が許可されます．例えば，遅延許容時間が30，正規の発車時刻の一つが100の場合は，列車が100+30=130までに発車できるのであればそのスロットでの発車が許可されます．
+
+「全て同じ発車時刻設定を適用」を有効にすると，それを有効にして以降の発車本数，オフセット，遅延許容の設定がそのスケジュールの全エントリに適用されます．
 
 ## その他
 - 運賃収受に伴う金額表示をON/OFFできるようになりました。表示設定ウィンドウから切り替えられるほか、simple_tool[38]にキーを割り当てることでも切り替えることができます。
