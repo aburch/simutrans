@@ -41,16 +41,20 @@ public:
 	 * roundbox:      button for "load", "cancel" and such options
 	 * arrow-buttons: buttons with arrows, cannot have text
 	 * repeat arrows: calls the caller until the mouse is released
-	 * scrollbar:     well you guess it. Not used by gui_frame_t things ...
 	 * flexible:      flag, can be set to box, square to get infinitely enlarging buttons
 	 */
 	enum type {
 		square=1, box, roundbox, arrowleft, arrowright, arrowup, arrowdown, repeatarrowleft, repeatarrowright, posbutton,
-		square_state=129, box_state, roundbox_state, arrowleft_state, arrowright_state, arrowup_state, arrowdown_state, scrollbar_horizontal_state, scrollbar_vertical_state, repeatarrowleft_state, repeatarrowright_state,
+		TYPE_MASK = 127,
+		state = 128,
+		square_state     = square | state,
+		box_state        = box | state,
+		roundbox_state   = roundbox | state,
+		arrowright_state = arrowright | state,
 		automatic = 256,
-		square_automatic    = square_state + automatic,
-		box_state_automatic = box_state + automatic,
-		posbutton_automatic = posbutton + automatic,
+		square_automatic    = square_state | automatic,
+		box_state_automatic = box_state | automatic,
+		posbutton_automatic = posbutton | automatic,
 		flexible = 512
 	};
 
