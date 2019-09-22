@@ -295,6 +295,12 @@ private:
 	 * Used to calculate when it should depart due to the 'month wait time'
 	 */
 	uint32 arrived_time;
+	
+	/**
+	 * Time when convoi departs the current stop
+	 * Currently used only for display purpose, so not saved.
+	 */
+	uint32 scheduled_departure_time;
 
 	/**
 	 *The flag whether this convoi is requested to change lane by the convoi behind this.
@@ -1035,6 +1041,7 @@ public:
 	void set_coupling_done(bool tf) { coupling_done = tf; }
 	
 	void set_arrived_time(uint32 t) { arrived_time = t; }
+	uint32 get_departure_time() const { return scheduled_departure_time; } // in ticks.
 };
 
 #endif

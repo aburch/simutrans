@@ -1857,9 +1857,18 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 
 			case convoi_t::LOADING:
 				if(  state>=1  ) {
-					if(  cnv->is_waiting_for_coupling()  ) {
+					if(  cnv->get_departure_time()>0  ) {
+						// the convoy is waiting for departure time.
+						// we use floating operation just for display purpose.
+						const float conversion_ratio = (float)world()->get_settings().get_spacing_shift_divisor()/world()->ticks_per_world_month;
+						const sint32 time_remain = (cnv->get_departure_time() - world()->get_ticks())*conversion_ratio;
+						sprintf( tooltip_text, translator::translate("Waiting for schedule. %i left!"), time_remain);
+					}
+					else if(  cnv->is_waiting_for_coupling()  ) {
+						// the convoy is waiting for coupling.
 						tstrncpy( tooltip_text, translator::translate("Waiting for coupling!"), lengthof(tooltip_text) );
 					} else {
+						// the convoy is waiting for minimum loading.
 						sprintf( tooltip_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit() );
 					}
 					
