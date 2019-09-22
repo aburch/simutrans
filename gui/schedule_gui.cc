@@ -563,7 +563,7 @@ void schedule_gui_t::update_selection()
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
 		const uint8 current_stop = schedule->get_current_stop();
 		if(  haltestelle_t::get_halt(schedule->entries[current_stop].pos, player).is_bound()  ) {
-			numimp_load.set_value( schedule->entries[current_stop].minimum_loading );
+			
 			const uint8 c = schedule->entries[current_stop].get_coupling_point();
 			bt_find_parent.enable();
 			bt_find_parent.pressed = c==2;
@@ -573,11 +573,14 @@ void schedule_gui_t::update_selection()
 			bt_no_load.pressed = schedule->entries[current_stop].is_no_load();
 			bt_no_unload.enable();
 			bt_no_unload.pressed = schedule->entries[current_stop].is_no_unload();
+			
+			// wait_for_time releated things
 			const bool wft = schedule->entries[current_stop].get_wait_for_time();
 			bt_wait_for_time.enable();
 			bt_wait_for_time.pressed = wft;
 			sint8 wait = 0;
 			if(  wft  ) {
+				// enable departure time settings only
 				//schedule->entries[current_stop].spacing cannot be zero.
 				sprintf(lb_spacing_str, "%d", world()->get_settings().get_spacing_shift_divisor()/schedule->entries[current_stop].spacing);
 				numimp_spacing.enable();
@@ -585,10 +588,9 @@ void schedule_gui_t::update_selection()
 				numimp_delay_tolerance.enable();
 			}
 			else {
+				// disable departure time settings and enable minimum loading
 				lb_load.set_color( SYSCOL_TEXT );
 				numimp_load.enable();
-				// following line is required to lighten color of numimp_load
-				numimp_load.set_value( schedule->entries[current_stop].minimum_loading );
 				if(  schedule->entries[current_stop].minimum_loading>0  ||  schedule->entries[current_stop].get_coupling_point()!=0  ) {
 					lb_wait.set_color( SYSCOL_TEXT );
 					wait_load.enable();
@@ -596,9 +598,12 @@ void schedule_gui_t::update_selection()
 				}
 				sprintf(lb_spacing_str, "off");
 			}
+			
+			numimp_load.set_value( schedule->entries[current_stop].minimum_loading );
 			numimp_spacing.set_value( schedule->entries[current_stop].spacing );
 			numimp_spacing_shift.set_value( schedule->entries[current_stop].spacing_shift );
 			numimp_delay_tolerance.set_value( schedule->entries[current_stop].delay_tolerance );
+			
 			// wait_load configuration
 			for(int i=0; i<wait_load.count_elements(); i++) {
 				if (gui_waiting_time_item_t *item = dynamic_cast<gui_waiting_time_item_t*>( wait_load.get_element(i) ) ) {
@@ -608,6 +613,7 @@ void schedule_gui_t::update_selection()
 					}
 				}
 			}
+			
 		}
 	}
 }
