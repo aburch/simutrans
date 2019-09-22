@@ -11283,6 +11283,11 @@ void karte_t::announce_server(int status)
 		cbuffer_t buf, altbuf;
 		if(  env_t::easy_server  &&  status<2  &&  get_external_IP(buf,altbuf)  ) {
 			// ipdate IP just in case
+			if(  status == 1  &&  (env_t::server_dns.compare( buf )  ||  env_t::server_alt_dns.compare( altbuf ))  ) {
+				announce_server( 2 );
+				status = 0; // since starting with new IP
+			}
+			// now update DNS info
 			env_t::server_dns = (const char *)buf;
 			env_t::server_alt_dns = (const char *)altbuf;
 		}
