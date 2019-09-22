@@ -544,34 +544,26 @@ void schedule_gui_t::update_tool(bool set)
 
 void schedule_gui_t::update_selection()
 {
+	// First, disable all.
 	lb_wait.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
 	wait_load.disable();
+	lb_load.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
+	numimp_load.disable();
+	numimp_load.set_value( 0 );
+	bt_find_parent.disable();
+	bt_wait_for_child.disable();
+	bt_no_load.disable();
+	bt_no_unload.disable();
+	bt_wait_for_time.disable();
+	numimp_spacing.disable();
+	numimp_spacing_shift.disable();
+	numimp_delay_tolerance.disable();
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
 		const uint8 current_stop = schedule->get_current_stop();
 		if(  haltestelle_t::get_halt(schedule->entries[current_stop].pos, player).is_bound()  ) {
-			lb_load.set_color( SYSCOL_TEXT );
-			numimp_load.enable();
 			numimp_load.set_value( schedule->entries[current_stop].minimum_loading );
-
-			sint8 wait = 0;
-			if(  schedule->entries[current_stop].minimum_loading>0  ||  schedule->entries[current_stop].get_coupling_point()!=0  ) {
-				lb_wait.set_color( SYSCOL_TEXT );
-				wait_load.enable();
-
-				wait = schedule->entries[current_stop].waiting_time_shift;
-			}
-
-			for(int i=0; i<wait_load.count_elements(); i++) {
-				if (gui_waiting_time_item_t *item = dynamic_cast<gui_waiting_time_item_t*>( wait_load.get_element(i) ) ) {
-					if (item->get_wait_shift() == wait) {
-						wait_load.set_selection(i);
-						break;
-					}
-				}
-			}
-			
 			const uint8 c = schedule->entries[current_stop].get_coupling_point();
 			bt_find_parent.enable();
 			bt_find_parent.pressed = c==2;
@@ -584,31 +576,38 @@ void schedule_gui_t::update_selection()
 			const bool wft = schedule->entries[current_stop].get_wait_for_time();
 			bt_wait_for_time.enable();
 			bt_wait_for_time.pressed = wft;
-			if(  schedule->entries[current_stop].get_wait_for_time()  ) {
+			sint8 wait = 0;
+			if(  wft  ) {
 				//schedule->entries[current_stop].spacing cannot be zero.
 				sprintf(lb_spacing_str, "%d", world()->get_settings().get_spacing_shift_divisor()/schedule->entries[current_stop].spacing);
-			} else {
+				numimp_spacing.enable();
+				numimp_spacing_shift.enable();
+				numimp_delay_tolerance.enable();
+			}
+			else {
+				lb_load.set_color( SYSCOL_TEXT );
+				numimp_load.enable();
+				// following line is required to lighten color of numimp_load
+				numimp_load.set_value( schedule->entries[current_stop].minimum_loading );
+				if(  schedule->entries[current_stop].minimum_loading>0  ||  schedule->entries[current_stop].get_coupling_point()!=0  ) {
+					lb_wait.set_color( SYSCOL_TEXT );
+					wait_load.enable();
+					wait = schedule->entries[current_stop].waiting_time_shift;
+				}
 				sprintf(lb_spacing_str, "off");
 			}
-			wft ? numimp_spacing.enable() : numimp_spacing.disable();
 			numimp_spacing.set_value( schedule->entries[current_stop].spacing );
-			wft ? numimp_spacing_shift.enable() : numimp_spacing_shift.disable();
 			numimp_spacing_shift.set_value( schedule->entries[current_stop].spacing_shift );
-			wft ? numimp_delay_tolerance.enable() : numimp_delay_tolerance.disable();
 			numimp_delay_tolerance.set_value( schedule->entries[current_stop].delay_tolerance );
-		}
-		else {
-			lb_load.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
-			numimp_load.disable();
-			numimp_load.set_value( 0 );
-			bt_find_parent.disable();
-			bt_wait_for_child.disable();
-			bt_no_load.disable();
-			bt_no_unload.disable();
-			bt_wait_for_time.disable();
-			numimp_spacing.disable();
-			numimp_spacing_shift.disable();
-			numimp_delay_tolerance.disable();
+			// wait_load configuration
+			for(int i=0; i<wait_load.count_elements(); i++) {
+				if (gui_waiting_time_item_t *item = dynamic_cast<gui_waiting_time_item_t*>( wait_load.get_element(i) ) ) {
+					if (item->get_wait_shift() == wait) {
+						wait_load.set_selection(i);
+						break;
+					}
+				}
+			}
 		}
 	}
 }
