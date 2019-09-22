@@ -11298,72 +11298,73 @@ void karte_t::announce_server(int status)
 		// Always send status, either online or offline
 		if (  status == 0  ||  status == 1  ) {
 			buf.append( "&st=1" );
-#ifndef REVISION
-#	define REVISION 0
-#endif
-			// Simple revision used for matching (integer)
-			//buf.printf( "&rev=%d", atol( QUOTEME(REVISION) ) );
-			buf.printf("&rev=%d", strtol(QUOTEME(REVISION), NULL, 16));
-			// Complex version string used for display
-			//buf.printf( "&ver=Simutrans %s (#%s) built %s", QUOTEME(VERSION_NUMBER), QUOTEME(REVISION), QUOTEME(VERSION_DATE) );
-			// For some reason not yet clear, the above does not work. Attempt a simpler version for now, with only the revision.
-			buf.printf("&ver=%x", strtol(QUOTEME(REVISION), NULL, 16));
-			// Pakset version
-			buf.append( "&pak=" );
-			// Announce pak set, ideally get this from the copyright field of ground.Outside.pak
-			char const* const copyright = ground_desc_t::outside->get_copyright();
-			if (copyright && STRICMP("none", copyright) != 0) {
-				// construct from outside object copyright string
-				encode_URI( buf, copyright );
-			}
-			else {
-				// construct from pak name
-				std::string pak_name = env_t::objfilename;
-				pak_name.erase( pak_name.length() - 1 );
-				encode_URI( buf, pak_name.c_str() );
-			}
-			// TODO - change this to be the start date of the current map
-			buf.printf( "&start=%u,%u", settings.get_starting_month() + 1, settings.get_starting_year() );
-			// Add server name for listing
-			buf.append( "&name=" );
-			encode_URI( buf, env_t::server_name.c_str() );
-			// Add server comments for listing
-			buf.append( "&comments=" );
-			encode_URI( buf, env_t::server_comments.c_str() );
-			// Add server maintainer email for listing
-			buf.append( "&email=" );
-			encode_URI( buf, env_t::server_email.c_str() );
-			// Add server pakset URL for listing
-			buf.append( "&pakurl=" );
-			encode_URI( buf, env_t::server_pakurl.c_str() );
-			// Add server info URL for listing
-			buf.append( "&infurl=" );
-			encode_URI( buf, env_t::server_infurl.c_str() );
-
-			// Now add the game data part
-			uint8 active = 0, locked = 0;
-			for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-				if(  players[i]  &&  players[i]->get_ai_id()!=player_t::EMPTY  ) {
-					active ++;
-					if(  players[i]->is_locked()  ) {
-						locked ++;
-					}
-				}
-			}
-			buf.printf( "&time=%u,%u",   (get_current_month() % 12) + 1, get_current_month() / 12 );
-			buf.printf( "&size=%u,%u",   get_size().x, get_size().y );
-			buf.printf( "&active=%u",    active );
-			buf.printf( "&locked=%u",    locked );
-			buf.printf( "&clients=%u",   socket_list_t::get_playing_clients() );
-			buf.printf( "&towns=%u",     stadt.get_count() );
-			buf.printf( "&citizens=%u",  stadt.get_sum_weight() );
-			buf.printf( "&factories=%u", fab_list.get_count() );
-			buf.printf( "&convoys=%u",   convoys().get_count());
-			buf.printf( "&stops=%u",     haltestelle_t::get_alle_haltestellen().get_count() );
 		}
 		else {
 			buf.append( "&st=0" );
 		}
+#ifndef REVISION
+#	define REVISION 0
+#endif
+		// Simple revision used for matching (integer)
+		//buf.printf( "&rev=%d", atol( QUOTEME(REVISION) ) );
+		buf.printf("&rev=%d", strtol(QUOTEME(REVISION), NULL, 16));
+		// Complex version string used for display
+		//buf.printf( "&ver=Simutrans %s (#%s) built %s", QUOTEME(VERSION_NUMBER), QUOTEME(REVISION), QUOTEME(VERSION_DATE) );
+		// For some reason not yet clear, the above does not work. Attempt a simpler version for now, with only the revision.
+		buf.printf("&ver=%x", strtol(QUOTEME(REVISION), NULL, 16));
+		// Pakset version
+		buf.append( "&pak=" );
+		// Announce pak set, ideally get this from the copyright field of ground.Outside.pak
+		char const* const copyright = ground_desc_t::outside->get_copyright();
+		if (copyright && STRICMP("none", copyright) != 0) {
+			// construct from outside object copyright string
+			encode_URI( buf, copyright );
+		}
+		else {
+			// construct from pak name
+			std::string pak_name = env_t::objfilename;
+			pak_name.erase( pak_name.length() - 1 );
+			encode_URI( buf, pak_name.c_str() );
+		}
+		// TODO - change this to be the start date of the current map
+		buf.printf( "&start=%u,%u", settings.get_starting_month() + 1, settings.get_starting_year() );
+		// Add server name for listing
+		buf.append( "&name=" );
+		encode_URI( buf, env_t::server_name.c_str() );
+		// Add server comments for listing
+		buf.append( "&comments=" );
+		encode_URI( buf, env_t::server_comments.c_str() );
+		// Add server maintainer email for listing
+		buf.append( "&email=" );
+		encode_URI( buf, env_t::server_email.c_str() );
+		// Add server pakset URL for listing
+		buf.append( "&pakurl=" );
+		encode_URI( buf, env_t::server_pakurl.c_str() );
+		// Add server info URL for listing
+		buf.append( "&infurl=" );
+		encode_URI( buf, env_t::server_infurl.c_str() );
+
+		// Now add the game data part
+		uint8 active = 0, locked = 0;
+		for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+			if(  players[i]  &&  players[i]->get_ai_id()!=player_t::EMPTY  ) {
+				active ++;
+				if(  players[i]->is_locked()  ) {
+					locked ++;
+				}
+			}
+		}
+		buf.printf( "&time=%u,%u",   (get_current_month() % 12) + 1, get_current_month() / 12 );
+		buf.printf( "&size=%u,%u",   get_size().x, get_size().y );
+		buf.printf( "&active=%u",    active );
+		buf.printf( "&locked=%u",    locked );
+		buf.printf( "&clients=%u",   socket_list_t::get_playing_clients() );
+		buf.printf( "&towns=%u",     stadt.get_count() );
+		buf.printf( "&citizens=%u",  stadt.get_sum_weight() );
+		buf.printf( "&factories=%u", fab_list.get_count() );
+		buf.printf( "&convoys=%u",   convoys().get_count());
+		buf.printf( "&stops=%u",     haltestelle_t::get_alle_haltestellen().get_count() );
+
 		network_http_post( ANNOUNCE_SERVER, ANNOUNCE_URL, buf, NULL );
 
 		// Record time of this announce
