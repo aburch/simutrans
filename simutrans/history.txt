@@ -18,6 +18,7 @@
 	CHG: Revise Goods List for better clarity and usability.
 	FIX: Construction of priority and longblock signals
 	CHG: Start with random midi song
+	ADD: Timeline for pedestrians
 
 
 Release of 120.4.1 (r8600 on 23-Sep-2018):

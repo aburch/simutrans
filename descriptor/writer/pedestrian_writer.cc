@@ -11,7 +11,7 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 {
 	int i;
 
-	obj_node_t node(this, 8, &parent);
+	obj_node_t node(this, 12, &parent);
 
 	write_head(fp, node, obj);
 
@@ -68,11 +68,13 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version = 0x8001;
+	uint16 version = 0x8002;
 	node.write_uint16(fp, version,             0);
 	node.write_uint16(fp, distribution_weight, 2);
 	node.write_uint16(fp, steps_per_frame,     4);
 	node.write_uint16(fp, offset,              6);
+	node.write_uint16(fp, intro_date,          8);
+	node.write_uint16(fp, retire_date,        10);
 
 	node.write(fp);
 }

@@ -56,6 +56,7 @@
 #include "old_blockmanager.h"
 #include "vehicle/simvehicle.h"
 #include "vehicle/simroadtraffic.h"
+#include "vehicle/simpeople.h"
 #include "vehicle/movingobj.h"
 #include "boden/wege/schiene.h"
 
@@ -1290,6 +1291,7 @@ DBG_DEBUG("karte_t::init()","distributing trees");
 
 DBG_DEBUG("karte_t::init()","built timeline");
 	private_car_t::build_timeline_list(this);
+	pedestrian_t::build_timeline_list(this);
 
 	nosave_warning = nosave = false;
 
@@ -3848,6 +3850,7 @@ void karte_t::recalc_average_speed()
 {
 	// retire/allocate vehicles
 	private_car_t::build_timeline_list(this);
+	pedestrian_t::build_timeline_list(this);
 
 	for(int i=road_wt; i<=narrowgauge_wt; i++) {
 		const int typ = i==4 ? 3 : (i-1)&7;
