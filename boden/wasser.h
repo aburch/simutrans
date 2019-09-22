@@ -37,6 +37,12 @@ public:
 	const char *get_name() const OVERRIDE {return "Water";}
 	grund_t::typ get_typ() const OVERRIDE {return wasser;}
 
+	// recalculates the water-specific ribis
+	void recalc_ribis();
+
+	// recalculates the water-specific ribis for this and all neighbouring water tiles
+	void recalc_water_neighbours();
+
 	// map rotation
 	void rotate90() OVERRIDE;
 

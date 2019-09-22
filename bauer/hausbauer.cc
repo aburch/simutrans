@@ -445,8 +445,10 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 							ground_recalc = false;
 						}
 						else if(  new_hgt <= welt->get_water_hgt(newk)  &&  new_slope == slope_t::flat  ) {
-							welt->access(newk)->kartenboden_setzen( new wasser_t( koord3d( newk, new_hgt ) ) );
+							wasser_t* sea = new wasser_t( koord3d( newk, new_hgt) );
+							welt->access(newk)->kartenboden_setzen( sea );
 							welt->calc_climate( newk, true );
+							sea->recalc_water_neighbours();
 						}
 						else {
 							if(  gr->get_grund_hang() == new_slope  ) {
@@ -464,6 +466,9 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 								gr->calc_image();
 							}
 						}
+					}
+					else if (wasser_t* sea = dynamic_cast<wasser_t*>(gr)) {
+						sea->recalc_water_neighbours();
 					}
 				}
 			}
@@ -569,6 +574,10 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 				if(  desc->get_type() == building_desc_t::dock  ||  desc->get_type() == building_desc_t::flat_dock  ) {
 					// its a dock!
 					gb->set_yoff(0);
+
+					if (wasser_t* sea = dynamic_cast<wasser_t*>(gr)) {
+						sea->recalc_water_neighbours();
+					}
 				}
 			}
 			gr->calc_image();

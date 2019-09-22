@@ -41,6 +41,11 @@ ifeq ($(OSTYPE),mac)
   CXXFLAGS   += -DUSE_HW -DUSE_C
 endif
 
+ifeq ($(OSTYPE),freebsd)
+  CFLAGS   += -I/usr/local/include
+  CXXFLAGS += -I/usr/local/include
+endif
+
 ifdef OPTIMISE
   ifeq ($(shell expr $(OPTIMISE) \>= 1), 1)
     CFLAGS   += -O3 -fno-schedule-insns

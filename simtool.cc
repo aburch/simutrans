@@ -6269,8 +6269,11 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 		initial_prod = welt->inverse_scale_with_month_length( atol(default_param+2) );
 	}
 
+	// process ignore climates switch
+	bool ignore_climates = default_param  &&  default_param[0]=='1';
+
 	pos = gr->get_pos();
-	int count = factory_builder_t::build_link(NULL, fab, initial_prod, 0, &pos, welt->get_public_player(), 10000, false);
+	int count = factory_builder_t::build_link(NULL, fab, initial_prod, 0, &pos, welt->get_public_player(), 10000, ignore_climates);
 	if(count>0) {
 		// at least one factory has been built
 		welt->get_viewport()->change_world_position( pos );

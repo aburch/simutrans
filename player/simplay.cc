@@ -401,7 +401,7 @@ void player_t::calc_assets()
 		if(  cnv->get_owner() == this  ) {
 			sint64 restwert = cnv->calc_restwert();
 			assets[TT_ALL] += restwert;
-			assets[finance->translate_waytype_to_tt(cnv->front()->get_waytype())] += restwert;
+			assets[finance->translate_waytype_to_tt(cnv->front()->get_desc()->get_waytype())] += restwert;
 		}
 	}
 
@@ -411,7 +411,7 @@ void player_t::calc_assets()
 			FOR(slist_tpl<vehicle_t*>, const veh, depot->get_vehicle_list()) {
 				sint64 restwert = veh->calc_sale_value();
 				assets[TT_ALL] += restwert;
-				assets[finance->translate_waytype_to_tt(veh->get_waytype())] += restwert;
+				assets[finance->translate_waytype_to_tt(veh->get_desc()->get_waytype())] += restwert;
 			}
 		}
 	}
