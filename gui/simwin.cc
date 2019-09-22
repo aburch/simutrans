@@ -1781,6 +1781,11 @@ void win_display_flush(double konto)
 	}
 #endif
 	scr_coord_val w_left = 20+display_proportional_rgb(20, status_bar_text_y, time, ALIGN_LEFT, SYSCOL_STATUSBAR_TEXT, true);
+	char spacing_shift_str[15];
+	const uint16 divisor = wl->get_settings().get_spacing_shift_divisor();
+	const float month_ratio = (float)(wl->get_ticks()%wl->ticks_per_world_month)/wl->ticks_per_world_month;
+	sprintf(spacing_shift_str, "%d/%d", (uint16)(month_ratio*divisor), divisor);
+	display_proportional_rgb(20+w_left, status_bar_text_y, spacing_shift_str, ALIGN_LEFT, SYSCOL_STATUSBAR_TEXT, true);
 	scr_coord_val w_right  = display_proportional_rgb(right_border-4, status_bar_text_y, info, ALIGN_RIGHT, SYSCOL_STATUSBAR_TEXT, true);
 	scr_coord_val middle = (disp_width+((w_left+8)&0xFFF0)-((w_right+8)&0xFFF0))/2;
 
