@@ -583,6 +583,12 @@ void schedule_gui_t::update_selection()
 			bt_no_unload.pressed = schedule->entries[current_stop].is_no_unload();
 			bt_wait_for_time.enable();
 			bt_wait_for_time.pressed = schedule->entries[current_stop].get_wait_for_time();
+			if(  schedule->entries[current_stop].get_wait_for_time()  ) {
+				//schedule->entries[current_stop].spacing cannot be zero.
+				sprintf(lb_spacing_str, "%d", world()->get_settings().get_spacing_shift_divisor()/schedule->entries[current_stop].spacing);
+			} else {
+				sprintf(lb_spacing_str, "off");
+			}
 			numimp_spacing.enable();
 			numimp_spacing.set_value( schedule->entries[current_stop].spacing );
 			numimp_spacing_shift.enable();
@@ -797,6 +803,12 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	else if(comp == &bt_tmp_schedule) {
 		schedule->set_temporary(!bt_tmp_schedule.pressed);
 		bt_tmp_schedule.pressed = schedule->is_temporary();
+	}
+	else if(comp == &bt_wait_for_time) {
+		if (!schedule->empty()) {
+			schedule->entries[schedule->get_current_stop()].set_wait_for_time(!bt_wait_for_time.pressed);
+			update_selection();
+		}
 	}
 	else if(comp == &numimp_spacing) {
 		if (!schedule->empty()) {
