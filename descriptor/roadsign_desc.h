@@ -76,7 +76,7 @@ public:
 	bool is_choose_sign() const { return (flags & CHOOSE_SIGN) != 0; }
 
 	//  return true for signal
-	bool is_simple_signal() const { return (flags & (SIGN_SIGNAL|CHOOSE_SIGN)) == SIGN_SIGNAL; }
+	bool is_simple_signal() const { return (flags & (SIGN_SIGNAL|CHOOSE_SIGN|SIGN_PRE_SIGNAL|SIGN_PRIORITY_SIGNAL|SIGN_LONGBLOCK_SIGNAL)) == SIGN_SIGNAL; }
 
 	//  return true for presignal
 	bool is_pre_signal() const { return (flags & SIGN_PRE_SIGNAL) != 0; }
