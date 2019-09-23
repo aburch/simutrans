@@ -993,10 +993,13 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 		file->rdwr_long(bridge_success_percentage);
 	}
 
-	//if(file->get_extended_version() >= 12 || (file->get_version() >= 112007 && file->get_extended_version() >= 11))
-	//{
+	if(file->get_extended_version() >= 12 || (file->get_version() >= 112007 && file->get_extended_version() >= 11))
+	{
 		file->rdwr_long(renovations_try);
 		file->rdwr_long(renovations_count);
+	}
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 13) || file->get_extended_version() >= 15)
+	{
 		file->rdwr_long(renovation_range);
 		file->rdwr_long(renovation_influence_type);
 		file->rdwr_short(renovation_city_size_count[0]);
@@ -1010,7 +1013,7 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 		file->rdwr_short(renovation_ranges_by_type[1]);
 		file->rdwr_short(renovation_ranges_by_type[2]);
 		file->rdwr_long(renovation_distance_chance);
-	//}
+	}
 
 	file->rdwr_short(ind_start_score);
 	file->rdwr_short(ind_neighbour_score[0]);
