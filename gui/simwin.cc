@@ -785,6 +785,9 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 		return wins.get_count();
 	}
 	else {
+		if(  !( wt & w_do_not_delete )  ) {
+			delete gui;
+		}
 		return -1;
 	}
 }
