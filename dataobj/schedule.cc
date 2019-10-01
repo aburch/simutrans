@@ -263,6 +263,10 @@ void schedule_t::rdwr(loadsave_t *file)
 				file->rdwr_short(entries[i].spacing);
 				file->rdwr_short(entries[i].spacing_shift);
 				file->rdwr_short(entries[i].delay_tolerance);
+				// v23 can violate spacing must be larger than 0 limitation.
+				if(  file->is_loading()  &&  entries[i].spacing<1  ) {
+					entries[i].spacing = 1;
+				}
 			} else {
 				entries[i].spacing = 1;
 				entries[i].spacing_shift = entries[i].delay_tolerance = 0;
