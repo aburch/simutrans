@@ -833,7 +833,7 @@ bool get_external_IP( cbuffer_t &myIPaddr, cbuffer_t &altIPaddr )
 	// query "simutrans-forum.de/get_IP.php" for IP (faster than asking router and we can get IP6 too)
 	const char *err = network_http_get( QUERY_ADDR_IP, QUERY_ADDR_URL, altIPaddr );
 	// if we have a dual stack system, IP6 should be preferred, i.e. we have now the IP6
-	if(  err==NULL  &&  strstr(myIPaddr,":")  ) {
+	if(  err==NULL  &&  strstr(altIPaddr,":")  ) {
 		// try to get and IPv4 address too
 		if(  !network_http_get( QUERY_ADDR_IPv4_ONLY, QUERY_ADDR_URL, myIPaddr )  ) {
 			if(  strcmp( myIPaddr, altIPaddr ) == 0   ) {
@@ -841,6 +841,9 @@ bool get_external_IP( cbuffer_t &myIPaddr, cbuffer_t &altIPaddr )
 				altIPaddr.clear();
 			}
 		}
+	}
+	else {
+		myIPaddr = altIPaddr;
 	}
 
 #if 0
