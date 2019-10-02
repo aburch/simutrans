@@ -19,6 +19,7 @@
 	FIX: Construction of priority and longblock signals
 	CHG: Start with random midi song
 	ADD: Timeline for pedestrians
+	FIX: IP4 address query for easyserver
 
 
 Release of 120.4.1 (r8600 on 23-Sep-2018):
