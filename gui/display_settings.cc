@@ -76,25 +76,25 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	set_table_layout(1,0);
 
 	// Show thememanager
-	buttons[23].init(button_t::roundbox_state | button_t::flexible, "Select a theme for display");
-	add_component(buttons+23);
+	buttons[IDBTN_SHOW_THEMEMANAGER].init(button_t::roundbox_state | button_t::flexible, "Select a theme for display");
+	add_component(buttons+IDBTN_SHOW_THEMEMANAGER);
 
 	// Change font
-	buttons[25].init(button_t::roundbox_state | button_t::flexible, "Select display font");
-	add_component(buttons+25);
+	buttons[IDBTN_CHANGE_FONT].init(button_t::roundbox_state | button_t::flexible, "Select display font");
+	add_component(buttons+IDBTN_CHANGE_FONT);
 
 	add_table(2,0);
 	// Show grid checkbox
-	buttons[17].init(button_t::square_state, "show grid");
-	add_component(buttons+17, 2);
+	buttons[IDBTN_SHOW_GRID].init(button_t::square_state, "show grid");
+	add_component(buttons+IDBTN_SHOW_GRID, 2);
 
 	// Underground view checkbox
-	buttons[16].init(button_t::square_state, "underground mode");
-	add_component(buttons+16, 2);
+	buttons[IDBTN_UNDERGROUND_VIEW].init(button_t::square_state, "underground mode");
+	add_component(buttons+IDBTN_UNDERGROUND_VIEW, 2);
 
 	// Show slice map view checkbox
-	buttons[20].init(button_t::square_state, "sliced underground mode");
-	add_component(buttons+20);
+	buttons[IDBTN_SHOW_SLICE_MAP_VIEW].init(button_t::square_state, "sliced underground mode");
+	add_component(buttons+IDBTN_SHOW_SLICE_MAP_VIEW);
 
 	// underground slice edit
 	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
@@ -103,9 +103,9 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	add_component( &inp_underground_level );
 
 	// Day/night change checkbox
-	buttons[9].init(button_t::square_state, "8WORLD_CHOOSE");
-	buttons[9].pressed = env_t::night_shift;
-	add_component(buttons+9, 2);
+	buttons[IDBTN_DAY_NIGHT_CHANGE].init(button_t::square_state, "8WORLD_CHOOSE");
+	buttons[IDBTN_DAY_NIGHT_CHANGE].pressed = env_t::night_shift;
+	add_component(buttons+IDBTN_DAY_NIGHT_CHANGE, 2);
 
 	// Brightness label
 	new_component<gui_label_t>("1LIGHT_CHOOSE");
@@ -117,9 +117,9 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	add_component(&brightness);
 
 	// Scroll inverse checkbox
-	buttons[6].init(button_t::square_state, "4LIGHT_CHOOSE");
-	buttons[6].pressed = env_t::scroll_multi < 0;
-	add_component(buttons+6, 2);
+	buttons[IDBTN_SCROLL_INVERSE].init(button_t::square_state, "4LIGHT_CHOOSE");
+	buttons[IDBTN_SCROLL_INVERSE].pressed = env_t::scroll_multi < 0;
+	add_component(buttons+IDBTN_SCROLL_INVERSE, 2);
 
 	// Scroll speed label
 	new_component<gui_label_t>("3LIGHT_CHOOSE");
@@ -134,13 +134,13 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	new_component_span<gui_divider_t>(2);
 
 	// Transparent instead of hidden checkbox
-	buttons[10].init(button_t::square_state, "hide transparent");
-	buttons[10].pressed = env_t::hide_with_transparency;
-	add_component(buttons+10, 2);
+	buttons[IDBTN_TRANSPARENT_INSTEAD_OF_HIDDEN].init(button_t::square_state, "hide transparent");
+	buttons[IDBTN_TRANSPARENT_INSTEAD_OF_HIDDEN].pressed = env_t::hide_with_transparency;
+	add_component(buttons+IDBTN_TRANSPARENT_INSTEAD_OF_HIDDEN, 2);
 
 	// Hide trees checkbox
-	buttons[11].init(button_t::square_state, "hide trees");
-	add_component(buttons+11, 2);
+	buttons[IDBTN_HIDE_TREES].init(button_t::square_state, "hide trees");
+	add_component(buttons+IDBTN_HIDE_TREES, 2);
 
 	// Hide buildings
 	hide_buildings.set_focusable(false);
@@ -151,9 +151,9 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	add_component(&hide_buildings, 2);
 	hide_buildings.add_listener(this);
 
-	buttons[21].set_tooltip( "hide objects under cursor" );
-	buttons[21].init( button_t::square_state ,  "Smart hide objects" );
-	add_component(buttons+21);
+	buttons[IDBTN_HIDE_BUILDINGS].set_tooltip( "hide objects under cursor" );
+	buttons[IDBTN_HIDE_BUILDINGS].init( button_t::square_state ,  "Smart hide objects" );
+	add_component(buttons+IDBTN_HIDE_BUILDINGS);
 
 	// Smart hide objects edit
 	cursor_hide_range.set_value(env_t::cursor_hide_range);
@@ -165,42 +165,42 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	new_component_span<gui_divider_t>(2);
 
 	// Transparent station coverage
-	buttons[14].init(button_t::square_state, "transparent station coverage");
-	buttons[14].pressed = env_t::use_transparency_station_coverage;
-	add_component(buttons+14, 2);
+	buttons[IDBTN_TRANSPARENT_STATION_COVERAGE].init(button_t::square_state, "transparent station coverage");
+	buttons[IDBTN_TRANSPARENT_STATION_COVERAGE].pressed = env_t::use_transparency_station_coverage;
+	add_component(buttons+IDBTN_TRANSPARENT_STATION_COVERAGE, 2);
 
 	// Show station coverage
-	buttons[15].init(button_t::square_state, "show station coverage");
-	add_component(buttons+15, 2);
+	buttons[IDBTN_SHOW_STATION_COVERAGE].init(button_t::square_state, "show station coverage");
+	add_component(buttons+IDBTN_SHOW_STATION_COVERAGE, 2);
 
 	// Show station names arrow
 	add_table(2,1);
 	{
-		buttons[18].set_typ(button_t::arrowright);
-		buttons[18].set_tooltip("show station names");
-		add_component(buttons+18);
+		buttons[IDBTN_SHOW_STATION_NAMES_ARROW].set_typ(button_t::arrowright);
+		buttons[IDBTN_SHOW_STATION_NAMES_ARROW].set_tooltip("show station names");
+		add_component(buttons+IDBTN_SHOW_STATION_NAMES_ARROW);
 		new_component<gui_label_stationname_t>("show station names");
 	}
 	end_table();
 	new_component<gui_empty_t>();
 
 	// Show waiting bars checkbox
-	buttons[19].init(button_t::square_state, "show waiting bars");
-	buttons[19].pressed = env_t::show_names&2;
-	add_component(buttons+19, 2);
+	buttons[IDBTN_SHOW_WAITING_BARS].init(button_t::square_state, "show waiting bars");
+	buttons[IDBTN_SHOW_WAITING_BARS].pressed = env_t::show_names&2;
+	add_component(buttons+IDBTN_SHOW_WAITING_BARS, 2);
 
 	// Divider 3
 	new_component_span<gui_divider_t>(2);
 
 	// Pedestrians in towns checkbox
-	buttons[8].init(button_t::square_state, "6LIGHT_CHOOSE");
-	buttons[8].pressed = welt->get_settings().get_random_pedestrians();
-	add_component(buttons+8, 2);
+	buttons[IDBTN_PEDESTRIANS_IN_TOWNS].init(button_t::square_state, "6LIGHT_CHOOSE");
+	buttons[IDBTN_PEDESTRIANS_IN_TOWNS].pressed = welt->get_settings().get_random_pedestrians();
+	add_component(buttons+IDBTN_PEDESTRIANS_IN_TOWNS, 2);
 
 	// Pedestrians at stops checkbox
-	buttons[7].init(button_t::square_state, "5LIGHT_CHOOSE");
-	buttons[7].pressed = welt->get_settings().get_show_pax();
-	add_component(buttons+7, 2);
+	buttons[IDBTN_PEDESTRIANS_AT_STOPS].init(button_t::square_state, "5LIGHT_CHOOSE");
+	buttons[IDBTN_PEDESTRIANS_AT_STOPS].pressed = welt->get_settings().get_show_pax();
+	add_component(buttons+IDBTN_PEDESTRIANS_AT_STOPS, 2);
 
 	// Traffic density label
 	new_component<gui_label_t>("6WORLD_CHOOSE");
@@ -221,8 +221,8 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	convoy_tooltip.add_listener(this);
 
 	// Show schedule's stop checkbox
-	buttons[22].init( button_t::square_state ,  "Highlite schedule" );
-	add_component(buttons+22, 2);
+	buttons[IDBTN_SHOW_SCHEDULES_STOP].init( button_t::square_state ,  "Highlite schedule" );
+	add_component(buttons+IDBTN_SHOW_SCHEDULES_STOP, 2);
 
 	// convoi booking message options
 	money_booking.set_focusable( false );
@@ -235,9 +235,9 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	// Toggle simple drawing for debugging
 #ifdef DEBUG
-	buttons[24].init(button_t::square_state, "Simple drawing");
-	buttons[24].pressed = env_t::simple_drawing;
-	add_component(buttons+24, 2);
+	buttons[IDBTN_SIMPLE_DRAWING].init(button_t::square_state, "Simple drawing");
+	buttons[IDBTN_SIMPLE_DRAWING].pressed = env_t::simple_drawing;
+	add_component(buttons+IDBTN_SIMPLE_DRAWING, 2);
 #endif
 
 	// Divider 4
@@ -299,7 +299,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 
 	// Scroll speed edit
 	if(&scrollspeed==comp) {
-		env_t::scroll_multi = (sint16)( buttons[6].pressed ? -v.i : v.i );
+		env_t::scroll_multi = (sint16)( buttons[IDBTN_SCROLL_INVERSE].pressed ? -v.i : v.i );
 	} else
 
 	// Smart hide objects edit
@@ -313,40 +313,40 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	} else
 
 	// Scroll inverse checkbox
-	if((buttons+6)==comp) {
-		buttons[6].pressed ^= 1;
+	if((buttons+IDBTN_SCROLL_INVERSE)==comp) {
+		buttons[IDBTN_SCROLL_INVERSE].pressed ^= 1;
 		env_t::scroll_multi = -env_t::scroll_multi;
 	} else
 
 	// Pedestrians at stops checkbox
-	if((buttons+7)==comp) {
+	if((buttons+IDBTN_PEDESTRIANS_AT_STOPS)==comp) {
 		if(  !env_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			welt->set_tool( tool_t::simple_tool[TOOL_TOOGLE_PAX&0xFFF], welt->get_active_player() );
 		}
 	} else
 
 	// Pedestrians in towns checkbox
-	if((buttons+8)==comp) {
+	if((buttons+IDBTN_PEDESTRIANS_IN_TOWNS)==comp) {
 		if(  !env_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			welt->set_tool( tool_t::simple_tool[TOOL_TOOGLE_PEDESTRIANS&0xFFF], welt->get_active_player() );
 		}
 	} else
 
 	// Day/night change checkbox
-	if((buttons+9)==comp) {
+	if((buttons+IDBTN_DAY_NIGHT_CHANGE)==comp) {
 		env_t::night_shift = !env_t::night_shift;
-		buttons[9].pressed ^= 1;
+		buttons[IDBTN_DAY_NIGHT_CHANGE].pressed ^= 1;
 	} else
 
 	// Transparent instead of hidden checkbox
-	if((buttons+10)==comp) {
+	if((buttons+IDBTN_TRANSPARENT_INSTEAD_OF_HIDDEN)==comp) {
 		env_t::hide_with_transparency = !env_t::hide_with_transparency;
-		buttons[10].pressed ^= 1;
+		buttons[IDBTN_TRANSPARENT_INSTEAD_OF_HIDDEN].pressed ^= 1;
 		baum_t::recalc_outline_color();
 	} else
 
 	// Hide trees checkbox
-	if((buttons+11)==comp) {
+	if((buttons+IDBTN_HIDE_TREES)==comp) {
 		env_t::hide_trees = !env_t::hide_trees;
 		baum_t::recalc_outline_color();
 	} else
@@ -357,22 +357,22 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	} else
 
 	// Transparent station coverage
-	if((buttons+14)==comp) {
+	if((buttons+IDBTN_TRANSPARENT_STATION_COVERAGE)==comp) {
 		env_t::use_transparency_station_coverage = !env_t::use_transparency_station_coverage;
-		buttons[14].pressed ^= 1;
+		buttons[IDBTN_TRANSPARENT_STATION_COVERAGE].pressed ^= 1;
 	} else
 
 	// Show station coverage
-	if((buttons+15)==comp) {
+	if((buttons+IDBTN_SHOW_STATION_COVERAGE)==comp) {
 		env_t::station_coverage_show = env_t::station_coverage_show==0 ? 0xFF : 0;
 	} else
 
 	// Underground view checkbox
-	if((buttons+16)==comp) {
+	if((buttons+IDBTN_UNDERGROUND_VIEW)==comp) {
 
 		// see simtool.cc::tool_show_underground_t::init
-		grund_t::set_underground_mode(buttons[16].pressed ? grund_t::ugm_none : grund_t::ugm_all, inp_underground_level.get_value());
-		buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
+		grund_t::set_underground_mode(buttons[IDBTN_UNDERGROUND_VIEW].pressed ? grund_t::ugm_none : grund_t::ugm_all, inp_underground_level.get_value());
+		buttons[IDBTN_UNDERGROUND_VIEW].pressed = grund_t::underground_mode == grund_t::ugm_all;
 
 		// calc new images
 		welt->update_underground();
@@ -382,12 +382,12 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	} else
 
 	// Show grid checkbox
-	if((buttons+17)==comp) {
+	if((buttons+IDBTN_SHOW_GRID)==comp) {
 		grund_t::toggle_grid();
 	} else
 
 	// Show station names arrow
-	if((buttons+18)==comp) {
+	if((buttons+IDBTN_SHOW_STATION_NAMES_ARROW)==comp) {
 		if(  env_t::show_names&1  ) {
 			if(  (env_t::show_names>>2) == 2  ) {
 				env_t::show_names &= 2;
@@ -403,16 +403,16 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	} else
 
 	// Show waiting bars checkbox
-	if((buttons+19)==comp) {
+	if((buttons+IDBTN_SHOW_WAITING_BARS)==comp) {
 		env_t::show_names ^= 2;
 	} else
 
 	// Show slice map view checkbox
-	if((buttons+20)==comp) {
+	if((buttons+IDBTN_SHOW_SLICE_MAP_VIEW)==comp) {
 
 		// see simtool.cc::tool_show_underground_t::init
-		grund_t::set_underground_mode(buttons[20].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
-		buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
+		grund_t::set_underground_mode(buttons[IDBTN_SHOW_SLICE_MAP_VIEW].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
+		buttons[IDBTN_SHOW_SLICE_MAP_VIEW].pressed = grund_t::underground_mode == grund_t::ugm_level;
 
 		// calc new images
 		welt->update_underground();
@@ -422,20 +422,20 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	} else
 
 	// Hide buildings and trees under mouse cursor checkbox
-	if((buttons+21)==comp) {
+	if((buttons+IDBTN_HIDE_BUILDINGS)==comp) {
 
 		// see simtool.cc::tool_hide_under_cursor_t::init
 		env_t::hide_under_cursor = !env_t::hide_under_cursor  &&  env_t::cursor_hide_range>0;
-		buttons[21].pressed = env_t::hide_under_cursor;
+		buttons[IDBTN_HIDE_BUILDINGS].pressed = env_t::hide_under_cursor;
 
 		// renew toolbar
 		tool_t::update_toolbars();
 	} else
 
 	// Show schedule's stop checkbox
-	if((buttons+22)==comp) {
+	if((buttons+IDBTN_SHOW_SCHEDULES_STOP)==comp) {
 		env_t::visualize_schedule = !env_t::visualize_schedule;
-		buttons[22].pressed = env_t::visualize_schedule;
+		buttons[IDBTN_SHOW_SCHEDULES_STOP].pressed = env_t::visualize_schedule;
 	} else
 
 	// underground slice edit
@@ -448,14 +448,14 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		}
 	} else
 
-	if((buttons+23)==comp) {
+	if((buttons+IDBTN_SHOW_THEMEMANAGER)==comp) {
 		create_win(new themeselector_t(), w_info, magic_themes);
 	}
-	if((buttons+24)==comp) {
+	if((buttons+IDBTN_SIMPLE_DRAWING)==comp) {
 		env_t::simple_drawing = !env_t::simple_drawing;
-		buttons[24].pressed = env_t::simple_drawing;
+		buttons[IDBTN_SIMPLE_DRAWING].pressed = env_t::simple_drawing;
 	}
-	if((buttons+25)==comp) {
+	if((buttons+IDBTN_CHANGE_FONT)==comp) {
 		create_win(new loadfont_frame_t(), w_info, magic_font);
 	}
 	if(  &money_booking==comp  ) {
@@ -508,18 +508,18 @@ void color_gui_t::update_labels()
 void color_gui_t::draw(scr_coord pos, scr_size size)
 {
 	// Update button states that was changed with keyboard ...
-	buttons[ 7].pressed = welt->get_settings().get_show_pax();
-	buttons[ 8].pressed = welt->get_settings().get_random_pedestrians();
-	buttons[11].pressed = env_t::hide_trees;
-	buttons[21].pressed = env_t::hide_under_cursor;
-	buttons[15].pressed = env_t::station_coverage_show;
-	buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
-	buttons[17].pressed = grund_t::show_grid;
-	buttons[19].pressed = (env_t::show_names&2)!=0;
-	buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
-	buttons[22].pressed = env_t::visualize_schedule;
-	buttons[24].pressed = env_t::simple_drawing;
-	buttons[24].enable(welt->is_paused());
+	buttons[IDBTN_PEDESTRIANS_AT_STOPS].pressed = welt->get_settings().get_show_pax();
+	buttons[IDBTN_PEDESTRIANS_IN_TOWNS].pressed = welt->get_settings().get_random_pedestrians();
+	buttons[IDBTN_HIDE_TREES].pressed = env_t::hide_trees;
+	buttons[IDBTN_HIDE_BUILDINGS].pressed = env_t::hide_under_cursor;
+	buttons[IDBTN_SHOW_STATION_COVERAGE].pressed = env_t::station_coverage_show;
+	buttons[IDBTN_UNDERGROUND_VIEW].pressed = grund_t::underground_mode == grund_t::ugm_all;
+	buttons[IDBTN_SHOW_GRID].pressed = grund_t::show_grid;
+	buttons[IDBTN_SHOW_WAITING_BARS].pressed = (env_t::show_names&2)!=0;
+	buttons[IDBTN_SHOW_SLICE_MAP_VIEW].pressed = grund_t::underground_mode == grund_t::ugm_level;
+	buttons[IDBTN_SHOW_SCHEDULES_STOP].pressed = env_t::visualize_schedule;
+	buttons[IDBTN_SIMPLE_DRAWING].pressed = env_t::simple_drawing;
+	buttons[IDBTN_SIMPLE_DRAWING].enable(welt->is_paused());
 
 	update_labels();
 
