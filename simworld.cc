@@ -4917,6 +4917,24 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 				new_xoff -= tile_raster_scale_x(-v.get_xoff(), rw);
 				new_yoff -= tile_raster_scale_y(-v.get_yoff(), rw) + tile_raster_scale_y(new_pos.z * TILE_HEIGHT_STEP, rw);
 				viewport->change_world_position( new_pos.get_2d(), -new_xoff, -new_yoff );
+
+				// auto underground to follow convois
+				if( env_t::follow_convoi_underground ) {
+					grund_t *gr = lookup_kartenboden( new_pos.get_2d() );
+					bool redraw = false;
+					if( new_pos.z < gr->get_hoehe() ) {
+						redraw = grund_t::underground_mode == grund_t::ugm_level ? grund_t::underground_level != new_pos.z : true;
+						grund_t::set_underground_mode( grund_t::ugm_level, new_pos.z );
+					}
+					else {
+						redraw = grund_t::underground_mode != grund_t::ugm_none;
+						grund_t::set_underground_mode( grund_t::ugm_none, 0 );
+					}
+					if(  redraw  ) {
+						// recalc all images on map
+						update_underground();
+					}
+				}
 			}
 		}
 

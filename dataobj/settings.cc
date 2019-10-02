@@ -2020,6 +2020,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::simple_drawing_fast_forward = contents.get_int("simple_drawing_fast_forward",env_t::simple_drawing_fast_forward );
 	env_t::visualize_schedule = contents.get_int("visualize_schedule",env_t::visualize_schedule ) != 0;
 	env_t::show_vehicle_states = contents.get_int("show_vehicle_states",env_t::show_vehicle_states );
+	env_t::follow_convoi_underground = contents.get_int("follow_convoi_underground",env_t::follow_convoi_underground );
 
 	env_t::show_delete_buttons = contents.get_int("show_delete_buttons",env_t::show_delete_buttons ) != 0;
 	env_t::chat_window_transparency = contents.get_int("chat_transparency",env_t::chat_window_transparency );

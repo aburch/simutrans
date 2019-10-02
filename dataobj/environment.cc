@@ -24,6 +24,7 @@ bool env_t::simple_drawing = false;
 bool env_t::simple_drawing_fast_forward = true;
 sint16 env_t::simple_drawing_normal = 4;
 sint16 env_t::simple_drawing_default = 24;
+bool env_t::follow_convoi_underground = true;
 
 char env_t::program_dir[PATH_MAX];
 plainstring env_t::default_theme;
