@@ -21,6 +21,7 @@
 	ADD: Timeline for pedestrians
 	FIX: IP4 address query for easyserver
 	ADD: new simuconf.tab parameter follow_convoi_underground to slice through grounds to follow a convoi in sliced mode
+	ADD: search for midi files first in pak folder, then user folder, then program folder
 
 
 Release of 120.4.1 (r8600 on 23-Sep-2018):
