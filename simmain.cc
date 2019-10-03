@@ -1258,9 +1258,13 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 	// init midi before loading sounds
 	if(  dr_init_midi()  ) {
 		dbg->important("Reading midi data ...");
-		if(!midi_init(env_t::user_dir)) {
-			if(!midi_init(env_t::program_dir)) {
-				dbg->important("Midi disabled ...");
+		char pak_dir[PATH_MAX];
+		sprintf( pak_dir, "%s%s", env_t::program_dir, env_t::objfilename.c_str() );
+		if(  !midi_init(pak_dir)  ) {
+			if(  !midi_init(env_t::user_dir)  ) {
+				if(  !midi_init(env_t::program_dir)  ) {
+					dbg->message("simmain()","Midi disabled ...");
+				}
 			}
 		}
 		if(gimme_arg(argc, argv, "-nomidi", 0)) {
