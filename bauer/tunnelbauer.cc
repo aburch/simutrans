@@ -9,7 +9,7 @@
 
 #include "tunnelbauer.h"
 
-#include "../gui/karte.h"
+#include "../gui/minimap.h"
 
 #include "../simworld.h"
 #include "../player/simplay.h"
@@ -49,7 +49,7 @@ void tunnel_builder_t::register_desc(tunnel_desc_t *desc)
 		dbg->doubled( "tunnel", desc->get_name() );
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
-//		delete old_desc; becasue deleting PowerTunnel seems to corrupt memprz, and the small memory loss in not reallz worth the troubles
+//		delete old_desc; because deleting PowerTunnel seems to corrupt memory, and the small memory loss in not really worth the troubles
 	}
 	tunnel_by_name.put(desc->get_name(), desc);
 }
@@ -809,7 +809,7 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 		welt->access(pos.get_2d())->boden_entfernen(gr);
 		delete gr;
 
-		reliefkarte_t::get_karte()->calc_map_pixel( pos.get_2d() );
+		minimap_t::get_instance()->calc_map_pixel( pos.get_2d() );
 	}
 
 	// And now we can delete the tunnel ends

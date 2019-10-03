@@ -72,7 +72,7 @@
 #include "gui/password_frame.h"
 #include "gui/messagebox.h"
 #include "gui/help_frame.h"
-#include "gui/karte.h"
+#include "gui/minimap.h"
 #include "gui/player_frame_t.h"
 #include "gui/components/gui_convoy_assembler.h"
 
@@ -772,7 +772,7 @@ void karte_t::init_tiles()
 	MEMZERON(water_hgts, x * y);
 
 	win_set_world( this );
-	reliefkarte_t::get_karte()->init();
+	minimap_t::get_instance()->init();
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		// old default: AI 3 passenger, other goods
@@ -2708,14 +2708,14 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 	intr_disable();
 
-	bool reliefkarte = reliefkarte_t::is_visible;
+	bool minimap_was_visible = minimap_t::is_visible;
 
 	uint32 max_display_progress;
 
 	// If this is not called by karte_t::init
 	if(  old_x != 0  ) {
 		mute_sound(true);
-		reliefkarte_t::is_visible = false;
+		minimap_t::is_visible = false;
 
 		if(is_display_init()) {
 			display_show_pointer(false);
@@ -3040,10 +3040,10 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		}
 		mute_sound(false);
 
-		reliefkarte_t::is_visible = reliefkarte;
-		reliefkarte_t::get_karte()->init();
-		reliefkarte_t::get_karte()->calc_map();
-		reliefkarte_t::get_karte()->set_mode( reliefkarte_t::get_karte()->get_mode() );
+		minimap_t::is_visible = minimap_was_visible;
+		minimap_t::get_instance()->init();
+		minimap_t::get_instance()->calc_map();
+		minimap_t::get_instance()->set_display_mode( minimap_t::get_instance()->get_display_mode() );
 
 		set_dirty();
 		reset_timer();
@@ -4582,15 +4582,15 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 
 	if( cached_grid_size.x != cached_grid_size.y ) {
 		// the map must be reinit
-		reliefkarte_t::get_karte()->init();
+		minimap_t::get_instance()->init();
 	}
 
 	//  rotate map search array
 	factory_builder_t::new_world();
 
 	// update minimap
-	if(reliefkarte_t::is_visible) {
-		reliefkarte_t::get_karte()->set_mode( reliefkarte_t::get_karte()->get_mode() );
+	if(minimap_t::is_visible) {
+		minimap_t::get_instance()->set_display_mode( minimap_t::get_instance()->get_display_mode() );
 	}
 
 	get_scenario()->rotate90( cached_size.x );
@@ -5125,7 +5125,7 @@ void karte_t::new_month()
 	calc_max_vehicle_speeds();
 
 	// recalc old settings (and maybe update the stops with the current values)
-	reliefkarte_t::get_karte()->new_month();
+	minimap_t::get_instance()->new_month();
 
 	INT_CHECK("simworld 3042");
 
@@ -9358,8 +9358,8 @@ void karte_t::load(loadsave_t *file)
 	viewport->set_x_off(0);
 	viewport->set_y_off(0);
 
-	// Reliefkarte an neue welt anpassen
-	reliefkarte_t::get_karte()->init();
+	// minimap_was_visible an neue welt anpassen
+	minimap_t::get_instance()->init();
 
 	ls.set_max( get_size().y*2+256 );
 	init_tiles();
@@ -9560,10 +9560,10 @@ DBG_MESSAGE("karte_t::load()", "init player");
 		}
 	}
 
-	// Reliefkarte an neue welt anpassen
+	// minimap_was_visible an neue welt anpassen
 	DBG_MESSAGE("karte_t::load()", "init relief");
 	win_set_world( this );
-	reliefkarte_t::get_karte()->init();
+	minimap_t::get_instance()->init();
 
 	sint32 fabs;
 	file->rdwr_long(fabs);

@@ -264,7 +264,6 @@ add_executable(simutrans-extended
 	gui/help_frame.cc
 	gui/headquarter_info.cc
 	gui/jump_frame.cc
-	gui/karte.cc
 	gui/kennfarbe.cc
 	gui/label_info.cc
 	gui/labellist_frame_t.cc
@@ -280,6 +279,7 @@ add_executable(simutrans-extended
 	gui/message_frame_t.cc
 	gui/message_option_t.cc
 	gui/message_stats_t.cc
+	gui/minimap.cc
 	gui/money_frame.cc
 	gui/obj_info.cc
 	gui/onewaysign_info.cc
