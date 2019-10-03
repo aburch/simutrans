@@ -33,7 +33,7 @@
 
 #include "../descriptor/objversion.h"
 
-#include "../gui/karte.h"	// to update map after construction of new industry
+#include "../gui/minimap.h" // to update map after construction of new industry
 
 
 karte_ptr_t factory_builder_t::welt;
@@ -463,7 +463,7 @@ void factory_builder_t::distribute_attractions(int max_number)
 
 	}
 	// update an open map
-	reliefkarte_t::get_karte()->calc_map_size();
+	minimap_t::get_instance()->calc_map_size();
 }
 
 /**
@@ -717,7 +717,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		DBG_MESSAGE("factory_builder_t::build_link()","update karte");
 
 		// update the map if needed
-		reliefkarte_t::get_karte()->calc_map_size();
+		minimap_t::get_instance()->calc_map_size();
 
 		INT_CHECK( "fabrikbauer 730" );
 
@@ -1012,7 +1012,7 @@ next_ware_check:
 				buf.printf( translator::translate("Factory chain extended\nfor %s near\n%s built with\n%i factories."), translator::translate(last_built_consumer->get_name()), stadt_name, nr );
 				welt->get_message()->add_message(buf, last_built_consumer->get_pos().get_2d(), message_t::industry, CITY_KI, last_built_consumer->get_desc()->get_building()->get_tile(0)->get_background(0, 0, 0));
 			}
-			reliefkarte_t::get_karte()->calc_map();
+			minimap_t::get_instance()->calc_map();
 			return nr;
 		}
 	}
@@ -1065,7 +1065,7 @@ next_ware_check:
 					nr += build_link(NULL, fab, -1 /* random prodbase */, rotation, &pos, welt->get_public_player(), 1, ignore_climates);
 					if(nr>0) {
 						fabrik_t *our_fab = fabrik_t::get_fab( pos.get_2d() );
-						reliefkarte_t::get_karte()->calc_map_size();
+						minimap_t::get_instance()->calc_map_size();
 						// tell the player
 						if(tell_me) {
 							const char *stadt_name = translator::translate("nowhere");

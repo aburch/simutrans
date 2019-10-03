@@ -9,7 +9,7 @@
 #include <string.h>
 
 #include "enlarge_map_frame_t.h"
-#include "karte.h"
+#include "minimap.h"
 #include "welt.h"
 #include "components/gui_divider.h"
 
@@ -204,13 +204,13 @@ void enlarge_map_frame_t::update_preview()
 				}
 				else {
 					const sint16 height = welt->lookup_hgt( pos );
-					color = reliefkarte_t::calc_hoehe_farbe(height, sets->get_groundwater());
+					color = minimap_t::calc_height_color(height, sets->get_groundwater());
 				}
 			}
 			else {
 				// new part
 				const sint16 height = karte_t::perlin_hoehe(sets, pos, koord(old_x,old_y) );
-				color = reliefkarte_t::calc_hoehe_farbe(height, sets->get_groundwater());
+				color = minimap_t::calc_height_color(height, sets->get_groundwater());
 			}
 			map.at(i,j) = color;
 		}

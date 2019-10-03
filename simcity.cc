@@ -30,7 +30,7 @@
 #include "simmesg.h"
 #include "simcolor.h"
 
-#include "gui/karte.h"
+#include "gui/minimap.h"
 #include "gui/city_info.h"
 
 #include "descriptor/building_desc.h"
@@ -955,8 +955,8 @@ stadt_t::~stadt_t()
 	// close info win
 	destroy_win((ptrdiff_t)this);
 
-	if(  reliefkarte_t::get_karte()->get_city() == this  ) {
-		reliefkarte_t::get_karte()->set_city(NULL);
+	if(  minimap_t::get_instance()->is_city_selected(this)  ) {
+		minimap_t::get_instance()->set_selected_city(NULL);
 	}
 
 	// only if there is still a world left to delete from
@@ -2782,7 +2782,7 @@ bool update_city_street(koord pos)
 					weg->set_gehweg(true);
 					weg->set_desc(cr);
 					gr->calc_image();
-					reliefkarte_t::get_karte()->calc_map_pixel(pos+neighbors[i]);
+					minimap_t::get_instance()->calc_map_pixel(pos+neighbors[i]);
 					return true;	// update only one road per renovation
 				}
 			}
