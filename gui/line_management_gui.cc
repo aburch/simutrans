@@ -6,7 +6,7 @@
 
 #include "../dataobj/schedule.h"
 #include "../dataobj/loadsave.h"
-#include "karte.h"
+#include "minimap.h"
 #include "../simline.h"
 #include "simwin.h"
 #include "../simtool.h"
@@ -23,7 +23,7 @@ line_management_gui_t::line_management_gui_t(linehandle_t line, player_t* player
 		this->line = line;
 		// has this line a single running convoi?
 		if(  line->count_convoys() > 0  ) {
-			reliefkarte_t::get_karte()->set_current_cnv( line->get_convoy(0) );
+			minimap_t::get_instance()->set_selected_cnv( line->get_convoy(0) );
 		}
 	}
 }

@@ -47,7 +47,7 @@
 #include "gui/line_management_gui.h"
 #include "gui/tool_selector.h"
 #include "gui/station_building_select.h"
-#include "gui/karte.h"	// to update map after construction of new industry
+#include "gui/minimap.h" // to update map after construction of new industry
 #include "gui/depot_frame.h"
 #include "gui/schedule_gui.h"
 #include "gui/player_frame_t.h"
@@ -1374,7 +1374,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				else {
 					welt->set_grid_hgt(k, gr1->get_hoehe()+ corner_nw(gr1->get_grund_hang()) );
 				}
-				reliefkarte_t::get_karte()->calc_map_pixel(k);
+				minimap_t::get_instance()->calc_map_pixel(k);
 
 				welt->calc_climate( k, true );
 			}
@@ -1644,7 +1644,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 				stadt->verbinde_fabriken();
 
 				player_t::book_construction_costs(player, cost, k, ignore_wt);
-				reliefkarte_t::get_karte()->calc_map();
+				minimap_t::get_instance()->calc_map();
 				return NULL;
 			}
 		}
@@ -1812,7 +1812,7 @@ const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start,
 					}
 					if(  ok  ) {
 						welt->set_climate( k, cl, true );
-						reliefkarte_t::get_karte()->calc_map_pixel( k );
+						minimap_t::get_instance()->calc_map_pixel( k );
 						n ++;
 					}
 				}
@@ -1829,7 +1829,7 @@ const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start,
 						welt->set_water_hgt( k, gr->get_pos().z );
 						welt->access(k)->correct_water();
 						welt->set_climate( k, water_climate, true );
-						reliefkarte_t::get_karte()->calc_map_pixel( k );
+						minimap_t::get_instance()->calc_map_pixel( k );
 						n ++;
 					}
 				}

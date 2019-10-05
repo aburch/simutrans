@@ -166,7 +166,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\headquarter_info.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\help_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\jump_frame.cc" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)gui\karte.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\kennfarbe.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\label_info.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\labellist_frame_t.cc" />
@@ -181,6 +180,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\message_option_t.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\message_stats_t.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\messagebox.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)gui\minimap.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\money_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\obj_info.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\optionen.cc" />
@@ -508,7 +508,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\headquarter_info.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\help_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\jump_frame.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)gui\karte.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\kennfarbe.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\label_info.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\labellist_frame_t.h" />
@@ -523,6 +522,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\message_option_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\message_stats_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\messagebox.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)gui\minimap.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\money_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\obj_info.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\optionen.h" />

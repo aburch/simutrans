@@ -45,7 +45,7 @@
 #include "../boden/wege/strasse.h"
 
 
-#include "karte.h"
+#include "minimap.h"
 
 
 static const char *cost_type[MAX_LINE_COST] =
@@ -309,16 +309,16 @@ bool schedule_list_gui_t::infowin_event(const event_t *ev)
 	if(  ev->ev_class == INFOWIN  ) {
 		if(  ev->ev_code == WIN_CLOSE  ) {
 			// hide schedule on minimap (may not current, but for safe)
-			reliefkarte_t::get_karte()->set_current_cnv( convoihandle_t() );
+			minimap_t::get_instance()->set_selected_cnv( convoihandle_t() );
 		}
 		else if(  (ev->ev_code==WIN_OPEN  ||  ev->ev_code==WIN_TOP)  &&  line.is_bound() ) {
 			if(  line->count_convoys()>0  ) {
 				// set this schedule as current to show on minimap if possible
-				reliefkarte_t::get_karte()->set_current_cnv( line->get_convoy(0) );
+				minimap_t::get_instance()->set_selected_cnv( line->get_convoy(0) );
 			}
 			else {
 				// set this schedule as current to show on minimap if possible
-				reliefkarte_t::get_karte()->set_current_cnv( convoihandle_t() );
+				minimap_t::get_instance()->set_selected_cnv( convoihandle_t() );
 			}
 		}
 	}
@@ -661,10 +661,10 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// has this line a single running convoy?
 		if(  new_line.is_bound()  &&  new_line->count_convoys()>0  ) {
 			// set this schedule as current to show on minimap if possible
-			reliefkarte_t::get_karte()->set_current_cnv( new_line->get_convoy(0) );
+			minimap_t::get_instance()->set_selected_cnv( new_line->get_convoy(0) );
 		}
 		else {
-			reliefkarte_t::get_karte()->set_current_cnv( convoihandle_t() );
+			minimap_t::get_instance()->set_selected_cnv( convoihandle_t() );
 		}
 
 		delete last_schedule;
@@ -689,7 +689,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		chart.set_visible(true);
 
 		// hide schedule on minimap (may not current, but for safe)
-		reliefkarte_t::get_karte()->set_current_cnv( convoihandle_t() );
+		minimap_t::get_instance()->set_selected_cnv( convoihandle_t() );
 
 		delete last_schedule;
 		last_schedule = NULL;
