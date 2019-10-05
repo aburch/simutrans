@@ -9,6 +9,7 @@
 #include "../../vehicle/simpeople.h"
 #include "../pedestrian_desc.h"
 #include "../obj_node_info.h"
+#include "../intro_dates.h"
 
 #include "pedestrian_reader.h"
 #include "../../network/pakset_info.h"
@@ -61,6 +62,8 @@ obj_desc_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	desc->steps_per_frame = 0;
 	desc->offset          = 20;
 
+	desc->intro_date = DEFAULT_INTRO_DATE*12;
+	desc->retire_date = DEFAULT_RETIRE_DATE*12;
 	if(version == 0) {
 		// old, nonversion node
 		desc->distribution_weight = v;
@@ -70,6 +73,13 @@ obj_desc_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->steps_per_frame     = decode_uint16(p);
 		desc->offset              = decode_uint16(p);
 	}
-	DBG_DEBUG("pedestrian_reader_t::read_node()", "version=%i, chance=%i", version, desc->distribution_weight);
+	else if(version == 2) {
+		desc->distribution_weight = decode_uint16(p);
+		desc->steps_per_frame     = decode_uint16(p);
+		desc->offset              = decode_uint16(p);
+		desc->intro_date          = decode_uint16(p);
+		desc->retire_date         = decode_uint16(p);
+	}
+		DBG_DEBUG("pedestrian_reader_t::read_node()", "version=%i, chance=%i", version, desc->distribution_weight);
 	return desc;
 }

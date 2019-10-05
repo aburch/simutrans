@@ -30,7 +30,7 @@
 #include "dataobj/loadsave.h"
 #include "dataobj/environment.h"
 
-#include "gui/karte.h"
+#include "gui/minimap.h"
 
 
 karte_ptr_t planquadrat_t::welt;
@@ -95,7 +95,7 @@ void planquadrat_t::boden_hinzufuegen(grund_t *bd)
 		// completely empty
 		data.one = bd;
 		ground_size = 1;
-		reliefkarte_t::get_karte()->calc_map_pixel(bd->get_pos().get_2d());
+		minimap_t::get_instance()->calc_map_pixel(bd->get_pos().get_2d());
 		return;
 	}
 	else if(ground_size==1) {
@@ -110,7 +110,7 @@ DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%
 		tmp[1] = bd;
 		data.some = tmp;
 		ground_size = 2;
-		reliefkarte_t::get_karte()->calc_map_pixel(bd->get_pos().get_2d());
+		minimap_t::get_instance()->calc_map_pixel(bd->get_pos().get_2d());
 		return;
 	}
 	else {
@@ -139,7 +139,7 @@ DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%
 		ground_size ++;
 		delete [] data.some;
 		data.some = tmp;
-		reliefkarte_t::get_karte()->calc_map_pixel(bd->get_pos().get_2d());
+		minimap_t::get_instance()->calc_map_pixel(bd->get_pos().get_2d());
 	}
 }
 
@@ -192,7 +192,7 @@ void planquadrat_t::kartenboden_setzen(grund_t *bd, bool startup)
 		// water tiles need neighbor tiles, which might not be initialized at startup
 		bd->calc_image();
 	}
-	reliefkarte_t::get_karte()->calc_map_pixel(bd->get_pos().get_2d());
+	minimap_t::get_instance()->calc_map_pixel(bd->get_pos().get_2d());
 }
 
 
@@ -375,7 +375,7 @@ void planquadrat_t::abgesenkt()
 			}
 		}
 		else {
-			reliefkarte_t::get_karte()->calc_map_pixel(k);
+			minimap_t::get_instance()->calc_map_pixel(k);
 		}
 		gr->set_grund_hang( slope );
 	}
@@ -416,7 +416,7 @@ void planquadrat_t::angehoben()
 			}
 		}
 		else {
-			reliefkarte_t::get_karte()->calc_map_pixel(k);
+			minimap_t::get_instance()->calc_map_pixel(k);
 		}
 	}
 }
