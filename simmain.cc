@@ -1179,14 +1179,15 @@ int simu_main(int argc, char** argv)
 	// still nothing to be loaded => search for demo games
 	if(  new_world  ) {
 		dr_chdir( env_t::program_dir );
-		char buffer[PATH_MAX];
-		sprintf(buffer, "%s%sdemo.sve", (const char*)env_t::program_dir, env_t::objfilename.c_str());
+
+		const std::string path = env_t::program_dir + env_t::objfilename + "demo.sve";
+
 		// access did not work!
-		if (FILE* const f = dr_fopen(buffer, "rb")) {
+		if(  FILE *const f = dr_fopen(path.c_str(), "rb")  ) {
 			// there is a demo game to load
-			loadgame = buffer;
+			loadgame = path;
 			fclose(f);
-DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
+DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 		}
 	}
 
