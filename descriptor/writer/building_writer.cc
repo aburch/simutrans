@@ -66,7 +66,7 @@ static uint32 get_cluster_data(tabfileobj_t& obj)
 	int* ints = obj.get_ints("clusters");
 
 	for(  int i = 1;  i <= ints[0];  i++  ) {
-		if(  ints[i] > 1  &&  ints[i] <= 32  ) { // Sanity check
+		if(  ints[i] >= 1  &&  ints[i] <= 32  ) { // Sanity check
 			clusters |= 1<<(ints[i]-1);
 		}
 	}
