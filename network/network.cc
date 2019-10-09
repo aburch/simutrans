@@ -844,6 +844,7 @@ bool get_external_IP( cbuffer_t &myIPaddr, cbuffer_t &altIPaddr )
 	}
 	else {
 		myIPaddr = altIPaddr;
+		altIPaddr.clear();
 	}
 
 #if 0
