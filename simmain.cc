@@ -1225,20 +1225,16 @@ int simu_main(int argc, char** argv)
 
 	// still nothing to be loaded => search for demo games
 	if(  new_world  ) {
-		cbuffer_t buf;
-		// It's in the pakfile, in the program directory
-		// (unlike every other saved game)
-		buf.append( env_t::program_dir ); // has trailing slash
-		buf.append( env_t::objfilename.c_str() ); //has trailing slash
-		buf.append("demo.sve");
+		dr_chdir( env_t::program_dir );
 
-		if (FILE* const f = dr_fopen(buf.get_str(), "rb")) {
+		const std::string path = env_t::program_dir + env_t::objfilename + "demo.sve";
+
+		// access did not work!
+		if(  FILE *const f = dr_fopen(path.c_str(), "rb")  ) {
 			// there is a demo game to load
-			loadgame = buf;
+			loadgame = path;
 			fclose(f);
-DBG_MESSAGE("simmain","loadgame file found at %s",buf.get_str() );
-		} else {
-DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
+DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 		}
 	}
 

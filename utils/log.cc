@@ -72,7 +72,7 @@ void log_t::debug(const char *who, const char *format, ...)
 		va_start( argptr, format );
 		if (  syslog  ) {
 			// Replace with dynamic memory allocation
-			char buffer[256];
+			char buffer[4096];
 			sprintf( buffer, "Debug: %s\t%s", who, format );
 			vsyslog( LOG_DEBUG, buffer, argptr );
 		}
@@ -115,7 +115,7 @@ void log_t::message(const char *who, const char *format, ...)
 		va_start( argptr, format );
 		if (  syslog  ) {
 			// Replace with dynamic memory allocation
-			char buffer[256];
+			char buffer[4096];
 			sprintf( buffer, "Message: %s\t%s", who, format );
 			vsyslog( LOG_INFO, buffer, argptr );
 		}
@@ -158,7 +158,7 @@ void log_t::warning(const char *who, const char *format, ...)
 		va_start( argptr, format );
 		if (  syslog  ) {
 			// Replace with dynamic memory allocation
-			char buffer[256];
+			char buffer[4096];
 			sprintf( buffer, "Warning: %s\t%s", who, format );
 			vsyslog( LOG_WARNING, buffer, argptr );
 		}
@@ -208,7 +208,7 @@ void log_t::error(const char *who, const char *format, ...)
 		if (  syslog  ) {
 
 			// Replace with dynamic memory allocation
-			char buffer[256];
+			char buffer[4096];
 			sprintf( buffer, "ERROR: %s\t%s", who, format );
 			vsyslog( LOG_ERR, buffer, argptr );
 		}
