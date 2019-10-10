@@ -65,13 +65,8 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 
 	uint16 offset = obj.get_int("offset", 20);
 
-	uint16 const intro_date =
-		obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12 +
-		obj.get_int("intro_month", 1) - 1;
-
-	uint16 const retire_date =
-		obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 +
-		obj.get_int("retire_month", 1) - 1;
+	uint16 const intro_date = 1;
+	uint16 const retire_date = 0xFFFEu;
 
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
