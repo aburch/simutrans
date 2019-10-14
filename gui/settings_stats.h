@@ -114,7 +114,7 @@ class settings_stats_t
 {
 protected:
 	bool new_world;
-	// since the copy constructor will no copy the right action listener => pointer
+	// since the copy constructor will not copy the right action listener => pointer
 	slist_tpl<gui_numberinput_t *> numinp;
 	slist_tpl<button_t *> button;
 
