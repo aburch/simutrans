@@ -11286,6 +11286,9 @@ void karte_t::announce_server(int status)
 			if(  status == 1  &&  (env_t::server_dns.compare( buf )  ||  env_t::server_alt_dns.compare( altbuf ))  ) {
 				announce_server( 2 );
 				status = 0; // since starting with new IP
+				// if we had uPnP, we may need to drill another hole in the firewall again; the delay is no problem, since all clients will be lost anyway
+				char IP[256], altIP[256];
+				prepare_for_server( IP, altIP, env_t::server_port );
 			}
 			// now update DNS info
 			env_t::server_dns = (const char *)buf;
