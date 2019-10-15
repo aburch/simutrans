@@ -295,6 +295,7 @@ bool transparency_settings_t::action_triggered( gui_action_creator_t *comp, valu
 	// Hide building
 	if( &hide_buildings == comp ) {
 		env_t::hide_buildings = v.i;
+		world()->set_dirty();
 	}
 	return true;
 }
@@ -461,6 +462,10 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v )
 		if( !env_t::networkmode || welt->get_active_player_nr() == 1 ) {
 			welt->set_tool( tool_t::simple_tool[ TOOL_TOOGLE_PEDESTRIANS & 0xFFF ], welt->get_active_player() );
 		}
+		break;
+	case IDBTN_HIDE_TREES:
+		env_t::hide_trees = !env_t::hide_trees;
+		baum_t::recalc_outline_color();
 		break;
 	case IDBTN_DAY_NIGHT_CHANGE:
 		env_t::night_shift = !env_t::night_shift;
