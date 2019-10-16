@@ -3248,7 +3248,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 						maxsize = area3x3[area_level]+koord(1,1);
 						continue;
 					}
-					if(  testgb->get_pos().z == zpos  &&  neighbor_building->is_city_building()  &&  neighbor_building->get_x()*neighbor_building->get_y()==1  ) {
+					if(  testgb->get_pos().z == zpos  &&  neighbor_building  &&  neighbor_building->get_x()*neighbor_building->get_y()==1  ) {
 						// also in right height and citybuilding
 						maxsize = area3x3[area_level]+koord(1,1);
 						continue;
