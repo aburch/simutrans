@@ -738,6 +738,8 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 			// not stored, take current
 			stored = gui->get_windowsize();
 		}
+		// use default width
+		stored.clip_lefttop(scr_size(D_DEFAULT_WIDTH, D_DEFAULT_HEIGHT));
 		// clip to display size
 		stored.clip_rightbottom( scr_size(display_get_width(), display_get_height() - env_t::iconsize.h - win_get_statusbar_height() ) );
 
