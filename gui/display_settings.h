@@ -44,9 +44,9 @@ class station_settings_t : public gui_aligned_container_t
 public:
 	station_settings_t();
 };
-	
+
 class transparency_settings_t : public gui_aligned_container_t, public action_listener_t
-{ 
+{
 private:
 	gui_numberinput_t cursor_hide_range;
 	gui_combobox_t hide_buildings;

@@ -411,12 +411,12 @@ bool traffic_settings_t::action_triggered( gui_action_creator_t *comp, value_t v
 
 
 color_gui_t::color_gui_t() :
-	scrolly_gui(&gui_settings), 
-	scrolly_map(&map_settings), 
-	scrolly_transparency(&transparency_settings), 
-	scrolly_station(&station_settings), 
-	scrolly_traffic(&traffic_settings),
-	gui_frame_t( translator::translate( "Helligk. u. Farben" ) )
+	gui_frame_t( translator::translate( "Helligk. u. Farben" ) ),
+	scrolly_gui(&gui_settings),
+	scrolly_map(&map_settings),
+	scrolly_transparency(&transparency_settings),
+	scrolly_station(&station_settings),
+	scrolly_traffic(&traffic_settings)
 {
 	set_table_layout( 1, 0 );
 
@@ -544,7 +544,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 	}
 
 	welt->set_dirty();
-		
+
 	return true;
 }
 
