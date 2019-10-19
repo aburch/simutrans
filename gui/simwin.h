@@ -107,7 +107,9 @@ enum magic_numbers {
 	magic_halt_info=magic_convoi_detail+65536,
 	magic_halt_detail=magic_halt_info+65536, // unused
 	magic_toolbar=magic_halt_detail+65536,
-	magic_max=magic_toolbar+256
+	magic_script_error=magic_toolbar+256,
+	magic_haltlist_filter,
+	magic_max
 };
 
 // Holding time for auto-closing windows
