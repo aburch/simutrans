@@ -251,3 +251,8 @@ void  gui_frame_t::set_name(const char *name)
 {
 	this->name = translator::translate(name);
 }
+
+uint32 gui_frame_t::get_rdwr_id()
+{
+	return magic_reserved;
+}
