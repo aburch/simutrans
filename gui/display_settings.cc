@@ -443,7 +443,7 @@ color_gui_t::color_gui_t() :
 	resize( scr_coord( 0, 0 ) );
 }
 
-bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v )
+bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 {
 	int i;
 	for(  i=0;  i<COLORS_MAX_BUTTONS  &&  comp!=buttons+i;  i++  ) { }
