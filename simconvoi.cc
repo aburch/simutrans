@@ -3367,6 +3367,12 @@ station_tile_search_ready: ;
 		uncouple_convoi();
 	}
 	
+	if(  !is_coupled()  &&  !coupling_convoi.is_bound()  &&  withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())  ) {
+		// destroy when empty, alone
+		self_destruct();
+		return;
+	}
+	
 	convoihandle_t c = self;
 	if(  !is_coupled()  &&  recalc_min_top_speed  ) {
 		check_electrification();
@@ -3418,12 +3424,6 @@ station_tile_search_ready: ;
 
 	// loading is finished => maybe drive on
 	if(  is_coupled()  ||  departure_cond  ) {
-
-		if(  !is_coupled()  &&  !coupling_convoi.is_bound()  &&  withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())  ) {
-			// destroy when empty, alone
-			self_destruct();
-			return;
-		}
 
 		calc_speedbonus_kmh();
 
