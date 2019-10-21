@@ -503,11 +503,16 @@ void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* 
 	const char *p;
 	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_);
 	if(halt.is_bound()) {
-		if (entry.minimum_loading != 0  &&  max_chars <= 0) {
-			buf.printf("%d%% ", entry.minimum_loading);
-		}
-		else if(  entry.get_coupling_point()!=0  ) {
+		if(  entry.get_coupling_point()!=0  ) {
 			buf.printf("[#] ");
+		}
+		if(  max_chars <= 0  ) {
+			if(  entry.get_wait_for_time()  ) {
+				buf.printf("%dT ", entry.spacing);
+			}
+			else if (  entry.minimum_loading != 0  ) {
+				buf.printf("%d%% ", entry.minimum_loading);
+			}
 		}
 		p = halt->get_name();
 	}
