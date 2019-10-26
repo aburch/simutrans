@@ -179,7 +179,7 @@ public:
 	static uint32 default_mapmode;
 
 	/// cut through the map when following convois?
-	static bool follow_convoi_underground;
+	static uint8 follow_convoi_underground;
 
 	///which messages to display where?
 	/**

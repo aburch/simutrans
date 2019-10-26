@@ -541,7 +541,6 @@ traffic_settings_t::traffic_settings_t()
 	add_component(&traffic_density);
 
 	// Convoy follow mode
-	/*
 	new_component<gui_label_t>("Convoi following mode");
 
 	follow_mode.set_focusable(false);
@@ -552,7 +551,7 @@ traffic_settings_t::traffic_settings_t()
 	//buttons[].set_tooltip("See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.");
 	add_component(&follow_mode);
 	follow_mode.add_listener(this);
-	*/
+
 	// Show schedule's stop checkbox
 	buttons[IDBTN_SHOW_SCHEDULES_STOP].init( button_t::square_state ,  "Highlite schedule" );
 	buttons[IDBTN_SHOW_SCHEDULES_STOP].set_tooltip("Highlight the locations of stops on the current schedule");
@@ -576,10 +575,9 @@ bool traffic_settings_t::action_triggered( gui_action_creator_t *comp, value_t v
 		}
 	}
 
-	/*
 	if( &follow_mode == comp ) {
 		env_t::follow_convoi_underground = v.i;
-	}*/
+	}
 	return true;
 }
 

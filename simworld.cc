@@ -4923,8 +4923,8 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 					grund_t *gr = lookup_kartenboden( new_pos.get_2d() );
 					bool redraw = false;
 					if( new_pos.z < gr->get_hoehe() ) {
-						redraw = grund_t::underground_mode == grund_t::ugm_level ? grund_t::underground_level != new_pos.z : true;
-						grund_t::set_underground_mode( grund_t::ugm_level, new_pos.z );
+						redraw = grund_t::underground_mode == grund_t::ugm_none ? grund_t::underground_level != new_pos.z : true;
+						grund_t::set_underground_mode( env_t::follow_convoi_underground, new_pos.z );
 					}
 					else {
 						redraw = grund_t::underground_mode != grund_t::ugm_none;
