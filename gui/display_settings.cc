@@ -81,7 +81,7 @@ public:
 		case 2:
 			display_outline_proportional_rgb( p.x + LINESPACE + D_H_SPACE, p.y, color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, 1 );
 			display_ddd_box_clip_rgb(         p.x,                     p.y,   LINESPACE,   LINESPACE,   pc-2, pc+2 );
-			display_fillbox_wh_clip_rgb(           p.x+1,                   p.y+1, LINESPACE-2, LINESPACE-2, pc,   true);
+			display_fillbox_wh_clip_rgb(      p.x+1,                   p.y+1, LINESPACE-2, LINESPACE-2, pc,   true);
 			break;
 		case 3: // show nothing
 			break;
@@ -360,12 +360,23 @@ traffic_settings_t::traffic_settings_t()
 
 	// Convoy tooltip
 	convoy_tooltip.set_focusable(false);
-	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("convoi error tooltips"), SYSCOL_TEXT );
-	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("convoi mouseover tooltips"), SYSCOL_TEXT );
-	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("all convoi tooltips"), SYSCOL_TEXT );
-	convoy_tooltip.set_selection( env_t::show_vehicle_states );
+	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("convoi error tooltips"), SYSCOL_TEXT);
+	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("convoi mouseover tooltips"), SYSCOL_TEXT);
+	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("all convoi tooltips"), SYSCOL_TEXT);
+	convoy_tooltip.set_selection(env_t::show_vehicle_states);
 	add_component(&convoy_tooltip, 2);
 	convoy_tooltip.add_listener(this);
+
+	// Convoy follow mode
+	new_component<gui_label_t>("Convoi following mode");
+
+	follow_mode.set_focusable(false);
+	follow_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("None"), SYSCOL_TEXT);
+	follow_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("underground mode"), SYSCOL_TEXT);
+	follow_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("sliced underground mode"), SYSCOL_TEXT);
+	follow_mode.set_selection(env_t::follow_convoi_underground);
+	add_component(&follow_mode);
+	follow_mode.add_listener(this);
 
 	// Show schedule's stop checkbox
 	buttons[IDBTN_SHOW_SCHEDULES_STOP].init( button_t::square_state ,  "Highlite schedule" );
@@ -402,6 +413,10 @@ bool traffic_settings_t::action_triggered( gui_action_creator_t *comp, value_t v
 		env_t::show_vehicle_states = v.i;
 	}
 
+	if( &follow_mode == comp ) {
+		env_t::follow_convoi_underground = v.i;
+	}
+		
 	if( &money_booking == comp ) {
 		env_t::show_money_message = v.i;
 	}
