@@ -2002,7 +2002,7 @@ karte_t::karte_t() :
 	last_interaction = dr_time();
 	step_mode = PAUSE_FLAG;
 	time_multiplier = 16;
-	next_step_time = last_step_time = 0;
+	next_midi_time = next_step_time = last_step_time = 0;
 	fix_ratio_frame_time = 200;
 	idle_time = 0;
 	network_frame_count = 0;
@@ -4123,11 +4123,6 @@ void karte_t::step()
 
 	// ok, next step
 	INT_CHECK("simworld 1975");
-
-	if((steps%8)==0) {
-		DBG_DEBUG4("karte_t::step", "checkmidi");
-		check_midi();
-	}
 
 	recalc_season_snowline(true);
 
@@ -6756,8 +6751,16 @@ bool karte_t::interactive(uint32 quit_month)
 			DBG_DEBUG4("karte_t::interactive", "end of sleep");
 		}
 
-		// time for the next step?
 		uint32 time = dr_time();
+
+		// check midi if next songs needs to be started
+		if(  (sint32)next_midi_time - (sint32)time <= 0  ) {
+			DBG_DEBUG4("karte_t::interactive", "checkmidi");
+			check_midi();
+			next_midi_time = time + 1500; // check every 1.5 s if we need to start next song
+		}
+
+		// time for the next step?
 		if(  (sint32)next_step_time - (sint32)time <= 0  ) {
 			if(  step_mode&PAUSE_FLAG  ) {
 				// only update display
