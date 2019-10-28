@@ -263,8 +263,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 	}
 	else {
 		display_show_pointer(true);
-		show_pointer(1);
-		set_pointer(0);
+		display_show_load_pointer(0);
 		display_fillbox_wh_rgb( 0, 0, display_get_width(), display_get_height(), color_idx_to_rgb(COL_BLACK), true );
 		while(  win_is_open(gui)  &&  !env_t::quit_simutrans  &&  !quit()  ) {
 			// do not move, do not close it!
@@ -297,7 +296,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 				check_pos_win(&ev);
 			}
 		}
-		set_pointer(1);
+		display_show_load_pointer(1);
 		dr_prepare_flush();
 		display_fillbox_wh_rgb( 0, 0, display_get_width(), display_get_height(), color_idx_to_rgb(COL_BLACK), true );
 		dr_flush();
@@ -957,7 +956,7 @@ int simu_main(int argc, char** argv)
 	dr_chdir( env_t::program_dir );
 
 	// The loading screen needs to be initialized
-	show_pointer(1);
+	display_show_pointer(1);
 
 	// if no object files given, we ask the user
 	if(  env_t::objfilename.empty()  ) {
@@ -1453,8 +1452,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 	}
 #endif
 	display_show_pointer(true);
-	show_pointer(1);
-	set_pointer(0);
+	display_show_load_pointer(0);
 
 	welt->set_dirty();
 
