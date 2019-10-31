@@ -53,7 +53,7 @@
 #include "../obj/crossing.h"
 #include "../obj/zeiger.h"
 
-#include "../gui/karte.h"
+#include "../gui/minimap.h"
 
 #include "../descriptor/citycar_desc.h"
 #include "../descriptor/goods_desc.h"
@@ -1170,8 +1170,8 @@ void vehicle_t::leave_tile()
 {
 	vehicle_base_t::leave_tile();
 #ifndef DEBUG_ROUTES
-	if(last  &&  reliefkarte_t::is_visible) {
-			reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
+	if(last  &&  minimap_t::is_visible) {
+			minimap_t::get_instance()->calc_map_pixel(get_pos().get_2d());
 	}
 #endif
 }
@@ -1184,8 +1184,8 @@ void vehicle_t::enter_tile(grund_t* gr)
 {
 	vehicle_base_t::enter_tile(gr);
 
-	if(leading  &&  reliefkarte_t::is_visible  ) {
-		reliefkarte_t::get_karte()->calc_map_pixel( get_pos().get_2d() );
+	if(leading  &&  minimap_t::is_visible  ) {
+		minimap_t::get_instance()->calc_map_pixel( get_pos().get_2d() );
 	}
 }
 
@@ -1815,8 +1815,8 @@ ribi_t::ribi vehicle_t::get_next_90direction() const {
 
 vehicle_t::~vehicle_t()
 {
-	// remove vehicle's marker from the relief map
-	reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
+	// remove vehicle's marker from the minimap
+	minimap_t::get_instance()->calc_map_pixel(get_pos().get_2d());
 }
 
 

@@ -42,7 +42,7 @@
 #include "../obj/wayobj.h"
 
 #include "../gui/ground_info.h"
-#include "../gui/karte.h"
+#include "../gui/minimap.h"
 
 #include "../tpl/inthashtable_tpl.h"
 
@@ -1260,7 +1260,7 @@ void grund_t::display_if_visible(sint16 xpos, sint16 ypos, const sint16 raster_t
 {
 	if(  !is_karten_boden_visible()  ) {
 		// only check for forced redraw (of marked ... )
-		if(dirty) {
+		if(  get_flag(grund_t::dirty)  ) {
 			mark_rect_dirty_clip( xpos, ypos + raster_tile_width / 2, xpos + raster_tile_width - 1, ypos + raster_tile_width - 1 CLIP_NUM_PAR );
 		}
 		return;
@@ -1887,7 +1887,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 		}
 
 		calc_image();
-		reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
+		minimap_t::get_instance()->calc_map_pixel(get_pos().get_2d());
 
 		return costs;
 	}

@@ -38,7 +38,7 @@
 #include "components/gui_button.h"
 #include "components/gui_image.h"
 #include "components/gui_textarea.h"
-#include "karte.h"
+#include "minimap.h"
 
 static karte_ptr_t welt;
 
@@ -281,7 +281,7 @@ schedule_gui_t::~schedule_gui_t()
 	if(  player  ) {
 		update_tool( false );
 		// hide schedule on minimap (may not current, but for safe)
-		reliefkarte_t::get_karte()->set_current_cnv( convoihandle_t() );
+		minimap_t::get_instance()->set_selected_cnv( convoihandle_t() );
 	}
 	delete schedule;
 	delete stats;
@@ -303,7 +303,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	}
 	else {
 		// set this schedule as current to show on minimap if possible
-		reliefkarte_t::get_karte()->set_current_cnv( cnv );
+		minimap_t::get_instance()->set_selected_cnv( cnv );
 		old_line = new_line = cnv->get_line();
 	}
 	old_line_count = 0;

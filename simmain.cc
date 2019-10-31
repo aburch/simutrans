@@ -265,8 +265,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 	}
 	else {
 		display_show_pointer(true);
-		show_pointer(1);
-		set_pointer(0);
+		display_show_load_pointer(0);
 		display_fillbox_wh_rgb( 0, 0, display_get_width(), display_get_height(), color_idx_to_rgb(COL_BLACK), true );
 		while(  win_is_open(gui)  &&  !env_t::quit_simutrans  &&  !quit()  ) {
 			// do not move, do not close it!
@@ -298,7 +297,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 				check_pos_win(&ev);
 			}
 		}
-		set_pointer(1);
+		display_show_load_pointer(1);
 		dr_prepare_flush();
 		display_fillbox_wh_rgb( 0, 0, display_get_width(), display_get_height(), color_idx_to_rgb(COL_BLACK), true );
 		dr_flush();
@@ -907,7 +906,7 @@ int simu_main(int argc, char** argv)
 	dr_chdir( env_t::program_dir );
 
 	// The loading screen needs to be initialized
-	show_pointer(1);
+	display_show_pointer(1);
 
 	// if no object files given, we ask the user
 	if(  env_t::objfilename.empty()  ) {
@@ -1217,14 +1216,15 @@ int simu_main(int argc, char** argv)
 	// still nothing to be loaded => search for demo games
 	if(  new_world  ) {
 		dr_chdir( env_t::program_dir );
-		char buffer[PATH_MAX];
-		sprintf(buffer, "%s%sdemo.sve", (const char*)env_t::program_dir, env_t::objfilename.c_str());
+
+		const std::string path = env_t::program_dir + env_t::objfilename + "demo.sve";
+
 		// access did not work!
-		if (FILE* const f = dr_fopen(buffer, "rb")) {
+		if(  FILE *const f = dr_fopen(path.c_str(), "rb")  ) {
 			// there is a demo game to load
-			loadgame = buffer;
+			loadgame = path;
 			fclose(f);
-DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
+DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 		}
 	}
 
@@ -1248,9 +1248,13 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	// init midi before loading sounds
 	if(  dr_init_midi()  ) {
 		dbg->message("simmain()","Reading midi data ...");
-		if(!midi_init(env_t::user_dir)) {
-			if(!midi_init(env_t::program_dir)) {
-				dbg->message("simmain()","Midi disabled ...");
+		char pak_dir[PATH_MAX];
+		sprintf( pak_dir, "%s%s", env_t::program_dir, env_t::objfilename.c_str() );
+		if(  !midi_init(pak_dir)  ) {
+			if(  !midi_init(env_t::user_dir)  ) {
+				if(  !midi_init(env_t::program_dir)  ) {
+					dbg->message("simmain()","Midi disabled ...");
+				}
 			}
 		}
 		if(gimme_arg(argc, argv, "-nomidi", 0)) {
@@ -1417,8 +1421,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	}
 #endif
 	display_show_pointer(true);
-	show_pointer(1);
-	set_pointer(0);
+	display_show_load_pointer(0);
 
 	welt->set_dirty();
 

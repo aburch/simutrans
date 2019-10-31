@@ -581,9 +581,15 @@ gebaeude_t* gebaeude_t::get_first_tile()
 {
 	const building_desc_t* const building_desc = tile->get_desc();
 	const uint8 layout = tile->get_layout();
-	koord k;
-	for(k.x=0; k.x<building_desc->get_x(layout); k.x++) {
-		for(k.y=0; k.y<building_desc->get_y(layout); k.y++) {
+
+	uint8 rotation = welt->get_settings().get_rotation();
+
+	gebaeude_t* first = this;
+	uint16 first_index = 0xffff;
+
+	koord k, size = building_desc->get_size(layout);
+	for(k.x=0; k.x < size.x; k.x++) {
+		for(k.y=0; k.y < size.y; k.y++) {
 			const building_tile_desc_t *tile = building_desc->get_tile(layout, k.x, k.y);
 			if (tile==NULL  ||  !tile->has_image()) {
 				continue;
@@ -591,12 +597,25 @@ gebaeude_t* gebaeude_t::get_first_tile()
 			if (grund_t *gr = welt->lookup( get_pos() - get_tile()->get_offset() + k)) {
 				gebaeude_t *gb = gr->find<gebaeude_t>();
 				if (gb  &&  gb->get_tile() == tile) {
-					return gb;
+					// compute the index of this tile as if the building was not rotated
+					uint16 index;
+					switch (rotation) {
+						default:
+						case 0: index = k.x + k.y * size.x; break;
+						case 1: index = k.y + (size.x - k.x) * size.y; break;
+						case 2: index = (size.x - k.x) + (size.y - k.y) * size.x; break;
+						case 3: index = (size.y - k.y) + k.x * size.y; break;
+					}
+					// get the tile with the lowest index
+					if (index < first_index) {
+						first_index = index;
+						first = gb;
+					}
 				}
 			}
 		}
 	}
-	return this;
+	return first;
 }
 
 

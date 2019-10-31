@@ -343,7 +343,7 @@ private:
 	 * @pre can_raise_to should be called before this method.
 	 * @see can_raise_to
 	 * @returns count of full raise operations (4 corners raised one level)
-	 * @note Clear tile, reset water/land type, calc reliefkarte (relief map) pixel.
+	 * @note Clear tile, reset water/land type, calc minimap pixel.
 	 */
 	int  raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 
@@ -367,7 +367,7 @@ private:
 	 * @pre can_lower_to should be called before this method.
 	 * @see can_lower_to
 	 * @returns count of full lower operations (4 corners lowered one level)
-	 * @note Clear tile, reset water/land type, calc reliefkarte (relief map) pixel.
+	 * @note Clear tile, reset water/land type, calc minimap pixel.
 	 */
 	int  lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 
@@ -538,10 +538,15 @@ private:
 	uint32 last_step_time;
 
 	/**
-	 * ms, when the next step is to be done.
-	 * To calculate the fps and the simloops.
-	 */
+	* ms, when the next step is to be done.
+	* To calculate the fps and the simloops.
+	*/
 	uint32 next_step_time;
+
+	/**
+	* ms, when the next check if we need to start next song
+	*/
+	uint32 next_midi_time;
 
 	/// To calculate the fps and the simloops.
 	uint32 idle_time;

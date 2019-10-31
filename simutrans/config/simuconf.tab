@@ -331,6 +331,10 @@ show_delete_buttons = 0
 # loading and waiting at signals too
 #show_vehicle_states = 1
 
+# If a convoi which you are following enters a tunnel, what to do
+# 0=do not change view, 1=switch to underground mode and back, 2=switch to sliced underground mode
+#follow_convoi_underground = 2
+
 # show (default) tiles with a halt when editing a schedule
 #visualize_schedule = 1
 

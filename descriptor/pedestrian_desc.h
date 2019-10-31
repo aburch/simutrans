@@ -25,7 +25,7 @@
  *	1   Copyright
  *	2   Image-list or 2d
  */
-class pedestrian_desc_t : public obj_named_desc_t {
+class pedestrian_desc_t : public obj_desc_timelined_t {
 	friend class pedestrian_reader_t;
 
 	uint16 distribution_weight;

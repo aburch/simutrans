@@ -247,6 +247,9 @@ private:
 
 	void image_from_storage_list(gui_image_list_t::image_data_t *image_data);
 
+	// initialize everything
+	void init(depot_t *depot);
+
 public:
 	// sorting categories
 	enum {
@@ -282,7 +285,7 @@ public:
 	void update_data();
 
 	// more general functions ...
-	depot_frame_t(depot_t* depot);
+	depot_frame_t(depot_t* depot = NULL);
 
 	~depot_frame_t();
 
@@ -344,6 +347,10 @@ public:
 	void set_selected_line(linehandle_t line) { selected_line = line; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	uint32 get_rdwr_id() OVERRIDE;
+
+	void rdwr( loadsave_t * ) OVERRIDE;
 };
 
 #endif

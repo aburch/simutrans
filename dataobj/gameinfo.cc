@@ -18,7 +18,7 @@
 #include "../simhalt.h"
 #include "../descriptor/ground_desc.h"
 #include "../player/simplay.h"
-#include "../gui/karte.h"
+#include "../gui/minimap.h"
 #include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 #include "loadsave.h"
@@ -56,7 +56,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 		for( uint16 j = 0; j < MINIMAP_SIZE; j++ ) {
 			const koord pos(i * gr_x / MINIMAP_SIZE, j * gr_y / MINIMAP_SIZE);
 			const grund_t* gr = welt->lookup_kartenboden(pos);
-			map_rgb.at(i,j) = reliefkarte_t::calc_relief_farbe(gr);
+			map_rgb.at(i,j) = minimap_t::calc_ground_color(gr);
 			map_idx.at(i,j) = color_rgb_to_idx( map_rgb.at(i,j) );
 		}
 	}

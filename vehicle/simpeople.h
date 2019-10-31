@@ -24,6 +24,8 @@ private:
 	uint16 ped_offset;
 	bool on_left;
 
+	bool list_empty();
+
 protected:
 	void rdwr(loadsave_t *file) OVERRIDE;
 
@@ -69,6 +71,8 @@ public:
 	static bool successfully_loaded();
 
 	static void generate_pedestrians_at(koord3d k, int &count);
+
+	static void build_timeline_list( karte_t *welt );
 };
 
 #endif

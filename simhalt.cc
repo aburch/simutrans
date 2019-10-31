@@ -54,7 +54,7 @@
 #include "obj/wayobj.h"
 
 #include "gui/halt_info.h"
-#include "gui/karte.h"
+#include "gui/minimap.h"
 
 #include "utils/simrandom.h"
 #include "utils/simstring.h"
@@ -357,7 +357,7 @@ DBG_DEBUG("haltestelle_t::remove()","destroy");
 	// if building was removed this is false!
 	if(bd) {
 		bd->calc_image();
-		reliefkarte_t::get_karte()->calc_map_pixel(pos.get_2d());
+		minimap_t::get_instance()->calc_map_pixel(pos.get_2d());
 	}
 	return true;
 }
@@ -505,7 +505,6 @@ haltestelle_t::~haltestelle_t()
 	}
 
 	destroy_win( magic_halt_info + self.get_id() );
-	destroy_win( magic_halt_detail + self.get_id() );
 
 	// finally detach handle
 	// before it is needed for clearing up the planqudrat and tiles

@@ -56,6 +56,7 @@
 #include "old_blockmanager.h"
 #include "vehicle/simvehicle.h"
 #include "vehicle/simroadtraffic.h"
+#include "vehicle/simpeople.h"
 #include "vehicle/movingobj.h"
 #include "boden/wege/schiene.h"
 
@@ -71,7 +72,7 @@
 #include "gui/password_frame.h"
 #include "gui/messagebox.h"
 #include "gui/help_frame.h"
-#include "gui/karte.h"
+#include "gui/minimap.h"
 #include "gui/player_frame_t.h"
 
 #include "network/network.h"
@@ -645,7 +646,7 @@ void karte_t::init_tiles()
 	MEMZERON(water_hgts, x * y);
 
 	win_set_world( this );
-	reliefkarte_t::get_karte()->init();
+	minimap_t::get_instance()->init();
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		// old default: AI 3 passenger, other goods
@@ -1290,6 +1291,7 @@ DBG_DEBUG("karte_t::init()","distributing trees");
 
 DBG_DEBUG("karte_t::init()","built timeline");
 	private_car_t::build_timeline_list(this);
+	pedestrian_t::build_timeline_list(this);
 
 	nosave_warning = nosave = false;
 
@@ -1686,14 +1688,14 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 	intr_disable();
 
-	bool reliefkarte = reliefkarte_t::is_visible;
+	const bool minimap_was_visible = minimap_t::is_visible;
 
 	int max_display_progress;
 
 	// If this is not called by karte_t::init
 	if(  old_x != 0  ) {
 		mute_sound(true);
-		reliefkarte_t::is_visible = false;
+		minimap_t::is_visible = false;
 
 		if(is_display_init()) {
 			display_show_pointer(false);
@@ -1970,10 +1972,10 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		}
 		mute_sound(false);
 
-		reliefkarte_t::is_visible = reliefkarte;
-		reliefkarte_t::get_karte()->init();
-		reliefkarte_t::get_karte()->calc_map();
-		reliefkarte_t::get_karte()->set_mode( reliefkarte_t::get_karte()->get_mode() );
+		minimap_t::is_visible = minimap_was_visible;
+		minimap_t::get_instance()->init();
+		minimap_t::get_instance()->calc_map();
+		minimap_t::get_instance()->set_display_mode( minimap_t::get_instance()->get_display_mode() );
 
 		set_dirty();
 		reset_timer();
@@ -2000,7 +2002,7 @@ karte_t::karte_t() :
 	last_interaction = dr_time();
 	step_mode = PAUSE_FLAG;
 	time_multiplier = 16;
-	next_step_time = last_step_time = 0;
+	next_midi_time = next_step_time = last_step_time = 0;
 	fix_ratio_frame_time = 200;
 	idle_time = 0;
 	network_frame_count = 0;
@@ -3291,15 +3293,15 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 
 	if( cached_grid_size.x != cached_grid_size.y ) {
 		// the map must be reinit
-		reliefkarte_t::get_karte()->init();
+		minimap_t::get_instance()->init();
 	}
 
 	//  rotate map search array
 	factory_builder_t::new_world();
 
 	// update minimap
-	if(reliefkarte_t::is_visible) {
-		reliefkarte_t::get_karte()->set_mode( reliefkarte_t::get_karte()->get_mode() );
+	if( minimap_t::is_visible) {
+		minimap_t::get_instance()->set_display_mode( minimap_t::get_instance()->get_display_mode() );
 	}
 
 	get_scenario()->rotate90( cached_size.x );
@@ -3550,6 +3552,24 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 				new_xoff -= tile_raster_scale_x(-v.get_xoff(), rw);
 				new_yoff -= tile_raster_scale_y(-v.get_yoff(), rw) + tile_raster_scale_y(new_pos.z * TILE_HEIGHT_STEP, rw);
 				viewport->change_world_position( new_pos.get_2d(), -new_xoff, -new_yoff );
+
+				// auto underground to follow convois
+				if( env_t::follow_convoi_underground ) {
+					grund_t *gr = lookup_kartenboden( new_pos.get_2d() );
+					bool redraw = false;
+					if( new_pos.z < gr->get_hoehe() ) {
+						redraw = grund_t::underground_mode == grund_t::ugm_none ? grund_t::underground_level != new_pos.z : true;
+						grund_t::set_underground_mode( env_t::follow_convoi_underground, new_pos.z );
+					}
+					else {
+						redraw = grund_t::underground_mode != grund_t::ugm_none;
+						grund_t::set_underground_mode( grund_t::ugm_none, 0 );
+					}
+					if(  redraw  ) {
+						// recalc all images on map
+						update_underground();
+					}
+				}
 			}
 		}
 
@@ -3723,7 +3743,7 @@ void karte_t::new_month()
 	}
 
 	// recalc old settings (and maybe update the stops with the current values)
-	reliefkarte_t::get_karte()->new_month();
+	minimap_t::get_instance()->new_month();
 
 	INT_CHECK("simworld 1701");
 
@@ -3848,6 +3868,7 @@ void karte_t::recalc_average_speed()
 {
 	// retire/allocate vehicles
 	private_car_t::build_timeline_list(this);
+	pedestrian_t::build_timeline_list(this);
 
 	for(int i=road_wt; i<=narrowgauge_wt; i++) {
 		const int typ = i==4 ? 3 : (i-1)&7;
@@ -4102,11 +4123,6 @@ void karte_t::step()
 
 	// ok, next step
 	INT_CHECK("simworld 1975");
-
-	if((steps%8)==0) {
-		DBG_DEBUG4("karte_t::step", "checkmidi");
-		check_midi();
-	}
 
 	recalc_season_snowline(true);
 
@@ -5264,8 +5280,8 @@ void karte_t::load(loadsave_t *file)
 	viewport->set_x_off(0);
 	viewport->set_y_off(0);
 
-	// Reliefkarte an neue welt anpassen
-	reliefkarte_t::get_karte()->init();
+	// Update minimap for new world
+	minimap_t::get_instance()->init();
 
 	ls.set_max( get_size().y*2+256 );
 	init_tiles();
@@ -5422,10 +5438,10 @@ DBG_MESSAGE("karte_t::load()", "init player");
 		}
 	}
 
-	// Reliefkarte an neue welt anpassen
-	DBG_MESSAGE("karte_t::load()", "init relief");
+	// Update minimap for new world
+	DBG_MESSAGE("karte_t::load()", "init minimap");
 	win_set_world( this );
-	reliefkarte_t::get_karte()->init();
+	minimap_t::get_instance()->init();
 
 	// tick all power nets so that they update with loaded power
 	powernet_t::step_all(1);
@@ -6735,8 +6751,16 @@ bool karte_t::interactive(uint32 quit_month)
 			DBG_DEBUG4("karte_t::interactive", "end of sleep");
 		}
 
-		// time for the next step?
 		uint32 time = dr_time();
+
+		// check midi if next songs needs to be started
+		if(  (sint32)next_midi_time - (sint32)time <= 0  ) {
+			DBG_DEBUG4("karte_t::interactive", "checkmidi");
+			check_midi();
+			next_midi_time = time + 1500; // check every 1.5 s if we need to start next song
+		}
+
+		// time for the next step?
 		if(  (sint32)next_step_time - (sint32)time <= 0  ) {
 			if(  env_t::commandline_snapshot  ) {
 				destroy_all_win(true);
@@ -6871,6 +6895,14 @@ void karte_t::announce_server(int status)
 		cbuffer_t buf, altbuf;
 		if(  env_t::easy_server  &&  status<2  &&  get_external_IP(buf,altbuf)  ) {
 			// ipdate IP just in case
+			if(  status == 1  &&  (env_t::server_dns.compare( buf )  ||  env_t::server_alt_dns.compare( altbuf ))  ) {
+				announce_server( 2 );
+				status = 0; // since starting with new IP
+				// if we had uPnP, we may need to drill another hole in the firewall again; the delay is no problem, since all clients will be lost anyway
+				char IP[256], altIP[256];
+				prepare_for_server( IP, altIP, env_t::server_port );
+			}
+			// now update DNS info
 			env_t::server_dns = (const char *)buf;
 			env_t::server_alt_dns = (const char *)altbuf;
 		}
@@ -6886,69 +6918,70 @@ void karte_t::announce_server(int status)
 		// Always send status, either online or offline
 		if (  status == 0  ||  status == 1  ) {
 			buf.append( "&st=1" );
-#ifndef REVISION
-#	define REVISION 0
-#endif
-			// Simple revision used for matching (integer)
-			buf.printf( "&rev=%d", atol( QUOTEME(REVISION) ) );
-			// Complex version string used for display
-			buf.printf( "&ver=Simutrans %s (r%s) built %s", QUOTEME(VERSION_NUMBER), QUOTEME(REVISION), QUOTEME(VERSION_DATE) );
-			// Pakset version
-			buf.append( "&pak=" );
-			// Announce pak set, ideally get this from the copyright field of ground.Outside.pak
-			char const* const copyright = ground_desc_t::outside->get_copyright();
-			if (copyright && STRICMP("none", copyright) != 0) {
-				// construct from outside object copyright string
-				encode_URI( buf, copyright );
-			}
-			else {
-				// construct from pak name
-				std::string pak_name = env_t::objfilename;
-				pak_name.erase( pak_name.length() - 1 );
-				encode_URI( buf, pak_name.c_str() );
-			}
-			// TODO - change this to be the start date of the current map
-			buf.printf( "&start=%u,%u", settings.get_starting_month() + 1, settings.get_starting_year() );
-			// Add server name for listing
-			buf.append( "&name=" );
-			encode_URI( buf, env_t::server_name.c_str() );
-			// Add server comments for listing
-			buf.append( "&comments=" );
-			encode_URI( buf, env_t::server_comments.c_str() );
-			// Add server maintainer email for listing
-			buf.append( "&email=" );
-			encode_URI( buf, env_t::server_email.c_str() );
-			// Add server pakset URL for listing
-			buf.append( "&pakurl=" );
-			encode_URI( buf, env_t::server_pakurl.c_str() );
-			// Add server info URL for listing
-			buf.append( "&infurl=" );
-			encode_URI( buf, env_t::server_infurl.c_str() );
-
-			// Now add the game data part
-			uint8 active = 0, locked = 0;
-			for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-				if(  players[i]  &&  players[i]->get_ai_id()!=player_t::EMPTY  ) {
-					active ++;
-					if(  players[i]->is_locked()  ) {
-						locked ++;
-					}
-				}
-			}
-			buf.printf( "&time=%u,%u",   (get_current_month() % 12) + 1, get_current_month() / 12 );
-			buf.printf( "&size=%u,%u",   get_size().x, get_size().y );
-			buf.printf( "&active=%u",    active );
-			buf.printf( "&locked=%u",    locked );
-			buf.printf( "&clients=%u",   socket_list_t::get_playing_clients() );
-			buf.printf( "&towns=%u",     stadt.get_count() );
-			buf.printf( "&citizens=%u",  stadt.get_sum_weight() );
-			buf.printf( "&factories=%u", fab_list.get_count() );
-			buf.printf( "&convoys=%u",   convoys().get_count());
-			buf.printf( "&stops=%u",     haltestelle_t::get_alle_haltestellen().get_count() );
 		}
 		else {
 			buf.append( "&st=0" );
 		}
+#ifndef REVISION
+#	define REVISION 0
+#endif
+		// Simple revision used for matching (integer)
+		buf.printf( "&rev=%d", atol( QUOTEME(REVISION) ) );
+		// Complex version string used for display
+		buf.printf( "&ver=Simutrans %s (r%s) built %s", QUOTEME(VERSION_NUMBER), QUOTEME(REVISION), QUOTEME(VERSION_DATE) );
+		// Pakset version
+		buf.append( "&pak=" );
+		// Announce pak set, ideally get this from the copyright field of ground.Outside.pak
+		char const* const copyright = ground_desc_t::outside->get_copyright();
+		if (copyright && STRICMP("none", copyright) != 0) {
+			// construct from outside object copyright string
+			encode_URI( buf, copyright );
+		}
+		else {
+			// construct from pak name
+			std::string pak_name = env_t::objfilename;
+			pak_name.erase( pak_name.length() - 1 );
+			encode_URI( buf, pak_name.c_str() );
+		}
+		// TODO - change this to be the start date of the current map
+		buf.printf( "&start=%u,%u", settings.get_starting_month() + 1, settings.get_starting_year() );
+		// Add server name for listing
+		buf.append( "&name=" );
+		encode_URI( buf, env_t::server_name.c_str() );
+		// Add server comments for listing
+		buf.append( "&comments=" );
+		encode_URI( buf, env_t::server_comments.c_str() );
+		// Add server maintainer email for listing
+		buf.append( "&email=" );
+		encode_URI( buf, env_t::server_email.c_str() );
+		// Add server pakset URL for listing
+		buf.append( "&pakurl=" );
+		encode_URI( buf, env_t::server_pakurl.c_str() );
+		// Add server info URL for listing
+		buf.append( "&infurl=" );
+		encode_URI( buf, env_t::server_infurl.c_str() );
+
+		// Now add the game data part
+		uint8 active = 0, locked = 0;
+		for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+			if(  players[i]  &&  players[i]->get_ai_id()!=player_t::EMPTY  ) {
+				active ++;
+				if(  players[i]->is_locked()  ) {
+					locked ++;
+				}
+			}
+		}
+		buf.printf( "&time=%u,%u",   (get_current_month() % 12) + 1, get_current_month() / 12 );
+		buf.printf( "&size=%u,%u",   get_size().x, get_size().y );
+		buf.printf( "&active=%u",    active );
+		buf.printf( "&locked=%u",    locked );
+		buf.printf( "&clients=%u",   socket_list_t::get_playing_clients() );
+		buf.printf( "&towns=%u",     stadt.get_count() );
+		buf.printf( "&citizens=%u",  stadt.get_sum_weight() );
+		buf.printf( "&factories=%u", fab_list.get_count() );
+		buf.printf( "&convoys=%u",   convoys().get_count());
+		buf.printf( "&stops=%u",     haltestelle_t::get_alle_haltestellen().get_count() );
+
 		network_http_post( ANNOUNCE_SERVER, ANNOUNCE_URL, buf, NULL );
 
 		// Record time of this announce

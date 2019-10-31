@@ -7,7 +7,7 @@
  */
 
 #include "climates.h"
-#include "karte.h"
+#include "minimap.h"
 #include "welt.h"
 
 #include "../descriptor/ground_desc.h"
