@@ -5287,23 +5287,21 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 			gb = gb->get_first_tile();
 			uint8 layout = gb->get_tile()->get_layout();
 			uint8 newlayout = (layout+1+rotate180) % desc->get_all_layouts();
-			// base position of building
-			pos = gb->get_pos() - gb->get_tile()->get_offset();
 
 			// first test if all tiles are present (check for holes)
 			koord k;
 			for(k.x=0; k.x<desc->get_x(layout); k.x++) {
 				for(k.y=0; k.y<desc->get_y(layout); k.y++) {
-					grund_t *gr = welt->lookup(pos + k);
+					grund_t *gr = welt->lookup( gb->get_pos()+k );
 					if(  !gr  ) {
 						return "Cannot rotate this building!";
 					}
 					const building_tile_desc_t *tile = desc->get_tile(newlayout, k.x, k.y);
 					gebaeude_t *gbt = gr->find<gebaeude_t>();
-					if(  gbt  &&  !gb->is_same_building(gbt) ) {
+					if(  tile==NULL  &&  gbt  ) {
 						return "Cannot rotate this building!";
 					}
-					if(  (tile==NULL)  ^  (gbt==NULL)  ) {
+					if(  tile  &&  gbt==NULL  ) {
 						return "Cannot rotate this building!";
 					}
 				}
@@ -5311,10 +5309,11 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 			// ok, we can rotate it
 			for(k.x=0; k.x<desc->get_x(layout); k.x++) {
 				for(k.y=0; k.y<desc->get_y(layout); k.y++) {
-					grund_t *gr = welt->lookup(pos + k);
-					const building_tile_desc_t *tile = desc->get_tile(newlayout, k.x, k.y);
-					if(  tile  ) {
-						gr->find<gebaeude_t>()->set_tile( tile, false );
+					grund_t *gr = welt->lookup( gb->get_pos()+k );
+					// there could be still holes, so the if is needed
+					if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
+						const building_tile_desc_t *tile = desc->get_tile(newlayout, k.x, k.y);
+						gb->set_tile( tile, false );
 					}
 				}
 			}

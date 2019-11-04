@@ -177,8 +177,6 @@ public:
 	bool is_sync() const { return sync; }
 
 	/**
-	 * Gets first tile of building. Should be invariant under map rotation.
-	 * Do NOT assume this to be the north-west tile of the building.
 	 * @returns pointer to first tile of a multi-tile building.
 	 */
 	gebaeude_t* get_first_tile();
