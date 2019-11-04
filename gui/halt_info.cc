@@ -326,11 +326,11 @@ void halt_info_t::init(halthandle_t halt)
 			{
 				add_component(&lb_capacity[0]);
 				if (welt->get_settings().is_separate_halt_capacities()) {
-					new_component<gui_image_t>(skinverwaltung_t::passengers->get_image_id(0));
+					new_component<gui_image_t>(skinverwaltung_t::passengers->get_image_id(0), 0, ALIGN_NONE, true);
 					add_component(&lb_capacity[1]);
-					new_component<gui_image_t>(skinverwaltung_t::mail->get_image_id(0));
+					new_component<gui_image_t>(skinverwaltung_t::mail->get_image_id(0), 0, ALIGN_NONE, true);
 					add_component(&lb_capacity[2]);
-					new_component<gui_image_t>(skinverwaltung_t::goods->get_image_id(0));
+					new_component<gui_image_t>(skinverwaltung_t::goods->get_image_id(0), 0, ALIGN_NONE, true);
 				}
 			}
 			end_table();

@@ -3208,14 +3208,21 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	const uint16 current_month = welt->get_timeline_year_month();
 	const climate cl = welt->get_climate( gb->get_pos().get_2d() );
 
-	// Run through orthogonal neighbors (only) looking for which cluster to build
+	// Run through orthogonal neighbors (only), and oneself  looking for which cluster to build
 	// This is a bitmap -- up to 32 clustering types are allowed.
-	uint32 neighbor_building_clusters = 0;
+	uint32 neighbor_building_clusters = gb->get_tile()->get_desc()->get_clusters();
 	sint8 zpos = gb->get_pos().z;
 	koord minsize = gb->get_tile()->get_desc()->get_size(gb->get_tile()->get_layout());
 	for(  int i = 0;  i < 4;  i++  ) {
 		// since we handle buildings larger than (1x1) we add an offset
-		grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]+minsize-koord(1,1));
+		koord ktest = k + neighbors[i];
+		if( neighbors[i].x > 0 ) {
+			ktest.x += minsize.x - 1;
+		}
+		if( neighbors[i].y > 0 ) {
+			ktest.y += minsize.y - 1;
+		}
+		grund_t* gr = welt->lookup_kartenboden(ktest);
 		if(  gr  &&  gr->get_typ() == grund_t::fundament  &&  gr->obj_bei(0)->get_typ() == obj_t::gebaeude  ) {
 			// We have a building as a neighbor...
 			if(  gebaeude_t const* const testgb = obj_cast<gebaeude_t>(gr->first_obj())  ) {
@@ -3241,7 +3248,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 						maxsize = area3x3[area_level]+koord(1,1);
 						continue;
 					}
-					if(  testgb->get_pos().z == zpos  &&  neighbor_building->is_city_building()  &&  neighbor_building->get_x()*neighbor_building->get_y()==1  ) {
+					if(  testgb->get_pos().z == zpos  &&  neighbor_building  &&  neighbor_building->get_x()*neighbor_building->get_y()==1  ) {
 						// also in right height and citybuilding
 						maxsize = area3x3[area_level]+koord(1,1);
 						continue;

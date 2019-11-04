@@ -62,8 +62,10 @@ obj_desc_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	desc->steps_per_frame = 0;
 	desc->offset          = 20;
 
-	desc->intro_date = DEFAULT_INTRO_DATE*12;
-	desc->retire_date = DEFAULT_RETIRE_DATE*12;
+	// always there and never retire
+	desc->intro_date = 1;
+	desc->retire_date = 0xFFFEu;
+	
 	if(version == 0) {
 		// old, nonversion node
 		desc->distribution_weight = v;

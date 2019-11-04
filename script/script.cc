@@ -69,7 +69,7 @@ void script_vm_t::errorfunc(HSQUIRRELVM vm, const SQChar *s_, ...)
 		help_frame_t *win = dynamic_cast<help_frame_t*>(win_get_magic((ptrdiff_t)script));
 		if (win == NULL) {
 			win = new help_frame_t();
-			create_win( win, w_info, (ptrdiff_t)script);
+			create_win( win, w_info, magic_script_error);
 		}
 		win->set_text(buf);
 		win->set_name("Script error occurred");

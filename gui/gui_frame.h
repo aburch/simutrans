@@ -113,10 +113,10 @@ public:
 	 */
 	void set_name(const char *name) { this->name=name; }
 
-	/* this returns an unique id, if the dialogue can be saved
-	 * if this is defined, you better define a matching constructor with karte_t * and loadsave_t *
+	/**
+	 * This returns an unique id (different from magic_reserved), if the dialogue can be saved.
 	 */
-	virtual uint32 get_rdwr_id() { return 0; }
+	virtual uint32 get_rdwr_id();
 
 	virtual void rdwr( loadsave_t * ) {}
 

@@ -506,7 +506,6 @@ haltestelle_t::~haltestelle_t()
 	}
 
 	destroy_win( magic_halt_info + self.get_id() );
-	destroy_win( magic_halt_detail + self.get_id() );
 
 	// finally detach handle
 	// before it is needed for clearing up the planqudrat and tiles

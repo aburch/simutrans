@@ -26,13 +26,6 @@ static weighted_vector_tpl<const pedestrian_desc_t*> list_timeline;
 stringhashtable_tpl<const pedestrian_desc_t *> pedestrian_t::table;
 
 
-static bool compare_fussgaenger_desc(const pedestrian_desc_t* a, const pedestrian_desc_t* b)
-{
-	// sort pedestrian objects descriptors by their name
-	return strcmp(a->get_name(), b->get_name())<0;
-}
-
-
 bool pedestrian_t::register_desc(const pedestrian_desc_t *desc)
 {
 	if(  table.remove(desc->get_name())  ) {
