@@ -767,7 +767,10 @@ bool scenario_t::open_info_win(const char* tab) const
 	scenario_info_t *si = (scenario_info_t*)win_get_magic(magic_scenario_info);
 	if (si == NULL) {
 		si = new scenario_info_t();
-		create_win(si, w_info, magic_scenario_info);
+		if (create_win(si, w_info, magic_scenario_info) < 0) {
+			// failed
+			return false;
+		}
 	}
 	si->open_tab(tab);
 	return true; // dummy return value

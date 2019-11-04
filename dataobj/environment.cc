@@ -19,6 +19,7 @@ bool env_t::simple_drawing = false;
 bool env_t::simple_drawing_fast_forward = true;
 sint16 env_t::simple_drawing_normal = 4;
 sint16 env_t::simple_drawing_default = 24;
+uint8 env_t::follow_convoi_underground = 2;
 
 char env_t::program_dir[PATH_MAX];
 plainstring env_t::default_theme;
@@ -191,6 +192,8 @@ void env_t::init()
 	water_animation = 250; // 250ms per wave stage
 	ground_object_probability = 10; // every n-th tile
 	moving_object_probability = 1000; // every n-th tile
+
+	follow_convoi_underground = 2;  // slice through map
 
 	road_user_info = false;
 	tree_info = true;
@@ -482,6 +485,10 @@ void env_t::rdwr(loadsave_t *file)
 
 	if (file->is_version_atleast(120, 8)) {
 		rdwr_win_settings(file);
+	}
+
+	if (file->is_version_atleast(120, 9)) {
+		file->rdwr_byte(follow_convoi_underground);
 	}
 	// server settings are not saved, since they are server specific
 	// and could be different on different servers on the same computers

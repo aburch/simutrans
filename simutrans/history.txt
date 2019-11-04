@@ -18,6 +18,10 @@
 	CHG: Revise Goods List for better clarity and usability.
 	FIX: Construction of priority and longblock signals
 	CHG: Start with random midi song
+	ADD: Timeline for pedestrians
+	FIX: IP4 address query for easyserver (to detect IP4 changes sometimes occuring for ADSL connections)
+	ADD: new simuconf.tab parameter follow_convoi_underground to slice through grounds to follow a convoi in sliced mode oder full underground mode
+	ADD: search for midi files first in pak folder, then user folder, then program folder
 
 
 Release of 120.4.1 (r8600 on 23-Sep-2018):

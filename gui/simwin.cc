@@ -74,6 +74,7 @@
 #include "goods_frame_t.h"
 #include "loadfont_frame.h"
 #include "scenario_info.h"
+#include "depot_frame.h"
 
 #include "../simversion.h"
 
@@ -379,19 +380,39 @@ static void win_draw_window_dragger(scr_coord pos, scr_size size)
 
 // Functions to save & restore windowsize
 
-ptrdiff_t guess_magic_number(simwin_t *win)
+ptrdiff_t guess_magic_number(simwin_t *win, ptrdiff_t magic = magic_none)
 {
-	ptrdiff_t magic = win->magic_number;
-	// reduce player-wise magic numbers
+	if (win) {
+		magic = win->magic_number;
+	}
+	// reduce player-wise magic numbers and magic numbers derived from handles
 	const ptrdiff_t magic_pl[] = {
 		magic_finances_t, magic_convoi_list, magic_convoi_list_filter, magic_line_list, magic_halt_list,
-		magic_line_management_t, magic_ai_options_t, magic_ai_selector, magic_pwd_t, magic_jump, magic_headquarter};
+		magic_line_management_t, magic_ai_options_t, magic_ai_selector, magic_pwd_t, magic_jump, magic_headquarter, magic_headquarter + MAX_PLAYER_COUNT,
+		magic_none,
+		magic_convoi_info, magic_halt_info, magic_toolbar,
+	};
 
 	for (uint i=1; i<lengthof(magic_pl); i++) {
-		if (magic_pl[i-1] <= magic  &&  magic < magic_pl[i]) {
-			magic = magic_pl[i-1];
-			break;
+		if (magic_pl[i-1] == magic_none) {
+			continue;
 		}
+		if (magic_pl[i-1] <= magic  &&  magic < magic_pl[i]) {
+			return magic_pl[i-1];
+		}
+	}
+	if (win == NULL) {
+		return magic;
+	}
+	// try rdwr_id
+	uint32 id = win->gui->get_rdwr_id();
+	if (id != magic_reserved) {
+		return id;
+	}
+
+	// anything outside the magic number's ranges will be ignored
+	if (magic <= magic_reserved  ||  magic >= magic_max) {
+		magic = magic_none;
 	}
 	return magic;
 }
@@ -424,7 +445,10 @@ void rdwr_win_settings(loadsave_t *file)
 				scr_size s;
 				file->rdwr_long(s.w);
 				file->rdwr_long(s.h);
-				saved_windowsizes.put(magic, s);
+				// ignore stuff that will not be used anymore
+				if (magic == guess_magic_number(NULL, magic)) {
+					saved_windowsizes.put(magic, s);
+				}
 			}
 		} while (magic != magic_none);
 	}
@@ -575,6 +599,7 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_goodslist:      w = new goods_frame_t(); break;
 					case magic_font:           w = new loadfont_frame_t(); break;
 					case magic_scenario_info:  w = new scenario_info_t(); break;
+					case magic_depot:          w = new depot_frame_t(); break;
 
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {
@@ -720,7 +745,17 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 
 		// restore windowsize
 		scr_size stored = get_stored_windowsize(&win);
-		if (stored != scr_size()  &&  stored != gui->get_windowsize()) {
+
+		if (stored == scr_size()) {
+			// not stored, take current
+			stored = gui->get_windowsize();
+		}
+		// use default width
+		stored.clip_lefttop(scr_size(D_DEFAULT_WIDTH, D_DEFAULT_HEIGHT));
+		// clip to display size
+		stored.clip_rightbottom( scr_size(display_get_width(), display_get_height() - env_t::iconsize.h - win_get_statusbar_height() ) );
+
+		if (stored != gui->get_windowsize()) {
 			// send tailored resize event
 			scr_size delta = stored - gui->get_windowsize();
 			event_t wev;
@@ -772,6 +807,9 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 		return wins.get_count();
 	}
 	else {
+		if(  !( wt & w_do_not_delete )  ) {
+			delete gui;
+		}
 		return -1;
 	}
 }

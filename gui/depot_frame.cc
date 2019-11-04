@@ -79,14 +79,13 @@ bool depot_frame_t::show_retired_vehicles = false;
 bool depot_frame_t::show_all = true;
 
 depot_frame_t::depot_frame_t(depot_t* depot) :
-	gui_frame_t( translator::translate(depot->get_name()), depot->get_owner()),
+	gui_frame_t("", NULL),
 	depot(depot),
-	icnv(depot->convoi_count()-1),
+	icnv(-1),
 	lb_convoi_line("Serves Line:", SYSCOL_TEXT, gui_label_t::left),
 	lb_sort_by("Sort by:", SYSCOL_TEXT, gui_label_t::right),
 	lb_name_filter_input("Search:", SYSCOL_TEXT, gui_label_t::right),
 	lb_veh_action("Fahrzeuge:", SYSCOL_TEXT, gui_label_t::right),
-	convoi_pics(depot->get_max_convoi_length()),
 	convoi(&convoi_pics),
 	scrolly_convoi(&cont_convoi),
 	pas(&pas_vec),
@@ -100,6 +99,18 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	line_selector(line_scrollitem_t::compare),
 	lb_vehicle_filter("Filter:", SYSCOL_TEXT, gui_label_t::right)
 {
+	if (depot) {
+		init(depot);
+	}
+}
+
+void depot_frame_t::init(depot_t *dep)
+{
+	depot = dep;
+	set_name(translator::translate(depot->get_name()));
+	set_owner(depot->get_owner());
+	icnv = depot->convoi_count()-1;
+
 	scr_size size = scr_size(0,0);
 
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
@@ -614,8 +625,10 @@ void depot_frame_t::layout(scr_size *size)
 
 void depot_frame_t::set_windowsize( scr_size size )
 {
-	update_data();
-	layout(&size);
+	if (depot) {
+		update_data();
+		layout(&size);
+	}
 	gui_frame_t::set_windowsize(size);
 }
 
@@ -1471,21 +1484,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 bool depot_frame_t::infowin_event(const event_t *ev)
 {
 	// enable disable button actions
-	const bool action_allowed = welt->get_active_player() == depot->get_owner();
-	bt_new_line.enable( action_allowed );
-	bt_change_line.enable( action_allowed );
-	bt_copy_convoi.enable( action_allowed );
-	bt_apply_line.enable( action_allowed );
-	bt_start.enable( action_allowed );
-	bt_schedule.enable( action_allowed );
-	bt_destroy.enable( action_allowed );
-	bt_sell.enable( action_allowed );
-	bt_obsolete.enable( action_allowed );
-	bt_show_all.enable( action_allowed );
-	bt_veh_action.enable( action_allowed );
-	line_button.enable( action_allowed );
-//	convoy_selector.
-	if(  !action_allowed  &&  ev->ev_class <= INFOWIN  ) {
+	if(  ev->ev_class < INFOWIN  &&  (depot == NULL  ||  welt->get_active_player() != depot->get_owner()) ) {
 		return false;
 	}
 
@@ -1864,4 +1863,54 @@ void depot_convoi_capacity_t::draw(scr_coord off)
 	cbuf.printf("%d", total_goods );
 	w += display_proportional_clip_rgb( pos.x+off.x + w, pos.y+off.y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 	display_color_img( skinverwaltung_t::goods->get_image_id(0), pos.x + off.x + w, pos.y + off.y, 0, false, false);
+}
+
+
+uint32 depot_frame_t::get_rdwr_id()
+{
+	return magic_depot;
+}
+
+void  depot_frame_t::rdwr( loadsave_t *file)
+{
+	if (file->is_version_less(120, 9)) {
+		destroy_win(this);
+		return;
+	}
+
+	// depot position
+	koord3d pos;
+	if(  file->is_saving()  ) {
+		pos = depot->get_pos();
+	}
+	pos.rdwr( file );
+	// window size
+	scr_size size = get_windowsize();
+	size.rdwr( file );
+
+	if(  file->is_loading()  ) {
+		depot_t *dep = welt->lookup(pos)->get_depot();
+		if (dep) {
+			init(dep);
+		}
+	}
+	tabs.rdwr(file);
+	vehicle_filter.rdwr(file);
+	file->rdwr_byte(veh_action);
+	file->rdwr_long(icnv);
+	sort_by.rdwr(file);
+	simline_t::rdwr_linehandle_t(file, selected_line);
+
+	if(  depot  &&  file->is_loading()  ) {
+		update_data();
+		update_tabs();
+		reset_min_windowsize();
+		set_windowsize(size);
+
+		win_set_magic(this, (ptrdiff_t)depot);
+	}
+
+	if (depot == NULL) {
+		destroy_win(this);
+	}
 }

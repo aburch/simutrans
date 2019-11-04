@@ -161,6 +161,7 @@ void settings_display_stats_t::init(settings_t const* const)
 	INIT_NUM( "simple_drawing_tile_size",env_t::simple_drawing_default, 2, 256, gui_numberinput_t::POWER2, false );
 	INIT_BOOL( "simple_drawing_fast_forward",env_t::simple_drawing_fast_forward );
 	INIT_NUM( "water_animation_ms", env_t::water_animation, 0, 1000, 25, false );
+	INIT_NUM( "follow_convoi_underground", env_t::follow_convoi_underground, 0, 2, 1, true );
 	SEPERATOR
 	INIT_BOOL( "window_buttons_right", env_t::window_buttons_right );
 	INIT_BOOL( "window_frame_active", env_t::window_frame_active );
@@ -191,6 +192,7 @@ void settings_display_stats_t::read(settings_t* const)
 	READ_NUM_VALUE( env_t::simple_drawing_default );
 	READ_BOOL_VALUE( env_t::simple_drawing_fast_forward );
 	READ_NUM_VALUE( env_t::water_animation );
+	READ_NUM_VALUE( env_t::follow_convoi_underground );
 
 	READ_BOOL_VALUE( env_t::window_buttons_right );
 	READ_BOOL_VALUE( env_t::window_frame_active );

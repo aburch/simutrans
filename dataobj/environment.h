@@ -172,6 +172,9 @@ public:
 	/// default behavior of the map-window
 	static uint32 default_mapmode;
 
+	/// cut through the map when following convois?
+	static uint8 follow_convoi_underground;
+
 	///which messages to display where?
 	/**
 	 * message_flags[i] is bitfield, where bit is set if message should be show at location i,

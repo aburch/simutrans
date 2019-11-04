@@ -202,3 +202,9 @@ void gui_frame_t::draw(scr_coord pos, scr_size size)
 		display_blend_wh_rgb( pos.x+1, pos.y+size.h, size.w, 2, color_idx_to_rgb(COL_BLACK), 50 );
 	}
 }
+
+
+uint32 gui_frame_t::get_rdwr_id()
+{
+	return magic_reserved;
+}

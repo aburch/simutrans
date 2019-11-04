@@ -22,15 +22,8 @@
 
 static uint32 const strecke[] = { 6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000 };
 
-static weighted_vector_tpl<const pedestrian_desc_t*> list;
+static weighted_vector_tpl<const pedestrian_desc_t*> list_timeline;
 stringhashtable_tpl<const pedestrian_desc_t *> pedestrian_t::table;
-
-
-static bool compare_fussgaenger_desc(const pedestrian_desc_t* a, const pedestrian_desc_t* b)
-{
-	// sort pedestrian objects descriptors by their name
-	return strcmp(a->get_name(), b->get_name())<0;
-}
 
 
 bool pedestrian_t::register_desc(const pedestrian_desc_t *desc)
@@ -45,21 +38,22 @@ bool pedestrian_t::register_desc(const pedestrian_desc_t *desc)
 
 bool pedestrian_t::successfully_loaded()
 {
-	list.resize(table.get_count());
 	if (table.empty()) {
 		DBG_MESSAGE("pedestrian_t", "No pedestrians found - feature disabled");
 	}
-	else {
-		vector_tpl<const pedestrian_desc_t*> temp_liste(0);
-		FOR(stringhashtable_tpl<pedestrian_desc_t const*>, const& i, table) {
-			// just entered them sorted
-			temp_liste.insert_ordered(i.value, compare_fussgaenger_desc);
-		}
-		FOR(vector_tpl<pedestrian_desc_t const*>, const i, temp_liste) {
-			list.append(i, i->get_distribution_weight());
-		}
-	}
 	return true;
+}
+
+
+static bool compare_pedestrian_desc(const pedestrian_desc_t* a, const pedestrian_desc_t* b)
+{
+	int diff = a->get_intro_year_month() - b->get_intro_year_month();
+	if (diff == 0) {
+		/* same Level - we introduce an artificial, but unique resort
+		* on the induced name. */
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return diff < 0;
 }
 
 
@@ -78,9 +72,43 @@ pedestrian_t::pedestrian_t(loadsave_t *file)
 }
 
 
+void pedestrian_t::build_timeline_list(karte_t *welt)
+{
+	// this list will contain all citycars
+	list_timeline.clear();
+	vector_tpl<const pedestrian_desc_t*> temp_liste(0);
+	if(  !table.empty()  ) {
+		const int month_now = welt->get_current_month();
+
+		// check for every citycar, if still ok ...
+		FOR(stringhashtable_tpl<pedestrian_desc_t const*>, const& i, table) {
+			pedestrian_desc_t const* const info = i.value;
+			const int intro_month = info->get_intro_year_month();
+			const int retire_month = info->get_retire_year_month();
+
+			if (!welt->use_timeline() || (intro_month <= month_now && month_now < retire_month)) {
+				temp_liste.insert_ordered( info, compare_pedestrian_desc );
+			}
+		}
+	}
+	list_timeline.resize( temp_liste.get_count() );
+	FOR(vector_tpl<pedestrian_desc_t const*>, const i, temp_liste) {
+		list_timeline.append(i, i->get_distribution_weight());
+	}
+}
+
+
+
+bool pedestrian_t::list_empty()
+{
+	return list_timeline.empty();
+}
+
+
+
 pedestrian_t::pedestrian_t(grund_t *gr) :
 	road_user_t(gr, simrand(65535)),
-	desc(pick_any_weighted(list))
+	desc(pick_any_weighted(list_timeline))
 {
 	animation_steps = 0;
 	on_left = simrand(2) > 0;
@@ -133,8 +161,8 @@ void pedestrian_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s, lengthof(s));
 		desc = table.get(s);
 		// unknown pedestrian => create random new one
-		if(desc == NULL  &&  !list.empty()  ) {
-			desc = pick_any_weighted(list);
+		if(desc == NULL  &&  !list_timeline.empty()  ) {
+			desc = pick_any_weighted(list_timeline);
 		}
 	}
 
@@ -169,7 +197,7 @@ void pedestrian_t::rotate90()
 // create a number (count) of pedestrians (if possible)
 void pedestrian_t::generate_pedestrians_at(const koord3d k, int &count)
 {
-	if (list.empty()) {
+	if (list_timeline.empty()) {
 		return;
 	}
 
