@@ -538,10 +538,15 @@ private:
 	uint32 last_step_time;
 
 	/**
-	 * ms, when the next step is to be done.
-	 * To calculate the fps and the simloops.
-	 */
+	* ms, when the next step is to be done.
+	* To calculate the fps and the simloops.
+	*/
 	uint32 next_step_time;
+
+	/**
+	* ms, when the next check if we need to start next song
+	*/
+	uint32 next_midi_time;
 
 	/// To calculate the fps and the simloops.
 	uint32 idle_time;

@@ -839,6 +839,7 @@ bool get_external_IP( cbuffer_t &myIPaddr, cbuffer_t &altIPaddr )
 	}
 	else {
 		myIPaddr = altIPaddr;
+		altIPaddr.clear();
 	}
 
 #if 0
@@ -906,6 +907,8 @@ bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, in
 			char eport[19];
 			char *iport = eport;
 			sprintf( eport, "%d", port );
+			// remove anz forwarding
+			UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, eport, "TCP", NULL);
 			// setting up tcp redirect forever (last parameter "0")
 			if(  UPNP_AddPortMapping(urls.controlURL, data.first.servicetype, eport, iport, lanaddr, "simutrans", "TCP", 0, "0")  ==  UPNPCOMMAND_SUCCESS  ) {
 				// ok, we have our ID and redirected a port to us
@@ -922,7 +925,7 @@ bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, in
 
 	externalAltIPAddress[0] = 0;
 #if 1
-	// use the same routine as later the abnnounce routine, otherwise update with dynamic IP fails
+	// use the same routine as later the announce routine, otherwise update with dynamic IP fails
 	cbuffer_t myIPaddr, altIPaddr;
 	if(  get_external_IP( myIPaddr, altIPaddr )  ) {
 		has_IP = true;
@@ -997,7 +1000,6 @@ void remove_port_forwarding( int port )
 			// this is our ID (at least the routes tells us this)
 			char eport[19];
 			sprintf( eport, "%d", port );
-			// setting up tcp redirect forever (last parameter "0")
 			UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, eport, "TCP", NULL);
 		}
 		FreeUPNPUrls(&urls);

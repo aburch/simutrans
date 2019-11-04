@@ -52,18 +52,18 @@ enum magic_numbers {
 	magic_sound_kontroll_t,
 	magic_load_t,
 	magic_save_t,
-	magic_railtools,
-	magic_monorailtools,
-	magic_tramtools, // Dario: Tramway
-	magic_roadtools,
-	magic_shiptools,
-	magic_airtools,
-	magic_specialtools,
-	magic_listtools,
-	magic_edittools,
-	magic_slopetools,
+	magic_UNUSED_railtools,
+	magic_UNUSED_monorailtools,
+	magic_UNUSED_tramtools, // Dario: Tramway
+	magic_UNUSED_roadtools,
+	magic_UNUSED_shiptools,
+	magic_UNUSED_airtools,
+	magic_UNUSED_specialtools,
+	magic_UNUSED_listtools,
+	magic_UNUSED_edittools,
+	magic_UNUSED_slopetools,
 	magic_halt_list_t,
-	magic_label_frame,
+	magic_UNUSED_label_frame,
 	magic_city_info_t,
 	magic_citylist_frame_t,
 	magic_mainhelp,
@@ -103,11 +103,14 @@ enum magic_numbers {
 	magic_font,
 	// magic numbers with big jumps between them
 	magic_convoi_info,
-	magic_convoi_detail=magic_convoi_info+65536, // unused
-	magic_halt_info=magic_convoi_detail+65536,
-	magic_halt_detail=magic_halt_info+65536, // unused
-	magic_toolbar=magic_halt_detail+65536,
-	magic_max=magic_toolbar+256
+	magic_UNUSED_convoi_detail=magic_convoi_info+65536, // unused range
+	magic_halt_info=magic_UNUSED_convoi_detail +65536,
+	magic_UNUSED_halt_detail=magic_halt_info+65536, // unused range
+	magic_toolbar=magic_UNUSED_halt_detail+65536,
+	magic_script_error=magic_toolbar+256,
+	magic_haltlist_filter,
+	magic_depot, // only used to load/save
+	magic_max
 };
 
 // Holding time for auto-closing windows

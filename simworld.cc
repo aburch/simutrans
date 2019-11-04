@@ -2002,7 +2002,7 @@ karte_t::karte_t() :
 	last_interaction = dr_time();
 	step_mode = PAUSE_FLAG;
 	time_multiplier = 16;
-	next_step_time = last_step_time = 0;
+	next_midi_time = next_step_time = last_step_time = 0;
 	fix_ratio_frame_time = 200;
 	idle_time = 0;
 	network_frame_count = 0;
@@ -3558,8 +3558,8 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 					grund_t *gr = lookup_kartenboden( new_pos.get_2d() );
 					bool redraw = false;
 					if( new_pos.z < gr->get_hoehe() ) {
-						redraw = grund_t::underground_mode == grund_t::ugm_level ? grund_t::underground_level != new_pos.z : true;
-						grund_t::set_underground_mode( grund_t::ugm_level, new_pos.z );
+						redraw = grund_t::underground_mode == grund_t::ugm_none ? grund_t::underground_level != new_pos.z : true;
+						grund_t::set_underground_mode( env_t::follow_convoi_underground, new_pos.z );
 					}
 					else {
 						redraw = grund_t::underground_mode != grund_t::ugm_none;
@@ -4123,11 +4123,6 @@ void karte_t::step()
 
 	// ok, next step
 	INT_CHECK("simworld 1975");
-
-	if((steps%8)==0) {
-		DBG_DEBUG4("karte_t::step", "checkmidi");
-		check_midi();
-	}
 
 	recalc_season_snowline(true);
 
@@ -6756,8 +6751,16 @@ bool karte_t::interactive(uint32 quit_month)
 			DBG_DEBUG4("karte_t::interactive", "end of sleep");
 		}
 
-		// time for the next step?
 		uint32 time = dr_time();
+
+		// check midi if next songs needs to be started
+		if(  (sint32)next_midi_time - (sint32)time <= 0  ) {
+			DBG_DEBUG4("karte_t::interactive", "checkmidi");
+			check_midi();
+			next_midi_time = time + 1500; // check every 1.5 s if we need to start next song
+		}
+
+		// time for the next step?
 		if(  (sint32)next_step_time - (sint32)time <= 0  ) {
 			if(  step_mode&PAUSE_FLAG  ) {
 				// only update display
@@ -6886,6 +6889,9 @@ void karte_t::announce_server(int status)
 			if(  status == 1  &&  (env_t::server_dns.compare( buf )  ||  env_t::server_alt_dns.compare( altbuf ))  ) {
 				announce_server( 2 );
 				status = 0; // since starting with new IP
+				// if we had uPnP, we may need to drill another hole in the firewall again; the delay is no problem, since all clients will be lost anyway
+				char IP[256], altIP[256];
+				prepare_for_server( IP, altIP, env_t::server_port );
 			}
 			// now update DNS info
 			env_t::server_dns = (const char *)buf;

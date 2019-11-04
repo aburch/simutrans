@@ -12,8 +12,59 @@
 #include "components/gui_button.h"
 #include "components/gui_numberinput.h"
 #include "components/gui_combobox.h"
+#include "components/gui_tab_panel.h"
 
 
+class gui_settings_t : public gui_aligned_container_t
+{
+private:
+	gui_label_buf_t
+		frame_time_value_label,
+		idle_time_value_label,
+		fps_value_label,
+		simloops_value_label;
+public:
+	gui_settings_t();
+	virtual void draw( scr_coord offset ) override;
+};
+
+class map_settings_t : public gui_aligned_container_t, public action_listener_t
+{
+public:
+	gui_numberinput_t
+		inp_underground_level,
+		brightness,
+		scrollspeed;
+	map_settings_t();
+	virtual bool action_triggered( gui_action_creator_t *comp, value_t v ) override;
+};
+
+class station_settings_t : public gui_aligned_container_t
+{
+public:
+	station_settings_t();
+};
+
+class transparency_settings_t : public gui_aligned_container_t, public action_listener_t
+{
+private:
+	gui_numberinput_t cursor_hide_range;
+	gui_combobox_t hide_buildings;
+public:
+	transparency_settings_t();
+	virtual bool action_triggered( gui_action_creator_t *comp, value_t v );
+};
+
+
+class traffic_settings_t : public gui_aligned_container_t, public action_listener_t
+{
+private:
+	gui_numberinput_t traffic_density;
+	gui_combobox_t convoy_tooltip, money_booking, follow_mode;
+public:
+	traffic_settings_t();
+	virtual bool action_triggered( gui_action_creator_t *comp, value_t v );
+};
 
 /**
  * Display settings dialog
@@ -22,55 +73,18 @@
 class color_gui_t : public gui_frame_t, private action_listener_t
 {
 private:
-
-enum {
-	IDBTN_SCROLL_INVERSE,
-	IDBTN_PEDESTRIANS_AT_STOPS,
-	IDBTN_PEDESTRIANS_IN_TOWNS,
-	IDBTN_DAY_NIGHT_CHANGE,
-	IDBTN_TRANSPARENT_INSTEAD_OF_HIDDEN,
-	IDBTN_HIDE_TREES,
-	IDBTN_TRANSPARENT_STATION_COVERAGE,
-	IDBTN_SHOW_STATION_COVERAGE,
-	IDBTN_UNDERGROUND_VIEW,
-	IDBTN_SHOW_GRID,
-	IDBTN_SHOW_STATION_NAMES_ARROW,
-	IDBTN_SHOW_WAITING_BARS,
-	IDBTN_SHOW_SLICE_MAP_VIEW,
-	IDBTN_HIDE_BUILDINGS,
-	IDBTN_SHOW_SCHEDULES_STOP,
-	IDBTN_SHOW_THEMEMANAGER,
-	IDBTN_SIMPLE_DRAWING,
-	IDBTN_CHANGE_FONT,
-	COLORS_MAX_BUTTONS,
-};
-
-	button_t buttons[COLORS_MAX_BUTTONS];
-
-	gui_numberinput_t
-		brightness,
-		scrollspeed,
-		traffic_density,
-		inp_underground_level,
-		cursor_hide_range;
-
-	gui_label_buf_t
-		frame_time_value_label,
-		idle_time_value_label,
-		fps_value_label,
-		simloops_value_label;
-
-	gui_combobox_t
-		convoy_tooltip,
-		hide_buildings,
-		money_booking;
-
-	gui_aligned_container_t* container_bottom;
-
-	void update_labels();
+	gui_settings_t gui_settings;
+	map_settings_t map_settings;
+	transparency_settings_t transparency_settings;
+	station_settings_t station_settings;
+	traffic_settings_t traffic_settings;
+	gui_scrollpane_t scrolly_gui, scrolly_map, scrolly_transparency, scrolly_station, scrolly_traffic;
+	gui_tab_panel_t	tabs;
 
 public:
 	color_gui_t();
+
+	virtual bool has_min_sizer() const {return true;}
 
 	/**
 	 * Some windows have associated help text.

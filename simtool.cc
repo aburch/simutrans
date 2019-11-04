@@ -4633,23 +4633,23 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
 
-		// check for harbour (must no rotate)
+		// check for harbour (must not rotate)
 		const building_desc_t *desc = gb->get_tile()->get_desc();
 		if(  desc->get_all_layouts() == 1  ) {
-			// non rotatable =<> finish
+			// non rotatable => finish
 			return NULL;
 		}
 		if(  desc->get_type() == building_desc_t::dock  ) {
-			// cannot roatate a harbour
+			// cannot rotate a harbour
 			return "Cannot rotate this building!";
 		}
 		if(  desc->get_all_layouts()==2  &&  desc->get_x()!=desc->get_y()  ) {
-			// cannot rotate an aszmmetric building with onlz two rotations
+			// cannot rotate an asymmetric building with only two rotations
 			return "Cannot rotate this building!";
 		}
 
 		if(  gr->hat_wege()  ) {
-			// this is almost certainlz a station ...
+			// this is almost certainly a station ...
 			if(  desc->get_all_layouts()<16  ) {
 				// either symmetrical (==2, ==8) or freight loading station, so do not rotate!
 				return "Cannot rotate this building!";
@@ -4658,11 +4658,11 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 			gb->set_tile( gb->get_tile()->get_desc()->get_tile( layout^8, 0, 0 ), false );
 		}
 		else {
-			// single and multitile buildings from here, include factorieh holes etc.
+			// single and multitile buildings from here, include factories with holes etc.
 			bool rotate180 = desc->get_x() != desc->get_y();
 
 			if(  desc->get_x() != desc->get_y()  &&  desc->get_all_layouts()==2  ) {
-				// asymmetrical with onlz one rotation so do not rotate!
+				// asymmetrical with only one rotation so do not rotate!
 				return "Cannot rotate this building!";
 			}
 
@@ -4688,7 +4688,7 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 					}
 				}
 			}
-			// ok, we can roate it
+			// ok, we can rotate it
 			for(k.x=0; k.x<desc->get_x(layout); k.x++) {
 				for(k.y=0; k.y<desc->get_y(layout); k.y++) {
 					grund_t *gr = welt->lookup( gb->get_pos()+k );
