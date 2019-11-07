@@ -4,7 +4,7 @@
  */
 
 #include "factorylist_frame_t.h"
-
+#include "gui_theme.h"
 #include "../dataobj/translator.h"
 
 bool factorylist_frame_t::sortreverse = false;
@@ -112,6 +112,7 @@ factorylist_frame_t::factorylist_frame_t() :
 
 	display_list();
 
+	scrolly.set_maximize(true);
 	reset_min_windowsize();
 	set_resizemode(diagonal_resize);
 }
@@ -168,9 +169,30 @@ bool factorylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /
 }
 
 
+/*
+void factorylist_frame_t::fill_list()
+{
+	scrolly.clear_elements();
+	FOR(const slist_tpl<fabrik_t *>,fab,world()->get_fab_list()) {
+		scrolly.new_component<factorylist_stats_t>(fab) ;
+	}
+	scrolly.sort(0);
+	scrolly.set_size(scrolly.get_size());
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, min(scrolly.get_pos().y + scrolly.get_size().h + D_MARGIN_BOTTOM, D_DEFAULT_HEIGHT)));
+	set_dirty();
+	resize(scr_size(0, 0));
+}
+*/
 
 void factorylist_frame_t::display_list()
 {
 	stats.sort(sortby, get_reverse(), get_filter_own_network(), filter_goods_catg);
 	stats.recalc_size();
+/*
+	if(  world()->get_fab_list().get_count() != (uint32)scrolly.get_count()  ) {
+		fill_list();
+	}
+
+	gui_frame_t::draw(pos,size);
+*/
 }

@@ -244,6 +244,8 @@ public:
 	 */
 	virtual scr_rect get_client( void ) { return scr_rect( pos, size ); }
 
+	// remove margins around this GUI object
+	virtual bool is_marginless() const { return false; }
 };
 
 

@@ -64,6 +64,9 @@ public:
 	static void set_filter_goods_catg(uint8 g) { filter_goods_catg = g < goods_manager_t::INDEX_NONE ? 2 : g; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+	//void draw(scr_coord pos, scr_size size) OVERRIDE;
+
+	bool has_min_sizer() const { return true; }
 };
 
 #endif

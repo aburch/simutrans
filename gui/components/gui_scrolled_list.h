@@ -34,7 +34,6 @@ class gui_scrolled_list_t :
 public:
 	enum type { windowskin, listskin };
 
-
 	/**
 	 * Base class for elements in lists. Virtual inheritance.
 	 */
@@ -90,6 +89,7 @@ private:
 	// NOTE: Don't remove this. Extended is still using this
 	PIXVAL highlight_color;
 
+	bool maximize;	// true if to expand to bottom right corner
 	scr_coord_val max_width; // need for overlength entries
 
 	item_compare_func compare;
@@ -156,6 +156,10 @@ public:
 	void draw(scr_coord pos) OVERRIDE;
 
 	void set_max_width(scr_coord_val mw) { max_width = mw; }
+
+	scr_size get_max_size() const OVERRIDE { return maximize ? scr_size::inf : size; }
+	bool is_marginless() const OVERRIDE { return maximize; }
+	void set_maximize(bool b) { maximize = b; }
 };
 
 #endif
