@@ -11,6 +11,7 @@
  */
 
 #include "factorylist_frame_t.h"
+#include "gui_theme.h"
 #include "../dataobj/translator.h"
 
 
@@ -40,11 +41,14 @@ factorylist_frame_t::factorylist_frame_t() :
 	add_component(&sorteddir);
 	end_table();
 
+	add_table(1, 0);
+	set_alignment(ALIGN_STRETCH_V | ALIGN_STRETCH_H);
 	add_component(&scrolly);
 	fill_list();
+	end_table();
 
+	scrolly.set_maximize(true);
 	reset_min_windowsize();
-	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, get_min_windowsize().h));
 	set_resizemode(diagonal_resize);
 }
 
@@ -76,7 +80,10 @@ void factorylist_frame_t::fill_list()
 		scrolly.new_component<factorylist_stats_t>(fab) ;
 	}
 	scrolly.sort(0);
-	scrolly.set_size( scrolly.get_size());
+	scrolly.set_size(scrolly.get_size());
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, min(scrolly.get_pos().y + scrolly.get_size().h + D_MARGIN_BOTTOM, D_DEFAULT_HEIGHT)));
+	set_dirty();
+	resize(scr_size(0, 0));
 }
 
 
@@ -85,9 +92,6 @@ void factorylist_frame_t::draw(scr_coord pos, scr_size size)
 	if(  world()->get_fab_list().get_count() != (uint32)scrolly.get_count()  ) {
 		fill_list();
 	}
-
-	set_dirty();
-	resize(scr_size(0, 0));
 
 	gui_frame_t::draw(pos,size);
 }

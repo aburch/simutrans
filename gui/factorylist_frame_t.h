@@ -38,6 +38,8 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
+
+	bool has_min_sizer() const { return true; }
 };
 
 #endif
