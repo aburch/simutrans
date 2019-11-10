@@ -21,7 +21,6 @@ private:
 	button_t	sortedby;
 	button_t	sorteddir;
 	gui_scrolled_list_t scrolly;
-	gui_aligned_container_t list;
 
 	void fill_list();
 
