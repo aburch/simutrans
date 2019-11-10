@@ -157,7 +157,6 @@ public:
 
 	void set_max_width(scr_coord_val mw) { max_width = mw; }
 
-	scr_size get_max_size() const OVERRIDE { return maximize ? scr_size::inf : size; }
 	bool is_marginless() const OVERRIDE { return maximize; }
 	void set_maximize(bool b) { maximize = b; }
 };

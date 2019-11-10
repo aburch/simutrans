@@ -175,7 +175,7 @@ void gui_aligned_container_t::set_size(scr_size new_size)
 		if( comp->is_marginless() ) {
 			// marginless component
 			comp->set_pos(c_pos+delta-scr_coord(margin_tl.w,0));
-			comp->set_size(comp_size+ scr_coord(margin_tl.w, 0)+margin_br);
+			comp->set_size( scr_size( max( comp_size.w, cell_size.w ), comp_size.h ) + scr_coord( margin_tl.w, 0 ) + margin_br + extra );
 		}
 		else {
 			comp->set_pos(c_pos + delta);
