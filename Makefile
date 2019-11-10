@@ -236,6 +236,7 @@ SOURCES += dataobj/repositioning.cc
 SOURCES += dataobj/ribi.cc
 SOURCES += dataobj/route.cc
 SOURCES += dataobj/scenario.cc
+SOURCES += dataobj/schedule_entry.cc
 SOURCES += dataobj/schedule.cc
 SOURCES += dataobj/settings.cc
 SOURCES += dataobj/tabfile.cc

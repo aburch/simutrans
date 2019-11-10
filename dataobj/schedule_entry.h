@@ -2,6 +2,8 @@
 #define schedule_entry_t_h
 
 #include "koord3d.h"
+#include "../convoihandle_t.h"
+#include "../tpl/slist_tpl.h"
 
 /**
  * A schedule entry.
@@ -21,6 +23,10 @@ public:
 		spacing = 1;
 		spacing_shift = delay_tolerance = 0;
 	}
+	
+	bool operator ==(const schedule_entry_t &a);
+	schedule_entry_t& operator = (const schedule_entry_t& a);
+	schedule_entry_t(const schedule_entry_t &a);
 
 	enum {
 		NONE              = 0,
@@ -53,6 +59,13 @@ public:
 	
 	uint16 spacing, spacing_shift, delay_tolerance;
 	
+	typedef struct {
+		uint64 dep_tick;
+		convoihandle_t cnv;
+	} departure_slot;
+	
+	slist_tpl<departure_slot> departure_slots;
+	
 private:
 	uint8 stop_flags;
 	
@@ -69,22 +82,7 @@ public:
 	void set_wait_for_time(bool y) { y ? stop_flags |= WAIT_FOR_TIME : stop_flags &= ~WAIT_FOR_TIME; }
 	uint8 get_stop_flags() const { return stop_flags; }
 	void set_stop_flags(uint8 f) { stop_flags = f; }
-	
-	void set_spacing(uint16 a, uint16 b, uint16 c) {
-		spacing = a;
-		spacing_shift = b;
-		delay_tolerance = c;
-	}
-	
-	bool operator ==(const schedule_entry_t &a) {
-		return a.pos == this->pos
-		  &&  a.minimum_loading    == this->minimum_loading
-			&&  a.waiting_time_shift == this->waiting_time_shift
-			&&  a.get_stop_flags()   == this->stop_flags
-			&&  a.spacing            == this->spacing
-			&&  a.spacing_shift      == this->spacing_shift
-			&&  a.delay_tolerance    == this->delay_tolerance;
-	}
+	void set_spacing(uint16 a, uint16 b, uint16 c);
 };
 
 
