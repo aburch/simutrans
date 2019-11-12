@@ -3,11 +3,11 @@
 SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak (64 size) (standard)" pak
-  AddSize 12240
+  AddSize 12333
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/120-4-1/simupak64-120-4-1.zip"
-  StrCpy $archievename "simupak64-120-4-1.zip"
+  StrCpy $archievename "simupak64-121-0.zip"
   StrCpy $downloadname "pak"
-  StrCpy $VersionString "pak64 120.4.1 r1974"
+  StrCpy $VersionString "pak64 121 r2018"
   Call DownloadInstallZip
 SectionEnd
 
@@ -162,12 +162,12 @@ SectionEnd
 
 
 
-Section "pak128.German V1.0" pak128german
-  AddSize 287642
+Section "pak128.German V1.2" pak128german
+  AddSize 396454
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_1.0_for_ST_120.x/PAK128.german_1.0_for_ST_120.x.zip"
   StrCpy $archievename "PAK128.german_1.0_for_ST_120.x.zip"
   StrCpy $downloadname "pak128.German"
-  StrCpy $VersionString "  PAK128.german V 1.0 (Rev. 156)"
+  StrCpy $VersionString "  PAK128.german V 1.2 (Rev. 265)"
   Call DownloadInstallZip
 SectionEnd
 
