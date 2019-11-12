@@ -5493,8 +5493,8 @@ void tool_build_roadsign_t::draw_after(scr_coord k, bool dirty) const
 	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
 		char level_str[16];
-		sprintf(level_str, "%i", signal[welt->get_active_player_nr()].spacing);
-		display_proportional( k.x+4, k.y+4, level_str, ALIGN_LEFT, COL_YELLOW, true );
+		sprintf(level_str, "%im", signal[welt->get_active_player_nr()].spacing * welt->get_settings().get_meters_per_tile() );
+		display_proportional( k.x+2, k.y+2, level_str, ALIGN_LEFT, COL_YELLOW, true );
 	}
 }
 
@@ -5779,8 +5779,8 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 		return;
 	}
 	signal_info const& s              = signal[player->get_player_nr()];
-	uint8       const  signal_density = 2 * s.spacing;      // measured in half tiles (straight track count as 2, diagonal as 1, since sqrt(1/2) = 1/2 ;)
-	uint8              next_signal    = signal_density + 1; // to place a sign asap
+	uint32       const  signal_density = 200 * s.spacing;      // measured in half tiles (straight track count as 2, diagonal as 1, since sqrt(1/2) = 1/2 ;)
+	uint32              next_signal    = signal_density + 100; // to place a sign asap
 	sint32             cost           = 0;
 	directions.clear();
 	// dummy roadsign to get images for preview
@@ -5822,7 +5822,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 
 		// check owner .. other signals...
 		bool straight = (i == 0)  ||  (i == route.get_count()-1)  ||  ribi_t::is_straight(ribi_type(route.at(i-1), route.at(i+1)));
-		next_signal += straight ? 2 : 1;
+		next_signal += straight ? 200 : 141;
 		if(  next_signal >= signal_density  ) {
 			// can we place signal here?
 			if (check_pos_intern(player, route.at(i))==NULL  ||
