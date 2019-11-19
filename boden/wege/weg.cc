@@ -1266,44 +1266,32 @@ void weg_t::calc_image()
 		if(  snow  ) {
 			flags |= IS_SNOW;
 		}
+		if(  from->ist_bruecke() && from->obj_bei(0)==this  ){
+			//This checks whether we should show the way graphics on the bridge
+			//if the bridge has own way graphics, we don't show the way graphics on the bridge
+			const bruecke_t *bridge = from ? from->find<bruecke_t>() : NULL;
+			if(  bridge  ){
+				if(  bridge->get_desc()->get_has_own_way_graphics()  ){
+					bridge_has_own_way_graphics=true;
+				}
+			}
+		}
 
 		slope_t::type hang = from->get_weg_hang();
 		if(hang != slope_t::flat) {
 			// on slope
-			if(  from->ist_bruecke() && from->obj_bei(0)==this  ){
-				//This checks whether we should show the way graphics on the bridge
-				//if the bridge has own way graphics, we don't show the way graphics on the bridge
-				const bruecke_t *bridge = from ? from->find<bruecke_t>() : NULL;
-				if(  bridge  ){
-					if(  bridge->get_desc()->get_has_own_way_graphics()  ){
-						bridge_has_own_way_graphics=true;
-					}
-				}
-			}
-
 			if(bridge_has_own_way_graphics){
 				set_image(IMG_EMPTY);
 				set_after_image(IMG_EMPTY);
 			}else{
 				set_images(image_slope, hang, snow);
 			}
-			
 		}
 		
 		else {
 			static int recursion = 0; /* Communicate among different instances of this method */
 
 			// flat way
-			if(  from->ist_bruecke() && from->obj_bei(0)==this  ){
-				//This checks whether we should show the way graphics on the bridge
-				//if the bridge has own way graphics, we don't show the way graphics on the bridge
-				const bruecke_t *bridge = from ? from->find<bruecke_t>() : NULL;
-				if(  bridge  ){
-					if(  bridge->get_desc()->get_has_own_way_graphics()  ){
-						bridge_has_own_way_graphics=true;
-					}
-				}
-			}
 			if( bridge_has_own_way_graphics){
 				set_image(IMG_EMPTY);
 				set_after_image(IMG_EMPTY);
