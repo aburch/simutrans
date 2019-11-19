@@ -33,6 +33,7 @@
 
 settings_t::settings_t() :
 	filename(""),
+	midi_command(""),
 	heightfield("")
 {
 	size_x = 256;
@@ -869,6 +870,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		env_t::fontname = fname;
 	}
 
+	env_t::midi_command = contents.get_string( "midi_command", env_t::midi_command.c_str());
 	env_t::water_animation = contents.get_int("water_animation_ms", env_t::water_animation );
 	env_t::ground_object_probability = contents.get_int("random_grounds_probability", env_t::ground_object_probability );
 	env_t::moving_object_probability = contents.get_int("random_wildlife_probability", env_t::moving_object_probability );

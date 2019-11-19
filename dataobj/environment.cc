@@ -84,6 +84,7 @@ bool env_t::player_finance_display_account = true;
 
 // the following initialisation is not important; set values in init()!
 std::string env_t::objfilename;
+std::string env_t::midi_command = "";
 bool env_t::night_shift;
 bool env_t::hide_with_transparency;
 bool env_t::hide_trees;
@@ -254,6 +255,7 @@ void env_t::init()
 	mute_sound = false;
 	mute_midi = false;
 	shuffle_midi = true;
+	midi_command = "";
 
 	left_to_right_graphs = false;
 
@@ -388,7 +390,20 @@ void env_t::rdwr(loadsave_t *file)
 	file->rdwr_bool( mute_sound );
 	file->rdwr_bool( mute_midi );
 	file->rdwr_bool( shuffle_midi );
+	/*
+	 * ToDo: Include midi command to settings.xml
+	 * Nov 20, 2019 K.Ohta
+	 */
+	/*
 
+	if(  file->is_version_atleast(120, 4)  ) {
+		plainstring str = midi_command.c_str();
+		file->rdwr_str( str );
+		if(  file->is_loading()  ) {
+			midi_command = str ? str.c_str() : "";
+		}
+	}
+	*/
 	if(  file->is_version_atleast(102, 2)  ) {
 		file->rdwr_byte( show_vehicle_states );
 		file->rdwr_bool( left_to_right_graphs );

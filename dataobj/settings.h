@@ -151,6 +151,7 @@ private:
 	sint16 bits_per_month;
 
 	std::string filename;
+	std::string midi_command;
 
 	bool beginner_mode;
 	sint32 beginner_price_factor;
@@ -427,6 +428,9 @@ public:
 
 	void set_filename(const char *n) {filename=n;}	// prissi, Jun-06
 	const char* get_filename() const { return filename.c_str(); }
+
+	void set_midi_command(const char *n) {midi_command = n;}  // K.Ohta Nov-19
+	const char *get_midi_command() const { return midi_command.c_str(); }
 
 	bool get_beginner_mode() const {return beginner_mode;}
 
