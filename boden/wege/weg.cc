@@ -1258,6 +1258,17 @@ void weg_t::calc_image()
 		set_image(IMG_EMPTY);
 		set_after_image(IMG_EMPTY);
 	}
+
+	else if(  from->ist_bruecke() && from->obj_bei(0)==this  ){
+		//This checks whether we should show the way graphics on the bridge
+		//if the bridge has own way graphics, we don't show the way graphics on the bridge
+		const bruecke_t *bridge = from ? from->find<bruecke_t>() : NULL;
+		if(  bridge  &&  bridge->get_desc()->get_has_own_way_graphics()  ){
+			set_image(IMG_EMPTY);
+			set_after_image(IMG_EMPTY);
+		}
+	}
+
 	else {
 		// use snow image if above snowline and above ground
 		bool snow = (from->ist_karten_boden() || !from->ist_tunnel()) && (get_pos().z + from->get_weg_yoff() / TILE_HEIGHT_STEP >= welt->get_snowline() || welt->get_climate(get_pos().get_2d()) == arctic_climate);
