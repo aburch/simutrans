@@ -129,6 +129,19 @@ void dr_destroy_midi(void)
  */
 bool dr_init_midi(void)
 {
+	if(!SDL_WasInit(SDL_INIT_AUDIO)) {				//if audio not init
+		if(SDL_InitSubSystem(SDL_INIT_AUDIO) != -1) {		//if audio subsys is ok
+			if(Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024)==-1) {
+				//if OpenAudio returns error, dr_init_midi is false
+				return false;
+			}
+		}
+		else {
+			//if SDL_InitSubSystem returns error, dr_init_midi is false
+			return false;
+		}
+	}
+	//if all is fine, return true
 	const char *arg_midi_cmd = env_t::default_settings.get_midi_command();
 	if(arg_midi_cmd != NULL) {
 		if(strlen(arg_midi_cmd) > 0) {
@@ -145,20 +158,8 @@ bool dr_init_midi(void)
 			DBG_MESSAGE("simmain", "Using \"%s\" instead of internal player.\n", ext_cmd_name);
 			return true;
 		}
+	} else {
+		Mix_SetMusicCMD(NULL);
 	}
-	
-	if(!SDL_WasInit(SDL_INIT_AUDIO)) {				//if audio not init
-		if(SDL_InitSubSystem(SDL_INIT_AUDIO) != -1) {		//if audio subsys is ok
-			if(Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024)==-1) {
-				//if OpenAudio returns error, dr_init_midi is false
-				return false;
-			}
-		}
-		else {
-			//if SDL_InitSubSystem returns error, dr_init_midi is false
-			return false;
-		}
-	}
-	//if all is fine, return true
 	return true;
 }
