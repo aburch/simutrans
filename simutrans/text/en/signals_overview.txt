@@ -34,8 +34,7 @@ Read more about how to create directional reservations here: <a href="signals_he
 <em>Sighting distance</em><br>
 The traindriver can only see a certain distance in front of the train. When a train is in the "drive by sight" working method, the sighting distance is the only safety feature in existance and the train is therefore required to drive slow enough to stop within the sighting distance.<br>
 The sighting distance is also used to determine the speed that a train will approach an upcoming signal. Since the train does not know the state of an upcoming signal (except in "cab signal" and "moving block" working methods), it must drive slow enough to possibly stop if the signal is at danger. To come around this problem, presignals is used, which tells the driver at a much earlier point what state the upcoming signal is at.<br>
-To see the sighting distance of a train, let it run in "Drive by sight" working method. The red reservation in front of the train will correspond to its sighting distance.
-Read more about presignals here: <a href="signals_usage.txt">Signals usage</a>
+To see the sighting distance of a train, let it run in <a href="signals_wm_drive_by_sight.txt"><em>Drive by sight</em></a> working method. The red reservation in front of the train will correspond to its sighting distance.
 <br><br>
 
 <em>Signals max speed</em><br>
@@ -45,17 +44,17 @@ At higher speeds, signs and signals get more difficult to read. Each signal has 
 <em>Choose signals</em><br>
 Choose signals serves two functions: They will guide the train to an empty platform at the station, and they will guide a train through a station, also if the mainline route is occupied.<br>
 To make use of this second function, you need to place an <it>end of choose </it>sign outside all the exits of the station. When a train aproach the choose signal, it will be given a route all the way till its destination or the "end of choose" sign, whichever is encountered first.<br>
-Read more about how to use them here: <a href="signals_usage.txt">Signals usage</a>
+Read more about how choose signals work at the <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> page
 <br><br>
 
 <em>Distant signals</em><br>
-Distant signals, presignals and repeater signals are all used only to forecast what state of the upcomming signal is. In essence they extend the sighting distance of the following signal. These kinds of signals are not "real" signals, therefore trains will not stop at them.
+Distant signals, presignals and repeater signals are all used only to forecast what state of the upcomming signal is. In essence they extend the sighting distance of the following signal. These kinds of signals are not "stop signals", as most other types of signals are, therefore trains will never stop at them.<br>
+Trains might change working method when passing a distant signal though, thus reservations might still end at the distant signal. This happens mostly when the working method of the distant signal is a different one than the previous signal.
 <br><br>
 
 <em>Multiple aspect signals</em><br>
-A signal may have up to 5 aspects, in addition to aspects for permissive signals and choose signals showing alternative routes. Not all paksets make use of all of the aspects and the graphics of the signals might be very different between paksets.<br>
-The core function of such signals is to rize the density of the tracks. The more aspects, the smaller blocks of tracks one can create without compromizing with lower top speeds, thus creating room for more trains on the tracks. Therefore, the most effective way of using multi aspect signals are at lines with a big traffic demand.
-Read more about how to use them here: <a href="signals_usage.txt">Signals usage</a>
+A signal may have up to 5 aspects. In addition to that, permissive signals and choose signals have specific aspects related to their functions. Different paksets reflect specific countries or signalling systems, and so certain combinations might not be available for a specific pakset.<br>
+The core function of multiple aspect signals is to combine a forecast aspect with a stop signal, thus increasing the density of the tracks. The more aspects a signal has, the smaller blocks can be created without compromizing with lower top speeds, thus creating room for more trains on the tracks. Therefore, the most effective way of using multi aspect signals are at lines with a big traffic demand.
 <br><br>
 
 <em>Combined signals</em><br>
