@@ -152,11 +152,11 @@ help_frame_t::help_frame_t(char const* const filename) :
 //		add_helpfile( how_to_play, "Scenario", "scenario.txt", false, 1 );
 	add_helpfile( how_to_play, "Enter Password", "password.txt", false, 1 );
 	add_helpfile( how_to_play, NULL, "way_wear.txt", false, 1);
-	add_helpfile( how_to_play, NULL, "signals_overview.txt", false, 1);
+	add_helpfile(how_to_play, NULL, "signals_overview.txt", false, 1);
+	add_helpfile(how_to_play, NULL, "signals_help.txt", false, 1);
 	add_helpfile(how_to_play, NULL, "signals_working_methods.txt", false, 1);
-	add_helpfile(how_to_play, NULL, "signals_usage.txt", false, 1);
+	add_helpfile(how_to_play, NULL, "signals_tips.txt", false, 1);
 	add_helpfile(how_to_play, NULL, "signals_signs.txt", false, 1);
-	add_helpfile(how_to_play, NULL, "signals_placements.txt", false, 1);
 
 	add_helpfile( others, "Einstellungen aendern", "options.txt", false, 0 );
 	add_helpfile( others, "Helligk. u. Farben", "display.txt", false, 0 );
