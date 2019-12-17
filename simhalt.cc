@@ -2151,15 +2151,15 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 	halthandle_t test_transfer;
 	koord real_destination_pos;
 
-	for(vector_tpl<halthandle_t>::const_iterator destination_halt = destination_halts_list.begin(); destination_halt != destination_halts_list.end(); destination_halt++)
+	FOR(vector_tpl<halthandle_t>, destination_halt, destination_halts_list)
 	{
-		if (!destination_halt->is_bound() || self == *destination_halt)
+		if (!destination_halt.is_bound() || self == destination_halt)
 		{
 			// Either this halt has been deleted recently, or the origin and destination are the same.
 			continue;
 		}
 		
-		path_explorer_t::get_catg_path_between(ware_catg, self, *destination_halt, test_time, test_transfer, g_class);
+		path_explorer_t::get_catg_path_between(ware_catg, self, destination_halt, test_time, test_transfer, g_class);
 
 		found_a_halt = true;
 		
@@ -2183,7 +2183,7 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 		destination_stop_pos = (*destination_halt)->get_next_pos(real_destination_pos);
 		*/
 
-		destination_stop_pos = (*destination_halt)->get_init_pos();
+		destination_stop_pos = (destination_halt)->get_init_pos();
 
 		// And find the shortest walking distance to there.
 		const uint32 walk_distance = shortest_distance(destination_stop_pos, real_destination_pos);
@@ -2208,7 +2208,7 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 		if(test_time < best_journey_time)
 		{
 			// This is quicker than the last halt we tried.
-			best_destination_halt = *destination_halt;
+			best_destination_halt = destination_halt;
 			best_journey_time = test_time;
 			best_transfer = test_transfer;
 		}
