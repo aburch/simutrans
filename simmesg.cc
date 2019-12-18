@@ -201,7 +201,6 @@ void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAG
 	}
 	// check if some window has focus
 	gui_frame_t *old_top = win_get_top();
-	gui_component_t *focus = win_get_focus();
 
 	// should we open a window?
 	if (art & (auto_win_flags | win_flags)) {
@@ -218,8 +217,8 @@ void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAG
 	}
 
 	// restore focus
-	if (old_top  &&  focus) {
-		top_win(old_top, true);
+	if(  old_top    ) {
+		top_win( old_top, true );
 	}
 }
 
