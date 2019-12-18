@@ -2141,9 +2141,27 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 
  	koord destination_stop_pos = destination_pos;
 
-	const uint8 ware_catg = ware.get_desc()->get_catg_index();
-	const bool is_freight = ware.is_freight();
-	const uint8 g_class = ware.g_class;
+	bool is_freight = false;
+	uint8 g_class;
+	uint8 ware_catg;
+
+	if (ware.is_freight())
+	{
+		is_freight = true;
+		ware_catg = ware.get_desc()->get_catg_index();
+		g_class = 0;
+	}
+	else if (ware.is_mail())
+	{
+		ware_catg = goods_manager_t::INDEX_MAIL;
+		g_class = 0;
+	}
+	else // Passengers
+	{
+		// Class only matters for passengers
+		g_class = ware.g_class;
+		ware_catg = goods_manager_t::INDEX_PAS;
+	}
 
 	bool found_a_halt = false;
 
