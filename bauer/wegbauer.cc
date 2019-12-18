@@ -2730,6 +2730,13 @@ void way_builder_t::build_track()
 					{
 						sch->add_way_constraints(wayobj->get_desc()->get_way_constraints());
 					}
+					// If this is a narrow gague way and it attempts to cross a road with a tram track already installed, calling the below method
+					// will crash the game because three different waytypes are not allowed on the same tile. Thus, we must test for this.
+					if (sch->get_waytype() == narrowgauge_wt && gr->has_two_ways())
+					{
+						delete sch;
+						return;
+					}
 					cost = gr->neuen_weg_bauen(sch, ribi, player_builder, &route) - desc->get_value();
 					// respect speed limit of crossing
 					sch->count_sign();
