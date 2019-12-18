@@ -447,9 +447,9 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 		if (label_t* l = gr->find<label_t>()) {
 			msg = l-> is_deletable(player);
 			if(msg==NULL) {
-				delete l;
 				// Refund the cost of land if the player is deleting the marker and therefore selling it.
 				player_t::book_construction_costs(l->get_owner(), -welt->get_land_value(gr->get_pos()), gr->get_pos().get_2d());
+				delete l;
 				return true;
 			}
 			else if(  gr->get_top()==1 || type == obj_t::label ) {
