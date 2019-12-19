@@ -6411,7 +6411,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				for (int h = current_tile_3->get_haltlist_count() - 1; h >= 0; h--)
 				{
 					halthandle_t halt = halt_list[h].halt;
-					if (halt->is_enabled(wtyp))
+					if((trip == mail_trip && halt->get_mail_enabled()) || (trip != mail_trip && halt->get_pax_enabled()))
 					{
 						// Previous versions excluded overcrowded halts here, but we need to know which
 						// overcrowded halt would have been the best start halt if it was not overcrowded,
@@ -6436,7 +6436,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					for (int h = current_tile_3->get_haltlist_count() - 1; h >= 0; h--)
 					{
 						halthandle_t halt = halt_list[h].halt;
-						if (halt->is_enabled(wtyp))
+						if ((trip == mail_trip && halt->get_mail_enabled()) || (trip != mail_trip && halt->get_pax_enabled()))
 						{
 							// Previous versions excluded overcrowded halts here, but we need to know which
 							// overcrowded halt would have been the best start halt if it was not overcrowded,
