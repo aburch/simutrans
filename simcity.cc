@@ -244,7 +244,7 @@ static uint32 bridge_success_percentage = 25;
  * distribution_weight to do renovation instead new building (in percent)
  * @author prissi
  * 
- * dont set this to 100 or cities wont build outward until renovation fails leading to ugly solid 
+ * Don't set this to 100 or cities wont build outward until renovation fails leading to ugly solid 
  * blocks of highest density buildings in the centre of the city
  * note - catasteroid
  */
