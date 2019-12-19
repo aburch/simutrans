@@ -336,6 +336,12 @@ static uint16 renovation_ranges_by_type[] = { 100,150,200 };
 */
 static uint32 renovation_distance_chance = 1;
 
+/**
+ * try to built cities at least this distance apart
+ * @author prissi
+ */
+static uint32 minimum_city_distance = 16;
+
 /*
  * minimum ratio of city area to building area to allow expansion
  * the higher this value, the slower the city expansion if there are still "holes"
@@ -772,6 +778,16 @@ void stadt_t::bewerte_haus(koord k, sint32 rd, const rule_t &regel)
 	}
 }
 
+uint32 stadt_t::get_minimum_city_distance()
+{
+	return minimum_city_distance;
+}
+
+void stadt_t::set_minimum_city_distance(uint32 s)
+{
+	minimum_city_distance = s;
+}
+
 
 /**
  * Reads city configuration data
@@ -794,6 +810,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 
 	char buf[128];
 
+	minimum_city_distance = contents.get_int("minimum_city_distance", 16);
 	cluster_factor = (uint32)contents.get_int("cluster_factor", 100);
 	bridge_success_percentage = (uint32)contents.get_int("bridge_success_percentage", 25);
 	renovation_percentage = (uint32)contents.get_int("renovation_percentage", renovation_percentage);
@@ -1013,6 +1030,10 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 		file->rdwr_short(renovation_ranges_by_type[1]);
 		file->rdwr_short(renovation_ranges_by_type[2]);
 		file->rdwr_long(renovation_distance_chance);
+	}
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 14) || file->get_extended_version() >= 15)
+	{
+		file->rdwr_long(minimum_city_distance);
 	}
 
 	file->rdwr_short(ind_start_score);
@@ -5464,10 +5485,8 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 		terrain_part = 0.0; water_part = 1.0;
 	}
 
-
 	double one_population_charge = 1.0 + wl->get_settings().get_city_isolation_factor()/10.0; // should be > 1.0
 	double clustering = 2.0 + cluster_size/100.0; // should be > 2.0
-
 
 	vector_tpl<koord>* result = new vector_tpl<koord>(sizes_list->get_count());
 
@@ -5513,7 +5532,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 		}
 	}
 	koord pos;
-	//skip edges -- they treated as water, we don't want it
+	//skip edges -- they are treated as water, we don't want it
 	for( pos.y = 2; pos.y < wl_size.y-2; pos.y++) {
 		for (pos.x = 2; pos.x < wl_size.x-2; pos.x++ ) {
 			koord my_grid_pos(pos.x/grid_step, pos.y/grid_step);
@@ -5526,7 +5545,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 					if ( neighbour_grid_pos.x >= 0 && neighbour_grid_pos.y >= 0 &&
 						 neighbour_grid_pos.x < xmax && neighbour_grid_pos.y < ymax  ) {
 							koord neighbour_center(neighbour_grid_pos.x*grid_step + grid_step/2, neighbour_grid_pos.y*grid_step + grid_step/2);
-							double distance =  koord_distance(pos,neighbour_center) * distance_scale;
+							double distance = koord_distance(pos,neighbour_center) * distance_scale;
 							if ( water_distance.at(neighbour_grid_pos) > distance ) {
 								water_distance.at(neighbour_grid_pos) = distance;
 							}
@@ -5683,7 +5702,28 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 		// places.at(ip) can't be empty (see (*) above )
 		const koord k = places.at(ip)[j];
 		places.at(ip).remove_at(j);
-		result->append(k);
+		
+		// I wonder whether there is a more efficient way of doing this - but the minimium city distance was not implemented at all before, which was not good.
+		if (minimum_city_distance > 0)
+		{
+			bool not_too_close = true;
+			for(uint32 n = 0; n < result->get_count(); n++)
+			{
+				if (koord_distance(result->get_element(n), k) < minimum_city_distance)
+				{
+					not_too_close = false;
+					break;
+				}
+			}
+			if (not_too_close)
+			{
+				result->append(k);
+			}
+		}
+		else
+		{
+			result->append(k);
+		}
 
 		// now update fields
 		for (int y = 0; y < ymax; y++) {
