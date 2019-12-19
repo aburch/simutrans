@@ -5493,7 +5493,16 @@ void tool_build_roadsign_t::draw_after(scr_coord k, bool dirty) const
 	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
 		char level_str[16];
-		sprintf(level_str, "%im", signal[welt->get_active_player_nr()].spacing * welt->get_settings().get_meters_per_tile() );
+		uint16 spacing_in_meter = signal[welt->get_active_player_nr()].spacing * welt->get_settings().get_meters_per_tile();
+		if( spacing_in_meter < 1000 ) {
+			sprintf(level_str, "%im", spacing_in_meter );
+		}
+		else {
+			uint16 spacing_km=spacing_in_meter/1000;
+			uint16 spacing_dec=spacing_in_meter/100;
+			spacing_dec=spacing_dec%10;
+			sprintf(level_str, "%i.%ikm", spacing_km, spacing_dec);
+		}
 		display_proportional( k.x+2, k.y+2, level_str, ALIGN_LEFT, COL_YELLOW, true );
 	}
 }
