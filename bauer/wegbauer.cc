@@ -2634,7 +2634,7 @@ void way_builder_t::build_track()
 					//nothing to be done
 					//DBG_MESSAGE("way_builder_t::build_road()","nothing to do at (%i,%i)",k.x,k.y);
 				}
-				else if((bautyp & elevated_flag) == (way->get_desc()->get_styp() == type_elevated))
+				else if(bautyp == luft || ((bautyp & elevated_flag) == (way->get_desc()->get_styp() == type_elevated)))
 				{
 					way->set_replacement_way(desc);
 				}
