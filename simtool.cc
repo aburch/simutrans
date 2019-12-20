@@ -5538,14 +5538,26 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 	{
 
 		signal_t *s = gr->find<signal_t>();
-		if(s  &&  s->get_desc()!=desc) {
-			// only one sign per tile
-			return error;
-		}
 
-		if(desc->is_signal()  &&  gr->find<roadsign_t>())  {
+		if( (s  &&  s->get_desc()!=desc) || (desc->is_signal()  &&  gr->find<roadsign_t>()) ) {
+			signal_info const& sinfo = signal[player->get_player_nr()];
+
 			// only one sign per tile
-			return error;
+			if( is_shift_pressed() ){
+				weg_t *weg = gr->get_weg( desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt);
+				//control key is pressed: force to delete the existing signal. next step is same as placing a new signal.
+				player_t::add_maintenance(player, -s->get_desc()->get_maintenance(), weg->get_waytype());
+				s->cleanup(player);
+				delete s;
+				error = NULL;
+			}
+			else if( sinfo.place_backward ){
+				error = NULL;
+				return error;
+			}
+			else{
+				return error;
+			}
 		}
 
 		// get the sign direction
@@ -5674,7 +5686,7 @@ waytype_t tool_build_roadsign_t::get_waytype() const
 }
 
 // read variables from default_param if cmd comes from network
-// default_param: sign_name,signal_spacing,remove,replace
+// default_param: sign_name,signal_spacing,remove,replace, backward
 // if the static variable toolstring is the default_param then reset default_param to name of signal
 void tool_build_roadsign_t::read_default_param(player_t * player)
 {
@@ -5691,13 +5703,15 @@ void tool_build_roadsign_t::read_default_param(player_t * player)
 		int i_signal_spacing              = s.spacing;
 		int i_remove_intermediate_signals = s.remove_intermediate;
 		int i_replace_other_signals       = s.replace_other;
+		int i_place_backward_signals       = s.place_backward;
 		int i_x							  = s.signalbox.x;
 		int i_y							  = s.signalbox.y;
 		int i_z							  = s.signalbox.z;
-		sscanf(default_param+i, ",%d,%d,%d,%d,%d,%d", &i_signal_spacing, &i_remove_intermediate_signals, &i_replace_other_signals, &i_x, &i_y, &i_z);
+		sscanf(default_param+i, ",%d,%d,%d,%d,%d,%d,%d", &i_signal_spacing, &i_remove_intermediate_signals, &i_replace_other_signals, &i_place_backward_signals, &i_x, &i_y, &i_z);
 		s.spacing             = (uint8)i_signal_spacing;
 		s.remove_intermediate = i_remove_intermediate_signals != 0;
 		s.replace_other       = i_replace_other_signals       != 0;
+		s.place_backward       = i_place_backward_signals       != 0;
 		s.signalbox.x = i_x;
 		s.signalbox.y = i_y;
 		s.signalbox.z = i_z;
@@ -5840,14 +5854,17 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 				marked.append(zeiger);
 				zeiger->set_image( skinverwaltung_t::bauigelsymbol->get_image_id(0) );
 				gr->obj_add( zeiger );
-				directions.append(ribi /* !=0 -> place sign*/);
 				next_signal = 0;
+				directions.append( s.place_backward ? ribi_t::backward(ribi) : ribi /* !=0 -> place sign*/);
 				dummy_rs->set_pos(gr->get_pos());
-				dummy_rs->set_dir(ribi); // calls calc_image()
-				zeiger->set_after_image(dummy_rs->get_front_image());
-				zeiger->set_image(dummy_rs->get_image());
+				dummy_rs->set_dir( s.place_backward ? ribi_t::backward(ribi) : ribi ); // calls calc_image()
+				if( !( rs && s.place_backward )){
+					zeiger->set_after_image(dummy_rs->get_front_image());
+					zeiger->set_image(dummy_rs->get_image());
+				}
 				cost += rs ? (rs->get_desc()==desc ? 0  : desc->get_value()+rs->get_desc()->get_value()) : desc->get_value();
 			}
+			//			delete zeiger;
 		} else if (s.remove_intermediate && rs && !rs-> is_deletable(player)) {
 				zeiger_t* zeiger = new zeiger_t(gr->get_pos(), player );
 				marked.append(zeiger);
@@ -5855,6 +5872,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 				gr->obj_add( zeiger );
 				directions.append(ribi_t::none /*remove sign*/);
 				cost += rs->get_desc()->get_value();
+				//				delete zeiger;
 		}
 	}
 	delete dummy_rs;
@@ -5890,7 +5908,14 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 						delete rs;
 						error_text =  place_sign_intern( player, gr );
 					}
+				}else if (signal[player->get_player_nr()].place_backward) {
+					roadsign_t* rs = gr->find<signal_t>();
+					if(rs == NULL) rs = gr->find<roadsign_t>();
+					if(  rs != NULL  &&  rs-> is_deletable(player) == NULL  ) {
+						error_text =  place_sign_intern( player, gr );
+					}
 				}
+
 			}
 			if(  error_text  ) {
 				return error_text;
@@ -5920,22 +5945,24 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 /*
  * Called by the GUI (gui/signal_spacing.*)
  */
-void tool_build_roadsign_t::set_values( player_t *player, uint8 spacing, bool remove, bool replace, koord3d signalbox )
+void tool_build_roadsign_t::set_values( player_t *player, uint8 spacing, bool remove, bool replace, bool backward, koord3d signalbox )
 {
 	signal_info& s = signal[player->get_player_nr()];
 	s.spacing             = spacing;
 	s.remove_intermediate = remove;
 	s.replace_other       = replace;
-	s.signalbox			  = signalbox;
+	s.place_backward      = backward;
+	s.signalbox			      = signalbox;
 }
 
 
-void tool_build_roadsign_t::get_values( player_t *player, uint8 &spacing, bool &remove, bool &replace, koord3d &signalbox )
+void tool_build_roadsign_t::get_values( player_t *player, uint8 &spacing, bool &remove, bool &replace, bool &backward, koord3d &signalbox )
 {
 	signal_info &s = signal[player->get_player_nr()];
 	spacing = s.spacing;
 	remove  = s.remove_intermediate;
 	replace = s.replace_other;
+	backward = s.place_backward;
 	signalbox = s.signalbox;
 }
 
@@ -5951,9 +5978,21 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 		if(s==NULL) {
 			s = gr->find<roadsign_t>();
 		}
-		if(s  &&  s->get_desc()!=desc) {
+		if(s  &&  s->get_desc()!=desc ) {
 			// only one sign per tile
-			return error;
+			if( is_shift_pressed() ){
+				//shift key is pressed: force to delete the existing signal. next step is same as placing a new signal.
+				s->cleanup(player);
+				delete s;
+				error = NULL;
+			}
+			else if(signal[player->get_player_nr()].place_backward){
+				error = NULL;
+				return error;
+			}
+			else{
+				return error;
+			}
 		}
 		ribi_t::ribi dir = weg->get_ribi_unmasked();
 
