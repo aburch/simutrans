@@ -47,6 +47,15 @@ private:
 				return i;
 			}
 		}
+		
+		if (size < 65535)
+		{
+			// Enlarge the array before searching old handles.
+			// This is slightly less efficient, but minimises handle
+			// duplication, which can cause problems when handles are
+			// used as indices.
+			return enlarge();
+		}
 
 		// scan whole array
 		for(  i=1;  i<size;  i++  ) {
@@ -195,10 +204,10 @@ public:
 					return false;
 				}
 			}
-			// no handles left => cannot extent
+			// no handles left => cannot extend
 			return true;
 		}
-		// can extent in any case => ok
+		// can extend in any case => ok
 		return false;
 	}
 
@@ -247,7 +256,16 @@ public:
 	 * @author Knightly
 	 */
 	template <class STORAGE>
-	void rdwr(STORAGE *store) { store->rdwr_short(entry); }
+	void rdwr(STORAGE *store) 
+	{ 
+		store->rdwr_short(entry); 
+		if (entry > next && next < 65534)
+		{
+			// This makes sure that "next" always searches to the end of the array
+			// before returning to the beginning again. 
+			next = entry + 1;
+		}
+	}
 
 	/**
 	 * Sets the current id: Needed to recreate stuff via network.

@@ -262,6 +262,7 @@ public:
 	enum { u_buy, u_upgrade };
 
 	gui_convoy_assembler_t(waytype_t wt, signed char player_nr, bool electrified = true);
+	void clear_vectors();
 	virtual ~gui_convoy_assembler_t();
 	/**
 	 * Create and fill loks_vec and waggons_vec.
