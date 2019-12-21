@@ -162,6 +162,7 @@ class gui_convoy_assembler_t :
 	gui_label_t lb_too_heavy_notice;
 	
 	gui_label_t lb_livery_selector;
+	gui_label_t lb_livery_counter;
 	gui_combobox_t livery_selector;
 
 	button_t bt_class_management;
@@ -205,6 +206,7 @@ class gui_convoy_assembler_t :
 	cbuffer_t txt_convoi_way_wear_factor;
 	cbuffer_t txt_traction_types;
 	cbuffer_t txt_vehicle_count;
+	cbuffer_t txt_livery_count;
 
 	KOORD_VAL second_column_x; // x position of the second text column
 
