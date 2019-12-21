@@ -5805,6 +5805,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 	uint32       const  signal_density = 200 * s.spacing;      // measured in half tiles (straight track count as 2, diagonal as 1, since sqrt(1/2) = 1/2 ;)
 	uint32              next_signal    = signal_density + 100; // to place a sign asap
 	sint32             cost           = 0;
+	uint32 distance = 0;
 	directions.clear();
 	// dummy roadsign to get images for preview
 	roadsign_t *dummy_rs;
@@ -5846,6 +5847,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 		// check owner .. other signals...
 		bool straight = (i == 0)  ||  (i == route.get_count()-1)  ||  ribi_t::is_straight(ribi_type(route.at(i-1), route.at(i+1)));
 		next_signal += straight ? 200 : 141;
+		distance += straight ? 200 : 141;
 		if(  next_signal >= signal_density  ) {
 			// can we place signal here?
 			if (check_pos_intern(player, route.at(i))==NULL  ||
@@ -5876,7 +5878,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 		}
 	}
 	delete dummy_rs;
-	win_set_static_tooltip( tooltip_with_price("Building costs estimates", cost ) );
+	win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", cost, (distance*welt->get_settings().get_meters_per_tile())/200 ) );
 }
 
 const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &start, const koord3d &end)
