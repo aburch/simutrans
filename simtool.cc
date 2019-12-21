@@ -5672,7 +5672,7 @@ const char* tool_build_roadsign_t::get_default_param(player_t *player) const
 {
 	if (desc  &&  player) {
 		signal_info const& s = signal[player->get_player_nr()];
-		sprintf(toolstring, "%s,%d,%d,%d,%d,%d,%d", desc->get_name(), s.spacing, s.remove_intermediate, s.replace_other, s.signalbox.x, s.signalbox.y, s.signalbox.z);
+		sprintf(toolstring, "%s,%d,%d,%d,%d,%d,%d,%d", desc->get_name(), s.spacing, s.remove_intermediate, s.replace_other, s.place_backward, s.signalbox.x, s.signalbox.y, s.signalbox.z);
 		return toolstring;
 	}
 	else {
@@ -5954,7 +5954,7 @@ void tool_build_roadsign_t::set_values( player_t *player, uint8 spacing, bool re
 	s.remove_intermediate = remove;
 	s.replace_other       = replace;
 	s.place_backward      = backward;
-	s.signalbox			      = signalbox;
+	s.signalbox			  = signalbox;
 }
 
 
