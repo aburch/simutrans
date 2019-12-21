@@ -18,6 +18,7 @@
 uint8 signal_spacing_frame_t::signal_spacing = 16;
 bool signal_spacing_frame_t::remove = true;
 bool signal_spacing_frame_t::replace = true;
+bool signal_spacing_frame_t::backward = false;
 koord3d signal_spacing_frame_t::signalbox = koord3d::invalid;
 
 signal_spacing_frame_t::signal_spacing_frame_t(player_t *player_, tool_build_roadsign_t* tool_) :
@@ -27,7 +28,7 @@ signal_spacing_frame_t::signal_spacing_frame_t(player_t *player_, tool_build_roa
 {
 	player = player_;
 	tool = tool_;
-	tool->get_values(player, signal_spacing, remove, replace, signalbox);
+	tool->get_values(player, signal_spacing, remove, replace, backward, signalbox);
 
 	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
 	signal_spacing_meter=signal_spacing*welt->get_settings().get_meters_per_tile();
@@ -61,7 +62,14 @@ signal_spacing_frame_t::signal_spacing_frame_t(player_t *player_, tool_build_roa
 	replace_button.add_listener(this);
 	replace_button.pressed = replace;
 	add_component( &replace_button );
-	cursor.y += replace_button.get_size().h;
+	cursor.y += replace_button.get_size().h + D_V_SPACE;
+
+	backward_button.init( button_t::square_state, "place signals backward", cursor );
+	backward_button.set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	backward_button.add_listener(this);
+	backward_button.pressed = backward;
+	add_component( &backward_button );
+	cursor.y += backward_button.get_size().h;
 
 	set_windowsize( scr_size( L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 }
@@ -79,6 +87,15 @@ bool signal_spacing_frame_t::action_triggered( gui_action_creator_t *comp, value
 		replace = !replace;
 		replace_button.pressed = replace;
 	}
-	tool->set_values(player, signal_spacing, remove, replace, signalbox);
+	else if( comp == &backward_button ) {
+		backward = !backward;
+		backward_button.pressed = backward;
+		replace = !backward;
+		replace_button.pressed = !backward;
+		remove  = !backward;
+		remove_button.pressed = !backward;
+		
+	}
+	tool->set_values(player, signal_spacing, remove, replace, backward, signalbox);
 	return true;
 }
