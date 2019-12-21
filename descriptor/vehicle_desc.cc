@@ -284,6 +284,32 @@ void vehicle_desc_t::fix_number_of_classes()
 	}
 }
 
+
+uint16 vehicle_desc_t::get_available_livery_count(karte_t *welt) const
+{
+	uint16 livery_count = 0;
+	const uint16 month_now = welt->get_timeline_year_month();
+
+	vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
+	ITERATE_PTR(schemes, i)
+	{
+		livery_scheme_t* scheme = schemes->get_element(i);
+		if (!scheme->is_available(welt->get_timeline_year_month()))
+		{
+			continue;
+		}
+		if (scheme->get_latest_available_livery(month_now, this)) {
+			livery_count++;
+		}
+	}
+
+	return livery_count;
+}
+
+
+
+
+
 void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 {
 	obj_desc_transport_related_t::calc_checksum(chk);
