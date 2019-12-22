@@ -74,6 +74,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	lb_vehicle_count(NULL, SYSCOL_TEXT, gui_label_t::right),
 	lb_veh_action("Fahrzeuge:", SYSCOL_TEXT, gui_label_t::left),
 	lb_livery_selector("Livery scheme:", SYSCOL_TEXT, gui_label_t::left),
+	lb_livery_counter(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left),
 	lb_too_heavy_notice("too heavy", COL_RED, gui_label_t::left),
 	convoi_pics(depot_t::get_max_convoy_length(wt)),
 	convoi(&convoi_pics),
@@ -224,6 +225,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	add_component(&lb_veh_action);
 	add_component(&lb_too_heavy_notice);
 	add_component(&lb_livery_selector);
+	add_component(&lb_livery_counter);
 	add_component(&lb_vehicle_filter);
 
 	veh_action = va_append;
@@ -561,11 +563,13 @@ void gui_convoy_assembler_t::layout()
 	const scr_coord_val column4_x = size.w - column4_size.w - D_MARGIN_RIGHT;
 	const scr_coord_val column3_x = column4_x - column3_size.w - D_MARGIN_RIGHT;
 	const scr_coord_val column2_x = column3_x - column2_size.w - D_MARGIN_RIGHT;
+	const scr_coord_val livery_counter_x = column2_x + proportional_string_width(translator::translate("Livery scheme:")) + 5;
 
 	// header row
 
 	lb_too_heavy_notice.set_pos(scr_coord(c1_x, y));
 	lb_livery_selector.set_pos(scr_coord(column2_x, y));
+	lb_livery_counter.set_pos(scr_coord(livery_counter_x, y));
 	lb_vehicle_filter.set_pos(scr_coord(column3_x, y));
 	lb_veh_action.set_pos(scr_coord(column4_x, y));
 	y += 4 + D_BUTTON_HEIGHT;
@@ -2432,14 +2436,23 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			buf.printf("%s", translator::translate("tilting_vehicle_equipment"));
 		}
 
-		display_multiline_text(pos.x + 335/*370*/, top, buf, SYSCOL_TEXT);
+		if (veh_type->get_livery_count() > 0) {
+			txt_livery_count.clear();
+			txt_livery_count.printf("(%i)", veh_type->get_available_livery_count(welt));
+			lb_livery_counter.set_text(txt_livery_count);
+		}
+		else {
+			lb_livery_counter.set_text(NULL);
+		}
 
+		display_multiline_text(pos.x + 335/*370*/, top, buf, SYSCOL_TEXT);
 
 		// update speedbar
 		new_vehicle_length_sb = new_vehicle_length_sb_force_zero ? 0 : convoi_length_ok_sb + convoi_length_slower_sb + convoi_length_too_slow_sb + veh_type->get_length();
 	}
 	else {
 		new_vehicle_length_sb = 0;
+		lb_livery_counter.set_text(NULL);
 	}
 
 	POP_CLIP();
