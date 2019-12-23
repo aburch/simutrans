@@ -11,6 +11,7 @@
  */
 
 #include "factorylist_frame_t.h"
+#include "gui_theme.h"
 #include "../dataobj/translator.h"
 
 
@@ -43,8 +44,9 @@ factorylist_frame_t::factorylist_frame_t() :
 	add_component(&scrolly);
 	fill_list();
 
-	reset_min_windowsize();
 	set_resizemode(diagonal_resize);
+	scrolly.set_maximize(true);
+	reset_min_windowsize();
 }
 
 
@@ -75,7 +77,7 @@ void factorylist_frame_t::fill_list()
 		scrolly.new_component<factorylist_stats_t>(fab) ;
 	}
 	scrolly.sort(0);
-	scrolly.set_size( scrolly.get_size());
+	scrolly.set_size(scrolly.get_size());
 }
 
 

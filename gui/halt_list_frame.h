@@ -140,6 +140,8 @@ public:
 	static void set_alle_ware_filter_an(int mode);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	bool has_min_sizer() const OVERRIDE {return true;}
 };
 
 #endif

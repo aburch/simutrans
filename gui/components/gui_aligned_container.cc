@@ -136,7 +136,7 @@ void gui_aligned_container_t::set_size(scr_size new_size)
 		}
 
 		scr_size comp_size = cell_size;
-		comp_size.clip_rightbottom( comp->get_max_size() );
+		comp_size.clip_rightbottom(comp->get_max_size());
 
 		scr_coord delta(0,0);
 		if (cell_size.w > comp_size.w ) {
@@ -166,14 +166,21 @@ void gui_aligned_container_t::set_size(scr_size new_size)
 			}
 		}
 
-		comp->set_pos( c_pos + delta );
 
 // 		scr_size max_size = comp->get_max_size();
 // 		printf("[%p] set [%p] to pos %d %d, size %d %d, min %d %d, max %d %d\n", this, comp, comp->get_pos().x, comp->get_pos().y, comp_size.w, comp_size.h, comp->get_min_size().w, comp->get_min_size().h,
 // 			 max_size.w, max_size.h
 // 		);
 
-		comp->set_size( comp_size );
+		if( comp->is_marginless() ) {
+			// marginless component
+			comp->set_pos(c_pos+delta-scr_coord(margin_tl.w,0));
+			comp->set_size( scr_size( max( comp_size.w, cell_size.w ), comp_size.h ) + scr_coord( margin_tl.w, 0 ) + margin_br + extra );
+		}
+		else {
+			comp->set_pos(c_pos + delta);
+			comp->set_size(comp_size);
+		}
 
 
 		c++;

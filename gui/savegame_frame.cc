@@ -78,6 +78,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	scrolly.set_size_corner(false);
 	scrolly.set_scrollbar_mode( scrollbar_t::show_auto );
 	add_component(&scrolly);
+	scrolly.set_maximize(true);
 
 	// Controls below will be sized and positioned in set_windowsize()
 	new_component<gui_divider_t>();

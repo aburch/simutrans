@@ -280,6 +280,7 @@ convoi_frame_t::convoi_frame_t(player_t* player) :
 	end_table();
 
 	scrolly = new_component<gui_scrolled_convoy_list_t>(this);
+	scrolly->set_maximize( true );
 
 	fill_list();
 

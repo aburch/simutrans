@@ -65,6 +65,8 @@ public:
 	*/
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
+	bool has_min_sizer() const OVERRIDE {return true;}
+
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL

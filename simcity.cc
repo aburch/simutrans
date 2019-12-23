@@ -2152,8 +2152,8 @@ void stadt_t::step_passagiere()
 		//citycars with destination
 		generate_private_cars( origin_pos, ziel );
 #endif
-		merke_passagier_ziel(ziel, color_idx_to_rgb(COL_DARK_ORANGE));
-		// we do not show no route for destination stop!
+		merke_passagier_ziel(ziel, color_idx_to_rgb(COL_ORANGE));
+		// we show unhappy instead no route for destination stop
 	}
 }
 
