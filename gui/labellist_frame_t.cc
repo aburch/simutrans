@@ -43,6 +43,7 @@ labellist_frame_t::labellist_frame_t() :
 	end_table();
 
 	add_component(&scrolly);
+	scrolly.set_maximize(true);
 
 	fill_list();
 

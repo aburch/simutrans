@@ -968,7 +968,12 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::reload_and_save_on_quit = contents.get_int("reload_and_save_on_quit", env_t::reload_and_save_on_quit );
 
 	env_t::server_announce = contents.get_int("announce_server", env_t::server_announce );
-	env_t::server_port = contents.get_int("server_port", env_t::server_port );
+	if (!env_t::server) {
+		env_t::server_port = contents.get_int("server_port", env_t::server_port);
+	}
+	else {
+		env_t::server_port = env_t::server;
+	}
 	env_t::server_announce = contents.get_int("server_announce", env_t::server_announce );
 	env_t::server_announce_interval = contents.get_int("server_announce_intervall", env_t::server_announce_interval );
 	env_t::server_announce_interval = contents.get_int("server_announce_interval", env_t::server_announce_interval );

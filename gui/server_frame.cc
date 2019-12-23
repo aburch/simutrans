@@ -386,6 +386,9 @@ bool server_frame_t::update_serverlist ()
 	serverlist.set_selection( -1 );
 	serverlist.set_size(serverlist.get_size());
 
+	set_dirty();
+	resize(scr_size(0, 0));
+
 	return true;
 }
 

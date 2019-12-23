@@ -30,6 +30,7 @@ private:
 	bool b_show_scroll_x:1;
 	bool b_show_scroll_y:1;
 	bool b_has_size_corner:1;
+	bool maximize:1;
 
 protected:
 	/**
@@ -122,6 +123,9 @@ public:
 
 	/// load/save scrollbar positions
 	void rdwr( loadsave_t *file );
+
+	bool is_marginless() const OVERRIDE { return maximize; }
+	void set_maximize(bool b) { maximize = b; }
 };
 
 #endif
