@@ -1,3 +1,4 @@
+Release of 121.1 (r8870 on 1-Dec-2019):
     ADD: Map number is shown in the enlarge map window.
     FIX: Text area GUI components no longer suffer from line wrap around when displaying an extreme number of lines.
     FIX: Stop information window waiting list in "via (amount)" order will no longer count incorrectly when more than 8,388,607 units are headed to a single destination.
@@ -12,7 +13,7 @@
 	ADD: (HyperSim inspired) new tool for merging distance stations (and lot of code cleanup of old merging tool)
 	ADD: constrait[prev][0]=any require a vehile in front (and same for [next] to require a trailing vehicle)
 	CHG: The acceleration tool now also alters the acceleration in fast forward mode
-	ADD: Up to 3x3 city buildings, all with up to 8 rotations
+	ADD: Up to 3x3 size city buildings, all with up to 8 rotations (attention: New paks using this feature will crash old versions!)
 	FIX: Prevent a crash when the schedule window is open with waypoints on bridges that were destroyed or had planning canceled.
 	FIX: Goods List speed field will now allow selecting speeds appropiate for very fast vehicles.
 	CHG: Revise Goods List for better clarity and usability.

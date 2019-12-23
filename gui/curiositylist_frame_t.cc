@@ -45,11 +45,13 @@ curiositylist_frame_t::curiositylist_frame_t() :
 	add_component(&sorteddir);
 	end_table();
 
+	set_alignment(ALIGN_STRETCH_V | ALIGN_STRETCH_H);
 	add_component(&scrolly);
 	fill_list();
 
-	reset_min_windowsize();
 	set_resizemode(diagonal_resize);
+	scrolly.set_maximize(true);
+	reset_min_windowsize();
 }
 
 

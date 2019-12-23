@@ -311,6 +311,7 @@ halt_list_frame_t::halt_list_frame_t(player_t *player) :
 	end_table();
 
 	scrolly = new_component<gui_scrolled_halt_list_t>();
+	scrolly->set_maximize( true );
 
 	fill_list();
 

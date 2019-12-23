@@ -157,6 +157,7 @@ citylist_frame_t::citylist_frame_t() :
 	update_label();
 
 	set_resizemode(diagonal_resize);
+	scrolly.set_maximize(true);
 	reset_min_windowsize();
 }
 

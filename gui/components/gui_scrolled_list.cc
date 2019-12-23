@@ -83,6 +83,7 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type, item_compare_func cmp) 
 	pos = scr_coord(0,0);
 	max_width = scr_size::inf.w;
 	multiple_selection = false;
+	maximize = false;
 }
 
 
