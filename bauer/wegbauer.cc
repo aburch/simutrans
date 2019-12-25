@@ -2869,11 +2869,11 @@ void way_builder_t::build_river()
 			// one step higher?
 			if (route[j].z > route[i].z) break;
 			// check
-			ok = welt->can_flatten_tile(NULL, route[j].get_2d(), max(route[j].z-1, start_h));
+			ok = welt->can_flatten_tile(NULL, route[j].get_2d(), max(route[j].z-1, start_h), true);
 		}
 		// now lower all tiles that have the same height as tile i
 		for(uint32 k=i; k<j; k++) {
-			welt->flatten_tile(NULL, route[k].get_2d(), max(route[k].z-1, start_h));
+			welt->flatten_tile(NULL, route[k].get_2d(), max(route[k].z-1, start_h), true);
 		}
 		if (!ok) {
 			end_n = j;
