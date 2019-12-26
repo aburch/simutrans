@@ -268,19 +268,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	livery_selector.add_listener(this);
 	add_component(&livery_selector);
 	livery_selector.clear_elements();
-	vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
 	livery_scheme_indices.clear();
-	ITERATE_PTR(schemes, i)
-	{
-		livery_scheme_t* scheme = schemes->get_element(i);
-		if(scheme->is_available(welt->get_timeline_year_month()))
-		{
-			livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), SYSCOL_TEXT));
-			livery_scheme_indices.append(i);
-			livery_selector.set_selection(i);
-			livery_scheme_index = i;
-		}
-	}
 
 	bt_class_management.set_typ(button_t::roundbox);
 	bt_class_management.set_text("class_manager");
@@ -1011,6 +999,8 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 
 	const uint16 month_now = welt->get_timeline_year_month();
 
+	vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
+
 	if(electrics_vec.empty()  &&  pas_vec.empty()  &&  pas2_vec.empty()  &&  loks_vec.empty()  &&  waggons_vec.empty())
 	{
 		/*
@@ -1177,6 +1167,29 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 					add_to_vehicle_list( info );
 				}
 			}
+
+			// check livery scheme and build the abailable livery scheme list
+			if (info->get_livery_count())
+			{
+				ITERATE_PTR(schemes, i)
+				{
+					livery_scheme_t* scheme = schemes->get_element(i);
+					if (scheme->is_available(welt->get_timeline_year_month()))
+					{
+						if(livery_scheme_indices.is_contained(i)){
+							continue;
+						}
+						if (scheme->is_contained(info)) {
+							livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), SYSCOL_TEXT));
+							livery_scheme_indices.append(i);
+							livery_selector.set_selection(i);
+							livery_scheme_index = i;
+							continue;
+						}
+					}
+				}
+			}
+
 		}
 	}
 DBG_DEBUG("gui_convoy_assembler_t::build_vehicle_lists()","finally %i passenger vehicle, %i  engines, %i good wagons",pas_vec.get_count(),loks_vec.get_count(),waggons_vec.get_count());
