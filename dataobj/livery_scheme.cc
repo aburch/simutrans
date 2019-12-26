@@ -42,7 +42,7 @@ bool livery_scheme_t::is_contained(const vehicle_desc_t* desc) const
 	if (liveries.empty())
 	{
 		// No liveries available at all
-		return NULL;
+		return false;
 	}
 	const char* livery = NULL;
 	ITERATE(liveries, i)
