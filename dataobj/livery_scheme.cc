@@ -44,14 +44,12 @@ bool livery_scheme_t::is_contained(const vehicle_desc_t* desc) const
 		// No liveries available at all
 		return false;
 	}
-	const char* livery = NULL;
 	ITERATE(liveries, i)
 	{
 		if (desc->check_livery(liveries.get_element(i).name.c_str())) {
 			return true;
 		}
 	}
-
 	return false;
 }
 
