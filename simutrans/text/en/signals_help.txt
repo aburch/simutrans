@@ -1,6 +1,6 @@
-<title>Signals help</title>
+<title>Signals FAQ</title>
 
-<h1>Signals help</h1><br><br><br>
+<h1>Signals FAQ</h1><br><br><br>
 
 <em>How to build a signal?</em><br>
 Many signals need to be connected to a signalbox. Therefore you have to build a signalbox first in order to see what signals you can build with that signalbox. The signals will stay hidden in the menu until "their" signalbox has been built and selected on the map.<br>
