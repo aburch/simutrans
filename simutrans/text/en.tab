@@ -3950,3 +3950,5 @@ Protocol error (expected NWC_GAME)
 Network connect timeout or error: did not receive NWC_GAME packet within 10 minutes, or received bad packet.
 stop_some_goods_arrival
 Some goods out of stock
+place signals backward
+Place signals backwards

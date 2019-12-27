@@ -36,6 +36,23 @@ const char* livery_scheme_t::get_latest_available_livery(uint16 date, const vehi
 	return livery;
 }
 
+
+bool livery_scheme_t::is_contained(const vehicle_desc_t* desc) const
+{
+	if (liveries.empty())
+	{
+		// No liveries available at all
+		return false;
+	}
+	ITERATE(liveries, i)
+	{
+		if (desc->check_livery(liveries.get_element(i).name.c_str())) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void livery_scheme_t::rdwr(loadsave_t *file)
 {
 	file->rdwr_string(scheme_name);

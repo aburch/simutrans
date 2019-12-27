@@ -66,6 +66,8 @@ public:
 
 	const char* get_latest_available_livery(uint16 date, const vehicle_desc_t* desc) const;
 
+	bool is_contained(const vehicle_desc_t* desc) const;
+
 	void rdwr(loadsave_t *file);
 };
 #endif
