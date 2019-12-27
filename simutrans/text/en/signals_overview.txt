@@ -49,32 +49,38 @@ Read more about how choose signals work at the <a href="signals_wm_absolute_bloc
 
 <em>Distant signals</em><br>
 Distant signals, presignals and repeater signals are all used only to forecast what state of the upcomming signal is. In essence they extend the sighting distance of the following signal. These kinds of signals are not "stop signals", as most other types of signals are, therefore trains will never stop at them.<br>
-Trains might change working method when passing a distant signal though, thus reservations might still end at the distant signal. This happens mostly when the working method of the distant signal is a different one than the previous signal.
+Trains might change working method when passing a distant signal though, thus reservations might still end at the distant signal. This happens mostly when the working method of the distant signal is a different one than the previous signal.<br>
+Read more about how to use them on the <a href="signals_wm_track_circuit_block.txt"><em>Track circuit block</em></a> page.
 <br><br>
 
 <em>Multiple aspect signals</em><br>
 A signal may have up to 5 aspects. In addition to that, permissive signals and choose signals have specific aspects related to their functions. Different paksets reflect specific countries or signalling systems, and so certain combinations might not be available for a specific pakset.<br>
-The core function of multiple aspect signals is to combine a forecast aspect with a stop signal, thus increasing the density of the tracks. The more aspects a signal has, the smaller blocks can be created without compromizing with lower top speeds, thus creating room for more trains on the tracks. Therefore, the most effective way of using multi aspect signals are at lines with a big traffic demand.
+The core function of multiple aspect signals is to combine a forecast aspect with a stop signal, thus increasing the density of the tracks. The more aspects a signal has, the smaller blocks can be created without compromizing with lower top speeds, thus creating room for more trains on the tracks. Therefore, the most effective way of using multi aspect signals are at lines with a big traffic demand.<br>
+Read more about how to use them on the <a href="signals_wm_track_circuit_block.txt"><em>Track circuit block</em></a> page.
 <br><br>
 
 <em>Combined signals</em><br>
 A combined signal is a specific Absolute block type signal which is an early type of multiple aspect. It has three aspects and the forecasting aspect can forecast either for the signals coupled to its own signalbox, or for the following signalbox, if that particular signalbox is within range.<br>
-The forecasting aspect will only show clear if all signals connected to the particular signalbox are clear in the given direction.
+The forecasting aspect will only show clear if all signals connected to the particular signalbox are clear in the given direction.<br>
+Read more about how to use them on the <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> page.
 <br><br>
 
 <em>Permissive signals</em><br>
 Permissive signals are used to increase line capacity. When a train is brought to a stand at a permissive signal at danger, it may proceed beyond the signal at "drive by sight". This is only possible where the signal controls a section of straight, unidirectional track. If there are junctions, the permissive functionality is disabled and the signal works as an ordinary signal.<br>
-Read more about how to use them here: <a href="signals_usage.txt">Signals usage</a>
+Read more about how to use them on the <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> page.
 <br><br>
 
 <em>Double block signals</em><br>
-Double block signals will not clear until the next signal in line can clear. This is typically used when lines are branching out to two (or more) different working methods. The signal creates absolute block type of reservation in the first block and whatever type of reservation in the second block.
+Double block signals will not clear until the next signal in line can clear. This is typically used when lines are branching out to two (or more) different working methods. The signal creates absolute block type of reservation in the first block and whatever type of reservation in the second block.<br>
+Read more about how to use them on the <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> page.
 <br><br>
 
 <em>Longblock signals</em><br>
-A Longblock signal will always try to enforce a directional reservation.
+A Longblock signal will always try to enforce a directional reservation.<br>
+Read more about how to use them on the <a href="signals_wm_track_circuit_block.txt"><em>Track circuit block</em></a> page.
 <br><br>
 
 <em>Intermediate signals</em><br>
-This type of signal is a specific Absolute block type signal which allows an extra section to be inserted into an absolute block section between two signal boxes using semi-automatic signals without replacing the signalbox or existing mechanical signals.
+This type of signal is a specific Absolute block type signal which allows an extra section to be inserted into an absolute block section between two signal boxes using semi-automatic signals without replacing the signalbox or existing mechanical signals.<br>
+Read more about how to use them on the <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> page.
 <br><br><br><br>
