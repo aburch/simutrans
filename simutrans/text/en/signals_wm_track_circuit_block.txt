@@ -1,0 +1,125 @@
+<title>Signals working methods - Track circuit block</title>
+
+<h1>Signals working methods - Track circuit block</h1><br><br>
+
+<em>Track circuit block</em><br>
+The main feature of track circuit block is that it is an automatic signal system. In the real world, the system will automatically detect wether the tracks are occupied or not allowing for much greater safety than manual keeping track of ocupied blocks (aka <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a>). This automation allows an increased amount of signals and fewer signalboxes, which results in a general higher capacity on the network.<br>
+In Simutrans Extended this working method works almost identical to <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> and <a href="signals_wm_cab_signalling.txt"><em>Cab signalling</em></a> with only some minor differences:<br>
+* The distant signals, contrary to in absolute block, represents the state of the very next signal.<br>
+* The track circuit block signals, along with cab signalling signals, can create directional reservations.<br>
+* Track circuit block supports multiple aspect signals.<br>
+<br>
+
+<em>How it works</em><br>
+* Track circuit block signals reserves the entire path up to the next signal.<br>
+* Trains will unreserve the path behind them, thus letting another train cross the track.<br>
+* When a reservation goes through a bidirectional signal, it will create a directional reservation from that point.<br>
+* When a train attempt to depart from a signal followed by a bidirectional signal, the train will not be released until the bidirectional signal can create a directional reservation.<br>
+* A directional reservation only reserves the direction of the track. Multiple trains can traverse it in this direction.<br>
+<br>
+
+<em>Bidirectional signals and directional reservations</em><br>
+Fundamentally, there are two ways to create a directional reservation with track circuit block signals:<br>
+* With any of the track circuit signals, when building the signal, press multiple times with the mouse, and the signal will toggle between "one way", "the other way" and "bidirectional".<br>
+* Reservations made up to such a signal will trigger a directional reservation from that point.<br>
+* Alternatively, build a "longblock signal". Directional reservations will be made when departing from that signal.<br>
+<br>
+
+<em>Types of signals</em><br>
+There are many variants of track circuit block signals, which fundamentally shares the same rules as the normal stop signal, but have certain features or combination of features.<br>
+<br>
+- <it>Track circuit block stop signal</it><br>
+This is the standard stop signal.<br>
+- <em>Best uses</em><br>
+This signal system is usefull on all kinds of lines. Its directional reservation ability makes it especially powerfull on single tracked lines.<br>
+* Put a stop signal at every platform end or holding point. Trains will manage them self.<br>
+* On double track lines, space out the signals in as many blocks you want.<br>
+- <em>Pittfalls</em><br>
+* On single track lines, make sure that the first signal that the train will reach on the line is a bidirectional signal. Alternatively, use a "longblock signal".<br>
+* Throughoutput might be limited due to braking distances if "distant signals" or "multiple aspect signals" are not used.<br>
+<br>
+
+- <it>Track circuit block choose signal</it><br>
+Choose signals behaves differently dependent on which condition is met:<br>
+* The scheduled destination of the train is reached.<br>
+* An "end of choose" sign is reached.<br>
+* Another choose signal is reached.<br>
+Read about choose signals on the <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> page.<br>
+<br>
+Additionally, choose signals have certain track circuit block features:<br>
+* Track circuit block choose signals can also create directional reservations if placed as a bidirectional signal, but directional reservations will terminate at such a signal as well.<br>
+* Track circuit block choose signals can also exist as a "multiple aspect signal".<br>
+<br>
+
+- <em>Best uses</em> and <em>Pittfalls</em><br>
+* On drive through stations, use a multiple aspect choose signal for trains running through the station without stopping.<br>
+<br>
+
+- <it>Track circuit block distant signal</it><br>
+Track circuit block distant signals will forecast the status of the following signal, no if it is connected to the same signalbox or not.<br>
+* If the following signal is anything but danger, the distant signal will be set to clear.<br>
+* If the following signal is at danger, the distant signal will be set to caution.<br>
+
+- <em>Best uses</em><br>
+* Optimal distance between the distant signal and the following stop signal is the maximum braking distance of any train that is passing by.<br>
+- <em>Pittfalls</em><br>
+* Distant signals will also change the working method of the train, so be carefull not to change the working method unintentionally.<br>
+* Putting the distant signal too far ahead of its main signal might make it ineffective. The status of the distant signal might have changed from caution to clear after the train has passed it.<br>
+<br>
+
+
+- <it>Track circuit block multiple aspect signal</it><br>
+Multiple aspect signals are essentially combined stop- and distant signals. Technically, a normal stop signal is a "two aspect signal", as it has two aspects. Such a signal will only forecast the block immediatedly following the signal. A multiple aspect signal would have three or more aspects, and the added aspects would be different grades of forecasting. So a three aspect signal will forecast two blocks ahead and have "Clear", "Danger" and "Caution", where caution translates to "this block is clear, but the following is not."<br>
+There are three levels of multiple aspect signals in Simutrans Extended:<br>
+* Three aspect signal - forecasts two blocks<br>
+* Four aspect signal - forecasts three blocks<br>
+* Five aspect signal - forecasts four blocks<br>
+
+- <em>Best uses</em><br>
+Multiple aspect signals are in general superior to normal stop signals as they can greatly increase throughoutbut due to the increse in "sighting" distance, but are especially usefull in certain situations.<br>
+* On rail sections with alot of signals, make sure to use high aspect signals, so the trains get information on as many signals ahead as possible.<br>
+* Optimal distance between the signals are the braking distance of the train, divided by the number of blocks the signal can forecast.<br>
+* On drive through stations, use a multiple aspect choose signal for trains running through the station without stopping. Remember to put "end of choose" signs at the exits (or outside the choose signals).<br>
+<br>
+- <em>Pittfalls</em><br>
+* If the multiple aspect signals are spaced too closely, trains might not reach their full speed after all, due to having a too big braking distance.<br>
+<br>
+
+- <it>Track circuit block longblock signal</it><br>
+A longblock signal is a signal that will create a directional reservation directly from the signal. If using a longblock signal, it is not important wether the first signal on the line is a bidirectional signal or not (although it still needs to support directional reservations).<br>
+* Upon depart from the signal, the signal checks if the first block is free, and then wether it can make a directional reservation.
+* If both are true, it goes to clear.<br>
+* If it cannot make a directional reservation, although the first block is free, it stays at danger.<br>
+* A longblock signal can also be a multiple aspect signal.<br>
+- <em>Best uses</em><br>
+* For complicated station layouts, directional reservations might be needed at a much earlier point than a bidirectional signal can be placed. Put the longblock signal on the point from where you want the directional reservation to begin.<br>
+<br>
+
+- <it>Track circuit block permissive signal</it><br>
+A permissive signal allows a train to depart from the signal in <a href="signals_wm_drive_by_sight.txt"><em>Drive by sight</em></a> if the signal is at danger.<br>
+* If the signal shows clear, the train will drive like in normal track circuit block.<br>
+* If the signal shows danger, it will shift status to "call on" when a train approaches it.<br>
+* This functionallity only works when there are no junctions between the signals. If there are any junctions, the signal will only have danger and clear and work like a normal track circuit block signal.<br>
+- <em>Best uses</em><br>
+* For high density lines, where it is more important that trains run forward in slow speed than not run at all.<br>
+* The optimal distance between the signals is when no more than one train is inside each block at any given time.<br>
+- <em>Pittfalls</em><br>
+* Do not use on bidirectional tracks, as they share the same pittfalls as ordinary drive by sight.<br>
+* Might unintentionally lower the throughoutput of trains if the blocks are too big.<br>
+<br>
+
+- <it>Track circuit double block signal</it><br>
+Track circuit "double block" signals will only set to clear if it can trigger the next signal to also set to clear. It is especially usefull when combining multiple lines with different working methods and limited space.<br>
+* When a train approach the signal, it will attempt to reserve both the block immediatedly following the signal, as well as the following block.<br>
+* When both blocks are free, the signal is set to clear.<br>
+* When departing from the signal, trains will travel in track circuit block working method in the first block, and only change working method when entering the second block, if commanded by the second signal.<br>
+- <em>Best uses</em><br>
+* On platforms or holding points, this signal can in effect depart trains with different working methods. Put a signal of the appropriate working method at the beginning of each line.<br>
+* On platforms or holding points, it can have trains stand still until a particular line is free.<br>
+- <em>Pittfalls</em><br>
+* It is not possible to stack the signals in a row. The first signal will behave normally, but the rest will not.<br>
+<br>
+
+
+
+<br><br><br><br>
