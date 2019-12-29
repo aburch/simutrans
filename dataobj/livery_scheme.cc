@@ -24,6 +24,10 @@ const char* livery_scheme_t::get_latest_available_livery(uint16 date, const vehi
 	}
 	const char* livery = NULL;
 	uint16 latest_valid_intro_date = 0;
+	if (!date) {
+		// timeline is disabled
+		return liveries.get_element(0).name.c_str();
+	}
 	ITERATE(liveries, i)
 	{
 		if(date >= liveries.get_element(i).intro_date && desc->check_livery(liveries.get_element(i).name.c_str()) && liveries.get_element(i).intro_date > latest_valid_intro_date)
