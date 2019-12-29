@@ -2678,7 +2678,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 				uint16 intro = contents.get_int(livery, DEFAULT_INTRO_DATE) * 12;
 
 				sprintf(livery, "intro_month[%i][%i]", i, j);
-				intro += contents.get_int("intro_month", 1) - 1;
+				intro += contents.get_int(livery, 1) - 1;
 
 				scheme->add_livery(liv_name, intro);
 			}
