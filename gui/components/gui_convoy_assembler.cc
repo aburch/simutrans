@@ -1169,7 +1169,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 			}
 
 			// check livery scheme and build the abailable livery scheme list
-			if (info->get_livery_count())
+			if (info->get_livery_count()>0)
 			{
 				ITERATE_PTR(schemes, i)
 				{
@@ -1179,7 +1179,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 						if(livery_scheme_indices.is_contained(i)){
 							continue;
 						}
-						if (scheme->is_contained(info)) {
+						if (scheme->get_latest_available_livery(welt->get_timeline_year_month(), info)) {
 							livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), SYSCOL_TEXT));
 							livery_scheme_indices.append(i);
 							livery_selector.set_selection(i);
