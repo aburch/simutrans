@@ -2453,6 +2453,18 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			txt_livery_count.clear();
 			txt_livery_count.printf("(%i)", veh_type->get_available_livery_count(welt));
 			lb_livery_counter.set_text(txt_livery_count);
+			if (veh_type->get_livery_count() > 1) {
+				// which livery scheme this vehicle has?
+				buf.append("\n");
+				buf.printf("%s: \n", translator::translate("Selectable livery schemes"));
+				FOR(vector_tpl<uint16>, const& i, livery_scheme_indices) {
+					livery_scheme_t* scheme = welt->get_settings().get_livery_schemes()->get_element(i);
+					if (scheme->get_latest_available_livery(welt->get_timeline_year_month(), veh_type))
+					{
+						buf.printf("%s\n", translator::translate(scheme->get_name()));
+					}
+				}
+			}
 		}
 		else {
 			lb_livery_counter.set_text(NULL);
