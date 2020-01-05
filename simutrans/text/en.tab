@@ -3954,3 +3954,7 @@ place signals backward
 Place signals backwards
 Selectable livery schemes
 Selectable livery schemes
+; Starting acceleration: %.2f km/h/s
+; Starting acceleration: %.2f km/h/s
+; Starting acceleration: %.2f - %.2f km/h/s
+; Starting acceleration: %.2f - %.2f km/h/s
