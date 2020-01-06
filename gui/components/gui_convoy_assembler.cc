@@ -952,7 +952,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		txt_convoi_power.printf("%s %4d kW, %d kN\n", translator::translate("Power:"), total_power, total_force);
 
 		txt_convoi_brake_force.clear();
-		txt_convoi_brake_force.printf("%s %4.1fkN\n", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0);
+		txt_convoi_brake_force.printf("%s %4.2f kN\n", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0);
 
 		txt_convoi_weight.clear();
 		txt_convoi_rolling_resistance.clear();
