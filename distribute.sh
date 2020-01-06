@@ -97,7 +97,7 @@ if [ `expr match "$*" ".*-rev="` != "0" ]; then
   REV_NR=$(echo $* | sed "s/.*-rev=[ ]*//" | sed "s/[^0-9]*//")
   simarchiv=$simarchivbase-$REV_NR
 elif [ "$#" = "0"  ]  ||  [ `expr match "$*" ".*-no-rev"` = "0" ]; then
-  REV_NR=`svnversion | sed "s/[0-9]*://" | sed "s/M.*//"`
+  REV_NR=`svn info --show-item revision svn://servers.simutrans.org/simutrans | sed "s/[0-9]*://" | sed "s/M.*//"`
   simarchiv=$simarchivbase-$REV_NR
 else
   echo "No revision given!"
