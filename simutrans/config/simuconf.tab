@@ -547,8 +547,15 @@ player_finance_display_account = 1
 # starting_money[0]=1930,20000000,1
 # starting_money[1]=2030,35000000,1
 
-# allow buying obsolete vehicles (=1) in depot
-allow_buying_obsolete_vehicles = 1
+# This setting controls whether players are permitted to buy vehicles after their
+# retirement date. The default, allow_buying_obsolete_vehicles=1, allows players
+# to buy old vehicles by clicking a "Show obsolete" button in the depot / replacer
+# window. This button is not shown if this is set to 0.
+#
+# If this is set to 2, players can buy vehicles after their retirement date, but
+# not after they have become obsolete. 
+
+allow_buying_obsolete_vehicles=1
 
 # vehicle can loose a part of their value, when the are once used
 # the loss is given in 1/1000th, i.e 300 mean the value will be 70%
