@@ -2626,12 +2626,6 @@ void fabrik_t::verteile_waren(const uint32 product)
 				}
 			}
 			else {
-				// overflowed with our own ware and we have still nearly full stock
-//				if(  output[product].menge>= (3 * output[product].max) >> 2  ) {
-					/* Station too full, notify player */
-//					best_halt->bescheid_station_voll();
-//				}
-// for now report only serious overcrowding on transfer stops
 				return;
 			}
 		}
