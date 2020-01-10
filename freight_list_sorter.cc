@@ -10,6 +10,7 @@
 #include "simtypes.h"
 #include "simware.h"
 #include "simfab.h"
+#include "simmem.h"
 #include "simworld.h"
 #include "simcity.h"
 

@@ -138,7 +138,7 @@ static void dl_free(obj_t** p, uint8 size)
 		freelist_t::putback_node(sizeof(*p) * size, p);
 	}
 	else {
-		guarded_free(p);
+		free(p);
 	}
 }
 
