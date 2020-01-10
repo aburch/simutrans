@@ -1228,7 +1228,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 							 pos_origin.get_fullstr(), i, ware_name, ware.get_typ()->get_name(), desc->get_supplier(i)->get_input_type()->get_name());
 				}
 			}
-			guarded_free(const_cast<char *>(ware_name));
+			free(const_cast<char *>(ware_name));
 		}
 	}
 	if(  desc  &&  input_count != desc->get_supplier_count() ) {
@@ -1317,7 +1317,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 							 pos_origin.get_fullstr(), i, ware_name, ware.get_typ()->get_name(), desc->get_product(i)->get_output_type()->get_name());
 				}
 			}
-			guarded_free(const_cast<char *>(ware_name));
+			free(const_cast<char *>(ware_name));
 		}
 	}
 	if(  desc  &&  output_count != desc->get_product_count()) {
