@@ -35,6 +35,21 @@ jump_frame_t::jump_frame_t() :
 	jumpbutton.add_listener(this);
 	add_component(&jumpbutton);
 
+	new_component<gui_divider_t>();
+
+	sprintf(auto_jump_countdown_char, "%s", "-----");
+	add_table(3,1);
+	{
+		auto_jump_button.init( button_t::square_state, "AutoJump ");
+		auto_jump_button.add_listener( this );
+		auto_jump_button.pressed = auto_jump;
+		add_component( &auto_jump_button );
+		new_component<gui_label_t>(auto_jump_countdown_char );
+		auto_jump_interval_numberinput.add_listener(this);
+		auto_jump_interval_numberinput.init(auto_jump_interval, 5, 65535, 1, true, 5);
+		add_component( &auto_jump_interval_numberinput );
+	}
+
 	set_focus(&input);
 
 	reset_min_windowsize();
@@ -57,6 +72,16 @@ bool jump_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		if(welt->is_within_limits(my_pos)) {
 			welt->get_viewport()->change_world_position(koord3d(my_pos,welt->min_hgt(my_pos)));
 		}
+	}
+	else if(comp == &auto_jump_button) {
+		auto_jump = !auto_jump;
+		auto_jump_button.pressed = auto_jump;
+		auto_jump_base_time = time(NULL);
+	}
+	else if(comp == &auto_jump_interval_numberinput) {
+		uint16 buf = auto_jump_interval_numberinput.get_value();
+		auto_jump_interval = buf;
+		auto_jump_base_time = time(NULL);
 	}
 	return true;
 }

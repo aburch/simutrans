@@ -10,10 +10,14 @@
 #ifndef gui_jumpframe_h
 #define gui_jumpframe_h
 
+#include <time.h>
+
 #include "components/action_listener.h"
 #include "gui_frame.h"
 #include "components/gui_textinput.h"
 #include "components/gui_button.h"
+#include "components/gui_label.h"
+#include "components/gui_numberinput.h"
 
 
 
@@ -21,9 +25,15 @@ class jump_frame_t : public gui_frame_t, action_listener_t
 {
 	char buf[64];
 	gui_textinput_t input;
-	button_t jumpbutton;
+	button_t jumpbutton, auto_jump_button;
+	gui_numberinput_t auto_jump_interval_numberinput;
 
 public:
+	static bool auto_jump;
+	static time_t auto_jump_base_time;
+	static uint16 auto_jump_interval;
+	static char auto_jump_countdown_char[6];
+	
 	jump_frame_t();
 
 	/**

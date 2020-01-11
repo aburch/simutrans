@@ -5,6 +5,7 @@
  */
 
 #include <stdio.h>
+#include <time.h>
 
 #include "../simworld.h"
 #include "simview.h"
@@ -24,7 +25,17 @@
 #include "../obj/zeiger.h"
 #include "../utils/simrandom.h"
 
+#include "../gui/jump_frame.h"
+
+#include "../simhalt.h"
+#include "../simconvoi.h"
+
 uint16 win_get_statusbar_height(); // simwin.h
+
+bool jump_frame_t::auto_jump = false;
+time_t jump_frame_t::auto_jump_base_time;
+uint16 jump_frame_t::auto_jump_interval = 30;
+char jump_frame_t::auto_jump_countdown_char[6];
 
 main_view_t::main_view_t(karte_t *welt)
 {
@@ -334,6 +345,61 @@ void main_view_t::display(bool force_dirty)
 	}
 
 	assert( rs == get_random_seed() ); (void)rs;
+
+
+	if (jump_frame_t::auto_jump)
+	{
+		sprintf(jump_frame_t::auto_jump_countdown_char, "%ld", (jump_frame_t::auto_jump_interval - (time(NULL) - jump_frame_t::auto_jump_base_time)));
+		if( time(NULL) - jump_frame_t::auto_jump_base_time >= jump_frame_t::auto_jump_interval ) {
+			jump_frame_t::auto_jump_base_time = time(NULL);
+			uint32 rnd = simrand(2);
+			if ( rnd == 0 )
+			{
+				koord my_pos;
+				uint32 halt_count = haltestelle_t::get_alle_haltestellen().get_count();
+				if ( halt_count != 0)
+				{
+					uint32 rand_selection = simrand(halt_count);
+					uint32 counter = 0;
+					FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
+						if ( rand_selection == counter )
+						{
+							my_pos = halt->get_init_pos();
+						}
+						counter++;
+					}
+					dbg->message( "auto_jump", "Jump to %d, %d", my_pos.x, my_pos.y);
+					welt->get_viewport()->change_world_position(koord3d(my_pos,welt->min_hgt(my_pos)));
+				}
+			}
+			else if ( rnd == 1 )
+			{
+				uint32 no_depot_cnv = 0;
+				FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
+					if (!cnv->in_depot())
+					{
+						no_depot_cnv++;
+					}
+				}
+				if ( no_depot_cnv != 0 )
+				{
+					uint32 rand_selection = simrand(no_depot_cnv);
+					uint32 counter = 0;
+					FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
+						if (!cnv->in_depot())
+						{
+							if ( rand_selection == counter )
+							{
+								dbg->message( "auto_jump", "follow convoi %s", cnv->get_name());
+								welt->get_viewport()->set_follow_convoi(cnv);
+							}
+							counter++;
+						}
+					}
+				}
+			}
+		}
+	}
 
 #else
 	(void)force_dirty;
