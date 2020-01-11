@@ -31,6 +31,51 @@ getDLL()
 	fi
 }
 
+getSDL2mac()
+{
+	# Use curl if available, else use wget
+	curl -h > /dev/null
+	if [ $? -eq 0 ]; then
+	    curl http://www.libsdl.org/release/SDL2-2.0.10.dmg > SDL2-2.0.10.dmg || {
+	      echo "Error: download of file SDL2-2.0.10.dmg failed (curl returned $?)" >&2
+	      rm -f "SDL2-2.0.10.dmg"
+	      exit 4
+	    }
+	    curl http://www.libsdl.org/release/SDL2-2.0.10.dmg > SDL2-2.0.10.dmg || {
+	      echo "Error: download of file SDL2-2.0.10.dmg failed (curl returned $?)" >&2
+	      rm -f "SDL2-2.0.10.dmg"
+	      exit 4
+	    }
+	else
+	    wget --help > /dev/null
+	    if [ $? -eq 0 ]; then
+	        wget -N  http://www.libsdl.org/release/SDL2-2.0.10.dmg || {
+	          echo "Error: download of file SDL2-2.0.10.dmg failed (wget returned $?)" >&2
+	          rm -f "SDL2-2.0.10.dmg"
+	          exit 4
+	        }
+	        wget -N http://www.libsdl.org/release/SDL2-2.0.10.dmg || {
+	          echo "Error: download of file SDL2-2.0.10.dmg failed (wget returned $?)" >&2
+	          rm -f "SDL2-2.0.10.dmg"
+	          exit 4
+	        }
+	    else
+	        echo "Error: Neither curl or wget are available on your system, please install either and try again!" >&2
+	        exit 6
+	    fi
+	fi
+	7z t "SDL2-2.0.10.dmg" || {
+	   echo "Error: file SDL2-2.0.10.dmg seems to be defective" >&2
+	   rm -f "sim-macintel.zip"
+	   exit 5
+	}
+	7z t "SDL2-2.0.10.dmg" || {
+	   echo "Error: file SDL2-2.0.10.dmg seems to be defective" >&2
+	   rm -f "SDL2-2.0.10.dmg"
+	   exit 5
+	}
+}
+
 # first assume unix name defaults ...
 simexe=
 updatepath="/"
@@ -115,12 +160,16 @@ distribute()
 
 buildOSX()
 {
+  echo "Build Mac OS package"
 	# builds a bundle for MAC OS
+	getSDL2mac
 	mkdir -p "simutrans.app/Contents/MacOS"
 	mkdir -p "simutrans.app/Contents/Resources"
-	cp $BUILDDIRsim.exe   "simutrans.app/Contents/MacOS/simutrans"
+	cp $BUILDDIR$simexe   "simutrans.app/Contents/MacOS/simutrans"
 	strip "simutrans.app/Contents/MacOS/simutrans"
 	cp "../OSX/simutrans.icns" "simutrans.app/Contents/Resources/simutrans.icns"
+	7z x "SDL2-2.0.10.dmg"
+	rm SDL2-2.0.10.dmg
 	echo "APPL????" > "simutrans.app/Contents/PkgInfo"
 	sh ../OSX/plistgen.sh "simutrans.app" "simutrans"
 }
@@ -132,18 +181,28 @@ fi
 
 # now built the archive for distribution
 cd simutrans
-if [ $OSTYPE = darwin* ]; then
+
+if [ "$OST" = "mac" ]; then
   buildOSX
+  cd ..
+  ls 
+  pwd
+  zip -r -9 simumac.zip simutrans
+  cd simutrans
+  rm -rf SDL2
+  rm -rf simutrans.app
+  exit 0
 else
+  echo "Build default zip archive"
   cp $BUILDDIR$simexe ./simutrans$simexe
   strip simutrans$simexe
+  cp ..$updatepath$updater $updater
+  cd ..
+  distribute
+  # .. finally delete executable and language files
+  rm simutrans/simutrans$simexe
 fi
-cp ..$updatepath$updater $updater
-cd ..
-distribute
 
-# .. finally delete executable and language files
-rm simutrans/simutrans$simexe
 
 # cleanup dll's
 if [ "$PGC" -ne 0 ]; then
