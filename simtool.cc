@@ -3952,7 +3952,7 @@ void tool_build_wayobj_t::mark_tiles( player_t * player, const koord3d &start, c
 				if( wayobj ) {
 					show = show | wayobj->get_dir();
 					// Already a catenary here -> costs only, if new catenary is faster
-					if(  wayobj->get_desc()->get_topspeed() >= desc->get_topspeed()  ) {
+					if(  wayobj->get_desc() == desc ) {
 						cost_estimate -= desc->get_value();
 					}
 				}
