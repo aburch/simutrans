@@ -98,7 +98,7 @@ bool dr_movetotrash(const char *path) {
 
 	int successful = SHFileOperationA(&FileOp);
 
-	delete wfilename;
+	delete[] wfilename;
 
 	return successful;
 #endif
