@@ -1,0 +1,58 @@
+name: Nightly build MacOS
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: macOS-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: install_dependencies
+      run: | 
+        curl http://www.libsdl.org/release/SDL2-2.0.10.dmg > SDL2-2.0.10.dmg
+        hdiutil attach SDL2-2.0.10.dmg >>/dev/stderr
+        sudo cp -R -v /Volumes/SDL2/SDL2.framework /Library/Frameworks/
+        sudo ls /Library/Frameworks/ >>/dev/stderr
+        hdiutil eject /Volumes/SDL2 >>/dev/stderr 
+        brew install autoconf
+        brew install freetype
+# freetype library is in the system, but not the header
+# not easy to install miniupnpc for others, so no UPnP support for macOS
+#        brew install miniupnpc
+
+    - name: setup
+      run: |
+        autoconf 
+        ./configure
+        echo "CFLAGS = -F /Library/Frameworks -DREVISION=$(svn info --show-item revision svn://servers.simutrans.org/simutrans) " >>config.default
+        echo "LDFLAGS = -framework SDL2 -F /Library/Frameworks -I /Library/Frameworks/SDL2.framework/Headers " >>config.default
+        mv config.default cfd
+        sed 's/BACKEND = posix/#BACKEND = posix/' cfd | sed 's/#BACKEND = sdl2/BACKEND = sdl2/' > config.default
+        cat config.default >>/dev/stderr
+# since the SDL framework DMG does not come with configure scripts, we have to add them ourselves to the command line
+
+    - name: make
+      run: make
+      
+    - name: distribute
+      run: sh ./distribute.sh
+
+    - name: Rename result  
+      run:  |
+          ls *.zip >>/dev/stderr
+          echo ::set-env name=LATEST::$(ls *.zip)
+          mv sim*.zip simumac-nightly.zip
+
+# this is the only one, which can update a released file!
+    - name: Update binaries of Nightly Release
+      uses: svenstaro/upload-release-action@v1-release
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./simumac-nightly.zip
+        asset_name: simumac-nightly.zip
+        tag: Nightly
+        overwrite: true   
+

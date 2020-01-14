@@ -138,7 +138,7 @@ fi
 
 # now add revision number without any modificators
 # fetch language files
-if [ `expr match "$*" ".*-rev="` != "0" ]; then
+if [ `expr match "$*" ".*-rev="` > "0" ]; then
   REV_NR=$(echo $* | sed "s/.*-rev=[ ]*//" | sed "s/[^0-9]*//")
   simarchiv=$simarchivbase-$REV_NR
 elif [ "$#" = "0"  ]  ||  [ `expr match "$*" ".*-no-rev"` = "0" ]; then
