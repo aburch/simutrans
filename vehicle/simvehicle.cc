@@ -4473,7 +4473,7 @@ rail_vehicle_t::~rail_vehicle_t()
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
 		schiene_t * sch = (schiene_t *)gr->get_weg(get_waytype());
-		if(sch) {
+		if(sch && !get_flag(obj_t::not_on_map)) {
 			sch->unreserve(this);
 		}
 	}
@@ -5170,7 +5170,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		{
 			// Check for head-on collisions in drive by sight mode so as to fix deadlocks automatically.
 			convoihandle_t c = w->get_reserved_convoi();
-			if ((c->get_state() == convoi_t::DRIVING || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE|| c->get_state() == convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS) &&
+			if (c.is_bound() && (c->get_state() == convoi_t::DRIVING || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE|| c->get_state() == convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS) &&
 				(cnv->get_state() == convoi_t::DRIVING || cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE|| cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH || cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS) )
 			{
 				ribi_t::ribi other_convoy_direction = c->front()->get_direction();
