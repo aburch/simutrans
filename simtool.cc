@@ -2588,14 +2588,33 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 			// here either channel or elevated way over not too deep water
 		}
 		// elevated ways have to check tile above
-		if(  elevated  ) {
+		if(  elevated  ) 
+		{
+			// Also check for large buildings below
+			grund_t* gr_below = welt->lookup_kartenboden(pos.get_2d());
+			const koord TEST_pos = pos.get_2d();
+			if (gr_below) 
+			{
+				if (const gebaeude_t* gb = gr_below->get_building())
+				{
+					const uint8 max_level = welt->get_settings().get_max_elevated_way_building_level();
+					if (((gb->get_tile()->get_desc()->get_level() > max_level) && !haltestelle_t::get_halt(gb->get_pos(), NULL).is_bound()) || gb->is_attraction() || gb->is_townhall())
+					{
+						error = "Bridges cannot be built over large buildings.";
+						return 0;
+					}
+				}
+			}
 			gr = welt->lookup( pos + koord3d( 0, 0, welt->get_settings().get_way_height_clearance() ) );
-			if(  gr == NULL  ) {
+			if(  gr == NULL  ) 
+			{
 				return 2;
 			}
-			if(  gr->get_typ() != grund_t::monorailboden  ) {
+			if(  gr->get_typ() != grund_t::monorailboden  ) 
+			{
 				return 0;
 			}
+			
 		}
 		// test if way already exists on the way and if we are allowed to connect
 		weg_t *way = gr->get_weg(desc->get_wtyp());

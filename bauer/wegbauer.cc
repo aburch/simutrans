@@ -688,6 +688,12 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 				return false;
 			}
 
+			if (gb->is_attraction() || gb->is_townhall())
+			{
+				// No elevated ways above attractions or town halls
+				return false;
+			}
+
 			if(tile->get_background(0,1,0)!=IMG_EMPTY)
 			{
 				return false;
