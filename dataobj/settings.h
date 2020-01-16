@@ -619,6 +619,9 @@ public:
 	uint32 max_small_city_size;
 	uint32 max_city_size;
 
+	uint8 capital_threshold_percentage;
+	uint8 city_threshold_percentage;
+
 	// The factor percentage of power revenue
 	// default: 100
 	// @author: Phystam
@@ -1043,6 +1046,11 @@ public:
 	void set_max_small_city_size(uint32 value) { max_small_city_size = value; }
 	uint32 get_max_city_size() const { return max_city_size; }
 	void set_max_city_size(uint32 value) { max_city_size = value; }
+
+	uint8 get_capital_threshold_percentage() const { return capital_threshold_percentage; }
+	void set_capital_threshold_percentage(uint8 value) { capital_threshold_percentage = value; }
+	uint8 get_city_threshold_percentage() const { return city_threshold_percentage; }
+	void set_city_threshold_percentage(uint8 value) { city_threshold_percentage = value; }
 
 	uint16 get_default_increase_maintenance_after_years(waytype_t wtype) const { return default_increase_maintenance_after_years[wtype]; }
 	void set_default_increase_maintenance_after_years(waytype_t wtype, uint16 value) { default_increase_maintenance_after_years[wtype] = value; }

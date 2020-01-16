@@ -2912,21 +2912,75 @@ void stadt_t::calc_growth()
 	settings_t const& s = welt->get_settings();
 
 	// smaller towns should grow slower to have villages for a longer time
-	sint32 const weight_factor =
-		get_city_population() < s.get_city_threshold_size() ? welt->get_settings().get_growthfactor_small()  :
-		get_city_population() < s.get_capital_threshold_size() ? welt->get_settings().get_growthfactor_medium() :
-		welt->get_settings().get_growthfactor_large();
+	// New for January 2020: what counts as a "smaller town" can be proportional to the size of towns if threshold percentages are set.
+	sint32 weight_factor; 
+
+	if (s.get_capital_threshold_percentage() == 0 && s.get_city_threshold_percentage() == 0)
+	{
+		// Percentages specified as zero - use the old algorithm
+		weight_factor =
+			get_city_population() < s.get_city_threshold_size() ? welt->get_settings().get_growthfactor_small() :
+			get_city_population() < s.get_capital_threshold_size() ? welt->get_settings().get_growthfactor_medium() :
+			s.get_growthfactor_large();
+	}
+	else
+	{
+		// It is possible that only one threshold percentage is set. In this case, assume the other.
+		uint8 capital_threshold_percentage = s.get_capital_threshold_percentage() ? s.get_capital_threshold_percentage() : s.get_city_threshold_percentage() / 4;
+		capital_threshold_percentage = capital_threshold_percentage ? capital_threshold_percentage : 1;
+		uint8 city_threshold_percentage = s.get_city_threshold_percentage() ? s.get_city_threshold_percentage() : capital_threshold_percentage * 4; 
+
+		// Now that we have the percentages, calculate how large that this city is compared to others in the game.
+		uint32 number_of_larger_cities = 0;
+		uint32 number_of_smaller_cities = 0;
+		FOR(const weighted_vector_tpl<stadt_t*>, const& city, welt->get_cities())
+		{
+			if (city == this)
+			{
+				continue;
+			}
+			if (city->get_city_population() > get_city_population())
+			{
+				number_of_larger_cities++;
+			}
+			else
+			{
+				number_of_smaller_cities++;
+			}
+		}
+
+		const uint32 total_cities = number_of_larger_cities + number_of_smaller_cities + 1;
+		const uint32 rank = number_of_larger_cities + 1;
+		const uint32 percentage = (rank * 100) / total_cities; 
+
+		if (rank == 1 || percentage <= s.get_capital_threshold_percentage())
+		{
+			weight_factor = s.get_growthfactor_large();
+		}
+		else if (percentage <= s.get_city_threshold_percentage())
+		{
+			weight_factor = s.get_growthfactor_medium();
+		}
+		else
+		{
+			weight_factor = s.get_growthfactor_small();
+		}
+	}
 
 	// now compute the growth for this step
 	sint32 growth_factor = weight_factor > 0 ? total_supply_percentage / weight_factor : 0;
 
+	// Formerly, congestion directly affected growth. However, this is not realistic: it should only
+	// affect growth indirectly by reducing the proportion of successful journeys. In any event,
+	// the percentage now has a new meaning: the percentage by which car journeys are slowed down.
+#if 0
 	// Congestion adversely impacts on growth. At 100% congestion, there will be no growth.
 	if(city_history_month[0][HIST_CONGESTION] > 0)
 	{
 		const uint32 congestion_factor = city_history_month[0][HIST_CONGESTION];
 		growth_factor -= (congestion_factor * growth_factor) / 100;
 	}
-
+#endif
 	// Scale up growth to have a larger fractional component. This allows small growth units to accumulate in the case of long months.
 	sint64 new_unsupplied_city_growth = (sint64)growth_factor * (CITYGROWTH_PER_CITICEN / 16ll);
 

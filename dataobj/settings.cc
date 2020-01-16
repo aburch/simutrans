@@ -451,6 +451,11 @@ settings_t::settings_t() :
 	max_small_city_size = 1000;
 	max_city_size = 5000;
 
+	// 0 values for these mean that the above absolute threasholds are used instead.
+	// Set values in simuconf.tab to activate this feature.
+	capital_threshold_percentage = 0;
+	city_threshold_percentage = 0;
+
 	power_revenue_factor_percentage=100;
 	
 	allow_making_public = true;
@@ -1471,6 +1476,11 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 			file->rdwr_long(capital_threshold_size);
 			file->rdwr_long(city_threshold_size);
+			if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 15))
+			{
+				file->rdwr_byte(capital_threshold_percentage);
+				file->rdwr_byte(city_threshold_percentage);
+			}
 		}
 		
 		if(  file->get_version()>=110001  ) {
@@ -2569,6 +2579,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	capital_threshold_size  = contents.get_int("capital_threshold_size", capital_threshold_size);
 	max_small_city_size  = contents.get_int("max_small_city_size", max_small_city_size);
 	max_city_size  = contents.get_int("max_city_size", max_city_size);
+	capital_threshold_percentage = contents.get_int("capial_threshold_percentage", capital_threshold_percentage);
+	city_threshold_percentage = contents.get_int("city_threshold_percentage", city_threshold_percentage); 
+
 	spacing_shift_mode = contents.get_int("spacing_shift_mode", spacing_shift_mode);
 	spacing_shift_divisor = contents.get_int("spacing_shift_divisor", spacing_shift_divisor);
 
