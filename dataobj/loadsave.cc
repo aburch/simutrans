@@ -417,8 +417,8 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 	close();
 
 	if(  is_zipped()  ) {
-		// using zlib
-		fd->gzfp = dr_gzopen(filename_utf8, "wb");
+		// using zlib in lowest compression for highest speed (on servers)
+		fd->gzfp = dr_gzopen(filename_utf8, "wb1");
 	}
 	else if(  mode==binary  ) {
 		// no compression
