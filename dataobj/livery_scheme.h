@@ -7,6 +7,7 @@
   */
 
 #include <string>
+#include <string.h>
 
 #include "../simtypes.h"
 #include "../tpl/vector_tpl.h"
@@ -72,8 +73,8 @@ public:
 	{
 		ITERATE(liveries, i)
 		{
-			if ((date && date >= liveries.get_element(i).intro_date && strcmp(liveries.get_element(i).name.c_str(),name) == 0)
-				|| (!date && strcmp(liveries.get_element(i).name.c_str(),name) == 0))
+			if ((date && date >= liveries.get_element(i).intro_date && strcmp (liveries.get_element(i).name.c_str(),name) == 0)
+				|| (!date && strcmp (liveries.get_element(i).name.c_str(), name) == 0))
 			{
 				return true;
 			}
