@@ -533,7 +533,6 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 void karte_t::destroy()
 {
 	is_sound = false; // karte_t::play_sound_area_clipped needs valid zeiger (pointer/drawer)
-	vehicle_t::sound_ticks = 0;
 	destroying = true;
 	DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
@@ -3021,6 +3020,11 @@ karte_t::karte_t() :
 
 	// set single instance
 	world = this;
+
+	for (uint32 i = 0; i <= noise_barrier_wt; i++)
+	{
+		sound_cooldown_timer[i] = 0;
+	}
 
 	parallel_operations = -1;
 
@@ -7813,24 +7817,54 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_s
  *
  * @author Hj. Malthaner
  */
-bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx) const
+bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, waytype_t cooldown_type)
 {
-	if(is_sound && viewport && display_get_width() > 0 && get_tile_raster_width() > 0) {
+	if (cooldown_type < 0)
+	{
+		// Ensure a valid input
+		cooldown_type = ignore_wt;
+	}
+
+	// First check whether the relevant type of sound has played too recently to play again.
+	// Do not use the cooldown timer where ignore_wt is the specified value.
+	if (cooldown_type != ignore_wt && (sound_cooldown_timer[cooldown_type] >= ticks || sound_cooldown_timer[ignore_wt] >= ticks))
+	{
+		// The sound type has been played too recently - do not play again.
+		return false;
+	}
+
+	if(is_sound && viewport && display_get_width() > 0 && get_tile_raster_width() > 0) 
+	{
 		int dist = koord_distance(k, viewport->get_world_position());
 		bool play = false;
 
-		if(dist < 96) {
+		if(dist < 96) 
+		{
 			int xw = (6*display_get_width())/get_tile_raster_width();
 			int yw = (4*display_get_height())/get_tile_raster_width();
 
 			dist = max(dist - 8, 0);
 
 			uint8 const volume = (uint8)(255U * (xw + yw) / (xw + yw + 32 * dist));
-			if (volume > 8) {
+			if (volume > 8) 
+			{
 				sound_play(idx, volume);
 				play = true;
 			}
 		}
+		
+		if (play == true)
+		{
+			const sint64 minimum_offset = 2500;
+			// Only reset the cooldown timer if the sound is played.
+			const sint64 sound_offset = sim_async_rand(17500) + minimum_offset;
+
+			// Do not allow any sound to play too soon after the last, but leave a 
+			// bigger (but randomised) gap between sounds of the same type.
+			sound_cooldown_timer[cooldown_type] = ticks + sound_offset;
+			sound_cooldown_timer[ignore_wt] = ticks + minimum_offset;
+		}
+
 		return play;
 	}
 	return false;
@@ -9416,8 +9450,6 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	}
 
 	path_explorer_t::reset_must_refresh_on_loading(); 
-
-	vehicle_t::sound_ticks = 0;
 
 	// MUST be at the end of the load/save routine.
 	if(  file->get_version()>=102004  ) {

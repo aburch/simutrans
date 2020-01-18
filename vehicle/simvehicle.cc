@@ -1326,14 +1326,9 @@ void vehicle_t::remove_stale_cargo()
 
 void vehicle_t::play_sound() const
 {
-	if(  desc->get_sound() >= 0  &&  !welt->is_fast_forward() && sound_ticks < welt->get_ticks() )
+	if(desc->get_sound() >= 0 && !welt->is_fast_forward())
 	{
-		if(welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound()))
-		{
-			// Only reset the counter if the sound can be heard.
-			const sint64 sound_offset = sim_async_rand(10000) + 5000;
-			sound_ticks = welt->get_ticks() + sound_offset;
-		}
+		welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound(), get_waytype());
 	}
 }
 
@@ -1453,8 +1448,6 @@ vehicle_t::vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player) 
 		class_reassignments[i] = i;
 	}
 }
-
-sint64 vehicle_t::sound_ticks = 0;
 
 #ifdef INLINE_OBJ_TYPE
 vehicle_t::vehicle_t(typ type) :

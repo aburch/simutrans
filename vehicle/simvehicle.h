@@ -320,10 +320,6 @@ private:
 	uint16 diagonal_costs;
 	uint16 base_costs;
 
-public:
-
-	static sint64 sound_ticks;
-
 protected:
 	virtual void hop(grund_t*);
 

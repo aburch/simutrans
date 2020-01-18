@@ -913,6 +913,16 @@ private:
 	// to change to a less restrictive aspect.
 	vector_tpl<signal_t*> time_interval_signals_to_check;
 
+	// Do not repeat sounds from the same types of vehicles
+	// too often, so store the time when the next sound from
+	// that type of vehicle should next be played.
+	//
+	// Vehicles use their waytypes. ignore_wt is used when
+	// the cooldown timer should not be used. noise_barrier_wt
+	// is used for industry; overheadlines_wt is used for 
+	// crossings.
+	sint64 sound_cooldown_timer[noise_barrier_wt + 1];
+
 	// The number of operations to run in parallel. 
 	// This is important for multi-threading 
 	// synchronisation over the network.
@@ -2550,7 +2560,7 @@ public:
 	 * @param idx Index of the sound
 	 * @author Hj. Malthaner
 	 */
-	bool play_sound_area_clipped(koord k, uint16 idx) const;
+	bool play_sound_area_clipped(koord k, uint16 idx, waytype_t cooldown_type);
 
 	void mute_sound( bool state ) { is_sound = !state; }
 
