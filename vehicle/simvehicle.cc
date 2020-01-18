@@ -4985,8 +4985,21 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 	if (signal_current && signal_current->get_desc()->get_working_method() == one_train_staff && cnv->get_state() == convoi_t::DRIVING && signal_current->get_state() != signal_t::call_on)
 	{
-		// This should only be encountered when a train comes upon a one train staff cabinet having previously stopped at a double block signal.
-		set_working_method(one_train_staff);
+		// This should only be encountered when a train comes upon a one train staff cabinet having previously stopped at a double block signal or having started from a station.
+		if (working_method == drive_by_sight)
+		{
+			cnv->set_last_signal_pos(koord3d::invalid); 
+			const bool ok = block_reserver(cnv->get_route(), max(route_index, 1), welt->get_settings().get_sighting_distance_tiles(), next_signal, 0, true, false);
+			if (!ok)
+			{
+				restart_speed = 0;
+				return false;
+			}
+		}
+		else
+		{
+			set_working_method(one_train_staff);
+		}
 	}
 
 	if((destination_is_nonreversing_waypoint || starting_from_stand) && working_method != one_train_staff && (signal_current || this_halt_has_station_signals) && (this_halt_has_station_signals || !signal_current->get_desc()->get_permissive() || signal_current->get_no_junctions_to_next_signal() == false))
@@ -5095,7 +5108,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		{
 			cnv->set_next_stop_index(next_signal);
 		}
-		if (working_method != one_train_staff && signal_current && (signal_current->get_desc()->get_working_method() != one_train_staff || signal_current->get_pos() != cnv->get_last_signal_pos()))
+		if (working_method != one_train_staff && signal_current && (signal_current->get_desc()->get_working_method() != one_train_staff || (signal_current->get_pos() != cnv->get_last_signal_pos() && signal_current->get_pos() == get_pos())))
 		{
 			if (working_method == token_block && signal_current->get_desc()->get_working_method() == drive_by_sight)
 			{
@@ -6057,7 +6070,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 					if(working_method == drive_by_sight && sch1->can_reserve(cnv->self, ribi) && (signal->get_pos() != cnv->get_last_signal_pos() || signal->get_desc()->get_working_method() != one_train_staff))
 					{
-						if (signal->get_desc()->get_working_method() == one_train_staff && i > start_index)
+						if (signal->get_desc()->get_working_method() == one_train_staff && pos != get_pos())
 						{
 							// Do not try to reserve beyond a one train staff cabinet unless the train is at the cabinet.
 							next_signal_index = i;
