@@ -2277,7 +2277,7 @@ end_loop:
 				rev = !reverse_schedule;
 				schedule->increment_index(&position, &rev);
 				halthandle_t this_halt = haltestelle_t::get_halt(front()->get_pos(), owner);
-				if (this_halt == haltestelle_t::get_halt(schedule->entries[position].pos, owner))
+				if (this_halt.is_bound() && this_halt == haltestelle_t::get_halt(schedule->entries[position].pos, owner))
 				{
 					// Load any newly arrived passengers/mail bundles/goods while waiting for a signal to clear.
 					laden();
