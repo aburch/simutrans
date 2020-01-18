@@ -3956,9 +3956,11 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				// road is two-way and overtaking is allowed on the stricter condition.
 				if(  obj->is_stuck()  ) {
 					// end of traffic jam, but no stuck message, because previous vehicle is stuck too
+					// Not giving stuck messages here is a problem as there might be a circular jam, which is
+					// actually a common case. Do not reset waiting here.
 					restart_speed = 0;
 					//cnv->set_tiles_overtaking(0);
-					cnv->reset_waiting();
+					//cnv->reset_waiting();
 				}
 				else {
 					if(  test_index == route_index + 1u  ) {
