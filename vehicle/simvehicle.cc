@@ -5548,7 +5548,14 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					{
 						if(allow_block_reserver)
 						{
-							cnv->set_next_stop_index(next_signal);
+							if ((next_signal == next_block) && (next_signal == route_index - 1))
+							{
+								return false;
+							}
+							else
+							{
+								cnv->set_next_stop_index(next_signal);
+							}
 						}
 						else
 						{
