@@ -7892,21 +7892,24 @@ void water_vehicle_t::enter_tile(grund_t* gr)
 bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 {
 	const weg_t *w = bd->get_weg(water_wt);
-	if (w)
+	if (cnv->has_tall_vehicles())
 	{
-		if (w->is_height_restricted() && cnv->has_tall_vehicles())
+		if (w)
 		{
-			cnv->suche_neue_route();
-			return false;
+			if (w->is_height_restricted())
+			{
+				cnv->suche_neue_route();
+				return false;
+			}
 		}
-	}
-	else
-	{
-		// Check for low bridges on open water
-		const grund_t* gr_above = world()->lookup(get_pos() + koord3d(0, 0, 1));
-		if (env_t::pak_height_conversion_factor == 2 && gr_above && gr_above->get_weg_nr(0))
+		else
 		{
-			return false;
+			// Check for low bridges on open water
+			const grund_t* gr_above = world()->lookup(get_pos() + koord3d(0, 0, 1));
+			if (env_t::pak_height_conversion_factor == 2 && gr_above && gr_above->get_weg_nr(0))
+			{
+				return false;
+			}
 		}
 	}
 
