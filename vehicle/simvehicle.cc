@@ -7890,6 +7890,24 @@ void water_vehicle_t::enter_tile(grund_t* gr)
 bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 {
 	const weg_t *w = bd->get_weg(water_wt);
+	if (w)
+	{
+		if (w->is_height_restricted() && cnv->has_tall_vehicles())
+		{
+			cnv->suche_neue_route();
+			return false;
+		}
+	}
+	else
+	{
+		// Check for low bridges on open water
+		const grund_t* gr_above = world()->lookup(get_pos() + koord3d(0, 0, 1));
+		if (env_t::pak_height_conversion_factor == 2 && gr_above && gr_above->get_weg_nr(0))
+		{
+			return false;
+		}
+	}
+
 	if(bd->is_water() || !w)
 	{
 		// If there are permissive constraints, this vehicle cannot
@@ -7977,28 +7995,22 @@ bool water_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, u
 {
 	restart_speed = -1;
 
-	if(leading)
+	if (leading)
 	{
 		assert(gr);
 
-		if(!check_tile_occupancy(gr))
+		if (!check_tile_occupancy(gr))
 		{
 
 			return false;
 		}
 
-		const weg_t *w = gr->get_weg(water_wt);
+		const weg_t* w = gr->get_weg(water_wt);
 
-		if (w && w->is_height_restricted() && cnv->has_tall_vehicles())
-		{
-			cnv->suche_neue_route();
-			return false;
-		}
-
-		if(w  &&  w->is_crossing()) {
+		if (w && w->is_crossing()) {
 			// ok, here is a draw/turn-bridge ...
 			crossing_t* cr = gr->find<crossing_t>();
-			if(!cr->request_crossing(this)) {
+			if (!cr->request_crossing(this)) {
 				restart_speed = 0;
 				return false;
 			}
