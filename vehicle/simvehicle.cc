@@ -5110,7 +5110,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 		if (working_method != one_train_staff && signal_current && (signal_current->get_desc()->get_working_method() != one_train_staff || (signal_current->get_pos() != cnv->get_last_signal_pos() && signal_current->get_pos() == get_pos())))
 		{
-			if (working_method == token_block && signal_current->get_desc()->get_working_method() == drive_by_sight)
+			if (working_method == token_block && signal_current->get_desc()->get_working_method() != token_block)
 			{
 				clear_token_reservation(w_current->get_signal(ribi), this, w_current);
 			}
