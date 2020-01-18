@@ -24,7 +24,6 @@ KOORD_VAL base_tile_raster_width = 16; // original
 									   */
 PIXVAL specialcolormap_all_day[256];
 
-
 KOORD_VAL display_set_base_raster_width(KOORD_VAL)
 {
 	return 0;
@@ -32,6 +31,11 @@ KOORD_VAL display_set_base_raster_width(KOORD_VAL)
 
 void set_zoom_factor(int)
 {
+}
+
+int get_zoom_factor() 
+{ 
+	return zoom_factor; 
 }
 
 int zoom_factor_up()

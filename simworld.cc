@@ -7835,7 +7835,7 @@ bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, waytype_t
 
 	if(is_sound && viewport && display_get_width() > 0 && get_tile_raster_width() > 0) 
 	{
-		int dist = koord_distance(k, viewport->get_world_position());
+		uint32 dist = koord_distance(k, viewport->get_world_position());
 		bool play = false;
 
 		if(dist < 96) 
@@ -7845,8 +7845,12 @@ bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, waytype_t
 
 			dist = max(dist - 8, 0);
 
-			uint8 const volume = (uint8)(255U * (xw + yw) / (xw + yw + 32 * dist));
-			if (volume > 8) 
+			// Higher numbers are more zoomed out, so 3 is normal zoom,
+			// 0 is maximally zoomed in and 9 is maximally zoomed out
+			uint32 zoom_distance = get_zoom_factor() + 1;
+
+			uint8 const volume = (uint8)((255U * (xw + yw) / (xw + yw + 32 * dist)) / zoom_distance);
+			if (volume > 2) 
 			{
 				sound_play(idx, volume);
 				play = true;
