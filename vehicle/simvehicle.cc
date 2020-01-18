@@ -6532,11 +6532,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							koord3d last_signalbox_pos = last_signal ? last_signal->get_signalbox() : koord3d::invalid;
 							if(signalbox_last_distant_signal == koord3d::invalid
 								&& i - start_index <= modified_sighting_distance_tiles
-								&& (last_signalbox_pos == koord3d::invalid
+								&& ((last_signalbox_pos == koord3d::invalid
 								 || last_signalbox_pos != signal->get_signalbox())
 								 || ((!last_signal || !signal->get_desc()->get_intermediate_block())
 								 || signal->get_desc()->get_intermediate_block() ^ last_signal->get_desc()->get_intermediate_block()) // Cannot be two intermediate blocks in a row.
-								&& (pre_signals.empty() || first_stop_signal_index == INVALID_INDEX))
+								&& (pre_signals.empty() || first_stop_signal_index == INVALID_INDEX)))
 							{
 								pre_signals.append(signal);
 								last_pre_signal_index = i;
