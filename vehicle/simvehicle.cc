@@ -5624,6 +5624,7 @@ void rail_vehicle_t::set_working_method(working_method_t value)
 	if (working_method == one_train_staff && value != one_train_staff)
 	{
 		unreserve_in_rear();
+		cnv->reserve_own_tiles();
 	}
 
 	working_method = value;
