@@ -7582,7 +7582,7 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 			return 0;
 		}
 
-		if (distance > sig->get_desc()->get_max_distance_to_signalbox())
+		if (sig->get_desc()->get_max_distance_to_signalbox() && distance > sig->get_desc()->get_max_distance_to_signalbox())
 		{
 			error = "Cannot build this signal this far beyond any signalbox.";
 			return 0;
