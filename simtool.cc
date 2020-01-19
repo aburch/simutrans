@@ -5927,7 +5927,7 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 					if(  rs != NULL  &&  rs-> is_deletable(player) == NULL  ) {
 						rs->cleanup(player);
 						delete rs;
-						error_text =  place_sign_intern( player, gr );
+						error_text = place_sign_intern( player, gr );
 					}
 				}else if (signal[player->get_player_nr()].place_backward) {
 					roadsign_t* rs = gr->find<signal_t>();
@@ -5943,7 +5943,12 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 			}
 			roadsign_t* rs = gr->find<signal_t>();
 			if(rs == NULL) rs = gr->find<roadsign_t>();
-			assert(rs);
+			if (!rs)
+			{
+				// A signal may not have been built here if it exceeded
+				// the signalbox's capacity.
+				goto end;
+			}
 			rs->set_dir(dir);
 		}
 		else {
@@ -5958,6 +5963,7 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 		weg->count_sign();
 		gr->calc_image();
 	}
+	end: 
 	cleanup();
 	directions.clear();
 	return NULL;
@@ -6113,9 +6119,19 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 							};
 						}
 					}
-					rs = new signal_t(player, gr->get_pos(), dir, desc, signal[player->get_player_nr()].signalbox);
-					DBG_MESSAGE("tool_roadsign()", "new signal, dir is %i", dir);
-					goto built_sign;
+					// Check whether we can add the signal or whether the signalbox is out of capacity
+					signalbox_t* sb = NULL;
+					gebaeude_t* gb = welt->lookup(signal[player->get_player_nr()].signalbox)->get_building();
+					if (gb && gb->get_tile()->get_desc()->is_signalbox())
+					{
+						sb = (signalbox_t*)gb;
+					}
+					if ((sb && sb->get_number_of_signals_controlled_from_this_box() < sb->get_tile()->get_desc()->get_capacity()) || desc->get_signal_group() == 0)
+					{
+						rs = new signal_t(player, gr->get_pos(), dir, desc, signal[player->get_player_nr()].signalbox);
+						DBG_MESSAGE("tool_roadsign()", "new signal, dir is %i", dir);
+						goto built_sign;
+					}					
 				}
 			} else {
 				// if there is already a sign, we might need to inverse the direction
