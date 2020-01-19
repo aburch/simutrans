@@ -7572,18 +7572,21 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 		error = "";
 	}
 
-	// Check that the destination signalbox is in range of the signal
-	const uint32 distance = shortest_distance(sig->get_pos().get_2d(), sb_end->get_pos().get_2d()) * welt->get_settings().get_meters_per_tile();
-	if (distance > sb_end->get_tile()->get_desc()->get_radius())
+	if (sig)
 	{
-		error = "Cannot build any signal beyond the maximum radius of the currently selected signalbox.";
-		return 0;
-	}
+		// Check that the destination signalbox is in range of the signal
+		const uint32 distance = shortest_distance(sig->get_pos().get_2d(), sb_end->get_pos().get_2d()) * welt->get_settings().get_meters_per_tile();
+		if (distance > sb_end->get_tile()->get_desc()->get_radius())
+		{
+			error = "Cannot build any signal beyond the maximum radius of the currently selected signalbox.";
+			return 0;
+		}
 
-	if (distance > sig->get_desc()->get_max_distance_to_signalbox())
-	{
-		error = "Cannot build this signal this far beyond any signalbox.";
-		return 0;
+		if (distance > sig->get_desc()->get_max_distance_to_signalbox())
+		{
+			error = "Cannot build this signal this far beyond any signalbox.";
+			return 0;
+		}
 	}
 
 	if(is_valid_start)
