@@ -446,7 +446,7 @@ public:
 	struct signal_info {
 	signal_info() : remove_intermediate(true), replace_other(true), place_backward(false), signalbox(koord3d::invalid) {}
 
-		static uint8 spacing; // place signals every n tiles
+		static uint16 spacing; // place signals every n tiles
 		bool  remove_intermediate;
 		bool  replace_other;
 		bool  place_backward;
@@ -477,8 +477,8 @@ public:
 	bool init(player_t*) OVERRIDE;
 	bool exit(player_t*) OVERRIDE;
 
-	void set_values(player_t *player, uint8 spacing, bool remove, bool replace, bool backward, koord3d signalbox );
-	void get_values(player_t *player, uint8 &spacing, bool &remove, bool &replace, bool &backward, koord3d &signalbox );
+	void set_values(player_t *player, uint16 spacing, bool remove, bool replace, bool backward, koord3d signalbox );
+	void get_values(player_t *player, uint16 &spacing, bool &remove, bool &replace, bool &backward, koord3d &signalbox );
 	bool is_init_network_save() const OVERRIDE { return true; }
 	void draw_after(scr_coord, bool dirty) const OVERRIDE;
 	char const* get_default_param(player_t*) const OVERRIDE;

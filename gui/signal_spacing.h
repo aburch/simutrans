@@ -18,7 +18,7 @@ class player_t;
 class signal_spacing_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	static uint8 signal_spacing;
+	static uint16 signal_spacing;
 	uint32 signal_spacing_meter;
 	static bool remove, replace, backward;
 	static koord3d signalbox;

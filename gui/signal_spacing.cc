@@ -15,7 +15,7 @@
 
 #define L_DIALOG_WIDTH (200)
 
-uint8 signal_spacing_frame_t::signal_spacing = 16;
+uint16 signal_spacing_frame_t::signal_spacing = 16;
 bool signal_spacing_frame_t::remove = true;
 bool signal_spacing_frame_t::replace = true;
 bool signal_spacing_frame_t::backward = false;
@@ -77,7 +77,7 @@ signal_spacing_frame_t::signal_spacing_frame_t(player_t *player_, tool_build_roa
 bool signal_spacing_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 {
 	if( comp == &signal_spacing_inp ) {
-		signal_spacing = signal_spacing_inp.get_value()/(welt->get_settings().get_meters_per_tile());
+		signal_spacing = signal_spacing_inp.get_value() / (welt->get_settings().get_meters_per_tile());
 	}
 	else if( comp == &remove_button ) {
 		remove = !remove;

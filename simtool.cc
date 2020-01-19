@@ -5485,7 +5485,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 	return msg;
 }
 
-uint8 tool_build_roadsign_t::signal_info::spacing = 16;
+uint16 tool_build_roadsign_t::signal_info::spacing = 16;
 
 char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 {
@@ -5512,14 +5512,14 @@ void tool_build_roadsign_t::draw_after(scr_coord k, bool dirty) const
 	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
 		char level_str[16];
-		uint16 spacing_in_meter = signal[welt->get_active_player_nr()].spacing * welt->get_settings().get_meters_per_tile();
+		uint32 spacing_in_meter = (uint32)signal[welt->get_active_player_nr()].spacing * (uint32)welt->get_settings().get_meters_per_tile();
 		if( spacing_in_meter < 1000 ) {
 			sprintf(level_str, "%im", spacing_in_meter );
 		}
 		else {
-			uint16 spacing_km=spacing_in_meter/1000;
-			uint16 spacing_dec=spacing_in_meter/100;
-			spacing_dec=spacing_dec%10;
+			uint32 spacing_km = spacing_in_meter / 1000;
+			uint32 spacing_dec = spacing_in_meter / 100;
+			spacing_dec = spacing_dec % 10;
 			sprintf(level_str, "%i.%ikm", spacing_km, spacing_dec);
 		}
 		display_proportional( k.x+2, k.y+2, level_str, ALIGN_LEFT, COL_YELLOW, true );
@@ -5727,10 +5727,10 @@ void tool_build_roadsign_t::read_default_param(player_t * player)
 		int i_y							  = s.signalbox.y;
 		int i_z							  = s.signalbox.z;
 		sscanf(default_param+i, ",%d,%d,%d,%d,%d,%d,%d", &i_signal_spacing, &i_remove_intermediate_signals, &i_replace_other_signals, &i_place_backward_signals, &i_x, &i_y, &i_z);
-		s.spacing             = (uint8)i_signal_spacing;
-		s.remove_intermediate = i_remove_intermediate_signals != 0;
-		s.replace_other       = i_replace_other_signals       != 0;
-		s.place_backward       = i_place_backward_signals       != 0;
+		s.spacing						= (uint16)i_signal_spacing;
+		s.remove_intermediate			= i_remove_intermediate_signals != 0;
+		s.replace_other					= i_replace_other_signals       != 0;
+		s.place_backward				= i_place_backward_signals       != 0;
 		s.signalbox.x = i_x;
 		s.signalbox.y = i_y;
 		s.signalbox.z = i_z;
@@ -5966,7 +5966,7 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 /*
  * Called by the GUI (gui/signal_spacing.*)
  */
-void tool_build_roadsign_t::set_values( player_t *player, uint8 spacing, bool remove, bool replace, bool backward, koord3d signalbox )
+void tool_build_roadsign_t::set_values( player_t *player, uint16 spacing, bool remove, bool replace, bool backward, koord3d signalbox )
 {
 	signal_info& s = signal[player->get_player_nr()];
 	s.spacing             = spacing;
@@ -5977,7 +5977,7 @@ void tool_build_roadsign_t::set_values( player_t *player, uint8 spacing, bool re
 }
 
 
-void tool_build_roadsign_t::get_values( player_t *player, uint8 &spacing, bool &remove, bool &replace, bool &backward, koord3d &signalbox )
+void tool_build_roadsign_t::get_values( player_t *player, uint16 &spacing, bool &remove, bool &replace, bool &backward, koord3d &signalbox )
 {
 	signal_info &s = signal[player->get_player_nr()];
 	spacing = s.spacing;
