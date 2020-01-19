@@ -3567,7 +3567,7 @@ The vehicle's axle load is %it, but the maximum is %it
 double_block_signal
 Double block signal
 this_signal_will_not_clear_until_next_signal_is_clear
-This signal will not clear until next signal is clear
+This signal will not clear until the next signal is clear
 transferring
 transferring
 transfers

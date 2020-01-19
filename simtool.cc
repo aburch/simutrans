@@ -7515,15 +7515,15 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 		gb = gb->access_first_tile();
 	}
 	const signalbox_t* sb_end;
-	if(gb && gb->get_tile()->get_desc()->is_signalbox())
+	if (gb && gb->get_tile()->get_desc()->is_signalbox())
 	{
 		sb_end = (signalbox_t*)gb;
-		if(!(sb_end->get_owner() == player))
+		if (!(sb_end->get_owner() == player))
 		{
 			error = "Cannot transfer signals to a signalbox belonging to another player.";
 			return 0;
 		}
-			if(!sb_end->can_add_more_signals())
+		if (!sb_end->can_add_more_signals())
 		{
 			error = "Cannot transfer any signals to this signalbox: it does not have any spare capacity for more signals.";
 			return 0;
@@ -7570,6 +7570,20 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 	if(!sig && !sb_end)
 	{
 		error = "";
+	}
+
+	// Check that the destination signalbox is in range of the signal
+	const uint32 distance = shortest_distance(sig->get_pos().get_2d(), sb_end->get_pos().get_2d()) * welt->get_settings().get_meters_per_tile();
+	if (distance > sb_end->get_tile()->get_desc()->get_radius())
+	{
+		error = "Cannot build any signal beyond the maximum radius of the currently selected signalbox.";
+		return 0;
+	}
+
+	if (distance > sig->get_desc()->get_max_distance_to_signalbox())
+	{
+		error = "Cannot build this signal this far beyond any signalbox.";
+		return 0;
 	}
 
 	if(is_valid_start)
