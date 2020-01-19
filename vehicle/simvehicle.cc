@@ -7051,15 +7051,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		}
 
 		ribi_t::ribi direction = ribi_type(route->at(max(1u,start_index)-1u), route->at(min(route->get_count()-1u,start_index+1u)));
-		if(working_method == token_block && success == false)
+		if((working_method == token_block || working_method == one_train_staff) && success == false)
 		{
 			cnv->unreserve_route();
-			schiene_t* front = (schiene_t*)welt->lookup(get_pos())->get_weg(get_waytype());
-			schiene_t* rear = (schiene_t*)welt->lookup(cnv->back()->get_pos())->get_weg(get_waytype());
-			front->reserve(cnv->self, direction);
-			rear->reserve(cnv->self, direction);
+			cnv->reserve_own_tiles();
 		}
-		else if(curtailment_index < i && working_method != one_train_staff)
+		else if(curtailment_index < i)
 		{
 			const halthandle_t halt_current = haltestelle_t::get_halt(get_pos(), get_owner());
 			for(uint32 j = curtailment_index; j < route->get_count(); j++)
