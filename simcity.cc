@@ -749,9 +749,15 @@ sint32 stadt_t::bewerte_pos(const koord pos, const rule_t &regel)
 
 bool stadt_t::maybe_build_road(koord k, bool map_generation)
 {
+	karte_t::runway_info ri = welt->check_nearby_runways(k);
+	if (ri.pos != koord::invalid)
+	{
+		return false;
+	}
+
 	best_strasse.reset(k);
 	const uint32 num_road_rules = road_rules.get_count();
-	uint32 offset = simrand(num_road_rules, "void stadt_t::build");	// start with random rule
+	uint32 offset = simrand(num_road_rules, "bool stadt_t::maybe_build_road");	// start with random rule
 	for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
 		uint32 rule = ( i+offset ) % num_road_rules;
 		sint32 rd = 8 + road_rules[rule]->distribution_weight;
@@ -5488,6 +5494,14 @@ void stadt_t::build(bool new_town, bool map_generation)
 				return;
 			}
 			// not good for road => test for house
+
+			// Do not build next to a runway
+			karte_t::runway_info ri = welt->check_nearby_runways(k);
+			if (ri.pos != koord::invalid)
+			{
+				candidates.remove_at(idx, false);
+				continue;
+			}
 
 			// we can stop after we have found a positive rule
 			best_haus.reset(k);
