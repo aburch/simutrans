@@ -1697,3 +1697,4 @@ signal_t *weg_t::get_signal(ribi_t::ribi direction_of_travel) const
 	}
 	else return NULL;
 }
+

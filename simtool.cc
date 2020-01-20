@@ -130,6 +130,8 @@ char *tooltip_with_price_and_distance(const char * tip, sint64 price, uint32 dis
 	return tool_t::toolstr;
 }
 
+
+
 // TODO: merge this into building_layout defined in simcity.cc
 static int const building_layout[] = { 0, 0, 1, 4, 2, 0, 5, 1, 3, 7, 1, 0, 6, 3, 2, 0 };
 
@@ -2573,16 +2575,40 @@ waytype_t tool_build_way_t::get_waytype() const
 	return invalid_wt;
 }
 
+
 uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, const char *&error, const koord3d & )
 {
 	error = NULL;
 	grund_t *gr=welt->lookup(pos);
-	if(  gr  &&  slope_t::is_way(gr->get_weg_hang())  ) {
+	uint8 positive_return = 2; 
+	if(  gr  &&  slope_t::is_way(gr->get_weg_hang())  )
+	{
+		// Check for the runway exclusion zone.
+		karte_t::runway_info ri = welt->check_nearby_runways(gr->get_pos().get_2d());
+		if (ri.pos != koord::invalid)
+		{
+			// There is a nearby runway. Only build if we are a runway in the same direction connecting to it,
+			// or a perpendicular taxiway.
+
+			if (desc->get_waytype() != air_wt)
+			{
+				error = "This cannot be built next to a runway.";
+				return 0;
+			}
+			else
+			{
+				// We cannot detect the direciton here, so just signal
+				// that we need to consider this and return.
+				positive_return = 3;
+			}
+		}
 
 		bool const elevated = desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt;
 		// ignore water
-		if(  desc->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser  ) {
-			if(  !elevated  ||  welt->lookup_hgt( pos.get_2d() ) < welt->get_water_hgt( pos.get_2d() )  ) {
+		if(  desc->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser  )
+		{
+			if(  !elevated  ||  welt->lookup_hgt( pos.get_2d() ) < welt->get_water_hgt( pos.get_2d() )  ) 
+			{
 				return 0;
 			}
 			// here either channel or elevated way over not too deep water
@@ -2592,7 +2618,6 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 		{
 			// Also check for large buildings below
 			grund_t* gr_below = welt->lookup_kartenboden(pos.get_2d());
-			const koord TEST_pos = pos.get_2d();
 			if (gr_below) 
 			{
 				if (const gebaeude_t* gb = gr_below->get_building())
@@ -2608,7 +2633,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 			gr = welt->lookup( pos + koord3d( 0, 0, welt->get_settings().get_way_height_clearance() ) );
 			if(  gr == NULL  ) 
 			{
-				return 2;
+				return positive_return;
 			}
 			if(  gr->get_typ() != grund_t::monorailboden  ) 
 			{
@@ -2623,17 +2648,17 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 			// allow to connect to any road, or anywhere where the player has been granted access rights.
 			if(desc->get_wtyp() == road_wt || way->get_owner() == NULL || way->get_owner()->allows_access_to(player->get_player_nr()))
 			{
-				return 2;
+				return positive_return;
 			}
 			error = way-> is_deletable(player);
-			return error==NULL ? 2 : 0;
+			return error==NULL ? positive_return : 0;
 		}
 		leitung_t* lt = gr->get_leitung();
 		if(lt)
 		{
 			if(!lt->get_owner() || lt->get_owner()->allows_access_to(player->get_player_nr()))
 			{
-				return 2;
+				return positive_return;
 			}
 		}
 		// check for ownership but ignore moving things
@@ -2650,7 +2675,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 	else {
 		return 0;
 	}
-	return 2;
+	return positive_return;
 }
 
 void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start, const koord3d &end )

@@ -75,6 +75,8 @@
 #include "obj/gebaeude.h"
 #include "obj/leitung2.h"
 
+#include "boden/wege/runway.h"
+
 #include "gui/password_frame.h"
 #include "gui/messagebox.h"
 #include "gui/help_frame.h"
@@ -11427,4 +11429,27 @@ sint64 karte_t::calc_monthly_job_demand() const
 {
 	sint64 value = (get_finance_history_month(0, karte_t::WORLD_CITICENS) * get_settings().get_commuting_trip_chance_percent()) / get_settings().get_passenger_trips_per_month_hundredths();
 	return value;
+}
+
+karte_t::runway_info karte_t::check_nearby_runways(koord pos)
+{
+	runway_info ri;
+	ri.pos = koord::invalid;
+	ri.direction = ribi_t::none;
+	for (uint8 i = 0; i < 8; i++)
+	{
+		const grund_t* const gr = lookup_kartenboden(pos + koord::neighbours[i]);
+		if (!gr)
+		{
+			continue;
+		}
+		runway_t* rw = (runway_t*)gr->get_weg(air_wt);
+		if (rw && rw->get_desc()->get_styp() == type_runway)
+		{
+			ri.pos = gr->get_pos().get_2d();
+			// We must iterate through all directions in case there are multiple runways.
+			ri.direction |= rw->get_ribi_unmasked();
+		}
+	}
+	return ri;
 }

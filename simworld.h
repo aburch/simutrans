@@ -1856,6 +1856,9 @@ public:
 	*/
 	void add_to_waiting_list(ware_t ware, koord origin_pos);
 
+	struct runway_info { ribi_t::ribi direction; koord pos; };
+	runway_info check_nearby_runways(koord pos);
+
 #ifdef MULTI_THREAD
 	/**
 	* Initialise threads
