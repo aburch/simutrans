@@ -1856,8 +1856,13 @@ public:
 	*/
 	void add_to_waiting_list(ware_t ware, koord origin_pos);
 
+	/**
+	* Helper methods used for runway construction to check
+	* the exclusion zone of 1 tile around a runway.
+	*/
 	struct runway_info { ribi_t::ribi direction; koord pos; };
 	runway_info check_nearby_runways(koord pos);
+	bool check_neighbouring_objects(koord pos);
 
 #ifdef MULTI_THREAD
 	/**

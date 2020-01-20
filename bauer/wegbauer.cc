@@ -703,6 +703,15 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		}
 	}
 
+	if (desc->get_waytype() == air_wt && desc->get_styp() == type_runway)
+	{
+		// This is itself a runway. Do not build next to neighbouring objects.
+		if (!welt->check_neighbouring_objects(to_pos))
+		{
+			return false;
+		}
+	}
+
 	// universal check for elevated things ...
 	if(bautyp & elevated_flag)
 	{

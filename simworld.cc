@@ -11453,3 +11453,25 @@ karte_t::runway_info karte_t::check_nearby_runways(koord pos)
 	}
 	return ri;
 }
+
+bool karte_t::check_neighbouring_objects(koord pos)
+{
+	for (uint8 i = 0; i < 8; i++)
+	{
+		const grund_t* const gr = lookup_kartenboden(pos + koord::neighbours[i]);
+		if (!gr)
+		{
+			continue;
+		}
+		if (gr->get_building() || gr->ist_bruecke() || gr->is_halt() || gr->get_depot() || gr->get_signalbox())
+		{
+			return false;
+		}
+		if (gr->get_weg(road_wt) || gr->get_weg(track_wt) || gr->get_weg(water_wt) || gr->get_weg(overheadlines_wt) || gr->get_weg(monorail_wt) || gr->get_weg(maglev_wt) || gr->get_weg(narrowgauge_wt) || gr->get_weg(noise_barrier_wt) || gr->get_weg(powerline_wt))
+		{
+			// Exclude all but air types
+			return false;
+		}
+	}
+	return true;
+}
