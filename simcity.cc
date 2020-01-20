@@ -5605,7 +5605,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 		for (pos.x = 2; pos.x < wl_size.x-2; pos.x++ ) {
 			koord my_grid_pos(pos.x/grid_step, pos.y/grid_step);
 			grund_t *gr = wl->lookup_kartenboden(pos);
-			if ( gr->get_hoehe() <= wl->get_groundwater()  || ( gr->hat_weg(water_wt) && gr->get_max_speed() )  ) {
+			if ( gr->get_hoehe() <= wl->get_groundwater()  || ( gr->hat_weg(water_wt) && gr->get_weg(water_wt)->get_max_speed() && gr->get_weg(water_wt)->get_max_axle_load() )  ) {
 				koord dpos;
 				for ( dpos.y = -4; dpos.y < 5; dpos.y++) {
 					for ( dpos.x = -4; dpos.x < 5 ; dpos.x++) {
