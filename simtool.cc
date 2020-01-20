@@ -3125,6 +3125,13 @@ uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 	const waytype_t wt = desc->get_waytype();
 
 	error = NULL;
+
+	karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+	if (ri.pos != koord::invalid)
+	{
+		return 0;
+	}
+
 	grund_t *gr = welt->lookup(pos);
 	if(  gr==NULL  ||  !slope_t::is_way(gr->get_grund_hang())  ||  !bridge_builder_t::can_place_ramp( player, gr, wt, (is_first_click() ? 0 : ribi_type(pos-start)) )  ) {
 		return 0;
@@ -3411,7 +3418,13 @@ uint8 tool_build_tunnel_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 		return 2;
 	}
 	// .. otherwise build tunnel mouths (and tunnel behind)
-	else {
+	else 
+	{
+		karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+		if (ri.pos != koord::invalid)
+		{
+			return 0;
+		}
 		return 1;
 	}
 }
@@ -4098,7 +4111,13 @@ const char *tool_build_station_t::tool_station_building_aux(player_t *player, bo
 	{
 		return "";
 	}
-DBG_MESSAGE("tool_station_building_aux()", "building post office/station building on square %d,%d", k.x, k.y);
+	DBG_MESSAGE("tool_station_building_aux()", "building post office/station building on square %d,%d", k.x, k.y);
+
+	karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+	if (ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
+	}
 
 	// Player player pays for the construction
 	// but we try to extend stations of Player new_owner that may be the public player
@@ -4349,6 +4368,14 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 {
 	// the cursor cannot be outside the map from here on
 	const koord& k = pos.get_2d();
+
+	karte_t::runway_info ri = welt->check_nearby_runways(k);
+	if (ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
+	}
+
+
 	grund_t *gr = welt->lookup_kartenboden(k);
 	if (gr->get_hoehe()!= pos.z) {
 		return "";
@@ -4591,6 +4618,13 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 {
 	// the cursor cannot be outside the map from here on
 	koord k = pos.get_2d();
+
+	karte_t::runway_info ri = welt->check_nearby_runways(k);
+	if (ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
+	}
+
 	grund_t *gr = welt->lookup_kartenboden(k);
 	if (gr->get_hoehe()!= pos.z) {
 		return "";
@@ -4845,6 +4879,13 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 const char *tool_build_station_t::tool_station_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype, const char *type_name )
 {
 	const koord& k = pos.get_2d();
+
+	karte_t::runway_info ri = welt->check_nearby_runways(k);
+	if (ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
+	}
+
 DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", desc->get_name(), k.x, k.y, wegtype);
 	const char *p_error=(desc->get_all_layouts()==4) ? "No terminal station here!" : "No through station here!";
 
@@ -5382,7 +5423,13 @@ waytype_t tool_build_station_t::get_waytype() const
 
 const char *tool_build_station_t::check_pos( player_t*,  koord3d pos )
 {
-	if(  grund_t *gr = welt->lookup( pos )  ) {
+	if(  grund_t *gr = welt->lookup( pos )  ) 
+	{
+		karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+		if (ri.pos != koord::invalid)
+		{
+			return "This cannot be built next to a runway.";
+		}
 		sint8 rotation;
 		const building_desc_t *desc = get_desc(rotation);
 		if(  grund_t *bd = welt->lookup_kartenboden( pos.get_2d() )  ) {
@@ -6206,6 +6253,13 @@ built_sign:
 // Build signalboxes
 const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, const building_desc_t* desc, sint64 cost)
 {
+
+	karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+	if (ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
+	}
+
 	if (cost == PRICE_MAGIC)
 	{
 		cost = -welt->get_settings().cst_multiply_station * desc->get_level();
@@ -6444,6 +6498,12 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
+	karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+	if (ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
+	}
+
 	if(welt->is_within_limits(pos.get_2d())) {
 		grund_t *bd=NULL;
 		// special for the seven seas ...
@@ -6638,6 +6698,12 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 		return "";
 	}
 
+	karte_t::runway_info ri = welt->check_nearby_runways(k);
+	if (ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
+	}
+
 	// Parsing parameter (if there)
 	const building_desc_t *desc = NULL;
 	if (!strempty(default_param)) {
@@ -6748,6 +6814,12 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 	const grund_t* gr = welt->lookup_kartenboden(pos.get_2d());
 	if(gr==NULL) {
 		return "";
+	}
+
+	karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+	if (ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
 	}
 
 	const factory_desc_t *fab = NULL;
@@ -7090,6 +7162,12 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 		return "";
 	}
 
+	karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+	if (ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
+	}
+
 	koord size = desc->get_size();
 	sint64 const cost = welt->get_settings().cst_multiply_headquarter * desc->get_level() * size.x * size.y;
 	if(! player_t::can_afford(player, -cost) ) {
@@ -7252,9 +7330,14 @@ const char *tool_add_citycar_t::work( player_t *player, koord3d pos )
 }
 
 
-uint8 tool_forest_t::is_valid_pos( player_t *, const koord3d &, const char *&, const koord3d & )
+uint8 tool_forest_t::is_valid_pos( player_t *, const koord3d &pos, const char *&, const koord3d & )
 {
-	// do really nothing ...
+	// No building of trees next to runways
+	karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+	if (ri.pos != koord::invalid)
+	{
+		return 0;
+	}
 	return 2;
 }
 
