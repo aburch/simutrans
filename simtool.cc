@@ -6193,7 +6193,11 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 					}
 					// Check whether we can add the signal or whether the signalbox is out of capacity
 					signalbox_t* sb = NULL;
-					gebaeude_t* gb = welt->lookup(signal[player->get_player_nr()].signalbox)->get_building();
+					gebaeude_t* gb = NULL;
+					if (desc->get_signal_group())
+					{
+						gb = welt->lookup(signal[player->get_player_nr()].signalbox)->get_building();
+					}
 					if (gb && gb->get_tile()->get_desc()->is_signalbox())
 					{
 						sb = (signalbox_t*)gb;
