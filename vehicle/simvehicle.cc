@@ -4915,7 +4915,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				set_working_method(drive_by_sight);
 				exiting_one_train_staff = true;
 			}
-			else
+			else if(first_pos != koord3d::invalid)
 			{
 				nonadjacent_one_train_staff_cabinet = true;
 			}
@@ -4930,7 +4930,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		{
 			// Ignore cabinets distant from the triggering cabinet
 			const koord3d first_pos = cnv->get_last_signal_pos();
-			if (shortest_distance(get_pos().get_2d(), first_pos.get_2d()) >= 3)
+			if (first_pos != koord3d::invalid && shortest_distance(get_pos().get_2d(), first_pos.get_2d()) >= 3)
 			{
 				nonadjacent_one_train_staff_cabinet = true;
 				signal_current = NULL;
@@ -4993,7 +4993,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				{
 					break;
 				}
-				else
+				else if (first_pos != koord3d::invalid)
 				{
 					nonadjacent_one_train_staff_cabinet = true;
 				}
@@ -5618,7 +5618,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			{
 				cnv->set_next_stop_index(next_signal);
 			}
-			else
+			else if(first_pos != koord3d::invalid)
 			{
 				nonadjacent_one_train_staff_cabinet = true;
 			}
@@ -6136,7 +6136,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							first_one_train_staff_index = i;
 						}
-						else if (working_method == one_train_staff)
+						else if (working_method == one_train_staff && first_pos != koord3d::invalid)
 						{
 							this_signal_is_nonadjacent_one_train_staff_cabinet = true;
 						}
@@ -6150,7 +6150,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							one_train_staff_loop_complete = true;
 						}
-						else
+						else if(first_pos != koord3d::invalid)
 						{
 							// Any non-adjacent one train staff cabinets should be ignored,
 							// or else the one train staff method effectively becomes token block.
