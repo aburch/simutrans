@@ -427,6 +427,7 @@ public:
 
 	static sint16 global_volume, midi_volume;
 	static bool mute_sound, mute_midi, shuffle_midi;
+	static std::string midi_command;
 
 	/// @}
 

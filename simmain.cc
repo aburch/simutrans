@@ -459,6 +459,7 @@ int simu_main(int argc, char** argv)
 			" -mute               mute all sounds\n"
 			" -noaddons           does not load any addon (default)\n"
 			" -nomidi             turns off background music\n"
+			" -midicmd COMMAND    set external midi command.(default environment variable SIMUTRANS_MIDI_CMD)\n"
 			" -nosound            turns off ambient sounds\n"
 			" -objects DIR_NAME/  load the pakset in specified directory\n"
 			" -pause              starts game with paused after loading\n"
@@ -978,7 +979,10 @@ int simu_main(int argc, char** argv)
 			env_t::default_settings.set_with_private_paks( false );
 		}
 	}
-
+	// Set external midi command.
+	if(const char *  midi_cmd = gimme_arg(argc, argv, "-midicmd", 1) ) {
+			env_t::default_settings.set_midi_command( midi_cmd );
+	}
 	// parse ~/simutrans/pakxyz/config.tab"
 	if(  env_t::default_settings.get_with_private_paks()  ) {
 		obj_conf = string(env_t::user_dir) + "addons/" + env_t::objfilename + "config/simuconf.tab";

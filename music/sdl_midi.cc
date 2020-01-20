@@ -12,10 +12,13 @@
 
 #include "../simdebug.h"
 #include "../utils/plainstring.h"
+#include "../dataobj/environment.h"
+#include "../dataobj/settings.h"
 #include "music.h"
 
 static int         midi_number = -1;
 static plainstring midi_filenames[MAX_MIDI];
+static char *ext_cmd_name = NULL;
 
 //Mix_Music *music[MAX_MIDI];
 Mix_Music *music = NULL;
@@ -65,7 +68,16 @@ void dr_play_midi(int key)
 		dr_stop_midi();
 	}
 	music = Mix_LoadMUS(midi_filenames[key]);
-	Mix_PlayMusic(music, 1);
+	/*
+	 * If error on loading MIDI with external CMD, use internal MIDI decoder.
+	 */
+	if(	Mix_PlayMusic(music, 1) != 0 && ext_cmd_name != NULL) {
+		Mix_SetMusicCMD(NULL);
+		dbg->warning( "dr_play_midi()", "Failed to execute external MIDI PLAYER because %s, using fallback internal player.", ext_cmd_name, Mix_GetError() );
+		ext_cmd_name = NULL;
+		music = Mix_LoadMUS(midi_filenames[key]);
+		Mix_PlayMusic(music, 1);
+	}
 }
 
 
@@ -130,5 +142,24 @@ bool dr_init_midi(void)
 		}
 	}
 	//if all is fine, return true
+	const char *arg_midi_cmd = env_t::default_settings.get_midi_command();
+	if(arg_midi_cmd != NULL) {
+		if(strlen(arg_midi_cmd) > 0) {
+			if(Mix_SetMusicCMD(arg_midi_cmd) != -1) {
+				ext_cmd_name = (char *)arg_midi_cmd;
+			}
+		}
+	}
+	if(ext_cmd_name == NULL) {
+		ext_cmd_name = SDL_getenv((const char *)"SIMUTRANS_MIDI_CMD");
+	}
+	if(ext_cmd_name != NULL && strlen(ext_cmd_name) > 0) {
+		if(Mix_SetMusicCMD(ext_cmd_name) == 0) {
+			DBG_MESSAGE("simmain", "Using \"%s\" instead of internal player.\n", ext_cmd_name);
+			return true;
+		}
+	} else {
+		Mix_SetMusicCMD(NULL);
+	}
 	return true;
 }
