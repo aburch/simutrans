@@ -352,49 +352,40 @@ void main_view_t::display(bool force_dirty)
 		sprintf(jump_frame_t::auto_jump_countdown_char, "%ld", (jump_frame_t::auto_jump_interval - (time(NULL) - jump_frame_t::auto_jump_base_time)));
 		if( time(NULL) - jump_frame_t::auto_jump_base_time >= jump_frame_t::auto_jump_interval ) {
 			jump_frame_t::auto_jump_base_time = time(NULL);
-			uint32 rnd = simrand(2);
-			if ( rnd == 0 )
-			{
-				koord my_pos;
-				uint32 halt_count = haltestelle_t::get_alle_haltestellen().get_count();
-				if ( halt_count != 0)
+
+			uint32 halt_count = haltestelle_t::get_alle_haltestellen().get_count();
+			uint32 no_depot_cnv = 0;
+			FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
+				if (!cnv->in_depot())
 				{
-					uint32 rand_selection = simrand(halt_count);
-					uint32 counter = 0;
-					FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
-						if ( rand_selection == counter )
-						{
-							my_pos = halt->get_init_pos();
-						}
-						counter++;
-					}
-					dbg->message( "auto_jump", "Jump to %d, %d", my_pos.x, my_pos.y);
-					welt->get_viewport()->change_world_position(koord3d(my_pos,welt->min_hgt(my_pos)));
+					no_depot_cnv++;
 				}
 			}
-			else if ( rnd == 1 )
-			{
-				uint32 no_depot_cnv = 0;
+
+			if( halt_count + no_depot_cnv != 0 ) {
+				uint32 rnd = rand() % ( halt_count + no_depot_cnv );
+
+				koord my_pos;
+				uint32 counter = 0;
+				FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
+					if ( rnd == counter )
+					{
+						my_pos = halt->get_init_pos();
+					}
+					counter++;
+				}
+				dbg->message( "auto_jump", "Jump to %d, %d", my_pos.x, my_pos.y);
+				welt->get_viewport()->change_world_position(koord3d(my_pos,welt->min_hgt(my_pos)));
+
 				FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
 					if (!cnv->in_depot())
 					{
-						no_depot_cnv++;
-					}
-				}
-				if ( no_depot_cnv != 0 )
-				{
-					uint32 rand_selection = simrand(no_depot_cnv);
-					uint32 counter = 0;
-					FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
-						if (!cnv->in_depot())
+						if ( rnd == counter )
 						{
-							if ( rand_selection == counter )
-							{
-								dbg->message( "auto_jump", "follow convoi %s", cnv->get_name());
-								welt->get_viewport()->set_follow_convoi(cnv);
-							}
-							counter++;
+							dbg->message( "auto_jump", "follow convoi %s", cnv->get_name());
+							welt->get_viewport()->set_follow_convoi(cnv);
 						}
+						counter++;
 					}
 				}
 			}
