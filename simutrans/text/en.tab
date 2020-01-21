@@ -1649,7 +1649,7 @@ heath
 %d convois
 %d convoys
 %d Einzelfahrzeuge im Depot
-%d vehicles stored here.
+%d vehicles are stored here.
 %i km/h (max. %ikm/h)
 %i km/h (max. %ikm/h)
 %s building %s %s
@@ -3954,3 +3954,35 @@ place signals backward
 Place signals backwards
 This cannot be built next to a runway.
 This cannot be built next to a runway.
+LOCO_SYM
+L
+helptxt_one_direction
+Unidirectional vehicle
+helptxt_cab_head
+Driving vehicle
+helptxt_can_be_at_rear
+End vehicle
+helptxt_intermediate
+Intermediate vehicle
+#helptxt_fixed_outside_depot
+#Non-uncouplable vehicle
+#helptxt_permanent_couple
+#Multi-part vehicle (cannot be split)
+helptxt_powered_vehicle
+Powered vehicle
+helptxt_unpowered_vehicle
+Unpowered vehicle
+Select vehicles to make up a convoy
+Select vehicles to make up a convoy
+Vehicle bar shape legend:
+Legend:
+cd_spec_tab
+Spec
+cd_cargo_tab
+Cargo
+cd_maintenance_tab
+Maintenance
+No load setting
+No load setting
+Applied livery scheme: %s
+Applied livery scheme: %s
