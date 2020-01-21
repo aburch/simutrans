@@ -7793,6 +7793,12 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 		if(sb_end && building_sb && building_sb->get_tile()->get_desc()->is_signalbox())
 		{
 			sb = (signalbox_t*)building_sb;
+			if (sb_end == sb)
+			{
+				// Do not attempt a transfer when origin and destination are identical;
+				// this requires no error message.
+				return "";
+			}
 			if(sb_end->transfer_signal(sig, sb))
 			{
 				return "";
