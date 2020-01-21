@@ -5219,17 +5219,15 @@ void convoi_t::open_schedule_window( bool show )
 	if (schedule)
 	{
 		old_schedule = schedule->copy();
+	} else {
+		schedule = create_schedule();
 	}
-
 	if(  show  ) {
 		// Open schedule dialog
 		create_win( new schedule_gui_t(schedule,get_owner(),self), w_info, (ptrdiff_t)schedule );
 		// TODO: what happens if no client opens the window??
 	}
-	if(schedule)
-	{
-		schedule->start_editing();
-	}
+	schedule->start_editing();
 }
 
 
