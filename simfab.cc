@@ -1710,7 +1710,7 @@ void fabrik_t::smoke() const
 	// maybe sound?
 	if (!world()->is_fast_forward() && desc->get_sound() != NO_SOUND && (welt->get_ticks() > (last_sound_ms + desc->get_sound_interval_ms())))
 	{
-		welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound());
+		welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound(), noise_barrier_wt);
 		// The below does not work because this is const - but without this, the whole sound interval does not work.
 		//last_sound_ms = welt->get_ticks();
 	}

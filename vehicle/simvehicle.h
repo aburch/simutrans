@@ -320,10 +320,6 @@ private:
 	uint16 diagonal_costs;
 	uint16 base_costs;
 
-public:
-
-	static sint64 sound_ticks;
-
 protected:
 	virtual void hop(grund_t*);
 
@@ -378,7 +374,7 @@ protected:
 	bool check_access(const weg_t* way) const;
 
 public:
-	sint32 calc_speed_limit(const weg_t *weg, const weg_t *weg_previous, fixed_list_tpl<sint16, 192>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction);
+	sint32 calc_speed_limit(const weg_t *weg, const weg_t *weg_previous, fixed_list_tpl<sint16, 192>* cornering_data, uint32 bridge_tiles, ribi_t::ribi current_direction, ribi_t::ribi previous_direction);
 
 	virtual bool check_next_tile(const grund_t* ) const {return false;}
 

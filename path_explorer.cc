@@ -811,8 +811,6 @@ void path_explorer_t::compartment_t::step()
 				all_halts_list[i] = *halt_iter;
 				++halt_iter;
 
-				connexion_list[ all_halts_list[i].get_id() ].connexion_table = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
-
 				// Connect halts within walking distance of each other (for passengers only)
 				// @author: jamespetts, July 2011
 
@@ -1290,6 +1288,8 @@ void path_explorer_t::compartment_t::step()
 
 				// transfer the value of the serving transport counter
 				current_halt->set_schedule_count( catg, g_class, max_classes, connexion_list[ current_halt.get_id() ].serving_transport );
+
+				// Delete the contents of the old connexion_table; we then reuse the empty table for the next catg/class
 				reset_connexion_entry( current_halt.get_id() );
 
 				++phase_counter;
@@ -2042,6 +2042,8 @@ void path_explorer_t::compartment_t::initialise_connexion_list()
 {
 	for (uint32 i = 0; i < 65536; ++i)
 	{
+		// Note that the connexion_tables created here will be
+		// swapped with connexion_tables created/stored in halts.
 		connexion_list[i].connexion_table = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
 		connexion_list[i].serving_transport = 0;
 	}

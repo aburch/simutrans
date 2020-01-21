@@ -1174,10 +1174,11 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 		start_info.direction = front.get_direction();
 		start_info.steps_from_start = 0;
 		const weg_t *current_weg = get_weg_on_grund(welt->lookup(current_tile), waytype);
-		start_info.speed_limit = front.calc_speed_limit(current_weg, NULL, &corner_data, start_info.direction, start_info.direction);
+		start_info.speed_limit = front.calc_speed_limit(current_weg, NULL, &corner_data, get_tile_length(), start_info.direction, start_info.direction);
 
 		sint32 takeoff_index = front.get_takeoff_route_index();
 		sint32 touchdown_index = front.get_touchdown_route_index();
+		uint32 bridge_tiles = 0;
 		for (i++; i < route_count; i++)
 		{
 			convoi_t::route_info_t &current_info = route_infos.get_element(i - 1);
@@ -1186,12 +1187,37 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 			const koord3d next_tile = route.at(min(i + 1, route_count - 1));
 			this_info.speed_limit = welt->lookup_kartenboden(this_tile.get_2d())->is_water() ? vehicle_t::speed_unlimited() : kmh_to_speed(950); // Do not alow supersonic flight over land.
 			this_info.steps_from_start = current_info.steps_from_start + front.get_tile_steps(current_tile.get_2d(), next_tile.get_2d(), this_info.direction);
-			const weg_t *this_weg = get_weg_on_grund(welt->lookup(this_tile), waytype);
+			const grund_t* this_gr = welt->lookup(this_tile);
+			const weg_t *this_weg = get_weg_on_grund(this_gr, waytype);
+			uint32 bridge_tiles_ahead = 0;
+			if (this_gr && this_gr->ist_bruecke())
+			{
+				bridge_tiles++;
+				
+				for (uint32 j = i + 1; j < route_count; j++)
+				{
+					const koord3d tile = route.at(j);
+					const grund_t* gr = welt->lookup(tile); 
+					if (gr && gr->ist_bruecke())
+					{
+						bridge_tiles_ahead++;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			else
+			{
+				bridge_tiles = 0;
+			}
+
 			if (i >= touchdown_index || i <= takeoff_index)
 			{
 				// not an aircraft (i <= takeoff_index == INVALID_INDEX == 65530u) or
 				// aircraft on ground (not between takeoff_index and touchdown_index): get speed limit
-				current_info.speed_limit = this_weg ? front.calc_speed_limit(this_weg, current_weg, &corner_data, this_info.direction, current_info.direction) : vehicle_t::speed_unlimited();
+				current_info.speed_limit = this_weg ? front.calc_speed_limit(this_weg, current_weg, &corner_data, bridge_tiles + bridge_tiles_ahead, this_info.direction, current_info.direction) : vehicle_t::speed_unlimited();
 			}
 			current_tile = this_tile;
 			current_weg = this_weg;
@@ -2252,7 +2278,7 @@ end_loop:
 				rev = !reverse_schedule;
 				schedule->increment_index(&position, &rev);
 				halthandle_t this_halt = haltestelle_t::get_halt(front()->get_pos(), owner);
-				if (this_halt == haltestelle_t::get_halt(schedule->entries[position].pos, owner))
+				if (this_halt.is_bound() && this_halt == haltestelle_t::get_halt(schedule->entries[position].pos, owner))
 				{
 					// Load any newly arrived passengers/mail bundles/goods while waiting for a signal to clear.
 					laden();
@@ -2443,6 +2469,16 @@ void convoi_t::new_month()
 		return;
 	}
 
+	// everything normal: update history
+	for (int j = 0; j<MAX_CONVOI_COST; j++)
+	{
+		for (int k = MAX_MONTHS-1; k>0; k--)
+		{
+			financial_history[k][j] = financial_history[k-1][j];
+		}
+		financial_history[0][j] = 0;
+	}
+
 	// Deduct monthly fixed maintenance costs.
 	// @author: jamespetts
 	sint64 monthly_cost = 0;
@@ -2452,8 +2488,6 @@ void convoi_t::new_month()
 		monthly_cost -= get_vehicle(j)->get_desc()->get_fixed_cost(welt);
 	}
 	jahresgewinn += monthly_cost;
-	book( monthly_cost, CONVOI_OPERATIONS );
-	book( monthly_cost, CONVOI_PROFIT );
 	// This is way too tedious a way to get my waytype...
 	waytype_t my_waytype;
 	if (get_schedule()) {
@@ -2466,16 +2500,9 @@ void convoi_t::new_month()
 		my_waytype = ignore_wt;
 	}
 	get_owner()->book_vehicle_maintenance(monthly_cost, my_waytype);
-
-	// everything normal: update history
-	for (int j = 0; j<MAX_CONVOI_COST; j++)
-	{
-		for (int k = MAX_MONTHS-1; k>0; k--)
-		{
-			financial_history[k][j] = financial_history[k-1][j];
-		}
-		financial_history[0][j] = 0;
-	}
+	monthly_cost = welt->calc_adjusted_monthly_figure(monthly_cost);
+	book(monthly_cost, CONVOI_OPERATIONS);
+	book(monthly_cost, CONVOI_PROFIT);
 
 	if(financial_history[1][CONVOI_AVERAGE_SPEED] == 0)
 	{

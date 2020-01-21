@@ -18,14 +18,16 @@ class player_t;
 class signal_spacing_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	static uint8 signal_spacing;
-	static bool remove, replace;
+	static uint16 signal_spacing;
+	uint32 signal_spacing_meter;
+	static bool remove, replace, backward;
 	static koord3d signalbox;
 	player_t *player;
 	tool_build_roadsign_t* tool;
 	gui_numberinput_t signal_spacing_inp;
 	gui_label_t signal_label;
-	button_t remove_button, replace_button;
+	gui_label_t meter_label;
+	button_t remove_button, replace_button, backward_button;
 
 public:
 	signal_spacing_frame_t( player_t *, tool_build_roadsign_t * );

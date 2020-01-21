@@ -164,6 +164,34 @@ growthfactor_villages = 400
 growthfactor_cities = 200
 growthfactor_capitals = 100
 
+# The rate at which towns grow depends on their size. There are three different size categories:
+# "Villages", "Cities" and "Capitals". The following settings define the thresholds (in numbers 
+# of population) above which towns become "Cities" and "Capitals". Anything smaller than 
+# city_threshold_size is a "Village". These settings are overriden if any value in 
+# city_threshold_percentage or capital_threshold_percentage be set. 
+
+city_threshold_size = 2500
+capital_threshold_size = 25000
+
+# These values determine which rates of town growth apply depending, not on the absolute size
+# of the city, but rather its size relative to other cities in the game. If capital_threshold_percentage
+# is 5, for example, any city in the top 5% of cities by population count will be a capital. 
+# These settings override the absolute values in city_threshold_size and capital_threshold_size
+# unless their values are 0, which is the default. It is recommended to use these rather than absolute
+# values, especially in longer games, where all towns may grow to the size of "capitals" eventually.
+
+city_threshold_percentage = 20
+capital_threshold_percentage = 2
+
+# These values are used in the city generation algorithm to determine the maximum size of cities.
+# max_city_size is the maximum size, in citizens, of any city at the point of generation.
+# max_small_city_size is the size, in citizens, of any city other than a "big city" at the point of generation. 
+#
+# TIP: Set a lower number for these values the earlier that the game is started.
+
+max_city_size = 20000
+max_small_city_size = 3000
+
 # Enable this to use the old algorithm for city growth from Standard.
 # NOTE: The renovation_percentage in cityrules.tab should be increased if this be done.
 quick_city_growth = 0
@@ -547,8 +575,15 @@ player_finance_display_account = 1
 # starting_money[0]=1930,20000000,1
 # starting_money[1]=2030,35000000,1
 
-# allow buying obsolete vehicles (=1) in depot
-allow_buying_obsolete_vehicles = 1
+# This setting controls whether players are permitted to buy vehicles after their
+# retirement date. The default, allow_buying_obsolete_vehicles=1, allows players
+# to buy old vehicles by clicking a "Show obsolete" button in the depot / replacer
+# window. This button is not shown if this is set to 0.
+#
+# If this is set to 2, players can buy vehicles after their retirement date, but
+# not after they have become obsolete. 
+
+allow_buying_obsolete_vehicles=1
 
 # vehicle can loose a part of their value, when the are once used
 # the loss is given in 1/1000th, i.e 300 mean the value will be 70%
@@ -858,7 +893,7 @@ fullscreen = 0
 # certain aspects of performance on multiple core/processor machines), this is the number
 # of threads that will be used. It is best not to set this number higher than
 # the number of physical cores on your computer. Maximum: 12.
-threads = 4
+threads = 6
 
 # maximum size of tool bars (0 = no limit)
 # if more tools than allowed by height,

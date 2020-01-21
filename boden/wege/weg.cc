@@ -1239,7 +1239,7 @@ void weg_t::calc_image()
 	grund_t *from = welt->lookup(get_pos());
 	grund_t *to;
 	image_id old_image = image;
-
+	bool bridge_has_own_way_graphics = false;
 	if(  from==NULL  ||  desc==NULL  ||  !from->is_visible()  ) {
 		// no ground, in tunnel
 		set_image(IMG_EMPTY);
@@ -1258,6 +1258,7 @@ void weg_t::calc_image()
 		set_image(IMG_EMPTY);
 		set_after_image(IMG_EMPTY);
 	}
+	
 	else {
 		// use snow image if above snowline and above ground
 		bool snow = (from->ist_karten_boden() || !from->ist_tunnel()) && (get_pos().z + from->get_weg_yoff() / TILE_HEIGHT_STEP >= welt->get_snowline() || welt->get_climate(get_pos().get_2d()) == arctic_climate);
@@ -1265,18 +1266,40 @@ void weg_t::calc_image()
 		if(  snow  ) {
 			flags |= IS_SNOW;
 		}
+		if(  from->ist_bruecke() && from->obj_bei(0)==this  ){
+			//This checks whether we should show the way graphics on the bridge
+			//if the bridge has own way graphics, we don't show the way graphics on the bridge
+			const bruecke_t *bridge = from ? from->find<bruecke_t>() : NULL;
+			if(  bridge  ){
+				if(  bridge->get_desc()->get_has_own_way_graphics()  ){
+					bridge_has_own_way_graphics=true;
+				}
+			}
+		}
 
 		slope_t::type hang = from->get_weg_hang();
 		if(hang != slope_t::flat) {
 			// on slope
-			set_images(image_slope, hang, snow);
+			if(bridge_has_own_way_graphics){
+				set_image(IMG_EMPTY);
+				set_after_image(IMG_EMPTY);
+			}else{
+				set_images(image_slope, hang, snow);
+			}
 		}
+		
 		else {
 			static int recursion = 0; /* Communicate among different instances of this method */
 
 			// flat way
-			set_images(image_flat, ribi, snow);
-
+			if( bridge_has_own_way_graphics){
+				set_image(IMG_EMPTY);
+				set_after_image(IMG_EMPTY);
+			}
+			else {
+				set_images(image_flat, ribi, snow);
+			}
+			
 			// recalc image of neighbors also when this changed to non-diagonal
 			if(recursion == 0) {
 				recursion++;
@@ -1674,3 +1697,4 @@ signal_t *weg_t::get_signal(ribi_t::ribi direction_of_travel) const
 	}
 	else return NULL;
 }
+

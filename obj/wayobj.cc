@@ -452,7 +452,7 @@ const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi
 	{
 		wayobj_t *existing_wayobj = gr->get_wayobj( desc->get_wtyp() );
 		if( existing_wayobj ) {
-			if(  existing_wayobj->get_desc()->get_topspeed() < desc->get_topspeed()  &&  player_t::check_owner(owner, existing_wayobj->get_owner())  ) {
+			if(  existing_wayobj->get_desc() != desc  &&  player_t::check_owner(owner, existing_wayobj->get_owner())  ) {
 				// replace slower by faster
 				dir = dir | existing_wayobj->get_dir();
 				gr->set_flag(grund_t::dirty);

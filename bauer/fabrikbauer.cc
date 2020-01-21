@@ -328,6 +328,13 @@ bool factory_builder_t::check_construction_site(koord pos, koord size, bool wate
 			}
 		}
 	}
+	// Check for runways
+	karte_t::runway_info ri = welt->check_nearby_runways(pos);
+	if (ri.pos != koord::invalid)
+	{
+		return false;
+	}
+
 	return true;
 }
 

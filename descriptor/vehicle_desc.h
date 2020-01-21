@@ -504,6 +504,10 @@ public:
 			return false;
 		}
 	}
+	uint8 get_livery_count() const {
+		return livery_image_type;
+	}
+	uint16 get_available_livery_count(class karte_t *welt) const;
 
 	/**
 	 * Returns allowed leader vehicles.
