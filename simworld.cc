@@ -7837,22 +7837,22 @@ bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, waytype_t
 
 	if(is_sound && viewport && display_get_width() > 0 && get_tile_raster_width() > 0) 
 	{
-		uint32 dist = koord_distance(k, viewport->get_world_position());
+		uint32 dist = shortest_distance(k, viewport->get_world_position());
 		bool play = false;
 
 		if(dist < 96) 
 		{
-			int xw = (6*display_get_width())/get_tile_raster_width();
-			int yw = (4*display_get_height())/get_tile_raster_width();
-
 			dist = max(dist - 8, 0);
 
 			// Higher numbers are more zoomed out, so 3 is normal zoom,
 			// 0 is maximally zoomed in and 9 is maximally zoomed out
 			uint32 zoom_distance = get_zoom_factor() + 1;
+			dist += (zoom_distance * 2);
 
-			uint8 const volume = (uint8)((255U * (xw + yw) / (xw + yw + 32 * dist)) / zoom_distance);
-			if (volume > 2) 
+			const uint8 sound_distance_scaling = 16; // TODO: Set this by simuconf.tab
+			const uint8 volume = (uint8)((255U * sound_distance_scaling) / (sound_distance_scaling + dist * dist));
+		
+			if (volume) 
 			{
 				sound_play(idx, volume);
 				play = true;
