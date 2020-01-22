@@ -951,6 +951,14 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			brake_distance_min, brake_distance_max);
 		lb_convoi_speed.set_color(col_convoi_speed);
 
+		// starting acceleration
+		const uint32 starting_acceleration_max = (convoy.get_starting_force().to_sint32() - (rolling_resistance * (double)total_empty_weight) / number_of_vehicles) * 1000 / 9.80665 / 30.9 / min_weight * 100;
+		const uint32 starting_acceleration_min = (convoy.get_starting_force().to_sint32() - (rolling_resistance * (double)total_max_weight) / number_of_vehicles) * 1000 / 9.80665 / 30.9 / max_weight * 100;
+		txt_convoi_speed.printf(
+			starting_acceleration_min == starting_acceleration_max ?
+			translator::translate("; Starting acceleration: %.2f km/h/s") : translator::translate("; Starting acceleration: %.2f - %.2f km/h/s")
+			, (double)starting_acceleration_min / 100.0, (double)starting_acceleration_max / 100.0);
+
 		{
 			char buf[128];
 			if (depot_frame) {
@@ -983,7 +991,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		txt_convoi_power.printf("%s %4d kW, %d kN\n", translator::translate("Power:"), total_power, total_force);
 
 		txt_convoi_brake_force.clear();
-		txt_convoi_brake_force.printf("%s %4.1fkN\n", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0);
+		txt_convoi_brake_force.printf("%s %4.2f kN\n", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0);
 
 		txt_convoi_weight.clear();
 		txt_convoi_rolling_resistance.clear();
