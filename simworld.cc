@@ -7842,8 +7842,6 @@ bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, waytype_t
 
 		if(dist < 96) 
 		{
-			dist = max(dist - 8, 0);
-
 			// Higher numbers are more zoomed out, so 3 is normal zoom,
 			// 0 is maximally zoomed in and 9 is maximally zoomed out
 			uint32 zoom_distance = get_zoom_factor() + 1;
