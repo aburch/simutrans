@@ -8404,3 +8404,15 @@ bool convoi_t::all_vehicles_are_buildable() const
 	}
 	return true;
 }
+
+bool convoi_t::check_way_constraints_of_all_vehicles(const weg_t& way) const
+{
+	for (uint32 i = 0; i < vehicle_count; i++)
+	{
+		if (!get_vehicle(i)->check_way_constraints(way))
+		{
+			return false;
+		}
+	}
+	return true;
+}

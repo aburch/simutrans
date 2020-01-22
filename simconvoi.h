@@ -1236,6 +1236,8 @@ public:
 
 	bool all_vehicles_are_buildable() const; 
 
+	bool check_way_constraints_of_all_vehicles(const weg_t& way) const;
+
 private:
 	journey_times_map average_journey_times;
 public:
