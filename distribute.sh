@@ -66,11 +66,6 @@ getSDL2mac()
 	fi
 	7z t "SDL2-2.0.10.dmg" || {
 	   echo "Error: file SDL2-2.0.10.dmg seems to be defective" >&2
-	   rm -f "sim-macintel.zip"
-	   exit 5
-	}
-	7z t "SDL2-2.0.10.dmg" || {
-	   echo "Error: file SDL2-2.0.10.dmg seems to be defective" >&2
 	   rm -f "SDL2-2.0.10.dmg"
 	   exit 5
 	}
@@ -162,14 +157,23 @@ buildOSX()
 {
   echo "Build Mac OS package"
 	# builds a bundle for MAC OS
-	getSDL2mac
 	mkdir -p "simutrans.app/Contents/MacOS"
 	mkdir -p "simutrans.app/Contents/Resources"
 	cp $BUILDDIR$simexe   "simutrans.app/Contents/MacOS/simutrans"
 	strip "simutrans.app/Contents/MacOS/simutrans"
 	cp "../OSX/simutrans.icns" "simutrans.app/Contents/Resources/simutrans.icns"
-	7z x "SDL2-2.0.10.dmg"
-	rm SDL2-2.0.10.dmg
+	localostype=`uname -o`
+	if [ "Msys" == "$localostype" ] || [ "Linux" == "$localostype" ]; then
+		# only 7z on linux and windows can do that ...
+		getSDL2mac
+		7z x "SDL2-2.0.10.dmg"
+		rm SDL2-2.0.10.dmg
+	else
+		# assume MacOS
+		hdiutil attach ../SDL2-2.0.10.dmg >>/dev/stderr
+		cp -R -v /Volumes/SDL2 .
+		hdiutil eject /Volumes/SDL2 >>/dev/stderr 
+	fi
 	echo "APPL????" > "simutrans.app/Contents/PkgInfo"
 	sh ../OSX/plistgen.sh "simutrans.app" "simutrans"
 }
