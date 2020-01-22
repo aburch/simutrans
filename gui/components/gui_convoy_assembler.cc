@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <algorithm>
 
 #include "gui_convoy_assembler.h"
 
@@ -1224,17 +1225,22 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 							continue;
 						}
 						if (scheme->get_latest_available_livery(welt->get_timeline_year_month(), info)) {
-							livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), SYSCOL_TEXT));
 							livery_scheme_indices.append(i);
-							livery_selector.set_selection(i);
 							livery_scheme_index = i;
 							continue;
 						}
 					}
 				}
 			}
-
 		}
+		livery_selector.clear_elements();
+		std::sort(livery_scheme_indices.begin(), livery_scheme_indices.end());
+		FOR(vector_tpl<uint16>, const& i, livery_scheme_indices) {
+			livery_scheme_t* scheme = schemes->get_element(i);
+			livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), SYSCOL_TEXT));
+			livery_selector.set_selection(i);
+		}
+
 	}
 DBG_DEBUG("gui_convoy_assembler_t::build_vehicle_lists()","finally %i passenger vehicle, %i  engines, %i good wagons",pas_vec.get_count(),loks_vec.get_count(),waggons_vec.get_count());
 
@@ -2173,71 +2179,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		}
 		buf.append("\n");
 
-
-		//// (Upgrade information)
-		//if (veh_type->get_upgrades_count() > 0)
-		//{
-		//	const uint16 month_now = welt->get_timeline_year_month();
-		//	int amount_of_upgrades = 0;
-		//	int max_display_of_upgrades = 3;
-		//	for (int i = 0; i < veh_type->get_upgrades_count(); i++)
-		//	{
-		//		//if (veh_type->get_upgrades(i) && !veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
-		//		{
-		//			amount_of_upgrades++;
-		//		}
-		//	}
-		//	if (amount_of_upgrades > 0)
-		//	{
-		//		n += sprintf(buf + n, "%s:\n", translator::translate("this_vehicle_can_upgrade_to"));
-		//		for (uint8 i = 0; i < min(veh_type->get_upgrades_count(), max_display_of_upgrades); i++)
-		//		{
-		//			//if (veh_type->get_upgrades(i) && !veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
-		//			{
-		//				//money_to_string(tmp, veh_type->get_upgrades(i)->get_upgrade_price() / 100);
-		//				//n += sprintf(buf + n, " - %s (%8s)\n", translator::translate(veh_type->get_upgrades(i)->get_name()), tmp);
-		//				
-		//			}
-		//		}
-		//		if (amount_of_upgrades > max_display_of_upgrades)
-		//		{
-		//			
-		//			n += sprintf(buf + n, "+ %i %s\n", amount_of_upgrades - max_display_of_upgrades, translator::translate("additional_upgrades"));
-		//			}
-		//	}
-		//}
-		//else
-		//{
-		//	linespace_skips += 2;
-		//}
-		//// (Livery information)
-		//vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
-		//ITERATE_PTR(schemes, i)
-		//{
-		//	livery_scheme_t* scheme = schemes->get_element(i);
-		//	//if (scheme->is_available(welt->get_timeline_year_month()))
-		//	{
-		//		if (veh_type->check_livery(scheme->get_name()))
-		//		{
-		//			n += sprintf(buf + n, "%s\n", scheme->get_name());
-		//		}
-		//	}
-		//}
-
-	
-		////else
-		//{
-		//	linespace_skips += 2;
-		//}
-
-		//
-		//if (linespace_skips > 0)
-		//{
-		//	for (int i = 0; i < linespace_skips; i++)
-		//	{
-		//		n += sprintf(buf + n, "\n");
-		//	}
-		//}
 		linespace_skips = 0;
 
 		// Engine information:
@@ -2297,12 +2238,14 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		// column 2
 		// Vehicle intro and retire information:
 		linespace_skips = 0;
+		uint8 lines = 0;
 		int top = pos.y + tabs.get_pos().y + tabs.get_size().h + 31 + LINESPACE * 2 + 4 + 16;
 		
 		buf.printf( "%s %s\n",
 			translator::translate("Intro. date:"),
 			translator::get_year_month( veh_type->get_intro_year_month())
 			);
+		lines++;
 
 		if(  veh_type->get_retire_year_month() != DEFAULT_RETIRE_DATE * 12  )
 		{
@@ -2316,11 +2259,13 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			buf.append("\n");
 		}
 		buf.append("\n");
+		lines += 2;
 
 		display_multiline_text(pos.x + 335/*370*/, top, buf, SYSCOL_TEXT);
 
 		buf.clear();
-		top += 3 * LINESPACE;
+		top += lines * LINESPACE;
+		lines = 0;
 
 		// Capacity information:
 		linespace_skips = 0;
@@ -2355,6 +2300,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				display_proportional(pos.x + 335+left, top, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				buf.clear();
 				top += LINESPACE;
+				lines++;
 
 				for (uint8 i = 0; i < classes_amount; i++)
 				{
@@ -2373,6 +2319,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 
 						buf.printf("%s: %3d %s %s", class_name, veh_type->get_capacity(i), translator::translate(veh_type->get_freight_type()->get_mass()), translator::translate(veh_type->get_freight_type()->get_name()));
 						buf.append("\n");
+						lines++;
 
 						if (pass_veh)
 						{
@@ -2401,6 +2348,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 						{
 							linespace_skips++;
 						}
+						lines++;
 					}
 
 				}
@@ -2416,6 +2364,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				buf.clear();
 				top += LINESPACE;
 				linespace_skips += 2;
+				lines += 2;
 			}
 
 
@@ -2425,6 +2374,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			welt->sprintf_ticks(min_loading_time_as_clock, sizeof(min_loading_time_as_clock), veh_type->get_min_loading_time());
 			welt->sprintf_ticks(max_loading_time_as_clock, sizeof(max_loading_time_as_clock), veh_type->get_max_loading_time());
 			buf.printf("%s %s - %s \n", translator::translate("Loading time:"), min_loading_time_as_clock, max_loading_time_as_clock);
+			lines++;
 
 			if (veh_type->get_catering_level() > 0)
 			{
@@ -2444,12 +2394,14 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			{
 				linespace_skips++;
 			}
+			lines++;
 
 		}
 		else
 		{
 			buf.printf("%s ", translator::translate("this_vehicle_carries_no_good"));
 			linespace_skips += 3;
+			lines += 3;
 		}
 		if (linespace_skips > 0)
 		{
@@ -2472,12 +2424,14 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				char tmpbuf[30];
 				sprintf(tmpbuf, "Permissive %i-%i", veh_type->get_waytype(), i);
 				buf.printf("%s", translator::translate(tmpbuf));
+				lines++;
 			}
 		}
 		if (veh_type->get_is_tall())
 		{
 			buf.printf("%s", translator::translate("\nMUST USE: "));
 			buf.printf("%s", translator::translate("high_clearance_under_bridges_(no_low_bridges)"));
+			lines++;
 		}
 
 
@@ -2492,6 +2446,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				char tmpbuf[30];
 				sprintf(tmpbuf, "Prohibitive %i-%i", veh_type->get_waytype(), i);
 				buf.printf("%s", translator::translate(tmpbuf));
+				lines++;
 			}
 		}
 		if (veh_type->get_tilting())
@@ -2499,12 +2454,97 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			buf.append("\n");
 			buf.printf("%s: ", translator::translate("equipped_with"));
 			buf.printf("%s", translator::translate("tilting_vehicle_equipment"));
+			lines++;
 		}
 
+		//// TODO: (Upgrade information)
+		//if (convoi.index_at(pos, x, y) != -1 && veh_type->get_upgrades_count() > 0)
+		//{
+		//	const uint16 month_now = welt->get_timeline_year_month();
+		//	int amount_of_upgrades = 0;
+		//	int max_display_of_upgrades = 3;
+		//	for (int i = 0; i < veh_type->get_upgrades_count(); i++)
+		//	{
+		//		//if (veh_type->get_upgrades(i) && !veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
+		//		{
+		//			amount_of_upgrades++;
+		//		}
+		//	}
+		//	if (amount_of_upgrades > 0)
+		//	{
+		//		n += sprintf(buf + n, "%s:\n", translator::translate("this_vehicle_can_upgrade_to"));
+		//		for (uint8 i = 0; i < min(veh_type->get_upgrades_count(), max_display_of_upgrades); i++)
+		//		{
+		//			//if (veh_type->get_upgrades(i) && !veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
+		//			{
+		//				//money_to_string(tmp, veh_type->get_upgrades(i)->get_upgrade_price() / 100);
+		//				//n += sprintf(buf + n, " - %s (%8s)\n", translator::translate(veh_type->get_upgrades(i)->get_name()), tmp);
+		//				
+		//			}
+		//		}
+		//		if (amount_of_upgrades > max_display_of_upgrades)
+		//		{
+		//			
+		//			n += sprintf(buf + n, "+ %i %s\n", amount_of_upgrades - max_display_of_upgrades, translator::translate("additional_upgrades"));
+		//			}
+		//	}
+		//}
+		//else
+		//{
+		//	linespace_skips += 2;
+		//}
+
+		//
+		//if (linespace_skips > 0)
+		//{
+		//	for (int i = 0; i < linespace_skips; i++)
+		//	{
+		//		n += sprintf(buf + n, "\n");
+		//	}
+		//}
+
+		// livery counter and avairavle livery scheme list
 		if (veh_type->get_livery_count() > 0) {
+			// display the available number of liveries
 			txt_livery_count.clear();
 			txt_livery_count.printf("(%i)", veh_type->get_available_livery_count(welt));
 			lb_livery_counter.set_text(txt_livery_count);
+
+			// which livery scheme this vehicle has? - this list is not displayed for convoy's vehicles being assembled
+			if (veh_type->get_available_livery_count(welt) > 1 && convoi.index_at(pos, x, y) == -1) {
+				const char* current_livery_text = NULL;
+				if (livery_scheme_index) {
+					livery_scheme_t* selected_scheme = welt->get_settings().get_livery_schemes()->get_element(livery_scheme_index);
+					current_livery_text = selected_scheme->get_latest_available_livery(welt->get_timeline_year_month(), veh_type);
+				}
+				buf.append("\n\n");
+				buf.printf("%s: \n", translator::translate("Selectable livery schemes"));
+				lines++;
+
+				FOR(vector_tpl<uint16>, const& i, livery_scheme_indices) {
+					livery_scheme_t* scheme = welt->get_settings().get_livery_schemes()->get_element(i);
+					if (scheme->get_latest_available_livery(welt->get_timeline_year_month(), veh_type))
+					{
+						//check the default livery
+						if (!current_livery_text) {
+							current_livery_text = strcmp(scheme->get_latest_available_livery(welt->get_timeline_year_month(), veh_type), "default") ?
+								scheme->get_latest_available_livery(welt->get_timeline_year_month(), veh_type) : NULL;
+						}
+						if (livery_scheme_index == i || (current_livery_text && scheme->is_contained(current_livery_text, welt->get_timeline_year_month()))) {
+							buf.append("*");
+						}
+						else {
+							buf.append("-");
+						}
+						buf.printf(" %s\n", translator::translate(scheme->get_name()));
+						lines++;
+					}
+					if (lines > 13) {
+						buf.append(translator::translate("..."));
+						break;
+					}
+				}
+			}
 		}
 		else {
 			lb_livery_counter.set_text(NULL);
