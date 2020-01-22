@@ -1336,9 +1336,8 @@ void vehicle_t::remove_stale_cargo()
 
 void vehicle_t::play_sound() const
 {
-	if(desc->get_sound() >= 0 && !welt->is_fast_forward())
-	{
-		welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound(), get_waytype());
+	if(  desc->get_sound() >= 0  &&  !welt->is_fast_forward()  ) {
+		welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound(), TRAFFIC_SOUND, get_waytype() );
 	}
 }
 

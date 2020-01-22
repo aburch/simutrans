@@ -9,7 +9,7 @@
 
 #include "simtypes.h"
 
-/// sound can be selectively muted (but volume is not touched)
+// sound can be selectively muted (but volume is not touched)
 void sound_set_mute(bool new_flag);
 bool sound_get_mute();
 
@@ -19,14 +19,9 @@ void sound_set_global_volume(int volume);
 /// @returns volume in range 0..255
 int sound_get_global_volume();
 
-/* r8887 not incorporating yet
-/// Sets volume for a specific type of sound.
-/// @param volume in range 0..255
+/// and settign volume for specific sopunds
 void sound_set_specific_volume( int volume, sound_type_t t );
-
-/// @returns volume in range 0..255
 int sound_get_specific_volume( sound_type_t t );
-*/
 
 /**
  * Play a sound.
@@ -34,7 +29,7 @@ int sound_get_specific_volume( sound_type_t t );
  * @param idx    Index of the sound
  * @param volume in range 0..255
  */
-void sound_play(uint16 idx, uint8 volume = 255);
+void sound_play(uint16 idx, uint8 volume, sound_type_t t );
 
 
 /// shuffle enable/disable for midis

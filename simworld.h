@@ -2505,8 +2505,9 @@ public:
 	 * The sound plays lower when the position is outside the visible region.
 	 * @param pos Position at which the event took place.
 	 * @param idx Index of the sound
+	 * @param idx t is the type of sound (for selective muting etc.)
 	 */
-	bool play_sound_area_clipped(koord k, uint16 idx, waytype_t cooldown_type);
+	bool play_sound_area_clipped(koord k, uint16 idx, sound_type_t t, waytype_t cooldown_type);
 
 	void mute_sound( bool state ) { is_sound = !state; }
 

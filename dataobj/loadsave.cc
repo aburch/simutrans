@@ -1232,8 +1232,18 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 	else {
 		const int len = (int)strlen(typ);
 		assert(len<256);
-		// find start of tag
-		while(  lsgetc()!='<'  ) { /* nothing */ }
+
+		// find start of tag and handle eof correctly
+		while( 1 ) {
+			int ch = lsgetc();
+			if( ch == '<' ) {
+				break;
+			}
+			if( ch < 0 ) {
+				dbg->fatal( "loadsave_t::rdwr_xml_number()", "Reached end of file while trying to read <%s>", typ );
+			}
+		}
+
 		// check for correct tag
 		char buffer[256];
 		read( buffer, len );

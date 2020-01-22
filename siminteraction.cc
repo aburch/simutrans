@@ -186,7 +186,7 @@ void interaction_t::interactive_event( const event_t &ev )
 					// Control is _not_ pressed => Backspace or Enter pressed.
 					if(  ev.ev_code == 8  ) {
 						// Backspace
-						sound_play(SFX_SELECT);
+						sound_play(SFX_SELECT,255,TOOL_SOUND);
 						destroy_all_win(false);
 					}
 					// Ignore Enter and Backspace but not Ctrl-H and Ctrl-M

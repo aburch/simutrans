@@ -4269,7 +4269,7 @@ void karte_t::local_set_tool( tool_t *tool_in, player_t * player )
 		if(tool_in != sp_tool) {
 
 			// reinit same tool => do not play sound twice
-			sound_play(SFX_SELECT);
+			sound_play(SFX_SELECT,255,TOOL_SOUND);
 
 			// only exit, if it is not the same tool again ...
 
@@ -8263,7 +8263,7 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_s
  * Play a sound, but only if near enough.
  * Sounds are muted by distance and clipped completely if too far away.
  */
-bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, waytype_t cooldown_type)
+bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, sound_type_t type, waytype_t cooldown_type )
 {
 	if (cooldown_type < 0)
 	{
@@ -8281,7 +8281,7 @@ bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, waytype_t
 
 	if(is_sound && viewport && display_get_width() > 0 && get_tile_raster_width() > 0)
 	{
-		uint32 dist = shortest_distance(k, viewport->get_world_position());
+		const uint32 dist = koord_distance( k, zeiger->get_pos() );
 		bool play = false;
 
 		if(dist < 96)
@@ -8291,12 +8291,11 @@ bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, waytype_t
 			uint32 zoom_distance = get_zoom_factor() + 1;
 			dist += (zoom_distance * 2);
 
-			const uint8 sound_distance_scaling = 16; // TODO: Set this by simuconf.tab
-			const uint8 volume = (uint8)((255U * sound_distance_scaling) / (sound_distance_scaling + dist * dist));
+			uint8 const volume = (uint8)((255U * env_t::sound_distance_scaling) / (env_t::sound_distance_scaling + dist*dist));
 
 			if (volume)
 			{
-				sound_play(idx, volume);
+				sound_play(idx, volume, type);
 				play = true;
 			}
 		}
@@ -11099,7 +11098,7 @@ bool karte_t::interactive(uint32 quit_month)
 				if(  gr  ) {
 					sint16 id = get_sound_id(gr);
 					if(  id!=NO_SOUND  ) {
-						sound_play(id);
+						sound_play(id,255,AMBIENT_SOUND);
 					}
 				}
 				sound_wait_time *= 2;

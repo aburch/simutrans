@@ -152,12 +152,8 @@ void player_t::add_money_message(const sint64 amount, const koord pos)
 			add_message(amount, pos);
 
 			// and same for sound too ...
-#ifdef GDI_SOUND
-			if(  amount>=10000  &&  !welt->is_fast_forward()) {
-#else
-			if (amount >= 10000 && !welt->is_fast_forward()) {
-#endif
-				welt->play_sound_area_clipped(pos, SFX_CASH, ignore_wt);
+			if(  amount>=10000  &&  !welt->is_fast_forward()  ) {
+				welt->play_sound_area_clipped(pos, SFX_CASH, CASH_SOUND, ignore_wt );
 			}
 		}
 	}
@@ -1182,19 +1178,19 @@ sint64 player_t::undo()
 void player_t::tell_tool_result(tool_t *tool, koord3d, const char *err)
 {
 	/* tools can return three kinds of messages
-	* NULL = success
-	* "" = failure, but just do not try again
-	* "bla" error message, which should be shown
-	*/
-	if (welt->get_active_player() == this) {
-		if (err == NULL) {
-			if (tool->ok_sound != NO_SOUND) {
-				sound_play(tool->ok_sound);
+	 * NULL = success
+	 * "" = failure, but just do not try again
+	 * "bla" error message, which should be shown
+	 */
+	if (welt->get_active_player()==this) {
+		if(err==NULL) {
+			if(tool->ok_sound!=NO_SOUND) {
+				sound_play(tool->ok_sound,255,TOOL_SOUND);
 			}
 		}
 		else if (*err != 0) {
 			// something went really wrong
-			sound_play(SFX_FAILURE);
+			sound_play( SFX_FAILURE, 255, TOOL_SOUND );
 			// look for coordinate in error message
 			// syntax: either @x,y or (x,y)
 			open_error_msg_win(err);
