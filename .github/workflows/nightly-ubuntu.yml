@@ -34,7 +34,7 @@ jobs:
       run: sh ./distribute.sh
 
     - name: Rename result
-      run:  mv simu*.zip simulinux-nightly.zip
+      run:  mv simu*.zip simulinux-x64-nightly.zip
 
     - name: Update binaries of Nightly Release
       uses: svenstaro/upload-release-action@v1-release

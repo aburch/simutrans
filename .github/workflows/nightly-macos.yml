@@ -1,4 +1,4 @@
-name: Nightly build MacOS (without freetype)
+name: Nightly build MacOS
 
 on: [push]
 
@@ -18,13 +18,14 @@ jobs:
         sudo ls /Library/Frameworks/ >>/dev/stderr
         hdiutil eject /Volumes/SDL2 >>/dev/stderr 
         brew install autoconf
-# freetype library is supposed to be on the system (but I did not found it)
-# Well, I can download and "install" the header to compile
+#        brew install freetype
+# freetype library is in the system, but not the header
 #        curl -L "https://downloads.sourceforge.net/project/freetype/freetype2/2.10.1/ft2101.zip?&use_mirror=autoselect" > ft2101.zip
 #        unzip -oa ft2101.zip '*.h'
-# But the dylib is not where it should be after installing xcode?!? (Server issue?)
+# could obtain them, but the dylib is not where it should be after installing xcode?!?
 # Thus no freetype :(
 # not easy to install miniupnpc for others, so no UPnP support for macOS
+#        brew install p7zip
 #        brew install miniupnpc
 
     - name: setup
