@@ -693,10 +693,21 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 				{
 					// Not a crossing runway. Might still be valid.
 					ribi_t::ribi dir_existing_to_new = ribi_type(ri.pos, to_pos);
-					if (dir_existing_to_new != ri.direction && ri.direction != ribi_t::backward(dir_existing_to_new) && ribi_t::doubles(ri.direction) != ribi_t::doubles(dir_existing_to_new))
+					// If a taxiway connects near here, it might be hard to tell what direction that the runway is in, so try an alternative method.
+					if (ribi_t::is_threeway(ri.direction))
 					{
-						// Do not allow parallell runways without a gap.
-						return false;
+						if (dir_existing_to_new != build_dir && dir_existing_to_new != ribi_t::backward(build_dir))
+						{
+							return false;
+						}
+					}
+					else
+					{
+						if (dir_existing_to_new != ri.direction && ri.direction != ribi_t::backward(dir_existing_to_new) && ribi_t::doubles(ri.direction) != ribi_t::doubles(dir_existing_to_new))
+						{
+							// Do not allow parallell runways without a gap.
+							return false;
+						}
 					}
 				}
 			}
