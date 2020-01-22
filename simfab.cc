@@ -1553,7 +1553,7 @@ void fabrik_t::smoke() const
 	}
 	// maybe sound?
 	if(  desc->get_sound()!=NO_SOUND  &&  welt->get_ticks()>last_sound_ms+desc->get_sound_interval_ms()  ) {
-		welt->play_sound_area_clipped( get_pos().get_2d(), desc->get_sound() );
+		welt->play_sound_area_clipped( get_pos().get_2d(), desc->get_sound(), FACTORY_SOUND );
 	}
 }
 

@@ -3044,7 +3044,7 @@ void karte_t::local_set_tool( tool_t *tool_in, player_t * player )
 		if(tool_in != sp_tool) {
 
 			// reinit same tool => do not play sound twice
-			sound_play(SFX_SELECT);
+			sound_play(SFX_SELECT,255,TOOL_SOUND);
 
 			// only exit, if it is not the same tool again ...
 			sp_tool->flags |= tool_t::WFL_LOCAL;
@@ -4553,18 +4553,15 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_s
  *
  * @author Hj. Malthaner
  */
-bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx) const
+bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, sound_type_t type ) const
 {
 	if(is_sound  &&  zeiger) {
-		const int dist = koord_distance( k, zeiger->get_pos() );
+		const uint32 dist = koord_distance( k, zeiger->get_pos() );
 
 		if(dist < 100) {
-			int xw = (2*display_get_width())/get_tile_raster_width();
-			int yw = (4*display_get_height())/get_tile_raster_width();
-
-			uint8 const volume = (uint8)(255U * (xw + yw) / (xw + yw + 64 * dist));
+			uint8 const volume = (uint8)((255U * env_t::sound_distance_scaling) / (env_t::sound_distance_scaling + dist*dist));
 			if (volume > 8) {
-				sound_play(idx, volume);
+				sound_play(idx, volume, type );
 			}
 		}
 		return dist < 25;
@@ -6714,7 +6711,7 @@ bool karte_t::interactive(uint32 quit_month)
 				if(  gr  ) {
 					sint16 id = get_sound_id(gr);
 					if(  id!=NO_SOUND  ) {
-						sound_play(id);
+						sound_play(id,255,AMBIENT_SOUND);
 					}
 				}
 				sound_wait_time *= 2;
