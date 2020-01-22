@@ -63,7 +63,7 @@ void gui_speedbar_t::draw(scr_coord offset)
 #define COL_ADDITIONAL COL_LIGHT_TURQUOISE
 #define COL_REDUCED    COL_LIGHT_ORANGE
 
-#define LENGTH_TO_PIXEL 1      // One tile is represented by 16 times longer (1tile = 16length) pixels
+#define LENGTH_TO_PIXEL 2      // One tile is represented by 16 times longer (1tile = 16length) pixels
 #define OCCUPANCY_BAR_HEIGHT 5 // bar height. Do not exceed set_size.h value
 
 void gui_tile_occupancybar_t::set_base_convoy_length(uint32 convoy_length, uint8 last_veh_length)

@@ -269,7 +269,7 @@ void replace_frame_t::layout(scr_size *gr)
 	convoy_assembler.set_size(scr_size(fgr.w,convoy_assembler.get_height()));
 	convoy_assembler.layout();
 
-	uint32 buttons_y = current_y + convoy_assembler.get_convoy_height() - LINESPACE + 24;
+	uint32 buttons_y = current_y + convoy_assembler.get_convoy_height() - LINESPACE*2 + 24;
 	uint32 buttons_width=(fgr.w-2*margin)/4;
 	bt_autostart.set_size(scr_size(buttons_width, a_D_BUTTON_HEIGHT));
 	bt_depot.set_size(scr_size(buttons_width, a_D_BUTTON_HEIGHT));
@@ -282,7 +282,7 @@ void replace_frame_t::layout(scr_size *gr)
 	
 	current_y=buttons_y+a_D_BUTTON_HEIGHT+margin;
 	lb_money.set_pos(scr_coord(margin + (203 *2),current_y));
-	lb_replace_cycle.set_pos(scr_coord(fgr.w-170,current_y));
+	lb_replace_cycle.set_pos(scr_coord(fgr.w-270,current_y));
 	lb_replace.set_pos(scr_coord(fgr.w-166,current_y));
 
 	numinp[state_replace].set_pos(scr_coord( fgr.w-110, current_y ) );

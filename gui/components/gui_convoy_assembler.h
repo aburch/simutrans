@@ -127,6 +127,7 @@ class gui_convoy_assembler_t :
 
 	/* Gui elements */
 	gui_label_t lb_convoi_count;
+	gui_label_t lb_convoi_tiles;
 	gui_label_t lb_convoi_speed;
 	gui_label_t lb_convoi_cost;
 	gui_label_t lb_convoi_value;
@@ -147,7 +148,9 @@ class gui_convoy_assembler_t :
 	depot_convoi_capacity_t cont_convoi_capacity;
 
 	gui_speedbar_t sb_convoi_length;
-	sint32 convoi_length_ok_sb, convoi_length_slower_sb, convoi_length_too_slow_sb, convoi_tile_length_sb, new_vehicle_length_sb;
+	gui_tile_occupancybar_t tile_occupancy;
+	sint8 new_vehicle_length;
+	//sint32 convoi_length_ok_sb, convoi_length_slower_sb, convoi_length_too_slow_sb, convoi_tile_length_sb, new_vehicle_length_sb;
 
 	button_t bt_outdated;
 	button_t bt_obsolete;
@@ -196,6 +199,7 @@ class gui_convoy_assembler_t :
 	gui_label_t lb_vehicle_filter;
 
 	cbuffer_t txt_convoi_count;
+	cbuffer_t txt_convoi_tiles;
 	cbuffer_t txt_convoi_value;
 	cbuffer_t txt_convoi_speed;
 	cbuffer_t txt_convoi_cost;
@@ -207,6 +211,10 @@ class gui_convoy_assembler_t :
 	cbuffer_t txt_traction_types;
 	cbuffer_t txt_vehicle_count;
 	cbuffer_t txt_livery_count;
+	//cbuffer_t tooltip_convoi_physics;
+	cbuffer_t tooltip_convoi_brake_distance;
+	cbuffer_t tooltip_convoi_speed;
+	cbuffer_t tooltip_convoi_axle_load;
 
 	KOORD_VAL second_column_x; // x position of the second text column
 
@@ -328,7 +336,7 @@ public:
 
 	inline sint16 get_convoy_image_height() const {return grid.y + 2 * gui_image_list_t::BORDER;}
 
-	inline sint16 get_convoy_height() const {return get_convoy_image_height() + LINESPACE * 4 + 6;}
+	inline sint16 get_convoy_height() const {return get_convoy_image_height() + LINESPACE * 5 + 6;}
 
 	inline sint16 get_vinfo_height() const { return VINFO_HEIGHT; }
 
