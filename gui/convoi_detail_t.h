@@ -77,14 +77,14 @@ public:
 	void draw(scr_coord offset);
 };
 
-// content of cargo info tab @Ranran
-class gui_convoy_cargo_info_t : public gui_container_t
+// content of payload info tab @Ranran
+class gui_convoy_payload_info_t : public gui_container_t
 {
 private:
 	convoihandle_t cnv;
 
 public:
-	gui_convoy_cargo_info_t(convoihandle_t cnv);
+	gui_convoy_payload_info_t(convoihandle_t cnv);
 
 	void set_cnv(convoihandle_t c) { cnv = c; }
 
@@ -122,11 +122,11 @@ private:
 
 	gui_scrollpane_t scrolly;
 	gui_scrollpane_t scrolly_formation;
-	gui_scrollpane_t scrolly_cargo_info;
+	gui_scrollpane_t scrolly_payload_info;
 	gui_scrollpane_t scrolly_maintenance;
 	gui_vehicleinfo_t veh_info;
 	gui_convoy_formaion_t formation;
-	gui_convoy_cargo_info_t cargo_info;
+	gui_convoy_payload_info_t payload_info;
 	gui_convoy_maintenance_info_t maintenance;
 	gui_tab_panel_t tabs;
 

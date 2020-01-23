@@ -47,10 +47,10 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 : gui_frame_t( cnv->get_name(), cnv->get_owner() ),
   scrolly(&veh_info),
 	scrolly_formation(&formation),
-	scrolly_cargo_info(&cargo_info),
+	scrolly_payload_info(&payload_info),
 	scrolly_maintenance(&maintenance),
 	formation(cnv),
-	cargo_info(cnv),
+	payload_info(cnv),
 	maintenance(cnv),
 	veh_info(cnv)
 {
@@ -89,7 +89,7 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	scrolly.set_show_scroll_x(true);
 
 	tabs.add_tab(&scrolly, translator::translate("cd_spec_tab"));
-	tabs.add_tab(&scrolly_cargo_info, translator::translate("cd_cargo_tab"));
+	tabs.add_tab(&scrolly_payload_info, translator::translate("cd_payload_tab"));
 	tabs.add_tab(&scrolly_maintenance, translator::translate("cd_maintenance_tab"));
 	tabs.set_pos(scr_coord(0, header_height));
 
@@ -237,10 +237,10 @@ convoi_detail_t::convoi_detail_t()
 : gui_frame_t("", NULL ),
   scrolly(&veh_info),
 	scrolly_formation(&formation),
-	scrolly_cargo_info(&cargo_info),
+	scrolly_payload_info(&payload_info),
 	scrolly_maintenance(&maintenance),
 	formation(cnv),
-	cargo_info(cnv),
+	payload_info(cnv),
 	maintenance(cnv),
 	veh_info(convoihandle_t())
 {
@@ -444,7 +444,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			extra_y += LINESPACE;
 
 			// Range
-			if (v->get_desc()->get_range() == 0)
+			if (v->get_desc()->get_range() > 0)
 			{
 				buf.clear();
 				buf.printf("%s: ", translator::translate("Range"));
@@ -555,13 +555,13 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 }
 
 
-// component for cargo display
-gui_convoy_cargo_info_t::gui_convoy_cargo_info_t(convoihandle_t cnv)
+// component for payload display
+gui_convoy_payload_info_t::gui_convoy_payload_info_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
 }
 
-void gui_convoy_cargo_info_t::draw(scr_coord offset)
+void gui_convoy_payload_info_t::draw(scr_coord offset)
 {
 	// keep previous maximum width
 	int x_size = get_size().w - 51 - pos.x;
@@ -828,7 +828,7 @@ void gui_convoy_cargo_info_t::draw(scr_coord offset)
 }
 
 
-void gui_convoy_cargo_info_t::display_loading_bar(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, uint16 loading, uint16 capacity, uint16 overcrowd_capacity)
+void gui_convoy_payload_info_t::display_loading_bar(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, uint16 loading, uint16 capacity, uint16 overcrowd_capacity)
 {
 	int top = yp + (LINESPACE - h) / 2;
 	if (capacity > 0 || overcrowd_capacity > 0) {

@@ -3978,8 +3978,8 @@ Vehicle bar shape legend:
 Legend:
 cd_spec_tab
 Spec
-cd_cargo_tab
-Cargo
+cd_payload_tab
+Payload
 cd_maintenance_tab
 Maintenance
 No load setting
