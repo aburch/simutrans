@@ -127,7 +127,7 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 			}
 
 			// If necessary, display upgradable symbol: 1=upgradeable, 2=has available upgrade target
-			if (idata.has_upgrade && skinverwaltung_t::alerts) {
+			if (idata.has_upgrade && skinverwaltung_t::upgradable) {
 				if (idata.has_upgrade > 2) {
 					break;
 				}
