@@ -461,8 +461,8 @@ void gui_convoy_assembler_t::layout()
 
 	lb_convoi_tiles.set_pos(scr_coord(c1_x, y));
 	lb_convoi_tiles.set_size(scr_size(proportional_string_width(translator::translate("Station tiles:")) + proportional_string_width(" 000"), LINESPACE));
-	tile_occupancy.set_pos(scr_coord(c1_x + lb_convoi_tiles.get_size().w, y+2));
-	tile_occupancy.set_size(scr_size(size.w - lb_convoi_tiles.get_size().w - bt_class_management.get_size().w, 8));
+	tile_occupancy.set_pos(scr_coord(c1_x + lb_convoi_tiles.get_size().w, y+3));
+	tile_occupancy.set_size(scr_size(size.w - lb_convoi_tiles.get_size().w - bt_class_management.get_size().w, 5));
 	bt_class_management.set_pos(scr_coord(c3_x, y));
 	bt_class_management.set_size(scr_size(size.w - c3_x-5, LINESPACE));
 	bt_class_management.pressed = win_get_magic(magic_class_manager);
@@ -911,11 +911,19 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		txt_convoi_tiles.printf("%s %i",
 			translator::translate("Station tiles:"), vsum.tiles);
 
+		COLOR_VAL col_convoi_speed = min_speed == 0 ? SYSCOL_TEXT_STRONG : SYSCOL_TEXT;
+		if (min_speed < allowed_speed && min_weight < max_weight && min_speed != 0) {
+			if (skinverwaltung_t::alerts) {
+				txt_convoi_speed.append("   ");
+				display_color_img(skinverwaltung_t::alerts->get_image_id(2), parent_pos.x + D_MARGIN_LEFT, parent_pos.y + pos.y + lb_convoi_speed.get_pos().y, 0, false, false);
+			}
+			else {
+				lb_convoi_speed.set_color(COL_DARK_ORANGE);
+			}
+		}
 		txt_convoi_speed.append(translator::translate("Max. speed:"));
-		int col_convoi_speed = SYSCOL_TEXT;
 		if (min_speed == 0)
 		{
-			col_convoi_speed = SYSCOL_TEXT_STRONG;
 			if (convoy.get_starting_force() > 0)
 			{
 				txt_convoi_speed.printf(" %d km/h", min_speed);
@@ -930,7 +938,6 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		}
 		else if (min_speed < allowed_speed && min_weight < max_weight)
 		{
-			col_convoi_speed = COL_ORANGE_RED;
 			max_speed = convoy.calc_max_speed(weight_summary_t(min_weight, friction));
 			if (min_speed < max_speed)
 			{
@@ -997,7 +1004,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		if (!total_power) {
 			if (skinverwaltung_t::alerts) {
 				txt_convoi_power.append("   ");
-				display_color_img(skinverwaltung_t::alerts->get_image_id(2), parent_pos.x+D_MARGIN_LEFT, parent_pos.y + pos.y + lb_convoi_power.get_pos().y, 0, false, false);
+				display_color_img(skinverwaltung_t::alerts->get_image_id(4), parent_pos.x+D_MARGIN_LEFT, parent_pos.y + pos.y + lb_convoi_power.get_pos().y, 0, false, false);
 			}
 			else {
 				lb_convoi_power.set_color(col_convoi_speed);
