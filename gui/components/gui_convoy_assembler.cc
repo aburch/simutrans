@@ -66,11 +66,11 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	lb_convoi_tiles(NULL, SYSCOL_TEXT, gui_label_t::left),
 	lb_convoi_speed(NULL, SYSCOL_TEXT, gui_label_t::left),
 	lb_convoi_cost(NULL, SYSCOL_TEXT, gui_label_t::left),
-	lb_convoi_value(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_convoi_maintenance(NULL, SYSCOL_TEXT, gui_label_t::left),
 	lb_convoi_power(NULL, SYSCOL_TEXT, gui_label_t::left),
 	lb_convoi_weight(NULL, SYSCOL_TEXT, gui_label_t::left),
 	lb_convoi_brake_force(NULL, SYSCOL_TEXT, gui_label_t::left),
-	lb_convoi_rolling_resistance(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_convoi_axle_load(NULL, SYSCOL_TEXT, gui_label_t::left),
 	lb_convoi_way_wear_factor(NULL, SYSCOL_TEXT, gui_label_t::left),
 	lb_traction_types(NULL, SYSCOL_TEXT, gui_label_t::left),
 	lb_vehicle_count(NULL, SYSCOL_TEXT, gui_label_t::right),
@@ -119,11 +119,11 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	add_component(&lb_convoi_count);
 	add_component(&lb_convoi_speed);
 	add_component(&lb_convoi_cost);
-	add_component(&lb_convoi_value);
+	add_component(&lb_convoi_maintenance);
 	add_component(&lb_convoi_power);
 	add_component(&lb_convoi_weight);
 	add_component(&lb_convoi_brake_force);
-	add_component(&lb_convoi_rolling_resistance);
+	add_component(&lb_convoi_axle_load);
 	add_component(&lb_convoi_way_wear_factor);
 	add_component(&cont_convoi_capacity);
 
@@ -289,14 +289,15 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	lb_convoi_speed.set_text_pointer(txt_convoi_speed);
 	lb_convoi_speed.set_tooltip(tooltip_convoi_speed);
 	lb_convoi_cost.set_text_pointer(txt_convoi_cost);
-	lb_convoi_value.set_text_pointer(txt_convoi_value);
+	lb_convoi_cost.set_tooltip(tooltip_convoi_cost);
+	lb_convoi_maintenance.set_text_pointer(txt_convoi_maintenance);
 	lb_convoi_power.set_text_pointer(txt_convoi_power);
 	lb_convoi_power.set_tooltip(tooltip_convoi_acceleration);
 	lb_convoi_weight.set_text_pointer(txt_convoi_weight);
-	lb_convoi_weight.set_tooltip(tooltip_convoi_axle_load);
 	lb_convoi_brake_force.set_text_pointer(txt_convoi_brake_force);
 	lb_convoi_brake_force.set_tooltip(tooltip_convoi_brake_distance);
-	lb_convoi_rolling_resistance.set_text_pointer(txt_convoi_rolling_resistance);
+	lb_convoi_axle_load.set_text_pointer(text_convoi_axle_load);
+	lb_convoi_axle_load.set_tooltip(tooltip_convoi_rolling_resistance);
 	lb_convoi_way_wear_factor.set_text_pointer(txt_convoi_way_wear_factor);
 
 	lb_traction_types.set_text_pointer(txt_traction_types);
@@ -470,8 +471,8 @@ void gui_convoy_assembler_t::layout()
 	y += LINESPACE + 1;
 	lb_convoi_cost.set_pos(scr_coord(c1_x, y));
 	lb_convoi_cost.set_size(scr_size(c2_x - c1_x, LINESPACE));
-	lb_convoi_value.set_pos(scr_coord(c2_x, y));
-	lb_convoi_value.set_size(scr_size(c3_x - c2_x, LINESPACE));
+	lb_convoi_maintenance.set_pos(scr_coord(c2_x, y));
+	lb_convoi_maintenance.set_size(scr_size(c3_x - c2_x, LINESPACE));
 	cont_convoi_capacity.set_pos(scr_coord(c3_x, y));
 	cont_convoi_capacity.set_size(lb_size);
 	y += LINESPACE + 1;
@@ -482,8 +483,8 @@ void gui_convoy_assembler_t::layout()
 	y += LINESPACE + 1;
 	lb_convoi_speed.set_pos(scr_coord(c1_x, y));
 	lb_convoi_speed.set_size(scr_size(c2_x - c1_x, LINESPACE));
-	lb_convoi_rolling_resistance.set_pos(scr_coord(c2_x, y));
-	lb_convoi_rolling_resistance.set_size(scr_size(c3_x - c2_x, LINESPACE));
+	lb_convoi_axle_load.set_pos(scr_coord(c2_x, y));
+	lb_convoi_axle_load.set_size(scr_size(c3_x - c2_x, LINESPACE));
 	y += LINESPACE + 1;
 	lb_convoi_brake_force.set_pos(scr_coord(c1_x, y));
 	lb_convoi_brake_force.set_size(scr_size(c2_x - c1_x, LINESPACE));
@@ -725,15 +726,16 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 	txt_convoi_tiles.clear();
 	txt_convoi_power.clear();
 	txt_convoi_speed.clear();
-	txt_convoi_value.clear();
+	txt_convoi_maintenance.clear();
 	txt_convoi_weight.clear();
 	txt_convoi_brake_force.clear();
-	txt_convoi_rolling_resistance.clear();
+	tooltip_convoi_rolling_resistance.clear();
 	txt_convoi_way_wear_factor.clear();
+	tooltip_convoi_cost.clear();
 	tooltip_convoi_acceleration.clear();
 	tooltip_convoi_brake_distance.clear();
 	tooltip_convoi_speed.clear();
-	tooltip_convoi_axle_load.clear();
+	text_convoi_axle_load.clear();
 	cont_convoi_capacity.set_visible(!vehicles.empty());
 	bt_class_management.set_visible(false);
 	if (!vehicles.empty()) {
@@ -779,7 +781,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		uint32 total_force = 0;
 		uint32 total_empty_weight = min_weight;
 		uint32 total_max_weight = max_weight;
-		uint32 total_min_weight = vsum.weight + convoy.get_freight_summary().max_freight_weight;
+		uint32 total_min_weight = vsum.weight + convoy.get_freight_summary().min_freight_weight;
 		uint16 highest_axle_load = 0;
 		uint32 total_cost = 0;
 		uint32 maint_per_km = 0;
@@ -913,12 +915,24 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 
 		COLOR_VAL col_convoi_speed = min_speed == 0 ? SYSCOL_TEXT_STRONG : SYSCOL_TEXT;
 		if (min_speed < allowed_speed && min_weight < max_weight && min_speed != 0) {
-			if (skinverwaltung_t::alerts) {
-				txt_convoi_speed.append("   ");
-				display_color_img(skinverwaltung_t::alerts->get_image_id(2), parent_pos.x + D_MARGIN_LEFT, parent_pos.y + pos.y + lb_convoi_speed.get_pos().y, 0, false, false);
+			uint8 steam_convoy = vehicles.get_element(0)->get_engine_type() == vehicle_desc_t::steam ? 1 : 0;
+			if (min_speed < allowed_speed / 2) {
+				if (skinverwaltung_t::alerts) {
+					txt_convoi_speed.append("   ");
+					display_color_img(skinverwaltung_t::alerts->get_image_id(2+steam_convoy), parent_pos.x + D_MARGIN_LEFT, parent_pos.y + pos.y + lb_convoi_speed.get_pos().y, 0, false, false);
+				}
+				else {
+					lb_convoi_speed.set_color(COL_DARK_ORANGE);
+				}
 			}
-			else {
-				lb_convoi_speed.set_color(COL_DARK_ORANGE);
+			else if (min_speed < allowed_speed && !steam_convoy) {
+				if (skinverwaltung_t::alerts) {
+					txt_convoi_speed.append("   ");
+					display_color_img(skinverwaltung_t::alerts->get_image_id(2), parent_pos.x + D_MARGIN_LEFT, parent_pos.y + pos.y + lb_convoi_speed.get_pos().y, 0, false, false);
+				}
+				else {
+					lb_convoi_speed.set_color(COL_INTEREST);
+				}
 			}
 		}
 		txt_convoi_speed.append(translator::translate("Max. speed:"));
@@ -991,13 +1005,14 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 				if(cnv.is_bound())
 				{
 					money_to_string(buf, cnv->calc_sale_value() / 100.0 );
-					txt_convoi_value.printf("%s %s", translator::translate("Restwert:"), buf);
+					tooltip_convoi_cost.printf("%s %s", translator::translate("Restwert:"), buf);
 
 				}
 			}
 
 			money_to_string(  buf, total_cost / 100.0 );
-			txt_convoi_cost.printf( translator::translate("Cost: %8s (%.2f$/km, %.2f$/month)\n"), buf, (double)maint_per_km / 100.0, (double)maint_per_month / 100.0 );
+			txt_convoi_cost.printf( translator::translate("Cost: %8s"), buf );
+			txt_convoi_maintenance.printf(translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), (double)maint_per_km / 100.0, (double)maint_per_month / 100.0);
 		}
 
 		txt_convoi_power.clear();
@@ -1019,22 +1034,22 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		txt_convoi_brake_force.printf("%s %4.2f kN\n", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0);
 
 		txt_convoi_weight.clear();
-		txt_convoi_rolling_resistance.clear();
+		tooltip_convoi_rolling_resistance.clear();
+		txt_convoi_weight.printf("%s %.2ft", translator::translate("Weight:"), total_empty_weight / 1000.0);
 		if(  total_empty_weight != total_max_weight  ) {
-			if(  total_min_weight != total_max_weight  ) {
-				txt_convoi_weight.printf("%s %.3ft, %.3f-%.3ft\n", translator::translate("Weight:"), total_empty_weight / 1000.0, total_min_weight / 1000.0, total_max_weight / 1000.0 ); 
-				txt_convoi_rolling_resistance.printf("%s %.3fkN, %.3fkN, %.3fkN", translator::translate("Rolling resistance:"), (rolling_resistance * (double)total_empty_weight / 1000.0) / number_of_vehicles, (rolling_resistance * (double)total_min_weight / 1000.0) / number_of_vehicles, (rolling_resistance * (double)total_max_weight / 1000.0) / number_of_vehicles);
+			if(total_min_weight != total_max_weight) {
+				txt_convoi_weight.printf(", %.2f-%.2ft\n", total_min_weight / 1000.0, total_max_weight / 1000.0 ); 
+				tooltip_convoi_rolling_resistance.printf("%s %.3fkN, %.3fkN, %.3fkN", translator::translate("Rolling resistance:"), (rolling_resistance * (double)total_empty_weight / 1000.0) / number_of_vehicles, (rolling_resistance * (double)total_min_weight / 1000.0) / number_of_vehicles, (rolling_resistance * (double)total_max_weight / 1000.0) / number_of_vehicles);
 			}
 			else {
-				txt_convoi_weight.printf("%s %.3ft, %.3ft\n", translator::translate("Weight:"), total_empty_weight / 1000.0, total_max_weight / 1000.0 );
-				txt_convoi_rolling_resistance.printf("%s %.3fkN, %.3fkN", translator::translate("Rolling resistance:"), (rolling_resistance * (double)total_empty_weight / 1000.0) / number_of_vehicles, (rolling_resistance * (double)total_max_weight / 1000.0) / number_of_vehicles);
+				txt_convoi_weight.printf(", %.2ft\n", total_max_weight / 1000.0 );
+				tooltip_convoi_rolling_resistance.printf("%s %.3fkN, %.3fkN", translator::translate("Rolling resistance:"), (rolling_resistance * (double)total_empty_weight / 1000.0) / number_of_vehicles, (rolling_resistance * (double)total_max_weight / 1000.0) / number_of_vehicles);
 			}
 		}
 		else {
-				txt_convoi_weight.printf("%s %.3ft\n", translator::translate("Weight:"), total_empty_weight / 1000.0 );
-				txt_convoi_rolling_resistance.printf("%s %.3fkN\n", translator::translate("Rolling resistance:"), (rolling_resistance * (double)total_empty_weight / 1000.0) / number_of_vehicles);
+				tooltip_convoi_rolling_resistance.printf("%s %.3fkN\n", translator::translate("Rolling resistance:"), (rolling_resistance * (double)total_empty_weight / 1000.0) / number_of_vehicles);
 		}
-		tooltip_convoi_axle_load.printf("%s %d t", translator::translate("Max. axle load:"), highest_axle_load);
+		text_convoi_axle_load.printf("%s %d t", translator::translate("Max. axle load:"), highest_axle_load);
 
 		txt_convoi_way_wear_factor.clear();
 		txt_convoi_way_wear_factor.printf("%s: %.4f", translator::translate("Way wear factor"), way_wear_factor);
@@ -2083,7 +2098,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		// cursor over a vehicle in the selection list
 		const vector_tpl<gui_image_list_t::image_data_t*>& vec = (lst == &electrics ? electrics_vec : (lst == &pas ? pas_vec : (lst == &pas2 ? pas2_vec : (lst == &loks ? loks_vec : waggons_vec))));
 		veh_type = vehicle_builder_t::get_info(vec[sel_index]->text);
-		if(  vec[sel_index]->lcolor == COL_RED  ||  veh_action == va_sell  ) {
+		if(  vec[sel_index]->lcolor == COL_RED  ||  veh_action == va_sell || veh_action == va_upgrade) {
 			// don't show new_vehicle_length_sb when can't actually add the highlighted vehicle, or selling from inventory
 			new_vehicle_length_sb_force_zero = true;
 		}

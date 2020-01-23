@@ -130,11 +130,11 @@ class gui_convoy_assembler_t :
 	gui_label_t lb_convoi_tiles;
 	gui_label_t lb_convoi_speed;
 	gui_label_t lb_convoi_cost;
-	gui_label_t lb_convoi_value;
+	gui_label_t lb_convoi_maintenance;
 	gui_label_t lb_convoi_power;
 	gui_label_t lb_convoi_weight;
 	gui_label_t lb_convoi_brake_force;
-	gui_label_t lb_convoi_rolling_resistance;
+	gui_label_t lb_convoi_axle_load;
 	gui_label_t lb_convoi_way_wear_factor;
 	gui_label_t lb_convoi_line;
 	// Specifies the traction types handled by
@@ -200,13 +200,13 @@ class gui_convoy_assembler_t :
 
 	cbuffer_t txt_convoi_count;
 	cbuffer_t txt_convoi_tiles;
-	cbuffer_t txt_convoi_value;
+	cbuffer_t txt_convoi_maintenance;
 	cbuffer_t txt_convoi_speed;
 	cbuffer_t txt_convoi_cost;
 	cbuffer_t txt_convoi_power;
 	cbuffer_t txt_convoi_weight;
 	cbuffer_t txt_convoi_brake_force;
-	cbuffer_t txt_convoi_rolling_resistance;
+	cbuffer_t tooltip_convoi_rolling_resistance;
 	cbuffer_t txt_convoi_way_wear_factor;
 	cbuffer_t txt_traction_types;
 	cbuffer_t txt_vehicle_count;
@@ -215,7 +215,7 @@ class gui_convoy_assembler_t :
 	cbuffer_t tooltip_convoi_acceleration;
 	cbuffer_t tooltip_convoi_brake_distance;
 	cbuffer_t tooltip_convoi_speed;
-	cbuffer_t tooltip_convoi_axle_load;
+	cbuffer_t text_convoi_axle_load;
 
 	KOORD_VAL second_column_x; // x position of the second text column
 
