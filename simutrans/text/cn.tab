@@ -1755,22 +1755,6 @@ zooming out
 缩小
 Zu nah am Kartenrand
 过于靠近地图边缘, 无法建造
-#__________________________________record_text__________________________________
-#__________________________________record_text__________________________________
-New world record for maglevs: %.1f km/h by %s.
-%2$s 创造了新磁悬浮列车世界纪录: %1$.1f km/h
-New world record for monorails: %.1f km/h by %s.
-%2$s 创造了新单轨世界纪录: %1$.1f km/h
-New world record for motorcars: %.1f km/h by %s.
-%2$s 创造了新车辆世界纪录: %1$.1f km/h
-New world record for narrowgauges: %.1f km/h by %s.
-%2$s 创造了新窄轨世界纪录: %1$.1f km/h
-New world record for planes: %.1f km/h by %s.
-%2$s 创造了新航空世界纪录: %1$.1f km/h
-New world record for railways: %.1f km/h by %s.
-%2$s 创造了新铁路世界纪录: %1$.1f km/h
-New world record for ship: %.1f km/h by %s.
-%2$s 创造了船运新世界纪录:\n%1$.1f km/h
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

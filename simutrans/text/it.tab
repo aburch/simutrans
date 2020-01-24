@@ -1956,22 +1956,6 @@ zooming in
 Aumenta zoom
 zooming out
 Riduci zoom
-#__________________________________record_text__________________________________
-#__________________________________record_text__________________________________
-New world record for maglevs: %.1f km/h by %s.
-Nuovo record mondiale per maglev: %.1f km/h da %s.
-New world record for monorails: %.1f km/h by %s.
-Nuovo record mondiale per \nmonorotaie: %.1f km/h\nda %s.
-New world record for motorcars: %.1f km/h by %s.
-Nuovo record del mondo per\nveicoli:\n %.1f km/h\nda %s.
-New world record for narrowgauges: %.1f km/h by %s.
-Nuovo record del mondo per ferrovie a scartamento ridotto: %.1f km/h da %s.
-New world record for planes: %.1f km/h by %s.
-Nuovo record del mondo per\naeroplani:\n %.1f km/h\nda %s.
-New world record for railways: %.1f km/h by %s.
-Nuovo record del mondo per\nferrovie:\n %.1f km/h\nda %s.
-New world record for ship: %.1f km/h by %s.
-Nuovo record del mondo per\nnavi:\n %.1f km/h\nda %s.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 %0_CITY_SYLL

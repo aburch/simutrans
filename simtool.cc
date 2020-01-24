@@ -2597,9 +2597,8 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 			}
 			else
 			{
-				// We cannot detect the direciton here, so just signal
-				// that we need to consider this and return.
-				positive_return = 3;
+				// We cannot detect the direciton here: this will be done elsewhere.
+				positive_return = 2;
 			}
 		}
 
