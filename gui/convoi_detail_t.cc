@@ -358,8 +358,16 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			buf.clear();
 			buf.printf("%s %.2f kN", translator::translate("Max. brake force:"), cnv->get_braking_force().to_double() / 1000.0);
 			display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			total_height += LINESPACE * 2;
+			total_height += LINESPACE;
 
+			// convoy applied livery scheme
+			if (cnv->get_livery_scheme_index()) {
+				buf.clear();
+				buf.printf("Applied livery scheme: %s", translator::translate(welt->get_settings().get_livery_scheme(cnv->get_livery_scheme_index())->get_name()));
+				display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				total_height += LINESPACE;
+			}
+			total_height += LINESPACE;
 		}
 
 		for (unsigned veh = 0; veh < vehicle_count; veh++) {
@@ -790,7 +798,7 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 						extra_y += LINESPACE;
 						buf.clear();
 						buf.printf("%s", translator::translate("(mixed_load_prohibition)"));
-						display_proportional_clip(pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y - (LINESPACE - LOADING_BAR_HEIGHT) / 2, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+						display_proportional_clip(pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y - (LINESPACE - LOADING_BAR_HEIGHT) / 2, buf, ALIGN_LEFT, COL_BRONZE, true);
 					}
 					extra_y += LINESPACE + 2;
 				}
@@ -1011,12 +1019,14 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 			//display_multiline_text(pos.x + offset.x, pos.y + offset.y + total_height + extra_y, translator::translate(v->get_desc()->get_name()), SYSCOL_TEXT, true);
 			display_proportional_clip(pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y, translator::translate(v->get_desc()->get_name()), ALIGN_LEFT, SYSCOL_TEXT, true);
 			// livery scheme info
-			if ( strcmp( v->get_current_livery(), "default") ) {
-				extra_y += LINESPACE;
-				buf.clear();
-				buf.printf("(%s)", translator::translate(v->get_current_livery()));
-				display_proportional_clip(pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			}
+			//if ( strcmp( v->get_current_livery(), "default") ) {
+			//	TODO: this vehicle has liveries => first, check line scheme and convoy applied scheme => compare => if differenet get livery scheme => check applied livery is obsolete or not
+			//	COLOR_VAL livery_state_col = SYSCOL_TEXT;
+			//	extra_y += LINESPACE;
+			//	buf.clear();
+			//	//buf.printf("(%s)", translator::translate(v->get_current_livery()));
+			//	display_proportional_clip(pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, livery_state_col, true);
+			//}
 			extra_y += LINESPACE + D_V_SPACE;
 			extra_w += D_H_SPACE;
 
@@ -1024,7 +1034,10 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 			buf.clear();
 			{
 				const sint32 month = v->get_purchase_time();
-				buf.printf("%s %s", translator::translate("Manufactured:"), translator::get_year_month(month));
+				uint32 age_in_months = welt->get_current_month() - month;
+				buf.printf("%s %s  (", translator::translate("Manufactured:"), translator::get_year_month(month));
+				buf.printf(age_in_months < 2 ? translator::translate("%i month") : translator::translate("%i months"), age_in_months);
+				buf.append(")");
 			}
 			display_proportional_clip(pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			extra_y += LINESPACE;
@@ -1060,7 +1073,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 																	 // Multiply by capacity, convert to simcents, subtract running costs
 			sint64 profit = (v->get_cargo_max()*fare + 2048ll) / 4096ll/* - v->get_running_cost(welt)*/;
 			money_to_string(number, profit / 100.0);
-			display_proportional_clip(pos.x + extra_w + offset.x + len, pos.y + offset.y + total_height + extra_y, number, ALIGN_LEFT, profit > 0 ? MONEY_PLUS : MONEY_MINUS, true);
+			display_proportional_clip(pos.x + extra_w + offset.x + len, pos.y + offset.y + total_height + extra_y, number, ALIGN_LEFT, SYSCOL_TEXT, true);
 			extra_y += LINESPACE;
 
 			if (sint64 cost = welt->calc_adjusted_monthly_figure(v->get_desc()->get_maintenance())) {
@@ -1093,7 +1106,6 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 
 						const uint16 intro_date = desc->is_future(month_now) ? desc->get_intro_year_month() : 0;
 
-						money_to_string(number, desc->get_upgrade_price() / 100);
 						if (intro_date) {
 							upgrade_state_color = MN_GREY0;
 						}
@@ -1107,13 +1119,19 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 						display_veh_form(pos.x + extra_w + offset.x + D_MARGIN_LEFT + grid_width/2 - 1, pos.y + offset.y + total_height + extra_y+1, VEHICLE_BAR_HEIGHT * 2, upgrade_state_color, true, desc->get_basic_constraint_next(), desc->get_interactivity(), true);
 
 						buf.clear();
-						buf.printf("%s (%8s", translator::translate(v->get_desc()->get_upgrades(i)->get_name()), number);
+						buf.append(translator::translate(v->get_desc()->get_upgrades(i)->get_name()));
 						if (intro_date) {
 							buf.printf(", %s %s", translator::translate("Intro. date:"), translator::get_year_month(intro_date));
 						}
-						buf.append(")");
 						display_proportional_clip(pos.x + extra_w + offset.x + D_MARGIN_LEFT + grid_width, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, upgrade_state_color, true);
 						extra_y += LINESPACE;
+						// 2nd row
+						buf.clear();
+						money_to_string(number, desc->get_upgrade_price() / 100);
+						buf.printf("%s %s,  ", translator::translate("Upgrade price:"), number);
+						buf.printf(translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), desc->get_running_cost() / 100.0, desc->get_adjusted_monthly_fixed_cost(welt) / 100.0);
+						display_proportional_clip(pos.x + extra_w + offset.x + D_MARGIN_LEFT + grid_width, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+						extra_y += LINESPACE+2;
 					}
 				}
 			}

@@ -3665,6 +3665,10 @@ helptxt_can_be_at_rear
 最後尾車両
 helptxt_intermediate
 中間車両
+%i month
+車齢 %iヶ月
+%i months
+車齢 %iヶ月
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
