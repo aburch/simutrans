@@ -452,14 +452,18 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			extra_y += LINESPACE;
 
 			// Range
-			if (v->get_desc()->get_range() > 0)
+			buf.clear();
+			buf.printf("%s: ", translator::translate("Range"));
+			if (v->get_desc()->get_range() == 0)
 			{
-				buf.clear();
-				buf.printf("%s: ", translator::translate("Range"));
-				buf.printf("%i km", v->get_desc()->get_range());
-				display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-				extra_y += LINESPACE;
+				buf.append(translator::translate("unlimited"));
 			}
+			else
+			{
+				buf.printf("%i km", v->get_desc()->get_range());
+			}
+			display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			extra_y += LINESPACE;
 
 			//Catering - A vehicle can be a catering vehicle without carrying passengers.
 			if (v->get_desc()->get_catering_level() > 0)
