@@ -839,7 +839,14 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 		}
 		if(  file->is_loading()  ) {
 			// disallow all actions, if password set (might be unlocked by password gui )
-			locked = !pwd_hash.empty();
+			if (env_t::networkmode)
+			{
+				locked = !pwd_hash.empty();
+			}
+			else
+			{
+				locked = false;
+			}
 		}
 	}
 

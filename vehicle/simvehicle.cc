@@ -4601,8 +4601,8 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 	// Hajo: diesel and steam engines can use electrified track as well.
 	// also allow driving on foreign tracks ...
 	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : desc->get_engine_type() == vehicle_desc_t::electric);
-
-	if((!needs_no_electric  &&  !sch->is_electrified())  || (sch->get_max_speed() == 0 && speed_limit < INT_MAX) || !check_way_constraints(*sch))
+	
+	if((!needs_no_electric && !sch->is_electrified()) || (sch->get_max_speed() == 0 && speed_limit < INT_MAX) || (cnv ? !cnv->check_way_constraints_of_all_vehicles(*sch) : !check_way_constraints(*sch)))
 	{
 		return false;
 	}
@@ -5580,6 +5580,10 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					if(signal->get_desc()->get_working_method() != one_train_staff || (!do_not_set_one_train_staff && (signal->get_pos() == get_pos()) && (signal->get_state() != roadsign_t::call_on)))
 					{
 						set_working_method(signal->get_desc()->get_working_method());
+						if (signal->get_desc()->get_working_method() == one_train_staff)
+						{
+							cnv->set_last_signal_pos(signal->get_pos());
+						}
 					}
 				}
 

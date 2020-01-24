@@ -1817,22 +1817,6 @@ zooming out
 uitzoomen
 Zu nah am Kartenrand
 Er kan hier niet\ngebouwd worden!\n
-#__________________________________record_text__________________________________
-#__________________________________record_text__________________________________
-New world record for maglevs: %.1f km/h by %s.
-Nieuw wereldrecord voor\nmaglevs: %.1f km/h\nby %s.
-New world record for monorails: %.1f km/h by %s.
-Nieuw wereldrecord voor\nmonorails: %.1f km/h\nby %s.
-New world record for motorcars: %.1f km/h by %s.
-Nieuw wereldrecord voor\nmotorvoertuigen:\n %.1f km/h\nby %s.
-New world record for narrowgauges: %.1f km/h by %s.
-Nieuw wereldrecord voor\nsmalspoor: %.1f km/h\nby %s.
-New world record for planes: %.1f km/h by %s.
-Nieuw wereldrecord voor\nvliegtuigen: %.1f km/h\nby %s.
-New world record for railways: %.1f km/h by %s.
-Nieuw wereldrecord voor\nspoorwegen: %.1f km/\nby %s.
-New world record for ship: %.1f km/h by %s.
-Nieuw wereldrecord voor\nschepen: %.1f km/h\nby %s.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &1_CITY_SYLL

@@ -927,16 +927,6 @@ New vehicle now available:\n%s\n
 \n A new vehicle is\n now available:\n\n\n -- %s --\n\n
 New Vehicles
 New Vehicles
-New world record for monorails: %.1f km/h by %s.
-New world record for\nmonorails: %.1f km/h\nby %s.
-New world record for motorcars: %.1f km/h by %s.
-New world record for\nmotorcars:\n %.1f km/h\nby %s.
-New world record for planes: %.1f km/h by %s.
-New world record for\nplanes:\n %.1f km/h\nby %s.
-New world record for railways: %.1f km/h by %s.
-New world record for \nrailways:\n %.1f km/h \nby %s.
-New world record for ship: %.1f km/h by %s.
-New world record for\nships:\n %.1f km/h\nby %s.
 no convois
 No convoys
 No goods are loaded onto this convoi.

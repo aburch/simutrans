@@ -847,16 +847,7 @@ void depot_frame_t::open_schedule_editor()
 			create_win( new line_management_gui_t( selected_line, depot->get_owner() ), w_info, (ptrdiff_t)selected_line.get_rep() );
 		}
 		else { // edit individual schedule
-			// this can happen locally, since any update of the schedule is done during closing window
-			schedule_t *schedule = cnv->create_schedule();
-			assert(schedule!=NULL);
-			gui_frame_t *fplwin = win_get_magic( (ptrdiff_t)schedule );
-			if(  fplwin == NULL  ) {
-				cnv->open_schedule_window( welt->get_active_player() == cnv->get_owner() );
-			}
-			else {
-				top_win( fplwin );
-			}
+			cnv->call_convoi_tool( 'f', NULL );
 		}
 	}
 	else {
