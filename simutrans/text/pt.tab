@@ -1981,22 +1981,6 @@ zooming out
 Diminuir zoom
 Zu nah am Kartenrand
 Você não pode construir tão próximo da borda do mapa.
-#__________________________________record_text__________________________________
-#__________________________________record_text__________________________________
-New world record for maglevs: %.1f km/h by %s.
-Novo recorde mundial para maglevs: %.1f km/h por %s.
-New world record for monorails: %.1f km/h by %s.
-Novo recorde mundial para monotrilhos:\n %.1f km/h por %s.
-New world record for motorcars: %.1f km/h by %s.
-Novo recorde mundial para automóveis:\n %.1f km/h por %s.
-New world record for narrowgauges: %.1f km/h by %s.
-Novo recorde mundial para trens de bitola estreita: %.1f km/h por %s.
-New world record for planes: %.1f km/h by %s.
-Novo recorde mundial para aviões:\n %.1f km/h por %s.
-New world record for railways: %.1f km/h by %s.
-Novo recorde mundial para trens:\n %.1f km/h por %s.
-New world record for ship: %.1f km/h by %s.
-Novo recorde mundial para navios:\n %.1f km/h por %s.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

@@ -64,7 +64,6 @@ class network_world_command_t;
 class goods_desc_t;
 class memory_rw_t;
 class viewport_t;
-class records_t;
 
 #define CHK_RANDS 32
 #define CHK_DEBUG_SUMS 8
@@ -442,12 +441,6 @@ private:
 	 * The recorded history so far.
 	 */
 	sint64 finance_history_month[MAX_WORLD_HISTORY_MONTHS][MAX_WORLD_COST];
-
-	/**
-	 * World record speed manager.
-	 * Keeps track of the fastest vehicles in game.
-	 */
-	records_t *records;
 
 	/**
 	 * Attached view to this world.
@@ -1186,10 +1179,6 @@ public:
 
 	settings_t const& get_settings() const { return settings; }
 	settings_t&       get_settings()       { return settings; }
-
-	/// speed record management
-	sint32 get_record_speed( waytype_t w ) const;
-	void notify_record( convoihandle_t cnv, sint32 max_speed, koord k );
 
 	/// time lapse mode ...
 	bool is_paused() const { return step_mode&PAUSE_FLAG; }

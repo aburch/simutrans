@@ -1909,22 +1909,6 @@ zooming out
 atitraukiama
 Zu nah am Kartenrand
 Negalite statyti\nper arti \nžemėlapio krašto.
-#__________________________________record_text__________________________________
-#__________________________________record_text__________________________________
-New world record for maglevs: %.1f km/h by %s.
-Magnetinis traukinys pasiekė: %.1f km/h.\n Traukinys pasiekės rekordą buvo pavadintas %s.
-New world record for monorails: %.1f km/h by %s.
-Naujas vienbėgio pasaulio\n rekordas: %.1f km/h\npasiektas %s.
-New world record for motorcars: %.1f km/h by %s.
-Naujas pasaulio motoristų\nrekordas:\n %.1f km/h\n kurį pademonstravo %s.
-New world record for narrowgauges: %.1f km/h by %s.
-Naujas siauruko pasaulio rekordas:/n %.1f km/h pasiektas %s.
-New world record for planes: %.1f km/h by %s.
-Naujas lėktuvo pasaulio \nrekordas:\n %.1f km/h\npasiektas %s.
-New world record for railways: %.1f km/h by %s.
-Naujas traukinio pasaulio \nrekordas:\n %.1f km/h \npasiektas %s.
-New world record for ship: %.1f km/h by %s.
-Naujas laivų pasaulio rekordas:\n %.1f km/h\npasiektas %s.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

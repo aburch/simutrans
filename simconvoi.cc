@@ -5404,10 +5404,6 @@ void convoi_t::laden() //"load" (Babelfish)
 		if(average_speed <= get_vehicle_summary().max_speed)
 		{
 			book(average_speed, CONVOI_AVERAGE_SPEED);
-			if(average_speed > welt->get_record_speed(vehicle[0]->get_waytype()))
-			{
-				welt->notify_record(self, average_speed, pos);
-			}
 
 			typedef inthashtable_tpl<uint16, sint64> int_map;
 			FOR(int_map, const& iter, best_times_in_schedule)
