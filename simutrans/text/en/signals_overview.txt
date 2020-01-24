@@ -4,83 +4,83 @@
 <p>
 
 <em>Signals in Simutrans Extended</em><br>
-Signals in Simutrans Extended is a very complex subject. The signals have evolved from Simutrans Standard and have become quite different, both in functionallity and appearence. A signal can be many things dependent on how the signal has been designed for the pakset and in some cases, a signal variant doesnt exist in some pakset while it exists in another. This signal help section will aim to describe all of the possible variants that is possible and how they would work in the game, even though a particular signal is not in the pakset.<br>
-A signal in Simutrans Extended will have some fundamental parameters which will be described shortly on this page. To read further on some of the subjects follow the links under the subjects to get a more indepth description.
+Signals in Simutrans Extended are a very complex subject. The signals have evolved from Simutrans Standard and have become quite different, both in functionality and appearance. A signal can be many things dependent on how the signal has been designed for the pakset and, in some cases, a signal variant that exists in one pakset does not exist in another. This signal help section will aim to describe all of the possible variants and how they would work in the game, even though a particular signal may not be in the pakset that you are playing now.<br>
+A signal in Simutrans Extended has some fundamental parameters which will be described shortly on this page. You can follow the links under the subjects to get a more detailed description.
 <br><br><br>
 
 <em>Working methods</em><br>
-Since the dawn of railways, the biggest problem has always been to ensure that two trains are not running into each other. This has resulted in the development of various safety systems, rules, technical safety instruments etc.<br>
-Signals in Simutrans Extended are working with so called "working methods", which will determine how the signal behaves and which rules and "safety systems" the train will follow after passing the signal. The working method is the most essential parameter of the signal, as all other functionallity will depend on it. Different working methods represents different real life rail systems, and there are different signals available to the various working methods.<br>
-Whenever a train leaves a depot or platform with no signals, it will default to the Drive by Sight working method (although with some exceptions: se the link below).<br>
-Read more about working methods here: <a href="signals_working_methods.txt">Signals working methods</a>
+Since the dawn of railways, the biggest problem has always been to ensure that two trains do not crash into each other. This has resulted in the development of various safety systems, rules, technical safety instruments, etc.<br>
+Each signal in Simutrans Extended is part of a "working method", which will determine how the signal behaves and which rules and "safety systems" the train will follow after passing the signal. The working method is the most essential parameter of the signal, as all other functionality will depend on it. Different working methods represents different real life rail systems, and there are different signals available to the various working methods. Depending on the pakset, signals may be used on tram and narrow-gauge track as well as "heavy" railways. In Simutrans, drivers always obey signals, even if this could leave their trains stuck or in a dangerous position.<br>
+Whenever a train leaves a depot or platform with no signals, it will default to the <a href="signals_wm_drive_by_sight.txt">Drive by Sight</a> working method (with <a href="signals_wm_drive_by_sight.txt">some exceptions</a>).<br>
+Read more about working methods here: <a href="signals_working_methods.txt">signals working methods</a>
 <br><br>
 
-<em>Signalboxes</em><br>
-A signal can't just be built as a standalone signal: They need signalboxes in order to be built. A signalbox is in the real world the shelf or the building from which the signals are controlled. Newer techniques allows for more efficient signal systems with greater numbers and more remote controlled signals. In Simutrans, different signalboxes allows for different signals, simulating the different eras and techniques.<br>
-To build and connect signals to signal boxes, start by placing a signalbox next to the track. Once the signalbox is built, a bunch of signals will become visible in the rail toolbar which will now automatically be connected to your newly built signalbox when built. If you want to build new signals to another signalbox on your map, click on that signalbox and new signals will automatically be connected to that one.
+<em>Signal boxes</em><br>
+A signal can't just be built as a stand-alone signal: it needs a signal box to be built. In the real world, a signal box is the shelf or the building from which the signals are controlled. Newer techniques allow for more efficient signal systems with greater numbers and more remote-controlled signals. In Simutrans, different signal boxes allow for different signals, simulating the different eras and techniques.<br>
+To build and connect signals to signal boxes, start by placing a signal box next to the track. Once the signal box is built, some signals will become visible in the rail toolbar and they will now automatically be connected to your newly-built signal box when built. If you want to connect new signals to another signal box on your map, click on that signal box and new signals will automatically be connected to that one.
 <br><br>
 
 <em>Uni- and bidirectional signals</em><br>
-Signals are unidirectional signals by default that only interact with trains they are facing, meaning that trains passing in the opposite direction will ignore the signal completely.<br>
-Some working methods, however, allow signals to become bidirectional signals, controling traffic from both directions. To create a bidirectional signal, click multiple times with the signal building tool on the signal, and the signal will circle between being unidirectional in one way, the other way and eventually bidirectional. The "station signal" though can only be built as a bidirectional signal.<br>
+By default, signals are unidirectional: they only interact with trains they are facing, meaning that trains passing in the opposite direction will ignore the signal completely.<br>
+Some working methods, however, allow signals to become bidirectional signals, controlling traffic from both directions. To create a bidirectional signal, click multiple times with the signal building tool on the signal's tile, and the signal will cycle between being unidirectional in one way, the other way and eventually bidirectional. However, the "station signal" can only be built as a bidirectional signal.<br>
 <br><br>
 
 <em>Normal reservations and Directional reservations</em><br>
-As opposed to a normal reservation, it is possible for a signal also to create a directional reservation. A directional reservation reserves only the direction of the track, not the track itself. Therefore other trains can still enter the directionally reserved track, but only travel in the same direction as the track is reserved. With the block reservation tool, the directional reservation has the color BLUE, and normal reservation has the color RED. To see what direction the reservation is, open the track info window.<br>
-To create a directinal reservation you need to put either a bidirectional signal, or a longblock signal.<br>
-Read more about how to create directional reservations here: <a href="signals_help.txt">Signals help page</a>
+Signals normally reserve track for a particular train or tram. As well as a normal reservation, it is also possible for a signal to create a directional reservation. A directional reservation reserves only the direction of the track, not the track itself. Therefore other trains can still enter the directionally reserved track, but they can only travel in the same direction as the track is reserved. When the block reservation tool, the directional reservation has the color BLUE, and normal reservation has the color RED. To see what direction the reservation is active, open the track info window.<br>
+To create a directional reservation you need to build either a bidirectional signal, or a long-block signal.<br>
+Read more about how to create directional reservations here: <a href="signals_help.txt">signals help page</a>
 <br><br>
 
 <em>Sighting distance</em><br>
-The traindriver can only see a certain distance in front of the train. When a train is in the "drive by sight" working method, the sighting distance is the only safety feature in existance and the train is therefore required to drive slow enough to stop within the sighting distance.<br>
-The sighting distance is also used to determine the speed that a train will approach an upcoming signal. Since the train does not know the state of an upcoming signal (except in "cab signal" and "moving block" working methods), it must drive slow enough to possibly stop if the signal is at danger. To come around this problem, presignals is used, which tells the driver at a much earlier point what state the upcoming signal is at.<br>
-To see the sighting distance of a train, let it run in <a href="signals_wm_drive_by_sight.txt"><em>Drive by sight</em></a> working method. The red reservation in front of the train will correspond to its sighting distance.
+The train driver can only see a certain distance in front of the train. When a train is in the "drive by sight" working method, the sighting distance is the only safety feature in existence and the train is therefore required to drive slow enough to stop within the sighting distance.<br>
+The sighting distance is also used to determine the speed of a train approaching a signal. Since the train does not know the state of the next signal (except in the "cab signal" and "moving block" working methods), it must drive slowly enough to stop if the signal is at danger. To avoid this problem, pre-signals are used, which tell the driver at a much earlier point the state of an upcoming signal.<br>
+To see the sighting distance of a train, let it run in the <a href="signals_wm_drive_by_sight.txt"><em>drive by sight</em></a> working method. The red reservation in front of the train will correspond to its sighting distance.
 <br><br>
 
 <em>Signals max speed</em><br>
-At higher speeds, signs and signals get more difficult to read. Each signal has a maximum sighting speed (defined as "Max speed") which is the maximum speed that the traindrivers human eye can read the messages given from the signal. In effect, this means that a train will not pass a signal at higher speed than the signals maxspeed. Although with modern technology cab signalling allows the signal states to be shown inside the cab of the trains, thus allowing for a much higher sighting speed.
+At higher speeds, signs and signals get more difficult to read. Each signal has a maximum sighting speed (displayed in its window as "Max. speed") which is the maximum speed at which the train driver's human eye can read the signal. In effect, this means that a train will not pass a signal at a higher speed than the signal's maximum speed. With modern technology, cab signalling allows the signal states to be shown inside the cab of the trains, thus allowing for a much higher sighting speed.
 <br><br>
 
 <em>Choose signals</em><br>
-Choose signals serves two functions: They will guide the train to an empty platform at the station, and they will guide a train through a station, also if the mainline route is occupied.<br>
-To make use of this second function, you need to place an <it>end of choose </it>sign outside all the exits of the station. When a train aproach the choose signal, it will be given a route all the way till its destination or the "end of choose" sign, whichever is encountered first.<br>
-Read more about how choose signals work at the <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> page
+Choose signals serve two functions: they will guide the train to an empty platform at the station, and they will guide a train through a station, even if the scheduled or shortest route is occupied.<br>
+To make use of this second function, you need to place an <it>end of choose</it> sign outside all the exits of the station. When a train approaches the choose signal, it will be given a route all the way until its destination or the "end of choose" sign, whichever is encountered first.<br>
+Read more about how choose signals work on the <a href="signals_wm_absolute_block.txt"><em>absolute block</em></a> page.
 <br><br>
 
 <em>Distant signals</em><br>
-Distant signals, presignals and repeater signals are all used only to forecast what state of the upcomming signal is. In essence they extend the sighting distance of the following signal. These kinds of signals are not "stop signals", as most other types of signals are, therefore trains will never stop at them.<br>
-Trains might change working method when passing a distant signal though, thus reservations might still end at the distant signal. This happens mostly when the working method of the distant signal is a different one than the previous signal.<br>
-Read more about how to use them on the <a href="signals_wm_track_circuit_block.txt"><em>Track circuit block</em></a> page.
+Distant signals, pre-signals, and repeater signals are all used only to forecast the state of the next signal. In essence, they extend the sighting distance of the following signal. These kinds of signals are not "stop signals", as most other types of signals are, therefore trains will never stop at them.<br>
+Trains might change working method when passing a distant signal though, thus reservations might still end at the distant signal. This happens mostly when the working method of the distant signal is different from the working method of the previous signal.<br>
+Read more about how to use them on the <a href="signals_wm_absolute_block.txt"><em>absolute block</em></a> and <a href="signals_wm_track_circuit_block.txt"><em>track circuit block</em></a> pages.
 <br><br>
 
 <em>Multiple aspect signals</em><br>
-A signal may have up to 5 aspects. In addition to that, permissive signals and choose signals have specific aspects related to their functions. Different paksets reflect specific countries or signalling systems, and so certain combinations might not be available for a specific pakset.<br>
-The core function of multiple aspect signals is to combine a forecast aspect with a stop signal, thus increasing the density of the tracks. The more aspects a signal has, the smaller blocks can be created without compromizing with lower top speeds, thus creating room for more trains on the tracks. Therefore, the most effective way of using multi aspect signals are at lines with a big traffic demand.<br>
+A signal may have up to five aspects, each giving a different instruction to the train driver. In addition to that, permissive signals and choose signals have specific aspects related to their functions. Different paksets reflect specific countries or signalling systems, and so certain combinations might not be available for a specific pakset.<br>
+The core function of multiple aspect signals is to combine a forecast aspect with a stop signal, thus increasing the density of the tracks. The more aspects a signal has, the smaller the blocks that can be created without compromising with lower top speeds, thus creating room for more trains on the tracks. Therefore, multi aspect signals are most useful on lines with high traffic demand.<br>
 Read more about how to use them on the <a href="signals_wm_track_circuit_block.txt"><em>Track circuit block</em></a> page.
 <br><br>
 
 <em>Combined signals</em><br>
-A combined signal is a specific Absolute block type signal which is an early type of multiple aspect. It has three aspects and the forecasting aspect can forecast either for the signals coupled to its own signalbox, or for the following signalbox, if that particular signalbox is within range.<br>
-The forecasting aspect will only show clear if all signals connected to the particular signalbox are clear in the given direction.<br>
-Read more about how to use them on the <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> page.
+A combined signal is a specific absolute block signal and is an early type of multiple aspect. It has three aspects and the forecasting aspect can forecast either for the signals coupled to its own signal box, or for the following signal box, if that particular signal box is within range.<br>
+The forecasting aspect will only show clear if all signals connected to the relevant signal box are clear in the given direction.<br>
+Read more about how to use them on the <a href="signals_wm_absolute_block.txt"><em>absolute block</em></a> page.
 <br><br>
 
 <em>Permissive signals</em><br>
-Permissive signals are used to increase line capacity. When a train is brought to a stand at a permissive signal at danger, it may proceed beyond the signal at "drive by sight". This is only possible where the signal controls a section of straight, unidirectional track. If there are junctions, the permissive functionality is disabled and the signal works as an ordinary signal.<br>
-Read more about how to use them on the <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> page.
+Permissive signals are used to increase line capacity. When a train is brought to a stand at a permissive signal at danger, it may proceed beyond the signal using "drive by sight". This is only possible where the signal controls a section of straight, unidirectional track. If there are junctions, the permissive functionality is disabled and the signal functions as an ordinary signal.<br>
+Read more about how to use them on the <a href="signals_wm_absolute_block.txt"><em>absolute block</em></a> page.
 <br><br>
 
 <em>Double block signals</em><br>
-Double block signals will not clear until the next signal in line can clear. This is typically used when lines are branching out to two (or more) different working methods. The signal creates absolute block type of reservation in the first block and whatever type of reservation in the second block.<br>
-Read more about how to use them on the <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> page.
+Double block signals will not clear until the next signal in line can clear. This is typically used when lines are branching out to two (or more) different working methods. The signal creates an absolute block type of reservation in the first block, followed by another reservation appropriate to the second block.<br>
+Read more about how to use them on the <a href="signals_wm_absolute_block.txt"><em>absolute block</em></a> page.
 <br><br>
 
-<em>Longblock signals</em><br>
-A Longblock signal will always try to enforce a directional reservation.<br>
-Read more about how to use them on the <a href="signals_wm_track_circuit_block.txt"><em>Track circuit block</em></a> page.
+<em>Long-block signals</em><br>
+A long-block signal will always try to enforce a directional reservation.<br>
+Read more about how to use them on the <a href="signals_wm_track_circuit_block.txt"><em>track circuit block</em></a> page.
 <br><br>
 
 <em>Intermediate signals</em><br>
-This type of signal is a specific Absolute block type signal which allows an extra section to be inserted into an absolute block section between two signal boxes using semi-automatic signals without replacing the signalbox or existing mechanical signals.<br>
-Read more about how to use them on the <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> page.
+This type of signal is a specific absolute block signal which allows an extra section to be inserted into an absolute block section between two signal boxes using semi-automatic signals without replacing the signal boxes or existing mechanical signals.<br>
+Read more about how to use them on the <a href="signals_wm_absolute_block.txt"><em>absolute block</em></a> page.
 <br><br><br><br>
