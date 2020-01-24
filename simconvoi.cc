@@ -5211,17 +5211,15 @@ void convoi_t::open_schedule_window( bool show )
 	if (schedule)
 	{
 		old_schedule = schedule->copy();
+	} else {
+		schedule = create_schedule();
 	}
-
 	if(  show  ) {
 		// Open schedule dialog
 		create_win( new schedule_gui_t(schedule,get_owner(),self), w_info, (ptrdiff_t)schedule );
 		// TODO: what happens if no client opens the window??
 	}
-	if(schedule)
-	{
-		schedule->start_editing();
-	}
+	schedule->start_editing();
 }
 
 
@@ -5398,10 +5396,6 @@ void convoi_t::laden() //"load" (Babelfish)
 		if(average_speed <= get_vehicle_summary().max_speed)
 		{
 			book(average_speed, CONVOI_AVERAGE_SPEED);
-			if(average_speed > welt->get_record_speed(vehicle[0]->get_waytype()))
-			{
-				welt->notify_record(self, average_speed, pos);
-			}
 
 			typedef inthashtable_tpl<uint16, sint64> int_map;
 			FOR(int_map, const& iter, best_times_in_schedule)
@@ -8585,3 +8579,14 @@ sint16 convoi_t::get_car_numbering(uint8 car_no) const
 }
 
 
+bool convoi_t::check_way_constraints_of_all_vehicles(const weg_t &way) const
+{
+	for (uint32 i = 0; i < vehicle_count; i++)
+	{
+		if (!get_vehicle(i)->check_way_constraints(way))
+		{
+			return false;
+		}
+	}
+	return true;
+}
