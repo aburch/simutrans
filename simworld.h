@@ -754,7 +754,7 @@ private:
 	 * Re-calculate vehicle details monthly.
 	 * Used to be used for the speed bonus
 	 */
-	void recalc_average_speed();
+	void recalc_average_speed(bool skip_messages);
 
 	/**
 	 * Monthly actions.
