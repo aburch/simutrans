@@ -1977,22 +1977,6 @@ zooming out
 Oddálit
 Zu nah am Kartenrand
 Pøíli¹ blízko\nk okraji mapy!\n
-#__________________________________record_text__________________________________
-#__________________________________record_text__________________________________
-New world record for maglevs: %.1f km/h by %s.
-Nový svìtový rychlostní rekord maglevu: %.1f km/h soupravou %s.
-New world record for monorails: %.1f km/h by %s.
-Nový svìtový rychlostní rekord monorailu: %.1f km/h soupravou %s.
-New world record for motorcars: %.1f km/h by %s.
-Nový svìtový rychlostní \nrekord vozidla: %.1f km/h \nsoupravou %s.
-New world record for narrowgauges: %.1f km/h by %s.
-Nový svìtový rychlostní rekord úzkokolejky: %.1f km/h soupravou %s.
-New world record for planes: %.1f km/h by %s.
-Nový svìtový rychlostní\n rekord letadla:\n %.1f km/h\n strojem %s.
-New world record for railways: %.1f km/h by %s.
-Nový svìtový rychlostní\n rekord vlaku:\n %.1f km/h\n soupravou %s.
-New world record for ship: %.1f km/h by %s.
-Nový svìtový rychlostní\n rekord lodì:\n %.1f km/h\n plavidlem %s.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

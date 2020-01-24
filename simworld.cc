@@ -96,7 +96,6 @@
 #include "dataobj/settings.h"
 #include "dataobj/environment.h"
 #include "dataobj/powernet.h"
-#include "dataobj/records.h"
 #include "dataobj/marker.h"
 
 #include "utils/cbuffer_t.h"
@@ -764,9 +763,6 @@ void karte_t::init_tiles()
 	}
 	active_player = players[0];
 	active_player_nr = 0;
-
-	// clear world records
-	records->clear_speed_records();
 
 	// make timer loop invalid
 	for( int i=0;  i<32;  i++ ) {
@@ -3015,7 +3011,6 @@ karte_t::karte_t() :
 
 	// Added by : Knightly
 	path_explorer_t::initialise(this);
-	records = new records_t(this->msg);
 
 	// generate ground textures once
 	ground_desc_t::init_ground_textures(this);
@@ -3050,7 +3045,6 @@ karte_t::~karte_t()
 	// not deleting the tools of this map ...
 	delete viewport;
 	delete msg;
-	delete records;
 
 	delete[] commuter_targets;
 	delete[] visitor_targets;
@@ -5280,20 +5274,6 @@ void karte_t::recalc_average_speed()
 		// defaults
 		city_road = way_builder_t::weg_search(road_wt, 50, get_timeline_year_month(), 5, type_flat, 25000000);
 	}
-}
-
-
-// returns the current speed record
-sint32 karte_t::get_record_speed( waytype_t w ) const
-{
-	return records->get_record_speed(w);
-}
-
-
-// sets the new speed record
-void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord k )
-{
-	records->notify_record(cnv, max_speed, k, current_month);
 }
 
 

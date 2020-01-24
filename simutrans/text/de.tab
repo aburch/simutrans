@@ -1907,22 +1907,6 @@ zooming out
 Darstellung verkleinern
 Zu nah am Kartenrand
 Zu nah am Kartenrand!\nBitte es weiter weg\nnochmal versuchen!\n
-#__________________________________record_text__________________________________
-#__________________________________record_text__________________________________
-New world record for maglevs: %.1f km/h by %s.
-Neuer Weltrekord für Magnetbahnen: %.1f km/h by %s.
-New world record for monorails: %.1f km/h by %s.
-Neuer Weltrekord\nfür Monorailbahnen: %.1fkm/h\ndurch %s.
-New world record for motorcars: %.1f km/h by %s.
-Bernd Bleifuß erreicht\n%.1fkm/h auf\n%s. \nNeuer Weltrekord!
-New world record for narrowgauges: %.1f km/h by %s.
-Neuer Weltrekord für Schmalspurbahnen: %.1f km/h von %s.
-New world record for planes: %.1f km/h by %s.
-Lilienthals Erben melden\nneuen Weltrekord:\n%.1f km/h flog\n%s.
-New world record for railways: %.1f km/h by %s.
-Da fliegt die Pleuelstange\nweg. Lokführer Braun holt\n%.1fkm/h heraus aus\n%s.
-New world record for ship: %.1f km/h by %s.
-Blaues Band mit\n%.1fkm/h vergeben\nan %s.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

@@ -1609,22 +1609,6 @@ zooming out
 izumiravanje
 Zu nah am Kartenrand
 Ne mozes graditi\ntako blizu na\nrubu mape.
-#__________________________________record_text__________________________________
-#__________________________________record_text__________________________________
-New world record for maglevs: %.1f km/h by %s.
-Novi svjetski record za maglevove: %.1f km/h by %s.
-New world record for monorails: %.1f km/h by %s.
-Novi svjetski rekord za\nmonorailove: %.1f km/h - %s.
-New world record for motorcars: %.1f km/h by %s.
-Novi svjetski rekord za\nmotorna vozila:\n %.1f km/h - %s.
-New world record for narrowgauges: %.1f km/h by %s.
-Novi svjetski rekord za uski kolosijek: %.1f km/h - %s.
-New world record for planes: %.1f km/h by %s.
-Novi svjetski rekord za\nzrakoplove:\n %.1f km/h\n - %s.
-New world record for railways: %.1f km/h by %s.
-Novi svjetski rekord za \nvlakove:\n %.1f km/h - %s.
-New world record for ship: %.1f km/h by %s.
-Novi svjetski rekod za \nbrodove:\n %.1f km/h\n - %s.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 %D_CITY_SYLL
