@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <algorithm>
+#include <iostream>
+#include <string>
 
 #include "gui_convoy_assembler.h"
 
@@ -1028,26 +1030,30 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		else {
 					lb_convoi_power.set_color(SYSCOL_TEXT);
 		}
-		txt_convoi_power.printf("%s %4d kW, %d kN\n", translator::translate("Power:"), total_power, total_force);
+		txt_convoi_power.printf("%s %4d kW, %d kN", translator::translate("Power:"), total_power, total_force);
 
 		txt_convoi_brake_force.clear();
-		txt_convoi_brake_force.printf("%s %4.2f kN\n", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0);
+		txt_convoi_brake_force.printf("%s %4.2f kN", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0);
 
 		txt_convoi_weight.clear();
 		tooltip_convoi_rolling_resistance.clear();
-		txt_convoi_weight.printf("%s %.2ft", translator::translate("Weight:"), total_empty_weight / 1000.0);
+		// Adjust the number of digits for weight. High precision is required for early small convoys
+		int digit = std::to_string(total_empty_weight / 1000).length();
+		int decimal_digit = 4 - digit > 0 ? 4 - digit : 0;
+		txt_convoi_weight.printf("%s %.*ft", translator::translate("Weight:"), decimal_digit, total_empty_weight / 1000.0);
+		txt_convoi_weight.append(" ");
 		if(  total_empty_weight != total_max_weight  ) {
 			if(total_min_weight != total_max_weight) {
-				txt_convoi_weight.printf(", %.2f-%.2ft\n", total_min_weight / 1000.0, total_max_weight / 1000.0 ); 
+				txt_convoi_weight.printf(translator::translate("(%.*f-%.*ft laden)"), decimal_digit, total_min_weight / 1000.0, decimal_digit, total_max_weight / 1000.0 );
 				tooltip_convoi_rolling_resistance.printf("%s %.3fkN, %.3fkN, %.3fkN", translator::translate("Rolling resistance:"), (rolling_resistance * (double)total_empty_weight / 1000.0) / number_of_vehicles, (rolling_resistance * (double)total_min_weight / 1000.0) / number_of_vehicles, (rolling_resistance * (double)total_max_weight / 1000.0) / number_of_vehicles);
 			}
 			else {
-				txt_convoi_weight.printf(", %.2ft\n", total_max_weight / 1000.0 );
+				txt_convoi_weight.printf(translator::translate("(%.*ft laden)"), decimal_digit, total_max_weight / 1000.0 );
 				tooltip_convoi_rolling_resistance.printf("%s %.3fkN, %.3fkN", translator::translate("Rolling resistance:"), (rolling_resistance * (double)total_empty_weight / 1000.0) / number_of_vehicles, (rolling_resistance * (double)total_max_weight / 1000.0) / number_of_vehicles);
 			}
 		}
 		else {
-				tooltip_convoi_rolling_resistance.printf("%s %.3fkN\n", translator::translate("Rolling resistance:"), (rolling_resistance * (double)total_empty_weight / 1000.0) / number_of_vehicles);
+				tooltip_convoi_rolling_resistance.printf("%s %.3fkN", translator::translate("Rolling resistance:"), (rolling_resistance * (double)total_empty_weight / 1000.0) / number_of_vehicles);
 		}
 		text_convoi_axle_load.printf("%s %d t", translator::translate("Max. axle load:"), highest_axle_load);
 

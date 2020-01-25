@@ -3954,3 +3954,7 @@ Starting acceleration:
 ; %i km/h @ %.2f - %.2f sec
 ; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
 ; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
+(%.*ft laden)
+(%.*ft laden)
+(%.*f-%.*ft laden)
+(%.*f-%.*ft laden)
