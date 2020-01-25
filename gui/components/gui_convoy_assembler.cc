@@ -975,8 +975,8 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		lb_convoi_speed.set_color(col_convoi_speed);
 
 		// starting acceleration
-		const uint32 starting_acceleration_max = (convoy.get_starting_force().to_sint32() - (rolling_resistance * (double)total_empty_weight) / number_of_vehicles) * 1000 / 9.80665 / 30.9 / min_weight * 100;
-		const uint32 starting_acceleration_min = (convoy.get_starting_force().to_sint32() - (rolling_resistance * (double)total_max_weight) / number_of_vehicles) * 1000 / 9.80665 / 30.9 / max_weight * 100;
+		const uint32 starting_acceleration_max = convoy.calc_acceleration(weight_summary_t(min_weight, friction),0);
+		const uint32 starting_acceleration_min = convoy.calc_acceleration(weight_summary_t(max_weight, friction),0);
 		tooltip_convoi_acceleration.append(translator::translate("Starting acceleration:"));
 		tooltip_convoi_acceleration.printf(
 			starting_acceleration_min == starting_acceleration_max ? " %.2f km/h/s" : " %.2f - %.2f km/h/s",

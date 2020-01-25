@@ -339,6 +339,10 @@ public:
 	 */
 	sint32 calc_min_braking_distance(const class settings_t &settings, const weight_summary_t &weight, sint32 speed);
 
+	// acceleration
+	// starting acceleration sets speed to 0
+	uint32 calc_acceleration(const weight_summary_t &weight, sint32 speed);
+
 	double calc_acceleration_time(const weight_summary_t &weight, sint32 speed);
 	uint32 calc_acceleration_distance(const weight_summary_t &weight, sint32 speed);
 

@@ -289,6 +289,12 @@ sint32 convoy_t::calc_min_braking_distance(const settings_t &settings, const wei
 	return settings.meters_to_steps(x);
 }
 
+
+uint32 convoy_t::calc_acceleration(const weight_summary_t &weight, sint32 speed)
+{
+	return (get_force_summary(speed * kmh2ms) - calc_speed_holding_force(speed * kmh2ms, get_adverse_summary().fr)).to_sint32() * 1000 / 9.80665 / 30.9 / weight.weight * 100;
+}
+
 double convoy_t::calc_acceleration_time(const weight_summary_t &weight, sint32 speed)
 {
 	if (!weight.weight || !speed) { return 0.0; }
