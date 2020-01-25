@@ -662,8 +662,10 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		return false;
 	}
 
+	bool upgrade = to->get_weg(desc->get_waytype());
+
 	// Check for nearby runways - but not if this is a tunnel
-	if (!(bautyp & tunnel_flag))
+	if (!(bautyp & tunnel_flag) && !upgrade)
 	{
 		karte_t::runway_info ri = welt->check_nearby_runways(to_pos);
 		if (ri.pos != koord::invalid)
@@ -729,7 +731,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		}
 	}
 
-	if (desc->get_waytype() == air_wt && desc->get_styp() == type_runway)
+	if (!upgrade && desc->get_waytype() == air_wt && desc->get_styp() == type_runway)
 	{
 		// This is itself a runway. Do not build next to neighbouring objects.
 		if (!welt->check_neighbouring_objects(to_pos))
