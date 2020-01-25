@@ -8577,7 +8577,8 @@ sint16 convoi_t::get_car_numbering(uint8 car_no) const
 	return reversed ? vehicle_count - car_no + 1 : normal_car_cnt;
 }
 
-bool convoi_t::check_way_constraints_of_all_vehicles(const weg_t &way) const
+
+bool convoi_t::check_way_constraints_of_all_vehicles(const weg_t& way) const
 {
 	for (uint32 i = 0; i < vehicle_count; i++)
 	{
