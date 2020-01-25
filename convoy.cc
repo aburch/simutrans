@@ -300,9 +300,8 @@ double convoy_t::calc_acceleration_time(const weight_summary_t &weight, sint32 s
 	if (!weight.weight || !speed) { return 0.0; }
 	double total_sec = 0;
 	for (int i = 1; i < speed; i++) {
-		const uint32 a = (get_force_summary(i * kmh2ms) - calc_speed_holding_force(i * kmh2ms, get_adverse_summary().fr)).to_sint32() * 1000 / 9.80665 / 30.9 / weight.weight * 100;
-		if (!a) { return 0.0; /* given speed error */ }
-		const double delta_t = (double)100.0 / a;
+		if (!calc_acceleration(weight, i)) { return 0.0; /* given speed error */ }
+		const double delta_t = (double)100.0 / calc_acceleration(weight, i);
 		total_sec += delta_t;
 	}
 	return total_sec;
@@ -313,9 +312,8 @@ uint32 convoy_t::calc_acceleration_distance(const weight_summary_t &weight, sint
 	if (!weight.weight || !speed) { return 0.0; }
 	uint64 travel_distance = 0;
 	for (int i = 1; i < speed; i++) {
-		const uint32 a = (get_force_summary(i * kmh2ms) - calc_speed_holding_force(i * kmh2ms, get_adverse_summary().fr)).to_sint32() * 1000 / 9.80665 / 30.9 / weight.weight * 100;
-		if (!a) { return 0; /* given speed error */ }
-		const double delta_t = (double)100.0 / a;
+		if (!calc_acceleration(weight, i)) { return 0; /* given speed error */ }
+		const double delta_t = (double)100.0 / calc_acceleration(weight, i);
 		travel_distance += delta_t * (i - 0.5) * 1000 / 3600 * 100; // [cm]
 	}
 	return travel_distance/100; // in meter
