@@ -3,141 +3,141 @@
 <h1>Signals working methods - Absolut block</h1><br><br>
 
 <em>Absolute block</em><br>
-The absolute block system is the most basic and probably easy to use signalling available. It prevents two trains to acces the same block, it doesnt make directional reservations and the reservation is released tile by tile when the train travels.<br>
-In real life, everything is checked by the humans inside the signalboxes, which use telephone or telegraph to communicate between signalboxes, asking each other whether the former train had arrived and the next train may be sent.<br>
-Absolute block distant signals will stay at caution untill all signals connected to the same signalbox as the distant signal and in the direction the train is traveling are set to clear.<br>
+The absolute block system is the most basic and, perhaps, the easiest-to-use signalling available. It prevents two trains accessing the same block at the same time, it does not make directional reservations, and the reservation is released tile by tile when the train travels.<br>
+In real life, everything is checked by the humans inside the signal boxes, who use telephone or telegraph to communicate between signal boxes, asking each other whether the previous train has arrived and the next train may be sent.<br>
+Absolute block distant signals will stay at caution until all signals connected to the same signal box as the distant signal, in the direction the train is traveling, are set to clear.<br>
 <br>
 It is not possible to create bidirectional signals using absolute block signals.<br><br>
 <br>
 
 <em>How it works</em><br>
-* Absolute block signals reserves the entire path up to the next signal.<br>
+* Absolute block signals reserve the entire path up to the next signal.<br>
 * Trains will unreserve the path behind them, thus letting another train cross the track.<br>
-* When a train approaches a presignal it will attempt to reserve as far as possible, all the way up to the first stop signal of the "next" signalbox.<br>
+* When a train approaches a pre-signal it will attempt to reserve as far as possible, all the way up to the first stop signal of the "next" signalbox.<br>
 <br>
 
 <em>Types of signals</em><br>
-There are a bunch of signal variants in this working method. Note that some variants doesnt exist in all paksets though, please refer to the pakset description of what variants are included.<br>
-Due to the great variety of signals and their niche, the "best uses" and "pittfalls" will be described at each variant.<br>
+There are a number of signal variants in this working method. Note though that some variants don't exist in all paksets; please refer to the pakset description of what variants are included.<br>
+Due to the great variety of signals and their niches, the "best uses" and "pitfalls" will be described for each variant.<br>
 <br>
 
 - <it>Absolute block stop signal</it><br>
 This is the standard stop signal.<br>
 - <em>Best uses</em><br>
 Absolute block signals can be used in almost all situations. Both single track operations (although capacity is somewhat limited) and double track operations can easily be used with this working method.<br> 
-* Within stations, absolute block signal is the most superior working method (together with <a href="signals_wm_track_circuit_block.txt"><em>Track circuit block</em></a>- and <a href="signals_wm_cab_signalling.txt"><em>Cab signalling</em></a> signals). Put an absolute block signal at every exit point from platforms and holding points and the trains will manage them self.<br>
-- <em>Pittfalls</em><br>
+* Within stations, absolute block signal is the superior working method (together with <a href="signals_wm_track_circuit_block.txt"><em>track circuit block</em></a>- and <a href="signals_wm_cab_signalling.txt"><em>cab signalling</em></a> signals). Put an absolute block signal at every exit point from platforms and holding points and the trains will manage themselves.<br>
+- <em>Pitfalls</em><br>
 There are not many drawbacks of using absolute block signals, except:<br>
-* Single track lines can only be divided into two blocks. Put the signals dividing the block so that the blocks overlap. This will ensure that whenever one of the blocks are occupied, trains cannot be dispatched from the other end.<br>
+* Single track lines can only be divided into two blocks. Put the signals dividing the blocks so that the blocks overlap. This will ensure that whenever one of the blocks are occupied, trains cannot be dispatched from the other end.<br>
 <br>
 
 - <it>Absolute block choose signal</it><br>
 The primary function of a choose signal is to find empty platforms. The secondary function is to find free routes through stations or junctions.<br>
-When a train attempts to make a reservation from a choose signal, the signal will look ahead and behave differently dependent on what is first encountered:<br>
+When a train attempts to make a reservation from a choose signal, the signal will look ahead and function differently dependent on what is first encountered:<br>
 <br>
 If the scheduled destination is encountered:<br>
 * The signal will look first at the platform which is pointed at in the schedule (also called the "main route").<br>
-* If that platform is occupied it will look for an alternative free platform with the minimum required length of the platform.<br>
+* If that platform is occupied it will look for an alternative free platform with the minimum required platform length.<br>
 * When an empty platform is found, a block reservation will be made (potentially through multiple signals) up to the platform and the signal will shift from danger to clear.<br>
 <br>
 
 If an "end of choose" sign is encountered:<br>
-* The signal will attempt to reserve the shortest route through the junctions towards the "end of choose" sign.<br>
+* The signal will attempt to reserve the shortest route through the junction towards the "end of choose" sign.<br>
 * If no routes are found, the train might instead be cleared to an intermediate signal, even though the entire route to the end of choose sign is not clear yet.<br>
 <br>
 
 If another choose signal is encountered:<br>
-* The choose signal will behave just as an ordinary stop signal.<br>
+* The choose signal will just function as an ordinary stop signal.<br>
 <br>
 
 - <em>Best uses</em><br>
 * Unless you always want the trains to stop at the exact platform specified in their schedules, choose signals should be used at the station entrance.<br>
-* For certian complex stations, choose signals could be placed also on platform exits. For instance when there are multiple paths from the platform to the line, perhaps with other platforms or holding points in between.<br>
+* For certain complex stations, choose signals could be placed also on platform exits. For instance when there are multiple paths from the platform to the line, perhaps with other platforms or holding points in between.<br>
 * When using choose signals on stations with line exits on either side of the station, always use "end of choose" signs on all outgoing lines, to ensure proper choose signal functionality. If using single track lines, put the "end of choose" sign in front of the choose signals.<br>
 <br>
-- <em>Pittfalls</em><br>
+- <em>Pitfalls</em><br>
 Never use a choose signal as a normal stop signal.<br>
-Always make sure that the choose signal deliberatedly will reach either:<br>
+Always make sure that the choose signal will intentionally reach either:<br>
 * the scheduled destination,<br>
 * an "end of choose" sign, or<br>
 * another choose signal.<br>
-* Otherwise the signal might perform insane reservations via unintended paths through you network.<br>
+* Otherwise the signal might perform insane reservations via unintended paths through your network.<br>
 <br>
 
 - <it>Absolute block distant signal</it><br>
-Absolute block distant signals will not only forecast the status of the next signal, but for all oncoming signals connected to the same signalbox as the distant signal.<br>
-* If all signals connected to the signalbox can be set to clear, the distant signal will be set to clear and a reservation will be done through all signals up until the first signal at the following signalbox.<br>
+Absolute block distant signals will not only forecast the status of the next signal, but that of all oncoming signals connected to the same signal box as the distant signal.<br>
+* If all signals connected to the signal box can be set to clear, the distant signal will be set to clear and a reservation will be done through all signals up until the first signal at the following signal box.<br>
 * If any of the signals cannot be set to clear, the distant signal will remain at caution.<br>
 - <em>Best uses</em><br>
-* Optimal distance between the distant signal and the following stop signal is the maximum braking distance of any train that is passing by.<br>
-- <em>Pittfalls</em><br>
-* Distant signals will also change the working method of the train, so be carefull not to change the working method unintentionally.<br>
-* Putting the distant signal too far ahead of its main signal might make it ineffective. The status of the distant signal might have changed from caution to clear after the train has passed it.<br>
+* The optimal distance between the distant signal and the following stop signal is the maximum braking distance of any train that passes by.<br>
+- <em>Pitfalls</em><br>
+* Distant signals will also change the working method of the train, so be careful not to change the working method unintentionally.<br>
+* Putting the distant signal too far ahead of its main signal might make it ineffective. The status of the distant signal might change from caution to clear after the train has passed it.<br>
 <br>
 
 - <it>Absolute block station signal</it><br>
-Absolute block station signals work mostly like normal absolute block signals, except it can manage the departures of all tracks in all directions.
+Absolute block station signals work mostly like normal absolute block signals, except that it can manage the departures of all tracks in all directions.
 * Station signals can be placed both on platform tiles, where they will work for all platforms in both directions, or along the track, where they will work as a signal in both directions.<br>
 - <em>Best uses</em><br>
-* Placing the station signal on a platform tile will make that signal depart trains for all platforms in all directions connected to the station.<br>
-- <em>Pittfalls</em><br>
+* Placing the station signal on a platform tile will make that signal control all trains for all platforms in all directions connected to the station.<br>
+- <em>Pitfalls</em><br>
 * The station signal is bidirectional, so placing the signal on a line will create a block at either end of the signal.<br>
 <br>
 
 - <it>Absolute block double block signal</it><br>
-Absolute block "double block" signals will only set to clear if it can trigger the next signal to also set to clear. It is especially usefull when combining multiple lines with different working methods and limited space.<br>
-* When a train approach the signal, it will attempt to reserve both the block immediatedly following the signal, as well as the following block.<br>
+Absolute block "double block" signals will only set to clear if it can trigger the next signal to also set to clear. It is especially useful when combining multiple lines with different working methods and limited space.<br>
+* When a train approaches the signal, it will attempt to reserve both the block immediately following the signal, as well as the following block.<br>
 * When both blocks are free, the signal is set to clear.<br>
-* When departing from the signal, trains will travel in absolute block working method in the first block, and only change working method when entering the second block, if commanded by the second signal.<br>
+* When departing from the signal, trains will travel in absolute block working method in the first block, and only change working method when entering the second block, if this is commanded by the second signal.<br>
 - <em>Best uses</em><br>
-* On platforms or holding points, this signal can in effect depart trains with different working methods. Put a signal of the appropriate working method at the beginning of each line.<br>
+* On platforms or holding points, this signal can in effect tell trains to depart with different working methods. Put a signal of the appropriate working method at the beginning of each line.<br>
 * On platforms or holding points, it can have trains stand still until a particular line is free.<br>
-- <em>Pittfalls</em><br>
+- <em>Pitfalls</em><br>
 * It is not possible to stack the signals in a row. The first signal will behave normally, but the rest will not.<br>
 <br>
 
 - <it>Absolute block double block station signal</it><br>
-This signal shares the functionallity between a "station signal" and a "double block" signal.<br>
+This signal shares the functionality of a "station signal" and a "double block" signal.<br>
 * Station signals can be placed both on platform tiles, where they will work for all platforms in both directions, or along the track, where they will work as a signal in both directions.<br>
-* When a train approach the signal or wants to depart from it, it will attempt to reserve both the block immediatedly following the signal, as well as the following block.<br>
+* When a train approaches the signal or wants to depart from it, it will attempt to reserve both the block immediately following the signal and the following block.<br>
 * When both blocks are free, the signal is set to clear.<br>
 - <em>Best uses</em><br>
 * On stations operating with multiple working methods. Put a signal of the appropriate working method at the beginning of each line.<br>
-- <em>Pittfalls</em><br>
+- <em>Pitfalls</em><br>
 * The station signal is bidirectional, so placing the signal on a line will create a block at either end of the signal.<br>
 * It is not possible to stack the signals in a row. The first signal will behave normally, but the rest will not.<br>
 <br>
 
 - <it>Absolute block intermediate block signal</it><br>
-This type of signal is a specific absolute block type signal which allows an extra section to be inserted into an absolute block section between two signal boxes using semi-automatic signals without replacing the signalbox or existing mechanical signals.<br>
-* They work all in all like a normal absolute block signal.<br>
+This type of signal is a specific absolute block type signal which allows an extra section to be inserted into an absolute block section between two signal boxes using semi-automatic signals without replacing the signal box or existing mechanical signals.<br>
+* They generally work like a normal absolute block signal.<br>
 - <em>Best uses</em><br>
-* The signals have typically a higher range, and can be placed much further from the signalbox.<br>
+* The signals typically have a longer range, and so can be placed much further from the signal box.<br>
 <br>
 
 - <it>Absolute block combined signal</it><br>
 This signal is also specific to the absolute block working method and is a combined stop signal and distant signal.<br>
 It shares the same states as a three aspect signal from track circuit block. This means the three states will be "Clear", "Danger" and "Caution", where caution translates to "this signal is clear, but the following is not."<br>
-* The distant forecast can be used to forecast signals of its own signalbox<br>
-* When forecasting signals of its own signalbox, the distant aspect will work like a normal distant signal<br>
-* It can also be used to forecast the signals of the oncoming signalbox, if that signalbox is within range of the combined signal.<br>
-* When forecasting signals of the following signalbox, the distant aspect will go to clear when all signals of the following signalbox can be set to clear.<br>
-* If the oncoming signalbox is not within range of the combined signal, the forecasting aspect will not be utilized.<br>
+* The distant function can be used to forecast signals of its own signal box<br>
+* When forecasting signals of its own signal box, the distant function will work like a normal distant signal<br>
+* It can also be used to forecast the signals of the oncoming signal box, if that signal box is within range of the combined signal.<br>
+* When forecasting signals of the following signal box, the distant aspect will go to clear when all signals of the following signal box can be set to clear.<br>
+* If the oncoming signal box is not within range of the combined signal, the forecasting aspect will not be utilized.<br>
 - <em>Best uses</em><br>
-* When the distance between the signalboxes are so small so that the last signal of one signalbox is located where the distant signal of the following signalbox is located. Put the combined signal in this location instead.<br>
+* When the distance between the signal boxes is so small so that the last signal of one signalbox is located where the distant signal of the following signal box is located. Put the combined signal in this location instead.<br>
 <br>
 
 - <it>Absolute block permissive signal</it><br>
-A permissive signal allows a train to depart from the signal in <a href="signals_wm_drive_by_sight.txt"><em>Drive by sight</em></a> if the signal is at danger.<br>
-* If signal shows clear, the train will drive like in normal absolute block.<br>
+A permissive signal allows a train to depart from the signal in <a href="signals_wm_drive_by_sight.txt"><em>drive by sight</em></a> if the signal is at danger.<br>
+* If signal shows clear, the train will drive as in normal absolute block.<br>
 * If signal shows danger, it will shift status to "call on" when a train approaches it.<br>
-* This functionallity only works when there are no junctions between the signals. If there are any junctions, the signal will only have danger and clear and work like a normal absolute block signal.<br>
+* This functionality only works when there are no junctions between the signals. If there are any junctions, the signal will only have "danger" and "clear" and work like a normal absolute block signal.<br>
 - <em>Best uses</em><br>
 * For high density lines, where it is more important that trains run forward in slow speed than not run at all.<br>
 * The optimal distance between the signals is when no more than one train is inside each block at any given time.<br>
-- <em>Pittfalls</em><br>
-* Do not use on bidirectional tracks, as they share the same pittfalls as ordinary drive by sight.<br>
-* Might unintentionally lower the throughoutput of trains if the blocks are too big.<br>
+- <em>Pitfalls</em><br>
+* Do not use on bidirectional tracks, as it shares the same pitfalls as ordinary drive by sight.<br>
+* Might unintentionally lower the throughput of trains if the blocks are too big.<br>
 <br>
 
 <br><br><br><br>
