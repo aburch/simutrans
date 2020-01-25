@@ -662,63 +662,66 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		return false;
 	}
 
-	// Check for nearby runways
-	karte_t::runway_info ri = welt->check_nearby_runways(to_pos);
-	if (ri.pos != koord::invalid)
+	// Check for nearby runways - but not if this is a tunnel
+	if (!(bautyp & tunnel_flag))
 	{
-		// There is a nearby runway. Only build if we are a runway in the same direction connecting to it,
-		// or a perpendicular taxiway.	
-		if (desc->get_waytype() != air_wt)
+		karte_t::runway_info ri = welt->check_nearby_runways(to_pos);
+		if (ri.pos != koord::invalid)
 		{
-			// A non air waytype: cannot be built near a runway at all.
-			return false;
-		}
-		else
-		{
-			// An air waytype - can build continuations of runways or perpendicular taxiways.
-			ribi_t::ribi build_dir = ribi_type(from_pos, to_pos); 
-
-			if (desc->get_styp() != type_runway)
+			// There is a nearby runway. Only build if we are a runway in the same direction connecting to it,
+			// or a perpendicular taxiway.	
+			if (desc->get_waytype() != air_wt)
 			{
-				// A taxiway - only perpendicular allowed.
-				if (!ribi_t::is_perpendicular(build_dir, ri.direction))
-				{
-					if (!ribi_t::is_threeway(ri.direction))
-					{
-						return false;
-					}
-					else
-					{
-						// This might be a crossing continuation
-						ribi_t::ribi dir_existing_to_new = ribi_type(ri.pos, to_pos);
-						if (!ribi_t::is_perpendicular(build_dir, dir_existing_to_new))
-						{
-							return false;
-						}
-					}
-				}
+				// A non air waytype: cannot be built near a runway at all.
+				return false;
 			}
 			else
 			{
-				// Also allow continuations of runways and crossing runways
-				if (!ribi_t::is_perpendicular(build_dir, ri.direction))
+				// An air waytype - can build continuations of runways or perpendicular taxiways.
+				ribi_t::ribi build_dir = ribi_type(from_pos, to_pos);
+
+				if (desc->get_styp() != type_runway)
 				{
-					// Not a crossing runway. Might still be valid.
-					ribi_t::ribi dir_existing_to_new = ribi_type(ri.pos, to_pos);
-					// If a taxiway connects near here, it might be hard to tell what direction that the runway is in, so try an alternative method.
-					if (ribi_t::is_threeway(ri.direction))
+					// A taxiway - only perpendicular allowed.
+					if (!ribi_t::is_perpendicular(build_dir, ri.direction))
 					{
-						if (dir_existing_to_new != build_dir && dir_existing_to_new != ribi_t::backward(build_dir))
+						if (!ribi_t::is_threeway(ri.direction))
 						{
 							return false;
 						}
-					}
-					else
-					{
-						if (dir_existing_to_new != ri.direction && ri.direction != ribi_t::backward(dir_existing_to_new) && ribi_t::doubles(ri.direction) != ribi_t::doubles(dir_existing_to_new))
+						else
 						{
-							// Do not allow parallell runways without a gap.
-							return false;
+							// This might be a crossing continuation
+							ribi_t::ribi dir_existing_to_new = ribi_type(ri.pos, to_pos);
+							if (!ribi_t::is_perpendicular(build_dir, dir_existing_to_new))
+							{
+								return false;
+							}
+						}
+					}
+				}
+				else
+				{
+					// Also allow continuations of runways and crossing runways
+					if (!ribi_t::is_perpendicular(build_dir, ri.direction))
+					{
+						// Not a crossing runway. Might still be valid.
+						ribi_t::ribi dir_existing_to_new = ribi_type(ri.pos, to_pos);
+						// If a taxiway connects near here, it might be hard to tell what direction that the runway is in, so try an alternative method.
+						if (ribi_t::is_threeway(ri.direction))
+						{
+							if (dir_existing_to_new != build_dir && dir_existing_to_new != ribi_t::backward(build_dir))
+							{
+								return false;
+							}
+						}
+						else
+						{
+							if (dir_existing_to_new != ri.direction && ri.direction != ribi_t::backward(dir_existing_to_new) && ribi_t::doubles(ri.direction) != ribi_t::doubles(dir_existing_to_new))
+							{
+								// Do not allow parallell runways without a gap.
+								return false;
+							}
 						}
 					}
 				}
