@@ -192,6 +192,19 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 	}
 #endif
 
+	// Check degraded unowned tram lines, and remove them
+	// This includes disused railway crossings
+	if (!from_saved_game && get_waytype() == road_wt)
+	{
+		const weg_t* tramway = gr->get_weg(track_wt); 
+		if (tramway && tramway->get_remaining_wear_capacity() == 0 && tramway->get_owner() == NULL)
+		{
+			// Fully degraded, unowned tram line: delete
+			gr->remove_everything_from_way(get_owner(), track_wt, ribi_t::none);
+			gr->mark_image_dirty();
+		}
+	}
+
 	if(hang != slope_t::flat)
 	{
 		const uint slope_height = (hang & 7) ? 1 : 2;
