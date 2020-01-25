@@ -487,6 +487,8 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	const sint32 tunnel_topspeed = tunnel ? tunnel->get_desc()->get_topspeed() : UINT32_MAX_VALUE;
 	const sint32 topspeed = desc->get_topspeed();
 
+	const bool impassible = remaining_wear_capacity == 0;
+
 	if (public_right_of_way)
 	{
 		buf.append(translator::translate("Public right of way"));
@@ -503,13 +505,16 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	{
 		buf.append(translator::translate("Degraded"));
 		buf.append("\n\n");
-		buf.append(translator::translate("way_cannot_be_used_by_any_vehicle"));
-		buf.append("\n\n");
+		if (impassible)
+		{
+			buf.append(translator::translate("way_cannot_be_used_by_any_vehicle"));
+			buf.append("\n\n");
+		}
 	}
 
 
 
-	if (!degraded)
+	if (!impassible)
 	{
 		buf.append(translator::translate("Max. speed:"));
 		buf.append(" ");
@@ -541,11 +546,15 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 					buf.append(translator::translate("(speed_restricted_by_wayobj)"));
 				}
 			}
-
+			else if (degraded)
+			{
+				buf.append(translator::translate("(speed_restricted_by_degradation)"));
+			}
 			else
 			{
 				buf.append(translator::translate("(speed_restricted_by_city)"));
 			}
+			buf.append("\n");
 			buf.append("\n");
 		}
 
@@ -628,7 +637,16 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(translator::translate("Condition"));
 	buf.append(": ");
 	char tmpbuf_cond[40];
-	sprintf(tmpbuf_cond, "%u%%", get_condition_percent());
+	const uint32 condition_percent = get_condition_percent();
+	if (condition_percent == 0 && remaining_wear_capacity > 0)
+	{
+		// Do not show 0% when there is some wear capacity left.
+		sprintf(tmpbuf_cond, "< 1%%");
+	}
+	else
+	{
+		sprintf(tmpbuf_cond, "%u%%", get_condition_percent());
+	}
 	buf.append(tmpbuf_cond);
 	buf.append("\n");
 	buf.append(translator::translate("Built"));
@@ -637,7 +655,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	sprintf(tmpbuf_built, "%s", translator::get_year_month(creation_month_year));
 	buf.append(tmpbuf_built);
 	buf.append("\n");
-	if (!degraded)
+	if (!impassible)
 	{
 		buf.append(translator::translate("Last renewed"));
 	}
