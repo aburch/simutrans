@@ -683,7 +683,19 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 				// A taxiway - only perpendicular allowed.
 				if (!ribi_t::is_perpendicular(build_dir, ri.direction))
 				{
-					return false;
+					if (!ribi_t::is_threeway(ri.direction))
+					{
+						return false;
+					}
+					else
+					{
+						// This might be a crossing continuation
+						ribi_t::ribi dir_existing_to_new = ribi_type(ri.pos, to_pos);
+						if (!ribi_t::is_perpendicular(build_dir, dir_existing_to_new))
+						{
+							return false;
+						}
+					}
 				}
 			}
 			else
