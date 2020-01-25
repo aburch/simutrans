@@ -196,7 +196,7 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 	// This includes disused railway crossings
 	if (!from_saved_game && get_waytype() == road_wt)
 	{
-		const weg_t* tramway = gr->get_weg(track_wt); 
+		const weg_t* tramway = gr ? gr->get_weg(track_wt) : NULL;
 		if (tramway && tramway->get_remaining_wear_capacity() == 0 && tramway->get_owner() == NULL)
 		{
 			// Fully degraded, unowned tram line: delete
