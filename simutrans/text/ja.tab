@@ -2107,22 +2107,6 @@ zooming out
 ズームアウト
 Zu nah am Kartenrand
 地図の周辺部から離して\n設置してください\n
-#__________________________________record_text__________________________________
-#__________________________________record_text__________________________________
-New world record for maglevs: %.1f km/h by %s.
-最高速度記録（リニア）\n　時速 %.1f km\n「%s」が達成
-New world record for monorails: %.1f km/h by %s.
-最高速度記録（モノレール）\n　時速 %.1f km\n「%s」が達成
-New world record for motorcars: %.1f km/h by %s.
-最高速度記録（自動車）\n　時速 %.1f km\n「%s」が達成
-New world record for narrowgauges: %.1f km/h by %s.
-最高速度記録（ナローゲージ）\n　時速 %.1f km\n「%s」が達成
-New world record for planes: %.1f km/h by %s.
-最高速度記録（航空機）\n　時速 %.1f km\n「%s」が達成
-New world record for railways: %.1f km/h by %s.
-最高速度記録（鉄道）\n　時速 %.1f km\n「%s」が達成
-New world record for ship: %.1f km/h by %s.
-最高速度記録（船舶）\n　時速 %.1f km\n「%s」が達成
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

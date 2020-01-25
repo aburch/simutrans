@@ -2496,16 +2496,6 @@ New %s now available:\n%s\n
 A new %s is now available:\n%s\n
 New Vehicles
 New Vehicles
-New world record for monorails: %.1f km/h by %s.
-New world record for monorails: %.1f km/h by %s.
-New world record for motorcars: %.1f km/h by %s.
-New world record for road vehicles: %.1f km/h by %s.
-New world record for planes: %.1f km/h by %s.
-New world record for aircraft: %.1f km/h by %s.
-New world record for railways: %.1f km/h by %s.
-New world record for railways: %.1f km/h by %s.
-New world record for ship: %.1f km/h by %s.
-New world record for water craft: %.1f km/h nby %s.
 no convois
 No convoys
 No goods are loaded onto this convoi.
@@ -3575,7 +3565,7 @@ Transfers
 with_wayobj
 with
 way_cannot_be_used_by_any_vehicle
-This way cannot be used by any vehicle!
+This way cannot be used by any vehicle.
 km/h
 km/h
 (speed_restricted_by_tunnel)
@@ -3583,9 +3573,11 @@ km/h
 (speed_restricted_by_bridge)
 (The speed is restricted by the bridge)
 (speed_restricted_by_wayobj)
-(The speed is restricted by the asset)
+(The speed is limited by a way asset)
 (speed_restricted_by_city)
-(The speed is restricted by the city)
+(The speed is limited on account of being in a built-up area)
+(speed_restricted_by_degradation)
+(The speed is limited because this way is degraded)
 runway_36/18
 Runway 36/18
 runway_09/27
@@ -3703,9 +3695,9 @@ Equipped with
 tilting_vehicle_equipment
 Tilting vehicle equipment
 classes
-price classes
+classes
 class
-price class
+class
 good_units
 good units
 no_cargo_capacity

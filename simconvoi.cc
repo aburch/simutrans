@@ -5396,10 +5396,6 @@ void convoi_t::laden() //"load" (Babelfish)
 		if(average_speed <= get_vehicle_summary().max_speed)
 		{
 			book(average_speed, CONVOI_AVERAGE_SPEED);
-			if(average_speed > welt->get_record_speed(vehicle[0]->get_waytype()))
-			{
-				welt->notify_record(self, average_speed, pos);
-			}
 
 			typedef inthashtable_tpl<uint16, sint64> int_map;
 			FOR(int_map, const& iter, best_times_in_schedule)
@@ -8400,7 +8396,6 @@ bool convoi_t::all_vehicles_are_buildable() const
 	return true;
 }
 
-
 // count the number of the front side powered chunk
 uint8 convoi_t::get_front_loco_count() const
 {
@@ -8582,4 +8577,14 @@ sint16 convoi_t::get_car_numbering(uint8 car_no) const
 	return reversed ? vehicle_count - car_no + 1 : normal_car_cnt;
 }
 
-
+bool convoi_t::check_way_constraints_of_all_vehicles(const weg_t &way) const
+{
+	for (uint32 i = 0; i < vehicle_count; i++)
+	{
+		if (!get_vehicle(i)->check_way_constraints(way))
+		{
+			return false;
+		}
+	}
+	return true;
+}
