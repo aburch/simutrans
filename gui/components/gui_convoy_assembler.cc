@@ -1641,7 +1641,7 @@ void gui_convoy_assembler_t::update_data()
 		img.basic_coupling_constraint_next = info->get_basic_constraint_next();
 		img.interactivity = info->get_interactivity();
 		if (info->get_upgrades_count()) {
-			img.has_upgrade = info->has_available_upgrade(month_now) ? 2 : 1;
+			img.has_upgrade = info->has_available_upgrade(month_now, welt->get_settings().get_show_future_vehicle_info());
 		}
 
 		/*
@@ -2268,18 +2268,17 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			translator::get_year_month( veh_type->get_intro_year_month())
 			);
 
-		if(  veh_type->get_retire_year_month() != DEFAULT_RETIRE_DATE * 12  )
+		if(veh_type->get_retire_year_month() != DEFAULT_RETIRE_DATE * 12 &&
+			(((!welt->get_settings().get_show_future_vehicle_info() && veh_type->will_end_prodection_soon(welt->get_timeline_year_month()))
+			|| welt->get_settings().get_show_future_vehicle_info()
+			|| veh_type->is_retired(welt->get_timeline_year_month()))))
 		{
 			buf.printf( "%s %s\n",
 				translator::translate("Retire. date:"),
 				translator::get_year_month( veh_type->get_retire_year_month())
 			);
-		}
-		else 
-		{
 			buf.append("\n");
 		}
-		buf.append("\n");
 
 		display_multiline_text(pos.x + 335/*370*/, top, buf, SYSCOL_TEXT);
 
@@ -2849,7 +2848,12 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 
 		top += LINESPACE;
 		display_color_img(skinverwaltung_t::upgradable->get_image_id(0), left + 1, top, 0, false, false);
-		display_proportional(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("Upgrade is not available yet"), ALIGN_LEFT, CITY_KI, true);
+		if (welt->get_settings().get_show_future_vehicle_info()) {
+			display_proportional(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("Upgrade is not available yet"), ALIGN_LEFT, CITY_KI, true);
+		}
+		else {
+			display_proportional(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("Upgrade will be available in the near future"), ALIGN_LEFT, CITY_KI, true);
+		}
 	}
 
 	/*

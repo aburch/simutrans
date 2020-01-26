@@ -379,17 +379,24 @@ uint8 vehicle_desc_t::get_interactivity() const
 	return flags;
 }
 
-bool vehicle_desc_t::has_available_upgrade(uint16 month_now) const
+uint8 vehicle_desc_t::has_available_upgrade(uint16 month_now, bool show_future) const
 {
+	uint8 upgrade_state = 0; // 1 = not available yet, 2 = already available
 	for (int i = 0; i < upgrades; i++)
 	{
+		if (show_future) {
+			upgrade_state = 1;
+		}
 		const vehicle_desc_t *upgrade_desc = get_upgrades(i);
 		if (upgrade_desc && !upgrade_desc->is_future(month_now) && (!upgrade_desc->is_retired(month_now)))
 		{
-			return true;
+			return 2;
+		}
+		else if(!show_future && upgrade_desc && upgrade_desc->is_future(month_now)==2) {
+			upgrade_state = 1;
 		}
 	}
-	return false;
+	return upgrade_state;
 }
 
 
