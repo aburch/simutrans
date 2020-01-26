@@ -461,7 +461,7 @@ koord3d bridge_builder_t::find_end_pos(player_t *player, koord3d pos, const koor
 			return koord3d::invalid;
 		}
 
-		if(  gr->hat_weg(air_wt)  &&  gr->get_styp(air_wt)==type_runway) {
+		if(  gr->hat_weg(air_wt) ) {
 			error_msg = "No bridges over runways!";
 			return koord3d::invalid;
 		}
