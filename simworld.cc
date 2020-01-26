@@ -11450,6 +11450,18 @@ bool karte_t::check_neighbouring_objects(koord pos)
 		{
 			return false;
 		}
+		// There may be a bridge or elevated way above - check this.
+		grund_t* gr_above = lookup(gr->get_pos() + koord3d(0, 0, 1));
+		if (gr_above)
+		{
+			return false;
+		}
+		gr_above = lookup(gr->get_pos() + koord3d(0, 0, 2));
+		if(gr_above)
+		{
+			return false;
+		}
+
 		if (gr->get_weg(road_wt) || gr->get_weg(track_wt) || gr->get_weg(water_wt) || gr->get_weg(overheadlines_wt) || gr->get_weg(monorail_wt) || gr->get_weg(maglev_wt) || gr->get_weg(narrowgauge_wt) || gr->get_weg(noise_barrier_wt) || gr->get_weg(powerline_wt))
 		{
 			// Exclude all but air types

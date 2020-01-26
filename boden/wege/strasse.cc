@@ -143,8 +143,24 @@ void strasse_t::rdwr(loadsave_t *file)
 		}
 #endif
 
-		if(old_max_speed>0) {
-			set_max_speed(old_max_speed);
+		if(old_max_speed > 0) 
+		{
+			if (is_degraded() && old_max_speed == desc->get_topspeed())
+			{
+				// The maximum speed has to be reduced on account of the degridation.
+				if (get_remaining_wear_capacity() > 0)
+				{
+					set_max_speed(old_max_speed / 2);
+				}
+				else
+				{
+					set_max_speed(0);
+				}
+			}
+			else
+			{
+				set_max_speed(old_max_speed);
+			}
 		}
 		if(old_max_axle_load > 0)
 		{
@@ -164,28 +180,52 @@ void strasse_t::rdwr(loadsave_t *file)
 			const uint slope_height = (hang & 7) ? 1 : 2;
 			if(slope_height == 1)
 			{
+				uint32 gradient_speed = desc->get_topspeed_gradient_1();
+				if (is_degraded())
+				{
+					if (get_remaining_wear_capacity() > 0)
+					{
+						gradient_speed /= 2;
+					}
+					else
+					{
+						gradient_speed = 0;
+					}
+				}
 				if(bridge)
 				{
-					set_max_speed(min(desc->get_topspeed_gradient_1(), bridge->get_desc()->get_topspeed_gradient_1()));
+					set_max_speed(min(gradient_speed, bridge->get_desc()->get_topspeed_gradient_1()));
 				}
 				else if(tunnel)
 				{
-					set_max_speed(min(desc->get_topspeed_gradient_1(), tunnel->get_desc()->get_topspeed_gradient_1()));
+					set_max_speed(min(gradient_speed, tunnel->get_desc()->get_topspeed_gradient_1()));
 				}
 				else
 				{
-					set_max_speed(desc->get_topspeed_gradient_1());
+					set_max_speed(gradient_speed);
 				}
 			}
 			else
 			{
+				uint32 gradient_speed = desc->get_topspeed_gradient_2();
+				if (is_degraded())
+				{
+					if (get_remaining_wear_capacity() > 0)
+					{
+						gradient_speed /= 2;
+					}
+					else
+					{
+						gradient_speed = 0;
+					}
+				}
 				if(bridge)
 				{
-					set_max_speed( min(desc->get_topspeed_gradient_2(), bridge->get_desc()->get_topspeed_gradient_2()));
+					set_max_speed( min(gradient_speed, bridge->get_desc()->get_topspeed_gradient_2()));
 				}
 				else if(tunnel)
 				{
-					set_max_speed(min(desc->get_topspeed_gradient_2(), tunnel->get_desc()->get_topspeed_gradient_2()));
+					set_max_speed(min(gradient_speed, tunnel->get_desc()->get_topspeed_gradient_2()));
 				}
 				else
 				{
@@ -203,10 +243,25 @@ void strasse_t::rdwr(loadsave_t *file)
 				{
 					set_max_speed(min(desc->get_topspeed(), tunnel->get_desc()->get_topspeed()));
 				}
+			else if (old_max_speed == 0)
+			{
+				if (is_degraded())
+				{
+					// The maximum speed has to be reduced on account of the degridation.
+					if (get_remaining_wear_capacity() > 0)
+					{
+						set_max_speed(desc->get_topspeed() / 2);
+					}
+					else
+					{
+						set_max_speed(0);
+					}
+				}
 				else
 				{
 					set_max_speed(desc->get_topspeed());
 				}
+			}
 		}
 
 		if(hat_gehweg() && desc->get_wtyp() == road_wt)

@@ -4340,6 +4340,27 @@ const char *tool_build_station_t::tool_station_building_aux(player_t *player, bo
 		cost -= (s.maint_building * factor * 60);
 	}
 
+	// Check for elevated ways above if this building is above the elevated prohibition level.
+	const uint8 max_level_under_elevated = welt->get_settings().get_max_elevated_way_building_level();
+	if (desc->get_level() > max_level_under_elevated)
+	{
+		grund_t* gr_above = welt->lookup(pos + koord3d(0, 0, 1));
+		if (gr_above)
+		{
+			return "Bridges cannot be built over large buildings.";
+		}
+		gr_above = welt->lookup(pos + koord3d(0, 0, 2));
+		if (gr_above)
+		{
+			return "Bridges cannot be built over large buildings.";
+		}
+		const grund_t* gr = welt->lookup(pos); 
+		if (gr->hat_weg(road_wt) || gr->hat_weg(track_wt) || gr->hat_weg(air_wt) || gr->hat_weg(water_wt))
+		{
+			return ""; 
+		}
+	}
+
 	if(!player_t::can_afford(player, -cost))
 	{
 		return NOTICE_INSUFFICIENT_FUNDS;
