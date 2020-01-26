@@ -174,18 +174,22 @@ static bool compare_fabrik_desc(const factory_desc_t* a, const factory_desc_t* b
 
 
 // returns a random consumer
-const factory_desc_t *factory_builder_t::get_random_consumer(bool electric, climate_bits cl, uint16 timeline )
+const factory_desc_t *factory_builder_t::get_random_consumer(bool electric, climate_bits cl, uint16 timeline, const goods_desc_t* input )
 {
 	// get a random city factory
 	weighted_vector_tpl<const factory_desc_t *> consumer;
 
-	FOR(stringhashtable_tpl<factory_desc_t const*>, const& i, desc_table) {
+	FOR(stringhashtable_tpl<factory_desc_t const*>, const& i, desc_table)
+	{
 		factory_desc_t const* const current = i.value;
-		// only insert end consumers
+		// only insert end consumers, if applicable, with the requested input goods.
 		if (  current->is_consumer_only()  &&
 			current->get_building()->is_allowed_climate_bits(cl)  &&
 			(electric ^ !current->is_electricity_producer())  &&
-			current->get_building()->is_available(timeline)  ) {
+			current->get_building()->is_available(timeline)  &&
+			(input == NULL || current->get_accepts_these_goods(input))
+			) 
+		{
 				consumer.insert_unique_ordered(current, current->get_distribution_weight(), compare_fabrik_desc);
 		}
 	}
@@ -944,13 +948,17 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 	// the city growth system and taken out of this entirely. That would leave this system free to complete
 	// industry chains as needed.
 	const bool force_add_consumer = force_consumer == 2 || (force_consumer == 0 && 75 > simrand(100, "factory_builder_t::increase_industry_density()"));
+	//const bool force_add_consumer = false; // For TESTing only
+
+	weighted_vector_tpl<const goods_desc_t*> oversupplied_goods;
 
 	// Build a list of all industries with incomplete supply chains.
-	if((!force_add_consumer) && !power_stations_only && !welt->get_fab_list().empty())
+	if(!power_stations_only && !welt->get_fab_list().empty())
 	{
 		// A collection of all consumer industries that are not fully linked to suppliers.
 		slist_tpl<fabrik_t*> unlinked_consumers;
 		slist_tpl<const goods_desc_t*> missing_goods;
+		
 
 		FOR(vector_tpl<fabrik_t*>, fab, welt->get_fab_list())
 		{
@@ -1016,7 +1024,13 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 							{
 								// If the suppliers between them do supply enough of the product, do not list it as missing.
 								missing_goods.remove(input_type);
-								break;
+								
+								if (oversupplied_goods.is_contained(input_type))
+								{
+									// Avoid duplication
+									oversupplied_goods.remove(input_type); 
+								}
+								oversupplied_goods.append(input_type, available_for_consumption - consumption_level); 
 							}
 						}
 					}
@@ -1033,7 +1047,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 		int missing_goods_index = 0;
 
 		// ok, found consumer
-		if(!unlinked_consumers.empty()) 
+		if(!force_add_consumer && !unlinked_consumers.empty()) 
 		{			
 			FOR(slist_tpl<fabrik_t*>, unlinked_consumer, unlinked_consumers)
 			{
@@ -1139,13 +1153,26 @@ next_ware_check:
 	int no_electric = force_add_consumer || (promille >= target_promille) ? 1 : 0;
 	DBG_MESSAGE( "factory_builder_t::increase_industry_density()", "production of electricity/total electrical demand is %i/%i (%i o/oo)", electric_productivity, total_electric_demand, promille );
 
+	// Determine whether to fill in oversupplied goods with a consumer industry, or generate one entirely randomly
+	const goods_desc_t* input_for_consumer = NULL;
+	if (!oversupplied_goods.empty() && simrand(100,"factory_builder_t::increase_industry_density()") < 20)
+	{
+		const uint32 pick = simrand(oversupplied_goods.get_sum_weight(), "factory_builder_t::increase_industry_density() 2");
+		input_for_consumer = oversupplied_goods.at_weight(pick);
+	}
+
 	while(no_electric < 2) 
 	{
 		bool ignore_climates = false;
 
-		for(int retries = 20; retries >  0; retries--)
+		for(int retries = 20; retries > 0; retries--)
 		{
-			const factory_desc_t *consumer = get_random_consumer(no_electric==0, ALL_CLIMATES, welt->get_timeline_year_month());
+			if (retries < 5)
+			{
+				// Give up trying to find the right consumer after trying too many times.
+				input_for_consumer = NULL;
+			}
+			const factory_desc_t *consumer = get_random_consumer(no_electric==0, ALL_CLIMATES, welt->get_timeline_year_month(), input_for_consumer);
 			if(consumer)
 			{
 				if(do_not_add_beyond_target_density && !consumer->is_electricity_producer())
