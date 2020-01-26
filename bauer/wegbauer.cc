@@ -731,12 +731,26 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		}
 	}
 
-	if (!upgrade && desc->get_waytype() == air_wt && desc->get_styp() == type_runway)
+	if (!upgrade && desc->get_waytype() == air_wt)
 	{
 		// This is itself a runway. Do not build next to neighbouring objects.
-		if (!welt->check_neighbouring_objects(to_pos))
+		if (desc->get_styp() == type_runway && !welt->check_neighbouring_objects(to_pos))
 		{
 			return false;
+		}
+		if (desc->get_styp() != type_runway)
+		{
+			// This is a taxiway. Do not allow this underneath bridges or elevated ways.
+			grund_t* gr_above = welt->lookup(to->get_pos() + koord3d(0, 0, 1));
+			if (gr_above)
+			{
+				return false;
+			}
+			gr_above = welt->lookup(to->get_pos() + koord3d(0, 0, 2));
+			if (gr_above)
+			{
+				return false;
+			}
 		}
 	}
 
