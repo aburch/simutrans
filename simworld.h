@@ -64,7 +64,6 @@ class network_world_command_t;
 class goods_desc_t;
 class memory_rw_t;
 class viewport_t;
-class records_t;
 
 #define CHK_RANDS 32
 #define CHK_DEBUG_SUMS 8
@@ -444,12 +443,6 @@ private:
 	sint64 finance_history_month[MAX_WORLD_HISTORY_MONTHS][MAX_WORLD_COST];
 
 	/**
-	 * World record speed manager.
-	 * Keeps track of the fastest vehicles in game.
-	 */
-	records_t *records;
-
-	/**
 	 * Attached view to this world.
 	 */
 	main_view_t *view;
@@ -761,7 +754,7 @@ private:
 	 * Re-calculate vehicle details monthly.
 	 * Used to be used for the speed bonus
 	 */
-	void recalc_average_speed();
+	void recalc_average_speed(bool skip_messages);
 
 	/**
 	 * Monthly actions.
@@ -912,6 +905,16 @@ private:
 	// to be checked periodically to see whether they need
 	// to change to a less restrictive aspect.
 	vector_tpl<signal_t*> time_interval_signals_to_check;
+
+	// Do not repeat sounds from the same types of vehicles
+	// too often, so store the time when the next sound from
+	// that type of vehicle should next be played.
+	//
+	// Vehicles use their waytypes. ignore_wt is used when
+	// the cooldown timer should not be used. noise_barrier_wt
+	// is used for industry; overheadlines_wt is used for 
+	// crossings.
+	sint64 sound_cooldown_timer[noise_barrier_wt + 1];
 
 	// The number of operations to run in parallel. 
 	// This is important for multi-threading 
@@ -1176,10 +1179,6 @@ public:
 
 	settings_t const& get_settings() const { return settings; }
 	settings_t&       get_settings()       { return settings; }
-
-	/// speed record management
-	sint32 get_record_speed( waytype_t w ) const;
-	void notify_record( convoihandle_t cnv, sint32 max_speed, koord k );
 
 	/// time lapse mode ...
 	bool is_paused() const { return step_mode&PAUSE_FLAG; }
@@ -1845,6 +1844,14 @@ public:
 	* Add cargoes to the waiting list
 	*/
 	void add_to_waiting_list(ware_t ware, koord origin_pos);
+
+	/**
+	* Helper methods used for runway construction to check
+	* the exclusion zone of 1 tile around a runway.
+	*/
+	struct runway_info { ribi_t::ribi direction; koord pos; };
+	runway_info check_nearby_runways(koord pos);
+	bool check_neighbouring_objects(koord pos);
 
 #ifdef MULTI_THREAD
 	/**
@@ -2550,7 +2557,7 @@ public:
 	 * @param idx Index of the sound
 	 * @author Hj. Malthaner
 	 */
-	bool play_sound_area_clipped(koord k, uint16 idx) const;
+	bool play_sound_area_clipped(koord k, uint16 idx, waytype_t cooldown_type);
 
 	void mute_sound( bool state ) { is_sound = !state; }
 

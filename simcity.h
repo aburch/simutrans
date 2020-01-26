@@ -151,6 +151,9 @@ public:
 	uint16 get_electricity_consumption(sint32 monthyear) const;
 	static void electricity_consumption_init(const std::string &objfilename);
 
+	static uint32 get_minimum_city_distance();
+	static void set_minimum_city_distance(uint32 s);
+
 	/**
 	 * Reads/writes city configuration data from/to a savegame
 	 * called from settings_t::rdwr

@@ -1,0 +1,37 @@
+<title>Signals working methods - Drive by sight</title>
+
+<h1>Signals working methods - Drive by sight</h1><br><br>
+
+<em>Drive by sight</em><br>
+Drive by sight is the most basic and simple working method in the game. The train driver looks out of the window and secures that the track is free for the train to drive.<br>
+Operating trains in this working method is perhaps cheap, but requires a fail proof schedule or a fail proof layout, otherwise deadlocks are prone to happen.
+<br><br>
+
+<em>How it works</em><br>
+Trains will automatically go into drive by sight when the train:<br>
+* Leaves the depot<br>
+* Departs from a platform with no signal (exceptions read about: <a href="signals_wm_one_train_staff.txt"><em>One train staff</em></a> and <a href="signals_wm_token_block.txt"><em>Token block</em></a>)<br>
+* Returns the staff to a one train staff cabinett<br>
+* Have performed an emergency stop in <a href="signals_wm_time_interval.txt"><em>Time interval</em></a> or <a href="signals_wm_time_interval_with_telegraph.txt"><em>Time interval with telegraph</em></a><br>
+* Passes a <it>drive by sight sign</it>.<br>
+* The player opens up the schedule of the train<br>
+* Trains running in drive by sight have max speed which is set in simuconf.tab<br>
+You can see the sighting distance of the train by using the block reserver tool. The red reservation in front of the train is the sighting distance. 
+<br><br>
+
+<em>Best uses</em><br>
+* Tramway network in cities where trams drive close around in a big loop and speed doesnt need to be high.<br>
+* Train network where there is only ever one engine operating (see also <a href="signals_wm_one_train_staff.txt"><em>One train staff</em></a>)
+<br><br>
+
+<em>Pittfalls</em><br>
+This working method is very prone to deadlocks if not used right. Make sure that you dont use this working method if the layout includes multiple engines and single tracked lines.
+<br><br>
+
+<em>Types of signals</em><br>
+Since this working method is so very simple, there only exists one type of signal:<br>
+* <it>Drive by sight sign</it>, might also be called the <it>End of signalling</it> sign
+<br><br>
+
+
+<br><br>

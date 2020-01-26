@@ -243,6 +243,10 @@ static uint32 bridge_success_percentage = 25;
 /*
  * distribution_weight to do renovation instead new building (in percent)
  * @author prissi
+ * 
+ * Don't set this to 100 or cities wont build outward until renovation fails leading to ugly solid 
+ * blocks of highest density buildings in the centre of the city
+ * note - catasteroid
  */
 static uint32 renovation_percentage = 25;
 
@@ -252,9 +256,91 @@ static uint32 renovation_percentage = 25;
 static uint32 renovations_count = 1;
 
 /*
- * how hard we want to find them
+ * how many iterations do we want to perform before giving up attempting to renovate buildings
  */
 static uint32 renovations_try = 3;
+
+/*
+* hard cap on how far from the centre of the city can buildings be renovated
+* previous hard-coded default was 10 previously, this is ignored if
+* proportional_renovation_radius is equal to 1
+* @author catasteroid
+*/
+static uint32 renovation_range = 3;
+
+/*
+* whether renovation_chance or renovation_count is influenced by city population density
+* renovation_count being set to renovation_city_size_count when this value is 1
+* when this value is 2 renovation_count_increase_every is used and the citys population
+* is divided by this number to provide the renovation_count
+* @author catasteroid
+*/
+static uint32 renovation_influence_type = 0;
+
+/*
+* the numbers used if renovation_influence_type is 1, the first value is used if the city
+* is a village and smaller than a city and a capital, the second for cities and
+* the third for capitals
+*/
+static uint16 renovation_city_size_count[] = { 1, 2,  3 };
+
+/*
+* numbers used if renovation_influence_type is 2, increasing the number of iterations
+* performed depending on the population of the city up to the max value below
+*/
+static uint32 renovation_count_increase_every = 2500;
+
+/*
+* hard cap on renovation_count if the city has a really high population
+*/
+static uint32 renovation_count_maximum = 25;
+
+/*
+* overrides default behaviour allowing very large cities to renovate buildings
+* beyond the static renovation_range radius from their centre instead using a percentage
+* value based on the city's population status
+* @author catasteroid
+*/
+static uint32 proportional_renovation_radius = 0;
+
+/*
+* used with the above proportional_renovation_radius figure to use a value determined
+* by the below percentages of the city's radius for villages, cities and capitals
+* respectively, they can be all set to the same value to use a generic proportional
+* percentage value for all city sizes
+*/
+static uint16 renovation_range_proportions[] = { 80,60,40 };
+
+/*
+* whether residential, commercial and industrial buildings are renovated at different ranges
+* from the city centre depending on their building type, as they are often built at
+* different distances from the city centre with the central 10x10 usually being mostly
+* residential or commercial buildings industrial buildings rarely get renovated
+* this usually results in cities having large blocks of very low density industries 
+*/
+static uint32 split_renovation_ranges = 0;
+
+/*
+* the range at which residential, commercial and industrial buildings are renovated 
+* if split_renovation_ranges is 1, this is measured from the very centre of the city
+*/
+static uint16 renovation_ranges_by_type[] = { 100,150,200 };
+
+/*
+* enables reduction in chance of successful renovation based on the distance from
+* the centre of the city the selected building is with buildings closer to the
+* value of renovation_range being less likely to be successfully renovated
+* value should be 1 for default behaviour, changing it to 0 would make buildings
+* equally likely to be renovated regardless of the distance from the city centre
+* @author catasteroid
+*/
+static uint32 renovation_distance_chance = 1;
+
+/**
+ * try to built cities at least this distance apart
+ * @author prissi
+ */
+static uint32 minimum_city_distance = 16;
 
 /*
  * minimum ratio of city area to building area to allow expansion
@@ -535,6 +621,14 @@ static char const* const allowed_chars_in_rule = "SsnHhTtUu";
 //						break;
 //				}
 //			}
+
+
+/*
+* @param pos position to check
+* Checks whether there is a road at the coordinates of pos and if so returns true 
+* Returns false if there is no road at pos or if there is and road has noise barriers or a private sign
+*/
+
 bool stadt_t::bewerte_loc_has_public_road(const koord pos)
 {
 	grund_t *gr = welt->lookup_kartenboden(pos);
@@ -556,6 +650,13 @@ bool stadt_t::bewerte_loc_has_public_road(const koord pos)
 
 	return false;
 }
+
+/*
+* @param pos position to check
+* @param regel the rule to evaluate
+* @return true on match, false otherwise
+* @author Hj. Malthaner
+*/
 
 bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 {
@@ -648,9 +749,15 @@ sint32 stadt_t::bewerte_pos(const koord pos, const rule_t &regel)
 
 bool stadt_t::maybe_build_road(koord k, bool map_generation)
 {
+	karte_t::runway_info ri = welt->check_nearby_runways(k);
+	if (ri.pos != koord::invalid)
+	{
+		return false;
+	}
+
 	best_strasse.reset(k);
 	const uint32 num_road_rules = road_rules.get_count();
-	uint32 offset = simrand(num_road_rules, "void stadt_t::build");	// start with random rule
+	uint32 offset = simrand(num_road_rules, "bool stadt_t::maybe_build_road");	// start with random rule
 	for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
 		uint32 rule = ( i+offset ) % num_road_rules;
 		sint32 rd = 8 + road_rules[rule]->distribution_weight;
@@ -677,6 +784,16 @@ void stadt_t::bewerte_haus(koord k, sint32 rd, const rule_t &regel)
 	}
 }
 
+uint32 stadt_t::get_minimum_city_distance()
+{
+	return minimum_city_distance;
+}
+
+void stadt_t::set_minimum_city_distance(uint32 s)
+{
+	minimum_city_distance = s;
+}
+
 
 /**
  * Reads city configuration data
@@ -699,11 +816,28 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 
 	char buf[128];
 
+	minimum_city_distance = contents.get_int("minimum_city_distance", 16);
 	cluster_factor = (uint32)contents.get_int("cluster_factor", 100);
 	bridge_success_percentage = (uint32)contents.get_int("bridge_success_percentage", 25);
 	renovation_percentage = (uint32)contents.get_int("renovation_percentage", renovation_percentage);
 	renovations_count = (uint32)contents.get_int("renovations_count", renovations_count);
 	renovations_try   = (uint32)contents.get_int("renovations_try", renovations_try);
+	renovation_range = (uint32)contents.get_int("renovation_range", renovation_range);
+	renovation_influence_type = (uint32)contents.get_int("renovation_influence_type", renovation_influence_type);
+	renovation_city_size_count[0] = (uint16)contents.get_int("renovation_count_village", renovation_city_size_count[0]);
+	renovation_city_size_count[1] = (uint16)contents.get_int("renovation_count_city", renovation_city_size_count[1]);
+	renovation_city_size_count[2] = (uint16)contents.get_int("renovation_count_capital", renovation_city_size_count[2]);
+	renovation_count_increase_every = contents.get_int("renovation_count_increase_every", renovation_count_increase_every);
+	renovation_count_maximum = contents.get_int("renovation_count_maximum", renovation_count_maximum);
+	proportional_renovation_radius = (uint32)contents.get_int("proportional_renovation_radius", proportional_renovation_radius);
+	renovation_range_proportions[0] = (uint16)contents.get_int("renovation_range_proportions_village", renovation_range_proportions[0]);
+	renovation_range_proportions[1] = (uint16)contents.get_int("renovation_range_proportions_city", renovation_range_proportions[1]);
+	renovation_range_proportions[2] = (uint16)contents.get_int("renovation_range_proportions_capital", renovation_range_proportions[2]);
+	split_renovation_ranges = (uint32)contents.get_int("split_renovation_ranges", split_renovation_ranges);
+	renovation_ranges_by_type[0] = (uint16)contents.get_int("renovation_range_res", renovation_ranges_by_type[0]);
+	renovation_ranges_by_type[1] = (uint16)contents.get_int("renovation_range_com", renovation_ranges_by_type[1]);
+	renovation_ranges_by_type[2] = (uint16)contents.get_int("renovation_range_ind", renovation_ranges_by_type[2]);
+	renovation_distance_chance = (uint32)contents.get_int("renovation_distance_chance", renovation_distance_chance);
 
 	// to keep compatible with the typo, here both are ok
 	// NOTE: This parameter is disused at present following Neroden's change in the building code as of July 2013.
@@ -886,6 +1020,26 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 	{
 		file->rdwr_long(renovations_try);
 		file->rdwr_long(renovations_count);
+	}
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 13) || file->get_extended_version() >= 15)
+	{
+		file->rdwr_long(renovation_range);
+		file->rdwr_long(renovation_influence_type);
+		file->rdwr_short(renovation_city_size_count[0]);
+		file->rdwr_short(renovation_city_size_count[1]);
+		file->rdwr_short(renovation_city_size_count[2]);
+		file->rdwr_long(renovation_count_increase_every);
+		file->rdwr_long(renovation_count_maximum);
+		file->rdwr_long(proportional_renovation_radius);
+		file->rdwr_long(split_renovation_ranges);
+		file->rdwr_short(renovation_ranges_by_type[0]);
+		file->rdwr_short(renovation_ranges_by_type[1]);
+		file->rdwr_short(renovation_ranges_by_type[2]);
+		file->rdwr_long(renovation_distance_chance);
+	}
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 14) || file->get_extended_version() >= 15)
+	{
+		file->rdwr_long(minimum_city_distance);
 	}
 
 	file->rdwr_short(ind_start_score);
@@ -2764,21 +2918,75 @@ void stadt_t::calc_growth()
 	settings_t const& s = welt->get_settings();
 
 	// smaller towns should grow slower to have villages for a longer time
-	sint32 const weight_factor =
-		get_city_population() < s.get_city_threshold_size() ? welt->get_settings().get_growthfactor_small()  :
-		get_city_population() < s.get_capital_threshold_size() ? welt->get_settings().get_growthfactor_medium() :
-		welt->get_settings().get_growthfactor_large();
+	// New for January 2020: what counts as a "smaller town" can be proportional to the size of towns if threshold percentages are set.
+	sint32 weight_factor; 
+
+	if (s.get_capital_threshold_percentage() == 0 && s.get_city_threshold_percentage() == 0)
+	{
+		// Percentages specified as zero - use the old algorithm
+		weight_factor =
+			get_city_population() < s.get_city_threshold_size() ? welt->get_settings().get_growthfactor_small() :
+			get_city_population() < s.get_capital_threshold_size() ? welt->get_settings().get_growthfactor_medium() :
+			s.get_growthfactor_large();
+	}
+	else
+	{
+		// It is possible that only one threshold percentage is set. In this case, assume the other.
+		uint8 capital_threshold_percentage = s.get_capital_threshold_percentage() ? s.get_capital_threshold_percentage() : s.get_city_threshold_percentage() / 4;
+		capital_threshold_percentage = capital_threshold_percentage ? capital_threshold_percentage : 1;
+		uint8 city_threshold_percentage = s.get_city_threshold_percentage() ? s.get_city_threshold_percentage() : capital_threshold_percentage * 4; 
+
+		// Now that we have the percentages, calculate how large that this city is compared to others in the game.
+		uint32 number_of_larger_cities = 0;
+		uint32 number_of_smaller_cities = 0;
+		FOR(const weighted_vector_tpl<stadt_t*>, const& city, welt->get_cities())
+		{
+			if (city == this)
+			{
+				continue;
+			}
+			if (city->get_city_population() > get_city_population())
+			{
+				number_of_larger_cities++;
+			}
+			else
+			{
+				number_of_smaller_cities++;
+			}
+		}
+
+		const uint32 total_cities = number_of_larger_cities + number_of_smaller_cities + 1;
+		const uint32 rank = number_of_larger_cities + 1;
+		const uint32 percentage = (rank * 100) / total_cities; 
+
+		if (rank == 1 || percentage <= s.get_capital_threshold_percentage())
+		{
+			weight_factor = s.get_growthfactor_large();
+		}
+		else if (percentage <= s.get_city_threshold_percentage())
+		{
+			weight_factor = s.get_growthfactor_medium();
+		}
+		else
+		{
+			weight_factor = s.get_growthfactor_small();
+		}
+	}
 
 	// now compute the growth for this step
 	sint32 growth_factor = weight_factor > 0 ? total_supply_percentage / weight_factor : 0;
 
+	// Formerly, congestion directly affected growth. However, this is not realistic: it should only
+	// affect growth indirectly by reducing the proportion of successful journeys. In any event,
+	// the percentage now has a new meaning: the percentage by which car journeys are slowed down.
+#if 0
 	// Congestion adversely impacts on growth. At 100% congestion, there will be no growth.
 	if(city_history_month[0][HIST_CONGESTION] > 0)
 	{
 		const uint32 congestion_factor = city_history_month[0][HIST_CONGESTION];
 		growth_factor -= (congestion_factor * growth_factor) / 100;
 	}
-
+#endif
 	// Scale up growth to have a larger fractional component. This allows small growth units to accumulate in the case of long months.
 	sint64 new_unsupplied_city_growth = (sint64)growth_factor * (CITYGROWTH_PER_CITICEN / 16ll);
 
@@ -4331,6 +4539,7 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 	}
 }
 
+//
 
 bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 {
@@ -4343,6 +4552,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 	const int level = gb->get_tile()->get_desc()->get_level();
 	const koord k = gb->get_pos().get_2d();
 
+	//
 	// Divide unemployed by 4, because it counts towards commercial and industrial,
 	// and both of those count 'double' for population relative to residential.
 	const int employment_wanted  = get_unemployed() / 4;
@@ -5143,7 +5353,8 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
  */
 void stadt_t::build(bool new_town, bool map_generation)
 {
-	if(welt->get_settings().get_quick_city_growth())
+	settings_t const& s = welt->get_settings();
+	if(s.get_quick_city_growth())
 	{
 		// Old system (from Standard) - faster but less accurate.
 
@@ -5188,15 +5399,52 @@ void stadt_t::build(bool new_town, bool map_generation)
 	// renovation
 	koord c( (ur.x + lo.x)/2 , (ur.y + lo.y)/2);
 	uint32 maxdist(koord_distance(ur,c));
-	if (maxdist < 10) {maxdist = 10;}
+	uint32 halfdist(maxdist / 2);
+	uint32 pop(get_city_population());
+
+	// Renovation range setting
+	if (proportional_renovation_radius == 0 && maxdist > renovation_range) // Static renovation range for all settlements
+		maxdist = renovation_range;
+	if (proportional_renovation_radius == 1) // Proportional renovation range, 
+		maxdist = pop < s.get_city_threshold_size() ? (maxdist * renovation_range_proportions[0]) / 100 :
+		pop < s.get_capital_threshold_size() ? (maxdist * renovation_range_proportions[1]) / 100 : (maxdist * renovation_range_proportions[2]) / 100;
+	
+	// Renovation count setting
+	if (renovation_influence_type == 1) // City population threshold based renovation count
+		renovations_count = pop < s.get_city_threshold_size() ? renovation_city_size_count[0] : 
+		pop < s.get_capital_threshold_size() ? renovation_city_size_count[1] : renovation_city_size_count[2];
+	
+	if (renovation_influence_type == 2) // Per-population based renovation count, from 1-renovation_count_maximum (default 25)
+		renovations_count = pop < renovation_count_increase_every ? 1 :
+			pop / renovation_count_increase_every > renovation_count_maximum ? renovation_count_maximum : pop / renovation_count_increase_every;	
+
+	// Ensure that enough iterations are performed
+	if (renovations_count > renovations_try)
+		renovations_try = 10 + renovations_count;
+
 	uint32 was_renovated=0;
 	uint32 try_nr = 0;
 	if (  !buildings.empty()  &&  simrand(100, "void stadt_t::build") <= renovation_percentage  ) {
 		while (was_renovated < renovations_count && try_nr++ < renovations_try) { // trial and errors parameters
 			// try to find a non-player owned building
 			gebaeude_t* const gb = pick_any(buildings);
+
+			// Check if the building is actually one eligible for renovation
+			const building_desc_t::btype gb_type = gb->get_tile()->get_desc()->get_type();
+			if (!gb->is_city_building()) 
+				continue; // Definately not a building we want to renovate
+
+			// Apply per-type percentage modifiers to renovation_range, larger values for commercial and especially industrial buildings to fall 
+			// into the radius in which renovation is possible
+			if (split_renovation_ranges == 1) 
+				maxdist = gb_type == building_desc_t::city_res ? (maxdist * renovation_ranges_by_type[0]) / 100 :
+					gb_type == building_desc_t::city_com ? (maxdist * renovation_ranges_by_type[1]) / 100 : (maxdist * renovation_ranges_by_type[2]) / 100; // assuming this in industry if it's not res or com
+			
 			const uint32 dist(koord_distance(c, gb->get_pos()));
-			const uint32 distance_rate = 100 - (dist * 100) / maxdist;
+			if (dist > maxdist) continue;
+			// Check how far the building is from the city centre, if renovation_distance_chance is 1 the further from the centre
+			// the smaller the chance of successful renovation
+			const uint32 distance_rate = renovation_distance_chance == 1 ? 100 - (dist * 100) / maxdist : 100;
 			if(  player_t::check_owner(gb->get_owner(),NULL)  && simrand(100, "void stadt_t::build") < distance_rate) {
 				if(renovate_city_building(gb, map_generation)) {
 					was_renovated++;
@@ -5246,6 +5494,14 @@ void stadt_t::build(bool new_town, bool map_generation)
 				return;
 			}
 			// not good for road => test for house
+
+			// Do not build next to a runway
+			karte_t::runway_info ri = welt->check_nearby_runways(k);
+			if (ri.pos != koord::invalid)
+			{
+				candidates.remove_at(idx, false);
+				continue;
+			}
 
 			// we can stop after we have found a positive rule
 			best_haus.reset(k);
@@ -5297,10 +5553,8 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 		terrain_part = 0.0; water_part = 1.0;
 	}
 
-
 	double one_population_charge = 1.0 + wl->get_settings().get_city_isolation_factor()/10.0; // should be > 1.0
 	double clustering = 2.0 + cluster_size/100.0; // should be > 2.0
-
 
 	vector_tpl<koord>* result = new vector_tpl<koord>(sizes_list->get_count());
 
@@ -5346,12 +5600,12 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 		}
 	}
 	koord pos;
-	//skip edges -- they treated as water, we don't want it
+	//skip edges -- they are treated as water, we don't want it
 	for( pos.y = 2; pos.y < wl_size.y-2; pos.y++) {
 		for (pos.x = 2; pos.x < wl_size.x-2; pos.x++ ) {
 			koord my_grid_pos(pos.x/grid_step, pos.y/grid_step);
 			grund_t *gr = wl->lookup_kartenboden(pos);
-			if ( gr->get_hoehe() <= wl->get_groundwater()  || ( gr->hat_weg(water_wt) && gr->get_max_speed() )  ) {
+			if ( gr->get_hoehe() <= wl->get_groundwater()  || ( gr->hat_weg(water_wt) && gr->get_weg(water_wt)->get_max_speed() && gr->get_weg(water_wt)->get_max_axle_load() )  ) {
 				koord dpos;
 				for ( dpos.y = -4; dpos.y < 5; dpos.y++) {
 					for ( dpos.x = -4; dpos.x < 5 ; dpos.x++) {
@@ -5359,7 +5613,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 					if ( neighbour_grid_pos.x >= 0 && neighbour_grid_pos.y >= 0 &&
 						 neighbour_grid_pos.x < xmax && neighbour_grid_pos.y < ymax  ) {
 							koord neighbour_center(neighbour_grid_pos.x*grid_step + grid_step/2, neighbour_grid_pos.y*grid_step + grid_step/2);
-							double distance =  koord_distance(pos,neighbour_center) * distance_scale;
+							double distance = koord_distance(pos,neighbour_center) * distance_scale;
 							if ( water_distance.at(neighbour_grid_pos) > distance ) {
 								water_distance.at(neighbour_grid_pos) = distance;
 							}
@@ -5516,7 +5770,28 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 		// places.at(ip) can't be empty (see (*) above )
 		const koord k = places.at(ip)[j];
 		places.at(ip).remove_at(j);
-		result->append(k);
+		
+		// I wonder whether there is a more efficient way of doing this - but the minimium city distance was not implemented at all before, which was not good.
+		if (minimum_city_distance > 0)
+		{
+			bool not_too_close = true;
+			for(uint32 n = 0; n < result->get_count(); n++)
+			{
+				if (koord_distance(result->get_element(n), k) < minimum_city_distance)
+				{
+					not_too_close = false;
+					break;
+				}
+			}
+			if (not_too_close)
+			{
+				result->append(k);
+			}
+		}
+		else
+		{
+			result->append(k);
+		}
 
 		// now update fields
 		for (int y = 0; y < ymax; y++) {

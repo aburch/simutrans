@@ -320,10 +320,6 @@ private:
 	uint16 diagonal_costs;
 	uint16 base_costs;
 
-public:
-
-	static sint64 sound_ticks;
-
 protected:
 	virtual void hop(grund_t*);
 
@@ -382,7 +378,7 @@ public:
 
 	virtual bool check_next_tile(const grund_t* ) const {return false;}
 
-	inline bool check_way_constraints(const weg_t &way) const;
+	bool check_way_constraints(const weg_t &way) const;
 
 	uint8 hop_count;
 

@@ -668,6 +668,98 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		return false;
 	}
 
+	bool upgrade = to->get_weg(desc->get_waytype());
+
+	// Check for nearby runways - but not if this is a tunnel
+	if (!(bautyp & tunnel_flag) && !upgrade)
+	{
+		karte_t::runway_info ri = welt->check_nearby_runways(to_pos);
+		if (ri.pos != koord::invalid)
+		{
+			// There is a nearby runway. Only build if we are a runway in the same direction connecting to it,
+			// or a perpendicular taxiway.	
+			if (desc->get_waytype() != air_wt)
+			{
+				// A non air waytype: cannot be built near a runway at all.
+				return false;
+			}
+			else
+			{
+				// An air waytype - can build continuations of runways or perpendicular taxiways.
+				ribi_t::ribi build_dir = ribi_type(from_pos, to_pos);
+
+				if (desc->get_styp() != type_runway)
+				{
+					// A taxiway - only perpendicular allowed.
+					if (!ribi_t::is_perpendicular(build_dir, ri.direction))
+					{
+						if (!ribi_t::is_threeway(ri.direction))
+						{
+							return false;
+						}
+						else
+						{
+							// This might be a crossing continuation
+							ribi_t::ribi dir_existing_to_new = ribi_type(ri.pos, to_pos);
+							if (!ribi_t::is_perpendicular(build_dir, dir_existing_to_new))
+							{
+								return false;
+							}
+						}
+					}
+				}
+				else
+				{
+					// Also allow continuations of runways and crossing runways
+					if (!ribi_t::is_perpendicular(build_dir, ri.direction))
+					{
+						// Not a crossing runway. Might still be valid.
+						ribi_t::ribi dir_existing_to_new = ribi_type(ri.pos, to_pos);
+						// If a taxiway connects near here, it might be hard to tell what direction that the runway is in, so try an alternative method.
+						if (ribi_t::is_threeway(ri.direction))
+						{
+							if (dir_existing_to_new != build_dir && dir_existing_to_new != ribi_t::backward(build_dir))
+							{
+								return false;
+							}
+						}
+						else
+						{
+							if (dir_existing_to_new != ri.direction && ri.direction != ribi_t::backward(dir_existing_to_new) && ribi_t::doubles(ri.direction) != ribi_t::doubles(dir_existing_to_new))
+							{
+								// Do not allow parallell runways without a gap.
+								return false;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (!upgrade && desc->get_waytype() == air_wt)
+	{
+		// This is itself a runway. Do not build next to neighbouring objects.
+		if (desc->get_styp() == type_runway && !welt->check_neighbouring_objects(to_pos))
+		{
+			return false;
+		}
+		if (desc->get_styp() != type_runway)
+		{
+			// This is a taxiway. Do not allow this underneath bridges or elevated ways.
+			grund_t* gr_above = welt->lookup(to->get_pos() + koord3d(0, 0, 1));
+			if (gr_above)
+			{
+				return false;
+			}
+			gr_above = welt->lookup(to->get_pos() + koord3d(0, 0, 2));
+			if (gr_above)
+			{
+				return false;
+			}
+		}
+	}
+
 	// universal check for elevated things ...
 	if(bautyp & elevated_flag)
 	{
@@ -691,6 +783,12 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 			// also check for too high buildings ...
 			if (tile->get_desc()->get_level() > welt->get_settings().get_max_elevated_way_building_level())
 			{
+				return false;
+			}
+
+			if (gb->is_attraction() || gb->is_townhall())
+			{
+				// No elevated ways above attractions or town halls
 				return false;
 			}
 
@@ -2640,7 +2738,7 @@ void way_builder_t::build_track()
 					//nothing to be done
 					//DBG_MESSAGE("way_builder_t::build_road()","nothing to do at (%i,%i)",k.x,k.y);
 				}
-				else if((bautyp & elevated_flag) == (way->get_desc()->get_styp() == type_elevated))
+				else if(bautyp == luft || ((bautyp & elevated_flag) == (way->get_desc()->get_styp() == type_elevated)))
 				{
 					way->set_replacement_way(desc);
 				}
@@ -2735,6 +2833,13 @@ void way_builder_t::build_track()
 					if(wayobj != NULL)
 					{
 						sch->add_way_constraints(wayobj->get_desc()->get_way_constraints());
+					}
+					// If this is a narrow gague way and it attempts to cross a road with a tram track already installed, calling the below method
+					// will crash the game because three different waytypes are not allowed on the same tile. Thus, we must test for this.
+					if (sch->get_waytype() == narrowgauge_wt && gr->has_two_ways())
+					{
+						delete sch;
+						return;
 					}
 					cost = gr->neuen_weg_bauen(sch, ribi, player_builder, &route) - desc->get_value();
 					// respect speed limit of crossing
@@ -2868,11 +2973,11 @@ void way_builder_t::build_river()
 			// one step higher?
 			if (route[j].z > route[i].z) break;
 			// check
-			ok = welt->can_flatten_tile(NULL, route[j].get_2d(), max(route[j].z-1, start_h));
+			ok = welt->can_flatten_tile(NULL, route[j].get_2d(), max(route[j].z-1, start_h), true);
 		}
 		// now lower all tiles that have the same height as tile i
 		for(uint32 k=i; k<j; k++) {
-			welt->flatten_tile(NULL, route[k].get_2d(), max(route[k].z-1, start_h));
+			welt->flatten_tile(NULL, route[k].get_2d(), max(route[k].z-1, start_h), true);
 		}
 		if (!ok) {
 			end_n = j;

@@ -602,12 +602,20 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		else if(  comp == &bt_sell  ) {
 			depot->call_depot_tool('v', cnv, NULL);
 		}
-		else if(  comp == &bt_copy_convoi  ) {
-			if(  cnv.is_bound() && cnv->all_vehicles_are_buildable() ) {
-				if(  !welt->use_timeline()  ||  welt->get_settings().get_allow_buying_obsolete_vehicles()  ||  depot->check_obsolete_inventory( cnv )  ) {
+		else if(  comp == &bt_copy_convoi  )
+		{
+			if(  cnv.is_bound() && cnv->all_vehicles_are_buildable()) 
+			{
+				if (cnv->get_schedule() && (!cnv->get_schedule()->is_editing_finished()))
+				{
+					create_win(new news_img("Schedule is incomplete/not finished"), w_time_delete, magic_none);
+				}
+				else if(  !welt->use_timeline()  ||  welt->get_settings().get_allow_buying_obsolete_vehicles()  ||  depot->check_obsolete_inventory( cnv )  )
+				{
 					depot->call_depot_tool('c', cnv, NULL, gui_convoy_assembler_t::get_livery_scheme_index());
 				}
-				else {
+				else 
+				{
 					create_win( new news_img("Can't buy obsolete vehicles!"), w_time_delete, magic_none );
 				}
 			}
@@ -839,16 +847,7 @@ void depot_frame_t::open_schedule_editor()
 			create_win( new line_management_gui_t( selected_line, depot->get_owner() ), w_info, (ptrdiff_t)selected_line.get_rep() );
 		}
 		else { // edit individual schedule
-			// this can happen locally, since any update of the schedule is done during closing window
-			schedule_t *schedule = cnv->create_schedule();
-			assert(schedule!=NULL);
-			gui_frame_t *fplwin = win_get_magic( (ptrdiff_t)schedule );
-			if(  fplwin == NULL  ) {
-				cnv->open_schedule_window( welt->get_active_player() == cnv->get_owner() );
-			}
-			else {
-				top_win( fplwin );
-			}
+			cnv->call_convoi_tool( 'f', NULL );
 		}
 	}
 	else {

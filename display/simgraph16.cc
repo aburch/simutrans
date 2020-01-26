@@ -719,16 +719,6 @@ display_alpha_proc display_alpha = NULL;
 signed short current_tile_raster_width = 0;
 
 
-/*
-* Hajo: Zoom factor
-*/
-#define MAX_ZOOM_FACTOR (9)
-#define ZOOM_NEUTRAL (3)
-static uint32 zoom_factor = ZOOM_NEUTRAL;
-static sint32 zoom_num[MAX_ZOOM_FACTOR + 1] = { 2, 3, 4, 1, 3, 5, 1, 3, 1, 1 };
-static sint32 zoom_den[MAX_ZOOM_FACTOR + 1] = { 1, 2, 3, 1, 4, 8, 2, 8, 4, 8 };
-
-
 /* changes the raster width after loading */
 KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster)
 {
@@ -1089,6 +1079,10 @@ static void rezoom()
 	}
 }
 
+int get_zoom_factor()
+{
+	return zoom_factor;
+}
 
 void set_zoom_factor(int z)
 {
@@ -1100,7 +1094,6 @@ void set_zoom_factor(int z)
 		rezoom();
 	}
 }
-
 
 int zoom_factor_up()
 {

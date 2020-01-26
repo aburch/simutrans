@@ -2277,7 +2277,7 @@ end_loop:
 				rev = !reverse_schedule;
 				schedule->increment_index(&position, &rev);
 				halthandle_t this_halt = haltestelle_t::get_halt(front()->get_pos(), owner);
-				if (this_halt == haltestelle_t::get_halt(schedule->entries[position].pos, owner))
+				if (this_halt.is_bound() && this_halt == haltestelle_t::get_halt(schedule->entries[position].pos, owner))
 				{
 					// Load any newly arrived passengers/mail bundles/goods while waiting for a signal to clear.
 					laden();
@@ -5219,17 +5219,15 @@ void convoi_t::open_schedule_window( bool show )
 	if (schedule)
 	{
 		old_schedule = schedule->copy();
+	} else {
+		schedule = create_schedule();
 	}
-
 	if(  show  ) {
 		// Open schedule dialog
 		create_win( new schedule_gui_t(schedule,get_owner(),self), w_info, (ptrdiff_t)schedule );
 		// TODO: what happens if no client opens the window??
 	}
-	if(schedule)
-	{
-		schedule->start_editing();
-	}
+	schedule->start_editing();
 }
 
 
@@ -5406,10 +5404,6 @@ void convoi_t::laden() //"load" (Babelfish)
 		if(average_speed <= get_vehicle_summary().max_speed)
 		{
 			book(average_speed, CONVOI_AVERAGE_SPEED);
-			if(average_speed > welt->get_record_speed(vehicle[0]->get_waytype()))
-			{
-				welt->notify_record(self, average_speed, pos);
-			}
 
 			typedef inthashtable_tpl<uint16, sint64> int_map;
 			FOR(int_map, const& iter, best_times_in_schedule)
@@ -8400,6 +8394,18 @@ bool convoi_t::all_vehicles_are_buildable() const
 			return false;
 		}
 		if(!welt->get_settings().get_allow_buying_obsolete_vehicles() && get_vehicle(i)->get_desc()->is_obsolete(welt->get_timeline_year_month(), welt))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool convoi_t::check_way_constraints_of_all_vehicles(const weg_t &way) const
+{
+	for (uint32 i = 0; i < vehicle_count; i++)
+	{
+		if (!get_vehicle(i)->check_way_constraints(way))
 		{
 			return false;
 		}

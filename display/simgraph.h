@@ -120,10 +120,18 @@ extern KOORD_VAL base_tile_raster_width;
 /* changes the raster width after loading */
 KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster);
 
+/*
+* Hajo: Zoom factor
+*/
+#define MAX_ZOOM_FACTOR (9)
+#define ZOOM_NEUTRAL (3)
+static uint32 zoom_factor = ZOOM_NEUTRAL;
+static sint32 zoom_num[MAX_ZOOM_FACTOR + 1] = { 2, 3, 4, 1, 3, 5, 1, 3, 1, 1 };
+static sint32 zoom_den[MAX_ZOOM_FACTOR + 1] = { 1, 2, 3, 1, 4, 8, 2, 8, 4, 8 };
 
 int zoom_factor_up();
 int zoom_factor_down();
-
+int get_zoom_factor();
 
 /**
 * Initialises the graphics module

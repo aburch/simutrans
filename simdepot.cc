@@ -410,14 +410,6 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 	if(  old_cnv.is_bound()  &&  !convoihandle_t::is_exhausted()  &&
 		old_cnv->get_vehicle_count() > 0  &&  get_waytype() == old_cnv->front()->get_desc()->get_waytype() )
 	{
-		if( old_cnv->get_schedule() && (!old_cnv->get_schedule()->is_editing_finished()) )
-		{           
-			if(local_execution)
-			{
-				create_win( new news_img("Schedule is incomplete/not finished"), w_time_delete, magic_none);
-			}
-			return convoihandle_t();
-        }
 		convoihandle_t new_cnv = add_convoi( false );
 		new_cnv->set_name(old_cnv->get_internal_name());
 		new_cnv->set_livery_scheme_index(old_cnv->get_livery_scheme_index());
