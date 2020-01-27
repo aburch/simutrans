@@ -427,6 +427,10 @@ void factory_builder_t::distribute_attractions(int max_number)
 			else
 			{
 				welt->add_building_to_world_list(gb->access_first_tile());
+				if (welt->get_settings().get_auto_connect_industries_and_attractions_by_road())
+				{
+					gb->connect_by_road_to_nearest_city(); 
+				}
 			}
 		}
 
@@ -674,7 +678,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 	DBG_MESSAGE("factory_builder_t::build_link","Construction of %s at (%i,%i).",info->get_name(),pos->x,pos->y);
 	INT_CHECK("fabrikbauer 594");
 
-	const fabrik_t *our_fab=build_factory(parent, info, initial_prod_base, rotate, *pos, player);
+	const fabrik_t *our_fab = build_factory(parent, info, initial_prod_base, rotate, *pos, player);
 
 	INT_CHECK("fabrikbauer 596");
 

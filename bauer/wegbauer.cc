@@ -888,7 +888,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 	if (to!=from  &&  (bautyp&bautyp_mask)!=leitung)
 	{
 		// Do not check crossing permissions when the player
-		if((!this_way || !this_way->get_owner() || !this_way->get_owner()->allows_access_to(player_builder->get_player_nr())) && (!check_crossing(zv,to,wtyp,player_builder)  ||  !check_crossing(-zv,from,wtyp,player_builder)))
+		if((!this_way || !this_way->get_owner() || (player_builder && !this_way->get_owner()->allows_access_to(player_builder->get_player_nr()))) && (!check_crossing(zv,to,wtyp,player_builder)  ||  !check_crossing(-zv,from,wtyp,player_builder)))
 		{
 			return false;
 		}

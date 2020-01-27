@@ -2340,8 +2340,11 @@ public:
 	 * Searches and returns the closest city
 	 * but prefers even farther cities if within their city limits
 	 * @author Hj. Malthaner
+	 * New for January 2020: add the choice to select the rank. 1 is
+	 * the best; 2 the second best, and so forth.
+	 * @author: jamespetts
 	 */
-	stadt_t *find_nearest_city(koord k) const;
+	stadt_t *find_nearest_city(koord k, uint32 rank = 1) const;
 	
 	// Returns the city at the position given.
 	// Returns NULL if there is no city there.
