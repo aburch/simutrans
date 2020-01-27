@@ -296,6 +296,10 @@ private:
 	*/
 	void check_city_tiles(bool del = false);
 
+	typedef koordhashtable_tpl<koord, vector_tpl<koord3d> > private_car_route_map;
+	private_car_route_map private_car_routes_new;
+	private_car_route_map private_car_routes_processed;
+
 public:
 
 	void add_building_to_list(gebaeude_t* building, bool ordered = false, bool do_not_add_to_world_list = false, bool do_not_update_stats = false);
@@ -336,6 +340,8 @@ public:
 		city_history_month[0][HIST_MAIL_TRANSPORTED] += mail;
 	}
 
+/* end of history related things */
+
 	//@author: jamespetts
 	void add_power(uint32 p) { city_history_month[0][HIST_POWER_RECIEVED] += p; city_history_year[0][HIST_POWER_RECIEVED] += p; }
 
@@ -345,7 +351,7 @@ public:
 
 	void reset_tiles_for_all_buildings();
 
-	/* end of history related things */
+	
 private:
 	sint32 best_haus_wert;
 	sint32 best_strasse_wert;
@@ -644,6 +650,17 @@ public:
 	uint32 check_road_connexion_to(const gebaeude_t* attraction) const;
 
 	void generate_private_cars(koord pos, uint32 journey_tenths_of_minutes, koord target, uint8 number_of_passengers);
+
+	/// Stores a private car route in the city ready to be added to road tiles later. This should be thread-safe.
+	void store_private_car_route(vector_tpl<koord3d> route, koord pos);
+
+	/// Clears a private car route to a particular destination, including iterating over road tiles deleting the routes there.
+	void clear_private_car_route(koord pos); 
+
+	/// Take stored routes from the newly added list and add them to route tiles, moving the route to the procesed list.
+	void process_private_car_routes();
+
+	void clear_all_private_car_routes();
 
 private:
 	/**

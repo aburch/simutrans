@@ -2598,7 +2598,12 @@ void stadt_t::step(uint32 delta_t)
 	// is it time for the next step?
 	next_growth_step += delta_t;
 
-	while(stadt_t::city_growth_step < next_growth_step) {
+	// Consider whether to do this only occasionally
+	// Consider whether to multi-thread this (separately from the route generation)
+	process_private_car_routes();
+
+	while(stadt_t::city_growth_step < next_growth_step) 
+	{
 		calc_growth();
 		step_grow_city();
 		next_growth_step -= stadt_t::city_growth_step;
@@ -6030,4 +6035,56 @@ void stadt_t::add_city_factory(fabrik_t *fab)
 void stadt_t::remove_city_factory(fabrik_t *fab)
 {
 	city_factories.remove(fab);
+}
+
+void stadt_t::store_private_car_route(vector_tpl<koord3d> route, koord pos)
+{
+	private_car_routes_new.put(pos, route); 
+}
+
+void stadt_t::process_private_car_routes()
+{
+	if (!private_car_routes_new.empty())
+	{
+		koord3d previous_tile = welt->lookup_kartenboden(get_townhall_road())->get_pos();
+		FOR(private_car_route_map, route, private_car_routes_new)
+		{
+			FOR(vector_tpl<koord3d>, route_element, route.value)
+			{
+				ribi_t::ribi direction = ribi_type(previous_tile, route_element);
+				previous_tile = route_element;
+				const grund_t* gr = welt->lookup(route_element);
+				weg_t* road_tile = gr->get_weg(road_wt);
+				weg_t::private_car_route_tile tile;
+				tile.origin = this;
+				tile.direction = direction;
+				road_tile->private_car_routes.put(route.key, tile);
+			}
+		}
+		private_car_routes_new.clear();
+	}
+}
+
+void stadt_t::clear_all_private_car_routes()
+{
+	private_car_routes_new.clear();
+	FOR(private_car_route_map, route, private_car_routes_processed)
+	{
+		clear_private_car_route(route.key); 
+	}
+}
+
+void stadt_t::clear_private_car_route(koord pos)
+{
+	private_car_routes_new.remove(pos);
+	if (private_car_routes_processed.is_contained(pos))
+	{
+		FOR(vector_tpl<koord3d>, route_element, private_car_routes_processed.get(pos))
+		{
+			const grund_t* gr = welt->lookup(route_element);
+			weg_t* road_tile = gr->get_weg(road_wt);
+			road_tile->private_car_routes.remove(pos); 
+		}
+		private_car_routes_processed.remove(pos);
+	}
 }

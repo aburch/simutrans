@@ -178,6 +178,7 @@ void route_t::RELEASE_NODES(uint8 nodes_index)
 	_nodes_in_use[nodes_index] = false; 
 }
 
+static pthread_mutex_t private_car_store_route_mutex;
 
 /* find the route to an unknown location
  * @author prissi
@@ -259,8 +260,23 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 
 	const grund_t* gr = NULL;
 	sint32 bridge_tile_count = 0;
+	
+	const fabrik_t* destination_industry;
+	const gebaeude_t* destination_attraction; 
+	const stadt_t* destination_city; 
+	stadt_t* origin_city;
+	if (flags == private_car_checker)
+	{
+		origin_city = welt->access(start.get_2d())->get_city();
+	}
+
 	do 
 	{
+		destination_industry = NULL;
+		destination_attraction = NULL;
+		destination_city = NULL;
+		origin_city = NULL;
+
 		ANode *test_tmp = queue.pop();
 
 		// already in open or closed (i.e. all processed nodes) list?
@@ -285,14 +301,13 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			}
 			else
 			{
-				// Private car route checking does not reconstruct the route.
+				// Quick private car route checking does not reconstruct the route.
 				// Cost should be journey time per *straight line* tile, as the private car route
 				// system needs to be able to approximate the total travelling time from the straight
 				// line distance.
 
 				const koord3d k = gr->get_pos();
-				const stadt_t* destination_city = welt->access(k.get_2d())->get_city();
-				stadt_t* origin_city = welt->access(start.get_2d())->get_city();
+				destination_city = welt->access(k.get_2d())->get_city();
 				if(destination_city && destination_city->get_townhall_road() == k.get_2d())
 				{
 					// This is a city destination.
@@ -332,19 +347,64 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 						{
 							journey_time_per_tile = tmp->g / straight_line_distance;
 						}
-						const fabrik_t* fab = gb->get_fabrik();
-						if(fab && origin_city)
+						destination_industry = gb->get_fabrik();
+						if(destination_industry && origin_city)
 						{
 							// This is an industry
-							origin_city->add_road_connexion(journey_time_per_tile, fab);
+							origin_city->add_road_connexion(journey_time_per_tile, destination_industry);
+							if (destination_city)
+							{
+								// Only mark routes to country industries
+								destination_industry = NULL;
+							}
 						}
 						else if (origin_city)
 						{
 							origin_city->add_road_connexion(journey_time_per_tile, gb);
+							if (!destination_city)
+							{
+								// Only mark routes to country attractions
+								destination_attraction = gb;
+							}
 						}
 					}
 				}
 			}
+		}
+
+		// Relax the route here if this is a private car route checker, as we may find many destinations.
+		if (flags == private_car_checker && (destination_attraction || destination_industry || destination_city))
+		{
+			route.clear();
+			route.resize(tmp->count + 16);
+			while (tmp != NULL)
+			{
+				route.store_at(tmp->count, tmp->gr->get_pos());
+				tmp = tmp->parent;
+			}
+
+			// We are passing the route by value rather than by reference (pointer) on purpose,
+			// since we need to copy the route to the origin city and re-use the local vector here.
+#ifdef MULTI_THREAD
+			int error = pthread_mutex_lock(&private_car_store_route_mutex);
+			assert(error == 0);
+#endif
+			if (destination_city)
+			{
+				origin_city->store_private_car_route(route, destination_city->get_townhall_road());
+			}
+			else if (destination_industry)
+			{
+				origin_city->store_private_car_route(route, destination_industry->get_pos().get_2d());
+			}
+			else if (destination_attraction)
+			{
+				origin_city->store_private_car_route(route, destination_attraction->get_pos().get_2d());
+			}
+#ifdef MULTI_THREAD
+			error = pthread_mutex_unlock(&private_car_store_route_mutex);
+			assert(error == 0);
+#endif
 		}
 
 		// testing all four possible directions

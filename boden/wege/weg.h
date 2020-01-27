@@ -14,6 +14,7 @@
 #include "../../descriptor/way_desc.h"
 #include "../../dataobj/koord3d.h"
 #include "../../tpl/minivec_tpl.h"
+#include "../../tpl/koordhashtable_tpl.h"
 #include "../../simskin.h"
 
 class karte_t;
@@ -22,6 +23,7 @@ class cbuffer_t;
 class player_t;
 class signal_t;
 class gebaeude_t;
+class stadt_t;
 template <class T> class vector_tpl;
 
 
@@ -199,6 +201,12 @@ protected:
 
 public:
 
+	struct private_car_route_tile
+	{
+		stadt_t* origin;
+		ribi_t::ribi direction;
+	};
+
 	/*
 	 * Degrade the way owing to excessive wear without renewal.
 	 */
@@ -209,6 +217,9 @@ public:
 
 	// This was in strasse_t, but being there possibly caused heap corruption.
 	minivec_tpl<gebaeude_t*> connected_buildings;
+	
+	// Likewise, out of caution, put this here for the same reason.
+	koordhashtable_tpl<koord, private_car_route_tile> private_car_routes;
 
 	virtual ~weg_t();
 
