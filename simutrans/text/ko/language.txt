@@ -1,4 +1,4 @@
-<title>언어 도움말</title>
+﻿<title>언어 도움말</title>
 
 <h1><strong>언어</strong></h1>
 

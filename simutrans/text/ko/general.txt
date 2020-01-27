@@ -18,11 +18,11 @@
 - <a href="load.txt">게임 불러오기</a><br>
 - <a href="save.txt">게임 저장하기</a><br>
 - <a href="new_world.txt">새 게임</a><br>
-- - <a href="climates.txt">기후 조절</a><br>
+- - <a href="climates.txt">기후 설절</a><br>
 - - <a href="load_relief.txt">Height Map 불러오기</a>
 </p>
 <p>
-<a href="window.txt"><h1><strong>메인 메뉴</strong></h1></a>
+<a href="window.txt"><h1><strong>주 메뉴</strong></h1></a>
 - <a href="options.txt">게임 옵션</a><br>
 - <a href="map.txt">지도</a><br>
 - <a href="inspection_tool.txt">조사 도구</a><br>
