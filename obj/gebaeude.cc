@@ -36,6 +36,10 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../boden/grund.h"
 #include "../boden/wege/strasse.h"
 
+#include "../bauer/wegbauer.h"
+#include "../bauer/tunnelbauer.h"
+#include "../bauer/brueckenbauer.h"
+
 #include "../descriptor/building_desc.h"
 #include "../descriptor/intro_dates.h"
 
@@ -2235,6 +2239,79 @@ void gebaeude_t::set_building_tiles()
 					}
 				}
 			}
+		}
+	}
+}
+
+void gebaeude_t::connect_by_road_to_nearest_city()
+{
+	if (get_stadt())
+	{
+		// Assume that this is already connected to a road if in a city.	
+		return;
+	}
+	koord3d start = get_pos();
+	koord k = start.get_2d();
+	grund_t* gr;
+	bool start_found = false;
+	for (uint8 i = 0; i < 8; i++)
+	{
+		// Check for connected roads. Only roads in immediately neighbouring tiles
+		// and only those on the same height will register a connexion.
+		start = koord3d(k + k.neighbours[i], get_pos().z);
+		gr = welt->lookup(start);
+		if (!gr)
+		{
+			continue;
+		}
+		if ((!gr->hat_wege() || gr->get_weg(road_wt)) && !gr->get_building() && !gr->is_water())
+		{
+			start_found = true;
+			break;
+		}
+	}
+	if (!start_found)
+	{
+		return;
+	}
+
+	// Next, find the nearest city
+	const uint32 rank_max = welt->get_settings().get_auto_connect_industries_and_attractions_by_road();
+	for (uint32 rank = 1; rank <= rank_max; rank++)
+	{
+		const stadt_t* city = welt->find_nearest_city(get_pos().get_2d(), rank);
+		if (!city)
+		{
+			return;
+		}
+		koord end = city->get_townhall_road();
+
+		if (shortest_distance(start.get_2d(), end) > env_t::intercity_road_length)
+		{
+			return;
+		}
+
+		way_desc_t const* desc = welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
+		if (desc == NULL || !welt->get_settings().get_use_timeline())
+		{
+			// Hajo: try some default (might happen with timeline ... )
+			desc = way_builder_t::weg_search(road_wt, 80, welt->get_timeline_year_month(), type_flat);
+		}
+
+		way_builder_t builder(NULL);
+		builder.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, desc, tunnel_builder_t::get_tunnel_desc(road_wt, desc->get_topspeed(), welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt, desc->get_topspeed(), welt->get_timeline_year_month(), desc->get_max_axle_load() * 2));
+		builder.set_keep_existing_ways(true);
+		builder.set_maximum(env_t::intercity_road_length);
+		builder.set_keep_city_roads(true);
+		builder.set_build_sidewalk(false);
+
+		koord3d end3d = welt->lookup_kartenboden(end)->get_pos();
+
+		builder.calc_route(start, end3d);
+		if (builder.get_count() > 1)
+		{
+			builder.build();
+			break;
 		}
 	}
 }

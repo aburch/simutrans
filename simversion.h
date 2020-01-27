@@ -28,7 +28,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #define SIM_SERVER_MINOR    4
 
 #define EX_VERSION_MAJOR	14
-#define EX_VERSION_MINOR	7
+#define EX_VERSION_MINOR	8
 #define EX_SAVE_MINOR		18
 
 // Do not forget to increment the save game versions in settings_stats.cc when changing this

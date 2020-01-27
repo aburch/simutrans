@@ -93,7 +93,7 @@ public:
 	 * @param cl allowed climates
 	 * @returns a random consumer
 	 */
-	static const factory_desc_t *get_random_consumer(bool electric, climate_bits cl, uint16 timeline );
+	static const factory_desc_t *get_random_consumer(bool electric, climate_bits cl, uint16 timeline, const goods_desc_t* input = NULL );
 
 	/**
 	 * Builds a single new factory.

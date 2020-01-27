@@ -384,6 +384,18 @@ minimum_staffing_percentage_full_production_producer_industry = 80
 # to industries in the early years to allow those rural industries to produce.
 rural_industries_no_staff_shortage = 1
 
+# This setting will connect every industry not in a town by road to the nearest town 
+# that it can reach whenever an industry is built. The number specifies how far down
+# the rank order of nearest towns that the industry will try to connect to if it cannot
+# connect to the nearest town.
+# 
+# 0 = disabled
+# 1 = try to connect to the nearest town
+# 2 = try to connect to the nearest town, and, if unsuccessful, try to connect to the second nearest town
+# 3 = ...first, second, then third nearest town
+# ...etc.
+auto_connect_industries_and_attractions_by_road = 4
+
 ################################# Display settings ################################
 
 # if defined, the default tool will try to calculate straight ways (like OpenTTD)
