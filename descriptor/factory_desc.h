@@ -265,8 +265,10 @@ public:
 	uint16 get_supplier_count() const { return supplier_count; } 
 	uint16 get_product_count() const { return product_count; } 
 
-	bool is_consumer_only() const { return product_count    == 0; }
+	bool is_consumer_only() const { return product_count  == 0; }
 	bool is_producer_only() const { return supplier_count == 0; }
+
+	bool get_accepts_these_goods(const goods_desc_t* input) const; 
 
 	/* where to build */
 	site_t get_placement() const { return placement; }
@@ -322,6 +324,7 @@ public:
 	}
 
 	void calc_checksum(checksum_t *chk) const;
+	bool get_accepts_these_goods(const goods_desc_t* input);
 };
 
 #endif

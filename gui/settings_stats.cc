@@ -521,6 +521,7 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 	SEPERATOR;
 	INIT_NUM("max_comfort_preference_percentage", sets->get_max_comfort_preference_percentage(), 100, 65535, gui_numberinput_t::AUTOLINEAR, false);
 	INIT_BOOL("rural_industries_no_staff_shortage", sets->rural_industries_no_staff_shortage); 
+	INIT_NUM("auto_connect_industries_and_attractions_by_road", sets->auto_connect_industries_and_attractions_by_road, 1, 65535, gui_numberinput_t::PLAIN, false); 
 	
 	clear_dirty();
 	height = ypos;
@@ -584,6 +585,7 @@ void settings_extended_revenue_stats_t::read(settings_t *sets)
 
 	READ_NUM_VALUE(sets->max_comfort_preference_percentage);
 	READ_BOOL_VALUE(sets->rural_industries_no_staff_shortage); 
+	READ_NUM_VALUE(sets->auto_connect_industries_and_attractions_by_road); 
 
 	// And convert to the form used in-game...
 	sets->cache_catering_revenues();
