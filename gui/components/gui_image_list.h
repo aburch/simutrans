@@ -72,6 +72,8 @@ private:
 	 */
 	sint8 player_nr;
 
+	sint8 focus;
+
 public:
 	/**
 	 * Constructor: takes pointer to vector with image_data_t
@@ -95,6 +97,9 @@ public:
 	void set_placement(scr_coord placement) { this->placement = placement; }
 
 	void set_player_nr(sint8 player_nr) { this->player_nr = player_nr; }
+
+	// Do not use for the lower panel because it does not support matrices - Ranran
+	void set_focus(sint8 index) { this->focus = index; }
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

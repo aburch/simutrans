@@ -2031,6 +2031,22 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		{
 			lb_too_heavy_notice.set_visible(false);
 		}
+		// Search and focus on upgrade targets in convoy
+		if (veh_action == va_upgrade && vec[sel_index]->lcolor == COL_DARK_GREEN) {
+			convoihandle_t cnv = depot_frame->get_convoy();
+			for (uint8 i = 0; i < cnv->get_vehicle_count(); i++) {
+				for (uint16 c = 0; c < cnv->get_vehicle(i)->get_desc()->get_upgrades_count(); c++)
+				{
+					if (veh_type == cnv->get_vehicle(i)->get_desc()->get_upgrades(c)) {
+						convoi.set_focus(i);
+						break;
+					}
+				}
+			}
+		}
+		else {
+			convoi.set_focus(-1);
+		}
 	}
 	else {
 		// cursor over a vehicle in the convoi
@@ -2486,6 +2502,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 	else {
 		new_vehicle_length_sb = 0;
 		lb_livery_counter.set_text(NULL);
+		convoi.set_focus(-1);
 	}
 
 	POP_CLIP();
