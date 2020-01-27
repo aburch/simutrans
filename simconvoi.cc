@@ -6782,7 +6782,7 @@ COLOR_VAL convoi_t::get_status_color() const
 	}
 	else if(has_obsolete)
 	{
-		return COL_DARK_BLUE;
+		return COL_OBSOLETE;
 	}
 	// normal state
 	return SYSCOL_TEXT;

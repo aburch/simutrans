@@ -129,6 +129,12 @@ typedef unsigned char COLOR_VAL;
 //#define COL_DISTANCE      (87)
 #define COL_STAFF_SHORTAGE COL_DARK_ORCHID
 
+// used in vehicle status
+#define COL_UPGRADEABLE       COL_PURPLE
+#define COL_OBSOLETE          COL_DARK_BLUE
+#define COL_OUT_OF_PRODUCTION COL_ROYAL_BLUE
+//#define COL_OVERCROWDED     COL_DARK_PURPLE
+
 
 #define SYSCOL_TEXT                         gui_theme_t::gui_color_text
 #define SYSCOL_TEXT_HIGHLIGHT               gui_theme_t::gui_color_text_highlight

@@ -1402,8 +1402,8 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 			image_data->lcolor != COL_GREY3 &&
 			image_data->rcolor != COL_DARK_PURPLE &&
 			image_data->lcolor != COL_DARK_PURPLE &&
-			image_data->rcolor != COL_PURPLE &&
-			image_data->lcolor != COL_PURPLE &&
+			image_data->rcolor != COL_UPGRADEABLE &&
+			image_data->lcolor != COL_UPGRADEABLE &&
 			!((image_data->lcolor == COL_DARK_ORANGE || image_data->rcolor == COL_DARK_ORANGE)
 			&& veh_action != va_sell
 			&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true))) 
@@ -1434,8 +1434,8 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 			image_data->lcolor != COL_GREY3 &&
 			image_data->rcolor != COL_DARK_PURPLE &&
 			image_data->lcolor != COL_DARK_PURPLE &&
-			image_data->rcolor != COL_PURPLE &&
-			image_data->lcolor != COL_PURPLE &&
+			image_data->rcolor != COL_UPGRADEABLE &&
+			image_data->lcolor != COL_UPGRADEABLE &&
 			!((image_data->lcolor == COL_DARK_ORANGE || image_data->rcolor == COL_DARK_ORANGE)
 			&& veh_action != va_sell
 			/*&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true)*/)) 
@@ -1598,18 +1598,18 @@ void gui_convoy_assembler_t::update_data()
 			if(vehicles[i]->is_future(month_now) || vehicles[i]->is_retired(month_now)) {
 				if (convoi_pics[i]->lcolor == COL_DARK_GREEN) {
 					if (vehicles[i]->is_obsolete(month_now, welt)) {
-						convoi_pics[i]->lcolor = COL_DARK_BLUE;
+						convoi_pics[i]->lcolor = COL_OBSOLETE;
 					}
 					else {
-						convoi_pics[i]->lcolor = COL_ROYAL_BLUE;
+						convoi_pics[i]->lcolor = COL_OUT_OF_PRODUCTION;
 					}
 				}
 				if (convoi_pics[i]->rcolor == COL_DARK_GREEN) {
 					if (vehicles[i]->is_obsolete(month_now, welt)) {
-						convoi_pics[i]->rcolor = COL_DARK_BLUE;
+						convoi_pics[i]->rcolor = COL_OBSOLETE;
 					}
 					else {
-						convoi_pics[i]->rcolor = COL_ROYAL_BLUE;
+						convoi_pics[i]->rcolor = COL_OUT_OF_PRODUCTION;
 					}
 				}
 			}
@@ -1629,9 +1629,9 @@ void gui_convoy_assembler_t::update_data()
 		vehicle_desc_t const* const    info = i.key;
 		gui_image_list_t::image_data_t& img  = *i.value;
 
-		uint8 ok_color = info->is_future(month_now) || info->is_retired(month_now) ? COL_ROYAL_BLUE : COL_DARK_GREEN;
+		uint8 ok_color = info->is_future(month_now) || info->is_retired(month_now) ? COL_OUT_OF_PRODUCTION : COL_DARK_GREEN;
 		if (info->is_obsolete(month_now, welt)) {
-			ok_color = COL_DARK_BLUE;
+			ok_color = COL_OBSOLETE;
 		}
 
 		img.count = 0;
@@ -1862,8 +1862,8 @@ void gui_convoy_assembler_t::update_data()
 				}
 				if(purple)
 				{
-					img.lcolor = COL_PURPLE;
-					img.rcolor = COL_PURPLE;
+					img.lcolor = COL_UPGRADEABLE;
+					img.rcolor = COL_UPGRADEABLE;
 				}
 			}
 		}
@@ -2742,12 +2742,12 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 //{
 //	COL_DARK_GREEN,
 //	COL_YELLOW,
-//	COL_ROYAL_BLUE,
+//	COL_OUT_OF_PRODUCTION,
 //	COL_BLUE,
 //	COL_RED,
 //	COL_DARK_ORANGE,
 //	COL_GREY3,
-//	COL_PURPLE,
+//	COL_UPGRADEABLE,
 //	COL_DARK_PURPLE
 //};
 //static const char bar_color_helptexts[VEHICLE_BAR_COLORS][64] =
