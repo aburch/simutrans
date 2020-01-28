@@ -264,7 +264,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	const fabrik_t* destination_industry;
 	const gebaeude_t* destination_attraction; 
 	const stadt_t* destination_city; 
-	stadt_t* origin_city;
+	stadt_t* origin_city = NULL;
 	if (flags == private_car_checker)
 	{
 		origin_city = welt->access(start.get_2d())->get_city();
