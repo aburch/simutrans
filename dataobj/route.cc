@@ -47,6 +47,8 @@
 #endif
 
 
+
+
 void route_t::append(const route_t *r)
 {
 	assert(r != NULL);
@@ -178,8 +180,6 @@ void route_t::RELEASE_NODES(uint8 nodes_index)
 	_nodes_in_use[nodes_index] = false; 
 }
 
-static pthread_mutex_t private_car_store_route_mutex;
-
 /* find the route to an unknown location
  * @author prissi
  */
@@ -275,7 +275,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		destination_industry = NULL;
 		destination_attraction = NULL;
 		destination_city = NULL;
-		origin_city = NULL;
 
 		ANode *test_tmp = queue.pop();
 
@@ -376,6 +375,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		if (flags == private_car_checker && (destination_attraction || destination_industry || destination_city))
 		{
 			route.clear();
+			ANode* original_tmp = tmp;
 			route.resize(tmp->count + 16);
 			while (tmp != NULL)
 			{
@@ -386,7 +386,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			// We are passing the route by value rather than by reference (pointer) on purpose,
 			// since we need to copy the route to the origin city and re-use the local vector here.
 #ifdef MULTI_THREAD
-			int error = pthread_mutex_lock(&private_car_store_route_mutex);
+			int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
 			assert(error == 0);
 #endif
 			if (destination_city)
@@ -402,9 +402,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				origin_city->store_private_car_route(route, destination_attraction->get_pos().get_2d());
 			}
 #ifdef MULTI_THREAD
-			error = pthread_mutex_unlock(&private_car_store_route_mutex);
+			error = pthread_mutex_unlock(&karte_t::private_car_store_route_mutex);
 			assert(error == 0);
 #endif
+			tmp = original_tmp;
 		}
 
 		// testing all four possible directions
