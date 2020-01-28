@@ -999,19 +999,24 @@ grund_t* private_car_t::hop_check()
 		{
 			target = destination_city->get_townhall_road(); 
 		}
+		const stadt_t* current_city = welt->get_city(pos_next.get_2d());
 
-		weg_t::private_car_route_tile tile = weg->private_car_routes.get(target);
-		if (tile.direction != ribi_t::none)
+		if (!current_city || current_city != destination_city)
 		{
-			// There is a route here to our destination: follow it
-			grund_t* to;
-			if (from->get_neighbour(to, road_wt, tile.direction)) // FIXME: get_neighbour() objects to ordinal directions
+			// Do not continue to follow the route once in the destinaiton city.
+			weg_t::private_car_route_tile tile = weg->private_car_routes.get(target);
+			if (tile.direction != ribi_t::none)
 			{
-				pos_next_next = to->get_pos();
+				// There is a route here to our destination: follow it
+				grund_t* to;
+				if (from->get_neighbour(to, road_wt, tile.direction)) // FIXME: get_neighbour() objects to ordinal directions
+				{
+					pos_next_next = to->get_pos();
+				}
 			}
+			// It is probably too computationally intensive to search the hashtable bakwards
+			// to try to find a route *from* our destination and to work backwards along this.
 		}
-		// It is probably too computationally intensive to search the hashtable bakwards
-		// to try to find a route *from* our destination and to work backwards along this.
 	}
 #endif
 
@@ -1030,8 +1035,8 @@ grund_t* private_car_t::hop_check()
 		}
 
 #ifdef DESTINATION_CITYCARS
-		static weighted_vector_tpl<koord3d> posliste(4);
-		posliste.clear();
+		static weighted_vector_tpl<koord3d> poslist(4);
+		poslist.clear();
 		for(uint8 r = 0; r < 4; r++) {
 			if(  get_pos().get_2d()==koord::nsew[r]+pos_next.get_2d()  ) {
 				continue;
@@ -1088,8 +1093,8 @@ grund_t* private_car_t::hop_check()
 						}
 					}
 					
-					uint32 dist=shortest_distance( to->get_pos().get_2d(), target );
-					posliste.append( to->get_pos(), dist*dist );
+					const uint32 dist = 8192 / shortest_distance( to->get_pos().get_2d(), target );
+					poslist.append( to->get_pos(), dist*dist );
 #else
 					// ok, now check if we are allowed to go here (i.e. no cars blocking)
 					pos_next_next = to->get_pos();
@@ -1113,8 +1118,8 @@ grund_t* private_car_t::hop_check()
 			}
 		}
 #ifdef DESTINATION_CITYCARS
-		if (!posliste.empty()) {
-			pos_next_next = pick_any_weighted(posliste);
+		if (!poslist.empty()) {
+			pos_next_next = pick_any_weighted(poslist);
 		}
 		else {
 			pos_next_next = get_pos();
