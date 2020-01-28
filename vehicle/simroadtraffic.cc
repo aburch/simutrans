@@ -1122,8 +1122,13 @@ grund_t* private_car_t::hop_check()
 						}
 					}
 					 
-					const uint32 dist = 8192 / max(1, shortest_distance(to->get_pos().get_2d(), target));
-					poslist.append( to->get_pos(), dist );
+					// Check whether the tile is passable: do not drive onto an impassible tile.
+					const weg_t* next_way = to->get_weg(road_wt); 
+					if (next_way && next_way->get_max_speed() > 0 && next_way->get_max_axle_load() > 0 && (next_way->get_owner() == NULL || next_way->get_owner()->allows_access_to(1))) // TODO: Replace 1 with a constant for public player
+					{
+						const uint32 dist = 8192 / max(1, shortest_distance(to->get_pos().get_2d(), target));
+						poslist.append(to->get_pos(), dist);
+					}
 #else
 					// ok, now check if we are allowed to go here (i.e. no cars blocking)
 					pos_next_next = to->get_pos();
