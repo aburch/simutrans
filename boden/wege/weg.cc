@@ -473,12 +473,10 @@ void weg_t::rdwr(loadsave_t *file)
 				FOR(private_car_route_map, element, private_car_routes)
 				{
 					koord destination = element.key;
-					koord origin = element.value.origin ? element.value.origin->get_townhall_road() : koord::invalid;
-					ribi_t::ribi direction = element.value.direction;
+					koord3d next_tile = element.value;
 
 					destination.rdwr(file);
-					origin.rdwr(file);
-					file->rdwr_byte(direction); 
+					next_tile.rdwr(file);
 				}
 			}
 			else // Loading
@@ -489,15 +487,10 @@ void weg_t::rdwr(loadsave_t *file)
 				{
 					koord destination;
 					destination.rdwr(file); 
-					koord origin;
-					origin.rdwr(file);
-					ribi_t::ribi direction;
-					file->rdwr_byte(direction);
+					koord3d next_tile;
+					next_tile.rdwr(file);
 
-					private_car_route_tile tile;
-					tile.direction = direction;
-					tile.origin = welt->get_city(origin);
-					private_car_routes.put(destination, tile); 
+					private_car_routes.put(destination, next_tile);
 				}
 			}
 		}

@@ -2391,7 +2391,7 @@ void stadt_t::rdwr(loadsave_t* file)
 			uint32 private_car_routes_processed_count = private_car_routes_processed.get_count();
 			file->rdwr_long(private_car_routes_processed_count);
 
-			FOR(private_car_route_map, route, private_car_routes_new)
+			FOR(private_car_route_map, route, private_car_routes_processed)
 			{
 				uint32 route_element_count = route.value.get_count();
 				file->rdwr_long(route_element_count);
@@ -6130,15 +6130,20 @@ void stadt_t::process_private_car_routes()
 		{
 			FOR(vector_tpl<koord3d>, route_element, route.value)
 			{
-				ribi_t::ribi direction = ribi_type(previous_tile, route_element);
-				previous_tile = route_element;
-				const grund_t* gr = welt->lookup(route_element);
+				if (previous_tile == route_element)
+				{
+					continue;
+				}
+				const grund_t* gr = welt->lookup(previous_tile);
 				weg_t* road_tile = gr->get_weg(road_wt);
-				weg_t::private_car_route_tile tile;
-				tile.origin = this;
-				tile.direction = direction;
-				road_tile->private_car_routes.put(route.key, tile);
+				road_tile->private_car_routes.put(route.key, route_element);
+
+				previous_tile = route_element;
 			}
+			// We now need to process the last tile of the route, marking it as the end of the route
+			const grund_t* gr = welt->lookup(previous_tile);
+			weg_t* road_tile = gr->get_weg(road_wt);
+			road_tile->private_car_routes.put(route.key, koord3d::invalid);
 			private_car_routes_processed.put(route.key, route.value); 
 		}
 		private_car_routes_new.clear();

@@ -201,12 +201,6 @@ protected:
 
 public:
 
-	struct private_car_route_tile
-	{
-		stadt_t* origin = NULL;
-		ribi_t::ribi direction = ribi_t::none;
-	};
-
 	/*
 	 * Degrade the way owing to excessive wear without renewal.
 	 */
@@ -219,7 +213,7 @@ public:
 	minivec_tpl<gebaeude_t*> connected_buildings;
 	
 	// Likewise, out of caution, put this here for the same reason.
-	typedef koordhashtable_tpl<koord, private_car_route_tile> private_car_route_map;
+	typedef koordhashtable_tpl<koord, koord3d> private_car_route_map;
 	private_car_route_map private_car_routes;
 
 	virtual ~weg_t();

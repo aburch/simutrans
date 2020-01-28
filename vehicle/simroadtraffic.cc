@@ -1001,21 +1001,12 @@ grund_t* private_car_t::hop_check()
 		}
 		const stadt_t* current_city = welt->get_city(pos_next.get_2d());
 
+		// Only follow the route if not in a destination city
 		if (!current_city || current_city != destination_city)
 		{
-			// Do not continue to follow the route once in the destinaiton city.
-			weg_t::private_car_route_tile tile = weg->private_car_routes.get(target);
-			if (tile.direction != ribi_t::none)
-			{
-				// There is a route here to our destination: follow it
-				grund_t* to;
-				if (from->get_neighbour(to, road_wt, tile.direction)) // FIXME: get_neighbour() objects to ordinal directions
-				{
-					pos_next_next = to->get_pos();
-				}
-			}
-			// It is probably too computationally intensive to search the hashtable bakwards
-			// to try to find a route *from* our destination and to work backwards along this.
+			// On the last tile of the route, this will give koord3d::invalid,
+			// thus invoking the semi-random mode below.
+			pos_next_next = weg->private_car_routes.get(target);
 		}
 	}
 #endif
@@ -1077,23 +1068,17 @@ grund_t* private_car_t::hop_check()
 							if (!weg->is_junction())
 							{
 								// If this is not a junction, we have not already checked for a private car route on this tile.
-								weg_t::private_car_route_tile tile = weg->private_car_routes.get(target);
-								if (tile.direction != ribi_t::none)
+								pos_next_next = weg->private_car_routes.get(target);
+								if (pos_next_next != koord3d::invalid)
 								{
-									// There is a route here to our destination: follow it
-									grund_t* to;
-									if (from->get_neighbour(to, road_wt, tile.direction))
-									{
-										pos_next_next = to->get_pos();
-										goto exiting_city;
-									}
+									goto exiting_city;
 								}
 							}
 							continue;
 						}
 					}
-					
-					const uint32 dist = 8192 / shortest_distance( to->get_pos().get_2d(), target );
+					 
+					const uint32 dist = 8192 / max(1, shortest_distance(to->get_pos().get_2d(), target));
 					poslist.append( to->get_pos(), dist*dist );
 #else
 					// ok, now check if we are allowed to go here (i.e. no cars blocking)
