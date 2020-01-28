@@ -1017,6 +1017,13 @@ grund_t* private_car_t::hop_check()
 			if (weg->private_car_routes.is_contained(check_target))
 			{
 				pos_next_next = weg->private_car_routes.get(check_target);
+				// Check whether the way has been deleted in the meantime.
+				const grund_t* next_gr = welt->lookup(pos_next_next); 
+				const weg_t* next_way = next_gr ? next_gr->get_weg(road_wt) : NULL;
+				if (!next_way)
+				{
+					pos_next_next = koord3d::invalid;
+				}
 			}
 		}
 	}
@@ -1096,6 +1103,13 @@ grund_t* private_car_t::hop_check()
 									// We need to check here, as the hashtable will give us a 0,0,0 koord rather 
 									// than koord::invalid if this be not contained in the hashtable.
 									pos_next_next = weg->private_car_routes.get(check_target);
+									// Check whether the way has been deleted in the meantime.
+									const grund_t* next_gr = welt->lookup(pos_next_next);
+									const weg_t* next_way = next_gr ? next_gr->get_weg(road_wt) : NULL;
+									if (!next_way)
+									{
+										pos_next_next = koord3d::invalid;
+									}
 								}
 								if (pos_next_next != koord3d::invalid)
 								{
