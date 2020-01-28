@@ -476,6 +476,7 @@ private:
 	void bewerte_haus(koord pos, sint32 rd, const rule_t &regel);
 
 	bool check_road_connexions;
+	bool private_car_route_finding_in_progress = false;
 
 	sint32 traffic_level;
 	void calc_traffic_level();
@@ -751,6 +752,9 @@ public:
 	void remove_connected_city(stadt_t* city);
 	void remove_connected_industry(fabrik_t* fab);
 	void remove_connected_attraction(gebaeude_t* attraction);
+
+	bool get_private_car_route_finding_in_progress() const { return private_car_route_finding_in_progress; }
+	void set_private_car_route_finding_in_progress(bool value) { private_car_route_finding_in_progress = value; }
 
 	// @author: jamespetts
 	// September 2010

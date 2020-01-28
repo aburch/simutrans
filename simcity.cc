@@ -2377,6 +2377,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 17))
 	{
 		// Private car route data
+		file->rdwr_bool(private_car_route_finding_in_progress); 
 		file->rdwr_long(currently_active_route_map); 
 		if (file->is_saving())
 		{
@@ -6116,7 +6117,7 @@ void stadt_t::store_private_car_route(vector_tpl<koord3d> route, koord pos)
 
 void stadt_t::process_private_car_routes()
 {
-	if (!private_car_routes[get_currently_inactive_route_map()].empty())
+	if (!private_car_route_finding_in_progress && !private_car_routes[get_currently_inactive_route_map()].empty())
 	{
 		vector_tpl<koord> routes_to_clear;
 		FOR(private_car_route_map, const &route, private_car_routes[get_currently_inactive_route_map()])
@@ -6140,7 +6141,6 @@ void stadt_t::process_private_car_routes()
 			weg_t* road_tile = gr->get_weg(road_wt);
 			road_tile->private_car_routes.set(route.key, koord3d::invalid);
 			routes_to_clear.append(route.key); 
-			//private_car_routes[get_currently_active_route_map()].put(route.key, route.value); // This line is unworkable.
 		}
 		
 		// First, clear the old routes, then mark the new routes as the current routes.
