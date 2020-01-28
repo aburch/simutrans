@@ -6141,10 +6141,9 @@ void stadt_t::store_private_car_route(vector_tpl<koord3d> route, koord pos)
 
 void stadt_t::process_private_car_routes()
 {
-	clear_all_private_car_routes();
-
 	if (!private_car_routes_new.empty())
 	{
+		clear_all_private_car_routes();
 		FOR(private_car_route_map, route, private_car_routes_new)
 		{
 			koord3d previous_tile = welt->lookup_kartenboden(get_townhall_road())->get_pos();
