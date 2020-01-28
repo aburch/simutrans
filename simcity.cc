@@ -2377,78 +2377,50 @@ void stadt_t::rdwr(loadsave_t* file)
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 17))
 	{
 		// Private car route data
+		file->rdwr_long(currently_active_route_map); 
 		if (file->is_saving())
 		{
-			uint32 private_car_routes_new_count = private_car_routes_new.get_count();
-			file->rdwr_long(private_car_routes_new_count); 
-
-			FOR(private_car_route_map, route, private_car_routes_new)
+			for (uint32 i = 0; i++; i < 2)
 			{
-				uint32 route_element_count = route.value.get_count();
-				file->rdwr_long(route_element_count);
-				koord k = route.key;
-				k.rdwr(file); 
-				FOR(vector_tpl<koord3d>, route_element, route.value)
-				{
-					route_element.rdwr(file); 
-				}
-			}
+				uint32 private_car_routes_count = private_car_routes[i].get_count();
+				file->rdwr_long(private_car_routes_count);
 
-			uint32 private_car_routes_processed_count = private_car_routes_processed.get_count();
-			file->rdwr_long(private_car_routes_processed_count);
-
-			FOR(private_car_route_map, route, private_car_routes_processed)
-			{
-				uint32 route_element_count = route.value.get_count();
-				file->rdwr_long(route_element_count);
-				koord k = route.key;
-				k.rdwr(file);
-				FOR(vector_tpl<koord3d>, route_element, route.value)
+				FOR(private_car_route_map, route, private_car_routes[i])
 				{
-					route_element.rdwr(file);
+					uint32 route_element_count = route.value.get_count();
+					file->rdwr_long(route_element_count);
+					koord k = route.key;
+					k.rdwr(file);
+					FOR(vector_tpl<koord3d>, route_element, route.value)
+					{
+						route_element.rdwr(file);
+					}
 				}
 			}
 		}
 		else // Loading
 		{
-			private_car_routes_new.clear();
-			uint32 private_car_routes_new_count = 0;
-			file->rdwr_long(private_car_routes_new_count);
-
-			for (uint32 i = 0; i < private_car_routes_new_count; i++)
+			for (uint32 i = 0; i++; i < 2)
 			{
-				uint32 route_element_count = 0;
-				file->rdwr_long(route_element_count); 
-				koord k;
-				k.rdwr(file); 
-				vector_tpl<koord3d> route;
-				for (uint32 j = 0; j < route_element_count; j++)
-				{
-					koord3d k3d;
-					k3d.rdwr(file);
-					route.append(k3d);
-				}
-				private_car_routes_new.put(k, route); 
-			}
+				private_car_routes[i].clear();
+				uint32 private_car_routes_count = 0;
+				file->rdwr_long(private_car_routes_count);
 
-			private_car_routes_processed.clear();
-			uint32 private_car_routes_processed_count = 0;
-			file->rdwr_long(private_car_routes_processed_count);
-
-			for (uint32 i = 0; i < private_car_routes_processed_count; i++)
-			{
-				uint32 route_element_count = 0;
-				file->rdwr_long(route_element_count);
-				koord k;
-				k.rdwr(file);
-				vector_tpl<koord3d> route;
-				for (uint32 j = 0; j < route_element_count; j++)
+				for (uint32 i = 0; i < private_car_routes_count; i++)
 				{
-					koord3d k3d;
-					k3d.rdwr(file);
-					route.append(k3d);
+					uint32 route_element_count = 0;
+					file->rdwr_long(route_element_count);
+					koord k;
+					k.rdwr(file);
+					vector_tpl<koord3d> route;
+					for (uint32 j = 0; j < route_element_count; j++)
+					{
+						koord3d k3d;
+						k3d.rdwr(file);
+						route.append(k3d);
+					}
+					private_car_routes[i].put(k, route);
 				}
-				private_car_routes_processed.put(k, route);
 			}
 		}
 	}
@@ -2704,6 +2676,9 @@ void stadt_t::step(uint32 delta_t)
 		calc_growth();
 		step_grow_city();
 		next_growth_step -= stadt_t::city_growth_step;
+
+		// Here for TESTing only
+		welt->add_queued_city(this);
 	}
 
 	// update history (might be changed due to construction/destroying of houses)
@@ -2788,7 +2763,7 @@ void stadt_t::check_all_private_car_routes()
 	connected_industries.clear();
 	connected_attractions.clear();
 
-	// This will find the fastest route from the townhall road to *all* other townhall roads.
+	// This will find the fastest route from the townhall road to *all* other townhall roads, industries and attractions.
 	route_t private_car_route;
 	road_vehicle_t checker;
 	private_car_destination_finder_t finder(welt, &checker, this);
@@ -6136,17 +6111,18 @@ void stadt_t::remove_city_factory(fabrik_t *fab)
 
 void stadt_t::store_private_car_route(vector_tpl<koord3d> route, koord pos)
 {
-	private_car_routes_new.put(pos, route); 
+	private_car_routes[get_currently_inactive_route_map()].put(pos, route);
 }
 
 void stadt_t::process_private_car_routes()
 {
-	if (!private_car_routes_new.empty())
+	if (!private_car_routes[get_currently_inactive_route_map()].empty())
 	{
-		clear_all_private_car_routes();
-		FOR(private_car_route_map, route, private_car_routes_new)
+		vector_tpl<koord> routes_to_clear;
+		FOR(private_car_route_map, const &route, private_car_routes[get_currently_inactive_route_map()])
 		{
 			koord3d previous_tile = welt->lookup_kartenboden(get_townhall_road())->get_pos();
+			clear_private_car_route(route.key); 
 			FOR(vector_tpl<koord3d>, route_element, route.value)
 			{
 				if (previous_tile == route_element)
@@ -6155,44 +6131,33 @@ void stadt_t::process_private_car_routes()
 				}
 				const grund_t* gr = welt->lookup(previous_tile);
 				weg_t* road_tile = gr->get_weg(road_wt);
-				road_tile->private_car_routes.put(route.key, route_element);
+				road_tile->private_car_routes.set(route.key, route_element);
 
 				previous_tile = route_element;
 			}
 			// We now need to process the last tile of the route, marking it as the end of the route
 			const grund_t* gr = welt->lookup(previous_tile);
 			weg_t* road_tile = gr->get_weg(road_wt);
-			road_tile->private_car_routes.put(route.key, koord3d::invalid);
-			private_car_routes_processed.put(route.key, route.value); 
-			
+			road_tile->private_car_routes.set(route.key, koord3d::invalid);
+			routes_to_clear.append(route.key); 
+			//private_car_routes[get_currently_active_route_map()].put(route.key, route.value); // This line is unworkable.
 		}
-		private_car_routes_new.clear();
-	}
-}
-
-void stadt_t::clear_all_private_car_routes()
-{
-	private_car_routes_new.clear();
-	if (!private_car_routes_processed.empty())
-	{
-		FOR(private_car_route_map, route, private_car_routes_processed)
-		{
-			clear_private_car_route(route.key);
-		}
+		
+		// First, clear the old routes, then mark the new routes as the current routes.
+		private_car_routes[get_currently_active_route_map()].clear();
+		swap_active_route_map();
 	}
 }
 
 void stadt_t::clear_private_car_route(koord pos)
 {
-	private_car_routes_new.remove(pos);
-	if (private_car_routes_processed.is_contained(pos))
+	if (private_car_routes[get_currently_active_route_map()].is_contained(pos))
 	{
-		FOR(vector_tpl<koord3d>, route_element, private_car_routes_processed.get(pos))
+		FOR(vector_tpl<koord3d>, route_element, private_car_routes[get_currently_active_route_map()].get(pos))
 		{
 			const grund_t* gr = welt->lookup(route_element);
 			weg_t* road_tile = gr->get_weg(road_wt);
 			road_tile->private_car_routes.remove(pos); 
 		}
-		private_car_routes_processed.remove(pos);
 	}
 }

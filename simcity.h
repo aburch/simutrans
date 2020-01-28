@@ -297,12 +297,18 @@ private:
 	void check_city_tiles(bool del = false);
 
 	/// Storage for private car routes (1) awaiting processing; and (2) processed (for easy deletion)
-	// TODO: Save these data
+	// We swap between two routing tables to avert the need for copying, which is too expensive.
 	typedef koordhashtable_tpl<koord, vector_tpl<koord3d> > private_car_route_map;
-	private_car_route_map private_car_routes_new;
-	private_car_route_map private_car_routes_processed;
+	private_car_route_map private_car_routes[2];
+	/// This is the set of routes that is currently being used by the running game, 
+	/// not the one that is set aside for multi-threaded insertion by the route-finder.
+	uint32 currently_active_route_map = 0;
 
 public:
+
+	inline uint32 get_currently_active_route_map() const { return currently_active_route_map; }
+	inline uint32 get_currently_inactive_route_map() const { return currently_active_route_map == 1 ? 0 : 1; }
+	void swap_active_route_map() { currently_active_route_map == 0 ? currently_active_route_map = 1 : currently_active_route_map = 0; }
 
 	void add_building_to_list(gebaeude_t* building, bool ordered = false, bool do_not_add_to_world_list = false, bool do_not_update_stats = false);
 
@@ -661,8 +667,6 @@ public:
 
 	/// Take stored routes from the newly added list and add them to route tiles, moving the route to the procesed list.
 	void process_private_car_routes();
-
-	void clear_all_private_car_routes();
 
 private:
 	/**
