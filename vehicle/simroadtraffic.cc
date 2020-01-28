@@ -987,7 +987,7 @@ grund_t* private_car_t::hop_check()
 #ifdef DESTINATION_CITYCARS
 	// Is this an intersection? If so, do we have a destination?
 	// If so, check for private car routes to our destination.
-	if (target != koord::invalid /*&& weg->is_junction()*/)
+	if (target != koord::invalid && weg->is_junction())
 	{
 		// Only check for routes at junctions
 
@@ -1005,7 +1005,7 @@ grund_t* private_car_t::hop_check()
 		{
 			// There is a route here to our destination: follow it
 			grund_t* to;
-			if (from->get_neighbour(to, road_wt, tile.direction))
+			if (from->get_neighbour(to, road_wt, tile.direction)) // FIXME: get_neighbour() objects to ordinal directions
 			{
 				pos_next_next = to->get_pos();
 			}
@@ -1069,8 +1069,7 @@ grund_t* private_car_t::hop_check()
 						const stadt_t* next_tile_city = welt->get_city(to->get_pos().get_2d()); 
 						if (next_tile_city != current_city)
 						{
-							//if (!weg->is_junction())
-							if(false)
+							if (!weg->is_junction())
 							{
 								// If this is not a junction, we have not already checked for a private car route on this tile.
 								weg_t::private_car_route_tile tile = weg->private_car_routes.get(target);
