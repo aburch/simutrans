@@ -3565,7 +3565,7 @@ Transfers
 with_wayobj
 with
 way_cannot_be_used_by_any_vehicle
-This way cannot be used by any vehicle!
+This way cannot be used by any vehicle.
 km/h
 km/h
 (speed_restricted_by_tunnel)
@@ -3573,9 +3573,11 @@ km/h
 (speed_restricted_by_bridge)
 (The speed is restricted by the bridge)
 (speed_restricted_by_wayobj)
-(The speed is restricted by the asset)
+(The speed is limited by a way asset)
 (speed_restricted_by_city)
-(The speed is restricted by the city)
+(The speed is limited on account of being in a built-up area)
+(speed_restricted_by_degradation)
+(The speed is limited because this way is degraded)
 runway_36/18
 Runway 36/18
 runway_09/27
@@ -3944,6 +3946,8 @@ place signals backward
 Place signals backwards
 This cannot be built next to a runway.
 This cannot be built next to a runway.
+No bridges over runways!
+Bridges cannnot be built over runways or taxiways.
 Selectable livery schemes
 Selectable livery schemes
 Starting acceleration:

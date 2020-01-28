@@ -662,51 +662,68 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		return false;
 	}
 
-	// Check for nearby runways
-	karte_t::runway_info ri = welt->check_nearby_runways(to_pos);
-	if (ri.pos != koord::invalid)
-	{
-		// There is a nearby runway. Only build if we are a runway in the same direction connecting to it,
-		// or a perpendicular taxiway.	
-		if (desc->get_waytype() != air_wt)
-		{
-			// A non air waytype: cannot be built near a runway at all.
-			return false;
-		}
-		else
-		{
-			// An air waytype - can build continuations of runways or perpendicular taxiways.
-			ribi_t::ribi build_dir = ribi_type(from_pos, to_pos); 
+	bool upgrade = to->get_weg(desc->get_waytype());
 
-			if (desc->get_styp() != type_runway)
+	// Check for nearby runways - but not if this is a tunnel
+	if (!(bautyp & tunnel_flag) && !upgrade)
+	{
+		karte_t::runway_info ri = welt->check_nearby_runways(to_pos);
+		if (ri.pos != koord::invalid)
+		{
+			// There is a nearby runway. Only build if we are a runway in the same direction connecting to it,
+			// or a perpendicular taxiway.	
+			if (desc->get_waytype() != air_wt)
 			{
-				// A taxiway - only perpendicular allowed.
-				if (!ribi_t::is_perpendicular(build_dir, ri.direction))
-				{
-					return false;
-				}
+				// A non air waytype: cannot be built near a runway at all.
+				return false;
 			}
 			else
 			{
-				// Also allow continuations of runways and crossing runways
-				if (!ribi_t::is_perpendicular(build_dir, ri.direction))
+				// An air waytype - can build continuations of runways or perpendicular taxiways.
+				ribi_t::ribi build_dir = ribi_type(from_pos, to_pos);
+
+				if (desc->get_styp() != type_runway)
 				{
-					// Not a crossing runway. Might still be valid.
-					ribi_t::ribi dir_existing_to_new = ribi_type(ri.pos, to_pos);
-					// If a taxiway connects near here, it might be hard to tell what direction that the runway is in, so try an alternative method.
-					if (ribi_t::is_threeway(ri.direction))
+					// A taxiway - only perpendicular allowed.
+					if (!ribi_t::is_perpendicular(build_dir, ri.direction))
 					{
-						if (dir_existing_to_new != build_dir && dir_existing_to_new != ribi_t::backward(build_dir))
+						if (!ribi_t::is_threeway(ri.direction))
 						{
 							return false;
 						}
-					}
-					else
-					{
-						if (dir_existing_to_new != ri.direction && ri.direction != ribi_t::backward(dir_existing_to_new) && ribi_t::doubles(ri.direction) != ribi_t::doubles(dir_existing_to_new))
+						else
 						{
-							// Do not allow parallell runways without a gap.
-							return false;
+							// This might be a crossing continuation
+							ribi_t::ribi dir_existing_to_new = ribi_type(ri.pos, to_pos);
+							if (!ribi_t::is_perpendicular(build_dir, dir_existing_to_new))
+							{
+								return false;
+							}
+						}
+					}
+				}
+				else
+				{
+					// Also allow continuations of runways and crossing runways
+					if (!ribi_t::is_perpendicular(build_dir, ri.direction))
+					{
+						// Not a crossing runway. Might still be valid.
+						ribi_t::ribi dir_existing_to_new = ribi_type(ri.pos, to_pos);
+						// If a taxiway connects near here, it might be hard to tell what direction that the runway is in, so try an alternative method.
+						if (ribi_t::is_threeway(ri.direction))
+						{
+							if (dir_existing_to_new != build_dir && dir_existing_to_new != ribi_t::backward(build_dir))
+							{
+								return false;
+							}
+						}
+						else
+						{
+							if (dir_existing_to_new != ri.direction && ri.direction != ribi_t::backward(dir_existing_to_new) && ribi_t::doubles(ri.direction) != ribi_t::doubles(dir_existing_to_new))
+							{
+								// Do not allow parallell runways without a gap.
+								return false;
+							}
 						}
 					}
 				}
@@ -714,12 +731,26 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		}
 	}
 
-	if (desc->get_waytype() == air_wt && desc->get_styp() == type_runway)
+	if (!upgrade && desc->get_waytype() == air_wt)
 	{
 		// This is itself a runway. Do not build next to neighbouring objects.
-		if (!welt->check_neighbouring_objects(to_pos))
+		if (desc->get_styp() == type_runway && !welt->check_neighbouring_objects(to_pos))
 		{
 			return false;
+		}
+		if (desc->get_styp() != type_runway)
+		{
+			// This is a taxiway. Do not allow this underneath bridges or elevated ways.
+			grund_t* gr_above = welt->lookup(to->get_pos() + koord3d(0, 0, 1));
+			if (gr_above)
+			{
+				return false;
+			}
+			gr_above = welt->lookup(to->get_pos() + koord3d(0, 0, 2));
+			if (gr_above)
+			{
+				return false;
+			}
 		}
 	}
 
@@ -857,7 +888,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 	if (to!=from  &&  (bautyp&bautyp_mask)!=leitung)
 	{
 		// Do not check crossing permissions when the player
-		if((!this_way || !this_way->get_owner() || !this_way->get_owner()->allows_access_to(player_builder->get_player_nr())) && (!check_crossing(zv,to,wtyp,player_builder)  ||  !check_crossing(-zv,from,wtyp,player_builder)))
+		if((!this_way || !this_way->get_owner() || (player_builder && !this_way->get_owner()->allows_access_to(player_builder->get_player_nr()))) && (!check_crossing(zv,to,wtyp,player_builder)  ||  !check_crossing(-zv,from,wtyp,player_builder)))
 		{
 			return false;
 		}

@@ -4556,11 +4556,15 @@ void karte_t::remove_attraction(gebaeude_t *gb)
 // -------- Verwaltung von Staedten -----------------------------
 // "look for next city" (Babelfish)
 
-stadt_t *karte_t::find_nearest_city(const koord k) const
+stadt_t *karte_t::find_nearest_city(const koord k, uint32 rank) const
 {
 	uint32 min_dist = 99999999;
 	bool contains = false;
 	stadt_t *best = NULL;	// within city limits
+	rank = max(rank, 1); 
+	
+	inthashtable_tpl<uint32, stadt_t*> distances;
+	slist_tpl<uint32> ordered_distances;
 
 	if(  is_within_limits(k)  ) {
 		FOR(  weighted_vector_tpl<stadt_t*>,  const s,  stadt  ) {
@@ -4583,9 +4587,31 @@ stadt_t *karte_t::find_nearest_city(const koord k) const
 				if(  dist < min_dist  ) {
 					best = s;
 					min_dist = dist;
+					if (rank > 1)
+					{
+						distances.put(dist, s);
+						ordered_distances.append(dist); 
+					}
 				}
 			}
 		}
+	}
+
+	if (rank > 1)
+	{
+		for (uint32 i = 0; i < rank; i++)
+		{
+			ordered_distances.remove(min_dist);
+			min_dist = UINT32_MAX_VALUE;
+			FOR(slist_tpl<uint32>, distance, ordered_distances)
+			{
+				if (distance <= min_dist)
+				{
+					min_dist = distance;
+				}
+			}
+		}
+		return distances.get(min_dist); 
 	}
 	return best;
 }
@@ -11450,6 +11476,18 @@ bool karte_t::check_neighbouring_objects(koord pos)
 		{
 			return false;
 		}
+		// There may be a bridge or elevated way above - check this.
+		grund_t* gr_above = lookup(gr->get_pos() + koord3d(0, 0, 1));
+		if (gr_above)
+		{
+			return false;
+		}
+		gr_above = lookup(gr->get_pos() + koord3d(0, 0, 2));
+		if(gr_above)
+		{
+			return false;
+		}
+
 		if (gr->get_weg(road_wt) || gr->get_weg(track_wt) || gr->get_weg(water_wt) || gr->get_weg(overheadlines_wt) || gr->get_weg(monorail_wt) || gr->get_weg(maglev_wt) || gr->get_weg(narrowgauge_wt) || gr->get_weg(noise_barrier_wt) || gr->get_weg(powerline_wt))
 		{
 			// Exclude all but air types

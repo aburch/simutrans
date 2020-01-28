@@ -82,3 +82,20 @@ void factory_desc_t::calc_checksum(checksum_t *chk) const
 
 	get_building()->calc_checksum(chk);
 }
+
+bool factory_desc_t::get_accepts_these_goods(const goods_desc_t* input) const
+{
+	if (supplier_count == 0)
+	{
+		return false;
+	}
+
+	for (uint32 i = 0; i < supplier_count; i++)
+	{
+		if (get_supplier(i)->get_input_type() == input)
+		{
+			return true;
+		}
+	}
+	return false;
+}

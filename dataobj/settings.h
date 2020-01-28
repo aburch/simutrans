@@ -695,6 +695,7 @@ public:
 	uint16 max_comfort_preference_percentage;
 
 	bool rural_industries_no_staff_shortage;
+	uint32 auto_connect_industries_and_attractions_by_road;
 
 	uint32 path_explorer_time_midpoint;
 	bool save_path_explorer_data;
@@ -1184,6 +1185,7 @@ public:
 	uint16 get_max_comfort_preference_percentage() const { return max_comfort_preference_percentage; }
 
 	bool get_rural_industries_no_staff_shortage() const { return rural_industries_no_staff_shortage; }
+	uint32 get_auto_connect_industries_and_attractions_by_road() const { return auto_connect_industries_and_attractions_by_road; }
 
 	uint32 get_path_explorer_time_midpoint() const { return path_explorer_time_midpoint; }
 	bool get_save_path_explorer_data() const { return save_path_explorer_data; }
