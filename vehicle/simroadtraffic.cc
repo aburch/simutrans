@@ -957,7 +957,8 @@ grund_t* private_car_t::hop_check()
 	// private car, so these can be processed in non-overlapping
 	// batches in parallell. This is a sync_step task, so probably
 	// cannot be concurrent. Query whether this is likely to be
-	// worthwhile.
+	// worthwhile. This takes circa 9% of all CPU time on a large
+	// game (768 towns) in the modern era (2004) of Pak128.Britain-Ex.
 
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *const from = welt->lookup(pos_next);
@@ -1001,7 +1002,10 @@ grund_t* private_car_t::hop_check()
 		// The target is an individual tile. If we are going to a destination in
 		// a city, then we need the route to the city, not the tile.
 
-		const stadt_t* destination_city = welt->get_city(target); 
+		const grund_t* gr_check = welt->lookup_kartenboden(target);
+		const gebaeude_t* gb = gr_check ? gr_check->get_building() : NULL;
+		const stadt_t* destination_city = gb ? gb->get_stadt() : NULL;
+
 		koord check_target;
 		if (destination_city)
 		{
@@ -1011,7 +1015,9 @@ grund_t* private_car_t::hop_check()
 		{
 			check_target = target;
 		}
-		const stadt_t* current_city = welt->get_city(pos_next.get_2d());
+		gr_check = welt->lookup(pos_next);
+		const weg_t* check_way = gr_check ? gr_check->get_weg(road_wt) : NULL;
+		const stadt_t* current_city = check_way ? check_way->get_city() : NULL;
 
 		// Only follow the route if not in a destination city
 		if (!current_city || current_city != destination_city)
@@ -1093,8 +1099,8 @@ grund_t* private_car_t::hop_check()
 						const stadt_t* next_tile_city = check_way ? check_way->get_city() : NULL;
 
 						gr_check = welt->lookup_kartenboden(target);
-						check_way = gr_check ? gr_check->get_weg(road_wt) : NULL;
-						const stadt_t* destination_city = check_way ? check_way->get_city() : NULL;
+						const gebaeude_t* gb = gr_check ? gr_check->get_building() : NULL;
+						const stadt_t* destination_city = gb ? gb->get_stadt() : NULL;
 
 						if (next_tile_city != current_city && (!destination_city || next_tile_city != destination_city))
 						{
