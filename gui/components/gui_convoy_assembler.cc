@@ -2308,7 +2308,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			bool pass_veh = veh_type->get_freight_type()->get_catg_index() == goods_manager_t::INDEX_PAS;
 			bool mail_veh = veh_type->get_freight_type()->get_catg_index() == goods_manager_t::INDEX_MAIL;
 
-			int left = display_proportional(pos.x + 335/*370*/, top, translator::translate("Capacity:"), ALIGN_LEFT, SYSCOL_TEXT, true);
+			int left = display_proportional_clip(pos.x + 335/*370*/, top, translator::translate("Capacity:"), ALIGN_LEFT, SYSCOL_TEXT, true);
 			buf.clear();
 			// Category symbol:
 			display_color_img(veh_type->get_freight_type()->get_catg_symbol(), pos.x + 335 + left + 5, top, 0, false, false);
@@ -2331,7 +2331,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 					veh_type->get_total_capacity(), extra_pass,
 					translator::translate(veh_type->get_freight_type()->get_mass()),
 					translator::translate(veh_type->get_freight_type()->get_catg_name()));
-				display_proportional(pos.x + 335+left, top, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				display_proportional_clip(pos.x + 335+left, top, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				buf.clear();
 				top += LINESPACE;
 
@@ -2396,7 +2396,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 					buf.printf(" %s", translator::translate("(mixed_load_prohibition)"));
 				}
 				buf.append("\n");
-				display_proportional(pos.x + 335 + left, top, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				display_proportional_clip(pos.x + 335 + left, top, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				buf.clear();
 				top += LINESPACE;
 				linespace_skips += 2;
@@ -2787,14 +2787,14 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 	sint16 top;
 	top = offset.y + D_V_SPACE + grid.y;
 	left = offset.x + D_MARGIN_LEFT;
-	display_proportional(left + grid.x / 2, top - grid.y / 2, translator::translate("Select vehicles to make up a convoy"), ALIGN_LEFT, MN_GREY0, true);
+	display_proportional_clip(left + grid.x / 2, top - grid.y / 2, translator::translate("Select vehicles to make up a convoy"), ALIGN_LEFT, MN_GREY0, true);
 
 //	// color help
-//	display_proportional(left, top - LINESPACE, translator::translate("Vehicle bar color legend:"), ALIGN_LEFT, SYSCOL_TEXT, true);
+//	display_proportional_clip(left, top - LINESPACE, translator::translate("Vehicle bar color legend:"), ALIGN_LEFT, SYSCOL_TEXT, true);
 //
 //	// draw help text about color
 //	left += D_MARGIN_LEFT;
-//	//display_proportional(left, top, translator::translate("Color"), ALIGN_LEFT, SYSCOL_TEXT, true);
+//	//display_proportional_clip(left, top, translator::translate("Color"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	int padding = 0;
 //	for (int i = 0; i < VEHICLE_BAR_COLORS; ++i) {
 //		if(i && i%5 == 0){
@@ -2802,7 +2802,7 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 //			top = offset.y + D_V_SPACE + grid.y;
 //		}
 //		display_fillbox_wh_clip(left, top+2, VEHICLE_BAR_HEIGHT*2, VEHICLE_BAR_HEIGHT, bar_colors[i], true);
-//		padding = max(padding, display_proportional(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate(bar_color_helptexts[i]), ALIGN_LEFT, CITY_KI, true));
+//		padding = max(padding, display_proportional_clip(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate(bar_color_helptexts[i]), ALIGN_LEFT, CITY_KI, true));
 //
 //		//;
 //
@@ -2812,38 +2812,38 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 
 	// draw help text about shape
 	top = offset.y + D_V_SPACE + grid.y;
-	display_proportional(left, top, translator::translate("Vehicle bar shape legend:"), ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional_clip(left, top, translator::translate("Vehicle bar shape legend:"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	top += LINESPACE;
 	left += D_MARGIN_LEFT;
 	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, vehicle_desc_t::can_be_head, 0, false);
 	display_veh_form(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, vehicle_desc_t::can_be_tail, 0, true);
-	padding = display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_one_direction"), ALIGN_LEFT, CITY_KI, true);
+	padding = display_proportional_clip(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_one_direction"), ALIGN_LEFT, CITY_KI, true);
 
 	top += LINESPACE;
 	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, vehicle_desc_t::can_be_head, 1, false);
 	display_veh_form(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, (vehicle_desc_t::can_be_head + vehicle_desc_t::can_be_tail), 1, true);
-	padding = max(padding, display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_cab_head"), ALIGN_LEFT, CITY_KI, true));
+	padding = max(padding, display_proportional_clip(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_cab_head"), ALIGN_LEFT, CITY_KI, true));
 
 	top += LINESPACE;
 	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, vehicle_desc_t::can_be_tail, 1, false);
 	display_veh_form(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, vehicle_desc_t::can_be_tail, 1, true);
-	padding = max(padding, display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_can_be_at_rear"), ALIGN_LEFT, CITY_KI, true));
+	padding = max(padding, display_proportional_clip(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_can_be_at_rear"), ALIGN_LEFT, CITY_KI, true));
 
 	top += LINESPACE;
 	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, 0, 0, false);
 	display_veh_form(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, 0, 0, true);
-	padding = max(padding, display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_intermediate"), ALIGN_LEFT, CITY_KI, true));
+	padding = max(padding, display_proportional_clip(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_intermediate"), ALIGN_LEFT, CITY_KI, true));
 
 	/*
 	top += LINESPACE;
 	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT * 2, COL_DARK_GREEN, true, vehicle_desc_t::unknown_constraint, 0, false);
 	display_veh_form(left + VEHICLE_BAR_HEIGHT * 2, top + 2, VEHICLE_BAR_HEIGHT * 2, COL_DARK_GREEN, true, vehicle_desc_t::unknown_constraint, 0, true);
-	padding = max(padding, display_proportional(left + VEHICLE_BAR_HEIGHT * 4 + 3, top, translator::translate("helptxt_unknown_constraint"), ALIGN_LEFT, CITY_KI, true));
+	padding = max(padding, display_proportional_clip(left + VEHICLE_BAR_HEIGHT * 4 + 3, top, translator::translate("helptxt_unknown_constraint"), ALIGN_LEFT, CITY_KI, true));
 
 	top += LINESPACE;
 	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, vehicle_desc_t::fixed_coupling_prev, 0, false, false);
 	display_veh_form(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_DARK_GREEN, true, vehicle_desc_t::fixed_coupling_next, 0, true, false);
-	padding = max(padding, display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_fixed_outside_depot"), ALIGN_LEFT, CITY_KI, true));
+	padding = max(padding, display_proportional_clip(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_fixed_outside_depot"), ALIGN_LEFT, CITY_KI, true));
 	*/
 
 	// 2nd colmn
@@ -2851,25 +2851,25 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 	left += padding + VEHICLE_BAR_HEIGHT * 4 + D_H_SPACE + D_MARGIN_LEFT;
 
 	display_fillbox_wh_clip(left+1, top+2, VEHICLE_BAR_HEIGHT*2 - 2, VEHICLE_BAR_HEIGHT, COL_DARK_GREEN, true);
-	display_proportional(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("helptxt_powered_vehicle"), ALIGN_LEFT, CITY_KI, true);
+	display_proportional_clip(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("helptxt_powered_vehicle"), ALIGN_LEFT, CITY_KI, true);
 
 	top += LINESPACE;
 	display_fillbox_wh_clip(left+1, top + 2, VEHICLE_BAR_HEIGHT*2 - 2, VEHICLE_BAR_HEIGHT, COL_DARK_GREEN, true);
 	display_blend_wh(left+3, top + 3, VEHICLE_BAR_HEIGHT*2 - 6, VEHICLE_BAR_HEIGHT - 2, COL_WHITE, 30);
-	display_proportional(left + VEHICLE_BAR_HEIGHT*2 + 3, top, translator::translate("helptxt_unpowered_vehicle"), ALIGN_LEFT, CITY_KI, true);
+	display_proportional_clip(left + VEHICLE_BAR_HEIGHT*2 + 3, top, translator::translate("helptxt_unpowered_vehicle"), ALIGN_LEFT, CITY_KI, true);
 
 	if (skinverwaltung_t::upgradable) {
 		top += LINESPACE;
 		display_color_img(skinverwaltung_t::upgradable->get_image_id(1), left + 1, top, 0, false, false);
-		display_proportional(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("Upgrade available"), ALIGN_LEFT, CITY_KI, true);
+		display_proportional_clip(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("Upgrade available"), ALIGN_LEFT, CITY_KI, true);
 
 		top += LINESPACE;
 		display_color_img(skinverwaltung_t::upgradable->get_image_id(0), left + 1, top, 0, false, false);
 		if (welt->get_settings().get_show_future_vehicle_info()) {
-			display_proportional(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("Upgrade is not available yet"), ALIGN_LEFT, CITY_KI, true);
+			display_proportional_clip(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("Upgrade is not available yet"), ALIGN_LEFT, CITY_KI, true);
 		}
 		else {
-			display_proportional(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("Upgrade will be available in the near future"), ALIGN_LEFT, CITY_KI, true);
+			display_proportional_clip(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("Upgrade will be available in the near future"), ALIGN_LEFT, CITY_KI, true);
 		}
 	}
 
@@ -2878,7 +2878,7 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 
 	display_veh_form(left, top + 2, VEHICLE_BAR_HEIGHT*2 - 1, COL_DARK_GREEN, true, (vehicle_desc_t::permanent_coupling_next + vehicle_desc_t::fixed_coupling_next), 0, true, false);
 	display_veh_form(left + VEHICLE_BAR_HEIGHT*2 + 1, top + 2, VEHICLE_BAR_HEIGHT*2 - 1, COL_DARK_GREEN, true, (vehicle_desc_t::permanent_coupling_prev + vehicle_desc_t::fixed_coupling_prev), 0, false, false);
-	display_proportional(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_permanent_couple"), ALIGN_LEFT, CITY_KI, true);
+	display_proportional_clip(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_permanent_couple"), ALIGN_LEFT, CITY_KI, true);
 	*/
 
 }
