@@ -575,7 +575,7 @@ void gui_convoy_assembler_t::layout()
 	vehicle_filter.set_max_size(scr_size(column3_size.w + 30, LINESPACE*8+2+16));
 	action_selector.set_pos(scr_coord(column4_x, y));
 	action_selector.set_size(column4_size);
-	action_selector.set_max_size(scr_size(column4_size.w - 8, LINESPACE*3+2+16));
+	action_selector.set_max_size(scr_size(column4_size.w - 8, LINESPACE*4+2+16));
 	action_selector.set_highlight_color(1);
 	y += 4 + D_BUTTON_HEIGHT;
 
