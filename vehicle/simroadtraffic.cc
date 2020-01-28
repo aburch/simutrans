@@ -995,9 +995,14 @@ grund_t* private_car_t::hop_check()
 		// a city, then we need the route to the city, not the tile.
 
 		const stadt_t* destination_city = welt->get_city(target); 
+		koord check_target;
 		if (destination_city)
 		{
-			target = destination_city->get_townhall_road(); 
+			check_target = destination_city->get_townhall_road();
+		}
+		else
+		{
+			check_target = target;
 		}
 		const stadt_t* current_city = welt->get_city(pos_next.get_2d());
 
@@ -1006,7 +1011,13 @@ grund_t* private_car_t::hop_check()
 		{
 			// On the last tile of the route, this will give koord3d::invalid,
 			// thus invoking the semi-random mode below.
-			pos_next_next = weg->private_car_routes.get(target);
+			
+			// We need to check here, as the hashtable will give us a 0,0,0 koord rather 
+			// than koord::invalid if this be not contained in the hashtable.
+			if (weg->private_car_routes.is_contained(check_target))
+			{
+				pos_next_next = weg->private_car_routes.get(check_target);
+			}
 		}
 	}
 #endif
@@ -1058,21 +1069,39 @@ grund_t* private_car_t::hop_check()
 					}
 #ifdef DESTINATION_CITYCARS
 					
-					// If we are not on a route to our destination, do not leave a city if we are in one.
+					// If we are not on a route to our destination, do not leave a city if we are in one, unless it is our destination city.
 					const stadt_t* current_city = welt->get_city(pos_next.get_2d());
 					if (current_city)
 					{
 						const stadt_t* next_tile_city = welt->get_city(to->get_pos().get_2d()); 
-						if (next_tile_city != current_city)
+						const stadt_t* destination_city = welt->get_city(target);
+						if (next_tile_city != current_city && (!destination_city || next_tile_city != destination_city))
 						{
+							weg = from->get_weg(road_wt);
 							if (!weg->is_junction())
 							{
 								// If this is not a junction, we have not already checked for a private car route on this tile.
-								pos_next_next = weg->private_car_routes.get(target);
+								const stadt_t* destination_city = welt->get_city(target);
+								koord check_target;
+								if (destination_city)
+								{
+									check_target = destination_city->get_townhall_road();
+								}
+								else
+								{
+									check_target = target;
+								}
+								if (weg->private_car_routes.is_contained(check_target))
+								{
+									// We need to check here, as the hashtable will give us a 0,0,0 koord rather 
+									// than koord::invalid if this be not contained in the hashtable.
+									pos_next_next = weg->private_car_routes.get(check_target);
+								}
 								if (pos_next_next != koord3d::invalid)
 								{
 									goto exiting_city;
 								}
+
 							}
 							continue;
 						}
@@ -1241,15 +1270,20 @@ void private_car_t::calc_current_speed(grund_t* gr)
 void private_car_t::info(cbuffer_t & buf, bool dummy) const
 {
 	const stadt_t* const origin_city = welt->get_city(origin);
+	// We cannot get an origin name as the origin is the starting road tile, not building
 #ifdef DESTINATION_CITYCARS
 	const stadt_t* const destination_city = welt->get_city(target);
+	const grund_t* gr_target = welt->lookup_kartenboden(target); 
+	const gebaeude_t* destination_building = gr_target ? gr_target->get_building() : NULL;
 #else
 	const stadt_t* const destination_city = NULL;
+	const gebaeude_t* destination_building = NULL;
 #endif
-	const char* origin_name = origin_city ? origin_city->get_name() : translator::translate("keine");
-	const char* destination_name = destination_city ? destination_city->get_name() : translator::translate("keine");
+	const char* origin_city_name = origin_city ? origin_city->get_name() : translator::translate("keine");
+	const char* destination_name = destination_building ? translator::translate(destination_building->get_individual_name()) : translator::translate("keine");
+	const char* destination_city_name = destination_city ? destination_city->get_name() : translator::translate("keine");
 	buf.printf(translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(desc->get_name()), speed_to_kmh(current_speed), speed_to_kmh(desc->get_topspeed()), dx, dy);
-	buf.printf(translator::translate("\nOrigin: %s\nDestination: %s"), origin_name, destination_name);
+	buf.printf(translator::translate("\nOrigin: %s\nDestination: %s (%s)"), origin_city_name, destination_name, destination_city_name);
 }
 
 

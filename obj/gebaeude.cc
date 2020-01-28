@@ -741,6 +741,21 @@ const char *gebaeude_t::get_name() const
 	return "Gebaeude";
 }
 
+const char* gebaeude_t::get_individual_name() const
+{
+	if (is_factory && ptr.fab)
+	{
+		return ptr.fab->get_name();
+	}
+	else if (tile)
+	{
+		return tile->get_desc()->get_name();
+	}
+	else
+	{
+		return get_name();
+	}
+}
 
 /**
 * waytype associated with this object

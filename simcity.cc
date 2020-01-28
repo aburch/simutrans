@@ -6125,9 +6125,10 @@ void stadt_t::process_private_car_routes()
 {
 	if (!private_car_routes_new.empty())
 	{
-		koord3d previous_tile = welt->lookup_kartenboden(get_townhall_road())->get_pos();
+		
 		FOR(private_car_route_map, route, private_car_routes_new)
 		{
+			koord3d previous_tile = welt->lookup_kartenboden(get_townhall_road())->get_pos();
 			FOR(vector_tpl<koord3d>, route_element, route.value)
 			{
 				if (previous_tile == route_element)
@@ -6145,6 +6146,7 @@ void stadt_t::process_private_car_routes()
 			weg_t* road_tile = gr->get_weg(road_wt);
 			road_tile->private_car_routes.put(route.key, koord3d::invalid);
 			private_car_routes_processed.put(route.key, route.value); 
+			
 		}
 		private_car_routes_new.clear();
 	}
