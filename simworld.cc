@@ -4570,7 +4570,7 @@ bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, sound_typ
 }
 
 
-void karte_t::save(const char *filename, loadsave_t::mode_t savemode, const char *version_str, bool silent )
+void karte_t::save(const char *filename, bool autosave, const char *version_str, bool silent )
 {
 DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 	loadsave_t  file;
@@ -4578,7 +4578,7 @@ DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 	savename[savename.length()-1] = '_';
 
 	display_show_load_pointer( true );
-	if(!file.wr_open( savename.c_str(), savemode, env_t::objfilename.c_str(), version_str )) {
+	if(!file.wr_open( savename.c_str(), autosave ? loadsave_t::autosave_mode : loadsave_t::save_mode, autosave ? loadsave_t::autosave_level : loadsave_t::save_level, env_t::objfilename.c_str(), version_str )) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::save()","cannot open file for writing! check permissions!");
 	}

@@ -158,6 +158,13 @@ ifdef USE_UPNP
   endif
 endif
 
+ifdef USE_ZSRD
+  ifeq ($(shell expr $(USE_UPNP) \>= 1), 1)
+    CFLAGS      += -DUSE_ZSTD
+    LDFLAGS     += -lzstd
+  endif
+endif
+
 ifeq ($(shell expr $(PROFILE) \>= 1), 1)
   CFLAGS   += -pg -DPROFILE
   ifeq ($(shell expr $(PROFILE) \>= 2), 1)

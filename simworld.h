@@ -648,7 +648,7 @@ private:
 	 * Internal saving method.
 	 * @author Hj. Malthaner
 	 */
-	void save(loadsave_t *file,bool silent);
+	void save(loadsave_t *file, bool silent);
 
 	/**
 	 * Internal loading method.
@@ -1781,7 +1781,7 @@ public:
 	 * @param Filename name of the file to write.
 	 * @author Hj. Malthaner
 	 */
-	void save(const char *filename, const loadsave_t::mode_t savemode, const char *version, bool silent);
+	void save(const char *filename, bool autosave, const char *version, bool silent);
 
 	/**
 	 * Loads a map from a file.

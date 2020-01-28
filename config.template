@@ -44,6 +44,9 @@ USE_FREETYPE = 0
 # using UPnP for easy server hosting behind routers
 #USE_UPNP = 0
 
+# using zstd compression library
+#USE_ZSTD = 0
+
 # Define these as empty strings, if you don't have the respective config program
 #ALLEGRO_CONFIG = allegro-config
 #PNG_CONFIG     = pkg-config libpng
