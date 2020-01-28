@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
+ *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  *
@@ -71,7 +71,7 @@ public:
 
 	const image_t *get_background(slope_t::type slope, uint8 season, uint8 type ) const
 	{
-		int const n = season && number_of_seasons == 1 ? 5 : 2;
+	  const uint8 n = season && number_of_seasons == 1 ? 5 : 2;
 		return get_child<image_list_t>(n)->get_image(slope_indices[slope] + 4 * type);
 	}
 
@@ -83,7 +83,7 @@ public:
 
 	const image_t *get_foreground(slope_t::type slope, uint8 season, uint8 type ) const
 	{
-		int const n = season && number_of_seasons == 1 ? 6 : 3;
+	  const uint8 n = season && number_of_seasons == 1 ? 6 : 3;
 		return get_child<image_list_t>(n)->get_image(slope_indices[slope] + 4 * type);
 	}
 

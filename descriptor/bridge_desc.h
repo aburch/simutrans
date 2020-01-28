@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
+ *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  *
@@ -32,7 +32,6 @@ class bridge_desc_t : public obj_desc_transport_infrastructure_t {
     friend class bridge_reader_t;
 
 private:
-
 	uint8 pillars_every;	// =0 off
 	bool pillars_asymmetric;	// =0 off else leave one off for north/west slopes
 	uint offset;	// flag, because old bridges had their name/copyright at the wrong position
@@ -124,7 +123,7 @@ public:
 	 * Distance of pillars (=0 for no pillars)
 	 * @author prissi
 	 */
-	int  get_pillar() const { return pillars_every; }
+	uint8  get_pillar() const { return pillars_every; }
 
 	/**
 	 * skips lowest pillar on south/west slopes?
@@ -136,13 +135,13 @@ public:
 	 * maximum bridge span (=0 for infinite)
 	 * @author prissi
 	 */
-	int  get_max_length() const { return max_length; }
+	uint8  get_max_length() const { return max_length; }
 
 	/**
 	 * maximum bridge height (=0 for infinite)
 	 * @author prissi
 	 */
-	int  get_max_height() const { return max_height; }
+	uint8  get_max_height() const { return max_height; }
 
 	/* Way constraints: determines whether vehicles
 	 * can travel on this way. This method decodes

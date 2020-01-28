@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
+ *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  */
@@ -103,12 +103,12 @@ bool building_desc_t::is_connected_with_town() const
  *  Description:
  *      Returns the correct tile image on that position depending on the layout
  */
-const building_tile_desc_t *building_desc_t::get_tile(int layout, int x, int y) const
+const building_tile_desc_t *building_desc_t::get_tile(uint8 layout, sint16 x, sint16 y) const
 {
 	layout = adjust_layout(layout);
 	koord dims = get_size(layout);
 
-	if(layout < 0  ||  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_x(layout)  ||  y >= get_y(layout)) {
+	if(  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_x(layout)  ||  y >= get_y(layout)  ) {
 	dbg->fatal("building_tile_desc_t::get_tile()",
 			   "invalid request for l=%d, x=%d, y=%d on building %s (l=%d, x=%d, y=%d)",
 		   layout, x, y, get_name(), layouts, size.x, size.y);
@@ -125,7 +125,7 @@ const building_tile_desc_t *building_desc_t::get_tile(int layout, int x, int y) 
  *  Description:
  *      Layout normalisation. Returns number of different layouts
  */
-int building_desc_t::adjust_layout(int layout) const
+uint8 building_desc_t::adjust_layout(uint8 layout) const
 {
 	if(layout >= 4 && layouts <= 4) {
 		layout -= 4;

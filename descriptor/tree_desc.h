@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
+ *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  */
@@ -55,7 +55,7 @@ public:
 	}
 
 	// old style trees and new style tree support ...
-	int get_seasons() const
+	uint8 get_seasons() const
 	{
 		if(number_of_seasons==0) {
 			return get_child<image_array_t>(2)->get_count() / 5;

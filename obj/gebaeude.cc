@@ -653,7 +653,7 @@ image_id gebaeude_t::get_image() const
 				return skinverwaltung_t::fussweg->get_image_id(0);
 			}
 			else {
-				int kind = skinverwaltung_t::construction_site->get_count() <= tile->get_desc()->get_type() ? skinverwaltung_t::construction_site->get_count() - 1 : tile->get_desc()->get_type();
+				uint16 kind = skinverwaltung_t::construction_site->get_count() <= tile->get_desc()->get_type() ? skinverwaltung_t::construction_site->get_count() - 1 : tile->get_desc()->get_type();
 				return skinverwaltung_t::construction_site->get_image_id(kind);
 			}
 		}

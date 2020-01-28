@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
+ *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  */
@@ -118,7 +118,7 @@ public:
 		if (front  &&  !front_images) {
 			return IMG_EMPTY;
 		}
-		int const n = image_list_base_index(season, front);
+		const uint16 n = image_list_base_index(season, front);
 		return get_child<image_list_t>(n)->get_image_id(ribi);
 	}
 
@@ -127,7 +127,7 @@ public:
 		if (front  &&  !front_images) {
 			return IMG_EMPTY;
 		}
-		int const n = image_list_base_index(season, front);
+		const uint16 n = image_list_base_index(season, front);
 		image_list_t const* const imglist = get_child<image_list_t>(n);
 		// only do this if extended switches are there
 		if(  imglist->get_count()>16  ) {
@@ -146,8 +146,8 @@ public:
 		if (front  &&  !front_images) {
 			return IMG_EMPTY;
 		}
-		int const n = image_list_base_index(season, front) + 1;
-		int nr;
+		const uint16 n = image_list_base_index(season, front) + 1;
+		uint16 nr;
 		switch(slope) {
 			case slope_t::north:
 				nr = 0;
