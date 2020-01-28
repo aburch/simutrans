@@ -6112,7 +6112,7 @@ void stadt_t::remove_city_factory(fabrik_t *fab)
 
 void stadt_t::store_private_car_route(vector_tpl<koord3d> route, koord pos)
 {
-	private_car_routes[get_currently_inactive_route_map()].put(pos, route);
+	private_car_routes[get_currently_inactive_route_map()].set(pos, route);
 }
 
 void stadt_t::process_private_car_routes()
@@ -6151,11 +6151,15 @@ void stadt_t::clear_private_car_route(koord pos)
 {
 	if (private_car_routes[get_currently_active_route_map()].is_contained(pos))
 	{
-		FOR(vector_tpl<koord3d>, route_element, private_car_routes[get_currently_active_route_map()].get(pos))
+		const vector_tpl<koord3d> &route = private_car_routes[get_currently_active_route_map()].get(pos);
+		FOR(const vector_tpl<koord3d>, const &route_element, route)
 		{
 			const grund_t* gr = welt->lookup(route_element);
 			weg_t* road_tile = gr->get_weg(road_wt);
-			road_tile->private_car_routes.remove(pos); 
+			if (road_tile)
+			{
+				road_tile->private_car_routes.remove(pos);
+			}
 		}
 	}
 }

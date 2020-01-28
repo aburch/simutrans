@@ -265,6 +265,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	const gebaeude_t* destination_attraction; 
 	const stadt_t* destination_city; 
 	stadt_t* origin_city = NULL;
+	bool reached_target = false;
+
 	if (flags == private_car_checker)
 	{
 		origin_city = welt->access(start.get_2d())->get_city();
@@ -305,7 +307,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				// Cost should be journey time per *straight line* tile, as the private car route
 				// system needs to be able to approximate the total travelling time from the straight
 				// line distance.
-
+				reached_target = true;
 				const koord3d k = gr->get_pos();
 				destination_city = welt->access(k.get_2d())->get_city();
 				if(destination_city && destination_city->get_townhall_road() == k.get_2d())
@@ -373,7 +375,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		}
 
 		// Relax the route here if this is a private car route checker, as we may find many destinations.
-		if (flags == private_car_checker && (destination_attraction || destination_industry || destination_city))
+		if (reached_target && flags == private_car_checker && (destination_attraction || destination_industry || destination_city))
 		{
 			route.clear();
 			ANode* original_tmp = tmp;

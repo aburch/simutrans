@@ -1035,6 +1035,14 @@ grund_t* private_car_t::hop_check()
 				if (!next_way)
 				{
 					pos_next_next = koord3d::invalid;
+
+					// We also need to invalidate the route.
+					const planquadrat_t* tile = welt->access(origin);
+					stadt_t* origin_city = tile ? tile->get_city() : NULL;
+					if (origin_city)
+					{
+						origin_city->clear_private_car_route(check_target);
+					}
 				}
 			}
 		}
