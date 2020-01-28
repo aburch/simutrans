@@ -6151,6 +6151,24 @@ void stadt_t::clear_private_car_route(koord pos)
 {
 	if (private_car_routes[get_currently_active_route_map()].is_contained(pos))
 	{
+		const planquadrat_t* tile = welt->access(pos); 
+		stadt_t* origin_city = tile ? tile->get_city() : NULL;
+
+		const grund_t* gr_destination = welt->lookup_kartenboden(pos);
+		const gebaeude_t* gb_destination = gr_destination ? gr_destination->get_building() : NULL;
+		if (gb_destination && gb_destination->get_is_factory())
+		{
+			connected_industries.remove(pos); 
+		}
+		else if (gb_destination)
+		{
+			connected_attractions.remove(pos);
+		}
+		else
+		{
+			connected_cities.remove(pos); 
+		}
+		
 		const vector_tpl<koord3d> &route = private_car_routes[get_currently_active_route_map()].get(pos);
 		FOR(const vector_tpl<koord3d>, const &route_element, route)
 		{
