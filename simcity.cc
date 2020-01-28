@@ -2368,6 +2368,85 @@ void stadt_t::rdwr(loadsave_t* file)
 		}
 	}
 
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 17))
+	{
+		// Private car route data
+		if (file->is_saving())
+		{
+			uint32 private_car_routes_new_count = private_car_routes_new.get_count();
+			file->rdwr_long(private_car_routes_new_count); 
+
+			FOR(private_car_route_map, route, private_car_routes_new)
+			{
+				uint32 route_element_count = route.value.get_count();
+				file->rdwr_long(route_element_count);
+				koord k = route.key;
+				k.rdwr(file); 
+				FOR(vector_tpl<koord3d>, route_element, route.value)
+				{
+					route_element.rdwr(file); 
+				}
+			}
+
+			uint32 private_car_routes_processed_count = private_car_routes_processed.get_count();
+			file->rdwr_long(private_car_routes_processed_count);
+
+			FOR(private_car_route_map, route, private_car_routes_new)
+			{
+				uint32 route_element_count = route.value.get_count();
+				file->rdwr_long(route_element_count);
+				koord k = route.key;
+				k.rdwr(file);
+				FOR(vector_tpl<koord3d>, route_element, route.value)
+				{
+					route_element.rdwr(file);
+				}
+			}
+		}
+		else // Loading
+		{
+			private_car_routes_new.clear();
+			uint32 private_car_routes_new_count = 0;
+			file->rdwr_long(private_car_routes_new_count);
+
+			for (uint32 i = 0; i < private_car_routes_new_count; i++)
+			{
+				uint32 route_element_count = 0;
+				file->rdwr_long(route_element_count); 
+				koord k;
+				k.rdwr(file); 
+				vector_tpl<koord3d> route;
+				for (uint32 j = 0; j < route_element_count; j++)
+				{
+					koord3d k3d;
+					k3d.rdwr(file);
+					route.append(k3d);
+				}
+				private_car_routes_new.put(k, route); 
+			}
+
+			private_car_routes_processed.clear();
+			uint32 private_car_routes_processed_count = 0;
+			file->rdwr_long(private_car_routes_processed_count);
+
+			for (uint32 i = 0; i < private_car_routes_processed_count; i++)
+			{
+				uint32 route_element_count = 0;
+				file->rdwr_long(route_element_count);
+				koord k;
+				k.rdwr(file);
+				vector_tpl<koord3d> route;
+				for (uint32 j = 0; j < route_element_count; j++)
+				{
+					koord3d k3d;
+					k3d.rdwr(file);
+					route.append(k3d);
+				}
+				private_car_routes_processed.put(k, route);
+			}
+		}
+	}
+
 	if(file->get_extended_version() >= 12 && file->get_extended_version() < 13)
 	{
 		// Was waschtum

@@ -296,6 +296,8 @@ private:
 	*/
 	void check_city_tiles(bool del = false);
 
+	/// Storage for private car routes (1) awaiting processing; and (2) processed (for easy deletion)
+	// TODO: Save these data
 	typedef koordhashtable_tpl<koord, vector_tpl<koord3d> > private_car_route_map;
 	private_car_route_map private_car_routes_new;
 	private_car_route_map private_car_routes_processed;

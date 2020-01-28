@@ -53,6 +53,7 @@
 #include "../../descriptor/roadsign_desc.h"
 #include "../../descriptor/building_desc.h" // for ::should_city_adopt_this
 #include "../../utils/simstring.h"
+#include "../../simcity.h"
 
 #include "../../bauer/wegbauer.h"
 
@@ -462,6 +463,44 @@ void weg_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(deg);
 		degraded = deg;
 #endif
+
+		if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 17))
+		{
+			if (file->is_saving())
+			{
+				uint32 private_car_routes_count = private_car_routes.get_count();
+				file->rdwr_long(private_car_routes_count); 
+				FOR(private_car_route_map, element, private_car_routes)
+				{
+					koord destination = element.key;
+					koord origin = element.value.origin ? element.value.origin->get_townhall_road() : koord::invalid;
+					ribi_t::ribi direction = element.value.direction;
+
+					destination.rdwr(file);
+					origin.rdwr(file);
+					file->rdwr_byte(direction); 
+				}
+			}
+			else // Loading
+			{
+				uint32 private_car_routes_count = 0;
+				file->rdwr_long(private_car_routes_count);
+				for (uint32 i = 0; i < private_car_routes_count; i++)
+				{
+					koord destination;
+					destination.rdwr(file); 
+					koord origin;
+					origin.rdwr(file);
+					ribi_t::ribi direction;
+					file->rdwr_byte(direction);
+
+					private_car_route_tile tile;
+					tile.direction = direction;
+					tile.origin = welt->get_city(origin); // CHECK: Have cities been initialised yet? Can we get the city like this?
+					private_car_routes.put(destination, tile); 
+				}
+			}
+		}
 	}
 }
 
