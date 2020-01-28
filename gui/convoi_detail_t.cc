@@ -332,6 +332,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 		if (vehicle_count > 1) {
 			// convoy power
 			buf.clear();
+			// NOTE: These value needs to be modified because these are multiplied by "gear"
 			buf.printf(translator::translate("%s %4d kW, %d kN"), translator::translate("Power:"), cnv->get_sum_power() / 1000, cnv->get_starting_force().to_sint32() / 1000);
 			// TODO: Add the acceleration info here - Ranran
 			display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -394,7 +395,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			sint8 car_number = cnv->get_car_numbering(veh);
 			buf.clear();
 			if (car_number < 0) {
-				buf.printf("%s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
+				buf.printf("%.2s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
 			}
 			else {
 				buf.append(car_number);
@@ -996,7 +997,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 			sint8 car_number = cnv->get_car_numbering(veh);
 			buf.clear();
 			if (car_number < 0) {
-				buf.printf("%s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
+				buf.printf("%.2s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
 			}
 			else {
 				buf.append(car_number);
@@ -1219,7 +1220,7 @@ void gui_convoy_formaion_t::draw(scr_coord offset)
 			// cars number in this convoy
 			sint8 car_number = cnv->get_car_numbering(veh);
 			if (car_number < 0) {
-				buf.printf("%s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
+				buf.printf("%.2s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
 			}
 			else {
 				buf.append(car_number);
