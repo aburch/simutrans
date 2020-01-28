@@ -61,6 +61,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	grid(get_grid(wt)),
 	grid_dx(get_grid(wt).x * get_base_tile_raster_width() / 64 / 2),
 	max_convoy_length(depot_t::get_max_convoy_length(wt)), panel_rows(3), convoy_tabs_skip(0),
+	lb_convoi_number(NULL, SYSCOL_TEXT, gui_label_t::left),
 	lb_convoi_count(NULL, SYSCOL_TEXT, gui_label_t::left),
 	lb_convoi_speed(NULL, SYSCOL_TEXT, gui_label_t::left),
 	lb_convoi_cost(NULL, SYSCOL_TEXT, gui_label_t::left),
@@ -114,6 +115,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	convoi.add_listener(this);
 
 	add_component(&convoi);
+	add_component(&lb_convoi_number);
 	add_component(&lb_convoi_count);
 	add_component(&lb_convoi_speed);
 	add_component(&lb_convoi_cost);
@@ -276,6 +278,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	bt_class_management.set_tooltip("see_and_change_the_class_assignments");
 	add_component(&bt_class_management);
 
+	lb_convoi_number.set_text_pointer(txt_convoi_number);
 	lb_convoi_count.set_text_pointer(txt_convoi_count);
 	lb_convoi_speed.set_text_pointer(txt_convoi_speed);
 	lb_convoi_cost.set_text_pointer(txt_convoi_cost);
@@ -444,6 +447,7 @@ void gui_convoy_assembler_t::layout()
 	convoi.set_size(scr_size(get_convoy_image_width(), get_convoy_image_height()));
 	y += get_convoy_image_height() + 1;
 
+	lb_convoi_number.set_width(30);
 	lb_convoi_count.set_pos(scr_coord(c1_x, y));
 	lb_convoi_count.set_size(lb_size);
 	lb_convoi_value.set_pos(scr_coord(c2_x, y));
@@ -2059,6 +2063,11 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				{
 					veh_type = cnv->get_vehicle(sel_index)->get_desc();
 					resale_value = cnv->get_vehicle(sel_index)->calc_sale_value();
+					txt_convoi_number.clear();
+					txt_convoi_number.printf("%.2s", cnv->get_car_numbering(sel_index) < 0 ? translator::translate("LOCO_SYM") : "");
+					txt_convoi_number.printf("%d", abs(cnv->get_car_numbering(sel_index)));
+					lb_convoi_number.set_color(veh_type->has_available_upgrade(welt->get_timeline_year_month(), welt->get_settings().get_show_future_vehicle_info()) == 2? COL_UPGRADEABLE : COL_WHITE);
+					lb_convoi_number.set_pos(scr_coord((grid.x - grid_dx)*sel_index + D_MARGIN_LEFT, 4));
 				}
 				else
 				{
@@ -2500,6 +2509,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		new_vehicle_length_sb = new_vehicle_length_sb_force_zero ? 0 : convoi_length_ok_sb + convoi_length_slower_sb + convoi_length_too_slow_sb + veh_type->get_length();
 	}
 	else {
+		txt_convoi_number.clear();
 		new_vehicle_length_sb = 0;
 		lb_livery_counter.set_text(NULL);
 		convoi.set_focus(-1);

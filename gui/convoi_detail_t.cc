@@ -652,7 +652,7 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 			sint8 car_number = cnv->get_car_numbering(veh);
 			buf.clear();
 			if (car_number < 0) {
-				buf.printf("%s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
+				buf.printf("%.2s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
 			}
 			else {
 				buf.append(car_number);
