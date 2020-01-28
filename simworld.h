@@ -864,6 +864,11 @@ private:
 	void update_map_intern(sint16, sint16, sint16, sint16);
 
 	/**
+	 * Updates images after change of underground mode.
+	 */
+	void update_underground_intern(sint16, sint16, sint16, sint16);
+	
+	/**
 	 * This contains all buildings in the world from which passenger
 	 * journeys ultimately start, weighted by their level.
 	 * @author: jamespetts
