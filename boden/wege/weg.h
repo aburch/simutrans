@@ -138,9 +138,6 @@ private:
 	image_id image;
 	image_id foreground_image;
 
-	/// Store the cities here to prevent expensive lookups with private car movement.
-	const stadt_t* city;
-
 	/**
 	* Initializes all member variables
 	* @author Hj. Malthaner
@@ -469,9 +466,6 @@ public:
 
 	runway_directions get_runway_directions() const;
 	uint32 get_runway_length(bool is_36_18) const; 
-
-	const stadt_t* get_city() const { return city; }
-	void set_city(const stadt_t* value) { city = value; }
 
 } GCC_PACKED;
 

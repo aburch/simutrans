@@ -1015,9 +1015,8 @@ grund_t* private_car_t::hop_check()
 		{
 			check_target = target;
 		}
-		gr_check = welt->lookup(pos_next);
-		const weg_t* check_way = gr_check ? gr_check->get_weg(road_wt) : NULL;
-		const stadt_t* current_city = check_way ? check_way->get_city() : NULL;
+		const planquadrat_t* tile = welt->access(pos_next.get_2d());
+		stadt_t* current_city = tile ? tile->get_city() : NULL;
 
 		// Only follow the route if not in a destination city
 		if (!current_city || current_city != destination_city)
@@ -1089,15 +1088,14 @@ grund_t* private_car_t::hop_check()
 #ifdef DESTINATION_CITYCARS
 					
 					// If we are not on a route to our destination, do not leave a city if we are in one, unless it is our destination city.
-					weg = from->get_weg(road_wt);
-					const stadt_t* current_city = weg->get_city(); 
+					const planquadrat_t* tile = welt->access(pos_next.get_2d());
+					const stadt_t* current_city = tile ? tile->get_city() : NULL;
 					if (current_city)
 					{
-						const grund_t* gr_check = welt->lookup(to->get_pos());
-						const weg_t* check_way = gr_check ? gr_check->get_weg(road_wt) : NULL;
-						const stadt_t* next_tile_city = check_way ? check_way->get_city() : NULL;
+						planquadrat_t* tile = welt->access(to->get_pos().get_2d());
+						const stadt_t* next_tile_city = tile ? tile->get_city() : NULL;
 
-						gr_check = welt->lookup_kartenboden(target);
+						const grund_t* gr_check = welt->lookup_kartenboden(target);
 						const gebaeude_t* gb = gr_check ? gr_check->get_building() : NULL;
 						const stadt_t* destination_city = gb ? gb->get_stadt() : NULL;
 

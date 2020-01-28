@@ -255,11 +255,13 @@ gebaeude_t::~gebaeude_t()
 	const bool has_city_defined = our_city != NULL;
 	if (!our_city /* && tile->get_desc()->get_type() == building_desc_t::townhall*/)
 	{
-		our_city = welt->get_city(get_pos().get_2d());
+		const planquadrat_t* tile = welt->access(get_pos().get_2d());
+		our_city = tile ? tile->get_city() : NULL;
 	}
 	if (!our_city)
 	{
-		our_city = welt->get_city(get_first_tile()->get_pos().get_2d());
+		const planquadrat_t* tile = welt->access(get_first_tile()->get_pos().get_2d());
+		our_city = tile ? tile->get_city() : NULL;
 	}
 	if (our_city)
 	{

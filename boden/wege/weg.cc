@@ -315,7 +315,6 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 				rs->upgrade(welt->lookup_kartenboden(get_pos().get_2d())->get_hoehe() != get_pos().z);
 			}
 		}
-		city = welt->get_city(get_pos().get_2d());
 	}
 }
 
@@ -355,7 +354,6 @@ void weg_t::init()
 	degraded = false;
 	remaining_wear_capacity = 100000000;
 	replacement_way = NULL;
-	city = NULL;
 }
 
 
@@ -1502,7 +1500,6 @@ void weg_t::finish_rd()
 		}
 		player_t::add_maintenance( player,  maint, desc->get_finance_waytype() );
 	}
-	city = welt->get_city(get_pos().get_2d());
 }
 
 
@@ -1523,7 +1520,6 @@ const char *weg_t:: is_deletable(const player_t *player, bool allow_public)
  */
 bool weg_t::should_city_adopt_this(const player_t* player)
 {
-	city = welt->get_city(get_pos().get_2d());
 	if(!welt->get_settings().get_towns_adopt_player_roads())
 	{
 		return false;
@@ -1735,6 +1731,8 @@ void weg_t::degrade()
 		{
 			if (!initially_unowned && welt->get_timeline_year_month())
 			{
+				const planquadrat_t* tile = welt->access(get_pos().get_2d());
+				const stadt_t* city = tile ? tile->get_city() : NULL;
 				const way_desc_t* wb = city ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month()) : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
 				set_desc(wb ? wb : desc);
 			}

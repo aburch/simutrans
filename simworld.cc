@@ -5118,7 +5118,8 @@ void karte_t::new_month()
 		// This will add a city if the city has engulfed the substation, and remove a city if
 		// the city has been deleted or become smaller. 
 		senke_t* const substation = senke_iter;
-		stadt_t* const city = get_city(substation->get_pos().get_2d());
+		const planquadrat_t* tile = access(substation->get_pos().get_2d());
+		stadt_t* const city = tile ? tile->get_city() : NULL;
 		substation->set_city(city);
 		if(city)
 		{

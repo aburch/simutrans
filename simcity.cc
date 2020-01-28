@@ -6119,7 +6119,6 @@ void stadt_t::process_private_car_routes()
 {
 	if (!private_car_route_finding_in_progress && !private_car_routes[get_currently_inactive_route_map()].empty())
 	{
-		vector_tpl<koord> routes_to_clear;
 		FOR(private_car_route_map, const &route, private_car_routes[get_currently_inactive_route_map()])
 		{
 			koord3d previous_tile = welt->lookup_kartenboden(get_townhall_road())->get_pos();
@@ -6140,7 +6139,6 @@ void stadt_t::process_private_car_routes()
 			const grund_t* gr = welt->lookup(previous_tile);
 			weg_t* road_tile = gr->get_weg(road_wt);
 			road_tile->private_car_routes.set(route.key, koord3d::invalid);
-			routes_to_clear.append(route.key); 
 		}
 		
 		// First, clear the old routes, then mark the new routes as the current routes.

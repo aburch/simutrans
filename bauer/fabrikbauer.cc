@@ -418,7 +418,8 @@ void factory_builder_t::distribute_attractions(int max_number)
 			gebaeude_t* gb = hausbauer_t::build(welt->get_public_player(), pos, rotation, attraction);
 			current_number ++;
 			retrys = max_number*4;
-			stadt_t* city = welt->get_city(gb->get_pos().get_2d());
+			const planquadrat_t* tile = welt->access(gb->get_pos().get_2d()); 
+			stadt_t* city = tile ? tile->get_city() : NULL;
 			if(city)
 			{
 				city->add_building_to_list(gb->access_first_tile());

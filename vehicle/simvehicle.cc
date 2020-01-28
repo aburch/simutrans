@@ -969,14 +969,16 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 										// be in (or be fully in) a city.
 										tmp.get_origin()->add_pax_happy(menge);
 										koord origin_pos = tmp.get_origin()->get_basis_pos();
-										stadt_t* origin_city = welt->get_city(origin_pos);
+										const planquadrat_t* tile = welt->access(origin_pos);
+										stadt_t* origin_city = tile ? tile->get_city() : NULL;
 										if (!origin_city)
 										{
 											// The origin stop is not within a city.
 											// If the stop is located outside the city, but the passengers
 											// come from a city, they will not record as transported.
 											origin_pos = tmp.get_origin()->get_init_pos();
-											origin_city = welt->get_city(origin_pos);
+											tile = welt->access(origin_pos);
+											origin_city = tile ? tile->get_city() : NULL;
 										}
 
 										if (!origin_city)
@@ -984,7 +986,8 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 											for (uint8 i = 0; i < 16; i++)
 											{
 												koord pos(origin_pos + origin_pos.second_neighbours[i]);
-												origin_city = welt->get_city(pos);
+												const planquadrat_t* tile = welt->access(pos);
+												origin_city = tile ? tile->get_city() : NULL;
 												if (origin_city)
 												{
 													break;
@@ -1007,14 +1010,16 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 										// be in (or be fully in) a city.
 										tmp.get_origin()->add_mail_delivered(menge);
 										koord origin_pos = tmp.get_origin()->get_basis_pos();
-										stadt_t* origin_city = welt->get_city(origin_pos);
+										const planquadrat_t* tile = welt->access(origin_pos);
+										stadt_t* origin_city = tile ? tile->get_city() : NULL;
 										if (!origin_city)
 										{
 											// The origin stop is not within a city.
 											// If the stop is located outside the city, but the passengers
 											// come from a city, they will not record as transported.
 											origin_pos = tmp.get_origin()->get_init_pos();
-											origin_city = welt->get_city(origin_pos);
+											tile = welt->access(origin_pos);
+											origin_city = tile ? tile->get_city() : NULL;
 										}
 
 										if (!origin_city)
@@ -1022,7 +1027,8 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 											for (uint8 i = 0; i < 16; i++)
 											{
 												koord pos(origin_pos + origin_pos.second_neighbours[i]);
-												origin_city = welt->get_city(pos);
+												const planquadrat_t* tile = welt->access(pos);
+												origin_city = tile ? tile->get_city() : NULL;
 												if (origin_city)
 												{
 													break;
