@@ -1102,6 +1102,7 @@ grund_t* private_car_t::hop_check()
 								{
 									// We need to check here, as the hashtable will give us a 0,0,0 koord rather 
 									// than koord::invalid if this be not contained in the hashtable.
+									// This is inefficient but profiling suggests that it has little effect in reality.
 									pos_next_next = weg->private_car_routes.get(check_target);
 									// Check whether the way has been deleted in the meantime.
 									const grund_t* next_gr = welt->lookup(pos_next_next);
