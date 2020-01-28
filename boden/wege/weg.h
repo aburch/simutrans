@@ -203,8 +203,8 @@ public:
 
 	struct private_car_route_tile
 	{
-		stadt_t* origin;
-		ribi_t::ribi direction;
+		stadt_t* origin = NULL;
+		ribi_t::ribi direction = ribi_t::none;
 	};
 
 	/*

@@ -496,7 +496,7 @@ void weg_t::rdwr(loadsave_t *file)
 
 					private_car_route_tile tile;
 					tile.direction = direction;
-					tile.origin = welt->get_city(origin); // CHECK: Have cities been initialised yet? Can we get the city like this?
+					tile.origin = welt->get_city(origin);
 					private_car_routes.put(destination, tile); 
 				}
 			}

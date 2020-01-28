@@ -984,6 +984,38 @@ grund_t* private_car_t::hop_check()
 		}
 	}
 
+#ifdef DESTINATION_CITYCARS
+	// Is this an intersection? If so, do we have a destination?
+	// If so, check for private car routes to our destination.
+	if (target != koord::invalid /*&& weg->is_junction()*/)
+	{
+		// Only check for routes at junctions
+
+		// The target is an individual tile. If we are going to a destination in
+		// a city, then we need the route to the city, not the tile.
+
+		const stadt_t* destination_city = welt->get_city(target); 
+		if (destination_city)
+		{
+			target = destination_city->get_townhall_road(); 
+		}
+
+		weg_t::private_car_route_tile tile = weg->private_car_routes.get(target);
+		if (tile.direction != ribi_t::none)
+		{
+			// There is a route here to our destination: follow it
+			grund_t* to;
+			if (from->get_neighbour(to, road_wt, tile.direction))
+			{
+				pos_next_next = to->get_pos();
+			}
+		}
+		// It is probably too computationally intensive to search the hashtable bakwards
+		// to try to find a route *from* our destination and to work backwards along this.
+	}
+#endif
+
+
 	// next tile unknown => find next tile
 	if(pos_next_next==koord3d::invalid) {
 
@@ -1029,6 +1061,34 @@ grund_t* private_car_t::hop_check()
 						}
 					}
 #ifdef DESTINATION_CITYCARS
+					
+					// If we are not on a route to our destination, do not leave a city if we are in one.
+					const stadt_t* current_city = welt->get_city(pos_next.get_2d());
+					if (current_city)
+					{
+						const stadt_t* next_tile_city = welt->get_city(to->get_pos().get_2d()); 
+						if (next_tile_city != current_city)
+						{
+							//if (!weg->is_junction())
+							if(false)
+							{
+								// If this is not a junction, we have not already checked for a private car route on this tile.
+								weg_t::private_car_route_tile tile = weg->private_car_routes.get(target);
+								if (tile.direction != ribi_t::none)
+								{
+									// There is a route here to our destination: follow it
+									grund_t* to;
+									if (from->get_neighbour(to, road_wt, tile.direction))
+									{
+										pos_next_next = to->get_pos();
+										goto exiting_city;
+									}
+								}
+							}
+							continue;
+						}
+					}
+					
 					uint32 dist=shortest_distance( to->get_pos().get_2d(), target );
 					posliste.append( to->get_pos(), dist*dist );
 #else
@@ -1077,6 +1137,7 @@ grund_t* private_car_t::hop_check()
 #endif
 	}
 	else {
+	exiting_city:
 		if(from  &&  can_enter_tile(from)) {
 			// ok, this direction is fine!
 			ms_traffic_jam = 0;

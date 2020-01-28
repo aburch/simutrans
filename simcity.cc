@@ -6139,6 +6139,7 @@ void stadt_t::process_private_car_routes()
 				tile.direction = direction;
 				road_tile->private_car_routes.put(route.key, tile);
 			}
+			private_car_routes_processed.put(route.key, route.value); 
 		}
 		private_car_routes_new.clear();
 	}
