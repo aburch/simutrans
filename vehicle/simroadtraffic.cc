@@ -957,7 +957,7 @@ grund_t* private_car_t::hop_check()
 	// private car, so these can be processed in non-overlapping
 	// batches in parallell. This is a sync_step task, so probably
 	// cannot be concurrent. Query whether this is likely to be
-	// worthwhile. This takes circa 9% of all CPU time on a large
+	// worthwhile. This takes circa 5% of all CPU time on a large
 	// game (768 towns) in the modern era (2004) of Pak128.Britain-Ex.
 
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
