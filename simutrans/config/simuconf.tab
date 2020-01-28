@@ -951,6 +951,7 @@ bits_per_month = 20
 # compress savegames?
 # "binary" means uncompressed, "zipped" means compressed
 # "bzip2" uses another compression algorithm
+# "zstd" may be available too
 # other options are "xml", "xml_zipped" and "xml_bzip2"
 # xml detects more errors of broken savegames but files are much larger
 # bzip2 savegames are smaller than zipped but saving/loading takes longer
@@ -958,6 +959,13 @@ saveformat = zipped
 
 # Alternate format for faster autosaves
 autosaveformat = zipped
+
+# zip and zstd allow for finetuning their packaging versus speed with and additional
+# compression level parameter.
+# Zip form 1(fastest) to 9(smallest) with 6 a good compromise
+# zstd goes form -10 to 30 or so. Meaningful are mostly single digit values
+save_level = 6
+autosave_level = 1
 
 # autosave every x months (0=off)
 autosave = 0

@@ -310,8 +310,13 @@ bool interaction_t::process_event(event_t &ev)
 			char fn[256];
 			sprintf(fn, "server%d-pwdhash.sve", env_t::server);
 			loadsave_t file;
+<<<<<<< HEAD
 			if (file.wr_open(fn, loadsave_t::zipped, "hashes", SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)) {
 				world->rdwr_player_password_hashes(&file);
+=======
+			if(file.wr_open(fn, loadsave_t::zipped, 1, "hashes", SAVEGAME_VER_NR )) {
+				world->rdwr_player_password_hashes( &file );
+>>>>>>> 86b8d9e58... CHG: overhauled loadsave.cc to easier incorporate other comopressors like zstd
 				file.close();
 			}
 
@@ -332,7 +337,11 @@ bool interaction_t::process_event(event_t &ev)
 			sprintf(fn, "server%d-restore.sve", env_t::server);
 			bool old_restore_UI = env_t::restore_UI;
 			env_t::restore_UI = true;
+<<<<<<< HEAD
 			world->save(fn, loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR, false);
+=======
+			world->save( fn, false, SAVEGAME_VER_NR, false );
+>>>>>>> 86b8d9e58... CHG: overhauled loadsave.cc to easier incorporate other comopressors like zstd
 			env_t::restore_UI = old_restore_UI;
 		}
 		else if (env_t::reload_and_save_on_quit && !env_t::networkmode) {
@@ -346,7 +355,11 @@ bool interaction_t::process_event(event_t &ev)
 			pak_name.erase(pak_name.length() - 1);
 			pak_name.append(".sve");
 
+<<<<<<< HEAD
 			world->save(pak_name.c_str(), loadsave_t::autosave_mode, SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR, false);
+=======
+			world->save( pak_name.c_str(), true, SAVEGAME_VER_NR, false );
+>>>>>>> 86b8d9e58... CHG: overhauled loadsave.cc to easier incorporate other comopressors like zstd
 			env_t::restore_UI = old_restore_UI;
 		}
 		destroy_all_win(true);

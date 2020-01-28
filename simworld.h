@@ -759,7 +759,7 @@ private:
 	/**
 	 * Internal saving method.
 	 */
-	void save(loadsave_t *file,bool silent);
+	void save(loadsave_t *file, bool silent);
 
 	/**
 	 * Internal loading method.
@@ -2520,7 +2520,7 @@ public:
 	 * Saves the map to a file.
 	 * @param Filename name of the file to write.
 	 */
-	void save(const char *filename, const loadsave_t::mode_t savemode, const char *version, const char *ex_version, const char* ex_revision, bool silent);
+	void save(const char *filename, bool autosave, const char *version, const char *ex_version, const char* ex_revision, bool silent);
 
 	/**
 	 * Loads a map from a file.

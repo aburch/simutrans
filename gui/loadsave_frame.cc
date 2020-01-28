@@ -85,12 +85,14 @@ bool loadsave_frame_t::item_action(const char *filename)
 {
 	if(do_load) {
 		welt->switch_server( easy_server.pressed, true );
+		long start_load = dr_time();
 		if(  !welt->load(filename)  ) {
 			welt->switch_server( false, true );
 		}
 		else if(  env_t::server  ) {
 			welt->announce_server(0);
 		}
+		DBG_MESSAGE( "load world", "%li ms", dr_time() - start_load );
 	}
 	else {
 		// saving a game
@@ -105,7 +107,9 @@ bool loadsave_frame_t::item_action(const char *filename)
 			// and now we need to copy the servergame to the map ...
 #endif
 		}
-		welt->save(filename, loadsave_t::save_mode, env_t::savegame_version_str, env_t::savegame_ex_version_str, env_t::savegame_ex_revision_str, false);
+		long start_load = dr_time();
+		welt->save( filename, false, env_t::savegame_version_str, env_t::savegame_ex_version_str, env_t::savegame_ex_revision_str, false );
+		DBG_MESSAGE( "save world", "%li ms", dr_time() - start_load );
 		welt->set_dirty();
 		welt->reset_timer();
 	}
@@ -374,7 +378,7 @@ loadsave_frame_t::~loadsave_frame_t()
 	// save hashtable
 	loadsave_t file;
 	const char *cache_file = SAVE_PATH_X "_cached_exp.xml";
-	if( file.wr_open(cache_file, loadsave_t::xml, "cache", SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR) )
+	if(  file.wr_open(cache_file, loadsave_t::xml, 0, "cache", SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)  )
 	{
 		const char *text="Automatically generated file. Do not edit. An invalid file may crash the game. Deleting is allowed though.";
 		file.rdwr_str(text);

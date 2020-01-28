@@ -3018,6 +3018,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		loadsave_t::set_autosavemode(loadsave_t::xml_bzip2 );
 	}
 
+	loadsave_t::save_level = contents.get_int("save_level", loadsave_t::save_level );
+	loadsave_t::autosave_level = contents.get_int("autosave_level", loadsave_t::autosave_level );
+
 	/*
 	 * Default resolution
 	 */

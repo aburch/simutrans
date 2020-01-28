@@ -32,7 +32,9 @@ public:
 		zipped=4,
 		xml_zipped=6,
 		bzip2=8,
-		xml_bzip2=10
+		xml_bzip2=10,
+		zstd=16,
+		xml_zstd=18
 	};
 
 	enum file_error_t {
@@ -41,7 +43,8 @@ public:
 		FILE_ERROR_BZ_CORRUPT,
 		FILE_ERROR_GZ_CORRUPT,
 		FILE_ERROR_NO_VERSION,
-		FILE_ERROR_FUTURE_VERSION
+		FILE_ERROR_FUTURE_VERSION,
+		FILE_ERROR_UNSUPPORTED_COMPRESSION
 	};
 
 private:
@@ -93,6 +96,8 @@ public:
 
 	static mode_t save_mode;     ///< default to use for saving
 	static mode_t autosave_mode; ///< default to use for autosaves and network mode client temp saves
+	static int save_level;    ///< default to use for compression (various libraries allow for szie/speed settings)
+	static int autosave_level;
 
 	/**
 	 * Parses the version information from @p version_text to a version number.
@@ -108,13 +113,15 @@ public:
 	~loadsave_t();
 
 	bool rd_open(const char *filename);
-	bool wr_open(const char *filename, mode_t mode, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex, const char *savegame_revision_ex);
+	bool wr_open(const char *filename, mode_t mode, int level, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex, const char *savegame_revision_ex);
 	const char *close();
 
 	file_error_t get_last_error() { return last_error; }
 
 	static void set_savemode(mode_t mode) { save_mode = mode; }
 	static void set_autosavemode(mode_t mode) { autosave_mode = mode; }
+	static void set_savelevel(int level) { save_level = level;  }
+	static void set_autosavelevel(int level) { autosave_level = level;  }
 
 	/**
 	 * Checks end-of-file
@@ -127,6 +134,7 @@ public:
 	bool is_saving() const { return saving; }
 	bool is_zipped() const { return mode&zipped; }
 	bool is_bzip2() const { return mode&bzip2; }
+	bool is_zstd() const { return mode&zstd; }
 	bool is_xml() const { return mode&xml; }
 	uint32 get_version_int() const { return version; }
 	uint32 get_extended_version() const { return extended_version; }
