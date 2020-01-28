@@ -1,6 +1,6 @@
 /*
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef SIMTYPES_H
@@ -30,6 +30,26 @@
 #	define NOT_REACHED abort();
 #else
 #	define NOT_REACHED
+#endif
+
+#define GCC_ATLEAST(major, minor) (defined __GNUC__ && (__GNUC__ > (major) || (__GNUC__ == (major) && __GNUC_MINOR__ >= (minor))))
+
+#define CXX11(gcc_major, gcc_minor, msc_ver) ( \
+	__cplusplus >= 201103L || \
+	(defined __GXX_EXTENDED_CXX0X__ && GCC_ATLEAST((gcc_major), (gcc_minor))) || \
+	(defined _MSC_VER && (msc_ver) != 0 && _MSC_VER >= (msc_ver)) \
+)
+
+#if CXX11(4, 4, 0)
+#	define DELETED = delete
+#else
+#	define DELETED
+#endif
+
+#if CXX11(4, 7, 1400)
+#	define OVERRIDE override
+#else
+#	define OVERRIDE
 #endif
 
 #define DELETED = delete
@@ -151,7 +171,9 @@ typedef unsigned long       uint32;
 #endif
 #endif
 typedef   signed long long  sint64;
+#ifndef NO_UINT64_TYPES
 typedef unsigned long long  uint64;
+#endif
 #ifdef _MSC_VER
 #	define GCC_PACKED
 #	define GCC_ALIGN(a)
