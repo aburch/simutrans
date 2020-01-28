@@ -2061,6 +2061,12 @@ void stadt_t::rdwr(loadsave_t* file)
 		// growth factors.
 
 		file->rdwr_bool(check_road_connexions);
+		if (file->get_extended_version() < 15 || file->get_extended_revision() < 17)
+		{
+			// Recheck road connexions when loading older saved games to make sure
+			// that the private car routes are updated.
+			check_road_connexions = true;
+		}
 
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_long(outgoing_private_cars);
@@ -2679,7 +2685,19 @@ void stadt_t::step(uint32 delta_t)
 
 	// Consider whether to do this only occasionally
 	// Consider whether to multi-thread this (separately from the route generation)
+#ifdef MULTI_THREAD
+	int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
+	assert(error == 0);
+#endif
 	process_private_car_routes();
+#ifdef MULTI_THREAD
+	error = pthread_mutex_unlock(&karte_t::private_car_store_route_mutex);
+	assert(error == 0);
+#endif
+	if (check_road_connexions)
+	{
+		welt->add_queued_city(this);
+	}
 
 	while(stadt_t::city_growth_step < next_growth_step) 
 	{
@@ -6123,9 +6141,10 @@ void stadt_t::store_private_car_route(vector_tpl<koord3d> route, koord pos)
 
 void stadt_t::process_private_car_routes()
 {
+	clear_all_private_car_routes();
+
 	if (!private_car_routes_new.empty())
 	{
-		
 		FOR(private_car_route_map, route, private_car_routes_new)
 		{
 			koord3d previous_tile = welt->lookup_kartenboden(get_townhall_road())->get_pos();
@@ -6155,9 +6174,12 @@ void stadt_t::process_private_car_routes()
 void stadt_t::clear_all_private_car_routes()
 {
 	private_car_routes_new.clear();
-	FOR(private_car_route_map, route, private_car_routes_processed)
+	if (!private_car_routes_processed.empty())
 	{
-		clear_private_car_route(route.key); 
+		FOR(private_car_route_map, route, private_car_routes_processed)
+		{
+			clear_private_car_route(route.key);
+		}
 	}
 }
 
