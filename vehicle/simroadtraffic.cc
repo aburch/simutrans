@@ -952,6 +952,13 @@ void private_car_t::enter_tile(grund_t* gr)
 
 grund_t* private_car_t::hop_check()
 {
+	// TODO: Consider multi-threading this. This only ultimately
+	// affects pos_next_next, an object stored in this individual
+	// private car, so these can be processed in non-overlapping
+	// batches in parallell. This is a sync_step task, so probably
+	// cannot be concurrent. Query whether this is likely to be
+	// worthwhile.
+
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *const from = welt->lookup(pos_next);
 	if(from==NULL) {
@@ -1077,11 +1084,18 @@ grund_t* private_car_t::hop_check()
 #ifdef DESTINATION_CITYCARS
 					
 					// If we are not on a route to our destination, do not leave a city if we are in one, unless it is our destination city.
-					const stadt_t* current_city = welt->get_city(pos_next.get_2d());
+					weg = from->get_weg(road_wt);
+					const stadt_t* current_city = weg->get_city(); 
 					if (current_city)
 					{
-						const stadt_t* next_tile_city = welt->get_city(to->get_pos().get_2d()); 
-						const stadt_t* destination_city = welt->get_city(target);
+						const grund_t* gr_check = welt->lookup(to->get_pos());
+						const weg_t* check_way = gr_check ? gr_check->get_weg(road_wt) : NULL;
+						const stadt_t* next_tile_city = check_way ? check_way->get_city() : NULL;
+
+						gr_check = welt->lookup_kartenboden(target);
+						check_way = gr_check ? gr_check->get_weg(road_wt) : NULL;
+						const stadt_t* destination_city = check_way ? check_way->get_city() : NULL;
+
 						if (next_tile_city != current_city && (!destination_city || next_tile_city != destination_city))
 						{
 							weg = from->get_weg(road_wt);

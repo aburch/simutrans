@@ -952,7 +952,6 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 	// the city growth system and taken out of this entirely. That would leave this system free to complete
 	// industry chains as needed.
 	const bool force_add_consumer = force_consumer == 2 || (force_consumer == 0 && 75 > simrand(100, "factory_builder_t::increase_industry_density()"));
-	//const bool force_add_consumer = false; // For TESTing only
 
 	weighted_vector_tpl<const goods_desc_t*> oversupplied_goods;
 
