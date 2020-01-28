@@ -993,11 +993,11 @@ grund_t* private_car_t::hop_check()
 	}
 
 #ifdef DESTINATION_CITYCARS
-	// Is this an intersection? If so, do we have a destination?
 	// If so, check for private car routes to our destination.
-	if (target != koord::invalid && weg->is_junction())
+	if (target != koord::invalid)
 	{
-		// Only check for routes at junctions
+		// Check every tile of the route, since this is faster than the
+		// call to get_neighbour() in the heuristic mode.
 
 		// The target is an individual tile. If we are going to a destination in
 		// a city, then we need the route to the city, not the tile.
@@ -1041,7 +1041,6 @@ grund_t* private_car_t::hop_check()
 		}
 	}
 #endif
-
 
 	// next tile unknown => find next tile
 	if(pos_next_next==koord3d::invalid) {
@@ -1104,40 +1103,9 @@ grund_t* private_car_t::hop_check()
 
 						if (next_tile_city != current_city && (!destination_city || next_tile_city != destination_city))
 						{
+							// We have checked whether this is on a route above, so if we reach here, we assume that this
+							// city exit tile is not on a route.
 							weg = from->get_weg(road_wt);
-							if (!weg->is_junction())
-							{
-								// If this is not a junction, we have not already checked for a private car route on this tile.
-								const stadt_t* destination_city = welt->get_city(target);
-								koord check_target;
-								if (destination_city)
-								{
-									check_target = destination_city->get_townhall_road();
-								}
-								else
-								{
-									check_target = target;
-								}
-								if (weg->private_car_routes.is_contained(check_target))
-								{
-									// We need to check here, as the hashtable will give us a 0,0,0 koord rather 
-									// than koord::invalid if this be not contained in the hashtable.
-									// This is inefficient but profiling suggests that it has little effect in reality.
-									pos_next_next = weg->private_car_routes.get(check_target);
-									// Check whether the way has been deleted in the meantime.
-									const grund_t* next_gr = welt->lookup(pos_next_next);
-									const weg_t* next_way = next_gr ? next_gr->get_weg(road_wt) : NULL;
-									if (!next_way)
-									{
-										pos_next_next = koord3d::invalid;
-									}
-								}
-								if (pos_next_next != koord3d::invalid)
-								{
-									goto exiting_city;
-								}
-
-							}
 							continue;
 						}
 					}
@@ -1195,7 +1163,6 @@ grund_t* private_car_t::hop_check()
 #endif
 	}
 	else {
-	exiting_city:
 		if(from  &&  can_enter_tile(from)) {
 			// ok, this direction is fine!
 			ms_traffic_jam = 0;
