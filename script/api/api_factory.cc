@@ -79,6 +79,14 @@ vector_tpl<sint64> const& get_factory_production_stat(const ware_production_t *p
 }
 
 
+vector_tpl<koord> const& factory_get_tile_list(fabrik_t *fab)
+{
+	static vector_tpl<koord> llist;
+	fab->get_tile_list(list);
+	return list;
+}
+
+
 SQInteger ware_production_get_production(HSQUIRRELVM vm)
 {
 	fabrik_t* fab = param<fabrik_t*>::get(vm, 1);
@@ -266,6 +274,12 @@ void export_factory(HSQUIRRELVM vm)
 	 */
 	register_method_fv(vm, &get_factory_stat, "get_mail_arrived",   freevariable<sint32>(FAB_MAIL_ARRIVED), true);
 
+	/**
+	 * Get list of all tiles occupied by buildings belonging to this factory.
+	 * @returns array of tile_x objects
+	 */
+	register_method(vm, &factory_get_tile_list, "get_tile_list", true);
+	
 	/**
 	 * Get monthly statistics of arrived visitors.
 	 * @returns array, index [0] corresponds to current month
