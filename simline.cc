@@ -57,7 +57,7 @@ simline_t::simline_t(player_t* player, linetype type)
 	this->schedule = NULL;
 	this->player = player;
 	withdraw = false;
-	state_color = COL_WHITE;
+	state_color = SYSCOL_TEXT;
 
 	for(uint8 i = 0; i < MAX_LINE_COST; i ++)
 	{
