@@ -373,7 +373,8 @@ class factory_production_x extends extend_get {
 	good = ""  /// name of the good to be consumed / produced
 	index = -1 /// index to identify an io slot
 	max_storage = 0  /// max storage of this slot
-
+	scaling = 0
+	
 	constructor(x_, y_, n_, i_) {
 		x = x_
 		y = y_
