@@ -649,8 +649,6 @@ void ki_kontroll_t::update_data()
 				{
 					if(  player_select[i].count_elements()==2  )
 					{
-				if(  !welt->get_public_player()->is_locked()  ) {
-					if(  player_select[i].count_elements()==2  ) {
 						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), SYSCOL_TEXT ) );
 						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), SYSCOL_TEXT ) );
 					}
