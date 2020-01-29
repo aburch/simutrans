@@ -6835,7 +6835,9 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			destination_town = current_destination.type == town ? current_destination.building->get_stadt() : NULL;
 			if(city)
 			{
-				city->generate_private_cars(origin_pos.get_2d(), car_minutes, destination_pos, units_this_step);
+				// Make sure to normalise the destination for attractions
+				const koord adjusted_destination_pos = current_destination.building->get_first_tile()->get_pos().get_2d();
+				city->generate_private_cars(origin_pos.get_2d(), car_minutes, adjusted_destination_pos, units_this_step);
 				if(wtyp == goods_manager_t::passengers)
 				{
 					city->set_private_car_trip(units_this_step, destination_town);
@@ -7277,7 +7279,18 @@ no_route:
 							city->add_transported_mail(units_this_step);
 						}
 					}
-					city->generate_private_cars(current_destination.location, car_minutes, origin_pos.get_2d(), units_this_step);
+					const grund_t* gr_origin = lookup(origin_pos); 
+					koord adjusted_return_pos = origin_pos.get_2d();
+					if (gr_origin)
+					{
+						const gebaeude_t* gb_origin = gr_origin->get_building();
+						if (gb_origin)
+						{
+							adjusted_return_pos = gb_origin->get_first_tile()->get_pos().get_2d();
+						}
+					}
+
+					city->generate_private_cars(current_destination.location, car_minutes, adjusted_return_pos, units_this_step);
 					if(current_destination.type == factory && trip == mail_trip)
 					{
 						current_destination.building->get_fabrik()->book_stat(units_this_step, FAB_MAIL_DEPARTED);

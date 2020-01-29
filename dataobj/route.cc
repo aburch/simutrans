@@ -326,11 +326,11 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					}
 				}
 				
-				strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
+				weg_t* way = gr->get_weg(road_wt);
 
-				if(str && str->connected_buildings.get_count() > 0)
+				if(way && way->connected_buildings.get_count() > 0)
 				{
-					FOR(minivec_tpl<gebaeude_t*>, const gb, str->connected_buildings)
+					FOR(minivec_tpl<gebaeude_t*>, const gb, way->connected_buildings)
 					{
 						if(!gb)
 						{
@@ -354,20 +354,26 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 						{
 							// This is an industry
 							origin_city->add_road_connexion(journey_time_per_tile, destination_industry);
+#if 0
 							if (destination_city)
 							{
 								// Only mark routes to country industries
 								destination_industry = NULL;
 							}
+#endif
 						}
 						else if (origin_city)
 						{
 							origin_city->add_road_connexion(journey_time_per_tile, gb);
+#if 0
 							if (!destination_city)
 							{
 								// Only mark routes to country attractions
 								destination_attraction = gb;
 							}
+#else
+							destination_attraction = gb;
+#endif
 						}
 					}
 				}
@@ -391,18 +397,20 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 #ifdef MULTI_THREAD
 			int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
 			assert(error == 0);
-#endif
-			if (destination_city)
-			{
-				origin_city->store_private_car_route(route, destination_city->get_townhall_road());
-			}
-			else if (destination_industry)
+			
+#endif	
+			if (destination_industry)
 			{
 				origin_city->store_private_car_route(route, destination_industry->get_pos().get_2d());
 			}
 			else if (destination_attraction)
 			{
-				origin_city->store_private_car_route(route, destination_attraction->get_pos().get_2d());
+				const koord attraction_pos = destination_attraction ? destination_attraction->get_first_tile()->get_pos().get_2d() : koord::invalid;
+				origin_city->store_private_car_route(route, attraction_pos);
+			}
+			else if (destination_city)
+			{
+				origin_city->store_private_car_route(route, destination_city->get_townhall_road());
 			}
 #ifdef MULTI_THREAD
 			error = pthread_mutex_unlock(&karte_t::private_car_store_route_mutex);

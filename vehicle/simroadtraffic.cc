@@ -940,7 +940,7 @@ grund_t* private_car_t::hop_check()
 	// private car, so these can be processed in non-overlapping
 	// batches in parallell. This is a sync_step task, so probably
 	// cannot be concurrent. Query whether this is likely to be
-	// worthwhile. This takes circa 5% of all CPU time on a large
+	// worthwhile. This takes circa 5-9% of all CPU time on a large
 	// game (768 towns) in the modern era (2004) of Pak128.Britain-Ex.
 
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
@@ -987,44 +987,46 @@ grund_t* private_car_t::hop_check()
 		const grund_t* gr_check = welt->lookup_kartenboden(target);
 		const gebaeude_t* gb = gr_check ? gr_check->get_building() : NULL;
 		const stadt_t* destination_city = gb ? gb->get_stadt() : NULL;
-
-		koord check_target;
-		if (destination_city)
-		{
-			check_target = destination_city->get_townhall_road();
-		}
-		else
-		{
-			check_target = target;
-		}
+		
+		koord check_target = target;
 		const planquadrat_t* tile = welt->access(pos_next.get_2d());
 		stadt_t* current_city = tile ? tile->get_city() : NULL;
 
-		// Only follow the route if not in a destination city
-		if (!current_city || current_city != destination_city)
-		{
-			// On the last tile of the route, this will give koord3d::invalid,
-			// thus invoking the semi-random mode below.
+		// On the last tile of the route, this will give koord3d::invalid,
+		// thus invoking the semi-random mode below.
 			
-			// We need to check here, as the hashtable will give us a 0,0,0 koord rather 
-			// than koord::invalid if this be not contained in the hashtable.
-			if (weg->private_car_routes.is_contained(check_target))
+		// We need to check here, as the hashtable will give us a 0,0,0 koord rather 
+		// than koord::invalid if this be not contained in the hashtable.
+		bool found_route = false;
+		found_route = weg->private_car_routes.is_contained(check_target);
+		if (!found_route)
+		{
+			if (!current_city || current_city != destination_city)
 			{
-				pos_next_next = weg->private_car_routes.get(check_target);
-				// Check whether the way has been deleted in the meantime.
-				const grund_t* next_gr = welt->lookup(pos_next_next); 
-				const weg_t* next_way = next_gr ? next_gr->get_weg(road_wt) : NULL;
-				if (!next_way)
-				{
-					pos_next_next = koord3d::invalid;
+				// Only follow a route inside a city if:
+				// (1) we are not in our destination city; or
+				// (2) there is a route to the individual destination building in the city.
+				check_target = destination_city ? destination_city->get_townhall_road() : koord::invalid;
+				found_route = weg->private_car_routes.is_contained(check_target);
+			}
+		}
 
-					// We also need to invalidate the route.
-					const planquadrat_t* tile = welt->access(origin);
-					stadt_t* origin_city = tile ? tile->get_city() : NULL;
-					if (origin_city)
-					{
-						origin_city->clear_private_car_route(check_target);
-					}
+		if (found_route)
+		{
+			pos_next_next = weg->private_car_routes.get(check_target);
+			// Check whether the way has been deleted in the meantime.
+			const grund_t* next_gr = welt->lookup(pos_next_next); 
+			const weg_t* next_way = next_gr ? next_gr->get_weg(road_wt) : NULL;
+			if (!next_way)
+			{
+				pos_next_next = koord3d::invalid;
+
+				// We also need to invalidate the route.
+				const planquadrat_t* tile = welt->access(origin);
+				stadt_t* origin_city = tile ? tile->get_city() : NULL;
+				if (origin_city)
+				{
+					origin_city->clear_private_car_route(check_target);
 				}
 			}
 		}
@@ -1141,7 +1143,9 @@ void private_car_t::hop(grund_t* to)
 {
 	// Check whether this private car should pay a road toll.
 
-	weg_t* const way = get_weg();
+	//weg_t* const way = get_weg(); // Occasionally, the way returned here was corrupt (possibly deleted)
+
+	weg_t* const way = to->get_weg(road_wt);
 	const uint32 tiles_per_km = 1000 / welt->get_settings().get_meters_per_tile();
 	if(way && tiles_since_last_increment++ > tiles_per_km)
 	{

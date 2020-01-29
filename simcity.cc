@@ -2678,7 +2678,8 @@ void stadt_t::step(uint32 delta_t)
 		step_grow_city();
 		next_growth_step -= stadt_t::city_growth_step;
 
-		// Here for TESTing only
+		// Was originally for testing, but this seems to be a sensible frequency for this
+		// Performance profiling on a large game finds this acceptable.
 		welt->add_queued_city(this);
 	}
 
@@ -2750,7 +2751,7 @@ void stadt_t::roll_history()
 void stadt_t::check_all_private_car_routes()
 {
 	const planquadrat_t* plan = welt->access(townhall_road);
-	if(plan->get_city() != this)
+	if(plan && plan->get_city() != this)
 	{
 		// This sometimes happens shortly after the map rotating. Return here to avoid crashing.
 		dbg->error("void stadt_t::check_all_private_car_routes()", "Townhall road does not register as being in its origin city - cannot check private car routes");
@@ -5972,13 +5973,13 @@ bool private_car_destination_finder_t:: is_target(const grund_t* gr, const grund
 
 	if(city && city != origin_city && city->get_townhall_road() == k)
 	{
-		// We use a different system for determining travel speeds in the current city.
-
+		// This is a route to a city - internal traffic within
+		// cities is handled heuristically without routing.
 		return true;
 	}
 
-	const strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
-	if(str->connected_buildings.get_count() > 0)
+	const weg_t* way = gr->get_weg(road_wt);
+	if(way->connected_buildings.get_count() > 0)
 	{
 		return true;
 	}

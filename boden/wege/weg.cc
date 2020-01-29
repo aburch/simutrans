@@ -627,7 +627,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		if (!private_car_routes.empty())
 		{
 			buf.append("\n"); 
-			buf.append(translator::translate("Road routes from here:")); // TODO: Add translator entry for this text
+			buf.append(translator::translate("Road routes from here:")); // TODO: Add translator entry for this text - if this does not remain debug only.
 			FOR(private_car_route_map, const& route, private_car_routes)
 			{
 				
