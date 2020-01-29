@@ -1351,9 +1351,9 @@ void nwc_tool_t::do_command(karte_t *welt)
 			active_tool->cleanup();
 		}
 		const char *err = tool->work( player, pos );
-		// only local players or AIs get the callback
-		if (local  ||  player->get_ai_id()!=player_t::HUMAN) {
-			player->tell_tool_result(tool, pos, err, local);
+		// only local players get the callback
+		if (local) {
+			player->tell_tool_result(tool, pos, err);
 		}
 		if (err) {
 			dbg->warning("nwc_tool_t::do_command","failed with '%s'",err);

@@ -423,11 +423,9 @@ public:
 	/**
 	 * Tells the player the result of tool-work commands
 	 * If player is active then play sound, popup error msg etc
-	 * AI players react upon this call and proceedplayer The owner of the city
-	 * local is true if tool was called by player on our client
 	 * @author Dwachs
 	 */
-	virtual void tell_tool_result(tool_t *tool, koord3d pos, const char *err, bool local);
+	virtual void tell_tool_result(tool_t *tool, koord3d pos, const char *err);
 
 	/**
 	 * Tells the player that the factory

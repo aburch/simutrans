@@ -78,14 +78,6 @@ public:
 	// calls a general tool just like a human player work do
 	bool call_general_tool( int tool, koord k, const char *param );
 
-	/**
-	 * Tells the player the result of tool-work commands
-	 * If player is active then play sound, popup error msg etc
-	 * AI players react upon this call and proceed
-	 * @author Dwachs
-	 */
-	virtual void tell_tool_result(tool_t *tool, koord3d pos, const char *err, bool local);
-
 	// find space for stations
 	bool find_place(koord pos, koord &size, koord *dirs);
 	bool find_place(koord &start, koord &size, koord target, koord off);

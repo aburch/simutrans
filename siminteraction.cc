@@ -242,7 +242,7 @@ void interaction_t::interactive_event( const event_t &ev )
 			}
 			if (!suspended) {
 				// play sound / error message
-				world->get_active_player()->tell_tool_result(tool, pos, err, true);
+				world->get_active_player()->tell_tool_result(tool, pos, err);
 
 				// Check if we need to update pointer(zeiger) position.
 				if( err == NULL  &&  tool->update_pos_after_use() ) {
