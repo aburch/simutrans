@@ -615,22 +615,22 @@ void schedule_gui_t::update_tool(bool set)
 
 void schedule_gui_t::update_selection()
 {
-	lb_load.set_color( COL_GREY3 );
+	lb_load.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
 	numimp_load.disable();
 	numimp_load.set_value( 0 );
 	bt_wait_prev.disable();
-	lb_wait.set_color( COL_GREY3 );
-	lb_spacing.set_color( COL_GREY3 );
-	lb_spacing_as_clock.set_color( COL_GREY3 );
+	lb_wait.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
+	lb_spacing.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
+	lb_spacing_as_clock.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
 	numimp_spacing.disable();
 	numimp_spacing_shift.disable();
 	sprintf(str_spacing_as_clock, "%s", translator::translate("off") );
-	lb_spacing_shift.set_color( COL_GREY3 );
-	lb_spacing_shift_as_clock.set_color( COL_GREY3 );
+	lb_spacing_shift.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
+	lb_spacing_shift_as_clock.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
 	sprintf(str_spacing_shift_as_clock, "%s", translator::translate("off") );
 
 	strcpy( str_parts_month, translator::translate("off") );
-	lb_waitlevel_as_clock.set_color( COL_GREY3 );
+	lb_waitlevel_as_clock.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
 	bt_wait_next.disable();
 
 	if(  !schedule->empty()  ) {
