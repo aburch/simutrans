@@ -191,6 +191,11 @@ koord3d tunnel_builder_t::find_end_pos(player_t *player, koord3d pos, koord zv, 
 			return koord3d::invalid;
 		}
 
+		// check water level
+		if (gr->ist_wasser()  && welt->lookup_hgt(pos.get_2d()) <= pos.z) {
+			return koord3d::invalid;
+		}
+		
 		if (const char* err = welt->get_scenario()->is_work_allowed_here(player, TOOL_BUILD_TUNNEL|GENERAL_TOOL, waytyp, pos)) {
 			if (msg) {
 				*msg = err;
