@@ -81,7 +81,7 @@ vector_tpl<sint64> const& get_factory_production_stat(const ware_production_t *p
 
 vector_tpl<koord> const& factory_get_tile_list(fabrik_t *fab)
 {
-	static vector_tpl<koord> llist;
+	static vector_tpl<koord> list;
 	fab->get_tile_list(list);
 	return list;
 }
