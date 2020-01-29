@@ -1692,7 +1692,7 @@ void vehicle_t::hop(grund_t* gr)
 	// route search through the waypoint is already complete
 //	if(  leading  &&  get_pos()==cnv->get_schedule_target()  ) { // leading turned off in vorfahren when reversing
 	if(  get_pos()==cnv->get_schedule_target()  ) {
-		if(  route_index+1 >= cnv->get_route()->get_count()  ) {
+		if(  route_index >= cnv->get_route()->get_count()  ) {
 			// we end up here after loading a game or when a waypoint is reached which crosses next itself
 			cnv->set_schedule_target( koord3d::invalid );
 		}

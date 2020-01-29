@@ -78,7 +78,7 @@ SQInteger halt_export_line_list(HSQUIRRELVM vm)
 // 0: not connected
 // 1: connected
 // -1: undecided
-sint8 is_halt_connected(const haltestelle_t *a, halthandle_t b, const ware_besch_t *besch)
+sint8 is_halt_connected(const haltestelle_t *a, halthandle_t b, const goods_desc_t *desc)
 {
 	if (desc == 0  ||  a == NULL  ||  b.is_bound()) {
 		return 0;

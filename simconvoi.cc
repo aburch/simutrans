@@ -2771,7 +2771,7 @@ void convoi_t::ziel_erreicht()
 	}
 	else {
 		// no suitable depot reached, check for stop!
-		halthandle_t halt = haltestelle_t::get_halt(v->get_pos(),owner);
+		halthandle_t halt = haltestelle_t::get_halt(schedule->get_current_entry().pos,owner);
 		if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
 			// seems to be a stop, so book the money for the trip
 			set_akt_speed(0);
