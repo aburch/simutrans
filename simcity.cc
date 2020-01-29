@@ -1615,26 +1615,26 @@ stadt_t::~stadt_t()
 	{
 		welt->lookup_kartenboden(pos)->set_text(NULL);
 
-		// remove city info and houses
-		while(!buildings.empty())
-		{
-			gebaeude_t* const gb = buildings.pop_back();
-			assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
+		if (!welt->is_destroying()) {
+			// remove city info and houses
+			while(!buildings.empty()) {
 
-			if(gb->get_tile()->get_desc()->get_type() == building_desc_t::headquarters)
-			{
-				stadt_t *city = welt->find_nearest_city(gb->get_pos().get_2d());
-				gb->set_stadt( city );
-				if(city)
-				{
-					city->buildings.append_unique(gb, gb->get_adjusted_visitor_demand());
+				gebaeude_t* const gb = buildings.pop_back();
+				assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
+
+				if(gb->get_tile()->get_desc()->get_type() == building_desc_t::headquarters) {
+					stadt_t *city = welt->find_nearest_city(gb->get_pos().get_2d());
+					gb->set_stadt( city );
+					if(city) {
+						city->buildings.append_unique(gb, gb->get_adjusted_visitor_demand());
+					}
+				}
+				else {
+					gb->set_stadt( this );
+					hausbauer_t::remove(welt->get_public_player(), gb, false);
 				}
 			}
-			else
-			{
-				gb->set_stadt( this );
-				hausbauer_t::remove(welt->get_public_player(), gb, false);
-			}
+			// avoid the bookkeeping if world geets destroyed
 		}
 		// Remove substations
 		FOR(vector_tpl<senke_t*>, sub, substations)
