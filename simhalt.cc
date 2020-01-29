@@ -5020,16 +5020,17 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 			if(  sum > max_capacity  ) {
 				display_fillbox_wh_clip( xpos + 1, ypos - v - 6, 2, 4, COL_WHITE, false);
 				display_fillbox_wh_clip( xpos, ypos - v - 5, 4, 1, COL_WHITE, false);
+				v += 5;
 			}
 
 			if(  last_bar_height[bar_height_index] != (KOORD_VAL)v  ) {
 				if(  (KOORD_VAL)v > last_bar_height[bar_height_index]  ) {
 					// bar will be longer, mark new height dirty
-					mark_rect_dirty_wc( xpos, ypos - v - 6, xpos + 4 - 1, ypos + 4 - 1);
+					mark_rect_dirty_wc( xpos, ypos - v - 1, xpos + 3, ypos - 1);
 				}
 				else {
 					// bar will be shorter, mark old height dirty
-					mark_rect_dirty_wc( xpos, ypos - last_bar_height[bar_height_index] - 6, xpos + 4 - 1, ypos + 4 - 1);
+					mark_rect_dirty_wc( xpos, ypos - last_bar_height[bar_height_index] - 1, xpos + 3, ypos - 1);
 				}
 				last_bar_height[bar_height_index] = v;
 			}
