@@ -943,7 +943,7 @@ void toolbar_last_used_t::append( tool_t *t, player_t *sp )
 	}
 
 	// do not add certain tools
-	for(  int i=0;  i<lengthof(exclude_from_adding);  i++  ) {
+	for(  uint i=0;  i<lengthof(exclude_from_adding);  i++  ) {
 		if(  t->get_id() == exclude_from_adding[i]  ) {
 			return;
 		}
