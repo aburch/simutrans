@@ -1352,7 +1352,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 	sprachengui_t::init_font_from_lang();
 
 	destroy_all_win(true);
-	if(  !env_t::networkmode  &&  !env_t::server  ) {
+	if(  !env_t::networkmode  &&  !env_t::server  &&  new_world  ) {
 		welt->get_message()->clear();
 	}
 	while(  !env_t::quit_simutrans  ) {
