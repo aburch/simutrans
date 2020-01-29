@@ -589,9 +589,6 @@ void vehicle_base_t::calc_height(grund_t *gr)
 			}
 		}
 	}
-	else if(  !gr->is_visible()  ) {
-		set_image(IMG_EMPTY);
-	}
 	else {
 		// force a valid image above ground, with special handling of tunnel entraces
 		if (get_image() == IMG_EMPTY) {
