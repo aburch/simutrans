@@ -830,18 +830,18 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 	}
 	else {
 		if(IS_LEFTCLICK(ev)  ) {
-			if(  !convoy_selector.getroffen(ev->cx, ev->cy-16)  &&  convoy_selector.is_dropped()  ) {
+			if(  !convoy_selector.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  &&  convoy_selector.is_dropped()  ) {
 				// close combo box; we must do it ourselves, since the box does not receive outside events ...
 				convoy_selector.close_box();
 			}
-			if(  line_selector.is_dropped()  &&  !line_selector.getroffen(ev->cx, ev->cy-16)  ) {
+			if(  line_selector.is_dropped()  &&  !line_selector.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  ) {
 				// close combo box; we must do it ourselves, since the box does not receive outside events ...
 				line_selector.close_box();
 				if(  line_selector.get_selection() < last_selected_line.is_bound()+3  &&  get_focus() == &line_selector  ) {
 					set_focus( NULL );
 				}
 			}
-			//if(  !vehicle_filter.is_hit(ev->cx, ev->cy-16)  &&  vehicle_filter.is_dropped()  ) {
+			//if(  !vehicle_filter.is_hit(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  &&  vehicle_filter.is_dropped()  ) {
 			//	// close combo box; we must do it ourselves, since the box does not receive outside events ...
 			//	vehicle_filter.close_box();
 			//}

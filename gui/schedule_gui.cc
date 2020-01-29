@@ -693,9 +693,9 @@ bool schedule_gui_t::infowin_event(const event_t *ev)
 		// close combo box; we must do it ourselves, since the box does not receive outside events ...
 		line_selector.close_box();
 
-		if(  ev->my>=scrolly.get_pos().y+16  ) {
+		if(  ev->my>=scrolly.get_pos().y+D_TITLEBAR_HEIGHT  ) {
 			// we are now in the multiline region ...
-			const int line = ( ev->my - scrolly.get_pos().y + scrolly.get_scroll_y() - 16)/(LINESPACE+1);
+			const int line = ( ev->my - scrolly.get_pos().y + scrolly.get_scroll_y() - D_TITLEBAR_HEIGHT)/(LINESPACE+1);
 
 			if(  line >= 0 && line < schedule->get_count()  ) {
 				if(  IS_RIGHTCLICK(ev)  ||  ev->mx<16  ) {
