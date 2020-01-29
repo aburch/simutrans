@@ -2422,10 +2422,11 @@ const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month, bool r
 		desc = defaults[wt & (sint8)63];
 		if(desc == NULL || !desc->is_available(timeline_year_month)) {
 			// Search for default way
-			if(  wt == tram_wt  ) {
+			if(  wt == tram_wt  ||  wt == powerline_wt  ) {
 				desc = way_builder_t::weg_search(wt, 0xffffffff, timeline_year_month, type_flat);
 			}
 			else {
+				// this triggers an assertion if wt == powerline_wt
 				weg_t *w = weg_t::alloc(wt);
 				desc = w->get_desc();
 				delete w;
