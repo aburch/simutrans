@@ -6835,10 +6835,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			destination_town = current_destination.type == town ? current_destination.building->get_stadt() : NULL;
 			if(city)
 			{
-#ifdef DESTINATION_CITYCARS
-
 				city->generate_private_cars(origin_pos.get_2d(), car_minutes, destination_pos, units_this_step);
-#endif
 				if(wtyp == goods_manager_t::passengers)
 				{
 					city->set_private_car_trip(units_this_step, destination_town);
@@ -7280,9 +7277,7 @@ no_route:
 							city->add_transported_mail(units_this_step);
 						}
 					}
-#ifdef DESTINATION_CITYCARS
 					city->generate_private_cars(current_destination.location, car_minutes, origin_pos.get_2d(), units_this_step);
-#endif
 					if(current_destination.type == factory && trip == mail_trip)
 					{
 						current_destination.building->get_fabrik()->book_stat(units_this_step, FAB_MAIL_DEPARTED);

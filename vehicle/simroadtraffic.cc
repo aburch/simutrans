@@ -23,10 +23,7 @@
 #include "../player/simplay.h"
 
 #include "simroadtraffic.h"
-#ifdef DESTINATION_CITYCARS
-// for final citycar destinations
 #include "simpeople.h"
-#endif
 
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
@@ -460,11 +457,7 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 	current_speed = 48;
 	ms_traffic_jam = 2147483647;
 	max_power_speed = 0; // should be calculated somehow!
-#ifdef DESTINATION_CITYCARS
 	this->target = target;
-#else
-	(void)target;
-#endif
 	calc_image();
 	origin = gr ? gr->get_pos().get_2d() : koord::invalid;
 }
@@ -592,22 +585,14 @@ void private_car_t::rdwr(loadsave_t *file)
 	if(file->get_extended_version() >= 10 && file->get_version() >= 111002)
 	{
 		file->rdwr_long(ms_traffic_jam);
-#ifdef DESTINATION_CITYCARS
 		target.rdwr(file);
-#else
-		koord dummy;
-		dummy.rdwr(file);
-#endif
-
 		origin.rdwr(file);
 	}
 
 	else if(file->is_loading())
 	{
 		ms_traffic_jam = 0;
-#ifdef DESTINATION_CITYCARS
 		target = koord::invalid;
-#endif
 		origin = koord::invalid;
 	}
 
@@ -935,7 +920,6 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 
 void private_car_t::enter_tile(grund_t* gr)
 {
-#ifdef DESTINATION_CITYCARS
 	// Destination city car code revived from an older version of Simutrans.
 	// (Thanks to Prissi for finding this older code).
 	if(target!=koord::invalid  &&  shortest_distance(pos_next.get_2d(),target)<10) {
@@ -944,7 +928,6 @@ void private_car_t::enter_tile(grund_t* gr)
 		uint32 number = 2;
 		pedestrian_t::generate_pedestrians_at(get_pos(), number);
 	}
-#endif /* DESTINATION_CITYCARS */
 	vehicle_base_t::enter_tile(gr);
 	get_weg()->book(1, WAY_STAT_CONVOIS);
 }
@@ -992,7 +975,6 @@ grund_t* private_car_t::hop_check()
 		}
 	}
 
-#ifdef DESTINATION_CITYCARS
 	// If so, check for private car routes to our destination.
 	if (target != koord::invalid)
 	{
@@ -1047,7 +1029,6 @@ grund_t* private_car_t::hop_check()
 			}
 		}
 	}
-#endif
 
 	// next tile unknown => find next tile
 	if(pos_next_next==koord3d::invalid) {
@@ -1062,18 +1043,12 @@ grund_t* private_car_t::hop_check()
 			return can_enter_tile(from) ? from : NULL;
 		}
 
-#ifdef DESTINATION_CITYCARS
 		static weighted_vector_tpl<koord3d> poslist(4);
 		poslist.clear();
 		for(uint8 r = 0; r < 4; r++) {
 			if(  get_pos().get_2d()==koord::nsew[r]+pos_next.get_2d()  ) {
 				continue;
 			}
-#else
-		const uint8 offset = ribi_t::is_single(ribi) ? 0 : simrand(4, "bool private_car_t::hop_check");
-		for(uint8 i = 0; i < 4; i++) {
-			const uint8 r = (i+offset)&3;
-#endif
 			if(  (ribi&ribi_t::nsew[r])!=0  ) {
 				grund_t *to;
 				if(  from->get_neighbour(to, road_wt, ribi_t::nsew[r])  ) {
@@ -1093,7 +1068,6 @@ grund_t* private_car_t::hop_check()
 							continue;
 						}
 					}
-#ifdef DESTINATION_CITYCARS
 					
 					// If we are not on a route to our destination, do not leave a city if we are in one, unless it is our destination city.
 					const planquadrat_t* tile = welt->access(pos_next.get_2d());
@@ -1123,21 +1097,6 @@ grund_t* private_car_t::hop_check()
 						const uint32 dist = 8192 / max(1, shortest_distance(to->get_pos().get_2d(), target));
 						poslist.append(to->get_pos(), dist);
 					}
-#else
-					// ok, now check if we are allowed to go here (i.e. no cars blocking)
-					pos_next_next = to->get_pos();
-					if(can_enter_tile(from)) {
-						// ok, this direction is fine!
-						ms_traffic_jam = 0;
-						if(current_speed<48) {
-							current_speed = 48;
-						}
-						return from;
-					}
-					else {
-						pos_next_next = koord3d::invalid;
-					}
-#endif
 				}
 				else {
 					// not connected?!? => ribi likely wrong
@@ -1145,7 +1104,6 @@ grund_t* private_car_t::hop_check()
 				}
 			}
 		}
-#ifdef DESTINATION_CITYCARS
 		if (!poslist.empty()) {
 			pos_next_next = pick_any_weighted(poslist);
 		}
@@ -1160,13 +1118,6 @@ grund_t* private_car_t::hop_check()
 			}
 			return from;
 		}
-#else
-		// only stumps at single way crossing, all other blocked => turn around
-		if(ribi==0) {
-			pos_next_next = get_pos();
-			return can_enter_tile(from) ? from : NULL;
-		}
-#endif
 	}
 	else {
 		if(from  &&  can_enter_tile(from)) {
@@ -1284,14 +1235,9 @@ void private_car_t::info(cbuffer_t & buf, bool dummy) const
 {
 	const stadt_t* const origin_city = welt->get_city(origin);
 	// We cannot get an origin name as the origin is the starting road tile, not building
-#ifdef DESTINATION_CITYCARS
 	const stadt_t* const destination_city = welt->get_city(target);
 	const grund_t* gr_target = welt->lookup_kartenboden(target); 
 	const gebaeude_t* destination_building = gr_target ? gr_target->get_building() : NULL;
-#else
-	const stadt_t* const destination_city = NULL;
-	const gebaeude_t* destination_building = NULL;
-#endif
 	const char* origin_city_name = origin_city ? origin_city->get_name() : translator::translate("keine");
 	const char* destination_name = destination_building ? translator::translate(destination_building->get_individual_name()) : translator::translate("keine");
 	const char* destination_city_name = destination_city ? destination_city->get_name() : translator::translate("keine");
