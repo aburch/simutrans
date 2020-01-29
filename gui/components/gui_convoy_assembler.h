@@ -211,7 +211,6 @@ class gui_convoy_assembler_t :
 	cbuffer_t txt_traction_types;
 	cbuffer_t txt_vehicle_count;
 	cbuffer_t txt_livery_count;
-	cbuffer_t tooltip_convoi_cost;
 	cbuffer_t tooltip_convoi_acceleration;
 	cbuffer_t tooltip_convoi_brake_distance;
 	cbuffer_t tooltip_convoi_speed;

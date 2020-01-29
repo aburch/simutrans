@@ -291,7 +291,6 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	lb_convoi_speed.set_text_pointer(txt_convoi_speed);
 	lb_convoi_speed.set_tooltip(tooltip_convoi_speed);
 	lb_convoi_cost.set_text_pointer(txt_convoi_cost);
-	lb_convoi_cost.set_tooltip(tooltip_convoi_cost);
 	lb_convoi_maintenance.set_text_pointer(txt_convoi_maintenance);
 	lb_convoi_power.set_text_pointer(txt_convoi_power);
 	lb_convoi_power.set_tooltip(tooltip_convoi_acceleration);
@@ -733,7 +732,6 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 	txt_convoi_brake_force.clear();
 	tooltip_convoi_rolling_resistance.clear();
 	txt_convoi_way_wear_factor.clear();
-	tooltip_convoi_cost.clear();
 	tooltip_convoi_acceleration.clear();
 	tooltip_convoi_brake_distance.clear();
 	tooltip_convoi_speed.clear();
@@ -1007,8 +1005,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 				if(cnv.is_bound())
 				{
 					money_to_string(buf, cnv->calc_sale_value() / 100.0 );
-					tooltip_convoi_cost.printf("%s %s", translator::translate("Restwert:"), buf);
-
+					depot_frame->set_resale_value(cnv->calc_sale_value());
 				}
 			}
 

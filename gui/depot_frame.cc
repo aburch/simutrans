@@ -530,6 +530,20 @@ sint64 depot_frame_t::calc_sale_value(const vehicle_desc_t *veh_type)
 }
 
 
+void depot_frame_t::set_resale_value(sint64 value)
+{
+	if (value == 0) {
+		bt_sell.set_text(translator::translate("verkaufen"));
+		return;
+	}
+	txt_convoi_cost.clear();
+	char buf[128];
+	money_to_string(buf, value/100.0);
+	txt_convoi_cost.printf(translator::translate("Sell for %s"), buf);
+	bt_sell.set_text(txt_convoi_cost);
+}
+
+
 bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 {
 	convoihandle_t cnv = depot->get_convoi( icnv );
