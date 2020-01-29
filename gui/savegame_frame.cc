@@ -617,9 +617,9 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t
 						i.del->set_size(scr_size(0, 0));
 
 						resize(scr_coord(0, 0));
-						in_action = false;
 					}
 				}
+				in_action = false;
 				break;
 			}
 		}
