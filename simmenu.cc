@@ -56,6 +56,8 @@ vector_tpl<toolbar_t *>tool_t::toolbar_tool(0);
 
 char tool_t::toolstr[1088];
 
+toolbar_last_used_t *toolbar_last_used_t::last_used_tools = NULL;
+
 // separator in toolbars
 class tool_dummy_t : public tool_t {
 public:
@@ -67,9 +69,6 @@ public:
 	bool is_move_network_save(player_t*) const OVERRIDE { return true; }
 };
 tool_t *tool_t::dummy = new tool_dummy_t();
-
-
-
 
 tool_t *create_general_tool(int toolnr)
 {

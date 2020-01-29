@@ -4297,6 +4297,7 @@ void karte_t::local_set_tool( tool_t *tool_in, player_t * player )
 		selected_tool[player->get_player_nr()] = tool_in;
 	}
 	tool_in->flags = 0;
+	toolbar_last_used_t::last_used_tools->append( tool_in, player );
 }
 
 
@@ -8891,6 +8892,7 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
 		mute_sound(false);
 
 		tool_t::update_toolbars();
+		toolbar_last_used_t::last_used_tools->clear();
 		set_tool( tool_t::general_tool[TOOL_QUERY], get_active_player() );
 	}
 

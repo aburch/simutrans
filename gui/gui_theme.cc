@@ -509,10 +509,10 @@ bool gui_theme_t::themes_init(const char *file_name)
 	env_t::toolbar_max_height =   contents.get_int("toolbar_max_height",         env_t::toolbar_max_height );
 	env_t::cursor_overlay_color = contents.get_color("cursor_overlay_color",     env_t::cursor_overlay_color );
 
-	//if(  toolbar_last_used_t::last_used_tools  ) {
-	//	// only re-init if already inited
-	//	tool_t::update_toolbars();
-	//}
+	if(  toolbar_last_used_t::last_used_tools  ) {
+		// only re-init if already inited
+		tool_t::update_toolbars();
+	}
 	env_t::default_theme = file_name;
 
 	return true;
