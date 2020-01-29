@@ -57,6 +57,7 @@ class gui_tile_occupancybar_t : public gui_component_t
 private:
 	uint32 convoy_length;
 	bool insert_mode = false;
+	bool incomplete = false;
 	sint8 new_veh_length = 0;
 
 	// returns convoy length including extra margin.
@@ -76,6 +77,8 @@ public:
 	// 3rd argument - If remove the last vehicle, need to set the value of the previous vehicle length.
 	// This is necessary to calculate the correct value of length related adding automatic margin.
 	void set_new_veh_length(sint8 new_veh_length, bool insert = false, uint8 new_last_veh_length = -1);
+
+	void set_assembling_incomplete(bool incomplete);
 
 	void draw(scr_coord offset);
 };

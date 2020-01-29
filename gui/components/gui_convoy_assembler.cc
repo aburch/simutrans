@@ -1686,6 +1686,8 @@ void gui_convoy_assembler_t::update_data()
 			convoi_pics[i]->lcolor     = vehicles[i]->can_follow(vehicles[i - 1]) ? COL_DARK_GREEN : COL_RED;
 		}
 		convoi_pics[i - 1]->rcolor = vehicles[i - 1]->can_lead(NULL) ? COL_DARK_GREEN : COL_YELLOW;
+		
+		tile_occupancy.set_assembling_incomplete((convoi_pics[0]->lcolor == COL_YELLOW || convoi_pics[i - 1]->rcolor == COL_YELLOW) ? true : false);
 
 		// change green into blue for retired vehicles
 		for(i=0;  i<vehicles.get_count(); i++) {
@@ -2122,6 +2124,13 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		// update tile occupancy bar
 		new_vehicle_length = new_vehicle_length_sb_force_zero ? 0 : veh_type->get_length();
 		tile_occupancy.set_new_veh_length(new_vehicle_length, veh_action == va_insert ? true : false);
+		if (veh_action == va_append) {
+			tile_occupancy.set_assembling_incomplete(vec[sel_index]->rcolor == COL_YELLOW ? true : false);
+		}
+		else if (veh_action == va_insert) {
+			tile_occupancy.set_assembling_incomplete(vec[sel_index]->lcolor == COL_YELLOW ? true : false);
+		}
+
 	}
 	else {
 		// cursor over a vehicle in the convoi
@@ -2139,11 +2148,21 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 						cnv->get_vehicle(cnv->get_vehicle_count() - 2)->get_desc()->get_length() :
 						cnv->get_vehicle(cnv->get_vehicle_count() - 1)->get_desc()->get_length();
 					tile_occupancy.set_new_veh_length(0 - veh_type->get_length(), false, new_last_veh_length);
+					tile_occupancy.set_assembling_incomplete(false);
 				}
 				else
 				{
 					resale_value = 0;
 					veh_type = NULL;
+				}
+			}
+		}
+		else {
+			if (depot_frame || replace_frame)
+			{
+				if (convoi_pics.get_count())
+				{
+					tile_occupancy.set_assembling_incomplete((convoi_pics[0]->lcolor == COL_YELLOW || convoi_pics[convoi_pics.get_count()-1]->rcolor == COL_YELLOW) ? true : false);
 				}
 			}
 		}

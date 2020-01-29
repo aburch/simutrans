@@ -69,6 +69,11 @@ void gui_tile_occupancybar_t::set_base_convoy_length(uint32 convoy_length, uint8
 	this->last_veh_length = last_veh_length;
 }
 
+void gui_tile_occupancybar_t::set_assembling_incomplete(bool incomplete)
+{
+	this->incomplete = incomplete;
+}
+
 void gui_tile_occupancybar_t::set_new_veh_length(sint8 new_veh_length, bool insert, uint8 new_last_veh_length)
 {
 	this->new_veh_length = new_veh_length;
@@ -129,6 +134,15 @@ void gui_tile_occupancybar_t::draw(scr_coord offset)
 		// draw frame and base color
 		display_ddd_box_clip(offset.x + (tilebar_width + 4) * i, offset.y, tilebar_width + 2, size.h, 8, 8);
 		fill_with_color(offset, i, 0, i == tiles - 1 ? last_tile_occupancy : CARUNITS_PER_TILE, COL_GREY4, length_to_pixel);
+	}
+	if(incomplete){
+		// TODO: Display the length of auto-added vehicles
+		fill_with_color(offset, last_tile_occupancy == CARUNITS_PER_TILE ? tiles : tiles-1, max(current_length, new_length) % CARUNITS_PER_TILE, max(current_length, new_length) % CARUNITS_PER_TILE + 1, COL_YELLOW, length_to_pixel);
+		//add one more tile
+		//if (last_tile > 0 && last_tile_occupancy == CARUNITS_PER_TILE) {
+		//	display_ddd_box_clip(offset.x + (tilebar_width + 4) * last_tile, offset.y, tilebar_width + 2, size.h, 8, 8);
+		//}
+
 	}
 
 	if (insert_mode && len_diff > 0) {
