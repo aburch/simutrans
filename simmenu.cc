@@ -476,7 +476,7 @@ void tool_t::read_menu(const std::string &objfilename)
 	}
 	// now the toolbar tools
 	DBG_MESSAGE( "tool_t::read_menu()", "Reading toolbars" );
-	toolbar_last_used_t::last_used_tools = new toolbar_last_used_t( TOOL_LAST_USED | TOOLBAr_TOOL, "Last used tools", "last_used.txt" );
+	toolbar_last_used_t::last_used_tools = new toolbar_last_used_t( TOOL_LAST_USED | TOOLBAR_TOOL, "Last used tools", "last_used.txt" );
 	// first: add main menu
 	toolbar_tool.resize( skinverwaltung_t::tool_icons_toolbars->get_count() );
 	toolbar_tool.append(new toolbar_t(TOOLBAR_TOOL, "", ""));
@@ -908,7 +908,7 @@ void toolbar_last_used_t::update(player_t *sp)
 {
 	tools.clear();
 	if(  sp  ){
-		for(  slist_tpl<tool_t *>::iterator iter = all_tools[sp->get_plaher_nr()].begin();  iter != all_tools[sp->get_player_nr()].end();  ++iter  ) {
+		for(  slist_tpl<tool_t *>::iterator iter = all_tools[sp->get_player_nr()].begin();  iter != all_tools[sp->get_player_nr()].end();  ++iter  ) {
 			tools.append( *iter );
 		}
 	}
