@@ -1006,14 +1006,14 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 				if(cnv.is_bound())
 				{
 					resale_value = cnv->calc_sale_value();
-					depot_frame->set_resale_value(cnv->calc_sale_value());
+					depot_frame->set_resale_value(resale_value);
 				}
 			}
 
 			money_to_string(  buf, total_cost / 100.0 );
+			// FIXME: The correct term must be used for the translation of "Cost:"
 			txt_convoi_cost.append( translator::translate("Cost:") );
-			// FIXME: This change is related to translation, must be a proper term
-			COLOR_VAL col_cost = (uint32)resale_value == total_cost ? SYSCOL_TEXT : COL_ROYAL_BLUE;
+			const COLOR_VAL col_cost = (uint32)resale_value == total_cost ? SYSCOL_TEXT : COL_ROYAL_BLUE;
 			display_proportional_clip(parent_pos.x + D_MARGIN_LEFT + proportional_string_width(translator::translate("Cost:"))+10, parent_pos.y + pos.y + lb_convoi_cost.get_pos().y, buf, ALIGN_LEFT, col_cost, true);
 
 			txt_convoi_maintenance.printf(translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), (double)maint_per_km / 100.0, (double)maint_per_month / 100.0);
