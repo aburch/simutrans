@@ -785,7 +785,7 @@ void karte_t::init_tiles()
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		// old default: AI 3 passenger, other goods
-		players[i] = (i<2) ? new player_t(this,i) : NULL;
+		players[i] = (i<2) ? new player_t(i) : NULL;
 	}
 	active_player = players[0];
 	active_player_nr = 0;
@@ -8410,7 +8410,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved %i convois",convoi_array.g
 				}
 				else {
 					// simulate old ones ...
-					player_t *player = new player_t( this, i );
+					player_t *player = new player_t( i );
 					player->rdwr(file);
 					delete player;
 				}
@@ -10429,10 +10429,10 @@ const char *karte_t::init_new_player(uint8 new_player_in, uint8 type)
 	}
 	switch( type ) {
 		case player_t::EMPTY: break;
-		case player_t::HUMAN: players[new_player_in] = new player_t(this,new_player_in); break;
-		case player_t::AI_GOODS: players[new_player_in] = new ai_goods_t(this,new_player_in); break;
-		case player_t::AI_PASSENGER: players[new_player_in] = new ai_passenger_t(this,new_player_in); break;
-		default: return "Unknow AI type!";
+		case player_t::HUMAN: players[new_player_in] = new player_t(new_player_in); break;
+		case player_t::AI_GOODS: players[new_player_in] = new ai_goods_t(new_player_in); break;
+		case player_t::AI_PASSENGER: players[new_player_in] = new ai_passenger_t(new_player_in); break;
+		default: return "Unknown AI type!";
 	}
 	settings.set_player_type(new_player_in, type);
 	return NULL;
@@ -10448,7 +10448,7 @@ void karte_t::remove_player(uint8 player_nr)
 		nwc_chg_player_t::company_removed(player_nr);
 		// if default human, create new instace of it (to avoid crashes)
 		if(  player_nr == 0  ) {
-			players[0] = new player_t( this, 0 );
+			players[0] = new player_t( 0 );
 		}
 
 		// Reset all access rights

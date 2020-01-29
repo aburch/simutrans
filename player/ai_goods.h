@@ -108,7 +108,7 @@ private:
 	void create_rail_transport_vehicle(const koord pos1,const koord pos2, int vehicle_count, int minimum_loading);
 
 public:
-	ai_goods_t(karte_t *wl, uint8 nr);
+	ai_goods_t(uint8 nr);
 
 	// this type of AIs identifier
 	virtual uint8 get_ai_id() const { return AI_GOODS; }

@@ -50,7 +50,7 @@ protected:
 	sint32 construction_speed;
 
 public:
-	ai_t(karte_t *wl, uint8 nr);
+	ai_t(uint8 nr);
 
 	bool has_road_transport() const { return road_transport; }
 	virtual void set_road_transport( bool yesno ) { road_transport = yesno; }

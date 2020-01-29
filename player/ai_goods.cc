@@ -37,7 +37,7 @@
 #include "ai_goods.h"
 
 
-ai_goods_t::ai_goods_t(karte_t *wl, uint8 nr) : ai_t(wl,nr)
+ai_goods_t::ai_goods_t(uint8 nr) : ai_t(nr)
 {
 	state = NR_INIT;
 

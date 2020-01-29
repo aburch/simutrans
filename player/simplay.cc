@@ -63,18 +63,17 @@
 #include "simplay.h"
 #include "finance.h"
 
-karte_t *player_t::welt = NULL;
+karte_ptr_t player_t::welt;
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
 static pthread_mutex_t load_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
-player_t::player_t(karte_t *wl, uint8 nr) :
+player_t::player_t(uint8 nr) :
 	simlinemgmt()
 {
-	finance = new finance_t(this, wl);
-	welt = wl;
+	finance = new finance_t(this, welt);
 	player_nr = nr;
 	player_age = 0;
 	active = false;			// Don't start as an AI player

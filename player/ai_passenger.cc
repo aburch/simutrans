@@ -35,7 +35,7 @@
 #include "ai_passenger.h"
 #include "finance.h"
 
-ai_passenger_t::ai_passenger_t(karte_t *wl, uint8 nr) : ai_t( wl, nr )
+ai_passenger_t::ai_passenger_t(uint8 nr) : ai_t( nr )
 {
 	state = NR_INIT;
 
