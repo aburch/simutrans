@@ -1014,6 +1014,14 @@ grund_t* private_car_t::hop_check()
 		if (found_route)
 		{
 			pos_next_next = weg->private_car_routes.get(check_target);
+
+			// Check whether we are at the end of the route (i.e. the destination)
+			if ((current_city == destination_city) && pos_next_next == koord3d::invalid)
+			{
+				time_to_life = 0;
+				return NULL; 
+			}
+
 			// Check whether the way has been deleted in the meantime.
 			const grund_t* next_gr = welt->lookup(pos_next_next); 
 			const weg_t* next_way = next_gr ? next_gr->get_weg(road_wt) : NULL;
