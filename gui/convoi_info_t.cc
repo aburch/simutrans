@@ -56,7 +56,7 @@ static const char cost_type[BUTTON_COUNT][64] =
 	"Distance", 
 	"Refunds",
 	//, "Maxspeed"
-	"Way toll"
+	"Road toll"
 #ifdef ACCELERATION_BUTTON
 	, "Acceleration"
 #endif
