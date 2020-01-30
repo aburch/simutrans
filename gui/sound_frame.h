@@ -39,7 +39,7 @@ public:
 
 	sound_frame_t();
 
-	virtual sound_frame_t::~sound_frame_t();
+	virtual ~sound_frame_t();
 		
 	// used for updating the song title
 	void draw(scr_coord pos, scr_size size) OVERRIDE;

@@ -92,7 +92,7 @@ bool loadsave_frame_t::item_action(const char *filename)
 		else if(  env_t::server  ) {
 			welt->announce_server(0);
 		}
-		DBG_MESSAGE( "load world", "%li ms", dr_time() - start_load );
+		DBG_MESSAGE( "loadsave_frame_t::item_action", "load world %li ms", dr_time() - start_load );
 	}
 	else {
 		// saving a game
@@ -107,9 +107,9 @@ bool loadsave_frame_t::item_action(const char *filename)
 			// and now we need to copy the servergame to the map ...
 #endif
 		}
-		long start_load = dr_time();
+		long start_save = dr_time();
 		welt->save( filename, false, env_t::savegame_version_str, env_t::savegame_ex_version_str, env_t::savegame_ex_revision_str, false );
-		DBG_MESSAGE( "save world", "%li ms", dr_time() - start_load );
+		DBG_MESSAGE( "loadsave_frame_t::item_action", "save world %li ms", dr_time() - start_save );
 		welt->set_dirty();
 		welt->reset_timer();
 	}
