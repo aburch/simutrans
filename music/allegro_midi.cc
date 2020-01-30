@@ -86,7 +86,7 @@ void dr_stop_midi(void)
  */
 sint32 dr_midi_pos(void)
 {
-	return midi_pos;
+	return midi_pos < 0 ? -1 : 0;
 }
 
 
