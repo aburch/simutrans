@@ -2801,6 +2801,10 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	 * the same height the adjacent old grid point was and lowering to the
 	 * same height again. This doesn't preserve the old area 100%, but it respects it
 	 * somehow.
+	 *
+	 * This does not work for water tiles as for them get_hoehe will return the
+	 * z-coordinate of the water surface, not the height of the underwater
+	 * landscape.
 	 */
 
 	sint32 i;
