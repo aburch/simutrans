@@ -1234,6 +1234,7 @@ reliefkarte_t::reliefkarte_t()
 	zoom_out = 1;
 	isometric = false;
 	show_contour = true;
+	show_network_load_factor = false;
 	mode = MAP_TOWN;
 	city = NULL;
 	cur_off = new_off = scr_coord(0,0);
