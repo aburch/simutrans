@@ -2878,7 +2878,9 @@ void stadt_t::new_month()
 	settings_t const& s = welt->get_settings();
 
 	uint16 congestion_density_factor = s.get_congestion_density_factor();
-
+	
+	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+	assert(error == 0);
 	if(congestion_density_factor < 32)
 	{
 		// Old method - congestion density factor
@@ -2947,6 +2949,8 @@ void stadt_t::new_month()
 	}
 
 	incoming_private_cars = 0;
+	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+	assert(error == 0);
 }
 
 void stadt_t::calc_growth()

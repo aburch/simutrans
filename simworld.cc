@@ -146,7 +146,7 @@ static pthread_mutexattr_t mutex_attributes;
 //static pthread_mutex_t path_explorer_await_mutex = PTHREAD_MUTEX_INITIALIZER;
 //pthread_mutex_t karte_t::unreserve_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-static pthread_mutex_t private_car_route_mutex;
+pthread_mutex_t karte_t::private_car_route_mutex;
 pthread_mutex_t karte_t::private_car_store_route_mutex;
 pthread_mutex_t karte_t::step_passengers_and_mail_mutex;
 static pthread_mutex_t path_explorer_await_mutex;
@@ -1612,14 +1612,14 @@ void *check_road_connexions_threaded(void *args)
 		{
 			break;
 		}
-		int error = pthread_mutex_lock(&private_car_route_mutex);
+		int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 		assert(error == 0);
 		if (karte_t::cities_to_process > 0)
 		{
 			stadt_t* city;
 			city = world()->cities_awaiting_private_car_route_check.remove_first();
 			karte_t::cities_to_process--;
-			int error = pthread_mutex_unlock(&private_car_route_mutex);
+			int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
 
 			if (!city)
@@ -1634,7 +1634,7 @@ void *check_road_connexions_threaded(void *args)
 		}
 		else
 		{
-			int error = pthread_mutex_unlock(&private_car_route_mutex);
+			int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
 		}
 		// Having two barrier waits here is intentional.
