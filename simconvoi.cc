@@ -851,7 +851,7 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 		weg->get_owner()->book_toll_received( toll, get_schedule()->get_waytype() );
 		get_owner()->book_toll_paid(         -toll, get_schedule()->get_waytype() );
 		book( -toll, CONVOI_WAYTOLL);
-//		book( -toll, CONVOI_PROFIT);
+		book( -toll, CONVOI_PROFIT);
 	}
 
 	get_owner()->book_running_costs( cost, get_schedule()->get_waytype());
@@ -5993,7 +5993,7 @@ station_tile_search_ready: ;
 				}
 				player->book_toll_received(modified_apportioned_revenue, get_schedule()->get_waytype() );
 				owner->book_toll_paid(-modified_apportioned_revenue, get_schedule()->get_waytype() );
-				//book(-modified_apportioned_revenue, CONVOI_PROFIT);
+				book(-modified_apportioned_revenue, CONVOI_PROFIT);
 				book(-modified_apportioned_revenue, CONVOI_WAYTOLL);
 			}
 		}
@@ -6019,7 +6019,7 @@ station_tile_search_ready: ;
 				}
 				halt->get_owner()->book_toll_received(port_charge, get_schedule()->get_waytype() );
 				owner->book_toll_paid(-port_charge, get_schedule()->get_waytype() );
-				//book(-port_charge, CONVOI_PROFIT);
+				book(-port_charge, CONVOI_PROFIT);
 				book(-port_charge, CONVOI_WAYTOLL);
 			}
 		}
