@@ -2446,7 +2446,7 @@ image_id tool_build_way_t::get_icon(player_t *) const
 	image_id image = icon;
 	bool is_tram = false;
 	if(  desc  ) {
-		is_tram = (desc->get_wtyp()==tram_wt) || (desc->get_styp() == weg_t::type_tram);
+		is_tram = (desc->get_wtyp()==tram_wt) || (desc->get_styp() == type_tram);
 		if(  image ==  IMG_EMPTY  ) {
 			image = desc->get_cursor()->get_image_id(1);
 		}
