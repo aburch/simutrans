@@ -98,7 +98,7 @@ private:
 	void init_stats();
 public:
 	ware_production_t() : type(NULL), menge(0), max(0)/*, transit(statistics[0][FAB_GOODS_TRANSIT])*/,
-		max_transit(0), placing_orders(false), index_offset(0)
+		max_transit(0), index_offset(0)
 	{
 		init_stats();
 	}
