@@ -85,7 +85,7 @@ const int cost_type_color[MAX_LINE_COST] =
 	//COL_COUNVOI_COUNT,
 	//COL_DISTANCE,
 	COL_MAXSPEED,
-	COL_TOLL
+	COL_LILAC
 };
  
 static uint8 tabs_to_lineindex[8];

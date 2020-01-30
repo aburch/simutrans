@@ -87,11 +87,11 @@ typedef unsigned char COLOR_VAL;
 #define COL_OPERATION       (132)
 #define COL_VEH_MAINTENANCE (135)
 #define COL_MAINTENANCE     COL_LIGHT_RED
-#define COL_TOLL            (157)
+#define COL_TOLL            COL_ORCHID
 #define COL_POWERLINES      (46)
 #define COL_OPS_PROFIT      (87)
 #define COL_NEW_VEHICLES    COL_LIGHT_PURPLE
-#define COL_CONSTRUCTION    (110)
+#define COL_CONSTRUCTION    (156)
 #define COL_PROFIT          (6)
 #define COL_TRANSPORTED     COL_YELLOW
 #define COL_MAXSPEED        COL_TURQUOISE
@@ -102,7 +102,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_WEALTH          (95)
 
 #define COL_COUNVOI_COUNT   COL_VEHICLE_ASSETS
-#define COL_FREE_CAPACITY   COL_TOLL
+#define COL_FREE_CAPACITY   (157)
 #define COL_DISTANCE        COL_OPS_PROFIT
 
 #define COL_CITICENS        COL_WHITE
