@@ -174,7 +174,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 	//add_component(&scrolly_helptext);
 
 	set_resizemode(diagonal_resize);
-	set_min_windowsize(scr_size(200, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + (D_SCROLLBAR_HEIGHT) + D_MARGIN_BOTTOM));
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH + DIALOG_MIN_WIDTH*2, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + (D_SCROLLBAR_HEIGHT) + D_MARGIN_BOTTOM));
 }
 
 

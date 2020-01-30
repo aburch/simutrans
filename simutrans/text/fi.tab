@@ -1625,22 +1625,6 @@ zooming out
 Loitonna
 Zu nah am Kartenrand
 Et voi rakentaa tähän,\nsillä kartan reuna on\nliian lähellä.\n
-#__________________________________record_text__________________________________
-#__________________________________record_text__________________________________
-New world record for maglevs: %.1f km/h by %s.
-Uusi nopeusennätys maglev-junille: %.1f km/h (%s).
-New world record for monorails: %.1f km/h by %s.
-Uusi nopeusennätys\nmonorail-junille: %.1f km/h\n(%s).
-New world record for motorcars: %.1f km/h by %s.
-Uusi nopeusennätys\nautoille: %.1f km/h\n(%s).
-New world record for narrowgauges: %.1f km/h by %s.
-Uusi nopeusennätys\nkapearaideradoilla: %.1f km/h\n(%s).
-New world record for planes: %.1f km/h by %s.
-Uusi nopeusennätys\nlentokoneille: %.1f km/h\n(%s).
-New world record for railways: %.1f km/h by %s.
-Uusi nopeusennätys\nrautateillä: %.1f km/h\n(%s).
-New world record for ship: %.1f km/h by %s.
-Uusi nopeusennätys\nmerellä: %.1f km/h\n(%s).
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &1_CITY_SYLL

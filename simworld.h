@@ -64,7 +64,6 @@ class network_world_command_t;
 class goods_desc_t;
 class memory_rw_t;
 class viewport_t;
-class records_t;
 
 #define CHK_RANDS 32
 #define CHK_DEBUG_SUMS 8
@@ -444,12 +443,6 @@ private:
 	sint64 finance_history_month[MAX_WORLD_HISTORY_MONTHS][MAX_WORLD_COST];
 
 	/**
-	 * World record speed manager.
-	 * Keeps track of the fastest vehicles in game.
-	 */
-	records_t *records;
-
-	/**
 	 * Attached view to this world.
 	 */
 	main_view_t *view;
@@ -761,7 +754,7 @@ private:
 	 * Re-calculate vehicle details monthly.
 	 * Used to be used for the speed bonus
 	 */
-	void recalc_average_speed();
+	void recalc_average_speed(bool skip_messages);
 
 	/**
 	 * Monthly actions.
@@ -1186,10 +1179,6 @@ public:
 
 	settings_t const& get_settings() const { return settings; }
 	settings_t&       get_settings()       { return settings; }
-
-	/// speed record management
-	sint32 get_record_speed( waytype_t w ) const;
-	void notify_record( convoihandle_t cnv, sint32 max_speed, koord k );
 
 	/// time lapse mode ...
 	bool is_paused() const { return step_mode&PAUSE_FLAG; }
@@ -2351,8 +2340,11 @@ public:
 	 * Searches and returns the closest city
 	 * but prefers even farther cities if within their city limits
 	 * @author Hj. Malthaner
+	 * New for January 2020: add the choice to select the rank. 1 is
+	 * the best; 2 the second best, and so forth.
+	 * @author: jamespetts
 	 */
-	stadt_t *find_nearest_city(koord k) const;
+	stadt_t *find_nearest_city(koord k, uint32 rank = 1) const;
 	
 	// Returns the city at the position given.
 	// Returns NULL if there is no city there.

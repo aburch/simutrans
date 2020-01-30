@@ -2683,7 +2683,6 @@
     <ClCompile Include="dataobj\height_map_loader.cc" />
     <ClCompile Include="dataobj\livery_scheme.cc" />
     <ClCompile Include="dataobj\objlist.cc" />
-    <ClCompile Include="dataobj\records.cc" />
     <ClCompile Include="dataobj\settings.cc" />
     <ClCompile Include="display\font.cc" />
     <ClCompile Include="display\simgraph0.cc">

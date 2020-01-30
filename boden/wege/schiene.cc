@@ -343,7 +343,7 @@ void schiene_t::rdwr(loadsave_t *file)
 		uint32 old_bridge_weight_limit = get_bridge_weight_limit();
 		const way_desc_t *desc = way_builder_t::get_desc(bname);
 		if(desc==NULL) {
-			int old_max_speed=get_max_speed();
+			sint32 old_max_speed=get_max_speed();
 			desc = way_builder_t::get_desc(translator::compatibility_name(bname));
 			if(desc==NULL) {
 				desc = default_schiene;
@@ -359,8 +359,24 @@ void schiene_t::rdwr(loadsave_t *file)
 			replacement_way = loaded_replacement_way;
 		}
 #endif
-		if(old_max_speed>0) {
-			set_max_speed(old_max_speed);
+		if (old_max_speed > 0)
+		{
+			if (is_degraded() && old_max_speed == desc->get_topspeed())
+			{
+				// The maximum speed has to be reduced on account of the degridation.
+				if (get_remaining_wear_capacity() > 0)
+				{
+					set_max_speed(old_max_speed / 2);
+				}
+				else
+				{
+					set_max_speed(0);
+				}
+			}
+			else
+			{
+				set_max_speed(old_max_speed);
+			}
 		}
 		//DBG_MESSAGE("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,get_pos().x,get_pos().y,old_max_speed);
 		if(old_max_axle_load > 0)
