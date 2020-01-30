@@ -79,7 +79,7 @@ public:
 	// isometric compass for main map (evt. minimap)
 	static const skin_desc_t *compass_iso;
 	// normal staight compass for minimap
-	static const skin_desc_t *compass_rect;
+	static const skin_desc_t *compass_map;
 	/// @}
 
 	/// @name icons used for the tabs in the line management window

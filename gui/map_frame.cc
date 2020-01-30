@@ -857,11 +857,8 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 	}
 
 	// may add compass
-	if(  reliefkarte_t::get_karte()->isometric  &&  skinverwaltung_t::compass_iso  ) {
-		display_img_aligned( skinverwaltung_t::compass_iso->get_image_id( welt->get_settings().get_rotation() ), scrolly.get_client()+pos+scr_coord(4,4+D_TITLEBAR_HEIGHT)-scr_size(8,8), ALIGN_RIGHT|ALIGN_TOP, false );
-	}
-	else if(  !reliefkarte_t::get_karte()->isometric  &&  skinverwaltung_t::compass_rect  ) {
-		display_img_aligned( skinverwaltung_t::compass_rect->get_image_id( welt->get_settings().get_rotation() ), scrolly.get_client()+pos+scr_coord(4,4+D_TITLEBAR_HEIGHT)-scr_size(8,8), ALIGN_RIGHT|ALIGN_TOP, false );
+	if(  skinverwaltung_t::compass_map  && env_t::compass_map_position!=0  ) {
+		display_img_aligned( skinverwaltung_t::compass_map->get_image_id( welt->get_settings().get_rotation()+reliefkarte_t::get_karte()->isometric*4 ), scrolly.get_client()+scr_coord(4,4+D_titLEBAR_HEIGHT)-scr_size(8,8), env_t::compass_map_position, false );
 	}
 }
 
