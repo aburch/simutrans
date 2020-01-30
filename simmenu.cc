@@ -803,7 +803,7 @@ void toolbar_t::update(player_t *player)
 	// now (re)fill it
 	FOR(slist_tpl<tool_t*>, const w, tools) {
 		// no way to call this tool? => then it is most likely a metatool
-		if(w->command_key==1  &&  w->get_icon(welt->get_active_player())==IMG_EMPTY) {
+		if(w->command_key==1  &&  w->get_icon(player)==IMG_EMPTY) {
 
 			if (char const* const param = w->get_default_param(player)) {
 				if(  create  ) {
@@ -847,7 +847,7 @@ void toolbar_t::update(player_t *player)
 				}
 			}
 		}
-		else if(w->get_icon(welt->get_active_player())!=IMG_EMPTY) {
+		else if(w->get_icon(player)!=IMG_EMPTY) {
 			// get the right city_road
 			if(w->get_id() == (TOOL_BUILD_CITYROAD | GENERAL_TOOL)) {
 				w->flags = 0;
