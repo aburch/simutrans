@@ -5069,7 +5069,7 @@ void karte_t::new_month()
 		{
 			cities_awaiting_private_car_route_check.append_unique(s);
 		}
-		s->new_month(recheck_road_connexions);
+		s->new_month();
 		//INT_CHECK("simworld 3117");
 		total_electric_demand += s->get_power_demand();
 	}

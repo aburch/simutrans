@@ -643,7 +643,7 @@ public:
 
 	void step(uint32 delta_t);
 
-	void new_month(bool check);
+	void new_month();
 
 	void add_road_connexion(uint32 journey_time_per_tile, const stadt_t* city);
 	void add_road_connexion(uint32 journey_time_per_tile, const fabrik_t* industry);

@@ -2852,7 +2852,7 @@ void stadt_t::calc_traffic_level()
 	};
 }
 
-void stadt_t::new_month(bool check) //"New month" (Google)
+void stadt_t::new_month() 
 {
 	swap<uint8>( pax_destinations_old, pax_destinations_new );
 	pax_destinations_new.clear();
@@ -2944,13 +2944,6 @@ void stadt_t::new_month(bool check) //"New month" (Google)
 		// Further reduce this by the traffic_level factor to adjust for occupancy rates (permille).
 		const sint64 adjusted_ratio = ((sint64)traffic_level * congestion_density_factor) / 1000l;
 		city_history_month[0][HIST_CONGESTION] = (trips_per_hour * adjusted_ratio) / (sint64)road_hectometers;
-	}
-
-	// Clearing these will force recalculation as necessary.
-	// Cannot do this too often, as it severely impacts on performance.
-	if(check)
-	{
-		check_road_connexions = true;
 	}
 
 	incoming_private_cars = 0;
