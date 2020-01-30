@@ -850,8 +850,8 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 		}
 		weg->get_owner()->book_toll_received( toll, get_schedule()->get_waytype() );
 		get_owner()->book_toll_paid(         -toll, get_schedule()->get_waytype() );
-//		book( -toll, CONVOI_WAYTOLL);
-		book( -toll, CONVOI_PROFIT);
+		book( -toll, CONVOI_WAYTOLL);
+//		book( -toll, CONVOI_PROFIT);
 	}
 
 	get_owner()->book_running_costs( cost, get_schedule()->get_waytype());
@@ -4089,7 +4089,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--)
 			{
-				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_extended_version() <= 1) || (j == CONVOI_REFUNDS && file->get_extended_version() < 8))
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_extended_version() <= 1) || (j >= CONVOI_REFUNDS && file->get_extended_version() < 8))
 				{
 					// Versions of Extended saves with 1 and below
 					// did not have settings for average speed or comfort.
@@ -4109,7 +4109,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--)
 			{
-				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_extended_version() <= 1) || (j == CONVOI_REFUNDS && file->get_extended_version() < 8))
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_extended_version() <= 1) || (j >= CONVOI_REFUNDS && file->get_extended_version() < 8))
 				{
 					// Versions of Extended saves with 1 and below
 					// did not have settings for average speed or comfort.
@@ -4137,7 +4137,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k>=0; k--)
 			{
-				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_extended_version() <= 1) || (j == CONVOI_REFUNDS && file->get_extended_version() < 8))
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_extended_version() <= 1) || (j >= CONVOI_REFUNDS && file->get_extended_version() < 8))
 				{
 					// Versions of Extended saves with 1 and below
 					// did not have settings for average speed or comfort.
@@ -4153,7 +4153,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
-		for (int j = 7; j<MAX_CONVOI_COST; j++)
+		for (int j = 7; j< CONVOI_WAYTOLL; j++)
 		{
 			for (int k = MAX_MONTHS-1; k>=0; k--)
 			{
@@ -4235,6 +4235,19 @@ void convoi_t::rdwr(loadsave_t *file)
 					continue;
 				}
 				break;
+			case CONVOI_WAYTOLL:
+				if (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 17))
+				{
+					if (file->is_loading())
+					{
+						for (int k = MAX_MONTHS - 1; k >= 0; k--)
+						{
+							financial_history[k][j] = 0;
+						}
+					}
+					continue;
+				}
+				break;
 			}
 
 			for (int k = MAX_MONTHS-1; k >= 0; k--)
@@ -4247,7 +4260,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		{
 			if (file->get_extended_version() == 0 && file->get_version() >= 112008 )
 			{
-				// CONVOY_WAYTOLL - not used in Extended
+				// CONVOI_WAYTOLL - not used in Extended until Jan 2020
 				sint64 dummy = 0;
 				for (int k = MAX_MONTHS-1; k >= 0; k--)
 				{
@@ -4703,7 +4716,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				}
 			}
 		}
-		const uint8 count = file->get_version() < 103000 ? CONVOI_DISTANCE : MAX_CONVOI_COST;
+		const uint8 count = file->get_version() < 103000 ? CONVOI_DISTANCE : CONVOI_WAYTOLL;
 		for(uint8 i = 0; i < count; i ++)
 		{
 			file->rdwr_long(rolling_average[i]);
@@ -5980,7 +5993,8 @@ station_tile_search_ready: ;
 				}
 				player->book_toll_received(modified_apportioned_revenue, get_schedule()->get_waytype() );
 				owner->book_toll_paid(-modified_apportioned_revenue, get_schedule()->get_waytype() );
-				book(-modified_apportioned_revenue, CONVOI_PROFIT);
+				//book(-modified_apportioned_revenue, CONVOI_PROFIT);
+				book(-modified_apportioned_revenue, CONVOI_WAYTOLL);
 			}
 		}
 
@@ -6005,7 +6019,8 @@ station_tile_search_ready: ;
 				}
 				halt->get_owner()->book_toll_received(port_charge, get_schedule()->get_waytype() );
 				owner->book_toll_paid(-port_charge, get_schedule()->get_waytype() );
-				book(-port_charge, CONVOI_PROFIT);
+				//book(-port_charge, CONVOI_PROFIT);
+				book(-port_charge, CONVOI_WAYTOLL);
 			}
 		}
 	}
@@ -8092,6 +8107,7 @@ sint64 convoi_t::get_stat_converted(int month, convoi_cost_t cost_type) const
 		case CONVOI_OPERATIONS:
 		case CONVOI_PROFIT:
 		case CONVOI_REFUNDS:
+		case CONVOI_WAYTOLL:
 			value = convert_money(value);
 			break;
 		default: ;

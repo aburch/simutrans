@@ -54,9 +54,9 @@ static const char cost_type[BUTTON_COUNT][64] =
 	"Operation", 
 	"Profit", 
 	"Distance", 
-	"Refunds"
+	"Refunds",
 	//, "Maxspeed"
-	//, "Way toll"
+	"Way toll"
 #ifdef ACCELERATION_BUTTON
 	, "Acceleration"
 #endif
@@ -72,9 +72,9 @@ static const int cost_type_color[BUTTON_COUNT] =
 	COL_OPERATION, 
 	COL_PROFIT, 
 	COL_DISTANCE, 
-	COL_CAR_OWNERSHIP
+	COL_CAR_OWNERSHIP,
 //	, COL_MAXSPEED
-//	, COL_TOLL
+	COL_TOLL
 #ifdef ACCELERATION_BUTTON
 	, COL_YELLOW
 #endif
@@ -90,9 +90,9 @@ static const bool cost_type_money[BUTTON_COUNT] =
 	true, 
 	true, 
 	false,
-	true
+	true,
 	//, false
-	//, true
+	true
 #ifdef ACCELERATION_BUTTON
 	, false
 #endif

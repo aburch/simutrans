@@ -83,8 +83,8 @@ public:
 		CONVOI_DISTANCE,			//  7 | 5 | total distance traveled this month
 		CONVOI_REFUNDS,				//  8 |   | the refunds passengers waiting for this convoy (only when not attached to a line) have received.
 //		CONVOI_MAXSPEED,			//    | 6 | average max. possible speed
-//		CONVOI_WAYTOLL,				//    | 7 |
-		MAX_CONVOI_COST				//  9 | 8 |
+		CONVOI_WAYTOLL,				//  9 | 7 |
+		MAX_CONVOI_COST				// 10 | 8 |
 	};
 
 	/* Constants
