@@ -3627,7 +3627,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 					// tell the player, if not during initialization
 					if (!new_town) {
 						cbuffer_t buf;
-						buf.printf( translator::translate("With a big festival\n%s built\na new monument.\n%i citizen rejoiced."), get_name(), get_einwohner() );
+						buf.printf( translator::translate("With a big festival\n%s built\na new monument.\n%i citicens rejoiced."), get_name(), get_einwohner() );
 						welt->get_message()->add_message(buf, best_pos + koord(1, 1), message_t::city, CITY_KI, desc->get_tile(0)->get_background(0, 0, 0));
 					}
 				}
