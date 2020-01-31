@@ -762,7 +762,7 @@ fabrik_t::fabrik_t(loadsave_t* file)
 	else
 	{
 		// This will create a new gebaeude_t object if our existing one has not already been saved and re-loaded.
-		build(rotate, false, false);
+		build(rotate, false, false, true);
 
 		// now get rid of construction image
 		for(  sint16 y=0;  y<desc->get_building()->get_y(rotate);  y++  ) {
@@ -1026,7 +1026,7 @@ fabrik_t::~fabrik_t()
 }
 
 
-void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodbase)
+void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodbase, bool from_saved)
 {
 	this->rotate = rotate;
 	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();
@@ -1077,6 +1077,12 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 
 	pos = building->get_pos();
 	pos_origin.z = pos.z;
+
+	// Must build roads before fields so that the road is not blocked by the fields.
+	if (!from_saved && welt->get_settings().get_auto_connect_industries_and_attractions_by_road())
+	{
+		building->connect_by_road_to_nearest_city();
+	}
 
 	if(desc->get_field_group()) {
 		// if there are fields
