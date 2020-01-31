@@ -597,6 +597,9 @@ player_finance_display_account = 1
 
 allow_buying_obsolete_vehicles=1
 
+
+show_future_vehicle_information = 1
+
 # vehicle can loose a part of their value, when the are once used
 # the loss is given in 1/1000th, i.e 300 mean the value will be 70%
 used_vehicle_reduction = 0
