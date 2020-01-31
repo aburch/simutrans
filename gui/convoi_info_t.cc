@@ -351,7 +351,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 #endif
 
 		// Bernd Gabriel, 01.07.2009: show some colored texts and indicator
-		input.set_color(cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : SYSCOL_TEXT);
+		input.set_color(cnv->has_obsolete_vehicles() ? COL_OBSOLETE : SYSCOL_TEXT);
 
 		// make titlebar dirty to display the correct coordinates
 		if (cnv->get_owner() == welt->get_active_player() && !welt->get_active_player()->is_locked()) {
@@ -649,7 +649,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				money_to_string(tmp + 1, cnv->get_per_kilometre_running_cost() / 100.0);
 				strcat(tmp, "/km)");
 			}
-			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : SYSCOL_TEXT, true);
+			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_OBSOLETE : SYSCOL_TEXT, true);
 		}
 
 		//Average round trip time
@@ -795,14 +795,14 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		//	if (message_lines < 2 && has_obsolete_that_can_upgrade)
 		//	{
 		//		sprintf(tmp, (translator::translate("obsolete_vehicles_with_upgrades")));
-		//		status_color = COL_PURPLE;
+		//		status_color = COL_UPGRADEABLE;
 		//		display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
 		//		pos_y += LINESPACE;
 		//		message_lines++;
 		//	}			
 		//	if (message_lines < 2 && cnv->has_obsolete_vehicles() && !has_obsolete_that_can_upgrade) {
 		//		sprintf(tmp, (translator::translate("obsolete_vehicles")));
-		//		status_color = COL_DARK_BLUE;
+		//		status_color = COL_OBSOLETE;
 		//		display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
 		//		pos_y += LINESPACE;
 		//		message_lines++;

@@ -1649,7 +1649,7 @@ heath
 %d convois
 %d convoys
 %d Einzelfahrzeuge im Depot
-%d vehicles are stored here.
+%d vehicles stored here.
 %i km/h (max. %ikm/h)
 %i km/h (max. %ikm/h)
 %s building %s %s
@@ -3988,5 +3988,7 @@ Upgrade available
 Upgrade available
 Upgrade is not available yet
 Upgrade is not available yet
+No bridges over runways!
+Bridges cannnot be built over runways or taxiways.
 No bridges over runways!
 Bridges cannnot be built over runways or taxiways.

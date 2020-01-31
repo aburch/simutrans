@@ -20,6 +20,7 @@ gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t*> *images) :
 	this->images = images;
 	use_rows = true;
 	player_nr = 0;
+	focus = -1;
 }
 
 
@@ -67,8 +68,6 @@ int gui_image_list_t::index_at(scr_coord parent_pos, int xpos, int ypos) const
 }
 
 
-
-
 void gui_image_list_t::draw(scr_coord parent_pos)
 {
 	const int rows = (size.h - 2 * BORDER) / grid.y;
@@ -84,6 +83,12 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 	int xmax = xmin + columns * grid.x;
 	int xpos = xmin;
 	int ypos = ymin;
+
+
+	if (focus >= 0) {
+		// This need to draw first because it will overlap the left vehicle
+		display_blend_wh(xpos + grid.x*focus + 1, ypos + 1, grid.x - 2, grid.y - 2, COL_UPGRADEABLE, 25);
+	}
 
 	FOR(vector_tpl<image_data_t*>, const& iptr, *images) {
 		image_data_t const& idata = *iptr;
