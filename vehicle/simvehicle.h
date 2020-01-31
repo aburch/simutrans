@@ -672,7 +672,7 @@ public:
 	// vehicles in reverse formation.
 	ribi_t::ribi get_direction_of_travel() const;
 
-	uint16 get_sum_weight() const { return (sum_weight + 499) / 1000; }
+	uint32 get_sum_weight() const { return sum_weight; }
 
 	uint16 get_overcrowded_capacity(uint8 g_class) const;
 	// @author: jamespetts

@@ -377,6 +377,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			if (upgradable_state && v->get_desc()->has_available_upgrade(month_now)) {
 				upgradable_state = 2; // has_available_upgrade
 			}
+			vehicle_as_potential_convoy_t convoy(*v->get_desc());
 
 			// first image
 			scr_coord_val x, y, w, h;
@@ -436,7 +437,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 			// weight
 			buf.clear();
-			buf.printf("%s %.1ft (%.1ft)", translator::translate("Weight:"), v->get_sum_weight(), v->get_desc()->get_weight() / 1000.0);
+			buf.printf("%s %.1ft (%.1ft)", translator::translate("Weight:"), v->get_sum_weight()/1000.0, v->get_desc()->get_weight() / 1000.0);
 			display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			extra_y += LINESPACE;
 
@@ -448,7 +449,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 			// Brake force
 			buf.clear();
-			buf.printf("%s %u kN", translator::translate("Max. brake force:"), v->get_desc()->get_brake_force());
+			buf.printf("%s %4.1f kN", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0);
 			display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			extra_y += LINESPACE;
 
