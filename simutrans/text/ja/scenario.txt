@@ -1,0 +1,9 @@
+<title>シナリオ</title>
+
+<h1><strong>シナリオ</strong></h1>
+
+<p>
+Simutransでは<strong>シナリオ</strong>を遊ぶことができます。<br>
+<strong>シナリオ</strong>では<br>
+-産業チェーンを完成させる<br>-特定の資金額に到達する<br>-本社を建設する<br>などのクリア目標が設定されています。
+</p>

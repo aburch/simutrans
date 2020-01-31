@@ -332,6 +332,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 		if (vehicle_count > 1) {
 			// convoy power
 			buf.clear();
+			// NOTE: These value needs to be modified because these are multiplied by "gear"
 			buf.printf(translator::translate("%s %4d kW, %d kN"), translator::translate("Power:"), cnv->get_sum_power() / 1000, cnv->get_starting_force().to_sint32() / 1000);
 			// TODO: Add the acceleration info here - Ranran
 			display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -373,11 +374,8 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 		for (unsigned veh = 0; veh < vehicle_count; veh++) {
 			vehicle_t *v = cnv->get_vehicle(veh);
-			uint8 upgradable_state = v->get_desc()->get_upgrades_count() ? 1 : 0;
-			if (upgradable_state && v->get_desc()->has_available_upgrade(month_now)) {
-				upgradable_state = 2; // has_available_upgrade
-			}
 			vehicle_as_potential_convoy_t convoy(*v->get_desc());
+			const uint8 upgradable_state = v->get_desc()->has_available_upgrade(month_now, welt->get_settings().get_show_future_vehicle_info());
 
 			// first image
 			scr_coord_val x, y, w, h;
@@ -397,17 +395,19 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			sint8 car_number = cnv->get_car_numbering(veh);
 			buf.clear();
 			if (car_number < 0) {
-				buf.printf("%s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
+				buf.printf("%.2s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
 			}
 			else {
 				buf.append(car_number);
 			}
-			display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, upgradable_state == 2 ? COL_PURPLE : COL_GREY2, true);
+			display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, upgradable_state == 2 ? COL_UPGRADEABLE : COL_GREY2, true);
 			buf.clear();
 
 			// upgradable symbol
 			if (upgradable_state && skinverwaltung_t::upgradable) {
-				display_color_img(skinverwaltung_t::upgradable->get_image_id(upgradable_state-1), pos.x + w + offset.x - LINESPACE, pos.y + offset.y + total_height + extra_y + h + LINESPACE, 0, false, false);
+				if (welt->get_settings().get_show_future_vehicle_info() || (!welt->get_settings().get_show_future_vehicle_info() && v->get_desc()->is_future(month_now) != 2)) {
+					display_color_img(skinverwaltung_t::upgradable->get_image_id(upgradable_state - 1), pos.x + w + offset.x - LINESPACE, pos.y + offset.y + total_height + extra_y + h + LINESPACE, 0, false, false);
+				}
 			}
 
 			// name of this
@@ -653,18 +653,18 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 			sint8 car_number = cnv->get_car_numbering(veh);
 			buf.clear();
 			if (car_number < 0) {
-				buf.printf("%s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
+				buf.printf("%.2s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
 			}
 			else {
 				buf.append(car_number);
 			}
-			display_proportional_clip(pos.x + offset.x + 1, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, v->get_desc()->has_available_upgrade(month_now) ? COL_PURPLE : COL_GREY2, true);
+			display_proportional_clip(pos.x + offset.x + 1, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, v->get_desc()->has_available_upgrade(month_now) ? COL_UPGRADEABLE : COL_GREY2, true);
 			buf.clear();
 
 			// vehicle color bar
-			veh_bar_color = v->get_desc()->is_future(month_now) || v->get_desc()->is_retired(month_now) ? COL_ROYAL_BLUE : COL_DARK_GREEN;
+			veh_bar_color = v->get_desc()->is_future(month_now) || v->get_desc()->is_retired(month_now) ? COL_OUT_OF_PRODUCTION : COL_DARK_GREEN;
 			if (v->get_desc()->is_obsolete(month_now, welt)) {
-				veh_bar_color = COL_DARK_BLUE;
+				veh_bar_color = COL_OBSOLETE;
 			}
 			display_veh_form(pos.x + offset.x, pos.y + offset.y + total_height + extra_y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, veh_bar_color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_next() : v->get_desc()->get_basic_constraint_prev(), v->get_desc()->get_interactivity(), false);
 			display_veh_form(pos.x + offset.x + grid_width / 2 - 1, pos.y + offset.y + total_height + extra_y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, veh_bar_color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_prev() : v->get_desc()->get_basic_constraint_next(), v->get_desc()->get_interactivity(), true);
@@ -930,7 +930,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 				if (percentage > 0)
 				{
 					sprintf( tmp, "%s: %d%%", translator::translate("Obsolescence increase"), percentage);
-					display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_DARK_BLUE, true );
+					display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_OBSOLETE, true );
 					offset_y += LINESPACE;
 				}
 			On the other hand: a single effective percentage does not tell the truth as well. Supposed we
@@ -972,7 +972,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 				if (skinverwaltung_t::alerts) {
 					display_color_img(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, 0, false, false);
 				}
-				display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT + 13, pos.y + offset.y + total_height, buf, ALIGN_LEFT, COL_DARK_BLUE, true);
+				display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT + 13, pos.y + offset.y + total_height, buf, ALIGN_LEFT, COL_OBSOLETE, true);
 				total_height += LINESPACE * 1.5;
 				any_obsoletes = true;
 			}
@@ -986,10 +986,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 
 		for (unsigned veh = 0; veh < vehicle_count; veh++) {
 			vehicle_t *v = cnv->get_vehicle(veh);
-			uint8 upgradable_state = v->get_desc()->get_upgrades_count() ? 1 : 0;
-			if (upgradable_state && v->get_desc()->has_available_upgrade(month_now)) {
-				upgradable_state = 2; // has_available_upgrade
-			}
+			const uint8 upgradable_state = v->get_desc()->has_available_upgrade(month_now, welt->get_settings().get_show_future_vehicle_info());
 
 			int extra_y = 0;
 			const uint8 grid_width = D_BUTTON_WIDTH / 3;
@@ -1000,18 +997,18 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 			sint8 car_number = cnv->get_car_numbering(veh);
 			buf.clear();
 			if (car_number < 0) {
-				buf.printf("%s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
+				buf.printf("%.2s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
 			}
 			else {
 				buf.append(car_number);
 			}
-			display_proportional_clip(pos.x + offset.x + 1, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, upgradable_state == 2 ? COL_PURPLE : COL_GREY2, true);
+			display_proportional_clip(pos.x + offset.x + 1, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, upgradable_state == 2 ? COL_UPGRADEABLE : COL_GREY2, true);
 			buf.clear();
 
 			// vehicle color bar
-			veh_bar_color = v->get_desc()->is_future(month_now) || v->get_desc()->is_retired(month_now) ? COL_ROYAL_BLUE : COL_DARK_GREEN;
+			veh_bar_color = v->get_desc()->is_future(month_now) || v->get_desc()->is_retired(month_now) ? COL_OUT_OF_PRODUCTION : COL_DARK_GREEN;
 			if (v->get_desc()->is_obsolete(month_now, welt)) {
-				veh_bar_color = COL_DARK_BLUE;
+				veh_bar_color = COL_OBSOLETE;
 			}
 			display_veh_form(pos.x + offset.x, pos.y + offset.y + total_height + extra_y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, veh_bar_color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_next() : v->get_desc()->get_basic_constraint_prev(), v->get_desc()->get_interactivity(), false);
 			display_veh_form(pos.x + offset.x + grid_width / 2 - 1, pos.y + offset.y + total_height + extra_y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, veh_bar_color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_prev() : v->get_desc()->get_basic_constraint_next(), v->get_desc()->get_interactivity(), true);
@@ -1054,7 +1051,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 			{
 				buf.clear();
 				buf.printf("%s: %d%%", translator::translate("Obsolescence increase"), percentage);
-				display_proportional_clip(pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, COL_DARK_BLUE, true);
+				display_proportional_clip(pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, COL_OBSOLETE, true);
 				extra_y += LINESPACE;
 			}
 
@@ -1095,7 +1092,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 			if (upgradable_state)
 			{
 				int found = 0;
-				COLOR_VAL upgrade_state_color = COL_PURPLE;
+				COLOR_VAL upgrade_state_color = COL_UPGRADEABLE;
 				for (int i = 0; i < v->get_desc()->get_upgrades_count(); i++)
 				{
 					if (const vehicle_desc_t* desc = v->get_desc()->get_upgrades(i)) {
@@ -1112,32 +1109,35 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 
 						const uint16 intro_date = desc->is_future(month_now) ? desc->get_intro_year_month() : 0;
 
-						if (intro_date) {
-							upgrade_state_color = MN_GREY0;
-						}
-						else if (desc->is_retired(month_now)) {
-							upgrade_state_color = COL_ROYAL_BLUE;
-						}
-						else if (desc->is_obsolete(month_now, welt)) {
-							upgrade_state_color = COL_DARK_BLUE;
-						}
-						display_veh_form(pos.x + extra_w + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height + extra_y+1, VEHICLE_BAR_HEIGHT * 2, upgrade_state_color, true, desc->get_basic_constraint_prev(), desc->get_interactivity(), false);
-						display_veh_form(pos.x + extra_w + offset.x + D_MARGIN_LEFT + grid_width/2 - 1, pos.y + offset.y + total_height + extra_y+1, VEHICLE_BAR_HEIGHT * 2, upgrade_state_color, true, desc->get_basic_constraint_next(), desc->get_interactivity(), true);
+						if (welt->get_settings().get_show_future_vehicle_info() || (!welt->get_settings().get_show_future_vehicle_info() && desc->is_future(month_now) == 2))
+						{
+							if (intro_date) {
+								upgrade_state_color = MN_GREY0;
+							}
+							else if (desc->is_retired(month_now)) {
+								upgrade_state_color = COL_OUT_OF_PRODUCTION;
+							}
+							else if (desc->is_obsolete(month_now, welt)) {
+								upgrade_state_color = COL_OBSOLETE;
+							}
+							display_veh_form(pos.x + extra_w + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height + extra_y + 1, VEHICLE_BAR_HEIGHT * 2, upgrade_state_color, true, desc->get_basic_constraint_prev(), desc->get_interactivity(), false);
+							display_veh_form(pos.x + extra_w + offset.x + D_MARGIN_LEFT + grid_width / 2 - 1, pos.y + offset.y + total_height + extra_y + 1, VEHICLE_BAR_HEIGHT * 2, upgrade_state_color, true, desc->get_basic_constraint_next(), desc->get_interactivity(), true);
 
-						buf.clear();
-						buf.append(translator::translate(v->get_desc()->get_upgrades(i)->get_name()));
-						if (intro_date) {
-							buf.printf(", %s %s", translator::translate("Intro. date:"), translator::get_year_month(intro_date));
+							buf.clear();
+							buf.append(translator::translate(v->get_desc()->get_upgrades(i)->get_name()));
+							if (intro_date) {
+								buf.printf(", %s %s", translator::translate("Intro. date:"), translator::get_year_month(intro_date));
+							}
+							display_proportional_clip(pos.x + extra_w + offset.x + D_MARGIN_LEFT + grid_width, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, upgrade_state_color, true);
+							extra_y += LINESPACE;
+							// 2nd row
+							buf.clear();
+							money_to_string(number, desc->get_upgrade_price() / 100);
+							buf.printf("%s %s,  ", translator::translate("Upgrade price:"), number);
+							buf.printf(translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), desc->get_running_cost() / 100.0, desc->get_adjusted_monthly_fixed_cost(welt) / 100.0);
+							display_proportional_clip(pos.x + extra_w + offset.x + D_MARGIN_LEFT + grid_width, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+							extra_y += LINESPACE + 2;
 						}
-						display_proportional_clip(pos.x + extra_w + offset.x + D_MARGIN_LEFT + grid_width, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, upgrade_state_color, true);
-						extra_y += LINESPACE;
-						// 2nd row
-						buf.clear();
-						money_to_string(number, desc->get_upgrade_price() / 100);
-						buf.printf("%s %s,  ", translator::translate("Upgrade price:"), number);
-						buf.printf(translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), desc->get_running_cost() / 100.0, desc->get_adjusted_monthly_fixed_cost(welt) / 100.0);
-						display_proportional_clip(pos.x + extra_w + offset.x + D_MARGIN_LEFT + grid_width, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-						extra_y += LINESPACE+2;
 					}
 				}
 			}
@@ -1220,12 +1220,12 @@ void gui_convoy_formaion_t::draw(scr_coord offset)
 			// cars number in this convoy
 			sint8 car_number = cnv->get_car_numbering(veh);
 			if (car_number < 0) {
-				buf.printf("%s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
+				buf.printf("%.2s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
 			}
 			else {
 				buf.append(car_number);
 			}
-			int left = display_proportional_clip(offset.x+2, offset.y, buf, ALIGN_LEFT, v->get_desc()->has_available_upgrade(month_now) ? COL_PURPLE : COL_GREY2, true);
+			int left = display_proportional_clip(offset.x+2, offset.y, buf, ALIGN_LEFT, v->get_desc()->has_available_upgrade(month_now) ? COL_UPGRADEABLE : COL_GREY2, true);
 #ifdef DEBUG
 			if (v->is_reversed()) {
 				display_proportional_clip(offset.x + 2 + left, offset.y-2, "*", ALIGN_LEFT, COL_YELLOW, true);
@@ -1235,9 +1235,9 @@ void gui_convoy_formaion_t::draw(scr_coord offset)
 			}
 #endif
 
-			color = v->get_desc()->is_future(month_now) || v->get_desc()->is_retired(month_now) ? COL_ROYAL_BLUE : COL_DARK_GREEN;
+			color = v->get_desc()->is_future(month_now) || v->get_desc()->is_retired(month_now) ? COL_OUT_OF_PRODUCTION : COL_DARK_GREEN;
 			if (v->get_desc()->is_obsolete(month_now, welt)) {
-				color = COL_DARK_BLUE;
+				color = COL_OBSOLETE;
 			}
 			display_veh_form(offset.x+1, offset.y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_next() : v->get_desc()->get_basic_constraint_prev(), v->get_desc()->get_interactivity(), false);
 			display_veh_form(offset.x + grid_width / 2, offset.y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_prev() : v->get_desc()->get_basic_constraint_next(), v->get_desc()->get_interactivity(), true);

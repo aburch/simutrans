@@ -617,8 +617,9 @@ public:
 	}
 
 	int get_upgrades_count() const { return upgrades; }
-	// returns this vehicle has available upgrades @Ranran
-	bool has_available_upgrade(const uint16 month_now) const;
+	// returns this vehicle has available upgrades
+	// 1 = near future, 2 = already available          @Ranran
+	uint8 has_available_upgrade(const uint16 month_now, bool show_future = true) const;
 
 	bool can_follow_any() const { return trailer_count==0; }
 
@@ -730,10 +731,16 @@ public:
 	*/
 	uint16 get_obsolete_year_month(const class karte_t *welt) const;
 
-	// true if future
-	bool is_future (const uint16 month_now) const
+	// Returns 2 in the near future. Use the judgment of 2 only when control the display of the future
+	uint8 is_future (const uint16 month_now) const
 	{
-		return month_now  &&  (intro_date > month_now);
+		return (!month_now || (intro_date - month_now <= 0)) ? 0 : (intro_date - month_now < 12) ? 2 : 1;
+	}
+
+
+	bool will_end_prodection_soon(const uint16 month_now) const
+	{
+		return month_now && (retire_date - month_now) < 12 && (retire_date - month_now) > 0;
 	}
 
 	/**

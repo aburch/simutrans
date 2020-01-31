@@ -1,0 +1,26 @@
+<title>地形データを読み込む</title>
+
+<h1>地形データを読み込む</h1>
+
+<p>
+新しいマップを作成する際に、地形データをインポートすることができます。<br>
+地形データを読み込みは<a href="new_world.txt">新しいマップの作成</a>ウィンドウの[地形データを読み込む]ボタンから行えます。<br>
+<strong>ファイル形式は.ppmもしくは.bmp形式である必要があります。</strong>
+</p>
+<p>
+■ 地形データの入手方法<br>
+　 新しい地形マップは<br>
+　 http://maps.simutrans.com から取得できます。<br>
+<br>
+　 自作マップの作成の仕方に関する詳しい情報はSimutrans日本語化・解説wiki内「マップ」のページを参照してください。<br>
+　 http://japanese.simutrans.com/
+</p>
+<p>
+■ 読み込み方法<br>
+　 入手／作成した地形ファイルを、<br>
+windowsの場合 : \My Documents\Simutrans\maps<br>
+Linux の場合　: /home/[user]/simutrans/maps<br>
+　 に置いてください。<br>
+<br>
+　 テキストボックスに読み込むファイル名を正しく入力し、[OK]ボタンをクリックすると地形が読み込まれます。
+</p>
