@@ -692,7 +692,7 @@ void simline_t::recalc_status()
 	//		if (has_obsolete) break;
 	//	}
 	//	// now we have to set it
-	//	state_color = has_obsolete ? COL_DARK_BLUE : COL_BLACK;
+	//	state_color = has_obsolete ? COL_OBSOLETE : COL_BLACK;
 	//}
 
 	else if(welt->use_timeline()) 
@@ -729,12 +729,12 @@ void simline_t::recalc_status()
 		// now we have to set it
 		if (has_obsolete_that_can_upgrade)
 		{
-			state_color = COL_PURPLE;
+			state_color = COL_UPGRADEABLE;
 			state = line_has_obsolete_vehicles_with_upgrades;
 		}
 		else if (has_obsolete)
 		{
-			state_color = COL_DARK_BLUE;
+			state_color = COL_OBSOLETE;
 			state = line_has_obsolete_vehicles;
 		}
 	}

@@ -1075,6 +1075,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 {
 	const uint16 total_capacity = desc->get_total_capacity() + (overcrowd ? desc->get_overcrowded_capacity() : 0);
 	bool other_classes_available = false;
+	uint8 goods_restriction = 0;
 	if (total_freight < total_capacity)
 	{
 		schedule_t *schedule = cnv->get_schedule();
@@ -1085,7 +1086,13 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 		uint8 lowest_class_with_nonzero_capacity = 255;
 
 		*skip_vehicles = true;
-
+		if (!fracht[0].empty() && desc->get_mixed_load_prohibition()) {
+			FOR(slist_tpl<ware_t>, const& w, fracht[0])
+			{
+				goods_restriction = w.index;
+				break;
+			}
+		}
 		for (uint8 i = 0; i < number_of_classes; i++)
 		{
 			capacity_this_class = get_accommodation_capacity(i);
@@ -1126,7 +1133,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 			// the need for higher class passengers/mail to use lower class accommodation.
 			if (capacity_left_this_class >= 0)
 			{
-				*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left_this_class, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes, other_classes_available);
+				*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left_this_class, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes, other_classes_available, desc->get_mixed_load_prohibition(), goods_restriction);
 				if (!freight_add.empty())
 				{
 					cnv->invalidate_weight_summary();
@@ -1515,7 +1522,7 @@ void vehicle_t::set_desc(const vehicle_desc_t* value)
 
 route_t::route_result_t vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route)
 {
-	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), is_tall, 0, SINT64_MAX_VALUE, cnv != NULL ? cnv->get_weight_summary().weight / 1000 : get_total_weight());
+	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : ((get_sum_weight() + 499) / 1000), is_tall, 0, SINT64_MAX_VALUE, cnv != NULL ? cnv->get_weight_summary().weight / 1000 : get_total_weight());
 }
 
 route_t::route_result_t vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route)
@@ -2327,7 +2334,7 @@ ribi_t::ribi vehicle_t::get_direction_of_travel() const
 
 void vehicle_t::set_reversed(bool value)
 {
-	if(desc->is_bidirectional() || (cnv != NULL && cnv->get_reversable()))
+	if(desc->is_bidirectional())
 	{
 		reversed = value;
 	}
@@ -2353,6 +2360,21 @@ uint16 vehicle_t::get_reassigned_class(uint8 g_class) const
 {
 	uint16 reassigned_class = class_reassignments[g_class];
 	return reassigned_class;
+}
+
+
+uint8 vehicle_t::get_number_of_accommodation_classes() const
+{
+	uint8 accommodation_classes = 0;
+	for (uint8 i = 0; i < number_of_classes; i++) {
+		if (get_fare_capacity(i)) {
+			accommodation_classes++;
+		}
+	}
+	if (!accommodation_classes && desc->get_overcrowded_capacity()) {
+		accommodation_classes++;
+	}
+	return accommodation_classes;
 }
 
 
@@ -2477,6 +2499,8 @@ uint8 vehicle_t::get_comfort(uint8 catering_level, uint8 g_class) const
 	// Average comfort of seated and standing
 	return ((total_seated_passengers * base_comfort) + (total_standing_passengers * standing_comfort)) / passenger_count;
 }
+
+
 
 void vehicle_t::rdwr(loadsave_t *file)
 {
@@ -3150,7 +3174,18 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				{
 					char reversing_time[64];
 					cnv->snprintf_remaining_reversing_time(reversing_time, sizeof(reversing_time));
-					sprintf( tooltip_text, translator::translate("Reversing. %s left"), reversing_time);
+					switch (cnv->get_terminal_shunt_mode()) {
+						case convoi_t::rearrange:
+						case convoi_t::shunting_loco:
+							sprintf(tooltip_text, translator::translate("Shunting. %s left"), reversing_time);
+							break;
+						case convoi_t::change_direction:
+							sprintf(tooltip_text, translator::translate("Changing direction. %s left"), reversing_time);
+							break;
+						default:
+							sprintf(tooltip_text, translator::translate("Reversing. %s left"), reversing_time);
+							break;
+					}
 					color = COL_YELLOW;
 				}
 				break;
@@ -3330,7 +3365,7 @@ route_t::route_result_t road_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 		}
 	}
 	target_halt = halthandle_t();	// no block reserved
-	const uint32 routing_weight = cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight();
+	const uint32 routing_weight = cnv != NULL ? cnv->get_highest_axle_load() : ((get_sum_weight() + 499) / 1000);
 	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, routing_weight, is_tall, cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000 );
 	if(  r == route_t::valid_route_halt_too_short  )
 	{
@@ -4542,7 +4577,7 @@ route_t::route_result_t rail_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 	target_halt = halthandle_t();	// no block reserved
 	// use length > 8888 tiles to advance to the end of terminus stations
 	const sint16 tile_length = (cnv->get_schedule()->get_current_entry().reverse == 1 ? 8888 : 0) + cnv->get_tile_length();
-	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), is_tall, tile_length, SINT64_MAX_VALUE, cnv ? cnv->get_weight_summary().weight / 1000 : get_total_weight());
+	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : ((get_sum_weight() + 499) / 1000), is_tall, tile_length, SINT64_MAX_VALUE, cnv ? cnv->get_weight_summary().weight / 1000 : get_total_weight());
 	cnv->set_next_stop_index(0);
  	if(r == route_t::valid_route_halt_too_short)
 	{

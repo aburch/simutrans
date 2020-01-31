@@ -8,7 +8,9 @@
 #include "gui_image_list.h"
 #include "../../display/simgraph.h"
 #include "../../simevent.h"
-#include "../../simcolor.h"
+#include "../../simworld.h"
+
+
 
 
 gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t*> *images) :
@@ -18,6 +20,7 @@ gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t*> *images) :
 	this->images = images;
 	use_rows = true;
 	player_nr = 0;
+	focus = -1;
 }
 
 
@@ -65,8 +68,6 @@ int gui_image_list_t::index_at(scr_coord parent_pos, int xpos, int ypos) const
 }
 
 
-
-
 void gui_image_list_t::draw(scr_coord parent_pos)
 {
 	const int rows = (size.h - 2 * BORDER) / grid.y;
@@ -83,16 +84,22 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 	int xpos = xmin;
 	int ypos = ymin;
 
+
+	if (focus >= 0) {
+		// This need to draw first because it will overlap the left vehicle
+		display_blend_wh(xpos + grid.x*focus + 1, ypos + 1, grid.x - 2, grid.y - 2, COL_UPGRADEABLE, 25);
+	}
+
 	FOR(vector_tpl<image_data_t*>, const& iptr, *images) {
 		image_data_t const& idata = *iptr;
 		if(idata.count>=0) {
 
 			// display mark
 			if(idata.lcolor!=EMPTY_IMAGE_BAR) {
-				display_fillbox_wh_clip( xpos + 1, ypos + grid.y - 5, grid.x/2 - 1, 4, idata.lcolor, true);
+				display_veh_form(xpos + 1, ypos + grid.y - VEHICLE_BAR_HEIGHT - 1, grid.x/2 - 1, idata.lcolor, true, idata.basic_coupling_constraint_prev, idata.interactivity, false);
 			}
 			if(idata.rcolor!=EMPTY_IMAGE_BAR) {
-				display_fillbox_wh_clip( xpos + grid.x/2, ypos + grid.y - 5, grid.x - grid.x/2 - 1, 4, idata.rcolor, true);
+				display_veh_form(xpos + grid.x/2, ypos + grid.y - VEHICLE_BAR_HEIGHT - 1, grid.x - grid.x/2 - 1, idata.rcolor, true, idata.basic_coupling_constraint_next, idata.interactivity, true);
 			}
 			if (sel_index-- == 0) {
 				display_ddd_box_clip(xpos, ypos, grid.x, grid.y, MN_GREY4, MN_GREY0);
@@ -103,7 +110,7 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 			display_get_base_image_offset( idata.image, &x, &y, &w, &h );
 
 			// calculate image offsets
-			y = -y + (grid.y-h) - 6; // align to bottom mark
+			y = -y + (grid.y-h) - VEHICLE_BAR_HEIGHT - 2; // align to bottom mark
 			x = -x + 2;              // Add 2 pixel margin
 			//display_base_img(idata.image, xpos + placement.x, ypos + placement.y, player_nr, false, true);
 			display_base_img(idata.image, xpos + x, ypos + y, player_nr, false, true);
@@ -117,11 +124,19 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 				// Let's make a black background to ensure visibility
 				for(int iy = -3; iy < 0; iy++) {
 					for(int ix = 1; ix < 4; ix++) {
-						display_proportional_clip(xpos + ix, ypos + iy, text, ALIGN_LEFT, COL_BLACK, true);
+						display_proportional_clip(xpos + ix, ypos + iy + 1, text, ALIGN_LEFT, COL_BLACK, true);
 					}
 				}
 				// Display the number white on black
-				display_proportional_clip(xpos + 2, ypos - 2, text, ALIGN_LEFT, COL_WHITE, true);
+				display_proportional_clip(xpos + 2, ypos - 1, text, ALIGN_LEFT, COL_WHITE, true);
+			}
+
+			// If necessary, display upgradable symbol: 1=upgradeable, 2=has available upgrade target
+			if (idata.has_upgrade && skinverwaltung_t::upgradable) {
+				if (idata.has_upgrade > 2) {
+					break;
+				}
+				display_color_img(skinverwaltung_t::upgradable->get_image_id(idata.has_upgrade-1), xpos + grid.x - LINESPACE - 1, ypos + grid.y - VEHICLE_BAR_HEIGHT - LINESPACE - 1, 0, false, false);
 			}
 		}
 		// advance x, y to next position

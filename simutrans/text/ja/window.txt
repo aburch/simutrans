@@ -1,0 +1,86 @@
+<title>ゲーム画面</title>
+
+<h1>インターフェースとゲームウィンドウについて</h1>
+
+<p>
+Simutrans is played through the <strong>Game Interface/Window</strong> which provides information about the current game; access to toolbars and game-controls; and a view-of the current game-world.
+</p>
+<p>
+■ タイトルバー<br> 
+タイトルバー左側には現在起動中のSimutrans本体のバージョンとリビジョン、paksetが表示されます。<br>
+右側にはゲーム画面の最小化・最大化と、Simutransを終了するためのボタンがあります。
+</p>
+<p>
+■ メインメニュー<br>
+タイトルバーの直下に、Simutransのプレイ上重要な機能に素早くアクセスするためのアイコンが並んでいます。<br>
+<!-- メニューバーの配置はpaksetに依存するので、Extendedの標準であるBritain-Ex準拠に -->
+<a href="keys.txt">ショートカットキー</a>が設定されているものはアイコン右上にショートカットキーが表示されています。<br>
+　 [Shift]は+で表記され、[Ctrl]は小文字のcで表記されます。<br>
+現在選択中のツールはアイコンが暗くなります。<br>
+現在のプレイヤー（通常プレイヤーか公共プレイヤーか）によって表示されないツールが一部あります。<br>
+
+</p>
+<p>
+▽メインメニューの内容：<br>
+ツールバーの配置と<a href="keys.txt">ショートカットキー</a>の設定はpaksetに依存しますが、menuconf.tabを編集することで変更することも可能です。<br>
+ここではExtendedの標準paksetであるBritain-Exのメインメニューを準拠に解説します。<br><br>
+
+[ 設定変更 ]: <a href="options.txt">設定変更</a>画面を開きます。新しいマップの開始、ゲームのセーブとロードもここから行えます。<br>
+[　マップ　]: <a href="map.txt">マップ</a>ウィンドウを開きます。<br>
+[調査ツール]: <a href="inspection_tool.txt">調査モード</a>に切り替えます。<br>
+[スロープツール]: opens <a href="slopetools.txt">landscape toolbar</a>ツールバーを開きます。<br>
+
+[鉄道ツール]: opens <a href="railtools.txt">?railway/train toolbar</a>ツールバーを開きます。<br>
+- <it>monorail/maglev</it>: <a href="monorailtools.txt">monorail transportation toolbar</a>ツールバーを開きます。<br>
+- <it>tram</it>: opens <a href="tramtools.txt">tram transportation toolbar</a>ツールバーを開きます。<br>
+- <it>truck</it>: opens <a href="roadtools.txt">road transportation toolbar</a>ツールバーを開きます。<br>
+- <em>ship</em>: opens <a href="shiptools.txt">water transportation toolbar</a>ツールバーを開きます。<br>
+- <em>airplane</em>: opens <a href="airtools.txt">air transportation toolbar</a>ツールバーを開きます。<br>
+- <em>red-drop-in-yellow-circle</em> (<em>crane-icon</em> in pak128): opens <a href="special.txt">special construction toolbar</a>ツールバーを開きます。<br>
+- <em>red-cross</em> (<it>bulldozer-icon</it> in pak128): selects <a href="removal_tool.txt">the destroy/remove tool Tool</a>ツールバーを開きます。
+</p>
+
+<p>
+<it>▽管理メニュー</it><br>
+[ 路線編集 ]: <a href="linemanagement.txt">路線編集</a>ウィンドウを開きます。<br>
+[　一覧表　]: <a href="list.txt">一覧表</a>ツールバーを開きます。<br>
+[メッセージ表]: <a href="mailbox.txt">メッセージ</a>ウィンドウを開きます。<br>
+[ 財務情報 ]: <a href="finances.txt">財務情報</a>ウィンドウを開きます。
+</p>
+<p>
+<it>▽その他メニュー</it><br>
+[スクリーンショット]: カメラのアイコン。captures current image of <strong>Game Interface/Window</strong> (without the <em>titlebar</em>) and saves it as a bitmap file in the directory/folder ...simutrans/screeshot/<br>
+<em>（！）</em>ヒント:  Image can also be captured with keypress <a href="keys.txt">[c]キーでも可</a>.
+<br>
+[ 一時停止 ]: マグカップのアイコン。ゲームの一時停止／解除を切り替えます。[p]キーでも可。<br>
+[　早送り　]: ＂>>”のアイコン。selects/deselects Fast Forward. (changes rate at which Time , <em>T</em>, passes in game).<br>
+<em>（！）</em>ヒント:  Fast Forward can alo be selected/deselected with keypress <a href="keys.txt">[W]</a><br>
+IMPORTANT: Game may not run smoothly;<a href="display.txt"><strong>Display Information</strong></a>indicates if the computer can cope with change.<br>
+[　 ？　 ]: ヘルプ画面を開きます。
+
+</p>
+<p>
+<em>the main game window</em> of a portion of the current game-world is displayed below the <em>Icons</em>.<br>
+You can zoom-in and zoom-out the the main game window and also scroll around to view other parts of the game-world using a <a href="mouse.txt">mouse</a> or <a href="keys.txt">keyboard</a>.
+</p>
+<p>
+<em>temporary scroll-bar</em> appears and displays <a href="mailbox.txt">messages</a> at the bottom of the the main game window.<br>
+<em>（！）</em>ヒント:  Click on a message to centre the main game window to a related position.
+</p>
+
+<p>
+■ ウィンドウ下部<br>
+メインゲーム画面の下部のバーでは、現在のプレイ中のゲームに関する情報が提供されます。<br>
+左側から順に:<br>
+<em>date and time</em>: current date and time of game-world, follows a graphic and name of season.<br>
+<em>account balance</em>: current cash available for construction and other costs (purchasing vehicles, maintaining transport infrastructure and operation costs of running vehicles).<br>
+<em>co-ordinates</em>: indicate position of cursor in the main game window. The three figures represent X co-ordinate, Y co-ordinate and height.<br>
+<em>T</em>: indicates the rate at which time passes in the game.<br>
+<em>（！）</em>ヒント:  Use <a href="keys.txt">[.]</a> / [,]  to accelerate/decelerate Time, T ; <a href="display.txt"><strong>Display Information</strong></a>indicates if the computer can cope with change.<br>
+Use of <a href="fast_forward.txt">Fast Forward</a> replaces <em>T</em> with ">>" on bottom-bar.<br>
+【年代設定】: <a href="new_world.txt">年代設定</a>が有効になっているかどうかが確認できます。
+</p>
+
+<p>
+現在アクティブになっているウィンドウは[ESC]キーで閉じることができます。
+</p>

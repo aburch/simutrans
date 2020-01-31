@@ -2363,7 +2363,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 }
 
 
-bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *good_category, sint32 requested_amount, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded, const uint8 g_class, const bool use_lower_classes, bool& other_classes_available)
+bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *good_category, sint32 requested_amount, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded, const uint8 g_class, const bool use_lower_classes, bool& other_classes_available, const bool mixed_load_prohibition, uint8 goods_restriction)
 {
 	bool skipped = false;
 	const uint8 catg_index = good_category->get_catg_index();
@@ -2379,7 +2379,19 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 			if(ware->menge > 0)
 			{
 				i++;
-				if (ware->get_class() >= g_class)
+				if (mixed_load_prohibition) {
+					// this vehicle only load with the same kind of goods initially loaded
+					if (!goods_restriction) {
+						goods_restriction = ware->get_index();
+					}
+					if (ware->get_index() == goods_restriction) {
+						goods_to_check.insert(ware);
+					}
+					else {
+						other_classes_available = true;
+					}
+				}
+				else if (ware->get_class() >= g_class)
 				{
 					// We know at this stage that we cannot load passengers of a *lower* class into higher class accommodation,
 					// but we cannot yet know whether or not to load passengers of a higher class into lower class accommodation.

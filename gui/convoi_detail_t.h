@@ -18,6 +18,7 @@
 #include "components/gui_button.h"
 #include "components/gui_label.h"                  // 09-Dec-2001      Markus Weber    Added
 #include "components/gui_combobox.h"
+#include "components/gui_tab_panel.h"
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
 #include "../gui/simwin.h"
@@ -59,6 +60,52 @@ public:
 	void draw(scr_coord offset);
 };
 
+// content of convoy formation @Ranran
+class gui_convoy_formaion_t : public gui_container_t
+{
+private:
+	convoihandle_t cnv;
+
+	enum { OK=0, out_of_producton=1, obsolete=2, STAT_COLORS  };
+	uint8 status_to_color[STAT_COLORS] { COL_DARK_GREEN, COL_OUT_OF_PRODUCTION, COL_OBSOLETE };
+
+public:
+	gui_convoy_formaion_t(convoihandle_t cnv);
+
+	void set_cnv(convoihandle_t c) { cnv = c; }
+
+	void draw(scr_coord offset);
+};
+
+// content of payload info tab @Ranran
+class gui_convoy_payload_info_t : public gui_container_t
+{
+private:
+	convoihandle_t cnv;
+
+public:
+	gui_convoy_payload_info_t(convoihandle_t cnv);
+
+	void set_cnv(convoihandle_t c) { cnv = c; }
+
+	void draw(scr_coord offset);
+	void display_loading_bar(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, uint16 loading, uint16 capacity, uint16 overcrowd_capacity);
+};
+
+// content of maintenance info tab @Ranran
+class gui_convoy_maintenance_info_t : public gui_container_t
+{
+private:
+	convoihandle_t cnv;
+	bool any_obsoletes;
+
+public:
+	gui_convoy_maintenance_info_t(convoihandle_t cnv);
+
+	void set_cnv(convoihandle_t c) { cnv = c; }
+
+	void draw(scr_coord offset);
+};
 
 /**
  * Displays an information window for a convoi
@@ -74,16 +121,20 @@ public:
 private:
 
 	gui_scrollpane_t scrolly;
+	gui_scrollpane_t scrolly_formation;
+	gui_scrollpane_t scrolly_payload_info;
+	gui_scrollpane_t scrolly_maintenance;
 	gui_vehicleinfo_t veh_info;
+	gui_convoy_formaion_t formation;
+	gui_convoy_payload_info_t payload_info;
+	gui_convoy_maintenance_info_t maintenance;
+	gui_tab_panel_t tabs;
 
 	convoihandle_t cnv;
 	button_t	sale_button;
 	button_t	withdraw_button;
 	button_t	retire_button;
 	button_t	class_management_button;
-
-	bool any_upgrades;
-	bool any_obsoletes;
 
 public:
 	convoi_detail_t(convoihandle_t cnv);
