@@ -2374,7 +2374,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		}
 	}
 
-	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 17))
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 19))
 	{
 		// Private car route data
 		file->rdwr_bool(private_car_route_finding_in_progress); 

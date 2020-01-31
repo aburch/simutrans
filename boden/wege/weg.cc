@@ -464,7 +464,7 @@ void weg_t::rdwr(loadsave_t *file)
 		degraded = deg;
 #endif
 
-		if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 17))
+		if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 19))
 		{
 			if (file->is_saving())
 			{
