@@ -2037,12 +2037,27 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		}
 		// Search and focus on upgrade targets in convoy
 		if (veh_action == va_upgrade && vec[sel_index]->lcolor == COL_DARK_GREEN) {
-			convoihandle_t cnv = depot_frame->get_convoy();
-			for (uint8 i = 0; i < cnv->get_vehicle_count(); i++) {
-				for (uint16 c = 0; c < cnv->get_vehicle(i)->get_desc()->get_upgrades_count(); c++)
-				{
-					if (veh_type == cnv->get_vehicle(i)->get_desc()->get_upgrades(c)) {
-						convoi.set_focus(i);
+			convoihandle_t cnv;
+			if (depot_frame)
+			{
+				cnv = depot_frame->get_convoy();
+			}
+			else if (replace_frame)
+			{
+				cnv = replace_frame->get_convoy();
+			}
+			if (cnv.is_bound()) {
+				for (uint8 i = 0; i < cnv->get_vehicle_count(); i++) {
+					bool found = false;
+						for (uint16 c = 0; c < cnv->get_vehicle(i)->get_desc()->get_upgrades_count(); c++)
+						{
+							if (veh_type == cnv->get_vehicle(i)->get_desc()->get_upgrades(c)) {
+								convoi.set_focus(i);
+									found = true;
+									break;
+							}
+						}
+					if (found) {
 						break;
 					}
 				}
