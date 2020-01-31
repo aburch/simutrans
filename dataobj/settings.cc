@@ -542,6 +542,8 @@ settings_t::settings_t() :
 
 	path_explorer_time_midpoint = 64;
 	save_path_explorer_data = true;
+
+	show_future_vehicle_info = true;
 }
 
 void settings_t::set_default_climates()
@@ -1807,6 +1809,11 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(path_explorer_time_midpoint); 
 			file->rdwr_bool(save_path_explorer_data); 
 		}
+
+		if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 18))
+		{
+			file->rdwr_bool(show_future_vehicle_info);
+		}
 	}
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -2658,6 +2665,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	path_explorer_time_midpoint = contents.get_int("path_explorer_time_midpoint", path_explorer_time_midpoint); 
 	save_path_explorer_data = contents.get_int("save_path_explorer_data", save_path_explorer_data); 
+
+	show_future_vehicle_info = contents.get_int("show_future_vehicle_information", show_future_vehicle_info);
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.

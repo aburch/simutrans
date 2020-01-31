@@ -2763,6 +2763,8 @@ You have been overdrawn\nfor %i months
 Você está com a conta negativa a %i mêses.
 You have been overdrawn\nfor one month
 Você está com a conta negativa a um mês.
+LOCO_SYM
+L
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

@@ -3621,6 +3621,38 @@ Power output
 発電出力
 Railcar_tab
 気動車
+cd_spec_tab
+　諸元　
+cd_payload_tab
+積載情報
+cd_maintenance_tab
+メンテナンス
+No load setting
+回送（降車専用）に設定されています
+Applied livery scheme: %s
+選択中の塗装スキーム： %s
+LOCO_SYM
+L
+Select vehicles to make up a convoy
+リストから乗り物を選択し、編成を組成してください
+Vehicle bar shape legends:
+乗り物バー凡例：
+helptxt_powered_vehicle
+動力車
+helptxt_unpowered_vehicle
+非動力車
+helptxt_one_direction
+折り返し時に方向転換を必要とする先頭車両
+helptxt_cab_head
+先頭車両
+helptxt_can_be_at_rear
+最後尾車両
+helptxt_intermediate
+中間車両
+%i month
+車齢 %iヶ月
+%i months
+車齢 %iヶ月
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

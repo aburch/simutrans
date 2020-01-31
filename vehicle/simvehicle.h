@@ -545,6 +545,8 @@ public:
 
 	uint16 get_reassigned_class(uint8 g_class) const;
 
+	uint8 get_number_of_accommodation_classes() const;
+
 	/**
 	* Calculate transported cargo total weight in KG
 	* @author Hj. Malthaner
@@ -670,7 +672,7 @@ public:
 	// vehicles in reverse formation.
 	ribi_t::ribi get_direction_of_travel() const;
 
-	uint16 get_sum_weight() const { return (sum_weight + 499) / 1000; }
+	uint32 get_sum_weight() const { return sum_weight; }
 
 	uint16 get_overcrowded_capacity(uint8 g_class) const;
 	// @author: jamespetts

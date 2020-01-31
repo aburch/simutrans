@@ -117,6 +117,15 @@ public:
 		MAX_STATES
 	};
 
+	enum terminal_shunt_mode {
+		wye = 0,
+		rearrange = 1,
+		shunting_loco = 2,
+		change_direction = 3
+	};
+
+	enum { free = 0, head_and_tail = 1, half_intermediate = 2, INTERMEDIATE = 64, both_intermediate = 65, one_sided_partner = 66, unique_partner = 67, COUPLING_FIXED = 128, unconnectable = 255 };
+
 	/**
 	* time, when a convoi waiting for full load will drive on
 	* @author prissi
@@ -1619,6 +1628,24 @@ public:
 			return NULL;
 		}
 	}
+
+	// Returns this convoy's reversing method. (v14.6 - 2019 @Ranran)
+	uint8 get_terminal_shunt_mode() const;
+
+	// return a number numbered by position in convoy. This is affected by the number of locomotives and reversals.
+	// The locomotive on the front side is returned a negative value.
+	sint16 get_car_numbering(uint8 car_no) const;
+
+private:
+	/** Train formation checks
+	 *  v14.6 - 2019 @Ranran
+	 */
+	uint8 get_front_loco_count() const;
+	uint8 check_new_tail(uint8 start) const;
+	uint8 check_need_turntable() const;
+
+	// returns level of coupling constraints between vehicles
+	uint8 check_couple_constraint_level(uint8 car_no, bool rear_side) const;
 };
 
 #endif
