@@ -409,12 +409,23 @@ void weg_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	for(  int type=0;  type<MAX_WAY_STATISTICS;  type++  ) {
-		for(  int month=0;  month<MAX_WAY_STAT_MONTHS;  month++  ) {
+	const uint32 max_stat_types = file->get_extended_version() >= 15 || file->get_extended_revision() >= 19 ? MAX_WAY_STATISTICS : 2;
+	for(uint32 type = 0; type < max_stat_types; type++)
+	{
+		for(uint32 month = 0; month < MAX_WAY_STAT_MONTHS; month++)
+		{
 			sint32 w = statistics[month][type];
 			file->rdwr_long(w);
 			statistics[month][type] = (sint16)w;
-			// DBG_DEBUG("weg_t::rdwr()", "statistics[%d][%d]=%d", month, type, statistics[month][type]);
+		}
+	}
+
+	if (file->is_loading() && file->get_extended_version() < 15 && file->get_extended_revision() < 19)
+	{
+		// Older version - initialise the stopped vehicle statistics
+		for (uint32 month = 0; month < MAX_WAY_STAT_MONTHS; month++)
+		{
+			statistics[month][WAY_STAT_WAITING] = 0;
 		}
 	}
 
@@ -1002,7 +1013,7 @@ if(  get_waytype() == road_wt  ) {
 		}
 }
 
-#if 1
+#ifndef DEBUG_WAY_STATS
 	//buf.append("\n");
 	buf.printf(translator::translate("convoi passed last\nmonth %i\n"), statistics[1][1]);
 #else

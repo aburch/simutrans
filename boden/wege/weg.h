@@ -30,12 +30,11 @@ template <class T> class vector_tpl;
 // maximum number of months to store information
 #define MAX_WAY_STAT_MONTHS 2
 
-// number of different statistics collected
-#define MAX_WAY_STATISTICS 2
-
 enum way_statistics {
-	WAY_STAT_GOODS   = 0, ///< number of goods transported over this way
-	WAY_STAT_CONVOIS = 1  ///< number of convois that passed this way
+	WAY_STAT_GOODS,		///< number of goods transported over this way
+	WAY_STAT_CONVOIS,	///< number of convois that passed this way
+	WAY_STAT_WAITING,	///< Number of vehicles waiting in a traffic jam on this way
+	MAX_WAY_STATISTICS
 };
 
 
