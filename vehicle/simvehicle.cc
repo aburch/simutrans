@@ -3443,7 +3443,14 @@ int road_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	int costs = (max_speed <= max_tile_speed) ? 10 : 40 - (30 * max_tile_speed) / max_speed;
 
 	// assume all traffic is not good ... (otherwise even smoke counts ... )
-	costs += (w->get_statistics(WAY_STAT_CONVOIS)  >  ( 2 << (welt->get_settings().get_bits_per_month()-16) )  );
+	//costs += (w->get_statistics(WAY_STAT_CONVOIS)  >  ( 2 << (welt->get_settings().get_bits_per_month()-16) )  );
+	
+	// Take traffic congestion into account in determining the cost. Use the same formula as for private cars.
+	const uint32 congestion_percentage = w->get_congestion_percentage();
+	if (congestion_percentage)
+	{
+		costs += (costs * congestion_percentage) / 100;
+	}
 
 	// effect of slope
 	if(  gr->get_weg_hang()!=0  ) {
