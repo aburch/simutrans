@@ -5958,7 +5958,7 @@ ribi_t::ribi private_car_destination_finder_t::get_ribi(const grund_t* gr) const
 	return master->get_ribi(gr);
 }
 
-bool private_car_destination_finder_t:: is_target(const grund_t* gr, const grund_t*)
+bool private_car_destination_finder_t::is_target(const grund_t* gr, const grund_t*)
 {
 	if(!gr)
 	{
@@ -6041,7 +6041,7 @@ int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_spe
 		const uint32 congestion_percentage = w->get_congestion_percentage();
 		if (congestion_percentage)
 		{
-			speed = (speed * congestion_percentage) / 100;
+			speed -= (speed * congestion_percentage) / 100;
 			speed = max(4, speed);
 		}
 	}
