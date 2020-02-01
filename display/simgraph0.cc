@@ -248,6 +248,10 @@ void display_fillbox_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLA
 {
 }
 
+void display_veh_form_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool, uint8, uint8, bool CLIP_NUM_DEF_NOUSE)
+{
+}
+
 void display_vline_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
 {
 }
@@ -433,9 +437,6 @@ KOORD_VAL display_proportional_ellipse_rgb(scr_rect, const char *, int, PIXVAL, 
 image_id get_image_count()
 {
 	return 0;
-}
-void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVAL color, bool dirty, uint8 basic_constraint_flags, uint8 interactivity, bool is_rightside, bool reversed  CLIP_NUM_DEF)
-{
 }
 
 #ifdef MULTI_THREAD
