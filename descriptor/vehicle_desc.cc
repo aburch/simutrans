@@ -350,6 +350,8 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(upgrades);
 	chk->input(is_tilting ? 1 : 0);
 	chk->input(mixed_load_prohibition ? 1 : 0);
+	chk->input(basic_constraint_prev);
+	chk->input(basic_constraint_next);
 	chk->input(way_constraints.get_permissive());
 	chk->input(way_constraints.get_prohibitive());
 	chk->input(bidirectional ? 1 : 0);
