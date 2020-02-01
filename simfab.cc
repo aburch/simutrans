@@ -1228,7 +1228,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 							 pos_origin.get_fullstr(), i, ware_name, ware.get_typ()->get_name(), desc->get_supplier(i)->get_input_type()->get_name());
 				}
 			}
-			guarded_free(const_cast<char *>(ware_name));
+			free(const_cast<char *>(ware_name));
 		}
 	}
 	if(  desc  &&  input_count != desc->get_supplier_count() ) {
@@ -1317,7 +1317,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 							 pos_origin.get_fullstr(), i, ware_name, ware.get_typ()->get_name(), desc->get_product(i)->get_output_type()->get_name());
 				}
 			}
-			guarded_free(const_cast<char *>(ware_name));
+			free(const_cast<char *>(ware_name));
 		}
 	}
 	if(  desc  &&  output_count != desc->get_product_count()) {
@@ -1553,7 +1553,7 @@ void fabrik_t::smoke() const
 	}
 	// maybe sound?
 	if(  desc->get_sound()!=NO_SOUND  &&  welt->get_ticks()>last_sound_ms+desc->get_sound_interval_ms()  ) {
-		welt->play_sound_area_clipped( get_pos().get_2d(), desc->get_sound() );
+		welt->play_sound_area_clipped( get_pos().get_2d(), desc->get_sound(), FACTORY_SOUND );
 	}
 }
 
@@ -2626,12 +2626,6 @@ void fabrik_t::verteile_waren(const uint32 product)
 				}
 			}
 			else {
-				// overflowed with our own ware and we have still nearly full stock
-//				if(  output[product].menge>= (3 * output[product].max) >> 2  ) {
-					/* Station too full, notify player */
-//					best_halt->bescheid_station_voll();
-//				}
-// for now report only serious overcrowding on transfer stops
 				return;
 			}
 		}

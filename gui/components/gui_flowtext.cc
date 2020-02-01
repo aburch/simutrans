@@ -355,7 +355,7 @@ void gui_flowtext_intern_t::draw(scr_coord offset)
 
 scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_max_width)
 {
-	const int width = size.w;
+	const int width = size.w-D_MARGIN_LEFT-D_MARGIN_RIGHT;
 
 	slist_tpl<hyperlink_t>::iterator link = links.begin();
 
@@ -392,7 +392,7 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 						if(  xpos!=last_link_x  &&  link_it  ) {
 							if(  doit  ) {
 								// close the link
-								display_fillbox_wh_clip_rgb( offset.x + last_link_x, ypos + offset.y + LINESPACE-1, xpos-last_link_x, 1, color, false);
+								display_fillbox_wh_clip_rgb( offset.x + last_link_x + D_MARGIN_LEFT, ypos + offset.y + LINESPACE-1, xpos-last_link_x, 1, color, false);
 							}
 							extra_pixel = 1;
 						}
@@ -409,12 +409,12 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 
 				if (doit) {
 					if (double_it) {
-						display_proportional_clip_rgb(offset.x + xpos + 1, offset.y + ypos + 1, i.text.c_str(), 0, double_color, false);
+						display_proportional_clip_rgb(offset.x + xpos + 1 + D_MARGIN_LEFT, offset.y + ypos + 1, i.text.c_str(), 0, double_color, false);
 						extra_pixel |= 1;
 					}
-					scr_coord_val width = display_proportional_clip_rgb(offset.x + xpos, offset.y + ypos, i.text.c_str(), 0, color, false);
+					scr_coord_val width = display_proportional_clip_rgb(offset.x + xpos + D_MARGIN_LEFT, offset.y + ypos, i.text.c_str(), 0, color, false);
 					if(  link_it  ) {
-						display_fillbox_wh_clip_rgb( offset.x + last_link_x, ypos + offset.y + LINESPACE-1, (xpos+width)-last_link_x, 1, color, false);
+						display_fillbox_wh_clip_rgb( offset.x + last_link_x + D_MARGIN_LEFT, ypos + offset.y + LINESPACE-1, (xpos+width)-last_link_x, 1, color, false);
 						last_link_x = xpos+width;
 					}
 				}
@@ -430,7 +430,7 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 				if(  last_link_x<xpos  &&  link_it  ) {
 					if(  doit  ) {
 						// close the link
-						display_fillbox_wh_clip_rgb( offset.x + last_link_x, ypos + offset.y + LINESPACE-1, xpos-last_link_x, 1, color, false);
+						display_fillbox_wh_clip_rgb( offset.x + last_link_x + D_MARGIN_LEFT, ypos + offset.y + LINESPACE-1, xpos-last_link_x, 1, color, false);
 					}
 					extra_pixel = 1;
 				}
@@ -466,8 +466,8 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 			case ATT_H1_END:
 				double_it = false;
 				if(doit) {
-					display_fillbox_wh_clip_rgb(offset.x + 1, offset.y + ypos + LINESPACE,   xpos, 1, color,        false);
-					display_fillbox_wh_clip_rgb(offset.x,     offset.y + ypos + LINESPACE-1, xpos, 1, double_color, false);
+					display_fillbox_wh_clip_rgb(offset.x + 1 + D_MARGIN_LEFT, offset.y + ypos + LINESPACE,   xpos, 1, color,        false);
+					display_fillbox_wh_clip_rgb(offset.x + D_MARGIN_LEFT,     offset.y + ypos + LINESPACE-1, xpos, 1, double_color, false);
 				}
 				xpos = 0;
 				extra_pixel = 0;
@@ -512,10 +512,10 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 		ypos += LINESPACE;
 	}
 	if(dirty) {
-		mark_rect_dirty_wc( offset.x, offset.y, offset.x+max_width, offset.y+ypos );
+		mark_rect_dirty_wc( offset.x + D_MARGIN_LEFT, offset.y, offset.x+max_width + D_MARGIN_LEFT, offset.y+ypos );
 		dirty = false;
 	}
-	return scr_size( return_max_width ? max_width : text_width, ypos);
+	return scr_size( (return_max_width ? max_width : text_width)+D_MARGIN_LEFT+D_MARGIN_RIGHT, ypos);
 }
 
 

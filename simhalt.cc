@@ -2457,7 +2457,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 		capacity[0] = 0;
 		capacity[1] = 0;
 		capacity[2] = 0;
-		enables &= CROWDED;	// clear flags
+		enables = 0;
 		station_type = invalid;
 	}
 
@@ -2561,7 +2561,7 @@ void haltestelle_t::recalc_station_type()
 	capacity[0] = 0;
 	capacity[1] = 0;
 	capacity[2] = 0;
-	enables &= CROWDED;	// clear flags
+	enables = 0;
 	station_type = invalid;
 
 	// iterate over all tiles
@@ -2914,7 +2914,7 @@ void haltestelle_t::recalc_status()
 			const uint32 ware_sum = get_ware_summe(wtyp);
 			total_sum += ware_sum;
 			if(ware_sum>max_ware) {
-				status_bits |= ware_sum > max_ware + 32 /*|| enables & CROWDED*/ ? 2 : 1; // for now report only serious overcrowding on transfer stops
+				status_bits |= ware_sum > max_ware + 32 ? 2 : 1; // for now report only serious overcrowding on transfer stops
 				overcrowded[wtyp->get_index()/8] |= 1<<(wtyp->get_index()%8);
 			}
 		}

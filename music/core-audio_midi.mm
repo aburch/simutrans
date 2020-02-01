@@ -51,9 +51,11 @@ void dr_play_midi(int const key)
 
 void dr_stop_midi()
 {
-	// We assume the 'nowPlaying' key holds the most recently started track.
-	QTMovie* const m = [movies objectAtIndex: nowPlaying];
-	[m stop];
+	if(  nowPlaying!= -1  ) {
+		// We assume the 'nowPlaying' key holds the most recently started track.
+		QTMovie* const m = [movies objectAtIndex: nowPlaying];
+		[m stop];
+	}
 }
 
 

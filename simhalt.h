@@ -69,7 +69,7 @@ class ware_t;
 class haltestelle_t
 {
 public:
-	enum station_flags { NOT_ENABLED=0, PAX=1, POST=2, WARE=4, CROWDED=8 };
+	enum station_flags { NOT_ENABLED=0, PAX=1, POST=2, WARE=4};
 
 	//13-Jan-02     Markus Weber    Added
 	enum stationtyp {invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256 }; //could be combined with or!
@@ -596,7 +596,7 @@ public:
 	koord get_init_pos() const { return init_pos; }
 	koord get_basis_pos() const;
 	koord3d get_basis_pos3d() const;
-	
+
 public:
 	void recalc_basis_pos();
 
@@ -795,9 +795,6 @@ public:
 	 * @author hsiegeln
 	 */
 	sint64 get_finance_history(int month, int cost_type) const { return financial_history[month][cost_type]; }
-
-	// flags station for a crowded message at the beginning of next month
-//	void bescheid_station_voll() { enables |= CROWDED; status_color = color_idx_to_rgb(COL_RED); }  // for now report only serious overcrowding on transfer stops
 
 	/* marks a coverage area
 	* @author prissi
