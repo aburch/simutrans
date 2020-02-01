@@ -1,0 +1,91 @@
+<title>Signals FAQ</title>
+
+<h1>Signals FAQ</h1><br><br><br>
+
+<em>How to build a signal?</em><br>
+Many signals need to be connected to a signalbox. Therefore you have to build a signalbox first in order to see what signals you can build with that signalbox. The signals will stay hidden in the menu until "their" signalbox has been built and selected on the map.<br>
+* To build a signal, first choose the appropriate signalbox in the menu and build it somewhere near the track<br>
+* Alternatively, open the info window for an existing signalbox on the map.<br>
+* When the signalbox is built or selected, it will automatically be set to the "default" signalbox from which to build new signals<br>
+* The menu should automatically update with the signals that can be built with this signalbox<br>
+* Now build the signal you want. Take into account the max distance both for the signalbox and the signal as well as the signalcount in the signalbox<br>
+<br>
+NOTE: It is currently not possible in game to identify which signals a signalbox can build, without first building the signalbox!<br>
+<br><br>
+
+<em>How to reassign existing signals to a different signalbox?</em><br>
+* Open the "Special Construction Tools" dialog<br>
+* Click the "Reassign Signal" tool<br>
+* Click on the signal you want to reassign to a new signalbox<br>
+* Click on the signalbox you want the signal to reassign to<br><br>
+Alternatively, you can reassign all signals from one signalbox to another:<br>
+* Open the "Special Construction Tools" dialog and click the "Reassign Signal" tool<br>
+* Click on the signalbox from which you want to move all signals from<br>
+* Click on the signalbox you want all of the signals to be moved to<br>
+* A message will show up if any of the transfers did not succeed<br>
+<br><br>
+
+<em>How to create a directional reservation (BLUE reservation)</em><br>
+It is only certain signals or combinations of signals that will create a directional reservation.<br>
+These kinds of signals will create the directional reservation directly:<br>
+* <it>Longblock signals</it><br>
+* <it>Station signals</it> using <it>Time interval with telegraph</it> working method<br><br>
+
+These combinations of signals will also create a directional reservation:<br>
+* <it>Track circuit</it> signal followed by a bidirectional <it>Track circuit</it> signal<br>
+* <it>Cab signalling</it> signal followed by a bidirectional <it>Cab signalling</it> signal<br>
+* <it>Moving block</it> signal followed by a bidirectional <it>Moving block</it> signal<br><br>
+
+Directional reservations will end at:<br>
+* Oneway signs<br>
+* Choose signals<br>
+* Signals with a working method different than the four mentioned above<br>
+<br><br>
+
+
+<em>What does the aspects mean?</em><br>
+The meaning of some aspects will change slightly dependent on the working method, however for most signals:<br>
+1 - <it>DANGER</it>: Stop in front of signal<br>
+2 - <it>CLEAR</it>: Proceed. If signal is a multiple aspect signal, also expect all next signal(s) to be at clear (according to how many blocks it can foresee)<br>
+3 - <it>CAUTION</it>: Proceed, but next signal will be at danger<br>
+4 - <it>PRELIMINARY CAUTION</it>: Proceed, but second next signal will be at danger<br>
+5 - <it>ADVANCED CAUTION</it>: Proceed, buth third next signal will be at danger<br><br>
+
+For Time interval signals and Time interval with telegraph signals the meaning will change slightly:<br>
+1 - <it>DANGER</it>: Less than 5 minutes since last train: Stop<br>
+2 - <it>CAUTION</it>: More than 5 minutes since last train: Proceed at half line speed or half the signal's sighting speed, whichever highest<br>
+3 - <it>CLEAR</it>: More than 10 minutes since last train: Proceed at full speed<br><br>
+
+Choose signals will have a combination of the above aspects and some specific choose signals aspects:<br>
+1 - <it>(main route)</it>: Proceed to the scheduled platform / Proceed via the main route through the station<br>
+2 - <it>(subsidiarey route)</it>: Scheduled platform occupied, proceed to an alternate platform / Main route through station occupied, proceed via an alternate route<br><br>
+
+Permissive signals will have this specific aspect in addition to the above:<br>
+1 - <it>CALL ON</it>: Track ahead is occupied, proceed with "Drive by sight" working method<br><br>
+
+Distant signals have no danger aspect. Instead they have these two aspects:<br>
+1 - <it>CAUTION</it>: Expect next signal to be at danger<br>
+2 - <it>CLEAR</it>: Expect next signal to be at clear. For <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> signals, it means that all signals connected to the same signalbox ahead are clear<br>
+<br><br>
+
+<em>What is a "Vane" signal?</em><br>
+A Vane signal is another name for a stop signal that uses either the <a href="signals_wm_time_interval.txt"><em>Time interval</em></a> or the <a href="signals_wm_time_interval_with_telegraph.txt"><em>Time interval with telegraph</em></a> working method.<br>
+<br><br>
+
+<em>How to see what features a signal has?</em><br>
+The most important features of a signal are listed when you hover with the mouse over the signal icon. To see all features of a signal, open the signals info window when it is built.<br>
+<br><br>
+
+<em>Where to place a Station signal?</em><br>
+Station signals are designed to completely eliminate the need of any other signal at the platform ends of a station. Therefore, it can be placed anywhere on any platform and it will still work for all platforms in all directions.<br>
+For time interval (with/without telegraph) the station signal will combine the time since departure along all tracks for a given direction.<br>
+Note that the station signal does not remove the potential need for a choose signal.<br>
+<br><br>
+
+<em>What is a passing loop?</em><br>
+A passing loop is a term for a small loop of track where trains can pass each other. They are typically used at strategic locations on single track lines, where trains are anticipated to meet, and therefore need to pass each other.<br>
+Typically, each side of the passing loop is unidirectional, and a signal of appropriate working method is placed at each end of the passing loop, preventing the train to enter the line, blocking the oncoming train.<br>
+A good signal layout does not send a train away from one passing loop unless it can also reserve (part of) the following passing loop.<br>
+
+
+<br><br><br><br>
