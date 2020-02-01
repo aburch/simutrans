@@ -162,7 +162,6 @@ public:
 	 */
 	static void cityrules_rdwr(loadsave_t *file);
 	static void electricity_consumption_rdwr(loadsave_t *file);
-	void set_check_road_connexions(bool value) { check_road_connexions = value; }
 
 	static void set_cluster_factor( uint32 factor ) { stadt_t::cluster_factor = factor; }
 	static uint32 get_cluster_factor() { return stadt_t::cluster_factor; }
@@ -475,7 +474,6 @@ private:
 	void bewerte_strasse(koord pos, sint32 rd, const rule_t &regel);
 	void bewerte_haus(koord pos, sint32 rd, const rule_t &regel);
 
-	bool check_road_connexions;
 	bool private_car_route_finding_in_progress = false;
 
 	sint32 traffic_level;

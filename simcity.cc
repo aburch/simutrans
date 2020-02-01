@@ -1710,7 +1710,6 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 
 	calc_traffic_level();
 
-	check_road_connexions = false;
 	welt->add_queued_city(this);
 
 	number_of_cars = 0;
@@ -1741,8 +1740,6 @@ stadt_t::stadt_t(loadsave_t* file) :
 	rdwr(file);
 
 	calc_traffic_level();
-
-	check_road_connexions = false;
 }
 
 
@@ -2056,16 +2053,15 @@ void stadt_t::rdwr(loadsave_t* file)
 
 	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 26)
 	{
-		// This load/save block used to be further down, but has been mvoed here
+		// This load/save block used to be further down, but has been moved here
 		// because it is necessary to load outgoing_private_cars before the city
 		// growth factors.
 
-		file->rdwr_bool(check_road_connexions);
-		if (file->get_extended_version() < 15 || file->get_extended_revision() < 17)
+		if ((file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 19)))
 		{
-			// Recheck road connexions when loading older saved games to make sure
-			// that the private car routes are updated.
-			check_road_connexions = true;
+			// This was check_road_connexions
+			bool dummy;
+			file->rdwr_bool(dummy);
 		}
 
 		// Existing values now saved in order to prevent network desyncs
@@ -2164,7 +2160,12 @@ void stadt_t::rdwr(loadsave_t* file)
 	if(file->get_extended_version() >=9 && file->get_version() >= 110000 && file->get_extended_version() < 13 && file->get_extended_revision() < 26)
 	{
 		// This load/save block has been moved upwards because it is necessary to load outgoing_private_cars before setting the growth factors, which is done above.
-		file->rdwr_bool(check_road_connexions);
+		if ((file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 19)))
+		{
+			// This was check_road_connexions
+			bool dummy;
+			file->rdwr_bool(dummy);
+		}
 		if(file->get_extended_version() < 11)
 		{
 			// Was private_car_update_month
@@ -2367,11 +2368,6 @@ void stadt_t::rdwr(loadsave_t* file)
 
 			file->rdwr_long(number_of_cars);
 		}
-
-		else
-		{
-			check_road_connexions = false;
-		}
 	}
 
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 19))
@@ -2504,11 +2500,6 @@ void stadt_t::finish_rd()
 
 	//next_step = 0;
 	next_growth_step = 0;
-
-	if(check_road_connexions)
-	{
-		welt->add_queued_city(this);
-	}
 }
 
 
@@ -2656,11 +2647,6 @@ void stadt_t::step(uint32 delta_t)
 	// is it time for the next step?
 	next_growth_step += delta_t;
 
-	if (check_road_connexions)
-	{
-		welt->add_queued_city(this);
-	}
-
 	while(stadt_t::city_growth_step < next_growth_step) 
 	{
 		calc_growth();
@@ -2773,8 +2759,6 @@ void stadt_t::check_all_private_car_routes()
 	road_vehicle_t checker;
 	private_car_destination_finder_t finder(welt, &checker, this);
 	private_car_route.find_route(welt, origin, &finder, welt->get_citycar_speed_average(), ribi_t::all, 1, 1, 1, depth, false, route_t::private_car_checker);
-
-	check_road_connexions = false;
 }
 
 void stadt_t::calc_traffic_level()

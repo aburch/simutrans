@@ -1628,7 +1628,6 @@ void *check_road_connexions_threaded(void *args)
 			}
 
 			city->check_all_private_car_routes();
-			city->set_check_road_connexions(false);
 
 			simthread_barrier_wait(&private_car_barrier);
 		}
