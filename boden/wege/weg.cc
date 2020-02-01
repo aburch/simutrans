@@ -1016,6 +1016,21 @@ if(  get_waytype() == road_wt  ) {
 #ifndef DEBUG_WAY_STATS
 	//buf.append("\n");
 	buf.printf(translator::translate("convoi passed last\nmonth %i\n"), statistics[1][1]);
+#if 0
+	if (desc->get_waytype() == road_wt)
+	{
+		buf.printf("\n");
+		buf.printf(translator::translate("Vehicles stopped here last month: %i"), statistics[1][2]);
+		buf.printf("\n");
+	}
+#else
+	if (desc->get_waytype() == road_wt)
+	{
+		buf.printf("\n");
+		buf.printf(translator::translate("Congestion: %i%%"), get_congestion_percentage()); // TODO: Set up this text for translating
+		buf.printf("\n");
+	}
+#endif
 #else
 	// Debug - output stats
 	buf.append("\n");

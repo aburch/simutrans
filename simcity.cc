@@ -6014,10 +6014,15 @@ int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_spe
 	last_tile_speed = max_tile_speed;
 
 	sint32 speed = min(max_speed, max_tile_speed);
+
 #ifndef FORBID_CONGESTION_EFFECTS
-	if(city)
+	//if(city)
+	if(false) 
 	{
-		// If this is in a city, take account of congestion when calculating
+		// This was the old system, but this is probably not much use for calculating routing cost. 
+		// The basic algorithm is retained for intra-city journeys in the passenger generation code.
+
+		// If this is in a city, take account of the city's congestion when calculating
 		// the speed.
 
 		// Congestion here is assumed to be on the percentage basis: i.e. the percentage of extra time that
@@ -6029,7 +6034,19 @@ int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_spe
 		speed = (speed * 100) / congestion;
 		speed = max(4, speed);
 	}
+	else
+	{
+		// Otherwise, use individual tile congestion.
+		// TODO: Have player vehicles as well as private cars log congstion
+		const uint32 congestion_percentage = w->get_congestion_percentage();
+		if (congestion_percentage)
+		{
+			speed = (speed * congestion_percentage) / 100;
+			speed = max(4, speed);
+		}
+	}
 #endif
+	
 	// Time = distance / speed
 	int mpt;
 

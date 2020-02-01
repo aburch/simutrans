@@ -460,6 +460,7 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 	this->target = target;
 	calc_image();
 	origin = gr ? gr->get_pos().get_2d() : koord::invalid;
+	last_tile_marked_as_stopped = koord3d::invalid;
 }
 
 
@@ -474,6 +475,20 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 		// stuck in traffic jam
 		uint32 old_ms_traffic_jam = ms_traffic_jam;
 		ms_traffic_jam += delta_t;
+		if (ms_traffic_jam >= 1000)
+		{
+			// If stopped for long enough, mark the tile as congested
+			if (get_pos() != last_tile_marked_as_stopped)
+			{
+				grund_t* const gr_this = welt->lookup(get_pos());
+				weg_t* const way = gr_this ? gr_this->get_weg(road_wt) : NULL;
+				last_tile_marked_as_stopped = get_pos();
+				if (way)
+				{
+					way->increment_traffic_stopped_counter();
+				}
+			}
+		}
 		// check only every 1.024 s if stopped
 		if(  (ms_traffic_jam>>10) != (old_ms_traffic_jam>>10)  ) {
 			pos_next_next = koord3d::invalid;
@@ -594,6 +609,15 @@ void private_car_t::rdwr(loadsave_t *file)
 		ms_traffic_jam = 0;
 		target = koord::invalid;
 		origin = koord::invalid;
+	}
+
+	if (file->get_extended_version() >= 15 || file->get_extended_revision() >= 19)
+	{
+		last_tile_marked_as_stopped.rdwr(file); 
+	}
+	else if (file->is_loading())
+	{
+		last_tile_marked_as_stopped = koord3d::invalid; 
 	}
 
 	// do not start with zero speed!

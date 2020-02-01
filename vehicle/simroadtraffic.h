@@ -117,6 +117,8 @@ private:
 
 	uint32 ms_traffic_jam;
 
+	koord3d last_tile_marked_as_stopped;
+
 	grund_t* hop_check();
 
 	void calc_disp_lane();
