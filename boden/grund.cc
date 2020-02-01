@@ -228,7 +228,7 @@ void grund_t::rdwr(loadsave_t *file)
 		file->rdwr_str(text);
 		if(text) {
 			set_text(text);
-			guarded_free(const_cast<char *>(text));
+			free(const_cast<char *>(text));
 		}
 	}
 

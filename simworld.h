@@ -648,7 +648,7 @@ private:
 	 * Internal saving method.
 	 * @author Hj. Malthaner
 	 */
-	void save(loadsave_t *file,bool silent);
+	void save(loadsave_t *file, bool silent);
 
 	/**
 	 * Internal loading method.
@@ -1765,9 +1765,9 @@ public:
 	 * The sound plays lower when the position is outside the visible region.
 	 * @param pos Position at which the event took place.
 	 * @param idx Index of the sound
-	 * @author Hj. Malthaner
+	 * @param idx t is the type of sound (for selective muting etc.)
 	 */
-	bool play_sound_area_clipped(koord k, uint16 idx) const;
+	bool play_sound_area_clipped(koord k, uint16 idx, sound_type_t t) const;
 
 	void mute_sound( bool state ) { is_sound = !state; }
 
@@ -1781,7 +1781,7 @@ public:
 	 * @param Filename name of the file to write.
 	 * @author Hj. Malthaner
 	 */
-	void save(const char *filename, const loadsave_t::mode_t savemode, const char *version, bool silent);
+	void save(const char *filename, bool autosave, const char *version, bool silent);
 
 	/**
 	 * Loads a map from a file.

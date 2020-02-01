@@ -47,6 +47,9 @@ USE_UPNP = @upnp@
 # using freetype for Truetype font support
 USE_FREETYPE = @freetype@
 
+# using zstd compression
+USE_ZSTD = @zstd@
+
 # use static linking (to be at least somewhat portable)
 STATIC = 1
 

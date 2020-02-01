@@ -178,7 +178,7 @@ void help_frame_t::open_help_on( const char *helpfilename )
 
 
 // just loads a whole help file as one chunk
-static const char *load_text(char const* const filename )
+static char *load_text(char const* const filename )
 {
 	std::string file_prefix= std::string("text") + PATH_SEPARATOR;
 	std::string fullname = file_prefix + translator::get_lang()->iso + PATH_SEPARATOR + filename;
@@ -229,7 +229,7 @@ static const char *load_text(char const* const filename )
 					} while(  *src++  );
 					*dest = 0;
 				}
-				guarded_free( buf );
+				free( buf );
 				buf = (char *)buf2;
 			}
 		}
@@ -343,9 +343,9 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 	}
 	else if(  strcmp( filename, "general.txt" )!=0  ) {
 		// and the actual help text (if not identical)
-		if(  const char *buf = load_text( filename )  ) {
+		if(  char *buf = load_text( filename )  ) {
 			set_text( buf, resize_frame );
-			guarded_free(const_cast<char *>(buf));
+			free(buf);
 		}
 		else {
 			set_text( "<title>Error</title>Help text not found", resize_frame );
@@ -353,13 +353,13 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 	}
 	else {
 		// default text when opening general help
-		if(  const char *buf = load_text( "about.txt" )  ) {
+		if(  char *buf = load_text( "about.txt" )  ) {
 			set_text( buf, resize_frame );
-			guarded_free(const_cast<char *>(buf));
+			free(buf);
 		}
-		else if(  const char *buf = load_text( "simutrans.txt" )  ) {
+		else if(  char *buf = load_text( "simutrans.txt" )  ) {
 			set_text( buf, resize_frame );
-			guarded_free(const_cast<char *>(buf));
+			free(buf);
 		}
 		else {
 			set_text( "", resize_frame );

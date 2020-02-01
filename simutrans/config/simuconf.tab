@@ -41,11 +41,7 @@
 #pak_file_path = pak.winter/
 #pak_file_path = pak.ttd/
 #
-#################################program stuff##################################
-
-# You can use a system font. BUT you must specify the whole path to it!
-# This can be only set in the user defined simuconf.tab
-#fontname=C:\Windows\fonts\arial.ttf
+#################################routing stuff##################################
 
 # maximum number of position tested during a way search
 # 100000 should be ok even for large maps with ships
@@ -108,6 +104,10 @@ way_slope=10
 way_tunnel=8
 way_max_bridge_len=15
 way_leaving_road=25
+
+# if defined, the default tool will try to calculate straight ways (like OpenTTD)
+straight_way_without_control = 0
+
 
 ###############################passenger stuff##############################
 # also pak dependent
@@ -223,14 +223,15 @@ factory_enforce_demand = 1
 
 ##################################display stuff#################################
 
+# You can use a system font. BUT you must specify the whole path to it!
+# This can be only set in the user defined simuconf.tab
+#fontname=C:\Windows\fonts\arial.ttf
+
 # if run on a mobile device, setting hide_keyboard=1 will only show the keyboard
 # when there is text to input in a dialog. Other than that textinput will not
 # be possible (no keyboard short cuts).
 # Currently only supported with SDL2
 hide_keyboard = 0
-
-# if defined, the default tool will try to calculate straight ways (like OpenTTD)
-straight_way_without_control = 0
 
 # player color can be fixed for several players or set totally random
 # in the latter case each player will get unique but random coloring
@@ -243,7 +244,7 @@ random_player_colors = 0
 # and there are 0...15 player in the game
 player_color[1] = 1,4
 
-# Should either account (default) or net wealth be shown blow the screen?
+# Should either account (default) or net wealth be shown below the screen?
 player_finance_display_account = 1
 
 # remove companies without convoys after x month (0=off, 6=default)
@@ -251,18 +252,6 @@ remove_dummy_player_months = 6
 
 # remove password of abandoned companies (without any building activity) after x month (0=off default)
 unprotect_abandoned_player_months = 0
-
-# how long is a diagonal (512: factor 2=1024/512, old way, 724: sqrt(2)=1024/724
-# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
-#diagonal_multiplier = 724
-
-# new height for old slopes when old single height savegame loaded with double height pak (default 1=single height, 2=double height)
-# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
-#height_conversion_factor = 1
-
-# how height is a tile in z-direction (default 16, TTD 8)
-# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
-#tile_height = 16
 
 # (=1) drive on the left side of the road
 drive_left = 0
@@ -460,10 +449,20 @@ allow_merge_distant_halt=2
 # how many months of maintainance the make public tool costs
 #cost_make_public_months=60
 
-###################################other stuff##################################
+##################################pak set stuff#################################
 #
-# also pak dependent
-#
+
+# how long is a diagonal (512: factor 2=1024/512, old way, 724: sqrt(2)=1024/724
+# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
+#diagonal_multiplier = 724
+
+# new height for old slopes when old single height savegame loaded with double height pak (default 1=single height, 2=double height)
+# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
+#height_conversion_factor = 1
+
+# how height is a tile in z-direction (default 16, TTD 8)
+# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
+#tile_height = 16
 
 # minimum/maximum allowed height level for the map (too high might cause display errors)
 # Also those number must no be the same
@@ -524,6 +523,7 @@ allow_merge_distant_halt=2
 #  please be careful in changing them, I spent lot of time finding optimals.
 #  those values have impact on no. of spawned trees -> memory consumption
 #
+
 # Number of trees on square 2 - minimal usable, 3 good, 4 very nice looking
 max_no_of_trees_on_square = 3
 
@@ -597,6 +597,7 @@ bits_per_month = 20
 # compress savegames?
 # "binary" means uncompressed, "zipped" means compressed
 # "bzip2" uses another compression algorithm
+# "zstd" may be available too
 # other options are "xml", "xml_zipped" and "xml_bzip2"
 # xml detects more errors of broken savegames but files are much larger
 # bzip2 savegames are smaller than zipped but saving/loading takes longer
@@ -604,6 +605,13 @@ saveformat = bzip2
 
 # Alternate format for faster autosaves
 autosaveformat = zipped
+
+# zip and zstd allow for finetuning their packaging versus speed with and additional
+# compression level parameter.
+# Zip form 1(fastest) to 9(smallest) with 6 a good compromise
+# zstd goes form -10 to 30 or so. Meaningful are mostly single digit values
+save_level = 6
+autosave_level = 1
 
 # autosave every x months (0=off)
 autosave = 0

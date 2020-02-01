@@ -47,7 +47,7 @@ else ifeq ($(OSTYPE),mingw)
     CFLAGS  += -static
     LDFLAGS += -static-libgcc -static-libstdc++ -static
   endif
-  LDFLAGS   += -pthread -Wl,--large-address-aware
+  LDFLAGS   += -pthread -Wl,--large-address-aware -Wno-deprecated-copy
   SOURCES   += simsys_w32_png.cc
   CFLAGS    += -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
   LIBS      += -lmingw32 -lgdi32 -lwinmm -lws2_32 -limm32
@@ -155,6 +155,13 @@ ifdef USE_UPNP
         LDFLAGS += -Wl,-Bstatic
       endif
     endif
+  endif
+endif
+
+ifdef USE_ZSRD
+  ifeq ($(shell expr $(USE_UPNP) \>= 1), 1)
+    CFLAGS      += -DUSE_ZSTD
+    LDFLAGS     += -lzstd
   endif
 endif
 
@@ -600,8 +607,8 @@ ifeq ($(BACKEND),sdl2)
 
   ifeq ($(SDL2_CONFIG),)
     ifeq ($(OSTYPE),mac)
-      SDL_CFLAGS  := -I/Library/Frameworks/SDL2.framework/Headers
-      SDL_LDFLAGS := -framework SDL2
+      SDL_CFLAGS  := -F /Library/Frameworks -I/Library/Frameworks/SDL2.framework/Headers 
+      SDL_LDFLAGS := -framework SDL2 -F /Library/Frameworks -I /Library/Frameworks/SDL2.framework/Headers 
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL2 -Dmain=SDL_main
       SDL_LDFLAGS := -lSDL2main -lSDL2
@@ -622,8 +629,8 @@ ifeq ($(BACKEND),mixer_sdl2)
   SOURCES += simsys_s2.cc
   ifeq ($(SDL2_CONFIG),)
     ifeq ($(OSTYPE),mac)
-      SDL_CFLAGS  := -I/Library/Frameworks/SDL2.framework/Headers
-      SDL_LDFLAGS := -framework SDL2
+      SDL_CFLAGS  := -F /Library/Frameworks -I/Library/Frameworks/SDL2.framework/Headers 
+      SDL_LDFLAGS := -framework SDL2 -F /Library/Frameworks -I /Library/Frameworks/SDL2.framework/Headers 
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL2 -Dmain=SDL_main
       SDL_LDFLAGS := -lSDL2main -lSDL2

@@ -10,7 +10,6 @@
 #include "../boden/grund.h"
 #include "../player/simplay.h"
 #include "../display/simimg.h"
-#include "../simmem.h"
 #include "../bauer/brueckenbauer.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
@@ -129,7 +128,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 			dbg->warning( "bruecke_t::rdwr()", "unknown bridge \"%s\" at (%i,%i) will be replaced with best match!", s, get_pos().x, get_pos().y );
 			welt->add_missing_paks( s, karte_t::MISSING_BRIDGE );
 		}
-		guarded_free(const_cast<char *>(s));
+		free(const_cast<char *>(s));
 
 		if(  file->is_version_less(112, 7)  &&  env_t::pak_height_conversion_factor==2  ) {
 			switch(img) {
