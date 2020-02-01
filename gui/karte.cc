@@ -745,6 +745,11 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		return;
 	}
 
+	if (mode & ~MAP_MODE_FLAGS == MAP_CONGESTION && !gr->get_weg(road_wt))
+	{
+		return;
+	}
+
 	// first use ground color
 	set_relief_farbe( k, calc_relief_farbe(gr) );
 
@@ -841,6 +846,19 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				set_relief_farbe(k, calc_severity_color(condition_percent_reciprocal, 100));
 			}
 			
+			break;
+
+		// Show congestion
+		case MAP_CONGESTION:
+			if (gr->hat_wege())
+			{
+				// This is only applicable to roads.
+				const weg_t* road = gr->get_weg(road_wt); 
+				if (road)
+				{
+					set_relief_farbe(k, calc_severity_color(road->get_congestion_percentage(), 100));
+				}
+			}
 			break;
 
 		// show tracks: white: no electricity, red: electricity, yellow: signal
