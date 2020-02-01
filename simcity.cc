@@ -6110,7 +6110,10 @@ void stadt_t::process_private_car_routes()
 				}
 				const grund_t* gr = welt->lookup(previous_tile);
 				weg_t* road_tile = gr->get_weg(road_wt);
-				road_tile->private_car_routes.set(route.key, route_element);
+				if (road_tile) // This may have been deleted in the meantime.
+				{
+					road_tile->private_car_routes.set(route.key, route_element);
+				}
 
 				previous_tile = route_element;
 			}

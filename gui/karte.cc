@@ -745,11 +745,6 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		return;
 	}
 
-	if (mode & ~MAP_MODE_FLAGS == MAP_CONGESTION && !gr->get_weg(road_wt))
-	{
-		return;
-	}
-
 	// first use ground color
 	set_relief_farbe( k, calc_relief_farbe(gr) );
 
