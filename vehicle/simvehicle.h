@@ -34,6 +34,7 @@ class schedule_t;
 class signal_t;
 class ware_t;
 class schiene_t;
+class strasse_t;
 
 // for aircraft:
 // length of the holding pattern.
@@ -320,6 +321,10 @@ private:
 	uint16 diagonal_costs;
 	uint16 base_costs;
 
+	/// This is the last tile on which this vehicle stopped: useful
+	/// for logging traffic congestion
+	koord3d last_stopped_tile;
+
 protected:
 	virtual void hop(grund_t*);
 
@@ -372,6 +377,9 @@ protected:
 	virtual void calc_image();
 
 	bool check_access(const weg_t* way) const;
+
+	/// Register this vehicle as having stopped on a tile, if it has not already done so.
+	void log_congestion(strasse_t* road);
 
 public:
 	sint32 calc_speed_limit(const weg_t *weg, const weg_t *weg_previous, fixed_list_tpl<sint16, 192>* cornering_data, uint32 bridge_tiles, ribi_t::ribi current_direction, ribi_t::ribi previous_direction);

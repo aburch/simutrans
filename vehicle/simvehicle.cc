@@ -1460,6 +1460,9 @@ vehicle_t::vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player) 
 		// Initialise these with default values.
 		class_reassignments[i] = i;
 	}
+	
+	last_stopped_tile = koord3d::invalid;
+
 }
 
 #ifdef INLINE_OBJ_TYPE
@@ -1503,6 +1506,8 @@ vehicle_t::vehicle_t() :
 	number_of_classes = 0;
 	fracht = NULL;
 	class_reassignments = NULL;
+	
+	last_stopped_tile = koord3d::invalid;
 }
 
 void vehicle_t::set_desc(const vehicle_desc_t* value)
@@ -2940,6 +2945,15 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		}
 	}
 
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 19))
+	{
+		last_stopped_tile.rdwr(file);
+	}
+	else
+	{
+		last_stopped_tile = koord3d::invalid;
+	}
+
 	if (file->is_loading())
 	{
 		leading = last = false;	// dummy, will be set by convoi afterwards
@@ -3610,7 +3624,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 		}
 
-		const strasse_t *str = (strasse_t *)gr->get_weg(road_wt);
+		strasse_t *str = (strasse_t *)gr->get_weg(road_wt);
 		if(  !str  ||  gr->get_top() > 250  ) {
 			// too many cars here or no street
 			if(  !second_check_count  &&  !str) {
@@ -3917,6 +3931,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			// found a car blocking us after checking at least 1 intersection or crossing
 			// and the car is in a place we could stop. So if it can move, assume it will, so we will too.
 			// but check only upto 8 cars ahead to prevent infinite recursion on roundabouts.
+			log_congestion(str); 
 			if(  second_check_count >= 8  ) {
 				return false;
 			}
@@ -4058,6 +4073,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(  (cnv->is_overtaking()  &&  str->get_overtaking_mode()==prohibited_mode)  ||  (cnv->is_overtaking()  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<inverted_mode  &&  static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode()<=oneway_mode)  ) {
 			if(  vehicle_base_t* v = other_lane_blocked(false, offset)  ) {
 				if(  v->get_waytype() == road_wt  ) {
+					log_congestion(str);
 					restart_speed = 0;
 					cnv->reset_waiting();
 					cnv->set_next_cross_lane(true);
@@ -4072,6 +4088,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			halthandle_t halt = haltestelle_t::get_halt(welt->lookup(r.at(route_index))->get_pos(),cnv->get_owner());
 			vehicle_base_t* v = other_lane_blocked(false, offset);
 			if(  halt.is_bound()  &&  gr->get_weg_ribi(get_waytype())!=0  &&  v  &&  v->get_waytype() == road_wt  ) {
+				log_congestion(str);
 				restart_speed = 0;
 				cnv->reset_waiting();
 				cnv->set_next_cross_lane(true);
@@ -4083,6 +4100,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(  !cnv->is_overtaking()  &&  str->get_overtaking_mode() == inverted_mode  ) {
 			if(  vehicle_base_t* v = other_lane_blocked(false, offset)  ) {
 				if(  v->get_waytype() == road_wt  ) {
+					log_congestion(str);
 					restart_speed = 0;
 					cnv->reset_waiting();
 					cnv->set_next_cross_lane(true);
@@ -4103,6 +4121,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
 					if(  at->get_convoi()->get_akt_speed()!=0  &&  judge_lane_crossing(calc_direction(get_pos(),pos_next), calc_direction(pos_next,pos_next2), at->get_90direction(), cnv->is_overtaking(), false)  ) {
 						// vehicle must stop.
+						log_congestion(str);
 						restart_speed = 0;
 						cnv->reset_waiting();
 						cnv->set_next_cross_lane(true);
@@ -4132,6 +4151,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
 				if(  at->get_convoi()->get_next_cross_lane()  &&  at==at->get_convoi()->back()  ) {
 					// vehicle must stop.
+					log_congestion(str);
 					restart_speed = 0;
 					cnv->reset_waiting();
 					return false;
@@ -4143,6 +4163,15 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	}
 
 	return true;
+}
+
+void vehicle_t::log_congestion(strasse_t* road)
+{
+	if (last_stopped_tile != get_pos())
+	{
+		last_stopped_tile = get_pos();
+		road->increment_traffic_stopped_counter();
+	}
 }
 
 overtaker_t* road_vehicle_t::get_overtaker()

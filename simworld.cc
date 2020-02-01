@@ -904,7 +904,7 @@ void karte_t::remove_queued_city(stadt_t* city)
 
 void karte_t::add_queued_city(stadt_t* city)
 {
-	cities_awaiting_private_car_route_check.append(city);
+	cities_awaiting_private_car_route_check.append_unique(city);
 }
 
 void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sint16 old_y)

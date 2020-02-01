@@ -6016,8 +6016,6 @@ int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_spe
 	sint32 speed = min(max_speed, max_tile_speed);
 
 #ifndef FORBID_CONGESTION_EFFECTS
-	
-	// TODO: Have player vehicles as well as private cars log congstion
 	const uint32 congestion_percentage = w->get_congestion_percentage();
 	if (congestion_percentage)
 	{
