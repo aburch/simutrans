@@ -16,7 +16,10 @@
 
 #include "../utils/simstring.h"
 
+#ifdef USE_ZSTD
 #include <zstd.h>
+#endif
+
 #include <zlib.h>
 #include <bzlib.h>
 
@@ -593,7 +596,7 @@ const char *loadsave_t::close()
 		write( end, strlen(end) );
 	}
 #ifdef USE_ZSTD
-	if( is_zstd() && fd->fp ) { 
+	if( is_zstd() && fd->fp ) {
 		if( saving ) {
 			// write zero length dummy to indicate end of data
 			fd->zin = { "", 0, 0 };
@@ -786,7 +789,7 @@ void loadsave_t::flush_buffer(int buf_num)
 			fd->zout.pos = 0;
 			ret = ZSTD_compressStream2( fd->cctx, &(fd->zout), &(fd->zin), ZSTD_e_continue );
 			fwrite( fd->zout.dst, 1, fd->zout.pos, fd->fp );
-		} 
+		}
 #else
 		dbg->fatal( "loadsave_t::flush_buffer", "Should never happen!" );
 #endif
