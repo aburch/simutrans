@@ -266,13 +266,13 @@ void curiositylist_stats_t::draw(scr_coord offset)
 		*dst = '\0';
 		// now we have a short name ...
 		buf.printf("%s (", short_name);
-		xoff += display_proportional_clip(xoff, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+		xoff += display_proportional_clip_rgb(xoff, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		buf.clear();
 		buf.printf("%d", geb->get_passengers_succeeded_commuting() == 65535 ? geb->get_passengers_succeeded_visiting() : geb->get_passengers_succeeded_visiting() + geb->get_passengers_succeeded_commuting());
-		xoff += display_proportional_clip(xoff, yoff, buf, ALIGN_LEFT, pax_crowded ? COL_OVERCROWD-1 : SYSCOL_TEXT, true);
+		xoff += display_proportional_clip_rgb(xoff, yoff, buf, ALIGN_LEFT, pax_crowded ? color_idx_to_rgb(COL_OVERCROWD-1) : SYSCOL_TEXT, true);
 		buf.clear();
 		buf.printf("/%d)", geb->get_adjusted_visitor_demand());
-		xoff += display_proportional_clip(xoff,yoff,buf,ALIGN_LEFT,SYSCOL_TEXT,true) + D_H_SPACE;
+		xoff += display_proportional_clip_rgb(xoff,yoff,buf,ALIGN_LEFT,SYSCOL_TEXT,true) + D_H_SPACE;
 
 		// Pakset must have pax evaluation symbols to show overcrowding symbol
 		if (pax_crowded & own_network && skinverwaltung_t::pax_evaluation_icons) {
@@ -283,7 +283,7 @@ void curiositylist_stats_t::draw(scr_coord offset)
 		}
 
 		if(  win_get_magic( (ptrdiff_t)geb )  ) {
-			display_blend_wh( offset.x+D_POS_BUTTON_WIDTH+D_H_SPACE, yoff, size.w, LINESPACE, SYSCOL_TEXT, 25 );
+			display_blend_wh_rgb( offset.x+D_POS_BUTTON_WIDTH+D_H_SPACE, yoff, size.w, LINESPACE, SYSCOL_TEXT, 25 );
 		}
 	}
 }

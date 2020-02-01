@@ -37,13 +37,13 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, bool show_line_name):
 	formation(cnv),
 	payload(cnv)
 {
-    this->cnv = cnv;
+	this->cnv = cnv;
 	this->show_line_name = show_line_name;
 
-    filled_bar.set_pos(scr_coord(2, 33));
-    filled_bar.set_size(scr_size(100, 4));
-    filled_bar.add_color_value(&cnv->get_loading_limit(), COL_YELLOW);
-    filled_bar.add_color_value(&cnv->get_loading_level(), COL_GREEN);
+	filled_bar.set_pos(scr_coord(2, 33));
+	filled_bar.set_size(scr_size(100, 4));
+	filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
+	filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
 
 	formation.set_pos(scr_coord(0, D_MARGIN_TOP));
 	payload.set_pos(scr_coord(0, D_MARGIN_TOP));
@@ -121,17 +121,16 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 			}
 		}
 		// name, use the convoi status color for redraw: Possible colors are YELLOW (not moving) BLUE: obsolete in convoi, RED: minus income, BLACK: ok
-		int max_x = display_proportional_clip(pos.x+offset.x+2+w, pos.y+offset.y+6, cnv->get_name(), ALIGN_LEFT, cnv->get_status_color(), true)+2;
+		int max_x = display_proportional_clip_rgb(pos.x+offset.x+2, pos.y+offset.y+6, cnv->get_name(), ALIGN_LEFT, cnv->get_status_color(), true)+2;
 
 		// 2nd row
 		w = D_MARGIN_LEFT;
 		if (display_mode == cnvlist_normal) {
-			w += display_proportional_clip(pos.x + offset.x + w, pos.y + offset.y + 6 + LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true) + 2;
+			w += display_proportional_clip_rgb(pos.x + offset.x + w, pos.y + offset.y + 6 + LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true) + 2;
 			char buf[256];
 			money_to_string(buf, cnv->get_jahresgewinn() / 100.0);
-			w += display_proportional_clip(pos.x + offset.x + w + 5, pos.y + offset.y + 6 + LINESPACE, buf, ALIGN_LEFT, cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS, true);
+			w += display_proportional_clip_rgb(pos.x + offset.x + w + 5, pos.y + offset.y + 6 + LINESPACE, buf, ALIGN_LEFT, cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS, true);
 			max_x = max(max_x, w + 5);
-
 		}
 		else if (display_mode == cnvlist_payload) {
 			payload.set_cnv(cnv);
@@ -149,12 +148,12 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 			// only show assigned line, if there is one!
 			if (cnv->in_depot()) {
 				const char *txt = translator::translate("(in depot)");
-				w += display_proportional_clip(pos.x + offset.x + w, pos.y + offset.y + 6 + 2 * LINESPACE, txt, ALIGN_LEFT, SYSCOL_TEXT, true) + 2;
+				w += display_proportional_clip_rgb(pos.x + offset.x + w, pos.y + offset.y + 6 + 2 * LINESPACE, txt, ALIGN_LEFT, SYSCOL_TEXT, true) + 2;
 				max_x = max(max_x, w);
 			}
 			else if (cnv->get_line().is_bound() && show_line_name) {
-				w += display_proportional_clip(pos.x + offset.x + w, pos.y + offset.y + 6 + 2 * LINESPACE, translator::translate("Line"), ALIGN_LEFT, SYSCOL_TEXT, true) + 2;
-				w += display_proportional_clip(pos.x + offset.x + w + 5, pos.y + offset.y + 6 + 2 * LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
+				w += display_proportional_clip_rgb(pos.x + offset.x + w, pos.y + offset.y + 6 + 2 * LINESPACE, translator::translate("Line"), ALIGN_LEFT, SYSCOL_TEXT, true) + 2;
+				w += display_proportional_clip_rgb(pos.x + offset.x + w + 5, pos.y + offset.y + 6 + 2 * LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
 				max_x = max(max_x, w + 5);
 			}
 			else if(!show_line_name && display_mode == cnvlist_payload){
@@ -163,7 +162,7 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 				info_buf.printf("%s: ", translator::translate("Fahrtziel")); // "Destination"
 				const schedule_t *schedule = cnv->get_schedule();
 				schedule_gui_t::gimme_short_stop_name(info_buf, cnv->get_owner(), schedule, schedule->get_current_stop(), 255);
-				display_proportional_clip(pos.x + offset.x + w, pos.y + offset.y + 6 + 2 * LINESPACE, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				display_proportional_clip_rgb(pos.x + offset.x + w, pos.y + offset.y + 6 + 2 * LINESPACE, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			}
 
 			if (display_mode == cnvlist_normal) {

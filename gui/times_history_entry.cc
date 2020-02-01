@@ -24,7 +24,7 @@ times_history_entry_t::times_history_entry_t(times_history_data_t *history_) : h
 
 void times_history_entry_t::draw(scr_coord offset) {
 	for (int i = 0; i < TIMES_HISTORY_SIZE; i++) {
-		display_proportional_clip(pos.x + offset.x + TIME_TEXT_WIDTH * (i + 1), pos.y + offset.y, times_str[i], ALIGN_RIGHT, SYSCOL_TEXT, true);
+		display_proportional_clip_rgb(pos.x + offset.x + TIME_TEXT_WIDTH * (i + 1), pos.y + offset.y, times_str[i], ALIGN_RIGHT, SYSCOL_TEXT, true);
 	}
-	display_proportional_clip(pos.x + offset.x + TIME_TEXT_WIDTH * TIMES_HISTORY_SIZE + TIME_TEXT_MARGIN + TIME_TEXT_WIDTH, pos.y + offset.y, average_time_str, ALIGN_RIGHT, SYSCOL_TEXT, true);
+	display_proportional_clip_rgb(pos.x + offset.x + TIME_TEXT_WIDTH * TIMES_HISTORY_SIZE + TIME_TEXT_MARGIN + TIME_TEXT_WIDTH, pos.y + offset.y, average_time_str, ALIGN_RIGHT, SYSCOL_TEXT, true);
 }

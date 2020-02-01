@@ -112,7 +112,7 @@ public:
 	 * sets the highlight color for the droplist
 	 * @author hsiegeln
 	 */
-	void set_highlight_color(int color) { droplist.set_highlight_color(color); }
+	void set_highlight_color(PIXVAL color) { droplist.set_highlight_color(color); }
 
 	/**
 	 * set maximum size for control

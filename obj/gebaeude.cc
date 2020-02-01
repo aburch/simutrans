@@ -678,17 +678,17 @@ image_id gebaeude_t::get_outline_image() const
 
 
 /* gives outline colour and plots background tile if needed for transparent view */
-PLAYER_COLOR_VAL gebaeude_t::get_outline_colour() const
+FLAGGED_PIXVAL gebaeude_t::get_outline_colour() const
 {
-	COLOR_VAL colours[] = { COL_BLACK, COL_YELLOW, COL_YELLOW, COL_PURPLE, COL_RED, COL_GREEN };
-	PLAYER_COLOR_VAL disp_colour = 0;
+	uint8 colours[] = { COL_BLACK, COL_YELLOW, COL_YELLOW, COL_PURPLE, COL_RED, COL_GREEN };
+	FLAGGED_PIXVAL disp_colour = 0;
 	if (env_t::hide_buildings != env_t::NOT_HIDE) {
 		if (is_city_building()) {
-			disp_colour = colours[0] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
+			disp_colour = color_idx_to_rgb(colours[0]) | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 		else if (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING && tile->get_desc()->get_type() < building_desc_t::others) {
 			// special building
-			disp_colour = colours[tile->get_desc()->get_type()] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
+			disp_colour = color_idx_to_rgb(colours[tile->get_desc()->get_type()]) | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 	}
 	return disp_colour;

@@ -427,8 +427,8 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 
 	do_alternative_seats_calculation = true;
 
-	status_color = COL_YELLOW;
-	last_status_color = COL_PURPLE;
+	status_color = color_idx_to_rgb(COL_YELLOW);
+	last_status_color = color_idx_to_rgb(COL_PURPLE);
 	last_bar_count = 0;
 
 	enables = NOT_ENABLED;
@@ -500,8 +500,8 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 
 	do_alternative_seats_calculation = true;
 
-	status_color = COL_YELLOW;
-	last_status_color = COL_PURPLE;
+	status_color = color_idx_to_rgb(COL_YELLOW);
+	last_status_color = color_idx_to_rgb(COL_PURPLE);
 	last_bar_count = 0;
 
 	sortierung = freight_list_sorter_t::by_name;
@@ -1263,7 +1263,7 @@ void haltestelle_t::step()
 	//   refresh_routing() instead of
 	//   karte_t::set_schedule_counter()
 
-	COLOR_VAL old_status_color = status_color;
+	PIXVAL old_status_color = status_color;
 
 	FOR(vector_tpl<uint8>, catg, categories_to_refresh_next_step)
 	{
@@ -1275,7 +1275,7 @@ void haltestelle_t::step()
 
 	recalc_status();
 
-	if(status_color == COL_RED || old_status_color != status_color)
+	if(status_color == color_idx_to_rgb(COL_RED) || old_status_color != status_color)
 	{
 		// The transfer time needs recalculating if the stop is overcrowded.
 		calc_transfer_time();
@@ -1435,7 +1435,7 @@ void haltestelle_t::step()
  */
 void haltestelle_t::new_month()
 {
-	if(  welt->get_active_player()==owner  &&  status_color==COL_RED  ) {
+	if(  welt->get_active_player()==owner  &&  status_color==color_idx_to_rgb(COL_RED)  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("%s\nis crowded."), get_name() );
 		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|owner->get_player_nr(), IMG_EMPTY );
@@ -4882,7 +4882,7 @@ void haltestelle_t::init_financial_history()
  */
 void haltestelle_t::recalc_status()
 {
-	status_color = financial_history[0][HALT_CONVOIS_ARRIVED] > 0 ? COL_GREEN : COL_YELLOW;
+	status_color = color_idx_to_rgb( financial_history[0][HALT_CONVOIS_ARRIVED] > 0 ? COL_GREEN : COL_YELLOW );
 
 	// since the status is ordered ...
 	uint8 status_bits = 0;
@@ -4915,7 +4915,7 @@ void haltestelle_t::recalc_status()
 	}
 
 	// now for all goods
-	if(status_color!=COL_RED  &&  get_ware_enabled()) {
+	if(status_color!=color_idx_to_rgb(COL_RED)  &&  get_ware_enabled()) {
 		const uint8  count = goods_manager_t::get_count();
 		const uint32 max_ware = get_capacity(2);
 
@@ -4948,16 +4948,16 @@ void haltestelle_t::recalc_status()
 
 	// take the worst color for status
 	if(  status_bits  ) {
-		status_color = status_bits&2 ? COL_RED : COL_ORANGE;
+		status_color = color_idx_to_rgb( status_bits&2 ? COL_RED : COL_ORANGE );
 	}
 	else
 	{
-		status_color = (financial_history[0][HALT_WAITING]+financial_history[0][HALT_DEPARTED] == 0) ? COL_YELLOW : COL_GREEN;
+		status_color = color_idx_to_rgb( (financial_history[0][HALT_WAITING]+financial_history[0][HALT_DEPARTED] == 0) ? COL_YELLOW : COL_GREEN );
 	}
 
 	if((station_type & airstop) && has_no_control_tower())
 	{
-		status_color = COL_PURPLE;
+		status_color = color_idx_to_rgb(COL_PURPLE);
 	}
 
 	financial_history[0][HALT_WAITING] = total_sum;
@@ -5028,14 +5028,14 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 				v = (v / 4) + 2;
 			}
 
-			display_fillbox_wh_clip( xpos, ypos - v - 1, 1, v, COL_GREY4, false);
-			display_fillbox_wh_clip( xpos + 1, ypos - v - 1, 2, v, wtyp->get_color(), false);
-			display_fillbox_wh_clip( xpos + 3, ypos - v - 1, 1, v, COL_GREY1, false);
+			display_fillbox_wh_clip_rgb( xpos, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY4), false);
+			display_fillbox_wh_clip_rgb( xpos + 1, ypos - v - 1, 2, v, wtyp->get_color(), false);
+			display_fillbox_wh_clip_rgb( xpos + 3, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY1), false);
 
 			// Hajo: show up arrow for capped values
 			if(  sum > max_capacity  ) {
-				display_fillbox_wh_clip( xpos + 1, ypos - v - 6, 2, 4, COL_WHITE, false);
-				display_fillbox_wh_clip( xpos, ypos - v - 5, 4, 1, COL_WHITE, false);
+				display_fillbox_wh_clip_rgb( xpos + 1, ypos - v - 6, 2, 4, color_idx_to_rgb(COL_WHITE), false);
+				display_fillbox_wh_clip_rgb( xpos, ypos - v - 5, 4, 1, color_idx_to_rgb(COL_WHITE), false);
 				v += 5;
 			}
 
@@ -5062,7 +5062,7 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 		last_status_color = get_status_farbe();
 		dirty = true;
 	}
-	display_fillbox_wh_clip( x - 1 - 4, ypos, count * 4 + 12 - 2, 4, get_status_farbe(), dirty );
+	display_fillbox_wh_clip_rgb( x - 1 - 4, ypos, count * 4 + 12 - 2, 4, get_status_farbe(), dirty );
 }
 
 

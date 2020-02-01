@@ -28,7 +28,7 @@ public:
 	 * Set background color. -1 means no background
 	 * @author Hj. Malthaner
 	 */
-	void set_background(int color);
+	void set_background(FLAGGED_PIXVAL color);
 
 	gui_chart_t();
 
@@ -66,9 +66,9 @@ public:
 	 * @returns curve's id
 	 * @author hsiegeln
 	 */
-	int add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc=NULL, chart_marker_t marker=square);
+	int add_curve(PIXVAL color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc=NULL, chart_marker_t marker=square);
 
-	uint32 add_line(int color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc=NULL, chart_marker_t marker=square);
+	uint32 add_line(PIXVAL color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc=NULL, chart_marker_t marker=square);
 
 	void remove_curves() { curves.clear(); }
 
@@ -115,7 +115,7 @@ private:
 	 * @author hsiegeln
 	 */
 	struct curve_t {
-		int color;
+		PIXVAL color;
 		const sint64 *values;
 		int size;
 		int offset;
@@ -133,7 +133,7 @@ private:
 	 * @author Knightly
 	 */
 	struct line_t {
-		int color;
+		PIXVAL color;
 		const sint64 *value;		// pointer to a single value only
 		int times;					// number of times the same value is repeated
 		bool show;
@@ -158,7 +158,7 @@ private:
 	 * Background color, -1 for transparent background
 	 * @author Hj. Malthaner
 	 */
-	int background;
+	FLAGGED_PIXVAL background;
 };
 
 #endif

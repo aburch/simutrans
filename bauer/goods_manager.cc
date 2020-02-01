@@ -90,16 +90,16 @@ bool goods_manager_t::successfully_loaded()
 			assert(goods[i]->get_index()==i);
 			ware_t::index_to_desc[i] = goods[i];
 			if(goods[i]->color==255) {
-				goods[i]->color = 16+4+((i-2)*8)%207;
+				goods[i]->color = color_idx_to_rgb( 16+4+((i-2)*8)%207 );
 			}
 		}
 	}
 	// passenger and good colors
 	if(goods[0]->color==255) {
-		goods[0]->color = COL_GREY3;
+		goods[0]->color = color_idx_to_rgb(COL_GREY3);
 	}
 	if(goods[1]->color==255) {
-		goods[1]->color = COL_YELLOW;
+		goods[1]->color = color_idx_to_rgb(COL_YELLOW);
 	}
 	// none should never be loaded to something ...
 	// however, some place do need the dummy ...

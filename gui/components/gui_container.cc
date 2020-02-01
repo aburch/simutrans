@@ -242,7 +242,7 @@ void gui_container_t::draw(scr_coord offset)
 	const scr_coord screen_pos = pos + offset;
 
 	// For debug purpose, draw the container's boundary
-	// display_ddd_box(screen_pos.x,screen_pos.y,get_size().w, get_size().h, COL_RED, COL_RED, true);
+	// display_ddd_box_rgb(screen_pos.x,screen_pos.y,get_size().w, get_size().h, color_idx_to_rgb(COL_RED), color_idx_to_rgb(COL_RED), true);
 
 	FOR(slist_tpl<gui_component_t*>, const c, components) {
 		if (c->is_visible()) {

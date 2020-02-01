@@ -28,7 +28,7 @@ void message_t::node::rdwr(loadsave_t *file)
 	file->rdwr_str(msg, lengthof(msg));
 	file->rdwr_long(type);
 	pos.rdwr(file);
-	file->rdwr_short(color);
+	file->rdwr_long(color);
 	file->rdwr_long(time);
 	if (file->is_loading()) {
 		image = IMG_EMPTY;
@@ -36,13 +36,13 @@ void message_t::node::rdwr(loadsave_t *file)
 }
 
 
-PLAYER_COLOR_VAL message_t::node::get_player_color(karte_t *welt) const
+FLAGGED_PIXVAL message_t::node::get_player_color(karte_t *welt) const
 {
 	// correct for player color
-	PLAYER_COLOR_VAL colorval = color;
+	FLAGGED_PIXVAL colorval = color;
 	if (color&PLAYER_FLAG) {
 		player_t *player = welt->get_player(color&(~PLAYER_FLAG));
-		colorval = player ? PLAYER_FLAG + player->get_player_color1() + 1 : MN_GREY0;
+		colorval = player ? PLAYER_FLAG + color_idx_to_rgb(player->get_player_color1() + 1) : color_idx_to_rgb(MN_GREY0);
 	}
 	return colorval;
 }
@@ -103,7 +103,7 @@ void message_t::set_message_flags(sint32 t, sint32 w, sint32 a, sint32 i)
 * @param image image associated with message (will be ignored if pos!=koord::invalid)
 * @author prissi
 */
-void message_t::add_message(const char *text, koord pos, uint16 what_flags, PLAYER_COLOR_VAL color, image_id image)
+void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAGGED_PIXVAL color, image_id image)
 {
 	DBG_MESSAGE("message_t::add_msg()", "%40s (at %i,%i)", text, pos.x, pos.y);
 
@@ -177,7 +177,7 @@ void message_t::add_message(const char *text, koord pos, uint16 what_flags, PLAY
 	n->time = welt->get_current_month();
 	n->image = image;
 
-	PLAYER_COLOR_VAL colorval = n->get_player_color(welt);
+	FLAGGED_PIXVAL colorval = n->get_player_color(welt);
 	// should we send this message to a ticker?
 	if (art&ticker_flags) {
 		ticker::add_msg(text, pos, colorval);

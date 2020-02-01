@@ -62,7 +62,7 @@ void gui_numberinput_t::set_value(sint32 new_value)
 		sprintf(textbuffer, "%d", new_value);
 		textinp.set_text(textbuffer, 20);
 	}
-	textinp.set_color( value == new_value ? (b_enabled ? SYSCOL_EDIT_TEXT : SYSCOL_EDIT_TEXT_DISABLED) : COL_RED );
+	textinp.set_color( value == new_value ? (b_enabled ? SYSCOL_EDIT_TEXT : SYSCOL_EDIT_TEXT_DISABLED) : color_idx_to_rgb(COL_RED) );
 	value = new_value;
 }
 

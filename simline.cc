@@ -714,19 +714,19 @@ void simline_t::recalc_status()
 	if (financial_history[1][LINE_DEPARTURES] < financial_history[1][LINE_DEPARTURES_SCHEDULED])
 	{
 		// Is missing scheduled slots.
-		state_color = COL_DARK_TURQUOISE;
+		state_color = color_idx_to_rgb(COL_DARK_TURQUOISE);
 		state |= line_missing_scheduled_slots;
 	}
 	if (has_overcrowded())
 	{
 		// Overcrowded
-		state_color = COL_DARK_PURPLE;
+		state_color = color_idx_to_rgb(COL_DARK_PURPLE);
 		state |= line_overcrowded;
 	}
 	if((financial_history[0][LINE_DISTANCE]|financial_history[1][LINE_DISTANCE]|financial_history[2][LINE_DISTANCE]) ==0)
 	{
 		// nothing moved
-		state_color = COL_YELLOW;
+		state_color = COL_CAUTION;
 		state |= line_nothing_moved;
 	}
 	if(financial_history[0][LINE_CONVOIS]==0)

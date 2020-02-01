@@ -37,7 +37,7 @@ static const uint8 tree_age_index[12] =
 	0,1,2,3,3,3,3,3,3,4,4,4
 };
 
-PLAYER_COLOR_VAL baum_t::outline_color = 0;
+FLAGGED_PIXVAL baum_t::outline_color = 0;
 
 // quick lookup of an image, assuring always five seasons and five ages
 // missing images just have just identical entries

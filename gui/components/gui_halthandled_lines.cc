@@ -58,8 +58,8 @@ void gui_halthandled_lines_t::draw(scr_coord offset)
 					count_buf.clear();
 					count_buf.append(line_count, 0);
 					uint text_width = proportional_string_width(count_buf);
-					display_filled_roundbox_clip(offset.x + xoff, offset.y + yoff+1, text_width + 5, LINESPACE + 1, welt->get_player(i)->get_player_color1() + 3, true);
-					display_proportional_clip(offset.x + xoff + 3, offset.y + yoff+2, count_buf, ALIGN_LEFT, COL_WHITE, true);
+					display_filled_roundbox_clip(offset.x + xoff, offset.y + yoff+1, text_width + 5, LINESPACE + 1, color_idx_to_rgb(welt->get_player(i)->get_player_color1()+3), true);
+					display_proportional_clip_rgb(offset.x + xoff + 3, offset.y + yoff+2, count_buf, ALIGN_LEFT, color_idx_to_rgb(COL_WHITE), true);
 					xoff += text_width + 5 + 2;
 				}
 				uint lineless_convoy_cnt = 0;
@@ -81,8 +81,8 @@ void gui_halthandled_lines_t::draw(scr_coord offset)
 						count_buf.clear();
 						count_buf.append(lineless_convoy_cnt, 0);
 						uint text_width = proportional_string_width(count_buf);
-						display_fillbox_wh_clip(offset.x + xoff, offset.y + yoff+1, text_width + 3, LINESPACE + 1, COL_WHITE, true);
-						display_proportional_clip(offset.x + xoff+2, offset.y + yoff+2, count_buf, ALIGN_LEFT, welt->get_player(i)->get_player_color1() + 1, true);
+						display_fillbox_wh_clip_rgb(offset.x + xoff, offset.y + yoff+1, text_width + 3, LINESPACE + 1, color_idx_to_rgb(COL_WHITE), true);
+						display_proportional_clip_rgb(offset.x + xoff+2, offset.y + yoff+2, count_buf, ALIGN_LEFT, color_idx_to_rgb(welt->get_player(i)->get_player_color1() + 1), true);
 						xoff += text_width + 5 + 2;
 					}
 				}

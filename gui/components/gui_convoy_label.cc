@@ -86,7 +86,7 @@ void gui_convoy_label_t::draw(scr_coord offset)
 			sprintf(tmp, "%s %d (%s %i)",
 				translator::translate("Fahrzeuge:"), cnv->get_vehicle_count(),
 				translator::translate("Station tiles:"), convoy.get_vehicle_summary().tiles);
-			display_proportional( offset.x + 4, offset.y , tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
+			display_proportional_rgb( offset.x + 4, offset.y , tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
 			offset.y+=LINESPACE;
 		}
 		if (show_max_speed) {
@@ -96,7 +96,7 @@ void gui_convoy_label_t::draw(scr_coord offset)
 				translator::translate("Max. speed:"), min_speed,
 				translator::translate("..."), max_speed );
 
-			display_proportional( offset.x + 4, offset.y , tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
+			display_proportional_rgb( offset.x + 4, offset.y , tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
 			offset.y+=LINESPACE;
 		}
 	}

@@ -20,7 +20,7 @@ class gui_speedbar_t : public gui_component_t
 {
 private:
 	struct info_t {
-		sint32 color;
+		PIXVAL color;
 		const sint32 *value;
 		sint32 last;
 	};
@@ -33,7 +33,7 @@ private:
 public:
 	gui_speedbar_t() { base = 100; vertical = false; }
 
-	void add_color_value(const sint32 *value, uint8 color);
+	void add_color_value(const sint32 *value, PIXVAL color);
 
 	void set_base(sint32 base);
 
@@ -68,7 +68,7 @@ private:
 	uint8 switched_last_veh_length = -1;
 
 	// specify fill width and color of specified tile
-	void fill_with_color(scr_coord offset, uint8 tile_index, uint8 from, uint8 to, COLOR_VAL color, uint8 length_to_pixel);
+	void fill_with_color(scr_coord offset, uint8 tile_index, uint8 from, uint8 to, PIXVAL color, uint8 length_to_pixel);
 
 public:
 	void set_base_convoy_length(uint32 convoy_length, uint8 last_veh_length);

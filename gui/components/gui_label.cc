@@ -15,7 +15,7 @@
 
 
 
-gui_label_t::gui_label_t(const char* text, COLOR_VAL color_, align_t align_) :
+gui_label_t::gui_label_t(const char* text, PIXVAL color_, align_t align_) :
 	tooltip(NULL)
 {
 	set_size( scr_size( D_BUTTON_WIDTH, D_LABEL_HEIGHT ) );
@@ -58,13 +58,13 @@ void gui_label_t::draw(scr_coord offset)
 			}
 
 			if(separator) {
-				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, separator, ALIGN_LEFT, color, true);
+				display_proportional_clip_rgb(pos.x+offset.x, pos.y+offset.y, separator, ALIGN_LEFT, color, true);
 				if(  separator!=text  ) {
-					display_text_proportional_len_clip(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true, separator-text );
+					display_text_proportional_len_clip_rgb(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true, separator-text );
 				}
 			}
 			else {
-				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true);
+				display_proportional_clip_rgb(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true);
 			}
 		}
 	}
@@ -92,11 +92,11 @@ void gui_label_t::draw(scr_coord offset)
 
 		size_t idx = display_fit_proportional( text, size.w+1, -1 );
 		if(  text[idx]==0  ) {
-			display_proportional_clip(pos.x + offset.x + align_offset_x, pos.y + offset.y + align_offset_y, text, al, color, true);
+			display_proportional_clip_rgb(pos.x + offset.x + align_offset_x, pos.y + offset.y + align_offset_y, text, al, color, true);
 		}
 		else {
-			scr_coord_val w = display_text_proportional_len_clip( pos.x+offset.x+align_offset_x, pos.y+offset.y, text, al | DT_CLIP, color, true, idx );
-			display_proportional_clip( pos.x + offset.x + align_offset_x + w, pos.y + offset.y + align_offset_y, translator::translate("..."), al | DT_CLIP, color, true );
+			scr_coord_val w = display_text_proportional_len_clip_rgb( pos.x+offset.x+align_offset_x, pos.y+offset.y, text, al | DT_CLIP, color, true, idx );
+			display_proportional_clip_rgb( pos.x + offset.x + align_offset_x + w, pos.y + offset.y + align_offset_y, translator::translate("..."), al | DT_CLIP, color, true );
 		}
 
 	}
@@ -109,7 +109,7 @@ void gui_label_t::draw(scr_coord offset)
 	}
 
 	// DEBUG
-	//display_ddd_box_clip(offset.x+pos.x,offset.y+pos.y,size.w,size.h,SYSCOL_HIGHLIGHT,SYSCOL_HIGHLIGHT);
+	//display_ddd_box_clip_rgb(offset.x+pos.x,offset.y+pos.y,size.w,size.h,SYSCOL_HIGHLIGHT,SYSCOL_HIGHLIGHT);
 }
 
 void gui_label_t::set_tooltip(const char * t)

@@ -85,9 +85,9 @@ private:
 	static reliefkarte_t *single_instance;
 
 	// the terrain map
-	array2d_tpl<uint8> *relief;
+	array2d_tpl<PIXVAL> *relief;
 
-	void set_relief_color_clip( sint16 x, sint16 y, uint8 color );
+	void set_relief_color_clip( sint16 x, sint16 y, PIXVAL color );
 
 	// all stuff connected with schedule display
 	class line_segment_t
@@ -162,7 +162,7 @@ private:
 
 	const fabrik_t* get_fab(koord pos, bool large_area) const;
 
-	const fabrik_t* draw_fab_connections(uint8 colour, scr_coord pos) const;
+	const fabrik_t* draw_fab_connections(PIXVAL colour, scr_coord pos) const;
 
 	static sint32 max_cargo;
 	static sint32 max_passed;
@@ -196,27 +196,27 @@ public:
 	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)
 	 * @author hsiegeln
 	 */
-	static uint8 calc_severity_color(sint32 amount, sint32 scale);
+	static PIXVAL calc_severity_color(sint32 amount, sint32 scale);
 
 	/**
 	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)
 	 * but using log scale
 	 * @author prissi
 	 */
-	static uint8 calc_severity_color_log(sint32 amount, sint32 scale);
+	static PIXVAL calc_severity_color_log(sint32 amount, sint32 scale);
 
 	/**
 	* returns a color based on the current high
 	* @author hsiegeln
 	*/
-	static uint8 calc_hoehe_farbe(const sint16 height, const sint16 groundwater);
+	static PIXVAL calc_hoehe_farbe(const sint16 height, const sint16 groundwater);
 
 	// needed for town passenger map
-	static uint8 calc_relief_farbe(const grund_t *gr, bool show_contour = true, bool show_buildings = true);
+	static PIXVAL calc_relief_farbe(const grund_t *gr, bool show_contour = true, bool show_buildings = true);
 
 	// public, since the convoi updates need this
 	// nonstatic, if we have someday many maps ...
-	void set_relief_farbe(koord k, int color);
+	void set_relief_farbe(koord k, PIXVAL color);
 
 	// we are single instance ...
 	static reliefkarte_t *get_karte();

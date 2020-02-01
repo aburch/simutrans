@@ -152,7 +152,7 @@ void main_view_t::display(bool force_dirty)
 	// not very elegant, but works:
 	// fill everything with black for Underground mode ...
 	if( grund_t::underground_mode ) {
-		display_fillbox_wh(0, menu_height, disp_width, disp_height-menu_height, COL_BLACK, force_dirty);
+		display_fillbox_wh_rgb(0, menu_height, disp_width, disp_height-menu_height, color_idx_to_rgb(COL_BLACK), force_dirty);
 	}
 	else if( welt->is_background_dirty()  &&  outside_visible  ) {
 		// we check if background will be visible, no need to clear screen if it's not.
@@ -290,7 +290,7 @@ void main_view_t::display(bool force_dirty)
 		if(zeiger->get_yoff()==Z_PLAN) {
 			grund_t *gr = welt->lookup( zeiger->get_pos() );
 			if(gr && gr->is_visible()) {
-				const PLAYER_COLOR_VAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| env_t::cursor_overlay_color;
+				const FLAGGED_PIXVAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| env_t::cursor_overlay_color;
 				if(  gr->get_image()==IMG_EMPTY  ) {
 					if(  gr->hat_wege()  ) {
 						display_img_blend( gr->obj_bei(0)->get_image(), background_pos.x, background_pos.y, transparent, 0, dirty );
@@ -562,6 +562,6 @@ void main_view_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max
 void main_view_t::display_background( KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, bool dirty )
 {
 	if(  !(env_t::draw_earth_border  &&  env_t::draw_outside_tile)  ) {
-		display_fillbox_wh(xp, yp, w, h, env_t::background_color, dirty );
+		display_fillbox_wh_rgb(xp, yp, w, h, env_t::background_color, dirty );
 	}
 }

@@ -3,6 +3,7 @@
  * (see LICENSE.txt)
  */
 
+#include "../simsys.h"
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -132,7 +133,7 @@ const scr_size &tabfileobj_t::get_scr_size(const char *key, scr_size def)
 
 
 
-uint8 tabfileobj_t::get_color(const char *key, uint8 def)
+PIXVAL tabfileobj_t::get_color(const char *key, PIXVAL def, uint32 *color_rgb)
 {
 	const char *value = get_string(key,NULL);
 
@@ -144,14 +145,29 @@ uint8 tabfileobj_t::get_color(const char *key, uint8 def)
 		while ( *value>0  &&  *value<=32  ) {
 			value ++;
 		}
+#ifndef MAKEOBJ
 		if(  *value=='#'  ) {
 			uint32 rgb = strtoul( value+1, NULL, 16 ) & 0XFFFFFFul;
-			return image_t::get_index_from_rgb( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
+			// we save in settings as RGB888
+			if (color_rgb) {
+				*color_rgb = rgb;
+			}
+			// but the functions expect in the system colour (like RGB565)
+			return get_system_color( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
 		}
 		else {
 			// this inputs also hex correct
-			return (uint8)strtol( value, NULL, 0 );
+			uint8 index = (uint8)strtoul( value, NULL, 0 );
+			//we save in settings as RGB888
+			if (color_rgb) {
+				*color_rgb = get_color_rgb(index);
+			}
+			//but the functions expect in the system colour (like RGB565)
+			return color_idx_to_rgb(index);
 		}
+#else
+		return (uint8)strtoul( value, NULL, 0 );
+#endif
 	}
 }
 

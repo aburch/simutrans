@@ -21,9 +21,9 @@ static char tooltip[64];
  * Set background color. -1 means no background
  * @author Hj. Malthaner
  */
-void gui_chart_t::set_background(int i)
+void gui_chart_t::set_background(FLAGGED_PIXVAL color)
 {
-	background = i;
+	background = color;
 }
 
 
@@ -39,11 +39,11 @@ gui_chart_t::gui_chart_t() : gui_component_t()
 	x_elements = 0;
 
 	// Hajo: transparent by default
-	background = -1;
+	background = TRANSPARENT_FLAGS;
 }
 
 
-int gui_chart_t::add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc, chart_marker_t marker_type)
+int gui_chart_t::add_curve(PIXVAL color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc, chart_marker_t marker_type)
 {
 	curve_t new_curve;
 	new_curve.color = color;
@@ -62,7 +62,7 @@ int gui_chart_t::add_curve(int color, const sint64 *values, int size, int offset
 }
 
 
-uint32 gui_chart_t::add_line(int color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc, chart_marker_t marker_type)
+uint32 gui_chart_t::add_line(PIXVAL color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc, chart_marker_t marker_type)
 {
 	line_t new_line;
 	new_line.color = color;
@@ -127,8 +127,8 @@ void gui_chart_t::draw(scr_coord offset)
 	calc_gui_chart_values(pbaseline, pscale, cmin, cmax);
 
 	// Hajo: draw background if desired
-	if(background != -1) {
-		display_fillbox_wh_clip(offset.x, offset.y, size.w, size.h, background, false);
+	if(background != TRANSPARENT_FLAGS) {
+		display_fillbox_wh_clip_rgb(offset.x, offset.y, size.w, size.h, background, false);
 	}
 	int tmpx, factor;
 	if(env_t::left_to_right_graphs) {
@@ -141,39 +141,39 @@ void gui_chart_t::draw(scr_coord offset)
 	}
 
 	// draw zero line
-	display_direct_line(offset.x+1, offset.y+(scr_coord_val)baseline, offset.x+size.w-2, offset.y+(scr_coord_val)baseline, SYSCOL_CHART_LINES_ZERO);
+	display_direct_line_rgb(offset.x+1, offset.y+(scr_coord_val)baseline, offset.x+size.w-2, offset.y+(scr_coord_val)baseline, SYSCOL_CHART_LINES_ZERO);
 
 	if (show_y_axis) {
 
 		// draw zero number only, if it will not disturb any other printed values!
 		if ((baseline > 18) && (baseline < size.h -18)) {
-			display_proportional_clip(offset.x - 4, offset.y+(scr_coord_val)baseline-3, "0", ALIGN_RIGHT, SYSCOL_TEXT_HIGHLIGHT, true );
+			display_proportional_clip_rgb(offset.x - 4, offset.y+(scr_coord_val)baseline-3, "0", ALIGN_RIGHT, SYSCOL_TEXT_HIGHLIGHT, true );
 		}
 
 		// display min/max money values
-		display_proportional_clip(offset.x - 4, offset.y-5, cmax, ALIGN_RIGHT, SYSCOL_TEXT_HIGHLIGHT, true );
-		display_proportional_clip(offset.x - 4, offset.y+size.h-5, cmin, ALIGN_RIGHT, SYSCOL_TEXT_HIGHLIGHT, true );
+		display_proportional_clip_rgb(offset.x - 4, offset.y-5, cmax, ALIGN_RIGHT, SYSCOL_TEXT_HIGHLIGHT, true );
+		display_proportional_clip_rgb(offset.x - 4, offset.y+size.h-5, cmin, ALIGN_RIGHT, SYSCOL_TEXT_HIGHLIGHT, true );
 	}
 
 	// draw chart frame
-	display_ddd_box_clip(offset.x, offset.y, size.w, size.h, SYSCOL_SHADOW, SYSCOL_HIGHLIGHT);
+	display_ddd_box_clip_rgb(offset.x, offset.y, size.w, size.h, SYSCOL_SHADOW, SYSCOL_HIGHLIGHT);
 
 	// draw chart lines
 	scr_coord_val x_last = 0;  // remember last digit position to avoid overwriting by next label
 	for(  int i = 0;  i < x_elements;  i++  ) {
 		const int j = env_t::left_to_right_graphs ? x_elements - 1 - i : i;
 		const scr_coord_val x0 = tmpx + factor * (size.w / (x_elements - 1) ) * j;
-		const COLOR_VAL line_color = (i%2) ? SYSCOL_CHART_LINES_ODD : SYSCOL_CHART_LINES_EVEN;
+		const PIXVAL line_color = (i%2) ? SYSCOL_CHART_LINES_ODD : SYSCOL_CHART_LINES_EVEN;
 		if(  show_x_axis  ) {
 			// display x-axis
 			sprintf( digit, "%i", abs(seed - j) );
 			scr_coord_val x =  x0 - (seed != j ? (int)(2 * log( (double)abs(seed - j) )) : 0);
 			if(  x > x_last  ) {
-				x_last = x + display_proportional_clip( x, offset.y + size.h + 6, digit, ALIGN_LEFT, line_color, true );
+				x_last = x + display_proportional_clip_rgb( x, offset.y + size.h + 6, digit, ALIGN_LEFT, line_color, true );
 			}
 		}
 		// year's vertical lines
-		display_vline_wh_clip( x0, offset.y + 1, size.h - 2, line_color, false );
+		display_vline_wh_clip_rgb( x0, offset.y + 1, size.h - 2, line_color, false );
 	}
 
 	// display current value?
@@ -214,12 +214,12 @@ void gui_chart_t::draw(scr_coord offset)
 				switch (c.marker_type)
 				{
 					case cross:
-						display_direct_line(x, y, x+4, y+4, c.color);
-						display_direct_line(x+4, y, x, y+4, c.color);
+						display_direct_line_rgb(x, y, x+4, y+4, c.color);
+						display_direct_line_rgb(x+4, y, x, y+4, c.color);
 						break;
 					case diamond:
 						for (int j = 0; j < 5; j++) {
-							display_vline_wh_clip(x+j, y + abs(2 - j), 5-2*abs(2-j), c.color, false);
+							display_vline_wh_clip_rgb(x+j, y + abs(2 - j), 5-2*abs(2-j), c.color, false);
 						}
 						break;
 					case round_box:
@@ -230,7 +230,7 @@ void gui_chart_t::draw(scr_coord offset)
 						break;
 					case square:
 					default:
-						display_fillbox_wh_clip(x, y, 5, 5, c.color, true);
+						display_fillbox_wh_clip_rgb(x, y, 5, 5, c.color, true);
 						break;
 				}
 
@@ -242,7 +242,7 @@ void gui_chart_t::draw(scr_coord offset)
 
 				// draw line between two financial markers; this is only possible from the second value on
 				if (i>0) {
-					display_direct_line(tmpx+factor*(size.w / (x_elements - 1))*(i-1),
+					display_direct_line_rgb(tmpx+factor*(size.w / (x_elements - 1))*(i-1),
 						(scr_coord_val)( offset.y+baseline-(int)(last_year/scale) ),
 						tmpx+factor*(size.w / (x_elements - 1))*(i),
 						(scr_coord_val)( offset.y+baseline-(int)(tmp/scale) ),
@@ -255,11 +255,11 @@ void gui_chart_t::draw(scr_coord offset)
 						if(  env_t::left_to_right_graphs  ) {
 							number_to_string(cmin, display_tmp, c.precision);
 							const sint16 width = proportional_string_width(cmin)+7;
-							display_ddd_proportional( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, COL_GREY4, c.color, cmin, true);
+							display_ddd_proportional( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, color_idx_to_rgb(COL_GREY4), c.color, cmin, true);
 						}
 						else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < size.h  &&  abs((int)(tmp/scale)) > 9  ) {
 							number_to_string(cmin, display_tmp, c.precision);
-							display_proportional_clip(tmpx - 4, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, c.color, true );
+							display_proportional_clip_rgb(tmpx - 4, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, c.color, true );
 						}
 					}
 				}
@@ -280,12 +280,12 @@ void gui_chart_t::draw(scr_coord offset)
 				switch (line.marker_type)
 				{
 					case cross:
-						display_direct_line(x, y, x + 4, y + 4, line.color);
-						display_direct_line(x + 4, y, x, y + 4, line.color);
+						display_direct_line_rgb(x, y, x + 4, y + 4, line.color);
+						display_direct_line_rgb(x + 4, y, x, y + 4, line.color);
 						break;
 					case diamond:
 						for (int j = 0; j < 5; j++) {
-							display_vline_wh_clip(x + j, y + abs(2 - j), 5 - 2 * abs(2 - j), line.color, false);
+							display_vline_wh_clip_rgb(x + j, y + abs(2 - j), 5 - 2 * abs(2 - j), line.color, false);
 						}
 						break;
 					case round_box:
@@ -297,7 +297,7 @@ void gui_chart_t::draw(scr_coord offset)
 						break;
 					case square:
 					default:
-						display_fillbox_wh_clip(x, y, 5, 5, line.color, true);
+						display_fillbox_wh_clip_rgb(x, y, 5, 5, line.color, true);
 						break;
 				}
 
@@ -312,17 +312,17 @@ void gui_chart_t::draw(scr_coord offset)
 					if(  env_t::left_to_right_graphs  ) {
 						number_to_string(cmin, (double)tmp, line.precision);
 						const sint16 width = proportional_string_width(cmin)+7;
-						display_ddd_proportional( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, COL_GREY4, line.color, cmin, true);
+						display_ddd_proportional( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, color_idx_to_rgb(COL_GREY4), line.color, cmin, true);
 					}
 					else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < size.h  &&  abs((int)(tmp/scale)) > 9  ) {
 						number_to_string(cmin, (double)tmp, line.precision);
-						display_proportional_clip(tmpx - 4, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, line.color, true );
+						display_proportional_clip_rgb(tmpx - 4, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, line.color, true );
 					}
 				}
 			}
 			// display horizontal line that passes through all markers
 			const int y_offset = (int)( offset.y + baseline - (sint64)(tmp/scale) );
-			display_fillbox_wh(tmpx, y_offset, factor*(size.w / (x_elements - 1))*(line.times-1), 1, line.color, true);
+			display_fillbox_wh_rgb(tmpx, y_offset, factor*(size.w / (x_elements - 1))*(line.times-1), 1, line.color, true);
 		}
 	}
 }

@@ -37,7 +37,7 @@ private:
 	* Mini Map-Preview
 	* @author Hj. Malthaner
 	*/
-	array2d_tpl<uint8>	map;
+	array2d_tpl<PIXVAL>	map;
 	scr_size            map_size;
 
 	bool load_heightfield;

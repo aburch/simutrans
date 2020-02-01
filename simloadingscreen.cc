@@ -32,7 +32,7 @@ loadingscreen_t::loadingscreen_t( const char *w, uint32 max_p, bool logo, bool c
 	}
 
 	// darkens the current screen
-	display_blend_wh(0, 0, display_get_width(), display_get_height(), COL_BLACK, 50 );
+	display_blend_wh_rgb(0, 0, display_get_width(), display_get_height(), color_idx_to_rgb(COL_BLACK), 50 );
 	mark_screen_dirty();
 
 	display_logo();
@@ -76,21 +76,21 @@ void loadingscreen_t::display()
 		dr_prepare_flush();
 
 		if(  info  ) {
-			display_proportional( half_width, half_height - 8 - LINESPACE - 4, info, ALIGN_CENTER_H, COL_WHITE, true );
+			display_proportional_rgb( half_width, half_height - 8 - LINESPACE - 4, info, ALIGN_CENTER_H, color_idx_to_rgb(COL_WHITE), true );
 		}
 
 		// outline
-		display_ddd_box( quarter_width-2, half_height-9, half_width+4, 20, COL_GREY6, COL_GREY4, true );
-		display_ddd_box( quarter_width-1, half_height-8, half_width+2, 18, COL_GREY4, COL_GREY6, true );
+		display_ddd_box_rgb( quarter_width-2, half_height-9, half_width+4, 20, color_idx_to_rgb(COL_GREY6), color_idx_to_rgb(COL_GREY4), true );
+		display_ddd_box_rgb( quarter_width-1, half_height-8, half_width+2, 18, color_idx_to_rgb(COL_GREY4), color_idx_to_rgb(COL_GREY6), true );
 
 		// inner
-		display_fillbox_wh( quarter_width, half_height - 7, half_width, 16, COL_GREY5, true);
+		display_fillbox_wh_rgb( quarter_width, half_height - 7, half_width, 16, color_idx_to_rgb(COL_GREY5), true);
 
 		// progress
-		display_fillbox_wh( quarter_width, half_height - 5, bar_len,  12, COL_PASSENGERS, true );
+		display_fillbox_wh_rgb( quarter_width, half_height - 5, bar_len,  12, color_idx_to_rgb(COL_PASSENGERS), true );
 
 		if(  what  ) {
-			display_proportional( half_width, half_height-4, what, ALIGN_CENTER_H, SYSCOL_TEXT_HIGHLIGHT, false );
+			display_proportional_rgb( half_width, half_height-4, what, ALIGN_CENTER_H, SYSCOL_TEXT_HIGHLIGHT, false );
 		}
 
 		dr_flush();
@@ -112,7 +112,7 @@ void loadingscreen_t::set_progress( uint32 progress )
 		if(  ev->ev_code == SYSTEM_RESIZE  ) {
 			// main window resized
 			simgraph_resize( ev->mx, ev->my );
-			display_fillbox_wh( 0, 0, ev->mx, ev->my, COL_BLACK, true );
+			display_fillbox_wh_rgb( 0, 0, ev->mx, ev->my, color_idx_to_rgb(COL_BLACK), true );
 			display_logo();
 			// queue the event anyway, so the viewport is correctly updated on world resume (screen will be resized again).
 			queued_events.append(ev);

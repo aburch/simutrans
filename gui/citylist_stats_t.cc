@@ -136,32 +136,32 @@ void citylist_stats_t::draw(scr_coord offset)
 	sint32 sel = line_selected;
 	clip_dimension cl = display_get_clip_wh();
 
-	FORX(vector_tpl<stadt_t*>, const stadt, city_list, offset.y += LINESPACE + 1) {
+	FORX(vector_tpl<stadt_t*>, const city, city_list, offset.y += LINESPACE + 1) {
 
-		sint32 population = stadt->get_finance_history_month(0, HIST_CITICENS);
-		sint32 growth = stadt->get_finance_history_month(0, HIST_GROWTH);
+		sint32 population = city->get_finance_history_month(0, HIST_CITICENS);
+		sint32 growth = city->get_finance_history_month(0, HIST_GROWTH);
 		uint16 left = D_POS_BUTTON_WIDTH+2;
 		if(  offset.y + LINESPACE > cl.y  &&  offset.y <= cl.yy  ) {
-			if( (stadt->get_finance_history_month(0, HIST_POWER_RECIEVED) * 9) > (welt->get_finance_history_month(0, HIST_POWER_NEEDED) / 10) )
+			if( (city->get_finance_history_month(0, HIST_POWER_RECIEVED) * 9) > (welt->get_finance_history_month(0, HIST_POWER_NEEDED) / 10) )
 			{
 				display_color_img(skinverwaltung_t::electricity->get_image_id(0), offset.x + left, offset.y, 0, false, false);
 			}
-			else if (stadt->get_finance_history_month(0, HIST_POWER_RECIEVED) > 0) {
+			else if (city->get_finance_history_month(0, HIST_POWER_RECIEVED) > 0) {
 				display_img_blend(skinverwaltung_t::electricity->get_image_id(0), offset.x + left, offset.y, TRANSPARENT50_FLAG, false, false);
 			}
 			left += 9; // symbol width
 			buf.clear();
-			buf.append(stadt->get_name());
-			display_text_proportional_len_clip(offset.x + left, offset.y, buf, ALIGN_LEFT, SYSCOL_TEXT, true, 25);
+			buf.append(city->get_name());
+			display_text_proportional_len_clip_rgb(offset.x + left, offset.y, buf, ALIGN_LEFT, SYSCOL_TEXT, true, 25);
 
 			left += (int)(D_BUTTON_WIDTH*1.4) + D_H_SPACE;
 			left += proportional_string_width(" 00,000,000");
 			buf.clear();
 			buf.append( population, 0 );
-			display_proportional_clip(offset.x + left, offset.y, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
+			display_proportional_clip_rgb(offset.x + left, offset.y, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 			left += D_H_SPACE;
-			display_fluctuation_triangle(offset.x + left, offset.y, LINESPACE-4, true, growth);
+			display_fluctuation_triangle_rgb(offset.x + left, offset.y, LINESPACE-4, true, growth);
 			left += 9;
 			buf.clear();
 			if (growth == 0) {
@@ -170,8 +170,8 @@ void citylist_stats_t::draw(scr_coord offset)
 			else {
 				buf.append(abs(growth), 0);
 			}
-			const bool allow_citygrowth = stadt->get_citygrowth();
-			left += display_proportional_clip(offset.x + left, offset.y, buf, ALIGN_LEFT, allow_citygrowth ? SYSCOL_TEXT : COL_BLUE, true) + D_H_SPACE;
+			const bool allow_citygrowth = city->get_citygrowth();
+			left += display_proportional_clip_rgb(offset.x + left, offset.y, buf, ALIGN_LEFT, allow_citygrowth ? SYSCOL_TEXT : color_idx_to_rgb(COL_BLUE), true) + D_H_SPACE;
 
 			if (!allow_citygrowth && skinverwaltung_t::alerts) {
 				display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), offset.x + left, offset.y + 1, 0, false, true, translator::translate("City growth is restrained"));
@@ -181,15 +181,15 @@ void citylist_stats_t::draw(scr_coord offset)
 			bool selected = sel==0;
 			if(  !selected  ) {
 				// still on center?
-				if(  grund_t *gr = welt->lookup_kartenboden( stadt->get_center() )  ) {
+				if(  grund_t *gr = welt->lookup_kartenboden( city->get_center() )  ) {
 					selected = welt->get_viewport()->is_on_center( gr->get_pos() );
 				}
 			}
 			display_img_aligned( gui_theme_t::pos_button_img[ selected ], scr_rect( offset.x, offset.y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 			sel --;
 
-			if(  win_get_magic( (ptrdiff_t)stadt )  ) {
-				display_blend_wh( offset.x, offset.y, D_DEFAULT_WIDTH, LINESPACE, SYSCOL_TEXT, 25 );
+			if(  win_get_magic( (ptrdiff_t)city )  ) {
+				display_blend_wh_rgb( offset.x, offset.y, D_DEFAULT_WIDTH, LINESPACE, SYSCOL_TEXT, 25 );
 			}
 		}
 	}

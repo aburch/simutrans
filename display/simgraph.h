@@ -59,7 +59,7 @@ enum control_alignments_t {
 
 	// These flags does not belong in here but
 	// are defined here until we sorted this out.
-	// They are only used in display_text_proportional_len_clip()
+	// They are only used in display_text_proportional_len_clip_rgb()
 	//	DT_DIRTY         = 0x8000,
 	DT_CLIP = 0x4000
 };
@@ -88,12 +88,6 @@ display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
 
 
 /*
-* pixels stored as RGB 1555
-* @author Hajo
-*/
-typedef uint16 PIXVAL;
-
-/*
 * Hajo: mapping table for special-colors (AI player colors)
 * to actual output format - all day mode
 * 16 sets of 16 colors
@@ -101,7 +95,16 @@ typedef uint16 PIXVAL;
 extern PIXVAL specialcolormap_all_day[256];
 
 #define color_idx_to_rgb(idx) (specialcolormap_all_day[(idx)&0x00FF])
-#define color_rbg_to_idx(rgb) display_get_index_from_rgb(rgb)
+
+/*
+ * Get 24bit RGB888 colour from an index of the old 8bit palette
+ */
+uint32 get_color_rgb(uint8 idx);
+
+/*
+ * Environment colours from RGB888 to system format
+ */
+void env_t_rgb_to_system_colors();
 
 /**
 * Helper functions for clipping along tile borders.
@@ -175,14 +178,12 @@ void display_set_light(int new_light_level);
 
 void display_day_night_shift(int night);
 
-// returns next matching color to an rgb
-COLOR_VAL display_get_index_from_rgb(uint8 r, uint8 g, uint8 b);
 
 // scrolls horizontally, will ignore clipping etc.
 void display_scroll_band(const KOORD_VAL start_y, const KOORD_VAL x_offset, const KOORD_VAL h);
 
 // set first and second company color for player
-void display_set_player_color_scheme(const int player, const COLOR_VAL col1, const COLOR_VAL col2);
+void display_set_player_color_scheme(const int player, const uint8 col1, const uint8 col2);
 
 // only used for GUI, display image inside a rect
 void display_img_aligned(const image_id n, scr_rect area, int align, const int dirty);
@@ -194,14 +195,14 @@ void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed 
 * draws the images with alpha, either blended or as outline
 * @author kierongreen
 */
-void display_rezoomed_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
+void display_rezoomed_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
 #define display_img_blend( n, x, y, c, dn, d ) display_rezoomed_img_blend( (n), (x), (y), 0, (c), (dn), (d)  CLIP_NUM_DEFAULT)
 
 #define ALPHA_RED 0x1
 #define ALPHA_GREEN 0x2
 #define ALPHA_BLUE 0x4
 
-void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
+void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
 #define display_img_alpha( n, a, f, x, y, c, dn, d ) display_rezoomed_img_alpha( (n), (a), (f), (x), (y), 0, (c), (dn), (d)  CLIP_NUM_DEFAULT)
 
 // display image with color (if there) and optional day and night change
@@ -219,16 +220,16 @@ typedef image_id stretch_map_t[3][3];
 void display_img_stretch(const stretch_map_t &imag, scr_rect area);
 
 // this displays a 3x3 array of images to fit the scr_rect like above, but blend the color
-void display_img_stretch_blend(const stretch_map_t &imag, scr_rect area, PLAYER_COLOR_VAL color);
+void display_img_stretch_blend(const stretch_map_t &imag, scr_rect area, FLAGGED_PIXVAL color);
 
 // Knightly : display unzoomed image with alpha, either blended or as outline
-void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
-void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
+void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
+void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
 
 // Knightly : pointer to image display procedures
 typedef void(*display_image_proc)(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF);
-typedef void(*display_blend_proc)(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
-typedef void(*display_alpha_proc)(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
+typedef void(*display_blend_proc)(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
+typedef void(*display_alpha_proc)(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
 
 // Knightly : variables for storing currently used image procedure set and tile raster width
 extern display_image_proc display_normal;
@@ -261,26 +262,21 @@ inline void display_set_image_proc(bool is_global)
 
 // blends a rectangular region
 void display_blend_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, int percent_blend);
-#define display_blend_wh(xp,yp,w,h,color,percent_blend) display_blend_wh_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],percent_blend )
 
 void display_vlinear_gradient_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, int percent_blend_start, int percent_blend_end);
 #define display_vlinear_gradiwnt_wh(xp,yp,w,h,color,percent_blend_start,percent_blend_end) display_vlinear_gradient_wh_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],percent_blend_start,percent_blend_end )
 
 void display_fillbox_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty);
-#define display_fillbox_wh(xp,yp,w,h,color,dirty) display_fillbox_wh_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],dirty)
 
 void display_fillbox_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
-#define display_fillbox_wh_clip( x, y, w, h, c, d ) display_fillbox_wh_clip_rgb( (x), (y), (w), (h), specialcolormap_all_day[(c)&0xFF], (d))
+
 void display_filled_roundbox_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty);
 
-
 void display_cylinderbar_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
-#define display_cylinderbar_wh_clip( x, y, w, h, c, d ) display_cylinderbar_wh_clip_rgb( (x), (y), (w), (h), specialcolormap_all_day[(c)&0xFF], (d))
 
-void display_colorbox_with_tooltip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty, const char *text);
+void display_colorbox_with_tooltip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty, const char *text=NULL);
 
 void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVAL color, bool dirty, uint8 basic_coupling_constraint, uint8 interactivity, bool is_rightside CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
-#define display_veh_form( x, y, w, color, d, flags, interactivity, right) display_veh_form_wh_clip_rgb( (x), (y), (w), specialcolormap_all_day[(color)&0xFF], (d), (flags), (interactivity), (right))
 
 enum {
 	BIDIRECTIONAL = 1,
@@ -288,10 +284,8 @@ enum {
 };
 
 void display_vline_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PIXVAL color, bool dirty);
-#define display_vline_wh(xp,yp,h,color,dirty) display_vline_wh_rgb( xp,yp,h,specialcolormap_all_day[(color)&0xFF],dirty)
 
 void display_vline_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PIXVAL c, bool dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
-#define display_vline_wh_clip( x, y, h, c, d ) display_vline_wh_clip_rgb( (x), (y), (h), specialcolormap_all_day[(c)&0xFF], (d))
 
 void display_clear();
 
@@ -302,18 +296,13 @@ void display_set_pointer(int pointer);
 void display_show_load_pointer(int loading);
 
 
-void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, const COLOR_VAL *arr);
+void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, const PIXVAL *arr);
 
 // compound painting routines
 void display_outline_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty);
 void display_shadow_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty);
 void display_ddd_box_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PIXVAL tl_color, PIXVAL rd_color, bool dirty);
 void display_ddd_box_clip_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PIXVAL tl_color, PIXVAL rd_color);
-
-#define display_outline_proportional( x, y, text_col, shadow_col, text, dirty ) display_outline_proportional_rgb( x, y, specialcolormap_all_day[(text_col)&0xFF], specialcolormap_all_day[(shadow_col)&0xFF], text, dirty )
-#define display_shadow_proportional( x, y, text_col, shadow_col, text, dirty ) display_shadow_proportional_rgb( x, y, specialcolormap_all_day[(text_col)&0xFF], specialcolormap_all_day[(shadow_col)&0xFF], text, dirty )
-#define display_ddd_box( x, y, w, h, box_col, shadow_col, dirty ) display_ddd_box_rgb( x, y, w, h, specialcolormap_all_day[(box_col)&0xFF], specialcolormap_all_day[(shadow_col)&0xFF], dirty )
-#define display_ddd_box_clip( x, y, w, h, box_col, shadow_col ) display_ddd_box_clip_rgb( x, y, w, h, specialcolormap_all_day[(box_col)&0xFF], specialcolormap_all_day[(shadow_col)&0xFF] )
 
 
 // unicode save moving in strings
@@ -373,10 +362,8 @@ int display_calc_proportional_string_len_width(const char* text, size_t len);
 // #ifdef MULTI_THREAD
 int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len  CLIP_NUM_DEF  CLIP_NUM_DEFAULT_ZERO);
 /* macro are for compatibility */
-#define display_proportional(                  x, y, txt, align, c, dirty)            display_text_proportional_len_clip_rgb(x, y, txt, align,           specialcolormap_all_day[(c)&0xFF], dirty, -1)
-#define display_proportional_clip(             x, y, txt, align, c, dirty)            display_text_proportional_len_clip_rgb(x, y, txt, align | DT_CLIP, specialcolormap_all_day[(c)&0xFF], dirty, -1)
-#define display_text_proportional_len_clip(    x, y, txt, align, c, dirty, len )      display_text_proportional_len_clip_rgb( (x), (y), (txt), (align) | DT_CLIP,  specialcolormap_all_day[(c)&0xFF], (dirty), (len))
 #define display_proportional_rgb(              x, y, txt, align, color, dirty)        display_text_proportional_len_clip_rgb(x, y, txt, align,           color, dirty, -1)
+#define display_proportional_clip_rgb(         x, y, txt, align, color, dirty)        display_text_proportional_len_clip_rgb(x, y, txt, align | DT_CLIP, color, dirty, -1)
 
 
 /*
@@ -385,30 +372,21 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 * @returns screen_width
 */
 KOORD_VAL display_proportional_ellipse_rgb(scr_rect r, const char *text, int align, const PIXVAL color, const bool dirty);
-#define display_proportional_ellipse( r, txt, align, c, dirty) display_proportional_ellipse_rgb( r, txt, align, specialcolormap_all_day[(c)&0xFF], dirty )
 
-void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty);
+void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, FLAGGED_PIXVAL ddd_farbe, FLAGGED_PIXVAL text_farbe, const char *text, int dirty);
 
-void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, FLAGGED_PIXVAL ddd_farbe, FLAGGED_PIXVAL text_farbe, const char *text, int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 
 
 int display_multiline_text_rgb(KOORD_VAL x, KOORD_VAL y, const char *inbuf, PIXVAL color);
-#define display_multiline_text( x, y, buf, c ) display_multiline_text_rgb( (x), (y), (buf), specialcolormap_all_day[(c)&0xFF] )
 
 // line drawing primitives
 void display_direct_line_rgb(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const PIXVAL color);
-#define display_direct_line(xp,yp,xd,yd,color) display_direct_line_rgb( xp,yp,xd,yd,specialcolormap_all_day[(color)&0xFF] )
 void display_direct_line_dotted_rgb(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const KOORD_VAL draw, const KOORD_VAL dontDraw, const PIXVAL color);
-#define display_direct_line_dotted(xp,yp,xd,yd,draw,dont_draw,color) display_direct_line_dotted_rgb( xp,yp,xd,yd,draw,dont_draw,specialcolormap_all_day[(color)&0xFF] )
 void display_circle_rgb(KOORD_VAL x0, KOORD_VAL  y0, int radius, const PIXVAL color);
-#define display_circle(xp,yp,radius,color) display_circle_rgb( xp,yp,radius,specialcolormap_all_day[(color)&0xFF] )
 void display_filled_circle_rgb(KOORD_VAL x0, KOORD_VAL  y0, int radius, const PIXVAL color);
-#define display_filled_circle(xp,yp,radius,color) display_filled_circle_rgb( xp,yp,radius,specialcolormap_all_day[(color)&0xFF] )
-int display_fluctuation_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, const bool dirty, sint64 value=0);
-#define display_fluctuation_triangle(xp,yp,height,dirty,positive) display_fluctuation_triangle_rgb( xp,yp,height,dirty,positive )
-
 void draw_bezier_rgb(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_VAL ADx, KOORD_VAL ADy, KOORD_VAL BDx, KOORD_VAL BDy, const PIXVAL colore, KOORD_VAL draw, KOORD_VAL dontDraw);
-#define draw_bezier(xp,yp,xd,yd,ADx,ADy,BDx,BDy,color,draw,dont_draw) draw_bezier_rgb( xp,yp,xd,yd,ADx,ADy,BDx,BDy,specialcolormap_all_day[(color)&0xFF],draw,dont_draw )
+int display_fluctuation_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, const bool dirty, sint64 value=0);
 
 void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 clip_dimension display_get_clip_wh(CLIP_NUM_DEF0 CLIP_NUM_DEFAULT_ZERO);
@@ -421,8 +399,8 @@ void display_pop_clip_wh(CLIP_NUM_DEF0);
 void display_snapshot(int x, int y, int w, int h);
 
 #if COLOUR_DEPTH != 0
-extern COLOR_VAL display_day_lights[LIGHT_COUNT * 3];
-extern COLOR_VAL display_night_lights[LIGHT_COUNT * 3];
+extern uint8 display_day_lights[LIGHT_COUNT * 3];
+extern uint8 display_night_lights[LIGHT_COUNT * 3];
 #endif
 
 #endif

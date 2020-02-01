@@ -201,38 +201,38 @@ class gui_theme_t {
 public:
 	/// @name system colours used by gui components
 	/// @{
-	static COLOR_VAL gui_color_text;                         //@< Color to draw standard text
-	static COLOR_VAL gui_color_text_highlight;               //@< Color to draw highlighted text (tabs, finance window headlines, ware list, fps info in video options, it and em tags)
-	static COLOR_VAL gui_color_text_title;                   //@< Color to draw title text (banner, h1 and a tags)
-	static COLOR_VAL gui_color_text_shadow;                  //@< Color to draw text shadow
-	static COLOR_VAL gui_color_text_strong;                  //@< Color to draw strong text (strong tags)
-	static COLOR_VAL gui_color_edit_text;                    //@< Color to draw text in edit areas
-	static COLOR_VAL gui_color_edit_text_selected;           //@< Color to draw selected text in edit areas
-	static COLOR_VAL gui_color_edit_text_disabled;           //@< Color to draw disabled text in edit areas
-	static COLOR_VAL gui_color_edit_background_selected;     //@< Color to draw background of selected text in edit areas
-	static COLOR_VAL gui_color_edit_beam;                    //@< Color to draw the cursor beam
-	static COLOR_VAL gui_color_chart_background;             //@< Color to draw background of charts
-	static COLOR_VAL gui_color_chart_lines_zero;             //@< Color to draw in-chart horizontal zero line
-	static COLOR_VAL gui_color_chart_lines_odd;              //@< Color to draw in-chart vertical odd lines and text
-	static COLOR_VAL gui_color_chart_lines_even;             //@< Color to draw in-chart vertical even lines and text
-	static COLOR_VAL gui_color_list_text_selected_focus;     //@< Colour to draw the selected element text in list when window has focus
-	static COLOR_VAL gui_color_list_text_selected_nofocus;   //@< Colour to draw the selected element text in list when window is not in focus
-	static COLOR_VAL gui_color_list_background_selected_f;   //@< Colour to draw the selected element background in list when window has focus
-	static COLOR_VAL gui_color_list_background_selected_nf;  //@< Colour to draw the selected element background in list when window is not in focus
-	static COLOR_VAL gui_color_button_text;                  //@< Color to draw text in normal buttons
-	static COLOR_VAL gui_color_button_text_disabled;         //@< Color to draw text in disabled buttons
-	static COLOR_VAL gui_color_button_text_selected;         //@< Color to draw text in pressed normal buttons
-	static COLOR_VAL gui_color_colored_button_text;          //@< Color to draw text in colored buttons
-	static COLOR_VAL gui_color_colored_button_text_selected; //@< Color to draw text in pressed colored buttons
-	static COLOR_VAL gui_color_checkbox_text;                //@< Color to draw text in checkboxes
-	static COLOR_VAL gui_color_checkbox_text_disabled;       //@< Color to draw text in disabled checkboxes
-	static COLOR_VAL gui_color_ticker_background;            //@< Color to draw ticker background
-	static COLOR_VAL gui_color_ticker_divider;               //@< Color to draw ticker divider
-	static COLOR_VAL gui_color_statusbar_text;               //@< Color to draw text in statusbar
-	static COLOR_VAL gui_color_statusbar_background;         //@< Color to draw statusbar background
-	static COLOR_VAL gui_color_statusbar_divider;            //@< Color to draw statusbar divider
-	static COLOR_VAL gui_highlight_color;                    //@< Color to draw highlight dividers (tabs)
-	static COLOR_VAL gui_shadow_color;                       //@< Color to draw shadowed dividers (tabs)
+	static PIXVAL gui_color_text;                         //@< Color to draw standard text
+	static PIXVAL gui_color_text_highlight;               //@< Color to draw highlighted text (tabs, finance window headlines, ware list, fps info in video options, it and em tags)
+	static PIXVAL gui_color_text_title;                   //@< Color to draw title text (banner, h1 and a tags)
+	static PIXVAL gui_color_text_shadow;                  //@< Color to draw text shadow
+	static PIXVAL gui_color_text_strong;                  //@< Color to draw strong text (strong tags)
+	static PIXVAL gui_color_edit_text;                    //@< Color to draw text in edit areas
+	static PIXVAL gui_color_edit_text_selected;           //@< Color to draw selected text in edit areas
+	static PIXVAL gui_color_edit_text_disabled;           //@< Color to draw disabled text in edit areas
+	static PIXVAL gui_color_edit_background_selected;     //@< Color to draw background of selected text in edit areas
+	static PIXVAL gui_color_edit_beam;                    //@< Color to draw the cursor beam
+	static PIXVAL gui_color_chart_background;             //@< Color to draw background of charts
+	static PIXVAL gui_color_chart_lines_zero;             //@< Color to draw in-chart horizontal zero line
+	static PIXVAL gui_color_chart_lines_odd;              //@< Color to draw in-chart vertical odd lines and text
+	static PIXVAL gui_color_chart_lines_even;             //@< Color to draw in-chart vertical even lines and text
+	static PIXVAL gui_color_list_text_selected_focus;     //@< Colour to draw the selected element text in list when window has focus
+	static PIXVAL gui_color_list_text_selected_nofocus;   //@< Colour to draw the selected element text in list when window is not in focus
+	static PIXVAL gui_color_list_background_selected_f;   //@< Colour to draw the selected element background in list when window has focus
+	static PIXVAL gui_color_list_background_selected_nf;  //@< Colour to draw the selected element background in list when window is not in focus
+	static PIXVAL gui_color_button_text;                  //@< Color to draw text in normal buttons
+	static PIXVAL gui_color_button_text_disabled;         //@< Color to draw text in disabled buttons
+	static PIXVAL gui_color_button_text_selected;         //@< Color to draw text in pressed normal buttons
+	static PIXVAL gui_color_colored_button_text;          //@< Color to draw text in colored buttons
+	static PIXVAL gui_color_colored_button_text_selected; //@< Color to draw text in pressed colored buttons
+	static PIXVAL gui_color_checkbox_text;                //@< Color to draw text in checkboxes
+	static PIXVAL gui_color_checkbox_text_disabled;       //@< Color to draw text in disabled checkboxes
+	static PIXVAL gui_color_ticker_background;            //@< Color to draw ticker background
+	static PIXVAL gui_color_ticker_divider;               //@< Color to draw ticker divider
+	static PIXVAL gui_color_statusbar_text;               //@< Color to draw text in statusbar
+	static PIXVAL gui_color_statusbar_background;         //@< Color to draw statusbar background
+	static PIXVAL gui_color_statusbar_divider;            //@< Color to draw statusbar divider
+	static PIXVAL gui_highlight_color;                    //@< Color to draw highlight dividers (tabs)
+	static PIXVAL gui_shadow_color;                       //@< Color to draw shadowed dividers (tabs)
 	/// @}
 
 	/// @name GUI element sizes used by gui components

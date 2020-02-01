@@ -708,7 +708,7 @@ void tool_t::draw_after(scr_coord pos, bool dirty) const
 	// default action: grey corner if selected
 	image_id id = get_icon( welt->get_active_player() );
 	if(  id!=IMG_EMPTY  &&  is_selected()  ) {
-		display_img_blend( id, pos.x, pos.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
+		display_img_blend( id, pos.x, pos.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
 	}
 }
 

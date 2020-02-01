@@ -277,7 +277,7 @@ public:
 	site_t get_placement() const { return placement; }
 	int get_distribution_weight() const { return distribution_weight; }
 
-	uint8 get_kennfarbe() const { return color; } //"identification colour code" (Babelfish)
+	PIXVAL get_color() const { return color_idx_to_rgb(color); } //"identification colour code" (Babelfish)
 
 	void set_productivity(uint16 p) { productivity=p; }
 	int get_productivity() const { return productivity; }

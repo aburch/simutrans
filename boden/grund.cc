@@ -137,7 +137,7 @@ const char *grund_t::get_text() const
 }
 
 
-PLAYER_COLOR_VAL grund_t::text_farbe() const
+FLAGGED_PIXVAL grund_t::text_farbe() const
 {
 	// if this ground belongs to a halt, the color should reflect the halt owner, not the ground owner!
 	// Now, we use the color of label_t owner
@@ -146,7 +146,7 @@ PLAYER_COLOR_VAL grund_t::text_farbe() const
 		const halthandle_t halt = get_halt();
 		const player_t *player=halt->get_owner();
 		if(player) {
-			return PLAYER_FLAG|(player->get_player_color1()+4);
+			return PLAYER_FLAG|color_idx_to_rgb(player->get_player_color1()+4);
 		}
 	}
 	// else color according to current owner
@@ -157,7 +157,7 @@ PLAYER_COLOR_VAL grund_t::text_farbe() const
 			player = l->get_owner();
 		}
 		if(player) {
-			return PLAYER_FLAG|(player->get_player_color1()+4);
+			return PLAYER_FLAG|color_idx_to_rgb(player->get_player_color1()+4);
 		}
 	}
 
@@ -1110,7 +1110,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 				display_normal( get_image(), xpos, ypos, 0, true, dirty CLIP_NUM_PAR );
 #ifdef SHOW_FORE_GRUND
 				if (get_flag(grund_t::draw_as_obj)) {
-					display_blend( get_image(), xpos, ypos, 0, COL_RED | OUTLINE_FLAG |TRANSPARENT50_FLAG, true, dirty CLIP_NUM_PAR );
+					display_blend( get_image(), xpos, ypos, 0, color_idx_to_rgb(COL_RED) | OUTLINE_FLAG |TRANSPARENT50_FLAG, true, dirty CLIP_NUM_PAR );
 				}
 #endif
 				//display climate transitions - only needed if below snowline (snow_transition>0)
@@ -1736,19 +1736,19 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 			const sint16 raster_tile_width = get_tile_raster_width();
 			const int width = proportional_string_width(text)+7;
 			int new_xpos = xpos - (width-raster_tile_width)/2;
-			PLAYER_COLOR_VAL pc = text_farbe();
+			FLAGGED_PIXVAL pc = text_farbe();
 
 			switch( env_t::show_names >> 2 ) {
 				case 0:
 					display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, SYSCOL_TEXT, text, dirty );
 					break;
 				case 1:
-					display_outline_proportional( new_xpos, ypos-(LINESPACE/2), pc+3, SYSCOL_TEXT, text, dirty );
+					display_outline_proportional_rgb( new_xpos, ypos-(LINESPACE/2), pc+3, SYSCOL_TEXT, text, dirty );
 					break;
 				case 2:
-					display_outline_proportional( 16+new_xpos, ypos-(LINESPACE/2), COL_YELLOW, SYSCOL_TEXT, text, dirty );
-					display_ddd_box_clip( new_xpos, ypos-(LINESPACE/2), LINESPACE, LINESPACE, pc-2, pc+2 );
-					display_fillbox_wh( new_xpos+1, ypos-(LINESPACE/2)+1, LINESPACE-2, LINESPACE-2, pc, dirty );
+					display_outline_proportional_rgb( 16+new_xpos, ypos-(LINESPACE/2), color_idx_to_rgb(COL_YELLOW), SYSCOL_TEXT, text, dirty );
+					display_ddd_box_clip_rgb( new_xpos, ypos-(LINESPACE/2), LINESPACE, LINESPACE, pc-2, pc+2 );
+					display_fillbox_wh_rgb( new_xpos+1, ypos-(LINESPACE/2)+1, LINESPACE-2, LINESPACE-2, pc, dirty );
 					break;
 			}
 		}

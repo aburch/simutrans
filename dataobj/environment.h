@@ -10,6 +10,7 @@
 #include <string>
 #include "../simtypes.h"
 #include "../simconst.h"
+#include "../simcolor.h"
 #include "settings.h"
 #include "../display/scr_coord.h"
 
@@ -198,8 +199,10 @@ public:
 
 	/// customize your tooltips
 	static bool show_tooltips;
-	static uint8 tooltip_color;
-	static uint8 tooltip_textcolor;
+	static uint32 tooltip_color_rgb;
+	static PIXVAL tooltip_color;
+	static uint32 tooltip_textcolor_rgb;
+	static PIXVAL tooltip_textcolor;
 	static uint32 tooltip_delay;
 	static uint32 tooltip_duration;
 
@@ -209,10 +212,13 @@ public:
 
 	// how to highlight topped (untopped windows)
 	static bool window_frame_active;
-	static uint8 front_window_bar_color;
-	static uint8 front_window_text_color;
-	static uint8 bottom_window_bar_color;
-	static uint8 bottom_window_text_color;
+	static uint32 front_window_text_color_rgb;
+	static PIXVAL front_window_text_color;
+	static uint32 bottom_window_text_color_rgb;
+	static PIXVAL bottom_window_text_color;
+	static uint32 default_window_title_color_rgb;
+	static PIXVAL default_window_title_color;
+	static uint8 bottom_window_darkness;
 
 	// display compass
 	static uint16 compass_map_position;
@@ -276,10 +282,12 @@ public:
 	static uint16 cursor_hide_range;
 
 	/// color used for cursor overlay blending
-	static uint8 cursor_overlay_color;
+	static uint32 cursor_overlay_color_rgb;
+	static PIXVAL cursor_overlay_color;
 
 	/// color used for solid background draw
-	static uint8 background_color;
+	static uint32 background_color_rgb;
+	static PIXVAL background_color;
 
 	/// true if the border shut be shown as cut through the earth
 	static bool draw_earth_border;

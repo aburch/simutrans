@@ -79,7 +79,7 @@ public:
 		}
 	}
 
-	PLAYER_COLOR_VAL get_outline_colour() const OVERRIDE
+	FLAGGED_PIXVAL get_outline_colour() const OVERRIDE
 	{
 		uint8 restriction_colour;
 		switch (overtaking_mode)
@@ -94,7 +94,7 @@ public:
 			default:
 				return 0;
 		}
-		return (show_masked_ribi && restriction_colour) ? TRANSPARENT75_FLAG | OUTLINE_FLAG | restriction_colour : 0;
+		return (show_masked_ribi && restriction_colour) ? TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(restriction_colour) : 0;
 	}
 
 	static uint8 overtaking_mode_to_color(overtaking_mode_t o) {

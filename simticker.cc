@@ -21,7 +21,7 @@
 struct node {
 	char msg[256];
 	koord pos;
-	PLAYER_COLOR_VAL color;
+	FLAGGED_PIXVAL color;
 	sint16 xpos;
 	sint32 w;
 };
@@ -54,7 +54,7 @@ void ticker::set_redraw_all(const bool b)
 	redraw_all=b;
 }
 
-void ticker::add_msg(const char* txt, koord pos, int color)
+void ticker::add_msg(const char* txt, koord pos, FLAGGED_PIXVAL color)
 {
 	// don't store more than 4 messages, it's useless.
 	const int count = list.get_count();
@@ -120,13 +120,13 @@ void ticker::draw()
 		// redraw ticker partially
 		else {
 			display_scroll_band( start_y+1, X_DIST, TICKER_HEIGHT-1 );
-			display_fillbox_wh(width-X_DIST, start_y+1, X_DIST, TICKER_HEIGHT-1, SYSCOL_TICKER_BACKGROUND, true);
+			display_fillbox_wh_rgb(width-X_DIST, start_y+1, X_DIST, TICKER_HEIGHT-1, SYSCOL_TICKER_BACKGROUND, true);
 			// ok, ready for the text
 			PUSH_CLIP( 0, start_y + 1, width - 1, TICKER_HEIGHT-1 );
 			FOR(slist_tpl<node>, & n, list) {
 				n.xpos -= X_DIST;
 				if (n.xpos < width) {
-					display_proportional_clip(n.xpos, start_y + 2, n.msg, ALIGN_LEFT, n.color, true);
+					display_proportional_clip_rgb(n.xpos, start_y + 2, n.msg, ALIGN_LEFT, n.color, true);
 					default_pos = n.pos;
 				}
 			}
@@ -160,12 +160,12 @@ void ticker::redraw_ticker()
 		const int width = display_get_width();
 
 		// just draw the ticker in its colour ... (to be sure ... )
-		display_fillbox_wh(0, start_y, width, 1, SYSCOL_TICKER_DIVIDER, true);
-		display_fillbox_wh(0, start_y+1, width, TICKER_HEIGHT-1, SYSCOL_TICKER_BACKGROUND, true);
+		display_fillbox_wh_rgb(0, start_y, width, 1, SYSCOL_TICKER_DIVIDER, true);
+		display_fillbox_wh_rgb(0, start_y+1, width, TICKER_HEIGHT-1, SYSCOL_TICKER_BACKGROUND, true);
 		FOR(slist_tpl<node>, & n, list) {
 			n.xpos -= X_DIST;
 			if (n.xpos < width) {
-				display_proportional_clip(n.xpos, start_y + 2, n.msg, ALIGN_LEFT, n.color, true);
+				display_proportional_clip_rgb(n.xpos, start_y + 2, n.msg, ALIGN_LEFT, n.color, true);
 				default_pos = n.pos;
 			}
 		}

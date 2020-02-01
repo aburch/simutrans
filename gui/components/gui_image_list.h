@@ -38,14 +38,14 @@ public:
 		const char *text;  ///< can be NULL, used to store external data
 		image_id   image;  ///< the image
 		sint16     count;  ///< display this number as overlay
-		COLOR_VAL  lcolor; ///< color of left half of color bar, use EMPTY_IMAGE_BAR to display no bar
-		COLOR_VAL  rcolor; ///< color of right half of color bar, use EMPTY_IMAGE_BAR to display no bar
-		uint8 basic_coupling_constraint_prev; // basic_coupling_constraint for the shape of color bar of left side
-		uint8 basic_coupling_constraint_next; // basic_coupling_constraint for the shape of color bar of right side
-		uint8 interactivity; // bidirectional flags and has_power(motor/engine) flag
-		uint8 has_upgrade;
+		PIXVAL     lcolor; ///< color of left half of color bar, use EMPTY_IMAGE_BAR to display no bar
+		PIXVAL     rcolor; ///< color of right half of color bar, use EMPTY_IMAGE_BAR to display no bar
+		uint8      basic_coupling_constraint_prev; // basic_coupling_constraint for the shape of color bar of left side
+		uint8      basic_coupling_constraint_next; // basic_coupling_constraint for the shape of color bar of right side
+		uint8      interactivity; // bidirectional flags and has_power(motor/engine) flag
+		uint8      has_upgrade;
 
-		image_data_t(const char *text_, image_id image_, sint16 count_=0, COLOR_VAL lcolor_=EMPTY_IMAGE_BAR, COLOR_VAL rcolor_=EMPTY_IMAGE_BAR, uint8 basic_coupling_constraint_prev_=0, uint8 basic_coupling_constraint_next_ = 0, uint8 interactivity_ = 0, uint8 has_upgrade_ = 0)
+		image_data_t(const char *text_, image_id image_, sint16 count_=0, PIXVAL lcolor_=EMPTY_IMAGE_BAR, PIXVAL rcolor_=EMPTY_IMAGE_BAR, uint8 basic_coupling_constraint_prev_=0, uint8 basic_coupling_constraint_next_ = 0, uint8 interactivity_ = 0, uint8 has_upgrade_ = 0)
 		: text(text_), image(image_), count(count_), lcolor(lcolor_), rcolor(rcolor_), basic_coupling_constraint_prev(basic_coupling_constraint_prev_), basic_coupling_constraint_next(basic_coupling_constraint_next_), interactivity(interactivity_), has_upgrade(has_upgrade_) {}
 	};
 

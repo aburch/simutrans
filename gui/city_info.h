@@ -32,7 +32,7 @@ class city_info_t : public gui_frame_t, private action_listener_t
 private:
 	char name[256], old_name[256];
 
-	stadt_t *stadt;
+	stadt_t *city;
 
 	scr_size minimaps_size; // size of minimaps
 	scr_coord minimap2_offset; // position offset of second minimap
@@ -47,19 +47,19 @@ private:
 
 	button_t filterButtons[MAX_CITY_HISTORY];
 
-	array2d_tpl<uint8> pax_dest_old, pax_dest_new;
+	array2d_tpl<PIXVAL> pax_dest_old, pax_dest_new;
 
 	uint32 pax_destinations_last_change;
 
-	void init_pax_dest( array2d_tpl<uint8> &pax_dest );
-	void add_pax_dest( array2d_tpl<uint8> &pax_dest, const sparse_tpl< uint8 >* city_pax_dest );
+	void init_pax_dest( array2d_tpl<PIXVAL> &pax_dest );
+	void add_pax_dest( array2d_tpl<PIXVAL> &pax_dest, const sparse_tpl<PIXVAL>* city_pax_dest );
 
 	void rename_city();
 
 	void reset_city_name();
 
 public:
-	city_info_t(stadt_t *stadt);
+	city_info_t(stadt_t *city);
 
 	virtual ~city_info_t();
 

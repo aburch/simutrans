@@ -278,7 +278,7 @@ void player_t::display_messages()
 
 		const scr_coord scr_pos = vp->get_screen_coord(koord3d(m->pos,welt->lookup_hgt(m->pos)),koord(0,m->alter >> 4));
 
-		display_shadow_proportional( scr_pos.x, scr_pos.y, PLAYER_FLAG|(player_color_1+3), SYSCOL_TEXT_SHADOW, m->str, true);
+		display_shadow_proportional_rgb(scr_pos.x, scr_pos.y, PLAYER_FLAG | color_idx_to_rgb(player_color_1+3), color_idx_to_rgb(COL_BLACK), m->str, true);
 		if(  m->pos.x < 3  ||  m->pos.y < 3  ) {
 			// very close to border => renew background
 			welt->set_background_dirty();
@@ -347,7 +347,7 @@ void player_t::step()
 {
 	/*
 	NOTE: This would need updating to the new FOR iterators to work now.
-	// die haltestellen müssen die Fahrpläne rgelmaessig pruefen
+	// die haltestellen mEsen die Fahrpläne rgelmaessig pruefen
 	uint8 i = (uint8)(welt->get_steps()+player_nr);
 	//slist_iterator_tpl <nearby_halt_t> iter( halt_list );
 	//while(iter.next()) {

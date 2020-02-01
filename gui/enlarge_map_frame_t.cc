@@ -245,7 +245,7 @@ void enlarge_map_frame_t::draw(scr_coord pos, scr_size size)
 	while (welt->get_settings().get_rotation() != sets->get_rotation()) {
 		// map was rotated while we are active ... => rotate too!
 		sets->rotate90();
-		sets->set_groesse( sets->get_size_y(), sets->get_size_x() );
+		sets->set_size( sets->get_size_y(), sets->get_size_x() );
 		update_preview();
 	}
 
@@ -254,7 +254,7 @@ void enlarge_map_frame_t::draw(scr_coord pos, scr_size size)
 	int x = pos.x+RIGHT_COLUMN;
 	int y = pos.y+D_TITLEBAR_HEIGHT+D_MARGIN_TOP;
 
-	display_ddd_box_clip(x-2, y, preview_size+2, preview_size+2, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip_rgb(x-2, y, preview_size+2, preview_size+2,  color_idx_to_rgb(MN_GREY0),  color_idx_to_rgb(MN_GREY4));
 	display_array_wh(x-1, y+1, preview_size, preview_size, karte);
 }
 
@@ -281,13 +281,13 @@ void enlarge_map_frame_t::update_preview()
 
 	for(  int j=0;  j<pre_y;  j++  ) {
 		for(  int i=0;  i<pre_x;  i++  ) {
-			COLOR_VAL color;
+			PIXVAL color;
 			koord pos(i*mx,j*my);
 
 			if(  pos.x<=old_x  &&  pos.y<=old_y  ){
 				if(  i==(old_x/mx)  ||  j==(old_y/my)  ){
 					// border
-					color = COL_WHITE;
+					color = color_idx_to_rgb(COL_WHITE);
 				}
 				else {
 					const sint16 height = welt->lookup_hgt( pos );
@@ -304,7 +304,7 @@ void enlarge_map_frame_t::update_preview()
 	}
 	for(  int j=0;  j<preview_size;  j++  ) {
 		for(  int i=(j<pre_y ? pre_x : 0);  i<preview_size;   i++  ) {
-			karte[j*preview_size+i] = COL_GREY1;
+			karte[j*preview_size+i] = color_idx_to_rgb(COL_GREY1);
 		}
 	}
 	sets->heightfield = "";

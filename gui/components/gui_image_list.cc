@@ -86,7 +86,7 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 
 	if (focus >= 0) {
 		// This need to draw first because it will overlap the left vehicle
-		display_blend_wh(xpos + grid.x*focus + 1, ypos + 1, grid.x - 2, grid.y - 2, COL_UPGRADEABLE, 25);
+		display_blend_wh_rgb(xpos + grid.x*focus + 1, ypos + 1, grid.x - 2, grid.y - 2, COL_UPGRADEABLE, 25);
 	}
 
 	FOR(vector_tpl<image_data_t*>, const& iptr, *images) {
@@ -95,13 +95,13 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 
 			// display mark
 			if(idata.lcolor!=EMPTY_IMAGE_BAR) {
-				display_veh_form(xpos + 1, ypos + grid.y - VEHICLE_BAR_HEIGHT - 1, grid.x/2 - 1, idata.lcolor, true, idata.basic_coupling_constraint_prev, idata.interactivity, false);
+				display_veh_form_wh_clip_rgb(xpos + 1, ypos + grid.y - VEHICLE_BAR_HEIGHT - 1, grid.x/2 - 1, idata.lcolor, true, idata.basic_coupling_constraint_prev, idata.interactivity, false);
 			}
 			if(idata.rcolor!=EMPTY_IMAGE_BAR) {
-				display_veh_form(xpos + grid.x/2, ypos + grid.y - VEHICLE_BAR_HEIGHT - 1, grid.x - grid.x/2 - 1, idata.rcolor, true, idata.basic_coupling_constraint_next, idata.interactivity, true);
+				display_veh_form_wh_clip_rgb(xpos + grid.x/2, ypos + grid.y - VEHICLE_BAR_HEIGHT - 1, grid.x - grid.x/2 - 1, idata.rcolor, true, idata.basic_coupling_constraint_next, idata.interactivity, true);
 			}
 			if (sel_index-- == 0) {
-				display_ddd_box_clip(xpos, ypos, grid.x, grid.y, MN_GREY4, MN_GREY0);
+				display_ddd_box_clip_rgb(xpos, ypos, grid.x, grid.y, color_idx_to_rgb(MN_GREY4), color_idx_to_rgb(MN_GREY0));
 			}
 
 			// Get image data
@@ -123,11 +123,11 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 				// Let's make a black background to ensure visibility
 				for(int iy = -3; iy < 0; iy++) {
 					for(int ix = 1; ix < 4; ix++) {
-						display_proportional_clip(xpos + ix, ypos + iy + 1, text, ALIGN_LEFT, COL_BLACK, true);
+						display_proportional_clip_rgb(xpos + ix, ypos + iy + 1, text, ALIGN_LEFT, color_idx_to_rgb(COL_BLACK), true);
 					}
 				}
 				// Display the number white on black
-				display_proportional_clip(xpos + 2, ypos - 1, text, ALIGN_LEFT, COL_WHITE, true);
+				display_proportional_clip_rgb(xpos + 2, ypos - 1, text, ALIGN_LEFT, color_idx_to_rgb(COL_WHITE), true);
 			}
 
 			// If necessary, display upgradable symbol: 1=upgradeable, 2=has available upgrade target

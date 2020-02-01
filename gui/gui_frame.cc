@@ -7,6 +7,7 @@
 
 #include "gui_frame.h"
 #include "../simcolor.h"
+#include "../dataobj/environment.h"
 #include "../display/simgraph.h"
 #include "../gui/simwin.h"
 #include "../simworld.h"
@@ -108,9 +109,9 @@ void gui_frame_t::set_windowsize(scr_size size)
  * -borders and -body background
  * @author Hj. Malthaner
  */
-PLAYER_COLOR_VAL gui_frame_t::get_titlecolor() const
+FLAGGED_PIXVAL gui_frame_t::get_titlecolor() const
 {
-	return owner ? PLAYER_FLAG|(owner->get_player_color1()+1) : WIN_TITLE;
+	return owner ? PLAYER_FLAG|color_idx_to_rgb(owner->get_player_color1()+1) : env_t::default_window_title_color;
 }
 
 
@@ -187,7 +188,7 @@ void gui_frame_t::draw(scr_coord pos, scr_size size)
 		if(  dirty  ) {
 			mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + size.h + D_TITLEBAR_HEIGHT );
 		}
-		display_blend_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, size.w-2, size.h-D_TITLEBAR_HEIGHT, color_transparent, percent_transparent );
+		display_blend_wh_rgb( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, size.w-2, size.h-D_TITLEBAR_HEIGHT, color_transparent, percent_transparent );
 	}
 	dirty = false;
 
@@ -197,8 +198,8 @@ void gui_frame_t::draw(scr_coord pos, scr_size size)
 
 	// for shadows of the windows
 	if(  gui_theme_t::gui_drop_shadows  ) {
-		display_blend_wh( pos.x+size.w, pos.y+1, 2, size.h, COL_BLACK, 50 );
-		display_blend_wh( pos.x+1, pos.y+size.h, size.w, 2, COL_BLACK, 50 );
+		display_blend_wh_rgb( pos.x+size.w, pos.y+1, 2, size.h, color_idx_to_rgb(COL_BLACK), 50 );
+		display_blend_wh_rgb( pos.x+1, pos.y+size.h, size.w, 2, color_idx_to_rgb(COL_BLACK), 50 );
 	}
 }
 

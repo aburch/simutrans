@@ -369,7 +369,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 			int column_1 = 10;
 			int column_1andahalf = column_1 + (5 * 12);
 			int column_2 = (5 * 32) + 35 + (button_width / 2);
-			COLOR_VAL text_color = SYSCOL_TEXT;
+			PIXVAL text_color = SYSCOL_TEXT;
 
 
 			// We need to keep a constant tracking of what classes we have
@@ -415,7 +415,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 			{
 				buf.clear();
 				buf.printf("%s:", translator::translate("reassign_classes"));
-				display_proportional_clip(pos.x + column_2, offset_y, buf, ALIGN_CENTER_H, text_color, true);
+				display_proportional_clip_rgb(pos.x + column_2, offset_y, buf, ALIGN_CENTER_H, text_color, true);
 			}
 			else
 			{
@@ -428,7 +428,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 				{
 					buf.clear();
 					buf.printf("%s (%s):", translator::translate("accommodation"), pass_name);
-					display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
+					display_proportional_clip_rgb(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
 					offset_y += LINESPACE;
 					current_pass_entries++;
 				}
@@ -441,10 +441,10 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 
 				buf.clear();
 				buf.printf("%s:", translator::translate(pass_class_name_untranslated[i]));
-				display_proportional_clip(pos.x + column_1andahalf, offset_y, buf, ALIGN_RIGHT, text_color, true);
+				display_proportional_clip_rgb(pos.x + column_1andahalf, offset_y, buf, ALIGN_RIGHT, text_color, true);
 				buf.clear();
 				buf.printf("%i %s", pass_capacity_at_accommodation[i], pass_name);
-				display_proportional_clip(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
+				display_proportional_clip_rgb(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
 				offset_y += LINESPACE;
 				current_pass_entries++;
 			}
@@ -457,7 +457,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 			{
 				buf.clear();
 				buf.printf("%s:", translator::translate("capacity_per_class"));
-				display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
+				display_proportional_clip_rgb(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
 				offset_y += LINESPACE;
 				current_pass_entries++;
 				for (int i = 0; i < pass_classes; i++)
@@ -466,10 +466,10 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 					{
 						buf.clear();
 						buf.printf("%s:", translator::translate(pass_class_name_untranslated[i]));
-						display_proportional_clip(pos.x + column_1andahalf, offset_y, buf, ALIGN_RIGHT, text_color, true);
+						display_proportional_clip_rgb(pos.x + column_1andahalf, offset_y, buf, ALIGN_RIGHT, text_color, true);
 						buf.clear();
 						buf.printf("%i %s", pass_capacity_at_class[i], pass_name);
-						display_proportional_clip(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
+						display_proportional_clip_rgb(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
 						offset_y += LINESPACE;
 						current_pass_entries++;
 					}
@@ -481,12 +481,12 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 				}
 				buf.clear();
 				buf.printf("%s:", translator::translate("overcrowded_capacity"));
-				display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
+				display_proportional_clip_rgb(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
 				buf.clear();
 				offset_y += LINESPACE;
 				current_pass_entries++;
 				buf.printf("%i %s", overcrowded_capacity, pass_name);
-				display_proportional_clip(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
+				display_proportional_clip_rgb(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
 				offset_y += LINESPACE;
 				current_pass_entries++;
 
@@ -501,7 +501,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 						text_color = SYSCOL_TEXT;
 						buf.clear();
 						buf.printf(translator::translate("catering_cars: %i"), catering_cars_amount);
-						int len = display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
+						int len = display_proportional_clip_rgb(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
 
 						char catering[10];
 						sprintf(catering, "%i", highest_catering);
@@ -511,7 +511,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 						}
 						buf.clear();
 						buf.printf(translator::translate("(catering_levels: %s)"), catering);
-						display_proportional_clip(pos.x + column_1 + len + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
+						display_proportional_clip_rgb(pos.x + column_1 + len + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
 						offset_y += LINESPACE;
 						current_pass_entries++;
 					}
@@ -525,7 +525,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 			{
 				buf.clear();
 				buf.printf("%s:", translator::translate("reassign_classes"));
-				display_proportional_clip(pos.x + column_2, offset_y, buf, ALIGN_CENTER_H, text_color, true);
+				display_proportional_clip_rgb(pos.x + column_2, offset_y, buf, ALIGN_CENTER_H, text_color, true);
 			}
 			else
 			{
@@ -538,7 +538,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 				{
 					buf.clear();
 					buf.printf("%s (%s):", translator::translate("accommodation"), mail_name);
-					display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
+					display_proportional_clip_rgb(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
 					offset_y += LINESPACE;
 				}
 				mail_header = false;
@@ -549,10 +549,10 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 				}
 				buf.clear();
 				buf.printf("%s:", translator::translate(mail_class_name_untranslated[i]));
-				display_proportional_clip(pos.x + column_1andahalf, offset_y, buf, ALIGN_RIGHT, text_color, true);
+				display_proportional_clip_rgb(pos.x + column_1andahalf, offset_y, buf, ALIGN_RIGHT, text_color, true);
 				buf.clear();
 				buf.printf("%i %s", mail_capacity_at_accommodation[i], mail_name);
-				display_proportional_clip(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
+				display_proportional_clip_rgb(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
 				offset_y += LINESPACE;
 
 			}
@@ -563,7 +563,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 			{
 				buf.clear();
 				buf.printf("%s:", translator::translate("capacity_per_class"));
-				display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
+				display_proportional_clip_rgb(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
 				offset_y += LINESPACE;
 				for (int i = 0; i < mail_classes; i++)
 				{
@@ -571,10 +571,10 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 					{
 						buf.clear();
 						buf.printf("%s:", translator::translate(mail_class_name_untranslated[i]));
-						display_proportional_clip(pos.x + column_1andahalf, offset_y, buf, ALIGN_RIGHT, text_color, true);
+						display_proportional_clip_rgb(pos.x + column_1andahalf, offset_y, buf, ALIGN_RIGHT, text_color, true);
 						buf.clear();
 						buf.printf("%i %s", mail_capacity_at_class[i], mail_name);
-						display_proportional_clip(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
+						display_proportional_clip_rgb(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
 						offset_y += LINESPACE;
 					}
 				}
@@ -587,7 +587,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 					text_color = SYSCOL_TEXT;
 					buf.clear();
 					buf.printf(translator::translate("tpo_cars: %i"), tpo_amount);
-					display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
+					display_proportional_clip_rgb(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
 					offset_y += LINESPACE;
 				}
 			}

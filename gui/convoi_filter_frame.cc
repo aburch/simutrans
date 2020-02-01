@@ -98,7 +98,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 		filter_buttons[i].add_listener(this);
 		add_component(filter_buttons + i);
 		if(filter_buttons_types[i] < sub_filter) {
-			filter_buttons[i].background_color = COL_WHITE;
+			filter_buttons[i].background_color = color_idx_to_rgb(COL_WHITE);
 		}
 		filter_buttons[i].pressed = get_filter(filter_buttons_types[i]);
 	}

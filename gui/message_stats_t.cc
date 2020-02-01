@@ -229,7 +229,7 @@ void message_stats_t::draw(scr_coord offset)
 		}
 
 		// correct for player color
-		PLAYER_COLOR_VAL colorval = n.get_player_color(welt);
+		FLAGGED_PIXVAL colorval = n.get_player_color(welt);
 
 		// add time
 		char time[64];
@@ -257,7 +257,7 @@ void message_stats_t::draw(scr_coord offset)
 		}
 		scr_coord_val left = 14;
 		if(  time[0]  ) {
-			left += display_proportional_clip(offset.x+left, y, time, ALIGN_LEFT, colorval, true)+8;
+			left += display_proportional_clip_rgb(offset.x+left, y, time, ALIGN_LEFT, colorval, true)+8;
 		}
 
 		// display text with clipping
@@ -268,6 +268,6 @@ void message_stats_t::draw(scr_coord offset)
 				break;
 			}
 		}
-		display_proportional_clip(offset.x+left, y, buf, ALIGN_LEFT, colorval, true);
+		display_proportional_clip_rgb(offset.x+left, y, buf, ALIGN_LEFT, colorval, true);
 	}
 }

@@ -22,6 +22,7 @@ void gui_convoy_payloadinfo_t::draw(scr_coord offset)
 		int left = 0;
 		cbuffer_t buf;
 		const bool overcrowded = cnv->get_overcrowded() ? true : false;
+		PIXVAL text_col = overcrowded ? color_idx_to_rgb(COL_OVERCROWD - 1) : SYSCOL_TEXT;
 
 		for (uint8 catg_index = 0; catg_index < goods_manager_t::get_max_catg_index(); catg_index++)
 		{
@@ -46,7 +47,7 @@ void gui_convoy_payloadinfo_t::draw(scr_coord offset)
 						buf.append(goods_manager_t::get_translated_wealth_name(catg_index, i));
 
 						buf.printf(" %i/%i", cargo_sum, capacity);
-						left += display_proportional_clip(offset.x + left, offset.y, buf, ALIGN_LEFT, overcrowded ? COL_OVERCROWD - 1 : SYSCOL_TEXT, true);
+						left += display_proportional_clip_rgb(offset.x + left, offset.y, buf, ALIGN_LEFT, text_col, true);
 						left += D_H_SPACE * 2;
 					}
 				}
@@ -58,12 +59,12 @@ void gui_convoy_payloadinfo_t::draw(scr_coord offset)
 							display_color_img_with_tooltip(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), offset.x + left, offset.y, 0, false, false, translator::translate("Standing passengers"));
 						}
 						else {
-							display_img_blend(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), offset.x + left, offset.y, TRANSPARENT50_FLAG | OUTLINE_FLAG | COL_GREY2, false, false);
+							display_img_blend(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), offset.x + left, offset.y, TRANSPARENT50_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_GREY2), false, false);
 						}
 						left += 14;
 					}
 					buf.printf("%i/%i", cnv->get_overcrowded(), cnv->get_overcrowded_capacity());
-					left += display_proportional_clip(offset.x + left, offset.y, buf, ALIGN_LEFT, overcrowded ? COL_OVERCROWD - 1 : SYSCOL_TEXT, true);
+					left += display_proportional_clip_rgb(offset.x + left, offset.y, buf, ALIGN_LEFT, text_col, true);
 					left += D_H_SPACE * 2;
 				}
 			}
@@ -73,7 +74,7 @@ void gui_convoy_payloadinfo_t::draw(scr_coord offset)
 				capacity = cnv->get_unique_fare_capacity(catg_index, 0);
 				cargo_sum = cnv->get_total_cargo_by_fare_class(catg_index, 0);
 				buf.printf("%i/%i", cargo_sum, capacity);
-				left += display_proportional_clip(offset.x + left, offset.y, buf, ALIGN_LEFT, overcrowded ? COL_OVERCROWD - 1 : SYSCOL_TEXT, true);
+				left += display_proportional_clip_rgb(offset.x + left, offset.y, buf, ALIGN_LEFT, text_col, true);
 				left += D_H_SPACE * 2;
 			}
 		}

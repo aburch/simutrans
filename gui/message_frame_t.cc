@@ -87,7 +87,7 @@ message_frame_t::message_frame_t() :
 	input.add_listener(this);
 	input.set_pos(scr_coord(BUTTON2_X,0));
 	if(  env_t::networkmode  ) {
-		set_transparent( env_t::chat_window_transparency, COL_WHITE );
+		set_transparent( env_t::chat_window_transparency, color_idx_to_rgb(COL_WHITE) );
 		add_component(&input);
 		set_focus( &input );
 	}

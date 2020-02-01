@@ -56,7 +56,7 @@ static const char cost_type[BUTTON_COUNT][64] =
 #endif
 };
 
-static const int cost_type_color[BUTTON_COUNT] =
+static const uint8 cost_type_color[BUTTON_COUNT] =
 {
 	COL_FREE_CAPACITY,
 	COL_TRANSPORTED,
@@ -196,12 +196,12 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	int btn;
 	for (btn = 0; btn < convoi_t::MAX_CONVOI_COST; btn++) {
-		chart.add_curve( cost_type_color[btn], cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, statistic[btn], MAX_MONTHS, cost_type_money[btn], false, true, cost_type_money[btn]*2 );
+		chart.add_curve( color_idx_to_rgb(cost_type_color[btn]), cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, statistic[btn], MAX_MONTHS, cost_type_money[btn], false, true, cost_type_money[btn]*2 );
 		filterButtons[btn].init(button_t::box_state, cost_type[btn],
 			scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(btn%4), offset_below_chart+(D_BUTTON_HEIGHT+D_V_SPACE)*(btn/4)),
 			D_BUTTON_SIZE);
 		filterButtons[btn].add_listener(this);
-		filterButtons[btn].background_color = cost_type_color[btn];
+		filterButtons[btn].background_color = color_idx_to_rgb(cost_type_color[btn]);
 		filterButtons[btn].set_visible(false);
 		filterButtons[btn].pressed = false;
 		if((statistic[btn] == convoi_t::CONVOI_REFUNDS) && cnv->get_line().is_bound())
@@ -223,12 +223,12 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 		physics_curves[i][0] = 0;
 	}
 
-	chart.add_curve(cost_type_color[btn], (sint64*)physics_curves, 1,0, MAX_MONTHS, cost_type_money[btn], false, true, cost_type_money[btn]*2);
+	chart.add_curve(color_idx_to_rgb(cost_type_color[btn]), (sint64*)physics_curves, 1,0, MAX_MONTHS, cost_type_money[btn], false, true, cost_type_money[btn]*2);
 	filterButtons[btn].init(button_t::box_state, cost_type[btn],
 			scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(btn%4), view.get_size().h+174+(D_BUTTON_HEIGHT+D_H_SPACE)*(btn/4)),
 			D_BUTTON_SIZE);
 	filterButtons[btn].add_listener(this);
-	filterButtons[btn].background_color = cost_type_color[btn];
+	filterButtons[btn].background_color = color_idx_to_rgb(cost_type_color[btn]);
 	filterButtons[btn].set_visible(false);
 	filterButtons[btn].pressed = false;
 	add_component(filterButtons + btn);
@@ -277,17 +277,17 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	scrolly.set_show_scroll_x(true);
 	add_component(&scrolly);
 
-	filled_bar.add_color_value(&cnv->get_loading_limit(), COL_YELLOW);
-	filled_bar.add_color_value(&cnv->get_loading_level(), COL_GREEN);
+	filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
+	filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
 	add_component(&filled_bar);
 
 	speed_bar.set_base(max_convoi_speed);
 	speed_bar.set_vertical(false);
-	speed_bar.add_color_value(&mean_convoi_speed, COL_GREEN);
+	speed_bar.add_color_value(&mean_convoi_speed, color_idx_to_rgb(COL_GREEN));
 	add_component(&speed_bar);
 
 	// we update this ourself!
-	route_bar.add_color_value(&cnv_route_index, COL_GREEN);
+	route_bar.add_color_value(&cnv_route_index, color_idx_to_rgb(COL_GREEN));
 	add_component(&route_bar);
 
 	// goto line button
@@ -350,7 +350,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 #endif
 
 		// Bernd Gabriel, 01.07.2009: show some colored texts and indicator
-		input.set_color(cnv->has_obsolete_vehicles() ? COL_OBSOLETE : SYSCOL_TEXT);
+		input.set_color(cnv->has_obsolete_vehicles() ? color_idx_to_rgb(COL_OBSOLETE) : SYSCOL_TEXT);
 
 		// make titlebar dirty to display the correct coordinates
 		if (cnv->get_owner() == welt->get_active_player() && !welt->get_active_player()->is_locked()) {
@@ -431,23 +431,23 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			scr_size isize = view.get_size();
 			ipos.y += isize.h + 16; //what is the magic number 16?
 
-			COLOR_VAL color = COL_BLACK;
+			PIXVAL color = color_idx_to_rgb(COL_BLACK);
 			switch (cnv->get_state())
 			{
 			case convoi_t::INITIAL:
-				color = COL_WHITE;
+				color = color_idx_to_rgb(COL_WHITE);
 				break;
 			case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 			case convoi_t::CAN_START_ONE_MONTH:
-				color = COL_ORANGE;
+				color = color_idx_to_rgb(COL_ORANGE);
 				break;
 
 			default:
 				if (cnv->get_state() == convoi_t::NO_ROUTE || cnv->get_state() == convoi_t::NO_ROUTE_TOO_COMPLEX)
-					color = COL_RED;
+					color = color_idx_to_rgb(COL_RED);
 			}
-			display_ddd_box_clip(ipos.x, ipos.y, isize.w, 8, MN_GREY0, MN_GREY4);
-			display_fillbox_wh_clip(ipos.x + 1, ipos.y + 1, isize.w - 2, 6, color, true);
+			display_ddd_box_clip_rgb(ipos.x, ipos.y, isize.w, 8,  color_idx_to_rgb(MN_GREY0),  color_idx_to_rgb(MN_GREY4));
+			display_fillbox_wh_clip_rgb(ipos.x + 1, ipos.y + 1, isize.w - 2, 6, color, true);
 		}
 
 
@@ -462,7 +462,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		uint32 empty_weight = convoy.get_vehicle_summary().weight;
 		uint32 gross_weight = convoy.get_weight_summary().weight;
 
-		COLOR_VAL speed_color = COL_BLACK;
+		PIXVAL speed_color = color_idx_to_rgb(COL_BLACK);
 		const int pos_y = pos_y0; // line 1
 		char speed_text[256];
 
@@ -482,12 +482,12 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
 			{
 				sprintf(speed_text, "%s (%s) %i%s", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
-				speed_color = COL_RED;
+				speed_color = color_idx_to_rgb(COL_RED);
 			}
 			else
 			{
 				sprintf(speed_text, "%s", translator::translate("Waiting for clearance!"));
-				speed_color = COL_YELLOW;
+				speed_color = color_idx_to_rgb(COL_YELLOW);
 			}
 			break;
 
@@ -495,7 +495,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		case convoi_t::CAN_START_ONE_MONTH:
 
 			sprintf(speed_text, "%s", translator::translate("Waiting for clearance!"));
-			speed_color = COL_BLACK;
+			speed_color = color_idx_to_rgb(COL_BLACK);
 			break;
 
 		case convoi_t::EMERGENCY_STOP:
@@ -504,7 +504,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			cnv->snprintf_remaining_emergency_stop_time(emergency_stop_time, sizeof(emergency_stop_time));
 
 			sprintf(speed_text, translator::translate("emergency_stop %s left"), emergency_stop_time);
-			speed_color = COL_RED;
+			speed_color = color_idx_to_rgb(COL_RED);
 			break;
 
 		case convoi_t::LOADING:
@@ -514,25 +514,25 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			if (cnv->get_schedule()->get_current_entry().wait_for_time)
 			{
 				sprintf(speed_text, translator::translate("Waiting for schedule. %s left"), waiting_time);
-				speed_color = COL_YELLOW;
+				speed_color = color_idx_to_rgb(COL_YELLOW);
 			}
 			else if (cnv->get_loading_limit())
 			{
 				if (!cnv->is_wait_infinite() && strcmp(waiting_time, "0:00"))
 				{
 					sprintf(speed_text, translator::translate("Loading (%i->%i%%), %s left!"), cnv->get_loading_level(), cnv->get_loading_limit(), waiting_time);
-					speed_color = COL_YELLOW;
+					speed_color = color_idx_to_rgb(COL_YELLOW);
 				}
 				else
 				{
 					sprintf(speed_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit());
-					speed_color = COL_YELLOW;
+					speed_color = color_idx_to_rgb(COL_YELLOW);
 				}
 			}
 			else
 			{
 				sprintf(speed_text, translator::translate("Loading. %s left!"), waiting_time);
-				speed_color = COL_BLACK;
+				speed_color = color_idx_to_rgb(COL_BLACK);
 			}
 
 			break;
@@ -559,7 +559,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				sprintf(speed_text, translator::translate("Reversing. %s left"), reversing_time);
 				break;
 			}
-			speed_color = COL_BLACK;
+			speed_color = color_idx_to_rgb(COL_BLACK);
 			break;
 
 		case convoi_t::CAN_START_TWO_MONTHS:
@@ -568,12 +568,12 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
 			{
 				sprintf(speed_text, "%s (%s %i%s)", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
-				speed_color = COL_RED;
+				speed_color = color_idx_to_rgb(COL_RED);
 			}
 			else
 			{
 				sprintf(speed_text, "%s", translator::translate("clf_chk_stucked"));
-				speed_color = COL_ORANGE;
+				speed_color = color_idx_to_rgb(COL_ORANGE);
 			}
 			break;
 
@@ -587,27 +587,27 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			{
 				sprintf(speed_text, "%s", translator::translate("clf_chk_noroute"));
 			}
-			speed_color = COL_RED;
+			speed_color = color_idx_to_rgb(COL_RED);
 			break;
 
 		case convoi_t::NO_ROUTE_TOO_COMPLEX:
 			//sprintf(speed_text, translator::translate("no_route_too_complex_message"));
 			sprintf(speed_text, "%s", translator::translate("clf_chk_noroute"));
-			speed_color = COL_RED;
+			speed_color = color_idx_to_rgb(COL_RED);
 			break;
 
 		case convoi_t::OUT_OF_RANGE:
 
 			//sprintf(speed_text, translator::translate("out_of_range (max %i km)"), cnv->front()->get_desc()->get_range());
 			sprintf(speed_text, "%s (%s %i%s)", translator::translate("out of range"), translator::translate("max"), cnv->front()->get_desc()->get_range(), translator::translate("km"));
-			speed_color = COL_RED;
+			speed_color = color_idx_to_rgb(COL_RED);
 			break;
 
 		default:
 			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
 			{
 				sprintf(speed_text, "%s (%s %i%s)", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
-				speed_color = COL_RED;
+				speed_color = color_idx_to_rgb(COL_RED);
 			}
 			else
 			{
@@ -619,11 +619,11 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
 				sprintf(speed_text, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"),
 					(mean_convoi_speed + 3) / 4, min_speed, translator::translate("..."), max_speed);
-				speed_color = COL_BLACK;
+				speed_color = color_idx_to_rgb(COL_BLACK);
 			}
 		}
 
-		display_proportional(pos_x, pos_y, speed_text, ALIGN_LEFT, speed_color, true);
+		display_proportional_rgb(pos_x, pos_y, speed_text, ALIGN_LEFT, speed_color, true);
 
 
 
@@ -633,9 +633,9 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Profit"));
-			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
+			int len = display_proportional_rgb(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
 			money_to_string(tmp, cnv->get_jahresgewinn() / 100.0);
-			len += display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS, true) + 5;
+			len += display_proportional_rgb(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS, true) + 5;
 			// Bernd Gabriel, 17.06.2009: add fixed maintenance info
 			uint32 fixed_monthly = welt->calc_adjusted_monthly_figure(cnv->get_fixed_cost());
 			if (fixed_monthly)
@@ -653,7 +653,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				money_to_string(tmp + 1, cnv->get_per_kilometre_running_cost() / 100.0);
 				strcat(tmp, "/km)");
 			}
-			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_OBSOLETE : SYSCOL_TEXT, true);
+			display_proportional_rgb(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? color_idx_to_rgb(COL_OBSOLETE) : SYSCOL_TEXT, true);
 		}
 
 		//Average round trip time
@@ -667,7 +667,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				welt->sprintf_ticks(as_clock, sizeof(as_clock), average_round_trip_time);
 				info_buf.printf(" %s", as_clock);
 			}
-			display_proportional(pos_x, pos_y, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			display_proportional_rgb(pos_x, pos_y, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		}
 
 		// the weight entry
@@ -676,12 +676,12 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Gewicht"));
-			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
+			const int len = display_proportional_rgb(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
 			const int freight_weight = gross_weight - empty_weight; // cnv->get_sum_gesamtweight() - cnv->get_sum_weight();
 			sprintf(tmp, translator::translate(freight_weight ? "%g (%g) t" : "%g t"), gross_weight * 0.001f, freight_weight * 0.001f);
-			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT,
-				cnv->get_overcrowded() > 0 ? COL_DARK_PURPLE : // overcrowded
-				!cnv->get_finance_history(0, convoi_t::CONVOI_TRANSPORTED_GOODS) && !cnv->get_finance_history(1, convoi_t::CONVOI_TRANSPORTED_GOODS) ? COL_YELLOW : // nothing moved in this and past month
+			display_proportional_rgb(pos_x + len, pos_y, tmp, ALIGN_LEFT,
+													 cnv->get_overcrowded() > 0 ? color_idx_to_rgb(COL_DARK_PURPLE) : // overcrowded
+													 !cnv->get_finance_history(0, convoi_t::CONVOI_TRANSPORTED_GOODS) && !cnv->get_finance_history(1, convoi_t::CONVOI_TRANSPORTED_GOODS) ? color_idx_to_rgb(COL_YELLOW) : // nothing moved in this and past month
 				SYSCOL_TEXT, true);
 		}
 
@@ -691,13 +691,13 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Fahrtziel")); // "Destination"
-			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
+			int len = display_proportional_rgb(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
 			info_buf.clear();
 			int existing_caracters = len / 4;
 			int extra_caracters = (get_windowsize().w - get_min_windowsize().w) / 6;
 			const schedule_t *schedule = cnv->get_schedule();
 			schedule_gui_t::gimme_short_stop_name(info_buf, cnv->get_owner(), schedule, schedule->get_current_stop(), 50 - existing_caracters + extra_caracters);
-			len += display_proportional_clip(pos_x + len, pos_y, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
+			len += display_proportional_clip_rgb(pos_x + len, pos_y, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
 
 			pos_y = pos_y0 + 5 * LINESPACE; // line 6
 			sint32 cnv_route_index_left = cnv->get_route()->get_count() - 1 - cnv_route_index;
@@ -724,7 +724,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			}
 			info_buf.printf("%s %s", distance_display, translator::translate("left"));
 			int offset = 189;
-			display_proportional_clip(pos_x + offset, pos_y, info_buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
+			display_proportional_clip_rgb(pos_x + offset, pos_y, info_buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 		}
 
 		/*
@@ -737,7 +737,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Serves Line"));
-			int len = display_proportional(line_x + 1, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
+			int len = display_proportional_rgb(line_x + 1, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
 
 			int existing_caracters = len / 4;
 			int extra_caracters = (get_windowsize().w - get_min_windowsize().w) / 6;
@@ -752,7 +752,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			info_buf.clear();
 			info_buf.append(convoy_line);
 			info_buf.append(tmp);
-			display_proportional_clip(line_x + len, pos_y, info_buf, ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
+			display_proportional_clip_rgb(line_x + len, pos_y, info_buf, ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
 		}
 		//{
 		//	int pos_y = pos_y0 + 7 * LINESPACE; // line 8 and 9
@@ -764,7 +764,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		//	{
 		//		sprintf(tmp, (translator::translate("convoy_made_a_loss_last_month")));
 		//		status_color = MONEY_MINUS;
-		//		display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
+		//		display_proportional_clip_rgb(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
 		//		pos_y += LINESPACE;
 		//		message_lines++;
 		//	}*/
@@ -772,7 +772,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		//	{
 		//		sprintf(tmp, (translator::translate("frequently_overcrowded")));
 		//		status_color = COL_DARK_PURPLE;
-		//		display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
+		//		display_proportional_clip_rgb(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
 		//		pos_y += LINESPACE;
 		//		message_lines++;
 		//	}
@@ -800,14 +800,14 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		//	{
 		//		sprintf(tmp, (translator::translate("obsolete_vehicles_with_upgrades")));
 		//		status_color = COL_UPGRADEABLE;
-		//		display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
+		//		display_proportional_clip_rgb(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
 		//		pos_y += LINESPACE;
 		//		message_lines++;
 		//	}
 		//	if (message_lines < 2 && cnv->has_obsolete_vehicles() && !has_obsolete_that_can_upgrade) {
 		//		sprintf(tmp, (translator::translate("obsolete_vehicles")));
 		//		status_color = COL_OBSOLETE;
-		//		display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
+		//		display_proportional_clip_rgb(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
 		//		pos_y += LINESPACE;
 		//		message_lines++;
 		//	}
@@ -815,7 +815,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		//	{
 		//		sprintf(tmp, (translator::translate("nothing_moved_in_this_and_past_month")));
 		//		status_color = COL_YELLOW;
-		//		display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
+		//		display_proportional_clip_rgb(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
 		//		pos_y += LINESPACE;
 		//		message_lines++;
 		//	}
@@ -859,7 +859,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 				}
 
-				display_proportional(pos_x, pos_y, state_text, ALIGN_LEFT, SYSCOL_TEXT, true);
+				display_proportional_rgb(pos_x, pos_y, state_text, ALIGN_LEFT, SYSCOL_TEXT, true);
 				debug_row++;
 			}
 			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
@@ -867,7 +867,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				const int pos_y = pos_y0 + debug_row * LINESPACE;
 				char runway_too_short[32];
 				sprintf(runway_too_short, "air->runway_too_short");
-				display_proportional(pos_x, pos_y, runway_too_short, ALIGN_LEFT, SYSCOL_TEXT, true);
+				display_proportional_rgb(pos_x, pos_y, runway_too_short, ALIGN_LEFT, SYSCOL_TEXT, true);
 				debug_row++;
 			}
 			if (cnv->front()->get_is_overweight() == true) // This doesnt flag!
@@ -875,7 +875,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				const int pos_y = pos_y0 + debug_row * LINESPACE;
 				char too_heavy[32];
 				sprintf(too_heavy, "is_overweight");
-				display_proportional(pos_x, pos_y, too_heavy, ALIGN_LEFT, SYSCOL_TEXT, true);
+				display_proportional_rgb(pos_x, pos_y, too_heavy, ALIGN_LEFT, SYSCOL_TEXT, true);
 				debug_row++;
 			}
 		}
@@ -889,9 +889,9 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			const sint32 brk_meters = convoy.calc_min_braking_distance(convoy.get_weight_summary(), speed_to_v(cnv->get_akt_speed()));
 			char tmp[256];
 			sprintf(tmp, translator::translate("minimum brake distance"));
-			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true);
+			const int len = display_proportional_rgb(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true);
 			sprintf(tmp, translator::translate(": %im"), brk_meters);
-			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_akt_speed() <= cnv->get_akt_speed_soll() ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG, true);
+			display_proportional_rgb(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_akt_speed() <= cnv->get_akt_speed_soll() ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG, true);
 		}
 		{
 			const int pos_y = pos_y0 + 7 * LINESPACE; // line 8
@@ -904,16 +904,16 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				sprintf(tmp, translator::translate("max %ikm/h in %im, brake in %im "), kmh, m_til_limit, m_til_brake);
 			else
 				sprintf(tmp, translator::translate("stop in %im, brake in %im "), m_til_limit, m_til_brake);
-			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true);
+			const int len = display_proportional_rgb(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true);
 		}
 		{
 			const int pos_y = pos_y0 + 8 * LINESPACE; // line 9
 			const sint32 current_friction = cnv->front()->get_frictionfactor();
 			char tmp[256];
 			sprintf(tmp, translator::translate("current friction factor"));
-			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true);
+			const int len = display_proportional_rgb(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true);
 			sprintf(tmp, translator::translate(": %i"), current_friction);
-			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, current_friction <= 20 ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG, true);
+			display_proportional_rgb(pos_x + len, pos_y, tmp, ALIGN_LEFT, current_friction <= 20 ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG, true);
 		}
 #endif
 		POP_CLIP();

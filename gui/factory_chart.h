@@ -62,7 +62,7 @@ private:
 	uint16 goods_label_count;
 
 	// Optimize goods color to color for chart
-	COLOR_VAL goods_col_to_chart_col(COLOR_VAL col) const;
+	PIXVAL goods_col_to_chart_col(uint8 col) const;
 
 public:
 	factory_goods_chart_t(const fabrik_t *_factory);

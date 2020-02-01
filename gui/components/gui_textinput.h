@@ -70,7 +70,7 @@ protected:
 	 */
 	uint8 align;
 
-	COLOR_VAL textcol;
+	PIXVAL textcol;
 
 	// true if there were changed but no notification was sent yet
 	bool text_dirty;
@@ -146,7 +146,7 @@ public:
 	void set_alignment(uint8 _align){ align = _align;}
 
 	// to set text color
-	void set_color(COLOR_VAL col){ textcol = col;}
+	void set_color(PIXVAL col){ textcol = col;}
 };
 
 

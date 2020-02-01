@@ -98,7 +98,7 @@ private:
 	static const char cost_tooltip[MAX_PLAYER_COST_BUTTON][256];
 
 	static const char *cost_type_name[MAX_PLAYER_COST_BUTTON];
-	static const COLOR_VAL cost_type_color[MAX_PLAYER_COST_BUTTON];
+	static const uint8 cost_type_color[MAX_PLAYER_COST_BUTTON];
 	static const uint8 cost_type[3*MAX_PLAYER_COST_BUTTON];
 	static const char * transport_type_values[TT_MAX];
 	gui_tab_panel_t year_month_tabs;

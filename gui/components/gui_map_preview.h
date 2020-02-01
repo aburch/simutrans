@@ -26,7 +26,7 @@ class gui_map_preview_t : public gui_component_t
 {
 
 	private:
-		array2d_tpl<uint8> *map_data;
+		array2d_tpl<PIXVAL> *map_data;
 		scr_size map_size;
 
 	public:
@@ -37,7 +37,7 @@ class gui_map_preview_t : public gui_component_t
 			set_size( size );
 		}
 
-		void set_map_data(array2d_tpl<uint8> *map_data_par, scr_size max_size_par) {
+		void set_map_data(array2d_tpl<PIXVAL> *map_data_par, scr_size max_size_par) {
 			map_data = map_data_par;
 			map_size = max_size_par;
 		}
@@ -47,7 +47,7 @@ class gui_map_preview_t : public gui_component_t
 		 * @author Max Kielland, (Hj. Malthaner)
 		 */
 		virtual void draw(scr_coord offset) {
-			display_ddd_box_clip(pos.x + offset.x, pos.y + offset.y, size.w, size.h, MN_GREY0, MN_GREY4);
+			display_ddd_box_clip_rgb(pos.x + offset.x, pos.y + offset.y, size.w, size.h, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
 
 			if(map_data) {
 				display_array_wh(pos.x + offset.x + 1, pos.y + offset.y + 1, map_size.w, map_size.h, map_data->to_array());

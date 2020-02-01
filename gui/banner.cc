@@ -53,7 +53,7 @@
 
 // Banner color ramp
 // Index 0 is the normal text color
-static const PLAYER_COLOR_VAL colors[COLOR_RAMP_SIZE] = { SYSCOL_TEXT_HIGHLIGHT, COL_GREY3, COL_GREY4, COL_GREY5, COL_GREY6 };
+static const uint8 colors[COLOR_RAMP_SIZE] = { SYSCOL_TEXT_HIGHLIGHT, COL_GREY3, COL_GREY4, COL_GREY5, COL_GREY6 };
 
 
 banner_t::banner_t() : gui_frame_t(""),
@@ -157,37 +157,37 @@ void banner_t::draw(scr_coord pos, scr_size size )
 	gui_frame_t::draw( pos, size );
 
 	// Hajo: add white line on top since this frame has no title bar.
-	display_fillbox_wh(pos.x, pos.y + D_TITLEBAR_HEIGHT, size.w, 1, COL_GREY6, false);
+	display_fillbox_wh_rgb(pos.x, pos.y + D_TITLEBAR_HEIGHT, size.w, 1, color_idx_to_rgb(COL_GREY6), false);
 
 	// Max Kielland: Add shadow as property to label_t so we can use the label_t class instead...
-	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_TITLE, SYSCOL_TEXT_SHADOW, "This is an extended version of Simutrans", true );
+	display_shadow_proportional_rgb( cursor.x, cursor.y, SYSCOL_TEXT_TITLE, SYSCOL_TEXT_SHADOW, "This is an extended version of Simutrans", true );
 	cursor.y += L_LINESPACE_EXTRA_5;
 #ifdef REVISION
-	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "Version " VERSION_NUMBER, true );
+	display_shadow_proportional_rgb( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "Version " VERSION_NUMBER, true );
 	cursor.y += L_LINESPACE_EXTRA_2;
-	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, EXTENDED_VERSION " " VERSION_DATE " #" QUOTEME(REVISION), true );
+	display_shadow_proportional_rgb( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, EXTENDED_VERSION " " VERSION_DATE " #" QUOTEME(REVISION), true );
 #else
-	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "Version " VERSION_NUMBER " " EXTENDED_VERSION " " VERSION_DATE, true );
+	display_shadow_proportional_rgb( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "Version " VERSION_NUMBER " " EXTENDED_VERSION " " VERSION_DATE, true );
 #endif
 	cursor.y += L_LINESPACE_EXTRA_7;
 
-	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_TITLE, SYSCOL_TEXT_SHADOW,  "Simutrans-Extended is developed", true );
+	display_shadow_proportional_rgb( cursor.x, cursor.y, SYSCOL_TEXT_TITLE, SYSCOL_TEXT_SHADOW,  "Simutrans-Extended is developed", true );
 	cursor.y += L_LINESPACE_EXTRA_5;
-	display_shadow_proportional( cursor.x+24, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "by the Simutrans community", true );
+	display_shadow_proportional_rgb( cursor.x+24, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "by the Simutrans community", true );
 	cursor.y += L_LINESPACE_EXTRA_2;
-	display_shadow_proportional( cursor.x+24, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "under the Artistic Licence; forked", true );
+	display_shadow_proportional_rgb( cursor.x+24, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "under the Artistic Licence; forked", true );
 	cursor.y += L_LINESPACE_EXTRA_2;
-	display_shadow_proportional( cursor.x+24, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "from Simutrans-Standard " QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_VERSION_MINOR), true );
+	display_shadow_proportional_rgb( cursor.x+24, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "from Simutrans-Standard " QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_VERSION_MINOR), true );
 	cursor.y += L_LINESPACE_EXTRA_7;
 
-	display_shadow_proportional( cursor.x+24, cursor.y, COL_LIGHT_ORANGE, SYSCOL_TEXT_SHADOW, "Selling this software is forbidden.", true );
+	display_shadow_proportional_rgb( cursor.x+24, cursor.y, COL_LIGHT_ORANGE, SYSCOL_TEXT_SHADOW, "Selling this software is forbidden.", true );
 	cursor.y += L_LINESPACE_EXTRA_5;
 
-	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_TITLE, SYSCOL_TEXT_SHADOW, "For more information, see the website and forum:", true );
+	display_shadow_proportional_rgb( cursor.x, cursor.y, SYSCOL_TEXT_TITLE, SYSCOL_TEXT_SHADOW, "For more information, see the website and forum:", true );
 	cursor.y += L_LINESPACE_EXTRA_2;
-	display_shadow_proportional( cursor.x+24, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "http://www.simutrans.com", true );
+	display_shadow_proportional_rgb( cursor.x+24, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "http://www.simutrans.com", true );
 	cursor.y += L_LINESPACE_EXTRA_2;
-	display_shadow_proportional( cursor.x+24, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "http://forum.simutrans.com", true );
+	display_shadow_proportional_rgb( cursor.x+24, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "http://forum.simutrans.com", true );
 	cursor.y += L_LINESPACE_EXTRA_7;
 
 	// now the scrolling
@@ -203,11 +203,11 @@ void banner_t::draw(scr_coord pos, scr_size size )
 	const scr_coord_val text_offset = line % LINESPACE;
 	const scr_coord_val left = pos.x + D_MARGIN_LEFT;
 	const scr_coord_val width = size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT;
-	PLAYER_COLOR_VAL color;
+	PIXVAL color;
 
-	display_fillbox_wh(left, cursor.y, width, L_BANNER_HEIGHT, COL_GREY1, true);
-	display_fillbox_wh(left, cursor.y - 1, width, 1, COL_GREY3, false);
-	display_fillbox_wh(left, cursor.y + L_BANNER_HEIGHT, width, 1, COL_GREY6, false);
+	display_fillbox_wh_rgb(left, cursor.y, width, L_BANNER_HEIGHT, color_idx_to_rgb(COL_GREY1), true);
+	display_fillbox_wh_rgb(left, cursor.y - 1, width, 1, color_idx_to_rgb(COL_GREY3), false);
+	display_fillbox_wh_rgb(left, cursor.y + L_BANNER_HEIGHT, width, 1, color_idx_to_rgb(COL_GREY6), false);
 
 	PUSH_CLIP( left, cursor.y, width, L_BANNER_HEIGHT );
 	cursor.y++;
@@ -215,10 +215,10 @@ void banner_t::draw(scr_coord pos, scr_size size )
 	for(  int row = 0;  row < L_BANNER_ROWS+1;  row++  ) {
 
 		if(  row > L_BANNER_ROWS-COLOR_RAMP_SIZE+1  ) {
-			color = colors[L_BANNER_ROWS-row+1];
+			color = color_idx_to_rgb(colors[L_BANNER_ROWS-row+1]);
 		}
 		else {
-			color = colors[0];
+			color = color_idx_to_rgb(colors[0]);
 		}
 
 		if (scrolltext[text_line + row * 2 + 1] == NULL)
@@ -227,12 +227,12 @@ void banner_t::draw(scr_coord pos, scr_size size )
 		}
 
 		if(  row == L_BANNER_ROWS  ||  row == 0  ) {
-			display_proportional_clip( left + L_BANNER_TEXT_INDENT,         cursor.y - text_offset, scrolltext[text_line + row*2    ], ALIGN_LEFT,  color, false);
-			display_proportional_clip( left + width - L_BANNER_TEXT_INDENT, cursor.y - text_offset, scrolltext[text_line + row*2 + 1], ALIGN_RIGHT, color, false);
+			display_proportional_clip_rgb( left + L_BANNER_TEXT_INDENT,         cursor.y - text_offset, scrolltext[text_line + row*2    ], ALIGN_LEFT,  color, false);
+			display_proportional_clip_rgb( left + width - L_BANNER_TEXT_INDENT, cursor.y - text_offset, scrolltext[text_line + row*2 + 1], ALIGN_RIGHT, color, false);
 		}
 		else {
-			display_proportional( left + L_BANNER_TEXT_INDENT,              cursor.y - text_offset, scrolltext[text_line + row*2    ], ALIGN_LEFT,  color, false);
-			display_proportional( left + width - L_BANNER_TEXT_INDENT,      cursor.y - text_offset, scrolltext[text_line + row*2 + 1], ALIGN_RIGHT, color, false);
+			display_proportional_rgb( left + L_BANNER_TEXT_INDENT,              cursor.y - text_offset, scrolltext[text_line + row*2    ], ALIGN_LEFT,  color, false);
+			display_proportional_rgb( left + width - L_BANNER_TEXT_INDENT,      cursor.y - text_offset, scrolltext[text_line + row*2 + 1], ALIGN_RIGHT, color, false);
 		}
 		cursor.y += LINESPACE;
 

@@ -144,7 +144,7 @@ public:
 	 * then a transparent outline with the color form the lower 8 Bit is drawn
 	 * @author kierongreen
 	 */
-	virtual PLAYER_COLOR_VAL get_outline_colour() const OVERRIDE
+	virtual FLAGGED_PIXVAL get_outline_colour() const OVERRIDE
 	{
 		uint8 reservation_colour;
 		switch(type)

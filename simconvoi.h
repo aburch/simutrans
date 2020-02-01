@@ -1390,7 +1390,7 @@ public:
 	void set_next_reservation_index(uint16 n);
 
 	/* the current state of the convoi */
-	COLOR_VAL get_status_color() const;
+	PIXVAL get_status_color() const;
 
 	// returns tiles needed for this convoi. This includes 0-8/16 extra padding.
 	uint16 get_tile_length() const;

@@ -41,7 +41,7 @@ private:
 	 * Color of the Labels
 	 * @author Hansjorg Malthaner
 	 */
-	COLOR_VAL color;
+	PIXVAL color;
 
 	const char * text;	// only for direct access of non-translatable things. Do not use!
 	const char * tooltip;
@@ -50,9 +50,9 @@ protected:
 	using gui_component_t::init;
 
 public:
-	gui_label_t(const char* text=NULL, COLOR_VAL color=SYSCOL_TEXT, align_t align=left);
+	gui_label_t(const char* text=NULL, PIXVAL color=SYSCOL_TEXT, align_t align=left);
 
-	void init( const char* text_par, scr_coord pos_par, COLOR_VAL color_par=SYSCOL_TEXT, align_t align_par=left) {
+	void init( const char* text_par, scr_coord pos_par, PIXVAL color_par=SYSCOL_TEXT, align_t align_par=left) {
 		set_pos  ( pos_par   );
 		set_text ( text_par  );
 		set_color( color_par );
@@ -92,8 +92,8 @@ public:
 	 * Sets the colour of the label
 	 * @author Owen Rudge
 	 */
-	void set_color(COLOR_VAL colour) { this->color = colour; }
-	COLOR_VAL get_color() const { return color; }
+	void set_color(PIXVAL colour) { this->color = colour; }
+	PIXVAL get_color() const { return color; }
 
 	/**
 	 * Sets the alignment of the label

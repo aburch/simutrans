@@ -771,12 +771,14 @@ public:
 
 	void copy_city_road(settings_t const& other);
 
-	// init form this file ...
+	// init from this file ...
 	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename );
 
+	void parse_colours(tabfile_t& simuconf);
+	
 	void set_size_x(sint32 g);
 	void set_size_y(sint32 g);
-	void set_groesse(sint32 x, sint32 y, bool preserve_regions = false);
+	void set_size(sint32 x, sint32 y, bool preserve_regions = false);
 	sint32 get_size_x() const {return size_x;}
 	sint32 get_size_y() const {return size_y;}
 
@@ -845,7 +847,7 @@ public:
 	void rotate90()
 	{
 		rotation = (rotation+1)&3;
-		set_groesse( size_y, size_x, true);
+		set_size( size_y, size_x, true);
 		rotate_regions(size_y);
 	}
 	uint8 get_rotation() const { return rotation; }

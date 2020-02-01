@@ -5661,7 +5661,7 @@ char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 void tool_build_roadsign_t::draw_after(scr_coord k, bool dirty) const
 {
 	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
-		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
+		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
 		char level_str[16];
 		uint32 spacing_in_meter = (uint32)signal[welt->get_active_player_nr()].spacing * (uint32)welt->get_settings().get_meters_per_tile();
 		if( spacing_in_meter < 1000 ) {
@@ -5673,7 +5673,7 @@ void tool_build_roadsign_t::draw_after(scr_coord k, bool dirty) const
 			spacing_dec = spacing_dec % 10;
 			sprintf(level_str, "%i.%ikm", spacing_km, spacing_dec);
 		}
-		display_proportional( k.x+2, k.y+2, level_str, ALIGN_LEFT, COL_YELLOW, true );
+		display_proportional_rgb( k.x+2, k.y+2, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
 	}
 }
 
@@ -8358,12 +8358,12 @@ bool tool_show_underground_t::is_selected() const
 void tool_show_underground_t::draw_after(scr_coord k, bool dirty) const
 {
 	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
-		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
+		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
 		// additionally show level in sliced mode
 		if(  default_param!=NULL  &&  grund_t::underground_mode==grund_t::ugm_level  ) {
 			char level_str[16];
 			sprintf( level_str, "%i", grund_t::underground_level );
-			display_proportional( k.x+4, k.y+4, level_str, ALIGN_LEFT, COL_YELLOW, true );
+			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
 		}
 	}
 }
@@ -9613,7 +9613,7 @@ bool tool_recolour_t::init(player_t *)
 			return false;
 	}
 
-	const uint8 colour = atoi(p);
+	const FLAGGED_PIXVAL colour = atoi(p);
 
 	// now for action ...
 	switch(  what  )
@@ -9834,7 +9834,7 @@ bool tool_add_message_t::init(player_t *player)
 
 		}
 		welt->get_message()->add_message(text + 1, koord::invalid, type,
-		type & message_t::local_flag ? COL_BLACK : (player ? PLAYER_FLAG | player->get_player_nr() : COL_WHITE), IMG_EMPTY);
+																		 type & message_t::local_flag ? color_idx_to_rgb(COL_BLACK) : (player ? PLAYER_FLAG | player->get_player_nr() : COL_WHITE), IMG_EMPTY);
 	}
 	return false;
 }

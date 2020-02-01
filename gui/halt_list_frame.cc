@@ -127,8 +127,8 @@ static bool passes_filter_special(haltestelle_t & s)
 	if (!halt_list_frame_t::get_filter(halt_list_frame_t::spezial_filter)) return true;
 
 	if (halt_list_frame_t::get_filter(halt_list_frame_t::ueberfuellt_filter)) {
-		COLOR_VAL const farbe = s.get_status_farbe();
-		if (farbe == COL_RED || farbe == COL_ORANGE) {
+		PIXVAL const farbe = s.get_status_farbe();
+		if (farbe == color_idx_to_rgb(COL_RED) || farbe == color_idx_to_rgb(COL_ORANGE)) {
 			return true; // overcrowded
 		}
 	}

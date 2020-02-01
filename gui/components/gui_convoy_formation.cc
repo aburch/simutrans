@@ -55,7 +55,7 @@ void gui_convoy_formation_t::draw(scr_coord offset)
 							color = COL_OVERCROWD;
 						}
 						// [loading indicator]
-						display_fillbox_wh_clip(offset.x + 2 + bar_offset_left, offset.y + LINESPACE + VEHICLE_BAR_HEIGHT + 3, bar_width, 3, color, true);
+						display_fillbox_wh_clip_rgb(offset.x + 2 + bar_offset_left, offset.y + LINESPACE + VEHICLE_BAR_HEIGHT + 3, bar_width, 3, color_idx_to_rgb(color), true);
 						bar_offset_left += bar_width + 1;
 						found++;
 						if (found == v->get_number_of_accommodation_classes()) {
@@ -70,7 +70,7 @@ void gui_convoy_formation_t::draw(scr_coord offset)
 			}
 			else {
 				// [loading indicator]
-				display_fillbox_wh_clip(offset.x + 2, offset.y + LINESPACE + VEHICLE_BAR_HEIGHT + 3, grid_width - 4, 3, MN_GREY0, true);
+				display_fillbox_wh_clip_rgb(offset.x + 2, offset.y + LINESPACE + VEHICLE_BAR_HEIGHT + 3, grid_width - 4, 3, color_idx_to_rgb(MN_GREY0), true);
 			}
 
 			// [cars no.]
@@ -83,24 +83,24 @@ void gui_convoy_formation_t::draw(scr_coord offset)
 				buf.append(car_number);
 			}
 
-			int left = display_proportional_clip(offset.x + 2, offset.y, buf, ALIGN_LEFT, v->get_desc()->has_available_upgrade(month_now) ? COL_UPGRADEABLE : COL_GREY2, true);
+			int left = display_proportional_clip_rgb(offset.x + 2, offset.y, buf, ALIGN_LEFT, v->get_desc()->has_available_upgrade(month_now) ? COL_UPGRADEABLE : color_idx_to_rgb(COL_GREY2), true);
 #ifdef DEBUG
 			if (v->is_reversed()) {
-				display_proportional_clip(offset.x + 2 + left, offset.y - 2, "*", ALIGN_LEFT, COL_YELLOW, true);
+				display_proportional_clip_rgb(offset.x + 2 + left, offset.y - 2, "*", ALIGN_LEFT, COL_CAUTION, true);
 			}
 			if (!v->get_desc()->is_bidirectional()) {
-				display_proportional_clip(offset.x + 2 + left, offset.y - 2, "<", ALIGN_LEFT, COL_LIGHT_TURQUOISE, true);
+				display_proportional_clip_rgb(offset.x + 2 + left, offset.y - 2, "<", ALIGN_LEFT, color_idx_to_rgb(COL_LIGHT_TURQUOISE), true);
 			}
 #else
 			(void)left;
 #endif
 
-			color = v->get_desc()->is_future(month_now) || v->get_desc()->is_retired(month_now) ? COL_OUT_OF_PRODUCTION : COL_DARK_GREEN;
+			color = v->get_desc()->is_future(month_now) || v->get_desc()->is_retired(month_now) ? COL_OUT_OF_PRODUCTION : COL_SAFETY;
 			if (v->get_desc()->is_obsolete(month_now, welt)) {
 				color = COL_OBSOLETE;
 			}
-			display_veh_form(offset.x + 1, offset.y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_next() : v->get_desc()->get_basic_constraint_prev(), v->get_desc()->get_interactivity(), false);
-			display_veh_form(offset.x + grid_width / 2, offset.y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_prev() : v->get_desc()->get_basic_constraint_next(), v->get_desc()->get_interactivity(), true);
+			display_veh_form_wh_clip_rgb(offset.x + 1, offset.y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_next() : v->get_desc()->get_basic_constraint_prev(), v->get_desc()->get_interactivity(), false);
+			display_veh_form_wh_clip_rgb(offset.x + grid_width / 2, offset.y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_prev() : v->get_desc()->get_basic_constraint_next(), v->get_desc()->get_interactivity(), true);
 
 			offset.x += grid_width;
 		}

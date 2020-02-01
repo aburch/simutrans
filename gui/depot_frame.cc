@@ -81,14 +81,14 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_component(&lb_convois);
 
 	convoy_selector.add_listener(this);
-	convoy_selector.set_highlight_color( depot->get_owner()->get_player_color1() + 1);
+	convoy_selector.set_highlight_color( color_idx_to_rgb(depot->get_owner()->get_player_color1() + 1));
 	add_component(&convoy_selector);
 
 	/*
 	* [SELECT ROUTE]:
 	*/
 	line_selector.add_listener(this);
-	line_selector.set_highlight_color( depot->get_owner()->get_player_color1() + 1);
+	line_selector.set_highlight_color( color_idx_to_rgb(depot->get_owner()->get_player_color1() + 1));
 	line_selector.set_wrapping(false);
 	line_selector.set_focusable(true);
 	add_component(&line_selector);

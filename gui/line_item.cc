@@ -18,7 +18,7 @@ const char* line_scrollitem_t::get_text() const
 }
 
 
-COLOR_VAL line_scrollitem_t::get_color()
+PIXVAL line_scrollitem_t::get_color()
 {
 	return line->get_state_color();
 }

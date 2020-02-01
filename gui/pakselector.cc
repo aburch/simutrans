@@ -80,7 +80,7 @@ void pakselector_t::draw(scr_coord p, scr_size gr)
 {
 	gui_frame_t::draw(p, gr);
 
-	display_multiline_text( p.x+10, p.y+gr.h-3*LINESPACE-4,
+	display_multiline_text_rgb( p.x+10, p.y+gr.h-3*LINESPACE-4,
 		"To avoid seeing this dialogue define a path by:\n"
 		" - adding 'pak_file_path = pak/' to your simuconf.tab\n"
 		" - using '-objects pakxyz/' on the command line", SYSCOL_TEXT );

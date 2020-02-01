@@ -43,12 +43,12 @@ scr_coord_val gui_scrolled_list_t::const_text_scrollitem_t::draw(scr_coord pos, 
 {
 	if (selected) {
 		// selected element
-		display_fillbox_wh_clip(pos.x + 3, pos.y - 1, w - 5, get_height() + 1, (focus ? SYSCOL_LIST_BACKGROUND_SELECTED_F : SYSCOL_LIST_BACKGROUND_SELECTED_NF), true);
-		return display_proportional_clip(pos.x + 7, pos.y, get_text(), ALIGN_LEFT, (focus ? SYSCOL_LIST_TEXT_SELECTED_FOCUS : SYSCOL_LIST_TEXT_SELECTED_NOFOCUS), true);
+		display_fillbox_wh_clip_rgb(pos.x + 3, pos.y - 1, w - 5, get_height() + 1, (focus ? SYSCOL_LIST_BACKGROUND_SELECTED_F : SYSCOL_LIST_BACKGROUND_SELECTED_NF), true);
+		return display_proportional_clip_rgb(pos.x + 7, pos.y, get_text(), ALIGN_LEFT, (focus ? SYSCOL_LIST_TEXT_SELECTED_FOCUS : SYSCOL_LIST_TEXT_SELECTED_NOFOCUS), true);
 	}
 	else {
 		// normal text
-		return display_proportional_clip(pos.x + 7, pos.y, get_text(), ALIGN_LEFT, get_color(), true);
+		return display_proportional_clip_rgb(pos.x + 7, pos.y, get_text(), ALIGN_LEFT, get_color(), true);
 	}
 }
 

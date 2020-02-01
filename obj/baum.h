@@ -23,7 +23,7 @@
 class baum_t : public obj_t
 {
 private:
-	static PLAYER_COLOR_VAL outline_color;
+	static FLAGGED_PIXVAL outline_color;
 
 	/** month of birth */
 	uint16 geburt;
@@ -75,10 +75,10 @@ public:
 	/**
 	 * hide trees eventually with transparency
 	 */
-	PLAYER_COLOR_VAL get_outline_colour() const { return outline_color; }
+	FLAGGED_PIXVAL get_outline_colour() const { return outline_color; }
 	image_id get_outline_image() const;
 
-	static void recalc_outline_color() { outline_color = (env_t::hide_trees  &&  env_t::hide_with_transparency) ? (TRANSPARENT25_FLAG | OUTLINE_FLAG | COL_BLACK) : 0; }
+	static void recalc_outline_color() { outline_color = (env_t::hide_trees  &&  env_t::hide_with_transparency) ? (TRANSPARENT25_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_BLACK)) : 0; }
 
 	/**
 	 * Calculates tree image dependent on tree age

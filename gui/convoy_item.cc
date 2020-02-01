@@ -16,7 +16,7 @@ const char* convoy_scrollitem_t::get_text() const
 }
 
 
-COLOR_VAL convoy_scrollitem_t::get_color()
+PIXVAL convoy_scrollitem_t::get_color()
 {
 	return cnv->get_status_color();
 }

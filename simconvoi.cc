@@ -6814,7 +6814,7 @@ void convoi_t::set_next_reservation_index(uint16 n)
  * the current state saved as color
  * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), DARK_PURPLE (convoy has overcrowded vehicles), BLUE (at least one convoi vehicle is obsolete)
  */
-COLOR_VAL convoi_t::get_status_color() const
+PIXVAL convoi_t::get_status_color() const
 {
 	if(state==INITIAL)
 	{
@@ -6823,25 +6823,25 @@ COLOR_VAL convoi_t::get_status_color() const
 	}
 	else if (skinverwaltung_t::alerts && (state == WAITING_FOR_CLEARANCE_ONE_MONTH || state == CAN_START_ONE_MONTH || get_state() == EMERGENCY_STOP || get_state() == WAITING_FOR_LOADING_THREE_MONTHS || get_state() == WAITING_FOR_LOADING_FOUR_MONTHS)) {
 		// Display symbol if pakset has alert symbols.
-		return COL_ORANGE;
+		return COL_WARNING;
 	}
 	else if (state == WAITING_FOR_CLEARANCE_TWO_MONTHS || state == CAN_START_TWO_MONTHS || get_state() == NO_ROUTE || get_state() == NO_ROUTE_TOO_COMPLEX || get_state() == OUT_OF_RANGE) {
-		// stuck or no route
-		return COL_RED;
+		// ok, not performing best
+		return COL_DANGER;
 	}
 	else if((financial_history[0][CONVOI_OPERATIONS]|financial_history[1][CONVOI_OPERATIONS])==0)
 	{
 		// nothing moved
-		return COL_YELLOW;
+		return COL_CAUTION;
 	}
 	else if(get_overcrowded() > 0)
 	{
 		// Overcrowded
-		return COL_DARK_PURPLE;
+		return color_idx_to_rgb(COL_DARK_PURPLE);
 	}
 	else if(has_obsolete)
 	{
-		return COL_OBSOLETE;
+		return color_idx_to_rgb(COL_OBSOLETE);
 	}
 	// normal state
 	return SYSCOL_TEXT;

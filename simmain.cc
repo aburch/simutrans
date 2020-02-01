@@ -161,13 +161,13 @@ static void show_times(karte_t *welt, main_view_t *view)
 
  	ms = dr_time();
 	for (i = 0;  i < 300000;  i++) {
- 		display_text_proportional_len_clip(100, 120, "Dies ist ein kurzer Textetxt ...", 0, 0, false, -1);
+ 		display_text_proportional_len_clip_rgb(100, 120, "Dies ist ein kurzer Textetxt ...", 0, 0, false, -1);
 	}
 	dbg->message( "display_text_proportional_len_clip()", "%i iterations took %li ms", i, dr_time() - ms );
 
  	ms = dr_time();
 	for (i = 0;  i < 300000;  i++) {
- 		display_fillbox_wh(100, 120, 300, 50, 0, false);
+ 		display_fillbox_wh_rgb(100, 120, 300, 50, 0, false);
 	}
 	dbg->message( "display_fillbox_wh()", "%i iterations took %li ms", i, dr_time() - ms );
 
@@ -272,7 +272,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 		display_show_pointer(true);
 		show_pointer(1);
 		set_pointer(0);
-		display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
+		display_fillbox_wh_rgb( 0, 0, display_get_width(), display_get_height(), color_idx_to_rgb(COL_BLACK), true );
 		while(  win_is_open(gui)  &&  !env_t::quit_simutrans  &&  !quit()  ) {
 			// do not move, do not close it!
 			dr_sleep(50);
@@ -286,7 +286,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 					// main window resized
 					simgraph_resize( ev.mx, ev.my );
 					dr_prepare_flush();
-					display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
+					display_fillbox_wh_rgb( 0, 0, ev.mx, ev.my, color_idx_to_rgb(COL_BLACK), true );
 					gui->draw(win_get_pos(gui), gui->get_windowsize());
 					dr_flush();
 				}
@@ -302,7 +302,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 		}
 		set_pointer(1);
 		dr_prepare_flush();
-		display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
+		display_fillbox_wh_rgb( 0, 0, display_get_width(), display_get_height(), color_idx_to_rgb(COL_BLACK), true );
 		dr_flush();
 	}
 
@@ -430,7 +430,7 @@ int simu_main(int argc, char** argv)
 		    "  http://forum.simutrans.com"
 			"\n"
 			"  Based on Simutrans 0.84.21.2\n"
-			"  by Hansj�rg Malthaner et. al.\n"
+			"  by Hansj?rg Malthaner et. al.\n"
 			"---------------------------------------\n"
 			"command line parameters available: \n"
 			" -addons             loads also addons (with -objects)\n"
@@ -778,40 +778,6 @@ int simu_main(int argc, char** argv)
 	}
 #endif
 
-	// prepare skins first
-	bool themes_ok = false;
-	if(  const char *themestr = gimme_arg(argc, argv, "-theme", 1)  ) {
-		chdir( env_t::user_dir );
-		chdir( "themes" );
-		themes_ok = gui_theme_t::themes_init(themestr);
-		if(  !themes_ok  ) {
-			chdir( env_t::program_dir );
-			chdir( "themes" );
-			themes_ok = gui_theme_t::themes_init(themestr);
-		}
-	}
-	// next try the last used theme
-	if(  !themes_ok  &&  env_t::default_theme.c_str()!=NULL  ) {
-		chdir( env_t::user_dir );
-		chdir( "themes" );
-		themes_ok = gui_theme_t::themes_init( env_t::default_theme );
-		if(  !themes_ok  ) {
-			chdir( env_t::program_dir );
-			chdir( "themes" );
-			themes_ok = gui_theme_t::themes_init( env_t::default_theme );
-		}
-	}
-	// specified themes not found => try default themes
-	if(  !themes_ok  ) {
-		chdir( env_t::program_dir );
-		chdir( "themes" );
-		themes_ok = gui_theme_t::themes_init("themes.tab");
-	}
-	if(  !themes_ok  ) {
-		dbg->fatal( "simmain()", "No GUI themes found! Please re-install!" );
-	}
-	chdir( env_t::program_dir );
-
 	// likely only the program without graphics was downloaded
 	if (gimme_arg(argc, argv, "-res", 0) != NULL) {
 		const char* res_str = gimme_arg(argc, argv, "-res", 1);
@@ -888,6 +854,61 @@ int simu_main(int argc, char** argv)
 	simgraph_init(disp_width, disp_height, fullscreen);
 	DBG_MESSAGE("simmain", ".. results in disp_width=%d, disp_height=%d", display_get_width(), display_get_height());
 
+	// now that the graphics system has already started
+	// the saved colours can be converted to the system format
+	env_t_rgb_to_system_colors();
+
+	// parse colours now that the graphics system has started
+	// default simuconf.tab
+	if(  found_simuconf  ) {
+		if(simuconf.open(path_to_simuconf)) {
+			printf("parse_colours() at config/simuconf.tab: ");
+			env_t::default_settings.parse_colours( simuconf );
+			simuconf.close();
+		}
+	}// a portable installation could have a personal simuconf.tab in the main dir of simutrans
+	// otherwise it is in ~/simutrans/simuconf.tab
+	obj_conf = string(env_t::user_dir) + "simuconf.tab";
+	if (simuconf.open(obj_conf.c_str())) {
+		printf("parse_simuconf() at %s: ", obj_conf.c_str() );
+		env_t::default_settings.parse_colours( simuconf);
+		simuconf.close();
+	}
+
+	// prepare skins first
+	bool themes_ok = false;
+	if(  const char *themestr = gimme_arg(argc, argv, "-theme", 1)  ) {
+		chdir( env_t::user_dir );
+		chdir( "themes" );
+		themes_ok = gui_theme_t::themes_init(themestr);
+		if(  !themes_ok  ) {
+			chdir( env_t::program_dir );
+			chdir( "themes" );
+			themes_ok = gui_theme_t::themes_init(themestr);
+		}
+	}
+	// next try the last used theme
+	if(  !themes_ok  &&  env_t::default_theme.c_str()!=NULL  ) {
+		chdir( env_t::user_dir );
+		chdir( "themes" );
+		themes_ok = gui_theme_t::themes_init( env_t::default_theme );
+		if(  !themes_ok  ) {
+			chdir( env_t::program_dir );
+			chdir( "themes" );
+			themes_ok = gui_theme_t::themes_init( env_t::default_theme );
+		}
+	}
+	// specified themes not found => try default themes
+	if(  !themes_ok  ) {
+		chdir( env_t::program_dir );
+		chdir( "themes" );
+		themes_ok = gui_theme_t::themes_init("themes.tab");
+	}
+	if(  !themes_ok  ) {
+		dbg->fatal( "simmain()", "No GUI themes found! Please re-install!" );
+	}
+	chdir( env_t::program_dir );
+
 	// The loading screen needs to be initialized
 	show_pointer(1);
 
@@ -942,6 +963,7 @@ int simu_main(int argc, char** argv)
 		env_t::default_settings.set_way_height_clearance( 0 );
 		dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
 		env_t::default_settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
+		env_t::default_settings.parse_colours( simuconf );
 		pak_diagonal_multiplier = env_t::default_settings.get_pak_diagonal_multiplier();
 		pak_height_conversion_factor = env_t::pak_height_conversion_factor;
 		pak_tile_height = TILE_HEIGHT_STEP;
@@ -958,6 +980,7 @@ int simu_main(int argc, char** argv)
 		string dummy;
 		printf("parse_simuconf() in user dir, second time (%s): ", obj_conf.c_str());
 		env_t::default_settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
+		env_t::default_settings.parse_colours( simuconf );
 		simuconf.close();
 	}
 
@@ -979,6 +1002,7 @@ int simu_main(int argc, char** argv)
 		if (simuconf.open(obj_conf.c_str())) {
 			printf("parse_simuconf() in addons: %s", obj_conf.c_str());
 			env_t::default_settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
+			env_t::default_settings.parse_colours( simuconf );
 			simuconf.close();
 		}
 		// and parse user settings again ...
@@ -986,6 +1010,7 @@ int simu_main(int argc, char** argv)
 		if (simuconf.open(obj_conf.c_str())) {
 			printf("parse_simuconf() in user dir, third time (%s): ", obj_conf.c_str());
 			env_t::default_settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
+			env_t::default_settings.parse_colours( simuconf );
 			simuconf.close();
 		}
 	}
@@ -1276,7 +1301,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 		sets.copy_city_road( env_t::default_settings );
 		sets.set_default_climates();
 		sets.set_use_timeline( 1 );
-		sets.set_groesse(64,64);
+		sets.set_size(64,64);
 		sets.set_city_count(1);
 		sets.set_factory_count(3);
 		sets.set_tourist_attractions(1);
@@ -1371,7 +1396,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 
 		if(  !env_t::networkmode  &&  new_world  ) {
 			dbg->important( "Show banner ... " );
-			ticker::add_msg("Welcome to Simutrans-Extended (formerly Simutrans-Experimental), a fork of Simutrans-Standard, extended and maintained by the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
+			ticker::add_msg("Welcome to Simutrans-Extended (formerly Simutrans-Experimental), a fork of Simutrans-Standard, extended and maintained by the Simutrans community.", koord::invalid, PLAYER_FLAG | color_idx_to_rgb(COL_SOFT_BLUE));
 				modal_dialogue( new banner_t(), magic_none, welt, never_quit );
 			// only show new world, if no other dialogue is active ...
 			new_world = win_get_open_count()==0;

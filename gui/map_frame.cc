@@ -54,21 +54,21 @@ class legend_entry_t
 {
 public:
 	legend_entry_t() {}
-	legend_entry_t(const std::string &text_, int colour_) : text(text_), colour(colour_) {}
+	legend_entry_t(const std::string &text_, PIXVAL colour_) : text(text_), colour(colour_) {}
 	bool operator==(const legend_entry_t& rhs) 	{
 		return ( (text == rhs.text)  &&  (colour == rhs.colour) );
 	}
 
 	std::string text;
-	int         colour;
+	PIXVAL      colour;
 };
 
 static vector_tpl<legend_entry_t> legend(16);
 
 
 typedef struct {
-	COLOR_VAL color;
-	COLOR_VAL select_color;
+	PIXVAL color;
+	PIXVAL select_color;
 	const char *button_text;
 	const char *tooltip_text;
 	reliefkarte_t::MAP_MODES mode;
@@ -96,13 +96,13 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Weight limit", "Show the weight limit of ways", reliefkarte_t::MAP_WEIGHTLIMIT },
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Tracks", "Highlight railroad tracks", reliefkarte_t::MAP_TRACKS },
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Powerlines", "Highlite electrical transmission lines", reliefkarte_t::MAP_POWERLINES },
-	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "PaxDest", "Overlay passenger destinations when a town window is open", reliefkarte_t::MAP_PAX_DEST },
-	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "map_btn_building_level", "Show level of city buildings", reliefkarte_t::MAP_LEVEL },
-	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Stop coverage", "Show the distance to the nearest station", reliefkarte_t::MAP_STATION_COVERAGE },
-	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Commuting", "Show the success rate for commuting passengers", reliefkarte_t::MAP_ACCESSIBILITY_COMMUTING },
-	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Visiting", "Show the success rate for visiting passengers", reliefkarte_t::MAP_ACCESSIBILITY_TRIP },
-	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Staffing", "Show the staff shortage rate", reliefkarte_t::MAP_STAFF_FULFILLMENT },
-	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Mail delivery", "Show the success rate for mail delivery", reliefkarte_t::MAP_MAIL_DELIVERY },
+	{ COL_HORIZON_BLUE, COL_SOFT_BLUE,  "PaxDest", "Overlay passenger destinations when a town window is open", reliefkarte_t::MAP_PAX_DEST },
+	{ COL_HORIZON_BLUE, COL_SOFT_BLUE,  "map_btn_building_level", "Show level of city buildings", reliefkarte_t::MAP_LEVEL },
+	{ COL_HORIZON_BLUE, COL_SOFT_BLUE,  "Stop coverage", "Show the distance to the nearest station", reliefkarte_t::MAP_STATION_COVERAGE },
+	{ COL_HORIZON_BLUE, COL_SOFT_BLUE,  "Commuting", "Show the success rate for commuting passengers", reliefkarte_t::MAP_ACCESSIBILITY_COMMUTING },
+	{ COL_HORIZON_BLUE, COL_SOFT_BLUE,  "Visiting", "Show the success rate for visiting passengers", reliefkarte_t::MAP_ACCESSIBILITY_TRIP },
+	{ COL_HORIZON_BLUE, COL_SOFT_BLUE,  "Staffing", "Show the staff shortage rate", reliefkarte_t::MAP_STAFF_FULFILLMENT },
+	{ COL_HORIZON_BLUE, COL_SOFT_BLUE,  "Mail delivery", "Show the success rate for mail delivery", reliefkarte_t::MAP_MAIL_DELIVERY },
 	{ COL_WHITE,        COL_GREY5,       "Ownership", "Show the owenership of infrastructure", reliefkarte_t::MAP_OWNER },
 	{ COL_WHITE,        COL_GREY5,       "Forest", "Highlite forests", reliefkarte_t::MAP_FOREST }
 };
@@ -203,7 +203,7 @@ map_frame_t::map_frame_t() :
 	add_component( zoom_buttons+1 );
 	cursor.x += zoom_buttons[1].get_size().w + D_H_SPACE*2;
 
-	// rotate map 45� (isometric view)
+	// rotate map 45? (isometric view)
 	b_rotate45.init( button_t::square_state, "isometric map", cursor);
 	b_rotate45.set_tooltip("Similar view as the main window");
 	b_rotate45.add_listener(this);
@@ -255,7 +255,7 @@ map_frame_t::map_frame_t() :
 	viewable_players[ 0 ] = -1;
 	for(  int np = 0, count = 1;  np < MAX_PLAYER_COUNT;  np++  ) {
 		if(  welt->get_player( np )  &&  welt->get_player( np )->get_finance()->has_convoi()  ) {
-			viewed_player_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(welt->get_player( np )->get_name(), welt->get_player( np )->get_player_color1()+4));
+			viewed_player_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(welt->get_player( np )->get_name(), color_idx_to_rgb(welt->get_player( np )->get_player_color1()+4)));
 			viewable_players[ count++ ] = np;
 		}
 	}
@@ -333,7 +333,7 @@ map_frame_t::map_frame_t() :
 		filter_buttons[index].init( button_t::box_state, button_init[index].button_text, scr_coord(0,0), button_size);
 		filter_buttons[index].set_tooltip( button_init[index].tooltip_text );
 		filter_buttons[index].pressed = button_init[index].mode&env_t::default_mapmode;
-		filter_buttons[index].background_color = filter_buttons[index].pressed ? button_init[index].select_color : button_init[index].color;
+		filter_buttons[index].background_color = color_idx_to_rgb(filter_buttons[index].pressed ? button_init[index].select_color : button_init[index].color);
 		filter_buttons[index].text_color = SYSCOL_TEXT;
 		filter_buttons[index].add_listener(this);
 		filter_container.add_component(filter_buttons + index);
@@ -379,13 +379,13 @@ void map_frame_t::update_factory_legend()
 	legend.clear();
 	if(  directory_visible  ) {
 		if(  filter_factory_list  ) {
-			minivec_tpl<uint8> colours;
+			minivec_tpl<PIXVAL> colours;
 			FOR(vector_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
 				factory_desc_t const& d = *f->get_desc();
 				if(  d.get_distribution_weight() > 0  ) {
-					if( colours.append_unique(d.get_kennfarbe()) ) {
+					if( colours.append_unique(d.get_color()) ) {
 						std::string const label( translator::translate(d.get_name()) );
-						legend.append_unique( legend_entry_t(label, d.get_kennfarbe()) );
+						legend.append_unique( legend_entry_t(label, d.get_color()) );
 					}
 				}
 			}
@@ -395,7 +395,7 @@ void map_frame_t::update_factory_legend()
 				factory_desc_t const& d = *i.value;
 				if ( d.get_distribution_weight() > 0 ) {
 					std::string const label(translator::translate(d.get_name()));
-					legend.append_unique( legend_entry_t(label, d.get_kennfarbe()) );
+					legend.append_unique( legend_entry_t(label, d.get_color()) );
 				}
 			}
 		}
@@ -541,7 +541,7 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 		reliefkarte_t::get_karte()->set_mode(  (reliefkarte_t::MAP_MODES)env_t::default_mapmode  );
 		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
 			filter_buttons[i].pressed = (button_init[i].mode&env_t::default_mapmode)!=0;
-			filter_buttons[i].background_color = filter_buttons[i].pressed ? button_init[i].select_color : button_init[i].color;
+			filter_buttons[i].background_color = color_idx_to_rgb(filter_buttons[i].pressed ? button_init[i].select_color : button_init[i].color);
 		}
 	}
 	return true;
@@ -836,7 +836,7 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 		double bar_width = (double)bar_client_x/(double)MAX_SEVERITY_COLORS;
 		// color bar
 		for(  int i=0;  i<MAX_SEVERITY_COLORS;  i++  ) {
-			display_fillbox_wh(bar_pos.x + min_label.get_size().w + D_H_SPACE + (i*bar_width), bar_pos.y+2,  bar_width+1, 7, reliefkarte_t::calc_severity_color(i, MAX_SEVERITY_COLORS-1), false);
+			display_fillbox_wh_rgb(bar_pos.x + min_label.get_size().w + D_H_SPACE + (i*bar_width), bar_pos.y+2,  bar_width+1, 7, reliefkarte_t::calc_severity_color(i, MAX_SEVERITY_COLORS-1), false);
 		}
 	}
 
@@ -850,9 +850,9 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 		FORX(vector_tpl<legend_entry_t>, const& i, legend, ++u) {
 			const int xpos = pos.x+D_MARGIN_LEFT + (u % columns) * (size.w-D_MARGIN_RIGHT-columns/2-1)/columns;
 			const int ypos = pos.y+D_TITLEBAR_HEIGHT + offset_y + (u / columns) * line_height;
-			display_fillbox_wh(xpos, ypos + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT, i.colour, false);
-			display_ddd_box(xpos, ypos + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT,SYSCOL_SHADOW,SYSCOL_SHADOW,false);
-			display_proportional(xpos + D_INDICATOR_BOX_WIDTH + 2, ypos, i.text.c_str(), ALIGN_LEFT, SYSCOL_TEXT, false);
+			display_fillbox_wh_rgb(xpos, ypos + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT, i.colour, false);
+			display_ddd_box_rgb(xpos, ypos + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT,SYSCOL_SHADOW,SYSCOL_SHADOW,false);
+			display_proportional_rgb(xpos + D_INDICATOR_BOX_WIDTH + 2, ypos, i.text.c_str(), ALIGN_LEFT, SYSCOL_TEXT, false);
 		}
 	}
 
