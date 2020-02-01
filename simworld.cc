@@ -3037,6 +3037,8 @@ karte_t::karte_t() :
 	convoy_threads_working = false;
 	path_explorer_working = false;
 #endif
+
+	city_heavy_step_index = 0;
 }
 
 karte_t::~karte_t()
@@ -5508,11 +5510,27 @@ void karte_t::step()
 
 	// now step all towns 
 	// This is not very computationally intensive at present, but might become more so when town growth is reworked.
+	// Processing private car routes is, however, quite computationally intensive, so only do one town per step.
+	// This probably cannot usefully be multi-threaded as all instances would need to access the same road data.
 	DBG_DEBUG4("karte_t::step 6", "step cities");
-	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
+	uint32 step_cities_count = 0;
+	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) 
+	{
 		i->step(delta_t);
 		rands[21] += i->get_einwohner();
 		rands[22] += i->get_buildings();
+		
+		if (step_cities_count == city_heavy_step_index)
+		{
+			i->step_heavy();
+		}
+
+		step_cities_count++;
+	}
+	city_heavy_step_index++;
+	if (city_heavy_step_index > stadt.get_count())
+	{
+		city_heavy_step_index = 0;
 	}
 	rands[14] = get_random_seed();
 
@@ -8337,6 +8355,15 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 8) && get_settings().get_save_path_explorer_data())
 	{
 		path_explorer_t::rdwr(file);
+	}
+
+	if (file->get_extended_version() >= 15 && (file->get_extended_version() == 14 && file->get_extended_revision() >= 19))
+	{
+		file->rdwr_long(city_heavy_step_index); 
+	}
+	else
+	{
+		city_heavy_step_index = 0;
 	}
 
 	// MUST be at the end of the load/save routine.

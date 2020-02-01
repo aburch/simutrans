@@ -2656,17 +2656,6 @@ void stadt_t::step(uint32 delta_t)
 	// is it time for the next step?
 	next_growth_step += delta_t;
 
-	// Consider whether to do this only occasionally
-	// Consider whether to multi-thread this (separately from the route generation)
-#ifdef MULTI_THREAD
-	int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
-	assert(error == 0);
-#endif
-	process_private_car_routes();
-#ifdef MULTI_THREAD
-	error = pthread_mutex_unlock(&karte_t::private_car_store_route_mutex);
-	assert(error == 0);
-#endif
 	if (check_road_connexions)
 	{
 		welt->add_queued_city(this);
@@ -2691,6 +2680,20 @@ void stadt_t::step(uint32 delta_t)
 	city_history_month[0][HIST_BUILDING] = buildings.get_count();
 	city_history_year[0][HIST_BUILDING] = buildings.get_count();
 }
+
+void stadt_t::step_heavy()
+{
+#ifdef MULTI_THREAD
+	int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
+	assert(error == 0);
+#endif
+	process_private_car_routes();
+#ifdef MULTI_THREAD
+	error = pthread_mutex_unlock(&karte_t::private_car_store_route_mutex);
+	assert(error == 0);
+#endif
+}
+
 
 
 /* updates the city history

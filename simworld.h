@@ -841,6 +841,8 @@ private:
 
 	slist_tpl<stadt_t*> cities_awaiting_private_car_route_check;
 
+	uint32 city_heavy_step_index;
+
 	/**
 	 * The last time when a server announce was performed (in ms).
 	 */

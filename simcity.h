@@ -642,6 +642,9 @@ public:
 	bool get_citygrowth() const { return allow_citygrowth; }
 
 	void step(uint32 delta_t);
+	
+	/// Things that only one city per world step should do.
+	void step_heavy();
 
 	void new_month();
 
