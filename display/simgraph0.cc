@@ -434,6 +434,9 @@ image_id get_image_count()
 {
 	return 0;
 }
+void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVAL color, bool dirty, uint8 basic_constraint_flags, uint8 interactivity, bool is_rightside, bool reversed  CLIP_NUM_DEF)
+{
+}
 
 #ifdef MULTI_THREAD
 void add_poly_clip(int, int, int, int, int  CLIP_NUM_DEF_NOUSE)
