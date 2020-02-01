@@ -2758,7 +2758,7 @@ void stadt_t::check_all_private_car_routes()
 		return;
 	}
 	const uint32 depth = welt->get_max_road_check_depth();
-	const grund_t* gr = plan->get_kartenboden();
+	const grund_t* gr = plan ? plan->get_kartenboden() : NULL;
 	const koord3d origin = gr ? gr->get_pos() : koord3d::invalid;
 
 	connected_cities.clear();
