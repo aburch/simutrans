@@ -611,7 +611,7 @@ void private_car_t::rdwr(loadsave_t *file)
 		origin = koord::invalid;
 	}
 
-	if (file->get_extended_version() >= 15 || file->get_extended_revision() >= 19)
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 19))
 	{
 		last_tile_marked_as_stopped.rdwr(file); 
 	}

@@ -409,7 +409,7 @@ void weg_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	const uint32 max_stat_types = file->get_extended_version() >= 15 || file->get_extended_revision() >= 19 ? MAX_WAY_STATISTICS : 2;
+	const uint32 max_stat_types = file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 19) ? MAX_WAY_STATISTICS : 2;
 	for(uint32 type = 0; type < max_stat_types; type++)
 	{
 		for(uint32 month = 0; month < MAX_WAY_STAT_MONTHS; month++)
