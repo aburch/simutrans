@@ -60,7 +60,7 @@ void sound_set_mute(bool f)
 
 bool sound_get_mute()
 {
-	return (  env_t::global_mute_sound  ||  (SFX_CASH == NO_SOUND)*255  );
+	return (  env_t::global_mute_sound  );
 }
 
 
