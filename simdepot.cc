@@ -609,6 +609,10 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 				create_win( new news_img(buf), w_time_delete, magic_none);
 			}
 		}
+		else if (!(cnv->front()->get_desc()->get_basic_constraint_prev(cnv->front()->is_reversed()) & vehicle_desc_t::can_be_head)) {
+			// Is there a cab at the front end of convoy?
+			create_win(new news_img("Cannot start: no cab at the front of the convoy."), w_time_delete, magic_none);
+		}
 		else {
 			// convoi can start now
 			cnv->start();
