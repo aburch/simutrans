@@ -6155,7 +6155,7 @@ void stadt_t::clear_private_car_route(koord pos)
 		FOR(const vector_tpl<koord3d>, const &route_element, route)
 		{
 			const grund_t* gr = welt->lookup(route_element);
-			weg_t* road_tile = gr->get_weg(road_wt);
+			weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
 			if (road_tile)
 			{
 				road_tile->private_car_routes.remove(pos);
