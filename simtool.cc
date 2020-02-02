@@ -9242,6 +9242,12 @@ bool tool_change_player_t::init( player_t *player_in)
 		case 'f': // WAS: activate/deactivate freeplay
 			dbg->error( "tool_change_player_t::init()", "deprecated command called" );
 			break;
+		case 't': // Sets the company to "allow takover"
+			if (player && player == player_in) {
+				player->set_allow_voluntary_takeover(state);
+			}
+			break;
+
 	}
 
 	// update the window

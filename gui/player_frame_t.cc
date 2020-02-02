@@ -217,6 +217,32 @@ ki_kontroll_t::ki_kontroll_t() :
 	add_component( &freeplay );
 	cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE);
 
+	cursor.y += D_BUTTON_HEIGHT * 2;
+
+	company_takeovers.set_text(translator::translate("company_takeovers"));
+	company_takeovers.set_pos(cursor);
+	add_component( &company_takeovers );
+	cursor.y += D_BUTTON_HEIGHT;
+
+	sprintf(text_allow_takeover, translator::translate("allow_takeover_of_your_company"));
+	allow_take_over_of_company.init(button_t::roundbox, text_allow_takeover, cursor, scr_size(display_calc_proportional_string_len_width(text_allow_takeover, -1) + 10 ,D_BUTTON_HEIGHT));
+	allow_take_over_of_company.add_listener(this);
+	allow_take_over_of_company.set_tooltip(translator::translate("allows_other_players_to_take_over_your_company"));
+	if (current_player->get_allow_voluntary_takeover()){
+		allow_take_over_of_company.disable();
+	}
+	add_component( &allow_take_over_of_company );
+
+	sprintf(text_cancel_takeover, translator::translate("cancel_takeover"));
+	cancel_take_over.init(button_t::roundbox, text_cancel_takeover, scr_coord(cursor.x + allow_take_over_of_company.get_size().w + 5, cursor.y), scr_size(display_calc_proportional_string_len_width(text_cancel_takeover, -1) + 10, D_BUTTON_HEIGHT));
+	cancel_take_over.add_listener(this);
+	cancel_take_over.set_tooltip(translator::translate("cancel_the_takeover_of_your_company"));
+	if (!current_player->get_allow_voluntary_takeover()) {
+		cancel_take_over.disable();
+	}
+	add_component(&cancel_take_over);
+	cursor.y += D_BUTTON_HEIGHT;
+
 	set_windowsize( scr_size( window_width, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 	update_data();
 }
@@ -344,6 +370,34 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 			access_out[i].pressed = welt->get_active_player()->allows_access_to(i);
 		}
 
+	}
+
+	if (comp == &allow_take_over_of_company)
+	{
+		static char param[16];
+		sprintf(param, "t, %hi, %hi", welt->get_active_player_nr(), true);
+		tool_t* tool = create_tool(TOOL_CHANGE_PLAYER | SIMPLE_TOOL);
+		tool->set_default_param(param);
+		welt->set_tool(tool, welt->get_active_player());
+		// since init always returns false, it is save to delete immediately
+		delete tool;
+
+		allow_take_over_of_company.disable();
+		cancel_take_over.enable();
+	}
+	
+	if (comp == &cancel_take_over)
+	{
+		static char param[16];
+		sprintf(param, "t, %hi, %hi", welt->get_active_player_nr(), false);
+		tool_t* tool = create_tool(TOOL_CHANGE_PLAYER | SIMPLE_TOOL);
+		tool->set_default_param(param);
+		welt->set_tool(tool, welt->get_active_player());
+		// since init always returns false, it is save to delete immediately
+		delete tool;
+
+		allow_take_over_of_company.enable();
+		cancel_take_over.disable();
 	}
 	return true;
 }
