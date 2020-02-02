@@ -1204,6 +1204,8 @@ public:
 
 	player_t * get_owner() const { return owner; }
 
+	void set_owner(player_t* value) { owner = value; }
+
 	/**
 	* Opens an information window
 	* @author Hj. Malthaner

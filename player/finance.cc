@@ -523,6 +523,24 @@ transport_type finance_t::translate_waytype_to_tt(const waytype_t wt)
 	}
 }
 
+waytype_t finance_t::translate_tt_to_waytype(const transport_type tt)
+{
+	switch (tt) 
+	{
+		case TT_ROAD:			return road_wt;
+		case TT_RAILWAY:		return track_wt;
+		case TT_SHIP:			return water_wt;
+		case TT_MONORAIL:		return monorail_wt;
+		case TT_MAGLEV:			return maglev_wt;
+		case  TT_TRAM:			return tram_wt;
+		case TT_NARROWGAUGE:	return narrowgauge_wt;
+		case  TT_AIR:			return air_wt;
+		case TT_POWERLINE:		return powerline_wt;
+		case TT_OTHER:			return overheadlines_wt;
+		default:				return ignore_wt;
+	}
+}
+
 
 /** compatibility code follows **/
 

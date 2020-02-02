@@ -602,6 +602,8 @@ public:
  	 */
 	static transport_type translate_waytype_to_tt(waytype_t wt);
 
+	static waytype_t translate_tt_to_waytype(transport_type tt);
+
 	void update_assets(sint64 delta, waytype_t wt);
 
 private:

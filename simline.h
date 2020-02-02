@@ -268,6 +268,7 @@ public:
 	bool get_withdraw() const { return withdraw; }
 
 	player_t *get_owner() const {return player;}
+	void set_owner(player_t* value) { player = value; }
 
 	void recalc_status();
 

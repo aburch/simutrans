@@ -875,6 +875,13 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 	if(  file->get_version() >= 112002  && (file->get_extended_version() >= 11 || file->get_extended_version() == 0) ) {
 		file->rdwr_short( player_age );
 	}
+
+#ifdef SAVE_INSOLVENCY_DATA
+	if (file->get_extended_version() >= 15 || (file->get_extended_revision() >= 20 && file->get_extended_version() == 14))
+	{
+		file->rdwr_bool(allow_voluntary_takeover); 
+	}
+#endif
 }
 
 /**
@@ -1109,6 +1116,10 @@ void player_t::book_convoi_number(int count)
 	finance->book_convoi_number(count);
 }
 
+sint64 player_t::get_account_balance() const
+{
+	return finance->get_account_balance();
+}
 
 double player_t::get_account_balance_as_double() const
 {
@@ -1148,4 +1159,160 @@ void player_t::set_selected_signalbox(signalbox_t* sb)
 		tool_t::update_toolbars();
 		welt->set_dirty();
 	}
+}
+
+sint64 player_t::calc_takeover_cost(bool do_not_adopt_liabilities) const
+{
+	sint64 cost = 0;
+	if (!do_not_adopt_liabilities)
+	{
+		if (finance->get_account_balance() < 0)
+		{
+			cost += finance->get_account_balance();
+		}
+		
+		// TODO: Add any liability for longer term loans here whenever longer term loans come to be implemented.
+	}
+
+	// TODO: Consider a more sophisticated system here; but where can we get the data for this?
+	cost -= finance->get_netwealth();
+	return cost;
+}
+
+const char* player_t::can_take_over(player_t* target_player, bool do_not_adopt_liabilities)
+{
+	// TODO: Allow involuntary takeovers with refined insolvency settings
+	if (!target_player->get_allow_voluntary_takeover())
+	{
+		return "Takeover not permitted."; // TODO: Set this up for translation
+	}
+	
+	if (!can_afford(target_player->calc_takeover_cost(do_not_adopt_liabilities)))
+	{
+		return NOTICE_INSUFFICIENT_FUNDS;
+	}
+}
+
+void player_t::take_over(player_t* target_player, bool do_not_adopt_liabilities)
+{
+	// Pay for the takeover
+	finance->book_account(target_player->calc_takeover_cost(do_not_adopt_liabilities)); 
+	
+	if (!do_not_adopt_liabilities)
+	{
+		// Take the player's account balance, whether negative or not.
+		finance->book_account(target_player->get_account_balance()); 
+
+		// TODO: Add any liability for longer term loans here whenever longer term loans come to be implemented.
+	}
+	
+	// Transfer maintenance costs
+	for (uint32 i = 0; i < transport_type::TT_MAX; i++)
+	{
+		transport_type tt = (transport_type)i;
+		finance->book_maintenance(target_player->get_finance()->get_maintenance(tt), finance_t::translate_tt_to_waytype(tt));
+	}
+
+	// Transfer fixed assets (adopted from the liquidation algorithm)
+	for (int y = 0; y < welt->get_size().y; y++) 
+	{
+		for (int x = 0; x < welt->get_size().x; x++) 
+		{
+			planquadrat_t* plan = welt->access(x, y);
+			for (size_t b = plan->get_boden_count(); b-- != 0;) 
+			{
+				grund_t* gr = plan->get_boden_bei(b);
+				for (size_t i = gr->get_top(); i-- != 0;)
+				{
+					obj_t* obj = gr->obj_bei(i);
+					if (obj->get_owner() == target_player)
+					{
+						switch (obj->get_typ())
+						{
+						case obj_t::roadsign:
+						case obj_t::signal:
+						case obj_t::airdepot:
+						case obj_t::bahndepot:
+						case obj_t::monoraildepot:
+						case obj_t::tramdepot:
+						case obj_t::strassendepot:
+						case obj_t::schiffdepot:
+						case obj_t::senke:
+						case obj_t::pumpe:
+						case obj_t::wayobj:
+						case obj_t::label:
+						case obj_t::signalbox:
+						case obj_t::leitung:
+						case obj_t::way:
+						case obj_t::bruecke:
+						case obj_t::tunnel:
+						default:
+							obj->set_owner(this);
+							break;
+						case obj_t::gebaeude:
+							// Do not transfer headquarters
+							gebaeude_t* gb = (gebaeude_t*)obj;
+							if (gb->is_headquarter())
+							{
+								hausbauer_t::remove(target_player, gb, false); 
+							}
+							else
+							{
+								obj->set_owner(this);
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Transfer stops
+	// Adapted from the liquidation algorithm
+	slist_tpl<halthandle_t> halt_list;
+	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen())
+	{
+		if (halt->get_owner() == target_player) 
+		{
+			halt->set_owner(this); 
+		}
+	}
+
+	// Transfer vehicles
+	// Adapted from the liquidation algorithm
+	for (size_t i = welt->convoys().get_count(); i-- != 0;) 
+	{
+		convoihandle_t const cnv = welt->convoys()[i];
+		if (cnv->get_owner() != target_player)
+		{
+			continue;
+		}
+
+		cnv->set_owner(this);
+
+		linehandle_t line = cnv->get_line();
+		if (line.is_bound())
+		{
+			line->set_owner(this);
+		}
+	}
+
+	// Inherit access rights from taken over player
+	// Anything else would result in deadlocks with taken over lines
+	for (int i = 0; i < MAX_PLAYER_COUNT; i++) 
+	{
+		player_t* player = welt->get_player(i);
+		if (player && player != this && player != target_player)
+		{
+			if (player->allows_access_to(target_player->get_player_nr()))
+			{
+				player->set_allow_access_to(get_player_nr(), true); 
+			}
+		}
+	}
+
+	// TODO: Add record of the takeover to a log that can be displayed in perpetuity for historical interest.
+
+	welt->remove_player(target_player->get_player_nr());
 }

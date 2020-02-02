@@ -132,6 +132,10 @@ protected:
 	 * for automatic way renewals*/
 	bool has_been_warned_about_no_money_for_renewals;
 
+	/// Any player may take over this company at any time if
+	/// this evaluates to true.
+	bool allow_voluntary_takeover;
+
 public:
 	/**
 	 * Sums up "count" with number of convois in statistics,
@@ -341,6 +345,8 @@ public:
 	 */
 	double get_account_balance_as_double() const;
 
+	sint64 get_account_balance() const;
+
 	/**
 	 * @return true when account balance is overdrawn
 	 * @author Hj. Malthaner
@@ -475,8 +481,16 @@ public:
 	bool allows_access_to(uint8 other_player_nr) const { return player_nr == other_player_nr || access[other_player_nr]; }
 	void set_allow_access_to(uint8 other_player_nr, bool allow) { access[other_player_nr] = allow; }
 
+	bool get_allow_voluntary_takeover() const { return allow_voluntary_takeover; }
+	void set_allow_voluntary_takeover(bool value) { allow_voluntary_takeover = value; }
+
 	void set_selected_signalbox(signalbox_t* sb);
 	signalbox_t* get_selected_signalbox() const { return selected_signalbox; }
+
+	const char* can_take_over(player_t* target_player, bool do_not_adopt_liabilities); 
+	void take_over(player_t* target_player, bool do_no_adopt_liabilities); 
+	/// Returns *negative* number constituting the cost
+	sint64 calc_takeover_cost(bool do_not_adopt_liabilities) const; 
 };
 
 #endif
