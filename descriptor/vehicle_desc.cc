@@ -404,7 +404,7 @@ uint8 vehicle_desc_t::has_available_upgrade(uint16 month_now, bool show_future) 
 
 // The old pak doesn't have a basic constraint, so add a value referring to the constraint.
 // Note: This is ambiguous because it does not have data of cab and constraint[prev]=any.
-inline void vehicle_desc_t::fix_basic_constraint()
+void vehicle_desc_t::fix_basic_constraint()
 {
 	// front side
 	if (basic_constraint_prev & unknown_constraint) {
