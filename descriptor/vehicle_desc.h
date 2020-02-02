@@ -242,8 +242,8 @@ private:
 		return livery_image_type > 0 ? 5 + i : 6;
 	}
 
-	// set basic constraint to the old version data. v14.6, 2019 @Ranran
-	inline void fix_basic_constraint();
+	// set basic constraint to the old version data. v14.8, 2020 @Ranran
+	void fix_basic_constraint();
 
 public:
 	// since we have a second constructor
