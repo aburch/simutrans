@@ -1061,6 +1061,22 @@ grund_t* private_car_t::hop_check()
 					origin_city->clear_private_car_route(check_target);
 				}
 			}
+			else
+			{
+				const ribi_t::ribi current_dir = ribi_type(get_pos(), pos_next);
+				const ribi_t::ribi dir_next = ribi_type(pos_next, pos_next_next);
+				const bool backwards = dir_next == ribi_t::backward(current_dir);
+
+				if (backwards)
+				{
+					// Cannot reverse on one way road
+					const strasse_t* str = (strasse_t*)next_way;
+					if (str->get_overtaking_mode() == oneway_mode)
+					{
+						pos_next_next = koord3d::invalid;
+					}
+				}
+			}
 		}
 	}
 
@@ -1079,62 +1095,78 @@ grund_t* private_car_t::hop_check()
 
 		static weighted_vector_tpl<koord3d> poslist(4);
 		poslist.clear();
-		for(uint8 r = 0; r < 4; r++) {
-			if(  get_pos().get_2d()==koord::nsew[r]+pos_next.get_2d()  ) {
-				continue;
+		for (uint32 n = 0; n < 2; n++)
+		{
+			if (!poslist.empty())
+			{
+				break;
 			}
-			if(  (ribi&ribi_t::nsew[r])!=0  ) {
-				grund_t *to;
-				if(  from->get_neighbour(to, road_wt, ribi_t::nsew[r])  ) {
-					// check, if this is just a single tile deep after a crossing
-					weg_t *w = to->get_weg(road_wt);
-					if(  ribi_t::is_single(w->get_ribi())  &&  (w->get_ribi()&ribi_t::nsew[r])==0  &&  !ribi_t::is_single(ribi)  ) {
-						ribi &= ~ribi_t::nsew[r];
-						continue;
-					}
-					// check, if roadsign forbid next step ...
-					if(w->has_sign()) {
-						const roadsign_t* rs = to->find<roadsign_t>();
-						const roadsign_desc_t* rs_desc = rs->get_desc();
-						if(rs_desc->get_min_speed()>desc->get_topspeed()  ||  (rs_desc->is_private_way()  &&  (rs->get_player_mask()&2)==0)  ) {
-							// not allowed to go here
+			for (uint8 r = 0; r < 4; r++)
+			{
+				if (get_pos().get_2d() == koord::nsew[r] + pos_next.get_2d())
+				{
+					continue;
+				}
+				if ((ribi & ribi_t::nsew[r]) != 0)
+				{
+					grund_t* to;
+					if (from->get_neighbour(to, road_wt, ribi_t::nsew[r]))
+					{
+						// check, if this is just a single tile deep after a crossing
+						weg_t* w = to->get_weg(road_wt);
+						if (ribi_t::is_single(w->get_ribi()) && (w->get_ribi() & ribi_t::nsew[r]) == 0 && !ribi_t::is_single(ribi))
+						{
 							ribi &= ~ribi_t::nsew[r];
 							continue;
 						}
-					}
-					
-					// If we are not on a route to our destination, do not leave a city if we are in one, unless it is our destination city.
-					const planquadrat_t* tile = welt->access(pos_next.get_2d());
-					const stadt_t* current_city = tile ? tile->get_city() : NULL;
-					if (current_city)
-					{
-						planquadrat_t* tile = welt->access(to->get_pos().get_2d());
-						const stadt_t* next_tile_city = tile ? tile->get_city() : NULL;
+						// check, if roadsign forbid next step ...
+						if (w->has_sign()) {
+							const roadsign_t* rs = to->find<roadsign_t>();
+							const roadsign_desc_t* rs_desc = rs->get_desc();
+							if (rs_desc->get_min_speed() > desc->get_topspeed() || (rs_desc->is_private_way() && (rs->get_player_mask() & 2) == 0))
+							{
+								// not allowed to go here
+								ribi &= ~ribi_t::nsew[r];
+								continue;
+							}
+						}
 
-						const grund_t* gr_check = welt->lookup_kartenboden(target);
-						const gebaeude_t* gb = gr_check ? gr_check->get_building() : NULL;
-						const stadt_t* destination_city = gb ? gb->get_stadt() : NULL;
-
-						if (next_tile_city != current_city && (!destination_city || next_tile_city != destination_city))
+						// If we are not on a route to our destination, do not leave a city if we are in one, unless it is our destination city.
+						// However, do not allow this sysem to prevent a car from going anywhere if the only way that it can go is out of the city 
+						// (e.g. if there is a one way road).
+						const planquadrat_t* tile = welt->access(pos_next.get_2d());
+						const stadt_t* current_city = tile ? tile->get_city() : NULL;
+						if (current_city && n == 0)
 						{
-							// We have checked whether this is on a route above, so if we reach here, we assume that this
-							// city exit tile is not on a route.
-							weg = from->get_weg(road_wt);
-							continue;
+							planquadrat_t* tile = welt->access(to->get_pos().get_2d());
+							const stadt_t* next_tile_city = tile ? tile->get_city() : NULL;
+
+							const grund_t* gr_check = welt->lookup_kartenboden(target);
+							const gebaeude_t* gb = gr_check ? gr_check->get_building() : NULL;
+							const stadt_t* destination_city = gb ? gb->get_stadt() : NULL;
+
+							if (next_tile_city != current_city && (!destination_city || next_tile_city != destination_city))
+							{
+								// We have checked whether this is on a route above, so if we reach here, we assume that this
+								// city exit tile is not on a route.
+								weg = from->get_weg(road_wt);
+								continue;
+							}
+						}
+
+						// Check whether the tile is passable: do not drive onto an impassible tile.
+						const weg_t* next_way = to->get_weg(road_wt);
+						if (next_way && next_way->get_max_speed() > 0 && next_way->get_max_axle_load() > 0 && (next_way->get_owner() == NULL || next_way->get_owner()->allows_access_to(1))) // TODO: Replace 1 with a constant for public player
+						{
+							const uint32 dist = 8192 / max(1, shortest_distance(to->get_pos().get_2d(), target));
+							poslist.append(to->get_pos(), dist);
 						}
 					}
-					 
-					// Check whether the tile is passable: do not drive onto an impassible tile.
-					const weg_t* next_way = to->get_weg(road_wt); 
-					if (next_way && next_way->get_max_speed() > 0 && next_way->get_max_axle_load() > 0 && (next_way->get_owner() == NULL || next_way->get_owner()->allows_access_to(1))) // TODO: Replace 1 with a constant for public player
+					else
 					{
-						const uint32 dist = 8192 / max(1, shortest_distance(to->get_pos().get_2d(), target));
-						poslist.append(to->get_pos(), dist);
+						// not connected?!? => ribi likely wrong
+						ribi &= ~ribi_t::nsew[r];
 					}
-				}
-				else {
-					// not connected?!? => ribi likely wrong
-					ribi &= ~ribi_t::nsew[r];
 				}
 			}
 		}
