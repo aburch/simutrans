@@ -85,6 +85,8 @@ player_t::player_t(karte_t *wl, uint8 nr) :
 	headquarter_pos = koord::invalid;
 	headquarter_level = 0;
 
+	allow_voluntary_takeover = false;
+
 	welt->get_settings().set_default_player_color(this);
 
 	// we have different AI, try to find out our type:
@@ -881,6 +883,12 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 	{
 		file->rdwr_bool(allow_voluntary_takeover); 
 	}
+	else
+	{
+		allow_voluntary_takeover = false;
+	}
+#else
+	allow_voluntary_takeover = false;
 #endif
 }
 
