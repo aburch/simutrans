@@ -2873,7 +2873,13 @@ void convoi_t::upgrade_vehicle(uint16 i, vehicle_t* v)
 	// Adapted from the add/remove vehicle functions
 	// @author: jamespetts, February 2010
 
-DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicle);
+	DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicle);
+
+	if (i >= vehicle.get_count())
+	{
+		dbg->error("convoi_t::upgrade_vehicle()", "Attempting to append beyond end of convoy"); 
+		return;
+	}
 
 	// now append
 	v->set_convoi(this);
