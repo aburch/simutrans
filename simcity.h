@@ -288,13 +288,6 @@ private:
 
 	sint32 number_of_cars;
 
-	/**
-	* Will fill the world's hashtable of tiles
-	* belonging to cities with all the tiles of
-	* this city
-	*/
-	void check_city_tiles(bool del = false);
-
 	/// Storage for private car routes (1) awaiting processing; and (2) processed (for easy deletion)
 	// We swap between two routing tables to avert the need for copying, which is too expensive.
 	typedef koordhashtable_tpl<koord, vector_tpl<koord3d> > private_car_route_map;
@@ -357,6 +350,13 @@ public:
 	void add_all_buildings_to_world_list();
 
 	void reset_tiles_for_all_buildings();
+
+	/**
+	* Will fill the world's hashtable of tiles
+	* belonging to cities with all the tiles of
+	* this city
+	*/
+	void check_city_tiles(bool del = false);
 
 	
 private:

@@ -2546,6 +2546,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		koord k = iter->key;
 		uint32 f = iter->value;
 		iter = connected_cities.erase(iter);
+		clear_private_car_route(k);
 		k.rotate90(y_size);
 		k_list.append(k);
 		f_list.append(f);
@@ -2564,6 +2565,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		koord k = iter->key;
 		uint32 f = iter->value;
 		iter = connected_industries.erase(iter);
+		clear_private_car_route(k);
 		k.rotate90(y_size);
 		k_list.append(k);
 		f_list.append(f);
@@ -2582,6 +2584,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		koord k = iter->key;
 		uint32 f = iter->value;
 		iter = connected_attractions.erase(iter);
+		clear_private_car_route(k);
 		k.rotate90(y_size);
 		k_list.append(k);
 		f_list.append(f);
@@ -2592,6 +2595,14 @@ void stadt_t::rotate90( const sint16 y_size )
 	{
 		connected_attractions.put(k_list[n], f_list[n]);
 	}
+
+	// These will have out of date co-ordinates, so they have to go.
+	// Since the refresh of these will happen quite soon in any event,
+	// it is not worth the very complex coding necessary to rotate
+	// these rather than simply erasing them and waiting for them to be
+	// recreated. The same applies to the actual current routes (dealt
+	// with above).
+	private_car_routes[get_currently_inactive_route_map()].clear();
 }
 
 void stadt_t::set_name(const char *new_name)
@@ -6109,7 +6120,7 @@ void stadt_t::process_private_car_routes()
 					continue;
 				}
 				const grund_t* gr = welt->lookup(previous_tile);
-				weg_t* road_tile = gr->get_weg(road_wt);
+				weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
 				if (road_tile) // This may have been deleted in the meantime.
 				{
 					road_tile->private_car_routes.set(route.key, route_element);

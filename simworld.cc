@@ -4325,6 +4325,11 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 		s->release_factory_links();
 	}
 
+	// Rotate cities first so that the private car routes can be removed
+	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
+		i->rotate90(cached_size.x);
+	}
+
 	//rotate plans in parallel posix thread ...
 	rotate90_new_plan = new planquadrat_t[cached_grid_size.y * cached_grid_size.x];
 	rotate90_new_water = new sint8[cached_grid_size.y * cached_grid_size.x];
@@ -4363,11 +4368,6 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	int wx = cached_grid_size.x;
 	cached_grid_size.x = cached_grid_size.y;
 	cached_grid_size.y = wx;
-
-	// now step all towns (to generate passengers)
-	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
-		i->rotate90(cached_size.x);
-	}
 
 	//fixed order factory, halts, convois
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
@@ -4429,6 +4429,11 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 			players[i]->rotate90( cached_size.x );
 			selected_tool[i]->rotate90(cached_size.x);
 		}
+	}
+
+	// Recheck city tiles
+	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
+		i->check_city_tiles(false);
 	}
 
 	// rotate label texts
