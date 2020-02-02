@@ -109,6 +109,7 @@ ki_kontroll_t::ki_kontroll_t() :
 			add_component(player_change_to+i);
 		}
 		cursor.x += D_ARROW_RIGHT_WIDTH + D_H_SPACE;
+		right_hand_column = cursor.x;
 
 		// Prepare finances button
 		player_get_finances[i].init( button_t::box, "", cursor, scr_size( L_FINANCE_WIDTH, D_EDIT_HEIGHT ) );
@@ -219,9 +220,38 @@ ki_kontroll_t::ki_kontroll_t() :
 
 	cursor.y += D_BUTTON_HEIGHT * 2;
 
-	company_takeovers.set_text(translator::translate("company_takeovers"));
+	company_takeovers.set_text(translator::translate("available_company_takeovers:"));
 	company_takeovers.set_pos(cursor);
 	add_component( &company_takeovers );
+	cursor.y += D_BUTTON_HEIGHT;
+	scr_size fincance_size = scr_size(L_FINANCE_WIDTH, D_BUTTON_HEIGHT);
+
+	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
+		const player_t* const player = welt->get_player(i);
+		if (player && player->get_allow_voluntary_takeover())
+		{
+			take_over_player[i].init(button_t::roundbox, translator::translate("take_over"), cursor, D_BUTTON_SIZE);
+			take_over_player[i].add_listener(this);
+			take_over_player[i].set_tooltip(translator::translate("take_over_this_company"));
+			add_component(&take_over_player[i]);
+			cursor.x += D_BUTTON_WIDTH + 10;
+
+			lb_take_over_player[i].set_text(player->get_name());
+			lb_take_over_player[i].set_pos(cursor);
+			lb_take_over_player[i].set_size(fincance_size);
+			add_component(&lb_take_over_player[i]);
+			cursor.x += lb_take_over_player[i].get_size().w + 10;
+
+			money_to_string(text_take_over_cost, player->calc_takeover_cost(false) / 100.0, false);
+			lb_take_over_cost[i].set_text(text_take_over_cost);
+			lb_take_over_cost[i].set_pos(cursor);
+			lb_take_over_cost[i].set_size(fincance_size);
+			add_component(&lb_take_over_cost[i]);
+
+			cursor.y += D_EDIT_HEIGHT + D_V_SPACE;
+			cursor.x = D_MARGIN_LEFT;
+		}
+	}
 	cursor.y += D_BUTTON_HEIGHT;
 
 	sprintf(text_allow_takeover, translator::translate("allow_takeover_of_your_company"));
@@ -233,7 +263,7 @@ ki_kontroll_t::ki_kontroll_t() :
 	}
 	add_component( &allow_take_over_of_company );
 
-	sprintf(text_cancel_takeover, translator::translate("cancel_takeover"));
+	sprintf(text_cancel_takeover, translator::translate("cancel"));
 	cancel_take_over.init(button_t::roundbox, text_cancel_takeover, scr_coord(cursor.x + allow_take_over_of_company.get_size().w + 5, cursor.y), scr_size(display_calc_proportional_string_len_width(text_cancel_takeover, -1) + 10, D_BUTTON_HEIGHT));
 	cancel_take_over.add_listener(this);
 	cancel_take_over.set_tooltip(translator::translate("cancel_the_takeover_of_your_company"));
@@ -399,12 +429,37 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 		allow_take_over_of_company.enable();
 		cancel_take_over.disable();
 	}
+
+
+	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
+		if (comp == take_over_player + i)
+		{
+			static char param[16];
+			sprintf(param, "t, %hi, %hi", welt->get_active_player_nr(), i);
+			tool_t* tool = create_tool(TOOL_CHANGE_PLAYER | SIMPLE_TOOL);
+			tool->set_default_param(param);
+			welt->set_tool(tool, welt->get_active_player());
+			// since init always returns false, it is save to delete immediately
+			delete tool;
+		}
+		
+	}
 	return true;
 }
 
 
 void ki_kontroll_t::update_data()
 {
+	// Update the allow/cancel overtake buttons, in case we switched player
+	const player_t* const current_player = welt->get_active_player();
+	if (current_player->get_allow_voluntary_takeover()) {
+		allow_take_over_of_company.disable();
+		cancel_take_over.enable();
+	}
+	else {
+		allow_take_over_of_company.enable();
+		cancel_take_over.disable();
+	}
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
 
 		if(  player_t *player = welt->get_player(i)  ) {
@@ -469,7 +524,6 @@ void ki_kontroll_t::update_data()
 					add_component( player_active+i-2 );
 				}
 			}
-
 		}
 		else {
 
