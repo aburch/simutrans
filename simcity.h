@@ -294,7 +294,7 @@ private:
 	private_car_route_map private_car_routes[2];
 	/// This is the set of routes that is currently being used by the running game, 
 	/// not the one that is set aside for multi-threaded insertion by the route-finder.
-	uint32 currently_active_route_map = 0;
+	uint32 currently_active_route_map;
 
 public:
 

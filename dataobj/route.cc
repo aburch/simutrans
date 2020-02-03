@@ -325,6 +325,11 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 						origin_city->add_road_connexion(tmp->g / straight_line_distance, welt->access(k.get_2d())->get_city());
 					}
 				}
+				else
+				{
+					// Do not register multiple routes to the destination city.
+					destination_city = NULL;
+				}
 				
 				weg_t* way = gr->get_weg(road_wt);
 
@@ -362,7 +367,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 							}
 #endif
 						}
-						else if (origin_city)
+						else if (origin_city && gb->is_attraction())
 						{
 							origin_city->add_road_connexion(journey_time_per_tile, gb);
 #if 0

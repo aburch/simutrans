@@ -1713,6 +1713,7 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	welt->add_queued_city(this);
 
 	number_of_cars = 0;
+	currently_active_route_map = 0;
 }
 
 stadt_t::stadt_t(loadsave_t* file) :
@@ -2420,6 +2421,10 @@ void stadt_t::rdwr(loadsave_t* file)
 				}
 			}
 		}
+	}
+	else
+	{
+		currently_active_route_map = 0;
 	}
 
 	if(file->get_extended_version() >= 12 && file->get_extended_version() < 13)
@@ -6108,7 +6113,7 @@ void stadt_t::store_private_car_route(vector_tpl<koord3d> route, koord pos)
 void stadt_t::process_private_car_routes()
 {
 	if (!private_car_route_finding_in_progress && !private_car_routes[get_currently_inactive_route_map()].empty())
-	{
+	{	
 		FOR(private_car_route_map, const &route, private_car_routes[get_currently_inactive_route_map()])
 		{
 			koord3d previous_tile = welt->lookup_kartenboden(get_townhall_road())->get_pos();
