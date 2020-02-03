@@ -2131,6 +2131,8 @@ You have been overdrawn\nfor %i months
 Vi ste u nedozvoljenom minusu\n vec %i mjeseci
 You have been overdrawn\nfor one month
 Vi ste u nedozvoljenom minusu\njedan mjesec
+LOCO_SYM
+L
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

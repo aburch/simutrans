@@ -1029,7 +1029,7 @@ grund_t* private_car_t::hop_check()
 						}
 					}
 #ifdef DESTINATION_CITYCARS
-					uint32 dist=shortest_distance( to->get_pos().get_2d(), target );
+					const uint32 dist = 8192 / max(1, shortest_distance(to->get_pos().get_2d(), target));
 					posliste.append( to->get_pos(), dist*dist );
 #else
 					// ok, now check if we are allowed to go here (i.e. no cars blocking)

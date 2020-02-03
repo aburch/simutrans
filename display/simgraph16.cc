@@ -24,6 +24,7 @@
 #include "../simticker.h"
 #include "../utils/simstring.h"
 #include "simgraph.h"
+#include "../descriptor/vehicle_desc.h"
 
 
 #ifdef _MSC_VER
@@ -3881,7 +3882,6 @@ void display_fillbox_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_
 	display_fb_internal(xp, yp, w, h, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
 }
 
-
 /**
 * Draw vertical line
 * @author Hj. Malthaner
@@ -3940,6 +3940,136 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 	}
 }
 
+void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVAL color, bool dirty, uint8 basic_constraint_flags, uint8 interactivity, bool is_rightside  CLIP_NUM_DEF)
+{
+	uint8 h = VEHICLE_BAR_HEIGHT;
+	uint8 width = (w + 1) * 0.9;
+	uint8 margin_left = w - width;
+
+	if (is_rightside) {
+		// right side of the bar - check only [next] parameter. check the alternate side if vehicle is reversed
+		display_fillbox_wh_clip_rgb(xp, yp, width - h / 2, h, color, dirty);
+
+		// draw right end >
+		if (basic_constraint_flags & vehicle_desc_t::unknown_constraint) {
+			display_fillbox_wh_clip_rgb(xp + width - h / 2, yp, h / 2, h, color, dirty);
+		}
+		else if (basic_constraint_flags & vehicle_desc_t::can_be_tail) {
+			display_pixel(xp + width - 1, yp+h/2, color);
+			// draw "tail" shape
+			if ((interactivity & BIDIRECTIONAL) == 0) {
+				// one directional (tail)
+				display_vline_wh_clip_rgb(xp + width - 1, yp, h / 2, color, dirty);
+				for (int i = 1; i < h / 2; ++i) {
+					display_vline_wh_clip_rgb(xp + width - 1 - i, yp, h / 2 + i + 1, color, dirty);
+				}
+			}
+			else if (basic_constraint_flags & vehicle_desc_t::can_be_head) {
+				// cab end
+				for (int i = 1; i < h / 2; ++i) {
+					display_vline_wh_clip_rgb(xp + width -1 - i, yp + h / 2 - i, i * 2 + 1, color, dirty);
+				}
+			}
+			else {
+				// tail end
+				display_vline_wh_clip_rgb(xp + width - 1, yp + 1, h - 2, color, dirty);
+				for (int i = 1; i < h / 2; ++i) {
+					display_vline_wh_clip_rgb(xp + width - 1 - i, yp, h, color, dirty);
+				}
+			}
+		}
+		else {
+			// intermediate end
+			display_pixel(xp + width - 1, yp, color);
+			display_pixel(xp + width - 1, yp+h-1, color);
+			for (int i = 1; i < h / 2; ++i) {
+				display_vline_wh_clip_rgb(xp + width - 1 - i, yp, h, color, dirty);
+			}
+		}
+		// un-powerd vehicle
+		if (!(interactivity & HAS_POWER)) {
+			display_blend_wh(xp, yp + 1, width - h / 2, h - 2, COL_WHITE, 30);
+			if ((interactivity & BIDIRECTIONAL)==0 && basic_constraint_flags & vehicle_desc_t::can_be_tail) {
+				display_pixel(xp + width - h / 2 - 1, yp + h - 2, color);
+			}
+			if (basic_constraint_flags & vehicle_desc_t::can_be_head) {
+				display_pixel(xp + width - h / 2 - 1, yp + h - 2, color);
+				if (interactivity & BIDIRECTIONAL) {
+					display_pixel(xp + width - h / 2 - 1, yp + 1, color);
+				}
+			}
+		}
+
+		// draw the "coupler" line
+		//if (reversed ? basic_constraint_flags & vehicle_desc_t::fixed_coupling_prev : basic_constraint_flags & vehicle_desc_t::fixed_coupling_next) {
+		//	display_blend_wh(xp + width - 1, yp + h/2-1, 3, h/2, COL_BLACK, 66);
+		//}
+		// permanent coupling |-
+		//if (reversed ? basic_constraint_flags & vehicle_desc_t::permanent_coupling_prev : basic_constraint_flags & vehicle_desc_t::permanent_coupling_next) {
+		//	display_vline_wh_clip(xp + width - 1, yp, h, COL_GREY1, dirty);
+		//}
+	}
+	else {
+		// left side of the bar - check only [prev] parameter
+		display_fillbox_wh_clip_rgb(xp + margin_left + h/2, yp, width - h/2, h, color, dirty);
+
+		// < draw left end's base color
+		if (basic_constraint_flags & vehicle_desc_t::unknown_constraint) {
+			display_fillbox_wh_clip_rgb(xp + margin_left, yp, h / 2, h, color, dirty);
+		}
+		else if (basic_constraint_flags & vehicle_desc_t::can_be_head) {
+			display_pixel(xp + margin_left, yp + h / 2, color);
+			// draw "head" shape
+			if((interactivity & BIDIRECTIONAL)==0){
+				// one directional (front)
+				display_vline_wh_clip_rgb(xp + margin_left, yp + h/2 + 1, h/2, color, dirty);
+				for (int i = 1; i < h/2; ++i) {
+					display_vline_wh_clip_rgb(xp + margin_left + i, yp + h / 2 - i, h/2 + i + 1, color, dirty);
+				}
+			}
+			else {
+				// cab end
+				for (int i = 1; i < h/2; ++i) {
+					display_vline_wh_clip_rgb(xp + margin_left + i, yp + h/2 - i, i*2+1, color, dirty);
+				}
+			}
+		}
+		else if (basic_constraint_flags & vehicle_desc_t::can_be_tail) {
+			// bidirectional -> tail end
+			display_vline_wh_clip_rgb(xp + margin_left, yp+1, h-2, color, dirty);
+			for (int i = 1; i < h/2; ++i) {
+				display_vline_wh_clip_rgb(xp + margin_left + i, yp, h, color, dirty);
+			}
+		}
+		else {
+			// intermediate end
+			display_pixel(xp+margin_left, yp, color);
+			display_pixel(xp+margin_left, yp+h-1, color);
+			for (int i = 1; i < h / 2; ++i) {
+				display_vline_wh_clip_rgb(xp + margin_left + i, yp, h, color, dirty);
+			}
+		}
+		// un-powerd vehicle
+		if (!(interactivity & HAS_POWER)) {
+			display_blend_wh(xp + margin_left + h/2, yp + 1, width - h / 2, h - 2, COL_WHITE, 30);
+			if (basic_constraint_flags & vehicle_desc_t::can_be_head) {
+				display_pixel(xp + margin_left + h / 2, yp + 1, color);
+				if(interactivity & BIDIRECTIONAL){
+					display_pixel(xp + margin_left + h / 2, yp + h - 2, color);
+				}
+			}
+		}
+
+		// draw the "coupler" line
+		//if (reversed ? basic_constraint_flags & vehicle_desc_t::fixed_coupling_next : basic_constraint_flags & vehicle_desc_t::fixed_coupling_prev) {
+		//	display_blend_wh(xp + margin_left - 2, yp + h / 2 -1, 3, h/2, COL_BLACK, 66);
+		//}
+		// -| permanent coupling
+		//if (reversed ? basic_constraint_flags & vehicle_desc_t::permanent_coupling_next : basic_constraint_flags & vehicle_desc_t::permanent_coupling_prev) {
+		//	display_vline_wh_clip(xp + margin_left, yp, h, COL_GREY1, dirty);
+		//}
+	}
+}
 
 // --------------------------------- text rendering stuff ------------------------------
 
@@ -4476,7 +4606,7 @@ void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, K
 	display_vline_wh(xpos - 2, ypos - halfheight - hgt - 1, halfheight * 2 + 1, ddd_farbe + 1, dirty);
 	display_vline_wh(xpos + width - 3, ypos - halfheight - hgt - 1, halfheight * 2 + 1, ddd_farbe - 1, dirty);
 
-	display_text_proportional_len_clip(xpos + 2, ypos - halfheight + 1, text, ALIGN_LEFT, text_farbe, dirty, -1);
+	display_proportional(xpos + 2, ypos - halfheight + 1, text, ALIGN_LEFT, text_farbe, dirty);
 }
 
 

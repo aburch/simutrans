@@ -307,6 +307,12 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("path_explorer_time_midpoint", sets->get_path_explorer_time_midpoint(), 1, 2048, gui_numberinput_t::PLAIN, false);
 	INIT_BOOL("save_path_explorer_data", sets->get_save_path_explorer_data()); 
 
+	SEPERATOR;
+
+	INIT_BOOL("show_future_vehicle_information", sets->get_show_future_vehicle_info());
+
+	SEPERATOR;
+
 	clear_dirty();
 	height = ypos;
 	set_size(settings_stats_t::get_size());
@@ -397,6 +403,8 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	
 	READ_NUM_VALUE(sets->path_explorer_time_midpoint);
 	READ_BOOL_VALUE(sets->save_path_explorer_data); 
+
+	READ_BOOL_VALUE(sets->show_future_vehicle_info);
 
 	path_explorer_t::set_absolute_limits_external(); 
 }

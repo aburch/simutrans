@@ -700,6 +700,10 @@ public:
 	uint32 path_explorer_time_midpoint;
 	bool save_path_explorer_data;
 
+	// Whether players can know in advance the vehicle production end date and upgrade availability date
+	// If false, only information up to one year ahead
+	bool show_future_vehicle_info;
+
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
 	 * Set to empty string in order to avoid loading.
@@ -1189,6 +1193,9 @@ public:
 
 	uint32 get_path_explorer_time_midpoint() const { return path_explorer_time_midpoint; }
 	bool get_save_path_explorer_data() const { return save_path_explorer_data; }
+
+	bool get_show_future_vehicle_info() const { return show_future_vehicle_info; }
+	//void set_show_future_vehicle_info(bool yesno) { show_future_vehicle_info = yesno; }
 };
 
 #endif 

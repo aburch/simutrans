@@ -34,9 +34,13 @@ public:
 		sint16     count;  ///< display this number as overlay
 		COLOR_VAL  lcolor; ///< color of left half of color bar, use EMPTY_IMAGE_BAR to display no bar
 		COLOR_VAL  rcolor; ///< color of right half of color bar, use EMPTY_IMAGE_BAR to display no bar
+		uint8 basic_coupling_constraint_prev; // basic_coupling_constraint for the shape of color bar of left side
+		uint8 basic_coupling_constraint_next; // basic_coupling_constraint for the shape of color bar of right side
+		uint8 interactivity; // bidirectional flags and has_power(motor/engine) flag
+		uint8 has_upgrade;
 
-		image_data_t(const char *text_, image_id image_, sint16 count_=0, COLOR_VAL lcolor_=EMPTY_IMAGE_BAR, COLOR_VAL rcolor_=EMPTY_IMAGE_BAR)
-		: text(text_), image(image_), count(count_), lcolor(lcolor_), rcolor(rcolor_) {}
+		image_data_t(const char *text_, image_id image_, sint16 count_=0, COLOR_VAL lcolor_=EMPTY_IMAGE_BAR, COLOR_VAL rcolor_=EMPTY_IMAGE_BAR, uint8 basic_coupling_constraint_prev_=0, uint8 basic_coupling_constraint_next_ = 0, uint8 interactivity_ = 0, uint8 has_upgrade_ = 0)
+		: text(text_), image(image_), count(count_), lcolor(lcolor_), rcolor(rcolor_), basic_coupling_constraint_prev(basic_coupling_constraint_prev_), basic_coupling_constraint_next(basic_coupling_constraint_next_), interactivity(interactivity_), has_upgrade(has_upgrade_) {}
 	};
 
 	/**
@@ -68,6 +72,8 @@ private:
 	 */
 	sint8 player_nr;
 
+	sint8 focus;
+
 public:
 	/**
 	 * Constructor: takes pointer to vector with image_data_t
@@ -91,6 +97,9 @@ public:
 	void set_placement(scr_coord placement) { this->placement = placement; }
 
 	void set_player_nr(sint8 player_nr) { this->player_nr = player_nr; }
+
+	// Do not use for the lower panel because it does not support matrices - Ranran
+	void set_focus(sint8 index) { this->focus = index; }
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

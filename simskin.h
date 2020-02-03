@@ -122,6 +122,8 @@ public:
 	static const skin_desc_t *electricity;
 	/// image to indicate that an attraction is inside a town (attraction list window)
 	static const skin_desc_t *intown;
+	/// image to indicate that the vehicle has upgrade target
+	static const skin_desc_t *upgradable;
 
 
 	/// @name cursors
