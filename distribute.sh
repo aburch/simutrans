@@ -132,7 +132,12 @@ if [ `expr match "$*" ".*-rev="` > "0" ]; then
   REV_NR=$(echo $* | sed "s/.*-rev=[ ]*//" | sed "s/[^0-9]*//")
   simarchiv=$simarchivbase-$REV_NR
 elif [ "$#" = "0"  ]  ||  [ `expr match "$*" ".*-no-rev"` = "0" ]; then
+  # first use revision number from server (or the nightly build on github fails to work)
   REV_NR=`svn info --show-item revision svn://servers.simutrans.org/simutrans | sed "s/[0-9]*://" | sed "s/M.*//"`
+  # in case server not responing, try local answer assuming we use svn
+  if [ -z "$REV_NR" ]
+    REV_NR = `svnversion`
+  fi
   simarchiv=$simarchivbase-$REV_NR
 else
   echo "No revision given!"
