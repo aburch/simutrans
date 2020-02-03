@@ -237,7 +237,6 @@ ki_kontroll_t::ki_kontroll_t() :
 			add_component(&take_over_player[i]);
 			//cursor.x += D_BUTTON_WIDTH + 10;
 
-			lb_take_over_player[i].set_text(player->get_name());
 			//lb_take_over_player[i].set_pos(cursor);
 			lb_take_over_player[i].set_size(fincance_size);
 			lb_take_over_player[i].set_visible(false);
@@ -534,6 +533,7 @@ void ki_kontroll_t::update_data()
 			take_over_player[i].set_visible(true);
 			cursor.x += D_BUTTON_WIDTH + 10;
 
+			lb_take_over_player[i].set_text(player->get_name());
 			lb_take_over_player[i].set_pos(cursor);
 			lb_take_over_player[i].set_visible(true);
 			cursor.x += lb_take_over_player[i].get_size().w + 10;
