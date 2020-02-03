@@ -9246,10 +9246,21 @@ bool tool_change_player_t::init( player_t *player_in)
 			if (player && player == player_in) {
 				player->set_allow_voluntary_takeover(state);
 			}
+			break;
 		case 'u': // Take over another company
 			if (player && player == player_in) {
-				sscanf(p, "%c,%i,%i", &tool, &id, &state);				
-				player->take_over(welt->get_player(state) ,false);
+				sscanf(p, "%c,%i,%i", &tool, &id, &state);		
+				const char* err = player->can_take_over(welt->get_player(state), false);
+				if (err) // TODO: Set up system for not adopting liabilities here.
+				{
+					cbuffer_t message;
+					message.printf(translator::translate(err));
+					welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
+				}
+				else
+				{
+					player->take_over(welt->get_player(state), false);
+				}
 			}
 			break;
 
