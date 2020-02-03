@@ -64,11 +64,6 @@ getSDL2mac()
 	        exit 6
 	    fi
 	fi
-	7z t "SDL2-2.0.10.dmg" || {
-	   echo "Error: file SDL2-2.0.10.dmg seems to be defective" >&2
-	   rm -f "SDL2-2.0.10.dmg"
-	   exit 5
-	}
 }
 
 # first assume unix name defaults ...
