@@ -481,20 +481,20 @@ void gui_convoy_assembler_t::layout()
 	cont_convoi_capacity.set_pos(scr_coord(c3_x, y));
 	cont_convoi_capacity.set_size(lb_size);
 	y += LINESPACE + 1;
+	lb_convoi_speed.set_pos(scr_coord(c1_x, y));
+	lb_convoi_speed.set_size(scr_size(c2_x - c1_x, LINESPACE));
+	lb_convoi_way_wear_factor.set_pos(scr_coord(c2_x, y));
+	lb_convoi_way_wear_factor.set_size(scr_size(c3_x - c2_x, LINESPACE));
+	y += LINESPACE + 1;
 	lb_convoi_power.set_pos(scr_coord(c1_x, y));
 	lb_convoi_power.set_size(scr_size(c2_x - c1_x, LINESPACE));
 	lb_convoi_weight.set_pos(scr_coord(c2_x, y));
 	lb_convoi_weight.set_size(scr_size(c3_x - c2_x, LINESPACE));
 	y += LINESPACE + 1;
-	lb_convoi_speed.set_pos(scr_coord(c1_x, y));
-	lb_convoi_speed.set_size(scr_size(c2_x - c1_x, LINESPACE));
-	lb_convoi_axle_load.set_pos(scr_coord(c2_x, y));
-	lb_convoi_axle_load.set_size(scr_size(c3_x - c2_x, LINESPACE));
-	y += LINESPACE + 1;
 	lb_convoi_brake_force.set_pos(scr_coord(c1_x, y));
 	lb_convoi_brake_force.set_size(scr_size(c2_x - c1_x, LINESPACE));
-	lb_convoi_way_wear_factor.set_pos(scr_coord(c2_x, y));
-	lb_convoi_way_wear_factor.set_size(scr_size(c3_x - c2_x, LINESPACE));
+	lb_convoi_axle_load.set_pos(scr_coord(c2_x, y));
+	lb_convoi_axle_load.set_size(scr_size(c3_x - c2_x, LINESPACE));
 	y += LINESPACE + 2;
 
 	/*
@@ -2385,10 +2385,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				translator::get_year_month( veh_type->get_retire_year_month())
 			);
 			buf.append("\n");
-			lines++;
 		}
 		buf.append("\n");
-		lines++;
+		lines+=2;
 		display_multiline_text(pos.x + 335/*370*/, top, buf, SYSCOL_TEXT);
 
 		buf.clear();
@@ -2471,14 +2470,13 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 							buf.printf(" - %s %i", translator::translate("Comfort:"), base_comfort);
 							welt->sprintf_time_secs(timebuf, sizeof(timebuf), welt->get_settings().max_tolerable_journey(base_comfort + modified_comfort));
 							buf.printf("%s %s %s%s", extra_comfort, translator::translate("(Max. comfortable journey time: "), timebuf, ")\n");
+							lines++;
 						}
 						else
 						{
 							linespace_skips++;
 						}
-						lines++;
 					}
-
 				}
 			}
 			else
@@ -2495,9 +2493,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				buf.append("\n");
 				display_proportional_clip(pos.x + 335 + left, top, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				buf.clear();
-				top += LINESPACE;
-				linespace_skips += 2;
-				lines += 2;
+				linespace_skips++;
+				lines++;
 			}
 
 
@@ -2507,7 +2504,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			welt->sprintf_ticks(min_loading_time_as_clock, sizeof(min_loading_time_as_clock), veh_type->get_min_loading_time());
 			welt->sprintf_ticks(max_loading_time_as_clock, sizeof(max_loading_time_as_clock), veh_type->get_max_loading_time());
 			buf.printf("%s %s - %s \n", translator::translate("Loading time:"), min_loading_time_as_clock, max_loading_time_as_clock);
-			lines++;
 
 			if (veh_type->get_catering_level() > 0)
 			{
@@ -2636,6 +2632,11 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		//	}
 		//}
 
+		lines+=2;
+		display_multiline_text(pos.x + 335/*370*/, top, buf, SYSCOL_TEXT);
+		buf.clear();
+		top += lines * LINESPACE;
+
 		// livery counter and avairavle livery scheme list
 		if (veh_type->get_livery_count() > 0) {
 			// display the available number of liveries
@@ -2650,14 +2651,26 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 					livery_scheme_t* selected_scheme = welt->get_settings().get_livery_schemes()->get_element(livery_scheme_index);
 					current_livery_text = selected_scheme->get_latest_available_livery(welt->get_timeline_year_month(), veh_type);
 				}
-				buf.append("\n\n");
 				buf.printf("%s: \n", translator::translate("Selectable livery schemes"));
+				display_proportional_clip(pos.x + 335, top, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				lines++;
+				top += LINESPACE;
 
+				int rows = 0;
+				int left = 0;
+				int MAX_ROWS = 16-lines;
 				FOR(vector_tpl<uint16>, const& i, livery_scheme_indices) {
+					buf.clear();
 					livery_scheme_t* scheme = welt->get_settings().get_livery_schemes()->get_element(i);
 					if (scheme->get_latest_available_livery(welt->get_timeline_year_month(), veh_type))
 					{
+						if (rows == (MAX_ROWS)*2-1) {
+							buf.clear();
+							buf.append(translator::translate("..."));
+							display_text_proportional_len_clip(pos.x + 335 + left, top + rows % MAX_ROWS * LINESPACE, buf, ALIGN_LEFT, SYSCOL_TEXT, true, D_BUTTON_WIDTH);
+							break;
+						}
+						COLOR_VAL col = SYSCOL_TEXT;
 						//check the default livery
 						if (!current_livery_text) {
 							current_livery_text = strcmp(scheme->get_latest_available_livery(welt->get_timeline_year_month(), veh_type), "default") ?
@@ -2665,16 +2678,19 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 						}
 						if (livery_scheme_index == i || (current_livery_text && scheme->is_contained(current_livery_text, welt->get_timeline_year_month()))) {
 							buf.append("*");
+							col = SYSCOL_TEXT_HIGHLIGHT;
 						}
 						else {
 							buf.append("-");
 						}
 						buf.printf(" %s\n", translator::translate(scheme->get_name()));
-						lines++;
+						display_text_proportional_len_clip(pos.x + 335 + left, top + rows % MAX_ROWS * LINESPACE, buf, ALIGN_LEFT, col, true, D_BUTTON_WIDTH);
+						rows++;
 					}
-					if (lines > 13) {
-						buf.append(translator::translate("..."));
-						break;
+					if (rows && rows % MAX_ROWS == 0) {
+						// shift column
+						left = size.w / 5 + D_H_SPACE + D_MARGIN_LEFT;
+						lines += i;
 					}
 				}
 			}
@@ -2683,7 +2699,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			lb_livery_counter.set_text(NULL);
 		}
 
-		display_multiline_text(pos.x + 335/*370*/, top, buf, SYSCOL_TEXT);
 	}
 	else {
 		// nothing select, initialize
