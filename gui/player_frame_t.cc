@@ -720,7 +720,7 @@ void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
 		player_t* player = welt->get_player(i);
 		if (player && player->get_allow_voluntary_takeover()) {
-			money_to_string(text_take_over_cost[i], player->calc_takeover_cost(false), false);
+			money_to_string(text_take_over_cost[i], player->calc_takeover_cost(false) / 100, true);
 		}
 	}
 
