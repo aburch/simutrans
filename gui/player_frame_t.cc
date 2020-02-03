@@ -223,35 +223,39 @@ ki_kontroll_t::ki_kontroll_t() :
 	company_takeovers.set_pos(cursor);
 	add_component( &company_takeovers );
 	cursor.y += D_BUTTON_HEIGHT;
+
 	scr_size fincance_size = scr_size(L_FINANCE_WIDTH, D_BUTTON_HEIGHT);
 
 	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
 		const player_t* const player = welt->get_player(i);
-		if (player && player->get_allow_voluntary_takeover())
+		if (player)
 		{
 			take_over_player[i].init(button_t::roundbox, translator::translate("take_over"), cursor, D_BUTTON_SIZE);
 			take_over_player[i].add_listener(this);
 			take_over_player[i].set_tooltip(translator::translate("take_over_this_company"));
+			take_over_player[i].set_visible(false);
 			add_component(&take_over_player[i]);
-			cursor.x += D_BUTTON_WIDTH + 10;
+			//cursor.x += D_BUTTON_WIDTH + 10;
 
 			lb_take_over_player[i].set_text(player->get_name());
-			lb_take_over_player[i].set_pos(cursor);
+			//lb_take_over_player[i].set_pos(cursor);
 			lb_take_over_player[i].set_size(fincance_size);
+			lb_take_over_player[i].set_visible(false);
 			add_component(&lb_take_over_player[i]);
-			cursor.x += lb_take_over_player[i].get_size().w + 10;
+			//cursor.x += lb_take_over_player[i].get_size().w + 10;
 
-			money_to_string(text_take_over_cost[i], player->calc_takeover_cost(false) / 100.0, false);
-			lb_take_over_cost[i].set_text(text_take_over_cost[i]);
-			lb_take_over_cost[i].set_pos(cursor);
+			//money_to_string(text_take_over_cost[i], player->calc_takeover_cost(false) / 100.0, false);
+			//lb_take_over_cost[i].set_text(text_take_over_cost[i]);
+			//lb_take_over_cost[i].set_pos(cursor);
 			lb_take_over_cost[i].set_size(fincance_size);
+			lb_take_over_cost[i].set_visible(false);
 			add_component(&lb_take_over_cost[i]);
 
-			cursor.y += D_EDIT_HEIGHT + D_V_SPACE;
-			cursor.x = D_MARGIN_LEFT;
+			//cursor.y += D_EDIT_HEIGHT + D_V_SPACE;
+			//cursor.x = D_MARGIN_LEFT;
 		}
 	}
-	cursor.y += D_BUTTON_HEIGHT;
+	//cursor.y += D_BUTTON_HEIGHT;
 
 	sprintf(text_allow_takeover, translator::translate("allow_takeover_of_your_company"));
 	allow_take_over_of_company.init(button_t::roundbox, text_allow_takeover, cursor, scr_size(display_calc_proportional_string_len_width(text_allow_takeover, -1) + 10 ,D_BUTTON_HEIGHT));
@@ -263,16 +267,19 @@ ki_kontroll_t::ki_kontroll_t() :
 	add_component( &allow_take_over_of_company );
 
 	sprintf(text_cancel_takeover, translator::translate("cancel"));
-	cancel_take_over.init(button_t::roundbox, text_cancel_takeover, scr_coord(cursor.x + allow_take_over_of_company.get_size().w + 5, cursor.y), scr_size(display_calc_proportional_string_len_width(text_cancel_takeover, -1) + 10, D_BUTTON_HEIGHT));
+	cancel_take_over.init(button_t::roundbox, text_cancel_takeover, cursor, scr_size(display_calc_proportional_string_len_width(text_cancel_takeover, -1) + 10, D_BUTTON_HEIGHT));
+	//cancel_take_over.init(button_t::roundbox, text_cancel_takeover, scr_coord(cursor.x + allow_take_over_of_company.get_size().w + 5, cursor.y), scr_size(display_calc_proportional_string_len_width(text_cancel_takeover, -1) + 10, D_BUTTON_HEIGHT));
 	cancel_take_over.add_listener(this);
 	cancel_take_over.set_tooltip(translator::translate("cancel_the_takeover_of_your_company"));
 	if (!current_player->get_allow_voluntary_takeover()) {
 		cancel_take_over.disable();
 	}
 	add_component(&cancel_take_over);
-	cursor.y += D_BUTTON_HEIGHT;
+	//cursor.y += D_BUTTON_HEIGHT;
+	
 
-	set_windowsize( scr_size( window_width, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
+	//set_windowsize( scr_size(window_size) );
+	//set_windowsize( scr_size( window_width, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 	update_data();
 }
 
@@ -449,6 +456,109 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 
 void ki_kontroll_t::update_data()
 {
+	// ------- Layouting the window ------- //
+	scr_coord cursor = scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP);
+	scr_coord_val width = L_FINANCE_WIDTH + D_H_SPACE + D_EDIT_HEIGHT;
+
+	player_label.set_pos(cursor);
+	cursor.x += D_CHECKBOX_WIDTH + D_H_SPACE;
+	cursor.x += D_ARROW_RIGHT_WIDTH + D_H_SPACE;
+
+	password_label.set_pos(cursor);
+
+	cursor.x += width + 10;
+
+	access_label.set_pos(cursor);
+	cursor.x += D_CHECKBOX_WIDTH + 20 + D_H_SPACE;
+	cursor.x += D_CHECKBOX_WIDTH + D_H_SPACE;
+
+	width = 120;
+	cash_label.set_pos(cursor);
+
+	const scr_coord_val window_width = cursor.x + width + D_MARGIN_RIGHT;
+
+	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
+		cursor.y += D_EDIT_HEIGHT + D_V_SPACE;
+		cursor.x = D_MARGIN_LEFT;
+
+		const player_t* const player = welt->get_player(i);
+
+		if (i >= 2) {
+			player_active[i - 2].set_pos(cursor);
+		}
+		cursor.x += D_CHECKBOX_WIDTH + D_H_SPACE;
+
+		player_change_to[i].set_pos(cursor);
+		cursor.x += D_ARROW_RIGHT_WIDTH + D_H_SPACE;
+
+		player_get_finances[i].set_pos(cursor);
+		player_select[i].set_pos(cursor);
+		cursor.x += L_FINANCE_WIDTH + D_H_SPACE;
+
+		player_lock[i].set_pos(cursor);
+		cursor.x += D_EDIT_HEIGHT + 10;
+
+	
+		access_out[i].set_pos(cursor);		
+		cursor.x += D_CHECKBOX_WIDTH + 20 + D_H_SPACE;
+
+		access_in[i].set_pos(cursor);		
+		cursor.x += D_CHECKBOX_WIDTH + D_H_SPACE;
+
+		ai_income[i]->set_pos(cursor);
+		ai_income[i]->align_to(&player_select[i], ALIGN_CENTER_V);
+		player_change_to[i].align_to(&player_lock[i], ALIGN_CENTER_V);
+		if (i >= 2) {
+			player_active[i - 2].align_to(&player_lock[i], ALIGN_CENTER_V);
+		}
+	}
+	cursor.y += D_EDIT_HEIGHT + D_V_SPACE;
+	cursor.x = D_MARGIN_LEFT;
+
+	freeplay.set_pos(cursor);
+	cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE);
+	cursor.y += D_BUTTON_HEIGHT * 2;
+
+	company_takeovers.set_pos(cursor);
+	cursor.y += D_BUTTON_HEIGHT;
+	
+	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
+		const player_t* const player = welt->get_player(i);
+		take_over_player[i].set_visible(false);
+		lb_take_over_player[i].set_visible(false);
+		lb_take_over_cost[i].set_visible(false);
+
+		if (player && player->get_allow_voluntary_takeover())
+		{
+			take_over_player[i].set_pos(cursor);
+			take_over_player[i].set_visible(true);
+			cursor.x += D_BUTTON_WIDTH + 10;
+
+			lb_take_over_player[i].set_pos(cursor);
+			lb_take_over_player[i].set_visible(true);
+			cursor.x += lb_take_over_player[i].get_size().w + 10;
+
+			money_to_string(text_take_over_cost[i], player->calc_takeover_cost(false) / 100.0, false);
+			lb_take_over_cost[i].set_text(text_take_over_cost[i]);
+			lb_take_over_cost[i].set_pos(cursor);
+			lb_take_over_cost[i].set_visible(true);
+
+			cursor.y += D_EDIT_HEIGHT + D_V_SPACE;
+			cursor.x = D_MARGIN_LEFT;
+		}
+	}
+	cursor.y += D_BUTTON_HEIGHT;
+
+	allow_take_over_of_company.set_pos(cursor);
+	cursor.x += allow_take_over_of_company.get_size().w + 5;
+
+	cancel_take_over.set_pos(cursor);
+	cursor.y += D_BUTTON_HEIGHT;
+	cursor.x = D_MARGIN_LEFT;
+
+	set_windowsize( scr_size( window_width, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
+	// ------- Layouting done ------- //
+
 	// Update the allow/cancel overtake buttons, in case we switched player
 	const player_t* const current_player = welt->get_active_player();
 	if (current_player->get_allow_voluntary_takeover()) {
@@ -459,6 +569,8 @@ void ki_kontroll_t::update_data()
 		allow_take_over_of_company.enable();
 		cancel_take_over.disable();
 	}
+
+	// Now update the upper Player buttons
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
 
 		if(  player_t *player = welt->get_player(i)  ) {
