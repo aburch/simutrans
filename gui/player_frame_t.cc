@@ -201,10 +201,7 @@ ki_kontroll_t::ki_kontroll_t() :
 
 	scr_size fincance_size = scr_size(L_FINANCE_WIDTH, D_BUTTON_HEIGHT);
 
-	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
-		const player_t* const player = welt->get_player(i);
-		if (player)
-		{
+	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {	
 			take_over_player[i].init(button_t::roundbox, translator::translate("take_over"), cursor, D_BUTTON_SIZE);
 			take_over_player[i].add_listener(this);
 			take_over_player[i].set_tooltip(translator::translate("take_over_this_company"));
@@ -216,9 +213,7 @@ ki_kontroll_t::ki_kontroll_t() :
 
 			lb_take_over_cost[i].set_size(fincance_size);
 			lb_take_over_cost[i].set_visible(false);
-			add_component(&lb_take_over_cost[i]);
-
-		}
+			add_component(&lb_take_over_cost[i]);		
 	}
 
 	sprintf(text_allow_takeover, translator::translate("allow_takeover_of_your_company"));
