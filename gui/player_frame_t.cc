@@ -377,8 +377,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 		// since init always returns false, it is save to delete immediately
 		delete tool;
 
-		allow_take_over_of_company.disable();
-		cancel_take_over.enable();
+		update_data();
 	}
 	
 	if (comp == &cancel_take_over)
@@ -391,8 +390,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 		// since init always returns false, it is save to delete immediately
 		delete tool;
 
-		allow_take_over_of_company.enable();
-		cancel_take_over.disable();
+		update_data();
 	}
 
 
@@ -515,8 +513,8 @@ void ki_kontroll_t::update_data()
 				lb_take_over_cost[i].set_visible(false);
 			}
 
-			// If we have set our own company to allow being taken over, disable the take over buttons for the others
-			if (welt->get_active_player()->get_allow_voluntary_takeover())
+			// If we have set our own company to allow being taken over, or we are the public player, disable the take over buttons for the others
+			if (welt->get_active_player()->get_allow_voluntary_takeover() || welt->get_active_player()->is_public_service())
 			{
 				take_over_player[i].disable();
 			}
@@ -534,19 +532,21 @@ void ki_kontroll_t::update_data()
 	cursor.y += D_BUTTON_HEIGHT;
 	cursor.x = D_MARGIN_LEFT;
 
-	set_windowsize( scr_size( window_width, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
-	// ------- Layouting done ------- //
-
-	// Update the allow/cancel overtake buttons, in case we switched player
-	const player_t* const current_player = welt->get_active_player();
-	if (current_player->get_allow_voluntary_takeover()) {
+	allow_take_over_of_company.enable();
+	cancel_take_over.set_visible(true);
+	cancel_take_over.disable();
+	if (welt->get_active_player()->get_allow_voluntary_takeover()) {
 		allow_take_over_of_company.disable();
 		cancel_take_over.enable();
 	}
-	else {
-		allow_take_over_of_company.enable();
-		cancel_take_over.disable();
+	if (welt->get_active_player()->is_public_service()) {
+		allow_take_over_of_company.disable();
+		cancel_take_over.set_visible(false);
 	}
+
+	set_windowsize( scr_size( window_width, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
+	// ------- Layouting done ------- //
+
 
 	// Now update the upper Player buttons
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
