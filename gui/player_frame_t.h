@@ -49,7 +49,7 @@ private:
 
 	button_t	freeplay;
 
-	char text_take_over_cost[50][MAX_PLAYER_COUNT - 1];
+	char text_take_over_cost[MAX_PLAYER_COUNT - 1][50];
 	char text_allow_takeover[50];
 	char text_cancel_takeover[50];
 
