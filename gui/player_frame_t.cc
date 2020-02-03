@@ -109,7 +109,6 @@ ki_kontroll_t::ki_kontroll_t() :
 			add_component(player_change_to+i);
 		}
 		cursor.x += D_ARROW_RIGHT_WIDTH + D_H_SPACE;
-		right_hand_column = cursor.x;
 
 		// Prepare finances button
 		player_get_finances[i].init( button_t::box, "", cursor, scr_size( L_FINANCE_WIDTH, D_EDIT_HEIGHT ) );
