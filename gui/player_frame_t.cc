@@ -406,6 +406,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 			welt->set_tool(tool, welt->get_active_player());
 			// since init always returns false, it is save to delete immediately
 			delete tool;
+			take_over_player[i].disable(); // Fail proof, in case the entry stays in the window
 		}
 		
 	}
@@ -491,6 +492,7 @@ void ki_kontroll_t::update_data()
 
 		if (player && player->get_allow_voluntary_takeover())
 		{
+			take_over_player[i].enable();
 			take_over_player[i].set_pos(cursor);
 			take_over_player[i].set_visible(true);
 			cursor.x += D_BUTTON_WIDTH + 10;
@@ -505,6 +507,19 @@ void ki_kontroll_t::update_data()
 			lb_take_over_cost[i].set_text(text_take_over_cost[i]);
 			lb_take_over_cost[i].set_pos(cursor);
 			lb_take_over_cost[i].set_visible(true);
+
+			// Disable our own entry
+			if (player == welt->get_active_player())
+			{
+				take_over_player[i].disable();
+				lb_take_over_cost[i].set_visible(false);
+			}
+
+			// If we have set our own company to allow being taken over, disable the take over buttons for the others
+			if (welt->get_active_player()->get_allow_voluntary_takeover())
+			{
+				take_over_player[i].disable();
+			}
 
 			cursor.y += D_EDIT_HEIGHT + D_V_SPACE;
 			cursor.x = D_MARGIN_LEFT;
