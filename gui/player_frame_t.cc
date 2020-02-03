@@ -242,8 +242,8 @@ ki_kontroll_t::ki_kontroll_t() :
 			add_component(&lb_take_over_player[i]);
 			cursor.x += lb_take_over_player[i].get_size().w + 10;
 
-			money_to_string(text_take_over_cost, player->calc_takeover_cost(false) / 100.0, false);
-			lb_take_over_cost[i].set_text(text_take_over_cost);
+			money_to_string(text_take_over_cost[i], player->calc_takeover_cost(false) / 100.0, false);
+			lb_take_over_cost[i].set_text(text_take_over_cost[i]);
 			lb_take_over_cost[i].set_pos(cursor);
 			lb_take_over_cost[i].set_size(fincance_size);
 			add_component(&lb_take_over_cost[i]);
