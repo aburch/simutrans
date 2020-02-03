@@ -5517,21 +5517,27 @@ void karte_t::step()
 	// Processing private car routes is, however, quite computationally intensive, so only do one town per step.
 	// This probably cannot usefully be multi-threaded as all instances would need to access the same road data.
 	DBG_DEBUG4("karte_t::step 6", "step cities");
+#define MULTI_THREAD_ROUTE_PROCESSING
+#ifndef MULTI_THREAD_ROUTE_PROCESSING
 	uint32 step_cities_count = 0;
+#endif
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) 
 	{
 		i->step(delta_t);
 		rands[21] += i->get_einwohner();
 		rands[22] += i->get_buildings();
-		
+#ifndef MULTI_THREAD_ROUTE_PROCESSING
 		if (step_cities_count == city_heavy_step_index)
 		{
 			i->step_heavy();
 		}
 
 		step_cities_count++;
+#endif
 	}
+#ifndef MULTI_THREAD_ROUTE_PROCESSING
 	city_heavy_step_index++;
+#endif
 	if (city_heavy_step_index > stadt.get_count())
 	{
 		city_heavy_step_index = 0;
@@ -5587,6 +5593,21 @@ void karte_t::step()
 		INT_CHECK("karte_t::step 3d");
 
 		start_passengers_and_mail_threads();
+#ifdef MULTI_THREAD_ROUTE_PROCESSING
+		// The processing of private car routes can run concurrently with passenger and mail generation
+		// so long as the connected_cities (etc.) be not altered.
+		uint32 step_cities_count = 0;
+		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
+		{
+			if (step_cities_count == city_heavy_step_index)
+			{
+				i->step_heavy();
+			}
+
+			step_cities_count++;
+		}
+		city_heavy_step_index++;
+#endif
 #ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
 	}
 	else
@@ -8356,20 +8377,20 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 		}
 	}
 
-	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 8) && get_settings().get_save_path_explorer_data())
-	{
-		path_explorer_t::rdwr(file);
-	}
-
 	if (file->get_extended_version() >= 15 && (file->get_extended_version() == 14 && file->get_extended_revision() >= 19))
 	{
-		file->rdwr_long(city_heavy_step_index); 
+		file->rdwr_long(city_heavy_step_index);
 	}
 	else
 	{
 		city_heavy_step_index = 0;
 	}
 
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 8) && get_settings().get_save_path_explorer_data())
+	{
+		path_explorer_t::rdwr(file);
+	}
+	
 	// MUST be at the end of the load/save routine.
 	// save all open windows (upon request)
 	file->rdwr_byte( active_player_nr );
@@ -9492,6 +9513,15 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			win->set_text( msg );
 			create_win(win, w_info, magic_motd);
 		}
+	}
+
+	if (file->get_extended_version() >= 15 && (file->get_extended_version() == 14 && file->get_extended_revision() >= 19))
+	{
+		file->rdwr_long(city_heavy_step_index);
+	}
+	else
+	{
+		city_heavy_step_index = 0;
 	}
 
 	// Either reload the path explorer data or refresh the routing.

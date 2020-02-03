@@ -665,7 +665,7 @@ public:
 	void store_private_car_route(vector_tpl<koord3d> route, koord pos);
 
 	/// Clears a private car route to a particular destination, including iterating over road tiles deleting the routes there.
-	void clear_private_car_route(koord pos); 
+	void clear_private_car_route(koord pos, bool clear_connected_tables); 
 
 	/// Take stored routes from the newly added list and add them to route tiles, moving the route to the procesed list.
 	void process_private_car_routes();

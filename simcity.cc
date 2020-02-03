@@ -2551,7 +2551,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		koord k = iter->key;
 		uint32 f = iter->value;
 		iter = connected_cities.erase(iter);
-		clear_private_car_route(k);
+		clear_private_car_route(k, false);
 		k.rotate90(y_size);
 		k_list.append(k);
 		f_list.append(f);
@@ -2570,7 +2570,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		koord k = iter->key;
 		uint32 f = iter->value;
 		iter = connected_industries.erase(iter);
-		clear_private_car_route(k);
+		clear_private_car_route(k, false);
 		k.rotate90(y_size);
 		k_list.append(k);
 		f_list.append(f);
@@ -2589,7 +2589,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		koord k = iter->key;
 		uint32 f = iter->value;
 		iter = connected_attractions.erase(iter);
-		clear_private_car_route(k);
+		clear_private_car_route(k, false);
 		k.rotate90(y_size);
 		k_list.append(k);
 		f_list.append(f);
@@ -6117,7 +6117,7 @@ void stadt_t::process_private_car_routes()
 		FOR(private_car_route_map, const &route, private_car_routes[get_currently_inactive_route_map()])
 		{
 			koord3d previous_tile = welt->lookup_kartenboden(get_townhall_road())->get_pos();
-			clear_private_car_route(route.key); 
+			clear_private_car_route(route.key, false); 
 			FOR(vector_tpl<koord3d>, route_element, route.value)
 			{
 				if (previous_tile == route_element)
@@ -6145,7 +6145,7 @@ void stadt_t::process_private_car_routes()
 	}
 }
 
-void stadt_t::clear_private_car_route(koord pos)
+void stadt_t::clear_private_car_route(koord pos, bool clear_connected_tables)
 {
 	if (private_car_routes[get_currently_active_route_map()].is_contained(pos))
 	{
@@ -6154,17 +6154,20 @@ void stadt_t::clear_private_car_route(koord pos)
 
 		const grund_t* gr_destination = welt->lookup_kartenboden(pos);
 		const gebaeude_t* gb_destination = gr_destination ? gr_destination->get_building() : NULL;
-		if (gb_destination && gb_destination->get_is_factory())
+		if (clear_connected_tables)
 		{
-			connected_industries.remove(pos); 
-		}
-		else if (gb_destination)
-		{
-			connected_attractions.remove(pos);
-		}
-		else
-		{
-			connected_cities.remove(pos); 
+			if (gb_destination && gb_destination->get_is_factory())
+			{
+				connected_industries.remove(pos);
+			}
+			else if (gb_destination)
+			{
+				connected_attractions.remove(pos);
+			}
+			else
+			{
+				connected_cities.remove(pos);
+			}
 		}
 		
 		const vector_tpl<koord3d> &route = private_car_routes[get_currently_active_route_map()].get(pos);
