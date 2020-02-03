@@ -33,4 +33,3 @@
 <p>
 <em>残金</em> － 現在の資金総額です。
 </p>
-<style type="text/css"><!-- i { color: #000000; font-style: normal; background-color: #ffff99; } --></style>

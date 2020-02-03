@@ -27,3 +27,7 @@ http://www.simutrans.wz.cz
 <p>Pozn. : Ale mô¾u to byt' star¹ie verzie prekladov.
 Väè¹ina textov vsak býva bezprostredne aktualizovaná.
 </p>
+<p>
+Ak chcete pomôc» s prekladom Simutranov do vá¹ho jazyka,<br>
+nav¹tívte stránku https://translator.simutrans.com
+</p>

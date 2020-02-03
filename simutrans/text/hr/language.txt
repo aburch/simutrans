@@ -20,4 +20,8 @@ Ako prijevod nije dostupan u odabranom jeziku, moze se pojaviti na engleskom.
 
 <p>
 Za pomoc oko prijevoda Simutransa u Vas jezik,  
-posjetite http://simutranslator.simutrans-germany.com</p>
+posjetite https://translator.simutrans.com</p>
+<p>
+Da biste pomogli u prevoðenju Simutrana na va¹ jezik,<br>
+posjetite https://translator.simutrans.com
+</p>

@@ -9,3 +9,7 @@
 <p>
 　この一覧で選択できる言語の他にも、http://www.simustation.de.vu や<br>http://www.simutrans.de でいくつか公開されています（ただし不完全であっ<br>たり最新版に対応していない可能性があります）｡
 </p>
+<p>
+Simutransをあなたの言語に翻訳するために、<br>
+https://translator.simutrans.comにアクセスします
+</p>

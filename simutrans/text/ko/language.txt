@@ -21,5 +21,9 @@ Simutrans의 기본 언어는 영어입니다. 다른 언어로 설정하려면,
 선택한 언어에서 번역되지 않은 말이 있다면, 그 말들은 영어로 나타납니다.
 </p>
 <p>
-Simutrans 번역을 돕고 싶으시다면, http://simutranslator.simutrans-germany.com를 방문해주세요.
+Simutrans 번역을 돕고 싶으시다면, https://translator.simutrans.com를 방문해주세요.
+</p>
+<p>
+귀하의 언어로 Simutrans를 번역 할 수 있도록<br>
+https://translator.simutrans.com을 방문하십시오.
 </p>

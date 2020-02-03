@@ -20,3 +20,7 @@ disponibili al seguente indirizzo:
    http://www.simutrans.de/english/download/simu/download.html
 ma purtroppo potrebbero essere incomplete o non aggiornate.
 </p>
+<p>
+Per aiutare a tradurre Simutrans nella tua lingua,<br>
+visita https://translator.simutrans.com
+</p>
