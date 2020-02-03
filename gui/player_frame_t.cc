@@ -501,15 +501,12 @@ void ki_kontroll_t::update_data()
 			lb_take_over_cost[i].set_visible(true);
 
 			// Disable our own entry
-			if (player == welt->get_active_player())
-			{
+			if (player == welt->get_active_player()) {
 				take_over_player[i].disable();
-				lb_take_over_cost[i].set_visible(false);
 			}
 
 			// If we have set our own company to allow being taken over, or we are the public player, disable the take over buttons for the others
-			if (welt->get_active_player()->get_allow_voluntary_takeover() || welt->get_active_player()->is_public_service())
-			{
+			if (welt->get_active_player()->get_allow_voluntary_takeover() || welt->get_active_player()->is_public_service()) {
 				take_over_player[i].disable();
 			}
 
