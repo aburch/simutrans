@@ -496,7 +496,6 @@ void ki_kontroll_t::update_data()
 			lb_take_over_player[i].set_visible(true);
 			cursor.x += L_FINANCE_WIDTH + 10;
 
-			money_to_string(text_take_over_cost[i], player->calc_takeover_cost(false) / 100.0, false);
 			lb_take_over_cost[i].set_text(text_take_over_cost[i]);
 			lb_take_over_cost[i].set_pos(cursor);
 			lb_take_over_cost[i].set_visible(true);
@@ -715,6 +714,15 @@ void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 	}
 
 	player_change_to[welt->get_active_player_nr()].pressed = true;
+
+	// Update take over money entry
+	sint64 takeover_money = 0;
+	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
+		player_t* player = welt->get_player(i);
+		if (player && player->get_allow_voluntary_takeover()) {
+			money_to_string(text_take_over_cost[i], player->calc_takeover_cost(false), false);
+		}
+	}
 
 	// All controls updated, draw them...
 	gui_frame_t::draw(pos, size);
