@@ -211,7 +211,6 @@ ki_kontroll_t::ki_kontroll_t() :
 			take_over_player[i].set_visible(false);
 			add_component(&take_over_player[i]);
 
-			lb_take_over_player[i].set_size(fincance_size);
 			lb_take_over_player[i].set_visible(false);
 			add_component(&lb_take_over_player[i]);
 
@@ -498,8 +497,9 @@ void ki_kontroll_t::update_data()
 
 			lb_take_over_player[i].set_text(player->get_name());
 			lb_take_over_player[i].set_pos(cursor);
+			lb_take_over_player[i].set_size(scr_size(L_FINANCE_WIDTH, D_EDIT_HEIGHT));
 			lb_take_over_player[i].set_visible(true);
-			cursor.x += lb_take_over_player[i].get_size().w + 10;
+			cursor.x += L_FINANCE_WIDTH + 10;
 
 			money_to_string(text_take_over_cost[i], player->calc_takeover_cost(false) / 100.0, false);
 			lb_take_over_cost[i].set_text(text_take_over_cost[i]);
