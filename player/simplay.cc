@@ -50,6 +50,7 @@
 #include "../obj/gebaeude.h"
 #include "../obj/leitung2.h"
 #include "../obj/tunnel.h"
+#include "../obj/roadsign.h"
 
 #include "../gui/messagebox.h"
 #include "../gui/player_frame_t.h"
@@ -1199,6 +1200,8 @@ const char* player_t::can_take_over(player_t* target_player, bool do_not_adopt_l
 	{
 		return NOTICE_INSUFFICIENT_FUNDS;
 	}
+	
+	return NULL;
 }
 
 void player_t::take_over(player_t* target_player, bool do_not_adopt_liabilities)
@@ -1233,11 +1236,43 @@ void player_t::take_over(player_t* target_player, bool do_not_adopt_liabilities)
 				for (size_t i = gr->get_top(); i-- != 0;)
 				{
 					obj_t* obj = gr->obj_bei(i);
+					if (obj->get_typ() == obj_t::roadsign)
+					{
+						// We must set private way signs of all players to
+						// permit the taking over player where the previous
+						// player was permitted.
+						// FIXME: This does not work.
+						roadsign_t* sign = (roadsign_t*)obj;
+						if (sign->get_desc()->is_private_way())
+						{
+							char param[256];
+							uint16 mask = sign->get_player_mask();
+							const uint8 player_number_target = target_player->get_player_nr();
+							if (1 << player_number_target & mask)
+							{
+								const uint8 player_number_this = get_player_nr();
+								mask ^= 1 << player_number_this;
+								// change active player mask for this private sign
+								if (player_number_this < 8)
+								{
+									sprintf(param, "%s,1,%i", sign->get_pos().get_str(), mask & 0x00FF);
+								}
+								else
+								{
+									sprintf(param, "%s,0,%i", sign->get_pos().get_str(), mask >> 8);
+								}
+								tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT]->set_default_param(param);
+								welt->set_tool(tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT], welt->get_active_player());
+							}
+						}
+					}
 					if (obj->get_owner() == target_player)
 					{
 						switch (obj->get_typ())
 						{
 						case obj_t::roadsign:
+							
+							// Fallthrough intended
 						case obj_t::signal:
 						case obj_t::airdepot:
 						case obj_t::bahndepot:
@@ -1303,6 +1338,8 @@ void player_t::take_over(player_t* target_player, bool do_not_adopt_liabilities)
 		if (line.is_bound())
 		{
 			line->set_owner(this);
+			target_player->simlinemgmt.deregister_line(line);
+			simlinemgmt.add_line(line); 
 		}
 	}
 
@@ -1321,6 +1358,8 @@ void player_t::take_over(player_t* target_player, bool do_not_adopt_liabilities)
 	}
 
 	// TODO: Add record of the takeover to a log that can be displayed in perpetuity for historical interest.
+
+	
 
 	welt->remove_player(target_player->get_player_nr());
 }
