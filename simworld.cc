@@ -146,7 +146,8 @@ static pthread_mutexattr_t mutex_attributes;
 //static pthread_mutex_t path_explorer_await_mutex = PTHREAD_MUTEX_INITIALIZER;
 //pthread_mutex_t karte_t::unreserve_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-static pthread_mutex_t private_car_route_mutex;
+pthread_mutex_t karte_t::private_car_route_mutex;
+pthread_mutex_t karte_t::private_car_store_route_mutex;
 pthread_mutex_t karte_t::step_passengers_and_mail_mutex;
 static pthread_mutex_t path_explorer_await_mutex;
 pthread_mutex_t karte_t::unreserve_route_mutex;
@@ -903,7 +904,7 @@ void karte_t::remove_queued_city(stadt_t* city)
 
 void karte_t::add_queued_city(stadt_t* city)
 {
-	cities_awaiting_private_car_route_check.append(city);
+	cities_awaiting_private_car_route_check.append_unique(city);
 }
 
 void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sint16 old_y)
@@ -1611,14 +1612,14 @@ void *check_road_connexions_threaded(void *args)
 		{
 			break;
 		}
-		int error = pthread_mutex_lock(&private_car_route_mutex);
+		int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 		assert(error == 0);
 		if (karte_t::cities_to_process > 0)
 		{
 			stadt_t* city;
 			city = world()->cities_awaiting_private_car_route_check.remove_first();
 			karte_t::cities_to_process--;
-			int error = pthread_mutex_unlock(&private_car_route_mutex);
+			int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
 
 			if (!city)
@@ -1627,13 +1628,12 @@ void *check_road_connexions_threaded(void *args)
 			}
 
 			city->check_all_private_car_routes();
-			city->set_check_road_connexions(false);
 
 			simthread_barrier_wait(&private_car_barrier);
 		}
 		else
 		{
-			int error = pthread_mutex_unlock(&private_car_route_mutex);
+			int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
 		}
 		// Having two barrier waits here is intentional.
@@ -2044,6 +2044,7 @@ void karte_t::init_threads()
 	pthread_mutexattr_settype(&mutex_attributes, PTHREAD_MUTEX_ERRORCHECK);
 
 	pthread_mutex_init(&private_car_route_mutex, &mutex_attributes);
+	pthread_mutex_init(&private_car_store_route_mutex, &mutex_attributes);
 	pthread_mutex_init(&step_passengers_and_mail_mutex, &mutex_attributes);
 	pthread_mutex_init(&path_explorer_await_mutex, &mutex_attributes);
 	pthread_mutex_init(&unreserve_route_mutex, &mutex_attributes);
@@ -2198,6 +2199,7 @@ void karte_t::destroy_threads()
 
 		// Destroy mutexes
 		pthread_mutex_destroy(&private_car_route_mutex);
+		pthread_mutex_destroy(&private_car_store_route_mutex);
 		pthread_mutex_destroy(&step_passengers_and_mail_mutex);
 		pthread_mutex_destroy(&path_explorer_await_mutex);
 		pthread_mutex_destroy(&unreserve_route_mutex);
@@ -3034,6 +3036,8 @@ karte_t::karte_t() :
 	convoy_threads_working = false;
 	path_explorer_working = false;
 #endif
+
+	city_heavy_step_index = 0;
 }
 
 karte_t::~karte_t()
@@ -4321,6 +4325,11 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 		s->release_factory_links();
 	}
 
+	// Rotate cities first so that the private car routes can be removed
+	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
+		i->rotate90(cached_size.x);
+	}
+
 	//rotate plans in parallel posix thread ...
 	rotate90_new_plan = new planquadrat_t[cached_grid_size.y * cached_grid_size.x];
 	rotate90_new_water = new sint8[cached_grid_size.y * cached_grid_size.x];
@@ -4359,11 +4368,6 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	int wx = cached_grid_size.x;
 	cached_grid_size.x = cached_grid_size.y;
 	cached_grid_size.y = wx;
-
-	// now step all towns (to generate passengers)
-	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
-		i->rotate90(cached_size.x);
-	}
 
 	//fixed order factory, halts, convois
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
@@ -4425,6 +4429,11 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 			players[i]->rotate90( cached_size.x );
 			selected_tool[i]->rotate90(cached_size.x);
 		}
+	}
+
+	// Recheck city tiles
+	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
+		i->check_city_tiles(false);
 	}
 
 	// rotate label texts
@@ -5066,7 +5075,7 @@ void karte_t::new_month()
 		{
 			cities_awaiting_private_car_route_check.append_unique(s);
 		}
-		s->new_month(recheck_road_connexions);
+		s->new_month();
 		//INT_CHECK("simworld 3117");
 		total_electric_demand += s->get_power_demand();
 	}
@@ -5115,7 +5124,8 @@ void karte_t::new_month()
 		// This will add a city if the city has engulfed the substation, and remove a city if
 		// the city has been deleted or become smaller. 
 		senke_t* const substation = senke_iter;
-		stadt_t* const city = get_city(substation->get_pos().get_2d());
+		const planquadrat_t* tile = access(substation->get_pos().get_2d());
+		stadt_t* const city = tile ? tile->get_city() : NULL;
 		substation->set_city(city);
 		if(city)
 		{
@@ -5504,11 +5514,33 @@ void karte_t::step()
 
 	// now step all towns 
 	// This is not very computationally intensive at present, but might become more so when town growth is reworked.
+	// Processing private car routes is, however, quite computationally intensive, so only do one town per step.
+	// This probably cannot usefully be multi-threaded as all instances would need to access the same road data.
 	DBG_DEBUG4("karte_t::step 6", "step cities");
-	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
+#define MULTI_THREAD_ROUTE_PROCESSING
+#ifndef MULTI_THREAD_ROUTE_PROCESSING
+	uint32 step_cities_count = 0;
+#endif
+	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) 
+	{
 		i->step(delta_t);
 		rands[21] += i->get_einwohner();
 		rands[22] += i->get_buildings();
+#ifndef MULTI_THREAD_ROUTE_PROCESSING
+		if (step_cities_count == city_heavy_step_index)
+		{
+			i->step_heavy();
+		}
+
+		step_cities_count++;
+#endif
+	}
+#ifndef MULTI_THREAD_ROUTE_PROCESSING
+	city_heavy_step_index++;
+#endif
+	if (city_heavy_step_index > stadt.get_count())
+	{
+		city_heavy_step_index = 0;
 	}
 	rands[14] = get_random_seed();
 
@@ -5561,6 +5593,21 @@ void karte_t::step()
 		INT_CHECK("karte_t::step 3d");
 
 		start_passengers_and_mail_threads();
+#ifdef MULTI_THREAD_ROUTE_PROCESSING
+		// The processing of private car routes can run concurrently with passenger and mail generation
+		// so long as the connected_cities (etc.) be not altered.
+		uint32 step_cities_count = 0;
+		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
+		{
+			if (step_cities_count == city_heavy_step_index)
+			{
+				i->step_heavy();
+			}
+
+			step_cities_count++;
+		}
+		city_heavy_step_index++;
+#endif
 #ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
 	}
 	else
@@ -6831,10 +6878,9 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			destination_town = current_destination.type == town ? current_destination.building->get_stadt() : NULL;
 			if(city)
 			{
-#ifdef DESTINATION_CITYCARS
-
-				city->generate_private_cars(origin_pos.get_2d(), car_minutes, destination_pos, units_this_step);
-#endif
+				// Make sure to normalise the destination for attractions
+				const koord adjusted_destination_pos = current_destination.building->get_first_tile()->get_pos().get_2d();
+				city->generate_private_cars(origin_pos.get_2d(), car_minutes, adjusted_destination_pos, units_this_step);
 				if(wtyp == goods_manager_t::passengers)
 				{
 					city->set_private_car_trip(units_this_step, destination_town);
@@ -7276,9 +7322,18 @@ no_route:
 							city->add_transported_mail(units_this_step);
 						}
 					}
-#ifdef DESTINATION_CITYCARS
-					city->generate_private_cars(current_destination.location, car_minutes, origin_pos.get_2d(), units_this_step);
-#endif
+					const grund_t* gr_origin = lookup(origin_pos); 
+					koord adjusted_return_pos = origin_pos.get_2d();
+					if (gr_origin)
+					{
+						const gebaeude_t* gb_origin = gr_origin->get_building();
+						if (gb_origin)
+						{
+							adjusted_return_pos = gb_origin->get_first_tile()->get_pos().get_2d();
+						}
+					}
+
+					city->generate_private_cars(current_destination.location, car_minutes, adjusted_return_pos, units_this_step);
 					if(current_destination.type == factory && trip == mail_trip)
 					{
 						current_destination.building->get_fabrik()->book_stat(units_this_step, FAB_MAIL_DEPARTED);
@@ -8322,11 +8377,20 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 		}
 	}
 
+	if (file->get_extended_version() >= 15 && (file->get_extended_version() == 14 && file->get_extended_revision() >= 19))
+	{
+		file->rdwr_long(city_heavy_step_index);
+	}
+	else
+	{
+		city_heavy_step_index = 0;
+	}
+
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 8) && get_settings().get_save_path_explorer_data())
 	{
 		path_explorer_t::rdwr(file);
 	}
-
+	
 	// MUST be at the end of the load/save routine.
 	// save all open windows (upon request)
 	file->rdwr_byte( active_player_nr );
@@ -9449,6 +9513,15 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			win->set_text( msg );
 			create_win(win, w_info, magic_motd);
 		}
+	}
+
+	if (file->get_extended_version() >= 15 && (file->get_extended_version() == 14 && file->get_extended_revision() >= 19))
+	{
+		file->rdwr_long(city_heavy_step_index);
+	}
+	else
+	{
+		city_heavy_step_index = 0;
 	}
 
 	// Either reload the path explorer data or refresh the routing.

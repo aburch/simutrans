@@ -415,7 +415,7 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 	const char *filename = dr_utf8_to_system_filename( filename_utf8, true );
 	if(  is_zipped()  ) {
 		// using zlib
-		fd->gzfp = gzopen(filename, "wb");
+		fd->gzfp = gzopen(filename, "wb1");
 	}
 	else if(  mode==binary  ) {
 		// no compression

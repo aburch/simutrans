@@ -74,7 +74,10 @@ static const char *version_ex[] =
 	".11",
 	".12",
 	".13",
-	".14"
+	".14",
+	".15",
+	".16",
+	".17"
 };
 
 static const char *revision_ex[] =

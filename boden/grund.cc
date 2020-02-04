@@ -2470,7 +2470,7 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 bool grund_t::get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi ribi) const
 {
 	// must be a single direction
-	assert( ribi_t::is_single(ribi) );
+	assert( ribi_t::is_single(ribi) ); 
 
 	if(  type != invalid_wt  &&   (get_weg_ribi_unmasked(type) & ribi) == 0  ) {
 		// no way on this tile in the given direction

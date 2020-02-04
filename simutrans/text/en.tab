@@ -1089,6 +1089,22 @@ Mous
 Les
 %24A_CITY_SYLL
 Bern
+%24B_CITY_SYLL
+Hedg
+%24C_CITY_SYLL
+Ac
+%24D_CITY_SYLL
+Ame
+%24E_CITY_SYLL
+Bew
+%24F_CITY_SYLL
+Bill
+%250_CITY_SYLL
+Haw
+%251_CITY_SYLL
+Boll
+%252_CITY_SYLL
+Bod
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -2080,6 +2096,8 @@ Die Bruecke ist nicht frei!\n
 The bridge is not free
 Diese Zusammenstellung kann nicht fahren!\n
 Cannot start: either the vehicles are not properly assembled, or the convoy has not enough power.
+Cannot start: no cab at the front of the convoy.
+Cannot start: no cab at the front of the convoy.
 diesel
 diesel
 Direkt erreichbare Haltestellen

@@ -124,7 +124,7 @@ Cannot alter water
 Cannot build on a double slope!
 この型の橋梁は緩やかな坂か平らな地面の上からのみ建設できます
 Cannot built depot here!
-ここに車庫を\n建てることはできません。
+ここに車庫を建てることはできません。
 Cannot built this station/building\nin underground mode here.
 駅ビル/駅舎は、\n地下には建設できません。
 Cannot create generic line!\nSelect line type by\nusing filter tabs.
@@ -142,7 +142,7 @@ Convoy already deleted!
 Could not open file
 ファイルを開けません
 Das Feld gehoert\neinem anderen Spieler\n
-この場所は\n他のプレイヤーによって\nすでに占拠されています。\n
+この場所は他のプレイヤーによって\nすでに占拠されています。\n
 Der Besitzer erlaubt das Entfernen nicht
 撤去できません。\nここは他社の所有地です。\n
 Der Tunnel ist nicht frei!\n
@@ -150,19 +150,19 @@ Der Tunnel ist nicht frei!\n
 Die Bruecke ist nicht frei!\n
 橋梁上が空ではないか、\n他社の所有物です。\n
 Diese Zusammenstellung kann nicht fahren!\n
-この組み合わせで運行する\nことはできません。\n
+編成の構成エラー：\n構成が不完全か出力が不足しています。
 Flugzeughalt muss auf\nRunway liegen!\n
 飛行機は滑走路上にのみ\n降りることができます！
 Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
-ここに格納庫を\n建てることはできません。
+ここに格納庫を建てることはできません。
 Hier kann kein\nSignal aufge-\nstellt werden!\n
-ここに信号機を\n設置することはできません。\n
+ここに信号機を設置することはできません。\n
 Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
 帰るべき車庫が確認できません。\n手動で入庫先を指定してください。
 In order to lock the game, you have to protect the public player by password!
 ゲームを保護するため、\n公共事業にパスワードを\nかけて下さい。
 Kann Spielstand\nnicht laden.\n
-ゲームを読み込む\nことができません。\n
+ゲームを読み込むことができません。\n
 Kann Spielstand\nnicht speichern.\n
 ゲームを保存できません。\n
 Loading a new game will end the current server session!
@@ -3653,6 +3653,16 @@ helptxt_intermediate
 車齢 %iヶ月
 %i months
 車齢 %iヶ月
+Upgrade available
+アップグレードが可能です
+Upgrade is not available yet
+将来アップグレードが可能になります
+Upgrade will be available in the near future
+近い将来アップグレードが可能になります
+(mixed_load_prohibition)
+（混載不可）
+Cannot start: no cab at the front of the convoy.
+編成の構成エラー：\n先頭になれない車両が先頭になっています。（運転台が無い等）
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

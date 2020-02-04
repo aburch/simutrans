@@ -843,6 +843,19 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			
 			break;
 
+		// Show congestion
+		case MAP_CONGESTION:
+			if (gr->hat_wege())
+			{
+				// This is only applicable to roads.
+				const weg_t* road = gr->get_weg(road_wt); 
+				if (road)
+				{
+					set_relief_farbe(k, calc_severity_color(road->get_congestion_percentage(), 100));
+				}
+			}
+			break;
+
 		// show tracks: white: no electricity, red: electricity, yellow: signal
 		case MAP_TRACKS:
 			// show track

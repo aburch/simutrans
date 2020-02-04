@@ -841,6 +841,8 @@ private:
 
 	slist_tpl<stadt_t*> cities_awaiting_private_car_route_check;
 
+	uint32 city_heavy_step_index;
+
 	/**
 	 * The last time when a server announce was performed (in ms).
 	 */
@@ -936,6 +938,8 @@ public:
 	static simthread_barrier_t unreserve_route_barrier;
 	static pthread_mutex_t unreserve_route_mutex;
 	static pthread_mutex_t step_passengers_and_mail_mutex;
+	static pthread_mutex_t private_car_store_route_mutex;
+	static pthread_mutex_t private_car_route_mutex; 
 	void start_passengers_and_mail_threads();
 	void start_convoy_threads();
 	void start_path_explorer();

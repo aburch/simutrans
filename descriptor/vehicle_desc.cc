@@ -350,6 +350,8 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(upgrades);
 	chk->input(is_tilting ? 1 : 0);
 	chk->input(mixed_load_prohibition ? 1 : 0);
+	chk->input(basic_constraint_prev);
+	chk->input(basic_constraint_next);
 	chk->input(way_constraints.get_permissive());
 	chk->input(way_constraints.get_prohibitive());
 	chk->input(bidirectional ? 1 : 0);
@@ -402,7 +404,7 @@ uint8 vehicle_desc_t::has_available_upgrade(uint16 month_now, bool show_future) 
 
 // The old pak doesn't have a basic constraint, so add a value referring to the constraint.
 // Note: This is ambiguous because it does not have data of cab and constraint[prev]=any.
-inline void vehicle_desc_t::fix_basic_constraint()
+void vehicle_desc_t::fix_basic_constraint()
 {
 	// front side
 	if (basic_constraint_prev & unknown_constraint) {

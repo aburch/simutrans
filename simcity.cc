@@ -1710,10 +1710,10 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 
 	calc_traffic_level();
 
-	check_road_connexions = false;
 	welt->add_queued_city(this);
 
 	number_of_cars = 0;
+	currently_active_route_map = 0;
 }
 
 stadt_t::stadt_t(loadsave_t* file) :
@@ -1741,8 +1741,6 @@ stadt_t::stadt_t(loadsave_t* file) :
 	rdwr(file);
 
 	calc_traffic_level();
-
-	check_road_connexions = false;
 }
 
 
@@ -2056,11 +2054,16 @@ void stadt_t::rdwr(loadsave_t* file)
 
 	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 26)
 	{
-		// This load/save block used to be further down, but has been mvoed here
+		// This load/save block used to be further down, but has been moved here
 		// because it is necessary to load outgoing_private_cars before the city
 		// growth factors.
 
-		file->rdwr_bool(check_road_connexions);
+		if ((file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 19)))
+		{
+			// This was check_road_connexions
+			bool dummy;
+			file->rdwr_bool(dummy);
+		}
 
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_long(outgoing_private_cars);
@@ -2158,7 +2161,12 @@ void stadt_t::rdwr(loadsave_t* file)
 	if(file->get_extended_version() >=9 && file->get_version() >= 110000 && file->get_extended_version() < 13 && file->get_extended_revision() < 26)
 	{
 		// This load/save block has been moved upwards because it is necessary to load outgoing_private_cars before setting the growth factors, which is done above.
-		file->rdwr_bool(check_road_connexions);
+		if ((file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 19)))
+		{
+			// This was check_road_connexions
+			bool dummy;
+			file->rdwr_bool(dummy);
+		}
 		if(file->get_extended_version() < 11)
 		{
 			// Was private_car_update_month
@@ -2361,11 +2369,62 @@ void stadt_t::rdwr(loadsave_t* file)
 
 			file->rdwr_long(number_of_cars);
 		}
+	}
 
-		else
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 19))
+	{
+		// Private car route data
+		file->rdwr_bool(private_car_route_finding_in_progress); 
+		file->rdwr_long(currently_active_route_map); 
+		if (file->is_saving())
 		{
-			check_road_connexions = false;
+			for (uint32 i = 0; i++; i < 2)
+			{
+				uint32 private_car_routes_count = private_car_routes[i].get_count();
+				file->rdwr_long(private_car_routes_count);
+
+				FOR(private_car_route_map, route, private_car_routes[i])
+				{
+					uint32 route_element_count = route.value.get_count();
+					file->rdwr_long(route_element_count);
+					koord k = route.key;
+					k.rdwr(file);
+					FOR(vector_tpl<koord3d>, route_element, route.value)
+					{
+						route_element.rdwr(file);
+					}
+				}
+			}
 		}
+		else // Loading
+		{
+			for (uint32 i = 0; i++; i < 2)
+			{
+				private_car_routes[i].clear();
+				uint32 private_car_routes_count = 0;
+				file->rdwr_long(private_car_routes_count);
+
+				for (uint32 i = 0; i < private_car_routes_count; i++)
+				{
+					uint32 route_element_count = 0;
+					file->rdwr_long(route_element_count);
+					koord k;
+					k.rdwr(file);
+					vector_tpl<koord3d> route;
+					for (uint32 j = 0; j < route_element_count; j++)
+					{
+						koord3d k3d;
+						k3d.rdwr(file);
+						route.append(k3d);
+					}
+					private_car_routes[i].put(k, route);
+				}
+			}
+		}
+	}
+	else
+	{
+		currently_active_route_map = 0;
 	}
 
 	if(file->get_extended_version() >= 12 && file->get_extended_version() < 13)
@@ -2446,11 +2505,6 @@ void stadt_t::finish_rd()
 
 	//next_step = 0;
 	next_growth_step = 0;
-
-	if(check_road_connexions)
-	{
-		welt->add_queued_city(this);
-	}
 }
 
 
@@ -2497,6 +2551,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		koord k = iter->key;
 		uint32 f = iter->value;
 		iter = connected_cities.erase(iter);
+		clear_private_car_route(k, false);
 		k.rotate90(y_size);
 		k_list.append(k);
 		f_list.append(f);
@@ -2515,6 +2570,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		koord k = iter->key;
 		uint32 f = iter->value;
 		iter = connected_industries.erase(iter);
+		clear_private_car_route(k, false);
 		k.rotate90(y_size);
 		k_list.append(k);
 		f_list.append(f);
@@ -2533,6 +2589,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		koord k = iter->key;
 		uint32 f = iter->value;
 		iter = connected_attractions.erase(iter);
+		clear_private_car_route(k, false);
 		k.rotate90(y_size);
 		k_list.append(k);
 		f_list.append(f);
@@ -2543,6 +2600,14 @@ void stadt_t::rotate90( const sint16 y_size )
 	{
 		connected_attractions.put(k_list[n], f_list[n]);
 	}
+
+	// These will have out of date co-ordinates, so they have to go.
+	// Since the refresh of these will happen quite soon in any event,
+	// it is not worth the very complex coding necessary to rotate
+	// these rather than simply erasing them and waiting for them to be
+	// recreated. The same applies to the actual current routes (dealt
+	// with above).
+	private_car_routes[get_currently_inactive_route_map()].clear();
 }
 
 void stadt_t::set_name(const char *new_name)
@@ -2598,10 +2663,15 @@ void stadt_t::step(uint32 delta_t)
 	// is it time for the next step?
 	next_growth_step += delta_t;
 
-	while(stadt_t::city_growth_step < next_growth_step) {
+	while(stadt_t::city_growth_step < next_growth_step) 
+	{
 		calc_growth();
 		step_grow_city();
 		next_growth_step -= stadt_t::city_growth_step;
+
+		// Was originally for testing, but this seems to be a sensible frequency for this
+		// Performance profiling on a large game finds this acceptable.
+		welt->add_queued_city(this);
 	}
 
 	// update history (might be changed due to construction/destroying of houses)
@@ -2612,6 +2682,20 @@ void stadt_t::step(uint32 delta_t)
 	city_history_month[0][HIST_BUILDING] = buildings.get_count();
 	city_history_year[0][HIST_BUILDING] = buildings.get_count();
 }
+
+void stadt_t::step_heavy()
+{
+#ifdef MULTI_THREAD
+	int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
+	assert(error == 0);
+#endif
+	process_private_car_routes();
+#ifdef MULTI_THREAD
+	error = pthread_mutex_unlock(&karte_t::private_car_store_route_mutex);
+	assert(error == 0);
+#endif
+}
+
 
 
 /* updates the city history
@@ -2672,27 +2756,25 @@ void stadt_t::roll_history()
 void stadt_t::check_all_private_car_routes()
 {
 	const planquadrat_t* plan = welt->access(townhall_road);
-	if(plan->get_city() != this)
+	if(plan && plan->get_city() != this)
 	{
 		// This sometimes happens shortly after the map rotating. Return here to avoid crashing.
 		dbg->error("void stadt_t::check_all_private_car_routes()", "Townhall road does not register as being in its origin city - cannot check private car routes");
 		return;
 	}
 	const uint32 depth = welt->get_max_road_check_depth();
-	const grund_t* gr = plan->get_kartenboden();
+	const grund_t* gr = plan ? plan->get_kartenboden() : NULL;
 	const koord3d origin = gr ? gr->get_pos() : koord3d::invalid;
 
 	connected_cities.clear();
 	connected_industries.clear();
 	connected_attractions.clear();
 
-	// This will find the fastest route from the townhall road to *all* other townhall roads.
+	// This will find the fastest route from the townhall road to *all* other townhall roads, industries and attractions.
 	route_t private_car_route;
 	road_vehicle_t checker;
 	private_car_destination_finder_t finder(welt, &checker, this);
 	private_car_route.find_route(welt, origin, &finder, welt->get_citycar_speed_average(), ribi_t::all, 1, 1, 1, depth, false, route_t::private_car_checker);
-
-	check_road_connexions = false;
 }
 
 void stadt_t::calc_traffic_level()
@@ -2773,7 +2855,7 @@ void stadt_t::calc_traffic_level()
 	};
 }
 
-void stadt_t::new_month(bool check) //"New month" (Google)
+void stadt_t::new_month() 
 {
 	swap<uint8>( pax_destinations_old, pax_destinations_new );
 	pax_destinations_new.clear();
@@ -2799,7 +2881,9 @@ void stadt_t::new_month(bool check) //"New month" (Google)
 	settings_t const& s = welt->get_settings();
 
 	uint16 congestion_density_factor = s.get_congestion_density_factor();
-
+	
+	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+	assert(error == 0);
 	if(congestion_density_factor < 32)
 	{
 		// Old method - congestion density factor
@@ -2867,14 +2951,9 @@ void stadt_t::new_month(bool check) //"New month" (Google)
 		city_history_month[0][HIST_CONGESTION] = (trips_per_hour * adjusted_ratio) / (sint64)road_hectometers;
 	}
 
-	// Clearing these will force recalculation as necessary.
-	// Cannot do this too often, as it severely impacts on performance.
-	if(check)
-	{
-		check_road_connexions = true;
-	}
-
 	incoming_private_cars = 0;
+	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+	assert(error == 0);
 }
 
 void stadt_t::calc_growth()
@@ -5882,7 +5961,7 @@ ribi_t::ribi private_car_destination_finder_t::get_ribi(const grund_t* gr) const
 	return master->get_ribi(gr);
 }
 
-bool private_car_destination_finder_t:: is_target(const grund_t* gr, const grund_t*)
+bool private_car_destination_finder_t::is_target(const grund_t* gr, const grund_t*)
 {
 	if(!gr)
 	{
@@ -5894,13 +5973,13 @@ bool private_car_destination_finder_t:: is_target(const grund_t* gr, const grund
 
 	if(city && city != origin_city && city->get_townhall_road() == k)
 	{
-		// We use a different system for determining travel speeds in the current city.
-
+		// This is a route to a city - internal traffic within
+		// cities is handled heuristically without routing.
 		return true;
 	}
 
-	const strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
-	if(str->connected_buildings.get_count() > 0)
+	const weg_t* way = gr->get_weg(road_wt);
+	if(way->connected_buildings.get_count() > 0)
 	{
 		return true;
 	}
@@ -5938,22 +6017,16 @@ int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_spe
 	last_tile_speed = max_tile_speed;
 
 	sint32 speed = min(max_speed, max_tile_speed);
+
 #ifndef FORBID_CONGESTION_EFFECTS
-	if(city)
+	const uint32 congestion_percentage = w->get_congestion_percentage();
+	if (congestion_percentage)
 	{
-		// If this is in a city, take account of congestion when calculating
-		// the speed.
-
-		// Congestion here is assumed to be on the percentage basis: i.e. the percentage of extra time that
-		// a journey takes owing to congestion. This is the measure used by the TomTom congestion index,
-		// compiled by the satellite navigation company of that name, which provides useful research data.
-		// See: http://www.tomtom.com/lib/doc/congestionindex/2012-0704-TomTom%20Congestion-index-2012Q1europe-mi.pdf
-
-		const sint32 congestion = (sint32)city->get_congestion() + 100;
-		speed = (speed * 100) / congestion;
+		speed -= (speed * congestion_percentage) / 100;
 		speed = max(4, speed);
 	}
 #endif
+	
 	// Time = distance / speed
 	int mpt;
 
@@ -6030,4 +6103,82 @@ void stadt_t::add_city_factory(fabrik_t *fab)
 void stadt_t::remove_city_factory(fabrik_t *fab)
 {
 	city_factories.remove(fab);
+}
+
+void stadt_t::store_private_car_route(vector_tpl<koord3d> route, koord pos)
+{
+	private_car_routes[get_currently_inactive_route_map()].set(pos, route);
+}
+
+void stadt_t::process_private_car_routes()
+{
+	if (!private_car_route_finding_in_progress && !private_car_routes[get_currently_inactive_route_map()].empty())
+	{	
+		FOR(private_car_route_map, const &route, private_car_routes[get_currently_inactive_route_map()])
+		{
+			koord3d previous_tile = welt->lookup_kartenboden(get_townhall_road())->get_pos();
+			clear_private_car_route(route.key, false); 
+			FOR(vector_tpl<koord3d>, route_element, route.value)
+			{
+				if (previous_tile == route_element)
+				{
+					continue;
+				}
+				const grund_t* gr = welt->lookup(previous_tile);
+				weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
+				if (road_tile) // This may have been deleted in the meantime.
+				{
+					road_tile->private_car_routes.set(route.key, route_element);
+				}
+
+				previous_tile = route_element;
+			}
+			// We now need to process the last tile of the route, marking it as the end of the route
+			const grund_t* gr = welt->lookup(previous_tile);
+			weg_t* road_tile = gr->get_weg(road_wt);
+			road_tile->private_car_routes.set(route.key, koord3d::invalid);
+		}
+		
+		// First, clear the old routes, then mark the new routes as the current routes.
+		private_car_routes[get_currently_active_route_map()].clear();
+		swap_active_route_map();
+	}
+}
+
+void stadt_t::clear_private_car_route(koord pos, bool clear_connected_tables)
+{
+	if (private_car_routes[get_currently_active_route_map()].is_contained(pos))
+	{
+		const planquadrat_t* tile = welt->access(pos); 
+		stadt_t* origin_city = tile ? tile->get_city() : NULL;
+
+		const grund_t* gr_destination = welt->lookup_kartenboden(pos);
+		const gebaeude_t* gb_destination = gr_destination ? gr_destination->get_building() : NULL;
+		if (clear_connected_tables)
+		{
+			if (gb_destination && gb_destination->get_is_factory())
+			{
+				connected_industries.remove(pos);
+			}
+			else if (gb_destination)
+			{
+				connected_attractions.remove(pos);
+			}
+			else
+			{
+				connected_cities.remove(pos);
+			}
+		}
+		
+		const vector_tpl<koord3d> &route = private_car_routes[get_currently_active_route_map()].get(pos);
+		FOR(const vector_tpl<koord3d>, const &route_element, route)
+		{
+			const grund_t* gr = welt->lookup(route_element);
+			weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
+			if (road_tile)
+			{
+				road_tile->private_car_routes.remove(pos);
+			}
+		}
+	}
 }

@@ -1661,7 +1661,7 @@ void settings_t::rdwr(loadsave_t *file)
 		// otherwise the default values of the last one will be used
 		}
 
-		if (file->get_version() > 120003 && (file->get_extended_version() == 0 || file->get_extended_revision() >= 17) || file->get_extended_version() >= 13)
+		if (file->get_version() > 120003 && (file->get_extended_version() == 0 || file->get_extended_revision() >= 19) || file->get_extended_version() >= 13)
 		{
 			file->rdwr_bool(disable_make_way_public);
 		}
