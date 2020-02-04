@@ -6136,7 +6136,10 @@ void stadt_t::process_private_car_routes()
 			// We now need to process the last tile of the route, marking it as the end of the route
 			const grund_t* gr = welt->lookup(previous_tile);
 			weg_t* road_tile = gr->get_weg(road_wt);
-			road_tile->private_car_routes.set(route.key, koord3d::invalid);
+			if (road_tile)
+			{
+				road_tile->private_car_routes.set(route.key, koord3d::invalid);
+			}
 		}
 		
 		// First, clear the old routes, then mark the new routes as the current routes.
