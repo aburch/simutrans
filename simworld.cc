@@ -5593,21 +5593,7 @@ void karte_t::step()
 		INT_CHECK("karte_t::step 3d");
 
 		start_passengers_and_mail_threads();
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-		// The processing of private car routes can run concurrently with passenger and mail generation
-		// so long as the connected_cities (etc.) be not altered.
-		uint32 step_cities_count = 0;
-		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
-		{
-			if (step_cities_count == city_heavy_step_index)
-			{
-				i->step_heavy();
-			}
 
-			step_cities_count++;
-		}
-		city_heavy_step_index++;
-#endif
 #ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
 	}
 	else
@@ -5621,6 +5607,22 @@ void karte_t::step()
 	DBG_DEBUG4("karte_t::step", "step generate passengers and mail");
 
 	rands[15] = get_random_seed();
+
+#ifdef MULTI_THREAD_ROUTE_PROCESSING
+	// The processing of private car routes can run concurrently with passenger and mail generation
+	// so long as the connected_cities (etc.) be not altered.
+	uint32 step_cities_count = 0;
+	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
+	{
+		if (step_cities_count == city_heavy_step_index)
+		{
+			i->step_heavy();
+		}
+
+		step_cities_count++;
+	}
+	city_heavy_step_index++;
+#endif
 
 	// the inhabitants stuff
 	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = 0;
