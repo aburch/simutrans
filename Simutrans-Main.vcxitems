@@ -146,6 +146,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\curiositylist_frame_t.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\curiositylist_stats_t.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\depot_frame.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)gui\depotlist_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\display_settings.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\enlarge_map_frame_t.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\extend_edit.cc" />
@@ -488,6 +489,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\curiositylist_frame_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\curiositylist_stats_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\depot_frame.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)gui\depotlist_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\display_settings.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\enlarge_map_frame_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\extend_edit.h" />
