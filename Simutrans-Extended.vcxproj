@@ -2255,6 +2255,7 @@
     <ClCompile Include="gui\curiositylist_frame_t.cc" />
     <ClCompile Include="gui\curiositylist_stats_t.cc" />
     <ClCompile Include="gui\depot_frame.cc" />
+    <ClCompile Include="gui\depotlist_frame.cc" />
     <ClCompile Include="gui\enlarge_map_frame_t.cc" />
     <ClCompile Include="gui\extend_edit.cc" />
     <ClCompile Include="gui\fabrik_info.cc" />
@@ -2701,6 +2702,7 @@
     <ClInclude Include="gui\curiositylist_stats_t.h" />
     <ClInclude Include="tpl\debug_helper.h" />
     <ClInclude Include="gui\depot_frame.h" />
+    <ClInclude Include="gui\depotlist_frame.h" />
     <ClInclude Include="utils\csv.h" />
     <ClInclude Include="utils\dr_rdgif.h" />
     <ClInclude Include="utils\dr_rdpng.h" />
