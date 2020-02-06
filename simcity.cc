@@ -2952,6 +2952,9 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 				if(  max_layout > 3  &&  ((largest_2nd_dir-largest_dir)==1  ||  (largest_2nd_dir-largest_dir)==3)  ) {
 					// corner cases: only roads on two sides
 					if(  streetdir[0]<0  &&  streetdir[1]<0  ) {
+						rotation = 6;
+					}
+					else if(  streetdir[1]<0  &&  streetdir[2]<0  ) {
 						rotation = 7;
 					}
 					else if(  streetdir[2]<0  &&  streetdir[3]<0  ) {
@@ -2959,9 +2962,6 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 					}
 					else if(  streetdir[3]<0  &&  streetdir[0]<0  ) {
 						rotation = 5;
-					}
-					else if(  streetdir[0]<0  &&  streetdir[1]<0  ) {
-						rotation = 6;
 					}
 					// some valid found?
 					if(  rotation >=0  &&  h->get_x(rotation) <= maxarea.x  &&  h->get_y(rotation) <= maxarea.y  ) {

@@ -158,7 +158,7 @@ ifdef USE_UPNP
   endif
 endif
 
-ifdef USE_ZSRD
+ifdef USE_ZSTD
   ifeq ($(shell expr $(USE_UPNP) \>= 1), 1)
     CFLAGS      += -DUSE_ZSTD
     LDFLAGS     += -lzstd
