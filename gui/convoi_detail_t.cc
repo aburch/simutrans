@@ -211,14 +211,9 @@ void convoi_detail_t::update_labels()
 
 void convoi_detail_t::draw(scr_coord offset)
 {
-	if(cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()  &&  !cnv->is_coupled()  &&  !cnv->get_coupling_convoi().is_bound()) {
-		withdraw_button.enable();
-		sale_button.enable();
-	}
-	else {
-		sale_button.disable();
-		withdraw_button.disable();
-	}
+	const bool selling_allowed = cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()  &&  !cnv->get_coupling_convoi().is_bound();
+	sale_button.enable(selling_allowed);
+	withdraw_button.enable(selling_allowed  &&  !cnv->is_coupled());
 	withdraw_button.pressed = cnv->get_withdraw();
 	update_labels();
 
