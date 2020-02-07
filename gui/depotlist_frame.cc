@@ -4,7 +4,9 @@
 #include "depotlist_frame.h"
 #include "gui_theme.h"
 #include "../simdepot.h"
+#include "../simskin.h"
 #include "../dataobj/translator.h"
+#include "../descriptor/skin_desc.h"
 
 enum sort_mode_t { by_coord, by_waytype, by_vehicle, SORT_MODES };
 
@@ -16,9 +18,37 @@ depotlist_stats_t::depotlist_stats_t(depot_t *d)
 {
 	this->depot = d;
 	// pos button
-	set_table_layout(2,1);
+	set_table_layout(3,1);
 	button_t *b = new_component<button_t>();
 	b->set_typ(button_t::posbutton_automatic);
+	// now add all specific tabs
+	switch(  d->get_waytype()  ) {
+	case maglev_wt:
+		waytype_symbol.set_image( skinverwaltung_t::maglevhaltsymbol->get_image_id(0), true );
+		break;
+	case monorail_wt:
+		waytype_symbol.set_image( skinverwaltung_t::monorailhaltsymbol->get_image_id(0), true );
+		break;
+	case track_wt:
+		waytype_symbol.set_image( skinverwaltung_t::zughaltsymbol->get_image_id(0), true );
+		break;
+	case tram_wt:
+		waytype_symbol.set_image( skinverwaltung_t::tramhaltsymbol->get_image_id(0), true );
+		break;
+	case narrowgauge_wt:
+		waytype_symbol.set_image( skinverwaltung_t::narrowgaugehaltsymbol->get_image_id(0), true );
+		break;
+	case road_wt:
+		waytype_symbol.set_image( skinverwaltung_t::autohaltsymbol->get_image_id(0), true );
+		break;
+	case water_wt:
+		waytype_symbol.set_image( skinverwaltung_t::schiffshaltsymbol->get_image_id(0), true );
+		break;
+	case air_wt:
+		waytype_symbol.set_image( skinverwaltung_t::airhaltsymbol->get_image_id(0), true );
+		break;
+	}
+	add_component(&waytype_symbol);
 	b->set_targetpos(depot->get_pos().get_2d());
 	add_component(&label);
 	update_label();
