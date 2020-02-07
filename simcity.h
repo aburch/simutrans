@@ -29,6 +29,7 @@ class karte_ptr_t;
 class player_t;
 class fabrik_t;
 class rule_t;
+struct route_range_specification; 
 
 // For private subroutines
 class building_desc_t;
@@ -669,6 +670,13 @@ public:
 
 	/// Take stored routes from the newly added list and add them to route tiles, moving the route to the procesed list.
 	void process_private_car_routes();
+#ifdef MULTI_THREAD
+	void process_private_car_routes_threaded();
+	static void* process_private_car_route_threaded(void* args);
+	void process_private_car_route_range(route_range_specification range);
+	static koord current_key;
+	static stadt_t* current_city;
+#endif
 
 private:
 	/**

@@ -77,7 +77,8 @@
 #define CITYGROWTH_PER_CITICEN (0x0000000100000000ll)
 
 karte_ptr_t stadt_t::welt; // one is enough ...
-
+stadt_t* stadt_t::current_city;
+koord stadt_t::current_key;
 
 // Electricity demand information.
 // @author: jamespetts
@@ -2688,8 +2689,13 @@ void stadt_t::step_heavy()
 #ifdef MULTI_THREAD
 	int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
 	assert(error == 0);
+#define MULTI_THREAD_ROUTE_PROCESSING
 #endif
+#ifdef MULTI_THREAD_ROUTE_PROCESSING
+	process_private_car_routes_threaded(); 
+#else
 	process_private_car_routes();
+#endif
 #ifdef MULTI_THREAD
 	error = pthread_mutex_unlock(&karte_t::private_car_store_route_mutex);
 	assert(error == 0);
@@ -6147,6 +6153,108 @@ void stadt_t::process_private_car_routes()
 		swap_active_route_map();
 	}
 }
+#ifdef MULTI_THREAD
+void stadt_t::process_private_car_routes_threaded()
+{
+	current_city = this;
+	if (!private_car_route_finding_in_progress && !private_car_routes[get_currently_inactive_route_map()].empty())
+	{		
+		FOR(private_car_route_map, const& route, private_car_routes[get_currently_inactive_route_map()])
+		{		
+			clear_private_car_route(route.key, false); // TODO: Multi-thread this, too.
+			
+			current_key = route.key;
+			
+			simthread_barrier_wait(&karte_t::process_private_car_routes_barrier);
+			simthread_barrier_wait(&karte_t::process_private_car_routes_barrier);
+
+			current_key = koord::invalid;
+		}
+		// First, clear the old routes, then mark the new routes as the current routes.
+		private_car_routes[current_city->get_currently_active_route_map()].clear();
+		swap_active_route_map();
+	}
+	current_city = NULL;
+}
+
+void* stadt_t::process_private_car_route_threaded(void* args)
+{
+	const uint32* thread_number_ptr = (const uint32*)args;
+	const uint32 thread_number = *thread_number_ptr;
+	delete thread_number_ptr;
+
+	do
+	{
+		simthread_barrier_wait(&karte_t::process_private_car_routes_barrier);
+
+		if (welt->is_terminating_threads())
+		{
+			break;
+		}
+		if (current_key == koord::invalid || !current_city)
+		{
+			//int error = pthread_mutex_unlock(&karte_t::process_private_car_routes_mutex);
+			//assert(error == 0);
+			continue;
+		}
+		
+		const uint32 max_count = current_city->private_car_routes[current_city->get_currently_inactive_route_map()].get(current_key).get_count() - 1;
+		const uint32 fraction = max_count / welt->get_parallel_operations();
+
+		route_range_specification range;
+
+		range.start = thread_number * fraction;
+		if (thread_number == welt->get_parallel_operations() - 1)
+		{
+			range.end = max_count;
+		}
+		else
+		{
+			range.end = min(((thread_number + 1) * fraction - 1), max_count);
+		}
+
+		current_city->process_private_car_route_range(range);
+
+		simthread_barrier_wait(&karte_t::process_private_car_routes_barrier);
+
+	} while (!welt->is_terminating_threads());
+
+	pthread_exit(NULL);
+	return args;
+}
+
+void stadt_t::process_private_car_route_range(route_range_specification range)
+{
+	koord3d previous_tile = range.start == 0 ? welt->lookup_kartenboden(get_townhall_road())->get_pos() : private_car_routes[get_currently_inactive_route_map()].get(current_key).get_element(range.start - 1); 
+	for (uint32 i = range.start; i <= range.end; i++)
+	{
+		const koord3d route_element = private_car_routes[get_currently_inactive_route_map()].get(current_key).get_element(i);
+		if (previous_tile == route_element)
+		{
+			continue;
+		}
+		const grund_t* gr = welt->lookup(previous_tile);
+		weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
+		if (road_tile) // This may have been deleted in the meantime.
+		{
+			road_tile->private_car_routes.set(current_key, route_element);
+		}
+
+		previous_tile = route_element;
+	}
+	if (range.end >= private_car_routes[get_currently_inactive_route_map()].get(current_key).get_count() - 1)
+	{
+		// We now need to process the last tile of the route, marking it as the end of the route
+		const grund_t* gr = welt->lookup(previous_tile);
+		weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
+		if (road_tile)
+		{
+			road_tile->private_car_routes.set(current_key, koord3d::invalid);
+		}
+	}
+}
+
+#endif
 
 void stadt_t::clear_private_car_route(koord pos, bool clear_connected_tables)
 {
