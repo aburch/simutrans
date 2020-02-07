@@ -6237,7 +6237,13 @@ void stadt_t::process_private_car_route_range(route_range_specification range)
 		weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
 		if (road_tile) // This may have been deleted in the meantime.
 		{
-			road_tile->private_car_routes.set(current_key, route_element);
+			if (road_tile->private_car_routes.get(current_key) != route_element)
+			{
+				if (!road_tile->private_car_routes.put(current_key, route_element))
+				{
+					road_tile->private_car_routes.set(current_key, route_element);
+				}
+			}
 		}
 
 		previous_tile = route_element;
@@ -6249,7 +6255,13 @@ void stadt_t::process_private_car_route_range(route_range_specification range)
 		weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
 		if (road_tile)
 		{
-			road_tile->private_car_routes.set(current_key, koord3d::invalid);
+			if (road_tile->private_car_routes.get(current_key) != koord3d::invalid)
+			{
+				if (!road_tile->private_car_routes.put(current_key, koord3d::invalid))
+				{
+					road_tile->private_car_routes.set(current_key, koord3d::invalid);
+				}
+			}
 		}
 	}
 }
