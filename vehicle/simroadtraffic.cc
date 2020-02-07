@@ -716,7 +716,9 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 				next_90direction = this->calc_direction(pos_next, pos_next_next);
 				dt = no_cars_blocking( gr, NULL, this_direction, next_direction, next_90direction, this, next_lane);
 				if(  !dt  ) {
-					dt = no_cars_blocking( test, NULL, next_direction, next_90direction, next_90direction, this, next_lane);
+					// This possibly made traffic too cautious at junctions, causing delays. However, precisely what this did
+					// and why it did it remain unclear, so retaining for reference.
+					//dt = no_cars_blocking( test, NULL, next_direction, next_90direction, next_90direction, this, next_lane);
 				}
 			}
 			// this fails with two crossings together; however, I see no easy way out here ...
