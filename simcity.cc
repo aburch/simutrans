@@ -2689,7 +2689,7 @@ void stadt_t::step_heavy()
 #ifdef MULTI_THREAD
 	int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
 	assert(error == 0);
-#define MULTI_THREAD_ROUTE_PROCESSING
+//#define MULTI_THREAD_ROUTE_PROCESSING
 #endif
 #ifdef MULTI_THREAD_ROUTE_PROCESSING
 	process_private_car_routes_threaded(); 

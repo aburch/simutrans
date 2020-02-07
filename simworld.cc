@@ -5539,7 +5539,7 @@ void karte_t::step()
 	// Processing private car routes is, however, quite computationally intensive, so only do one town per step.
 	// This probably cannot usefully be multi-threaded as all instances would need to access the same road data.
 	DBG_DEBUG4("karte_t::step 6", "step cities");
-#define MULTI_THREAD_ROUTE_PROCESSING
+//#define MULTI_THREAD_ROUTE_PROCESSING
 #ifndef MULTI_THREAD_ROUTE_PROCESSING
 	uint32 step_cities_count = 0;
 #endif
