@@ -9222,6 +9222,7 @@ bool tool_change_player_t::init( player_t *player_in)
 	sscanf( p, "%c,%i,%i", &tool, &id, &state );
 
 	player_t *player = welt->get_player(id);
+	cbuffer_t message;
 
 	// ok now do our stuff
 	switch(  tool  ) {
@@ -9245,6 +9246,13 @@ bool tool_change_player_t::init( player_t *player_in)
 		case 't': // Sets the company to "allow takover"
 			if (player && player == player_in) {
 				player->set_allow_voluntary_takeover(state);
+				if (state) {
+					message.printf(translator::translate("%s is_available_for_take_over_by_another_company!"), player->get_name());
+				}
+				else {
+					message.printf(translator::translate("%s is_not_available_for_takeover_any_more"), player->get_name());
+				}
+				welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
 			}
 			break;
 		case 'u': // Take over another company
@@ -9253,13 +9261,14 @@ bool tool_change_player_t::init( player_t *player_in)
 				const char* err = player->can_take_over(welt->get_player(state), false);
 				if (err) // TODO: Set up system for not adopting liabilities here.
 				{
-					cbuffer_t message;
 					message.printf(translator::translate(err));
 					welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
 				}
 				else
 				{
+					message.printf(translator::translate("%s has_taken_over %s!"), player->get_name(), welt->get_player(state)->get_name());
 					player->take_over(welt->get_player(state), false);
+					welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
 				}
 			}
 			break;
