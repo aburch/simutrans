@@ -936,13 +936,14 @@ private:
 public:
 	static simthread_barrier_t step_convoys_barrier_external;
 	static simthread_barrier_t unreserve_route_barrier;
+#ifdef MULTI_THREAD_ROUTE_PROCESSING
 	static simthread_barrier_t process_private_car_routes_barrier;
+#endif
 
 	static pthread_mutex_t unreserve_route_mutex;
 	static pthread_mutex_t step_passengers_and_mail_mutex;
 	static pthread_mutex_t private_car_store_route_mutex;
 	static pthread_mutex_t private_car_route_mutex; 
-	static pthread_mutex_t process_private_car_routes_mutex;
 	void start_passengers_and_mail_threads();
 	void start_convoy_threads();
 	void start_path_explorer();

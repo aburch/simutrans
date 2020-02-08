@@ -2686,10 +2686,12 @@ void stadt_t::step(uint32 delta_t)
 
 void stadt_t::step_heavy()
 {
+#ifndef MULTI_THREAD
+#undef MULTI_THREAD_ROUTE_PROCESSING
+#endif
 #ifdef MULTI_THREAD
 	int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
 	assert(error == 0);
-//#define MULTI_THREAD_ROUTE_PROCESSING
 #endif
 #ifdef MULTI_THREAD_ROUTE_PROCESSING
 	process_private_car_routes_threaded(); 
@@ -6153,7 +6155,12 @@ void stadt_t::process_private_car_routes()
 		swap_active_route_map();
 	}
 }
-#ifdef MULTI_THREAD
+#ifdef MULTI_THREAD_ROUTE_PROCESSING
+// This does not work - somehow, the individual threads get out of sync with the barrier waits and multiple different routes
+// end up being processed at once. This, in turn, causes race conditions at individual road tiles, causing corrupt hashtables,
+// which in turn corrupt the save data when the game is saved. It is not clear whether it is worth fixing this, since testing
+// has not shown any clear performance advantage to this, since adding data to the hashtables, the most CPU-intensive task in
+// the route processing, is in any event forced to be effectively single threaded by the freelist mutex.
 void stadt_t::process_private_car_routes_threaded()
 {
 	current_city = this;
@@ -6193,8 +6200,7 @@ void* stadt_t::process_private_car_route_threaded(void* args)
 		}
 		if (current_key == koord::invalid || !current_city)
 		{
-			//int error = pthread_mutex_unlock(&karte_t::process_private_car_routes_mutex);
-			//assert(error == 0);
+			simthread_barrier_wait(&karte_t::process_private_car_routes_barrier);
 			continue;
 		}
 		
