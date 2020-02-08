@@ -77,8 +77,10 @@
 #define CITYGROWTH_PER_CITICEN (0x0000000100000000ll)
 
 karte_ptr_t stadt_t::welt; // one is enough ...
+#ifdef MULTI_THREAD_ROUTE_PROCESSING
 stadt_t* stadt_t::current_city;
 koord stadt_t::current_key;
+#endif
 
 // Electricity demand information.
 // @author: jamespetts
@@ -2377,6 +2379,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		// Private car route data
 		file->rdwr_bool(private_car_route_finding_in_progress); 
 		file->rdwr_long(currently_active_route_map); 
+		file->rdwr_long(route_processing_counter); 
 		if (file->is_saving())
 		{
 			for (uint32 i = 0; i++; i < 2)
@@ -2763,6 +2766,11 @@ void stadt_t::roll_history()
 
 void stadt_t::check_all_private_car_routes()
 {
+	if (route_processing_counter >= 0)
+	{
+		// Do not generate new routes until the old ones have finished being processed. 
+		return;
+	}
 	const planquadrat_t* plan = welt->access(townhall_road);
 	if(plan && plan->get_city() != this)
 	{
@@ -6122,8 +6130,24 @@ void stadt_t::process_private_car_routes()
 {
 	if (!private_car_route_finding_in_progress && !private_car_routes[get_currently_inactive_route_map()].empty())
 	{	
+		uint32 count = 0;
+		if (route_processing_counter == -1)
+		{
+			route_processing_counter = 0;
+		}
 		FOR(private_car_route_map, const &route, private_car_routes[get_currently_inactive_route_map()])
 		{
+			count++;
+			if (count < route_processing_counter)
+			{
+				// Do not process routes that we have already processed.
+				continue;
+			}
+			if (count >= welt->get_settings().get_max_routes_to_process_in_a_step() + route_processing_counter && welt->get_settings().get_max_routes_to_process_in_a_step() > 0)
+			{
+				route_processing_counter += count;
+				goto end_loop;
+			}
 			koord3d previous_tile = welt->lookup_kartenboden(get_townhall_road())->get_pos();
 			clear_private_car_route(route.key, false); 
 			FOR(vector_tpl<koord3d>, route_element, route.value)
@@ -6149,10 +6173,16 @@ void stadt_t::process_private_car_routes()
 				road_tile->private_car_routes.set(route.key, koord3d::invalid);
 			}
 		}
+
+		route_processing_counter = -1;
+		end_loop:
 		
-		// First, clear the old routes, then mark the new routes as the current routes.
-		private_car_routes[get_currently_active_route_map()].clear();
-		swap_active_route_map();
+		if (route_processing_counter == -1)
+		{
+			// First, clear the old routes, then mark the new routes as the current routes.
+			private_car_routes[get_currently_active_route_map()].clear();
+			swap_active_route_map();
+		}
 	}
 }
 #ifdef MULTI_THREAD_ROUTE_PROCESSING
@@ -6168,7 +6198,7 @@ void stadt_t::process_private_car_routes_threaded()
 	{		
 		FOR(private_car_route_map, const& route, private_car_routes[get_currently_inactive_route_map()])
 		{		
-			clear_private_car_route(route.key, false); // TODO: Multi-thread this, too.
+			clear_private_car_route(route.key, false); // This might also be multi-threaded - but since this method does not work, this is probably not worthwhile.
 			
 			current_key = route.key;
 			

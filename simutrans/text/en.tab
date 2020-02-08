@@ -1105,6 +1105,8 @@ Haw
 Boll
 %252_CITY_SYLL
 Bod
+%253_CITY_SYLL
+Kid
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -1657,6 +1659,10 @@ heath
  Mortimer
 &41_CITY_SUFFIX
  Hundred
+&42_CITY_SUFFIX
+ Lock
+&43_CITY_SUFFIX
+er's Lock
 # 
 # Other strings
 # 

@@ -670,7 +670,8 @@ public:
 
 	/// Take stored routes from the newly added list and add them to route tiles, moving the route to the procesed list.
 	void process_private_car_routes();
-#ifdef MULTI_THREAD
+	sint32 route_processing_counter = -1;
+#ifdef MULTI_THREAD_ROUTE_PROCESSING
 	void process_private_car_routes_threaded();
 	static void* process_private_car_route_threaded(void* args);
 	void process_private_car_route_range(route_range_specification range);

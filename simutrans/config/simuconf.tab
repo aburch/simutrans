@@ -736,21 +736,26 @@ citycar_way_wear_factor = 2
 # default: asphalt_road
 # (old, 102.2.2 and before) city_road_type = city_road
 
-# now river stuff
-# first river type (should be defined in pak dependent file)
-# The highest number is the smallest. A river with max_speed==0 is not navigavable by ships.
-#river_type[0] = river
-#river_type[1] = small_river
-#river_type[2] = just_the source
+# How many private car routes to process in a step.
+# With a higher number, routing data in game will be updated
+# more frequently. With a lower number, responsiveness will
+# be improved. Turn this down if there are frequent moments
+# of unresponsiveness.
+# 
+# Default: 8
+# Setting to 0 means that all routes will be processed in
+# a step regardless of number.
+max_routes_to_process_in_a_step = 8
 
-# river number (16 gives a few nicely branched rivers)
-#river_number = 16
-
-# min length
-#river_min_length = 16
-
-# max length
-#river_max_length = 320
+# If the following setting is set to 1, private cars will assume
+# that they can reach anywhere on the map irrespective of the actual
+# road network. Private cars will not follow routes, but will drive
+# around semi-randomly at all times.
+#
+# Enabling this might improve performance on slow systems.
+# 
+# Default: 0
+assume_everywhere_connected_by_road = 0
 
 # This is the distance in meters at which train drivers can see signals ahead.
 # Trains have to brake in time for signals which might be at danger, so this
@@ -810,7 +815,7 @@ disable_make_way_public = 0
 # The figure is a percentage of the default revenue. Default: 100.
 power_revenue_factor_percentage = 100
 
-################################# Tree settings #################################
+############################### Landscape settings ###############################
 #  please be careful in changing them, I spent lot of time finding optimals.
 #  those values have impact on no. of spawned trees -> memory consumption
 #
@@ -844,6 +849,22 @@ no_trees = 0
 
 # if set, no lakes will be created at all
 no_lakes = 0
+
+# now river stuff
+# first river type (should be defined in pak dependent file)
+# The highest number is the smallest. A river with max_speed==0 is not navigavable by ships.
+#river_type[0] = river
+#river_type[1] = small_river
+#river_type[2] = just_the source
+
+# river number (16 gives a few nicely branched rivers)
+#river_number = 16
+
+# min length
+#river_min_length = 16
+
+# max length
+#river_max_length = 320
 
 ################################### Time settings ###################################
 

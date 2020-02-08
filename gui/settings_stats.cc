@@ -227,6 +227,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM( "congestion_density_factor", sets->get_congestion_density_factor(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "quick_city_growth", sets->get_quick_city_growth());
 	INIT_BOOL( "assume_everywhere_connected_by_road", sets->get_assume_everywhere_connected_by_road());
+	INIT_NUM( "max_routes_to_process_in_a_step", sets->get_max_routes_to_process_in_a_step(), 0, 16384, gui_numberinput_t::AUTOLINEAR, false);
 	INIT_BOOL("toll_free_public_roads", sets->get_toll_free_public_roads());
 	INIT_NUM( "spacing_shift_mode", sets->get_spacing_shift_mode(), 0, 2 , gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "spacing_shift_divisor", sets->get_spacing_shift_divisor(), 1, 32767 , gui_numberinput_t::AUTOLINEAR, false );
@@ -261,6 +262,10 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("forge_cost_tram", sets->get_forge_cost_tram(), 0, 1000000, gui_numberinput_t::PLAIN, false);
 	INIT_NUM("forge_cost_narrowgauge", sets->get_forge_cost_narrowgauge(), 0, 1000000, gui_numberinput_t::PLAIN, false);
 	INIT_NUM("forge_cost_air", sets->get_forge_cost_air(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+
+	SEPERATOR;
+	INIT_BOOL("rural_industries_no_staff_shortage", sets->rural_industries_no_staff_shortage);
+	INIT_NUM("auto_connect_industries_and_attractions_by_road", sets->auto_connect_industries_and_attractions_by_road, 0, 65535, gui_numberinput_t::PLAIN, false);
 
 	SEPERATOR;
 	INIT_NUM("parallel_ways_forge_cost_percentage_road", sets->get_parallel_ways_forge_cost_percentage_road(), 0, 100, gui_numberinput_t::PLAIN, false);
@@ -338,6 +343,7 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM( sets->set_congestion_density_factor );
 	READ_BOOL( sets->set_quick_city_growth );
 	READ_BOOL( sets->set_assume_everywhere_connected_by_road );
+	READ_NUM( sets->set_max_routes_to_process_in_a_step ); 
 	READ_BOOL_VALUE(sets->toll_free_public_roads);
 	READ_NUM( sets->set_spacing_shift_mode );
 	READ_NUM( sets->set_spacing_shift_divisor);
@@ -373,6 +379,9 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE(sets->forge_cost_tram);
 	READ_NUM_VALUE(sets->forge_cost_narrowgauge);
 	READ_NUM_VALUE(sets->forge_cost_air);
+
+	READ_BOOL_VALUE(sets->rural_industries_no_staff_shortage);
+	READ_NUM_VALUE(sets->auto_connect_industries_and_attractions_by_road);
 
 	READ_NUM_VALUE(sets->parallel_ways_forge_cost_percentage_road);
 	READ_NUM_VALUE(sets->parallel_ways_forge_cost_percentage_track);
@@ -531,8 +540,6 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 	}
 	SEPERATOR;
 	INIT_NUM("max_comfort_preference_percentage", sets->get_max_comfort_preference_percentage(), 100, 65535, gui_numberinput_t::AUTOLINEAR, false);
-	INIT_BOOL("rural_industries_no_staff_shortage", sets->rural_industries_no_staff_shortage); 
-	INIT_NUM("auto_connect_industries_and_attractions_by_road", sets->auto_connect_industries_and_attractions_by_road, 0, 65535, gui_numberinput_t::PLAIN, false); 
 	
 	clear_dirty();
 	height = ypos;
@@ -595,8 +602,6 @@ void settings_extended_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->catering_level5_max_revenue );
 
 	READ_NUM_VALUE(sets->max_comfort_preference_percentage);
-	READ_BOOL_VALUE(sets->rural_industries_no_staff_shortage); 
-	READ_NUM_VALUE(sets->auto_connect_industries_and_attractions_by_road); 
 
 	// And convert to the form used in-game...
 	sets->cache_catering_revenues();
