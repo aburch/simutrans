@@ -1089,6 +1089,24 @@ Mous
 Les
 %24A_CITY_SYLL
 Bern
+%24B_CITY_SYLL
+Hedg
+%24C_CITY_SYLL
+Ac
+%24D_CITY_SYLL
+Ame
+%24E_CITY_SYLL
+Bew
+%24F_CITY_SYLL
+Bill
+%250_CITY_SYLL
+Haw
+%251_CITY_SYLL
+Boll
+%252_CITY_SYLL
+Bod
+%253_CITY_SYLL
+Kid
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -1641,6 +1659,10 @@ heath
  Mortimer
 &41_CITY_SUFFIX
  Hundred
+&42_CITY_SUFFIX
+ Lock
+&43_CITY_SUFFIX
+er's Lock
 # 
 # Other strings
 # 
@@ -3994,3 +4016,5 @@ No bridges over runways!
 Bridges cannnot be built over runways or taxiways.
 No bridges over runways!
 Bridges cannnot be built over runways or taxiways.
+overtaking
+Overtaking

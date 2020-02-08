@@ -355,8 +355,8 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(way_constraints.get_permissive());
 	chk->input(way_constraints.get_prohibitive());
 	chk->input(bidirectional ? 1 : 0);
-	chk->input(can_lead_from_rear ? 1 : 0); // not used
-	chk->input(can_be_at_rear ? 1 : 0);
+	//chk->input(can_lead_from_rear ? 1 : 0); // not used
+	//chk->input(can_be_at_rear ? 1 : 0);
 	for (uint32 i = 0; i < classes; i++)
 	{
 		chk->input(comfort[i]);

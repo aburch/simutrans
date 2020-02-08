@@ -29,6 +29,7 @@ class karte_ptr_t;
 class player_t;
 class fabrik_t;
 class rule_t;
+struct route_range_specification; 
 
 // For private subroutines
 class building_desc_t;
@@ -162,7 +163,6 @@ public:
 	 */
 	static void cityrules_rdwr(loadsave_t *file);
 	static void electricity_consumption_rdwr(loadsave_t *file);
-	void set_check_road_connexions(bool value) { check_road_connexions = value; }
 
 	static void set_cluster_factor( uint32 factor ) { stadt_t::cluster_factor = factor; }
 	static uint32 get_cluster_factor() { return stadt_t::cluster_factor; }
@@ -289,14 +289,19 @@ private:
 
 	sint32 number_of_cars;
 
-	/**
-	* Will fill the world's hashtable of tiles
-	* belonging to cities with all the tiles of
-	* this city
-	*/
-	void check_city_tiles(bool del = false);
+	/// Storage for private car routes (1) awaiting processing; and (2) processed (for easy deletion)
+	// We swap between two routing tables to avert the need for copying, which is too expensive.
+	typedef koordhashtable_tpl<koord, vector_tpl<koord3d> > private_car_route_map;
+	private_car_route_map private_car_routes[2];
+	/// This is the set of routes that is currently being used by the running game, 
+	/// not the one that is set aside for multi-threaded insertion by the route-finder.
+	uint32 currently_active_route_map;
 
 public:
+
+	inline uint32 get_currently_active_route_map() const { return currently_active_route_map; }
+	inline uint32 get_currently_inactive_route_map() const { return currently_active_route_map == 1 ? 0 : 1; }
+	void swap_active_route_map() { currently_active_route_map == 0 ? currently_active_route_map = 1 : currently_active_route_map = 0; }
 
 	void add_building_to_list(gebaeude_t* building, bool ordered = false, bool do_not_add_to_world_list = false, bool do_not_update_stats = false);
 
@@ -336,6 +341,8 @@ public:
 		city_history_month[0][HIST_MAIL_TRANSPORTED] += mail;
 	}
 
+/* end of history related things */
+
 	//@author: jamespetts
 	void add_power(uint32 p) { city_history_month[0][HIST_POWER_RECIEVED] += p; city_history_year[0][HIST_POWER_RECIEVED] += p; }
 
@@ -345,7 +352,14 @@ public:
 
 	void reset_tiles_for_all_buildings();
 
-	/* end of history related things */
+	/**
+	* Will fill the world's hashtable of tiles
+	* belonging to cities with all the tiles of
+	* this city
+	*/
+	void check_city_tiles(bool del = false);
+
+	
 private:
 	sint32 best_haus_wert;
 	sint32 best_strasse_wert;
@@ -461,7 +475,7 @@ private:
 	void bewerte_strasse(koord pos, sint32 rd, const rule_t &regel);
 	void bewerte_haus(koord pos, sint32 rd, const rule_t &regel);
 
-	bool check_road_connexions;
+	bool private_car_route_finding_in_progress = false;
 
 	sint32 traffic_level;
 	void calc_traffic_level();
@@ -627,8 +641,11 @@ public:
 	bool get_citygrowth() const { return allow_citygrowth; }
 
 	void step(uint32 delta_t);
+	
+	/// Things that only one city per world step should do.
+	void step_heavy();
 
-	void new_month(bool check);
+	void new_month();
 
 	void add_road_connexion(uint32 journey_time_per_tile, const stadt_t* city);
 	void add_road_connexion(uint32 journey_time_per_tile, const fabrik_t* industry);
@@ -644,6 +661,23 @@ public:
 	uint32 check_road_connexion_to(const gebaeude_t* attraction) const;
 
 	void generate_private_cars(koord pos, uint32 journey_tenths_of_minutes, koord target, uint8 number_of_passengers);
+
+	/// Stores a private car route in the city ready to be added to road tiles later. This should be thread-safe.
+	void store_private_car_route(vector_tpl<koord3d> route, koord pos);
+
+	/// Clears a private car route to a particular destination, including iterating over road tiles deleting the routes there.
+	void clear_private_car_route(koord pos, bool clear_connected_tables); 
+
+	/// Take stored routes from the newly added list and add them to route tiles, moving the route to the procesed list.
+	void process_private_car_routes();
+	sint32 route_processing_counter = -1;
+#ifdef MULTI_THREAD_ROUTE_PROCESSING
+	void process_private_car_routes_threaded();
+	static void* process_private_car_route_threaded(void* args);
+	void process_private_car_route_range(route_range_specification range);
+	static koord current_key;
+	static stadt_t* current_city;
+#endif
 
 private:
 	/**
@@ -728,6 +762,9 @@ public:
 	void remove_connected_city(stadt_t* city);
 	void remove_connected_industry(fabrik_t* fab);
 	void remove_connected_attraction(gebaeude_t* attraction);
+
+	bool get_private_car_route_finding_in_progress() const { return private_car_route_finding_in_progress; }
+	void set_private_car_route_finding_in_progress(bool value) { private_car_route_finding_in_progress = value; }
 
 	// @author: jamespetts
 	// September 2010

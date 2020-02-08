@@ -255,11 +255,13 @@ gebaeude_t::~gebaeude_t()
 	const bool has_city_defined = our_city != NULL;
 	if (!our_city /* && tile->get_desc()->get_type() == building_desc_t::townhall*/)
 	{
-		our_city = welt->get_city(get_pos().get_2d());
+		const planquadrat_t* tile = welt->access(get_pos().get_2d());
+		our_city = tile ? tile->get_city() : NULL;
 	}
 	if (!our_city)
 	{
-		our_city = welt->get_city(get_first_tile()->get_pos().get_2d());
+		const planquadrat_t* tile = welt->access(get_first_tile()->get_pos().get_2d());
+		our_city = tile ? tile->get_city() : NULL;
 	}
 	if (our_city)
 	{
@@ -358,11 +360,11 @@ void gebaeude_t::check_road_tiles(bool del)
 				for (int j = 0; j<plan->get_boden_count(); j++)
 				{
 					grund_t *bd = plan->get_boden_bei(j);
-					strasse_t *str = (strasse_t *)bd->get_weg(road_wt);
+					weg_t *way = bd->get_weg(road_wt);
 
-					if (str)
+					if (way)
 					{
-						str->connected_buildings.remove(this);
+						way->connected_buildings.remove(this);
 					}
 				}
 			}
@@ -378,10 +380,10 @@ void gebaeude_t::check_road_tiles(bool del)
 				{
 					continue;
 				}
-				strasse_t* str = (strasse_t*)gr_this->get_weg(road_wt);
-				if (str)
+				weg_t* const way = gr_this->get_weg(road_wt);
+				if (way)
 				{
-					str->connected_buildings.append_unique(this);
+					way->connected_buildings.append_unique(this);
 				}
 			}
 		}
@@ -741,6 +743,21 @@ const char *gebaeude_t::get_name() const
 	return "Gebaeude";
 }
 
+const char* gebaeude_t::get_individual_name() const
+{
+	if (is_factory && ptr.fab)
+	{
+		return ptr.fab->get_name();
+	}
+	else if (tile)
+	{
+		return tile->get_desc()->get_name();
+	}
+	else
+	{
+		return get_name();
+	}
+}
 
 /**
 * waytype associated with this object
