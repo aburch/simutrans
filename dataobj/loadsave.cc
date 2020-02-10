@@ -21,7 +21,7 @@
 
 #include "../utils/simstring.h"
 
-#ifdef USE_ZSTD
+#if USE_ZSTD
 #include <zstd.h>
 #endif
 
@@ -195,7 +195,7 @@ struct file_descriptors_t {
 	gzFile gzfp;
 	BZFILE *bzfp;
 	int bse;
-#ifdef USE_ZSTD
+#if USE_ZSTD
 	ZSTD_inBuffer zin;
 	ZSTD_outBuffer zout;
 	void *zbuff;
@@ -242,7 +242,7 @@ void loadsave_t::set_buffered(bool enable)
 			buf_pos[0] = buf_pos[1] = 0;
 			buf_len[0] = buf_len[1] = 0;
 			ls_buf[0] = new char[LS_BUF_SIZE];
-#ifdef USE_ZSTD
+#if USE_ZSTD
 			if( is_zstd() ) {
 				if( saving ) {
 					fd->zout = { fd->zbuff, LS_BUF_SIZE, 0 };
@@ -363,7 +363,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 	}
 
 	if(  mode==zstd  ) {
-#ifdef USE_ZSTD
+#if USE_ZSTD
 		bool ok = false;
 		fd->zbuff = xmalloc(LS_BUF_SIZE);
 
@@ -543,7 +543,7 @@ bool loadsave_t::wr_open( const char *filename_utf8, mode_t m, int level, const 
 	last_error = FILE_ERROR_OK; // no error
 	close();
 
-#ifndef USE_ZSTD
+#if !USE_ZSTD
 	if( mode & zstd ) {
 		mode &= ~zstd;
 		mode |= bzip2;
@@ -561,7 +561,7 @@ bool loadsave_t::wr_open( const char *filename_utf8, mode_t m, int level, const 
 		// no compression
 		fd->fp = dr_fopen(filename_utf8, "wb");
 	}
-#ifdef USE_ZSTD
+#if USE_ZSTD
 	else if(  is_zstd()  ) {
 		fd->cctx = ZSTD_createCCtx();
 		if(  fd->cctx==NULL  ) {
@@ -683,7 +683,7 @@ const char *loadsave_t::close()
 		const char *end = "\n</Simutrans>\n";
 		write( end, strlen(end) );
 	}
-#ifdef USE_ZSTD
+#if USE_ZSTD
 	if( is_zstd() && fd->fp ) {
 		if( saving ) {
 			// write zero length dummy to indicate end of data
@@ -866,7 +866,7 @@ void loadsave_t::flush_buffer(int buf_num)
 		assert(bse==BZ_OK);
 	}
 	else if(  is_zstd()  ) {
-#ifdef USE_ZSTD
+#if USE_ZSTD
 		size_t ret;
 		// first write, whatever remained in buffer
 		gzwrite( fd->gzfp, fd->zout.dst, fd->zout.pos );
@@ -970,7 +970,7 @@ int loadsave_t::fill_buffer( int buf_num )
 			r = 0;
 		}
 	}
-#ifdef USE_ZSTD
+#if USE_ZSTD
 	else if(  is_zstd()  ) {
 		fd->zout = { ls_buf[ buf_num ], LS_BUF_SIZE, 0 };
 		do {
