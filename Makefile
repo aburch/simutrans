@@ -158,11 +158,9 @@ ifdef USE_UPNP
   endif
 endif
 
-ifdef USE_ZSTD
-  ifeq ($(shell expr $(USE_UPNP) \>= 1), 1)
-    CFLAGS      += -DUSE_ZSTD
-    LDFLAGS     += -lzstd
-  endif
+ifeq ($(shell expr $(USE_ZSTD) \>= 1), 1)
+  FLAGS      += -DUSE_ZSTD
+  LDFLAGS     += -lzstd
 endif
 
 ifeq ($(shell expr $(PROFILE) \>= 1), 1)
@@ -191,6 +189,9 @@ ifdef WITH_REVISION
       REV = $(WITH_REVISION)
     else
       REV = $(shell svnversion)
+    endif
+    ifeq ($(shell expr $(WITH_REVISION) \<= 1), 1)
+      REV = $(shell svn info --show-item revision svn://servers.simutrans.org/simutrans | sed "s/[0-9]*://" | sed "s/M.*//")
     endif
 
     ifneq ($(REV),)
