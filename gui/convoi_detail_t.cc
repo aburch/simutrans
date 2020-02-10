@@ -366,7 +366,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			if (cnv->get_livery_scheme_index()) {
 				buf.clear();
 				buf.printf("Applied livery scheme: %s", translator::translate(welt->get_settings().get_livery_scheme(cnv->get_livery_scheme_index())->get_name()));
-				display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, welt->get_settings().get_livery_scheme(cnv->get_livery_scheme_index())->is_available(month_now) ? SYSCOL_TEXT : COL_OBSOLETE, true);
 				total_height += LINESPACE;
 			}
 			total_height += LINESPACE;
@@ -878,6 +878,7 @@ gui_convoy_maintenance_info_t::gui_convoy_maintenance_info_t(convoihandle_t cnv)
 	this->cnv = cnv;
 }
 
+
 void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 {
 	// keep previous maximum width
@@ -889,6 +890,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 	int total_height = 0;
 	if (cnv.is_bound()) {
 		uint8 vehicle_count = cnv->get_vehicle_count();
+		const uint16 month_now = welt->get_timeline_year_month();
 		cbuffer_t buf;
 		int extra_w = D_H_SPACE;
 
@@ -896,7 +898,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 		if (cnv->get_livery_scheme_index()) {
 			buf.clear();
 			buf.printf("Applied livery scheme: %s", translator::translate(welt->get_settings().get_livery_scheme(cnv->get_livery_scheme_index())->get_name()));
-			display_proportional_clip(pos.x + offset.x + extra_w, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			display_proportional_clip(pos.x + offset.x + extra_w, pos.y + offset.y + total_height, buf, ALIGN_LEFT, welt->get_settings().get_livery_scheme(cnv->get_livery_scheme_index())->is_available(month_now) ? SYSCOL_TEXT : COL_OBSOLETE, true);
 			total_height += LINESPACE;
 		}
 
@@ -982,7 +984,6 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 
 
 		char number[64];
-		const uint16 month_now = welt->get_timeline_year_month();
 
 		for (unsigned veh = 0; veh < vehicle_count; veh++) {
 			vehicle_t *v = cnv->get_vehicle(veh);
@@ -1022,14 +1023,56 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 			//display_multiline_text(pos.x + offset.x, pos.y + offset.y + total_height + extra_y, translator::translate(v->get_desc()->get_name()), SYSCOL_TEXT, true);
 			display_proportional_clip(pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y, translator::translate(v->get_desc()->get_name()), ALIGN_LEFT, SYSCOL_TEXT, true);
 			// livery scheme info
-			//if ( strcmp( v->get_current_livery(), "default") ) {
-			//	TODO: this vehicle has liveries => first, check line scheme and convoy applied scheme => compare => if differenet get livery scheme => check applied livery is obsolete or not
-			//	COLOR_VAL livery_state_col = SYSCOL_TEXT;
-			//	extra_y += LINESPACE;
-			//	buf.clear();
-			//	//buf.printf("(%s)", translator::translate(v->get_current_livery()));
-			//	display_proportional_clip(pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, livery_state_col, true);
-			//}
+			if ( strcmp( v->get_current_livery(), "default") ) {
+				buf.clear();
+				vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
+				livery_scheme_t* convoy_scheme = schemes->get_element(cnv->get_livery_scheme_index());
+				COLOR_VAL livery_state_col = SYSCOL_TEXT;
+				if (convoy_scheme->is_contained(v->get_current_livery(), month_now)) {
+					// current livery belongs to convoy applied livery scheme and active
+					buf.printf("(%s)", translator::translate(convoy_scheme->get_name()));
+					// is current livery latest one?
+					if(strcmp(convoy_scheme->get_latest_available_livery(month_now, v->get_desc()), v->get_current_livery()))
+					{
+						livery_state_col = COL_UPGRADEABLE;
+					}
+				}
+				else if (convoy_scheme->is_contained(v->get_current_livery())) {
+					buf.printf("(%s)", translator::translate(convoy_scheme->get_name()));
+					livery_state_col = COL_OBSOLETE;
+				}
+				else {
+					// current livery does not belong to convoy applied livery scheme
+					// note: livery may belong to more than one livery scheme
+					bool found_active_scheme = false;
+					livery_state_col = COL_BROWN;
+					cbuffer_t temp_buf;
+					int cnt = 0;
+					ITERATE_PTR(schemes, i)
+					{
+						livery_scheme_t* scheme = schemes->get_element(i);
+						if (scheme->is_contained(v->get_current_livery())) {
+							if (scheme->is_available(month_now)) {
+								found_active_scheme = true;
+								if (cnt) { buf.append(", "); }
+								buf.append(translator::translate(scheme->get_name()));
+								cnt++;
+							}
+							else if(!found_active_scheme){
+								if (cnt) { buf.append(", "); }
+								temp_buf.append(translator::translate(scheme->get_name()));
+								cnt++;
+							}
+						}
+					}
+					if (!found_active_scheme) {
+						buf = temp_buf;
+						livery_state_col = COL_DARK_BROWN;
+					}
+				}
+				extra_y += LINESPACE;
+				display_proportional_clip(pos.x + extra_w + offset.x + D_H_SPACE, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, livery_state_col, true);
+			}
 			extra_y += LINESPACE + D_V_SPACE;
 			extra_w += D_H_SPACE;
 
