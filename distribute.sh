@@ -145,7 +145,6 @@ else
 fi
 
 echo "Targeting archive $simarchiv"
-exit
 
 # (otherwise there will be many .svn included under windows)
 distribute()
