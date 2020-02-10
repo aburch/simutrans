@@ -330,17 +330,32 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 		// display total values
 		if (vehicle_count > 1) {
+			// vehicle min max. speed (not consider weight)
+			buf.clear();
+			buf.printf("%s %3d km/h\n", translator::translate("Max. speed:"), speed_to_kmh(cnv->get_min_top_speed()));
+			display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			total_height += LINESPACE;
+
 			// convoy power
 			buf.clear();
 			// NOTE: These value needs to be modified because these are multiplied by "gear"
 			buf.printf(translator::translate("%s %4d kW, %d kN"), translator::translate("Power:"), cnv->get_sum_power() / 1000, cnv->get_starting_force().to_sint32() / 1000);
-			// TODO: Add the acceleration info here - Ranran
 			display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			total_height += LINESPACE;
 
-			// vehicle min max. speed (not consider weight)
+			// current brake force
 			buf.clear();
-			buf.printf("%s %3d km/h\n", translator::translate("Max. speed:"), speed_to_kmh(cnv->get_min_top_speed()));
+			buf.printf("%s %.2f kN", translator::translate("Max. brake force:"), cnv->get_braking_force().to_double() / 1000.0);
+			display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			total_height += LINESPACE;
+
+			// starting acceleration
+			lazy_convoy_t &convoy = *cnv.get_rep();
+			const sint32 friction = convoy.get_current_friction();
+			const uint32 starting_acceleration = convoy.calc_acceleration(weight_summary_t(cnv->get_weight_summary().weight, friction), 0);
+			const uint32 starting_acceleration_min = convoy.calc_acceleration(weight_summary_t(cnv->get_sum_weight(), friction), 0);
+			buf.clear();
+			buf.printf("%s %.2f km/h/s (%.2f km/h/s)", translator::translate("Starting acceleration:"), (double)starting_acceleration / 100.0, (double)starting_acceleration_min / 100.0);
 			display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			total_height += LINESPACE;
 
@@ -353,12 +368,6 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			// max axles load
 			buf.clear();
 			buf.printf("%s %dt", translator::translate("Max. axle load:"), cnv->get_highest_axle_load());
-			display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			total_height += LINESPACE;
-
-			// current brake force
-			buf.clear();
-			buf.printf("%s %.2f kN", translator::translate("Max. brake force:"), cnv->get_braking_force().to_double() / 1000.0);
 			display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			total_height += LINESPACE;
 
@@ -894,12 +903,14 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 		cbuffer_t buf;
 		int extra_w = D_H_SPACE;
 
-		// convoy applied livery scheme
-		if (cnv->get_livery_scheme_index()) {
+		if (cnv->get_replace()) {
+			if (skinverwaltung_t::alerts) {
+				display_color_img(skinverwaltung_t::alerts->get_image_id(1), pos.x + offset.x + extra_w, pos.y + offset.y + total_height, 0, false, false);
+			}
 			buf.clear();
-			buf.printf("Applied livery scheme: %s", translator::translate(welt->get_settings().get_livery_scheme(cnv->get_livery_scheme_index())->get_name()));
-			display_proportional_clip(pos.x + offset.x + extra_w, pos.y + offset.y + total_height, buf, ALIGN_LEFT, welt->get_settings().get_livery_scheme(cnv->get_livery_scheme_index())->is_available(month_now) ? SYSCOL_TEXT : COL_OBSOLETE, true);
-			total_height += LINESPACE;
+			buf.append(translator::translate("Replacing"));
+			display_proportional_clip(pos.x + offset.x + extra_w + 14, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, false);
+			total_height += LINESPACE * 1.5;
 		}
 
 		// display total values
@@ -980,8 +991,15 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 			}
 		}
 
-		total_height += LINESPACE;
+		// convoy applied livery scheme
+		if (cnv->get_livery_scheme_index()) {
+			buf.clear();
+			buf.printf("Applied livery scheme: %s", translator::translate(welt->get_settings().get_livery_scheme(cnv->get_livery_scheme_index())->get_name()));
+			display_proportional_clip(pos.x + offset.x + extra_w, pos.y + offset.y + total_height, buf, ALIGN_LEFT, welt->get_settings().get_livery_scheme(cnv->get_livery_scheme_index())->is_available(month_now) ? SYSCOL_TEXT : COL_OBSOLETE, true);
+			total_height += LINESPACE;
+		}
 
+		total_height += LINESPACE;
 
 		char number[64];
 
