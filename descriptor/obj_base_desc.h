@@ -49,10 +49,10 @@ public:
 		return month_now==0  ||  (intro_date<=month_now  &&  retire_date>month_now);
 	}
 
-	/// @return true if this is still not available
-	bool is_future(const uint16 month_now) const
+	// Returns 2 in the near future. Use the judgment of 2 only when control the display of the future
+	uint8 is_future(const uint16 month_now) const
 	{
-		return month_now  &&  (intro_date > month_now);
+		return (!month_now || (intro_date - month_now <= 0)) ? 0 : (intro_date - month_now < 12) ? 2 : 1;
 	}
 
 	/// @return true if this is obsolete
