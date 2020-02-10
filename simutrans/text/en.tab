@@ -1107,6 +1107,8 @@ Boll
 Bod
 %253_CITY_SYLL
 Kid
+%254_CITY_SYLL
+Ped
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
