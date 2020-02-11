@@ -1061,6 +1061,7 @@ grund_t* private_car_t::hop_check()
 				if (origin_city)
 				{
 					origin_city->clear_private_car_route(check_target, true);
+					welt->add_queued_city(origin_city);
 				}
 			}
 			else

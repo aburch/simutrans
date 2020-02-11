@@ -2675,7 +2675,12 @@ void stadt_t::step(uint32 delta_t)
 
 		// Was originally for testing, but this seems to be a sensible frequency for this
 		// Performance profiling on a large game finds this acceptable.
-		welt->add_queued_city(this);
+		if (private_car_routes[get_currently_inactive_route_map()].empty())
+		{
+			// Do not try to re-check the routes here if the last attempt at doing so
+			// has not been processed yet.
+			welt->add_queued_city(this);
+		}
 	}
 
 	// update history (might be changed due to construction/destroying of houses)
@@ -6123,7 +6128,8 @@ void stadt_t::remove_city_factory(fabrik_t *fab)
 
 void stadt_t::store_private_car_route(vector_tpl<koord3d> route, koord pos)
 {
-	private_car_routes[get_currently_inactive_route_map()].set(pos, route);
+	const bool put_succeeded = private_car_routes[get_currently_inactive_route_map()].put(pos, route);
+	//assert(put_succeeded); 
 }
 
 void stadt_t::process_private_car_routes()
