@@ -241,6 +241,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	virtual const char *get_name() const;
+	const char* get_individual_name() const;
 
 	void get_description(cbuffer_t & buf) const;
 
