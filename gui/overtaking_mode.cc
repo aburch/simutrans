@@ -46,15 +46,13 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 	player = player_;
 	overtaking_mode = overtaking_mode_;
 
-	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
+	set_table_layout(1,0);
 
 	for(int i = 0 ; i < 6; i++){
-		mode_button[i].init( button_t::square_state, mode_name[i], cursor );
-		mode_button[i].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+		mode_button[i].init( button_t::square_state, mode_name[i]);
 		mode_button[i].add_listener(this);
 		mode_button[i].pressed = false;
 		add_component( &mode_button[i] );
-		cursor.y += mode_button[i].get_size().h + D_V_SPACE;
 	}
 
 	if(  overtaking_mode==halt_mode          ) mode_button[0].pressed = true;
@@ -64,51 +62,39 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 	if(  overtaking_mode==prohibited_mode    ) mode_button[4].pressed = true;
 	if(  overtaking_mode==inverted_mode      ) mode_button[5].pressed = true;
 
-	divider[0].set_pos( cursor );
-	divider[0].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	add_component(&divider[0]);
-	cursor.y += D_DIVIDER_HEIGHT;
 	
 	if(  tool_class==0  &&  show_avoid_cityroad  ) {
-		avoid_cityroad_button.init( button_t::square_state, "avoid becoming cityroad", cursor );
-		avoid_cityroad_button.set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+		avoid_cityroad_button.init( button_t::square_state, "avoid becoming cityroad");
 		avoid_cityroad_button.add_listener(this);
 		avoid_cityroad_button.pressed = street_flag_&strasse_t::AVOID_CITYROAD;
 		add_component(&avoid_cityroad_button);
-		cursor.y += avoid_cityroad_button.get_size().h + D_V_SPACE;
 	}
 	
-	citycar_no_entry_button.init( button_t::square_state, "citycars do not enter", cursor );
-	citycar_no_entry_button.set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	citycar_no_entry_button.init( button_t::square_state, "citycars do not enter");
 	citycar_no_entry_button.add_listener(this);
 	citycar_no_entry_button.pressed = street_flag_&strasse_t::CITYCAR_NO_ENTRY;
 	add_component(&citycar_no_entry_button);
-	cursor.y += citycar_no_entry_button.get_size().h + D_V_SPACE;
 	
 	if(  tool_class==0  &&  !show_avoid_cityroad  ) {
 		// the way is elevated. height offset setting is displayed.
-		divider[1].set_pos( cursor );
-		divider[1].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 		add_component(&divider[1]);
-		cursor.y += D_DIVIDER_HEIGHT;
-		
-		height_offset.set_pos( scr_coord( L_DIALOG_WIDTH - D_MARGIN_RIGHT - height_offset.get_size().w, cursor.y ) );
-		height_offset.set_size( scr_size(52, D_EDIT_HEIGHT) );
-		height_offset.set_limits( 0, 32 );
-		height_offset.set_value( tool_w->get_height_offset() );
-		height_offset.wrap_mode( false );
-		height_offset.add_listener( this );
-		add_component( &height_offset );
-		
-		height_offset_label.set_text("height offset");
-		height_offset_label.align_to(&height_offset, ALIGN_CENTER_V, scr_coord( cursor.x, 0 ));
-		height_offset_label.set_width( height_offset.get_pos().x - D_MARGIN_LEFT - D_H_SPACE );
-		add_component( &height_offset_label );
-		
-		cursor.y += height_offset.get_size().h + D_V_SPACE;
+		add_table(2,1);
+		{
+			height_offset_label.set_text("height offset");
+			add_component( &height_offset_label );
+			
+			height_offset.set_limits( 0, 32 );
+			height_offset.set_value( tool_w->get_height_offset() );
+			height_offset.wrap_mode( false );
+			height_offset.add_listener( this );
+			add_component( &height_offset );
+		}
+		end_table();
 	}
 	
-	set_windowsize( scr_size( L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
+	reset_min_windowsize();
+	set_windowsize(get_min_windowsize() );
 }
 
 bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, value_t)

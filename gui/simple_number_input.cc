@@ -19,23 +19,21 @@ simple_number_input_frame_t::simple_number_input_frame_t (const char* frame_titl
 	label(label_text)
 {
 	val = default_val;
-	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
-	
-	//input.set_width_by_len(3);
-	input.set_pos( scr_coord( L_DIALOG_WIDTH - D_MARGIN_RIGHT - input.get_size().w, cursor.y ) );
-	input.add_listener(this);
-	input.set_limits(min_val,max_val);
-	input.set_value(val);
-	input.set_increment_mode(1);
-	add_component( &input );
-
-	label.align_to( &input, ALIGN_CENTER_V, scr_coord( cursor.x, 0 ) );
-	label.set_width( input.get_pos().x - D_MARGIN_LEFT - D_H_SPACE );
-	add_component( &label );
-
-	cursor.y += input.get_size().h + D_V_SPACE;
-
-	set_windowsize( scr_size( L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
+  
+	set_table_layout(1,0);
+  add_table(2,1);
+  {
+  	input.add_listener(this);
+  	input.set_limits(min_val,max_val);
+  	input.set_value(val);
+  	input.set_increment_mode(1);
+    add_component( &label );
+  	add_component( &input );
+  }
+  end_table();
+  
+	reset_min_windowsize();
+	set_windowsize(get_min_windowsize() );
 }
 
 bool simple_number_input_frame_t::action_triggered( gui_action_creator_t *komp, value_t)

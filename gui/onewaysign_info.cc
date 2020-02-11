@@ -17,14 +17,23 @@ onewaysign_info_t::onewaysign_info_t(roadsign_t* s, koord3d) :
 	obj_infowin_t(s),
 	sign(s)
 {
-	direction[0].init( button_t::square_state, translator::translate("Left"), scr_coord(10,get_windowsize().h - 40), scr_size(80,D_BUTTON_HEIGHT) );
-	direction[1].init( button_t::square_state, translator::translate("Right"), scr_coord(110,get_windowsize().h - 40), scr_size(80,D_BUTTON_HEIGHT) );
+	direction[0].init( button_t::square_state, translator::translate("Left") );
+	direction[1].init( button_t::square_state, translator::translate("Right") );
 	direction[0].add_listener( this );
 	direction[1].add_listener( this );
 	direction[0].pressed = (sign->get_lane_affinity() & 1) != 0;
 	direction[1].pressed = (sign->get_lane_affinity() & 2) != 0;
-	add_component( &direction[0] );
-	add_component( &direction[1] );
+	
+	// place components
+	set_table_layout(1,0);
+	add_table(2,1);
+	{
+		add_component( &direction[0] );
+		add_component( &direction[1] );
+	}
+	end_table();
+	reset_min_windowsize();
+	set_windowsize(get_min_windowsize() );
 }
 
 

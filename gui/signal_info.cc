@@ -10,10 +10,13 @@ signal_info_t::signal_info_t(signal_t* s) :
 	obj_infowin_t(s),
 	signal(s)
 {
-	bt.init( button_t::square_state, translator::translate("Require parent convoy to enter."), scr_coord(10,get_windowsize().h - 40), scr_size(300,D_BUTTON_HEIGHT));
+	bt.init( button_t::square_state, translator::translate("Require parent convoy to enter."));
 	bt.add_listener(this);
 	bt.pressed = signal->is_guide_signal();
+	set_table_layout(1,0);
 	add_component(&bt);
+	reset_min_windowsize();
+	set_windowsize(get_min_windowsize() );
 }
 
 bool signal_info_t::action_triggered( gui_action_creator_t* , value_t /* */)
