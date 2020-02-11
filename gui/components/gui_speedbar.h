@@ -63,13 +63,13 @@ private:
 	// returns convoy length including extra margin.
 	// for some reason, convoy may have "extra margin"
 	// this correction corresponds to the correction in convoi_t::get_tile_length()
-	inline uint32 adjust_convoy_length(uint32 total_len, uint8 last_veh_len);
+	uint32 adjust_convoy_length(uint32 total_len, uint8 last_veh_len);
 	// these two are needed for adding automatic margin
 	uint8 last_veh_length; 
 	uint8 switched_last_veh_length = -1;
 
 	// specify fill width and color of specified tile
-	inline void fill_with_color(scr_coord offset, uint8 tile_index, uint8 from, uint8 to, COLOR_VAL color, uint8 length_to_pixel);
+	void fill_with_color(scr_coord offset, uint8 tile_index, uint8 from, uint8 to, COLOR_VAL color, uint8 length_to_pixel);
 
 public:
 	void set_base_convoy_length(uint32 convoy_length, uint8 last_veh_length);
