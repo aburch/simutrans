@@ -1111,7 +1111,10 @@ bool was_coupling_with_heading(convoi_t* cnv) {
 	const vehicle_t* v = cnv->front();
 	const grund_t* gr = world()->lookup(v->get_pos());
 	grund_t* ngr;
-	if(  !cnv->get_coupling_convoi().is_bound()  ||  !gr  ||  !gr->get_neighbour(ngr, v->get_waytype(), v->get_direction())  ) {
+	// Since this function is called before the route is calculated, vehicle_base_t::get_90direction() cannot be used.
+	// So we use get_direction() and give up the judge when the obtained direction is not single. This judgement only affects visual jupming of the convoy.
+	ribi_t::ribi v_dir = v->get_direction();
+	if(  !cnv->get_coupling_convoi().is_bound()  ||  !gr  ||  !ribi_t::is_single(v_dir)  ||  !gr->get_neighbour(ngr, v->get_waytype(), v_dir)  ) {
 		return false;
 	}
 	// Is there a car which is the coupling target?
