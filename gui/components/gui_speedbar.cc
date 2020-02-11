@@ -101,6 +101,7 @@ void gui_tile_occupancybar_t::draw(scr_coord offset)
 
 	// calculate internal convoy length (include margin)
 	const uint32 current_length = adjust_convoy_length(convoy_length, last_veh_length);
+	const uint8	extra_margin = current_length - convoy_length;
 	uint32 new_length = 0;
 
 	if (insert_mode && new_veh_length != 0) {
@@ -133,8 +134,8 @@ void gui_tile_occupancybar_t::draw(scr_coord offset)
 			// insert mode, paint the front tile
 			fill_with_color(offset, i, 0, len_diff - CARUNITS_PER_TILE*(i+1) < 0 ? len_diff % CARUNITS_PER_TILE : CARUNITS_PER_TILE, col, length_to_pixel);
 		}
-		else if (!insert_mode && len_diff != 0 && i >= min(current_length, new_length)/ CARUNITS_PER_TILE){
-			fill_with_color(offset, i, min(current_length, new_length)/ CARUNITS_PER_TILE == i ? min(current_length, new_length) % CARUNITS_PER_TILE : 0,
+		else if (!insert_mode && len_diff != 0 && i >= min(current_length + extra_margin, new_length + extra_margin)/ CARUNITS_PER_TILE){
+			fill_with_color(offset, i, min(current_length + extra_margin, new_length + extra_margin)/ CARUNITS_PER_TILE == i ? min(current_length + extra_margin, new_length + extra_margin) % CARUNITS_PER_TILE : 0,
 				max(current_length, new_length) / CARUNITS_PER_TILE == i ? max(current_length, new_length) % CARUNITS_PER_TILE : CARUNITS_PER_TILE, col, length_to_pixel);
 		}
 	}
