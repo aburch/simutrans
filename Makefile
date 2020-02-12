@@ -12,6 +12,7 @@ ALLEGRO_CONFIG  ?= allegro-config
 SDL_CONFIG      ?= sdl-config
 SDL2_CONFIG     ?= sdl2-config
 FREETYPE_CONFIG ?= freetype-config
+#FREETYPE_CONFIG ?= pkg-config freetype2
 
 BACKENDS      = allegro gdi sdl sdl2 mixer_sdl mixer_sdl2 posix
 COLOUR_DEPTHS = 0 16

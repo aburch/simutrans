@@ -3643,7 +3643,38 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 					// try to find shortest possible
 					end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
 				}
-				if((err==NULL||*err == 0)  &&   koord_distance( k, end.get_2d())<=3  &&  welt->is_within_limits((end+zv).get_2d())) {
+				// if the river is nagigable, we need a two hight slope, so we have to start on a flat tile
+				if(  err  &&  *err!=0  &&  strcmp(err,"Bridge is too long for this type!\n")!=0  &&  bd->get_weg_hang()!=slope_t::flat    ) {
+					slope_t::type old_slope = bd->get_grund_hang();
+					sint8 h_diff = slope_t::max_diff( old_slope );
+					// raise up the tile
+					bd->set_grund_hang( slope_t::flat );
+					bd->set_hoehe( bd->get_hoehe() + h_diff );
+					end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, false);
+					if(err  ||   koord_distance( k, end.get_2d())>3) {
+						// try to find shortest possible
+						end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
+					}
+					// not successful: restore old slope
+					if( err  &&  *err != 0 ||  end==koord3d::invalid  || koord_distance( k, end.get_2d())>5 ) {
+						bd->set_grund_hang( old_slope );
+						bd->set_hoehe( bd->get_hoehe() - h_diff );
+					}
+					else {
+						// update slope graphics on tile and tile in front
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 0, 1 ) ) ) { 
+							bd_recalc->check_update_underground();
+						}
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 0 ) ) ) { 
+							bd_recalc->check_update_underground();
+						}
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 1 ) ) ) { 
+							bd_recalc->check_update_underground();
+						}
+						bd->mark_image_dirty();
+					}
+				}
+				if((err==NULL||*err == 0)  &&   koord_distance( k, end.get_2d())<=5  &&  welt->is_within_limits((end+zv).get_2d())) {
 					bridge_builder_t::build_bridge(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
 					// try to build one connecting piece of road
 					build_road( (end+zv).get_2d(), NULL, false);
