@@ -482,7 +482,6 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				else {
 					desc->can_lead_from_rear = decode_uint8(p);
 					desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
-					desc->basic_constraint_next = vehicle_desc_t::unknown_constraint;
 				}
 				for (uint32 i = 0; i < desc->classes; i++)
 				{
@@ -511,7 +510,6 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				else
 				{
 					desc->can_be_at_rear = (bool)decode_uint8(p);
-					desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
 					desc->basic_constraint_next = vehicle_desc_t::unknown_constraint;
 				}
 				desc->increase_maintenance_after_years = decode_uint16(p);
