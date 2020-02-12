@@ -691,8 +691,10 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	// Convert flag
-	if (desc->can_lead_from_rear == true && desc->bidirectional == false){
-		desc->bidirectional = true;
+	if (version<11 || (version == 11 && extended && extended_version < 5)) {
+		if (desc->can_lead_from_rear == true && desc->bidirectional == false) {
+			desc->bidirectional = true;
+		}
 	}
 
 	if(desc->sound==LOAD_SOUND) {
