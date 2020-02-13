@@ -26,7 +26,6 @@
 
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
-#include "tpl/binary_heap_tpl.h"
 
 
 #define RECONNECTING (1)
@@ -54,6 +53,7 @@ class loadsave_t;
 class schedule_t;
 class player_t;
 class ware_t;
+template<class T> class bucket_heap_tpl;
 
 // -------------------------- Haltestelle ----------------------------
 
@@ -473,6 +473,9 @@ private:
 		inline uint16 operator * () const { return aggregate_weight; }
 	};
 
+	// open_list needs access to route_node_t
+	template<class T> friend class bucket_heap_tpl;
+
 	/* Extra data for route search */
 	struct halt_data_t
 	{
@@ -490,7 +493,7 @@ private:
 	static halt_data_t halt_data[65536];
 
 	// for efficient retrieval of the node with the smallest weight
-	static binary_heap_tpl<route_node_t> open_list;
+	static bucket_heap_tpl<route_node_t> open_list;
 
 	/**
 	 * Markers used in route searching to avoid processing the same halt more than once

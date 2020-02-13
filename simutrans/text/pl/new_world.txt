@@ -9,7 +9,7 @@ W tym oknie masz mozliwosc utworzenia nowej mapy. Mozesz przy tym korzystac z wi
 Ponizej znajduje sie lista opcji dostepnych przy tworzeniu swiata wraz z ich krotkim objasnienim .</p>
 
 <p>
-<em>Numer mapy</em> - Okresla wyglad ?wiata wraz z iloscia miast, obszarem i polozeniem wody, wzniesien itp. Dla kazdej mapy dostepny jest podglad (Podglad zmienia sie jesli ustawisz opcje dodatkowe).
+<em>Numer mapy</em> - Okre¶la wygl±d ¶wiata wraz z iloscia miast, obszarem i polozeniem wody, wzniesien itp. Dla kazdej mapy dostepny jest podglad (Podglad zmienia sie jesli ustawisz opcje dodatkowe).
 Domyslnie ustawiona jest mapa nr 33.
 <br>
 <em>Wielkosc mapy</em> - okresla wielkosc mapy w kwadratach w zakresi od 128*128 do 640*640. Domyslna wielkoscia jest 256.<br>

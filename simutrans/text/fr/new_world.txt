@@ -22,7 +22,7 @@ Cet écran vous permet de créer une nouvelle carte (donc un nouveau jeu), en défi
 <p>
 <em>Densité Trafic :</em> Densité Trafic : Trafic généré par l'ordinateur. Entre 0 et 16 (modifiable en cours de partie dans les <a href="display.txt">options</a>). Une valeur élevée représente un challenge pour gérer risques d'embouteillages et circulation de vos bus et camions. Une valeur nulle permet une circulation totalement privée.</p>
 <p>
-<em>Fabriques en dehors des villes :</em> Nombre d'usines : bâtiments autonomes comme l'éolienne, sites d?extraction de matières premières, agriculture et élevage, industries de transformation.</p>
+<em>Fabriques en dehors des villes :</em> Nombre d'usines : bâtiments autonomes comme l'éolienne, sites d'extraction de matières premières, agriculture et élevage, industries de transformation.</p>
 <p>
 <em>Marchés dans les villes :</em> Industries de vente dans les villes (supermarchés, etc.). Ces bâtiments consomment des biens (à y acheminer) pour les vendre à la population, il ne produisent aucun bien à transporter.</p>
 <p>

@@ -64,11 +64,6 @@ getSDL2mac()
 	        exit 6
 	    fi
 	fi
-	7z t "SDL2-2.0.10.dmg" || {
-	   echo "Error: file SDL2-2.0.10.dmg seems to be defective" >&2
-	   rm -f "SDL2-2.0.10.dmg"
-	   exit 5
-	}
 }
 
 # first assume unix name defaults ...
@@ -133,17 +128,23 @@ fi
 
 # now add revision number without any modificators
 # fetch language files
-if [ `expr match "$*" ".*-rev="` > "0" ]; then
-  REV_NR=$(echo $* | sed "s/.*-rev=[ ]*//" | sed "s/[^0-9]*//")
+if [ "$#" = "0"  ]; then
+  # try local answer assuming we use svn
+  REV_NR=`svnversion`
+  if [ -z "$REV_NR" ]; then
+		# nothing, then use revision number from server (assuming we are up to date)
+		REV_NR=`svn info --show-item revision svn://servers.simutrans.org/simutrans | sed "s/[0-9]*://" | sed "s/M.*//"`
+  fi
   simarchiv=$simarchivbase-$REV_NR
-elif [ "$#" = "0"  ]  ||  [ `expr match "$*" ".*-no-rev"` = "0" ]; then
-  REV_NR=`svn info --show-item revision svn://servers.simutrans.org/simutrans | sed "s/[0-9]*://" | sed "s/M.*//"`
+elif [ `expr match "$*" ".*-rev="` > 0 ]; then
+  REV_NR=$(echo $* | sed "s/.*-rev=[ ]*//" | sed "s/[^0-9]*//")
   simarchiv=$simarchivbase-$REV_NR
 else
   echo "No revision given!"
   simarchiv=$simarchivbase
 fi
 
+echo "Targeting archive $simarchiv"
 
 # (otherwise there will be many .svn included under windows)
 distribute()

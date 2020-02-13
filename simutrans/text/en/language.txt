@@ -20,5 +20,6 @@ If a translation is not available in the selected language, it may appear in Eng
 </p>
 
 <p>
-To help in translating Simutrans in your language,  
-visit http://simutranslator.simutrans-germany.com</p>
+To help in translating Simutrans in your language,  <br>
+visit https://translator.simutrans.com/
+</p>

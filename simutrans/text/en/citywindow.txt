@@ -34,8 +34,8 @@ The <em>Allow city growth</em> button allows you to toggle city growth on and of
 <em>Mini-maps</em> of the game world in <strong>City Statistics</strong> show the destinations of passengers and mail generated within the city as coloured dots.<br>
 The right hand mini-map shows values for the current game calendar month, and the left one for the last game calendar month. The colour of each dot indicates if the destination can be reached or not:<br>
 - yellow dot: there is a route and an uncrowded <a href="station.txt">stop</a> to start journey (happy face shown in Stop Information).<br>
-- orange dot: there is no route to this destination.<br>
-- red dot: there is a route to the destination, but the stop at the start of the journey was overcrowded (unhappy face in Stop Information).
+- dark orange dot: there is no route to this destination.<br>
+- orange dot: the stop at the start of the journey was overcrowded (unhappy face in Stop Information). There is no check for a route if station is overcrowded.
 </p>
 <p>
 Below the mini-maps there is a <em>graph</em> showing statistics for the city. <br>

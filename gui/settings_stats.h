@@ -11,7 +11,6 @@
 #include <math.h>
 
 #include "../tpl/vector_tpl.h"
-#include "../tpl/array_tpl.h"
 #include "../utils/cbuffer_t.h"
 
 #include "components/gui_container.h"

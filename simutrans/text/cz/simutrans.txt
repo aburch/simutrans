@@ -3,7 +3,7 @@
 <h1>O pøekladu</h1>
 
 <p>
-Pøeklad je organizován online komunitou pomocí webové aplikace - <strong>http://simutranslator.simutrans-germany.com/</strong>.<br>
+Pøeklad je organizován online komunitou pomocí webové aplikace - <strong>https://translator.simutrans.com/</strong>.<br>
 Pùvodní verze Ondøej Machulda a Jiøí Voseèek.
 </p>
 

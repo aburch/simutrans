@@ -483,7 +483,7 @@ public:
 		}
 	}
 
-	void set_hoehe(int h) { pos.z = h;}
+	void set_hoehe(sint8 h) { pos.z = h;}
 
 	// Helper functions for underground modes
 	//

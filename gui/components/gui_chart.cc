@@ -202,9 +202,12 @@ void gui_chart_t::draw(scr_coord offset)
 					display_tmp = tmp*0.01;
 					tmp /= 100;
 				}
+				else {
+					display_tmp = tmp;
+				}
 
 				// display marker(box) for financial value
-				display_fillbox_wh_clip_rgb(tmpx+factor*(chart_size.w / (x_elements - 1))*i-2, (scr_coord_val)(offset.y+baseline- (long)(tmp/(100l*scale))-2), 5, 5, c.color, true);
+				display_fillbox_wh_clip_rgb(tmpx+factor*(chart_size.w / (x_elements - 1))*i-2, (scr_coord_val)(offset.y+baseline- (long)(tmp/scale)-2), 5, 5, c.color, true);
 
 				// display tooltip?
 				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10) {

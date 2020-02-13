@@ -15,3 +15,7 @@ Proto je výhodné vybrat si jazyk je¹tì pøed generováním nové mapy, abyste v nìm 
 <p>
 -><a href="about.txt">Informace o pøekladu</a>
 </p>
+<p>
+Chcete-li pomoci s pøekladem Simutranù do va¹eho jazyka,<br>
+nav¹tivte https://translator.simutrans.com
+</p>

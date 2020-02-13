@@ -33,3 +33,6 @@ Plaziere ihn auf einer beliebigen Kachel. Editiere das sich öffnende Textfeld, b
 Bei wiederholter Plazierung des Markers auf dem gleichen Feld kannst Du dich auch für die Entfernung des Markers entscheiden.<br/>
 Ein markiertes Feld geht in das Spielereigentum über. Es bleibt Dein Eigentum, auch wenn Du den Marker wieder entfernst. So ist es möglich, Felder vor der Bebauung zu schützen.
 </p>
+<p> 
+<em> Haltepunkt verlegen: </em> Mit diesem Tool können Sie einen Halt oder Wegpunkt in den Fahrplänen aller Linien und Einzelfahrzeugen, die diesen verwenden, verschieben. Der Haltepunkt ist die rot markierte Kachel, wenn der Fahrplan geöffnet ist. Der Fahrplan des Fahrzeugs oder der Linie darf jedoch nicht geöffnet sein, sonst wird diese nicht mit verschoben. Es kann damit die Haltestelle oder auch die geplante Kachel innerhalb einer Haltestelle geändert werden. (z. B. um alle Linien von einem Bahnsteig zu einem anderen Bahnsteig eines Bahnhofs zu verschieben). Klicken Sie nach Auswahl des Werkzeugs auf den Haltepunkt oder Bahnsteig, den Sie in den Linienplänen ersetzen möchten, und dann auf den Haltepunkt oder Teil einer Haltestelle, den Sie in Zukunft verwenden möchten. Die Fahrpläne werden sofort geändert, jedoch nicht die Fahrziele der Fahrzeuge die bereits unterwegs sind. <br>
+</p>

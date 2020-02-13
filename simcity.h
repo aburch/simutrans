@@ -395,8 +395,11 @@ private:
 	 *
 	 * @author Hj. Malthaner, V. Meyer
 	 */
+
+protected:
 	bool build_road(const koord k, player_t *player_, bool forced);
 
+private:
 	void build();
 
 	/**

@@ -20,3 +20,6 @@ Visite http://translator.simutrans.com para ajuda com traduções.
 </p>
 <p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>
+<p>Para ajudar na tradução do Simutrans para o seu idioma,<br>
+visite https://translator.simutrans.com
+</p>
