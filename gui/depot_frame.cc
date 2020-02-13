@@ -699,7 +699,7 @@ void depot_frame_t::add_to_vehicle_list(const vehicle_desc_t *info)
 	if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_freight_type()==goods_manager_t::passengers  ||  info->get_freight_type()==goods_manager_t::mail)  ) {
 		electrics_vec.append(img_data);
 	}
-	// since they come "pre-sorted" for the vehikelbauer, we have to do nothing to keep them sorted
+	// since they come "pre-sorted" from the vehikelbauer, we have to do nothing to keep them sorted
 	else if(info->get_freight_type() == goods_manager_t::passengers  ||  info->get_freight_type() == goods_manager_t::mail) {
 		pas_vec.append(img_data);
 	}

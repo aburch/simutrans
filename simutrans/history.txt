@@ -2,6 +2,8 @@
 	ADD: different volumes for different sounds, realistic distance scaling (independent from screen size)
 	CHG: Fade sounds with one over square root distance, and remove the dependency from display and tile size
 	ADD: Depot list as dialog tool 32
+	FIX: city more strongly attempt to build double height bridges over navigable rivers
+	ADD: Vehicle list as dialog tool 33 (to see also upcoming vehicles)
 
 Release of 121.0 (r8870 on 1-Dec-2019):
     ADD: Map number is shown in the enlarge map window.
