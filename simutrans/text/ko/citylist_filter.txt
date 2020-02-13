@@ -6,7 +6,7 @@
 <strong>도시 목록</strong>에서는 <a href="citywindow.txt">도시지역</a>(시골, 마을, 도시)과 인구 등에 대한 정보를 볼 수 있습니다.
 </p>
 <p>
-여는 방법: <a href="list.txt">목록 관리</a> 안의 도시 목록 아이콘이나 <a href="keys.txt">[Shift+T]</a>키를 누르면 됩니다.<br><strong>도시 목록</strong>은 도시의 순서를 바꾸는 2개의 옵션 버튼이 있습니다.<br>{팁: 목록이 일부분만 보인다면, <strong>도시 목록</strong><a href="mouse.txt">창의 크기를 바꾸거나</a> 슬라이드 바를 이용하세요.}
+여는 방법: <a href="list.txt">목록 관리</a> 안의 도시 목록 아이콘이나 <a href="keys.txt">[Shift+T]</a>키를 누르면 됩니다.<br><strong>도시 목록</strong>은 도시의 순서를 바꾸는 2개의 옵션 버튼이 있습니다.<br>{팁: 목록이 일부분만 보인다면, 슬라이드 바를 이용하여 <strong>도시 목록</strong>의 크기를<a href="mouse.txt">재조정</a>하거나 바꾸세요. }
 </p>
 <p>
 <em>총인구: </em>는 게임 내의 전체 인구(모든 도시지역의 

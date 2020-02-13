@@ -1,5 +1,6 @@
 #include <string>
 #include <string.h>
+#include <stdlib.h>
 
 #ifndef _WIN32
 #	include <dirent.h>
@@ -50,7 +51,7 @@ void searchfolder_t::add_entry(const std::string &path, const char *entry, const
 void searchfolder_t::clear_list()
 {
 	FOR(vector_tpl<char*>, const i, files) {
-		guarded_free(i);
+		free(i);
 	}
 	files.clear();
 }
@@ -196,7 +197,7 @@ std::string searchfolder_t::complete(const std::string &filepath, const std::str
 searchfolder_t::~searchfolder_t()
 {
 	FOR(vector_tpl<char*>, const i, files) {
-		guarded_free(i);
+		free(i);
 	}
 	files.clear();
 }

@@ -1421,12 +1421,12 @@ static void rezoom_img(const image_id n)
 		//  we recalculate the len (since it may be larger than before)
 		// thus we have to free the old caches
 		if(  images[n].zoom_data != NULL  ) {
-			guarded_free( images[n].zoom_data );
+			free( images[n].zoom_data );
 			images[n].zoom_data = NULL;
 		}
 		for(  uint8 i = 0;  i < MAX_PLAYER_COUNT;  i++  ) {
 			if(  images[n].data[i] != NULL  ) {
-				guarded_free( images[n].data[i] );
+				free( images[n].data[i] );
 				images[n].data[i] = NULL;
 			}
 		}
@@ -2179,11 +2179,11 @@ void display_free_all_images_above( image_id above )
 	while(  above < anz_images  ) {
 		anz_images--;
 		if(  images[anz_images].zoom_data != NULL  ) {
-			guarded_free( images[anz_images].zoom_data );
+			free( images[anz_images].zoom_data );
 		}
 		for(  uint8 i = 0;  i < MAX_PLAYER_COUNT;  i++  ) {
 			if(  images[anz_images].data[i] != NULL  ) {
-				guarded_free( images[anz_images].data[i] );
+				free( images[anz_images].data[i] );
 			}
 		}
 	}
@@ -5230,10 +5230,10 @@ void simgraph_exit()
 {
 	dr_os_close();
 
-	guarded_free( tile_dirty_old );
-	guarded_free( tile_dirty );
+	free( tile_dirty_old );
+	free( tile_dirty );
 	display_free_all_images_above(0);
-	guarded_free(images);
+	free(images);
 
 	tile_dirty = tile_dirty_old = NULL;
 	images = NULL;
@@ -5262,8 +5262,8 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 			disp_width = new_width;
 			disp_height = h;
 
-			guarded_free( tile_dirty_old );
-			guarded_free( tile_dirty);
+			free( tile_dirty_old );
+			free( tile_dirty);
 
 			// allocate dirty tile flags
 			tiles_per_line = (disp_width + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;

@@ -70,12 +70,14 @@ bool loadsave_frame_t::item_action(const char *filename)
 	if(do_load) {
 		welt->switch_server( easy_server.pressed, true );
 		env_t::previous_OTRP_data = previous_OTRP.pressed;
+		long start_load = dr_time();
 		if(  !welt->load(filename)  ) {
 			welt->switch_server( false, true );
 		}
 		else if(  env_t::server  ) {
 			welt->announce_server(0);
 		}
+		DBG_MESSAGE( "loadsave_frame_t::item_action", "load world %li ms", dr_time() - start_load );
 	}
 	else {
 		// saving a game
@@ -95,11 +97,13 @@ bool loadsave_frame_t::item_action(const char *filename)
 			#define STD_SAVEGAME_VER_NR "0." QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_SAVE_MINOR)
 			env_t::savegame_version_str = STD_SAVEGAME_VER_NR;
 		}
-		welt->save( filename, loadsave_t::save_mode, env_t::savegame_version_str, false );
 		if(  save_as_standard.pressed  ) {
 			// restore savegame_version_str
 			env_t::savegame_version_str = SAVEGAME_VER_NR;
 		}
+		long start_save = dr_time();
+		welt->save( filename, loadsave_t::save_mode, env_t::savegame_version_str, false );
+		DBG_MESSAGE( "loadsave_frame_t::item_action", "save world %li ms", dr_time() - start_save );
 		welt->set_dirty();
 		welt->reset_timer();
 	}
@@ -240,7 +244,7 @@ loadsave_frame_t::~loadsave_frame_t()
 	// save hashtable
 	loadsave_t file;
 	const char *cache_file = SAVE_PATH_X "_cached.xml";
-	if(  file.wr_open(cache_file, loadsave_t::xml, "cache", SAVEGAME_VER_NR)  ) {
+	if(  file.wr_open(cache_file, loadsave_t::xml, 0, "cache", SAVEGAME_VER_NR)  ) {
 		const char *text="Automatically generated file. Do not edit. An invalid file may crash the game. Deleting is allowed though.";
 		file.rdwr_str(text);
 		FOR(stringhashtable_tpl<sve_info_t*>, const& i, cached_info) {

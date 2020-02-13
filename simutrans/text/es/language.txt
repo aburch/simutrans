@@ -17,5 +17,5 @@ en el menu opciones y en algunos de los textos del juego. Si la traduccion no es
 en el idioma seleccionado, aparecera en Ingles.
 </p>
 <p>
-Visite http://translator.simutrans.com para ayudar con la traduccion
+Visite https://translator.simutrans.com para ayudar con la traduccion
 </p>

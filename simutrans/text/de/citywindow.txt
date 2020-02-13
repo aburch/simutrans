@@ -3,51 +3,49 @@
 <h1><strong>Stadtinformation</strong></h1>
 
 <p>
-Die Stadtinformation zeigt Statistiken über die ausgewählte Stadt. Du kannst sie durch anklicken des Rathauses mit dem Abfragewerkzeug öffnen. Das anklicken des Stadtnamens in der <a href="citylist_filter.txt">Stadtliste</a> öffnet die Stadtinformation ebenfalls.
+Die Stadtinformation zeigt Statistiken über die ausgewählte Stadt. Du kannst sie durch anklicken des Rathauses mit der Lupe öffnen. Das anklicken des Stadtnamens in der <a href="citylist_filter.txt">Stadtliste</a> öffnet die Stadtinformation ebenfalls.
 </p>
 <p>
-· <em>Name der Stadt:</em> Der Stadtname wird vom Spiel vergeben. Ein Name wird per Zufall aus der <em>simutrans/text/citylist_de.txt</em> (für die deutsche Sprachauswahl) ausgewählt. Du kannst sowohl die Datei als auch den Namen der Stadt im Spiel editieren.
+· <em>Name der Stadt:</em> Hier kannst du den Stadtname ändern. Bei Stadtgründung wird ein zufälliger aus der Datei <em>pak/text/citylist_de.txt</em> gewählt.<br>
+Vom Stadtnamen werden die Haltestellennamen abgeleitet. 
 </p>
 <p>
-· <em>Größe:</em> Die Einwohnerzahl der Stadt wird angezeigt. Wächst die Stadt über pak-abhängig festgelegte Schwellenwerte hinaus, werden Fabriken bzw. Stadtattraktionen gebaut.<br/>
-· <em>Wachstumsfaktor:</em> Die Zahl in Klammern hinter der Größe gibt den derzeitigen Wachstumsfaktor an. Das maximale Wachstum ist nach Stadtgrößen gestaffelt: 2 bei weniger als 1000 Einwohnern, 4 bei Einwohnerzahlen zwischen 1001 und 10.000, 8 für größere Städte. Durch die gestaffelte Regelung bleiben Dörfer länger Dörfer.
-</p>
-<p>
+· <em>Größe:</em> Die Einwohnerzahl der Stadt wird angezeigt.<br/>
+· <em>Bevölkerungszunahme:</em> Die Zahl in Klammern hinter der Größe gibt das derzeitigen Wachstum der Bevölkerung an. <br>
+· <em>Gebäude:</em> Anzahl der Häuser in der Stadt.<br/>
 · <em>Stadtgebiet:</em> Das Gebiet der Stadt umfasst das Quadrat, welches durch die beiden Koordinatenpaare (links oben und rechts unten) gebildet wird. Innerhalb der Stadtgrenzen realisiert die Stadt ihre Bauvorhaben. Mit dem Wachstum der Stadt erweitern sich deren Grenzen. Stadtgebiete können sich überlappen.<br/>
 · Die Stadt generiert Passagiere und Post zunächst für Bebauungen entsprechend den in den Gebäudeinfofenstern angegebenen Passagier- und Postraten. Reise- und Versandziele können alle Felder der Stadtgebiete (also auch der Ausflug zu den Grünflächen der Städte), der Ausflugziele und Fabriken sein.
 </p>
 <p>
-· <em>Bautätigkeit:</em> Über die Werte der <em>Arbeits-</em>, <em>Obdachlosen-</em> und Einwohnerzahl ist die Bautätigkeit der Stadt geregelt.
+· Anzahl <em>Arbeitslose</em> und <em>Obdachlose</em> Mit diesen Werten entscheidet die Stadt ob sie baut und wenn ja, ob sie Wohnhäuser, Industrie- oder Gewerbegebäude baut.<br>
+· <em>Stadt darf wachsen:</em> Ein nicht gedrückter Knopf blockiert das Wachstums. Dann werden Häuser und Straßen nicht erneuert oder verändert. Nützlich bei manuell gebauten Städten.<br/>
 </p>
 <p>
-· <em>Passagier- und Postziele:</em> Die linke Weltkarte zeigt die Ziele für den letzten Monat, die rechte Weltkarte zeigt die Ziele für den laufenden Monat. Für jede angetretene Reise und für jede abgesandte Postsendung wird das Ziel mit einem gelben Punkt markiert. Orangene Punkte werden an die beabsichtigten Ziele platziert, wenn keine Route gefunden wurde. Das Postaufkommen ist anfänglich ungefähr 1/3 des Passagieraufkommens. Mit dem Stadtwachstum kann sich das Verhältnis ändern.
+<em>Minikarten mit Passagier- und Postziele:</em> Die beide Weltkarten zeigt die Ziele der Stadtbürger. Links für den letzten und damit für einen kompletten Monat, rechts bisher aufgelaufene Ziele im aktuellen Monat. <br>
+ - <em>gelber Punkt:</em> Für jede angetretene Reise und für jede abgesandte Postsendung wird das Ziel mit einem gelben Punkt markiert. <br>
+ - <em>Dunkel oranger Punkt:</em> Dieser wird an das beabsichtigte Ziele platziert, wenn keine Route gefunden wurde. <br>
+ - <em>Hell oranger Punkt:</em> Dieser markiert das Ziel, wenn der Passagier unglücklich ist, weil bereits die Starthaltestelle überfüllt ist. Er sucht nicht im Fahrplan nach einer Route sondern geht sofort wieder nach Hause.
 </p>
 <p>
-· <em>Statistiken:</em> Die Farben der Kurven entsprechen jenen der Statistikschalter. Werte werden je nach der Einstellung der Anzeigezeiträume jahresweise oder monatweise aufaddiert. Die neuesten Werte stehen links.<br>
+<em>Statistiken:</em> Die Farben der Kurven entsprechen jenen der Statistikschalter. Werte werden je nach der Einstellung der Anzeigezeiträume jahresweise oder monatweise aufaddiert. Die neuesten Werte stehen links. Klickt man einen Punkt der Kurve an, so wird der genaue Wert angezeigt.<br>
 · <em>Einwohner:</em> Die Entwicklung der Einwohnerzahl wird dargestellt.<br>
 · <em>Wachstum:</em> Das Bevölkerungswachstum der Stadt wird dargestellt.<br>
-· <em>Transportiert:</em> Es wird gezeigt, wieviele Passagiere und Post ihre Reise angetreten haben.<br>
-· <em>Passagiere:</em> Alle in der Stadt generierten Passagiere und Postsendungen werden angezeigt. Je näher beieinander die Graphen für "Transportiert" und "Passagiere" liegen, desto schneller wächst die Einwohnerzahl der Stadt.
+· <em>Stadtgebäude:</em> Anzahl der Stadt Gebäude in der Stadt.<br>
+· <em>Stadtautos:</em> Passagiere die nicht befördert werden, fahren mit dem eigenen Auto.<br>
+· <em>Beförderungen:</em> Anzahl Passagiere die ihre Reise angetreten haben. Das sind die lächelnden Passagiere in den Haltestellen.<br>
+· <em>zu Fuß:</em> Anzahl Passagiere die zu Fuß gehen.<br>
+· <em>Passagiere:</em> Alle Personen der Stadt die befördert werden wollen.<br>
+Je näher beieinander die Graphen für "Beförderungen" und "Passagiere" liegen, desto schneller wächst die Stadt.<br>
+· <em>abgeschickt:</em> Anzahl Postsendungen die unterwegs sind.<br>
+· <em>Wurfsendungen:</em> Anzahl Postsendungen die vom Absender zu Fuß zugestellt worden sind.<br>
+· <em>Post:</em> Alle in der Stadt anfallenden Postsendungen.<br>
+Je näher beieinander die Graphen für "abgeschickt" und "Post" liegen, desto schneller wächst die Stadt.<br>
+· <em>Angekommen:</em> Anzahl Eingangs-Lager der Fabriken die zur Stadt gehören und die Waren enthalten. Es wird bei jedem Tick gezählt.<br>
+· <em>Waren:</em> Anzahl Eingangs-Lager der Fabriken die zur Stadt gehören. <br>
+Je näher beieinander die Graphen für "Angekommen" und "Waren" liegen, desto schneller wächst die Stadt.<br>Die Eingangslager zählen für diese Stadt, wenn auch Arbeiter der Fabrik in dieser Stadt wohnen. Das wird in der erste Tab der Fabrik angezeigt.<br> 
 </p>
-<p>
-In Zusammenhang mit dem Stadtwachstum, den Arbeits- und Obdachlosenzahlen sowie der Erzeugung neuer Industrieketten tauchten des öfteren Fehlmeinungen auf. Folgende Beschreibung soll diese beseitigen:
-</p>
-<p>
-Eine neue Stadt wird gegründet. Sie erreicht eine gewisse Anzahl Einwohner.<br>
-<strong>Alle neuen Einwohner einer Stadt sind zuerst arbeitslos und obdachlos. Arbeits- und Obdachlosigkeit bekämpft die Stadt (und nur sie!) mit dem Bau von Stadtgebäuden</strong> (die Titelzeile des Infofensters ist orange); wenn die Arbeits- oder Obdachlosenzahlen über 70 steigen, entstehen allmählich neue Gebäude oder Gebäude werden durch solche mit höheren Passagierraten ersetzt. Dabei sinken die Zahlen um den Passagierlevel des neuen Gebäudes.
-</p>
-<p>
-· <em>Gebäudearten:</em> Im Stadtbereich werden 3 Gebäudetypen gebaut:<br/>
-- <em>Industrie:</em> Industriegebäude dienen als Arbeitsstätten innerhalb der Stadt. Ihr Bau oder ihre Erneuerung verringert die Arbeitslosenzahl. Ihre Postrate ist halb so gross wie ihre Passagierrate.<br/>
-- <em>Wohngebäude:</em> In den Wohngebäuden leben die Einwohner. Ihr Bau oder ihre Erneuerung verringert die Obdachlosenzahl. Ihre Postrate ist gleich der Passagierrate.<br/>
-- <em>Gewerbeobjekte:</em> Zu den Gewerbeobjekten zählen u.a. Ladengeschäfte, Lokale, Freizeiteinrichtungen und Bürogebäude. Die Gebäude sind oft auch mit Wohnungen kombiniert. Ihr Bau oder ihre Erneuerung verringert sowohl die Arbeitslosen- wie Obdachlosenzahl. Ihre Postrate ist doppelt so hoch wie ihre Passagierrate.
-</p>
-<p>
-<em>Nun bist Du als Spieler gefragt:</em> Erschliesse die Stadt mit dem öffentlichen Verkehr für Personen und Post. <strong>Je grösser das Verhältnis von zufriedenen zu generierten Passagieren (und Post) ist, desto schneller wachsen die Städte.</strong> Und je schneller sie wachsen, desto schneller steigen Arbeits- und Obdachlosenzahlen an, und desto schneller muss die Stadt wieder bauen, und umso mehr Kunden wollen Deinen Service nutzen. Ein Trugschluss ist es, mit der Beförderung von Arbeitern zu einer Fabrik die Arbeitslosigkeit senken zu wollen, im Gegenteil: Viele Passagiere werden zufrieden, und über das beschleunigte Wachstum steigen die Arbeitslosenzahlen sogar noch schneller an!
-</p>
-<p>
-<strong>Wächst die Stadt über gewisse Schwellenwerte hinaus, werden zusätzlich weitere Gebäudetypen gebaut:</strong><br/>
-· <em>Öffentliche Gebäude:</em> Für die Errichtung von öffentlichen Gebäuden wie grössere Rathäuser, Denkmäler und Stadtattraktionen sind die Schwellenwerte in den paks festgelegt, ebenso eine Wahrscheinlichkeit, mit der die Attraktion gebaut wird.<br>
-· <em>Industrieketten/Fabriken:</em> Grundsätzlich kannst Du den Bau von Industrien zulassen oder verhindern sowie erreichte Bevölkerungszahlen für die Generierungen festlegen. Editiere dazu in der <em>simutrans/config/cityrules.tab</em> die Variable <em>industry_increase_every</em>. Setzt Du den Wert auf 0, werden keine Industrien generiert.<br>
-<strong>Die Errichtung dieser Gebäudetypen hat ebenfalls keine Auswirkung auf die Arbeits- oder Obdachlosenzahl.</strong>
+<p><em>Stadtwachstum:</em><br>
+Nun bist Du als Spieler gefragt: Erschließe die Stadt mit dem öffentlichen Verkehr für Personen und Post. Versorge die Märkte mit Waren.<br>
+Ohne Versorgung kein Wachstum in der Stadt.<br>
+<a href="citygrowth.txt">Detaillierte Informationen zum Stadtwachstum findest du hier</a>
 </p>

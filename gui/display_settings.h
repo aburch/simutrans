@@ -26,7 +26,7 @@ private:
 		simloops_value_label;
 public:
 	gui_settings_t();
-	virtual void draw( scr_coord offset ) override;
+	virtual void draw( scr_coord offset ) OVERRIDE;
 };
 
 class map_settings_t : public gui_aligned_container_t, public action_listener_t
@@ -37,7 +37,7 @@ public:
 		brightness,
 		scrollspeed;
 	map_settings_t();
-	virtual bool action_triggered( gui_action_creator_t *comp, value_t v ) override;
+	virtual bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
 };
 
 class station_settings_t : public gui_aligned_container_t

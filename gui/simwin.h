@@ -62,7 +62,7 @@ enum magic_numbers {
 	magic_UNUSED_listtools,
 	magic_UNUSED_edittools,
 	magic_UNUSED_slopetools,
-	magic_halt_list_t,
+	magic_UNUSED_halt_list_t,
 	magic_UNUSED_label_frame,
 	magic_city_info_t,
 	magic_citylist_frame_t,
@@ -110,7 +110,10 @@ enum magic_numbers {
 	magic_script_error=magic_toolbar+256,
 	magic_haltlist_filter,
 	magic_depot, // only used to load/save
-	magic_max
+	magic_depolist,
+	// new magic numbers
+	magic_halt_list_t = magic_depolist + MAX_PLAYER_COUNT,
+	magic_max = magic_halt_list_t + MAX_PLAYER_COUNT
 };
 
 // Holding time for auto-closing windows

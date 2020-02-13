@@ -1273,7 +1273,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 
 	// restore previous sound settings ...
 	sound_set_shuffle_midi( env_t::shuffle_midi!=0 );
-	sound_set_mute(  env_t::mute_sound  ||  sound_get_mute() );
+	sound_set_mute(  env_t::global_mute_sound  ||  sound_get_mute() );
 	midi_set_mute(  env_t::mute_midi  ||  midi_get_mute() );
 	sound_set_global_volume( env_t::global_volume );
 	sound_set_midi_volume( env_t::midi_volume );
@@ -1485,7 +1485,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 
 	// save setting ...
 	dr_chdir( env_t::user_dir );
-	if(  file.wr_open("settings.xml",loadsave_t::xml,"settings only/",SAVEGAME_VER_NR)  ) {
+	if(  file.wr_open("settings.xml",loadsave_t::xml,0,"settings only/",SAVEGAME_VER_NR)  ) {
 		env_t::rdwr(&file);
 		env_t::default_settings.rdwr(&file);
 		file.close();

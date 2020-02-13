@@ -64,8 +64,10 @@ std::string env_t::nickname = "";
 const char *env_t::language_iso = "en";
 sint16 env_t::scroll_multi = -1; // start with same scrool as mouse as nowadays standard
 sint16 env_t::global_volume = 127;
+uint32 env_t::sound_distance_scaling;
 sint16 env_t::midi_volume = 127;
-bool env_t::mute_sound = false;
+uint16 env_t::specific_volume[MAX_SOUND_TYPES];
+bool env_t::global_mute_sound = false;
 bool env_t::mute_midi = false;
 bool env_t::shuffle_midi = true;
 sint16 env_t::window_snap_distance = 8;
@@ -236,6 +238,8 @@ void env_t::init()
 	num_threads = 1;
 #endif
 
+	sound_distance_scaling = 10;
+
 	show_tooltips = true;
 	tooltip_color_rgb = 0x3964D0; // COL_SOFT_BLUE
 	tooltip_textcolor_rgb = 0x000000; // COL_BLACK
@@ -256,9 +260,12 @@ void env_t::init()
 	// midi/sound option
 	global_volume = 127;
 	midi_volume = 127;
-	mute_sound = false;
+	global_mute_sound = false;
 	mute_midi = false;
 	shuffle_midi = true;
+	for( int i = 0; i < MAX_SOUND_TYPES; i++ ) {
+		specific_volume[ i ] = 255;
+	}
 
 	left_to_right_graphs = false;
 
@@ -392,7 +399,12 @@ void env_t::rdwr(loadsave_t *file)
 
 	file->rdwr_short( global_volume );
 	file->rdwr_short( midi_volume );
-	file->rdwr_bool( mute_sound );
+	file->rdwr_bool( global_mute_sound );
+	if(  file->is_version_atleast( 121, 1 )  ) {
+		for( int i = 0; i <= 5; i++ ) {
+			file->rdwr_short( specific_volume[ i ] );
+		}
+	}
 	file->rdwr_bool( mute_midi );
 	file->rdwr_bool( shuffle_midi );
 
@@ -490,6 +502,11 @@ void env_t::rdwr(loadsave_t *file)
 	if (file->is_version_atleast(120, 9)) {
 		file->rdwr_byte(follow_convoi_underground);
 	}
+
+	if (file->is_version_atleast(121, 1)) {
+		file->rdwr_long(sound_distance_scaling);
+	}
+	
 	// server settings are not saved, since they are server specific
 	// and could be different on different servers on the same computers
 }

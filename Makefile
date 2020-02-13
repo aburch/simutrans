@@ -12,6 +12,7 @@ ALLEGRO_CONFIG  ?= allegro-config
 SDL_CONFIG      ?= sdl-config
 SDL2_CONFIG     ?= sdl2-config
 FREETYPE_CONFIG ?= freetype-config
+#FREETYPE_CONFIG ?= pkg-config freetype2
 
 BACKENDS      = allegro gdi sdl sdl2 mixer_sdl mixer_sdl2 posix
 COLOUR_DEPTHS = 0 16
@@ -47,7 +48,7 @@ else ifeq ($(OSTYPE),mingw)
     CFLAGS  += -static
     LDFLAGS += -static-libgcc -static-libstdc++ -static
   endif
-  LDFLAGS   += -pthread -Wl,--large-address-aware
+  LDFLAGS   += -pthread -Wl,--large-address-aware -Wno-deprecated-copy
   SOURCES   += simsys_w32_png.cc
   CFLAGS    += -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
   LIBS      += -lmingw32 -lgdi32 -lwinmm -lws2_32 -limm32
@@ -158,6 +159,11 @@ ifdef USE_UPNP
   endif
 endif
 
+ifeq ($(shell expr $(USE_ZSTD) \>= 1), 1)
+  FLAGS      += -DUSE_ZSTD
+  LDFLAGS     += -lzstd
+endif
+
 ifeq ($(shell expr $(PROFILE) \>= 1), 1)
   CFLAGS   += -pg -DPROFILE
   ifeq ($(shell expr $(PROFILE) \>= 2), 1)
@@ -184,6 +190,9 @@ ifdef WITH_REVISION
       REV = $(WITH_REVISION)
     else
       REV = $(shell svnversion)
+    endif
+    ifeq ($(shell expr $(WITH_REVISION) \<= 1), 1)
+      REV = $(shell svn info --show-item revision svn://servers.simutrans.org/simutrans | sed "s/[0-9]*://" | sed "s/M.*//")
     endif
 
     ifneq ($(REV),)
@@ -328,6 +337,7 @@ SOURCES += gui/curiosity_edit.cc
 SOURCES += gui/curiositylist_frame_t.cc
 SOURCES += gui/curiositylist_stats_t.cc
 SOURCES += gui/depot_frame.cc
+SOURCES += gui/depotlist_frame.cc
 SOURCES += gui/display_settings.cc
 SOURCES += gui/enlarge_map_frame_t.cc
 SOURCES += gui/extend_edit.cc
@@ -605,8 +615,8 @@ ifeq ($(BACKEND),sdl2)
 
   ifeq ($(SDL2_CONFIG),)
     ifeq ($(OSTYPE),mac)
-      SDL_CFLAGS  := -I/Library/Frameworks/SDL2.framework/Headers
-      SDL_LDFLAGS := -framework SDL2
+      SDL_CFLAGS  := -F /Library/Frameworks -I/Library/Frameworks/SDL2.framework/Headers 
+      SDL_LDFLAGS := -framework SDL2 -F /Library/Frameworks -I /Library/Frameworks/SDL2.framework/Headers 
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL2 -Dmain=SDL_main
       SDL_LDFLAGS := -lSDL2main -lSDL2
@@ -627,8 +637,8 @@ ifeq ($(BACKEND),mixer_sdl2)
   SOURCES += simsys_s2.cc
   ifeq ($(SDL2_CONFIG),)
     ifeq ($(OSTYPE),mac)
-      SDL_CFLAGS  := -I/Library/Frameworks/SDL2.framework/Headers
-      SDL_LDFLAGS := -framework SDL2
+      SDL_CFLAGS  := -F /Library/Frameworks -I/Library/Frameworks/SDL2.framework/Headers 
+      SDL_LDFLAGS := -framework SDL2 -F /Library/Frameworks -I /Library/Frameworks/SDL2.framework/Headers 
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL2 -Dmain=SDL_main
       SDL_LDFLAGS := -lSDL2main -lSDL2

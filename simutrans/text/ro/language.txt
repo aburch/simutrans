@@ -13,3 +13,7 @@ prima datã trebuie selectat limba românã, dupã care trebuie creat o nouã hartã.
 <p>
 Pt. eventuale alte traduceri vizitaþi: <strong>www.simutrans.de sau 128.simutrans.com</strong>
 </p>
+<p>
+Pentru a ajuta la traducerea Simutrans în limba dvs.,<br>
+vizitati https://translator.simutrans.com
+</p>

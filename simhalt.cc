@@ -59,6 +59,8 @@
 #include "utils/simrandom.h"
 #include "utils/simstring.h"
 
+#include "tpl/binary_heap_tpl.h"
+
 #include "vehicle/simpeople.h"
 
 karte_ptr_t haltestelle_t::welt;
@@ -1357,10 +1359,104 @@ sint8 haltestelle_t::is_connected(halthandle_t halt, uint8 catg_index) const
 
 
 /**
+ * Helper class that combines a vector_tpl
+ * with WEIGHT_HEAP elements and a binary_heap_tpl.
+ * If inserted node has weight less than WEIGHT_HEAP,
+ * then node is inserted in one of the vectors.
+ * If weight is larger, then node goes into the heap.
+ *
+ * WEIGHT_HEAP = 200 should be safe for even the largest games.
+ */
+template<class T> class bucket_heap_tpl
+{
+#define WEIGHT_HEAP (200)
+	vector_tpl<T> *buckets;  ///< array of vectors
+	binary_heap_tpl<T> heap; ///< the heap
+
+	uint16 min_weight; ///< current min_weight of nodes in the buckets
+	uint32 node_count; ///< total count of nodes
+public:
+	bucket_heap_tpl() : heap(128)
+	{
+		min_weight = WEIGHT_HEAP;
+		node_count = 0;
+		buckets = new vector_tpl<T> [WEIGHT_HEAP];
+	}
+
+	~bucket_heap_tpl()
+	{
+		delete [] buckets;
+	}
+
+	void insert(const T item)
+	{
+		node_count++;
+		uint16 weight = *item;
+
+		if (weight < WEIGHT_HEAP) {
+			if (weight < min_weight) {
+				min_weight = weight;
+			}
+			buckets[weight].append(item);
+		}
+		else {
+			heap.insert(item);
+		}
+	}
+
+	T pop()
+	{
+		assert(!empty());
+		node_count--;
+
+		if (min_weight < WEIGHT_HEAP) {
+			T ret = buckets[min_weight].pop_back();
+
+			while(min_weight < WEIGHT_HEAP  &&  buckets[min_weight].empty()) {
+				min_weight++;
+			}
+			return ret;
+		}
+		else {
+			return heap.pop();
+		}
+	}
+
+	void clear()
+	{
+		for(uint16 i=min_weight; i<WEIGHT_HEAP; i++) {
+			buckets[i].clear();
+		}
+		min_weight = WEIGHT_HEAP;
+		node_count = 0;
+
+		heap.clear();
+	}
+
+	uint32 get_count() const
+	{
+		return node_count;
+	}
+
+	const T& front()
+	{
+		assert(!empty());
+		if (min_weight < WEIGHT_HEAP) {
+			return buckets[min_weight].back();
+		}
+		else {
+			return heap.front();
+		}
+	}
+
+	bool empty() const { return node_count == 0; }
+};
+
+/**
  * Data for route searching
  */
 haltestelle_t::halt_data_t haltestelle_t::halt_data[65536];
-binary_heap_tpl<haltestelle_t::route_node_t> haltestelle_t::open_list;
+bucket_heap_tpl<haltestelle_t::route_node_t> haltestelle_t::open_list;
 uint8 haltestelle_t::markers[65536];
 uint8 haltestelle_t::current_marker = 0;
 /**
@@ -2584,7 +2680,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 		capacity[0] = 0;
 		capacity[1] = 0;
 		capacity[2] = 0;
-		enables &= CROWDED;	// clear flags
+		enables = 0;
 		station_type = invalid;
 	}
 
@@ -2688,7 +2784,7 @@ void haltestelle_t::recalc_station_type()
 	capacity[0] = 0;
 	capacity[1] = 0;
 	capacity[2] = 0;
-	enables &= CROWDED;	// clear flags
+	enables = 0;
 	station_type = invalid;
 
 	// iterate over all tiles
@@ -3041,7 +3137,7 @@ void haltestelle_t::recalc_status()
 			const uint32 ware_sum = get_ware_summe(wtyp);
 			total_sum += ware_sum;
 			if(ware_sum>max_ware) {
-				status_bits |= ware_sum > max_ware + 32 /*|| enables & CROWDED*/ ? 2 : 1; // for now report only serious overcrowding on transfer stops
+				status_bits |= ware_sum > max_ware + 32 ? 2 : 1; // for now report only serious overcrowding on transfer stops
 				overcrowded[wtyp->get_index()/8] |= 1<<(wtyp->get_index()%8);
 			}
 		}

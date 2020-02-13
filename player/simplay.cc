@@ -130,7 +130,7 @@ void player_t::add_money_message(const sint64 amount, const koord pos)
 
 			// and same for sound too ...
 			if(  amount>=10000  &&  !welt->is_fast_forward()  ) {
-				welt->play_sound_area_clipped(pos, SFX_CASH);
+				welt->play_sound_area_clipped(pos, SFX_CASH, CASH_SOUND );
 			}
 		}
 	}
@@ -909,12 +909,12 @@ void player_t::tell_tool_result(tool_t *tool, koord3d, const char *err)
 	if (welt->get_active_player()==this) {
 		if(err==NULL) {
 			if(tool->ok_sound!=NO_SOUND) {
-				sound_play(tool->ok_sound);
+				sound_play(tool->ok_sound,255,TOOL_SOUND);
 			}
 		}
 		else if(*err!=0) {
 			// something went really wrong
-			sound_play(SFX_FAILURE);
+			sound_play( SFX_FAILURE, 255, TOOL_SOUND );
 			// look for coordinate in error message
 			// syntax: either @x,y or (x,y)
 			open_error_msg_win(err);

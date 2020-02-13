@@ -1,4 +1,9 @@
-Release of 121.1 (r8870 on 1-Dec-2019):
+	FIX: Rotation of multi-tile buildings at street corners
+	ADD: different volumes for different sounds, realistic distance scaling (independent from screen size)
+	CHG: Fade sounds with one over square root distance, and remove the dependency from display and tile size
+	ADD: Depot list as dialog tool 32
+
+Release of 121.0 (r8870 on 1-Dec-2019):
     ADD: Map number is shown in the enlarge map window.
     FIX: Text area GUI components no longer suffer from line wrap around when displaying an extreme number of lines.
     FIX: Stop information window waiting list in "via (amount)" order will no longer count incorrectly when more than 8,388,607 units are headed to a single destination.

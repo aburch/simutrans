@@ -2953,6 +2953,9 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 				if(  max_layout > 3  &&  ((largest_2nd_dir-largest_dir)==1  ||  (largest_2nd_dir-largest_dir)==3)  ) {
 					// corner cases: only roads on two sides
 					if(  streetdir[0]<0  &&  streetdir[1]<0  ) {
+						rotation = 6;
+					}
+					else if(  streetdir[1]<0  &&  streetdir[2]<0  ) {
 						rotation = 7;
 					}
 					else if(  streetdir[2]<0  &&  streetdir[3]<0  ) {
@@ -2960,9 +2963,6 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h, koord
 					}
 					else if(  streetdir[3]<0  &&  streetdir[0]<0  ) {
 						rotation = 5;
-					}
-					else if(  streetdir[0]<0  &&  streetdir[1]<0  ) {
-						rotation = 6;
 					}
 					// some valid found?
 					if(  rotation >=0  &&  h->get_x(rotation) <= maxarea.x  &&  h->get_y(rotation) <= maxarea.y  ) {
@@ -3657,7 +3657,38 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 					// try to find shortest possible
 					end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
 				}
-				if((err==NULL||*err == 0)  &&   koord_distance( k, end.get_2d())<=3  &&  welt->is_within_limits((end+zv).get_2d())) {
+				// if the river is nagigable, we need a two hight slope, so we have to start on a flat tile
+				if(  err  &&  *err!=0  &&  strcmp(err,"Bridge is too long for this type!\n")!=0  &&  bd->get_weg_hang()!=slope_t::flat    ) {
+					slope_t::type old_slope = bd->get_grund_hang();
+					sint8 h_diff = slope_t::max_diff( old_slope );
+					// raise up the tile
+					bd->set_grund_hang( slope_t::flat );
+					bd->set_hoehe( bd->get_hoehe() + h_diff );
+					end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, false);
+					if(err  ||   koord_distance( k, end.get_2d())>3) {
+						// try to find shortest possible
+						end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
+					}
+					// not successful: restore old slope
+					if( err  &&  *err != 0 ||  end==koord3d::invalid  || koord_distance( k, end.get_2d())>5 ) {
+						bd->set_grund_hang( old_slope );
+						bd->set_hoehe( bd->get_hoehe() - h_diff );
+					}
+					else {
+						// update slope graphics on tile and tile in front
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 0, 1 ) ) ) { 
+							bd_recalc->check_update_underground();
+						}
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 0 ) ) ) { 
+							bd_recalc->check_update_underground();
+						}
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 1 ) ) ) { 
+							bd_recalc->check_update_underground();
+						}
+						bd->mark_image_dirty();
+					}
+				}
+				if((err==NULL||*err == 0)  &&   koord_distance( k, end.get_2d())<=5  &&  welt->is_within_limits((end+zv).get_2d())) {
 					bridge_builder_t::build_bridge(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
 					// try to build one connecting piece of road
 					build_road( (end+zv).get_2d(), NULL, false);

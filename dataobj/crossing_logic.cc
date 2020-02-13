@@ -159,7 +159,7 @@ void crossing_logic_t::set_state( crossing_state_t new_state )
 {
 	// play sound (if there and closing)
 	if(new_state==CROSSING_CLOSED  &&  desc->get_sound()>=0  &&  !welt->is_fast_forward()) {
-		welt->play_sound_area_clipped(crossings[0]->get_pos().get_2d(), desc->get_sound());
+		welt->play_sound_area_clipped(crossings[0]->get_pos().get_2d(), desc->get_sound(), CROSSING_SOUND );
 	}
 
 	if(new_state!=state) {

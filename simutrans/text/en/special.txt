@@ -57,3 +57,6 @@ To remove a Sign: click on <em>Make a Sign
 To close Make a Sign controls: click on x in top-left-corner of controls; or click on<em>Cancel</em>; or use keyboard.<br>
 {Tips: Map co-ordinates of cursors can be seen on right of bottom-bar under game-view. Use [!] to toggle texts of signs in game-view.}
 </p>
+<p>
+<em>Replace a stop:</em> This tool can be used to replace a stop in the schedules of all of the convoys and lines that use it. It can also be used to change the scheduled tile within a stop (for example, to move all the lines to a different platform of a railway station). After selecting the tool, click on the stop (or part of a stop) that you wish to remove from the schedules and then on the stop (or part of a stop) that you wish to use in future. All the convoys that previously used the first stop will now use the second stop. Depending on the setup of your schedules, there may be some disruption to convoys travelling to the first stop at the moment of the change.<br>
+</p>

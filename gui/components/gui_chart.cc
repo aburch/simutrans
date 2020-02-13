@@ -188,6 +188,7 @@ void gui_chart_t::draw(scr_coord offset)
 	// draw chart's curves
 	FOR(slist_tpl<curve_t>, const& c, curves) {
 		if (c.show) {
+			double display_tmp;
 			// for each curve iterate through all elements and display curve
 			for (int i=0;i<c.elements;i++) {
 
@@ -195,16 +196,22 @@ void gui_chart_t::draw(scr_coord offset)
 				// Knightly : convert value where necessary
 				if(  c.convert  ) {
 					tmp = c.convert(tmp);
+					display_tmp = tmp;
 				}
 				else if(  c.type!=0  ) {
+					display_tmp = tmp*0.01;
 					tmp /= 100;
 				}
+				else {
+					display_tmp = tmp;
+				}
+
 				// display marker(box) for financial value
-				display_fillbox_wh_clip_rgb(tmpx+factor*(chart_size.w / (x_elements - 1))*i-2, (scr_coord_val)(offset.y+baseline- (int)(tmp/scale)-2), 5, 5, c.color, true);
+				display_fillbox_wh_clip_rgb(tmpx+factor*(chart_size.w / (x_elements - 1))*i-2, (scr_coord_val)(offset.y+baseline- (long)(tmp/scale)-2), 5, 5, c.color, true);
 
 				// display tooltip?
 				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10) {
-					number_to_string(tooltip, (double)tmp, c.precision);
+					number_to_string(tooltip, display_tmp, c.precision);
 					if (c.suffix) {
 						strcat(tooltip, c.suffix);
 					}
@@ -223,7 +230,7 @@ void gui_chart_t::draw(scr_coord offset)
 					// for the first element print the current value (optionally)
 					// only print value if not too narrow to min/max/zero
 					if(  c.show_value  ) {
-						number_to_string_fit(cmin, (double)tmp, c.precision, maximum_axis_len - (c.suffix != NULL) );
+						number_to_string_fit(cmin, display_tmp, c.precision, maximum_axis_len - (c.suffix != NULL) );
 						if (c.suffix) {
 							strcat(cmin, c.suffix);
 						}
@@ -248,7 +255,7 @@ void gui_chart_t::draw(scr_coord offset)
 void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, char *cmax, int maximum_axis_len) const
 {
 	sint64 tmp=0;
-	sint64 min = 0, max = 0;
+	double min = 0, max = 0;
 	const char* min_suffix = NULL;
 	const char* max_suffix = NULL;
 	int precision = 0;
@@ -263,6 +270,7 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 				}
 				else if(  c.type!=0  ) {
 					tmp /= 100;
+					precision = 0;
 				}
 				if (min > tmp) {
 					min = tmp ;
@@ -278,6 +286,11 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 		}
 	}
 
+	// max happend due to rounding errors
+	if( precision == 0   &&  min == max ) {
+		max += 1;
+	}
+
 	number_to_string_fit(cmin, (double)min, precision, maximum_axis_len-(min_suffix != 0) );
 	number_to_string_fit(cmax, (double)max, precision, maximum_axis_len-(max_suffix != 0) );
 	if(  min_suffix  ) {
@@ -288,13 +301,13 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 	}
 
 	// scale: factor to calculate money with, to get y-pos offset
-	*scale = (float)(max - min) / (size.h-2-4-LINESPACE-(LINESPACE/2));
+	*scale = (double)(max - min) / (size.h-2-4-LINESPACE-(LINESPACE/2));
 	if(*scale==0.0) {
 		*scale = 1.0;
 	}
 
 	// baseline: y-pos for the "zero" line in the chart
-	*baseline = (sint64)(size.h-2-4-LINESPACE-(LINESPACE/2) - abs((int)(min / *scale )));
+	*baseline = (sint64)(size.h-2-4-LINESPACE-(LINESPACE/2) - labs((sint64)(min / *scale )));
 }
 
 

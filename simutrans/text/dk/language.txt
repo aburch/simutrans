@@ -45,3 +45,8 @@ Disse oversættelser er dog ikke altid fuldstændige og up-to-date.
 <p>
 En anden mulighed ville selvfølgelig være, at du selv lavede en oversættelse ;-)
 </p>
+
+<p>
+For at hjælpe med at oversætte Simutrans på dit sprog,<br>
+besøg https://translator.simutrans.com
+</p>

@@ -7016,10 +7016,6 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 						cost = t->get_desc()->get_maintenance();
 					}
 					workcost -= welt->scale_with_month_length(cost * welt->get_settings().cst_make_public_months);
-					// not making ways public on bridges
-					if(  i.grund->get_typ()==grund_t::brueckenboden  ) {
-						return NOTICE_UNSUITABLE_GROUND;
-					}
 				}
 			}
 		}

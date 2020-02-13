@@ -19,4 +19,4 @@ Je¿eli t³umaczenie zawiera b³êdy, niektóre teksty mog± wy¶wietlaæ siê w jêzyku a
 </p>
 
 <p>
-Je¿eli chcesz pomóc w t³umaczeniu gry, odwied¼ stronê <strong>SimuTranslator</strong> - http://simutranslator.simutrans-germany.com <br/> Pamiêtaj, ka¿da pomoc siê przyda!</p>
+Je¿eli chcesz pomóc w t³umaczeniu gry, odwied¼ stronê <strong>SimuTranslator</strong> - https://translator.simutrans.com <br/> Pamiêtaj, ka¿da pomoc siê przyda!</p>

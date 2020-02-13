@@ -1452,6 +1452,12 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	else if(strcmp(str, "xml_bzip2") == 0) {
 		loadsave_t::set_savemode(loadsave_t::xml_bzip2 );
 	}
+	else if(strcmp(str, "zstd") == 0) {
+		loadsave_t::set_savemode(loadsave_t::zstd );
+	}
+	else if(strcmp(str, "xml_zstd") == 0) {
+		loadsave_t::set_savemode(loadsave_t::xml_zstd );
+	}
 
 	str = contents.get("autosaveformat" );
 	while (*str == ' ') str++;
@@ -1473,6 +1479,15 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	else if(strcmp(str, "xml_bzip2") == 0) {
 		loadsave_t::set_autosavemode(loadsave_t::xml_bzip2 );
 	}
+	else if(strcmp(str, "zstd") == 0) {
+		loadsave_t::set_autosavemode(loadsave_t::zstd );
+	}
+	else if(strcmp(str, "xml_zstd") == 0) {
+		loadsave_t::set_autosavemode(loadsave_t::xml_zstd );
+	}
+
+	loadsave_t::save_level = contents.get_int("save_level", loadsave_t::save_level );
+	loadsave_t::autosave_level = contents.get_int("autosave_level", loadsave_t::autosave_level );
 
 	/*
 	 * Default resolution

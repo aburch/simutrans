@@ -83,7 +83,7 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 		// init the rest of the packet
 		SOCKET s = packet->get_sender();
 		loadsave_t fd;
-		if(  fd.wr_open( "serverinfo.sve", loadsave_t::xml_bzip2, "info", SERVER_SAVEGAME_VER_NR )  ) {
+		if(  fd.wr_open( "serverinfo.sve", loadsave_t::xml_bzip2, 0, "info", SERVER_SAVEGAME_VER_NR )  ) {
 			gameinfo_t gi(welt);
 			gi.rdwr( &fd );
 			fd.close();
@@ -691,7 +691,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		bool old_restore_UI = env_t::restore_UI;
 		env_t::restore_UI = true;
 
-		welt->save( fn, loadsave_t::autosave_mode, SERVER_SAVEGAME_VER_NR, false );
+		welt->save( fn, true, SERVER_SAVEGAME_VER_NR, false );
 		uint32 old_sync_steps = welt->get_sync_steps();
 		welt->load( fn );
 		env_t::restore_UI = old_restore_UI;
@@ -711,7 +711,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		// first save password hashes
 		sprintf( fn, "server%d-pwdhash.sve", env_t::server );
 		loadsave_t file;
-		if(file.wr_open(fn, loadsave_t::zipped, "hashes", SAVEGAME_VER_NR )) {
+		if(file.wr_open(fn, loadsave_t::zipped, 1, "hashes", SAVEGAME_VER_NR )) {
 			welt->rdwr_player_password_hashes( &file );
 			file.close();
 		}
@@ -733,7 +733,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		sprintf( fn, "server%d-network.sve", env_t::server );
 		bool old_restore_UI = env_t::restore_UI;
 		env_t::restore_UI = true;
-		welt->save( fn, loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, false );
+		welt->save( fn, false, SERVER_SAVEGAME_VER_NR, false );
 
 		// ok, now sending game
 		// this sends nwc_game_t
