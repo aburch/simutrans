@@ -441,6 +441,8 @@ private_car_t::private_car_t(loadsave_t *file) :
 	if(desc) {
 		welt->sync.add(this);
 	}
+	time_at_last_hop = welt->ticks_to_seconds(welt->get_ticks());
+	dist_travelled_since_last_hop = 0;
 }
 
 
@@ -461,6 +463,8 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 	calc_image();
 	origin = gr ? gr->get_pos().get_2d() : koord::invalid;
 	last_tile_marked_as_stopped = koord3d::invalid;
+	time_at_last_hop = welt->ticks_to_seconds(welt->get_ticks());
+	dist_travelled_since_last_hop = 0;
 }
 
 
@@ -478,16 +482,16 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 		if (ms_traffic_jam >= 1000)
 		{
 			// If stopped for long enough, mark the tile as congested
-			if (get_pos() != last_tile_marked_as_stopped)
-			{
-				grund_t* const gr_this = welt->lookup(get_pos());
-				weg_t* const way = gr_this ? gr_this->get_weg(road_wt) : NULL;
-				last_tile_marked_as_stopped = get_pos();
-				if (way)
-				{
-					way->increment_traffic_stopped_counter();
-				}
-			}
+			//if (get_pos() != last_tile_marked_as_stopped)
+			//{
+				//grund_t* const gr_this = welt->lookup(get_pos());
+				//weg_t* const way = gr_this ? gr_this->get_weg(road_wt) : NULL;
+				//last_tile_marked_as_stopped = get_pos();
+				//if (way)
+				//{
+					//way->increment_traffic_stopped_counter();
+				//}
+			//}
 		}
 		// check only every 1.024 s if stopped
 		if(  (ms_traffic_jam>>10) != (old_ms_traffic_jam>>10)  ) {
@@ -520,6 +524,7 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 			weg_next += current_speed * delta_t;
 		}
 		const uint32 distance = do_drive( weg_next );
+		dist_travelled_since_last_hop += (distance * welt->get_settings().get_meters_per_tile()) >> YARDS_PER_TILE_SHIFT;
 		// hop_check could have set weg_next to zero, check for possible underflow here
 		if (weg_next > distance) {
 			weg_next -= distance;
@@ -622,6 +627,9 @@ void private_car_t::rdwr(loadsave_t *file)
 
 	// do not start with zero speed!
 	current_speed ++;
+
+	time_at_last_hop = welt->ticks_to_seconds(welt->get_ticks());
+	dist_travelled_since_last_hop = 0;
 }
 
 
@@ -958,7 +966,6 @@ void private_car_t::enter_tile(grund_t* gr)
 	get_weg()->book(1, WAY_STAT_CONVOIS);
 }
 
-
 grund_t* private_car_t::hop_check()
 {
 	// TODO: Consider multi-threading this. This only ultimately
@@ -1208,6 +1215,7 @@ grund_t* private_car_t::hop_check()
 
 void private_car_t::hop(grund_t* to)
 {
+
 	// Check whether this private car should pay a road toll.
 
 	//weg_t* const way = get_weg(); // Occasionally, the way returned here was corrupt (possibly deleted)
@@ -1224,6 +1232,32 @@ void private_car_t::hop(grund_t* to)
 			player->book_toll_received(toll, road_wt);
 		}
 	}
+
+	sint64 time_now = welt->ticks_to_seconds(welt->get_ticks());
+	grund_t* gr = get_grund();
+	if(gr)
+	{
+		strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
+		if(str)
+		{
+			//uint32 dist_travelled_meters = welt->get_settings().get_meters_per_tile() * (dist_travelled_since_last_hop) / 256;
+			uint32 dist_travelled_meters = dist_travelled_since_last_hop;
+			uint32 travel_time_actual = time_now - time_at_last_hop;
+			uint32 travel_time_ideal = seconds_from_meters_and_kmh(dist_travelled_meters, min(speed_to_kmh(get_desc()->get_topspeed()), str->get_max_speed()));
+			travel_time_ideal = travel_time_ideal ? : travel_time_ideal + 1;
+			travel_time_actual = travel_time_actual ? : travel_time_actual + 1;
+			if(travel_time_actual < travel_time_ideal)
+			{
+				fprintf(stderr, "%d actual, %d ideal on a %dkm/h %s. Entered at %d seconds, now leaving at %d seconds. %dm done, going at %dkm/h.\n", travel_time_actual, travel_time_ideal, str->get_max_speed(), str->is_junction() ? "junction" : "road", time_at_last_hop, time_now, dist_travelled_meters, speed_to_kmh(current_speed));
+			}
+			//fprintf(stderr, "%d actual, %d ideal on a %dkm/h %s. Entered at %d seconds, now leaving at %d seconds. %d done, going at %dkm/h.\n", travel_time_actual, travel_time_ideal, str->get_max_speed(), str->is_junction() ? "junction" : "road", time_at_last_hop, time_now, dist_travelled_meters, speed_to_kmh(current_speed));
+			str->update_travel_times(travel_time_actual, travel_time_ideal);
+		}
+	}
+	
+	time_at_last_hop = time_now;
+	//fprintf(stderr, "%d\n", (uint32)time_at_last_hop);
+	dist_travelled_since_last_hop = 0;
 
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	if(to==NULL) {

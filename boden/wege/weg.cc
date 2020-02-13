@@ -330,6 +330,11 @@ void weg_t::init_statistics()
 			statistics[month][type] = 0;
 		}
 	}
+	for(  int type=0;  type<MAX_WAY_TRAVEL_TIMES;  type++  ) {
+		for(  int month=0;  month<MAX_WAY_STAT_MONTHS;  month++  ) {
+			travel_times[month][type] = 0;
+		}
+	}
 	creation_month_year = welt->get_timeline_year_month();
 }
 
@@ -420,12 +425,13 @@ void weg_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if (file->is_loading() && file->get_extended_version() < 15 && file->get_extended_revision() < 19)
+	if (file->is_loading() && file->get_extended_version() <= 15 && file->get_extended_revision() <= 19)
 	{
 		// Older version - initialise the stopped vehicle statistics
 		for (uint32 month = 0; month < MAX_WAY_STAT_MONTHS; month++)
 		{
-			statistics[month][WAY_STAT_WAITING] = 0;
+			statistics[month][WAY_TRAVEL_TIME_ACTUAL] = 0;
+			statistics[month][WAY_TRAVEL_TIME_IDEAL] = 0;
 		}
 	}
 
@@ -1027,6 +1033,11 @@ if(  get_waytype() == road_wt  ) {
 	if (desc->get_waytype() == road_wt)
 	{
 		buf.printf("\n");
+		buf.printf(translator::translate("Ideal travel time: %i"), get_aggregate_travel_times_ideal()); // TODO: Set up this text for translating
+		buf.printf("\n");
+		buf.printf("\n");
+		buf.printf(translator::translate("Actual travel time: %i"), get_aggregate_travel_times_actual()); // TODO: Set up this text for translating
+		buf.printf("\n");
 		buf.printf(translator::translate("Congestion: %i%%"), get_congestion_percentage()); // TODO: Set up this text for translating
 		buf.printf("\n");
 	}
@@ -1506,6 +1517,13 @@ void weg_t::new_month()
 			statistics[month][type] = statistics[month-1][type];
 		}
 		statistics[0][type] = 0;
+	}
+
+	for (int type=0; type<MAX_WAY_TRAVEL_TIMES; type++) {
+		for (int month=MAX_WAY_STAT_MONTHS-1; month>0; month--) {
+			travel_times[month][type] = travel_times[month-1][type];
+		}
+		travel_times[0][type] = 0;
 	}
 	wear_way(desc->get_monthly_base_wear());
 }

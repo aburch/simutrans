@@ -723,6 +723,7 @@ private:
 	// called internally only from can_enter_tile()
 	// returns true on success
 	bool choose_route(sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index);
+	sint64 time_entered_tile;
 
 public:
 	bool check_next_tile(const grund_t *bd) const;
@@ -732,6 +733,7 @@ protected:
 
 public:
 	virtual void enter_tile(grund_t*);
+	virtual void leave_tile();
 
 	virtual void rotate90();
 

@@ -102,7 +102,8 @@ class private_car_t : public road_user_t, public overtaker_t
 private:
 
 	koord origin;
-
+	sint64 time_at_last_hop;
+	uint32 dist_travelled_since_last_hop;
 	const citycar_desc_t *desc;
 
 	// prissi: time to life in blocks

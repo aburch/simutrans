@@ -3931,7 +3931,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			// found a car blocking us after checking at least 1 intersection or crossing
 			// and the car is in a place we could stop. So if it can move, assume it will, so we will too.
 			// but check only upto 8 cars ahead to prevent infinite recursion on roundabouts.
-			log_congestion(str); 
 			if(  second_check_count >= 8  ) {
 				return false;
 			}
@@ -4073,7 +4072,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(  (cnv->is_overtaking()  &&  str->get_overtaking_mode()==prohibited_mode)  ||  (cnv->is_overtaking()  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<inverted_mode  &&  static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode()<=oneway_mode)  ) {
 			if(  vehicle_base_t* v = other_lane_blocked(false, offset)  ) {
 				if(  v->get_waytype() == road_wt  ) {
-					log_congestion(str);
 					restart_speed = 0;
 					cnv->reset_waiting();
 					cnv->set_next_cross_lane(true);
@@ -4088,7 +4086,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			halthandle_t halt = haltestelle_t::get_halt(welt->lookup(r.at(route_index))->get_pos(),cnv->get_owner());
 			vehicle_base_t* v = other_lane_blocked(false, offset);
 			if(  halt.is_bound()  &&  gr->get_weg_ribi(get_waytype())!=0  &&  v  &&  v->get_waytype() == road_wt  ) {
-				log_congestion(str);
 				restart_speed = 0;
 				cnv->reset_waiting();
 				cnv->set_next_cross_lane(true);
@@ -4100,7 +4097,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(  !cnv->is_overtaking()  &&  str->get_overtaking_mode() == inverted_mode  ) {
 			if(  vehicle_base_t* v = other_lane_blocked(false, offset)  ) {
 				if(  v->get_waytype() == road_wt  ) {
-					log_congestion(str);
 					restart_speed = 0;
 					cnv->reset_waiting();
 					cnv->set_next_cross_lane(true);
@@ -4121,7 +4117,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
 					if(  at->get_convoi()->get_akt_speed()!=0  &&  judge_lane_crossing(calc_direction(get_pos(),pos_next), calc_direction(pos_next,pos_next2), at->get_90direction(), cnv->is_overtaking(), false)  ) {
 						// vehicle must stop.
-						log_congestion(str);
 						restart_speed = 0;
 						cnv->reset_waiting();
 						cnv->set_next_cross_lane(true);
@@ -4151,7 +4146,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
 				if(  at->get_convoi()->get_next_cross_lane()  &&  at==at->get_convoi()->back()  ) {
 					// vehicle must stop.
-					log_congestion(str);
 					restart_speed = 0;
 					cnv->reset_waiting();
 					return false;
@@ -4163,15 +4157,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	}
 
 	return true;
-}
-
-void vehicle_t::log_congestion(strasse_t* road)
-{
-	if (last_stopped_tile != get_pos())
-	{
-		last_stopped_tile = get_pos();
-		road->increment_traffic_stopped_counter();
-	}
 }
 
 overtaker_t* road_vehicle_t::get_overtaker()
@@ -4310,7 +4295,6 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 void road_vehicle_t::enter_tile(grund_t* gr)
 {
 	vehicle_t::enter_tile(gr);
-
 	const int cargo = get_total_cargo();
 	strasse_t *str = (strasse_t*)gr->get_weg(road_wt);
 	if(str == NULL)
@@ -4319,6 +4303,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 	}
 	str->book(cargo, WAY_STAT_GOODS);
 	if (  leading  )  {
+		time_entered_tile = welt->get_ticks();
 		str->book(1, WAY_STAT_CONVOIS);
 		cnv->update_tiles_overtaking();
 		if(  next_lane==1  ) {
@@ -4383,6 +4368,28 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
 }
 
+void road_vehicle_t::leave_tile() {
+	if(leading && cnv)
+	{
+		grund_t* gr = get_grund();
+		if(gr)
+		{
+			strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
+			if(str) 
+			{
+				uint32 way_length = welt->get_settings().get_meters_per_tile(); //TODO: there must be a better way to do this
+				if(str->is_diagonal()) 
+				{
+					way_length = (way_length * 5) / 7;
+				}
+				uint32 travel_time_actual = welt->ticks_to_tenths_of_minutes(welt->get_ticks() - time_entered_tile);
+				uint32 travel_time_ideal = welt->travel_time_tenths_from_distance(min(cnv->get_min_top_speed(), str->get_max_speed()), way_length);
+				str->update_travel_times(travel_time_actual, travel_time_ideal);
+			}
+		}
+	}
+	vehicle_t::leave_tile();
+}
 
 
 

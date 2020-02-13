@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -30,25 +30,36 @@ template <class T> class vector_tpl;
 // maximum number of months to store information
 #define MAX_WAY_STAT_MONTHS 2
 
+enum way_stat_months {
+	WAY_STAT_THIS_MONTH,
+	WAY_STAT_LAST_MONTH
+};
+
 enum way_statistics {
 	WAY_STAT_GOODS,		///< number of goods transported over this way
 	WAY_STAT_CONVOIS,	///< number of convois that passed this way
-	WAY_STAT_WAITING,	///< Number of vehicles waiting in a traffic jam on this way
+	WAY_STAT_WAITING,   ///< old
 	MAX_WAY_STATISTICS
+};
+
+enum travel_times {
+	WAY_TRAVEL_TIME_IDEAL,	///< number of tenths (6 seconds) vehicles would spend traversing this way without traffic
+	WAY_TRAVEL_TIME_ACTUAL,///< number of tenths vehicles actually spent passing over this way
+	MAX_WAY_TRAVEL_TIMES
 };
 
 
 /**
  * <p>Der Weg ist die Basisklasse fuer all Verkehrswege in Simutrans.
- * Wege "gehören" immer zu einem Grund. Sie besitzen Richtungsbits sowie
+ * Wege "gehï¿½ren" immer zu einem Grund. Sie besitzen Richtungsbits sowie
  * eine Maske fuer Richtungsbits.</p>
  *
- * <p>Ein Weg gehört immer zu genau einer Wegsorte</p>
+ * <p>Ein Weg gehï¿½rt immer zu genau einer Wegsorte</p>
  *
- * <p>Kreuzungen werden dadurch unterstützt, daß ein Grund zwei Wege
- * enthalten kann (prinzipiell auch mehrere möglich.</p>
+ * <p>Kreuzungen werden dadurch unterstï¿½tzt, daï¿½ ein Grund zwei Wege
+ * enthalten kann (prinzipiell auch mehrere mï¿½glich.</p>
  *
- * <p>Wetype -1 ist reserviert und kann nicht für Wege benutzt werden<p>
+ * <p>Wetype -1 ist reserviert und kann nicht fï¿½r Wege benutzt werden<p>
  *
  * @author Hj. Malthaner
  */
@@ -95,6 +106,9 @@ private:
 	*/
 	sint16 statistics[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS];
 
+	uint32 travel_times[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS];
+
+
 	/**
 	* Way type description
 	* @author Hj. Malthaner
@@ -102,7 +116,7 @@ private:
 	const way_desc_t * desc;
 
 	/**
-	* Richtungsbits für den Weg. Norden ist oben rechts auf dem Monitor.
+	* Richtungsbits fï¿½r den Weg. Norden ist oben rechts auf dem Monitor.
 	* 1=Nord, 2=Ost, 4=Sued, 8=West
 	* @author Hj. Malthaner
 	*/
@@ -234,7 +248,7 @@ public:
 	bool check_season(const bool calc_only_season_change);
 
 	/**
-	* Setzt die erlaubte Höchstgeschwindigkeit
+	* Setzt die erlaubte Hï¿½chstgeschwindigkeit
 	* @author Hj. Malthaner
 	*/
 	void set_max_speed(sint32 s) { max_speed = s; }
@@ -260,7 +274,7 @@ public:
 	void remove_way_constraints(const way_constraints_of_way_t& value) { way_constraints.remove(value); }
 
 	/**
-	* Ermittelt die erlaubte Höchstgeschwindigkeit
+	* Ermittelt die erlaubte Hï¿½chstgeschwindigkeit
 	* @author Hj. Malthaner
 	*/
 	sint32 get_max_speed() const { return max_speed; }
@@ -269,7 +283,7 @@ public:
 	uint32 get_bridge_weight_limit() const { return bridge_weight_limit; }
 
 	/**
-	* Setzt neue Description. Ersetzt alte Höchstgeschwindigkeit
+	* Setzt neue Description. Ersetzt alte Hï¿½chstgeschwindigkeit
 	* mit wert aus Description.
 	*
 	* Sets a new description. Replaces old with maximum speed
@@ -300,7 +314,7 @@ public:
 	virtual const char * is_deletable(const player_t *player, bool allow_public = false);
 
 	/**
-	* Wetype zurückliefern
+	* Wetype zurï¿½ckliefern
 	*/
 	waytype_t get_waytype() const { return wtyp; }
 
@@ -322,9 +336,9 @@ public:
 	/**
 	* Add direction bits (ribi) for a way.
 	*
-	* Nachdem die ribis geändert werden, ist das weg_image des
-	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
-	* zur Reparatur muß folgen).
+	* Nachdem die ribis geï¿½ndert werden, ist das weg_image des
+	* zugehï¿½rigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
+	* zur Reparatur muï¿½ folgen).
 	* @param ribi Richtungsbits
 	*/
 	void ribi_add(ribi_t::ribi ribi) { this->ribi |= (uint8)ribi;}
@@ -332,9 +346,9 @@ public:
 	/**
 	* Remove direction bits (ribi) on a way.
 	*
-	* Nachdem die ribis geändert werden, ist das weg_image des
-	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
-	* zur Reparatur muß folgen).
+	* Nachdem die ribis geï¿½ndert werden, ist das weg_image des
+	* zugehï¿½rigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
+	* zur Reparatur muï¿½ folgen).
 	* @param ribi Richtungsbits
 	*/
 	void ribi_rem(ribi_t::ribi ribi) { this->ribi &= (uint8)~ribi;}
@@ -342,9 +356,9 @@ public:
 	/**
 	* Set direction bits (ribi) for the way.
 	*
-	* Nachdem die ribis geändert werden, ist das weg_image des
-	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
-	* zur Reparatur muß folgen).
+	* Nachdem die ribis geï¿½ndert werden, ist das weg_image des
+	* zugehï¿½rigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
+	* zur Reparatur muï¿½ folgen).
 	* @param ribi Richtungsbits
 	*/
 	void set_ribi(ribi_t::ribi ribi) { this->ribi = (uint8)ribi;}
@@ -360,8 +374,8 @@ public:
 	virtual ribi_t::ribi get_ribi() const { return (ribi_t::ribi)(ribi & ~ribi_maske); }
 
 	/**
-	* für Signale ist es notwendig, bestimmte Richtungsbits auszumaskieren
-	* damit Fahrzeuge nicht "von hinten" über Ampeln fahren können.
+	* fï¿½r Signale ist es notwendig, bestimmte Richtungsbits auszumaskieren
+	* damit Fahrzeuge nicht "von hinten" ï¿½ber Ampeln fahren kï¿½nnen.
 	* @param ribi Richtungsbits
 	*/
 	void set_ribi_maske(ribi_t::ribi ribi) { ribi_maske = (uint8)ribi; }
@@ -377,14 +391,14 @@ public:
 	* book statistics - is called very often and therefore inline
 	* @author hsiegeln
 	*/
-	void book(int amount, way_statistics type) { statistics[0][type] += amount; }
+	void book(int amount, way_statistics type) { statistics[WAY_STAT_THIS_MONTH][type] += amount; }
 
 	/**
 	* return statistics value
 	* always returns last month's value
 	* @author hsiegeln
 	*/
-	int get_statistics(int type) const { return statistics[1][type]; }
+	int get_statistics(int type) const { return statistics[WAY_STAT_LAST_MONTH][type]; }
 
 	/**
 	* new month
@@ -466,8 +480,19 @@ public:
 	runway_directions get_runway_directions() const;
 	uint32 get_runway_length(bool is_36_18) const; 
 
-	void increment_traffic_stopped_counter() { statistics[0][WAY_STAT_WAITING] ++; }
-	uint32 get_congestion_percentage() const { return statistics[0][WAY_STAT_CONVOIS] + statistics[1][WAY_STAT_CONVOIS] ? ((statistics[0][WAY_STAT_WAITING] + statistics[1][WAY_STAT_WAITING]) * 100) / (statistics[0][WAY_STAT_CONVOIS] + statistics[1][WAY_STAT_CONVOIS]) : 0; }
+	//void increment_traffic_stopped_counter() { statistics[0][WAY_STAT_WAITING] ++; }
+	void update_travel_times(uint32 actual, uint32 ideal) 
+	{
+		travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_ACTUAL] += actual;
+		travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] += ideal;
+	}
+	uint32 get_aggregate_travel_times_ideal() const { return travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_IDEAL] + travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL]; }
+
+	uint32 get_aggregate_travel_times_actual() const { return travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_ACTUAL] + travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_ACTUAL]; }
+
+	//will return the % ratio of actual to ideal traversal times
+	uint32 get_congestion_percentage() const { return travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_IDEAL] 
+		? (travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_ACTUAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_ACTUAL]) * 100 / (travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_IDEAL]) - 100 : 0; }
 
 } GCC_PACKED;
 
