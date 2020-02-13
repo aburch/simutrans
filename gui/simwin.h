@@ -114,6 +114,7 @@ enum magic_numbers {
 	magic_class_manager=magic_info_pointer+ 65536,
 	magic_line_class_manager= magic_class_manager + 65536,
 	magic_depolist = magic_line_class_manager +843,
+	magic_vehiclelist = magic_depolist + MAX_PLAYER_COUNT,
 	magic_max
 };
 

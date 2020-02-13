@@ -47,6 +47,7 @@
 #include "gui/scenario_frame.h"
 #include "gui/scenario_info.h"
 #include "gui/depotlist_frame.h"
+#include "gui/vehiclelist_frame.h"
 
 class player_t;
 
@@ -358,6 +359,21 @@ public:
 		return false;
 	}
 	bool exit(player_t* player) OVERRIDE{ destroy_win(magic_depolist + player->get_player_nr()); return false; }
+	bool is_init_network_save() const OVERRIDE{ return true; }
+	bool is_work_network_save() const OVERRIDE{ return true; }
+};
+
+/* open the list of vehicles */
+class dialog_list_vehicle_t : public tool_t {
+public:
+	dialog_list_vehicle_t() : tool_t(DIALOG_LIST_VEHICLE | DIALOGE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("vh_title"); }
+	bool is_selected() const OVERRIDE{ return win_get_magic(magic_vehiclelist); }
+	bool init(player_t*) OVERRIDE{
+		create_win(new vehiclelist_frame_t(), w_info, magic_vehiclelist);
+		return false;
+	}
+	bool exit(player_t* player) OVERRIDE{ destroy_win(magic_vehiclelist); return false; }
 	bool is_init_network_save() const OVERRIDE{ return true; }
 	bool is_work_network_save() const OVERRIDE{ return true; }
 };
