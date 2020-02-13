@@ -2520,7 +2520,6 @@ void vehicle_t::rdwr(loadsave_t *file)
 }
 
 
-
 void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 {
 	xml_tag_t r( file, "vehicle_t" );
@@ -4292,6 +4291,16 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 	return NULL;
 }
 
+uint32 road_vehicle_t::do_drive(uint32 distance) 
+{
+	uint32 distance_travelled = vehicle_base_t::do_drive(distance);
+	if(leading)
+	{
+		dist_travelled_since_last_hop += (distance_travelled * welt->get_settings().get_meters_per_tile()) >> YARDS_PER_TILE_SHIFT;
+	}
+	return distance_travelled;
+}
+
 void road_vehicle_t::enter_tile(grund_t* gr)
 {
 	vehicle_t::enter_tile(gr);
@@ -4303,7 +4312,6 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 	}
 	str->book(cargo, WAY_STAT_GOODS);
 	if (  leading  )  {
-		time_entered_tile = welt->get_ticks();
 		str->book(1, WAY_STAT_CONVOIS);
 		cnv->update_tiles_overtaking();
 		if(  next_lane==1  ) {
@@ -4368,27 +4376,25 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
 }
 
-void road_vehicle_t::leave_tile() {
-	if(leading && cnv)
+void road_vehicle_t::hop(grund_t* gr_to) {
+	if(leading)
 	{
+		uint32 time_now = welt->ticks_to_seconds(welt->get_ticks()); //TODO: merge into generalised timer
 		grund_t* gr = get_grund();
 		if(gr)
 		{
 			strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
 			if(str) 
 			{
-				uint32 way_length = welt->get_settings().get_meters_per_tile(); //TODO: there must be a better way to do this
-				if(str->is_diagonal()) 
-				{
-					way_length = (way_length * 5) / 7;
-				}
-				uint32 travel_time_actual = welt->ticks_to_tenths_of_minutes(welt->get_ticks() - time_entered_tile);
-				uint32 travel_time_ideal = welt->travel_time_tenths_from_distance(min(cnv->get_min_top_speed(), str->get_max_speed()), way_length);
+				uint32 travel_time_actual = max(time_now - time_at_last_hop, 1); //TODO: consider merging with private cars
+				uint32 travel_time_ideal = max(seconds_from_meters_and_kmh(dist_travelled_since_last_hop, min(speed_to_kmh(cnv->get_min_top_speed()), str->get_max_speed())), 1); //player vehicles only
 				str->update_travel_times(travel_time_actual, travel_time_ideal);
 			}
 		}
+		time_at_last_hop = time_now;
+		dist_travelled_since_last_hop = 0;
 	}
-	vehicle_t::leave_tile();
+	vehicle_t::hop(gr_to);
 }
 
 

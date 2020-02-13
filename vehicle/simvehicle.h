@@ -187,7 +187,7 @@ public:
 	// if true, this convoi needs to restart for correct alignment
 	bool need_realignment() const;
 
-	uint32 do_drive(uint32 dist);	// basis movement code
+	virtual uint32 do_drive(uint32 dist);	// basis movement code
 
 	inline void set_image( image_id b ) { image = b; }
 	virtual image_id get_image() const {return image;}
@@ -723,7 +723,8 @@ private:
 	// called internally only from can_enter_tile()
 	// returns true on success
 	bool choose_route(sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index);
-	sint64 time_entered_tile;
+	sint64 time_at_last_hop;
+	uint32 dist_travelled_since_last_hop;
 
 public:
 	bool check_next_tile(const grund_t *bd) const;
@@ -733,7 +734,8 @@ protected:
 
 public:
 	virtual void enter_tile(grund_t*);
-	virtual void leave_tile();
+	virtual void hop(grund_t*);
+	virtual uint32 do_drive(uint32 distance);
 
 	virtual void rotate90();
 
