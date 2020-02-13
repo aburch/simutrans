@@ -1,0 +1,35 @@
+<title>목록 도움말</title>
+
+<h1><strong>목록</strong></h1>
+
+<p>
+<strong>목록</strong>에는 게임의 현재 상태에 대한 정보를 위한 컨트롤을 여는 옵션이 있습니다. (또한 다른 <a href="goods_filter.txt">물품, 승객, 우편물</a>의 운송에서 받는 상대적 소득을 조정하는 통제).
+</p>
+<p>
+플레이어의 정보 목록: <a href="station.txt">정류장</a>; <a href="convoiinfo.txt">수송 수단</a>; <a href="citywindow.txt">도시 지역</a>; 다른<a href="goods_filter.txt">상품</a>, 승객, 우편에서 받는 수입; <a href="industry_info.txt">산업</a>; 그리고 관광명소.
+</p>
+<p>
+게임 뷰 상단에 있는 아이콘 목록을 클릭하여 엽니다. <strong>목록</strong>.<br>
+도구 모음을 열거나 클릭한 후 목록-툴-옵션을 마우스로 가리키면 이름이 표시됩니다.
+</p>
+<p>
+도구 옵션을 클릭하여 정보를 위한 컨트롤을 엽니다.:
+</p>
+<p>
+<a href="haltlist.txt"><em>역 목록:</em></a> <a href="station.txt">정류장</a>, 운송수단이 화물과 승객들을 픽업하거나 하차하는 장소입니다. (해양 운송 수단을 위한 경유지는 없습니다).
+</p>
+<p>
+<a href="convoi.txt"><em>운송 수단 목록:</em></a> 길과 철도 <a href="convoiinfo.txt">수송 수단</a>, 항공기와 해양선박들.
+</p>
+<p>
+<a href="citylist_filter.txt"><em>모든 도시 목록:</em></a> <a href="citywindow.txt">도시 지역</a> (마을, (소)도시 그리고 (대)도시).
+</p>
+<p>
+<a href="goods_filter.txt"><em>모든 상품 목록:</em></a> 각각의 상품, 승객 및 우편에서 받은 소득(상대소득을 조정하는 통제 포함).
+</p>
+<p>
+<a href="factorylist_filter.txt"><em>공장 목록:</em></a> <a href="industry_info.txt">공업</a> (상품의 소비자와 공급자).
+</p>
+<p>
+<a href="curiositylist_filter.txt"><em>관광지 목록:</em></a> 관광 명소.
+</p>

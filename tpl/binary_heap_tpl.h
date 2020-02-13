@@ -35,10 +35,10 @@ public:
 	uint32 node_count;
 	uint32 node_size;
 
-	binary_heap_tpl()
+	binary_heap_tpl(uint32 size = 4096)
 	{
-		nodes = MALLOCN(T, 4096);
-		node_size = 4096;
+		nodes = MALLOCN(T, size);
+		node_size = size;
 		node_count = 0;
 	}
 

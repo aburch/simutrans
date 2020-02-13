@@ -3,7 +3,7 @@
 <h1>Budowa dróg</h1>
 
 <p>
-W tym oknie znajduja sie narzedzia do budowy dróg, przystanków, tuneli, punktów za?adunku, zajezdni itp. Po kliknieciu na dane narzedzie kursor zmieni sie w ikonke obrazujaca to narzedzie.
+W tym oknie znajduja sie narzedzia do budowy dróg, przystanków, tuneli, punktów za³adunku, zajezdni itp. Po kliknieciu na dane narzedzie kursor zmieni sie w ikonke obrazujaca to narzedzie.
 </p>
 <p>
 W lewym górnym rogu znajduje sie ikona budowy dróg. Klikamy w miejscu gdzie droga ma sie rozpoczac (ikona zmieni sie w buldozer) a nastepnie zaznaczmy punkt, gdzie droga ma sie zakonczyc - droga zostanie zbudowana automatycznie.

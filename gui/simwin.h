@@ -110,8 +110,9 @@ enum magic_numbers {
 	magic_script_error=magic_toolbar+256,
 	magic_haltlist_filter,
 	magic_depot, // only used to load/save
+	magic_depolist,
 	// new magic numbers
-	magic_halt_list_t,
+	magic_halt_list_t = magic_depolist + MAX_PLAYER_COUNT,
 	magic_max = magic_halt_list_t + MAX_PLAYER_COUNT
 };
 

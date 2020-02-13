@@ -1,1 +1,17 @@
-<title>Sadnja drveca</title> <h1><strong>Sadnja drveca</strong></h1> <p> Dijalog je podijeljen u cetiri odijeljka. <br> ? gore lijevo je lista odabira dostupnih vrsta drveca<br> ? dolje lijevo je prikazana slika odabranog drveta<br> ? gore desno su postavke<br> ? dolje desno je prikazana informacija o odabranom drvetu<br> </p> <h1>Lista odabira</h1> <p> U odabranoj listu su navedi svi tipovi drveca koji postoje s postavkama zadanim gore desno. Postoje dvije kartice koje ce dozvoliti promjenu identifikacije drveca.<br> ? <em>Prijevod:</em> Prikazuje ime drveta u zadanom jeziku. Ako ne postoji prijevod u zadanom jeziku, ime objekta ce se korisiti.<br> ? <em>Objekt:</em> Prikazuje Simutrans interno ime objekta za tip drveta.<br> <br> </p> <h1>Postavke</h1> <p> ? <em>igniranje klima:</em> Ova postavka onemogucuje ogranicenja klima koje su pridjeljenje raznim tipovima drveta.<br> ? <em>slucajna godina:</em> Starost drveta koje ce se posaditi ce biti slucajno odabrana.<br> </p>
+<title>Sadnja drveca</title>
+<h1><strong>Sadnja drveca</strong></h1>
+ <p> Dijalog je podijeljen u cetiri odijeljka.<br>
+ - gore lijevo je lista odabira dostupnih vrsta drveca<br>
+ - dolje lijevo je prikazana slika odabranog drveta<br>
+ - gore desno su postavke<br> - dolje desno je prikazana informacija o odabranom drvetu<br>
+</p>
+<h1>Lista odabira</h1>
+<p> U odabranoj listu su navedi svi tipovi drveca koji postoje s postavkama zadanim gore desno. Postoje dvije kartice koje ce dozvoliti promjenu identifikacije drveca.<br>
+ - <em>Prijevod:</em> Prikazuje ime drveta u zadanom jeziku. Ako ne postoji prijevod u zadanom jeziku, ime objekta ce se korisiti.<br>
+ - <em>Objekt:</em> Prikazuje Simutrans interno ime objekta za tip drveta.<br>
+</p>
+<h1>Postavke</h1>
+<p>
+ - <em>igniranje klima:</em> Ova postavka onemogucuje ogranicenja klima koje su pridjeljenje raznim tipovima drveta.<br>
+ - <em>slucajna godina:</em> Starost drveta koje ce se posaditi ce biti slucajno odabrana.<br>
+</p>

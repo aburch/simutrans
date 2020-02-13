@@ -22,3 +22,7 @@ ne sont pas toutes complètes, ni parfaitement à jour.
 Actualisé pour Simutrans 0.83.1.2<br>
 02/01/2003
 </p>
+<p>
+Pour aider à traduire Simutrans dans votre langue,<br>
+visitez https://translator.simutrans.com
+</p>

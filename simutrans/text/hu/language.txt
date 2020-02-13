@@ -27,3 +27,7 @@ http://www.simutrans.de
 honlapokon kutakodhaszt tovább. Figyelem egyes fordítások nem biztos,
 hogy tartalmazzák a legutobbi fejlesztések leírását.
 </p>
+<p>
+Hogy segítsen a Simutrans fordításában az Ön nyelvén,<br>
+látogasson el a https://translator.simutrans.com oldalra
+</p>

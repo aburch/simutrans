@@ -12,6 +12,7 @@ ALLEGRO_CONFIG  ?= allegro-config
 SDL_CONFIG      ?= sdl-config
 SDL2_CONFIG     ?= sdl2-config
 FREETYPE_CONFIG ?= freetype-config
+#FREETYPE_CONFIG ?= pkg-config freetype2
 
 BACKENDS      = allegro gdi sdl sdl2 mixer_sdl mixer_sdl2 posix
 COLOUR_DEPTHS = 0 16
@@ -158,11 +159,9 @@ ifdef USE_UPNP
   endif
 endif
 
-ifdef USE_ZSRD
-  ifeq ($(shell expr $(USE_UPNP) \>= 1), 1)
-    CFLAGS      += -DUSE_ZSTD
-    LDFLAGS     += -lzstd
-  endif
+ifeq ($(shell expr $(USE_ZSTD) \>= 1), 1)
+  FLAGS      += -DUSE_ZSTD
+  LDFLAGS     += -lzstd
 endif
 
 ifeq ($(shell expr $(PROFILE) \>= 1), 1)
@@ -191,6 +190,9 @@ ifdef WITH_REVISION
       REV = $(WITH_REVISION)
     else
       REV = $(shell svnversion)
+    endif
+    ifeq ($(shell expr $(WITH_REVISION) \<= 1), 1)
+      REV = $(shell svn info --show-item revision svn://servers.simutrans.org/simutrans | sed "s/[0-9]*://" | sed "s/M.*//")
     endif
 
     ifneq ($(REV),)
@@ -334,6 +336,7 @@ SOURCES += gui/curiosity_edit.cc
 SOURCES += gui/curiositylist_frame_t.cc
 SOURCES += gui/curiositylist_stats_t.cc
 SOURCES += gui/depot_frame.cc
+SOURCES += gui/depotlist_frame.cc
 SOURCES += gui/display_settings.cc
 SOURCES += gui/enlarge_map_frame_t.cc
 SOURCES += gui/extend_edit.cc
