@@ -2166,7 +2166,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				tile_occupancy.set_assembling_incomplete(false);
 			}
 		}
-		else {
+		else if(convoi_pics.get_count()){
 			tile_occupancy.set_assembling_incomplete((convoi_pics[0]->lcolor == COL_YELLOW || convoi_pics[convoi_pics.get_count() - 1]->rcolor == COL_YELLOW) ? true : false);
 		}
 
