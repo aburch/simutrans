@@ -14,6 +14,7 @@
 #include "../../display/simgraph.h"
 #include "../../simcolor.h"
 #include "../simwin.h"
+#include "../../simworld.h"
 
 #include "../../descriptor/skin_desc.h"
 
@@ -206,7 +207,8 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 				else {
 					scr_coord_val const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
 					scr_coord_val const x = text_x - iter.img->get_pic()->x + IMG_WIDTH / 2 - iter.img->get_pic()->w / 2;
-					display_img_blend(iter.img->get_id(), x, y, TRANSPARENT50_FLAG, false, true);
+//					display_img_blend(iter.img->get_id(), x, y, TRANSPARENT50_FLAG, false, true);
+					display_base_img(iter.img->get_id(), x, y, world()->get_active_player_nr(), false, true);
 				}
 			}
 			else {
