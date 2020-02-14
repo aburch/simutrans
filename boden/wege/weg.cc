@@ -1033,11 +1033,6 @@ if(  get_waytype() == road_wt  ) {
 	if (desc->get_waytype() == road_wt)
 	{
 		buf.printf("\n");
-		buf.printf(translator::translate("Ideal travel time: %i"), get_aggregate_travel_times_ideal()); // TODO: Set up this text for translating
-		buf.printf("\n");
-		buf.printf("\n");
-		buf.printf(translator::translate("Actual travel time: %i"), get_aggregate_travel_times_actual()); // TODO: Set up this text for translating
-		buf.printf("\n");
 		buf.printf(translator::translate("Congestion: %i%%"), get_congestion_percentage()); // TODO: Set up this text for translating
 		buf.printf("\n");
 	}
