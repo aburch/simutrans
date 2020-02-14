@@ -292,6 +292,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 
 	lb_convoi_number.set_text_pointer(txt_convoi_number);
 	lb_convoi_count.set_text_pointer(txt_convoi_count);
+	lb_convoi_count_fluctuation.set_text_pointer(txt_convoi_count_fluctuation);
 	lb_convoi_tiles.set_text_pointer(txt_convoi_tiles);
 	lb_convoi_speed.set_text_pointer(txt_convoi_speed);
 	lb_convoi_speed.set_tooltip(tooltip_convoi_speed);
@@ -1586,6 +1587,54 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 }
 
 
+void gui_convoy_assembler_t::set_vehicle_bar_shape(gui_image_list_t::image_data_t *pic, const vehicle_desc_t *v)
+{
+	if (!v || !pic) {
+		dbg->error("void gui_convoy_assembler_t::set_vehicle_bar_shape()", "pass the invalid parameter)");
+		return;
+	}
+	pic->basic_coupling_constraint_prev = v->get_basic_constraint_prev();
+	pic->basic_coupling_constraint_next = v->get_basic_constraint_next();
+	pic->interactivity = v->get_interactivity();
+}
+
+
+/* color bars for current convoi: */
+void gui_convoy_assembler_t::init_convoy_color_bars(vector_tpl<const vehicle_desc_t *> *vehs)
+{
+	if (!vehs->get_count()) {
+		dbg->error("void gui_convoy_assembler_t::init_convoy_color_bars()", "Convoy trying to initialize colorbar was null)");
+		return;
+	}
+	const uint16 month_now = welt->get_timeline_year_month();
+	uint i=0;
+	// change green into blue for retired vehicles
+	COLOR_VAL base_col = (!vehs->get_element(i)->is_future(month_now) && !vehs->get_element(i)->is_retired(month_now)) ? COL_DARK_GREEN :
+		(vehicles[i]->is_obsolete(month_now, welt)) ? COL_OBSOLETE : COL_OUT_OF_PRODUCTION;
+	int end = vehs->get_count();
+	set_vehicle_bar_shape(convoi_pics[0], vehs->get_element(0));
+	convoi_pics[0]->lcolor = vehs->get_element(0)->can_follow(NULL) ? base_col : COL_YELLOW;
+	for (i = 1; i < end; i++)
+	{
+		if (vehs->get_element(i)->is_future(month_now) || vehs->get_element(i)->is_retired(month_now)) {
+			if (vehicles[i]->is_obsolete(month_now, welt)) {
+				base_col = COL_OBSOLETE;
+			}
+			else {
+				base_col = COL_OUT_OF_PRODUCTION;
+			}
+		}
+		else {
+			base_col = COL_DARK_GREEN;
+		}
+		convoi_pics[i - 1]->rcolor = vehs->get_element(i - 1)->can_lead(vehs->get_element(i)) ? base_col : COL_RED;
+		convoi_pics[i]->lcolor = vehs->get_element(i)->can_follow(vehs->get_element(i - 1)) ? base_col : COL_RED;
+		set_vehicle_bar_shape(convoi_pics[i], vehs->get_element(i));
+	}
+	convoi_pics[i - 1]->rcolor = vehs->get_element(i - 1)->can_lead(NULL) ? base_col : COL_YELLOW;
+}
+
+
 void gui_convoy_assembler_t::update_data()
 {
 	// change green into blue for retired vehicles
@@ -1691,42 +1740,9 @@ void gui_convoy_assembler_t::update_data()
 		}
 
 		/* color bars for current convoi: */
-		convoi_pics[0]->lcolor = vehicles[0]->can_follow(NULL) ? COL_DARK_GREEN : COL_YELLOW;
-		convoi_pics[0]->basic_coupling_constraint_prev = vehicles[0]->get_basic_constraint_prev();
-		convoi_pics[0]->basic_coupling_constraint_next = vehicles[0]->get_basic_constraint_next();
-		convoi_pics[0]->interactivity = vehicles[0]->get_interactivity();
-		for(  i=1;  i<vehicles.get_count(); i++) {
-			convoi_pics[i - 1]->rcolor = vehicles[i - 1]->can_lead(vehicles[i]) ? COL_DARK_GREEN : COL_RED;
-			convoi_pics[i]->lcolor     = vehicles[i]->can_follow(vehicles[i - 1]) ? COL_DARK_GREEN : COL_RED;
-			convoi_pics[i]->basic_coupling_constraint_prev = vehicles[i]->get_basic_constraint_prev();
-			convoi_pics[i]->basic_coupling_constraint_next = vehicles[i]->get_basic_constraint_next();
-			convoi_pics[i]->interactivity = vehicles[i]->get_interactivity();
-		}
-		convoi_pics[i - 1]->rcolor = vehicles[i - 1]->can_lead(NULL) ? COL_DARK_GREEN : COL_YELLOW;
-		
-		tile_occupancy.set_assembling_incomplete((convoi_pics[0]->lcolor == COL_YELLOW || convoi_pics[i - 1]->rcolor == COL_YELLOW) ? true : false);
+		init_convoy_color_bars(&vehicles);
 
-		// change green into blue for retired vehicles
-		for(i=0;  i<vehicles.get_count(); i++) {
-			if(vehicles[i]->is_future(month_now) || vehicles[i]->is_retired(month_now)) {
-				if (convoi_pics[i]->lcolor == COL_DARK_GREEN) {
-					if (vehicles[i]->is_obsolete(month_now, welt)) {
-						convoi_pics[i]->lcolor = COL_OBSOLETE;
-					}
-					else {
-						convoi_pics[i]->lcolor = COL_OUT_OF_PRODUCTION;
-					}
-				}
-				if (convoi_pics[i]->rcolor == COL_DARK_GREEN) {
-					if (vehicles[i]->is_obsolete(month_now, welt)) {
-						convoi_pics[i]->rcolor = COL_OBSOLETE;
-					}
-					else {
-						convoi_pics[i]->rcolor = COL_OUT_OF_PRODUCTION;
-					}
-				}
-			}
-		}
+		tile_occupancy.set_assembling_incomplete((convoi_pics[0]->lcolor == COL_YELLOW || convoi_pics[i - 1]->rcolor == COL_YELLOW) ? true : false);
 
 		if(veh_action == va_insert) {
 			veh = vehicles[0];
@@ -1750,9 +1766,7 @@ void gui_convoy_assembler_t::update_data()
 		img.count = 0;
 		img.lcolor = ok_color;
 		img.rcolor = ok_color;
-		img.basic_coupling_constraint_prev = info->get_basic_constraint_prev();
-		img.basic_coupling_constraint_next = info->get_basic_constraint_next();
-		img.interactivity = info->get_interactivity();
+		set_vehicle_bar_shape(&img, info);
 		if (info->get_upgrades_count()) {
 			img.has_upgrade = info->has_available_upgrade(month_now, welt->get_settings().get_show_future_vehicle_info());
 		}
@@ -2125,6 +2139,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 	scr_coord relpos = scr_coord( 0, ((gui_scrollpane_t *)tabs.get_aktives_tab())->get_scroll_y() );
 	int sel_index = lst->index_at(pos + tabs.get_pos() - relpos, x, y - D_TAB_HEADER_HEIGHT);
 	sint8 vehicle_fluctuation = 0;
+	uint8 upgrade_count = 0;
 
 	if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
 		// cursor over a vehicle in the selection list
@@ -2145,6 +2160,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		{
 			lb_too_heavy_notice.set_visible(false);
 		}
+
 		// update tile occupancy bar
 		new_vehicle_length = new_vehicle_length_sb_force_zero ? 0 : veh_type->get_length();
 		uint8 auto_addition_length = 0;
@@ -2182,24 +2198,99 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				cnv = replace_frame->get_convoy();
 			}
 			if (cnv.is_bound()) {
+				vector_tpl<const vehicle_desc_t*> dummy_vehicles;
+				bool found = false;
 				for (uint8 i = 0; i < cnv->get_vehicle_count(); i++) {
-					bool found = false;
-						for (uint16 c = 0; c < cnv->get_vehicle(i)->get_desc()->get_upgrades_count(); c++)
+					for (uint16 c = 0; c < cnv->get_vehicle(i)->get_desc()->get_upgrades_count(); c++)
+					{
+						if (veh_type == cnv->get_vehicle(i)->get_desc()->get_upgrades(c)) {
+							convoi.set_focus(i);
+							found = true;
+							break;
+						}
+					}
+					if (found) {
+						// Forecast after upgrade. - Feb, 2020 @Ranran
+						dummy_vehicles.clear();
+						dummy_vehicles.append(veh_type);
+						// forward
+						bool continuous_upgrade=true;
+						for (int j = i-1; j >= 0; j--)
 						{
-							if (veh_type == cnv->get_vehicle(i)->get_desc()->get_upgrades(c)) {
-								convoi.set_focus(i);
-									found = true;
-									break;
+							bool found_auto_upgrade = false;
+							if (dummy_vehicles[i-j-1]->get_leader_count() != 1 || dummy_vehicles[i-j-1]->get_leader(0) == NULL) {
+								continuous_upgrade = false;
+							}
+
+							if(dummy_vehicles[i-j-1]->get_leader_count() == 1 && dummy_vehicles[i-j-1]->get_leader(0) != NULL && continuous_upgrade == true)
+							{
+								for (uint16 c = 0; c < cnv->get_vehicle(j)->get_desc()->get_upgrades_count(); c++)
+								{
+									if (dummy_vehicles[i-j-1]->get_leader(0) == cnv->get_vehicle(j)->get_desc()->get_upgrades(c)) {
+										dummy_vehicles.insert_at(0, (dummy_vehicles[i-j-1]->get_leader(0)));
+										found_auto_upgrade = true;
+										break;
+									}
+								}
+							}
+							if(!found_auto_upgrade)
+							{
+								dummy_vehicles.insert_at(0, (cnv->get_vehicle(j)->get_desc()));
 							}
 						}
-					if (found) {
+						// backward
+						continuous_upgrade = true;
+						for (int j = i+1; j < cnv->get_vehicle_count(); j++)
+						{
+							bool found_auto_upgrade = false;
+							if (dummy_vehicles[j - 1]->get_trailer_count() != 1 || dummy_vehicles[j - 1]->get_trailer(0) == NULL) {
+								continuous_upgrade = false;
+							}
+							if (dummy_vehicles[j-1]->get_trailer_count() == 1 && dummy_vehicles[j-1]->get_trailer(0) != NULL && continuous_upgrade == true)
+							{
+								for (uint16 c = 0; c < cnv->get_vehicle(j)->get_desc()->get_upgrades_count(); c++)
+								{
+									if (dummy_vehicles[j-1]->get_trailer(0) == cnv->get_vehicle(j)->get_desc()->get_upgrades(c)) {
+										dummy_vehicles.append((dummy_vehicles[j-1]->get_trailer(0)));
+										found_auto_upgrade = true;
+										break;
+									}
+								}
+							}
+							if (!found_auto_upgrade)
+							{
+								dummy_vehicles.append((cnv->get_vehicle(j)->get_desc()));
+							}
+						}
 						break;
 					}
+				}
+				if (found) {
+					// Update color bars
+					init_convoy_color_bars(&dummy_vehicles);
+
+					for (uint8 i = 0; i < dummy_vehicles.get_count(); i++) {
+						if(cnv->get_vehicle(i)->get_desc() != dummy_vehicles[i])
+						{
+							//convoi.set_focus(i);
+							if (convoi_pics[i]->lcolor == COL_DARK_GREEN) { convoi_pics[i]->lcolor = COL_UPGRADEABLE; }
+							if (convoi_pics[i]->rcolor == COL_DARK_GREEN) { convoi_pics[i]->rcolor = COL_UPGRADEABLE; }
+							upgrade_count++;
+						}
+					}
+					// display upgrade counter
+					sprintf(txt_convoi_count_fluctuation, "(%i)", upgrade_count);
+					lb_convoi_count_fluctuation.set_visible(true);
+					lb_convoi_count_fluctuation.set_pos(scr_coord(lb_convoi_count.get_pos().x + proportional_string_width(txt_convoi_count) + D_H_SPACE, lb_convoi_count.get_pos().y));
+					lb_convoi_count_fluctuation.set_color(COL_UPGRADEABLE);
 				}
 			}
 		}
 		else {
 			convoi.set_focus(-1);
+			if (vehicles.get_count()) {
+				init_convoy_color_bars(&vehicles);
+			}
 		}
 	}
 	else {
@@ -2243,6 +2334,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				else
 				{
 					resale_value = 0;
+					vehicle_fluctuation = 0;
 					veh_type = NULL;
 				}
 			}
@@ -2681,10 +2773,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				txt_convoi_count.append(translator::translate("Fahrzeuge:"));
 			}
 			lb_convoi_count_fluctuation.set_pos(scr_coord(lb_convoi_count.get_pos().x + proportional_string_width(txt_convoi_count) + D_H_SPACE, lb_convoi_count.get_pos().y));
-			lb_convoi_count_fluctuation.set_text_pointer(txt_convoi_count_fluctuation);
 			lb_convoi_count_fluctuation.set_color(counter_col);
 		}
-		else {
+		else if(!upgrade_count) {
 			lb_convoi_count_fluctuation.set_visible(false);
 		}
 
@@ -2760,6 +2851,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		lb_livery_counter.set_text(NULL);
 		lb_convoi_count_fluctuation.set_visible(false);
 		convoi.set_focus(-1);
+		if (vehicles.get_count()) {
+			init_convoy_color_bars(&vehicles);
+		}
 	}
 
 	POP_CLIP();

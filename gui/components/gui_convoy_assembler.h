@@ -149,7 +149,6 @@ class gui_convoy_assembler_t :
 
 	depot_convoi_capacity_t cont_convoi_capacity;
 
-	gui_speedbar_t sb_convoi_length;
 	gui_tile_occupancybar_t tile_occupancy;
 	sint8 new_vehicle_length;
 	//sint32 convoi_length_ok_sb, convoi_length_slower_sb, convoi_length_too_slow_sb, convoi_tile_length_sb, new_vehicle_length_sb;
@@ -265,6 +264,9 @@ class gui_convoy_assembler_t :
 	//vector_tpl<uint16> cs_pas_0_indicies;
 	vector_tpl<uint16> cs_pass_indicies;
 
+	/* color bars for current convoi: */
+	void init_convoy_color_bars(vector_tpl<const vehicle_desc_t *>*vehs);
+	void set_vehicle_bar_shape(gui_image_list_t::image_data_t *pic, const vehicle_desc_t *v);
 
 public:
 	// Last selected vehicle filter
