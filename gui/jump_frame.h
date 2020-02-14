@@ -10,13 +10,10 @@
 #ifndef gui_jumpframe_h
 #define gui_jumpframe_h
 
-#include <time.h>
-
 #include "components/action_listener.h"
 #include "gui_frame.h"
 #include "components/gui_textinput.h"
 #include "components/gui_button.h"
-#include "components/gui_label.h"
 #include "components/gui_numberinput.h"
 
 

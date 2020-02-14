@@ -8,12 +8,14 @@
  */
 
 #include <string.h>
+#include <time.h>
 
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../display/viewport.h"
 #include "jump_frame.h"
 #include "components/gui_divider.h"
+#include "components/gui_label.h"
 
 #include "../dataobj/translator.h"
 
