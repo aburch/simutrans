@@ -425,13 +425,13 @@ void weg_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if (file->is_loading() && file->get_extended_version() <= 15 && file->get_extended_revision() <= 19)
+	if (file->is_loading() && file->get_extended_version() < 15 && file->get_extended_revision() < 20)
 	{
-		// Older version - initialise the stopped vehicle statistics
+		// Older version - initialise the travel time statistics
 		for (uint32 month = 0; month < MAX_WAY_STAT_MONTHS; month++)
 		{
-			statistics[month][WAY_TRAVEL_TIME_ACTUAL] = 0;
-			statistics[month][WAY_TRAVEL_TIME_IDEAL] = 0;
+			travel_times[month][WAY_TRAVEL_TIME_ACTUAL] = 0;
+			travel_times[month][WAY_TRAVEL_TIME_IDEAL] = 0;
 		}
 	}
 
