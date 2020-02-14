@@ -25,6 +25,9 @@ private:
 
 	/// Cached value from last display run to determine if the background was visible, we'll save redraws if it was not.
 	bool outside_visible;
+	
+	/// A helper function of display() to follow a randomly selected convoy or jump to a halt, although it is not clear whether this should be done with main_view_t.
+	void autojump();
 
 public:
 	main_view_t(karte_t *welt);

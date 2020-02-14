@@ -32,11 +32,6 @@
 
 uint16 win_get_statusbar_height(); // simwin.h
 
-bool jump_frame_t::auto_jump = false;
-time_t jump_frame_t::auto_jump_base_time;
-uint16 jump_frame_t::auto_jump_interval = 30;
-char jump_frame_t::auto_jump_countdown_char[6];
-
 main_view_t::main_view_t(karte_t *welt)
 {
 	this->welt = welt;
@@ -116,6 +111,10 @@ void main_view_t::display(bool force_dirty)
 
 	const sint16 disp_height = display_get_height() - win_get_statusbar_height() - (!ticker::empty() ? TICKER_HEIGHT : 0);
 	display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height );
+	
+	if (  jump_frame_t::auto_jump  ) {
+		autojump(); // If autojump is needed, do it.
+	}
 
 	// redraw everything?
 	force_dirty = force_dirty || welt->is_dirty();
@@ -347,50 +346,7 @@ void main_view_t::display(bool force_dirty)
 	assert( rs == get_random_seed() ); (void)rs;
 
 
-	if (jump_frame_t::auto_jump)
-	{
-		sprintf(jump_frame_t::auto_jump_countdown_char, "%ld", (jump_frame_t::auto_jump_interval - (time(NULL) - jump_frame_t::auto_jump_base_time)));
-		if( time(NULL) - jump_frame_t::auto_jump_base_time >= jump_frame_t::auto_jump_interval ) {
-			jump_frame_t::auto_jump_base_time = time(NULL);
-
-			uint32 halt_count = haltestelle_t::get_alle_haltestellen().get_count();
-			uint32 no_depot_cnv = 0;
-			FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
-				if (!cnv->in_depot())
-				{
-					no_depot_cnv++;
-				}
-			}
-
-			if( halt_count + no_depot_cnv != 0 ) {
-				uint32 rnd = rand() % ( halt_count + no_depot_cnv );
-
-				koord my_pos;
-				uint32 counter = 0;
-				FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
-					if ( rnd == counter )
-					{
-						my_pos = halt->get_init_pos();
-					}
-					counter++;
-				}
-				dbg->message( "auto_jump", "Jump to %d, %d", my_pos.x, my_pos.y);
-				welt->get_viewport()->change_world_position(koord3d(my_pos,welt->min_hgt(my_pos)));
-
-				FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
-					if (!cnv->in_depot())
-					{
-						if ( rnd == counter )
-						{
-							dbg->message( "auto_jump", "follow convoi %s", cnv->get_name());
-							welt->get_viewport()->set_follow_convoi(cnv);
-						}
-						counter++;
-					}
-				}
-			}
-		}
-	}
+	
 
 #else
 	(void)force_dirty;
@@ -633,5 +589,54 @@ void main_view_t::display_background( KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, K
 {
 	if(  !(env_t::draw_earth_border  &&  env_t::draw_outside_tile)  ) {
 		display_fillbox_wh_rgb(xp, yp, w, h, env_t::background_color, dirty );
+	}
+}
+
+// Select randomly a halt or convoy. When a convoy is selected, follow it.
+void main_view_t::autojump() {
+	// update countdown text
+	sprintf(jump_frame_t::auto_jump_countdown_char, "%ld", (jump_frame_t::auto_jump_interval - (time(NULL) - jump_frame_t::auto_jump_base_time)));
+	// jump only when auto_jump_interval passed.
+	if(  time(NULL) - jump_frame_t::auto_jump_base_time<jump_frame_t::auto_jump_interval  ) {
+		return;
+	}
+	
+	jump_frame_t::auto_jump_base_time = time(NULL);
+	uint32 halt_count = haltestelle_t::get_alle_haltestellen().get_count();
+	uint32 no_depot_cnv = 0;
+	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
+		if (!cnv->in_depot()) {
+			no_depot_cnv++;
+		}
+	}
+	// there is no halt or convoy -> return
+	if(  halt_count+no_depot_cnv==0  ) {
+		return;
+	}
+	
+	uint32 rnd = rand() % ( halt_count + no_depot_cnv );
+	koord my_pos;
+	uint32 counter = 0;
+	// find halt of given index
+	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
+		if (  rnd==counter  ) {
+			my_pos = halt->get_init_pos();
+			dbg->message( "auto_jump", "Jump to %d, %d", my_pos.x, my_pos.y);
+			welt->get_viewport()->change_world_position(koord3d(my_pos,welt->min_hgt(my_pos)));
+			return;
+		}
+		counter++;
+	}
+	
+	// find convoy of given index
+	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
+		if (!cnv->in_depot()) {
+			if ( rnd == counter ) {
+				dbg->message( "auto_jump", "follow convoi %s", cnv->get_name());
+				welt->get_viewport()->set_follow_convoi(cnv);
+				return;
+			}
+			counter++;
+		}
 	}
 }

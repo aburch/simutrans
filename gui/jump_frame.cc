@@ -19,6 +19,10 @@
 
 #include "../dataobj/translator.h"
 
+bool jump_frame_t::auto_jump = false;
+time_t jump_frame_t::auto_jump_base_time;
+uint16 jump_frame_t::auto_jump_interval = 30;
+char jump_frame_t::auto_jump_countdown_char[6];
 
 jump_frame_t::jump_frame_t() :
 	gui_frame_t( translator::translate("Jump to") )
@@ -75,12 +79,12 @@ bool jump_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			welt->get_viewport()->change_world_position(koord3d(my_pos,welt->min_hgt(my_pos)));
 		}
 	}
-	else if(comp == &auto_jump_button) {
+	else if(  comp==&auto_jump_button  ) {
 		auto_jump = !auto_jump;
 		auto_jump_button.pressed = auto_jump;
 		auto_jump_base_time = time(NULL);
 	}
-	else if(comp == &auto_jump_interval_numberinput) {
+	else if(  comp==&auto_jump_interval_numberinput  ) {
 		uint16 buf = auto_jump_interval_numberinput.get_value();
 		auto_jump_interval = buf;
 		auto_jump_base_time = time(NULL);
