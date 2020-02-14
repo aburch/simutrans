@@ -27,6 +27,7 @@
 #include "../tpl/array_tpl.h"
 #include "../dataobj/route.h"
 
+
 #include "../tpl/fixed_list_tpl.h"
 
 class convoi_t;
@@ -35,6 +36,7 @@ class signal_t;
 class ware_t;
 class schiene_t;
 class strasse_t;
+//class karte_ptr_t;
 
 // for aircraft:
 // length of the holding pattern.
@@ -42,6 +44,23 @@ class strasse_t;
 // offset of end tile of the holding pattern before touchdown tile.
 #define HOLDING_PATTERN_OFFSET 3
 /*----------------------- Movables ------------------------------------*/
+
+class traffic_vehicle_t
+{
+	//static karte_ptr_t welt_this;
+	//const karte_t* welt_this; // for timing and conversion functions
+	private:
+		sint64 time_at_last_hop; // ticks
+		uint32 dist_travelled_since_last_hop; // meters
+		uint32 get_way_speed_kmh(strasse_t*); //returns km/h
+		virtual uint32 get_max_speed_kmh() {}; // defined separately: takes y/t, returns km/h
+		uint32 get_travel_time_actual(); // uses ticks, returns seconds
+		uint32 get_travel_time_ideal(strasse_t*); // returns seconds
+	public:
+		void reset_measurements(); // resets time and distance
+		void add_distance(uint32); // takes yards, adds meters
+		void flush_travel_times(strasse_t*); // calculate travel times, write to way, reset measurements
+};
 
 /**
  * Base class for all vehicles
@@ -717,14 +736,12 @@ template<> inline vehicle_t* obj_cast<vehicle_t>(obj_t* const d)
  * @author Hj. Malthaner
  * @see vehicle_t
  */
-class road_vehicle_t : public vehicle_t
+class road_vehicle_t : public vehicle_t, public traffic_vehicle_t
 {
 private:
 	// called internally only from can_enter_tile()
 	// returns true on success
 	bool choose_route(sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index);
-	sint64 time_at_last_hop;
-	uint32 dist_travelled_since_last_hop;
 
 public:
 	bool check_next_tile(const grund_t *bd) const;
@@ -746,6 +763,8 @@ public:
 	road_vehicle_t(loadsave_t *file, bool first, bool last);
 	road_vehicle_t();
 	road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv); // start und schedule
+
+	uint32 get_max_speed_kmh();
 
 	virtual void set_convoi(convoi_t *c);
 

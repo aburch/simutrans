@@ -145,6 +145,11 @@ void road_user_t::show_info()
 	}
 }
 
+uint32 private_car_t::get_max_speed_kmh()
+{
+	return speed_to_kmh(get_desc()->get_topspeed());
+}
+
 
 grund_t* road_user_t::hop()
 {
@@ -441,8 +446,7 @@ private_car_t::private_car_t(loadsave_t *file) :
 	if(desc) {
 		welt->sync.add(this);
 	}
-	time_at_last_hop = welt->ticks_to_seconds(welt->get_ticks());
-	dist_travelled_since_last_hop = 0;
+	reset_measurements();
 }
 
 
@@ -463,8 +467,7 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 	calc_image();
 	origin = gr ? gr->get_pos().get_2d() : koord::invalid;
 	last_tile_marked_as_stopped = koord3d::invalid;
-	time_at_last_hop = welt->ticks_to_seconds(welt->get_ticks());
-	dist_travelled_since_last_hop = 0;
+	reset_measurements();
 }
 
 
@@ -479,20 +482,6 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 		// stuck in traffic jam
 		uint32 old_ms_traffic_jam = ms_traffic_jam;
 		ms_traffic_jam += delta_t;
-		if (ms_traffic_jam >= 1000)
-		{
-			// If stopped for long enough, mark the tile as congested
-			//if (get_pos() != last_tile_marked_as_stopped)
-			//{
-				//grund_t* const gr_this = welt->lookup(get_pos());
-				//weg_t* const way = gr_this ? gr_this->get_weg(road_wt) : NULL;
-				//last_tile_marked_as_stopped = get_pos();
-				//if (way)
-				//{
-					//way->increment_traffic_stopped_counter();
-				//}
-			//}
-		}
 		// check only every 1.024 s if stopped
 		if(  (ms_traffic_jam>>10) != (old_ms_traffic_jam>>10)  ) {
 			pos_next_next = koord3d::invalid;
@@ -524,7 +513,7 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 			weg_next += current_speed * delta_t;
 		}
 		const uint32 distance = do_drive( weg_next );
-		dist_travelled_since_last_hop += (distance * welt->get_settings().get_meters_per_tile()) >> YARDS_PER_TILE_SHIFT;
+		add_distance(distance);
 		// hop_check could have set weg_next to zero, check for possible underflow here
 		if (weg_next > distance) {
 			weg_next -= distance;
@@ -628,8 +617,7 @@ void private_car_t::rdwr(loadsave_t *file)
 	// do not start with zero speed!
 	current_speed ++;
 
-	time_at_last_hop = welt->ticks_to_seconds(welt->get_ticks());
-	dist_travelled_since_last_hop = 0;
+	reset_measurements();
 }
 
 
@@ -1233,20 +1221,15 @@ void private_car_t::hop(grund_t* to)
 		}
 	}
 
-	uint32 time_now = welt->ticks_to_seconds(welt->get_ticks()); //TODO: merge into generalised timer
 	grund_t* gr = get_grund();
 	if(gr)
 	{
 		strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
 		if(str)
 		{
-			uint32 travel_time_actual = max(time_now - time_at_last_hop, 1); //TODO: consider merging with player vehicles
-			uint32 travel_time_ideal = max(seconds_from_meters_and_kmh(dist_travelled_since_last_hop, min(speed_to_kmh(get_desc()->get_topspeed()), str->get_max_speed())), 1); //TODO: private cars only. a different measure would be used for player vehicles
-			str->update_travel_times(travel_time_actual, travel_time_ideal);
+			flush_travel_times(str);
 		}
 	}
-	time_at_last_hop = time_now;
-	dist_travelled_since_last_hop = 0;
 
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	if(to==NULL) {
