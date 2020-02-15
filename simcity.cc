@@ -5369,13 +5369,13 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 						// The below code from Standard does not seem to exist in Extended
 						// (that is, the check_update_underground() logic.
 						/*
-						if (grund_t* bd_recalc = welt->lookup_kartenboden(k + koord(0, 1))) {
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 0, 1 ) ) ) {
 							bd_recalc->check_update_underground();
 						}
-						if (grund_t* bd_recalc = welt->lookup_kartenboden(k + koord(1, 0))) {
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 0 ) ) ) {
 							bd_recalc->check_update_underground();
 						}
-						if (grund_t* bd_recalc = welt->lookup_kartenboden(k + koord(1, 1))) {
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 1 ) ) ) {
 							bd_recalc->check_update_underground();
 						}*/
 						bd->mark_image_dirty();

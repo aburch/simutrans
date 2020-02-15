@@ -554,7 +554,7 @@ bool loadsave_t::wr_open( const char *filename_utf8, mode_t m, int level, const 
 	saving = true;
 	if(  is_zipped()  ) {
 		// using zlib on servers, since 3x times faster saving than bz2
-		char compr[ 4 ] = { 'w', 'b', '0' + clamp( level, 1, 9 ), 0 };
+		char compr[ 4 ] = { 'w', 'b', (char)('0' + clamp( level, 1, 9 )), 0 };
 		fd->gzfp = dr_gzopen(filename_utf8, compr );
 	}
 	else if(  mode==binary  ) {
