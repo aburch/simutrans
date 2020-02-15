@@ -46,6 +46,7 @@ private:
 	depot_t *depot;
 	gui_label_buf_t label;
 	gui_image_t waytype_symbol;
+	button_t	gotopos;
 
 	void update_label();
 
