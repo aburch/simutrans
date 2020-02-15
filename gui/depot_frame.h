@@ -250,20 +250,6 @@ private:
 	void init(depot_t *depot);
 
 public:
-	// sorting categories
-	enum {
-		sb_name,
-		sb_capacity,
-		sb_price,
-		sb_cost,
-		sb_cost_per_unit,
-		sb_speed, sb_power,
-		sb_weight,
-		sb_intro_date,
-		sb_retire_date,
-		sb_length
-	};
-
 	// the next two are only needed for depot_t update notifications
 	void activate_convoi( convoihandle_t cnv );
 

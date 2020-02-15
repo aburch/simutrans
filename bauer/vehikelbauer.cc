@@ -25,11 +25,38 @@
 #include "../tpl/stringhashtable_tpl.h"
 
 
+const char* vehicle_builder_t::engine_type_names[9] =
+{
+	"unknown",
+	"steam",
+	"diesel",
+	"electric",
+	"bio",
+	"sail",
+	"fuel_cell",
+	"hydrogene",
+	"battery"
+};
+
+const char *vehicle_builder_t::vehicle_sort_by[vehicle_builder_t::sb_length] =
+{
+	"Vehicle Name",
+	"Capacity",
+	"Price",
+	"Cost",
+	"Cost per unit",
+	"Max. speed",
+	"Vehicle Power",
+	"Weight",
+	"Intro. date",
+	"Retire date"
+};
+
 static stringhashtable_tpl<const vehicle_desc_t*> name_fahrzeuge;
 
 // index 0 aur, 1...8 at normal waytype index
 #define GET_WAYTYPE_INDEX(wt) ((int)(wt)>8 ? 0 : (wt))
-static slist_tpl<const vehicle_desc_t*> typ_fahrzeuge[depot_frame_t::sb_length][9];
+static slist_tpl<const vehicle_desc_t*> typ_fahrzeuge[vehicle_builder_t::sb_length][9];
 static uint8 tmp_sort_idx;
 
 class bonus_record_t {
@@ -201,7 +228,7 @@ bool vehicle_builder_t::register_desc(const vehicle_desc_t *desc)
 	name_fahrzeuge.put(desc->get_name(), desc);
 
 	// now add it to sorter (may be more than once!)
-	for(  int sort_idx = 0;  sort_idx < depot_frame_t::sb_length;  sort_idx++  ) {
+	for(  int sort_idx = 0;  sort_idx < vehicle_builder_t::sb_length;  sort_idx++  ) {
 		if(  old_desc  ) {
 			typ_fahrzeuge[sort_idx][wt_idx].remove(old_desc);
 		}
@@ -238,47 +265,47 @@ static int compare_retire_year_month(const vehicle_desc_t* a, const vehicle_desc
 
 
 
-// default compare function
-static bool compare_vehicles(const vehicle_desc_t* a, const vehicle_desc_t* b)
+// default compare function with mode parameter
+bool vehicle_builder_t::compare_vehicles(const vehicle_desc_t* a, const vehicle_desc_t* b, sort_mode_t mode )
 {
 	int cmp = compare_freight(a, b);
 	if (cmp != 0) return cmp < 0;
-	switch (tmp_sort_idx) {
-		case depot_frame_t::sb_name:
+	switch (mode) {
+		case sb_name:
 			cmp = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
 			if (cmp != 0) return cmp < 0;
 			break;
-		case depot_frame_t::sb_price:
+		case sb_price:
 			cmp = compare_price(a, b);
 			if (cmp != 0) return cmp < 0;
 			// fall-through
-		case depot_frame_t::sb_cost:
+		case sb_cost:
 			cmp = compare_cost(a, b);
 			if (cmp != 0) return cmp < 0;
 			cmp = compare_price(a, b);
 			if (cmp != 0) return cmp < 0;
 			break;
-		case depot_frame_t::sb_cost_per_unit:
+		case sb_cost_per_unit:
 			cmp = compare_cost_per_unit(a,b);
 			if (cmp != 0) return cmp < 0;
 			break;
-		case depot_frame_t::sb_speed:
+		case sb_speed:
 			cmp = compare_topspeed(a, b);
 			if (cmp != 0) return cmp < 0;
 			break;
-		case depot_frame_t::sb_weight:
+		case sb_weight:
 			cmp = compare_weight(a, b);
 			if (cmp != 0) return cmp < 0;
 			break;
-		case depot_frame_t::sb_power:
+		case sb_power:
 			cmp = compare_power(a, b);
 			if (cmp != 0) return cmp < 0;
 			break;
-		case depot_frame_t::sb_intro_date:
+		case sb_intro_date:
 			cmp = compare_intro_year_month(a, b);
 			if (cmp != 0) return cmp < 0;
 			// fall-through
-		case depot_frame_t::sb_retire_date:
+		case sb_retire_date:
 			cmp = compare_retire_year_month(a, b);
 			if (cmp != 0) return cmp < 0;
 			cmp = compare_intro_year_month(a, b);
@@ -308,12 +335,17 @@ static bool compare_vehicles(const vehicle_desc_t* a, const vehicle_desc_t* b)
 }
 
 
+static bool compare( const vehicle_desc_t* a, const vehicle_desc_t* b )
+{
+	return vehicle_builder_t::compare_vehicles( a, b, (vehicle_builder_t::sort_mode_t)tmp_sort_idx );
+}
+
 
 bool vehicle_builder_t::successfully_loaded()
 {
 	// first: check for bonus tables
 	DBG_MESSAGE("vehicle_builder_t::sort_lists()","called");
-	for (  int sort_idx = 0; sort_idx < depot_frame_t::sb_length; sort_idx++  ) {
+	for (  int sort_idx = 0; sort_idx < vehicle_builder_t::sb_length; sort_idx++  ) {
 		for(  int wt_idx=0;  wt_idx<9;  wt_idx++  ) {
 			tmp_sort_idx = sort_idx;
 			slist_tpl<const vehicle_desc_t*>& typ_liste = typ_fahrzeuge[sort_idx][wt_idx];
@@ -326,7 +358,7 @@ bool vehicle_builder_t::successfully_loaded()
 			for(  const vehicle_desc_t** tmpptr = tmp;  tmpptr != tmp_end;  tmpptr++  ) {
 				*tmpptr = typ_liste.remove_first();
 			}
-			std::sort(tmp, tmp_end, compare_vehicles);
+			std::sort(tmp, tmp_end, compare);
 			for(  const vehicle_desc_t** tmpptr = tmp;  tmpptr != tmp_end;  tmpptr++  ) {
 				typ_liste.append(*tmpptr);
 			}

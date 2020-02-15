@@ -16,28 +16,13 @@
 
 #include "vehiclelist_frame.h"
 
-enum sort_mode_t { best, by_intro, by_retire, by_power, by_capacity, by_name, SORT_MODES };
-
-int vehiclelist_stats_t::sort_mode = by_intro;
+int vehiclelist_stats_t::sort_mode = vehicle_builder_t::sb_intro_date;
 bool vehiclelist_stats_t::reverse = false;
 
 // for having uniform spaced columns
 int vehiclelist_stats_t::img_width = 100;
 int vehiclelist_stats_t::col1_width = 100;
 int vehiclelist_stats_t::col2_width = 100;
-
-static const char* engine_type_names[9] =
-{
-	"unknown",
-	"steam",
-	"diesel",
-	"electric",
-	"bio",
-	"sail",
-	"fuel_cell",
-	"hydrogene",
-	"battery"
-};
 
 
 vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
@@ -56,7 +41,7 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 	int dx = proportional_string_width( translator::translate( veh->get_name(), world()->get_settings().get_name_language_id() ) );
 	if( veh->get_power() > 0 ) {
 		char str[ 256 ];
-		sprintf( str, " (%s)", translator::translate( engine_type_names[ veh->get_engine_type() + 1 ] ) );
+		sprintf( str, " (%s)", translator::translate( vehicle_builder_t::engine_type_names[ veh->get_engine_type() + 1 ] ) );
 		dx += proportional_string_width( str );
 	}
 	dx += D_H_SPACE;
@@ -150,7 +135,7 @@ void vehiclelist_stats_t::draw( scr_coord offset )
 	);
 	if( veh->get_power() > 0 ) {
 		char str[ 256 ];
-		sprintf( str, " (%s)", translator::translate( engine_type_names[ veh->get_engine_type() + 1 ] ) );
+		sprintf( str, " (%s)", translator::translate( vehicle_builder_t::engine_type_names[ veh->get_engine_type() + 1 ] ) );
 		display_proportional_rgb( offset.x+dx, offset.y, str, ALIGN_LEFT|DT_CLIP, SYSCOL_TEXT, false );
 	}
 
@@ -168,54 +153,10 @@ const char *vehiclelist_stats_t::get_text() const
 
 bool vehiclelist_stats_t::compare(const gui_component_t *aa, const gui_component_t *bb)
 {
-	const vehiclelist_stats_t* fa = dynamic_cast<const vehiclelist_stats_t*>(aa);
-	const vehiclelist_stats_t* fb = dynamic_cast<const vehiclelist_stats_t*>(bb);
-	// good luck with mixed lists
-	assert(fa != NULL  &&  fb != NULL);
-	const vehicle_desc_t*a=fa->veh, *b=fb->veh;
-
-	int cmp = 0;
-	switch( sort_mode ) {
-	default:
-	case best:
-		return 0;
-
-	case by_intro:
-		cmp = a->get_intro_year_month() - b->get_intro_year_month();
-		break;
-
-	case by_retire:
-		cmp = a->get_retire_year_month() - b->get_retire_year_month();
-		break;
-
-	case by_power:
-		cmp = a->get_power() - b->get_power();
-		break;
-
-	case by_capacity:
-		cmp = a->get_capacity() - b->get_capacity();
-		break;
-
-	case by_name:
-		break;
-
-	}
-	if(  cmp == 0  ) {
-		cmp = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
-	}
-	return reverse ? cmp > 0 : cmp < 0;
+	bool result = vehicle_builder_t::compare_vehicles( dynamic_cast<const vehiclelist_stats_t*>(aa)->veh, dynamic_cast<const vehiclelist_stats_t*>(bb)->veh, (vehicle_builder_t::sort_mode_t)vehiclelist_stats_t::sort_mode );
+	return vehiclelist_stats_t::reverse ? !result : result;
 }
 
-
-
-static const char *sort_text[SORT_MODES] = {
-	"Unsorted",
-	"Intro. date:",
-	"Retire. date:",
-	"Power:",
-	"Capacity:",
-	"Name"
-};
 
 vehiclelist_frame_t::vehiclelist_frame_t() :
 	gui_frame_t( translator::translate("vh_title") ),
@@ -224,11 +165,15 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 	current_wt = any_wt;
 
 	set_table_layout(1,0);
-	new_component<gui_label_t>("hl_txt_sort");
 
-	add_table(3,0);
+	add_table(4,0);
 	{
-		sortedby.init( button_t::roundbox, sort_text[ vehiclelist_stats_t::sort_mode ] );
+		new_component<gui_label_t>("hl_txt_sort");
+		new_component<gui_empty_t>();
+		new_component<gui_empty_t>();
+		new_component<gui_empty_t>();
+
+		sortedby.init( button_t::roundbox, vehicle_builder_t::vehicle_sort_by[ vehiclelist_stats_t::sort_mode ] );
 		sortedby.add_listener( this );
 		add_component( &sortedby );
 
@@ -239,6 +184,11 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 		bt_obsolete.init( button_t::square_state, "Show obsolete" );
 		bt_obsolete.add_listener( this );
 		add_component( &bt_obsolete );
+
+		bt_future.init( button_t::square_state, "Show future" );
+		bt_future.add_listener( this );
+		bt_future.pressed = true;
+		add_component( &bt_future );
 	}
 	end_table();
 
@@ -296,8 +246,8 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 bool vehiclelist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if(comp == &sortedby) {
-		vehiclelist_stats_t::sort_mode = (vehiclelist_stats_t::sort_mode + 1) % SORT_MODES;
-		sortedby.set_text(sort_text[vehiclelist_stats_t::sort_mode]);
+		vehiclelist_stats_t::sort_mode = (vehiclelist_stats_t::sort_mode + 1) % vehicle_builder_t::sb_length;
+		sortedby.set_text(vehicle_builder_t::vehicle_sort_by[vehiclelist_stats_t::sort_mode]);
 		if( vehiclelist_stats_t::sort_mode == 0 ) {
 			fill_list();	// using sorting from vehikelbauer
 		}
@@ -312,6 +262,10 @@ bool vehiclelist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /
 	}
 	else if(comp == &bt_obsolete) {
 		bt_obsolete.pressed ^= 1;
+		fill_list();
+	}
+	else if(comp == &bt_future) {
+		bt_future.pressed ^= 1;
 		fill_list();
 	}
 	else if(comp == &tabs) {
@@ -336,16 +290,20 @@ void vehiclelist_frame_t::fill_list()
 		// adding all vehiles, i.e. iterate over all available waytypes
 		for(  int i=1;  i<max_idx;  i++  ) {
 			FOR(slist_tpl<vehicle_desc_t const*>, const veh, vehicle_builder_t::get_info(tabs_to_wt[i])) {
-				if(  bt_obsolete.pressed  ||  !veh->is_retired(month)  ) {
-					scrolly.new_component<vehiclelist_stats_t>( veh );
+				if(  bt_obsolete.pressed  ||  !veh->is_retired( month )  ) {
+					if(  bt_future.pressed  ||  !veh->is_future( month )  ) {
+						scrolly.new_component<vehiclelist_stats_t>( veh );
+					}
 				}
 			}
 		}
 	}
 	else {
 		FOR(slist_tpl<vehicle_desc_t const*>, const veh, vehicle_builder_t::get_info(current_wt)) {
-			if(  bt_obsolete.pressed  ||  !veh->is_retired(month)  ) {
-				scrolly.new_component<vehiclelist_stats_t>( veh );
+			if(  bt_obsolete.pressed  ||  !veh->is_retired( month )  ) {
+				if(  bt_future.pressed  ||  !veh->is_future( month )  ) {
+					scrolly.new_component<vehiclelist_stats_t>( veh );
+				}
 			}
 		}
 	}

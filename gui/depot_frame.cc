@@ -59,18 +59,6 @@
 
 char depot_frame_t::name_filter_value[64] = "";
 
-static const char* engine_type_names[9] =
-{
-	"unknown",
-	"steam",
-	"diesel",
-	"electric",
-	"bio",
-	"sail",
-	"fuel_cell",
-	"hydrogene",
-	"battery"
-};
 
 static int sort_by_action;
 
@@ -813,7 +801,6 @@ static void get_line_list(const depot_t* depot, vector_tpl<linehandle_t>* lines)
 void depot_frame_t::update_data()
 {
 	static const char *txt_veh_action[3] = { "anhaengen", "voranstellen", "verkaufen" };
-	static const char *txt_sort_by[sb_length] = { "Vehicle Name", "Capacity", "Price", "Cost", "Cost per unit", "Max. speed", "Vehicle Power", "Weight", "Intro. date", "Retire date" };
 
 	// change green into blue for retired vehicles
 	const int month_now = welt->get_timeline_year_month();
@@ -1033,12 +1020,11 @@ void depot_frame_t::update_data()
 	vehicle_filter.set_selection(depot->selected_filter);
 
 	sort_by.clear_elements();
-	for(int i = 0; i < sb_length; i++)
-	{
-		sort_by.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(txt_sort_by[i]), SYSCOL_TEXT);
+	for(int i = 0; i < vehicle_builder_t::sb_length; i++) {
+		sort_by.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(vehicle_builder_t::vehicle_sort_by[i]), SYSCOL_TEXT);
 	}
 	if(  depot->selected_sort_by > sort_by.count_elements()  ) {
-		depot->selected_sort_by = sb_name;
+		depot->selected_sort_by = vehicle_builder_t::sb_name;
 	}
 	sort_by.set_selection(depot->selected_sort_by);
 
@@ -1666,7 +1652,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		buf.printf( "%s", translator::translate( veh_type->get_name(), welt->get_settings().get_name_language_id() ) );
 
 		if(  veh_type->get_power() > 0  ) { // LOCO
-			buf.printf( " (%s)\n", translator::translate( engine_type_names[veh_type->get_engine_type()+1] ) );
+			buf.printf( " (%s)\n", translator::translate( vehicle_builder_t::engine_type_names[veh_type->get_engine_type()+1] ) );
 		}
 		else {
 			buf.append( "\n" );
