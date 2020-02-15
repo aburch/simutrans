@@ -369,7 +369,7 @@ public:
 		create_win(new vehiclelist_frame_t(), w_info, magic_vehiclelist);
 		return false;
 	}
-	bool exit(player_t* player) OVERRIDE{ destroy_win(magic_vehiclelist); return false; }
+	bool exit(player_t*) OVERRIDE{ destroy_win(magic_vehiclelist); return false; }
 	bool is_init_network_save() const OVERRIDE{ return true; }
 	bool is_work_network_save() const OVERRIDE{ return true; }
 };

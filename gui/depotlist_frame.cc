@@ -47,6 +47,7 @@ depotlist_stats_t::depotlist_stats_t(depot_t *d)
 	case air_wt:
 		waytype_symbol.set_image( skinverwaltung_t::airhaltsymbol->get_image_id(0), true );
 		break;
+	default: ;
 	}
 	add_component(&waytype_symbol);
 	b->set_targetpos(depot->get_pos().get_2d());

@@ -251,6 +251,7 @@ static bool compare_vehicles(const vehicle_desc_t* a, const vehicle_desc_t* b)
 		case depot_frame_t::sb_price:
 			cmp = compare_price(a, b);
 			if (cmp != 0) return cmp < 0;
+			// fall-through
 		case depot_frame_t::sb_cost:
 			cmp = compare_cost(a, b);
 			if (cmp != 0) return cmp < 0;
@@ -276,6 +277,7 @@ static bool compare_vehicles(const vehicle_desc_t* a, const vehicle_desc_t* b)
 		case depot_frame_t::sb_intro_date:
 			cmp = compare_intro_year_month(a, b);
 			if (cmp != 0) return cmp < 0;
+			// fall-through
 		case depot_frame_t::sb_retire_date:
 			cmp = compare_retire_year_month(a, b);
 			if (cmp != 0) return cmp < 0;
@@ -581,9 +583,9 @@ sint32 vehicle_builder_t::get_fastest_vehicle_speed(waytype_t wt, uint16 const m
 
 	FOR(slist_tpl<vehicle_desc_t const*>, const vehicle_descriptor, typ_fahrzeuge[0][GET_WAYTYPE_INDEX(wt)]) {
 		if (vehicle_descriptor->get_power() == 0 ||
-			use_timeline && (
+			(use_timeline && (
 				vehicle_descriptor->is_future(month_now) ||
-				!allow_obsolete && vehicle_descriptor->is_retired(month_now))) {
+				(!allow_obsolete && vehicle_descriptor->is_retired(month_now))))) {
 			continue;
 		}
 
