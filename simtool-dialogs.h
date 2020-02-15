@@ -353,12 +353,12 @@ class dialog_list_depot_t : public tool_t {
 public:
 	dialog_list_depot_t() : tool_t(DIALOG_LIST_DEPOT | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("dp_title"); }
-	bool is_selected() const OVERRIDE{ return win_get_magic(magic_depolist + welt->get_active_player_nr()); }
+	bool is_selected() const OVERRIDE{ return win_get_magic(magic_depotlist + welt->get_active_player_nr()); }
 	bool init(player_t* player) OVERRIDE{
-		create_win(new depotlist_frame_t(player), w_info, magic_depolist + player->get_player_nr());
+		create_win(new depotlist_frame_t(player), w_info, magic_depotlist + player->get_player_nr());
 		return false;
 	}
-	bool exit(player_t* player) OVERRIDE{ destroy_win(magic_depolist + player->get_player_nr()); return false; }
+	bool exit(player_t* player) OVERRIDE{ destroy_win(magic_depotlist + player->get_player_nr()); return false; }
 	bool is_init_network_save() const OVERRIDE{ return true; }
 	bool is_work_network_save() const OVERRIDE{ return true; }
 };
