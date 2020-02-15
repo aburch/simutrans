@@ -3041,29 +3041,6 @@ void haltestelle_t::finish_rd()
 			}
 		}
 	}
-	else {
-		const char *current_name = bd->get_text();
-		if(  all_names.get(current_name).is_bound()  &&  fabrik_t::get_fab(get_basis_pos())==NULL  ) {
-			// try to get a new name ...
-			const char *new_name;
-			if(  station_type & airstop  ) {
-				new_name = create_name( get_basis_pos(), "Airport" );
-			}
-			else if(  station_type & dock  ) {
-				new_name = create_name( get_basis_pos(), "Dock" );
-			}
-			else if(  station_type & (railstation|monorailstop|maglevstop|narrowgaugestop)  ) {
-				new_name = create_name( get_basis_pos(), "BF" );
-			}
-			else {
-				new_name = create_name( get_basis_pos(), "H" );
-			}
-			dbg->warning("haltestelle_t::set_name()","name already used: \'%s\' -> \'%s\'", current_name, new_name );
-			bd->set_text( new_name );
-			current_name = new_name;
-		}
-		all_names.set( current_name, self );
-	}
 	recalc_status();
 	reconnect_counter = welt->get_schedule_counter()-1;
 }
