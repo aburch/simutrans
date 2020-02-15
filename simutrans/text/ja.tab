@@ -3663,6 +3663,8 @@ Upgrade will be available in the near future
 （混載不可）
 Cannot start: no cab at the front of the convoy.
 編成の構成エラー：\n先頭になれない車両が先頭になっています。（運転台が無い等）
+no power at all
+編成に動力がありません！
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

@@ -927,7 +927,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			if (min_speed < allowed_speed / 2) {
 				if (skinverwaltung_t::alerts) {
 					txt_convoi_speed.append("   ");
-					display_color_img(skinverwaltung_t::alerts->get_image_id(2+steam_convoy), parent_pos.x + D_MARGIN_LEFT, parent_pos.y + pos.y + lb_convoi_speed.get_pos().y, 0, false, false);
+					display_color_img(skinverwaltung_t::alerts->get_image_id(2 + steam_convoy), parent_pos.x + D_MARGIN_LEFT, parent_pos.y + pos.y + lb_convoi_speed.get_pos().y, 0, false, false);
 				}
 				else {
 					lb_convoi_speed.set_color(COL_DARK_ORANGE);
@@ -983,48 +983,53 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		lb_convoi_speed.set_color(col_convoi_speed);
 
 		// starting acceleration
-		const uint32 starting_acceleration_max = convoy.calc_acceleration(weight_summary_t(min_weight, friction),0);
-		const uint32 starting_acceleration_min = convoy.calc_acceleration(weight_summary_t(max_weight, friction),0);
-		tooltip_convoi_acceleration.append(translator::translate("Starting acceleration:"));
-		tooltip_convoi_acceleration.printf(
-			starting_acceleration_min == starting_acceleration_max ? " %.2f km/h/s" : " %.2f - %.2f km/h/s",
-			(double)starting_acceleration_min / 100.0, (double)starting_acceleration_max / 100.0);
-		// acceleration time
-		const double min_acceleration_time = convoy.calc_acceleration_time(weight_summary_t(min_weight, friction), max_speed);
-		const double max_acceleration_time = convoy.calc_acceleration_time(weight_summary_t(max_weight, friction), min_speed);
-		if (min_speed == max_speed) {
-			tooltip_convoi_acceleration.printf(min_weight == max_weight ? translator::translate("; %i km/h @ %.2f sec") : translator::translate("; %i km/h @ %.2f - %.2f sec"),
-				max_speed, min_acceleration_time, max_acceleration_time);
+		if (!total_power) {
+			tooltip_convoi_acceleration.append(translator::translate("no power at all"));
 		}
-		else {
-			tooltip_convoi_acceleration.printf(translator::translate("; %i km/h @ %.2f sec - %i km/h @ %.2f sec"),
-				max_speed, min_acceleration_time, min_speed, max_acceleration_time);
-		}
-		// acceleration distance
-		const uint32 min_acceleration_distance = convoy.calc_acceleration_distance(weight_summary_t(min_weight, friction), max_speed);
-		const uint32 max_acceleration_distance = convoy.calc_acceleration_distance(weight_summary_t(max_weight, friction), min_speed);
-		tooltip_convoi_acceleration.printf(min_weight == max_weight ? translator::translate("; %i m") : translator::translate("; %i m - %i m"),
-			min_acceleration_distance, max_acceleration_distance);
-
-		{
-			char buf[128];
-			sint64 resale_value = total_cost;
-			if (depot_frame) {
-				convoihandle_t cnv = depot_frame->get_convoy();
-				if(cnv.is_bound())
-				{
-					resale_value = cnv->calc_sale_value();
-					depot_frame->set_resale_value(resale_value);
-				}
+		else{
+			const uint32 starting_acceleration_max = convoy.calc_acceleration(weight_summary_t(min_weight, friction), 0);
+			const uint32 starting_acceleration_min = convoy.calc_acceleration(weight_summary_t(max_weight, friction), 0);
+			tooltip_convoi_acceleration.append(translator::translate("Starting acceleration:"));
+			tooltip_convoi_acceleration.printf(
+				starting_acceleration_min == starting_acceleration_max ? " %.2f km/h/s" : " %.2f - %.2f km/h/s",
+				(double)starting_acceleration_min / 100.0, (double)starting_acceleration_max / 100.0);
+			// acceleration time
+			const double min_acceleration_time = convoy.calc_acceleration_time(weight_summary_t(min_weight, friction), max_speed);
+			const double max_acceleration_time = convoy.calc_acceleration_time(weight_summary_t(max_weight, friction), min_speed);
+			if (min_speed == max_speed) {
+				tooltip_convoi_acceleration.printf(min_weight == max_weight ? translator::translate("; %i km/h @ %.2f sec") : translator::translate("; %i km/h @ %.2f - %.2f sec"),
+					max_speed, min_acceleration_time, max_acceleration_time);
 			}
+			else {
+				tooltip_convoi_acceleration.printf(translator::translate("; %i km/h @ %.2f sec - %i km/h @ %.2f sec"),
+					max_speed, min_acceleration_time, min_speed, max_acceleration_time);
+			}
+			// acceleration distance
+			const uint32 min_acceleration_distance = convoy.calc_acceleration_distance(weight_summary_t(min_weight, friction), max_speed);
+			const uint32 max_acceleration_distance = convoy.calc_acceleration_distance(weight_summary_t(max_weight, friction), min_speed);
+			tooltip_convoi_acceleration.printf(min_weight == max_weight ? translator::translate("; %i m") : translator::translate("; %i m - %i m"),
+				min_acceleration_distance, max_acceleration_distance);
 
-			money_to_string(  buf, total_cost / 100.0 );
-			// FIXME: The correct term must be used for the translation of "Cost:"
-			txt_convoi_cost.append( translator::translate("Cost:") );
-			const COLOR_VAL col_cost = (uint32)resale_value == total_cost ? SYSCOL_TEXT : COL_ROYAL_BLUE;
-			display_proportional_clip(parent_pos.x + D_MARGIN_LEFT + proportional_string_width(translator::translate("Cost:"))+10, parent_pos.y + pos.y + lb_convoi_cost.get_pos().y, buf, ALIGN_LEFT, col_cost, true);
+			{
+				char buf[128];
+				sint64 resale_value = total_cost;
+				if (depot_frame) {
+					convoihandle_t cnv = depot_frame->get_convoy();
+					if (cnv.is_bound())
+					{
+						resale_value = cnv->calc_sale_value();
+						depot_frame->set_resale_value(resale_value);
+					}
+				}
 
-			txt_convoi_maintenance.printf(translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), (double)maint_per_km / 100.0, (double)maint_per_month / 100.0);
+				money_to_string(buf, total_cost / 100.0);
+				// FIXME: The correct term must be used for the translation of "Cost:"
+				txt_convoi_cost.append(translator::translate("Cost:"));
+				const COLOR_VAL col_cost = (uint32)resale_value == total_cost ? SYSCOL_TEXT : COL_ROYAL_BLUE;
+				display_proportional_clip(parent_pos.x + D_MARGIN_LEFT + proportional_string_width(translator::translate("Cost:")) + 10, parent_pos.y + pos.y + lb_convoi_cost.get_pos().y, buf, ALIGN_LEFT, col_cost, true);
+
+				txt_convoi_maintenance.printf(translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), (double)maint_per_km / 100.0, (double)maint_per_month / 100.0);
+			}
 		}
 
 		txt_convoi_power.clear();
@@ -2713,52 +2718,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			lines++;
 		}
 
-		//// TODO: (Upgrade information)
-		//if (convoi.index_at(pos, x, y) != -1 && veh_type->get_upgrades_count() > 0)
-		//{
-		//	const uint16 month_now = welt->get_timeline_year_month();
-		//	int amount_of_upgrades = 0;
-		//	int max_display_of_upgrades = 3;
-		//	for (int i = 0; i < veh_type->get_upgrades_count(); i++)
-		//	{
-		//		//if (veh_type->get_upgrades(i) && !veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
-		//		{
-		//			amount_of_upgrades++;
-		//		}
-		//	}
-		//	if (amount_of_upgrades > 0)
-		//	{
-		//		n += sprintf(buf + n, "%s:\n", translator::translate("this_vehicle_can_upgrade_to"));
-		//		for (uint8 i = 0; i < min(veh_type->get_upgrades_count(), max_display_of_upgrades); i++)
-		//		{
-		//			//if (veh_type->get_upgrades(i) && !veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
-		//			{
-		//				//money_to_string(tmp, veh_type->get_upgrades(i)->get_upgrade_price() / 100);
-		//				//n += sprintf(buf + n, " - %s (%8s)\n", translator::translate(veh_type->get_upgrades(i)->get_name()), tmp);
-		//				
-		//			}
-		//		}
-		//		if (amount_of_upgrades > max_display_of_upgrades)
-		//		{
-		//			
-		//			n += sprintf(buf + n, "+ %i %s\n", amount_of_upgrades - max_display_of_upgrades, translator::translate("additional_upgrades"));
-		//			}
-		//	}
-		//}
-		//else
-		//{
-		//	linespace_skips += 2;
-		//}
-
-		//
-		//if (linespace_skips > 0)
-		//{
-		//	for (int i = 0; i < linespace_skips; i++)
-		//	{
-		//		n += sprintf(buf + n, "\n");
-		//	}
-		//}
-
 		lines+=2;
 		display_multiline_text(pos.x + 335/*370*/, top, buf, SYSCOL_TEXT);
 		buf.clear();
@@ -2779,7 +2738,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			lb_convoi_count_fluctuation.set_visible(false);
 		}
 
-
+		const int MAX_ROWS = 15-lines; // Maximum display line of possession livery scheme or upgrade info
 		// livery counter and avairavle livery scheme list
 		if (veh_type->get_livery_count() > 0) {
 			// display the available number of liveries
@@ -2801,7 +2760,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 
 				int rows = 0;
 				int left = 0;
-				int MAX_ROWS = 16-lines;
 				FOR(vector_tpl<uint16>, const& i, livery_scheme_indices) {
 					buf.clear();
 					livery_scheme_t* scheme = welt->get_settings().get_livery_schemes()->get_element(i);
@@ -2842,6 +2800,64 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			lb_livery_counter.set_text(NULL);
 		}
 
+		// upgrade info
+		sel_index = convoi.index_at(pos, x, y);
+		if (sel_index != -1) {
+			const uint16 month_now = welt->get_timeline_year_month();
+			const uint8 upgradable_state = veh_type->has_available_upgrade(month_now, welt->get_settings().get_show_future_vehicle_info());
+			if (upgradable_state)
+			{
+				int found = 0;
+				COLOR_VAL upgrade_state_color = COL_UPGRADEABLE;
+				for (int i = 0; i < veh_type->get_upgrades_count(); i++)
+				{
+					if (const vehicle_desc_t* desc = veh_type->get_upgrades(i)) {
+						if (!welt->get_settings().get_show_future_vehicle_info() && desc->is_future(month_now) == 1) {
+							continue; // skip future information
+						}
+						found++;
+						if (found == 1) {
+							if (skinverwaltung_t::upgradable) {
+								display_color_img(skinverwaltung_t::upgradable->get_image_id(upgradable_state - 1), pos.x + 335 -14, top, 0, false, false);
+							}
+							buf.clear();
+							buf.printf("%s:", translator::translate("this_vehicle_can_upgrade_to"));
+							display_proportional_clip(pos.x + 335, top, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+							top += LINESPACE;
+						}
+
+						const uint16 intro_date = desc->is_future(month_now) ? desc->get_intro_year_month() : 0;
+
+						if (intro_date) {
+							upgrade_state_color = MN_GREY0;
+						}
+						else if (desc->is_retired(month_now)) {
+							upgrade_state_color = COL_OUT_OF_PRODUCTION;
+						}
+						else if (desc->is_obsolete(month_now, welt)) {
+							upgrade_state_color = COL_OBSOLETE;
+						}
+						display_veh_form(pos.x + 335, top + 1, VEHICLE_BAR_HEIGHT * 2, upgrade_state_color, true, desc->get_basic_constraint_prev(), desc->get_interactivity(), false);
+						display_veh_form(pos.x + 335 + VEHICLE_BAR_HEIGHT * 2 - 1, top + 1, VEHICLE_BAR_HEIGHT * 2, upgrade_state_color, true, desc->get_basic_constraint_next(), desc->get_interactivity(), true);
+
+						buf.clear();
+						buf.append(translator::translate(veh_type->get_upgrades(i)->get_name()));
+						if (intro_date) {
+							buf.printf(", %s %s", translator::translate("Intro. date:"), translator::get_year_month(intro_date));
+						}
+						display_proportional_clip(pos.x + 335 + VEHICLE_BAR_HEIGHT*4, top, buf, ALIGN_LEFT, upgrade_state_color, true);
+						top += LINESPACE;
+
+						if (found > MAX_ROWS-2) {
+							buf.clear();
+							buf.append(translator::translate("..."));
+							display_text_proportional_len_clip(pos.x + 335, top, buf, ALIGN_LEFT, SYSCOL_TEXT, true, D_BUTTON_WIDTH);
+							break;
+						}
+					}
+				}
+			}
+		}
 	}
 	else {
 		// nothing select, initialize
