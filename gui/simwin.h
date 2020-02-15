@@ -111,8 +111,8 @@ enum magic_numbers {
 	magic_haltlist_filter,
 	magic_depot, // only used to load/save
 	magic_halt_list_t,
-	magic_depolist = magic_halt_list_t + MAX_PLAYER_COUNT,
-	magic_vehiclelist = magic_depolist + MAX_PLAYER_COUNT,
+	magic_depotlist = magic_halt_list_t + MAX_PLAYER_COUNT,
+	magic_vehiclelist = magic_depotlist + MAX_PLAYER_COUNT,
 	magic_max
 };
 
