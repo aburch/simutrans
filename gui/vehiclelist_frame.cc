@@ -141,11 +141,11 @@ void vehiclelist_stats_t::draw( scr_coord offset )
 
 	// first name
 	offset.x += img_width;
-	int dx = display_proportional_rgb( 
-		offset.x, offset.y, 
-		translator::translate( veh->get_name(), world()->get_settings().get_name_language_id() ), 
+	int dx = display_proportional_rgb(
+		offset.x, offset.y,
+		translator::translate( veh->get_name(), world()->get_settings().get_name_language_id() ),
 		ALIGN_LEFT|DT_CLIP,
-		veh->is_future(month) ? SYSCOL_TEXT_HIGHLIGHT : (veh->is_available(month) ? SYSCOL_TEXT : color_idx_to_rgb(COL_BLUE)), 
+		veh->is_future(month) ? SYSCOL_TEXT_HIGHLIGHT : (veh->is_available(month) ? SYSCOL_TEXT : color_idx_to_rgb(COL_BLUE)),
 		false
 	);
 	if( veh->get_power() > 0 ) {
@@ -221,7 +221,7 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 	gui_frame_t( translator::translate("vh_title") ),
 	scrolly(gui_scrolled_list_t::windowskin, vehiclelist_stats_t::compare)
 {
-	current_wt = waytype_t::any_wt;
+	current_wt = any_wt;
 
 	set_table_layout(1,0);
 	new_component<gui_label_t>("hl_txt_sort");
@@ -243,40 +243,40 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 	end_table();
 
 	max_idx = 0;
-	tabs_to_wt[max_idx++] = waytype_t::any_wt;
+	tabs_to_wt[max_idx++] = any_wt;
 	tabs.add_tab(&scrolly, translator::translate("All"));
 	// now add all specific tabs
 	if(  !vehicle_builder_t::get_info(maglev_wt).empty()  ) {
 		tabs.add_tab(&scrolly, translator::translate("Maglev"), skinverwaltung_t::maglevhaltsymbol, translator::translate("Maglev"));
-		tabs_to_wt[max_idx++] = waytype_t::maglev_wt;
+		tabs_to_wt[max_idx++] = maglev_wt;
 	}
 	if(  !vehicle_builder_t::get_info(monorail_wt).empty()  ) {
 		tabs.add_tab(&scrolly, translator::translate("Monorail"), skinverwaltung_t::monorailhaltsymbol, translator::translate("Monorail"));
-		tabs_to_wt[max_idx++] = waytype_t::monorail_wt;
+		tabs_to_wt[max_idx++] = monorail_wt;
 	}
 	if(  !vehicle_builder_t::get_info(track_wt).empty()  ) {
 		tabs.add_tab(&scrolly, translator::translate("Train"), skinverwaltung_t::zughaltsymbol, translator::translate("Train"));
-		tabs_to_wt[max_idx++] = waytype_t::track_wt;
+		tabs_to_wt[max_idx++] = track_wt;
 	}
 	if(  !vehicle_builder_t::get_info(narrowgauge_wt).empty()  ) {
 		tabs.add_tab(&scrolly, translator::translate("Narrowgauge"), skinverwaltung_t::narrowgaugehaltsymbol, translator::translate("Narrowgauge"));
-		tabs_to_wt[max_idx++] = waytype_t::narrowgauge_wt;
+		tabs_to_wt[max_idx++] = narrowgauge_wt;
 	}
 	if(  !vehicle_builder_t::get_info(tram_wt).empty()  ) {
 		tabs.add_tab(&scrolly, translator::translate("Tram"), skinverwaltung_t::tramhaltsymbol, translator::translate("Tram"));
-		tabs_to_wt[max_idx++] = waytype_t::tram_wt;
+		tabs_to_wt[max_idx++] = tram_wt;
 	}
 	if(  !vehicle_builder_t::get_info(road_wt).empty()  ) {
 		tabs.add_tab(&scrolly, translator::translate("Truck"), skinverwaltung_t::autohaltsymbol, translator::translate("Truck"));
-		tabs_to_wt[max_idx++] = waytype_t::road_wt;
+		tabs_to_wt[max_idx++] = road_wt;
 	}
 	if(  !vehicle_builder_t::get_info(water_wt).empty()  ) {
 		tabs.add_tab(&scrolly, translator::translate("Ship"), skinverwaltung_t::schiffshaltsymbol, translator::translate("Ship"));
-		tabs_to_wt[max_idx++] = waytype_t::water_wt;
+		tabs_to_wt[max_idx++] = water_wt;
 	}
 	if( !vehicle_builder_t::get_info(air_wt).empty()  ) {
 		tabs.add_tab(&scrolly, translator::translate("Air"), skinverwaltung_t::airhaltsymbol, translator::translate("Air"));
-		tabs_to_wt[max_idx++] = waytype_t::air_wt;
+		tabs_to_wt[max_idx++] = air_wt;
 	}
 	tabs.add_listener(this);
 	add_component(&tabs);
@@ -298,7 +298,7 @@ bool vehiclelist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /
 	if(comp == &sortedby) {
 		vehiclelist_stats_t::sort_mode = (vehiclelist_stats_t::sort_mode + 1) % SORT_MODES;
 		sortedby.set_text(sort_text[vehiclelist_stats_t::sort_mode]);
-		if( vehiclelist_stats_t::sort_mode == 0 ) { 
+		if( vehiclelist_stats_t::sort_mode == 0 ) {
 			fill_list();	// using sorting from vehikelbauer
 		}
 		else {
