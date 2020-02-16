@@ -1,20 +1,26 @@
 // ****************** List of all vehicles ************************
 
 
-
 #include "gui_theme.h"
-#include "../descriptor/vehicle_desc.h"
+#include "vehiclelist_frame.h"
+
+#include "../bauer/goods_manager.h"
 #include "../bauer/vehikelbauer.h"
+
 #include "../simskin.h"
 #include "../simworld.h"
-#include "../dataobj/translator.h"
-#include "../descriptor/skin_desc.h"
-#include "../descriptor/intro_dates.h"
 
 #include "../display/simgraph.h"
+
+#include "../dataobj/translator.h"
+
+#include "../descriptor/goods_desc.h"
+#include "../descriptor/intro_dates.h"
+#include "../descriptor/skin_desc.h"
+#include "../descriptor/vehicle_desc.h"
+
 #include "../utils/simstring.h"
 
-#include "vehiclelist_frame.h"
 
 int vehiclelist_stats_t::sort_mode = vehicle_builder_t::sb_intro_date;
 bool vehiclelist_stats_t::reverse = false;
@@ -170,16 +176,6 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 	{
 		new_component<gui_label_t>("hl_txt_sort");
 		new_component<gui_empty_t>();
-		new_component<gui_empty_t>();
-		new_component<gui_empty_t>();
-
-		sortedby.init( button_t::roundbox, vehicle_builder_t::vehicle_sort_by[ vehiclelist_stats_t::sort_mode ] );
-		sortedby.add_listener( this );
-		add_component( &sortedby );
-
-		sorteddir.init( button_t::roundbox, vehiclelist_stats_t::reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc" );
-		sorteddir.add_listener( this );
-		add_component( &sorteddir );
 
 		bt_obsolete.init( button_t::square_state, "Show obsolete" );
 		bt_obsolete.add_listener( this );
@@ -189,6 +185,44 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 		bt_future.add_listener( this );
 		bt_future.pressed = true;
 		add_component( &bt_future );
+
+		// second row
+		sort_by.clear_elements();
+		for(int i = 0; i < vehicle_builder_t::sb_length; i++) {
+			sort_by.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(vehicle_builder_t::vehicle_sort_by[i]), SYSCOL_TEXT);
+		}
+		sort_by.set_selection( vehiclelist_stats_t::sort_mode );
+		sort_by.add_listener( this );
+		add_component( &sort_by );
+
+		sorteddir.init( button_t::roundbox, vehiclelist_stats_t::reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc" );
+		sorteddir.add_listener( this );
+		add_component( &sorteddir );
+
+		ware_filter.clear_elements();
+		ware_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
+		idx_to_ware.append( NULL );
+		for(  int i=0;  i < goods_manager_t::get_count();  i++  ) {
+			const goods_desc_t *ware = goods_manager_t::get_info(i);
+			if(  ware == goods_manager_t::none  ) {
+				continue;
+			}
+			if(  ware->get_catg() == 0  ) {
+				ware_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(ware->get_name()), SYSCOL_TEXT);
+				idx_to_ware.append( ware );
+			}
+		}
+		// now add other good categories
+		for(  int i=1;  i < goods_manager_t::get_max_catg_index();  i++  ) {
+			const goods_desc_t *ware = goods_manager_t::get_info_catg(i);
+			if(  ware->get_catg() != 0  ) {
+				ware_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(ware->get_catg_name()), SYSCOL_TEXT);
+				idx_to_ware.append( ware );
+			}
+		}
+		ware_filter.set_selection( 0 );
+		ware_filter.add_listener( this );
+		add_component( &ware_filter, 2 );
 	}
 	end_table();
 
@@ -243,17 +277,14 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
  * This method is called if an action is triggered
  * @author Markus Weber/Volker Meyer
  */
-bool vehiclelist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
+bool vehiclelist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {
-	if(comp == &sortedby) {
-		vehiclelist_stats_t::sort_mode = (vehiclelist_stats_t::sort_mode + 1) % vehicle_builder_t::sb_length;
-		sortedby.set_text(vehicle_builder_t::vehicle_sort_by[vehiclelist_stats_t::sort_mode]);
-		if( vehiclelist_stats_t::sort_mode == 0 ) {
-			fill_list();	// using sorting from vehikelbauer
-		}
-		else {
-			scrolly.sort( 0 );
-		}
+	if(comp == &sort_by) {
+		vehiclelist_stats_t::sort_mode = max(0,v.i);
+		fill_list();
+	}
+	else if(comp == &ware_filter) {
+		fill_list();
 	}
 	else if(comp == &sorteddir) {
 		vehiclelist_stats_t::reverse = !vehiclelist_stats_t::reverse;
@@ -286,13 +317,22 @@ void vehiclelist_frame_t::fill_list()
 	vehiclelist_stats_t::col1_width = 100; // reset col1 width
 	vehiclelist_stats_t::col2_width = 100; // reset col2 width
 	uint32 month = world()->get_current_month();
+	const goods_desc_t *ware = idx_to_ware[ max( 0, ware_filter.get_selection() ) ];
 	if(  current_wt == any_wt  ) {
 		// adding all vehiles, i.e. iterate over all available waytypes
 		for(  int i=1;  i<max_idx;  i++  ) {
 			FOR(slist_tpl<vehicle_desc_t const*>, const veh, vehicle_builder_t::get_info(tabs_to_wt[i])) {
 				if(  bt_obsolete.pressed  ||  !veh->is_retired( month )  ) {
 					if(  bt_future.pressed  ||  !veh->is_future( month )  ) {
-						scrolly.new_component<vehiclelist_stats_t>( veh );
+						if( ware ) {
+							const goods_desc_t *vware = veh->get_freight_type();
+							if(  (ware->get_catg_index() > 0  &&  vware->get_catg_index() == ware->get_catg_index())  ||  vware->get_index() == ware->get_index()  ) {
+								scrolly.new_component<vehiclelist_stats_t>( veh );
+							}
+						}
+						else {
+							scrolly.new_component<vehiclelist_stats_t>( veh );
+						}
 					}
 				}
 			}
@@ -302,7 +342,15 @@ void vehiclelist_frame_t::fill_list()
 		FOR(slist_tpl<vehicle_desc_t const*>, const veh, vehicle_builder_t::get_info(current_wt)) {
 			if(  bt_obsolete.pressed  ||  !veh->is_retired( month )  ) {
 				if(  bt_future.pressed  ||  !veh->is_future( month )  ) {
-					scrolly.new_component<vehiclelist_stats_t>( veh );
+					if( ware ) {
+						const goods_desc_t *vware = veh->get_freight_type();
+						if(  (ware->get_catg_index() > 0  &&  vware->get_catg_index() == ware->get_catg_index())  ||  vware->get_index() == ware->get_index()  ) {
+							scrolly.new_component<vehiclelist_stats_t>( veh );
+						}
+					}
+					else {
+						scrolly.new_component<vehiclelist_stats_t>( veh );
+					}
 				}
 			}
 		}
