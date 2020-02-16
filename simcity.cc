@@ -3670,19 +3670,19 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 						end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
 					}
 					// not successful: restore old slope
-					if( err  &&  *err != 0 ||  end==koord3d::invalid  || koord_distance( k, end.get_2d())>5 ) {
+					if( (err  &&  *err != 0)  ||  end==koord3d::invalid  || koord_distance( k, end.get_2d())>5 ) {
 						bd->set_grund_hang( old_slope );
 						bd->set_hoehe( bd->get_hoehe() - h_diff );
 					}
 					else {
 						// update slope graphics on tile and tile in front
-						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 0, 1 ) ) ) { 
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 0, 1 ) ) ) {
 							bd_recalc->check_update_underground();
 						}
-						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 0 ) ) ) { 
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 0 ) ) ) {
 							bd_recalc->check_update_underground();
 						}
-						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 1 ) ) ) { 
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 1 ) ) ) {
 							bd_recalc->check_update_underground();
 						}
 						bd->mark_image_dirty();
