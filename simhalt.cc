@@ -4975,8 +4975,8 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 				max_bar_height = last_bar_height[i];
 			}
 		}
-		const KOORD_VAL x = xpos - (last_bar_count * 4 - get_tile_raster_width()) / 2;
-		mark_rect_dirty_wc( x - 1 - 4, ypos - 11 - max_bar_height - 6, x + last_bar_count * 4 + 12 - 2, ypos - 11 );
+		const KOORD_VAL x = xpos - (last_bar_count * D_WAITINGBAR_WIDTH - get_tile_raster_width()) / 2;
+		mark_rect_dirty_wc( x - 1 - D_WAITINGBAR_WIDTH, ypos - 11 - max_bar_height - 6, x + last_bar_count * D_WAITINGBAR_WIDTH + 12 - 2, ypos - 11 );
 
 		// reset bar heights for new count
 		last_bar_height.clear();
@@ -4987,8 +4987,8 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 		last_bar_count = count;
 	}
 
-	ypos -= 11;
-	xpos -= (count * 4 - get_tile_raster_width()) / 2;
+	ypos -= D_LABEL_HEIGHT/2 +D_WAITINGBAR_WIDTH;
+	xpos -= (count * D_WAITINGBAR_WIDTH - get_tile_raster_width()) / 2;
 	const KOORD_VAL x = xpos;
 
 	sint16 bar_height_index = 0;
@@ -5014,31 +5014,31 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 				v = (v / 4) + 2;
 			}
 
-			display_fillbox_wh_clip_rgb( xpos, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY4), false);
-			display_fillbox_wh_clip_rgb( xpos + 1, ypos - v - 1, 2, v, wtyp->get_color(), false);
-			display_fillbox_wh_clip_rgb( xpos + 3, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY1), false);
+			display_fillbox_wh_clip_rgb( xpos, ypos - v - 1, 1, v, color_idx_to_rgb( COL_GREY4 ), false );
+			display_fillbox_wh_clip_rgb( xpos + 1, ypos - v - 1, D_WAITINGBAR_WIDTH - 2, v, wtyp->get_color(), false );
+			display_fillbox_wh_clip_rgb( xpos + D_WAITINGBAR_WIDTH - 1, ypos - v - 1, 1, v, color_idx_to_rgb( COL_GREY1 ), false );
 
 			// Hajo: show up arrow for capped values
 			if(  sum > max_capacity  ) {
-				display_fillbox_wh_clip_rgb( xpos + 1, ypos - v - 6, 2, 4, color_idx_to_rgb(COL_WHITE), false);
-				display_fillbox_wh_clip_rgb( xpos, ypos - v - 5, 4, 1, color_idx_to_rgb(COL_WHITE), false);
-				v += 5;
+				display_fillbox_wh_clip_rgb( xpos + (D_WAITINGBAR_WIDTH / 2) - 1, ypos - v - 6, 2, 4, color_idx_to_rgb( COL_WHITE ), false );
+				display_fillbox_wh_clip_rgb( xpos + (D_WAITINGBAR_WIDTH / 2) - 2, ypos - v - 5, 4, 1, color_idx_to_rgb( COL_WHITE ), false );
+				v += 5; // for marking dirty
 			}
 
 			if(  last_bar_height[bar_height_index] != (KOORD_VAL)v  ) {
 				if(  (KOORD_VAL)v > last_bar_height[bar_height_index]  ) {
 					// bar will be longer, mark new height dirty
-					mark_rect_dirty_wc( xpos, ypos - v - 1, xpos + 3, ypos - 1);
+					mark_rect_dirty_wc( xpos, ypos - v - 1, xpos + D_WAITINGBAR_WIDTH, ypos - 1 );
 				}
 				else {
 					// bar will be shorter, mark old height dirty
-					mark_rect_dirty_wc( xpos, ypos - last_bar_height[bar_height_index] - 1, xpos + 3, ypos - 1);
+					mark_rect_dirty_wc( xpos, ypos - last_bar_height[ bar_height_index ] - 1, xpos + D_WAITINGBAR_WIDTH, ypos - 1 );
 				}
 				last_bar_height[bar_height_index] = v;
 			}
 
 			bar_height_index++;
-			xpos += 4;
+			xpos += D_WAITINGBAR_WIDTH;
 		}
 	}
 
@@ -5048,7 +5048,7 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 		last_status_color = get_status_farbe();
 		dirty = true;
 	}
-	display_fillbox_wh_clip_rgb( x - 1 - 4, ypos, count * 4 + 12 - 2, 4, get_status_farbe(), dirty );
+	display_fillbox_wh_clip_rgb( x - 1 - 4, ypos, count * D_WAITINGBAR_WIDTH + 12 - 2, D_WAITINGBAR_WIDTH, get_status_farbe(), dirty );
 }
 
 

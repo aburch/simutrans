@@ -108,6 +108,9 @@ class image_t;
 #define D_H_SPACE              (gui_theme_t::gui_hspace)
 #define D_V_SPACE              (gui_theme_t::gui_vspace)
 
+// bars of goods waiting in stations
+#define D_WAITINGBAR_WIDTH     (gui_theme_t::gui_waitingbar_width)
+
 // Button grid helpers
 #define BUTTON1_X     (D_MARGIN_LEFT)
 #define BUTTON2_X     (D_MARGIN_LEFT+1*(D_BUTTON_WIDTH+D_H_SPACE))
@@ -268,6 +271,7 @@ public:
 	static KOORD_VAL gui_frame_bottom;
 	static KOORD_VAL gui_hspace;
 	static KOORD_VAL gui_vspace;
+	static KOORD_VAL gui_waitingbar_width;
 	/// @}
 
 	// those are the 3x3 images which are used for stretching
