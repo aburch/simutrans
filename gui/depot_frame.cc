@@ -1357,7 +1357,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			depot->call_depot_tool('v', cnv, NULL);
 		}
 		else if(  comp == &bt_replacement_seed  ) {
-			// depot->call_depot_tool('r', cnv, NULL);
+			depot->call_depot_tool('e', cnv, NULL);
 		}
 		// image list selection here ...
 		else if(  comp == &convoi  ) {
@@ -1534,12 +1534,13 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 void depot_frame_t::draw(scr_coord pos, scr_size size)
 {
 	const bool action_allowed = welt->get_active_player() == depot->get_owner();
+	convoihandle_t cnv = depot->get_convoi(icnv);
 
 	bt_new_line.enable( action_allowed );
 	bt_change_line.enable( action_allowed );
 	bt_copy_convoi.enable( action_allowed );
 	bt_apply_line.enable( action_allowed );
-	bt_start.enable( action_allowed );
+	bt_start.enable( action_allowed  &&  cnv!=depot->get_replacement_seed() );
 	bt_schedule.enable( action_allowed );
 	bt_destroy.enable( action_allowed );
 	bt_sell.enable( action_allowed );
@@ -1548,8 +1549,9 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 	bt_show_all.enable( action_allowed );
 	bt_veh_action.enable( action_allowed );
 	line_button.enable( action_allowed );
+	
+	bt_replacement_seed.set_text(cnv==depot->get_replacement_seed() ? "Unregister replacement" : "Replacement seed");
 
-	convoihandle_t cnv = depot->get_convoi(icnv);
 	// check for data inconsistencies (can happen with withdraw-all and vehicle in depot)
 	if(  !cnv.is_bound()  &&  !convoi_pics.empty()  ) {
 		icnv=0;

@@ -46,6 +46,7 @@ protected:
 	 */
 	slist_tpl<vehicle_t *> vehicles;
 	slist_tpl<convoihandle_t> convois;
+	convoihandle_t replacement_seed;
 
 	void rdwr_vehikel(slist_tpl<vehicle_t*> &list, loadsave_t *file);
 
@@ -245,6 +246,8 @@ public:
 	bool is_command_pending() const { return command_pending; }
 	void clear_command_pending() { command_pending = false; }
 	void set_command_pending() { command_pending = true; }
+	void set_replacement_seed(convoihandle_t c) { replacement_seed = c; } 
+	convoihandle_t get_replacement_seed() const { return replacement_seed; }
 };
 
 

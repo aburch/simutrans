@@ -7906,6 +7906,7 @@ bool tool_change_line_t::init( player_t *player )
  * 's' : sells a vehikel (+vehikel_name) uses the newest
  * 'r' : removes a vehikel (+number in convoi)
  * 'R' : removes all vehikels including (+number in convoi) to end
+ * 'e' : set replacement seed convoy
  */
 bool tool_change_depot_t::init( player_t *player )
 {
@@ -7999,6 +8000,17 @@ bool tool_change_depot_t::init( player_t *player )
 					return false;
 				}
 				depot->copy_convoi( cnv, can_use_gui() );
+			}
+			break;
+		}
+		case 'e': {
+			if(  !cnv.is_bound()  ) {
+				return false;
+			}
+			if(  cnv==depot->get_replacement_seed()  ) {
+				depot->set_replacement_seed(convoihandle_t());
+			} else {
+				depot->set_replacement_seed(cnv->self);
 			}
 			break;
 		}
