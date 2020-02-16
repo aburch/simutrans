@@ -67,8 +67,8 @@ bool sound_get_mute()
 void sound_play(uint16 const idx, uint8 const v, sound_type_t t)
 {
 	uint32 volume = v;
-	if(  idx != (uint16)NO_SOUND  ) {
-		dr_play_sample(idx, ( (volume * env_t::global_volume * env_t::specific_volume[t] ) >> 16) );
+	if(  idx != (uint16)NO_SOUND  &&  !env_t::global_mute_sound  ) {
+		dr_play_sample(idx, ( (volume  * env_t::global_volume * env_t::specific_volume[t] ) >> 16) );
 	}
 }
 
