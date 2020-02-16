@@ -19,8 +19,9 @@ depotlist_stats_t::depotlist_stats_t(depot_t *d)
 	this->depot = d;
 	// pos button
 	set_table_layout(3,1);
-	button_t *b = new_component<button_t>();
-	b->set_typ(button_t::posbutton_automatic);
+	gotopos.set_typ(button_t::posbutton_automatic);
+	gotopos.set_targetpos(depot->get_pos().get_2d());
+	add_component(&gotopos);
 	// now add all specific tabs
 	switch(  d->get_waytype()  ) {
 	case maglev_wt:
@@ -47,9 +48,9 @@ depotlist_stats_t::depotlist_stats_t(depot_t *d)
 	case air_wt:
 		waytype_symbol.set_image( skinverwaltung_t::airhaltsymbol->get_image_id(0), true );
 		break;
+	default: ;
 	}
 	add_component(&waytype_symbol);
-	b->set_targetpos(depot->get_pos().get_2d());
 	add_component(&label);
 	update_label();
 }
@@ -169,6 +170,7 @@ depotlist_frame_t::depotlist_frame_t(player_t *player) :
 	scrolly(gui_scrolled_list_t::windowskin, depotlist_stats_t::compare)
 {
 	this->player = player;
+	last_depot_count = 0;
 
 	set_table_layout(1,0);
 	new_component<gui_label_t>("hl_txt_sort");
@@ -215,20 +217,21 @@ bool depotlist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* 
 void depotlist_frame_t::fill_list()
 {
 	scrolly.clear_elements();
-	// all vehikels stored in depot not part of a convoi
 	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
 		if( depot->get_owner() == player ) {
 			scrolly.new_component<depotlist_stats_t>( depot );
 		}
 	}
 	scrolly.sort(0);
-//	scrolly.set_size(scrolly.get_size());
+	scrolly.set_size( scrolly.get_size());
+
+	last_depot_count = depot_t::get_depot_list().get_count();
 }
 
 
 void depotlist_frame_t::draw(scr_coord pos, scr_size size)
 {
-	if(  depot_t::get_depot_list().get_count() != (uint32)scrolly.get_count()  ) {
+	if(  depot_t::get_depot_list().get_count() != last_depot_count  ) {
 		fill_list();
 	}
 

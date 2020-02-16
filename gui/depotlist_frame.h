@@ -22,6 +22,8 @@ private:
 	button_t	sorteddir;
 	gui_scrolled_list_t scrolly;
 
+	uint32 last_depot_count;
+
 	void fill_list();
 
 	player_t *player;
@@ -44,6 +46,7 @@ private:
 	depot_t *depot;
 	gui_label_buf_t label;
 	gui_image_t waytype_symbol;
+	button_t	gotopos;
 
 	void update_label();
 

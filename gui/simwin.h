@@ -110,10 +110,10 @@ enum magic_numbers {
 	magic_script_error=magic_toolbar+256,
 	magic_haltlist_filter,
 	magic_depot, // only used to load/save
-	magic_depolist,
-	// new magic numbers
-	magic_halt_list_t = magic_depolist + MAX_PLAYER_COUNT,
-	magic_max = magic_halt_list_t + MAX_PLAYER_COUNT
+	magic_halt_list_t,
+	magic_depotlist = magic_halt_list_t + MAX_PLAYER_COUNT,
+	magic_vehiclelist = magic_depotlist + MAX_PLAYER_COUNT,
+	magic_max
 };
 
 // Holding time for auto-closing windows
