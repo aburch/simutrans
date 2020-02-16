@@ -3407,7 +3407,10 @@ station_tile_search_ready: ;
 		const bool this_can_go = can_depart(c, arrived_time, time, coupling_cond, gt);
 		departure_cond &= this_can_go;
 		need_coupling_at_this_stop |= (coupling_cond  &&  !this_can_go); // Is coupling needed at this stop?
-		go_on_ticks = max(gt, go_on_ticks);
+		if(  gt>go_on_ticks  ) {
+			// NOTE: max() function does not work correctly here.
+			go_on_ticks = gt; // use latest departure time
+		}
 		c = c->get_coupling_convoi();
 	}
 	
