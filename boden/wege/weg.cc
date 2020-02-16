@@ -500,8 +500,8 @@ void weg_t::rdwr(loadsave_t *file)
 					destination.rdwr(file); 
 					koord3d next_tile;
 					next_tile.rdwr(file);
-
-					private_car_routes.put(destination, next_tile);
+					bool put_succeeded = private_car_routes.put(destination, next_tile);
+					assert(put_succeeded); 
 				}
 			}
 		}

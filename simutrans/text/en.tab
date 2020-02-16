@@ -1105,6 +1105,12 @@ Haw
 Boll
 %252_CITY_SYLL
 Bod
+%253_CITY_SYLL
+Kid
+%254_CITY_SYLL
+Ped
+%254_CITY_SYLL
+Pres
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -1657,6 +1663,10 @@ heath
  Mortimer
 &41_CITY_SUFFIX
  Hundred
+&42_CITY_SUFFIX
+ Lock
+&43_CITY_SUFFIX
+er's Lock
 # 
 # Other strings
 # 
@@ -4010,3 +4020,5 @@ No bridges over runways!
 Bridges cannnot be built over runways or taxiways.
 No bridges over runways!
 Bridges cannnot be built over runways or taxiways.
+overtaking
+Overtaking
