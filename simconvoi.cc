@@ -3181,7 +3181,7 @@ void convoi_t::calc_gewinn()
  *
  * @author THLeaderH
  */
-bool can_depart(convoihandle_t cnv, uint32 arrived_time, uint32 time_to_load, bool &coupling_cond, sint64 &go_on_ticks) {
+bool can_depart(convoihandle_t cnv, uint32 arrived_time, uint32 time_to_load, bool &coupling_cond, uint32 &go_on_ticks) {
 	const schedule_entry_t current_entry = cnv->get_schedule()->get_current_entry();
 	
 	bool loading_cond = cnv->get_loading_level() >= current_entry.minimum_loading; // minimum loading
@@ -3193,9 +3193,13 @@ bool can_depart(convoihandle_t cnv, uint32 arrived_time, uint32 time_to_load, bo
 		// consider spacing
 		// subtract wait_lock (time_to_load) from spacing_shift
 		const sint32 spacing_shift = current_entry.spacing_shift * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor() - time_to_load;
-		const sint32 spacing = world()->ticks_per_world_month / current_entry.spacing;
+		// NOTE: Treating spacing as int causes numerical error due to decimal amount.
+		// const sint32 spacing = world()->ticks_per_world_month / current_entry.spacing;
 		const uint32 delay_tolerance = current_entry.delay_tolerance * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
-		go_on_ticks = ((arrived_time - delay_tolerance - spacing_shift) / spacing + 1) * spacing + spacing_shift;
+		// slot = (arrived_time - delay_tolerance - spacing_shift) / spacing + 1
+		const uint64 slot = ((arrived_time - delay_tolerance - spacing_shift) * (uint64)current_entry.spacing / world()->ticks_per_world_month + 1);
+		// go_on_ticks = slot * spacing + spacing_shift
+		go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
 		return world()->get_ticks() >= go_on_ticks;
 	}
 	
@@ -3403,7 +3407,7 @@ station_tile_search_ready: ;
 	while(  !is_coupled()  &&  c.is_bound()  ) {
 		bool coupling_cond; // Is coupling requested by the schedule entry?
 		// Does the convoy satisfy the departure conditions?
-		sint64 gt;
+		uint32 gt;
 		const bool this_can_go = can_depart(c, arrived_time, time, coupling_cond, gt);
 		departure_cond &= this_can_go;
 		need_coupling_at_this_stop |= (coupling_cond  &&  !this_can_go); // Is coupling needed at this stop?
