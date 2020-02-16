@@ -114,6 +114,7 @@ private:
 	button_t bt_schedule;
 	button_t bt_destroy;
 	button_t bt_sell;
+	button_t bt_replacement_seed;
 
 	button_t bt_obsolete;
 	button_t bt_show_all;
