@@ -428,10 +428,23 @@ void weg_t::rdwr(loadsave_t *file)
 	if (file->is_loading() && file->get_extended_version() < 15 && file->get_extended_revision() < 20)
 	{
 		// Older version - initialise the travel time statistics
-		for (uint32 month = 0; month < MAX_WAY_STAT_MONTHS; month++)
+		for(uint32 type = 0; type < MAX_WAY_TRAVEL_TIMES; type++)
 		{
-			travel_times[month][WAY_TRAVEL_TIME_ACTUAL] = 0;
-			travel_times[month][WAY_TRAVEL_TIME_IDEAL] = 0;
+			for (uint32 month = 0; month < MAX_WAY_STAT_MONTHS; month++)
+			{
+				travel_times[month][type] = 0;
+			}
+		}
+	} else if (file->is_loading() && file->get_extended_version() >= 15 || file->get_extended_version() == 14 && file->get_extended_revision() >= 20) 
+	{
+		for(uint32 type = 0; type < MAX_WAY_TRAVEL_TIMES; type++)
+		{
+			for (uint32 month = 0; month < MAX_WAY_STAT_MONTHS; month++)
+			{
+				uint32 w = travel_times[month][type];
+				file->rdwr_long(w);
+				travel_times[month][type] = (uint32)w;
+			}
 		}
 	}
 

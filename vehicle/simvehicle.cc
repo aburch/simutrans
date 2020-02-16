@@ -86,8 +86,8 @@
 #include "../path_explorer.h"
 #include "../freight_list_sorter.h"
 
-void traffic_vehicle_t::add_distance(uint32 distance_yards) {
-	dist_travelled_since_last_hop += world()->meters_from_yards(distance_yards);
+void traffic_vehicle_t::add_distance(uint32 distance) {
+	dist_travelled_since_last_hop += distance;
 }
 
 void traffic_vehicle_t::reset_measurements() {
@@ -107,7 +107,7 @@ uint32 traffic_vehicle_t::get_travel_time_actual()
 
 uint32 traffic_vehicle_t::get_travel_time_ideal(strasse_t* str) 
 {
-	return max(seconds_from_meters_and_kmh(dist_travelled_since_last_hop, max(min(get_max_speed_kmh(), get_way_speed_kmh(str)), 1)), 1);
+	return max(seconds_from_meters_and_kmh(world()->meters_from_yards(dist_travelled_since_last_hop), max(min(get_max_speed_kmh(), get_way_speed_kmh(str)), 1)), 1);
 }
 
 void traffic_vehicle_t::flush_travel_times(strasse_t* str)

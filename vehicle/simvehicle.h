@@ -51,7 +51,7 @@ class traffic_vehicle_t
 	//const karte_t* welt_this; // for timing and conversion functions
 	private:
 		sint64 time_at_last_hop; // ticks
-		uint32 dist_travelled_since_last_hop; // meters
+		uint32 dist_travelled_since_last_hop; // yards
 		uint32 get_way_speed_kmh(strasse_t*); //returns km/h
 		virtual uint32 get_max_speed_kmh() {}; // defined separately: takes y/t, returns km/h
 		uint32 get_travel_time_actual(); // uses ticks, returns seconds
