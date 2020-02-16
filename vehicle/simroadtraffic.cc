@@ -1678,6 +1678,9 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 	time_overtaking = (time_overtaking << 16)/(sint32)current_speed;
 	do {
 		// we can allow crossings or traffic lights here, since they will stop also oncoming traffic
+		if(  kmh_to_speed(str->get_max_speed())==0  ) {
+			return false; //citycars can be on 0km/h road.
+		}
 		if(  ribi_t::is_straight(str->get_ribi())  ) {
 			time_overtaking -= (VEHICLE_STEPS_PER_TILE<<16) / kmh_to_speed(str->get_max_speed());
 		}
