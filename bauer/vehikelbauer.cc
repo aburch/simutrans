@@ -311,6 +311,7 @@ bool vehicle_builder_t::compare_vehicles(const vehicle_desc_t* a, const vehicle_
 			cmp = compare_intro_year_month(a, b);
 			if (cmp != 0) return cmp < 0;
 			break;
+		default: ;
 	}
 	// Sort by:
 	//  1. cargo category
