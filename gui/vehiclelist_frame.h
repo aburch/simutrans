@@ -8,6 +8,7 @@
 
 
 #include "gui_frame.h"
+#include "components/gui_combobox.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_scrolled_list.h"
 #include "components/gui_label.h"
@@ -15,14 +16,17 @@
 #include "components/gui_tab_panel.h"
 
 class vehicle_desc_t;
+class goods_desc_t;
 
 
 class vehiclelist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	button_t sortedby, sorteddir, bt_obsolete;
+	button_t sorteddir, bt_obsolete, bt_future;
 	gui_scrolled_list_t scrolly;
 	gui_tab_panel_t tabs;
+	gui_combobox_t sort_by, ware_filter;
+	vector_tpl<const goods_desc_t *>idx_to_ware;
 
 	void fill_list();
 
