@@ -60,6 +60,7 @@ depot_t::depot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
 	selected_sort_by = SORT_BY_DEFAULT;
 	last_selected_line = linehandle_t();
 	command_pending = false;
+	replacement_seed = convoihandle_t();
 }
 
 
@@ -133,6 +134,37 @@ void depot_t::call_depot_tool( char tool, convoihandle_t cnv, const char *extra)
 }
 
 
+void replace_cars(convoihandle_t cnv, depot_t* depot) {
+	convoihandle_t seed = depot->get_replacement_seed();
+	if(  !seed.is_bound()  ) {
+		return;
+	}
+	// First, remove all vehicles from the given convoy
+	depot->remove_vehicles_to_end(cnv, 0);
+	// Then copy the cars of the seed convoy
+	const bool local_execution = false;
+	for (uint8 i = 0; i<seed->get_vehicle_count(); i++) {
+		const vehicle_desc_t * info = seed->get_vehikel(i)->get_desc();
+		if (info != NULL) {
+			// search in depot for an existing vehicle of correct type
+			vehicle_t* oldest_vehicle = depot->get_oldest_vehicle(info);
+			if (oldest_vehicle != NULL) {
+				// append existing vehicle
+				depot->append_vehicle( cnv, oldest_vehicle, false, local_execution );
+			}
+			else {
+				// buy new vehicle
+				vehicle_t* veh = vehicle_builder_t::build(depot->get_pos(), depot->get_owner(), NULL, info );
+				veh->set_pos(depot->get_pos());
+				cnv->add_vehikel(veh, false);
+			}
+		}
+	}
+	// Finally, start the replaced convoy
+	// depot->start_convoi(cnv, local_execution);
+}
+
+
 /* this is called on two occasions:
  * first a convoy reaches the depot during its journey
  * second during loading a convoi is stored in a depot => only store it again
@@ -170,6 +202,11 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust)
 	}
 	acnv->set_home_depot( get_pos() );
 	DBG_MESSAGE("depot_t::convoi_arrived()", "convoi %d, %p entered depot", acnv.get_id(), acnv.get_rep());
+	
+	if(  schedule_adjust  &&  replacement_seed.is_bound()  ) {
+		// replace cars of the arrived convoy, then start it immediately.
+		replace_cars(acnv, this);
+	}
 }
 
 

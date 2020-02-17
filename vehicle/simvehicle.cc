@@ -1075,7 +1075,7 @@ grund_t* vehicle_t::hop_check()
 		if(check_for_finish) {
 			// so we are there yet?
 			cnv->ziel_erreicht();
-			if(cnv->get_state()==convoi_t::INITIAL) {
+			if(  cnv  &&  cnv->get_state()==convoi_t::INITIAL  ) {
 				// to avoid crashes with airplanes
 				use_calc_height = false;
 			}
