@@ -86,35 +86,11 @@
 #include "../path_explorer.h"
 #include "../freight_list_sorter.h"
 
-void traffic_vehicle_t::add_distance(uint32 distance) {
-	dist_travelled_since_last_hop += distance; //y
-}
-
-void traffic_vehicle_t::reset_measurements() {
-	dist_travelled_since_last_hop = 0; //y
-	time_at_last_hop = world()->get_ticks(); //t
-}
-
-uint32 traffic_vehicle_t::get_max_way_speed(strasse_t* str) 
-{ 
-	return kmh_to_speed(str->get_max_speed()); //y/t
-}
-
-uint32 traffic_vehicle_t::get_travel_time_actual() 
-{ 
-	return world()->get_ticks() - time_at_last_hop; //t
-}
-
-uint32 traffic_vehicle_t::get_travel_time_ideal(strasse_t* str) 
-{
-	return dist_travelled_since_last_hop / min(get_max_speed(), get_max_way_speed(str)); //t
-}
-
 void traffic_vehicle_t::flush_travel_times(strasse_t* str)
 {
-	if(get_max_speed() && get_max_way_speed(str) && dist_travelled_since_last_hop)
-	{
-		str->update_travel_times(get_travel_time_actual(), get_travel_time_ideal(str));
+	if(get_max_speed() && str->get_max_speed() && dist_travelled_since_last_hop)
+	{	
+		str->update_travel_times(world()->get_ticks() - time_at_last_hop, dist_travelled_since_last_hop / min(get_max_speed(), kmh_to_speed(str->get_max_speed())));
 	}
 	reset_measurements();
 }

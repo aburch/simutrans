@@ -106,7 +106,7 @@ private:
 	*/
 	sint16 statistics[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS];
 
-	uint32 travel_times[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS];
+	uint32 travel_times[MAX_WAY_STAT_MONTHS][MAX_WAY_TRAVEL_TIMES];
 
 
 	/**

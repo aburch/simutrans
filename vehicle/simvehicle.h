@@ -47,18 +47,17 @@ class strasse_t;
 
 class traffic_vehicle_t
 {
-	//static karte_ptr_t welt_this;
-	//const karte_t* welt_this; // for timing and conversion functions
 	private:
 		sint64 time_at_last_hop; // ticks
 		uint32 dist_travelled_since_last_hop; // yards
-		uint32 get_max_way_speed(strasse_t*); //returns y/t
 		virtual uint32 get_max_speed() {}; // returns y/t
-		uint32 get_travel_time_actual(); // uses ticks, returns seconds
-		uint32 get_travel_time_ideal(strasse_t*); // returns seconds
 	public:
-		void reset_measurements(); // resets time and distance
-		void add_distance(uint32); // takes yards, adds meters
+		inline void reset_measurements()
+		{
+			dist_travelled_since_last_hop = 0; //yards
+			time_at_last_hop = world()->get_ticks(); //ticks
+		}
+		inline void add_distance(uint32 distance) { dist_travelled_since_last_hop += distance; } // yards
 		void flush_travel_times(strasse_t*); // calculate travel times, write to way, reset measurements
 };
 
