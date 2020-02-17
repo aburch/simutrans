@@ -155,7 +155,7 @@ public:
 	void calc_current_speed(grund_t*);
 	uint16 get_current_speed() const {return current_speed;}
 
-	uint32 get_max_speed_kmh();
+	uint32 get_max_speed();
 
 	const char *get_name() const {return "Verkehrsteilnehmer";}
 	//typ get_typ() const { return road_user; }

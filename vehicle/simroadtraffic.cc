@@ -145,9 +145,9 @@ void road_user_t::show_info()
 	}
 }
 
-uint32 private_car_t::get_max_speed_kmh()
+uint32 private_car_t::get_max_speed()
 {
-	return speed_to_kmh(get_desc()->get_topspeed());
+	return get_desc()->get_topspeed();
 }
 
 

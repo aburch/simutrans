@@ -87,32 +87,35 @@
 #include "../freight_list_sorter.h"
 
 void traffic_vehicle_t::add_distance(uint32 distance) {
-	dist_travelled_since_last_hop += distance;
+	dist_travelled_since_last_hop += distance; //y
 }
 
 void traffic_vehicle_t::reset_measurements() {
-	dist_travelled_since_last_hop = 0;
-	time_at_last_hop = world()->get_ticks();
+	dist_travelled_since_last_hop = 0; //y
+	time_at_last_hop = world()->get_ticks(); //t
 }
 
-uint32 traffic_vehicle_t::get_way_speed_kmh(strasse_t* str) 
+uint32 traffic_vehicle_t::get_max_way_speed(strasse_t* str) 
 { 
-	return str->get_max_speed(); 
+	return kmh_to_speed(str->get_max_speed()); //y/t
 }
 
 uint32 traffic_vehicle_t::get_travel_time_actual() 
 { 
-	return max(world()->ticks_to_seconds(world()->get_ticks() - time_at_last_hop), 1); 
+	return world()->get_ticks() - time_at_last_hop; //t
 }
 
 uint32 traffic_vehicle_t::get_travel_time_ideal(strasse_t* str) 
 {
-	return max(seconds_from_meters_and_kmh(world()->meters_from_yards(dist_travelled_since_last_hop), max(min(get_max_speed_kmh(), get_way_speed_kmh(str)), 1)), 1);
+	return dist_travelled_since_last_hop / min(get_max_speed(), get_max_way_speed(str)); //t
 }
 
 void traffic_vehicle_t::flush_travel_times(strasse_t* str)
 {
-	str->update_travel_times(get_travel_time_actual(), get_travel_time_ideal(str));
+	if(get_max_speed() && get_max_way_speed(str) && dist_travelled_since_last_hop)
+	{
+		str->update_travel_times(get_travel_time_actual(), get_travel_time_ideal(str));
+	}
 	reset_measurements();
 }
 
@@ -3302,7 +3305,7 @@ void vehicle_t::before_delete()
 {
 }
 
-uint32 road_vehicle_t::get_max_speed_kmh() { return speed_to_kmh(cnv->get_min_top_speed()); }
+uint32 road_vehicle_t::get_max_speed() { return cnv->get_min_top_speed(); }
 
 road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
 #ifdef INLINE_OBJ_TYPE

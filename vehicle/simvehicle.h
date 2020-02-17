@@ -52,8 +52,8 @@ class traffic_vehicle_t
 	private:
 		sint64 time_at_last_hop; // ticks
 		uint32 dist_travelled_since_last_hop; // yards
-		uint32 get_way_speed_kmh(strasse_t*); //returns km/h
-		virtual uint32 get_max_speed_kmh() {}; // defined separately: takes y/t, returns km/h
+		uint32 get_max_way_speed(strasse_t*); //returns y/t
+		virtual uint32 get_max_speed() {}; // returns y/t
 		uint32 get_travel_time_actual(); // uses ticks, returns seconds
 		uint32 get_travel_time_ideal(strasse_t*); // returns seconds
 	public:
@@ -764,7 +764,7 @@ public:
 	road_vehicle_t();
 	road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv); // start und schedule
 
-	uint32 get_max_speed_kmh();
+	uint32 get_max_speed();
 
 	virtual void set_convoi(convoi_t *c);
 
