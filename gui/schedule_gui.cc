@@ -371,11 +371,22 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	end_table();
 	
 	// Components for advanced settings
-	bt_tmp_schedule.init(button_t::square_state, "Temporary schedule");
-	bt_tmp_schedule.set_tooltip("This schedule does not affect the route cost calculation.");
-	bt_tmp_schedule.add_listener(this);
-	bt_tmp_schedule.pressed = schedule->is_temporary();
-	add_component(&bt_tmp_schedule);
+	
+	add_table(2,1);
+	{
+		bt_tmp_schedule.init(button_t::square_state, "Temporary schedule");
+		bt_tmp_schedule.set_tooltip("This schedule does not affect the route cost calculation.");
+		bt_tmp_schedule.add_listener(this);
+		bt_tmp_schedule.pressed = schedule->is_temporary();
+		add_component(&bt_tmp_schedule);
+		
+		bt_full_load_acceleration.init(button_t::square_state, "Full Load Acceleration");
+		bt_full_load_acceleration.set_tooltip("Always use full load acceleration regardless of loadings.");
+		bt_full_load_acceleration.add_listener(this);
+		bt_full_load_acceleration.pressed = schedule->is_full_load_acceleration();
+		add_component(&bt_full_load_acceleration);
+	}
+	end_table();
 	
 	// load and unload settings
 	add_table(2,1);
@@ -850,6 +861,10 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 		schedule->set_same_dep_time(!schedule->is_same_dep_time());
 		bt_same_dep_time.pressed = schedule->is_same_dep_time();
 	}
+	else if(comp == &bt_full_load_acceleration) {
+		schedule->set_full_load_acceleration(!schedule->is_full_load_acceleration());
+		bt_full_load_acceleration.pressed = schedule->is_full_load_acceleration();
+	}
 	// recheck lines
 	if(  cnv.is_bound()  ) {
 		// unequal to line => remove from line ...
@@ -1004,6 +1019,7 @@ void schedule_gui_t::rdwr(loadsave_t *file)
 void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	bt_extract_settings.set_typ(yesno ? button_t::arrowup : button_t::arrowdown);
 	bt_tmp_schedule.set_visible(yesno);
+	bt_full_load_acceleration.set_visible(yesno);
 	bt_no_load.set_visible(yesno);
 	bt_no_unload.set_visible(yesno);
 	bt_wait_for_time.set_visible(yesno);
