@@ -43,8 +43,7 @@ void schedule_t::copy_from(const schedule_t *src)
 	set_current_stop( src->get_current_stop() );
 
 	editing_finished = src->is_editing_finished();
-	temporary = src->is_temporary();
-	same_dep_time = src->is_same_dep_time();
+	flags = src->get_flags();
 }
 
 
@@ -226,11 +225,17 @@ void schedule_t::rdwr(loadsave_t *file)
 	}
 	entries.resize(size);
 	
-	if(  file->get_OTRP_version()>=23  ) {
-		file->rdwr_bool(temporary);
-		file->rdwr_bool(same_dep_time);
+	if(  file->get_OTRP_version()>=24  ) {
+		file->rdwr_byte(flags);
+	}
+	else if(  file->get_OTRP_version()>=23  ) {
+		bool dummy;
+		file->rdwr_bool(dummy); // temporary
+		set_temporary(dummy);
+		file->rdwr_bool(dummy); // same_dep_time
+		set_same_dep_time(dummy);
 	} else {
-		temporary = same_dep_time = false;
+		flags = NONE;
 	}
 
 	if(file->is_version_less(99, 12)) {
@@ -424,7 +429,7 @@ void schedule_t::add_return_way()
 
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
-	uint16 s = current_stop + (temporary<<8) + (same_dep_time<<9);
+	uint16 s = current_stop + (flags<<8);
 	buf.printf("%u|%d|", s, (int)get_type());
 	FOR(minivec_tpl<schedule_entry_t>, const& i, entries) {
 		buf.printf("%s,%i,%i,%i,%i,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time_shift, i.get_stop_flags(), i.spacing, i.spacing_shift, i.delay_tolerance);
@@ -446,8 +451,7 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	//  first get current_stop pointer
 	uint16 s = atoi( p );
 	current_stop = s & 0xff;
-	temporary = (s&(1<<8)) > 0;
-	same_dep_time = (s&(1<<9)) > 0;
+	flags = (s>>8);
 	while(  *p  &&  *p!='|'  ) {
 		p++;
 	}

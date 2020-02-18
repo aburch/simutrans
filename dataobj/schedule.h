@@ -24,8 +24,7 @@ class schedule_t
 	bool  editing_finished;
 	uint8 current_stop;
 	
-	bool temporary;
-	bool same_dep_time;
+	uint8 flags;
 
 	static schedule_entry_t dummy_entry;
 
@@ -44,11 +43,18 @@ class schedule_t
 	}
 
 protected:
-	schedule_t() : editing_finished(false), current_stop(0), temporary(false), same_dep_time(false) {}
+	schedule_t() : editing_finished(false), current_stop(0), flags(0) {}
 
 public:
 	enum schedule_type {
 		schedule = 0, truck_schedule = 1, train_schedule = 2, ship_schedule = 3, airplane_schedule = 4, monorail_schedule = 5, tram_schedule = 6, maglev_schedule = 7, narrowgauge_schedule = 8,
+	};
+	
+	enum {
+		NONE                   = 0,
+		TEMPORARY              = 1U << 0, // This schedule is not used for goods routing.
+		SAME_DEP_TIME          = 1U << 1, // Use same departure time for all entries.
+		FULL_LOAD_ACCELERATION = 1U << 2, // Always use full load acceleration.
 	};
 
 	minivec_tpl<schedule_entry_t> entries;
@@ -106,10 +112,14 @@ public:
 	void finish_editing() { editing_finished = true; }
 	void start_editing() { editing_finished = false; }
 	
-	bool is_temporary() const { return temporary; }
-	void set_temporary(bool y) { temporary = y; }
-	bool is_same_dep_time() const { return same_dep_time; }
-	void set_same_dep_time(bool y) { same_dep_time = y; }
+	uint8 get_flags() const { return flags; }
+	void set_flags(uint8 f) { flags = f; }
+	bool is_temporary() const { return (flags&TEMPORARY)>0; }
+	void set_temporary(bool y) { y ? flags |= TEMPORARY : flags &= ~TEMPORARY; }
+	bool is_same_dep_time() const { return (flags&SAME_DEP_TIME)>0; }
+	void set_same_dep_time(bool y) { y ? flags |= SAME_DEP_TIME : flags &= ~SAME_DEP_TIME; }
+	bool is_full_load_acceleration() const { return (flags&FULL_LOAD_ACCELERATION)>0; }
+	void set_full_load_acceleration(bool y) { y ? flags |= FULL_LOAD_ACCELERATION : flags &= ~FULL_LOAD_ACCELERATION; }
 	
 	void set_spacing_for_all(uint16);
 	void set_spacing_shift_for_all(uint16);
