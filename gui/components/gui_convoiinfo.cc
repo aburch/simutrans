@@ -26,9 +26,10 @@
 #include "../gui_frame.h"
 
 
-gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
+gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, bool show_line_name)
 {
     this->cnv = cnv;
+	this->show_line_name = show_line_name;
 
     filled_bar.set_pos(scr_coord(2, 33));
     filled_bar.set_size(scr_size(100, 4));
@@ -80,7 +81,7 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 			int w = display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+6+2*LINESPACE,txt,ALIGN_LEFT, SYSCOL_TEXT, true)+2;
 			max_x = max(max_x,w);
 		}
-		else if(cnv->get_line().is_bound()) {
+		else if(cnv->get_line().is_bound() && show_line_name) {
 			int w = display_proportional_clip( pos.x+offset.x+2, pos.y+offset.y+6+2*LINESPACE, translator::translate("Line"), ALIGN_LEFT, SYSCOL_TEXT, true)+2;
 			w += display_proportional_clip( pos.x+offset.x+2+w+5, pos.y+offset.y+6+2*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
 			max_x = max(max_x,w+5);

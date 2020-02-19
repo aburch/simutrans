@@ -33,13 +33,14 @@ private:
 	convoihandle_t cnv;
 
 	gui_speedbar_t filled_bar;
+	bool show_line_name = true;
 
 public:
 	/**
 	* @param cnv, the handler for the Convoi to be displayed.
 	* @author Hj. Malthaner
 	*/
-	gui_convoiinfo_t(convoihandle_t cnv);
+	gui_convoiinfo_t(convoihandle_t cnv, bool show_line_name = true);
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
