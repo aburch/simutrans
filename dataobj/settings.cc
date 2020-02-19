@@ -12,13 +12,13 @@
 #include "settings.h"
 #include "environment.h"
 #include "../simconst.h"
-#include "../utils/simrandom.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../path_explorer.h"
 #include "../bauer/wegbauer.h"
 #include "../descriptor/way_desc.h"
+#include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 #include "../utils/float32e8_t.h"
 #include "../vehicle/simvehicle.h"
@@ -92,7 +92,7 @@ settings_t::settings_t() :
 	no_tree_climates = 0;	// bit set, if this climate is to be void of random trees
 	no_trees = false;	// if set, no trees at all, may be useful for low end engines
 
-	lake = true;	// if set lakes will be added to map
+	lake = false;	// if set lakes will be added to map
 
 	// some settings more
 	allow_player_change = true;
@@ -155,7 +155,7 @@ settings_t::settings_t() :
 	max_factory_spacing_percentage = 0; // off
 
 	/* prissi: do not distribute goods to overflowing factories */
-	just_in_time = true;
+	just_in_time = 1;
 
 	random_pedestrians = true;
 	stadtauto_duration = 36;	// three years
@@ -451,6 +451,11 @@ settings_t::settings_t() :
 	max_small_city_size = 1000;
 	max_city_size = 5000;
 
+	// 0 values for these mean that the above absolute threasholds are used instead.
+	// Set values in simuconf.tab to activate this feature.
+	capital_threshold_percentage = 0;
+	city_threshold_percentage = 0;
+
 	power_revenue_factor_percentage=100;
 	
 	allow_making_public = true;
@@ -460,6 +465,8 @@ settings_t::settings_t() :
 	walking_speed = 5;
 
 	random_mode_commuting = random_mode_visiting = 2;
+
+	max_routes_to_process_in_a_step = 8;
 	
 	for(uint8 i = 0; i < 17; i ++)
 	{
@@ -533,9 +540,12 @@ settings_t::settings_t() :
 	max_comfort_preference_percentage = 500;
 
 	rural_industries_no_staff_shortage = true;
+	auto_connect_industries_and_attractions_by_road = 4;
 
 	path_explorer_time_midpoint = 64;
 	save_path_explorer_data = true;
+
+	show_future_vehicle_info = true;
 }
 
 void settings_t::set_default_climates()
@@ -679,14 +689,14 @@ void settings_t::rdwr(loadsave_t *file)
 		else {
 			beginner_mode = false;
 		}
-		uint8 jit = just_in_time ? 1 : 0;
 		if(  file->get_version()>120000  ){
-			file->rdwr_byte( jit );
+			file->rdwr_byte( just_in_time );
 		}
 		else if(file->get_version()>=89004) {
-			file->rdwr_bool(just_in_time);
+			bool jit = just_in_time;
+			file->rdwr_bool(jit);
+			just_in_time = jit ? 1 : 0;
 		}
-		just_in_time = jit; 
 		// rotation of the map with respect to the original value
 		if(file->get_version()>=99015) {
 			file->rdwr_byte(rotation);
@@ -1471,6 +1481,11 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 			file->rdwr_long(capital_threshold_size);
 			file->rdwr_long(city_threshold_size);
+			if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 15))
+			{
+				file->rdwr_byte(capital_threshold_percentage);
+				file->rdwr_byte(city_threshold_percentage);
+			}
 		}
 		
 		if(  file->get_version()>=110001  ) {
@@ -1648,7 +1663,7 @@ void settings_t::rdwr(loadsave_t *file)
 		// otherwise the default values of the last one will be used
 		}
 
-		if (file->get_version() > 120003 && (file->get_extended_version() == 0 || file->get_extended_revision() >= 17) || file->get_extended_version() >= 13)
+		if (file->get_version() > 120003 && (file->get_extended_version() == 0 || file->get_extended_revision() >= 19) || file->get_extended_version() >= 13)
 		{
 			file->rdwr_bool(disable_make_way_public);
 		}
@@ -1776,6 +1791,16 @@ void settings_t::rdwr(loadsave_t *file)
 		{
 			rural_industries_no_staff_shortage = true;
 		}
+
+		if (file->get_extended_version() >= 14 && file->get_extended_revision() >= 16)
+		{
+			file->rdwr_long(auto_connect_industries_and_attractions_by_road); 
+		}
+		else
+		{
+			auto_connect_industries_and_attractions_by_road = 4;
+		}
+
 		if (file->get_extended_version() >= 13 && file->get_extended_revision() >= 4)
 		{
 			file->rdwr_long(power_revenue_factor_percentage);
@@ -1785,6 +1810,16 @@ void settings_t::rdwr(loadsave_t *file)
 		{
 			file->rdwr_long(path_explorer_time_midpoint); 
 			file->rdwr_bool(save_path_explorer_data); 
+		}
+
+		if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 18))
+		{
+			file->rdwr_bool(show_future_vehicle_info);
+		}
+
+		if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 19))
+		{
+			file->rdwr_long(max_routes_to_process_in_a_step);
 		}
 	}
 
@@ -2275,7 +2310,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	crossconnect_factor = contents.get_int("crossconnect_factories_percentage", crossconnect_factor );
 	electric_promille = contents.get_int("electric_promille", electric_promille );
 
-	just_in_time = contents.get_int("just_in_time", just_in_time) != 0;
+	just_in_time = contents.get_int("just_in_time", just_in_time);
 	beginner_price_factor = contents.get_int("beginner_price_factor", beginner_price_factor ); /* this manipulates the good prices in beginner mode */
 	beginner_mode = contents.get_int("first_beginner", beginner_mode ); /* start in beginner mode */
 
@@ -2569,6 +2604,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	capital_threshold_size  = contents.get_int("capital_threshold_size", capital_threshold_size);
 	max_small_city_size  = contents.get_int("max_small_city_size", max_small_city_size);
 	max_city_size  = contents.get_int("max_city_size", max_city_size);
+	capital_threshold_percentage = contents.get_int("capial_threshold_percentage", capital_threshold_percentage);
+	city_threshold_percentage = contents.get_int("city_threshold_percentage", city_threshold_percentage); 
+
 	spacing_shift_mode = contents.get_int("spacing_shift_mode", spacing_shift_mode);
 	spacing_shift_divisor = contents.get_int("spacing_shift_divisor", spacing_shift_divisor);
 
@@ -2630,9 +2668,14 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	max_comfort_preference_percentage = contents.get_int("max_comfort_preference_percentage", max_comfort_preference_percentage);
 
 	rural_industries_no_staff_shortage = contents.get_int("rural_industries_no_staff_shortage", rural_industries_no_staff_shortage); 
+	auto_connect_industries_and_attractions_by_road = contents.get_int("auto_connect_industries_and_attractions_by_road", auto_connect_industries_and_attractions_by_road); 
 
 	path_explorer_time_midpoint = contents.get_int("path_explorer_time_midpoint", path_explorer_time_midpoint); 
 	save_path_explorer_data = contents.get_int("save_path_explorer_data", save_path_explorer_data); 
+
+	show_future_vehicle_info = contents.get_int("show_future_vehicle_information", show_future_vehicle_info);
+
+	max_routes_to_process_in_a_step = contents.get_int("max_routes_to_process_in_a_step", max_routes_to_process_in_a_step); 
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.
@@ -2678,7 +2721,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 				uint16 intro = contents.get_int(livery, DEFAULT_INTRO_DATE) * 12;
 
 				sprintf(livery, "intro_month[%i][%i]", i, j);
-				intro += contents.get_int("intro_month", 1) - 1;
+				intro += contents.get_int(livery, 1) - 1;
 
 				scheme->add_livery(liv_name, intro);
 			}
@@ -2945,7 +2988,7 @@ void settings_t::set_allow_routing_on_foot(bool value)
 { 
 	allow_routing_on_foot = value; 
 #ifdef MULTI_THREAD
-	world()->stop_path_explorer();
+	world()->await_path_explorer();
 #endif
 	path_explorer_t::refresh_category(0);
 }

@@ -192,12 +192,24 @@ void bruecke_t::finish_rd()
 {
 	grund_t *gr = welt->lookup(get_pos());
 	if(desc==NULL) {
-		weg_t *weg = gr->get_weg_nr(0);
-		if(weg) {
-			desc = bridge_builder_t::find_bridge(weg->get_waytype(),weg->get_max_speed(),0);
+		if(  weg_t *weg = gr->get_weg_nr(0)  ) {
+			desc = bridge_builder_t::find_bridge( weg->get_waytype(), weg->get_max_speed(), welt->get_timeline_year_month() );
+			if(desc==NULL) {
+				desc = bridge_builder_t::find_bridge( weg->get_waytype(), weg->get_max_speed(), 0 );
+			}
+			if(desc==NULL) {
+				dbg->fatal("bruecke_t::finish_rd()","Unknown bridge for type %x at (%i,%i)", weg->get_waytype(), get_pos().x, get_pos().y );
+			}
 		}
-		if(desc==NULL) {
-			dbg->fatal("bruecke_t::rdwr()","Unknown bridge type at (%i,%i)", get_pos().x, get_pos().y );
+		else {
+			// assume this is a powerbridge, since otherwise there should be a way
+			desc = bridge_builder_t::find_bridge( powerline_wt, 0, welt->get_timeline_year_month() );
+			if(desc==NULL) {
+				desc = bridge_builder_t::find_bridge( powerline_wt, 0, 0 );
+			}
+			if(desc==NULL) {
+				dbg->fatal("bruecke_t::finish_rd()","No powerbridge to built bridge type at (%i,%i)", get_pos().x, get_pos().y );
+			}
 		}
 	}
 

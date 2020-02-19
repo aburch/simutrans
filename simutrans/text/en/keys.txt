@@ -93,3 +93,5 @@ Keys with assigned functions include -xxx:
 [<em>F10</em>]: pause/unpause game.<br>
 [<em>F2</em>] to [<em>F12</em>]: selects pre-set tool
 </p>
+
+

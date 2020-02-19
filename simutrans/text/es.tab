@@ -1935,22 +1935,6 @@ zooming out
 Alejar
 Zu nah am Kartenrand
 Demasiado cerca del\nextremo del mapa\npara construir.\n
-#__________________________________record_text__________________________________
-#__________________________________record_text__________________________________
-New world record for maglevs: %.1f km/h by %s.
-Nuevo record mundial para maglevs: %.1f km/h por %s.
-New world record for monorails: %.1f km/h by %s.
-Nuevo récord mundial de monorrailes: %.1f km/h alcanzado por %s.\n
-New world record for motorcars: %.1f km/h by %s.
-Nuevo récord mundial de automóviles: %.1f km/h alcanzado por %s.\n
-New world record for narrowgauges: %.1f km/h by %s.
-Nuevo record mundial para trenes de vía estrecha: %.1f km/h por %s.
-New world record for planes: %.1f km/h by %s.
-Nuevo récord mundial de aviones: %.1f km/h alcanzado por %s.\n
-New world record for railways: %.1f km/h by %s.
-Nuevo récord mundial de ferrocarriles: %.1f km/h alcanzado por %s.\n
-New world record for ship: %.1f km/h by %s.
-Nuevo récord mundial de barcos: %.1f km/h alcanzado por %s.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

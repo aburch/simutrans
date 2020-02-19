@@ -160,10 +160,10 @@ static bool passes_filter_special(haltestelle_t & s)
 				g_class = goods_manager_t::mail->get_number_of_classes() - 1;
 			}
 
-			if(!s.get_connexions(i, g_class, g_class + 1)->empty())
+			if(!s.get_connexions(i, g_class)->empty())
 			{
 				// There might be a walking connexion here - do not count a walking connexion.
-				FOR(connexions_map_single_remote, &c, *s.get_connexions(i, g_class, g_class + 1) )
+				FOR(connexions_map_single_remote, &c, *s.get_connexions(i, g_class) )
 				{
 					if(c.value->best_line.is_bound() || c.value->best_convoy.is_bound())
 					{

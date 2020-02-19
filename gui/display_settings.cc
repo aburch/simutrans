@@ -30,6 +30,7 @@
 #include "../utils/simstring.h"
 #include "themeselector.h"
 #include "simwin.h"
+#include "../obj/gebaeude.h"
 
 // y coordinates
 #define GRID_MODE						(6)
@@ -56,8 +57,9 @@
 #define SHOW_STATION_COVERAGE			(USE_TRANSPARENCY_STATIONS+13)
 #define SHOW_STATION_SIGNS				(SHOW_STATION_COVERAGE+13)
 #define SHOW_STATION_GOODS				(SHOW_STATION_SIGNS+13)
+#define SHOW_SIGNALBOX_COVERAGE				(SHOW_STATION_GOODS+13)
 
-#define SEPERATE3						(SHOW_STATION_GOODS+13)
+#define SEPERATE3						(SHOW_SIGNALBOX_COVERAGE+13)
 
 #define CITY_WALKER								(SEPERATE3+4)
 #define STOP_WALKER								(CITY_WALKER+13)
@@ -80,9 +82,10 @@
 #define PHASE_EXPLORE_PATHS				(PHASE_FILL_MATRIX+13)
 #define PHASE_REROUTE_GOODS				(PHASE_EXPLORE_PATHS+13)
 #define PATH_EXPLORE_STATUS				(PHASE_REROUTE_GOODS+13)
+#define PATH_EXPLORE_STATUS_TEXT		(PATH_EXPLORE_STATUS+13)
 
 
-#define L_DIALOG_HEIGHT					(PATH_EXPLORE_STATUS+30)
+#define L_DIALOG_HEIGHT					(PATH_EXPLORE_STATUS_TEXT+30)
 
 // Local params
 #define L_DIALOG_WIDTH (220)
@@ -186,18 +189,25 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[b].set_tooltip("Show from how far that passengers or goods will come to use your stops. Toggle with the v key.");
 
 	//16
+	buttons[++b].set_pos(scr_coord(10, SHOW_SIGNALBOX_COVERAGE));
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("show signalbox coverage");
+	buttons[b].set_tooltip("Show coverage radius of the signalbox.");
+
+
+	//17
 	buttons[++b].set_pos( scr_coord(10,UNDERGROUND) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("underground mode");
 	buttons[b].set_tooltip("See under the ground, to build tunnels and underground railways/metros. Toggle with SHIFT + U");
 
-	//17
+	//18
 	buttons[++b].set_pos( scr_coord(10,GRID_MODE) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("show grid");
 	buttons[b].set_tooltip("Shows the borderlines of each tile in the main game window. Can be useful for construction. Toggle with the # key.");
 
-	//18
+	//19
 	buttons[++b].set_pos( scr_coord(10,SHOW_STATION_SIGNS) );
 	buttons[b].set_typ(button_t::arrowright);
 	//buttons[b].set_tooltip("show station names");
@@ -205,14 +215,14 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[b].pressed = env_t::show_names&1;*/
 	buttons[b].set_tooltip("Shows the names of the individual stations in the main game window.");
 
-	//19	
+	//20	
 	buttons[++b].set_pos( scr_coord(10,SHOW_STATION_GOODS) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("show waiting bars");
 	buttons[b].pressed = env_t::show_names&2;
 	buttons[b].set_tooltip("Shows a bar graph representing the number of passengers/mail/goods waiting at stops.");
 
-	//20
+	//21
 	buttons[++b].set_pos( scr_coord(10,SLICE) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("sliced underground mode");
@@ -226,7 +236,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	inp_underground_level.set_limits(welt->get_groundwater()-10, 32);
 	inp_underground_level.add_listener(this);
 
-	//21
+	//22
 	buttons[++b].set_pos( scr_coord(10, LEFT_TO_RIGHT_GRAPHS) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("Inverse graphs");
@@ -240,13 +250,13 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[1].set_pos( scr_coord(L_DIALOG_WIDTH-10-10-2,CONVOI_TOOLTIPS) );
 	buttons[1].set_typ(button_t::arrowright);
 
-	//22, Hide buildings and trees under mouse cursor
+	//23, Hide buildings and trees under mouse cursor
 	buttons[++b].set_pos( scr_coord(10,HIDE_UNDER_CURSOR) );
 	buttons[b].set_typ( button_t::square_state );
 	buttons[b].set_text( "Smart hide objects" );
 	buttons[b].set_tooltip( "hide objects under cursor" );
 
-	//23
+	//24
 	buttons[++b].set_pos( scr_coord(10,HIGHLITE_SCHEDULE) );
 	buttons[b].set_typ( button_t::square_state );
 	buttons[b].set_text( "Highlite schedule" );
@@ -281,7 +291,8 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	add_component( buttons+0 );
 	add_component( buttons+1 );
 	add_component( buttons+22);
-	add_component( buttons+23);
+	add_component(buttons + 23);
+	add_component(buttons + 24);
 
 	// unused buttons
 	// add_component( buttons+2 );
@@ -379,21 +390,28 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	} else if((buttons+14)==comp) {
 		env_t::use_transparency_station_coverage = !env_t::use_transparency_station_coverage;
 		buttons[14].pressed ^= 1;
-	} else if((buttons+15)==comp) {
-		env_t::station_coverage_show = env_t::station_coverage_show==0 ? 0xFF : 0;
-	} else if((buttons+16)==comp) {
+	}
+	else if ((buttons + 15) == comp) {
+		env_t::station_coverage_show = env_t::station_coverage_show == 0 ? 0xFF : 0;
+	}
+	else if ((buttons + 16) == comp) {
+		env_t::signalbox_coverage_show = env_t::signalbox_coverage_show == 0 ? 0xFF : 0;
+	}
+	else if ((buttons + 17) == comp) {
 		// see simtool.cc::tool_show_underground_t::init
-		grund_t::set_underground_mode(buttons[16].pressed ? grund_t::ugm_none : grund_t::ugm_all, inp_underground_level.get_value());
-		buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
+		grund_t::set_underground_mode(buttons[17].pressed ? grund_t::ugm_none : grund_t::ugm_all, inp_underground_level.get_value());
+		buttons[17].pressed = grund_t::underground_mode == grund_t::ugm_all;
 		// calc new images
 		welt->update_map();
 		// renew toolbar
 		tool_t::update_toolbars();
-	} else if((buttons+17)==comp) {
+	}
+	else if ((buttons + 18) == comp) {
 		grund_t::toggle_grid();
-	} else if((buttons+18)==comp) {
-		if(  env_t::show_names&1  ) {
-			if(  (env_t::show_names>>2) == 2  ) {
+	}
+	else if ((buttons + 19) == comp) {
+		if (env_t::show_names & 1) {
+			if ((env_t::show_names >> 2) == 2) {
 				env_t::show_names &= 2;
 			}
 			else {
@@ -404,36 +422,42 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 			env_t::show_names &= 2;
 			env_t::show_names |= 1;
 		}
-	} else if((buttons+19)==comp) {
+	}
+	else if ((buttons + 20) == comp) {
 		env_t::show_names ^= 2;
-	} else if((buttons+20)==comp) {
+	}
+	else if ((buttons + 21) == comp) {
 		// see simtool.cc::tool_show_underground_t::init
-		grund_t::set_underground_mode(buttons[20].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
-		buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
+		grund_t::set_underground_mode(buttons[21].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
+		buttons[21].pressed = grund_t::underground_mode == grund_t::ugm_level;
 		// calc new images
 		welt->update_map();
 		// renew toolbar
 		tool_t::update_toolbars();
-	} else if((buttons+22)==comp) {
+	}
+	else if ((buttons + 23) == comp) {
 		// see simtool.cc::tool_hide_under_cursor_t::init
-		env_t::hide_under_cursor = !env_t::hide_under_cursor  &&  env_t::cursor_hide_range>0;
+		env_t::hide_under_cursor = !env_t::hide_under_cursor  &&  env_t::cursor_hide_range > 0;
 		buttons[22].pressed = env_t::hide_under_cursor;
 		// renew toolbar
 		tool_t::update_toolbars();
-	} else if((buttons+23)==comp) {
+	}
+	else if ((buttons + 24) == comp) {
 		env_t::visualize_schedule = !env_t::visualize_schedule;
-		buttons[23].pressed = env_t::visualize_schedule;
-	} else if (comp == &inp_underground_level) {
-		if(grund_t::underground_mode==grund_t::ugm_level) {
+		buttons[24].pressed = env_t::visualize_schedule;
+	}
+	else if (comp == &inp_underground_level) {
+		if (grund_t::underground_mode == grund_t::ugm_level) {
 			grund_t::underground_level = inp_underground_level.get_value();
 			// calc new images
 			welt->update_map();
 		}
-	} else if ((buttons+21)==comp) {
-		env_t::left_to_right_graphs = !env_t::left_to_right_graphs;
-		buttons[21].pressed ^= 1;
 	}
-
+	else if ((buttons + 22) == comp) {
+		env_t::left_to_right_graphs = !env_t::left_to_right_graphs;
+		buttons[22].pressed ^= 1;
+	}
+	
 	welt->set_dirty();
 	return true;
 }
@@ -451,12 +475,13 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	buttons[11].pressed = env_t::hide_trees;
 	buttons[22].pressed = env_t::hide_under_cursor;
 	buttons[15].pressed = env_t::station_coverage_show;
-	buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
-	buttons[17].pressed = grund_t::show_grid;
-	//buttons[18].pressed = env_t::show_names&1;
-	buttons[19].pressed = (env_t::show_names&2)!=0;
-	buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
-	buttons[23].pressed = env_t::visualize_schedule;
+	buttons[16].pressed = env_t::signalbox_coverage_show;
+	buttons[17].pressed = grund_t::underground_mode == grund_t::ugm_all;
+	buttons[18].pressed = grund_t::show_grid;
+	//buttons[19].pressed = env_t::show_names&1;
+	buttons[20].pressed = (env_t::show_names&2)!=0;
+	buttons[21].pressed = grund_t::underground_mode == grund_t::ugm_level;
+	buttons[24].pressed = env_t::visualize_schedule;
 
 	gui_frame_t::draw(pos, size);
 
@@ -466,15 +491,15 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 		const char *text = translator::translate("show station names");
 		switch( env_t::show_names >> 2 ) {
 			case 0:
-				display_ddd_proportional_clip( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y+(LINESPACE/2), proportional_string_width(text)+7, 0, pc, SYSCOL_TEXT, text, 1 );
+				display_ddd_proportional_clip( 16+x+buttons[19].get_pos().x, y+buttons[19].get_pos().y+(LINESPACE/2), proportional_string_width(text)+7, 0, pc, SYSCOL_TEXT, text, 1 );
 				break;
 			case 1:
-				display_outline_proportional( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y, pc+1, SYSCOL_TEXT, text, 1 );
+				display_outline_proportional( 16+x+buttons[19].get_pos().x, y+buttons[19].get_pos().y, pc+1, SYSCOL_TEXT, text, 1 );
 				break;
 			case 2:
-				display_outline_proportional( 16+x+buttons[18].get_pos().x+16, y+buttons[18].get_pos().y, COL_YELLOW, SYSCOL_TEXT, text, 1 );
-				display_ddd_box_clip( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y, LINESPACE, LINESPACE, pc-2, pc+2 );
-				display_fillbox_wh(16 + x + buttons[18].get_pos().x + 1, y + buttons[18].get_pos().y + 1, LINESPACE - 2, LINESPACE - 2, pc, true);
+				display_outline_proportional( 16+x+buttons[19].get_pos().x+16, y+buttons[19].get_pos().y, COL_YELLOW, SYSCOL_TEXT, text, 1 );
+				display_ddd_box_clip( 16+x+buttons[19].get_pos().x, y+buttons[19].get_pos().y, LINESPACE, LINESPACE, pc-2, pc+2 );
+				display_fillbox_wh(16 + x + buttons[19].get_pos().x + 1, y + buttons[19].get_pos().y + 1, LINESPACE - 2, LINESPACE - 2, pc, true);
 				break;
 		}
 	}
@@ -571,5 +596,5 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	display_proportional_clip(x+len, y+PHASE_REROUTE_GOODS, ntos(path_explorer_t::get_limit_reroute_goods(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
 	len = 15+display_proportional_clip(x+10, y+PATH_EXPLORE_STATUS, translator::translate("Status:"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PATH_EXPLORE_STATUS, status_string, ALIGN_LEFT, figure_colour, true);
+	display_proportional_clip(x+10, y+PATH_EXPLORE_STATUS_TEXT, status_string, ALIGN_LEFT, figure_colour, true);
 }

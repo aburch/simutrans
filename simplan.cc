@@ -638,9 +638,9 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			// The intention of this seems to be to overlay and blend different players' colours in the display of station coverage.
 			// plot player outline colours - we always plot in order of players so that the order of the stations in halt_list
 			// doesn't affect the colour displayed [since blend(col1,blend(col2,screen)) != blend(col2,blend(col1,screen))]
-			for(int spieler_count = 0; spieler_count<MAX_PLAYER_COUNT; spieler_count++)
+			for(int player_count = 0; player_count<MAX_PLAYER_COUNT; player_count++)
 			{
-				player_t *display_player = welt->get_player(spieler_count);
+				player_t *display_player = welt->get_player(player_count);
 				if(display_player)
 				{
 					const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
@@ -670,8 +670,33 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 		}
 	}
 
-	gr->display_overlay( xpos, ypos );
-	if(  ground_size > 1  ) {
+	if (welt->get_active_player()->get_selected_signalbox() != NULL)
+	{
+		gebaeude_t* gb = (gebaeude_t*)welt->get_active_player()->get_selected_signalbox();
+		if (gb)
+		{
+			uint32 const radius = gb->get_tile()->get_desc()->get_radius();
+			uint16 const cov = radius / welt->get_settings().get_meters_per_tile();
+			if (shortest_distance(gb->get_pos().get_2d(), gr->get_pos().get_2d()) <= cov)
+			{
+				// Mark a 5x5 cross at center of circle
+				if ((gr->get_pos().x == gb->get_pos().x && (gr->get_pos().y >= gb->get_pos().y - 2 && gr->get_pos().y <= gb->get_pos().y + 2)) || (gr->get_pos().y == gb->get_pos().y && (gr->get_pos().x >= gb->get_pos().x - 2 && gr->get_pos().x <= gb->get_pos().x + 2)))
+				{
+					welt->mark_area(gr->get_pos(), koord(1, 1), env_t::signalbox_coverage_show);
+				}
+				// Mark the circle
+				if (shortest_distance(gb->get_pos().get_2d(), gr->get_pos().get_2d()) >= cov)
+				{
+					welt->mark_area(gr->get_pos(), koord(1, 1), env_t::signalbox_coverage_show);
+				}
+			}
+		}
+	}
+
+
+
+	gr->display_overlay(xpos, ypos);
+	if (ground_size > 1) {
 		const sint8 h0 = gr->get_disp_height();
 		for(  uint8 i = 1;  i < ground_size;  i++  ) {
 			grund_t* gr = data.some[i];

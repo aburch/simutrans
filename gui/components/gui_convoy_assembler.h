@@ -126,6 +126,7 @@ class gui_convoy_assembler_t :
 	sint32 convoy_tabs_skip;
 
 	/* Gui elements */
+	gui_label_t lb_convoi_number;
 	gui_label_t lb_convoi_count;
 	gui_label_t lb_convoi_speed;
 	gui_label_t lb_convoi_cost;
@@ -162,6 +163,7 @@ class gui_convoy_assembler_t :
 	gui_label_t lb_too_heavy_notice;
 	
 	gui_label_t lb_livery_selector;
+	gui_label_t lb_livery_counter;
 	gui_combobox_t livery_selector;
 
 	button_t bt_class_management;
@@ -194,6 +196,7 @@ class gui_convoy_assembler_t :
 	gui_combobox_t vehicle_filter;
 	gui_label_t lb_vehicle_filter;
 
+	cbuffer_t txt_convoi_number;
 	cbuffer_t txt_convoi_count;
 	cbuffer_t txt_convoi_value;
 	cbuffer_t txt_convoi_speed;
@@ -205,6 +208,7 @@ class gui_convoy_assembler_t :
 	cbuffer_t txt_convoi_way_wear_factor;
 	cbuffer_t txt_traction_types;
 	cbuffer_t txt_vehicle_count;
+	cbuffer_t txt_livery_count;
 
 	KOORD_VAL second_column_x; // x position of the second text column
 
@@ -262,6 +266,7 @@ public:
 	enum { u_buy, u_upgrade };
 
 	gui_convoy_assembler_t(waytype_t wt, signed char player_nr, bool electrified = true);
+	void clear_vectors();
 	virtual ~gui_convoy_assembler_t();
 	/**
 	 * Create and fill loks_vec and waggons_vec.
@@ -347,6 +352,8 @@ public:
 	static uint16 get_livery_scheme_index() { return livery_scheme_index; }
 
 	void set_traction_types(const char *traction_types_text) { txt_traction_types.clear(); txt_traction_types.append(traction_types_text); }
+
+	inline void draw_vehicle_bar_help(scr_coord offset);
 };
 
 #endif

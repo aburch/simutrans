@@ -75,10 +75,10 @@ static void fill_event(event_t* const ev)
 			ev->ev_code  = sys_event.code;
 			break;
 
-		case SIM_STRING: 
-			ev->ev_class = EVENT_STRING; 
-			ev->ev_ptr = sys_event.ptr; 
-			break; 
+		case SIM_STRING:
+			ev->ev_class = EVENT_STRING;
+			ev->ev_ptr   = sys_event.ptr;
+			break;
 
 		case SIM_MOUSE_BUTTONS:
 			// press only acknowledged when no buttons are pressed

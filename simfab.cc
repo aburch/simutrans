@@ -26,7 +26,6 @@
 #include "simfab.h"
 #include "simcity.h"
 #include "simhalt.h"
-#include "utils/simrandom.h"
 #include "simware.h"
 #include "simworld.h"
 #include "descriptor/building_desc.h"
@@ -54,6 +53,7 @@
 
 #include "gui/fabrik_info.h"
 
+#include "utils/simrandom.h"
 #include "utils/cbuffer_t.h"
 
 #include "gui/simwin.h"
@@ -303,7 +303,7 @@ void fabrik_t::update_transit_intern( const ware_t& ware, bool add )
 	FOR(  array_tpl<ware_production_t>,  &w,  input ) {
 		if(  w.get_typ()->get_index() == ware.index  ) {
 
-			w.book_stat(add ? (sint64)ware.menge : -(sint64)ware.menge, FAB_GOODS_TRANSIT );
+			w.book_stat_no_negative(add ? (sint64)ware.menge : -(sint64)ware.menge, FAB_GOODS_TRANSIT );
 			return;
 		}
 	}
@@ -762,7 +762,7 @@ fabrik_t::fabrik_t(loadsave_t* file)
 	else
 	{
 		// This will create a new gebaeude_t object if our existing one has not already been saved and re-loaded.
-		build(rotate, false, false);
+		build(rotate, false, false, true);
 
 		// now get rid of construction image
 		for(  sint16 y=0;  y<desc->get_building()->get_y(rotate);  y++  ) {
@@ -777,7 +777,7 @@ fabrik_t::fabrik_t(loadsave_t* file)
 }
 
 
-fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, sint32 initial_prod_base) :
+fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* desc, sint32 initial_prod_base) :
 	desc(desc),
 	pos(pos_)
 {
@@ -785,8 +785,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 	pos_origin = pos;
 	building = NULL;
 
-	owner = player;
-
+	this->owner = owner;
 	prodfactor_electric = 0;
 	prodfactor_pax = 0;
 	prodfactor_mail = 0;
@@ -810,10 +809,6 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 	status = nothing;
 	lieferziele_active_last_month = 0;
 	city = check_local_city();
-	if(city != NULL)
-	{
-		city->add_city_factory(this);
-	}
 
 	if(desc->get_placement() == 2 && city && desc->get_product_count() == 0 && !desc->is_electricity_producer())
 	{
@@ -1031,7 +1026,7 @@ fabrik_t::~fabrik_t()
 }
 
 
-void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodbase)
+void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodbase, bool from_saved)
 {
 	this->rotate = rotate;
 	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();
@@ -1082,6 +1077,12 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 
 	pos = building->get_pos();
 	pos_origin.z = pos.z;
+
+	// Must build roads before fields so that the road is not blocked by the fields.
+	if (!from_saved && welt->get_settings().get_auto_connect_industries_and_attractions_by_road())
+	{
+		building->connect_by_road_to_nearest_city();
+	}
 
 	if(desc->get_field_group()) {
 		// if there are fields
@@ -1684,10 +1685,12 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 	}
 
-	has_calculated_intransit_percentages = false;
+	if (file->is_loading())
+	{
+		has_calculated_intransit_percentages = false;
+	}
 	// Cannot calculate intransit percentages here,
 	// as this can only be done when paths are available.
-
 }
 
 
@@ -1713,7 +1716,7 @@ void fabrik_t::smoke() const
 	// maybe sound?
 	if (!world()->is_fast_forward() && desc->get_sound() != NO_SOUND && (welt->get_ticks() > (last_sound_ms + desc->get_sound_interval_ms())))
 	{
-		welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound());
+		welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound(), noise_barrier_wt);
 		// The below does not work because this is const - but without this, the whole sound interval does not work.
 		//last_sound_ms = welt->get_ticks();
 	}
@@ -1803,7 +1806,7 @@ sint32 fabrik_t::liefere_an(const goods_desc_t *typ, sint32 menge)
 			if(  ware.get_typ() == typ  ) {
 				// Can't use update_transit for interface reasons; we don't take a ware argument.
 				// We should, however.
-				ware.book_stat( -menge, FAB_GOODS_TRANSIT );
+				ware.book_stat_no_negative( -menge, FAB_GOODS_TRANSIT );
 
 				// Resolve how much normalized production arrived, rounding up (since we rounded up when we removed it).
 				const uint32 prod_factor = desc->get_supplier(in) ? desc->get_supplier(in)->get_consumption() : 1;
@@ -1962,11 +1965,36 @@ sint32 fabrik_t::goods_needed(const goods_desc_t *typ) const
 		{
 			// not needed (< 1) if overflowing or too much already sent	
 
-			const uint32 prod_factor = desc->get_supplier(in)->get_consumption();
-			const uint32 transit_internal_units = (((ware.get_in_transit() << fabrik_t::precision_bits) << DEFAULT_PRODUCTION_FACTOR_BITS) + prod_factor - 1) / prod_factor;
+			const sint32 prod_factor = desc->get_supplier(in)->get_consumption();
+			const sint32 transit_internal_units = (((ware.get_in_transit() << fabrik_t::precision_bits) << DEFAULT_PRODUCTION_FACTOR_BITS) + prod_factor - 1) / prod_factor;
 			
 			// Version that respects the new industry internal scale and properly deals with the just in time setting being disabled
-			return typ->get_catg() == 0 || !welt->get_settings().get_just_in_time() ? ware.max - ware.menge : ware.max_transit - (transit_internal_units + ware.menge - ware.max);
+			if(typ->get_catg() == 0 || !welt->get_settings().get_just_in_time())
+			{
+				// The simple system
+				return ware.max - ware.menge;
+			}
+			else if(welt->get_settings().get_just_in_time() == 1)
+			{
+				// Original just in time with industries always demanding enough goods to fill their storage but no more.
+				return ware.max_transit - (transit_internal_units + ware.menge - ware.max);
+			}
+			else // just_in_time > 1
+			{
+				// Modified just in time, with industries not filling more of their storage than they are likely to need.
+				sint32 adjusted_factory_value = ware.menge - ware.max_transit;
+				adjusted_factory_value = max(adjusted_factory_value, 0);
+				const sint32 overall_maximum = ware.max + ware.max_transit;
+				if (welt->get_settings().get_just_in_time() == 2)
+				{
+					return min(overall_maximum, ware.max_transit - (transit_internal_units + adjusted_factory_value));
+				}
+				else // just_in_time >= 3
+				{
+					// In this state, the size of the consumer's storage is ignored.
+					return ware.max_transit - (transit_internal_units + adjusted_factory_value);
+				}
+			}	
 		}
 	}
 	return -1;  // not needed here
@@ -2423,8 +2451,9 @@ void fabrik_t::verteile_waren(const uint32 product)
 					}
 
 					const bool needs_max_amount = needed >= ziel_fab->get_input()[w].max;
+					const sint32 storage_base_units = (sint32)(((sint64)ziel_fab->get_input()[w].menge * (sint64)(prod_factor)) >> (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits));
 
-					if (needs_max_amount && (needed_base_units == 0))
+					if (needed > 0 && ziel_fab->get_input()[w].get_in_transit() == 0 && (needs_max_amount || storage_base_units <= 1) && needed_base_units == 0)
 					{
 						needed_base_units = 1;
 					}
@@ -2552,18 +2581,26 @@ void fabrik_t::verteile_waren(const uint32 product)
 stadt_t* fabrik_t::check_local_city()
 {
 	stadt_t* c = NULL;
-	vector_tpl<koord> tile_list;
-	get_tile_list(tile_list);
-	FOR(vector_tpl<koord>, const k, tile_list)
+	// We cannot use the tile list here since this is called in many cases before that list can be generated.
+	koord pos_2d = pos.get_2d();
+	koord size = desc->get_building()->get_size(this->get_rotate());
+	koord test;
+	koord k;
+	// Which tiles belong to the fab?
+	for (test.x = 0; test.x < size.x; test.x++) 
 	{
-		for(uint8 i = 0; i < 8; i ++)
+		for (test.y = 0; test.y < size.y; test.y++)
 		{
-			// We need to check neighbouring tiles, since city borders can be very tightly drawn.
-			const koord city_pos(k + k.neighbours[i]);
-			c = welt->get_city(city_pos);
-			if(c)
+			k = pos_2d + test;
+			for (uint8 i = 0; i < 8; i++)
 			{
-				goto out_of_loop;
+				// We need to check neighbouring tiles, since city borders can be very tightly drawn.
+				const koord city_pos(k + k.neighbours[i]);
+				c = welt->get_city(city_pos);
+				if (c)
+				{
+					goto out_of_loop;
+				}
 			}
 		}
 	}
@@ -3554,14 +3591,9 @@ void fabrik_t::add_supplier(koord ziel)
 				const ware_production_t &w_out = fab->get_output()[i];
 				// now update transit limits
 				FOR(  array_tpl<ware_production_t>,  &w,  input ) {
-					if(  w_out.get_typ() == w.get_typ()  ) {
-						const sint32 max_storage = (sint32)(((sint64)w_out.max * (sint64)welt->get_settings().get_factory_maximum_intransit_percentage()) / 100);
-						const sint32 old_max_transit = w.max_transit;
-						w.max_transit += max_storage;
-						if(  w.max_transit < old_max_transit  ) {
-							// we have overflown, so we use the max value
-							w.max_transit = 0x7fffffff;
-						}
+					if(  w_out.get_typ() == w.get_typ()  )
+					{
+						calc_max_intransit_percentages();
 						break;
 					}
 				}
@@ -3589,17 +3621,9 @@ void fabrik_t::rem_supplier(koord pos)
 				for(  uint32 i=0;  i < fab->get_output().get_count();  i++   ) {
 					const ware_production_t &w_out = fab->get_output()[i];
 					// now update transit limits
-					FOR(  array_tpl<ware_production_t>,  &w,  input ) {
-						if(  w_out.get_typ() == w.get_typ()  ) {
-							const sint32 max_storage = (sint32)(((sint64)w_out.max * (sint64)welt->get_settings().get_factory_maximum_intransit_percentage()) / 100);
-							const sint32 old_max_transit = w.max_transit;
-							w.max_transit += max_storage;
-							if(  w.max_transit < old_max_transit  ) {
-								// we have overflown, so we use the max value
-								w.max_transit = 0x7fffffff;
-							}
-							break;
-						}
+					FOR(  array_tpl<ware_production_t>,  &w,  input ) 
+					{
+						calc_max_intransit_percentages();
 					}
 				}
 				// since there could be more than one good, we have to iterate over all of them
@@ -3759,6 +3783,7 @@ void fabrik_t::calc_max_intransit_percentages()
 		{
 			// No factories connected; use the default intransit percentage for now.
 			max_intransit_percentages.put(catg, base_max_intransit_percentage);
+			input[index].max_transit = max(1, (base_max_intransit_percentage * input[index].max) / 100); // This puts max_transit in internal units
 			index ++;
 			continue;
 		}
@@ -3842,7 +3867,35 @@ uint32 fabrik_t::get_time_to_consume_stock(uint32 index)
 	const factory_supplier_desc_t* flb = desc->get_supplier(index);
 	const uint32 vb = flb ? flb->get_consumption() : 0;
 	const sint32 base_production = get_current_production();
-	const sint32 consumed_per_month = max(((base_production * vb) >> 8), 1);
+	sint32 consumed_per_month = max(((base_production * vb) >> 8), 1);
+
+	if(desc->is_consumer_only())
+	{
+		// Consumer industries adjust their consumption according to the number of visitors. Adjust for this.
+		// We cannot use actual consumption figures, as this could lead to deadlocks. 
+
+		// Do not use the current month, as this is not complete yet, and the number of visitors will therefore be low.
+		sint64 average_consumers = 0;
+		if(get_stat(3, FAB_CONSUMER_ARRIVED))
+		{
+			average_consumers = (get_stat(1, FAB_CONSUMER_ARRIVED) + get_stat(2, FAB_CONSUMER_ARRIVED) + get_stat(3, FAB_CONSUMER_ARRIVED)) / 3ll;
+		}
+		else if(get_stat(2, FAB_CONSUMER_ARRIVED))
+		{
+			average_consumers = (get_stat(1, FAB_CONSUMER_ARRIVED) + get_stat(2, FAB_CONSUMER_ARRIVED) / 2ll);
+		}
+		else 
+		{
+			average_consumers = get_stat(1, FAB_CONSUMER_ARRIVED);
+		}
+		// Only make the adjustment if we have data.
+		if (average_consumers)
+		{
+			const sint64 visitor_demand = (sint64)building->get_adjusted_visitor_demand();
+			const sint64 percentage = std::max(100ll, (average_consumers * 100ll) / visitor_demand);
+			consumed_per_month = (consumed_per_month * (sint32)percentage) / 100;
+		}
+	}
 
 	const sint32 input_capacity = max((input[index].max >> fabrik_t::precision_bits), 1);
 

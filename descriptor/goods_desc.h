@@ -15,6 +15,7 @@
 #include "../tpl/piecewise_linear_tpl.h"
 // Simworld is for adjusted speed bonus
 //#include "../simworld.h"
+#include "image.h"
 
 class checksum_t;
 
@@ -134,6 +135,12 @@ public:
 	* @author Hj. Malthaner
 	*/
 	const char * get_catg_name() const;
+
+	/**
+	* @return goods category symbol
+	* @author Ranran, March 2019
+	*/
+	image_id get_catg_symbol() const;
 
 	/*
 	* The number of different classes in which this comes

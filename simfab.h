@@ -8,6 +8,8 @@
 #ifndef simfab_h
 #define simfab_h
 
+#include <algorithm>
+
 #include "dataobj/koord3d.h"
 #include "dataobj/translator.h"
 
@@ -108,6 +110,7 @@ public:
 	void rdwr(loadsave_t *file);
 	const sint64* get_stats() const { return *statistics; }
 	void book_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_GOODS_STAT); statistics[0][stat_type] += value; }
+	void book_stat_no_negative(sint64 value, int stat_type) { assert(stat_type < MAX_FAB_GOODS_STAT); statistics[0][stat_type] += (std::max(value, -statistics[0][stat_type])); }
 	void set_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_GOODS_STAT); statistics[0][stat_type] = value; }
 	sint64 get_stat(int month, int stat_type) const { assert(stat_type<MAX_FAB_GOODS_STAT); return statistics[month][stat_type]; }
 
@@ -232,7 +235,7 @@ private:
 	 */
 	void verteile_waren(const uint32 product);
 
-	player_t *owner;		// player_t* owner_p
+	player_t *owner;
 	static karte_ptr_t welt;
 
 	const factory_desc_t *desc;
@@ -443,7 +446,7 @@ protected:
 
 public:
 	fabrik_t(loadsave_t *file);
-	fabrik_t(koord3d pos, player_t* player, const factory_desc_t* desc, sint32 initial_prod_base);
+	fabrik_t(koord3d pos, player_t* owner, const factory_desc_t* desc, sint32 initial_prod_base);
 	~fabrik_t();
 
 	gebaeude_t* get_building();
@@ -672,7 +675,7 @@ public:
 	 *
 	 * @author Hj. Malthaner, V. Meyer
 	 */
-	void build(sint32 rotate, bool build_fields, bool force_initial_prodbase);
+	void build(sint32 rotate, bool build_fields, bool force_initial_prodbase, bool from_saved = false);
 
 	sint16 get_rotate() const { return rotate; }
 
@@ -707,7 +710,7 @@ public:
 	void set_base_production(sint32 p, bool is_from_saved_game = false);
 
 	// This is done this way rather than reusing get_prodfactor() because the latter causes a lack of precision (everything being rounded to the nearest 16). 
-	sint32 get_current_production() const { return (sint32)(welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + prodfactor_pax + prodfactor_mail)))) >> 8l; }
+	sint32 get_current_production() const { return (sint32)(welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + (get_sector() == fabrik_t::end_consumer ? 0 : prodfactor_pax + prodfactor_mail))))) >> 8l; }
 
 	/* prissi: returns the status of the current factory */
 	enum { nothing, good, water_resource, medium, water_resource_full, storage_full, inactive, shipment_stuck, material_shortage, no_material, bad, mat_overstocked, stuck, staff_shortage, MAX_FAB_STATUS };

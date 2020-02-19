@@ -82,7 +82,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 86;
+	int total_len = 87;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -171,7 +171,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Standard 10, 0x300 - whether tall (for height restricted bridges)
 	// Standard 11, 0x400 - 16-bit sound 
 	// Standard 11, 0x500 - classes
-	version += 0x500;
+	// Standard 11, 0x600 - prev=any, cab_setting
+	version += 0x600;
 
 	node.write_uint16(fp, version, pos);
 
@@ -588,11 +589,21 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		}
 	}
 
-	//
 	// following/leader vehicle constrains
-	//
+	// can_lead_from_rear is deprecated but used for conversion processing to maintain compatibility
+	uint8 bidirectional = (obj.get_int("bidirectional", 0));
+	uint8 can_lead_from_rear = (obj.get_int("can_lead_from_rear", 0));
+	if (can_lead_from_rear) { bidirectional = 1; }
+
+	uint8 has_front_cab = (obj.get_int("has_front_cab", 255));
+	uint8 has_rear_cab = (obj.get_int("has_rear_cab", 255));
+	uint8 basic_constraint_prev = 0;
+	uint8 basic_constraint_next = 0;
+
 	uint8 leader_count = 0;
+	bool can_be_at_front = true;
 	bool found;
+	bool prev_has_none = false;
 	do {
 		char buf[40];
 
@@ -605,14 +616,56 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		if (found) {
 			if (!STRICMP(str.c_str(), "none")) {
 				str = "";
+				prev_has_none = true;
 			}
-			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
-			leader_count++;
+			if (!STRICMP(str.c_str(), "any"))
+			{
+				// "Any" should not be specified with anything else.
+				can_be_at_front = false;
+				break;
+			}
+			else
+			{
+				xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
+				leader_count++;
+			}
 		}
 	} while (found);
 
+	// set front-end flags
+	if (can_be_at_front) {
+		if (!leader_count) {
+			basic_constraint_prev |= vehicle_desc_t::can_be_tail | vehicle_desc_t::can_be_head; // no constraint setting = free
+		}
+		else if (prev_has_none) {
+			basic_constraint_prev |= vehicle_desc_t::can_be_tail;
+			if (!bidirectional) {
+				basic_constraint_prev |= vehicle_desc_t::can_be_head;
+			}
+			if (has_front_cab || can_lead_from_rear) {
+				basic_constraint_prev |= vehicle_desc_t::can_be_head;
+			}
+			if (leader_count == 1) {
+				basic_constraint_prev |= vehicle_desc_t::unconnectable;
+			}
+		}
+		else {
+			// intermediate side
+			if (leader_count == 1) {
+				basic_constraint_prev |= vehicle_desc_t::intermediate_unique;
+			}
+		}
+	}
+	// auto setting
+	if (has_front_cab == 255) {
+		if (!power && bidirectional && !can_lead_from_rear) {
+			basic_constraint_prev &= ~vehicle_desc_t::can_be_head; // brake van
+		}
+	}
+
 	uint8 trailer_count = 0;
-	bool can_be_at_rear = true;
+	bool can_be_at_end = true;
+	bool next_has_none = false;
 	do {
 		char buf[40];
 
@@ -628,11 +681,12 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			if (!STRICMP(str.c_str(), "none")) 
 			{
 				str = "";
+				next_has_none = true;
 			}
 			if(!STRICMP(str.c_str(), "any"))
 			{
 				// "Any" should not be specified with anything else.
-				can_be_at_rear = false;
+				can_be_at_end = false;
 				break;
 			}
 			else
@@ -642,6 +696,37 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			}
 		}
 	} while (found);
+
+	// set back-end flags
+	if (can_be_at_end) {
+		if (!trailer_count) {
+			basic_constraint_next |= vehicle_desc_t::can_be_tail | vehicle_desc_t::can_be_head; // no constraint setting = free
+		}
+		else if (next_has_none) {
+			basic_constraint_next |= vehicle_desc_t::can_be_tail;
+			if (bidirectional) {
+				basic_constraint_next |= vehicle_desc_t::can_be_head;
+			}
+			if (trailer_count == 1) {
+				basic_constraint_next |= vehicle_desc_t::unconnectable;
+			}
+			if (has_rear_cab || can_lead_from_rear) {
+				basic_constraint_next |= vehicle_desc_t::can_be_head;
+			}
+		}
+		else {
+			// intermediate side
+			if (trailer_count == 1) {
+				basic_constraint_next |= vehicle_desc_t::intermediate_unique;
+			}
+		}
+	}
+	// auto setting (support old dat)
+	if (has_rear_cab == 255 && (basic_constraint_next & vehicle_desc_t::can_be_head)) {
+		if ((bidirectional && !can_lead_from_rear && !power) || !bidirectional) {
+			basic_constraint_next &= ~vehicle_desc_t::can_be_head; // brake van or single derection vehicle 
+		}
+	}
 
 	// Upgrades: these are the vehicle types to which this vehicle
 	// can be upgraded. "None" means that it cannot be upgraded. 
@@ -796,13 +881,12 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	// Bidirectional: vehicle can travel backwards without turning around.
 	// Function is disabled for road and air vehicles.
-	uint8 bidirectional = (obj.get_int("bidirectional", 0));
 	node.write_uint8(fp, bidirectional, pos);
 	pos += sizeof(uint8);
 
 	// Can lead from rear: train can run backwards without turning around.
-	uint8 can_lead_from_rear = (obj.get_int("can_lead_from_rear", 0));
-	node.write_uint8(fp, can_lead_from_rear, pos);
+	//node.write_uint8(fp, can_lead_from_rear, pos);
+	node.write_uint8(fp, basic_constraint_prev, pos);
 	pos += sizeof(uint8);
 
 	// Passenger comfort rating - affects revenue on longer journies.
@@ -941,7 +1025,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, air_resistance_hundreds, pos);
 	pos += sizeof(uint16);
 
-	node.write_uint8(fp, (uint8)can_be_at_rear, pos);
+	// can_be_at_rear was integrated into one variable
+	node.write_uint8(fp, basic_constraint_next, pos);
 	pos += sizeof(uint8);
 
 	// Obsolescence. Zeros indicate that simuconf.tab values should be used.
@@ -1007,6 +1092,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint8(fp, is_tall, pos);
 	pos += sizeof(is_tall); 
 
+	uint8 mixed_load_prohibition = obj.get_int("mixed_load_prohibition", 0);
+	node.write_uint8(fp, mixed_load_prohibition, pos);
+	pos += sizeof(mixed_load_prohibition);
+
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
 		node.write_sint8  (fp, sound_str_len, pos);
@@ -1017,3 +1106,4 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	node.write(fp);
 }
+

@@ -16,7 +16,6 @@
 #include "simsound.h"
 #include "simevent.h"
 #include "simcity.h"
-#include "utils/simrandom.h"
 #include "simmesg.h"
 #include "simconvoi.h"
 #include "gui/simwin.h"
@@ -98,6 +97,7 @@
 #include "tpl/weighted_vector_tpl.h"
 
 #include "network/memory_rw.h"
+#include "utils/simrandom.h"
 #include "utils/simstring.h"
 
 #include "simtool.h"
@@ -129,6 +129,8 @@ char *tooltip_with_price_and_distance(const char * tip, sint64 price, uint32 dis
 
 	return tool_t::toolstr;
 }
+
+
 
 // TODO: merge this into building_layout defined in simcity.cc
 static int const building_layout[] = { 0, 0, 1, 4, 2, 0, 5, 1, 3, 7, 1, 0, 6, 3, 2, 0 };
@@ -318,7 +320,7 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 {
 	grund_t *gr = welt->lookup(pos);
 	if(gr) {
-		DBG_MESSAGE("tool_abfrage()","checking map square %s", pos.get_str());
+		DBG_MESSAGE("tool_query_t()","checking map square %s", pos.get_str());
 
 		if(  env_t::single_info  ) {
 
@@ -329,7 +331,7 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 				for(int n=0;  n<gr->get_top();  n++  ) {
 					obj_t *obj = gr->obj_bei(n);
 					if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar && obj->get_typ()!=obj_t::label  ) {
-						DBG_MESSAGE("tool_abfrage()", "index %d", n);
+						DBG_MESSAGE("tool_query_t()", "index %d", n);
 						obj->show_info();
 						// did some new window open?
 						if(old_count!=win_get_open_count()) {
@@ -378,7 +380,7 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 				for (size_t n = gr->get_top(); n-- != 0;) {
 					obj_t *obj = gr->obj_bei(n);
 					if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar && obj->get_typ()!=obj_t::label  ) {
-						DBG_MESSAGE("tool_abfrage()", "index %u", (unsigned)n);
+						DBG_MESSAGE("tool_query_t()", "index %u", (unsigned)n);
 						obj->show_info();
 						if(obj->get_typ() == obj_t::signalbox && obj->get_owner() == player)
 						{
@@ -447,9 +449,9 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 		if (label_t* l = gr->find<label_t>()) {
 			msg = l-> is_deletable(player);
 			if(msg==NULL) {
-				delete l;
 				// Refund the cost of land if the player is deleting the marker and therefore selling it.
 				player_t::book_construction_costs(l->get_owner(), -welt->get_land_value(gr->get_pos()), gr->get_pos().get_2d());
+				delete l;
 				return true;
 			}
 			else if(  gr->get_top()==1 || type == obj_t::label ) {
@@ -1617,9 +1619,9 @@ bool tool_clear_reservation_t::exit( player_t * )
 	return true;
 }
 
-const char *tool_clear_reservation_t::work( player_t *player, koord3d k )
+const char *tool_clear_reservation_t::work( player_t *player, koord3d pos )
 {
-	grund_t *gr = welt->lookup(k);
+	grund_t *gr = welt->lookup(pos);
 	const char* err = NULL;
 	if(gr) {
 
@@ -1632,9 +1634,9 @@ const char *tool_clear_reservation_t::work( player_t *player, koord3d k )
 				continue;
 			}
 
-			// Does this way belong to the player using the tool?
+			// Does this way belong to the player using the tool? If not, does the vehicle reserving the way belong to the player using the tool?
 			// The public player can use it universally.
-			if(player->get_player_nr() != 1 && w->get_player_nr() != player->get_player_nr())
+			if(!player->is_public_service() && w->get_owner() != player && w->get_reserved_convoi()->get_owner() != player)
 			{
 				err = "Cannot edit block reservations on another player's way.";
 				continue;
@@ -2573,29 +2575,70 @@ waytype_t tool_build_way_t::get_waytype() const
 	return invalid_wt;
 }
 
+
 uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, const char *&error, const koord3d & )
 {
 	error = NULL;
 	grund_t *gr=welt->lookup(pos);
-	if(  gr  &&  slope_t::is_way(gr->get_weg_hang())  ) {
+	uint8 positive_return = 2; 
+	if(  gr  &&  slope_t::is_way(gr->get_weg_hang())  )
+	{
+		// Check for the runway exclusion zone (unless we are underground)
+		const uint8 height = welt->lookup_hgt(pos.get_2d());
+		if (height <= pos.z)
+		{
+			karte_t::runway_info ri = welt->check_nearby_runways(gr->get_pos().get_2d());
+			if (ri.pos != koord::invalid)
+			{
+				// There is a nearby runway. Only build if we are a runway in the same direction connecting to it,
+				// or a perpendicular taxiway.
+
+				if (desc->get_waytype() != air_wt)
+				{
+					error = "This cannot be built next to a runway.";
+					return 0;
+				}
+				// We cannot detect the direciton here: this will be done elsewhere.
+			}
+		}
 
 		bool const elevated = desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt;
 		// ignore water
-		if(  desc->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser  ) {
-			if(  !elevated  ||  welt->lookup_hgt( pos.get_2d() ) < welt->get_water_hgt( pos.get_2d() )  ) {
+		if(  desc->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser  )
+		{
+			if(  !elevated  ||  welt->lookup_hgt( pos.get_2d() ) < welt->get_water_hgt( pos.get_2d() )  ) 
+			{
 				return 0;
 			}
 			// here either channel or elevated way over not too deep water
 		}
 		// elevated ways have to check tile above
-		if(  elevated  ) {
-			gr = welt->lookup( pos + koord3d( 0, 0, welt->get_settings().get_way_height_clearance() ) );
-			if(  gr == NULL  ) {
-				return 2;
+		if(  elevated  ) 
+		{
+			// Also check for large buildings below
+			grund_t* gr_below = welt->lookup_kartenboden(pos.get_2d());
+			if (gr_below) 
+			{
+				if (const gebaeude_t* gb = gr_below->get_building())
+				{
+					const uint8 max_level = welt->get_settings().get_max_elevated_way_building_level();
+					if (((gb->get_tile()->get_desc()->get_level() > max_level) && !haltestelle_t::get_halt(gb->get_pos(), NULL).is_bound()) || gb->is_attraction() || gb->is_townhall())
+					{
+						error = "Bridges cannot be built over large buildings.";
+						return 0;
+					}
+				}
 			}
-			if(  gr->get_typ() != grund_t::monorailboden  ) {
+			gr = welt->lookup( pos + koord3d( 0, 0, welt->get_settings().get_way_height_clearance() ) );
+			if(  gr == NULL  ) 
+			{
+				return positive_return;
+			}
+			if(  gr->get_typ() != grund_t::monorailboden  ) 
+			{
 				return 0;
 			}
+			
 		}
 		// test if way already exists on the way and if we are allowed to connect
 		weg_t *way = gr->get_weg(desc->get_wtyp());
@@ -2604,17 +2647,17 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 			// allow to connect to any road, or anywhere where the player has been granted access rights.
 			if(desc->get_wtyp() == road_wt || way->get_owner() == NULL || way->get_owner()->allows_access_to(player->get_player_nr()))
 			{
-				return 2;
+				return positive_return;
 			}
 			error = way-> is_deletable(player);
-			return error==NULL ? 2 : 0;
+			return error==NULL ? positive_return : 0;
 		}
 		leitung_t* lt = gr->get_leitung();
 		if(lt)
 		{
 			if(!lt->get_owner() || lt->get_owner()->allows_access_to(player->get_player_nr()))
 			{
-				return 2;
+				return positive_return;
 			}
 		}
 		// check for ownership but ignore moving things
@@ -2631,7 +2674,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 	else {
 		return 0;
 	}
-	return 2;
+	return positive_return;
 }
 
 void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start, const koord3d &end )
@@ -2664,14 +2707,14 @@ void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 	}
 
 	if(  is_ctrl_pressed()  ||  (env_t::straight_way_without_control  &&  !env_t::networkmode)  ) {
-		DBG_MESSAGE("tool_wegebau()", "try straight route");
+		DBG_MESSAGE("tool_build_way_t()", "try straight route");
 		bauigel.calc_straight_route(start,end);
 	}
 	else {
 		bauigel.calc_route(start,end);
 	}
 
-	DBG_MESSAGE("tool_wegebau()", "builder found route with %d squares length.", bauigel.get_count());
+	DBG_MESSAGE("tool_build_way_t()", "builder found route with %d squares length.", bauigel.get_count());
 }
 
 tool_build_way_t* get_build_way_tool_from_toolbar(const way_desc_t* desc) {
@@ -3081,6 +3124,13 @@ uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 	const waytype_t wt = desc->get_waytype();
 
 	error = NULL;
+
+	karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+	if (ri.pos != koord::invalid)
+	{
+		return 0;
+	}
+
 	grund_t *gr = welt->lookup(pos);
 	if(  gr==NULL  ||  !slope_t::is_way(gr->get_grund_hang())  ||  !bridge_builder_t::can_place_ramp( player, gr, wt, (is_first_click() ? 0 : ribi_type(pos-start)) )  ) {
 		return 0;
@@ -3367,7 +3417,13 @@ uint8 tool_build_tunnel_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 		return 2;
 	}
 	// .. otherwise build tunnel mouths (and tunnel behind)
-	else {
+	else 
+	{
+		karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+		if (ri.pos != koord::invalid)
+		{
+			return 0;
+		}
 		return 1;
 	}
 }
@@ -3512,7 +3568,7 @@ uint8 tool_wayremover_t::is_valid_pos( player_t *player, const koord3d &pos, con
 	waytype_t wt = get_waytype();
 	grund_t *gr=tool_intern_koord_to_weg_grund(player,welt,pos,wt);
 	if(gr==NULL) {
-		DBG_MESSAGE("tool_wayremover()", "no ground on %i,%i",pos.x, pos.y);
+		DBG_MESSAGE("tool_wayremover_t()", "no ground on %i,%i",pos.x, pos.y);
 		// wrong ground or not this way here => exit
 		return 0;
 	}
@@ -3563,7 +3619,7 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 		verbindung.calc_route(welt, start, end, test_driver, 0, 0, false, 0);
 		delete test_driver;
 	}
-	DBG_MESSAGE("tool_wayremover()","route with %d tile found",verbindung.get_count());
+	DBG_MESSAGE("tool_wayremover_t()","route with %d tile found",verbindung.get_count());
 
 	calc_route_error = NULL;
 	bool can_delete = start == end  ||  verbindung.get_count()>1;
@@ -3619,7 +3675,7 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 			}
 		}
 	}
-	DBG_MESSAGE("tool_wayremover()", "route search returned %d", can_delete);
+	DBG_MESSAGE("tool_wayremover_t()", "route search returned %d", can_delete);
 
 	return can_delete;
 }
@@ -3629,7 +3685,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 	waytype_t wt = get_waytype();
 	route_t verbindung;
 	if( !calc_route( verbindung, player, start, end )  ) {
-		DBG_MESSAGE("tool_wayremover()","no route found");
+		DBG_MESSAGE("tool_wayremover_t()","no route found");
 		if (calc_route_error  &&  *calc_route_error) {
 			return calc_route_error;
 		}
@@ -3902,7 +3958,7 @@ bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, con
 		waytype = welt->lookup(start)->get_weg(wt)->get_waytype();
 	}
 	// get a default vehicle
-	vehicle_desc_t remover_desc(waytype, 500, vehicle_desc_t::diesel );
+	vehicle_desc_t remover_desc(waytype, 8888, vehicle_desc_t::MAX_TRACTION_TYPE );
 	vehicle_t* test_vehicle = vehicle_builder_t::build(start, player, NULL, &remover_desc);
 	test_vehicle->set_flag( obj_t::not_on_map );
 	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
@@ -3952,7 +4008,7 @@ void tool_build_wayobj_t::mark_tiles( player_t * player, const koord3d &start, c
 				if( wayobj ) {
 					show = show | wayobj->get_dir();
 					// Already a catenary here -> costs only, if new catenary is faster
-					if(  wayobj->get_desc()->get_topspeed() >= desc->get_topspeed()  ) {
+					if(  wayobj->get_desc() == desc ) {
 						cost_estimate -= desc->get_value();
 					}
 				}
@@ -4054,7 +4110,14 @@ const char *tool_build_station_t::tool_station_building_aux(player_t *player, bo
 	{
 		return "";
 	}
-DBG_MESSAGE("tool_station_building_aux()", "building post office/station building on square %d,%d", k.x, k.y);
+	DBG_MESSAGE("tool_station_building_aux()", "building post office/station building on square %d,%d", k.x, k.y);
+
+	karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+	const uint8 height = welt->lookup_hgt(pos.get_2d());
+	if (pos.z >= height && ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
+	}
 
 	// Player player pays for the construction
 	// but we try to extend stations of Player new_owner that may be the public player
@@ -4278,6 +4341,27 @@ DBG_MESSAGE("tool_station_building_aux()", "building post office/station buildin
 		cost -= (s.maint_building * factor * 60);
 	}
 
+	// Check for elevated ways above if this building is above the elevated prohibition level.
+	const uint8 max_level_under_elevated = welt->get_settings().get_max_elevated_way_building_level();
+	if (desc->get_level() > max_level_under_elevated)
+	{
+		grund_t* gr_above = welt->lookup(pos + koord3d(0, 0, 1));
+		if (gr_above)
+		{
+			return "Bridges cannot be built over large buildings.";
+		}
+		gr_above = welt->lookup(pos + koord3d(0, 0, 2));
+		if (gr_above)
+		{
+			return "Bridges cannot be built over large buildings.";
+		}
+		const grund_t* gr = welt->lookup(pos); 
+		if (gr->hat_weg(road_wt) || gr->hat_weg(track_wt) || gr->hat_weg(air_wt) || gr->hat_weg(water_wt))
+		{
+			return ""; 
+		}
+	}
+
 	if(!player_t::can_afford(player, -cost))
 	{
 		return NOTICE_INSUFFICIENT_FUNDS;
@@ -4305,6 +4389,14 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 {
 	// the cursor cannot be outside the map from here on
 	const koord& k = pos.get_2d();
+
+	karte_t::runway_info ri = welt->check_nearby_runways(k);
+	const uint8 height = welt->lookup_hgt(pos.get_2d());
+	if (pos.z >= height && ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
+	}
+
 	grund_t *gr = welt->lookup_kartenboden(k);
 	if (gr->get_hoehe()!= pos.z) {
 		return "";
@@ -4470,7 +4562,7 @@ DBG_MESSAGE("tool_build_station_t::tool_station_dock_aux()","building dock from 
 		}
 	}
 
-//DBG_MESSAGE("tool_dockbau()","search for stop");
+//DBG_MESSAGE("tool_station_dock_aux()","search for stop");
 	if(!halt.is_bound()) {
 		halt = suche_nahe_haltestelle(player, welt, welt->lookup_kartenboden(k)->get_pos() );
 	}
@@ -4547,6 +4639,14 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 {
 	// the cursor cannot be outside the map from here on
 	koord k = pos.get_2d();
+
+	karte_t::runway_info ri = welt->check_nearby_runways(k);
+	const uint8 height = welt->lookup_hgt(pos.get_2d());
+	if (pos.z >= height && ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
+	}
+
 	grund_t *gr = welt->lookup_kartenboden(k);
 	if (gr->get_hoehe()!= pos.z) {
 		return "";
@@ -4801,7 +4901,16 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 const char *tool_build_station_t::tool_station_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype, const char *type_name )
 {
 	const koord& k = pos.get_2d();
-DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", desc->get_name(), k.x, k.y, wegtype);
+
+	karte_t::runway_info ri = welt->check_nearby_runways(k);
+	const uint8 height = welt->lookup_hgt(pos.get_2d());
+
+	if (pos.z >= height && ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
+	}
+
+DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", desc->get_name(), k.x, k.y, wegtype);
 	const char *p_error=(desc->get_all_layouts()==4) ? "No terminal station here!" : "No through station here!";
 
 	// underground is checked in work(); if underground only simple stations are allowed
@@ -5338,7 +5447,14 @@ waytype_t tool_build_station_t::get_waytype() const
 
 const char *tool_build_station_t::check_pos( player_t*,  koord3d pos )
 {
-	if(  grund_t *gr = welt->lookup( pos )  ) {
+	if(  grund_t *gr = welt->lookup( pos )  ) 
+	{
+		karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+		const uint8 height = welt->lookup_hgt(pos.get_2d());
+		if (pos.z >= height && ri.pos != koord::invalid)
+		{
+			return "This cannot be built next to a runway.";
+		}
 		sint8 rotation;
 		const building_desc_t *desc = get_desc(rotation);
 		if(  grund_t *bd = welt->lookup_kartenboden( pos.get_2d() )  ) {
@@ -5466,7 +5582,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 	return msg;
 }
 
-uint8 tool_build_roadsign_t::signal_info::spacing = 16;
+uint16 tool_build_roadsign_t::signal_info::spacing = 16;
 
 char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 {
@@ -5493,8 +5609,17 @@ void tool_build_roadsign_t::draw_after(scr_coord k, bool dirty) const
 	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
 		char level_str[16];
-		sprintf(level_str, "%i", signal[welt->get_active_player_nr()].spacing);
-		display_proportional( k.x+4, k.y+4, level_str, ALIGN_LEFT, COL_YELLOW, true );
+		uint32 spacing_in_meter = (uint32)signal[welt->get_active_player_nr()].spacing * (uint32)welt->get_settings().get_meters_per_tile();
+		if( spacing_in_meter < 1000 ) {
+			sprintf(level_str, "%im", spacing_in_meter );
+		}
+		else {
+			uint32 spacing_km = spacing_in_meter / 1000;
+			uint32 spacing_dec = spacing_in_meter / 100;
+			spacing_dec = spacing_dec % 10;
+			sprintf(level_str, "%i.%ikm", spacing_km, spacing_dec);
+		}
+		display_proportional( k.x+2, k.y+2, level_str, ALIGN_LEFT, COL_YELLOW, true );
 	}
 }
 
@@ -5529,14 +5654,26 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 	{
 
 		signal_t *s = gr->find<signal_t>();
-		if(s  &&  s->get_desc()!=desc) {
-			// only one sign per tile
-			return error;
-		}
 
-		if(desc->is_signal()  &&  gr->find<roadsign_t>())  {
+		if( (s  &&  s->get_desc()!=desc) || (desc->is_signal()  &&  gr->find<roadsign_t>()) ) {
+			signal_info const& sinfo = signal[player->get_player_nr()];
+
 			// only one sign per tile
-			return error;
+			if( is_shift_pressed() ){
+				weg_t *weg = gr->get_weg( desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt);
+				//control key is pressed: force to delete the existing signal. next step is same as placing a new signal.
+				player_t::add_maintenance(player, -s->get_desc()->get_maintenance(), weg->get_waytype());
+				s->cleanup(player);
+				delete s;
+				error = NULL;
+			}
+			else if( sinfo.place_backward ){
+				error = NULL;
+				return error;
+			}
+			else{
+				return error;
+			}
 		}
 
 		// get the sign direction
@@ -5651,7 +5788,7 @@ const char* tool_build_roadsign_t::get_default_param(player_t *player) const
 {
 	if (desc  &&  player) {
 		signal_info const& s = signal[player->get_player_nr()];
-		sprintf(toolstring, "%s,%d,%d,%d,%d,%d,%d", desc->get_name(), s.spacing, s.remove_intermediate, s.replace_other, s.signalbox.x, s.signalbox.y, s.signalbox.z);
+		sprintf(toolstring, "%s,%d,%d,%d,%d,%d,%d,%d", desc->get_name(), s.spacing, s.remove_intermediate, s.replace_other, s.place_backward, s.signalbox.x, s.signalbox.y, s.signalbox.z);
 		return toolstring;
 	}
 	else {
@@ -5665,7 +5802,7 @@ waytype_t tool_build_roadsign_t::get_waytype() const
 }
 
 // read variables from default_param if cmd comes from network
-// default_param: sign_name,signal_spacing,remove,replace
+// default_param: sign_name,signal_spacing,remove,replace, backward
 // if the static variable toolstring is the default_param then reset default_param to name of signal
 void tool_build_roadsign_t::read_default_param(player_t * player)
 {
@@ -5682,13 +5819,15 @@ void tool_build_roadsign_t::read_default_param(player_t * player)
 		int i_signal_spacing              = s.spacing;
 		int i_remove_intermediate_signals = s.remove_intermediate;
 		int i_replace_other_signals       = s.replace_other;
+		int i_place_backward_signals       = s.place_backward;
 		int i_x							  = s.signalbox.x;
 		int i_y							  = s.signalbox.y;
 		int i_z							  = s.signalbox.z;
-		sscanf(default_param+i, ",%d,%d,%d,%d,%d,%d", &i_signal_spacing, &i_remove_intermediate_signals, &i_replace_other_signals, &i_x, &i_y, &i_z);
-		s.spacing             = (uint8)i_signal_spacing;
-		s.remove_intermediate = i_remove_intermediate_signals != 0;
-		s.replace_other       = i_replace_other_signals       != 0;
+		sscanf(default_param+i, ",%d,%d,%d,%d,%d,%d,%d", &i_signal_spacing, &i_remove_intermediate_signals, &i_replace_other_signals, &i_place_backward_signals, &i_x, &i_y, &i_z);
+		s.spacing						= (uint16)i_signal_spacing;
+		s.remove_intermediate			= i_remove_intermediate_signals != 0;
+		s.replace_other					= i_replace_other_signals       != 0;
+		s.place_backward				= i_place_backward_signals       != 0;
 		s.signalbox.x = i_x;
 		s.signalbox.y = i_y;
 		s.signalbox.z = i_z;
@@ -5779,9 +5918,10 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 		return;
 	}
 	signal_info const& s              = signal[player->get_player_nr()];
-	uint8       const  signal_density = 2 * s.spacing;      // measured in half tiles (straight track count as 2, diagonal as 1, since sqrt(1/2) = 1/2 ;)
-	uint8              next_signal    = signal_density + 1; // to place a sign asap
+	uint32       const  signal_density = 200 * s.spacing;      // measured in half tiles (straight track count as 2, diagonal as 1, since sqrt(1/2) = 1/2 ;)
+	uint32              next_signal    = signal_density + 100; // to place a sign asap
 	sint32             cost           = 0;
+	uint32 distance = 0;
 	directions.clear();
 	// dummy roadsign to get images for preview
 	roadsign_t *dummy_rs;
@@ -5822,7 +5962,8 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 
 		// check owner .. other signals...
 		bool straight = (i == 0)  ||  (i == route.get_count()-1)  ||  ribi_t::is_straight(ribi_type(route.at(i-1), route.at(i+1)));
-		next_signal += straight ? 2 : 1;
+		next_signal += straight ? 200 : 141;
+		distance += straight ? 200 : 141;
 		if(  next_signal >= signal_density  ) {
 			// can we place signal here?
 			if (check_pos_intern(player, route.at(i))==NULL  ||
@@ -5831,14 +5972,17 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 				marked.append(zeiger);
 				zeiger->set_image( skinverwaltung_t::bauigelsymbol->get_image_id(0) );
 				gr->obj_add( zeiger );
-				directions.append(ribi /* !=0 -> place sign*/);
 				next_signal = 0;
+				directions.append( s.place_backward ? ribi_t::backward(ribi) : ribi /* !=0 -> place sign*/);
 				dummy_rs->set_pos(gr->get_pos());
-				dummy_rs->set_dir(ribi); // calls calc_image()
-				zeiger->set_after_image(dummy_rs->get_front_image());
-				zeiger->set_image(dummy_rs->get_image());
+				dummy_rs->set_dir( s.place_backward ? ribi_t::backward(ribi) : ribi ); // calls calc_image()
+				if( !( rs && s.place_backward )){
+					zeiger->set_after_image(dummy_rs->get_front_image());
+					zeiger->set_image(dummy_rs->get_image());
+				}
 				cost += rs ? (rs->get_desc()==desc ? 0  : desc->get_value()+rs->get_desc()->get_value()) : desc->get_value();
 			}
+			//			delete zeiger;
 		} else if (s.remove_intermediate && rs && !rs-> is_deletable(player)) {
 				zeiger_t* zeiger = new zeiger_t(gr->get_pos(), player );
 				marked.append(zeiger);
@@ -5846,10 +5990,11 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 				gr->obj_add( zeiger );
 				directions.append(ribi_t::none /*remove sign*/);
 				cost += rs->get_desc()->get_value();
+				//				delete zeiger;
 		}
 	}
 	delete dummy_rs;
-	win_set_static_tooltip( tooltip_with_price("Building costs estimates", cost ) );
+	win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", cost, (distance*welt->get_settings().get_meters_per_tile())/200 ) );
 }
 
 const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &start, const koord3d &end)
@@ -5879,16 +6024,28 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 					if(  rs != NULL  &&  rs-> is_deletable(player) == NULL  ) {
 						rs->cleanup(player);
 						delete rs;
+						error_text = place_sign_intern( player, gr );
+					}
+				}else if (signal[player->get_player_nr()].place_backward) {
+					roadsign_t* rs = gr->find<signal_t>();
+					if(rs == NULL) rs = gr->find<roadsign_t>();
+					if(  rs != NULL  &&  rs-> is_deletable(player) == NULL  ) {
 						error_text =  place_sign_intern( player, gr );
 					}
 				}
+
 			}
 			if(  error_text  ) {
 				return error_text;
 			}
 			roadsign_t* rs = gr->find<signal_t>();
 			if(rs == NULL) rs = gr->find<roadsign_t>();
-			assert(rs);
+			if (!rs)
+			{
+				// A signal may not have been built here if it exceeded
+				// the signalbox's capacity.
+				goto end;
+			}
 			rs->set_dir(dir);
 		}
 		else {
@@ -5903,6 +6060,7 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 		weg->count_sign();
 		gr->calc_image();
 	}
+	end: 
 	cleanup();
 	directions.clear();
 	return NULL;
@@ -5911,22 +6069,24 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 /*
  * Called by the GUI (gui/signal_spacing.*)
  */
-void tool_build_roadsign_t::set_values( player_t *player, uint8 spacing, bool remove, bool replace, koord3d signalbox )
+void tool_build_roadsign_t::set_values( player_t *player, uint16 spacing, bool remove, bool replace, bool backward, koord3d signalbox )
 {
 	signal_info& s = signal[player->get_player_nr()];
 	s.spacing             = spacing;
 	s.remove_intermediate = remove;
 	s.replace_other       = replace;
+	s.place_backward      = backward;
 	s.signalbox			  = signalbox;
 }
 
 
-void tool_build_roadsign_t::get_values( player_t *player, uint8 &spacing, bool &remove, bool &replace, koord3d &signalbox )
+void tool_build_roadsign_t::get_values( player_t *player, uint16 &spacing, bool &remove, bool &replace, bool &backward, koord3d &signalbox )
 {
 	signal_info &s = signal[player->get_player_nr()];
 	spacing = s.spacing;
 	remove  = s.remove_intermediate;
 	replace = s.replace_other;
+	backward = s.place_backward;
 	signalbox = s.signalbox;
 }
 
@@ -5942,9 +6102,21 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 		if(s==NULL) {
 			s = gr->find<roadsign_t>();
 		}
-		if(s  &&  s->get_desc()!=desc) {
+		if(s  &&  s->get_desc()!=desc ) {
 			// only one sign per tile
-			return error;
+			if( is_shift_pressed() ){
+				//shift key is pressed: force to delete the existing signal. next step is same as placing a new signal.
+				s->cleanup(player);
+				delete s;
+				error = NULL;
+			}
+			else if(signal[player->get_player_nr()].place_backward){
+				error = NULL;
+				return error;
+			}
+			else{
+				return error;
+			}
 		}
 		ribi_t::ribi dir = weg->get_ribi_unmasked();
 
@@ -6044,9 +6216,23 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 							};
 						}
 					}
-					rs = new signal_t(player, gr->get_pos(), dir, desc, signal[player->get_player_nr()].signalbox);
-					DBG_MESSAGE("tool_roadsign()", "new signal, dir is %i", dir);
-					goto built_sign;
+					// Check whether we can add the signal or whether the signalbox is out of capacity
+					signalbox_t* sb = NULL;
+					gebaeude_t* gb = NULL;
+					if (desc->get_signal_group())
+					{
+						gb = welt->lookup(signal[player->get_player_nr()].signalbox)->get_building();
+					}
+					if (gb && gb->get_tile()->get_desc()->is_signalbox())
+					{
+						sb = (signalbox_t*)gb;
+					}
+					if ((sb && sb->get_number_of_signals_controlled_from_this_box() < sb->get_tile()->get_desc()->get_capacity()) || desc->get_signal_group() == 0)
+					{
+						rs = new signal_t(player, gr->get_pos(), dir, desc, signal[player->get_player_nr()].signalbox);
+						DBG_MESSAGE("tool_roadsign()", "new signal, dir is %i", dir);
+						goto built_sign;
+					}					
 				}
 			} else {
 				// if there is already a sign, we might need to inverse the direction
@@ -6096,6 +6282,14 @@ built_sign:
 // Build signalboxes
 const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, const building_desc_t* desc, sint64 cost)
 {
+
+	karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+	const uint8 height = welt->lookup_hgt(pos.get_2d());
+	if (pos.z >= height && ri.pos != koord::invalid && desc->get_allow_underground() != 1)
+	{
+		return "This cannot be built next to a runway.";
+	}
+
 	if (cost == PRICE_MAGIC)
 	{
 		cost = -welt->get_settings().cst_multiply_station * desc->get_level();
@@ -6109,6 +6303,24 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 	}
 
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+
+	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % desc->get_all_layouts() : simrand(desc->get_all_layouts(), "const char *tool_build_factory_t::work");
+	koord size = desc->get_size(rotation);
+
+	const climate_bits cl = desc->get_allowed_climate_bits();
+	bool can_be_placed = welt->square_is_free( pos.get_2d(), desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
+
+	if(!can_be_placed  &&  size.y!=size.x  &&  desc->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#'))
+	{
+		// try other rotation too ...
+		rotation = (rotation+1) % desc->get_all_layouts();
+		can_be_placed = welt->square_is_free( pos.get_2d(), desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
+	}
+
+	if (!can_be_placed)
+	{
+		return "A signalbox cannot be built here.";
+	}
 
 	if(welt->is_within_limits(pos.get_2d()))
 	{
@@ -6310,10 +6522,16 @@ const char *tool_signalbox_t::work( player_t *player, koord3d pos )
 }
 
 // build all types of depots
-const char *tool_depot_t::tool_depot_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype, sint64 cost)
+const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype, sint64 cost)
 {
 	if ( !player_t::can_afford(player, -cost) ) {
 		return NOTICE_INSUFFICIENT_FUNDS;
+	}
+
+	karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d()); const uint8 height = welt->lookup_hgt(pos.get_2d());
+	if (pos.z >= height && ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
 	}
 
 	if(welt->is_within_limits(pos.get_2d())) {
@@ -6378,7 +6596,7 @@ const char *tool_depot_t::tool_depot_aux(player_t *player, koord3d pos, const bu
 	return "";
 }
 
-image_id tool_depot_t::get_icon(player_t *player) const
+image_id tool_build_depot_t::get_icon(player_t *player) const
 {
 	if(  player  &&  player->get_player_nr()!=1  ) {
 		const building_desc_t *desc = hausbauer_t::find_tile(default_param,0)->get_desc();
@@ -6390,7 +6608,7 @@ image_id tool_depot_t::get_icon(player_t *player) const
 	return IMG_EMPTY;
 }
 
-bool tool_depot_t::init( player_t *player )
+bool tool_build_depot_t::init( player_t *player )
 {
 	building_desc_t const* desc = hausbauer_t::find_tile(default_param, 0)->get_desc();
 	if (desc == NULL) {
@@ -6404,7 +6622,7 @@ bool tool_depot_t::init( player_t *player )
 	return false;
 }
 
-const char* tool_depot_t::get_tooltip(const player_t *) const
+const char* tool_build_depot_t::get_tooltip(const player_t *) const
 {
 	settings_t   const& settings = welt->get_settings();
 	building_desc_t const* desc    = hausbauer_t::find_tile(default_param, 0)->get_desc();
@@ -6428,13 +6646,13 @@ const char* tool_depot_t::get_tooltip(const player_t *) const
 	return tooltip_with_price_maintenance(welt, tip, price * level, settings.maint_building * level);
 }
 
-waytype_t tool_depot_t::get_waytype() const
+waytype_t tool_build_depot_t::get_waytype() const
 {
 	const building_desc_t *desc = hausbauer_t::find_tile(default_param,0)->get_desc();
 	return desc ? (waytype_t)desc->get_extra() : invalid_wt;
 }
 
-const char *tool_depot_t::work( player_t *player, koord3d pos )
+const char *tool_build_depot_t::work( player_t *player, koord3d pos )
 {
 	if(player==welt->get_public_player()) {
 		// no depots for player 1
@@ -6445,13 +6663,13 @@ const char *tool_depot_t::work( player_t *player, koord3d pos )
 	settings_t   const&       s     = welt->get_settings();
 	switch(desc->get_extra()) {
 		case road_wt:
-			return tool_depot_t::tool_depot_aux( player, pos, desc, road_wt, s.cst_depot_road * desc->get_level());
+			return tool_build_depot_t::tool_depot_aux( player, pos, desc, road_wt, s.cst_depot_road * desc->get_level());
 		case track_wt:
-			return tool_depot_t::tool_depot_aux( player, pos, desc, track_wt, s.cst_depot_rail  * desc->get_level());
+			return tool_build_depot_t::tool_depot_aux( player, pos, desc, track_wt, s.cst_depot_rail  * desc->get_level());
 		case monorail_wt:
 			{
 				// since it needs also a foundation, this is slightly more complex ...
-				char const* const err = tool_depot_t::tool_depot_aux(player, pos, desc, monorail_wt, s.cst_depot_rail);
+				char const* const err = tool_build_depot_t::tool_depot_aux(player, pos, desc, monorail_wt, s.cst_depot_rail);
 				if(err==NULL) {
 					grund_t *bd = welt->lookup_kartenboden(pos.get_2d());
 					if(hausbauer_t::elevated_foundation_desc  &&  pos.z-bd->get_pos().z==1  &&  bd->ist_natur()) {
@@ -6461,18 +6679,18 @@ const char *tool_depot_t::work( player_t *player, koord3d pos )
 				return err;
 			}
 		case tram_wt:
-			return tool_depot_t::tool_depot_aux(player, pos, desc, track_wt, s.cst_depot_rail * desc->get_level());
+			return tool_build_depot_t::tool_depot_aux(player, pos, desc, track_wt, s.cst_depot_rail * desc->get_level());
 		case water_wt:
-			return tool_depot_t::tool_depot_aux(player, pos, desc, water_wt, s.cst_depot_ship * desc->get_level());
+			return tool_build_depot_t::tool_depot_aux(player, pos, desc, water_wt, s.cst_depot_ship * desc->get_level());
 		case air_wt:
-			return tool_depot_t::tool_depot_aux(player, pos, desc, air_wt, s.cst_depot_air * desc->get_level());
+			return tool_build_depot_t::tool_depot_aux(player, pos, desc, air_wt, s.cst_depot_air * desc->get_level());
 		case maglev_wt:
-			return tool_depot_t::tool_depot_aux(player, pos, desc, maglev_wt, s.cst_depot_rail * desc->get_level());
+			return tool_build_depot_t::tool_depot_aux(player, pos, desc, maglev_wt, s.cst_depot_rail * desc->get_level());
 		case narrowgauge_wt:
-			return tool_depot_t::tool_depot_aux(player, pos, desc, narrowgauge_wt, s.cst_depot_rail * desc->get_level());
+			return tool_build_depot_t::tool_depot_aux(player, pos, desc, narrowgauge_wt, s.cst_depot_rail * desc->get_level());
 
 		default:
-			dbg->warning("tool_depot()","called with unknown desc %s",desc->get_name() );
+			dbg->warning("tool_build_depot()","called with unknown desc %s",desc->get_name() );
 			return "Unknown depot object";
 	}
 	return NULL;
@@ -6508,6 +6726,13 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 	const grund_t* gr = welt->lookup_kartenboden(k);
 	if(gr==NULL) {
 		return "";
+	}
+
+	karte_t::runway_info ri = welt->check_nearby_runways(k);
+	const uint8 height = welt->lookup_hgt(pos.get_2d());
+	if (pos.z >= height && ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
 	}
 
 	// Parsing parameter (if there)
@@ -6620,6 +6845,13 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 	const grund_t* gr = welt->lookup_kartenboden(pos.get_2d());
 	if(gr==NULL) {
 		return "";
+	}
+
+	karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+	const uint8 height = welt->lookup_hgt(pos.get_2d());
+	if (pos.z >= height && ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
 	}
 
 	const factory_desc_t *fab = NULL;
@@ -6962,6 +7194,13 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 		return "";
 	}
 
+	karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+	const uint8 height = welt->lookup_hgt(pos.get_2d());
+	if (pos.z >= height && ri.pos != koord::invalid)
+	{
+		return "This cannot be built next to a runway.";
+	}
+
 	koord size = desc->get_size();
 	sint64 const cost = welt->get_settings().cst_multiply_headquarter * desc->get_level() * size.x * size.y;
 	if(! player_t::can_afford(player, -cost) ) {
@@ -7124,9 +7363,14 @@ const char *tool_add_citycar_t::work( player_t *player, koord3d pos )
 }
 
 
-uint8 tool_forest_t::is_valid_pos( player_t *, const koord3d &, const char *&, const koord3d & )
+uint8 tool_forest_t::is_valid_pos( player_t *, const koord3d &pos, const char *&, const koord3d & )
 {
-	// do really nothing ...
+	// No building of trees next to runways
+	karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
+	if (ri.pos != koord::invalid)
+	{
+		return 0;
+	}
 	return 2;
 }
 
@@ -7178,13 +7422,13 @@ const char *tool_forest_t::do_work( player_t *player, const koord3d &start, cons
 }
 
 
-image_id tool_stop_moving_t::get_marker_image()
+image_id tool_stop_mover_t::get_marker_image()
 {
 	return cursor;
 }
 
 
-void tool_stop_moving_t::read_start_position(player_t *player, const koord3d &pos)
+void tool_stop_mover_t::read_start_position(player_t *player, const koord3d &pos)
 {
 	waytype[0] = invalid_wt;
 	waytype[1] = invalid_wt;
@@ -7209,7 +7453,7 @@ void tool_stop_moving_t::read_start_position(player_t *player, const koord3d &po
 }
 
 
-uint8 tool_stop_moving_t::is_valid_pos(  player_t *player, const koord3d &pos, const char *&error, const koord3d &start)
+uint8 tool_stop_mover_t::is_valid_pos(  player_t *player, const koord3d &pos, const char *&error, const koord3d &start)
 {
 	grund_t *bd = welt->lookup(pos);
 	if (bd==NULL) {
@@ -7258,7 +7502,7 @@ uint8 tool_stop_moving_t::is_valid_pos(  player_t *player, const koord3d &pos, c
 	}
 }
 
-const char *tool_stop_moving_t::do_work( player_t *player, const koord3d &last_pos, const koord3d &pos)
+const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_pos, const koord3d &pos)
 {
 	// read conditions at start point
 	read_start_position(player, last_pos);
@@ -7386,9 +7630,9 @@ const char *tool_stop_moving_t::do_work( player_t *player, const koord3d &last_p
 
 		// Modified by : Knightly
 #ifdef MULTI_THREAD
-		world()->stop_path_explorer();
+		world()->await_path_explorer();
 #endif
-		path_explorer_t::refresh_all_categories(true);
+		path_explorer_t::refresh_all_categories(false);
 	}
 	return NULL;
 }
@@ -7428,15 +7672,15 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 		gb = gb->access_first_tile();
 	}
 	const signalbox_t* sb_end;
-	if(gb && gb->get_tile()->get_desc()->is_signalbox())
+	if (gb && gb->get_tile()->get_desc()->is_signalbox())
 	{
 		sb_end = (signalbox_t*)gb;
-		if(!(sb_end->get_owner() == player))
+		if (!(sb_end->get_owner() == player))
 		{
 			error = "Cannot transfer signals to a signalbox belonging to another player.";
 			return 0;
 		}
-			if(!sb_end->can_add_more_signals())
+		if (!sb_end->can_add_more_signals())
 		{
 			error = "Cannot transfer any signals to this signalbox: it does not have any spare capacity for more signals.";
 			return 0;
@@ -7483,6 +7727,23 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 	if(!sig && !sb_end)
 	{
 		error = "";
+	}
+
+	if (sig)
+	{
+		// Check that the destination signalbox is in range of the signal
+		const uint32 distance = shortest_distance(sig->get_pos().get_2d(), sb_end->get_pos().get_2d()) * welt->get_settings().get_meters_per_tile();
+		if (distance > sb_end->get_tile()->get_desc()->get_radius())
+		{
+			error = "Cannot build any signal beyond the maximum radius of the currently selected signalbox.";
+			return 0;
+		}
+
+		if (sig->get_desc()->get_max_distance_to_signalbox() && distance > sig->get_desc()->get_max_distance_to_signalbox())
+		{
+			error = "Cannot build this signal this far beyond any signalbox.";
+			return 0;
+		}
 	}
 
 	if(is_valid_start)
@@ -7561,6 +7822,12 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 		if(sb_end && building_sb && building_sb->get_tile()->get_desc()->is_signalbox())
 		{
 			sb = (signalbox_t*)building_sb;
+			if (sb_end == sb)
+			{
+				// Do not attempt a transfer when origin and destination are identical;
+				// this requires no error message.
+				return "";
+			}
 			if(sb_end->transfer_signal(sig, sb))
 			{
 				return "";
@@ -7699,17 +7966,13 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					construction_cost = welt->calc_adjusted_monthly_figure(maintenance_cost * welt->get_settings().cst_make_public_months);
 				}
 
-#ifdef MULTI_THREAD
+#ifdef MULTI_THREAD_CONVOYS
 				if (env_t::networkmode)
 				{
 					// In network mode, we cannot have anything that alters a way running concurrently with
 					// convoy path-finding because  whether the convoy path-finder is called
 					// on this tile of way before or after this function is indeterminate.
-					if (!world()->get_first_step())
-					{
-						simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
-						welt->set_first_step(1);
-					}
+					world()->await_convoy_threads();
 				}
 #endif
 
@@ -8940,7 +9203,7 @@ bool tool_change_depot_t::init( player_t *player )
  * 'f' : activates/deactivates freeplay
  * 'c' : change player color
  */
-bool tool_change_player_t::init( player_t *player)
+bool tool_change_player_t::init( player_t *player_in)
 {
 	if(  default_param==NULL  ) {
 		dbg->warning( "tool_change_player_t::init()", "nothing to do!" );
@@ -8958,18 +9221,18 @@ bool tool_change_player_t::init( player_t *player)
 	}
 	sscanf( p, "%c,%i,%i", &tool, &id, &state );
 
-	player_t *setting_player = welt->get_player(id);
+	player_t *player = welt->get_player(id);
 
 	// ok now do our stuff
 	switch(  tool  ) {
 		case 'a': // activate/deactivate AI
-			if(  player  &&  player->get_ai_id()!=player_t::HUMAN  &&  (setting_player==welt->get_public_player()  ||  !env_t::networkmode)  ) {
+			if(  player  &&  player->get_ai_id()!=player_t::HUMAN  &&  (player_in==welt->get_public_player()  ||  !env_t::networkmode)  ) {
 				player->set_active(state);
 				welt->get_settings().set_player_active(id, player->is_active());
 			}
 			break;
 		case 'c': // change player color
-			if(  player  &&  player==setting_player  ) {
+			if(  player  &&  player==player_in  ) {
 				int c1, c2, dummy;
 				sscanf( p, "%c,%i,%i,%i", &tool, &dummy, &c1, &c2 );
 				player->set_player_color( c1, c2 );
@@ -9428,7 +9691,7 @@ bool tool_access_t::init(player_t *player)
 			}
 		}
 #ifdef MULTI_THREAD
-		world()->stop_path_explorer();
+		world()->await_path_explorer();
 #endif
 		path_explorer_t::refresh_all_categories(false);
 		if (cnv.is_bound())

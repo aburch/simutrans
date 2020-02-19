@@ -1631,22 +1631,6 @@ zooming out
 화면 축소
 Zu nah am Kartenrand
 지도의 가장자리와\n가까운 지역에\n건설할 수 없습니다.
-#__________________________________record_text__________________________________
-#__________________________________record_text__________________________________
-New world record for maglevs: %.1f km/h by %s.
-자기부상열차가 세계 신기록 달성: %.1f km/h %s에 의해.
-New world record for monorails: %.1f km/h by %s.
-모노레일이 세계 신기록 달성: %.1f km/h %s에 의해.
-New world record for motorcars: %.1f km/h by %s.
-자동차가 세계 신기록 달성: %.1f km/h %s에 의해.
-New world record for narrowgauges: %.1f km/h by %s.
-협궤철도가 세계 신기록 달성: %.1f km/h %s에 의해.
-New world record for planes: %.1f km/h by %s.
-비행기가 세계 신기록 달성: %.1f km/h %s에 의해.
-New world record for railways: %.1f km/h by %s.
-철도가 세계 신기록 달성: %.1f km/h %s에 의해.
-New world record for ship: %.1f km/h by %s.
-선박이 세계 신기록 달성: %.1f km/h %s에 의해.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

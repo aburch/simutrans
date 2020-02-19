@@ -1685,20 +1685,6 @@ zooming out
 Kicsinyítés
 Zu nah am Kartenrand
 A térkép széle túl\közel van ahhoz, hogy építeni lehessen!
-#__________________________________record_text__________________________________
-#__________________________________record_text__________________________________
-New world record for monorails: %.1f km/h by %s.
-Nyeregvasútak új sebességi világrekordja: %.1f km/h - %s.
-New world record for motorcars: %.1f km/h by %s.
-Gépkocsik új sebeségi világrekordja: %.1f km/h - %s.
-New world record for narrowgauges: %.1f km/h by %s.
-Új villágrekord metronak/HÉVnek: %.1f km/h by %s.
-New world record for planes: %.1f km/h by %s.
-Repülőgépek új sebességi világrekordja: %.1f km/h - %s.
-New world record for railways: %.1f km/h by %s.
-Vonatok új sebességi világrekordja: %.1f km/h - %s.
-New world record for ship: %.1f km/h by %s.
-Vizijárművek új sebességi világrekordja: %.1f km/h - %s.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &1_CITY_SYLL

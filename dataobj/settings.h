@@ -176,7 +176,7 @@ private:
 	bool beginner_mode;
 	sint32 beginner_price_factor;
 
-	bool just_in_time;
+	uint8 just_in_time;
 
 	// default 0, will be incremented after each 90 degree rotation until 4
 	uint8 rotation;
@@ -319,6 +319,15 @@ private:
 	*/
 	uint32 random_mode_commuting;
 	uint32 random_mode_visiting;
+
+	/**
+	* The number of private car routes in a city to process
+	* in a single step. The higher the number, the more quickly
+	* that the private car routes update; the lower the number,
+	* the faster the performance. Reduce this number if momentary
+	* unresponsiveness be noticed frequently.
+	*/
+	uint32 max_routes_to_process_in_a_step = 8;
 
 public:
 	//Cornering settings
@@ -619,6 +628,9 @@ public:
 	uint32 max_small_city_size;
 	uint32 max_city_size;
 
+	uint8 capital_threshold_percentage;
+	uint8 city_threshold_percentage;
+
 	// The factor percentage of power revenue
 	// default: 100
 	// @author: Phystam
@@ -692,9 +704,14 @@ public:
 	uint16 max_comfort_preference_percentage;
 
 	bool rural_industries_no_staff_shortage;
+	uint32 auto_connect_industries_and_attractions_by_road;
 
 	uint32 path_explorer_time_midpoint;
 	bool save_path_explorer_data;
+
+	// Whether players can know in advance the vehicle production end date and upgrade availability date
+	// If false, only information up to one year ahead
+	bool show_future_vehicle_info;
 
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -773,8 +790,8 @@ public:
 
 	bool get_beginner_mode() const {return beginner_mode;}
 
-	void set_just_in_time(bool b) { just_in_time = b; }
-	bool get_just_in_time() const {return just_in_time;}
+	void set_just_in_time(uint8 v) { just_in_time = v; }
+	uint8 get_just_in_time() const {return just_in_time;}
 
 	void set_default_climates();
 	const sint16 *get_climate_borders() const { return climate_borders; }
@@ -1044,6 +1061,11 @@ public:
 	uint32 get_max_city_size() const { return max_city_size; }
 	void set_max_city_size(uint32 value) { max_city_size = value; }
 
+	uint8 get_capital_threshold_percentage() const { return capital_threshold_percentage; }
+	void set_capital_threshold_percentage(uint8 value) { capital_threshold_percentage = value; }
+	uint8 get_city_threshold_percentage() const { return city_threshold_percentage; }
+	void set_city_threshold_percentage(uint8 value) { city_threshold_percentage = value; }
+
 	uint16 get_default_increase_maintenance_after_years(waytype_t wtype) const { return default_increase_maintenance_after_years[wtype]; }
 	void set_default_increase_maintenance_after_years(waytype_t wtype, uint16 value) { default_increase_maintenance_after_years[wtype] = value; }
 	uint32 get_server_frames_ahead() const { return server_frames_ahead; }
@@ -1176,9 +1198,16 @@ public:
 	uint16 get_max_comfort_preference_percentage() const { return max_comfort_preference_percentage; }
 
 	bool get_rural_industries_no_staff_shortage() const { return rural_industries_no_staff_shortage; }
+	uint32 get_auto_connect_industries_and_attractions_by_road() const { return auto_connect_industries_and_attractions_by_road; }
 
 	uint32 get_path_explorer_time_midpoint() const { return path_explorer_time_midpoint; }
 	bool get_save_path_explorer_data() const { return save_path_explorer_data; }
+
+	bool get_show_future_vehicle_info() const { return show_future_vehicle_info; }
+	//void set_show_future_vehicle_info(bool yesno) { show_future_vehicle_info = yesno; }
+
+	uint32 get_max_routes_to_process_in_a_step() const { return max_routes_to_process_in_a_step; }
+	void set_max_routes_to_process_in_a_step(uint32 value) { max_routes_to_process_in_a_step = value; }
 };
 
 #endif 

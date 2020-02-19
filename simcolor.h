@@ -36,10 +36,12 @@ typedef unsigned char COLOR_VAL;
 #define COL_DARK_YELLOW     (168)
 #define COL_LIGHT_YELLOW    (175)
 #define COL_LEMON_YELLOW    (31)
+#define COL_BRONZE          (24)
 #define COL_DODGER_BLUE     (151)
 #define COL_BLUE            (147)
 #define COL_DARK_BLUE       (144)
 #define COL_LIGHT_BLUE      (103)
+#define COL_ROYAL_BLUE      (100)
 #define COL_GREEN           (140)
 #define COL_DARK_GREEN      (136)
 #define COL_LIGHT_GREEN     (143)
@@ -47,6 +49,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_DARK_ORANGE     (153)
 #define COL_LIGHT_ORANGE    (158)
 #define COL_BRIGHT_ORANGE   (133)
+#define COL_ORANGE_RED      (39)
 #define COL_LILAC           (221)
 #define COL_DARK_ORCHID     (59)
 #define COL_ORCHID          (61)
@@ -61,9 +64,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_BROWN           (189)
 #define COL_DARK_BROWN      (178)
 #define COL_TRAFFIC         (110)
-#define COL_ROYAL_BLUE      (100)
 #define COL_DARK_SLATEBLUE  (219)
-#define COL_ORANGE_RED      (39)
 
 // message colors
 #define CITY_KI      (209)
@@ -127,6 +128,12 @@ typedef unsigned char COLOR_VAL;
 #define COL_CAR_OWNERSHIP   (95)
 //#define COL_DISTANCE      (87)
 #define COL_STAFF_SHORTAGE COL_DARK_ORCHID
+
+// used in vehicle status
+#define COL_UPGRADEABLE       COL_PURPLE
+#define COL_OBSOLETE          COL_DARK_BLUE
+#define COL_OUT_OF_PRODUCTION COL_ROYAL_BLUE
+//#define COL_OVERCROWDED     COL_DARK_PURPLE
 
 
 #define SYSCOL_TEXT                         gui_theme_t::gui_color_text

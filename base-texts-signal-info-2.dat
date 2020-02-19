@@ -1,0 +1,14 @@
+# Simutranslator settings for Simutrans-Extended texts
+# Addendum for the reorganisation of the depot window
+#
+# Author: jamespetts
+# Created: April 2013
+#
+obj=program_text
+name=show signalbox coverage
+note=Appears in the "display settings" window
+-
+obj=program_text
+name=Show coverage radius of the signalbox.
+note=Appears in the "display settings" window
+-

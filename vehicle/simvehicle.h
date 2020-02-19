@@ -34,6 +34,7 @@ class schedule_t;
 class signal_t;
 class ware_t;
 class schiene_t;
+class strasse_t;
 
 // for aircraft:
 // length of the holding pattern.
@@ -125,10 +126,9 @@ protected:
 	koord3d pos_next;
 
 	/**
-	 * Offsets for uphill/downhill
+	 * Offsets for uphill/downhill.
 	 * Have to be multiplied with -TILE_HEIGHT_STEP/2.
 	 * To obtain real z-offset, interpolate using steps, steps_next.
-	 * @author Hj. Malthaner
 	 */
 	uint8 zoff_start:4, zoff_end:4;
 
@@ -202,11 +202,11 @@ public:
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
 
 	/**
-	* Vehicle movement: calculates z-offset of vehicles on slopes,
-	* handles vehicles that are invisible in tunnels.
-	* @param gr vehicle is on this ground
-	* @note has to be called after loading to initialize z-offsets
-	*/
+	 * Vehicle movement: calculates z-offset of vehicles on slopes,
+	 * handles vehicles that are invisible in tunnels.
+	 * @param gr vehicle is on this ground
+	 * @note has to be called after loading to initialize z-offsets
+	 */
 	void calc_height(grund_t *gr = NULL);
 
 	virtual void rotate90();
@@ -321,9 +321,9 @@ private:
 	uint16 diagonal_costs;
 	uint16 base_costs;
 
-public:
-
-	static sint64 sound_ticks;
+	/// This is the last tile on which this vehicle stopped: useful
+	/// for logging traffic congestion
+	koord3d last_stopped_tile;
 
 protected:
 	virtual void hop(grund_t*);
@@ -378,12 +378,15 @@ protected:
 
 	bool check_access(const weg_t* way) const;
 
+	/// Register this vehicle as having stopped on a tile, if it has not already done so.
+	void log_congestion(strasse_t* road);
+
 public:
-	sint32 calc_speed_limit(const weg_t *weg, const weg_t *weg_previous, fixed_list_tpl<sint16, 192>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction);
+	sint32 calc_speed_limit(const weg_t *weg, const weg_t *weg_previous, fixed_list_tpl<sint16, 192>* cornering_data, uint32 bridge_tiles, ribi_t::ribi current_direction, ribi_t::ribi previous_direction);
 
 	virtual bool check_next_tile(const grund_t* ) const {return false;}
 
-	inline bool check_way_constraints(const weg_t &way) const;
+	bool check_way_constraints(const weg_t &way) const;
 
 	uint8 hop_count;
 
@@ -472,11 +475,11 @@ public:
 	void play_sound() const;
 
 	/**
-	* Prepare vehicle for new ride.
-	* Sets route_index, pos_next, steps_next.
-	* If @p recalc is true this sets position and recalculates/resets movement parameters. a new route
-	* @author Hj. Malthaner
-	*/
+	 * Prepare vehicle for new ride.
+	 * Sets route_index, pos_next, steps_next.
+	 * If @p recalc is true this sets position and recalculates/resets movement parameters.
+	 * @author Hj. Malthaner
+	 */
 	void initialise_journey( uint16 start_route_index, bool recalc );
 
 	void set_direction_steps(sint16 value) { direction_steps = value; }
@@ -549,6 +552,8 @@ public:
 	uint16 get_total_cargo_by_class(uint8 g_class) const;
 
 	uint16 get_reassigned_class(uint8 g_class) const;
+
+	uint8 get_number_of_accommodation_classes() const;
 
 	/**
 	* Calculate transported cargo total weight in KG
@@ -675,7 +680,7 @@ public:
 	// vehicles in reverse formation.
 	ribi_t::ribi get_direction_of_travel() const;
 
-	uint16 get_sum_weight() const { return (sum_weight + 499) / 1000; }
+	uint32 get_sum_weight() const { return sum_weight; }
 
 	uint16 get_overcrowded_capacity(uint8 g_class) const;
 	// @author: jamespetts
@@ -988,6 +993,12 @@ private:
 
 	// only used for  is_target() (do not need saving)
 	ribi_t::ribi approach_dir;
+
+	// Used to re-run the routing algorithm without
+	// checking runway length in order to display
+	// the correct error message.
+	bool ignore_runway_length = false; 
+
 #ifdef USE_DIFFERENT_WIND
 	static uint8 get_approach_ribi( koord3d start, koord3d ziel );
 #endif

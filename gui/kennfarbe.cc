@@ -19,16 +19,16 @@
 #include "../player/simplay.h"
 #include "../simtool.h"
 
-farbengui_t::farbengui_t(player_t *player) :
-	gui_frame_t( translator::translate("Farbe"), player ),
+farbengui_t::farbengui_t(player_t *player_) :
+	gui_frame_t( translator::translate("Farbe"), player_ ),
 	txt(&buf),
 	c1( "Your primary color:" ),
 	c2( "Your secondary color:" ),
-	image( skinverwaltung_t::color_options->get_image_id(0), player->get_player_nr() )
+	image( skinverwaltung_t::color_options->get_image_id(0), player_->get_player_nr() )
 {
 	scr_coord cursor = scr_coord (D_MARGIN_TOP, D_MARGIN_LEFT);
 
-	this->player = player;
+	player = player_;
 	buf.clear();
 	buf.append(translator::translate("COLOR_CHOOSE\n"));
 

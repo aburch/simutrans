@@ -748,15 +748,13 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 	// first use ground color
 	set_relief_farbe( k, calc_relief_farbe(gr) );
 
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-
 	switch(mode&~MAP_MODE_FLAGS) {
 		// show passenger coverage
 		// display coverage
 		case MAP_PASSENGER:
 			if(  plan->get_haltlist_count()>0  ) {
 				halthandle_t halt = plan->get_haltlist()[0].halt;
-				if(  halt->get_pax_enabled()  &&  !halt->get_connexions(goods_manager_t::INDEX_PAS, goods_manager_t::passengers->get_number_of_classes() - 1, max_classes)->empty() ){
+				if(  halt->get_pax_enabled()  &&  !halt->get_connexions(goods_manager_t::INDEX_PAS, goods_manager_t::passengers->get_number_of_classes() - 1)->empty() ){
 					set_relief_farbe( k, halt->get_owner()->get_player_color1() + 3 );
 				}
 			}
@@ -767,7 +765,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		case MAP_MAIL:
 			if(  plan->get_haltlist_count()>0  ) {
 				halthandle_t halt = plan->get_haltlist()[0].halt;
-				if(  halt->get_mail_enabled()  &&  !halt->get_connexions(goods_manager_t::INDEX_MAIL, goods_manager_t::mail->get_number_of_classes() - 1, max_classes)->empty()  ) {
+				if(  halt->get_mail_enabled()  &&  !halt->get_connexions(goods_manager_t::INDEX_MAIL, goods_manager_t::mail->get_number_of_classes() - 1)->empty()  ) {
 					set_relief_farbe( k, halt->get_owner()->get_player_color1() + 3 );
 				}
 			}
@@ -843,6 +841,19 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				set_relief_farbe(k, calc_severity_color(condition_percent_reciprocal, 100));
 			}
 			
+			break;
+
+		// Show congestion
+		case MAP_CONGESTION:
+			if (gr->hat_wege())
+			{
+				// This is only applicable to roads.
+				const weg_t* road = gr->get_weg(road_wt); 
+				if (road)
+				{
+					set_relief_farbe(k, calc_severity_color(road->get_congestion_percentage(), 100));
+				}
+			}
 			break;
 
 		// show tracks: white: no electricity, red: electricity, yellow: signal
@@ -1534,7 +1545,7 @@ void reliefkarte_t::draw(scr_coord pos)
 				else {
 					// goods transfer?
 					bool transfer = false;
-					for(  int i=goods_manager_t::INDEX_NONE+1  &&  !transfer;  i<=goods_manager_t::get_max_catg_index();  i ++  ) {
+					for(  int i=goods_manager_t::INDEX_NONE+1  &&  !transfer;  i<goods_manager_t::get_max_catg_index();  i ++  ) {
 						transfer = halt->is_transfer( i, 0, max_classes );
 					}
 					if(  transfer  ) {

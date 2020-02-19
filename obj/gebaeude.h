@@ -241,6 +241,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	virtual const char *get_name() const;
+	const char* get_individual_name() const;
 
 	void get_description(cbuffer_t & buf) const;
 
@@ -254,6 +255,8 @@ public:
 
 	bool is_city_building() const;
 
+	bool is_signalbox() const;
+
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
@@ -264,6 +267,8 @@ public:
 	void get_class_percentage(cbuffer_t & buf) const;
 
 	void rdwr(loadsave_t *file);
+
+	void display_coverage_radius(bool display);
 
 	/**
 	 * Play animations of animated buildings.
@@ -386,6 +391,8 @@ public:
 	
 	const minivec_tpl<const planquadrat_t*> &get_tiles() { return building_tiles; }
 	void set_building_tiles();
+
+	void connect_by_road_to_nearest_city(); 
 
 private:
 	// Calculate last 2 years(13-24 months) average percentage

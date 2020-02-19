@@ -329,7 +329,8 @@ bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, player_t
 		if (const gebaeude_t* gb = gr->get_building())
 		{
 			const uint8 max_level = welt->get_settings().get_max_elevated_way_building_level();
-			if( gb->get_tile()->get_desc()->get_level() > max_level && !haltestelle_t::get_halt(gb->get_pos(), NULL).is_bound())
+			
+			if((gb->get_tile()->get_desc()->get_level() > max_level) && gr->get_halt().is_bound()) 
 			{
 				error_msg = "Bridges cannot be built over large buildings.";
 				return true;
@@ -461,7 +462,7 @@ koord3d bridge_builder_t::find_end_pos(player_t *player, koord3d pos, const koor
 			return koord3d::invalid;
 		}
 
-		if(  gr->hat_weg(air_wt)  &&  gr->get_styp(air_wt)==type_runway) {
+		if(  gr->hat_weg(air_wt) ) {
 			error_msg = "No bridges over runways!";
 			return koord3d::invalid;
 		}

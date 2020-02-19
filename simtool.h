@@ -407,9 +407,9 @@ public:
 	waytype_t get_waytype() const OVERRIDE;
 };
 
-class tool_wayobj_remover_t : public tool_build_wayobj_t {
+class tool_remove_wayobj_t : public tool_build_wayobj_t {
 public:
-	tool_wayobj_remover_t() : tool_build_wayobj_t(TOOL_REMOVE_WAYOBJ | GENERAL_TOOL, false) {}
+	tool_remove_wayobj_t() : tool_build_wayobj_t(TOOL_REMOVE_WAYOBJ | GENERAL_TOOL, false) {}
 	bool is_selected() const OVERRIDE { return tool_t::is_selected(); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
@@ -444,11 +444,12 @@ private:
 
 public:
 	struct signal_info {
-		signal_info() : remove_intermediate(true), replace_other(true), signalbox(koord3d::invalid) {}
+	signal_info() : remove_intermediate(true), replace_other(true), place_backward(false), signalbox(koord3d::invalid) {}
 
-		static uint8 spacing; // place signals every n tiles
+		static uint16 spacing; // place signals every n tiles
 		bool  remove_intermediate;
 		bool  replace_other;
+		bool  place_backward;
 		koord3d signalbox;
 	} signal[MAX_PLAYER_COUNT];
 
@@ -476,20 +477,20 @@ public:
 	bool init(player_t*) OVERRIDE;
 	bool exit(player_t*) OVERRIDE;
 
-	void set_values(player_t *player, uint8 spacing, bool remove, bool replace, koord3d signalbox );
-	void get_values(player_t *player, uint8 &spacing, bool &remove, bool &replace, koord3d &signalbox );
+	void set_values(player_t *player, uint16 spacing, bool remove, bool replace, bool backward, koord3d signalbox );
+	void get_values(player_t *player, uint16 &spacing, bool &remove, bool &replace, bool &backward, koord3d &signalbox );
 	bool is_init_network_save() const OVERRIDE { return true; }
 	void draw_after(scr_coord, bool dirty) const OVERRIDE;
 	char const* get_default_param(player_t*) const OVERRIDE;
 	waytype_t get_waytype() const OVERRIDE;
 };
 
-class tool_depot_t : public tool_t {
+class tool_build_depot_t : public tool_t {
 private:
 	static char toolstring[256];
 	const char *tool_depot_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype, sint64 cost);
 public:
-	tool_depot_t() : tool_t(TOOL_BUILD_DEPOT | GENERAL_TOOL) {}
+	tool_build_depot_t() : tool_t(TOOL_BUILD_DEPOT | GENERAL_TOOL) {}
 	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
@@ -625,12 +626,12 @@ private:
 };
 
 /* stop moving tool */
-class tool_stop_moving_t : public two_click_tool_t {
+class tool_stop_mover_t : public two_click_tool_t {
 private:
 	waytype_t waytype[2];
 	halthandle_t last_halt;
 public:
-	tool_stop_moving_t() : two_click_tool_t(TOOL_STOP_MOVER | GENERAL_TOOL) {}
+	tool_stop_mover_t() : two_click_tool_t(TOOL_STOP_MOVER | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("replace stop"); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 
@@ -826,6 +827,21 @@ public:
 		return false;
 	}
 	bool exit(player_t *s ) { return init(s); }
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+};
+
+class tool_show_signalbox_coverage_t : public tool_t {
+public:
+	tool_show_signalbox_coverage_t() : tool_t(TOOL_SHOW_SIGNALBOX_COVERAGE | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("show signalbox coverage"); }
+	bool is_selected() const OVERRIDE { return env_t::signalbox_coverage_show; }
+	bool init(player_t *) {
+		env_t::signalbox_coverage_show = !env_t::signalbox_coverage_show;
+		welt->set_dirty();
+		return false;
+	}
+	bool exit(player_t *s) { return init(s); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
@@ -1105,7 +1121,7 @@ public:
 
 class tool_change_depot_t : public tool_t {
 public:
-	tool_change_depot_t() : tool_t(TOOL_BUILD_DEPOT_TOOL | SIMPLE_TOOL) {}
+	tool_change_depot_t() : tool_t(TOOL_CHANGE_DEPOT | SIMPLE_TOOL) {}
 	bool init(player_t*) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return false; }
 };

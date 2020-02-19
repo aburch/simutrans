@@ -1089,6 +1089,28 @@ Mous
 Les
 %24A_CITY_SYLL
 Bern
+%24B_CITY_SYLL
+Hedg
+%24C_CITY_SYLL
+Ac
+%24D_CITY_SYLL
+Ame
+%24E_CITY_SYLL
+Bew
+%24F_CITY_SYLL
+Bill
+%250_CITY_SYLL
+Haw
+%251_CITY_SYLL
+Boll
+%252_CITY_SYLL
+Bod
+%253_CITY_SYLL
+Kid
+%254_CITY_SYLL
+Ped
+%254_CITY_SYLL
+Pres
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -1641,6 +1663,10 @@ heath
  Mortimer
 &41_CITY_SUFFIX
  Hundred
+&42_CITY_SUFFIX
+ Lock
+&43_CITY_SUFFIX
+er's Lock
 # 
 # Other strings
 # 
@@ -2080,6 +2106,8 @@ Die Bruecke ist nicht frei!\n
 The bridge is not free
 Diese Zusammenstellung kann nicht fahren!\n
 Cannot start: either the vehicles are not properly assembled, or the convoy has not enough power.
+Cannot start: no cab at the front of the convoy.
+Cannot start: no cab at the front of the convoy.
 diesel
 diesel
 Direkt erreichbare Haltestellen
@@ -2171,7 +2199,7 @@ Freight
 Frame time:
 Frame Time:
 Free Capacity
-Total Capacity
+Free capacity
 Friction:
 Current friction:
 fuel_cell
@@ -2496,16 +2524,6 @@ New %s now available:\n%s\n
 A new %s is now available:\n%s\n
 New Vehicles
 New Vehicles
-New world record for monorails: %.1f km/h by %s.
-New world record for monorails: %.1f km/h by %s.
-New world record for motorcars: %.1f km/h by %s.
-New world record for road vehicles: %.1f km/h by %s.
-New world record for planes: %.1f km/h by %s.
-New world record for aircraft: %.1f km/h by %s.
-New world record for railways: %.1f km/h by %s.
-New world record for railways: %.1f km/h by %s.
-New world record for ship: %.1f km/h by %s.
-New world record for water craft: %.1f km/h nby %s.
 no convois
 No convoys
 No goods are loaded onto this convoi.
@@ -3567,7 +3585,7 @@ The vehicle's axle load is %it, but the maximum is %it
 double_block_signal
 Double block signal
 this_signal_will_not_clear_until_next_signal_is_clear
-This signal will not clear until next signal is clear
+This signal will not clear until the next signal is clear
 transferring
 transferring
 transfers
@@ -3575,7 +3593,7 @@ Transfers
 with_wayobj
 with
 way_cannot_be_used_by_any_vehicle
-This way cannot be used by any vehicle!
+This way cannot be used by any vehicle.
 km/h
 km/h
 (speed_restricted_by_tunnel)
@@ -3583,9 +3601,11 @@ km/h
 (speed_restricted_by_bridge)
 (The speed is restricted by the bridge)
 (speed_restricted_by_wayobj)
-(The speed is restricted by the asset)
+(The speed is limited by a way asset)
 (speed_restricted_by_city)
-(The speed is restricted by the city)
+(The speed is limited on account of being in a built-up area)
+(speed_restricted_by_degradation)
+(The speed is limited because this way is degraded)
 runway_36/18
 Runway 36/18
 runway_09/27
@@ -3741,7 +3761,7 @@ this vehicle can upgrade to
 additional_upgrades
 additional upgrades
 reassign_classes
-Reassign classes
+Reassign prices
 line_no_convoys
 This line has no convoys assigned
 line_loss_making
@@ -3759,13 +3779,13 @@ This line has obsolete vehicles with upgrades
 staff_shortage
 Staff shortage
 reset_all_pass_classes
-Reset all passenger classes
+Reset all passenger prices
 resets_all_passenger_classes_to_their_defaults
-Resets all passenger classes to their defaults
+Resets all passenger prices to their defaults
 reset_all_mail_classes
-Reset all mail classes
+Reset all mail prices
 resets_all_mail_classes_to_their_defaults
-Resets all mail classes to their defaults
+Resets all mail prices to their defaults
 reassigned_to_multiple
 Reassigned to multiple
 catering_cars: %i
@@ -3779,9 +3799,9 @@ Change prices
 change_the_classes_for_the_entire_line
 Change the prices for the entire line
 reassigned_class
-reassigned class
+reassigned price
 reassigned_classes
-reassigned classes
+reassigned prices
 times_history
 Times History
 view_journey_times_history_of_this_line
@@ -3926,3 +3946,79 @@ Railcar_tab
 Railcars
 staffing_bar_tooltip_help
 This bar shows how many workers that this industry has compared to how many that it needs
+Runway too short, require %dm
+Runway too short: at least %dm needed
+ (block %i)
+ (block %i)
+this_signal_protects_a_junction
+This signal protects a junction
+distance_to_junction
+Distance to junction
+distance_to_stop_signal
+Distance to stop signal
+no_signal_before_dead_end
+No signal before buffers
+distance_to_dead_end
+Distance to buffers
+Jobs
+Jobs
+show signalbox coverage
+Show signalbox coverage
+Show coverage radius of the signalbox.
+Show coverage radius of the signalbox.
+Protocol error (expected NWC_GAME)
+Network connect timeout or error: did not receive NWC_GAME packet within 10 minutes, or received bad packet.
+stop_some_goods_arrival
+Some goods out of stock
+place signals backward
+Place signals backwards
+This cannot be built next to a runway.
+This cannot be built next to a runway.
+LOCO_SYM
+L
+helptxt_one_direction
+Unidirectional vehicle
+helptxt_cab_head
+Driving vehicle
+helptxt_can_be_at_rear
+End vehicle
+helptxt_intermediate
+Intermediate vehicle
+#helptxt_fixed_outside_depot
+#Non-uncouplable vehicle
+#helptxt_permanent_couple
+#Multi-part vehicle (cannot be split)
+helptxt_powered_vehicle
+Powered vehicle
+helptxt_unpowered_vehicle
+Unpowered vehicle
+Select vehicles to make up a convoy
+Select vehicles to make up a convoy
+Vehicle bar shape legend:
+Legend:
+cd_spec_tab
+Spec
+cd_payload_tab
+Payload
+cd_maintenance_tab
+Maintenance
+No load setting
+No load setting
+Applied livery scheme: %s
+Applied livery scheme: %s
+%i month
+%i month
+%i months
+%i months
+(mixed_load_prohibition)
+(Cannot carry multiple types of goods simultaneously)
+Upgrade available
+Upgrade available
+Upgrade is not available yet
+Upgrade is not available yet
+No bridges over runways!
+Bridges cannnot be built over runways or taxiways.
+No bridges over runways!
+Bridges cannnot be built over runways or taxiways.
+overtaking
+Overtaking

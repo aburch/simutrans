@@ -72,7 +72,11 @@ enum {
 	TOOL_ERROR_MESSAGE,
 	TOOL_CHANGE_WATER_HEIGHT,
 	TOOL_SET_CLIMATE,
-	TOOL_BUILD_SIGNALBOX,
+	TOOL_BUILD_SIGNALBOX_DEPRECATED,
+	TOOL_REASSIGN_SIGNAL_DEPRECATED,
+	GENERAL_TOOL_STANDARD_COUNT,
+	// Extended entries from here:
+	TOOL_BUILD_SIGNALBOX=0x0080,
 	TOOL_REASSIGN_SIGNAL,
 	GENERAL_TOOL_COUNT,
 	GENERAL_TOOL = 0x1000
@@ -106,7 +110,7 @@ enum {
 	TOOL_TRAFFIC_LEVEL,
 	TOOL_CHANGE_CONVOI,
 	TOOL_CHANGE_LINE,
-	TOOL_BUILD_DEPOT_TOOL,
+	TOOL_CHANGE_DEPOT,
 	UNUSED_WKZ_PWDHASH_TOOL,
 	TOOL_CHANGE_PLAYER,
 	TOOL_CHANGE_TRAFFIC_LIGHT,
@@ -116,10 +120,17 @@ enum {
 	TOOL_TOGGLE_RESERVATION,
 	TOOL_VIEW_OWNER,
 	TOOL_HIDE_UNDER_CURSOR,
-	TOOL_CHANGE_ROADSIGN,
+	TOOL_CHANGE_ROADSIGN_DEPRECATED,
+	TOOL_SHOW_RIBI_DEPRECATED,
+	TOOL_RECOLOUR_TOOL_DEPRECATED,
+	TOOL_ACCESS_TOOL_DEPRECATED,
+	SIMPLE_TOOL_STANDARD_COUNT,
+	// Extended entries from here:
+	TOOL_CHANGE_ROADSIGN=0x0080,
 	TOOL_SHOW_RIBI,
 	TOOL_RECOLOUR_TOOL,
 	TOOL_ACCESS_TOOL,
+	TOOL_SHOW_SIGNALBOX_COVERAGE,
 	SIMPLE_TOOL_COUNT,
 	SIMPLE_TOOL = 0x2000
 };
@@ -156,8 +167,10 @@ enum {
 	DIALOG_SETTINGS,
 	DIALOG_GAMEINFO,
 	DIALOG_THEMES,
-	DIALOGE_TOOL_COUNT,
-	DIALOGE_TOOL = 0x4000
+	DIALOG_TOOL_STANDARD_COUNT,
+	// Extended entries from here:
+	DIALOG_TOOL_COUNT=0x0080,
+	DIALOG_TOOL = 0x4000
 };
 
 enum {
@@ -293,7 +306,7 @@ public:
 	/// initializes cursor (icon, marked area)
 	void init_cursor( zeiger_t * ) const;
 
-	// returning true on exit will have werkzeug_waehler resets to query-tool on right-click
+	// returning true on exit will have tool_selector resets to query-tool on right-click
 	virtual bool exit( player_t * ) { return true; }
 
 	/* the return string can have different meanings:

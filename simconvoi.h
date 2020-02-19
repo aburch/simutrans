@@ -117,6 +117,15 @@ public:
 		MAX_STATES
 	};
 
+	enum terminal_shunt_mode {
+		wye = 0,
+		rearrange = 1,
+		shunting_loco = 2,
+		change_direction = 3
+	};
+
+	enum { free = 0, head_and_tail = 1, half_intermediate = 2, INTERMEDIATE = 64, both_intermediate = 65, one_sided_partner = 66, unique_partner = 67, COUPLING_FIXED = 128, unconnectable = 255 };
+
 	/**
 	* time, when a convoi waiting for full load will drive on
 	* @author prissi
@@ -470,6 +479,12 @@ private:
 	sint32 wait_lock;
 
 	/**
+	 * threaded_step needs to be able to set wait_lock indirectly, because
+	 * it can run after an indeterminate number of sync_steps.
+	 */
+	sint32 wait_lock_next_step;
+
+	/**
 	 * The flag whether this convoi is requested to change lane by the convoi behind this.
 	 * @author THLeaderH
 	 */
@@ -490,13 +505,6 @@ private:
 	// Used for converting tiles to km.
 	// @author: jamespetts
 	sint64 steps_since_last_odometer_increment;
-
-	/**
-	* Set, when there was a income calculation (avoids some cheats)
-	* Since 99.15 it will stored directly in the vehicle_t
-	* @author prissi
-	*/
-	koord3d last_stop_pos;
 
 	/**
 	* Necessary for registering departure and waiting times.
@@ -899,14 +907,13 @@ public:
 	// true if this is a waypoint
 	bool is_waypoint( koord3d ) const;
 
-	/* changes the state of a convoi via tool_t; mandatory for networkmode! *
+	/* changes the state of a convoi via tool_t; mandatory for networkmode!
 	 * for list of commands and parameter see tool_t::tool_change_convoi_t
 	 */
 	void call_convoi_tool( const char function, const char *extra = NULL );
 
 	/**
-	* set state: only use by tool_t convoi tool, or not networking!
-	* @author hsiegeln
+	* set state: only use by tool_t::tool_change_convoi_t
 	*/
 	void set_state( uint16 new_state ) { assert(new_state<MAX_STATES); state = (states)new_state; }
 
@@ -1238,6 +1245,8 @@ public:
 
 	bool all_vehicles_are_buildable() const; 
 
+	bool check_way_constraints_of_all_vehicles(const weg_t& way) const;
+
 private:
 	journey_times_map average_journey_times;
 public:
@@ -1535,7 +1544,7 @@ public:
 	// @author: jamespetts
 	// Returns the average comfort of this convoy,
 	// taking into account any catering.
-	uint8 get_comfort(uint8 g_class) const;
+	uint8 get_comfort(uint8 g_class, bool check_reassigned = false) const;
 
 	/** The new revenue calculation method for per-leg
 	 * based revenue calculation, rather than per-hop
@@ -1619,6 +1628,24 @@ public:
 			return NULL;
 		}
 	}
+
+	// Returns this convoy's reversing method. (v14.6 - 2019 @Ranran)
+	uint8 get_terminal_shunt_mode() const;
+
+	// return a number numbered by position in convoy. This is affected by the number of locomotives and reversals.
+	// The locomotive on the front side is returned a negative value.
+	sint16 get_car_numbering(uint8 car_no) const;
+
+private:
+	/** Train formation checks
+	 *  v14.6 - 2019 @Ranran
+	 */
+	uint8 get_front_loco_count() const;
+	uint8 check_new_tail(uint8 start) const;
+	uint8 check_need_turntable() const;
+
+	// returns level of coupling constraints between vehicles
+	uint8 check_couple_constraint_level(uint8 car_no, bool rear_side) const;
 };
 
 #endif

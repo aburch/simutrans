@@ -74,7 +74,10 @@ static const char *version_ex[] =
 	".11",
 	".12",
 	".13",
-	".14"
+	".14",
+	".15",
+	".16",
+	".17"
 };
 
 static const char *revision_ex[] =
@@ -217,11 +220,14 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 
 	INIT_NUM( "city_threshold_size", sets->get_city_threshold_size(), 1000, 100000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "capital_threshold_size", sets->get_capital_threshold_size(), 10000, 1000000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "city_threshold_percentage", sets->get_city_threshold_percentage(), 0, 100, gui_numberinput_t::PLAIN, false);
+	INIT_NUM( "capital_threshold_percentage", sets->get_capital_threshold_percentage(), 0, 100, gui_numberinput_t::PLAIN, false);
 	INIT_NUM( "max_small_city_size", sets->get_max_small_city_size(), 1000, 100000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_city_size", sets->get_max_city_size(), 10000, 1000000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "congestion_density_factor", sets->get_congestion_density_factor(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "quick_city_growth", sets->get_quick_city_growth());
 	INIT_BOOL( "assume_everywhere_connected_by_road", sets->get_assume_everywhere_connected_by_road());
+	INIT_NUM( "max_routes_to_process_in_a_step", sets->get_max_routes_to_process_in_a_step(), 0, 16384, gui_numberinput_t::AUTOLINEAR, false);
 	INIT_BOOL("toll_free_public_roads", sets->get_toll_free_public_roads());
 	INIT_NUM( "spacing_shift_mode", sets->get_spacing_shift_mode(), 0, 2 , gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "spacing_shift_divisor", sets->get_spacing_shift_divisor(), 1, 32767 , gui_numberinput_t::AUTOLINEAR, false );
@@ -256,6 +262,10 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("forge_cost_tram", sets->get_forge_cost_tram(), 0, 1000000, gui_numberinput_t::PLAIN, false);
 	INIT_NUM("forge_cost_narrowgauge", sets->get_forge_cost_narrowgauge(), 0, 1000000, gui_numberinput_t::PLAIN, false);
 	INIT_NUM("forge_cost_air", sets->get_forge_cost_air(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+
+	SEPERATOR;
+	INIT_BOOL("rural_industries_no_staff_shortage", sets->rural_industries_no_staff_shortage);
+	INIT_NUM("auto_connect_industries_and_attractions_by_road", sets->auto_connect_industries_and_attractions_by_road, 0, 65535, gui_numberinput_t::PLAIN, false);
 
 	SEPERATOR;
 	INIT_NUM("parallel_ways_forge_cost_percentage_road", sets->get_parallel_ways_forge_cost_percentage_road(), 0, 100, gui_numberinput_t::PLAIN, false);
@@ -305,6 +315,12 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("path_explorer_time_midpoint", sets->get_path_explorer_time_midpoint(), 1, 2048, gui_numberinput_t::PLAIN, false);
 	INIT_BOOL("save_path_explorer_data", sets->get_save_path_explorer_data()); 
 
+	SEPERATOR;
+
+	INIT_BOOL("show_future_vehicle_information", sets->get_show_future_vehicle_info());
+
+	SEPERATOR;
+
 	clear_dirty();
 	height = ypos;
 	set_size(settings_stats_t::get_size());
@@ -320,11 +336,14 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 
 	READ_NUM( sets->set_city_threshold_size );
 	READ_NUM( sets->set_capital_threshold_size );
+	READ_NUM( sets->set_city_threshold_percentage );
+	READ_NUM(sets->set_capital_threshold_percentage);
 	READ_NUM( sets->set_max_small_city_size );
 	READ_NUM( sets->set_max_city_size );
 	READ_NUM( sets->set_congestion_density_factor );
 	READ_BOOL( sets->set_quick_city_growth );
 	READ_BOOL( sets->set_assume_everywhere_connected_by_road );
+	READ_NUM( sets->set_max_routes_to_process_in_a_step ); 
 	READ_BOOL_VALUE(sets->toll_free_public_roads);
 	READ_NUM( sets->set_spacing_shift_mode );
 	READ_NUM( sets->set_spacing_shift_divisor);
@@ -361,6 +380,9 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE(sets->forge_cost_narrowgauge);
 	READ_NUM_VALUE(sets->forge_cost_air);
 
+	READ_BOOL_VALUE(sets->rural_industries_no_staff_shortage);
+	READ_NUM_VALUE(sets->auto_connect_industries_and_attractions_by_road);
+
 	READ_NUM_VALUE(sets->parallel_ways_forge_cost_percentage_road);
 	READ_NUM_VALUE(sets->parallel_ways_forge_cost_percentage_track);
 	READ_NUM_VALUE(sets->parallel_ways_forge_cost_percentage_water);
@@ -393,6 +415,8 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	
 	READ_NUM_VALUE(sets->path_explorer_time_midpoint);
 	READ_BOOL_VALUE(sets->save_path_explorer_data); 
+
+	READ_BOOL_VALUE(sets->show_future_vehicle_info);
 
 	path_explorer_t::set_absolute_limits_external(); 
 }
@@ -516,7 +540,6 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 	}
 	SEPERATOR;
 	INIT_NUM("max_comfort_preference_percentage", sets->get_max_comfort_preference_percentage(), 100, 65535, gui_numberinput_t::AUTOLINEAR, false);
-	INIT_BOOL("rural_industries_no_staff_shortage", sets->rural_industries_no_staff_shortage); 
 	
 	clear_dirty();
 	height = ypos;
@@ -579,7 +602,6 @@ void settings_extended_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->catering_level5_max_revenue );
 
 	READ_NUM_VALUE(sets->max_comfort_preference_percentage);
-	READ_BOOL_VALUE(sets->rural_industries_no_staff_shortage); 
 
 	// And convert to the form used in-game...
 	sets->cache_catering_revenues();
@@ -903,7 +925,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "ai_construction_speed", sets->get_default_ai_construction_speed(), 0, 1000000000, 1000, false );
 	SEPERATOR
 
-	INIT_BOOL( "just_in_time", sets->get_just_in_time() );
+	INIT_NUM( "just_in_time", sets->get_just_in_time(), 0, 255, gui_numberinput_t::PLAIN, false );
 	INIT_NUM( "maximum_intransit_percentage", sets->get_factory_maximum_intransit_percentage(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "crossconnect_factories", sets->is_crossconnect_factories() );
 	INIT_NUM( "crossconnect_factories_percentage", sets->get_crossconnect_factor(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
@@ -963,7 +985,7 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->default_ai_construction_speed );
 	env_t::default_ai_construction_speed = sets->get_default_ai_construction_speed();
 
-	READ_BOOL_VALUE( sets->just_in_time );
+	READ_NUM_VALUE( sets->just_in_time );
 	READ_NUM_VALUE( sets->factory_maximum_intransit_percentage );
 	READ_BOOL_VALUE( sets->crossconnect_factories );
 	READ_NUM_VALUE( sets->crossconnect_factor );

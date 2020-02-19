@@ -107,17 +107,13 @@ void roadsign_t::init(player_t *player, ribi_t::ribi dir, const roadsign_desc_t 
 roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_desc_t *desc, bool preview) : obj_t(pos)
 #endif
 {
-#ifdef MULTI_THREAD
+#ifdef MULTI_THREAD_CONVOYS
 	if (env_t::networkmode)
 	{
 		// In network mode, we cannot have a sign being created concurrently with
 		// convoy path-finding because  whether the convoy path-finder is called
 		// on this tile of way before or after this function is indeterminate.
-		if (!world()->get_first_step())
-		{
-			simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
-			welt->set_first_step(1);
-		}
+		world()->await_convoy_threads();
 	}
 #endif
 	this->desc = desc;
@@ -158,19 +154,19 @@ roadsign_t::~roadsign_t()
 		if(gr) {
 			weg_t* weg = gr->get_weg(desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt);
 			if(weg) {
-				player_t* owner = get_owner();
-				if(owner)
-				{
-					// Remove maintenance cost
-					sint32 maint = get_desc()->get_maintenance();
-					player_t::add_maintenance(owner, -maint, weg->get_waytype());
-				}
 				if (!preview) {
+					player_t* owner = get_owner();
+					if(owner)
+					{
+						// Remove maintenance cost
+						sint32 maint = get_desc()->get_maintenance();
+						player_t::add_maintenance(owner, -maint, weg->get_waytype());
+					}
 					if (desc->is_single_way() || desc->is_signal_type()) {
 						// signal removed, remove direction mask
 						weg->set_ribi_maske(ribi_t::none);
 					}
-				weg->clear_sign_flag();
+					weg->clear_sign_flag();
 				}
 			}
 			else {

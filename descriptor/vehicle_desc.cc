@@ -152,7 +152,7 @@ void vehicle_desc_t::loaded()
 
 	static const float32e8_t gear_factor((uint32)GEAR_FACTOR); 
 	float32e8_t power_force_ratio = get_power_force_ratio();
-	force_threshold_playerseed = (uint16)(power_force_ratio + float32e8_t::half);
+	force_threshold_speed = (uint16)(power_force_ratio + float32e8_t::half);
 	float32e8_t g_power = float32e8_t(power) * (/*(uint32) 1000L * */ (uint32)gear);
 	float32e8_t g_force = float32e8_t(tractive_effort) * (/*(uint32) 1000L * */ (uint32)gear);
 	if (g_power != 0)
@@ -182,12 +182,12 @@ void vehicle_desc_t::loaded()
 		geared_power = new uint32[speed+1];
 		geared_force = new uint32[speed+1];
 
-		for (; speed > force_threshold_playerseed; --speed)
+		for (; speed > force_threshold_speed; --speed)
 		{
 			geared_force[speed] = g_power / speed + float32e8_t::half;
 			geared_power[speed] = g_power + float32e8_t::half;
 		}
-		for (; speed <= force_threshold_playerseed; --speed)
+		for (; speed <= force_threshold_speed; --speed)
 		{
 			geared_force[speed] = g_force + float32e8_t::half;
 			geared_power[speed] = g_force * speed + float32e8_t::half;
@@ -206,7 +206,7 @@ uint32 vehicle_desc_t::get_effective_force_index(sint32 speed /* in m/s */ ) con
 		// no force at all
 		return 0;
 	}
-	//return speed <= force_threshold_playerseed ? geared_force : geared_power / speed;
+	//return speed <= force_threshold_speed ? geared_force : geared_power / speed;
 	return geared_force[min(speed, max_speed)];
 }
 
@@ -221,7 +221,7 @@ uint32 vehicle_desc_t::get_effective_power_index(sint32 speed /* in m/s */ ) con
 		// no power at all
 		return 0;
 	}
-	///return speed <= force_threshold_playerseed ? geared_force * speed : geared_power;
+	///return speed <= force_threshold_speed ? geared_force * speed : geared_power;
 	return geared_power[min(speed, max_speed)];
 }
 
@@ -239,6 +239,7 @@ uint16 vehicle_desc_t::get_obsolete_year_month(const karte_t *welt) const
 
 void vehicle_desc_t::fix_number_of_classes()
 {
+	fix_basic_constraint();
 	// We can call this safely since we fixed the number of classes
 	// stored in the good desc earlier when registering it.
 	uint8 actual_number_of_classes = get_freight_type()->get_number_of_classes();
@@ -284,6 +285,35 @@ void vehicle_desc_t::fix_number_of_classes()
 	}
 }
 
+
+uint16 vehicle_desc_t::get_available_livery_count(karte_t *welt) const
+{
+	uint16 livery_count = 0;
+	const uint16 month_now = welt->get_timeline_year_month();
+	if (!welt->use_timeline()) {
+		return get_livery_count();
+	}
+
+	vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
+	ITERATE_PTR(schemes, i)
+	{
+		livery_scheme_t* scheme = schemes->get_element(i);
+		if (!scheme->is_available(welt->get_timeline_year_month()))
+		{
+			continue;
+		}
+		if (scheme->get_latest_available_livery(month_now, this)) {
+			livery_count++;
+		}
+	}
+
+	return livery_count;
+}
+
+
+
+
+
 void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 {
 	obj_desc_transport_related_t::calc_checksum(chk);
@@ -319,11 +349,14 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(base_fixed_cost);
 	chk->input(upgrades);
 	chk->input(is_tilting ? 1 : 0);
+	chk->input(mixed_load_prohibition ? 1 : 0);
+	chk->input(basic_constraint_prev);
+	chk->input(basic_constraint_next);
 	chk->input(way_constraints.get_permissive());
 	chk->input(way_constraints.get_prohibitive());
 	chk->input(bidirectional ? 1 : 0);
-	chk->input(can_lead_from_rear ? 1 : 0);
-	chk->input(can_be_at_rear ? 1 : 0);
+	//chk->input(can_lead_from_rear ? 1 : 0); // not used
+	//chk->input(can_be_at_rear ? 1 : 0);
 	for (uint32 i = 0; i < classes; i++)
 	{
 		chk->input(comfort[i]);
@@ -338,4 +371,125 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	const uint16 rr = rolling_resistance * float32e8_t((uint32)100);
 	chk->input(ar);
 	chk->input(rr);
+}
+
+uint8 vehicle_desc_t::get_interactivity() const
+{
+	uint8 flags = 0;
+	if (bidirectional) { flags |= 1; }
+	if (power) { flags |= 2; }
+	return flags;
+}
+
+uint8 vehicle_desc_t::has_available_upgrade(uint16 month_now, bool show_future) const
+{
+	uint8 upgrade_state = 0; // 1 = not available yet, 2 = already available
+	for (int i = 0; i < upgrades; i++)
+	{
+		if (show_future) {
+			upgrade_state = 1;
+		}
+		const vehicle_desc_t *upgrade_desc = get_upgrades(i);
+		if (upgrade_desc && !upgrade_desc->is_future(month_now) && (!upgrade_desc->is_retired(month_now)))
+		{
+			return 2;
+		}
+		else if(!show_future && upgrade_desc && upgrade_desc->is_future(month_now)==2) {
+			upgrade_state = 1;
+		}
+	}
+	return upgrade_state;
+}
+
+
+// The old pak doesn't have a basic constraint, so add a value referring to the constraint.
+// Note: This is ambiguous because it does not have data of cab and constraint[prev]=any.
+void vehicle_desc_t::fix_basic_constraint()
+{
+	// front side
+	if (basic_constraint_prev & unknown_constraint) {
+		bool prev_has_none = false;
+		for (int i = 0; i < leader_count; i++)
+		{
+			vehicle_desc_t const* const veh = get_child<vehicle_desc_t>(get_add_to_node() + i);
+			if (veh == NULL)
+			{
+				prev_has_none = true;
+				basic_constraint_prev |= can_be_tail;
+				break;
+			}
+		}
+
+		switch (leader_count) {
+		case 0:
+			if (bidirectional) {
+				basic_constraint_prev |= can_be_tail;
+			}
+			if (!bidirectional || can_lead_from_rear || (bidirectional && power)) {
+				// Consider locomotive if it has power
+				basic_constraint_prev |= can_be_head;
+			}
+			break;
+		case 1:
+			if (prev_has_none) {
+				// only set "none"
+				basic_constraint_prev |= only_at_front;
+				if (can_lead_from_rear) {
+					basic_constraint_prev |= can_be_tail;
+				}
+			}
+			else {
+				basic_constraint_prev |= intermediate_unique;
+			}
+			break;
+		default:
+			if (prev_has_none && ((bidirectional && power) || can_lead_from_rear || !bidirectional)) {
+				basic_constraint_prev |= can_be_head;
+			}
+			break;
+		}
+		basic_constraint_prev &= ~unknown_constraint;
+	}
+
+	// rear side
+	if (basic_constraint_next & unknown_constraint) {
+		bool next_has_none = false;
+		for (int i = 0; i < trailer_count; i++) {
+			vehicle_desc_t const* const veh = get_child<vehicle_desc_t>(get_add_to_node() + leader_count + i);
+			if (veh == NULL) {
+				next_has_none = true;
+				basic_constraint_next |= can_be_tail;
+				break;
+			}
+		}
+
+		switch (trailer_count) {
+		case 0:
+			if (can_be_at_rear == false) {
+				basic_constraint_next = 0; // constraint[next]=any
+			}
+			else {
+				basic_constraint_next |= can_be_tail;
+				if (can_lead_from_rear || (bidirectional && power)) {
+					// Consider locomotive if it has power
+					basic_constraint_next |= can_be_head;
+				}
+			}
+			break;
+		case 1:
+			if (next_has_none) {
+				basic_constraint_next |= unconnectable;
+				if (can_lead_from_rear) {
+					basic_constraint_next |= can_be_head;
+				}
+			}
+			else {
+				basic_constraint_next |= intermediate_unique;
+			}
+			break;
+		default:
+			break;
+		}
+		basic_constraint_next &= ~unknown_constraint;
+	}
 }

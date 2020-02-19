@@ -37,7 +37,6 @@
 #include "simsys.h"
 #include "display/simgraph.h"
 #include "simevent.h"
-#include "utils/simrandom.h"
 
 #include "simversion.h"
 
@@ -73,6 +72,7 @@
 #include "sound/sound.h"
 
 #include "utils/cbuffer_t.h"
+#include "utils/simrandom.h"
 
 #include "bauer/vehikelbauer.h"
 

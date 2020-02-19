@@ -54,7 +54,7 @@ class player_t;
 // general help
 class dialog_help_t : public tool_t {
 public:
-	dialog_help_t() : tool_t(DIALOG_HELP | DIALOGE_TOOL) {}
+	dialog_help_t() : tool_t(DIALOG_HELP | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Help"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_mainhelp); }
 		bool init(player_t*) OVERRIDE{
@@ -69,7 +69,7 @@ public:
 // open info/quit dialog
 class dialog_options_t : public tool_t {
 public:
-	dialog_options_t() : tool_t(DIALOG_OPTIONS | DIALOGE_TOOL) {}
+	dialog_options_t() : tool_t(DIALOG_OPTIONS | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Einstellungen aendern"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_optionen_gui_t); }
 		bool init(player_t*) OVERRIDE{
@@ -84,7 +84,7 @@ public:
 // open minimap
 class dialog_minimap_t : public tool_t {
 public:
-	dialog_minimap_t() : tool_t(DIALOG_MINIMAP | DIALOGE_TOOL) {}
+	dialog_minimap_t() : tool_t(DIALOG_MINIMAP | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Reliefkarte"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_reliefmap); }
 		bool init(player_t*) OVERRIDE{
@@ -99,7 +99,7 @@ public:
 // open line management
 class dialog_lines_t : public tool_t {
 public:
-	dialog_lines_t() : tool_t(DIALOG_LINEOVERVIEW | DIALOGE_TOOL) {}
+	dialog_lines_t() : tool_t(DIALOG_LINEOVERVIEW | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Line Management"); }
 	image_id get_icon(player_t* player) const OVERRIDE{ return player && player->is_public_service() ? IMG_EMPTY : icon; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_line_management_t + welt->get_active_player_nr()); }
@@ -117,7 +117,7 @@ public:
 // open messages
 class dialog_messages_t : public tool_t {
 public:
-	dialog_messages_t() : tool_t(DIALOG_MESSAGES | DIALOGE_TOOL) {}
+	dialog_messages_t() : tool_t(DIALOG_MESSAGES | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Mailbox"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_messageframe); }
 		bool init(player_t*) OVERRIDE{
@@ -132,7 +132,7 @@ public:
 // open finance window
 class dialog_finances_t : public tool_t {
 public:
-	dialog_finances_t() : tool_t(DIALOG_FINANCES | DIALOGE_TOOL) {}
+	dialog_finances_t() : tool_t(DIALOG_FINANCES | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Finanzen"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_finances_t + welt->get_active_player_nr()); }
 		bool init(player_t* player) OVERRIDE{
@@ -147,7 +147,7 @@ public:
 // open player dialog
 class dialog_players_t : public tool_t {
 public:
-	dialog_players_t() : tool_t(DIALOG_PLAYERS | DIALOGE_TOOL) {}
+	dialog_players_t() : tool_t(DIALOG_PLAYERS | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Spielerliste"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_ki_kontroll_t); }
 		bool init(player_t*) OVERRIDE{
@@ -162,7 +162,7 @@ public:
 // open display options
 class dialog_displayoptions_t : public tool_t {
 public:
-	dialog_displayoptions_t() : tool_t(DIALOG_DISPLAYOPTIONS | DIALOGE_TOOL) {}
+	dialog_displayoptions_t() : tool_t(DIALOG_DISPLAYOPTIONS | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Helligk."); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_color_gui_t); }
 		bool init(player_t*) OVERRIDE{
@@ -177,7 +177,7 @@ public:
 // open sound dialog
 class dialog_sound_t : public tool_t {
 public:
-	dialog_sound_t() : tool_t(DIALOG_SOUND | DIALOGE_TOOL) {}
+	dialog_sound_t() : tool_t(DIALOG_SOUND | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Sound"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_sound_kontroll_t); }
 		bool init(player_t*) OVERRIDE{
@@ -192,7 +192,7 @@ public:
 // open language dialog
 class dialog_language_t : public tool_t {
 public:
-	dialog_language_t() : tool_t(DIALOG_LANGUAGE | DIALOGE_TOOL) {}
+	dialog_language_t() : tool_t(DIALOG_LANGUAGE | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Sprache"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_sprachengui_t); }
 		bool init(player_t*) OVERRIDE{
@@ -207,7 +207,7 @@ public:
 // open player color dialog
 class dialog_playercolor_t : public tool_t {
 public:
-	dialog_playercolor_t() : tool_t(DIALOG_PLAYERCOLOR | DIALOGE_TOOL) {}
+	dialog_playercolor_t() : tool_t(DIALOG_PLAYERCOLOR | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Farbe"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_farbengui_t); }
 		bool init(player_t* player) OVERRIDE{
@@ -222,7 +222,7 @@ public:
 // jump to position dialog
 class dialog_jump_t : public tool_t {
 public:
-	dialog_jump_t() : tool_t(DIALOG_JUMP | DIALOGE_TOOL) {}
+	dialog_jump_t() : tool_t(DIALOG_JUMP | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Jump to"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_jump); }
 		bool init(player_t*) OVERRIDE{
@@ -237,7 +237,7 @@ public:
 // load game dialog
 class dialog_load_t : public tool_t {
 public:
-	dialog_load_t() : tool_t(DIALOG_LOAD | DIALOGE_TOOL) {}
+	dialog_load_t() : tool_t(DIALOG_LOAD | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Laden"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_load_t); }
 		bool init(player_t*) OVERRIDE{
@@ -252,7 +252,7 @@ public:
 // save game dialog
 class dialog_save_t : public tool_t {
 public:
-	dialog_save_t() : tool_t(DIALOG_SAVE | DIALOGE_TOOL) {}
+	dialog_save_t() : tool_t(DIALOG_SAVE | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Speichern"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_save_t); }
 		bool init(player_t*) OVERRIDE{
@@ -266,7 +266,7 @@ public:
 /* open the list of halt */
 class dialog_list_halt_t : public tool_t {
 public:
-	dialog_list_halt_t() : tool_t(DIALOG_LIST_HALT | DIALOGE_TOOL) {}
+	dialog_list_halt_t() : tool_t(DIALOG_LIST_HALT | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("hl_title"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_halt_list_t); }
 		bool init(player_t* player) OVERRIDE{
@@ -281,7 +281,7 @@ public:
 /* open the list of vehicle */
 class dialog_list_convoi_t : public tool_t {
 public:
-	dialog_list_convoi_t() : tool_t(DIALOG_LIST_CONVOI | DIALOGE_TOOL) {}
+	dialog_list_convoi_t() : tool_t(DIALOG_LIST_CONVOI | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("cl_title"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_convoi_list + welt->get_active_player_nr()); }
 		bool init(player_t* player) OVERRIDE{
@@ -296,7 +296,7 @@ public:
 /* open the list of towns */
 class dialog_list_town_t : public tool_t {
 public:
-	dialog_list_town_t() : tool_t(DIALOG_LIST_TOWN | DIALOGE_TOOL) {}
+	dialog_list_town_t() : tool_t(DIALOG_LIST_TOWN | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("tl_title"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_citylist_frame_t); }
 		bool init(player_t*) OVERRIDE{
@@ -311,7 +311,7 @@ public:
 /* open the list of goods */
 class dialog_list_goods_t : public tool_t {
 public:
-	dialog_list_goods_t() : tool_t(DIALOG_LIST_GOODS | DIALOGE_TOOL) {}
+	dialog_list_goods_t() : tool_t(DIALOG_LIST_GOODS | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("gl_title"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_goodslist); }
 		bool init(player_t*) OVERRIDE{
@@ -326,7 +326,7 @@ public:
 /* open the list of factories */
 class dialog_list_factory_t : public tool_t {
 public:
-	dialog_list_factory_t() : tool_t(DIALOG_LIST_FACTORY | DIALOGE_TOOL) {}
+	dialog_list_factory_t() : tool_t(DIALOG_LIST_FACTORY | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("fl_title"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_factorylist); }
 		bool init(player_t*) OVERRIDE{
@@ -341,7 +341,7 @@ public:
 /* open the list of attraction */
 class dialog_list_curiosity_t : public tool_t {
 public:
-	dialog_list_curiosity_t() : tool_t(DIALOG_LIST_CURIOSITY | DIALOGE_TOOL) {}
+	dialog_list_curiosity_t() : tool_t(DIALOG_LIST_CURIOSITY | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("curlist_title"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_curiositylist); }
 		bool init(player_t*) OVERRIDE{
@@ -356,7 +356,7 @@ public:
 /* factory building dialog */
 class dialog_edit_factory_t : public tool_t {
 public:
-	dialog_edit_factory_t() : tool_t(DIALOG_EDIT_FACTORY | DIALOGE_TOOL) {}
+	dialog_edit_factory_t() : tool_t(DIALOG_EDIT_FACTORY | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("factorybuilder"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_edit_factory); }
 		bool init(player_t* player) OVERRIDE{
@@ -373,7 +373,7 @@ public:
 /* attraction building dialog */
 class dialog_edit_attraction_t : public tool_t {
 public:
-	dialog_edit_attraction_t() : tool_t(DIALOG_EDIT_ATTRACTION | DIALOGE_TOOL) {}
+	dialog_edit_attraction_t() : tool_t(DIALOG_EDIT_ATTRACTION | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("curiosity builder"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_edit_attraction); }
 		bool init(player_t* player) OVERRIDE{
@@ -390,7 +390,7 @@ public:
 /* house building dialog */
 class dialog_edit_house_t : public tool_t {
 public:
-	dialog_edit_house_t() : tool_t(DIALOG_EDIT_HOUSE | DIALOGE_TOOL) {}
+	dialog_edit_house_t() : tool_t(DIALOG_EDIT_HOUSE | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("citybuilding builder"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_edit_house); }
 		bool init(player_t* player) OVERRIDE{
@@ -407,7 +407,7 @@ public:
 /* tree placing dialog */
 class dialog_edit_tree_t : public tool_t {
 public:
-	dialog_edit_tree_t() : tool_t(DIALOG_EDIT_TREE | DIALOGE_TOOL) {}
+	dialog_edit_tree_t() : tool_t(DIALOG_EDIT_TREE | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("baum builder"); }
 	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_edit_tree); }
@@ -425,7 +425,7 @@ public:
 // to increase map-size
 class dialog_enlarge_map_t : public tool_t{
 public:
-	dialog_enlarge_map_t() : tool_t(DIALOG_ENLARGE_MAP | DIALOGE_TOOL) {}
+	dialog_enlarge_map_t() : tool_t(DIALOG_ENLARGE_MAP | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("enlarge map"); }
 	image_id get_icon(player_t *) const { return env_t::networkmode ? IMG_EMPTY : icon; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_bigger_map); }
@@ -442,7 +442,7 @@ public:
 /* open the list of label */
 class dialog_list_label_t : public tool_t {
 public:
-	dialog_list_label_t() : tool_t(DIALOG_LIST_LABEL | DIALOGE_TOOL) {}
+	dialog_list_label_t() : tool_t(DIALOG_LIST_LABEL | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("labellist_title"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_labellist); }
 		bool init(player_t*) OVERRIDE{
@@ -457,7 +457,7 @@ public:
 /* open climate settings */
 class dialog_climates_t : public tool_t {
 public:
-	dialog_climates_t() : tool_t(DIALOG_CLIMATES | DIALOGE_TOOL) {}
+	dialog_climates_t() : tool_t(DIALOG_CLIMATES | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return (!env_t::networkmode || env_t::server) ? translator::translate("Climate Control") : translator::translate("deactivated in online mode"); }
 	image_id get_icon(player_t *) const { return (!env_t::networkmode || env_t::server) ? icon : IMG_EMPTY; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_climate); }
@@ -473,7 +473,7 @@ public:
 /* open all game settings */
 class dialog_settings_t : public tool_t {
 public:
-	dialog_settings_t() : tool_t(DIALOG_SETTINGS | DIALOGE_TOOL) {}
+	dialog_settings_t() : tool_t(DIALOG_SETTINGS | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return (!env_t::networkmode || env_t::server) ? translator::translate("Setting") : translator::translate("deactivated in online mode"); }
 	image_id get_icon(player_t *) const { return (!env_t::networkmode || env_t::server) ? icon : IMG_EMPTY; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_settings_frame_t); }
@@ -489,7 +489,7 @@ public:
 /* server info and join dialog */
 class dialog_gameinfo_t : public tool_t {
 public:
-	dialog_gameinfo_t() : tool_t(DIALOG_GAMEINFO | DIALOGE_TOOL) {}
+	dialog_gameinfo_t() : tool_t(DIALOG_GAMEINFO | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Game info"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_server_frame_t); }
 		bool init(player_t*) OVERRIDE{
@@ -504,7 +504,7 @@ public:
 /* open themes selector settings */
 class dialog_themes_t : public tool_t {
 public:
-	dialog_themes_t() : tool_t(DIALOG_THEMES | DIALOGE_TOOL) {}
+	dialog_themes_t() : tool_t(DIALOG_THEMES | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Select a theme for display"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_themes); }
 		bool init(player_t*) OVERRIDE{

@@ -724,12 +724,10 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	sint64 remove_trees();
 
 	/**
-	 * Bauhilfsfunktion - ein neuer weg wird mit den vorgegebenen ribis
-	 * eingetragen und der Grund dem Erbauer zugeordnet.
-	 *
+	 * A new way is built with the given ribis. Registered and assigned to the builder.
 	 * @param weg	    der neue Weg
 	 * @param ribi	    die neuen ribis
-	 * @param player	    Spieler, dem der Boden zugeordnet wird
+	 * @param player    Player building the way
 	 *
 	 * @author V. Meyer
 	 */

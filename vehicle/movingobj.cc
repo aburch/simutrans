@@ -12,7 +12,6 @@
 #include "../simobj.h"
 #include "../display/simimg.h"
 #include "../player/simplay.h"
-#include "../utils/simrandom.h"
 #include "../simtypes.h"
 #include "../simunits.h"
 
@@ -21,6 +20,7 @@
 #include "../descriptor/groundobj_desc.h"
 
 #include "../utils/cbuffer_t.h"
+#include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 
 #include "../dataobj/loadsave.h"
@@ -361,7 +361,6 @@ grund_t* movingobj_t::hop_check()
 	 * Else pos_next_next is a single step from pos_next.
 	 * otherwise objects would jump left/right on some diagonals
 	 */
-	koord k(direction);
 	if (timetochange != 0) {
 		koord k(direction);
 		if(k.x&k.y) {

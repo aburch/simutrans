@@ -127,12 +127,6 @@ void player_t::book_construction_costs(player_t * const player, const sint64 amo
 }
 
 
-/**
- * Adds some amount to the maintenance costs.
- * @param change the change
- * @return the new maintenance costs
- * @author Hj. Malthaner
- */
 sint64 player_t::add_maintenance(sint64 change, waytype_t const wt)
 {
 	int tmp = 0;
@@ -156,20 +150,17 @@ void player_t::add_money_message(const sint64 amount, const koord pos)
 
 			// and same for sound too ...
 #ifdef GDI_SOUND
-			if(  amount>=10000  &&  !welt->is_fast_forward() && vehicle_t::sound_ticks < world()->get_ticks() ) {
+			if(  amount>=10000  &&  !welt->is_fast_forward()) {
 #else
 			if (amount >= 10000 && !welt->is_fast_forward()) {
 #endif
-				welt->play_sound_area_clipped(pos, SFX_CASH);
+				welt->play_sound_area_clipped(pos, SFX_CASH, ignore_wt);
 			}
 		}
 	}
 }
 
 
-/**
- * amount has negative value = buy vehicle, positive value = vehicle sold
- */
 void player_t::book_new_vehicle(const sint64 amount, const koord k, const waytype_t wt)
 {
 	finance->book_new_vehicle(amount, wt);
@@ -238,9 +229,6 @@ bool player_t::can_afford(player_t* player, sint64 price)
 	}
 }
 
-/* returns the name of the player; "player -1" sits in front of the screen
- * @author prissi
- */
 const char* player_t::get_name() const
 {
 	return translator::translate(player_name_buf);
@@ -258,9 +246,6 @@ void player_t::set_name(const char *new_name)
 }
 
 
-/**
- * floating massages for all players here
- */
 player_t::income_message_t::income_message_t( sint64 betrag, koord p )
 {
 	money_to_string(str, betrag/100.0);
@@ -282,10 +267,6 @@ void player_t::income_message_t::operator delete(void *p)
 }
 
 
-/**
- * Show income messages
- * @author prissi
- */
 void player_t::display_messages()
 {
 	const viewport_t *vp = welt->get_viewport();
@@ -303,10 +284,6 @@ void player_t::display_messages()
 }
 
 
-/**
- * Age messages (move them upwards), delete too old ones
- * @author prissi
- */
 void player_t::age_messages(uint32 /*delta_t*/)
 {
 	for(slist_tpl<income_message_t *>::iterator iter = messages.begin(); iter != messages.end(); ) {
@@ -363,10 +340,6 @@ void player_t::set_player_color_no_message(uint8 col1, uint8 col2)
 }
 
 
-/**
- * Any action goes here (only need for AI at the moment)
- * @author Hj. Malthaner
- */
 void player_t::step()
 {
 	/*
@@ -387,10 +360,6 @@ void player_t::step()
 }
 
 
-/**
- * wird von welt nach jedem monat aufgerufen
- * @author Hj. Malthaner
- */
 bool player_t::new_month()
 {
 	// since the messages must remain on the screen longer ...
@@ -764,14 +733,9 @@ void player_t::ai_bankrupt()
 }
 
 
-/**
- * Stores/save the player state
- * @param file, where the data will be saved
- * @author Hj. Malthaner
- */
 void player_t::rdwr(loadsave_t *file)
 {
-	xml_tag_t sss( file, "player_t" );
+	xml_tag_t sss( file, "spieler_t" );
 
 	if(file->get_version() < 112005) {
 		sint64 konto = finance->get_account_balance();
@@ -875,7 +839,14 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 		}
 		if(  file->is_loading()  ) {
 			// disallow all actions, if password set (might be unlocked by password gui )
-			locked = !pwd_hash.empty();
+			if (env_t::networkmode)
+			{
+				locked = !pwd_hash.empty();
+			}
+			else
+			{
+				locked = false;
+			}
 		}
 	}
 
@@ -927,17 +898,12 @@ void player_t::rotate90( const sint16 y_size )
 }
 
 
-/**
- * Rückruf, um uns zu informieren, dass ein Vehikel ein Problem hat
- * @author Hansjörg Malthaner
- * @date 26-Nov-2001
- */
-void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
+void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d position)
 {
 	switch(cnv->get_state())
 	{
 	case convoi_t::NO_ROUTE_TOO_COMPLEX:
-		DBG_MESSAGE("player_t::report_vehicle_problem", "Vehicle %s can't find a route to (%i,%i) because the route is too long/complex", cnv->get_name(), ziel.x, ziel.y);
+		DBG_MESSAGE("player_t::report_vehicle_problem", "Vehicle %s can't find a route to (%i,%i) because the route is too long/complex", cnv->get_name(), position.x, position.y);
 		if (this == welt->get_active_player()) {
 			cbuffer_t buf;
 			buf.printf("%s ", cnv->get_name());
@@ -947,7 +913,7 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 		break;
 
 	case convoi_t::NO_ROUTE:
-		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
+		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),position.x,position.y);
 			if(this==welt->get_active_player()) {
 				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
@@ -964,7 +930,7 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 		case convoi_t::CAN_START_ONE_MONTH:
 		case convoi_t::CAN_START_TWO_MONTHS:
-		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stuck!", cnv->get_name(),ziel.x,ziel.y);
+		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stuck!", cnv->get_name(),position.x,position.y);
 			{
 				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s is stucked!"), cnv->get_name());
@@ -974,7 +940,7 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 		
 		case convoi_t::OUT_OF_RANGE:
 			{
-				koord destination = ziel.get_2d();
+				koord destination = position.get_2d();
 				schedule_t* const sch = cnv->get_schedule();
 				const uint8 entries = sch->get_count();
 				uint8 count = 0;
@@ -991,13 +957,13 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 				const uint32 distance_tiles = distance_from_last_stop_to_here_tiles + (shortest_distance(cnv->get_pos().get_2d(), destination));
 				const double distance = (double)(distance_tiles * (double)welt->get_settings().get_meters_per_tile()) / 1000.0;
 				const double excess = distance - (double)cnv->get_min_range();
-				DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s cannot travel %.2fkm to (%i,%i) because it would exceed its range of %i by %.2fkm", cnv->get_name(), distance, ziel.x, ziel.y, cnv->get_min_range(), excess);
+				DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s cannot travel %.2fkm to (%i,%i) because it would exceed its range of %i by %.2fkm", cnv->get_name(), distance, position.x, position.y, cnv->get_min_range(), excess);
 				if(this == welt->get_active_player())
 				{
 					cbuffer_t buf;
-					const halthandle_t destination_halt = haltestelle_t::get_halt(ziel, welt->get_active_player());
-					const bool destination_is_depot = welt->lookup(ziel) && welt->lookup(ziel)->get_depot(); 
-					const char* name = destination_is_depot ? translator::translate(welt->lookup(ziel)->get_depot()->get_name()) : destination_halt.is_bound() ? destination_halt->get_name() : translator::translate("unknown");
+					const halthandle_t destination_halt = haltestelle_t::get_halt(position, welt->get_active_player());
+					const bool destination_is_depot = welt->lookup(position) && welt->lookup(position)->get_depot();
+					const char* name = destination_is_depot ? translator::translate(welt->lookup(position)->get_depot()->get_name()) : destination_halt.is_bound() ? destination_halt->get_name() : translator::translate("unknown");
 					buf.printf( translator::translate("Vehicle %s cannot travel %.2fkm to %s because that would exceed its range of %ikm by %.2fkm"), cnv->get_name(), distance, name, cnv->get_min_range(), excess);
 					welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
 				}
@@ -1006,14 +972,10 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 		default:
 		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s, state %i!", cnv->get_name(), cnv->get_state());
 	}
-	(void)ziel;
+	(void)position;
 }
 
 
-/* Here functions for UNDO
- * @date 7-Feb-2005
- * @author prissi
- */
 void player_t::init_undo( waytype_t wtype, unsigned short max )
 {
 	// only human player
@@ -1167,9 +1129,22 @@ bool player_t::has_money_or_assets() const
 
 void player_t::set_selected_signalbox(signalbox_t* sb)
 {
+	signalbox_t* old_selected = get_selected_signalbox();
+	gebaeude_t* gb_old = (gebaeude_t*)old_selected;
+	if (gb_old)
+	{
+		gb_old->display_coverage_radius(false);
+	}
+	
 	selected_signalbox = sb ? (signalbox_t*)sb->get_first_tile() : NULL;
 	if(!welt->is_destroying())
-	{
+	{	
+		signalbox_t* new_selected = selected_signalbox;
+		gebaeude_t* gb_new = (gebaeude_t*)new_selected;
+		if (gb_new)
+		{
+			gb_new->display_coverage_radius(env_t::signalbox_coverage_show);
+		}
 		tool_t::update_toolbars();
 		welt->set_dirty();
 	}

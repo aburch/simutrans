@@ -124,7 +124,7 @@ Cannot alter water
 Cannot build on a double slope!
 この型の橋梁は緩やかな坂か平らな地面の上からのみ建設できます
 Cannot built depot here!
-ここに車庫を\n建てることはできません。
+ここに車庫を建てることはできません。
 Cannot built this station/building\nin underground mode here.
 駅ビル/駅舎は、\n地下には建設できません。
 Cannot create generic line!\nSelect line type by\nusing filter tabs.
@@ -142,7 +142,7 @@ Convoy already deleted!
 Could not open file
 ファイルを開けません
 Das Feld gehoert\neinem anderen Spieler\n
-この場所は\n他のプレイヤーによって\nすでに占拠されています。\n
+この場所は他のプレイヤーによって\nすでに占拠されています。\n
 Der Besitzer erlaubt das Entfernen nicht
 撤去できません。\nここは他社の所有地です。\n
 Der Tunnel ist nicht frei!\n
@@ -150,19 +150,19 @@ Der Tunnel ist nicht frei!\n
 Die Bruecke ist nicht frei!\n
 橋梁上が空ではないか、\n他社の所有物です。\n
 Diese Zusammenstellung kann nicht fahren!\n
-この組み合わせで運行する\nことはできません。\n
+編成の構成エラー：\n構成が不完全か出力が不足しています。
 Flugzeughalt muss auf\nRunway liegen!\n
 飛行機は滑走路上にのみ\n降りることができます！
 Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
-ここに格納庫を\n建てることはできません。
+ここに格納庫を建てることはできません。
 Hier kann kein\nSignal aufge-\nstellt werden!\n
-ここに信号機を\n設置することはできません。\n
+ここに信号機を設置することはできません。\n
 Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
 帰るべき車庫が確認できません。\n手動で入庫先を指定してください。
 In order to lock the game, you have to protect the public player by password!
 ゲームを保護するため、\n公共事業にパスワードを\nかけて下さい。
 Kann Spielstand\nnicht laden.\n
-ゲームを読み込む\nことができません。\n
+ゲームを読み込むことができません。\n
 Kann Spielstand\nnicht speichern.\n
 ゲームを保存できません。\n
 Loading a new game will end the current server session!
@@ -2107,22 +2107,6 @@ zooming out
 ズームアウト
 Zu nah am Kartenrand
 地図の周辺部から離して\n設置してください\n
-#__________________________________record_text__________________________________
-#__________________________________record_text__________________________________
-New world record for maglevs: %.1f km/h by %s.
-最高速度記録（リニア）\n　時速 %.1f km\n「%s」が達成
-New world record for monorails: %.1f km/h by %s.
-最高速度記録（モノレール）\n　時速 %.1f km\n「%s」が達成
-New world record for motorcars: %.1f km/h by %s.
-最高速度記録（自動車）\n　時速 %.1f km\n「%s」が達成
-New world record for narrowgauges: %.1f km/h by %s.
-最高速度記録（ナローゲージ）\n　時速 %.1f km\n「%s」が達成
-New world record for planes: %.1f km/h by %s.
-最高速度記録（航空機）\n　時速 %.1f km\n「%s」が達成
-New world record for railways: %.1f km/h by %s.
-最高速度記録（鉄道）\n　時速 %.1f km\n「%s」が達成
-New world record for ship: %.1f km/h by %s.
-最高速度記録（船舶）\n　時速 %.1f km\n「%s」が達成
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL
@@ -3637,6 +3621,48 @@ Power output
 発電出力
 Railcar_tab
 気動車
+cd_spec_tab
+　諸元　
+cd_payload_tab
+積載情報
+cd_maintenance_tab
+メンテナンス
+No load setting
+回送（降車専用）に設定されています
+Applied livery scheme: %s
+選択中の塗装スキーム： %s
+LOCO_SYM
+L
+Select vehicles to make up a convoy
+リストから乗り物を選択し、編成を組成してください
+Vehicle bar shape legends:
+乗り物バー凡例：
+helptxt_powered_vehicle
+動力車
+helptxt_unpowered_vehicle
+非動力車
+helptxt_one_direction
+折り返し時に方向転換を必要とする先頭車両
+helptxt_cab_head
+先頭車両
+helptxt_can_be_at_rear
+最後尾車両
+helptxt_intermediate
+中間車両
+%i month
+車齢 %iヶ月
+%i months
+車齢 %iヶ月
+Upgrade available
+アップグレードが可能です
+Upgrade is not available yet
+将来アップグレードが可能になります
+Upgrade will be available in the near future
+近い将来アップグレードが可能になります
+(mixed_load_prohibition)
+（混載不可）
+Cannot start: no cab at the front of the convoy.
+編成の構成エラー：\n先頭になれない車両が先頭になっています。（運転台が無い等）
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

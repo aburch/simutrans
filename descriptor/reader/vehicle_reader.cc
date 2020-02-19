@@ -466,7 +466,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->freight_image_type = decode_uint8(p);
 		if(extended)
 		{
-			if(extended_version < 5)
+			if(extended_version < 6)
 			{
 				// NOTE: Extended version reset to 1 with incrementing of
 				// Standard version to 10.
@@ -475,7 +475,15 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				way_constraints.set_prohibitive(decode_uint8(p));
 				desc->catering_level = decode_uint8(p);
 				desc->bidirectional = decode_uint8(p);
-				desc->can_lead_from_rear = decode_uint8(p);
+				if (extended && extended_version >= 5)
+				{
+					desc->basic_constraint_prev = decode_uint8(p);
+				}
+				else {
+					desc->can_lead_from_rear = decode_uint8(p);
+					desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
+					desc->basic_constraint_next = vehicle_desc_t::unknown_constraint;
+				}
 				for (uint32 i = 0; i < desc->classes; i++)
 				{
 					desc->comfort[i] = decode_uint8(p);
@@ -496,7 +504,16 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->tractive_effort = decode_uint16(p);
 				uint32 air_resistance_hundreds = decode_uint16(p);
 				desc->air_resistance = air_resistance_hundreds * float32e8_t::centi;
-				desc->can_be_at_rear = (bool)decode_uint8(p);
+				if (extended && extended_version >= 5)
+				{
+					desc->basic_constraint_next = decode_uint8(p);
+				}
+				else
+				{
+					desc->can_be_at_rear = (bool)decode_uint8(p);
+					desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
+					desc->basic_constraint_next = vehicle_desc_t::unknown_constraint;
+				}
 				desc->increase_maintenance_after_years = decode_uint16(p);
 				desc->increase_maintenance_by_percent = decode_uint16(p);
 				desc->years_before_maintenance_max_reached = decode_uint8(p);
@@ -524,6 +541,14 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				else
 				{
 					desc->is_tall = false;
+				}
+				if (extended && extended_version >= 5)
+				{
+					desc->mixed_load_prohibition = decode_uint8(p);
+				}
+				else
+				{
+					desc->mixed_load_prohibition = false;
 				}
 			}
 			else
@@ -649,6 +674,9 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->range = 0;
 		desc->way_wear_factor = 1;
 		desc->is_tall = false;
+		desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
+		desc->basic_constraint_next = vehicle_desc_t::unknown_constraint;
+		desc->mixed_load_prohibition = false;
 	}
 	desc->set_way_constraints(way_constraints);
 
@@ -662,6 +690,11 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->weight *= 1000;
 		desc->range = 0;
 		desc->way_wear_factor = UINT32_MAX_VALUE;
+	}
+
+	// Convert flag
+	if (desc->can_lead_from_rear == true && desc->bidirectional == false){
+		desc->bidirectional = true;
 	}
 
 	if(desc->sound==LOAD_SOUND) {
@@ -685,8 +718,8 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc-
 		"version=%d "
 		"way=%d classes=%d capacity=%d comfort=%d cost=%d topspeed=%d weight=%g axle_load=%d power=%d "
 		"betrieb=%d sound=%d vor=%d nach=%d "
-		"date=%d/%d gear=%d engine_type=%d len=%d is_tilting=%d catering_level=%d "
-		"way_constraints_permissive=%d way_constraints_prohibitive%d bidirectional%d can_lead_from_rear%d",
+		"date=%d/%d gear=%d engine_type=%d len=%d is_tilting=%d mixed_load_prohibition=%d catering_level=%d "
+		"way_constraints_permissive=%d way_constraints_prohibitive%d bidirectional%d can_lead_from_rear%d coupling_constraint%d",
 		version,
 		desc->wtyp,
 		desc->classes,
@@ -707,11 +740,13 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc-
 		desc->engine_type,
 		desc->len,
 		desc->is_tilting,
+		desc->mixed_load_prohibition,
 		desc->catering_level,
 		desc->get_way_constraints().get_permissive(),
 		desc->get_way_constraints().get_prohibitive(),
 		desc->bidirectional,
-		desc->can_lead_from_rear);
+		desc->basic_constraint_prev,
+		desc->basic_constraint_next);
 
 	return desc;
 }

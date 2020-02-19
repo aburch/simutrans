@@ -14,7 +14,7 @@ class loadsave_t;
 class line_management_gui_t : public schedule_gui_t
 {
 public:
-	line_management_gui_t(linehandle_t line, player_t* player);
+	line_management_gui_t(linehandle_t line, player_t* player_);
 	virtual ~line_management_gui_t();
 	const char * get_name() const;
 

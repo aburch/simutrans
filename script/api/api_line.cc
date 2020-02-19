@@ -50,8 +50,8 @@ vector_tpl<linehandle_t> const* generic_get_line_list(HSQUIRRELVM vm, SQInteger 
 		}
 	}
 	if (SQ_SUCCEEDED(get_slot(vm, "player_id", id, index))  &&  id < PLAYER_UNOWNED) {
-		if (player_t *sp = welt->get_player(id)) {
-			return &sp->simlinemgmt.get_line_list();
+		if (player_t *player = welt->get_player(id)) {
+			return &player->simlinemgmt.get_line_list();
 		}
 	}
 	sq_raise_error(vm, "Invalid line list.");

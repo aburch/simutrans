@@ -28,6 +28,8 @@ extern int large_font_total_height;
 #define LINEASCENT (large_font_ascent)
 #define LINESPACE (large_font_total_height)
 
+#define VEHICLE_BAR_HEIGHT 7
+
 /**
 * Alignment enum to align controls against each other
 * Vertical and horizontal alignment can be masked together
@@ -120,10 +122,18 @@ extern KOORD_VAL base_tile_raster_width;
 /* changes the raster width after loading */
 KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster);
 
+/*
+* Hajo: Zoom factor
+*/
+#define MAX_ZOOM_FACTOR (9)
+#define ZOOM_NEUTRAL (3)
+static uint32 zoom_factor = ZOOM_NEUTRAL;
+static sint32 zoom_num[MAX_ZOOM_FACTOR + 1] = { 2, 3, 4, 1, 3, 5, 1, 3, 1, 1 };
+static sint32 zoom_den[MAX_ZOOM_FACTOR + 1] = { 1, 2, 3, 1, 4, 8, 2, 8, 4, 8 };
 
 int zoom_factor_up();
 int zoom_factor_down();
-
+int get_zoom_factor();
 
 /**
 * Initialises the graphics module
@@ -262,6 +272,14 @@ void display_fillbox_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h
 
 void display_fillbox_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 #define display_fillbox_wh_clip( x, y, w, h, c, d ) display_fillbox_wh_clip_rgb( (x), (y), (w), (h), specialcolormap_all_day[(c)&0xFF], (d))
+
+void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVAL color, bool dirty, uint8 basic_coupling_constraint, uint8 interactivity, bool is_rightside CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+#define display_veh_form( x, y, w, color, d, flags, interactivity, right) display_veh_form_wh_clip_rgb( (x), (y), (w), specialcolormap_all_day[(color)&0xFF], (d), (flags), (interactivity), (right))
+
+enum {
+	BIDIRECTIONAL = 1,
+	HAS_POWER = 2
+};
 
 void display_vline_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PIXVAL color, bool dirty);
 #define display_vline_wh(xp,yp,h,color,dirty) display_vline_wh_rgb( xp,yp,h,specialcolormap_all_day[(color)&0xFF],dirty)

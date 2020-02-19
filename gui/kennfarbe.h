@@ -40,7 +40,7 @@ class farbengui_t : public gui_frame_t, action_listener_t
 		button_t player_color_2[28];
 
 	public:
-		farbengui_t(player_t *player);
+		farbengui_t(player_t *player_);
 
 		/**
 		 * Set the window associated helptext

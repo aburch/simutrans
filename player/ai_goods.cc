@@ -15,7 +15,6 @@
 #include "../simintr.h"
 #include "../simline.h"
 #include "../simmesg.h"
-#include "../utils/simrandom.h"
 #include "../simworld.h"
 
 #include "../bauer/brueckenbauer.h"
@@ -29,6 +28,7 @@
 
 #include "../obj/wayobj.h"
 
+#include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 

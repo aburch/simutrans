@@ -64,7 +64,6 @@ class network_world_command_t;
 class goods_desc_t;
 class memory_rw_t;
 class viewport_t;
-class records_t;
 
 #define CHK_RANDS 32
 #define CHK_DEBUG_SUMS 8
@@ -444,12 +443,6 @@ private:
 	sint64 finance_history_month[MAX_WORLD_HISTORY_MONTHS][MAX_WORLD_COST];
 
 	/**
-	 * World record speed manager.
-	 * Keeps track of the fastest vehicles in game.
-	 */
-	records_t *records;
-
-	/**
 	 * Attached view to this world.
 	 */
 	main_view_t *view;
@@ -761,7 +754,7 @@ private:
 	 * Re-calculate vehicle details monthly.
 	 * Used to be used for the speed bonus
 	 */
-	void recalc_average_speed();
+	void recalc_average_speed(bool skip_messages);
 
 	/**
 	 * Monthly actions.
@@ -848,6 +841,8 @@ private:
 
 	slist_tpl<stadt_t*> cities_awaiting_private_car_route_check;
 
+	uint32 city_heavy_step_index;
+
 	/**
 	 * The last time when a server announce was performed (in ms).
 	 */
@@ -913,6 +908,16 @@ private:
 	// to change to a less restrictive aspect.
 	vector_tpl<signal_t*> time_interval_signals_to_check;
 
+	// Do not repeat sounds from the same types of vehicles
+	// too often, so store the time when the next sound from
+	// that type of vehicle should next be played.
+	//
+	// Vehicles use their waytypes. ignore_wt is used when
+	// the cooldown timer should not be used. noise_barrier_wt
+	// is used for industry; overheadlines_wt is used for 
+	// crossings.
+	sint64 sound_cooldown_timer[noise_barrier_wt + 1];
+
 	// The number of operations to run in parallel. 
 	// This is important for multi-threading 
 	// synchronisation over the network.
@@ -925,22 +930,31 @@ private:
 	void recalc_passenger_destination_weights();
 
 #ifdef MULTI_THREAD
-	// Check whether this is the first time that karte_t::step() has been run
-	// in order to know when to launch the background threads. 
-	sint32 first_step;
+	bool passengers_and_mail_threads_working;
+	bool convoy_threads_working;
+	bool path_explorer_working;
 public:
 	static simthread_barrier_t step_convoys_barrier_external;
 	static simthread_barrier_t unreserve_route_barrier;
+#ifdef MULTI_THREAD_ROUTE_PROCESSING
+	static simthread_barrier_t process_private_car_routes_barrier;
+#endif
+
 	static pthread_mutex_t unreserve_route_mutex;
 	static pthread_mutex_t step_passengers_and_mail_mutex;
-	sint32 get_first_step() const { return first_step; }
-	void set_first_step(sint32 value) { first_step = value;  }
-	void stop_path_explorer(); 
+	static pthread_mutex_t private_car_store_route_mutex;
+	static pthread_mutex_t private_car_route_mutex; 
+	void start_passengers_and_mail_threads();
+	void start_convoy_threads();
 	void start_path_explorer();
-
 #else
 public:
 #endif
+	// These will do nothing if multi-threading is disabled.
+	void await_passengers_and_mail_threads();
+	void await_convoy_threads();
+	void await_path_explorer(); 
+	void await_all_threads();
 
 	enum building_type { passenger_origin, commuter_target, visitor_target, mail_origin_or_target, none };
 	enum trip_type { commuting_trip, visiting_trip, mail_trip };
@@ -978,7 +992,6 @@ private:
 	static sint32 cities_to_process;
 	static vector_tpl<convoihandle_t> convoys_next_step;
 	public:
-	static sint32 path_explorer_step_progress;
 	static bool threads_initialised; 
 	
 	// These are both intended to be arrays of vectors
@@ -1174,10 +1187,6 @@ public:
 
 	settings_t const& get_settings() const { return settings; }
 	settings_t&       get_settings()       { return settings; }
-
-	/// speed record management
-	sint32 get_record_speed( waytype_t w ) const;
-	void notify_record( convoihandle_t cnv, sint32 max_speed, koord k );
 
 	/// time lapse mode ...
 	bool is_paused() const { return step_mode&PAUSE_FLAG; }
@@ -1844,6 +1853,14 @@ public:
 	*/
 	void add_to_waiting_list(ware_t ware, koord origin_pos);
 
+	/**
+	* Helper methods used for runway construction to check
+	* the exclusion zone of 1 tile around a runway.
+	*/
+	struct runway_info { ribi_t::ribi direction; koord pos; };
+	runway_info check_nearby_runways(koord pos);
+	bool check_neighbouring_objects(koord pos);
+
 #ifdef MULTI_THREAD
 	/**
 	* Initialise threads
@@ -1936,12 +1953,12 @@ public:
 	/**
 	 * Set a new tool as current: calls local_set_tool or sends to server.
 	 */
-	void set_tool( tool_t *tool, player_t * player );
+	void set_tool( tool_t *tool_in, player_t * player );
 
 	/**
 	 * Set a new tool on our client, calls init.
 	 */
-	void local_set_tool( tool_t *tool, player_t * player );
+	void local_set_tool( tool_t *tool_in, player_t * player );
 	tool_t *get_tool(uint8 nr) const { return selected_tool[nr]; }
 
 	/**
@@ -2331,8 +2348,11 @@ public:
 	 * Searches and returns the closest city
 	 * but prefers even farther cities if within their city limits
 	 * @author Hj. Malthaner
+	 * New for January 2020: add the choice to select the rank. 1 is
+	 * the best; 2 the second best, and so forth.
+	 * @author: jamespetts
 	 */
-	stadt_t *find_nearest_city(koord k) const;
+	stadt_t *find_nearest_city(koord k, uint32 rank = 1) const;
 	
 	// Returns the city at the position given.
 	// Returns NULL if there is no city there.
@@ -2548,7 +2568,7 @@ public:
 	 * @param idx Index of the sound
 	 * @author Hj. Malthaner
 	 */
-	bool play_sound_area_clipped(koord k, uint16 idx) const;
+	bool play_sound_area_clipped(koord k, uint16 idx, waytype_t cooldown_type);
 
 	void mute_sound( bool state ) { is_sound = !state; }
 

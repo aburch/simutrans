@@ -9,7 +9,6 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/gameinfo.h"
 #include "../dataobj/scenario.h"
-#include "../utils/simrandom.h"
 #include "../simmenu.h"
 #include "../simversion.h"
 #include "../gui/simwin.h"
@@ -18,6 +17,7 @@
 #include "../dataobj/environment.h"
 #include "../player/simplay.h"
 #include "../gui/player_frame_t.h"
+#include "../utils/simrandom.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/csv.h"
 #include "../display/viewport.h"
@@ -252,13 +252,13 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 		}
 		default: return;
 	}
-	tool_t *tool = create_tool( TOOL_ADD_MESSAGE | SIMPLE_TOOL );
-	tool->set_default_param( buf );
+	tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | SIMPLE_TOOL );
+	tmp_tool->set_default_param( buf );
 	// queue tool for network
-	nwc_tool_t *nwc = new nwc_tool_t(NULL, tool, koord3d::invalid, 0, welt->get_map_counter(), true);
+	nwc_tool_t *nwc = new nwc_tool_t(NULL, tmp_tool, koord3d::invalid, 0, welt->get_map_counter(), true);
 	network_send_server(nwc);
 	// since init always returns false, it is safe to delete immediately
-	delete tool;
+	delete tmp_tool;
 }
 
 
@@ -1267,9 +1267,9 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 			if (!init) {
 				const char *err = scen->is_work_allowed_here(welt->get_player(player_nr), tool_id, wt, pos);
 				if (err == NULL) {
-					if (two_click_tool_t *two_cwkz = dynamic_cast<two_click_tool_t*>(tool)) {
-						if (!two_cwkz->is_first_click()) {
-							err = scen->is_work_allowed_here(welt->get_player(player_nr), tool_id, wt, two_cwkz->get_start_pos());
+					if (two_click_tool_t *two_ctool = dynamic_cast<two_click_tool_t*>(tool)) {
+						if (!two_ctool->is_first_click()) {
+							err = scen->is_work_allowed_here(welt->get_player(player_nr), tool_id, wt, two_ctool->get_start_pos());
 						}
 					}
 				}
@@ -1279,7 +1279,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 					nwt->default_param = err;
 					nwt->last_sync_step = welt->get_last_checklist_sync_step();
 					nwt->last_checklist = welt->get_last_checklist();
-					dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  tool=%d  error=%s", nwt->get_sync_step(), tool_id, err);
+					dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  tool_id=%d  error=%s", nwt->get_sync_step(), tool_id, err);
 					return nwt;
 				}
 			}
@@ -1290,7 +1290,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 	nwc_tool_t *nwt = new nwc_tool_t(*this);
 	nwt->last_sync_step = welt->get_last_checklist_sync_step();
 	nwt->last_checklist = welt->get_last_checklist();
-	dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  tool=%d %s", nwt->get_sync_step(), tool_id, init ? "init" : "work");
+	dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  tool_id=%d %s", nwt->get_sync_step(), tool_id, init ? "init" : "work");
 	return nwt;
 }
 
@@ -1307,7 +1307,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 	if (tool == NULL) {
 		init_tool();
 	}
-	DBG_MESSAGE("nwc_tool_t::do_command", "steps %d tool %d %s", get_sync_step(), tool_id, init ? "init" : "work");
+	DBG_MESSAGE("nwc_tool_t::do_command", "steps %d tool_id %d %s", get_sync_step(), tool_id, init ? "init" : "work");
 
 	// commands are treated differently if they come from this client or not
 	bool local = tool_client_id == network_get_client_id();

@@ -25,12 +25,12 @@
 #define MIN_WIDTH (80)
 
 
-tool_selector_t::tool_selector_t(const char* title, const char *helpfile, uint32 toolbar_id, bool allow_break) :
+tool_selector_t::tool_selector_t(const char* title, const char *help_file, uint32 toolbar_id, bool allow_break) :
 	gui_frame_t( translator::translate(title) ), tools(0)
 {
 	this->toolbar_id = toolbar_id;
 	this->allow_break = allow_break;
-	this->hilfe_datei = helpfile;
+	this->help_file = help_file;
 	this->tool_icon_disp_start = 0;
 	this->tool_icon_disp_end = 0;
 	this->title = title;
@@ -42,7 +42,7 @@ tool_selector_t::tool_selector_t(const char* title, const char *helpfile, uint32
 
 /**
  * Add a new tool with values and tooltip text.
- *  tool_in must be created by new tool_t(copy_tool)!
+ * tool_in must be created by new tool_t(copy_tool)!
  * @author Hj. Malthaner
  */
 void tool_selector_t::add_tool_selector(tool_t *tool_in)

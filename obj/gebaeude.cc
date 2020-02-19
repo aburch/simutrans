@@ -27,7 +27,6 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../gui/simwin.h"
 #include "../simcity.h"
 #include "../player/simplay.h"
-#include "../utils/simrandom.h"
 #include "../simdebug.h"
 #include "../simintr.h"
 #include "../simskin.h"
@@ -37,12 +36,17 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../boden/grund.h"
 #include "../boden/wege/strasse.h"
 
+#include "../bauer/wegbauer.h"
+#include "../bauer/tunnelbauer.h"
+#include "../bauer/brueckenbauer.h"
+
 #include "../descriptor/building_desc.h"
 #include "../descriptor/intro_dates.h"
 
 #include "../descriptor/ground_desc.h"
 
 #include "../utils/cbuffer_t.h"
+#include "../utils/simrandom.h"
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
@@ -242,15 +246,22 @@ gebaeude_t::~gebaeude_t()
 		// avoid book-keeping
 	}
 
+	if (tile->get_desc()->is_signalbox())
+	{
+		display_coverage_radius(false);
+	}
+
 	stadt_t* our_city = get_stadt();
 	const bool has_city_defined = our_city != NULL;
 	if (!our_city /* && tile->get_desc()->get_type() == building_desc_t::townhall*/)
 	{
-		our_city = welt->get_city(get_pos().get_2d());
+		const planquadrat_t* tile = welt->access(get_pos().get_2d());
+		our_city = tile ? tile->get_city() : NULL;
 	}
 	if (!our_city)
 	{
-		our_city = welt->get_city(get_first_tile()->get_pos().get_2d());
+		const planquadrat_t* tile = welt->access(get_first_tile()->get_pos().get_2d());
+		our_city = tile ? tile->get_city() : NULL;
 	}
 	if (our_city)
 	{
@@ -349,11 +360,11 @@ void gebaeude_t::check_road_tiles(bool del)
 				for (int j = 0; j<plan->get_boden_count(); j++)
 				{
 					grund_t *bd = plan->get_boden_bei(j);
-					strasse_t *str = (strasse_t *)bd->get_weg(road_wt);
+					weg_t *way = bd->get_weg(road_wt);
 
-					if (str)
+					if (way)
 					{
-						str->connected_buildings.remove(this);
+						way->connected_buildings.remove(this);
 					}
 				}
 			}
@@ -369,10 +380,10 @@ void gebaeude_t::check_road_tiles(bool del)
 				{
 					continue;
 				}
-				strasse_t* str = (strasse_t*)gr_this->get_weg(road_wt);
-				if (str)
+				weg_t* const way = gr_this->get_weg(road_wt);
+				if (way)
 				{
-					str->connected_buildings.append_unique(this);
+					way->connected_buildings.append_unique(this);
 				}
 			}
 		}
@@ -432,9 +443,6 @@ void gebaeude_t::rotate90()
 			welt->set_nosave();
 		}
 	}
-
-	// These will be re-initialised where necessary.
-	set_building_tiles();
 }
 
 
@@ -735,6 +743,21 @@ const char *gebaeude_t::get_name() const
 	return "Gebaeude";
 }
 
+const char* gebaeude_t::get_individual_name() const
+{
+	if (is_factory && ptr.fab)
+	{
+		return ptr.fab->get_name();
+	}
+	else if (tile)
+	{
+		return tile->get_desc()->get_name();
+	}
+	else
+	{
+		return get_name();
+	}
+}
 
 /**
 * waytype associated with this object
@@ -780,6 +803,11 @@ bool gebaeude_t::is_city_building() const
 	return tile->get_desc()->is_city_building();
 }
 
+bool gebaeude_t::is_signalbox() const
+{
+	return tile->get_desc()->is_signalbox();
+}
+
 
 void gebaeude_t::show_info()
 {
@@ -805,7 +833,6 @@ void gebaeude_t::show_info()
 		}
 	}
 }
-
 
 bool gebaeude_t::is_same_building(gebaeude_t* other) const
 {
@@ -1354,6 +1381,41 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 	}
 }
+
+void gebaeude_t::display_coverage_radius(bool display)
+{
+	gebaeude_t* gb = (gebaeude_t*)welt->get_active_player()->get_selected_signalbox();
+	if (gb)
+	{
+		if (is_signalbox())
+		{
+			uint32 const radius = gb->get_tile()->get_desc()->get_radius();
+			uint16 const cov = radius / welt->get_settings().get_meters_per_tile();
+			for (int x = 0; x <= cov * 2; x++)
+			{
+				for (int y = 0; y <= cov * 2; y++)
+				{
+					koord gb_pos = koord(gb->get_pos().get_2d());
+					koord check_pos = koord(gb_pos.x - cov + x, gb_pos.y - cov + y);
+					// Mark a 5x5 cross at center of circle
+					if (shortest_distance(gb_pos, check_pos) <= cov)
+					{
+						if ((check_pos.x == gb->get_pos().x && (check_pos.y >= gb->get_pos().y - 2 && check_pos.y <= gb->get_pos().y + 2)) || (check_pos.y == gb->get_pos().y && (check_pos.x >= gb->get_pos().x - 2 && check_pos.x <= gb->get_pos().x + 2)))
+						{
+							welt->mark_area(koord3d(check_pos, gb->get_pos().z), koord(1, 1), display);
+						}
+						// Mark the circle
+						if (shortest_distance(gb_pos, check_pos) >= cov)
+						{
+							welt->mark_area(koord3d(check_pos, gb->get_pos().z), koord(1, 1), display);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 
 void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 {
@@ -2194,6 +2256,79 @@ void gebaeude_t::set_building_tiles()
 					}
 				}
 			}
+		}
+	}
+}
+
+void gebaeude_t::connect_by_road_to_nearest_city()
+{
+	if (get_stadt())
+	{
+		// Assume that this is already connected to a road if in a city.	
+		return;
+	}
+	koord3d start = get_pos();
+	koord k = start.get_2d();
+	grund_t* gr;
+	bool start_found = false;
+	for (uint8 i = 0; i < 8; i++)
+	{
+		// Check for connected roads. Only roads in immediately neighbouring tiles
+		// and only those on the same height will register a connexion.
+		start = koord3d(k + k.neighbours[i], get_pos().z);
+		gr = welt->lookup(start);
+		if (!gr)
+		{
+			continue;
+		}
+		if ((!gr->hat_wege() || gr->get_weg(road_wt)) && !gr->get_building() && !gr->is_water())
+		{
+			start_found = true;
+			break;
+		}
+	}
+	if (!start_found)
+	{
+		return;
+	}
+
+	// Next, find the nearest city
+	const uint32 rank_max = welt->get_settings().get_auto_connect_industries_and_attractions_by_road();
+	for (uint32 rank = 1; rank <= rank_max; rank++)
+	{
+		const stadt_t* city = welt->find_nearest_city(get_pos().get_2d(), rank);
+		if (!city)
+		{
+			return;
+		}
+		koord end = city->get_townhall_road();
+
+		if (shortest_distance(start.get_2d(), end) > env_t::intercity_road_length)
+		{
+			return;
+		}
+
+		way_desc_t const* desc = welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
+		if (desc == NULL || !welt->get_settings().get_use_timeline())
+		{
+			// Hajo: try some default (might happen with timeline ... )
+			desc = way_builder_t::weg_search(road_wt, 80, welt->get_timeline_year_month(), type_flat);
+		}
+
+		way_builder_t builder(NULL);
+		builder.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, desc, tunnel_builder_t::get_tunnel_desc(road_wt, desc->get_topspeed(), welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt, desc->get_topspeed(), welt->get_timeline_year_month(), desc->get_max_axle_load() * 2));
+		builder.set_keep_existing_ways(true);
+		builder.set_maximum(env_t::intercity_road_length);
+		builder.set_keep_city_roads(true);
+		builder.set_build_sidewalk(false);
+
+		koord3d end3d = welt->lookup_kartenboden(end)->get_pos();
+
+		builder.calc_route(start, end3d);
+		if (builder.get_count() > 1)
+		{
+			builder.build();
+			break;
 		}
 	}
 }
