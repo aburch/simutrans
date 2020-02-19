@@ -194,6 +194,11 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	bt_sell.add_listener(this);
 	bt_sell.set_tooltip("Sell the selected vehicle(s)");
 	add_component(&bt_sell);
+	
+	bt_replacement_seed.set_typ(button_t::roundbox);
+	bt_replacement_seed.add_listener(this);
+	bt_replacement_seed.set_tooltip("Set as the replacement seed convoy");
+	add_component(&bt_replacement_seed);
 
 	/*
 	* [PANEL]
@@ -521,6 +526,10 @@ void depot_frame_t::layout(scr_size *size)
 	bt_sell.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*3, ACTIONS_VSTART));
 	bt_sell.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 	bt_sell.set_text("verkaufen");
+	
+	bt_replacement_seed.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*3, ACTIONS_VSTART + D_BUTTON_HEIGHT));
+	bt_replacement_seed.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
+	bt_replacement_seed.set_text("Replacement seed");
 
 	/*
 	* [PANEL]
@@ -1347,6 +1356,9 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		else if(  comp == &bt_sell  ) {
 			depot->call_depot_tool('v', cnv, NULL);
 		}
+		else if(  comp == &bt_replacement_seed  ) {
+			depot->call_depot_tool('e', cnv, NULL);
+		}
 		// image list selection here ...
 		else if(  comp == &convoi  ) {
 			image_from_convoi_list( p.i, last_meta_event_get_class() == EVENT_DOUBLE_CLICK);
@@ -1522,21 +1534,24 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 void depot_frame_t::draw(scr_coord pos, scr_size size)
 {
 	const bool action_allowed = welt->get_active_player() == depot->get_owner();
+	convoihandle_t cnv = depot->get_convoi(icnv);
 
 	bt_new_line.enable( action_allowed );
 	bt_change_line.enable( action_allowed );
 	bt_copy_convoi.enable( action_allowed );
 	bt_apply_line.enable( action_allowed );
-	bt_start.enable( action_allowed );
+	bt_start.enable( action_allowed  &&  cnv!=depot->get_replacement_seed() );
 	bt_schedule.enable( action_allowed );
 	bt_destroy.enable( action_allowed );
 	bt_sell.enable( action_allowed );
+	bt_replacement_seed.enable( action_allowed );
 	bt_obsolete.enable( action_allowed );
 	bt_show_all.enable( action_allowed );
 	bt_veh_action.enable( action_allowed );
 	line_button.enable( action_allowed );
+	
+	bt_replacement_seed.set_text(cnv==depot->get_replacement_seed() ? "Unregister replacement" : "Replacement seed");
 
-	convoihandle_t cnv = depot->get_convoi(icnv);
 	// check for data inconsistencies (can happen with withdraw-all and vehicle in depot)
 	if(  !cnv.is_bound()  &&  !convoi_pics.empty()  ) {
 		icnv=0;
