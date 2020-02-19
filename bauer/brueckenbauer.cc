@@ -329,7 +329,8 @@ bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, player_t
 		if (const gebaeude_t* gb = gr->get_building())
 		{
 			const uint8 max_level = welt->get_settings().get_max_elevated_way_building_level();
-			if( gb->get_tile()->get_desc()->get_level() > max_level && !haltestelle_t::get_halt(gb->get_pos(), NULL).is_bound())
+			
+			if((gb->get_tile()->get_desc()->get_level() > max_level) && gr->get_halt().is_bound()) 
 			{
 				error_msg = "Bridges cannot be built over large buildings.";
 				return true;

@@ -465,6 +465,8 @@ settings_t::settings_t() :
 	walking_speed = 5;
 
 	random_mode_commuting = random_mode_visiting = 2;
+
+	max_routes_to_process_in_a_step = 8;
 	
 	for(uint8 i = 0; i < 17; i ++)
 	{
@@ -1661,7 +1663,7 @@ void settings_t::rdwr(loadsave_t *file)
 		// otherwise the default values of the last one will be used
 		}
 
-		if (file->get_version() > 120003 && (file->get_extended_version() == 0 || file->get_extended_revision() >= 17) || file->get_extended_version() >= 13)
+		if (file->get_version() > 120003 && (file->get_extended_version() == 0 || file->get_extended_revision() >= 19) || file->get_extended_version() >= 13)
 		{
 			file->rdwr_bool(disable_make_way_public);
 		}
@@ -1813,6 +1815,11 @@ void settings_t::rdwr(loadsave_t *file)
 		if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 18))
 		{
 			file->rdwr_bool(show_future_vehicle_info);
+		}
+
+		if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 19))
+		{
+			file->rdwr_long(max_routes_to_process_in_a_step);
 		}
 	}
 
@@ -2667,6 +2674,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	save_path_explorer_data = contents.get_int("save_path_explorer_data", save_path_explorer_data); 
 
 	show_future_vehicle_info = contents.get_int("show_future_vehicle_information", show_future_vehicle_info);
+
+	max_routes_to_process_in_a_step = contents.get_int("max_routes_to_process_in_a_step", max_routes_to_process_in_a_step); 
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.

@@ -1088,7 +1088,6 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 			}
 
 			// upgrade info
-			// NOTE: pakset may not have a vehicle set to upgrade[n]
 			if (upgradable_state)
 			{
 				int found = 0;
@@ -1096,6 +1095,9 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 				for (int i = 0; i < v->get_desc()->get_upgrades_count(); i++)
 				{
 					if (const vehicle_desc_t* desc = v->get_desc()->get_upgrades(i)) {
+						if (!welt->get_settings().get_show_future_vehicle_info() && desc->is_future(month_now)==1) {
+							continue; // skip future information
+						}
 						found++;
 						if (found == 1) {
 							if (skinverwaltung_t::upgradable) {
@@ -1109,35 +1111,32 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 
 						const uint16 intro_date = desc->is_future(month_now) ? desc->get_intro_year_month() : 0;
 
-						if (welt->get_settings().get_show_future_vehicle_info() || (!welt->get_settings().get_show_future_vehicle_info() && desc->is_future(month_now) == 2))
-						{
-							if (intro_date) {
-								upgrade_state_color = MN_GREY0;
-							}
-							else if (desc->is_retired(month_now)) {
-								upgrade_state_color = COL_OUT_OF_PRODUCTION;
-							}
-							else if (desc->is_obsolete(month_now, welt)) {
-								upgrade_state_color = COL_OBSOLETE;
-							}
-							display_veh_form(pos.x + extra_w + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height + extra_y + 1, VEHICLE_BAR_HEIGHT * 2, upgrade_state_color, true, desc->get_basic_constraint_prev(), desc->get_interactivity(), false);
-							display_veh_form(pos.x + extra_w + offset.x + D_MARGIN_LEFT + grid_width / 2 - 1, pos.y + offset.y + total_height + extra_y + 1, VEHICLE_BAR_HEIGHT * 2, upgrade_state_color, true, desc->get_basic_constraint_next(), desc->get_interactivity(), true);
-
-							buf.clear();
-							buf.append(translator::translate(v->get_desc()->get_upgrades(i)->get_name()));
-							if (intro_date) {
-								buf.printf(", %s %s", translator::translate("Intro. date:"), translator::get_year_month(intro_date));
-							}
-							display_proportional_clip(pos.x + extra_w + offset.x + D_MARGIN_LEFT + grid_width, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, upgrade_state_color, true);
-							extra_y += LINESPACE;
-							// 2nd row
-							buf.clear();
-							money_to_string(number, desc->get_upgrade_price() / 100);
-							buf.printf("%s %s,  ", translator::translate("Upgrade price:"), number);
-							buf.printf(translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), desc->get_running_cost() / 100.0, desc->get_adjusted_monthly_fixed_cost(welt) / 100.0);
-							display_proportional_clip(pos.x + extra_w + offset.x + D_MARGIN_LEFT + grid_width, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-							extra_y += LINESPACE + 2;
+						if (intro_date) {
+							upgrade_state_color = MN_GREY0;
 						}
+						else if (desc->is_retired(month_now)) {
+							upgrade_state_color = COL_OUT_OF_PRODUCTION;
+						}
+						else if (desc->is_obsolete(month_now, welt)) {
+							upgrade_state_color = COL_OBSOLETE;
+						}
+						display_veh_form(pos.x + extra_w + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height + extra_y + 1, VEHICLE_BAR_HEIGHT * 2, upgrade_state_color, true, desc->get_basic_constraint_prev(), desc->get_interactivity(), false);
+						display_veh_form(pos.x + extra_w + offset.x + D_MARGIN_LEFT + grid_width / 2 - 1, pos.y + offset.y + total_height + extra_y + 1, VEHICLE_BAR_HEIGHT * 2, upgrade_state_color, true, desc->get_basic_constraint_next(), desc->get_interactivity(), true);
+						
+						buf.clear();
+						buf.append(translator::translate(v->get_desc()->get_upgrades(i)->get_name()));
+						if (intro_date) {
+							buf.printf(", %s %s", translator::translate("Intro. date:"), translator::get_year_month(intro_date));
+						}
+						display_proportional_clip(pos.x + extra_w + offset.x + D_MARGIN_LEFT + grid_width, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, upgrade_state_color, true);
+						extra_y += LINESPACE;
+						// 2nd row
+						buf.clear();
+						money_to_string(number, desc->get_upgrade_price() / 100);
+						buf.printf("%s %s,  ", translator::translate("Upgrade price:"), number);
+						buf.printf(translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), desc->get_running_cost() / 100.0, desc->get_adjusted_monthly_fixed_cost(welt) / 100.0);
+						display_proportional_clip(pos.x + extra_w + offset.x + D_MARGIN_LEFT + grid_width, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+						extra_y += LINESPACE + 2;
 					}
 				}
 			}

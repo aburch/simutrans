@@ -99,6 +99,7 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Origin", "Show initial passenger departure", reliefkarte_t::MAP_ORIGIN },
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Traffic", "Show usage of network", reliefkarte_t::MAP_TRAFFIC },
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Wear", "Show the condition of ways", reliefkarte_t::MAP_CONDITION },
+	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Congestion", "Show how congested that roads are", reliefkarte_t::MAP_CONGESTION }, // TODO: Add translation text for this
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Speedlimit", "Show speedlimit of ways", reliefkarte_t::MAX_SPEEDLIMIT },
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Weight limit", "Show the weight limit of ways", reliefkarte_t::MAP_WEIGHTLIMIT },
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Tracks", "Highlight railroad tracks", reliefkarte_t::MAP_TRACKS },

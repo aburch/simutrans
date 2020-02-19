@@ -2873,7 +2873,13 @@ void convoi_t::upgrade_vehicle(uint16 i, vehicle_t* v)
 	// Adapted from the add/remove vehicle functions
 	// @author: jamespetts, February 2010
 
-DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicle);
+	DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicle);
+
+	if (i >= vehicle.get_count())
+	{
+		dbg->error("convoi_t::upgrade_vehicle()", "Attempting to append beyond end of convoy"); 
+		return;
+	}
 
 	// now append
 	v->set_convoi(this);
@@ -8396,7 +8402,6 @@ bool convoi_t::all_vehicles_are_buildable() const
 	return true;
 }
 
-
 // count the number of the front side powered chunk
 uint8 convoi_t::get_front_loco_count() const
 {
@@ -8579,7 +8584,7 @@ sint16 convoi_t::get_car_numbering(uint8 car_no) const
 }
 
 
-bool convoi_t::check_way_constraints_of_all_vehicles(const weg_t &way) const
+bool convoi_t::check_way_constraints_of_all_vehicles(const weg_t& way) const
 {
 	for (uint32 i = 0; i < vehicle_count; i++)
 	{

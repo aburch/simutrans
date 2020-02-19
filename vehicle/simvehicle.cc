@@ -969,14 +969,16 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 										// be in (or be fully in) a city.
 										tmp.get_origin()->add_pax_happy(menge);
 										koord origin_pos = tmp.get_origin()->get_basis_pos();
-										stadt_t* origin_city = welt->get_city(origin_pos);
+										const planquadrat_t* tile = welt->access(origin_pos);
+										stadt_t* origin_city = tile ? tile->get_city() : NULL;
 										if (!origin_city)
 										{
 											// The origin stop is not within a city.
 											// If the stop is located outside the city, but the passengers
 											// come from a city, they will not record as transported.
 											origin_pos = tmp.get_origin()->get_init_pos();
-											origin_city = welt->get_city(origin_pos);
+											tile = welt->access(origin_pos);
+											origin_city = tile ? tile->get_city() : NULL;
 										}
 
 										if (!origin_city)
@@ -984,7 +986,8 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 											for (uint8 i = 0; i < 16; i++)
 											{
 												koord pos(origin_pos + origin_pos.second_neighbours[i]);
-												origin_city = welt->get_city(pos);
+												const planquadrat_t* tile = welt->access(pos);
+												origin_city = tile ? tile->get_city() : NULL;
 												if (origin_city)
 												{
 													break;
@@ -1007,14 +1010,16 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 										// be in (or be fully in) a city.
 										tmp.get_origin()->add_mail_delivered(menge);
 										koord origin_pos = tmp.get_origin()->get_basis_pos();
-										stadt_t* origin_city = welt->get_city(origin_pos);
+										const planquadrat_t* tile = welt->access(origin_pos);
+										stadt_t* origin_city = tile ? tile->get_city() : NULL;
 										if (!origin_city)
 										{
 											// The origin stop is not within a city.
 											// If the stop is located outside the city, but the passengers
 											// come from a city, they will not record as transported.
 											origin_pos = tmp.get_origin()->get_init_pos();
-											origin_city = welt->get_city(origin_pos);
+											tile = welt->access(origin_pos);
+											origin_city = tile ? tile->get_city() : NULL;
 										}
 
 										if (!origin_city)
@@ -1022,7 +1027,8 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 											for (uint8 i = 0; i < 16; i++)
 											{
 												koord pos(origin_pos + origin_pos.second_neighbours[i]);
-												origin_city = welt->get_city(pos);
+												const planquadrat_t* tile = welt->access(pos);
+												origin_city = tile ? tile->get_city() : NULL;
 												if (origin_city)
 												{
 													break;
@@ -1454,6 +1460,9 @@ vehicle_t::vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player) 
 		// Initialise these with default values.
 		class_reassignments[i] = i;
 	}
+	
+	last_stopped_tile = koord3d::invalid;
+
 }
 
 #ifdef INLINE_OBJ_TYPE
@@ -1497,6 +1506,8 @@ vehicle_t::vehicle_t() :
 	number_of_classes = 0;
 	fracht = NULL;
 	class_reassignments = NULL;
+	
+	last_stopped_tile = koord3d::invalid;
 }
 
 void vehicle_t::set_desc(const vehicle_desc_t* value)
@@ -2934,6 +2945,15 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		}
 	}
 
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 19))
+	{
+		last_stopped_tile.rdwr(file);
+	}
+	else
+	{
+		last_stopped_tile = koord3d::invalid;
+	}
+
 	if (file->is_loading())
 	{
 		leading = last = false;	// dummy, will be set by convoi afterwards
@@ -3435,9 +3455,13 @@ int road_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 
 	// add cost for going (with maximum speed, cost is 1)
 	int costs = (max_speed <= max_tile_speed) ? 10 : 40 - (30 * max_tile_speed) / max_speed;
-
-	// assume all traffic is not good ... (otherwise even smoke counts ... )
-	costs += (w->get_statistics(WAY_STAT_CONVOIS)  >  ( 2 << (welt->get_settings().get_bits_per_month()-16) )  );
+	
+	// Take traffic congestion into account in determining the cost. Use the same formula as for private cars.
+	const uint32 congestion_percentage = w->get_congestion_percentage();
+	if (congestion_percentage)
+	{
+		costs += (costs * congestion_percentage) / 100;
+	}
 
 	// effect of slope
 	if(  gr->get_weg_hang()!=0  ) {
@@ -3600,7 +3624,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 		}
 
-		const strasse_t *str = (strasse_t *)gr->get_weg(road_wt);
+		strasse_t *str = (strasse_t *)gr->get_weg(road_wt);
 		if(  !str  ||  gr->get_top() > 250  ) {
 			// too many cars here or no street
 			if(  !second_check_count  &&  !str) {
@@ -3907,6 +3931,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			// found a car blocking us after checking at least 1 intersection or crossing
 			// and the car is in a place we could stop. So if it can move, assume it will, so we will too.
 			// but check only upto 8 cars ahead to prevent infinite recursion on roundabouts.
+			log_congestion(str); 
 			if(  second_check_count >= 8  ) {
 				return false;
 			}
@@ -4048,6 +4073,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(  (cnv->is_overtaking()  &&  str->get_overtaking_mode()==prohibited_mode)  ||  (cnv->is_overtaking()  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<inverted_mode  &&  static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode()<=oneway_mode)  ) {
 			if(  vehicle_base_t* v = other_lane_blocked(false, offset)  ) {
 				if(  v->get_waytype() == road_wt  ) {
+					log_congestion(str);
 					restart_speed = 0;
 					cnv->reset_waiting();
 					cnv->set_next_cross_lane(true);
@@ -4062,6 +4088,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			halthandle_t halt = haltestelle_t::get_halt(welt->lookup(r.at(route_index))->get_pos(),cnv->get_owner());
 			vehicle_base_t* v = other_lane_blocked(false, offset);
 			if(  halt.is_bound()  &&  gr->get_weg_ribi(get_waytype())!=0  &&  v  &&  v->get_waytype() == road_wt  ) {
+				log_congestion(str);
 				restart_speed = 0;
 				cnv->reset_waiting();
 				cnv->set_next_cross_lane(true);
@@ -4073,6 +4100,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(  !cnv->is_overtaking()  &&  str->get_overtaking_mode() == inverted_mode  ) {
 			if(  vehicle_base_t* v = other_lane_blocked(false, offset)  ) {
 				if(  v->get_waytype() == road_wt  ) {
+					log_congestion(str);
 					restart_speed = 0;
 					cnv->reset_waiting();
 					cnv->set_next_cross_lane(true);
@@ -4093,6 +4121,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
 					if(  at->get_convoi()->get_akt_speed()!=0  &&  judge_lane_crossing(calc_direction(get_pos(),pos_next), calc_direction(pos_next,pos_next2), at->get_90direction(), cnv->is_overtaking(), false)  ) {
 						// vehicle must stop.
+						log_congestion(str);
 						restart_speed = 0;
 						cnv->reset_waiting();
 						cnv->set_next_cross_lane(true);
@@ -4122,6 +4151,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
 				if(  at->get_convoi()->get_next_cross_lane()  &&  at==at->get_convoi()->back()  ) {
 					// vehicle must stop.
+					log_congestion(str);
 					restart_speed = 0;
 					cnv->reset_waiting();
 					return false;
@@ -4133,6 +4163,15 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	}
 
 	return true;
+}
+
+void vehicle_t::log_congestion(strasse_t* road)
+{
+	if (last_stopped_tile != get_pos())
+	{
+		last_stopped_tile = get_pos();
+		road->increment_traffic_stopped_counter();
+	}
 }
 
 overtaker_t* road_vehicle_t::get_overtaker()

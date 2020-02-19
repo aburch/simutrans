@@ -105,13 +105,8 @@ private:
 
 	const citycar_desc_t *desc;
 
-	//route_t route;
-	//uint16 route_index;
-
 	// prissi: time to life in blocks
-#ifdef DESTINATION_CITYCARS
 	koord target;
-#endif
 	koord3d pos_next_next;
 
 	/**
@@ -121,6 +116,8 @@ private:
 	uint16 current_speed;
 
 	uint32 ms_traffic_jam;
+
+	koord3d last_tile_marked_as_stopped;
 
 	grund_t* hop_check();
 
