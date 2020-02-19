@@ -1932,6 +1932,39 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 }
 
 
+ptrhashtable_tpl<const vehicle_desc_t*, uint32> vehicle_t::full_load_weights;
+
+uint32 vehicle_t::get_total_weight() const {
+	if(  !cnv  ||  !cnv->get_schedule()->is_full_load_acceleration()  ) {
+		// use actual sum_weight
+		return sum_weight;
+	}
+	// use full load weight
+	if(  uint32* val = full_load_weights.access(desc)  ) {
+		return *val;
+	} else {
+		// full load is not calculated. calculate and register.
+		const uint32 w = calc_full_load_weight(desc);
+		full_load_weights.put(desc, w);
+		return w;
+	}
+}
+
+
+// calculate the total weight when the vehicle is full loaded
+uint32 vehicle_t::calc_full_load_weight(const vehicle_desc_t* desc) {
+	uint32 weight_per_unit = 0;
+	// use heaviest goods which can be loaded on this vehicle
+	for(uint8 i=0; i<goods_manager_t::get_count(); i++) {
+		const goods_desc_t* gd = goods_manager_t::get_info(i);
+		if(  gd->is_interchangeable(desc->get_freight_type())  &&  weight_per_unit<gd->get_weight_per_unit()  ) {
+			weight_per_unit = gd->get_weight_per_unit();
+		}
+	}
+	return weight_per_unit * desc->get_capacity() + desc->get_weight();
+}
+
+
 
 road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
 	vehicle_t(pos, desc, player)

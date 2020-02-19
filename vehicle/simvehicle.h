@@ -21,6 +21,7 @@
 #include "../descriptor/vehicle_desc.h"
 #include "../vehicle/overtaker.h"
 #include "../tpl/slist_tpl.h"
+#include "../tpl/ptrhashtable_tpl.h"
 
 class convoi_t;
 class schedule_t;
@@ -230,11 +231,15 @@ private:
 	uint32 sum_weight;
 
 	grund_t* hop_check() OVERRIDE;
+	
+	static ptrhashtable_tpl<const vehicle_desc_t*, uint32> full_load_weights; // key: name of vehicle desc
 
 	/**
 	 * Calculate friction caused by slopes and curves.
 	 */
 	virtual void calc_friction(const grund_t *gr);
+	
+	static uint32 calc_full_load_weight(const vehicle_desc_t*);
 
 protected:
 	void hop(grund_t*) OVERRIDE;
@@ -374,7 +379,7 @@ public:
 	/* Return total weight including freight (in kg!)
 	* @author prissi
 	*/
-	inline uint32 get_total_weight() const { return sum_weight; }
+	uint32 get_total_weight() const;
 
 	// returns speedlimit of ways (and if convoi enters station etc)
 	// the convoi takes care of the max_speed of the vehicle
