@@ -90,7 +90,8 @@ static const char * state_names[convoi_t::MAX_STATES] =
 	"LEAVING_DEPOT",
 	"ENTERING_DEPOT",
 	"COUPLED",
-	"COUPLED_LOADING"
+	"COUPLED_LOADING",
+	"WAITING_FOR_LEAVING_DEPOT"
 };
 
 
@@ -1082,6 +1083,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 
 		case COUPLED:
 		case COUPLED_LOADING:
+		case WAITING_FOR_LEAVING_DEPOT:
 			break;
 			
 		case LOADING:
@@ -1502,6 +1504,16 @@ void convoi_t::step()
 				}
 			}
 			break;
+			
+		case WAITING_FOR_LEAVING_DEPOT:
+			// depart convoy from the depot.
+			if(  grund_t *gr = welt->lookup(get_pos())  ) {
+				if(  gr->get_depot()  ) {
+					state = INITIAL;
+					gr->get_depot()->start_convoi(self, false);
+				}
+			}
+			break;
 
 		default:	/* keeps compiler silent*/
 			break;
@@ -1536,6 +1548,7 @@ void convoi_t::step()
 		case ROUTING_1:
 		case CAN_START:
 		case WAITING_FOR_CLEARANCE:
+		case WAITING_FOR_LEAVING_DEPOT:
 			wait_lock = max( wait_lock, 500 );
 			break;
 
@@ -1654,12 +1667,11 @@ void convoi_t::betrete_depot(depot_t *dep)
 		}
 	}
 
-	dep->convoi_arrived(self, get_schedule());
-
 	destroy_win( magic_convoi_info+self.get_id() );
 
 	maxspeed_average_count = 0;
 	state = INITIAL;
+	dep->convoi_arrived(self, get_schedule());
 }
 
 

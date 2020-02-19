@@ -161,7 +161,7 @@ void replace_cars(convoihandle_t cnv, depot_t* depot) {
 		}
 	}
 	// Finally, start the replaced convoy
-	// depot->start_convoi(cnv, local_execution);
+	cnv->set_state(convoi_t::states::WAITING_FOR_LEAVING_DEPOT);
 }
 
 
