@@ -514,12 +514,17 @@ void depot_t::remove_convoi( convoihandle_t cnv )
 }
 
 
-// attention! this will not be used for railway depots! They will be loaded by hand ...
+// attention! this will not be used for loading railway depots! 
+// They will be loaded by hand ...
 void depot_t::rdwr(loadsave_t *file)
 {
 	gebaeude_t::rdwr(file);
 
 	rdwr_vehikel(vehicles, file);
+	if(  file->get_OTRP_version()>=24  ) {
+		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
+	}
+	
 	if (file->is_version_less(81, 33)) {
 		// wagons are stored extra, just add them to vehicles
 		assert(file->is_loading());
@@ -651,6 +656,13 @@ void depot_t::update_all_win()
 {
 	FOR(slist_tpl<depot_t*>, const d, all_depots) {
 		d->update_win();
+	}
+}
+
+void bahndepot_t::rdwr_vehicles(loadsave_t *file) { 
+	depot_t::rdwr_vehikel(vehicles,file); 
+	if(  file->get_OTRP_version()>=24  ) {
+		convoi_t::rdwr_convoihandle_t(file, replacement_seed);
 	}
 }
 
