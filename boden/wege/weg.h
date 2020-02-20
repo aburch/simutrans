@@ -38,7 +38,6 @@ enum way_stat_months {
 enum way_statistics {
 	WAY_STAT_GOODS,		///< number of goods transported over this way
 	WAY_STAT_CONVOIS,	///< number of convois that passed this way
-	WAY_STAT_WAITING,   ///< old
 	MAX_WAY_STATISTICS
 };
 

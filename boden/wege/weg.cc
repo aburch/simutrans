@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -422,6 +422,11 @@ void weg_t::rdwr(loadsave_t *file)
 			sint32 w = statistics[month][type];
 			file->rdwr_long(w);
 			statistics[month][type] = (sint16)w;
+		}
+		if(file->get_extended_version() == 14 && file->get_extended_revision() == 19) 
+		{
+			sint32 dummy32;
+			file->rdwr_long(dummy32);
 		}
 	}
 
