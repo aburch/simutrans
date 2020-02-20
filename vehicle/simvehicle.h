@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
@@ -51,7 +51,7 @@ class traffic_vehicle_t
 		sint64 time_at_last_hop; // ticks
 		uint32 dist_travelled_since_last_hop; // yards
 		virtual uint32 get_max_speed() {}; // returns y/t
-	public:
+	protected:
 		inline void reset_measurements()
 		{
 			dist_travelled_since_last_hop = 0; //yards
@@ -763,7 +763,7 @@ public:
 	road_vehicle_t();
 	road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv); // start und schedule
 
-	uint32 get_max_speed();
+	uint32 get_max_speed() override;
 
 	virtual void set_convoi(convoi_t *c);
 

@@ -43,8 +43,8 @@ enum way_statistics {
 };
 
 enum travel_times {
-	WAY_TRAVEL_TIME_IDEAL,	///< number of tenths (6 seconds) vehicles would spend traversing this way without traffic
-	WAY_TRAVEL_TIME_ACTUAL,///< number of tenths vehicles actually spent passing over this way
+	WAY_TRAVEL_TIME_IDEAL,	///< number of ticks vehicles would spend traversing this way without traffic
+	WAY_TRAVEL_TIME_ACTUAL,///< number of ticks vehicles actually spent passing over this way
 	MAX_WAY_TRAVEL_TIMES
 };
 
@@ -481,17 +481,14 @@ public:
 	uint32 get_runway_length(bool is_36_18) const; 
 
 	//void increment_traffic_stopped_counter() { statistics[0][WAY_STAT_WAITING] ++; }
-	void update_travel_times(uint32 actual, uint32 ideal) 
+	inline void update_travel_times(uint32 actual, uint32 ideal) 
 	{
 		travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_ACTUAL] += actual;
 		travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] += ideal;
 	}
-	uint32 get_aggregate_travel_times_ideal() const { return travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_IDEAL] + travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL]; }
-
-	uint32 get_aggregate_travel_times_actual() const { return travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_ACTUAL] + travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_ACTUAL]; }
 
 	//will return the % ratio of actual to ideal traversal times
-	uint32 get_congestion_percentage() const { return travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_IDEAL] 
+	inline uint32 get_congestion_percentage() const { return travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_IDEAL] 
 		? (travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_ACTUAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_ACTUAL]) * 100 / (travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_IDEAL]) - 100 : 0; }
 
 } GCC_PACKED;
