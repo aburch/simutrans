@@ -4236,7 +4236,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				}
 				break;
 			case CONVOI_WAYTOLL:
-				if (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 17))
+				if (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 20))
 				{
 					if (file->is_loading())
 					{

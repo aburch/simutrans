@@ -89,7 +89,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_MAINTENANCE     COL_LIGHT_RED
 #define COL_TOLL            COL_ORCHID
 #define COL_POWERLINES      (46)
-#define COL_CASH_FLOW       COL_ROYAL_BLUE
+#define COL_CASH_FLOW       (102)
 #define COL_NEW_VEHICLES    COL_LIGHT_PURPLE
 #define COL_CONSTRUCTION    (156)
 #define COL_PROFIT          (6)

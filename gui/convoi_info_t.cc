@@ -1160,9 +1160,9 @@ void convoi_info_t::set_windowsize(scr_size size)
 		y += 100 + D_V_SPACE + LINESPACE + D_V_SPACE;
 		int cnt = 0;
 		const int cols = max(1, (width + D_H_SPACE) / (D_BUTTON_WIDTH + D_H_SPACE));
-		for (int btn = 0; btn < convoi_t::MAX_CONVOI_COST; btn++) 
+		for (int btn = 0; btn < BUTTON_COUNT; btn++)
 		{
-			if((btn == convoi_t::MAX_CONVOI_COST - 1) && cnv->get_line().is_bound())
+			if((btn == convoi_t::CONVOI_REFUNDS) && cnv->get_line().is_bound())
 			{
 				continue;
 			}
@@ -1233,7 +1233,7 @@ void convoi_info_t::rdwr(loadsave_t *file)
 	// window data
 	uint32 flags = 0;
 	if (file->is_saving()) {
-		for(  int i = 0;  i < convoi_t::MAX_CONVOI_COST;  i++  ) {
+		for(  int i = 0;  i < BUTTON_COUNT;  i++  ) {
 			if(  filterButtons[i].pressed  ) {
 				flags |= (1<<i);
 			}
@@ -1267,28 +1267,20 @@ void convoi_info_t::rdwr(loadsave_t *file)
 			size.h -= 170;
 		}
 		w->set_windowsize( size );
+		int chart_records = convoi_t::MAX_CONVOI_COST;
 		if(  file->get_version()<111001  ) {
-			for(  int i = 0;  i < 6;  i++  ) {
-				w->filterButtons[i].pressed = (flags>>i)&1;
-				if(w->filterButtons[i].pressed) {
-					w->chart.show_curve(i);
-				}
-			}
+			chart_records = 6;
 		}
 		else if(  file->get_version()<112008  ) {
-			for(  int i = 0;  i < 7;  i++  ) {
-				w->filterButtons[i].pressed = (flags>>i)&1;
-				if(w->filterButtons[i].pressed) {
-					w->chart.show_curve(i);
-				}
-			}
+			chart_records = 7;
 		}
-		else {
-			for(  int i = 0;  i < convoi_t::MAX_CONVOI_COST;  i++  ) {
-				w->filterButtons[i].pressed = (flags>>i)&1;
-				if(w->filterButtons[i].pressed) {
-					w->chart.show_curve(i);
-				}
+		else if (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 20)) {
+			chart_records = 9;
+		}
+		for(  int i = 0;  i < chart_records;  i++  ) {
+			w->filterButtons[i].pressed = (flags>>i)&1;
+			if(w->filterButtons[i].pressed) {
+				w->chart.show_curve(i);
 			}
 		}
 		if(  stats  ) {
