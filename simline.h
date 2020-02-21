@@ -34,7 +34,7 @@ enum line_cost_t {
 	LINE_REFUNDS,				//  9 |   | Total refunds paid to passengers/goods owners desiring to use this line but kept waiting too long to do so.
 	LINE_DEPARTURES,			// 10 |   | number of departures of convoys on this line from scheduled points
 	LINE_DEPARTURES_SCHEDULED,	// 11 |   | number of departures scheduled on this line from scheduled departure points
-	LINE_WAYTOLL,				// 12 |   | 
+	LINE_WAYTOLL,				// 12 | 8 | 
 	MAX_LINE_COST				// 13 | 9 | Total number of cost items
 };
 
