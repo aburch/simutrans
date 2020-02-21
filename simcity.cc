@@ -2374,7 +2374,21 @@ void stadt_t::rdwr(loadsave_t* file)
 		}
 	}
 
-	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 19))
+	if (file->get_extended_version() == 14 && file->get_extended_revision() == 19)
+	{
+		file->rdwr_bool(private_car_route_finding_in_progress); 
+		file->rdwr_long(currently_active_route_map); 
+		file->rdwr_long(route_processing_counter); 
+		if (!(file->is_saving()))
+		{
+			for (uint32 map_idx = 0; map_idx < MAX_ROUTE_MAPS; map_idx++)
+			{
+				private_car_routes[map_idx].clear();
+			}
+		}
+	}
+
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 20))
 	{
 		// Private car route data
 		file->rdwr_bool(private_car_route_finding_in_progress); 
@@ -2382,12 +2396,12 @@ void stadt_t::rdwr(loadsave_t* file)
 		file->rdwr_long(route_processing_counter); 
 		if (file->is_saving())
 		{
-			for (uint32 i = 0; i++; i < 2)
+			for (uint32 map_idx = 0; map_idx < MAX_ROUTE_MAPS; map_idx++)
 			{
-				uint32 private_car_routes_count = private_car_routes[i].get_count();
+				uint32 private_car_routes_count = private_car_routes[map_idx].get_count();
 				file->rdwr_long(private_car_routes_count);
 
-				FOR(private_car_route_map, route, private_car_routes[i])
+				FOR(private_car_route_map, route, private_car_routes[map_idx])
 				{
 					uint32 route_element_count = route.value.get_count();
 					file->rdwr_long(route_element_count);
@@ -2402,26 +2416,25 @@ void stadt_t::rdwr(loadsave_t* file)
 		}
 		else // Loading
 		{
-			for (uint32 i = 0; i++; i < 2)
+			for (uint32 map_idx = 0; map_idx < MAX_ROUTE_MAPS; map_idx++)
 			{
-				private_car_routes[i].clear();
+				private_car_routes[map_idx].clear();
 				uint32 private_car_routes_count = 0;
 				file->rdwr_long(private_car_routes_count);
-
-				for (uint32 i = 0; i < private_car_routes_count; i++)
+				for (uint32 route_idx = 0; route_idx < private_car_routes_count; route_idx++)
 				{
 					uint32 route_element_count = 0;
 					file->rdwr_long(route_element_count);
 					koord k;
 					k.rdwr(file);
 					vector_tpl<koord3d> route;
-					for (uint32 j = 0; j < route_element_count; j++)
+					for (uint32 element_idx = 0; element_idx < route_element_count; element_idx++)
 					{
 						koord3d k3d;
 						k3d.rdwr(file);
 						route.append(k3d);
 					}
-					private_car_routes[i].put(k, route);
+					private_car_routes[map_idx].put(k, route);
 				}
 			}
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
@@ -293,6 +293,12 @@ private:
 	// We swap between two routing tables to avert the need for copying, which is too expensive.
 	typedef koordhashtable_tpl<koord, vector_tpl<koord3d> > private_car_route_map;
 	private_car_route_map private_car_routes[2];
+	enum private_car_route_maps 
+	{
+		ROUTE_MAP_AWAITING_PROCESSING,
+		ROUTE_MAP_PROCESSED,
+		MAX_ROUTE_MAPS
+	};
 	/// This is the set of routes that is currently being used by the running game, 
 	/// not the one that is set aside for multi-threaded insertion by the route-finder.
 	uint32 currently_active_route_map;
@@ -559,26 +565,26 @@ public:
 	const char *get_name() const { return name; }
 
 	/**
-	 * Ermöglicht Zugriff auf Namesnarray
+	 * Ermï¿½glicht Zugriff auf Namesnarray
 	 * @author Hj. Malthaner
 	 */
 	void set_name( const char *name );
 
 	/**
-	 * gibt einen zufällingen gleichverteilten Punkt innerhalb der
-	 * Citygrenzen zurück
+	 * gibt einen zufï¿½llingen gleichverteilten Punkt innerhalb der
+	 * Citygrenzen zurï¿½ck
 	 * @author Hj. Malthaner
 	 */
 	koord get_zufallspunkt(uint32 min_distance = 0, uint32 max_distance = 16384, koord origin = koord::invalid) const;
 
 	/**
-	 * gibt das pax-statistik-array für letzten monat zurück
+	 * gibt das pax-statistik-array fï¿½r letzten monat zurï¿½ck
 	 * @author Hj. Malthaner
 	 */
 	const sparse_tpl<unsigned char>* get_pax_destinations_old() const { return &pax_destinations_old; }
 
 	/**
-	 * gibt das pax-statistik-array für den aktuellen monat zurück
+	 * gibt das pax-statistik-array fï¿½r den aktuellen monat zurï¿½ck
 	 * @author Hj. Malthaner
 	 */
 	const sparse_tpl<unsigned char>* get_pax_destinations_new() const { return &pax_destinations_new; }
@@ -625,7 +631,7 @@ public:
 
 	/**
 	 * Wird am Ende der LAderoutine aufgerufen, wenn die Welt geladen ist
-	 * und nur noch die Datenstrukturenneu verknüpft werden müssen.
+	 * und nur noch die Datenstrukturenneu verknï¿½pft werden mï¿½ssen.
 	 * @author Hj. Malthaner
 	 */
 	void finish_rd();
