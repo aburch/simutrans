@@ -58,7 +58,7 @@ depotlist_stats_t::depotlist_stats_t(depot_t *d)
 void depotlist_stats_t::update_label()
 {
 	cbuffer_t &buf = label.buf();
-	buf.append(depot->get_name());
+	buf.append( translator::translate(depot->get_name()) );
 	buf.printf( " %s ", depot->get_pos().get_2d().get_fullstr() );
 	int cnvs = depot->convoi_count();
 	if( cnvs == 0 ) {
