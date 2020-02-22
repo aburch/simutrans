@@ -353,8 +353,12 @@ size_t display_fit_proportional( const char *text, scr_coord_val max_width, scr_
 /* routines for string len (macros for compatibility with old calls) */
 #define proportional_string_width(text)          display_calc_proportional_string_len_width(text, 0x7FFF)
 #define proportional_string_len_width(text, len) display_calc_proportional_string_len_width(text, len)
+
 // length of a string in pixel
 int display_calc_proportional_string_len_width(const char* text, size_t len);
+
+// box which will contain the multi (or single) line of text
+void display_calc_proportional_multiline_string_len_width( int &xw, int &yh, const char *text, size_t len );
 
 /*
  * len parameter added - use -1 for previous behaviour.

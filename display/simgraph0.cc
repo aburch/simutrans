@@ -319,7 +319,13 @@ int display_calc_proportional_string_len_width(const char*, size_t)
 }
 
 
-int display_text_proportional_len_clip_rgb(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t, const PIXVAL, bool, sint32  CLIP_NUM_DEF_NOUSE)
+void display_calc_proportional_multiline_string_len_width( int &xw, int &yh, const char *, size_t )
+{
+	xw = yh = 0;;
+}
+
+
+int display_text_proportional_len_clip_rgb(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t , const PIXVAL, bool, sint32  CLIP_NUM_DEF_NOUSE)
 {
 	return 0;
 }

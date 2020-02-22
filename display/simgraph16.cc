@@ -4473,8 +4473,6 @@ int display_calc_proportional_string_len_width(const char *text, size_t len)
 /* display_calc_proportional_multiline_string_len_width
 * calculates the width and hieght of a box containing the text inside
 */
-/*
-// After incorporating r8930, it will be modified in r9042 as follows
 void display_calc_proportional_multiline_string_len_width(int &xw, int &yh, const char *text, size_t len)
 {
 	const font_t* const fnt = &default_font;
@@ -4502,7 +4500,7 @@ void display_calc_proportional_multiline_string_len_width(int &xw, int &yh, cons
 	xw = max( xw, width );
 	yh += LINESPACE;
 }
-*/
+
 
 
 /**
