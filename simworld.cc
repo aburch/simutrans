@@ -5466,7 +5466,7 @@ void karte_t::step()
 		{
 			stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
 			city->check_all_private_car_routes();
-			city->set_check_road_connexions(false);
+			set_recheck_road_connexions(false);
 
 		}
 #endif	

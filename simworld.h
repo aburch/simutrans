@@ -2633,7 +2633,7 @@ public:
 
 	sint32 get_citycar_speed_average() const { return citycar_speed_average; }
 
-	void set_recheck_road_connexions() { recheck_road_connexions = true; }
+	void set_recheck_road_connexions(bool recheck = true) { recheck_road_connexions = recheck; }
 
 	/**
 	 * These methods return an estimated
