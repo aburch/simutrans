@@ -29,8 +29,6 @@ bool vehiclelist_stats_t::reverse = false;
 
 // for having uniform spaced columns
 int vehiclelist_stats_t::img_width = 100;
-int vehiclelist_stats_t::col1_width = 100;
-int vehiclelist_stats_t::col2_width = 100;
 
 static const char* engine_type_names[9] =
 {
@@ -57,18 +55,15 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 	if( w > img_width ) {
 		img_width = w + D_H_SPACE;
 	}
+	height = h;
 
 	// name is the widest entry in column 1
-	int dx = proportional_string_width( translator::translate( veh->get_name(), world()->get_settings().get_name_language_id() ) );
+	name_width = proportional_string_width( translator::translate( veh->get_name(), world()->get_settings().get_name_language_id() ) );
 	if( veh->get_power() > 0 ) {
 		char str[ 256 ];
 		const uint8 et = (uint8)veh->get_engine_type() + 1;
 		sprintf( str, " (%s)", translator::translate( engine_type_names[et] ) );
-		dx += proportional_string_width( str );
-	}
-	dx += D_H_SPACE;
-	if( dx > col1_width ) {
-		col1_width = dx;
+		name_width += proportional_string_width( str );
 	}
 
 	// column 1
@@ -83,16 +78,12 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 		money_to_string( tmp, veh->get_value() / 100.0, false );
 		part1.printf( translator::translate( "Cost: %8s (%.2f$/km)\n" ), tmp, veh->get_running_cost() / 100.0 );
 	}
-
 	if( veh->get_capacity() > 0 ) { // must translate as "Capacity: %3d%s %s\n"
 		part1.printf( translator::translate( "Capacity: %d%s %s\n" ),
 			veh->get_capacity(),
 			translator::translate( veh->get_freight_type()->get_mass() ),
 			veh->get_freight_type()->get_catg() == 0 ? translator::translate( veh->get_freight_type()->get_name() ) : translator::translate( veh->get_freight_type()->get_catg_name() )
 		);
-	}
-	else {
-		part1.append( "\n" );
 	}
 	part1.printf( "%s %3d km/h\n", translator::translate( "Max. speed:" ), veh->get_topspeed() );
 	if( veh->get_power() > 0 ) {
@@ -103,35 +94,25 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 			part1.printf( translator::translate( "Power: %4d kW\n" ), veh->get_power() );
 		}
 	}
-
+	int text1w, text1h;
+	display_calc_proportional_multiline_string_len_width( text1w, text1h, part1, part1.len() );
+	col1_width = text1w + D_H_SPACE;
 
 	// column 2
 	part2.clear();
 	part2.printf( "%s %4.1ft\n", translator::translate( "Weight:" ), veh->get_weight() / 1000.0 );
-
-	int len = part2.len();
 	part2.printf( "%s %s - ", translator::translate( "Available:" ), translator::get_short_date( veh->get_intro_year_month() / 12, veh->get_intro_year_month() % 12 ) );
 	if( veh->get_retire_year_month() != DEFAULT_RETIRE_DATE * 12 ) {
 		part2.printf( "%s\n", translator::get_short_date( veh->get_retire_year_month() / 12, veh->get_retire_year_month() % 12 ) );
 	}
-	else {
-		part2.append( "*\n" );
-	}
-
-	dx = proportional_string_width( part2.get_str() + len );
-	if( dx > col2_width ) {
-		col2_width = dx;
-	}
-
 	if( char const* const copyright = veh->get_copyright() ) {
-		len = part2.len();
 		part2.printf( translator::translate( "Constructed by %s" ), copyright );
-		dx = proportional_string_width( part2.get_str()+len );
-		if( dx > col2_width ) {
-			col2_width = dx;
-		}
 	}
-	part2.append( "\n" );
+	int text2w, text2h;
+	display_calc_proportional_multiline_string_len_width( text2w, text2h, part2, part2.len() );
+	col2_width = text2w;
+	
+	height = max( height, max( text1h, text2h ) + LINESPACE );
 }
 
 
@@ -165,9 +146,8 @@ void vehiclelist_stats_t::draw( scr_coord offset )
 	int yyy = offset.y + LINESPACE;
 	display_multiline_text_rgb( offset.x, yyy, part1, SYSCOL_TEXT );
 
-	display_multiline_text_rgb( offset.x + col1_width, yyy + LINESPACE, part2, SYSCOL_TEXT );
+	display_multiline_text_rgb( offset.x + col1_width, yyy, part2, SYSCOL_TEXT );
 }
-
 
 const char *vehiclelist_stats_t::get_text() const
 {
@@ -230,6 +210,7 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 	scrolly(gui_scrolled_list_t::windowskin, vehiclelist_stats_t::compare)
 {
 	current_wt = any_wt;
+	scrolly.set_cmp( vehiclelist_stats_t::compare );
 
 	set_table_layout(1,0);
 
@@ -383,8 +364,6 @@ void vehiclelist_frame_t::fill_list()
 {
 	scrolly.clear_elements();
 	vehiclelist_stats_t::img_width = 32; // reset col1 width
-	vehiclelist_stats_t::col1_width = 100; // reset col1 width
-	vehiclelist_stats_t::col2_width = 100; // reset col2 width
 	uint32 month = world()->get_current_month();
 	const goods_desc_t *ware = idx_to_ware[ max( 0, ware_filter.get_selection() ) ];
 	if(  current_wt == any_wt  ) {
