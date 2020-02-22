@@ -5277,15 +5277,6 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 
 
 /**
- * Sets a new value for "textur"
- */
-void reset_textur(void *new_textur)
-{
-	textur=(PIXVAL *)new_textur;
-}
-
-
-/**
  * Take Screenshot
  * @author Hj. Malthaner
  */

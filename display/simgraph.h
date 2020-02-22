@@ -139,7 +139,7 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int fullscreen);
 int is_display_init();
 void simgraph_exit();
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h);
-void reset_textur(void *new_textur);
+
 
 /**
  * Loads the font, returns the number of characters in it

@@ -166,14 +166,6 @@ void display_scroll_band(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL)
 {
 }
 
-static inline void pixcopy(PIXVAL *, const PIXVAL *, const unsigned int)
-{
-}
-
-static inline void colorpixcopy(PIXVAL *, const PIXVAL *, const PIXVAL * const)
-{
-}
-
 void display_img_aux(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int  CLIP_NUM_DEF_NOUSE)
 {
 }
@@ -364,10 +356,6 @@ void simgraph_exit()
 }
 
 void simgraph_resize(KOORD_VAL, KOORD_VAL)
-{
-}
-
-void reset_textur(void *)
 {
 }
 
