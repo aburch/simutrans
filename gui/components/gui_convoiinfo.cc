@@ -66,10 +66,37 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 {
 	clip_dimension clip = display_get_clip_wh();
 	if(! ((pos.y+offset.y) > clip.yy ||  (pos.y+offset.y) < clip.y-32) &&  cnv.is_bound()) {
+		int w = 0;
+		if (skinverwaltung_t::alerts) {
+			switch (cnv->get_state()) {
+				case convoi_t::EMERGENCY_STOP:
+					display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("Waiting for clearance!"));
+					w += 14;
+					break;
+				case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
+				case convoi_t::CAN_START_ONE_MONTH:
+					display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(3), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("Waiting for clearance!"));
+					w += 14;
+					break;
+				case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
+				case convoi_t::CAN_START_TWO_MONTHS:
+					display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(4), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("clf_chk_stucked"));
+						w += 14;
+					break;
+				case convoi_t::OUT_OF_RANGE:
+				case convoi_t::NO_ROUTE:
+				case convoi_t::NO_ROUTE_TOO_COMPLEX:
+						display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(4), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("clf_chk_noroute"));
+						w += 14;
+					break;
+				default:
+					break;
+			}
+		}
 		// name, use the convoi status color for redraw: Possible colors are YELLOW (not moving) BLUE: obsolete in convoi, RED: minus income, BLACK: ok
-		int max_x = display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+6, cnv->get_name(), ALIGN_LEFT, cnv->get_status_color(), true)+2;
+		int max_x = display_proportional_clip(pos.x+offset.x+2+w, pos.y+offset.y+6, cnv->get_name(), ALIGN_LEFT, cnv->get_status_color(), true)+2;
 
-		int w = display_proportional_clip(pos.x+offset.x+2,pos.y+offset.y+6+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true)+2;
+		w = display_proportional_clip(pos.x+offset.x+2,pos.y+offset.y+6+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true)+2;
 		char buf[256];
 		money_to_string(buf, cnv->get_jahresgewinn() / 100.0 );
 		w += display_proportional_clip(pos.x+offset.x+2+w+5,pos.y+offset.y+6+LINESPACE, buf, ALIGN_LEFT, cnv->get_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true);
@@ -78,11 +105,11 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 		// only show assigned line, if there is one!
 		if (cnv->in_depot()) {
 			const char *txt = translator::translate("(in depot)");
-			int w = display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+6+2*LINESPACE,txt,ALIGN_LEFT, SYSCOL_TEXT, true)+2;
+			w = display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+6+2*LINESPACE,txt,ALIGN_LEFT, SYSCOL_TEXT, true)+2;
 			max_x = max(max_x,w);
 		}
 		else if(cnv->get_line().is_bound() && show_line_name) {
-			int w = display_proportional_clip( pos.x+offset.x+2, pos.y+offset.y+6+2*LINESPACE, translator::translate("Line"), ALIGN_LEFT, SYSCOL_TEXT, true)+2;
+			w = display_proportional_clip( pos.x+offset.x+2, pos.y+offset.y+6+2*LINESPACE, translator::translate("Line"), ALIGN_LEFT, SYSCOL_TEXT, true)+2;
 			w += display_proportional_clip( pos.x+offset.x+2+w+5, pos.y+offset.y+6+2*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
 			max_x = max(max_x,w+5);
 		}
