@@ -78,6 +78,9 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 	// right column
 	add_table(1,0);
 
+	// add stretcher element
+	cont_left.new_component<gui_fill_t>();
+
 	bt_climates.init( button_t::square_state, "ignore climates");
 	bt_climates.add_listener(this);
 	add_component(&bt_climates);
@@ -114,6 +117,14 @@ bool extend_edit_gui_t::infowin_event(const event_t *ev)
 	return gui_frame_t::infowin_event(ev);
 }
 
+
+
+// resize flowtext to avoid horizontal scrollbar
+void extend_edit_gui_t::set_windowsize( scr_size s )
+{
+	gui_frame_t::set_windowsize( s );
+	info_text.set_width( scrolly.get_client().w );
+}
 
 
 bool extend_edit_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
