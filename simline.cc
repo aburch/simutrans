@@ -650,52 +650,9 @@ void simline_t::recalc_status()
 	state_color = SYSCOL_TEXT;
 	state = line_normal_state;
 
-	if(financial_history[0][LINE_CONVOIS]==0) 
-	{
-		// no convoys assigned to this line
-		state_color = SYSCOL_TEXT_HIGHLIGHT;
-		state |= line_no_convoys;
-		withdraw = false;
-	}
-	else if(financial_history[0][LINE_PROFIT]<0) 
-	{
-		// Loss-making
-		state_color = MONEY_MINUS;
-		state |= line_loss_making;
-	}
-	else if((financial_history[0][LINE_OPERATIONS]|financial_history[1][LINE_OPERATIONS])==0) 
-	{
-		// nothing moved
-		state_color = COL_YELLOW;
-		state |= line_nothing_moved;
-	}
-	else if(has_overcrowded())
-	{
-		// Overcrowded
-		state_color = COL_DARK_PURPLE;
-		state |= line_overcrowded;
-	}
-	else if(financial_history[1][LINE_DEPARTURES] < financial_history[1][LINE_DEPARTURES_SCHEDULED])
-	{
-		// Is missing scheduled slots.
-		state_color = COL_DARK_TURQUOISE;
-		state |= line_missing_scheduled_slots;
-	}
-	
-
-	//else if (welt->use_timeline())
-	//{
-	//	// Has obsolete vehicles.
-	//	bool has_obsolete = false;
-	//	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
-	//		has_obsolete = i->has_obsolete_vehicles();
-	//		if (has_obsolete) break;
-	//	}
-	//	// now we have to set it
-	//	state_color = has_obsolete ? COL_OBSOLETE : COL_BLACK;
-	//}
-
-	else if(welt->use_timeline()) 
+	// Now can have multiple flags, so higher priority will be processed later for text color.
+	// Note that if the pakset has no symbols, it depends on the text color.
+	if (welt->use_timeline())
 	{
 		// Has obsolete vehicles.
 		// Has obsolete vehicles that can upgrade.
@@ -737,6 +694,49 @@ void simline_t::recalc_status()
 		{
 			state_color = COL_OBSOLETE;
 		}
+	}
+	//else if (welt->use_timeline())
+	//{
+	//	// Has obsolete vehicles.
+	//	bool has_obsolete = false;
+	//	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
+	//		has_obsolete = i->has_obsolete_vehicles();
+	//		if (has_obsolete) break;
+	//	}
+	//	// now we have to set it
+	//	state_color = has_obsolete ? COL_OBSOLETE : COL_BLACK;
+	//}
+
+	if (financial_history[1][LINE_DEPARTURES] < financial_history[1][LINE_DEPARTURES_SCHEDULED])
+	{
+		// Is missing scheduled slots.
+		state_color = COL_DARK_TURQUOISE;
+		state |= line_missing_scheduled_slots;
+	}
+	if (has_overcrowded())
+	{
+		// Overcrowded
+		state_color = COL_DARK_PURPLE;
+		state |= line_overcrowded;
+	}
+	if(financial_history[0][LINE_CONVOIS]==0)
+	{
+		// no convoys assigned to this line
+		state_color = SYSCOL_TEXT_HIGHLIGHT;
+		state |= line_no_convoys;
+		withdraw = false;
+	}
+	if((financial_history[0][LINE_OPERATIONS]|financial_history[1][LINE_OPERATIONS])==0) 
+	{
+		// nothing moved
+		state_color = COL_YELLOW;
+		state |= line_nothing_moved;
+	}
+	if(financial_history[0][LINE_PROFIT]<0) 
+	{
+		// Loss-making
+		state_color = MONEY_MINUS;
+		state |= line_loss_making;
 	}
 }
 
