@@ -33,6 +33,7 @@ class vehicle_builder_t
 public:
 	// sorting categories
 	enum sort_mode_t {
+		sb_freight,
 		sb_name,
 		sb_capacity,
 		sb_price,

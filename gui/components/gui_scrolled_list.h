@@ -105,12 +105,12 @@ protected:
 
 	void reset_container_size();
 
-	void set_cmp(item_compare_func cmp) { compare = cmp; }
-
 	/// deletes invalid elements from list
 	void cleanup_elements();
 
 public:
+	void set_cmp(item_compare_func cmp) { compare = cmp; }
+
 	gui_scrolled_list_t(enum type, item_compare_func cmp = 0);
 
 	~gui_scrolled_list_t() { clear_elements(); }
