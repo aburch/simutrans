@@ -24,17 +24,18 @@
 
 #include "../../utils/simstring.h"
 #include "../gui_frame.h"
+#include "../schedule_gui.h"
 
 
 gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, bool show_line_name)
 {
-    this->cnv = cnv;
+	this->cnv = cnv;
 	this->show_line_name = show_line_name;
 
-    filled_bar.set_pos(scr_coord(2, 33));
-    filled_bar.set_size(scr_size(100, 4));
-    filled_bar.add_color_value(&cnv->get_loading_limit(), COL_YELLOW);
-    filled_bar.add_color_value(&cnv->get_loading_level(), COL_GREEN);
+	filled_bar.set_pos(scr_coord(2, 33));
+	filled_bar.set_size(scr_size(100, 4));
+	filled_bar.add_color_value(&cnv->get_loading_limit(), COL_YELLOW);
+	filled_bar.add_color_value(&cnv->get_loading_level(), COL_GREEN);
 }
 
 /**
@@ -124,6 +125,16 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 			w = display_proportional_clip( pos.x+offset.x+2, pos.y+offset.y+6+2*LINESPACE, translator::translate("Line"), ALIGN_LEFT, SYSCOL_TEXT, true)+2;
 			w += display_proportional_clip( pos.x+offset.x+2+w+5, pos.y+offset.y+6+2*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
 			max_x = max(max_x,w+5);
+		}
+		else{
+			// "Destination"
+			static cbuffer_t info_buf;
+			info_buf.clear();
+			info_buf.append(translator::translate("Fahrtziel"));
+			info_buf.append(": ");
+			const schedule_t *schedule = cnv->get_schedule();
+			schedule_gui_t::gimme_short_stop_name(info_buf, cnv->get_owner(), schedule, schedule->get_current_stop(), max_x);
+			display_proportional_ellipse(scr_rect(pos.x + offset.x + 2, pos.y+offset.y+6+2* LINESPACE, max(190, max_x), LINESPACE), info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		}
 
 		// we will use their images offsets and width to shift them to their correct position
