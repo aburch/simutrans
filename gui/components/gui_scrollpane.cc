@@ -35,26 +35,16 @@ gui_scrollpane_t::gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x, bool 
 
 scr_size gui_scrollpane_t::get_min_size() const
 {
+	// request width of largest element, but leave enough space for scrollbars
 	scr_size csize = comp->get_min_size();
-	if (csize.w < scr_size::inf.w  &&  b_show_scroll_y) {
-		csize.w += scroll_y.get_min_size().w;
-	}
-	if (csize.h < scr_size::inf.h  &&  b_show_scroll_x) {
-		csize.h += scroll_x.get_min_size().h;
-	}
-	csize.clip_rightbottom(scroll_x.get_min_size() + scroll_y.get_min_size());
+	csize.w = max( csize.w, scroll_x.get_min_size().x );
+	csize.h = min( csize.h, scroll_y.get_min_size().h );
 	return csize;
 }
 
 scr_size gui_scrollpane_t::get_max_size() const
 {
 	scr_size csize = comp->get_max_size();
-	if (csize.w < scr_size::inf.w  &&  b_show_scroll_y) {
-		csize.w += scroll_y.get_max_size().w;
-	}
-	if (csize.h < scr_size::inf.h  &&  b_show_scroll_x) {
-		csize.h += scroll_x.get_max_size().h;
-	}
 	return csize;
 }
 
