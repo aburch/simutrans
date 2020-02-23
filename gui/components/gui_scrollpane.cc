@@ -37,7 +37,7 @@ scr_size gui_scrollpane_t::get_min_size() const
 {
 	// request width of largest element, but leave enough space for scrollbars
 	scr_size csize = comp->get_min_size();
-	csize.w = max( csize.w, scroll_x.get_min_size().x );
+	csize.w = max( csize.w, scroll_x.get_min_size().w );
 	csize.h = min( csize.h, scroll_y.get_min_size().h );
 	return csize;
 }
