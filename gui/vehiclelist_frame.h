@@ -32,7 +32,7 @@ private:
 public:
 	vehiclelist_frame_t();
 
-	const char *get_help_filename() const OVERRIDE {return "depotlist.txt"; }
+	const char *get_help_filename() const OVERRIDE {return "vehiclelist.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
