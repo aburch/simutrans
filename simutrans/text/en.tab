@@ -4020,5 +4020,21 @@ No bridges over runways!
 Bridges cannnot be built over runways or taxiways.
 No bridges over runways!
 Bridges cannnot be built over runways or taxiways.
+Selectable livery schemes
+Selectable livery schemes
+Starting acceleration:
+Starting acceleration:
+; %i km/h @ %.2f sec
+; %i km/h @ %.2f sec
+; %i km/h @ %.2f - %.2f sec
+; %i km/h @ %.2f - %.2f sec
+; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
+; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
+(%.*ft laden)
+(%.*ft laden)
+(%.*f-%.*ft laden)
+(%.*f-%.*ft laden)
 overtaking
 Overtaking
+no power at all
+No power at all!
