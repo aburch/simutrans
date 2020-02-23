@@ -26,9 +26,9 @@ line_cost_t convoi_to_line_catgory_[convoi_t::MAX_CONVOI_COST] =
 	LINE_OPERATIONS, 
 	LINE_PROFIT, 
 	LINE_DISTANCE, 
-	LINE_REFUNDS
+	LINE_REFUNDS,
 //	LINE_MAXSPEED, 
-//	LINE_WAYTOLL
+	LINE_WAYTOLL
 };
 
 line_cost_t simline_t::convoi_to_line_catgory(convoi_t::convoi_cost_t cnv_cost)
@@ -334,6 +334,14 @@ void simline_t::rdwr(loadsave_t *file)
 					sint64 dummy = 0;
 					file->rdwr_longlong(dummy);
 				}
+				else if (j == LINE_WAYTOLL && (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 20)))
+				{
+					if (file->is_loading())
+					{
+						financial_history[k][j] = 0;
+						continue;
+					}
+				}
 				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
@@ -354,15 +362,20 @@ void simline_t::rdwr(loadsave_t *file)
 	if(file->get_extended_version() >= 2)
 	{
 #ifdef SPECIAL_RESCUE_12_2
-		const uint8 counter = file->get_version() < 103000 ? LINE_DISTANCE : file->get_extended_version() < 12 || file->is_loading() ? LINE_REFUNDS + 1 : MAX_LINE_COST;
+		const uint8 counter = file->get_version() < 103000 ? LINE_DISTANCE : file->get_extended_version() < 12 || file->is_loading() ? LINE_REFUNDS + 1 : LINE_WAYTOLL;
 #else
-		const uint8 counter = file->get_version() < 103000 ? LINE_DISTANCE : file->get_extended_version() < 12 ? LINE_REFUNDS + 1 : MAX_LINE_COST;
+		const uint8 counter = file->get_version() < 103000 ? LINE_DISTANCE : file->get_extended_version() < 12 ? LINE_REFUNDS + 1 : LINE_WAYTOLL;
 #endif
 		for(uint8 i = 0; i < counter; i ++)
 		{	
 			file->rdwr_long(rolling_average[i]);
 			file->rdwr_short(rolling_average_count[i]);
-		}	
+		}
+		if (file->get_extended_version() > 14 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 20))
+		{
+			file->rdwr_long(rolling_average[LINE_WAYTOLL]);
+			file->rdwr_short(rolling_average_count[LINE_WAYTOLL]);
+		}
 	}
 
 	if(file->get_extended_version() >= 9 && file->get_version() >= 110006)
@@ -1012,7 +1025,7 @@ sint64 simline_t::get_stat_converted(int month, int cost_type) const
 		case LINE_REVENUE:
 		case LINE_OPERATIONS:
 		case LINE_PROFIT:
-		// case LINE_WAYTOLL:
+		case LINE_WAYTOLL:
 			value = convert_money(value);
 			break;
 		default: ;

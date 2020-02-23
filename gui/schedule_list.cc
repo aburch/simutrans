@@ -65,9 +65,9 @@ static const char *cost_type[MAX_LINE_COST] =
 	"Distance",
 	"Refunds",
 //	"Maxspeed",
-//	"Road toll"
 	"Departures",
-	"Scheduled"
+	"Scheduled",
+	"Road toll"
 };
 
 const int cost_type_color[MAX_LINE_COST] =
@@ -85,6 +85,7 @@ const int cost_type_color[MAX_LINE_COST] =
 	//COL_COUNVOI_COUNT,
 	//COL_DISTANCE,
 	COL_MAXSPEED,
+	COL_LILAC,
 	COL_TOLL
 };
  
@@ -92,12 +93,12 @@ static uint8 tabs_to_lineindex[8];
 static uint8 max_idx=0;
 
 static uint8 statistic[MAX_LINE_COST]={
-	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_CONVOIS, LINE_DISTANCE, LINE_REFUNDS, LINE_DEPARTURES, LINE_DEPARTURES_SCHEDULED
+	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_CONVOIS, LINE_DISTANCE, LINE_REFUNDS, LINE_DEPARTURES, LINE_DEPARTURES_SCHEDULED, LINE_WAYTOLL
 //std	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_CONVOIS, LINE_DISTANCE, LINE_MAXSPEED, LINE_WAYTOLL
 };
 
 static uint8 statistic_type[MAX_LINE_COST]={
-	STANDARD, STANDARD, STANDARD, STANDARD, MONEY, MONEY, MONEY, STANDARD, STANDARD, MONEY, STANDARD, STANDARD
+	STANDARD, STANDARD, STANDARD, STANDARD, MONEY, MONEY, MONEY, STANDARD, STANDARD, MONEY, STANDARD, STANDARD, MONEY
 //std	STANDARD, STANDARD, MONEY, MONEY, MONEY, STANDARD, STANDARD, STANDARD, MONEY
 };
 
@@ -999,19 +1000,17 @@ void schedule_list_gui_t::rdwr( loadsave_t *file )
 	}
 	size.rdwr( file );
 	simline_t::rdwr_linehandle_t(file, line);
-	if(  file->get_version()<112008  ) {
-		for (int i=0; i<8; i++) {
-			bool b = filterButtons[i].pressed;
-			file->rdwr_bool( b );
-			filterButtons[i].pressed = b;
-		}
+	int chart_records = line_cost_t::MAX_LINE_COST;
+	if (file->get_version() < 112008) {
+		chart_records = 8;
 	}
-	else {
-		for (int i=0; i<MAX_LINE_COST; i++) {
-			bool b = filterButtons[i].pressed;
-			file->rdwr_bool( b );
-			filterButtons[i].pressed = b;
-		}
+	else if (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 20)) {
+		chart_records = 12;
+	}
+	for (int i=0; i<chart_records; i++) {
+		bool b = filterButtons[i].pressed;
+		file->rdwr_bool( b );
+		filterButtons[i].pressed = b;
 	}
 	file->rdwr_long( cont_xoff );
 	file->rdwr_long( cont_yoff );
