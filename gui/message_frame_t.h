@@ -32,7 +32,7 @@ private:
 	gui_scrollpane_t scrolly;
 	gui_tab_panel_t tabs;		// Knightly : tab panel for filtering messages
 	gui_textinput_t input;
-	button_t option_bt, send_bt;
+	button_t option_bt, copy_bt;
 	vector_tpl<sint32> tab_categories;
 
 public:

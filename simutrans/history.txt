@@ -1,5 +1,30 @@
+	FIX: Wrong tooltip when building something with the finance window opened.
 	ADD: map only moves when numlock off, new tool to move to map view (simple_tool[36]=,keybinding,-1|0)
 	ADD: new option in simuconf.tab "numpad_always_moves_map" regardsless of numlock state
+
+
+Release of 122.0 (r9274 on 10-Oct-2020):
+	ADD: Depot list as dialog tool 32
+	ADD: Vehicle list as dialog tool 33 (to see also upcoming vehicles)
+	ADD: goods waiting bar with now configurable: gui_waitingbar_width
+	ADD: button to copy the last 20 messages to the clipboard
+	ADD: more folders searched for fonts on non-windows systems
+	ADD: customisable loading bar colors with gui_color_loadingbar_inner and gui_color_loadingbar_progress
+	ADD: (Yona-TNT) configurable offsets for player colors for gui elements
+	ADD: (ranran) new GUI element routebar
+	FIX: space.w added in container not space.h for vertical distance
+	CHG: On consequeutive traffic lights, only the first is obeyed to allow turns on four traffic lights crossings
+
+
+Release of 121.0 (r8870 on 1-Dec-2019):
+	ADD: Map number is shown in the enlarge map window.
+	ADD: use animated water graphics on shores
+	FIX: Do not call DefWindowsProc for IME to mitigate crash on Windows1809
+	FIX: (ACarlotti) rotation of traffic light phases and overflow was broken for years
+	FIX: Prevent a crash when the schedule window is open with waypoints on bridges that were destroyed or had planning canceled.
+	CHG: Start with random midi song
+	ADD: new simuconf.tab parameter follow_convoi_underground to slice through grounds to follow a convoi in sliced mode oder full underground mode
+	ADD: search for midi files first in pak folder, then user folder, then program folder
 
 
 Release of 120.1: (r7634 on 31-Oct-2015):
