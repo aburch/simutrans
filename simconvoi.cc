@@ -1694,7 +1694,10 @@ void convoi_t::start()
 		gr->obj_add( fahr[0] );
 
 		// put into sync list
-		welt->sync.add(this);
+		// avoid duplication in sync_list
+		if(  !welt->sync.is_contained(this)  ) {
+			welt->sync.add(this);
+		}
 
 		alte_richtung = ribi_t::none;
 		no_load = false;

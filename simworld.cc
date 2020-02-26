@@ -3465,6 +3465,11 @@ void karte_t::sync_list_t::clear()
 	sync_step_running = false;
 }
 
+bool karte_t::sync_list_t::is_contained(sync_steppable *obj)
+{
+	return list.is_contained(obj);
+}
+
 void karte_t::sync_list_t::sync_step(uint32 delta_t)
 {
 	sync_step_running = true;

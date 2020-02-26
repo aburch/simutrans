@@ -1573,6 +1573,7 @@ public:
 			sync_list_t() : currently_deleting(NULL), sync_step_running(false) {}
 			void add(sync_steppable *obj);
 			void remove(sync_steppable *obj);
+			bool is_contained(sync_steppable *obj);
 		private:
 			void sync_step(uint32 delta_t);
 			/// clears list, does not delete the objects
