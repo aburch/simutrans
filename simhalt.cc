@@ -3687,3 +3687,21 @@ bool haltestelle_t::is_halt_covered(const halthandle_t &halt) const
 	}
 	return false;
 }
+
+
+bool haltestelle_t::book_departure (uint32 arr_tick, uint32 dep_tick, convoihandle_t cnv) {
+	uint8 idx = dep_tick % DST_SIZE;
+	FOR(  slist_tpl<departure_t>,  const& i,  departure_slot_table[idx]  ) {
+		if(  i.cnv==cnv  &&  i.arr_tick==arr_tick  ) {
+			// The requested slot is already reserved by this convoy.
+			return true;
+		} else if(  i.dep_tick==dep_tick  &&  (i.cnv==cnv  ||  i.cnv->get_line()==cnv->get_line())  ) {
+			// The slot is already reserved by other convoy.
+			return false;
+		}
+	}
+	// reserve the slot.
+	departure_t dep(arr_tick, dep_tick, cnv);
+	departure_slot_table[idx].insert(departure_slot_table[idx].begin(), dep);
+	return true;
+}

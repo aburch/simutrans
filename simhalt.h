@@ -43,6 +43,8 @@
 #define HALT_CONVOIS_ARRIVED             6 // number of convois arrived this month
 #define HALT_WALKED 7 // could walk to destination
 
+#define DST_SIZE 101 // size of departure_slot_table
+
 class cbuffer_t;
 class grund_t;
 class fabrik_t;
@@ -513,6 +515,23 @@ private:
 	 */
 	static halthandle_t last_search_origin;
 	static uint8        last_search_ware_catg_idx;
+	
+	// data structure of departure_slot_table below.
+	struct departure_t{
+		uint32 arr_tick;
+		uint32 dep_tick;
+		convoihandle_t cnv;
+		
+		departure_t(uint32 a, uint32 d, convoihandle_t c) : arr_tick(a), dep_tick(d), 
+			cnv(c) {}
+	};
+	
+	/*
+	 * Table to hold scheduled departure time of convoy.
+	 * Treated like hash table that allows hash collision.
+	 */
+	slist_tpl<departure_t> departure_slot_table[DST_SIZE];
+	
 public:
 	enum routing_result_flags { NO_ROUTE=0, ROUTE_OK=1, ROUTE_WALK=2, ROUTE_OVERCROWDED=8 };
 
@@ -826,6 +845,14 @@ public:
 	 * check if it is in the station coverage
 	 */
 	bool is_halt_covered (const halthandle_t &halt) const;
+	
+	/*
+	 * book a departure slot.
+	 * arr_tick: ticks of arrival
+	 * dep_tick: ticks of requested departure slot
+	 */
+	bool book_departure (uint32 arr_tick, uint32 dep_tick, convoihandle_t cnv);
+	
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)
