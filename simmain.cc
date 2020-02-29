@@ -285,6 +285,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 					simgraph_resize( ev.mx, ev.my );
 					dr_prepare_flush();
 					display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
+					gui->draw(win_get_pos(gui), gui->get_windowsize());
 					dr_flush();
 				}
 				else if (ev.ev_code == SYSTEM_QUIT) {
