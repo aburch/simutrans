@@ -3650,6 +3650,11 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 					// raise up the tile
 					bd->set_grund_hang( slope_t::flat );
 					bd->set_hoehe( bd->get_hoehe() + h_diff );
+					// transfer objects to on new grund
+					for(  int i=0;  i<bd->get_top();  i++  ) {
+						bd->obj_bei(i)->set_pos( bd->get_pos() );
+					}
+
 					end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, false);
 					if(err  ||   koord_distance( k, end.get_2d())>3) {
 						// try to find shortest possible
@@ -3659,6 +3664,10 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 					if( (err  &&  *err != 0)  ||  end==koord3d::invalid  || koord_distance( k, end.get_2d())>5 ) {
 						bd->set_grund_hang( old_slope );
 						bd->set_hoehe( bd->get_hoehe() - h_diff );
+						// transfer objects to on new grund
+						for(  int i=0;  i<bd->get_top();  i++  ) {
+							bd->obj_bei(i)->set_pos( bd->get_pos() );
+						}
 					}
 					else {
 						// update slope graphics on tile and tile in front
