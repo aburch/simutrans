@@ -81,7 +81,6 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type, item_compare_func cmp) 
 	compare = cmp;
 	size = scr_size(0,0);
 	pos = scr_coord(0,0);
-	max_width = scr_size::inf.w;
 	multiple_selection = false;
 	maximize = false;
 }
@@ -186,7 +185,6 @@ void gui_scrolled_list_t::reset_container_size()
 {
 	// reset element positioning
 	scr_size csize = container.get_min_size();
-	csize.w = min(max_width, csize.w);
 	container.set_size( csize );
 }
 
