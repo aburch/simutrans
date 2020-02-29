@@ -90,7 +90,6 @@ private:
 	PIXVAL highlight_color;
 
 	bool maximize;	// true if to expand to bottom right corner
-	scr_coord_val max_width; // need for overlength entries
 
 	item_compare_func compare;
 
@@ -154,8 +153,6 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	void draw(scr_coord pos) OVERRIDE;
-
-	void set_max_width(scr_coord_val mw) { max_width = mw; }
 
 	bool is_marginless() const OVERRIDE { return maximize; }
 	void set_maximize(bool b) { maximize = b; }

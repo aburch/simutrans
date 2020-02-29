@@ -66,6 +66,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 	cont_left.add_component(&scl);
 	scl.set_selection(-1);
 	scl.add_listener(this);
+	scl.set_min_width( (D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT-2*D_H_SPACE)/2 );
 
 	// add image
 	cont_left.add_component(&building_image);
@@ -93,6 +94,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 
 	scrolly.set_visible(true);
 	add_component(&scrolly);
+	scrolly.set_min_width( (D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT-2*D_H_SPACE)/2 );
 	end_table();
 
 	set_resizemode(diagonal_resize);
