@@ -176,6 +176,7 @@ void convoi_t::init(player_t *player)
 	longblock_signal_request.valid = false;
 	crossing_reservation_index.clear();
 	recalc_min_top_speed = true;
+	scheduled_departure_time_intern = 0;
 }
 
 
@@ -3197,13 +3198,20 @@ void convoi_t::calc_gewinn()
  * @author THLeaderH
  */
 bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint32 time_to_load, bool &coupling_cond, uint32 &go_on_ticks) {
+	convoihandle_t c = cnv;
+	// First, check whether we have to wait for coupling at this stop.
+	coupling_cond = false;
+	while(  c.is_bound()  ) {
+		const schedule_entry_t e = c->get_schedule()->get_current_entry();
+		coupling_cond |= (e.get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled()));
+		c = c->get_coupling_convoi();
+	}
+	
 	const schedule_entry_t current_entry = cnv->get_schedule()->get_current_entry();
 	
-	bool loading_cond = cnv->get_loading_level() >= current_entry.minimum_loading; // minimum loading
-	const bool waiting_time_cond = (current_entry.waiting_time_shift > 0  &&  world()->get_ticks() - arrived_time > (world()->ticks_per_world_month >> (16 - cnv->get_schedule()->get_current_entry().waiting_time_shift)) ); // waiting time
-	coupling_cond = (current_entry.get_coupling_point()==1  &&  !cnv->is_coupling_done()  &&  !(cnv->get_coupling_convoi().is_bound()  &&  cnv->is_coupled())); // wait for coupling?
-	
 	// designated departure time has the absolute priority.
+	// If departure time is set to the parent, all conditions of children are ignored.
+	// Departure time settings of children have no effect.
 	if(  current_entry.get_wait_for_time()  ) {
 		// consider spacing
 		// subtract wait_lock (time_to_load) from spacing_shift
@@ -3216,7 +3224,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 		// go_on_ticks = slot * spacing + spacing_shift
 		go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
 		// book the departure slot.
-		while(  !halt->book_departure(arrived_time, go_on_ticks, cnv)  ) {
+		while(  !halt->book_departure(arrived_time, go_on_ticks, go_on_ticks + 2 * world()->ticks_per_world_month / current_entry.spacing, cnv)  ) {
 			// If the reservation request is denied, increment slot.
 			slot++;
 			go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
@@ -3224,11 +3232,19 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 		return world()->get_ticks() >= go_on_ticks;
 	}
 	
+	c = cnv;
 	go_on_ticks = 0;
-	bool cond = loading_cond;
-	cond &= !coupling_cond;
-	cond |= cnv->get_no_load(); // no load
-	cond |= waiting_time_cond;
+	bool cond = !coupling_cond; // coupling condition is already calculated.
+	while(  c.is_bound()  &&  cond  ) {
+		const schedule_entry_t e = c->get_schedule()->get_current_entry();
+		const bool loading_cond = cnv->get_loading_level() >= e.minimum_loading; // minimum loading
+		const bool waiting_time_cond = (e.waiting_time_shift > 0  &&  world()->get_ticks() - arrived_time > (world()->ticks_per_world_month >> (16 - cnv->get_schedule()->get_current_entry().waiting_time_shift)) ); // waiting time
+		bool c_cond = loading_cond; // condition of this convoy
+		c_cond |= c->get_no_load(); // no load
+		c_cond |= waiting_time_cond;
+		cond &= c_cond;
+		c = c->get_coupling_convoi();
+	}
 	return cond;
 }
 
@@ -3419,40 +3435,30 @@ station_tile_search_ready: ;
 		// load/unload cargo of coupling convoy.
 		coupling_convoi->hat_gehalten(halt);
 	}
-
-	bool departure_cond = true;
-	bool need_coupling_at_this_stop = false;
-	sint64 go_on_ticks = 0;
-	c = self;
-	// A coupled convoy does not have to judge the departure.
-	while(  !is_coupled()  &&  c.is_bound()  ) {
-		bool coupling_cond; // Is coupling requested by the schedule entry?
-		// Does the convoy satisfy the departure conditions?
-		uint32 gt;
-		const bool this_can_go = can_depart(c, halt, arrived_time, time, coupling_cond, gt);
-		departure_cond &= this_can_go;
-		need_coupling_at_this_stop |= (coupling_cond  &&  !this_can_go); // Is coupling needed at this stop?
-		if(  gt>go_on_ticks  ) {
-			// NOTE: max() function does not work correctly here.
-			go_on_ticks = gt; // use latest departure time
+	
+	bool departure_cond = scheduled_departure_time_intern!=0  &&  welt->get_ticks() > scheduled_departure_time_intern;
+	
+	if(  scheduled_departure_time_intern==0  ) {
+		bool need_coupling_at_this_stop = false;
+		// departure judgement is done in a helper function.
+		departure_cond = can_depart(self, halt, arrived_time,
+			 time, need_coupling_at_this_stop, scheduled_departure_time_intern);
+		
+		if(  scheduled_departure_time_intern>0  ) {
+			// departure time is set. we have to take wait_lock into account.
+			scheduled_departure_time = scheduled_departure_time_intern + time;
 		}
-		c = c->get_coupling_convoi();
-	}
-	
-	if(  go_on_ticks>0  ) {
-		// departure time is set. we have to take wait_lock into account.
-		scheduled_departure_time = go_on_ticks + time;
-	}
-	
-	if(  need_coupling_at_this_stop  &&  next_initial_direction==ribi_t::none  ) {
-		// calc the initial direction to the next stop.
-		route_t r;
-		route_t::route_result_t res = r.calc_route(welt, front()->get_pos(), schedule->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
-		if(  res==route_t::no_route  ||  r.get_count()<2  ) {
-			// assume we do not turn here
-			next_initial_direction = front()->get_direction();
-		} else {
-			next_initial_direction = ribi_type(r.at(0), r.at(1));
+		
+		if(  need_coupling_at_this_stop  &&  next_initial_direction==ribi_t::none  ) {
+			// calc the initial direction to the next stop.
+			route_t r;
+			route_t::route_result_t res = r.calc_route(welt, front()->get_pos(), schedule->get_next_entry().pos, front(), speed_to_kmh(min_top_speed), 8888);
+			if(  res==route_t::no_route  ||  r.get_count()<2  ) {
+				// assume we do not turn here
+				next_initial_direction = front()->get_direction();
+			} else {
+				next_initial_direction = ribi_type(r.at(0), r.at(1));
+			}
 		}
 	}
 
@@ -3473,6 +3479,7 @@ station_tile_search_ready: ;
 			loading_limit = 0;
 			coupling_done = false;
 			next_initial_direction = ribi_t::none;
+			scheduled_departure_time_intern = 0;
 			// Advance schedule of coupling convoy recursively.
 			convoihandle_t c_cnv = coupling_convoi;
 			while(  c_cnv.is_bound()  ) {
@@ -3491,8 +3498,8 @@ station_tile_search_ready: ;
 	INT_CHECK( "convoi_t::hat_gehalten" );
 
 	// at least wait the minimum time for loading
-	if(  !is_coupled()  &&  go_on_ticks>0  ) {
-		const sint32 ticks_remain = go_on_ticks - welt->get_ticks();
+	if(  !is_coupled()  &&  scheduled_departure_time_intern>0  ) {
+		const sint32 ticks_remain = scheduled_departure_time_intern - welt->get_ticks();
 		if(  ticks_remain>0  &&  ticks_remain<(sint32)time  ) {
 			// this convoy is about to start. we don't want to wait for 2000 ms or more.
 			// just wait for ticks_remain

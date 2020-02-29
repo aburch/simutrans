@@ -518,12 +518,13 @@ private:
 	
 	// data structure of departure_slot_table below.
 	struct departure_t{
-		uint32 arr_tick;
-		uint32 dep_tick;
+		uint32 arr_tick; // ticks of arrival
+		uint32 dep_tick; // ticks of departure
+		uint32 exp_tick; // expiration ticks of the slot. used only for table clean up.
 		convoihandle_t cnv;
 		
-		departure_t(uint32 a, uint32 d, convoihandle_t c) : arr_tick(a), dep_tick(d), 
-			cnv(c) {}
+		departure_t(uint32 a, uint32 d, uint32 e, convoihandle_t c) : 
+		arr_tick(a), dep_tick(d), exp_tick(e), cnv(c) {}
 	};
 	
 	/*
@@ -850,8 +851,9 @@ public:
 	 * book a departure slot.
 	 * arr_tick: ticks of arrival
 	 * dep_tick: ticks of requested departure slot
+	 * exp_tick: expiration ticks of the slot
 	 */
-	bool book_departure (uint32 arr_tick, uint32 dep_tick, convoihandle_t cnv);
+	bool book_departure (uint32 arr_tick, uint32 dep_tick, uint32 exp_tick, convoihandle_t cnv);
 	
 };
 
