@@ -216,10 +216,9 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 
 	add_table(3,0);
 	{
-		new_component<gui_label_t>("hl_txt_sort");
+		new_component<gui_label_t>( "hl_txt_sort" );
 		new_component<gui_empty_t>();
 		new_component<gui_empty_t>();
-
 		// second row
 		sort_by.clear_elements();
 		for(int i = 0; i < SORT_MODES; i++) {
@@ -258,15 +257,16 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 		ware_filter.add_listener( this );
 		add_component( &ware_filter );
 
-		bt_obsolete.init(button_t::square_state, "Show obsolete");
-		bt_obsolete.add_listener(this);
-		add_component(&bt_obsolete);
+		// next rows
+		bt_obsolete.init( button_t::square_state, "Show obsolete" );
+		bt_obsolete.add_listener( this );
+		add_component( &bt_obsolete );
 
-		bt_future.init(button_t::square_state, "Show future");
-		bt_future.add_listener(this);
+		bt_future.init( button_t::square_state, "Show future" );
+		bt_future.add_listener( this );
 		bt_future.pressed = true;
-		add_component(&bt_future);
-		new_component<gui_empty_t>();
+		add_component( &bt_future, 2 );
+
 	}
 	end_table();
 
