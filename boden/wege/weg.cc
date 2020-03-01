@@ -503,7 +503,7 @@ void weg_t::rdwr(loadsave_t *file)
 				{
 					uint32 private_car_routes_count = 0;
 					file->rdwr_long(private_car_routes_count);
-					for (uint32 i = 0; i < private_car_routes_count; i++)
+					for (uint32 j = 0; j < private_car_routes_count; j++)
 					{
 						koord destination;
 						destination.rdwr(file);

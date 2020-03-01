@@ -414,7 +414,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				route.store_at(tmp->count, tmp->gr->get_pos());
 				tmp = tmp->parent;
 			}
-
+#if 0 // City route storage is now deprecated; TODO: Remove this code when its replacement is complete.
 			// We are passing the route by value rather than by reference (pointer) on purpose,
 			// since we need to copy the route to the origin city and re-use the local vector here.
 #ifdef MULTI_THREAD
@@ -439,7 +439,9 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			error = pthread_mutex_unlock(&karte_t::private_car_store_route_mutex);
 			assert(error == 0);
 #endif
+#endif
 			tmp = original_tmp;
+
 		}
 
 		// testing all four possible directions

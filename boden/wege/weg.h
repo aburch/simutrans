@@ -218,6 +218,7 @@ public:
 	static uint32 get_private_car_routes_currently_writing_element() { return private_car_routes_currently_reading_element == 1 ? 0 : 1; }
 
 	void add_private_car_route(koord dest, koord3d next_tile); 
+	static void swap_private_car_routes_currently_reading_element() { private_car_routes_currently_reading_element = private_car_routes_currently_reading_element == 0 ? 1 : 0; }
 
 	virtual ~weg_t();
 

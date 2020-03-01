@@ -2675,6 +2675,7 @@ void stadt_t::step(uint32 delta_t)
 		step_grow_city();
 		next_growth_step -= stadt_t::city_growth_step;
 
+#if 0 // DEPRECATED
 		// Was originally for testing, but this seems to be a sensible frequency for this
 		// Performance profiling on a large game finds this acceptable.
 		if (private_car_routes[get_currently_inactive_route_map()].empty())
@@ -2683,6 +2684,7 @@ void stadt_t::step(uint32 delta_t)
 			// has not been processed yet.
 			welt->add_queued_city(this);
 		}
+#endif
 	}
 
 	// update history (might be changed due to construction/destroying of houses)
@@ -2792,6 +2794,8 @@ void stadt_t::check_all_private_car_routes()
 	connected_cities.clear();
 	connected_industries.clear();
 	connected_attractions.clear();
+
+	// TODO: Delete old routes with the writing index here.
 
 	// This will find the fastest route from the townhall road to *all* other townhall roads, industries and attractions.
 	route_t private_car_route;

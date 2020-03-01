@@ -170,6 +170,8 @@ bool karte_t::threads_initialised = false;
 thread_local uint32 karte_t::passenger_generation_thread_number;
 thread_local uint32 karte_t::marker_index = UINT32_MAX_VALUE;
 
+static void swap_private_car_routes_currently_reading_element();
+
 sint32 karte_t::cities_to_process = 0;
 vector_tpl<convoihandle_t> convoys_next_step;
 
@@ -5451,14 +5453,23 @@ void karte_t::step()
 
 	// Check the private car routes. In multi-threaded mode, this can be running in the background whilst a number of other steps are processed.
 	// This is computationally intensive, but intermittently.
-	const bool check_city_routes = cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0;
+	const bool check_city_routes = (steps % 12) == 0;
 	if (check_city_routes)
 	{
 		const sint32 parallel_operations = get_parallel_operations();
+
+		if (cities_awaiting_private_car_route_check.empty())
+		{
+			weg_t::swap_private_car_routes_currently_reading_element();
+			FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
+			{
+				cities_awaiting_private_car_route_check.append(i); 
+			}
+		}
 		
 #ifdef MULTI_THREAD
 		// This cannot be started at the end of the step, as we will not know at that point whether we need to call this at all.
-		cities_to_process = min(cities_awaiting_private_car_route_check.get_count() - 1, parallel_operations);
+		cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		simthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished. This is the first.
 #else			
 		const uint32 cities_to_process = min(cities_awaiting_private_car_route_check.get_count() - 1, parallel_operations);
