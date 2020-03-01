@@ -391,29 +391,35 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			route.clear();
 			ANode* original_tmp = tmp;
 			route.resize(tmp->count + 16);
-			const koord destination_pos = destination_industry ? destination_industry->get_pos().get_2d() : destination_attraction ? destination_attraction->get_first_tile()->get_pos().get_2d() : destination_city ? destination_city->get_pos() : koord::invalid;
+			const koord destination_pos = destination_industry ? destination_industry->get_pos().get_2d() : destination_attraction ? destination_attraction->get_first_tile()->get_pos().get_2d() : destination_city ? destination_city->get_townhall_road() : koord::invalid;
+			koord3d previous = koord3d::invalid;
+			weg_t* w;
 			while (tmp != NULL)
-			{
-				weg_t* w = tmp->gr->get_weg(road_wt); 
+			{	 
+				w = tmp->gr->get_weg(road_wt);
 #ifdef MULTI_THREAD
 				int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
 				assert(error == 0);
-#endif	
+#endif				
 				if (w)
 				{
 					// The route is added here in a different array index to the set of routes
 					// that are currently being read.
-					w->add_private_car_route(destination_pos, tmp->gr->get_pos());
+
+					// Also, the route is iterated here *backwards*. 
+					w->add_private_car_route(destination_pos, previous);
 				}
 #ifdef MULTI_THREAD
 				error = pthread_mutex_unlock(&karte_t::private_car_store_route_mutex);
 				assert(error == 0);
-#endif
-				
+#endif				
 				// Old route storage - we probably no longer need this.
 				route.store_at(tmp->count, tmp->gr->get_pos());
+
+				previous = tmp->gr->get_pos();
 				tmp = tmp->parent;
 			}
+			
 #if 0 // City route storage is now deprecated; TODO: Remove this code when its replacement is complete.
 			// We are passing the route by value rather than by reference (pointer) on purpose,
 			// since we need to copy the route to the origin city and re-use the local vector here.
