@@ -739,7 +739,7 @@ void simline_t::recalc_status()
 		state |= line_no_convoys;
 		withdraw = false;
 	}
-	if((financial_history[0][LINE_OPERATIONS]|financial_history[1][LINE_OPERATIONS])==0) 
+	if((financial_history[0][LINE_DISTANCE]|financial_history[1][LINE_DISTANCE])==0)
 	{
 		// nothing moved
 		state_color = COL_YELLOW;
