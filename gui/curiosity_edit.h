@@ -1,5 +1,6 @@
 /*
- * Curiosity (attractions) builder dialog
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef gui_curiosity_edit_h
@@ -10,6 +11,9 @@
 class tool_build_house_t;
 class building_desc_t;
 
+/*
+ * Curiosity (attractions) builder dialog
+ */
 class curiosity_edit_frame_t : public extend_edit_gui_t
 {
 private:

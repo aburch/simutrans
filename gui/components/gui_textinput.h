@@ -1,17 +1,8 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * A simple text input field. It has no Text Buffer,
- * only a pointer to a buffer created by someone else.
- *
- * @date 19-Apr-01
- * @author Hj. Malthaner
- */
 
 #ifndef gui_components_gui_textinput_h
 #define gui_components_gui_textinput_h
@@ -23,6 +14,13 @@
 #include "../../utils/cbuffer_t.h"
 
 
+/*
+ * A simple text input field. It has no Text Buffer,
+ * only a pointer to a buffer created by someone else.
+ *
+ * @date 19-Apr-01
+ * @author Hj. Malthaner
+ */
 class gui_textinput_t :
 	public gui_action_creator_t,
 	public gui_component_t

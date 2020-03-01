@@ -1,4 +1,9 @@
 /*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/*
  * all defines that can change the compiling
  */
 

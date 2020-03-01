@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef _EXP_GAME_OBJ_H_
 #define _EXP_GAME_OBJ_H_
 

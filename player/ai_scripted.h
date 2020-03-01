@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef _AI_SCRIPTED_H
 #define _AI_SCRIPTED_H
 
@@ -8,7 +13,6 @@ class script_vm_t;
 
 class ai_scripted_t : public ai_t
 {
-
 	/// name of ai, files are searched in ai/ai_name/...
 	/// e.g. my_ai
 	plainstring ai_name;

@@ -1,13 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Window with destination information for a stop
- * @author Hj. Malthaner
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "halt_info.h"
@@ -43,7 +36,10 @@
 
 #define CHART_HEIGHT (100)
 
-// class to compute and fill the departure board
+/*
+ * Window with destination information for a stop
+ * @author Hj. Malthaner
+ */
 class gui_departure_board_t : public gui_aligned_container_t
 {
 	// helper class to compute departure board

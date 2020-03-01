@@ -1,6 +1,6 @@
-/**
- * convoi_t Class for vehicle associations
- * Hansjörg Malthaner
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdlib.h>

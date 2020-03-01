@@ -1,16 +1,15 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
- * Simple goods transport AI
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
+#ifndef AI_GOODS_H
+#define AI_GOODS_H
 
 #include "ai.h"
 
 
+/// Simple goods transport AI
 class ai_goods_t : public ai_t
 {
 private:
@@ -130,3 +129,5 @@ public:
 
 	void notify_factory(notification_factory_t flag, const fabrik_t*) OVERRIDE;
 };
+
+#endif

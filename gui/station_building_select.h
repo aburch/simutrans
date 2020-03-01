@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Building facing selector, when CTRL+Clicking over a building icon in menu
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef station_building_select_h
@@ -21,6 +15,9 @@ class building_desc_t;
 class tool_build_station_t;
 
 
+/*
+ * Building facing selector, when CTRL+Clicking over a building icon in menu
+ */
 class station_building_select_t : public gui_frame_t, action_listener_t
 {
 	const building_desc_t *desc;

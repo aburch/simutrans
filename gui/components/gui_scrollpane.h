@@ -1,10 +1,6 @@
 /*
- * this is a scrolling area in which subcomponents are drawn
- *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef gui_scrollpane_h
@@ -16,6 +12,9 @@
 
 class loadsave_t;
 
+/*
+ * this is a scrolling area in which subcomponents are drawn
+ */
 class gui_scrollpane_t : public gui_component_t
 {
 private:

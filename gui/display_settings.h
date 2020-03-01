@@ -1,6 +1,6 @@
 /*
- * Menu with display settings
- * @author Hj. Malthaner
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef _display_settings_h_
@@ -13,6 +13,11 @@
 #include "components/gui_numberinput.h"
 #include "components/gui_combobox.h"
 #include "components/gui_tab_panel.h"
+
+/*
+ * Menu with display settings
+ * @author Hj. Malthaner
+ */
 
 
 class gui_settings_t : public gui_aligned_container_t

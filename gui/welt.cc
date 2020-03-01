@@ -1,16 +1,6 @@
 /*
- * dialog to enter values ??for map generation
- *
- * Hj. Malthaner
- *
- * April 2000
- *
- * Max Kielland 2013
- * Added theme support
- */
-
-/*
- * Dialog to configure the generation of a new map
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "welt.h"

@@ -1,4 +1,9 @@
 #
+# This file is part of the Simutrans project under the Artistic License.
+# (see LICENSE.txt)
+#
+
+#
 # to compile:
 # copy this file to config.default and adjust the settings
 #

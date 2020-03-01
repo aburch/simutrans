@@ -1,11 +1,10 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef simunits_h
 #define simunits_h
-/*
- * Copyright 2010 Nathanael C. Nerode
- * & Simutrans Contributors
- * This file is part of the Simutrans project and is available under the
- * Artistic License -- see license.txt
- */
 
 /*
  * This file is designed to contain the unit conversion routines

@@ -1,14 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * A text display component
- *
- * @author Hj. Malthaner
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef gui_textarea_h
@@ -18,6 +10,11 @@
 
 class cbuffer_t;
 
+/*
+ * A text display component
+ *
+ * @author Hj. Malthaner
+ */
 class gui_textarea_t : public gui_component_t
 {
 private:

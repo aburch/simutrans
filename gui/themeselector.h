@@ -1,5 +1,6 @@
 /*
- * selection of paks at the start time
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef themeselector_h
@@ -10,6 +11,9 @@
 #include "components/gui_textarea.h"
 #include "../utils/cbuffer_t.h"
 
+/*
+ * selection of paks at the start time
+ */
 class themeselector_t : public savegame_frame_t
 {
 protected:

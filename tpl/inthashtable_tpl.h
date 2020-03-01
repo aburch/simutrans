@@ -1,5 +1,6 @@
 /*
- * a template class which implements a hashtable with integer keys
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef inthashtable_tpl_h

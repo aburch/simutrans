@@ -1,5 +1,6 @@
 /*
- * Dialogue to increase map size.
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef bigger_map_gui_h
@@ -13,6 +14,9 @@
 
 class settings_t;
 
+/*
+ * Dialogue to increase map size.
+ */
 class enlarge_map_frame_t  : public gui_frame_t, private action_listener_t
 {
 private:

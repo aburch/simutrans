@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Traffic light phase buttons
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef trafficlight_info_t_h
@@ -19,9 +13,8 @@
 
 class roadsign_t;
 
-/**
- * Info window for factories
- * @author Hj. Malthaner
+/*
+ * Traffic light phase buttons
  */
 class trafficlight_info_t : public obj_infowin_t, public action_listener_t
 {

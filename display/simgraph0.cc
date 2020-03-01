@@ -1,6 +1,6 @@
 /*
- * Copyright 2010 Simutrans contributors
- * Available under the Artistic License (see license.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "../simconst.h"

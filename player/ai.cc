@@ -1,11 +1,7 @@
 /*
- * Copyright (c) 2008 Markus Pristovsek
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
-
-/* Helper routines for AIs */
 
 #include "finance.h"
 #include "ai.h"

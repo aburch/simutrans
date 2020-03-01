@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "pakset_info.h"
 #include "../simdebug.h"
 #include "../dataobj/translator.h"

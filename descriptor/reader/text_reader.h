@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "obj_reader.h"
 
 class text_reader_t : public obj_reader_t {

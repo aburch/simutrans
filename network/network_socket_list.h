@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef _NETWORK_SOCKET_LIST_H_
 #define _NETWORK_SOCKET_LIST_H_
 

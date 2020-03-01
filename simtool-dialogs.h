@@ -1,11 +1,7 @@
 /*
-* This file is part of the Simutrans project under the artistic license.
-*/
-
-/* New OO tool system
-*
-* contains tools that will open windows
-*/
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #ifndef SIMTOOL_DIALOGS_H
 #define SIMTOOL_DIALOGS_H

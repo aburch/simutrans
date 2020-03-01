@@ -1,9 +1,6 @@
 /*
- * dialog for setting the climate border and other map related parameters
- *
- * prissi
- *
- * August 2006
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "climates.h"

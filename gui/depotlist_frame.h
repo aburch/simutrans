@@ -1,6 +1,6 @@
 /*
- * Factory list window
- * @author Hj. Malthaner
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef depotlist_frame_t_h

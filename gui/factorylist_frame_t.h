@@ -1,6 +1,6 @@
 /*
- * Factory list window
- * @author Hj. Malthaner
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef factorylist_frame_t_h
@@ -12,7 +12,10 @@
 #include "factorylist_stats_t.h"
 
 
-
+/*
+ * Factory list window
+ * @author Hj. Malthaner
+ */
 class factorylist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:

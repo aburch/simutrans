@@ -1,8 +1,8 @@
 /*
- * part of the Simutrans project
- * @author hsiegeln
- * 01/12/2003
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
+
 #ifndef simline_h
 #define simline_h
 
