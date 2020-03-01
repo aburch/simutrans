@@ -5488,7 +5488,7 @@ void karte_t::step()
 		
 #ifdef MULTI_THREAD
 		// This cannot be started at the end of the step, as we will not know at that point whether we need to call this at all.
-		cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		cities_to_process = stadt.get_count() > 64 ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		start_private_car_threads();
 #else			
 		const uint32 cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
