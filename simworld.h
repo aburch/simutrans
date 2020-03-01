@@ -933,6 +933,7 @@ private:
 	bool passengers_and_mail_threads_working;
 	bool convoy_threads_working;
 	bool path_explorer_working;
+	bool private_car_threads_working;
 public:
 	static simthread_barrier_t step_convoys_barrier_external;
 	static simthread_barrier_t unreserve_route_barrier;
@@ -947,6 +948,7 @@ public:
 	void start_passengers_and_mail_threads();
 	void start_convoy_threads();
 	void start_path_explorer();
+	void start_private_car_threads();
 #else
 public:
 #endif
@@ -954,6 +956,7 @@ public:
 	void await_passengers_and_mail_threads();
 	void await_convoy_threads();
 	void await_path_explorer(); 
+	void await_private_car_threads(); 
 	void await_all_threads();
 
 	enum building_type { passenger_origin, commuter_target, visitor_target, mail_origin_or_target, none };

@@ -1914,6 +1914,22 @@ void karte_t::await_convoy_threads()
 }
 
 #ifdef MULTI_THREAD
+
+void karte_t::start_private_car_threads()
+{
+	simthread_barrier_wait(&private_car_barrier);
+	private_car_threads_working = true;
+}
+
+void karte_t::await_private_car_threads()
+{
+	if (private_car_threads_working)
+	{
+		simthread_barrier_wait(&private_car_barrier);
+		private_car_threads_working = false;
+	}
+}
+
 void* path_explorer_threaded(void* args)
 {
 	path_explorer_t::allow_path_explorer_on_this_thread = true;
@@ -2016,6 +2032,7 @@ void karte_t::await_all_threads()
 	// Call this when saving or doing disruptive stuff like map rotation.
 	await_convoy_threads();
 	await_path_explorer();
+	await_private_car_threads();
 	await_passengers_and_mail_threads();
 #endif
 }
@@ -2077,6 +2094,7 @@ void karte_t::init_threads()
 			{
 				private_car_route_threads.append(thread);
 			}
+			private_car_threads_working = false;
 		}
 #ifdef MULTI_THREAD_ROUTE_PROCESSING
 		sint32* thread_number_private_process = new sint32;
@@ -3070,6 +3088,7 @@ karte_t::karte_t() :
 	passengers_and_mail_threads_working = false;
 	convoy_threads_working = false;
 	path_explorer_working = false;
+	private_car_threads_working = false;
 #endif
 
 	city_heavy_step_index = 0;
@@ -5470,7 +5489,7 @@ void karte_t::step()
 #ifdef MULTI_THREAD
 		// This cannot be started at the end of the step, as we will not know at that point whether we need to call this at all.
 		cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
-		simthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished. This is the first.
+		start_private_car_threads();
 #else			
 		const uint32 cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		for (uint32 j = 0; j < cities_to_process; j++)
@@ -5591,10 +5610,10 @@ void karte_t::step()
 	INT_CHECK("karte_t::step 3b");
 
 #ifdef MULTI_THREAD
-	// The placement of this barrier must be before any code that in any way relies on the private car routes between cities, most especially the mail and passenger generation (step_passengers_and_mail(delta_t)).
+	// The placement of this method call must be before any code that in any way relies on the private car routes between cities, most especially the mail and passenger generation (step_passengers_and_mail(delta_t)).
 	if (check_city_routes)
 	{
-		simthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished. This is the second.
+		await_private_car_threads();
 	}
 #endif	
 

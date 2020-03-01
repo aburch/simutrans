@@ -363,6 +363,9 @@ weg_t::~weg_t()
 {
 	if (!welt->is_destroying())
 	{
+		welt->await_private_car_threads();
+		delete_all_routes_from_here();
+		
 		alle_wege.remove(this);
 		player_t *player = get_owner();
 		if (player  &&  desc)
