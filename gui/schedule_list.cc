@@ -269,6 +269,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	offset_y += D_BUTTON_HEIGHT;
 	// Select livery
 	livery_selector.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH * 1.5, offset_y));
+	livery_selector.set_focusable(false);
 	livery_selector.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
 	livery_selector.set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 8 + 2 + 16));
 	livery_selector.set_highlight_color(1);
