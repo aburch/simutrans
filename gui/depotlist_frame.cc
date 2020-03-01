@@ -1,5 +1,7 @@
-// ****************** List of all depots ************************
-
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #include "depotlist_frame.h"
 #include "gui_theme.h"

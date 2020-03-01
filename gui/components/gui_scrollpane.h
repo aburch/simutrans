@@ -15,6 +15,9 @@
  */
 class loadsave_t;
 
+/*
+ * this is a scrolling area in which subcomponents are drawn
+ */
 class gui_scrollpane_t : public gui_component_t
 {
 private:
