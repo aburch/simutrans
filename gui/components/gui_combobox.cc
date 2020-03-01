@@ -161,7 +161,12 @@ DBG_MESSAGE("event","HOWDY!");
 				int old_selection = droplist.get_selection();
 				if(  droplist.infowin_event(&ev2)  ) {
 					if(  droplist.get_selection() !=  old_selection  ) {
-						call_listeners( droplist.get_selection() );
+						// close box will anyway call 
+						if( !IS_LEFTRELEASE( ev ) ) {
+							// in case of LEFTRELEASE, close_box will call it again
+							call_listeners( droplist.get_selection() );
+						}
+						finish = true;
 					}
 					// we selected something?
 					if(finish  &&  IS_LEFTRELEASE(ev)) {
