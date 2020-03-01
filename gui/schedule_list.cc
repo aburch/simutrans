@@ -268,13 +268,13 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	offset_y += D_BUTTON_HEIGHT;
 	// Select livery
-	livery_selector.set_highlight_color(1);
-	livery_selector.add_listener(this);
 	livery_selector.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH * 1.5, offset_y));
-	livery_selector.set_focusable(false);
-	add_component(&livery_selector);
 	livery_selector.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
 	livery_selector.set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 8 + 2 + 16));
+	livery_selector.set_highlight_color(1);
+	livery_selector.clear_elements();
+	livery_selector.add_listener(this);
+	add_component(&livery_selector);
 
 	offset_y += D_BUTTON_HEIGHT;
 	// right tabs
@@ -284,7 +284,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&info_tabs);
 
 	tab_name.clear();
-	tab_name.printf("%s %5s",translator::translate("Convoys"),"(0)");
+	tab_name.printf("%s%5s",translator::translate("Convoys"),"(0)");
 	info_tabs.add_tab(&scrolly_convois, tab_name);
 
 	//CHART
@@ -424,8 +424,8 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	}
 	else if(comp == &livery_selector) 
 	{
-			int livery_selection = livery_selector.get_selection();
-			if(livery_selection < 0) 
+			sint32 livery_selection = livery_selector.get_selection();
+			if(livery_selection < 0)
 			{
 				livery_selector.set_selection(0);
 				livery_selection = 0;
@@ -552,42 +552,6 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 		char temp_buf[5];
 		sprintf(temp_buf, "(%i)", line->count_convoys());
 		tab_name.printf("%5s", temp_buf);
-
-		// FIXME! (After importing the function)
-		// build available livery schemes list for this line
-		livery_selector.clear_elements();
-		if (line->count_convoys()) {
-			const uint16 month_now = welt->get_timeline_year_month();
-			vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
-			livery_scheme_indices.clear();
-			ITERATE_PTR(schemes, i)
-			{
-				bool found = false;
-				livery_scheme_t* scheme = schemes->get_element(i);
-				if (scheme->is_available(month_now))
-				{
-					for (int j; j < line->count_convoys(); j++)
-					{
-						convoihandle_t const cnv_in_line = line->get_convoy(j);
-						for (int k = 0; k < cnv_in_line->get_vehicle_count(); k++) {
-							vehicle_t *v = cnv_in_line->get_vehicle(k);
-							for (int l = 0; l < v->get_desc()->get_livery_count(); l++)
-							{
-								//if(scheme->is_contained(v->get_current_livery(), month_now))
-								{
-									livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), SYSCOL_TEXT));
-									livery_scheme_indices.append(i);
-									found = true;
-									break;
-								}
-							}
-							if (found) { break; }
-						}
-						if (found) { break; }
-					}
-				}
-			}
-		}
 
 		if(  (!line->get_schedule()->empty()  &&  !line->get_schedule()->matches( welt, last_schedule ))  ||  last_vehicle_count != line->count_convoys()  ) {
 			update_lineinfo( line );
@@ -861,14 +825,50 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		if(icnv > 0)
 		{
 			livery_selector.set_focusable(true);
-		}
-		if(new_line.is_bound() && !livery_scheme_indices.empty())
-		{
-			uint16 idx = new_line->get_livery_scheme_index();
-			if(!livery_scheme_indices.empty())
-			{
-				livery_selector.set_selection(livery_scheme_indices.index_of(idx));
+			// build available livery schemes list for this line
+			if (new_line->count_convoys()) {
+				livery_selector.clear_elements();
+				livery_scheme_indices.clear();
+				const uint16 month_now = welt->get_timeline_year_month();
+				vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
+
+				ITERATE_PTR(schemes, i)
+				{
+					bool found = false;
+					livery_scheme_t* scheme = schemes->get_element(i);
+					if (scheme->is_available(month_now))
+					{
+						for (int j = 0; j < new_line->count_convoys(); j++)
+						{
+							convoihandle_t const cnv_in_line = new_line->get_convoy(j);
+							for (int k = 0; k < cnv_in_line->get_vehicle_count(); k++) {
+								const vehicle_desc_t *desc = cnv_in_line->get_vehicle(k)->get_desc();
+								if (desc->get_livery_count()) {
+									const char* test_livery = scheme->get_latest_available_livery(month_now, desc);
+									if (test_livery) {
+										if (scheme->is_contained(test_livery, month_now)) {
+											livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), SYSCOL_TEXT));
+											livery_scheme_indices.append(i);
+											found = true;
+											break;
+										}
+									}
+								}
+							}
+							if (found) {
+								livery_selector.set_selection(i);
+								break;
+							}
+						}
+					}
+				}
 			}
+		}
+		if(!livery_scheme_indices.empty())
+		{
+
+			uint16 idx = new_line->get_livery_scheme_index();
+			livery_selector.set_selection(livery_scheme_indices.index_of(idx));
 		}
 
 
