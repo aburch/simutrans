@@ -1841,12 +1841,17 @@ void weg_t::delete_all_routes_from_here(bool reading_set)
 
 	if (!private_car_routes[routes_index].empty())
 	{
-		uint32 TEST_count = 0;
+		vector_tpl<koord> destinations_to_delete;
 		FOR(private_car_route_map, const& route, private_car_routes[routes_index])
 		{
 			koord dest = route.key;
-			delete_route_to(dest, reading_set); 
-			TEST_count++;
+			destinations_to_delete.append(dest); 
+		}
+
+		FOR(vector_tpl<koord>, dest, destinations_to_delete)
+		{
+			// This must be done in a two stage process to avoid memory corruption as the delete_route_to function will affect the very hashtable being iterated.
+			delete_route_to(dest, reading_set);
 		}
 	}
 }
