@@ -391,7 +391,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			route.clear();
 			ANode* original_tmp = tmp;
 			route.resize(tmp->count + 16);
-			const koord destination_pos = destination_industry ? destination_industry->get_pos().get_2d() : destination_attraction ? destination_attraction->get_pos().get_2d() : destination_city ? destination_city->get_pos() : koord::invalid;
+			const koord destination_pos = destination_industry ? destination_industry->get_pos().get_2d() : destination_attraction ? destination_attraction->get_first_tile()->get_pos().get_2d() : destination_city ? destination_city->get_pos() : koord::invalid;
 			while (tmp != NULL)
 			{
 				weg_t* w = tmp->gr->get_weg(road_wt); 
@@ -401,6 +401,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 #endif	
 				if (w)
 				{
+					// The route is added here in a different array index to the set of routes
+					// that are currently being read.
 					w->add_private_car_route(destination_pos, tmp->gr->get_pos());
 				}
 #ifdef MULTI_THREAD
