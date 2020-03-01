@@ -1834,3 +1834,45 @@ void weg_t::add_private_car_route(koord destination, koord3d next_tile)
 {
 	private_car_routes[get_private_car_routes_currently_writing_element()].set(destination, next_tile); 
 }
+
+void weg_t::delete_all_routes_from_here(bool reading_set)
+{
+	const uint32 routes_index = reading_set ? private_car_routes_currently_reading_element : get_private_car_routes_currently_writing_element();
+
+	if (!private_car_routes[routes_index].empty())
+	{
+		uint32 TEST_count = 0;
+		FOR(private_car_route_map, const& route, private_car_routes[routes_index])
+		{
+			koord dest = route.key;
+			delete_route_to(dest, reading_set); 
+			TEST_count++;
+		}
+	}
+}
+
+void weg_t::delete_route_to(koord destination, bool reading_set)
+{
+	const uint32 routes_index = reading_set ? private_car_routes_currently_reading_element : get_private_car_routes_currently_writing_element();
+
+	koord3d next_tile = get_pos();
+	while (next_tile != koord3d::invalid && next_tile != koord3d(0, 0, 0))
+	{
+		const grund_t* gr = welt->lookup(next_tile);
+		next_tile = private_car_routes[routes_index].get(destination);
+		if (gr)
+		{
+			weg_t* const w = gr->get_weg(road_wt);
+			if (w)
+			{
+				w->remove_private_car_route(destination, reading_set); 
+			}
+		}
+	}
+}
+
+void weg_t::remove_private_car_route(koord destination, bool reading_set)
+{
+	const uint32 routes_index = reading_set ? private_car_routes_currently_reading_element : get_private_car_routes_currently_writing_element();
+	private_car_routes[routes_index].remove(destination); 
+}

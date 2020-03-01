@@ -218,7 +218,18 @@ public:
 	static uint32 get_private_car_routes_currently_writing_element() { return private_car_routes_currently_reading_element == 1 ? 0 : 1; }
 
 	void add_private_car_route(koord dest, koord3d next_tile); 
+private:
+	/// Set the boolean value to true to modify the set currently used for reading (this must ONLY be done when this is called from a single threaded part of the code).
+	void remove_private_car_route(koord dest, bool reading_set = false); 
+public:
 	static void swap_private_car_routes_currently_reading_element() { private_car_routes_currently_reading_element = private_car_routes_currently_reading_element == 0 ? 1 : 0; }
+
+	/// Delete all private car routes originating from or passing through this tile.
+	/// Set the boolean value to true to modify the set currently used for reading (this must ONLY be done when this is called from a single threaded part of the code).
+	void delete_all_routes_from_here(bool reading_set = false); 
+	void delete_route_to(koord destination, bool reading_set = false); 
+
+
 
 	virtual ~weg_t();
 
