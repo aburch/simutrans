@@ -1002,7 +1002,7 @@ grund_t* private_car_t::hop_check()
 	}
 
 	// If so, check for private car routes to our destination.
-	if (target != koord::invalid)
+	if (target != koord::invalid && !welt->get_settings().get_assume_everywhere_connected_by_road())
 	{
 		// Check every tile of the route, since this is faster than the
 		// call to get_neighbour() in the heuristic mode.
@@ -1139,7 +1139,7 @@ grund_t* private_car_t::hop_check()
 						// (e.g. if there is a one way road).
 						const planquadrat_t* tile = welt->access(pos_next.get_2d());
 						const stadt_t* current_city = tile ? tile->get_city() : NULL;
-						if (current_city && n == 0)
+						if (current_city && n == 0 && !welt->get_settings().get_assume_everywhere_connected_by_road())
 						{
 							planquadrat_t* tile = welt->access(to->get_pos().get_2d());
 							const stadt_t* next_tile_city = tile ? tile->get_city() : NULL;
