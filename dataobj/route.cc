@@ -390,7 +390,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		{
 			route.clear();
 			ANode* original_tmp = tmp;
-			route.resize(tmp->count + 16);
+			//route.resize(tmp->count + 16);
 			const koord destination_pos = destination_industry ? destination_industry->get_pos().get_2d() : destination_attraction ? destination_attraction->get_first_tile()->get_pos().get_2d() : destination_city ? destination_city->get_townhall_road() : koord::invalid;
 			koord3d previous = koord3d::invalid;
 			weg_t* w;
@@ -414,7 +414,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				assert(error == 0);
 #endif				
 				// Old route storage - we probably no longer need this.
-				route.store_at(tmp->count, tmp->gr->get_pos());
+				//route.store_at(tmp->count, tmp->gr->get_pos());
 
 				previous = tmp->gr->get_pos();
 				tmp = tmp->parent;
