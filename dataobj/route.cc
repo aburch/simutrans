@@ -391,8 +391,24 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			route.clear();
 			ANode* original_tmp = tmp;
 			route.resize(tmp->count + 16);
+			const koord destination_pos = destination_industry ? destination_industry->get_pos().get_2d() : destination_attraction ? destination_attraction->get_pos().get_2d() : destination_city ? destination_city->get_pos() : koord::invalid;
 			while (tmp != NULL)
 			{
+				weg_t* w = tmp->gr->get_weg(road_wt); 
+#ifdef MULTI_THREAD
+				int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
+				assert(error == 0);
+#endif	
+				if (w)
+				{
+					w->add_private_car_route(destination_pos, tmp->gr->get_pos());
+				}
+#ifdef MULTI_THREAD
+				error = pthread_mutex_unlock(&karte_t::private_car_store_route_mutex);
+				assert(error == 0);
+#endif
+				
+				// Old route storage - we probably no longer need this.
 				route.store_at(tmp->count, tmp->gr->get_pos());
 				tmp = tmp->parent;
 			}

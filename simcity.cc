@@ -73,6 +73,8 @@
 
 #include "tpl/minivec_tpl.h"
 
+uint32 weg_t::private_car_routes_currently_reading_element;
+
 // since we use 32 bit per growth steps, we use this variable to take care of the remaining sub citizen growth
 #define CITYGROWTH_PER_CITICEN (0x0000000100000000ll)
 
@@ -2382,7 +2384,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		file->rdwr_long(route_processing_counter); 
 		if (file->is_saving())
 		{
-			for (uint32 i = 0; i++; i < 2)
+			for (uint32 i = 0; i++; i < 2) // Bad for loop logic here
 			{
 				uint32 private_car_routes_count = private_car_routes[i].get_count();
 				file->rdwr_long(private_car_routes_count);
@@ -2402,7 +2404,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		}
 		else // Loading
 		{
-			for (uint32 i = 0; i++; i < 2)
+			for (uint32 i = 0; i++; i < 2) // Bad for loop logic here
 			{
 				private_car_routes[i].clear();
 				uint32 private_car_routes_count = 0;
@@ -6166,7 +6168,7 @@ void stadt_t::process_private_car_routes()
 				weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
 				if (road_tile) // This may have been deleted in the meantime.
 				{
-					road_tile->private_car_routes.set(route.key, route_element);
+					road_tile->private_car_routes[weg_t::private_car_routes_currently_reading_element].set(route.key, route_element); // HACK: This code allows this to compile, but we do not ultimately need this
 				}
 
 				previous_tile = route_element;
@@ -6176,7 +6178,7 @@ void stadt_t::process_private_car_routes()
 			weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
 			if (road_tile)
 			{
-				road_tile->private_car_routes.set(route.key, koord3d::invalid);
+				road_tile->private_car_routes[weg_t::private_car_routes_currently_reading_element].set(route.key, koord3d::invalid); // HACK: This code allows this to compile, but we do not ultimately need this
 			}
 		}
 
@@ -6342,7 +6344,7 @@ void stadt_t::clear_private_car_route(koord pos, bool clear_connected_tables)
 			weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
 			if (road_tile)
 			{
-				road_tile->private_car_routes.remove(pos);
+				road_tile->private_car_routes[weg_t::private_car_routes_currently_reading_element].remove(pos); // HACK: This code allows this to compile, but we do not ultimately need this
 			}
 		}
 	}

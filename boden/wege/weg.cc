@@ -62,6 +62,8 @@
 static pthread_mutex_t weg_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 
+static uint32 private_car_routes_currently_reading_element = 0; 
+
 /**
  * Alle instantiierten Wege
  * @author Hj. Malthaner
@@ -477,31 +479,43 @@ void weg_t::rdwr(loadsave_t *file)
 
 		if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 19))
 		{
+			const uint32 route_array_number = file->get_extended_version() >= 15 || file->get_extended_revision() >= 20 ? 2 : 1;
+
 			if (file->is_saving())
 			{
-				uint32 private_car_routes_count = private_car_routes.get_count();
-				file->rdwr_long(private_car_routes_count); 
-				FOR(private_car_route_map, element, private_car_routes)
+				for (uint32 i = 0; i < route_array_number; i++)
 				{
-					koord destination = element.key;
-					koord3d next_tile = element.value;
+					uint32 private_car_routes_count = private_car_routes[i].get_count();
+					file->rdwr_long(private_car_routes_count);
+					FOR(private_car_route_map, element, private_car_routes[i])
+					{
+						koord destination = element.key;
+						koord3d next_tile = element.value;
 
-					destination.rdwr(file);
-					next_tile.rdwr(file);
+						destination.rdwr(file);
+						next_tile.rdwr(file);
+					}
 				}
 			}
 			else // Loading
 			{
-				uint32 private_car_routes_count = 0;
-				file->rdwr_long(private_car_routes_count);
-				for (uint32 i = 0; i < private_car_routes_count; i++)
+				for (uint32 i = 0; i < route_array_number; i++)
 				{
-					koord destination;
-					destination.rdwr(file); 
-					koord3d next_tile;
-					next_tile.rdwr(file);
-					bool put_succeeded = private_car_routes.put(destination, next_tile);
-					assert(put_succeeded); 
+					uint32 private_car_routes_count = 0;
+					file->rdwr_long(private_car_routes_count);
+					for (uint32 i = 0; i < private_car_routes_count; i++)
+					{
+						koord destination;
+						destination.rdwr(file);
+						koord3d next_tile;
+						next_tile.rdwr(file);
+						bool put_succeeded = private_car_routes[i].put(destination, next_tile);
+						assert(put_succeeded);
+					}
+				}
+				if (route_array_number == 1)
+				{
+					private_car_routes[1].clear();
 				}
 			}
 		}
@@ -635,11 +649,11 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 #ifdef DEBUG
 		// Private car routes from here
 		// This generates a lot of text spam, so this should no be enabled by default.
-		if (!private_car_routes.empty())
+		if (!private_car_routes[private_car_routes_currently_reading_element].empty())
 		{
 			buf.append("\n"); 
 			buf.append(translator::translate("Road routes from here:")); // TODO: Add translator entry for this text - if this does not remain debug only.
-			FOR(private_car_route_map, const& route, private_car_routes)
+			FOR(private_car_route_map, const& route, private_car_routes[private_car_routes_currently_reading_element])
 			{
 				
 				const grund_t* gr = welt->lookup_kartenboden(route.key);
@@ -1816,3 +1830,7 @@ signal_t *weg_t::get_signal(ribi_t::ribi direction_of_travel) const
 	else return NULL;
 }
 
+void weg_t::add_private_car_route(koord destination, koord3d next_tile)
+{
+	private_car_routes[get_private_car_routes_currently_writing_element()].set(destination, next_tile); 
+}

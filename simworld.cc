@@ -8421,6 +8421,11 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 		city_heavy_step_index = 0;
 	}
 
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 20))
+	{
+		file->rdwr_long(weg_t::private_car_routes_currently_reading_element);
+	}
+
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 8) && get_settings().get_save_path_explorer_data())
 	{
 		path_explorer_t::rdwr(file);
@@ -9557,6 +9562,11 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	else
 	{
 		city_heavy_step_index = 0;
+	}
+
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 20))
+	{
+		file->rdwr_long(weg_t::private_car_routes_currently_reading_element);
 	}
 
 	// Either reload the path explorer data or refresh the routing.
