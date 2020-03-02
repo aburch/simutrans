@@ -397,10 +397,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			while (tmp != NULL)
 			{	 
 				w = tmp->gr->get_weg(road_wt);
-#ifdef MULTI_THREAD
-				int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
-				assert(error == 0);
-#endif				
+			
 				if (w)
 				{
 					// The route is added here in a different array index to the set of routes
@@ -409,10 +406,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					// Also, the route is iterated here *backwards*. 
 					w->add_private_car_route(destination_pos, previous);
 				}
-#ifdef MULTI_THREAD
-				error = pthread_mutex_unlock(&karte_t::private_car_store_route_mutex);
-				assert(error == 0);
-#endif				
+			
 				// Old route storage - we probably no longer need this.
 				//route.store_at(tmp->count, tmp->gr->get_pos());
 

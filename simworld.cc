@@ -150,7 +150,6 @@ static pthread_mutexattr_t mutex_attributes;
 //pthread_mutex_t karte_t::unreserve_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_mutex_t karte_t::private_car_route_mutex;
-pthread_mutex_t karte_t::private_car_store_route_mutex;
 pthread_mutex_t karte_t::step_passengers_and_mail_mutex;
 static pthread_mutex_t path_explorer_await_mutex;
 pthread_mutex_t karte_t::unreserve_route_mutex;
@@ -2072,7 +2071,7 @@ void karte_t::init_threads()
 	pthread_mutexattr_settype(&mutex_attributes, PTHREAD_MUTEX_ERRORCHECK);
 
 	pthread_mutex_init(&private_car_route_mutex, &mutex_attributes);
-	pthread_mutex_init(&private_car_store_route_mutex, &mutex_attributes);
+	
 	pthread_mutex_init(&step_passengers_and_mail_mutex, &mutex_attributes);
 	pthread_mutex_init(&path_explorer_await_mutex, &mutex_attributes);
 	pthread_mutex_init(&unreserve_route_mutex, &mutex_attributes);
@@ -2252,7 +2251,6 @@ void karte_t::destroy_threads()
 
 		// Destroy mutexes
 		pthread_mutex_destroy(&private_car_route_mutex);
-		pthread_mutex_destroy(&private_car_store_route_mutex);
 		pthread_mutex_destroy(&step_passengers_and_mail_mutex);
 		pthread_mutex_destroy(&path_explorer_await_mutex);
 		pthread_mutex_destroy(&unreserve_route_mutex);
@@ -5474,6 +5472,7 @@ void karte_t::step()
 	// This is computationally intensive, but intermittently. The computational intensity increases exponentially with the size of the map.
 	const uint32 check_frequency = max(stadt.get_count() / 6, 1);
 	const bool check_city_routes = (steps % check_frequency) == 0;
+	//const bool check_city_routes = true;
 	if (check_city_routes)
 	{
 		const sint32 parallel_operations = get_parallel_operations();
@@ -5489,7 +5488,10 @@ void karte_t::step()
 		
 #ifdef MULTI_THREAD
 		// This cannot be started at the end of the step, as we will not know at that point whether we need to call this at all.
-		cities_to_process = stadt.get_count() > 64 ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		// There can be many mutex clashes with this; however, processing only one city at a time can make it take an unfeasible amount of time to refresh all routes.
+		//cities_to_process = stadt.get_count() > 64 ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		//cities_to_process = 1;
+		cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		start_private_car_threads();
 #else			
 		const uint32 cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
@@ -5613,6 +5615,7 @@ void karte_t::step()
 	if (check_city_routes)
 	{
 		await_private_car_threads();
+		INT_CHECK("TEST");
 	}
 #endif	
 

@@ -28,7 +28,6 @@
 #include "kanal.h"
 #include "runway.h"
 
-
 #include "../grund.h"
 #include "../../simmesg.h"
 #include "../../simworld.h"
@@ -60,6 +59,7 @@
 #ifdef MULTI_THREAD
 #include "../../utils/simthread.h"
 static pthread_mutex_t weg_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutexattr_t mutex_attributes;
 #endif
 
 static uint32 private_car_routes_currently_reading_element = 0; 
@@ -356,6 +356,9 @@ void weg_t::init()
 	degraded = false;
 	remaining_wear_capacity = 100000000;
 	replacement_way = NULL;
+#ifdef MULTI_THREAD
+	pthread_mutex_init(&private_car_store_route_mutex, &mutex_attributes);
+#endif
 }
 
 
@@ -379,6 +382,9 @@ weg_t::~weg_t()
 			player_t::add_maintenance(player, -maint, desc->get_finance_waytype());
 		}
 	}
+#ifdef MULTI_THREAD
+	pthread_mutex_destroy(&private_car_store_route_mutex);
+#endif
 }
 
 
@@ -1835,7 +1841,17 @@ signal_t *weg_t::get_signal(ribi_t::ribi direction_of_travel) const
 
 void weg_t::add_private_car_route(koord destination, koord3d next_tile)
 {
+#ifdef MULTI_THREAD
+	int error = pthread_mutex_lock(&private_car_store_route_mutex);
+	assert(error == 0);
+#endif	
 	private_car_routes[get_private_car_routes_currently_writing_element()].set(destination, next_tile); 
+
+	//private_car_routes_std[get_private_car_routes_currently_writing_element()].emplace(destination, next_tile); // Old performance test - but this was worse than the Simutrans type
+#ifdef MULTI_THREAD
+	error = pthread_mutex_unlock(&private_car_store_route_mutex);
+	assert(error == 0);
+#endif	
 }
 
 void weg_t::delete_all_routes_from_here(bool reading_set)
@@ -1882,5 +1898,15 @@ void weg_t::delete_route_to(koord destination, bool reading_set)
 void weg_t::remove_private_car_route(koord destination, bool reading_set)
 {
 	const uint32 routes_index = reading_set ? private_car_routes_currently_reading_element : get_private_car_routes_currently_writing_element();
+#ifdef MULTI_THREAD
+	int error = pthread_mutex_lock(&private_car_store_route_mutex);
+	assert(error == 0);
+#endif	
 	private_car_routes[routes_index].remove(destination); 
+	//private_car_routes_std[routes_index].erase(destination); // Old test - but this was much slower than the Simutrans hashtable.
+#ifdef MULTI_THREAD
+	error = pthread_mutex_unlock(&private_car_store_route_mutex);
+	assert(error == 0);
+#endif	
+	
 }

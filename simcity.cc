@@ -2798,16 +2798,7 @@ void stadt_t::check_all_private_car_routes()
 	weg_t* const w = gr->get_weg(road_wt); 
 	if (w)
 	{
-#ifdef MULTI_THREAD
-		int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
-		assert(error == 0);
-
-#endif
 		w->delete_all_routes_from_here();
-#ifdef MULTI_THREAD
-		error = pthread_mutex_unlock(&karte_t::private_car_store_route_mutex);
-		assert(error == 0);
-#endif
 	}
 
 	// This will find the fastest route from the townhall road to *all* other townhall roads, industries and attractions.
