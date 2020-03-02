@@ -2931,6 +2931,10 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(coupling_done);
 		file->rdwr_byte(next_initial_direction);
 	}
+	
+	if(  file->get_OTRP_version()>=24  ) {
+		file->rdwr_long( scheduled_departure_time_intern );
+	}
 
 	if(  file->is_loading()  ) {
 		reserve_route();

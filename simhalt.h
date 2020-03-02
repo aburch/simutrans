@@ -525,6 +525,7 @@ private:
 		
 		departure_t(uint32 a, uint32 d, uint32 e, convoihandle_t c) : 
 		arr_tick(a), dep_tick(d), exp_tick(e), cnv(c) {}
+		departure_t() {};
 	};
 	
 	/*

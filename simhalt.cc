@@ -2989,6 +2989,30 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			financial_history[k][HALT_WALKED] = 0;
 		}
 	}
+	
+	// read and write departure slots.
+	if(  file->get_OTRP_version()>=24  ) {
+		for(uint8 idx=0; idx<DST_SIZE; idx++) {
+			uint32 n = departure_slot_table[idx].get_count();
+			file->rdwr_long(n);
+			slist_tpl<departure_t>::iterator i = departure_slot_table[idx].begin();
+			if(  file->is_loading()  ) {
+				departure_slot_table[idx].clear();
+			}
+			for(uint8 k=0; k<n; k++) {
+				departure_t d = file->is_loading() ? departure_t() : *i;
+				file->rdwr_long(d.arr_tick);
+				file->rdwr_long(d.dep_tick);
+				file->rdwr_long(d.exp_tick);
+				convoi_t::rdwr_convoihandle_t(file, d.cnv);
+				if(  file->is_loading()  ) {
+					departure_slot_table[idx].append(d);
+				} else {
+					i++; // increment iterator
+				}
+			}
+		}
+	}
 }
 
 
