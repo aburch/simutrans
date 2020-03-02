@@ -1835,7 +1835,7 @@ signal_t *weg_t::get_signal(ribi_t::ribi direction_of_travel) const
 
 void weg_t::add_private_car_route(koord destination, koord3d next_tile)
 {
-	private_car_routes[get_private_car_routes_currently_writing_element()].put(destination, next_tile); 
+	private_car_routes[get_private_car_routes_currently_writing_element()].set(destination, next_tile); 
 }
 
 void weg_t::delete_all_routes_from_here(bool reading_set)

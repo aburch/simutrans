@@ -5472,7 +5472,7 @@ void karte_t::step()
 
 	// Check the private car routes. In multi-threaded mode, this can be running in the background whilst a number of other steps are processed.
 	// This is computationally intensive, but intermittently. The computational intensity increases exponentially with the size of the map.
-	const uint32 check_frequency = max(stadt.get_count() / 2, 1);
+	const uint32 check_frequency = max(stadt.get_count() / 6, 1);
 	const bool check_city_routes = (steps % check_frequency) == 0;
 	if (check_city_routes)
 	{
