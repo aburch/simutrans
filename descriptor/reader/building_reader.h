@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef __BUILDING_READER_H
 #define __BUILDING_READER_H
 

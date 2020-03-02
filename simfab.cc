@@ -1,11 +1,6 @@
 /*
- * Fabrikfunktionen und Fabrikbau
- *
- * Hansjörg Malthaner
- *
- *
- * 25.03.00 Anpassung der Lagerkapazitäten: min. 5 normale Lieferungen
- *          sollten an Lager gehalten werden.
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <math.h>

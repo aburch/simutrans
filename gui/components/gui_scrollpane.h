@@ -1,10 +1,6 @@
 /*
- * this is a scrolling area in which subcomponents are drawn
- *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef gui_scrollpane_h
@@ -16,10 +12,15 @@
 
 class loadsave_t;
 
+/*
+ * this is a scrolling area in which subcomponents are drawn
+ */
 class gui_scrollpane_t : public gui_component_t
 {
 private:
 	scr_size old_comp_size;
+	scr_size cached_min_size;
+	scr_size cached_max_size;
 
 	/**
 	 * Scrollbar X/Y
@@ -31,6 +32,10 @@ private:
 	bool b_show_scroll_y:1;
 	bool b_has_size_corner:1;
 	bool maximize:1;
+	bool take_cached_size:1;
+
+	// for oversized entries
+	scr_coord_val max_width;
 
 protected:
 	/**
@@ -49,6 +54,14 @@ public:
 	gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x = false, bool b_scroll_y = true);
 
 	void set_component(gui_component_t *comp) { this->comp = comp; }
+
+	/**
+	* this is the maximum width a scrollbar requests as minimum size
+	* default is the stadard width of a dialoge (4*button width+3*space)
+	* @param width, the minimum width it should strech to
+	*/
+	virtual void set_min_width( scr_coord_val width ) { max_width = width; }
+
 	/**
 	 * This method MUST be used to set the size of scrollpanes.
 	 * @author Hj. Malthaner

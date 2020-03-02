@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef _NETWORK_CMD_H_
 #define _NETWORK_CMD_H_
 

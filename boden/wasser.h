@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef boden_wasser_h
 #define boden_wasser_h
 

@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2005 prissi
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef obj_roadsign_h

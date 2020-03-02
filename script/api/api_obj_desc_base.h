@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef _API_OBJ_DESC_BASE_H_
 #define _API_OBJ_DESC_BASE_H_
 

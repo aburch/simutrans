@@ -1,6 +1,6 @@
 /*
- * Dialogue to set the signal spacing, when CTRL+clicking a signal on toolbar
- * Used by tool_build_roadsign_t
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "gui_frame.h"

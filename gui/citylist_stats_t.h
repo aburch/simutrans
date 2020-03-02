@@ -1,10 +1,6 @@
 /*
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Where the citylist status are calculated (for graphs and statistics)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef CITYLIST_STATS_T_H
@@ -18,7 +14,10 @@
 class stadt_t;
 
 
-// City list stats display
+/*
+ * City list stats display
+ * Where the citylist status are calculated (for graphs and statistics)
+ */
 class citylist_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:

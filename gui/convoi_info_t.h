@@ -1,16 +1,8 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Displays an information window for a convoi
- *
- * @author Hj. Malthaner
- * @date 22-Aug-01
- */
 
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
@@ -31,6 +23,12 @@
 
 class convoi_detail_t;
 
+/*
+ * Displays an information window for a convoi
+ *
+ * @author Hj. Malthaner
+ * @date 22-Aug-01
+ */
 class convoi_info_t : public gui_frame_t, private action_listener_t
 {
 public:

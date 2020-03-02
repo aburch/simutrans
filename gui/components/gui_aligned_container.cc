@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "gui_aligned_container.h"
 #include "../gui_theme.h"
 #include "../../simdebug.h"

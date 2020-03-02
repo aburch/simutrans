@@ -1,10 +1,6 @@
 /*
- * just displays a text, will be auto-translated
- *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef gui_gui_label_h
@@ -19,6 +15,7 @@
 
 /**
  * The label component
+ * just displays a text, will be auto-translated
  *
  * @author Hj. Malthaner
  * @date 04-Mar-01

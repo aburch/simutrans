@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2008 prissi
- *
- * This file is part of the Simutrans project under the artistic license.
- *
- * New configurable OOP tool system
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
+
+/// New configurable OOP tool system
 
 #ifndef simmenu_h
 #define simmenu_h

@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2010 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string.h>
@@ -36,7 +34,10 @@ void gui_fixedwidth_textarea_t::set_width(const scr_coord_val width)
 {
 	if(  width>0  ) {
 		// height is simply reset to 0 as it requires recalculation anyway
-		gui_component_t::set_size( scr_size(width, 0) );
+		size = scr_size(width,0);
+
+		scr_size newsize = calc_display_text(scr_coord::invalid, false);
+		gui_component_t::set_size( newsize );
 	}
 }
 
@@ -68,7 +69,7 @@ scr_size gui_fixedwidth_textarea_t::get_min_size() const
 
 scr_size gui_fixedwidth_textarea_t::get_max_size() const
 {
-	return get_min_size();
+	return scr_size::inf;
 }
 
 
@@ -154,5 +155,5 @@ scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, co
 
 void gui_fixedwidth_textarea_t::draw(scr_coord offset)
 {
-	calc_display_text(offset + get_pos(), true);
+	size = calc_display_text(offset + get_pos(), true);
 }

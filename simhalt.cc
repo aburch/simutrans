@@ -1,16 +1,8 @@
 /*
- * Copyright (c) 1997 - 2001 Hansj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Stations for Simutrans
- * 03.2000 moved from simfab.cc
- *
- * Hj. Malthaner
- */
 #include <algorithm>
 
 #include "freight_list_sorter.h"

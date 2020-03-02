@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef vehicle_builder_t_h
@@ -33,6 +31,7 @@ class vehicle_builder_t
 public:
 	// sorting categories
 	enum sort_mode_t {
+		sb_freight,
 		sb_name,
 		sb_capacity,
 		sb_price,

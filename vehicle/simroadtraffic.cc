@@ -1,12 +1,6 @@
-/**
- * Moving objects for Simutrans.
- * Transport vehicles are defined in simvehicle.h, because they greatly
- * differ from the vehicles defined herein for the individual traffic
- * (pedestrians, citycars, movingobj aka flock of sheep).
- *
- * Hj. Malthaner
- *
- * April 2000
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "../simdebug.h"

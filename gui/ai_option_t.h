@@ -1,6 +1,6 @@
 /*
- * AI behavior options from AI finance window
- * 2006 prissi
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef ai_option_h
@@ -18,6 +18,10 @@
 class player_t;
 class ai_t;
 
+/*
+ * AI behavior options from AI finance window
+ * 2006 prissi
+ */
 class ai_option_t : public gui_frame_t, private action_listener_t
 {
 private:

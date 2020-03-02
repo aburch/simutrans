@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjoerg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
- * Ways (Roads, Railways, etc.)
- *
- * Hj. Malthaner
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <algorithm>

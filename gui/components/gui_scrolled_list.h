@@ -1,12 +1,6 @@
 /*
- * Scrollable list.
- * Displays list, scrollbuttons up/down, dragbar.
- * Has a min and a max size, and can be displayed with any size in between.
- * Does ONLY cater for vertical offset (yet).
- * two possible types:
- * -list.      simply lists some items.
- * -selection. is a list, but additionally, one item can be selected.
- * @author Niels Roest, additions by Hj. Malthaner
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef gui_scrolled_list_h
@@ -31,6 +25,13 @@ public:
 
 /**
  * Scrollable list of components that can be sorted, and has component selection.
+ * Displays list, scrollbuttons up/down, dragbar.
+ * Has a min and a max size, and can be displayed with any size in between.
+ * Does ONLY cater for vertical offset (yet).
+ * two possible types:
+ * -list.      simply lists some items.
+ * -selection. is a list, but additionally, one item can be selected.
+ * @author Niels Roest, additions by Hj. Malthaner
  */
 class gui_scrolled_list_t :
 	public gui_action_creator_t,
@@ -92,7 +93,6 @@ private:
 	enum type type;
 
 	bool maximize;	// true if to expand to bottom right corner
-	scr_coord_val max_width; // need for overlength entries
 
 	item_compare_func compare;
 	
@@ -105,12 +105,12 @@ protected:
 
 	void reset_container_size();
 
-	void set_cmp(item_compare_func cmp) { compare = cmp; }
-
 	/// deletes invalid elements from list
 	void cleanup_elements();
 
 public:
+	void set_cmp(item_compare_func cmp) { compare = cmp; }
+
 	gui_scrolled_list_t(enum type, item_compare_func cmp = 0);
 
 	~gui_scrolled_list_t() { clear_elements(); }
@@ -154,8 +154,6 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	void draw(scr_coord pos) OVERRIDE;
-
-	void set_max_width(scr_coord_val mw) { max_width = mw; }
 
 	bool is_marginless() const OVERRIDE { return maximize; }
 	void set_maximize(bool b) { maximize = b; }

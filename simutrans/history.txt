@@ -5,6 +5,7 @@
 	FIX: city more strongly attempt to build double height bridges over navigable rivers
 	ADD: Vehicle list as dialog tool 33 (to see also upcoming vehicles)
 	ADD: goods waiting bar with now configurable: gui_waitingbar_width
+	ADD: button to copy the last 20 messages to the clipboard
 
 Release of 121.0 (r8870 on 1-Dec-2019):
     ADD: Map number is shown in the enlarge map window.

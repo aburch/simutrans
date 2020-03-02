@@ -549,7 +549,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\themeselector.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\tool_selector.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\trafficlight_info.h" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)gui\vehiclelist_frame.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)gui\vehiclelist_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\welt.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\action_listener.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_action_creator.h" />

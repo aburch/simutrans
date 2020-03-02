@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef TPL_MINIVEC_H
 #define TPL_MINIVEC_H
 

@@ -1,14 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
- *
- * All moving stuff (vehicle_base_t) and all player vehicle (derived from vehicle_t)
- *
- * 01.11.99  Moved from simobj.cc
- *
- * Hansjoerg Malthaner, Nov. 1999
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <limits.h>

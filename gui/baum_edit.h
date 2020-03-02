@@ -1,5 +1,6 @@
 /*
- * The trees builder
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef gui_baum_edit_h
@@ -12,6 +13,9 @@
 class tree_desc_t;
 class tool_plant_tree_t;
 
+/*
+ * The trees builder
+ */
 class baum_edit_frame_t : public extend_edit_gui_t
 {
 private:

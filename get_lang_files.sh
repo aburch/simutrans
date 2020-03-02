@@ -1,8 +1,16 @@
 #!/bin/bash
+
+#
+# This file is part of the Simutrans project under the Artistic License.
+# (see LICENSE.txt)
+#
+
 #
 # script to fetch language files
 #
+
 OUTPUT_DIR=simutrans/text
+
 # get the translations for basis
 # The first file is longer, but only because it contains SQL error messages
 # - discard it after complete download (although parsing it would give us the archive's name):

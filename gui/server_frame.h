@@ -1,7 +1,6 @@
-/**
- * server_frame.h
- *
- * Server game listing and current game information window
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef gui_serverframe_h

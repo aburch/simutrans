@@ -1,10 +1,6 @@
 /*
- * Copyright (c) 1997 - 2004 Hansjörg Malthaner
- *
- * Base class for the map editing windows (in files *_edit.cc)
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -69,6 +65,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 	cont_left.add_component(&scl);
 	scl.set_selection(-1);
 	scl.add_listener(this);
+	scl.set_min_width( (D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT-2*D_H_SPACE)/2 );
 
 	// add image
 	cont_left.add_component(&building_image);
@@ -77,6 +74,9 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 
 	// right column
 	add_table(1,0);
+
+	// add stretcher element
+	cont_left.new_component<gui_fill_t>();
 
 	bt_climates.init( button_t::square_state, "ignore climates");
 	bt_climates.add_listener(this);
@@ -96,6 +96,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 
 	scrolly.set_visible(true);
 	add_component(&scrolly);
+	scrolly.set_min_width( (D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT-2*D_H_SPACE)/2 );
 	end_table();
 
 	set_resizemode(diagonal_resize);
@@ -114,6 +115,14 @@ bool extend_edit_gui_t::infowin_event(const event_t *ev)
 	return gui_frame_t::infowin_event(ev);
 }
 
+
+
+// resize flowtext to avoid horizontal scrollbar
+void extend_edit_gui_t::set_windowsize( scr_size s )
+{
+	gui_frame_t::set_windowsize( s );
+	info_text.set_width( scrolly.get_client().w );
+}
 
 
 bool extend_edit_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)           // 28-Dec-01    Markus Weber    Added

@@ -1,9 +1,6 @@
 /*
- * Dialogue to increase map size.
- *
- * Gerd Wachsmuth
- *
- * October 2008
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string.h>

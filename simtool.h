@@ -1,11 +1,12 @@
 /*
- * New OO tool system
- *
- * This file is part of the Simutrans project under the artistic license.
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef SIMTOOL_H
 #define SIMTOOL_H
+
+/// New OO tool system
 
 #include "simtypes.h"
 #include "simworld.h"
