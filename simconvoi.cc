@@ -3448,11 +3448,6 @@ station_tile_search_ready: ;
 		departure_cond = can_depart(self, halt, arrived_time,
 			 time, need_coupling_at_this_stop, scheduled_departure_time_intern);
 		
-		if(  scheduled_departure_time_intern>0  ) {
-			// departure time is set. we have to take wait_lock into account.
-			scheduled_departure_time = scheduled_departure_time_intern + time;
-		}
-		
 		if(  need_coupling_at_this_stop  &&  next_initial_direction==ribi_t::none  ) {
 			// calc the initial direction to the next stop.
 			route_t r;
@@ -3464,6 +3459,11 @@ station_tile_search_ready: ;
 				next_initial_direction = ribi_type(r.at(0), r.at(1));
 			}
 		}
+	}
+
+	if(  scheduled_departure_time_intern>0  ) {
+		// departure time is set. we have to take wait_lock into account.
+		scheduled_departure_time = scheduled_departure_time_intern + time;
 	}
 
 	// loading is finished => maybe drive on
