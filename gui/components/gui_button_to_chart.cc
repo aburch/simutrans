@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "gui_button_to_chart.h"
 #include "../../dataobj/loadsave.h"
 #include "../../tpl/vector_tpl.h"

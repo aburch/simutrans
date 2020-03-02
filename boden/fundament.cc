@@ -1,4 +1,9 @@
 /*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/*
  * Ground for buildings in Simutrans.
  * Revised January 2001
  * Hj. Malthaner

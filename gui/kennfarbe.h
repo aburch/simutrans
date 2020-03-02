@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Company colors window
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef gui_kennfarbe_h
@@ -19,12 +13,11 @@
 #include "components/gui_button.h"
 
 class choose_color_button_t;
-/**
- * Dialog to set the player's color
- *
- * @author Hj. Malthaner, Max Kielland 2013
- */
 
+/*
+ * Company colors window
+ * Dialog to set the player's color
+ */
 class farbengui_t : public gui_frame_t, action_listener_t
 {
 	private:

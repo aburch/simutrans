@@ -1,5 +1,6 @@
 /*
- * The citybuilding editor (urban buildings builder)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef gui_citybuilding_edit_h
@@ -14,6 +15,9 @@ class building_desc_t;
 class tool_build_house_t;
 
 
+/*
+ * The citybuilding editor (urban buildings builder)
+ */
 class citybuilding_edit_frame_t : public extend_edit_gui_t
 {
 private:

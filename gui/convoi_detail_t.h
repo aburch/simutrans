@@ -1,13 +1,8 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Convoi details component
- */
 #include "components/gui_aligned_container.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_button.h"
@@ -19,6 +14,7 @@ class scr_coord;
 class karte_ptr_t;
 
 /**
+ * Convoi details component
  * Fills information table for convoi
  *
  * @author Hj. Malthaner

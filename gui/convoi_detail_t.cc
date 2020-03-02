@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Convoi details window
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -29,7 +23,6 @@
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
-
 
 karte_ptr_t convoi_detail_t:: welt;
 

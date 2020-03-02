@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #if defined(_M_X64)  ||  defined(__x86_64__)
 #if   __GNUC__
 #warning "Simutrans is preferably compiled as 32 bit binary!"
@@ -284,6 +289,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 					simgraph_resize( ev.size_x, ev.size_y );
 					dr_prepare_flush();
 					display_fillbox_wh_rgb( 0, 0, ev.size_x, ev.size_y, color_idx_to_rgb(COL_BLACK), true );
+					gui->draw(win_get_pos(gui), gui->get_windowsize());
 					dr_flush();
 				}
 				else if (ev.ev_code == SYSTEM_QUIT) {

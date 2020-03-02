@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef message_stats_t_h
@@ -51,6 +49,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void draw(scr_coord offset) OVERRIDE;
+
 
 
 	scr_size get_max_size() const OVERRIDE {

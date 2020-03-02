@@ -1,6 +1,6 @@
 /*
- * Copyright 2010 Simutrans contributors
- * Available under the Artistic License (see license.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdlib.h>
@@ -4308,12 +4308,12 @@ utf32 get_prev_char_with_metrics(const char* &text, const char *const text_start
 
 
 /* proportional_string_width with a text of a given length
- * extended for universal font routines with unicode support
- * @author Volker Meyer
- * @date  15.06.2003
- * @author prissi
- * @date 29.11.04
- */
+* extended for universal font routines with unicode support
+* @author Volker Meyer
+* @date  15.06.2003
+* @author prissi
+* @date 29.11.04
+*/
 int display_calc_proportional_string_len_width(const char *text, size_t len)
 {
 	const font_t* const fnt = &large_font;
@@ -4336,6 +4336,43 @@ int display_calc_proportional_string_len_width(const char *text, size_t len)
 
 	return width;
 }
+
+
+
+/* display_calc_proportional_multiline_string_len_width
+* calculates the width and hieght of a box containing the text inside
+*/
+void display_calc_proportional_multiline_string_len_width(int &xw, int &yh, const char *text, size_t len)
+{
+	const font_t* const fnt = &large_font;
+	int width = 0;
+	int w;
+
+	xw = yh = 0;
+
+	// decode char
+	const char *const end = text + len;
+	while(  text < end  ) {
+		utf32 iUnicode = utf8_decoder_t::decode((utf8 const *&)text);
+		if(  iUnicode == '\n'  ) {
+			// new line: record max width
+			xw = max( xw, width );
+			yh += LINESPACE;
+			width = 0;
+		}
+		if(  iUnicode == UNICODE_NUL ) {
+			return;
+		}
+		else if(  iUnicode >= fnt->num_chars  ||  (w = fnt->screen_width[iUnicode]) == 0xFF  ) {
+			// default width for missing characters
+			w = fnt->screen_width[0];
+		}
+		width += w;
+	}
+	xw = max( xw, width );
+	yh += LINESPACE;
+}
+
 
 
 /**
@@ -5273,15 +5310,6 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 		mark_screen_dirty();
 		MEMZERON( tile_dirty_old, tile_buffer_length );
 	}
-}
-
-
-/**
- * Sets a new value for "textur"
- */
-void reset_textur(void *new_textur)
-{
-	textur=(PIXVAL *)new_textur;
 }
 
 

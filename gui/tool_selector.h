@@ -1,11 +1,6 @@
 /*
- * Copyright (c) 2008 prissi
- *
- * This file is part of the Simutrans project under the artistic licence.
- */
-
-/*
- * This class defines all toolbar dialogues, floating bar of tools, i.e. the part the user will see
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef TOOL_SELECTOR_H
@@ -19,6 +14,9 @@
 class tool_t;
 
 
+/*
+ * This class defines all toolbar dialogues, floating bar of tools, i.e. the part the user will see
+ */
 class tool_selector_t : public gui_frame_t
 {
 private:

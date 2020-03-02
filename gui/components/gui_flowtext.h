@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef GUI_COMPONENTS_FLOWTEXT_H
 #define GUI_COMPONENTS_FLOWTEXT_H
 

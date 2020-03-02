@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2002 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artisic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef dataobj_ribi_t_h

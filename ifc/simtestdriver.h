@@ -1,7 +1,6 @@
 /*
- * Interface to connect the vehicle with its route
- *
- * 15.01.00, Hj. Malthaner
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef SIMTESTDRIVER_H

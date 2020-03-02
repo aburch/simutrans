@@ -1,5 +1,6 @@
 /*
- * Routines to manage special object descriptors lists used in the program.
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef __SPECIAL_OBJ_TPL_H
@@ -9,6 +10,9 @@
 #include <typeinfo>
 #include "../simdebug.h"
 
+/*
+ * Routines to manage special object descriptors lists used in the program.
+ */
 
 /**
  * Descriptors of required objects. The following functions manage

@@ -1,6 +1,6 @@
 /*
- * Dialog for game options/Main menu
- * Niels Roest, Hj. Malthaner, 2000
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef gui_optionen_h
@@ -16,6 +16,10 @@ class action_listener_t;
 class button_t;
 class gui_action_creator_t;
 
+/*
+ * Dialog for game options/Main menu
+ * Niels Roest, Hj. Malthaner, 2000
+ */
 class optionen_gui_t : public gui_frame_t, action_listener_t
 {
 	private:

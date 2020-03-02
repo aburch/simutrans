@@ -1,9 +1,18 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef label_h
 #define label_h
 
 #include "../simobj.h"
 #include "../display/simimg.h"
 
+
+/*
+ * Object which shows the label that indicates that the ground is owned by somebody
+ */
 class label_t : public obj_t
 {
 public:

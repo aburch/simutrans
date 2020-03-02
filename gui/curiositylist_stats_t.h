@@ -1,13 +1,6 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/**
- * Where curiosity (attractions) stats are calculated for list dialog
- * @author Hj. Malthaner
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef curiositylist_stats_t_h
@@ -23,6 +16,10 @@ namespace curiositylist {
     enum sort_mode_t { by_name=0, by_paxlevel/*, by_maillevel*/, SORT_MODES };
 };
 
+/**
+ * Where curiosity (attractions) stats are calculated for list dialog
+ * @author Hj. Malthaner
+ */
 class curiositylist_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:

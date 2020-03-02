@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "descriptor/skin_desc.h"
 #include "descriptor/spezial_obj_tpl.h"
 #include "simskin.h"

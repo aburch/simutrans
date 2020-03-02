@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef gui_extend_edit_h
 #define gui_extend_edit_h
 
@@ -87,6 +92,8 @@ public:
 	* @author Hj. Malthaner
 	*/
 	bool has_min_sizer() const OVERRIDE {return true;}
+
+	void set_windowsize( scr_size s ) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

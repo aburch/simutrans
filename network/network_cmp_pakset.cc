@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "network_cmp_pakset.h"
 #include "network_packet.h"
 #include "network.h"

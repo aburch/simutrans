@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef VEHICLE_WRITER_H
 #define VEHICLE_WRITER_H
 

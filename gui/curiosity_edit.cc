@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2004 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Curiosity (attractions) builder dialog
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -138,8 +132,6 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 			scl.set_selection(scl.get_count()-1);
 		}
 	}
-	scr_coord_val em = display_get_char_width('m');
-	scl.set_max_width(30*em);
 	// always update current selection (since the tool may depend on it)
 	change_item_info( scl.get_selection() );
 }

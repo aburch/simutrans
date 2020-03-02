@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * [Mathew Hounsell] Min Size Button On Map Window 20030313
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string>
@@ -164,6 +158,7 @@ map_frame_t::map_frame_t() :
 	karte->player_showed_on_map = -1;
 
 	p_scrolly = new gui_scrollpane_map_t( minimap_t::get_instance());
+	p_scrolly->set_min_width( D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT );
 	// initialize scrollbar positions -- LATER
 	const scr_size size = karte->get_size();
 	const scr_size s_size=scrolly.get_size();
