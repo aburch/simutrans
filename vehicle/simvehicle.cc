@@ -3708,7 +3708,7 @@ skip_choose:
 			if(  try_coupling  ) {
 				uint16 next_coupling;
 				uint8 next_c_steps;
-				if(  !can_couple(cnv->get_route(), route_index, next_coupling, next_c_steps)  ||  next_coupling==INVALID_INDEX  ) {
+				if(  !can_couple(cnv->get_route(), route_index, next_coupling, next_c_steps, true)  ||  next_coupling==INVALID_INDEX  ) {
 					dbg->error( "rail_vehicle_t::is_choose_signal_clear()", "could not find coupling point after find_route!" );
 					target_halt = halthandle_t();
 					sig->set_state( roadsign_t::rot );
@@ -4136,7 +4136,7 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 }
 
 
-bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16 &coupling_index, uint8 &coupling_steps) {
+bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16 &coupling_index, uint8 &coupling_steps, bool ignore_signals) {
 	// first, does the current schedule entry require coupling?
 	// Since current schedule entry can be a waypoint, we proceed to a genuine stop point.
 	sint16 idx = cnv->get_schedule()->get_current_stop();
@@ -4202,7 +4202,7 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 		}
 		// check for signals
 		schiene_t * sch = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
-		if(  !sch  ||  sch->has_signal()  ||  !sch->can_reserve(cnv->self)  ) {
+		if(  !sch  ||  (!ignore_signals  &&  sch->has_signal())  ||  !sch->can_reserve(cnv->self)  ) {
 			// end of truck or section. or unreachable for some reasons. anyway, convoy for coupling is not found.
 			return false;
 		}
