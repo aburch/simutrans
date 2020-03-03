@@ -103,3 +103,13 @@ If this is set, convoys will wait until one of the specified times before depart
 指定された時刻まで発車を待機し，その時刻に発車します．発車時刻は一ヶ月を発車本数で等分したタイミングです．
 Use one spacing, shift and delay tolerance value for all stops in schedule.
 全ての停車地点に対して，同じ月あたり発車本数，タイミングオフセット，遅延許容時間を適用します．
+Unregister replacement
+置換登録解除
+Replacement seed
+置換編成に登録
+Set as the replacement seed convoy
+車庫に到着した編成の組成を，この編成と同じにします．
+Full Load Acceleration
+応荷重制御
+Always use full load acceleration regardless of loadings.
+積載量にかかわらず満載時の加速度で運転します．
