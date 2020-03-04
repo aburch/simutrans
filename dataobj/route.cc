@@ -417,7 +417,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			}
 
 #ifdef MULTI_THREAD
-			if (!suspend_private_car_routing && private_car_route_step_counter >= 2048) // TODO: Set this value via simuconf.tab
+			const uint32 max_steps = welt->get_settings().get_max_route_tiles_to_process_in_a_step(); 
+			if (max_steps && !suspend_private_car_routing && private_car_route_step_counter >= max_steps) 
 			{
 				// Halt this mid step if there are too many routes being calculated so as not to make the game unresponsive.
 				// On a Ryzen 3900x, calculating all routes from one city on a 600 city map can take ~4 seconds.

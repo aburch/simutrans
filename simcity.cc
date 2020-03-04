@@ -6159,7 +6159,7 @@ void stadt_t::process_private_car_routes()
 				// Do not process routes that we have already processed.
 				continue;
 			}
-			if (count >= welt->get_settings().get_max_routes_to_process_in_a_step() + route_processing_counter && welt->get_settings().get_max_routes_to_process_in_a_step() > 0)
+			if (count >= welt->get_settings().get_max_route_tiles_to_process_in_a_step() + route_processing_counter && welt->get_settings().get_max_route_tiles_to_process_in_a_step() > 0)
 			{
 				route_processing_counter += count;
 				goto end_loop;
