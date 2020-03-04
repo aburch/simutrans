@@ -545,13 +545,17 @@ DownloadInstallCabWithoutSimutransDo:
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
-  CabDLL::CabView "$TEMP\$archievename"
+  ; not supported with Unicode
+  ;CabDLL::CabView "$TEMP\$archievename"
   DetailPrint "Install of $archievename to $INSTDIR"
   CreateDirectory "$INSTDIR\$downloadname"
   CreateDirectory "$INSTDIR\$downloadname\config"
   CreateDirectory "$INSTDIR\$downloadname\sound"
   CreateDirectory "$INSTDIR\$downloadname\text"
-  CabDLL::CabExtractAll "$TEMP\$archievename" "$INSTDIR"
+
+  CabX::FromFile "" "$TEMP\$archievename" "$INSTDIR"
+  ; for ANSI installer
+  ;CabDLL::CabExtractAll "$TEMP\$archievename" "$INSTDIR"
   StrCmp $R0 "0" +5
     DetailPrint "$0" ;print error message to log
     RMdir /r "$TEMP\simutrans"
