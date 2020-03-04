@@ -1934,8 +1934,8 @@ void karte_t::await_private_car_threads()
 
 void karte_t::suspend_private_car_threads()
 {
-	route_t::suspend_private_car_routing = true;
 	await_private_car_threads();
+	route_t::suspend_private_car_routing = true;
 	start_private_car_threads();
 	await_private_car_threads();
 	route_t::suspend_private_car_routing = false;
