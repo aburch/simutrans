@@ -218,6 +218,8 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	}
 	SEPERATOR;
 
+	world()->await_private_car_threads();
+
 	INIT_NUM( "city_threshold_size", sets->get_city_threshold_size(), 1000, 100000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "capital_threshold_size", sets->get_capital_threshold_size(), 10000, 1000000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "city_threshold_percentage", sets->get_city_threshold_percentage(), 0, 100, gui_numberinput_t::PLAIN, false);
@@ -329,6 +331,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 
 void settings_extended_general_stats_t::read(settings_t *sets)
 {
+	world()->await_private_car_threads();
 	READ_INIT;
 
 	READ_NUM( sets->set_tpo_min_minutes );
