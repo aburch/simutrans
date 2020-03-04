@@ -425,35 +425,12 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 
 				// It is intentional to have two barriers here.
 				simthread_barrier_wait(&karte_t::private_car_barrier);
-				simthread_barrier_wait(&karte_t::private_car_barrier);
+				if (!suspend_private_car_routing)
+				{
+					simthread_barrier_wait(&karte_t::private_car_barrier);
+				}
 				private_car_route_step_counter = 0;
 			}
-#endif
-#if 0 // City route storage is now deprecated; TODO: Remove this code when its replacement is complete.
-			// We are passing the route by value rather than by reference (pointer) on purpose,
-			// since we need to copy the route to the origin city and re-use the local vector here.
-#ifdef MULTI_THREAD
-			int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
-			assert(error == 0);
-			
-#endif	
-			if (destination_industry)
-			{
-				origin_city->store_private_car_route(route, destination_industry->get_pos().get_2d());
-			}
-			else if (destination_attraction)
-			{
-				const koord attraction_pos = destination_attraction ? destination_attraction->get_first_tile()->get_pos().get_2d() : koord::invalid;
-				origin_city->store_private_car_route(route, attraction_pos);
-			}
-			else if (destination_city)
-			{
-				origin_city->store_private_car_route(route, destination_city->get_townhall_road());
-			}
-#ifdef MULTI_THREAD
-			error = pthread_mutex_unlock(&karte_t::private_car_store_route_mutex);
-			assert(error == 0);
-#endif
 #endif
 			tmp = original_tmp;
 

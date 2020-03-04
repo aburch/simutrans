@@ -3099,8 +3099,6 @@ karte_t::karte_t() :
 	path_explorer_working = false;
 	private_car_threads_working = false;
 #endif
-
-	city_heavy_step_index = 0;
 }
 
 karte_t::~karte_t()
@@ -5592,31 +5590,13 @@ void karte_t::step()
 	// Processing private car routes is, however, quite computationally intensive, so only do one town per step.
 	// This probably cannot usefully be multi-threaded as all instances would need to access the same road data.
 	DBG_DEBUG4("karte_t::step 6", "step cities");
-#define CONCURRENT_ROUTE_PROCESSING
-#ifndef CONCURRENT_ROUTE_PROCESSING
-	uint32 step_cities_count = 0;
-#endif
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) 
 	{
 		i->step(delta_t);
 		rands[21] += i->get_einwohner();
 		rands[22] += i->get_buildings();
-#ifndef CONCURRENT_ROUTE_PROCESSING
-		if (step_cities_count == city_heavy_step_index)
-		{
-			i->step_heavy();
-		}
+	}
 
-		step_cities_count++;
-#endif
-	}
-#ifndef CONCURRENT_ROUTE_PROCESSING
-	city_heavy_step_index++;
-#endif
-	if (city_heavy_step_index > stadt.get_count())
-	{
-		city_heavy_step_index = 0;
-	}
 	rands[14] = get_random_seed();
 
 	INT_CHECK("karte_t::step 3b");
@@ -5626,7 +5606,6 @@ void karte_t::step()
 	if (check_city_routes)
 	{
 		await_private_car_threads();
-		INT_CHECK("TEST");
 	}
 #endif	
 
@@ -5683,22 +5662,6 @@ void karte_t::step()
 	DBG_DEBUG4("karte_t::step", "step generate passengers and mail");
 
 	rands[15] = get_random_seed();
-
-#ifdef CONCURRENT_ROUTE_PROCESSING
-	// The processing of private car routes can run concurrently with passenger and mail generation
-	// so long as the connected_cities (etc.) be not altered.
-	uint32 step_cities_count = 0;
-	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
-	{
-		if (step_cities_count == city_heavy_step_index)
-		{
-			i->step_heavy();
-		}
-
-		step_cities_count++;
-	}
-	city_heavy_step_index++;
-#endif
 
 	// the inhabitants stuff
 	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = 0;
@@ -8457,11 +8420,12 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 19))
 	{
-		file->rdwr_long(city_heavy_step_index);
-	}
-	else
-	{
-		city_heavy_step_index = 0;
+		if (file->get_extended_version() == 14 && file->get_extended_revision() < 20)
+		{
+			// Was city_heavy_step_index
+			uint32 dummy = 0;
+			file->rdwr_long(dummy);
+		}
 	}
 
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 20))
@@ -9601,11 +9565,12 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 19))
 	{
-		file->rdwr_long(city_heavy_step_index);
-	}
-	else
-	{
-		city_heavy_step_index = 0;
+		if (file->get_extended_version() == 14 && file->get_extended_revision() < 20)
+		{
+			// Was city_heavy_step_index
+			uint32 dummy = 0;
+			file->rdwr_long(dummy);
+		}
 	}
 
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 20))

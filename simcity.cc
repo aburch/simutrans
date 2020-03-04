@@ -1718,7 +1718,6 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	welt->add_queued_city(this);
 
 	number_of_cars = 0;
-	currently_active_route_map = 0;
 }
 
 stadt_t::stadt_t(loadsave_t* file) :
@@ -2379,58 +2378,15 @@ void stadt_t::rdwr(loadsave_t* file)
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 19))
 	{
 		// Private car route data
-		file->rdwr_bool(private_car_route_finding_in_progress); 
-		file->rdwr_long(currently_active_route_map); 
-		file->rdwr_long(route_processing_counter); 
-		if (file->is_saving())
-		{
-			for (uint32 i = 0; i++; i < 2) // Bad for loop logic here
-			{
-				uint32 private_car_routes_count = private_car_routes[i].get_count();
-				file->rdwr_long(private_car_routes_count);
+		file->rdwr_bool(private_car_route_finding_in_progress);
 
-				FOR(private_car_route_map, route, private_car_routes[i])
-				{
-					uint32 route_element_count = route.value.get_count();
-					file->rdwr_long(route_element_count);
-					koord k = route.key;
-					k.rdwr(file);
-					FOR(vector_tpl<koord3d>, route_element, route.value)
-					{
-						route_element.rdwr(file);
-					}
-				}
-			}
-		}
-		else // Loading
+		// All apart from the above is deprecated as this system was found to use too much memory.
+		if (file->get_extended_version() == 14 && file->get_extended_revision() < 20)
 		{
-			for (uint32 i = 0; i++; i < 2) // Bad for loop logic here
-			{
-				private_car_routes[i].clear();
-				uint32 private_car_routes_count = 0;
-				file->rdwr_long(private_car_routes_count);
-
-				for (uint32 i = 0; i < private_car_routes_count; i++)
-				{
-					uint32 route_element_count = 0;
-					file->rdwr_long(route_element_count);
-					koord k;
-					k.rdwr(file);
-					vector_tpl<koord3d> route;
-					for (uint32 j = 0; j < route_element_count; j++)
-					{
-						koord3d k3d;
-						k3d.rdwr(file);
-						route.append(k3d);
-					}
-					private_car_routes[i].put(k, route);
-				}
-			}
+			uint32 dummy = 0;
+			file->rdwr_long(dummy);
+			file->rdwr_long(dummy);
 		}
-	}
-	else
-	{
-		currently_active_route_map = 0;
 	}
 
 	if(file->get_extended_version() >= 12 && file->get_extended_version() < 13)
@@ -2557,7 +2513,6 @@ void stadt_t::rotate90( const sint16 y_size )
 		koord k = iter->key;
 		uint32 f = iter->value;
 		iter = connected_cities.erase(iter);
-		clear_private_car_route(k, false);
 		k.rotate90(y_size);
 		k_list.append(k);
 		f_list.append(f);
@@ -2576,7 +2531,6 @@ void stadt_t::rotate90( const sint16 y_size )
 		koord k = iter->key;
 		uint32 f = iter->value;
 		iter = connected_industries.erase(iter);
-		clear_private_car_route(k, false);
 		k.rotate90(y_size);
 		k_list.append(k);
 		f_list.append(f);
@@ -2595,7 +2549,6 @@ void stadt_t::rotate90( const sint16 y_size )
 		koord k = iter->key;
 		uint32 f = iter->value;
 		iter = connected_attractions.erase(iter);
-		clear_private_car_route(k, false);
 		k.rotate90(y_size);
 		k_list.append(k);
 		f_list.append(f);
@@ -2606,14 +2559,6 @@ void stadt_t::rotate90( const sint16 y_size )
 	{
 		connected_attractions.put(k_list[n], f_list[n]);
 	}
-
-	// These will have out of date co-ordinates, so they have to go.
-	// Since the refresh of these will happen quite soon in any event,
-	// it is not worth the very complex coding necessary to rotate
-	// these rather than simply erasing them and waiting for them to be
-	// recreated. The same applies to the actual current routes (dealt
-	// with above).
-	private_car_routes[get_currently_inactive_route_map()].clear();
 }
 
 void stadt_t::set_name(const char *new_name)
@@ -2696,28 +2641,6 @@ void stadt_t::step(uint32 delta_t)
 	city_history_year[0][HIST_BUILDING] = buildings.get_count();
 }
 
-void stadt_t::step_heavy()
-{
-#ifndef MULTI_THREAD
-#undef MULTI_THREAD_ROUTE_PROCESSING
-#endif
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-	int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
-	assert(error == 0);
-#endif
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-	process_private_car_routes_threaded(); 
-#else
-	process_private_car_routes();
-#endif
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-	error = pthread_mutex_unlock(&karte_t::private_car_store_route_mutex);
-	assert(error == 0);
-#endif
-}
-
-
-
 /* updates the city history
  * @author prissi
  */
@@ -2775,11 +2698,6 @@ void stadt_t::roll_history()
 
 void stadt_t::check_all_private_car_routes()
 {
-	if (route_processing_counter >= 0)
-	{
-		// Do not generate new routes until the old ones have finished being processed. 
-		return;
-	}
 	const planquadrat_t* plan = welt->access(townhall_road);
 	if(plan && plan->get_city() != this)
 	{
@@ -6134,226 +6052,4 @@ void stadt_t::add_city_factory(fabrik_t *fab)
 void stadt_t::remove_city_factory(fabrik_t *fab)
 {
 	city_factories.remove(fab);
-}
-
-void stadt_t::store_private_car_route(vector_tpl<koord3d> route, koord pos)
-{
-	const bool put_succeeded = private_car_routes[get_currently_inactive_route_map()].put(pos, route);
-	//assert(put_succeeded); 
-}
-
-void stadt_t::process_private_car_routes()
-{
-	if (!private_car_route_finding_in_progress && !private_car_routes[get_currently_inactive_route_map()].empty())
-	{	
-		uint32 count = 0;
-		if (route_processing_counter == -1)
-		{
-			route_processing_counter = 0;
-		}
-		FOR(private_car_route_map, const &route, private_car_routes[get_currently_inactive_route_map()])
-		{
-			count++;
-			if (count < route_processing_counter)
-			{
-				// Do not process routes that we have already processed.
-				continue;
-			}
-			if (count >= welt->get_settings().get_max_route_tiles_to_process_in_a_step() + route_processing_counter && welt->get_settings().get_max_route_tiles_to_process_in_a_step() > 0)
-			{
-				route_processing_counter += count;
-				goto end_loop;
-			}
-			koord3d previous_tile = welt->lookup_kartenboden(get_townhall_road())->get_pos();
-			clear_private_car_route(route.key, false); 
-			FOR(vector_tpl<koord3d>, route_element, route.value)
-			{
-				if (previous_tile == route_element)
-				{
-					continue;
-				}
-				const grund_t* gr = welt->lookup(previous_tile);
-				weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
-				if (road_tile) // This may have been deleted in the meantime.
-				{
-					road_tile->private_car_routes[weg_t::private_car_routes_currently_reading_element].set(route.key, route_element); // HACK: This code allows this to compile, but we do not ultimately need this
-				}
-
-				previous_tile = route_element;
-			}
-			// We now need to process the last tile of the route, marking it as the end of the route
-			const grund_t* gr = welt->lookup(previous_tile);
-			weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
-			if (road_tile)
-			{
-				road_tile->private_car_routes[weg_t::private_car_routes_currently_reading_element].set(route.key, koord3d::invalid); // HACK: This code allows this to compile, but we do not ultimately need this
-			}
-		}
-
-		route_processing_counter = -1;
-		end_loop:
-		
-		if (route_processing_counter == -1)
-		{
-			// First, clear the old routes, then mark the new routes as the current routes.
-			private_car_routes[get_currently_active_route_map()].clear();
-			swap_active_route_map();
-		}
-	}
-}
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-// This does not work - somehow, the individual threads get out of sync with the barrier waits and multiple different routes
-// end up being processed at once. This, in turn, causes race conditions at individual road tiles, causing corrupt hashtables,
-// which in turn corrupt the save data when the game is saved. It is not clear whether it is worth fixing this, since testing
-// has not shown any clear performance advantage to this, since adding data to the hashtables, the most CPU-intensive task in
-// the route processing, is in any event forced to be effectively single threaded by the freelist mutex.
-void stadt_t::process_private_car_routes_threaded()
-{
-	current_city = this;
-	if (!private_car_route_finding_in_progress && !private_car_routes[get_currently_inactive_route_map()].empty())
-	{		
-		FOR(private_car_route_map, const& route, private_car_routes[get_currently_inactive_route_map()])
-		{		
-			clear_private_car_route(route.key, false); // This might also be multi-threaded - but since this method does not work, this is probably not worthwhile.
-			
-			current_key = route.key;
-			
-			simthread_barrier_wait(&karte_t::process_private_car_routes_barrier);
-			simthread_barrier_wait(&karte_t::process_private_car_routes_barrier);
-
-			current_key = koord::invalid;
-		}
-		// First, clear the old routes, then mark the new routes as the current routes.
-		private_car_routes[current_city->get_currently_active_route_map()].clear();
-		swap_active_route_map();
-	}
-	current_city = NULL;
-}
-
-void* stadt_t::process_private_car_route_threaded(void* args)
-{
-	const uint32* thread_number_ptr = (const uint32*)args;
-	const uint32 thread_number = *thread_number_ptr;
-	delete thread_number_ptr;
-
-	do
-	{
-		simthread_barrier_wait(&karte_t::process_private_car_routes_barrier);
-
-		if (welt->is_terminating_threads())
-		{
-			break;
-		}
-		if (current_key == koord::invalid || !current_city)
-		{
-			simthread_barrier_wait(&karte_t::process_private_car_routes_barrier);
-			continue;
-		}
-		
-		const uint32 max_count = current_city->private_car_routes[current_city->get_currently_inactive_route_map()].get(current_key).get_count() - 1;
-		const uint32 fraction = max_count / welt->get_parallel_operations();
-
-		route_range_specification range;
-
-		range.start = thread_number * fraction;
-		if (thread_number == welt->get_parallel_operations() - 1)
-		{
-			range.end = max_count;
-		}
-		else
-		{
-			range.end = min(((thread_number + 1) * fraction - 1), max_count);
-		}
-
-		current_city->process_private_car_route_range(range);
-
-		simthread_barrier_wait(&karte_t::process_private_car_routes_barrier);
-
-	} while (!welt->is_terminating_threads());
-
-	pthread_exit(NULL);
-	return args;
-}
-
-void stadt_t::process_private_car_route_range(route_range_specification range)
-{
-	koord3d previous_tile = range.start == 0 ? welt->lookup_kartenboden(get_townhall_road())->get_pos() : private_car_routes[get_currently_inactive_route_map()].get(current_key).get_element(range.start - 1); 
-	for (uint32 i = range.start; i <= range.end; i++)
-	{
-		const koord3d route_element = private_car_routes[get_currently_inactive_route_map()].get(current_key).get_element(i);
-		if (previous_tile == route_element)
-		{
-			continue;
-		}
-		const grund_t* gr = welt->lookup(previous_tile);
-		weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
-		if (road_tile) // This may have been deleted in the meantime.
-		{
-			if (road_tile->private_car_routes.get(current_key) != route_element)
-			{
-				if (!road_tile->private_car_routes.put(current_key, route_element))
-				{
-					road_tile->private_car_routes.set(current_key, route_element);
-				}
-			}
-		}
-
-		previous_tile = route_element;
-	}
-	if (range.end >= private_car_routes[get_currently_inactive_route_map()].get(current_key).get_count() - 1)
-	{
-		// We now need to process the last tile of the route, marking it as the end of the route
-		const grund_t* gr = welt->lookup(previous_tile);
-		weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
-		if (road_tile)
-		{
-			if (road_tile->private_car_routes.get(current_key) != koord3d::invalid)
-			{
-				if (!road_tile->private_car_routes.put(current_key, koord3d::invalid))
-				{
-					road_tile->private_car_routes.set(current_key, koord3d::invalid);
-				}
-			}
-		}
-	}
-}
-
-#endif
-
-void stadt_t::clear_private_car_route(koord pos, bool clear_connected_tables)
-{
-	if (private_car_routes[get_currently_active_route_map()].is_contained(pos))
-	{
-		const planquadrat_t* tile = welt->access(pos); 
-		stadt_t* origin_city = tile ? tile->get_city() : NULL;
-
-		const grund_t* gr_destination = welt->lookup_kartenboden(pos);
-		const gebaeude_t* gb_destination = gr_destination ? gr_destination->get_building() : NULL;
-		if (clear_connected_tables)
-		{
-			if (gb_destination && gb_destination->get_is_factory())
-			{
-				connected_industries.remove(pos);
-			}
-			else if (gb_destination)
-			{
-				connected_attractions.remove(pos);
-			}
-			else
-			{
-				connected_cities.remove(pos);
-			}
-		}
-		
-		const vector_tpl<koord3d> &route = private_car_routes[get_currently_active_route_map()].get(pos);
-		FOR(const vector_tpl<koord3d>, const &route_element, route)
-		{
-			const grund_t* gr = welt->lookup(route_element);
-			weg_t* road_tile = gr ? gr->get_weg(road_wt) : NULL;
-			if (road_tile)
-			{
-				road_tile->private_car_routes[weg_t::private_car_routes_currently_reading_element].remove(pos); // HACK: This code allows this to compile, but we do not ultimately need this
-			}
-		}
-	}
 }
