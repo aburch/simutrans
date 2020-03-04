@@ -46,7 +46,7 @@
 #include "../simsys.h"
 #endif
 
-
+bool route_t::suspend_private_car_routing = false;
 
 
 void route_t::append(const route_t *r)
@@ -273,6 +273,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		origin_city->set_private_car_route_finding_in_progress(true);
 	}
 
+	uint32 private_car_route_counter = 0;
+
 	do 
 	{
 		destination_industry = NULL;
@@ -303,7 +305,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			}
 			else
 			{
-				// Quick private car route checking does not reconstruct the route.
 				// Cost should be journey time per *straight line* tile, as the private car route
 				// system needs to be able to approximate the total travelling time from the straight
 				// line distance.
@@ -413,7 +414,19 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				previous = tmp->gr->get_pos();
 				tmp = tmp->parent;
 			}
-			
+
+#ifdef MULTI_THREAD
+			if (!suspend_private_car_routing && ++private_car_route_counter >= 16) // TODO: Set this value via simuconf.tab
+			{
+				// Halt this mid step if there are too many routes being calculated so as not to make the game unresponsive.
+				// On a Ryzen 3900x, calculating all routes from one city on a 600 city map can take ~4 seconds.
+
+				// It is intentional to have two barriers here.
+				simthread_barrier_wait(&karte_t::private_car_barrier);
+				simthread_barrier_wait(&karte_t::private_car_barrier);
+				private_car_route_counter = 0;
+			}
+#endif
 #if 0 // City route storage is now deprecated; TODO: Remove this code when its replacement is complete.
 			// We are passing the route by value rather than by reference (pointer) on purpose,
 			// since we need to copy the route to the origin city and re-use the local vector here.

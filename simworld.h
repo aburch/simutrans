@@ -937,6 +937,7 @@ private:
 public:
 	static simthread_barrier_t step_convoys_barrier_external;
 	static simthread_barrier_t unreserve_route_barrier;
+	static simthread_barrier_t private_car_barrier;
 #ifdef MULTI_THREAD_ROUTE_PROCESSING
 	static simthread_barrier_t process_private_car_routes_barrier;
 #endif
@@ -956,6 +957,7 @@ public:
 	void await_convoy_threads();
 	void await_path_explorer(); 
 	void await_private_car_threads(); 
+	void suspend_private_car_threads();
 	void await_all_threads();
 
 	enum building_type { passenger_origin, commuter_target, visitor_target, mail_origin_or_target, none };
