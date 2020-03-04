@@ -2229,7 +2229,6 @@ void karte_t::destroy_threads()
 		clean_threads(&individual_convoy_step_threads);
 		individual_convoy_step_threads.clear();
 #endif
-
 		clean_threads(&private_car_route_threads);
 		private_car_route_threads.clear();
 #ifdef MULTI_THREAD_PASSENGER_GENERATION
@@ -3107,7 +3106,7 @@ karte_t::karte_t() :
 karte_t::~karte_t()
 {
 	is_sound = false;
-
+	suspend_private_car_threads(); // Necessary to prevent thread deadlocks.
 	destroy();
 
 	// not deleting the tools of this map ...

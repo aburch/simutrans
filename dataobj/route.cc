@@ -425,7 +425,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				// It is intentional to have two barriers here.
 				simthread_barrier_wait(&karte_t::private_car_barrier);
 				simthread_barrier_wait(&karte_t::private_car_barrier);
-				private_car_route_counter = 0;
 				private_car_route_step_counter = 0;
 			}
 #endif
