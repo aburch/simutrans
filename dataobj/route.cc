@@ -273,7 +273,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		origin_city->set_private_car_route_finding_in_progress(true);
 	}
 
-	uint32 private_car_route_counter = 0;
+	uint32 private_car_route_step_counter = 0;
 
 	do 
 	{
@@ -397,6 +397,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			weg_t* w;
 			while (tmp != NULL)
 			{	 
+				private_car_route_step_counter++;
 				w = tmp->gr->get_weg(road_wt);
 			
 				if (w)
@@ -416,7 +417,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			}
 
 #ifdef MULTI_THREAD
-			if (!suspend_private_car_routing && ++private_car_route_counter >= 16) // TODO: Set this value via simuconf.tab
+			if (!suspend_private_car_routing && private_car_route_step_counter >= 2048) // TODO: Set this value via simuconf.tab
 			{
 				// Halt this mid step if there are too many routes being calculated so as not to make the game unresponsive.
 				// On a Ryzen 3900x, calculating all routes from one city on a 600 city map can take ~4 seconds.
@@ -425,6 +426,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				simthread_barrier_wait(&karte_t::private_car_barrier);
 				simthread_barrier_wait(&karte_t::private_car_barrier);
 				private_car_route_counter = 0;
+				private_car_route_step_counter = 0;
 			}
 #endif
 #if 0 // City route storage is now deprecated; TODO: Remove this code when its replacement is complete.
