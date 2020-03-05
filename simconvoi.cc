@@ -3238,12 +3238,13 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 	
 	c = cnv;
 	go_on_ticks = 0;
-	bool cond = !coupling_cond; // coupling condition is already calculated.
+	bool cond = true;
 	while(  c.is_bound()  &&  cond  ) {
 		const schedule_entry_t e = c->get_schedule()->get_current_entry();
 		const bool loading_cond = cnv->get_loading_level() >= e.minimum_loading; // minimum loading
 		const bool waiting_time_cond = (e.waiting_time_shift > 0  &&  world()->get_ticks() - arrived_time > (world()->ticks_per_world_month >> (16 - cnv->get_schedule()->get_current_entry().waiting_time_shift)) ); // waiting time
 		bool c_cond = loading_cond; // condition of this convoy
+		c_cond &= !(e.get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
 		c_cond |= c->get_no_load(); // no load
 		c_cond |= waiting_time_cond;
 		cond &= c_cond;
