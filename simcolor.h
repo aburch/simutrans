@@ -7,7 +7,8 @@
 #define SIMCOLOR_H
 
 
-#define LIGHT_COUNT (15)
+#define LIGHT_COUNT         (15)
+#define SPECIAL_COLOR_COUNT (224)
 
 // this is a player color => use different table for conversion
 #define PLAYER_FLAG        (0x800000)

@@ -450,13 +450,13 @@ uint8 display_night_lights[LIGHT_COUNT*3] = {
 	0xD3,	0xC3,	0x80, // Windows, lit yellow
 	0xD3,	0xC3,	0x80, // Windows, lit yellow
 	0xE1,	0x00,	0xE1, // purple light for signals
-	0x01, 0x01, 0xFF, // blue light
+	0x01,	0x01,	0xFF, // blue light
 };
 
 
 // the players colors and colors for simple drawing operations
-// each eight colors are corresponding to a player color
-static const uint8 special_pal[224 * 3] =
+// each three values correspond to a color, each 8 colors are a player color
+static const uint8 special_pal[SPECIAL_COLOR_COUNT*3] =
 {
 	36, 75, 103,
 	57, 94, 124,
@@ -709,15 +709,17 @@ signed short current_tile_raster_width = 0;
  */
 uint32 get_color_rgb(uint8 idx)
 {
-	//special_pal has 225 values
-	if (idx <= 224) {
+	// special_pal has 224 rgb colors
+	if (idx < SPECIAL_COLOR_COUNT) {
 		return special_pal[idx*3 + 0]<<16 | special_pal[idx*3 + 1]<<8 | special_pal[idx*3 + 2];
 	}
-	//if it uses one of the special colours it's under display_day_lights
-	if (idx <= 224 + LIGHT_COUNT) {
-		uint8 lidx = idx - 224;
+
+	// if it uses one of the special light colours it's under display_day_lights
+	if (idx < SPECIAL_COLOR_COUNT + LIGHT_COUNT) {
+		const uint8 lidx = idx - SPECIAL_COLOR_COUNT;
 		return display_day_lights[lidx*3 + 0]<<16 | display_day_lights[lidx*3 + 1]<<8 | display_day_lights[lidx*3 + 2];
 	}
+
 	// Return black for anything else
 	return 0;
 }
@@ -1959,23 +1961,25 @@ static void calc_base_pal_from_night_shift(const int night)
 		}
 	}
 
-
 	// player color map (and used for map display etc.)
-	for (i = 0; i < 224; i++) {
-		const int R = (int)(special_pal[i * 3 + 0] * RG_night_multiplier);
-		const int G = (int)(special_pal[i * 3 + 1] * RG_night_multiplier);
-		const int B = (int)(special_pal[i * 3 + 2] * B_night_multiplier);
+	for (i = 0; i < SPECIAL_COLOR_COUNT; i++) {
+		const int R = (int)(special_pal[i*3 + 0] * RG_night_multiplier);
+		const int G = (int)(special_pal[i*3 + 1] * RG_night_multiplier);
+		const int B = (int)(special_pal[i*3 + 2] * B_night_multiplier);
 
 		specialcolormap_day_night[i] = get_system_color(R, G, B);
 	}
-	// special light colors (actually, only non-darkening greys should be used
-	for (i = 0; i<LIGHT_COUNT; i++) {
-		specialcolormap_day_night[i + 224] = get_system_color(display_day_lights[i * 3 + 0], display_day_lights[i * 3 + 1], display_day_lights[i * 3 + 2]);
+
+	// special light colors (actually, only non-darkening greys should be used)
+	for(i=0;  i<LIGHT_COUNT;  i++  ) {
+		specialcolormap_day_night[SPECIAL_COLOR_COUNT+i] = get_system_color( display_day_lights[i*3 + 0], display_day_lights[i*3 + 1], 	display_day_lights[i*3 + 2] );
 	}
+
 	// init with black for forbidden colors
-	for (i = 224 + LIGHT_COUNT; i<256; i++) {
+	for(i=SPECIAL_COLOR_COUNT+LIGHT_COUNT;  i<256;  i++  ) {
 		specialcolormap_day_night[i] = 0;
 	}
+
 	// default player colors
 	for(i=0;  i<8;  i++  ) {
 		rgbmap_day_night[0x8000+i] = specialcolormap_day_night[player_offsets[0][0]+i];
