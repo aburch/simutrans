@@ -22,7 +22,7 @@ depotlist_stats_t::depotlist_stats_t(depot_t *d)
 	// pos button
 	set_table_layout(7,1);
 	gotopos.set_typ(button_t::posbutton_automatic);
-	gotopos.set_targetpos(depot->get_pos().get_2d());
+	gotopos.set_targetpos3d(depot->get_pos());
 	add_component(&gotopos);
 	const waytype_t wt = d->get_wegtyp();
 	// now add all specific tabs

@@ -40,7 +40,10 @@ public:
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool has_min_sizer() const { return true; }
+
+	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
 };
+
 
 class depotlist_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {

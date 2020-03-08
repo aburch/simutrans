@@ -11,6 +11,7 @@
 #include "gui_component.h"
 #include "../../simcolor.h"
 #include "../../dataobj/koord.h"
+#include "../../dataobj/koord3d.h"
 #include "../../display/simimg.h"
 
 class karte_ptr_t;
@@ -73,7 +74,7 @@ private:
 	 */
 	union {
 		const char * text;
-		struct { sint16 x,y; } targetpos;
+		koord3d targetpos;
 	};
 	const char *translated_text;
 
@@ -113,9 +114,10 @@ public:
 	void set_text(const char * text);
 
 	/**
-	 * Get/Set text to position
+	 * Set position for posbuttons, will be returned on calling listener
 	 */
-	void set_targetpos(const koord k ) { targetpos.x = k.x; targetpos.y = k.y; }
+	void set_targetpos( const koord k ); // assuming this is on map ground
+	void set_targetpos3d( const koord3d k ) { targetpos = k; }
 
 	/**
 	 * Set the displayed text of the button when not to translate

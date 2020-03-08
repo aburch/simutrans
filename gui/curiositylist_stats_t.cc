@@ -84,7 +84,7 @@ curiositylist_stats_t::curiositylist_stats_t(gebaeude_t *att)
 	set_table_layout(8, 1);
 	button_t *b = new_component<button_t>();
 	b->set_typ(button_t::posbutton_automatic);
-	b->set_targetpos(attraction->get_pos().get_2d());
+	b->set_targetpos3d(attraction->get_pos());
 
 	add_table(2, 1);
 	{

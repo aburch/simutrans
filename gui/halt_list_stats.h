@@ -11,6 +11,7 @@
 
 #include "components/gui_aligned_container.h"
 #include "components/gui_colorbox.h"
+#include "components/gui_button.h"
 #include "components/gui_image.h"
 #include "components/gui_label.h"
 #include "components/gui_scrolled_list.h"
@@ -29,6 +30,7 @@ public:
 	gui_image_t img_enabled[3];
 	gui_halt_type_images_t *img_types;
 	gui_colorbox_t indicator;
+	button_t gotopos;
 
 public:
 	halt_list_stats_t(halthandle_t halt_);

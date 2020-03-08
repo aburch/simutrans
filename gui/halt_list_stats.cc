@@ -31,19 +31,21 @@ static karte_ptr_t welt;
  */
 bool halt_list_stats_t::infowin_event(const event_t *ev)
 {
-	if(halt.is_bound()) {
+	bool swallowed = gui_aligned_container_t::infowin_event(ev);
+	if(  !swallowed  &&  halt.is_bound()  ) {
+
 		if(IS_LEFTRELEASE(ev)) {
-			if (event_get_last_control_shift() != 2) {
+			if(  event_get_last_control_shift() != 2  ) {
 				halt->show_info();
 			}
 			return true;
 		}
-		if(IS_RIGHTRELEASE(ev)) {
+		if(  IS_RIGHTRELEASE(ev)  ) {
 			welt->get_viewport()->change_world_position(halt->get_basis_pos3d());
 			return true;
 		}
 	}
-	return false;
+	return swallowed;
 }
 
 
@@ -53,6 +55,10 @@ halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 	set_table_layout(2,2);
 	set_spacing(scr_size(D_H_SPACE, 0));
 
+	gotopos.set_typ(button_t::posbutton_automatic);
+	gotopos.set_targetpos3d(halt->get_basis_pos3d());
+	add_component(&gotopos);
+	
 	add_component(&indicator);
 	indicator.set_max_size(scr_size(D_INDICATOR_WIDTH,D_INDICATOR_HEIGHT));
 
@@ -65,6 +71,9 @@ halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 		img_types = new_component<gui_halt_type_images_t>(halt);
 	}
 	end_table();
+
+	// second row, skip posbutton
+	new_component<gui_empty_t>();
 
 	gui_aligned_container_t *table = add_table(3,1);
 	{
