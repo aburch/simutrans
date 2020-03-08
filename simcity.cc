@@ -79,14 +79,12 @@ uint32 stadt_t::cluster_factor = 10;
 
 /*
  * chance to do renovation instead new building (in percent)
- * @author prissi
  */
 static uint32 renovation_percentage = 12;
 
 /*
  * minimum ratio of city area to building area to allow expansion
  * the higher this value, the slower the city expansion if there are still "holes"
- * @author prissi
  */
 static uint32 min_building_density = 25;
 
@@ -103,7 +101,6 @@ static sint16 res_neighbour_score[] = {  8, 0, -8 };
 /**
  * Rule data structure
  * maximum 7x7 rules
- * @author Hj. Malthaner
  */
 class rule_entry_t {
 public:
@@ -168,11 +165,10 @@ static vector_tpl<rule_t *> road_rules;
 // here '.' is ignored, since it will not be tested anyway
 static char const* const allowed_chars_in_rule = "SsnHhTtUu";
 
-/*
+/**
  * @param pos position to check
  * @param regel the rule to evaluate
  * @return true on match, false otherwise
- * @author Hj. Malthaner
  */
 bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 {
@@ -242,8 +238,7 @@ bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 
 /**
  * Check rule in all transformations at given position
- * prissi: but the rules should explicitly forbid building then?!?
- * @author Hj. Malthaner
+ * @note but the rules should explicitly forbid building then?!?
  */
 sint32 stadt_t::bewerte_pos(const koord pos, const rule_t &regel)
 {
@@ -276,7 +271,6 @@ void stadt_t::bewerte_haus(koord k, sint32 rd, const rule_t &regel)
 
 /**
  * Reads city configuration data
- * @author Hj. Malthaner
  */
 bool stadt_t::cityrules_init(const std::string &objfilename)
 {
@@ -433,7 +427,6 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 * Reads/writes city configuration data from/to a savegame
 * called from karte_t::speichern and karte_t::laden
 * only written for networkgames
-* @author Dwachs
 */
 void stadt_t::cityrules_rdwr(loadsave_t *file)
 {
@@ -486,15 +479,9 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 }
 
 /**
- * monument_placefinder_t:
- *
  * Search a free place for a monument building
  * Im Gegensatz zum building_placefinder_t werden Strassen auf den Raendern
  * toleriert.
- *
- * 22-Dec-02: Hajo: added safety checks for gr != 0 and plan != 0
- *
- * @author V. Meyer
  */
 class monument_placefinder_t : public placefinder_t {
 	public:
@@ -504,7 +491,7 @@ class monument_placefinder_t : public placefinder_t {
 		{
 			const planquadrat_t* plan = welt->access(pos + d);
 
-			// Hajo: can't build here
+			// can't build here
 			if (plan == NULL) {
 				return false;
 			}
@@ -534,10 +521,6 @@ class monument_placefinder_t : public placefinder_t {
 
 /**
  * townhall_placefinder_t:
- *
- * 22-Dec-02: Hajo: added safety checks for gr != 0 and plan != 0
- *
- * @author V. Meyer
  */
 class townhall_placefinder_t : public placefinder_t {
 	public:
@@ -1286,7 +1269,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	target_factories_mail.rdwr( file );
 
 	if(file->is_loading()) {
-		// 08-Jan-03: Due to some bugs in the special buildings/town hall
+		// Due to some bugs in the special buildings/town hall
 		// placement code, li,re,ob,un could've gotten irregular values
 		// If a game is loaded, the game might suffer from such an mistake
 		// and we need to correct it here.
@@ -1414,9 +1397,7 @@ void stadt_t::set_name(const char *new_name)
 }
 
 
-/* show city info dialogue
- * @author prissi
- */
+/* show city info dialogue */
 void stadt_t::open_info_window()
 {
 	create_win( new city_info_t(this), w_info, (ptrdiff_t)this );
@@ -1440,8 +1421,7 @@ void stadt_t::verbinde_fabriken()
 }
 
 
-/* change size of city
- * @author prissi */
+/* change size of city */
 void stadt_t::change_size( sint64 delta_citizen, bool new_town)
 {
 	DBG_MESSAGE("stadt_t::change_size()", "%i + %i", bev, delta_citizen);
@@ -1509,7 +1489,6 @@ void stadt_t::step(uint32 delta_t)
 
 
 /* updates the city history
- * @author prissi
  */
 void stadt_t::roll_history()
 {
@@ -1809,8 +1788,7 @@ void stadt_t::step_grow_city( bool new_town )
 		unsupplied_city_growth %= CITYGROWTH_PER_CITICEN;
 	}
 
-	// Hajo: let city grow in steps of 1
-	// @author prissi: No growth without development
+	// let city grow in steps of 1
 	for(  sint64 n = 0;  n < growth_steps;  n++  ) {
 		bev++;
 
@@ -1846,7 +1824,7 @@ void stadt_t::step_passagiere()
 	}
 	const gebaeude_t* gb = buildings[step_count];
 
-	// prissi: since now backtravels occur, we damp the numbers a little
+	// since now backtravels occur, we damp the numbers a little
 	const uint32 num_pax =
 		(ispass) ?
 			(gb->get_tile()->get_desc()->get_level()      + 6) >> 2 :
@@ -1872,7 +1850,7 @@ void stadt_t::step_passagiere()
 		}
 	}
 
-	// Hajo: track number of generated passengers.
+	// track number of generated passengers.
 	city_history_year[0][history_type + HIST_OFFSET_GENERATED] += num_pax;
 	city_history_month[0][history_type + HIST_OFFSET_GENERATED] += num_pax;
 
@@ -1881,9 +1859,9 @@ void stadt_t::step_passagiere()
 		// Find passenger destination
 		for(  uint pax_routed=0, pax_left_to_do=0;  pax_routed < num_pax;  pax_routed += pax_left_to_do  ) {
 			// number of passengers that want to travel
-			// Hajo: for efficiency we try to route not every
-			// single pax, but packets. If possible, we do 7 passengers at a time
-			// the last packet might have less then 7 pax
+			// for efficiency we try to route not every single pax, but packets.
+			// If possible, we do 7 passengers at a time
+			// the last packet might have less than 7 pax
 			pax_left_to_do = min(PACKET_SIZE, num_pax - pax_routed);
 
 			// search target for the passenger
@@ -2155,7 +2133,6 @@ void stadt_t::step_passagiere()
 
 /**
  * returns a random and uniformly distributed point within city borders
- * @author Hj. Malthaner
  */
 koord stadt_t::get_zufallspunkt() const
 {
@@ -2268,7 +2245,6 @@ void stadt_t::merke_passagier_ziel(koord k, PIXVAL color)
  * building_place_with_road_finder:
  * Search a free place for a building using function suche_platz() (search place).
  * added: Minimum distance between monuments
- * @author V. Meyer/prissi
  */
 class building_place_with_road_finder: public building_placefinder_t
 {
@@ -2679,10 +2655,9 @@ void stadt_t::check_bau_townhall(bool new_town)
 }
 
 
-/* eventually adds a new industry
+/**
+ * eventually adds a new industry
  * so with growing number of inhabitants the industry grows
- * @date 12.1.05
- * @author prissi
  */
 void stadt_t::check_bau_factory(bool new_town)
 {
@@ -3454,10 +3429,7 @@ void stadt_t::generate_private_cars(koord pos, koord target)
 
 /**
  * baut ein Stueck Strasse
- *
- * @param k         Bauposition
- *
- * @author Hj. Malthaner, V. Meyer
+ * @param k Bauposition
  */
 bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 {
@@ -3478,7 +3450,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 		return false;
 	}
 
-	// dwachs: If not able to built here, try to make artificial slope
+	// If not able to build here, try to make artificial slope
 	slope_t::type slope = bd->get_grund_hang();
 	if (!slope_t::is_way(slope)) {
 		climate c = welt->get_climate(k);
@@ -3614,7 +3586,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 
 		if (!bd->weg_erweitern(road_wt, connection_roads)) {
 			strasse_t* weg = new strasse_t();
-			// Hajo: city roads should not belong to any player => so we can ignore any construction costs ...
+			// city roads should not belong to any player => so we can ignore any construction costs ...
 			weg->set_desc(welt->get_city_road());
 			weg->set_gehweg(true);
 			bd->neuen_weg_bauen(weg, connection_roads, player_);

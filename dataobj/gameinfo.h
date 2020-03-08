@@ -16,7 +16,9 @@
 class karte_t;
 class loadsave_t;
 
-
+/**
+ * Info about the current game
+ */
 class gameinfo_t
 {
 private:

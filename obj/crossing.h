@@ -15,7 +15,6 @@ class vehicle_base_t;
 
 /**
  * road sign for traffic (one way minimum speed, traffic lights)
- * @author Hj. Malthaner
  */
 class crossing_t : public obj_no_info_t
 {
@@ -42,7 +41,6 @@ public:
 
 	/**
 	 * crossing logic is removed here
-	 * @author prissi
 	 */
 	virtual ~crossing_t();
 
@@ -52,13 +50,11 @@ public:
 
 	/**
 	 * @return string (only used for debug at the moment)
-	 * @author prissi
 	 */
 	void info(cbuffer_t & buf) const OVERRIDE;
 
 	/**
 	 * @return NULL when OK, otherwise an error message
-	 * @author Hj. Malthaner
 	 */
 	const char *is_deletable(const player_t *player) OVERRIDE;
 
@@ -83,7 +79,6 @@ public:
 
 	/**
 	 * Dient zur Neuberechnung des Bildes
-	 * @author Hj. Malthaner
 	 */
 	void calc_image() OVERRIDE;
 
@@ -98,7 +93,6 @@ public:
 
 	/**
 	* For the front image hiding vehicles
-	* @author prissi
 	*/
 	image_id get_front_image() const OVERRIDE { return foreground_image; }
 

@@ -11,9 +11,6 @@
 
 /**
  * A horizontal divider line
- *
- * @date 30-Oct-01
- * @author Markus Weber
  */
 class gui_divider_t : public gui_component_t
 {

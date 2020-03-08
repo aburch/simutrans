@@ -16,15 +16,12 @@ class vehicle_t;
  * Class for Rails in Simutrans.
  * Trains can run over rails.
  * Every rail belongs to a section block
- *
- * @author Hj. Malthaner
  */
 class schiene_t : public weg_t
 {
 protected:
 	/**
 	* Bound when this block was successfully reserved by the convoi
-	* @author prissi
 	*/
 	convoihandle_t reserved;
 
@@ -35,7 +32,6 @@ public:
 
 	/**
 	* File loading constructor.
-	* @author Hj. Malthaner
 	*/
 	schiene_t(loadsave_t *file);
 
@@ -45,37 +41,31 @@ public:
 
 	/**
 	* @return additional info is reservation!
-	* @author prissi
 	*/
 	void info(cbuffer_t & buf) const OVERRIDE;
 
 	/**
 	* true, if this rail can be reserved
-	* @author prissi
 	*/
 	bool can_reserve(convoihandle_t c) const { return !reserved.is_bound()  ||  c==reserved; }
 
 	/**
 	* true, if this rail can be reserved
-	* @author prissi
 	*/
 	bool is_reserved() const { return reserved.is_bound(); }
 
 	/**
 	* true, then this rail was reserved
-	* @author prissi
 	*/
 	bool reserve(convoihandle_t c, ribi_t::ribi dir);
 
 	/**
 	* releases previous reservation
-	* @author prissi
 	*/
 	virtual bool unreserve( convoihandle_t c);
 
 	/**
 	* releases previous reservation
-	* @author prissi
 	*/
 	bool unreserve( vehicle_t *) { return unreserve(reserved); }
 
@@ -86,7 +76,6 @@ public:
 
 	/**
 	* gets the related convoi
-	* @author prissi
 	*/
 	convoihandle_t get_reserved_convoi() const {return reserved;}
 
@@ -95,7 +84,6 @@ public:
 	/**
 	 * if a function return here a value with TRANSPARENT_FLAGS set
 	 * then a transparent outline with the color form the lower 8 Bit is drawn
-	 * @author kierongreen
 	 */
 	FLAGGED_PIXVAL get_outline_colour() const OVERRIDE { return (show_reservations  &&  reserved.is_bound()) ? TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_RED) : 0;}
 

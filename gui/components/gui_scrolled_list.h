@@ -23,15 +23,16 @@ public:
 	vector_tpl <gui_component_t *>& get_components() { return components; }
 };
 
+
 /**
  * Scrollable list of components that can be sorted, and has component selection.
+ *
  * Displays list, scrollbuttons up/down, dragbar.
  * Has a min and a max size, and can be displayed with any size in between.
  * Does ONLY cater for vertical offset (yet).
  * two possible types:
  * -list.      simply lists some items.
  * -selection. is a list, but additionally, one item can be selected.
- * @author Niels Roest, additions by Hj. Malthaner
  */
 class gui_scrolled_list_t :
 	public gui_action_creator_t,

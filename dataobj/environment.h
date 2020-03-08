@@ -23,8 +23,6 @@
  * Class to save all environment parameters, ie everything that changes
  * the look and feel of the game. Most of them can be changed by command-line
  * parameters or simuconf.tab files.
- *
- * @author Hj. Malthaner
  */
 class env_t
 {
@@ -183,7 +181,6 @@ public:
 	 * message_flags[i] is bitfield, where bit is set if message should be show at location i,
 	 * where 0 = show message in ticker, 1 = open auto-close window, 2 = open persistent window, 3 = ignore message
 	 * @see message_option_t
-	 * @author prissi
 	 */
 	static sint32 message_flags[4];
 
@@ -191,7 +188,6 @@ public:
 
 	/**
 	 * window button at right corner (like Windows)
-	 * @author prissi
 	 */
 	static bool window_buttons_right;
 
@@ -279,8 +275,6 @@ public:
 	/**
 	 * Set to true to hide all trees. "Hiding" is implemented by showing the
 	 * first pic which should be very small.
-	 * @author Volker Meyer
-	 * @date  10.06.2003
 	 */
 	static bool hide_trees;
 
@@ -356,8 +350,6 @@ public:
 
 	/**
 	 * show month in date?
-	 *
-	 * @author hsiegeln
 	 */
 	static uint8 show_month;
 
@@ -403,7 +395,6 @@ public:
 
 	/**
 	 * Name of rivers; first the river with the lowest number
-	 * @author prissi
 	 */
 	static plainstring river_type[10];
 
@@ -415,13 +406,11 @@ public:
 	/**
 	* Produce more debug info:
 	* can be set by command-line switch '-debug'
-	* @author Hj. Malthaner
 	*/
 	static uint8 verbose_debug;
 
 
 	/// do autosave every month?
-	/// @author prissi
 	static sint32 autosave;
 
 

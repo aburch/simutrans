@@ -52,30 +52,27 @@ private:
 	/**
 	 * Handle for ourselves. Can be used like the 'this' pointer
 	 * Initialized by constructors
-	 * @author Hj. Malthaner
 	 */
 	linehandle_t self;
 
-	/*
+	/**
 	 * the current state saved as color
 	 * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), BLUE (at least one convoi vehicle is obsolete)
 	 */
 	PIXVAL state_color;
 
-	/*
+	/**
 	 * a list of all convoys assigned to this line
-	 * @author hsiegeln
 	 */
 	vector_tpl<convoihandle_t> line_managed_convoys;
 
-	/*
+	/**
 	 * a list of all catg_index, which can be transported by this line.
 	 */
 	minivec_tpl<uint8> goods_catg_index;
 
-	/*
+	/**
 	 * struct holds new financial history for line
-	 * @author hsiegeln
 	 */
 	sint64 financial_history[MAX_MONTHS][MAX_LINE_COST];
 
@@ -96,49 +93,42 @@ public:
 
 	linehandle_t get_handle() const { return self; }
 
-	/*
+	/**
 	 * add convoy to route
-	 * @author hsiegeln
 	 */
 	void add_convoy(convoihandle_t cnv);
 
-	/*
+	/**
 	 * remove convoy from route
-	 * @author hsiegeln
 	 */
 	void remove_convoy(convoihandle_t cnv);
 
-	/*
+	/**
 	 * get convoy
-	 * @author hsiegeln
 	 */
 	convoihandle_t get_convoy(int i) const { return line_managed_convoys[i]; }
 
-	/*
+	/**
 	 * return number of manages convoys in this line
-	 * @author hsiegeln
 	 */
 	uint32 count_convoys() const { return line_managed_convoys.get_count(); }
 
 	vector_tpl<convoihandle_t> const& get_convoys() const { return line_managed_convoys; }
 
-	/*
+	/**
 	 * returns the state of the line
-	 * @author prissi
 	 */
 	PIXVAL get_state_color() const { return state_color; }
 
-	/*
+	/**
 	 * return the schedule of the line
-	 * @author hsiegeln
 	 */
 	schedule_t * get_schedule() const { return schedule; }
 
 	void set_schedule(schedule_t* schedule);
 
-	/*
+	/**
 	 * get name of line
-	 * @author hsiegeln
 	 */
 	char const* get_name() const { return name; }
 	void set_name(const char *str) { name = str; }

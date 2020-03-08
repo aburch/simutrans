@@ -17,7 +17,6 @@ class tool_selector_t;
 
 /**
  * road sign for traffic (one way minimum speed, traffic lights)
- * @author Hj. Malthaner
  */
 class roadsign_t : public obj_t, public sync_steppable
 {
@@ -44,9 +43,8 @@ protected:
 public:
 	enum signalstate {rot=0, gruen=1, naechste_rot=2 };
 
-	/*
+	/**
 	 * return direction or the state of the traffic light
-	 * @author Hj. Malthaner
 	 */
 	ribi_t::ribi get_dir() const 	{ return dir; }
 
@@ -87,7 +85,6 @@ public:
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
-	 * @author Hj. Malthaner
 	 */
 	void info(cbuffer_t & buf) const OVERRIDE;
 
@@ -127,15 +124,14 @@ public:
 
 	/**
 	* For the front image hiding vehicles
-	* @author prissi
 	*/
 	image_id get_front_image() const OVERRIDE { return foreground_image; }
 
 	/**
 	* draw the part overlapping the vehicles
 	* (needed to get the right offset even on hills)
-	* @author V. Meyer
 	*/
+
 #ifdef MULTI_THREAD
 	void display_after(int xpos, int ypos, const sint8 clip_num) const OVERRIDE;
 #else
@@ -165,7 +161,6 @@ public:
 
 	/**
 	 * Fill menu with icons of given stops from the list
-	 * @author Hj. Malthaner
 	 */
 	static void fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 sound_ok);
 

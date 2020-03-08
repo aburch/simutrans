@@ -18,9 +18,8 @@
 class player_t;
 class ai_t;
 
-/*
+/**
  * AI behavior options from AI finance window
- * 2006 prissi
  */
 class ai_option_t : public gui_frame_t, private action_listener_t
 {
@@ -35,7 +34,6 @@ public:
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author Hj. Malthaner
 	 */
 	const char * get_help_filename() const OVERRIDE {return "players.txt";}
 

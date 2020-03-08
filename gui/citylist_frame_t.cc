@@ -17,7 +17,6 @@
 /**
  * This variable defines the sort order (ascending or descending)
  * Values: 1 = ascending, 2 = descending)
- * @author Markus Weber
  */
 bool citylist_frame_t::sortreverse = false;
 

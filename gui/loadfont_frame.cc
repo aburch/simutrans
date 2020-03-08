@@ -33,7 +33,6 @@ bool loadfont_frame_t::use_unicode=false;
 
 /**
  * Action that's started with a button click
- * @author Hansjörg Malthaner
  */
 bool loadfont_frame_t::item_action(const char *filename)
 {

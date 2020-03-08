@@ -3,10 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * A class for distribution of tabs through the gui_component_t component.
- * @author Hj. Malthaner
- */
 
 #include "gui_tab_panel.h"
 #include "../gui_frame.h"
@@ -130,7 +126,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		return false;
 	}
 
-	// Knightly : navigate among the tabs using Ctrl-PgUp and Ctrl-PgDn
+	// navigate among the tabs using Ctrl-PgUp and Ctrl-PgDn
 	if(  ev->ev_class==EVENT_KEYBOARD  &&  IS_CONTROL_PRESSED(ev)  ) {
 		if(  ev->ev_code==SIM_KEY_PGUP  ) {
 			// Ctrl-PgUp -> go to the previous tab

@@ -38,26 +38,22 @@ public:
 
 	/**
 	 * To indicate that the ware's destination is a factory/consumer store
-	 * @author Knightly
 	 */
 	uint32 to_factory : 1;
 
 private:
 	/**
 	 * Handle of target station.
-	 * @author Hj. Malthaner
 	 */
 	halthandle_t ziel;
 
 	/**
 	 * Handle of station, where the packet has to leave convoy.
-	 * @author Hj. Malthaner
 	 */
 	halthandle_t zwischenziel;
 
 	/**
 	 * Target position (factory, etc)
-	 * @author Hj. Malthaner
 	 */
 	koord zielpos;
 
@@ -83,7 +79,6 @@ public:
 
 	/**
 	 * gibt den nicht-uebersetzten warennamen zurück
-	 * @author Hj. Malthaner
 	 */
 	const char *get_name() const { return get_desc()->get_name(); }
 	const char *get_mass() const { return get_desc()->get_mass(); }

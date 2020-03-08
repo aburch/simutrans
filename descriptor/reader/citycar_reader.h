@@ -9,10 +9,6 @@
 #include "obj_reader.h"
 
 
-/*
- *  Author:
- *      Volker Meyer
- */
 class citycar_reader_t : public obj_reader_t {
 	static citycar_reader_t the_instance;
 

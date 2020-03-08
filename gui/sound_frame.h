@@ -3,13 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Dialog for sound settings
- *
- * @author Hj. Malthaner, Owen Rudge
- * @date 09-Apr-01
- */
-
 #include "gui_frame.h"
 #include "components/gui_scrollbar.h"
 #include "components/gui_label.h"
@@ -17,6 +10,9 @@
 #include "components/gui_numberinput.h"
 #include "components/action_listener.h"
 
+/**
+ * Dialog for sound settings
+ */
 class sound_frame_t : public gui_frame_t, action_listener_t
 {
 private:

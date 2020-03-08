@@ -14,8 +14,6 @@
  * Class for monorail tracks, derived from schiene.
  * Monorail trains can drive on this tracks.
  * Each track belongs to a section block
- *
- * @author Hj. Malthaner
  */
 class monorail_t : public schiene_t
 {
@@ -26,7 +24,6 @@ public:
 
 	/**
 	 * File loading constructor.
-	 * @author prissi
 	 */
 	monorail_t(loadsave_t *file);
 

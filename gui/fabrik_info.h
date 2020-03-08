@@ -30,7 +30,6 @@ class button_t;
 
 /**
  * Info window for factories
- * @author Hj. Malthaner
  */
 class fabrik_info_t : public gui_frame_t, public action_listener_t
 {
@@ -77,7 +76,6 @@ public:
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author Hj. Malthaner
 	 */
 	const char *get_help_filename() const OVERRIDE {return "industry_info.txt";}
 
@@ -91,7 +89,6 @@ public:
 	* Draw new component. The values to be passed refer to the window
 	* i.e. It's the screen coordinates of the window where the
 	* component is displayed.
-	* @author Hj. Malthaner
 	*/
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 

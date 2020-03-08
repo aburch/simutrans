@@ -90,8 +90,6 @@ static void dump_hashtable(stringhashtable_tpl<const char*>* tbl)
 /* first two file functions needed in connection with utf */
 
 /* checks, if we need a unicode translation (during load only done for identifying strings like "Auflösen")
- * @date 2.1.2005
- * @author prissi
  */
 static bool is_unicode_file(FILE* f)
 {
@@ -212,7 +210,7 @@ void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const
 	}
 	name_list.clear();
 
-	// @author prissi: first try in pakset
+	// first try in pakset
 	{
 		string local_file_name(env_t::user_dir);
 		local_file_name = local_file_name + "addons/" + pakset_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
@@ -264,13 +262,13 @@ void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const
 }
 
 
-/* the city list is now reloaded after the language is changed
+/**
+ * the city list is now reloaded after the language is changed
  * new cities will get their appropriate names
- * @author hajo, prissi
  */
 void translator::init_custom_names(int lang)
 {
-	// Hajo: init names. There are two options:
+	// init names. There are two options:
 	//
 	// 1.) read list from file
 	// 2.) create random names (only for cities)
@@ -281,7 +279,7 @@ void translator::init_custom_names(int lang)
 
 	if (city_name_list.empty()) {
 		DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");
-		// Hajo: try to read list failed, create random names
+		// try to read list failed, create random names
 		for(  uint i = 0;  i < 36;  i++  ) {
 			char name[32];
 			sprintf( name, "%%%c_CITY_SYLL", i+(i<10 ? '0' : 'A'-10 ) );

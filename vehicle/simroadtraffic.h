@@ -6,17 +6,6 @@
 #ifndef SIMROADTRAFFIC_H
 #define SIMROADTRAFFIC_H
 
-/**
- * Moving objects for Simutrans.
- * Transport vehicles are defined in simvehicle.h, because they greatly
- * differ from the vehicles defined herein for the individual traffic
- * (pedestrians, citycars, movingobj aka flock of sheep).
- *
- * Hj. Malthaner
- *
- * April 2000
- */
-
 #include "simvehicle.h"
 #include "overtaker.h"
 
@@ -28,14 +17,16 @@ class karte_t;
 
 /**
  * Base class for traffic participants with random movement
- * @author Hj. Malthaner
+ *
+ * Transport vehicles are defined in simvehicle.h, because they greatly
+ * differ from the vehicles defined herein for the individual traffic
+ * (pedestrians, citycars, movingobj aka flock of sheep).
  */
 class road_user_t : public vehicle_base_t, public sync_steppable
 {
 protected:
 	/**
 	 * Distance count
-	 * @author Hj. Malthaner
 	 */
 	uint32 weg_next;
 
@@ -63,7 +54,6 @@ public:
 
 	/**
 	 * Open a new observation window for the object.
-	 * @author Hj. Malthaner
 	 */
 	void show_info() OVERRIDE;
 
@@ -84,7 +74,7 @@ private:
 
 	const citycar_desc_t *desc;
 
-	// prissi: time to life in blocks
+	// time to life in blocks
 #ifdef DESTINATION_CITYCARS
 	koord target;
 #endif
@@ -92,7 +82,6 @@ private:
 
 	/**
 	 * Actual speed
-	 * @author Hj. Malthaner
 	 */
 	uint16 current_speed;
 
@@ -138,7 +127,6 @@ public:
 	/**
 	 * @return a description string for the object
 	 * e.g. for the observation window/dialog
-	 * @author Hj. Malthaner
 	 * @see simwin
 	 */
 	void info(cbuffer_t & buf) const OVERRIDE;
@@ -146,9 +134,8 @@ public:
 	// true, if this vehicle did not moved for some time
 	bool is_stuck() OVERRIDE { return current_speed==0;}
 
-	/* this function builds the list of the allowed citycars
+	/** this function builds the list of the allowed citycars
 	 * it should be called every month and in the beginning of a new game
-	 * @author prissi
 	 */
 	static void build_timeline_list(karte_t *welt);
 	static bool list_empty();

@@ -118,7 +118,6 @@ struct slope4_t {
 /**
  * Directions in simutrans.
  * ribi_t = Richtungs-Bit = Directions-Bitfield
- * @author Hj. Malthaner
  */
 class ribi_t {
 	/// Static lookup table
@@ -129,7 +128,7 @@ class ribi_t {
 		single      = 1,  ///< only one bit set, way ends here
 		straight_ns = 2,  ///< contains straight n/s connection
 		straight_ew = 4,  ///< contains straight e/w connection
-		bend       = 8,   ///< is a bend
+		bend        = 8,   ///< is a bend
 		twoway      = 16, ///< two bits set
 		threeway    = 32, ///< three bits set
 	};

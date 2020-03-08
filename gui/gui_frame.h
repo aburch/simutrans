@@ -24,16 +24,12 @@ class player_t;
  * Unlike other Window Classes in Simutrans, this is
  * a true component-oriented window that all actions
  * delegates to its component.
- *
- * @author Hj. Malthaner
  */
 class gui_frame_t : protected gui_aligned_container_t
 {
 public:
 	/**
 	 * Resize modes
-	 * @author Markus Weber
-	 * @date   11-May-2002
 	 */
 	enum resize_modes {
 		no_resize = 0, vertical_resize = 1, horizontal_resize = 2, diagonal_resize = 3
@@ -46,8 +42,6 @@ private:
 
 	/**
 	 * Min. size of the window
-	 * @author Markus Weber
-	 * @date   11-May-2002
 	 */
 	scr_size min_windowsize;
 
@@ -71,8 +65,6 @@ protected:
 
 	/**
 	 * resize window in response to a resize event
-	 * @author Markus Weber, Hj. Malthaner
-	 * @date   11-May-2002
 	 */
 	virtual void resize(const scr_coord delta);
 
@@ -87,7 +79,6 @@ public:
 	 s et_*
 	 * @param name, Window title
 	 * @param player owner for color
-	 * @author Hj. Malthaner
 	 */
 	gui_frame_t(const char *name, const player_t *player=NULL);
 
@@ -96,13 +87,11 @@ public:
 	/**
 	 * The name is displayed in the titlebar
 	 * @return the non-translated name of the Component
-	 * @author Hj. Malthaner
 	 */
 	const char *get_name() const { return name; }
 
 	/**
 	 * sets the Name (Window title)
-	 * @author Hj. Malthaner
 	 */
 	void set_name(const char *name) { this->name=name; }
 
@@ -116,27 +105,22 @@ public:
 	/**
 	 * get color information for the window title
 	 * -borders and -body background
-	 * @author Hj. Malthaner
 	 */
 	virtual FLAGGED_PIXVAL get_titlecolor() const;
 
 	/**
 	 * @return gets the window sizes
-	 * @author Hj. Malthaner
 	 */
 	scr_size get_windowsize() const { return size; }
 
 protected:
 	/**
 	 * Sets the window sizes
-	 * @author Hj. Malthaner
 	 */
 	virtual void set_windowsize(scr_size size);
 
 	/**
 	 * Set minimum size of the window
-	 * @author Markus Weber
-	 * @date   11-May-2002
 	 */
 	void set_min_windowsize(scr_size size) { min_windowsize = size; }
 
@@ -147,16 +131,12 @@ protected:
 public:
 	/**
 	 * Get minimum size of the window
-	 * @author Markus Weber
-	 * @date   11-May-2002
 	 */
 	scr_size get_min_windowsize() { return min_windowsize; }
 
 	/**
 	 * Max Kielland 2013: Client size auto calculation with title bar and margins.
 	 * @return the usable width and height of the window
-	 * @author Markus Weber
-	 * @date   11-May-2002
 	*/
 	scr_size get_client_windowsize() const {
 		return size - scr_size(0, ( has_title()*D_TITLEBAR_HEIGHT ) );
@@ -165,28 +145,24 @@ public:
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author Hj. Malthaner
 	 */
 	virtual const char * get_help_filename() const {return NULL;}
 
 	/**
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
-	 * @author Hj. Malthaner
 	 */
 	virtual bool has_min_sizer() const {return false;}
 
 	/**
 	 * Does this window need a next button in the title bar?
 	 * @return true if such a button is needed
-	 * @author Volker Meyer
 	 */
 	virtual bool has_next() const {return false;}
 
 	/**
 	 * Does this window need a prev button in the title bar?
 	 * @return true if such a button is needed
-	 * @author Volker Meyer
 	 */
 	virtual bool has_prev() const {return has_next();}
 
@@ -213,15 +189,11 @@ public:
 
 	/**
 	 * Set resize mode
-	 * @author Markus Weber
-	 * @date   11-May-2002
 	 */
 	void set_resizemode(resize_modes mode) { resize_mode = mode; }
 
 	/**
 	 * Get resize mode
-	 * @author Markus Weber
-	 * @date   25-May-2002
 	 */
 	resize_modes get_resizemode() { return resize_mode; }
 
@@ -236,7 +208,6 @@ public:
 
 	/**
 	 * Events are notified to GUI components via this method.
-	 * @author Hj. Malthaner
 	 */
 	bool infowin_event(const event_t *ev) OVERRIDE;
 
@@ -244,7 +215,6 @@ public:
 	 * Draw new component. The values to be passed refer to the window
 	 * i.e. It's the screen coordinates of the window where the
 	 * component is displayed.
-	 * @author Hj. Malthaner
 	 */
 	virtual void draw(scr_coord pos, scr_size size);
 

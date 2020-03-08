@@ -15,9 +15,8 @@
 #include "../gui_theme.h"
 
 
-/*
+/**
  * An input field for integer numbers (with arrow buttons for dec/inc)
- * @author Dwachs
  */
 class gui_numberinput_t :
 	public gui_action_creator_t,
@@ -101,7 +100,6 @@ public:
 
 	/**
 	 * Draw the component
-	 * @author Dwachs
 	 */
 	void draw(scr_coord offset) OVERRIDE;
 

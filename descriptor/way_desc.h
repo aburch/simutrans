@@ -24,15 +24,13 @@ class tool_t;
  *	2   Images for flat ways (indexed by ribi)
  *	3   Images for slopes
  *	4   Images for straight diagonal ways
- *	5   Hajo: Skin (cursor and icon)
+ *	5   Skin (cursor and icon)
  * if number_of_seasons == 0  (no winter images)
  *	6-8  front images of image lists 2-4
  * else
  *	6-8  winter images of image lists 2-4
  *	9-11 front images of image lists 2-4
  *	12-14 front winter images of image lists 2-4
- *
- * @author  Volker Meyer, Hj. Malthaner
  */
 class way_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class way_reader_t;
@@ -41,14 +39,12 @@ private:
 
 	/**
 	 * Max weight
-	 * @author Hj. Malthaner
 	 */
 	uint32 max_weight;
 
 	/**
 	 * Way system type: i.e. for wtyp == track this
 	 * can be used to select track system type (tramlike=7, elevated=1, ignore=255)
-	 * @author Hj. Malthaner
 	 */
 	uint8 styp;
 
@@ -98,7 +94,6 @@ public:
 	/**
 	* returns the system type of this way (mostly used with rails)
 	* @see systemtype_t
-	* @author DarioK
 	*/
 	systemtype_t get_styp() const { return (systemtype_t)styp; }
 
@@ -205,7 +200,6 @@ public:
 
 	/**
 	* Skin: cursor (index 0) and icon (index 1)
-	* @author Hj. Malthaner
 	*/
 	const skin_desc_t * get_cursor() const
 	{

@@ -14,8 +14,6 @@ class karte_t;
 
 /**
  * Bridge piece (visible)
- *
- * Hj. Malthaner
  */
 class pillar_t : public obj_t
 {
@@ -48,7 +46,6 @@ public:
 	/**
 	 * @return Einen Beschreibungsstring fuer das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
-	 * @author Hj. Malthaner
 	 */
 	void show_info() OVERRIDE;
 

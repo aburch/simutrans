@@ -13,7 +13,6 @@
 
 /**
  * label list window
- * @author Hj. Malthaner
  */
 class labellist_frame_t : public gui_frame_t, private action_listener_t
 {
@@ -30,7 +29,6 @@ public:
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author V. Meyer
 	 */
 	const char * get_help_filename() const OVERRIDE {return "labellist_filter.txt"; }
 
@@ -40,7 +38,6 @@ public:
 
 	/**
 	 * This function refreshes the list
-	 * @author Markus Weber
 	 */
 	void fill_list();
 };

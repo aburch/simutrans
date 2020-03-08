@@ -252,8 +252,8 @@ void goods_frame_t::sort_list()
 	for(unsigned int i=0; i<goods_manager_t::get_count(); i++) {
 		const goods_desc_t * wtyp = goods_manager_t::get_info(i);
 
-		// Hajo: we skip goods that don't generate income
-		//       this should only be true for the special good 'None'
+		// we skip goods that don't generate income
+		// this should only be true for the special good 'None'
 		if(  wtyp->get_value()!=0  &&  (!filter_goods  ||  goods_in_game.is_contained(wtyp))  ) {
 			good_list.insert_ordered( wtyp, compare_goods );
 		}
@@ -264,7 +264,6 @@ void goods_frame_t::sort_list()
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool goods_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {

@@ -10,17 +10,14 @@
 
 class cbuffer_t;
 
-/*
+/**
  * A text display component
- *
- * @author Hj. Malthaner
  */
 class gui_textarea_t : public gui_component_t
 {
 private:
 	/**
 	* The text to display. May be multi-lined.
-	* @author Hj. Malthaner
 	*/
 	cbuffer_t* buf;
 
@@ -43,7 +40,6 @@ public:
 
 	/**
 	* Draw the component
-	* @author Hj. Malthaner
 	*/
 	void draw(scr_coord offset) OVERRIDE;
 

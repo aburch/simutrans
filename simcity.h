@@ -74,16 +74,11 @@ static const uint32 GENERATE_RATIO_MAIL = 1;
 /**
  * Die Objecte der Klasse stadt_t bilden die Staedte in Simu. Sie
  * wachsen automatisch.
- * @author Hj. Malthaner
  */
 class stadt_t
 {
 	/**
-	* best_t:
-	*
 	* Kleine Hilfsklasse - speichert die beste Bewertung einer Position.
-	*
-	* @author V. Meyer
 	*/
 	class best_t {
 		sint32 best_wert;
@@ -107,14 +102,12 @@ class stadt_t
 public:
 	/**
 	 * Reads city configuration data from config/cityrules.tab
-	 * @author Hj. Malthaner
 	 */
 	static bool cityrules_init(const std::string &objpathname);
 	/**
 	 * Reads/writes city configuration data from/to a savegame
 	 * called from settings_t::rdwr
 	 * only written for networkgames
-	 * @author Dwachs
 	 */
 	static void cityrules_rdwr(loadsave_t *file);
 
@@ -153,13 +146,11 @@ private:
 	/**
 	 * step so every house is asked once per month
 	 * i.e. 262144/(number of houses) per step
-	 * @author Hj. Malthaner
 	 */
 	uint32 step_interval;
 
 	/**
 	 * next passenger generation timer
-	 * @author Hj. Malthaner
 	 */
 	uint32 next_step;
 
@@ -170,7 +161,6 @@ private:
 
 	/**
 	 * When to do growth next
-	 * @author Hj. Malthaner
 	 */
 	uint32 next_growth_step;
 
@@ -184,27 +174,23 @@ private:
 	/**
 	 * Un-supplied city growth needs
 	 * A value of 2^32 means 1 new resident
-	 * @author Nathanael Nerode (neroden)
 	 */
 	sint64 unsupplied_city_growth;
 
 	/**
 	* City history
 	* Current month stats are not appropiate to determine satisfaction for growth.
-	* @author prissi
 	*/
 	sint64 city_history_year[MAX_CITY_HISTORY_YEARS][MAX_CITY_HISTORY];
 	sint64 city_history_month[MAX_CITY_HISTORY_MONTHS][MAX_CITY_HISTORY];
 
 	/* updates the city history
-	* @author prissi
 	*/
 	void roll_history();
 
 	/* Members used to determine satisfaction for growth rate.
 	 * Satisfaction of this month cannot be used as it is an averaging filter for the entire month up to the present.
 	 * Instead the average over a number of growth ticks is used, defaulting to last month average if nothing is available.
-	 * @author DrSuperGood
 	 */
 private:
 	// The growth factor type in form of the amount demanded and what was received.
@@ -243,7 +229,6 @@ private:
 public:
 	/**
 	 * Returns pointer to history for city
-	 * @author hsiegeln
 	 */
 	sint64* get_city_history_year() { return *city_history_year; }
 	sint64* get_city_history_month() { return *city_history_month; }
@@ -261,7 +246,6 @@ private:
 public:
 	/**
 	 * Classes for storing and manipulating target factories and their data
-	 * @author Knightly
 	 */
 	struct factory_entry_t
 	{
@@ -313,14 +297,12 @@ public:
 private:
 	/**
 	 * Data of target factories for pax/mail
-	 * @author Knightly
 	 */
 	factory_set_t target_factories_pax;
 	factory_set_t target_factories_mail;
 
 	/**
 	 * Initialization of pax_destinations_old/new
-	 * @author Hj. Malthaner
 	 */
 	void init_pax_destinations();
 
@@ -335,7 +317,6 @@ private:
 
 	/**
 	 * Build new buildings when growing city
-	 * @author Hj. Malthaner
 	 */
 	void step_grow_city(bool new_town = false);
 
@@ -343,31 +324,26 @@ private:
 
 	/**
 	 * verteilt die Passagiere auf die Haltestellen
-	 * @author Hj. Malthaner
 	 */
 	void step_passagiere();
 
 	/**
 	 * ein Passagierziel in die Zielkarte eintragen
-	 * @author Hj. Malthaner
 	 */
 	void merke_passagier_ziel(koord ziel, PIXVAL color);
 
 	/**
 	 * baut Spezialgebaeude, z.B Stadion
-	 * @author Hj. Malthaner
 	 */
 	void check_bau_spezial(bool);
 
 	/**
 	 * baut ein angemessenes Rathaus
-	 * @author V. Meyer
 	 */
 	void check_bau_townhall(bool);
 
 	/**
 	 * constructs a new consumer
-	 * @author prissi
 	 */
 	void check_bau_factory(bool);
 
@@ -386,15 +362,11 @@ private:
 	void generate_private_cars(koord pos, koord target);
 #endif
 
+protected:
 	/**
 	 * baut ein Stueck Strasse
-	 *
-	 * @param k         Bauposition
-	 *
-	 * @author Hj. Malthaner, V. Meyer
+	 * @param k Bauposition
 	 */
-
-protected:
 	bool build_road(const koord k, player_t *player_, bool forced);
 
 private:
@@ -404,13 +376,11 @@ private:
 	 * @param pos position to check
 	 * @param regel the rule to evaluate
 	 * @return true on match, false otherwise
-	 * @author Hj. Malthaner
 	 */
 	static bool bewerte_loc(koord pos, const rule_t &regel, int rotation);
 
 	/**
 	 * Check rule in all transformations at given position
-	 * @author Hj. Malthaner
 	 */
 	static sint32 bewerte_pos(koord pos, const rule_t &regel);
 
@@ -426,13 +396,11 @@ private:
 public:
 	/**
 	 * sucht arbeitsplätze für die Einwohner
-	 * @author Hj. Malthaner
 	 */
 	void verbinde_fabriken();
 
 	/**
 	 * Returns the data set associated with the pax/mail target factories
-	 * @author: prissi
 	 */
 	const factory_set_t& get_target_factories_for_pax() const { return target_factories_pax; }
 	const factory_set_t& get_target_factories_for_mail() const { return target_factories_mail; }
@@ -457,7 +425,6 @@ public:
 
 	/**
 	* Returns the finance history for cities
-	* @author hsiegeln
 	*/
 	sint64 get_finance_history_year(int year, int type) { return city_history_year[year][type]; }
 	sint64 get_finance_history_month(int month, int type) { return city_history_month[month][type]; }
@@ -467,7 +434,6 @@ public:
 
 	/**
 	 * ermittelt die Einwohnerzahl der City
-	 * @author Hj. Malthaner
 	 */
 	sint32 get_einwohner() const {return (buildings.get_sum_weight()*6)+((2*bev-arb-won)>>1);}
 
@@ -477,38 +443,32 @@ public:
 
 	/**
 	 * Return the city name.
-	 * @author Hj. Malthaner
 	 */
 	const char *get_name() const { return name; }
 
 	/**
 	 * Ermöglicht Zugriff auf Namesnarray
-	 * @author Hj. Malthaner
 	 */
 	void set_name( const char *name );
 
 	/**
 	 * gibt einen zufällingen gleichverteilten Punkt innerhalb der
 	 * Citygrenzen zurück
-	 * @author Hj. Malthaner
 	 */
 	koord get_zufallspunkt() const;
 
 	/**
 	 * gibt das pax-statistik-array für letzten monat zurück
-	 * @author Hj. Malthaner
 	 */
 	const sparse_tpl<PIXVAL>* get_pax_destinations_old() const { return &pax_destinations_old; }
 
 	/**
 	 * gibt das pax-statistik-array für den aktuellen monat zurück
-	 * @author Hj. Malthaner
 	 */
 	const sparse_tpl<PIXVAL>* get_pax_destinations_new() const { return &pax_destinations_new; }
 
 	/* this counter will increment by one for every change
 	 * => dialogs can question, if they need to update map
-	 * @author prissi
 	 */
 	uint32 get_pax_destinations_new_change() const { return pax_destinations_new_change; }
 
@@ -519,7 +479,6 @@ public:
 	 * @param x x-Planquadratkoordinate
 	 * @param y y-Planquadratkoordinate
 	 * @param number of citizens
-	 * @author Hj. Malthaner
 	 */
 	stadt_t(player_t* player, koord pos, sint32 citizens);
 
@@ -528,7 +487,6 @@ public:
 	 * @param welt Die Karte zu der die City gehoeren soll.
 	 * @param file Zeiger auf die Datei mit den Citybaudaten.
 	 * @see stadt_t::speichern()
-	 * @author Hj. Malthaner
 	 */
 	stadt_t(loadsave_t *file);
 
@@ -542,7 +500,6 @@ public:
 	 * Planquadraten auf denen sie stehen.
 	 * @see stadt_t::stadt_t()
 	 * @see planquadrat_t
-	 * @author Hj. Malthaner
 	 */
 	void rdwr(loadsave_t *file);
 
@@ -553,8 +510,7 @@ public:
 
 	void rotate90( const sint16 y_size );
 
-	/* change size of city
-	* @author prissi */
+	/* change size of city */
 	void change_size( sint64 delta_citizens, bool new_town = false );
 
 	// when ng is false, no town growth any more
@@ -568,20 +524,17 @@ public:
 private:
 	/**
 	 * List of target cities weighted by both city size and distance
-	 * @author Knightly
 	 */
 	weighted_vector_tpl<stadt_t *> target_cities;
 
 	/**
 	 * List of target attractions weighted by both passenger level and distance
-	 * @author Knightly
 	 */
 	weighted_vector_tpl<gebaeude_t *> target_attractions;
 
 public:
 	/**
 	 * Functions for manipulating the list of target cities
-	 * @author Knightly
 	 */
 	void add_target_city(stadt_t *const city);
 	void remove_target_city(stadt_t *const city) { target_cities.remove( city ); }
@@ -589,7 +542,6 @@ public:
 
 	/**
 	 * Functions for manipulating the list of target attractions
-	 * @author Knightly
 	 */
 	void add_target_attraction(gebaeude_t *const attraction);
 	void remove_target_attraction(gebaeude_t *const attraction) { target_attractions.remove( attraction ); }
@@ -602,14 +554,12 @@ public:
 	 * @param will_return set to the jounrey return type on return.
 	 * @param factory_entry set to the destination factory, if any.
 	 * @param dest_city set to the destination city for return flow use.
-	 * @author Hj. Malthaner
 	 */
 	koord find_destination(factory_set_t &target_factories, const sint64 generated, pax_return_type* will_return, factory_entry_t* &factory_entry, stadt_t* &dest_city);
 
 	/**
 	 * Gibt die Gruendungsposition der City zurueck.
 	 * @return die Koordinaten des Gruendungsplanquadrates
-	 * @author Hj. Malthaner
 	 */
 	inline koord get_pos() const {return pos;}
 	inline koord get_townhall_road() const {return townhall_road;}
@@ -624,9 +574,7 @@ public:
 	 * die fuer eine Citygruendung geeignet sind.
 	 * @param wl Die Karte auf der die City gegruendet werden soll.
 	 * @param count die Anzahl der zu liefernden Koordinaten
-	 * @author Hj. Malthaner
 	 * @param old_x, old_y: Generate no cities in (0,0) - (old_x, old_y)
-	 * @author Gerd Wachsmuth
 	 */
 	static vector_tpl<koord> *random_place(sint32 count, sint16 old_x, sint16 old_y);
 	// geeigneten platz zur Citygruendung durch Zufall ermitteln

@@ -3,11 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
-* Menu with display settings
-* @author Hj. Malthaner
-*/
-
 #include "display_settings.h"
 #include "../simdebug.h"
 #include "../simworld.h"

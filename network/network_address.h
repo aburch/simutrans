@@ -47,7 +47,6 @@ public:
 
 	/**
 	 * Return human readable representation of this IP address
-	 * @author Timothy Baldock <tb@entropy.me.uk>
 	 */
 	const char* get_str () const;
 

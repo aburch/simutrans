@@ -12,12 +12,8 @@
 
 
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      Calculate which layout the tile belongs to from the index.
+/**
+ * Calculate which layout the tile belongs to from the index.
  */
 uint8 building_tile_desc_t::get_layout() const
 {
@@ -27,12 +23,8 @@ uint8 building_tile_desc_t::get_layout() const
 
 
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      Return the relative position of an image in the whole building image
+/**
+ * Return the relative position of an image in the whole building image
  */
 koord building_tile_desc_t::get_offset() const
 {
@@ -40,7 +32,6 @@ koord building_tile_desc_t::get_offset() const
 	koord size = desc->get_size(get_layout());	// rotate if necessary
 	return koord( index % size.x, (index / size.x) % size.y );
 }
-
 
 
 waytype_t building_desc_t::get_finance_waytype() const
@@ -61,7 +52,6 @@ waytype_t building_desc_t::get_finance_waytype() const
 
 /**
  * Mail generation level
- * @author Hj. Malthaner
  */
 uint16 building_desc_t::get_mail_level() const
 {
@@ -77,7 +67,6 @@ uint16 building_desc_t::get_mail_level() const
 
 /**
  * true, if this building needs a connection with a town
- * @author prissi
  */
 bool building_desc_t::is_connected_with_town() const
 {
@@ -96,12 +85,8 @@ bool building_desc_t::is_connected_with_town() const
 
 
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      Returns the correct tile image on that position depending on the layout
+/**
+ * Returns the correct tile image on that position depending on the layout
  */
 const building_tile_desc_t *building_desc_t::get_tile(uint8 layout, sint16 x, sint16 y) const
 {
@@ -118,12 +103,8 @@ const building_tile_desc_t *building_desc_t::get_tile(uint8 layout, sint16 x, si
 
 
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      Layout normalisation. Returns number of different layouts
+/**
+ * Layout normalisation. Returns number of different layouts
  */
 uint8 building_desc_t::adjust_layout(uint8 layout) const
 {
@@ -178,8 +159,7 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 
 
 /**
-* @station get functions - see building_desc.h for variable information
-* @author jamespetts
+* get functions - see building_desc.h for variable information
 */
 
 sint32 building_desc_t::get_maintenance(karte_t *world) const

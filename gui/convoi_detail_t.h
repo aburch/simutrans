@@ -6,7 +6,7 @@
 #include "components/gui_aligned_container.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_button.h"
-#include "components/gui_label.h"                  // 09-Dec-2001      Markus Weber    Added
+#include "components/gui_label.h"
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
 
@@ -16,9 +16,6 @@ class karte_ptr_t;
 /**
  * Convoi details component
  * Fills information table for convoi
- *
- * @author Hj. Malthaner
- * @date 22-Aug-01
  */
 class convoi_detail_t : public gui_aligned_container_t, private action_listener_t
 {

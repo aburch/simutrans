@@ -32,7 +32,6 @@ public:
 
 	/**
 	* @return additional info is reservation!
-	* @author prissi
 	*/
 	void info(cbuffer_t & buf) const OVERRIDE;
 

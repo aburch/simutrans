@@ -31,7 +31,6 @@ public:
 
 	/**
 	 * Sets the text to display.
-	 * @author Hj. Malthaner
 	 */
 	void set_text(const char* text);
 

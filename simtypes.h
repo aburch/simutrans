@@ -116,7 +116,6 @@ enum sound_type_t { TOOL_SOUND=0, TRAFFIC_SOUND=1, AMBIENT_SOUND=2, FACTORY_SOUN
 
 /**
  * Vordefinierte Wegtypen.
- * @author Hj. Malthaner
  */
 enum waytype_t {
 	invalid_wt       =  -1,
@@ -152,7 +151,7 @@ enum systemtype_t {
 
 #define CLIP(wert,mini,maxi)  min(max((wert),(mini)),(maxi))
 
-// Hajo: define machine independent types
+// define machine independent types
 typedef unsigned int        uint;
 typedef   signed char       sint8;
 typedef unsigned char       uint8;
@@ -244,7 +243,6 @@ static inline sint64 endian(sint64 const v) { return sint64(endian(uint64(v))); 
  * a helper type to avoid cast operations.  This isn't very clean, but if used
  * with care it seems better than using "long" and casting to a pointer type.
  * In all cases it ensures that no bits are lost.
- * @author Hj. Malthaner
  */
 union value_t
 {

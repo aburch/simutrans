@@ -58,8 +58,6 @@ template<class T> class bucket_heap_tpl;
 /**
  * Haltestellen in Simutrans. Diese Klasse managed das Routing und Verladen
  * von Waren. Eine Haltestelle ist somit auch ein Warenumschlagplatz.
- *
- * @author Hj. Malthaner
  * @see stadt_t
  * @see fabrik_t
  * @see convoi_t
@@ -69,39 +67,33 @@ class haltestelle_t
 public:
 	enum station_flags { NOT_ENABLED=0, PAX=1, POST=2, WARE=4};
 
-	//13-Jan-02     Markus Weber    Added
 	enum stationtyp {invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256 }; //could be combined with or!
 
 private:
 	/**
 	 * Manche Methoden müssen auf alle Haltestellen angewandt werden
 	 * deshalb verwaltet die Klasse eine Liste aller Haltestellen
-	 * @author Hj. Malthaner
 	 */
 	static vector_tpl<halthandle_t> alle_haltestellen;
 
 	/**
 	 * finds a stop by its name
-	 * @author prissi
 	 */
 	static stringhashtable_tpl<halthandle_t> all_names;
 
 	/**
 	 * Finds a stop by coordinate.
 	 * only used during loading.
-	 * @author prissi
 	 */
 	static inthashtable_tpl<sint32,halthandle_t> *all_koords;
 
-	/*
+	/**
 	 * struct holds new financial history for line
-	 * @author hsiegeln
 	 */
 	sint64 financial_history[MAX_MONTHS][MAX_HALT_COST];
 
 	/**
 	 * initialize the financial history
-	 * @author hsiegeln
 	 */
 	void init_financial_history();
 
@@ -120,7 +112,6 @@ private:
 
 	/**
 	 * Handle for ourselves. Can be used like the 'this' pointer
-	 * @author Hj. Malthaner
 	 */
 	halthandle_t self;
 
@@ -150,8 +141,6 @@ public:
 	 * Tries to generate some pedestrians on the square and the
 	 * adjacent squares. Return actual number of generated
 	 * pedestrians.
-	 *
-	 * @author Hj. Malthaner
 	 */
 	static int generate_pedestrians(const koord3d pos, int count);
 
@@ -172,37 +161,31 @@ public:
 
 	/**
 	 * Station factory method. Returns handles instead of pointers.
-	 * @author Hj. Malthaner
 	 */
 	static halthandle_t create(koord pos, player_t *player);
 
 	/**
 	 * Station factory method. Returns handles instead of pointers.
-	 * @author Hj. Malthaner
 	 */
 	static halthandle_t create(loadsave_t *file);
 
-	/*
+	/**
 	* removes a ground tile from a station, deletes the building and, if last tile, also the halthandle
-	* @author prissi
 	*/
 	static bool remove(player_t *player, koord3d pos);
 
 	/**
 	 * Station destruction method.
-	 * @author Hj. Malthaner
 	 */
 	static void destroy(halthandle_t);
 
 	/**
 	 * destroys all stations
-	 * @author Hj. Malthaner
 	 */
 	static void destroy_all();
 
 	/**
 	 * Liste aller felder (Grund-Objekte) die zu dieser Haltestelle gehören
-	 * @author Hj. Malthaner
 	 */
 	struct tile_t
 	{
@@ -219,7 +202,6 @@ public:
 
 	/**
 	 * directly reachable halt with its connection weight
-	 * @author Knightly
 	 */
 	struct connection_t
 	{
@@ -256,7 +238,6 @@ private:
 		 * Thus, if a halt is served by 2 or more schedules (of lines or lineless convoys)
 		 * for a particular ware type, it is a transfer/interchange for that ware type.
 		 * Route searching is accelerated by differentiating transfer and non-transfer halts.
-		 * @author Knightly
 		 */
 		bool is_transfer;
 
@@ -307,7 +288,6 @@ private:
 
 	/**
 	 * Liste der angeschlossenen Fabriken
-	 * @author Hj. Malthaner
 	 */
 	slist_tpl<fabrik_t *> fab_list;
 
@@ -316,7 +296,6 @@ private:
 
 	/**
 	 * What is that for a station (for the image)
-	 * @author prissi
 	 */
 	stationtyp station_type;
 
@@ -335,7 +314,6 @@ private:
 
 	/**
 	 * versucht die ware mit beriets wartender ware zusammenzufassen
-	 * @author Hj. Malthaner
 	 */
 	bool vereinige_waren(const ware_t &ware);
 
@@ -344,21 +322,17 @@ private:
 
 	/**
 	 * liefert wartende ware an eine Fabrik
-	 * @author Hj. Malthaner
 	 */
 	void liefere_an_fabrik(const ware_t& ware) const;
 
-	/*
+	/**
 	 * transfers all goods to given station
-	 *
-	 * @author Dwachs
 	 */
 	void transfer_goods(halthandle_t halt);
 
-	/*
+	/**
 	* parameter to ease sorting
 	* sortierung is local and stores the sortorder for the individual station
-	* @author hsiegeln
 	*/
 	uint8 sortierung;
 	bool resort_freight_info;
@@ -372,33 +346,28 @@ public:
 	* Called after schedule calculation of all stations is finished
 	* will distribute the goods to changed routes (if there are any)
 	* returns true upon completion
-	* @author Hj. Malthaner
 	*/
 	bool reroute_goods(sint16 &units_remaining);
 
 	/**
 	 * getter/setter for sortby
-	 * @author hsiegeln
 	 */
 	uint8 get_sortby() { return sortierung; }
 	void set_sortby(uint8 sm) { resort_freight_info =true; sortierung = sm; }
 
 	/**
 	 * Calculates a status color for status bars
-	 * @author Hj. Malthaner
 	 */
 	PIXVAL get_status_farbe() const { return status_color; }
 
 	/**
 	 * Draws some nice colored bars giving some status information
-	 * @author Hj. Malthaner
 	 */
 	void display_status(KOORD_VAL xpos, KOORD_VAL ypos);
 
 	/**
 	 * sucht umliegende, erreichbare fabriken und baut daraus die
 	 * Fabrikliste auf.
-	 * @author Hj. Malthaner
 	 */
 	void verbinde_fabriken();
 	void remove_fabriken(fabrik_t *fab);
@@ -406,7 +375,6 @@ public:
 	/**
 	 * Rebuilds the list of connections to reachable halts
 	 * returns the search number of connections
-	 * @author Hj. Malthaner
 	 */
 	sint32 rebuild_connections();
 
@@ -447,13 +415,11 @@ public:
 
 	/**
 	 * called regularly to update status and reroute stuff
-	 * @author Hj. Malthaner
 	 */
 	bool step(uint8 what, sint16 &units_remaining);
 
 	/**
 	 * Called every month/every 24 game hours
-	 * @author Hj. Malthaner
 	 */
 	void new_month();
 
@@ -495,14 +461,12 @@ private:
 
 	/**
 	 * Markers used in route searching to avoid processing the same halt more than once
-	 * @author Knightly
 	 */
 	static uint8 markers[65536];
 	static uint8 current_marker;
 
 	/**
 	 * Remember last route search start and catg to resume search
-	 * @author dwachs
 	 */
 	static halthandle_t last_search_origin;
 	static uint8        last_search_ware_catg_idx;
@@ -514,13 +478,10 @@ public:
 	 * Ziel und Zwischenziel auf koord::invalid gesetzt.
 	 *
 	 * @param ware die zu routende Ware
-	 * @author Hj. Malthaner
 	 *
 	 * for reverse routing, also the next to last stop can be added, if next_to_ziel!=NULL
 	 *
 	 * if avoid_overcrowding is set, a valid route in only found when there is no overflowing stop in between
-	 *
-	 * @author prissi
 	 */
 	static int search_route( const halthandle_t *const start_halts, const uint16 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware=NULL );
 
@@ -556,25 +517,21 @@ public:
 
 	/**
 	 * Found route and station uncrowded
-	 * @author Hj. Malthaner
 	 */
 	void add_pax_happy(int n);
 
 	/**
 	 * Station in walking distance
-	 * @author prissi
 	 */
 	void add_pax_walked(int n);
 
 	/**
 	 * Found no route
-	 * @author Hj. Malthaner
 	 */
 	void add_pax_no_route(int n);
 
 	/**
 	 * Station crowded
-	 * @author Hj. Malthaner
 	 */
 	void add_pax_unhappy(int n);
 
@@ -604,36 +561,34 @@ public:
 	// returns ground closest to this coordinate
 	grund_t *get_ground_closest_to( const koord here ) const;
 
-	/* return the closest square that belongs to this halt
-	 * @author prissi
+	/**
+	 * return the closest square that belongs to this halt
 	 */
 	koord get_next_pos( koord start ) const;
 
-	// true, if this station is overcrowded for this ware
+	/// true, if this station is overcrowded for this ware
 	bool is_overcrowded( const uint8 idx ) const { return (overcrowded[idx/8] & (1<<(idx%8)))!=0; }
 
 	/**
 	 * gibt Gesamtmenge derware vom typ typ zurück
-	 * @author Hj. Malthaner
 	 */
 	uint32 get_ware_summe(const goods_desc_t *warentyp) const;
 
 	/**
 	 * returns total number for a certain position (since more than one factory might connect to a stop)
-	 * @author Hj. Malthaner
 	 */
 	uint32 get_ware_fuer_zielpos(const goods_desc_t *warentyp, const koord zielpos) const;
 
 	/**
 	 * total amount of freight with specified next hop
-	 * @author prissi
 	 */
 	uint32 get_ware_fuer_zwischenziel(const goods_desc_t *warentyp, const halthandle_t zwischenziel) const;
 
-	// true, if we accept/deliver this kind of good
+	/// true, if we accept/deliver this kind of good
 	bool gibt_ab(const goods_desc_t *warentyp) const { return cargo[warentyp->get_catg_index()] != NULL; }
 
-	/* retrieves a ware packet for any destination in the list
+	/**
+	 * retrieves a ware packet for any destination in the list
 	 * needed, if the factory in question wants to remove something
 	 */
 	bool recall_ware( ware_t& w, uint32 menge );
@@ -645,7 +600,6 @@ public:
 	 * @param amount How many units of the cargo we can fetch.
 	 * @param schedule Schedule of the vehicle requesting the fetch.
 	 * @param sp Company that's requesting the fetch.
-	 * @author Dwachs
 	 */
 	void fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const vector_tpl<halthandle_t>& destination_halts);
 
@@ -657,57 +611,51 @@ public:
 	 * This is used for inital passenger, since they already know a route
 	 *
 	 * @return angenommene menge
-	 * @author Hj. Malthaner/prissi
 	 */
 	uint32 liefere_an(ware_t ware);
 	uint32 starte_mit_route(ware_t ware);
 
 	const grund_t *find_matching_position(waytype_t wt) const;
 
-	/* checks, if there is an unoccupied loading bay for this kind of thing
-	* @author prissi
-	*/
+	/**
+	 * checks, if there is an unoccupied loading bay for this kind of thing
+	 */
 	bool find_free_position(const waytype_t w ,convoihandle_t cnv,const obj_t::typ d) const;
 
-	/* reserves a position (caution: railblocks work differently!
-	* @author prissi
-	*/
+	/**
+	 * reserves a position (caution: railblocks work differently!
+	 */
 	bool reserve_position(grund_t *gr,convoihandle_t cnv);
 
-	/* frees a reserved  position (caution: railblocks work differently!
-	* @author prissi
-	*/
+	/**
+	 * frees a reserved  position (caution: railblocks work differently!
+	 */
 	bool unreserve_position(grund_t *gr, convoihandle_t cnv);
 
-	/* true, if this can be reserved
-	* @author prissi
-	*/
+	/** true, if this can be reserved
+	 */
 	bool is_reservable(const grund_t *gr, convoihandle_t cnv) const;
 
 	/**
 	 * @param buf the buffer to fill
 	 * @return Goods description text (buf)
-	 * @author Hj. Malthaner
 	 */
 	void get_freight_info(cbuffer_t & buf);
 
 	/**
 	 * @param buf the buffer to fill
 	 * @return short list of the waiting goods (i.e. 110 Wood, 15 Coal)
-	 * @author Hj. Malthaner
 	 */
 	void get_short_freight_info(cbuffer_t & buf) const;
 
 	/**
 	 * Opens an information window for this station.
-	 * @author Hj. Malthaner
 	 */
 	void open_info_window();
 
 	/**
 	 * @return the type of a station
 	 * (combination of: railstation, loading bay, dock)
-	 * @author Markus Weber
 	 */
 	stationtyp get_station_type() const { return station_type; }
 	void recalc_station_type();
@@ -716,7 +664,6 @@ public:
 	 * fragt den namen der Haltestelle ab.
 	 * Der Name ist der text des ersten Untergrundes der Haltestelle
 	 * @return der Name der Haltestelle.
-	 * @author Hj. Malthaner
 	 */
 	const char *get_name() const;
 
@@ -743,62 +690,52 @@ public:
 	static void end_load_game();
 
 
-	/*
+	/**
 	 * called, if a line serves this stop
-	 * @author hsiegeln
 	 */
 	void add_line(linehandle_t line) { registered_lines.append_unique(line); }
 
-	/*
+	/**
 	 * called, if a line removes this stop from it's schedule
-	 * @author hsiegeln
 	 */
 	void remove_line(linehandle_t line) { registered_lines.remove(line); }
 
-	/*
+	/**
 	 * list of line ids that serve this stop
-	 * @author hsiegeln
 	 */
 	vector_tpl<linehandle_t> registered_lines;
 
 	/**
 	 * Register a lineless convoy which serves this stop
-	 * @author Knightly
 	 */
 	void add_convoy(convoihandle_t convoy) { registered_convoys.append_unique(convoy); }
 
 	/**
 	 * Unregister a lineless convoy
-	 * @author Knightly
 	 */
 	void remove_convoy(convoihandle_t convoy) { registered_convoys.remove(convoy); }
 
 	/**
 	 * A list of lineless convoys serving this stop
-	 * @author Knightly
 	 */
 	vector_tpl<convoihandle_t> registered_convoys;
 
 	/**
 	 * book a certain amount into the halt's financial history
-	 * @author hsiegeln
 	 */
 	void book(sint64 amount, int cost_type);
 
 	/**
 	 * return a pointer to the financial history
-	 * @author hsiegeln
 	 */
 	sint64* get_finance_history() { return *financial_history; }
 
 	/**
 	 * return a specified element from the financial history
-	 * @author hsiegeln
 	 */
 	sint64 get_finance_history(int month, int cost_type) const { return financial_history[month][cost_type]; }
 
-	/* marks a coverage area
-	* @author prissi
+	/** marks a coverage area
 	*/
 	void mark_unmark_coverage(const bool mark) const;
 
@@ -809,7 +746,6 @@ public:
 
 	/**
 	 * Initialise the markers to zero
-	 * @author Knightly
 	 */
 	static void init_markers();
 

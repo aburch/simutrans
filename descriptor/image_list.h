@@ -8,12 +8,8 @@
 
 #include "image.h"
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      One-dimensional image list.
+/**
+ * One-dimensional image list.
  *
  *  Child nodes:
  *	0   1st Image

@@ -13,9 +13,6 @@
 
 /**
  * An adapter class to display info windows for things (objects)
- *
- * @author Hj. Malthaner
- * @date 22-Nov-2001
  */
 class obj_infowin_t : public base_infowin_t
 {

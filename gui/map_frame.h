@@ -24,9 +24,6 @@ class karte_ptr_t;
 
 /**
  * Minimap window
- *
- * @author Hj. Malthaner
- * @date 03-Mar-01
  */
 class map_frame_t :
 	public gui_frame_t,
@@ -39,7 +36,6 @@ private:
 	 * This is kind of hack: we know there can only be one map frame
 	 * at a time, and we want to save the current size for the next object
 	 * so we use a static variable here.
-	 * @author Hj. Malthaner
 	 */
 	static scr_size window_size;
 	static scr_coord screenpos;
@@ -53,7 +49,6 @@ private:
 
 	/**
 	 * We need to keep track of drag/click events
-	 * @author Hj. Malthaner
 	 */
 	bool is_dragging;
 
@@ -99,20 +94,17 @@ public:
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author Hj. Malthaner
 	 */
 	const char * get_help_filename() const OVERRIDE {return "map.txt";}
 
 	/**
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
-	 * @author Hj. Malthaner
 	 */
 	bool has_min_sizer() const OVERRIDE {return true;}
 
 	/**
 	 * Constructor. Adds all necessary Subcomponents.
-	 * @author Hj. Malthaner
 	 */
 	map_frame_t();
 
@@ -124,8 +116,6 @@ public:
 
 	/**
 	 * Sets the window sizes
-	 * @author (Mathew Hounsell)
-	 * @date   11-Mar-2003
 	 */
 	void set_windowsize(scr_size size) OVERRIDE;
 
@@ -133,7 +123,6 @@ public:
 	 * Draw new component. The values to be passed refer to the window
 	 * i.e. It's the screen coordinates of the window where the
 	 * component is displayed.
-	 * @author Hj. Malthaner
 	 */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 

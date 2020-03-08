@@ -36,9 +36,8 @@
 
 #define CHART_HEIGHT (100)
 
-/*
+/**
  * Window with destination information for a stop
- * @author Hj. Malthaner
  */
 class gui_departure_board_t : public gui_aligned_container_t
 {
@@ -352,7 +351,7 @@ void halt_info_t::init(halthandle_t halt)
 	container_freight.add_table(2,1);
 	container_freight.new_component<gui_label_t>("Sort waiting list by");
 
-	// hsiegeln: added sort_button
+	// added sort_button
 	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode]);
 	sort_button.set_tooltip("Sort waiting list by");
 	sort_button.add_listener(this);
@@ -478,7 +477,6 @@ void halt_info_t::update_components()
  * Draw new component. The values to be passed refer to the window
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
- * @author Hj. Malthaner
  */
 void halt_info_t::draw(scr_coord pos, scr_size size)
 {
@@ -577,7 +575,7 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 	}
 
 	insert_empty_row();
-	// Knightly : add lineless convoys which serve this stop
+	// add lineless convoys which serve this stop
 	new_component_span<gui_label_t>("Lineless convoys serving this stop", 2);
 	if(  !halt->registered_convoys.empty()  ) {
 		for(  uint32 i=0;  i<halt->registered_convoys.get_count();  ++i  ) {
@@ -859,11 +857,10 @@ void gui_departure_board_t::insert_image(convoihandle_t cnv)
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
-	if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
+	if (comp == &sort_button) {
 		env_t::default_sortmode = ((int)(halt->get_sortby())+1)%4;
 		halt->set_sortby((freight_list_sorter_t::sort_mode_t) env_t::default_sortmode);
 		sort_button.set_text(sort_text[env_t::default_sortmode]);

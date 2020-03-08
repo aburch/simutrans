@@ -20,21 +20,18 @@ class simlinemgmt_t
 public:
 	~simlinemgmt_t();
 
-	/*
+	/**
 	 * add a line
-	 * @author hsiegeln
 	 */
 	void add_line(linehandle_t new_line);
 
-	/*
+	/**
 	 * delete a line
-	 * @author hsiegeln
 	 */
 	void delete_line(linehandle_t line);
 
-	/*
+	/**
 	 * update a line -> apply updated schedule to all convoys
-	 * @author hsiegeln
 	 */
 	void update_line(linehandle_t line);
 
@@ -64,13 +61,11 @@ public:
 
 	/**
 	 * creates a line with an empty schedule
-	 * @author hsiegeln
 	 */
 	linehandle_t create_line(int ltype, player_t * player);
 
 	/**
 	 * Creates a line and sets its schedule
-	 * @author prissi
 	 */
 	linehandle_t create_line(int ltype, player_t * player, schedule_t * schedule);
 
@@ -90,7 +85,6 @@ public:
 
 	/**
 	 * Will open the line management window and offer information about the line
-	 * @author isidoro
 	 */
 	void show_lineinfo(player_t *player, linehandle_t line);
 

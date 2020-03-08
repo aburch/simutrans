@@ -42,15 +42,12 @@ enum way_statistics {
  * enthalten kann (prinzipiell auch mehrere möglich.</p>
  *
  * <p>Wegtyp -1 ist reserviert und kann nicht für Wege benutzt werden<p>
- *
- * @author Hj. Malthaner
  */
 class weg_t : public obj_no_info_t
 {
 public:
 	/**
 	* Get list of all ways
-	* @author Hj. Malthaner
 	*/
 	static const slist_tpl <weg_t *> & get_alle_wege();
 
@@ -70,38 +67,32 @@ private:
 	* array for statistical values
 	* MAX_WAY_STAT_MONTHS: [0] = actual value; [1] = last month value
 	* MAX_WAY_STATISTICS: see #define at top of file
-	* @author hsiegeln
 	*/
 	sint16 statistics[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS];
 
 	/**
 	* Way type description
-	* @author Hj. Malthaner
 	*/
 	const way_desc_t * desc;
 
 	/**
 	* Richtungsbits für den Weg. Norden ist oben rechts auf dem Monitor.
 	* 1=Nord, 2=Ost, 4=Sued, 8=West
-	* @author Hj. Malthaner
 	*/
 	uint8 ribi:4;
 
 	/**
 	* Mask for ribi (Richtungsbits => Direction Bits)
-	* @author Hj. Malthaner
 	*/
 	uint8 ribi_maske:4;
 
 	/**
 	* flags like walkway, electrification, road sings
-	* @author Hj. Malthaner
 	*/
 	uint8 flags;
 
 	/**
 	* max speed; could not be taken for desc, since other object may modify the speed
-	* @author Hj. Malthaner
 	*/
 	uint16 max_speed;
 
@@ -110,13 +101,11 @@ private:
 
 	/**
 	* Initializes all member variables
-	* @author Hj. Malthaner
 	*/
 	void init();
 
 	/**
 	* initializes statistic array
-	* @author hsiegeln
 	*/
 	void init_statistics();
 
@@ -154,20 +143,17 @@ public:
 
 	/**
 	* Setzt die erlaubte Höchstgeschwindigkeit
-	* @author Hj. Malthaner
 	*/
 	void set_max_speed(sint32 s) { max_speed = s; }
 
 	/**
 	* Ermittelt die erlaubte Höchstgeschwindigkeit
-	* @author Hj. Malthaner
 	*/
 	sint32 get_max_speed() const { return max_speed; }
 
 	/**
 	* Setzt neue Description. Ersetzt alte Höchstgeschwindigkeit
 	* mit wert aus Description.
-	* @author Hj. Malthaner
 	*/
 	void set_desc(const way_desc_t *b);
 	const way_desc_t *get_desc() const { return desc; }
@@ -182,13 +168,11 @@ public:
 
 	/**
 	* Info-text for this way
-	* @author Hj. Malthaner
 	*/
 	void info(cbuffer_t & buf) const OVERRIDE;
 
 	/**
 	 * @return NULL if OK, otherwise an error message
-	 * @author Hj. Malthaner
 	 */
 	const char *is_deletable(const player_t *player) OVERRIDE;
 
@@ -200,13 +184,11 @@ public:
 	/**
 	* 'Jedes Ding braucht einen Typ.'
 	* @return Gibt den typ des Objekts zurück.
-	* @author Hj. Malthaner
 	*/
 	typ get_typ() const OVERRIDE { return obj_t::way; }
 
 	/**
 	* Die Bezeichnung des Wegs
-	* @author Hj. Malthaner
 	*/
 	const char *get_name() const OVERRIDE { return desc->get_name(); }
 
@@ -260,26 +242,22 @@ public:
 
 	/**
 	 * called during map rotation
-	 * @author priss
 	 */
 	void rotate90() OVERRIDE;
 
 	/**
 	* book statistics - is called very often and therefore inline
-	* @author hsiegeln
 	*/
 	void book(int amount, way_statistics type) { statistics[0][type] += amount; }
 
 	/**
 	* return statistics value
 	* always returns last month's value
-	* @author hsiegeln
 	*/
 	int get_statistics(int type) const { return statistics[1][type]; }
 
 	/**
 	* new month
-	* @author hsiegeln
 	*/
 	void new_month();
 

@@ -21,7 +21,6 @@ void swap(planquadrat_t& a, planquadrat_t& b);
 /**
  * Die Karte ist aus Planquadraten zusammengesetzt.
  * Planquadrate speichern Untergründe (Böden) der Karte.
- * @author Hj. Malthaner
  */
 class planquadrat_t
 {
@@ -43,7 +42,6 @@ private:
 public:
 	/**
 	 * Constructs a planquadrat (tile) with initial capacity of one ground
-	 * @author Hansjörg Malthaner
 	 */
 	planquadrat_t() { ground_size = 0; climate_data = 0; data.one = NULL; halt_list_count = 0;  halt_list = NULL; }
 
@@ -57,25 +55,21 @@ private:
 public:
 	/**
 	* Setzen des "normalen" Bodens auf Kartenniveau
-	* @author V. Meyer
 	*/
 	void kartenboden_setzen(grund_t *bd, bool startup = false);
 
 	/**
 	* Ersetzt Boden alt durch neu, löscht Boden alt.
-	* @author Hansjörg Malthaner
 	*/
 	void boden_ersetzen(grund_t *alt, grund_t *neu);
 
 	/**
 	* Setzen einen Brücken- oder Tunnelbodens
-	* @author V. Meyer
 	*/
 	void boden_hinzufuegen(grund_t *bd);
 
 	/**
 	* Löschen eines Brücken- oder Tunnelbodens
-	* @author V. Meyer
 	*/
 	bool boden_entfernen(grund_t *bd);
 
@@ -83,7 +77,6 @@ public:
 	* Return either ground tile in this height or NULL if not existing
 	* Inline, since called from karte_t::lookup() and thus extremely often
 	* @return NULL if not ground in this height
-	* @author Hj. Malthaner
 	*/
 	inline grund_t *get_boden_in_hoehe(const sint16 z) const {
 		if(ground_size==1) {
@@ -105,14 +98,12 @@ public:
 	/**
 	* returns normal ground (always first index)
 	* @return not defined if no ground (must not happen!)
-	* @author Hansjörg Malthaner
 	*/
 	inline grund_t *get_kartenboden() const { return (ground_size<=1) ? data.one : data.some[0]; }
 
 	/**
 	* find ground if thing is on this planquadrat (tile)
 	* @return grund_t * with thing or NULL
-	* @author V. Meyer
 	*/
 	grund_t *get_boden_von_obj(obj_t *obj) const;
 
@@ -121,25 +112,21 @@ public:
 	* Since it is always called from loops or with other checks, no
 	* range check is done => if only one ground, range is ignored!
 	* @return ground at idx, undefined if ground_size==NULL
-	* @author Hj. Malthaner
 	*/
 	inline grund_t *get_boden_bei(const unsigned idx) const { return (ground_size<=1 ? data.one : data.some[idx]); }
 
 	/**
 	* @return Anzahl der Böden dieses Planquadrats
-	* @author Hj. Malthaner
 	*/
 	unsigned int get_boden_count() const { return ground_size; }
 
 	/**
 	* returns climate of plan (lowest 3 bits of climate byte)
-	* @author Kieron Green
 	*/
 	inline climate get_climate() const { return (climate)(climate_data & 7); }
 
 	/**
 	* sets plan climate
-	* @author Kieron Green
 	*/
 	void set_climate(climate cl) {
 		climate_data = (climate_data & 0xf8) + (cl & 7);
@@ -147,13 +134,11 @@ public:
 
 	/**
 	* returns whether this is a transition to next climate (which will then use calculated image rather than overlay)
-	* @author Kieron Green
 	*/
 	inline bool get_climate_transition_flag() const { return (climate_data >> 3) & 1; }
 
 	/**
 	* set whether this is a transition to next climate (which will then use calculated image rather than overlay)
-	* @author Kieron Green
 	*/
 	void set_climate_transition_flag(bool flag) {
 		climate_data = flag ? (climate_data | 0x08) : (climate_data & 0xf7);
@@ -163,7 +148,6 @@ public:
 	* returns corners which transition to another climate
 	* this has no meaning if tile is a slope with transition to next climate as these corners are fixed
 	* therefore for this case to allow double heights 0 = first level transition, 1 = second level transition
-	* @author Kieron Green
 	*/
 	inline uint8 get_climate_corners() const { return (climate_data >> 4) & 15; }
 
@@ -171,7 +155,6 @@ public:
 	* sets climate transition corners
 	* this has no meaning if tile is a slope with transition to next climate as these corners are fixed
 	* therefore for this case to allow double heights 0 = first level transition, 1 = second level transition
-	* @author Kieron Green
 	*/
 	void set_climate_corners(uint8 corners) {
 		climate_data = (climate_data & 0x0f) + (corners << 4);
@@ -179,26 +162,21 @@ public:
 
 	/**
 	* converts boden to correct type, land or water
-	* @author Kieron Green
 	*/
 	void correct_water();
 
 	/**
 	* konvertiert Land zu Water wenn unter Grundwasserniveau abgesenkt
-	* @author Hj. Malthaner
 	*/
 	void abgesenkt();
 
 	/**
 	* Converts water to land when raised above the ground water level
-	* @author Hj. Malthaner
 	*/
 	void angehoben();
 
 	/**
 	* returns halthandle belonging to player if present
-	* @return NULL if no halt present
-	* @author Kieron Green
 	*/
 	halthandle_t get_halt(player_t *player) const;
 
@@ -210,7 +188,6 @@ private:
 public:
 	/**
 	 * The following three functions takes about 4 bytes of memory per tile but speed up passenger generation
-	 * @author prissi
 	 * @param unsorted if true then halt list will be sorted later by call to sort_haltlist, see karte_t::plans_finish_rd.
 	 */
 	void add_to_haltlist(halthandle_t halt, bool unsorted = false);
@@ -218,7 +195,6 @@ public:
 	/**
 	* removes the halt from a ground
 	* however this function check, whether there is really no other part still reachable
-	* @author prissi
 	*/
 	void remove_from_haltlist(halthandle_t halt);
 
@@ -232,7 +208,6 @@ public:
 
 	/**
 	* returns the internal array of halts
-	* @author prissi
 	*/
 	const halthandle_t *get_haltlist() const { return halt_list; }
 	uint8 get_haltlist_count() const { return halt_list_count; }

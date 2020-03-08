@@ -14,12 +14,8 @@
 #define EXT_OBJ_NODE_INFO_SIZE (12)
 #define LARGE_RECORD_SIZE (0xFFFFu)
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      stored structure of a pak node inside the file.
+/**
+ * Stored structure of a pak node inside the file.
  */
 struct obj_node_info_t {
     uint32  type;

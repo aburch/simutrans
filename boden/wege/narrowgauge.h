@@ -22,7 +22,6 @@ public:
 
 	/**
 	 * File loading constructor.
-	 * @author prissi
 	 */
 	narrowgauge_t(loadsave_t *file);
 

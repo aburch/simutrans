@@ -15,9 +15,9 @@
 class karte_t;
 class karte_ptr_t;
 
-/* class for a simple message
+/**
+ * class for a simple message
  * this way they are stored in a list
- * @author prissi
  */
 class message_t
 {

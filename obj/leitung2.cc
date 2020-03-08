@@ -170,7 +170,6 @@ void leitung_t::cleanup(player_t *player)
 
 /**
  * called during map rotation
- * @author prissi
  */
 void leitung_t::rotate90()
 {
@@ -179,9 +178,9 @@ void leitung_t::rotate90()
 }
 
 
-/* replace networks connection
+/**
+ * replace networks connection
  * non-trivial to handle transformers correctly
- * @author prissi
  */
 void leitung_t::replace(powernet_t* new_net)
 {
@@ -205,7 +204,6 @@ void leitung_t::replace(powernet_t* new_net)
 /**
  * Connect this piece of powerline to its neighbours
  * -> this can merge power networks
- * @author Hj. Malthaner
  */
 void leitung_t::verbinde()
 {
@@ -248,7 +246,6 @@ void leitung_t::verbinde()
 }
 
 
-/* extended by prissi */
 void leitung_t::calc_image()
 {
 	is_crossing = false;
@@ -307,8 +304,6 @@ void leitung_t::calc_image()
 /**
  * Recalculates the images of all neighbouring
  * powerlines and the powerline itself
- *
- * @author Hj. Malthaner
  */
 void leitung_t::calc_neighbourhood()
 {
@@ -331,7 +326,6 @@ void leitung_t::calc_neighbourhood()
 /**
  * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
- * @author Hj. Malthaner
  */
 void leitung_t::info(cbuffer_t & buf) const
 {
@@ -353,8 +347,6 @@ void leitung_t::info(cbuffer_t & buf) const
 /**
  * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
  * um das Aussehen des Dings an Boden und Umgebung anzupassen
- *
- * @author Hj. Malthaner
  */
 void leitung_t::finish_rd()
 {

@@ -22,7 +22,6 @@
 
 /**
  * City list window
- * @author Hj. Malthaner
  */
 class citylist_frame_t : public gui_frame_t, private action_listener_t
 {
@@ -62,7 +61,6 @@ public:
 	 * Draw new component. The values to be passed refer to the window
 	 * i.e. It's the screen coordinates of the window where the
 	 * component is displayed.
-	 * @author Hj. Malthaner
 	*/
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
@@ -71,7 +69,6 @@ public:
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author V. Meyer
 	*/
 	const char * get_help_filename() const OVERRIDE {return "citylist_filter.txt"; }
 

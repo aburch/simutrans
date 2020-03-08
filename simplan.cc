@@ -196,7 +196,6 @@ void planquadrat_t::kartenboden_setzen(grund_t *bd, bool startup)
 
 /**
  * replaces the map solid ground (or water) and deletes the old one
- * @author Hansjörg Malthaner
  */
 void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 {
@@ -265,7 +264,7 @@ void planquadrat_t::rdwr(loadsave_t *file, koord pos )
 				case grund_t::brueckenboden:    gr = new brueckenboden_t(file, pos);     break;
 				case grund_t::monorailboden:	    gr = new monorailboden_t(file, pos); break;
 				default:
-					gr = 0; // Hajo: keep compiler happy, fatal() never returns
+					gr = 0; // keep compiler happy, fatal() never returns
 					dbg->fatal("planquadrat_t::rdwr()","Error while loading game: Unknown ground type '%d'",gtyp);
 			}
 			// check if we have a matching building here, otherwise set to nothing
@@ -675,8 +674,8 @@ void planquadrat_t::halt_list_insert_at( halthandle_t halt, uint8 pos )
 }
 
 
-/* The following functions takes at least 8 bytes of memory per tile but speed up passenger generation *
- * @author prissi
+/**
+ * The following functions takes at least 8 bytes of memory per tile but speed up passenger generation *
  */
 void planquadrat_t::add_to_haltlist(halthandle_t halt, bool unsorted)
 {
@@ -752,7 +751,6 @@ void planquadrat_t::sort_haltlist()
 /**
  * removes the halt from a ground
  * however this function check, whether there is really no other part still reachable
- * @author prissi, neroden
  */
 void planquadrat_t::remove_from_haltlist(halthandle_t halt)
 {
@@ -783,7 +781,6 @@ void planquadrat_t::remove_from_haltlist(halthandle_t halt)
 
 /**
  * true, if this halt is reachable from here
- * @author prissi
  */
 bool planquadrat_t::is_connected(halthandle_t halt) const
 {

@@ -10,7 +10,6 @@
 
 /**
  * A schedule entry.
- * @author Hj. Malthaner
  */
 struct schedule_entry_t
 {
@@ -25,21 +24,18 @@ public:
 
 	/**
 	 * target position
-	 * @author Hj. Malthaner
 	 */
 	koord3d pos;
 
 	/**
 	 * Wait for % load at this stops
 	 * (ignored on waypoints)
-	 * @author Hj. Malthaner
 	 */
 	uint8 minimum_loading;
 
 	/**
 	 * maximum waiting time in 1/2^(16-n) parts of a month
 	 * (only active if minimum_loading!=0)
-	 * @author prissi
 	 */
 	sint8 waiting_time_shift;
 };

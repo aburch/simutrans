@@ -38,11 +38,11 @@ obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	way_obj_desc_t *desc = new way_obj_desc_t();
 
-	// Hajo: Read data
+	// Read data
 	fread(desc_buf, node.size, 1, fp);
 	char * p = desc_buf;
 
-	// Hajo: old versions of PAK files have no version stamp.
+	// old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
 	const uint16 v = decode_uint16(p);
 	const uint16 version = v & 0x7FFF;

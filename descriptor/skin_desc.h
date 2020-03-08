@@ -11,12 +11,8 @@
 #include "image_array.h"
 
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      An image list, with name and author attributes. Mostly used for gui purposes.
+/**
+ * An image list, with name and author attributes. Mostly used for gui purposes.
  *
  *  Child nodes:
  *	0   Name

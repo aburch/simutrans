@@ -24,7 +24,6 @@ template<class T> class slist_tpl;
 
 /**
  * Reads uint8 from memory area. Advances pointer by 1 byte.
- * @author Hj. Malthaner
  */
 inline uint8 decode_uint8(char * &data)
 {
@@ -38,7 +37,6 @@ inline uint8 decode_uint8(char * &data)
 
 /**
  * Reads uint16 from memory area. Advances pointer by 2 bytes.
- * @author Hj. Malthaner
  */
 inline uint16 decode_uint16(char * &data)
 {
@@ -52,7 +50,6 @@ inline uint16 decode_uint16(char * &data)
 
 /**
  * Reads uint32 from memory area. Advances pointer by 4 bytes.
- * @author Hj. Malthaner
  */
 inline uint32 decode_uint32(char * &data)
 {

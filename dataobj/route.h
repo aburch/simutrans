@@ -18,16 +18,12 @@ class grund_t;
 
 /**
  * Route, e.g. for vehicles
- *
- * @author Hj. Malthaner
- * @date 15.01.00
  */
 class route_t
 {
 private:
 	/**
 	 * The actual route search
-	 * @author Hj. Malthaner
 	 */
 	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, test_driver_t *tdriver, const sint32 max_kmh, const uint32 max_cost);
 
@@ -84,7 +80,6 @@ public:
 
 	/**
 	 * @return Coordinate at index @p n.
-	 * @author Hj. Malthaner
 	 */
 	const koord3d& at(const uint16 n) const { return route[n]; }
 
@@ -98,57 +93,48 @@ public:
 
 	/**
 	 * Appends the other route to ours.
-	 * @author prissi
 	 */
 	void append(const route_t *route);
 
 	/**
 	 * Inserts @p k at position 0.
-	 * @author Hj. Malthaner
 	 */
 	void insert(koord3d k);
 
 	/**
 	 * Appends position @p k.
-	 * @author prissi
 	 */
 	inline void append(koord3d k) { route.append(k); }
 
 	/**
 	 * removes all tiles from the route
-	 * @author prissi
 	 */
 	void clear() { route.clear(); }
 
 	/**
 	 * Removes all tiles at indices >@p i.
-	 * @author prissi
 	 */
 	void remove_koord_from(uint32 i);
 
 	/**
 	 * Appends a straight line to the @p target.
 	 * Will return fals if fails
-	 * @author prissi
 	 */
 	bool append_straight_route( karte_t *w, koord3d target);
 
 	/**
 	 * Finds route to a location, where @p tdriver->is_target becomes true.
 	 * @param max_depth is the maximum length of a route
-	 * @author prissi
 	 */
 	bool find_route(karte_t *w, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth );
 
 	/**
 	 * Calculates the route from @p start to @p target
-	 * @author Hj. Malthaner
 	 */
 	route_result_t calc_route(karte_t *welt, koord3d start, koord3d target, test_driver_t *tdriver, const sint32 max_speed_kmh, sint32 max_tile_len );
 
 	/**
 	 * Load/Save of the route.
-	 * @author V. Meyer
 	 */
 	void rdwr(loadsave_t *file);
 };

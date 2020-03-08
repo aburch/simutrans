@@ -51,7 +51,6 @@ const char *tabfileobj_t::get(const char *key)
 /**
  * Get the string value for a key - key must be lowercase
  * @return def if key isn't found, value otherwise
- * @author Hj. Malthaner
  */
 const char *tabfileobj_t::get_string(const char *key, const char * def)
 {

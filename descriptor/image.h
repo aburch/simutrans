@@ -18,12 +18,8 @@
 
 
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      Data of one image
+/**
+ * Data of one image
  *
  *  Child nodes:
  *	(none)

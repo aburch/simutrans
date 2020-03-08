@@ -19,8 +19,6 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 	obj_node_t node(this, 16, &parent);
 	write_head(fp, node, obj);
 
-	// Hajodoc: Preferred height of this tree type
-	// Hajoval: int (useful range: 0-14)
 	climate_bits allowed_climates;
 	const char *climate_str = obj.get("climates");
 	if (climate_str) {
@@ -102,7 +100,7 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 finish_images:
 	imagelist2d_writer_t::instance()->write_obj(fp, node, keys);
 
-	// Hajo: write version data
+	// write version data
 	node.write_uint16(fp, 0x8001,               0);
 	node.write_uint16(fp, allowed_climates,     2);
 	node.write_uint16(fp, distribution_weight,  4);

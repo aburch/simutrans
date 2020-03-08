@@ -14,12 +14,9 @@
 #include "components/gui_combobox.h"
 #include "components/gui_tab_panel.h"
 
-/*
+/**
  * Menu with display settings
- * @author Hj. Malthaner
  */
-
-
 class gui_settings_t : public gui_aligned_container_t
 {
 private:
@@ -73,7 +70,6 @@ public:
 
 /**
  * Display settings dialog
- * @author Hj. Malthaner
  */
 class color_gui_t : public gui_frame_t, private action_listener_t
 {
@@ -94,7 +90,6 @@ public:
 	/**
 	 * Some windows have associated help text.
 	 * @return The help file name or NULL
-	 * @author Hj. Malthaner
 	 */
 	const char * get_help_filename() const OVERRIDE { return "display.txt"; }
 

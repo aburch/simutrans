@@ -3,7 +3,7 @@
  * (see LICENSE.txt)
  */
 
-/* prissi: first part is left, second part right side */
+/* first part is left, second part right side */
 
 "","",
 "","",

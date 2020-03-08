@@ -18,7 +18,6 @@
 /**
  * A component for floating text.
  * Original implementation.
- * @author Hj. Malthaner
  */
 class gui_flowtext_intern_t :
 	public gui_action_creator_t,
@@ -29,7 +28,6 @@ public:
 
 	/**
 	 * Sets the text to display.
-	 * @author Hj. Malthaner
 	 */
 	void set_text(const char* text);
 
@@ -50,7 +48,6 @@ public:
 
 	/**
 	 * Paints the component
-	 * @author Hj. Malthaner
 	 */
 	void draw(scr_coord offset) OVERRIDE;
 
@@ -87,7 +84,6 @@ private:
 
 	/**
 	 * Hyperlink position container
-	 * @author Hj. Malthaner
 	 */
 	struct hyperlink_t
 	{
@@ -124,8 +120,7 @@ void gui_flowtext_intern_t::set_text(const char *text)
 	nodes.clear();
 	links.clear();
 
-	// Hajo: danger here, longest word in text
-	// must not exceed 511 chars!
+	// danger here, longest word in text must not exceed 511 chars!
 	char word[512];
 	attributes att = ATT_NONE;
 

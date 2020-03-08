@@ -10,8 +10,6 @@
 
 /**
  * Cars are able to drive on roads.
- *
- * @author Hj. Malthaner
  */
 class strasse_t : public weg_t
 {

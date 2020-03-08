@@ -684,7 +684,6 @@ void minimap_t::set_map_color(koord k_, const PIXVAL color)
  * calculates ground color for position relative to water height
  * @param hoehe height of the tile
  * @param groundwater water height
- * @author Hj. Malthaner
  */
 PIXVAL minimap_t::calc_height_color(const sint16 hoehe, const sint16 groundwater)
 {
@@ -705,7 +704,6 @@ PIXVAL minimap_t::calc_height_color(const sint16 hoehe, const sint16 groundwater
 
 /**
  * Calculates the minimap color of a ground tile
- * @author Hj. Malthaner
  */
 PIXVAL minimap_t::calc_ground_color(const grund_t *gr)
 {

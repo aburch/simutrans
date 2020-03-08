@@ -20,8 +20,6 @@ class settings_t;
 
 /**
  * The dialog for new world generation
- *
- * @author Hj. Malthaner, Niels Roest
  */
 class welt_gui_t  :
 	public  gui_frame_t,
@@ -32,7 +30,6 @@ class welt_gui_t  :
 
 		/**
 		* Mini Map-Preview
-		* @author Hj. Malthaner
 		*/
 		array2d_tpl<PIXVAL> map;
 		scr_size            map_size;
@@ -84,7 +81,6 @@ class welt_gui_t  :
 	/**
 	* Calculates preview from height map
 	* @param filename name of heightfield file
-	* @author Hajo/prissi
 	*/
 	bool update_from_heightfield(const char *filename);
 
@@ -99,7 +95,6 @@ public:
 		/**
 		* Berechnet Preview-Karte neu. Inititialisiert RNG neu!
 		* public, because also the climate dialog need it
-		* @author Hj. Malthaner
 		*/
 		void update_preview(bool load_heightfield = false);
 		void clear_loaded_heightfield() { loaded_heightfield =0; }
@@ -108,7 +103,6 @@ public:
 		/**
 		* Set the window associated helptext
 		 * @return the filename for the helptext, or NULL
-		 * @author Hj. Malthaner
 		 */
 		const char * get_help_filename() const OVERRIDE {return "new_world.txt";}
 
@@ -123,7 +117,6 @@ public:
 		 * Draw new component. The values to be passed refer to the window
 		 * i.e. It's the screen coordinates of the window where the
 		 * component is displayed.
-		 * @author Hj. Malthaner
 		 */
 		void draw(scr_coord pos, scr_size size) OVERRIDE;
 

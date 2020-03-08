@@ -16,8 +16,6 @@ enum sync_result {
 
 /**
  * All synchronously moving things must implement this interface.
- *
- * @author Hj. Malthaner
  */
 class sync_steppable
 {

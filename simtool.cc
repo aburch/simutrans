@@ -146,7 +146,6 @@ char const *const NOTICE_DISABLED_PUBLIC_WAY = "Not allowed to make publicly own
 
 /**
  * Creates a tooltip from tip text and money value
- * @author Hj. Malthaner
  */
 char *tooltip_with_price(const char * tip, sint64 price)
 {
@@ -156,11 +155,8 @@ char *tooltip_with_price(const char * tip, sint64 price)
 }
 
 
-
-
 /**
  * Creates a tooltip from tip text, money value and way/object length
- * @author captain crunch
  */
 char *tooltip_with_price_length(const char * tip, sint64 price, sint64 length)
 {
@@ -172,11 +168,8 @@ char *tooltip_with_price_length(const char * tip, sint64 price, sint64 length)
 }
 
 
-
-
 /**
  * Creates a tooltip from tip text and money value
- * @author Hj. Malthaner
  */
 char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 price, sint64 maintenance)
 {
@@ -241,7 +234,6 @@ void open_error_msg_win(const char* error)
 /**
  * sucht Haltestelle um Umkreis +1/-1 um (pos, b, h)
  * extended to search first in our direction
- * @author Hj. Malthaner, V.Meyer, prissi
  */
 static halthandle_t suche_nahe_haltestelle(player_t *player, karte_t *welt, koord3d pos, sint16 b=1, sint16 h=1)
 {
@@ -468,7 +460,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 
 	koord k(pos.get_2d());
 
-	// prissi: check powerline (can cross ground of another player)
+	// check powerline (can cross ground of another player)
 	leitung_t* lt = gr->get_leitung();
 	// check whether powerline related stuff should be removed, and if there is any to remove
 	if (  (type == obj_t::leitung  ||  type == obj_t::pumpe  ||  type == obj_t::senke  ||  type == obj_t::undefined)
@@ -1163,7 +1155,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 
 		if(  new_slope == ALL_DOWN_SLOPE  ||  new_slope == RESTORE_SLOPE  ) {
 			if(  new_slope == RESTORE_SLOPE  ) {
-				// prissi: special action: set to natural slope
+				// special action: set to natural slope
 				sint8 min_hgt;
 				new_slope = welt->recalc_natural_slope( k, min_hgt );
 				new_pos = koord3d( k, min_hgt );
@@ -1595,7 +1587,6 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 
 /**
  * found a new city
- * @author Hj. Malthaner
  */
 const char *tool_add_city_t::work( player_t *player, koord3d pos )
 {
@@ -1621,7 +1612,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 			}
 			else {
 
-				// Hajo: if city is owned by player and player removes special
+				// if city is owned by player and player removes special
 				// buildings the game crashes. To avoid this problem cities
 				// always belong to player 1
 
@@ -1698,8 +1689,8 @@ const char *tool_buy_house_t::work( player_t *player, koord3d pos)
 	return NULL;
 }
 
-/* change city size
- * @author prissi
+/**
+ * change city size
  */
 bool tool_change_city_size_t::init( player_t * )
 {
@@ -1712,7 +1703,7 @@ const char *tool_change_city_size_t::work( player_t *, koord3d pos )
 	stadt_t *city = welt->find_nearest_city(pos.get_2d());
 	if(city!=NULL) {
 		city->change_size( atoi(default_param) );
-		// Knightly : update the links from other cities to this city
+		// update the links from other cities to this city
 		FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_cities()) {
 			c->remove_target_city(city);
 			c->add_target_city(city);
@@ -1723,8 +1714,8 @@ const char *tool_change_city_size_t::work( player_t *, koord3d pos )
 }
 
 
-/* change climate
- * @author kieron
+/**
+ * change climate
  */
 const char *tool_set_climate_t::get_tooltip(player_t const*) const
 {
@@ -1840,8 +1831,8 @@ const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start,
 }
 
 
-/* change water height
- * @author kieron
+/**
+ * change water height
  */
 bool tool_change_water_height_t::init( player_t *player )
 {
@@ -2113,10 +2104,10 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 
 
 
-/* the following routines add waypoints/halts to a schedule
+/**
+ * the following routines add waypoints/halts to a schedule
  * because we do not like to stop at AIs stop, but we still want to force the truck to use AI roads
  * So if there is a halt, then it must be either public or ours!
- * @author prissi
  */
 static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koord3d pos, schedule_t *schedule, bool append)
 {
@@ -5288,13 +5279,13 @@ const char *tool_build_depot_t::work( player_t *player, koord3d pos )
 
 
 
-/* builds (random) tourist attraction and maybe adds it to the next city
+/**
+ * builds (random) tourist attraction and maybe adds it to the next city
  * the parameter string is a follow:
  * 1#theater
  * first letter: ignore climates
  * second letter: rotation (0,1,2,3,#=random)
  * finally building name
- * @author prissi
  */
 bool tool_build_house_t::init( player_t * )
 {
@@ -5700,9 +5691,6 @@ const char *tool_link_factory_t::do_work( player_t *, const koord3d &start, cons
 }
 
 
-/* builds company headquarters
- * @author prissi
- */
 const building_desc_t *tool_headquarter_t::next_level( const player_t *player ) const
 {
 	return hausbauer_t::get_headquarters(player->get_headquarter_level(), welt->get_timeline_year_month());
@@ -6112,11 +6100,11 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 						}
 						if(updated) {
 							schedule->cleanup();
-							// Knightly : remove lineless convoy from old stop
+							// remove lineless convoy from old stop
 							if(  last_halt.is_bound()  ) {
 								last_halt->remove_convoy(cnv);
 							}
-							// Knightly : register lineless convoy at new stop
+							// register lineless convoy at new stop
 							if(  new_halt.is_bound()  ) {
 								new_halt->add_convoy(cnv);
 							}

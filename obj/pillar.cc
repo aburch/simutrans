@@ -71,7 +71,6 @@ void pillar_t::calc_image()
 /**
  * @return Einen Beschreibungsstring fuer das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
- * @author Hj. Malthaner
  */
 void pillar_t::show_info()
 {

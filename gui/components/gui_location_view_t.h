@@ -11,7 +11,6 @@
 
 /**
  * Displays a location on the world
- * @author Hj. Malthaner
  */
 class location_view_t : public world_view_t
 {

@@ -18,7 +18,6 @@
 
 /**
  * Menu for the player list
- * @author Hj. Malthaner
  */
 class ki_kontroll_t : public gui_frame_t, private action_listener_t
 {
@@ -45,7 +44,6 @@ class ki_kontroll_t : public gui_frame_t, private action_listener_t
 		/**
 		 * Set the window associated helptext
 		 * @return the filename for the helptext, or NULL
-		 * @author Hj. Malthaner
 		 */
 		const char * get_help_filename() const OVERRIDE {return "players.txt";}
 
@@ -53,7 +51,6 @@ class ki_kontroll_t : public gui_frame_t, private action_listener_t
 		 * Draw new component. The values to be passed refer to the window
 		 * i.e. It's the screen coordinates of the window where the
 		 * component is displayed.
-		 * @author Hj. Malthaner
 		 */
 		void draw(scr_coord pos, scr_size size) OVERRIDE;
 
@@ -63,7 +60,6 @@ class ki_kontroll_t : public gui_frame_t, private action_listener_t
 		 * Updates the dialogue window after changes to players states
 		 * called from tool_change_player_t::init
 		 * necessary for network games to keep dialogues synchronous
-		 * @author dwachs
 		 */
 		void update_data();
 

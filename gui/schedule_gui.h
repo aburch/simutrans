@@ -31,8 +31,6 @@ class schedule_gui_stats_t;
 
 /**
  * GUI for Schedule dialog
- *
- * @author Hj. Malthaner
  */
 class schedule_gui_t :	public gui_frame_t,
 						public action_listener_t
@@ -90,13 +88,11 @@ public:
 
 	/**
 	 * Draw the Frame
-	 * @author Hansjörg Malthaner
 	 */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly
-	 * @author Hj. Malthaner
 	 */
 	void set_windowsize(scr_size size) OVERRIDE;
 

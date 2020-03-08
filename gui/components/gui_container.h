@@ -3,14 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/**
- * A container for other gui_components. Is itself
- * a gui_component, and can therefore be nested.
- *
- * @author Hj. Malthaner
- * @date 03-Mar-01
- */
-
 #ifndef gui_container_h
 #define gui_container_h
 
@@ -20,6 +12,11 @@
 #include "../../tpl/vector_tpl.h"
 #include "gui_component.h"
 
+
+/**
+ * A container for other gui_components. Is itself
+ * a gui_component, and can therefore be nested.
+ */
 class gui_container_t : virtual public gui_component_t
 {
 protected:
@@ -43,13 +40,11 @@ public:
 
 	/**
 	* Adds a Component to the Container.
-	* @author Hj. Malthaner
 	*/
 	virtual void add_component(gui_component_t *comp);
 
 	/**
 	* Removes a Component in the Container.
-	* @author Hj. Malthaner
 	*/
 	virtual void remove_component(gui_component_t *comp);
 
@@ -57,19 +52,16 @@ public:
 
 	/**
 	* Draw the component
-	* @author Hj. Malthaner
 	*/
 	void draw(scr_coord offset) OVERRIDE;
 
 	/**
 	* Removes all Components in the Container.
-	* @author Markus Weber
 	*/
 	virtual void remove_all();
 
 	/**
 	 * Returns true if any child component is focusable
-	 * @author Knightly
 	 */
 	bool is_focusable() OVERRIDE;
 
@@ -91,7 +83,6 @@ public:
 	/**
 	 * Get the relative position of the focused component.
 	 * Used for auto-scrolling inside a scroll pane.
-	 * @author Knightly
 	 */
 	scr_coord get_focus_pos() OVERRIDE { return comp_focus ? pos+comp_focus->get_focus_pos() : scr_coord::invalid; }
 

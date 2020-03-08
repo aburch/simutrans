@@ -25,7 +25,6 @@ private:
 
 	/**
 	* Mini Map-Preview
-	* @author Hj. Malthaner
 	*/
 	array2d_tpl<PIXVAL> map;
 	gui_map_preview_t
@@ -60,7 +59,6 @@ public:
 	/**
 	* Calculate the new Map-Preview. Initialize the new RNG!
 	* public, because also the climate dialog need it
-	* @author Hj. Malthaner
 	*/
 	void update_preview();
 
@@ -69,7 +67,6 @@ public:
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author Hj. Malthaner
 	 */
 	const char * get_help_filename() const OVERRIDE { return "enlarge_map.txt";}
 
@@ -77,7 +74,6 @@ public:
 	 * Draw new component. The values to be passed refer to the window
 	 * i.e. It's the screen coordinates of the window where the
 	 * component is displayed.
-	 * @author Hj. Malthaner
 	 */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 };

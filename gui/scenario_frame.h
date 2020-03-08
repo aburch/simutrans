@@ -20,13 +20,11 @@ private:
 protected:
 	/**
 	 * Action that's started by the press of a button.
-	 * @author Hansjörg Malthaner
 	 */
 	bool item_action(const char *fullpath) OVERRIDE;
 
 	/**
 	 * Action, started after X-Button pressing
-	 * @author V. Meyer
 	 */
 	bool del_action(const char *f) OVERRIDE { return item_action(f); }
 
@@ -40,7 +38,6 @@ public:
 	/**
 	* Set the window associated helptext
 	* @return the filename for the helptext, or NULL
-	* @author Hj. Malthaner
 	*/
 	const char * get_help_filename() const OVERRIDE { return "scenario.txt"; }
 

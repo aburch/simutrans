@@ -108,7 +108,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	uint8  max_height    = obj.get_int("max_height",0); // max_height==0: unlimited
 	uint16 axle_load = obj.get_int("axle_load",    9999);
 
-	// prissi: timeline
+	// timeline
 	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro_date += obj.get_int("intro_month", 1) - 1;
 
@@ -117,8 +117,8 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 
 	sint8 number_of_seasons = 0;
 
-	// Hajo: Version needs high bit set as trigger -> this is required
-	//       as marker because formerly nodes were unversionend
+	// Version needs high bit set as trigger -> this is required
+	// as marker because formerly nodes were unversionend
 	uint16 version = 0x8009;
 	node.write_uint16(outfp, version,            0);
 	node.write_uint16(outfp, topspeed,           2);

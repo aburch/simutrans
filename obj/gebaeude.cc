@@ -50,8 +50,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 /**
- * Initializes all variables with save, usable values
- * @author Hj. Malthaner
+ * Initializes all variables with safe, usable values
  */
 void gebaeude_t::init()
 {
@@ -110,8 +109,6 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const building_tile_desc_t
 
 /**
  * Destructor. Removes this from the list of sync objects if necessary.
- *
- * @author Hj. Malthaner
  */
 gebaeude_t::~gebaeude_t()
 {
@@ -201,8 +198,7 @@ void gebaeude_t::rotate90()
 }
 
 
-/* sets the corresponding pointer to a factory
- * @author prissi
+/** sets the corresponding pointer to a factory
  */
 void gebaeude_t::set_fab(fabrik_t *fd)
 {
@@ -220,8 +216,7 @@ void gebaeude_t::set_fab(fabrik_t *fd)
 }
 
 
-/* sets the corresponding city
- * @author prissi
+/** sets the corresponding city
  */
 void gebaeude_t::set_stadt(stadt_t *s)
 {
@@ -477,7 +472,6 @@ int gebaeude_t::get_mail_level() const
 
 /**
  * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik
- * @author Hj. Malthaner
  */
 const char *gebaeude_t::get_name() const
 {
@@ -886,7 +880,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		anim_time = 0;
 		sync = false;
 
-		// Hajo: rebuild tourist attraction list
+		// rebuild tourist attraction list
 		if(tile && tile->get_desc()->is_attraction()) {
 			welt->add_attraction( this );
 		}
@@ -897,8 +891,6 @@ void gebaeude_t::rdwr(loadsave_t *file)
 /**
  * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
  * um das Aussehen des Dings an Boden und Umgebung anzupassen
- *
- * @author Hj. Malthaner
  */
 void gebaeude_t::finish_rd()
 {

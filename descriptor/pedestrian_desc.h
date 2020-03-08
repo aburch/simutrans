@@ -12,11 +12,7 @@
 #include "../dataobj/ribi.h"
 #include "../network/checksum.h"
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
+/**
  *	Pedestrians.
  *
  *  Child nodes:

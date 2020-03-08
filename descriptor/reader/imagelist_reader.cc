@@ -18,7 +18,7 @@ obj_desc_t * imagelist_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	image_list_t *desc = new image_list_t();
 
-	// Hajo: Read data
+	// Read data
 	fread(desc_buf, node.size, 1, fp);
 	char * p = desc_buf;
 

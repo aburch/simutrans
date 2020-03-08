@@ -23,8 +23,6 @@ template <class T> class slist_tpl;
 /**
  * Baut Fahrzeuge. Fahrzeuge sollten nicht direct instanziiert werden
  * sondern immer von einem vehicle_builder_t erzeugt werden.
- *
- * @author Hj. Malthaner
  */
 class vehicle_builder_t
 {
@@ -62,8 +60,7 @@ public:
 	static const vehicle_desc_t * get_info(const char *name);
 	static slist_tpl<vehicle_desc_t const*> const& get_info(waytype_t, uint8 sortkey = vehicle_builder_t::sb_name);
 
-	/* extended search for vehicles for KI
-	* @author prissi
+	/** extended search for vehicles for AI
 	*/
 	static const vehicle_desc_t *vehikel_search(waytype_t typ,const uint16 month_now,const uint32 target_power,const sint32 target_speed, const goods_desc_t * target_freight, bool include_electric, bool not_obsolete );
 

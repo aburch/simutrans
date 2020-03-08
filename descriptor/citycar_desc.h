@@ -13,12 +13,8 @@
 #include "../network/checksum.h"
 
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *	Private city cars, not player owned. They automatically appear in cities.
+/**
+ * Private city cars, not player owned. They automatically appear in cities.
  *
  *  Child nodes:
  *	0   Name

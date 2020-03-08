@@ -51,7 +51,7 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 	// this causes unused entries to give a warning that they are ignored
 
-	// Hajo: write version data
+	// write version data
 	node.write_uint16(fp, 0x8005,      0); // version 5
 	node.write_uint16(fp, min_speed,   2);
 	node.write_uint32(fp, price,       4);

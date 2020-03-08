@@ -11,7 +11,7 @@
 
 
 /**
- * prissi: a dummy typ for old things, which are now ignored
+ * A dummy type for old things, which are now ignored
  */
 class dummy_obj_t : public obj_t
 {

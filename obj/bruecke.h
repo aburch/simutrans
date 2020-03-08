@@ -12,9 +12,7 @@ class karte_t;
 #include "../simobj.h"
 
 /**
- * Brueckenteile (sichtbar)
- *
- * Hj. Malthaner
+ * Bridges (visible)
  */
 class bruecke_t : public obj_no_info_t
 {
@@ -60,7 +58,6 @@ public:
 
 	/**
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
-	 * @author Hj. Malthaner
 	 */
 	const char *is_deletable(const player_t *player) OVERRIDE;
 };

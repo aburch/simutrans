@@ -20,7 +20,6 @@ class gui_minimap_t;
 /**
  * When connected to a network server, this dialog shows game information
  * When not connected, it provides the mechanism for joining a remote game
- * @author Hj. Malthaner
  */
 class server_frame_t : public gui_frame_t, private action_listener_t
 {
@@ -48,7 +47,6 @@ private:
 	 * Stores dnsname (for connection) and servername (for display in list)
 	 * Also stores online/offline status of the server for filtering
 	 * Adds get_dns() method to retrieve dnsname
-	 * @author Timothy Baldock <tb@entropy.me.uk>
 	 */
 	class server_scrollitem_t : public gui_scrolled_list_t::const_text_scrollitem_t {
 	private:
@@ -70,7 +68,6 @@ private:
 
 	/**
 	 * Update UI fields to show connection errors
-	 * @author Timothy Baldock <tb@entropy.me.uk>
 	 */
 	void update_error ( const char* );
 
@@ -78,7 +75,6 @@ private:
 	 * Update server listing (retrieve from listings server)
 	 * Display depends on the state of the show_mismatched and
 	 * show_offline checkboxes
-	 * @author Timothy Baldock <tb@entropy.me.uk>
 	 */
 	bool update_serverlist ();
 
@@ -90,7 +86,6 @@ public:
 	/**
 	 * Return name of file which contains associated help text for this window
 	 * @return Help file name, nor NULL if no help file exists
-	 * @author Hj. Malthaner
 	 */
 	const char *get_help_filename() const OVERRIDE {return "server.txt";}
 

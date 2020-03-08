@@ -30,7 +30,6 @@
 /**
  * Set thousand separator, used in money_to_string and
  * number_to_string
- * @author Hj. Malthaner
  */
 void set_thousand_sep(char c);
 
@@ -38,7 +37,6 @@ void set_thousand_sep(char c);
 /**
  * Set fraction separator, used in money_to_string and
  * number_to_string
- * @author Hj. Malthaner
  */
 void set_fraction_sep(char c);
 
@@ -48,19 +46,17 @@ const char *get_large_money_string();
 /**
  * Set thousand exponent (3=1000, 4=10000), used in money_to_string and
  * number_to_string
- * @author prissi
  */
 void set_thousand_sep_exponent(int new_thousand_sep_exponent);
 
 /**
  * Set abbreviation and the amount by which large money amounts will be shortened
- * @author prissi
  */
 void set_large_amout( const char *, const double v );
 
-/* copies n lines of the source into a buffer *
+/**
+ * copies n lines of the source into a buffer
  * @return a temporary buffer with the result
- * @author prissi
  */
 char *make_single_line_string(const char *in,int number_of_lines);
 
@@ -69,7 +65,6 @@ char *make_single_line_string(const char *in,int number_of_lines);
  * Formats a money value. Uses thousand separator. Two digits precision.
  * Concludes format with $ sign. Buffer must be large enough, no checks
  * are made!
- * @author Hj. Malthaner
  */
 void money_to_string(char * buf, double f, const bool show_decimal = true);
 
@@ -89,7 +84,6 @@ void number_to_string_fit(char *ret, double f, int decimals, int max_length );
  * Terminated, length limited string copy. Copies at most
  * n characters. Terminates dest string always by 0.
  * @return dest
- * @author Hj. Malthaner
  */
 char *tstrncpy(char *dest, const char *src, size_t n);
 
@@ -97,7 +91,6 @@ char *tstrncpy(char *dest, const char *src, size_t n);
 /**
  * Removes whitespace from the end of the string.
  * Modifies the argument!
- * @author Hj. Malthaner
  */
 void rtrim(char *);
 
@@ -105,13 +98,11 @@ void rtrim(char *);
 /**
  * Hands back a pointer to the first non-whitespace character
  * of the argument. The argument must be 0 terminated.
- * @author Hj. Malthaner
  */
 const char * ltrim(const char *);
 
 /**
  * Trim function for std::strings
- * @author Max Kielland
  */
 std::string trim (const std::string &str );
 

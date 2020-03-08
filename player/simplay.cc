@@ -802,7 +802,7 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s, state %i!", cnv->get
 void player_t::init_undo( waytype_t wtype, unsigned short max )
 {
 	// only human player
-	// prissi: allow for UNDO for real player
+	// allow for UNDO for real player
 DBG_MESSAGE("player_t::int_undo()","undo tiles %i",max);
 	last_built.clear();
 	last_built.resize(max+1);

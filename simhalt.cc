@@ -242,8 +242,8 @@ grund_t *haltestelle_t::get_ground_closest_to( const koord here ) const
 
 
 
-/* return the closest square that belongs to this halt
- * @author prissi
+/**
+ * return the closest square that belongs to this halt
  */
 koord haltestelle_t::get_next_pos( koord start ) const
 {
@@ -291,7 +291,6 @@ void haltestelle_t::recalc_basis_pos()
 
 /**
  * Station factory method. Returns handles instead of pointers.
- * @author Hj. Malthaner
  */
 halthandle_t haltestelle_t::create(koord pos, player_t *player)
 {
@@ -300,9 +299,8 @@ halthandle_t haltestelle_t::create(koord pos, player_t *player)
 }
 
 
-/*
+/**
  * removes a ground tile from a station
- * @author prissi
  */
 bool haltestelle_t::remove(player_t *player, koord3d pos)
 {
@@ -361,7 +359,6 @@ DBG_DEBUG("haltestelle_t::remove()","destroy");
 
 /**
  * Station factory method. Returns handles instead of pointers.
- * @author Hj. Malthaner
  */
 halthandle_t haltestelle_t::create(loadsave_t *file)
 {
@@ -372,7 +369,6 @@ halthandle_t haltestelle_t::create(loadsave_t *file)
 
 /**
  * Station destruction method.
- * @author Hj. Malthaner
  */
 void haltestelle_t::destroy(halthandle_t const halt)
 {
@@ -383,8 +379,7 @@ void haltestelle_t::destroy(halthandle_t const halt)
 /**
  * Station destruction method.
  * Da destroy() alle_haltestellen modifiziert kann kein Iterator benutzt
- * werden! V. Meyer
- * @author Hj. Malthaner
+ * werden!
  */
 void haltestelle_t::destroy_all()
 {
@@ -413,7 +408,6 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 
 	enables = NOT_ENABLED;
 
-	// @author hsiegeln
 	sortierung = freight_list_sorter_t::by_name;
 	resort_freight_info = true;
 
@@ -569,7 +563,6 @@ const char* haltestelle_t::get_name() const
 
 /**
  * Sets the name. Creates a copy of name.
- * @author Hj. Malthaner
  */
 void haltestelle_t::set_name(const char *new_name)
 {
@@ -674,7 +667,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 
 		// standard names:
 		// order: factory, attraction, direction, normal name
-		// prissi: first we try a factory name
+		// first we try a factory name
 
 		// is there a translation for factory defined?
 		const char *fab_base_text = "%s factory %s %s";
@@ -956,7 +949,6 @@ bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
 
 /**
  * Called every month
- * @author Hj. Malthaner
  */
 void haltestelle_t::new_month()
 {
@@ -967,7 +959,7 @@ void haltestelle_t::new_month()
 		enables &= (PAX|POST|WARE);
 	}
 
-	// hsiegeln: roll financial history
+	// roll financial history
 	for (int j = 0; j<MAX_HALT_COST; j++) {
 		for (int k = MAX_MONTHS-1; k>0; k--) {
 			financial_history[k][j] = financial_history[k-1][j];
@@ -984,7 +976,6 @@ void haltestelle_t::new_month()
  * Called after schedule calculation of all stations is finished
  * will distribute the goods to changed routes (if there are any)
  * returns true upon completion
- * @author Hj. Malthaner
  */
 bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 {
@@ -1097,7 +1088,6 @@ void haltestelle_t::verbinde_fabriken()
 }
 
 
-
 /*
  * removes factory to a halt
  */
@@ -1110,7 +1100,6 @@ void haltestelle_t::remove_fabriken(fabrik_t *fab)
 /**
  * Rebuilds the list of connections to directly reachable halts
  * Returns the number of stops considered
- * @author Hj. Malthaner
  */
 #define WEIGHT_WAIT (8)
 #define WEIGHT_HALT (1)
@@ -1118,17 +1107,17 @@ void haltestelle_t::remove_fabriken(fabrik_t *fab)
 #define WEIGHT_MIN (WEIGHT_WAIT+WEIGHT_HALT)
 sint32 haltestelle_t::rebuild_connections()
 {
-	// Knightly : halts which either immediately precede or succeed self halt in serving schedules
+	// halts which either immediately precede or succeed self halt in serving schedules
 	static vector_tpl<halthandle_t> consecutive_halts[256];
-	// Dwachs : halts which either immediately precede or succeed self halt in currently processed schedule
+	// halts which either immediately precede or succeed self halt in currently processed schedule
 	static vector_tpl<halthandle_t> consecutive_halts_schedule[256];
 	// remember max number of consecutive halts for one schedule
 	uint8 max_consecutive_halts_schedule[256];
 	MEMZERON(max_consecutive_halts_schedule, goods_manager_t::get_max_catg_index());
-	// Knightly : previous halt supporting the ware categories of the serving line
+	// previous halt supporting the ware categories of the serving line
 	static halthandle_t previous_halt[256];
 
-	// Hajo: first, remove all old entries
+	// first, remove all old entries
 	for(  uint8 i=0;  i<goods_manager_t::get_max_catg_index();  i++  ){
 		all_links[i].clear();
 		consecutive_halts[i].clear();
@@ -1161,7 +1150,7 @@ sint32 haltestelle_t::rebuild_connections()
 			if(  current_index >= registered_lines.get_count()  ) {
 				// We have looped over all lines.
 				lines = false;
-				current_index = 0;	// Knightly : start over for registered lineless convoys
+				current_index = 0;	// start over for registered lineless convoys
 				continue;
 			}
 
@@ -1215,7 +1204,7 @@ sint32 haltestelle_t::rebuild_connections()
 				continue;
 			}
 			if(  current_halt == self  ) {
-				// Knightly : check for consecutive halts which precede self halt
+				// check for consecutive halts which precede self halt
 				FOR(minivec_tpl<uint8>, const catg_index, supported_catg_index) {
 					if(  previous_halt[catg_index]!=self  ) {
 						consecutive_halts[catg_index].append_unique(previous_halt[catg_index]);
@@ -1232,7 +1221,7 @@ sint32 haltestelle_t::rebuild_connections()
 
 			FOR(minivec_tpl<uint8>, const catg_index, supported_catg_index) {
 				if(  current_halt->is_enabled(catg_index)  ) {
-					// Knightly : check for consecutive halts which succeed self halt
+					// check for consecutive halts which succeed self halt
 					if(  previous_halt[catg_index] == self  ) {
 						consecutive_halts[catg_index].append_unique(current_halt);
 						consecutive_halts_schedule[catg_index].append_unique(current_halt);
@@ -1454,8 +1443,6 @@ uint8 haltestelle_t::last_search_ware_catg_idx = 255;
  *
  * if USE_ROUTE_SLIST_TPL is defined, the list template will be used.
  * However, this is about 50% slower.
- *
- * @author Hj. Malthaner/prissi/gerw/Knightly
  */
 int haltestelle_t::search_route( const halthandle_t *const start_halts, const uint16 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware )
 {
@@ -1946,7 +1933,6 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 
 /**
  * Found route and station uncrowded
- * @author Hj. Malthaner
  */
 void haltestelle_t::add_pax_happy(int n)
 {
@@ -1957,7 +1943,6 @@ void haltestelle_t::add_pax_happy(int n)
 
 /**
  * Station in walking distance
- * @author Hj. Malthaner
  */
 void haltestelle_t::add_pax_walked(int n)
 {
@@ -1967,7 +1952,6 @@ void haltestelle_t::add_pax_walked(int n)
 
 /**
  * Station crowded
- * @author Hj. Malthaner
  */
 void haltestelle_t::add_pax_unhappy(int n)
 {
@@ -1978,7 +1962,6 @@ void haltestelle_t::add_pax_unhappy(int n)
 
 /**
  * Found no route
- * @author Hj. Malthaner
  */
 void haltestelle_t::add_pax_no_route(int n)
 {
@@ -2035,7 +2018,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 
 void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const vector_tpl<halthandle_t>& destination_halts)
 {
-	// prissi: first iterate over the next stop, then over the ware
+	// first iterate over the next stop, then over the ware
 	// might be a little slower, but ensures that passengers to nearest stop are served first
 	// this allows for separate high speed and normal service
 	vector_tpl<ware_t> *warray = cargo[good_category->get_catg_index()];
@@ -2205,7 +2188,6 @@ void haltestelle_t::add_ware_to_halt(ware_t ware)
 /* same as liefere an, but there will be no route calculated,
  * since it hase be calculated just before
  * (execption: route contains us as intermediate stop)
- * @author prissi
  */
 uint32 haltestelle_t::starte_mit_route(ware_t ware)
 {
@@ -2244,7 +2226,6 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 
 /* Receives ware and tries to route it further on
  * if no route is found, it will be removed
- * @author prissi
  */
 uint32 haltestelle_t::liefere_an(ware_t ware)
 {
@@ -2305,7 +2286,6 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 /**
  * @param buf the buffer to fill
  * @return Goods description text (buf)
- * @author Hj. Malthaner
  */
 void haltestelle_t::get_freight_info(cbuffer_t & buf)
 {
@@ -2642,7 +2622,6 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
  * since it iterates over all ground, this is better not done too often, because line management and station list
  * queries this information regularly; Thus, we do this, when adding new ground
  * This recalculates also the capacity from the building levels ...
- * @author Weber/prissi
  */
 void haltestelle_t::recalc_station_type()
 {
@@ -2742,7 +2721,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			if(gr->get_halt().is_bound()) {
 				dbg->warning( "haltestelle_t::rdwr()", "bound to ground twice at (%i,%i)!", k.x, k.y );
 			}
-			// prissi: now check, if there is a building -> we allow no longer ground without building!
+			// now check, if there is a building -> we allow no longer ground without building!
 			const gebaeude_t* gb = gr->find<gebaeude_t>();
 			const building_desc_t *desc=gb?gb->get_tile()->get_desc():NULL;
 			if(desc) {
@@ -2957,7 +2936,6 @@ void haltestelle_t::init_financial_history()
 
 /**
  * Calculates a status color for status bars
- * @author Hj. Malthaner
  */
 void haltestelle_t::recalc_status()
 {
@@ -3023,7 +3001,6 @@ void haltestelle_t::recalc_status()
 
 /**
  * Draws some nice colored bars giving some status information
- * @author Hj. Malthaner
  */
 void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 {
@@ -3088,7 +3065,7 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 			display_fillbox_wh_clip_rgb( xpos + 1, ypos - v - 1, D_WAITINGBAR_WIDTH - 2, v, wtyp->get_color(), false );
 			display_fillbox_wh_clip_rgb( xpos + D_WAITINGBAR_WIDTH - 1, ypos - v - 1, 1, v, color_idx_to_rgb( COL_GREY1 ), false );
 
-			// Hajo: show up arrow for capped values
+			// show up arrow for capped values
 			if(  sum > max_capacity  ) {
 				display_fillbox_wh_clip_rgb( xpos + (D_WAITINGBAR_WIDTH / 2) - 1, ypos - v - 6, 2, 4, color_idx_to_rgb( COL_WHITE ), false );
 				display_fillbox_wh_clip_rgb( xpos + (D_WAITINGBAR_WIDTH / 2) - 2, ypos - v - 5, 4, 1, color_idx_to_rgb( COL_WHITE ), false );
@@ -3188,7 +3165,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 			}
 		}
 	}
-	// Knightly : iterate over all convoys
+	// iterate over all convoys
 	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
 		// only check lineless convoys which have matching ownership and which are not yet registered
 		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_owner()==get_owner())  &&  !registered_convoys.is_contained(cnv)  ) {
@@ -3315,7 +3292,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		}
 	}
 
-	// Knightly : remove registered lineless convoys as well
+	// remove registered lineless convoys as well
 	for(  size_t j = registered_convoys.get_count();  j-- != 0;  ) {
 		bool ok = false;
 		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_convoys[j]->get_schedule()->entries  ) {
@@ -3343,7 +3320,6 @@ bool haltestelle_t::existiert_in_welt() const
 
 
 /* marks a coverage area
- * @author prissi
  */
 void haltestelle_t::mark_unmark_coverage(const bool mark) const
 {
@@ -3358,7 +3334,6 @@ void haltestelle_t::mark_unmark_coverage(const bool mark) const
 
 
 /* Find a tile where this type of vehicle could stop
- * @author prissi
  */
 const grund_t *haltestelle_t::find_matching_position(const waytype_t w) const
 {
@@ -3374,7 +3349,6 @@ const grund_t *haltestelle_t::find_matching_position(const waytype_t w) const
 
 
 /* checks, if there is an unoccupied loading bay for this kind of thing
- * @author prissi
  */
 bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const obj_t::typ d) const
 {
@@ -3396,7 +3370,6 @@ bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,cons
 
 
 /* reserves a position (caution: railblocks work differently!
- * @author prissi
  */
 bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 {
@@ -3426,8 +3399,7 @@ bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 }
 
 
-/* frees a reserved  position (caution: railblocks work differently!
- * @author prissi
+/** frees a reserved  position (caution: railblocks work differently!
  */
 bool haltestelle_t::unreserve_position(grund_t *gr, convoihandle_t cnv)
 {
@@ -3443,8 +3415,7 @@ DBG_MESSAGE("haltestelle_t::unreserve_position()","failed for gr=%p",gr);
 }
 
 
-/* can a convoi reserve this position?
- * @author prissi
+/** can a convoi reserve this position?
  */
 bool haltestelle_t::is_reservable(const grund_t *gr, convoihandle_t cnv) const
 {

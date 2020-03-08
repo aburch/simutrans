@@ -14,11 +14,7 @@
 #include "../network/checksum.h"
 
 
-/*
- *  Author:
- *      prissi
- *
- *  Description:
+/**
  *	Road signs
  *
  *  Child nodes:

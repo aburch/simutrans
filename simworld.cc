@@ -330,17 +330,13 @@ void karte_t::perlin_hoehe_loop( sint16 x_min, sint16 x_max, sint16 y_min, sint1
  *
  * @param frequency in 0..1.0 roughness, the higher the rougher
  * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
- * @author Hj. Malthaner
  */
 sint32 karte_t::perlin_hoehe(settings_t const* const sets, koord k, koord const size)
 {
-	// Hajo: to Markus: replace the fixed values with your
-	// settings. Amplitude is the top highness of the
-	// mountains, frequency is something like landscape 'roughness'
-	// amplitude may not be greater than 160.0 !!!
-	// please don't allow frequencies higher than 0.8 it'll
-	// break the AI's pathfinding. Frequency values of 0.5 .. 0.7
-	// seem to be ok, less is boring flat, more is too crumbled
+	// replace the fixed values with your settings. Amplitude is the top highness of the mountains,
+	// frequency is something like landscape 'roughness'; amplitude may not be greater than 160.0 !!!
+	// please don't allow frequencies higher than 0.8, it'll break the AI's pathfinding.
+	// Frequency values of 0.5 .. 0.7 seem to be ok, less is boring flat, more is too crumbled
 	// the old defaults are given here: f=0.6, a=160.0
 	switch( sets->get_rotation() ) {
 		// 0: do nothing
@@ -581,7 +577,7 @@ void karte_t::add_city(stadt_t *s)
 	settings.set_city_count(settings.get_city_count() + 1);
 	stadt.append(s, s->get_einwohner());
 
-	// Knightly : add links between this city and other cities as well as attractions
+	// add links between this city and other cities as well as attractions
 	FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
 		c->add_target_city(s);
 	}
@@ -605,7 +601,7 @@ bool karte_t::remove_city(stadt_t *s)
 	DBG_DEBUG4("karte_t::remove_city()", "reduce city to %i", settings.get_city_count() - 1);
 	settings.set_city_count(settings.get_city_count() - 1);
 
-	// Knightly : remove links between this city and other cities
+	// remove links between this city and other cities
 	FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
 		c->remove_target_city(s);
 	}
@@ -811,7 +807,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
 		new_city_count = pos->get_count();
 		DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "Creating cities: %d", new_city_count);
 
-		// prissi if we could not generate enough positions ...
+		// if we could not generate enough positions ...
 		settings.set_city_count(old_city_count);
 		int old_progress = 16;
 
@@ -858,7 +854,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
 			settings.set_industry_increase_every( 0 );
 
 			for(  uint32 i=old_city_count;  i<stadt.get_count();  i++  ) {
-				// Hajo: do final init after world was loaded/created
+				// do final init after world was loaded/created
 				stadt[i]->finish_rd();
 
 	//			int citizens=(int)(new_mean_citizen_count*0.9);
@@ -901,10 +897,10 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
 		finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
 		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev;
 
-		// Hajo: connect some cities with roads
+		// connect some cities with roads
 		way_desc_t const* desc = settings.get_intercity_road_type(get_timeline_year_month());
 		if(desc == 0) {
-			// Hajo: try some default (might happen with timeline ... )
+			// try some default (might happen with timeline ... )
 			desc = way_builder_t::weg_search(road_wt,80,get_timeline_year_month(),type_flat);
 		}
 
@@ -1246,7 +1242,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 
 	world_maximum_height = sets->get_maximumheight();
 	world_minimum_height = sets->get_minimumheight();
-	groundwater = (sint8)sets->get_groundwater();      //29-Nov-01     Markus Weber    Changed
+	groundwater = (sint8)sets->get_groundwater();
 
 	init_height_to_climate();
 	snowline = sets->get_winter_snowline() + groundwater;
@@ -3374,7 +3370,7 @@ void karte_t::add_attraction(gebaeude_t *gb)
 	assert(gb != NULL);
 	attractions.append( gb, gb->get_tile()->get_desc()->get_level() );
 
-	// Knightly : add links between this attraction and all cities
+	// add links between this attraction and all cities
 	FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
 		c->add_target_attraction(gb);
 	}
@@ -3386,7 +3382,7 @@ void karte_t::remove_attraction(gebaeude_t *gb)
 	assert(gb != NULL);
 	attractions.remove( gb );
 
-	// Knightly : remove links between this attraction and all cities
+	// remove links between this attraction and all cities
 	FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
 		c->remove_target_attraction(gb);
 	}
@@ -3741,7 +3737,7 @@ void karte_t::new_month()
 	INT_CHECK("simworld 1701");
 
 //	DBG_MESSAGE("karte_t::new_month()","convois");
-	// hsiegeln - call new month for convois
+	// call new month for convois
 	FOR(vector_tpl<convoihandle_t>, const cnv, convoi_array) {
 		cnv->new_month();
 	}
@@ -4531,7 +4527,7 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_s
 			else {
 				// Optimiert fuer groessere Felder, hehe!
 				// Die Idee: wenn bei 2x2 die untere Reihe nicht geht, koennen
-				// wir gleich 2 tiefer weitermachen! V. Meyer
+				// wir gleich 2 tiefer weitermachen!
 				start.y = last_y;
 			}
 		}
@@ -4543,8 +4539,6 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_s
 /**
  * Play a sound, but only if near enough.
  * Sounds are muted by distance and clipped completely if too far away.
- *
- * @author Hj. Malthaner
  */
 bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, sound_type_t type ) const
 {
@@ -5388,7 +5382,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 
 	if(file->is_version_less(88, 9)) {
 		DBG_MESSAGE("karte_t::load()","loading slopes from older version");
-		// Hajo: load slopes for older versions
+		// load slopes for older versions
 		// now part of the grund_t structure
 		for (int y = 0; y < get_size().y; y++) {
 			for (int x = 0; x < get_size().x; x++) {
@@ -5457,7 +5451,6 @@ DBG_MESSAGE("karte_t::load()", "init player");
 	}
 
 	// load linemanagement status (and lines)
-	// @author hsiegeln
 	if (file->is_version_atleast(82, 4)  &&  file->is_version_less(88, 3)) {
 		DBG_MESSAGE("karte_t::load()", "load linemanagement");
 		get_player(0)->simlinemgmt.rdwr(file, get_player(0));

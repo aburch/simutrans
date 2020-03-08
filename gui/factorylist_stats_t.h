@@ -22,7 +22,6 @@ namespace factorylist {
 /**
  * Factory list stats display
  * Where factory stats are calculated for list dialog
- * @author Hj. Malthaner
  */
 class factorylist_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {

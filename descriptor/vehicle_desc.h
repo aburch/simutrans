@@ -38,8 +38,6 @@ class checksum_t;
  *	... ...
  *	n+m+5 allowed trailing vehicle m
  *  n+m+6 freight for which special images are defined
- *
- * @author Volker Meyer, Hj. Malthaner, kierongreen
  */
 class vehicle_desc_t : public obj_desc_transport_related_t {
     friend class vehicle_reader_t;
@@ -48,7 +46,6 @@ class vehicle_desc_t : public obj_desc_transport_related_t {
 public:
 	/**
 	 * Engine type
-	 * @author Hj. Malthaner
 	 */
 	enum engine_t {
 		unknown=-1,
@@ -257,19 +254,17 @@ public:
 	/**
 	* 64 = 1.00
 	* @return gear value
-	* @author Hj. Malthaner
 	*/
 	uint16 get_gear() const { return gear; }
 
 	/**
 	* @return engine type
 	* eletric engines require an electrified way to run
-	* @author Hj. Malthaner
 	*/
 	uint8 get_engine_type() const { return engine_type; }
 
-	/* @return the vehicles length in 1/8 of the normal len
-	* @author prissi
+	/**
+	 * @return the vehicles length in 1/8 of the normal len
 	*/
 	uint8 get_length() const { return len; }
 	uint32 get_length_in_steps() const { return get_length() * VEHICLE_STEPS_PER_CARUNIT; }
