@@ -57,6 +57,7 @@
 #include "gui/scenario_frame.h"
 
 #include "obj/baum.h"
+#include "obj/wolke.h"
 
 #include "utils/simstring.h"
 #include "utils/searchfolder.h"
@@ -101,6 +102,7 @@ static void show_sizes()
 	DBG_MESSAGE("sizes", "obj_t: %d", sizeof(obj_t));
 	DBG_MESSAGE("sizes", "gebaeude_t: %d", sizeof(gebaeude_t));
 	DBG_MESSAGE("sizes", "baum_t: %d", sizeof(baum_t));
+	DBG_MESSAGE("sizes", "wolke_t: %d", sizeof(wolke_t));
 	DBG_MESSAGE("sizes", "weg_t: %d", sizeof(weg_t));
 	DBG_MESSAGE("sizes", "private_car_t: %d\n", sizeof(private_car_t));
 

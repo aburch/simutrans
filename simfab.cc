@@ -1535,14 +1535,10 @@ void fabrik_t::smoke() const
 {
 	const smoke_desc_t *rada = desc->get_smoke();
 	if(rada) {
-		const koord size = desc->get_building()->get_size(0)-koord(1,1);
 		const uint8 rot = (4-rotate)%desc->get_building()->get_all_layouts();
-		koord ro = rada->get_pos_off(size,rot);
-		grund_t *gr = welt->lookup_kartenboden(pos_origin.get_2d()+ro);
-		// to get same random order on different compilers
-		const sint8 offsetx =  ((rada->get_xy_off(rot).x+sim_async_rand(7)-3)*OBJECT_OFFSET_STEPS)/16;
-		const sint8 offsety =  ((rada->get_xy_off(rot).y+sim_async_rand(7)-3)*OBJECT_OFFSET_STEPS)/16;
-		wolke_t *smoke =  new wolke_t(gr->get_pos(), offsetx, offsety, rada->get_images() );
+		grund_t *gr = welt->lookup_kartenboden(pos_origin.get_2d()+desc->get_smoketile( rot ));
+		const koord offset = (( desc->get_smokeoffset(rot) + koord(sim_async_rand(7)-3,sim_async_rand(7)-3) )*OBJECT_OFFSET_STEPS)/16;
+		wolke_t *smoke =  new wolke_t(gr->get_pos(), offset.x, offset.y, desc->get_smokelifetime(), desc->get_smokeuplift(), rada->get_images() );
 		gr->obj_add(smoke);
 		welt->sync_way_eyecandy.add( smoke );
 	}

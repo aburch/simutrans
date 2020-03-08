@@ -46,6 +46,25 @@ void factory_product_desc_t::calc_checksum(checksum_t *chk) const
 }
 
 
+void factory_desc_t::correct_smoke()
+{
+	if(  smokerotations == 0   &&  get_smoke()  ) {
+		const char *name = get_name();
+		// old type of factory, we have to build the tile and smoke offsets here
+		const smoke_desc_t *oldsmoke = get_smoke();
+		const koord size = get_building()->get_size(0)-koord(1,1);
+
+		smokerotations = get_building()->get_all_layouts();
+		for( int i = 0; i < smokerotations; i++ ) {
+			smoketile[i] = oldsmoke->get_pos_off(size,i);
+			smokeoffset[i] = oldsmoke->get_xy_off(i);
+		}
+		smokeuplift = DEFAULT_SMOKE_UPLIFT;
+		smokelifetime = DEFAULT_FACTORYSMOKE_TIME;
+	}
+}
+
+
 void factory_desc_t::calc_checksum(checksum_t *chk) const
 {
 	chk->input((uint8)placement);

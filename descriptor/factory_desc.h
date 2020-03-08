@@ -13,6 +13,11 @@
 #include "../dataobj/koord.h"
 #include "../tpl/weighted_vector_tpl.h"
 
+
+#define DEFAULT_FACTORYSMOKE_TIME (2499)
+#define DEFAULT_SMOKE_UPLIFT (16)
+
+
 class checksum_t;
 
 /* Knightly : this desc will store data specific to each class of fields
@@ -229,14 +234,25 @@ private:
 	uint16 electric_demand;
 	uint16 pax_demand;
 	uint16 mail_demand;
-	sint8 sound_id;
+	uint16 smokeuplift;
+	uint16 smokelifetime;
+	koord  smoketile[4];
+	koord  smokeoffset[4];
+	uint8  smokerotations;
+	sint8  sound_id;
 	uint32 sound_interval;
 
 public:
 	const char *get_name() const { return get_building()->get_name(); }
 	const char *get_copyright() const { return get_building()->get_copyright(); }
 	building_desc_t  const* get_building()  const { return get_child<building_desc_t>(0); }
+
 	smoke_desc_t const* get_smoke() const { return get_child<smoke_desc_t>(1); }
+	void correct_smoke();
+	koord get_smoketile( uint8 rot ) const { return smoketile[ rot%smokerotations ]; }
+	koord get_smokeoffset( uint8 rot ) const { return smokeoffset[ rot%smokerotations ]; }
+	uint16 get_smokeuplift() const { return smokeuplift; }
+	uint16 get_smokelifetime() const { return smokelifetime; }
 
 	// we must take care, for the case of no producer/consumer
 	const factory_supplier_desc_t *get_supplier(uint16 i) const

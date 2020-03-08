@@ -182,7 +182,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// how long between sounds
 	uint32 const sound_interval   =  obj.get_int("sound_interval",     0xFFFFFFFFul );
 
-	uint16 total_len = 43;
+	uint16 total_len = 80;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -268,8 +268,37 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		factory_field_group_writer_t::instance()->write_obj(fp, node, obj);
 	}
 
-	// new version with pax_level
-	node.write_uint16(fp, 0x8004,              0); // version
+	// now used here instead with the smoke
+
+	koord  pos_off[ 4 ];
+	koord  xy_off[ 4 ];
+	uint8  num_smoke_offsets = 0;
+	sint16 const smokeuplift = obj.get_int("smokeuplift", DEFAULT_SMOKE_UPLIFT );
+	sint16 const smokelifetime = obj.get_int("smokelifetime", DEFAULT_FACTORYSMOKE_TIME );
+	char str_smoketile[] = "smoketile[0]";
+	char str_smokeoffset[] = "smokeoffset[0]";
+	if(  obj.get( str_smoketile )  ) {
+		for( int i = 0; i < 4;  i++  ) {
+			str_smoketile[10] = '0' + i;
+			str_smokeoffset[12] = '0' + i;
+			if( !obj.get( str_smoketile ) ) {
+				break;
+			}
+			pos_off[ i ] = obj.get_koord( str_smoketile, koord( 0, 0 ) );
+			if( !obj.get( str_smokeoffset ) ) {
+				dbg->error( "factory_writer_t::write_obj", "%s defined but not %s!", str_smoketile, str_smokeoffset );
+			}
+			pos_off[ i ] = obj.get_koord( str_smoketile, koord( 0, 0 ) );
+			num_smoke_offsets++;
+		}
+	}
+	else {
+		pos_off[0] = obj.get_koord( "smoketile", koord( 0, 0 ) );
+		xy_off[0] = obj.get_koord( "smokeoffset", koord( 0, 0 ) );
+	}
+
+	// new version with pax_level, and smoke offsets part of factory
+	node.write_uint16(fp, 0x8005,              0); // version
 	node.write_uint16(fp, placement,           2);
 	node.write_uint16(fp, productivity,        4);
 	node.write_uint16(fp, range,               6);
@@ -292,11 +321,21 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint32(fp, sound_interval,     38);
 	node.write_uint8 (fp, sound_id,           42);
 
+	node.write_uint8 (fp, num_smoke_offsets,  43);
+	for( int i = 0; i < 4; i++ ) {
+		node.write_sint16( fp, pos_off[i].x, 44+i*8 );
+		node.write_sint16( fp, pos_off[i].y, 46+i*8 );
+		node.write_sint16( fp, xy_off[i].x,  48+i*8 );
+		node.write_sint16( fp, xy_off[i].y,  50+i*8 );
+	}
+	node.write_sint16(fp, smokeuplift,       76);
+	node.write_sint16(fp, smokelifetime,     78);
+
 	// this should ne always at the end
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 43);
-		node.write_data_at(fp, sound_str.c_str(), 44, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, 79);
+		node.write_data_at(fp, sound_str.c_str(), 80, sound_str_len);
 	}
 
 	node.write(fp);

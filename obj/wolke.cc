@@ -11,7 +11,10 @@
 #include "../utils/simrandom.h"
 #include "wolke.h"
 
+#include "../dataobj/freelist.h"
 #include "../dataobj/loadsave.h"
+
+#include "../descriptor/factory_desc.h"
 
 #include "../tpl/vector_tpl.h"
 
@@ -31,27 +34,39 @@ bool wolke_t::register_desc(const skin_desc_t* desc)
 }
 
 
+void *wolke_t::operator new(size_t /*s*/)
+{
+	return freelist_t::gimme_node(sizeof(wolke_t));
+}
 
-wolke_t::wolke_t(koord3d pos, sint8 x_off, sint8 y_off, const skin_desc_t* desc ) :
+
+void wolke_t::operator delete(void *p)
+{
+	freelist_t::putback_node(sizeof(wolke_t),p);
+}
+
+
+
+wolke_t::wolke_t(koord3d pos, sint8 b_x_off, sint16 b_y_off, uint16 lt, uint16 ul, const skin_desc_t* desc ) :
 	obj_no_info_t(pos)
 {
 	cloud_nr = all_clouds.index_of(desc);
-	base_y_off = clamp( (sint16)y_off - 8, -128, 127 );
-	set_xoff( x_off );
-	set_yoff( base_y_off );
+	base_y_off = b_y_off;
+	set_xoff( b_x_off );
+	set_yoff( -8 );
 	insta_zeit = 0;
+	lifetime = lt;
+	uplift = ul;
 }
-
 
 
 wolke_t::~wolke_t()
 {
 	mark_image_dirty( get_image(), 0 );
-	if(  insta_zeit != 2499  ) {
+	if(  insta_zeit != lifetime  ) {
 		welt->sync_way_eyecandy.remove( this );
 	}
 }
-
 
 
 wolke_t::wolke_t(loadsave_t* const file) : obj_no_info_t()
@@ -60,10 +75,10 @@ wolke_t::wolke_t(loadsave_t* const file) : obj_no_info_t()
 }
 
 
-image_id wolke_t::get_image() const
+image_id wolke_t::get_front_image() const
 {
 	const skin_desc_t *desc = all_clouds[cloud_nr];
-	return desc->get_image_id( (insta_zeit*desc->get_count())/2500 );
+	return desc->get_image_id( (insta_zeit*desc->get_count())/(lifetime+1) );
 }
 
 
@@ -92,43 +107,54 @@ void wolke_t::rdwr(loadsave_t *file)
 
 sync_result wolke_t::sync_step(uint32 delta_t)
 {
-	const image_id old_img = get_image();
-
+	// we query the image twice, since it may have changed (there are sure more efficient ways for that ...
+	const image_id old_img = get_front_image();
 	insta_zeit += delta_t;
-	if(  insta_zeit >= 2499  ) {
+	if(  insta_zeit >= lifetime  ) {
 		// delete wolke ...
-		insta_zeit = 2499;
+		insta_zeit = lifetime;
 		return SYNC_DELETE;
 	}
-	const image_id new_img = get_image();
+	const image_id new_img = get_front_image();
 
  	// move cloud up
-	const sint8 new_yoff = base_y_off - ((insta_zeit * OBJECT_OFFSET_STEPS) >> 12);
-	if(  new_yoff != get_yoff()  ||  new_img != old_img  ) {
+	const sint16 new_yoff = base_y_off - (((long)insta_zeit * uplift * OBJECT_OFFSET_STEPS) >> 16);
+	if(  new_img != old_img  ) {
  		// move/change cloud ... (happens much more often than image change => image change will be always done when drawing)
 		if(  !get_flag( obj_t::dirty )  ) {
 			set_flag( obj_t::dirty );
-			mark_image_dirty( old_img, 0 );
-			if(  new_img != old_img  ) {
-				mark_image_dirty( new_img, 0 );
-			}
+			mark_image_dirty( old_img, new_yoff );
  		}
-		set_yoff( new_yoff );
  	}
+	set_flag( obj_t::dirty );
+
 	return SYNC_OK;
 }
+
+
+#ifdef MULTI_THREAD
+void wolke_t::display_after( int xpos, int ypos, const sint8 extra_param ) const 
+#else
+void wolke_t::display_after( int xpos, int ypos, bool extra_param ) const
+#endif
+{ 
+	sint16 extra_offset = tile_raster_scale_y( base_y_off - (((long)insta_zeit * uplift * OBJECT_OFFSET_STEPS) >> 16), get_current_tile_raster_width() );
+	obj_t::display_after( xpos, ypos + extra_offset, extra_param ); 
+}
+
 
 
 // called during map rotation
 void wolke_t::rotate90()
 {
-	// restore pure yoff
-	set_yoff( base_y_off + 8 );
+	// most basic: rotate coordinate
 	obj_t::rotate90();
-	// .. and recalc smoke offsets
-	base_y_off = clamp( (sint16)get_yoff()-8, -128, 127 );
-	set_yoff( base_y_off - ((insta_zeit*OBJECT_OFFSET_STEPS) >> 12) );
+	if( lifetime != DEFAULT_EXHAUSTSMOKE_TIME ) {
+		// since factory smoke comes from wrong tile, remove them on rotation
+		insta_zeit = lifetime;
+	}
 }
+
 
 /***************************** just for compatibility, the old raucher and smoke clouds *********************************/
 

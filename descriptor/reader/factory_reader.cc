@@ -276,6 +276,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	desc->sound_id = NO_SOUND;
 	desc->sound_interval = 0xFFFFFFFFul;
+	desc->smokerotations = 0;
 
 	// Hajo: old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
@@ -284,7 +285,41 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
 	typedef factory_desc_t::site_t site_t;
-	if(version == 4) {
+	if(version == 5) {
+		// Versioned node, version 4 with sound and animation
+		desc->placement = (site_t)decode_uint16(p);
+		desc->productivity = decode_uint16(p);
+		desc->range = decode_uint16(p);
+		desc->distribution_weight = decode_uint16(p);
+		desc->color = decode_uint8(p);
+		desc->fields = decode_uint8(p);
+		desc->supplier_count = decode_uint16(p);
+		desc->product_count = decode_uint16(p);
+		desc->pax_level = decode_uint16(p);
+		desc->expand_probability = rescale_probability( decode_uint16(p) );
+		desc->expand_minimum = decode_uint16(p);
+		desc->expand_range = decode_uint16(p);
+		desc->expand_times = decode_uint16(p);
+		desc->electric_boost = decode_uint16(p);
+		desc->pax_boost = decode_uint16(p);
+		desc->mail_boost = decode_uint16(p);
+		desc->electric_demand = decode_uint16(p);
+		desc->pax_demand = decode_uint16(p);
+		desc->mail_demand = decode_uint16(p);
+		desc->sound_interval = decode_uint32(p);
+		desc->sound_id = decode_sint8(p);
+
+		desc->smokerotations = decode_sint8(p);
+		for( int i = 0; i < 4; i++ ) {
+			desc->smoketile[i].x = decode_sint16(p);
+			desc->smoketile[i].y = decode_sint16(p);
+			desc->smokeoffset[i].x = decode_sint16(p);
+			desc->smokeoffset[i].y = decode_sint16(p);
+		}
+		desc->smokeuplift = decode_uint16(p);
+		desc->smokelifetime = decode_uint16(p);
+	}
+	else if(version == 4) {
 		// Versioned node, version 4 with sound and animation
 		desc->placement = (site_t)decode_uint16(p);
 		desc->productivity = decode_uint16(p);
@@ -450,8 +485,10 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc-
 void factory_reader_t::register_obj(obj_desc_t *&data)
 {
 	factory_desc_t* desc = static_cast<factory_desc_t*>(data);
+	const char *name = desc->get_name();
 	size_t fab_name_len = strlen( desc->get_name() );
 	desc->electricity_producer = ( fab_name_len>11   &&  (strcmp(desc->get_name()+fab_name_len-9, "kraftwerk")==0  ||  strcmp(desc->get_name()+fab_name_len-11, "Power Plant")==0) );
+	desc->correct_smoke();
 	factory_builder_t::register_desc(desc);
 }
 
