@@ -176,7 +176,6 @@ bool curiositylist_stats_t::is_valid() const
 /**
  * Events werden hiermit an die GUI-components
  * gemeldet
- * @author Hj. Malthaner
  */
 bool curiositylist_stats_t::infowin_event(const event_t * ev)
 {
@@ -191,7 +190,6 @@ bool curiositylist_stats_t::infowin_event(const event_t * ev)
 
 /**
  * Draw the component
- * @author Hj. Malthaner
  */
 void curiositylist_stats_t::draw(scr_coord offset)
 {

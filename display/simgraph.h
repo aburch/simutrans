@@ -46,8 +46,6 @@ extern int default_font_linespace;
 * Alignment enum to align controls against each other
 * Vertical and horizontal alignment can be masked together
 * Unused bits are reserved for future use, set to 0.
-*
-* @author Max Kielland
 */
 enum control_alignments_t {
 
@@ -121,17 +119,15 @@ uint32 get_color_rgb(uint8 idx);
 void env_t_rgb_to_system_colors();
 
 /**
-* Helper functions for clipping along tile borders.
-* @author Dwachs
-*/
-void add_poly_clip(int x0_, int y0_, int x1, int y1, int ribi  CLIP_NUM_DEF);
+ * Helper functions for clipping along tile borders.
+ */
+void add_poly_clip(int x0_,int y0_, int x1, int y1, int ribi  CLIP_NUM_DEF);
 void clear_all_poly_clip(CLIP_NUM_DEF0);
 void activate_ribi_clip(int ribi  CLIP_NUM_DEF);
 
 /* Do no access directly, use the get_tile_raster_width()
-* macro instead.
-* @author Hj. Malthaner
-*/
+ * macro instead.
+ */
 #define get_tile_raster_width()    (tile_raster_width)
 extern KOORD_VAL tile_raster_width;
 
@@ -146,9 +142,8 @@ int zoom_factor_down();
 int get_zoom_factor();
 
 /**
-* Initialises the graphics module
-* @author Hj. Malthaner
-*/
+ * Initialises the graphics module
+ */
 void simgraph_init(KOORD_VAL width, KOORD_VAL height, int fullscreen);
 int is_display_init();
 void simgraph_exit();
@@ -205,9 +200,8 @@ void display_img_aligned(const image_id n, scr_rect area, int align, const int d
 void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF);
 
 /**
-* draws the images with alpha, either blended or as outline
-* @author kierongreen
-*/
+ * draws the images with alpha, either blended or as outline
+ */
 void display_rezoomed_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
 #define display_img_blend( n, x, y, c, dn, d ) display_rezoomed_img_blend( (n), (x), (y), 0, (c), (dn), (d)  CLIP_NUM_DEFAULT)
 
@@ -235,27 +229,27 @@ void display_img_stretch(const stretch_map_t &imag, scr_rect area);
 // this displays a 3x3 array of images to fit the scr_rect like above, but blend the color
 void display_img_stretch_blend(const stretch_map_t &imag, scr_rect area, FLAGGED_PIXVAL color);
 
-// Knightly : display unzoomed image with alpha, either blended or as outline
+// display unzoomed image with alpha, either blended or as outline
 void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 
-// Knightly : pointer to image display procedures
+// pointer to image display procedures
 typedef void(*display_image_proc)(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF);
 typedef void(*display_blend_proc)(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
 typedef void(*display_alpha_proc)(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
 
-// Knightly : variables for storing currently used image procedure set and tile raster width
+// variables for storing currently used image procedure set and tile raster width
 extern display_image_proc display_normal;
 extern display_image_proc display_color;
 extern display_blend_proc display_blend;
 extern display_alpha_proc display_alpha;
 extern signed short current_tile_raster_width;
 
-// Knightly : call this instead of referring to current_tile_raster_width directly
+// call this instead of referring to current_tile_raster_width directly
 #define get_current_tile_raster_width() (current_tile_raster_width)
 
-// Knightly : for switching between image procedure sets and setting current tile raster width
-inline void display_set_image_proc(bool is_global)
+// for switching between image procedure sets and setting current tile raster width
+inline void display_set_image_proc( bool is_global )
 {
 	if (is_global) {
 		display_normal = display_img_aux;
@@ -331,19 +325,17 @@ KOORD_VAL display_get_char_width(utf32 c);
 bool has_character( utf16 char_code );
 
 /**
-* Returns the width of the widest character in a string.
-* @param text  pointer to a string of characters to evaluate.
-* @param len   length of text buffer to evaluate. If set to 0,
-*              evaluate until null termination.
-* @author      Max Kielland
-*/
-KOORD_VAL display_get_char_max_width(const char* text, size_t len = 0);
+ * Returns the width of the widest character in a string.
+ * @param text  pointer to a string of characters to evaluate.
+ * @param len   length of text buffer to evaluate. If set to 0,
+ *              evaluate until null termination.
+ */
+KOORD_VAL display_get_char_max_width(const char* text, size_t len=0);
 
 /**
  * For the next logical character in the text, returns the character code
  * as well as retrieves the char byte count and the screen pixel width
  * CAUTION : The text pointer advances to point to the next logical character
- * @author Knightly
  */
 utf32 get_next_char_with_metrics(const char* &text, unsigned char &byte_length, unsigned char &pixel_width);
 
@@ -351,7 +343,6 @@ utf32 get_next_char_with_metrics(const char* &text, unsigned char &byte_length, 
  * For the previous logical character in the text, returns the character code
  * as well as retrieves the char byte count and the screen pixel width
  * CAUTION : The text pointer recedes to point to the previous logical character
- * @author Knightly
  */
 utf32 get_prev_char_with_metrics(const char* &text, const char *const text_start, unsigned char &byte_length, unsigned char &pixel_width);
 
@@ -369,11 +360,9 @@ size_t display_fit_proportional( const char *text, scr_coord_val max_width, scr_
 int display_calc_proportional_string_len_width(const char* text, size_t len);
 
 /*
-* len parameter added - use -1 for previous behaviour.
-* completely renovated for unicode and 10 bit width and variable height
-* @author Volker Meyer, prissi
-* @date  15.06.2003, 2.1.2005
-*/
+ * len parameter added - use -1 for previous behaviour.
+ * completely renovated for unicode and 10 bit width and variable height
+ */
 
 // #ifdef MULTI_THREAD
 int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len  CLIP_NUM_DEF  CLIP_NUM_DEFAULT_ZERO);

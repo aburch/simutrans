@@ -11,10 +11,7 @@
 
 /**
  * The water ground models rivers and lakes in Simutrans.
- *
- * @author Hj. Malthaner
  */
-
 class wasser_t : public grund_t
 {
 protected:

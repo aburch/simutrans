@@ -148,7 +148,6 @@ public:
 };
 
 
-// @author hsiegeln
 const char *hist_type[MAX_CITY_HISTORY] =
 {
 	"citicens",
@@ -433,7 +432,7 @@ void city_info_t::update_labels()
 
 void city_info_t::draw(scr_coord pos, scr_size size)
 {
-	// Hajo: update chart seed
+	// update chart seed
 	chart.set_seed(welt->get_last_year());
 	update_labels();
 	gui_frame_t::draw(pos, size);

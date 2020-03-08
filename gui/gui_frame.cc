@@ -91,7 +91,6 @@ gui_frame_t::gui_frame_t(char const* const name, player_t const* const player)
 
 /**
  * Set the window size
- * @author Hj. Malthaner
  */
 void gui_frame_t::set_windowsize(scr_size size)
 {
@@ -143,7 +142,6 @@ void gui_frame_t::reset_min_windowsize()
 /**
  * get color information for the window title
  * -borders and -body background
- * @author Hj. Malthaner
  */
 FLAGGED_PIXVAL gui_frame_t::get_titlecolor() const
 {
@@ -154,7 +152,6 @@ FLAGGED_PIXVAL gui_frame_t::get_titlecolor() const
 /**
  * Events werden hiermit an die GUI-components
  * gemeldet
- * @author Hj. Malthaner
  */
 bool gui_frame_t::infowin_event(const event_t *ev)
 {
@@ -190,8 +187,6 @@ bool gui_frame_t::infowin_event(const event_t *ev)
 
 /**
  * resize window in response to a resize event
- * @author Markus Weber, Hj. Malthaner
- * @date 11-may-02
  */
 void gui_frame_t::resize(const scr_coord delta)
 {
@@ -215,8 +210,6 @@ void gui_frame_t::resize(const scr_coord delta)
  * Draw new component. The values to be passed refer to the window
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
- *
- * @author Hj. Malthaner
  */
 void gui_frame_t::draw(scr_coord pos, scr_size size)
 {

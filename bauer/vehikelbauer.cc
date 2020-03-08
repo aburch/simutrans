@@ -231,10 +231,11 @@ slist_tpl<vehicle_desc_t*> const & vehicle_builder_t::get_info(waytype_t typ)
 	return typ_fahrzeuge[GET_WAYTYPE_INDEX(typ)];
 }
 
-/* extended search for vehicles for KI *
+
+/**
+ * extended search for vehicles for AI
  * checks also timeline and constraints
  * tries to get best with but adds a little random action
- * @author prissi
  */
 const vehicle_desc_t *vehicle_builder_t::vehicle_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const sint32 target_speed, const goods_desc_t * target_freight, bool include_electric, bool not_obsolete )
 {
@@ -363,10 +364,10 @@ const vehicle_desc_t *vehicle_builder_t::vehicle_search( waytype_t wt, const uin
 
 
 
-/* extended search for vehicles for replacement on load time
+/**
+ * extended search for vehicles for replacement on load time
  * tries to get best match (no random action)
  * if prev_desc==NULL, then the convoi must be able to lead a convoi
- * @author prissi
  */
 const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const sint32 target_speed, const goods_desc_t * target_freight, bool not_obsolete, const vehicle_desc_t *prev_veh, bool is_last )
 {

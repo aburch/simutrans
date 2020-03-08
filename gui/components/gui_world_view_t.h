@@ -18,7 +18,6 @@ class obj_t;
 
 /**
  * Displays a little piece of the world
- * @author Hj. Malthaner
  */
 class world_view_t : public gui_world_component_t
 {
@@ -84,15 +83,12 @@ public:
 	/**
 	 * resize window in response to a resize event
 	 * need to recalculate the list of offsets
-	 * @author prissi
 	 */
 	void set_size(scr_size size) OVERRIDE;
 
+	scr_size get_min_size() const OVERRIDE { return min_size; }
 
-
-	scr_size get_min_size() const { return min_size; }
-
-	scr_size get_max_size() const { return min_size; }
+	scr_size get_max_size() const OVERRIDE { return min_size; }
 };
 
 #endif

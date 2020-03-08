@@ -40,7 +40,7 @@ bool  map_frame_t::directory_visible=false;
 bool  map_frame_t::is_cursor_hidden=false;
 bool  map_frame_t::filter_factory_list=true;
 
-// Hajo: we track our position onscreen
+// we track our position onscreen
 scr_coord map_frame_t::screenpos;
 
 #define L_BUTTON_WIDTH (button_size.w)
@@ -567,7 +567,6 @@ void map_frame_t::zoom(bool magnify)
 /**
  * Events werden hiermit an die GUI-components
  * gemeldet
- * @author Hj. Malthaner
  */
 bool map_frame_t::infowin_event(const event_t *ev)
 {
@@ -593,7 +592,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		return true;
 	}
 
-	// Hajo: hack: relief map can resize upon right click
+	// hack: minimap can resize upon right click
 	// we track this here, and adjust size.
 	if(  IS_RIGHTCLICK(ev)  ) {
 		is_dragging = false;
@@ -668,8 +667,6 @@ bool map_frame_t::infowin_event(const event_t *ev)
 
 /**
  * size window in response and save it in static size
- * @author (Mathew Hounsell)
- * @date   11-Mar-2003
  */
 void map_frame_t::set_windowsize(scr_size size)
 {
@@ -682,7 +679,7 @@ void map_frame_t::set_windowsize(scr_size size)
  * Draw new component. The values to be passed refer to the window
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
- * @author Hj. Malthaner
+
  */
 void map_frame_t::draw(scr_coord pos, scr_size size)
 {

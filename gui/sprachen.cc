@@ -3,11 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Dialog for language change
- * Hj. Malthaner, 2000
- */
-
 #include <stdio.h>
 
 #include "../simdebug.h"
@@ -35,7 +30,6 @@ int sprachengui_t::cmp_language_button(sprachengui_t::language_button_t a, sprac
 /**
  * Causes the required fonts for currently selected
  * language to be loaded
- * @author Hj. Malthaner
  */
 void sprachengui_t::init_font_from_lang(bool reload_font)
 {
@@ -45,9 +39,8 @@ void sprachengui_t::init_font_from_lang(bool reload_font)
 	static const char *default_name = "PROP_FONT_FILE";
 	const char *prop_font_file = translator::translate(default_name);
 
-	// Hajo: fallback if entry is missing
-	// -> use latin-1 font
-	if(prop_font_file == default_name) {
+	// fallback if entry is missing -> use latin-1 font
+	if(  prop_font_file == default_name  ) {
 		prop_font_file = "cyr.bdf";
 	}
 

@@ -27,7 +27,6 @@ gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t*> *images) :
 /**
  * Events werden hiermit an die GUI-components
  * gemeldet
- * @author Hj. Malthaner
  */
 bool gui_image_list_t::infowin_event(const event_t *ev)
 {

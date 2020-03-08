@@ -101,7 +101,6 @@ scr_size gui_textarea_t::calc_size() const
 
 /**
  * Draw the component
- * @author Hj. Malthaner
  */
 void gui_textarea_t::draw(scr_coord offset)
 {

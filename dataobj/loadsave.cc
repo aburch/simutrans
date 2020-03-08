@@ -567,7 +567,6 @@ const char *loadsave_t::close()
 
 /**
  * Checks end-of-file
- * @author Hj. Malthaner
  */
 bool loadsave_t::is_eof()
 {

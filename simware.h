@@ -47,13 +47,11 @@ public:
 private:
 	/**
 	 * Handle of target station.
-	 * @author Hj. Malthaner
 	 */
 	halthandle_t ziel;
 
 	/**
 	 * Handle of station, where the packet has to leave convoy.
-	 * @author Hj. Malthaner
 	 */
 	halthandle_t zwischenziel;
 
@@ -72,11 +70,6 @@ private:
 
 	/**
 	 * Target position (factory, etc)
-	 *
-	 * "the final target position, which is on behalf
-	 * not the goal stop position"
-	 *
-	 * @author Hj. Malthaner
 	 */
 	koord zielpos;
 
@@ -104,8 +97,6 @@ public:
 	ware_t(loadsave_t *file);
 
 	/**
-	 * gibt den nicht-uebersetzten warennamen zurück
-	 * @author Hj. Malthaner
 	 * "There the non-translated names were back"
 	 */
 	inline const char *get_name() const { return get_desc()->get_name(); }

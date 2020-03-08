@@ -261,7 +261,6 @@ koord3d haltestelle_t::get_basis_pos3d() const
 
 /**
  * Station factory method. Returns handles instead of pointers.
- * @author Hj. Malthaner
  */
 halthandle_t haltestelle_t::create(koord pos, player_t *player)
 {
@@ -270,9 +269,8 @@ halthandle_t haltestelle_t::create(koord pos, player_t *player)
 }
 
 
-/*
+/**
  * removes a ground tile from a station
- * @author prissi
  */
 bool haltestelle_t::remove(player_t *player, koord3d pos)
 {
@@ -344,7 +342,6 @@ DBG_DEBUG("haltestelle_t::remove()","not last");
 
 /**
  * Station factory method. Returns handles instead of pointers.
- * @author Hj. Malthaner
  */
 halthandle_t haltestelle_t::create(loadsave_t *file)
 {
@@ -355,7 +352,6 @@ halthandle_t haltestelle_t::create(loadsave_t *file)
 
 /**
  * Station destruction method.
- * @author Hj. Malthaner
  */
 void haltestelle_t::destroy(halthandle_t const halt)
 {
@@ -369,8 +365,7 @@ void haltestelle_t::destroy(halthandle_t const halt)
 /**
  * Station destruction method.
  * Da destroy() alle_haltestellen modifiziert kann kein Iterator benutzt
- * werden! V. Meyer
- * @author Hj. Malthaner
+ * werden!
  */
 void haltestelle_t::destroy_all()
 {
@@ -433,7 +428,6 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 
 	enables = NOT_ENABLED;
 
-	// @author hsiegeln
 	sortierung = freight_list_sorter_t::by_name;
 	resort_freight_info = true;
 
@@ -787,7 +781,6 @@ const char* haltestelle_t::get_name() const
 
 /**
  * Sets the name. Creates a copy of name.
- * @author Hj. Malthaner
  */
 void haltestelle_t::set_name(const char *new_name)
 {
@@ -907,7 +900,8 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 
 		// standard names:
 		// order: factory, attraction, direction, normal name
-		// prissi: first we try a factory name
+		// first we try a factory name
+
 		// is there a translation for factory defined?
 		const char *fab_base_text = "%s factory %s %s";
 		const char *fab_base = translator::translate(fab_base_text,lang);
@@ -1494,7 +1488,7 @@ void haltestelle_t::new_month()
 
 	check_nearby_halts();
 
-	// hsiegeln: roll financial history
+	// roll financial history
 	for (int j = 0; j<MAX_HALT_COST; j++) {
 		for (int k = MAX_MONTHS-1; k>0; k--) {
 			financial_history[k][j] = financial_history[k-1][j];
@@ -1506,9 +1500,11 @@ void haltestelle_t::new_month()
 }
 
 
-// Added by		: Knightly
-// Adapted from : reroute_goods()
-// Purpose		: re-route goods of a single ware category
+/**
+ * Called after schedule calculation of all stations is finished
+ * will distribute the goods to changed routes (if there are any)
+ * returns true upon completion
+ */
 uint32 haltestelle_t::reroute_goods(const uint8 catg)
 {
 	if(cargo[catg])
@@ -1720,7 +1716,6 @@ void haltestelle_t::verbinde_fabriken()
 	}
 */
 }
-
 
 
 /*
@@ -2264,10 +2259,6 @@ uint32 haltestelle_t::find_route(ware_t &ware, const uint32 previous_journey_tim
 
 /**
  * Found route and station uncrowded
- * @author Hj. Malthaner
- * As of Simutrans-Extended 7.2,
- * this method is called instead when
- * passengers *arrive* at their destination.
  */
 void haltestelle_t::add_pax_happy(int n)
 {
@@ -2281,7 +2272,6 @@ void haltestelle_t::add_pax_happy(int n)
 
 /**
  * Station crowded
- * @author Hj. Malthaner
  */
 void haltestelle_t::add_pax_unhappy(int n)
 {
@@ -2310,7 +2300,6 @@ void haltestelle_t::add_pax_too_waiting(int n)
 
 /**
  * Found no route
- * @author Hj. Malthaner
  */
 void haltestelle_t::add_pax_no_route(int n)
 {
@@ -3051,7 +3040,6 @@ sint64 haltestelle_t::calc_ready_time(ware_t ware, bool, koord origin_pos) const
 /* same as liefere an, but there will be no route calculated,
  * since it hase be calculated just before
  * (execption: route contains us as intermediate stop)
- * @author prissi
  */
 void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 {
@@ -3103,11 +3091,6 @@ void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 
 /* Receives ware and tries to route it further on
  * if no route is found, it will be removed
- *
- * walked_between_stations defaults to 0; it should be set to 1 when walking here from another station
- * and incremented if this happens repeatedly
- *
- * @author prissi
  */
 void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 {
@@ -3344,7 +3327,6 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 /**
  * @param buf the buffer to fill
  * @return Goods description text (buf)
- * @author Hj. Malthaner
  */
 void haltestelle_t::get_freight_info(cbuffer_t & buf)
 {
@@ -3770,7 +3752,6 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
  * since it iterates over all ground, this is better not done too often, because line management and station list
  * queries this information regularly; Thus, we do this, when adding new ground
  * This recalculates also the capacity from the building levels ...
- * @author Weber/prissi
  */
 void haltestelle_t::recalc_station_type()
 {
@@ -4875,7 +4856,6 @@ void haltestelle_t::init_financial_history()
 
 /**
  * Calculates a status color for status bars
- * @author Hj. Malthaner
  */
 void haltestelle_t::recalc_status()
 {
@@ -4964,7 +4944,6 @@ void haltestelle_t::recalc_status()
 
 /**
  * Draws some nice colored bars giving some status information
- * @author Hj. Malthaner
  */
 void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 {
@@ -5029,7 +5008,7 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 			display_fillbox_wh_clip_rgb( xpos + 1, ypos - v - 1, D_WAITINGBAR_WIDTH - 2, v, wtyp->get_color(), false );
 			display_fillbox_wh_clip_rgb( xpos + D_WAITINGBAR_WIDTH - 1, ypos - v - 1, 1, v, color_idx_to_rgb( COL_GREY1 ), false );
 
-			// Hajo: show up arrow for capped values
+			// show up arrow for capped values
 			if(  sum > max_capacity  ) {
 				display_fillbox_wh_clip_rgb( xpos + (D_WAITINGBAR_WIDTH / 2) - 1, ypos - v - 6, 2, 4, color_idx_to_rgb( COL_WHITE ), false );
 				display_fillbox_wh_clip_rgb( xpos + (D_WAITINGBAR_WIDTH / 2) - 2, ypos - v - 5, 4, 1, color_idx_to_rgb( COL_WHITE ), false );
@@ -5163,7 +5142,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories, bool recalc_ne
 			}
 		}
 	}
-	// Knightly : iterate over all convoys
+	// iterate over all convoys
 	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
 		// only check lineless convoys which have matching ownership and which are not yet registered
 		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_owner()==get_owner())  &&  !registered_convoys.is_contained(cnv)  ) {
@@ -5326,7 +5305,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		}
 	}
 
-	// Knightly : remove registered lineless convoys as well
+	// remove registered lineless convoys as well
 	for(  size_t j = registered_convoys.get_count();  j-- != 0;  ) {
 		bool ok = false;
 		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_convoys[j]->get_schedule()->entries  ) {
@@ -5394,7 +5373,6 @@ koord haltestelle_t::get_next_pos( koord start, bool square ) const
 
 
 /* marks a coverage area
- * @author prissi
  */
 void haltestelle_t::mark_unmark_coverage(const bool mark, const bool factories) const
 {
@@ -5409,7 +5387,6 @@ void haltestelle_t::mark_unmark_coverage(const bool mark, const bool factories) 
 
 
 /* Find a tile where this type of vehicle could stop
- * @author prissi
  */
 const grund_t *haltestelle_t::find_matching_position(const waytype_t w) const
 {
@@ -5424,8 +5401,7 @@ const grund_t *haltestelle_t::find_matching_position(const waytype_t w) const
 
 
 
-/* Checks whether there is an unoccupied loading bay for this kind of thing
- * @author prissi
+/* checks, if there is an unoccupied loading bay for this kind of thing
  */
 bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const obj_t::typ d) const
 {
@@ -5462,8 +5438,7 @@ bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,cons
 }
 
 
-/* reserves a position (caution: rail blocks work differently!)
- * @author prissi
+/* reserves a position (caution: railblocks work differently!
  */
 bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 {
@@ -5507,8 +5482,7 @@ bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 }
 
 
-/* frees a reserved position (caution: rail blocks work differently!)
- * @author prissi
+/** frees a reserved  position (caution: railblocks work differently!
  */
 bool haltestelle_t::unreserve_position(grund_t *gr, convoihandle_t cnv)
 {
@@ -5526,8 +5500,7 @@ DBG_MESSAGE("haltestelle_t::unreserve_position()","failed for gr=%p",gr);
 }
 
 
-/* can a convoi reserve this position?
- * @author prissi
+/** can a convoi reserve this position?
  */
 bool haltestelle_t::is_reservable(const grund_t *gr, convoihandle_t cnv) const
 {

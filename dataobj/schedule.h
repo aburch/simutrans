@@ -32,9 +32,7 @@ class karte_t;
 
 
 /**
- * Eine Klasse zur Speicherung von Fahrplänen in Simutrans.
- *
- * @author Hj. Malthaner
+ * Class to hold schedule of vehicles in Simutrans.
  */
 class schedule_t
 {
@@ -45,7 +43,6 @@ class schedule_t
 
 	/**
 	 * Fix up current_stop value, which we may have made out of range
-	 * @author neroden
 	 */
 	void make_current_stop_valid() {
 		uint8 count = entries.get_count();
@@ -68,17 +65,15 @@ public:
 	minivec_tpl<schedule_entry_t> entries;
 
 	/**
-	* sollte eine Fehlermeldung ausgeben, wenn halt nicht erlaubt ist
-	* @author Hj. Malthaner
-	*/
+	 * Returns error message if stops are not allowed
+	 */
 	virtual char const* get_error_msg() const = 0;
 
 	/**
-	* der allgemeine Fahrplan erlaubt haltestellen überall.
-	* diese Methode sollte in den unterklassen redefiniert werden.
-	* @author Hj. Malthaner
-	*/
-	virtual bool is_stop_allowed(const grund_t *gr) const;
+	 * Returns true if this schedule allows stop at the
+	 * given tile.
+	 */
+	virtual	bool is_stop_allowed(const grund_t *gr) const;
 
 	bool empty() const { return entries.empty(); }
 
@@ -89,18 +84,16 @@ public:
 	virtual waytype_t get_waytype() const = 0;
 
 	/**
-	* get current stop of the schedule (schedule)
-	* @author hsiegeln
-	*/
+	 * Get current stop of the schedule.
+	 */
 	uint8 get_current_stop() const { return current_stop; }
 
 	// always returns a valid entry to the current stop
 	schedule_entry_t const& get_current_entry() const { return current_stop >= entries.get_count() ? dummy_entry : entries[current_stop]; }
 
 	/**
-	 * set the current stop of the schedule (schedule)
-	 * if new value is bigger than stops available, the max stop will be used
-	 * @author hsiegeln
+	 * Set the current stop of the schedule .
+	 * If new value is bigger than stops available, the max stop will be used.
 	 */
 	void set_current_stop(uint8 new_current_stop) {
 		current_stop = new_current_stop;
@@ -193,7 +186,6 @@ public:
 
 	/**
 	 * if the passed in schedule matches "this", then return true
-	 * @author hsiegeln
 	 */
 	bool matches(karte_t *welt, const schedule_t *schedule);
 
@@ -205,15 +197,13 @@ public:
 	void set_same_spacing_shift(bool s = true) { same_spacing_shift = s; }
 
 	/*
-	 * compare this schedule with another, ignoring order and exact positions and waypoints
-	 * @author prissi
+	 * Compare this schedule with another, ignoring order and exact positions and waypoints.
 	 */
 	bool similar( const schedule_t *schedule, const player_t *player );
 
 	/**
-	 * calculates a return way for this schedule
-	 * will add elements 1 to maxi-1 in reverse order to schedule
-	 * @author hsiegeln
+	 * Calculates a return way for this schedule.
+	 * Will add elements 1 to end in reverse order to schedule.
 	 */
 	void add_return_way();
 
@@ -281,10 +271,8 @@ private:
 };
 
 /**
-* Schedules with stops on tracks.
-*
-* @author Hj. Malthaner
-*/
+ * Schedules with stops on tracks.
+ */
 class train_schedule_t : public schedule_t
 {
 public:
@@ -298,8 +286,8 @@ public:
 	waytype_t get_waytype() const { return track_wt; }
 };
 
-/* the schedule for monorail ...
- * @author Hj. Malthaner
+/**
+ * Schedules with stops on tram tracks.
  */
 class tram_schedule_t : public train_schedule_t
 {
@@ -315,10 +303,8 @@ public:
 
 
 /**
-* Schedules with stops on roads.
-*
-* @author Hj. Malthaner
-*/
+ * Schedules with stops on roads.
+ */
 class truck_schedule_t : public schedule_t
 {
 public:
@@ -334,10 +320,8 @@ public:
 
 
 /**
-* Schedules with stops on water.
-*
-* @author Hj. Malthaner
-*/
+ * Schedules with stops on water.
+ */
 class ship_schedule_t : public schedule_t
 {
 public:
@@ -353,9 +337,8 @@ public:
 
 
 /**
-* Schedules for airplanes.
-*
-* @author Hj. Malthaner
+ * Schedules for airplanes.
+ */
 */
 class airplane_schedule_ : public schedule_t
 {
@@ -371,9 +354,8 @@ public:
 };
 
 /**
-* Schedules with stops on mono-rails.
-* @author Hj. Malthaner
-*/
+ * Schedules with stops on mono-rails.
+ */
 class monorail_schedule_t : public schedule_t
 {
 public:
@@ -388,9 +370,8 @@ public:
 };
 
 /**
-* Schedules with stops on maglev tracks.
-* @author Hj. Malthaner
-*/
+ * Schedules with stops on maglev tracks.
+ */
 class maglev_schedule_t : public schedule_t
 {
 public:
@@ -405,10 +386,8 @@ public:
 };
 
 /**
-* Schedules with stops on narrowgauge tracks.
-*
-* @author Hj. Malthaner
-*/
+ * Schedules with stops on narrowgauge tracks.
+ */
 class narrowgauge_schedule_t : public schedule_t
 {
 public:

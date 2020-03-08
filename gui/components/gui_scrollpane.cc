@@ -17,7 +17,6 @@
 
 /**
  * @param comp, the scrolling component
- * @author Hj. Malthaner
  */
 gui_scrollpane_t::gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x, bool b_scroll_y) :
 	scroll_x(scrollbar_t::horizontal),
@@ -56,7 +55,6 @@ scr_size gui_scrollpane_t::get_max_size() const
 
 /**
  * recalc the scroll bar sizes
- * @author Hj. Malthaner
  */
 void gui_scrollpane_t::recalc_sliders(scr_size size)
 {
@@ -94,7 +92,6 @@ void gui_scrollpane_t::recalc_sliders(scr_size size)
 
 /**
  * Scrollpanes _must_ be used in this method to set the size
- * @author Hj. Malthaner
  */
 void gui_scrollpane_t::set_size(scr_size size)
 {
@@ -139,9 +136,7 @@ scr_size gui_scrollpane_t::request_size(scr_size request)
 
 
 /**
- * Events werden hiermit an die GUI-components
- * gemeldet
- * @author Hj. Malthaner
+ * Events werden hiermit an die GUI-components gemeldet
  */
 bool gui_scrollpane_t::infowin_event(const event_t *ev)
 {
@@ -172,12 +167,12 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		// hand event to component
 		swallow = comp->infowin_event(&ev2);
 
-		// Knightly : check if we need to scroll to the focused component
+		// check if we need to scroll to the focused component
 		if(  get_focus()  &&  focused != get_focus()  ) {
 			show_focused();
 		}
 
-		// Hajo: hack: component could have changed size
+		// hack: component could have changed size
 		// this recalculates the scrollbars
 		if(  old_comp_size!=comp->get_size()  ) {
 			recalc_sliders(get_size());
@@ -220,7 +215,6 @@ void gui_scrollpane_t::show_focused()
 
 /**
  * Set the position of the Scrollbars
- * @author Hj. Malthaner
  */
 void gui_scrollpane_t::set_scroll_position(int x, int y)
 {
@@ -256,7 +250,6 @@ scr_rect gui_scrollpane_t::get_client( void )
 
 /**
  * Draw the component
- * @author Hj. Malthaner
  */
 void gui_scrollpane_t::draw(scr_coord pos)
 {

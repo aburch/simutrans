@@ -11,10 +11,7 @@
 
 /**
  * boden_t are nature tiles (maybe with ways, powerlines, trees and beware: harbor buildings)
- *
- * @author Hj. Malthaner
  */
-
 class boden_t : public grund_t
 {
 protected:

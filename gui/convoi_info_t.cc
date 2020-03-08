@@ -85,14 +85,10 @@ static uint8 statistic[convoi_t::MAX_CONVOI_COST] = {
 
 /**
  * This variable defines by which column the table is sorted
- * Values:			0 = destination
- *                  1 = via
- *                  2 = via_amount
- *                  3 = amount
- *					4 = origin
- *					5 = origin_amount
- *					6 = destination (detail)
- * @author prissi - amended by jamespetts (origins)
+ * Values: 0 = destination
+ *                 1 = via
+ *                 2 = via_amount
+ *                 3 = amount
  */
 const char *convoi_info_t::sort_text[SORT_MODES] =
 {
@@ -591,7 +587,6 @@ void convoi_info_t::update_labels()
  * Draw new component. The values to be passed refer to the window
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
- * @author Hj. Malthaner
  */
 void convoi_info_t::draw(scr_coord pos, scr_size size)
 {
@@ -816,7 +811,6 @@ koord3d convoi_info_t::get_weltpos( bool set )
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {

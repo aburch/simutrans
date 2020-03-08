@@ -241,7 +241,6 @@ void roadsign_t::show_info()
 /**
  * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
- * @author Hj. Malthaner
  */
 void roadsign_t::info(cbuffer_t & buf) const
 {
@@ -793,8 +792,6 @@ void roadsign_t::cleanup(player_t *player)
 /**
  * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
  * um das Aussehen des Dings an Boden und Umgebung anzupassen
- *
- * @author Hj. Malthaner
  */
 void roadsign_t::finish_rd()
 {
@@ -882,8 +879,7 @@ bool roadsign_t::register_desc(roadsign_desc_t *desc)
 
 
 /**
- * Fill menu with icons of given signals/roadsigns from the list
- * @author Hj. Malthaner
+ * Fill menu with icons of given signals/roadsings from the list
  */
 void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 /*sound_ok*/)
 {
@@ -952,7 +948,6 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 
 /**
  * Finds a matching roadsign
- * @author prissi
  */
 const roadsign_desc_t *roadsign_t::roadsign_search(roadsign_desc_t::types const flag, waytype_t const wt, uint16 const time)
 {

@@ -21,10 +21,9 @@
 #include "sound_desc.h"
 #include "ground_desc.h"
 
-/* sound of the program *
- * @author prissi
+/*
+ * sound of the program
  */
-
 class sound_ids {
 public:
 	std::string filename;

@@ -17,9 +17,8 @@
 #include "../halthandle_t.h"
 
 class gui_halt_type_images_t;
-/**
- * @author Hj. Malthaner
- */
+
+
 class halt_list_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:
@@ -38,7 +37,6 @@ public:
 
 	/**
 	 * Draw the component
-	 * @author Hj. Malthaner
 	 */
 	void draw(scr_coord offset) OVERRIDE;
 

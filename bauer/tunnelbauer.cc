@@ -85,7 +85,6 @@ const tunnel_desc_t *tunnel_builder_t::get_desc(const char *name)
 
 /**
  * Find a matching tunnel
- * @author Hj. Malthaner
  */
 const tunnel_desc_t *tunnel_builder_t::get_tunnel_desc(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
 {
@@ -123,7 +122,6 @@ static bool compare_tunnels(const tunnel_desc_t* a, const tunnel_desc_t* b)
 
 /**
  * Fill menu with icons of given waytype
- * @author Hj. Malthaner
  */
 void tunnel_builder_t::fill_menu(tool_selector_t* tool_selector, const waytype_t wtyp, sint16 /*sound_ok*/)
 {
@@ -756,7 +754,6 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 	do {
 		pos = tmp_list.remove_first();
 
-		// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 		grund_t *from = welt->lookup(pos);
 		grund_t *to;
 		koord zv = koord::invalid;

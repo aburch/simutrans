@@ -889,8 +889,6 @@ void schedule_gui_t::draw(scr_coord pos, scr_size size)
 
 /**
  * Set window size and adjust component sizes and/or positions accordingly
- * @author Hj. Malthaner
- * @date   16-Oct-2003
  */
 void schedule_gui_t::set_windowsize(scr_size size)
 {

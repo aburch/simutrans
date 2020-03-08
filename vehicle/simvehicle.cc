@@ -181,7 +181,6 @@ void vehicle_base_t::set_overtaking_offsets( bool driving_on_the_left )
 /**
  * Checks if this vehicle must change the square upon next move
  * THIS IS ONLY THERE FOR LOADING OLD SAVES!
- * @author Hj. Malthaner
  */
 bool vehicle_base_t::is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const
 {
@@ -866,7 +865,6 @@ void vehicle_t::set_convoi(convoi_t *c)
 /**
  * Unload freight to halt
  * @return sum of unloaded goods
- * @author Hj. Malthaner
  */
 uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloading, array_tpl<sint64> & apportioned_revenues)
 {
@@ -1074,8 +1072,7 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 
 /**
  * Load freight from halt
- * @return true if still space for more cargo
- * @author Hj. Malthaner
+ * @return amount loaded
  */
 bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehicles, bool use_lower_classes)
 {
@@ -1254,9 +1251,8 @@ void vehicle_t::fix_class_accommodations()
 
 
 /**
- * Remove freight that no longer can reach its destination
- * e.g. because of a changed schedule
- * @author Hj. Malthaner
+ * Remove freight that no longer can reach it's destination
+ * i.e. because of a changed schedule
  */
 void vehicle_t::remove_stale_cargo()
 {
@@ -1347,7 +1343,6 @@ void vehicle_t::play_sound() const
  * Prepare vehicle for new ride.
  * Sets route_index, pos_next, steps_next.
  * If @p recalc is true this sets position and recalculates/resets movement parameters.
- * @author Hj. Malthaner
  */
 void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 {
@@ -1661,10 +1656,7 @@ void vehicle_t::leave_tile()
 }
 
 
-
-
-/* this routine add a vehicle to a tile and will insert it in the correct sort order to prevent overlaps
- * @author prissi
+/** this routine add a vehicle to a tile and will insert it in the correct sort order to prevent overlaps
  */
 void vehicle_t::enter_tile(grund_t* gr)
 {
@@ -1710,7 +1702,6 @@ void vehicle_t::hop(grund_t* gr)
 	}
 
 	// this is a required hack for aircrafts! Aircrafts can turn on a single square, and this confuses the previous calculation!
-	// author: hsiegeln
 	if(!check_for_finish  &&  pos_prev==pos_next) {
 		direction = calc_set_direction( get_pos(), pos_next);
 		steps_next = 0;
@@ -2002,7 +1993,6 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 
 /** gets the waytype specific friction on straight flat way.
  * extracted from vehicle_t::calc_drag_coefficient()
- * @author Bernd Gabriel, Nov, 05 2009
  */
 sint16 get_friction_of_waytype(waytype_t waytype)
 {
@@ -2138,7 +2128,6 @@ const char *vehicle_t::get_cargo_mass() const
 
 /**
  * Calculate transported cargo total weight in KG
- * @author Hj. Malthaner
  */
 uint32 vehicle_t::get_cargo_weight() const
 {
@@ -2199,7 +2188,6 @@ void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 
 /**
  * Delete all vehicle load
- * @author Hj. Malthaner
  */
 void vehicle_t::discard_cargo()
 {
@@ -2592,7 +2580,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12)+1,purchase_time/12);
 	}
 	else {
-		// prissi: changed several data types to save runtime memory
+		// changed several data types to save runtime memory
 		file->rdwr_long(purchase_time);
 		if(file->get_version()<99018) {
 			file->rdwr_byte(dx);
@@ -3558,7 +3546,6 @@ bool road_vehicle_t::check_next_tile(const grund_t *bd) const
 
 
 // how expensive to go here (for way search)
-// author prissi
 int road_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord from_pos)
 {
 	// first favor faster ways
@@ -3587,7 +3574,7 @@ int road_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 
 	// effect of slope
 	if(  gr->get_weg_hang()!=0  ) {
-		// Knightly : check if the slope is upwards, relative to the previous tile
+		// check if the slope is upwards, relative to the previous tile
 		from_pos -= gr->get_pos().get_2d();
 		// 75 hardcoded, see get_cost_upslope()
 		costs += 75 * slope_t::get_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y );
@@ -4767,7 +4754,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 		return false;
 	}
 
-	// Hajo: diesel and steam engines can use electrified track as well.
+	// diesel and steam engines can use electrified track as well.
 	// also allow driving on foreign tracks ...
 	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : desc->get_engine_type() == vehicle_desc_t::electric);
 
@@ -4824,7 +4811,6 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 
 
 // how expensive to go here (for way search)
-// author prissi
 int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord from_pos)
 {
 	// first favor faster ways
@@ -4844,13 +4830,12 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 
 	// effect of slope
 	if(  gr->get_weg_hang()!=0  ) {
-		// Knightly : check if the slope is upwards, relative to the previous tile
+		// check if the slope is upwards, relative to the previous tile
 		from_pos -= gr->get_pos().get_2d();
 		// 125 hardcoded, see get_cost_upslope()
 		costs += 125 * slope_t::get_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y );
 	}
 
-	//@author: jamespetts
 	// Strongly prefer routes for which the vehicle is not overweight.
 	uint32 max_axle_load = w->get_max_axle_load();
 	uint32 bridge_weight_limit = w->get_bridge_weight_limit();
@@ -8249,9 +8234,7 @@ bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 }
 
 
-
-/* Since slopes are handled different for ships
- * @author prissi
+/** Since slopes are handled different for ships
  */
 void water_vehicle_t::calc_drag_coefficient(const grund_t *gr)
 {
@@ -8481,7 +8464,6 @@ air_vehicle_t::get_ribi(const grund_t *gr) const
 
 
 // how expensive to go here (for way search)
-// author prissi
 int air_vehicle_t::get_cost(const grund_t *gr, const sint32, koord)
 {
 	// first favor faster ways
@@ -8532,7 +8514,7 @@ air_vehicle_t::check_next_tile(const grund_t *bd) const
 		case circling:
 		{
 //DBG_MESSAGE("air_vehicle_t::check_next_tile()","(cnv %i) in idx %i",cnv->self.get_id(),route_index );
-			// prissi: here a height check could avoid too high mountains
+			// here a height check could avoid too high mountains
 			return true;
 		}
 	}

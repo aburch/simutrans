@@ -10,7 +10,6 @@
 
 /**
  * Convert waytype string to enum waytype_t
- * @author Hj. Malthaner
  */
 waytype_t get_waytype(const char* waytype)
 {

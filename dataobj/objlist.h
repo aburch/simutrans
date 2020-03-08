@@ -27,7 +27,6 @@ private:
 	/**
 	 * 0-based index of the next free entry after the last element
 	 * therefore also the count of number of items which are stored
-	 * @author Hj. Malthaner
 	 */
 	uint8 top;
 
@@ -62,7 +61,6 @@ public:
 	/**
 	* @param n thing index (unsigned value!)
 	* @return thing at index n or NULL if n is out of bounds
-	* @author Hj. Malthaner
 	*/
 	inline obj_t * bei(uint8 n) const
 	{
@@ -94,12 +92,10 @@ public:
 
 	/**
 	* @return NULL when OK, or message, why not?
-	* @author Hj. Malthaner
 	*/
 	const char * kann_alle_entfernen(const player_t *, uint8 ) const;
 
-	/* recalcs all objects on this tile
-	* @author prissi
+	/** recalcs all objects on this tile
 	*/
 	void calc_image();
 
@@ -114,7 +110,6 @@ public:
 	void check_season(const bool calc_only_season_change);
 
 	/** display all things, faster, but will lead to clipping errors
-	 *  @author prissi
 	 */
 #ifdef MULTI_THREAD
 	void display_obj_quick_and_dirty( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const sint8 clip_num ) const;
@@ -122,8 +117,8 @@ public:
 	void display_obj_quick_and_dirty( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool is_global ) const;
 #endif
 
-	/* display all things, called by the routines in grund_t
-	*  @author prissi,dwachs
+	/**
+	* display all things, called by the routines in grund_t
 	*/
 	uint8 display_obj_bg(const sint16 xpos, const sint16 ypos, const uint8 start_offset  CLIP_NUM_DEF) const;
 	uint8 display_obj_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile  CLIP_NUM_DEF) const;

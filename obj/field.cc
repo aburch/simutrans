@@ -87,7 +87,6 @@ image_id field_t::get_image() const
 /**
  * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
- * @author Hj. Malthaner
  */
 void field_t::show_info()
 {

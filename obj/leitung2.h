@@ -35,7 +35,6 @@ protected:
 
 	/**
 	* We are part of this network
-	* @author Hj. Malthaner
 	*/
 	powernet_t * net;
 
@@ -46,7 +45,6 @@ protected:
 	/**
 	* Connect this piece of powerline to its neighbours
 	* -> this can merge power networks
-	* @author Hj. Malthaner
 	*/
 	void verbinde();
 
@@ -56,7 +54,6 @@ protected:
 
 	/**
 	* Dient zur Neuberechnung des Bildes
-	* @author Hj. Malthaner
 	*/
 	void calc_image();
 
@@ -106,7 +103,6 @@ public:
 	/**
 	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	* Beobachtungsfenster angezeigt wird.
-	* @author Hj. Malthaner
 	*/
 	void info(cbuffer_t & buf) const;
 
@@ -119,8 +115,6 @@ public:
 	/**
 	* Recalculates the images of all neighbouring
 	* powerlines and the powerline itself
-	*
-	* @author Hj. Malthaner
 	*/
 	void calc_neighbourhood();
 
@@ -143,7 +137,6 @@ public:
 
 	/**
 	 * @return NULL if OK, otherwise an error message
-	 * @author Hj. Malthaner
 	 */
 	virtual const char *is_deletable(const player_t *player);
 

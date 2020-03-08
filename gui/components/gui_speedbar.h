@@ -11,11 +11,6 @@
 #include "../../tpl/slist_tpl.h"
 
 
-/**
- *
- * @author Volker Meyer
- * @date  12.06.2003
- */
 class gui_speedbar_t : public gui_component_t
 {
 private:

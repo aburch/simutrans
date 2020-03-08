@@ -41,7 +41,6 @@ tool_selector_t::tool_selector_t(const char* title, const char *help_file, uint3
 /**
  * Add a new tool with values and tooltip text.
  * tool_in must be created by new tool_t(copy_tool)!
- * @author Hj. Malthaner
  */
 void tool_selector_t::add_tool_selector(tool_t *tool_in)
 {

@@ -33,10 +33,6 @@ public:
 };
 
 /**
- * SAVE GAME FRAME CONSTRUCTOR
- * @author Hj. Malthaner
- * @author Max Kielland
- *
  * @param suffix            Optional file pattern to populate the file list.
  *                          Example ".sve" or "sve"
  *                          Default value is NULL to disregard extension.
@@ -492,7 +488,7 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t
 		// Cancel-button pressed
 		//----------------------------
 		cancel_action(buf);
-		destroy_win(this);      //29-Oct-2001         Markus Weber    Added   savebutton case
+		destroy_win(this);
 	}
 	else if (component == &file_table) {
 		const gui_table_event_t *event = (const gui_table_event_t *) p.p;

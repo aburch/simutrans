@@ -3,14 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Game settings
- *
- * Hj. Malthaner
- *
- * April 2000
- */
-
 #include <string>
 #include <math.h>
 
@@ -57,7 +49,6 @@ settings_t::settings_t() :
 	map_number = sim_async_rand(SINT32_MAX_VALUE);
 
 	/* new setting since version 0.85.01
-	 * @author prissi
 	 */
 	factory_count = 12;
 	tourist_attractions = 8;
@@ -78,10 +69,10 @@ settings_t::settings_t() :
 	// default climate zones
 	set_default_climates( );
 	winter_snowline = 7;	// not mediterranean
-	groundwater = -2;            //25-Nov-01        Markus Weber    Added
+	groundwater = -2;
 
-	max_mountain_height = 160;                  //can be 0-160.0  01-Dec-01        Markus Weber    Added
-	map_roughness = 0.6;                        //can be 0-1      01-Dec-01        Markus Weber    Added
+	max_mountain_height = 160;                  //can be 0-160.0
+	map_roughness = 0.6;                        //can be 0-1
 
 	river_number = 16;
 	min_river_length = 16;
@@ -149,11 +140,11 @@ settings_t::settings_t() :
 	electric_promille = 330;
 
 #ifdef OTTD_LIKE
-	/* prissi: crossconnect all factories (like OTTD and similar games) */
+	// crossconnect all factories (like OTTD and similar games)
 	crossconnect_factories=true;
 	crossconnect_factor=100;
 #else
-	/* prissi: crossconnect a certain number */
+	/* crossconnect a certain number */
 	crossconnect_factories=false;
 	crossconnect_factor=33;
 #endif

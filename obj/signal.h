@@ -16,7 +16,6 @@
  *
  * @see blockstrecke_t
  * @see blockmanager
- * @author Hj. Malthaner
  */
 class signal_t : public roadsign_t
 {
@@ -43,7 +42,6 @@ public:
 	/**
 	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	* Beobachtungsfenster angezeigt wird.
-	* @author Hj. Malthaner
 	*/
 	void info(cbuffer_t & buf) const OVERRIDE;
 

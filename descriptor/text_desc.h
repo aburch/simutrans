@@ -10,10 +10,6 @@
 #include "obj_desc.h"
 
 
-/*
- *  Autor:
- *      Volker Meyer
- */
 class text_desc_t : public obj_desc_t {
 public:
 		const char* get_text() const { return text; }

@@ -3,14 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * A simple text input field. It has no Text Buffer,
- * only a pointer to a buffer created by someone else.
- *
- * @date 19-Apr-01
- * @author Hj. Malthaner
- */
-
 #include <string.h>
 
 #include "../gui_frame.h"
@@ -52,7 +44,6 @@ scr_size gui_textinput_t::get_max_size() const
 
 /**
  * determine new cursor position from event coordinates
- * @author Knightly
  */
 size_t gui_textinput_t::calc_cursor_pos(const int x)
 {
@@ -76,7 +67,6 @@ size_t gui_textinput_t::calc_cursor_pos(const int x)
 /**
  * Remove selected text portion, if any.
  * Returns true if some selected text is actually deleted.
- * @author Knightly
  */
 bool gui_textinput_t::remove_selection()
 {
@@ -118,9 +108,7 @@ void gui_textinput_t::set_composition_status( char *c, int start, int length )
 
 
 /**
- * Events werden hiermit an die GUI-components
- * gemeldet
- * @author Hj. Malthaner
+ * Events werden hiermit an die GUI-components gemeldet
  */
 bool gui_textinput_t::infowin_event(const event_t *ev)
 {
@@ -138,7 +126,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					// fallthrough
 
 				case SIM_KEY_TAB:
-					// Knightly : focus is going to be lost -> reset cursor positions to select the whole text by default
+					// focus is going to be lost -> reset cursor positions to select the whole text by default
 					head_cursor_pos = len;
 					tail_cursor_pos = 0;
 					// fallthrough
@@ -147,14 +135,14 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					return false;
 
 				case 1:
-					// Knightly : if Ctrl-A -> select the whole text
+					// if Ctrl-A -> select the whole text
 					if(  IS_CONTROL_PRESSED(ev)  ) {
 						head_cursor_pos = len;
 						tail_cursor_pos = 0;
 					}
 					break;
 				case 3:
-					// Knightly : if Ctrl-C -> copy selected text to clipboard
+					// if Ctrl-C -> copy selected text to clipboard
 					if(  IS_CONTROL_PRESSED(ev)  &&  head_cursor_pos!=tail_cursor_pos  ) {
 						const size_t start_pos = min(head_cursor_pos, tail_cursor_pos);
 						const size_t end_pos = ::max(head_cursor_pos, tail_cursor_pos);
@@ -162,7 +150,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					}
 					break;
 				case 22:
-					// Knightly : if Ctrl-V -> paste selected text to cursor position
+					// if Ctrl-V -> paste selected text to cursor position
 					if(  IS_CONTROL_PRESSED(ev)  ) {
 						if(  remove_selection()  ) {
 							// recalculate text length after deleting selection
@@ -173,7 +161,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					}
 					break;
 				case 24:
-					// Knightly : if Ctrl-X -> cut and copy selected text to clipboard
+					// if Ctrl-X -> cut and copy selected text to clipboard
 					if(  IS_CONTROL_PRESSED(ev)  &&  head_cursor_pos!=tail_cursor_pos  ) {
 						const size_t start_pos = min(head_cursor_pos, tail_cursor_pos);
 						const size_t end_pos = ::max(head_cursor_pos, tail_cursor_pos);
@@ -187,7 +175,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					break;
 				case SIM_KEY_LEFT: // left arrow
 					if(  head_cursor_pos>0  ) {
-						// Knightly : Ctrl key pressed -> skip over to the start of the previous word (as delimited by space(s))
+						// Ctrl key pressed -> skip over to the start of the previous word (as delimited by space(s))
 						if(  IS_CONTROL_PRESSED(ev)  ) {
 							const char* tmp_text = text + head_cursor_pos;
 							uint8 byte_length;
@@ -209,14 +197,14 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 							head_cursor_pos = get_prev_char(text, head_cursor_pos);
 						}
 					}
-					// Knightly : do not update tail cursor if SHIFT key is pressed -> enables text selection
+					// do not update tail cursor if SHIFT key is pressed -> enables text selection
 					if(  !IS_SHIFT_PRESSED(ev)  ) {
 						tail_cursor_pos = head_cursor_pos;
 					}
 					break;
 				case SIM_KEY_RIGHT: // right arrow
 					if(  head_cursor_pos<len  ) {
-						// Knightly : Ctrl key pressed -> skip over to the start of the next word (as delimited by space(s))
+						// Ctrl key pressed -> skip over to the start of the next word (as delimited by space(s))
 						if(  IS_CONTROL_PRESSED(ev)  ) {
 							const char* tmp_text = text + head_cursor_pos;
 							uint8 byte_length;
@@ -238,7 +226,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 							head_cursor_pos = get_next_char(text, head_cursor_pos);
 						}
 					}
-					// Knightly : do not update tail cursor if SHIFT key is pressed -> enables text selection
+					// do not update tail cursor if SHIFT key is pressed -> enables text selection
 					if(  !IS_SHIFT_PRESSED(ev)  ) {
 						tail_cursor_pos = head_cursor_pos;
 					}
@@ -248,21 +236,21 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					break;
 				case SIM_KEY_HOME: // home
 					head_cursor_pos = 0;
-					// Knightly : do not update tail cursor if SHIFT key is pressed -> enables text selection
+					// do not update tail cursor if SHIFT key is pressed -> enables text selection
 					if(  !IS_SHIFT_PRESSED(ev)  ) {
 						tail_cursor_pos = head_cursor_pos;
 					}
 					break;
 				case SIM_KEY_END: // end
 					head_cursor_pos = len;
-					// Knightly : do not update tail cursor if SHIFT key is pressed -> enables text selection
+					// do not update tail cursor if SHIFT key is pressed -> enables text selection
 					if(  !IS_SHIFT_PRESSED(ev)  ) {
 						tail_cursor_pos = head_cursor_pos;
 					}
 					break;
 				case SIM_KEY_BACKSPACE:
 					// backspace
-					// Knightly : check and remove any selected text first
+					// check and remove any selected text first
 					text_dirty |= len>0;
 					if(  !remove_selection()  &&  head_cursor_pos>0  ) {
 						if (  head_cursor_pos<len  ) {
@@ -281,7 +269,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					break;
 				case SIM_KEY_DELETE:
 					// delete
-					// Knightly : check and remove any selected text first
+					// check and remove any selected text first
 					text_dirty |= len>0;
 					if(  !remove_selection()  &&  head_cursor_pos<=len  ) {
 						size_t next_pos = get_next_char(text, head_cursor_pos);
@@ -298,7 +286,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					}
 					// insert letters, numbers, and special characters
 
-					// Knightly : first check if it is necessary to remove selected text portion
+					// first check if it is necessary to remove selected text portion
 					if(  remove_selection()  ) {
 						// recalculate text length after deleting selection
 						len = strlen(text);
@@ -366,7 +354,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 			utf8 *in = (utf8 *)ev->ev_ptr;
 			size_t in_pos = 0;
 
-			// Knightly : first check if it is necessary to remove selected text portion
+			// first check if it is necessary to remove selected text portion
 			if(  remove_selection()  ) {
 				// recalculate text length after deleting selection
 				len = strlen(text);
@@ -420,7 +408,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 	else if(  IS_LEFTCLICK(ev)  ) {
 		// acting on release causes unwanted recalculations of cursor position for long strings and (scroll_offset>0)
 		// moreover, only (click) or (release) event happened inside textinput, the other one could lie outside
-		// Knightly : use mouse *click* position; update both head and tail cursors
+		// use mouse *click* position; update both head and tail cursors
 		tail_cursor_pos = 0;
 		if(  text  ) {
 			tail_cursor_pos = head_cursor_pos = display_fit_proportional( text, ev->cx - 2 + scroll_offset );
@@ -430,6 +418,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 	}
 	else if(  IS_LEFTDRAG(ev)  ) {
 		// Knightly : use mouse *move* position; update head cursor only in order to enable text selection
+		// use mouse *move* position; update head cursor only in order to enable text selection
 		head_cursor_pos = 0;
 		if(  text  ) {
 			head_cursor_pos = display_fit_proportional( text, ev->mx - 1 + scroll_offset );
@@ -439,7 +428,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 	}
 	else if(  IS_LEFTDBLCLK(ev)  ) {
 		if( text ) {
-			// Knightly : select a word as delimited by spaces
+			// select a word as delimited by spaces
 			// for tail cursor pos -> skip over all contiguous non-space characters to the left
 			const char* tmp_text = text + tail_cursor_pos;
 			uint8 byte_length;
@@ -474,7 +463,6 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 
 /**
  * Draw the component
- * @author Hj. Malthaner
  */
 void gui_textinput_t::draw(scr_coord offset)
 {
@@ -485,7 +473,6 @@ void gui_textinput_t::draw(scr_coord offset)
 /**
  * Detect change of focus state and determine whether cursor should be displayed,
  * and call the function that performs the actual display
- * @author Knightly
  */
 void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 {
@@ -517,7 +504,7 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 	display_img_stretch( gui_theme_t::editfield, scr_rect( pos+offset, size ) );
 
 	if(  text  ) {
-		// Knightly : recalculate scroll offset
+		// recalculate scroll offset
 		const KOORD_VAL text_width = proportional_string_width(text);
 		const KOORD_VAL view_width = size.w - 3;
 		const KOORD_VAL cursor_offset = cursor_active ? proportional_string_len_width(text, head_cursor_pos) : 0;
@@ -588,7 +575,7 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 		display_proportional_clip_rgb(x_base_offset+x_offset, y_offset, text+head_cursor_pos, ALIGN_LEFT | DT_CLIP, textcol, true);
 
 		if(  cursor_active  ) {
-			// Knightly : display selected text block with light grey text on charcoal bounding box
+			// display selected text block with light grey text on charcoal bounding box
 			if(  head_cursor_pos!= tail_cursor_pos  ) {
 				const size_t start_pos = min(head_cursor_pos, tail_cursor_pos);
 				const size_t end_pos = ::max(head_cursor_pos, tail_cursor_pos);
@@ -615,7 +602,7 @@ void gui_textinput_t::set_text(char *text, size_t max)
 {
 	this->text = text;
 	this->max = max;
-	// Knightly : whole text is selected by default
+	// whole text is selected by default
 	head_cursor_pos = strlen(text);
 	tail_cursor_pos = 0;
 	text_dirty = false;

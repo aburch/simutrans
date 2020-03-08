@@ -9,12 +9,8 @@
 
 #include "image.h"
 
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *      Description eines eindimensionalen Arrays von Bildern.
+/**
+ * One-dimensional image list.
  *
  *  Child nodes:
  *	0   1. Image

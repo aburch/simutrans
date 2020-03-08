@@ -56,7 +56,6 @@ label_info_t::label_info_t(label_t* l) :
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool label_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {

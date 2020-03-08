@@ -15,10 +15,9 @@
 #include "components/gui_combobox.h"
 
 
- /**
-  * Curiosity list window
-  * @author Hj. Malthaner
-  */
+/**
+ * Curiosity list window
+ */
 class curiositylist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
@@ -37,7 +36,6 @@ public:
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author V. Meyer
 	 */
 	const char * get_help_filename() const OVERRIDE { return "curiositylist_filter.txt"; }
 

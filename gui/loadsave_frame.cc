@@ -180,7 +180,6 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve", fals
 /**
  * Set the window associated helptext
  * @return the filename for the helptext, or NULL
- * @author Hj. Malthaner
  */
 const char *loadsave_frame_t::get_help_filename() const
 {

@@ -7,10 +7,6 @@
 #define GUI_OPTIONEN_H
 
 
-/**
- * Settings in the game
- * @author Hj. Malthaner
- */
 
 class gui_frame_t;
 class action_listener_t;
@@ -18,8 +14,9 @@ class button_t;
 class gui_action_creator_t;
 
 /*
+ * Settings in the game
+ *
  * Dialog for game options/Main menu
- * Niels Roest, Hj. Malthaner, 2000
  */
 class optionen_gui_t : public gui_frame_t, action_listener_t
 {
@@ -32,7 +29,6 @@ class optionen_gui_t : public gui_frame_t, action_listener_t
 		/**
 		 * Set the window associated helptext
 		 * @return the filename for the helptext, or NULL
-		 * @author Hj. Malthaner
 		 */
 		const char * get_help_filename() const OVERRIDE {return "options.txt";}
 

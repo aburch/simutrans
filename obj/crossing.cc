@@ -87,7 +87,6 @@ void crossing_t::state_changed()
 
 /**
  * Dient zur Neuberechnung des Bildes
- * @author Hj. Malthaner
  */
 void crossing_t::calc_image()
 {
@@ -171,8 +170,6 @@ void crossing_t::rdwr(loadsave_t *file)
 /**
  * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
  * um das Aussehen des Dings an Boden und Umgebung anzupassen
- *
- * @author Hj. Malthaner
  */
 void crossing_t::finish_rd()
 {

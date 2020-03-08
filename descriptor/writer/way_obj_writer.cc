@@ -33,8 +33,8 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	obj_node_t node(this, 22, &parent);
 
 
-	// Hajo: Version needs high bit set as trigger -> this is required
-	//       as marker because formerly nodes were unversioned
+	// Version needs high bit set as trigger -> this is required
+	// as marker because formerly nodes were unversionend
 	uint16 version     = 0x8001;
 
 	// This is the overlay flag for Simutrans-Extended

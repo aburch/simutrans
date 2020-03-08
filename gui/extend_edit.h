@@ -90,7 +90,6 @@ public:
 	/**
 	* Does this window need a min size button in the title bar?
 	* @return true if such a button is needed
-	* @author Hj. Malthaner
 	*/
 	bool has_min_sizer() const OVERRIDE {return true;}
 

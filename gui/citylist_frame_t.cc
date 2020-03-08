@@ -19,7 +19,6 @@
  *         1 = Station name
  *         2 = Waiting goods
  *         3 = Station type
- * @author Markus Weber
  */
 citylist_stats_t::sort_mode_t citylist_frame_t::sortby = citylist_stats_t::SORT_BY_NAME;
 static uint8 default_sortmode = 0;

@@ -17,7 +17,6 @@
 
 /**
  * Action, started on button pressing
- * @author Hansjörg Malthaner
  */
 bool load_relief_frame_t::item_action(const char *fullpath)
 {

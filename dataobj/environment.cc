@@ -185,7 +185,9 @@ uint32 env_t::default_ai_construction_speed;
 
 bool env_t::hide_keyboard = false;
 
-// Hajo: Define default settings.
+
+
+// Define default settings.
 void env_t::init()
 {
 	// settings for messages
@@ -249,7 +251,7 @@ void env_t::init()
 	river_types = 0;
 
 
-	/* prissi: autosave every x months (0=off) */
+	// autosave every x months (0=off)
 	autosave = 0;
 
 	// default: make 25 frames per second (if possible) and 10 for faster fast forward

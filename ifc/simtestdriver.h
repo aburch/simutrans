@@ -11,8 +11,6 @@ class grund_t;
 
 /**
  * Interface to connect the vehicle with its route
- *
- * @author Hj. Malthaner, 15.01.00
  */
 class test_driver_t
 {
@@ -24,8 +22,6 @@ public:
 	/**
 	 * Determine the direction bits (ribi) for the applicable vehicle,
 	 * Depends of the ground type.
-	 *
-	 * @author Hj. Malthaner, 03.01.01
 	 */
 	virtual ribi_t::ribi get_ribi(const grund_t* ) const = 0;
 

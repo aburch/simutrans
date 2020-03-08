@@ -24,6 +24,7 @@ public:
 	vector_tpl <gui_component_t *>& get_components() { return components; }
 };
 
+
 /**
  * Scrollable list of components that can be sorted, and has component selection.
  */

@@ -49,7 +49,6 @@ scenario_frame_t::scenario_frame_t() : savegame_frame_t(NULL, true, NULL, false)
 
 /**
  * Action, started after button pressing.
- * @author Hansjörg Malthaner
  */
 bool scenario_frame_t::item_action(const char *fullpath)
 {

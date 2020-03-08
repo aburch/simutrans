@@ -314,7 +314,6 @@ bool halt_info_t::is_weltpos()
  * Draw new component. The values to be passed refer to the window
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
- * @author Hj. Malthaner
  */
 void halt_info_t::draw(scr_coord pos, scr_size size)
 {
@@ -835,7 +834,6 @@ void halt_info_t::update_departures()
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {

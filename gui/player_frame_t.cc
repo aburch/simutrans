@@ -244,7 +244,6 @@ ki_kontroll_t::~ki_kontroll_t()
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 {
@@ -672,7 +671,6 @@ void ki_kontroll_t::update_data()
 
 /**
  * Draw the component
- * @author Hj. Malthaner
  */
 void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 {

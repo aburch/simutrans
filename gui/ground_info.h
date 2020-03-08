@@ -20,7 +20,6 @@ protected:
 	/**
 	 * The ground we observe. The ground will delete this object
 	 * if self deleted.
-	 * @author Hj. Malthaner
 	 */
 	const grund_t* gr;
 

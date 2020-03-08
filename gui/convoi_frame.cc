@@ -321,9 +321,8 @@ bool convoi_frame_t::infowin_event(const event_t *ev)
 
 /**
  * This method is called if an action is triggered
- * @author Markus Weber
  */
-bool convoi_frame_t::action_triggered( gui_action_creator_t *comp, value_t /* */ )           // 28-Dec-01    Markus Weber    Added
+bool convoi_frame_t::action_triggered( gui_action_creator_t *comp, value_t /* */ )
 {
 	if(  comp == &filter_on  ) {
 		filter_is_on = !filter_is_on;

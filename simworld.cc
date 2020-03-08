@@ -421,17 +421,13 @@ void karte_t::perlin_hoehe_loop( sint16 x_min, sint16 x_max, sint16 y_min, sint1
  *
  * @param frequency in 0..1.0 roughness, the higher the rougher
  * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
- * @author Hj. Malthaner
  */
 sint32 karte_t::perlin_hoehe(settings_t const* const sets, koord k, koord const size, sint32 map_size_max)
 {
-	// Hajo: to Markus: replace the fixed values with your
-	// settings. Amplitude is the top highness of the
-	// mountains, frequency is something like landscape 'roughness'
-	// amplitude may not be greater than 160.0 !!!
-	// please don't allow frequencies higher than 0.8 it'll
-	// break the AI's pathfinding. Frequency values of 0.5 .. 0.7
-	// seem to be ok, less is boring flat, more is too crumbled
+	// replace the fixed values with your settings. Amplitude is the top highness of the mountains,
+	// frequency is something like landscape 'roughness'; amplitude may not be greater than 160.0 !!!
+	// please don't allow frequencies higher than 0.8, it'll break the AI's pathfinding.
+	// Frequency values of 0.5 .. 0.7 seem to be ok, less is boring flat, more is too crumbled
 	// the old defaults are given here: f=0.6, a=160.0
 	switch( sets->get_rotation() ) {
 		// 0: do nothing
@@ -1011,7 +1007,7 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 	}
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "Creating cities: %d", new_city_count);
 
-	// prissi if we could not generate enough positions ...
+	// if we could not generate enough positions ...
 	settings.set_city_count(old_city_count);
 	int old_progress = 16;
 
@@ -1479,7 +1475,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 
 	world_maximum_height = sets->get_maximumheight();
 	world_minimum_height = sets->get_minimumheight();
-	groundwater = (sint8)sets->get_groundwater();      //29-Nov-01     Markus Weber    Changed
+	groundwater = (sint8)sets->get_groundwater();
 
 	init_height_to_climate();
 	snowline = sets->get_winter_snowline() + groundwater;

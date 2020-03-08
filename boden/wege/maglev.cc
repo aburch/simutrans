@@ -15,7 +15,6 @@ const way_desc_t *maglev_t::default_maglev=NULL;
 
 /**
  * File loading constructor.
- * @author prissi
  */
 maglev_t::maglev_t(loadsave_t *file) : schiene_t(maglev_wt)
 {

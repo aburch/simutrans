@@ -440,7 +440,7 @@ bool schedule_list_gui_t::infowin_event(const event_t *ev)
 }
 
 
-bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t v )           // 28-Dec-01    Markus Weber    Added
+bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t v )
 {
 	if(comp == &bt_change_line) {
 		if(line.is_bound()) {

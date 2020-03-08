@@ -15,17 +15,17 @@
 #define EVENT_KEYBOARD                1
 #define EVENT_STRING                  2 // instead of a single character a ev_ptr points to an utf8 string
 #define EVENT_CLICK                   3
-#define EVENT_DOUBLE_CLICK            4  // Knightly: 2 consecutive sequences of click-release
-#define EVENT_TRIPLE_CLICK            5  // Knightly: 3 consecutive sequences of click-release
+#define EVENT_DOUBLE_CLICK            4  // 2 consecutive sequences of click-release
+#define EVENT_TRIPLE_CLICK            5  // 3 consecutive sequences of click-release
 #define EVENT_RELEASE                 6
 #define EVENT_MOVE                    7
 #define EVENT_DRAG                    8
 #define EVENT_REPEAT                  9
 
-#define INFOWIN                      10  // Hajo: window event, i.e. WIN_OPEN, WIN_CLOSE
-#define WINDOW_RESIZE                11  // 19-may-02	markus weber   added
-#define WINDOW_MAKE_MIN_SIZE         12  // 11-mar-03	(Mathew Hounsell) Added
-#define WINDOW_CHOOSE_NEXT           13	 // @author Volker Meyer @date  11.06.2003
+#define INFOWIN                      10  // window event, i.e. WIN_OPEN, WIN_CLOSE
+#define WINDOW_RESIZE                11
+#define WINDOW_MAKE_MIN_SIZE         12
+#define WINDOW_CHOOSE_NEXT           13
 
 #define EVENT_SYSTEM                254
 #define IGNORE_EVENT                255
@@ -35,13 +35,13 @@
 #define MOUSE_LEFTBUTTON              1
 #define MOUSE_RIGHTBUTTON             2
 #define MOUSE_MIDBUTTON               4
-#define MOUSE_WHEELUP                 8  // hsiegeln 2003-11-04 added
-#define MOUSE_WHEELDOWN              16  // hsiegeln 2003-11-04 added
+#define MOUSE_WHEELUP                 8
+#define MOUSE_WHEELDOWN              16
 
 #define WIN_OPEN                      1
 #define WIN_CLOSE                     2
 #define WIN_TOP                       3
-#define WIN_UNTOP                     4  // loosing focus
+#define WIN_UNTOP                     4  // losing focus
 
 #define NEXT_WINDOW                   1
 #define PREV_WINDOW                   2
@@ -118,14 +118,14 @@ enum {
 #define IS_RIGHTTPLCLK(ev) ((ev)->ev_class == EVENT_TRIPLE_CLICK && (ev)->ev_code == MOUSE_RIGHTBUTTON)
 
 #define IS_WINDOW_RESIZE(ev) ((ev)->ev_class == WINDOW_RESIZE) //19-may-02	markus weber	added
-#define IS_WINDOW_MAKE_MIN_SIZE(ev) ((ev)->ev_class == WINDOW_MAKE_MIN_SIZE) // 11-Mar-03 (Mathew Hounsell) Added
-#define IS_WINDOW_CHOOSE_NEXT(ev) ((ev)->ev_class == WINDOW_CHOOSE_NEXT) // 11-Mar-03 (Mathew Hounsell) Added
+#define IS_WINDOW_MAKE_MIN_SIZE(ev) ((ev)->ev_class == WINDOW_MAKE_MIN_SIZE)
+#define IS_WINDOW_CHOOSE_NEXT(ev) ((ev)->ev_class == WINDOW_CHOOSE_NEXT)
 
 #define IS_WHEELUP(ev) ((ev)->ev_class == EVENT_CLICK && (ev)->ev_code == MOUSE_WHEELUP)
 #define IS_WHEELDOWN(ev) ((ev)->ev_class == EVENT_CLICK && (ev)->ev_code == MOUSE_WHEELDOWN)
 
 // This macro is to determine if the event should be also handled by children of containers.
-#define DOES_WINDOW_CHILDREN_NEED(ev) ((ev)->ev_class == INFOWIN || (ev)->ev_class == WINDOW_RESIZE || (ev)->ev_class == WINDOW_MAKE_MIN_SIZE ) // 11-Mar-03 (Mathew Hounsell) Added
+#define DOES_WINDOW_CHILDREN_NEED(ev) ((ev)->ev_class == INFOWIN || (ev)->ev_class == WINDOW_RESIZE || (ev)->ev_class == WINDOW_MAKE_MIN_SIZE )
 
 #define IS_WINDOW_TOP(ev) ((ev)->ev_class == INFOWIN || (ev)->ev_code == WIN_TOP)
 
@@ -150,8 +150,6 @@ enum {
  * ev_class = EVENT_DRAG:      cx/cy is last click place, mx/my is to,
  *                             code = mouse button
  * ev_class = EVENT_REPEAT:    code = button pressed
- *
- * @author Hj. Malthaner, Niels Roest
  */
 struct event_t {
 	unsigned int ev_class;
@@ -179,7 +177,6 @@ struct event_t {
 
 	/**
 	 * mod key (SHIFT; ALT; CTRL; etc) pressed while event as triggered
-	 * @author hsiegeln
 	 */
 	unsigned int ev_key_mod;
 
@@ -192,7 +189,6 @@ struct event_t {
 
 /**
  * Translate event origin. Useful when transferring events to sub-components.
- * @author Hj. Malthaner
  */
 static inline void translate_event(event_t* const ev, int x, int y)
 {
@@ -204,13 +200,11 @@ static inline void translate_event(event_t* const ev, int x, int y)
 
 /**
  * Return one event. Does *not* wait.
- * @author Hj. Malthaner
  */
 void display_poll_event(event_t*);
 
 /**
  * Wait for one event, and return it.
- * @author Hj. Malthaner
  */
 void display_get_event(event_t*);
 void change_drag_start(int x, int y);

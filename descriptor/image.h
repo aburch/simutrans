@@ -18,12 +18,10 @@
 //#define TRANSPARENT 0x808088
 #define SPECIAL_TRANSPARENT (0x00E7FFFF)
 
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *      Description eines Bildes.
+
+
+/**
+ * Data of one image
  *
  *  Child nodes:
  *	(none)

@@ -16,12 +16,13 @@
 
 class checksum_t;
 
-/* Knightly : this desc will store data specific to each class of fields
- * Fields are xref'd from skin_desc_t
+/**
+ * this desc will store data specific to each class of fields
+ * Fields are xref'ed from skin_desc_t
  */
 class field_class_desc_t : public obj_desc_t {
 	friend class factory_field_class_reader_t;
-	friend class factory_field_group_reader_t;		// Knightly : this is a special case due to desc restructuring
+	friend class factory_field_group_reader_t;		// this is a special case due to desc restructuring
 
 private:
 	uint8  snow_image;			// 0 or 1 for snow
@@ -43,7 +44,7 @@ public:
 };
 
 
-// Knightly : this desc now only contains common, shared data regarding fields
+// this desc now only contains common, shared data regarding fields
 class field_group_desc_t : public obj_desc_t {
 	friend class factory_field_group_reader_t;
 
@@ -83,12 +84,8 @@ public:
 
 
 
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *      Der Rauch einer Fabrik verweist auf eine allgemeine Raucbdscreibung
+/**
+ * Smoke objects for factories.
  *
  *  Child nodes:
  *	0   SKin
@@ -127,12 +124,8 @@ public:
 };
 
 
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *      Information about required goods for production
+/**
+ * Information about required goods for production
  *
  *  Child nodes:
  *	0   Ware
@@ -154,12 +147,8 @@ public:
 };
 
 
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *      Information about produced goods of a factory
+/**
+ * Information about produced goods of a factory
  *
  *  Child nodes:
  *	0   Ware
@@ -173,7 +162,6 @@ private:
     /**
      * How much of this product is derived from one unit of factory
      * production? 256 means 1.0
-     * @author Hj. Malthaner
      */
     uint16 factor;
 
@@ -185,12 +173,8 @@ public:
 };
 
 
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *      Factory.
+/**
+ * Factory.
  *
  *  Child nodes:
  *	0   House descriptor

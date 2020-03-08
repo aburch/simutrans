@@ -117,7 +117,6 @@ const char* labellist_stats_t::get_text() const
 /**
  * Events werden hiermit an die GUI-Komponenten
  * gemeldet
- * @author Hj. Malthaner
  */
 bool labellist_stats_t::infowin_event(const event_t * ev)
 {
@@ -137,7 +136,6 @@ bool labellist_stats_t::infowin_event(const event_t * ev)
 
 /**
  * Draw the component
- * @author Hj. Malthaner
  */
 void labellist_stats_t::draw(scr_coord offset)
 {

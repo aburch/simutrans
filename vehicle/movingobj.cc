@@ -73,8 +73,7 @@ bool movingobj_t::register_desc(groundobj_desc_t *desc)
 
 
 
-/* also checks for distribution values
- * @author prissi
+/** also checks for distribution values
  */
 const groundobj_desc_t *movingobj_t::random_movingobj_for_climate(climate cl)
 {
@@ -247,7 +246,6 @@ void movingobj_t::rdwr(loadsave_t *file)
 
 /**
  * Open a new observation window for the object.
- * @author Hj. Malthaner
  */
 void movingobj_t::show_info()
 {
@@ -261,7 +259,6 @@ void movingobj_t::show_info()
 /**
  * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
- * @author Hj. Malthaner
  */
 void movingobj_t::info(cbuffer_t & buf) const
 {

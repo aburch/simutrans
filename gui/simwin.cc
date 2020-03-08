@@ -128,9 +128,9 @@ static std::string static_tooltip_text;
 
 // For timed tooltip with initial delay and finite visible duration.
 // Valid owners are required for timing. Invalid (NULL) owners disable timing.
-static const void * tooltip_owner = 0;   // owner of the registered tooltip
-static const void * tooltip_group = 0;   // group to which the owner belongs
-static uint32 tooltip_register_time = 0; // time at which a tooltip is initially registered
+static const void * tooltip_owner = 0;	// owner of the registered tooltip
+static const void * tooltip_group = 0;	// group to which the owner belongs
+static uint32 tooltip_register_time = 0;	// time at which a tooltip is initially registered
 
 static bool show_ticker=0;
 
@@ -831,7 +831,9 @@ static bool destroy_framed_win(simwin_t *wins)
 	// save windowsize for later
 	save_windowsize(wins);
 
-	gui_frame_t* gui = wins->gui; // save pointer to gui window: might be modified in event handling, or could be modified if wins points to value in kill_list and kill_list is modified! nasty surprise
+	// save pointer to gui window: might be modified in event handling,
+	// or could be modified if wins points to value in kill_list and kill_list is modified! nasty surprise
+	gui_frame_t* gui = wins->gui;
 	if(  gui  ) {
 		event_t ev;
 

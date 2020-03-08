@@ -10,13 +10,9 @@
 #include <cstddef>
 #include "../simtypes.h"
 
- /*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      Basis of all desc_t classes, which are loaded from the .pak files.
- *	No virtual methods are allowed!
+/**
+ * Basis of all desc_t classes, which are loaded from the .pak files.
+ * No virtual methods are allowed!
  */
 class obj_desc_t {
 public:

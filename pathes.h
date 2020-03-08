@@ -16,9 +16,6 @@
  * else use
  *	#define _PATH "somewhere"
  *	#define _PATH_X _PATH "/"
- *
- * @author Volker Meyer
- * @date  18.06.2003
  */
 
 #define FONT_PATH	    "font"

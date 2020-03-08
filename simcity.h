@@ -112,18 +112,11 @@ public:
 /**
  * Die Objecte der Klasse stadt_t bilden die Staedte in Simu. Sie
  * wachsen automatisch.
- * @author Hj. Malthaner
  */
 class stadt_t
 {
 	/**
-	* best_t:
-	*
 	* Kleine Hilfsklasse - speichert die beste Bewertung einer Position.
-	*
-	* "Small helper class - saves the best assessment of a position." (Google)
-	*
-	* @author V. Meyer
 	*/
 	class best_t {
 		sint8 best_wert;
@@ -147,7 +140,6 @@ class stadt_t
 public:
 	/**
 	 * Reads city configuration data from config/cityrules.tab
-	 * @author Hj. Malthaner
 	 */
 	static bool cityrules_init(const std::string &objpathname);
 	uint16 get_electricity_consumption(sint32 monthyear) const;
@@ -160,7 +152,6 @@ public:
 	 * Reads/writes city configuration data from/to a savegame
 	 * called from settings_t::rdwr
 	 * only written for networkgames
-	 * @author Dwachs
 	 */
 	static void cityrules_rdwr(loadsave_t *file);
 	static void electricity_consumption_rdwr(loadsave_t *file);
@@ -198,7 +189,6 @@ private:
 
 	/**
 	 * When to do growth next
-	 * @author Hj. Malthaner
 	 */
 	uint32 next_growth_step;
 
@@ -212,26 +202,23 @@ private:
 	/**
 	 * Un-supplied city growth needs
 	 * A value of 2^32 means 1 new resident
-	 * @author Nathanael Nerode (neroden)
 	 */
 	sint64 unsupplied_city_growth;
 
 	/**
 	* City history
-	* @author prissi
+	* Current month stats are not appropiate to determine satisfaction for growth.
 	*/
 	sint64 city_history_year[MAX_CITY_HISTORY_YEARS][MAX_CITY_HISTORY];
 	sint64 city_history_month[MAX_CITY_HISTORY_MONTHS][MAX_CITY_HISTORY];
 
 	/* updates the city history
-	* @author prissi
 	*/
 	void roll_history();
 
 	/* Members used to determine satisfaction for growth rate.
 	 * Satisfaction of this month cannot be used as it is an averaging filter for the entire month up to the present.
 	 * Instead the average over a number of growth ticks is used, defaulting to last month average if nothing is available.
-	 * @author DrSuperGood
 	 */
 private:
 	 // The growth factor type in form of the amount demanded and what was received.
@@ -296,7 +283,6 @@ public:
 
 	/**
 	 * Returns pointer to history for city
-	 * @author hsiegeln
 	 */
 	sint64* get_city_history_year() { return *city_history_year; }
 	sint64* get_city_history_month() { return *city_history_month; }
@@ -380,7 +366,6 @@ private:
 
 	/**
 	 * Build new buildings when growing city
-	 * @author Hj. Malthaner
 	 */
 	void step_grow_city(bool new_town = false, bool map_generation = false);
 
@@ -388,19 +373,16 @@ private:
 
 	/**
 	 * baut Spezialgebaeude, z.B Stadion
-	 * @author Hj. Malthaner
 	 */
 	void check_bau_spezial(bool);
 
 	/**
 	 * baut ein angemessenes Rathaus
-	 * @author V. Meyer
 	 */
 	void check_bau_townhall(bool);
 
 	/**
 	 * constructs a new consumer
-	 * @author prissi
 	 */
 	void check_bau_factory(bool);
 
@@ -428,10 +410,7 @@ private:
 
 	/**
 	 * baut ein Stueck Strasse
-	 *
-	 * @param k         Bauposition
-	 *
-	 * @author Hj. Malthaner, V. Meyer
+	 * @param k Bauposition
 	 */
 	bool maybe_build_road(koord k, bool map_generation);
 protected:
@@ -444,7 +423,6 @@ private:
 	 * @param pos position to check
 	 * @param regel the rule to evaluate
 	 * @return true on match, false otherwise
-	 * @author Hj. Malthaner
 	 */
 
 	bool bewerte_loc_has_public_road(koord pos);
@@ -458,7 +436,6 @@ private:
 
 	/**
 	 * Check rule in all transformations at given position
-	 * @author Hj. Malthaner
 	 */
 
 	sint32 bewerte_pos(koord pos, const rule_t &regel);
@@ -475,7 +452,6 @@ public:
 
 	/**
 	 * ein Passagierziel in die Zielkarte eintragen
-	 * @author Hj. Malthaner
 	 */
 	void merke_passagier_ziel(koord ziel, PIXVAL color);
 
@@ -503,7 +479,6 @@ public:
 
 	/**
 	* Returns the finance history for cities
-	* @author hsiegeln
 	*/
 	sint64 get_finance_history_year(int year, int type) { return city_history_year[year][type]; }
 	sint64 get_finance_history_month(int month, int type) { return city_history_month[month][type]; }
@@ -519,8 +494,6 @@ public:
 
 	/**
 	 * ermittelt die Einwohnerzahl der City
-	 * "determines the population of the city"
-	 * @author Hj. Malthaner
 	 */
 	//sint32 get_einwohner() const {return (buildings.get_sum_weight()*6)+((2*bev-arb-won)>>1);}
 	sint32 get_einwohner() const {return ((buildings.get_sum_weight() * welt->get_settings().get_meters_per_tile()) / 31)+((2*bev-arb-won)>>1);}
@@ -545,38 +518,32 @@ public:
 
 	/**
 	 * Return the city name.
-	 * @author Hj. Malthaner
 	 */
 	const char *get_name() const { return name; }
 
 	/**
 	 * Ermöglicht Zugriff auf Namesnarray
-	 * @author Hj. Malthaner
 	 */
 	void set_name( const char *name );
 
 	/**
 	 * gibt einen zufällingen gleichverteilten Punkt innerhalb der
-	 * Citygrenzen zurEk
-	 * @author Hj. Malthaner
+	 * Citygrenzen zurück
 	 */
 	koord get_zufallspunkt(uint32 min_distance = 0, uint32 max_distance = 16384, koord origin = koord::invalid) const;
 
 	/**
-	 * gibt das pax-statistik-array fE letzten monat zurEk
-	 * @author Hj. Malthaner
+	 * gibt das pax-statistik-array für letzten monat zurück
 	 */
 	const sparse_tpl<PIXVAL>* get_pax_destinations_old() const { return &pax_destinations_old; }
 
 	/**
-	 * gibt das pax-statistik-array fE den aktuellen monat zurEk
-	 * @author Hj. Malthaner
+	 * gibt das pax-statistik-array für den aktuellen monat zurück
 	 */
 	const sparse_tpl<PIXVAL>* get_pax_destinations_new() const { return &pax_destinations_new; }
 
 	/* this counter will increment by one for every change
 	 * => dialogs can question, if they need to update map
-	 * @author prissi
 	 */
 	uint32 get_pax_destinations_new_change() const { return pax_destinations_new_change; }
 
@@ -587,7 +554,6 @@ public:
 	 * @param x x-Planquadratkoordinate
 	 * @param y y-Planquadratkoordinate
 	 * @param number of citizens
-	 * @author Hj. Malthaner
 	 */
 	stadt_t(player_t* player, koord pos, sint32 citizens);
 
@@ -596,7 +562,6 @@ public:
 	 * @param welt Die Karte zu der die City gehoeren soll.
 	 * @param file Zeiger auf die Datei mit den Citybaudaten.
 	 * @see stadt_t::speichern()
-	 * @author Hj. Malthaner
 	 */
 	stadt_t(loadsave_t *file);
 
@@ -610,7 +575,6 @@ public:
 	 * Planquadraten auf denen sie stehen.
 	 * @see stadt_t::stadt_t()
 	 * @see planquadrat_t
-	 * @author Hj. Malthaner
 	 */
 	void rdwr(loadsave_t *file);
 
@@ -623,8 +587,7 @@ public:
 
 	void rotate90( const sint16 y_size );
 
-	/* change size of city
-	* @author prissi */
+	/* change size of city */
 	void change_size(sint64 delta_citizens, bool new_town = false, bool map_generation = false );
 
 	// when ng is false, no town growth any more
@@ -652,14 +615,12 @@ public:
 
 private:
 	/**
-	 * A weighted list of distances
-	 * @author Knightly
+	 * List of target cities weighted by both city size and distance
 	 */
 	static weighted_vector_tpl<uint32> distances;
 
 	/**
-	 * Record of a target city
-	 * @author Knightly
+	 * List of target attractions weighted by both passenger level and distance
 	 */
 	struct target_city_t
 	{
@@ -683,8 +644,6 @@ public:
 	/**
 	 * Gibt die Gruendungsposition der City zurueck.
 	 * @return die Koordinaten des Gruendungsplanquadrates
-	 * "eturn the coordinates of the establishment grid square" (Babelfish)
-	 * @author Hj. Malthaner
 	 */
 	inline koord get_pos() const {return pos;}
 	inline koord get_townhall_road() const {return townhall_road;}
@@ -704,10 +663,8 @@ public:
 	 * Erzeugt ein Array zufaelliger Startkoordinaten,
 	 * die fuer eine Citygruendung geeignet sind.
 	 * @param wl Die Karte auf der die City gegruendet werden soll.
-	 * @param anzahl die Anzahl der zu liefernden Koordinaten
-	 * @author Hj. Malthaner
+	 * @param count die Anzahl der zu liefernden Koordinaten
 	 * @param old_x, old_y: Generate no cities in (0,0) - (old_x, old_y)
-	 * @author Gerd Wachsmuth
 	 */
 
 	static vector_tpl<koord> *random_place(const karte_t *wl, const vector_tpl<sint32> *sizes_list, sint16 old_x, sint16 old_y);

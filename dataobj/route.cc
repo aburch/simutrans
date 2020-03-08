@@ -87,7 +87,6 @@ void route_t::remove_koord_to(uint32 i)
 /**
  * Appends a straight line from the last koord3d in route to the desired target.
  * Will return false if failed
- * @author prissi
  */
 bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 {
@@ -178,8 +177,8 @@ void route_t::RELEASE_NODES(uint8 nodes_index)
 	_nodes_in_use[nodes_index] = false;
 }
 
-/* find the route to an unknown location
- * @author prissi
+/**
+ * find the route to an unknown location
  */
 bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 axle_load, sint32 max_tile_len, uint32 total_weight, uint32 max_depth, bool is_tall, find_route_flags flags)
 {
@@ -774,9 +773,8 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 #ifndef MULTI_THREAD
 		// If this is multi-threaded, we cannot have random
 		// threads calling INT_CHECK.
-		// Hajo: this is too expensive to be called each step
-		if((beat++ & 1023) == 0)
-		{
+		// this is too expensive to be called each step
+		if((beat++ & 1023) == 0) {
 			INT_CHECK("route 161");
 		}
 #endif
@@ -1217,10 +1215,10 @@ void route_t::postprocess_water_route(karte_t *welt)
 }
 
 
-/* searches route, uses intern_calc_route() for distance between stations
+
+/**
+ * searches route, uses intern_calc_route() for distance between stations
  * handles only driving in stations by itself
- * corrected 12/2005 for station search
- * @author Hansj?rg Malthaner, prissi
  */
  route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t* const tdriver, const sint32 max_khm, const uint32 axle_load, bool is_tall, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight, koord3d avoid_tile, uint8 direction, find_route_flags flags)
 {

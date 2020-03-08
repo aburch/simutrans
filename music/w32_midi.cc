@@ -14,9 +14,6 @@
 
 // native win32 midi playing routines
 
-/*
- * MIDI: Owen Rudge
- */
 static int         midi_number = -1;
 static plainstring midi_filenames[MAX_MIDI];
 
@@ -33,7 +30,6 @@ void __win32_set_midi_volume(int type, int left, int right);
 
 /**
  * sets midi playback volume
- * @author Owen Rudge
  */
 void dr_set_midi_volume(int vol)
 {
@@ -43,7 +39,6 @@ void dr_set_midi_volume(int vol)
 
 /**
  * Loads a MIDI file
- * @author Owen Rudge, changes by Hj. Malthaner
  */
 
 int dr_load_midi(const char *filename)
@@ -76,7 +71,6 @@ int dr_load_midi(const char *filename)
 /**
  * Plays a MIDI file
  * Key: The index of the MIDI file to be played
- * By Owen Rudge
  */
 void dr_play_midi(int key)
 {
@@ -106,7 +100,6 @@ void dr_play_midi(int key)
 
 /**
  * Stops playing MIDI file
- * By Owen Rudge
  */
 void dr_stop_midi()
 {
@@ -120,7 +113,6 @@ void dr_stop_midi()
 
 /**
  * Returns the midi_pos variable
- * By Owen Rudge
  */
 sint32 dr_midi_pos()
 {
@@ -148,7 +140,6 @@ sint32 dr_midi_pos()
 
 /**
  * Midi shutdown/cleanup
- * By Owen Rudge
  */
 void dr_destroy_midi()
 {
@@ -159,7 +150,6 @@ void dr_destroy_midi()
 
 /**
  * MIDI initialisation routines
- * @author Owen Rudge
  */
 bool dr_init_midi()
 {
@@ -230,7 +220,7 @@ bool dr_init_midi()
 	OldMIDIVol[0] = old_volume>>24;
 	OldMIDIVol[1] = (old_volume&0x0000FF00)>>8;
 #endif
-	// Hajo: assuming if we got here, all is set up to work properly
+	// assuming if we got here, all is set up to work properly
 	return true;
 }
 
@@ -307,7 +297,7 @@ void __win32_set_midi_volume(int type, int left, int right)
 // Sets the MIDI volume - internal routine
 void __win32_set_midi_volume(int , int left, int right)
 {
-	// prissi's short version
+	// short version
 	DWORD vol = (left<<24)|(right<<8);
 
 	if( midiOutGetNumDevs()== 0 ) {

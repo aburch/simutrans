@@ -26,7 +26,7 @@ public:
 	obj_info_t(bool b, const char *s ) { retrieved=b; str=s; }
 };
 
-/*
+/**
  * This class can be used instead of FILE to read a game definition file,
  * usually with extension .tab in simutrans.
  * For the start only bridges.tab is read by this class.
@@ -41,8 +41,6 @@ public:
  *	These line are NOT ordered
  *	If keys are duplicated for one object, the first value is used
  *	Keys are not case sensitive
- *
- * @author V. Meyer
  */
 class tabfile_t {
 private:
@@ -56,43 +54,31 @@ private:
 	 * @return bool	false in case of eof
 	 * @param s		line buffer
 	 * @param size	size of line buffer
-	 *
-	 * @author V. Meyer
 	 */
 	bool read_line(char *s, int size);
 
 	/**
 	 * Return parameters and expansions
-	 *
-	 * @author Kieron Green
 	 */
 	int find_parameter_expansion(char *key, char *data, int *parameters, int *expansions, char *parameter_ptr[10], char *expansion_ptr[10]);
 
 	/**
 	 * Calculates expression provided in buffer, substituting parameters provided
-	 *
-	 * @author Kieron Green
 	 */
 	int calculate(char *expression, int parameter_value[10][256], int parameters, int combination[10]);
 
 	/**
 	 * Adds brackets to expression to ensure calculate_internal processes expression correctly
-	 *
-	 * @author Kieron Green
 	 */
 	void add_operator_brackets(char *expression, char *processed);
 
 	/**
 	 * Calculates expression provided in buffer (do not call directly!)
-	 *
-	 * @author Kieron Green
 	 */
 	int calculate_internal(char *expression, int parameter_value[10][256], int parameters, int combination[10]);
 
 	/**
 	 * Format the key string (trimright and lowercase)
-	 *
-	 * @author V. Meyer
 	 */
 	void format_key(char *key);
 
@@ -116,8 +102,6 @@ public:
 	 *
 	 * @return bool	false, if empty object or eof
 	 * @param &objinfo  will receive the object info
-	 *
-	 * @author V. Meyer
 	 */
 	bool read(tabfileobj_t &objinfo, FILE *fp = NULL);
 };
@@ -127,8 +111,6 @@ public:
  * This class represents an object read from a tabfile_t.
  * It contains all strings key/value pairs read by tabfile_t::read().
  * It may be reused for reading more objects.
- *
- * @author V. Meyer
  */
 class tabfileobj_t {
 private:
@@ -146,17 +128,13 @@ public:
 	 */
 	void unused( const char *exclude_start_chars );
 
-	/*
-	 * add an key/value pair - should only be used be tabfile_t::read
-	 *
-	 * @author V. Meyer
+	/**
+	 * add a key/value pair - should only be used be tabfile_t::read
 	 */
 	bool put(const char *key, const char *value);
 
-	/*
+	/**
 	 * reinitializes this object
-	 *
-	 * @author V. Meyer
 	 */
 	void clear();
 
@@ -164,15 +142,12 @@ public:
 	 * Get the value for a key - key must be lowercase
 	 *
 	 * @return const char *	returns at least an empty string, never NULL.
-	 *
-	 * @author V. Meyer
 	 */
 	const char *get(const char *key);
 
 	/**
 	 * Get the string value for a key - key must be lowercase
 	 * @return def if key isn't found, value otherwise
-	 * @author Hj. Malthaner
 	 */
 	const char *get_string(const char *key, const char * def);
 
@@ -180,8 +155,6 @@ public:
 	 * Get the value for a koord key - key must be lowercase
 	 *
 	 * @return koord	returns def, if key is not found
-	 *
-	 * @author V. Meyer
 	 */
 	const koord &get_koord(const char *key, koord def);
 	const scr_coord &get_scr_coord(const char *key, scr_coord def);
@@ -190,20 +163,16 @@ public:
 	/**
 	 * Get a color in the system format when given a #AABBCC
 	 * and optionally set RGB888 for a chosen var with color_rgb
-	 * @author prissi
-	 * change to rgb @author An_dz
 	 */
 	PIXVAL get_color(const char *key, PIXVAL def, uint32 *color_rgb = NULL);
 
 	/**
 	 * Get an int
-	 * @author V. Meyer
 	 */
 	int get_int(const char *key, int def);
 
 	/**
 	 * Get an sint64 (actually uses double, thus only 48 bits are retrievable)
-	 * @author prissi
 	 */
 	sint64 get_int64(const char *key, sint64 def);
 
@@ -213,8 +182,6 @@ public:
 	 * N at pos. 0, <num 1> at pos 1, etc.
 	 * Do not forget to "delete []" the returned value.
 	 * @return const char *	returns at least an int[1], never NULL.
-	 *
-	 * @author V. Meyer
 	 */
 	int *get_ints(const char *key);
 	sint64 *get_sint64s(const char *key);

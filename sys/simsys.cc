@@ -114,9 +114,8 @@ char const PATH_SEPARATOR[] = "/";
 
 
 /**
- + * Get Mouse X-Position
- + * @author Hj. Malthaner
- + */
+ * Get Mouse X-Position
+ */
 int get_mouse_x()
 {
 	return sys_event.mx;
@@ -124,9 +123,8 @@ int get_mouse_x()
 
 
 /**
-  * Get Mouse y-Position
-  * @author Hj. Malthaner
-  */
+ * Get Mouse y-Position
+ */
 int get_mouse_y()
 {
 	return sys_event.my;

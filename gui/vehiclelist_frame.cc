@@ -293,7 +293,6 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 
 /**
  * This method is called if an action is triggered
- * @author Markus Weber/Volker Meyer
  */
 bool vehiclelist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {

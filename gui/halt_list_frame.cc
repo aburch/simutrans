@@ -63,14 +63,12 @@ public:
 
 /**
  * This variable defines by which column the table is sorted
- * @author Markus Weber
  */
 halt_list_frame_t::sort_mode_t halt_list_frame_t::sortby = nach_name;
 
 /**
  * This variable defines the sort order (ascending or descending)
  * Values: 1 = ascending, 2 = descending)
- * @author Markus Weber
  */
 bool halt_list_frame_t::sortreverse = false;
 
@@ -211,8 +209,6 @@ static bool passes_filter_out(haltestelle_t const& s)
 	 * - es existiert eine Zugverbindung mit dieser Ware (!ziele[...].empty())
 	 */
 
-	// Hajo: todo: check if there is a destination for the good (?)
-
 	for (uint32 i = 0; i != goods_manager_t::get_count(); ++i) {
 		goods_desc_t const* const ware = goods_manager_t::get_info(i);
 		if (!halt_list_frame_t::get_ware_filter_ab(ware)) continue;
@@ -222,9 +218,9 @@ static bool passes_filter_out(haltestelle_t const& s)
 		} else if (ware == goods_manager_t::mail) {
 			if (s.get_mail_enabled()) return true;
 		} else if (ware != goods_manager_t::none) {
-			// Oh Mann - eine doublese Schleife und das noch pro Haltestelle
-			// Zum Glãƒ»k ist die Anzahl der Fabriken und die ihrer Ausgèˆ…ge
-			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
+			// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
+			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
+			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang)
 			FOR(slist_tpl<fabrik_t*>, const f, s.get_fab_list()) {
 				FOR(array_tpl<ware_production_t>, const& j, f->get_output()) {
 					if (j.get_typ() == ware) return true;
@@ -246,8 +242,6 @@ static bool passes_filter_in(haltestelle_t const& s)
 	 * - es existiert eine Zugverbindung mit dieser Ware (!ziele[...].empty())
 	 */
 
-	// Hajo: todo: check if there is a destination for the good (?)
-
 	for (uint32 i = 0; i != goods_manager_t::get_count(); ++i) {
 		goods_desc_t const* const ware = goods_manager_t::get_info(i);
 		if (!halt_list_frame_t::get_ware_filter_an(ware)) continue;
@@ -256,10 +250,11 @@ static bool passes_filter_in(haltestelle_t const& s)
 			if (s.get_pax_enabled()) return true;
 		} else if (ware == goods_manager_t::mail) {
 			if (s.get_mail_enabled()) return true;
-		} else if (ware != goods_manager_t::none) {
-			// Oh Mann - eine doublese Schleife und das noch pro Haltestelle
-			// Zum Glãƒ»k ist die Anzahl der Fabriken und die ihrer Ausgèˆ…ge
-			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
+		}
+		else if (ware != goods_manager_t::none) {
+			// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
+			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
+			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang)
 			FOR(slist_tpl<fabrik_t*>, const f, s.get_fab_list()) {
 				FOR(array_tpl<ware_production_t>, const& j, f->get_input()) {
 					if (j.get_typ() == ware) return true;
@@ -275,7 +270,6 @@ static bool passes_filter_in(haltestelle_t const& s)
 /**
  * Check all filters for one halt.
  * returns true, if it is not filtered away.
- * @author V. Meyer
  */
 static bool passes_filter(haltestelle_t & s)
 {
@@ -361,7 +355,6 @@ halt_list_frame_t::~halt_list_frame_t()
 
 /**
 * This function refreshes the station-list
-* @author Markus Weber/Volker Meyer
 */
 void halt_list_frame_t::fill_list()
 {
@@ -396,7 +389,6 @@ bool halt_list_frame_t::infowin_event(const event_t *ev)
 
 /**
  * This method is called if an action is triggered
- * @author Markus Weber/Volker Meyer
  */
 bool halt_list_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {

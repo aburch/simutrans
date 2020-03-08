@@ -3,14 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Info about the current game
- *
- * prissi
- *
- * 8/2010
- */
-
 #include "gameinfo.h"
 #include "../network/network.h"
 #include "../network/network_socket_list.h"

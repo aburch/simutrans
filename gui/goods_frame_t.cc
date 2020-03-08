@@ -227,7 +227,6 @@ void goods_frame_t::sort_list()
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool goods_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {

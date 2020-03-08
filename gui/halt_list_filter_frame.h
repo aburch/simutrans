@@ -17,10 +17,9 @@
 
 class player_t;
 
-/*
+/**
  * Stations/stops list filter dialog
  * Displays filter settings for the halt list
- * @author V. Meyer
  */
 class halt_list_filter_frame_t : public gui_frame_t , private action_listener_t
 {
@@ -103,14 +102,12 @@ public:
 
 	/**
 	 * Propagate function from main_frame for ware_item_t
-	 * @author V. Meyer
 	 */
 	bool get_ware_filter_ab(const goods_desc_t *ware) const { return main_frame->get_ware_filter_ab(ware); }
 	bool get_ware_filter_an(const goods_desc_t *ware) const { return main_frame->get_ware_filter_an(ware); }
 
 	/**
 	 * Handler for ware_item_t event.
-	 * @author V. Meyer
 	 */
 	void ware_item_triggered(const goods_desc_t *ware_ab, const goods_desc_t *ware_an);
 
@@ -124,14 +121,12 @@ public:
 	 * Draw new component. The values to be passed refer to the window
 	 * i.e. It's the screen coordinates of the window where the
 	 * component is displayed.
-	 * @author V. Meyer
 	 */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author V. Meyer
 	 */
 	const char * get_help_filename() const OVERRIDE {return "haltlist_filter.txt"; }
 

@@ -33,6 +33,10 @@ private:
 public:
 	message_option_t();
 
+	/**
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
+	 */
 	const char * get_help_filename() const OVERRIDE {return "mailbox.txt";}
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;

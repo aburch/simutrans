@@ -16,8 +16,6 @@
 /**
  * Scrollbar class
  * scrollbar can be horizontal or vertical
- *
- * @author Niels Roest, additions by Hj. Malthaner
  */
 class scrollbar_t :
 	public gui_action_creator_t,

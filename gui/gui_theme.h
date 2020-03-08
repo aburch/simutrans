@@ -316,7 +316,6 @@ public:
 	/**
 	 * Reads theme configuration data, still not final
 	 * searches a theme.tab inside the specified folder
-	 * @author prissi
 	 */
 	static bool themes_init(const char *dir_name,bool init_font,bool init_tools);
 };

@@ -36,8 +36,6 @@ struct fare_stage_t
 };
 
 /**
- *  @author Volker Meyer, James Petts, neroden
- *
  *  Child nodes:
  *	0   Name
  *	1   Copyright
@@ -53,7 +51,6 @@ class goods_desc_t : public obj_named_desc_t {
 
 	/**
 	* Category of the good
-	* @author Hj. Malthaner
 	*/
 	uint8 catg;
 
@@ -61,7 +58,6 @@ class goods_desc_t : public obj_named_desc_t {
 	* total index, all ware with same catg_index will be compatible,
 	* including special freight
 	* assigned during registration
-	* @author prissi
 	*/
 	uint8 catg_index;
 
@@ -75,13 +71,11 @@ class goods_desc_t : public obj_named_desc_t {
 
 	/**
 	* Bonus for fast transport given in percent!
-	* @author Hj. Malthaner
 	*/
 	uint16 speed_bonus;
 
 	/**
 	* Weight in KG per unit of this good
-	* @author Hj. Malthaner
 	*/
 	uint16 weight_per_unit;
 
@@ -108,31 +102,26 @@ public:
 
 	/**
 	* @return Category of the good
-	* @author Hj. Malthaner
 	*/
 	uint8 get_catg() const { return catg; }
 
 	/**
 	* @return Category of the good
-	* @author Hj. Malthaner
 	*/
 	uint8 get_catg_index() const { return catg_index; }
 
 	/**
 	* @return internal index (just a number, passenger, then mail, then something ... )
-	* @author prissi
 	*/
 	uint8 get_index() const { return goods_index; }
 
 	/**
 	* @return weight in KG per unit of the good
-	* @author Hj. Malthaner
 	*/
 	uint16 get_weight_per_unit() const { return weight_per_unit; }
 
 	/**
 	* @return Name of the category of the good
-	* @author Hj. Malthaner
 	*/
 	const char * get_catg_name() const;
 
@@ -154,8 +143,6 @@ public:
 	* transportability.
 	*
 	* Inline because called very often
-	*
-	* @author Hj. Malthaner
 	*/
 	bool is_interchangeable(const goods_desc_t *other) const
 	{
@@ -164,7 +151,6 @@ public:
 
 	/**
 	* @return color for good table and waiting bars
-	* @author Hj. Malthaner
 	*/
 	PIXVAL get_color() const { return color_idx_to_rgb(color); }
 	uint8 get_color_index() const { return color; }

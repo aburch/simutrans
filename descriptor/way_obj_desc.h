@@ -28,8 +28,6 @@ class checksum_t;
  *	3	Image on sloped ways
  *	4	Image on diagonal ways
  *	5	Skin (cursor and icon)
- *
- * @author  Volker Meyer, Hj. Malthaner
  */
 class way_obj_desc_t : public obj_desc_transport_infrastructure_t {
     friend class way_obj_reader_t;
@@ -185,7 +183,6 @@ public:
 
 	/**
 	* Skin: cursor (index 0) and icon (index 1)
-	* @author Hj. Malthaner
 	*/
 	skin_desc_t const* get_cursor() const { return get_child<skin_desc_t>(8); }
 

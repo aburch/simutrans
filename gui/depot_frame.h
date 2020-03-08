@@ -25,9 +25,6 @@ class vehicle_desc_t;
 
 /**
  * Depot frame, handles all interaction with a vehicle depot.
- *
- * @author Hansjörg Malthaner
- * @date 22-Nov-01
  */
 class depot_frame_t : public gui_frame_t,
                       public action_listener_t
@@ -37,21 +34,16 @@ class depot_frame_t : public gui_frame_t,
 private:
 	/**
 	 * The depot to display
-	 * @author Hansjörg Malthaner
 	 */
 	depot_t *depot;
 
 	/**
 	 * The current convoi to display.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
 	 */
 	int icnv;
 
 	/**
 	 * Gui elements
-	 * @author Volker Meyer
-	 * @date  09.06.2003
 	 */
 	gui_label_t lb_convois;
 
@@ -75,7 +67,6 @@ private:
 
 	/**
 	 * buttons for new route-management
-	 * @author hsiegeln
 	 */
 //	button_t bt_new_line;
 //	button_t bt_change_line;
@@ -114,25 +105,22 @@ private:
 	/**
 	 * Calculate the values of the vehicles of the given type owned by the
 	 * player.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
 	 */
 	sint64 calc_sale_value(const vehicle_desc_t *veh_type);
 
 	/**
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
-	 * @author Hj. Malthaner
 	 */
 	bool has_min_sizer() const OVERRIDE {return true;}
 
 	// true if already stored here
 	bool is_contained(const vehicle_desc_t *info);
 
-	// add a single vehicle (helper function)
+	/// add a single vehicle (helper function)
 	void add_to_vehicle_list(const vehicle_desc_t *info);
 
-	// for convoi image
+	/// for convoi image
 	void image_from_convoi_list(uint nr, bool to_end);
 
 	void image_from_storage_list(gui_image_list_t::image_data_t *image_data);
@@ -145,15 +133,11 @@ public:
 
 	/**
 	 * Do the dynamic dialog layout
-	 * @author Volker Meyer
-	 * @date  18.06.2003
 	 */
 	void layout(scr_size *);
 
 	/**
 	 * Update texts, image lists and buttons according to the current state.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
 	 */
 	void update_data();
 
@@ -162,36 +146,28 @@ public:
 
 	/**
 	 * Set the window size
-	 * @author (Mathew Hounsell)
-	 * @date   11-Mar-2003
 	 */
 	void set_windowsize(scr_size size) OVERRIDE;
 
 	/**
 	 * Create and fill loks_vec and waggons_vec.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
 	 */
 	inline void build_vehicle_lists() { convoy_assembler.build_vehicle_lists(); }
 
-	/*
+	/**
 	 * Will update the tabs (don't show empty ones).
-	 * @author Gerd Wachsmuth
-	 * @date 08.05.2009
 	 */
 	void update_tabs();
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author Hj. Malthaner
 	 */
 	const char * get_help_filename() const OVERRIDE {return "depot.txt";}
 
 	/**
 	 * Does this window need a next button in the title bar?
 	 * @return true if such a button is needed
-	 * @author Volker Meyer
 	 */
 	bool has_next() const OVERRIDE {return true;}
 
@@ -200,7 +176,6 @@ public:
 
 	/**
 	 * Open dialog for schedule entry.
-	 * @author Hj. Malthaner
 	 */
 	void open_schedule_editor();
 
@@ -208,11 +183,9 @@ public:
 
 	/**
 	 * Draw the Frame
-	 * @author Hansjörg Malthaner
 	 */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	// @author hsiegeln
 	void apply_line();
 
 	void set_selected_line(linehandle_t line) { selected_line = line; }
