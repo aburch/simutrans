@@ -29,17 +29,15 @@ private:
 public:
 	factorylist_frame_t();
 
-	/**
-	 * Set the window associated helptext
-	 * @return the filename for the helptext, or NULL
-	 */
-	const char * get_help_filename() const OVERRIDE {return "factorylist_filter.txt"; }
+	const char *get_help_filename() const OVERRIDE {return "factorylist_filter.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool has_min_sizer() const { return true; }
+
+	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
 };
 
 #endif

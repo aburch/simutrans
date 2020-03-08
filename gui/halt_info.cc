@@ -513,12 +513,12 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 
 	if (!fab_list.empty()) {
 		FOR(slist_tpl<fabrik_t*>, const fab, fab_list) {
-			const koord pos = fab->get_pos().get_2d();
+			const koord3d pos = fab->get_pos();
 
 			// target button ...
 			button_t *pb = new_component<button_t>();
 			pb->init( button_t::posbutton_automatic, NULL);
-			pb->set_targetpos( pos );
+			pb->set_targetpos3d( pos );
 
 			// .. name
 			gui_label_buf_t *lb = new_component<gui_label_buf_t>();
@@ -628,7 +628,7 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 
 				button_t *pb = new_component<button_t>();
 				pb->init( button_t::posbutton_automatic, NULL);
-				pb->set_targetpos( conn.halt->get_basis_pos() );
+				pb->set_targetpos3d( conn.halt->get_basis_pos3d() );
 
 				gui_label_buf_t *lb = new_component<gui_label_buf_t>();
 				lb->buf().printf("%s <%u>", conn.halt->get_name(), conn.weight);

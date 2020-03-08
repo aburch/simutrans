@@ -325,7 +325,7 @@ void fabrik_info_t::update_components()
 
 			button_t* b = all_cities.new_component<button_t>();
 			b->set_typ(button_t::posbutton_automatic);
-			b->set_targetpos(c->get_pos());
+			b->set_targetpos(c->get_center());
 			// name
 			gui_label_buf_t *l = all_cities.new_component<gui_label_buf_t>();
 			l->buf().printf("%s", c->get_name());

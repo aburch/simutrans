@@ -7,6 +7,7 @@
 	ADD: goods waiting bar with now configurable: gui_waitingbar_width
 	ADD: button to copy the last 20 messages to the clipboard
 	CHG: factory smake location now depend on factory. Four parameters smoketile[], smokeoffset[] (koord), and smokeuplift (16) and smokelifetime (2499)
+	FIX: several list stored wrong coordinates after map rotation
 
 Release of 121.0 (r8870 on 1-Dec-2019):
     ADD: Map number is shown in the enlarge map window.
