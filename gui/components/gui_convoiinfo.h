@@ -16,7 +16,7 @@
 #include "gui_container.h"
 #include "gui_speedbar.h"
 #include "../../convoihandle_t.h"
-
+#include "gui_convoy_formation.h"
 
 /**
  * One element of the vehicle list display
@@ -33,7 +33,11 @@ private:
 	convoihandle_t cnv;
 
 	gui_speedbar_t filled_bar;
+	gui_convoy_formaion_t formation;
+
 	bool show_line_name = true;
+
+	uint8 display_mode = cnvlist_normal;
 
 public:
 	/**
@@ -49,6 +53,10 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void draw(scr_coord offset);
+
+	void set_mode(uint8 mode);
+
+	enum display_mode_t { cnvlist_normal = 0, cnvlist_formation, DISPLAY_MODES };
 };
 
 #endif

@@ -30,8 +30,8 @@ class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 private:
 	player_t *player;
 
-	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line, bt_line_class_manager, bt_times_history;
-	gui_container_t cont, cont_haltestellen, cont_charts;
+	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line, bt_line_class_manager, bt_times_history, bt_cnvdsp_mode;
+	gui_container_t cont, cont_haltestellen, cont_charts, cont_convoys;
 	gui_scrollpane_t scrolly_convois, scrolly_haltestellen;
 	gui_scrolled_list_t scl;
 	gui_speedbar_t filled_bar;
@@ -84,6 +84,7 @@ private:
 	vector_tpl<uint16> livery_scheme_indices;
 
 	cbuffer_t tab_name;
+	uint8 cnv_list_display_mode = gui_convoiinfo_t::cnvlist_normal;
 
 public:
 	/// last selected line per tab

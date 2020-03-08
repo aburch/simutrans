@@ -111,6 +111,13 @@ static const char * line_alert_helptexts[5] =
   "line_has_obsolete_vehicles_with_upgrades"
 };
 
+static const char * cnvlist_mode_button_texts[gui_convoiinfo_t::DISPLAY_MODES] =
+{
+  "sl_btn_general",
+  "sl_btn_formation"
+};
+
+
 enum sort_modes_t { SORT_BY_NAME=0, SORT_BY_ID, SORT_BY_PROFIT, SORT_BY_TRANSPORTED, SORT_BY_CONVOIS, SORT_BY_DISTANCE, MAX_SORT_MODES };
 
 static uint8 current_sort_mode = 0;
@@ -205,10 +212,11 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	// convoi list
 	cont.set_size(scr_size(200, 80));
 	cont.set_pos(scr_coord(D_H_SPACE, D_V_SPACE));
-	scrolly_convois.set_pos(scr_coord(0, 0));
+	scrolly_convois.set_pos(scr_coord(0, D_BUTTON_HEIGHT+D_H_SPACE));
 	scrolly_convois.set_show_scroll_x(true);
 	scrolly_convois.set_scroll_amount_y(40);
 	scrolly_convois.set_visible(false);
+	cont_convoys.add_component(&scrolly_convois);
 
 	// halt list
 	cont_haltestellen.set_size(scr_size(LINE_NAME_COLUMN_WIDTH, 28));
@@ -268,7 +276,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	offset_y += D_BUTTON_HEIGHT;
 	// Select livery
-	livery_selector.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH * 1.5, offset_y));
+	livery_selector.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH, offset_y));
 	livery_selector.set_focusable(false);
 	livery_selector.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
 	livery_selector.set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 8 + 2 + 16));
@@ -276,6 +284,10 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	livery_selector.clear_elements();
 	livery_selector.add_listener(this);
 	add_component(&livery_selector);
+
+	bt_cnvdsp_mode.init(button_t::roundbox, cnvlist_mode_button_texts[0], scr_coord(D_MARGIN_LEFT, 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_cnvdsp_mode.add_listener(this);
+	cont_convoys.add_component(&bt_cnvdsp_mode);
 
 	offset_y += D_BUTTON_HEIGHT;
 	// right tabs
@@ -286,7 +298,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	tab_name.clear();
 	tab_name.printf("%s%5s",translator::translate("Convoys"),"(0)");
-	info_tabs.add_tab(&scrolly_convois, tab_name);
+	info_tabs.add_tab(&cont_convoys, tab_name);
 
 	//CHART
 	chart.set_dimension(12, 1000);
@@ -423,7 +435,12 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 			create_win( new times_history_t(line, convoihandle_t()), w_info, (ptrdiff_t)line.get_rep() + 1 );
 		}
 	}
-	else if(comp == &livery_selector) 
+	else if (comp == &bt_cnvdsp_mode) {
+		cnv_list_display_mode = (cnv_list_display_mode + 1) % gui_convoiinfo_t::DISPLAY_MODES;
+		bt_cnvdsp_mode.set_text(cnvlist_mode_button_texts[cnv_list_display_mode]);
+		update_lineinfo(line);
+	}
+	else if(comp == &livery_selector)
 	{
 			sint32 livery_selection = livery_selector.get_selection();
 			if(livery_selection < 0)
@@ -639,12 +656,19 @@ void schedule_list_gui_t::display(scr_coord pos)
 		welt->sprintf_ticks(as_clock, sizeof(as_clock), service_frequency);
 		buf.printf(" %s",  as_clock);
 	}
-
-	int len=display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y + top, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
+	int len=display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y + top, buf, ALIGN_LEFT, line->get_state() & simline_t::line_missing_scheduled_slots ? COL_DARK_TURQUOISE : SYSCOL_TEXT, true );
+	if (line->get_state() & simline_t::line_missing_scheduled_slots) {
+		if (skinverwaltung_t::missing_scheduled_slot) {
+			display_color_img_with_tooltip(skinverwaltung_t::missing_scheduled_slot->get_image_id(0), pos.x + len + D_H_SPACE, pos.y + top, 0, false, false, line_alert_helptexts[1]);
+		}
+		else if (skinverwaltung_t::alerts) {
+			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + len + D_H_SPACE, pos.y + top, 0, false, false, line_alert_helptexts[1]);
+		}
+	}
 
 	int len2 = display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+top + LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true );
 	money_to_string(ctmp, profit/100.0);
-	len2 += display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH+len2, pos.y+top+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
+	len2 += display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH+len2+5, pos.y+top+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
 
 	if (capacity > 0) {
@@ -670,7 +694,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	}
 
 	top += D_BUTTON_HEIGHT + LINESPACE * 2 + 1;
-	left = LINE_NAME_COLUMN_WIDTH;
+	left = LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH*1.5 + D_V_SPACE;
 	buf.clear();
 	// show the state of the line, if interresting
 	if (line->get_state() & simline_t::line_nothing_moved) {
@@ -678,17 +702,8 @@ void schedule_list_gui_t::display(scr_coord pos)
 			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + left, pos.y + top, 0, false, false, line_alert_helptexts[0]);
 			left += GOODS_SYMBOL_CELL_WIDTH;
 		}
-		else if (left != LINE_NAME_COLUMN_WIDTH) {
-			display_proportional_clip(pos.x + LINE_NAME_COLUMN_WIDTH, pos.y + top, line_alert_helptexts[0], ALIGN_LEFT, line->get_state_color(), true);
-		}
-	}
-	if (line->get_state() & simline_t::line_missing_scheduled_slots) {
-		if (skinverwaltung_t::missing_scheduled_slot) {
-			display_color_img_with_tooltip(skinverwaltung_t::missing_scheduled_slot->get_image_id(0), pos.x + left, pos.y + top, 0, false, false, line_alert_helptexts[1]);
-			left += GOODS_SYMBOL_CELL_WIDTH;
-		}
-		else if (left != LINE_NAME_COLUMN_WIDTH) {
-			display_proportional_clip(pos.x + LINE_NAME_COLUMN_WIDTH, pos.y + top, line_alert_helptexts[1], ALIGN_LEFT, line->get_state_color(), true);
+		else {
+			buf.append(translator::translate(line_alert_helptexts[0]));
 		}
 	}
 	if (line->get_state() & simline_t::line_has_obsolete_vehicles) {
@@ -696,8 +711,8 @@ void schedule_list_gui_t::display(scr_coord pos)
 			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, line_alert_helptexts[2]);
 			left += GOODS_SYMBOL_CELL_WIDTH;
 		}
-		else if (left != LINE_NAME_COLUMN_WIDTH) {
-			display_proportional_clip(pos.x + LINE_NAME_COLUMN_WIDTH, pos.y + top, line_alert_helptexts[2], ALIGN_LEFT, line->get_state_color(), true);
+		else if (!buf.len()) {
+			buf.append(translator::translate(line_alert_helptexts[2]));
 		}
 	}
 	if (line->get_state() & simline_t::line_overcrowded) {
@@ -705,8 +720,8 @@ void schedule_list_gui_t::display(scr_coord pos)
 			display_color_img_with_tooltip(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, line_alert_helptexts[3]);
 			left += GOODS_SYMBOL_CELL_WIDTH;
 		}
-		else if (line->get_state_color() == COL_DARK_PURPLE) {
-			display_proportional_clip(pos.x + LINE_NAME_COLUMN_WIDTH, pos.y + top, line_alert_helptexts[3], ALIGN_LEFT, line->get_state_color(), true);
+		else if (!buf.len() && line->get_state_color() == COL_DARK_PURPLE) {
+			buf.append(translator::translate(line_alert_helptexts[3]));
 		}
 	}
 	if (line->get_state() & simline_t::line_has_obsolete_vehicles_with_upgrades) {
@@ -714,9 +729,12 @@ void schedule_list_gui_t::display(scr_coord pos)
 			display_color_img_with_tooltip(skinverwaltung_t::upgradable->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, line_alert_helptexts[4]);
 			left += GOODS_SYMBOL_CELL_WIDTH;
 		}
-		else if (line->get_state_color() == COL_PURPLE) {
-			display_proportional_clip(pos.x + LINE_NAME_COLUMN_WIDTH, pos.y + top, line_alert_helptexts[4], ALIGN_LEFT, line->get_state_color(), true);
+		else if (!buf.len() && line->get_state_color() == COL_PURPLE) {
+			buf.append(translator::translate(line_alert_helptexts[4]));
 		}
+	}
+	if (buf.len() > 0) {
+		display_proportional_clip(pos.x + left, pos.y + top, buf, ALIGN_LEFT, line->get_state_color(), true);
 	}
 }
 
@@ -729,10 +747,10 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 	int button_per_row=max(1,rest_width/(D_BUTTON_WIDTH+D_H_SPACE));
 	int button_rows= MAX_LINE_COST/button_per_row + ((MAX_LINE_COST%button_per_row)!=0);
 
-	scrolly_convois.set_size( scr_size(rest_width, get_client_windowsize().h-scrolly_convois.get_pos().y) );
-	scrolly_haltestellen.set_size( scr_size(LINE_NAME_COLUMN_WIDTH-4, get_client_windowsize().h-scrolly_haltestellen.get_pos().y) );
+	scrolly_haltestellen.set_size( scr_size(LINE_NAME_COLUMN_WIDTH-4, get_client_windowsize().h-scrolly_haltestellen.get_pos().y-1) );
 
-	info_tabs.set_size(scr_size(rest_width+2, get_windowsize().h - LINESPACE*2 - D_BUTTON_HEIGHT*4 - D_MARGIN_TOP - D_TITLEBAR_HEIGHT));
+	info_tabs.set_size(scr_size(rest_width+2, get_windowsize().h - LINESPACE*2 - D_BUTTON_HEIGHT*5 - D_MARGIN_TOP - D_TITLEBAR_HEIGHT));
+	scrolly_convois.set_size(scr_size(info_tabs.get_size().w+1, info_tabs.get_size().h - scrolly_convois.get_pos().y-D_H_SPACE-1));
 	chart.set_size(scr_size(rest_width-58-D_MARGIN_RIGHT, SCL_HEIGHT-14-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))));
 	inp_name.set_size(scr_size(rest_width - 31, 14));
 	filled_bar.set_size(scr_size(rest_width/2-24-D_MARGIN_RIGHT, 4));
@@ -799,13 +817,24 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		}
 		convoy_infos.resize(icnv);
 		int ypos = 0;
+		int cinfo_height;
+		switch (cnv_list_display_mode) {
+			case gui_convoiinfo_t::cnvlist_formation:
+				cinfo_height = 55;
+				break;
+			case gui_convoiinfo_t::cnvlist_normal:
+			default:
+				cinfo_height = 40;
+				break;
+		}
 		for(i = 0;  i<icnv;  i++  ) {
 			gui_convoiinfo_t* const cinfo = new gui_convoiinfo_t(new_line->get_convoy(i), false);
 			cinfo->set_pos(scr_coord(0, ypos));
-			cinfo->set_size(scr_size(400, 40));
+			cinfo->set_size(scr_size(400, cinfo_height));
+			cinfo->set_mode(cnv_list_display_mode);
 			convoy_infos.append(cinfo);
 			cont.add_component(cinfo);
-			ypos += 40;
+			ypos += cinfo_height;
 		}
 		cont.set_size(scr_size(500, ypos));
 
