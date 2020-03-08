@@ -26,7 +26,7 @@
 #define SIM_SERVER_MINOR    0
 // NOTE: increment before next release to enable save/load of new features
 
-#define MAKEOBJ_VERSION "60.3"
+#define MAKEOBJ_VERSION "60.4"
 
 #ifndef QUOTEME
 #	define QUOTEME_(x) #x
