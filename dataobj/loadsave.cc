@@ -245,12 +245,22 @@ void loadsave_t::set_buffered(bool enable)
 #if USE_ZSTD
 			if( is_zstd() ) {
 				if( saving ) {
-					fd->zout = { fd->zbuff, LS_BUF_SIZE, 0 };
-					fd->zin = { NULL, 0, 0 };
+					fd->zin.src = NULL;
+					fd->zin.size = 0;
+					fd->zin.pos = 0;
+
+					fd->zout.dst = fd->zbuff;
+					fd->zout.size = LS_BUF_SIZE;
+					fd->zout.pos = 0;
 				}
 				else {
-					fd->zout = { NULL, 0, 0 };
-					fd->zin = { fd->zbuff, LS_BUF_SIZE, 0 };
+					fd->zin.src = fd->zbuff;
+					fd->zin.size = LS_BUF_SIZE;
+					fd->zin.pos = 0;
+
+					fd->zout.dst = NULL;
+					fd->zout.size = 0;
+					fd->zout.pos = 0;
 				}
 			}
 #endif
@@ -687,8 +697,14 @@ const char *loadsave_t::close()
 	if( is_zstd() && fd->fp ) {
 		if( saving ) {
 			// write zero length dummy to indicate end of data
-			fd->zin = { "", 0, 0 };
-			fd->zout = { fd->zbuff, LS_BUF_SIZE, 0 };
+			fd->zin.src = "";
+			fd->zin.size = 0;
+			fd->zin.pos = 0;
+
+			fd->zout.dst = fd->zbuff;
+			fd->zout.size = LS_BUF_SIZE;
+			fd->zout.pos = 0;
+
 			size_t ret;
 			do {
 				fd->zout.pos = 0;
@@ -871,7 +887,10 @@ void loadsave_t::flush_buffer(int buf_num)
 		// first write, whatever remained in buffer
 		gzwrite( fd->gzfp, fd->zout.dst, fd->zout.pos );
 		// then compress the next data
-		fd->zin = { ls_buf[ buf_num ], buf_pos[ buf_num ], 0 };
+		fd->zin.src = ls_buf[ buf_num ];
+		fd->zin.size = buf_pos[ buf_num ];
+		fd->zin.pos = 0;
+
 		while(  fd->zin.pos < fd->zin.size  ) {
 			fd->zout.pos = 0;
 			ret = ZSTD_compressStream2( fd->cctx, &(fd->zout), &(fd->zin), ZSTD_e_continue );
@@ -972,7 +991,10 @@ int loadsave_t::fill_buffer( int buf_num )
 	}
 #if USE_ZSTD
 	else if(  is_zstd()  ) {
-		fd->zout = { ls_buf[ buf_num ], LS_BUF_SIZE, 0 };
+		fd->zout.dst = ls_buf[ buf_num ];
+		fd->zout.size = LS_BUF_SIZE;
+		fd->zout.pos = 0;
+
 		do {
 			// first decompress from remaining input buffer
 			while(  fd->zin.pos < fd->zin.size  &&  fd->zout.pos < fd->zout.size  ) {
