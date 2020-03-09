@@ -264,7 +264,8 @@ public:
 		weight = weight;
 		engine_type = (uint8)engine;
 		topspeed = speed;
-		mixed_load_prohibition = is_tilting = bidirectional = can_lead_from_rear = available_only_as_upgrade = false;
+		mixed_load_prohibition = is_tilting = bidirectional = can_lead_from_rear = can_be_at_rear = available_only_as_upgrade = false;
+		basic_constraint_prev = basic_constraint_next = unknown_constraint;
 		// These two lines are necessary for the building of way objects, so that they
 		// do not get stuck with constraints. 
 		way_constraints.set_permissive(0);
@@ -710,7 +711,7 @@ public:
 
 	uint16 get_range() const { return range; }
 	
-	// returns bit flags of bidirectional and has power (v14.6 - 2019 @Ranran)
+	// returns bit flags of bidirectional and has power for drawing formation picture
 	uint8 get_interactivity() const;
 
 	/**
