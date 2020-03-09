@@ -1111,6 +1111,8 @@ Kid
 Ped
 %254_CITY_SYLL
 Pres
+%255_CITY_SYLL
+Var
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
