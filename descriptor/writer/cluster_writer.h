@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef CLUSTER_WRITER_H
 #define CLUSTER_WRITER_H
 

@@ -1,8 +1,6 @@
 /*
- * float32e8_t.h
- *
- *  Created on: 22.05.2011
- *      Author: Bernd
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef FLOAT32E8_T_H_

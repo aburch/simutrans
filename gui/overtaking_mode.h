@@ -1,6 +1,6 @@
 /*
- * Dialogue to set the signal spacing, when CTRL+clicking a signal on toolbar
- * Used by tool_roadsign_t
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef overtaking_mode_h
@@ -16,6 +16,10 @@ class tool_build_bridge_t;
 class tool_build_tunnel_t;
 class player_t;
 
+/*
+ * Dialogue to set the signal spacing, when CTRL+clicking a signal on toolbar
+ * Used by tool_roadsign_t
+ */
 class overtaking_mode_frame_t : public gui_frame_t, private action_listener_t
 {
 private:

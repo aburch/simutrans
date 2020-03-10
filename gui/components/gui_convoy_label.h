@@ -1,14 +1,8 @@
-/*
  * just displays a label with a convoy under it, the label will be auto-translated
  *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
 
-//#ifndef gui_convoy_label_t_h
-//#define gui_convoy_label_t_h
+#ifndef gui_convoy_label_t_h
+#define gui_convoy_label_t_h
 
 #include "gui_label.h"
 

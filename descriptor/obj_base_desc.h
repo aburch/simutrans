@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef __OBJ_BASE_DESC_H
 #define __OBJ_BASE_DESC_H
 

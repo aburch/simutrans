@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef IMAGELIST_WRITER_H
 #define IMAGELIST_WRITER_H
 

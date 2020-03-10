@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifdef DEBUG_WEIGHTMAPS
 #ifndef DBG_WEIGHTMAP_H
 #define DBG_WEIGHTMAP_H
