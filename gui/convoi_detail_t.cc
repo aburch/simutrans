@@ -47,7 +47,7 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 : gui_frame_t( cnv->get_name(), cnv->get_owner() ),
   scrolly(&veh_info),
 	scrolly_formation(&formation),
-	scrolly_payload_info(&payload_info),
+	scrolly_payload_info(&cont_payload),
 	scrolly_maintenance(&maintenance),
 	formation(cnv),
 	payload_info(cnv),
@@ -76,7 +76,6 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	add_component(&class_management_button);
 	class_management_button.add_listener(this);
 
-
 	scrolly_formation.set_pos(scr_coord(0, LINESPACE*4));
 	scrolly_formation.set_show_scroll_x(true);
 	scrolly_formation.set_show_scroll_y(false);
@@ -88,6 +87,16 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 
 	scrolly.set_show_scroll_x(true);
 
+	if (cnv->get_vehicle_count() > 1) {
+		display_detail_button.init(button_t::square_state, "Display loaded detail", scr_coord(BUTTON3_X + D_BUTTON_SIZE.w / 2, LINESPACE / 2));
+		display_detail_button.set_tooltip("Displays detailed information of the vehicle's load.");
+		display_detail_button.add_listener(this);
+		display_detail_button.pressed = true;
+		cont_payload.add_component(&display_detail_button);
+	}
+	payload_info.set_show_detail(true);
+	cont_payload.add_component(&payload_info);
+
 	tabs.add_tab(&scrolly, translator::translate("cd_spec_tab"));
 	tabs.add_tab(&scrolly_payload_info, translator::translate("cd_payload_tab"));
 	tabs.add_tab(&scrolly_maintenance, translator::translate("cd_maintenance_tab"));
@@ -96,7 +105,6 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	add_component(&tabs);
 	tabs.add_listener(this);
 	
-
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+17*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-6));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+10*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-3));
 
@@ -149,6 +157,8 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 
 		// all gui stuff set => display it
 		gui_frame_t::draw(pos, size);
+		cont_payload.set_size(payload_info.get_size());
+
 		int offset_y = pos.y+2+16;
 
 		// current value
@@ -213,6 +223,11 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t v/* */
 			create_win(20, 40, new vehicle_class_manager_t(cnv), w_info, magic_class_manager + cnv.get_id());
 			return true;
 		}
+		else if (comp == &display_detail_button) {
+			display_detail_button.pressed = !display_detail_button.pressed;
+			payload_info.set_show_detail(display_detail_button.pressed);
+			return true;
+		}
 	}
 	return false;
 }
@@ -226,7 +241,6 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t v/* */
 void convoi_detail_t::set_windowsize(scr_size size)
 {
 	gui_frame_t::set_windowsize(size);
-	//scrolly.set_size(get_client_windowsize()-scrolly.get_pos());
 	tabs.set_size(get_client_windowsize() - tabs.get_pos());
 	scrolly_formation.set_size(scr_size(size.w-1, LINESPACE + VEHICLE_BAR_HEIGHT + 12 + 10 + D_SCROLLBAR_HEIGHT)); // (margin + indicator bar height) + goods symbol height
 }
@@ -237,7 +251,7 @@ convoi_detail_t::convoi_detail_t()
 : gui_frame_t("", NULL ),
   scrolly(&veh_info),
 	scrolly_formation(&formation),
-	scrolly_payload_info(&payload_info),
+	scrolly_payload_info(&cont_payload),
 	scrolly_maintenance(&maintenance),
 	formation(cnv),
 	payload_info(cnv),
@@ -809,29 +823,31 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 					extra_y += LINESPACE + 2;
 				}
 
-				// We get the freight info via the freight_list_sorter now, so no need to do anything but fetch it
-				v->get_cargo_info(freight_info);
-				// show it
-				const int px_len = display_multiline_text(pos.x + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, freight_info, SYSCOL_TEXT);
-				if (px_len + extra_w > x_size)
-				{
-					x_size = px_len + extra_w;
-				}
-				// count returns
-				returns = 0;
-				const char *p = freight_info;
-				for (int i = 0; i < freight_info.len(); i++)
-				{
-					if (p[i] == '\n')
+				if (show_detail) {
+					// We get the freight info via the freight_list_sorter now, so no need to do anything but fetch it
+					v->get_cargo_info(freight_info);
+					// show it
+					const int px_len = display_multiline_text(pos.x + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, freight_info, SYSCOL_TEXT);
+					if (px_len + extra_w > x_size)
 					{
-						returns++;
+						x_size = px_len + extra_w;
+					}
+					// count returns
+					returns = 0;
+					const char *p = freight_info;
+					for (int i = 0; i < freight_info.len(); i++)
+					{
+						if (p[i] == '\n')
+						{
+							returns++;
+						}
 					}
 				}
-				extra_y += (returns*LINESPACE) + (2 * LINESPACE);
+				extra_y += (returns*LINESPACE) + LINESPACE;
 			}
 
-			//skip at least five lines
-			total_height += max(extra_y + LINESPACE, 5 * LINESPACE);
+			// skip at least 3.5 lines. (This is for vehicles without capacity such as locomotives)
+			total_height += max(extra_y + LINESPACE, 3.5 * LINESPACE);
 		}
 	}
 
