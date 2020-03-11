@@ -265,7 +265,8 @@ public:
 		engine_type = (uint8)engine;
 		topspeed = speed;
 		mixed_load_prohibition = is_tilting = bidirectional = can_lead_from_rear = can_be_at_rear = available_only_as_upgrade = false;
-		basic_constraint_prev = basic_constraint_next = unknown_constraint;
+		basic_constraint_prev = can_be_head;
+		basic_constraint_next = can_be_tail;
 		// These two lines are necessary for the building of way objects, so that they
 		// do not get stuck with constraints. 
 		way_constraints.set_permissive(0);
