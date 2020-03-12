@@ -74,7 +74,7 @@ private:
 	 */
 	union {
 		const char * text;
-		koord3d targetpos;
+		struct { sint16 x, y; sint8 z; } targetpos;
 	};
 	const char *translated_text;
 
@@ -117,7 +117,7 @@ public:
 	 * Set position for posbuttons, will be returned on calling listener
 	 */
 	void set_targetpos( const koord k ); // assuming this is on map ground
-	void set_targetpos3d( const koord3d k ) { targetpos = k; }
+	void set_targetpos3d( const koord3d k ) { targetpos.x = k.x; targetpos.y = k.y; targetpos.z= k.z; }
 
 	/**
 	 * Set the displayed text of the button when not to translate

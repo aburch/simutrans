@@ -274,7 +274,7 @@ bool button_t::infowin_event(const event_t *ev)
 		if(  (type & TYPE_MASK)==posbutton  ) {
 			call_listeners( &targetpos );
 			if (type == posbutton_automatic) {
-				welt->get_viewport()->change_world_position( targetpos );
+				welt->get_viewport()->change_world_position( koord3d(targetpos.x,targetpos.y,targetpos.z) );
 
 			}
 
