@@ -1115,7 +1115,7 @@ Pres
 Var
 %256_CITY_SYLL
 Ket
-# 
+#
 # Town name end syllables.
 # There can be up to 1024 of these.
 # They must be specified in hexadecimal
