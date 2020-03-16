@@ -132,9 +132,6 @@
 
 static vector_tpl<pthread_t> private_car_route_threads;
 static vector_tpl<pthread_t> unreserve_route_threads;
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-static vector_tpl<pthread_t> process_private_car_routes_threads;
-#endif 
 static vector_tpl<pthread_t> step_passengers_and_mail_threads;
 static vector_tpl<pthread_t> individual_convoy_step_threads;
 static vector_tpl<pthread_t> path_explorer_threads;
@@ -156,9 +153,6 @@ pthread_mutex_t karte_t::unreserve_route_mutex;
 
 simthread_barrier_t karte_t::private_car_barrier;
 simthread_barrier_t karte_t::unreserve_route_barrier;
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-simthread_barrier_t karte_t::process_private_car_routes_barrier;
-#endif
 static simthread_barrier_t step_passengers_and_mail_barrier;
 static simthread_barrier_t path_explorer_barrier;
 static simthread_barrier_t step_convoys_barrier_internal;
@@ -546,6 +540,7 @@ void karte_t::destroy()
 	DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 #ifdef MULTI_THREAD
+	suspend_private_car_threads();
 	destroy_threads();
 	DBG_MESSAGE("karte_t::destroy()", "threads destroyed");
 #else
@@ -2069,9 +2064,6 @@ void karte_t::init_threads()
 	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
 
 	simthread_barrier_init(&private_car_barrier, NULL, parallel_operations + 1);
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-	simthread_barrier_init(&karte_t::process_private_car_routes_barrier, NULL, parallel_operations + 2); 
-#endif
 	simthread_barrier_init(&karte_t::unreserve_route_barrier, NULL, parallel_operations + 2); // This and the next does not run concurrently with anything significant on the main thread, so the number of parallel operations need to be +1 compared to the others.
 	simthread_barrier_init(&step_passengers_and_mail_barrier, NULL, parallel_operations + 2); 
 	simthread_barrier_init(&step_convoys_barrier_external, NULL, 2);
@@ -2107,19 +2099,6 @@ void karte_t::init_threads()
 			}
 			private_car_threads_working = false;
 		}
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-		sint32* thread_number_private_process = new sint32;
-		*thread_number_private_process = i;
-		rc = pthread_create(&thread, &thread_attributes, &stadt_t::process_private_car_route_threaded, (void*)thread_number_private_process);
-		if (rc)
-		{
-			dbg->fatal("void karte_t::init_threads()", "Failed to create private car route processing thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
-		}
-		else
-		{
-			process_private_car_routes_threads.append(thread);
-		}
-#endif
 		// The next two need an extra thread compared with the others, as they do not run concurrently with anything non-trivial on the main thread
 		sint32* thread_number_unres = new sint32;
 		*thread_number_unres = i;
@@ -2215,11 +2194,10 @@ void karte_t::destroy_threads()
 #ifdef MULTI_THREAD_PASSENGER_GENERATION
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 #endif
+		await_private_car_threads();
 		simthread_barrier_wait(&private_car_barrier);
+
 		simthread_barrier_wait(&unreserve_route_barrier);
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-		simthread_barrier_wait(&process_private_car_routes_barrier);
-#endif
 #ifdef MULTI_THREAD_PATH_EXPLORER
 		simthread_barrier_wait(&path_explorer_barrier);
 		pthread_join(path_explorer_thread, 0);
@@ -2237,13 +2215,7 @@ void karte_t::destroy_threads()
 #endif
 
 		clean_threads(&unreserve_route_threads);
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-		clean_threads(&process_private_car_routes_threads);
-#endif
 		unreserve_route_threads.clear();
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-		process_private_car_routes_threads.clear();
-#endif
 #ifdef MULTI_THREAD_CONVOYS
 		simthread_barrier_destroy(&step_convoys_barrier_external);
 		simthread_barrier_destroy(&step_convoys_barrier_internal);
@@ -2253,9 +2225,7 @@ void karte_t::destroy_threads()
 #endif
 		simthread_barrier_destroy(&private_car_barrier);
 		simthread_barrier_destroy(&unreserve_route_barrier);
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-		simthread_barrier_destroy(&process_private_car_routes_barrier);
-#endif
+
 #ifdef MULTI_THREAD_PATH_EXPLORER
 		simthread_barrier_destroy(&path_explorer_barrier);
 #endif 

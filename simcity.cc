@@ -79,10 +79,6 @@ uint32 weg_t::private_car_routes_currently_reading_element;
 #define CITYGROWTH_PER_CITICEN (0x0000000100000000ll)
 
 karte_ptr_t stadt_t::welt; // one is enough ...
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-stadt_t* stadt_t::current_city;
-koord stadt_t::current_key;
-#endif
 
 // Electricity demand information.
 // @author: jamespetts
