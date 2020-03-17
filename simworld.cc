@@ -1642,7 +1642,7 @@ void *check_road_connexions_threaded(void *args)
 			int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
 		}
-		// Having two barrier waits here is intentional.
+		// Having two barrier waits here is intentional. 
 		simthread_barrier_wait(&private_car_barrier);
 	} while (!world()->is_terminating_threads());
 
