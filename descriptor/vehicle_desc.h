@@ -147,11 +147,11 @@ private:
 
 	uint8 catering_level;			// The level of catering. 0 for no catering. Higher numbers for better catering.
 
-	bool bidirectional;				// Whether must always travel in one direction
-	bool can_lead_from_rear;		// Whether vehicle can lead a convoy when it is at the rear.            Ranran: This parameter is obsolete and is now included in basic_constraint_next.
-	bool can_be_at_rear;			// Whether the vehicle may be at the rear of a convoy (default = true). Ranran: It is used to read the old pak, and the flag takes over to the basic_constraint_next.
-	uint8 basic_constraint_prev;
-	uint8 basic_constraint_next;
+	bool bidirectional = false;		// Whether must always travel in one direction
+	bool can_lead_from_rear = false;	// Whether vehicle can lead a convoy when it is at the rear.            Ranran: This parameter is obsolete and is now included in basic_constraint_next.
+	bool can_be_at_rear = true;		// Whether the vehicle may be at the rear of a convoy (default = true). Ranran: It is used to read the old pak, and the flag takes over to the basic_constraint_next.
+	uint8 basic_constraint_prev = can_be_head;
+	uint8 basic_constraint_next = can_be_tail;
 
 	uint8 *comfort;					// How comfortable that a vehicle is for passengers. (Pointer to an array of comfort levels per class)
 
@@ -264,7 +264,14 @@ public:
 		weight = weight;
 		engine_type = (uint8)engine;
 		topspeed = speed;
-		mixed_load_prohibition = is_tilting = bidirectional = can_lead_from_rear = available_only_as_upgrade = false;
+		mixed_load_prohibition = false;
+		is_tilting = false;
+		bidirectional = false;
+		can_lead_from_rear = false;
+		can_be_at_rear = false;
+		available_only_as_upgrade = false;
+		basic_constraint_prev = can_be_head;
+		basic_constraint_next = can_be_tail;
 		// These two lines are necessary for the building of way objects, so that they
 		// do not get stuck with constraints. 
 		way_constraints.set_permissive(0);
@@ -710,7 +717,7 @@ public:
 
 	uint16 get_range() const { return range; }
 	
-	// returns bit flags of bidirectional and has power (v14.8 - Jan, 2020 @Ranran)
+	// returns bit flags of bidirectional and has power for drawing formation picture
 	uint8 get_interactivity() const;
 
 	/**
