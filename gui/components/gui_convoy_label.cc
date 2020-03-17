@@ -82,7 +82,7 @@ void gui_convoy_label_t::draw(scr_coord offset)
 	offset.y+=get_image_size().h;
 	if (show_number || show_max_speed)
 	{
-		convoi_t &convoy = *cnv.get_rep();			
+		convoi_t &convoy = *cnv.get_rep();
 		char tmp[128];
 		if (show_number) {
 			sprintf(tmp, "%s %d (%s %i)",
@@ -94,8 +94,8 @@ void gui_convoy_label_t::draw(scr_coord offset)
 		if (show_max_speed) {
 			const sint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
 			const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(convoy.get_vehicle_summary().weight, convoy.get_current_friction()));
-			sprintf(tmp,  min_speed == max_speed ? "%s %d km/h" : "%s %d %s %d km/h", 
-				translator::translate("Max. speed:"), min_speed, 
+			sprintf(tmp,  min_speed == max_speed ? "%s %d km/h" : "%s %d %s %d km/h",
+				translator::translate("Max. speed:"), min_speed,
 				translator::translate("..."), max_speed );
 
 			display_proportional( offset.x + 4, offset.y , tmp, ALIGN_LEFT, SYSCOL_TEXT, true );

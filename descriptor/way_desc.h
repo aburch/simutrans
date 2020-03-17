@@ -262,7 +262,7 @@ public:
 			// This has a prohibitive constraint which the other does not have
 			return false;
 		}
-		// 
+		//
 		// Passed all the checks
 		return true;
 	}

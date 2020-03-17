@@ -45,7 +45,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	const uint16 v = decode_uint16(p);
 	int version = v & 0x8000 ? v & 0x7FFF : 0;
-	
+
 	// Whether the read file is from Simutrans-Extended
 	//@author: jamespetts
 	const bool extended = version > 0 ? v & EX_VER : false;
@@ -309,8 +309,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->sound = decode_sint8(p);
 		desc->engine_type = decode_uint8(p);
 		desc->len = decode_uint8(p);
-		desc->leader_count = decode_uint8(p);		
-		desc->trailer_count = decode_uint8(p);		
+		desc->leader_count = decode_uint8(p);
+		desc->trailer_count = decode_uint8(p);
 		desc->freight_image_type = decode_uint8(p);
 		if(extended)
 		{
@@ -420,7 +420,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			desc->classes = 1;
 		}
-	
+
 		// Initialise the arrays
 		desc->capacity = new uint16[desc->classes];
 		desc->comfort = new uint8[desc->classes];
@@ -429,7 +429,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			desc->capacity[i] = decode_uint16(p);
 		}
-		
+
 		if (!extended)
 		{
 			// The new Standard datum for loading times is read here.
@@ -525,7 +525,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				if(extended_version == 0)
 				{
 					desc->range = 0;
-					desc->way_wear_factor = UINT32_MAX_VALUE; 
+					desc->way_wear_factor = UINT32_MAX_VALUE;
 				}
 				else
 				{
@@ -612,7 +612,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	desc->len *= OBJECT_OFFSET_STEPS/CARUNITS_PER_TILE;
 
 	// before version 8 vehicles could only have one freight image in each direction
-	if(version<8) 
+	if(version<8)
 	{
 		desc->freight_image_type = 0;
 	}
@@ -632,7 +632,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		switch(desc->get_waytype())
 		{
-		default:	
+		default:
 		case tram_wt:
 		case road_wt:
 			desc->min_loading_time = desc->max_loading_time = 2000;

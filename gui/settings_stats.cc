@@ -246,7 +246,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("town_road_speed_limit", sets->get_town_road_speed_limit(), 0, 500, gui_numberinput_t::AUTOLINEAR, false);
 	INIT_NUM("minimum_staffing_percentage_consumer_industry", sets->get_minimum_staffing_percentage_consumer_industry(), 0, 100, gui_numberinput_t::AUTOLINEAR, false);
 	INIT_NUM("minimum_staffing_percentage_full_production_producer_industry", sets->get_minimum_staffing_percentage_full_production_producer_industry(), 0, 100, gui_numberinput_t::AUTOLINEAR, false);
-	
+
 	SEPERATOR;
 	INIT_NUM("population_per_level", sets->get_population_per_level(), gui_numberinput_t::PLAIN, 1000, 1, false);
 	INIT_NUM("visitor_demand_per_level", sets->get_visitor_demand_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
@@ -308,12 +308,12 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_default_increase_maintenance_after_years(air_wt), 0, 1000, 1), 0, row);
 		set_cell_component(tbl, new_label(scr_coord(2, 0), "default_increase_maintenance_after_years_air"), 1, row);
 		INIT_TABLE_END(tbl);
-	}	
+	}
 
 	SEPERATOR;
 
 	INIT_NUM("path_explorer_time_midpoint", sets->get_path_explorer_time_midpoint(), 1, 2048, gui_numberinput_t::PLAIN, false);
-	INIT_BOOL("save_path_explorer_data", sets->get_save_path_explorer_data()); 
+	INIT_BOOL("save_path_explorer_data", sets->get_save_path_explorer_data());
 
 	SEPERATOR;
 
@@ -343,7 +343,7 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM( sets->set_congestion_density_factor );
 	READ_BOOL( sets->set_quick_city_growth );
 	READ_BOOL( sets->set_assume_everywhere_connected_by_road );
-	READ_NUM( sets->set_max_routes_to_process_in_a_step ); 
+	READ_NUM( sets->set_max_routes_to_process_in_a_step );
 	READ_BOOL_VALUE(sets->toll_free_public_roads);
 	READ_NUM( sets->set_spacing_shift_mode );
 	READ_NUM( sets->set_spacing_shift_divisor);
@@ -364,7 +364,7 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->town_road_speed_limit );
 	READ_NUM_VALUE(sets->minimum_staffing_percentage_consumer_industry);
 	READ_NUM_VALUE(sets->minimum_staffing_percentage_full_production_producer_industry);
-	
+
 	READ_NUM_VALUE(sets->population_per_level);
 	READ_NUM_VALUE(sets->visitor_demand_per_level);
 	READ_NUM_VALUE(sets->jobs_per_level);
@@ -412,13 +412,13 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 			sets->set_default_increase_maintenance_after_years((waytype_t)i, default_increase_maintenance_after_years_other);
 		}
 	}
-	
+
 	READ_NUM_VALUE(sets->path_explorer_time_midpoint);
-	READ_BOOL_VALUE(sets->save_path_explorer_data); 
+	READ_BOOL_VALUE(sets->save_path_explorer_data);
 
 	READ_BOOL_VALUE(sets->show_future_vehicle_info);
 
-	path_explorer_t::set_absolute_limits_external(); 
+	path_explorer_t::set_absolute_limits_external();
 }
 
 
@@ -454,7 +454,7 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 		set_cell_component(tbl, new_label(scr_coord(2, 3), "commuting"), 0, row);
 		set_cell_component(tbl, new_numinp(scr_coord(0, 3), sets->get_min_commuting_tolerance() / 10, 2, 9600, 1), 4, row);
 		set_cell_component(tbl, new_numinp(scr_coord(0, 3), sets->get_range_commuting_tolerance() / 10, 2, 9600, 1), 5, row);
-		row++; 
+		row++;
 		set_cell_component(tbl, new_label(scr_coord(2, 0), "visiting"), 0, row);
 		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_min_visiting_tolerance() / 10, 2, 9600, 1), 4, row);
 		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_range_visiting_tolerance() / 10, 2, 9600, 1), 5, row);
@@ -540,7 +540,7 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 	}
 	SEPERATOR;
 	INIT_NUM("max_comfort_preference_percentage", sets->get_max_comfort_preference_percentage(), 100, 65535, gui_numberinput_t::AUTOLINEAR, false);
-	
+
 	clear_dirty();
 	height = ypos;
 	set_size(settings_stats_t::get_size());
@@ -612,7 +612,7 @@ bool settings_general_stats_t::action_triggered(gui_action_creator_t *comp, valu
 {
 	assert( comp==&savegame || comp==&savegame_ex || comp ==&savegame_ex_rev); (void)comp;
 
-	if(  v.i==-1  ) 
+	if(  v.i==-1  )
 	{
 		if(comp==&savegame)
 		{
@@ -632,7 +632,7 @@ bool settings_general_stats_t::action_triggered(gui_action_creator_t *comp, valu
 
 /* Nearly automatic lists with controls:
  * BEWARE: The init exit pair MUST match in the same order or else!!!
- */ 
+ */
 void settings_general_stats_t::init(settings_t const* const sets)
 {
 	INIT_INIT
@@ -686,7 +686,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	// comboboxes for Extended savegame version and revision
 	savegame_ex.set_pos( scr_coord(2,ypos-2) );
 	savegame_ex.set_size( scr_size(70,D_BUTTON_HEIGHT) );
-	for(  int i=0;  i<lengthof(version_ex);  i++  ) 
+	for(  int i=0;  i<lengthof(version_ex);  i++  )
 	{
 		if(i == 0)
 		{
@@ -696,7 +696,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 		{
 			savegame_ex.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version_ex[i]+1, SYSCOL_TEXT ) );
 		}
-		if(  strcmp(version_ex[i],EXTENDED_VER_NR)==0  ) 
+		if(  strcmp(version_ex[i],EXTENDED_VER_NR)==0  )
 		{
 			savegame_ex.set_selection( i );
 		}
@@ -713,7 +713,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 
 	savegame_ex_rev.set_pos( scr_coord(2,ypos-2) );
 	savegame_ex_rev.set_size( scr_size(70,D_BUTTON_HEIGHT) );
-	for(  int i=0;  i<lengthof(revision_ex);  i++  ) 
+	for(  int i=0;  i<lengthof(revision_ex);  i++  )
 	{
 		if(i == 0)
 		{
@@ -723,7 +723,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 		{
 			savegame_ex_rev.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( revision_ex[i], SYSCOL_TEXT ) );
 		}
-		if(  strcmp(revision_ex[i],QUOTEME(EX_SAVE_MINOR))==0  ) 
+		if(  strcmp(revision_ex[i],QUOTEME(EX_SAVE_MINOR))==0  )
 		{
 			savegame_ex_rev.set_selection( i );
 		}

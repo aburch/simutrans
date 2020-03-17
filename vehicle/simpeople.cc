@@ -180,7 +180,7 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 count, uint32
 #ifdef FORBID_PEDESTRIANS
 	return;
 #endif
-	if (current_pedestrians.empty()) 
+	if (current_pedestrians.empty())
 	{
 		return;
 	}
@@ -209,7 +209,7 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 count, uint32
 		}
 
 		count = min(count, 128);
-		
+
 		for (uint32 i = 0; i < count; i++)
 		{
 			pedestrian_t* ped = new pedestrian_t(gr, time_to_live);
@@ -218,7 +218,7 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 count, uint32
 			bool ok = gr->obj_add(ped) != 0;	// 256 limit reached
 			// ok == false is quite frequent here.
 			if (ok)
-			{				
+			{
 				if (i > 0)
 				{
 					// walk a little
@@ -366,7 +366,7 @@ void pedestrian_t::check_timeline_pedestrians()
 	{
 		if (fd->is_available(world()->get_timeline_year_month()))
 		{
-			current_pedestrians.append(fd, fd->get_distribution_weight()); 
+			current_pedestrians.append(fd, fd->get_distribution_weight());
 		}
 	}
 }

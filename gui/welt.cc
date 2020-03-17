@@ -564,7 +564,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 			env_t::number_of_big_cities = 0;
 			inp_number_of_big_cities.set_limits(0,0);
 			inp_number_of_big_cities.set_value(0);
-			
+
 		}
 		else {
 			inp_number_of_big_cities.set_limits(0, v.i);

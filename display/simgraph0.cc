@@ -33,9 +33,9 @@ void set_zoom_factor(int)
 {
 }
 
-int get_zoom_factor() 
-{ 
-	return zoom_factor; 
+int get_zoom_factor()
+{
+	return zoom_factor;
 }
 
 int zoom_factor_up()

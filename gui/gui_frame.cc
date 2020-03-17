@@ -27,7 +27,7 @@ floating_cursor_t::floating_cursor_t(const scr_coord& initial,	scr_coord_val min
 	: cursor(initial)
 	, left(min_left)
 	, right(max_right)
-	, row_height(0) 
+	, row_height(0)
 {}
 
 void floating_cursor_t::new_line()
@@ -211,5 +211,5 @@ void gui_frame_t::draw(scr_coord pos, scr_size size)
 
 void  gui_frame_t::set_name(const char *name)
 {
-	this->name = translator::translate(name); 
+	this->name = translator::translate(name);
 }

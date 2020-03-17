@@ -33,7 +33,7 @@ void runway_t::rdwr(loadsave_t *file)
 
 	weg_t::rdwr(file);
 
-	if(file->is_saving()) 
+	if(file->is_saving())
 	{
 		const char *s = get_desc()->get_name();
 		file->rdwr_str(s);

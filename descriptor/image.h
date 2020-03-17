@@ -71,7 +71,7 @@ public:
 
 	uint16 const* get_data() const { return data; }
 	uint16*       get_data() { return data; }
-	
+
 	image_id get_id() const { return imageid; }
 
 	/* rotate_image_data - produces a (rotated) bild_desc

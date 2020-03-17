@@ -27,7 +27,7 @@ class scr_coord;
 class line_class_manager_t : public gui_frame_t , private action_listener_t
 {
 private:
-	
+
 	linehandle_t line;
 	button_t reset_all_pass_button, reset_all_mail_button;
 
@@ -86,7 +86,7 @@ private:
 public:
 
 	line_class_manager_t(linehandle_t line);
-	
+
 	/**
 	* Do the dynamic component layout
 	*/

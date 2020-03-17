@@ -34,7 +34,7 @@ class vehicle_builder_t
 {
 public:
 	// Retained for compatibility only
-	static void rdwr_speedbonus(loadsave_t *file); 
+	static void rdwr_speedbonus(loadsave_t *file);
 
 	static bool register_desc(vehicle_desc_t *desc);
 	static bool successfully_loaded();

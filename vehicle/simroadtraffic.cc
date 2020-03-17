@@ -613,11 +613,11 @@ void private_car_t::rdwr(loadsave_t *file)
 
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 19))
 	{
-		last_tile_marked_as_stopped.rdwr(file); 
+		last_tile_marked_as_stopped.rdwr(file);
 	}
 	else if (file->is_loading())
 	{
-		last_tile_marked_as_stopped = koord3d::invalid; 
+		last_tile_marked_as_stopped = koord3d::invalid;
 	}
 
 	// do not start with zero speed!
@@ -723,7 +723,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 			}
 			// this fails with two crossings together; however, I see no easy way out here ...
 		}
-		else { 
+		else {
 			// not a crossing => skip 90° check!
 			dt = no_cars_blocking( gr, NULL, this_direction, next_direction, next_90direction, this, next_lane );
 			frei = true;
@@ -1013,15 +1013,15 @@ grund_t* private_car_t::hop_check()
 		const grund_t* gr_check = welt->lookup_kartenboden(target);
 		const gebaeude_t* gb = gr_check ? gr_check->get_building() : NULL;
 		const stadt_t* destination_city = gb ? gb->get_stadt() : NULL;
-		
+
 		koord check_target = target;
 		const planquadrat_t* tile = welt->access(pos_next.get_2d());
 		stadt_t* current_city = tile ? tile->get_city() : NULL;
 
 		// On the last tile of the route, this will give koord3d::invalid,
 		// thus invoking the semi-random mode below.
-			
-		// We need to check here, as the hashtable will give us a 0,0,0 koord rather 
+
+		// We need to check here, as the hashtable will give us a 0,0,0 koord rather
 		// than koord::invalid if this be not contained in the hashtable.
 		bool found_route = false;
 		found_route = weg->private_car_routes.is_contained(check_target);
@@ -1045,11 +1045,11 @@ grund_t* private_car_t::hop_check()
 			if ((current_city == destination_city) && pos_next_next == koord3d::invalid)
 			{
 				time_to_life = 0;
-				return NULL; 
+				return NULL;
 			}
 
 			// Check whether the way has been deleted in the meantime.
-			const grund_t* next_gr = welt->lookup(pos_next_next); 
+			const grund_t* next_gr = welt->lookup(pos_next_next);
 			const weg_t* next_way = next_gr ? next_gr->get_weg(road_wt) : NULL;
 			if (!next_way)
 			{
@@ -1135,7 +1135,7 @@ grund_t* private_car_t::hop_check()
 						}
 
 						// If we are not on a route to our destination, do not leave a city if we are in one, unless it is our destination city.
-						// However, do not allow this sysem to prevent a car from going anywhere if the only way that it can go is out of the city 
+						// However, do not allow this sysem to prevent a car from going anywhere if the only way that it can go is out of the city
 						// (e.g. if there is a one way road).
 						const planquadrat_t* tile = welt->access(pos_next.get_2d());
 						const stadt_t* current_city = tile ? tile->get_city() : NULL;
@@ -1307,7 +1307,7 @@ void private_car_t::info(cbuffer_t & buf, bool dummy) const
 	const stadt_t* const origin_city = welt->get_city(origin);
 	// We cannot get an origin name as the origin is the starting road tile, not building
 	const stadt_t* const destination_city = welt->get_city(target);
-	const grund_t* gr_target = welt->lookup_kartenboden(target); 
+	const grund_t* gr_target = welt->lookup_kartenboden(target);
 	const gebaeude_t* destination_building = gr_target ? gr_target->get_building() : NULL;
 	const char* origin_city_name = origin_city ? origin_city->get_name() : translator::translate("keine");
 	const char* destination_name = destination_building ? translator::translate(destination_building->get_individual_name()) : translator::translate("keine");

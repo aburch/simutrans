@@ -24,7 +24,7 @@
 #include "gui_theme.h"
 
 // Floating cursor eases to place components on a frame with a fixed width.
-// It places components in a horizontal line one by one as long as the frame is 
+// It places components in a horizontal line one by one as long as the frame is
 // wide enough. If a component would exceed the maximum right coordinate, then
 // the floating cursor wraps the component into a new "line".
 class floating_cursor_t
@@ -49,14 +49,14 @@ public:
 	scr_coord next_pos(const scr_size& size);
 
 	/** new_line() starts a new line.
-	 * If next_pos() has not been called since construction or last new_line(), 
+	 * If next_pos() has not been called since construction or last new_line(),
 	 * the row_height is still 0 and thus will add a D_V_SPAVE to the y position only.
 	 */
 	void new_line();
 
 	inline scr_coord_val get_row_height() const { return row_height; }
 	inline const scr_coord& get_pos() const { return cursor; }
-};					   
+};
 
 class loadsave_t;
 class karte_ptr_t;

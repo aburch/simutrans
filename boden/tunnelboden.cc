@@ -80,7 +80,7 @@ void tunnelboden_t::calc_image_internal(const bool calc_only_snowline_change)
 		const uint8 imageid = (!slope_this  ||  (slope_this & 7)) ? ground_desc_t::slopetable[slope_this] : ground_desc_t::slopetable[slope_this >> 1] + 12;
 		set_image( skinverwaltung_t::tunnel_texture->get_image_id( imageid ) );
 	}
-#endif 
+#endif
 }
 
 

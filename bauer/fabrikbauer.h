@@ -61,9 +61,9 @@ private:
 	static void find_producer(weighted_vector_tpl<const factory_desc_t *> &producer, const goods_desc_t *ware, uint16 timeline );
 
 public:
-	/// This is only for the set_scale function in simworld.cc	
+	/// This is only for the set_scale function in simworld.cc
 	static stringhashtable_tpl<factory_desc_t *> modifiable_table;
-	
+
 	/// Registers the factory description so the factory can be built in-game.
 	static void register_desc(factory_desc_t *desc);
 

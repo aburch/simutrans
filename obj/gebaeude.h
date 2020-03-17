@@ -29,7 +29,7 @@ class gebaeude_t : public obj_t, sync_steppable
 private:
 	const building_tile_desc_t *tile;
 
-	
+
 
 	/**
 	 * Time control for animation progress.
@@ -76,7 +76,7 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	sint64 purchase_time;
-	
+
 	/**
 	* either point to a factory or a city
 	* @author Hj. Malthaner
@@ -92,11 +92,11 @@ private:
 	 */
 	void init();
 
-	/** 
+	/**
 	 * Stores the dynamic population of this building:
 	 * either as visitor demand (commercial) or population
-	 * (residential). This is the fully adjusted figure, 
-	 * representing passengers to be generated or demanded 
+	 * (residential). This is the fully adjusted figure,
+	 * representing passengers to be generated or demanded
 	 * per game month.
 	 */
 	union people_t
@@ -111,18 +111,18 @@ private:
 		uint16 visitor_demand;
 	} adjusted_people;
 
-	/** 
+	/**
 	 * Stores the dynamic number of jobs in this building
-	 * at present. This is the fully adjusted figure, 
+	 * at present. This is the fully adjusted figure,
 	 * representing commuters to be demanded per game month.
 	 */
 	uint16 jobs;
 	uint16 adjusted_jobs;
 
-	/** 
+	/**
 	 * Stores the dynamic level of mail demand in this building
-	 * at present. This is the fully adjusted figure, 
-	 * representing packets of mail to be generated or demanded 
+	 * at present. This is the fully adjusted figure,
+	 * representing packets of mail to be generated or demanded
 	 * per game month.
 	 */
 	uint16 mail_demand;
@@ -150,13 +150,13 @@ private:
 	* multiplied by the number of ticks per month, subtracted
 	* from the creation time, to which is added the number
 	* of ticks per month whenever a commuter reaches this
-	* destination. Further, this value is set so that, 
+	* destination. Further, this value is set so that,
 	* whenever a number is added to it, it will never be less
 	* than that number plus the number of ticks per month
 	* multiplied by the number of available jobs minus
 	* the current time. This is intended to prevent more
 	* commuters going to this building each month than there
-	* are jobs available for them. 
+	* are jobs available for them.
 	* @author: jamespetts
 	*/
 	sint64 available_jobs_by_time;
@@ -200,7 +200,7 @@ public:
 	 * @return Einen Zeiger auf die Fabrik zu der das Objekt gehört oder NULL,
 	 * wenn das Objekt zu keiner Fabrik gehört.
 	 *
-	 * A building can belong to a factory. 
+	 * A building can belong to a factory.
 	 * return a pointer on the factory to that the object belongs or NULL,
 	 * if the object belongs to no factory. (Google)
 	 *
@@ -388,11 +388,11 @@ public:
 
 	bool get_loaded_passenger_and_mail_figres() const { return loaded_passenger_and_mail_figres; }
 	void set_loaded_passenger_and_mail_figres(bool value) { loaded_passenger_and_mail_figres = value; }
-	
+
 	const minivec_tpl<const planquadrat_t*> &get_tiles() { return building_tiles; }
 	void set_building_tiles();
 
-	void connect_by_road_to_nearest_city(); 
+	void connect_by_road_to_nearest_city();
 
 private:
 	// Calculate last 2 years(13-24 months) average percentage

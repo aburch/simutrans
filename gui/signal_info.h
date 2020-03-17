@@ -32,7 +32,7 @@ class signal_info_t : public obj_infowin_t, public action_listener_t
 
  public:
 	signal_info_t(signal_t* const s);
-	
+
 	/*
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
