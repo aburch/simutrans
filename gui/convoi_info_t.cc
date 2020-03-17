@@ -48,15 +48,15 @@ static const char cost_type[BUTTON_COUNT][64] =
 {
 	"Free Capacity", 
 	"Transported", 
+	"Distance", 
 	"Average speed", 
+	//"Maxspeed",
 	"Comfort", 
 	"Revenue", 
 	"Operation", 
-	"Profit", 
-	"Distance", 
 	"Refunds",
-	//, "Maxspeed"
-	"Road toll"
+	"Road toll", 
+	"Profit"
 #ifdef ACCELERATION_BUTTON
 	, "Acceleration"
 #endif
@@ -65,16 +65,16 @@ static const char cost_type[BUTTON_COUNT][64] =
 static const int cost_type_color[BUTTON_COUNT] =
 {
 	COL_FREE_CAPACITY, 
-	COL_TRANSPORTED,
+	COL_TRANSPORTED, 
+	COL_DISTANCE,
 	COL_AVERAGE_SPEED, 
+//	COL_MAXSPEED,
 	COL_COMFORT, 
 	COL_REVENUE, 
 	COL_OPERATION, 
-	COL_PROFIT, 
-	COL_DISTANCE, 
 	COL_CAR_OWNERSHIP,
-//	, COL_MAXSPEED
-	COL_TOLL
+	COL_TOLL, 
+	COL_PROFIT
 #ifdef ACCELERATION_BUTTON
 	, COL_YELLOW
 #endif
@@ -86,16 +86,21 @@ static const bool cost_type_money[BUTTON_COUNT] =
 	false, 
 	false, 
 	false, 
+	//false,
+	false, 
 	true, 
-	true, 
-	true, 
-	false,
 	true,
-	//, false
+	true,
+	true, 
 	true
 #ifdef ACCELERATION_BUTTON
 	, false
 #endif
+};
+
+static uint8 statistic[convoi_t::MAX_CONVOI_COST] = {
+	convoi_t::CONVOI_CAPACITY, convoi_t::CONVOI_TRANSPORTED_GOODS, convoi_t::CONVOI_DISTANCE, convoi_t::CONVOI_AVERAGE_SPEED, convoi_t::CONVOI_COMFORT,
+	convoi_t::CONVOI_REVENUE, convoi_t::CONVOI_OPERATIONS, convoi_t::CONVOI_REFUNDS, convoi_t::CONVOI_WAYTOLL, convoi_t::CONVOI_PROFIT
 };
 
 //bool convoi_info_t::route_search_in_progress=false;
@@ -197,7 +202,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	int btn;
 	for (btn = 0; btn < convoi_t::MAX_CONVOI_COST; btn++) {
-		chart.add_curve( cost_type_color[btn], cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, btn, MAX_MONTHS, cost_type_money[btn], false, true, cost_type_money[btn]*2 );
+		chart.add_curve( cost_type_color[btn], cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, statistic[btn], MAX_MONTHS, cost_type_money[btn], false, true, cost_type_money[btn]*2 );
 		filterButtons[btn].init(button_t::box_state, cost_type[btn], 
 			scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(btn%4), offset_below_chart+(D_BUTTON_HEIGHT+D_V_SPACE)*(btn/4)), 
 			D_BUTTON_SIZE);
@@ -205,7 +210,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 		filterButtons[btn].background_color = cost_type_color[btn];
 		filterButtons[btn].set_visible(false);
 		filterButtons[btn].pressed = false;
-		if((btn == convoi_t::CONVOI_REFUNDS) && cnv->get_line().is_bound())
+		if((statistic[btn] == convoi_t::CONVOI_REFUNDS) && cnv->get_line().is_bound())
 		{
 			continue;
 		}
@@ -1162,7 +1167,7 @@ void convoi_info_t::set_windowsize(scr_size size)
 		const int cols = max(1, (width + D_H_SPACE) / (D_BUTTON_WIDTH + D_H_SPACE));
 		for (int btn = 0; btn < BUTTON_COUNT; btn++)
 		{
-			if((btn == convoi_t::CONVOI_REFUNDS) && cnv->get_line().is_bound())
+			if((statistic[btn] == convoi_t::CONVOI_REFUNDS) && cnv->get_line().is_bound())
 			{
 				continue;
 			}

@@ -56,49 +56,48 @@ static const char *cost_type[MAX_LINE_COST] =
 {
 	"Free Capacity",
 	"Transported",
+	"Distance",
 	"Average speed",
+//	"Maxspeed",
 	"Comfort",
 	"Revenue", 
 	"Operation",
+	"Refunds",
+	"Road toll",
 	"Profit",
 	"Convoys",
-	"Distance",
-	"Refunds",
-//	"Maxspeed",
 	"Departures",
-	"Scheduled",
-	"Road toll"
+	"Scheduled"
 };
 
 const int cost_type_color[MAX_LINE_COST] =
 {
 	COL_FREE_CAPACITY, 
 	COL_TRANSPORTED, 
+	COL_DISTANCE, 
 	COL_AVERAGE_SPEED, 
 	COL_COMFORT, 
 	COL_REVENUE, 
 	COL_OPERATION, 
+	COL_CAR_OWNERSHIP,
+	COL_TOLL,
 	COL_PROFIT,
 	COL_VEHICLE_ASSETS, 
-	COL_DISTANCE, 
-	COL_CAR_OWNERSHIP,
 	//COL_COUNVOI_COUNT,
-	//COL_DISTANCE,
 	COL_MAXSPEED,
-	COL_LILAC,
-	COL_TOLL
+	COL_LILAC
 };
  
 static uint8 tabs_to_lineindex[8];
 static uint8 max_idx=0;
 
 static uint8 statistic[MAX_LINE_COST]={
-	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_CONVOIS, LINE_DISTANCE, LINE_REFUNDS, LINE_DEPARTURES, LINE_DEPARTURES_SCHEDULED, LINE_WAYTOLL
+	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_DISTANCE, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_REFUNDS, LINE_WAYTOLL, LINE_PROFIT, LINE_CONVOIS, LINE_DEPARTURES, LINE_DEPARTURES_SCHEDULED
 //std	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_CONVOIS, LINE_DISTANCE, LINE_MAXSPEED, LINE_WAYTOLL
 };
 
 static uint8 statistic_type[MAX_LINE_COST]={
-	STANDARD, STANDARD, STANDARD, STANDARD, MONEY, MONEY, MONEY, STANDARD, STANDARD, MONEY, STANDARD, STANDARD, MONEY
+	STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, MONEY, MONEY, MONEY, MONEY, MONEY, STANDARD, STANDARD, STANDARD
 //std	STANDARD, STANDARD, MONEY, MONEY, MONEY, STANDARD, STANDARD, STANDARD, MONEY
 };
 
@@ -302,7 +301,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	//CHART
 	chart.set_dimension(12, 1000);
-	chart.set_pos( scr_coord(58, LINESPACE) );
+	chart.set_pos( scr_coord(68, LINESPACE) );
 	chart.set_seed(0);
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	chart.set_ltr(env_t::left_to_right_graphs);
@@ -659,10 +658,10 @@ void schedule_list_gui_t::display(scr_coord pos)
 	int len=display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y + top, buf, ALIGN_LEFT, line->get_state() & simline_t::line_missing_scheduled_slots ? COL_DARK_TURQUOISE : SYSCOL_TEXT, true );
 	if (line->get_state() & simline_t::line_missing_scheduled_slots) {
 		if (skinverwaltung_t::missing_scheduled_slot) {
-			display_color_img_with_tooltip(skinverwaltung_t::missing_scheduled_slot->get_image_id(0), pos.x + len + D_H_SPACE, pos.y + top, 0, false, false, line_alert_helptexts[1]);
+			display_color_img_with_tooltip(skinverwaltung_t::missing_scheduled_slot->get_image_id(0), pos.x + LINE_NAME_COLUMN_WIDTH + len + D_H_SPACE, pos.y + top, 0, false, false, line_alert_helptexts[1]);
 		}
 		else if (skinverwaltung_t::alerts) {
-			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + len + D_H_SPACE, pos.y + top, 0, false, false, line_alert_helptexts[1]);
+			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + LINE_NAME_COLUMN_WIDTH + len + D_H_SPACE, pos.y + top, 0, false, false, line_alert_helptexts[1]);
 		}
 	}
 
@@ -751,7 +750,7 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 
 	info_tabs.set_size(scr_size(rest_width+2, get_windowsize().h - LINESPACE*2 - D_BUTTON_HEIGHT*5 - D_MARGIN_TOP - D_TITLEBAR_HEIGHT));
 	scrolly_convois.set_size(scr_size(info_tabs.get_size().w+1, info_tabs.get_size().h - scrolly_convois.get_pos().y-D_H_SPACE-1));
-	chart.set_size(scr_size(rest_width-58-D_MARGIN_RIGHT, SCL_HEIGHT-14-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))));
+	chart.set_size(scr_size(rest_width-68-D_MARGIN_RIGHT, SCL_HEIGHT-14-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))));
 	inp_name.set_size(scr_size(rest_width - 31, 14));
 	filled_bar.set_size(scr_size(rest_width/2-24-D_MARGIN_RIGHT, 4));
 
@@ -956,6 +955,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		scl.set_selection(-1);
 		bt_delete_line.disable();
 		bt_change_line.disable();
+		tab_name.clear();
+		tab_name.printf("%s%5s",translator::translate("Convoys"),"(0)");
 		for(int i=0; i<MAX_LINE_COST; i++)  {
 			chart.hide_curve(i);
 		}
