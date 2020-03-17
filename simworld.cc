@@ -1616,7 +1616,7 @@ void *check_road_connexions_threaded(void *args)
 		}
 		int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 		assert(error == 0);
-		if (karte_t::cities_to_process > 0 && route_t::suspend_private_car_routing == false)
+		if (karte_t::cities_to_process > 0 && route_t::suspend_private_car_routing == false && !world()->cities_awaiting_private_car_route_check.empty())
 		{
 			stadt_t* city;
 			city = world()->cities_awaiting_private_car_route_check.remove_first();
@@ -1637,7 +1637,12 @@ void *check_road_connexions_threaded(void *args)
 		{
 			int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
+			if (!world()->is_terminating_threads() && route_t::suspend_private_car_routing)
+			{
+				simthread_barrier_wait(&karte_t::private_car_barrier);
+			}
 		}
+		
 		// Having two barrier waits here is intentional.
 		simthread_barrier_wait(&karte_t::private_car_barrier);
 	} while (!world()->is_terminating_threads());
@@ -1909,18 +1914,18 @@ void karte_t::await_convoy_threads()
 
 #ifdef MULTI_THREAD
 
-void karte_t::start_private_car_threads()
+void karte_t::start_private_car_threads(bool override_suspend)
 {
-	if (!private_car_threads_working)
+	if (!private_car_threads_working && (override_suspend || !route_t::suspend_private_car_routing))
 	{
 		simthread_barrier_wait(&private_car_barrier);
 		private_car_threads_working = true;
 	}
 }
 
-void karte_t::await_private_car_threads()
+void karte_t::await_private_car_threads(bool override_suspend)
 {
-	if (private_car_threads_working)
+	if (private_car_threads_working && (override_suspend || !route_t::suspend_private_car_routing))
 	{
 		simthread_barrier_wait(&private_car_barrier);
 		private_car_threads_working = false;
@@ -1930,10 +1935,24 @@ void karte_t::await_private_car_threads()
 void karte_t::suspend_private_car_threads()
 {
 	await_private_car_threads();
+	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+	assert(error == 0 || error == EINVAL);
 	route_t::suspend_private_car_routing = true;
-	start_private_car_threads();
-	await_private_car_threads();
+	if (private_car_route_mutex)
+	{
+		error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+	}
+	assert(error == 0 || error == EINVAL);
+	start_private_car_threads(true);
+	await_private_car_threads(true);
+	error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+	assert(error == 0 || error == EINVAL);
 	route_t::suspend_private_car_routing = false;
+	if (private_car_route_mutex)
+	{
+		error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+	}
+	assert(error == 0 || error == EINVAL);
 }
 
 void* path_explorer_threaded(void* args)
@@ -3074,6 +3093,7 @@ karte_t::karte_t() :
 karte_t::~karte_t()
 {
 	is_sound = false;
+	await_private_car_threads();
 	suspend_private_car_threads(); // Necessary to prevent thread deadlocks.
 	destroy();
 

@@ -942,15 +942,15 @@ public:
 	void start_passengers_and_mail_threads();
 	void start_convoy_threads();
 	void start_path_explorer();
-	void start_private_car_threads();
+	void start_private_car_threads(bool override_suspend = false);
 #else
 public:
 #endif
 	// These will do nothing if multi-threading is disabled.
 	void await_passengers_and_mail_threads();
 	void await_convoy_threads();
-	void await_path_explorer(); 
-	void await_private_car_threads(); 
+	void await_path_explorer();
+	void await_private_car_threads(bool override_suspend = false);
 	void suspend_private_car_threads();
 	void await_all_threads();
 
