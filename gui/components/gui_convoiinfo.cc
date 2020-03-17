@@ -26,8 +26,10 @@
 #include "../gui_frame.h"
 
 
+
 gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, bool show_line_name):
-	formation(cnv)
+	formation(cnv),
+	payload(cnv)
 {
     this->cnv = cnv;
 	this->show_line_name = show_line_name;
@@ -38,6 +40,7 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, bool show_line_name):
     filled_bar.add_color_value(&cnv->get_loading_level(), COL_GREEN);
 
 	formation.set_pos(scr_coord(0, D_MARGIN_TOP));
+	payload.set_pos(scr_coord(0, D_MARGIN_TOP));
 }
 
 
@@ -150,10 +153,15 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 			// since the only remaining object is the loading bar, we can alter its position this way ...
 			filled_bar.draw(pos + offset + scr_coord(xoff, 0));
 		}
+		else if (display_mode == cnvlist_payload) {
+			// 2nd row
+			payload.set_cnv(cnv);
+			payload.draw(pos + offset + scr_coord(0, LINESPACE + 6));
+		}
 		else if (display_mode == cnvlist_formation) {
 			// 2nd row
 			formation.set_cnv(cnv);
-			formation.draw(pos+offset+scr_coord(0, LINESPACE + 6));
+			formation.draw(pos + offset + scr_coord(0, LINESPACE + 6));
 		}
 	}
 }
