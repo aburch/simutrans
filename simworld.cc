@@ -1649,7 +1649,7 @@ void *check_road_connexions_threaded(void *args)
 	pthread_exit(NULL);
 	return args;
 }
-
+ 
 void *step_passengers_and_mail_threaded(void* args)
 {
 	const uint32* thread_number_ptr = (const uint32*)args;
