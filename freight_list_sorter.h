@@ -18,14 +18,14 @@ public:
 	static const uint8 all_classes = 255;
 
 	enum sort_mode_t {
-		by_name = 0, 
+		by_name = 0,
 		by_via = 1,
 		by_via_sum = 2,
 		by_amount = 3,
-		by_origin = 4, 
-		by_origin_amount = 5, 
+		by_origin = 4,
+		by_origin_amount = 5,
 		by_destination_detail = 6,
-		by_wealth_detail = 7, 
+		by_wealth_detail = 7,
 		by_wealth_via = 8,
 		by_accommodation_detail = 9,
 		by_accommodation_via = 10

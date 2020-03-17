@@ -149,7 +149,7 @@ void movingobj_t::calc_image()
 }
 
 
-movingobj_t::movingobj_t(loadsave_t *file) : 
+movingobj_t::movingobj_t(loadsave_t *file) :
 #ifdef INLINE_OBJ_TYPE
     vehicle_base_t(movingobj)
 #else
@@ -163,7 +163,7 @@ movingobj_t::movingobj_t(loadsave_t *file) :
 }
 
 
-movingobj_t::movingobj_t(koord3d pos, const groundobj_desc_t *b ) : 
+movingobj_t::movingobj_t(koord3d pos, const groundobj_desc_t *b ) :
 #ifdef INLINE_OBJ_TYPE
     vehicle_base_t(movingobj, pos)
 #else

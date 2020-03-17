@@ -17,7 +17,7 @@
 #include "../tpl/slist_tpl.h"
 
 #define POWER_TO_MW (12)  // bitshift for converting internal power values to mW for display. This is equivalent to dividing by 5,000
-#define KW_DIVIDER (5) // Divider for converting internal power to kW for display. A bitshift will not suffice, so use a divider. 
+#define KW_DIVIDER (5) // Divider for converting internal power to kW for display. A bitshift will not suffice, so use a divider.
 
 class powernet_t;
 class player_t;
@@ -200,7 +200,7 @@ public:
 	static slist_tpl<senke_t *> senke_list;
 
 private:
-	
+
 	sint32 einkommen;
 	sint32 max_einkommen;
 	sint32 delta_sum;

@@ -536,7 +536,7 @@ void display_obj_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint1
 	 * @author dwachs
 	 */
 uint8 display_obj_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool draw_ways, const bool visible  CLIP_NUM_DEF) const;
- 
+
 	/**
 	 * displays vehicle (background) images
 	 * @param start_offset start with object at this index
@@ -545,7 +545,7 @@ uint8 display_obj_bg(const sint16 xpos, const sint16 ypos, const bool is_global,
 	 * @author dwachs
 	 */
 uint8 display_obj_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile  CLIP_NUM_DEF) const;
- 
+
 	/**
 	 * displays all foreground images
 	 * @param is_global set to true, if this is called during the whole screen update

@@ -10,7 +10,7 @@
 #include "marker.h"
 
 marker_t marker_t::the_instance;
-marker_t* marker_t::markers; 
+marker_t* marker_t::markers;
 
 void marker_t::init(int world_size_x, int world_size_y)
 {
@@ -48,7 +48,7 @@ marker_t& marker_t::instance(int world_size_x, int world_size_y, uint32 thread_n
 		return the_instance;
 #endif
 	}
-	
+
 }
 
 marker_t::~marker_t()

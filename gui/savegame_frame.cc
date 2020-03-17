@@ -362,7 +362,7 @@ void savegame_frame_t::set_file_table_default_sort_order()
 }
 
 
-void savegame_frame_t::add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix ) 
+void savegame_frame_t::add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix )
 {
 	add_file(fullpath, filename, get_info(fullpath), not_cutting_suffix);
 }
@@ -580,7 +580,7 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t
 						//qsort();
 					}
 					break;
-				}			
+				}
 			}
 		}
 		else if (file_table_button_pressed) {
@@ -700,7 +700,7 @@ void savegame_frame_t::set_windowsize(scr_size size)
 		sint32 c = file_table.get_grid_size().get_x();
 		if (c > 0) {
 			c = c > 0 ? 1 : 0;
-			// "w" was formerly "x". This may need to be "h" instead, as the conversion is not clear. 
+			// "w" was formerly "x". This may need to be "h" instead, as the conversion is not clear.
 			sint16 x = scrolly.get_client().get_size().w - (file_table.get_table_width() - file_table.get_column_width(c));
 			file_table.get_column(c)->set_width(x);
 		}
@@ -815,12 +815,12 @@ void savegame_frame_t::release_file_table_button()
 
 
 // BG, 26.03.2010
-void gui_file_table_button_column_t::paint_cell(const scr_coord& offset, coordinate_t /*x*/, coordinate_t /*y*/, const gui_table_row_t &row) 
+void gui_file_table_button_column_t::paint_cell(const scr_coord& offset, coordinate_t /*x*/, coordinate_t /*y*/, const gui_table_row_t &row)
 {
  	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
 	scr_size size = scr_size(get_width(), row.get_height());
 	scr_coord mouse(get_mouse_x() - offset.x, get_mouse_y() - offset.y);
-	if (0 <= mouse.x && mouse.x < size.w && 0 <= mouse.y && mouse.y < size.h){ 
+	if (0 <= mouse.x && mouse.x < size.w && 0 <= mouse.y && mouse.y < size.h){
 		btn.set_typ(button_t::roundbox);
 	}
 	else
@@ -846,7 +846,7 @@ void gui_file_table_delete_column_t::paint_cell(const scr_coord& offset, coordin
 
 
 // BG, 26.03.2010
-void gui_file_table_label_column_t::paint_cell(const scr_coord& offset, coordinate_t /*x*/, coordinate_t /*y*/, const gui_table_row_t &row) 
+void gui_file_table_label_column_t::paint_cell(const scr_coord& offset, coordinate_t /*x*/, coordinate_t /*y*/, const gui_table_row_t &row)
 {
 	lbl.set_pos(scr_coord(2, 2));
 	lbl.set_size(scr_size(get_width() - 2, row.get_height() - 2));
@@ -855,8 +855,8 @@ void gui_file_table_label_column_t::paint_cell(const scr_coord& offset, coordina
 
 
 // BG, 26.03.2010
-const char *gui_file_table_action_column_t::get_text(const gui_table_row_t &row) const 
-{ 
+const char *gui_file_table_action_column_t::get_text(const gui_table_row_t &row) const
+{
  	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
 	return file_row.text.c_str();
 }
@@ -870,8 +870,8 @@ void gui_file_table_action_column_t::paint_cell(const scr_coord& offset, coordin
 
 
 // BG, 26.03.2010
-time_t gui_file_table_time_column_t::get_time(const gui_table_row_t &row) const 
-{ 
+time_t gui_file_table_time_column_t::get_time(const gui_table_row_t &row) const
+{
  	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
 	return file_row.info.st_mtime;
 }

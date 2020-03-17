@@ -76,7 +76,7 @@ public:
 
 	/// Returns if slope prefers certain way directions (either n/s or e/w).
 	static bool is_single(type x) { return (flags[x] & single) != 0; }
-	
+
 	static bool is_doubles(type x) { return (flags[x] & doubles) != 0; }
 	/// Returns if way can be build on this slope.
 	static bool is_way(type x) { return (flags[x] & (way_ns | way_ew)) != 0; }

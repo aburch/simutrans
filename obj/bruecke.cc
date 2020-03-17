@@ -25,7 +25,7 @@ static pthread_mutex_t bridge_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIAL
 #endif
 
 
-bruecke_t::bruecke_t(loadsave_t* const file) : 
+bruecke_t::bruecke_t(loadsave_t* const file) :
 #ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::bruecke)
 #else
@@ -81,7 +81,7 @@ void bruecke_t::calc_image()
 			if(  display_image==IMG_EMPTY && desc->get_foreground( img, is_snow )==IMG_EMPTY  ) {
 				display_image=desc->get_background( single_img[img], is_snow );
 			}
-			
+
 			weg0->set_after_image(IMG_EMPTY);
 			if(desc->get_has_own_way_graphics())
 			{
@@ -102,8 +102,8 @@ void bruecke_t::calc_image()
 				}
 				set_image(display_image);
 				set_flag(obj_t::dirty);
-			}			
-			
+			}
+
 #ifdef MULTI_THREAD
 			unlock_mutex();
 			weg0->unlock_mutex();
@@ -217,7 +217,7 @@ void bruecke_t::finish_rd()
 	// change maintenance
 	if(desc->get_waytype()!=powerline_wt) {
 		weg_t *weg = gr->get_weg(desc->get_waytype());
-		
+
 		if(weg==NULL) {
 			dbg->error("bruecke_t::finish_rd()","Bridge without way at(%s)!", gr->get_pos().get_str() );
 			weg = weg_t::alloc( desc->get_waytype() );
@@ -227,7 +227,7 @@ void bruecke_t::finish_rd()
 		const way_desc_t* way_desc = weg->get_desc();
 
 		const slope_t::type hang = gr->get_weg_hang();
-		if(hang != slope_t::flat) 
+		if(hang != slope_t::flat)
 		{
 			const uint slope_height = (hang & 7) ? 1 : 2;
 			if(slope_height == 1)
@@ -244,7 +244,7 @@ void bruecke_t::finish_rd()
 			weg->set_max_speed(min(desc->get_topspeed(), way_desc->get_topspeed()));
 		}
 		weg->set_bridge_weight_limit(desc->get_max_weight());
-		
+
 		const weg_t* old_way = gr ? gr->get_weg(desc->get_wtyp()) : NULL;
 		const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(desc->get_waytype()) : NULL;
 		// take ownership of way
@@ -282,7 +282,7 @@ void bruecke_t::cleanup( player_t *player2 )
 		if(weg) {
 			const way_desc_t* const way_desc = weg->get_desc();
 			const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
-			if(hang != slope_t::flat) 
+			if(hang != slope_t::flat)
 				{
 					const uint slope_height = (hang & 7) ? 1 : 2;
 					if(slope_height == 1)

@@ -146,7 +146,7 @@ int building_desc_t::adjust_layout(int layout) const
 void building_desc_t::fix_number_of_classes()
 {
 	uint8 number_of_classes = goods_manager_t::passengers->get_number_of_classes();
-	
+
 	while (class_proportions.get_count() < number_of_classes)
 	{
 		class_proportions.append(class_proportions_sum);

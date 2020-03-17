@@ -98,7 +98,7 @@ public:
 	void set_show_x_axis(bool yesno) { show_x_axis = yesno; }
 
 	void set_show_y_axis(bool yesno) { show_y_axis = yesno; }
-	
+
 	void set_ltr(bool yesno) { ltr = yesno; }
 
 	int get_curve_count() { return curves.get_count(); }

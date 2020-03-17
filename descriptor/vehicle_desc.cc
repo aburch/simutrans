@@ -19,9 +19,9 @@ uint32 vehicle_desc_t::calc_running_cost(const karte_t *welt, uint32 base_cost) 
 		months_after_retire = welt->get_settings().get_obsolete_running_cost_increase_phase_years() * 12;
 	}
 	sint32 months_of_obsolescence = welt->get_current_month() - (get_retire_year_month() + months_after_retire);
-	if (months_of_obsolescence <= 0)	
+	if (months_of_obsolescence <= 0)
 	{
-		return base_cost; 
+		return base_cost;
 	}
 
 	// I am obsolete --> obsolescence cost increase.
@@ -80,15 +80,15 @@ float32e8_t vehicle_desc_t::get_power_force_ratio() const
 	switch (get_waytype())
 	{
 		case track_wt:
-		case overheadlines_wt: 
-		case monorail_wt:      
+		case overheadlines_wt:
+		case monorail_wt:
 		case maglev_wt:
 		case tram_wt:
 		case narrowgauge_wt:
 			if (topspeed && get_engine_type() == steam)
 			{
 				/** This is a steam engine on tracks. Steam engines on tracks are constant force engines.
-				* The force is constant from 0 to about half of maximum speed. Above the power becomes nearly constant due 
+				* The force is constant from 0 to about half of maximum speed. Above the power becomes nearly constant due
 				* to steam shortage and economics. See here for details: http://www.railway-technical.com/st-vs-de.shtml
 				* We assume, that the given power is meant for the half of the engines allowed maximum speed and get the constant force:
 				*/
@@ -98,11 +98,11 @@ float32e8_t vehicle_desc_t::get_power_force_ratio() const
 			return float32e8_t::ten;
 
 		//case water_wt:
-			// Ships are constant force machines at all speeds, but the pak sets are balanced for constant power. 
+			// Ships are constant force machines at all speeds, but the pak sets are balanced for constant power.
 			//return float32e8_t(get_topspeed() * 10, 36);
 
-		case air_wt: 
-			// Aircraft are constant force machines at all speeds, but the pak sets are balanced for constant power. 
+		case air_wt:
+			// Aircraft are constant force machines at all speeds, but the pak sets are balanced for constant power.
 			// We recommend for simutrans extended to set the tractive effort manually. The existing aircraft power values are very roughly estimated.
 			if (topspeed)
 			{
@@ -116,11 +116,11 @@ float32e8_t vehicle_desc_t::get_power_force_ratio() const
 			* We consider a stronger gear factor producing additional force in the start-up process, where a greater gear factor allows a more forceful start.
 			* This will enforce the player to make more use of slower freight engines.
 			*
-			* Example: 
+			* Example:
 			* The german series 230(130 DR) was a universal engine with 2200 kW, 250 kN starting tractive effort and 140 km/h allowed top speed.
 			* The same engine with a freight gear (series 231 / 131 DR) and 2200 kW had 340 kN starting tractive effort and 100 km/h allowed top speed.
 			*
-			* In simutrans extended these engines can be designed  by setting power to 2200, max speed to 140 resp. 100 and tractive effort to 250 resp. 340. 
+			* In simutrans extended these engines can be designed  by setting power to 2200, max speed to 140 resp. 100 and tractive effort to 250 resp. 340.
 			* In simutrans standard		these engines can be simulated by setting power to 2200, max speed to 140 resp. 100 and gear to 1.136 resp. 1.545.
 			*/
 			return float32e8_t::ten;
@@ -133,9 +133,9 @@ float32e8_t vehicle_desc_t::get_power_force_ratio() const
  */
 void vehicle_desc_t::loaded()
 {
-	/** 
-	* Vehicles specify their (nominal) power. The formula 
-	* 
+	/**
+	* Vehicles specify their (nominal) power. The formula
+	*
 	* force = power / speed
 	*
 	* calculates the force, that results from the power at a given speed.
@@ -150,7 +150,7 @@ void vehicle_desc_t::loaded()
 	* Above this threshold the engine works as constant power engine.
 	*/
 
-	static const float32e8_t gear_factor((uint32)GEAR_FACTOR); 
+	static const float32e8_t gear_factor((uint32)GEAR_FACTOR);
 	float32e8_t power_force_ratio = get_power_force_ratio();
 	force_threshold_speed = (uint16)(power_force_ratio + float32e8_t::half);
 	float32e8_t g_power = float32e8_t(power) * (/*(uint32) 1000L * */ (uint32)gear);
@@ -201,7 +201,7 @@ void vehicle_desc_t::loaded()
  */
 uint32 vehicle_desc_t::get_effective_force_index(sint32 speed /* in m/s */ ) const
 {
-	if (geared_force == 0) 
+	if (geared_force == 0)
 	{
 		// no force at all
 		return 0;
@@ -216,7 +216,7 @@ uint32 vehicle_desc_t::get_effective_force_index(sint32 speed /* in m/s */ ) con
  */
 uint32 vehicle_desc_t::get_effective_power_index(sint32 speed /* in m/s */ ) const
 {
-	if (geared_power == 0) 
+	if (geared_power == 0)
 	{
 		// no power at all
 		return 0;
@@ -226,10 +226,10 @@ uint32 vehicle_desc_t::get_effective_power_index(sint32 speed /* in m/s */ ) con
 }
 
 uint16 vehicle_desc_t::get_obsolete_year_month(const karte_t *welt) const
-{ 
+{
 	if(increase_maintenance_after_years)
 	{
-		return retire_date + (12 * increase_maintenance_after_years); 
+		return retire_date + (12 * increase_maintenance_after_years);
 	}
 	else
 	{
@@ -320,7 +320,7 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(classes);
 	for(uint32 i = 0; i < classes; i ++)
 	{
-		chk->input(capacity[i]); 
+		chk->input(capacity[i]);
 	}
 	chk->input(weight);
 	chk->input(power);

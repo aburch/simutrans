@@ -241,7 +241,7 @@ public:
 
 	// This was in strasse_t, but being there possibly caused heap corruption.
 	minivec_tpl<gebaeude_t*> connected_buildings;
-	
+
 	// Likewise, out of caution, put this here for the same reason.
 	typedef koordhashtable_tpl<koord, koord3d> private_car_route_map;
 	//typedef std::unordered_map<koord, koord3d> private_car_route_map_2;
@@ -513,7 +513,7 @@ public:
 	bool is_junction() const { return ribi_t::is_threeway(get_ribi_unmasked()); }
 
 	runway_directions get_runway_directions() const;
-	uint32 get_runway_length(bool is_36_18) const; 
+	uint32 get_runway_length(bool is_36_18) const;
 
 	void increment_traffic_stopped_counter() { statistics[0][WAY_STAT_WAITING] ++; }
 	uint32 get_congestion_percentage() const { return statistics[0][WAY_STAT_CONVOIS] + statistics[1][WAY_STAT_CONVOIS] ? ((statistics[0][WAY_STAT_WAITING] + statistics[1][WAY_STAT_WAITING]) * 100) / (statistics[0][WAY_STAT_CONVOIS] + statistics[1][WAY_STAT_CONVOIS]) : 0; }

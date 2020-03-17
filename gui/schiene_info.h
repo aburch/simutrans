@@ -38,7 +38,7 @@ protected:
 
  public:
 	schiene_info_t(schiene_t* const s);
-	
+
 	/*
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL

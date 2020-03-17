@@ -182,7 +182,7 @@ char const *tick_to_string( sint64 ticks, bool show_full )
 		hours = (((sint64)ticks_this_month*tage_per_month[month]) >> (welt_modell->ticks_per_world_month_shift-16));
 		minuten = (((hours*3) % 8192)*60)/8192;
 		hours = ((hours*3) / 8192)%24;
-		} 
+		}
 	else if (env_t::show_month == env_t::DATE_FMT_INTERNAL_MINUTE || env_t::DATE_FMT_JAPANESE_INTERNAL_MINUTE) {
 		world()->sprintf_ticks(ticks_as_clock, sizeof(ticks_as_clock), ticks_this_month);
 		world()->sprintf_ticks(month_as_clock, sizeof(month_as_clock), world()->ticks_per_world_month);

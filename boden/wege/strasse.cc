@@ -143,7 +143,7 @@ void strasse_t::rdwr(loadsave_t *file)
 		}
 #endif
 
-		if(old_max_speed > 0) 
+		if(old_max_speed > 0)
 		{
 			if (is_degraded() && old_max_speed == desc->get_topspeed())
 			{

@@ -82,7 +82,7 @@ void route_t::remove_koord_to(uint32 i)
 {
 	for(uint32 c = 0; c < i; c++)
 	{
-		route.remove_at(0); 
+		route.remove_at(0);
 	}
 }
 
@@ -139,7 +139,7 @@ void route_t::INIT_NODES(uint32 max_route_steps, const koord &world_size)
 
 	// may need very much memory => configurable
 	const uint32 max_world_step_size = world_size == koord::invalid ? max_route_steps :  world_size.x * world_size.y * 2;
-	MAX_STEP = min(max_route_steps, max_world_step_size); 
+	MAX_STEP = min(max_route_steps, max_world_step_size);
 	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
 	{
 		_nodes[i] = new ANode[MAX_STEP + 4 + 2];
@@ -160,7 +160,7 @@ void route_t::TERM_NODES(void* args)
 	}
 }
 
-uint8 route_t::GET_NODES(ANode **nodes) 
+uint8 route_t::GET_NODES(ANode **nodes)
 {
 	for (int i = 0; i < MAX_NODES_ARRAY; ++i)
 		if (!_nodes_in_use[i])
@@ -173,11 +173,11 @@ uint8 route_t::GET_NODES(ANode **nodes)
 	return 0;
 }
 
-void route_t::RELEASE_NODES(uint8 nodes_index) 
+void route_t::RELEASE_NODES(uint8 nodes_index)
 {
 	if (!_nodes_in_use[nodes_index])
-		dbg->fatal("RELEASE_NODE","called while list free"); 
-	_nodes_in_use[nodes_index] = false; 
+		dbg->fatal("RELEASE_NODE","called while list free");
+	_nodes_in_use[nodes_index] = false;
 }
 
 /* find the route to an unknown location
@@ -210,16 +210,16 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	// there are several variant for maintaining the open list
 	// however, only binary heap and HOT queue with binary heap are worth considering
 #if defined(tpl_HOT_queue_tpl_h)
-    // static 
+    // static
 	HOT_queue_tpl <ANode *> queue;
 #elif defined(tpl_binary_heap_tpl_h)
-    //static 
+    //static
 	binary_heap_tpl <ANode *> queue;
 #elif defined(tpl_sorted_heap_tpl_h)
-    //static 
+    //static
 	sorted_heap_tpl <ANode *> queue;
 #else
-    //static 
+    //static
 	prioqueue_tpl <ANode *> queue;
 #endif
 
@@ -230,7 +230,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	route.clear();
 
 	// first tile is not valid?!?
-	if(!tdriver->check_next_tile(g)) 
+	if(!tdriver->check_next_tile(g))
 	{
 		return false;
 	}
@@ -260,10 +260,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 
 	const grund_t* gr = NULL;
 	sint32 bridge_tile_count = 0;
-	
+
 	const fabrik_t* destination_industry;
-	const gebaeude_t* destination_attraction; 
-	const stadt_t* destination_city; 
+	const gebaeude_t* destination_attraction;
+	const stadt_t* destination_city;
 	stadt_t* origin_city = NULL;
 	bool reached_target = false;
 
@@ -275,7 +275,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 
 	uint32 private_car_route_step_counter = 0;
 
-	do 
+	do
 	{
 		destination_industry = NULL;
 		destination_attraction = NULL;
@@ -331,7 +331,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					// Do not register multiple routes to the destination city.
 					destination_city = NULL;
 				}
-				
+
 				weg_t* way = gr->get_weg(road_wt);
 
 				if(way && way->connected_buildings.get_count() > 0)
@@ -340,11 +340,11 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					{
 						if(!gb)
 						{
-							// Dud building 
+							// Dud building
 							// Is not thread-safe to remove this here.
 							continue;
 						}
-						
+
 						const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k.get_2d());
 						uint16 journey_time_per_tile;
 						if(straight_line_distance == 0)
@@ -463,7 +463,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		{
 			bridge_tile_count = 0;
 		}
-		for(int r = 0; r < 4; r++) 
+		for(int r = 0; r < 4; r++)
 		{
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			grund_t* to;
@@ -481,7 +481,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					// Tall vehicles cannot pass under low bridges
 					continue;
 				}
-				
+
 				if(enforce_weight_limits > 1 && w != NULL)
 				{
 					// Bernd Gabriel, Mar 10, 2010: way limit info
@@ -535,7 +535,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				if(tmp->parent!=NULL) {
 					current_dir |= tmp->ribi_from;
 					if(tmp->dir!=current_dir) {
-						k->g += 3; 
+						k->g += 3;
 						if(ribi_t::is_perpendicular(tmp->dir,current_dir))
 						{
 							if(flags == choose_signal)
@@ -548,7 +548,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 							else
 							{
 								// discourage v turns heavily
-								k->g += 25;  
+								k->g += 25;
 							}
 						}
 						else if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL)
@@ -573,7 +573,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	// target reached?
 	if(!tdriver->is_target(gr, tmp->parent == NULL ? NULL : tmp->parent->gr) || step >= MAX_STEP)
 	{
-		if(  step >= MAX_STEP  ) 
+		if(  step >= MAX_STEP  )
 		{
 			dbg->warning("route_t::find_route()","Too many steps (%i>=max %i) in route (too long/complex)", step, MAX_STEP);
 
@@ -586,7 +586,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			// reached => construct route
 			route.clear();
 			route.resize(tmp->count+16);
-			while(tmp != NULL) 
+			while(tmp != NULL)
 			{
 				route.store_at(tmp->count, tmp->gr->get_pos());
 				tmp = tmp->parent;
@@ -676,16 +676,16 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 	// there are several variant for maintaining the open list
 	// however, only binary heap and HOT queue with binary heap are worth considering
 #if defined(tpl_HOT_queue_tpl_h)
-    // static 
+    // static
 	HOT_queue_tpl <ANode *> queue;
 #elif defined(tpl_binary_heap_tpl_h)
-    //static 
+    //static
 	binary_heap_tpl <ANode *> queue;
 #elif defined(tpl_sorted_heap_tpl_h)
-    //static 
+    //static
 	sorted_heap_tpl <ANode *> queue;
 #else
-    //static 
+    //static
 	prioqueue_tpl <ANode *> queue;
 #endif
 
@@ -769,10 +769,10 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 		const ribi_t::ribi ribi = way_ribi & ( ~ribi_t::reverse_single(tmp->ribi_from) ) & tmp->jps_ribi;
 
 		const ribi_t::ribi *next_ribi = get_next_dirs(gr->get_pos(), ziel);
-		for(int r=0; r<4; r++) 
+		for(int r=0; r<4; r++)
 		{
 			// a way in our direction?
-			if(  (ribi & next_ribi[r])==0  ) 
+			if(  (ribi & next_ribi[r])==0  )
 			{
 				continue;
 			}
@@ -783,16 +783,16 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 			}
 
 			grund_t *to = NULL;
-			if(is_airplane) 
+			if(is_airplane)
 			{
 				const planquadrat_t *pl=welt->access(gr->get_pos().get_2d()+koord(next_ribi[r]));
-				if(pl) 
+				if(pl)
 				{
 					to = pl->get_kartenboden();
 				}
 			}
 
-			// a way goes here, and it is not marked (i.e. in the closed list)			
+			// a way goes here, and it is not marked (i.e. in the closed list)
 			if ((to || gr->get_neighbour(to, wegtyp, next_ribi[r])) && tdriver->check_next_tile(to) && !marker.is_marked(to))
 			{
 				// Do not go on a tile where a one way sign forbids going.
@@ -804,7 +804,7 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 				{
 					if (tdriver->get_waytype() == track_wt || tdriver->get_waytype() == narrowgauge_wt || tdriver->get_waytype() == maglev_wt || tdriver->get_waytype() == tram_wt || tdriver->get_waytype() == monorail_wt)
 					{
-						// Unidirectional signals allow routing in both directions but only act in one direction. Check whether this is one of those.					
+						// Unidirectional signals allow routing in both directions but only act in one direction. Check whether this is one of those.
 						if (!w->has_signal())
 						{
 							continue;
@@ -1221,11 +1221,11 @@ void route_t::postprocess_water_route(karte_t *welt)
 		// we need a halt of course ...
 		grund_t *gr = welt->lookup(ziel);
 		halthandle_t halt = gr->get_halt();
-		if(halt.is_bound()) 
+		if(halt.is_bound())
 		{
 			sint32 platform_size = 0;
 			// Count the station size
-			for(sint32 i = route.get_count() - 1; i >= 0 && max_len > 0 && halt == haltestelle_t::get_halt(route[i], NULL); i--) 
+			for(sint32 i = route.get_count() - 1; i >= 0 && max_len > 0 && halt == haltestelle_t::get_halt(route[i], NULL); i--)
 			{
 				platform_size++;
  			}
@@ -1262,14 +1262,14 @@ void route_t::postprocess_water_route(karte_t *welt)
 						}
 					}
 					else
-					{				
+					{
 						break;
 					}
 				}
-				
+
 				route.append(gr->get_pos());
 				platform_size++;
-				
+
 				if (has_signal)
 				{
 					ribi_t::ribi ribi_unmasked = gr->get_weg_ribi_unmasked(wegtyp);
@@ -1279,9 +1279,9 @@ void route_t::postprocess_water_route(karte_t *welt)
 				{
 					ribi_check = (tdriver->get_ribi(gr) & ribi) != 0;
 				}
-				
+
 			}
-			
+
 			if(!move_to_end_of_station && platform_size > max_len)
 			{
 				// Do not go to the end, but stop part way along the platform.
@@ -1293,7 +1293,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 			}
 
 			// station too short => warning!
-			if(max_len > platform_size) 
+			if(max_len > platform_size)
 			{
 				return valid_route_halt_too_short;
 			}

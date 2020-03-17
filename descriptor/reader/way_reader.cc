@@ -107,7 +107,7 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					desc->wear_capacity = decode_uint32(p);
 					desc->way_only_cost = decode_uint32(p);
 					desc->upgrade_group = decode_uint8(p);
-					desc->monthly_base_wear = decode_uint32(p); 
+					desc->monthly_base_wear = decode_uint32(p);
 				}
 				if(extended_version > 1)
 				{
@@ -220,7 +220,7 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(desc->wtyp==128) {
 		desc->wtyp = powerline_wt;
 	}
-	
+
 	if(version<=2  &&  desc->wtyp==air_wt  &&  desc->topspeed>=250) {
 		// runway!
 		desc->styp = type_runway;

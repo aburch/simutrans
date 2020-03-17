@@ -88,7 +88,7 @@ public:
 	static thread_local uint32 MAX_STEP;
 	static thread_local uint32 max_used_steps;
 	static void INIT_NODES(uint32 max_route_steps, const koord &world_size);
-	static uint8 GET_NODES(ANode **nodes); 
+	static uint8 GET_NODES(ANode **nodes);
 	static void RELEASE_NODES(uint8 nodes_index);
 	static void TERM_NODES(void* args = NULL);
 
@@ -152,7 +152,7 @@ public:
 	 * Removes all tiles before
 	 * this position.
 	 */
-	void remove_koord_to(uint32 i); 
+	void remove_koord_to(uint32 i);
 
 	/**
 	 * Appends a straight line to the @p target.

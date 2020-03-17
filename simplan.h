@@ -101,7 +101,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 	inline grund_t *get_boden_in_hoehe(const sint16 z) const {
-		if(  ground_size == 1  ) 
+		if(  ground_size == 1  )
 		{
 			// must be valid ground at this point!
 		    return data.one->get_hoehe() == z ? data.one : NULL;

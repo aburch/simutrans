@@ -130,7 +130,7 @@ private:
 public:
 
 	vehicle_class_manager_t(convoihandle_t cnv);
-	
+
 	/**
 	* Do the dynamic component layout
 	*/

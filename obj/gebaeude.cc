@@ -2264,7 +2264,7 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 {
 	if (get_stadt())
 	{
-		// Assume that this is already connected to a road if in a city.	
+		// Assume that this is already connected to a road if in a city.
 		return;
 	}
 	koord3d start = get_pos();

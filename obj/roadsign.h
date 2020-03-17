@@ -157,7 +157,7 @@ public:
 	uint8 get_lane_affinity() const { return lane_affinity; }
 	void set_lane_affinity(uint8 lf) { lane_affinity = lf; }
 	const koord3d get_intersection() const;
-	
+
 	uint8 get_open_direction() const { return open_direction; }
 	void set_open_direction(uint8 dir) { open_direction = dir; }
 
