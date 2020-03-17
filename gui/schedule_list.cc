@@ -113,6 +113,7 @@ static const char * line_alert_helptexts[5] =
 static const char * cnvlist_mode_button_texts[gui_convoiinfo_t::DISPLAY_MODES] =
 {
   "sl_btn_general",
+  "sl_btn_payload",
   "sl_btn_formation"
 };
 
@@ -212,7 +213,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	cont.set_size(scr_size(200, 80));
 	cont.set_pos(scr_coord(D_H_SPACE, D_V_SPACE));
 	scrolly_convois.set_pos(scr_coord(0, D_BUTTON_HEIGHT+D_H_SPACE));
-	scrolly_convois.set_show_scroll_x(true);
+	scrolly_convois.set_show_scroll_y(true);
 	scrolly_convois.set_scroll_amount_y(40);
 	scrolly_convois.set_visible(false);
 	cont_convoys.add_component(&scrolly_convois);
@@ -284,9 +285,11 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	livery_selector.add_listener(this);
 	add_component(&livery_selector);
 
-	bt_cnvdsp_mode.init(button_t::roundbox, cnvlist_mode_button_texts[0], scr_coord(D_MARGIN_LEFT, 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-	bt_cnvdsp_mode.add_listener(this);
-	cont_convoys.add_component(&bt_cnvdsp_mode);
+	bt_mode_convois.init(button_t::roundbox, cnvlist_mode_button_texts[0], scr_coord(D_MARGIN_LEFT, 2), scr_size(D_BUTTON_WIDTH+15, D_BUTTON_HEIGHT));
+	bt_mode_convois.add_listener(this);
+	cont_convoys.add_component(&bt_mode_convois);
+	info_tabs.add_tab(&cont_convoys, tab_name);
+
 
 	offset_y += D_BUTTON_HEIGHT;
 	// right tabs
@@ -297,7 +300,6 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	tab_name.clear();
 	tab_name.printf("%s%5s",translator::translate("Convoys"),"(0)");
-	info_tabs.add_tab(&cont_convoys, tab_name);
 
 	//CHART
 	chart.set_dimension(12, 1000);
@@ -315,7 +317,6 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 		cont_charts.add_component(filterButtons + i);
 	}
 	info_tabs.add_tab(&cont_charts, translator::translate("Chart"));
-
 
 	// recover last selected line
 	int index = 0;
@@ -434,9 +435,9 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 			create_win( new times_history_t(line, convoihandle_t()), w_info, (ptrdiff_t)line.get_rep() + 1 );
 		}
 	}
-	else if (comp == &bt_cnvdsp_mode) {
+	else if (comp == &bt_mode_convois) {
 		cnv_list_display_mode = (cnv_list_display_mode + 1) % gui_convoiinfo_t::DISPLAY_MODES;
-		bt_cnvdsp_mode.set_text(cnvlist_mode_button_texts[cnv_list_display_mode]);
+		bt_mode_convois.set_text(cnvlist_mode_button_texts[cnv_list_display_mode]);
 		update_lineinfo(line);
 	}
 	else if(comp == &livery_selector)
@@ -821,6 +822,9 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			case gui_convoiinfo_t::cnvlist_formation:
 				cinfo_height = 55;
 				break;
+			case gui_convoiinfo_t::cnvlist_payload:
+				cinfo_height = 40;
+				break;
 			case gui_convoiinfo_t::cnvlist_normal:
 			default:
 				cinfo_height = 40;
@@ -829,13 +833,13 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		for(i = 0;  i<icnv;  i++  ) {
 			gui_convoiinfo_t* const cinfo = new gui_convoiinfo_t(new_line->get_convoy(i), false);
 			cinfo->set_pos(scr_coord(0, ypos));
-			cinfo->set_size(scr_size(400, cinfo_height));
+			cinfo->set_size(scr_size(600, cinfo_height));
 			cinfo->set_mode(cnv_list_display_mode);
 			convoy_infos.append(cinfo);
 			cont.add_component(cinfo);
 			ypos += cinfo_height;
 		}
-		cont.set_size(scr_size(500, ypos));
+		cont.set_size(scr_size(600, ypos));
 
 		bt_delete_line.disable();
 		add_component(&bt_withdraw_line);
@@ -867,7 +871,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 					livery_scheme_t* scheme = schemes->get_element(i);
 					if (scheme->is_available(month_now))
 					{
-						for (int j = 0; j < new_line->count_convoys(); j++)
+						for (uint j = 0; j < new_line->count_convoys(); j++)
 						{
 							convoihandle_t const cnv_in_line = new_line->get_convoy(j);
 							for (int k = 0; k < cnv_in_line->get_vehicle_count(); k++) {
