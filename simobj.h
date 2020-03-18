@@ -126,7 +126,7 @@ public:
 	inline bool get_flag(flag_values flag) const {return ((flags & flag) != 0);}
 
 	/// all the different types of objects
-	// NOTE: These numbers are loaded/saved as an sint8. 
+	// NOTE: These numbers are loaded/saved as an sint8.
 	enum typ {
 		undefined=-1, obj=0, baum=1, zeiger=2,
 		wolke=3, sync_wolke=4, async_wolke=5,

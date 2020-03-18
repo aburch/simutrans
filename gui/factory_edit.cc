@@ -37,10 +37,10 @@ char factory_edit_frame_t::param_str[256];
 
 static bool compare_fabrik_desc(const factory_desc_t* a, const factory_desc_t* b)
 {
-	
+
 	int diff = strcmp(a->get_name(), b->get_name());
 	return diff < 0;
-	
+
 }
 
 static bool compare_fabrik_desc_trans(const factory_desc_t* a, const factory_desc_t* b)

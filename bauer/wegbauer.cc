@@ -677,7 +677,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		if (ri.pos != koord::invalid)
 		{
 			// There is a nearby runway. Only build if we are a runway in the same direction connecting to it,
-			// or a perpendicular taxiway.	
+			// or a perpendicular taxiway.
 			if (desc->get_waytype() != air_wt)
 			{
 				// A non air waytype: cannot be built near a runway at all.
@@ -2783,7 +2783,7 @@ void way_builder_t::build_track()
 						// we take ownership => we take care to maintain the roads completely ...
 						player_t *p = weg->get_owner();
 						cost -= weg->get_desc()->get_upgrade_group() == desc->get_upgrade_group() ? desc->get_way_only_cost() : desc->get_value();
-						
+
 						if (!desc->is_mothballed())
 						{
 							// If we are upgrading an unowned bridge or tunnel's way, take ownership of the bridge or tunnel.

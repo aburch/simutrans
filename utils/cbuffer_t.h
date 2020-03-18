@@ -90,7 +90,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void append(long n);
-	
+
 	/**
 	 * Appends a number. Buffer will be extended if it does not have enough capacity.
 	 * @author Hj. Malthaner

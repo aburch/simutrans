@@ -73,7 +73,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint16 uv16 = 0x8002;
 
 	// This is the overlay flag for Simutrans-Extended
-	// This sets the *second* highest bit to 1. 
+	// This sets the *second* highest bit to 1.
 	uv16 |= EX_VER;
 
 	// Finally, this is the extended version number. This is *added*

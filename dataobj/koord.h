@@ -95,16 +95,16 @@ private:
 	static const koord from_hang[81];
 };
 
-//static inline uint32 int_sqrt(const uint32 num) 
+//static inline uint32 int_sqrt(const uint32 num)
 //{
-//    if (0 == num) 
-//	{ 
+//    if (0 == num)
+//	{
 //		// Avoid zero divide
-//		return 0; 
-//	}  
+//		return 0;
+//	}
 //    uint32 n = (num / 2) + 1;       // Initial estimate, never low
 //    uint32 n1 = (n + (num / n)) / 2;
-//    while (n1 < n) 
+//    while (n1 < n)
 //	{
 //        n = n1;
 //        n1 = (n + (num / n)) / 2;
@@ -188,7 +188,7 @@ static inline koord operator - (const koord &a, const koord &b)
 	return koord(a.x - b.x, a.y - b.y);
 }
 
- 
+
 static inline koord operator - (const koord &a)
 {
 	return koord(-a.x, -a.y);

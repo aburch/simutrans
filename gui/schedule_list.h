@@ -43,7 +43,7 @@ private:
 
 	// vector of convoy info objects that are being displayed
 	vector_tpl<gui_convoiinfo_t *> convoy_infos;
-	
+
 	// vector of stop info objects that are being displayed
 	vector_tpl<halt_list_stats_t *> stop_infos;
 

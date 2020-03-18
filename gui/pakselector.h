@@ -27,7 +27,7 @@ protected:
 
 	virtual void init(const char *suffix, const char *path);
 	virtual void add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix);
-	
+
 public:
 	void fill_list();	// do the search ...
 	virtual bool has_title() const { return false; }

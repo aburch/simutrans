@@ -27,7 +27,7 @@ class gui_convoy_assembler;
 class depot_t : public gebaeude_t
 {
 protected:
-	/** 
+	/**
 	 * Reworked depot data!
 	 *
 	 * It can now contain any number of vehicles bought by the user (as before).

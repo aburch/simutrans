@@ -40,7 +40,7 @@ static bool compare_building_desc(const building_desc_t* a, const building_desc_
 	int diff = strcmp(a->get_name(), b->get_name());
 	return diff < 0;
 }
-		
+
 static bool compare_building_desc_trans(const building_desc_t* a, const building_desc_t* b)
 {
 	int diff = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));

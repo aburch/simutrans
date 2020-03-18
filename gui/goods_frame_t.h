@@ -42,7 +42,7 @@ private:
 	static uint32 distance_meters;
 	// Distance in km
 	static uint16 distance;
-	
+
 	static uint32 vehicle_speed;
 	static uint8 comfort;
 	static uint8 catering_level;
@@ -78,7 +78,7 @@ private:
 	button_t		catering_up;
 	button_t		catering_down;
 	*/
-	
+
 	// replace button list with numberinput components for faster navigation
 	// @author: HeinBloed, April 2012
 	gui_numberinput_t distance_input, comfort_input, catering_input, speed_input, class_input;

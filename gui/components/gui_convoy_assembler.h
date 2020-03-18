@@ -67,7 +67,7 @@ public:
  * This class allows the player to assemble a convoy from vehicles.
  * The code was extracted from depot_frame_t and adapted by isidoro
  *   in order to be used elsewhere if needed (Jan-09).
- * The author markers of the original code have been preserved when 
+ * The author markers of the original code have been preserved when
  *   possible.
  *
  * @author Hansjörg Malthaner
@@ -161,7 +161,7 @@ class gui_convoy_assembler_t :
 	gui_combobox_t action_selector;
 
 	gui_label_t lb_too_heavy_notice;
-	
+
 	gui_label_t lb_livery_selector;
 	gui_label_t lb_livery_counter;
 	gui_combobox_t livery_selector;
@@ -259,7 +259,7 @@ class gui_convoy_assembler_t :
 public:
 	// Last selected vehicle filter
 	static int selected_filter;
-	
+
 	// Used for listeners to know what has happened
 	enum { clear_convoy_action, remove_vehicle_action, insert_vehicle_in_front_action, append_vehicle_action };
 
@@ -325,7 +325,7 @@ public:
 	inline void set_convoy_tabs_skip(sint32 skip) {convoy_tabs_skip=skip;}
 
 	inline sint16 get_convoy_clist_width() const {return (vehicles.get_count() < 24 ? 24 : vehicles.get_count()) * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;}
-	
+
 	inline sint16 get_convoy_image_width() const {return get_convoy_clist_width() + placement_dx;}
 
 	inline sint16 get_convoy_image_height() const {return grid.y + 2 * gui_image_list_t::BORDER;}
@@ -334,7 +334,7 @@ public:
 
 	inline sint16 get_vinfo_height() const { return VINFO_HEIGHT; }
 
-	void set_panel_rows(sint32 dy); 
+	void set_panel_rows(sint32 dy);
 
 	inline sint16 get_panel_height() const {return (panel_rows * grid.y + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER) - 4;}
 

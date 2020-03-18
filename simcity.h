@@ -29,7 +29,7 @@ class karte_ptr_t;
 class player_t;
 class fabrik_t;
 class rule_t;
-struct route_range_specification; 
+struct route_range_specification;
 
 // For private subroutines
 class building_desc_t;
@@ -293,7 +293,7 @@ private:
 	// We swap between two routing tables to avert the need for copying, which is too expensive.
 	typedef koordhashtable_tpl<koord, vector_tpl<koord3d> > private_car_route_map;
 	private_car_route_map private_car_routes[2];
-	/// This is the set of routes that is currently being used by the running game, 
+	/// This is the set of routes that is currently being used by the running game,
 	/// not the one that is set aside for multi-threaded insertion by the route-finder.
 	uint32 currently_active_route_map;
 
@@ -359,7 +359,7 @@ public:
 	*/
 	void check_city_tiles(bool del = false);
 
-	
+
 private:
 	sint32 best_haus_wert;
 	sint32 best_strasse_wert;
@@ -641,7 +641,7 @@ public:
 	bool get_citygrowth() const { return allow_citygrowth; }
 
 	void step(uint32 delta_t);
-	
+
 	/// Things that only one city per world step should do.
 	void step_heavy();
 
@@ -666,7 +666,7 @@ public:
 	void store_private_car_route(vector_tpl<koord3d> route, koord pos);
 
 	/// Clears a private car route to a particular destination, including iterating over road tiles deleting the routes there.
-	void clear_private_car_route(koord pos, bool clear_connected_tables); 
+	void clear_private_car_route(koord pos, bool clear_connected_tables);
 
 	/// Take stored routes from the newly added list and add them to route tiles, moving the route to the procesed list.
 	void process_private_car_routes();

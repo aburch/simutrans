@@ -1,5 +1,5 @@
 #ifndef dataobj_livery_scheme_h
-#define dataobj_livery_scheme_h 
+#define dataobj_livery_scheme_h
 /*
   * @author: jamespetts, April 2011
   * This file is part of the Simutrans project under the artistic licence.
@@ -29,7 +29,7 @@ private:
 
 public:
 	livery_scheme_t(const char* n, const uint16 date);
-	
+
 	const char* get_name() const { return scheme_name.c_str(); }
 
 	void add_livery(const char* name, uint16 intro)
@@ -55,11 +55,11 @@ public:
 			ITERATE(liveries, i)
 			{
 				if(date >= liveries.get_element(i).intro_date)
-				{ 
+				{
 					return true;
 				}
 			}
-			
+
 			return false;
 		}
 	}

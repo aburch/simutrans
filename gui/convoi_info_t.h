@@ -30,7 +30,7 @@
 
 #include "../utils/cbuffer_t.h"
 
-//Bernd Gabriel, Dec, 03 2009: acceleration curve. 
+//Bernd Gabriel, Dec, 03 2009: acceleration curve.
 // define ACCELERATION_BUTTON to show it and the graph.
 // do not define it and there are neither button nor graph.
 #define ACCELERATION_BUTTON convoi_t::MAX_CONVOI_COST
@@ -43,16 +43,16 @@
 class convoi_info_t : public gui_frame_t, private action_listener_t
 {
 public:
-	enum sort_mode_t { 
+	enum sort_mode_t {
 		by_destination = 0,
 		by_via = 1,
-		by_amount_via = 2, 
+		by_amount_via = 2,
 		by_amount = 3,
 		by_origin = 4,
-		by_origin_sum = 5, 
-		by_destination_detail = 6, 
-		by_wealth_detail = 7, 
-		by_wealth_via = 8, 
+		by_origin_sum = 5,
+		by_destination_detail = 6,
+		by_wealth_detail = 7,
+		by_wealth_via = 8,
 		by_accommodation_detail = 9,
 		by_accommodation_via = 10,
 		SORT_MODES = 11

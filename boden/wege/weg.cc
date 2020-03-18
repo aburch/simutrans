@@ -480,7 +480,7 @@ void weg_t::rdwr(loadsave_t *file)
 			if (file->is_saving())
 			{
 				uint32 private_car_routes_count = private_car_routes.get_count();
-				file->rdwr_long(private_car_routes_count); 
+				file->rdwr_long(private_car_routes_count);
 				FOR(private_car_route_map, element, private_car_routes)
 				{
 					koord destination = element.key;
@@ -497,11 +497,11 @@ void weg_t::rdwr(loadsave_t *file)
 				for (uint32 i = 0; i < private_car_routes_count; i++)
 				{
 					koord destination;
-					destination.rdwr(file); 
+					destination.rdwr(file);
 					koord3d next_tile;
 					next_tile.rdwr(file);
 					bool put_succeeded = private_car_routes.put(destination, next_tile);
-					assert(put_succeeded); 
+					assert(put_succeeded);
 				}
 			}
 		}
@@ -637,17 +637,17 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		// This generates a lot of text spam, so this should no be enabled by default.
 		if (!private_car_routes.empty())
 		{
-			buf.append("\n"); 
+			buf.append("\n");
 			buf.append(translator::translate("Road routes from here:")); // TODO: Add translator entry for this text - if this does not remain debug only.
 			FOR(private_car_route_map, const& route, private_car_routes)
 			{
-				
+
 				const grund_t* gr = welt->lookup_kartenboden(route.key);
 				const gebaeude_t* building = gr ? gr->get_building() : NULL;
 				if (building)
 				{
 					buf.append("\n");
-					buf.append(translator::translate(building->get_individual_name())); 
+					buf.append(translator::translate(building->get_individual_name()));
 				}
 				else
 				{
@@ -655,7 +655,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 					if (city)
 					{
 						buf.append("\n");
-						buf.append(city->get_name()); 
+						buf.append(city->get_name());
 					}
 				}
 			}
@@ -666,7 +666,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 
 	if (wtyp == air_wt && desc->get_styp() == type_runway)
 	{
-		runway_directions run_dirs = get_runway_directions(); 
+		runway_directions run_dirs = get_runway_directions();
 		const double km_per_tile = welt->get_settings().get_meters_per_tile();
 
 		if(run_dirs.runway_36_18)
@@ -679,7 +679,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 			buf.append("\n");
 		}
 		if(run_dirs.runway_9_27)
-		{		
+		{
 			const double runway_meters_09_27 = (double)get_runway_length(false) * km_per_tile;
 
 			buf.printf("%s: ", translator::translate("runway_09/27"));
@@ -1135,7 +1135,7 @@ uint32 weg_t::get_runway_length(bool runway_36_18) const
 		}
 		return runway_tiles;
 	}
-	
+
 	// From here on in, we are testing the 9/27 direction
 
 	runway_tiles = 0;
@@ -1375,7 +1375,7 @@ void weg_t::calc_image()
 		set_image(IMG_EMPTY);
 		set_after_image(IMG_EMPTY);
 	}
-	
+
 	else {
 		// use snow image if above snowline and above ground
 		bool snow = (from->ist_karten_boden() || !from->ist_tunnel()) && (get_pos().z + from->get_weg_yoff() / TILE_HEIGHT_STEP >= welt->get_snowline() || welt->get_climate(get_pos().get_2d()) == arctic_climate);
@@ -1404,7 +1404,7 @@ void weg_t::calc_image()
 				set_images(image_slope, hang, snow);
 			}
 		}
-		
+
 		else {
 			static int recursion = 0; /* Communicate among different instances of this method */
 
@@ -1416,7 +1416,7 @@ void weg_t::calc_image()
 			else {
 				set_images(image_flat, ribi, snow);
 			}
-			
+
 			// recalc image of neighbors also when this changed to non-diagonal
 			if(recursion == 0) {
 				recursion++;

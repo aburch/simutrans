@@ -48,7 +48,7 @@ public:
 	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8, MAX_LINE_TYPE};
 
 	enum states { line_normal_state = 0, line_no_convoys = 1, line_loss_making = 2, line_nothing_moved = 3, line_overcrowded = 4, line_missing_scheduled_slots = 5, line_has_obsolete_vehicles = 6, line_has_obsolete_vehicles_with_upgrades = 7 };
-	
+
 protected:
 	schedule_t * schedule;
 	player_t *player;
@@ -87,7 +87,7 @@ private:
 
 	// The classes of passengers/mail carried by this line
 	// Cached to reduce recalculation times in the path
-	// explorer. 
+	// explorer.
 	vector_tpl<uint8> passenger_classes_carried;
 	vector_tpl<uint8> mail_classes_carried;
 
@@ -217,11 +217,11 @@ public:
 	sint64 get_finance_history(int month, line_cost_t cost_type) const { return financial_history[month][cost_type]; }
 	sint64 get_stat_converted(int month, int cost_type) const;
 
-	void book(sint64 amount, line_cost_t cost_type) 
+	void book(sint64 amount, line_cost_t cost_type)
 	{
 		if(cost_type != LINE_AVERAGE_SPEED && cost_type != LINE_COMFORT)
 		{
-			financial_history[0][cost_type] += amount; 
+			financial_history[0][cost_type] += amount;
 		}
 		else
 		{
@@ -231,7 +231,7 @@ public:
 				rolling_average_count[cost_type] /= 2;
 				rolling_average[cost_type] /= 2;
 			}
-			rolling_average[cost_type] += (uint32)amount;			
+			rolling_average[cost_type] += (uint32)amount;
 			rolling_average_count[cost_type] ++;
 			const sint64 tmp = (sint64)rolling_average[cost_type] / (sint64)rolling_average_count[cost_type];
 			financial_history[0][cost_type] = tmp;

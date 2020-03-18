@@ -124,7 +124,7 @@ uint32 simrand(const uint32 max, const char*)
 
 #ifdef DEBUG_SIMRAND_CALLS_1
 	// Run the random number generator to change the seed,
-	// but do not use the number to ensure a consistent 
+	// but do not use the number to ensure a consistent
 	// code path for debugging.
 	simrand_plain();
 	return max - 1;
@@ -137,7 +137,7 @@ uint32 simrand(const uint32 max, const char*)
 #endif
 }
 
-/** 
+/**
  * Generates a random number on [0,max-1] interval with a normal distribution
  * See: http://forum.simutrans.com/index.php?topic=10953.0;all for details
  * Takes an exponent, but produces unreasonably low values with any number
@@ -154,7 +154,7 @@ uint32 simrand_normal(const uint32 max, uint32 exponent, const char*)
 #else
 	uint64 random_number = simrand(max, "simrand_normal");
 #endif
-	
+
 	if(exponent == 0)
 	{
 		// Non-normalised random number.
@@ -298,9 +298,9 @@ void init_perlin_map( sint32 w, sint32 h )
 
 		map_w = w+2;
 		map = new float[map_w*(h+2)];
-		for(  sint32 y=0;  y<h+2;  y++ ) 
+		for(  sint32 y=0;  y<h+2;  y++ )
 		{
-			for(  sint32 x=0;  x<map_w;  x++ ) 
+			for(  sint32 x=0;  x<map_w;  x++ )
 			{
 				map[x+(y*map_w)] = (float)int_noise( x-1, y-1 );
 			}
@@ -313,9 +313,9 @@ void init_perlin_map( sint32 w, sint32 h )
 								 int_noise(x, y-1) + int_noise(x, y+1) );*/
 		map_w = w+2;
 		map = new float[map_w*(h+2)];
-		for(  sint32 y=0;  y<h+2;  y++ ) 
+		for(  sint32 y=0;  y<h+2;  y++ )
 		{
-			for(  sint32 x=0;  x<map_w;  x++ ) 
+			for(  sint32 x=0;  x<map_w;  x++ )
 			{
 				map[x+(y*map_w)] = (float)( int_noise(x-1, y) + int_noise(x+1, y) +
 								 int_noise(x, y-1) + int_noise(x, y+1) );
@@ -436,9 +436,9 @@ double perlin_noise_2D(const double x, const double y, const double p, const sin
 	//static const double frequency_2[24] = {0.125, 0.25, 0.5, 1, 1.25, 1.5,  1.75, 2,  2.5, 3, 3.5, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24, 28, 32};
 	//static const double amplitude_2[24] = {-1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10};
 
-	if(m < 768) 
+	if(m < 768)
 	{
-		for(i = 0; i < 6; i++) 
+		for(i = 0; i < 6; i++)
 		{
 		const double frequency = frequency_0[i];
 		const double amplitude = pow(p, amplitude_0[i]);
@@ -446,10 +446,10 @@ double perlin_noise_2D(const double x, const double y, const double p, const sin
 			                            (y * frequency) / 64.0) * amplitude;
 		}
 		return total;
-	} 
+	}
 	else if(m < 2048)
 	{
-		for(i = 0; i < 8; i++) 
+		for(i = 0; i < 8; i++)
 		{
 			const double frequency = frequency_1[i];
 			const double amplitude = pow(p, amplitude_1[i]);
@@ -460,7 +460,7 @@ double perlin_noise_2D(const double x, const double y, const double p, const sin
 	}
 	else
 	{
-		for(i = 0; i < 16; i++) 
+		for(i = 0; i < 16; i++)
 		{
 			const double frequency = frequency_2[i];
 			const double amplitude = pow(p, amplitude_2[i]);

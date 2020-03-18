@@ -9,7 +9,7 @@
 template<class T> class slist_tpl;
 
 
-class imagelist3d_writer_t : public obj_writer_t 
+class imagelist3d_writer_t : public obj_writer_t
 {
 	private:
 		static imagelist3d_writer_t the_instance;

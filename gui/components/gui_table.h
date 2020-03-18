@@ -24,7 +24,7 @@ typedef PLAYER_COLOR_VAL color_t;
 
 
 /**
- * 
+ *
  *
  * @since 22-MAR-2010
  * @author Bernd Gabriel
@@ -53,7 +53,7 @@ class gui_table_column_t;
 
 
 /**
- * 
+ *
  *
  * @since 05-APR-2010
  * @author Bernd Gabriel
@@ -62,7 +62,7 @@ class gui_table_intercept_t
 {
 private:
 	char *name;
-	scr_coord_val size; 
+	scr_coord_val size;
 	bool sort_descendingly;
 protected:
 	scr_coord_val get_size() const { return size; }
@@ -78,7 +78,7 @@ public:
 
 
 /**
- * 
+ *
  *
  * @since 22-MAR-2010
  * @author Bernd Gabriel
@@ -95,7 +95,7 @@ public:
 
 
 /**
- * 
+ *
  *
  * @since 22-MAR-2010
  * @author Bernd Gabriel
@@ -111,7 +111,7 @@ public:
 };
 
 
-class gui_table_property_t 
+class gui_table_property_t
 {
 private:
 	gui_table_t *owner;
@@ -123,7 +123,7 @@ public:
 
 
 /**
- * 
+ *
  *
  * @since 22-MAR-2010
  * @author Bernd Gabriel
@@ -136,7 +136,7 @@ protected:
 
 
 /**
- * 
+ *
  *
  * @since 22-MAR-2010
  * @author Bernd Gabriel
@@ -149,7 +149,7 @@ protected:
 
 
 /**
- * A table component. 
+ * A table component.
  * - allows any number of columns and rows with individual widths and heights.
  * - allows a grid of any width.
  *
@@ -186,7 +186,7 @@ protected:
 	/**
 	 * paint_cell() is called in paint_cells(), whenever a cell has to be painted.
 	 *
-	 * It has to paint cell (x,y) at position offset. 
+	 * It has to paint cell (x,y) at position offset.
 	 * The default implementation calls draw() of the component of cell (x,y), if there is one.
 	 */
 	virtual void paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y);
@@ -194,7 +194,7 @@ protected:
 	/**
 	 * paint_cells() is called in draw() after painting the grid.
 	 *
-	 * It has to paint the cell content. 
+	 * It has to paint the cell content.
 	 * The default implementation calls paint_cell() with the correct cell offset for each cell.
 	 */
 	virtual void paint_cells(const scr_coord& offset);
@@ -216,10 +216,10 @@ public:
 	 * size.y is the number of cells vertically.
 	 */
 	const coordinates_t get_grid_size() const {
-		return coordinates_t(columns.get_count(), rows.get_count()); 
+		return coordinates_t(columns.get_count(), rows.get_count());
 	}
-	void set_grid_size(const coordinates_t &value) { 
-		const coordinates_t &old_size = get_grid_size(); 
+	void set_grid_size(const coordinates_t &value) {
+		const coordinates_t &old_size = get_grid_size();
 		if (!old_size.equals(value)) {
 			change_size(old_size, value);
 		}
@@ -256,7 +256,7 @@ public:
 	 */
 	bool get_grid_visible() const { return grid_visible; }
 	void set_grid_visible(bool value) { grid_visible = value; }
-	
+
 	/**
 	 * Get/set width of columns and heights of rows.
 	 */
@@ -280,7 +280,7 @@ public:
 	virtual bool infowin_event(const event_t *ev);
 
 	/**
-	 * Set row sort order of a column. 
+	 * Set row sort order of a column.
 	 * @param x index of column, whose position in the sort order is to be set.
 	 * @param prio 0: main sort column, prio > 0: sort column, if rows are the same in column prio - 1.
 	 */
@@ -288,7 +288,7 @@ public:
 	void sort_rows();
 
 	/**
-	 * Set column sort order of a row. 
+	 * Set column sort order of a row.
 	 * @param y index of row, whose position in the sort order is to be set.
 	 * @param prio 0: main sort row, prio > 0: sort row, if columns are the same in row prio - 1.
 	 */
