@@ -144,13 +144,26 @@ char const *const NOTICE_DISABLED_PUBLIC_WAY = "Not allowed to make publicly own
 
 /****************************************** static helper functions **************************************/
 
+size_t strncopy_to_break( char *dest, const char *src, size_t n )
+{
+	const char *p = src;
+	for(  int i=0;  ((uint8)*p)>=32  &&  i<n;  i++  ) { 
+		*dest++ = *p++;
+	}
+	*dest = 0;
+	return p - src;
+}
+
+
+
 /**
  * Creates a tooltip from tip text and money value
  */
 char *tooltip_with_price(const char * tip, sint64 price)
 {
-	const int n = sprintf(tool_t::toolstr, "%s, ", translator::translate(tip) );
-	money_to_string(tool_t::toolstr+n, (double)price/-100.0);
+	int n = strncopy_to_break( tool_t::toolstr, translator::translate( tip ), 256 );
+	memcpy( tool_t::toolstr + n, ", ", 2 );
+	money_to_string(tool_t::toolstr+n+2, (double)price/-100.0);
 	return tool_t::toolstr;
 }
 
@@ -160,10 +173,10 @@ char *tooltip_with_price(const char * tip, sint64 price)
  */
 char *tooltip_with_price_length(const char * tip, sint64 price, sint64 length)
 {
-	int n;
-	n = sprintf(tool_t::toolstr, translator::translate("length: %d"), length);
-	n += sprintf(tool_t::toolstr+n, ", %s: ", translator::translate(tip));
-	money_to_string(tool_t::toolstr+n, (double)price/-100.0);
+	int n = sprintf(tool_t::toolstr, translator::translate("length: %d"), length);
+	n += strncopy_to_break( tool_t::toolstr+n, translator::translate( tip ), 256 );
+	memcpy( tool_t::toolstr+n, ", ", 2 );
+	money_to_string(tool_t::toolstr+n+2, (double)price/-100.0);
 	return tool_t::toolstr;
 }
 
@@ -173,12 +186,13 @@ char *tooltip_with_price_length(const char * tip, sint64 price, sint64 length)
  */
 char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 price, sint64 maintenance)
 {
-	int n = sprintf(tool_t::toolstr, "%s, ", translator::translate(tip) );
-	money_to_string(tool_t::toolstr+n, (double)price/-100.0);
-	strcat( tool_t::toolstr, " (" );
-	n = strlen(tool_t::toolstr);
+	int n = strncopy_to_break( tool_t::toolstr, translator::translate( tip ), 256 );
+	memcpy( tool_t::toolstr+n, ", ", 2 );
+	money_to_string(tool_t::toolstr+n+2, (double)price/-100.0);
+	n += strlen(tool_t::toolstr+n);
+	strcpy( tool_t::toolstr+n, " (" );
 
-	money_to_string(tool_t::toolstr+n, (double)(welt->scale_with_month_length(maintenance) ) / 100.0);
+	money_to_string(tool_t::toolstr+n+2, (double)(welt->scale_with_month_length(maintenance) ) / 100.0);
 	strcat( tool_t::toolstr, ")" );
 	return tool_t::toolstr;
 }
@@ -190,8 +204,9 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
  */
 static char const* tooltip_with_price_maintenance_capacity(karte_t* const welt, char const* const tip, sint64 const price, sint64 const maintenance, uint32 const capacity, uint8 const enables)
 {
-	int n = sprintf(tool_t::toolstr, "%s, ", translator::translate(tip) );
-	money_to_string(tool_t::toolstr+n, (double)price/-100.0);
+	int n = strncopy_to_break( tool_t::toolstr, translator::translate( tip ), 256 );
+	memcpy( tool_t::toolstr+n, ", ", 2 );
+	money_to_string(tool_t::toolstr+n+2, (double)price/-100.0);
 	strcat( tool_t::toolstr, " (" );
 	n = strlen(tool_t::toolstr);
 
