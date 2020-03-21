@@ -1943,6 +1943,7 @@ void karte_t::suspend_private_car_threads()
 	await_private_car_threads();
 	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 	assert(error == 0 || error == EINVAL);
+	route_t::suspend_private_car_routing = true;
 	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 	assert(error == 0 || error == EINVAL);
 	start_private_car_threads(true);
@@ -3094,8 +3095,6 @@ karte_t::karte_t() :
 karte_t::~karte_t()
 {
 	is_sound = false;
-	await_private_car_threads();
-	suspend_private_car_threads(); // Necessary to prevent thread deadlocks.
 	destroy();
 
 	// not deleting the tools of this map ...
