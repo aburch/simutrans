@@ -938,6 +938,7 @@ public:
 	static simthread_barrier_t private_car_barrier;
 	static pthread_mutex_t unreserve_route_mutex;
 	static pthread_mutex_t step_passengers_and_mail_mutex;
+	static bool private_car_route_mutex_initialised;
 	static pthread_mutex_t private_car_route_mutex; 
 	void start_passengers_and_mail_threads();
 	void start_convoy_threads();
