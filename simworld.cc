@@ -1936,24 +1936,21 @@ void karte_t::await_private_car_threads(bool override_suspend)
 
 void karte_t::suspend_private_car_threads()
 {
+	if (!private_car_route_mutex_initialised)
+	{
+		return;
+	}
 	await_private_car_threads();
 	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 	assert(error == 0 || error == EINVAL);
-	route_t::suspend_private_car_routing = true;
-	if (private_car_route_mutex_initialised)
-	{
-		error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
-	}
+	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 	assert(error == 0 || error == EINVAL);
 	start_private_car_threads(true);
 	await_private_car_threads(true);
 	error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 	assert(error == 0 || error == EINVAL);
 	route_t::suspend_private_car_routing = false;
-	if (private_car_route_mutex_initialised)
-	{
-		error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
-	}
+	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 	assert(error == 0 || error == EINVAL);
 }
 
