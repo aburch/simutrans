@@ -27,6 +27,7 @@ class karte_ptr_t;
 class koord;
 class koord3d;
 class label_t;
+class leitung_t;
 class loadsave_t;
 struct schedule_entry_t;
 struct my_ribi_t;
@@ -384,6 +385,7 @@ namespace script_api {
 	declare_specialized_param(baum_t*, "t|x|y", "tree_x");
 	declare_specialized_param(gebaeude_t*, "t|x|y", "building_x");
 	declare_specialized_param(label_t*, "t|x|y", "label_x");
+	declare_specialized_param(leitung_t*, "t|x|y", "powerline_x");
 	declare_specialized_param(weg_t*, "t|x|y", "way_x");
 
 	/**

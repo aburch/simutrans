@@ -8,6 +8,11 @@
 /** @page changelog Changelog
  *
  * @section api-trunk Current trunk
+ *
+ * - Added powerlines: @ref powerline_x, @ref transformer_x, @ref factory_x::get_transformer, @ref factory_x::is_transformer_connected
+ *
+ * @section api-121 Release 120.1
+ *
  * - Added functions to mark tiles, see @ref tile_x::mark
  * - Added @ref convoy_x::is_schedule_editor_open
  *

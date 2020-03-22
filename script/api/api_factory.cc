@@ -333,6 +333,17 @@ void export_factory(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &factory_get_halt_list, "get_halt_list", true);
 
+	/**
+	 * Checks whether a transformer is connected.
+	 * @returns name
+	 */
+	register_method(vm, &fabrik_t::is_transformer_connected,  "is_transformer_connected");
+	/**
+	 * Get connected transformer (if any).
+	 * @returns transformer
+	 */
+	register_method(vm, &fabrik_t::get_transformer, "get_transformer");
+
 	// pop class
 	end_class(vm);
 

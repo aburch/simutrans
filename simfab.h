@@ -570,6 +570,8 @@ public:
 	 */
 	bool is_transformer_connected() const { return transformer != NULL; }
 
+	leitung_t* get_transformer() { return transformer; }
+
 	/**
 	 * Connect transformer to this factory.
 	 */

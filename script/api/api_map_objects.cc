@@ -20,6 +20,7 @@
 #include "../../obj/baum.h"
 #include "../../obj/gebaeude.h"
 #include "../../obj/label.h"
+#include "../../obj/leitung2.h"
 #include "../../obj/roadsign.h"
 #include "../../obj/signal.h"
 #include "../../player/simplay.h"
@@ -127,6 +128,12 @@ SQInteger exp_obj_pos_constructor(HSQUIRRELVM vm) // parameters: sint16 x, sint1
 				obj = gr->suche_obj(obj_t::signal);
 			}
 		}
+		else if (type == obj_t::pumpe  ||  type == obj_t::senke) {
+			obj = gr->suche_obj(obj_t::pumpe);
+			if (obj == NULL) {
+				obj = gr->suche_obj(obj_t::senke);
+			}
+		}
 		else if (type != obj_t::old_airdepot) { // special treatment of depots
 			obj = gr->suche_obj(type);
 		}
@@ -160,6 +167,7 @@ getpush_obj_pos(baum_t, obj_t::baum);
 getpush_obj_pos(gebaeude_t, obj_t::gebaeude);
 getpush_obj_pos(label_t, obj_t::label);
 getpush_obj_pos(weg_t, obj_t::way);
+getpush_obj_pos(leitung_t, obj_t::leitung);
 
 namespace script_api {
 	// each depot has its own class
@@ -177,7 +185,11 @@ namespace script_api {
 	declare_specialized_param(roadsign_t*, "t|x|y", "sign_x");
 	declare_specialized_param(signal_t*, "t|x|y", "sign_x");
 
+	//  map all to one transformer class
+	declare_specialized_param(pumpe_t*,  "t|x|y", "transformer_x");
+	declare_specialized_param(senke_t*,  "t|x|y", "transformer_x");
 };
+
 // base depot class, use old_airdepot as identifier here
 getpush_obj_pos(depot_t, obj_t::old_airdepot);
 // now all the derived classes
@@ -192,6 +204,10 @@ getpush_obj_pos(maglevdepot_t, obj_t::maglevdepot);
 // roadsigns/signals
 getpush_obj_pos(roadsign_t, obj_t::roadsign);
 getpush_obj_pos(signal_t, obj_t::signal);
+//  powerlines
+getpush_obj_pos(pumpe_t, obj_t::pumpe);
+getpush_obj_pos(senke_t, obj_t::senke);
+
 
 #define case_resolve_obj(D) \
 	case bind_code<D>::objtype: \
@@ -221,6 +237,10 @@ SQInteger script_api::param<obj_t*>::push(HSQUIRRELVM vm, obj_t* const& obj)
 		case_resolve_obj(monoraildepot_t);
 		case_resolve_obj(tramdepot_t);
 		case_resolve_obj(maglevdepot_t);
+
+		case_resolve_obj(leitung_t);
+		case_resolve_obj(pumpe_t);
+		case_resolve_obj(senke_t);
 
 		default:
 			return access_objs<obj_t>::push_with_pos(vm, obj);
@@ -354,6 +374,21 @@ vector_tpl<convoihandle_t> const& depot_get_convoy_list(depot_t *depot)
 	return list;
 }
 
+const fabrik_t* transformer_get_factory(leitung_t *lt)
+{
+	if (pumpe_t *p = dynamic_cast<pumpe_t*>(lt)) {
+		return p->get_factory();
+	}
+	if (senke_t *s = dynamic_cast<senke_t*>(lt)) {
+		return s->get_factory();
+	}
+	return NULL;
+}
+
+bool leitung_is_connected(leitung_t* lt1, leitung_t* lt2)
+{
+	return lt2 != NULL  &&  lt1->get_net() == lt2->get_net();
+}
 
 void export_map_objects(HSQUIRRELVM vm)
 {
@@ -595,5 +630,30 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @param player
 	 */
 	register_method(vm, &roadsign_can_pass, "can_pass", true);
+	end_class(vm);
+
+	/**
+	 * Powerlines.
+	 * (Including transformers. Can be differentiated by @ref obj_x::get_type.
+	 */
+	begin_obj_class<leitung_t>(vm, "powerline_x", "map_object_x");
+
+	/**
+	 * Checkes whether powerline (or transformer) is connected to @p pl are connected.
+	 * @param pl other powerline/transformer
+	 */
+	register_method(vm, &leitung_is_connected, "is_connected", true);
+	end_class(vm);
+
+	/**
+	 * Transformers.
+	 * Sink and source can be differentiated by @ref obj_x::get_type.
+	 */
+	begin_obj_class<pumpe_t>(vm, "transformer_x", "powerline_x");
+
+	/**
+	 * Get factory connected to this transformer.
+	 */
+	register_method(vm, &transformer_get_factory, "get_factory", true);
 	end_class(vm);
 }
