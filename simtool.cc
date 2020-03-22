@@ -147,7 +147,7 @@ char const *const NOTICE_DISABLED_PUBLIC_WAY = "Not allowed to make publicly own
 size_t strncopy_to_break( char *dest, const char *src, size_t n )
 {
 	const char *p = src;
-	for(  int i=0;  ((uint8)*p)>=32  &&  i<n;  i++  ) { 
+	for(  size_t i=0;  ((uint8)*p)>=32  &&  i<n;  i++  ) {
 		*dest++ = *p++;
 	}
 	*dest = 0;
