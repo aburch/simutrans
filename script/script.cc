@@ -71,7 +71,7 @@ void script_vm_t::errorfunc(HSQUIRRELVM vm, const SQChar *s_, ...)
 	}
 	else if (strcmp(s, "</error>")==0) {
 		// end of error message
-		help_frame_t *win = dynamic_cast<help_frame_t*>(win_get_magic((ptrdiff_t)script));
+		help_frame_t *win = dynamic_cast<help_frame_t*>(win_get_magic(magic_script_error));
 		if (win == NULL) {
 			win = new help_frame_t();
 			create_win( win, w_info, magic_script_error);
