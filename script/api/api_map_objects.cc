@@ -87,8 +87,11 @@ template<class D> struct access_objs {
 				return SQ_ERROR;
 			}
 		}
-		else{
-			assert(bind_code<D>::objtype == obj->get_typ());
+		else if (bind_code<D>::objtype != obj->get_typ()) {
+			// obj is instance of derived class
+			return script_api::param<obj_t*>::push(vm, obj);
+		}
+		else {
 			// specific object with its own constructor, type already preset as default parameter
 			if (!SQ_SUCCEEDED(push_instance(vm, script_api::param<D*>::squirrel_type(), x, y, z))) {
 				return SQ_ERROR;
