@@ -356,6 +356,7 @@ namespace script_api {
 
 	declare_specialized_param(convoi_t*, "t|x|y", "convoy_x");
 	declare_specialized_param(fabrik_t*, "t|x|y", "factory_x");
+	declare_specialized_param(const fabrik_t*, "t|x|y", "factory_x");
 	declare_specialized_param(grund_t*, "t|x|y", "tile_x");
 	declare_specialized_param(const haltestelle_t*, "t|x|y", "halt_x");
 	declare_param_mask(haltestelle_t*, "t|x|y", "halt_x");
