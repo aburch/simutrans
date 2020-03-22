@@ -33,6 +33,7 @@ gui_scrollpane_t::gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x, bool 
 
 	old_comp_size = scr_size::invalid;
 	take_cached_size = false;
+	maximize = false;
 }
 
 
