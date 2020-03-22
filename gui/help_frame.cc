@@ -352,9 +352,11 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 			set_text( buf, resize_frame );
 			free(buf);
 		}
-		else {
-			set_text( "<title>Error</title>Help text not found", resize_frame );
-		}
+		else {{
+			cbuffer_t buf;
+			buf.printf("<title>%s</title>%s", translator::translate("Error"), translator::translate("Help text not found"));
+			set_text(buf, resize_frame );
+		}}
 	}
 	else {
 		// default text when opening general help
