@@ -8,7 +8,6 @@
 #include "../../simcolor.h"
 #include "../../simevent.h"
 #include "../../display/simgraph.h"
-#include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
 #include "../gui_theme.h"
 
