@@ -240,7 +240,8 @@ const char* script_vm_t::intern_finish_call(HSQUIRRELVM job, call_type_t ct, int
 	BEGIN_STACK_WATCH(job);
 	// stack: closure, nparams*objects
 	const char* err = NULL;
-	bool suspended = sq_getvmstate(job) == SQ_VMSTATE_SUSPENDED;
+	// only call the closure if vm is idle (maybe in RUN state)
+	bool suspended = sq_getvmstate(job) != SQ_VMSTATE_IDLE;
 	// check queue, if not empty resume first job in queue
 	if (!suspended  &&  ct != FORCE  &&  ct != FORCEX) {
 		sq_pushregistrytable(job);
