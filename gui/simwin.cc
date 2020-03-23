@@ -1889,7 +1889,7 @@ void win_load_font(const char *fname, uint16 fontsize)
 
 	if (display_load_font(fname, force_reload) ) {
 		// successfull
-		gui_theme_t::themes_init( env_t::default_theme, false );
+		gui_theme_t::themes_init( env_t::default_theme, false, false );
 
 		event_t *ev = new event_t();
 		ev->ev_class = EVENT_SYSTEM;

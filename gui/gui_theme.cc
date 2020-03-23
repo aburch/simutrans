@@ -7,6 +7,7 @@
 
 
 #include "gui_theme.h"
+#include "../simworld.h"
 #include "../simskin.h"
 #include "../simmenu.h"
 #include "../sys/simsys.h"
@@ -381,7 +382,7 @@ void gui_theme_t::init_gui_from_images()
  * manager. This will be done as the last step in
  * the chain when loading a theme.
  */
-bool gui_theme_t::themes_init(const char *file_name, bool init_fonts )
+bool gui_theme_t::themes_init(const char *file_name, bool init_fonts, bool init_tools )
 {
 	tabfile_t themesconf;
 
@@ -565,7 +566,7 @@ bool gui_theme_t::themes_init(const char *file_name, bool init_fonts )
 	env_t::toolbar_max_width =    contents.get_int("toolbar_max_width",          env_t::toolbar_max_width );
 	env_t::toolbar_max_height =   contents.get_int("toolbar_max_height",         env_t::toolbar_max_height );
 
-	if(  toolbar_last_used_t::last_used_tools  ) {
+	if(  toolbar_last_used_t::last_used_tools  &&  init_tools  ) {
 		// only re-init if already inited
 		tool_t::update_toolbars();
 	}

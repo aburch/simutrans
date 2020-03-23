@@ -318,6 +318,6 @@ public:
 	 * searches a theme.tab inside the specified folder
 	 * @author prissi
 	 */
-	static bool themes_init(const char *dir_name,bool init_font);
+	static bool themes_init(const char *dir_name,bool init_font,bool init_tools);
 };
 #endif
