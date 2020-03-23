@@ -123,8 +123,7 @@ void gui_flowtext_intern_t::set_text(const char *text)
 	nodes.clear();
 	links.clear();
 
-	// Hajo: danger here, longest word in text
-	// must not exceed 511 chars!
+	// danger here, longest word in text must not exceed stoarge space!
 	char word[512];
 	attributes att = ATT_NONE;
 
@@ -144,8 +143,8 @@ void gui_flowtext_intern_t::set_text(const char *text)
 				tail++;
 			}
 
-			// parse a tag (not allowed to exceed 511 letters)
-			for (int i = 0; *lead != '>' && *lead > 0 && i < 511; i++) {
+			// parse a tag (not allowed to exceed sizeof(word) letters)
+			for (int i = 0; *lead != '>' && *lead > 0 && i < sizeof(word)-2; i++) {
 				lead++;
 			}
 
@@ -154,6 +153,7 @@ void gui_flowtext_intern_t::set_text(const char *text)
 			lead++;
 
 			if (word[0] == 'p' || (word[0] == 'b' && word[1] == 'r')) {
+				// unlike http, we can have as many newlines as we like
 				att = ATT_NEWLINE;
 			}
 			else if (word[0] == 'a') {
@@ -255,7 +255,7 @@ void gui_flowtext_intern_t::set_text(const char *text)
 
 			// parse a word (and obey limits)
 			att = ATT_NONE;
-			for(  int i = 0;  *lead != '<'  &&  (*lead > 32  ||  (i==0  &&  *lead==32))  &&  i < 511  &&  *lead != '&'; i++) {
+			for(  int i = 0;  *lead != '<'  &&  (*lead > 32  ||  (i==0  &&  *lead==32))  &&  i < sizeof(word)-1  &&  *lead != '&'; i++) {
 				if(  *lead>128  ) {
 					size_t len = 0;
 					utf32 symbol = utf8_decoder_t::decode(lead, len);
@@ -374,8 +374,10 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 	int max_width       = width;
 	int text_width      = width;
 	const int space_width = proportional_string_width(" ");
+	attributes last_node = ATT_NONE;
 
 	FOR(slist_tpl<node_t>, const& i, nodes) {
+		last_node = i.att;
 		switch (i.att) {
 			case ATT_NONE:
 			case ATT_NO_SPACE: {
@@ -512,9 +514,7 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 			default: break;
 		}
 	}
-	if (xpos > 0) {
-		ypos += LINESPACE;
-	}
+	ypos += LINESPACE;
 	if(dirty) {
 		mark_rect_dirty_wc( offset.x + D_MARGIN_LEFT, offset.y, offset.x+max_width + D_MARGIN_LEFT, offset.y+ypos );
 		dirty = false;
