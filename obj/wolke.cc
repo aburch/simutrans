@@ -109,6 +109,7 @@ sync_result wolke_t::sync_step(uint32 delta_t)
 {
 	// we query the image twice, since it may have changed (there are sure more efficient ways for that ...
 	const image_id old_img = get_front_image();
+	const sint16 old_yoff = base_y_off - (((long)insta_zeit * uplift * OBJECT_OFFSET_STEPS) >> 16);
 	insta_zeit += delta_t;
 	if(  insta_zeit >= lifetime  ) {
 		// delete wolke ...
@@ -121,13 +122,12 @@ sync_result wolke_t::sync_step(uint32 delta_t)
 	const sint16 new_yoff = base_y_off - (((long)insta_zeit * uplift * OBJECT_OFFSET_STEPS) >> 16);
 	if(  new_img != old_img  ) {
  		// move/change cloud ... (happens much more often than image change => image change will be always done when drawing)
-		if(  !get_flag( obj_t::dirty )  ) {
-			set_flag( obj_t::dirty );
-			mark_image_dirty( old_img, new_yoff );
- 		}
- 	}
-	set_flag( obj_t::dirty );
-
+		set_flag( obj_t::dirty );
+		mark_image_dirty( old_img, old_yoff );
+	}
+	if( new_yoff != old_yoff ) {
+		set_flag( obj_t::dirty );
+	}
 	return SYNC_OK;
 }
 
