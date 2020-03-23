@@ -277,15 +277,15 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	sint16 const smokelifetime = obj.get_int("smokelifetime", DEFAULT_FACTORYSMOKE_TIME );
 	char str_smoketile[] = "smoketile[0]";
 	char str_smokeoffset[] = "smokeoffset[0]";
-	if(  obj.get( str_smoketile )  ) {
+	if(  *obj.get( str_smoketile )  ) {
 		for( int i = 0; i < 4;  i++  ) {
 			str_smoketile[10] = '0' + i;
 			str_smokeoffset[12] = '0' + i;
-			if( !obj.get( str_smoketile ) ) {
+			if( !*obj.get( str_smoketile ) ) {
 				break;
 			}
 			pos_off[ i ] = obj.get_koord( str_smoketile, koord( 0, 0 ) );
-			if( !obj.get( str_smokeoffset ) ) {
+			if( !*obj.get( str_smokeoffset ) ) {
 				dbg->error( "factory_writer_t::write_obj", "%s defined but not %s!", str_smoketile, str_smokeoffset );
 			}
 			pos_off[ i ] = obj.get_koord( str_smoketile, koord( 0, 0 ) );
