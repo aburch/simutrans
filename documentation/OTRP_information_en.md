@@ -38,7 +38,7 @@ There is no special makeobj for OTRP. Please one of the simutrans standard.
 Please make sure not to overwrite your sve file of simutrans standard.
 
 ## For mac & linux users
-OTRP executable binaries require a library called zstd.
+OTRP executable binaries require a library called zstd.  
 mac: Install [homebrew](https://brew.sh/index_ja) and execute command `brew install zstd`  
 linux：Compile [zstd](https://github.com/facebook/zstd) from the source code and `make install`. Version 1.4.4 or later is required.
 
