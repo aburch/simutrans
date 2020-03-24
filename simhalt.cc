@@ -3709,7 +3709,7 @@ bool haltestelle_t::book_departure (uint32 arr_tick, uint32 dep_tick, uint32 exp
 	uint8 idx = dep_tick % DST_SIZE;
 	slist_tpl<departure_t>::iterator i = departure_slot_table[idx].begin();
 	while(  i!=departure_slot_table[idx].end()  ) {
-		if(  welt->get_ticks()>i->exp_tick  ) {
+		if(  welt->get_ticks()>i->exp_tick  ||  !i->cnv.is_bound()  ) {
 			// This entry is already obsolete. Just remove it.
 			i = departure_slot_table[idx].erase(i);
 			continue;
