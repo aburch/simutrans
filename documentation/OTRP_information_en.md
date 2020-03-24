@@ -17,15 +17,15 @@ You should try OTRP because...
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitter hash tag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
-As of version 24_1, OTRP is based on simutrans standard nightly r8943.
+As of version 24_2, OTRP is based on simutrans standard nightly r8943.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.  
 
-You can download the OTRP executable binary from the links below. **(2020 March 7th, updated to ver 24_1.)**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/72489/sim-WinGDI-OTRPv24_1.exe/  
-mac: https://osdn.net/projects/otrp/downloads/72489/sim-mac-OTRPv24_1.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/72489/sim-linux-OTRPv24_1.zip/  
+You can download the OTRP executable binary from the links below. **(2020 March 24th, updated to ver 24_2.)**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/72635/sim-WinGDI-OTRPv24_2.exe/  
+mac: https://osdn.net/projects/otrp/downloads/72635/sim-mac-OTRPv24_2.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/72635/sim-linux-OTRPv24_2.zip/  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 There is no special makeobj for OTRP. Please one of the simutrans standard.
@@ -36,6 +36,11 @@ There is no special makeobj for OTRP. Please one of the simutrans standard.
 1. Download the OTRP executable file and put it in the directory where simutrans.exe already exists.
 1. Execute the file that you downloaded.
 Please make sure not to overwrite your sve file of simutrans standard.
+
+## For mac & linux users
+OTRP executable binaries require a library called zstd.
+mac: Install [homebrew](https://brew.sh/index_ja) and execute command `brew install zstd`  
+linux：Compile [zstd](https://github.com/facebook/zstd) from the source code and `make install`. Version 1.4.4 or later is required.
 
 # How to use
 Even if you do not understand what is described below, you can play OTRP as the simutrans standard. Please explorer the features one by one :)

@@ -17,15 +17,15 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version24_1現在、simutrans standard nightly r8943をベースにしています。
+version24_2現在、simutrans standard nightly r8943をベースにしています。
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2020年3月7日AM0時　ver24_1に更新）**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/72489/sim-WinGDI-OTRPv24_1.exe/  
-mac: https://osdn.net/projects/otrp/downloads/72489/sim-mac-OTRPv24_1.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/72489/sim-linux-OTRPv24_1.zip/  
+本体は下のリンクからどうぞ。**（2020年3月24日PM9時　ver24_2に更新）**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/72635/sim-WinGDI-OTRPv24_2.exe/  
+mac: https://osdn.net/projects/otrp/downloads/72635/sim-mac-OTRPv24_2.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/72635/sim-linux-OTRPv24_2.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 OTRP専用のmakeobjはありません。simutrans standardのmakeobjをご利用ください。
@@ -36,6 +36,11 @@ OTRP専用のmakeobjはありません。simutrans standardのmakeobjをご利�
 3. 本体をDLし、simutrans.exeが入ってる所と同じディレクトリに実行ファイルを入れる。
 4. DLした実行ファイルを起動する。
 standard版のsveファイルを上書きしないように気をつけましょう。
+
+## mac・linuxユーザーの皆さまへ
+OTRPの動作にはzstdというライブラリのインストールが必要です．  
+macの場合：[homebrew](https://brew.sh/index_ja)をインストールの上，ターミナルで`brew install zstd`を実行してください．  
+linuxの場合：[zstd](https://github.com/facebook/zstd)をソースからコンパイルの上，`make install`してください．バージョン1.4.4以上が必要です．
 
 ## ja.tabについて
 https://github.com/teamhimeh/simutrans/blob/OTRP-distribute/documentation/ja.OTRP.tab にOTRP用ja.tabを置いておきました。ご自由にお使いください。
