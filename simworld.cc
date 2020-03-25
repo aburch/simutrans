@@ -2963,6 +2963,22 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 			}
 			return true;
 		}
+		case toggle_player_active: {
+			// range check, player existent?
+			if (  player_nr <=1  ||  player_nr >= PLAYER_UNOWNED  ||   get_player(player_nr)==NULL ) {
+				return false;
+			}
+			// only public player can (de)activate other players
+			if ( !public_player_unlocked ) {
+				return false;
+			}
+			if (exec) {
+				player_t *player = get_player(player_nr);
+				player->set_active(param != 0);
+				settings.set_player_active(player_nr, player->is_active());
+			}
+			return true;
+		}
 		case toggle_freeplay: {
 			// only public player can change freeplay mode
 			if (!public_player_unlocked  ||  !settings.get_allow_player_change()) {

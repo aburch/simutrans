@@ -7395,16 +7395,8 @@ bool tool_change_player_t::init( player_t *player_in)
 
 	// ok now do our stuff
 	switch(  tool  ) {
-		case 'a': // activate/deactivate AI
-			if(  player  &&  player->get_ai_id()!=player_t::HUMAN  &&  (player_in==welt->get_public_player()  ||  !env_t::networkmode)  ) {
-				int state = 0;
-				if (sscanf( p, "%c,%i,%i", &tool, &id, &state ) == 3) {
-					player->set_active(state);
-					welt->get_settings().set_player_active(id, player->is_active());
-				}
-			}
-			break;
 		case 'c': // change player color
+			//  unused
 			if(  player  &&  player==player_in  ) {
 				int c1, c2, dummy;
 				sscanf( p, "%c,%i,%i,%i", &tool, &dummy, &c1, &c2 );
@@ -7421,6 +7413,7 @@ bool tool_change_player_t::init( player_t *player_in)
 			}
 			break;
 
+		case 'a': // WAS: activate/deactivate AI
 		case 'n': // WAS: new player with type state
 		case 'f': // WAS: activate/deactivate freeplay
 			dbg->error( "tool_change_player_t::init()", "deprecated command called" );
