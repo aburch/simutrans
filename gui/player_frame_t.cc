@@ -74,16 +74,6 @@ ki_kontroll_t::ki_kontroll_t() :
 		// Player type selector, Combobox
 		player_select[i].set_focusable( false );
 
-		// Create combobox list data
-		player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("slot empty"), SYSCOL_TEXT ) ;
-		player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Manual (Human)"), SYSCOL_TEXT ) ;
-		if(  !welt->get_public_player()->is_locked()  ||  !env_t::networkmode  ) {
-			player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Goods AI"), SYSCOL_TEXT ) ;
-			player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Passenger AI"), SYSCOL_TEXT ) ;
-			player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Scripted AI's"), SYSCOL_TEXT ) ;
-		}
-		assert(  player_t::MAX_AI==5  );
-
 		// add table that contains these two buttons, only one of them will be visible
 		add_table(1,0);
 		// When adding new players, activate the interface
@@ -266,7 +256,7 @@ void ki_kontroll_t::update_data()
 			// scripted ai without script get different button without color
 			ai_scripted_t *ai = dynamic_cast<ai_scripted_t*>(player);
 
-			if (ai  &&  !ai->has_script()) {
+			if (ai  &&  !ai->has_script()  &&  (!env_t::networkmode  ||  env_t::server)) {
 				player_get_finances[i].set_typ(button_t::roundbox | button_t::flexible);
 				player_get_finances[i].set_text("Load scripted AI");
 			}
@@ -298,24 +288,23 @@ void ki_kontroll_t::update_data()
 				player_active[i-2].set_visible(0 < player_select[i].get_selection()  &&  player_select[i].get_selection() < player_t::MAX_AI);
 			}
 
-			if(  env_t::networkmode  ) {
+			// Create combobox list data
+			int select = player_select[i].get_selection();
+			player_select[i].clear_elements();
+			player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("slot empty"), SYSCOL_TEXT ) ;
+			player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Manual (Human)"), SYSCOL_TEXT ) ;
+			if(  !welt->get_public_player()->is_locked()  ||  !env_t::networkmode  ) {
+				player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Goods AI"), SYSCOL_TEXT ) ;
+				player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Passenger AI"), SYSCOL_TEXT ) ;
 
-				// change available selection of AIs
-				if(  !welt->get_public_player()->is_locked()  ) {
-					if(  player_select[i].count_elements()==2  ) {
-						player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Goods AI"), SYSCOL_TEXT ) ;
-						player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Passenger AI"), SYSCOL_TEXT ) ;
-					}
+				if (!env_t::networkmode  ||  env_t::server) {
+					// only server can start scripted players
+					player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Scripted AI's"), SYSCOL_TEXT ) ;
 				}
-				else {
-					if(  player_select[i].count_elements()==4  ) {
-						player_select[i].clear_elements();
-						player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("slot empty"), SYSCOL_TEXT ) ;
-						player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Manual (Human)"), SYSCOL_TEXT ) ;
-					}
-				}
-
 			}
+			player_select[i].set_selection(select);
+			assert(  player_t::MAX_AI==5  );
+
 			ai_income[i]->set_visible(false);
 		}
 	}
