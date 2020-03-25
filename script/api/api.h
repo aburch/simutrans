@@ -27,7 +27,7 @@ void export_schedule(HSQUIRRELVM vm);
 void export_simple(HSQUIRRELVM vm);
 void export_string_methods(HSQUIRRELVM vm);  // api_scenario.cc
 void export_tiles(HSQUIRRELVM vm);
-void export_world(HSQUIRRELVM vm);
+void export_world(HSQUIRRELVM vm, bool scenario);
 
 void export_pathfinding(HSQUIRRELVM vm);
 
