@@ -107,8 +107,8 @@ void factory_edit_frame_t::fill_list( bool translate )
 					}
 				}
 				if(land_chain) {
-					if (desc->get_placement() == factory_desc_t::Land && desc->is_consumer_only()) {
-						factory_list.insert_ordered(desc, translate ? compare_fabrik_desc_trans : compare_fabrik_desc);
+					if (desc->get_placement() != factory_desc_t::City && desc->is_consumer_only()) {
+						factory_list.insert_ordered( desc, translate?compare_factory_desc_trans:compare_fabrik_desc );
 					}
 				}
 				if(!city_chain  &&  !land_chain) {

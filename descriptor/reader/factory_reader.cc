@@ -300,6 +300,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if (version == 4)
 	{
 		// Versioned node, version 4 with sound and animation
+		//// Versioned node, version 5 with smoke offsets
 		desc->placement = (site_t)decode_uint16(p);
 		desc->productivity = decode_uint16(p);
 		desc->range = decode_uint16(p);
