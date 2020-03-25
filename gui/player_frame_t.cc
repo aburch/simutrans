@@ -247,8 +247,6 @@ ki_kontroll_t::~ki_kontroll_t()
  */
 bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 {
-	static char param[16];
-
 	// Free play button?
 	if(  comp==&freeplay  ) {
 		welt->call_change_player_tool(karte_t::toggle_freeplay, 255, 0);
@@ -266,9 +264,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 			}
 			else {
 				// Current AI on/off
-				sprintf( param, "a,%i,%i", i, !welt->get_player(i)->is_active() );
-				tool_t::simple_tool[TOOL_CHANGE_PLAYER]->set_default_param( param );
-				welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_PLAYER], welt->get_active_player() );
+				welt->call_change_player_tool(karte_t::toggle_player_active, i, !welt->get_player(i)->is_active());
 			}
 			break;
 		}
