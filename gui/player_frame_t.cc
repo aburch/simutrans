@@ -95,7 +95,6 @@ ki_kontroll_t::ki_kontroll_t() :
 		// password/locked button
 		player_lock[i] = new_component<password_button_t>();
 		player_lock[i]->background_color = color_idx_to_rgb((player && player->is_locked()) ? (player->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN);
-		player_lock[i]->enable( welt->get_player(i) );
 		player_lock[i]->add_listener(this);
 		player_lock[i]->set_rigid(true);
 
@@ -135,7 +134,6 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 			if(  welt->get_player(i)==NULL  ) {
 				// create new AI
 				welt->call_change_player_tool(karte_t::new_player, i, player_select[i].get_selection());
-				player_lock[i]->enable( welt->get_player(i) );
 
 				// if scripted ai without script -> open script selector window
 				ai_scripted_t *ai = dynamic_cast<ai_scripted_t*>(welt->get_player(i));
