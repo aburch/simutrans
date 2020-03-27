@@ -126,7 +126,7 @@ obj_desc_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &n
 			field_class_desc->snow_image);
 	}
 	else {
-		dbg->fatal("factory_field_group_reader_t::read_node()","Cannot handle too new node version %i", version );
+		dbg->fatal("factory_field_group_reader_t::read_node()","Cannot handle too new node version %i", v );
 	}
 
 	if (  v>0x8001  ) {
