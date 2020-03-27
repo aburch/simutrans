@@ -48,7 +48,7 @@ obj_desc_t * sound_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 	}
 	else {
-		dbg->fatal("sound_reader_t::read_node()","version %i not supported. File corrupt?", version);
+		dbg->fatal( "sound_reader_t::read_node()", "Cannot handle too new node version %i", version );
 	}
 
 	return desc;

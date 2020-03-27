@@ -84,7 +84,7 @@ obj_desc_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 	}
 	else {
-		dbg->fatal( "crossing_reader_t::read_node()","Invalid version %d", version);
+		dbg->fatal( "crossing_reader_t::read_node()", "Cannot handle too new node version %i", version );
 	}
 
 	DBG_DEBUG("crossing_reader_t::read_node()",

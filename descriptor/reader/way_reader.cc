@@ -64,7 +64,6 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->number_of_seasons = 0;
 	}
 	else {
-
 		const uint16 v = decode_uint16(p);
 		version = v & 0x7FFF;
 
@@ -136,7 +135,7 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->number_of_seasons = 0;
 		}
 		else {
-			dbg->fatal("way_reader_t::read_node()","Invalid version %d", version);
+			dbg->fatal( "way_reader_t::read_node()", "Cannot handle too new node version %i", version );
 		}
 	}
 

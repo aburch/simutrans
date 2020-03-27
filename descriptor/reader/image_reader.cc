@@ -109,7 +109,7 @@ obj_desc_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 	}
 	else {
-		dbg->fatal("image_reader_t::read_node()","illegal versions %d", version );
+		dbg->fatal( "image_reader_t::read_node()", "Cannot handle too new node version %i", version );
 	}
 
 #if COLOUR_DEPTH == 0

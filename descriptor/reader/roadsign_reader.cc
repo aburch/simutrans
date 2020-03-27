@@ -99,7 +99,7 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->wtyp = road_wt;
 	}
 	else {
-		dbg->fatal("roadsign_reader_t::read_node()","version 0 not supported. File corrupt?");
+		dbg->fatal( "roadsign_reader_t::read_node()", "Cannot handle too new node version %i", version );
 	}
 
 	if(  version<=3  &&  (  desc->is_choose_sign() ||  desc->is_private_way()  )  &&  desc->get_waytype() == road_wt  ) {

@@ -83,6 +83,9 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	}
 	else {
+		if( version ) {
+			dbg->fatal( "goods_reader_t::read_node()", "Cannot handle too new node version %i", version );
+		}
 		// old node, version 0
 		desc->base_value = v;
 		desc->catg = (uint8)decode_uint16(p);

@@ -59,7 +59,7 @@ obj_desc_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &n
 			desc->spawn_weight);
 	}
 	else {
-		dbg->fatal("factory_field_class_reader_t::read_node()","unknown version %i", v&0x00ff );
+		dbg->fatal("factory_field_class_reader_t::read_node()","Cannot handle too new node version %i", v&0x00ff );
 	}
 
 	return desc;
@@ -126,7 +126,7 @@ obj_desc_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &n
 			field_class_desc->snow_image);
 	}
 	else {
-		dbg->fatal("factory_field_group_reader_t::read_node()","unknown version %i", v&0x00ff );
+		dbg->fatal("factory_field_group_reader_t::read_node()","Cannot handle too new node version %i", version );
 	}
 
 	if (  v>0x8001  ) {
@@ -247,6 +247,9 @@ obj_desc_t *factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->factor = decode_uint16(p);
 	}
 	else {
+		if( version ) {
+			dbg->fatal( "factory_product_reader_t::read_node()", "Cannot handle too new node version %i", version );
+		}
 		// old node, version 0
 		decode_uint16(p);
 		desc->capacity = v;
@@ -410,6 +413,9 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->mail_demand = 65535;
 	}
 	else {
+		if( version ) {
+			dbg->fatal( "factory_reader_t::read_node()", "Cannot handle too new node version %i", version );
+		}
 		// old node, version 0, without pax_level
 		desc->placement = (site_t)v;
 		decode_uint16(p);	// alsways zero

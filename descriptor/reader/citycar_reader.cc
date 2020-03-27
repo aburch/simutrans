@@ -72,6 +72,10 @@ obj_desc_t * citycar_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->retire_date= (retire_date/16)*12  + (retire_date%12);
 	}
 	else {
+		if( version ) {
+			dbg->fatal( "citycar_reader_t::read_node()", "Cannot handle too new node version %i", version );
+		}
+		// old version 0 ...
 		desc->distribution_weight = v;
 		desc->topspeed = kmh_to_speed(80);
 		desc->intro_date = DEFAULT_INTRO_DATE*12;

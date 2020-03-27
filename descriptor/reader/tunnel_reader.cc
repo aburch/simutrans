@@ -133,7 +133,7 @@ obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->broad_portals = 0;
 		}
 		else {
-			dbg->fatal("tunnel_reader_t::read_node()","illegal version %d",version);
+			dbg->fatal( "tunnel_reader_t::read_node()", "Cannot handle too new node version %i", version );
 		}
 
 		if(  version < 5  ) {

@@ -249,11 +249,11 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->freight_image_type = decode_uint8(p);
 	}
 	else {
-		if(  version!=0  ) {
-			dbg->fatal( "vehicle_reader_t::read_node()","Do not know how to handle version=%i", version );
+		if( version ) {
+			dbg->fatal( "vehicle_reader_t::read_node()", "Cannot handle too new node version %i", version );
 		}
-		// old node, version 0
 
+		// old node, version 0
 		desc->wtyp = (sint8)v;
 		desc->capacity = decode_uint16(p);
 		desc->price = decode_uint32(p);

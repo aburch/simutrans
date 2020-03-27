@@ -57,6 +57,9 @@ obj_desc_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->building = NULL;
 	}
 	else {
+		if( version ) {
+			dbg->fatal( "tile_reader_t::read_node()", "Cannot handle too new node version %i", version );
+		}
 		// skip the pointer ...
 		p += 2;
 		desc->phases = (uint8)decode_uint16(p);
@@ -355,6 +358,9 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->animation_time = 300;
 	}
 	else {
+		if( version ) {
+			dbg->fatal( "building_reader_t::read_node()", "Cannot handle too new node version %i", version );
+		}
 		// old node, version 0
 		btyp = (old_btyp::typ)v;
 		decode_uint16(p);

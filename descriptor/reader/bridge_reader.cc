@@ -160,8 +160,10 @@ obj_desc_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	}
 	else {
+		if( version ) {
+			dbg->fatal( "bridge_reader_t::read_node()", "Cannot handle too new node version %i", version );
+		}
 		// old node, version 0
-
 		desc->wtyp = (uint8)v;
 		decode_uint16(p);                    // Menupos, no more used
 		desc->price = decode_uint32(p);

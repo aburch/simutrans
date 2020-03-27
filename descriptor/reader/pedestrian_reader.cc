@@ -59,11 +59,7 @@ obj_desc_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	desc->intro_date = 1;
 	desc->retire_date = 0xFFFEu;
 	
-	if(version == 0) {
-		// old, nonversion node
-		desc->distribution_weight = v;
-	}
-	else if (version == 1) {
+	if (version == 1) {
 		desc->distribution_weight = decode_uint16(p);
 		desc->steps_per_frame     = decode_uint16(p);
 		desc->offset              = decode_uint16(p);
@@ -74,6 +70,13 @@ obj_desc_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->offset              = decode_uint16(p);
 		desc->intro_date          = decode_uint16(p);
 		desc->retire_date         = decode_uint16(p);
+	}
+	else {
+		if( version ) {
+			dbg->fatal( "pedestrian_reader_t::read_node()", "Cannot handle too new node version %i", version );
+		}
+		// old, nonversion node
+		desc->distribution_weight = v;
 	}
 
 	DBG_DEBUG("pedestrian_reader_t::read_node()", "version=%i, chance=%i", version, desc->distribution_weight);
