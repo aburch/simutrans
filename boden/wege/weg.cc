@@ -357,6 +357,7 @@ void weg_t::init()
 	remaining_wear_capacity = 100000000;
 	replacement_way = NULL;
 #ifdef MULTI_THREAD
+	pthread_mutexattr_init(&mutex_attributes);
 	pthread_mutex_init(&private_car_store_route_mutex, &mutex_attributes);
 #endif
 }
