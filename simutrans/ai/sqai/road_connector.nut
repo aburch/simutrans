@@ -71,7 +71,7 @@ class road_connector_t extends manager_t
 					}
 					local err = command_x.build_station(pl, c_end, planned_station )
 					if (err) {
-						gui.add_message_at(pl "Failed to build road station at  " + coord_to_string(c_end) + "\n" + err, c_end)
+						gui.add_message_at(pl, "Failed to build road station at  " + coord_to_string(c_end) + "\n" + err, c_end)
 						print("Failed to build station at " + coord_to_string(c_end))
 						return error_handler()
 					}

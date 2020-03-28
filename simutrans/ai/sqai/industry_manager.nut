@@ -339,7 +339,7 @@ class industry_manager_t extends manager_t
 			local entries = cnv.get_schedule().entries
 			local i = 0
 
-			while(i < entries.len()  &&  !freight_available) {
+			while(i < entries.len()) {
 				local entry = entries[i]
 				// stations on schedule
 				if (entry.get_halt(our_player) == null) {

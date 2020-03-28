@@ -285,7 +285,10 @@ class astar_builder extends astar
 						local bridge_len = abs(from.x-to.x) + abs(from.y-to.y)
 
 						local move = bridge_len * cost_straight  * 3  /*extra bridge penalty */;
-						local dist = estimate_distance(to)
+						// set distance to 1 if at a target tile,
+						// still route might come back to this tile in a loop (?)
+						// but if there is space for a loop there is also place for another target tile (?)
+						local dist = max(estimate_distance(to), 0)
 
 						local cost   = cnode.cost + move
 						local weight = cost + dist
