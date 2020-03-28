@@ -9,6 +9,8 @@
 	CHG: factory smake location now depend on factory. Four parameters smoketile[], smokeoffset[] (koord), and smokeuplift (16) and smokelifetime (2499)
 	FIX: several list stored wrong coordinates after map rotation
 	FIX: Too new pak file version check now enforced for all objects
+	FIX: airplane should stuck much less upon runway rebuilds
+	CHG: block reserver tool will also start a route search of any convoi on its tile (no matter the owner!)
 
 Release of 121.0 (r8870 on 1-Dec-2019):
     ADD: Map number is shown in the enlarge map window.

@@ -1439,7 +1439,23 @@ bool tool_clear_reservation_t::exit( player_t * )
 const char *tool_clear_reservation_t::work( player_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup(pos);
-	if(gr) {
+	if(gr  &&  gr->hat_wege()) {
+
+		// first start route search of the convoi here
+		for( uint8 i = 0; i < gr->get_top(); i++ ) {
+			uint8 typ = gr->obj_bei(i)->get_typ();
+			if( typ >= obj_t::road_vehicle  &&  typ <= obj_t::air_vehicle ) {
+				vehicle_t *veh = dynamic_cast<vehicle_t *>(gr->obj_bei( i ));
+				if( veh->get_convoi() ) {
+					uint16 state = veh->get_convoi()->get_state();
+					if( state > convoi_t::EDIT_SCHEDULE ) {
+						veh->get_convoi()->set_state(convoi_t::ROUTING_1);
+					}
+				}
+			}
+		}
+
+		// then unreserve the current tile
 		for(unsigned wnr=0;  wnr<2;  wnr++  ) {
 
 			schiene_t const* const w = obj_cast<schiene_t>(gr->get_weg_nr(wnr));
