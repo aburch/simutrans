@@ -95,6 +95,11 @@ class finder {
 		return tile.is_empty()  &&  tile.get_slope()==0
 	}
 
+	static function _tile_empty_or_field(tile)
+	{
+		return tile.get_slope()==0  &&  (tile.is_empty()  ||  tile.find_object(mo_field))
+	}
+
 	static function find_water_places(area)
 	{
 		return _find_places(area, _tile_water)
@@ -131,9 +136,16 @@ class finder {
 				return [res]
 			}
 		}
+		local can_delete_fields = factory.get_field_count() > factory.get_min_field_count()
+
 		local area = get_tiles_near_factory(factory)
 
-		return find_empty_places(area)
+		if (can_delete_fields) {
+			return _find_places(area, _tile_empty_or_field);
+		}
+		else {
+			return find_empty_places(area)
+		}
 	}
 
 	/**
