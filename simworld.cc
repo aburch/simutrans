@@ -907,7 +907,11 @@ void karte_t::remove_queued_city(stadt_t* city)
 
 void karte_t::add_queued_city(stadt_t* city)
 {
+	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+	assert(error == 0);
 	cities_awaiting_private_car_route_check.append_unique(city);
+	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+	assert(error == 0);
 }
 
 void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sint16 old_y)
@@ -1618,7 +1622,7 @@ void *check_road_connexions_threaded(void *args)
 		}
 		int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 		assert(error == 0);
-		if (karte_t::cities_to_process > 0 && route_t::suspend_private_car_routing == false && !world()->cities_awaiting_private_car_route_check.empty())
+		if (karte_t::cities_to_process > 0 && karte_t::cities_to_process >= thread_number + 1 && route_t::suspend_private_car_routing == false && !world()->cities_awaiting_private_car_route_check.empty())
 		{
 			stadt_t* city;
 			city = world()->cities_awaiting_private_car_route_check.remove_first();
@@ -5124,7 +5128,11 @@ void karte_t::new_month()
 	{
 		if(recheck_road_connexions)
 		{
+			int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+			assert(error == 0);
 			cities_awaiting_private_car_route_check.append_unique(s);
+			error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+			assert(error == 0);
 		}
 		s->new_month();
 		//INT_CHECK("simworld 3117");
