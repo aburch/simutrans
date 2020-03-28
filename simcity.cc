@@ -2827,8 +2827,11 @@ void stadt_t::new_month()
 
 	uint16 congestion_density_factor = s.get_congestion_density_factor();
 
+#ifdef MULTI_THREAD
 	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 	assert(error == 0);
+#endif
+
 	if(congestion_density_factor < 32)
 	{
 		// Old method - congestion density factor
@@ -2897,8 +2900,11 @@ void stadt_t::new_month()
 	}
 
 	incoming_private_cars = 0;
+
+#ifdef MULTI_THREAD
 	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 	assert(error == 0);
+#endif
 }
 
 void stadt_t::calc_growth()

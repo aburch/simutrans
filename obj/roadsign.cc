@@ -116,7 +116,9 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 		world()->await_convoy_threads();
 	}
 #endif
+#ifdef MULTI_THREAD
 	welt->await_private_car_threads();
+#endif
 	this->desc = desc;
 	this->dir = dir;
 	this->preview = preview;

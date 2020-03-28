@@ -367,7 +367,9 @@ weg_t::~weg_t()
 {
 	if (!welt->is_destroying())
 	{
+#ifdef MULTI_THREAD
 		welt->await_private_car_threads();
+#endif
 		delete_all_routes_from_here();
 		
 		alle_wege.remove(this);
