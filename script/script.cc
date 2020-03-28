@@ -259,7 +259,7 @@ const char* script_vm_t::intern_finish_call(HSQUIRRELVM job, call_type_t ct, int
 		err = "suspended";
 		// stack: clean
 	}
-	if (suspended) {
+	if (suspended  &&  ct != FORCE  &&  ct != FORCEX) {
 		intern_resume_call(job);
 	}
 	if (!suspended  ||  ct == FORCE  ||  ct == FORCEX) {
