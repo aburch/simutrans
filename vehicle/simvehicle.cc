@@ -3447,6 +3447,7 @@ bool air_vehicle_t::find_route_to_stop_position()
 	grund_t const* const target = welt->lookup(rt->at(search_for_stop));
 	if(target==NULL  ||  !target->hat_weg(air_wt)) {
 		target_halt = halthandle_t();
+		block_reserver( search_for_stop, 0xFFFFu, false ); // unreserve all tiles
 		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no runway found at (%s)",rt->at(search_for_stop).get_str());
 		return true;	// no runway any more ...
 	}
@@ -3475,6 +3476,18 @@ bool air_vehicle_t::find_route_to_stop_position()
 		state = looking_for_parking;
 		if(!target_rt.find_route( welt, rt->at(search_for_stop), this, 500, ribi_t::all, welt->get_settings().get_max_choose_route_steps() )) {
 DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free one");
+
+			// just make sure, that there is a route at all, otherwise start route search again
+			for(  uint32 i=search_for_stop;  i<rt->get_count();  i++  ) {
+				grund_t const* const target = welt->lookup( rt->at( i ) );
+				if(  target == NULL  ||  !target->hat_weg( air_wt )  ) {
+					DBG_MESSAGE( "aircraft_t::find_route_to_stop_position()", "no runway found at (%s)", rt->at( search_for_stop ).get_str() );
+					get_convoi()->set_state(convoi_t::ROUTING_1);
+					block_reserver( search_for_stop, 0xFFFFu, false ); // unreserve all tiles
+					return false;	// find new route
+				}
+			}
+			
 			// circle slowly another round ...
 			target_halt = halthandle_t();
 			state = prev_state;
