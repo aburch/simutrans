@@ -296,7 +296,7 @@ const char* script_vm_t::intern_call_function(HSQUIRRELVM job, call_type_t ct, i
 	if (ct == FORCE  ||  ct == FORCEX) {
 		sq_block_suspend(job, NULL);
 	}
-	if (sq_getvmstate(job) != SQ_VMSTATE_SUSPENDED) {
+	if (sq_getvmstate(job) != SQ_VMSTATE_SUSPENDED  ||  ct == FORCE  ||  ct == FORCEX) {
 		// remove closure
 		sq_remove(job, retvalue ? -2 : -1);
 		if (ct == QUEUE  &&  retvalue) {
@@ -314,7 +314,6 @@ const char* script_vm_t::intern_call_function(HSQUIRRELVM job, call_type_t ct, i
 		END_STACK_WATCH(job, -nparams-1 + retvalue);
 	}
 	else {
-		assert(ct != FORCE  &&  ct != FORCEX);
 		// call suspended: pop dummy return value
 		if (retvalue) {
 			sq_poptop(job);
