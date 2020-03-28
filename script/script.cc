@@ -178,16 +178,16 @@ const char* script_vm_t::call_script(const char* filename)
 
 const char* script_vm_t::eval_string(const char* squirrel_string)
 {
+	HSQUIRRELVM &job = thread;
 	// compile string
-	if (!SQ_SUCCEEDED(sq_compilebuffer(vm, squirrel_string, strlen(squirrel_string), "userdefinedstringmethod", true))) {
+	if (!SQ_SUCCEEDED(sq_compilebuffer(job, squirrel_string, strlen(squirrel_string), "userdefinedstringmethod", true))) {
 		set_error("Error compiling string buffer");
 		return get_error();
 	}
 	// execute
-	sq_pushroottable(vm);
-	sq_call_restricted(vm, 1, SQFalse, SQTrue, 100000);
-	sq_pop(vm, 1);
-	return get_error();
+	sq_pushroottable(job);
+	// stack: closure, root table (1st param)
+	return intern_finish_call(job, QUEUE, 1, true);
 }
 
 
