@@ -440,6 +440,7 @@ void script_vm_t::intern_queue_call(HSQUIRRELVM job, int nparams, bool retvalue)
 		// stack: [...], queue[i]
 		sint32 n = sq_getsize(job, -1);
 		if (n != nparams+2) {
+			sq_poptop(job);
 			continue; // different number of arguments
 		}
 		equal = true;
