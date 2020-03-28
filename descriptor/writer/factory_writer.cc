@@ -288,7 +288,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			if( !*obj.get( str_smokeoffset ) ) {
 				dbg->error( "factory_writer_t::write_obj", "%s defined but not %s!", str_smoketile, str_smokeoffset );
 			}
-			pos_off[ i ] = obj.get_koord( str_smoketile, koord( 0, 0 ) );
+			xy_off[ i ] = obj.get_koord( str_smokeoffset, koord( 0, 0 ) );
 			num_smoke_offsets++;
 		}
 	}
@@ -331,7 +331,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_sint16(fp, smokeuplift,       76);
 	node.write_sint16(fp, smokelifetime,     78);
 
-	// this should ne always at the end
+	// this should be always at the end
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
 		node.write_sint8  (fp, sound_str_len, 79);

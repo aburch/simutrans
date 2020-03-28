@@ -47,13 +47,13 @@ void wolke_t::operator delete(void *p)
 
 
 
-wolke_t::wolke_t(koord3d pos, sint8 b_x_off, sint16 b_y_off, uint16 lt, uint16 ul, const skin_desc_t* desc ) :
+wolke_t::wolke_t(koord3d pos, sint8 b_x_off, sint8 b_y_off, sint16 b_h_off, uint16 lt, uint16 ul, const skin_desc_t* desc ) :
 	obj_no_info_t(pos)
 {
 	cloud_nr = all_clouds.index_of(desc);
-	base_y_off = b_y_off;
+	base_y_off = b_h_off;
 	set_xoff( b_x_off );
-	set_yoff( -8 );
+	set_yoff( b_y_off );
 	insta_zeit = 0;
 	lifetime = lt;
 	uplift = ul;
@@ -62,7 +62,7 @@ wolke_t::wolke_t(koord3d pos, sint8 b_x_off, sint16 b_y_off, uint16 lt, uint16 u
 
 wolke_t::~wolke_t()
 {
-	mark_image_dirty( get_image(), 0 );
+	mark_image_dirty( get_image(), calc_yoff() );
 	if(  insta_zeit != lifetime  ) {
 		welt->sync_way_eyecandy.remove( this );
 	}
@@ -81,6 +81,11 @@ image_id wolke_t::get_front_image() const
 	return desc->get_image_id( (insta_zeit*desc->get_count())/(lifetime+1) );
 }
 
+
+sint16 wolke_t::calc_yoff() const
+{
+	return tile_raster_scale_y( base_y_off - (((long)insta_zeit * uplift * OBJECT_OFFSET_STEPS) >> 16), get_current_tile_raster_width() );
+}
 
 
 void wolke_t::rdwr(loadsave_t *file)
@@ -109,24 +114,29 @@ sync_result wolke_t::sync_step(uint32 delta_t)
 {
 	// we query the image twice, since it may have changed (there are sure more efficient ways for that ...
 	const image_id old_img = get_front_image();
-	const sint16 old_yoff = base_y_off - (((long)insta_zeit * uplift * OBJECT_OFFSET_STEPS) >> 16);
+	const sint16 old_yoff = calc_yoff();
 	insta_zeit += delta_t;
 	if(  insta_zeit >= lifetime  ) {
 		// delete wolke ...
+		set_flag( obj_t::dirty );
+		mark_image_dirty( old_img, old_yoff );
 		insta_zeit = lifetime;
 		return SYNC_DELETE;
 	}
 	const image_id new_img = get_front_image();
 
  	// move cloud up
-	const sint16 new_yoff = base_y_off - (((long)insta_zeit * uplift * OBJECT_OFFSET_STEPS) >> 16);
+	const sint16 new_yoff = calc_yoff();
 	if(  new_img != old_img  ) {
- 		// move/change cloud ... (happens much more often than image change => image change will be always done when drawing)
+		// change cloud
 		set_flag( obj_t::dirty );
 		mark_image_dirty( old_img, old_yoff );
 	}
 	if( new_yoff != old_yoff ) {
+		// move cloud
 		set_flag( obj_t::dirty );
+		mark_image_dirty( old_img, old_yoff );
+		set_xoff( get_xoff() - sim_async_rand(2));
 	}
 	return SYNC_OK;
 }
@@ -138,8 +148,7 @@ void wolke_t::display_after( int xpos, int ypos, const sint8 extra_param ) const
 void wolke_t::display_after( int xpos, int ypos, bool extra_param ) const
 #endif
 { 
-	sint16 extra_offset = tile_raster_scale_y( base_y_off - (((long)insta_zeit * uplift * OBJECT_OFFSET_STEPS) >> 16), get_current_tile_raster_width() );
-	obj_t::display_after( xpos, ypos + extra_offset, extra_param ); 
+	obj_t::display_after( xpos, ypos + calc_yoff(), extra_param ); 
 }
 
 
@@ -149,8 +158,9 @@ void wolke_t::rotate90()
 {
 	// most basic: rotate coordinate
 	obj_t::rotate90();
+
 	if( lifetime != DEFAULT_EXHAUSTSMOKE_TIME ) {
-		// since factory smoke comes from wrong tile, remove them on rotation
+		// since factory smoke may come from the wrong tile, remove it on rotation
 		insta_zeit = lifetime;
 	}
 }
