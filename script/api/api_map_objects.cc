@@ -19,6 +19,7 @@
 #include "../../dataobj/scenario.h"
 #include "../../obj/baum.h"
 #include "../../obj/gebaeude.h"
+#include "../../obj/field.h"
 #include "../../obj/label.h"
 #include "../../obj/leitung2.h"
 #include "../../obj/roadsign.h"
@@ -168,6 +169,7 @@ getpush_obj_pos(gebaeude_t, obj_t::gebaeude);
 getpush_obj_pos(label_t, obj_t::label);
 getpush_obj_pos(weg_t, obj_t::way);
 getpush_obj_pos(leitung_t, obj_t::leitung);
+getpush_obj_pos(field_t, obj_t::field);
 
 namespace script_api {
 	// each depot has its own class
@@ -228,6 +230,7 @@ SQInteger script_api::param<obj_t*>::push(HSQUIRRELVM vm, obj_t* const& obj)
 		case_resolve_obj(weg_t);
 		case_resolve_obj(roadsign_t);
 		case_resolve_obj(signal_t);
+		case_resolve_obj(field_t);
 
 		case_resolve_obj(airdepot_t);
 		case_resolve_obj(narrowgaugedepot_t);
@@ -388,6 +391,11 @@ const fabrik_t* transformer_get_factory(leitung_t *lt)
 bool leitung_is_connected(leitung_t* lt1, leitung_t* lt2)
 {
 	return lt2 != NULL  &&  lt1->get_net() == lt2->get_net();
+}
+
+bool field_is_deleteable(field_t* f)
+{
+	return f->is_deletable( welt->get_player(1) ) == NULL;
 }
 
 void export_map_objects(HSQUIRRELVM vm)
@@ -655,5 +663,22 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * Get factory connected to this transformer.
 	 */
 	register_method(vm, &transformer_get_factory, "get_factory", true);
+	end_class(vm);
+
+	/**
+	 * Fields
+	 */
+	begin_obj_class<field_t>(vm, "field_x", "map_object_x");
+	/**
+	 * Fields can only be deleted if enough are present.
+	 * @see factory_x::get_field_count, factory_x::get_min_field_count
+	 * @return whether this one can be deleted
+	 */
+	register_method(vm, &field_is_deleteable, "is_deletable", true);
+	/**
+	 * @returns factory this field belongs to
+	 * @see factory_x::get_field_count, factory_x::get_min_field_count
+	 */
+	register_method(vm, &field_t::get_factory, "get_factory");
 	end_class(vm);
 }

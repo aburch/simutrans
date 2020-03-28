@@ -39,6 +39,8 @@ public:
 	const char * is_deletable(const player_t *) OVERRIDE;
 
 	void cleanup(player_t *player) OVERRIDE;
+
+	fabrik_t* get_factory() const { return fab; }
 };
 
 #endif

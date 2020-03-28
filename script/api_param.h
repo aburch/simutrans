@@ -19,6 +19,7 @@ class convoi_t;
 class fabrik_t;
 class factory_supplier_desc_t;
 class factory_product_desc_t;
+class field_t;
 class gebaeude_t;
 class grund_t;
 class haltestelle_t;
@@ -387,6 +388,7 @@ namespace script_api {
 	declare_specialized_param(label_t*, "t|x|y", "label_x");
 	declare_specialized_param(leitung_t*, "t|x|y", "powerline_x");
 	declare_specialized_param(weg_t*, "t|x|y", "way_x");
+	declare_specialized_param(field_t*, "t|x|y", "field_x");
 
 	/**
 	 * Returns the player associated to the script

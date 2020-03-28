@@ -343,7 +343,14 @@ void export_factory(HSQUIRRELVM vm)
 	 * @returns transformer
 	 */
 	register_method(vm, &fabrik_t::get_transformer, "get_transformer");
-
+	/**
+	 * @returns number of fields belonging to this factory
+	 */
+	register_method(vm, &fabrik_t::get_field_count, "get_field_count");
+	/**
+	 * @returns minimum number of fields required
+	 */
+	register_method(vm, &fabrik_t::get_min_field_count, "get_min_field_count");
 	// pop class
 	end_class(vm);
 

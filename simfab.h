@@ -643,6 +643,12 @@ public:
 
 	uint32 get_field_count() const { return fields.get_count(); }
 
+	uint32 get_min_field_count() const
+	{
+		const field_group_desc_t *fg = get_desc()->get_field_group();
+		return fg ?  fg->get_min_fields() : 0;
+	}
+
 	/**
 	 * total and current procduction/storage values
 	 */
