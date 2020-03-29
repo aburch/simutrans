@@ -97,7 +97,7 @@ void tool_selector_t::rotate_tools(sint16 y_diff)
 {
 	FOR(vector_tpl<tool_selector_t::tool_data_t>, t, tools)
 	{
-		t.tool->rotate90(y_diff); 
+		t.tool->rotate90(y_diff);
 	}
 }
 

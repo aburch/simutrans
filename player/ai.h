@@ -96,7 +96,7 @@ public:
 	halthandle_t get_halt( const koord haltpos ) const;
 
 	/**
-	 * Find the first water tile using line algorithm 
+	 * Find the first water tile using line algorithm
 	 * start MUST be on land!
 	 **/
 	koord find_shore(koord start, koord end) const;

@@ -5,7 +5,7 @@
  * (see licence.txt)
  *
  * Support notifying objects when other objects are inserted, updated or deleted.
- * 
+ *
  * First used to notify players, that a factory is going to be deleted.
  */
 

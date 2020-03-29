@@ -711,7 +711,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		// first save password hashes
 		sprintf( fn, "server%d-pwdhash.sve", env_t::server );
 		loadsave_t file;
-		if(file.wr_open(fn, loadsave_t::zipped, "hashes", SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)) 
+		if(file.wr_open(fn, loadsave_t::zipped, "hashes", SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR))
 		{
 			welt->rdwr_player_password_hashes( &file );
 			file.close();

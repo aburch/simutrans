@@ -121,7 +121,7 @@ obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->intro_date = decode_uint16(p);
 			desc->retire_date = decode_uint16(p);
 			desc->number_of_seasons = decode_uint8(p);
-			
+
 			if(extended)
 			{
 				desc->axle_load = decode_uint32(p);
@@ -209,7 +209,7 @@ obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		if( !extended && version < 5  ) {
 			desc->axle_load = 9999;
 		}
-		
+
 		if(extended_version < 1 || !extended)
 		{
 			desc->topspeed_gradient_1 = desc->topspeed_gradient_2 = desc->topspeed;

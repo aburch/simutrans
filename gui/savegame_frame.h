@@ -128,7 +128,7 @@ public:
 class gui_file_table_t : public	gui_table_t
 {
 protected:
-	virtual void paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y);	
+	virtual void paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y);
 };
 
 
@@ -223,7 +223,7 @@ protected:
 	coordinates_t pressed_file_table_button;
 
 	void press_file_table_button(coordinates_t &cell);
-	void release_file_table_button();	
+	void release_file_table_button();
 	// use file_table instead of button_frame:
 	bool use_table;
 

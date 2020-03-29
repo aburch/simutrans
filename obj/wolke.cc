@@ -143,7 +143,7 @@ void wolke_t::rotate90()
 
 /***************************** just for compatibility, the old raucher and smoke clouds *********************************/
 
-raucher_t::raucher_t(loadsave_t *file) : 
+raucher_t::raucher_t(loadsave_t *file) :
 #ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::raucher)
 #else
@@ -161,7 +161,7 @@ raucher_t::raucher_t(loadsave_t *file) :
 }
 
 
-async_wolke_t::async_wolke_t(loadsave_t *file) : 
+async_wolke_t::async_wolke_t(loadsave_t *file) :
 #ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::async_wolke)
 #else

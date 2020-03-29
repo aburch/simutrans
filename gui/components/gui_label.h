@@ -109,7 +109,7 @@ public:
 	 */
 	void set_tooltip(const char * t);
 
-	align_t get_align() const { return align; } 
+	align_t get_align() const { return align; }
 };
 
 #endif

@@ -104,7 +104,7 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 
 	add_component(&tabs);
 	tabs.add_listener(this);
-	
+
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+17*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-6));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+10*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-3));
 
@@ -183,7 +183,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		display_proportional_clip( pos.x + 10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 		offset_y += LINESPACE;
 
-		vehicle_t* v1 = cnv->get_vehicle(0); 
+		vehicle_t* v1 = cnv->get_vehicle(0);
 
 		if(v1->get_waytype() == track_wt || v1->get_waytype() == maglev_wt || v1->get_waytype() == tram_wt || v1->get_waytype() == narrowgauge_wt || v1->get_waytype() == monorail_wt)
 		{
@@ -191,7 +191,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 			rail_vehicle_t* rv1 = (rail_vehicle_t*)v1;
 			rail_vehicle_t* rv2 = (rail_vehicle_t*)cnv->get_vehicle(cnv->get_vehicle_count() - 1);
 			buf.clear();
-			buf.printf("%s: %s", translator::translate("Current working method"), translator::translate(rv1->is_leading() ? roadsign_t::get_working_method_name(rv1->get_working_method()) : roadsign_t::get_working_method_name(rv2->get_working_method()))); 
+			buf.printf("%s: %s", translator::translate("Current working method"), translator::translate(rv1->is_leading() ? roadsign_t::get_working_method_name(rv1->get_working_method()) : roadsign_t::get_working_method_name(rv2->get_working_method())));
 			display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 			offset_y += LINESPACE;
 		}
@@ -529,7 +529,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					extra_y += LINESPACE;
 				}
-			}		
+			}
 			if (v->get_desc()->get_is_tall())
 			{
 				buf.clear();
@@ -801,7 +801,7 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 					left += display_proportional_clip(pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y, name, ALIGN_LEFT, SYSCOL_TEXT, true);
 					left += D_H_SPACE;
 					// [color bar(goods)]
-					// draw the "empty" loading bar 
+					// draw the "empty" loading bar
 					display_loading_bar(pos.x + extra_w + offset.x + left, pos.y + offset.y + total_height + extra_y, LOADING_BAR_WIDTH, LOADING_BAR_HEIGHT, COL_GREY4, 0, 1, 0);
 
 					int bar_start_offset = 0;
@@ -1258,7 +1258,7 @@ void gui_convoy_formaion_t::draw(scr_coord offset)
 			if (v->get_number_of_accommodation_classes()) {
 				int bar_offset_left = 0;
 				int bar_width = (grid_width - 3) / v->get_number_of_accommodation_classes() - 1;
-				
+
 				// drawing the color bar
 				int found = 0;
 				for (int i = 0; i < v->get_desc()->get_number_of_classes(); i++) {

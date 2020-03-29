@@ -30,10 +30,10 @@ struct road_timeline_t
 
 
 template <class T>
-class vector_with_ptr_ownership_tpl : public vector_tpl<T*> 
+class vector_with_ptr_ownership_tpl : public vector_tpl<T*>
 {
 public:
-	vector_with_ptr_ownership_tpl(uint32 size = 0) : 
+	vector_with_ptr_ownership_tpl(uint32 size = 0) :
 		vector_tpl<T*>(size) {}
 
 	vector_with_ptr_ownership_tpl( vector_with_ptr_ownership_tpl const& src ) :
@@ -43,9 +43,9 @@ public:
 		}
 	}
 
-	vector_with_ptr_ownership_tpl& operator=( vector_with_ptr_ownership_tpl const& other ) { 
-		vector_with_ptr_ownership_tpl tmp(other); 
-		swap( static_cast<vector_tpl<T*>&>(tmp), static_cast<vector_tpl<T*>&>(*this) ); 
+	vector_with_ptr_ownership_tpl& operator=( vector_with_ptr_ownership_tpl const& other ) {
+		vector_with_ptr_ownership_tpl tmp(other);
+		swap( static_cast<vector_tpl<T*>&>(tmp), static_cast<vector_tpl<T*>&>(*this) );
 		return *this;
 	}
 
@@ -284,7 +284,7 @@ private:
 	 * built within city limits will on
 	 * building be classed as unowned so
 	 * that other players may use/modify
-	 * them. This will not affect other 
+	 * them. This will not affect other
 	 * ways built outside city limits
 	 * but which subsequently fall within
 	 * them.
@@ -302,9 +302,9 @@ private:
 	 */
 	uint32 reroute_check_interval_steps;
 
-	/** 
+	/**
 	 * The speed at which pedestrians walk in km/h.
-	 * Used in journey time calculations. 
+	 * Used in journey time calculations.
 	 * NOTE: The straight line distance is used
 	 * with this speed.
 	 */
@@ -321,25 +321,25 @@ private:
 	uint32 random_mode_visiting;
 
 	/**
-	* The number of private car routes in a city to process
+	* The number of private car routes tiles in a city to process
 	* in a single step. The higher the number, the more quickly
 	* that the private car routes update; the lower the number,
 	* the faster the performance. Reduce this number if momentary
 	* unresponsiveness be noticed frequently.
 	*/
-	uint32 max_routes_to_process_in_a_step = 8;
+	uint32 max_route_tiles_to_process_in_a_step = 1024;
 
 public:
 	//Cornering settings
 	//@author: jamespetts
-	
+
 	//The array index corresponds
 	//to the waytype index.
 
 	sint32 corner_force_divider[10];
 
 	uint8 curve_friction_factor[10];
-	
+
 	sint32 tilting_min_radius_effect;
 
 	/* if set, goods will avoid being routed over overcrowded stops */
@@ -358,7 +358,7 @@ public:
 public:
 
 	uint16 meters_per_tile;
-	
+
 	uint32 base_meters_per_tile;
 	uint32 base_bits_per_month;
 	uint32 job_replenishment_per_hundredths_of_months;
@@ -454,7 +454,7 @@ public:
 	//@author: jamespetts
 	// Passenger routing settings
 	uint8 passenger_routing_packet_size;
-	
+
 	uint16 max_alternative_destinations_visiting;
 	uint16 max_alternative_destinations_commuting;
 
@@ -490,9 +490,9 @@ public:
 	uint16 road_reverse_time_seconds;
 
 	//@author: jamespetts
-	uint16 global_power_factor_percent; 
+	uint16 global_power_factor_percent;
 	uint16 global_force_factor_percent;
-	
+
 	// Whether and how weight limits are enforced
 	// @author: jamespetts
 	uint8 enforce_weight_limits;
@@ -508,12 +508,12 @@ public:
 	 * @author: jamespetts, August 2011
 	 */
 	uint16 min_wait_airport;
-	
+
 private:
 
 	// true, if this pak should be used with extensions (default)
 	bool with_private_paks;
-	
+
 public:
 
 	// The ranges for the journey time tolerance for passengers.
@@ -522,7 +522,7 @@ public:
 	uint32 min_commuting_tolerance;
 	uint32 min_visiting_tolerance;
 	uint32 range_visiting_tolerance;
-	
+
 private:
 	/// what is the minimum clearance required under bridges
 	sint8 way_height_clearance;
@@ -617,8 +617,8 @@ public:
 
 	// The new (8.0) system for private cars checking
 	// whether their destination is reachable can have
-	// an adverse effect on performance. Allow it to 
-	// be disabled. 
+	// an adverse effect on performance. Allow it to
+	// be disabled.
 	bool assume_everywhere_connected_by_road;
 
 	uint16 default_increase_maintenance_after_years[17];
@@ -684,7 +684,7 @@ public:
 	uint32 way_wear_power_factor_rail_type;
 	uint16 standard_axle_load;
 	uint32 citycar_way_wear_factor;
-	
+
 	uint32 sighting_distance_meters;
 	uint16 sighting_distance_tiles;
 
@@ -858,7 +858,7 @@ public:
 	uint16 get_meters_per_tile() const { return meters_per_tile; }
 	void   set_meters_per_tile(uint16 value);
 	uint32 get_steps_per_km() const { return steps_per_km; }
-	
+
 	uint32 get_base_meters_per_tile() const { return base_meters_per_tile; }
 	uint32 get_base_bits_per_month() const { return base_bits_per_month; }
 	uint32 get_job_replenishment_per_hundredths_of_months() const { return job_replenishment_per_hundredths_of_months; }
@@ -926,7 +926,7 @@ public:
 	void update_min_alternative_destinations_visiting(uint32 global_visitor_demand) { min_alternative_destinations_visiting = min_alternative_destinations_per_visitor_demand_millionths > 0 ? (uint32)(((uint64)min_alternative_destinations_per_visitor_demand_millionths * (uint64)global_visitor_demand) / 1000000ul) : min_alternative_destinations_visiting; }
 	uint16 get_min_alternative_destinations_commuting() const { return min_alternative_destinations_commuting; }
 	void update_min_alternative_destinations_commuting(uint32 global_jobs) { min_alternative_destinations_commuting = min_alternative_destinations_per_job_millionths > 0 ? (uint32)(((uint64)min_alternative_destinations_per_job_millionths * (uint64)global_jobs) / 1000000ul) : min_alternative_destinations_commuting; }
-	
+
 	uint32 get_max_alternative_destinations_per_job_millionths() const { return max_alternative_destinations_per_job_millionths; }
 	uint32 get_max_alternative_destinations_per_visitor_demand_millionths() const { return max_alternative_destinations_per_visitor_demand_millionths; }
 
@@ -1076,11 +1076,11 @@ public:
 	sint16 get_spacing_shift_divisor() const { return spacing_shift_divisor; }
 	void set_spacing_shift_divisor(sint16 s) { spacing_shift_divisor = s; }
 
-	class livery_scheme_t* get_livery_scheme(uint16 index) { return !livery_schemes.empty() ? livery_schemes.get_element(index) : NULL; } 
+	class livery_scheme_t* get_livery_scheme(uint16 index) { return !livery_schemes.empty() ? livery_schemes.get_element(index) : NULL; }
 	vector_tpl<class livery_scheme_t*>* get_livery_schemes() { return &livery_schemes; }
 
 	bool get_allow_routing_on_foot() const { return allow_routing_on_foot; }
-	void set_allow_routing_on_foot(bool value); 
+	void set_allow_routing_on_foot(bool value);
 
 	bool is_drive_left() const { return drive_on_left; }
 	bool is_signals_left() const { return signals_on_left; }
@@ -1140,7 +1140,7 @@ public:
 	uint16 get_commuting_trip_chance_percent() const { return commuting_trip_chance_percent; }
 
 	// This is the number of ticks that must elapse before a single job is replenished.
-	sint64 get_job_replenishment_ticks() const { return job_replenishment_ticks; } 
+	sint64 get_job_replenishment_ticks() const { return job_replenishment_ticks; }
 	void calc_job_replenishment_ticks();
 
 	sint64 get_forge_cost_road() const { return forge_cost_road; }
@@ -1206,8 +1206,8 @@ public:
 	bool get_show_future_vehicle_info() const { return show_future_vehicle_info; }
 	//void set_show_future_vehicle_info(bool yesno) { show_future_vehicle_info = yesno; }
 
-	uint32 get_max_routes_to_process_in_a_step() const { return max_routes_to_process_in_a_step; }
-	void set_max_routes_to_process_in_a_step(uint32 value) { max_routes_to_process_in_a_step = value; }
+	uint32 get_max_route_tiles_to_process_in_a_step() const { return max_route_tiles_to_process_in_a_step; }
+	void set_max_route_tiles_to_process_in_a_step(uint32 value) { max_route_tiles_to_process_in_a_step = value; }
 };
 
-#endif 
+#endif

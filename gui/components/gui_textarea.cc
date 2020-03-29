@@ -48,7 +48,7 @@ gui_textarea_t::~gui_textarea_t()
 void gui_textarea_t::set_text(const char *const text)
 {
 	buf->clear();
-	if(text) 
+	if(text)
 	{
 		buf->append(text);
 	}

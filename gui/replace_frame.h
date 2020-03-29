@@ -95,14 +95,14 @@ public:
 	 * Do the dynamic dialog layout
 	 */
 	void layout(scr_size *size);
-	
+
 	/**
 	 * Update texts, image lists and buttons according to the current state.
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
 	void update_data();
-	
+
 	replace_frame_t(convoihandle_t cnv, const char *name);
 
 	/**

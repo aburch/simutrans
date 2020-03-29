@@ -37,12 +37,12 @@ protected:
 	reservation_type type;
 
 	// Additional data for reservations, such as the priority level or direction.
-	ribi_t::ribi direction; 
+	ribi_t::ribi direction;
 
 	schiene_t(waytype_t waytype);
 
 	uint8 textlines_in_info_window;
-	
+
 	bool is_type_rail_type(waytype_t wt) { return wt == track_wt || wt == monorail_wt || wt == maglev_wt || wt == tram_wt || wt == narrowgauge_wt; }
 
 public:
@@ -70,11 +70,11 @@ public:
 	* true, if this rail can be reserved
 	* @author prissi
 	*/
-	bool can_reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t = block, bool check_directions_at_junctions = false) const 
-	{ 
+	bool can_reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t = block, bool check_directions_at_junctions = false) const
+	{
 		if(t == block)
 		{
-			return !reserved.is_bound() || c == reserved || (type == directional && (dir == direction || dir == ribi_t::all || ((is_diagonal() || ribi_t::is_bend(direction)) && (dir & direction)) || (is_junction() && (dir & direction)))) || (type == priority && true /*Insert real logic here*/); 
+			return !reserved.is_bound() || c == reserved || (type == directional && (dir == direction || dir == ribi_t::all || ((is_diagonal() || ribi_t::is_bend(direction)) && (dir & direction)) || (is_junction() && (dir & direction)))) || (type == priority && true /*Insert real logic here*/);
 		}
 		if(t == directional)
 		{
@@ -144,8 +144,8 @@ public:
 	 * then a transparent outline with the color form the lower 8 Bit is drawn
 	 * @author kierongreen
 	 */
-	virtual PLAYER_COLOR_VAL get_outline_colour() const 
-	{ 
+	virtual PLAYER_COLOR_VAL get_outline_colour() const
+	{
 		uint8 reservation_colour;
 		switch(type)
 		{
@@ -157,7 +157,7 @@ public:
 		case directional:
 			reservation_colour = COL_BLUE;
 			break;
-			
+
 		case priority:
 			reservation_colour = COL_YELLOW;
 			break;
@@ -209,7 +209,7 @@ public:
 		switch (rt)
 		{
 		case 0:
-		default: 
+		default:
 			return "block_reservation";
 		case 1:
 			return "directional_reservation";

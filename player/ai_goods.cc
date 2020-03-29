@@ -189,7 +189,7 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 	}
 
 	bool complete = false;	// found at least one factory
-	
+
 	// now check for all
 	for (int i = 0; i < d.get_supplier_count(); ++i) {
 		goods_desc_t const* const ware = d.get_supplier(i)->get_input_type();

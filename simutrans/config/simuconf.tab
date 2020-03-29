@@ -736,16 +736,16 @@ citycar_way_wear_factor = 2
 # default: asphalt_road
 # (old, 102.2.2 and before) city_road_type = city_road
 
-# How many private car routes to process in a step.
+# How many private car routes tiles to process in a step.
 # With a higher number, routing data in game will be updated
 # more frequently. With a lower number, responsiveness will
 # be improved. Turn this down if there are frequent moments
 # of unresponsiveness.
 # 
-# Default: 8
+# Default: 1024
 # Setting to 0 means that all routes will be processed in
 # a step regardless of number.
-max_routes_to_process_in_a_step = 8
+max_route_tiles_to_process_in_a_step = 1024
 
 # If the following setting is set to 1, private cars will assume
 # that they can reach anywhere on the map irrespective of the actual

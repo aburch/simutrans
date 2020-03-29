@@ -329,8 +329,8 @@ bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, player_t
 		if (const gebaeude_t* gb = gr->get_building())
 		{
 			const uint8 max_level = welt->get_settings().get_max_elevated_way_building_level();
-			
-			if((gb->get_tile()->get_desc()->get_level() > max_level) && gr->get_halt().is_bound()) 
+
+			if((gb->get_tile()->get_desc()->get_level() > max_level) && gr->get_halt().is_bound())
 			{
 				error_msg = "Bridges cannot be built over large buildings.";
 				return true;
@@ -468,7 +468,7 @@ koord3d bridge_builder_t::find_end_pos(player_t *player, koord3d pos, const koor
 		}
 
 		// Check for non-length restricted bridges over deep water.
-		if(desc->get_max_length() == 0 && welt->lookup_hgt( pos.get_2d() ) < welt->get_water_hgt( pos.get_2d())) 
+		if(desc->get_max_length() == 0 && welt->lookup_hgt( pos.get_2d() ) < welt->get_water_hgt( pos.get_2d()))
 		{
 			error_msg = "Bridge cannot be built over deep water\n";
 			return koord3d::invalid;
