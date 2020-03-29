@@ -38,7 +38,7 @@ private:
 		inp_number_of_towns,
 		inp_town_size;
 
-	/* 
+	/*
 	 * Label to display current map seed number.
 	 */
 	gui_label_buf_t	map_number_label;

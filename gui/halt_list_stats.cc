@@ -57,7 +57,7 @@ halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 	gotopos.set_typ(button_t::posbutton_automatic);
 	gotopos.set_targetpos3d(halt->get_basis_pos3d());
 	add_component(&gotopos);
-	
+
 	add_component(&indicator);
 	indicator.set_max_size(scr_size(D_INDICATOR_WIDTH,D_INDICATOR_HEIGHT));
 

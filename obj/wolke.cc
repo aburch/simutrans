@@ -144,12 +144,12 @@ sync_result wolke_t::sync_step(uint32 delta_t)
 
 
 #ifdef MULTI_THREAD
-void wolke_t::display_after( int xpos, int ypos, const sint8 extra_param ) const 
+void wolke_t::display_after( int xpos, int ypos, const sint8 extra_param ) const
 #else
 void wolke_t::display_after( int xpos, int ypos, bool extra_param ) const
 #endif
-{ 
-	obj_t::display_after( xpos, ypos + calc_yoff(), extra_param ); 
+{
+	obj_t::display_after( xpos, ypos + calc_yoff(), extra_param );
 }
 
 

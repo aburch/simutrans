@@ -66,7 +66,7 @@ void bruecke_t::calc_image()
 			}
 			weg0->set_image( display_image );
 
-			// must always set both offsets, because after roation the xoffset contains the yoffset 
+			// must always set both offsets, because after roation the xoffset contains the yoffset
 			weg0->set_yoff( -gr->get_weg_yoff() );
 			weg0->set_xoff( 0 );
 

@@ -97,7 +97,7 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 	int text2w, text2h;
 	display_calc_proportional_multiline_string_len_width( text2w, text2h, part2, part2.len() );
 	col2_width = text2w;
-	
+
 	height = max( height, max( text1h, text2h ) + LINESPACE );
 }
 

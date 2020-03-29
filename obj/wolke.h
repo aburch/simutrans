@@ -25,7 +25,7 @@ private:
 
 	uint16 insta_zeit;	// clouds vanish when insta_zeit>2500 => maximum 5 images ...
 	sint16 base_y_off;	// since sint8 may overflow wiht larger pak sizes
-	uint16 lifetime;	// since factories generate other smoke than 
+	uint16 lifetime;	// since factories generate other smoke than
 	uint16 uplift;
 	uint8 cloud_nr;
 
