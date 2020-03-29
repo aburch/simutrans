@@ -8,6 +8,11 @@
 #ifndef boden_wege_weg_h
 #define boden_wege_weg_h
 
+#if 0
+// This was slower than the Simutrans koordhashtable
+#include <unordered_map>
+#endif
+
 #include "../../display/simimg.h"
 #include "../../simtypes.h"
 #include "../../simobj.h"
@@ -17,6 +22,10 @@
 #include "../../tpl/koordhashtable_tpl.h"
 #include "../../simskin.h"
 
+#ifdef MULTI_THREAD
+#include "../../utils/simthread.h"
+#endif
+
 class karte_t;
 class way_desc_t;
 class cbuffer_t;
@@ -24,6 +33,7 @@ class player_t;
 class signal_t;
 class gebaeude_t;
 class stadt_t;
+class unordered_map;
 template <class T> class vector_tpl;
 
 
@@ -36,6 +46,23 @@ enum way_statistics {
 	WAY_STAT_WAITING,	///< Number of vehicles waiting in a traffic jam on this way
 	MAX_WAY_STATISTICS
 };
+
+#if 0
+// This was used to test the performance of the std unordered map as against the
+// built-in Simutrans hashtable, but the latter performed far better.
+namespace std 
+{
+	template <>
+	struct hash<koord>
+	{
+		std::size_t operator()(const koord& key) const
+		{
+			using std::hash;
+			return (uint32)key.y << 16 | key.x;
+		}
+	};
+}
+#endif
 
 
 /**
@@ -181,6 +208,10 @@ private:
 	// Whether the way is in a degraded state.
 	bool degraded:1;
 
+#ifdef MULTI_THREAD
+	pthread_mutex_t private_car_store_route_mutex;
+#endif
+
 protected:
 
 	enum image_type { image_flat, image_slope, image_diagonal, image_switch };
@@ -213,7 +244,25 @@ public:
 
 	// Likewise, out of caution, put this here for the same reason.
 	typedef koordhashtable_tpl<koord, koord3d> private_car_route_map;
-	private_car_route_map private_car_routes;
+	//typedef std::unordered_map<koord, koord3d> private_car_route_map_2;
+	private_car_route_map private_car_routes[2];
+	//private_car_route_map_2 private_car_routes_std[2];
+	static uint32 private_car_routes_currently_reading_element;
+	static uint32 get_private_car_routes_currently_writing_element() { return private_car_routes_currently_reading_element == 1 ? 0 : 1; }
+
+	void add_private_car_route(koord dest, koord3d next_tile); 
+private:
+	/// Set the boolean value to true to modify the set currently used for reading (this must ONLY be done when this is called from a single threaded part of the code).
+	void remove_private_car_route(koord dest, bool reading_set = false); 
+public:
+	static void swap_private_car_routes_currently_reading_element() { private_car_routes_currently_reading_element = private_car_routes_currently_reading_element == 0 ? 1 : 0; }
+
+	/// Delete all private car routes originating from or passing through this tile.
+	/// Set the boolean value to true to modify the set currently used for reading (this must ONLY be done when this is called from a single threaded part of the code).
+	void delete_all_routes_from_here(bool reading_set = false); 
+	void delete_route_to(koord destination, bool reading_set = false); 
+
+
 
 	virtual ~weg_t();
 

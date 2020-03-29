@@ -8043,7 +8043,7 @@ void water_vehicle_t::enter_tile(grund_t* gr)
 bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 {
 	const weg_t *w = bd->get_weg(water_wt);
-	if (cnv->has_tall_vehicles())
+	if (cnv && cnv->has_tall_vehicles())
 	{
 		if (w)
 		{

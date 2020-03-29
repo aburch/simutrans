@@ -92,6 +92,8 @@ public:
 	static void RELEASE_NODES(uint8 nodes_index);
 	static void TERM_NODES(void* args = NULL);
 
+	static bool suspend_private_car_routing;
+
 	const koord3d_vector_t &get_route() const { return route; }
 
 	uint32 get_max_axle_load() const { return max_axle_load; }

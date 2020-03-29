@@ -132,9 +132,6 @@
 
 static vector_tpl<pthread_t> private_car_route_threads;
 static vector_tpl<pthread_t> unreserve_route_threads;
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-static vector_tpl<pthread_t> process_private_car_routes_threads;
-#endif
 static vector_tpl<pthread_t> step_passengers_and_mail_threads;
 static vector_tpl<pthread_t> individual_convoy_step_threads;
 static vector_tpl<pthread_t> path_explorer_threads;
@@ -150,16 +147,13 @@ static pthread_mutexattr_t mutex_attributes;
 //pthread_mutex_t karte_t::unreserve_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_mutex_t karte_t::private_car_route_mutex;
-pthread_mutex_t karte_t::private_car_store_route_mutex;
+bool karte_t::private_car_route_mutex_initialised;
 pthread_mutex_t karte_t::step_passengers_and_mail_mutex;
 static pthread_mutex_t path_explorer_await_mutex;
 pthread_mutex_t karte_t::unreserve_route_mutex;
 
-static simthread_barrier_t private_car_barrier;
+simthread_barrier_t karte_t::private_car_barrier;
 simthread_barrier_t karte_t::unreserve_route_barrier;
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-simthread_barrier_t karte_t::process_private_car_routes_barrier;
-#endif
 static simthread_barrier_t step_passengers_and_mail_barrier;
 static simthread_barrier_t path_explorer_barrier;
 static simthread_barrier_t step_convoys_barrier_internal;
@@ -169,6 +163,8 @@ bool karte_t::threads_initialised = false;
 
 thread_local uint32 karte_t::passenger_generation_thread_number;
 thread_local uint32 karte_t::marker_index = UINT32_MAX_VALUE;
+
+static void swap_private_car_routes_currently_reading_element();
 
 sint32 karte_t::cities_to_process = 0;
 vector_tpl<convoihandle_t> convoys_next_step;
@@ -545,6 +541,7 @@ void karte_t::destroy()
 	DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 #ifdef MULTI_THREAD
+	suspend_private_car_threads();
 	destroy_threads();
 	DBG_MESSAGE("karte_t::destroy()", "threads destroyed");
 #else
@@ -910,7 +907,11 @@ void karte_t::remove_queued_city(stadt_t* city)
 
 void karte_t::add_queued_city(stadt_t* city)
 {
+	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+	assert(error == 0);
 	cities_awaiting_private_car_route_check.append_unique(city);
+	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+	assert(error == 0);
 }
 
 void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sint16 old_y)
@@ -1440,6 +1441,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	sync_steps = 0;
 	sync_steps_barrier = sync_steps;
 	map_counter = 0;
+	private_car_route_mutex_initialised = false;
 	recalc_average_speed(true);	// resets timeline - but passing "true" prevents it from generating message spam on reloading or starting a new game
 
 	groundwater = (sint8)sets->get_groundwater();      //29-Nov-01     Markus Weber    Changed
@@ -1620,7 +1622,7 @@ void *check_road_connexions_threaded(void *args)
 		}
 		int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 		assert(error == 0);
-		if (karte_t::cities_to_process > 0)
+		if (karte_t::cities_to_process > 0 && karte_t::cities_to_process >= thread_number + 1 && route_t::suspend_private_car_routing == false && !world()->cities_awaiting_private_car_route_check.empty())
 		{
 			stadt_t* city;
 			city = world()->cities_awaiting_private_car_route_check.remove_first();
@@ -1632,18 +1634,23 @@ void *check_road_connexions_threaded(void *args)
 			{
 				continue;
 			}
-
+			
 			city->check_all_private_car_routes();
 
-			simthread_barrier_wait(&private_car_barrier);
+			simthread_barrier_wait(&karte_t::private_car_barrier);
 		}
 		else
 		{
 			int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
+			if (!world()->is_terminating_threads() && route_t::suspend_private_car_routing)
+			{
+				simthread_barrier_wait(&karte_t::private_car_barrier);
+			}
 		}
-		// Having two barrier waits here is intentional. 
-		simthread_barrier_wait(&private_car_barrier);
+		
+		// Having two barrier waits here is intentional.
+		simthread_barrier_wait(&karte_t::private_car_barrier);
 	} while (!world()->is_terminating_threads());
 
 	// New thread local nodes are created on the heap automatically when this is used,
@@ -1653,7 +1660,7 @@ void *check_road_connexions_threaded(void *args)
 	pthread_exit(NULL);
 	return args;
 }
-
+ 
 void *step_passengers_and_mail_threaded(void* args)
 {
 	const uint32* thread_number_ptr = (const uint32*)args;
@@ -1912,6 +1919,46 @@ void karte_t::await_convoy_threads()
 }
 
 #ifdef MULTI_THREAD
+
+void karte_t::start_private_car_threads(bool override_suspend)
+{
+	if (!private_car_threads_working && (override_suspend || !route_t::suspend_private_car_routing))
+	{
+		simthread_barrier_wait(&private_car_barrier);
+		private_car_threads_working = true;
+	}
+}
+
+void karte_t::await_private_car_threads(bool override_suspend)
+{
+	if (private_car_threads_working && (override_suspend || !route_t::suspend_private_car_routing))
+	{
+		simthread_barrier_wait(&private_car_barrier);
+		private_car_threads_working = false;
+	}
+}
+
+void karte_t::suspend_private_car_threads()
+{
+	if (!private_car_route_mutex_initialised)
+	{
+		return;
+	}
+	await_private_car_threads();
+	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+	assert(error == 0 || error == EINVAL);
+	route_t::suspend_private_car_routing = true;
+	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+	assert(error == 0 || error == EINVAL);
+	start_private_car_threads(true);
+	await_private_car_threads(true);
+	error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+	assert(error == 0 || error == EINVAL);
+	route_t::suspend_private_car_routing = false;
+	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+	assert(error == 0 || error == EINVAL);
+}
+
 void* path_explorer_threaded(void* args)
 {
 	path_explorer_t::allow_path_explorer_on_this_thread = true;
@@ -2014,6 +2061,7 @@ void karte_t::await_all_threads()
 	// Call this when saving or doing disruptive stuff like map rotation.
 	await_convoy_threads();
 	await_path_explorer();
+	suspend_private_car_threads();
 	await_passengers_and_mail_threads();
 #endif
 }
@@ -2039,9 +2087,6 @@ void karte_t::init_threads()
 	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
 
 	simthread_barrier_init(&private_car_barrier, NULL, parallel_operations + 1);
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-	simthread_barrier_init(&karte_t::process_private_car_routes_barrier, NULL, parallel_operations + 2);
-#endif
 	simthread_barrier_init(&karte_t::unreserve_route_barrier, NULL, parallel_operations + 2); // This and the next does not run concurrently with anything significant on the main thread, so the number of parallel operations need to be +1 compared to the others.
 	simthread_barrier_init(&step_passengers_and_mail_barrier, NULL, parallel_operations + 2);
 	simthread_barrier_init(&step_convoys_barrier_external, NULL, 2);
@@ -2052,8 +2097,9 @@ void karte_t::init_threads()
 	pthread_mutexattr_init(&mutex_attributes);
 	pthread_mutexattr_settype(&mutex_attributes, PTHREAD_MUTEX_ERRORCHECK);
 
+	private_car_route_mutex_initialised = true;
 	pthread_mutex_init(&private_car_route_mutex, &mutex_attributes);
-	pthread_mutex_init(&private_car_store_route_mutex, &mutex_attributes);
+	
 	pthread_mutex_init(&step_passengers_and_mail_mutex, &mutex_attributes);
 	pthread_mutex_init(&path_explorer_await_mutex, &mutex_attributes);
 	pthread_mutex_init(&unreserve_route_mutex, &mutex_attributes);
@@ -2075,20 +2121,8 @@ void karte_t::init_threads()
 			{
 				private_car_route_threads.append(thread);
 			}
+			private_car_threads_working = false;
 		}
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-		sint32* thread_number_private_process = new sint32;
-		*thread_number_private_process = i;
-		rc = pthread_create(&thread, &thread_attributes, &stadt_t::process_private_car_route_threaded, (void*)thread_number_private_process);
-		if (rc)
-		{
-			dbg->fatal("void karte_t::init_threads()", "Failed to create private car route processing thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
-		}
-		else
-		{
-			process_private_car_routes_threads.append(thread);
-		}
-#endif
 		// The next two need an extra thread compared with the others, as they do not run concurrently with anything non-trivial on the main thread
 		sint32* thread_number_unres = new sint32;
 		*thread_number_unres = i;
@@ -2184,11 +2218,10 @@ void karte_t::destroy_threads()
 #ifdef MULTI_THREAD_PASSENGER_GENERATION
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 #endif
+		await_private_car_threads();
 		simthread_barrier_wait(&private_car_barrier);
+
 		simthread_barrier_wait(&unreserve_route_barrier);
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-		simthread_barrier_wait(&process_private_car_routes_barrier);
-#endif
 #ifdef MULTI_THREAD_PATH_EXPLORER
 		simthread_barrier_wait(&path_explorer_barrier);
 		pthread_join(path_explorer_thread, 0);
@@ -2198,7 +2231,6 @@ void karte_t::destroy_threads()
 		clean_threads(&individual_convoy_step_threads);
 		individual_convoy_step_threads.clear();
 #endif
-
 		clean_threads(&private_car_route_threads);
 		private_car_route_threads.clear();
 #ifdef MULTI_THREAD_PASSENGER_GENERATION
@@ -2207,13 +2239,7 @@ void karte_t::destroy_threads()
 #endif
 
 		clean_threads(&unreserve_route_threads);
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-		clean_threads(&process_private_car_routes_threads);
-#endif
 		unreserve_route_threads.clear();
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-		process_private_car_routes_threads.clear();
-#endif
 #ifdef MULTI_THREAD_CONVOYS
 		simthread_barrier_destroy(&step_convoys_barrier_external);
 		simthread_barrier_destroy(&step_convoys_barrier_internal);
@@ -2223,16 +2249,14 @@ void karte_t::destroy_threads()
 #endif
 		simthread_barrier_destroy(&private_car_barrier);
 		simthread_barrier_destroy(&unreserve_route_barrier);
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-		simthread_barrier_destroy(&process_private_car_routes_barrier);
-#endif
+
 #ifdef MULTI_THREAD_PATH_EXPLORER
 		simthread_barrier_destroy(&path_explorer_barrier);
 #endif
 
 		// Destroy mutexes
 		pthread_mutex_destroy(&private_car_route_mutex);
-		pthread_mutex_destroy(&private_car_store_route_mutex);
+		private_car_route_mutex_initialised = false;
 		pthread_mutex_destroy(&step_passengers_and_mail_mutex);
 		pthread_mutex_destroy(&path_explorer_await_mutex);
 		pthread_mutex_destroy(&unreserve_route_mutex);
@@ -3068,15 +3092,13 @@ karte_t::karte_t() :
 	passengers_and_mail_threads_working = false;
 	convoy_threads_working = false;
 	path_explorer_working = false;
+	private_car_threads_working = false;
 #endif
-
-	city_heavy_step_index = 0;
 }
 
 karte_t::~karte_t()
 {
 	is_sound = false;
-
 	destroy();
 
 	// not deleting the tools of this map ...
@@ -5106,7 +5128,11 @@ void karte_t::new_month()
 	{
 		if(recheck_road_connexions)
 		{
+			int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+			assert(error == 0);
 			cities_awaiting_private_car_route_check.append_unique(s);
+			error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+			assert(error == 0);
 		}
 		s->new_month();
 		//INT_CHECK("simworld 3117");
@@ -5450,24 +5476,36 @@ void karte_t::step()
 	/** THREADING CAN START HERE **/
 
 	// Check the private car routes. In multi-threaded mode, this can be running in the background whilst a number of other steps are processed.
-	// This is computationally intensive, but intermittently.
-	const bool check_city_routes = cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0;
+	// This is computationally intensive, but intermittently. The computational intensity increases exponentially with the size of the map.
+	const uint32 check_frequency = max(stadt.get_count() / 6, 1);
+	//const bool check_city_routes = (steps % check_frequency) == 0;
+	const bool check_city_routes = true;
 	if (check_city_routes)
 	{
 		const sint32 parallel_operations = get_parallel_operations();
 
+		if (cities_awaiting_private_car_route_check.empty())
+		{
+			weg_t::swap_private_car_routes_currently_reading_element();
+			FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
+			{
+				cities_awaiting_private_car_route_check.append(i); 
+			}
+		}
+		
 #ifdef MULTI_THREAD
 		// This cannot be started at the end of the step, as we will not know at that point whether we need to call this at all.
-		cities_to_process = min(cities_awaiting_private_car_route_check.get_count() - 1, parallel_operations);
-		simthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished. This is the first.
-#else
-		const uint32 cities_to_process = min(cities_awaiting_private_car_route_check.get_count() - 1, parallel_operations);
+		// There can be many mutex clashes with this; however, processing only one city at a time can make it take an unfeasible amount of time to refresh all routes.
+		//cities_to_process = stadt.get_count() > 64 ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		//cities_to_process = 1;
+		cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		start_private_car_threads();
+#else			
+		const uint32 cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		for (uint32 j = 0; j < cities_to_process; j++)
 		{
 			stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
 			city->check_all_private_car_routes();
-			city->set_check_road_connexions(false);
-
 		}
 #endif
 	}
@@ -5550,6 +5588,7 @@ void karte_t::step()
 	// Processing private car routes is, however, quite computationally intensive, so only do one town per step.
 	// This probably cannot usefully be multi-threaded as all instances would need to access the same road data.
 	DBG_DEBUG4("karte_t::step 6", "step cities");
+
 #define CONCURRENT_ROUTE_PROCESSING
 #ifndef CONCURRENT_ROUTE_PROCESSING
 	uint32 step_cities_count = 0;
@@ -5559,31 +5598,17 @@ void karte_t::step()
 		i->step(delta_t);
 		rands[21] += i->get_einwohner();
 		rands[22] += i->get_buildings();
-#ifndef CONCURRENT_ROUTE_PROCESSING
-		if (step_cities_count == city_heavy_step_index)
-		{
-			i->step_heavy();
-		}
+	}
 
-		step_cities_count++;
-#endif
-	}
-#ifndef CONCURRENT_ROUTE_PROCESSING
-	city_heavy_step_index++;
-#endif
-	if (city_heavy_step_index > stadt.get_count())
-	{
-		city_heavy_step_index = 0;
-	}
 	rands[14] = get_random_seed();
 
 	INT_CHECK("karte_t::step 3b");
 
 #ifdef MULTI_THREAD
-	// The placement of this barrier must be before any code that in any way relies on the private car routes between cities, most especially the mail and passenger generation (step_passengers_and_mail(delta_t)).
+	// The placement of this method call must be before any code that in any way relies on the private car routes between cities, most especially the mail and passenger generation (step_passengers_and_mail(delta_t)).
 	if (check_city_routes)
 	{
-		simthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished. This is the second.
+		await_private_car_threads();
 	}
 #endif
 
@@ -5640,22 +5665,6 @@ void karte_t::step()
 	DBG_DEBUG4("karte_t::step", "step generate passengers and mail");
 
 	rands[15] = get_random_seed();
-
-#ifdef CONCURRENT_ROUTE_PROCESSING
-	// The processing of private car routes can run concurrently with passenger and mail generation
-	// so long as the connected_cities (etc.) be not altered.
-	uint32 step_cities_count = 0;
-	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
-	{
-		if (step_cities_count == city_heavy_step_index)
-		{
-			i->step_heavy();
-		}
-
-		step_cities_count++;
-	}
-	city_heavy_step_index++;
-#endif
 
 	// the inhabitants stuff
 	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = 0;
@@ -8414,11 +8423,17 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 19))
 	{
-		file->rdwr_long(city_heavy_step_index);
+		if (file->get_extended_version() == 14 && file->get_extended_revision() < 20)
+		{
+			// Was city_heavy_step_index
+			uint32 dummy = 0;
+			file->rdwr_long(dummy);
+		}
 	}
-	else
+
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 20))
 	{
-		city_heavy_step_index = 0;
+		file->rdwr_long(weg_t::private_car_routes_currently_reading_element);
 	}
 
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() >= 14 && file->get_extended_revision() >= 8) && get_settings().get_save_path_explorer_data())
@@ -8455,6 +8470,7 @@ void karte_t::add_missing_paks( const char *name, missing_level_t level )
 // just the preliminaries, opens the file, checks the versions ...
 bool karte_t::load(const char *filename)
 {
+	suspend_private_car_threads(); // Necessary here to prevent thread deadlocks.
 	cbuffer_t name;
 	bool ok = false;
 	bool restore_player_nr = false;
@@ -9552,11 +9568,17 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 19))
 	{
-		file->rdwr_long(city_heavy_step_index);
+		if (file->get_extended_version() == 14 && file->get_extended_revision() < 20)
+		{
+			// Was city_heavy_step_index
+			uint32 dummy = 0;
+			file->rdwr_long(dummy);
+		}
 	}
-	else
+
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 20))
 	{
-		city_heavy_step_index = 0;
+		file->rdwr_long(weg_t::private_car_routes_currently_reading_element);
 	}
 
 	// Either reload the path explorer data or refresh the routing.

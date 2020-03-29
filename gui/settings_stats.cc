@@ -218,6 +218,8 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	}
 	SEPERATOR;
 
+	world()->await_private_car_threads();
+
 	INIT_NUM( "city_threshold_size", sets->get_city_threshold_size(), 1000, 100000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "capital_threshold_size", sets->get_capital_threshold_size(), 10000, 1000000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "city_threshold_percentage", sets->get_city_threshold_percentage(), 0, 100, gui_numberinput_t::PLAIN, false);
@@ -227,7 +229,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM( "congestion_density_factor", sets->get_congestion_density_factor(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "quick_city_growth", sets->get_quick_city_growth());
 	INIT_BOOL( "assume_everywhere_connected_by_road", sets->get_assume_everywhere_connected_by_road());
-	INIT_NUM( "max_routes_to_process_in_a_step", sets->get_max_routes_to_process_in_a_step(), 0, 16384, gui_numberinput_t::AUTOLINEAR, false);
+	INIT_NUM( "max_route_tiles_to_process_in_a_step", sets->get_max_route_tiles_to_process_in_a_step(), 0, 65535, gui_numberinput_t::AUTOLINEAR, false);
 	INIT_BOOL("toll_free_public_roads", sets->get_toll_free_public_roads());
 	INIT_NUM( "spacing_shift_mode", sets->get_spacing_shift_mode(), 0, 2 , gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "spacing_shift_divisor", sets->get_spacing_shift_divisor(), 1, 32767 , gui_numberinput_t::AUTOLINEAR, false );
@@ -329,6 +331,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 
 void settings_extended_general_stats_t::read(settings_t *sets)
 {
+	world()->await_private_car_threads();
 	READ_INIT;
 
 	READ_NUM( sets->set_tpo_min_minutes );
@@ -343,7 +346,7 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM( sets->set_congestion_density_factor );
 	READ_BOOL( sets->set_quick_city_growth );
 	READ_BOOL( sets->set_assume_everywhere_connected_by_road );
-	READ_NUM( sets->set_max_routes_to_process_in_a_step );
+	READ_NUM( sets->set_max_route_tiles_to_process_in_a_step ); 
 	READ_BOOL_VALUE(sets->toll_free_public_roads);
 	READ_NUM( sets->set_spacing_shift_mode );
 	READ_NUM( sets->set_spacing_shift_divisor);

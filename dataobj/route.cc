@@ -46,7 +46,7 @@
 #include "../simsys.h"
 #endif
 
-
+bool route_t::suspend_private_car_routing = false;
 
 
 void route_t::append(const route_t *r)
@@ -273,6 +273,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		origin_city->set_private_car_route_finding_in_progress(true);
 	}
 
+	uint32 private_car_route_step_counter = 0;
+
 	do
 	{
 		destination_industry = NULL;
@@ -303,7 +305,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			}
 			else
 			{
-				// Quick private car route checking does not reconstruct the route.
 				// Cost should be journey time per *straight line* tile, as the private car route
 				// system needs to be able to approximate the total travelling time from the straight
 				// line distance.
@@ -390,38 +391,49 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		{
 			route.clear();
 			ANode* original_tmp = tmp;
-			route.resize(tmp->count + 16);
+			//route.resize(tmp->count + 16);
+			const koord destination_pos = destination_industry ? destination_industry->get_pos().get_2d() : destination_attraction ? destination_attraction->get_first_tile()->get_pos().get_2d() : destination_city ? destination_city->get_townhall_road() : koord::invalid;
+			koord3d previous = koord3d::invalid;
+			weg_t* w;
 			while (tmp != NULL)
-			{
-				route.store_at(tmp->count, tmp->gr->get_pos());
+			{	 
+				private_car_route_step_counter++;
+				w = tmp->gr->get_weg(road_wt);
+			
+				if (w)
+				{
+					// The route is added here in a different array index to the set of routes
+					// that are currently being read.
+
+					// Also, the route is iterated here *backwards*. 
+					w->add_private_car_route(destination_pos, previous);
+				}
+			
+				// Old route storage - we probably no longer need this.
+				//route.store_at(tmp->count, tmp->gr->get_pos());
+
+				previous = tmp->gr->get_pos();
 				tmp = tmp->parent;
 			}
 
-			// We are passing the route by value rather than by reference (pointer) on purpose,
-			// since we need to copy the route to the origin city and re-use the local vector here.
 #ifdef MULTI_THREAD
-			int error = pthread_mutex_lock(&karte_t::private_car_store_route_mutex);
-			assert(error == 0);
+			const uint32 max_steps = welt->get_settings().get_max_route_tiles_to_process_in_a_step(); 
+			if (max_steps && !suspend_private_car_routing && private_car_route_step_counter >= max_steps) 
+			{
+				// Halt this mid step if there are too many routes being calculated so as not to make the game unresponsive.
+				// On a Ryzen 3900x, calculating all routes from one city on a 600 city map can take ~4 seconds.
 
-#endif
-			if (destination_industry)
-			{
-				origin_city->store_private_car_route(route, destination_industry->get_pos().get_2d());
+				// It is intentional to have two barriers here.
+				simthread_barrier_wait(&karte_t::private_car_barrier);
+				if (!suspend_private_car_routing)
+				{
+					simthread_barrier_wait(&karte_t::private_car_barrier);
+				}
+				private_car_route_step_counter = 0;
 			}
-			else if (destination_attraction)
-			{
-				const koord attraction_pos = destination_attraction ? destination_attraction->get_first_tile()->get_pos().get_2d() : koord::invalid;
-				origin_city->store_private_car_route(route, attraction_pos);
-			}
-			else if (destination_city)
-			{
-				origin_city->store_private_car_route(route, destination_city->get_townhall_road());
-			}
-#ifdef MULTI_THREAD
-			error = pthread_mutex_unlock(&karte_t::private_car_store_route_mutex);
-			assert(error == 0);
 #endif
 			tmp = original_tmp;
+
 		}
 
 		// testing all four possible directions

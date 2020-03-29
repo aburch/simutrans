@@ -289,19 +289,7 @@ private:
 
 	sint32 number_of_cars;
 
-	/// Storage for private car routes (1) awaiting processing; and (2) processed (for easy deletion)
-	// We swap between two routing tables to avert the need for copying, which is too expensive.
-	typedef koordhashtable_tpl<koord, vector_tpl<koord3d> > private_car_route_map;
-	private_car_route_map private_car_routes[2];
-	/// This is the set of routes that is currently being used by the running game,
-	/// not the one that is set aside for multi-threaded insertion by the route-finder.
-	uint32 currently_active_route_map;
-
 public:
-
-	inline uint32 get_currently_active_route_map() const { return currently_active_route_map; }
-	inline uint32 get_currently_inactive_route_map() const { return currently_active_route_map == 1 ? 0 : 1; }
-	void swap_active_route_map() { currently_active_route_map == 0 ? currently_active_route_map = 1 : currently_active_route_map = 0; }
 
 	void add_building_to_list(gebaeude_t* building, bool ordered = false, bool do_not_add_to_world_list = false, bool do_not_update_stats = false);
 
@@ -642,9 +630,6 @@ public:
 
 	void step(uint32 delta_t);
 
-	/// Things that only one city per world step should do.
-	void step_heavy();
-
 	void new_month();
 
 	void add_road_connexion(uint32 journey_time_per_tile, const stadt_t* city);
@@ -661,23 +646,6 @@ public:
 	uint32 check_road_connexion_to(const gebaeude_t* attraction) const;
 
 	void generate_private_cars(koord pos, uint32 journey_tenths_of_minutes, koord target, uint8 number_of_passengers);
-
-	/// Stores a private car route in the city ready to be added to road tiles later. This should be thread-safe.
-	void store_private_car_route(vector_tpl<koord3d> route, koord pos);
-
-	/// Clears a private car route to a particular destination, including iterating over road tiles deleting the routes there.
-	void clear_private_car_route(koord pos, bool clear_connected_tables);
-
-	/// Take stored routes from the newly added list and add them to route tiles, moving the route to the procesed list.
-	void process_private_car_routes();
-	sint32 route_processing_counter = -1;
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-	void process_private_car_routes_threaded();
-	static void* process_private_car_route_threaded(void* args);
-	void process_private_car_route_range(route_range_specification range);
-	static koord current_key;
-	static stadt_t* current_city;
-#endif
 
 private:
 	/**

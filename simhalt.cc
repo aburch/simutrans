@@ -2480,7 +2480,12 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 					const halthandle_t check_halt = bound_for_next_transfer ? next_transfer : destination;
 
 					const arrival_times_map& check_arrivals = check_halt->get_estimated_convoy_arrival_times();
-					const sint64 this_arrival_time = check_arrivals.get(cnv->self.get_id());
+					sint64 this_arrival_time = check_arrivals.get(cnv->self.get_id());
+					if (this_arrival_time == 0)
+					{
+						dbg->error("bool haltestelle_t::fetch_goods()", "A convoy's arrival time is not in the database");
+						this_arrival_time = welt->get_ticks();
+					}
 
 					bool wait_for_faster_convoy = true;
 

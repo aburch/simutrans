@@ -321,13 +321,13 @@ private:
 	uint32 random_mode_visiting;
 
 	/**
-	* The number of private car routes in a city to process
+	* The number of private car routes tiles in a city to process
 	* in a single step. The higher the number, the more quickly
 	* that the private car routes update; the lower the number,
 	* the faster the performance. Reduce this number if momentary
 	* unresponsiveness be noticed frequently.
 	*/
-	uint32 max_routes_to_process_in_a_step = 8;
+	uint32 max_route_tiles_to_process_in_a_step = 1024;
 
 public:
 	//Cornering settings
@@ -1206,8 +1206,8 @@ public:
 	bool get_show_future_vehicle_info() const { return show_future_vehicle_info; }
 	//void set_show_future_vehicle_info(bool yesno) { show_future_vehicle_info = yesno; }
 
-	uint32 get_max_routes_to_process_in_a_step() const { return max_routes_to_process_in_a_step; }
-	void set_max_routes_to_process_in_a_step(uint32 value) { max_routes_to_process_in_a_step = value; }
+	uint32 get_max_route_tiles_to_process_in_a_step() const { return max_route_tiles_to_process_in_a_step; }
+	void set_max_route_tiles_to_process_in_a_step(uint32 value) { max_route_tiles_to_process_in_a_step = value; }
 };
 
 #endif

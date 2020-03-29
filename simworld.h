@@ -841,8 +841,6 @@ private:
 
 	slist_tpl<stadt_t*> cities_awaiting_private_car_route_check;
 
-	uint32 city_heavy_step_index;
-
 	/**
 	 * The last time when a server announce was performed (in ms).
 	 */
@@ -933,20 +931,19 @@ private:
 	bool passengers_and_mail_threads_working;
 	bool convoy_threads_working;
 	bool path_explorer_working;
+	bool private_car_threads_working;
 public:
 	static simthread_barrier_t step_convoys_barrier_external;
 	static simthread_barrier_t unreserve_route_barrier;
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-	static simthread_barrier_t process_private_car_routes_barrier;
-#endif
-
+	static simthread_barrier_t private_car_barrier;
 	static pthread_mutex_t unreserve_route_mutex;
 	static pthread_mutex_t step_passengers_and_mail_mutex;
-	static pthread_mutex_t private_car_store_route_mutex;
-	static pthread_mutex_t private_car_route_mutex;
+	static bool private_car_route_mutex_initialised;
+	static pthread_mutex_t private_car_route_mutex; 
 	void start_passengers_and_mail_threads();
 	void start_convoy_threads();
 	void start_path_explorer();
+	void start_private_car_threads(bool override_suspend = false);
 #else
 public:
 #endif
@@ -954,6 +951,8 @@ public:
 	void await_passengers_and_mail_threads();
 	void await_convoy_threads();
 	void await_path_explorer();
+	void await_private_car_threads(bool override_suspend = false);
+	void suspend_private_car_threads();
 	void await_all_threads();
 
 	enum building_type { passenger_origin, commuter_target, visitor_target, mail_origin_or_target, none };
