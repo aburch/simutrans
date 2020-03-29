@@ -254,18 +254,18 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	if(  capacity == level * 32  ) {
 		capacity = obj.get_int("station_capacity", level * 32);
 	}
-	
+
 	sint32 maintenance = obj.get_int("maintenance", PRICE_MAGIC);
 	if(  maintenance == PRICE_MAGIC  ) {
 		maintenance = obj.get_int("station_maintenance", PRICE_MAGIC);
 	}
-	
+
 	sint32 price = obj.get_int("cost", PRICE_MAGIC);
 	if(  price == PRICE_MAGIC  ) {
 		price = obj.get_int("station_price", PRICE_MAGIC);
 	}
-	 
-	uint32 radius = obj.get_int("radius", 1000); 
+
+	uint32 radius = obj.get_int("radius", 1000);
 
 	uint8 allow_underground = obj.get_int("allow_underground", 2);
 	if(allow_underground > 2)
@@ -279,7 +279,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	{
 		// HACK: Use "enables" (only used for a stop type) to encode traction types
 		enables = 65535; // Default - all types enabled.
-		
+
 		uint16 traction_type_count = 0;
 		uint16 traction_type = 1;
 		bool engaged = false;
@@ -290,7 +290,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 			sprintf(buf, "traction_type[%d]", traction_type_count);
 
 			engine_type = obj.get(buf);
-			if (engine_type.length() > 0) 
+			if (engine_type.length() > 0)
 			{
 				if(!engaged)
 				{
@@ -304,7 +304,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 				enables |= shifter;
 				traction_type_count++;
 			}
-		} while (engine_type.length() > 0);			
+		} while (engine_type.length() > 0);
 	}
 
 	uint8 is_control_tower = obj.get_int("is_control_tower", 0);
@@ -312,13 +312,13 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint16 population_and_visitor_demand_capacity = obj.get_int("population_and_visitor_demand_capacity", 65535);
 	uint16 employment_capacity = obj.get_int("passenger_demand", type == building_desc_t::city_res ? 0 : 65535);
 	employment_capacity = obj.get_int("employment_capacity", type == building_desc_t::city_res ? 0 : employment_capacity);
-	uint16 mail_demand_and_production_capacity = obj.get_int("mail_demand", 65535);	
+	uint16 mail_demand_and_production_capacity = obj.get_int("mail_demand", 65535);
 	mail_demand_and_production_capacity = obj.get_int("mail_demand_and_production_capacity", mail_demand_and_production_capacity);
 
 	total_len = 49;
 
 	uint16 current_class_proportion;
-	vector_tpl<uint16> class_proportions(2); 
+	vector_tpl<uint16> class_proportions(2);
 	uint8 j = 0;
 	do
 	{
@@ -330,7 +330,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		{
 			if (j != 0)
 			{
-				// Increase the length of the header by 2 for each additional 
+				// Increase the length of the header by 2 for each additional
 				// class proportion stored (for uint16).
 				total_len += 2;
 			}
@@ -338,7 +338,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		}
 		else
 		{
-			// Increase the length of the header by 2 for each additional 
+			// Increase the length of the header by 2 for each additional
 			// class proportion stored (for uint16).
 			total_len += 2;
 			class_proportions.append(current_class_proportion);
@@ -361,7 +361,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		{
 			if (j != 0)
 			{
-				// Increase the length of the header by 2 for each additional 
+				// Increase the length of the header by 2 for each additional
 				// class proportion stored (for uint16).
 				total_len += 2;
 			}
@@ -369,7 +369,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		}
 		else
 		{
-			// Increase the length of the header by 2 for each additional 
+			// Increase the length of the header by 2 for each additional
 			// class proportion stored (for uint16).
 			total_len += 2;
 			class_proportions_jobs.append(current_class_proportion);
@@ -466,9 +466,9 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	uint16 version = 0x8009;
-	
+
 	// This is the overlay flag for Simutrans-Extended
-	// This sets the *second* highest bit to 1. 
+	// This sets the *second* highest bit to 1.
 	version |= EX_VER;
 
 	// Finally, this is the extended version number. This is *added*
@@ -482,10 +482,10 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	version += 0x500;
 
 	int pos = 0;
-	
+
 	// Hajo: write version data
 	node.write_uint16(fp, version, pos);
-	pos += sizeof(uint16); 
+	pos += sizeof(uint16);
 
 	// Hajo: write desc data
 	node.write_uint8(fp, 0, pos); // was gtyp
@@ -556,7 +556,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	node.write_uint32(fp, radius, pos);
 	pos += sizeof(uint32);
-	
+
 	node.write_uint8(fp, number_of_classes, pos);
 	pos += sizeof(uint8);
 
@@ -569,13 +569,13 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	node.write_uint8(fp, number_of_classes_jobs, pos);
 	pos += sizeof(uint8);
-	
+
 	FOR(vector_tpl<uint16>, class_proportion, class_proportions_jobs)
 	{
 		node.write_uint16(fp, class_proportion, pos);
 		pos += sizeof(uint16);
 	}
-	
+
 	// probably add some icons, if defined
 	slist_tpl<string> cursorkeys;
 

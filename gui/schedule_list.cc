@@ -60,7 +60,7 @@ static const char *cost_type[MAX_LINE_COST] =
 	"Average speed",
 //	"Maxspeed",
 	"Comfort",
-	"Revenue", 
+	"Revenue",
 	"Operation",
 	"Refunds",
 	"Road toll",
@@ -87,7 +87,7 @@ const int cost_type_color[MAX_LINE_COST] =
 	COL_MAXSPEED,
 	COL_LILAC
 };
- 
+
 static uint8 tabs_to_lineindex[8];
 static uint8 max_idx=0;
 
@@ -449,7 +449,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 				livery_selection = 0;
 			}
 			livery_scheme_index = livery_scheme_indices.empty()? 0 : livery_scheme_indices[livery_selection];
-			if (line.is_bound()) 
+			if (line.is_bound())
 			{
 				tool_t *tmp_tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 				cbuffer_t buf;
@@ -606,7 +606,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	capacity = load = loadfactor = 0; // total capacity and load of line (=sum of all conv's cap/load)
 
 	sint64 profit = line->get_finance_history(0,LINE_PROFIT);
-	
+
 	sint64 total_trip_times = 0;
 	sint64 convoys_with_trip_data = 0;
 	for (int i = 0; i<icnv; i++) {
@@ -637,7 +637,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	{
 		service_frequency /= icnv;
 	}
-	
+
 	const int spacing = line->get_schedule()->get_spacing();
 	if(icnv && spacing > 0)
 	{

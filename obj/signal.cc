@@ -72,7 +72,7 @@ signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsig
 			{
 				signalbox_t* sigb = (signalbox_t*)gb;
 				signalbox = sb;
-				sigb->add_signal(this); 
+				sigb->add_signal(this);
 			}
 		}
 	}
@@ -97,10 +97,10 @@ signal_t::~signal_t()
 		if(gb && gb->get_tile()->get_desc()->is_signalbox())
 		{
 			signalbox_t* sigb = (signalbox_t*)gb;
-			sigb->remove_signal(this); 
+			sigb->remove_signal(this);
 		}
 	}
-	welt->remove_time_interval_signal_to_check(this); 
+	welt->remove_time_interval_signal_to_check(this);
 	if(desc->is_station_signal())
 	{
 		// De-register station signals at the halt.
@@ -131,7 +131,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	// well, needs to be done
 	obj_t::info(buf);
 	signal_t* sig = (signal_t*)this;
-	
+
 	buf.append(translator::translate(desc->get_name()));
 	buf.append("\n\n");
 
@@ -732,7 +732,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	}
 
 	// Deal with station signals where the time since the train last passed is standardised for the whole station.
-	halthandle_t this_tile_halt = haltestelle_t::get_halt(sig->get_pos(), get_owner()); 
+	halthandle_t this_tile_halt = haltestelle_t::get_halt(sig->get_pos(), get_owner());
 	uint32 station_signals_count = this_tile_halt.is_bound() ? this_tile_halt->get_station_signals_count() : 0;
 	if(station_signals_count)
 	{
@@ -742,7 +742,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			{
 			case 0:
 			default:
-				buf.append(translator::translate("Time since a train last passed")); 
+				buf.append(translator::translate("Time since a train last passed"));
 				buf.append(":\n");
 				buf.append(translator::translate("north"));
 				break;
@@ -755,17 +755,17 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			case 3:
 				buf.append(translator::translate("west"));
 			};
-			buf.append(": "); 
+			buf.append(": ");
 			char time_since_train_last_passed[32];
 			welt->sprintf_ticks(time_since_train_last_passed, sizeof(time_since_train_last_passed), welt->get_ticks() - this_tile_halt->get_train_last_departed(i));
-			buf.append(time_since_train_last_passed);		
+			buf.append(time_since_train_last_passed);
 			buf.append("\n");
 		}
 	}
 	else
 	{
-		buf.append(translator::translate("Time since a train last passed")); 
-		buf.append(": "); 
+		buf.append(translator::translate("Time since a train last passed"));
+		buf.append(": ");
 		char time_since_train_last_passed[32];
 		welt->sprintf_ticks(time_since_train_last_passed, sizeof(time_since_train_last_passed), welt->get_ticks() - sig->get_train_last_passed());
 		buf.append(time_since_train_last_passed);
@@ -869,7 +869,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 							temp_name[i] = sb_name[i];
 						}
 						buf.append("\n   ");
-						buf.append(temp_name);		
+						buf.append(temp_name);
 						if (l + 1 == max_lines)
 						{
 							buf.append("...");
@@ -884,7 +884,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 
 				}
 				buf.append("\n   ");
-				
+
 				// Show the distance between the signal and its signalbox, along with the signals maximum range
 				koord3d sigpos = sig->get_pos();
 				const uint32 tiles_to_signalbox = shortest_distance(sigpos.get_2d(), sb.get_2d());
@@ -989,13 +989,13 @@ void signal_t::calc_image()
 		const slope_t::type full_hang = gr->get_weg_hang();
 		const sint8 hang_diff = slope_t::max_diff(full_hang);
 		const ribi_t::ribi hang_dir = ribi_t::backward( ribi_type(full_hang) );
-		
+
 		const sint8 height_step = TILE_HEIGHT_STEP << slope_t::is_doubles(gr->get_weg_hang());
 
 		weg_t *sch = gr->get_weg(desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt);
-		if(sch) 
+		if(sch)
 		{
-			uint16 number_of_signal_image_types = desc->get_aspects(); 
+			uint16 number_of_signal_image_types = desc->get_aspects();
 			if(desc->get_has_call_on())
 			{
 				number_of_signal_image_types += 1;
@@ -1044,7 +1044,7 @@ void signal_t::calc_image()
 			}
 
 			uint8 modified_state = state;
-			const sint8 diff = 5 - desc->get_aspects(); 
+			const sint8 diff = 5 - desc->get_aspects();
 			if(desc->get_has_call_on())
 			{
 				if(desc->get_has_selective_choose())
@@ -1120,18 +1120,18 @@ void signal_t::calc_image()
 
 			if(desc->get_has_selective_choose() && desc->get_aspects() < 5 && state >= clear_no_choose)
 			{
-				modified_state -= diff; 
+				modified_state -= diff;
 			}
 
-			const schiene_t* sch1 = (schiene_t*)sch; 
+			const schiene_t* sch1 = (schiene_t*)sch;
 			ribi_t::ribi reserved_direction = sch1->get_reserved_direction();
 			if(desc->is_station_signal())
 			{
 				// Allow both directions for a station signal
 				//reserved_direction |= ribi_t::backward(reserved_direction);
-				
-				// The above does not work because the reservation is taken from the track below the signal, and the train might be departing from another track. 
-				// Which state, if any, to set should be handled by the block reserver in the case of station signals. 
+
+				// The above does not work because the reservation is taken from the track below the signal, and the train might be departing from another track.
+				// Which state, if any, to set should be handled by the block reserver in the case of station signals.
 				reserved_direction = ribi_t::all;
 			}
 			// signs for left side need other offsets and other front/back order
@@ -1148,7 +1148,7 @@ void signal_t::calc_image()
 
 				if(temp_dir&ribi_t::north) {
 					uint8 direction_state = (reserved_direction & ribi_t::north) ? modified_state * 4 : 0;
-					if(image!=IMG_EMPTY) {			
+					if(image!=IMG_EMPTY) {
 						foreground_image = desc->get_image_id(0+direction_state+offset);
 						after_xoffset += -XOFF;
 						after_yoffset += -YOFF;
@@ -1231,12 +1231,12 @@ void signal_t::rdwr_signal(loadsave_t *file)
 		signalbox.rdwr(file);
 
 		uint8 state_full = state;
-		file->rdwr_byte(state_full); 
+		file->rdwr_byte(state_full);
 		state = state_full;
-		
+
 		bool ignore_choose_full = ignore_choose;
 		file->rdwr_bool(ignore_choose_full);
-		ignore_choose = ignore_choose_full; 
+		ignore_choose = ignore_choose_full;
 #ifdef SPECIAL_RESCUE_12_6
 		if(file->is_saving())
 		{
@@ -1246,7 +1246,7 @@ void signal_t::rdwr_signal(loadsave_t *file)
 		{
 			no_junctions_to_next_signal = false;
 		}
-		file->rdwr_longlong(train_last_passed); 
+		file->rdwr_longlong(train_last_passed);
 #ifdef SPECIAL_RESCUE_12_6
 		}
 #endif
@@ -1254,13 +1254,13 @@ void signal_t::rdwr_signal(loadsave_t *file)
 
 	if(no_junctions_to_next_signal && desc && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph) && (state == caution || state == caution_no_choose || state == danger))
 	{
-		welt->add_time_interval_signal_to_check(this); 
+		welt->add_time_interval_signal_to_check(this);
 	}
 }
 
 void signal_t::rotate90()
 {
-	signalbox.rotate90(welt->get_size().y-1); 
+	signalbox.rotate90(welt->get_size().y-1);
 	dir = ribi_t::rotate90(dir);
 	obj_t::rotate90();
 }

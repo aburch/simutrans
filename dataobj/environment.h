@@ -373,7 +373,7 @@ public:
 
 	/// maximum length of city connections
 	static sint32 intercity_road_length;
-	
+
 	// Whether to generate a hilly landscape
 	// @author: jamespetts
 	static bool hilly;

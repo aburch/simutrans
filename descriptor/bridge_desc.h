@@ -147,7 +147,7 @@ public:
 	/* Way constraints: determines whether vehicles
 	 * can travel on this way. This method decodes
 	 * the byte into bool values. See here for
-	 * information on bitwise operations: 
+	 * information on bitwise operations:
 	 * http://www.cprogramming.com/tutorial/bitwise_operators.html
 	 * @author: jamespetts
 	 * */

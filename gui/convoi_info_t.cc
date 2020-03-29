@@ -116,7 +116,7 @@ static uint8 statistic[convoi_t::MAX_CONVOI_COST] = {
  *					6 = destination (detail)
  * @author prissi - amended by jamespetts (origins)
  */
-const char *convoi_info_t::sort_text[SORT_MODES] = 
+const char *convoi_info_t::sort_text[SORT_MODES] =
 {
 	"Zielort",
 	"via",
@@ -223,15 +223,15 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 #ifdef ACCELERATION_BUTTON
 	//Bernd Gabriel, Sep, 24 2009: acceleration curve:
-	
+
 	for (int i = 0; i < MAX_MONTHS; i++)
 	{
 		physics_curves[i][0] = 0;
 	}
 
 	chart.add_curve(cost_type_color[btn], (sint64*)physics_curves, 1,0, MAX_MONTHS, cost_type_money[btn], false, true, cost_type_money[btn]*2);
-	filterButtons[btn].init(button_t::box_state, cost_type[btn], 
-			scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(btn%4), view.get_size().h+174+(D_BUTTON_HEIGHT+D_H_SPACE)*(btn/4)), 
+	filterButtons[btn].init(button_t::box_state, cost_type[btn],
+			scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(btn%4), view.get_size().h+174+(D_BUTTON_HEIGHT+D_H_SPACE)*(btn/4)),
 			D_BUTTON_SIZE);
 	filterButtons[btn].add_listener(this);
 	filterButtons[btn].background_color = cost_type_color[btn];
@@ -242,7 +242,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	statistics_height = 16 + view.get_size().h+174+(D_BUTTON_HEIGHT+D_H_SPACE)*(btn/4 + 1) - chart.get_pos().y;
 
 	add_component(&chart);
-	
+
 	chart_total_size = filterButtons[convoi_t::MAX_CONVOI_COST-1].get_pos().y + D_BUTTON_HEIGHT + D_V_SPACE - (chart.get_pos().y - 11);
 
 	add_component(&sort_label);
@@ -804,7 +804,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		//		display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
 		//		pos_y += LINESPACE;
 		//		message_lines++;
-		//	}			
+		//	}
 		//	if (message_lines < 2 && cnv->has_obsolete_vehicles() && !has_obsolete_that_can_upgrade) {
 		//		sprintf(tmp, (translator::translate("obsolete_vehicles")));
 		//		status_color = COL_OBSOLETE;
@@ -868,7 +868,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				sprintf(runway_too_short, "air->runway_too_short");
 				display_proportional(pos_x, pos_y, runway_too_short, ALIGN_LEFT, SYSCOL_TEXT, true);
 				debug_row++;
-			}	
+			}
 			if (cnv->front()->get_is_overweight() == true) // This doesnt flag!
 			{
 				const int pos_y = pos_y0 + debug_row * LINESPACE;
@@ -1019,13 +1019,13 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			return true;
 		}
 
-		if(comp == &replace_button) 
+		if(comp == &replace_button)
 		{
 			create_win(20, 20, new replace_frame_t(cnv, get_name()), w_info, magic_replace + cnv.get_id() );
 			return true;
 		}
 
-		if(comp == &times_history_button) 
+		if(comp == &times_history_button)
 		{
 			create_win(20, 20, new times_history_t(linehandle_t(), cnv), w_info, magic_convoi_time_history + cnv.get_id() );
 			return true;
@@ -1155,7 +1155,7 @@ void convoi_info_t::set_windowsize(scr_size size)
 	button.set_pos(scr_coord(BUTTON1_X, y));
 	go_home_button.set_pos(scr_coord(BUTTON2_X, y));
 	no_load_button.set_pos(scr_coord(BUTTON3_X, y));
-	y += D_BUTTON_HEIGHT + D_V_SPACE; 
+	y += D_BUTTON_HEIGHT + D_V_SPACE;
 
 	if (chart.is_visible())
 	{
@@ -1187,7 +1187,7 @@ void convoi_info_t::set_windowsize(scr_size size)
 	freight_sort_selector.set_size(scr_size(D_BUTTON_WIDTH * 2, D_BUTTON_HEIGHT));
 	toggler.set_pos(scr_coord(BUTTON3_X, y));
 	details_button.set_pos(scr_coord(BUTTON4_X, y));
-	y += D_BUTTON_HEIGHT + D_V_SPACE; 
+	y += D_BUTTON_HEIGHT + D_V_SPACE;
 
 	scrolly.set_pos(scr_coord(0, y));
 	scrolly.set_size(get_client_windowsize()-scrolly.get_pos());

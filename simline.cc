@@ -56,7 +56,7 @@ simline_t::simline_t(player_t* player, linetype type)
 	state_color = COL_WHITE;
 
 	for(uint8 i = 0; i < MAX_LINE_COST; i ++)
-	{	
+	{
 		rolling_average[i] = 0;
 		rolling_average_count[i] = 0;
 	}
@@ -96,7 +96,7 @@ simline_t::~simline_t()
 		assert(count_convoys() == 0);
 		unregister_stops();
 	}
-	
+
 
 	delete schedule;
 	self.detach();
@@ -200,14 +200,14 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 	recalc_status();
 
 	// do we need to tell the world about our new schedule?
-	if(  update_schedules  ) 
+	if(  update_schedules  )
 	{
 		// Added by : Knightly
 		haltestelle_t::refresh_routing(schedule, goods_catg_index, NULL, NULL, player);
 	}
 
 	// if the schedule is flagged as bidirectional, set the initial convoy direction
-	if( schedule->is_bidirectional() && !from_loading ) 
+	if( schedule->is_bidirectional() && !from_loading )
 	{
 		start_reversed = !start_reversed;
 		cnv->set_reverse_schedule(start_reversed);
@@ -279,9 +279,9 @@ void simline_t::rdwr(loadsave_t *file)
 	//financial history
 	if(file->get_version() <= 102002 || (file->get_version() < 103000 && file->get_extended_version() < 7))
 	{
-		for (int j = 0; j<LINE_DISTANCE; j++) 
+		for (int j = 0; j<LINE_DISTANCE; j++)
 		{
-			for (int k = MAX_MONTHS-1; k>=0; k--) 
+			for (int k = MAX_MONTHS-1; k>=0; k--)
 			{
 				if(((j == LINE_AVERAGE_SPEED || j == LINE_COMFORT) && file->get_extended_version() <= 1) || (j == LINE_REFUNDS && file->get_extended_version() < 8))
 				{
@@ -299,14 +299,14 @@ void simline_t::rdwr(loadsave_t *file)
 				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
-		for (int k = MAX_MONTHS-1; k>=0; k--) 
+		for (int k = MAX_MONTHS-1; k>=0; k--)
 		{
 			financial_history[k][LINE_DISTANCE] = 0;
 		}
 	}
-	else 
+	else
 	{
-		for (int j = 0; j<MAX_LINE_COST; j++) 
+		for (int j = 0; j<MAX_LINE_COST; j++)
 		{
 			for (int k = MAX_MONTHS-1; k>=0; k--)
 			{
@@ -321,7 +321,7 @@ void simline_t::rdwr(loadsave_t *file)
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Extended < 8
 					// did not store refund information, and those of < 12 did
-					// not store departure or scheduled departure information. 
+					// not store departure or scheduled departure information.
 					if(file->is_loading())
 					{
 						financial_history[k][j] = 0;
@@ -351,7 +351,7 @@ void simline_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(withdraw);
 	}
 
-	if(file->get_extended_version() >= 9) 
+	if(file->get_extended_version() >= 9)
 	{
 		file->rdwr_bool(start_reversed);
 	}
@@ -367,7 +367,7 @@ void simline_t::rdwr(loadsave_t *file)
 		const uint8 counter = file->get_version() < 103000 ? LINE_DISTANCE : file->get_extended_version() < 12 ? LINE_REFUNDS + 1 : LINE_WAYTOLL;
 #endif
 		for(uint8 i = 0; i < counter; i ++)
-		{	
+		{
 			file->rdwr_long(rolling_average[i]);
 			file->rdwr_short(rolling_average_count[i]);
 		}
@@ -415,7 +415,7 @@ void simline_t::rdwr(loadsave_t *file)
 				id_pair idp;
 				file->rdwr_short(idp.x);
 				file->rdwr_short(idp.y);
-				
+
 				uint16 count;
 				uint16 total;
 				file->rdwr_short(count);
@@ -442,7 +442,7 @@ void simline_t::rdwr(loadsave_t *file)
 				file->rdwr_short(idp.x);
 				file->rdwr_short(idp.y);
 				times_history_data_t value = iter.value;
-				for (int j = 0; j < TIMES_HISTORY_SIZE; j++) 
+				for (int j = 0; j < TIMES_HISTORY_SIZE; j++)
 				{
 					uint32 time = value.get_entry(j);
 					file->rdwr_long(time);
@@ -475,7 +475,7 @@ void simline_t::rdwr(loadsave_t *file)
 	}
 	if(file->get_version() >= 111002 && file->get_extended_version() >= 10 && file->get_extended_version() < 12)
 	{
-		bool dummy_is_alternating_circle_route = false; // Deprecated. 
+		bool dummy_is_alternating_circle_route = false; // Deprecated.
 		file->rdwr_bool(dummy_is_alternating_circle_route);
 		if(dummy_is_alternating_circle_route)
 		{
@@ -494,7 +494,7 @@ void simline_t::rdwr(loadsave_t *file)
 					id_pair dummy_idp;
 					file->rdwr_short(dummy_idp.x);
 					file->rdwr_short(dummy_idp.y);
-				
+
 					uint16 dummy;
 					file->rdwr_short(dummy);
 					file->rdwr_short(dummy);
@@ -577,13 +577,13 @@ void simline_t::unregister_stops(schedule_t * schedule)
 
 void simline_t::renew_stops()
 {
-	if (!line_managed_convoys.empty()) 
+	if (!line_managed_convoys.empty())
 	{
 		register_stops( schedule );
-	
+
 		// Added by Knightly
 		haltestelle_t::refresh_routing(schedule, goods_catg_index, NULL, NULL, player);
-		
+
 		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", self.get_id(), name.c_str());
 	}
 	else
@@ -594,7 +594,7 @@ void simline_t::renew_stops()
 
 void simline_t::set_schedule(schedule_t* schedule)
 {
-	if (this->schedule) 
+	if (this->schedule)
 	{
 		haltestelle_t::refresh_routing(schedule, goods_catg_index, NULL, NULL, player);
 		unregister_stops();
@@ -616,7 +616,7 @@ void simline_t::check_freight()
 void simline_t::new_month()
 {
 	recalc_status();
-	for (int j = 0; j<MAX_LINE_COST; j++) 
+	for (int j = 0; j<MAX_LINE_COST; j++)
 	{
 		for (int k = MAX_MONTHS-1; k>0; k--)
 		{
@@ -630,14 +630,14 @@ void simline_t::new_month()
 	if(financial_history[1][LINE_AVERAGE_SPEED] == 0)
 	{
 		// Last month's average speed is recorded as zero. This means that no
-		// average speed data have been recorded in the last month, making 
+		// average speed data have been recorded in the last month, making
 		// revenue calculations inaccurate. Use the second previous month's average speed
 		// for the previous month's average speed.
 		financial_history[1][LINE_AVERAGE_SPEED] = financial_history[2][LINE_AVERAGE_SPEED];
 	}
 
 	for(uint8 i = 0; i < MAX_LINE_COST; i ++)
-	{	
+	{
 		rolling_average[i] = 0;
 		rolling_average_count[i] = 0;
 	}
@@ -774,7 +774,7 @@ void simline_t::calc_classes_carried()
 
 	passenger_classes_carried.clear();
 	mail_classes_carried.clear();
-	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) 
+	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys)
 	{
 		convoi_t const& cnv = *i;
 
@@ -793,7 +793,7 @@ void simline_t::calc_classes_carried()
 				mail_classes_carried.append_unique(g_class);
 			}
 		}
-		
+
 		/*
 
 		for (uint32 j = 0; j < cnv.get_classes_carried(goods_manager_t::INDEX_PAS)->get_count(); j++)
@@ -857,7 +857,7 @@ void simline_t::recalc_catg_index()
 	}
 
 	calc_classes_carried();
-	
+
 	// Modified by	: Knightly
 	// Purpose		: Determine removed and added categories and refresh only those categories.
 	//				  Avoids refreshing unchanged categories
@@ -875,9 +875,9 @@ void simline_t::recalc_catg_index()
 	}
 
 	// added categories : present in new category list but not in old category list
-	FOR(minivec_tpl<uint8>, const i, goods_catg_index) 
+	FOR(minivec_tpl<uint8>, const i, goods_catg_index)
 	{
-		if (!old_goods_catg_index.is_contained(i)) 
+		if (!old_goods_catg_index.is_contained(i))
 		{
 			catg_differences.append(i);
 		}
@@ -895,7 +895,7 @@ void simline_t::recalc_catg_index()
 				passenger_class_differences.append(old_passenger_classes_carried.get_element(i));
 			}
 		}
-			
+
 		for (uint8 i = 0; i < passenger_classes_carried.get_count(); i++)
 		{
 			// Classes present previously not present now
@@ -947,7 +947,7 @@ bool simline_t::carries_this_or_lower_class(uint8 catg, uint8 g_class)
 	{
 		return true;
 	}
-	
+
 	const bool carries_this_class = catg == goods_manager_t::INDEX_PAS ? passenger_classes_carried.is_contained(g_class) : mail_classes_carried.is_contained(g_class);
 	if (carries_this_class)
 	{
@@ -1005,10 +1005,10 @@ sint64 simline_t::calc_departures_scheduled()
 	{
 		return 0;
 	}
-	
+
 	sint64 timed_departure_points_count = 0ll;
 	for(int i = 0; i < schedule->get_count(); i++)
-	{		
+	{
 		if(schedule->entries[i].wait_for_time || schedule->entries[i].minimum_loading > 0)
 		{
 			timed_departure_points_count ++;

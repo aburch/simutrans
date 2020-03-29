@@ -1,7 +1,7 @@
 /*
  *  Modified by James E. Petts, April 2011 from bildliste2d_besch.h, which is
  *  copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- * 
+ *
  * This file is part of the Simutrans project under the artistic licence.
  */
 

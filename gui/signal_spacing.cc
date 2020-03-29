@@ -94,7 +94,7 @@ bool signal_spacing_frame_t::action_triggered( gui_action_creator_t *comp, value
 		replace_button.pressed = !backward;
 		remove  = !backward;
 		remove_button.pressed = !backward;
-		
+
 	}
 	tool->set_values(player, signal_spacing, remove, replace, backward, signalbox);
 	return true;

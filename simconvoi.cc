@@ -1193,11 +1193,11 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 			if (this_gr && this_gr->ist_bruecke())
 			{
 				bridge_tiles++;
-				
+
 				for (uint32 j = i + 1; j < route_count; j++)
 				{
 					const koord3d tile = route.at(j);
-					const grund_t* gr = welt->lookup(tile); 
+					const grund_t* gr = welt->lookup(tile);
 					if (gr && gr->ist_bruecke())
 					{
 						bridge_tiles_ahead++;
@@ -1416,7 +1416,7 @@ bool convoi_t::prepare_for_routing()
 			if (original_index == schedule->get_count() - 1 && schedule->is_mirrored())
 			{
 				// We do not want the distance from the end to the start in this case, but the distance from
-				// end to the immediately previous stop			
+				// end to the immediately previous stop
 				distance = (shortest_distance(schedule->entries[schedule->get_count() - 1].pos.get_2d(), schedule->entries[schedule->get_count() - 2].pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
 			}
 			else
@@ -1554,7 +1554,7 @@ bool convoi_t::drive_to()
 #endif
 		}
 	}
-	
+
 	allow_clear_reservation = true;
 
 	if(success != route_t::valid_route)
@@ -1752,7 +1752,7 @@ void convoi_t::step()
 		wait_lock_next_step = 0;
 		return;
 	}
-	
+
 	checked_tile_this_step = koord3d::invalid;
 
 	// moved check to here, as this will apply the same update
@@ -2877,7 +2877,7 @@ void convoi_t::upgrade_vehicle(uint16 i, vehicle_t* v)
 
 	if (i >= vehicle.get_count())
 	{
-		dbg->error("convoi_t::upgrade_vehicle()", "Attempting to append beyond end of convoy"); 
+		dbg->error("convoi_t::upgrade_vehicle()", "Attempting to append beyond end of convoy");
 		return;
 	}
 
@@ -3045,7 +3045,7 @@ void convoi_t::recalc_catg_index()
 		// Only consider vehicles that really transport something
 		// this helps against routing errors through passenger
 		// trains pulling only freight wagons
-		if(get_vehicle(i)->get_cargo_max() == 0 && (get_vehicle(i)->get_cargo_type() != goods_manager_t::passengers || get_vehicle(i)->get_desc()->get_overcrowded_capacity() == 0)) 
+		if(get_vehicle(i)->get_cargo_max() == 0 && (get_vehicle(i)->get_cargo_type() != goods_manager_t::passengers || get_vehicle(i)->get_desc()->get_overcrowded_capacity() == 0))
 		{
 			continue;
 		}
@@ -5454,9 +5454,9 @@ void convoi_t::laden() //"load" (Babelfish)
 		// Recalculate comfort
 		// This is an average of comfort for all classes,
 		// weighted by capacity.
-		
+
 		// TODO: Consider whether to have separate graphs for different classes of comfort.
-		
+
 		const uint8 number_of_classes = goods_manager_t::passengers->get_number_of_classes();
 		sint64 comfort_capacity = 0;
 		uint16 class_capacity;
@@ -5474,7 +5474,7 @@ void convoi_t::laden() //"load" (Babelfish)
 			}
 			total_capacity += class_capacity;
 			const uint8 comfort = get_comfort(i, true);
-			comfort_capacity += (comfort * class_capacity); 
+			comfort_capacity += (comfort * class_capacity);
 		}
 
 		const sint64 comfort = total_capacity > 0 ? comfort_capacity / total_capacity : 0;
@@ -7857,22 +7857,22 @@ uint32 convoi_t::calc_reverse_delay() const
 					// Add reversing time if this must reverse.
 					earliest_departure_time += reverse_delay;
 				}
-				
+
 				halt->set_estimated_arrival_time(self.get_id(), eta);
 				const sint64 max_waiting_time = schedule->get_current_entry().waiting_time_shift ? welt->ticks_per_world_month >> (16ll - (sint64)schedule->get_current_entry().waiting_time_shift) : WAIT_INFINITE;
 				if((schedule->entries[schedule_entry].minimum_loading > 0 || schedule->entries[schedule_entry].wait_for_time) && schedule->get_spacing() > 0)
 				{
 					sint64 spacing_multiplier = 1;
 
-					// This may not be the next convoy on this line to depart from this forthcoming stop, so the spacing may have to be multiplied. 
+					// This may not be the next convoy on this line to depart from this forthcoming stop, so the spacing may have to be multiplied.
 					FOR(const haltestelle_t::arrival_times_map, const& iter, halt->get_estimated_convoy_departure_times())
 					{
 						const uint16 id = iter.key;
 						convoihandle_t tmp_cnv;
-						tmp_cnv.set_id(id); 
+						tmp_cnv.set_id(id);
 						if(tmp_cnv.is_bound() && tmp_cnv->get_line() == get_line())
 						{
-							// This is on the same line. Any earlier departure from the target stop is therefore relevant. 
+							// This is on the same line. Any earlier departure from the target stop is therefore relevant.
 							if(iter.value < earliest_departure_time)
 							{
 								spacing_multiplier ++;
@@ -7894,7 +7894,7 @@ uint32 convoi_t::calc_reverse_delay() const
 					else
 					{
 						// Calculate the departure time based on the spacing
-						
+
 						const sint64 tmp_etd = ((spacing_ticks - spacing_ticks_remainder) * spacing_multiplier) + earliest_departure_time;
 
 						// The loading time and reverse delay will be added later

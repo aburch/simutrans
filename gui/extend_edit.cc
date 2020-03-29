@@ -110,7 +110,7 @@ bool extend_edit_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* 
 			// show translation list
 			is_show_trans_name = true;
 			fill_list( is_show_trans_name );
-		} 
+		}
 		else if (tabs.get_active_tab_index() == 1 && is_show_trans_name) {
 			// show object list
 			is_show_trans_name = false;

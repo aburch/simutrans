@@ -13,7 +13,7 @@
  * Define the key characteristics for hashing 2d koord types
  */
 template<class key_t>
-class koord_pair_hash_tpl 
+class koord_pair_hash_tpl
 {
 public:
     static uint32 hash(const key_t key)
@@ -48,7 +48,7 @@ public:
 
 
 /*
- * Ready to use class for hashing pairs of 2d koord types. 
+ * Ready to use class for hashing pairs of 2d koord types.
  */
 template<class key_t, class value_t>
 class koord_pair_hashtable_tpl : public hashtable_tpl<key_t, value_t, koord_pair_hash_tpl<key_t> >

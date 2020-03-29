@@ -997,7 +997,7 @@ private:
 	// Used to re-run the routing algorithm without
 	// checking runway length in order to display
 	// the correct error message.
-	bool ignore_runway_length = false; 
+	bool ignore_runway_length = false;
 
 #ifdef USE_DIFFERENT_WIND
 	static uint8 get_approach_ribi( koord3d start, koord3d ziel );

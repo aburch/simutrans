@@ -420,7 +420,7 @@ bool tabfile_t::read_line(char *s, int size)
 }
 
 
-	
+
 int tabfile_t::find_parameter_expansion(char *key, char *data, int *parameters, int *expansions, char *param_ptr[10], char *expansion_ptr[10])
 {
 	char *s;

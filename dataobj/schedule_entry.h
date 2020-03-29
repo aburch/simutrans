@@ -53,9 +53,9 @@ public:
 	 * @author: jamespetts
 	 */
 	sint8 reverse;
-	
+
 	/**
-	 * Whether a convoy must wait for a 
+	 * Whether a convoy must wait for a
 	 * time slot at this entry.
 	 * @author: jamespetts
 	 */

@@ -791,7 +791,7 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 	if(scale_visible) {
 		if(!scale_text)
 		{
-			scale_text = new char[160]; 
+			scale_text = new char[160];
 		}
 		if(1000 % welt->get_settings().get_meters_per_tile() == 0)
 		{
@@ -800,7 +800,7 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 		}
 		else
 		{
-			// Otherwise, must use float	
+			// Otherwise, must use float
 			sprintf(scale_text, "%f %s %s", (1000.0 / welt->get_settings().get_meters_per_tile()), translator::translate("tiles"), translator::translate("per 1 km"));
 		}
 		tile_scale_label.set_text(scale_text, false);

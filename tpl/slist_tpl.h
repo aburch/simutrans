@@ -33,7 +33,7 @@
 template<class T>
 class slist_tpl
 {
-private:	
+private:
 	struct node_t
 	{
 		node_t(const T& data_, node_t* next_) : next(next_), data(data_) {}

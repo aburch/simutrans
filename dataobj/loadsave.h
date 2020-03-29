@@ -80,7 +80,7 @@ private:
 
 public:
 	struct combined_version { uint32 version; uint32 extended_version; uint32 extended_revision; };
-	
+
 	static mode_t save_mode;	// default to use for saving
 	static mode_t autosave_mode; // default to use for autosaves and network mode client temp saves
 	static combined_version int_version(const char *version_text, int *mode, char *pak);
