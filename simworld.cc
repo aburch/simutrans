@@ -96,6 +96,7 @@
 #include "bauer/vehikelbauer.h"
 
 #include "descriptor/ground_desc.h"
+#include "descriptor/intro_dates.h"
 
 #include "player/simplay.h"
 #include "player/finance.h"
@@ -3742,6 +3743,12 @@ void karte_t::new_month()
 		uint32 old_locality_factor = koord::locality_factor;
 		koord::locality_factor = settings.get_locality_factor( last_year+1 );
 		need_locality_update = (old_locality_factor != koord::locality_factor);
+
+		if( current_month > DEFAULT_RETIRE_DATE * 12 ) {
+			// switch off timeline after 2999, since everything retires
+			settings->set_use_timeline(0);
+			dbg->warning( "karte_t::new_month()", "Timeline disabled after the year 2999" );
+		}
 	}
 	DBG_MESSAGE("karte_t::new_month()","Month (%d/%d) has started", (last_month%12)+1, last_month/12 );
 
