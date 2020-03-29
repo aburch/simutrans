@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef _DYNAMIC_STRING_H_
 #define _DYNAMIC_STRING_H_
 

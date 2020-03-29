@@ -1,4 +1,9 @@
 /*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/*
  * Info about the current game
  *
  * prissi

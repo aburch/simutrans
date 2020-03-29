@@ -1,4 +1,9 @@
 /*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/*
  * a template class which implements a hashtable with quickstone keys
  * adapted from the pointer hashtable by jamespetts
  */

@@ -1,5 +1,10 @@
 #!/bin/sh
 
+#
+# This file is part of the Simutrans-Extended project under the Artistic License.
+# (see LICENSE.txt)
+#
+
 "${0}.`uname -p`"
 
 if [ "$?" != "0" ]

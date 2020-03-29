@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 /** @file api_skeleton.h Documents the global variables in a scenario script */
 
 #ifdef SQAPI_DOC // document global structs
