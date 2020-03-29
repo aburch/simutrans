@@ -1536,7 +1536,7 @@ void fabrik_t::smoke() const
 		const uint8 rot = (4-rotate)%desc->get_building()->get_all_layouts();
 		grund_t *gr = welt->lookup_kartenboden(pos_origin.get_2d()+desc->get_smoketile( rot ));
 		const koord offset = ( desc->get_smokeoffset(rot)*OBJECT_OFFSET_STEPS)/16;
-		wolke_t *smoke =  new wolke_t(gr->get_pos(), offset.x, -8, offset.y, desc->get_smokelifetime(), desc->get_smokeuplift(), rada->get_images() );
+		wolke_t *smoke =  new wolke_t(gr->get_pos(), offset.x, 0, offset.y, desc->get_smokelifetime(), desc->get_smokeuplift(), rada->get_images() );
 		gr->obj_add(smoke);
 		welt->sync_way_eyecandy.add( smoke );
 	}

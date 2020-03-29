@@ -136,6 +136,7 @@ sync_result wolke_t::sync_step(uint32 delta_t)
 		// move cloud
 		set_flag( obj_t::dirty );
 		mark_image_dirty( old_img, old_yoff );
+		// wind effect
 		set_xoff( get_xoff() - sim_async_rand(2));
 	}
 	return SYNC_OK;

@@ -16,6 +16,7 @@
 
 #define DEFAULT_FACTORYSMOKE_TIME (2499)
 #define DEFAULT_SMOKE_UPLIFT (16)
+#define LEGACY_SMOKE_YOFFSET (8)
 
 
 class checksum_t;

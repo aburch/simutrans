@@ -57,6 +57,7 @@ void factory_desc_t::correct_smoke()
 		for( int i = 0; i < smokerotations; i++ ) {
 			smoketile[i] = oldsmoke->get_pos_off(size,i);
 			smokeoffset[i] = oldsmoke->get_xy_off(i);
+			smokeoffset[i] -= koord(0, LEGACY_SMOKE_YOFFSET);
 		}
 		smokeuplift = DEFAULT_SMOKE_UPLIFT;
 		smokelifetime = DEFAULT_FACTORYSMOKE_TIME;
