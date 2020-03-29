@@ -659,10 +659,10 @@ void schedule_list_gui_t::display(scr_coord pos)
 	int len=display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y + top, buf, ALIGN_LEFT, line->get_state() & simline_t::line_missing_scheduled_slots ? COL_DARK_TURQUOISE : SYSCOL_TEXT, true );
 	if (line->get_state() & simline_t::line_missing_scheduled_slots) {
 		if (skinverwaltung_t::missing_scheduled_slot) {
-			display_color_img_with_tooltip(skinverwaltung_t::missing_scheduled_slot->get_image_id(0), pos.x + LINE_NAME_COLUMN_WIDTH + len + D_H_SPACE, pos.y + top, 0, false, false, line_alert_helptexts[1]);
+			display_color_img_with_tooltip(skinverwaltung_t::missing_scheduled_slot->get_image_id(0), pos.x + LINE_NAME_COLUMN_WIDTH + len + D_H_SPACE, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[1]));
 		}
 		else if (skinverwaltung_t::alerts) {
-			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + LINE_NAME_COLUMN_WIDTH + len + D_H_SPACE, pos.y + top, 0, false, false, line_alert_helptexts[1]);
+			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + LINE_NAME_COLUMN_WIDTH + len + D_H_SPACE, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[1]));
 		}
 	}
 
@@ -699,7 +699,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	// show the state of the line, if interresting
 	if (line->get_state() & simline_t::line_nothing_moved) {
 		if (skinverwaltung_t::alerts) {
-			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + left, pos.y + top, 0, false, false, line_alert_helptexts[0]);
+			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[0]));
 			left += GOODS_SYMBOL_CELL_WIDTH;
 		}
 		else {
@@ -708,7 +708,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	}
 	if (line->get_state() & simline_t::line_has_obsolete_vehicles) {
 		if (skinverwaltung_t::alerts) {
-			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, line_alert_helptexts[2]);
+			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[2]));
 			left += GOODS_SYMBOL_CELL_WIDTH;
 		}
 		else if (!buf.len()) {
@@ -717,7 +717,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	}
 	if (line->get_state() & simline_t::line_overcrowded) {
 		if (skinverwaltung_t::pax_evaluation_icons) {
-			display_color_img_with_tooltip(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, line_alert_helptexts[3]);
+			display_color_img_with_tooltip(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[3]));
 			left += GOODS_SYMBOL_CELL_WIDTH;
 		}
 		else if (!buf.len() && line->get_state_color() == COL_DARK_PURPLE) {
@@ -726,7 +726,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	}
 	if (line->get_state() & simline_t::line_has_obsolete_vehicles_with_upgrades) {
 		if (skinverwaltung_t::upgradable) {
-			display_color_img_with_tooltip(skinverwaltung_t::upgradable->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, line_alert_helptexts[4]);
+			display_color_img_with_tooltip(skinverwaltung_t::upgradable->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[4]));
 			left += GOODS_SYMBOL_CELL_WIDTH;
 		}
 		else if (!buf.len() && line->get_state_color() == COL_PURPLE) {
