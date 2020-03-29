@@ -235,10 +235,6 @@ void movingobj_t::rdwr(loadsave_t *file)
 }
 
 
-
-/**
- * Open a new observation window for the object.
- */
 void movingobj_t::show_info()
 {
 	if(env_t::tree_info) {
@@ -247,11 +243,6 @@ void movingobj_t::show_info()
 }
 
 
-
-/**
- * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
- * Beobachtungsfenster angezeigt wird.
- */
 void movingobj_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
@@ -269,14 +260,11 @@ void movingobj_t::info(cbuffer_t & buf) const
 }
 
 
-
 void movingobj_t::cleanup(player_t *player)
 {
 	player_t::book_construction_costs(player, -get_desc()->get_price(), get_pos().get_2d(), ignore_wt);
 	mark_image_dirty( get_image(), 0 );
 }
-
-
 
 
 sync_result movingobj_t::sync_step(uint32 delta_t)
@@ -285,7 +273,6 @@ sync_result movingobj_t::sync_step(uint32 delta_t)
 	weg_next -= do_drive( weg_next );
 	return SYNC_OK;
 }
-
 
 
 /* essential to find out about next step

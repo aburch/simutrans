@@ -30,10 +30,6 @@ signal_t::signal_t(loadsave_t *file) :
 }
 
 
-/**
- * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
- * Beobachtungsfenster angezeigt wird.
- */
 void signal_t::info(cbuffer_t & buf) const
 {
 	// well, needs to be done

@@ -83,11 +83,6 @@ public:
 	void set_fab(fabrik_t *fd);
 	void set_stadt(stadt_t *s);
 
-	/**
-	 * Ein Gebaeude kann zu einer Fabrik gehören.
-	 * @return Einen Zeiger auf die Fabrik zu der das Objekt gehört oder NULL,
-	 * wenn das Objekt zu keiner Fabrik gehört.
-	 */
 	fabrik_t* get_fabrik() const { return is_factory ? ptr.fab : NULL; }
 	stadt_t* get_stadt() const { return is_factory ? NULL : ptr.stadt; }
 
@@ -128,10 +123,7 @@ public:
 
 	bool is_city_building() const;
 
-	/**
-	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	 * Beobachtungsfenster angezeigt wird.
-	 */
+	/// @copydoc obj_t::info
 	void info(cbuffer_t & buf) const OVERRIDE;
 
 	void rdwr(loadsave_t *file) OVERRIDE;
@@ -157,6 +149,7 @@ public:
 
 	void cleanup(player_t *player) OVERRIDE;
 
+	/// @copydoc obj_t::finish_rd
 	void finish_rd() OVERRIDE;
 
 	// currently animated

@@ -223,7 +223,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					if(tmp->dir!=current_dir) {
 						k->g += 3;
 						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL) {
-							// discourage 90° turns
+							// discourage 90 degree turns
 							k->g += 10;
 						}
 						else if(ribi_t::is_perpendicular(tmp->dir,current_dir)) {
@@ -430,7 +430,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 					if(tmp->dir!=current_dir) {
 						new_g += 3;
 						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL) {
-							// discourage 90° turns
+							// discourage 90 degree turns
 							new_g += 10;
 						}
 						else if(ribi_t::is_perpendicular(tmp->dir,current_dir)) {

@@ -27,10 +27,7 @@ public:
 
 	image_id get_image() const OVERRIDE;
 
-	/**
-	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	 * Beobachtungsfenster angezeigt wird.
-	 */
+	/// @copydoc obj_t::show_info
 	void show_info() OVERRIDE;
 
 	/**

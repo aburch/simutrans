@@ -70,10 +70,7 @@ public:
 	enum stationtyp {invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256 }; //could be combined with or!
 
 private:
-	/**
-	 * Manche Methoden müssen auf alle Haltestellen angewandt werden
-	 * deshalb verwaltet die Klasse eine Liste aller Haltestellen
-	 */
+	/// List of all halts in the game.
 	static vector_tpl<halthandle_t> alle_haltestellen;
 
 	/**
@@ -185,7 +182,7 @@ public:
 	static void destroy_all();
 
 	/**
-	 * Liste aller felder (Grund-Objekte) die zu dieser Haltestelle gehören
+	 * List of all tiles (grund_t) that belong to this halt.
 	 */
 	struct tile_t
 	{
@@ -569,9 +566,7 @@ public:
 	/// true, if this station is overcrowded for this ware
 	bool is_overcrowded( const uint8 idx ) const { return (overcrowded[idx/8] & (1<<(idx%8)))!=0; }
 
-	/**
-	 * gibt Gesamtmenge derware vom typ typ zurück
-	 */
+	/// @returns total amount of the good waiting at this halt.
 	uint32 get_ware_summe(const goods_desc_t *warentyp) const;
 
 	/**
@@ -603,16 +598,19 @@ public:
 	 */
 	void fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const vector_tpl<halthandle_t>& destination_halts);
 
-	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
-	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach
-	 * aufruf dieser Methode nicht mehr referenzieren!
-	 *
-	 * The second version is like the first, but will not recalculate the route
-	 * This is used for inital passenger, since they already know a route
-	 *
-	 * @return angenommene menge
+	/**
+	 * Delivers goods (ware_t) to this halt.
+	 * if no route is found, the good will be removed.
+	 * @returns amount of goods
 	 */
 	uint32 liefere_an(ware_t ware);
+
+	/**
+	 * Delivers goods (ware_t) to this halt.
+	 * Will not recalculate the route
+	 * This is used for inital passenger, since they already know a route
+	 * @returns amount of goods
+	 */
 	uint32 starte_mit_route(ware_t ware);
 
 	const grund_t *find_matching_position(waytype_t wt) const;

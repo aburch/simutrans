@@ -511,11 +511,11 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			// this fails with two crossings together; however, I see no easy way out here ...
 		}
 		else {
-			// not a crossing => skip 90° check!
+			// not a crossing => skip 90 degrees check!
 			frei = true;
 			// Overtaking vehicles shouldn't have anything blocking them
 			if(  !is_overtaking()  ) {
-				// not a crossing => skip 90° check!
+				// not a crossing => skip 90 degrees check!
 				vehicle_base_t *dt = no_cars_blocking( gr, NULL, this_direction, next_direction, next_direction );
 				if(  dt  ) {
 					if(dt->is_stuck()) {

@@ -184,9 +184,7 @@ public:
 
 
 /**
- * Eine Klasse für Fabriken in Simutrans. Fabriken produzieren und
- * verbrauchen Waren und beliefern nahe Haltestellen.
- *
+ * Factories produce and consume goods (ware_t) and supply nearby halts.
  * @see haltestelle_t
  */
 class fabrik_t
@@ -249,9 +247,7 @@ private:
 	// For accumulating weighted sums for average statistics
 	void book_weighted_sums(sint64 delta_time);
 
-	/**
-	 * Die möglichen Lieferziele
-	 */
+	/// Possible destinations for produced goods
 	vector_tpl <koord> lieferziele;
 	uint32 lieferziele_active_last_month;
 
@@ -309,9 +305,7 @@ private:
 	array_tpl<ware_production_t> input;  ///< array for input/consumed goods
 	array_tpl<ware_production_t> output; ///< array for output/produced goods
 
-	/**
-	 * Zeitakkumulator für Produktion
-	 */
+	/// Accumulated time since last production
 	sint32 delta_sum;
 	uint32 delta_menge;
 
@@ -542,9 +536,6 @@ public:
 	void clear_target_cities();
 	const vector_tpl<stadt_t *>& get_target_cities() const { return target_cities; }
 
-	/**
-	 * Fügt ein neues Lieferziel hinzu
-	 */
 	void  add_lieferziel(koord ziel);
 	void  rem_lieferziel(koord pos);
 
@@ -620,16 +611,12 @@ public:
 	 */
 	void get_tile_list( vector_tpl<koord> &tile_list ) const;
 
-	/**
-	 * gibt eine NULL-Terminierte Liste von Fabrikpointern zurück
-	 */
+	/// @returns a vector of factories within a rectangle
 	static vector_tpl<fabrik_t *> & sind_da_welche(koord min, koord max);
 
 	// hier die methoden zum parametrisieren der Fabrik
 
-	/**
-	 * Baut die Gebäude für die Fabrik
-	 */
+	/// Builds buildings (gebaeude_t) for the factory.
 	void build(sint32 rotate, bool build_fields, bool force_initial_prodbase);
 
 	sint16 get_rotate() const { return rotate; }

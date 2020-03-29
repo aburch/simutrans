@@ -19,8 +19,8 @@ void swap(planquadrat_t& a, planquadrat_t& b);
 
 
 /**
- * Die Karte ist aus Planquadraten zusammengesetzt.
- * Planquadrate speichern Untergründe (Böden) der Karte.
+ * The map (karte_t) consists of map squares (planquadrat_t).
+ * planquadrat_t objects consist of zero or more ground objects (grund_t).
  */
 class planquadrat_t
 {
@@ -58,19 +58,13 @@ public:
 	*/
 	void kartenboden_setzen(grund_t *bd, bool startup = false);
 
-	/**
-	* Ersetzt Boden alt durch neu, löscht Boden alt.
-	*/
-	void boden_ersetzen(grund_t *alt, grund_t *neu);
+	/// Replaces old ground by new ground, deletes old ground.
+	void boden_ersetzen(grund_t *old_ground, grund_t *new_ground);
 
-	/**
-	* Setzen einen Brücken- oder Tunnelbodens
-	*/
+	/// Adds a bridge, tunnel or monorail ground to this map square.
 	void boden_hinzufuegen(grund_t *bd);
 
-	/**
-	* Löschen eines Brücken- oder Tunnelbodens
-	*/
+	/// Removes a bridge, tunnel or monorail ground from this map square.
 	bool boden_entfernen(grund_t *bd);
 
 	/**
@@ -115,9 +109,7 @@ public:
 	*/
 	inline grund_t *get_boden_bei(const unsigned idx) const { return (ground_size<=1 ? data.one : data.some[idx]); }
 
-	/**
-	* @return Anzahl der Böden dieses Planquadrats
-	*/
+	/// @returns number of grounds on this map square.
 	unsigned int get_boden_count() const { return ground_size; }
 
 	/**

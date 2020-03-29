@@ -323,10 +323,6 @@ void leitung_t::calc_neighbourhood()
 }
 
 
-/**
- * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
- * Beobachtungsfenster angezeigt wird.
- */
 void leitung_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
@@ -344,26 +340,21 @@ void leitung_t::info(cbuffer_t & buf) const
 	buf.printf(translator::translate("Usage: %.0f %%"), (double)((100 * net->get_normal_demand()) >> powernet_t::FRACTION_PRECISION));
 }
 
-/**
- * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
- * um das Aussehen des Dings an Boden und Umgebung anzupassen
- */
+
 void leitung_t::finish_rd()
 {
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &verbinde_mutex );
-#endif
 	verbinde();
-#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &verbinde_mutex );
-#endif
-#ifdef MULTI_THREAD
 	pthread_mutex_lock( &calc_image_mutex );
-#endif
 	calc_neighbourhood();
-#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &calc_image_mutex );
+#else
+	verbinde();
+	calc_neighbourhood();
 #endif
+
 	grund_t *gr = welt->lookup(get_pos());
 	assert(gr); (void)gr;
 

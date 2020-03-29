@@ -394,9 +394,7 @@ private:
 	void pruefe_grenzen(koord pos);
 
 public:
-	/**
-	 * sucht arbeitsplätze für die Einwohner
-	 */
+	/// Connects factories to this city.
 	void verbinde_fabriken();
 
 	/**
@@ -441,30 +439,16 @@ public:
 	sint32 get_unemployed() const { return bev - arb; }
 	sint32 get_homeless()   const { return bev - won; }
 
-	/**
-	 * Return the city name.
-	 */
 	const char *get_name() const { return name; }
-
-	/**
-	 * Ermöglicht Zugriff auf Namesnarray
-	 */
 	void set_name( const char *name );
 
-	/**
-	 * gibt einen zufällingen gleichverteilten Punkt innerhalb der
-	 * Citygrenzen zurück
-	 */
+	/// @returns a random point within city borders.
 	koord get_zufallspunkt() const;
 
-	/**
-	 * gibt das pax-statistik-array für letzten monat zurück
-	 */
+	/// @returns passenger destination statistics for the last month
 	const sparse_tpl<PIXVAL>* get_pax_destinations_old() const { return &pax_destinations_old; }
 
-	/**
-	 * gibt das pax-statistik-array für den aktuellen monat zurück
-	 */
+	/// @returns passenger destination statistics for the current month
 	const sparse_tpl<PIXVAL>* get_pax_destinations_new() const { return &pax_destinations_new; }
 
 	/* this counter will increment by one for every change

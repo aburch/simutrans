@@ -23,10 +23,7 @@ public:
 	signal_t(loadsave_t *file);
 	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_desc_t *desc, bool preview = false) : roadsign_t(player,pos,dir,desc,preview) { state = rot;}
 
-	/**
-	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	* Beobachtungsfenster angezeigt wird.
-	*/
+	/// @copydoc obj_t::info
 	void info(cbuffer_t & buf) const OVERRIDE;
 
 	typ get_typ() const OVERRIDE { return obj_t::signal; }

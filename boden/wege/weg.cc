@@ -111,10 +111,6 @@ const char *weg_t::waytype_to_string(waytype_t wt)
 }
 
 
-/**
- * Setzt neue Description. Ersetzt alte Höchstgeschwindigkeit
- * mit wert aus Description.
- */
 void weg_t::set_desc(const way_desc_t *b)
 {
 	desc = b;
@@ -209,9 +205,6 @@ void weg_t::rdwr(loadsave_t *file)
 }
 
 
-/**
- * Info-text für diesen Weg
- */
 void weg_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);

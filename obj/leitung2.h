@@ -90,10 +90,7 @@ public:
 	 */
 	waytype_t get_waytype() const OVERRIDE { return powerline_wt; }
 
-	/**
-	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	* Beobachtungsfenster angezeigt wird.
-	*/
+	/// @copydoc obj_t::info
 	void info(cbuffer_t & buf) const OVERRIDE;
 
 	ribi_t::ribi get_ribi() const { return ribi; }

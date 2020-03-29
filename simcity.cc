@@ -2131,9 +2131,6 @@ void stadt_t::step_passagiere()
 }
 
 
-/**
- * returns a random and uniformly distributed point within city borders
- */
 koord stadt_t::get_zufallspunkt() const
 {
 	if(!buildings.empty()) {

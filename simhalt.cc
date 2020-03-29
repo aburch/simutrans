@@ -2223,10 +2223,6 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 }
 
 
-
-/* Receives ware and tries to route it further on
- * if no route is found, it will be removed
- */
 uint32 haltestelle_t::liefere_an(ware_t ware)
 {
 	// no valid next stops?

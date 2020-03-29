@@ -28,10 +28,6 @@ static int max_midi = -1; // number of MIDI files
 static int current_midi = -1;  // init with error condition, reset during loading
 
 
-
-/**
- * setzt lautstärke für alle effekte
- */
 void sound_set_global_volume(int volume)
 {
 	env_t::global_volume = volume;
@@ -44,9 +40,6 @@ void sound_set_specific_volume( int volume, sound_type_t t)
 }
 
 
-/**
- * ermittelt lautstaärke für alle effekte
- */
 int sound_get_global_volume()
 {
 	return env_t::global_volume;
@@ -64,6 +57,7 @@ void sound_set_mute(bool f)
 	env_t::global_mute_sound = f;
 }
 
+
 bool sound_get_mute()
 {
 	return (  env_t::global_mute_sound  );
@@ -79,12 +73,11 @@ void sound_play(uint16 const idx, uint8 const v, sound_type_t t)
 }
 
 
-
-
 bool sound_get_shuffle_midi()
 {
 	return env_t::shuffle_midi;
 }
+
 
 void sound_set_shuffle_midi( bool shuffle )
 {
@@ -92,11 +85,6 @@ void sound_set_shuffle_midi( bool shuffle )
 }
 
 
-
-/**
- * setzt Lautstärke für MIDI playback
- * @param volume volume in range 0..255
- */
 void sound_set_midi_volume(int volume)
 {
 	if(  !env_t::mute_midi  &&  max_midi > -1  ) {
@@ -107,10 +95,6 @@ void sound_set_midi_volume(int volume)
 
 
 
-/**
- * ermittelt Lautstärke für MIDI playback
- * @return volume in range 0..255
- */
 int sound_get_midi_volume()
 {
 	return env_t::midi_volume;
