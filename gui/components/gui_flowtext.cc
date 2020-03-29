@@ -144,7 +144,7 @@ void gui_flowtext_intern_t::set_text(const char *text)
 			}
 
 			// parse a tag (not allowed to exceed sizeof(word) letters)
-			for (int i = 0; *lead != '>' && *lead > 0 && i < sizeof(word)-2; i++) {
+			for (uint i = 0; *lead != '>' && *lead > 0 && i+2 < sizeof(word); i++) {
 				lead++;
 			}
 
@@ -255,7 +255,7 @@ void gui_flowtext_intern_t::set_text(const char *text)
 
 			// parse a word (and obey limits)
 			att = ATT_NONE;
-			for(  int i = 0;  *lead != '<'  &&  (*lead > 32  ||  (i==0  &&  *lead==32))  &&  i < sizeof(word)-1  &&  *lead != '&'; i++) {
+			for(  uint i = 0;  *lead != '<'  &&  (*lead > 32  ||  (i==0  &&  *lead==32))  &&  i+1 < sizeof(word)  &&  *lead != '&'; i++) {
 				if(  *lead>128  ) {
 					size_t len = 0;
 					utf32 symbol = utf8_decoder_t::decode(lead, len);
@@ -374,10 +374,8 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 	int max_width       = width;
 	int text_width      = width;
 	const int space_width = proportional_string_width(" ");
-	attributes last_node = ATT_NONE;
 
 	FOR(slist_tpl<node_t>, const& i, nodes) {
-		last_node = i.att;
 		switch (i.att) {
 			case ATT_NONE:
 			case ATT_NO_SPACE: {
