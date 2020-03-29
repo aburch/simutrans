@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef factorylist_frame_t_h
-#define factorylist_frame_t_h
+#ifndef GUI_FACTORYLIST_FRAME_T_H
+#define GUI_FACTORYLIST_FRAME_T_H
+
 
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"

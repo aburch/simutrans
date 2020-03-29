@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef FONT_H
-#define FONT_H
+#ifndef DISPLAY_FONT_H
+#define DISPLAY_FONT_H
+
 
 #include "../simtypes.h"
 

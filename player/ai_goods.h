@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef AI_GOODS_H
-#define AI_GOODS_H
+#ifndef PLAYER_AI_GOODS_H
+#define PLAYER_AI_GOODS_H
+
 
 #include "ai.h"
 

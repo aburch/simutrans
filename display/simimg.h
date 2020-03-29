@@ -3,9 +3,9 @@
  * (see LICENSE.txt)
  */
 
+#ifndef DISPLAY_SIMIMG_H
+#define DISPLAY_SIMIMG_H
 
-#ifndef _simimg_h
-#define _simimg_h
 
 #include "../simtypes.h"
 

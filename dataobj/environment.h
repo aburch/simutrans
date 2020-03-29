@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef dataobj_environment_h
-#define dataobj_environment_h
+#ifndef DATAOBJ_ENVIRONMENT_H
+#define DATAOBJ_ENVIRONMENT_H
+
 
 #include <string>
 #include "../simtypes.h"

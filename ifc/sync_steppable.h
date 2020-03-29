@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef sync_steppable_h
-#define sync_steppable_h
+#ifndef IFC_SYNC_STEPPABLE_H
+#define IFC_SYNC_STEPPABLE_H
+
 
 #include "../simtypes.h"
 

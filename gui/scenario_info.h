@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _SCEN_INFO_H_
-#define _SCEN_INFO_H_
+#ifndef GUI_SCENARIO_INFO_H
+#define GUI_SCENARIO_INFO_H
 
 
 #include "gui_frame.h"

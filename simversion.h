@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simversion_h
-#define simversion_h
+#ifndef SIMVERSION_H
+#define SIMVERSION_H
+
 
 #if defined(REVISION_FROM_FILE)  &&  !defined(REVISION)
 // include external generated revision file

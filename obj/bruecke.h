@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef obj_bruecke_h
-#define obj_bruecke_h
+#ifndef OBJ_BRUECKE_H
+#define OBJ_BRUECKE_H
+
 
 class karte_t;
 

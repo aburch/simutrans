@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_help_frame_h
-#define gui_help_frame_h
+#ifndef GUI_HELP_FRAME_H
+#define GUI_HELP_FRAME_H
+
 
 #include <string>
 

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef VEHICLE_WRITER_H
-#define VEHICLE_WRITER_H
+#ifndef DESCRIPTOR_WRITER_VEHICLE_WRITER_H
+#define DESCRIPTOR_WRITER_VEHICLE_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

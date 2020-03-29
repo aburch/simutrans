@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simobjs_h
-#define simobjs_h
+#ifndef SIMOBJ_H
+#define SIMOBJ_H
+
 
 #include "simtypes.h"
 #include "display/clip_num.h"

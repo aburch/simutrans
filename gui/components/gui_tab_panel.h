@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_tab_panel_h
-#define gui_tab_panel_h
+#ifndef GUI_COMPONENTS_GUI_TAB_PANEL_H
+#define GUI_COMPONENTS_GUI_TAB_PANEL_H
+
 
 #include "../../display/simimg.h"
 

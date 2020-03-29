@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef TOOL_SELECTOR_H
-#define TOOL_SELECTOR_H
+#ifndef GUI_TOOL_SELECTOR_H
+#define GUI_TOOL_SELECTOR_H
+
 
 #include "gui_frame.h"
 #include "../tpl/vector_tpl.h"

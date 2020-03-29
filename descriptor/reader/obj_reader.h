@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __OBJ_READER_H
-#define __OBJ_READER_H
+#ifndef DESCRIPTOR_READER_OBJ_READER_H
+#define DESCRIPTOR_READER_OBJ_READER_H
+
 
 #include <stdio.h>
 

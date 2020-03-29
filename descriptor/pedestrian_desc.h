@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __PEDESTRIAN_DESC_H
-#define __PEDESTRIAN_DESC_H
+#ifndef DESCRIPTOR_PEDESTRIAN_DESC_H
+#define DESCRIPTOR_PEDESTRIAN_DESC_H
+
 
 #include "obj_base_desc.h"
 #include "image_array.h"

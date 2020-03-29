@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __convoi_frame_h
-#define __convoi_frame_h
+#ifndef GUI_CONVOI_FRAME_H
+#define GUI_CONVOI_FRAME_H
+
 
 #include "gui_frame.h"
 #include "components/action_listener.h"

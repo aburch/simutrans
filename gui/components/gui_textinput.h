@@ -3,9 +3,9 @@
  * (see LICENSE.txt)
  */
 
+#ifndef GUI_COMPONENTS_GUI_TEXTINPUT_H
+#define GUI_COMPONENTS_GUI_TEXTINPUT_H
 
-#ifndef gui_components_gui_textinput_h
-#define gui_components_gui_textinput_h
 
 #include "gui_action_creator.h"
 #include "gui_component.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_citybuilding_edit_h
-#define gui_citybuilding_edit_h
+#ifndef GUI_CITYBUILDING_EDIT_H
+#define GUI_CITYBUILDING_EDIT_H
+
 
 #include "extend_edit.h"
 

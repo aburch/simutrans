@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_depot_frame2_t_h
-#define gui_depot_frame2_t_h
+#ifndef GUI_DEPOT_FRAME_H
+#define GUI_DEPOT_FRAME_H
+
 
 #include "gui_frame.h"
 #include "components/gui_label.h"

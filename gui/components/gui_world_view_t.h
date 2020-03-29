@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef world_view_t_h
-#define world_view_t_h
+#ifndef GUI_COMPONENTS_GUI_WORLD_VIEW_T_H
+#define GUI_COMPONENTS_GUI_WORLD_VIEW_T_H
+
 
 #include "gui_component.h"
 

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SIMVEHICLE_H
-#define SIMVEHICLE_H
+#ifndef VEHICLE_SIMVEHICLE_H
+#define VEHICLE_SIMVEHICLE_H
+
 
 #include "../simtypes.h"
 #include "../simobj.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __SEARCHFOLDER_H
-#define __SEARCHFOLDER_H
+#ifndef UTILS_SEARCHFOLDER_H
+#define UTILS_SEARCHFOLDER_H
+
 
 #include <string>
 #include "../tpl/vector_tpl.h"

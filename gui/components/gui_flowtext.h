@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_COMPONENTS_FLOWTEXT_H
-#define GUI_COMPONENTS_FLOWTEXT_H
+#ifndef GUI_COMPONENTS_GUI_FLOWTEXT_H
+#define GUI_COMPONENTS_GUI_FLOWTEXT_H
+
 
 #include "action_listener.h"
 #include "gui_action_creator.h"

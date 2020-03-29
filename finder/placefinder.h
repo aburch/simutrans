@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __PLACEFINDER_H
-#define __PLACEFINDER_H
+#ifndef FINDER_PLACEFINDER_H
+#define FINDER_PLACEFINDER_H
+
 
 #include "../dataobj/koord.h"
 class karte_t;

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef depotlist_frame_t_h
-#define depotlist_frame_t_h
+#ifndef GUI_DEPOTLIST_FRAME_H
+#define GUI_DEPOTLIST_FRAME_H
+
 
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef OBJ_WRITER_H
-#define OBJ_WRITER_H
+#ifndef DESCRIPTOR_WRITER_OBJ_WRITER_H
+#define DESCRIPTOR_WRITER_OBJ_WRITER_H
+
 
 #include <stdio.h>
 #include <string>

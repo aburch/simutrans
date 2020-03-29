@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_karte_h
-#define gui_karte_h
+#ifndef GUI_MINIMAP_H
+#define GUI_MINIMAP_H
+
 
 #include "components/gui_component.h"
 #include "../halthandle_t.h"

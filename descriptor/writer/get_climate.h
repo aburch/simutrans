@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GET_CLIMATE_H
-#define GET_CLIMATE_H
+#ifndef DESCRIPTOR_WRITER_GET_CLIMATE_H
+#define DESCRIPTOR_WRITER_GET_CLIMATE_H
+
 
 #include "../../simtypes.h"
 

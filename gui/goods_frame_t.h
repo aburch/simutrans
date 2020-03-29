@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef goods_frame_t_h
-#define goods_frame_t_h
+#ifndef GUI_GOODS_FRAME_T_H
+#define GUI_GOODS_FRAME_T_H
+
 
 #include "gui_frame.h"
 #include "components/gui_button.h"

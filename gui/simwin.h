@@ -8,8 +8,9 @@
  * There's only one WindowManager
  */
 
-#ifndef simwin_h
-#define simwin_h
+#ifndef GUI_SIMWIN_H
+#define GUI_SIMWIN_H
+
 
 #include <stddef.h> // for ptrdiff_t
 

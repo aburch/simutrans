@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef IMAGE_WRITER_H
-#define IMAGE_WRITER_H
+#ifndef DESCRIPTOR_WRITER_IMAGE_WRITER_H
+#define DESCRIPTOR_WRITER_IMAGE_WRITER_H
+
 
 #include <string>
 #include <stdio.h>

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_components_gui_numberinput_h
-#define gui_components_gui_numberinput_h
+#ifndef GUI_COMPONENTS_GUI_NUMBERINPUT_H
+#define GUI_COMPONENTS_GUI_NUMBERINPUT_H
+
 
 #include "../../simtypes.h"
 #include "../../display/scr_coord.h"

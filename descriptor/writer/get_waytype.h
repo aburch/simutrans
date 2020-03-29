@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GET_WAYTYPE_H
-#define GET_WAYTYPE_H
+#ifndef DESCRIPTOR_WRITER_GET_WAYTYPE_H
+#define DESCRIPTOR_WRITER_GET_WAYTYPE_H
+
 
 #include "../../simtypes.h"
 

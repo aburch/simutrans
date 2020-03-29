@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef factorylist_stats_t_h
-#define factorylist_stats_t_h
+#ifndef GUI_FACTORYLIST_STATS_T_H
+#define GUI_FACTORYLIST_STATS_T_H
+
 
 #include "components/gui_colorbox.h"
 #include "components/gui_image.h"

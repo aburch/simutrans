@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef TPL_VECTOR_H
-#define TPL_VECTOR_H
+#ifndef TPL_VECTOR_TPL_H
+#define TPL_VECTOR_TPL_H
+
 
 #include <typeinfo>
 

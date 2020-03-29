@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simline_h
-#define simline_h
+#ifndef SIMLINE_H
+#define SIMLINE_H
+
 
 #include "simtypes.h"
 #include "simcolor.h"

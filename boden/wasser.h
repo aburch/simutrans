@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef boden_wasser_h
-#define boden_wasser_h
+#ifndef BODEN_WASSER_H
+#define BODEN_WASSER_H
+
 
 #include "grund.h"
 

@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_optionen_h
-#define gui_optionen_h
+#ifndef GUI_OPTIONEN_H
+#define GUI_OPTIONEN_H
 
 
 class gui_frame_t;

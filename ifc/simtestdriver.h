@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SIMTESTDRIVER_H
-#define SIMTESTDRIVER_H
+#ifndef IFC_SIMTESTDRIVER_H
+#define IFC_SIMTESTDRIVER_H
 
 
 class grund_t;

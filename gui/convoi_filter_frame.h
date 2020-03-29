@@ -3,9 +3,9 @@
  * (see LICENSE.txt)
  */
 
+#ifndef GUI_CONVOI_FILTER_FRAME_H
+#define GUI_CONVOI_FILTER_FRAME_H
 
-#ifndef CONVOI_FILTER_FRAME_H
-#define  CONVOI_FILTER_FRAME_H
 
 #include "gui_frame.h"
 #include "components/gui_label.h"

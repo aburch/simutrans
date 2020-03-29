@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef crossing_logic_h
-#define crossing_logic_h
+#ifndef DATAOBJ_CROSSING_LOGIC_H
+#define DATAOBJ_CROSSING_LOGIC_H
+
 
 #include "../simtypes.h"
 #include "../tpl/minivec_tpl.h"

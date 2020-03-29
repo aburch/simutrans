@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef trafficlight_info_t_h
-#define trafficlight_info_t_h
+#ifndef GUI_TRAFFICLIGHT_INFO_H
+#define GUI_TRAFFICLIGHT_INFO_H
+
 
 #include "obj_info.h"
 #include "components/action_listener.h"

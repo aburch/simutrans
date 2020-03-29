@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef vehiclelist_frame_t_h
-#define vehiclelist_frame_t_h
+#ifndef GUI_VEHICLELIST_FRAME_H
+#define GUI_VEHICLELIST_FRAME_H
+
 
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"

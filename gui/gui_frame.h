@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_gui_frame_h
-#define gui_gui_frame_h
+#ifndef GUI_GUI_FRAME_H
+#define GUI_GUI_FRAME_H
+
 
 #include "../display/scr_coord.h"
 #include "../display/simgraph.h"

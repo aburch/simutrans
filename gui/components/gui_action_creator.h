@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_ifc_action_creator_h
-#define gui_ifc_action_creator_h
+#ifndef GUI_COMPONENTS_GUI_ACTION_CREATOR_H
+#define GUI_COMPONENTS_GUI_ACTION_CREATOR_H
+
 
 #include "action_listener.h"
 #include "../../tpl/slist_tpl.h"

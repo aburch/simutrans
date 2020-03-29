@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_curiosity_edit_h
-#define gui_curiosity_edit_h
+#ifndef GUI_CURIOSITY_EDIT_H
+#define GUI_CURIOSITY_EDIT_H
+
 
 #include "extend_edit.h"
 

@@ -7,8 +7,9 @@
  * a template class which implements a hashtable with pointer keys
  */
 
-#ifndef ptrhashtable_tpl_h
-#define ptrhashtable_tpl_h
+#ifndef TPL_PTRHASHTABLE_TPL_H
+#define TPL_PTRHASHTABLE_TPL_H
+
 
 #include "hashtable_tpl.h"
 #include <stdint.h> // intptr_t (standard)

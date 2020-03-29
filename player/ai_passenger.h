@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef AI_PASSENGER_H
-#define AI_PASSENGER_H
+#ifndef PLAYER_AI_PASSENGER_H
+#define PLAYER_AI_PASSENGER_H
 
 
 #include "ai.h"

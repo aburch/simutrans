@@ -3,9 +3,9 @@
  * (see LICENSE.txt)
  */
 
+#ifndef GUI_FACTORY_EDIT_H
+#define GUI_FACTORY_EDIT_H
 
-#ifndef gui_factory_edit_h
-#define gui_factory_edit_h
 
 #include "extend_edit.h"
 #include "components/gui_numberinput.h"

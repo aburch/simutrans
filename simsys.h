@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simsys_h
-#define simsys_h
+#ifndef SIMSYS_H
+#define SIMSYS_H
+
 
 #include <stddef.h>
 #include "simtypes.h"

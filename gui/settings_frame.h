@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef settings_frame_h
-#define settings_frame_h
+#ifndef GUI_SETTINGS_FRAME_H
+#define GUI_SETTINGS_FRAME_H
 
 
 #include "gui_frame.h"

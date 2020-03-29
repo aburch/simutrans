@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _AI_SCRIPTED_H
-#define _AI_SCRIPTED_H
+#ifndef PLAYER_AI_SCRIPTED_H
+#define PLAYER_AI_SCRIPTED_H
+
 
 #include "ai.h"
 #include "../utils/plainstring.h"

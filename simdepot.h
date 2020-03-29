@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _simdepot_h
-#define _simdepot_h
+#ifndef SIMDEPOT_H
+#define SIMDEPOT_H
+
 
 #include "tpl/slist_tpl.h"
 #include "obj/gebaeude.h"

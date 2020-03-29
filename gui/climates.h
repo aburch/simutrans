@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef climate_gui_h
-#define climate_gui_h
+#ifndef GUI_CLIMATES_H
+#define GUI_CLIMATES_H
+
 
 #include "gui_frame.h"
 #include "components/gui_button.h"

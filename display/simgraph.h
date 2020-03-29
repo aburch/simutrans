@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simgraph_h
-#define simgraph_h
+#ifndef DISPLAY_SIMGRAPH_H
+#define DISPLAY_SIMGRAPH_H
+
 
 #include "../simcolor.h"
 #include "../unicode.h"

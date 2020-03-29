@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simmesg_h
-#define simmesg_h
+#ifndef SIMMESG_H
+#define SIMMESG_H
+
 
 #include "simtypes.h"
 #include "gui/gui_theme.h"

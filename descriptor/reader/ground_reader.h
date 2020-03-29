@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __GROUND_READER_H
-#define __GROUND_READER_H
+#ifndef DESCRIPTOR_READER_GROUND_READER_H
+#define DESCRIPTOR_READER_GROUND_READER_H
+
 
 #include "obj_reader.h"
 

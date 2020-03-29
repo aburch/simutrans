@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef obj_field_h
-#define obj_field_h
+#ifndef OBJ_FIELD_H
+#define OBJ_FIELD_H
+
 
 #include "../simobj.h"
 #include "../display/simimg.h"

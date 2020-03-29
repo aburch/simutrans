@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _API_FUNCTION_H_
-#define _API_FUNCTION_H_
+#ifndef SCRIPT_API_FUNCTION_H
+#define SCRIPT_API_FUNCTION_H
+
 
 #include "api_param.h"
 #include "../squirrel/squirrel.h"

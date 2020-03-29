@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simunits_h
-#define simunits_h
+#ifndef SIMUNITS_H
+#define SIMUNITS_H
+
 
 /*
  * This file is designed to contain the unit conversion routines

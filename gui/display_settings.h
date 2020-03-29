@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _display_settings_h_
-#define _display_settings_h_
+#ifndef GUI_DISPLAY_SETTINGS_H
+#define GUI_DISPLAY_SETTINGS_H
+
 
 #include "gui_frame.h"
 #include "components/gui_divider.h"

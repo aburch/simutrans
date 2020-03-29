@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __BRIDGE_DESC_H
-#define __BRIDGE_DESC_H
+#ifndef DESCRIPTOR_BRIDGE_DESC_H
+#define DESCRIPTOR_BRIDGE_DESC_H
 
 
 #include "skin_desc.h"

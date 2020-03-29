@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __GROUND_DESC_H
-#define __GROUND_DESC_H
+#ifndef DESCRIPTOR_GROUND_DESC_H
+#define DESCRIPTOR_GROUND_DESC_H
+
 
 #include "obj_base_desc.h"
 #include "image_array.h"

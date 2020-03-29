@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_aligned_container_h
-#define gui_aligned_container_h
+#ifndef GUI_COMPONENTS_GUI_ALIGNED_CONTAINER_H
+#define GUI_COMPONENTS_GUI_ALIGNED_CONTAINER_H
+
 
 #include "gui_container.h"
 #include "../../tpl/vector_tpl.h"

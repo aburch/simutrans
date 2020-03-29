@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef KOORD_H
-#define KOORD_H
+#ifndef DATAOBJ_KOORD_H
+#define DATAOBJ_KOORD_H
+
 
 #include "ribi.h"
 #include "../simtypes.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __VEHICLE_DESC_H
-#define __VEHICLE_DESC_H
+#ifndef DESCRIPTOR_VEHICLE_DESC_H
+#define DESCRIPTOR_VEHICLE_DESC_H
+
 
 #include "obj_base_desc.h"
 #include "goods_desc.h"

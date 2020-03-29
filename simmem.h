@@ -6,6 +6,7 @@
 #ifndef SIMMEM_H
 #define SIMMEM_H
 
+
 #include <stddef.h>
 
 void* xmalloc(size_t size);             // Throws std::bad_alloc on failure

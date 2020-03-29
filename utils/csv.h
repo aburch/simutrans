@@ -55,9 +55,9 @@ field1 data,"field2, data"
 
  */
 
+#ifndef UTILS_CSV_H
+#define UTILS_CSV_H
 
-#ifndef CSV_H
-#define CSV_H
 
 #include "cbuffer_t.h"
 

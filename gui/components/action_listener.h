@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_ifc_action_listener_h
-#define gui_ifc_action_listener_h
+#ifndef GUI_COMPONENTS_ACTION_LISTENER_H
+#define GUI_COMPONENTS_ACTION_LISTENER_H
+
 
 #include "../../simtypes.h"
 

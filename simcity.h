@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simcity_h
-#define simcity_h
+#ifndef SIMCITY_H
+#define SIMCITY_H
+
 
 #include "simobj.h"
 #include "obj/gebaeude.h"

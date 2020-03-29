@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_loadsave_frame_h
-#define gui_loadsave_frame_h
+#ifndef GUI_LOADSAVE_FRAME_H
+#define GUI_LOADSAVE_FRAME_H
+
 
 #include <time.h>
 

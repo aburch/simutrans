@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef banner_h
-#define banner_h
+#ifndef GUI_BANNER_H
+#define GUI_BANNER_H
+
 
 #include "../dataobj/environment.h"
 #include "components/gui_button.h"

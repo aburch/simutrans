@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_colorbox_h
-#define gui_colorbox_h
+#ifndef GUI_COMPONENTS_GUI_COLORBOX_H
+#define GUI_COMPONENTS_GUI_COLORBOX_H
+
 
 #include "gui_component.h"
 #include "../../simcolor.h"

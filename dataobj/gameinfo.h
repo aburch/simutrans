@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef dataobj_gameinfo_h
-#define dataobj_gameinfo_h
+#ifndef DATAOBJ_GAMEINFO_H
+#define DATAOBJ_GAMEINFO_H
+
 
 #include <string>
 #include "../simtypes.h"

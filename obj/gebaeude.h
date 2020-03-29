@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef obj_gebaeude_h
-#define obj_gebaeude_h
+#ifndef OBJ_GEBAEUDE_H
+#define OBJ_GEBAEUDE_H
+
 
 #include "../ifc/sync_steppable.h"
 #include "../simobj.h"

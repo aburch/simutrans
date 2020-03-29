@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_sprachen_h
-#define gui_sprachen_h
+#ifndef GUI_SPRACHEN_H
+#define GUI_SPRACHEN_H
+
 
 #include "gui_frame.h"
 #include "components/action_listener.h"

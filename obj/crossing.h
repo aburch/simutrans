@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef obj_crossing_h
-#define obj_crossing_h
+#ifndef OBJ_CROSSING_H
+#define OBJ_CROSSING_H
+
 
 #include "../simtypes.h"
 #include "../display/simimg.h"

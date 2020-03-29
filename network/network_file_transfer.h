@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef NETWORK_FILE_TRANSFER_H
-#define NETWORK_FILE_TRANSFER_H
+#ifndef NETWORK_NETWORK_FILE_TRANSFER_H
+#define NETWORK_NETWORK_FILE_TRANSFER_H
+
 
 /**
  * Contains functions to send & receive files over network

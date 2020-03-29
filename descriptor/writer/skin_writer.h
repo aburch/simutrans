@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SKIN_WRITER_H
-#define SKIN_WRITER_H
+#ifndef DESCRIPTOR_WRITER_SKIN_WRITER_H
+#define DESCRIPTOR_WRITER_SKIN_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

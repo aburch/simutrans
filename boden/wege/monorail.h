@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef boden_wege_monorail_h
-#define boden_wege_monorail_h
+#ifndef BODEN_WEGE_MONORAIL_H
+#define BODEN_WEGE_MONORAIL_H
 
 
 #include "schiene.h"

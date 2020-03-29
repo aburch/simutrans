@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef privatesign_info_t_h
-#define privatesign_info_t_h
+#ifndef GUI_PRIVATESIGN_INFO_H
+#define GUI_PRIVATESIGN_INFO_H
+
 
 #include "../simconst.h"
 #include "obj_info.h"

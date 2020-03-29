@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef ai_option_h
-#define ai_option_h
+#ifndef GUI_AI_OPTION_T_H
+#define GUI_AI_OPTION_T_H
+
 
 #include "../simmesg.h"
 

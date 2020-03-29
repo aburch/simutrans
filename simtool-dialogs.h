@@ -6,6 +6,7 @@
 #ifndef SIMTOOL_DIALOGS_H
 #define SIMTOOL_DIALOGS_H
 
+
 #include "simmenu.h"
 #include "gui/simwin.h"
 

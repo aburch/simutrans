@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef curiositylist_frame_t_h
-#define curiositylist_frame_t_h
+#ifndef GUI_CURIOSITYLIST_FRAME_T_H
+#define GUI_CURIOSITYLIST_FRAME_T_H
+
 
 #include "gui_frame.h"
 #include "components/action_listener.h"

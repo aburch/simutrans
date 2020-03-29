@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_scrollbar_h
-#define gui_scrollbar_h
+#ifndef GUI_COMPONENTS_GUI_SCROLLBAR_H
+#define GUI_COMPONENTS_GUI_SCROLLBAR_H
+
 
 #include "gui_action_creator.h"
 #include "../../simevent.h"

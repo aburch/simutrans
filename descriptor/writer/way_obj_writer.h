@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef WAY_OBJ_WRITER_H
-#define WAY_OBJ_WRITER_H
+#ifndef DESCRIPTOR_WRITER_WAY_OBJ_WRITER_H
+#define DESCRIPTOR_WRITER_WAY_OBJ_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

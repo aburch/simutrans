@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef MUSIC_H
-#define MUSIC_H
+#ifndef MUSIC_MUSIC_H
+#define MUSIC_MUSIC_H
+
 
 #include "../simtypes.h"
 

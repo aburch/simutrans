@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __OBJ_NODE_INFO_H
-#define __OBJ_NODE_INFO_H
+#ifndef DESCRIPTOR_OBJ_NODE_INFO_H
+#define DESCRIPTOR_OBJ_NODE_INFO_H
+
 
 #include "../simtypes.h"
 

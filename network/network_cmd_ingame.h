@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _NETWORK_CMD_INGAME_H_
-#define _NETWORK_CMD_INGAME_H_
+#ifndef NETWORK_NETWORK_CMD_INGAME_H
+#define NETWORK_NETWORK_CMD_INGAME_H
+
 
 #include "network_cmd.h"
 #include "memory_rw.h"

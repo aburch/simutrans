@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __WAY_OBJ_DESC_H
-#define __WAY_OBJ_DESC_H
+#ifndef DESCRIPTOR_WAY_OBJ_DESC_H
+#define DESCRIPTOR_WAY_OBJ_DESC_H
+
 
 #include "image_list.h"
 #include "obj_base_desc.h"

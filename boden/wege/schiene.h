@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef boden_wege_schiene_h
-#define boden_wege_schiene_h
+#ifndef BODEN_WEGE_SCHIENE_H
+#define BODEN_WEGE_SCHIENE_H
 
 
 #include "weg.h"

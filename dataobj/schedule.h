@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef schedule_h
-#define schedule_h
+#ifndef DATAOBJ_SCHEDULE_H
+#define DATAOBJ_SCHEDULE_H
+
 
 #include "schedule_entry.h"
 

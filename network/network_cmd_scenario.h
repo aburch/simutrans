@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _NETWORK_CMD_SCENARIO_H_
-#define _NETWORK_CMD_SCENARIO_H_
+#ifndef NETWORK_NETWORK_CMD_SCENARIO_H
+#define NETWORK_NETWORK_CMD_SCENARIO_H
+
 
 #include "network_cmd.h"
 #include "network_cmd_ingame.h"

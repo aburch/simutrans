@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef goods_manager_t_h
-#define goods_manager_t_h
+#ifndef BAUER_GOODS_MANAGER_H
+#define BAUER_GOODS_MANAGER_H
+
 
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
