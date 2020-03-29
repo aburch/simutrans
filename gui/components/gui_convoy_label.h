@@ -1,5 +1,6 @@
- * just displays a label with a convoy under it, the label will be auto-translated
- *
+/*
+* just displays a label with a convoy under it, the label will be auto-translated
+ */
 
 #ifndef gui_convoy_label_t_h
 #define gui_convoy_label_t_h
@@ -39,4 +40,4 @@ public:
 	virtual void draw(scr_coord offset);
 };
 
-//#endif
+#endif

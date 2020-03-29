@@ -194,5 +194,5 @@ bool dr_screenshot_png(char const* filename, int w, int h, int maxwidth, unsigne
 
 	return ok;
 }
-#endif
+//#endif
 
