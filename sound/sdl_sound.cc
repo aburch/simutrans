@@ -1,9 +1,9 @@
 /*
- * sdl-sound without SDL_mixer.dll
- *
- * This file is part of the Simutrans project under the artistic license.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
+/// sdl-sound without SDL_mixer.dll
 
 #include "SDL.h"
 #include <string.h>
@@ -124,7 +124,7 @@ bool dr_init_sound()
 			// check if we got the right audio format
 			// The below seems not to work in Windows 64-bit; but disabling it allows the sound to work correctly.
 			//if (output_audio_format.format == AUDIO_S16SYS) {
-			if(true) { 
+			if(true) {
 				int i;
 
 				// finished initializing
@@ -137,7 +137,7 @@ bool dr_init_sound()
 				SDL_PauseAudio(0);
 
 			} else {
-#ifndef _MSC_VER		
+#ifndef _MSC_VER
 				dbg->important("Open audio channel doesn't meet requirements. Muting");
 #endif
 				SDL_CloseAudio();
@@ -146,14 +146,14 @@ bool dr_init_sound()
 
 
 		} else {
-#ifndef _MSC_VER	
+#ifndef _MSC_VER
 			dbg->important("Could not open required audio channel. Muting");
 #endif
 			SDL_QuitSubSystem(SDL_INIT_AUDIO);
 		}
 	}
 	else {
-#ifndef _MSC_VER	
+#ifndef _MSC_VER
 		dbg->important("Could not initialize sound system. Muting");
 #endif
 	}
@@ -180,7 +180,7 @@ int dr_load_sample(const char *filename)
 
 		/* load the sample */
 		if (SDL_LoadWAV(filename, &wav_spec, &wav_data, &wav_length) == NULL) {
-#ifndef _MSC_VER	
+#ifndef _MSC_VER
 			dbg->warning("dr_load_sample()", "could not load wav (%s)", SDL_GetError());
 #endif
 			return -1;
@@ -192,7 +192,7 @@ int dr_load_sample(const char *filename)
 			    output_audio_format.format,
 			    output_audio_format.channels,
 			    output_audio_format.freq) < 0) {
-#ifndef _MSC_VER	
+#ifndef _MSC_VER
 			dbg->warning("dr_load_sample()", "could not create conversion structure");
 #endif
 			SDL_FreeWAV(wav_data);
@@ -206,7 +206,7 @@ int dr_load_sample(const char *filename)
 		SDL_FreeWAV(wav_data);
 
 		if (SDL_ConvertAudio(&wav_cvt) < 0) {
-#ifndef _MSC_VER	
+#ifndef _MSC_VER
 			dbg->warning("dr_load_sample()", "could not convert wav to output format");
 #endif
 			return -1;
@@ -216,7 +216,7 @@ int dr_load_sample(const char *filename)
 		smp.audio_data = wav_cvt.buf;
 		smp.audio_len = wav_cvt.len_cvt;
 		samples[samplenumber] = smp;
-#ifndef _MSC_VER	
+#ifndef _MSC_VER
 		dbg->message("dr_load_sample", "Loaded %s to sample %i.",filename,samplenumber);
 #endif
 

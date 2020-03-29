@@ -1,9 +1,6 @@
 /*
- * dialog for setting the climate border and other map related parameters
- *
- * prissi
- *
- * August 2006
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "climates.h"
@@ -93,14 +90,14 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	labelnr++;
 	cursor.y += D_BUTTON_HEIGHT+D_V_SPACE;
 
-	hilly.init( button_t::square_state, "Hilly landscape", cursor + btn_offs); 
+	hilly.init( button_t::square_state, "Hilly landscape", cursor + btn_offs);
 	hilly.set_width(L_CLIENT_WIDTH);
 	hilly.pressed=env_t::hilly;
 	hilly.add_listener( this );
 	add_component( &hilly );
 	cursor.y += D_BUTTON_HEIGHT;
 
-	cities_ignore_height.init( button_t::square_state, "Cities ignore height", cursor + btn_offs); 
+	cities_ignore_height.init( button_t::square_state, "Cities ignore height", cursor + btn_offs);
 	cities_ignore_height.set_width(L_CLIENT_WIDTH);
 	cities_ignore_height.set_tooltip("Cities will be built all over the terrain, rather than preferring lower ground");
 	cities_ignore_height.pressed=env_t::cities_ignore_height;

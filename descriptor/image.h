@@ -1,7 +1,6 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef __BILD_BESCH_H
@@ -71,7 +70,7 @@ public:
 
 	uint16 const* get_data() const { return data; }
 	uint16*       get_data() { return data; }
-	
+
 	image_id get_id() const { return imageid; }
 
 	/* rotate_image_data - produces a (rotated) bild_desc

@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef CLUSTER_WRITER_H
 #define CLUSTER_WRITER_H
 
@@ -7,7 +12,7 @@
 
 class obj_node_t;
 
-class cluster_writer_t 
+class cluster_writer_t
 {
 	public:
 		static uint32 get_cluster_data(tabfileobj_t& obj, const char* cluster_descriptions)

@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef TPL_VECTOR_H
 #define TPL_VECTOR_H
 
@@ -7,7 +12,7 @@
 
 #ifndef ITERATE_PTR
 #define ITERATE_PTR(collection,enumerator) for(uint32 enumerator = 0; enumerator < (collection)->get_count(); enumerator++)
-#endif 
+#endif
 #include <typeinfo>
 
 #include "../macros.h"
@@ -42,9 +47,9 @@ template<class T> class vector_tpl
 				}
 			}
 
-		vector_tpl& operator=( vector_tpl const& other ) { 
-			vector_tpl tmp(other); 
-			swap(tmp, *this); 
+		vector_tpl& operator=( vector_tpl const& other ) {
+			vector_tpl tmp(other);
+			swap(tmp, *this);
 			return *this;
 		}
 
@@ -260,7 +265,7 @@ template<class T> class vector_tpl
 		{
 			return (*this)[e];
 		}
-		
+
 		T& pop_back()
 		{
 			assert(count>0);

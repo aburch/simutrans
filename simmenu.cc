@@ -1,9 +1,6 @@
 /*
- * Copyright (c) 2008 prissi
- *
- * This file is part of the Simutrans project under the artistic license.
- *
- * New configurable OOP tool system
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string>
@@ -1068,7 +1065,7 @@ void two_click_tool_t::cleanup( bool delete_start_marker )
 		grund_t *gr = welt->lookup( pos );
 		delete z;
 		// Remove dummy ground (placed by tool_build_tunnel_t and tool_build_way_t) unless it has vehicles on it
-		if(gr  &&   (gr->get_typ() == grund_t::tunnelboden  ||  gr->get_typ() == grund_t::monorailboden)  &&  gr->get_weg_nr(0) == NULL && !gr->get_leitung() && !gr->get_convoi_vehicle()) 
+		if(gr  &&   (gr->get_typ() == grund_t::tunnelboden  ||  gr->get_typ() == grund_t::monorailboden)  &&  gr->get_weg_nr(0) == NULL && !gr->get_leitung() && !gr->get_convoi_vehicle())
 		{
 			welt->access(pos.get_2d())->boden_entfernen(gr);
 			delete gr;

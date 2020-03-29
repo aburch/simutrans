@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
- */
-
-/*
- * Vehicle base type.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef _simvehicle_h
@@ -997,7 +991,7 @@ private:
 	// Used to re-run the routing algorithm without
 	// checking runway length in order to display
 	// the correct error message.
-	bool ignore_runway_length = false; 
+	bool ignore_runway_length = false;
 
 #ifdef USE_DIFFERENT_WIND
 	static uint8 get_approach_ribi( koord3d start, koord3d ziel );

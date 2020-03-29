@@ -1,9 +1,7 @@
 /*
-* Copyright (c) 1997 - 2001 Hansjörg Malthaner
-*
-* This file is part of the Simutrans project under the artistic licence.
-* (see licence.txt)
-*/
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #include <string.h>
 #include <ctype.h>
@@ -67,7 +65,7 @@ void gebaeude_t::init()
 	tile = NULL;
 	anim_time = 0;
 	sync = false;
-	zeige_baugrube = false;
+	show_construction = false;
 	remove_ground = true;
 	is_factory = false;
 	season = 0;
@@ -511,14 +509,14 @@ void gebaeude_t::set_tile(const building_tile_desc_t *new_tile, bool start_with_
 {
 	purchase_time = welt->get_ticks();
 
-	if (!zeige_baugrube  &&  tile != NULL) {
+	if (!show_construction  &&  tile != NULL) {
 		// mark old tile dirty
 		mark_images_dirty();
 	}
 
-	zeige_baugrube = !new_tile->get_desc()->no_construction_pit() && start_with_construction;
+	show_construction = !new_tile->get_desc()->no_construction_pit() && start_with_construction;
 	if (sync) {
-		if (new_tile->get_phases() <= 1 && !zeige_baugrube) {
+		if (new_tile->get_phases() <= 1 && !show_construction) {
 			// need to stop animation
 #ifdef MULTI_THREAD
 			pthread_mutex_lock(&sync_mutex);
@@ -531,7 +529,7 @@ void gebaeude_t::set_tile(const building_tile_desc_t *new_tile, bool start_with_
 #endif
 		}
 	}
-	else if ((new_tile->get_phases()>1 && (!is_factory || get_fabrik()->is_currently_producing())) || zeige_baugrube) {
+	else if ((new_tile->get_phases()>1 && (!is_factory || get_fabrik()->is_currently_producing())) || show_construction) {
 		// needs now animation
 #ifdef MULTI_THREAD
 		pthread_mutex_lock(&sync_mutex);
@@ -558,12 +556,12 @@ sync_result gebaeude_t::sync_step(uint32 delta_t)
 		// this when some intermediate values were uint32.
 		purchase_time = welt->get_ticks() - 5000ll;
 	}
-	if (zeige_baugrube) {
+	if (show_construction) {
 		// still under construction?
 		if (welt->get_ticks() - purchase_time > 5000) {
 			set_flag(obj_t::dirty);
 			mark_image_dirty(get_image(), 0);
-			zeige_baugrube = false;
+			show_construction = false;
 			if (tile->get_phases() <= 1) {
 				sync = false;
 				return SYNC_REMOVE;
@@ -660,7 +658,7 @@ image_id gebaeude_t::get_image() const
 	}
 
 	// winter for buildings only above snowline
-	if (zeige_baugrube) {
+	if (show_construction) {
 		return skinverwaltung_t::construction_site->get_image_id(0);
 	}
 	else {
@@ -671,7 +669,7 @@ image_id gebaeude_t::get_image() const
 
 image_id gebaeude_t::get_outline_image() const
 {
-	if (env_t::hide_buildings != 0 && env_t::hide_with_transparency && !zeige_baugrube) {
+	if (env_t::hide_buildings != 0 && env_t::hide_with_transparency && !show_construction) {
 		// opaque houses
 		return tile->get_background(anim_frame, 0, season);
 	}
@@ -699,7 +697,7 @@ PLAYER_COLOR_VAL gebaeude_t::get_outline_colour() const
 
 image_id gebaeude_t::get_image(int nr) const
 {
-	if (zeige_baugrube || env_t::hide_buildings) {
+	if (show_construction || env_t::hide_buildings) {
 		return IMG_EMPTY;
 	}
 	else {
@@ -710,7 +708,7 @@ image_id gebaeude_t::get_image(int nr) const
 
 image_id gebaeude_t::get_front_image() const
 {
-	if (zeige_baugrube) {
+	if (show_construction) {
 		return IMG_EMPTY;
 	}
 	if (env_t::hide_buildings != 0 && tile->get_desc()->get_type() < building_desc_t::others) {
@@ -917,7 +915,7 @@ void gebaeude_t::get_description(cbuffer_t & buf) const
 	{
 		buf.append(ptr.fab->get_name());
 	}
-	else if (zeige_baugrube)
+	else if (show_construction)
 	{
 		buf.append(translator::translate("Baustelle"));
 		buf.append("\n");
@@ -997,7 +995,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 	get_description(buf);
 
-	if (!is_factory && !zeige_baugrube)
+	if (!is_factory && !show_construction)
 	{
 		buf.append("\n");
 
@@ -1057,6 +1055,10 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 #endif
 		buf.printf("%s: %d\n", translator::translate("Mail demand/output"), get_adjusted_mail_demand());
 
+                buf.printf("%s: %s (%d)\n", translator::translate("Built in"), 
+                           translator::get_year_month(((purchase_time / welt->ticks_per_world_month)+welt->get_settings().get_starting_month())+
+                                                      welt->get_settings().get_starting_year()*12),
+                           (purchase_time / welt->ticks_per_world_month));
 
 		building_desc_t const& h = *tile->get_desc();
 
@@ -2079,7 +2081,7 @@ void gebaeude_t::mark_images_dirty() const
 {
 	// remove all traces from the screen
 	image_id img;
-	if (zeige_baugrube ||
+	if (show_construction ||
 		(!env_t::hide_with_transparency  &&
 			env_t::hide_buildings>(is_city_building() ? env_t::NOT_HIDE : env_t::SOME_HIDDEN_BUILDING))) {
 		img = skinverwaltung_t::construction_site->get_image_id(0);
@@ -2264,7 +2266,7 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 {
 	if (get_stadt())
 	{
-		// Assume that this is already connected to a road if in a city.	
+		// Assume that this is already connected to a road if in a city.
 		return;
 	}
 	koord3d start = get_pos();

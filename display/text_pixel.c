@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 // 17% faster pixel setting for text ...
 // helper for display_text_len_clip
 asm volatile (

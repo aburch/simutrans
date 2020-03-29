@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -21,7 +19,7 @@
 
 static uint32 const strecke[] = { 6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000 };
 
-static weighted_vector_tpl<const pedestrian_desc_t*> list; // All pedestrians
+static weighted_vector_tpl<const pedestrian_desc_t*> pedestrian_list; // All pedestrians
 static weighted_vector_tpl<const pedestrian_desc_t*> current_pedestrians; // Only those allowed on the current timeline
 stringhashtable_tpl<const pedestrian_desc_t *> pedestrian_t::table;
 
@@ -45,7 +43,7 @@ bool pedestrian_t::register_desc(const pedestrian_desc_t *desc)
 
 bool pedestrian_t::successfully_loaded()
 {
-	list.resize(table.get_count());
+	pedestrian_list.resize(table.get_count());
 	if (table.empty()) {
 		DBG_MESSAGE("pedestrian_t", "No pedestrians found - feature disabled");
 	}
@@ -56,7 +54,7 @@ bool pedestrian_t::successfully_loaded()
 			temp_liste.insert_ordered(i.value, compare_fussgaenger_desc);
 		}
 		FOR(vector_tpl<pedestrian_desc_t const*>, const i, temp_liste) {
-			list.append(i, i->get_distribution_weight());
+			pedestrian_list.append(i, i->get_distribution_weight());
 		}
 	}
 	return true;
@@ -147,8 +145,8 @@ void pedestrian_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s, lengthof(s));
 		desc = table.get(s);
 		// unknown pedestrian => create random new one
-		if(desc == NULL  &&  !list.empty()  ) {
-			desc = pick_any_weighted(list);
+		if(desc == NULL  &&  !pedestrian_list.empty()  ) {
+			desc = pick_any_weighted(pedestrian_list);
 		}
 	}
 
@@ -180,7 +178,7 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 count, uint32
 #ifdef FORBID_PEDESTRIANS
 	return;
 #endif
-	if (current_pedestrians.empty()) 
+	if (current_pedestrians.empty())
 	{
 		return;
 	}
@@ -209,7 +207,7 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 count, uint32
 		}
 
 		count = min(count, 128);
-		
+
 		for (uint32 i = 0; i < count; i++)
 		{
 			pedestrian_t* ped = new pedestrian_t(gr, time_to_live);
@@ -218,7 +216,7 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 count, uint32
 			bool ok = gr->obj_add(ped) != 0;	// 256 limit reached
 			// ok == false is quite frequent here.
 			if (ok)
-			{				
+			{
 				if (i > 0)
 				{
 					// walk a little
@@ -362,11 +360,11 @@ void pedestrian_t::hop(grund_t *gr)
 void pedestrian_t::check_timeline_pedestrians()
 {
 	current_pedestrians.clear();
-	FOR(weighted_vector_tpl<const pedestrian_desc_t*>, fd, list)
+	FOR(weighted_vector_tpl<const pedestrian_desc_t*>, fd, pedestrian_list)
 	{
 		if (fd->is_available(world()->get_timeline_year_month()))
 		{
-			current_pedestrians.append(fd, fd->get_distribution_weight()); 
+			current_pedestrians.append(fd, fd->get_distribution_weight());
 		}
 	}
 }

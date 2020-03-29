@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 /*
@@ -38,7 +36,7 @@ protected:
 
  public:
 	schiene_info_t(schiene_t* const s);
-	
+
 	/*
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL

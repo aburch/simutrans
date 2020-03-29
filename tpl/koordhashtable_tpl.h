@@ -1,5 +1,6 @@
 /*
- * a template class which implements a hashtable with 2d koord keys
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef koordhashtable_tpl_h
@@ -13,7 +14,7 @@
  * Define the key characteristics for hashing 2d koord types
  */
 template<class key_t>
-class koordhash_tpl 
+class koordhash_tpl
 {
 public:
 	typedef int diff_type;
@@ -43,7 +44,7 @@ public:
 
 
 /*
- * Ready to use class for hashing 2d koord types. 
+ * Ready to use class for hashing 2d koord types.
  */
 template<class key_t, class value_t>
 class koordhashtable_tpl : public hashtable_tpl<key_t, value_t, koordhash_tpl<key_t> >

@@ -1,13 +1,6 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- * Copyright 2013 Nathanael Nerode, James Petts
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Goods list dialog
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <algorithm>
@@ -88,7 +81,7 @@ goods_frame_t::goods_frame_t() :
 {
 	int y=D_BUTTON_HEIGHT+4-D_TITLEBAR_HEIGHT;
 	speed[0] = 0;
-	
+
 	change_speed_label.set_text(speed);
 	change_speed_label.set_pos(scr_coord(BUTTON4_X + 5, y));
 	add_component(&change_speed_label);
@@ -191,7 +184,7 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 
 	int order = 0;
 
-	switch (sortby) 
+	switch (sortby)
 	{
 		case 0: // sort by number
 			order = a - b;

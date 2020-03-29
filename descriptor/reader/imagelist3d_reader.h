@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef __IMAGELIST3D_READER_H
 #define __IMAGELIST3D_READER_H
 

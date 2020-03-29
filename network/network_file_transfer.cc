@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "network_file_transfer.h"
 #include "../simdebug.h"
 #include "../simversion.h"
@@ -103,7 +108,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 		uint32 len;
 		char filename[1024];
 		loadsave_t fd;
-		
+
 		socket_list_t::add_client(my_client_socket);
 		{
 			nwc_gameinfo_t nwgi;

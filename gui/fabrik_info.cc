@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Factory info dialog
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "fabrik_info.h"
@@ -35,7 +29,7 @@
 static const char factory_status_type[fabrik_t::MAX_FAB_STATUS][64] =
 {
 	"", "", "", "", "", // status not problematic
-	"Storage full", 
+	"Storage full",
 	"Inactive", "Shipment stuck",
 	"Material shortage", "No material",
 	"stop_some_goods_arrival", "Fully stocked",
@@ -227,7 +221,7 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 	}
 	unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status() % fabrik_t::staff_shortage];
 	display_fillbox_wh_clip(pos.x + D_MARGIN_LEFT, top + 2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indikatorfarbe, true);
-	// Status line written text	
+	// Status line written text
 	if(skinverwaltung_t::alerts && fab_alert_level[fab->get_status() % fabrik_t::staff_shortage]){
 		left += D_H_SPACE * 2;
 		display_color_img(skinverwaltung_t::alerts->get_image_id(fab_alert_level[fab->get_status() % fabrik_t::staff_shortage]), pos.x + left, top, 0, false, false);

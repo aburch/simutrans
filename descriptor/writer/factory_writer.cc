@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <string>
 #include <stdlib.h>
 #include "../../utils/simstring.h"
@@ -96,7 +101,7 @@ void factory_smoke_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileo
 	xref_writer_t::instance()->write_obj(outfp, node, obj_smoke, obj.get("smoke"), true);
 	koord  const pos_off   = obj.get_koord("smoketile",   koord(0, 0));
 	koord  const xy_off    = obj.get_koord("smokeoffset", koord(0, 0));
-	sint16 const smokespeed = obj.get_int("smokespeed",  0); 
+	sint16 const smokespeed = obj.get_int("smokespeed",  0);
 
 	node.write_sint16(outfp, pos_off.x, 0);
 	node.write_sint16(outfp, pos_off.y, 2);
@@ -142,8 +147,8 @@ void factory_supplier_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int c
 
 void factory_upgrade_writer_t::write_obj(FILE* outfp, obj_node_t& parent, const char* str)
 {
-	obj_node_t node(this, 0, &parent);  
-	
+	obj_node_t node(this, 0, &parent);
+
 	xref_writer_t::instance()->write_obj(outfp, node, obj_factory, str, true);
 
 	node.write(outfp);
@@ -206,7 +211,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			total_len += sound_str.size() + 1;
 		}
 	}
-	
+
 	obj_node_t node(this, total_len, &parent);
 
 	obj.put("type", "fac");
@@ -272,15 +277,15 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 
 	// Upgrades: these are the industry types to which this industry
-	// can be upgraded. 
+	// can be upgraded.
 	// @author: jamespetts
 	sint8 upgrades = 0;
-	do 
+	do
 	{
 		char buf[40];
 		sprintf(buf, "upgrade[%d]", upgrades);
 		str = obj.get(buf);
-		if(!str.empty()) 
+		if(!str.empty())
 		{
 			xref_writer_t::instance()->write_obj(fp, node, obj_factory, str.c_str(), false);
 			upgrades++;
@@ -293,7 +298,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 version = 0x8004;
 
 	// This is the overlay flag for Simutrans-Extended
-	// This sets the *second* highest bit to 1. 
+	// This sets the *second* highest bit to 1.
 	version |= EX_VER;
 
 	// Finally, this is the extended version number. This is *added*
@@ -305,8 +310,8 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// which are now in the gebaeude_t objects, and adds max_distance_to_consumer.
 	// 0x400 - 16-bit sound ID
 	version += 0x400;
-	
-	node.write_uint16(fp, version,						0); 
+
+	node.write_uint16(fp, version,						0);
 	node.write_uint16(fp, placement,					2);
 	node.write_uint16(fp, productivity,					4);
 	node.write_uint16(fp, range,						6);

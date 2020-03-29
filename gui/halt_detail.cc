@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "../simworld.h"
@@ -326,12 +324,12 @@ void halt_detail_t::halt_detail_info()
 			{
 				halthandle_t a_halt = iter.key;
 				haltestelle_t::connexion* cnx = iter.value;
-				if(a_halt.is_bound()) 
+				if(a_halt.is_bound())
 				{
 					has_stops = true;
 					buf.append("   ");
 					buf.append(a_halt->get_name());
-					
+
 					const uint32 tiles_to_halt = shortest_distance(halt->get_next_pos(a_halt->get_basis_pos()), a_halt->get_next_pos(halt->get_basis_pos()));
 					const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
 					const double km_to_halt = (double)tiles_to_halt * km_per_tile;
@@ -434,7 +432,7 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 void halt_detail_t::draw(scr_coord pos, scr_size size)
 {
 	if(halt.is_bound()) {
-		if( cached_active_player != welt->get_active_player()	||  halt->registered_lines.get_count()!=cached_line_count  || 
+		if( cached_active_player != welt->get_active_player()	||  halt->registered_lines.get_count()!=cached_line_count  ||
 			halt->registered_convoys.get_count()!=cached_convoy_count  ||
 		    welt->get_ticks() - update_time > 10000) {
 			// fill buffer with halt detail

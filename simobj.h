@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef simobjs_h
@@ -126,7 +124,7 @@ public:
 	inline bool get_flag(flag_values flag) const {return ((flags & flag) != 0);}
 
 	/// all the different types of objects
-	// NOTE: These numbers are loaded/saved as an sint8. 
+	// NOTE: These numbers are loaded/saved as an sint8.
 	enum typ {
 		undefined=-1, obj=0, baum=1, zeiger=2,
 		wolke=3, sync_wolke=4, async_wolke=5,

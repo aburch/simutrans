@@ -1,7 +1,6 @@
 /*
- * native win32 midi playing routines
- *
- * author: Owen Rudge, Hj. Malthaner
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -13,6 +12,7 @@
 #include "music.h"
 #include "../simsound.h"
 
+// native win32 midi playing routines
 
 /*
  * MIDI: Owen Rudge

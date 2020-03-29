@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -185,7 +190,7 @@ static void get_format_mask(const char* format, char *typemask, int max_params, 
 				}
 				else {
 					// found valid format
-					if (pos >= max_params) 
+					if (pos >= max_params)
 						error.printf("Too many parameters or illegal position %d not in supported range 0..%d.", pos, max_params - 1);
 					typemask[pos] = mask;
 					found++;

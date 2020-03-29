@@ -1,8 +1,6 @@
 ﻿/*
- * Copyright (c) 1997 - 2001 Hansj�rg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 /*
@@ -88,7 +86,7 @@ line_class_manager_t::line_class_manager_t(linehandle_t line)
 			mail_class_name_untranslated[i] = class_name;
 		}
 	}
-	
+
 	reset_all_pass_button.set_typ(button_t::roundbox);
 	reset_all_pass_button.set_text("reset_all_pass_classes");
 	reset_all_pass_button.add_listener(this);
@@ -313,7 +311,7 @@ void line_class_manager_t::layout()
 		y += LINESPACE - 4;
 		reset_all_pass_button.set_pos(scr_coord(column_2, y));
 		reset_all_pass_button.set_size(scr_size(button_width, D_BUTTON_HEIGHT));
-		reset_all_pass_button.set_visible(true);		
+		reset_all_pass_button.set_visible(true);
 	}
 
 	y = 2 + LINESPACE*pass_entries; // To get it to match up with the text from draw(...)
@@ -328,13 +326,13 @@ void line_class_manager_t::layout()
 			mail_class_sel.at(i)->set_size(scr_size(button_width, D_BUTTON_HEIGHT));
 			mail_class_sel.at(i)->set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
 			y += LINESPACE;
-		}	
+		}
 		y += LINESPACE - 4;
 		reset_all_mail_button.set_pos(scr_coord(column_2, y));
 		reset_all_mail_button.set_size(scr_size(button_width, D_BUTTON_HEIGHT));
 		reset_all_mail_button.set_visible(true);
 	}
-	
+
 
 	build_class_entries();
 
@@ -630,7 +628,7 @@ bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t 
 			{
 				pass_class_sel.at(i)->set_selection(0);
 				new_class = 0;
-			}			
+			}
 			int good_type = 0; // 0 = Passenger, 1 = Mail,
 			int reset = 0; // 0 = reset only single class, 1 = reset all classes
 			cbuffer_t buf;

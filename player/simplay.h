@@ -1,7 +1,6 @@
 /*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef simplay_h
@@ -126,7 +125,7 @@ protected:
 	 */
 	bool access[MAX_PLAYER_COUNT];
 
-	
+
 	/* This flag is set if the player has already been
 	 * warned this month that there is insufficient money
 	 * for automatic way renewals*/
@@ -187,7 +186,7 @@ public:
 	void book_vehicle_maintenance(const sint64 amount, const waytype_t wt=ignore_wt);
 
 	/**
-	 * Adds way renewals to accounting statistics. 
+	 * Adds way renewals to accounting statistics.
 	 * @param amount (should be negative, will be adjusted for bits_per_month)
 	 * @param wt type of transport for accounting
 	 * @author jamespetts
@@ -455,7 +454,7 @@ private:
 	// headquarters stuff
 	sint32 headquarter_level;
 	koord headquarter_pos;
-		
+
 	// The signalbox last selected. Used for placing signals attached to this box.
 	// Local only: this datum is transmitted over the network when the tool is used.
 	// Do not load/save.

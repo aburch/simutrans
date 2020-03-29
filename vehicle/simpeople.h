@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef simpeople_h
 #define simpeople_h
 
@@ -69,7 +74,7 @@ public:
 
 	static void generate_pedestrians_at(koord3d k, uint32 anzahl, uint32 time_to_live = 0);
 
-	static void check_timeline_pedestrians(); 
+	static void check_timeline_pedestrians();
 };
 
 #endif

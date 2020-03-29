@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "../simdebug.h"
@@ -35,41 +33,41 @@
 // @author hsiegeln
 const char *hist_type[MAX_CITY_HISTORY] =
 {
-	"citicens", 
+	"citicens",
 	"Jobs",
 	"Visitor demand",
-	"Growth", 
-	"Buildings", 
-	"Verkehrsteilnehmer", 
-	"Transported", 
-	"Passagiere",  
+	"Growth",
+	"Buildings",
+	"Verkehrsteilnehmer",
+	"Transported",
+	"Passagiere",
 	"Walked",
-	"sended", 
+	"sended",
 	"Post",
-	"Goods supplied",  
-	"Goods needed", 
-	"Power supply", 
-	"Power demand", 
+	"Goods supplied",
+	"Goods needed",
+	"Power supply",
+	"Power demand",
 	"Congestion"
 };
 
 const int hist_type_color[MAX_CITY_HISTORY] =
 {
-	COL_WHITE, 
+	COL_WHITE,
 	COL_GREY6,
 	COL_GREY3,
-	COL_DARK_GREEN, 
+	COL_DARK_GREEN,
 	COL_LIGHT_PURPLE,
-	COL_TRAFFIC, 
-	COL_LIGHT_BLUE, 
+	COL_TRAFFIC,
+	COL_LIGHT_BLUE,
 	COL_PASSENGERS,
 	COL_LILAC,
-	COL_LIGHT_YELLOW, 
-	COL_YELLOW, 
+	COL_LIGHT_YELLOW,
+	COL_YELLOW,
 	COL_LIGHT_BROWN,
 	COL_BROWN,
-	COL_ELECTRICITY-1, 
-	COL_ELECTRICITY+2, 
+	COL_ELECTRICITY-1,
+	COL_ELECTRICITY+2,
 	COL_DARK_TURQUOISE
 };
 
@@ -343,7 +341,7 @@ void city_info_t::draw(scr_coord pos, scr_size size)
 		buf.append(power_demand / 1000);
 		buf.append(" GW");
 	}
-	
+
 	buf.append(" \n ");
 
 	display_multiline_text(pos.x + 8, pos.y + D_TITLEBAR_HEIGHT + 4 + (D_BUTTON_HEIGHT+2), buf, SYSCOL_TEXT);

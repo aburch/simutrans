@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "simdebug.h"
@@ -333,7 +331,7 @@ void planquadrat_t::rdwr(loadsave_t *file, koord pos )
 				}
 			}
 		}
-			
+
 		else // Loading
 		{
 			uint8 halt_list_count_from_file;
@@ -514,7 +512,7 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 	else {
 		// clip everything at the next tile above
 		if(  i < ground_size  ) {
-			
+
 			clip_dimension p_cr = display_get_clip_wh(CLIP_NUM_VAR);
 
 			for(  uint8 j = i;  j < ground_size;  j++  ) {
@@ -644,7 +642,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 				if(display_player)
 				{
 					const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
-					for(int halt_count = 0; halt_count < halt_list_count; halt_count++) 
+					for(int halt_count = 0; halt_count < halt_list_count; halt_count++)
 					{
 						if(halt_list[halt_count].halt->get_owner() == display_player)
 						{
@@ -771,9 +769,9 @@ void planquadrat_t::halt_list_insert_at(halthandle_t halt, uint8 pos, uint8 dist
  */
 void planquadrat_t::add_to_haltlist(halthandle_t halt)
 {
-	if(halt.is_bound()) 
+	if(halt.is_bound())
 	{
-		// Quick and dirty way to our 2d co-ordinates 
+		// Quick and dirty way to our 2d co-ordinates
 		const koord pos = get_kartenboden()->get_pos().get_2d();
 		const koord halt_next_pos = halt->get_next_pos(pos, true);
 		// Must be koord_distance not shortest_distance as the coverage radii are square, not circular
@@ -782,9 +780,9 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 		{
 			// Since only the first one gets all, we want the closest halt one to be first
 			halt_list_remove(halt);
-			
+
 			for(unsigned insert_pos = 0; insert_pos < halt_list_count; insert_pos++)
-			{			
+			{
 				if(halt_list[insert_pos].halt.is_bound() && koord_distance(halt_list[insert_pos].halt->get_next_pos(pos), pos) > distance)
 				{
 					halt_list_insert_at(halt, insert_pos, distance);
@@ -848,7 +846,7 @@ uint8 planquadrat_t::get_connected(halthandle_t halt) const
 {
 	for(uint8 i = 0; i < halt_list_count; i++)
 	{
-		if(halt_list[i].halt == halt) 
+		if(halt_list[i].halt == halt)
 		{
 			return halt_list[i].distance;
 		}

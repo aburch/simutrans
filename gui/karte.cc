@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "../simevent.h"
 #include "../simcolor.h"
 #include "../simconvoi.h"
@@ -823,10 +828,10 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				}
 			}
 			break;
-			
+
 		// Show condition
 		case MAP_CONDITION:
-			
+
 			uint32 condition_percent;
 			if(gr->hat_wege())
 			{
@@ -840,7 +845,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				const sint32 condition_percent_reciprocal = 100 - condition_percent;
 				set_relief_farbe(k, calc_severity_color(condition_percent_reciprocal, 100));
 			}
-			
+
 			break;
 
 		// Show congestion
@@ -848,7 +853,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			if (gr->hat_wege())
 			{
 				// This is only applicable to roads.
-				const weg_t* road = gr->get_weg(road_wt); 
+				const weg_t* road = gr->get_weg(road_wt);
 				if (road)
 				{
 					set_relief_farbe(k, calc_severity_color(road->get_congestion_percentage(), 100));
@@ -1019,7 +1024,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 							set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
 						}
 					}
-				
+
 				}
 			}
 			break;
@@ -1119,7 +1124,7 @@ void reliefkarte_t::calc_map()
 	}
 
 	// since we do iterate the factory info list, this must be done here
-	if(mode==MAP_FACTORIES) 
+	if(mode==MAP_FACTORIES)
 	{
 		FOR(vector_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
 			koord const pos = f->get_pos().get_2d();

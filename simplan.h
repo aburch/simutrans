@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef simplan_h
@@ -101,7 +99,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 	inline grund_t *get_boden_in_hoehe(const sint16 z) const {
-		if(  ground_size == 1  ) 
+		if(  ground_size == 1  )
 		{
 			// must be valid ground at this point!
 		    return data.one->get_hoehe() == z ? data.one : NULL;

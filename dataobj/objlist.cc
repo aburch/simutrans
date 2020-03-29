@@ -1,5 +1,6 @@
 /*
- * author V. Meyer
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -123,7 +124,7 @@ static uint8 type_to_pri[256]=
 	255, 255, 255, 255, 255, 255, 255, 255,
 	255, 255, 255, 255, 255, 255, 255, 255,
 	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 
+	255, 255, 255, 255, 255, 255,
 	3, // signalbox
 	255,
 	255, 255, 255, 255, 255, 255, 255, 255

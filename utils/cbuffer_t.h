@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef cbuffer_t_h
 #define cbuffer_t_h
 
@@ -90,7 +95,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void append(long n);
-	
+
 	/**
 	 * Appends a number. Buffer will be extended if it does not have enough capacity.
 	 * @author Hj. Malthaner

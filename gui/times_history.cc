@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "../simworld.h"
 #include "../simhalt.h"
 #include "../simline.h"
@@ -132,7 +137,7 @@ void times_history_t::draw(scr_coord pos, scr_size size)
 		if ((!line->get_schedule()->empty() && !line->get_schedule()->matches(welt, last_schedule))) {
 			register_containers();
 		}
-		if (line->get_name() != cached_name || 
+		if (line->get_name() != cached_name ||
 		    welt->get_ticks() - update_time > 10000) {
 			update_components();
 		}

@@ -1,6 +1,6 @@
-/**
- * @file
- * Contains definition of convoi_t class
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef simconvoi_h
@@ -1237,13 +1237,13 @@ public:
 	bool check_destination_reverse(route_t* current_route = NULL, route_t* target_rt = NULL);
 
 	// Reserve the tiles on which the convoy is standing to prevent collisions.
-	void reserve_own_tiles(bool unreserve = false); 
+	void reserve_own_tiles(bool unreserve = false);
 
 	bool has_tall_vehicles();
 
 	inline bool get_allow_clear_reservation() const { return allow_clear_reservation; }
 
-	bool all_vehicles_are_buildable() const; 
+	bool all_vehicles_are_buildable() const;
 
 	bool check_way_constraints_of_all_vehicles(const weg_t& way) const;
 

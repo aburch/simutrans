@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef TPL_WEIGHTED_VECTOR_H
 #define TPL_WEIGHTED_VECTOR_H
 
@@ -7,7 +12,7 @@
 
 #ifndef ITERATE_PTR
 #define ITERATE_PTR(collection,enumerator) for(uint32 enumerator = 0; enumerator < collection->get_count(); enumerator++)
-#endif 
+#endif
 #include <cstddef>
 #include <iterator>
 
@@ -325,7 +330,7 @@ template<class T> class weighted_vector_tpl
 			bool any_to_remove = false;
 			for (uint32 i = 0; i < count; i++)
 			{
-				if(nodes != NULL && nodes[i].data == elem) 
+				if(nodes != NULL && nodes[i].data == elem)
 				{
 					any_to_remove = remove_at(i);
 					i--;
@@ -356,7 +361,7 @@ template<class T> class weighted_vector_tpl
 			total_weight = nodes[count].weight;
 			return nodes[count].data;
 		}
-		
+
 		T& operator [](uint32 i)
 		{
 			if (i >= count) dbg->fatal("weighted_vector_tpl<T>::get()", "index out of bounds: %i not in 0..%d", i, count - 1);

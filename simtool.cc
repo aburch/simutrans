@@ -1,10 +1,6 @@
 /*
- * Tools for the players
- *
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -462,7 +458,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 			// not deletable: skip it
 		}
 	}
-	
+
 	// citycar? (we allow always)
 	if (type == obj_t::road_user || type == obj_t::undefined) {
 		if (private_car_t* citycar = gr->find<private_car_t>()) {
@@ -2580,7 +2576,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 {
 	error = NULL;
 	grund_t *gr=welt->lookup(pos);
-	uint8 positive_return = 2; 
+	uint8 positive_return = 2;
 	if(  gr  &&  slope_t::is_way(gr->get_weg_hang())  )
 	{
 		// Check for the runway exclusion zone (unless we are underground)
@@ -2606,18 +2602,18 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 		// ignore water
 		if(  desc->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser  )
 		{
-			if(  !elevated  ||  welt->lookup_hgt( pos.get_2d() ) < welt->get_water_hgt( pos.get_2d() )  ) 
+			if(  !elevated  ||  welt->lookup_hgt( pos.get_2d() ) < welt->get_water_hgt( pos.get_2d() )  )
 			{
 				return 0;
 			}
 			// here either channel or elevated way over not too deep water
 		}
 		// elevated ways have to check tile above
-		if(  elevated  ) 
+		if(  elevated  )
 		{
 			// Also check for large buildings below
 			grund_t* gr_below = welt->lookup_kartenboden(pos.get_2d());
-			if (gr_below) 
+			if (gr_below)
 			{
 				if (const gebaeude_t* gb = gr_below->get_building())
 				{
@@ -2630,15 +2626,15 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 				}
 			}
 			gr = welt->lookup( pos + koord3d( 0, 0, welt->get_settings().get_way_height_clearance() ) );
-			if(  gr == NULL  ) 
+			if(  gr == NULL  )
 			{
 				return positive_return;
 			}
-			if(  gr->get_typ() != grund_t::monorailboden  ) 
+			if(  gr->get_typ() != grund_t::monorailboden  )
 			{
 				return 0;
 			}
-			
+
 		}
 		// test if way already exists on the way and if we are allowed to connect
 		weg_t *way = gr->get_weg(desc->get_wtyp());
@@ -3417,7 +3413,7 @@ uint8 tool_build_tunnel_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 		return 2;
 	}
 	// .. otherwise build tunnel mouths (and tunnel behind)
-	else 
+	else
 	{
 		karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
 		if (ri.pos != koord::invalid)
@@ -4355,10 +4351,10 @@ const char *tool_build_station_t::tool_station_building_aux(player_t *player, bo
 		{
 			return "Bridges cannot be built over large buildings.";
 		}
-		const grund_t* gr = welt->lookup(pos); 
+		const grund_t* gr = welt->lookup(pos);
 		if (gr->hat_weg(road_wt) || gr->hat_weg(track_wt) || gr->hat_weg(air_wt) || gr->hat_weg(water_wt))
 		{
-			return ""; 
+			return "";
 		}
 	}
 
@@ -5447,7 +5443,7 @@ waytype_t tool_build_station_t::get_waytype() const
 
 const char *tool_build_station_t::check_pos( player_t*,  koord3d pos )
 {
-	if(  grund_t *gr = welt->lookup( pos )  ) 
+	if(  grund_t *gr = welt->lookup( pos )  )
 	{
 		karte_t::runway_info ri = welt->check_nearby_runways(pos.get_2d());
 		const uint8 height = welt->lookup_hgt(pos.get_2d());
@@ -6060,7 +6056,7 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 		weg->count_sign();
 		gr->calc_image();
 	}
-	end: 
+	end:
 	cleanup();
 	directions.clear();
 	return NULL;
@@ -6232,7 +6228,7 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 						rs = new signal_t(player, gr->get_pos(), dir, desc, signal[player->get_player_nr()].signalbox);
 						DBG_MESSAGE("tool_roadsign()", "new signal, dir is %i", dir);
 						goto built_sign;
-					}					
+					}
 				}
 			} else {
 				// if there is already a sign, we might need to inverse the direction

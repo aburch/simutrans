@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string.h>
@@ -63,17 +61,17 @@ const char money_frame_t::cost_tooltip[MAX_PLAYER_COST_BUTTON][256] =
   "Gross revenue",
   "Vehicle running costs per km",
   "Vehicle maintenance costs per month",
-  "Recurring expenses of infrastructure maintenance", 
+  "Recurring expenses of infrastructure maintenance",
   "The charges incurred or revenues earned by running on other players' ways",
-  "Operating revenue less operating expenditure", 
-  "Capital expenditure on vehicle purchases and upgrades", 	
-  "Capital expenditure on infrastructure", 
-  "Cost of overdraft interest payments", 
-  "Total income less total expenditure", 
-  "Number of units of passengers and goods transported", 
-  "Total liquid assets", 
-  "Total capital assets, excluding liabilities", 
-  "Total assets less total liabilities", 
+  "Operating revenue less operating expenditure",
+  "Capital expenditure on vehicle purchases and upgrades",
+  "Capital expenditure on infrastructure",
+  "Cost of overdraft interest payments",
+  "Total income less total expenditure",
+  "Number of units of passengers and goods transported",
+  "Total liquid assets",
+  "Total capital assets, excluding liabilities",
+  "Total assets less total liabilities",
   "The maximum amount that can be borrowed without prohibiting further capital outlays",
   "The maximum amount that can be borrowed without going bankrupt",
   "Percentage of revenue retained as profit"
@@ -245,7 +243,7 @@ money_frame_t::money_frame_t(player_t *player)
 		lylabel("Last Year", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 		conmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		nvmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-		vehicle_maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),	
+		vehicle_maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		vrmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		imoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		tmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
@@ -253,7 +251,7 @@ money_frame_t::money_frame_t(player_t *player)
 		omoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		old_conmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		old_nvmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-		old_vehicle_maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),	
+		old_vehicle_maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		old_vrmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		old_imoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		old_tmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
@@ -309,7 +307,7 @@ money_frame_t::money_frame_t(player_t *player)
 	old_imoney.set_pos(scr_coord(lyl_x,top+0*BUTTONSPACE));
 	vrmoney.set_pos(scr_coord(tyl_x,top+1*BUTTONSPACE)); // running costs
 	old_vrmoney.set_pos(scr_coord(lyl_x,top+1*BUTTONSPACE));
-	vehicle_maintenance_money.set_pos(scr_coord(tyl_x,top+2*BUTTONSPACE)); 
+	vehicle_maintenance_money.set_pos(scr_coord(tyl_x,top+2*BUTTONSPACE));
 	old_vehicle_maintenance_money.set_pos(scr_coord(lyl_x,top+2*BUTTONSPACE));
 	mmoney.set_pos(scr_coord(tyl_x,top+3*BUTTONSPACE)); // inf. maintenance
 	old_mmoney.set_pos(scr_coord(lyl_x,top+3*BUTTONSPACE));
@@ -330,7 +328,7 @@ money_frame_t::money_frame_t(player_t *player)
 	old_transport.set_pos(scr_coord(c1_x + 100, top+10*BUTTONSPACE));
 	old_transport.set_size(lbl_size);
 
-	
+
 	// center column (above selector box)
 	maintenance_label.set_pos(scr_coord(c2_x, top-1*BUTTONSPACE));
 	maintenance_label.set_size(lbl_size);
@@ -340,7 +338,7 @@ money_frame_t::money_frame_t(player_t *player)
 	//vehicle_maintenance_money.set_pos(scr_coord(c2_num_x, top+1*BUTTONSPACE));
 	//maintenance money should be the same height as inf. maintenance (mmoney)
 	maintenance_money.set_pos(scr_coord(c2_num_x, top+3*BUTTONSPACE));
-	
+
 
 	// right column (lower)
 	tylabel2.set_pos(scr_coord(c3_btn_x, top+4*BUTTONSPACE-2));
@@ -400,7 +398,7 @@ money_frame_t::money_frame_t(player_t *player)
 	add_component(&conmoney);
 	add_component(&nvmoney);
 	add_component(&vrmoney);
-	add_component(&vehicle_maintenance_money); 
+	add_component(&vehicle_maintenance_money);
 	add_component(&mmoney);
 	add_component(&imoney);
 	add_component(&interest);
@@ -412,7 +410,7 @@ money_frame_t::money_frame_t(player_t *player)
 	add_component(&old_conmoney);
 	add_component(&old_nvmoney);
 	add_component(&old_vrmoney);
-	add_component(&old_vehicle_maintenance_money); 
+	add_component(&old_vehicle_maintenance_money);
 	add_component(&old_mmoney);
 	add_component(&old_imoney);
 	add_component(&old_interest);
@@ -420,7 +418,7 @@ money_frame_t::money_frame_t(player_t *player)
 	add_component(&old_omoney);
 	add_component(&old_toll);
 	add_component(&old_transport);
-	
+
 	add_component(&lylabel);
 	add_component(&tylabel);
 

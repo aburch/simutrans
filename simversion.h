@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef simversion_h
 #define simversion_h
 
@@ -29,7 +34,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 
 #define EX_VERSION_MAJOR	14
 #define EX_VERSION_MINOR	9
-#define EX_SAVE_MINOR		19
+#define EX_SAVE_MINOR		20
 
 // Do not forget to increment the save game versions in settings_stats.cc when changing this
 

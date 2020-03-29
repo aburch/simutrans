@@ -1112,13 +1112,15 @@ Ped
 %254_CITY_SYLL
 Pres
 %255_CITY_SYLL
+Var
+%256_CITY_SYLL
 Ket
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
 # They must be specified in hexadecimal
 # (i.e. with a max. in hex of 200)
-#
+# 
 &1_CITY_SYLL
 ington
 &2_CITY_SYLL

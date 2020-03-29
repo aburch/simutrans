@@ -1,13 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Player list
- * Hj. Malthaner, 2000
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -171,7 +164,7 @@ ki_kontroll_t::ki_kontroll_t() :
 		add_component( access_out+i );
 		access_out[i].add_listener(this);
 		cursor.x += D_CHECKBOX_WIDTH + 20 + D_H_SPACE;
-		
+
 		access_in[i].init(button_t::square_state, "", cursor);
 		access_in[i].pressed = player && player->allows_access_to(current_player->get_player_nr());
 		if(access_in[i].pressed && player)
@@ -279,12 +272,12 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 			player_t *const player = welt->get_active_player();
 			if (env_t::networkmode  &&  prevplayer == welt->get_public_player() && !prevplayer->is_locked() && player->is_locked()) {
 				player->unlock(false, true);
-				
+
 				// send unlock command
 				nwc_auth_player_t *nwc = new nwc_auth_player_t();
 				nwc->player_nr = player->get_player_nr();
 				network_send_server(nwc);
-				
+
 			}
 			update_data();
 			break;
@@ -309,7 +302,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 				add_component( player_active+i-2 );
 				welt->get_settings().set_player_type(i, (uint8)p.i);
 			}
-			else 
+			else
 			{
 				player_select[i].set_selection(0);
 				welt->get_settings().set_player_type(i, 0);
@@ -332,7 +325,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 				tooltip_out[i].clear();
 				tooltip_out[i].printf("Allow %s to access your ways and stops", player->get_name());
 			}
-			
+
 			static char param[16];
 			sprintf(param,"g%hi,%hi,%hi", welt->get_active_player_nr(), i, access_out[i].pressed);
 			tool_t *tool = create_tool( TOOL_ACCESS_TOOL | SIMPLE_TOOL );
@@ -361,7 +354,7 @@ void ki_kontroll_t::update_data()
 				player_select[i].set_visible(false);
 				player_get_finances[i].set_visible(true);
 				add_component(player_get_finances+i);
-				if (welt->get_settings().get_allow_player_change() || !welt->get_public_player()->is_locked()) 
+				if (welt->get_settings().get_allow_player_change() || !welt->get_public_player()->is_locked())
 				{
 					add_component(player_change_to+i);
 				}
@@ -407,10 +400,10 @@ void ki_kontroll_t::update_data()
 			player_lock[i].background_color = player->is_locked() ? (player->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN;
 
 			// human players cannot be deactivated
-			if (i>1) 
+			if (i>1)
 			{
 				remove_component( player_active+i-2 );
-				if(  player->get_ai_id()!=player_t::HUMAN  ) 
+				if(  player->get_ai_id()!=player_t::HUMAN  )
 				{
 					add_component( player_active+i-2 );
 				}
@@ -422,7 +415,7 @@ void ki_kontroll_t::update_data()
 			// inactive player => button needs removal?
 			access_in[i].set_visible(false);
 			access_out[i].set_visible(false);
-			if (player_get_finances[i].is_visible()) 
+			if (player_get_finances[i].is_visible())
 			{
 				player_get_finances[i].set_visible(false);
 				remove_component(player_get_finances+i);
@@ -432,7 +425,7 @@ void ki_kontroll_t::update_data()
 
 			if (i>1) {
 				remove_component( player_active+i-2 );
-				if(  0<player_select[i].get_selection()  &&  player_select[i].get_selection()<player_t::MAX_AI) 
+				if(  0<player_select[i].get_selection()  &&  player_select[i].get_selection()<player_t::MAX_AI)
 				{
 					add_component( player_active+i-2 );
 				}
@@ -441,15 +434,15 @@ void ki_kontroll_t::update_data()
 			if(  env_t::networkmode  ) {
 
 				// change available selection of AIs
-				if(  !welt->get_public_player()->is_locked()  ) 
+				if(  !welt->get_public_player()->is_locked()  )
 				{
-					if(  player_select[i].count_elements()==2  ) 
+					if(  player_select[i].count_elements()==2  )
 					{
 						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), SYSCOL_TEXT ) );
 						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), SYSCOL_TEXT ) );
 					}
 				}
-				else 
+				else
 				{
 					if(  player_select[i].count_elements()==4  )
 					{

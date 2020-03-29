@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Roadsigns functions and dialogs
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -115,6 +109,9 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 		// on this tile of way before or after this function is indeterminate.
 		world()->await_convoy_threads();
 	}
+#endif
+#ifdef MULTI_THREAD
+	welt->await_private_car_threads();
 #endif
 	this->desc = desc;
 	this->dir = dir;

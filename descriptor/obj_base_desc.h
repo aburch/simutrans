@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef __OBJ_BASE_DESC_H
 #define __OBJ_BASE_DESC_H
 
@@ -89,7 +94,7 @@ protected:
 
 public:
 	obj_desc_transport_related_t() : obj_desc_timelined_t(),
-		base_maintenance(0), base_cost(0), 
+		base_maintenance(0), base_cost(0),
                maintenance(0), price(0), axle_load(9999), wtyp(255), topspeed(0), topspeed_gradient_1(0), topspeed_gradient_2(0),
                base_way_only_cost(0), way_only_cost(0) {}
 

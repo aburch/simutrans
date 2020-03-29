@@ -1,13 +1,8 @@
 /*
- * Copyright (c) 1997 - 2004 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * This class defines all toolbar dialogues, i.e. the part the user will see
- */
 
 #include "../dataobj/environment.h"
 #include "../display/simimg.h"
@@ -97,7 +92,7 @@ void tool_selector_t::rotate_tools(sint16 y_diff)
 {
 	FOR(vector_tpl<tool_selector_t::tool_data_t>, t, tools)
 	{
-		t.tool->rotate90(y_diff); 
+		t.tool->rotate90(y_diff);
 	}
 }
 

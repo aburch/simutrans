@@ -1,10 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
- * Helper for all AIs
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef _AI_H
@@ -96,7 +92,7 @@ public:
 	halthandle_t get_halt( const koord haltpos ) const;
 
 	/**
-	 * Find the first water tile using line algorithm 
+	 * Find the first water tile using line algorithm
 	 * start MUST be on land!
 	 **/
 	koord find_shore(koord start, koord end) const;

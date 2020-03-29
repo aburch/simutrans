@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2004 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 /*
@@ -40,7 +38,7 @@ static bool compare_building_desc(const building_desc_t* a, const building_desc_
 	int diff = strcmp(a->get_name(), b->get_name());
 	return diff < 0;
 }
-		
+
 static bool compare_building_desc_trans(const building_desc_t* a, const building_desc_t* b)
 {
 	int diff = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));

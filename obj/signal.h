@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef obj_signal_h
@@ -65,7 +63,7 @@ public:
 	koord3d get_signalbox() const { return signalbox; }
 
 	bool get_no_junctions_to_next_signal() const { return no_junctions_to_next_signal; }
-	void set_no_junctions_to_next_signal(bool value) { no_junctions_to_next_signal = value; } 
+	void set_no_junctions_to_next_signal(bool value) { no_junctions_to_next_signal = value; }
 
 	bool is_bidirectional() const { return ((dir & ribi_t::east) && (dir & ribi_t::west)) || ((dir & ribi_t::south) && (dir & ribi_t::north)) || ((dir & ribi_t::northeast) && (dir & ribi_t::southwest)) || ((dir & ribi_t::northwest) && (dir & ribi_t::southeast)); }
 

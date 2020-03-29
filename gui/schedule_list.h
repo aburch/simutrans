@@ -1,10 +1,6 @@
 /*
- * Dialog with list of schedules.
- * Contains buttons: edit new remove
- * Resizable.
- *
- * @author Niels Roest
- * @author hsiegeln: major redesign
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef gui_schedule_list_h
@@ -43,7 +39,7 @@ private:
 
 	// vector of convoy info objects that are being displayed
 	vector_tpl<gui_convoiinfo_t *> convoy_infos;
-	
+
 	// vector of stop info objects that are being displayed
 	vector_tpl<halt_list_stats_t *> stop_infos;
 
