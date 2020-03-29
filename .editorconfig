@@ -1,6 +1,7 @@
 # EditorConfig (see https://EditorConfig.org)
 
 [*]
+charset=utf-8
 indent_style=tabs
 insert_final_newline=true
 trim_trailing_whitespace=true
