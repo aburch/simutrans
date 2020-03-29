@@ -155,6 +155,7 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 			}
 		}
 	}
+	chk->input(preservation_year_month);
 }
 
 
