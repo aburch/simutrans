@@ -206,6 +206,8 @@ private:
 	 */
 	uint8 allow_underground;
 
+	uint16 preservation_year_month;
+
 	bool is_type(building_desc_t::btype u) const {
 		return type == u;
 	}
@@ -240,8 +242,11 @@ public:
 	// no construction stage
 	bool no_construction_pit() const { return (flags & FLAG_NO_PIT) != 0; }
 
-	// do not open info for this
+	// never replace this building for renovation (to create historic city centres)
 	bool no_info_window() const { return (flags & FLAG_NO_INFO) != 0; }
+
+	// do not open info for this
+	bool no_renovation_month() const { return preservation_year_month; }
 
 	building_desc_t::btype get_type() const { return type; }
 

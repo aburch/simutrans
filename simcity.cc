@@ -3160,6 +3160,11 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	const building_desc_t *gb_desc = gb->get_tile()->get_desc();
 	const int level = gb_desc->get_level();
 
+	if(  welt->get_timeline_year_month() > gb_desc->no_renovation_month()  ) {
+		// this is a historic city building (as defiend by the pak set author), so do not renovate
+		return;
+	}
+
 	koord k = gb->get_pos().get_2d() - gb->get_tile()->get_offset();
 
 	// Divide unemployed by 4, because it counts towards commercial and industrial,
