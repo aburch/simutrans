@@ -106,6 +106,7 @@
 #include "bauer/goods_manager.h"
 
 #include "descriptor/ground_desc.h"
+#include "descriptor/intro_dates.h"
 #include "descriptor/sound_desc.h"
 #include "descriptor/tunnel_desc.h"
 #include "descriptor/bridge_desc.h"
@@ -5105,6 +5106,12 @@ void karte_t::new_month()
 	last_month ++;
 	if( last_month > 11 ) {
 		last_month = 0;
+
+		if( current_month > DEFAULT_RETIRE_DATE * 12 ) {
+			// switch off timeline after 2999, since everything retires
+			settings->set_use_timeline(0);
+			dbg->warning( "karte_t::new_month()", "Timeline disabled after the year 2999" );
+		}
 	}
 	DBG_MESSAGE("karte_t::new_month()","Month (%d/%d) has started", (last_month%12)+1, last_month/12 );
 
