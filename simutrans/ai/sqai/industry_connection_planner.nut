@@ -7,6 +7,15 @@ openwater <- {
 	function get_name() { return "open water"}
 }
 
+function get_max_convoi_length(wt)
+{
+	switch(wt) {
+		case wt_road:   return settings.get_max_road_convoi_length();
+		case wt_water:  return settings.get_max_ship_convoi_length();
+	}
+	return 4;
+}
+
 class industry_connection_planner_t extends manager_t
 {
 	fsrc = null       // factory_x
@@ -94,9 +103,9 @@ class industry_connection_planner_t extends manager_t
 		// plan convoy prototype
 		local prototyper = prototyper_t(wt, freight)
 
-		prototyper.max_vehicles = 4
 		prototyper.min_speed = 1
 
+		prototyper.max_vehicles = get_max_convoi_length(wt)
 		prototyper.max_length = 1
 		if (wt == wt_water) {
 			prototyper.max_length = 4

@@ -364,9 +364,12 @@ class industry_manager_t extends manager_t
 		}
 
 		// TODO do something smarter
-		prototyper.max_vehicles = 4
 		prototyper.min_speed  = 1
 		prototyper.max_length = 1
+		prototyper.max_vehicles = get_max_convoi_length( cnv.get_waytype() )
+		if (wt == wt_water) {
+			prototyper.max_length = 4
+		}
 
 		local cnv_valuator    = valuator_simple_t()
 		cnv_valuator.wt       = cnv.get_waytype()

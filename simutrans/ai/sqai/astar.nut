@@ -341,7 +341,7 @@ class astar_builder extends astar
 				local err
 				// build
 				if (route[i-1].flag == 0) {
-					err = command_x.build_way(our_player, route[i-1], route[i], way, false)
+					err = command_x.build_road(our_player, route[i-1], route[i], way, false, true)
 					if (err) gui.add_message_at(our_player, "Failed to build road from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 				}
 				else if (route[i-1].flag == 1) {

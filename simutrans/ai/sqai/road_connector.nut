@@ -39,7 +39,7 @@ class road_connector_t extends manager_t
 					c_start = ::finder.find_station_place(fsrc, fdest)
 				}
 				if (c_start  &&  c_end == null) {
-					c_end   = ::finder.find_station_place(fdest, c_start, !finalize)
+					c_end   = ::finder.find_station_place(fdest, c_start, finalize)
 				}
 
 				if (c_start.len()>0  &&  c_end.len()>0) {
