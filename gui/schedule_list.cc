@@ -132,6 +132,9 @@ static uint8 selected_tab[MAX_PLAYER_COUNT] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 /// selected line per tab (static)
 linehandle_t schedule_list_gui_t::selected_line[MAX_PLAYER_COUNT][simline_t::MAX_LINE_TYPE];
 
+// selected convoy list display mode
+static uint8 selected_cnvlist_mode[MAX_PLAYER_COUNT] = {0};
+
 schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	gui_frame_t( translator::translate("Line Management"), player_),
 	player(player_),
@@ -285,7 +288,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	livery_selector.add_listener(this);
 	add_component(&livery_selector);
 
-	bt_mode_convois.init(button_t::roundbox, cnvlist_mode_button_texts[0], scr_coord(D_MARGIN_LEFT, 2), scr_size(D_BUTTON_WIDTH+15, D_BUTTON_HEIGHT));
+	bt_mode_convois.init(button_t::roundbox, cnvlist_mode_button_texts[selected_cnvlist_mode[player->get_player_nr()]], scr_coord(D_MARGIN_LEFT, 2), scr_size(D_BUTTON_WIDTH+15, D_BUTTON_HEIGHT));
 	bt_mode_convois.add_listener(this);
 	cont_convoys.add_component(&bt_mode_convois);
 	info_tabs.add_tab(&cont_convoys, tab_name);
@@ -436,8 +439,8 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		}
 	}
 	else if (comp == &bt_mode_convois) {
-		cnv_list_display_mode = (cnv_list_display_mode + 1) % gui_convoiinfo_t::DISPLAY_MODES;
-		bt_mode_convois.set_text(cnvlist_mode_button_texts[cnv_list_display_mode]);
+		selected_cnvlist_mode[player->get_player_nr()] = (selected_cnvlist_mode[player->get_player_nr()] + 1) % gui_convoiinfo_t::DISPLAY_MODES;
+		bt_mode_convois.set_text(cnvlist_mode_button_texts[selected_cnvlist_mode[player->get_player_nr()]]);
 		update_lineinfo(line);
 	}
 	else if(comp == &livery_selector)
@@ -818,7 +821,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		convoy_infos.resize(icnv);
 		int ypos = 0;
 		int cinfo_height;
-		switch (cnv_list_display_mode) {
+		switch (selected_cnvlist_mode[player->get_player_nr()]) {
 			case gui_convoiinfo_t::cnvlist_formation:
 				cinfo_height = 55;
 				break;
@@ -834,7 +837,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			gui_convoiinfo_t* const cinfo = new gui_convoiinfo_t(new_line->get_convoy(i), false);
 			cinfo->set_pos(scr_coord(0, ypos));
 			cinfo->set_size(scr_size(600, cinfo_height));
-			cinfo->set_mode(cnv_list_display_mode);
+			cinfo->set_mode(selected_cnvlist_mode[player->get_player_nr()]);
 			convoy_infos.append(cinfo);
 			cont.add_component(cinfo);
 			ypos += cinfo_height;

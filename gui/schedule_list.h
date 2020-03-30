@@ -84,7 +84,6 @@ private:
 	vector_tpl<uint16> livery_scheme_indices;
 
 	cbuffer_t tab_name;
-	uint8 cnv_list_display_mode = gui_convoiinfo_t::cnvlist_normal;
 
 public:
 	/// last selected line per tab
