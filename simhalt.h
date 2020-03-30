@@ -114,6 +114,10 @@ private:
 	halthandle_t self;
 
 public:
+	/**
+	 * List of convois currently loading at this station.
+	 * May contain invalid handles!
+	 */
 	const slist_tpl<convoihandle_t> &get_loading_convois() const { return loading_here; }
 
 	// add convoi to loading queue

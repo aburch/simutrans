@@ -712,6 +712,9 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 
 	// iterate over all convoys stopping here
 	FOR(  slist_tpl<convoihandle_t>, cnv, halt->get_loading_convois() ) {
+		if( !cnv.is_bound()) {
+			continue;
+		}
 		halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_owner(),halt);
 		if(  next_halt.is_bound()  ) {
 			dest_info_t next( next_halt, 0, cnv );
