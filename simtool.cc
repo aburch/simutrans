@@ -2400,11 +2400,15 @@ void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 	}
 
 	bauigel.init_builder(bautyp, desc);
-	if(  is_ctrl_pressed()  ) {
+	if(  is_ctrl_pressed()  &&  !is_shift_pressed()) {
 		bauigel.set_keep_existing_ways( false );
 	}
 	else {
 		bauigel.set_keep_existing_faster_ways( true );
+	}
+	// if shift pressed, keep city roads
+	if (is_shift_pressed()  &&  desc->get_styp() == type_flat  &&  desc->get_wtyp() == road_wt) {
+		bauigel.set_keep_city_roads(true);
 	}
 
 	koord3d my_end = end;
@@ -2444,6 +2448,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 {
 	way_builder_t bauigel(player);
 	calc_route( bauigel, start, end );
+	bool keep_city_roads = is_shift_pressed()  &&  desc->get_styp() == type_flat  &&  desc->get_wtyp() == road_wt;
 
 	uint8 offset = (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt) ? welt->get_settings().get_way_height_clearance() : 0;
 
@@ -2465,6 +2470,11 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 				continue;
 			}
 			ribi_t::ribi zeige = gr->get_weg_ribi_unmasked(desc->get_wtyp()) | bauigel.get_route().get_ribi( j );
+
+			// do not replace city roads if requested
+			if (keep_city_roads  &&  gr->get_weg(road_wt) && gr->get_weg(road_wt)->hat_gehweg()) {
+				continue;
+			}
 
 			zeiger_t *way = new zeiger_t(pos, player);
 			if(gr->get_weg_hang()) {

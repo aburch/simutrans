@@ -13,6 +13,7 @@
 	CHG: block reserver tool will also start a route search of any convoi on its tile (no matter the owner!)
 	ADD: timeline switches off after 2999 to prevent retiring of everything
 	ADD: new parameter for buildings "preservation_year" and "preservation_month" after that the building is excluded from renovation during town growth
+	ADD: if shift is pressed during road building then city roads or faster ways will not be overbuilt
 
 Release of 121.0 (r8870 on 1-Dec-2019):
 	ADD: Map number is shown in the enlarge map window.
