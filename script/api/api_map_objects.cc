@@ -17,6 +17,7 @@
 #include "../../simworld.h"
 #include "../../boden/grund.h"
 #include "../../dataobj/scenario.h"
+#include "../../descriptor/ground_desc.h"
 #include "../../obj/baum.h"
 #include "../../obj/gebaeude.h"
 #include "../../obj/field.h"
@@ -115,11 +116,17 @@ SQInteger exp_obj_pos_constructor(HSQUIRRELVM vm) // parameters: sint16 x, sint1
 	// set coordinates
 	set_slot(vm, "x", x, 1);
 	set_slot(vm, "y", y, 1);
-	set_slot(vm, "z", z, 1);
 	koord pos(x,y);
 	coordinate_transform_t::koord_sq2w(pos);
+	// find tile - some objects have larger z-coordinate (e.g., on foundations)
+	grund_t *gr = welt->lookup(koord3d(pos, z));
+	for(uint8 i=1, end = ground_desc_t::double_grounds ? 2 : 1; gr == NULL  &&  i<=end; i++) {
+		gr = welt->lookup(koord3d(pos, z-i));
+	}
+	// correct z-coordinate
+	set_slot(vm, "z", gr->get_pos().z, 1);
 	// find object and set instance up
-	if (grund_t *gr = welt->lookup(koord3d(pos, z))) {
+	if (gr) {
 		obj_t::typ type = (obj_t::typ)param<uint8>::get(vm, 5);
 		obj_t *obj = NULL;
 		if (type == obj_t::roadsign  ||  type == obj_t::signal) {
