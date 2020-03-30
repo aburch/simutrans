@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2009..2011 Bernd Gabriel
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/*
  * convoy_t: common collection of properties of a convoi_t and a couple of vehicles which are going to become a convoy_t.
  * While convoi_t is involved in game play, convoy_t is the entity that physically models the convoy.
  */
@@ -470,7 +470,14 @@ void convoy_t::calc_move(const settings_t &settings, long delta_t, const weight_
 				}
 			}
 			dx = x;
-			delta_s -= dt_s; // another time slice passed
+			if (delta_s == dt_s) {
+				// Fix strange bug (macOS, clang LLVM v9.0.0): when compiled without -fno-inline (DEBUG <= 1),
+				// and when delta_s == dt_s, delta_s - dt_s equals some positive number instead of zero, which
+				// causes the while loop & this function to run forever.
+				delta_s = float32e8_t::zero;
+			} else {
+				delta_s -= dt_s; // another time slice passed
+			}
 		}
 		akt_v = v;
 		akt_speed = v_to_speed(v); // akt_speed in simutrans vehicle speed, v in m/s

@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
- * Base class for Way in Simutrans.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/* Base class for Ways in Simutrans.
  *
  * 14.06.00 derived from simgrund.cc
  * Revised January 2001
@@ -357,6 +356,7 @@ void weg_t::init()
 	remaining_wear_capacity = 100000000;
 	replacement_way = NULL;
 #ifdef MULTI_THREAD
+	pthread_mutexattr_init(&mutex_attributes);
 	pthread_mutex_init(&private_car_store_route_mutex, &mutex_attributes);
 #endif
 }
@@ -366,7 +366,9 @@ weg_t::~weg_t()
 {
 	if (!welt->is_destroying())
 	{
+#ifdef MULTI_THREAD
 		welt->await_private_car_threads();
+#endif
 		delete_all_routes_from_here();
 		
 		alle_wege.remove(this);
@@ -1880,6 +1882,7 @@ void weg_t::delete_route_to(koord destination, bool reading_set)
 	const uint32 routes_index = reading_set ? private_car_routes_currently_reading_element : get_private_car_routes_currently_writing_element();
 
 	koord3d next_tile = get_pos();
+	koord3d previous_next_tile = next_tile;
 	while (next_tile != koord3d::invalid && next_tile != koord3d(0, 0, 0))
 	{
 		const grund_t* gr = welt->lookup(next_tile);
@@ -1892,6 +1895,11 @@ void weg_t::delete_route_to(koord destination, bool reading_set)
 				w->remove_private_car_route(destination, reading_set); 
 			}
 		}
+		if (previous_next_tile == next_tile)
+		{
+			break;
+		}
+		previous_next_tile = next_tile;
 	}
 }
 

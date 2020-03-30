@@ -1,4 +1,7 @@
-#ifndef SDL
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #include "macros.h"
 #include "simmem.h"
@@ -191,5 +194,5 @@ bool dr_screenshot_png(char const* filename, int w, int h, int maxwidth, unsigne
 
 	return ok;
 }
-#endif
+//#endif
 

@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2010 Bernd Gabriel
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/*
  * way_constraints_t: a hood for James Petts' permissive and prohibitive way constraints.
  */
 

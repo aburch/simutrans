@@ -1,5 +1,10 @@
-#ifndef schedule_entry_h
-#define schedule_entry_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef schedule_entry_t_h
+#define schedule_entry_t_h
 
 #include "koord3d.h"
 

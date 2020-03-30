@@ -1,5 +1,10 @@
-#ifndef _simmover_h
-#define _simmover_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SIMROADTRAFFIC_H
+#define SIMROADTRAFFIC_H
 
 /**
  * Moving objects for Simutrans.

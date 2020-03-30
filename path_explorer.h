@@ -1,9 +1,7 @@
 /*
- * Copyright (c) 2009 : Knightly
- *
- * A centralised, steppable path searching system using Floyd-Warshall Algorithm
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
-
 
 #ifndef path_explorer_h
 #define path_explorer_h
@@ -22,6 +20,9 @@
 #include "tpl/quickstone_hashtable_tpl.h"
 
 
+/*
+ * A centralised, steppable path searching system using Floyd-Warshall Algorithm
+ */
 class path_explorer_t
 {
 public:

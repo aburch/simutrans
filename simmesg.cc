@@ -1,11 +1,7 @@
 /*
-* Manages all gameplay-related messages of the games
-*
-* Copyright (c) 2005 Markus Pristovsek
-*
-* This file is part of the Simutrans project under the artistic license.
-* (see license.txt)
-*/
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #include "macros.h"
 #include "simdebug.h"

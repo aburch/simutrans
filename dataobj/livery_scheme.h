@@ -1,10 +1,10 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef dataobj_livery_scheme_h
 #define dataobj_livery_scheme_h
-/*
-  * @author: jamespetts, April 2011
-  * This file is part of the Simutrans project under the artistic licence.
-  * (see licence.txt)
-  */
 
 #include <string>
 
