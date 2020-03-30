@@ -1882,6 +1882,7 @@ void weg_t::delete_route_to(koord destination, bool reading_set)
 	const uint32 routes_index = reading_set ? private_car_routes_currently_reading_element : get_private_car_routes_currently_writing_element();
 
 	koord3d next_tile = get_pos();
+	koord3d previous_next_tile = next_tile;
 	while (next_tile != koord3d::invalid && next_tile != koord3d(0, 0, 0))
 	{
 		const grund_t* gr = welt->lookup(next_tile);
@@ -1894,6 +1895,11 @@ void weg_t::delete_route_to(koord destination, bool reading_set)
 				w->remove_private_car_route(destination, reading_set); 
 			}
 		}
+		if (previous_next_tile == next_tile)
+		{
+			break;
+		}
+		previous_next_tile = next_tile;
 	}
 }
 
