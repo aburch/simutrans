@@ -23,6 +23,11 @@ int wasser_t::stage = 0;
 bool wasser_t::change_stage = false;
 
 
+bool wasser_t::is_lake()
+{
+  return (get_hoehe() > welt->get_groundwater());
+}
+
 
 // for animated waves
 void wasser_t::prepare_for_refresh()
