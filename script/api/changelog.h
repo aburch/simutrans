@@ -9,6 +9,7 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added @ref command_x::build_road
  * - Added fields: @ref field_x
  * - Added powerlines: @ref powerline_x, @ref transformer_x, @ref factory_x::get_transformer, @ref factory_x::is_transformer_connected
  *

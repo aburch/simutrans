@@ -135,6 +135,7 @@ namespace script_api {
 	 *                      as if it would be a member function of the class instance
 	 *                      provided as first argument
 	 * @param staticmethod if true then register as static method
+	 * @param number_defaults number of freevariables that act as default parameters and can be set by script
 	 */
 	template<typename F, class V>
 	void register_method_fv(HSQUIRRELVM vm, F funcptr, const char* name, V const& freevariables, bool discard_first = false, bool staticmethod = false)
@@ -731,6 +732,29 @@ namespace script_api {
 	};
 
 	// 6 parameters
+	template<typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
+	struct embed_call_t<R (*)(A1, A2, A3, A4, A5, A6)> {
+		static SQInteger call_function(HSQUIRRELVM vm, R (*func)(A1, A2, A3, A4, A5, A6), bool discard_first)
+		{
+			A1 a1 = param<A1>::get(vm, 2-discard_first);
+			if (discard_first  &&  param_chk_t<A1>::is_null(a1)) {
+				return -1;
+			}
+			return param<R>::push(vm, (*func)(a1,
+											  param<A2>::get(vm, 3-discard_first),
+											  param<A3>::get(vm, 4-discard_first),
+											  param<A4>::get(vm, 5-discard_first),
+											  param<A5>::get(vm, 6-discard_first),
+											  param<A6>::get(vm, 7-discard_first)
+			));
+			return 0;
+		}
+
+		typedef R              sig_return;  // return type
+		typedef void_t         sig_class;   // type of class
+		typedef A1             sig_first;   // type of first parameter
+		typedef void(*sig_reduced)(A2,A3,A4,A5,A6);  // signature of function with without return type, class, and first parameter
+	};
 	template<class C, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
 	struct embed_call_t<void (C::*)(A1, A2, A3, A4, A5, A6)> {
 		static SQInteger call_function(HSQUIRRELVM vm, void (C::*func)(A1, A2, A3, A4, A5, A6), bool)
