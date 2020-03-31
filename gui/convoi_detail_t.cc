@@ -388,7 +388,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			// convoy applied livery scheme
 			if (cnv->get_livery_scheme_index()) {
 				buf.clear();
-				buf.printf("Applied livery scheme: %s", translator::translate(welt->get_settings().get_livery_scheme(cnv->get_livery_scheme_index())->get_name()));
+				buf.printf(translator::translate("Applied livery scheme: %s"), translator::translate(welt->get_settings().get_livery_scheme(cnv->get_livery_scheme_index())->get_name()));
 				display_proportional_clip(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, welt->get_settings().get_livery_scheme(cnv->get_livery_scheme_index())->is_available(month_now) ? SYSCOL_TEXT : COL_OBSOLETE, true);
 				total_height += LINESPACE;
 			}
@@ -1010,7 +1010,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 		// convoy applied livery scheme
 		if (cnv->get_livery_scheme_index()) {
 			buf.clear();
-			buf.printf("Applied livery scheme: %s", translator::translate(welt->get_settings().get_livery_scheme(cnv->get_livery_scheme_index())->get_name()));
+			buf.printf(translator::translate("Applied livery scheme: %s"), translator::translate(welt->get_settings().get_livery_scheme(cnv->get_livery_scheme_index())->get_name()));
 			display_proportional_clip(pos.x + offset.x + extra_w, pos.y + offset.y + total_height, buf, ALIGN_LEFT, welt->get_settings().get_livery_scheme(cnv->get_livery_scheme_index())->is_available(month_now) ? SYSCOL_TEXT : COL_OBSOLETE, true);
 			total_height += LINESPACE;
 		}
