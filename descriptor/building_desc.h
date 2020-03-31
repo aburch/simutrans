@@ -247,7 +247,7 @@ public:
 	bool no_info_window() const { return (flags & FLAG_NO_INFO) != 0; }
 
 	// never replace this building for renovation (to create historic city centres)
-	bool no_renovation_month() const { return preservation_year_month; }
+	uint16 no_renovation_month() const { return preservation_year_month; }
 
 	building_desc_t::btype get_type() const { return type; }
 
