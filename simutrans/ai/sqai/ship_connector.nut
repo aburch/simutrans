@@ -32,6 +32,7 @@ class ship_connector_t extends manager_t
 
 	function work()
 	{
+		planned_way = null
 		// TODO check if child does the right thing
 		local pl = our_player
 		local tic = get_ops_total();
