@@ -200,7 +200,7 @@ class industry_connection_planner_t extends manager_t
 		local cn = null
 		switch(wt) {
 			case wt_road:  cn = road_connector_t(); break
-			case wt_water: cn = ship_connector_t(); break
+			case wt_water: cn = ship_connector_t(); planned_way = null; break
 		}
 		cn.fsrc = fsrc
 		cn.fdest = fdest

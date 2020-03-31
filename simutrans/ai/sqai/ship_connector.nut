@@ -349,6 +349,30 @@ class ship_connector_t extends manager_t
 		local d = res.depot
 		c_depot = tile_x(d.x, d.y, d.z)
 	}
+
+	function repair_keys()
+	{
+		local cht = {}
+		foreach(key,val in c_harbour_tiles) {
+			local rkey = repair_key(key)
+			cht[rkey] <- val
+		}
+		c_harbour_tiles = cht
+	}
+
+	static function repair_key(key)
+	{
+		// replace ``dd:dd:dd'' by ``coord3d_dd_dd_dd''
+		local a = split(key, ":-")
+		if (a.len() == 1) {
+			return key
+		}
+		local rkey = "coord3d_" + a[0]
+		for(local i=1; i<a.len(); i++) {
+			rkey += "_" + a[i]
+		}
+		return rkey
+	}
 }
 
 

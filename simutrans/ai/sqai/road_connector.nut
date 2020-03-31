@@ -308,8 +308,25 @@ class depot_pathfinder extends astar_builder
 		if (t.is_empty()  &&  t.get_slope()==0) {
 			return 0
 		}
+		local depot = t.find_object(mo_depot_road)
+		if (depot  &&  depot.get_owner().nr == our_player_nr) {
+			return 0
+		}
 		return 10
 	}
+	function add_to_open(c, weight)
+	{
+		if (c.dist == 0) {
+			// test for depot
+			local t = tile_x(c.x, c.y, c.z)
+			if (t.is_empty()) {
+				// depot not existing, we must build, increase weight
+				weight += 25 * cost_straight
+			}
+		}
+		base.add_to_open(c, weight)
+	}
+
 	function search_route(start)
 	{
 		prepare_search()
