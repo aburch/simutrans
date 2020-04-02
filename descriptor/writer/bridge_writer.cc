@@ -150,11 +150,11 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 		//Compress values into a single byte using bitwise OR.
 		if(tmp_permissive < 8)
 		{
-			permissive_way_constraints = (tmp_permissive > 0) ? permissive_way_constraints | (uint8)pow(2, (double)tmp_permissive) : permissive_way_constraints | 1;
+			permissive_way_constraints = (tmp_permissive > 0) ? permissive_way_constraints | (uint8)std::pow(2, (double)tmp_permissive) : permissive_way_constraints | 1;
 		}
 		if(tmp_prohibitive < 8)
 		{
-			prohibitive_way_constraints = (tmp_prohibitive > 0) ? prohibitive_way_constraints | (uint8)pow(2, (double)tmp_prohibitive) : prohibitive_way_constraints | 1;
+			prohibitive_way_constraints = (tmp_prohibitive > 0) ? prohibitive_way_constraints | (uint8)std::pow(2, (double)tmp_prohibitive) : prohibitive_way_constraints | 1;
 		}
 	}
 
