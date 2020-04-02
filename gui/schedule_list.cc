@@ -106,13 +106,6 @@ static const char * line_alert_helptexts[5] =
   "line_has_obsolete_vehicles_with_upgrades"
 };
 
-static const char * cnvlist_mode_button_texts[gui_convoiinfo_t::DISPLAY_MODES] =
-{
-  "sl_btn_general",
-  "sl_btn_payload",
-  "sl_btn_formation"
-};
-
 
 enum sort_modes_t { SORT_BY_NAME=0, SORT_BY_ID, SORT_BY_PROFIT, SORT_BY_TRANSPORTED, SORT_BY_CONVOIS, SORT_BY_DISTANCE, MAX_SORT_MODES };
 
@@ -284,7 +277,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	livery_selector.add_listener(this);
 	add_component(&livery_selector);
 
-	bt_mode_convois.init(button_t::roundbox, cnvlist_mode_button_texts[selected_cnvlist_mode[player->get_player_nr()]], scr_coord(D_MARGIN_LEFT, 2), scr_size(D_BUTTON_WIDTH+15, D_BUTTON_HEIGHT));
+	bt_mode_convois.init(button_t::roundbox, gui_convoiinfo_t::cnvlist_mode_button_texts[selected_cnvlist_mode[player->get_player_nr()]], scr_coord(D_MARGIN_LEFT, 2), scr_size(D_BUTTON_WIDTH+15, D_BUTTON_HEIGHT));
 	bt_mode_convois.add_listener(this);
 	cont_convoys.add_component(&bt_mode_convois);
 	info_tabs.add_tab(&cont_convoys, tab_name);
@@ -436,7 +429,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	}
 	else if (comp == &bt_mode_convois) {
 		selected_cnvlist_mode[player->get_player_nr()] = (selected_cnvlist_mode[player->get_player_nr()] + 1) % gui_convoiinfo_t::DISPLAY_MODES;
-		bt_mode_convois.set_text(cnvlist_mode_button_texts[selected_cnvlist_mode[player->get_player_nr()]]);
+		bt_mode_convois.set_text(gui_convoiinfo_t::cnvlist_mode_button_texts[selected_cnvlist_mode[player->get_player_nr()]]);
 		update_lineinfo(line);
 	}
 	else if(comp == &livery_selector)

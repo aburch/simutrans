@@ -57,7 +57,9 @@ public:
 
 	void set_mode(uint8 mode);
 
-	enum display_mode_t { cnvlist_normal = 0, cnvlist_payload, cnvlist_formation, DISPLAY_MODES };
+	enum cl_display_mode_t { cnvlist_normal = 0, cnvlist_payload, cnvlist_formation, DISPLAY_MODES };
+
+	static const char *cnvlist_mode_button_texts[DISPLAY_MODES];
 };
 
 

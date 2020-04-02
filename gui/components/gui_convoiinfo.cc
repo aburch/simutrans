@@ -24,6 +24,12 @@
 #include "../gui_frame.h"
 
 
+const char *gui_convoiinfo_t::cnvlist_mode_button_texts[gui_convoiinfo_t::DISPLAY_MODES] = {
+	"cl_btn_general",
+	"cl_btn_payload",
+	"cl_btn_formation"
+};
+
 
 gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, bool show_line_name):
 	formation(cnv),

@@ -3687,11 +3687,11 @@ Starting acceleration:
 (満載時 %.*f-%.*ft)
 Sell for %s
 %sで売却
-sl_btn_general
+cl_btn_general
 編成外観・積載率
-sl_btn_payload
+cl_btn_payload
 カテゴリ別積載状況
-sl_btn_formation
+cl_btn_formation
 編成図
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
