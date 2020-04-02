@@ -205,21 +205,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	// nothing in lists
 	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y, karte_t::marker_index);
 
-	// there are several variant for maintaining the open list
-	// however, only binary heap and HOT queue with binary heap are worth considering
-#if defined(tpl_HOT_queue_tpl_h)
-    // static
-	HOT_queue_tpl <ANode *> queue;
-#elif defined(tpl_binary_heap_tpl_h)
-    //static
 	binary_heap_tpl <ANode *> queue;
-#elif defined(tpl_sorted_heap_tpl_h)
-    //static
-	sorted_heap_tpl <ANode *> queue;
-#else
-    //static
-	prioqueue_tpl <ANode *> queue;
-#endif
 
 	// nothing in lists
 	queue.clear();
@@ -671,21 +657,7 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_size());
 	}
 
-	// there are several variant for maintaining the open list
-	// however, only binary heap and HOT queue with binary heap are worth considering
-#if defined(tpl_HOT_queue_tpl_h)
-    // static
-	HOT_queue_tpl <ANode *> queue;
-#elif defined(tpl_binary_heap_tpl_h)
-    //static
 	binary_heap_tpl <ANode *> queue;
-#elif defined(tpl_sorted_heap_tpl_h)
-    //static
-	sorted_heap_tpl <ANode *> queue;
-#else
-    //static
-	prioqueue_tpl <ANode *> queue;
-#endif
 
 	ANode *nodes;
 	uint8 ni = GET_NODES(&nodes);
