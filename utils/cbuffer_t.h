@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef cbuffer_t_h
-#define cbuffer_t_h
+#ifndef UTILS_CBUFFER_T_H
+#define UTILS_CBUFFER_T_H
+
 
 #include <stdarg.h>
 #include <stdlib.h>

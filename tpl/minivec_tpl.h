@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef TPL_MINIVEC_H
-#define TPL_MINIVEC_H
+#ifndef TPL_MINIVEC_TPL_H
+#define TPL_MINIVEC_TPL_H
+
 
 #include "../simdebug.h"
 #include "../simtypes.h"

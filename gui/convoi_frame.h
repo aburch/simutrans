@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __convoi_frame_h
-#define __convoi_frame_h
+#ifndef GUI_CONVOI_FRAME_H
+#define GUI_CONVOI_FRAME_H
+
 
 #include "convoi_filter_frame.h"
 #include "gui_frame.h"

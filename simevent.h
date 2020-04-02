@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simevent_h
-#define simevent_h
+#ifndef SIMEVENT_H
+#define SIMEVENT_H
+
 
 /* Messageverarbeitung */
 

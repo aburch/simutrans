@@ -6,6 +6,7 @@
 #ifndef UNICODE_H
 #define UNICODE_H
 
+
 #include <stddef.h>
 #include "simtypes.h"
 

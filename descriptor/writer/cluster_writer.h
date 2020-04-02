@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef CLUSTER_WRITER_H
-#define CLUSTER_WRITER_H
+#ifndef DESCRIPTOR_WRITER_CLUSTER_WRITER_H
+#define DESCRIPTOR_WRITER_CLUSTER_WRITER_H
+
 
 #include <stdio.h>
 #include "obj_writer.h"

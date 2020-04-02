@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_baum_edit_h
-#define gui_baum_edit_h
+#ifndef GUI_BAUM_EDIT_H
+#define GUI_BAUM_EDIT_H
+
 
 #include "extend_edit.h"
 

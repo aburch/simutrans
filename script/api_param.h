@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _API_PARAM_H_
-#define _API_PARAM_H_
+#ifndef SCRIPT_API_PARAM_H
+#define SCRIPT_API_PARAM_H
+
 
 /** @file api_param.h templates for transfer of function call parameters */
 

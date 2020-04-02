@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_components_gui_speedbar_h
-#define gui_components_gui_speedbar_h
+#ifndef GUI_COMPONENTS_GUI_SPEEDBAR_H
+#define GUI_COMPONENTS_GUI_SPEEDBAR_H
+
 
 #include "gui_component.h"
 #include "../../tpl/slist_tpl.h"

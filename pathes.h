@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __PATHES_H
-#define __PATHES_H
+#ifndef PATHES_H
+#define PATHES_H
+
 
 /**
  * This header defines all paths used be simutrans relative to the game directory.

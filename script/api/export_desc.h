@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _EXPORT_DESC_H__
-#define _EXPORT_DESC_H__
+#ifndef SCRIPT_API_EXPORT_DESC_H
+#define SCRIPT_API_EXPORT_DESC_H
+
 
 #include "../../squirrel/squirrel.h"
 

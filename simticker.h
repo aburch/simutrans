@@ -6,6 +6,7 @@
 #ifndef SIMTICKER_H
 #define SIMTICKER_H
 
+
 #include "simcolor.h"
 
 // ticker height

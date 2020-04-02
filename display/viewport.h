@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simviewport_h
-#define simviewport_h
+#ifndef DISPLAY_VIEWPORT_H
+#define DISPLAY_VIEWPORT_H
+
 
 #include "../simtypes.h"
 #include "scr_coord.h"

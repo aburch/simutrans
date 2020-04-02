@@ -8,8 +8,9 @@
  * adapted from the pointer hashtable by jamespetts
  */
 
-#ifndef quickstone_hashtable_tpl_h
-#define quickstone_hashtable_tpl_h
+#ifndef TPL_QUICKSTONE_HASHTABLE_TPL_H
+#define TPL_QUICKSTONE_HASHTABLE_TPL_H
+
 
 #include "inthashtable_tpl.h"
 #include "hashtable_tpl.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simbau_h
-#define simbau_h
+#ifndef BAUER_WEGBAUER_H
+#define BAUER_WEGBAUER_H
+
 
 #include "../boden/wege/weg.h"
 #include "../tpl/vector_tpl.h"

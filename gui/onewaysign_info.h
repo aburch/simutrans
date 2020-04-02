@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef onewaysign_info_t_h
-#define onewaysign_info_t_h
+#ifndef GUI_ONEWAYSIGN_INFO_H
+#define GUI_ONEWAYSIGN_INFO_H
+
 
 #include "../simconst.h"
 #include "obj_info.h"

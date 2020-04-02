@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __OBJVERSION_H
-#define __OBJVERSION_H
+#ifndef DESCRIPTOR_OBJVERSION_H
+#define DESCRIPTOR_OBJVERSION_H
+
 
 #include "../simtypes.h"
 

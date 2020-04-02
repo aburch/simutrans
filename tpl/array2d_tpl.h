@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef tpl_array2d_tpl_h
-#define tpl_array2d_tpl_h
+#ifndef TPL_ARRAY2D_TPL_H
+#define TPL_ARRAY2D_TPL_H
+
 
 #include <string.h> //for memcpy
 #include "../dataobj/koord.h"

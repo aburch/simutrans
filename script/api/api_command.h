@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _API_COMMAND_H_
-#define _API_COMMAND_H_
+#ifndef SCRIPT_API_API_COMMAND_H
+#define SCRIPT_API_API_COMMAND_H
+
 
 #include "../api_param.h"
 #include "../../dataobj/koord3d.h"

@@ -7,8 +7,9 @@
  * all defines that can change the compiling
  */
 
-#ifndef simconst_h
-#define simconst_h
+#ifndef SIMCONST_H
+#define SIMCONST_H
+
 
 // number of player
 #define MAX_PLAYER_COUNT (16)

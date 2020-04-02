@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef boden_wege_narrowgauge_h
-#define boden_wege_narrowgauge_h
+#ifndef BODEN_WEGE_NARROWGAUGE_H
+#define BODEN_WEGE_NARROWGAUGE_H
 
 
 #include "schiene.h"

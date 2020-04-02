@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef boden_wege_runway_h
-#define boden_wege_runway_h
+#ifndef BODEN_WEGE_RUNWAY_H
+#define BODEN_WEGE_RUNWAY_H
 
 
 #include "schiene.h"

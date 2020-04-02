@@ -8,8 +8,9 @@
  * Hj. Malthaner, 13.07.98
  */
 
-#ifndef _simimg_h
-#define _simimg_h
+#ifndef DISPLAY_SIMIMG_H
+#define DISPLAY_SIMIMG_H
+
 
 #include "../simtypes.h"
 

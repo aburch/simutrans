@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __tabfile_h
-#define __tabfile_h
+#ifndef DATAOBJ_TABFILE_H
+#define DATAOBJ_TABFILE_H
+
 
 #include <stdio.h>
 

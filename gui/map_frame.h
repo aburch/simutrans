@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_map_frame_h
-#define gui_map_frame_h
+#ifndef GUI_MAP_FRAME_H
+#define GUI_MAP_FRAME_H
+
 
 #include "gui_frame.h"
 #include "../gui/simwin.h"

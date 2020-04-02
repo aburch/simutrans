@@ -11,8 +11,8 @@
  * @date 03-Mar-01
  */
 
-#ifndef gui_container_h
-#define gui_container_h
+#ifndef GUI_COMPONENTS_GUI_CONTAINER_H
+#define GUI_COMPONENTS_GUI_CONTAINER_H
 
 
 #include "../../simdebug.h"

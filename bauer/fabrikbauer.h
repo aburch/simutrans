@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef fabrikbauer_t_h
-#define fabrikbauer_t_h
+#ifndef BAUER_FABRIKBAUER_H
+#define BAUER_FABRIKBAUER_H
+
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"

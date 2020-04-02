@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simview_h
-#define simview_h
+#ifndef DISPLAY_SIMVIEW_H
+#define DISPLAY_SIMVIEW_H
+
 
 class karte_t;
 class viewport_t;

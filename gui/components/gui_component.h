@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef ifc_gui_component_h
-#define ifc_gui_component_h
+#ifndef GUI_COMPONENTS_GUI_COMPONENT_H
+#define GUI_COMPONENTS_GUI_COMPONENT_H
+
 
 #include "../../display/scr_coord.h"
 #include "../../simevent.h"

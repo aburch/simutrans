@@ -2,8 +2,9 @@
  * a template class which implements a hashtable with 2d koord keys
  */
 
-#ifndef koord_pair_hashtable_tpl_h
-#define koord_pair_hashtable_tpl_h
+#ifndef TPL_KOORD_PAIR_HASHTABLE_TPL_H
+#define TPL_KOORD_PAIR_HASHTABLE_TPL_H
+
 
 #include "hashtable_tpl.h"
 #include "../dataobj/koord.h"

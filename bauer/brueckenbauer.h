@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __simbridge_h
-#define __simbridge_h
+#ifndef BAUER_BRUECKENBAUER_H
+#define BAUER_BRUECKENBAUER_H
+
 
 #include "../simtypes.h"
 #include "../dataobj/koord.h"

@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_password_frame_h
-#define gui_password_frame_h
+#ifndef GUI_PASSWORD_FRAME_H
+#define GUI_PASSWORD_FRAME_H
 
 
 #include "components/action_listener.h"

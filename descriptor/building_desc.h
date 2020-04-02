@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __HAUS_BESCH_H
-#define __HAUS_BESCH_H
+#ifndef DESCRIPTOR_BUILDING_DESC_H
+#define DESCRIPTOR_BUILDING_DESC_H
+
 
 #include <assert.h>
 #include "image_array.h"

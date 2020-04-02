@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef PLAINSTRING_H
-#define PLAINSTRING_H
+#ifndef UTILS_PLAINSTRING_H
+#define UTILS_PLAINSTRING_H
+
 
 #include <cstring>
 

@@ -57,8 +57,9 @@ a = (Fm - Frs - cf * v^2) / m
 *******************************************************************************/
 #pragma once
 
-#ifndef convoy_h
-#define convoy_h
+#ifndef CONVOY_H
+#define CONVOY_H
+
 
 #include <limits>
 #include <math.h>

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __BILDLISTE2D_BESCH_H
-#define __BILDLISTE2D_BESCH_H
+#ifndef DESCRIPTOR_IMAGE_ARRAY_H
+#define DESCRIPTOR_IMAGE_ARRAY_H
+
 
 #include "image_list.h"
 

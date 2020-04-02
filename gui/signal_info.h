@@ -7,8 +7,9 @@
  * signal infowindow buttons //Ves
  */
 
-#ifndef signal_info_t_h
-#define signal_info_t_h
+#ifndef GUI_SIGNAL_INFO_H
+#define GUI_SIGNAL_INFO_H
+
 
 #include "obj_info.h"
 #include "../obj/signal.h"

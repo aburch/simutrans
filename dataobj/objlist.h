@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef objlist_h
-#define objlist_h
+#ifndef DATAOBJ_OBJLIST_H
+#define DATAOBJ_OBJLIST_H
+
 
 #include "../simtypes.h"
 #include "../simobj.h"

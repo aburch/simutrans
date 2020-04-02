@@ -9,8 +9,9 @@
 
 #pragma once
 
-#ifndef way_constraints_h
-#define way_constraints_h
+#ifndef DATAOBJ_WAY_CONSTRAINTS_H
+#define DATAOBJ_WAY_CONSTRAINTS_H
+
 
 #include "../simtypes.h"
 

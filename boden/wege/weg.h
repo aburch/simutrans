@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef boden_wege_weg_h
-#define boden_wege_weg_h
+#ifndef BODEN_WEGE_WEG_H
+#define BODEN_WEGE_WEG_H
+
 
 #if 0
 // This was slower than the Simutrans koordhashtable

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simsound_h
-#define simsound_h
+#ifndef SIMSOUND_H
+#define SIMSOUND_H
+
 
 #include "simtypes.h"
 

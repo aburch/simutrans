@@ -5,8 +5,9 @@
 
 /** @file powernet.h Data structure to manage a net of powerlines - a powernet */
 
-#ifndef powernet_t_h
-#define powernet_t_h
+#ifndef DATAOBJ_POWERNET_H
+#define DATAOBJ_POWERNET_H
+
 
 #include "../simtypes.h"
 #include "../tpl/slist_tpl.h"

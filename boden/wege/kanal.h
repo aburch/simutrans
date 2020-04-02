@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef boden_wege_dock_h
-#define boden_wege_dock_h
+#ifndef BODEN_WEGE_KANAL_H
+#define BODEN_WEGE_KANAL_H
+
 
 #include "weg.h"
 #include "../../dataobj/loadsave.h"

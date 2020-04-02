@@ -12,8 +12,9 @@
  * (such as char).
  */
 
-#ifndef TPL_FIXED_LIST_H
-#define TPL_FIXED_LIST_H
+#ifndef TPL_FIXED_LIST_TPL_H
+#define TPL_FIXED_LIST_TPL_H
+
 
 #ifndef ITERATE
 #define ITERATE(collection,enumerator) for(uint32 enumerator = 0; enumerator < (collection).get_count(); enumerator++)

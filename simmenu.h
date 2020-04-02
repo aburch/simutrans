@@ -5,8 +5,9 @@
 
 /// New configurable OOP tool system
 
-#ifndef simmenu_h
-#define simmenu_h
+#ifndef SIMMENU_H
+#define SIMMENU_H
+
 
 #include <string>
 #include "descriptor/sound_desc.h"

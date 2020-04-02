@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simdebug_h
-#define simdebug_h
+#ifndef SIMDEBUG_H
+#define SIMDEBUG_H
 
 
  // do not check assertions

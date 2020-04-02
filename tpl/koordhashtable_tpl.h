@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef koordhashtable_tpl_h
-#define koordhashtable_tpl_h
+#ifndef TPL_KOORDHASHTABLE_TPL_H
+#define TPL_KOORDHASHTABLE_TPL_H
+
 
 #include "hashtable_tpl.h"
 #include "../dataobj/koord.h"

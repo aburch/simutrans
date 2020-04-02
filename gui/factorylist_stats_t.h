@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef factorylist_stats_t_h
-#define factorylist_stats_t_h
+#ifndef GUI_FACTORYLIST_STATS_T_H
+#define GUI_FACTORYLIST_STATS_T_H
+
 
 #include "../tpl/vector_tpl.h"
 #include "components/gui_component.h"

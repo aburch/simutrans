@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef sim_network_h
-#define sim_network_h
+#ifndef NETWORK_NETWORK_H
+#define NETWORK_NETWORK_H
+
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #define USE_WINSOCK 1

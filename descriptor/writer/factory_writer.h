@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef FACTORY_WRITER_H
-#define FACTORY_WRITER_H
+#ifndef DESCRIPTOR_WRITER_FACTORY_WRITER_H
+#define DESCRIPTOR_WRITER_FACTORY_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

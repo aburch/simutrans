@@ -7,8 +7,9 @@
  * Defines all button types: Normal (roundbox), Checkboxes (square), Arrows, Scrollbars
  */
 
-#ifndef gui_button_h
-#define gui_button_h
+#ifndef GUI_COMPONENTS_GUI_BUTTON_H
+#define GUI_COMPONENTS_GUI_BUTTON_H
+
 
 #include "gui_action_creator.h"
 #include "gui_component.h"

@@ -2,8 +2,9 @@
 * just displays a label with a convoy under it, the label will be auto-translated
  */
 
-#ifndef gui_convoy_label_t_h
-#define gui_convoy_label_t_h
+#ifndef GUI_COMPONENTS_GUI_CONVOY_LABEL_H
+#define GUI_COMPONENTS_GUI_CONVOY_LABEL_H
+
 
 #include "gui_label.h"
 

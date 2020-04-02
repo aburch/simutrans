@@ -7,8 +7,9 @@
  * Convoi info stats, like loading status bar
  */
 
-#ifndef gui_convoiinfo_h
-#define gui_convoiinfo_h
+#ifndef GUI_COMPONENTS_GUI_CONVOIINFO_H
+#define GUI_COMPONENTS_GUI_CONVOIINFO_H
+
 
 #include "../../display/scr_coord.h"
 #include "gui_container.h"

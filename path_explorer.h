@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef path_explorer_h
-#define path_explorer_h
+#ifndef PATH_EXPLORER_H
+#define PATH_EXPLORER_H
+
 
 #include "network/memory_rw.h"
 #include "simline.h"

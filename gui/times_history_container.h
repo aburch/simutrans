@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef times_history_container_h
-#define times_history_container_h
+#ifndef GUI_TIMES_HISTORY_CONTAINER_H
+#define GUI_TIMES_HISTORY_CONTAINER_H
+
 
 #include "components/gui_component.h"
 #include "gui_frame.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef scr_coord_h
-#define scr_coord_h
+#ifndef DISPLAY_SCR_COORD_H
+#define DISPLAY_SCR_COORD_H
+
 
 #include <assert.h>
 #include "../dataobj/loadsave.h"

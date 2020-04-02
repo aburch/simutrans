@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _DYNAMIC_STRING_H_
-#define _DYNAMIC_STRING_H_
+#ifndef SCRIPT_DYNAMIC_STRING_H
+#define SCRIPT_DYNAMIC_STRING_H
+
 
 /** @file dynamic_string.h strings that can be asynchronously changed by scripts */
 

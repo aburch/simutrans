@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_convoy_assembler_h
-#define gui_convoy_assembler_h
+#ifndef GUI_COMPONENTS_GUI_CONVOY_ASSEMBLER_H
+#define GUI_COMPONENTS_GUI_CONVOY_ASSEMBLER_H
+
 
 #include "action_listener.h"
 #include "gui_button.h"

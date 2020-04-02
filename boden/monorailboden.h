@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef monorailboden_h
-#define monorailboden_h
+#ifndef BODEN_MONORAILBODEN_H
+#define BODEN_MONORAILBODEN_H
+
 
 #include "grund.h"
 

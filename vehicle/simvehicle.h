@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _simvehicle_h
-#define _simvehicle_h
+#ifndef VEHICLE_SIMVEHICLE_H
+#define VEHICLE_SIMVEHICLE_H
+
 
 #include <limits>
 #include <string>

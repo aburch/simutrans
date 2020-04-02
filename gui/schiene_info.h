@@ -7,8 +7,9 @@
  * Track infowindow buttons //Ves
  */
 
-#ifndef schiene_info_t_h
-#define schiene_info_t_h
+#ifndef GUI_SCHIENE_INFO_H
+#define GUI_SCHIENE_INFO_H
+
 
 #include "obj_info.h"
 #include "../boden/wege/schiene.h"
