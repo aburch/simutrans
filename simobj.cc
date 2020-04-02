@@ -267,11 +267,9 @@ void obj_t::rotate90()
 {
 	// most basic: rotate coordinate
 	pos.rotate90( welt->get_size().y-1 );
-	if(xoff!=0) {
-		sint8 new_dx = -2*yoff;
-		yoff = xoff/2;
-		xoff = new_dx;
-	}
+	sint8 new_dx = -2*yoff;
+	yoff = xoff/2;
+	xoff = new_dx;
 }
 
 

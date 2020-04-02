@@ -85,7 +85,8 @@ void bruecke_t::calc_image()
 			if(desc->get_has_own_way_graphics())
 			{
 				weg0->set_image(IMG_EMPTY);
-				weg0->set_yoff(-gr->get_weg_yoff() );
+				weg0->set_yoff( -gr->get_weg_yoff() );
+				weg0->set_xoff( 0 );
 
 				weg0->set_flag(obj_t::dirty);
 				set_image(display_image);
@@ -95,7 +96,8 @@ void bruecke_t::calc_image()
 			{
 				if(slope)
 				{
-					weg0->set_yoff(-gr->get_weg_yoff() );
+					weg0->set_yoff( -gr->get_weg_yoff() );
+					weg0->set_xoff( 0 );
 					weg0->calc_image();
 					weg0->set_flag(obj_t::dirty);
 				}
@@ -113,7 +115,8 @@ void bruecke_t::calc_image()
 #endif
 				if(slope)
 				{
-					weg1->set_yoff(-gr->get_weg_yoff() );
+					weg1->set_yoff( -gr->get_weg_yoff() );
+					weg1->set_xoff( 0 );
 				}
 #ifdef MULTI_THREAD
 				weg1->unlock_mutex();
@@ -121,6 +124,7 @@ void bruecke_t::calc_image()
 			}
 		}
 		set_yoff( -gr->get_weg_yoff() );
+		set_xoff( 0 );
 	}
 }
 
@@ -275,36 +279,37 @@ void bruecke_t::cleanup( player_t *player2 )
 {
 	player_t *player = get_owner();
 	// change maintenance, reset max-speed and y-offset
-	const grund_t *gr = welt->lookup(get_pos());
-	if(gr) {
-		weg_t *weg = gr->get_weg( desc->get_waytype() );
-		if(weg) {
-			const way_desc_t* const way_desc = weg->get_desc();
+	if(  const grund_t *gr = welt->lookup(get_pos())  ) {
+		if(  weg_t *weg0 = gr->get_weg( desc->get_waytype() )  ) {
+			const way_desc_t* const way_desc = weg0->get_desc();
 			const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
 			if(hang != slope_t::flat)
 				{
 					const uint slope_height = (hang & 7) ? 1 : 2;
 					if(slope_height == 1)
 					{
-						weg->set_max_speed(min(desc->get_topspeed_gradient_1(), way_desc->get_topspeed_gradient_1()));
+						weg0->set_max_speed(min(desc->get_topspeed_gradient_1(), way_desc->get_topspeed_gradient_1()));
 					}
 					else
 					{
-						weg->set_max_speed(min(desc->get_topspeed_gradient_2(), way_desc->get_topspeed_gradient_2()));
+						weg0->set_max_speed(min(desc->get_topspeed_gradient_2(), way_desc->get_topspeed_gradient_2()));
 					}
 				}
 				else
 				{
-					weg->set_max_speed(min(desc->get_topspeed(), way_desc->get_topspeed()));
+					weg0->set_max_speed(min(desc->get_topspeed(), way_desc->get_topspeed()));
 				}
-			player_t::add_maintenance( player,  weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
+			player_t::add_maintenance( player,  way_desc->get_maintenance(), way_desc->get_finance_waytype());
 			// reset offsets
-			weg->set_yoff(0);
-			if (gr->get_weg_nr(1)) {
-				gr->get_weg_nr(1)->set_yoff(0);
+			weg0->set_xoff(0);
+			weg0->set_yoff(0);
+			if(  weg_t *weg1 = gr->get_weg_nr(1)  ) {
+				weg1->set_xoff(0);
+				weg1->set_yoff(0);
 			}
 		}
 	}
+
 	player_t::add_maintenance( player,  -desc->get_maintenance(), desc->get_finance_waytype() );
 	player_t::book_construction_costs( player2, -desc->get_value(), get_pos().get_2d(), desc->get_waytype() );
 }

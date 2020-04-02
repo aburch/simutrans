@@ -35,7 +35,7 @@ pillar_t::pillar_t(loadsave_t *file) :
 }
 
 
-pillar_t::pillar_t(koord3d pos, player_t *player, const bridge_desc_t *desc, bridge_desc_t::img_t img, int height) :
+pillar_t::pillar_t( koord3d pos, player_t *player, const bridge_desc_t *desc, bridge_desc_t::img_t img, int height ) :
 #ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::pillar, pos)
 #else
@@ -44,7 +44,7 @@ pillar_t::pillar_t(koord3d pos, player_t *player, const bridge_desc_t *desc, bri
 {
 	this->desc = desc;
 	this->dir = (uint8)img;
-	set_yoff(-height);
+	set_yoff( -height );
 	set_owner( player );
 	asymmetric = desc->has_pillar_asymmetric();
 	calc_image();
@@ -135,7 +135,12 @@ void pillar_t::rdwr(loadsave_t *file)
 
 void pillar_t::rotate90()
 {
+	// since we may have a "3D" offset from the slope, we must remove it beofer rotation
+	sint8 hoff = get_yoff();
+	set_yoff(0);
 	obj_t::rotate90();
+	set_yoff(hoff);
+
 	// may need to hide/show asymmetric pillars
 	// this is done now in calc_image, which is called after karte_t::rotate anyway
 	// we cannot decide this here, since welt->lookup(get_pos())->get_grund_hang() cannot be called
