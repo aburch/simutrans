@@ -334,8 +334,8 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// this should be always at the end
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 79);
-		node.write_data_at(fp, sound_str.c_str(), 80, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, 80);
+		node.write_data_at(fp, sound_str.c_str(), 81, sound_str_len);
 	}
 
 	node.write(fp);
