@@ -111,6 +111,7 @@ BEGIN {
 	export_types["vehicle_desc_x::get_predecessors"] = "array<vehicle_desc_x>()"
 	export_types["vehicle_desc_x::get_available_vehicles"] = "array<vehicle_desc_x>(way_types)"
 	export_types["vehicle_desc_x::get_power"] = "integer()"
+	export_types["vehicle_desc_x::needs_electrification"] = "bool()"
 	export_types["vehicle_desc_x::get_freight"] = "good_desc_x()"
 	export_types["vehicle_desc_x::get_capacity"] = "integer()"
 	export_types["vehicle_desc_x::get_running_cost"] = "integer()"

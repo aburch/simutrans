@@ -235,6 +235,11 @@ uint32 get_power(const vehicle_desc_t *desc)
 	return desc->get_power() * desc->get_gear();
 }
 
+bool vehicle_needs_electrification(const vehicle_desc_t *desc)
+{
+	return desc->get_power()  &&  (desc->get_engine_type()==vehicle_desc_t::electric);
+}
+
 // export of building_desc_t::btype only here
 namespace script_api {
 	declare_enum_param(building_desc_t::btype, uint16, "building_desc_x::building_type");
@@ -351,6 +356,10 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * @returns the power of the vehicle (takes power and gear from pak-files into account)
 	 */
 	register_method(vm, &get_power, "get_power", true);
+	/**
+	 * @returns true if this vehicle needs electrification (and is powered)
+	 */
+	register_method(vm, &vehicle_needs_electrification, "needs_electrification", true);
 	/**
 	 * @returns freight that can be transported (or null)
 	 */
