@@ -2704,7 +2704,7 @@ void stadt_t::check_all_private_car_routes()
 	connected_industries.clear();
 	connected_attractions.clear();
 
-	weg_t* const w = gr->get_weg(road_wt); 
+	weg_t* const w = gr ? gr->get_weg(road_wt) : NULL;
 	if (w)
 	{
 		w->delete_all_routes_from_here();
