@@ -2278,9 +2278,13 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 
 	const int cargo = get_total_cargo();
 	weg_t *str = gr->get_weg(road_wt);
-	str->book(cargo, WAY_STAT_GOODS);
+	if (str) {
+		str->book(cargo, WAY_STAT_GOODS);
+		if (leading)  {
+			str->book(1, WAY_STAT_CONVOIS);
+		}
+	}
 	if (leading)  {
-		str->book(1, WAY_STAT_CONVOIS);
 		cnv->update_tiles_overtaking();
 	}
 }
@@ -3487,7 +3491,7 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free 
 					return false;	// find new route
 				}
 			}
-			
+
 			// circle slowly another round ...
 			target_halt = halthandle_t();
 			state = prev_state;
