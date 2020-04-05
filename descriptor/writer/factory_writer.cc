@@ -77,10 +77,15 @@ void factory_field_group_writer_t::write_obj(FILE* outfp, obj_node_t& parent, ta
 	}
 
 	// common, shared field data
-	uint16 const probability  = obj.get_int("probability_to_spawn", 10); // 0,1 %
+	uint16       probability  = obj.get_int("probability_to_spawn", 10); // 0,1 %
 	uint16 const max_fields   = obj.get_int("max_fields",           25);
 	uint16 const min_fields   = obj.get_int("min_fields",            5);
 	uint16 const start_fields = obj.get_int("start_fields",          5);
+
+	if (probability >= 10000) {
+		printf("probability_to_spawn too large, set to 10,000\n");
+		probability = 10000;
+	}
 
 	node.write_uint16(outfp, 0x8003,        0); // version
 	node.write_uint16(outfp, probability,   2);
@@ -167,7 +172,12 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 	uint16 const pax_level = obj.get_int("pax_level", 12);
 
-	uint16 const expand_probability = obj.get_int("expand_probability", 0);
+	uint16 expand_probability = obj.get_int("expand_probability", 0);
+	if (expand_probability >= 10000) {
+		printf("expand_probability too large, set to 10,000\n");
+		expand_probability = 10000;
+	}
+
 	uint16 const expand_minimum     = obj.get_int("expand_minimum",     0);
 	uint16 const expand_range       = obj.get_int("expand_range",       0);
 	uint16 const expand_times       = obj.get_int("expand_times",       0);

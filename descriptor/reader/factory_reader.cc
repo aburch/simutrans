@@ -20,6 +20,11 @@
 uint16 rescale_probability(const uint16 p)
 {
 	if(  p  ) {
+		// probability is p / 10000
+		if (p >= 10000) {
+			// too large, will lead to overflow here
+			return 10000;
+		}
 		sint64 pp = ( (sint64)p << 30 ) / 10000LL;
 		sint64 qq = ( 1LL << 30 ) - pp;
 		uint16 ss = 256u;
