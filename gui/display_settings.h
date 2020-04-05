@@ -86,7 +86,7 @@ private:
 public:
 	color_gui_t();
 
-	virtual bool has_min_sizer() const {return true;}
+	virtual bool has_min_sizer() const OVERRIDE {return true;}
 
 	/**
 	 * Some windows have associated help text.

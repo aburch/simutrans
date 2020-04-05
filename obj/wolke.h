@@ -60,9 +60,9 @@ public:
 	* (everything that is in front of vehicles)
 	*/
 #ifdef MULTI_THREAD
-	virtual void display_after( int xpos, int ypos, const sint8 clip_num ) const;
+	virtual void display_after( int xpos, int ypos, const sint8 clip_num ) const OVERRIDE;
 #else
-	virtual void display_after( int xpos, int ypos, bool is_global ) const;
+	virtual void display_after( int xpos, int ypos, bool is_global ) const OVERRIDE;
 #endif
 };
 
