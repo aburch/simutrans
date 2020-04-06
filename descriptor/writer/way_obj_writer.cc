@@ -3,6 +3,7 @@
  * (see LICENSE.txt)
  */
 
+#include <cmath>
 #include <string>
 #include "../../dataobj/tabfile.h"
 #include "obj_node.h"
