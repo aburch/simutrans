@@ -4,6 +4,7 @@
  */
 
 #include <string>
+#include <cmath>
 #include "../../dataobj/tabfile.h"
 #include "../../utils/simstring.h"
 #include "obj_node.h"
