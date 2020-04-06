@@ -15,6 +15,7 @@
 #include "get_waytype.h"
 #include "bridge_writer.h"
 #include "xref_writer.h"
+#include <math.h>
 
 using std::string;
 
