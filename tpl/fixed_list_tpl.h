@@ -1,15 +1,6 @@
-/* A very light 32 or less element list
- * using a fixed sized array with a
- * head and tail node. Template type.
- *
- * Author: jamespetts. Released under the terms
- * of the Artistic Licence (for use with Simutrans),
- * and also the GPL (v 2.0).
- *
- * (To use other than in simutrans, remove the
- * include files and replace Simutrans specific
- * types (such as uint8) with standard types
- * (such as char).
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef TPL_FIXED_LIST_TPL_H
@@ -28,6 +19,21 @@
 #include "../simtypes.h"
 #include "../simdebug.h"
 
+
+/**
+ * A very light 32 or less element list
+ * using a fixed sized array with a
+ * head and tail node. Template type.
+ *
+ * Author: jamespetts. Released under the terms
+ * of the Artistic Licence (for use with Simutrans),
+ * and also the GPL (v 2.0).
+ *
+ * (To use other than in simutrans, remove the
+ * include files and replace Simutrans specific
+ * types (such as uint8) with standard types
+ * (such as char).
+ */
 template<class T, int N> class fixed_list_tpl
 {
 

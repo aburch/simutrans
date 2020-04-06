@@ -3,6 +3,10 @@
  * (see LICENSE.txt)
  */
 
+#ifndef UTILS_FETCHOPT_H
+#define UTILS_FETCHOPT_H
+
+
 /*
 This class can be used to parse unix-style single character
 command line options. It is intended to provide a similar interface to
@@ -72,11 +76,6 @@ while ((ch = fetchopt.next()) != -1) {
 //   argv[fetchopt.get_optind()] = "somecommand"
 
 */
-
-#ifndef UTILS_FETCHOPT_H
-#define UTILS_FETCHOPT_H
-
-
 class Fetchopt_t {
 	const char *optstr; // Options definition string
 	int ac;             // argc

@@ -3,14 +3,15 @@
  * (see LICENSE.txt)
  */
 
-/** @file powernet.h Data structure to manage a net of powerlines - a powernet */
-
 #ifndef DATAOBJ_POWERNET_H
 #define DATAOBJ_POWERNET_H
 
 
 #include "../simtypes.h"
 #include "../tpl/slist_tpl.h"
+
+
+/** @file powernet.h Data structure to manage a net of powerlines - a powernet */
 
 
 /**

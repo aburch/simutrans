@@ -3,10 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * signal infowindow buttons //Ves
- */
-
 #ifndef GUI_SIGNAL_INFO_H
 #define GUI_SIGNAL_INFO_H
 
@@ -17,6 +13,7 @@
 #include "components/gui_numberinput.h"
 #include "components/gui_container.h"
 #include "../player/simplay.h"
+
 
 /**
  * Info window for signals

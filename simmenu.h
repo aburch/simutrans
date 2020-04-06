@@ -3,8 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/// New configurable OOP tool system
-
 #ifndef SIMMENU_H
 #define SIMMENU_H
 
@@ -17,6 +15,8 @@
 
 #include "simtypes.h"
 #include "display/simimg.h"
+
+/// New configurable OOP tool system
 
 
 template<class T> class vector_tpl;

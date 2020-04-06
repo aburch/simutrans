@@ -3,8 +3,6 @@
  * (see LICENSE.txt)
  */
 
-#pragma once
-
 #ifndef TPL_LIST_TPL_H
 #define TPL_LIST_TPL_H
 

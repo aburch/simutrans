@@ -3,12 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * way_constraints_t: a hood for James Petts' permissive and prohibitive way constraints.
- */
-
-#pragma once
-
 #ifndef DATAOBJ_WAY_CONSTRAINTS_H
 #define DATAOBJ_WAY_CONSTRAINTS_H
 
@@ -16,10 +10,12 @@
 #include "../simtypes.h"
 
 
-typedef
-	uint8 way_constraints_mask;
+typedef uint8 way_constraints_mask;
 
 
+/*
+ * way_constraints_t: a hood for James Petts' permissive and prohibitive way constraints.
+ */
 class way_constraints_t
 {
 private:
@@ -74,6 +70,5 @@ public:
 	 */
 	bool check_next_tile() { return !get_permissive() && !get_prohibitive(); }
 };
-
 
 #endif

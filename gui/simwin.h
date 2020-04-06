@@ -3,18 +3,20 @@
  * (see LICENSE.txt)
  */
 
-/*
- * The function implements a WindowManager 'Object'
- */
-
 #ifndef GUI_SIMWIN_H
 #define GUI_SIMWIN_H
 
 
-#include <stddef.h> // for ptrdiff_t
-
 #include "../simtypes.h"
 #include "../simconst.h"
+
+#include <stddef.h> // for ptrdiff_t
+
+
+/*
+ * The function implements a WindowManager 'Object'
+ */
+
 
 class karte_t;
 class scr_coord;

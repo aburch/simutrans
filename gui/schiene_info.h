@@ -3,10 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Track infowindow buttons //Ves
- */
-
 #ifndef GUI_SCHIENE_INFO_H
 #define GUI_SCHIENE_INFO_H
 
@@ -16,6 +12,7 @@
 #include "components/action_listener.h"
 #include "components/gui_numberinput.h"
 #include "components/gui_container.h"
+
 
 /**
  * Info window for tracks

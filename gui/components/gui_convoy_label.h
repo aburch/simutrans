@@ -1,5 +1,6 @@
 /*
-* just displays a label with a convoy under it, the label will be auto-translated
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef GUI_COMPONENTS_GUI_CONVOY_LABEL_H

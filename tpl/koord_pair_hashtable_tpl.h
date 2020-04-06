@@ -1,5 +1,6 @@
 /*
- * a template class which implements a hashtable with 2d koord keys
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef TPL_KOORD_PAIR_HASHTABLE_TPL_H
@@ -48,8 +49,8 @@ public:
 };
 
 
-/*
- * Ready to use class for hashing pairs of 2d koord types.
+/**
+ * a template class which implements a hashtable with 2d koord keys
  */
 template<class key_t, class value_t>
 class koord_pair_hashtable_tpl : public hashtable_tpl<key_t, value_t, koord_pair_hash_tpl<key_t> >

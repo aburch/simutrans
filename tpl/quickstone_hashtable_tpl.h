@@ -3,11 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * a template class which implements a hashtable with quickstone keys
- * adapted from the pointer hashtable by jamespetts
- */
-
 #ifndef TPL_QUICKSTONE_HASHTABLE_TPL_H
 #define TPL_QUICKSTONE_HASHTABLE_TPL_H
 
@@ -15,7 +10,9 @@
 #include "inthashtable_tpl.h"
 #include "hashtable_tpl.h"
 #include "quickstone_tpl.h"
+
 #include <stdlib.h>
+
 
 /*
  * Define the key characteristics for hashing IDs.
@@ -47,8 +44,9 @@ public:
 };
 
 
-/*
- * Ready to use class for hashing quickstones.
+/**
+ * a template class which implements a hashtable with quickstone keys
+ * adapted from the pointer hashtable by jamespetts
  */
 template<class key_t, class value_t>
 class quickstone_hashtable_tpl : public hashtable_tpl<quickstone_tpl<key_t>, value_t, quickstone_hash_tpl<key_t> >

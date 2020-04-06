@@ -3,6 +3,10 @@
  * (see LICENSE.txt)
  */
 
+#ifndef CONVOY_H
+#define CONVOY_H
+
+
 /* convoy_t: common collection of properties of a convoi_t and a couple of vehicles which are going to become a convoy_t.
  * While convoi_t is involved in game play, convoy_t is the entity that physically models the convoy.
  */
@@ -55,10 +59,6 @@ Fm = cf * v^2 + Frs + m * a
 a = (Fm - Frs - cf * v^2) / m
 
 *******************************************************************************/
-#pragma once
-
-#ifndef CONVOY_H
-#define CONVOY_H
 
 
 #include <limits>

@@ -3,6 +3,10 @@
  * (see LICENSE.txt)
  */
 
+#ifndef GUI_VEHICLE_CLASS_MANAGER_H
+#define GUI_VEHICLE_CLASS_MANAGER_H
+
+
 /*
  * Convoi details window
  */
@@ -177,3 +181,5 @@ public:
 
 	~vehicle_class_manager_t();
 };
+
+#endif

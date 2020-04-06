@@ -3,10 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Convoi info stats, like loading status bar
- */
-
 #ifndef GUI_COMPONENTS_GUI_CONVOIINFO_H
 #define GUI_COMPONENTS_GUI_CONVOIINFO_H
 
@@ -18,6 +14,7 @@
 
 
 /**
+ * Convoi info stats, like loading status bar
  * One element of the vehicle list display
  *
  * @author Hj. Malthaner

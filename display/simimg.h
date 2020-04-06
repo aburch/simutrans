@@ -3,16 +3,17 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Defines to handle images
- * Hj. Malthaner, 13.07.98
- */
-
 #ifndef DISPLAY_SIMIMG_H
 #define DISPLAY_SIMIMG_H
 
 
 #include "../simtypes.h"
+
+
+/*
+ * Defines to handle images
+ * Hj. Malthaner, 13.07.98
+ */
 
 typedef uint32 image_id;
 
