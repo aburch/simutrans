@@ -4,6 +4,7 @@
  */
 
 #include <string>
+#include <cmath>
 #include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
 #include "obj_node.h"
@@ -15,7 +16,6 @@
 #include "get_waytype.h"
 #include "bridge_writer.h"
 #include "xref_writer.h"
-#include <math.h>
 
 using std::string;
 
@@ -100,7 +100,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 {
 	obj_node_t node(this, 38, &parent);
 
-	uint8  waytype_t					= get_waytype(obj.get("waytype"));
+	uint8  waytype_t				= get_waytype(obj.get("waytype"));
 	uint16 topspeed					= obj.get_int("topspeed", 999);
 	uint16 topspeed_gradient_1      = obj.get_int("topspeed_gradient_1", topspeed);
 	uint16 topspeed_gradient_2      = obj.get_int("topspeed_gradient_2", topspeed_gradient_1);
@@ -151,11 +151,11 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 		//Compress values into a single byte using bitwise OR.
 		if(tmp_permissive < 8)
 		{
-			permissive_way_constraints = (tmp_permissive > 0) ? permissive_way_constraints | (uint8)std::pow(2.0, (double)tmp_permissive) : permissive_way_constraints | 1;
+			permissive_way_constraints = (tmp_permissive > 0) ? permissive_way_constraints | (uint8)pow(2.0, (double)tmp_permissive) : permissive_way_constraints | 1;
 		}
 		if(tmp_prohibitive < 8)
 		{
-			prohibitive_way_constraints = (tmp_prohibitive > 0) ? prohibitive_way_constraints | (uint8)std::pow(2.0, (double)tmp_prohibitive) : prohibitive_way_constraints | 1;
+			prohibitive_way_constraints = (tmp_prohibitive > 0) ? prohibitive_way_constraints | (uint8)pow(2.0, (double)tmp_prohibitive) : prohibitive_way_constraints | 1;
 		}
 	}
 
