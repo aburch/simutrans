@@ -901,13 +901,19 @@ void karte_t::remove_queued_city(stadt_t* city)
 void karte_t::add_queued_city(stadt_t* city)
 {
 #ifdef MULTI_THREAD
-	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
-	assert(error == 0);
+	if (private_car_route_mutex_initialised)
+	{
+		int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+		assert(error == 0);
+	}
 #endif
 	cities_awaiting_private_car_route_check.append_unique(city);
 #ifdef MULTI_THREAD
-	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
-	assert(error == 0);
+	if (private_car_route_mutex_initialised)
+	{
+		int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+		assert(error == 0);
+	}
 #endif
 }
 
