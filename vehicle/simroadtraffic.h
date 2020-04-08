@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SIMROADTRAFFIC_H
-#define SIMROADTRAFFIC_H
+#ifndef VEHICLE_SIMROADTRAFFIC_H
+#define VEHICLE_SIMROADTRAFFIC_H
+
 
 /**
  * Moving objects for Simutrans.

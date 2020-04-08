@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef FOR_H
-#define FOR_H
+#ifndef UTILS_FOR_H
+#define UTILS_FOR_H
+
 
 #include <iterator>
 

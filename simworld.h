@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simworld_h
-#define simworld_h
+#ifndef SIMWORLD_H
+#define SIMWORLD_H
+
 
 #include "simconst.h"
 #include "simtypes.h"

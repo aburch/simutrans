@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_label_info_h
-#define gui_label_info_h
+#ifndef GUI_LABEL_INFO_H
+#define GUI_LABEL_INFO_H
+
 
 #include "gui_frame.h"
 #include "components/gui_label.h"

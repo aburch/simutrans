@@ -3,6 +3,9 @@
  * (see LICENSE.txt)
  */
 
+#ifndef GUI_CONVOI_INFO_T_H
+#define GUI_CONVOI_INFO_T_H
+
 
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
@@ -165,3 +168,5 @@ public:
 
 	uint32 get_rdwr_id() { return magic_convoi_info; }
 };
+
+#endif

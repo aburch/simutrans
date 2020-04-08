@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _EXP_GAME_OBJ_H_
-#define _EXP_GAME_OBJ_H_
+#ifndef SCRIPT_EXPORT_OBJS_H
+#define SCRIPT_EXPORT_OBJS_H
+
 
 #include "../squirrel/squirrel.h"
 

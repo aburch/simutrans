@@ -3,18 +3,16 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Track infowindow buttons //Ves
- */
+#ifndef GUI_SCHIENE_INFO_H
+#define GUI_SCHIENE_INFO_H
 
-#ifndef schiene_info_t_h
-#define schiene_info_t_h
 
 #include "obj_info.h"
 #include "../boden/wege/schiene.h"
 #include "components/action_listener.h"
 #include "components/gui_numberinput.h"
 #include "components/gui_container.h"
+
 
 /**
  * Info window for tracks

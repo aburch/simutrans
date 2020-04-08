@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef factory_chart_h
-#define factory_chart_h
+#ifndef GUI_FACTORY_CHART_H
+#define GUI_FACTORY_CHART_H
+
 
 #define MAX_PROD_LABEL      (7-1)
 

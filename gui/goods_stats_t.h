@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef good_stats_t_h
-#define good_stats_t_h
+#ifndef GUI_GOODS_STATS_T_H
+#define GUI_GOODS_STATS_T_H
+
 
 #include "../simtypes.h"
 #include "components/gui_component.h"

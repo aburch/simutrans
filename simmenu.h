@@ -3,10 +3,9 @@
  * (see LICENSE.txt)
  */
 
-/// New configurable OOP tool system
+#ifndef SIMMENU_H
+#define SIMMENU_H
 
-#ifndef simmenu_h
-#define simmenu_h
 
 #include <string>
 #include "descriptor/sound_desc.h"
@@ -16,6 +15,8 @@
 
 #include "simtypes.h"
 #include "display/simimg.h"
+
+/// New configurable OOP tool system
 
 
 template<class T> class vector_tpl;

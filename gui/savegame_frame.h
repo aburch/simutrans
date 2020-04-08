@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_savegame_frame_h
-#define gui_savegame_frame_h
+#ifndef GUI_SAVEGAME_FRAME_H
+#define GUI_SAVEGAME_FRAME_H
+
 
 #include <string.h>
 #include <cstring>

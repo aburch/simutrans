@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef obj_zeiger_h
-#define obj_zeiger_h
+#ifndef OBJ_ZEIGER_H
+#define OBJ_ZEIGER_H
+
 
 #include "../simobj.h"
 #include "../simtypes.h"

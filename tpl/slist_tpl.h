@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef tpl_slist_tpl_h
-#define tpl_slist_tpl_h
+#ifndef TPL_SLIST_TPL_H
+#define TPL_SLIST_TPL_H
+
 
 #include <iterator>
 #include <typeinfo>

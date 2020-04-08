@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_scrollpane_h
-#define gui_scrollpane_h
+#ifndef GUI_COMPONENTS_GUI_SCROLLPANE_H
+#define GUI_COMPONENTS_GUI_SCROLLPANE_H
 
 
 #include "gui_component.h"

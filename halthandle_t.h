@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef halthandle_t_h
-#define halthandle_t_h
+#ifndef HALTHANDLE_T_H
+#define HALTHANDLE_T_H
+
 
 #include "tpl/quickstone_tpl.h"
 

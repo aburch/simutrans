@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_city_info_h
-#define gui_city_info_h
+#ifndef GUI_CITY_INFO_H
+#define GUI_CITY_INFO_H
+
 
 #include "../simcity.h"
 #include "../gui/simwin.h"

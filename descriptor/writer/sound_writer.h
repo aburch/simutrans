@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SOUND_WRITER_H
-#define SOUND_WRITER_H
+#ifndef DESCRIPTOR_WRITER_SOUND_WRITER_H
+#define DESCRIPTOR_WRITER_SOUND_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

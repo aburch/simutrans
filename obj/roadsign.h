@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef obj_roadsign_h
-#define obj_roadsign_h
+#ifndef OBJ_ROADSIGN_H
+#define OBJ_ROADSIGN_H
+
 
 #include "../simobj.h"
 #include "../simtypes.h"

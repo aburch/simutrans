@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef obj_groundobj_h
-#define obj_groundobj_h
+#ifndef OBJ_GROUNDOBJ_H
+#define OBJ_GROUNDOBJ_H
+
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"

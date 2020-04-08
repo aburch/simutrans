@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_halt_detail_h
-#define gui_halt_detail_h
+#ifndef GUI_HALT_DETAIL_H
+#define GUI_HALT_DETAIL_H
+
 
 #include "components/gui_textarea.h"
 

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _simstring_h
-#define _simstring_h
+#ifndef UTILS_SIMSTRING_H
+#define UTILS_SIMSTRING_H
+
 
 #include <stddef.h>
 #include <string>

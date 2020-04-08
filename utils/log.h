@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef tests_log_h
-#define tests_log_h
+#ifndef UTILS_LOG_H
+#define UTILS_LOG_H
+
 
 #include <stdarg.h>
 #include <stdio.h>

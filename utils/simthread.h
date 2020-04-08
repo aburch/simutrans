@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simthread_h
-#define simthread_h
+#ifndef UTILS_SIMTHREAD_H
+#define UTILS_SIMTHREAD_H
+
 
 #ifdef MULTI_THREAD
 

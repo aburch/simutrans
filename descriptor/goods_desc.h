@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __WARE_BESCH_H
-#define __WARE_BESCH_H
+#ifndef DESCRIPTOR_GOODS_DESC_H
+#define DESCRIPTOR_GOODS_DESC_H
+
 
 #include "obj_base_desc.h"
 #include "../simcolor.h"

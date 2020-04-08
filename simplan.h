@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simplan_h
-#define simplan_h
+#ifndef SIMPLAN_H
+#define SIMPLAN_H
+
 
 #include "halthandle_t.h"
 #include "boden/grund.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __SKIN_BESCH_H
-#define __SKIN_BESCH_H
+#ifndef DESCRIPTOR_SKIN_DESC_H
+#define DESCRIPTOR_SKIN_DESC_H
+
 
 #include "../display/simimg.h"
 #include "obj_base_desc.h"

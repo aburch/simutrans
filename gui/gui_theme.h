@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_theme_h
-#define gui_theme_h
+#ifndef GUI_GUI_THEME_H
+#define GUI_GUI_THEME_H
+
 
 #include "../dataobj/koord.h"
 #include "../simcolor.h"

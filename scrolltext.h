@@ -3,6 +3,10 @@
  * (see LICENSE.txt)
  */
 
+#ifndef SCROLLTEXT_H
+#define SCROLLTEXT_H
+
+
 /* prissi: first part is left, second part right side */
 
 "","",
@@ -382,3 +386,5 @@
 "","",
 "","",
 0
+
+#endif

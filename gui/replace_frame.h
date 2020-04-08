@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef replace_frame_t_h
-#define replace_frame_t_h
+#ifndef GUI_REPLACE_FRAME_H
+#define GUI_REPLACE_FRAME_H
+
 
 #include "gui_frame.h"
 

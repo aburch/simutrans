@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __GROUNDOBJ_DESC_H
-#define __GROUNDOBJ_DESC_H
+#ifndef DESCRIPTOR_GROUNDOBJ_DESC_H
+#define DESCRIPTOR_GROUNDOBJ_DESC_H
+
 
 #include "../simtypes.h"
 #include "obj_base_desc.h"

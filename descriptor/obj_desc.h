@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __OBJ_BESCH_H
-#define __OBJ_BESCH_H
+#ifndef DESCRIPTOR_OBJ_DESC_H
+#define DESCRIPTOR_OBJ_DESC_H
+
 
 #include <cstddef>
 #include "../simtypes.h"

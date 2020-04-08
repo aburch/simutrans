@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_image_h
-#define gui_image_h
+#ifndef GUI_COMPONENTS_GUI_IMAGE_H
+#define GUI_COMPONENTS_GUI_IMAGE_H
+
 
 #include "../../display/simimg.h"
 #include "../../display/simgraph.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef dataobj_settings_h
-#define dataobj_settings_h
+#ifndef DATAOBJ_SETTINGS_H
+#define DATAOBJ_SETTINGS_H
+
 
 #include <string>
 #include "../simtypes.h"

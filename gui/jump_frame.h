@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_jumpframe_h
-#define gui_jumpframe_h
+#ifndef GUI_JUMP_FRAME_H
+#define GUI_JUMP_FRAME_H
+
 
 #include "components/action_listener.h"
 #include "gui_frame.h"

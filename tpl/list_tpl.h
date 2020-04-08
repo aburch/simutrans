@@ -3,10 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#pragma once
+#ifndef TPL_LIST_TPL_H
+#define TPL_LIST_TPL_H
 
-#ifndef list_tpl_h
-#define list_tpl_h
 
 /* <typeinfo> is needed for typeid... which is only used for debugging */
 #include <typeinfo>

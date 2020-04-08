@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef clip_num_h
-#define clip_num_h
+#ifndef DISPLAY_CLIP_NUM_H
+#define DISPLAY_CLIP_NUM_H
+
 
 #include "../simtypes.h"
 /**

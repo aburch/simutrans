@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef themeselector_h
-#define themeselector_h
+#ifndef GUI_THEMESELECTOR_H
+#define GUI_THEMESELECTOR_H
+
 
 #include "simwin.h"
 #include "savegame_frame.h"

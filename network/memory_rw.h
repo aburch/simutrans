@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _MEMORY_RW_H
-#define _MEMORY_RW_H
+#ifndef NETWORK_MEMORY_RW_H
+#define NETWORK_MEMORY_RW_H
+
 
 /* This is a class to write data to memory in intel byte order
  * on every architecture

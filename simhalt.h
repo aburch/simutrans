@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simhalt_h
-#define simhalt_h
+#ifndef SIMHALT_H
+#define SIMHALT_H
+
 
 #include "convoihandle_t.h"
 #include "linehandle_t.h"

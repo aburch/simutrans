@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef FLOAT32E8_T_H_
-#define FLOAT32E8_T_H_
+#ifndef UTILS_FLOAT32E8_T_H
+#define UTILS_FLOAT32E8_T_H
+
 
 #include <iostream>
 using namespace std;

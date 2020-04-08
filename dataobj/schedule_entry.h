@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef schedule_entry_t_h
-#define schedule_entry_t_h
+#ifndef DATAOBJ_SCHEDULE_ENTRY_H
+#define DATAOBJ_SCHEDULE_ENTRY_H
+
 
 #include "koord3d.h"
 

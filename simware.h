@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simware_h
-#define simware_h
+#ifndef SIMWARE_H
+#define SIMWARE_H
+
 
 #include "halthandle_t.h"
 #include "dataobj/koord.h"

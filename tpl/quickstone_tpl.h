@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef quickstone_tpl_h
-#define quickstone_tpl_h
+#ifndef TPL_QUICKSTONE_TPL_H
+#define TPL_QUICKSTONE_TPL_H
+
 
 #include "../simtypes.h"
 #include "../simdebug.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef signal_spacing_h
-#define signal_spacing_h
+#ifndef GUI_SIGNAL_SPACING_H
+#define GUI_SIGNAL_SPACING_H
+
 
 #include "gui_frame.h"
 #include "components/action_listener.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef obj_baum_h
-#define obj_baum_h
+#ifndef OBJ_BAUM_H
+#define OBJ_BAUM_H
+
 
 #include <string>
 #include "../tpl/stringhashtable_tpl.h"

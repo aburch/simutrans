@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __IMAGELIST3D_READER_H
-#define __IMAGELIST3D_READER_H
+#ifndef DESCRIPTOR_READER_IMAGELIST3D_READER_H
+#define DESCRIPTOR_READER_IMAGELIST3D_READER_H
+
 
 #include "obj_reader.h"
 

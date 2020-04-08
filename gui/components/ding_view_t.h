@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef DING_VIEW_T_H
-#define DING_VIEW_T_H
+#ifndef GUI_COMPONENTS_DING_VIEW_T_H
+#define GUI_COMPONENTS_DING_VIEW_T_H
+
 
 #include "../../simdings.h"
 #include "gui_world_view_t.h"

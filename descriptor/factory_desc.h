@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __FABRIK_BESCH_H
-#define __FABRIK_BESCH_H
+#ifndef DESCRIPTOR_FACTORY_DESC_H
+#define DESCRIPTOR_FACTORY_DESC_H
+
 
 #include "obj_desc.h"
 #include "building_desc.h"

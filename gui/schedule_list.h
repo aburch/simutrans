@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_schedule_list_h
-#define gui_schedule_list_h
+#ifndef GUI_SCHEDULE_LIST_H
+#define GUI_SCHEDULE_LIST_H
+
 
 #include "gui_frame.h"
 #include "components/gui_container.h"

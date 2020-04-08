@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_components_gui_divider_h
-#define gui_components_gui_divider_h
+#ifndef GUI_COMPONENTS_GUI_DIVIDER_H
+#define GUI_COMPONENTS_GUI_DIVIDER_H
+
 
 #include "gui_component.h"
 #include "../../display/simgraph.h"

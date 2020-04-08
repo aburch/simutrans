@@ -3,12 +3,9 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Intro banner and everything else
- */
+#ifndef GUI_BANNER_H
+#define GUI_BANNER_H
 
-#ifndef banner_h
-#define banner_h
 
 #include "components/gui_button.h"
 #include "components/gui_image.h"
@@ -19,7 +16,6 @@
  * Class to generates the welcome screen with the scrolling
  * text to celebrate contributors.
  */
-
 class banner_t : public gui_frame_t, action_listener_t
 {
 private:

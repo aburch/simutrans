@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef halt_list_stats_h
-#define halt_list_stats_h
+#ifndef GUI_HALT_LIST_STATS_H
+#define GUI_HALT_LIST_STATS_H
+
 
 #include "components/gui_component.h"
 #include "../halthandle_t.h"

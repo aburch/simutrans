@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simintr_h
-#define simintr_h
+#ifndef SIMINTR_H
+#define SIMINTR_H
+
 
 #include "macros.h"
 

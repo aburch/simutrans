@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef finance_h
-#define finance_h
+#ifndef PLAYER_FINANCE_H
+#define PLAYER_FINANCE_H
+
 
 #include <assert.h>
 

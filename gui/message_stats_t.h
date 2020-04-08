@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef message_stats_t_h
-#define message_stats_t_h
+#ifndef GUI_MESSAGE_STATS_T_H
+#define GUI_MESSAGE_STATS_T_H
+
 
 #include "components/gui_component.h"
 #include "../display/simimg.h"

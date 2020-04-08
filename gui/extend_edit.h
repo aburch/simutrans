@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_extend_edit_h
-#define gui_extend_edit_h
+#ifndef GUI_EXTEND_EDIT_H
+#define GUI_EXTEND_EDIT_H
+
 
 #include "gui_frame.h"
 #include "components/gui_container.h"

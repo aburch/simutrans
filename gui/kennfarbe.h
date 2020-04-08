@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_kennfarbe_h
-#define gui_kennfarbe_h
+#ifndef GUI_KENNFARBE_H
+#define GUI_KENNFARBE_H
+
 
 #include "../utils/cbuffer_t.h"
 #include "gui_frame.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef fabrikinfo_t_h
-#define fabrikinfo_t_h
+#ifndef GUI_FABRIK_INFO_H
+#define GUI_FABRIK_INFO_H
+
 
 #include "../gui/simwin.h"
 

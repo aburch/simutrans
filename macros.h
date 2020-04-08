@@ -6,6 +6,7 @@
 #ifndef MACROS_H
 #define MACROS_H
 
+
 #include "simtypes.h"
 
 // XXX Workaround: Old GCCs choke on type check.

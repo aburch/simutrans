@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef OBJ_PAK_EXCEPTION_H
-#define OBJ_PAK_EXCEPTION_H
+#ifndef DESCRIPTOR_WRITER_OBJ_PAK_EXCEPTION_H
+#define DESCRIPTOR_WRITER_OBJ_PAK_EXCEPTION_H
+
 
 #include <string>
 

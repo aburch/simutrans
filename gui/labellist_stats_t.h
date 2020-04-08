@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef labellist_stats_t_h
-#define labellist_stats_t_h
+#ifndef GUI_LABELLIST_STATS_T_H
+#define GUI_LABELLIST_STATS_T_H
+
 
 #include "../tpl/vector_tpl.h"
 #include "components/gui_component.h"

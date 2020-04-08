@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_chart_h
-#define gui_chart_h
+#ifndef GUI_COMPONENTS_GUI_CHART_H
+#define GUI_COMPONENTS_GUI_CHART_H
+
 
 #include "../../simtypes.h"
 #include "gui_component.h"

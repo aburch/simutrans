@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef overtaking_mode_h
-#define overtaking_mode_h
+#ifndef GUI_OVERTAKING_MODE_H
+#define GUI_OVERTAKING_MODE_H
+
 
 #include "gui_frame.h"
 #include "components/action_listener.h"
