@@ -6,12 +6,20 @@
 	ADD: Vehicle list as dialog tool 33 (to see also upcoming vehicles)
 	ADD: goods waiting bar with now configurable: gui_waitingbar_width
 	ADD: button to copy the last 20 messages to the clipboard
+	CHG: factory smoke location now depend on factory. Four parameters smoketile[], smokeoffset[] (koord), and smokeuplift (16) and smokelifetime (2499)
+	FIX: several list stored wrong coordinates after map rotation
+	FIX: Too new pak file version check now enforced for all objects
+	FIX: airplane should stuck much less upon runway rebuilds
+	CHG: block reserver tool will also start a route search of any convoi on its tile (no matter the owner!)
+	ADD: timeline switches off after 2999 to prevent retiring of everything
+	ADD: new parameter for buildings "preservation_year" and "preservation_month" after that the building is excluded from renovation during town growth
+	ADD: if shift is pressed during road building then city roads or faster ways will not be overbuilt
 
 Release of 121.0 (r8870 on 1-Dec-2019):
-    ADD: Map number is shown in the enlarge map window.
-    FIX: Text area GUI components no longer suffer from line wrap around when displaying an extreme number of lines.
-    FIX: Stop information window waiting list in "via (amount)" order will no longer count incorrectly when more than 8,388,607 units are headed to a single destination.
-    FIX: SDL2 build running on Windows 10 in fullscreen mode now minimizes and maximizes responsively.
+	ADD: Map number is shown in the enlarge map window.
+	FIX: Text area GUI components no longer suffer from line wrap around when displaying an extreme number of lines.
+	FIX: Stop information window waiting list in "via (amount)" order will no longer count incorrectly when more than 8,388,607 units are headed to a single destination.
+	FIX: SDL2 build running on Windows 10 in fullscreen mode now minimizes and maximizes responsively.
 	CHG: gui overhaul: automatic placement and size calculation of elements
 	ADD: use animated water graphics on shores
 	FIX: Do not call DefWindowsProc for IME to mitigate crash on Windows1809

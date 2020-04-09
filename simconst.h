@@ -7,8 +7,9 @@
  * all defines that can change the compiling
  */
 
-#ifndef simconst_h
-#define simconst_h
+#ifndef SIMCONST_H
+#define SIMCONST_H
+
 
 // color depth (default assumes RGB565), undefine only for rgb555 builds!
 //#define RGB555

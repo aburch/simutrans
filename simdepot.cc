@@ -142,7 +142,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust)
 
 		for(unsigned i=0; i<acnv->get_vehicle_count(); i++) {
 			vehicle_t *v = acnv->get_vehikel(i);
-			// Hajo: reset vehikel data
+			// reset vehikel data
 			v->discard_cargo();
 			v->set_pos( koord3d::invalid );
 			v->set_leading( i==0 );
@@ -551,7 +551,6 @@ void depot_t::rdwr_vehikel(slist_tpl<vehicle_t *> &list, loadsave_t *file)
 
 /**
  * @return NULL when OK, otherwise an error message
- * @author Hj. Malthaner
  */
 const char * depot_t::is_deletable(const player_t *player)
 {

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simpeople_h
-#define simpeople_h
+#ifndef VEHICLE_SIMPEOPLE_H
+#define VEHICLE_SIMPEOPLE_H
+
 
 #include "simroadtraffic.h"
 
@@ -12,8 +13,6 @@ class pedestrian_desc_t;
 
 /**
  * Pedestrians also are road users.
- *
- * @author Hj. Malthaner
  * @see road_user_t
  */
 class pedestrian_t : public road_user_t

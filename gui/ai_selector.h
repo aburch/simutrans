@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_scenario_frame_h
-#define gui_scenario_frame_h
+#ifndef GUI_AI_SELECTOR_H
+#define GUI_AI_SELECTOR_H
 
 
 #include "savegame_frame.h"
@@ -40,7 +40,6 @@ public:
 	/**
 	* Set the window associated helptext
 	* @return the filename for the helptext, or NULL
-	* @author Hj. Malthaner
 	*/
 	const char * get_help_filename() const OVERRIDE { return "ai_selector.txt"; }
 

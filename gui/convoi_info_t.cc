@@ -60,7 +60,6 @@ bool convoi_info_t::route_search_in_progress=false;
  *                 1 = via
  *                 2 = via_amount
  *                 3 = amount
- * @author prissi
  */
 const char *convoi_info_t::sort_text[SORT_MODES] = {
 	"Zielort",
@@ -127,7 +126,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 			container_line.add_component(&line_label);
 			// goto line button
 			line_button.init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + LINESPACE*4 ) );
-			line_button.set_targetpos( koord(0,0) );
+			line_button.set_targetpos3d( koord3d::invalid );
 			line_button.add_listener( this );
 			line_bound = false;
 		}
@@ -296,7 +295,6 @@ void convoi_info_t::update_labels()
  * Draw new component. The values to be passed refer to the window
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
- * @author Hj. Malthaner
  */
 void convoi_info_t::draw(scr_coord pos, scr_size size)
 {
@@ -376,7 +374,6 @@ koord3d convoi_info_t::get_weltpos( bool set )
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {

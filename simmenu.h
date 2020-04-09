@@ -5,8 +5,9 @@
 
 /// New configurable OOP tool system
 
-#ifndef simmenu_h
-#define simmenu_h
+#ifndef SIMMENU_H
+#define SIMMENU_H
+
 
 #include <string>
 #include "descriptor/sound_desc.h"
@@ -345,10 +346,10 @@ public:
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
 };
 
-/*
+
+/**
  * Class for tools needing two clicks (e.g. building ways).
  * Dragging is also possible.
- * @author Gerd Wachsmuth
  */
 class two_click_tool_t : public tool_t {
 public:

@@ -282,6 +282,7 @@ void wayobj_t::calc_image()
 		}
 
 		set_yoff( -gr->get_weg_yoff() );
+		set_xoff( 0 );
 		dir &= (w->get_ribi_unmasked() | sec_way_ribi_unmasked);
 
 		// if there is a slope, we are finished, only four choices here (so far)
@@ -464,7 +465,6 @@ DBG_DEBUG( "wayobj_t::register_desc()","%s", desc->get_name() );
 
 /**
  * Fill menu with icons of given wayobjects from the list
- * @author Hj. Malthaner
  */
 void wayobj_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 /*sound_ok*/)
 {

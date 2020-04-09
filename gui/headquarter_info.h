@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef headquarter_info_h
-#define headquarter_info_h
+#ifndef GUI_HEADQUARTER_INFO_H
+#define GUI_HEADQUARTER_INFO_H
 
 
 #include "base_info.h"

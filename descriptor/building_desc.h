@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __BUILDING_DESC_H
-#define __BUILDING_DESC_H
+#ifndef DESCRIPTOR_BUILDING_DESC_H
+#define DESCRIPTOR_BUILDING_DESC_H
+
 
 #include <assert.h>
 #include "image_array.h"
@@ -17,12 +18,8 @@ class tool_t;
 class karte_t;
 class checksum_t;
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      Data for one tile of a potentially multi-tile building.
+/**
+ * Data for one tile of a potentially multi-tile building.
  *
  *  Child nodes:
  *   0   Imagelist2D season 0 back
@@ -99,12 +96,8 @@ public:
 	uint8 get_layout() const;
 };
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      Data for one building, consists of potentially more than one tile.
+/**
+ * Data for one building, consists of potentially more than one tile.
  *
  *  Child nodes:
  *	0   Name
@@ -184,13 +177,13 @@ private:
 		// cluster number for city buildings (0 means no clustering)
 	koord  size;
 	flag_t flags;
-	uint16 level;          // or passengers;
-	uint8  layouts;        // 1 2, 4, 8  or 16
-	uint8  enables;		// if it is a stop, what is enabled ...
-	uint8  distribution_weight;         // Hajo: chance to build, special buildings, only other is weight factor
+	uint16 level;               // or passengers;
+	uint8  layouts;             // 1 2, 4, 8  or 16
+	uint8  enables;             // if it is a stop, what is enabled ...
+	uint8  distribution_weight; // chance to build, special buildings, only other is weight factor
 
 
-	/** @author: jamespetts.
+	/**
 	 * Additional fields for separate capacity/maintenance
 	 * If these are not specified in the .dat file, they are set to
 	 * PRICE_MAGIC then calculated from the "level" in the old way.
@@ -213,6 +206,8 @@ private:
 	 * 2 = can be built either underground or above ground.
 	 */
 	uint8 allow_underground;
+
+	uint16 preservation_year_month;
 
 	bool is_type(building_desc_t::btype u) const {
 		return type == u;
@@ -251,6 +246,9 @@ public:
 	// do not open info for this
 	bool no_info_window() const { return (flags & FLAG_NO_INFO) != 0; }
 
+	// never replace this building for renovation (to create historic city centres)
+	uint16 no_renovation_month() const { return preservation_year_month; }
+
 	building_desc_t::btype get_type() const { return type; }
 
 	bool is_townhall()      const { return is_type(townhall); }
@@ -268,13 +266,11 @@ public:
 
 	/**
 	* the level is used in many places: for price, for capacity, ...
-	* @author Hj. Malthaner
 	*/
 	uint16 get_level() const { return level; }
 
 	/**
 	 * Mail generation level
-	 * @author Hj. Malthaner
 	 */
 	uint16 get_mail_level() const;
 
@@ -309,7 +305,6 @@ public:
 
 	/**
 	* Skin: cursor (index 0) and icon (index 1)
-	* @author Hj. Malthaner
 	*/
 	const skin_desc_t * get_cursor() const {
 		return flags & FLAG_HAS_CURSOR ? get_child<skin_desc_t>(2 + size.x * size.y * layouts) : 0;
@@ -326,19 +321,16 @@ public:
 
 	/**
 	* @return station flags (only used for station buildings and oil rigs)
-	* @author prissi
 	*/
 	uint8 get_enabled() const { return enables; }
 
 	/**
 	* @return time for doing one step
-	* @author prissi
 	*/
 	uint16 get_animation_time() const { return animation_time; }
 
 	/**
 	* @see above for maintenance/price/capacity variable information
-	* @author Kieron Green/jamespetts
 	*/
 	sint32 get_maintenance(karte_t *world) const;
 	sint32 get_price(karte_t *world) const;

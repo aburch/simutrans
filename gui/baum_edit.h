@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_baum_edit_h
-#define gui_baum_edit_h
+#ifndef GUI_BAUM_EDIT_H
+#define GUI_BAUM_EDIT_H
+
 
 #include "extend_edit.h"
 #include "components/gui_image.h"
@@ -38,14 +39,12 @@ public:
 	/**
 	* in top-level windows the name is displayed in titlebar
 	* @return the non-translated component name
-	* @author Hj. Malthaner
 	*/
 	const char* get_name() const { return "baum builder"; }
 
 	/**
 	* Set the window associated helptext
 	* @return the filename for the helptext, or NULL
-	* @author Hj. Malthaner
 	*/
 	const char* get_help_filename() const OVERRIDE { return "baum_build.txt"; }
 };

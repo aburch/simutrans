@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_schedule_list_h
-#define gui_schedule_list_h
+#ifndef GUI_SCHEDULE_LIST_H
+#define GUI_SCHEDULE_LIST_H
+
 
 #include "gui_frame.h"
 #include "components/gui_container.h"
@@ -78,21 +79,18 @@ public:
 	/**
 	 * in top-level windows the name is displayed in titlebar
 	 * @return the non-translated component name
-	 * @author Hj. Malthaner
 	 */
 	const char* get_name() const { return "Line Management"; }
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author Hj. Malthaner
 	 */
 	const char* get_help_filename() const OVERRIDE { return "linemanagement.txt"; }
 
 	/**
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
-	 * @author Hj. Malthaner
 	 */
 	bool has_min_sizer() const OVERRIDE {return true;}
 
@@ -100,13 +98,11 @@ public:
 	 * Draw new component. The values to be passed refer to the window
 	 * i.e. It's the screen coordinates of the window where the
 	 * component is displayed.
-	 * @author Hj. Malthaner
 	 */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly
-	 * @author Hj. Malthaner
 	 */
 	void set_windowsize(scr_size size) OVERRIDE;
 
@@ -116,7 +112,6 @@ public:
 
 	/**
 	 * Select line and show its info
-	 * @author isidoro
 	 */
 	void show_lineinfo(linehandle_t line);
 
@@ -124,6 +119,8 @@ public:
 	 * called after renaming of line
 	 */
 	void update_data(linehandle_t changed_line);
+
+	void map_rotate90( sint16 ) OVERRIDE { update_lineinfo( line ); }
 
 	// following: rdwr stuff
 	void rdwr( loadsave_t *file ) OVERRIDE;

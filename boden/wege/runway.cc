@@ -3,13 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Runaways for Simutrans
- *
- * Revised January 2001
- * Hj. Malthaner
- */
-
 #include "../../simworld.h"
 #include "../../bauer/wegbauer.h"
 #include "../../descriptor/way_desc.h"

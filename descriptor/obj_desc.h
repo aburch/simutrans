@@ -3,19 +3,16 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __OBJ_DESC_H
-#define __OBJ_DESC_H
+#ifndef DESCRIPTOR_OBJ_DESC_H
+#define DESCRIPTOR_OBJ_DESC_H
+
 
 #include <cstddef>
 #include "../simtypes.h"
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      Basis of all desc_t classes, which are loaded from the .pak files.
- *	No virtual methods are allowed!
+/**
+ * Basis of all desc_t classes, which are loaded from the .pak files.
+ * No virtual methods are allowed!
  */
 class obj_desc_t {
 public:

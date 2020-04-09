@@ -3,12 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Water ground for Simutrans.
- * Revised January 2001
- * Hj. Malthaner
- */
-
 #include "wasser.h"
 
 #include "../simworld.h"

@@ -3,16 +3,13 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __CITYCAR_READER_H
-#define __CITYCAR_READER_H
+#ifndef DESCRIPTOR_READER_CITYCAR_READER_H
+#define DESCRIPTOR_READER_CITYCAR_READER_H
+
 
 #include "obj_reader.h"
 
 
-/*
- *  Author:
- *      Volker Meyer
- */
 class citycar_reader_t : public obj_reader_t {
 	static citycar_reader_t the_instance;
 

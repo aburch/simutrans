@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_thing_info_h
-#define gui_thing_info_h
+#ifndef GUI_OBJ_INFO_H
+#define GUI_OBJ_INFO_H
+
 
 #include "../simdebug.h"
 #include "../simobj.h"
@@ -13,9 +14,6 @@
 
 /**
  * An adapter class to display info windows for things (objects)
- *
- * @author Hj. Malthaner
- * @date 22-Nov-2001
  */
 class obj_infowin_t : public base_infowin_t
 {

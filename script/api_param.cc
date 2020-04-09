@@ -388,7 +388,12 @@ namespace script_api {
 		return fab;
 	}
 
-	SQInteger param<fabrik_t*>::push(HSQUIRRELVM vm, fabrik_t* const& fab)
+	const fabrik_t* param<const fabrik_t*>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		return param<fabrik_t*>::get(vm, index);
+	}
+
+	SQInteger param<const fabrik_t*>::push(HSQUIRRELVM vm, const fabrik_t* const& fab)
 	{
 		if (fab == NULL) {
 			sq_pushnull(vm); return 1;
@@ -396,6 +401,11 @@ namespace script_api {
 		koord pos(fab->get_pos().get_2d());
 		coordinate_transform_t::koord_w2sq(pos);
 		return push_instance(vm, "factory_x", pos.x, pos.y);
+	}
+
+	SQInteger param<fabrik_t*>::push(HSQUIRRELVM vm, fabrik_t* const& fab)
+	{
+		return param<const fabrik_t*>::push(vm,  fab);
 	}
 
 	const ware_production_t* param<const ware_production_t*>::get(HSQUIRRELVM vm, SQInteger index)

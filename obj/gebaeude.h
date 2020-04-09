@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef obj_gebaeude_h
-#define obj_gebaeude_h
+#ifndef OBJ_GEBAEUDE_H
+#define OBJ_GEBAEUDE_H
+
 
 #include "../ifc/sync_steppable.h"
 #include "../simobj.h"
@@ -16,7 +17,6 @@ class stadt_t;
 
 /**
  * Asynchronous or synchronous animations for buildings.
- * @author Hj. Malthaner
  */
 class gebaeude_t : public obj_t, sync_steppable
 {
@@ -25,26 +25,22 @@ private:
 
 	/**
 	 * Time control for animation progress.
-	 * @author Hj. Malthaner
 	 */
 	uint16 anim_time;
 
 	/**
 	 * Is this a sync animated object?
-	 * @author Hj. Malthaner
 	 */
 	uint8 sync:1;
 
 	/**
 	 * Boolean flag if a construction site or buildings image
 	 * shall be displayed.
-	 * @author Hj. Malthaner
 	 */
 	uint8 zeige_baugrube:1;
 
 	/**
 	 * if true, this ptr union contains a factory pointer
-	 * @author Hj. Malthaner
 	 */
 	uint8 is_factory:1;
 
@@ -57,13 +53,11 @@ private:
 
 	/**
 	 * Zeitpunkt an dem das Gebaeude Gebaut wurde
-	 * @author Hj. Malthaner
 	 */
 	uint32 insta_zeit;
 
 	/**
 	* either point to a factory or a city
-	* @author Hj. Malthaner
 	*/
 	union {
 		fabrik_t  *fab;
@@ -72,7 +66,6 @@ private:
 
 	/**
 	 * Initializes all variables with safe, usable values
-	 * @author Hj. Malthaner
 	 */
 	void init();
 
@@ -91,12 +84,6 @@ public:
 	void set_fab(fabrik_t *fd);
 	void set_stadt(stadt_t *s);
 
-	/**
-	 * Ein Gebaeude kann zu einer Fabrik gehören.
-	 * @return Einen Zeiger auf die Fabrik zu der das Objekt gehört oder NULL,
-	 * wenn das Objekt zu keiner Fabrik gehört.
-	 * @author Hj. Malthaner
-	 */
 	fabrik_t* get_fabrik() const { return is_factory ? ptr.fab : NULL; }
 	stadt_t* get_stadt() const { return is_factory ? NULL : ptr.stadt; }
 
@@ -126,7 +113,6 @@ public:
 
 	/**
 	 * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik
-	 * @author Hj. Malthaner
 	 */
 	const char *get_name() const OVERRIDE;
 
@@ -138,11 +124,7 @@ public:
 
 	bool is_city_building() const;
 
-	/**
-	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	 * Beobachtungsfenster angezeigt wird.
-	 * @author Hj. Malthaner
-	 */
+	/// @copydoc obj_t::info
 	void info(cbuffer_t & buf) const OVERRIDE;
 
 	void rdwr(loadsave_t *file) OVERRIDE;
@@ -155,7 +137,6 @@ public:
 
 	/**
 	 * @return Den level (die Ausbaustufe) des Gebaudes
-	 * @author Hj. Malthaner
 	 */
 	int get_passagier_level() const;
 
@@ -169,6 +150,7 @@ public:
 
 	void cleanup(player_t *player) OVERRIDE;
 
+	/// @copydoc obj_t::finish_rd
 	void finish_rd() OVERRIDE;
 
 	// currently animated

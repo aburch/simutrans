@@ -125,7 +125,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	// goto line button
 	line_button.set_typ(button_t::posbutton);
-	line_button.set_targetpos(koord(0,0));
+	line_button.set_targetpos3d(koord3d::invalid);
 	line_button.add_listener(this);
 	add_component(&line_button);
 
@@ -442,7 +442,6 @@ void depot_frame_t::layout(scr_size *size)
 
 	/*
 	 * [SELECT ROUTE]:
-	 * @author hsiegeln
 	 */
 	line_button.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART + D_BUTTON_HEIGHT));
 	lb_convoi_line.set_pos(scr_coord(D_MARGIN_LEFT + line_button.get_size().w + 2, SELECT_VSTART + D_BUTTON_HEIGHT));
@@ -646,10 +645,6 @@ bool depot_frame_t::is_in_vehicle_list(const vehicle_desc_t *info)
 // add a single vehicle (helper function)
 void depot_frame_t::add_to_vehicle_list(const vehicle_desc_t *info)
 {
-	// prissi: is it a non-electric track?
-	// Hajo: check for timeline
-	// prissi: and retirement date
-
 	// Check if vehicle should be filtered
 	const goods_desc_t *freight = info->get_freight_type();
 	// Only filter when required and never filter engines
@@ -1462,10 +1457,7 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 		}
 
 		if(next_dep  &&  next_dep!=this->depot) {
-			/**
-			 * Replace our depot_frame_t with a new at the same position.
-			 * Volker Meyer
-			 */
+			//  Replace our depot_frame_t with a new at the same position.
 			scr_coord const pos = win_get_pos(this);
 			destroy_win( this );
 

@@ -276,12 +276,12 @@ void* script_api::param<tool_t*>::tag()
 }
 
 
-call_tool_work build_way(player_t* pl, koord3d start, koord3d end, const way_desc_t* way, bool straight)
+call_tool_work build_way(player_t* pl, koord3d start, koord3d end, const way_desc_t* way, bool straight, bool keep_city_roads)
 {
 	if (way == NULL) {
 		return call_tool_work("No way provided");
 	}
-	return call_tool_work(TOOL_BUILD_WAY | GENERAL_TOOL, way->get_name(), straight ? 2 : 0, pl, start, end);
+	return call_tool_work(TOOL_BUILD_WAY | GENERAL_TOOL, way->get_name(), (straight ? 2 : 0) + (keep_city_roads ? 1 : 0), pl, start, end);
 }
 
 call_tool_work build_station(player_t* pl, koord3d pos, const building_desc_t* building)
@@ -412,7 +412,17 @@ void export_commands(HSQUIRRELVM vm)
 	 * @param way type of way to be built
 	 * @param straight force building of straight ways, similar as building way with control key pressed
 	 */
-	STATIC register_method(vm, build_way, "build_way", false, true);
+	STATIC register_method_fv(vm, build_way, "build_way", freevariable<bool>(false), false, true);
+	/**
+	 * Build a road.
+	 * @param pl player to pay for the work
+	 * @param start coordinate, where work begins
+	 * @param end   coordinate, where work ends
+	 * @param way type of way to be built
+	 * @param straight force building of straight ways, similar as building way with control key pressed
+	 * @param keep_city_roads if true city roads will not be replaced
+	 */
+	STATIC register_method(vm, build_way, "build_road", false, true);
 	/**
 	 * Build a depot.
 	 * @param pl player to pay for the work

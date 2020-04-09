@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_jumpframe_h
-#define gui_jumpframe_h
+#ifndef GUI_JUMP_FRAME_H
+#define GUI_JUMP_FRAME_H
+
 
 #include "components/action_listener.h"
 #include "gui_frame.h"
@@ -25,7 +26,6 @@ public:
 	/**
 	* Set the window associated helptext
 	* @return the filename for the helptext, or NULL
-	* @author Hj. Malthaner
 	*/
 	const char * get_help_filename() const OVERRIDE { return "jump_frame.txt"; }
 

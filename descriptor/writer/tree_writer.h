@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef TREE_WRITER_H
-#define TREE_WRITER_H
+#ifndef DESCRIPTOR_WRITER_TREE_WRITER_H
+#define DESCRIPTOR_WRITER_TREE_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

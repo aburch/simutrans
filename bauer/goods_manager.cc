@@ -40,10 +40,7 @@ bool goods_manager_t::successfully_loaded()
 		return false;
 	}
 
-	/**
-	* Put special items in front:
-	* Volker Meyer
-	*/
+	// Put special items in front
 	goods.insert_at(0,load_none);
 	goods.insert_at(0,load_mail);
 	goods.insert_at(0,load_passengers);

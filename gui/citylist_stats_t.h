@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef CITYLIST_STATS_T_H
-#define CITYLIST_STATS_T_H
+#ifndef GUI_CITYLIST_STATS_T_H
+#define GUI_CITYLIST_STATS_T_H
+
 
 #include "components/gui_aligned_container.h"
 #include "components/gui_label.h"

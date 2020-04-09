@@ -45,12 +45,12 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	desc->weight_per_unit = 100;
 	desc->color = 255;
 
-	// Hajo: Read data
+	// Read data
 	fread(desc_buf, node.size, 1, fp);
 
 	char * p = desc_buf;
 
-	// Hajo: old versions of PAK files have no version stamp.
+	// old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
 
 	const uint16 v = decode_uint16(p);
@@ -83,6 +83,9 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	}
 	else {
+		if( version ) {
+			dbg->fatal( "goods_reader_t::read_node()", "Cannot handle too new node version %i", version );
+		}
 		// old node, version 0
 		desc->base_value = v;
 		desc->catg = (uint8)decode_uint16(p);

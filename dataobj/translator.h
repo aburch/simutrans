@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef TRANSLATOR_H
-#define TRANSLATOR_H
+#ifndef DATAOBJ_TRANSLATOR_H
+#define DATAOBJ_TRANSLATOR_H
+
 
 #include <stdio.h>
 #include <string>
@@ -18,8 +19,6 @@
  *
  * The languages are 0 based index, with a valid range of(with lang being
  * required language): <code>0 <= lang < lang_count</code>.
- *
- * @author Hj. Malthaner, Adam Barclay
  */
 class translator
 {

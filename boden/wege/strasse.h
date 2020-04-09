@@ -3,15 +3,14 @@
  * (see LICENSE.txt)
  */
 
-#ifndef boden_wege_strasse_h
-#define boden_wege_strasse_h
+#ifndef BODEN_WEGE_STRASSE_H
+#define BODEN_WEGE_STRASSE_H
+
 
 #include "weg.h"
 
 /**
  * Cars are able to drive on roads.
- *
- * @author Hj. Malthaner
  */
 class strasse_t : public weg_t
 {

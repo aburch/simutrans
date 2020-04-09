@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef labellist_frame_t_h
-#define labellist_frame_t_h
+#ifndef GUI_LABELLIST_FRAME_T_H
+#define GUI_LABELLIST_FRAME_T_H
+
 
 #include "gui_frame.h"
 #include "components/gui_button.h"
@@ -13,7 +14,6 @@
 
 /**
  * label list window
- * @author Hj. Malthaner
  */
 class labellist_frame_t : public gui_frame_t, private action_listener_t
 {
@@ -27,22 +27,15 @@ private:
 public:
 	labellist_frame_t();
 
-	/**
-	 * Set the window associated helptext
-	 * @return the filename for the helptext, or NULL
-	 * @author V. Meyer
-	 */
-	const char * get_help_filename() const OVERRIDE {return "labellist_filter.txt"; }
+	const char *get_help_filename() const OVERRIDE {return "labellist_filter.txt"; }
 
 	bool action_triggered( gui_action_creator_t *comp,value_t /* */) OVERRIDE;
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	/**
-	 * This function refreshes the list
-	 * @author Markus Weber
-	 */
 	void fill_list();
+
+	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
 };
 
 #endif

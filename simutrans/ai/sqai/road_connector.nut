@@ -39,7 +39,7 @@ class road_connector_t extends manager_t
 					c_start = ::finder.find_station_place(fsrc, fdest)
 				}
 				if (c_start  &&  c_end == null) {
-					c_end   = ::finder.find_station_place(fdest, c_start, !finalize)
+					c_end   = ::finder.find_station_place(fdest, c_start, finalize)
 				}
 
 				if (c_start.len()>0  &&  c_end.len()>0) {
@@ -71,7 +71,7 @@ class road_connector_t extends manager_t
 					}
 					local err = command_x.build_station(pl, c_end, planned_station )
 					if (err) {
-						gui.add_message_at(pl "Failed to build road station at  " + coord_to_string(c_end) + "\n" + err, c_end)
+						gui.add_message_at(pl, "Failed to build road station at  " + coord_to_string(c_end) + "\n" + err, c_end)
 						print("Failed to build station at " + coord_to_string(c_end))
 						return error_handler()
 					}
@@ -308,8 +308,25 @@ class depot_pathfinder extends astar_builder
 		if (t.is_empty()  &&  t.get_slope()==0) {
 			return 0
 		}
+		local depot = t.find_object(mo_depot_road)
+		if (depot  &&  depot.get_owner().nr == our_player_nr) {
+			return 0
+		}
 		return 10
 	}
+	function add_to_open(c, weight)
+	{
+		if (c.dist == 0) {
+			// test for depot
+			local t = tile_x(c.x, c.y, c.z)
+			if (t.is_empty()) {
+				// depot not existing, we must build, increase weight
+				weight += 25 * cost_straight
+			}
+		}
+		base.add_to_open(c, weight)
+	}
+
 	function search_route(start)
 	{
 		prepare_search()

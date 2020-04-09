@@ -3,72 +3,54 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simsound_h
-#define simsound_h
+#ifndef SIMSOUND_H
+#define SIMSOUND_H
+
 
 #include "simtypes.h"
 
-// sound can be selectively muted (but volume is not touched)
+/// sound can be selectively muted (but volume is not touched)
 void sound_set_mute(bool new_flag);
 bool sound_get_mute();
 
-/**
- * setzt Lautstärke für alle effekte
- * @author Hj. Malthaner
- */
+/// @param volume in range 0..255
 void sound_set_global_volume(int volume);
 
-
-/**
- * ermittelt Lautstärke für alle effekte
- * @author Hj. Malthaner
- */
+/// @returns volume in range 0..255
 int sound_get_global_volume();
 
-/// and settign volume for specific sopunds
+/// Sets volume for a specific type of sound.
+/// @param volume in range 0..255
 void sound_set_specific_volume( int volume, sound_type_t t );
+
+/// @returns volume in range 0..255
 int sound_get_specific_volume( sound_type_t t );
 
 /**
  * Play a sound.
  *
  * @param idx    Index of the sound
- * @param volume Volume of the sound, 0 = silence, 255 = max
+ * @param volume in range 0..255
  */
 void sound_play(uint16 idx, uint8 volume, sound_type_t t );
 
 
-// shuffle enable/disable for midis
+/// shuffle enable/disable for midis
 bool sound_get_shuffle_midi();
 void sound_set_shuffle_midi( bool shuffle );
 
-
-/**
- * setzt Lautstärke für MIDI playback
- * @param volume volume in range 0..255
- * @author Hj. Malthaner
- */
+/// @param volume in range 0..255
 void sound_set_midi_volume(int volume);
 
-
-/**
- * ermittelt Lautstärke für MIDI playback
- * @return volume in range 0..255
- * @author Hj. Malthaner
- */
+/// @returns volume in range 0..255
 int sound_get_midi_volume();
 
-
-/**
- * gets midi title
- * @author Hj. Malthaner
- */
+/// gets midi title
 const char *sound_get_midi_title(int index);
 
 
 /**
  * gets curent midi number
- * @author Hj. Malthaner
  */
 int get_current_midi();
 
@@ -76,7 +58,7 @@ int get_current_midi();
 void midi_set_mute(bool on);
 bool midi_get_mute();
 
-/* OWEN: MIDI routines */
+/* MIDI routines */
 extern int midi_init(const char *path);
 extern void midi_play(const int no);
 extern void check_midi();
@@ -84,7 +66,6 @@ extern void check_midi();
 
 /**
  * shuts down midi playing
- * @author Owen Rudge
  */
 extern void close_midi();
 

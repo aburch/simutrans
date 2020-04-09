@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef line_scrollitem_h
-#define line_scrollitem_h
+#ifndef GUI_LINE_ITEM_H
+#define GUI_LINE_ITEM_H
+
 
 #include "components/gui_scrolled_list.h"
 #include "../linehandle_t.h"

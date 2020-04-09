@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef obj_pillar_h
-#define obj_pillar_h
+#ifndef OBJ_PILLAR_H
+#define OBJ_PILLAR_H
+
 
 #include "../simobj.h"
 #include "../descriptor/bridge_desc.h"
@@ -14,8 +15,6 @@ class karte_t;
 
 /**
  * Bridge piece (visible)
- *
- * Hj. Malthaner
  */
 class pillar_t : public obj_t
 {
@@ -48,7 +47,6 @@ public:
 	/**
 	 * @return Einen Beschreibungsstring fuer das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
-	 * @author Hj. Malthaner
 	 */
 	void show_info() OVERRIDE;
 

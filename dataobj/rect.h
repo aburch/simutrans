@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef rect_h
-#define rect_h
+#ifndef DATAOBJ_RECT_H
+#define DATAOBJ_RECT_H
+
 
 #include "koord.h"
 #include <stddef.h>

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef boden_wege_weg_h
-#define boden_wege_weg_h
+#ifndef BODEN_WEGE_WEG_H
+#define BODEN_WEGE_WEG_H
+
 
 #include "../../display/simimg.h"
 #include "../../simtypes.h"
@@ -32,25 +33,18 @@ enum way_statistics {
 
 
 /**
- * <p>Der Weg ist die Basisklasse fuer alle Verkehrswege in Simutrans.
- * Wege "gehören" immer zu einem Grund. Sie besitzen Richtungsbits sowie
- * eine Maske fuer Richtungsbits.</p>
+ * Ways is the base class for all traffic routes. (roads, track, runway etc.)
+ * Ways always "belong" to a ground. They have direction bits (ribis) as well as
+ * a mask for ribis.
  *
- * <p>Ein Weg gehört immer zu genau einer Wegsorte</p>
- *
- * <p>Kreuzungen werden dadurch unterstützt, daß ein Grund zwei Wege
- * enthalten kann (prinzipiell auch mehrere möglich.</p>
- *
- * <p>Wegtyp -1 ist reserviert und kann nicht für Wege benutzt werden<p>
- *
- * @author Hj. Malthaner
+ * A way always is of a single type (waytype_t).
+ * Crossings are supported by the fact that a ground can have more than one way.
  */
 class weg_t : public obj_no_info_t
 {
 public:
 	/**
 	* Get list of all ways
-	* @author Hj. Malthaner
 	*/
 	static const slist_tpl <weg_t *> & get_alle_wege();
 
@@ -70,38 +64,32 @@ private:
 	* array for statistical values
 	* MAX_WAY_STAT_MONTHS: [0] = actual value; [1] = last month value
 	* MAX_WAY_STATISTICS: see #define at top of file
-	* @author hsiegeln
 	*/
 	sint16 statistics[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS];
 
 	/**
 	* Way type description
-	* @author Hj. Malthaner
 	*/
 	const way_desc_t * desc;
 
 	/**
-	* Richtungsbits für den Weg. Norden ist oben rechts auf dem Monitor.
-	* 1=Nord, 2=Ost, 4=Sued, 8=West
-	* @author Hj. Malthaner
+	* Direction bits (ribis) for the way. North is in the upper right corner of the monitor.
+	* 1=North, 2=East, 4=South, 8=West
 	*/
 	uint8 ribi:4;
 
 	/**
 	* Mask for ribi (Richtungsbits => Direction Bits)
-	* @author Hj. Malthaner
 	*/
 	uint8 ribi_maske:4;
 
 	/**
 	* flags like walkway, electrification, road sings
-	* @author Hj. Malthaner
 	*/
 	uint8 flags;
 
 	/**
 	* max speed; could not be taken for desc, since other object may modify the speed
-	* @author Hj. Malthaner
 	*/
 	uint16 max_speed;
 
@@ -110,13 +98,11 @@ private:
 
 	/**
 	* Initializes all member variables
-	* @author Hj. Malthaner
 	*/
 	void init();
 
 	/**
 	* initializes statistic array
-	* @author hsiegeln
 	*/
 	void init_statistics();
 
@@ -152,23 +138,10 @@ public:
 	 */
 	bool check_season(const bool calc_only_season_change) OVERRIDE;
 
-	/**
-	* Setzt die erlaubte Höchstgeschwindigkeit
-	* @author Hj. Malthaner
-	*/
 	void set_max_speed(sint32 s) { max_speed = s; }
-
-	/**
-	* Ermittelt die erlaubte Höchstgeschwindigkeit
-	* @author Hj. Malthaner
-	*/
 	sint32 get_max_speed() const { return max_speed; }
 
-	/**
-	* Setzt neue Description. Ersetzt alte Höchstgeschwindigkeit
-	* mit wert aus Description.
-	* @author Hj. Malthaner
-	*/
+	/// @note Replaces max speed of the way by the max speed property of the descriptor.
 	void set_desc(const way_desc_t *b);
 	const way_desc_t *get_desc() const { return desc; }
 
@@ -182,61 +155,45 @@ public:
 
 	/**
 	* Info-text for this way
-	* @author Hj. Malthaner
 	*/
 	void info(cbuffer_t & buf) const OVERRIDE;
 
 	/**
 	 * @return NULL if OK, otherwise an error message
-	 * @author Hj. Malthaner
 	 */
 	const char *is_deletable(const player_t *player) OVERRIDE;
 
-	/**
-	* Wegtyp zurückliefern
-	*/
 	waytype_t get_waytype() const OVERRIDE = 0;
 
-	/**
-	* 'Jedes Ding braucht einen Typ.'
-	* @return Gibt den typ des Objekts zurück.
-	* @author Hj. Malthaner
-	*/
+	/// @copydoc obj_t::get_typ
 	typ get_typ() const OVERRIDE { return obj_t::way; }
 
 	/**
 	* Die Bezeichnung des Wegs
-	* @author Hj. Malthaner
 	*/
 	const char *get_name() const OVERRIDE { return desc->get_name(); }
 
 	/**
 	* Add direction bits (ribi) for a way.
 	*
-	* Nachdem die ribis geändert werden, ist das weg_image des
-	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
-	* zur Reparatur muß folgen).
-	* @param ribi Richtungsbits
+	* @note After changing of ribi the image of the way is wrong. To correct this,
+	* grund_t::calc_image needs to be called. This is not done here (Too expensive).
 	*/
 	void ribi_add(ribi_t::ribi ribi) { this->ribi |= (uint8)ribi;}
 
 	/**
-	* Remove direction bits (ribi) on a way.
+	* Remove direction bits (ribi) for a way.
 	*
-	* Nachdem die ribis geändert werden, ist das weg_image des
-	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
-	* zur Reparatur muß folgen).
-	* @param ribi Richtungsbits
+	* @note After changing of ribi the image of the way is wrong. To correct this,
+	* grund_t::calc_image needs to be called. This is not done here (Too expensive).
 	*/
 	void ribi_rem(ribi_t::ribi ribi) { this->ribi &= (uint8)~ribi;}
 
 	/**
 	* Set direction bits (ribi) for the way.
 	*
-	* Nachdem die ribis geändert werden, ist das weg_image des
-	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
-	* zur Reparatur muß folgen).
-	* @param ribi Richtungsbits
+	* @note After changing of ribi the image of the way is wrong. To correct this,
+	* grund_t::calc_image needs to be called. This is not done here (Too expensive).
 	*/
 	void set_ribi(ribi_t::ribi ribi) { this->ribi = (uint8)ribi;}
 
@@ -251,35 +208,30 @@ public:
 	ribi_t::ribi get_ribi() const { return (ribi_t::ribi)(ribi & ~ribi_maske); }
 
 	/**
-	* für Signale ist es notwendig, bestimmte Richtungsbits auszumaskieren
-	* damit Fahrzeuge nicht "von hinten" über Ampeln fahren können.
-	* @param ribi Richtungsbits
+	* For signals it is necessary to mask out certain ribi to prevent vehicles
+	* from driving the wrong way (e.g. oneway roads)
 	*/
 	void set_ribi_maske(ribi_t::ribi ribi) { ribi_maske = (uint8)ribi; }
 	ribi_t::ribi get_ribi_maske() const { return (ribi_t::ribi)ribi_maske; }
 
 	/**
 	 * called during map rotation
-	 * @author priss
 	 */
 	void rotate90() OVERRIDE;
 
 	/**
 	* book statistics - is called very often and therefore inline
-	* @author hsiegeln
 	*/
 	void book(int amount, way_statistics type) { statistics[0][type] += amount; }
 
 	/**
 	* return statistics value
 	* always returns last month's value
-	* @author hsiegeln
 	*/
 	int get_statistics(int type) const { return statistics[1][type]; }
 
 	/**
 	* new month
-	* @author hsiegeln
 	*/
 	void new_month();
 

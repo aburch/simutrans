@@ -89,6 +89,14 @@ void export_settings(HSQUIRRELVM vm)
 	register_method(vm, &settings_t::is_separate_halt_capacities, "separate_halt_capacities");
 	/// @returns true if it is allowed to buy obsolete vehicles
 	register_method(vm, &settings_t::get_allow_buying_obsolete_vehicles, "obsolete_vehicles_allowed");
+	/// @returns max number of vehicles of road convois
+	register_method(vm, &settings_t::get_max_road_convoi_length, "get_max_road_convoi_length");
+	/// @returns max number of vehicles of rail convois
+	register_method(vm, &settings_t::get_max_rail_convoi_length, "get_max_rail_convoi_length");
+	/// @returns max number of vehicles of ship convois
+	register_method(vm, &settings_t::get_max_ship_convoi_length, "get_max_ship_convoi_length");
+	/// @returns max number of vehicles of air convois
+	register_method(vm, &settings_t::get_max_air_convoi_length, "get_max_air_convoi_length");
 
 	end_class(vm);
 }

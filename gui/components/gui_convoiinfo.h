@@ -7,8 +7,9 @@
  * Convoi info stats, like loading status bar
  */
 
-#ifndef gui_convoiinfo_h
-#define gui_convoiinfo_h
+#ifndef GUI_COMPONENTS_GUI_CONVOIINFO_H
+#define GUI_COMPONENTS_GUI_CONVOIINFO_H
+
 
 #include "gui_aligned_container.h"
 #include "gui_label.h"
@@ -18,15 +19,12 @@
 
 /**
  * One element of the vehicle list display
- *
- * @author Hj. Malthaner
  */
 class gui_convoiinfo_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:
 	/**
 	* Handle Convois to be displayed.
-	* @author Hj. Malthaner
 	*/
 	convoihandle_t cnv;
 
@@ -36,7 +34,6 @@ private:
 public:
 	/**
 	* @param cnv, the handler for the Convoi to be displayed.
-	* @author Hj. Malthaner
 	*/
 	gui_convoiinfo_t(convoihandle_t cnv);
 
@@ -44,7 +41,6 @@ public:
 
 	/**
 	* Draw the component
-	* @author Hj. Malthaner
 	*/
 	void draw(scr_coord offset) OVERRIDE;
 

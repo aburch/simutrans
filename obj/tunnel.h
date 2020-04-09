@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef obj_tunnel_h
-#define obj_tunnel_h
+#ifndef OBJ_TUNNEL_H
+#define OBJ_TUNNEL_H
+
 
 #include "../simobj.h"
 #include "../display/simimg.h"
@@ -59,7 +60,6 @@ public:
 
 	/**
 	 * @return NULL when OK, otherwise an error message
-	 * @author Hj. Malthaner
 	 */
 	const char *is_deletable(const player_t *player) OVERRIDE;
 };

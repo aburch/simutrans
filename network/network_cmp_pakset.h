@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _NETWORK_CMP_PAKSET_H_
-#define _NETWORK_CMP_PAKSET_H_
+#ifndef NETWORK_NETWORK_CMP_PAKSET_H
+#define NETWORK_NETWORK_CMP_PAKSET_H
+
 
 #include "network_cmd.h"
 #include "pakset_info.h"

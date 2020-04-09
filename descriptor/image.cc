@@ -13,9 +13,8 @@
 #include <stdlib.h>
 
 
-/*
+/**
  * Definition of special colors
- * @author Hj. Malthaner
  */
 const uint32 image_t::rgbtab[SPECIAL] = {
 	0x244B67, // Player color 1

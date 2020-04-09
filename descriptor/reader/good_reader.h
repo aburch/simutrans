@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __GOODS_READER_H
-#define __GOODS_READER_H
+#ifndef DESCRIPTOR_READER_GOOD_READER_H
+#define DESCRIPTOR_READER_GOOD_READER_H
+
 
 #include "obj_reader.h"
 
@@ -25,7 +26,6 @@ public:
 	/**
 	 * Read a goods info node. Does version check and
 	 * compatibility transformations.
-	 * @author Hj. Malthaner
 	 */
 	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
 };

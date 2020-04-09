@@ -44,11 +44,8 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 		imagelist2d_writer_t::instance()->write_obj(fp, node, frontkeys.at(i));
 	}
 
-	// Hajo: temp vars of appropriate size
-	uint16 v16;
-
-	// Hajo: write version data
-	v16 = 0x8002;
+	// write version data
+	uint16 v16 = 0x8002;
 	node.write_uint16(fp, v16, 0);
 
 	v16 = phases;
@@ -83,8 +80,8 @@ static uint32 get_cluster_data(tabfileobj_t& obj)
 
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	// Hajo: take care, hardcoded size of node on disc here!
-	obj_node_t node(this, 37, &parent);
+	// take care, hardcoded size of node on disc here!
+	obj_node_t node(this, 39, &parent);
 
 	write_head(fp, node, obj);
 
@@ -110,20 +107,22 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	building_desc_t::btype     type             = building_desc_t::unknown;
 	uint32                     extra_data       = 0;
-	climate_bits               allowed_climates = all_but_water_climate; // all but water
 	uint8                      enables          = 0;
 	uint16                     level            = obj.get_int("level", 1) - 1;
-	building_desc_t::flag_t const flags =
-		(obj.get_int("noinfo",         0) > 0 ? building_desc_t::FLAG_NO_INFO  : building_desc_t::FLAG_NULL) |
-		(obj.get_int("noconstruction", 0) > 0 ? building_desc_t::FLAG_NO_PIT : building_desc_t::FLAG_NULL) |
-		(obj.get_int("needs_ground",   0) > 0 ? building_desc_t::FLAG_NEED_GROUND : building_desc_t::FLAG_NULL);
-	uint16 const animation_time = obj.get_int("animation_time", 300);
 
 	// get the allowed area for this building
+	climate_bits allowed_climates = all_but_water_climate; // all but water
 	const char* climate_str = obj.get("climates");
 	if (climate_str && strlen(climate_str) > 4) {
 		allowed_climates = get_climate_bits(climate_str);
 	}
+
+	building_desc_t::flag_t const flags =
+		(obj.get_int("noinfo",         0) > 0 ? building_desc_t::FLAG_NO_INFO  : building_desc_t::FLAG_NULL) |
+		(obj.get_int("noconstruction", 0) > 0 ? building_desc_t::FLAG_NO_PIT : building_desc_t::FLAG_NULL) |
+		(obj.get_int("needs_ground",   0) > 0 ? building_desc_t::FLAG_NEED_GROUND : building_desc_t::FLAG_NULL);
+
+	uint16 const animation_time = obj.get_int("animation_time", 300);
 
 	const char* type_name = obj.get("type");
 	if (!STRICMP(type_name, "res")) {
@@ -229,10 +228,10 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		++level;
 	}
 
-	// Hajo: read chance - default is 100% chance to be built
+	// read chance - default is 100% chance to be built
 	uint8 const chance = obj.get_int("chance", 100);
 
-	// prissi: timeline for buildings
+	// timeline for buildings
 	uint16 const intro_date =
 		obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12 +
 		obj.get_int("intro_month", 1) - 1;
@@ -241,7 +240,10 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 +
 		obj.get_int("retire_month", 1) - 1;
 
-	// @author: Kieron Green (ideas from experimental code by jamespetts)
+	uint16 const preservation_date =
+		obj.get_int("preservation_year", DEFAULT_RETIRE_DATE) * 12 +
+		obj.get_int("preservation_month", 1) - 1;
+
 	// capacity and price information.
 	// Stands in place of the "level" setting, but uses "level" data by default.
 
@@ -351,10 +353,10 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		}
 	}
 
-	// Hajo: write version data
-	node.write_uint16(fp, 0x8009,            0);
+	// write version data
+	node.write_uint16(fp, 0x800A,            0);
 
-	// Hajo: write desc data
+	// write desc data
 	node.write_uint8 (fp, 0,                 2); // was gtyp
 	node.write_uint8 (fp, type,              3);
 	node.write_uint16(fp, level,             4);
@@ -373,6 +375,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_sint32(fp, maintenance,      28);
 	node.write_sint32(fp, price,            32);
 	node.write_uint8 (fp, allow_underground,36);
+	node.write_uint16(fp, preservation_date,37);
 
 	// probably add some icons, if defined
 	slist_tpl<string> cursorkeys;

@@ -78,9 +78,9 @@ halthandle_t ai_t::get_halt(const koord pos ) const
 }
 
 
-/* returns true,
+/**
+ * returns true,
  * if there is already a connection
- * @author prissi
  */
 bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const goods_desc_t *wtyp ) const
 {
@@ -164,9 +164,8 @@ bool ai_t::suche_platz(koord pos, koord &size, koord *dirs)
 
 
 
-/* needed renovation due to different sized factories
+/** needed renovation due to different sized factories
  * also try "nicest" place first
- * @author HJ & prissi
  */
 bool ai_t::suche_platz(koord &start, koord &size, koord target, koord off)
 {
@@ -367,8 +366,7 @@ bool ai_t::built_update_headquarter()
 /**
  * Find the last water tile using line algorithm
  * start MUST be on land!
- * @author Hajo
- **/
+ */
 koord ai_t::find_shore(koord start, koord end) const
 {
 	int x = start.x;

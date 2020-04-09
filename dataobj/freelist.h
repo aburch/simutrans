@@ -3,14 +3,13 @@
  * (see LICENSE.txt)
  */
 
-#ifndef freelist_t_h
-#define freelist_t_h
+#ifndef DATAOBJ_FREELIST_H
+#define DATAOBJ_FREELIST_H
+
 
 /**
  * Helper class to organize small memory objects i.e. nodes for linked lists
  * and such.
- *
- * @author Hanjsjörg Malthaner
  */
 class freelist_t
 {

@@ -165,7 +165,7 @@ bool env_t::hide_keyboard = false;
 
 
 
-// Hajo: Define default settings.
+// Define default settings.
 void env_t::init()
 {
 	// settings for messages
@@ -223,7 +223,7 @@ void env_t::init()
 	river_types = 0;
 
 
-	/* prissi: autosave every x months (0=off) */
+	// autosave every x months (0=off)
 	autosave = 0;
 
 	// default: make 25 frames per second (if possible)
@@ -504,7 +504,7 @@ void env_t::rdwr(loadsave_t *file)
 	if (file->is_version_atleast(121, 1)) {
 		file->rdwr_long(sound_distance_scaling);
 	}
-	
+
 	// server settings are not saved, since they are server specific
 	// and could be different on different servers on the same computers
 }

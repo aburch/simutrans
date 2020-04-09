@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef TPL_WEIGHTED_VECTOR_H
-#define TPL_WEIGHTED_VECTOR_H
+#ifndef TPL_WEIGHTED_VECTOR_TPL_H
+#define TPL_WEIGHTED_VECTOR_TPL_H
+
 
 #include <cstddef>
 #include <iterator>
@@ -142,7 +143,6 @@ template<class T> class weighted_vector_tpl
 		/**
 		 * Appends the element at the end of the vector.
 		 * Extend if necessary.
-		 * @author prissi
 		 */
 		bool append(T elem, uint32 weight)
 		{

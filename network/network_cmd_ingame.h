@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _NETWORK_CMD_INGAME_H_
-#define _NETWORK_CMD_INGAME_H_
+#ifndef NETWORK_NETWORK_CMD_INGAME_H
+#define NETWORK_NETWORK_CMD_INGAME_H
+
 
 #include "network_cmd.h"
 #include "memory_rw.h"
@@ -72,7 +73,6 @@ private:
  * @from-client: client sends chat message to server
  *               server logs message and sends it to all clients
  * @from-server: server sends a chat message for display on the client
- * @author Timothy Baldock <tb@entropy.me.uk>
  */
 class nwc_chat_t : public network_command_t {
 public:

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef depotlist_frame_t_h
-#define depotlist_frame_t_h
+#ifndef GUI_DEPOTLIST_FRAME_H
+#define GUI_DEPOTLIST_FRAME_H
+
 
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
@@ -37,8 +38,11 @@ public:
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	bool has_min_sizer() const { return true; }
+	bool has_min_sizer() const OVERRIDE { return true; }
+
+	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
 };
+
 
 class depotlist_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
@@ -58,7 +62,7 @@ public:
 
 	void draw( scr_coord pos) OVERRIDE;
 
-	char const* get_text() const { return ""; /* label.buf().get_str(); */ }
+	char const* get_text() const  OVERRIDE { return ""; /* label.buf().get_str(); */ }
 	bool infowin_event(const event_t *) OVERRIDE;
 	bool is_valid() const OVERRIDE;
 	void set_size(scr_size size) OVERRIDE;

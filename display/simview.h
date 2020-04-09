@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simview_h
-#define simview_h
+#ifndef DISPLAY_SIMVIEW_H
+#define DISPLAY_SIMVIEW_H
+
 
 class karte_t;
 class viewport_t;
@@ -12,7 +13,6 @@ class viewport_t;
 /**
  * World view class, it contains the routines that handle world display to the pixel buffer.
  * @brief View for the simulated world.
- * @author Hj. Malthaner
  */
 class main_view_t
 {

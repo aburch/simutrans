@@ -510,7 +510,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 			}
 			// try to fake old building
 			else if(welt->get_ticks() < 2) {
-				// Hajo: after staring a new map, build fake old buildings
+				// after staring a new map, build fake old buildings
 				gb->add_alter(10000);
 			}
 

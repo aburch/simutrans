@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef IMAGELIST2D_WRITER_H
-#define IMAGELIST2D_WRITER_H
+#ifndef DESCRIPTOR_WRITER_IMAGELIST2D_WRITER_H
+#define DESCRIPTOR_WRITER_IMAGELIST2D_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

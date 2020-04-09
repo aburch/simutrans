@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _NETWORK_CMD_H_
-#define _NETWORK_CMD_H_
+#ifndef NETWORK_NETWORK_CMD_H
+#define NETWORK_NETWORK_CMD_H
+
 
 #include "../simtypes.h"
 #include "../tpl/slist_tpl.h"

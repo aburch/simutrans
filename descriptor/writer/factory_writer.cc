@@ -24,7 +24,7 @@ void factory_field_class_writer_t::write_obj(FILE* outfp, obj_node_t& parent, co
 
 	xref_writer_t::instance()->write_obj(outfp, node, obj_field, field_name, true);
 
-	// Knightly : data specific to each field class
+	// data specific to each field class
 	node.write_uint16(outfp, 0x8001,     0); // version
 	node.write_uint8 (outfp, snow_image, 2);
 	node.write_uint16(outfp, production, 3);
@@ -53,7 +53,7 @@ void factory_field_group_writer_t::write_obj(FILE* outfp, obj_node_t& parent, ta
 		factory_field_class_writer_t::instance()->write_obj(outfp, node, field_name, snow_image, production, capacity, weight);
 	}
 	else {
-		// Knightly : for each field class, retrieve its data and write a field class node
+		// for each field class, retrieve its data and write a field class node
 		for (field_classes = 0;; ++field_classes) {
 			char buf[64];
 
@@ -77,10 +77,15 @@ void factory_field_group_writer_t::write_obj(FILE* outfp, obj_node_t& parent, ta
 	}
 
 	// common, shared field data
-	uint16 const probability  = obj.get_int("probability_to_spawn", 10); // 0,1 %
+	uint16       probability  = obj.get_int("probability_to_spawn", 10); // 0,1 %
 	uint16 const max_fields   = obj.get_int("max_fields",           25);
 	uint16 const min_fields   = obj.get_int("min_fields",            5);
 	uint16 const start_fields = obj.get_int("start_fields",          5);
+
+	if (probability >= 10000) {
+		printf("probability_to_spawn too large, set to 10,000\n");
+		probability = 10000;
+	}
 
 	node.write_uint16(outfp, 0x8003,        0); // version
 	node.write_uint16(outfp, probability,   2);
@@ -119,8 +124,8 @@ void factory_product_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int ca
 
 	xref_writer_t::instance()->write_obj(outfp, node, obj_good, warename, true);
 
-	// Hajo: Version needs high bit set as trigger -> this is required
-	//       as marker because formerly nodes were unversioned
+	// Version needs high bit set as trigger -> this is required
+	// as marker because formerly nodes were unversioned
 	// new version 2: pax-level added
 	node.write_uint16(outfp, 0x8001,   0);
 
@@ -167,7 +172,12 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 	uint16 const pax_level = obj.get_int("pax_level", 12);
 
-	uint16 const expand_probability = obj.get_int("expand_probability", 0);
+	uint16 expand_probability = obj.get_int("expand_probability", 0);
+	if (expand_probability >= 10000) {
+		printf("expand_probability too large, set to 10,000\n");
+		expand_probability = 10000;
+	}
+
 	uint16 const expand_minimum     = obj.get_int("expand_minimum",     0);
 	uint16 const expand_range       = obj.get_int("expand_range",       0);
 	uint16 const expand_times       = obj.get_int("expand_times",       0);
@@ -182,9 +192,9 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// how long between sounds
 	uint32 const sound_interval   =  obj.get_int("sound_interval",     0xFFFFFFFFul );
 
-	uint16 total_len = 43;
+	uint16 total_len = 80;
 
-	// prissi: must be done here, since it may affect the len of the header!
+	// must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
 	sint8 sound_id=NO_SOUND;
 	if (!sound_str.empty()) {
@@ -263,13 +273,42 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// fields (careful, are xref'ed)
 	uint8 fields = 0;
 	if(  *obj.get("fields")  ||  *obj.get("fields[0]")  ) {
-		// Knightly : at least one field class available
+		// at least one field class available
 		fields = 1;
 		factory_field_group_writer_t::instance()->write_obj(fp, node, obj);
 	}
 
-	// new version with pax_level
-	node.write_uint16(fp, 0x8004,              0); // version
+	// now used here instead with the smoke
+
+	koord  pos_off[ 4 ];
+	koord  xy_off[ 4 ];
+	uint8  num_smoke_offsets = 0;
+	sint16 const smokeuplift = obj.get_int("smokeuplift", DEFAULT_SMOKE_UPLIFT );
+	sint16 const smokelifetime = obj.get_int("smokelifetime", DEFAULT_FACTORYSMOKE_TIME );
+	char str_smoketile[] = "smoketile[0]";
+	char str_smokeoffset[] = "smokeoffset[0]";
+	if(  *obj.get( str_smoketile )  ) {
+		for( int i = 0; i < 4;  i++  ) {
+			str_smoketile[10] = '0' + i;
+			str_smokeoffset[12] = '0' + i;
+			if( !*obj.get( str_smoketile ) ) {
+				break;
+			}
+			pos_off[ i ] = obj.get_koord( str_smoketile, koord( 0, 0 ) );
+			if( !*obj.get( str_smokeoffset ) ) {
+				dbg->error( "factory_writer_t::write_obj", "%s defined but not %s!", str_smoketile, str_smokeoffset );
+			}
+			xy_off[ i ] = obj.get_koord( str_smokeoffset, koord( 0, 0 ) );
+			num_smoke_offsets++;
+		}
+	}
+	else {
+		pos_off[0] = obj.get_koord( "smoketile", koord( 0, 0 ) );
+		xy_off[0] = obj.get_koord( "smokeoffset", koord( 0, 0 ) );
+	}
+
+	// new version with pax_level, and smoke offsets part of factory
+	node.write_uint16(fp, 0x8005,              0); // version
 	node.write_uint16(fp, placement,           2);
 	node.write_uint16(fp, productivity,        4);
 	node.write_uint16(fp, range,               6);
@@ -292,11 +331,21 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint32(fp, sound_interval,     38);
 	node.write_uint8 (fp, sound_id,           42);
 
-	// this should ne always at the end
+	node.write_uint8 (fp, num_smoke_offsets,  43);
+	for( int i = 0; i < 4; i++ ) {
+		node.write_sint16( fp, pos_off[i].x, 44+i*8 );
+		node.write_sint16( fp, pos_off[i].y, 46+i*8 );
+		node.write_sint16( fp, xy_off[i].x,  48+i*8 );
+		node.write_sint16( fp, xy_off[i].y,  50+i*8 );
+	}
+	node.write_sint16(fp, smokeuplift,       76);
+	node.write_sint16(fp, smokelifetime,     78);
+
+	// this should be always at the end
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 43);
-		node.write_data_at(fp, sound_str.c_str(), 44, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, 80);
+		node.write_data_at(fp, sound_str.c_str(), 81, sound_str_len);
 	}
 
 	node.write(fp);

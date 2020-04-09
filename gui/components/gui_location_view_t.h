@@ -3,15 +3,15 @@
  * (see LICENSE.txt)
  */
 
-#ifndef LOCATION_VIEW_T_H
-#define LOCATION_VIEW_T_H
+#ifndef GUI_COMPONENTS_GUI_LOCATION_VIEW_T_H
+#define GUI_COMPONENTS_GUI_LOCATION_VIEW_T_H
+
 
 #include "gui_world_view_t.h"
 
 
 /**
  * Displays a location on the world
- * @author Hj. Malthaner
  */
 class location_view_t : public world_view_t
 {

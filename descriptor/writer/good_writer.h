@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GOODS_WRITER_H
-#define GOODS_WRITER_H
+#ifndef DESCRIPTOR_WRITER_GOOD_WRITER_H
+#define DESCRIPTOR_WRITER_GOOD_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"
@@ -23,7 +24,6 @@ class goods_writer_t : public obj_writer_t {
 	public:
 		/**
 		 * Writes goods node data to file
-		 * @author Hj. Malthaner
 		 */
 		virtual void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);
 

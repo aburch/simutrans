@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef siminteraction_h
-#define siminteraction_h
+#ifndef SIMINTERACTION_H
+#define SIMINTERACTION_H
+
 
 class karte_ptr_t;
 class viewport_t;

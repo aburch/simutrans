@@ -22,9 +22,8 @@ void goods_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	uint16 value;
 	uint8 val8;
 
-	// Hajo: version number
-	// Hajo: Version needs high bit set as trigger -> this is required
-	//       as marker because formerly nodes were unversioned
+	// Version needs high bit set as trigger -> this is required
+	// as marker because formerly nodes were unversioned
 	node.write_uint16(fp, 0x8003, 0);
 
 	value = obj.get_int("value", 0);

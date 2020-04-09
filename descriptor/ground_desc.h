@@ -3,20 +3,17 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __GROUND_DESC_H
-#define __GROUND_DESC_H
+#ifndef DESCRIPTOR_GROUND_DESC_H
+#define DESCRIPTOR_GROUND_DESC_H
+
 
 #include "obj_base_desc.h"
 #include "image_array.h"
 #include "../simtypes.h"
 #include "../dataobj/ribi.h"
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      Images of all possible surface tiles: slopes, climates, transitions, etc.
+/**
+ * Images of all possible surface tiles: slopes, climates, transitions, etc.
  *
  *  Child nodes:
  *	0   Name

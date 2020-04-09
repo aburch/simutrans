@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_image_h
-#define gui_image_h
+#ifndef GUI_COMPONENTS_GUI_IMAGE_H
+#define GUI_COMPONENTS_GUI_IMAGE_H
+
 
 #include "../../display/simimg.h"
 #include "../../display/simgraph.h"
@@ -31,9 +32,9 @@ class gui_image_t : public gui_component_t
 		void enable_offset_removal(bool remove_offsets) { set_image(id,remove_offsets); }
 
 		void set_transparent(FLAGGED_PIXVAL c) { color_index = c; }
+
 		/**
 		 * Draw the component
-		 * @author Hj. Malthaner
 		 */
 		void draw( scr_coord offset ) OVERRIDE;
 

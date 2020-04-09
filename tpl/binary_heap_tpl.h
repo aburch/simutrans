@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef tpl_binary_heap_tpl_h
-#define tpl_binary_heap_tpl_h
+#ifndef TPL_BINARY_HEAP_TPL_H
+#define TPL_BINARY_HEAP_TPL_H
+
 
 #include "../simmem.h"
 
@@ -15,10 +16,7 @@
  * inspired by the pathfinder of OTTD written by kuDr
  *
  * For information about Binary Heap algorithm,
- *   see: http://www.policyalmanac.org/games/binaryHeaps.htm *
- *
- * @date September 2006
- * @author prissi
+ *   see: http://www.policyalmanac.org/games/binaryHeaps.htm
  */
 
 #include "../simtypes.h"
@@ -125,7 +123,6 @@ public:
 	/**
 	* Recycles all nodes. Doesn't delete the objects.
 	* Leaves the list empty.
-	* @author Hj. Malthaner
 	*/
 	void clear()
 	{

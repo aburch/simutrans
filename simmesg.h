@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simmesg_h
-#define simmesg_h
+#ifndef SIMMESG_H
+#define SIMMESG_H
+
 
 #include "simtypes.h"
 #include "gui/gui_theme.h"
@@ -15,9 +16,9 @@
 class karte_t;
 class karte_ptr_t;
 
-/* class for a simple message
+/**
+ * class for a simple message
  * this way they are stored in a list
- * @author prissi
  */
 class message_t
 {

@@ -46,12 +46,12 @@ obj_desc_t * groundobj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	groundobj_desc_t *desc = new groundobj_desc_t();
 
-	// Hajo: Read data
+	// Read data
 	fread(desc_buf, node.size, 1, fp);
 
 	char * p = desc_buf;
 
-	// Hajo: old versions of PAK files have no version stamp.
+	// old versions of PAK files have no version stamp.
 	// But we know, the highest bit was always cleared.
 	const uint16 v = decode_uint16(p);
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
@@ -65,8 +65,8 @@ obj_desc_t * groundobj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->price = decode_sint32(p);
 	}
 	else {
-		// old node, version 0, never existed
-		dbg->fatal( "groundobj_reader_t::read_node()", "version %i not supported!", version );
+		// version 0, never existed
+		dbg->fatal( "groundobj_reader_t::read_node()", "Cannot handle too new node version %i", version );
 	}
 	DBG_DEBUG("groundobj_reader_t::read_node()", "version=%i, climates=$%X, seasons=%i, chance=%i, speed=%i, ways=%i, cost=%d, trees_on_top=%i",
 		version,

@@ -2,7 +2,6 @@
 # This file is part of the Simutrans project under the Artistic License.
 # (see LICENSE.txt)
 #
-
 # file used to generate doxygen documentation of squirrel API
 # needs to be copied to trunk/script/api
 BEGIN {
@@ -82,6 +81,10 @@ BEGIN {
 	export_types["factory_x::get_mail_arrived"] = "array<integer>()"
 	export_types["factory_x::get_tile_list"] = "array<coord>()"
 	export_types["factory_x::get_halt_list"] = "array<halt_x>()"
+	export_types["factory_x::is_transformer_connected"] = "bool()"
+	export_types["factory_x::get_transformer"] = "powerline_x()"
+	export_types["factory_x::get_field_count"] = "integer()"
+	export_types["factory_x::get_min_field_count"] = "integer()"
 	export_types["factory_production_x::get_storage"] = "array<integer>()"
 	export_types["factory_production_x::get_received"] = "array<integer>()"
 	export_types["factory_production_x::get_consumed"] = "array<integer>()"
@@ -108,6 +111,7 @@ BEGIN {
 	export_types["vehicle_desc_x::get_predecessors"] = "array<vehicle_desc_x>()"
 	export_types["vehicle_desc_x::get_available_vehicles"] = "array<vehicle_desc_x>(way_types)"
 	export_types["vehicle_desc_x::get_power"] = "integer()"
+	export_types["vehicle_desc_x::needs_electrification"] = "bool()"
 	export_types["vehicle_desc_x::get_freight"] = "good_desc_x()"
 	export_types["vehicle_desc_x::get_capacity"] = "integer()"
 	export_types["vehicle_desc_x::get_running_cost"] = "integer()"
@@ -232,6 +236,10 @@ BEGIN {
 	export_types["label_x::get_text"] = "string()"
 	export_types["sign_x::get_desc"] = "sign_desc_x()"
 	export_types["sign_x::can_pass"] = "bool(player_x)"
+	export_types["powerline_x::is_connected"] = "bool(powerline_x)"
+	export_types["powerline_x::get_factory"] = "factory_x()"
+	export_types["field_x::is_deletable"] = "bool()"
+	export_types["field_x::get_factory"] = "factory_x()"
 	export_types["player_x::is_valid"] = "bool()"
 	export_types["player_x::get_headquarter_level"] = "integer()"
 	export_types["player_x::get_headquarter_pos"] = "coord()"
@@ -286,6 +294,10 @@ BEGIN {
 	export_types["settings::no_routing_over_overcrowding"] = "bool()"
 	export_types["settings::separate_halt_capacities"] = "bool()"
 	export_types["settings::obsolete_vehicles_allowed"] = "bool()"
+	export_types["settings::get_max_road_convoi_length"] = "integer()"
+	export_types["settings::get_max_rail_convoi_length"] = "integer()"
+	export_types["settings::get_max_ship_convoi_length"] = "integer()"
+	export_types["settings::get_max_air_convoi_length"] = "integer()"
 	export_types["dir::is_single"] = "bool(dir)"
 	export_types["dir::is_twoway"] = "bool(dir)"
 	export_types["dir::is_threeway"] = "bool(dir)"
@@ -370,6 +382,7 @@ BEGIN {
 	export_types["command_x::get_flags"] = "integer()"
 	export_types["command_x::set_flags"] = "void(integer)"
 	export_types["command_x::build_way"] = "string(player_x, coord3d, coord3d, way_desc_x, bool)"
+	export_types["command_x::build_road"] = "string(player_x, coord3d, coord3d, way_desc_x, bool, bool)"
 	export_types["command_x::build_depot"] = "string(player_x, coord3d, building_desc_x)"
 	export_types["command_x::build_station"] = "string(player_x, coord3d, building_desc_x)"
 	export_types["command_x::build_bridge"] = "string(player_x, coord3d, coord3d, bridge_desc_x)"

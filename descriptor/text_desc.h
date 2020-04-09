@@ -3,16 +3,13 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __TEXT_DESC_H
-#define __TEXT_DESC_H
+#ifndef DESCRIPTOR_TEXT_DESC_H
+#define DESCRIPTOR_TEXT_DESC_H
+
 
 #include "obj_desc.h"
 
 
-/*
- *  Author:
- *      Volker Meyer
- */
 class text_desc_t : public obj_desc_t {
 public:
 		const char* get_text() const { return text; }

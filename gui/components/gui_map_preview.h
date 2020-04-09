@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_gui_map_preview_h
-#define gui_gui_map_preview_h
+#ifndef GUI_COMPONENTS_GUI_MAP_PREVIEW_H
+#define GUI_COMPONENTS_GUI_MAP_PREVIEW_H
+
 
 #include "gui_component.h"
 #include "../../simcolor.h"
@@ -16,9 +17,6 @@
 
 /**
  * A map preview component
- *
- * @author Max Kielland
- * @date 2013-06-02
  *
  */
 class gui_map_preview_t : public gui_component_t
@@ -36,7 +34,6 @@ class gui_map_preview_t : public gui_component_t
 
 		/**
 		 * Draws the component.
-		 * @author Max Kielland, (Hj. Malthaner)
 		 */
 		void draw(scr_coord offset) OVERRIDE {
 			display_ddd_box_clip_rgb(pos.x + offset.x, pos.y + offset.y, size.w, size.h, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));

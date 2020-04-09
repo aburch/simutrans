@@ -3,13 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Roads for Simutrans
- *
- * Revised January 2001
- * Hj. Malthaner
- */
-
 #include <stdio.h>
 
 #include "strasse.h"

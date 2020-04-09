@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef message_option_h
-#define message_option_h
+#ifndef GUI_MESSAGE_OPTION_T_H
+#define GUI_MESSAGE_OPTION_T_H
+
 
 #include "../simmesg.h"
 #include "simwin.h"
@@ -33,7 +34,6 @@ public:
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author Hj. Malthaner
 	 */
 	const char * get_help_filename() const OVERRIDE {return "mailbox.txt";}
 

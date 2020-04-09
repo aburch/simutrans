@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __SIMSKIN_H
-#define __SIMSKIN_H
+#ifndef SIMSKIN_H
+#define SIMSKIN_H
+
 
 #include "simcolor.h"
 
@@ -43,7 +44,6 @@ public:
 
 	/**
 	 * Different GUI elements
-	 * @author prissi
 	 */
 	static const skin_desc_t* button;
 	static const skin_desc_t* round_button;

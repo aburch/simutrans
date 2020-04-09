@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef HAUSBAUER_H
-#define HAUSBAUER_H
+#ifndef BAUER_HAUSBAUER_H
+#define BAUER_HAUSBAUER_H
+
 
 #include "../descriptor/building_desc.h"
 #include "../dataobj/koord3d.h"

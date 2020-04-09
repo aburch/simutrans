@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_scrolled_list_h
-#define gui_scrolled_list_h
+#ifndef GUI_COMPONENTS_GUI_SCROLLED_LIST_H
+#define GUI_COMPONENTS_GUI_SCROLLED_LIST_H
+
 
 #include "gui_aligned_container.h"
 #include "gui_scrollpane.h"
@@ -23,15 +24,16 @@ public:
 	vector_tpl <gui_component_t *>& get_components() { return components; }
 };
 
+
 /**
  * Scrollable list of components that can be sorted, and has component selection.
+ *
  * Displays list, scrollbuttons up/down, dragbar.
  * Has a min and a max size, and can be displayed with any size in between.
  * Does ONLY cater for vertical offset (yet).
  * two possible types:
  * -list.      simply lists some items.
  * -selection. is a list, but additionally, one item can be selected.
- * @author Niels Roest, additions by Hj. Malthaner
  */
 class gui_scrolled_list_t :
 	public gui_action_creator_t,
@@ -95,7 +97,7 @@ private:
 	bool maximize;	// true if to expand to bottom right corner
 
 	item_compare_func compare;
-	
+
 	bool multiple_selection; // true when multiple selection is enabled.
 	void calc_selection(scrollitem_t*, scrollitem_t*, event_t);
 
@@ -120,10 +122,10 @@ public:
 	void set_selection(int s);
 	sint32 get_selection() const;
 	vector_tpl<sint32> get_selections() const;
-	
+
 	scrollitem_t* get_selected_item() const;
 	sint32 get_count() const { return item_list.get_count(); }
-	
+
 	void enable_multiple_selection() { multiple_selection = true; }
 
 	/*  when rebuilding a list, be sure to call recalculate the slider

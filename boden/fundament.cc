@@ -3,12 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Ground for buildings in Simutrans.
- * Revised January 2001
- * Hj. Malthaner
- */
-
 #include "../simconst.h"
 
 #include "../descriptor/ground_desc.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef curiositylist_frame_t_h
-#define curiositylist_frame_t_h
+#ifndef GUI_CURIOSITYLIST_FRAME_T_H
+#define GUI_CURIOSITYLIST_FRAME_T_H
+
 
 #include "gui_frame.h"
 #include "components/action_listener.h"
@@ -13,7 +14,6 @@
 
 /**
  * Curiosity list window
- * @author Hj. Malthaner
  */
 class curiositylist_frame_t : public gui_frame_t, private action_listener_t
 {
@@ -26,21 +26,19 @@ private:
 	uint32 attraction_count;
 
 	void fill_list();
+
 public:
 	curiositylist_frame_t();
 
-	/**
-	 * Set the window associated helptext
-	 * @return the filename for the helptext, or NULL
-	 * @author V. Meyer
-	 */
-	const char * get_help_filename() const OVERRIDE {return "curiositylist_filter.txt"; }
+	const char *get_help_filename() const OVERRIDE {return "curiositylist_filter.txt"; }
 
 	bool has_min_sizer() const OVERRIDE {return true;}
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
+
+	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
 };
 
 #endif

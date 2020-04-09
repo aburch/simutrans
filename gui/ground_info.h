@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_ground_info_h
-#define gui_ground_info_h
+#ifndef GUI_GROUND_INFO_H
+#define GUI_GROUND_INFO_H
+
 
 #include "base_info.h"
 #include "components/gui_location_view_t.h"
@@ -19,7 +20,6 @@ protected:
 	/**
 	 * The ground we observe. The ground will delete this object
 	 * if self deleted.
-	 * @author Hj. Malthaner
 	 */
 	const grund_t* gr;
 

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __WAY_READER_H
-#define __WAY_READER_H
+#ifndef DESCRIPTOR_READER_WAY_READER_H
+#define DESCRIPTOR_READER_WAY_READER_H
+
 
 #include "obj_reader.h"
 
@@ -23,7 +24,6 @@ public:
 	/**
 	 * Read a way info node. Does version check and
 	 * compatibility transformations.
-	 * @author Hj. Malthaner
 	 */
 	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
 

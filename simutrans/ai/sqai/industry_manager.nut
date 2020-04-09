@@ -339,7 +339,7 @@ class industry_manager_t extends manager_t
 			local entries = cnv.get_schedule().entries
 			local i = 0
 
-			while(i < entries.len()  &&  !freight_available) {
+			while(i < entries.len()) {
 				local entry = entries[i]
 				// stations on schedule
 				if (entry.get_halt(our_player) == null) {
@@ -364,9 +364,12 @@ class industry_manager_t extends manager_t
 		}
 
 		// TODO do something smarter
-		prototyper.max_vehicles = 4
 		prototyper.min_speed  = 1
 		prototyper.max_length = 1
+		prototyper.max_vehicles = get_max_convoi_length( cnv.get_waytype() )
+		if (wt == wt_water) {
+			prototyper.max_length = 4
+		}
 
 		local cnv_valuator    = valuator_simple_t()
 		cnv_valuator.wt       = cnv.get_waytype()

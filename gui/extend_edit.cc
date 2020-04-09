@@ -125,7 +125,7 @@ void extend_edit_gui_t::set_windowsize( scr_size s )
 }
 
 
-bool extend_edit_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
+bool extend_edit_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if (comp == &tabs) {
 		// switch list translation or object name

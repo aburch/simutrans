@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __MARKER_H
-#define __MARKER_H
+#ifndef DATAOBJ_MARKER_H
+#define DATAOBJ_MARKER_H
+
 
 #include "../tpl/ptrhashtable_tpl.h"
 
@@ -15,7 +16,7 @@ class grund_t;
  * Singleton.
  */
 class marker_t {
-	// Hajo: added bit mask, because it allows a more efficient
+	// added bit mask, because it allows a more efficient
 	// implementation (use & instead of %)
 	enum { bit_unit = (8 * sizeof(unsigned char)),
 		bit_mask = (8 * sizeof(unsigned char))-1 };

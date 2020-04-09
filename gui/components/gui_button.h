@@ -7,22 +7,21 @@
  * Defines all button types: Normal (roundbox), Checkboxes (square), Arrows, Scrollbars
  */
 
-#ifndef gui_button_h
-#define gui_button_h
+#ifndef GUI_COMPONENTS_GUI_BUTTON_H
+#define GUI_COMPONENTS_GUI_BUTTON_H
+
 
 #include "gui_action_creator.h"
 #include "gui_component.h"
 #include "../../simcolor.h"
 #include "../../dataobj/koord.h"
+#include "../../dataobj/koord3d.h"
 #include "../../display/simimg.h"
 
 class karte_ptr_t;
 
 /**
  * Class for buttons in Windows
- *
- * @author Hj. Malthaner, Niels Roest
- * @date December 2000
  */
 class button_t :
 	public gui_action_creator_t,
@@ -60,14 +59,12 @@ protected:
 	/**
 	 * Hide the base class init() version to force use of
 	 * the extended init() version for buttons.
-	 * @author Max Kielland
 	 */
 	using gui_component_t::init;
 
 private:
 	/**
 	 * Tooltip for this button
-	 * @author Hj. Malthaner
 	 */
 	const char * tooltip, *translated_tooltip;
 
@@ -75,7 +72,6 @@ private:
 
 	/**
 	 * if buttons is disabled show only grey label
-	 * @author hsiegeln
 	 */
 	uint8 b_enabled:1;
 	uint8 b_no_translate:1;
@@ -83,11 +79,10 @@ private:
 	/**
 	 * The displayed text of the button
 	 * direct access provided to avoid translations
-	 * @author Hj. Malthaner
 	 */
 	union {
 		const char * text;
-		struct { sint16 x,y; } targetpos;
+		struct { sint16 x, y; sint8 z; } targetpos;
 	};
 	const char *translated_text;
 
@@ -101,7 +96,7 @@ private:
 	void operator =(const button_t&); // forbidden
 
 public:
-	PIXVAL background_color; //@author hsiegeln
+	PIXVAL background_color;
 	PIXVAL text_color;
 
 	bool pressed;
@@ -121,32 +116,28 @@ public:
 
 	/**
 	 * Set the displayed text of the button
-	 * @author Hj. Malthaner
 	 */
 	void set_text(const char * text);
 
 	/**
-	 * Get/Set text to position
-	 * @author prissi
+	 * Set position for posbuttons, will be returned on calling listener
 	 */
-	void set_targetpos(const koord k ) { targetpos.x = k.x; targetpos.y = k.y; }
+	void set_targetpos( const koord k ); // assuming this is on map ground
+	void set_targetpos3d( const koord3d k ) { targetpos.x = k.x; targetpos.y = k.y; targetpos.z= k.z; }
 
 	/**
 	 * Set the displayed text of the button when not to translate
-	 * @author Hj. Malthaner
 	 */
 	void set_no_translate(bool b) { b_no_translate = b; }
 
 	/**
 	 * Sets the tooltip of this button
-	 * @author Hj. Malthaner
 	 */
 	void set_tooltip(const char * tooltip);
 
 	/**
 	 * @return true when x, y is within button area, i.e. the button was clicked
 	 * @return false when x, y is outside button area
-	 * @author Hj. Malthaner
 	 */
 	bool getroffen(int x, int y) OVERRIDE;
 
@@ -154,7 +145,6 @@ public:
 
 	/**
 	 * Draw the component
-	 * @author Hj. Malthaner
 	 */
 	void draw(scr_coord offset) OVERRIDE;
 
@@ -174,7 +164,7 @@ public:
 
 	bool enabled() { return b_enabled; }
 
-	// Knightly : a button can only be focusable when it is enabled
+	// a button can only be focusable when it is enabled
 	bool is_focusable() OVERRIDE { return b_enabled && gui_component_t::is_focusable(); }
 
 	void update_focusability();

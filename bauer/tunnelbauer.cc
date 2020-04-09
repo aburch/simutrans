@@ -68,7 +68,6 @@ const tunnel_desc_t *tunnel_builder_t::get_desc(const char *name)
 
 /**
  * Find a matching tunnel
- * @author Hj. Malthaner
  */
 const tunnel_desc_t *tunnel_builder_t::get_tunnel_desc(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
 {
@@ -106,7 +105,6 @@ static bool compare_tunnels(const tunnel_desc_t* a, const tunnel_desc_t* b)
 
 /**
  * Fill menu with icons of given waytype
- * @author Hj. Malthaner
  */
 void tunnel_builder_t::fill_menu(tool_selector_t* tool_selector, const waytype_t wtyp, sint16 /*sound_ok*/)
 {
@@ -286,7 +284,7 @@ koord3d tunnel_builder_t::find_end_pos(player_t *player, koord3d pos, koord zv, 
 			}
 			if(  !ribi  ) {
 				// End of the slope - Missing end rail or has no ribis
-				// we still consider if we interfere with a way (original: pr¸fen noch, ob uns dort ein anderer Weg stˆrt)
+				// we still consider if we interfere with a way
 				if(wegtyp != powerline_wt) {
 					if(  !gr->hat_wege()  ||  gr->hat_weg(wegtyp)  ) {
 						return pos;
@@ -648,8 +646,7 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 	slist_tpl<koord3d>  tmp_list;
 	koord3d   pos = start;
 
-	// Erstmal das ganze Auﬂmaﬂ des Tunnels bestimmen und sehen,
-	// ob uns was im Weg ist.
+	// First check if all tunnel parts can be removed
 	tmp_list.insert(pos);
 	grund_t *from = welt->lookup(pos);
 	marker.mark(from);
@@ -658,7 +655,6 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 	do {
 		pos = tmp_list.remove_first();
 
-		// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 		grund_t *from = welt->lookup(pos);
 		grund_t *to;
 		koord zv = koord::invalid;
@@ -672,7 +668,7 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 		else {
 			part_list.insert(pos);
 		}
-		// Alle Tunnelteile auf Entfernbarkeit pr¸fen!
+
 		if(  from->kann_alle_obj_entfernen(player)  ) {
 			return "Der Tunnel ist nicht frei!\n";
 		}
@@ -703,7 +699,7 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 		}
 	} while (!tmp_list.empty());
 
-	// Jetzt geht es ans lˆschen der Tunnel
+	// Now we can delete the tunnel grounds
 	while (!part_list.empty()) {
 		pos = part_list.remove_first();
 		grund_t *gr = welt->lookup(pos);
@@ -721,7 +717,7 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 		minimap_t::get_instance()->calc_map_pixel( pos.get_2d() );
 	}
 
-	// Und die Tunnelenden am Schluﬂ
+	// And now we can delete the tunnel ends
 	while (!end_list.empty()) {
 		pos = end_list.remove_first();
 

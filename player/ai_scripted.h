@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _AI_SCRIPTED_H
-#define _AI_SCRIPTED_H
+#ifndef PLAYER_AI_SCRIPTED_H
+#define PLAYER_AI_SCRIPTED_H
+
 
 #include "ai.h"
 #include "../utils/plainstring.h"
@@ -73,15 +74,6 @@ public:
 	 * Called after game is fully loaded;
 	 */
 	void finish_rd() OVERRIDE;
-
-
-// 	void report_vehicle_problem(convoihandle_t cnv,const koord3d position) OVERRIDE;
-	/**
-	 * Tells the player that the factory
-	 * is going to be deleted (flag==0)
-	 * Bernd Gabriel, Dwachs
-	 */
-// 	void notify_factory(notification_factory_t, const fabrik_t*) OVERRIDE;
 };
 
 

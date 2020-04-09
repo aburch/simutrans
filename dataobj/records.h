@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef records_h
-#define records_h
+#ifndef DATAOBJ_RECORDS_H
+#define DATAOBJ_RECORDS_H
+
 
 #include "koord.h"
 #include "../convoihandle_t.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_theme_h
-#define gui_theme_h
+#ifndef GUI_GUI_THEME_H
+#define GUI_GUI_THEME_H
+
 
 #include "../dataobj/koord.h"
 #include "../simcolor.h"
@@ -309,8 +310,7 @@ public:
 	/**
 	 * Reads theme configuration data, still not final
 	 * searches a theme.tab inside the specified folder
-	 * @author prissi
 	 */
-	static bool themes_init(const char *dir_name,bool init_font);
+	static bool themes_init(const char *dir_name,bool init_font,bool init_tools);
 };
 #endif

@@ -183,7 +183,7 @@ void banner_t::draw(scr_coord pos, scr_size size )
 {
 	gui_frame_t::draw( pos, size );
 
-	// Hajo: add white line on top since this frame has no title bar.
+	// add white line on top since this frame has no title bar.
 	display_fillbox_wh_clip_rgb(pos.x, pos.y, size.w, 1, color_idx_to_rgb(COL_GREY6), false);
 }
 

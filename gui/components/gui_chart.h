@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_chart_h
-#define gui_chart_h
+#ifndef GUI_COMPONENTS_GUI_CHART_H
+#define GUI_COMPONENTS_GUI_CHART_H
+
 
 #include "../../simtypes.h"
 #include "gui_component.h"
@@ -17,30 +18,26 @@
 
 /**
  * Draws a group of curves.
- * @author Hendrik Siegeln
  */
 class gui_chart_t : public gui_component_t
 {
 public:
 	/**
 	 * Set background color. -1 means no background
-	 * @author Hj. Malthaner
 	 */
 	void set_background(FLAGGED_PIXVAL color);
 
 	gui_chart_t();
 
-	/*
+	/**
 	 * paint chart
-	 * @author hsiegeln
 	 */
 	void draw(scr_coord offset) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	/*
+	/**
 	 * set dimension
-	 * @author hsiegeln
 	 */
 	void set_dimension(int x, int y) {
 		x_elements = x;
@@ -49,7 +46,6 @@ public:
 
 	/**
 	 * Pointer to function which converts supplied values before use
-	 * @author Knightly
 	 */
 	typedef sint64 (*convert_proc) (const sint64);
 
@@ -62,7 +58,6 @@ public:
 	 * @param elements elements in values
 	 * @param proc     conversion procedure to be applied to supplied values
 	 * @returns curve's id
-	 * @author hsiegeln
 	 */
 	uint32 add_curve(PIXVAL color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc=NULL);
 
@@ -78,10 +73,9 @@ public:
 	 */
 	void show_curve(unsigned int id);
 
-	/*
+	/**
 	 * set starting value for x-axis of chart
 	 * example: set_seed(1930) will make a graph starting in year 1930; use set_seed(-1) to display nothing
-	 * @author hsiegeln
 	 */
 	void set_seed(int seed) { this->seed = seed; }
 
@@ -101,7 +95,6 @@ private:
 
 	/*
 	 * curve struct
-	 * @author hsiegeln
 	 */
 	struct curve_t {
 		PIXVAL color;
@@ -114,7 +107,7 @@ private:
 		int type; // 0 = standard, 1 = money, 2 = percent
 		const char* suffix;
 		int precision;	// how many numbers ...
-		convert_proc convert;	// Knightly : procedure for converting supplied values before use
+		convert_proc convert;	// procedure for converting supplied values before use
 	};
 
 	slist_tpl <curve_t> curves;
@@ -129,7 +122,6 @@ private:
 
 	/**
 	 * Background color, -1 for transparent background
-	 * @author Hj. Malthaner
 	 */
 	FLAGGED_PIXVAL background;
 

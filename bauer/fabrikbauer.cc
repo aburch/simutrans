@@ -761,7 +761,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 
 	DBG_MESSAGE("factory_builder_t::build_chain_link","supplier_count %i, lcount %i (need %i of %s)",info->get_supplier_count(),lcount,consumption,ware->get_name());
 
-	// Hajo: search if there already is one or two (cross-connect everything if possible)
+	// search if there already is one or two (cross-connect everything if possible)
 	FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 		// Try to find matching factories for this consumption, but don't find more than two times number of factories requested.
 		if ((lcount != 0 || consumption <= 0) && lcount < lfound + 1) break;

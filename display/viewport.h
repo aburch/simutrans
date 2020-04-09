@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simviewport_h
-#define simviewport_h
+#ifndef DISPLAY_VIEWPORT_H
+#define DISPLAY_VIEWPORT_H
+
 
 #include "../simtypes.h"
 #include "scr_coord.h"
@@ -92,9 +93,8 @@ private:
 	 */
 	void set_viewport_ij_offset( const koord &k );
 
-	/*
+	/**
 	 * The current convoi to follow.
-	 * @author prissi
 	 */
 	convoihandle_t follow_convoi;
 
@@ -167,7 +167,6 @@ public:
 
 	/**
 	 * Set center viewport position.
-	 * @author prissi
 	 */
 	void change_world_position( koord ij, sint16 x=0, sint16 y=0 );
 

@@ -267,6 +267,12 @@ class amphibious_pathfinder_t extends astar
 				targets.append(e);
 			}
 		}
+
+		if (targets.len() == 0) {
+			route = []
+			return
+		}
+
 		compute_bounding_box()
 
 		for(local i=0; i<2; i++) {

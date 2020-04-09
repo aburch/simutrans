@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __CITYCAR_DESC_H
-#define __CITYCAR_DESC_H
+#ifndef DESCRIPTOR_CITYCAR_DESC_H
+#define DESCRIPTOR_CITYCAR_DESC_H
+
 
 #include "obj_base_desc.h"
 #include "image_list.h"
@@ -13,12 +14,8 @@
 #include "../network/checksum.h"
 
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *	Private city cars, not player owned. They automatically appear in cities.
+/**
+ * Private city cars, not player owned. They automatically appear in cities.
  *
  *  Child nodes:
  *	0   Name

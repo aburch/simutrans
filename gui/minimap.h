@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_karte_h
-#define gui_karte_h
+#ifndef GUI_MINIMAP_H
+#define GUI_MINIMAP_H
+
 
 #include "components/gui_component.h"
 #include "../halthandle_t.h"
@@ -31,8 +32,6 @@ class goods_desc_t;
 /**
  * This class is used to render the actual minimap.
  * Implemented as singleton.
- *
- * @author Hj. Malthaner
  */
 class minimap_t : public gui_component_t
 {
@@ -116,7 +115,6 @@ private:
 	/**
 	 * 0: normal
 	 * everything else: special map
-	 * @author hsiegeln
 	 */
 	static MAP_DISPLAY_MODE mode;
 	static MAP_DISPLAY_MODE last_mode;
@@ -178,20 +176,17 @@ public:
 
 	/**
 	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)
-	 * @author hsiegeln
 	 */
 	static PIXVAL calc_severity_color(sint32 amount, sint32 scale);
 
 	/**
 	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)
 	 * but using log scale
-	 * @author prissi
 	 */
 	static PIXVAL calc_severity_color_log(sint32 amount, sint32 scale);
 
 	/**
 	 * returns a color based on the current height
-	 * @author hsiegeln
 	 */
 	static PIXVAL calc_height_color(const sint16 height, const sint16 groundwater);
 

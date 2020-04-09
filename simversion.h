@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simversion_h
-#define simversion_h
+#ifndef SIMVERSION_H
+#define SIMVERSION_H
+
 
 #if defined(REVISION_FROM_FILE)  &&  !defined(REVISION)
 // include external generated revision file
@@ -26,7 +27,7 @@
 #define SIM_SERVER_MINOR    0
 // NOTE: increment before next release to enable save/load of new features
 
-#define MAKEOBJ_VERSION "60.3"
+#define MAKEOBJ_VERSION "60.4"
 
 #ifndef QUOTEME
 #	define QUOTEME_(x) #x

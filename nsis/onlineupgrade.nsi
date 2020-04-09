@@ -12,6 +12,7 @@
 ; untgz
 ; ShellLink
 
+Unicode true
 
 !include "preparation-functions.nsh"
 
