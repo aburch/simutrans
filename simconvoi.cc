@@ -1758,6 +1758,9 @@ void convoi_t::ziel_erreicht()
 		c = c->get_coupling_convoi();
 	}
 	
+	// reset departure time in case the variable is not reset.
+	scheduled_departure_time_intern = 0;
+	
 	const vehicle_t* v = fahr[0];
 
 	// check, what is at destination!
