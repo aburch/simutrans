@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef base_info_h_
-#define base_info_h_
+#ifndef GUI_BASE_INFO_H
+#define GUI_BASE_INFO_H
+
 
 #include "gui_frame.h"
 #include "components/gui_fixedwidth_textarea.h"

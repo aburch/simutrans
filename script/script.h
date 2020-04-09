@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _SCRIPT_H_
-#define _SCRIPT_H_
+#ifndef SCRIPT_SCRIPT_H
+#define SCRIPT_SCRIPT_H
+
 
 /** @file script.h handles the virtual machine, interface to squirrel */
 

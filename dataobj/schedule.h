@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef schedule_h
-#define schedule_h
+#ifndef DATAOBJ_SCHEDULE_H
+#define DATAOBJ_SCHEDULE_H
+
 
 #include "schedule_entry.h"
 
@@ -21,8 +22,6 @@ class karte_t;
 
 /**
  * Class to hold schedule of vehicles in Simutrans.
- *
- * @author Hj. Malthaner
  */
 class schedule_t
 {
@@ -35,7 +34,6 @@ class schedule_t
 
 	/**
 	 * Fix up current_stop value, which we may have made out of range
-	 * @author neroden
 	 */
 	void make_current_stop_valid() {
 		uint8 count = entries.get_count();
@@ -66,14 +64,12 @@ public:
 
 	/**
 	 * Returns error message if stops are not allowed
-	 * @author Hj. Malthaner
 	 */
 	virtual char const* get_error_msg() const = 0;
 
 	/**
 	 * Returns true if this schedule allows stop at the
 	 * given tile.
-	 * @author Hj. Malthaner
 	 */
 	bool is_stop_allowed(const grund_t *gr) const;
 
@@ -87,7 +83,6 @@ public:
 
 	/**
 	 * Get current stop of the schedule.
-	 * @author hsiegeln
 	 */
 	uint8 get_current_stop() const { return current_stop; }
 
@@ -99,7 +94,6 @@ public:
 	/**
 	 * Set the current stop of the schedule .
 	 * If new value is bigger than stops available, the max stop will be used.
-	 * @author hsiegeln
 	 */
 	void set_current_stop(uint8 new_current_stop) {
 		current_stop = new_current_stop;
@@ -168,20 +162,17 @@ public:
 
 	/**
 	 * if the passed in schedule matches "this", then return true
-	 * @author hsiegeln
 	 */
 	bool matches(karte_t *welt, const schedule_t *schedule);
 
 	/**
 	 * Compare this schedule with another, ignoring order and exact positions and waypoints.
-	 * @author prissi
 	 */
 	bool similar( const schedule_t *schedule, const player_t *player );
 
 	/**
 	 * Calculates a return way for this schedule.
 	 * Will add elements 1 to end in reverse order to schedule.
-	 * @author hsiegeln
 	 */
 	void add_return_way();
 
@@ -206,8 +197,6 @@ public:
 
 /**
  * Schedules with stops on tracks.
- *
- * @author Hj. Malthaner
  */
 class train_schedule_t : public schedule_t
 {
@@ -223,7 +212,6 @@ public:
 
 /**
  * Schedules with stops on tram tracks.
- * @author Hj. Malthaner
  */
 class tram_schedule_t : public train_schedule_t
 {
@@ -239,8 +227,6 @@ public:
 
 /**
  * Schedules with stops on roads.
- *
- * @author Hj. Malthaner
  */
 class truck_schedule_t : public schedule_t
 {
@@ -257,8 +243,6 @@ public:
 
 /**
  * Schedules with stops on water.
- *
- * @author Hj. Malthaner
  */
 class ship_schedule_t : public schedule_t
 {
@@ -275,8 +259,6 @@ public:
 
 /**
  * Schedules for airplanes.
- *
- * @author Hj. Malthaner
  */
 class airplane_schedule_t : public schedule_t
 {
@@ -292,7 +274,6 @@ public:
 
 /**
  * Schedules with stops on mono-rails.
- * @author Hj. Malthaner
  */
 class monorail_schedule_t : public schedule_t
 {
@@ -308,7 +289,6 @@ public:
 
 /**
  * Schedules with stops on maglev tracks.
- * @author Hj. Malthaner
  */
 class maglev_schedule_t : public schedule_t
 {
@@ -324,8 +304,6 @@ public:
 
 /**
  * Schedules with stops on narrowgauge tracks.
- *
- * @author Hj. Malthaner
  */
 class narrowgauge_schedule_t : public schedule_t
 {

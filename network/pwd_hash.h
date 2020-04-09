@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef PWD_HASH_H
-#define PWD_HASH_H
+#ifndef NETWORK_PWD_HASH_H
+#define NETWORK_PWD_HASH_H
+
 
 #include <string.h>
 

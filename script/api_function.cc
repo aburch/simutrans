@@ -33,6 +33,10 @@ void script_api::start_squirrel_type_logging(const char* suffix)
 	buf.printf("squirrel_types_%s.awk", suffix);
 	file = dr_fopen(buf, "w");
 	if (file) {
+		fprintf(file, "#\n");
+		fprintf(file, "# This file is part of the Simutrans project under the Artistic License.\n");
+		fprintf(file, "# (see LICENSE.txt)\n");
+		fprintf(file, "#\n");
 		fprintf(file, "# file used to generate doxygen documentation of squirrel API\n");
 		fprintf(file, "# needs to be copied to trunk/script/api\n");
 		fprintf(file, "BEGIN {\n");

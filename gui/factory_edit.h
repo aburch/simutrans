@@ -3,9 +3,9 @@
  * (see LICENSE.txt)
  */
 
+#ifndef GUI_FACTORY_EDIT_H
+#define GUI_FACTORY_EDIT_H
 
-#ifndef gui_factory_edit_h
-#define gui_factory_edit_h
 
 #include "extend_edit.h"
 #include "components/gui_numberinput.h"
@@ -49,14 +49,13 @@ public:
 	/**
 	* in top-level windows the name is displayed in titlebar
 	* @return the non-translated component name
-	* @author Hj. Malthaner
 	*/
 	const char* get_name() const { return "factorybuilder"; }
 
 	/**
 	* Set the window associated helptext
 	* @return the filename for the helptext, or NULL
-	* @author Hj. Malthaner
+
 	*/
 	const char* get_help_filename() const OVERRIDE { return "factory_build.txt"; }
 

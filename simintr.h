@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simintr_h
-#define simintr_h
+#ifndef SIMINTR_H
+#define SIMINTR_H
+
 
 #include "macros.h"
 
@@ -46,9 +47,9 @@ void interrupt_check(const char* caller_info = "0");
 		#define INT_CHECK(info) interrupt_check( __FILE__ ":" QUOTEME(__LINE__) );
 	#endif
 #endif
-#endif
-
 
 // returns a time string in the desired format
 // Returns an empty string if called before the world model defining time is initalized.
 char const *tick_to_string( sint32 ticks, bool show_full );
+
+#endif

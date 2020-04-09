@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef vehicle_movingobj_h
-#define vehicle_movingobj_h
+#ifndef VEHICLE_MOVINGOBJ_H
+#define VEHICLE_MOVINGOBJ_H
+
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
@@ -16,8 +17,7 @@
 
 
 /**
- * moving stuff like sheeps or birds
- * @author prissi
+ * moving stuff like sheep or birds
  */
 class movingobj_t : public vehicle_base_t, public sync_steppable
 {
@@ -56,7 +56,7 @@ public:
 
 	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
-	// prissi: always free
+	// always free
 	virtual bool check_next_tile(const grund_t *) const;
 	virtual bool ist_weg_frei() { return 1; }
 	grund_t* hop_check() OVERRIDE;

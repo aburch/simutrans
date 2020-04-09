@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef PEDESTRIAN_WRITER_H
-#define PEDESTRIAN_WRITER_H
+#ifndef DESCRIPTOR_WRITER_PEDESTRIAN_WRITER_H
+#define DESCRIPTOR_WRITER_PEDESTRIAN_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

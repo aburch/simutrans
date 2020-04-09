@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef citylist_frame_t_h
-#define citylist_frame_t_h
+#ifndef GUI_CITYLIST_FRAME_T_H
+#define GUI_CITYLIST_FRAME_T_H
+
 
 #include "gui_frame.h"
 #include "citylist_stats_t.h"
@@ -22,7 +23,6 @@
 
 /**
  * City list window
- * @author Hj. Malthaner
  */
 class citylist_frame_t : public gui_frame_t, private action_listener_t
 {
@@ -58,24 +58,15 @@ static bool sortreverse;
 public:
 	citylist_frame_t();
 
-	/**
-	 * Draw new component. The values to be passed refer to the window
-	 * i.e. It's the screen coordinates of the window where the
-	 * component is displayed.
-	 * @author Hj. Malthaner
-	*/
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool has_min_sizer() const OVERRIDE {return true;}
 
-	/**
-	 * Set the window associated helptext
-	 * @return the filename for the helptext, or NULL
-	 * @author V. Meyer
-	*/
-	const char * get_help_filename() const OVERRIDE {return "citylist_filter.txt"; }
+	const char *get_help_filename() const OVERRIDE {return "citylist_filter.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
 };
 
 #endif

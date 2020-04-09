@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __TUNNEL_DESC_H
-#define __TUNNEL_DESC_H
+#ifndef DESCRIPTOR_TUNNEL_DESC_H
+#define DESCRIPTOR_TUNNEL_DESC_H
+
 
 #include "../display/simimg.h"
 #include "../simtypes.h"

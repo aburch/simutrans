@@ -74,16 +74,6 @@ ki_kontroll_t::ki_kontroll_t() :
 		// Player type selector, Combobox
 		player_select[i].set_focusable( false );
 
-		// Create combobox list data
-		player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("slot empty"), SYSCOL_TEXT ) ;
-		player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Manual (Human)"), SYSCOL_TEXT ) ;
-		if(  !welt->get_public_player()->is_locked()  ||  !env_t::networkmode  ) {
-			player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Goods AI"), SYSCOL_TEXT ) ;
-			player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Passenger AI"), SYSCOL_TEXT ) ;
-			player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Scripted AI's"), SYSCOL_TEXT ) ;
-		}
-		assert(  player_t::MAX_AI==5  );
-
 		// add table that contains these two buttons, only one of them will be visible
 		add_table(1,0);
 		// When adding new players, activate the interface
@@ -105,7 +95,6 @@ ki_kontroll_t::ki_kontroll_t() :
 		// password/locked button
 		player_lock[i] = new_component<password_button_t>();
 		player_lock[i]->background_color = color_idx_to_rgb((player && player->is_locked()) ? (player->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN);
-		player_lock[i]->enable( welt->get_player(i) );
 		player_lock[i]->add_listener(this);
 		player_lock[i]->set_rigid(true);
 
@@ -129,12 +118,9 @@ ki_kontroll_t::ki_kontroll_t() :
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 {
-	static char param[16];
-
 	// Free play button?
 	if(  comp == &freeplay  ) {
 		welt->call_change_player_tool(karte_t::toggle_freeplay, 255, 0);
@@ -148,7 +134,6 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 			if(  welt->get_player(i)==NULL  ) {
 				// create new AI
 				welt->call_change_player_tool(karte_t::new_player, i, player_select[i].get_selection());
-				player_lock[i]->enable( welt->get_player(i) );
 
 				// if scripted ai without script -> open script selector window
 				ai_scripted_t *ai = dynamic_cast<ai_scripted_t*>(welt->get_player(i));
@@ -164,9 +149,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 					}
 				}
 				// Current AI on/off
-				sprintf( param, "a,%i,%i", i, !welt->get_player(i)->is_active() );
-				tool_t::simple_tool[TOOL_CHANGE_PLAYER]->set_default_param( param );
-				welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_PLAYER], welt->get_active_player() );
+				welt->call_change_player_tool(karte_t::toggle_player_active, i, !welt->get_player(i)->is_active());
 			}
 			break;
 		}
@@ -267,7 +250,7 @@ void ki_kontroll_t::update_data()
 			// scripted ai without script get different button without color
 			ai_scripted_t *ai = dynamic_cast<ai_scripted_t*>(player);
 
-			if (ai  &&  !ai->has_script()) {
+			if (ai  &&  !ai->has_script()  &&  (!env_t::networkmode  ||  env_t::server)) {
 				player_get_finances[i].set_typ(button_t::roundbox | button_t::flexible);
 				player_get_finances[i].set_text("Load scripted AI");
 			}
@@ -299,24 +282,23 @@ void ki_kontroll_t::update_data()
 				player_active[i-2].set_visible(0 < player_select[i].get_selection()  &&  player_select[i].get_selection() < player_t::MAX_AI);
 			}
 
-			if(  env_t::networkmode  ) {
+			// Create combobox list data
+			int select = player_select[i].get_selection();
+			player_select[i].clear_elements();
+			player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("slot empty"), SYSCOL_TEXT ) ;
+			player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Manual (Human)"), SYSCOL_TEXT ) ;
+			if(  !welt->get_public_player()->is_locked()  ||  !env_t::networkmode  ) {
+				player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Goods AI"), SYSCOL_TEXT ) ;
+				player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Passenger AI"), SYSCOL_TEXT ) ;
 
-				// change available selection of AIs
-				if(  !welt->get_public_player()->is_locked()  ) {
-					if(  player_select[i].count_elements()==2  ) {
-						player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Goods AI"), SYSCOL_TEXT ) ;
-						player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Passenger AI"), SYSCOL_TEXT ) ;
-					}
+				if (!env_t::networkmode  ||  env_t::server) {
+					// only server can start scripted players
+					player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Scripted AI's"), SYSCOL_TEXT ) ;
 				}
-				else {
-					if(  player_select[i].count_elements()==4  ) {
-						player_select[i].clear_elements();
-						player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("slot empty"), SYSCOL_TEXT ) ;
-						player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Manual (Human)"), SYSCOL_TEXT ) ;
-					}
-				}
-
 			}
+			player_select[i].set_selection(select);
+			assert(  player_t::MAX_AI==5  );
+
 			ai_income[i]->set_visible(false);
 		}
 	}
@@ -349,7 +331,6 @@ void ki_kontroll_t::update_income()
 
 /**
  * Draw the component
- * @author Hj. Malthaner
  */
 void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 {

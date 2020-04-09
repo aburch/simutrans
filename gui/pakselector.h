@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef pakselector_h
-#define pakselector_h
+#ifndef GUI_PAKSELECTOR_H
+#define GUI_PAKSELECTOR_H
+
 
 #include "savegame_frame.h"
 #include "components/gui_textarea.h"

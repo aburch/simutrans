@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef AI_GOODS_H
-#define AI_GOODS_H
+#ifndef PLAYER_AI_GOODS_H
+#define PLAYER_AI_GOODS_H
+
 
 #include "ai.h"
 
@@ -30,9 +31,9 @@ private:
 	// vars for the KI
 	state state;
 
-	/* test more than one supplier and more than one good *
+	/**
+	 * test more than one supplier and more than one good *
 	 * save last factory for building next supplier/consumer *
-	 * @author prissi
 	 */
 	fabrik_t *root;
 

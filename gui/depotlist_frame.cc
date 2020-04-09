@@ -22,7 +22,7 @@ depotlist_stats_t::depotlist_stats_t(depot_t *d)
 	// pos button
 	set_table_layout(3,1);
 	gotopos.set_typ(button_t::posbutton_automatic);
-	gotopos.set_targetpos(depot->get_pos().get_2d());
+	gotopos.set_targetpos3d(depot->get_pos());
 	add_component(&gotopos);
 	// now add all specific tabs
 	switch(  d->get_waytype()  ) {
@@ -198,7 +198,6 @@ depotlist_frame_t::depotlist_frame_t(player_t *player) :
 
 /**
  * This method is called if an action is triggered
- * @author Markus Weber/Volker Meyer
  */
 bool depotlist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {

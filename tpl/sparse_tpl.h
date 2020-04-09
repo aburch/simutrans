@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef tpl_sparse_tpl_h
-#define tpl_sparse_tpl_h
+#ifndef TPL_SPARSE_TPL_H
+#define TPL_SPARSE_TPL_H
+
 
 #include "../dataobj/koord.h"
 #include "../simtypes.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_extend_edit_h
-#define gui_extend_edit_h
+#ifndef GUI_EXTEND_EDIT_H
+#define GUI_EXTEND_EDIT_H
+
 
 #include "gui_frame.h"
 #include "components/gui_textinput.h"
@@ -89,7 +90,6 @@ public:
 	/**
 	* Does this window need a min size button in the title bar?
 	* @return true if such a button is needed
-	* @author Hj. Malthaner
 	*/
 	bool has_min_sizer() const OVERRIDE {return true;}
 

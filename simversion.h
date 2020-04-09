@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simversion_h
-#define simversion_h
+#ifndef SIMVERSION_H
+#define SIMVERSION_H
+
 
 #if defined(REVISION_FROM_FILE)  &&  !defined(REVISION)
 // include external generated revision file
@@ -30,7 +31,7 @@
 #define OTRP_VERSION_MINOR 2
 // NOTE: increment OTRP_VERSION_MAJOR when the save data structure changes.
 
-#define MAKEOBJ_VERSION "60.3"
+#define MAKEOBJ_VERSION "60.4"
 // new factory locations and provisio
 
 #ifndef QUOTEME

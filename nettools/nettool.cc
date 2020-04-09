@@ -5,9 +5,6 @@
 
 /*
  * Network server control tool for Simutrans
- * Created April 2011
- * dwachs
- * Timothy Baldock <tb@entropy.me.uk>
  */
 
 #include <stdlib.h>

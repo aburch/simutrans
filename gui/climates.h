@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef climate_gui_h
-#define climate_gui_h
+#ifndef GUI_CLIMATES_H
+#define GUI_CLIMATES_H
+
 
 #include "gui_frame.h"
 #include "components/gui_button.h"
@@ -18,7 +19,6 @@ class settings_t;
 
 /**
  * set the climate borders
- * @author prissi
  */
 class climate_gui_t  : public gui_frame_t, private action_listener_t
 {
@@ -52,7 +52,6 @@ public:
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author Hj. Malthaner
 	 */
 	const char * get_help_filename() const OVERRIDE {return "climates.txt";}
 

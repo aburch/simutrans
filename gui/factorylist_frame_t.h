@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef factorylist_frame_t_h
-#define factorylist_frame_t_h
+#ifndef GUI_FACTORYLIST_FRAME_T_H
+#define GUI_FACTORYLIST_FRAME_T_H
+
 
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
@@ -14,7 +15,6 @@
 
 /*
  * Factory list window
- * @author Hj. Malthaner
  */
 class factorylist_frame_t : public gui_frame_t, private action_listener_t
 {
@@ -30,18 +30,15 @@ private:
 public:
 	factorylist_frame_t();
 
-	/**
-	 * Set the window associated helptext
-	 * @return the filename for the helptext, or NULL
-	 * @author V. Meyer
-	 */
-	const char * get_help_filename() const OVERRIDE {return "factorylist_filter.txt"; }
+	const char *get_help_filename() const OVERRIDE {return "factorylist_filter.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	bool has_min_sizer() const { return true; }
+	bool has_min_sizer() const OVERRIDE { return true; }
+
+	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
 };
 
 #endif

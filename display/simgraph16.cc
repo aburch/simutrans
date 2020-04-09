@@ -249,7 +249,7 @@ int large_font_total_height = 11;
 
 
 /*
- * Hajo: mapping tables for RGB 555 to actual output format
+ * mapping tables for RGB 555 to actual output format
  * plus the special (player, day&night) colors appended
  *
  * 0x0000 - 0x7FFF: RGB colors
@@ -262,20 +262,20 @@ static PIXVAL rgbmap_day_night[RGBMAPSIZE];
 
 
 /*
- * Hajo: same as rgbmap_day_night, but always daytime colors
+ * same as rgbmap_day_night, but always daytime colors
  */
 static PIXVAL rgbmap_all_day[RGBMAPSIZE];
 
 
 /*
- * Hajo:used by pixel copy functions, is one of rgbmap_day_night
+ * used by pixel copy functions, is one of rgbmap_day_night
  * rgbmap_all_day
  */
 static PIXVAL *rgbmap_current = 0;
 
 
 /*
- * Hajo: mapping table for special-colors (AI player colors)
+ * mapping table for special-colors (AI player colors)
  * to actual output format - day&night mode
  * 16 sets of 16 colors
  */
@@ -283,7 +283,7 @@ static PIXVAL specialcolormap_day_night[256];
 
 
 /*
- * Hajo: mapping table for special-colors (AI player colors)
+ * mapping table for special-colors (AI player colors)
  * to actual output format - all day mode
  * 16 sets of 16 colors
  */
@@ -311,7 +311,7 @@ static uint8 player_offsets[MAX_PLAYER_COUNT][2];
 
 
 /*
- * Hajo: Image map descriptor structure
+ * Image map descriptor structure
  */
 struct imd {
 	sint16 x; // current (zoomed) min x offset
@@ -388,7 +388,7 @@ static PIXVAL* textur = NULL;
 
 
 /*
- * Hajo: dirty tile management structures
+ * dirty tile management structures
  */
 #define DIRTY_TILE_SIZE 16
 #define DIRTY_TILE_SHIFT 4
@@ -407,7 +407,7 @@ static int night_shift = -1;
 
 
 /*
- * Hajo: special colors during daytime
+ * special colors during daytime
  */
 uint8 display_day_lights[LIGHT_COUNT*3] = {
 	0x57,	0x65,	0x6F, // Dark windows, lit yellowish at night
@@ -424,12 +424,12 @@ uint8 display_day_lights[LIGHT_COUNT*3] = {
 	0xC1,	0xB1,	0xD1, // Windows, lit yellow
 	0x4D,	0x4D,	0x4D, // Windows, lit yellow
 	0xE1,	0x00,	0xE1, // purple light for signals
-	0x01, 0x01, 0xFF, // blue light
+	0x01,	0x01,	0xFF, // blue light
 };
 
 
 /*
- * Hajo: special colors during nighttime
+ * special colors during nighttime
  */
 uint8 display_night_lights[LIGHT_COUNT*3] = {
 	0xD3,	0xC3,	0x80, // Dark windows, lit yellowish at night
@@ -446,13 +446,13 @@ uint8 display_night_lights[LIGHT_COUNT*3] = {
 	0xD3,	0xC3,	0x80, // Windows, lit yellow
 	0xD3,	0xC3,	0x80, // Windows, lit yellow
 	0xE1,	0x00,	0xE1, // purple light for signals
-	0x01, 0x01, 0xFF, // blue light
+	0x01,	0x01,	0xFF, // blue light
 };
 
 
 // the players colors and colors for simple drawing operations
-// each eight colors are corresponding to a player color
-static const uint8 special_pal[224*3]=
+// each three values correspond to a color, each 8 colors are a player color
+static const uint8 special_pal[SPECIAL_COLOR_COUNT*3] =
 {
 	36, 75, 103,
 	57, 94, 124,
@@ -682,12 +682,12 @@ static const uint8 special_pal[224*3]=
 
 
 /*
- * Hajo: tile raster width
+ * tile raster width
  */
 KOORD_VAL tile_raster_width = 16;	// zoomed
 KOORD_VAL base_tile_raster_width = 16;	// original
 
-// Knightly : variables for storing currently used image procedure set and tile raster width
+// variables for storing currently used image procedure set and tile raster width
 display_image_proc display_normal = NULL;
 display_image_proc display_color = NULL;
 display_blend_proc display_blend = NULL;
@@ -696,7 +696,7 @@ signed short current_tile_raster_width = 0;
 
 
 /*
- * Hajo: Zoom factor
+ * Zoom factor
  */
 #define MAX_ZOOM_FACTOR (9)
 #define ZOOM_NEUTRAL (3)
@@ -709,15 +709,17 @@ static sint32 zoom_den[MAX_ZOOM_FACTOR+1] = { 1, 2, 3, 1, 4, 8, 2, 8, 4, 8 };
  */
 uint32 get_color_rgb(uint8 idx)
 {
-	// special_pal has 225 values
-	if (idx <= 224) {
+	// special_pal has 224 rgb colors
+	if (idx < SPECIAL_COLOR_COUNT) {
 		return special_pal[idx*3 + 0]<<16 | special_pal[idx*3 + 1]<<8 | special_pal[idx*3 + 2];
 	}
-	// if it uses one of the special colours it's under display_day_lights
-	if (idx <= 224 + LIGHT_COUNT) {
-		uint8 lidx = idx - 224;
+
+	// if it uses one of the special light colours it's under display_day_lights
+	if (idx < SPECIAL_COLOR_COUNT + LIGHT_COUNT) {
+		const uint8 lidx = idx - SPECIAL_COLOR_COUNT;
 		return display_day_lights[lidx*3 + 0]<<16 | display_day_lights[lidx*3 + 1]<<8 | display_day_lights[lidx*3 + 2];
 	}
+
 	// Return black for anything else
 	return 0;
 }
@@ -844,7 +846,6 @@ static bool clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOOR
 
 /**
  * Get the clipping rectangle dimensions
- * @author Hj. Malthaner
  */
 clip_dimension display_get_clip_wh(CLIP_NUM_DEF0)
 {
@@ -854,7 +855,6 @@ clip_dimension display_get_clip_wh(CLIP_NUM_DEF0)
 
 /**
  * Set the clipping rectangle dimensions
- * @author Hj. Malthaner
  *
  * here, a pixel at coordinate xp is displayed if
  *  clip. x <= xp < clip.xx
@@ -993,7 +993,6 @@ static inline void mark_tile_dirty(const int x, const int y)
 
 /**
  * Mark tile as dirty, with _NO_ clipping
- * @author Hj. Malthaner
  */
 static void mark_rect_dirty_nc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 {
@@ -1026,7 +1025,6 @@ static void mark_rect_dirty_nc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_V
 
 /**
  * Mark tile as dirty, with clipping
- * @author Hj. Malthaner
  */
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 {
@@ -1082,7 +1080,6 @@ void mark_screen_dirty()
 
 /**
  * the area of this image need update
- * @author Hj. Malthaner
  */
 void display_mark_img_dirty(image_id image, KOORD_VAL xp, KOORD_VAL yp)
 {
@@ -1106,7 +1103,6 @@ void display_mark_img_dirty(image_id image, KOORD_VAL xp, KOORD_VAL yp)
 
 /**
  * Flag all images for rezoom on next draw
- * @author Hj. Malthaner
  */
 static void rezoom()
 {
@@ -1213,7 +1209,6 @@ static void activate_player_color(sint8 player_nr, bool daynight)
 
 /**
  * Flag all images to recode colors on next draw
- * @author Hj. Malthaner
  */
 static void recode()
 {
@@ -1230,7 +1225,6 @@ static display_recode_img_src_target_proc recode_img_src_target = NULL;
 
 /**
  * Convert a certain image data to actual output data
- * @author prissi
  */
 static void recode_img_src_target_15(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 {
@@ -1315,11 +1309,10 @@ image_id get_image_count()
 
 /**
  * Handles the conversion of an image to the output color
- * @author prissi
  */
 static void recode_img(const image_id n, const sint8 player_nr)
 {
-	// Hajo: may this image be zoomed
+	// may this image be zoomed
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &recode_img_mutex );
 	if(  (images[n].player_flags & (1<<player_nr)) == 0  ) {
@@ -1401,11 +1394,10 @@ PIXVAL inline zoomin_pixel(uint8 *p, uint8* pab, uint8 *prl, uint8* pdia)
  * Convert base image data to actual image size
  * Uses averages of all sampled points to get the "real" value
  * Blurs a bit
- * @author prissi
  */
 static void rezoom_img(const image_id n)
 {
-	// Hajo: may this image be zoomed
+	// may this image be zoomed
 	if(  n < anz_images  &&  images[n].base_h > 0  ) {
 #ifdef MULTI_THREAD
 		pthread_mutex_lock( &rezoom_img_mutex[n % env_t::num_threads] );
@@ -1840,7 +1832,7 @@ static void rezoom_img(const image_id n)
 						dest[count] = pixval;
 					}
 
-					/* Knightly:
+					/*
 					 *		If it is not the first clear-colored-run pair and its colored run is empty
 					 *		--> it is superfluous and can be removed by rolling back the pointer
 					 */
@@ -1905,7 +1897,6 @@ void display_fit_img_to_width( const image_id n, sint16 new_w )
 }
 
 
-/* Tomas variant */
 static void calc_base_pal_from_night_shift(const int night)
 {
 	const int night2 = min(night, 4);
@@ -1968,23 +1959,25 @@ static void calc_base_pal_from_night_shift(const int night)
 		}
 	}
 
-
 	// player color map (and used for map display etc.)
-	for (i = 0; i < 224; i++) {
+	for (i = 0; i < SPECIAL_COLOR_COUNT; i++) {
 		const int R = (int)(special_pal[i*3 + 0] * RG_night_multiplier);
 		const int G = (int)(special_pal[i*3 + 1] * RG_night_multiplier);
 		const int B = (int)(special_pal[i*3 + 2] * B_night_multiplier);
 
 		specialcolormap_day_night[i] = get_system_color(R, G, B);
 	}
-	// special light colors (actually, only non-darkening greys should be used
+
+	// special light colors (actually, only non-darkening greys should be used)
 	for(i=0;  i<LIGHT_COUNT;  i++  ) {
-		specialcolormap_day_night[i+224] = get_system_color( display_day_lights[i*3 + 0], display_day_lights[i*3 + 1], 	display_day_lights[i*3 + 2] );
+		specialcolormap_day_night[SPECIAL_COLOR_COUNT+i] = get_system_color( display_day_lights[i*3 + 0], display_day_lights[i*3 + 1], 	display_day_lights[i*3 + 2] );
 	}
+
 	// init with black for forbidden colors
-	for(i=224+LIGHT_COUNT;  i<256;  i++  ) {
+	for(i=SPECIAL_COLOR_COUNT+LIGHT_COUNT;  i<256;  i++  ) {
 		specialcolormap_day_night[i] = 0;
 	}
+
 	// default player colors
 	for(i=0;  i<8;  i++  ) {
 		rgbmap_day_night[0x8000+i] = specialcolormap_day_night[player_offsets[0][0]+i];
@@ -2190,7 +2183,7 @@ void display_free_all_images_above( image_id above )
 }
 
 
-// prissi: query offsets
+// query offsets
 void display_get_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
 	if(  image < anz_images  ) {
@@ -2202,7 +2195,7 @@ void display_get_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, 
 }
 
 
-// prissi: query un-zoomed offsets
+// query un-zoomed offsets
 void display_get_base_image_offset(image_id image, scr_coord_val *xoff, scr_coord_val *yoff, scr_coord_val *xw, scr_coord_val *yw)
 {
 	if(  image < anz_images  ) {
@@ -2218,7 +2211,6 @@ void display_get_base_image_offset(image_id image, scr_coord_val *xoff, scr_coor
 
 /**
  * Copy Pixel from src to dest
- * @author Hj. Malthaner
  */
 static inline void pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end)
 {
@@ -2233,7 +2225,6 @@ static inline void pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const
 #ifdef RGB555
 /**
  * Copy pixel, replace player color
- * @author Hj. Malthaner
  */
 static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL* const end)
 {
@@ -2272,7 +2263,6 @@ static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL* c
 #else
 /**
  * Copy pixel, replace player color
- * @author Hj. Malthaner
  */
 static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL* const end)
 {
@@ -2345,7 +2335,6 @@ template<> void templated_pixcopy<colored>(PIXVAL *dest, const PIXVAL *src, cons
 
 /**
  * draws image with clipping along arbitrary lines
- * @author Dwachs
  */
 template<pixcopy_routines copyroutine>
 static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp  CLIP_NUM_DEF)
@@ -2373,7 +2362,7 @@ static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				uint16 has_alpha = runlen & TRANSPARENT_RUN;
 				runlen &= ~TRANSPARENT_RUN;
 
-				// Hajo: something to display?
+				// something to display?
 				if (xmin < xmax  &&  xpos + runlen > xmin && xpos < xmax) {
 					const int left = (xpos >= xmin ? 0 : xmin - xpos);
 					const int len  = (xmax - xpos >= runlen ? runlen : xmax - xpos);
@@ -2398,7 +2387,6 @@ static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 
 /**
  * Draw image with horizontal clipping
- * @author Hj. Malthaner
  */
 static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp  CLIP_NUM_DEF)
 {
@@ -2420,7 +2408,7 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				uint16 has_alpha = runlen & TRANSPARENT_RUN;
 				runlen &= ~TRANSPARENT_RUN;
 
-				// Hajo: something to display?
+				// something to display?
 				if(  xpos + runlen > CR.clip_rect.x  &&  xpos < CR.clip_rect.xx  ) {
 					const int left = (xpos >= CR.clip_rect.x ? 0 : CR.clip_rect.x - xpos);
 					const int len  = (CR.clip_rect.xx - xpos >= runlen ? runlen : CR.clip_rect.xx - xpos);
@@ -2551,7 +2539,6 @@ void display_img_aligned( const image_id n, scr_rect area, int align, const int 
 
 /**
  * Draw image with vertical clipping (quickly) and horizontal (slowly)
- * @author prissi
  */
 void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr_raw, const int /*daynight*/, const int dirty  CLIP_NUM_DEF)
 {
@@ -2848,7 +2835,6 @@ void display_img_stretch_blend( const stretch_map_t &imag, scr_rect area, FLAGGE
  * Draw Image, replace player color,
  * assumes height is ok and valid data are calculated.
  * color replacement needs the original data => sp points to non-cached data
- * @author hajo/prissi
  */
 static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOORD_VAL h  CLIP_NUM_DEF)
 {
@@ -2868,7 +2854,7 @@ static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOO
 			// now get colored pixels
 			runlen = (*sp++) & ~TRANSPARENT_RUN;	// we recode anyway, so no need to do it explicitely
 
-			// Hajo: something to display?
+			// something to display?
 			if(  xpos + runlen > CR.clip_rect.x  &&  xpos < CR.clip_rect.xx  ) {
 				const int left = (xpos >= CR.clip_rect.x ? 0 : CR.clip_rect.x - xpos);
 				const int len  = (CR.clip_rect.xx - xpos > runlen ? runlen : CR.clip_rect.xx - xpos);
@@ -2887,7 +2873,6 @@ static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOO
 
 /**
  * Draw Image, replaced player color
- * @author Hj. Malthaner
  */
 void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty  CLIP_NUM_DEF)
 {
@@ -2909,7 +2894,7 @@ void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 playe
 		}
 		else {
 		// do player colour substitution but not daynight - can't use cached images. Do NOT call multithreaded.
-		// prissi: now test if visible and clipping needed
+		// now test if visible and clipping needed
 			const KOORD_VAL x = images[n].x + xp;
 			      KOORD_VAL y = images[n].y + yp;
 			const KOORD_VAL w = images[n].w;
@@ -2959,7 +2944,6 @@ void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 playe
 
 /**
  * draw unscaled images, replaces base color
- * @author prissi
  */
 void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty  CLIP_NUM_DEF)
 {
@@ -2968,7 +2952,7 @@ void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 		display_color_img( n, xp, yp, player_nr, daynight, dirty  CLIP_NUM_PAR);
 	}
 	else if(  n < anz_images  ) {
-		// prissi: now test if visible and clipping needed
+		// now test if visible and clipping needed
 		const KOORD_VAL x = images[n].base_x + xp;
 		      KOORD_VAL y = images[n].base_y + yp;
 		const KOORD_VAL w = images[n].base_w;
@@ -3154,7 +3138,7 @@ static void pix_blend25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 }
 
 
-// Knightly : the following 6 functions are for display_base_img_blend()
+// the following 6 functions are for display_base_img_blend()
 static void pix_blend_recode75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -3381,7 +3365,7 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 				// now get colored pixels
 				runlen = (*sp++) & (~TRANSPARENT_RUN);
 
-				// Hajo: something to display?
+				// something to display?
 				if(  xpos + runlen > CR.clip_rect.x  &&  xpos < CR.clip_rect.xx  ) {
 					const int left = (xpos >= CR.clip_rect.x ? 0 : CR.clip_rect.x - xpos);
 					const int len  = (CR.clip_rect.xx - xpos >= runlen ? runlen : CR.clip_rect.xx - xpos);
@@ -3586,7 +3570,7 @@ static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 				runlen = ((*sp++) & ~TRANSPARENT_RUN);
 				alphamap++;
 
-				// Hajo: something to display?
+				// something to display?
 				if(  xpos + runlen > CR.clip_rect.x  &&  xpos < CR.clip_rect.xx  ) {
 					const int left = (xpos >= CR.clip_rect.x ? 0 : CR.clip_rect.x - xpos);
 					const int len  = (CR.clip_rect.xx - xpos >= runlen ? runlen : CR.clip_rect.xx - xpos);
@@ -3607,7 +3591,6 @@ static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 
 /**
  * draws the transparent outline of an image
- * @author kierongreen
  */
 void display_rezoomed_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const FLAGGED_PIXVAL color_index, const int /*daynight*/, const int dirty  CLIP_NUM_DEF)
 {
@@ -3779,7 +3762,7 @@ void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const 
 }
 
 
-// Knightly : For blending or outlining unzoomed image. Adapted from display_base_img() and display_unzoomed_img_blend()
+// For blending or outlining unzoomed image. Adapted from display_base_img() and display_unzoomed_img_blend()
 void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF)
 {
 	if(  base_tile_raster_width == tile_raster_width  ) {
@@ -3787,7 +3770,7 @@ void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const 
 		display_rezoomed_img_blend( n, xp, yp, player_nr, color_index, daynight, dirty  CLIP_NUM_PAR );
 	}
 	else if(  n < anz_images  ) {
-		// prissi: now test if visible and clipping needed
+		// now test if visible and clipping needed
 		KOORD_VAL x = images[n].base_x + xp;
 		KOORD_VAL y = images[n].base_y + yp;
 		KOORD_VAL w = images[n].base_w;
@@ -3866,7 +3849,7 @@ void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsi
 		display_rezoomed_img_alpha( n, alpha_n, alpha_flags, xp, yp, player_nr, color_index, daynight, dirty  CLIP_NUM_PAR );
 	}
 	else if(  n < anz_images  ) {
-		// prissi: now test if visible and clipping needed
+		// now test if visible and clipping needed
 		KOORD_VAL x = images[n].base_x + xp;
 		KOORD_VAL y = images[n].base_y + yp;
 		KOORD_VAL w = images[n].base_w;
@@ -3961,7 +3944,6 @@ void display_scroll_band(const KOORD_VAL start_y, const KOORD_VAL x_offset, cons
 
 /**
  * Draw one Pixel
- * @author Hj. Malthaner
  */
 #ifdef DEBUG_FLUSH_BUFFER
 static void display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color, bool mark_dirty=true)
@@ -4068,7 +4050,6 @@ void display_fillbox_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_
 
 /**
  * Draw vertical line
- * @author Hj. Malthaner
  */
 static void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PIXVAL colval, int dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
 {
@@ -4202,7 +4183,6 @@ KOORD_VAL display_get_char_max_width(const char* text, size_t len) {
  * For the next logical character in the text, returns the character code
  * as well as retrieves the char byte count and the screen pixel width
  * CAUTION : The text pointer advances to point to the next logical character
- * @author Knightly
  */
 utf32 get_next_char_with_metrics(const char* &text, unsigned char &byte_length, unsigned char &pixel_width)
 {
@@ -4285,7 +4265,6 @@ size_t display_fit_proportional( const char *text, scr_coord_val max_width, scr_
  * For the previous logical character in the text, returns the character code
  * as well as retrieves the char byte count and the screen pixel width
  * CAUTION : The text pointer recedes to point to the previous logical character
- * @author Knightly
  */
 utf32 get_prev_char_with_metrics(const char* &text, const char *const text_start, unsigned char &byte_length, unsigned char &pixel_width)
 {
@@ -4316,10 +4295,6 @@ utf32 get_prev_char_with_metrics(const char* &text, const char *const text_start
 
 /* proportional_string_width with a text of a given length
 * extended for universal font routines with unicode support
-* @author Volker Meyer
-* @date  15.06.2003
-* @author prissi
-* @date 29.11.04
 */
 int display_calc_proportional_string_len_width(const char *text, size_t len)
 {
@@ -4409,18 +4384,16 @@ static unsigned char get_h_mask(const int xL, const int xR, const int cL, const 
 	return mask;
 }
 
-/*
+/**
  * len parameter added - use -1 for previous behaviour.
  * completely renovated for unicode and 10 bit width and variable height
- * @author Volker Meyer, prissi
- * @date  15.06.2003, 2.1.2005
  */
 int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len  CLIP_NUM_DEF)
 {
 	const font_t* const fnt = &large_font;
 	KOORD_VAL cL, cR, cT, cB;
 	utf32 c;
-	size_t iTextPos = 0; // pointer on text position: prissi
+	size_t iTextPos = 0; // pointer on text position
 	int char_width_1, char_width_2; // 1 is char only, 2 includes room
 	int screen_pos;
 	const uint8 *char_data;
@@ -4548,7 +4521,7 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 }
 
 
-/*
+/**
  * Displays a string which is abbreviated by the (language specific) ellipsis character if too wide
  * If enough space is given then it just displays the full string
  * @returns screen_width
@@ -4674,7 +4647,6 @@ void display_ddd_box_clip_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL
 
 /**
  * display text in 3d box with clipping
- * @author: hsiegeln
  */
 void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, FLAGGED_PIXVAL ddd_color, FLAGGED_PIXVAL text_color, const char *text, int dirty  CLIP_NUM_DEF)
 {
@@ -4697,15 +4669,6 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
 
 /**
  * Draw multiline text
- * @author Hj. Malthaner
- *
- * Better performance without copying text!
- * @author Volker Meyer
- * @date  15.06.2003
- *
- * Allow arbitrary colors.
- * @author Tor Egil R. Strand
- * @date 06.10.2013
  */
 int display_multiline_text_rgb(KOORD_VAL x, KOORD_VAL y, const char *buf, PIXVAL color)
 {
@@ -4733,7 +4696,6 @@ int display_multiline_text_rgb(KOORD_VAL x, KOORD_VAL y, const char *buf, PIXVAL
 
 /**
  * draw line from x,y to xx,yy
- * Hajo
  **/
 void display_direct_line_rgb(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const PIXVAL colval)
 {
@@ -4894,8 +4856,6 @@ void display_filled_circle_rgb( KOORD_VAL x0, KOORD_VAL  y0, int radius, const P
 
 /**
  * Print a bezier curve between points A and B
- * @author yorkeiser
- * @date  08.04.2012
  * @Ax,Ay=start coordinate of Bezier curve
  * @Bx,By=end coordinate of Bezier curve
  * @ADx,ADy=vector for start direction of curve
@@ -5093,7 +5053,6 @@ void display_flush_buffer()
 
 /**
  * Turn mouse pointer visible/invisible
- * @author Hj. Malthaner
  */
 void display_show_pointer(int yesno)
 {
@@ -5107,7 +5066,6 @@ void display_show_pointer(int yesno)
 
 /**
  * mouse pointer image
- * @author prissi
  */
 void display_set_pointer(int pointer)
 {
@@ -5117,7 +5075,6 @@ void display_set_pointer(int pointer)
 
 /**
  * mouse pointer image
- * @author prissi
  */
 void display_show_load_pointer(int loading)
 {
@@ -5131,7 +5088,6 @@ void display_show_load_pointer(int loading)
 
 /**
  * Initialises the graphics module
- * @author Hj. Malthaner
  */
 void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 {
@@ -5193,7 +5149,7 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 
 	display_set_clip_wh(0, 0, disp_width, disp_height);
 
-	// Hajo: Calculate daylight rgbmap and save it for unshaded tile drawing
+	// Calculate daylight rgbmap and save it for unshaded tile drawing
 	player_day = 0;
 	display_day_night_shift(0);
 	memcpy(specialcolormap_all_day, specialcolormap_day_night, 256 * sizeof(PIXVAL));
@@ -5251,7 +5207,6 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 
 /**
  * Check if the graphic module already was initialized.
- * @author Hj. Malthaner
  */
 int is_display_init()
 {
@@ -5261,7 +5216,6 @@ int is_display_init()
 
 /**
  * Close the Graphic module
- * @author Hj. Malthaner
  */
 void simgraph_exit()
 {
@@ -5284,7 +5238,6 @@ void simgraph_exit()
 
 
 /* changes display size
- * @author prissi
  */
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 {
@@ -5322,7 +5275,6 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 
 /**
  * Take Screenshot
- * @author Hj. Malthaner
  */
 void display_snapshot( int x, int y, int w, int h )
 {

@@ -3,20 +3,17 @@
  * (see LICENSE.txt)
  */
 
-#ifndef CITYCAR_WRITER_H
-#define CITYCAR_WRITER_H
+#ifndef DESCRIPTOR_WRITER_CITYCAR_WRITER_H
+#define DESCRIPTOR_WRITER_CITYCAR_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"
 #include "../objversion.h"
 
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      Description of the automatically generated cars
+/**
+ * Description of the automatically generated cars
  */
 class citycar_writer_t : public obj_writer_t {
 	private:

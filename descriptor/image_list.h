@@ -3,17 +3,14 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __IMAGELIST_DESC_H
-#define __IMAGELIST_DESC_H
+#ifndef DESCRIPTOR_IMAGE_LIST_H
+#define DESCRIPTOR_IMAGE_LIST_H
+
 
 #include "image.h"
 
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      One-dimensional image list.
+/**
+ * One-dimensional image list.
  *
  *  Child nodes:
  *	0   1st Image

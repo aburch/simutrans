@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef WAY_WRITER_H
-#define WAY_WRITER_H
+#ifndef DESCRIPTOR_WRITER_WAY_WRITER_H
+#define DESCRIPTOR_WRITER_WAY_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"
@@ -23,7 +24,6 @@ class way_writer_t : public obj_writer_t {
 	public:
 		/**
 		 * Write a waytype description node
-		 * @author Hj. Malthaner
 		 */
 		virtual void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);
 

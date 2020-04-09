@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_messagebox_h
-#define gui_messagebox_h
+#ifndef GUI_MESSAGEBOX_H
+#define GUI_MESSAGEBOX_H
+
 
 #include "base_info.h"
 #include "components/gui_location_view_t.h"
@@ -14,7 +15,6 @@
 
 /**
  * A class for Message/news window.
- * @author Hj. Malthaner
  */
 class news_window : public base_infowin_t
 {

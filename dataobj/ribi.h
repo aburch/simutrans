@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef dataobj_ribi_t_h
-#define dataobj_ribi_t_h
+#ifndef DATAOBJ_RIBI_H
+#define DATAOBJ_RIBI_H
+
 
 #include "../simtypes.h"
 #include "../simconst.h"
@@ -118,7 +119,6 @@ struct slope4_t {
 /**
  * Directions in simutrans.
  * ribi_t = Richtungs-Bit = Directions-Bitfield
- * @author Hj. Malthaner
  */
 class ribi_t {
 	/// Static lookup table
@@ -129,7 +129,7 @@ class ribi_t {
 		single      = 1,  ///< only one bit set, way ends here
 		straight_ns = 2,  ///< contains straight n/s connection
 		straight_ew = 4,  ///< contains straight e/w connection
-		bend       = 8,   ///< is a bend
+		bend        = 8,   ///< is a bend
 		twoway      = 16, ///< two bits set
 		threeway    = 32, ///< three bits set
 	};

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef building_place_finder_t_h
-#define building_place_finder_t_h
+#ifndef FINDER_BUILDING_PLACEFINDER_H
+#define FINDER_BUILDING_PLACEFINDER_H
+
 
 #include "placefinder.h"
 #include "../simworld.h"
@@ -13,8 +14,6 @@
  * building_placefinder_t:
  *
  * Search a free site for building using function find_place().
- *
- * @author V. Meyer
  */
 class building_placefinder_t : public placefinder_t {
 public:

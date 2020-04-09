@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __OBJ_BASE_DESC_H
-#define __OBJ_BASE_DESC_H
+#ifndef DESCRIPTOR_OBJ_BASE_DESC_H
+#define DESCRIPTOR_OBJ_BASE_DESC_H
+
 
 #include "text_desc.h"
 

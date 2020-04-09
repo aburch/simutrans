@@ -37,7 +37,7 @@ void register_export_function(HSQUIRRELVM vm, bool scenario)
 	export_simple(vm);
 	export_string_methods(vm);
 	export_tiles(vm);
-	export_world(vm);
+	export_world(vm, scenario);
 	export_pathfinding(vm);
 
 	export_commands(vm);

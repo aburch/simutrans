@@ -3,17 +3,15 @@
  * (see LICENSE.txt)
  */
 
-#ifndef boden_wasser_h
-#define boden_wasser_h
+#ifndef BODEN_WASSER_H
+#define BODEN_WASSER_H
+
 
 #include "grund.h"
 
 /**
  * The water ground models rivers and lakes in Simutrans.
- *
- * @author Hj. Malthaner
  */
-
 class wasser_t : public grund_t
 {
 protected:

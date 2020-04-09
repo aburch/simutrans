@@ -3,11 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
-* Menu with display settings
-* @author Hj. Malthaner
-*/
-
 #include "display_settings.h"
 #include "../simdebug.h"
 #include "../simworld.h"
@@ -421,7 +416,7 @@ bool traffic_settings_t::action_triggered( gui_action_creator_t *comp, value_t v
 	if( &follow_mode == comp ) {
 		env_t::follow_convoi_underground = v.i;
 	}
-		
+
 	if( &money_booking == comp ) {
 		env_t::show_money_message = v.i;
 	}

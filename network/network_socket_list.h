@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _NETWORK_SOCKET_LIST_H_
-#define _NETWORK_SOCKET_LIST_H_
+#ifndef NETWORK_NETWORK_SOCKET_LIST_H
+#define NETWORK_NETWORK_SOCKET_LIST_H
+
 
 #include "network.h"
 #include "network_address.h"

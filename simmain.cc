@@ -57,6 +57,7 @@
 #include "gui/scenario_frame.h"
 
 #include "obj/baum.h"
+#include "obj/wolke.h"
 
 #include "utils/simstring.h"
 #include "utils/searchfolder.h"
@@ -102,6 +103,7 @@ static void show_sizes()
 	DBG_MESSAGE("sizes", "obj_t: %d", sizeof(obj_t));
 	DBG_MESSAGE("sizes", "gebaeude_t: %d", sizeof(gebaeude_t));
 	DBG_MESSAGE("sizes", "baum_t: %d", sizeof(baum_t));
+	DBG_MESSAGE("sizes", "wolke_t: %d", sizeof(wolke_t));
 	DBG_MESSAGE("sizes", "weg_t: %d", sizeof(weg_t));
 	DBG_MESSAGE("sizes", "private_car_t: %d\n", sizeof(private_car_t));
 
@@ -443,7 +445,7 @@ int simu_main(int argc, char** argv)
 			"  <markus@pristovsek.de>\n"
 			"\n"
 			"  Based on Simutrans 0.84.21.2\n"
-			"  by Hansjörg Malthaner et. al.\n"
+			"  by HansjÃ¶rg Malthaner et. al.\n"
 			"---------------------------------------\n"
 			"command line parameters available: \n"
 			" -addons             loads also addons (with -objects)\n"
@@ -882,29 +884,29 @@ int simu_main(int argc, char** argv)
 	if(  const char *themestr = gimme_arg(argc, argv, "-theme", 1)  ) {
 		dr_chdir( env_t::user_dir );
 		dr_chdir( "themes" );
-		themes_ok = gui_theme_t::themes_init(themestr, true);
+		themes_ok = gui_theme_t::themes_init(themestr, true, false);
 		if(  !themes_ok  ) {
 			dr_chdir( env_t::program_dir );
 			dr_chdir( "themes" );
-			themes_ok = gui_theme_t::themes_init(themestr, true);
+			themes_ok = gui_theme_t::themes_init(themestr, true, false);
 		}
 	}
 	// next try the last used theme
 	if(  !themes_ok  &&  env_t::default_theme.c_str()!=NULL  ) {
 		dr_chdir( env_t::user_dir );
 		dr_chdir( "themes" );
-		themes_ok = gui_theme_t::themes_init( env_t::default_theme, true );
+		themes_ok = gui_theme_t::themes_init( env_t::default_theme, true, false );
 		if(  !themes_ok  ) {
 			dr_chdir( env_t::program_dir );
 			dr_chdir( "themes" );
-			themes_ok = gui_theme_t::themes_init( env_t::default_theme, true );
+			themes_ok = gui_theme_t::themes_init( env_t::default_theme, true, false );
 		}
 	}
 	// specified themes not found => try default themes
 	if(  !themes_ok  ) {
 		dr_chdir( env_t::program_dir );
 		dr_chdir( "themes" );
-		themes_ok = gui_theme_t::themes_init("themes.tab",true);
+		themes_ok = gui_theme_t::themes_init("themes.tab",true,false);
 	}
 	if(  !themes_ok  ) {
 		dbg->fatal( "simmain()", "No GUI themes found! Please re-install!" );
@@ -1088,7 +1090,7 @@ int simu_main(int argc, char** argv)
 		dbg->message("simmain()","overlaid warning is disabled.");
 	}
 
-	// Hajo: simgraph init loads default fonts, now we need to load (if not set otherwise)
+	// simgraph_init loads default fonts, now we need to load (if not set otherwise)
 	sprachengui_t::init_font_from_lang( strcmp(env_t::fontname.c_str(), FONT_PATH_X "prop.fnt")==0 );
 	dr_chdir(env_t::program_dir);
 
@@ -1138,6 +1140,18 @@ int simu_main(int argc, char** argv)
 
 	dbg->message("simmain()","Reading menu configuration ...");
 	tool_t::read_menu(env_t::objfilename);
+
+	// reread theme
+	dr_chdir( env_t::user_dir );
+	dr_chdir( "themes" );
+	themes_ok = gui_theme_t::themes_init( env_t::default_theme, true, false );
+	if(  !themes_ok  ) {
+		dr_chdir( env_t::program_dir );
+		dr_chdir( "themes" );
+		themes_ok = gui_theme_t::themes_init( env_t::default_theme, true, false );
+	}
+	dr_chdir( env_t::program_dir );
+
 
 	if(  translator::get_language()==-1  ) {
 		ask_language();
@@ -1420,7 +1434,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 
 
 #ifdef USE_SOFTPOINTER
-	// Hajo: give user a mouse to work with
+	// give user a mouse to work with
 	if (skinverwaltung_t::mouse_cursor != NULL) {
 		// we must use our softpointer (only Allegro!)
 		display_set_pointer(skinverwaltung_t::mouse_cursor->get_image_id(0));
@@ -1431,7 +1445,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 
 	welt->set_dirty();
 
-	// Hajo: simgraph init loads default fonts, now we need to load
+	// simgraph_init loads default fonts, now we need to load
 	// the real fonts for the current language, if not set otherwise
 	sprachengui_t::init_font_from_lang( strcmp(env_t::fontname.c_str(), FONT_PATH_X "prop.fnt")==0 );
 

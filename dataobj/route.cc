@@ -72,7 +72,6 @@ void route_t::remove_koord_from(uint32 i) {
 /**
  * Appends a straight line from the last koord3d in route to the desired target.
  * Will return false if failed
- * @author prissi
  */
 bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 {
@@ -113,8 +112,8 @@ uint32 route_t::MAX_STEP=0;
 bool route_t::node_in_use=false;
 #endif
 
-/* find the route to an unknown location
- * @author prissi
+/**
+ * find the route to an unknown location
  */
 bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth, bool coupling )
 {
@@ -177,7 +176,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	bool target_reached = false;
 	sint16 coupling_steps = 0;
 	do {
-		// Hajo: this is too expensive to be called each step
+		// this is too expensive to be called each step
 		if((step & 4095) == 0) {
 			INT_CHECK("route 161");
 		}
@@ -235,7 +234,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					if(tmp->dir!=current_dir) {
 						k->g += 3;
 						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL) {
-							// discourage 90° turns
+							// discourage 90 degree turns
 							k->g += 10;
 						}
 						else if(ribi_t::is_perpendicular(tmp->dir,current_dir)) {
@@ -371,7 +370,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 	uint32 beat=1;
 	do {
-		// Hajo: this is too expensive to be called each step
+		// this is too expensive to be called each step
 		if((beat++ & 4095) == 0) {
 			INT_CHECK("route 161");
 		}
@@ -442,7 +441,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 					if(tmp->dir!=current_dir) {
 						new_g += 3;
 						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL) {
-							// discourage 90° turns
+							// discourage 90 degree turns
 							new_g += 10;
 						}
 						else if(ribi_t::is_perpendicular(tmp->dir,current_dir)) {
@@ -678,10 +677,9 @@ void route_t::postprocess_water_route(karte_t *welt)
 
 
 
-/* searches route, uses intern_calc_route() for distance between stations
+/**
+ * searches route, uses intern_calc_route() for distance between stations
  * handles only driving in stations by itself
- * corrected 12/2005 for station search
- * @author Hansjörg Malthaner, prissi
  */
 route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_khm, sint32 max_len )
 {

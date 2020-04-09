@@ -95,7 +95,7 @@ void powernet_t::step(uint32 delta_t)
 
 	// compute normalized demand
 	norm_demand = compute_norm_sd(demand, supply);
-	norm_supply = compute_norm_sd(supply, demand);	
+	norm_supply = compute_norm_sd(supply, demand);
 }
 
 /**

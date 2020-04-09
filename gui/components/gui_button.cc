@@ -120,6 +120,14 @@ void button_t::set_typ(enum type t)
 }
 
 
+void button_t::set_targetpos( const koord k )
+{
+	targetpos.x = k.x;
+	targetpos.y = k.y;
+	targetpos.z = welt->max_hgt( k );
+}
+
+
 scr_size button_t::get_max_size() const
 {
 	switch(type&TYPE_MASK) {
@@ -172,7 +180,6 @@ scr_size button_t::get_min_size() const
 
 /**
  * Sets the text displayed in the button
- * @author Hj. Malthaner
  */
 void button_t::set_text(const char * text)
 {
@@ -187,7 +194,6 @@ void button_t::set_text(const char * text)
 
 /**
  * Sets the tooltip of this button
- * @author Hj. Malthaner
  */
 void button_t::set_tooltip(const char * t)
 {
@@ -214,7 +220,6 @@ bool button_t::getroffen(int x,int y)
 
 /**
  * Event responder
- * @author Hj. Malthaner
  */
 bool button_t::infowin_event(const event_t *ev)
 {
@@ -236,34 +241,30 @@ bool button_t::infowin_event(const event_t *ev)
 		return false;
 	}
 
-	// Hajo: we ignore resize events, they shouldn't make us
-	// pressed or unpressed
+	// we ignore resize events, they shouldn't make us pressed or unpressed
 	if(!b_enabled  ||  IS_WINDOW_RESIZE(ev)) {
 		return false;
 	}
 
-	// Knightly : check if the initial click and the current mouse positions are within the button's boundary
+	// check if the initial click and the current mouse positions are within the button's boundary
 	bool const cxy_within_boundary = 0 <= ev->cx && ev->cx < get_size().w && 0 <= ev->cy && ev->cy < get_size().h;
 	bool const mxy_within_boundary = 0 <= ev->mx && ev->mx < get_size().w && 0 <= ev->my && ev->my < get_size().h;
 
-	// Knightly : update the button pressed state only when mouse positions are within boundary or when it is mouse release
+	// update the button pressed state only when mouse positions are within boundary or when it is mouse release
 	if(  (type & STATE_BIT) == 0  &&  cxy_within_boundary  &&  (  mxy_within_boundary  ||  IS_LEFTRELEASE(ev)  )  ) {
-		// Hajo: check button state, if we should look depressed
 		pressed = (ev->button_state==1);
 	}
 
-	// Knightly : make sure that the button will take effect only when the mouse positions are within the component's boundary
+	// make sure that the button will take effect only when the mouse positions are within the component's boundary
 	if(  !cxy_within_boundary  ||  !mxy_within_boundary  ) {
 		return false;
 	}
 
 	if(IS_LEFTRELEASE(ev)) {
 		if(  (type & TYPE_MASK)==posbutton  ) {
-			koord k(targetpos.x,targetpos.y);
-			call_listeners( &k );
-
+			call_listeners( &targetpos );
 			if (type == posbutton_automatic) {
-				welt->get_viewport()->change_world_position( koord3d(k,welt->max_hgt(k)) );
+				welt->get_viewport()->change_world_position( koord3d(targetpos.x,targetpos.y,targetpos.z) );
 
 			}
 

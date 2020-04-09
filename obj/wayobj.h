@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef wayobj_t_h
-#define wayobj_t_h
+#ifndef OBJ_WAYOBJ_H
+#define OBJ_WAYOBJ_H
+
 
 #include "../simtypes.h"
 #include "../display/simimg.h"
@@ -109,7 +110,6 @@ public:
 
 	/**
 	 * Fill menu with icons of given stops from the list
-	 * @author Hj. Malthaner
 	 */
 	static void fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 sound_ok);
 };

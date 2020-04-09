@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_loadsave_frame_h
-#define gui_loadsave_frame_h
+#ifndef GUI_LOADSAVE_FRAME_H
+#define GUI_LOADSAVE_FRAME_H
+
 
 #include <time.h>
 
@@ -40,7 +41,6 @@ private:
 protected:
 	/**
 	 * Action that's started with a button click
-	 * @author Hansjörg Malthaner
 	 */
 	bool item_action (const char *filename) OVERRIDE;
 	bool ok_action   (const char *fullpath) OVERRIDE;
@@ -55,7 +55,6 @@ public:
 	/**
 	* Set the window associated helptext
 	* @return the filename for the helptext, or NULL
-	* @author Hj. Malthaner
 	*/
 	const char *get_help_filename() const OVERRIDE;
 

@@ -59,7 +59,6 @@
 
 /*
  * Waiting time for loading (ms)
- * @author Hj- Malthaner
  */
 #define WTT_LOADING 2000
 
@@ -68,7 +67,6 @@ karte_ptr_t convoi_t::welt;
 
 /*
  * Debugging helper - translate state value to human readable name
- * @author Hj- Malthaner
  */
 static const char * state_names[convoi_t::MAX_STATES] =
 {
@@ -218,7 +216,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	welt->sync.remove( this );
 	welt->rem_convoi( self );
 
-	// Knightly : if lineless convoy -> unregister from stops
+	// if lineless convoy -> unregister from stops
 	if(  !line.is_bound()  ) {
 		unregister_stops();
 	}
@@ -234,7 +232,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 		delete schedule;
 	}
 
-	// @author hsiegeln - deregister from line (again) ...
+	// deregister from line (again)
 	unset_line();
 
 	self.detach();
@@ -567,7 +565,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 	if(  state<DRIVING  ||  state==LOADING  ) {
 		alte_richtung = fahr[0]->get_direction();
 	}
-	// Knightly : if lineless convoy -> register itself with stops
+	// if lineless convoy -> register itself with stops
 	if(  !line.is_bound()  ) {
 		register_stops();
 	}
@@ -616,7 +614,6 @@ void convoi_t::rotate90( const sint16 y_size )
 /**
  * Return the convoi position.
  * @return Convoi position
- * @author Hj. Malthaner
  */
 koord3d convoi_t::get_pos() const
 {
@@ -631,7 +628,6 @@ koord3d convoi_t::get_pos() const
 
 /**
  * Sets the name. Creates a copy of name.
- * @author Hj. Malthaner
  */
 void convoi_t::set_name(const char *name, bool with_new_id)
 {
@@ -695,7 +691,6 @@ uint32 convoi_t::get_entire_convoy_length() const
 
 /**
  * convoi add their running cost for traveling one tile
- * @author Hj. Malthaner
  */
 void convoi_t::add_running_cost( const weg_t *weg )
 {
@@ -792,7 +787,7 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 		}
 	}
 
-	// Dwachs: only compute this if a vehicle in the convoi hopped
+	// only compute this if a vehicle in the convoi hopped
 	if(  recalc_data  ||  rsl  ) {
 		if(  recalc_data  ) {
 			sum_friction_weight = sum_gesamtweight = 0;
@@ -839,29 +834,28 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 		recalc_data_front = false;
 	}
 
-	// Prissi: more pleasant and a little more "physical" model *
+	// more pleasant and a little more "physical" model
 
 	// try to simulate quadratic friction
 	if(sum_gesamtweight != 0) {
 		/*
-			* The parameter consist of two parts (optimized for good looking):
-			*  - every vehicle in a convoi has a the friction of its weight
-			*  - the dynamic friction is calculated that way, that v^2*weight*frictionfactor = 200 kW
-			* => heavier loaded and faster traveling => less power for acceleration is available!
-			* since delta_t can have any value, we have to scale the step size by this value.
-			* however, there is a quadratic friction term => if delta_t is too large the calculation may get weird results
-			* @author prissi
-			*/
-
-		/* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_and_power
-			* since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100
-			* But since the acceleration was too fast, we just decelerate 4x more => >>6 instead >>8 */
+		 * The parameter consist of two parts (optimized for good looking):
+		 *  - every vehicle in a convoi has a the friction of its weight
+		 *  - the dynamic friction is calculated that way, that v^2*weight*frictionfactor = 200 kW
+		 *    This means that if a vehicle is loaded heavier and/or travels faster, less
+		 *    power for acceleration is available.
+		 *    since delta_t can have any value, we have to scale the step size by this value.
+		 *    However, there is a quadratic friction term => if delta_t is too large the calculation may get weird results
+		 *
+		 * but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_and_power
+		 * since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100
+		 * But since the acceleration was too fast, we just decelerate 4x more => >>6 instead >>8
+		 */
 		//sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtweight*64);	// this order is needed to prevent overflows!
 		//sint32 deccel = (sint32)( ( (sint64)akt_speed * (sint64)sum_friction_weight * (sint64)akt_speed ) / (25ll*256ll) + sum_gesamtweight * 64ll) / 1000ll; // intermediate still overflows so sint64
 		//sint32 deccel = (sint32)( ( (sint64)akt_speed * ( (sum_friction_weight * (sint64)akt_speed ) / 3125ll + 1ll) ) / 2048ll + (sum_gesamtweight * 64ll) / 1000ll);
 
-		// prissi: integer sucks with planes => using floats ...
-		// turfit: result can overflow sint32 and double so onto sint64. planes ok.
+		// note: result can overflow sint32 and double so we use sint64. Planes are ok.
 		//sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_and_power) - deccel)*(double)delta_t)/(double)sum_gesamtweight);
 		
 		// calculate sum_gear_and_power of all coupled convoys
@@ -997,7 +991,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 		case CAN_START:
 		case CAN_START_ONE_MONTH:
 		case CAN_START_TWO_MONTHS:
-			// Hajo: this is an async task, see step()
+			// this is an async task, see step()
 			break;
 
 		case ENTERING_DEPOT:
@@ -1088,13 +1082,13 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 			break;
 			
 		case LOADING:
-			// Hajo: loading is an async task, see laden()
+			// loading is an async task, see laden()
 			break;
 
 		case WAITING_FOR_CLEARANCE:
 		case WAITING_FOR_CLEARANCE_ONE_MONTH:
 		case WAITING_FOR_CLEARANCE_TWO_MONTHS:
-			// Hajo: waiting is asynchronous => fixed waiting order and route search
+			// waiting is asynchronous => fixed waiting order and route search
 			break;
 
 		case SELF_DESTRUCT:
@@ -1132,7 +1126,6 @@ bool was_coupling_with_heading(convoi_t* cnv) {
 
 /**
  * Berechne route von Start- zu Zielkoordinate
- * @author Hanjsörg Malthaner
  */
 bool convoi_t::drive_to()
 {
@@ -1307,7 +1300,6 @@ bool convoi_t::drive_to()
 /**
  * Ein Fahrzeug hat ein Problem erkannt und erzwingt die
  * Berechnung einer neuen Route
- * @author Hanjsörg Malthaner
  */
 void convoi_t::suche_neue_route()
 {
@@ -1318,7 +1310,6 @@ void convoi_t::suche_neue_route()
 
 /**
  * Asynchrne step methode des Convois
- * @author Hj. Malthaner
  */
 void convoi_t::step()
 {
@@ -1413,7 +1404,7 @@ void convoi_t::step()
 					if(  v->get_pos()==schedule->get_current_entry().pos  ) {
 						schedule->advance();
 					}
-					// Hajo: now calculate a new route
+					// now calculate a new route
 					drive_to();
 					// finally, was there a record last time?
 					if(max_record_speed>welt->get_record_speed(fahr[0]->get_waytype())) {
@@ -1429,7 +1420,7 @@ void convoi_t::step()
 				// no entries => no route ...
 			}
 			else {
-				// Hajo: now calculate a new route
+				// now calculate a new route
 				drive_to();
 			}
 			break;
@@ -1655,7 +1646,7 @@ void convoi_t::betrete_depot(depot_t *dep)
 	// first remove reservation, if train is still on track
 	unreserve_route();
 
-	// Hajo: remove vehicles from world data structure
+	// remove vehicles from world data structure
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehicle_t* v = fahr[i];
 
@@ -1854,7 +1845,6 @@ void convoi_t::ziel_erreicht()
 
 /**
  * Wartet bis Fahrzeug 0 freie Fahrt meldet
- * @author Hj. Malthaner
  */
 void convoi_t::warten_bis_weg_frei(sint32 restart_speed)
 {
@@ -1959,7 +1949,7 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 			set_erstes_letztes();
 		}
 
-		// Hajo: calculate new minimum top speed
+		// calculate new minimum top speed
 		min_top_speed = calc_min_top_speed();
 
 		// check for obsolete
@@ -2061,8 +2051,8 @@ bool convoi_t::set_schedule(schedule_t * f)
 		}
 		else {
 			if(  !f->matches( welt, schedule )  ) {
-				// Knightly : merely change schedule and do not involve line
-				//				-> unregister stops from old schedule now and register stops from new schedule later
+				// merely change schedule and do not involve line
+				// -> unregister stops from old schedule now and register stops from new schedule later
 				changed = true;
 				unregister_stops();
 			}
@@ -2074,7 +2064,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 		}
 		schedule = f;
 		if(  changed  ) {
-			// Knightly : if line is unset or schedule is changed
+			// if line is unset or schedule is changed
 			//				-> register stops from new schedule
 			register_stops();
 			welt->set_schedule_counter();	// must trigger refresh
@@ -2279,7 +2269,7 @@ bool convoi_t::can_go_alte_richtung()
 // put the convoi on its way
 void convoi_t::vorfahren()
 {
-	// Hajo: init speed settings
+	// init speed settings
 	sp_soll = 0;
 	if(  get_tiles_overtaking()<=0  ) {
 		set_tiles_overtaking(0);
@@ -2535,7 +2525,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		}
 		owner = welt->get_player( owner_n );
 
-		// Hajo: sanity check for values ... plus correction
+		// sanity check for values ... plus correction
 		if(sp_soll < 0) {
 			sp_soll = 0;
 		}
@@ -2611,7 +2601,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			const vehicle_desc_t *info = v->get_desc();
 			assert(info);
 
-			// Hajo: if we load a game from a file which was saved from a
+			// if we load a game from a file which was saved from a
 			// game with a different vehicle.tab, there might be no vehicle
 			// info
 			if(info) {
@@ -2677,7 +2667,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		if(file->is_loading() && v) {
 			schedule = v->generate_new_schedule();
 		}
-		// Hajo: hack to load corrupted games -> there is a schedule
+		// hack to load corrupted games -> there is a schedule
 		// but no vehicle so we can't determine the exact type of
 		// schedule needed. This hack is safe because convois
 		// without vehicles get deleted right after loading.
@@ -2686,7 +2676,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			schedule = new train_schedule_t();
 		}
 
-		// Hajo: now read the schedule, we have one for sure here
+		// now read the schedule, we have one for sure here
 		schedule->rdwr( file );
 	}
 
@@ -2695,7 +2685,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		calc_loading();
 	}
 
-	// Hajo: since sp_ist became obsolete, sp_soll is used modulo 65536
+	// since sp_ist became obsolete, sp_soll is used modulo 65536
 	sp_soll &= 65535;
 
 	if(file->is_version_less(88, 4)) {
@@ -2949,7 +2939,7 @@ void convoi_t::rdwr(loadsave_t *file)
 void convoi_t::open_info_window()
 {
 	if(  in_depot()  ) {
-		// Knightly : if ownership matches, we can try to open the depot dialog
+		// if ownership matches, we can try to open the depot dialog
 		if(  get_owner()==welt->get_active_player()  ) {
 			grund_t *const ground = welt->lookup( get_home_depot() );
 			if(  ground  ) {
@@ -3130,9 +3120,8 @@ bool convoi_t::pruefe_alle()
 
 /**
  * Kontrolliert Be- und Entladen
- * @author Hj. Malthaner
  *
- * V.Meyer: minimum_loading is now stored in the object (not returned)
+ * minimum_loading is now stored in the object (not returned)
  */
 void convoi_t::laden()
 {
@@ -3157,7 +3146,6 @@ void convoi_t::laden()
 
 /**
  * calculate income for last hop
- * @author Hj. Malthaner
  */
 void convoi_t::calc_gewinn()
 {
@@ -3259,9 +3247,8 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 
 /**
  * convoi an haltestelle anhalten
- * @author Hj. Malthaner
  *
- * V.Meyer: minimum_loading is now stored in the object (not returned)
+ * minimum_loading is now stored in the object (not returned)
  */
 void convoi_t::hat_gehalten(halthandle_t halt)
 {
@@ -3531,8 +3518,6 @@ sint64 convoi_t::calc_restwert() const
 
 /**
  * Calculate loading_level and loading_limit. This depends on current state (loading or not).
- * @author Volker Meyer
- * @date  20.06.2003
  */
 void convoi_t::calc_loading()
 {
@@ -3613,7 +3598,6 @@ uint32 convoi_t::get_average_kmh() const
 /**
  * Schedule convois for self destruction. Will be executed
  * upon next sync step
- * @author Hj. Malthaner
  */
 void convoi_t::self_destruct()
 {
@@ -3633,8 +3617,6 @@ void convoi_t::self_destruct()
  * Helper method to remove convois from the map that cannot
  * removed normally (i.e. by sending to a depot) anymore.
  * This is a workaround for bugs in the game.
- * @author Hj. Malthaner
- * @date  12-Jul-03
  */
 void convoi_t::destroy()
 {
@@ -3691,8 +3673,6 @@ void convoi_t::destroy()
 
 /**
  * Debug info nach stderr
- * @author Hj. Malthaner
- * @date 04-Sep-03
  */
 void convoi_t::dump() const
 {
@@ -3780,7 +3760,6 @@ sint64 convoi_t::get_purchase_cost() const
 /**
 * set line
 * since convoys must operate on a copy of the route's schedule, we apply a fresh copy
-* @author hsiegeln
 */
 void convoi_t::set_line(linehandle_t org_line)
 {
@@ -3792,7 +3771,7 @@ void convoi_t::set_line(linehandle_t org_line)
 		unset_line();
 	}
 	else {
-		// Knightly : originally a lineless convoy -> unregister itself from stops as it now belongs to a line
+		// originally a lineless convoy -> unregister itself from stops as it now belongs to a line
 		unregister_stops();
 		// must trigger refresh if old schedule was not empty
 		if (schedule  &&  !schedule->empty()) {
@@ -3808,7 +3787,6 @@ void convoi_t::set_line(linehandle_t org_line)
 * unset line
 * removes convoy from route without destroying its schedule
 * => no need to recalculate connections!
-* @author hsiegeln
 */
 void convoi_t::unset_line()
 {
@@ -3960,7 +3938,6 @@ void convoi_t::check_pending_updates()
 
 /**
  * Register the convoy with the stops in the schedule
- * @author Knightly
  */
 void convoi_t::register_stops()
 {
@@ -3977,7 +3954,6 @@ void convoi_t::register_stops()
 
 /**
  * Unregister the convoy from the stops in the schedule
- * @author Knightly
  */
 void convoi_t::unregister_stops()
 {
@@ -4107,7 +4083,6 @@ void convoi_t::set_withdraw(bool new_withdraw)
 /**
  * conditions for a city car to overtake another overtaker.
  * The city car is not overtaking/being overtaken.
- * @author isidoro
  */
 bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other)
 {

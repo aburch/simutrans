@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SIMRANDOM_H
-#define SIMRANDOM_H
+#ifndef UTILS_SIMRANDOM_H
+#define UTILS_SIMRANDOM_H
+
 
 #include <stddef.h>
 #include "../simtypes.h"

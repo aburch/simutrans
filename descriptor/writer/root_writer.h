@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef ROOT_WRITER_H
-#define ROOT_WRITER_H
+#ifndef DESCRIPTOR_WRITER_ROOT_WRITER_H
+#define DESCRIPTOR_WRITER_ROOT_WRITER_H
+
 
 #include <string>
 #include <stdio.h>

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_fixedwidth_textarea_h
-#define gui_fixedwidth_textarea_h
+#ifndef GUI_COMPONENTS_GUI_FIXEDWIDTH_TEXTAREA_H
+#define GUI_COMPONENTS_GUI_FIXEDWIDTH_TEXTAREA_H
+
 
 #include "gui_component.h"
 #include "gui_container.h"
@@ -13,7 +14,6 @@
 class cbuffer_t;
 
 /**
- * Knightly :
  *	A fixed-width, automatically line-wrapping text-area,
  *	optionally with a reserved area in the upper right corner.
  *	It does *not* add 10px margins from the top and the left.

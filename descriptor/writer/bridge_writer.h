@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BRIDGE_WRITER_H
-#define BRIDGE_WRITER_H
+#ifndef DESCRIPTOR_WRITER_BRIDGE_WRITER_H
+#define DESCRIPTOR_WRITER_BRIDGE_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"
@@ -23,7 +24,6 @@ class bridge_writer_t : public obj_writer_t {
 	public:
 		/**
 		 * Writes bridge node data to file
-		 * @author Hj. Malthaner
 		 */
 		virtual void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);
 

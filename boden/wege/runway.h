@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef boden_wege_runway_h
-#define boden_wege_runway_h
+#ifndef BODEN_WEGE_RUNWAY_H
+#define BODEN_WEGE_RUNWAY_H
+
 
 #include "../../tpl/vector_tpl.h"
 #include "../../convoihandle_t.h"
@@ -32,7 +33,6 @@ public:
 
 	/**
 	* @return additional info is reservation!
-	* @author prissi
 	*/
 	void info(cbuffer_t & buf) const OVERRIDE;
 

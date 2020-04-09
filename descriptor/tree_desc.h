@@ -3,20 +3,18 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __TREE_DESC_H
-#define __TREE_DESC_H
+#ifndef DESCRIPTOR_TREE_DESC_H
+#define DESCRIPTOR_TREE_DESC_H
+
 
 #include "../simtypes.h"
 #include "obj_base_desc.h"
 #include "image_array.h"
 
 #include "../network/checksum.h"
-/*
- *  Author:
- *      Volker Meyer
- *
- *  Description:
- *      Tree type description in Simutrans
+
+/**
+ * Tree type description in Simutrans
  *
  *  Child nodes:
  *	0   Name

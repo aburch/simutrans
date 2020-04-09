@@ -3,16 +3,13 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __PEDESTRIAN_READER_H
-#define __PEDESTRIAN_READER_H
+#ifndef DESCRIPTOR_READER_PEDESTRIAN_READER_H
+#define DESCRIPTOR_READER_PEDESTRIAN_READER_H
+
 
 #include "obj_reader.h"
 
 
-/*
- *  Author:
- *      Volker Meyer
- */
 class pedestrian_reader_t : public obj_reader_t {
 	static pedestrian_reader_t the_instance;
 

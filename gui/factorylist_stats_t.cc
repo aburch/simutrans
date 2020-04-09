@@ -26,7 +26,7 @@ factorylist_stats_t::factorylist_stats_t(fabrik_t *fab)
 	set_table_layout(6,1);
 	button_t *b = new_component<button_t>();
 	b->set_typ(button_t::posbutton_automatic);
-	b->set_targetpos(fab->get_pos().get_2d());
+	b->set_targetpos3d(fab->get_pos());
 	// indicator bar
 	add_component(&indicator);
 	indicator.set_max_size(scr_size(D_INDICATOR_WIDTH,D_INDICATOR_HEIGHT));

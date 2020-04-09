@@ -63,12 +63,12 @@ sound_frame_t::sound_frame_t()
 
 		new_component<gui_label_t>( "Sound range:" );
 
-		sound_range.set_value( env_t::sound_distance_scaling); 
+		sound_range.set_value( env_t::sound_distance_scaling);
 		sound_range.set_limits( 1, 32 );
 		sound_range.add_listener(this);
 //		sound_range.set_tooltip( "Lower values mean more local sounds" )
 		add_component(&sound_range);
-		
+
 		for( int i = 0; i < MAX_SOUND_TYPES; i++ ) {
 			new_component<gui_label_t>( specific_volume_names[i] );
 
@@ -181,7 +181,6 @@ bool sound_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
  * Draw new component. The values to be passed refer to the window
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
- * @author Hj. Malthaner
  */
 void sound_frame_t::draw(scr_coord pos, scr_size size)
 {

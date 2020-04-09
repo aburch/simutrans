@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_kennfarbe_h
-#define gui_kennfarbe_h
+#ifndef GUI_KENNFARBE_H
+#define GUI_KENNFARBE_H
+
 
 #include "../utils/cbuffer_t.h"
 #include "gui_frame.h"
@@ -14,7 +15,7 @@
 
 class choose_color_button_t;
 
-/*
+/**
  * Company colors window
  * Dialog to set the player's color
  */
@@ -34,7 +35,6 @@ class farbengui_t : public gui_frame_t, action_listener_t
 		/**
 		 * Set the window associated helptext
 		 * @return the filename for the helptext, or NULL
-		 * @author Hj. Malthaner
 		 */
 		const char * get_help_filename() const OVERRIDE { return "color.txt"; }
 

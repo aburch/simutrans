@@ -3,15 +3,16 @@
  * (see LICENSE.txt)
  */
 
-#ifndef obj_dummy_h
-#define obj_dummy_h
+#ifndef OBJ_DUMMY_H
+#define OBJ_DUMMY_H
+
 
 #include "../simobj.h"
 #include "../display/simimg.h"
 
 
 /**
- * prissi: a dummy typ for old things, which are now ignored
+ * A dummy type for old things, which are now ignored
  */
 class dummy_obj_t : public obj_t
 {

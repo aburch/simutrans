@@ -28,7 +28,7 @@ obj_desc_t * sound_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	sound_desc_t *desc = new sound_desc_t();
 
-		// Hajo: Read data
+	// Read data
 	fread(desc_buf, node.size, 1, fp);
 	char * p = desc_buf;
 
@@ -48,7 +48,7 @@ obj_desc_t * sound_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 	}
 	else {
-		dbg->fatal("sound_reader_t::read_node()","version %i not supported. File corrupt?", version);
+		dbg->fatal( "sound_reader_t::read_node()", "Cannot handle too new node version %i", version );
 	}
 
 	return desc;

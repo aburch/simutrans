@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef settings_passenger_stats_h
-#define settings_passenger_stats_h
+#ifndef GUI_SETTINGS_STATS_H
+#define GUI_SETTINGS_STATS_H
+
 
 #include <math.h>
 
@@ -104,8 +105,7 @@ class settings_t;
 
 
 /**
- * Settings for property lists ...
- * @author Hj. Malthaner
+ * Settings for property lists
  */
 class settings_stats_t
 {

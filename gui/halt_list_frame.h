@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __halt_list_frame_h
-#define __halt_list_frame_h
+#ifndef GUI_HALT_LIST_FRAME_H
+#define GUI_HALT_LIST_FRAME_H
+
 
 #include "gui_frame.h"
 #include "halt_list_stats.h"
@@ -16,11 +17,8 @@ class player_t;
 class goods_desc_t;
 class gui_scrolled_halt_list_t;
 
-/*
+/**
  * Displays a scrollable list of all stations of a player
- *
- * @author Markus Weber
- * @date 02-Jan-02
  */
 class halt_list_frame_t : public gui_frame_t , private action_listener_t
 {
@@ -43,7 +41,7 @@ public:
     };
 
 private:
-    player_t *m_player;						//13-Feb-02	Added
+    player_t *m_player;
 
     static const char *sort_text[SORT_MODES];
 
@@ -77,7 +75,6 @@ private:
     static slist_tpl<const goods_desc_t *> waren_filter_ab;
     static slist_tpl<const goods_desc_t *> waren_filter_an;
 
-
 	/// refill the list of halt info elements
 	void fill_list();
 
@@ -91,7 +88,6 @@ public:
 
 	/**
 	 * The filter frame tells us when it is closed.
-	 * @author V. Meyer
 	 */
 	void filter_frame_closed() { filter_frame = NULL; }
 
@@ -102,7 +98,6 @@ public:
 	 * Draw new component. The values to be passed refer to the window
 	 * i.e. It's the screen coordinates of the window where the
 	 * component is displayed.
-	 * @author Hj. Malthaner
 	 */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
@@ -112,7 +107,6 @@ public:
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author V. Meyer
 	 */
 	const char *get_help_filename() const OVERRIDE {return "haltlist.txt"; }
 
@@ -138,6 +132,8 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	bool has_min_sizer() const OVERRIDE {return true;}
+
+	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
 };
 
 #endif

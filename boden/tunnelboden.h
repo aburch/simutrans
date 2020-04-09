@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef tunnelboden_h
-#define tunnelboden_h
+#ifndef BODEN_TUNNELBODEN_H
+#define BODEN_TUNNELBODEN_H
+
 
 #include "boden.h"
 

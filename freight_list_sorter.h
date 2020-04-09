@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef freight_list_sorter_h
-#define freight_list_sorter_h
+#ifndef FREIGHT_LIST_SORTER_H
+#define FREIGHT_LIST_SORTER_H
+
 
 // same sorting for stations and vehicle/convoi freight ...
 

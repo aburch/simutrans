@@ -105,7 +105,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 					}
 				}
 				if(land_chain) {
-					if (desc->get_placement() == factory_desc_t::Land && desc->is_consumer_only()) {
+					if (desc->get_placement() != factory_desc_t::City && desc->is_consumer_only()) {
 						factory_list.insert_ordered( desc, translate?compare_factory_desc_trans:compare_fabrik_desc );
 					}
 				}
@@ -179,7 +179,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 
 			fac_desc = new_fac_desc;
 			production = fac_desc->get_productivity() + sim_async_rand( fac_desc->get_range() );
-			// Knightly : should also consider the effects of the minimum number of fields
+			// should also consider the effects of the minimum number of fields
 			const field_group_desc_t *const field_group_desc = fac_desc->get_field_group();
 			if(  field_group_desc  &&  field_group_desc->get_field_class_count()>0  ) {
 				const weighted_vector_tpl<uint16> &field_class_indices = field_group_desc->get_field_class_indices();

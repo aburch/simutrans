@@ -28,6 +28,11 @@ function save()
 	return str
 }
 
+function is_identifier(str)
+{
+	return (str.toalnum() == str)  &&  (str[0] < '0'  ||  str[0] > '9')
+}
+
 function recursive_save(table, indent, table_stack)
 {
 	local isarray = typeof(table) == "array"
@@ -36,7 +41,12 @@ function recursive_save(table, indent, table_stack)
 		str += indent
 		if (!isarray) {
 			if (typeof(key)=="string") {
-				str += key + " = "
+				if (is_identifier(key)) {
+					str += key + " = "
+				}
+				else {
+					str += "\"" + key + "\" = "
+				}
 			}
 			else {
 				str += "[" + key + "] = "

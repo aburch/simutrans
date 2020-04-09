@@ -3,16 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/* Base class for Ways in Simutrans.
- *
- * 14.06.00 derived from simgrund.cc
- * Revised January 2001
- *
- * derived from simobj.h in 2007
- *
- * von Hj. Malthaner
- */
-
 #include <stdio.h>
 
 #include "weg.h"
@@ -53,13 +43,11 @@ static recursive_mutex_maker_t weg_cim_maker(weg_calc_image_mutex);
 
 /**
  * Alle instantiierten Wege
- * @author Hj. Malthaner
  */
 slist_tpl <weg_t *> alle_wege;
 
 /**
  * Get list of all ways
- * @author Hj. Malthaner
  */
 const slist_tpl <weg_t *> & weg_t::get_alle_wege()
 {
@@ -123,11 +111,6 @@ const char *weg_t::waytype_to_string(waytype_t wt)
 }
 
 
-/**
- * Setzt neue Description. Ersetzt alte Höchstgeschwindigkeit
- * mit wert aus Description.
- * @author Hj. Malthaner
- */
 void weg_t::set_desc(const way_desc_t *b)
 {
 	desc = b;
@@ -142,7 +125,6 @@ void weg_t::set_desc(const way_desc_t *b)
 
 /**
  * initializes statistic array
- * @author hsiegeln
  */
 void weg_t::init_statistics()
 {
@@ -156,7 +138,6 @@ void weg_t::init_statistics()
 
 /**
  * Initializes all member variables
- * @author Hj. Malthaner
  */
 void weg_t::init()
 {
@@ -224,10 +205,6 @@ void weg_t::rdwr(loadsave_t *file)
 }
 
 
-/**
- * Info-text für diesen Weg
- * @author Hj. Malthaner
- */
 void weg_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
@@ -319,7 +296,6 @@ void weg_t::info(cbuffer_t & buf) const
 
 /**
  * called during map rotation
- * @author prissi
  */
 void weg_t::rotate90()
 {
@@ -332,7 +308,6 @@ void weg_t::rotate90()
 /**
  * counts signals on this tile;
  * It would be enough for the signals to register and unregister themselves, but this is more secure ...
- * @author prissi
  */
 void weg_t::count_sign()
 {
@@ -605,7 +580,6 @@ void weg_t::check_diagonal()
 
 /**
  * new month
- * @author hsiegeln
  */
 void weg_t::new_month()
 {

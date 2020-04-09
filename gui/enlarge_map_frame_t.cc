@@ -127,7 +127,6 @@ enlarge_map_frame_t::~enlarge_map_frame_t()
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {
@@ -173,7 +172,6 @@ void enlarge_map_frame_t::draw(scr_coord pos, scr_size size)
 
 /**
  * Calculate the new Map-Preview. Initialize the new RNG!
- * @author Hj. Malthaner
  */
 void enlarge_map_frame_t::update_preview()
 {

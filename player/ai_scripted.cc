@@ -172,6 +172,43 @@ void ai_scripted_t::new_year()
 }
 
 
+void repair_table_keys(plainstring &str)
+{
+	// iterate linewise, enclose key starting with digit by [" .. "]
+	char *p = str;
+
+	char *line = p; // start of line
+	char *equal = NULL; // place of equality sign
+	char *first_digit = NULL; // first digit in line
+	while (*p) {
+		if (*p == '=') {
+			if (first_digit  &&  first_digit > line  &&  equal == NULL) {
+				*(p-1) = '"';
+				*(p  ) = ']';
+				*(p+1) = '=';
+				equal = p;
+			}
+		}
+		else if (*p == '\n') {
+			line = p;
+			equal = NULL;
+			first_digit = NULL;
+		}
+		else if('0' <= *p  &&  *p <= '9') {
+			if (first_digit == NULL  &&  p >= line+2) {
+				*(p-2) = '[';
+				*(p-1) = '"';
+				first_digit = p;
+			}
+		}
+		else if (first_digit == NULL  &&  *p != ' '  &&  *p != '\t') {
+			first_digit = line;
+		}
+		p++;
+	}
+}
+
+
 void ai_scripted_t::rdwr(loadsave_t *file)
 {
 	ai_t::rdwr(file);
@@ -218,6 +255,15 @@ void ai_scripted_t::rdwr(loadsave_t *file)
 		if (!rdwr_error) {
 			// restore persistent data
 			const char* err = script->eval_string(str);
+			if (err  &&  strcmp(err, "Error compiling string buffer")==0) {
+				// sqai produced invalid table keys up to r9007
+				repair_table_keys(str);
+				dbg->warning("ai_scripted_t::rdwr", "repaired persistent ai data: %s", str.c_str());
+				// close error message
+				destroy_win(magic_script_error);
+				// and try again
+				err = script->eval_string(str);
+			}
 			if (err) {
 				dbg->warning("ai_scripted_t::rdwr", "error [%s] evaluating persistent ai data", err);
 				rdwr_error = true;

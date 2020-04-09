@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef tests_log_h
-#define tests_log_h
+#ifndef UTILS_LOG_H
+#define UTILS_LOG_H
+
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -18,20 +19,17 @@ extern int debuglevel;
 
 /**
  * Logging facility
- * @author Hj. Malthaner
  */
 class log_t
 {
 private:
 	/**
 	 * Primary log file.
-	 * @author Hj. Malthaner
 	 */
 	FILE *log;
 
 	/**
 	 * Secondary log file, currently fixed to stderr
-	 * @author Hj. Malthaner
 	 */
 	FILE * tee;
 
@@ -39,7 +37,6 @@ private:
 
 	/**
 	 * Logging level - include debug messages ?
-	 * @author Hj. Malthaner
 	 */
 	bool log_debug;
 
@@ -58,19 +55,16 @@ private:
 public:
 	/**
 	 * writes a debug message into the log.
-	 * @author Hj. Malthaner
 	 */
 	void debug(const char *who, const char *format, ...);
 
 	/**
 	 * writes a message into the log.
-	 * @author Hj. Malthaner
 	 */
 	void message(const char *who, const char *format, ...);
 
 	/**
 	 * writes a warning into the log.
-	 * @author Hj. Malthaner
 	 */
 	void warning(const char *who, const char *format, ...);
 
@@ -82,13 +76,11 @@ public:
 
 	/**
 	 * writes an error into the log.
-	 * @author Hj. Malthaner
 	 */
 	void error(const char *who, const char *format, ...);
 
 	/**
 	 * writes an error into the log, aborts the program.
-	 * @author Hj. Malthaner
 	 */
 	void NORETURN fatal(const char* who, const char* format, ...);
 

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simware_h
-#define simware_h
+#ifndef SIMWARE_H
+#define SIMWARE_H
+
 
 #include "halthandle_t.h"
 #include "dataobj/koord.h"
@@ -38,26 +39,22 @@ public:
 
 	/**
 	 * To indicate that the ware's destination is a factory/consumer store
-	 * @author Knightly
 	 */
 	uint32 to_factory : 1;
 
 private:
 	/**
 	 * Handle of target station.
-	 * @author Hj. Malthaner
 	 */
 	halthandle_t ziel;
 
 	/**
 	 * Handle of station, where the packet has to leave convoy.
-	 * @author Hj. Malthaner
 	 */
 	halthandle_t zwischenziel;
 
 	/**
 	 * Target position (factory, etc)
-	 * @author Hj. Malthaner
 	 */
 	koord zielpos;
 
@@ -81,10 +78,7 @@ public:
 	ware_t(const goods_desc_t *typ);
 	ware_t(loadsave_t *file);
 
-	/**
-	 * gibt den nicht-uebersetzten warennamen zurück
-	 * @author Hj. Malthaner
-	 */
+	/// @returns the non-translated name of the ware.
 	const char *get_name() const { return get_desc()->get_name(); }
 	const char *get_mass() const { return get_desc()->get_mass(); }
 	uint8 get_catg() const { return get_desc()->get_catg(); }

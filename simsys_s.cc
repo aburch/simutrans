@@ -273,8 +273,7 @@ void dr_os_close()
 #endif
 	SDL_FreeCursor(hourglass);
 	SDL_FreeCursor(blank);
-	// Hajo: SDL doc says, screen is freed by SDL_Quit and should not be
-	// freed by the user
+	// SDL doc says, screen is freed by SDL_Quit and should not be freed by the user
 	// SDL_FreeSurface(screen);
 }
 
@@ -334,7 +333,6 @@ unsigned short *dr_textur_init()
 /**
  * Transform a 24 bit RGB color into the system format.
  * @return converted color value
- * @author Hj. Malthaner
  */
 unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 {
@@ -428,7 +426,6 @@ void set_pointer(int loading)
  * Some wrappers can save screenshots.
  * @return 1 on success, 0 if not implemented for a particular wrapper and -1
  *         in case of error.
- * @author Hj. Malthaner
  */
 int dr_screenshot(const char *filename, int x, int y, int w, int h)
 {
