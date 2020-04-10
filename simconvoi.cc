@@ -8484,6 +8484,64 @@ uint8 convoi_t::check_new_tail(uint8 start = 1) const
 	return 0;
 }
 
+// calculation(auto remove) algorithm is based on tool_change_depot_t::init - "r"
+uint8 convoi_t::calc_auto_removal_length(uint8 car_no) const
+{
+	uint8 len = 0;
+	int nr = car_no;
+
+	// check rear side
+	while (nr < get_vehicle_count()) {
+		const vehicle_desc_t *info = vehicle[nr]->get_desc();
+		len += info->get_length();
+		nr++;
+		if (info->get_trailer_count() != 1) {
+			break;
+		}
+	}
+
+	// check front side
+	nr = car_no;
+	while (nr > 0) {
+		const vehicle_desc_t *info = vehicle[nr-1]->get_desc();
+		if (info->get_trailer_count() != 1) {
+			return len;
+		}
+		len += info->get_length();
+		nr--;
+	}
+	return len;
+}
+
+uint8 convoi_t::get_auto_removal_vehicle_count(uint8 car_no) const
+{
+	uint8 cnt = 0;
+	int nr = car_no;
+
+	// check rear side
+	while (nr < get_vehicle_count()) {
+		const vehicle_desc_t *info = vehicle[nr]->get_desc();
+		cnt++;
+		nr++;
+		if (info->get_trailer_count() != 1) {
+			break;
+		}
+	}
+
+	// check front side
+	nr = car_no;
+	while (nr > 0) {
+		const vehicle_desc_t *info = vehicle[nr - 1]->get_desc();
+		if (info->get_trailer_count() != 1) {
+			return cnt;
+		}
+		cnt++;
+		nr--;
+	}
+	return cnt;
+}
+
+
 // Currently this is used to determine if neighboring vehicles are in intermediate side each other.
 // They are considered identical groups when reversing convoy.
 uint8 convoi_t::check_couple_constraint_level(uint8 car_no, bool rear_side) const
