@@ -45,4 +45,41 @@ public:
 	void draw(scr_coord offset);
 };
 
+
+/**
+ *
+ * @author Ranran
+ * @date  January 2020
+ */
+class gui_tile_occupancybar_t : public gui_component_t
+{
+private:
+	uint32 convoy_length;
+	bool insert_mode = false;
+	bool incomplete = false;
+	sint8 new_veh_length = 0;
+
+	// returns convoy length including extra margin.
+	// for some reason, convoy may have "extra margin"
+	// this correction corresponds to the correction in convoi_t::get_tile_length()
+	uint32 adjust_convoy_length(uint32 total_len, uint8 last_veh_len);
+	// these two are needed for adding automatic margin
+	uint8 last_veh_length; 
+	uint8 switched_last_veh_length = -1;
+
+	// specify fill width and color of specified tile
+	void fill_with_color(scr_coord offset, uint8 tile_index, uint8 from, uint8 to, COLOR_VAL color, uint8 length_to_pixel);
+
+public:
+	void set_base_convoy_length(uint32 convoy_length, uint8 last_veh_length);
+
+	// 3rd argument - If remove the last vehicle, need to set the value of the previous vehicle length.
+	// This is necessary to calculate the correct value of length related adding automatic margin.
+	void set_new_veh_length(sint8 new_veh_length, bool insert = false, uint8 new_last_veh_length = -1);
+
+	void set_assembling_incomplete(bool incomplete);
+
+	void draw(scr_coord offset);
+};
+
 #endif

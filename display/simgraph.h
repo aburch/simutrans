@@ -216,6 +216,9 @@ void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const 
 // display image with color (if there) and optional day and night change
 void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 
+// displays image that shows a tooltip when hovering the mouse over
+void display_color_img_with_tooltip(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const char *text  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+
 // display unzoomed image
 void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 

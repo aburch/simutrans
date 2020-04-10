@@ -130,7 +130,8 @@ public:
 	static const skin_desc_t *intown;
 	/// image to indicate that the vehicle has upgrade target
 	static const skin_desc_t *upgradable;
-
+	/// image to indicate that the line missing scheduled slot
+	static const skin_desc_t *missing_scheduled_slot;
 
 	/// @name cursors
 	/// @{

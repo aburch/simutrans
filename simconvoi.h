@@ -84,8 +84,8 @@ public:
 		CONVOI_DISTANCE,			//  7 | 5 | total distance traveled this month
 		CONVOI_REFUNDS,				//  8 |   | the refunds passengers waiting for this convoy (only when not attached to a line) have received.
 //		CONVOI_MAXSPEED,			//    | 6 | average max. possible speed
-//		CONVOI_WAYTOLL,				//    | 7 |
-		MAX_CONVOI_COST				//  9 | 8 |
+		CONVOI_WAYTOLL,				//  9 | 7 |
+		MAX_CONVOI_COST				// 10 | 8 |
 	};
 
 	/* Constants
@@ -1630,16 +1630,20 @@ public:
 		}
 	}
 
-	// Returns this convoy's reversing method. (v14.6 - 2019 @Ranran)
+	// Returns this convoy's reversing method. (v14.8 - Jan, 2020 @Ranran)
 	uint8 get_terminal_shunt_mode() const;
 
 	// return a number numbered by position in convoy. This is affected by the number of locomotives and reversals.
 	// The locomotive on the front side is returned a negative value.
 	sint16 get_car_numbering(uint8 car_no) const;
 
+	// @returns vehicle length removed at the same time from the convoy. Feb, 2020 @Ranran
+	uint8 calc_auto_removal_length(uint8 car_no) const;
+	uint8 get_auto_removal_vehicle_count(uint8 car_no) const;
+
 private:
 	/** Train formation checks
-	 *  v14.6 - 2019 @Ranran
+	 *  v14.8 - Jan, 2020 @Ranran
 	 */
 	uint8 get_front_loco_count() const;
 	uint8 check_new_tail(uint8 start) const;

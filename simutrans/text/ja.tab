@@ -3663,6 +3663,36 @@ Upgrade will be available in the near future
 （混載不可）
 Cannot start: no cab at the front of the convoy.
 編成の構成エラー：\n先頭になれない車両が先頭になっています。（運転台が無い等）
+no power at all
+編成に動力がありません！
+Congestion: %i%%
+混雑度： %i%%
+Display loaded detail
+積載情報の詳細を表示
+Displays detailed information of the vehicle's load.
+積載中の積荷の詳細情報の表示／非表示を切り替えます。
+Selectable livery schemes
+選択可能な塗装スキーム
+Starting acceleration:
+起動加速度:
+; %i km/h @ %.2f sec
+，%i km/h @ %.2f 秒
+; %i km/h @ %.2f - %.2f sec
+，%i km/h @ %.2f - %.2f 秒
+; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
+，%i km/h @ %.2f 秒 -  %i km/h @ %.2f 秒
+(%.*ft laden)
+(満載時 %.*ft)
+(%.*f-%.*ft laden)
+(満載時 %.*f-%.*ft)
+Sell for %s
+%sで売却
+cl_btn_general
+編成外観・積載率
+cl_btn_payload
+カテゴリ別積載状況
+cl_btn_formation
+編成図
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

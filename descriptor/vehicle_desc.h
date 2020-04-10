@@ -789,6 +789,11 @@ public:
 	*/
 	uint8 get_length() const { return len; }
 
+	/* Calculate the length of a group of vehicles considered as one group by the auto connect function.
+	 * Use the function of convoy_t for removal. Feb, 2020 @Ranran */
+	uint8 calc_auto_connection_length(bool rear_side) const;
+	uint8 get_auto_connection_vehicle_count(bool rear_side) const;
+
 	uint32 get_length_in_steps() const { return get_length() * VEHICLE_STEPS_PER_CARUNIT; }
 
 	/*Whether this is a tilting train (and can take coerners faster

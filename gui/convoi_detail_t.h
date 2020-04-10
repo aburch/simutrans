@@ -20,6 +20,7 @@
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
 #include "../gui/simwin.h"
+#include "components/gui_convoy_formation.h"
 
 class scr_coord;
 
@@ -58,22 +59,6 @@ public:
 	void draw(scr_coord offset);
 };
 
-// content of convoy formation @Ranran
-class gui_convoy_formaion_t : public gui_container_t
-{
-private:
-	convoihandle_t cnv;
-
-	enum { OK=0, out_of_producton=1, obsolete=2, STAT_COLORS  };
-	uint8 status_to_color[STAT_COLORS] { COL_DARK_GREEN, COL_OUT_OF_PRODUCTION, COL_OBSOLETE };
-
-public:
-	gui_convoy_formaion_t(convoihandle_t cnv);
-
-	void set_cnv(convoihandle_t c) { cnv = c; }
-
-	void draw(scr_coord offset);
-};
 
 // content of payload info tab @Ranran
 class gui_convoy_payload_info_t : public gui_container_t
