@@ -14,6 +14,7 @@
 #include "components/gui_label.h"
 #include "components/action_listener.h"  // 28-Dec-2001  Markus Weber    Added
 #include "components/gui_button.h"
+#include "components/gui_convoiinfo.h"
 #include "../convoihandle_t.h"
 
 class player_t;
