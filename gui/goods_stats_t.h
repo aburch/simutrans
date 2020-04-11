@@ -1,19 +1,11 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- * Copyright 2013 Nathanael Nerode, James Petts
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Display information about each configured good
- * as a list like display
- * @author Hj. Malthaner
- */
+#ifndef GUI_GOODS_STATS_T_H
+#define GUI_GOODS_STATS_T_H
 
-#ifndef good_stats_t_h
-#define good_stats_t_h
 
 #include "../simtypes.h"
 #include "components/gui_component.h"

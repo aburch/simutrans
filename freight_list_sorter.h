@@ -1,5 +1,11 @@
-#ifndef freight_list_sorter_h
-#define freight_list_sorter_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef FREIGHT_LIST_SORTER_H
+#define FREIGHT_LIST_SORTER_H
+
 
 // same sorting for stations and vehicle/convoi freight ...
 

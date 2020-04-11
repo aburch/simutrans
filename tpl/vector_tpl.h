@@ -1,5 +1,11 @@
-#ifndef TPL_VECTOR_H
-#define TPL_VECTOR_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef TPL_VECTOR_TPL_H
+#define TPL_VECTOR_TPL_H
+
 
 #ifndef ITERATE
 #define ITERATE(collection,enumerator) for(uint32 enumerator = 0; enumerator < (collection).get_count(); enumerator++)

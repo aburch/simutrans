@@ -1,10 +1,11 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- * 2004-2008 by Markus Pristovsek
- *
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
-#ifndef __GROUNDOBJ_BESCH_H
-#define __GROUNDOBJ_BESCH_H
+
+#ifndef DESCRIPTOR_GROUNDOBJ_DESC_H
+#define DESCRIPTOR_GROUNDOBJ_DESC_H
+
 
 #include "../simtypes.h"
 #include "obj_base_desc.h"

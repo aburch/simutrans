@@ -1,10 +1,11 @@
 /*
- * Factory list window
- * @author Hj. Malthaner
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef factorylist_frame_t_h
-#define factorylist_frame_t_h
+#ifndef GUI_FACTORYLIST_FRAME_T_H
+#define GUI_FACTORYLIST_FRAME_T_H
+
 
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
@@ -12,7 +13,10 @@
 #include "factorylist_stats_t.h"
 
 
-
+/*
+ * Factory list window
+ * @author Hj. Malthaner
+ */
 class factorylist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:

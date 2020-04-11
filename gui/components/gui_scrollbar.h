@@ -1,9 +1,11 @@
-/* This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_scrollbar_h
-#define gui_scrollbar_h
+#ifndef GUI_COMPONENTS_GUI_SCROLLBAR_H
+#define GUI_COMPONENTS_GUI_SCROLLBAR_H
+
 
 #include "gui_action_creator.h"
 #include "../../simevent.h"

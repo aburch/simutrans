@@ -1,9 +1,11 @@
 /*
- * all color related stuff
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simcolor_h
-#define simcolor_h
+#ifndef SIMCOLOR_H
+#define SIMCOLOR_H
+
 
 #define LIGHT_COUNT (15)
 

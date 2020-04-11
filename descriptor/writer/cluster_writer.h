@@ -1,5 +1,11 @@
-#ifndef CLUSTER_WRITER_H
-#define CLUSTER_WRITER_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DESCRIPTOR_WRITER_CLUSTER_WRITER_H
+#define DESCRIPTOR_WRITER_CLUSTER_WRITER_H
+
 
 #include <stdio.h>
 #include "obj_writer.h"

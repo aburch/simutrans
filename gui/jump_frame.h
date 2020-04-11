@@ -1,14 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
- * Maintains the list of custom labels assigned to different places on the map
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_jumpframe_h
-#define gui_jumpframe_h
+#ifndef GUI_JUMP_FRAME_H
+#define GUI_JUMP_FRAME_H
+
 
 #include "components/action_listener.h"
 #include "gui_frame.h"

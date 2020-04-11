@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2007 prissi
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef obj_crossing_h
-#define obj_crossing_h
+#ifndef OBJ_CROSSING_H
+#define OBJ_CROSSING_H
+
 
 #include "../simtypes.h"
 #include "../display/simimg.h"

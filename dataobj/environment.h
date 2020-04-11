@@ -1,5 +1,11 @@
-#ifndef dataobj_environment_h
-#define dataobj_environment_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DATAOBJ_ENVIRONMENT_H
+#define DATAOBJ_ENVIRONMENT_H
+
 
 #include <string>
 #include "../simtypes.h"

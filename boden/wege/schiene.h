@@ -1,12 +1,10 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef boden_wege_schiene_h
-#define boden_wege_schiene_h
+#ifndef BODEN_WEGE_SCHIENE_H
+#define BODEN_WEGE_SCHIENE_H
 
 
 #include "weg.h"

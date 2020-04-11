@@ -1,5 +1,11 @@
-#ifndef line_scrollitem_h
-#define line_scrollitem_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_LINE_ITEM_H
+#define GUI_LINE_ITEM_H
+
 
 #include "components/gui_scrolled_list.h"
 #include "../linehandle_t.h"

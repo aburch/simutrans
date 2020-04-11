@@ -1,5 +1,11 @@
-#ifndef times_history_entry_h
-#define times_history_entry_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_TIMES_HISTORY_ENTRY_H
+#define GUI_TIMES_HISTORY_ENTRY_H
+
 
 #include "components/gui_component.h"
 #include "components/gui_label.h"

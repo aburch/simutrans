@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2010 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_fixedwidth_textarea_h
-#define gui_fixedwidth_textarea_h
+#ifndef GUI_COMPONENTS_GUI_FIXEDWIDTH_TEXTAREA_H
+#define GUI_COMPONENTS_GUI_FIXEDWIDTH_TEXTAREA_H
+
 
 #include "gui_component.h"
 #include "gui_container.h"

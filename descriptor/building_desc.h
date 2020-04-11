@@ -1,11 +1,11 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef __HAUS_BESCH_H
-#define __HAUS_BESCH_H
+#ifndef DESCRIPTOR_BUILDING_DESC_H
+#define DESCRIPTOR_BUILDING_DESC_H
+
 
 #include <assert.h>
 #include "image_array.h"

@@ -1,5 +1,11 @@
-#ifndef cbuffer_t_h
-#define cbuffer_t_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef UTILS_CBUFFER_T_H
+#define UTILS_CBUFFER_T_H
+
 
 #include <stdarg.h>
 #include <stdlib.h>

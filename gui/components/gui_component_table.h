@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2010 Bernd Gabriel
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_component_table_h
-#define gui_component_table_h
+#ifndef GUI_COMPONENTS_GUI_COMPONENT_TABLE_H
+#define GUI_COMPONENTS_GUI_COMPONENT_TABLE_H
+
 
 #include "gui_table.h"
 

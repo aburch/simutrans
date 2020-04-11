@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef fabrikbauer_t_h
-#define fabrikbauer_t_h
+#ifndef BAUER_FABRIKBAUER_H
+#define BAUER_FABRIKBAUER_H
+
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"

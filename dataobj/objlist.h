@@ -1,5 +1,11 @@
-#ifndef objlist_h
-#define objlist_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DATAOBJ_OBJLIST_H
+#define DATAOBJ_OBJLIST_H
+
 
 #include "../simtypes.h"
 #include "../simobj.h"

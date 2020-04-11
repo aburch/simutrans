@@ -1,5 +1,11 @@
-#ifndef gui_extend_edit_h
-#define gui_extend_edit_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_EXTEND_EDIT_H
+#define GUI_EXTEND_EDIT_H
+
 
 #include "gui_frame.h"
 #include "components/gui_container.h"

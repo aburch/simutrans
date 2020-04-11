@@ -1,5 +1,11 @@
-#ifndef __OBJVERSION_H
-#define __OBJVERSION_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DESCRIPTOR_OBJVERSION_H
+#define DESCRIPTOR_OBJVERSION_H
+
 
 #include "../simtypes.h"
 

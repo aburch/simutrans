@@ -1,5 +1,11 @@
-#ifndef boden_wege_dock_h
-#define boden_wege_dock_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef BODEN_WEGE_KANAL_H
+#define BODEN_WEGE_KANAL_H
+
 
 #include "weg.h"
 #include "../../dataobj/loadsave.h"

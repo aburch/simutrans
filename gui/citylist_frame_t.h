@@ -1,9 +1,11 @@
 /*
- * The citylist dialog
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef citylist_frame_t_h
-#define citylist_frame_t_h
+#ifndef GUI_CITYLIST_FRAME_T_H
+#define GUI_CITYLIST_FRAME_T_H
+
 
 #include "gui_frame.h"
 #include "citylist_stats_t.h"

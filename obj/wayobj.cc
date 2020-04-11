@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
- * Things on ways like catenary or something like this
- *
- * von prissi
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <algorithm>
@@ -378,6 +372,7 @@ void wayobj_t::calc_image()
 		}
 
 		set_yoff( -gr->get_weg_yoff() );
+		set_xoff( 0 );
 		if (get_desc()->is_noise_barrier()) {
 			dir |= (w->get_ribi_unmasked() | sec_way_ribi_unmasked);
 		} else {

@@ -1,11 +1,11 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef __FABRIK_BESCH_H
-#define __FABRIK_BESCH_H
+#ifndef DESCRIPTOR_FACTORY_DESC_H
+#define DESCRIPTOR_FACTORY_DESC_H
+
 
 #include "obj_desc.h"
 #include "building_desc.h"

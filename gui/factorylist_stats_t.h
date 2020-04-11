@@ -1,16 +1,11 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Where factory stats are calculated for list dialog
- */
+#ifndef GUI_FACTORYLIST_STATS_T_H
+#define GUI_FACTORYLIST_STATS_T_H
 
-#ifndef factorylist_stats_t_h
-#define factorylist_stats_t_h
 
 #include "../tpl/vector_tpl.h"
 #include "components/gui_component.h"
@@ -24,6 +19,7 @@ namespace factorylist {
 
 /**
  * Factory list stats display
+ * Where factory stats are calculated for list dialog
  * @author Hj. Malthaner
  */
 class factorylist_stats_t : public gui_world_component_t

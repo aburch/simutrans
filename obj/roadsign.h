@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2005 prissi
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef obj_roadsign_h
-#define obj_roadsign_h
+#ifndef OBJ_ROADSIGN_H
+#define OBJ_ROADSIGN_H
+
 
 #include "../simobj.h"
 #include "../simtypes.h"

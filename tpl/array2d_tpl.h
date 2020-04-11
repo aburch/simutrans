@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef tpl_array2d_tpl_h
-#define tpl_array2d_tpl_h
+#ifndef TPL_ARRAY2D_TPL_H
+#define TPL_ARRAY2D_TPL_H
+
 
 #include <string.h> //for memcpy
 #include "../dataobj/koord.h"
@@ -20,7 +19,6 @@
  * @author Hj. Malthaner
  * @see array_tpl
  */
-
 template <class T>
 class array2d_tpl
 {

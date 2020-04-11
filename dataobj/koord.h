@@ -1,5 +1,11 @@
-#ifndef KOORD_H
-#define KOORD_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DATAOBJ_KOORD_H
+#define DATAOBJ_KOORD_H
+
 
 #include "ribi.h"
 #include "../simtypes.h"

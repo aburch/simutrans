@@ -1,9 +1,11 @@
 /*
- * a template class which implements a hashtable with 2d koord keys
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef koordhashtable_tpl_h
-#define koordhashtable_tpl_h
+#ifndef TPL_KOORDHASHTABLE_TPL_H
+#define TPL_KOORDHASHTABLE_TPL_H
+
 
 #include "hashtable_tpl.h"
 #include "../dataobj/koord.h"

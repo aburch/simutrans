@@ -1,17 +1,11 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/**
- * Where curiosity (attractions) stats are calculated for list dialog
- * @author Hj. Malthaner
- */
+#ifndef GUI_CURIOSITYLIST_STATS_T_H
+#define GUI_CURIOSITYLIST_STATS_T_H
 
-#ifndef curiositylist_stats_t_h
-#define curiositylist_stats_t_h
 
 #include "../tpl/vector_tpl.h"
 #include "components/gui_component.h"
@@ -23,6 +17,10 @@ namespace curiositylist {
     enum sort_mode_t { by_name=0, by_paxlevel/*, by_maillevel*/, SORT_MODES };
 };
 
+/**
+ * Where curiosity (attractions) stats are calculated for list dialog
+ * @author Hj. Malthaner
+ */
 class curiositylist_stats_t : public gui_world_component_t
 {
 private:

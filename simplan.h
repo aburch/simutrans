@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simplan_h
-#define simplan_h
+#ifndef SIMPLAN_H
+#define SIMPLAN_H
+
 
 #include "halthandle_t.h"
 #include "boden/grund.h"

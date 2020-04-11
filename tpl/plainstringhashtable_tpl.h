@@ -1,5 +1,11 @@
-#ifndef plainstringhashtable_tpl_h
-#define plainstringhashtable_tpl_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef TPL_PLAINSTRINGHASHTABLE_TPL_H
+#define TPL_PLAINSTRINGHASHTABLE_TPL_H
+
 
 #include "stringhashtable_tpl.h"
 #include "../utils/plainstring.h"

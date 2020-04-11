@@ -1,5 +1,11 @@
-#ifndef labellist_frame_t_h
-#define labellist_frame_t_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_LABELLIST_FRAME_T_H
+#define GUI_LABELLIST_FRAME_T_H
+
 
 #include "../gui/gui_frame.h"
 #include "../gui/labellist_stats_t.h"

@@ -1,13 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
- */
-
-/*
- * Hauptklasse fuer Simutrans, Datenstruktur die alles Zusammenhaelt
- * Hj. Malthaner, 1997
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <algorithm>
@@ -907,11 +900,21 @@ void karte_t::remove_queued_city(stadt_t* city)
 
 void karte_t::add_queued_city(stadt_t* city)
 {
-	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
-	assert(error == 0);
+#ifdef MULTI_THREAD
+	if (private_car_route_mutex_initialised)
+	{
+		int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+		assert(error == 0);
+	}
+#endif
 	cities_awaiting_private_car_route_check.append_unique(city);
-	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
-	assert(error == 0);
+#ifdef MULTI_THREAD
+	if (private_car_route_mutex_initialised)
+	{
+		int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+		assert(error == 0);
+	}
+#endif
 }
 
 void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sint16 old_y)
@@ -1441,7 +1444,9 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	sync_steps = 0;
 	sync_steps_barrier = sync_steps;
 	map_counter = 0;
+#ifdef MULTI_THREAD
 	private_car_route_mutex_initialised = false;
+#endif
 	recalc_average_speed(true);	// resets timeline - but passing "true" prevents it from generating message spam on reloading or starting a new game
 
 	groundwater = (sint8)sets->get_groundwater();      //29-Nov-01     Markus Weber    Changed
@@ -5128,11 +5133,15 @@ void karte_t::new_month()
 	{
 		if(recheck_road_connexions)
 		{
+#ifdef MULTI_THREAD
 			int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
+#endif
 			cities_awaiting_private_car_route_check.append_unique(s);
+#ifdef MULTI_THREAD
 			error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
+#endif
 		}
 		s->new_month();
 		//INT_CHECK("simworld 3117");
@@ -5501,8 +5510,8 @@ void karte_t::step()
 		cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		start_private_car_threads();
 #else			
-		const uint32 cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
-		for (uint32 j = 0; j < cities_to_process; j++)
+		const sint32 cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		for (sint32 j = 0; j < cities_to_process; j++)
 		{
 			stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
 			city->check_all_private_car_routes();
@@ -8470,7 +8479,9 @@ void karte_t::add_missing_paks( const char *name, missing_level_t level )
 // just the preliminaries, opens the file, checks the versions ...
 bool karte_t::load(const char *filename)
 {
+#ifdef MULTI_THREAD
 	suspend_private_car_threads(); // Necessary here to prevent thread deadlocks.
+#endif
 	cbuffer_t name;
 	bool ok = false;
 	bool restore_player_nr = false;

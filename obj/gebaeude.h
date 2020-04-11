@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef obj_gebaeude_h
-#define obj_gebaeude_h
+#ifndef OBJ_GEBAEUDE_H
+#define OBJ_GEBAEUDE_H
+
 
 #include "../ifc/sync_steppable.h"
 #include "../simobj.h"
@@ -54,7 +53,7 @@ private:
 	 * shall be displayed.
 	 * @author Hj. Malthaner
 	 */
-	uint8 zeige_baugrube:1;
+	uint8 show_construction:1;
 
 	/**
 	 * if true, this ptr union contains a factory pointer
@@ -71,8 +70,7 @@ private:
 	uint8 anim_frame;
 
 	/**
-	 * Zeitpunkt an dem das Gebaeude Gebaut wurde
-	 * "Time at that was built the building" (Babelfish)
+	 * Construction began at this tick. "Pit" under-construction graphics handled by sync_step() 
 	 * @author Hj. Malthaner
 	 */
 	sint64 purchase_time;
@@ -196,13 +194,9 @@ public:
 	void set_stadt(stadt_t *s);
 
 	/**
-	 * Ein Gebaeude kann zu einer Fabrik gehören.
-	 * @return Einen Zeiger auf die Fabrik zu der das Objekt gehört oder NULL,
-	 * wenn das Objekt zu keiner Fabrik gehört.
-	 *
 	 * A building can belong to a factory.
-	 * return a pointer on the factory to that the object belongs or NULL,
-	 * if the object belongs to no factory. (Google)
+	 * @return a pointer of the factory to which the object belongs; or NULL,
+	 * if the object does not belong to a factory.
 	 *
 	 * @author Hj. Malthaner
 	 */
@@ -237,7 +231,8 @@ public:
 	bool check_season(const bool) { calc_image(); return true; }
 
 	/**
-	 * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik
+	 * @return Building's own name, or factory name (if building
+	 * belongs to a factory)
 	 * @author Hj. Malthaner
 	 */
 	virtual const char *get_name() const;
@@ -258,8 +253,7 @@ public:
 	bool is_signalbox() const;
 
 	/**
-	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	 * Beobachtungsfenster angezeigt wird.
+	 * @return A description string, as might be displayed in an infobox
 	 * @author Hj. Malthaner
 	 */
 	void info(cbuffer_t & buf, bool dummy = false) const;
@@ -337,6 +331,8 @@ public:
 	uint16 get_weight() const;
 
 	bool get_is_factory() const { return is_factory; }
+
+        sint64 get_purchase_time() const { return purchase_time; }
 
 	/**
 	* Call this method when commuting passengers are sent to this building.

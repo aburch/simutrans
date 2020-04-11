@@ -1,5 +1,11 @@
-#ifndef simware_h
-#define simware_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SIMWARE_H
+#define SIMWARE_H
+
 
 #include "halthandle_t.h"
 #include "dataobj/koord.h"

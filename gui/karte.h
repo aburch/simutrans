@@ -1,5 +1,11 @@
-#ifndef gui_karte_h
-#define gui_karte_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_KARTE_H
+#define GUI_KARTE_H
+
 
 #include "components/gui_component.h"
 #include "../halthandle_t.h"

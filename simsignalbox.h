@@ -1,10 +1,11 @@
- /*
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef _simsignalbox_h
-#define _simsignalbox_h
+#ifndef SIMSIGNALBOX_H
+#define SIMSIGNALBOX_H
+
 
 #include "obj/gebaeude.h"
 #include "tpl/slist_tpl.h"

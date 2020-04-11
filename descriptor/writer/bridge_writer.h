@@ -1,5 +1,11 @@
-#ifndef BRIDGE_WRITER_H
-#define BRIDGE_WRITER_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DESCRIPTOR_WRITER_BRIDGE_WRITER_H
+#define DESCRIPTOR_WRITER_BRIDGE_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

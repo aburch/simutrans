@@ -1,16 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * [Mathew Hounsell] Min Size Button On Map Window 20030313
- */
+#ifndef GUI_MAP_FRAME_H
+#define GUI_MAP_FRAME_H
 
-#ifndef gui_map_frame_h
-#define gui_map_frame_h
 
 #include "gui_frame.h"
 #include "../gui/simwin.h"

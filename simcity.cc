@@ -1,11 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
- *
- * construction of cities, creation of passengers
- *
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string>
@@ -2709,7 +2704,7 @@ void stadt_t::check_all_private_car_routes()
 	connected_industries.clear();
 	connected_attractions.clear();
 
-	weg_t* const w = gr->get_weg(road_wt); 
+	weg_t* const w = gr ? gr->get_weg(road_wt) : NULL;
 	if (w)
 	{
 		w->delete_all_routes_from_here();
@@ -2827,8 +2822,11 @@ void stadt_t::new_month()
 
 	uint16 congestion_density_factor = s.get_congestion_density_factor();
 
+#ifdef MULTI_THREAD
 	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 	assert(error == 0);
+#endif
+
 	if(congestion_density_factor < 32)
 	{
 		// Old method - congestion density factor
@@ -2897,8 +2895,11 @@ void stadt_t::new_month()
 	}
 
 	incoming_private_cars = 0;
+
+#ifdef MULTI_THREAD
 	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 	assert(error == 0);
+#endif
 }
 
 void stadt_t::calc_growth()

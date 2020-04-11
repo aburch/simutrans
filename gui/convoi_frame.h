@@ -1,19 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Displays a scrollable list of all convois of a player
- *
- * @author Hj. Malthaner, Sort/Filtering by V. Meyer
- * @date 15-Jun-01
- */
+#ifndef GUI_CONVOI_FRAME_H
+#define GUI_CONVOI_FRAME_H
 
-#ifndef __convoi_frame_h
-#define __convoi_frame_h
 
 #include "convoi_filter_frame.h"
 #include "gui_frame.h"
@@ -28,6 +20,12 @@
 class player_t;
 class goods_desc_t;
 
+/*
+ * Displays a scrollable list of all convois of a player
+ *
+ * @author Hj. Malthaner, Sort/Filtering by V. Meyer
+ * @date 15-Jun-01
+ */
 class convoi_frame_t :
 	public gui_frame_t,
 	private action_listener_t  //28-Dec-01     Markus Weber    Added , private action_listener_t

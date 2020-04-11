@@ -1,9 +1,15 @@
 /*
- * all defines that can change the compiling
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simconst_h
-#define simconst_h
+#ifndef SIMCONST_H
+#define SIMCONST_H
+
+
+/*
+ * all defines that can change the compiling
+ */
 
 // number of player
 #define MAX_PLAYER_COUNT (16)

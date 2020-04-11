@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simhalt_h
-#define simhalt_h
+#ifndef SIMHALT_H
+#define SIMHALT_H
+
 
 #include "convoihandle_t.h"
 #include "linehandle_t.h"

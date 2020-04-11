@@ -1,5 +1,11 @@
-#ifndef simversion_h
-#define simversion_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SIMVERSION_H
+#define SIMVERSION_H
+
 
 #ifdef MAKEOBJ
 #ifdef _MSC_VER

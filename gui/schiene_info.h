@@ -1,22 +1,18 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Track infowindow buttons //Ves
- */
+#ifndef GUI_SCHIENE_INFO_H
+#define GUI_SCHIENE_INFO_H
 
-#ifndef schiene_info_t_h
-#define schiene_info_t_h
 
 #include "obj_info.h"
 #include "../boden/wege/schiene.h"
 #include "components/action_listener.h"
 #include "components/gui_numberinput.h"
 #include "components/gui_container.h"
+
 
 /**
  * Info window for tracks

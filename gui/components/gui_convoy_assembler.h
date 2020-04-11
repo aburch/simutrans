@@ -1,5 +1,11 @@
-#ifndef gui_convoy_assembler_h
-#define gui_convoy_assembler_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_COMPONENTS_GUI_CONVOY_ASSEMBLER_H
+#define GUI_COMPONENTS_GUI_CONVOY_ASSEMBLER_H
+
 
 #include "action_listener.h"
 #include "gui_button.h"

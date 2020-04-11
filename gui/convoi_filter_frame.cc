@@ -1,15 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- * written by Volker Meyer
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Displays a filter settings dialog for the convoi list
- *
- * @author V. Meyer
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "convoi_filter_frame.h"

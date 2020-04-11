@@ -1,5 +1,11 @@
-#ifndef quickstone_tpl_h
-#define quickstone_tpl_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef TPL_QUICKSTONE_TPL_H
+#define TPL_QUICKSTONE_TPL_H
+
 
 #include "../simtypes.h"
 #include "../simdebug.h"

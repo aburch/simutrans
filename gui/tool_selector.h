@@ -1,15 +1,11 @@
 /*
- * Copyright (c) 2008 prissi
- *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * This class defines all toolbar dialogues, floating bar of tools, i.e. the part the user will see
- */
+#ifndef GUI_TOOL_SELECTOR_H
+#define GUI_TOOL_SELECTOR_H
 
-#ifndef TOOL_SELECTOR_H
-#define TOOL_SELECTOR_H
 
 #include "gui_frame.h"
 #include "../tpl/vector_tpl.h"
@@ -18,6 +14,9 @@
 class tool_t;
 
 
+/*
+ * This class defines all toolbar dialogues, floating bar of tools, i.e. the part the user will see
+ */
 class tool_selector_t : public gui_frame_t
 {
 private:

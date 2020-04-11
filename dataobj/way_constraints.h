@@ -1,24 +1,21 @@
 /*
- * Copyright (c) 2010 Bernd Gabriel
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
- * way_constraints_t: a hood for James Petts' permissive and prohibitive way constraints.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#pragma once
+#ifndef DATAOBJ_WAY_CONSTRAINTS_H
+#define DATAOBJ_WAY_CONSTRAINTS_H
 
-#ifndef way_constraints_h
-#define way_constraints_h
 
 #include "../simtypes.h"
 
 
-typedef
-	uint8 way_constraints_mask;
+typedef uint8 way_constraints_mask;
 
 
+/*
+ * way_constraints_t: a hood for James Petts' permissive and prohibitive way constraints.
+ */
 class way_constraints_t
 {
 private:
@@ -73,6 +70,5 @@ public:
 	 */
 	bool check_next_tile() { return !get_permissive() && !get_prohibitive(); }
 };
-
 
 #endif

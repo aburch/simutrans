@@ -1,5 +1,11 @@
-#ifndef OBJ_VIEW_T_H
-#define OBJ_VIEW_T_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_COMPONENTS_GUI_OBJ_VIEW_T_H
+#define GUI_COMPONENTS_GUI_OBJ_VIEW_T_H
+
 
 #include "gui_world_view_t.h"
 

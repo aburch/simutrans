@@ -1,5 +1,11 @@
-#ifndef GOODS_WRITER_H
-#define GOODS_WRITER_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DESCRIPTOR_WRITER_GOOD_WRITER_H
+#define DESCRIPTOR_WRITER_GOOD_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

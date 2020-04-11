@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef goods_manager_t_h
-#define goods_manager_t_h
+#ifndef BAUER_GOODS_MANAGER_H
+#define BAUER_GOODS_MANAGER_H
+
 
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"

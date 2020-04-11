@@ -1,5 +1,10 @@
-#include <cmath>
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <string>
+#include <cmath>
 #include "../../dataobj/tabfile.h"
 #include "../../dataobj/ribi.h"
 #include "../tunnel_desc.h"

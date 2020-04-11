@@ -1,5 +1,11 @@
-#ifndef dataobj_settings_h
-#define dataobj_settings_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DATAOBJ_SETTINGS_H
+#define DATAOBJ_SETTINGS_H
+
 
 #include <string>
 #include "../simtypes.h"

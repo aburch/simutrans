@@ -1,5 +1,11 @@
-#ifndef __OBJ_BASE_DESC_H
-#define __OBJ_BASE_DESC_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DESCRIPTOR_OBJ_BASE_DESC_H
+#define DESCRIPTOR_OBJ_BASE_DESC_H
+
 
 #include "text_desc.h"
 

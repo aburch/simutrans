@@ -1,8 +1,7 @@
 /*
-  * @author: jamespetts, April 2011
-  * This file is part of the Simutrans project under the artistic licence.
-  * (see licence.txt)
-  */
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #include "livery_scheme.h"
 #include "loadsave.h"

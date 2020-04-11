@@ -1,4 +1,7 @@
-This is the simutrans source code.
+This is the Simutrans-Extended source code.
+(c) since 2009 The Simutrans-Extended Team
+
+Based on Simutans which is
 (c) 1997-2004 Hj. Malthaner
 (c) since 2005 The Simutrans Team
 

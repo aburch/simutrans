@@ -1,9 +1,17 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjorg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
+
+#ifndef GUI_COMPONENTS_GUI_CONTAINER_H
+#define GUI_COMPONENTS_GUI_CONTAINER_H
+
+
+#include "../../simdebug.h"
+#include "../../simevent.h"
+#include "../../tpl/slist_tpl.h"
+#include "gui_component.h"
+
 
 /**
  * A container for other gui_components. Is itself
@@ -12,16 +20,6 @@
  * @author Hj. Malthaner
  * @date 03-Mar-01
  */
-
-#ifndef gui_container_h
-#define gui_container_h
-
-
-#include "../../simdebug.h"
-#include "../../simevent.h"
-#include "../../tpl/slist_tpl.h"
-#include "gui_component.h"
-
 class gui_container_t : public gui_component_t
 {
 private:

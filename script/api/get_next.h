@@ -1,5 +1,11 @@
-#ifndef _GET_NEXT_H_
-#define _GET_NEXT_H_
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SCRIPT_API_GET_NEXT_H
+#define SCRIPT_API_GET_NEXT_H
+
 
 #include "../../simtypes.h"
 #include "../../squirrel/squirrel.h"

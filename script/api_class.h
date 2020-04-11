@@ -1,5 +1,11 @@
-#ifndef _API_CLASS_H_
-#define _API_CLASS_H_
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SCRIPT_API_CLASS_H
+#define SCRIPT_API_CLASS_H
+
 
 #include "api_param.h"
 

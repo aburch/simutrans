@@ -1,10 +1,11 @@
 /*
- * A class for distribution of tabs through the gui_component_t component.
- * @author Hj. Malthaner
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_tab_panel_h
-#define gui_tab_panel_h
+#ifndef GUI_COMPONENTS_GUI_TAB_PANEL_H
+#define GUI_COMPONENTS_GUI_TAB_PANEL_H
+
 
 #include "../../display/simimg.h"
 
@@ -16,6 +17,10 @@
 
 class image_t;
 
+/*
+ * A class for distribution of tabs through the gui_component_t component.
+ * @author Hj. Malthaner
+ */
 class gui_tab_panel_t :
 	public gui_action_creator_t,
 	public action_listener_t,

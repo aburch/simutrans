@@ -1,16 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Displays an information window for a convoi
- *
- * @author Hj. Malthaner
- * @date 22-Aug-01
- */
+#ifndef GUI_CONVOI_INFO_T_H
+#define GUI_CONVOI_INFO_T_H
+
 
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
@@ -40,6 +35,12 @@
 #define BUTTON_COUNT MAX_CONVOI_COST
 #endif
 
+/*
+ * Displays an information window for a convoi
+ *
+ * @author Hj. Malthaner
+ * @date 22-Aug-01
+ */
 class convoi_info_t : public gui_frame_t, private action_listener_t
 {
 public:
@@ -167,3 +168,5 @@ public:
 
 	uint32 get_rdwr_id() { return magic_convoi_info; }
 };
+
+#endif

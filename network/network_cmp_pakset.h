@@ -1,5 +1,11 @@
-#ifndef _NETWORK_CMP_PAKSET_H_
-#define _NETWORK_CMP_PAKSET_H_
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef NETWORK_NETWORK_CMP_PAKSET_H
+#define NETWORK_NETWORK_CMP_PAKSET_H
+
 
 #include "network_cmd.h"
 #include "pakset_info.h"

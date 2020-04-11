@@ -1,5 +1,11 @@
-#ifndef OBJ_NODE_H
-#define OBJ_NODE_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DESCRIPTOR_WRITER_OBJ_NODE_H
+#define DESCRIPTOR_WRITER_OBJ_NODE_H
+
 
 #include "../obj_node_info.h"
 #include <stdio.h>

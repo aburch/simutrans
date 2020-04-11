@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simplay_h
-#define simplay_h
+#ifndef PLAYER_SIMPLAY_H
+#define PLAYER_SIMPLAY_H
+
 
 #include "../network/pwd_hash.h"
 #include "../simtypes.h"

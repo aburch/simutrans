@@ -1,10 +1,11 @@
-/**
- * Curiosity list window
- * @author Hj. Malthaner
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef curiositylist_frame_t_h
-#define curiositylist_frame_t_h
+#ifndef GUI_CURIOSITYLIST_FRAME_T_H
+#define GUI_CURIOSITYLIST_FRAME_T_H
+
 
 #include "../gui/gui_frame.h"
 #include "../gui/curiositylist_stats_t.h"
@@ -13,6 +14,10 @@
 #include "components/gui_scrollpane.h"
 
 
+/**
+ * Curiosity list window
+ * @author Hj. Malthaner
+ */
 class curiositylist_frame_t : public gui_frame_t, private action_listener_t
 {
  private:
