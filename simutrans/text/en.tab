@@ -3778,8 +3778,8 @@ line_missing_scheduled_slots
 This line was missing scheduled slots last month
 line_has_obsolete_vehicles
 This line operates with obsolete vehicles
-line_has_obsolete_vehicles_with_upgrades
-This line has obsolete vehicles with upgrades
+line_has_upgradeable_vehicles
+This line has upgradeable vehicles
 staff_shortage
 Staff shortage
 reset_all_pass_classes

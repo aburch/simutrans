@@ -2799,7 +2799,7 @@ line_class_manager
 路線のクラス割当て
 line_has_obsolete_vehicles
 生産中止した車両があります
-line_has_obsolete_vehicles_with_upgrades
+line_has_upgradeable_vehicles
 改造可能な車両があります
 line_loss_making
 赤字です
