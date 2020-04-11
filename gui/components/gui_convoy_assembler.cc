@@ -1007,27 +1007,30 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			const uint32 max_acceleration_distance = convoy.calc_acceleration_distance(weight_summary_t(max_weight, friction), min_speed);
 			tooltip_convoi_acceleration.printf(min_weight == max_weight ? translator::translate("; %i m") : translator::translate("; %i m - %i m"),
 				min_acceleration_distance, max_acceleration_distance);
+		}
 
-			{
-				char buf[128];
-				sint64 resale_value = total_cost;
-				if (depot_frame) {
-					convoihandle_t cnv = depot_frame->get_convoy();
-					if (cnv.is_bound())
-					{
-						resale_value = cnv->calc_sale_value();
-						depot_frame->set_resale_value(resale_value);
-					}
+		{
+			char buf[128];
+			sint64 resale_value = total_cost;
+			if (depot_frame) {
+				convoihandle_t cnv = depot_frame->get_convoy();
+				if (cnv.is_bound())
+				{
+					resale_value = cnv->calc_sale_value();
+					depot_frame->set_resale_value(total_cost, resale_value);
 				}
-
-				money_to_string(buf, total_cost / 100.0);
-				// FIXME: The correct term must be used for the translation of "Cost:"
-				txt_convoi_cost.append(translator::translate("Cost:"));
-				const COLOR_VAL col_cost = (uint32)resale_value == total_cost ? SYSCOL_TEXT : COL_ROYAL_BLUE;
-				display_proportional_clip(parent_pos.x + D_MARGIN_LEFT + proportional_string_width(translator::translate("Cost:")) + 10, parent_pos.y + pos.y + lb_convoi_cost.get_pos().y, buf, ALIGN_LEFT, col_cost, true);
-
-				txt_convoi_maintenance.printf(translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), (double)maint_per_km / 100.0, (double)maint_per_month / 100.0);
+				else {
+					depot_frame->set_resale_value();
+				}
 			}
+
+			money_to_string(buf, total_cost / 100.0);
+			// FIXME: The correct term must be used for the translation of "Cost:"
+			txt_convoi_cost.append(translator::translate("Cost:"));
+			const COLOR_VAL col_cost = (uint32)resale_value == total_cost ? SYSCOL_TEXT : COL_ROYAL_BLUE;
+			display_proportional_clip(parent_pos.x + D_MARGIN_LEFT + proportional_string_width(translator::translate("Cost:")) + 10, parent_pos.y + pos.y + lb_convoi_cost.get_pos().y, buf, ALIGN_LEFT, col_cost, true);
+
+			txt_convoi_maintenance.printf(translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), (double)maint_per_km / 100.0, (double)maint_per_month / 100.0);
 		}
 
 		txt_convoi_power.clear();
