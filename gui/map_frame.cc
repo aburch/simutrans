@@ -481,6 +481,8 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 		b_rotate45.pressed = reliefkarte_t::get_karte()->isometric;
 		reliefkarte_t::get_karte()->calc_map_size();
 		scrolly.set_size( scrolly.get_size() );
+		zoomed = true;
+		old_ij = koord::invalid;
 	}
 	else if (comp == &b_show_contour) {
 		// terrain heights color scale
@@ -560,6 +562,10 @@ void map_frame_t::zoom(bool magnify)
 		zoom_value_label.buf().printf("%i:%i", zoom_in, zoom_out );
 		zoom_value_label.update();
 		zoom_row->set_size( zoom_row->get_size());
+		// recalculate scroll bar width
+		scrolly.set_size( scrolly.get_size() );
+		// invalidate old offsets
+		old_ij = koord::invalid;
 	}
 }
 
