@@ -3,6 +3,10 @@
  * (see LICENSE.txt)
  */
 
+#ifndef GUI_CONVOI_DETAIL_T_H
+#define GUI_CONVOI_DETAIL_T_H
+
+
 #include "components/gui_aligned_container.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_button.h"
@@ -50,3 +54,5 @@ public:
 
 	void rdwr( loadsave_t *file );
 };
+
+#endif

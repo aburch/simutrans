@@ -3,6 +3,13 @@
  * (see LICENSE.txt)
  */
 
+#ifndef UTILS_CSV_H
+#define UTILS_CSV_H
+
+
+#include "cbuffer_t.h"
+
+
 /*
 Provides functionality for building a buffer containing CSV
 encoded data. This is done in a very simple way, building up
@@ -54,13 +61,6 @@ Field1 Header,Field2 Header
 field1 data,"field2, data"
 
  */
-
-#ifndef UTILS_CSV_H
-#define UTILS_CSV_H
-
-
-#include "cbuffer_t.h"
-
 class CSV_t {
 	// The raw data itself (stored encoded)
 	cbuffer_t contents;

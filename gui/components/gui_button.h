@@ -3,10 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Defines all button types: Normal (roundbox), Checkboxes (square), Arrows, Scrollbars
- */
-
 #ifndef GUI_COMPONENTS_GUI_BUTTON_H
 #define GUI_COMPONENTS_GUI_BUTTON_H
 
@@ -22,6 +18,7 @@ class karte_ptr_t;
 
 /**
  * Class for buttons in Windows
+ * Defines all button types: Normal (roundbox), Checkboxes (square), Arrows, Scrollbars
  */
 class button_t :
 	public gui_action_creator_t,

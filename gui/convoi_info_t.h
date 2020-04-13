@@ -3,6 +3,9 @@
  * (see LICENSE.txt)
  */
 
+#ifndef GUI_CONVOI_INFO_T_H
+#define GUI_CONVOI_INFO_T_H
+
 
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
@@ -121,3 +124,5 @@ public:
 
 	void route_search_finished() { route_search_in_progress = false; }
 };
+
+#endif
