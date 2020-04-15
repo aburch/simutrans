@@ -210,6 +210,22 @@ map_frame_t::map_frame_t() :
 	b_rotate45.add_listener(this);
 	b_rotate45.pressed = karte->isometric;
 	add_component(&b_rotate45);
+	cursor.x += b_rotate45.get_size().w + D_H_SPACE;
+
+	// show convoy
+	b_show_convoy.init(button_t::square_state, "Show convoy", cursor);
+	b_show_convoy.set_tooltip("Show convoys in the minimap");
+	b_show_convoy.add_listener(this);
+	b_show_convoy.pressed = karte->show_convoy;
+	add_component(&b_show_convoy);
+	cursor.x += b_show_convoy.get_size().w + D_H_SPACE;
+
+	// show convoy
+	b_show_contour.init(button_t::square_state, "Show contour", cursor);
+	b_show_contour.set_tooltip("Show the contour in the minimap");
+	b_show_contour.add_listener(this);
+	b_show_contour.pressed = karte->show_contour;
+	add_component(&b_show_contour);
 
 	// align second row
 	// Max Kielland: This will be done automatically (and properly) by the new gui_layout_t control in the near future.
@@ -462,6 +478,18 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 		b_rotate45.pressed = reliefkarte_t::get_karte()->isometric;
 		reliefkarte_t::get_karte()->calc_map_size();
 		scrolly.set_size( scrolly.get_size() );
+	}
+	else if (comp == &b_show_convoy) {
+		// rotated/straight map
+		reliefkarte_t::get_karte()->show_convoy ^= 1;
+		b_show_convoy.pressed = reliefkarte_t::get_karte()->show_convoy;
+		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
+	}
+	else if (comp == &b_show_contour) {
+		// rotated/straight map
+		reliefkarte_t::get_karte()->show_contour ^= 1;
+		b_show_contour.pressed = reliefkarte_t::get_karte()->show_contour;
+		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
 	}
 	else if(comp==&b_overlay_networks) {
 		b_overlay_networks.pressed ^= 1;

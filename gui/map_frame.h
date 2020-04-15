@@ -87,7 +87,9 @@ private:
 				b_show_directory,
 				b_overlay_networks,
 				b_overlay_networks_load_factor,
-				b_filter_factory_list;
+				b_filter_factory_list,
+				b_show_convoy,
+				b_show_contour;
 
 	gui_label_t zoom_label,
 				zoom_value_label,

@@ -183,6 +183,8 @@ public:
 	// 45 rotated map
 	bool isometric;
 	bool show_network_load_factor;
+	bool show_convoy;
+	bool show_contour;
 
 	int player_showed_on_map;
 	int transport_type_showed_on_map;
@@ -208,7 +210,7 @@ public:
 	static uint8 calc_hoehe_farbe(const sint16 height, const sint16 groundwater);
 
 	// needed for town passenger map
-	static uint8 calc_relief_farbe(const grund_t *gr);
+	static uint8 calc_relief_farbe(const grund_t *gr, bool show_contour = true);
 
 	// public, since the convoi updates need this
 	// nonstatic, if we have someday many maps ...

@@ -642,7 +642,7 @@ uint8 reliefkarte_t::calc_hoehe_farbe(const sint16 height, const sint16 groundwa
  * Updated Map color(Kartenfarbe) an Position k
  * @author Hj. Malthaner
  */
-uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
+uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour)
 {
 	uint8 color = COL_BLACK;
 
@@ -686,7 +686,7 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
 					if(fab==NULL) {
 						sint16 height = (gr->get_grund_hang()%3);
-						color = calc_hoehe_farbe( welt->lookup_hgt( gr->get_pos().get_2d() ) + height, welt->get_water_hgt( gr->get_pos().get_2d() ) );
+						color = show_contour ? calc_hoehe_farbe( welt->lookup_hgt( gr->get_pos().get_2d() ) + height, welt->get_water_hgt( gr->get_pos().get_2d() ) ) : map_type_color[MAX_MAP_TYPE_WATER-1];
 						//color = COL_BLUE;	// water with boat?
 					}
 					else {
@@ -713,6 +713,9 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 					const leitung_t* lt = gr->find<leitung_t>();
 					if(lt!=NULL) {
 						color = POWERLINE_KENN;
+					}
+					else if (!show_contour) {
+						color = map_type_color[MAX_MAP_TYPE_WATER];
 					}
 					else {
 						sint16 height = (gr->get_grund_hang()%3);
@@ -745,13 +748,13 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 	}
 	const grund_t *gr=plan->get_boden_bei(plan->get_boden_count()-1);
 
-	if(  mode!=MAP_PAX_DEST  &&  gr->get_convoi_vehicle()  ) {
+	if(  mode!=MAP_PAX_DEST  &&  gr->get_convoi_vehicle() && show_convoy  ) {
 		set_relief_farbe( k, VEHIKEL_KENN );
 		return;
 	}
 
 	// first use ground color
-	set_relief_farbe( k, calc_relief_farbe(gr) );
+	set_relief_farbe(k, calc_relief_farbe(gr, show_contour));
 
 	switch(mode&~MAP_MODE_FLAGS) {
 		// show passenger coverage
@@ -1154,6 +1157,8 @@ reliefkarte_t::reliefkarte_t()
 	zoom_in = 1;
 	zoom_out = 1;
 	isometric = false;
+	show_convoy = true;
+	show_contour = true;
 	mode = MAP_TOWN;
 	city = NULL;
 	cur_off = new_off = scr_coord(0,0);
