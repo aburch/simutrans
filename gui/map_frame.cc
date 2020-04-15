@@ -480,13 +480,13 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 		scrolly.set_size( scrolly.get_size() );
 	}
 	else if (comp == &b_show_convoy) {
-		// rotated/straight map
+		// show/hide convoy pixel
 		reliefkarte_t::get_karte()->show_convoy ^= 1;
 		b_show_convoy.pressed = reliefkarte_t::get_karte()->show_convoy;
 		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
 	}
 	else if (comp == &b_show_contour) {
-		// rotated/straight map
+		// terrain heights color scale
 		reliefkarte_t::get_karte()->show_contour ^= 1;
 		b_show_contour.pressed = reliefkarte_t::get_karte()->show_contour;
 		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
