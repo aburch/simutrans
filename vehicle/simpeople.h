@@ -70,6 +70,9 @@ public:
 	grund_t* hop_check() OVERRIDE;
 	void hop(grund_t* gr) OVERRIDE;
 
+	void * operator new(size_t s);
+	void operator delete(void *p);
+
 	// class register functions
 	static bool register_desc(const pedestrian_desc_t *desc);
 	static bool successfully_loaded();
