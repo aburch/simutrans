@@ -382,3 +382,15 @@ void pedestrian_t::info(cbuffer_t & buf) const
 		buf.printf(translator::translate("Constructed by %s"), maker);
 	}
 }
+
+
+void *pedestrian_t::operator new(size_t /*s*/)
+{
+	return freelist_t::gimme_node(sizeof(pedestrian_t));
+}
+
+
+void pedestrian_t::operator delete(void *p)
+{
+	freelist_t::putback_node(sizeof(pedestrian_t),p);
+}

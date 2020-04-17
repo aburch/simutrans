@@ -81,16 +81,22 @@ public:
 	};
 
 private:
-	/**
-	* Route of this convoi - a sequence of coordinates. Actually
-	* the path of the first vehicle
-	*/
-	route_t route;
+	/* The data is laid out such that the most important variables for sync_step and step are
+	 * concentrated at the beginning of the structure.
+	 * All computations are for 64bit builds.
+	 *
+	 * We start with a 24 bytes header from virtual tables and data of overtaker_t :(
+	 */
 
 	/**
-	* assigned line
-	*/
-	linehandle_t line;
+	 * The convoi is not processed every sync step for various actions
+	 * (like waiting before signals, loading etc.) Such action will only
+	 * continue after a waiting time larger than wait_lock
+	 */
+	sint32 wait_lock;
+
+	states state;
+	// 32 bytes (state is int is 4 byte)
 
 	/**
 	* holds id of line with pending update
@@ -98,12 +104,82 @@ private:
 	*/
 	linehandle_t line_update_pending;
 
+	uint16 recalc_data_front  : 1; ///< true, when front vehicle has to recalculate braking
+	uint16 recalc_data        : 1; ///< true, when convoy has to recalculate weights and speed limits
+	uint16 recalc_speed_limit : 1; ///< true, when convoy has to recalculate speed limits
+	bool recalc_min_top_speed : 1; ///< true, when convoy has to recalculate min_top_speed and is_electric
+
+	uint16 previous_delta_v   :12; /// 12 bit! // Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelerate
+	// 36 bytes
 	/**
-	* Name of the convoi.
-	* @see set_name
-	*/
-	uint8 name_offset;
-	char name_and_id[128];
+	 * Overall performance with Gear.
+	 * Used in movement calculations.
+	 */
+	sint32 sum_gear_and_power;
+
+	// 40 bytes
+	/**
+	 * sum_weight: unloaded weight of all vehicles
+	 * sum_gesamtweight: total weight of all vehicles
+	 * Not stored, but calculated from individual weights
+	 * when loading/driving.
+	 */
+	sint64 sum_gesamtweight;
+	sint64 sum_friction_weight;
+	// 56 bytes
+	sint32 akt_speed_soll;    // target speed
+	sint32 akt_speed;	      // current speed
+	// 64 bytes
+
+	/**
+	 * this give the index of the next signal or the end of the route
+	 * convois will slow down before it, if this is not a waypoint or the cannot pass
+	 * The slowdown is done by the vehicle routines
+	 */
+	uint16 next_stop_index;
+
+	sint32 speed_limit;
+	// needed for speed control/calculation
+	sint32 brake_speed_soll;    // brake target speed
+	/**
+	 * Lowest top speed of all vehicles. Doesn't get saved, but calculated
+	 * from the vehicles data
+	 */
+	sint32 min_top_speed;
+
+	sint32 sp_soll;           // steps to go
+	sint32 max_record_speed; // current convois fastest speed ever
+
+	// things for the world record
+	koord record_pos;
+
+	/* Number of steps the current convoi did already
+	 * (only needed for leaving/entering depot)
+	 */
+	sint16 steps_driven;
+	/**
+	 * The vehicles of this convoi
+	 *
+	 */
+	array_tpl<vehicle_t*> fahr;
+	/**
+	 * Number of vehicles in this convoi.
+	 */
+	// TODO number of vehicles is stored in array_tpl too!
+	uint8 anz_vehikel;
+
+	uint32 next_wolke;	// time to next smoke
+
+	/**
+	 * Route of this convoi - a sequence of coordinates. Actually
+	 * the path of the first vehicle
+	 */
+	route_t route;
+
+	/**
+	 * assigned line
+	 */
+	linehandle_t line;
 
 	/**
 	* All vehicle-schedule pointers point here
@@ -123,11 +199,6 @@ private:
 	* needed as int, since used by the gui
 	*/
 	sint32 loading_limit;
-
-	/**
-	* The vehicles of this convoi
-	*/
-	array_tpl<vehicle_t*> fahr;
 
 	/*
 	 * a list of all catg_index, which can be transported by this convoy.
@@ -176,16 +247,6 @@ private:
 	*/
 	uint8 freight_info_order;
 
-	/**
-	* Number of vehicles in this convoi.
-	*/
-	uint8 anz_vehikel;
-
-	/* Number of steps the current convoi did already
-	 * (only needed for leaving/entering depot)
-	 */
-	sint16 steps_driven;
-
 	/*
 	 * caches the running costs
 	 */
@@ -193,45 +254,12 @@ private:
 
 	/**
 	* Overall performance.
-	* Not stored, but calculated from individual parts
+	* Not used in movement code.
 	*/
 	uint32 sum_power;
 
-	/**
-	* Overall performance with Gear.
-	* Not stored, but calculated from individual parts
-	*/
-	sint32 sum_gear_and_power;
-
-	/**
-	* sum_weight: unloaded weight of all vehicles *
-	* sum_gesamtweight: total weight of all vehicles *
-	* Not stored, but calculated from individual weights
-	* when loading/driving.
-	*/
+	/// sum_weight: unloaded weight of all vehicles
 	sint64 sum_weight;
-	sint64 sum_gesamtweight;
-
-	bool recalc_data_front;  ///< true, when front vehicle has to recalculate braking
-	bool recalc_data;        ///< true, when convoy has to recalculate weights and speed limits
-	bool recalc_speed_limit; ///< true, when convoy has to recalculate speed limits
-	bool recalc_min_top_speed; ///< true, when convoy has to recalculate min_top_speed and is_electric
-
-	sint64 sum_friction_weight;
-	sint32 speed_limit;
-
-	/**
-	* Lowest top speed of all vehicles. Doesn't get saved, but calculated
-	* from the vehicles data
-	*/
-	sint32 min_top_speed;
-
-	/**
-	 * this give the index of the next signal or the end of the route
-	 * convois will slow down before it, if this is not a waypoint or the cannot pass
-	 * The slowdown is done by the vehicle routines
-	 */
-	uint16 next_stop_index;
 
 	/**
 	 * this give the index until which the route has been reserved. It is used for
@@ -256,13 +284,6 @@ private:
 	
 	bool coupling_done;
 	ribi_t::ribi next_initial_direction;
-
-	/**
-	 * The convoi is not processed every sync step for various actions
-	 * (like waiting before signals, loading etc.) Such action will only
-	 * continue after a waiting time larger than wait_lock
-	 */
-	sint32 wait_lock;
 
 	/**
 	 * Time when convoi arrived at the current stop
@@ -303,20 +324,6 @@ private:
 	sint32 speedbonus_kmh; // speed used for speedbonus calculation in km/h
 	sint32 maxspeed_average_count;	// just a simple count to average for statistics
 
-	// things for the world record
-	sint32 max_record_speed; // current convois fastest speed ever
-	koord record_pos;
-
-	// needed for speed control/calculation
-	sint32 brake_speed_soll;    // brake target speed
-	sint32 akt_speed_soll;    // target speed
-	sint32 akt_speed;	        // current speed
-	sint32 sp_soll;           // steps to go
-	sint32 previous_delta_v;  // Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelerate
-
-	uint32 next_wolke;	// time to next smoke
-
-	states state;
 
 	ribi_t::ribi alte_richtung;
 	
@@ -326,6 +333,24 @@ private:
 		uint16 next_block;
 	} longblock_signal_request_t;
 	longblock_signal_request_t longblock_signal_request;
+
+	/**
+	 * struct holds new financial history for convoi
+	 */
+	sint64 financial_history[MAX_MONTHS][MAX_CONVOI_COST];
+
+	/**
+	 * the koordinate of the home depot of this convoi
+	 * the last depot visited is considered being the home depot
+	 */
+	koord3d home_depot;
+
+	/**
+	 * Name of the convoi.
+	 * @see set_name
+	 */
+	uint8 name_offset;
+	char name_and_id[128];
 
 	/**
 	* Initialize all variables with default values.
@@ -381,20 +406,9 @@ private:
 	void calc_acceleration(uint32 delta_t);
 
 	/**
-	* struct holds new financial history for convoi
-	*/
-	sint64 financial_history[MAX_MONTHS][MAX_CONVOI_COST];
-
-	/**
 	* initialize the financial history
 	*/
 	void init_financial_history();
-
-	/**
-	* the koordinate of the home depot of this convoi
-	* the last depot visited is considered being the home depot
-	*/
-	koord3d home_depot;
 
 	/**
 	* unset line -> remove cnv from line

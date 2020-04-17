@@ -457,6 +457,8 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 		minimap_t::get_instance()->calc_map_size();
 		b_rotate45.pressed = minimap_t::get_instance()->is_isometric();
 		scrolly.set_size( scrolly.get_size() );
+		zoomed = true;
+		old_ij = koord::invalid;
 	}
 	else if(  comp == &b_overlay_networks  ) {
 		b_overlay_networks.pressed ^= 1;
@@ -524,6 +526,10 @@ void map_frame_t::zoom(bool magnify)
 		zoom_value_label.buf().printf("%i:%i", zoom_in, zoom_out );
 		zoom_value_label.update();
 		zoom_row->set_size( zoom_row->get_size());
+		// recalculate scroll bar width
+		scrolly.set_size( scrolly.get_size() );
+		// invalidate old offsets
+		old_ij = koord::invalid;
 	}
 }
 

@@ -9,6 +9,7 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added @ref depot_x::get_depot_list
  * - Added @ref vehicle_desc_x::needs_electrification
  * - Added @ref command_x::build_road
  * - Added fields: @ref field_x

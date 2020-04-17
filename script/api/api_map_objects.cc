@@ -388,6 +388,27 @@ vector_tpl<convoihandle_t> const& depot_get_convoy_list(depot_t *depot)
 	return list;
 }
 
+vector_tpl<depot_t*> const& get_depot_list(player_t *player, waytype_t wt)
+{
+	static vector_tpl<depot_t*> list;
+	list.clear();
+	// do the conversion of waytype_t to depot-type by linetype
+	simline_t::linetype line_type = simline_t::waytype_to_linetype(wt);
+	if (player == NULL  ||  line_type == simline_t::MAX_LINE_TYPE) {
+		return list;
+	}
+	// fill list
+	const slist_tpl<depot_t*> &depot_list = depot_t::get_depot_list();
+
+	FOR(slist_tpl<depot_t*>, d, depot_list) {
+		if(d->get_line_type()==line_type  &&  d->get_owner()==player) {
+			list.append(d);
+		}
+	}
+	return list;
+}
+
+
 const fabrik_t* transformer_get_factory(leitung_t *lt)
 {
 	if (pumpe_t *p = dynamic_cast<pumpe_t*>(lt)) {
@@ -559,6 +580,13 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @returns list of convoys sitting in this depot
 	 */
 	register_method(vm, &depot_get_convoy_list, "get_convoy_list", true);
+	/**
+	 * List of all depots of player @p pl of way-type @p wt
+	 * @param pl
+	 * @param wt
+	 * @returns depot list of player
+	 */
+	STATIC register_method(vm, &get_depot_list, "get_depot_list", false, true);
 	end_class(vm);
 
 	/**

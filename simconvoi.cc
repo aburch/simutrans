@@ -874,7 +874,7 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 
 		// we need more accurate arithmetic, so we store the previous value
 		delta_v += previous_delta_v;
-		previous_delta_v = (sint32)(delta_v & 0x00000FFFll);
+		previous_delta_v = (uint16) (delta_v & 0x00000FFFll);
 		// and finally calculate new speed
 		akt_speed = max(akt_speed_soll>>4, akt_speed+(sint32)(delta_v>>12l) );
 	}

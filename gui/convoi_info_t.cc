@@ -381,7 +381,7 @@ koord3d convoi_info_t::get_weltpos( bool set )
 		return koord3d::invalid;
 	}
 	else {
-		return cnv->get_pos();
+		return cnv.is_bound() ?  cnv->get_pos() : koord3d::invalid;
 	}
 }
 
@@ -518,7 +518,7 @@ void convoi_info_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  &&  cnv.is_bound())
 	{
 		init(cnv);
-
+		win_set_magic(this, magic_convoi_info+cnv.get_id());
 		reset_min_windowsize();
 		set_windowsize(size);
 	}

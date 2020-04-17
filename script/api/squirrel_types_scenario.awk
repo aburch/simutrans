@@ -224,6 +224,7 @@ BEGIN {
 	export_types["depot_x::start_convoy"] = "string(player_x, convoy_x)"
 	export_types["depot_x::start_all_convoys"] = "string(player_x)"
 	export_types["depot_x::get_convoy_list"] = "array<convoy_x>()"
+	export_types["depot_x::get_depot_list"] = "array<depot_x>(player_x, way_types)"
 	export_types["way_x::has_sidewalk"] = "bool()"
 	export_types["way_x::is_electrified"] = "bool()"
 	export_types["way_x::has_sign"] = "bool()"

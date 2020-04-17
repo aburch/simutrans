@@ -16,6 +16,8 @@
 // bitshift for converting internal power values to MW for display
 extern const uint32 POWER_TO_MW;
 
+#define CREDIT_PER_MWS 2
+
 class powernet_t;
 class player_t;
 class fabrik_t;
