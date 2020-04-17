@@ -212,20 +212,28 @@ map_frame_t::map_frame_t() :
 	add_component(&b_rotate45);
 	cursor.x += b_rotate45.get_size().w + D_H_SPACE;
 
-	// show convoy
+	// show the convoy layer
 	b_show_convoy.init(button_t::square_state, "Show convoy", cursor);
-	b_show_convoy.set_tooltip("Show convoys in the minimap");
+	b_show_convoy.set_tooltip("Show convoys");
 	b_show_convoy.add_listener(this);
 	b_show_convoy.pressed = karte->show_convoy;
 	add_component(&b_show_convoy);
 	cursor.x += b_show_convoy.get_size().w + D_H_SPACE;
 
-	// show convoy
+	// show contour
 	b_show_contour.init(button_t::square_state, "Show contour", cursor);
-	b_show_contour.set_tooltip("Show the contour in the minimap");
+	b_show_contour.set_tooltip("Color-coded according to ground / sea level altitude");
 	b_show_contour.add_listener(this);
 	b_show_contour.pressed = karte->show_contour;
 	add_component(&b_show_contour);
+	cursor.x += b_show_contour.get_size().w + D_H_SPACE;
+
+	// show the building layer
+	b_show_buildings.init(button_t::square_state, "Show buildings", cursor);
+	b_show_buildings.set_tooltip("Show the contour in the minimap");
+	b_show_buildings.add_listener(this);
+	b_show_buildings.pressed = karte->show_buildings;
+	add_component(&b_show_buildings);
 
 	// align second row
 	// Max Kielland: This will be done automatically (and properly) by the new gui_layout_t control in the near future.
@@ -489,6 +497,12 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 		// terrain heights color scale
 		reliefkarte_t::get_karte()->show_contour ^= 1;
 		b_show_contour.pressed = reliefkarte_t::get_karte()->show_contour;
+		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
+	}
+	else if (comp == &b_show_buildings) {
+		// terrain heights color scale
+		reliefkarte_t::get_karte()->show_buildings ^= 1;
+		b_show_buildings.pressed = reliefkarte_t::get_karte()->show_buildings;
 		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
 	}
 	else if(comp==&b_overlay_networks) {

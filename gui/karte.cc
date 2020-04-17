@@ -642,7 +642,7 @@ uint8 reliefkarte_t::calc_hoehe_farbe(const sint16 height, const sint16 groundwa
  * Updated Map color(Kartenfarbe) an Position k
  * @author Hj. Malthaner
  */
-uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour)
+uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour, bool show_buildings)
 {
 	uint8 color = COL_BLACK;
 
@@ -652,7 +652,7 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour)
 		color = COL_PURPLE;
 	}else
 #endif
-	if(gr->get_halt().is_bound()) {
+	if(gr->get_halt().is_bound() && show_buildings) {
 		color = HALT_KENN;
 	}
 	else {
@@ -665,19 +665,6 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour)
 				break;
 			case grund_t::monorailboden:
 				color = MONORAIL_KENN;
-				break;
-			case grund_t::fundament:
-				{
-					// object at zero is either factory or house (or attraction ... )
-					gebaeude_t *gb = gr->find<gebaeude_t>();
-					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
-					if(fab==NULL) {
-						color = COL_GREY3;
-					}
-					else {
-						color = fab->get_kennfarbe();
-					}
-				}
 				break;
 			case grund_t::wasser:
 				{
@@ -695,8 +682,20 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour)
 				}
 				break;
 			// normal ground ...
+			case grund_t::fundament:
 			default:
-				if(gr->hat_wege()) {
+				if(show_buildings && gr->get_typ() == grund_t::fundament){
+					// object at zero is either factory or house (or attraction ... )
+					gebaeude_t *gb = gr->find<gebaeude_t>();
+					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
+					if(fab==NULL) {
+						color = COL_GREY3;
+					}
+					else {
+						color = fab->get_kennfarbe();
+					}
+				}
+				else if(gr->hat_wege()) {
 					switch(gr->get_weg_nr(0)->get_waytype()) {
 						case road_wt: color = STRASSE_KENN; break;
 						case tram_wt:
@@ -720,7 +719,7 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour)
 					else {
 						sint16 height = (gr->get_grund_hang()%3);
 						if(  gr->get_hoehe() > welt->get_groundwater()  ) {
-							color = calc_hoehe_farbe( gr->get_hoehe() + height, welt->get_groundwater() );
+							color = calc_hoehe_farbe(gr->get_hoehe() + height, welt->get_groundwater());
 						}
 						else {
 							color = calc_hoehe_farbe( gr->get_hoehe() + height, gr->get_hoehe() + height - 1);
@@ -754,7 +753,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 	}
 
 	// first use ground color
-	set_relief_farbe(k, calc_relief_farbe(gr, show_contour));
+	set_relief_farbe(k, calc_relief_farbe(gr, show_contour, show_buildings));
 
 	switch(mode&~MAP_MODE_FLAGS) {
 		// show passenger coverage
@@ -1189,6 +1188,7 @@ void reliefkarte_t::init()
 	relief = NULL;
 	needs_redraw = true;
 	is_visible = false;
+	show_buildings = true;
 
 	calc_map_size();
 	max_building_level = max_cargo = max_passed = 0;

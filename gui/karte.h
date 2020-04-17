@@ -175,6 +175,7 @@ private:
 
 	bool is_matching_freight_catg(const minivec_tpl<uint8> &goods_catg_index);
 
+
 public:
 	scr_coord karte_to_screen(const koord &k) const;
 
@@ -185,6 +186,7 @@ public:
 	bool show_network_load_factor;
 	bool show_convoy;
 	bool show_contour;
+	bool show_buildings;
 
 	int player_showed_on_map;
 	int transport_type_showed_on_map;
@@ -210,7 +212,7 @@ public:
 	static uint8 calc_hoehe_farbe(const sint16 height, const sint16 groundwater);
 
 	// needed for town passenger map
-	static uint8 calc_relief_farbe(const grund_t *gr, bool show_contour = true);
+	static uint8 calc_relief_farbe(const grund_t *gr, bool show_contour = true, bool show_buildings = true);
 
 	// public, since the convoi updates need this
 	// nonstatic, if we have someday many maps ...
