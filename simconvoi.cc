@@ -692,6 +692,9 @@ static inline sint32 res_power(sint64 speed, sint32 total_power, sint64 friction
  */
 void convoi_t::calc_acceleration(uint32 delta_t)
 {
+// 	printf("conv %p waitl %p recordpos %p\n", this, &(this->wait_lock), &(this->record_pos));
+// 	assert(false);
+
 	if(  !recalc_data  &&  !recalc_speed_limit  &&  !recalc_data_front  &&  (
 		(sum_friction_weight == sum_gesamtweight  &&  akt_speed_soll <= akt_speed  &&  akt_speed_soll+24 >= akt_speed)  ||
 		(sum_friction_weight > sum_gesamtweight  &&  akt_speed_soll == akt_speed)  )
@@ -775,7 +778,7 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 
 		// we need more accurate arithmetic, so we store the previous value
 		delta_v += previous_delta_v;
-		previous_delta_v = (sint32)(delta_v & 0x00000FFFll);
+		previous_delta_v = (uint16) (delta_v & 0x00000FFFll);
 		// and finally calculate new speed
 		akt_speed = max(akt_speed_soll>>4, akt_speed+(sint32)(delta_v>>12l) );
 	}

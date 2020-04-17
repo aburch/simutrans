@@ -114,6 +114,9 @@ bool ai_scripted_t::load_script(const char* filename)
 
 const char* ai_scripted_t::reload_script()
 {
+	if (script == NULL) {
+		return NULL;
+	}
 	// save the script to string
 	plainstring str;
 	script->call_function(script_vm_t::FORCEX, "save", str);

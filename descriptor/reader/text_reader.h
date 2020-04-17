@@ -3,6 +3,10 @@
  * (see LICENSE.txt)
  */
 
+#ifndef DESCRIPTOR_READER_TEXT_READER_H
+#define DESCRIPTOR_READER_TEXT_READER_H
+
+
 #include "obj_reader.h"
 
 class text_reader_t : public obj_reader_t {
@@ -17,3 +21,5 @@ public:
 	obj_type get_type() const OVERRIDE { return obj_text; }
 	char const* get_type_name() const OVERRIDE { return "text"; }
 };
+
+#endif

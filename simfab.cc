@@ -1882,7 +1882,7 @@ void fabrik_t::step(uint32 delta_t)
 							// to find out, if storage changed
 							delta_menge += p;
 							output[product].menge += p;
-							output[product].book_stat((sint64)p * (sint64)desc->get_product(0)->get_factor(), FAB_GOODS_PRODUCED);
+							output[product].book_stat((sint64)p * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
 							// if less than 3/4 filled we neary always consume power
 							currently_producing |= (output[product].menge*4 < output[product].max*3);
 						}

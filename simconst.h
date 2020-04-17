@@ -3,12 +3,13 @@
  * (see LICENSE.txt)
  */
 
+#ifndef SIMCONST_H
+#define SIMCONST_H
+
+
 /*
  * all defines that can change the compiling
  */
-
-#ifndef SIMCONST_H
-#define SIMCONST_H
 
 
 // color depth (default assumes RGB565), undefine only for rgb555 builds!

@@ -3,11 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * The function implements a WindowManager 'Object'
- * There's only one WindowManager
- */
-
 #ifndef GUI_SIMWIN_H
 #define GUI_SIMWIN_H
 
@@ -16,6 +11,13 @@
 
 #include "../simtypes.h"
 #include "../simconst.h"
+
+
+/*
+ * The function implements a WindowManager 'Object'
+ * There's only one WindowManager
+ */
+
 
 class karte_t;
 class scr_coord;

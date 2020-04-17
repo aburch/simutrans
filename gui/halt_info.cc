@@ -909,6 +909,7 @@ void halt_info_t::rdwr(loadsave_t *file)
 		halt = welt->lookup( halt_pos )->get_halt();
 		if (halt.is_bound()) {
 			init(halt);
+			win_set_magic(this, magic_halt_info+halt.get_id());
 			reset_min_windowsize();
 			set_windowsize(size);
 		}
