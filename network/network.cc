@@ -675,7 +675,6 @@ void network_send_server(network_command_t* nwc )
 bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 &count, const int timeout_ms )
 {
 	count = 0;
-	signal(SIGPIPE, SIG_IGN);
 	while (count < size) {
 		int sent = send(dest, buf+count, size-count, 0);
 		if (sent == -1) {
