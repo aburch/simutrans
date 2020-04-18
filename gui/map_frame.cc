@@ -213,7 +213,6 @@ map_frame_t::map_frame_t() :
 	add_component(&b_rotate45);
 	cursor.x += b_rotate45.get_size().w + D_H_SPACE;
 
-	// show the convoy layer
 
 	// show contour
 	b_show_contour.init(button_t::square_state, "Show contour", cursor);
