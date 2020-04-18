@@ -21,7 +21,7 @@
 
 class karte_ptr_t;
 
-#define MAP_MAX_BUTTONS (29)
+#define MAP_MAX_BUTTONS (30)
 
 /**
  * Minimap window
@@ -88,7 +88,6 @@ private:
 				b_overlay_networks,
 				b_overlay_networks_load_factor,
 				b_filter_factory_list,
-				b_show_convoy,
 				b_show_contour,
 				b_show_buildings;
 

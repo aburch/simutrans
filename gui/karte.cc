@@ -76,7 +76,7 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 {
 	//106, 2, 85, 86, 29, 30, 171, 71, 39, 132 // Original rainbow
 	//COL_DARK_PURPLE, 2, 85, 86, 171, 30, 29, 71, 39, 132 // Improved rainbow
-	COL_DARK_GREEN, COL_GREEN, COL_LIGHT_GREEN, COL_LIGHT_YELLOW, COL_YELLOW, 30, COL_LIGHT_ORANGE, COL_ORANGE, COL_DARK_ORANGE, COL_RED // Green/yellow/orange/red
+	COL_DARK_GREEN, 138, COL_LIGHT_GREEN, COL_LIGHT_YELLOW, COL_YELLOW, 30, COL_LIGHT_ORANGE, COL_ORANGE, COL_ORANGE_RED, COL_RED // Green/yellow/orange/red
 };
 
 // Way colours for the map
@@ -747,8 +747,8 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 	}
 	const grund_t *gr=plan->get_boden_bei(plan->get_boden_count()-1);
 
-	if(  mode!=MAP_PAX_DEST  &&  gr->get_convoi_vehicle() && show_convoy  ) {
-		set_relief_farbe( k, VEHIKEL_KENN );
+	if(  mode!=MAP_PAX_DEST  &&  gr->get_convoi_vehicle() && (mode & MAP_CONVOYS)) {
+		set_relief_farbe(k, VEHIKEL_KENN);
 		return;
 	}
 
@@ -1156,7 +1156,6 @@ reliefkarte_t::reliefkarte_t()
 	zoom_in = 1;
 	zoom_out = 1;
 	isometric = false;
-	show_convoy = true;
 	show_contour = true;
 	mode = MAP_TOWN;
 	city = NULL;

@@ -104,7 +104,8 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_PROFIT,       COL_ROYAL_BLUE,  "Commuting", "Show the success rate for commuting passengers", reliefkarte_t::MAP_ACCESSIBILITY_COMMUTING },
 	{ COL_PROFIT,       COL_ROYAL_BLUE,  "Visiting", "Show the success rate for visiting passengers", reliefkarte_t::MAP_ACCESSIBILITY_TRIP },
 	{ COL_PROFIT,       COL_ROYAL_BLUE,  "Staffing", "Show the staff shortage rate", reliefkarte_t::MAP_STAFF_FULFILLMENT },
-	{ COL_PROFIT,       COL_ROYAL_BLUE,  "Mail delivery", "Show the success rate for mail delivery", reliefkarte_t::MAP_MAIL_DELIVERY }
+	{ COL_PROFIT,       COL_ROYAL_BLUE,  "Mail delivery", "Show the success rate for mail delivery", reliefkarte_t::MAP_MAIL_DELIVERY },
+	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Convoys", "Show convoys", reliefkarte_t::MAP_CONVOYS }
 };
 
 #define MAP_TRANSPORT_TYPE_ITEMS (9)
@@ -213,12 +214,6 @@ map_frame_t::map_frame_t() :
 	cursor.x += b_rotate45.get_size().w + D_H_SPACE;
 
 	// show the convoy layer
-	b_show_convoy.init(button_t::square_state, "Show convoy", cursor);
-	b_show_convoy.set_tooltip("Show convoys");
-	b_show_convoy.add_listener(this);
-	b_show_convoy.pressed = karte->show_convoy;
-	add_component(&b_show_convoy);
-	cursor.x += b_show_convoy.get_size().w + D_H_SPACE;
 
 	// show contour
 	b_show_contour.init(button_t::square_state, "Show contour", cursor);
@@ -486,12 +481,6 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 		b_rotate45.pressed = reliefkarte_t::get_karte()->isometric;
 		reliefkarte_t::get_karte()->calc_map_size();
 		scrolly.set_size( scrolly.get_size() );
-	}
-	else if (comp == &b_show_convoy) {
-		// show/hide convoy pixel
-		reliefkarte_t::get_karte()->show_convoy ^= 1;
-		b_show_convoy.pressed = reliefkarte_t::get_karte()->show_convoy;
-		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
 	}
 	else if (comp == &b_show_contour) {
 		// terrain heights color scale
