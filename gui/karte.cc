@@ -763,7 +763,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		// display coverage
 		case MAP_PASSENGER:
 		case MAP_MAIL:
-			if(  plan->get_haltlist_count()>0  ) {
+			if(  plan->get_haltlist_count()>0 && gr->get_typ() == grund_t::fundament) {
 				const nearby_halt_t *const halt_list = plan->get_haltlist();
 				for (int h = 0; h < plan->get_haltlist_count(); h++)
 				{
