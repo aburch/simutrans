@@ -3663,6 +3663,12 @@ Upgrade will be available in the near future
 （混載不可）
 Cannot start: no cab at the front of the convoy.
 編成の構成エラー：\n先頭になれない車両が先頭になっています。（運転台が無い等）
+map_btn_freight
+輸送量
+Accessibility to the nearest passenger handling station
+建物から旅客取扱い駅までの距離をカラースケールで表示します
+Accessibility to the nearest mail handling station
+建物から郵便取扱い駅までの距離をカラースケールで表示します
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
