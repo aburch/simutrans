@@ -3666,9 +3666,9 @@ Cannot start: no cab at the front of the convoy.
 map_btn_freight
 輸送量
 Accessibility to the nearest passenger handling station
-建物から旅客取扱い駅までの距離をカラースケールで表示します
+建物から最寄りの旅客取扱い駅までの距離をカラースケールで表示します
 Accessibility to the nearest mail handling station
-建物から郵便取扱い駅までの距離をカラースケールで表示します
+建物から最寄りの郵便取扱い駅までの距離をカラースケールで表示します
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
