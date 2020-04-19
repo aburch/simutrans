@@ -4026,9 +4026,17 @@ No bridges over runways!
 Bridges cannnot be built over runways or taxiways.
 overtaking
 Overtaking
+Show contour
+Show contour
+Show buildings
+Show buildings
+Color-coded according to ground / sea level altitude
+Color-coded according to ground / sea level altitude
+Displays buildings in gray and stations in red
+Displays buildings in gray and stations in red
 map_btn_freight
 Freight
-Accessibility to the nearest passenger handling station
-Accessibility to the nearest passenger handling station
-Accessibility to the nearest mail handling station
-Accessibility to the nearest mail handling station
+Stop coverage
+Stop coverage
+Show the distance to the nearest station
+Show the distance to the nearest station

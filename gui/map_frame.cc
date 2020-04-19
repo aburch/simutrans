@@ -98,8 +98,7 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Tracks", "Highlight railroad tracks", reliefkarte_t::MAP_TRACKS },
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Powerlines", "Highlite electrical transmission lines", reliefkarte_t::MAP_POWERLINES },
 	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Buildings", "Show level of city buildings", reliefkarte_t::MAP_LEVEL },
-	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Passagiere", "Accessibility to the nearest passenger handling station", reliefkarte_t::MAP_PASSENGER },
-	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Post", "Accessibility to the nearest mail handling station", reliefkarte_t::MAP_MAIL },
+	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Stop coverage", "Show the distance to the nearest station", reliefkarte_t::MAP_STATION_COVERAGE },
 	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Commuting", "Show the success rate for commuting passengers", reliefkarte_t::MAP_ACCESSIBILITY_COMMUTING },
 	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Visiting", "Show the success rate for visiting passengers", reliefkarte_t::MAP_ACCESSIBILITY_TRIP },
 	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Staffing", "Show the staff shortage rate", reliefkarte_t::MAP_STAFF_FULFILLMENT },
@@ -108,7 +107,6 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_WHITE,        COL_GREY5,       "Forest", "Highlite forests", reliefkarte_t::MAP_FOREST }
 };
 
-#define MAP_TRANSPORT_TYPE_ITEMS (9)
 typedef struct {
 	const char * name;
 	simline_t::linetype line_type;
@@ -223,7 +221,7 @@ map_frame_t::map_frame_t() :
 
 	// show the building layer
 	b_show_buildings.init(button_t::square_state, "Show buildings", cursor);
-	b_show_buildings.set_tooltip("Show the contour in the minimap");
+	b_show_buildings.set_tooltip("Displays buildings in gray and stations in red");
 	b_show_buildings.add_listener(this);
 	b_show_buildings.pressed = karte->show_buildings;
 	add_component(&b_show_buildings);

@@ -79,6 +79,18 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 	COL_DARK_GREEN, 138, COL_LIGHT_GREEN, COL_LIGHT_YELLOW, COL_YELLOW, 30, COL_LIGHT_ORANGE, COL_ORANGE, COL_ORANGE_RED, COL_RED // Green/yellow/orange/red
 };
 
+uint linetype_to_stationtype[MAP_TRANSPORT_TYPE_ITEMS] = {
+	haltestelle_t::invalid,
+	haltestelle_t::busstop,
+	haltestelle_t::railstation,
+	haltestelle_t::dock,
+	haltestelle_t::airstop,
+	haltestelle_t::monorailstop,
+	haltestelle_t::tramstop,
+	haltestelle_t::maglevstop,
+	haltestelle_t::narrowgaugestop
+};
+
 // Way colours for the map
 #define STRASSE_KENN      (208)
 #define SCHIENE_KENN      (185)
@@ -755,32 +767,40 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 	// first use ground color
 	set_relief_farbe(k, calc_relief_farbe(gr, show_contour, show_buildings));
 
-	bool any_suitable_stops_passengers = false;
-	bool any_suitable_stops_mail = false;
+	bool any_suitable_stops = false;
 	uint16 min_tiles_to_halt = -1;
 	switch(mode&~MAP_MODE_FLAGS) {
 		// show passenger/mail coverage
 		// display coverage
-		case MAP_PASSENGER:
-		case MAP_MAIL:
+		case MAP_STATION_COVERAGE:
 			if(  plan->get_haltlist_count()>0 && gr->get_typ() == grund_t::fundament) {
 				const nearby_halt_t *const halt_list = plan->get_haltlist();
 				for (int h = 0; h < plan->get_haltlist_count(); h++)
 				{
 					const halthandle_t halt = halt_list[h].halt;
-					if (halt->is_enabled(goods_manager_t::passengers))
+					// player filter
+					if(player_showed_on_map != -1 && (halt->get_owner() != welt->get_public_player() && welt->get_player(player_showed_on_map) != halt->get_owner()))
 					{
-						min_tiles_to_halt = min(min_tiles_to_halt, halt_list[h].distance);
-						any_suitable_stops_passengers = true;
+						continue;
 					}
-					if (halt->is_enabled(goods_manager_t::mail))
+					// station waytype compatible filter
+					if(transport_type_showed_on_map != simline_t::line && !(halt->get_station_type() & linetype_to_stationtype[transport_type_showed_on_map]))
 					{
+						continue;
+					}
+					// station handling freight type filter
+					if(freight_type_group_index_showed_on_map != NULL && !halt->gibt_ab(freight_type_group_index_showed_on_map))
+					{
+						continue;
+					}
+
+					if (halt_list[h].distance!=0) {
+						any_suitable_stops = true;
 						min_tiles_to_halt = min(min_tiles_to_halt, halt_list[h].distance);
-						any_suitable_stops_mail = true;
 					}
 				}
-				if (any_suitable_stops_passengers && mode & MAP_PASSENGER || any_suitable_stops_mail && mode & MAP_MAIL) {
-					set_relief_farbe(k, calc_severity_color(min_tiles_to_halt, welt->get_settings().get_station_coverage()*2));
+				if (any_suitable_stops) {
+					set_relief_farbe(k, calc_severity_color(min_tiles_to_halt, welt->get_settings().get_station_coverage() * 2));
 				}
 			}
 			break;
@@ -1324,7 +1344,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			stop_cache.clear();
 		}
 
-		if(  (mode^last_mode) & (MAP_PASSENGER|MAP_MAIL|MAP_FREIGHT|MAP_LINES)  ||  (mode&MAP_LINES  &&  stop_cache.empty())  ) {
+		if(  (mode^last_mode) & (MAP_STATION_COVERAGE |MAP_FREIGHT|MAP_LINES)  ||  (mode&MAP_LINES  &&  stop_cache.empty())  ) {
 			// rebuilt line display
 			last_schedule_counter = welt->get_schedule_counter()-1;
 		}
@@ -1932,11 +1952,8 @@ bool reliefkarte_t::is_matching_freight_catg(const minivec_tpl<uint8> &goods_cat
 		return false;
 	}
 	// NULL show all but obey modes
-	if(  mode & MAP_PASSENGER  ) {
+	if(  mode & MAP_STATION_COVERAGE  ) {
 		return goods_catg_index.is_contained(goods_manager_t::INDEX_PAS);
-	}
-	else if(  mode & MAP_MAIL  ) {
-		return goods_catg_index.is_contained(goods_manager_t::INDEX_MAIL);
 	}
 	else if(  mode & MAP_FREIGHT  ) {
 		// all freights but not pax or mail
