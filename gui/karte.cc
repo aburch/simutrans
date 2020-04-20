@@ -775,6 +775,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		case MAP_STATION_COVERAGE:
 			if(  plan->get_haltlist_count()>0 && gr->get_typ() == grund_t::fundament) {
 				const nearby_halt_t *const halt_list = plan->get_haltlist();
+				bool show_only_freight_station = (freight_type_group_index_showed_on_map != NULL && freight_type_group_index_showed_on_map != goods_manager_t::mail && freight_type_group_index_showed_on_map != goods_manager_t::passengers);
 				for (int h = 0; h < plan->get_haltlist_count(); h++)
 				{
 					const halthandle_t halt = halt_list[h].halt;
@@ -788,19 +789,39 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 					{
 						continue;
 					}
+
 					// station handling freight type filter
-					if(freight_type_group_index_showed_on_map != NULL && !halt->gibt_ab(freight_type_group_index_showed_on_map))
+					if (freight_type_group_index_showed_on_map == goods_manager_t::none && halt->get_ware_enabled() == true)
+					{
+						// all freights but not pax or mail
+						;
+					}
+					else if(freight_type_group_index_showed_on_map != NULL && !halt->gibt_ab(freight_type_group_index_showed_on_map))
 					{
 						continue;
 					}
 
 					if (halt_list[h].distance!=0) {
-						any_suitable_stops = true;
-						min_tiles_to_halt = min(min_tiles_to_halt, halt_list[h].distance);
+						// FIXME: Freight coverage is determined by Manhattan distance, not Chebyshev distance. - Ranran
+						uint16 cov;
+						if (!show_only_freight_station && (halt->get_pax_enabled() || halt->get_mail_enabled())) {
+							cov = welt->get_settings().get_station_coverage();
+						}
+						else if (halt->get_ware_enabled()) {
+							cov = welt->get_settings().get_station_coverage_factories();
+						}
+						else {
+							cov = 0;
+						}
+						if (cov == welt->get_settings().get_station_coverage() || (cov != welt->get_settings().get_station_coverage() && cov >= halt_list[h].distance)) {
+							any_suitable_stops = true;
+							min_tiles_to_halt = min(min_tiles_to_halt, halt_list[h].distance);
+						}
 					}
 				}
 				if (any_suitable_stops) {
-					set_relief_farbe(k, calc_severity_color(min_tiles_to_halt, welt->get_settings().get_station_coverage() * 2));
+					uint16 sutation_coverage = show_only_freight_station ? welt->get_settings().get_station_coverage_factories() : welt->get_settings().get_station_coverage();
+					set_relief_farbe(k, calc_severity_color(min_tiles_to_halt, sutation_coverage * 2));
 				}
 			}
 			break;
