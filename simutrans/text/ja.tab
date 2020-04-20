@@ -3677,6 +3677,8 @@ Show how congested that roads are
 道路の混雑度を表示します
 Show convoys
 編成を表示します
+map_btn_building_level
+発展度
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 #Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

@@ -78,7 +78,6 @@ typedef struct {
 map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Towns", "Overlay town names", reliefkarte_t::MAP_TOWN },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "CityLimit", "Overlay city limits", reliefkarte_t::MAP_CITYLIMIT },
-	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "PaxDest", "Overlay passenger destinations when a town window is open", reliefkarte_t::MAP_PAX_DEST },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Tourists", "Highlite tourist attraction", reliefkarte_t::MAP_TOURIST },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Factories", "Highlite factories", reliefkarte_t::MAP_FACTORIES },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Depots", "Highlite depots", reliefkarte_t::MAP_DEPOT },
@@ -97,7 +96,8 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Weight limit", "Show the weight limit of ways", reliefkarte_t::MAP_WEIGHTLIMIT },
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Tracks", "Highlight railroad tracks", reliefkarte_t::MAP_TRACKS },
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Powerlines", "Highlite electrical transmission lines", reliefkarte_t::MAP_POWERLINES },
-	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Buildings", "Show level of city buildings", reliefkarte_t::MAP_LEVEL },
+	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "PaxDest", "Overlay passenger destinations when a town window is open", reliefkarte_t::MAP_PAX_DEST },
+	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "map_btn_building_level", "Show level of city buildings", reliefkarte_t::MAP_LEVEL },
 	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Stop coverage", "Show the distance to the nearest station", reliefkarte_t::MAP_STATION_COVERAGE },
 	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Commuting", "Show the success rate for commuting passengers", reliefkarte_t::MAP_ACCESSIBILITY_COMMUTING },
 	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Visiting", "Show the success rate for visiting passengers", reliefkarte_t::MAP_ACCESSIBILITY_TRIP },
