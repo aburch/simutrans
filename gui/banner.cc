@@ -199,7 +199,7 @@ void banner_t::draw(scr_coord pos, scr_size size )
 		#include "../scrolltext.h"
 	};
 
-	const scr_coord_val text_line = (line / LINESPACE) * 2;
+	const scr_coord_val text_line = max(0, ((line / LINESPACE) * 2) - 1);
 	const scr_coord_val text_offset = line % LINESPACE;
 	const scr_coord_val left = pos.x + D_MARGIN_LEFT;
 	const scr_coord_val width = size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT;
