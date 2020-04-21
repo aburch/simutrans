@@ -124,7 +124,7 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false
 	// load cached entries
 	if (cached_info.empty()) {
 		loadsave_t file;
-		/* We rename the old chace file and remove any incomplete read version.
+		/* We rename the old cache file and remove any incomplete read version.
 		 * Upon an error the cache will be rebuilt then next time.
 		 */
 		dr_rename( SAVE_PATH_X "_cached.xml", SAVE_PATH_X "_load_cached.xml" );
