@@ -959,20 +959,21 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	if ( new_world ) {
 		SEPERATOR
 	}
-	INIT_NUM_NEW( "Water level", sets->get_groundwater(), sets->get_minimumheight()+20*(ground_desc_t::double_grounds?2:1), 20, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM_NEW( "Water level", sets->get_groundwater(), -20*(ground_desc_t::double_grounds?2:1), 20, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "Mountain height", mountain_height_start, 0, min(1000,100*(11-mountain_roughness_start)), 10, false );
 	INIT_NUM_NEW( "Map roughness", mountain_roughness_start, 0, min(10, 11-((mountain_height_start+99)/100)), gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_LB( "Summer snowline" );
-	new_component<gui_empty_t>();
+	summer = new_component<gui_label_buf_t>();
+
 	INIT_NUM( "Winter snowline", sets->get_winter_snowline(), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	// other climate borders ...
 	sint16 arctic = 0;
 	for(  int i=desert_climate;  i!=arctic_climate;  i++  ) {
 		INIT_NUM( ground_desc_t::get_climate_name_from_bit((climate)i), sets->get_climate_borders()[i], sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
-		if(sets->get_climate_borders()[i+1]>arctic) {
-			arctic = sets->get_climate_borders()[i+1];
+		if(sets->get_climate_borders()[i]>arctic) {
+			arctic = sets->get_climate_borders()[i];
 		}
 	}
 	numinp.at(3)->set_limits( 0, arctic );
