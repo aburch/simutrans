@@ -420,6 +420,7 @@ bool gui_theme_t::themes_init(const char *file_name, bool init_fonts )
 		obj_reader_t::read_file(buttonpak.c_str());
 		gui_theme_t::init_gui_from_images();
 		free(pathname);
+		dr_chdir(env_t::user_dir);
 	}
 
 	// first the stuff for the dialogues

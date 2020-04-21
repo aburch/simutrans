@@ -157,7 +157,7 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve", fals
 #ifndef SPECIAL_RESCUE_12_6
 	if (cached_info.empty()) {
 		loadsave_t file;
-		/* We rename the old chace file and remove any incomplete read version.
+		/* We rename the old cache file and remove any incomplete read version.
 		 * Upon an error the cache will be rebuilt then next time.
 		 */
 		remove( SAVE_PATH_X "_load_cached_exp.xml" );
