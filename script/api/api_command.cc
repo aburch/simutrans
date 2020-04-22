@@ -14,6 +14,7 @@
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../simmenu.h"
+#include "../../simtool.h"
 #include "../../simworld.h"
 #include "../../dataobj/environment.h"
 #include "../../script/script.h"
@@ -318,9 +319,14 @@ call_tool_work build_bridge_at(player_t* pl, koord3d start, const bridge_desc_t*
 
 call_tool_work set_slope(player_t* pl, koord3d start, my_slope_t slope)
 {
+	// communicate per default_param
 	static char buf[8];
 	sprintf(buf, "%2d", (uint8)slope);
-	return call_tool_work(TOOL_SETSLOPE | GENERAL_TOOL, buf, 0, pl, start);
+	static tool_setslope_t tool;
+	// we do not want our slopes translated to double-height (even for single-height paksets), they are already in the double-height system
+	tool.old_slope_compatibility_mode = false;
+	tool.set_default_param(buf);
+	return call_tool_work(&tool, pl, start);
 }
 
 call_tool_work restore_slope(player_t* pl, koord3d start)

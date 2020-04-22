@@ -122,18 +122,21 @@ public:
 /* slope tool definitions */
 class tool_setslope_t : public tool_t {
 public:
-	tool_setslope_t() : tool_t(TOOL_SETSLOPE | GENERAL_TOOL) {}
+	tool_setslope_t() : tool_t(TOOL_SETSLOPE | GENERAL_TOOL), old_slope_compatibility_mode(true) {}
+	// if true then slope by default_param will be translated to new double-height system
+	// true by default, can be set to false (used for scripts)
+	bool old_slope_compatibility_mode;
 	/**
 	 * Create an artificial slope
 	 * @param player the player doing the task
 	 * @param pos position where the slope will be generated
 	 * @param slope the slope type
 	 */
-	static const char *tool_set_slope_work( player_t *player, koord3d pos, int slope );
+	static const char *tool_set_slope_work( player_t *player, koord3d pos, int slope, bool old_slope_compatibility);
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Built artifical slopes", welt->get_settings().cst_set_slope); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
-	char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_set_slope_work(player, k, atoi(default_param)); }
+	char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_set_slope_work(player, k, atoi(default_param), old_slope_compatibility_mode); }
 };
 
 class tool_restoreslope_t : public tool_t {
@@ -142,7 +145,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Restore natural slope", welt->get_settings().cst_set_slope); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
-	char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_setslope_t::tool_set_slope_work(player, k, RESTORE_SLOPE); }
+	char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_setslope_t::tool_set_slope_work(player, k, RESTORE_SLOPE, true); }
 };
 
 class tool_marker_t : public kartenboden_tool_t {
