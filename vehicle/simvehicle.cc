@@ -1962,7 +1962,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 
 			// Adjust for tilting.
 			// Tilting only makes a difference to reasonably wide corners.
-			if(is_tilting && radius < tilting_min_radius_effect)
+			if(is_tilting && radius > tilting_min_radius_effect)
 			{
 				// Tilting trains can take corners faster
 				corner_limit = (corner_limit * 130) / 100;
