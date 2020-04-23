@@ -241,6 +241,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("max_diversion_tiles", sets->get_max_diversion_tiles(), 0, 65535, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("way_degradation_fraction", sets->get_way_degradation_fraction(), 0, 40, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("sighting_distance_meters", sets->get_sighting_distance_meters(), 0, 7500, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("tilting_min_radius_effect", sets->get_tilting_min_radius_effect(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("assumed_curve_radius_45_degrees", sets->get_assumed_curve_radius_45_degrees(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("max_speed_drive_by_sight_kmh", sets->get_max_speed_drive_by_sight_kmh(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("time_interval_seconds_to_clear", sets->get_time_interval_seconds_to_clear(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
@@ -361,6 +362,7 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->way_degradation_fraction );
 	READ_NUM_VALUE( sets->sighting_distance_meters );
 	sets->sighting_distance_tiles = sets->sighting_distance_meters / sets->meters_per_tile;
+	READ_NUM_VALUE( sets->tilting_min_radius_effect );
 	READ_NUM_VALUE( sets->assumed_curve_radius_45_degrees );
 	READ_NUM_VALUE( sets->max_speed_drive_by_sight_kmh );
 	sets->max_speed_drive_by_sight = kmh_to_speed(sets->max_speed_drive_by_sight_kmh);
