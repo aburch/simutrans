@@ -343,6 +343,7 @@ public:
 
 	uint16 get_population() const;
 	uint16 get_adjusted_population() const;
+	uint16 get_adjusted_population_by_class(uint8 p_class) const;
 
 	uint16 get_visitor_demand() const;
 	uint16 get_adjusted_visitor_demand() const;

@@ -2114,6 +2114,30 @@ uint16 gebaeude_t::get_adjusted_population() const
 	return tile->get_desc()->get_type() == building_desc_t::city_res ? adjusted_people.population : 0;
 }
 
+uint16 gebaeude_t::get_adjusted_population_by_class(uint8 p_class) const
+{
+	if (get_tile()->get_desc()->get_type() != building_desc_t::city_res) {
+		return 0;
+	}
+	const uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+	const uint32 class_proportions_sum = get_tile()->get_desc()->get_class_proportions_sum();
+	if (class_proportions_sum == 0) {
+		return adjusted_people.population / pass_classes;
+	}
+	if (p_class > pass_classes-1) {
+		return adjusted_people.population; // error
+	}
+	switch (p_class) {
+		case -1:
+			return adjusted_people.population;
+		case 0:
+			return adjusted_people.population * tile->get_desc()->get_class_proportion(p_class) / class_proportions_sum;
+		default:
+			return adjusted_people.population * tile->get_desc()->get_class_proportion(p_class) / class_proportions_sum - adjusted_people.population * tile->get_desc()->get_class_proportion(p_class-1) / class_proportions_sum;
+	}
+	return 0;
+}
+
 uint16 gebaeude_t::get_visitor_demand() const
 {
 	if (tile->get_desc()->get_type() != building_desc_t::city_res)
