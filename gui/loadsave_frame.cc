@@ -171,15 +171,17 @@ const char *loadsave_frame_t::get_help_filename() const
 const char *loadsave_frame_t::get_info(const char *fname)
 {
 	static char date[1024];
-	date[0] = 0;
-	const char *pak_extension = NULL;
+
+	std::string pak_extension;
 
 	// get file information
 	struct stat  sb;
 	if(dr_stat(fname, &sb) != 0) {
 		// file not found?
+		date[0] = 0;
 		return date;
 	}
+
 	// check hash table
 	sve_info_t *svei = cached_info.get(fname);
 	if (svei   &&  svei->file_size == sb.st_size  &&  svei->mod_time == sb.st_mtime) {
@@ -197,7 +199,7 @@ const char *loadsave_frame_t::get_info(const char *fname)
 		pak_extension = test.get_pak_extension();
 
 		// now insert in hash_table
-		sve_info_t *svei_new = new sve_info_t(pak_extension, sb.st_mtime, sb.st_size );
+		sve_info_t *svei_new = new sve_info_t(pak_extension.c_str(), sb.st_mtime, sb.st_size );
 		// copy filename
 		char *key = strdup(fname);
 		sve_info_t *svei_old = cached_info.set(key, svei_new);
@@ -206,7 +208,7 @@ const char *loadsave_frame_t::get_info(const char *fname)
 
 	// write everything in string
 	// add pak extension
-	size_t n = sprintf( date, "%s - ", pak_extension);
+	const size_t n = snprintf( date, lengthof(date), "%s - ", pak_extension.c_str());
 
 	// add the time too
 	struct tm *tm = localtime(&sb.st_mtime);
@@ -216,6 +218,8 @@ const char *loadsave_frame_t::get_info(const char *fname)
 	else {
 		tstrncpy(date, "??.??.???? ??:??", lengthof(date));
 	}
+
+	date[lengthof(date)-1] = 0;
 	return date;
 }
 
