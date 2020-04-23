@@ -9,9 +9,6 @@
 
 #include "simgraph.h"
 
-int large_font_height = 10;
-int large_font_total_height = 11;
-int large_font_ascent = 9;
 
 KOORD_VAL tile_raster_width = 16; // zoomed
 KOORD_VAL base_tile_raster_width = 16; // original
@@ -77,9 +74,9 @@ void display_mark_img_dirty(image_id, KOORD_VAL, KOORD_VAL)
 {
 }
 
-uint16 display_load_font(const char*, bool)
+bool display_load_font(const char*, bool)
 {
-	return 1;
+	return true;
 }
 
 sint16 display_get_width()
