@@ -372,6 +372,7 @@ char const *dr_query_homedir()
 	return buffer;
 }
 
+#include <dirent.h>
 
 const char *dr_query_fontpath(int which)
 {
@@ -413,23 +414,48 @@ const char *dr_query_fontpath(int which)
 #else
 		"~/.fonts/",
 		"~/.local/share/fonts/",
-		"/usr/share/fonts/truetype/",
-		"/usr/X11R6/lib/X11/fonts/ttfonts/",
-		"/usr/local/sharefonts/truetype/",
 		"/usr/share/fonts/",
 		"/usr/X11R6/lib/X11/fonts/",
+		"/usr/local/share/fonts/",
 #endif
 		NULL
 	};
-	for (int i = 0; trypaths[i]; i++) {
+
+	// since we include subdirectories (one level!) too
+	static int which_offset, subdir_offset;
+	if( which == 0 ) {
+		which_offset = 0;
+		subdir_offset = 0;
+	}
+
+	for(  int i=which-which_offset;  trypaths[i];  i++  ) {
 		DIR *dir = opendir(trypaths[i]);
-		if (dir) {
-			closedir(dir);
-			if (which == 0) {
-				return trypaths[i];
+		if(  dir  ) {
+			int j = 0;
+			// look for subdirectories
+			struct dirent *entry;
+			while( (entry = readdir( dir )) ) {
+				if( entry->d_type == DT_DIR ) {
+					if( ((strcmp( entry->d_name, "." )) != 0) && ((strcmp( entry->d_name, ".." )) != 0) ) {
+						j++;
+						if( subdir_offset < j ) {
+							strcpy( buffer, trypaths[ i ] );
+							strcat( buffer, entry->d_name );
+							strcat( buffer, PATH_SEPARATOR );
+							closedir( dir );
+							subdir_offset++;
+							which_offset++;
+							return buffer;
+						}
+					}
+				}
 			}
-			which--;
+			// last return parent folder
+			closedir( dir );
+			subdir_offset = 0; // we do not increase which_offset, so next the the next folder will be searched
+			return trypaths[i];
 		}
+		which_offset--;
 	}
 	return NULL;
 #endif
