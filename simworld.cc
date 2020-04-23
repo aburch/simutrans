@@ -914,7 +914,7 @@ void karte_t::add_queued_city(stadt_t* city)
 		int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 		assert(error == 0);
 	}
-#endif 
+#endif
 }
 
 void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sint16 old_y)
