@@ -820,7 +820,8 @@ void settings_general_stats_t::read(settings_t* const sets)
 void settings_display_stats_t::init(settings_t const* const)
 {
 	INIT_INIT
-	INIT_NUM( "frames_per_second",env_t::fps, 10, 60, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "frames_per_second",env_t::fps, env_t::min_fps, env_t::max_fps, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "fast_forward_frames_per_second", env_t::ff_fps, env_t::min_fps, env_t::max_fps, gui_numberinput_t::AUTOLINEAR, false);
 	INIT_NUM( "simple_drawing_tile_size",env_t::simple_drawing_default, 2, 256, gui_numberinput_t::POWER2, false );
 	INIT_BOOL( "simple_drawing_fast_forward",env_t::simple_drawing_fast_forward );
 	INIT_NUM( "water_animation_ms", env_t::water_animation, 0, 1000, 25, false );
@@ -854,6 +855,7 @@ void settings_display_stats_t::read(settings_t* const)
 	READ_INIT
 	// all visual stuff
 	READ_NUM_VALUE( env_t::fps );
+	READ_NUM_VALUE( env_t::ff_fps );
 	READ_NUM_VALUE( env_t::simple_drawing_default );
 	READ_BOOL_VALUE( env_t::simple_drawing_fast_forward );
 	READ_NUM_VALUE( env_t::water_animation );

@@ -13,10 +13,13 @@ class karte_t;
 class main_view_t;
 
 
+/// Try to increase fps
 bool reduce_frame_time();
+
+/// Try to decrease fps
 bool increase_frame_time();
 sint32 get_frame_time();
-void set_frame_time(sint32 time);
+void set_frame_time(sint32 ms);
 
 
 void intr_refresh_display(bool dirty);

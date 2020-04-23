@@ -2021,7 +2021,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::show_names = contents.get_int("show_names", env_t::show_names );
 	env_t::show_month = contents.get_int("show_month", env_t::show_month );
 	env_t::max_acceleration = contents.get_int("fast_forward", env_t::max_acceleration );
-	env_t::fps = contents.get_int("frames_per_second",env_t::fps );
+	env_t::fps = clamp(contents.get_int("frames_per_second", env_t::fps), env_t::min_fps, env_t::max_fps);
+	env_t::ff_fps = clamp(contents.get_int("fast_forward_frames_per_second", env_t::ff_fps), env_t::min_fps, env_t::max_fps);
 	env_t::num_threads = clamp( contents.get_int("threads", env_t::num_threads ), 1, MAX_THREADS );
 	env_t::simple_drawing_default = contents.get_int("simple_drawing_tile_size",env_t::simple_drawing_default );
 	env_t::simple_drawing_fast_forward = contents.get_int("simple_drawing_fast_forward",env_t::simple_drawing_fast_forward );

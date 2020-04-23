@@ -193,7 +193,7 @@ void gui_settings_t::draw(scr_coord offset)
 	idle_time_value_label.update();
 
 	// fps_label
-	uint32 target_fps = world()->is_fast_forward() ? 10 : env_t::fps;
+	uint32 target_fps = world()->is_fast_forward() ? env_t::ff_fps : env_t::fps;
 	uint32 loops = world()->get_realFPS();
 	PIXVAL color = SYSCOL_TEXT_HIGHLIGHT;
 	if(  loops < (target_fps*16*3)/4  ) {

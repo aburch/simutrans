@@ -35,26 +35,29 @@ static long frame_time = 36*FRAME_TIME_MULTI;
 
 bool reduce_frame_time()
 {
-	if(frame_time > 10*FRAME_TIME_MULTI) {
+	if(  frame_time > 150*FRAME_TIME_MULTI  ) { // < ~6.6fps
+		frame_time -= 8;
+		return true;
+	}
+	else if(frame_time > (FRAME_TIME_MULTI*1000)/env_t::max_fps) {
 		frame_time -= 1;
-		if(  frame_time>150*FRAME_TIME_MULTI  ) {
-			frame_time -= 8;
-		}
 		return true;
 	}
 	else {
-		frame_time = 10*FRAME_TIME_MULTI;
+		frame_time = (FRAME_TIME_MULTI*1000)/env_t::max_fps;
 		return false;
 	}
 }
 
+
 bool increase_frame_time()
 {
-	if(frame_time < 255*FRAME_TIME_MULTI) {
+	if(frame_time > (FRAME_TIME_MULTI*1000)/5) { // < 5 fps
+		return false;
+	}
+	else {
 		frame_time ++;
 		return true;
-	} else {
-		return false;
 	}
 }
 
@@ -65,8 +68,9 @@ sint32 get_frame_time()
 
 void set_frame_time(sint32 time)
 {
-	frame_time = clamp( time, 10, 250 )*FRAME_TIME_MULTI;
+	frame_time = clamp( time, 1000/env_t::max_fps, 1000/env_t::min_fps )*FRAME_TIME_MULTI;
 }
+
 
 void intr_refresh_display(bool dirty)
 {
@@ -95,24 +99,28 @@ void interrupt_check()
 void interrupt_check(const char* caller_info)
 {
 	DBG_DEBUG4("interrupt_check", "called from (%s)", caller_info);
-	if(enabled) {
-		static uint32 last_ms = 0;
-		if(  !welt_modell->is_fast_forward()  ||  welt_modell->get_ticks() != last_ms  ) {
-			const long now = dr_time();
-			if((now-last_time)*FRAME_TIME_MULTI < frame_time) {
-				return;
-			}
-			const sint32 diff = ((now - last_time)*welt_modell->get_time_multiplier())/16;
-			if(  diff>0  ) {
-				enabled = false;
-				last_time = now;
-				welt_modell->sync_step( diff, !welt_modell->is_fast_forward(), true );
-				enabled = true;
-			}
-		}
-		last_ms = welt_modell->get_ticks();
-	}
 	(void)caller_info;
+
+	if(  !enabled  ) {
+		return;
+	}
+
+	static uint32 last_ms = 0;
+	if(  !welt_modell->is_fast_forward()  ||  welt_modell->get_ticks() != last_ms  ) {
+		const uint32 now = dr_time();
+		if((now-last_time)*FRAME_TIME_MULTI < frame_time) {
+			return;
+		}
+
+		const sint32 diff = (( (sint32)now - (sint32)last_time)*welt_modell->get_time_multiplier())/16;
+		if(  diff>0  ) {
+			enabled = false;
+			last_time = now;
+			welt_modell->sync_step( diff, !welt_modell->is_fast_forward(), true );
+			enabled = true;
+		}
+	}
+	last_ms = welt_modell->get_ticks();
 }
 
 

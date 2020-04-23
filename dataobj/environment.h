@@ -383,8 +383,10 @@ public:
 	 */
 	/// @{
 
-	/// set the frame rate for the display
-	static uint32 fps;
+	static uint32 fps;                ///< target frame rate
+	static uint32 ff_fps;             ///< target fps during fast forward
+	static const uint32 min_fps = 5;  ///< minimum target fps (actual fps may be lower for large zoom out on slow machines)
+	static const uint32 max_fps = 100;
 
 	/// maximum acceleration with fast forward
 	static sint16 max_acceleration;

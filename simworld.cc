@@ -5059,9 +5059,11 @@ void karte_t::update_frame_sleep_time()
 			}
 		}
 	}
-	else  { // here only with fyst forward ...
+	else  {
+		assert(step_mode == FAST_FORWARD);
+
 		// try to get 10 fps or lower rate (if set)
-		uint32 frame_intervall = max( 100, 1000/env_t::fps );
+		const uint32 frame_intervall = 1000/env_t::ff_fps;
 		if(get_frame_time()>frame_intervall) {
 			reduce_frame_time();
 		}
@@ -10431,7 +10433,7 @@ void karte_t::reset_timer()
 	else if(step_mode==FAST_FORWARD) {
 		next_step_time = last_tick_sync+1;
 		idle_time = 0;
-		set_frame_time( 100 );
+		set_frame_time( 1000 / env_t::ff_fps );
 		time_multiplier = 16;
 		intr_enable();
 	}
