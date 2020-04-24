@@ -1234,6 +1234,20 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 
 	grund_t *gr1 = welt->lookup(pos);
 	if(  gr1  ) {
+		if(  gr1->ist_im_tunnel()  ) {
+			switch(  new_slope  ) {
+				case ALL_UP_SLOPE:
+				case ALL_UP_SLOPE_SINGLE:
+				case ALL_DOWN_SLOPE:
+				case ALL_DOWN_SLOPE_SINGLE:
+				case RESTORE_SLOPE:
+				case RESTORE_SLOPE_SINGLE:
+					break;
+			default:
+				return "Only up and down movement in the underground!"; // invalid parameter
+			}
+		}
+
 		koord k(pos.get_2d());
 
 		sint8 water_hgt = welt->get_water_hgt( k );
