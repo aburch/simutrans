@@ -8353,7 +8353,6 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 				{
 					sint32 po = env_t::num_threads - 1;
 					file->rdwr_long(po);
-					parallel_operations = 0;
 				}
 				else
 				{
@@ -8364,7 +8363,6 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 			{
 				sint32 dummy = -1;
 				file->rdwr_long(dummy);
-				parallel_operations = -1;
 			}
 		}
 	}
