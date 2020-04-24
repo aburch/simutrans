@@ -757,7 +757,9 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 	if(plan==NULL  ||  plan->get_boden_count()==0) {
 		return;
 	}
-	const grund_t *gr=plan->get_boden_bei(plan->get_boden_count()-1);
+	// When displaying buildings, give priority to buildings over tunnels and bridges
+	const grund_t *gr = (show_buildings && plan->get_kartenboden()->get_typ() == grund_t::fundament)?
+		plan->get_kartenboden() : plan->get_boden_bei(plan->get_boden_count() - 1);
 
 	if(  mode!=MAP_PAX_DEST  &&  gr->get_convoi_vehicle() && (mode & MAP_CONVOYS)) {
 		set_relief_farbe(k, VEHIKEL_KENN);

@@ -221,7 +221,7 @@ map_frame_t::map_frame_t() :
 
 	// show the building layer
 	b_show_buildings.init(button_t::square_state, "Show buildings", cursor);
-	b_show_buildings.set_tooltip("Displays buildings in gray and stations in red");
+	b_show_buildings.set_tooltip("Displays buildings in gray and stations in red and have priority over bridges and tunnels.");
 	b_show_buildings.add_listener(this);
 	b_show_buildings.pressed = karte->show_buildings;
 	add_component(&b_show_buildings);

@@ -4032,8 +4032,8 @@ Show buildings
 Show buildings
 Color-coded according to ground / sea level altitude
 Color-coded according to ground / sea level altitude
-Displays buildings in gray and stations in red
-Displays buildings in gray and stations in red
+Displays buildings in gray and stations in red and have priority over bridges and tunnels
+Displays buildings in gray and stations in red and have priority over bridges and tunnels
 map_btn_freight
 Freight
 Stop coverage

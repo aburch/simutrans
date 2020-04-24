@@ -3671,8 +3671,8 @@ Show buildings
 建物を表示
 Color-coded according to ground / sea level altitude
 海抜高度に応じて地面／海面を色分けします
-Displays buildings in gray and stations in red
-建物を灰色、駅を赤色で表示します
+Displays buildings in gray and stations in red and have priority over bridges and tunnels
+建物を灰色、駅を赤色で表示します。建物は橋やトンネルより優先表示されます。
 Show how congested that roads are
 道路の混雑度を表示します
 Show convoys
