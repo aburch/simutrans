@@ -820,10 +820,11 @@ void minimap_t::calc_map_pixel(const koord k)
 		// show passenger coverage
 		// display coverage
 		case MAP_PASSENGER:
-			if(  plan->get_haltlist_count()>0  ) {
-				halthandle_t halt = plan->get_haltlist()[0];
+			for( int i = 0; i < plan->get_haltlist_count(); i++  ) {
+				halthandle_t halt = plan->get_haltlist()[i];
 				if (halt->get_pax_enabled() && !halt->get_pax_connections().empty()) {
 					set_map_color( k, color_idx_to_rgb(halt->get_owner()->get_player_color1() + 3) );
+					break;
 				}
 			}
 			break;
@@ -831,10 +832,11 @@ void minimap_t::calc_map_pixel(const koord k)
 		// show mail coverage
 		// display coverage
 		case MAP_MAIL:
-			if(  plan->get_haltlist_count()>0  ) {
-				halthandle_t halt = plan->get_haltlist()[0];
+			for( int i = 0; i < plan->get_haltlist_count(); i++  ) {
+				halthandle_t halt = plan->get_haltlist()[i];
 				if (halt->get_mail_enabled() && !halt->get_mail_connections().empty()) {
 					set_map_color( k, color_idx_to_rgb(halt->get_owner()->get_player_color1() + 3) );
+					break;
 				}
 			}
 			break;
