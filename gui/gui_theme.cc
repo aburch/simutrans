@@ -98,6 +98,7 @@ KOORD_VAL gui_theme_t::gui_frame_right;
 KOORD_VAL gui_theme_t::gui_frame_bottom;
 KOORD_VAL gui_theme_t::gui_hspace;
 KOORD_VAL gui_theme_t::gui_vspace;
+KOORD_VAL gui_theme_t::gui_filelist_vspace;
 
 /* those are the 3x3 images which are used for stretching
  * also 1x3 and 3x1 subsets are possible
@@ -216,6 +217,7 @@ void gui_theme_t::init_gui_defaults()
 	gui_frame_bottom     = 10;
 	gui_hspace           = 4;
 	gui_vspace           = 4;
+	gui_filelist_vspace  = 0;
 	gui_waitingbar_width = 4;
 	gui_divider_size.h   = D_V_SPACE*2;
 
@@ -432,6 +434,7 @@ bool gui_theme_t::themes_init(const char *file_name, bool init_fonts, bool init_
 	gui_theme_t::gui_frame_bottom =    (uint32)contents.get_int("gui_frame_bottom",    gui_theme_t::gui_frame_bottom );
 	gui_theme_t::gui_hspace =          (uint32)contents.get_int("gui_hspace",          gui_theme_t::gui_hspace );
 	gui_theme_t::gui_vspace =          (uint32)contents.get_int("gui_vspace",          gui_theme_t::gui_vspace );
+	gui_theme_t::gui_filelist_vspace = (uint32)contents.get_int("gui_filelist_vspace", gui_theme_t::gui_filelist_vspace );
 
 	// the divider needs the vspace added to it for know
 	gui_divider_size.h += gui_vspace*2;

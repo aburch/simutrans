@@ -127,6 +127,8 @@ class image_t;
 #define D_GET_CENTER_ALIGN_OFFSET(N1,N2) ((N2-N1)>>1)
 #define D_GET_FAR_ALIGN_OFFSET(N1,N2) (N2-N1)
 
+#define D_FILELIST_V_SPACE (gui_theme_t::gui_filelist_vspace)
+
 #define TOOLTIP_MOUSE_OFFSET_X (16)
 #define TOOLTIP_MOUSE_OFFSET_Y (12)
 
@@ -278,6 +280,9 @@ public:
 	static KOORD_VAL gui_hspace;
 	static KOORD_VAL gui_vspace;
 	static KOORD_VAL gui_waitingbar_width;
+
+	// one special entries, since there are lot of lists with files/fonts/paks/... where zero spacing could fit more entires on the screen
+	static KOORD_VAL gui_filelist_vspace;
 	/// @}
 
 	// those are the 3x3 images which are used for stretching
@@ -302,6 +307,7 @@ public:
 	static image_id pos_button_img[3];
 
 	static bool gui_drop_shadows;
+
 
 public:
 	// default dimensions and colors
