@@ -10,6 +10,7 @@
  * @section api-trunk Current trunk
  *
  * - Added @ref command_x::can_set_slope
+ * - Added @ref halt_x::get_halt
  * - Changed possible direction parameter of @ref command_x::build_station (useful for flat docks)
  * - Added @ref depot_x::get_depot_list
  * - Added @ref vehicle_desc_x::needs_electrification

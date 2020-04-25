@@ -182,6 +182,7 @@ BEGIN {
 	export_types["halt_x::get_freight_to_dest"] = "integer(good_desc_x, coord)"
 	export_types["halt_x::get_freight_to_halt"] = "integer(good_desc_x, halt_x)"
 	export_types["halt_x::get_capacity"] = "integer(good_desc_x)"
+	export_types["halt_x::get_halt"] = "halt_x(coord3d, player_x)"
 	export_types["line_x::is_valid"] = "bool()"
 	export_types["line_x::get_name"] = "string()"
 	export_types["line_x::set_name"] = "string(string)"
