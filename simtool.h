@@ -132,7 +132,7 @@ public:
 	 * @param pos position where the slope will be generated
 	 * @param slope the slope type
 	 */
-	static const char *tool_set_slope_work( player_t *player, koord3d pos, int slope, bool old_slope_compatibility);
+	static const char *tool_set_slope_work( player_t *player, koord3d pos, int slope, bool old_slope_compatibility, bool just_check = false);
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Built artifical slopes", welt->get_settings().cst_set_slope); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;

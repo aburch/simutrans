@@ -390,5 +390,6 @@ BEGIN {
 	export_types["command_x::build_bridge_at"] = "string(player_x, coord3d, bridge_desc_x)"
 	export_types["command_x::set_slope"] = "string(player_x, coord3d, slope)"
 	export_types["command_x::restore_slope"] = "string(player_x, coord3d)"
+	export_types["command_x::can_set_slope"] = "string(player_x, coord3d, slope)"
 	export_types["command_x::build_sign_at"] = "string(player_x, coord3d, sign_desc_x)"
 }
