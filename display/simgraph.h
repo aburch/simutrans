@@ -15,11 +15,18 @@
 #include "scr_coord.h"
 
 
-extern int large_font_ascent;
-extern int large_font_total_height;
+#if COLOUR_DEPTH != 0
 
-#define LINEASCENT (large_font_ascent)
-#define LINESPACE (large_font_total_height)
+extern int default_font_ascent;
+extern int default_font_linespace;
+
+#  define LINEASCENT (default_font_ascent)
+#  define LINESPACE  (default_font_linespace)
+#else
+#  define LINEASCENT 0
+#  define LINESPACE  0
+#endif
+
 
 /**
 * Alignment enum to align controls against each other
@@ -133,7 +140,7 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h);
  * Loads the font, returns the number of characters in it
  * @param reload if true forces reload
  */
-uint16 display_load_font(const char* fname, bool reload = false);
+bool display_load_font(const char *fname, bool reload = false);
 
 image_id get_image_count();
 void register_image(class image_t *);

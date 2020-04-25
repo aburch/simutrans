@@ -353,7 +353,9 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	STATIC register_method(vm, &get_available_vehicles, "get_available_vehicles", false, true);
 	/**
-	 * @returns the power of the vehicle (takes power and gear from pak-files into account)
+	 * Power of the vehicle. This value can be used in convoy_x::calc_max_speed.
+	 * It returns (power of vehicle in kW) * (gear value) * 64, where power and gear are as shown in-game.
+	 * @returns the total power of the vehicle (takes power and gear from pak-files into account)
 	 */
 	register_method(vm, &get_power, "get_power", true);
 	/**

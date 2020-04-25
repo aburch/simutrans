@@ -905,7 +905,10 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 				while(sp_soll>>12) {
 					// Attempt to move one step.
 					uint32 sp_hat = fahr[0]->do_drive(1<<YARDS_PER_VEHICLE_STEP_SHIFT);
-					int v_nr = get_vehicle_at_length((++steps_driven)>>4);
+					if(  sp_hat>0  ) {
+						steps_driven++;
+					}
+					int v_nr = get_vehicle_at_length(steps_driven>>4);
 					// stop when depot reached
 					if (state==INITIAL) {
 						return SYNC_REMOVE;
@@ -913,10 +916,14 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 					if (state==ROUTING_1) {
 						break;
 					}
-					// until all are moving or something went wrong (sp_hat==0)
-					if(sp_hat==0  ||  v_nr==anz_vehikel) {
+					if(  v_nr==anz_vehikel  ) {
+						// all are moving
 						steps_driven = -1;
 						state = DRIVING;
+						return SYNC_OK;
+					}
+					else if(  sp_hat==0  ) {
+						// something went wrong. wait for next sync_step()
 						return SYNC_OK;
 					}
 					// now only the right numbers

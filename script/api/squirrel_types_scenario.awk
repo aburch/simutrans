@@ -385,7 +385,7 @@ BEGIN {
 	export_types["command_x::build_way"] = "string(player_x, coord3d, coord3d, way_desc_x, bool)"
 	export_types["command_x::build_road"] = "string(player_x, coord3d, coord3d, way_desc_x, bool, bool)"
 	export_types["command_x::build_depot"] = "string(player_x, coord3d, building_desc_x)"
-	export_types["command_x::build_station"] = "string(player_x, coord3d, building_desc_x)"
+	export_types["command_x::build_station"] = "string(player_x, coord3d, building_desc_x, dir)"
 	export_types["command_x::build_bridge"] = "string(player_x, coord3d, coord3d, bridge_desc_x)"
 	export_types["command_x::build_bridge_at"] = "string(player_x, coord3d, bridge_desc_x)"
 	export_types["command_x::set_slope"] = "string(player_x, coord3d, slope)"
