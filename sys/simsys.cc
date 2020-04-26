@@ -25,6 +25,7 @@
 #include "simsys.h"
 #include "../pathes.h"
 #include "../simevent.h"
+#include "../utils/simstring.h"
 
 
 #ifdef _WIN32
@@ -45,6 +46,7 @@
 #		include <unistd.h>
 #	endif
 #endif
+
 
 
 struct sys_event sys_event;
@@ -428,7 +430,15 @@ const char *dr_query_fontpath(int which)
 		subdir_offset = 0;
 	}
 
-	for(  int i=which-which_offset;  trypaths[i];  i++  ) {
+	for( int i = which - which_offset; trypaths[ i ]; i++ ) {
+		char fontpath[PATH_MAX];
+		if( trypaths[i][0] == '~' ) {
+			// prepace with homedirectory
+			snprintf( fontpath, PATH_MAX, "%s%s", dr_query_homedir(), trypaths[i]+2 );
+		}
+		else {
+			tstrncpy( fontpath, trypaths[i], PATH_MAX );
+		}
 		DIR *dir = opendir(trypaths[i]);
 		if(  dir  ) {
 			int j = 0;
@@ -439,7 +449,7 @@ const char *dr_query_fontpath(int which)
 					if( ((strcmp( entry->d_name, "." )) != 0) && ((strcmp( entry->d_name, ".." )) != 0) ) {
 						j++;
 						if( subdir_offset < j ) {
-							strcpy( buffer, trypaths[ i ] );
+							strcpy( buffer, fontpath );
 							strcat( buffer, entry->d_name );
 							strcat( buffer, PATH_SEPARATOR );
 							closedir( dir );
