@@ -10,7 +10,7 @@ DIRS := $(sort $(dir $(OBJS)))
 # Make build directories
 DUMMY := $(shell mkdir -p $(DIRS))
 
-.PHONY: all clean
+.PHONY: all clean compile-commands
 
 .SUFFIXES: .rc
 
@@ -34,6 +34,13 @@ clean:
 	$(Q)rm -fr $(PROGDIR)/$(PROG).app
 
 -include $(DEPS)
+
+compile-commands:
+	@echo "[" > compile_commands.json
+	@for file in $(SOURCES); do \
+		echo "{ \"directory\": \"$(PROGDIR)\", \"command\": \"$(HOSTCXX) $(CXXFLAGS) -c -MMD $$(pwd)/$$file\", \"file\": \"$$(pwd)/$$file\"  }," >> compile_commands.json; \
+	done;
+	@echo "{ \"directory\": \"no\", \"command\": \"trailing\", \"file\": \"comma\"}]" >> compile_commands.json
 
 # Silence stale header dependency errors
 %.h:
