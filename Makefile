@@ -207,12 +207,17 @@ ifdef WITH_REVISION
       REV = $(shell svnversion)
       $(info Revision is $(REV))
     endif
-    ifeq ($(shell expr $(WITH_REVISION) \<= 1), 1)
-      REV = $(shell svn info --show-item revision svn://servers.simutrans.org/simutrans | sed "s/[0-9]*://" | sed "s/M.*//")
+    # we can query the svn directly, should the folder is not an svn (like on github)
+    ifeq ($(REV),)
+      ifeq ($(shell expr $(WITH_REVISION) \<= 1), 1)
+        $(info Query SVN revision with SVN directly...)
+        REV = $(shell svn info --show-item revision svn://servers.simutrans.org/simutrans | sed "s/[0-9]*://" | sed "s/M.*//")
+         $(error Revision is $(REV))
+      endif
     endif
 
     ifneq ($(REV),)
-      CFLAGS  += -DREVISION="$(REV)"
+      CFLAGS  += -DREVISION=$(REV)
     endif
   endif
 endif
