@@ -10,6 +10,8 @@ DIRS := $(sort $(dir $(OBJS)))
 # Make build directories
 DUMMY := $(shell mkdir -p $(DIRS))
 
+BUILDCONFIG_FILES := common.mk Makefile config.$(CFG)
+
 .PHONY: all clean
 
 .SUFFIXES: .rc
@@ -20,18 +22,11 @@ else
   Q =
 endif
 
-all: $(PROGDIR)/$(PROG)
+simutrans: $(PROGDIR)/$(PROG)
 
 $(PROGDIR)/$(PROG): $(OBJS)
 	@echo "===> LD  $@"
 	$(Q)$(HOSTCXX) $(OBJS) $(LDFLAGS) $(LIBS) -o $(PROGDIR)/$(PROG)
-
-clean:
-	@echo "===> Cleaning up"
-	$(Q)rm -f $(OBJS)
-	$(Q)rm -f $(DEPS)
-	$(Q)rm -f $(PROGDIR)/$(PROG)
-	$(Q)rm -fr $(PROGDIR)/$(PROG).app
 
 -include $(DEPS)
 
@@ -39,23 +34,23 @@ clean:
 %.h:
 	@true
 
-$(BUILDDIR)/%.o: %.mm
+$(BUILDDIR)/%.o: %.mm $(BUILDCONFIG_FILES)
 	@echo "===> Obj-c OSX $<"
 	$(Q)$(HOSTCXX) $(CXXFLAGS) $(OBJCFLAGS) -c -MMD -o $@ $<
 
-$(BUILDDIR)/%.o: %.m
+$(BUILDDIR)/%.o: %.m $(BUILDCONFIG_FILES)
 	@echo "===> Obj-c OSX $<"
 	$(Q)$(HOSTCXX) $(CXXFLAGS) $(OBJCFLAGS) -c -MMD -o $@ $<
 
-$(BUILDDIR)/%.o: %.c
+$(BUILDDIR)/%.o: %.c $(BUILDCONFIG_FILES)
 	@echo "===> HOSTCC  $<"
 	$(Q)$(HOSTCC) $(CCFLAGS) -c -MMD -o $@ $<
 
-$(BUILDDIR)/%.o: %.cc
+$(BUILDDIR)/%.o: %.cc $(BUILDCONFIG_FILES)
 	@echo "===> HOSTCXX $<"
 	$(Q)$(HOSTCXX) $(CXXFLAGS) -c -MMD -o $@ $<
 
-$(BUILDDIR)/%.o: %.rc
+$(BUILDDIR)/%.o: %.rc $(BUILDCONFIG_FILES)
 	@echo "===> RES $<"
 #	$(Q)$(WINDRES) --preprocessor "$(HOSTCXX) -E -xc -DRC_INVOKED -MMD -MF $(@:%.o=%.d) -MT $@" -O COFF $< $@
 	$(Q)$(WINDRES) --preprocessor "$(HOSTCXX) -E -xc -DRC_INVOKED -MMD -MT $@" -O COFF $< $@

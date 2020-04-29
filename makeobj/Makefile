@@ -6,7 +6,7 @@
 CFG ?= default
 -include ../config.$(CFG)
 
-OSTYPES       = beos cygwin freebsd haiku linux mingw mac
+OSTYPES = beos cygwin freebsd haiku linux mingw mac
 
 ifeq ($(findstring $(OSTYPE), $(OSTYPES)),)
   $(error Unkown OSTYPE "$(OSTYPE)", must be one of "$(OSTYPES)")
@@ -53,8 +53,15 @@ endif
 
 ifdef OPTIMISE
   ifeq ($(shell expr $(OPTIMISE) \>= 1), 1)
-    CFLAGS   += -O3 -fno-schedule-insns
-    CXXFLAGS += -O3 -fno-schedule-insns
+    CFLAGS   += -O3
+    CXXFLAGS += -O3
+
+    # clang does not support fno-schedule-insns
+    ifeq ($(findstring clang, $(CXX)),)
+      CFLAGS   += -fno-schedule-insns
+      CXXFLAGS += -fno-schedule-insns
+    endif
+
     ifneq ($(OSTYPE),mac)
       CFLAGS  += -minline-all-stringops
     endif
@@ -90,8 +97,8 @@ ifdef PROFILE
   endif
 endif
 
-CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align -Wstrict-prototypes $(OS_INC) $(OS_OPT) $(FLAGS)
-CXXFLAGS += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(OS_INC) $(OS_OPT) $(FLAGS)
+CFLAGS   += -Wall -Wextra -Wcast-qual -Wpointer-arith -Wcast-align -Wstrict-prototypes $(OS_INC) $(OS_OPT) $(FLAGS)
+CXXFLAGS += -Wall -Wextra -Wcast-qual -Wpointer-arith -Wcast-align $(OS_INC) $(OS_OPT) $(FLAGS)
 
 # SOLO_SOURCES contains files which are unique to makeobj;
 # SHARED_SOURCES contains those with the exact same object code in makeobj and simutrans;
