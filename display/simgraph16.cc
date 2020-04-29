@@ -4635,7 +4635,7 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 
 		// get the data from the font
 		int glyph_width = fnt->get_glyph_width(c);
-		const uint8 glyph_yoffset = std::min(fnt->get_glyph_yoffset(c), (uint8)y_offset);
+		const uint8 glyph_yoffset = std::max(fnt->get_glyph_yoffset(c), (uint8)y_offset);
 
 		// currently max character width 16 bit supported by font.h/font.cc
 		for(  int i=0;  i<2;  i++  ) {
