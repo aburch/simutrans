@@ -171,12 +171,13 @@ char *tooltip_with_price(const char * tip, sint64 price)
 /**
  * Creates a tooltip from tip text, money value and way/object length
  */
-char *tooltip_with_price_length(const char * tip, sint64 price, sint64 length)
+char *tooltip_with_price_length(const char *tip, sint64 price, sint64 length)
 {
-	int n = sprintf(tool_t::toolstr, translator::translate("length: %d"), length);
+	int n = sprintf(tool_t::toolstr, translator::translate("length: %d"), (int)length);
+	n += sprintf(tool_t::toolstr+n, ", ");
 	n += strncopy_to_break( tool_t::toolstr+n, translator::translate( tip ), 256 );
-	memcpy( tool_t::toolstr+n, ", ", 2 );
-	money_to_string(tool_t::toolstr+n+2, (double)price/-100.0);
+	n += sprintf(tool_t::toolstr+n, ": ");
+	money_to_string(tool_t::toolstr+n, (double)price/-100.0);
 	return tool_t::toolstr;
 }
 
