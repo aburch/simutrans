@@ -250,7 +250,7 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 koord haltestelle_t::get_basis_pos() const
 {
 	if (tiles.empty()) return koord::invalid;
-	assert(tiles.front().grund->get_pos().get_2d() == init_pos);
+	//assert(tiles.front().grund->get_pos().get_2d() == init_pos);
 	return tiles.front().grund->get_pos().get_2d();
 }
 
