@@ -3746,7 +3746,7 @@ void convoi_t::reverse_order(bool rev)
 				}
 
 				// reverse loco
-				if (!check_need_turntable()) {
+				if (!check_need_turntable() && loco_b > 0) {
 					for (; loco_a < --loco_b; loco_a++)
 					{
 						reverse = vehicle[loco_a];
