@@ -216,7 +216,7 @@ koord3d haltestelle_t::get_basis_pos3d() const
 	if (tiles.empty()) {
 		return koord3d::invalid;
 	}
-	assert(tiles.front().grund->get_pos().get_2d() == init_pos);
+	//assert(tiles.front().grund->get_pos().get_2d() == init_pos);
 	return tiles.front().grund->get_pos();
 }
 
