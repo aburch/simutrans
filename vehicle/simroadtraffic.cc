@@ -728,11 +728,11 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 			sg[0] = welt->lookup(pos_next);
 			sg[1] = welt->lookup(pos_next_next);
 			for(uint8 i = 0; i < 2; i++) {
-				for(  uint8 pos=1;  pos < sg[i]->get_top();  pos++  ) {
+				for(  uint8 pos=1;  sg[i] && pos < sg[i]->get_top();  pos++  ) {
 					if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(sg[i]->obj_bei(pos))  ) {
 						ribi_t:: ribi other_direction = 255;
 						if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
-							if(  !at->get_convoi()->is_overtaking()  ) {
+							if(  at && !at->get_convoi()->is_overtaking()  ) {
 								other_direction = at->get_direction();
 							}
 						}
