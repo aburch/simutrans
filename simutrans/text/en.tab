@@ -1115,6 +1115,10 @@ Pres
 Var
 %256_CITY_SYLL
 Ket
+%257_CITY_SYLL
+Thor
+#
+# Max: 400 (hex)
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -1394,6 +1398,8 @@ age
 &87_CITY_SYLL
 tye
 #
+# Max: 200 (hex)
+#
 # Town name prefixes.
 # There can be up to 256 of these.
 # They must be specified in hexadecimal
@@ -1525,6 +1531,8 @@ Royal
 Corn 
 &3D_CITY_PREFIX
 Worth 
+#
+# Max: 50 (hex)
 #
 # Town name suffixes.
 # There can be up to 256 of these.
@@ -1672,6 +1680,8 @@ heath
 &43_CITY_SUFFIX
 er's Lock
 # 
+# Max: 50 (hex)
+#
 # Other strings
 # 
 %d buildings\n
