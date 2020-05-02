@@ -47,7 +47,7 @@ class compare_cities
 			switch (sortby) {
 				default: NOT_REACHED
 				case citylist::by_name:   cmp = strcmp(a->get_name(), b->get_name());    break;
-				case citylist::by_size:   cmp = a->get_einwohner() - b->get_einwohner(); break;
+				case citylist::by_size:   cmp = a->get_city_population() - b->get_city_population(); break;
 				case citylist::by_growth: cmp = a->get_wachstum()  - b->get_wachstum();  break;
 			}
 			return reverse ? cmp > 0 : cmp < 0;
