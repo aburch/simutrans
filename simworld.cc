@@ -9063,7 +9063,7 @@ static pthread_mutex_t height_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
 {
-	sint8 min_h = min_height, max_h = max_height;
+	sint8 min_h = 127, max_h = -128;
 	for(  int y = y_min;  y < y_max;  y++  ) {
 		for(  int x = x_min; x < x_max;  x++  ) {
 			const planquadrat_t *plan = access_nocheck(x,y);
