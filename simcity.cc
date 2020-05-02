@@ -3206,7 +3206,6 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 
 	// now test the surrounding tiles for larger size
 	koord maxsize=minsize;
-	koord max_rightdown = k;
 	if(  hausbauer_t::get_largest_city_building_area() > 1  ) {
 		for(  int area_level=0;  area_level < 8;  area_level++  ) {
 			grund_t* gr = welt->lookup_kartenboden(k + area3x3[area_level]);
