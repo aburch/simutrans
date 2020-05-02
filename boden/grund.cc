@@ -628,8 +628,6 @@ void grund_t::info(cbuffer_t& buf, bool dummy) const
 	bool has_way = false;
 	if(!is_water()) {
 		if(flags&has_way1) {
-			buf.append(translator::translate(get_weg_nr(0)->get_name()));
-			buf.append("\n");
 			obj_bei(0)->info(buf, ist_bruecke());
 			has_way = true;
 			if(flags&has_way2) {
