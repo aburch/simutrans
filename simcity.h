@@ -42,6 +42,8 @@ class building_desc_t;
 
 #define PAX_DESTINATIONS_SIZE (256) // size of the minimap in the city window (sparse array)
 
+#define CITY_NAME_LABEL_WIDTH (126)	// size of
+
 enum city_cost {
 	HIST_CITICENS=0,		// total people
 	HIST_JOBS,				// Total jobs
