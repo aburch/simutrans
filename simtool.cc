@@ -3755,9 +3755,8 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 	}
 	else {
 		// get a default vehicle
-		vehicle_desc_t remover_desc(wt, 500, vehicle_desc_t::diesel );
 		test_driver_t* test_driver;
-
+		vehicle_desc_t remover_desc(wt, 500, vehicle_desc_t::diesel ); // must be here even if not needed for powerline
 		if(  wt!=powerline_wt  ) {
 			vehicle_t *driver = vehicle_builder_t::build(start, player, NULL, &remover_desc);
 			driver->set_flag( obj_t::not_on_map );
@@ -3766,8 +3765,8 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 		else {
 			test_driver = new electron_t();
 		}
-		test_driver = scenario_checker_t::apply(test_driver, player, this);
 
+		test_driver = scenario_checker_t::apply(test_driver, player, this);
 		verbindung.calc_route(welt, start, end, test_driver, 0, 0, false, 0);
 		delete test_driver;
 	}
