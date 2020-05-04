@@ -55,6 +55,8 @@ height offset
 高度のオフセット
 Waiting for schedule. %i left!
 発車時刻待ち（残り %i）
+line name tooltips
+系統名を表示
 #------Convoy coupling related stuff------
 #------増解結関連のエントリ------
 Wait for coupling
