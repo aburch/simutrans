@@ -1818,16 +1818,19 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 	uint8 state = env_t::show_vehicle_states;
 
 	if(  state==3  &&  this == cnv->front()  ) {
+		// show the line name, including when the convoy is coupled.
 		linehandle_t lh = cnv->get_line();
 		if(  lh.is_bound()  ) {
+			// line name
 			tstrncpy( tooltip_text, lh->get_name(), lengthof(tooltip_text) );
 		} else {
+			// the convoy belongs to no line -> show convoy name
 			tstrncpy( tooltip_text, cnv->get_name(), lengthof(tooltip_text) );
 		}
 		color = color_idx_to_rgb( cnv->get_owner()->get_player_color1()+7 );
 	}
 
-	if(  leading  &&  state!=3) {
+	if(  leading  &&  state!=3  ) {
 
 		if(  state==1  ) {
 			// only show when mouse over vehicle
