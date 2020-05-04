@@ -358,6 +358,7 @@ traffic_settings_t::traffic_settings_t()
 	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("convoi error tooltips"), SYSCOL_TEXT);
 	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("convoi mouseover tooltips"), SYSCOL_TEXT);
 	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("all convoi tooltips"), SYSCOL_TEXT);
+	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("line name tooltips"), SYSCOL_TEXT);
 	convoy_tooltip.set_selection(env_t::show_vehicle_states);
 	add_component(&convoy_tooltip, 2);
 	convoy_tooltip.add_listener(this);
