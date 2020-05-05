@@ -79,7 +79,7 @@ typedef unsigned int FLAGGED_PIXVAL;
 // Way colours for the map
 #define COL_ROAD            color_idx_to_rgb(COL_GREY1)
 #define COL_RAIL            color_idx_to_rgb(185)
-#define COL_CANAL           color_idx_to_rgb(COL_BLUE)
+#define COL_CANAL           color_idx_to_rgb(23)
 #define COL_MONORAIL        color_idx_to_rgb(COL_ORANGE)
 #define COL_RUNWAY          color_idx_to_rgb(28)
 #define COL_POWERLINE       color_idx_to_rgb(COL_LIGHT_TURQUOISE)
