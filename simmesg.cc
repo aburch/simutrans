@@ -247,17 +247,19 @@ void message_t::rdwr(loadsave_t *file)
 			// do not save local messages and expired messages
 			uint32 current_time = world()->get_current_month();
 			FOR(slist_tpl<node*>, const i, list) {
-				if(  !(i->type & do_not_rdwr_flag)  ||  (i->type & expire_after_one_month_flag  &&  current_time-i->time<=1)  ) {
-					if (++msg_count == MAX_SAVED_MESSAGES) break;
+				if( i->type & do_not_rdwr_flag  ||  (i->type & expire_after_one_month_flag  &&  current_time - i->time > 1)  ) {
+					continue;
 				}
+				if (++msg_count == MAX_SAVED_MESSAGES) break;
 			}
 			file->rdwr_short(msg_count);
 			FOR(slist_tpl<node*>, const i, list) {
 				if (msg_count == 0) break;
-				if(  !(i->type & do_not_rdwr_flag)  ||  (i->type & expire_after_one_month_flag  &&  current_time-i->time<=1)  ) {
-					i->rdwr(file);
-					msg_count--;
+				if(  i->type & do_not_rdwr_flag  || (i->type & expire_after_one_month_flag  &&  current_time - i->time > 1)  ) {
+					continue;
 				}
+				i->rdwr(file);
+				msg_count --;
 			}
 		}
 		else {
