@@ -374,7 +374,6 @@ char const *dr_query_homedir()
 	return buffer;
 }
 
-#include <dirent.h>
 
 const char *dr_query_fontpath(int which)
 {
@@ -439,7 +438,7 @@ const char *dr_query_fontpath(int which)
 		else {
 			tstrncpy( fontpath, trypaths[i], PATH_MAX );
 		}
-		DIR *dir = opendir(trypaths[i]);
+		DIR *dir = opendir(fontpath);
 		if(  dir  ) {
 			int j = 0;
 			// look for subdirectories
