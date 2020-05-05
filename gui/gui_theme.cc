@@ -57,6 +57,8 @@ PIXVAL gui_theme_t::gui_color_statusbar_background;
 PIXVAL gui_theme_t::gui_color_statusbar_divider;
 PIXVAL gui_theme_t::gui_highlight_color;
 PIXVAL gui_theme_t::gui_shadow_color;
+PIXVAL gui_theme_t::gui_color_loadingbar_inner;
+PIXVAL gui_theme_t::gui_color_loadingbar_progress;
 
 /**
  * Max Kielland
@@ -176,6 +178,9 @@ void gui_theme_t::init_gui_defaults()
 
 	gui_highlight_color                    = color_idx_to_rgb(MN_GREY4);
 	gui_shadow_color                       = color_idx_to_rgb(MN_GREY0);
+
+	gui_color_loadingbar_inner             = color_idx_to_rgb(COL_GREY5);
+	gui_color_loadingbar_progress          = color_idx_to_rgb(COL_BLUE);
 
 	gui_button_size              = scr_size(92,14);
 	gui_color_button_size        = scr_size(92,16);
@@ -510,6 +515,8 @@ bool gui_theme_t::themes_init(const char *file_name, bool init_fonts )
 	gui_theme_t::gui_color_statusbar_divider            = (PIXVAL)contents.get_color("gui_color_statusbar_divider", SYSCOL_STATUSBAR_DIVIDER);
 	gui_theme_t::gui_highlight_color                    = (PIXVAL)contents.get_color("gui_highlight_color", SYSCOL_HIGHLIGHT);
 	gui_theme_t::gui_shadow_color                       = (PIXVAL)contents.get_color("gui_shadow_color", SYSCOL_SHADOW);
+	gui_theme_t::gui_color_loadingbar_inner             = (PIXVAL)contents.get_color("gui_color_loadingbar_inner", SYSCOL_LOADINGBAR_INNER);
+	gui_theme_t::gui_color_loadingbar_progress          = (PIXVAL)contents.get_color("gui_color_loadingbar_progress", SYSCOL_LOADINGBAR_PROGRESS);
 
 	gui_theme_t::gui_waitingbar_width = (uint32)contents.get_int("gui_waitingbar_width", gui_theme_t::gui_waitingbar_width);
 

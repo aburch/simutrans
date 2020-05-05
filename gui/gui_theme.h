@@ -241,7 +241,9 @@ public:
 	static PIXVAL gui_color_statusbar_divider;            //@< Color to draw statusbar divider
 	static PIXVAL gui_highlight_color;                    //@< Color to draw highlight dividers (tabs)
 	static PIXVAL gui_shadow_color;                       //@< Color to draw shadowed dividers (tabs)
-	/// @}
+	static PIXVAL gui_color_loadingbar_inner;
+	static PIXVAL gui_color_loadingbar_progress;
+    /// @}
 
 	/// @name GUI element sizes used by gui components
 	/// @{

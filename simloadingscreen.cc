@@ -84,10 +84,10 @@ void loadingscreen_t::display()
 		display_ddd_box_rgb( quarter_width-1, half_height-8, half_width+2, 18, color_idx_to_rgb(COL_GREY4), color_idx_to_rgb(COL_GREY6), true );
 
 		// inner
-		display_fillbox_wh_rgb( quarter_width, half_height - 7, half_width, 16, color_idx_to_rgb(COL_GREY5), true);
+		display_cylinderbar_wh_clip_rgb( quarter_width, bar_y + 2, half_width, bar_height - 4, SYSCOL_LOADINGBAR_INNER, true);
 
 		// progress
-		display_fillbox_wh_rgb( quarter_width, half_height - 5, bar_len,  12, color_idx_to_rgb(COL_PASSENGERS), true );
+		display_cylinderbar_wh_clip_rgb( quarter_width, bar_y + 4, bar_len,  bar_height - 8, SYSCOL_LOADINGBAR_PROGRESS, true );
 
 		if(  what  ) {
 			display_proportional_rgb( half_width, half_height-4, what, ALIGN_CENTER_H, SYSCOL_TEXT_HIGHLIGHT, false );
