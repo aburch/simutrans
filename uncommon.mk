@@ -10,10 +10,12 @@ OBJS += $(patsubst %, $(BUILDDIR)/$(TOOL)/%-$(TOOL).o, $(basename $(filter-out .
 DEPS := $(patsubst %.o, %.d, $(OBJS))
 DIRS := $(sort $(dir $(OBJS)))
 
+BUILDCONFIG_FILES := ../uncommon.mk Makefile ../config.$(CFG)
+
 # Make build directories
 DUMMY := $(shell mkdir -p $(DIRS))
 
-.PHONY: clean clean-prog
+.PHONY: all clean clean-prog
 
 ifeq ($(VERBOSE),)
   Q = @
@@ -43,19 +45,19 @@ clean:
 	@true
 
 # Source files located in ../
-$(BUILDDIR)/%-$(TOOL).o: ../%.c
+$(BUILDDIR)/%-$(TOOL).o: ../%.c $(BUILDCONFIG_FILES)
 	@echo "===> CC  $<"
 	$(Q)$(CC) $(CCFLAGS) -c -MMD -o $@ $<
 
-$(BUILDDIR)/%-$(TOOL).o: ../%.cc
+$(BUILDDIR)/%-$(TOOL).o: ../%.cc $(BUILDCONFIG_FILES)
 	@echo "===> CXX $<"
 	$(Q)$(CXX) $(CXXFLAGS) -c -MMD -o $@ $<
 
 # Source files located in current directory
-$(BUILDDIR)/$(TOOL)/%-$(TOOL).o: %.c
+$(BUILDDIR)/$(TOOL)/%-$(TOOL).o: %.c $(BUILDCONFIG_FILES)
 	@echo "===> CC  $<"
 	$(Q)$(CC) $(CCFLAGS) -c -MMD -o $@ $<
 
-$(BUILDDIR)/$(TOOL)/%-$(TOOL).o: %.cc
+$(BUILDDIR)/$(TOOL)/%-$(TOOL).o: %.cc $(BUILDCONFIG_FILES)
 	@echo "===> CXX $<"
 	$(Q)$(CXX) $(CXXFLAGS) -c -MMD -o $@ $<

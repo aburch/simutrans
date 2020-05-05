@@ -194,23 +194,19 @@ vehicle_base_t::vehicle_base_t(koord3d pos):
 }
 
 
+
+
+
 void vehicle_base_t::rotate90()
 {
-	koord3d pos_cur = get_pos();
-	pos_cur.rotate90( welt->get_size().y-1 );
-	set_pos( pos_cur );
+	obj_t::rotate90();
 	// directions are counterclockwise to ribis!
 	direction = ribi_t::rotate90( direction );
 	pos_next.rotate90( welt->get_size().y-1 );
-	// new offsets: very tricky ...
+	// new offsets
 	sint8 new_dx = -dy*2;
 	dy = dx/2;
 	dx = new_dx;
-	// new pos + step offsets (only possible, since we know the height!
-	sint8 neu_yoff = get_xoff()/2;
-	set_xoff( -get_yoff()*2 );
-	set_yoff( neu_yoff );
-	// adjust disp_lane individually
 }
 
 

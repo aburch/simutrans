@@ -15,10 +15,7 @@
 #BACKEND = posix
 BACKEND = @backend@
 
-# color depth either 16 or 0 (the latter needed for server)
-COLOUR_DEPTH = @color@
-
-# architecture specifi flags
+# architecture specific flags
 #OSTYPE = amiga
 #OSTYPE = beos
 #OSTYPE = cygwin

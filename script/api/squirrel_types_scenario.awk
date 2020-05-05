@@ -182,6 +182,7 @@ BEGIN {
 	export_types["halt_x::get_freight_to_dest"] = "integer(good_desc_x, coord)"
 	export_types["halt_x::get_freight_to_halt"] = "integer(good_desc_x, halt_x)"
 	export_types["halt_x::get_capacity"] = "integer(good_desc_x)"
+	export_types["halt_x::get_halt"] = "halt_x(coord3d, player_x)"
 	export_types["line_x::is_valid"] = "bool()"
 	export_types["line_x::get_name"] = "string()"
 	export_types["line_x::set_name"] = "string(string)"
@@ -390,5 +391,6 @@ BEGIN {
 	export_types["command_x::build_bridge_at"] = "string(player_x, coord3d, bridge_desc_x)"
 	export_types["command_x::set_slope"] = "string(player_x, coord3d, slope)"
 	export_types["command_x::restore_slope"] = "string(player_x, coord3d)"
+	export_types["command_x::can_set_slope"] = "string(player_x, coord3d, slope)"
 	export_types["command_x::build_sign_at"] = "string(player_x, coord3d, sign_desc_x)"
 }

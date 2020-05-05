@@ -14,6 +14,9 @@
 #include "../api_function.h"
 #include "../../simhalt.h"
 
+halthandle_t get_halt_from_koord3d(koord3d pos, const player_t *player ); // api_schedule.cc, interfaces haltestelle_t::get_halt
+
+
 namespace script_api {
 
 	declare_specialized_param(haltestelle_t::tile_t, "t|x|y", "tile_x");
@@ -272,6 +275,14 @@ void export_halt(HSQUIRRELVM vm)
 	 * @param freight freight type
 	 */
 	register_method(vm, &halt_get_capacity, "get_capacity", true);
+
+	/**
+	 * Returns halt at given position.
+	 * @param pos coordinate
+	 * @param pl player that wants to use halt here
+	 * @return halt instance
+	 */
+	STATIC register_method(vm, &get_halt_from_koord3d, "get_halt", false, true);
 
 	end_class(vm);
 }

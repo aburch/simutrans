@@ -363,6 +363,11 @@ call_tool_work restore_slope(player_t* pl, koord3d start)
 	return call_tool_work(TOOL_RESTORESLOPE | GENERAL_TOOL, "", 0, pl, start);
 }
 
+const char* can_set_slope(player_t* pl, koord3d pos, my_slope_t slope)
+{
+	return tool_setslope_t::tool_set_slope_work(pl, pos, slope, false /* compatibility */, true /* check */);
+}
+
 call_tool_work build_sign_at(player_t* pl, koord3d start, const roadsign_desc_t* sign)
 {
 	if (sign == NULL) {
@@ -506,7 +511,14 @@ void export_commands(HSQUIRRELVM vm)
 	 * @param pos position of tile
 	 */
 	STATIC register_method(vm, restore_slope, "restore_slope", false, true);
-
+	/**
+	 * Checks whether player @p pl can do this terraforming.
+	 * @param pl player
+	 * @param pos position
+	 * @param slope new slope, can also be one of @ref slope::all_up_slope or @ref slope::all_down_slope
+	 * @returns null (if allowed) or an error message otherwise
+	 */
+	STATIC register_method(vm, can_set_slope, "can_set_slope", false, true);
 	/**
 	 * Build signal / road-sign. If such a sign already exists then change its direction.
 	 * @param pl player to pay for the work
