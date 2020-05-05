@@ -10028,12 +10028,12 @@ bool tool_add_message_t::init(player_t *player)
 	if (*default_param) {
 		uint32 type = atoi(default_param);
 		const char* text = strchr(default_param, ',');
-		if ((type & ~message_t::local_flag) >= message_t::MAX_MESSAGE_TYPE || text == NULL) {
+		if ((type & ~message_t::playermsg_flag) >= message_t::MAX_MESSAGE_TYPE  ||  text == NULL) {
 			return false;
 
 		}
-		welt->get_message()->add_message(text + 1, koord::invalid, type,
-																		 type & message_t::local_flag ? color_idx_to_rgb(COL_BLACK) : (player ? PLAYER_FLAG | player->get_player_nr() : COL_WHITE), IMG_EMPTY);
+		welt->get_message()->add_message( text+1, koord::invalid, type,
+							    type & message_t::playermsg_flag ? color_idx_to_rgb(COL_BLACK) : PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY );
 	}
 	return false;
 }

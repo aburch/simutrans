@@ -14,6 +14,7 @@ Release of 122.0 (r9274 on 10-Oct-2020):
 	FIX: several list stored wrong coordinates after map rotation
 	ADD: more folders searched for fonts on non-windows systems
 	ADD: customisable loading bar colors with gui_color_loadingbar_inner and gui_color_loadingbar_progress
+	CHG: record messages and some status messages are now not saved, while stuck and full stations expire after a month on server chat to keep overview
 	ADD: two more theme colors: gui_color_obsolete, gui_color_empty for lines and server
 	ADD: (Yona-TNT) configurable offsets for player colors for gui elements
 	ADD: caseless matching in depots, lines, halt and convoi list dialogs even with umlaute

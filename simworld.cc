@@ -5998,7 +5998,7 @@ void karte_t::step()
 		last_clients = socket_list_t::get_playing_clients();
 		// add message via tool
 		cbuffer_t buf;
-		buf.printf("%d,", message_t::general | message_t::local_flag);
+		buf.printf("%d,", message_t::general | message_t::do_not_rdwr_flag);
 		buf.printf(translator::translate("Now %u clients connected.", settings.get_name_language_id()), last_clients);
 		tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | SIMPLE_TOOL );
 		tmp_tool->set_default_param( buf );
@@ -10715,7 +10715,7 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 			// tell the player
 			cbuffer_t buf;
 			buf.printf( translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
-			msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_EMPTY);
+			msg->add_message(buf, koord::invalid, message_t::ai | message_t::do_not_rdwr_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_EMPTY);
 		}
 
 		// update menu entries
