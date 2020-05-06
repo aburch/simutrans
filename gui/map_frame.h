@@ -72,6 +72,7 @@ private:
 				b_rotate45,
 				b_show_legend,
 				b_show_scale,
+				b_show_contour,
 				b_show_directory,
 				b_overlay_networks,
 				b_overlay_networks_load_factor,

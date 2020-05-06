@@ -34,7 +34,7 @@ public:
 
 		void rdwr(loadsave_t *file);
 
-		uint32 get_type_shifted() const { return 1<<(type & ~local_flag); }
+		uint32 get_type_shifted() const { return 1<<(type & ~(do_not_rdwr_flag|playermsg_flag|expire_after_one_month_flag)); }
 
 		FLAGGED_PIXVAL get_player_color(karte_t*) const;
 	};
@@ -52,7 +52,9 @@ public:
 		traffic_jams=9,
 		scenario=10,
 		MAX_MESSAGE_TYPE,
-		local_flag = 0x8000u
+		expire_after_one_month_flag = 0x2000u,
+		do_not_rdwr_flag = 0x4000u,
+		playermsg_flag = 0x8000u
 	};
 
 	void add_message( const char *text, koord pos, uint16 what, FLAGGED_PIXVAL color=SYSCOL_TEXT, image_id image=IMG_EMPTY );
