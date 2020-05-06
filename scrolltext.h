@@ -56,7 +56,7 @@
 " Inkelyad", "developer",
 " Isidoro","developer (vehicle replacement)",
 " Ranran", "UI features",
-" Ceac", "patches",
+" ceeac", "patches",
 " Freahk", "patch",
 " Progger", "patches",
 " Andrew Carlotti", "patches",
