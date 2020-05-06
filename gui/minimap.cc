@@ -695,7 +695,8 @@ PIXVAL minimap_t::calc_height_color(const sint16 hoehe, const sint16 groundwater
 			// to avoid relative_index==0
 			relative_index += 1;
 		}
-	} else {
+	} 
+	else {
 		relative_index = hoehe-groundwater;
 	}
 	return color_idx_to_rgb(map_type_color[clamp( relative_index+MAX_MAP_TYPE_WATER-1, 0, MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND-1 )]);
@@ -749,7 +750,12 @@ PIXVAL minimap_t::calc_ground_color(const grund_t *gr)
 					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
 					if(fab==NULL) {
 						sint16 height = (gr->get_grund_hang()%3);
-						color = calc_height_color( world->lookup_hgt( gr->get_pos().get_2d() ) + height, world->get_water_hgt( gr->get_pos().get_2d() ) );
+						if( mode&MAP_HIDE_CONTOUR ) { 
+							color = color_idx_to_rgb(map_type_color[1]); // second deep water color
+						}
+						else {
+							color = calc_height_color( world->lookup_hgt( gr->get_pos().get_2d() ) + height, world->get_water_hgt( gr->get_pos().get_2d() ) );
+						}
 						//color = color_idx_to_rgb(COL_BLUE);	// water with boat?
 					}
 					else {
@@ -778,12 +784,17 @@ PIXVAL minimap_t::calc_ground_color(const grund_t *gr)
 						color = COL_POWERLINE;
 					}
 					else {
-						sint16 height = (gr->get_grund_hang()%3);
-						if(  gr->get_hoehe() > world->get_groundwater()  ) {
-							color = calc_height_color( gr->get_hoehe() + height, world->get_groundwater() );
+						if( mode&MAP_HIDE_CONTOUR ) { 
+							color = color_idx_to_rgb(map_type_color[MAX_MAP_TYPE_WATER+2]); // lowest land color
 						}
 						else {
-							color = calc_height_color( gr->get_hoehe() + height, gr->get_hoehe() + height - 1);
+							sint16 height = (gr->get_grund_hang() % 3);
+							if(  gr->get_hoehe() > world->get_groundwater()  ) {
+								color = calc_height_color( gr->get_hoehe() + height, world->get_groundwater() );
+							}
+							else {
+								color = calc_height_color( gr->get_hoehe() + height, gr->get_hoehe() + height - 1);
+							}
 						}
 					}
 				}

@@ -198,7 +198,7 @@ map_frame_t::map_frame_t() :
 
 
 	// second row of controls
-	zoom_row = add_table(6,0);
+	zoom_row = add_table(7,0);
 	{
 		// zoom levels label
 		new_component<gui_label_t>("map zoom");
@@ -224,6 +224,13 @@ map_frame_t::map_frame_t() :
 		b_rotate45.add_listener(this);
 		b_rotate45.pressed = karte->is_isometric();
 		add_component(&b_rotate45);
+
+		// show contour
+		b_show_contour.init(button_t::square_state, "Show contour");
+		b_show_contour.set_tooltip("Color-coded terrain according to altitude.");
+		b_show_contour.add_listener(this);
+		b_show_contour.pressed = (karte->get_display_mode() & minimap_t::MAP_HIDE_CONTOUR)==0;
+		add_component(&b_show_contour);
 
 		new_component<gui_fill_t>();
 	}
@@ -438,6 +445,17 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 	}
 	else if(  comp == &b_show_directory  ) {
 		show_hide_directory( !b_show_directory.pressed );
+	}
+	else if(  comp == &b_show_contour  ) {
+		if( !b_show_contour.pressed ) {
+			b_show_contour.pressed = 1;
+			env_t::default_mapmode &= ~minimap_t::MAP_HIDE_CONTOUR;
+		}
+		else {
+			b_show_contour.pressed = 0;
+			env_t::default_mapmode |= minimap_t::MAP_HIDE_CONTOUR;
+		}
+		minimap_t::get_instance()->set_display_mode(  ( minimap_t::MAP_DISPLAY_MODE)env_t::default_mapmode  );
 	}
 	else if (  comp == &b_filter_factory_list  ) {
 		filter_factory_list = !filter_factory_list;
