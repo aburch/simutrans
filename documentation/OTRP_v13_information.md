@@ -17,15 +17,15 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version24_3現在、simutrans standard nightly r9028をベースにしています。
+version24_4現在、simutrans standard nightly r9070をベースにしています。
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2020年4月17日PM8時　ver24_3に更新）**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/72726/sim-WinGDI-OTRPv24_3.exe/  
-mac: https://osdn.net/projects/otrp/downloads/72726/sim-mac-OTRPv24_3.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/72726/sim-linux-OTRPv24_3.zip/  
+本体は下のリンクからどうぞ。**（2020年5月6日PM8時　ver24_4に更新）**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/72897/sim-WinGDI-OTRPv24_4.exe/  
+mac: https://osdn.net/projects/otrp/downloads/72897/sim-mac-OTRPv24_4.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/72897/sim-linux-OTRPv24_4.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 OTRP専用のmakeobjはありません。simutrans standardのmakeobjをご利用ください。
@@ -140,6 +140,7 @@ OTRPでは高度なスケジュール設定により，より柔軟な運行が�
 - longblocksignal（多閉塞信号）は検査した範囲をすべて予約するようになっています。すなはち、停車駅をこえて次の信号まで予約するようになっています。これは本家フォーラムで議論中の機能の先行実装です。
 - 起動時に`-snapshot x,y,z,f`オプションで起動すると、スナップショットを撮影して終了します。x,y,zは中心座標、fはズーム率（0から9まで）です。異なるセーブファイルである固定地点のスクリーンショットを撮りたいときなどに便利です。
 - 車庫画面で「置換編成に登録」を押すと，車庫に到着した編成の組成をその編成と同じにします．
+- 車両の状態表示として路線名を表示できます．表示設定ウィンドウから設定してください．（soukoukiさん）
 
 # 設定項目
 主にsimuconf.tabや「高度な設定」で編集する項目です。  
