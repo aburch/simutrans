@@ -20,19 +20,20 @@ FREETYPE_CONFIG ?= freetype-config
 #FREETYPE_CONFIG ?= pkg-config freetype2
 
 BACKENDS      = allegro gdi sdl sdl2 mixer_sdl mixer_sdl2 posix
-COLOUR_DEPTHS = 0 16
 OSTYPES       = amiga beos freebsd haiku linux mingw mac openbsd
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
   $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")
 endif
 
-ifeq ($(findstring $(COLOUR_DEPTH), $(COLOUR_DEPTHS)),)
-  $(error Unkown COLOUR_DEPTH "$(COLOUR_DEPTH)", must be one of "$(COLOUR_DEPTHS)")
-endif
-
 ifeq ($(findstring $(OSTYPE), $(OSTYPES)),)
   $(error Unkown OSTYPE "$(OSTYPE)", must be one of "$(OSTYPES)")
+endif
+
+ifeq ($(BACKEND),posix)
+  COLOUR_DEPTH = 0
+else
+  COLOUR_DEPTH = 16
 endif
 
 ifeq ($(OSTYPE),amiga)
@@ -83,8 +84,8 @@ LIBS += -lbz2 -lz
 ifdef OPTIMISE
   ifeq ($(shell expr $(OPTIMISE) \>= 1), 1)
     CFLAGS += -O3
-    ifeq ($(findstring $(OSTYPE), amiga),)
-      ifneq ($(findstring $(CXX), clang),)
+    ifeq ($(findstring amiga, $(OSTYPE)),)
+      ifneq ($(findstring clang, $(CXX)),)
         CFLAGS += -minline-all-stringops
       endif
     endif
@@ -175,7 +176,11 @@ ifdef PROFILE
   ifeq ($(shell expr $(PROFILE) \>= 1), 1)
     CFLAGS   += -pg -DPROFILE
     ifeq ($(shell expr $(PROFILE) \>= 2), 1)
-      CFLAGS += -fno-inline -fno-schedule-insns
+      CFLAGS += -fno-inline
+
+      ifeq ($(findstring clang, $(CXX)),)
+        CFLAGS += -fno-schedule-insns
+      endif
     endif
     LDFLAGS  += -pg
   endif
@@ -198,14 +203,21 @@ ifdef WITH_REVISION
     ifeq ($(shell expr $(WITH_REVISION) \>= 2), 1)
       REV = $(WITH_REVISION)
     else
+      $(info Query SVN revision ...)
       REV = $(shell svnversion)
+      $(info Revision is $(REV))
     endif
-    ifeq ($(shell expr $(WITH_REVISION) \<= 1), 1)
-      REV = $(shell svn info --show-item revision svn://servers.simutrans.org/simutrans | sed "s/[0-9]*://" | sed "s/M.*//")
+    # we can query the svn directly, should the folder is not an svn (like on github)
+    ifeq ($(REV),)
+      ifeq ($(shell expr $(WITH_REVISION) \<= 1), 1)
+        $(info Query SVN revision with SVN directly...)
+        REV = $(shell svn info --show-item revision svn://servers.simutrans.org/simutrans | sed "s/[0-9]*://" | sed "s/M.*//")
+         $(info Revision is $(REV))
+      endif
     endif
 
     ifneq ($(REV),)
-      CFLAGS  += -DREVISION="$(REV)"
+      CFLAGS  += -DREVISION=$(REV)
     endif
   endif
 endif
@@ -703,14 +715,30 @@ PROGDIR  ?= $(BUILDDIR)
 PROG     ?= sim
 
 
+.DEFAULT_GOAL := simutrans
+.PHONY: simutrans makeobj nettool
+
 include common.mk
 
 ifeq ($(OSTYPE),mac)
   include OSX/osx.mk
 endif
 
-
-.PHONY: makeobj
+all: simutrans makeobj nettool
 
 makeobj:
+	@echo "Building makeobj"
 	$(Q)$(MAKE) -e -C makeobj FLAGS="$(FLAGS)"
+
+nettool:
+	@echo "Building nettool"
+	$(Q)$(MAKE) -e -C nettools FLAGS="$(FLAGS)"
+
+clean:
+	@echo "===> Cleaning up"
+	$(Q)rm -f $(OBJS)
+	$(Q)rm -f $(DEPS)
+	$(Q)rm -f $(PROGDIR)/$(PROG)
+	$(Q)rm -fr $(PROGDIR)/$(PROG).app
+	$(Q)$(MAKE) -e -C makeobj clean
+	$(Q)$(MAKE) -e -C nettools clean

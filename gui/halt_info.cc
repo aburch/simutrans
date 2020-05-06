@@ -604,7 +604,7 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 		if(  !connections.empty()  ) {
 
 			gui_label_buf_t *lb = new_component_span<gui_label_buf_t>(2);
-			lb->buf().append(" ·");
+			lb->buf().append(" \xC2\xB7");
 			const goods_desc_t* info = goods_manager_t::get_info_catg_index(i);
 			// If it is a special freight, we display the name of the good, otherwise the name of the category.
 			lb->buf().append(translator::translate(info->get_catg()==0 ? info->get_name() : info->get_catg_name() ) );

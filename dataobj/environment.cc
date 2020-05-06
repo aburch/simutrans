@@ -123,6 +123,7 @@ plainstring env_t::river_type[10];
 uint8 env_t::river_types;
 sint32 env_t::autosave;
 uint32 env_t::fps;
+uint32 env_t::ff_fps;
 sint16 env_t::max_acceleration;
 uint8 env_t::num_threads;
 bool env_t::show_tooltips;
@@ -231,8 +232,9 @@ void env_t::init()
 	// autosave every x months (0=off)
 	autosave = 0;
 
-	// default: make 25 frames per second (if possible)
-	fps=25;
+	// default: make 25 frames per second (if possible) and 10 for faster fast forward
+	fps = 25;
+	ff_fps = 10;
 
 	// maximum speedup set to 1000 (effectively no limit)
 	max_acceleration=50;
@@ -357,6 +359,9 @@ void env_t::rdwr(loadsave_t *file)
 
 	file->rdwr_long( autosave );
 	file->rdwr_long( fps );
+	if (file->is_version_atleast(121, 1)) {
+		file->rdwr_long(ff_fps);
+	}
 	file->rdwr_short( max_acceleration );
 
 	file->rdwr_bool( road_user_info );

@@ -3695,9 +3695,11 @@ void karte_t::update_frame_sleep_time()
 			}
 		}
 	}
-	else  { // here only with fyst forward ...
+	else  {
+		assert(step_mode == FAST_FORWARD);
+
 		// try to get 10 fps or lower rate (if set)
-		uint32 frame_intervall = max( 100, 1000/env_t::fps );
+		const uint32 frame_intervall = 1000/env_t::ff_fps;
 		if(get_frame_time()>frame_intervall) {
 			reduce_frame_time();
 		}
@@ -5158,7 +5160,7 @@ static recursive_mutex_maker_t height_mutex_maker(height_mutex);
 
 void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
 {
-	sint8 min_h = min_height, max_h = max_height;
+	sint8 min_h = 127, max_h = -128;
 	for(  int y = y_min;  y < y_max;  y++  ) {
 		for(  int x = x_min; x < x_max;  x++  ) {
 			planquadrat_t *plan = access_nocheck(x,y);
@@ -6140,7 +6142,7 @@ void karte_t::reset_timer()
 	else if(step_mode==FAST_FORWARD) {
 		next_step_time = last_tick_sync+1;
 		idle_time = 0;
-		set_frame_time( 100 );
+		set_frame_time( 1000 / env_t::ff_fps );
 		time_multiplier = 16;
 		intr_enable();
 	}

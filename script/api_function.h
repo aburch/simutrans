@@ -130,12 +130,11 @@ namespace script_api {
 	 * @tparam V class to push default parameters as free variables
 	 * @param funcptr pointer to the c++ method
 	 * @param name name of the method as visible from squirrel
-	 * @param freevariables values of default parameters
+	 * @param freevariables values of default parameters to the c++ function (not the squirrel function)
 	 * @param discard_first if true then a global (non-member) function can be called
 	 *                      as if it would be a member function of the class instance
 	 *                      provided as first argument
 	 * @param staticmethod if true then register as static method
-	 * @param number_defaults number of freevariables that act as default parameters and can be set by script
 	 */
 	template<typename F, class V>
 	void register_method_fv(HSQUIRRELVM vm, F funcptr, const char* name, V const& freevariables, bool discard_first = false, bool staticmethod = false)

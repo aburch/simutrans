@@ -3186,22 +3186,21 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	uint32 neighbor_building_clusters = gb->get_tile()->get_desc()->get_clusters();
 	sint8 zpos = gb->get_pos().z;
 	koord minsize = gb->get_tile()->get_desc()->get_size(gb->get_tile()->get_layout());
-	for(  int i = 0;  i < 4;  i++  ) {
-		// since we handle buildings larger than (1x1) we add an offset
-		koord ktest = k + neighbors[i];
-		if( neighbors[i].x > 0 ) {
-			ktest.x += minsize.x - 1;
-		}
-		if( neighbors[i].y > 0 ) {
-			ktest.y += minsize.y - 1;
-		}
-		grund_t* gr = welt->lookup_kartenboden(ktest);
-		if(  gr  &&  gr->get_typ() == grund_t::fundament  &&  gr->obj_bei(0)->get_typ() == obj_t::gebaeude  ) {
-			// We have a building as a neighbor...
-			if(  gebaeude_t const* const testgb = obj_cast<gebaeude_t>(gr->first_obj())  ) {
-				// We really have a building as a neighbor...
-				const building_desc_t* neighbor_building = testgb->get_tile()->get_desc();
-				neighbor_building_clusters |= neighbor_building->get_clusters();
+	// since we handle buildings larger than (1x1) we test all periphery
+	koord lu = k - koord( 1, 1 );
+	koord rd = k + minsize;
+	for( KOORD_VAL x = lu.x; x<=rd.x; x++ ) {
+		for( KOORD_VAL y = lu.y; y<=rd.y; y++ ) {
+			if(  koord(x,y)!=k  ) {
+				if(  grund_t *gr = welt->lookup_kartenboden(x,y)  ) {
+					if(  gebaeude_t const* const testgb = gr->find<gebaeude_t>()  ) {
+						if(  testgb->get_tile()->get_desc() != gb->get_tile()->get_desc()  &&  testgb->is_city_building()  ) {
+							// We really have a different building as a neighbor...
+							const building_desc_t* neighbor_building = testgb->get_tile()->get_desc();
+							neighbor_building_clusters |= neighbor_building->get_clusters();
+						}
+					}
+				}
 			}
 		}
 	}
@@ -3214,17 +3213,20 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 			if(  gr  &&  gr->get_typ() == grund_t::fundament  &&  gr->obj_bei(0)->get_typ() == obj_t::gebaeude  ) {
 				// We have a building as a neighbor...
 				if(  gebaeude_t const* const testgb = obj_cast<gebaeude_t>(gr->first_obj())  ) {
-					// We really have a building as a neighbor...
+					// We really have a building here
 					const building_desc_t* neighbor_building = testgb->get_tile()->get_desc();
-					if(  gb->get_tile()->get_desc() == neighbor_building  &&  testgb->get_tile()->get_offset() == area3x3[area_level]  ) {
-						// part of same building
-						maxsize = area3x3[area_level]+koord(1,1);
-						continue;
-					}
-					if(  testgb->get_pos().z == zpos  &&  neighbor_building  &&  neighbor_building->get_x()*neighbor_building->get_y()==1  ) {
-						// also in right height and citybuilding
-						maxsize = area3x3[area_level]+koord(1,1);
-						continue;
+					if(  neighbor_building->is_city_building()  ) {
+
+						if(  gb->get_tile()->get_desc() == neighbor_building   &&   testgb->get_tile()->get_offset() == area3x3[area_level]  ) {
+							// part of same building
+							maxsize = area3x3[ area_level ] + koord( 1, 1 );
+							continue;
+						}
+						if(  testgb->get_pos().z == zpos   &&   neighbor_building->get_x()*neighbor_building->get_y() == 1 ) {
+							// also in right height and citybuilding
+							maxsize = area3x3[ area_level ] + koord( 1, 1 );
+							continue;
+						}
 					}
 				}
 #if 0

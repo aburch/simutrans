@@ -176,12 +176,13 @@ char *tooltip_with_price(const char * tip, sint64 price)
 /**
  * Creates a tooltip from tip text, money value and way/object length
  */
-char *tooltip_with_price_length(const char * tip, sint64 price, sint64 length)
+char *tooltip_with_price_length(const char *tip, sint64 price, sint64 length)
 {
-	int n = sprintf(tool_t::toolstr, translator::translate("length: %d"), length);
+	int n = sprintf(tool_t::toolstr, translator::translate("length: %d"), (int)length);
+	n += sprintf(tool_t::toolstr+n, ", ");
 	n += strncopy_to_break( tool_t::toolstr+n, translator::translate( tip ), 256 );
-	memcpy( tool_t::toolstr+n, ", ", 2 );
-	money_to_string(tool_t::toolstr+n+2, (double)price/-100.0);
+	n += sprintf(tool_t::toolstr+n, ": ");
+	money_to_string(tool_t::toolstr+n, (double)price/-100.0);
 	return tool_t::toolstr;
 }
 
@@ -1283,9 +1284,9 @@ const char *tool_restoreslope_t::check_pos( player_t *, koord3d pos)
 	return NULL;
 }
 
-const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos, int new_slope )
+const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos, int new_slope, bool old_slope_compatibility, bool just_check )
 {
-	if(  !ground_desc_t::double_grounds  ) {
+	if(  !ground_desc_t::double_grounds  &&  old_slope_compatibility  ) {
 		// translate old single slope parameter to new double slope
 		if(  0 < new_slope  &&  new_slope < ALL_UP_SLOPE_SINGLE  ) {
 			new_slope = scorner_sw(new_slope) + scorner_se(new_slope) * 3 + scorner_ne(new_slope) * 9 + scorner_nw(new_slope) * 27;
@@ -1308,6 +1309,20 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 
 	grund_t *gr1 = welt->lookup(pos);
 	if(  gr1  ) {
+		if(  gr1->ist_im_tunnel()  ) {
+			switch(  new_slope  ) {
+				case ALL_UP_SLOPE:
+				case ALL_UP_SLOPE_SINGLE:
+				case ALL_DOWN_SLOPE:
+				case ALL_DOWN_SLOPE_SINGLE:
+				case RESTORE_SLOPE:
+				case RESTORE_SLOPE_SINGLE:
+					break;
+			default:
+				return "Only up and down movement in the underground!"; // invalid parameter
+			}
+		}
+
 		koord k(pos.get_2d());
 
 		sint8 water_hgt = welt->get_water_hgt( k );
@@ -1548,6 +1563,18 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			sint64 const cost = new_slope == RESTORE_SLOPE ? s.cst_alter_land : s.cst_set_slope;
 			if(  !player->can_afford(cost)  ) {
 				return NOTICE_INSUFFICIENT_FUNDS;
+			}
+
+			// one last check
+			if (  gr1->is_water()  &&  (new_pos.z > water_hgt  ||  new_slope != 0)  ) {
+				// we have to build underwater hill first
+				if(  !welt->can_flatten_tile( player, k, water_hgt, false, true )  ) {
+					return NOTICE_TILE_FULL;
+				}
+			}
+			// all checks passed
+			if (just_check) {
+				return NULL;
 			}
 
 			// ok, it was a success
@@ -3565,8 +3592,8 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 	else {
 		// get a default vehikel
 		test_driver_t* test_driver;
+		vehicle_desc_t remover_desc(wt, 500, vehicle_desc_t::diesel ); // must be here even if not needed for powerline
 		if(  wt!=powerline_wt  ) {
-			vehicle_desc_t remover_desc(wt, 500, vehicle_desc_t::diesel );
 			vehicle_t *driver = vehicle_builder_t::build(start, player, NULL, &remover_desc);
 			driver->set_flag( obj_t::not_on_map );
 			test_driver = driver;
@@ -3574,8 +3601,8 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 		else {
 			test_driver = new electron_t();
 		}
-		test_driver = scenario_checker_t::apply(test_driver, player, this);
 
+		test_driver = scenario_checker_t::apply(test_driver, player, this);
 		verbindung.calc_route(welt, start, end, test_driver, 0, 0);
 		delete test_driver;
 	}
