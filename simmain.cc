@@ -1081,6 +1081,10 @@ int simu_main(int argc, char** argv)
 		translator::set_language( env_t::language_iso );
 	}
 	
+	// reset random counter to true randomness
+	setsimrand(dr_time(), dr_time());
+	clear_random_mode( 7 );	// allow all
+	
 	// send launch log (OTRP)
 	otrp_log_sender_t log_sender;
 	log_sender.send_launch_log();
@@ -1359,9 +1363,6 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 
 	dr_chdir(env_t::user_dir);
 
-	// reset random counter to true randomness
-	setsimrand(dr_time(), dr_time());
-	clear_random_mode( 7 );	// allow all
 
 	if(  loadgame==""  ||  !welt->load(loadgame.c_str())  ) {
 		// create a default map
