@@ -372,11 +372,6 @@ private:
 	// alte_richtung of coupled convoy is set by the head convoy.
 	void set_alte_richtung(ribi_t::ribi r) { alte_richtung = r; }
 
-	/**
-	 * remove all track reservations (trains only)
-	 */
-	void unreserve_route();
-
 	// reserve route until next_reservation_index
 	void reserve_route();
 
@@ -664,6 +659,11 @@ public:
 	* force calculate a new route
 	*/
 	void suche_neue_route();
+	
+	/**
+	 * remove all track reservations (trains only)
+	 */
+	void unreserve_route();
 
 	/**
 	* Wait until vehicle 0 reports free route
