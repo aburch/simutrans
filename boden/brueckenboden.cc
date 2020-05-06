@@ -94,7 +94,7 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 			obj_add( br );
 		}
 	}
-} 
+}
 
 
 void brueckenboden_t::rotate90()
