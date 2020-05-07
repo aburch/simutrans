@@ -4,7 +4,7 @@
  */
 
 #include "../simconst.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../descriptor/image.h"
 
 #include "simgraph.h"

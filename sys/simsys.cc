@@ -20,12 +20,13 @@
 #define NO_UINT64_TYPES
 #endif
 
-#include "macros.h"
-#include "simmain.h"
+#include "../macros.h"
+#include "../simmain.h"
 #include "simsys.h"
-#include "pathes.h"
-#include "simevent.h"
-#include "utils/simstring.h"
+#include "../pathes.h"
+#include "../simevent.h"
+#include "../utils/simstring.h"
+#include "../simevent.h"
 
 
 #ifdef _WIN32

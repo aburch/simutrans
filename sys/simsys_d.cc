@@ -8,12 +8,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "macros.h"
 #include "simsys.h"
-#include "simevent.h"
-#include "display/simgraph.h"
 #include "simsys_w32_png.h"
-#include "simversion.h"
+
+#include "../macros.h"
+#include "../simevent.h"
+#include "../display/simgraph.h"
+#include "../simversion.h"
 
 #include <allegro.h>
 

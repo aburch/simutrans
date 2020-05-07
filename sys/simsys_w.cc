@@ -22,14 +22,20 @@ extern int __argc;
 extern char **__argv;
 #endif
 
-#include "simconst.h"
-#include "display/simgraph.h"
-#include "simdebug.h"
-#include "gui/simwin.h"
-#include "gui/gui_frame.h"
-#include "gui/components/gui_component.h"
-#include "gui/components/gui_textinput.h"
+#include "simsys_w32_png.h"
+#include "simsys.h"
 
+#include "../simconst.h"
+#include "../display/simgraph.h"
+#include "../simdebug.h"
+#include "../gui/simwin.h"
+#include "../gui/gui_frame.h"
+#include "../gui/components/gui_component.h"
+#include "../gui/components/gui_textinput.h"
+#include "../simmem.h"
+#include "../simversion.h"
+#include "../simevent.h"
+#include "../macros.h"
 
 // needed for wheel
 #ifndef WM_MOUSEWHEEL
@@ -39,12 +45,7 @@ extern char **__argv;
 #	define GET_WHEEL_DELTA_WPARAM(wparam) ((short)HIWORD(wparam))
 #endif
 
-#include "simmem.h"
-#include "simsys_w32_png.h"
-#include "simversion.h"
-#include "simsys.h"
-#include "simevent.h"
-#include "macros.h"
+
 
 /*
  * The class name used to configure the main window.

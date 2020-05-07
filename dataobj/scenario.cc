@@ -3,7 +3,7 @@
  * (see LICENSE.txt)
  */
 
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simconst.h"
 #include "../simtypes.h"
 #include "../simdebug.h"

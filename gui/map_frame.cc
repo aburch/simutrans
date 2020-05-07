@@ -11,7 +11,7 @@
 #include "map_frame.h"
 
 #include "simwin.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 
 #include "../simworld.h"
 #include "../display/simgraph.h"

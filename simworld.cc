@@ -30,7 +30,6 @@
 #include "simmesg.h"
 #include "simskin.h"
 #include "simsound.h"
-#include "simsys.h"
 #include "simticker.h"
 #include "simunits.h"
 #include "simversion.h"
@@ -38,6 +37,7 @@
 #include "simtool.h"
 #include "gui/simwin.h"
 #include "simworld.h"
+#include "sys/simsys.h"
 
 #include "tpl/vector_tpl.h"
 #include "tpl/binary_heap_tpl.h"

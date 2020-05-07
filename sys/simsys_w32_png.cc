@@ -3,9 +3,10 @@
  * (see LICENSE.txt)
  */
 
-#include "macros.h"
-#include "simmem.h"
 #include "simsys_w32_png.h"
+
+#include "../macros.h"
+#include "../simmem.h"
 
 #include <stdio.h>
 #include <stdlib.h>

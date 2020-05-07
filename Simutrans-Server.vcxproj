@@ -123,10 +123,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="clipboard_internal.cc" />
-    <ClCompile Include="simsys_posix.cc" />
     <ClCompile Include="music\no_midi.cc" />
     <ClCompile Include="sound\no_sound.cc" />
+    <ClCompile Include="sys\clipboard_internal.cc" />
+    <ClCompile Include="sys\simsys_posix.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <errno.h>
 
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simtypes.h"
 #include "../macros.h"
 #include "../simversion.h"

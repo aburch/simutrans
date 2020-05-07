@@ -39,7 +39,7 @@
 #include "simmenu.h"
 #include "siminteraction.h"
 
-#include "simsys.h"
+#include "sys/simsys.h"
 #include "display/simgraph.h"
 #include "simevent.h"
 

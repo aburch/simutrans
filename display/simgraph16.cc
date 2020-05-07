@@ -14,7 +14,7 @@
 #include "font.h"
 #include "../pathes.h"
 #include "../simconst.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simmem.h"
 #include "../simdebug.h"
 #include "../descriptor/image.h"

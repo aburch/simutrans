@@ -10,7 +10,7 @@
 #include "descriptor/sound_desc.h"
 #include "sound/sound.h"
 #include "simsound.h"
-#include "simsys.h"
+#include "sys/simsys.h"
 #include "simio.h"
 #include "simdebug.h"
 

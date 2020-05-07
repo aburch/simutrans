@@ -8,9 +8,10 @@
 #include "../gui_frame.h"
 #include "gui_textinput.h"
 #include "../simwin.h"
-#include "../../simsys.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
+#include "../../sys/simsys.h"
+
 
 gui_textinput_t::gui_textinput_t() :
 	gui_component_t(true),

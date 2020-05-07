@@ -16,7 +16,7 @@
 #include "simmenu.h"
 #include "player/simplay.h"
 #include "simsound.h"
-#include "simsys.h"
+#include "sys/simsys.h"
 #include "simticker.h"
 #include "gui/simwin.h"
 #include "simworld.h"

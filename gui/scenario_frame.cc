@@ -4,7 +4,7 @@
  */
 
 #include "../simdebug.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 
 #include "scenario_frame.h"
 #include "scenario_info.h"
