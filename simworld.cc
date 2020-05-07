@@ -24,7 +24,6 @@
 #include "display/simimg.h"
 #include "siminteraction.h"
 #include "simintr.h"
-#include "simio.h"
 #include "simlinemgmt.h"
 #include "simloadingscreen.h"
 #include "simmenu.h"
