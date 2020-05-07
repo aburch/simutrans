@@ -127,15 +127,15 @@ static const uint16 label_type[] =
 
 static const sint8 cell_to_moneylabel[] =
 {
-	-1, 	 0,		 1,		-1,		-1,
-	-1, 	 2,		 3,		-1,		-1,
-	-1, 	 4,		 5,		-1,		-1,
-	-1, 	 6,		 7,		-1,		-1,
-	-1, 	 8,		 9,		-1,		-1,
-	-1, 	10,		11,		-1,		18,
-	-1, 	12,		13,		-1,		19,
-	-1, 	14,		15,		-1,		20,
-	-1, 	16,		17,		-1,		21,
+	-1,   0,   1,  -1,  -1,
+	-1,   2,   3,  -1,  -1,
+	-1,   4,   5,  -1,  -1,
+	-1,   6,   7,  -1,  -1,
+	-1,   8,   9,  -1,  -1,
+	-1,  10,  11,  -1,  18,
+	-1,  12,  13,  -1,  19,
+	-1,  14,  15,  -1,  20,
+	-1,  16,  17,  -1,  21,
 };
 
 /* order has to be same as in enum transport_type in file finance.h */
@@ -254,13 +254,13 @@ bool money_frame_t::is_chart_table_zero(int ttoption)
 }
 
 
-money_frame_t::money_frame_t(player_t *player)
-  : gui_frame_t( translator::translate("Finanzen"), player),
-		maintenance_money(MONEY_PLUS, gui_label_t::money_right),
-		scenario_desc(SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left),
-		scenario_completion(SYSCOL_TEXT, gui_label_t::left),
-		warn(SYSCOL_TEXT_STRONG, gui_label_t::left),
-		transport_type_option(0)
+money_frame_t::money_frame_t(player_t *player) :
+	gui_frame_t( translator::translate("Finanzen"), player),
+	maintenance_money(MONEY_PLUS, gui_label_t::money_right),
+	scenario_desc(SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left),
+	scenario_completion(SYSCOL_TEXT, gui_label_t::left),
+	warn(SYSCOL_TEXT_STRONG, gui_label_t::left),
+	transport_type_option(0)
 {
 	if(welt->get_player(0)!=player) {
 		money_frame_title.printf(translator::translate("Finances of %s"), translator::translate(player->get_name()) );

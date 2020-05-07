@@ -89,7 +89,7 @@ gebaeude_t::gebaeude_t(loadsave_t *file) : obj_t()
 
 
 gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
-    obj_t(pos)
+	obj_t(pos)
 {
 	set_owner( player );
 
@@ -321,7 +321,7 @@ sync_result gebaeude_t::sync_step(uint32 delta_t)
 					image_id image = tile->get_foreground( anim_frame, season );
 					mark_image_dirty( image, 0 );
 				}
- 			}
+			}
 		}
 	}
 	return SYNC_OK;

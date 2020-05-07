@@ -148,8 +148,8 @@ public:
 
 	/**
 	 * Returns an index to a halt at koord k
-   	 * optionally limit to that owned by player sp
-   	 * by default create a new halt if none found
+	 * optionally limit to that owned by player sp
+	 * by default create a new halt if none found
 	 * Only used during loading.
 	 */
 	static halthandle_t get_halt_koord_index(koord k);

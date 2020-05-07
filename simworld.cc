@@ -210,8 +210,8 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 			sem_init(&sems[t], 0, 0);
 		}
 
-   		world_thread_param[t].welt = this;
-   		world_thread_param[t].thread_num = t;
+		world_thread_param[t].welt = this;
+		world_thread_param[t].thread_num = t;
 		world_thread_param[t].x_step = min( 64, max_x / env_t::num_threads );
 		world_thread_param[t].x_world_max = max_x;
 		world_thread_param[t].y_min = (t * max_y) / env_t::num_threads;
@@ -5320,7 +5320,7 @@ DBG_DEBUG("karte_t::load", "init felder ok");
 	set_ticks_per_world_month_shift(settings.get_bits_per_month());
 	current_month = last_month + (last_year*12);
 	season = (2+last_month/3)&3; // summer always zero
-	next_month_ticks = 	( (ticks >> karte_t::ticks_per_world_month_shift) + 1 ) << karte_t::ticks_per_world_month_shift;
+	next_month_ticks = ( (ticks >> karte_t::ticks_per_world_month_shift) + 1 ) << karte_t::ticks_per_world_month_shift;
 	last_step_ticks = ticks;
 	steps = 0;
 	network_frame_count = 0;

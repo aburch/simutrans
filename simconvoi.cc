@@ -692,8 +692,6 @@ static inline sint32 res_power(sint64 speed, sint32 total_power, sint64 friction
  */
 void convoi_t::calc_acceleration(uint32 delta_t)
 {
-// 	printf("conv %p waitl %p recordpos %p\n", this, &(this->wait_lock), &(this->record_pos));
-// 	assert(false);
 
 	if(  !recalc_data  &&  !recalc_speed_limit  &&  !recalc_data_front  &&  (
 		(sum_friction_weight == sum_gesamtweight  &&  akt_speed_soll <= akt_speed  &&  akt_speed_soll+24 >= akt_speed)  ||
@@ -1376,7 +1374,7 @@ void convoi_t::step()
 
 void convoi_t::new_year()
 {
-    jahresgewinn = 0;
+	jahresgewinn = 0;
 }
 
 

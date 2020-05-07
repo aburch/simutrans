@@ -51,7 +51,7 @@ depot_t::depot_t(loadsave_t *file) : gebaeude_t()
 
 
 depot_t::depot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
-    gebaeude_t(pos, player, t)
+	gebaeude_t(pos, player, t)
 {
 	all_depots.append(this);
 	selected_filter = VEHICLE_FILTER_RELEVANT;

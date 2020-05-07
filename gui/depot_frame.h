@@ -49,8 +49,7 @@ public:
 /**
  * Depot frame, handles all interaction with a vehicle depot.
  */
-class depot_frame_t : public gui_frame_t,
-                      public action_listener_t
+class depot_frame_t : public gui_frame_t, public action_listener_t
 {
 private:
 	/**

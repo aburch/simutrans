@@ -47,12 +47,10 @@ struct EncoderParameters;
 
 struct GdiplusStartupInput
 {
-    UINT32 GdiplusVersion;             // Must be 1
-    void *DebugEventCallback; // Ignored on free builds
-    BOOL SuppressBackgroundThread;     // FALSE unless you're prepared to call
-                                       // the hook/unhook functions properly
-    BOOL SuppressExternalCodecs;       // FALSE unless you want GDI+ only to use
-                                       // its internal image codecs.
+	UINT32 GdiplusVersion;         ///< Must be 1
+	void *DebugEventCallback;      ///< Ignored on free builds
+	BOOL SuppressBackgroundThread; ///< FALSE unless you're prepared to call the hook/unhook functions properly
+	BOOL SuppressExternalCodecs;   ///< FALSE unless you want GDI+ only to use its internal image codecs.
 };
 
 // and the functions from the library

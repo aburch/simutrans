@@ -40,10 +40,10 @@ public:
 	 * Each corner has height 0,1,2.
 	 * Calculation has to be done modulo 3 (% 3).
 	 */
-#define corner_sw(i) (i%3)    	// sw corner
-#define corner_se(i) ((i/3)%3)	// se corner
-#define corner_ne(i) ((i/9)%3)	// ne corner
-#define corner_nw(i) (i/27)   	// nw corner
+#define corner_sw(i) (i%3)      // sw corner
+#define corner_se(i) ((i/3)%3)  // se corner
+#define corner_ne(i) ((i/9)%3)  // ne corner
+#define corner_nw(i) (i/27)     // nw corner
 
 	/**
 	 * Named constants for special cases.
@@ -103,10 +103,10 @@ struct slope4_t {
 	 */
 	typedef sint8 type;
 
-	#define scorner_sw(i) (i%2)    	// sw corner
-	#define scorner_se(i) ((i/2)%2)	// se corner
-	#define scorner_ne(i) ((i/4)%2)	// ne corner
-	#define scorner_nw(i) (i/8)    	// nw corner
+	#define scorner_sw(i) (i%2)     // sw corner
+	#define scorner_se(i) ((i/2)%2) // se corner
+	#define scorner_ne(i) ((i/4)%2) // ne corner
+	#define scorner_nw(i) (i/8)     // nw corner
 	enum _corners {
 		corner_SW = 1,
 		corner_SE = 2,

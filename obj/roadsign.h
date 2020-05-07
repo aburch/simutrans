@@ -47,7 +47,7 @@ public:
 	/**
 	 * return direction or the state of the traffic light
 	 */
-	ribi_t::ribi get_dir() const 	{ return dir; }
+	ribi_t::ribi get_dir() const { return dir; }
 
 	/*
 	* sets ribi mask of the sign

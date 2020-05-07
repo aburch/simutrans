@@ -77,7 +77,7 @@ public:
 	/**
 	 * Fills menu with icons of buildings of a given waytype.
 	 * This is needed for station extensions and headquarters.
- 	 */
+	 */
 	static void fill_menu(tool_selector_t* tool_selector, building_desc_t::btype, waytype_t wt, sint16 sound_ok);
 
 	/// @returns a random commercial building matching the requirements.

@@ -707,7 +707,7 @@ void dr_notify_input_pos(int, int)
 #undef main
 int main()
 {
-   return WinMain(NULL,NULL,NULL,NULL);
+	return WinMain(NULL,NULL,NULL,NULL);
 }
 #endif
 

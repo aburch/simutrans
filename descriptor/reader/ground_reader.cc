@@ -11,15 +11,15 @@
 
 void ground_reader_t::register_obj(obj_desc_t *&data)
 {
-    ground_desc_t *desc = static_cast<ground_desc_t *>(data);
+	ground_desc_t *desc = static_cast<ground_desc_t *>(data);
 
-    ground_desc_t::register_desc(desc);
+	ground_desc_t::register_desc(desc);
 }
 
 
 bool ground_reader_t::successfully_loaded() const
 {
-    return ground_desc_t::successfully_loaded();
+	return ground_desc_t::successfully_loaded();
 }
 
 

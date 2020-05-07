@@ -1682,7 +1682,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		}
 
 		int yyy = pos.y + D_TITLEBAR_HEIGHT + div_action_bottom.get_pos().y + div_action_bottom.get_size().h + 2;
- 		display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, yyy, buf, SYSCOL_TEXT);
+		display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, yyy, buf, SYSCOL_TEXT);
 
 		// column 2
 		buf.clear();

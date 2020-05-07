@@ -28,7 +28,7 @@ class checksum_t;
  *  4   Background-images - snow
  */
 class bridge_desc_t : public obj_desc_transport_infrastructure_t {
-    friend class bridge_reader_t;
+	friend class bridge_reader_t;
 
 private:
 	uint8 pillars_every;	// =0 off
@@ -60,7 +60,7 @@ public:
 
 	skin_desc_t const* get_cursor() const { return get_child<skin_desc_t>(2 + offset); }
 
-	image_id get_background(img_t img, uint8 season) const 	{
+	image_id get_background(img_t img, uint8 season) const {
 		const image_t *image = NULL;
 		if(season && number_of_seasons == 1) {
 			image = get_child<image_list_t>(3 + offset)->get_image(img);

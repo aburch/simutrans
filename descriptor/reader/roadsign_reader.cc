@@ -19,9 +19,9 @@
 
 void roadsign_reader_t::register_obj(obj_desc_t *&data)
 {
-    roadsign_desc_t *desc = static_cast<roadsign_desc_t *>(data);
+	roadsign_desc_t *desc = static_cast<roadsign_desc_t *>(data);
 
-    roadsign_t::register_desc(desc);
+	roadsign_t::register_desc(desc);
 
 	checksum_t *chk = new checksum_t();
 	desc->calc_checksum(chk);
@@ -31,7 +31,7 @@ void roadsign_reader_t::register_obj(obj_desc_t *&data)
 
 bool roadsign_reader_t::successfully_loaded() const
 {
-    return roadsign_t::successfully_loaded();
+	return roadsign_t::successfully_loaded();
 }
 
 
@@ -58,7 +58,7 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->intro_date = decode_uint16(p);
 		desc->retire_date = decode_uint16(p);
 	}
-    else if(version==4) {
+	else if(version==4) {
 		// Versioned node, version 4
 		desc->min_speed = kmh_to_speed(decode_uint16(p));
 		desc->price = decode_uint32(p);

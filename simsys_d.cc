@@ -84,14 +84,14 @@ void my_mouse_callback(int flags)
 	}
 
 	if (flags & MOUSE_FLAG_MOVE_Z) {
-	    if(event_top_mark > 0) {
-	        if (event_queue[event_top_mark-1] < mouse_z) {
-	            INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_WHEELUP)
-            }
-	        else if (event_queue[event_top_mark-1] > mouse_z) {
-	            INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_WHEELDOWN)
-            }
-	    }
+		if(event_top_mark > 0) {
+			if (event_queue[event_top_mark-1] < mouse_z) {
+				INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_WHEELUP)
+			}
+			else if (event_queue[event_top_mark-1] > mouse_z) {
+				INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_WHEELDOWN)
+			}
+		}
 	}
 }
 END_OF_FUNCTION(my_mouse_callback)

@@ -79,7 +79,7 @@ public:
 	//  return true for presignal
 	bool is_pre_signal() const { return (flags & SIGN_PRE_SIGNAL) != 0; }
 
-    //  return true for priority signal
+	//  return true for priority signal
 	bool is_priority_signal() const { return (flags & SIGN_PRIORITY_SIGNAL) != 0; }
 
 	//  return true for single track section signal
@@ -90,11 +90,11 @@ public:
 	bool is_signal_type() const
 	{
 		return (flags&(
-                    SIGN_SIGNAL |
-                    SIGN_PRE_SIGNAL |
-                    SIGN_PRIORITY_SIGNAL |
-                    SIGN_LONGBLOCK_SIGNAL)
-                ) != 0;
+				SIGN_SIGNAL |
+				SIGN_PRE_SIGNAL |
+				SIGN_PRIORITY_SIGNAL |
+				SIGN_LONGBLOCK_SIGNAL)
+			) != 0;
 	}
 
 	uint16 get_flags() const { return flags; }

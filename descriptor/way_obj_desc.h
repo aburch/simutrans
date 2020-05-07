@@ -29,7 +29,7 @@ class checksum_t;
  *	5	Skin (cursor and icon)
  */
 class way_obj_desc_t : public obj_desc_transport_infrastructure_t {
-    friend class way_obj_reader_t;
+	friend class way_obj_reader_t;
 
 private:
 
