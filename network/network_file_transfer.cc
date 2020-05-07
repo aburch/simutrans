@@ -322,10 +322,8 @@ error:
 	return "Client closed connection during transfer";
 }
 
-/*
-  POST a message (poststr) to an HTTP server at the specified address and relative path (name)
-  Optionally: Receive response to file localname
-*/
+/// POST a message (poststr) to an HTTP server at the specified address and relative path (name)
+/// Optionally: Receive response to file localname
 const char *network_http_post( const char *address, const char *name, const char *poststr, const char *localname )
 {
 	DBG_MESSAGE("network_http_post", "");

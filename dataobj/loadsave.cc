@@ -925,7 +925,7 @@ size_t loadsave_t::read(void *buf, size_t len)
 			for(  unsigned i=0;  i<len;  i++  ) {
 				((char*)buf)[i] = ls_buf[curr_buff][buf_pos[curr_buff]++];
 			}
- 			return len;
+			return len;
 		}
 		else {
 			// copy up to full buffer

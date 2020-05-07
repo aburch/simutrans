@@ -272,5 +272,5 @@ obj_desc_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->retire_date / 12,
 		desc->max_weight);
 
-  return desc;
+	return desc;
 }

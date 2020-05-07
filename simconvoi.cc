@@ -2414,7 +2414,7 @@ void convoi_t::advance_schedule() {
 
 void convoi_t::new_year()
 {
-    jahresgewinn = 0;
+	jahresgewinn = 0;
 }
 
 

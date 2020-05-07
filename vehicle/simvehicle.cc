@@ -4503,7 +4503,7 @@ void road_vehicle_t::hop(grund_t* gr_to) {
 
 schedule_t * road_vehicle_t::generate_new_schedule() const
 {
-  return new truck_schedule_t();
+	return new truck_schedule_t();
 }
 
 
@@ -4639,7 +4639,7 @@ rail_vehicle_t::rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t
 	vehicle_t(pos, desc, player)
 #endif
 {
-    cnv = cn;
+	cnv = cn;
 	working_method = drive_by_sight;
 }
 
@@ -4694,7 +4694,7 @@ void rail_vehicle_t::set_convoi(convoi_t *c)
 				c->set_next_stop_index( max(route_index,1)-1 );
 				// need to reserve new route?
 				if(  !check_for_finish  &&  c->get_state()!=convoi_t::SELF_DESTRUCT  &&  (c->get_state()==convoi_t::DRIVING  ||  c->get_state()>=convoi_t::LEAVING_DEPOT)  ) {
-					sint32 num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
+					sint32 num_index = cnv==(convoi_t *)1 ? 1001 : 0; // only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
 					uint16 next_signal;
 					cnv = c;
 					if(  block_reserver(&r, max(route_index,1)-1, welt->get_settings().get_sighting_distance_tiles(), next_signal, num_index, true, false)  ) {
@@ -8348,7 +8348,7 @@ bool water_vehicle_t::check_tile_occupancy(const grund_t* gr)
 
 schedule_t * water_vehicle_t::generate_new_schedule() const
 {
-  return new ship_schedule_t();
+	return new ship_schedule_t();
 }
 
 

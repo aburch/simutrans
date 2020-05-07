@@ -796,7 +796,7 @@ void haltestelle_t::set_name(const char *new_name)
 		if(!gr->find<label_t>()) {
 			gr->set_text( new_name );
 			if(new_name  &&  all_names.set(gr->get_text(),self).is_bound() ) {
- 				DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",new_name);
+				DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",new_name);
 			}
 		}
 		// Knightly : need to update the title text of the associated halt detail and info dialogs, if present

@@ -283,7 +283,7 @@ void interaction_t::interactive_event( const event_t &ev )
 			viewport->change_world_position(cursor_pos, koord(0,0), s);
 
 			//and move cursor to the new position under the mouse
- 			move_cursor(ev);
+			move_cursor(ev);
 
 			world->set_dirty();
 		}

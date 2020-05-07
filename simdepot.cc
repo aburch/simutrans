@@ -62,7 +62,7 @@ depot_t::depot_t(obj_t::typ type, koord3d pos, player_t *player, const building_
     gebaeude_t(type, pos, player, t)
 #else
 depot_t::depot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
-    gebaeude_t(pos, player, t)
+	gebaeude_t(pos, player, t)
 #endif
 {
 	all_depots.append(this);

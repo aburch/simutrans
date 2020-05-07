@@ -338,9 +338,9 @@ void finance_t::rdwr(loadsave_t *file)
 
 	/* following lines enables FORWARD compatibility
 	/ you will be still able to load future versions of games with:
-	* 	longer history
-	*	more transport_types
-	*	and new items in ATC_ or ATV_
+	*   longer history
+	*   more transport_types
+	*   and new items in ATC_ or ATV_
 	* Warning: extended adds three lines to ATC_ immediately, with version 112005.
 	* If Standard adds lines to ATC_, we must make adjustments by pushing the extended lines "down".
 	*/

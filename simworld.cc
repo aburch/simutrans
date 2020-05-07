@@ -269,8 +269,8 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 			sem_init(&sems[t], 0, 0);
 		}
 
-   		world_thread_param[t].welt = this;
-   		world_thread_param[t].thread_num = t;
+		world_thread_param[t].welt = this;
+		world_thread_param[t].thread_num = t;
 		world_thread_param[t].x_step = min( 64, max_x / env_t::num_threads );
 		world_thread_param[t].x_world_max = max_x;
 		world_thread_param[t].y_min = (t * max_y) / env_t::num_threads;

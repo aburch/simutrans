@@ -27,10 +27,21 @@ void sound_frame_t::update_song_name()
 }
 
 
-sound_frame_t::sound_frame_t()
-  : gui_frame_t( translator::translate("Sound settings") ),
-    sound_volume_scrollbar(scrollbar_t::horizontal),
-    music_volume_scrollbar(scrollbar_t::horizontal)
+/*
+const char *specific_volume_names[ MAX_SOUND_TYPES ] = {
+	"TOOL_SOUND",
+	"TRAFFIC_SOUND",
+	"AMBIENT_SOUND",
+	"FACTORY_SOUND",
+	"CROSSING_SOUND",
+	"CASH_SOUND"
+};*/
+
+
+sound_frame_t::sound_frame_t() :
+	gui_frame_t( translator::translate("Sound settings") ),
+	sound_volume_scrollbar(scrollbar_t::horizontal),
+	music_volume_scrollbar(scrollbar_t::horizontal)
 {
 	set_table_layout(1,0);
 

@@ -4591,8 +4591,8 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		}
 	}
 	// check for industry, also if we wanted com, but there was no com good enough ...
-	if(    (sum_industrial > sum_commercial  &&  sum_industrial > sum_residential)
-      || (sum_commercial > sum_residential  &&  want_to_have == building_desc_t::unknown)  ) {
+	if(    (sum_industrial > sum_commercial  &&  sum_industrial > sum_residential) ||
+	       (sum_commercial > sum_residential  &&  want_to_have == building_desc_t::unknown)  ) {
 		// we must check, if we can really update to higher level ...
 		for(uint8 i=0; i<available_sizes.get_count(); i++) {
 			const koord dimension = available_sizes[(i+size_offset)%available_sizes.get_count()];

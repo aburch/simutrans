@@ -432,10 +432,10 @@ double perlin_noise_2D(const double x, const double y, const double p, const sin
 * @param frequency in 0..1.0 roughness, the higher the rougher
 * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
 */
-    double total = 0.0;
+	double total = 0.0;
 	int i;
 
-    static const double frequency_0[6] = {1,  2,  4,  8, 16, 32};
+	static const double frequency_0[6] = {1,  2,  4,  8, 16, 32};
 	static const double amplitude_0[6] = {0,  1,  2,  3,  4,  5};
 	static const double frequency_1[8] = {0.25, 0.5,  1,  2,  4,  8, 16, 32};
 	static const double amplitude_1[8] = {-0.5,   0,  1,  2,  2,  3,  4,  7};
@@ -536,7 +536,7 @@ uint32 sqrt_i32(uint32 num)
 /* compute integer sqrt */
 uint64 sqrt_i64(uint64 num)
 {
-	// taken from http://en.wikipedia.org/wiki/Methods_of_computing_square_roots
+	// taken from https://en.wikipedia.org/wiki/Methods_of_computing_square_roots
 	uint64 res = 0;
 	uint64 bit = (uint64)1 << 62; // The second-to-top bit is set: 1<<14 for short
 

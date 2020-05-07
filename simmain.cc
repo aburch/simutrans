@@ -116,12 +116,12 @@ static void show_sizes()
 // render tests ...
 static void show_times(karte_t *welt, main_view_t *view)
 {
- 	intr_set(welt, view);
+	intr_set(welt, view);
 	welt->set_fast_forward(true);
 	intr_disable();
 
 	dbg->message( "show_times()", "simple profiling of drawing routines" );
- 	int i;
+	int i;
 
 	image_id img = ground_desc_t::outside->get_image(0,0);
 
@@ -132,65 +132,65 @@ static void show_times(karte_t *welt, main_view_t *view)
 	dbg->message( "display_img()", "%i iterations took %li ms", i, dr_time() - ms );
 
 	image_id player_img = skinverwaltung_t::color_options->get_image_id(0);
- 	ms = dr_time();
+	ms = dr_time();
 	for (i = 0;  i < 1000000;  i++) {
- 		display_color_img( player_img, 120, 100, i%15, 0, 1);
+		display_color_img( player_img, 120, 100, i%15, 0, 1);
 	}
 	dbg->message( "display_color_img() with recolor", "%i iterations took %li ms", i, dr_time() - ms );
 
- 	ms = dr_time();
+	ms = dr_time();
 	for (i = 0;  i < 1000000;  i++) {
 		display_color_img( img, 120, 100, 0, 1, 1);
- 		display_color_img( player_img, 160, 150, 16, 1, 1);
+		display_color_img( player_img, 160, 150, 16, 1, 1);
 	}
 	dbg->message( "display_color_img()", "3x %i iterations took %li ms", i, dr_time() - ms );
 
- 	ms = dr_time();
+	ms = dr_time();
 	for (i = 0;  i < 600000;  i++) {
 		dr_prepare_flush();
- 		dr_flush();
+		dr_flush();
 	}
 	dbg->message( "display_flush_buffer()", "%i iterations took %li ms", i, dr_time() - ms );
 
- 	ms = dr_time();
+	ms = dr_time();
 	for (i = 0;  i < 300000;  i++) {
- 		display_text_proportional_len_clip_rgb(100, 120, "Dies ist ein kurzer Textetxt ...", 0, 0, false, -1);
+		display_text_proportional_len_clip_rgb(100, 120, "Dies ist ein kurzer Textetxt ...", 0, 0, false, -1);
 	}
 	dbg->message( "display_text_proportional_len_clip()", "%i iterations took %li ms", i, dr_time() - ms );
 
- 	ms = dr_time();
+	ms = dr_time();
 	for (i = 0;  i < 300000;  i++) {
- 		display_fillbox_wh_rgb(100, 120, 300, 50, 0, false);
+		display_fillbox_wh_rgb(100, 120, 300, 50, 0, false);
 	}
 	dbg->message( "display_fillbox_wh()", "%i iterations took %li ms", i, dr_time() - ms );
 
- 	ms = dr_time();
- 	for (i = 0; i < 2000; i++) {
- 		view->display(true);
- 	}
+	ms = dr_time();
+	for (i = 0; i < 2000; i++) {
+		view->display(true);
+	}
 	dbg->message( "view->display(true)", "%i iterations took %li ms", i, dr_time() - ms );
 
- 	ms = dr_time();
- 	for (i = 0; i < 2000; i++) {
- 		view->display(true);
- 		win_display_flush(0.0);
- 	}
+	ms = dr_time();
+	for (i = 0; i < 2000; i++) {
+		view->display(true);
+		win_display_flush(0.0);
+	}
 	dbg->message( "view->display(true) and flush", "%i iterations took %li ms", i, dr_time() - ms );
 
- 	ms = dr_time();
- 	for (i = 0; i < 40000000/(int)weg_t::get_alle_wege().get_count(); i++) {
-		FOR(vector_tpl<weg_t *>, const w, weg_t::get_alle_wege() ) {
+	ms = dr_time();
+	for (i = 0; i < 40000000/(int)weg_t::get_alle_wege().get_count(); i++) {
+		FOR( vector_tpl<weg_t *>, const w, weg_t::get_alle_wege() ) {
 			grund_t *dummy;
 			welt->lookup( w->get_pos() )->get_neighbour( dummy, invalid_wt, ribi_t::north );
 		}
 	}
 	dbg->message( "grund_t::get_neighbour()", "%i iterations took %li ms", i*weg_t::get_alle_wege().get_count(), dr_time() - ms );
 
- 	ms = dr_time();
+	ms = dr_time();
 	for (i = 0; i < 2000; i++) {
- 		welt->sync_step(200,true,true);
- 		welt->step();
- 	}
+		welt->sync_step(200,true,true);
+		welt->step();
+	}
 	dbg->message( "welt->sync_step/step(200,1,1)", "%i iterations took %li ms", i, dr_time() - ms );
 }
 #endif
@@ -1519,12 +1519,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 
 	// save setting ...
 	dr_chdir( env_t::user_dir );
-<<<<<<< HEAD
-	if(file.wr_open(xml_filename,loadsave_t::xml,"settings only/",SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR))
-	{
-=======
-	if(  file.wr_open("settings.xml",loadsave_t::xml,0,"settings only/",SAVEGAME_VER_NR)  ) {
->>>>>>> 86b8d9e58... CHG: overhauled loadsave.cc to easier incorporate other comopressors like zstd
+	if(  file.wr_open(xml_filename,loadsave_t::xml,"settings only/",SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)  ) {
 		env_t::rdwr(&file);
 		env_t::default_settings.rdwr(&file);
 		file.close();

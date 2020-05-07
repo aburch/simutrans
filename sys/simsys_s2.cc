@@ -280,7 +280,7 @@ bool internal_create_surfaces(int tex_width, int tex_height)
 	if(  screen == NULL  ) {
 		dbg->error( "internal_create_surfaces(SDL2)", "Couldn't get the window surface: %s", SDL_GetError() );
 		return false;
- 	}
+	}
 
 	return true;
 }
