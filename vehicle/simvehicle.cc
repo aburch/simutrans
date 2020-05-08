@@ -1694,14 +1694,18 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		char tooltip_text[1024];
 		tooltip_text[0] = 0;
 		uint8 state = env_t::show_vehicle_states;
-		if(  state==1  ) {
+		if(  state==1  ||  state==2  ) {
 			// only show when mouse over vehicle
 			if(  welt->get_zeiger()->get_pos()==get_pos()  ) {
-				state = 2;
+				state = 3;
 			}
 			else {
 				state = 0;
 			}
+		}
+		if( state != 3 ) {
+			// nothing to show
+			return;
 		}
 
 		// now find out what has happened
@@ -1710,14 +1714,14 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 			case convoi_t::WAITING_FOR_CLEARANCE:
 			case convoi_t::CAN_START:
 			case convoi_t::CAN_START_ONE_MONTH:
-				if(  state>=2  ) {
+				if(  state>=3  ) {
 					snprintf( tooltip_text, lengthof(tooltip_text), "%s (%s)", translator::translate("Waiting for clearance!"), cnv->get_schedule()->get_current_entry().pos.get_str() );
 					color = color_idx_to_rgb(COL_YELLOW);
 				}
 				break;
 
 			case convoi_t::LOADING:
-				if(  state>=1  ) {
+				if(  state>=3  ) {
 					sprintf( tooltip_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit() );
 					color = color_idx_to_rgb(COL_YELLOW);
 				}
@@ -1725,14 +1729,14 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 
 			case convoi_t::EDIT_SCHEDULE:
 //			case convoi_t::ROUTING_1:
-				if(  state>=2  ) {
+				if(  state>=3  ) {
 					tstrncpy( tooltip_text, translator::translate("Schedule changing!"), lengthof(tooltip_text) );
 					color = color_idx_to_rgb(COL_YELLOW);
 				}
 				break;
 
 			case convoi_t::DRIVING:
-				if(  state>=1  ) {
+				if(  state>=3  ) {
 					grund_t const* const gr = welt->lookup(cnv->get_route()->back());
 					if(  gr  &&  gr->get_depot()  ) {
 						tstrncpy( tooltip_text, translator::translate("go home"), lengthof(tooltip_text) );
@@ -1762,6 +1766,17 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 				tstrncpy( tooltip_text, translator::translate("clf_chk_noroute"), lengthof(tooltip_text) );
 				color = color_idx_to_rgb(COL_RED);
 				break;
+		}
+
+		if(  env_t::show_vehicle_states == 2  &&  !tooltip_text[ 0 ]  ) {
+			// show line name or simply convoi name
+			color = color_idx_to_rgb( cnv->get_owner()->get_player_color1() + 7 );
+			if(  cnv->get_line().is_bound()  ) {
+				snprintf( tooltip_text, lengthof( tooltip_text ), "%s - %s", cnv->get_line()->get_name(), cnv->get_name() );
+			}
+			else {
+				snprintf( tooltip_text, lengthof( tooltip_text ), "%s", cnv->get_name() );
+			}
 		}
 
 		// something to show?
