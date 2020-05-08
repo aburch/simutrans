@@ -3080,16 +3080,34 @@ void vehicle_t::set_class_reassignment(uint8 original_class, uint8 new_class)
 #ifdef MULTI_THREAD
 void vehicle_t::display_overlay(int xpos, int ypos) const
 {
-	if(  cnv  &&  leading  ) {
+	if(  !cnv  ) {
 #else
 void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 {
-	if(  is_gobal  &&  cnv  &&  leading  ) {
+	if(  !is_gobal  ||  !cnv  ) {
 #endif
-		COLOR_VAL color = COL_GREEN; // not used, but stop compiler warning about uninitialized
-		char tooltip_text[1024];
-		tooltip_text[0] = 0;
-		uint8 state = env_t::show_vehicle_states;
+		return;
+	}
+	COLOR_VAL color = COL_GREEN; // not used, but stop compiler warning about uninitialized
+	char tooltip_text[1024];
+	tooltip_text[0] = 0;
+	uint8 state = env_t::show_vehicle_states;
+
+	if(  state==3  &&  this == cnv->front()  ) {
+		// show the line name, including when the convoy is coupled.
+		linehandle_t lh = cnv->get_line();
+		if(  lh.is_bound()  ) {
+			// line name
+			tstrncpy( tooltip_text, lh->get_name(), lengthof(tooltip_text) );
+		} else {
+			// the convoy belongs to no line -> show convoy name
+			tstrncpy( tooltip_text, cnv->get_name(), lengthof(tooltip_text) );
+		}
+		color = cnv->get_owner()->get_player_color1()+7 ;
+	}
+
+	if (  leading  &&  state!=3  ){
+
 		if(  state==1  ) {
 			// only show when mouse over vehicle
 			if(  welt->get_zeiger()->get_pos()==get_pos()  ) {
@@ -3237,17 +3255,17 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			sprintf(tooltip_text, translator::translate("Airport too close to the edge"));
 			color = COL_ORANGE;
 		}
+	}
 
-		// something to show?
-		if(  tooltip_text[0]  ) {
-			const int width = proportional_string_width(tooltip_text)+7;
-			const int raster_width = get_current_tile_raster_width();
-			get_screen_offset( xpos, ypos, raster_width );
-			xpos += tile_raster_scale_x(get_xoff(), raster_width);
-			ypos += tile_raster_scale_y(get_yoff(), raster_width)+14;
-			if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
-				display_ddd_proportional_clip( xpos, ypos, width, 0, color, COL_BLACK, tooltip_text, true );
-			}
+	// something to show?
+	if(  tooltip_text[0]  ) {
+		const int width = proportional_string_width(tooltip_text)+7;
+		const int raster_width = get_current_tile_raster_width();
+		get_screen_offset( xpos, ypos, raster_width );
+		xpos += tile_raster_scale_x(get_xoff(), raster_width);
+		ypos += tile_raster_scale_y(get_yoff(), raster_width)+14;
+		if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
+			display_ddd_proportional_clip( xpos, ypos, width, 0, color, COL_BLACK, tooltip_text, true );
 		}
 	}
 }

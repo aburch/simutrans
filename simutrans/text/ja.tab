@@ -388,9 +388,9 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 (in depot)
 (入庫中)
 \nBauzeit bis
- ～ 
+ ～
 \nBauzeit von
-\n登場する年: 
+\n登場する年:
 \nCan't open heightfield file.\n
 \nマップファイルを\n読み込むことが出来ません。\n
 \ndirection:
@@ -690,7 +690,7 @@ Capacity: %s\nLoad: %d (%d%%)
 Cars are not available yet!
 自動車は・・・\nいえ、馬すら見あたりません・・・
 cars.\nstate
-\n状態　　　: 
+\n状態　　　:
 Cash
 現金
 Change player
@@ -698,7 +698,7 @@ Change player
 Chart
 グラフ
 Chat_msg
- チャット 
+ チャット
 Choose direction
 向きを選択してください
 Choose operation executed on clicking stored/new vehicles
@@ -826,7 +826,7 @@ Copy the selected convoi and its schedule or line
 Cost
 輸送費
 cost for removal
-撤去費用: 
+撤去費用:
 Cost per unit
 単位あたりの輸送費
 Cost: %8s (%.2f$/km %.f$/m)\n
@@ -1018,7 +1018,7 @@ Friction:
 fuel_cell
 燃料電池
 Full load
-積むまで待機(％): 
+積むまで待機(％):
 Fundament
 土地
 Fussgaenger
@@ -1328,7 +1328,7 @@ Max income:
 Max. speed
 最高速度
 Max. speed:
-最高速度: 
+最高速度:
 Maximum 254 stops\nin a schedule!\n
 スケジュールには最大\n254ヶ所までしか設定できま\nせん\n
 maximum length of rivers
@@ -1588,7 +1588,7 @@ Powerlines
 Price
 車両価格
 Problems_msg
- 問題 
+ 問題
 Produced
 生産量
 Produces: %.1f units/minute
@@ -1667,7 +1667,7 @@ Restore natural slope
 スロープを戻す
 Restwert:
 売却価格：
-Retire date 
+Retire date
 引退年月
 Retire. date:
 引退年月:
@@ -1874,7 +1874,7 @@ Starte Spiel
 Station tiles:
 ホームの長さ：
 Station_msg
- 駅 
+ 駅
 Status
 待合状態
 steam
@@ -1940,7 +1940,7 @@ Tourist attractions
 Tourists
 名所
 Town_msg
- 都市 
+ 都市
 Town: %s\n
 所在地: %s\n
 Towns
@@ -2050,7 +2050,7 @@ Walked
 walking
 徒歩連絡
 Warnings_msg
- 警告 
+ 警告
 Wasser
 海上
 Water
@@ -2215,7 +2215,7 @@ Zu nah am Kartenrand
 %1$sは新しい%2$sを%$4s%3$s建設しました。
 (catering_levels: %s)
 (車内サービスレベル: %s)
-(Max. comfortable journey time: 
+(Max. comfortable journey time:
 (快適に移動できる最大時間:
 (speed_restricted_by_bridge)
 (橋梁による速度制限)
@@ -2231,15 +2231,15 @@ Zu nah am Kartenrand
 \n借入に対する利率は %i %%です。
 \n\nYour credit rating is being affected.
 \n\n信用格付けに影響があります。
-\nCity: 
-\n都市: 
+\nCity:
+\n都市:
 \nMax. axle load:
 \n軸重制限:
 \nMax. weight:
-重量制限: 
-\nMAY USE:  
-\n通行可能: 
-\nMUST USE: 
+重量制限:
+\nMAY USE:
+\n通行可能:
+\nMUST USE:
 \n必須:
 \nNetwork ID:
 \nネットワークID:
@@ -2687,11 +2687,11 @@ east_and_west
 東-西
 east_west
 東西
-Electrical consumption: 
-電力消費: 
-Electrical demand: 
-電力需要: 
-Electrical output: 
+Electrical consumption:
+電力消費:
+Electrical demand:
+電力需要:
+Electrical output:
 発電能力:
 Emergency stop
 緊急停止
@@ -2924,7 +2924,7 @@ near
 Net ID: %u\n
 送電線ネットワークID: %u\n
 new_way_is
-更新後の軌道: 
+更新後の軌道:
 Next Month:
 来月:
 NO CONTROL TOWER
@@ -3429,15 +3429,15 @@ Tractive force:
 牽引力:
 traffic_light
 道路信号機
-Transfer time: 
-構内の移動時間: 
+Transfer time:
+構内の移動時間:
 transferring
 移動中
 transfers
 移動中の旅客/貨物
 Transformer only next to factory or in city!
 変電所は産業の隣接マスか市域内にのみ建設できます。
-Transshipment time: 
+Transshipment time:
 駅構内の移動時間:
 traveling_post_office
 郵便車 取扱便
@@ -3466,7 +3466,7 @@ Unpowered vehicles only
 Upgrade
 改造/更新
 Upgrade price:
-改造/更新費: 
+改造/更新費:
 upgradeable_vehicles
 改造/更新可能な車両
 Usage: %u %%
@@ -3509,6 +3509,8 @@ Wait for time
 ダイヤを設定する
 Waiting for schedule. %s left
 発車時刻まで 残り%s
+line name tooltips
+系統名を表示
 waiting time unknown)
 待ち時間不明)
 waiting\ntolerance\nmax. min
@@ -3519,7 +3521,7 @@ Walked
 徒歩
 Walking time
 駅までの徒歩時間
-Way constraint permissive 
+Way constraint permissive
 許容的軌道制約
 Way constraint prohibitive %n\n
 禁止的軌道制約 %n\n
