@@ -124,6 +124,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="display\simgraph16.cc" />
     <ClCompile Include="music\w32_midi.cc" />
     <ClCompile Include="sound\sdl2_sound.cc" />
     <ClCompile Include="sys\clipboard_s2.cc" />
