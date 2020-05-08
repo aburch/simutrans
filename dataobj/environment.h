@@ -294,6 +294,9 @@ public:
 	 */
 	static sint32 show_names;
 
+	/// Show convoy nameplates (line or convoy name). since EX-14.9 rev21
+	static uint8 show_cnv_nameplates;
+
 	/// if a schedule is open, show tiles which are used by it
 	static bool visualize_schedule;
 

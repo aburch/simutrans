@@ -3509,8 +3509,6 @@ Wait for time
 ダイヤを設定する
 Waiting for schedule. %s left
 発車時刻まで 残り%s
-line name tooltips
-系統名を表示
 waiting time unknown)
 待ち時間不明)
 waiting\ntolerance\nmax. min
@@ -3665,6 +3663,12 @@ Upgrade will be available in the near future
 （混載不可）
 Cannot start: no cab at the front of the convoy.
 編成の構成エラー：\n先頭になれない車両が先頭になっています。（運転台が無い等）
+no convoy nameplate
+系統名非表示
+mouseover convoy nameplates
+マウスオーバーで系統名表示
+always show convoy nameplates
+常に系統名を表示
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
