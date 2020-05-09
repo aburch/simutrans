@@ -27,7 +27,7 @@ class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 public:
 	enum sort_mode_t { by_name = 0, by_schedule, by_profit, by_loading_lvl, by_max_speed, by_power, by_value, by_age, SORT_MODES };
 private:
-	player_t *player;
+	player_t *player, *old_player;
 
 	static const char *sort_text[SORT_MODES];
 
