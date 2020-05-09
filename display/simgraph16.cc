@@ -14,7 +14,7 @@
 #include "font.h"
 #include "../pathes.h"
 #include "../simconst.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simmem.h"
 #include "../simdebug.h"
 #include "../descriptor/image.h"
@@ -1964,7 +1964,7 @@ static void calc_base_pal_from_night_shift(const int night)
 
 	// special light colors (actually, only non-darkening greys should be used)
 	for(i=0;  i<LIGHT_COUNT;  i++  ) {
-		specialcolormap_day_night[SPECIAL_COLOR_COUNT+i] = get_system_color( display_day_lights[i*3 + 0], display_day_lights[i*3 + 1], 	display_day_lights[i*3 + 2] );
+		specialcolormap_day_night[SPECIAL_COLOR_COUNT+i] = get_system_color( display_day_lights[i*3 + 0], display_day_lights[i*3 + 1], display_day_lights[i*3 + 2] );
 	}
 
 	// init with black for forbidden colors
@@ -2363,7 +2363,7 @@ static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					if(  !has_alpha  ) {
 						templated_pixcopy<copyroutine>(tp + xpos + left, sp + left, sp + len);
 					}
-					else 					{
+					else {
 						colorpixcopy(tp + xpos + left, sp + left, sp + len);
 					}
 				}
@@ -2409,7 +2409,7 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					if(  !has_alpha  ) {
 						pixcopy(tp + xpos + left, sp + left, sp + len);
 					}
-					else 					{
+					else {
 						colorpixcopy(tp + xpos + left, sp + left, sp + len);
 					}
 				}

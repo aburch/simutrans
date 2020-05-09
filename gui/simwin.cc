@@ -13,7 +13,7 @@
 #include "../display/viewport.h"
 #include "../simmenu.h"
 #include "../simskin.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simticker.h"
 #include "simwin.h"
 #include "../simintr.h"
@@ -245,11 +245,8 @@ static int display_gadget_boxes(
 }
 
 
-static sint8 decode_gadget_boxes(
-               simwin_gadget_flags_t const * const flags,
-               int const x,
-               int const px
-) {
+static sint8 decode_gadget_boxes(simwin_gadget_flags_t const * const flags, int const x,int const px)
+{
 	int offset = px-x;
 	const int w=(REVERSE_GADGETS?-D_GADGET_WIDTH:D_GADGET_WIDTH);
 

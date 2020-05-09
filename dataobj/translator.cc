@@ -10,7 +10,7 @@
 
 #include "../macros.h"
 #include "../simdebug.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simtypes.h"
 #include "../display/simgraph.h" // for unicode stuff
 #include "translator.h"

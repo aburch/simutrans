@@ -152,7 +152,7 @@ public:
 	uint32 get_power_supply() const {return power_supply;}
 
 	/**
- 	 * Get the normalized satisfaction value of the power consumed, updated every tick.
+	 * Get the normalized satisfaction value of the power consumed, updated every tick.
 	 * Return value is fixed point with FRACTION_PRECISION fractional bits.
 	 */
 	sint32 get_power_consumption() const;

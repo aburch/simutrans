@@ -1694,14 +1694,18 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		char tooltip_text[1024];
 		tooltip_text[0] = 0;
 		uint8 state = env_t::show_vehicle_states;
-		if(  state==1  ) {
+		if(  state==1  ||  state==2  ) {
 			// only show when mouse over vehicle
 			if(  welt->get_zeiger()->get_pos()==get_pos()  ) {
-				state = 2;
+				state = 3;
 			}
 			else {
 				state = 0;
 			}
+		}
+		if( state != 3 ) {
+			// nothing to show
+			return;
 		}
 
 		// now find out what has happened
@@ -1710,14 +1714,14 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 			case convoi_t::WAITING_FOR_CLEARANCE:
 			case convoi_t::CAN_START:
 			case convoi_t::CAN_START_ONE_MONTH:
-				if(  state>=2  ) {
+				if(  state>=3  ) {
 					snprintf( tooltip_text, lengthof(tooltip_text), "%s (%s)", translator::translate("Waiting for clearance!"), cnv->get_schedule()->get_current_entry().pos.get_str() );
 					color = color_idx_to_rgb(COL_YELLOW);
 				}
 				break;
 
 			case convoi_t::LOADING:
-				if(  state>=1  ) {
+				if(  state>=3  ) {
 					sprintf( tooltip_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit() );
 					color = color_idx_to_rgb(COL_YELLOW);
 				}
@@ -1725,14 +1729,14 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 
 			case convoi_t::EDIT_SCHEDULE:
 //			case convoi_t::ROUTING_1:
-				if(  state>=2  ) {
+				if(  state>=3  ) {
 					tstrncpy( tooltip_text, translator::translate("Schedule changing!"), lengthof(tooltip_text) );
 					color = color_idx_to_rgb(COL_YELLOW);
 				}
 				break;
 
 			case convoi_t::DRIVING:
-				if(  state>=1  ) {
+				if(  state>=3  ) {
 					grund_t const* const gr = welt->lookup(cnv->get_route()->back());
 					if(  gr  &&  gr->get_depot()  ) {
 						tstrncpy( tooltip_text, translator::translate("go home"), lengthof(tooltip_text) );
@@ -1762,6 +1766,17 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 				tstrncpy( tooltip_text, translator::translate("clf_chk_noroute"), lengthof(tooltip_text) );
 				color = color_idx_to_rgb(COL_RED);
 				break;
+		}
+
+		if(  env_t::show_vehicle_states == 2  &&  !tooltip_text[ 0 ]  ) {
+			// show line name or simply convoi name
+			color = color_idx_to_rgb( cnv->get_owner()->get_player_color1() + 7 );
+			if(  cnv->get_line().is_bound()  ) {
+				snprintf( tooltip_text, lengthof( tooltip_text ), "%s - %s", cnv->get_line()->get_name(), cnv->get_name() );
+			}
+			else {
+				snprintf( tooltip_text, lengthof( tooltip_text ), "%s", cnv->get_name() );
+			}
 		}
 
 		// something to show?
@@ -2288,7 +2303,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 
 schedule_t * road_vehicle_t::generate_new_schedule() const
 {
-  return new truck_schedule_t();
+	return new truck_schedule_t();
 }
 
 
@@ -2369,7 +2384,7 @@ DBG_MESSAGE("rail_vehicle_t::rail_vehicle_t()","replaced by %s",desc->get_name()
 rail_vehicle_t::rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
 	vehicle_t(pos, desc, player)
 {
-    cnv = cn;
+	cnv = cn;
 }
 
 
@@ -2419,7 +2434,7 @@ void rail_vehicle_t::set_convoi(convoi_t *c)
 				c->set_next_stop_index( max(route_index,1)-1 );
 				// need to reserve new route?
 				if(  !check_for_finish  &&  c->get_state()!=convoi_t::SELF_DESTRUCT  &&  (c->get_state()==convoi_t::DRIVING  ||  c->get_state()>=convoi_t::LEAVING_DEPOT)  ) {
-					sint32 num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
+					sint32 num_index = cnv==(convoi_t *)1 ? 1001 : 0; // only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
 					uint16 next_signal, next_crossing;
 					cnv = c;
 					if(  block_reserver(&r, max(route_index,1)-1, next_signal, next_crossing, num_index, true, false)  ) {
@@ -2857,8 +2872,8 @@ bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed)
 	}
 
 	if (  sig_desc->is_priority_signal()  ) {
- 	return is_priority_signal_clear( sig, next_block, restart_speed );
- }
+		return is_priority_signal_clear( sig, next_block, restart_speed );
+	}
 
 	if(  sig_desc->is_longblock_signal()  ) {
 		return is_longblock_signal_clear( sig, next_block, restart_speed );
@@ -3289,7 +3304,7 @@ bool water_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, u
 
 schedule_t * water_vehicle_t::generate_new_schedule() const
 {
-  return new ship_schedule_t();
+	return new ship_schedule_t();
 }
 
 

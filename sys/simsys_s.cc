@@ -11,13 +11,14 @@
 
 #include <stdio.h>
 
-#include "macros.h"
-#include "simsys_w32_png.h"
-#include "simversion.h"
 #include "simsys.h"
-#include "simevent.h"
-#include "display/simgraph.h"
-#include "simdebug.h"
+#include "simsys_w32_png.h"
+
+#include "../macros.h"
+#include "../simversion.h"
+#include "../simevent.h"
+#include "../display/simgraph.h"
+#include "../simdebug.h"
 
 
 static Uint8 hourglass_cursor[] = {
@@ -90,7 +91,7 @@ static SDL_Cursor* hourglass;
 static SDL_Cursor* blank;
 
 #ifdef MULTI_THREAD
-#include "utils/simthread.h"
+#include "../utils/simthread.h"
 
 static simthread_barrier_t redraw_barrier;
 static pthread_mutex_t redraw_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -707,7 +708,7 @@ void dr_notify_input_pos(int, int)
 #undef main
 int main()
 {
-   return WinMain(NULL,NULL,NULL,NULL);
+	return WinMain(NULL,NULL,NULL,NULL);
 }
 #endif
 

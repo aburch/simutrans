@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <math.h>
 #include "simrandom.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 
 /* This is the mersenne random generator: More random and faster! */
 
@@ -273,14 +273,14 @@ static double interpolated_noise(const double x, const double y)
  */
 double perlin_noise_2D(const double x, const double y, const double p)
 {
-    double total = 0.0;
-    for(  int  i=0;  i<6;  i++  ) {
+	double total = 0.0;
+	for(  int  i=0;  i<6;  i++  ) {
 		const double frequency = (double)(1 << i);
 		const double amplitude = pow(p, (double)i);
 		total += interpolated_noise( (x * frequency) / 64.0, (y * frequency) / 64.0) * amplitude;
-    }
+	}
 
-    return total;
+	return total;
 }
 
 
@@ -313,50 +313,50 @@ uint32 log2(uint32 n)
 // compute integer sqrt
 uint32 sqrt_i32(uint32 num)
 {
-	// taken from http://en.wikipedia.org/wiki/Methods_of_computing_square_roots
-    uint32 res = 0;
-    uint32 bit = 1 << 30; // The second-to-top bit is set: 1<<14 for short
+	// taken from https://en.wikipedia.org/wiki/Methods_of_computing_square_roots
+	uint32 res = 0;
+	uint32 bit = 1 << 30; // The second-to-top bit is set: 1<<14 for short
 
-    // "bit" starts at the highest power of four <= the argument.
-    while(  bit > num  ) {
-        bit >>= 2;
-    }
+	// "bit" starts at the highest power of four <= the argument.
+	while(  bit > num  ) {
+		bit >>= 2;
+	}
 
-    while(  bit != 0  ) {
-        if(  num >= res + bit  ) {
-            num -= res + bit;
-            res = (res >> 1) + bit;
-        }
-        else {
-            res >>= 1;
-        }
-        bit >>= 2;
-    }
-    return res;
+	while(  bit != 0  ) {
+		if(  num >= res + bit  ) {
+			num -= res + bit;
+			res = (res >> 1) + bit;
+		}
+		else {
+			res >>= 1;
+		}
+		bit >>= 2;
+	}
+	return res;
 }
 
 
 // compute integer sqrt
 uint64 sqrt_i64(uint64 num)
 {
-	// taken from http://en.wikipedia.org/wiki/Methods_of_computing_square_roots
-    uint64 res = 0;
-    uint64 bit = (uint64)1 << 62; // The second-to-top bit is set: 1<<14 for short
+	// taken from https://en.wikipedia.org/wiki/Methods_of_computing_square_roots
+	uint64 res = 0;
+	uint64 bit = (uint64)1 << 62; // The second-to-top bit is set: 1<<14 for short
 
-    // "bit" starts at the highest power of four <= the argument.
-    while(  bit > num  ) {
-        bit >>= 2;
-    }
+	// "bit" starts at the highest power of four <= the argument.
+	while(  bit > num  ) {
+		bit >>= 2;
+	}
 
-    while(  bit != 0  ) {
-        if(  num >= res + bit  ) {
-            num -= res + bit;
-            res = (res >> 1) + bit;
-        }
-        else {
-            res >>= 1;
-        }
-        bit >>= 2;
-    }
-    return res;
+	while(  bit != 0  ) {
+		if(  num >= res + bit  ) {
+			num -= res + bit;
+			res = (res >> 1) + bit;
+		}
+		else {
+			res >>= 1;
+		}
+		bit >>= 2;
+	}
+	return res;
 }

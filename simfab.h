@@ -429,7 +429,7 @@ private:
 	void recalc_factory_status();
 
 	// create some smoke on the map
-	void smoke() const;
+	void smoke();
 
 	// scales the amount of production based on the amount already in storage
 	uint32 scale_output_production(const uint32 product, uint32 menge) const;

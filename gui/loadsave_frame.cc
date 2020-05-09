@@ -9,7 +9,7 @@
 
 #include "loadsave_frame.h"
 
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simworld.h"
 #include "../simversion.h"
 #include "../pathes.h"

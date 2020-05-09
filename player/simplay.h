@@ -138,9 +138,9 @@ public:
 	 * @param amount earned money
 	 * @param wt transport type used in accounting statistics
 	 * @param cathegory parameter
-	 * 	0 ... passenger
-	 *	1 ... mail
-	 *	2 ... good (and powerlines revenue)
+	 *  0 ... passenger
+	 *  1 ... mail
+	 *  2 ... good (and powerlines revenue)
 	 */
 	void book_revenue(const sint64 amount, const koord k, const waytype_t wt=ignore_wt, sint32 cathegory=2);
 

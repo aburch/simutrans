@@ -1529,7 +1529,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 /**
  * let the chimney smoke, if there is something to produce
  */
-void fabrik_t::smoke() const
+void fabrik_t::smoke()
 {
 	const smoke_desc_t *rada = desc->get_smoke();
 	if(rada) {
@@ -1540,8 +1540,10 @@ void fabrik_t::smoke() const
 		gr->obj_add(smoke);
 		welt->sync_way_eyecandy.add( smoke );
 	}
+
 	// maybe sound?
 	if(  desc->get_sound()!=NO_SOUND  &&  welt->get_ticks()>last_sound_ms+desc->get_sound_interval_ms()  ) {
+		last_sound_ms = welt->get_ticks();
 		welt->play_sound_area_clipped( get_pos().get_2d(), desc->get_sound(), FACTORY_SOUND );
 	}
 }

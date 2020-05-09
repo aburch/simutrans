@@ -20,20 +20,20 @@
  * DISTANCE units:
  * 1 -- tiles
  * 2 -- "internal pixels" -- 16 per tile.  Old steps per tile.
-		-- OBJECT_OFFSET_STEPS, located in simconst.h
-		-- important to the internal rendering engine
-		-- used for locating images such as trees within a tile
-		-- same value as carunits, but conceptually different....
+ *      -- OBJECT_OFFSET_STEPS, located in simconst.h
+ *      -- important to the internal rendering engine
+ *      -- used for locating images such as trees within a tile
+ *      -- same value as carunits, but conceptually different....
  * 3 -- "carunits" or vehicle length units -- same as old steps per tile
-        -- Length of trains & other vehicles (as specified in paks)
-        -- is measured in this unit.  Currently this is very hard to alter.
+ *      -- Length of trains & other vehicles (as specified in paks)
+ *      -- is measured in this unit.  Currently this is very hard to alter.
  * 4 -- vehicle steps
-        -- trains can be on one of 2^8 = 256 locations along a tile horizontally (not
-           diagonally).
+ *      -- trains can be on one of 2^8 = 256 locations along a tile horizontally (not
+ *         diagonally).
  * 5 -- "yards" -- tiny distance units used internally
-        -- 2^12 per vehicle steps, by definition
-		-- 2^16 per vehicle steps in older code
-		-- chosen to maximize precision of certain interfaces
+ *      -- 2^12 per vehicle steps, by definition
+ *      -- 2^16 per vehicle steps in older code
+ *      -- chosen to maximize precision of certain interfaces
  * 6 -- km -- 1/tile in standard
  *
  * TIME units:

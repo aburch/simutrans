@@ -163,13 +163,13 @@ class factory_product_desc_t : public obj_desc_t {
 	friend class factory_product_reader_t;
 
 private:
-    uint16 capacity;
+	uint16 capacity;
 
-    /**
-     * How much of this product is derived from one unit of factory
-     * production? 256 means 1.0
-     */
-    uint16 factor;
+	/**
+	 * How much of this product is derived from one unit of factory
+	 * production? 256 means 1.0
+	 */
+	uint16 factor;
 
 public:
 	goods_desc_t const* get_output_type() const { return get_child<goods_desc_t>(0); }

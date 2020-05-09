@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <errno.h>
 
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simtypes.h"
 #include "../macros.h"
 #include "../simversion.h"
@@ -842,7 +842,7 @@ size_t loadsave_t::read(void *buf, size_t len)
 			for(  unsigned i=0;  i<len;  i++  ) {
 				((char*)buf)[i] = ls_buf[curr_buff][buf_pos[curr_buff]++];
 			}
- 			return len;
+			return len;
 		}
 		else {
 			// copy up to full buffer

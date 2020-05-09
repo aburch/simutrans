@@ -35,12 +35,12 @@ main_view_t::main_view_t(karte_t *welt)
 
 static const sint8 hours2night[] =
 {
-    4,4,4,4,4,4,4,4,
-    4,4,4,4,3,2,1,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,1,
-    2,3,4,4,4,4,4,4
+	4,4,4,4,4,4,4,4,
+	4,4,4,4,3,2,1,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,1,
+	2,3,4,4,4,4,4,4
 };
 
 #ifdef MULTI_THREAD
@@ -212,7 +212,7 @@ void main_view_t::display(bool force_dirty)
 		const KOORD_VAL wh_x = disp_width / env_t::num_threads;
 		KOORD_VAL lt_x = 0;
 		for(  int t = 0;  t < env_t::num_threads - 1;  t++  ) {
-		   	ka[t].show_routine = this;
+			ka[t].show_routine = this;
 			ka[t].lt_cl = koord( lt_x, menu_height );
 			ka[t].wh_cl = koord( wh_x, disp_height - menu_height );
 			ka[t].lt = ka[t].lt_cl - koord( IMG_SIZE/2, 0 ); // process tiles IMG_SIZE/2 outside clipping range for correct tree display at thread seams

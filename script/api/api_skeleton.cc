@@ -22,7 +22,7 @@ register_function("start");
  * as you cannot initialize global variables with non-built-in squirrel types.
  *
  * @param pl_num the number of the AI player. Call <code>player_x(pl_num)</code> to obtain
- * 		 a corresponding player_x instance. Definitely store this value!
+ *               a corresponding player_x instance. Definitely store this value!
  *
  * @typemask void(int)
  * @ingroup ai_skel
@@ -43,7 +43,7 @@ register_function("resume_game");
  * Do all the initializations and post-processing here.
  *
  * @param pl_num the number of the AI player. Call <code>player_x(pl_num)</code> to obtain
- * 		 a corresponding player_x instance. Definitely store this value!
+ *               a corresponding player_x instance. Definitely store this value!
  * @typemask void(int)
  * @ingroup ai_skel
  */

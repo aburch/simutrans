@@ -104,7 +104,7 @@ public:
 			zielpos == w.zielpos;
 	}
 
-	int operator!=(const ware_t &w) { return !(*this == w); 	}
+	int operator!=(const ware_t &w) { return !(*this == w); }
 
 	// mail and passengers just care about target station
 	// freight needs to obey coordinates (since more than one factory might by connected!)

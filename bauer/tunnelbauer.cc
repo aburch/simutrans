@@ -204,7 +204,7 @@ koord3d tunnel_builder_t::find_end_pos(player_t *player, koord3d pos, koord zv, 
 		if(  gr == NULL  ) {
 			// check for slope down ...
 			gr = welt->lookup(pos + koord3d(0,0,-1));
- 			if(  !gr  ) {
+			if(  !gr  ) {
 				gr = welt->lookup(pos + koord3d(0,0,-2));
 			}
 			if(  gr  &&  gr->get_weg_hang() == slope_t::flat  ) {

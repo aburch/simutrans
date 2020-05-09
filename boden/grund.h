@@ -181,7 +181,7 @@ protected:
 	objlist_t objlist;
 
 	/**
- 	 * Handle to halt built on this ground
+	 * Handle to halt built on this ground
 	 */
 	halthandle_t this_halt;
 

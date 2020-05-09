@@ -6,8 +6,8 @@
 #include <string.h>
 
 #include "simsys.h"
-#include "display/simgraph.h"
-#include "simdebug.h"
+#include "../display/simgraph.h"
+#include "../simdebug.h"
 
 
 #define MAX_SIZE (4096)

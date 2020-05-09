@@ -11,7 +11,7 @@
 #include "../simworld.h"
 #include "../simmenu.h"
 #include "../simmesg.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"

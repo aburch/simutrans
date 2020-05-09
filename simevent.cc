@@ -4,7 +4,7 @@
  */
 
 #include "simevent.h"
-#include "simsys.h"
+#include "sys/simsys.h"
 #include "tpl/slist_tpl.h"
 
 // system-independent event handling routines

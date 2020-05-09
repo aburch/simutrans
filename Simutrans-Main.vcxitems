@@ -38,7 +38,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)simplan.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simskin.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simsound.cc" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)simsys.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simticker.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simtool.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simware.cc" />
@@ -123,7 +122,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)descriptor\reader\way_reader.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)descriptor\reader\xref_reader.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)display\font.cc" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)display\simgraph16.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)display\simview.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)display\viewport.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)finder\placefinder.cc" />
@@ -318,6 +316,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)squirrel\squirrel\sqstate.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)squirrel\squirrel\sqtable.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)squirrel\squirrel\sqvm.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)sys\simsys.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\cbuffer_t.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\csv.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\log.cc" />
@@ -357,7 +356,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)simplan.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)simskin.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)simsound.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)simsys.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)simticker.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)simtool.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)simtool-dialogs.h" />
@@ -663,6 +661,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)squirrel\squirrel\squserdata.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)squirrel\squirrel\squtils.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)squirrel\squirrel\sqvm.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)sys\simsys.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)tpl\array_tpl.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)tpl\array2d_tpl.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)tpl\binary_heap_tpl.h" />
