@@ -464,6 +464,17 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 	if(  old_line_count != player->simlinemgmt.get_line_count()  ) {
 		show_lineinfo( line );
 	}
+
+	if(  old_player != welt->get_active_player()  ) {
+		// deativate buttons, if not curretn player
+		old_player = welt->get_active_player();
+		const bool activate = old_player == player || old_player == welt->get_player( 1 );
+		bt_delete_line.enable( activate );
+		bt_edit_line.enable( activate );
+		bt_new_line.enable( activate );
+		bt_withdraw_line.enable( activate );
+	}
+
 	// if search string changed, update line selection
 	if(  strcmp( old_schedule_filter, schedule_filter )  ) {
 		build_line_list(tabs.get_active_tab_index());

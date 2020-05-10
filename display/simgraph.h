@@ -24,7 +24,8 @@ extern int default_font_linespace;
 #  define LINESPACE  (default_font_linespace)
 #else
 #  define LINEASCENT 0
-#  define LINESPACE  0
+// a font height of zero could cause division by zero errors, even though it should not be used in a server
+#  define LINESPACE  1
 #endif
 
 

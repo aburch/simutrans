@@ -432,7 +432,7 @@ const char *dr_query_fontpath(int which)
 		char fontpath[PATH_MAX];
 		if( trypaths[i][0] == '~' ) {
 			// prepace with homedirectory
-			snprintf( fontpath, PATH_MAX, "%s../%s", dr_query_homedir(), trypaths[i]+2 );
+			snprintf( fontpath, PATH_MAX, "%s/%s", getenv("HOME"), trypaths[i]+2 );
 		}
 		else {
 			tstrncpy( fontpath, trypaths[i], PATH_MAX );
