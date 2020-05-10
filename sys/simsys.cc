@@ -462,7 +462,7 @@ const char *dr_query_fontpath(int which)
 			// last return parent folder
 			closedir( dir );
 			subdir_offset = 0; // we do not increase which_offset, so next the the next folder will be searched
-			return trypaths[i];
+			return fontpath;
 		}
 		which_offset--;
 	}
