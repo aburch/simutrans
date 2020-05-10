@@ -1434,8 +1434,11 @@ public:
 	/* the current state of the convoi */
 	COLOR_VAL get_status_color() const;
 
-	// returns tiles needed for this convoi
+	// returns tiles needed for this convoi. This includes 0-8 extra padding.
 	uint16 get_tile_length() const;
+
+	// returns total value of vehicle length of this convoy. (not include any padding)
+	uint16 get_true_tile_length() const;
 
 	// get cached obsolescence.
 	inline bool has_obsolete_vehicles() const { return has_obsolete; }
