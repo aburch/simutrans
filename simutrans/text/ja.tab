@@ -3615,7 +3615,7 @@ Within own network
 自家輸送網内のみ表示
 Show only connected to own transport network
 アクティブプレイヤーの貨物輸送ネットワークに接続されている産業のみを表示します
-Show only cities within the player's transportation network
+Show only cities within the active player's transportation network
 アクティブプレイヤーの貨物輸送ネットワークの影響下にある都市のみを表示します
 Power usage
 電力消費量
