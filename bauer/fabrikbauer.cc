@@ -851,14 +851,16 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 	while(  (lcount>lfound  ||  lcount==0)  &&  consumption>0  &&  retry>0  ) {
 
 		const factory_desc_t *producer_d = pick_any_weighted( producer );
-
 		int rotate = simrand(producer_d->get_building()->get_all_layouts()-1);
 		koord3d parent_pos = our_fab->get_pos();
 		// ignore climates after 40 tries
 
+		// if climates are ignored, then placement as well ...
+		factory_desc_t::site_t placement = ignore_climates ? (producer_d->get_placement() == factory_desc_t::City ? factory_desc_t::City : factory_desc_t::Land) : producer_d->get_placement();
+
 		INT_CHECK("fabrikbauer 697");
 
-		koord3d k = find_random_construction_site( our_fab->get_pos().get_2d(), DISTANCE, producer_d->get_building()->get_size(rotate), producer_d->get_placement(), producer_d->get_building(), ignore_climates, 20000 );
+		koord3d k = find_random_construction_site( our_fab->get_pos().get_2d(), DISTANCE, producer_d->get_building()->get_size(rotate), placement, producer_d->get_building(), ignore_climates, 20000 );
 		if(  k == koord3d::invalid  ) {
 			// this factory cannot buuild in the desired vincinity
 			producer.remove( producer_d );
