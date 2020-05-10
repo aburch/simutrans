@@ -39,7 +39,7 @@
 #	else
 #		include <sys\unistd.h>
 #	endif
-#	include "simdebug.h"
+#	include "../simdebug.h"
 #else
 #	include <limits.h>
 #	include <dirent.h>
