@@ -197,7 +197,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 				ribi = gr->get_weg_ribi_unmasked(wt);
 			}
 			// same waytype, same direction, no stop or depot or any other stuff */
-			if(  gr->get_weg(wt)  &&  ribi_t::doubles(ribi) == ribi_t::doubles( check_ribi )  ) {
+			if(  gr->get_weg(wt)  &&  ribi_check(ribi, check_ribi)  ) {
 				// ok too
 				return NULL;
 			}
