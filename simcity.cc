@@ -1464,7 +1464,7 @@ bool stadt_t::is_within_players_network(const player_t* player) const
 				if (halt->get_owner()==player) {
 					return true;
 				}
-				else if (halts.is_contained(halt)){
+				else if (halts.is_contained(halt)) {
 					continue;
 				}
 				else if (halt->check_access(player)) {
@@ -1475,25 +1475,13 @@ bool stadt_t::is_within_players_network(const player_t* player) const
 	}
 
 	// Check if these stations are in the player's network...
-	FOR(vector_tpl<halthandle_t>, const halt, halts) {
-		// Check if there is a player's line
-		if (!halt->registered_lines.empty()) {
-			for (uint32 i = 0; i < halt->registered_lines.get_count(); i++) {
-				if (halt->registered_lines[i]->get_owner() == player) {
-					return true;
-				}
-			}
-		}
-		// Check lineless convoys
-		if (!halt->registered_convoys.empty()) {
-			for (uint32 i = 0; i < halt->registered_convoys.get_count(); i++) {
-				if (halt->registered_convoys[i]->get_owner() == player) {
-					return true;
-				}
-			}
+	FOR(vector_tpl<halthandle_t>, const halt, halts)
+	{
+		if (halt->has_available_network(player))
+		{
+			return true;
 		}
 	}
-
 	return false;
 }
 
