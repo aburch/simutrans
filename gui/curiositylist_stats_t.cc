@@ -174,7 +174,7 @@ void curiositylist_stats_t::draw(scr_coord offset)
 			break;
 		}
 
-		int xoff = offset.x+10;
+		int xoff = offset.x+2;
 
 		// skip invisible lines
 		if (yoff < start) {
@@ -183,52 +183,58 @@ void curiositylist_stats_t::draw(scr_coord offset)
 
 		// goto button
 		bool selected = sel==0  ||  welt->get_viewport()->is_on_center( geb->get_pos() );
-		display_img_aligned( gui_theme_t::pos_button_img[ selected ], scr_rect( xoff-8, yoff, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+		display_img_aligned( gui_theme_t::pos_button_img[ selected ], scr_rect( xoff, yoff, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 		sel --;
 
 		buf.clear();
 
-		// is connected? => decide on indicatorfarbe (indicator color)
-		int indicatorfarbe;
-		bool mail=false;
-		bool pax=false;
-		bool all_crowded=true;
-		bool some_crowded=false;
+		// is connected?
+		enum{ no_one_connected = 0, someone_connected=1, self_connected=2 };
+		uint8 mail = 0;
+		uint8 pax  = 0;
+		bool pax_crowded=true;
 		const planquadrat_t *plan = welt->access(geb->get_pos().get_2d());
 		const nearby_halt_t *halt_list = plan->get_haltlist();
 		for(  unsigned h=0;  (mail&pax)==0  &&  h<plan->get_haltlist_count();  h++ ) {
 			halthandle_t halt = halt_list[h].halt;
 			if (halt->get_pax_enabled()) {
-				pax = true;
-				if (halt->get_pax_unhappy() > 40) {
-					some_crowded |= true;
+				pax |= someone_connected;
+				if (halt->has_available_network(welt->get_active_player(), goods_manager_t::INDEX_PAS)) {
+					pax |= self_connected;
 				}
-				else {
-					all_crowded = false;
+				if (halt->get_pax_unhappy() > 40) {
+					pax_crowded = true;
 				}
 			}
 			if (halt->get_mail_enabled()) {
-				mail = true;
-				if (halt->get_pax_unhappy() > 40) {
-					some_crowded |= true;
-				}
-				else {
-					all_crowded = false;
+				mail |= someone_connected;
+				if (halt->has_available_network(welt->get_active_player(), goods_manager_t::INDEX_MAIL)) {
+					mail |= self_connected;
 				}
 			}
 		}
-		// now decide on color
-		if(some_crowded) {
-			indicatorfarbe = all_crowded ? COL_RED : COL_ORANGE;
-		}
-		else if(pax) {
-			indicatorfarbe = mail ? COL_TURQUOISE : COL_DARK_GREEN;
-		}
-		else {
-			indicatorfarbe = mail ? COL_BLUE : COL_YELLOW;
-		}
 
-		display_fillbox_wh_clip(xoff+7, yoff+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indicatorfarbe, true);
+		xoff += D_POS_BUTTON_WIDTH+2;
+		if (pax & self_connected) {
+			display_color_img(skinverwaltung_t::passengers->get_image_id(0), xoff, yoff + 2, 0, false, false);
+		}
+		else if (pax & someone_connected) {
+			display_img_blend(skinverwaltung_t::passengers->get_image_id(0), xoff, yoff + 2, TRANSPARENT25_FLAG, false, false);
+		}
+		xoff += 9; // symbol width
+		if (mail & self_connected) {
+			display_color_img(skinverwaltung_t::mail->get_image_id(0), xoff, yoff + 2, 0, false, false);
+		}
+		else if (mail & someone_connected) {
+			display_img_blend(skinverwaltung_t::mail->get_image_id(0), xoff, yoff + 2, TRANSPARENT25_FLAG, false, false);
+		}
+		xoff += 9; // symbol width
+
+		if (geb->get_tile()->get_desc()->get_extra() != 0) {
+			// TODO: Replace with function with tooltip and display city name in tooltip - Ranran
+		    display_color_img(skinverwaltung_t::intown->get_image_id(0), xoff, yoff, 0, false, false);
+		}
+		xoff += 9 + 2; // symbol width + margin
 
 		// the other infos
 		const unsigned char *name = (const unsigned char *)ltrim( translator::translate(geb->get_tile()->get_desc()->get_name()) );
@@ -251,15 +257,15 @@ void curiositylist_stats_t::draw(scr_coord offset)
 		}
 		*dst = '\0';
 		// now we have a short name ...
-		buf.printf("%s (%d/%d)", short_name,
-			geb->get_passengers_succeeded_commuting() == 65535 ? geb->get_passengers_succeeded_visiting() : geb->get_passengers_succeeded_visiting() + geb->get_passengers_succeeded_commuting(),
-			geb->get_adjusted_visitor_demand());
+		buf.printf("%s (", short_name);
+		xoff += display_proportional_clip(xoff, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+		buf.clear();
+		buf.printf("%d", geb->get_passengers_succeeded_commuting() == 65535 ? geb->get_passengers_succeeded_visiting() : geb->get_passengers_succeeded_visiting() + geb->get_passengers_succeeded_commuting());
+		xoff += display_proportional_clip(xoff, yoff, buf, ALIGN_LEFT, pax_crowded ? COL_OVERCROWD-1 : SYSCOL_TEXT, true);
+		buf.clear();
+		buf.printf("/%d)", geb->get_adjusted_visitor_demand());
+		display_proportional_clip(xoff,yoff,buf,ALIGN_LEFT,SYSCOL_TEXT,true);
 
-		display_proportional_clip(xoff+D_INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,SYSCOL_TEXT,true);
-
-		if (geb->get_tile()->get_desc()->get_extra() != 0) {
-		    display_color_img(skinverwaltung_t::intown->get_image_id(0), xoff+D_INDICATOR_WIDTH+9, yoff, 0, false, false);
-		}
 		if(  win_get_magic( (ptrdiff_t)geb )  ) {
 			display_blend_wh( offset.x+D_POS_BUTTON_WIDTH+D_H_SPACE, yoff, size.w, LINESPACE, SYSCOL_TEXT, 25 );
 		}
