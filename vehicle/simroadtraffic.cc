@@ -1062,16 +1062,29 @@ grund_t* private_car_t::hop_check()
 			{
 				const ribi_t::ribi current_dir = ribi_type(get_pos(), pos_next);
 				const ribi_t::ribi dir_next = ribi_type(pos_next, pos_next_next);
+				const strasse_t* str = (strasse_t*)next_way;
 				const bool backwards = dir_next == ribi_t::backward(current_dir);
+
+				const bool direction_allowed = str->get_ribi() & dir_next; 
+
+				if (!direction_allowed)
+				{
+					pos_next_next = koord3d::invalid;
+
+					// We also need to invalidate the route.
+					const planquadrat_t* tile = welt->access(origin);
+					stadt_t* origin_city = tile ? tile->get_city() : NULL;
+					if (origin_city)
+					{
+						//origin_city->clear_private_car_route(check_target, true); // DEPRECATED code
+						welt->add_queued_city(origin_city); // Prioritise re-checking this city even if already re-checked in this cycle.
+					}
+				}
 
 				if (backwards)
 				{
-					// Cannot reverse on one way road
-					const strasse_t* str = (strasse_t*)next_way;
-					if (str->get_overtaking_mode() == oneway_mode)
-					{
-						pos_next_next = koord3d::invalid;
-					}
+					// Forbid u-turns
+					pos_next_next = koord3d::invalid;
 				}
 			}
 		}
@@ -1153,7 +1166,7 @@ grund_t* private_car_t::hop_check()
 
 						// Check whether the tile is passable: do not drive onto an impassible tile.
 						const weg_t* next_way = to->get_weg(road_wt);
-						if (next_way && next_way->get_max_speed() > 0 && next_way->get_max_axle_load() > 0 && (next_way->get_owner() == NULL || next_way->get_owner()->allows_access_to(1))) // TODO: Replace 1 with a constant for public player
+						if (next_way && next_way->get_max_speed() > 0 && next_way->get_max_axle_load() > 0 && (next_way->get_owner() == NULL || next_way->get_owner()->allows_access_to(welt->get_public_player()->get_player_nr())))
 						{
 							const uint32 dist = 8192 / max(1, shortest_distance(to->get_pos().get_2d(), target));
 							poslist.append(to->get_pos(), dist);
