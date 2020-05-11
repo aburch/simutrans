@@ -26,10 +26,11 @@
 #include "gui_frame.h"
 #include "simwin.h"
 
+#define L_DIALOG_WIDTH (210)
 
-curiositylist_stats_t::curiositylist_stats_t(curiositylist::sort_mode_t sortby, bool sortreverse)
+curiositylist_stats_t::curiositylist_stats_t(curiositylist::sort_mode_t sortby, bool sortreverse, bool own_network)
 {
-	get_unique_attractions(sortby,sortreverse);
+	get_unique_attractions(sortby,sortreverse, own_network);
 	recalc_size();
 	line_selected = 0xFFFFFFFFu;
 }
@@ -69,24 +70,30 @@ class compare_curiosities
 };
 
 
-void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t sb, bool sr)
+void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t sb, bool sr, bool own_network)
 {
 	const weighted_vector_tpl<gebaeude_t*>& world_attractions = welt->get_ausflugsziele();
 
 	sortby = sb;
 	sortreverse = sr;
+	filter_own_network = own_network;
 
 	attractions.clear();
-	last_world_curiosities = world_attractions.get_count();
-	attractions.resize(last_world_curiosities);
 
 	FOR(weighted_vector_tpl<gebaeude_t*>, const geb, world_attractions) {
+		// own network filter
+		if (filter_own_network && !geb->is_within_players_network(welt->get_active_player(), goods_manager_t::INDEX_PAS)) {
+			continue;
+		}
+
 		if (geb != NULL &&
 				geb->get_first_tile() == geb &&
 				geb->get_adjusted_visitor_demand() != 0) {
 			attractions.insert_ordered( geb, compare_curiosities(sortby, sortreverse) );
 		}
 	}
+	attractions.resize(attractions.get_count());
+	set_size(scr_size(L_DIALOG_WIDTH, attractions.get_count()*LINESPACE + D_V_SPACE));
 }
 
 
@@ -132,7 +139,7 @@ bool curiositylist_stats_t::infowin_event(const event_t * ev)
 void curiositylist_stats_t::recalc_size()
 {
 	// show_scroll_x==false ->> size.w not important ->> no need to calc text pixel length
-	set_size( scr_size(210, attractions.get_count() * (LINESPACE+1) ) );
+	set_size( scr_size(L_DIALOG_WIDTH, attractions.get_count() * (LINESPACE+1) ) );
 }
 
 
@@ -151,7 +158,7 @@ void curiositylist_stats_t::draw(scr_coord offset)
 
 	if(  last_world_curiosities != welt->get_ausflugsziele().get_count()  ) {
 		// some deleted/ added => resort
-		get_unique_attractions( sortby, sortreverse );
+		get_unique_attractions( sortby, sortreverse, filter_own_network );
 		recalc_size();
 	}
 
