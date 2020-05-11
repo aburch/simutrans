@@ -192,7 +192,7 @@ void curiositylist_stats_t::draw(scr_coord offset)
 		enum{ no_one_connected = 0, someone_connected=1, self_connected=2 };
 		uint8 mail = 0;
 		uint8 pax  = 0;
-		bool pax_crowded=true;
+		bool pax_crowded = false;
 		const planquadrat_t *plan = welt->access(geb->get_pos().get_2d());
 		const nearby_halt_t *halt_list = plan->get_haltlist();
 		for(  unsigned h=0;  (mail&pax)==0  &&  h<plan->get_haltlist_count();  h++ ) {
