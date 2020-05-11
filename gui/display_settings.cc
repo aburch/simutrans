@@ -436,7 +436,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	else if ((buttons + 23) == comp) {
 		// see simtool.cc::tool_hide_under_cursor_t::init
 		env_t::hide_under_cursor = !env_t::hide_under_cursor  &&  env_t::cursor_hide_range > 0;
-		buttons[22].pressed = env_t::hide_under_cursor;
+		buttons[23].pressed = env_t::hide_under_cursor;
 		// renew toolbar
 		tool_t::update_toolbars();
 	}
@@ -471,7 +471,6 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	buttons[ 7].pressed = welt->get_settings().get_show_pax();
 	buttons[ 8].pressed = welt->get_settings().get_random_pedestrians();
 	buttons[11].pressed = env_t::hide_trees;
-	buttons[22].pressed = env_t::hide_under_cursor;
 	buttons[15].pressed = env_t::station_coverage_show;
 	buttons[16].pressed = env_t::signalbox_coverage_show;
 	buttons[17].pressed = grund_t::underground_mode == grund_t::ugm_all;
@@ -479,6 +478,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	//buttons[19].pressed = env_t::show_names&1;
 	buttons[20].pressed = (env_t::show_names&2)!=0;
 	buttons[21].pressed = grund_t::underground_mode == grund_t::ugm_level;
+	buttons[23].pressed = env_t::hide_under_cursor;
 	buttons[24].pressed = env_t::visualize_schedule;
 
 	gui_frame_t::draw(pos, size);

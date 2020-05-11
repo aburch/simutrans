@@ -2091,7 +2091,7 @@ void karte_t::init_threads()
 	pthread_attr_init(&thread_attributes);
 	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
 
-	simthread_barrier_init(&private_car_barrier, NULL, parallel_operations + 1);
+	simthread_barrier_init(&private_car_barrier, NULL, env_t::networkmode ? 2 : parallel_operations + 1);
 	simthread_barrier_init(&karte_t::unreserve_route_barrier, NULL, parallel_operations + 2); // This and the next does not run concurrently with anything significant on the main thread, so the number of parallel operations need to be +1 compared to the others.
 	simthread_barrier_init(&step_passengers_and_mail_barrier, NULL, parallel_operations + 2);
 	simthread_barrier_init(&step_convoys_barrier_external, NULL, 2);
@@ -2113,7 +2113,7 @@ void karte_t::init_threads()
 
 	for (uint32 i = 0; i < parallel_operations + 1; i++)
 	{
-		if (i < parallel_operations)
+		if ((i < parallel_operations && !env_t::networkmode) || i < 1)
 		{
 			uint32* thread_number_checker = new uint32;
 			*thread_number_checker = i;
@@ -8353,7 +8353,6 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 				{
 					sint32 po = env_t::num_threads - 1;
 					file->rdwr_long(po);
-					parallel_operations = 0;
 				}
 				else
 				{
@@ -8364,7 +8363,6 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 			{
 				sint32 dummy = -1;
 				file->rdwr_long(dummy);
-				parallel_operations = -1;
 			}
 		}
 	}
