@@ -659,7 +659,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		}
 #ifdef DEBUG
 		// Private car routes from here
-		// This generates a lot of text spam, so this should no be enabled by default.
+		// This generates a lot of text spam, so this should not be enabled by default.
 		if (!private_car_routes[private_car_routes_currently_reading_element].empty())
 		{
 			buf.append("\n");

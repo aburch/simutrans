@@ -21,6 +21,7 @@
 #include "brueckenboden.h"
 #include "wege/weg.h"
 
+#include "../vehicle/simvehicle.h"
 
 brueckenboden_t::brueckenboden_t(koord3d pos, int grund_hang, int weg_hang) : grund_t(pos)
 {
@@ -102,11 +103,17 @@ void brueckenboden_t::rotate90()
 		pos.rotate90( welt->get_size().y-1 );
 		slope = slope_t::rotate90( slope );
 		// since the y_off contains also the way height, we need to remove it before rotations and add it back afterwards
-		for(  uint8 i=0;  i<objlist.get_top();  i++  ) {
-			obj_t * obj=obj_bei( i );
-			obj->set_yoff( obj->get_yoff() + way_offset );
-			obj->rotate90();
-			obj->set_yoff( obj->get_yoff() - way_offset );
+		for( uint8 i = 0; i < objlist.get_top(); i++ ) {
+			obj_t * obj = obj_bei( i );
+			if(  !dynamic_cast<vehicle_base_t*>(obj)  ) {
+				obj->set_yoff( obj->get_yoff() + way_offset );
+				obj->rotate90();
+				obj->set_yoff( obj->get_yoff() - way_offset );
+			}
+			else {
+				// vehicle corrects its offset themselves
+				obj->rotate90();
+			}
 		}
 	}
 	else {
