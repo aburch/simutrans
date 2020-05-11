@@ -1635,7 +1635,7 @@ void *check_road_connexions_threaded(void *args)
 			int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
 
-			if (!city)
+			if (!city || world()->get_settings().get_assume_everywhere_connected_by_road())
 			{
 				continue;
 			}
