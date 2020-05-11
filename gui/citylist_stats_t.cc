@@ -20,14 +20,16 @@
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 
+#define L_DIALOG_WIDTH (210)
+
 static const char* total_bev_translation = NULL;
 char citylist_stats_t::total_bev_string[128];
 
 
-citylist_stats_t::citylist_stats_t(citylist::sort_mode_t sortby, bool sortreverse)
+citylist_stats_t::citylist_stats_t(citylist::sort_mode_t sortby, bool sortreverse, bool own_network)
 {
 	total_bev_translation = translator::translate("Total inhabitants:");
-	sort(sortby, sortreverse);
+	sort(sortby, sortreverse, own_network);
 	recalc_size();
 	line_selected = 0xFFFFFFFFu;
 }
@@ -59,19 +61,25 @@ class compare_cities
 };
 
 
-void citylist_stats_t::sort(citylist::sort_mode_t sb, bool sr)
+void citylist_stats_t::sort(citylist::sort_mode_t sb, bool sr, bool own_network)
 {
 	const weighted_vector_tpl<stadt_t*>& cities = welt->get_cities();
 
 	sortby = sb;
 	sortreverse = sr;
+	filter_own_network = own_network;
 
 	city_list.clear();
-	city_list.resize(cities.get_count());
 
 	FOR(weighted_vector_tpl<stadt_t*>, const i, cities) {
+		// own network filter
+		if (filter_own_network && !i->is_within_players_network(welt->get_active_player())) {
+			continue;
+		}
 		city_list.insert_ordered(i, compare_cities(sortby, sortreverse));
 	}
+	city_list.resize(cities.get_count());
+	set_size(scr_size(L_DIALOG_WIDTH, city_list.get_count()*LINESPACE + D_V_SPACE));
 }
 
 
@@ -111,7 +119,7 @@ bool citylist_stats_t::infowin_event(const event_t * ev)
 void citylist_stats_t::recalc_size()
 {
 	// show_scroll_x==false ->> size.w not important ->> no need to calc text pixel length
-	set_size( scr_size(210, welt->get_cities().get_count() * (LINESPACE+1) ) );
+	set_size( scr_size(L_DIALOG_WIDTH, city_list.get_count() * (LINESPACE+1) ) );
 }
 
 
@@ -119,12 +127,9 @@ void citylist_stats_t::draw(scr_coord offset)
 {
 	cbuffer_t buf;
 
-	sint32 total_bev = 0;
-	sint32 total_growth = 0;
-
 	if(  welt->get_cities().get_count()!=city_list.get_count()  ) {
 		// some deleted/ added => resort
-		sort( sortby, sortreverse );
+		sort( sortby, sortreverse, filter_own_network );
 		recalc_size();
 	}
 
@@ -159,15 +164,15 @@ void citylist_stats_t::draw(scr_coord offset)
 				display_blend_wh( offset.x, offset.y, size.w, LINESPACE, SYSCOL_TEXT, 25 );
 			}
 		}
-		total_bev    += population;
-		total_growth += growth;
 	}
 	// some cities there?
+	const sint32 total_bev = welt->get_finance_history_month(0, HIST_CITICENS);
 	if(  total_bev > 0  ) {
 		buf.clear();
-		buf.printf( "%s %u", total_bev_translation, total_bev);
+		buf.printf( "%s ", total_bev_translation);
+		buf.append(total_bev, 0);
 		buf.append( " (" );
-		buf.append( total_growth/10.0, 1 );
+		buf.append( welt->get_finance_history_month(0, HIST_GROWTH), 0 );
 		buf.append( ")" );
 		tstrncpy(total_bev_string, buf, lengthof(total_bev_string));
 	}
