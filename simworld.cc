@@ -5507,10 +5507,10 @@ void karte_t::step()
 		// There can be many mutex clashes with this; however, processing only one city at a time can make it take an unfeasible amount of time to refresh all routes.
 		//cities_to_process = stadt.get_count() > 64 ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		//cities_to_process = 1;
-		cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		start_private_car_threads();
 #else			
-		const sint32 cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		const sint32 cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		for (sint32 j = 0; j < cities_to_process; j++)
 		{
 			stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
