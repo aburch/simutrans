@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BRIDGE_WRITER_H
-#define BRIDGE_WRITER_H
+#ifndef DESCRIPTOR_WRITER_BRIDGE_WRITER_H
+#define DESCRIPTOR_WRITER_BRIDGE_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

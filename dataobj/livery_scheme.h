@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef dataobj_livery_scheme_h
-#define dataobj_livery_scheme_h
+#ifndef DATAOBJ_LIVERY_SCHEME_H
+#define DATAOBJ_LIVERY_SCHEME_H
+
 
 #include <string>
 

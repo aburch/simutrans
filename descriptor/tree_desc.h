@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __BAUM_BESCH_H
-#define __BAUM_BESCH_H
+#ifndef DESCRIPTOR_TREE_DESC_H
+#define DESCRIPTOR_TREE_DESC_H
+
 
 #include "../simtypes.h"
 #include "obj_base_desc.h"

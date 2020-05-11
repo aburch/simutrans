@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef ROADSIGN_WRITER_H
-#define ROADSIGN_WRITER_H
+#ifndef DESCRIPTOR_WRITER_ROADSIGN_WRITER_H
+#define DESCRIPTOR_WRITER_ROADSIGN_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

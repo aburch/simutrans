@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __BILDLISTE3D_BESCH_H
-#define __BILDLISTE3D_BESCH_H
+#ifndef DESCRIPTOR_IMAGE_ARRAY_3D_H
+#define DESCRIPTOR_IMAGE_ARRAY_3D_H
+
 
 #include "image_list.h"
 #include "image_array.h"

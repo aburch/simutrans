@@ -6,6 +6,7 @@
 #ifndef SIMMAIN_H
 #define SIMMAIN_H
 
+
 #ifdef _WIN64
 #define _64BIT
 #endif

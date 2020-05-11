@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __simtunnel_h
-#define __simtunnel_h
+#ifndef BAUER_TUNNELBAUER_H
+#define BAUER_TUNNELBAUER_H
+
 
 #include "../simtypes.h"
 #include "../dataobj/koord.h"

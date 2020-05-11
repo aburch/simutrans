@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef bigger_map_gui_h
-#define bigger_map_gui_h
+#ifndef GUI_ENLARGE_MAP_FRAME_T_H
+#define GUI_ENLARGE_MAP_FRAME_T_H
+
 
 #include "gui_frame.h"
 #include "components/gui_label.h"

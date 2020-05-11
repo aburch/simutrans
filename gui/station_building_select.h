@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef station_building_select_h
-#define station_building_select_h
+#ifndef GUI_STATION_BUILDING_SELECT_H
+#define GUI_STATION_BUILDING_SELECT_H
+
 
 #include "components/action_listener.h"
 #include "gui_frame.h"

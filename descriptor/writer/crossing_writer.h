@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef CROSSING_WRITER_H
-#define CROSSING_WRITER_H
+#ifndef DESCRIPTOR_WRITER_CROSSING_WRITER_H
+#define DESCRIPTOR_WRITER_CROSSING_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __SIMSKIN_H
-#define __SIMSKIN_H
+#ifndef SIMSKIN_H
+#define SIMSKIN_H
+
 
 #include "simcolor.h"
 

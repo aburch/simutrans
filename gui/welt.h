@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef welt_gui_h
-#define welt_gui_h
+#ifndef GUI_WELT_H
+#define GUI_WELT_H
+
 
 #include "gui_frame.h"
 #include "components/gui_button.h"

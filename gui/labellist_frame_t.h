@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef labellist_frame_t_h
-#define labellist_frame_t_h
+#ifndef GUI_LABELLIST_FRAME_T_H
+#define GUI_LABELLIST_FRAME_T_H
+
 
 #include "../gui/gui_frame.h"
 #include "../gui/labellist_stats_t.h"

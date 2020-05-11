@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _overtaker_h
-#define _overtaker_h
+#ifndef VEHICLE_OVERTAKER_H
+#define VEHICLE_OVERTAKER_H
+
 
 /**
  * All vehicles that can overtake must include this class

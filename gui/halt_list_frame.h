@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __halt_list_frame_h
-#define __halt_list_frame_h
+#ifndef GUI_HALT_LIST_FRAME_H
+#define GUI_HALT_LIST_FRAME_H
+
 
 #include "gui_frame.h"
 #include "components/gui_container.h"

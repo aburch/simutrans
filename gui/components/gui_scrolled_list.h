@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_scrolled_list_h
-#define gui_scrolled_list_h
+#ifndef GUI_COMPONENTS_GUI_SCROLLED_LIST_H
+#define GUI_COMPONENTS_GUI_SCROLLED_LIST_H
+
 
 #include "gui_scrollbar.h"
 #include "action_listener.h"

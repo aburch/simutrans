@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef boden_wege_strasse_h
-#define boden_wege_strasse_h
+#ifndef BODEN_WEGE_STRASSE_H
+#define BODEN_WEGE_STRASSE_H
+
 
 #include "weg.h"
 //#include "../../tpl/minivec_tpl.h"

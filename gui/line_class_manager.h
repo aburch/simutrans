@@ -3,9 +3,9 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Line class manager window
- */
+#ifndef GUI_LINE_CLASS_MANAGER_H
+#define GUI_LINE_CLASS_MANAGER_H
+
 
 #include "gui_frame.h"
 #include "components/gui_container.h"
@@ -22,7 +22,10 @@
 
 class scr_coord;
 
-class line_class_manager_t : public gui_frame_t , private action_listener_t
+/*
+ * Line class manager window
+ */
+class line_class_manager_t : public gui_frame_t, private action_listener_t
 {
 private:
 
@@ -133,3 +136,5 @@ public:
 
 	~line_class_manager_t();
 };
+
+#endif

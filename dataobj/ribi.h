@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef dataobj_ribi_t_h
-#define dataobj_ribi_t_h
+#ifndef DATAOBJ_RIBI_H
+#define DATAOBJ_RIBI_H
+
 
 #include "../simtypes.h"
 #include "../simconst.h"

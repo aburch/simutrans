@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simpeople_h
-#define simpeople_h
+#ifndef VEHICLE_SIMPEOPLE_H
+#define VEHICLE_SIMPEOPLE_H
+
 
 #include "simroadtraffic.h"
 

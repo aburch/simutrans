@@ -3,6 +3,10 @@
  * (see LICENSE.txt)
  */
 
+#ifndef GUI_LINE_MANAGEMENT_GUI_H
+#define GUI_LINE_MANAGEMENT_GUI_H
+
+
 #include "schedule_gui.h"
 
 #include "../linehandle_t.h"
@@ -28,3 +32,5 @@ public:
 private:
 	linehandle_t line;
 };
+
+#endif

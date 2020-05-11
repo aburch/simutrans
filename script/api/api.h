@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _API_H_
-#define _API_H_
+#ifndef SCRIPT_API_API_H
+#define SCRIPT_API_API_H
+
 
 /** @file api.h declarations of export functions. */
 

@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef obj_leitung_t
-#define obj_leitung_t
+#ifndef OBJ_LEITUNG2_H
+#define OBJ_LEITUNG2_H
 
 
 #include "../ifc/sync_steppable.h"

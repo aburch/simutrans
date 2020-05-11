@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef replace_data_h
-#define replace_data_h
+#ifndef DATAOBJ_REPLACE_DATA_H
+#define DATAOBJ_REPLACE_DATA_H
+
 
 #include "../simconvoi.h"
 #include "../tpl/vector_tpl.h"

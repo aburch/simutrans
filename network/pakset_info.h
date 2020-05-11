@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _PAKSET_INFO_H
-#define _PAKSET_INFO_H
+#ifndef NETWORK_PAKSET_INFO_H
+#define NETWORK_PAKSET_INFO_H
+
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "checksum.h"

@@ -3,9 +3,9 @@
  * (see LICENSE.txt)
  */
 
+#ifndef TPL_STRINGHASHTABLE_TPL_H
+#define TPL_STRINGHASHTABLE_TPL_H
 
-#ifndef stringhashtable_tpl_h
-#define stringhashtable_tpl_h
 
 #include "hashtable_tpl.h"
 #include <string.h>

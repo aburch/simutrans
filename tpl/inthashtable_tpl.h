@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef inthashtable_tpl_h
-#define inthashtable_tpl_h
+#ifndef TPL_INTHASHTABLE_TPL_H
+#define TPL_INTHASHTABLE_TPL_H
+
 
 #include "hashtable_tpl.h"
 

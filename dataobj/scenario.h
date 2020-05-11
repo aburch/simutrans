@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef scenario_h
-#define scenario_h
+#ifndef DATAOBJ_SCENARIO_H
+#define DATAOBJ_SCENARIO_H
+
 
 /** @file scenario.h declarations for scenario interface */
 

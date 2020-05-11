@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __KREUZUNG_BESCH_H
-#define __KREUZUNG_BESCH_H
+#ifndef DESCRIPTOR_CROSSING_DESC_H
+#define DESCRIPTOR_CROSSING_DESC_H
+
 
 #include "obj_base_desc.h"
 #include "image.h"

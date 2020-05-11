@@ -3,15 +3,9 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Attempt of graphics for the Simulation game
- * Hj. Malthaner, Aug. 1997
- *
- *
- * 3D, isometric representation
- */
-#ifndef simgraph_h
-#define simgraph_h
+#ifndef DISPLAY_SIMGRAPH_H
+#define DISPLAY_SIMGRAPH_H
+
 
 #include "../simcolor.h"
 #include "../unicode.h"
@@ -19,6 +13,15 @@
 #include "clip_num.h"
 #include "simimg.h"
 #include "scr_coord.h"
+
+
+/*
+ * Attempt of graphics for the Simulation game
+ * Hj. Malthaner, Aug. 1997
+ *
+ *
+ * 3D, isometric representation
+ */
 
 
 extern int large_font_ascent;

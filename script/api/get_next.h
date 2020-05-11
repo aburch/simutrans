@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _GET_NEXT_H_
-#define _GET_NEXT_H_
+#ifndef SCRIPT_API_GET_NEXT_H
+#define SCRIPT_API_GET_NEXT_H
+
 
 #include "../../simtypes.h"
 #include "../../squirrel/squirrel.h"

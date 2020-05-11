@@ -4,6 +4,7 @@
  */
 
 #include <string>
+#include <cmath>
 #include "../../dataobj/tabfile.h"
 #include "../../dataobj/ribi.h"
 #include "../tunnel_desc.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef vehicle_movingobj_h
-#define vehicle_movingobj_h
+#ifndef VEHICLE_MOVINGOBJ_H
+#define VEHICLE_MOVINGOBJ_H
+
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __WAY_OBJ_READER_H
-#define __WAY_OBJ_READER_H
+#ifndef DESCRIPTOR_READER_WAY_OBJ_READER_H
+#define DESCRIPTOR_READER_WAY_OBJ_READER_H
+
 
 #include "obj_reader.h"
 

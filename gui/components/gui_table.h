@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_table_h
-#define gui_table_h
+#ifndef GUI_COMPONENTS_GUI_TABLE_H
+#define GUI_COMPONENTS_GUI_TABLE_H
+
 
 #include <string.h>
 

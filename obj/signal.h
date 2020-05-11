@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef obj_signal_h
-#define obj_signal_h
+#ifndef OBJ_SIGNAL_H
+#define OBJ_SIGNAL_H
+
 
 #include "roadsign.h"
 

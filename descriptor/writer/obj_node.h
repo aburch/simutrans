@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef OBJ_NODE_H
-#define OBJ_NODE_H
+#ifndef DESCRIPTOR_WRITER_OBJ_NODE_H
+#define DESCRIPTOR_WRITER_OBJ_NODE_H
+
 
 #include "../obj_node_info.h"
 #include <stdio.h>

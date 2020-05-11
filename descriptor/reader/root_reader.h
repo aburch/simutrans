@@ -3,6 +3,10 @@
  * (see LICENSE.txt)
  */
 
+#ifndef DESCRIPTOR_READER_ROOT_READER_H
+#define DESCRIPTOR_READER_ROOT_READER_H
+
+
 #include "obj_reader.h"
 
 class root_reader_t : public obj_reader_t {
@@ -19,3 +23,5 @@ public:
 protected:
 	void register_obj(obj_desc_t*&) OVERRIDE;
 };
+
+#endif

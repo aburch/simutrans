@@ -41,8 +41,10 @@
  * @author neroden (Nathanael Nerode)
  */
 
-#ifndef PIECEWISE_LINEAR_TPL_H
-#define PIECEWISE_LINEAR_TPL_H
+#ifndef TPL_PIECEWISE_LINEAR_TPL_H
+#define TPL_PIECEWISE_LINEAR_TPL_H
+
+
 // Integer types
 #include "../simtypes.h"
 // Data structure is from vector_tpl

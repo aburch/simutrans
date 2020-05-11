@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef message_option_h
-#define message_option_h
+#ifndef GUI_MESSAGE_OPTION_T_H
+#define GUI_MESSAGE_OPTION_T_H
+
 
 #include "../simmesg.h"
 #include "../gui/simwin.h"

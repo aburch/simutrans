@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simplay_h
-#define simplay_h
+#ifndef PLAYER_SIMPLAY_H
+#define PLAYER_SIMPLAY_H
+
 
 #include "../network/pwd_hash.h"
 #include "../simtypes.h"

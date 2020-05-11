@@ -3,6 +3,10 @@
  * (see LICENSE.txt)
  */
 
+#ifndef SCROLLTEXT_H
+#define SCROLLTEXT_H
+
+
 /* prissi: first part is left, second part right side */
 
 "","",
@@ -52,6 +56,7 @@
 " Inkelyad", "developer",
 " Isidoro","developer (vehicle replacement)",
 " Ranran", "UI features",
+" ceeac", "patches",
 " Freahk", "patch",
 " Progger", "patches",
 " Andrew Carlotti", "patches",
@@ -382,3 +387,5 @@
 "","",
 "","",
 0
+
+#endif

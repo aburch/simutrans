@@ -205,21 +205,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	// nothing in lists
 	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y, karte_t::marker_index);
 
-	// there are several variant for maintaining the open list
-	// however, only binary heap and HOT queue with binary heap are worth considering
-#if defined(tpl_HOT_queue_tpl_h)
-    // static
-	HOT_queue_tpl <ANode *> queue;
-#elif defined(tpl_binary_heap_tpl_h)
-    //static
 	binary_heap_tpl <ANode *> queue;
-#elif defined(tpl_sorted_heap_tpl_h)
-    //static
-	sorted_heap_tpl <ANode *> queue;
-#else
-    //static
-	prioqueue_tpl <ANode *> queue;
-#endif
 
 	// nothing in lists
 	queue.clear();
@@ -316,12 +302,28 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					{
 						// Very rare, but happens occasionally - two cities share a townhall road tile.
 						// Must treat specially in order to avoid a division by zero error
+#ifdef MULTI_THREAD
+						int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+						assert(error == 0);
+#endif
 						origin_city->add_road_connexion(10, destination_city);
+#ifdef MULTI_THREAD
+						error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+						assert(error == 0);
+#endif
 					}
 					else if(origin_city)
 					{
 						const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k.get_2d());
+#ifdef MULTI_THREAD
+						int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+						assert(error == 0);
+#endif
 						origin_city->add_road_connexion(tmp->g / straight_line_distance, welt->access(k.get_2d())->get_city());
+#ifdef MULTI_THREAD
+						error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+						assert(error == 0);
+#endif
 					}
 				}
 				else
@@ -357,7 +359,15 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 						if(destination_industry && origin_city)
 						{
 							// This is an industry
+#ifdef MULTI_THREAD
+							int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+							assert(error == 0);
+#endif
 							origin_city->add_road_connexion(journey_time_per_tile, destination_industry);
+#ifdef MULTI_THREAD
+							error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+							assert(error == 0);
+#endif
 #if 0
 							if (destination_city)
 							{
@@ -368,7 +378,15 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 						}
 						else if (origin_city && gb->is_attraction())
 						{
+#ifdef MULTI_THREAD
+							int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+							assert(error == 0);
+#endif
 							origin_city->add_road_connexion(journey_time_per_tile, gb);
+#ifdef MULTI_THREAD
+							error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+							assert(error == 0);
+#endif
 #if 0
 							if (!destination_city)
 							{
@@ -671,21 +689,7 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_size());
 	}
 
-	// there are several variant for maintaining the open list
-	// however, only binary heap and HOT queue with binary heap are worth considering
-#if defined(tpl_HOT_queue_tpl_h)
-    // static
-	HOT_queue_tpl <ANode *> queue;
-#elif defined(tpl_binary_heap_tpl_h)
-    //static
 	binary_heap_tpl <ANode *> queue;
-#elif defined(tpl_sorted_heap_tpl_h)
-    //static
-	sorted_heap_tpl <ANode *> queue;
-#else
-    //static
-	prioqueue_tpl <ANode *> queue;
-#endif
 
 	ANode *nodes;
 	uint8 ni = GET_NODES(&nodes);

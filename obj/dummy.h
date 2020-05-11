@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef obj_dummy_h
-#define obj_dummy_h
+#ifndef OBJ_DUMMY_H
+#define OBJ_DUMMY_H
+
 
 #include "../simobj.h"
 #include "../display/simimg.h"

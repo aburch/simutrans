@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef tpl_hashtable_tpl_h
-#define tpl_hashtable_tpl_h
+#ifndef TPL_HASHTABLE_TPL_H
+#define TPL_HASHTABLE_TPL_H
+
 
 #include "slist_tpl.h"
 #include "../macros.h"

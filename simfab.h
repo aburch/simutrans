@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simfab_h
-#define simfab_h
+#ifndef SIMFAB_H
+#define SIMFAB_H
+
 
 #include <algorithm>
 

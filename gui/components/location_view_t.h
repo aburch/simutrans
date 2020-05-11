@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef LOCATION_VIEW_T_H
-#define LOCATION_VIEW_T_H
+#ifndef GUI_COMPONENTS_LOCATION_VIEW_T_H
+#define GUI_COMPONENTS_LOCATION_VIEW_T_H
+
 
 #include "gui_world_view_t.h"
 

@@ -3,6 +3,10 @@
  * (see LICENSE.txt)
  */
 
+#ifndef GUI_HALT_LIST_FILTER_FRAME_H
+#define GUI_HALT_LIST_FILTER_FRAME_H
+
+
 #include "gui_frame.h"
 #include "components/gui_label.h"
 #include "components/gui_scrollpane.h"
@@ -138,3 +142,5 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
+
+#endif

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simconvoi_h
-#define simconvoi_h
+#ifndef SIMCONVOI_H
+#define SIMCONVOI_H
+
 
 #include "simtypes.h"
 #include "simunits.h"

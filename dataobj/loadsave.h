@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef loadsave_h
-#define loadsave_h
+#ifndef DATAOBJ_LOADSAVE_H
+#define DATAOBJ_LOADSAVE_H
+
 
 #include <stdio.h>
 #include <string>

@@ -62,8 +62,9 @@ Example:
                                |                                | efree(buffer);
 */
 
-#ifndef SNPRINTF_H
-#define SNPRINTF_H
+#ifndef UTILS_SNPRINTF_H
+#define UTILS_SNPRINTF_H
+
 
 BEGIN_EXTERN_C()
 PHPAPI int ap_php_snprintf(char *, size_t, const char *, ...) PHP_ATTRIBUTE_FORMAT(printf, 3, 4);

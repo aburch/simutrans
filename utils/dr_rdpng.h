@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef DR_RDPNG_H
-#define DR_RDPNG_H
+#ifndef UTILS_DR_RDPNG_H
+#define UTILS_DR_RDPNG_H
+
 
 #ifdef __cplusplus
 extern "C" {

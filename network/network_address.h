@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _NETWORK_ADDRESS_H_
-#define _NETWORK_ADDRESS_H_
+#ifndef NETWORK_NETWORK_ADDRESS_H
+#define NETWORK_NETWORK_ADDRESS_H
+
 
 #include "../simtypes.h"
 #include "../tpl/vector_tpl.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _NETWORK_PACKET_H
-#define _NETWORK_PACKET_H
+#ifndef NETWORK_NETWORK_PACKET_H
+#define NETWORK_NETWORK_PACKET_H
+
 
 #include "../simtypes.h"
 #include "memory_rw.h"

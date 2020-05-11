@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GROUNDOBJ_WRITER_H
-#define GROUNDOBJ_WRITER_H
+#ifndef DESCRIPTOR_WRITER_GROUNDOBJ_WRITER_H
+#define DESCRIPTOR_WRITER_GROUNDOBJ_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

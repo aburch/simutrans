@@ -6,6 +6,7 @@
 #ifndef TPL_ORDERED_VECTOR_TPL_H
 #define TPL_ORDERED_VECTOR_TPL_H
 
+
 #ifndef ITERATE
 #define ITERATE(collection,enumerator) for(uint32 enumerator = 0; enumerator < (collection).get_count(); enumerator++)
 #endif

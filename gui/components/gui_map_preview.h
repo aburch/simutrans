@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_gui_map_preview_h
-#define gui_gui_map_preview_h
+#ifndef GUI_COMPONENTS_GUI_MAP_PREVIEW_H
+#define GUI_COMPONENTS_GUI_MAP_PREVIEW_H
+
 
 #include "gui_component.h"
 #include "../../simcolor.h"

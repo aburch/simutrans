@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef route_h
-#define route_h
+#ifndef DATAOBJ_ROUTE_H
+#define DATAOBJ_ROUTE_H
+
 
 #include "../simdebug.h"
 

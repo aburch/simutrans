@@ -3,6 +3,10 @@
  * (see LICENSE.txt)
  */
 
+#ifndef GUI_SOUND_FRAME_H
+#define GUI_SOUND_FRAME_H
+
+
 /*
  * Dialog for sound settings
  *
@@ -61,3 +65,5 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
+
+#endif

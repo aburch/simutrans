@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef KOORD3D_H
-#define KOORD3D_H
+#ifndef DATAOBJ_KOORD3D_H
+#define DATAOBJ_KOORD3D_H
+
 
 #include "koord.h"
 #include "ribi.h"

@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BUILDING_WRITER_H
-#define BUILDING_WRITER_H
+#ifndef DESCRIPTOR_WRITER_BUILDING_WRITER_H
+#define DESCRIPTOR_WRITER_BUILDING_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

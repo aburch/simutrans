@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef simlinemgmt_h
-#define simlinemgmt_h
+#ifndef SIMLINEMGMT_H
+#define SIMLINEMGMT_H
+
 
 #include "linehandle_t.h"
 #include "simtypes.h"

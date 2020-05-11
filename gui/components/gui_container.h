@@ -3,16 +3,8 @@
  * (see LICENSE.txt)
  */
 
-/**
- * A container for other gui_components. Is itself
- * a gui_component, and can therefore be nested.
- *
- * @author Hj. Malthaner
- * @date 03-Mar-01
- */
-
-#ifndef gui_container_h
-#define gui_container_h
+#ifndef GUI_COMPONENTS_GUI_CONTAINER_H
+#define GUI_COMPONENTS_GUI_CONTAINER_H
 
 
 #include "../../simdebug.h"
@@ -20,6 +12,14 @@
 #include "../../tpl/slist_tpl.h"
 #include "gui_component.h"
 
+
+/**
+ * A container for other gui_components. Is itself
+ * a gui_component, and can therefore be nested.
+ *
+ * @author Hj. Malthaner
+ * @date 03-Mar-01
+ */
 class gui_container_t : public gui_component_t
 {
 private:

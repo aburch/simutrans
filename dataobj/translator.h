@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef TRANSLATOR_H
-#define TRANSLATOR_H
+#ifndef DATAOBJ_TRANSLATOR_H
+#define DATAOBJ_TRANSLATOR_H
+
 
 #include <stdio.h>
 #include <string>

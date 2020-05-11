@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef gui_factory_edit_h
-#define gui_factory_edit_h
+#ifndef GUI_FACTORY_EDIT_H
+#define GUI_FACTORY_EDIT_H
+
 
 #include "extend_edit.h"
 #include "components/gui_label.h"

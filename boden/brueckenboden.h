@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef brueckenboden_h
-#define brueckenboden_h
+#ifndef BODEN_BRUECKENBODEN_H
+#define BODEN_BRUECKENBODEN_H
+
 
 #include "grund.h"
 
