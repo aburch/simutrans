@@ -32,7 +32,8 @@ bool curiositylist_frame_t::filter_own_network = false;
 
 const char *curiositylist_frame_t::sort_text[curiositylist::SORT_MODES] = {
 	"hl_btn_sort_name",
-	"Passagierrate"/*,
+	"Passagierrate",
+	"sort_pas_arrived"/*,
 		     "Postrate"*/
 };
 

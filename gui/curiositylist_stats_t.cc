@@ -60,6 +60,12 @@ class compare_curiosities
 				case curiositylist::by_paxlevel:
 					cmp = a->get_adjusted_visitor_demand() - b->get_adjusted_visitor_demand();
 					break;
+
+				case curiositylist::by_pax_arrived:
+					int a_arrive = a->get_passengers_succeeded_commuting() == 65535 ? a->get_passengers_succeeded_visiting() : a->get_passengers_succeeded_visiting() + a->get_passengers_succeeded_commuting();
+					int b_arrive = b->get_passengers_succeeded_commuting() == 65535 ? b->get_passengers_succeeded_visiting() : b->get_passengers_succeeded_visiting() + b->get_passengers_succeeded_commuting();
+					cmp = a_arrive - b_arrive;
+					break;
 			}
 			return reverse ? cmp > 0 : cmp < 0;
 		}
@@ -245,7 +251,9 @@ void curiositylist_stats_t::draw(scr_coord offset)
 		}
 		*dst = '\0';
 		// now we have a short name ...
-		buf.printf("%s (%d)", short_name, geb->get_adjusted_visitor_demand());
+		buf.printf("%s (%d/%d)", short_name,
+			geb->get_passengers_succeeded_commuting() == 65535 ? geb->get_passengers_succeeded_visiting() : geb->get_passengers_succeeded_visiting() + geb->get_passengers_succeeded_commuting(),
+			geb->get_adjusted_visitor_demand());
 
 		display_proportional_clip(xoff+D_INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,SYSCOL_TEXT,true);
 
