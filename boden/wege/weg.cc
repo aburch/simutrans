@@ -1378,6 +1378,19 @@ void weg_t::calc_image()
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &weg_calc_image_mutex );
 #endif
+	
+#ifdef DEBUG_PRIVATE_CAR_ROUTES
+	if (private_car_routes[private_car_routes_currently_reading_element].empty())
+	{
+		set_image(IMG_EMPTY);
+		set_after_image(IMG_EMPTY);
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&weg_calc_image_mutex);
+#endif
+		return;
+	}
+#endif
+	
 	grund_t *from = welt->lookup(get_pos());
 	grund_t *to;
 	image_id old_image = image;
@@ -1854,6 +1867,9 @@ void weg_t::add_private_car_route(koord destination, koord3d next_tile)
 	error = pthread_mutex_unlock(&private_car_store_route_mutex);
 	assert(error == 0);
 #endif	
+#ifdef DEBUG_PRIVATE_CAR_ROUTES
+	calc_image();
+#endif
 }
 
 void weg_t::delete_all_routes_from_here(bool reading_set)
@@ -1875,6 +1891,9 @@ void weg_t::delete_all_routes_from_here(bool reading_set)
 			delete_route_to(dest, reading_set);
 		}
 	}
+#ifdef DEBUG_PRIVATE_CAR_ROUTES
+	calc_image();
+#endif
 }
 
 void weg_t::delete_route_to(koord destination, bool reading_set)
@@ -1882,24 +1901,26 @@ void weg_t::delete_route_to(koord destination, bool reading_set)
 	const uint32 routes_index = reading_set ? private_car_routes_currently_reading_element : get_private_car_routes_currently_writing_element();
 
 	koord3d next_tile = get_pos();
-	koord3d previous_next_tile = next_tile;
+	koord3d this_tile = next_tile;
 	while (next_tile != koord3d::invalid && next_tile != koord3d(0, 0, 0))
 	{
 		const grund_t* gr = welt->lookup(next_tile);
-		next_tile = private_car_routes[routes_index].get(destination);
+		
+		next_tile = koord3d::invalid;
 		if (gr)
 		{
 			weg_t* const w = gr->get_weg(road_wt);
 			if (w)
 			{
-				w->remove_private_car_route(destination, reading_set); 
+				next_tile = w->private_car_routes[routes_index].get(destination);
+				w->remove_private_car_route(destination, reading_set);
 			}
 		}
-		if (previous_next_tile == next_tile)
+		if (this_tile == next_tile)
 		{
 			break;
 		}
-		previous_next_tile = next_tile;
+		this_tile = next_tile;
 	}
 }
 
