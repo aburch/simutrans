@@ -624,7 +624,7 @@ bool bridge_builder_t::can_place_ramp(player_t *player, const grund_t *gr, wayty
 
 		if(wt!=road_wt) {
 			// only road bridges can have other ways on it (ie trams)
-			if(gr->has_two_ways()  ||  gr->get_weg(wt) == NULL) {
+			if(gr->has_two_ways()  ||  (gr->hat_wege()  && gr->get_weg(wt) == NULL) ) {
 				return false;
 			}
 			if (test_ribi  &&  (gr->get_weg_ribi_unmasked(wt) & ~r) != 0) {
