@@ -189,43 +189,50 @@ void curiositylist_stats_t::draw(scr_coord offset)
 		buf.clear();
 
 		// is connected?
-		enum{ no_one_connected = 0, someone_connected=1, self_connected=2 };
+		enum{ no_networks = 0, someones_network=1, own_network=2 };
 		uint8 mail = 0;
 		uint8 pax  = 0;
-		bool pax_crowded = false;
+		uint8 pax_crowded = 0;
 		const planquadrat_t *plan = welt->access(geb->get_pos().get_2d());
 		const nearby_halt_t *halt_list = plan->get_haltlist();
 		for(  unsigned h=0;  h < plan->get_haltlist_count();  h++ ) {
 			halthandle_t halt = halt_list[h].halt;
 			if (halt->get_pax_enabled()) {
-				pax |= someone_connected;
 				if (halt->has_available_network(welt->get_active_player(), goods_manager_t::INDEX_PAS)) {
-					pax |= self_connected;
+					pax |= own_network;
+					if (halt->get_pax_unhappy() > 40) {
+						pax_crowded |= own_network;
+					}
 				}
-				if (halt->get_pax_unhappy() > 40) {
-					pax_crowded = true;
+				else{
+					pax |= someones_network;
+					if (halt->get_pax_unhappy() > 40) {
+						pax_crowded |= someones_network;
+					}
 				}
 			}
 			if (halt->get_mail_enabled()) {
-				mail |= someone_connected;
 				if (halt->has_available_network(welt->get_active_player(), goods_manager_t::INDEX_MAIL)) {
-					mail |= self_connected;
+					mail |= own_network;
+				}
+				else {
+					mail |= someones_network;
 				}
 			}
 		}
 
 		xoff += D_POS_BUTTON_WIDTH+2;
-		if (pax & self_connected) {
+		if (pax & own_network) {
 			display_color_img(skinverwaltung_t::passengers->get_image_id(0), xoff, yoff + 2, 0, false, false);
 		}
-		else if (pax & someone_connected) {
+		else if (pax & someones_network) {
 			display_img_blend(skinverwaltung_t::passengers->get_image_id(0), xoff, yoff + 2, TRANSPARENT25_FLAG, false, false);
 		}
 		xoff += 9; // symbol width
-		if (mail & self_connected) {
+		if (mail & own_network) {
 			display_color_img(skinverwaltung_t::mail->get_image_id(0), xoff, yoff + 2, 0, false, false);
 		}
-		else if (mail & someone_connected) {
+		else if (mail & someones_network) {
 			display_img_blend(skinverwaltung_t::mail->get_image_id(0), xoff, yoff + 2, TRANSPARENT25_FLAG, false, false);
 		}
 		xoff += 9; // symbol width
@@ -264,7 +271,15 @@ void curiositylist_stats_t::draw(scr_coord offset)
 		xoff += display_proportional_clip(xoff, yoff, buf, ALIGN_LEFT, pax_crowded ? COL_OVERCROWD-1 : SYSCOL_TEXT, true);
 		buf.clear();
 		buf.printf("/%d)", geb->get_adjusted_visitor_demand());
-		display_proportional_clip(xoff,yoff,buf,ALIGN_LEFT,SYSCOL_TEXT,true);
+		xoff += display_proportional_clip(xoff,yoff,buf,ALIGN_LEFT,SYSCOL_TEXT,true) + D_H_SPACE;
+
+		// Pakset must have pax evaluation symbols to show overcrowding symbol
+		if (pax_crowded & own_network && skinverwaltung_t::pax_evaluation_icons) {
+			display_color_img(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), xoff, yoff, 0, false, false);
+		}
+		else if (pax_crowded & someones_network && skinverwaltung_t::pax_evaluation_icons) {
+			display_img_blend(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), xoff, yoff, TRANSPARENT25_FLAG, false, false);
+		}
 
 		if(  win_get_magic( (ptrdiff_t)geb )  ) {
 			display_blend_wh( offset.x+D_POS_BUTTON_WIDTH+D_H_SPACE, yoff, size.w, LINESPACE, SYSCOL_TEXT, 25 );
