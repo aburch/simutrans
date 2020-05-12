@@ -3982,8 +3982,18 @@ bool fabrik_t::is_connect_own_network() const
 {
 	FOR(vector_tpl<nearby_halt_t>, const i, nearby_freight_halts)
 	{
-		if(i.halt->get_owner() == welt->get_active_player() || i.halt->get_owner() == welt->get_public_player()){
+		if(i.halt->get_owner() == welt->get_active_player()){
+			// In the case of owning station, it only needs to have freight facilities.
+			// It may still be in preparation...
 			return true;
+		}
+		else {
+			for (uint8 catg_index = goods_manager_t::INDEX_NONE+1; catg_index < goods_manager_t::get_max_catg_index(); catg_index++)
+			{
+				if (i.halt->has_available_network(welt->get_active_player(), catg_index)) {
+					return true;
+				}
+			}
 		}
 	}
 	return false;
