@@ -195,7 +195,7 @@ void curiositylist_stats_t::draw(scr_coord offset)
 		bool pax_crowded = false;
 		const planquadrat_t *plan = welt->access(geb->get_pos().get_2d());
 		const nearby_halt_t *halt_list = plan->get_haltlist();
-		for(  unsigned h=0;  (mail&pax)==0  &&  h<plan->get_haltlist_count();  h++ ) {
+		for(  unsigned h=0;  h < plan->get_haltlist_count();  h++ ) {
 			halthandle_t halt = halt_list[h].halt;
 			if (halt->get_pax_enabled()) {
 				pax |= someone_connected;
