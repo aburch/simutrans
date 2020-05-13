@@ -8849,7 +8849,12 @@ bool tool_change_line_t::init( player_t *player )
 	switch(  tool  ) {
 		case 'c': // create line, next parameter line type and magic of schedule window (only right window gets updated)
 			{
-				line = player->simlinemgmt.create_line( atoi(p), player );
+				int ltype = atoi(p);
+				if(ltype < simline_t::truckline  ||  ltype > simline_t::narrowgaugeline) {
+					// invalid line type
+					break;
+				}
+				line = player->simlinemgmt.create_line( ltype, player );
 				while(  *p  &&  *p++!=','  ) {
 				}
 				long t;
