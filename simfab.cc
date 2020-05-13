@@ -3978,6 +3978,11 @@ bool fabrik_t::chk_staff_shortage (uint8 ftype, sint32 staffing_level_percentage
 	return false;
 }
 
+sint32 fabrik_t::get_staffing_level_percentage() const {
+	gebaeude_t* gb = get_fab(pos.get_2d())->get_building();
+	return gb->get_staffing_level_percentage();
+}
+
 bool fabrik_t::is_connect_own_network() const
 {
 	FOR(vector_tpl<nearby_halt_t>, const i, nearby_freight_halts)

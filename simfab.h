@@ -754,6 +754,8 @@ public:
 	// Determine shortage of staff for each industry type
 	bool chk_staff_shortage(uint8 abc, sint32 staffing_level_percentage) const;
 
+	sint32 get_staffing_level_percentage() const;
+
 	/**
 	 * Returns a list of goods produced by this factory.
 	 */
