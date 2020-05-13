@@ -254,7 +254,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	if (flags == private_car_checker)
 	{
 		origin_city = welt->access(start.get_2d())->get_city();
-		origin_city->set_private_car_route_finding_in_progress(true);
+		if (origin_city)
+		{
+			origin_city->set_private_car_route_finding_in_progress(true);
+		}
 	}
 
 	uint32 private_car_route_step_counter = 0;
