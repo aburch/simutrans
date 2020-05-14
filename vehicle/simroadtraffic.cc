@@ -1065,9 +1065,9 @@ grund_t* private_car_t::hop_check()
 				const bool backwards = dir_next == ribi_t::backward(current_dir);
 
 				bool direction_allowed = str->get_ribi() & dir_next; 
-				if (!direction_allowed && str->is_diagonal())
+				if (!direction_allowed)
 				{
-					// Allowed directions with diagonals require more calculation.
+					// Check whether the private car is allowed on the subsequent way's direction
 					const koord3d pos_next_next_next = next_way->private_car_routes[weg_t::private_car_routes_currently_reading_element].get(check_target);
 					if (pos_next_next_next != koord3d::invalid)
 					{
