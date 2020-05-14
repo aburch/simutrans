@@ -5131,18 +5131,6 @@ void karte_t::new_month()
 	stadt.update_weights(get_population);
 	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt)
 	{
-		if(recheck_road_connexions)
-		{
-#ifdef MULTI_THREAD
-			int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
-			assert(error == 0);
-#endif
-			cities_awaiting_private_car_route_check.append_unique(s);
-#ifdef MULTI_THREAD
-			error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
-			assert(error == 0);
-#endif
-		}
 		s->new_month();
 		//INT_CHECK("simworld 3117");
 		total_electric_demand += s->get_power_demand();
