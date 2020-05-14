@@ -14,6 +14,7 @@
 #include "components/gui_button_to_chart.h"
 #include "components/gui_label.h"
 #include "components/gui_chart.h"
+#include "components/gui_combobox.h"
 #include "components/gui_scrolled_list.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_tab_panel.h"
@@ -35,6 +36,8 @@ private:
 
 	button_t sortedby;
 	button_t sorteddir;
+	button_t filter_by_owner;
+	gui_combobox_t filterowner;
 
 	gui_scrolled_list_t scrolly;
 
@@ -46,6 +49,8 @@ private:
 
 	gui_aligned_container_t list, statistics;
 	gui_label_buf_t citizens;
+
+	uint32 old_city_count;
 
 	void fill_list();
 	void update_label();
