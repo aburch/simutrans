@@ -86,7 +86,7 @@ goods_frame_t::goods_frame_t() :
 	change_speed_label.set_pos(scr_coord(BUTTON4_X + 5, y));
 	add_component(&change_speed_label);
 
-	y=D_BUTTON_HEIGHT+4;
+	y=D_BUTTON_HEIGHT;
 
 	distance_txt[0] = 0;
 	comfort_txt[0] = 0;
@@ -102,7 +102,7 @@ goods_frame_t::goods_frame_t() :
 	distance_input.add_listener( this );
 	add_component(&distance_input);
 
-	comfort_input.set_pos(scr_coord(BUTTON4_X-22, y + 15) );
+	comfort_input.set_pos(scr_coord(BUTTON4_X-22, y+=D_BUTTON_HEIGHT+1) );
 	comfort_input.set_size(scr_size(60, D_BUTTON_HEIGHT));
 	comfort_input.set_limits( 1, 255 );
 	comfort_input.set_value( comfort );
@@ -110,7 +110,7 @@ goods_frame_t::goods_frame_t() :
 	comfort_input.add_listener( this );
 	add_component(&comfort_input);
 
-	catering_input.set_pos(scr_coord(BUTTON4_X-22, y + 30) );
+	catering_input.set_pos(scr_coord(BUTTON4_X-22, y+=D_BUTTON_HEIGHT+1) );
 	catering_input.set_size(scr_size(60, D_BUTTON_HEIGHT));
 	catering_input.set_limits( 0, 5 );
 	catering_input.set_value( catering_level );
@@ -118,7 +118,7 @@ goods_frame_t::goods_frame_t() :
 	catering_input.add_listener( this );
 	add_component(&catering_input);
 
-	speed_input.set_pos(scr_coord(BUTTON4_X - 22, y + 45));
+	speed_input.set_pos(scr_coord(BUTTON4_X - 22, y+=D_BUTTON_HEIGHT+1));
 	speed_input.set_size(scr_size(60, D_BUTTON_HEIGHT));
 	speed_input.set_limits(19, 9999);
 	speed_input.set_value(vehicle_speed);
@@ -126,7 +126,7 @@ goods_frame_t::goods_frame_t() :
 	speed_input.add_listener(this);
 	add_component(&speed_input);
 
-	class_input.set_pos(scr_coord(BUTTON4_X - 22, y + 60));
+	class_input.set_pos(scr_coord(BUTTON4_X - 22, y+=D_BUTTON_HEIGHT+1));
 	class_input.set_size(scr_size(60, D_BUTTON_HEIGHT));
 	class_input.set_limits(0, max(goods_manager_t::passengers->get_number_of_classes() - 1, goods_manager_t::mail->get_number_of_classes() - 1)); // TODO: Extrapolate this to show the class names as well as just the number
 	class_input.set_value(g_class);
@@ -134,29 +134,34 @@ goods_frame_t::goods_frame_t() :
 	class_input.add_listener(this);
 	add_component(&class_input);
 
-	y=D_BUTTON_HEIGHT+6+5*LINESPACE + 25;
-
-	filter_goods_toggle.init(button_t::square_state, "Show only used", scr_coord(BUTTON1_X, y));
-	filter_goods_toggle.set_tooltip(translator::translate("Only show goods which are currently handled by factories"));
-	filter_goods_toggle.add_listener(this);
-	filter_goods_toggle.pressed = filter_goods;
-	add_component(&filter_goods_toggle);
-	y += LINESPACE+2;
+	y += D_BUTTON_HEIGHT + D_V_SPACE*2;
 
 	sort_label.set_pos(scr_coord(BUTTON1_X, y));
 	add_component(&sort_label);
 
 	y += LINESPACE+1;
 
-	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, y), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sortedby.set_pos(scr_coord(BUTTON1_X, y));
+	sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, LINESPACE * 8));
+	for (int i = 0; i < SORT_MODES; i++) {
+		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
+	}
+	sortedby.set_selection(sortby);
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, y), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH*1.5, y), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	add_component(&sorteddir);
 
-	y += D_BUTTON_HEIGHT+2;
+	filter_goods_toggle.init(button_t::square_state, "Show only used", scr_coord(BUTTON2_X + D_BUTTON_WIDTH*1.5 + D_H_SPACE, y));
+	filter_goods_toggle.set_tooltip(translator::translate("Only show goods which are currently handled by factories"));
+	filter_goods_toggle.add_listener(this);
+	filter_goods_toggle.pressed = filter_goods;
+	add_component(&filter_goods_toggle);
+
+	y += D_BUTTON_HEIGHT+D_V_SPACE;
 
 	scrolly.set_pos(scr_coord(1, y));
 	scrolly.set_scroll_amount_y(LINESPACE+1);
@@ -220,7 +225,6 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 // creates the list and pass it to the child function good_stats, which does the display stuff ...
 void goods_frame_t::sort_list()
 {
-	sortedby.set_text(sort_text[sortby]);
 	sorteddir.set_text(sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
 	// Fetch the list of goods produced by the factories that exist in the current game
@@ -252,7 +256,7 @@ void goods_frame_t::sort_list()
 void goods_frame_t::resize(const scr_coord delta)
 {
 	gui_frame_t::resize(delta);
-	scr_size size = get_windowsize()-scrolly.get_pos()-scr_size(0,D_TITLEBAR_HEIGHT+25);
+	scr_size size = get_windowsize()-scrolly.get_pos()-scr_size(0,D_TITLEBAR_HEIGHT+2);
 	scrolly.set_size(size);
 }
 
@@ -313,30 +317,25 @@ void goods_frame_t::draw(scr_coord pos, scr_size size)
 	gui_frame_t::draw(pos, size);
 
 	descriptive_text.clear();
-	pos.y += 15;
+	pos.y += D_BUTTON_HEIGHT;
 	// TODO: Add translation entry for these
 	descriptive_text.printf("%s:", translator::translate("Distance"));
-	display_multiline_text(pos.x + D_MARGIN_LEFT, pos.y + D_BUTTON_HEIGHT + 4, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
-	pos.y += 15;
+	display_multiline_text(pos.x + D_MARGIN_LEFT, pos.y += D_BUTTON_HEIGHT + 1, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
 	descriptive_text.clear();
 
 	descriptive_text.printf("%s:", translator::translate("Comfort"));
-	display_multiline_text(pos.x + D_MARGIN_LEFT, pos.y + D_BUTTON_HEIGHT + 4, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
-	pos.y += 15;
+	display_multiline_text(pos.x + D_MARGIN_LEFT, pos.y += D_BUTTON_HEIGHT + 1, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
 	descriptive_text.clear();
 
 	descriptive_text.printf("%s:", translator::translate("Catering level"));
-	display_multiline_text(pos.x + D_MARGIN_LEFT, pos.y + D_BUTTON_HEIGHT + 4, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
-	pos.y += 15;
+	display_multiline_text(pos.x + D_MARGIN_LEFT, pos.y += D_BUTTON_HEIGHT + 1, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
 	descriptive_text.clear();
 
 	descriptive_text.printf("%s:", translator::translate("Average speed"));
-	display_multiline_text(pos.x + D_MARGIN_LEFT, pos.y + D_BUTTON_HEIGHT + 4, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
-	pos.y += 15;
+	display_multiline_text(pos.x + D_MARGIN_LEFT, pos.y += D_BUTTON_HEIGHT + 1, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
 	descriptive_text.clear();
 
 	descriptive_text.printf("%s:", translator::translate("Class"));
-	display_multiline_text(pos.x + D_MARGIN_LEFT, pos.y + D_BUTTON_HEIGHT + 4, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
-	pos.y += 15;
+	display_multiline_text(pos.x + D_MARGIN_LEFT, pos.y += D_BUTTON_HEIGHT + 1, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
 	descriptive_text.clear();
 }
