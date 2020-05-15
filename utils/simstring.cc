@@ -270,6 +270,12 @@ char *make_single_line_string(const char *in,int number_of_lines)
  */
 char *tstrncpy(char *dest, const char *src, size_t n)
 {
+	if (dest == src) {
+		// source and destination are the same
+		// avoid copying overlapping memory regions
+		return dest;
+	}
+
 	strncpy(dest, src, n);
 	dest[n-1] = '\0';
 
