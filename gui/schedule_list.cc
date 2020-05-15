@@ -160,6 +160,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	schedule_filter[0] = 0;
 	old_schedule_filter[0] = 0;
 	last_schedule = NULL;
+	old_player = NULL;
 
 	// init scrolled list
 	scl.set_pos(scr_coord(0,1));
