@@ -277,10 +277,6 @@ Show initial passenger departure
 旅客および郵便の発生源を表示
 Show level of city buildings
 市内建築物の旅客度/郵便度を表示
-Show mail service coverage/mail network
-郵便事業が行われている範囲を表示
-Show passenger coverage/passenger network
-旅客事業が行われている範囲を表示
 Show speedlimit of ways
 軌道/道路の制限速度を表示
 Show the change of waiting at halts
@@ -818,7 +814,7 @@ Convois
 Convois: %d\nProfit: %s
 就役編成: %d\n利益: %s
 Convoys
-編成数
+編成
 Copy Convoi
 編成をコピー
 Copy the selected convoi and its schedule or line
@@ -3663,29 +3659,53 @@ Upgrade will be available in the near future
 （混載不可）
 Cannot start: no cab at the front of the convoy.
 編成の構成エラー：\n先頭になれない車両が先頭になっています。（運転台が無い等）
+map_btn_freight
+輸送量
+Stop coverage
+駅の集客範囲
+Show the distance to the nearest station
+最寄りの駅までの距離をカラースケールで表示します。対象駅はフィルターで絞り込めます
+Show contour
+等高線を表示
+Show buildings
+建物を表示
+Color-coded terrain according to altitude.
+海抜高度に応じて地面／海面を色分けします
+Displays buildings in gray and stations in red and have priority over bridges and tunnels
+建物を灰色、駅を赤色で表示します。建物は橋やトンネルより優先表示されます。
+Show how congested that roads are
+道路の混雑度を表示します
+Show convoys
+編成を表示します
+map_btn_building_level
+発展度
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
-Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
-旅客 %d %c, %d %c, %d 経路なし\n\n定員/容量: %i\n
-Passengers %d %c, %d %c, %d no route
-旅客の評価 %d %c, %d %c, %d 経路無し
-Passengers %d %s, %d %s, %d no route
-旅客の評価 %d %s, %d %s, %d 経路無し
-Passengers %d %c, %d %c, %d no route, %d too slow
-旅客の評価 %d %c, %d %c, %d 経路無し, %d 許容時間超過
-Passengers %d %s, %d %s, %d no route, %d too slow
-旅客の評価 %d %s, %d %s, %d 経路無し, %d 許容時間超過
-Unhappy
-不幸せ
-The number of passengers who have left because of overcrowding or excess waiting
-混雑や駅での待ち時間のため旅行を取り止めた旅客の人数を表します。
-Arbeiter aus:
-労働者居住地:
-No Route
-経路無し
-Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community
-ようこそSimutrans-Extendedへ! Simutrans-StandardはHj. MalthanerとSimutransコミュニティによって開発されました。Simutrans-ExtendedはSimutrans-Standardを元にしてJames E. PettsとSimutransコミュニティによって開発されました。
-Usage/Output
-使用量/発電量
-Power (MW)
-電力 (MW)
+#Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
+#旅客 %d %c, %d %c, %d 経路なし\n\n定員/容量: %i\n
+#Passengers %d %c, %d %c, %d no route
+#旅客の評価 %d %c, %d %c, %d 経路無し
+#Passengers %d %s, %d %s, %d no route
+#旅客の評価 %d %s, %d %s, %d 経路無し
+#Passengers %d %c, %d %c, %d no route, %d too slow
+#旅客の評価 %d %c, %d %c, %d 経路無し, %d 許容時間超過
+#Passengers %d %s, %d %s, %d no route, %d too slow
+#旅客の評価 %d %s, %d %s, %d 経路無し, %d 許容時間超過
+#Unhappy
+#不幸せ
+#The number of passengers who have left because of overcrowding or excess waiting
+#混雑や駅での待ち時間のため旅行を取り止めた旅客の人数を表します。
+#Arbeiter aus:
+#労働者居住地:
+#No Route
+#経路無し
+#Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community
+#ようこそSimutrans-Extendedへ! Simutrans-StandardはHj. MalthanerとSimutransコミュニティによって開発されました。Simutrans-ExtendedはSimutrans-Standardを元にしてJames E. PettsとSimutransコミュニティによって開発されました。
+#Usage/Output
+#使用量/発電量
+#Power (MW)
+#電力 (MW)
+#Show mail service coverage/mail network
+#郵便事業が行われている範囲を表示
+#Show passenger coverage/passenger network
+#旅客事業が行われている範囲を表示

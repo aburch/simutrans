@@ -25,11 +25,12 @@ class schedule_t;
 class loadsave_t;
 class goods_desc_t;
 
-
 #define MAX_SEVERITY_COLORS 10
 #define MAX_MAP_ZOOM 4
 // set to zero to use the small font
 #define ALWAYS_LARGE 1
+
+#define MAP_TRANSPORT_TYPE_ITEMS (9)
 
 /**
  * This class is used to render the relief map.
@@ -43,8 +44,8 @@ public:
 	enum MAP_MODES {
 		PLAIN    = 0,
 		MAP_TOWN = 1,
-		MAP_PASSENGER = 1<<1,
-		MAP_MAIL = 1<<2,
+		MAP_STATION_COVERAGE = 1<<1,
+		MAP_CONVOYS = 1<<2,
 		MAP_FREIGHT = 1<<3,
 		MAP_STATUS = 1<<4,
 		MAP_SERVICE = 1<<5,
@@ -73,7 +74,7 @@ public:
 		MAP_MAIL_DELIVERY = 1 << 28,
 		MAP_CONGESTION = 1 << 29,
 		MAP_MODE_HALT_FLAGS = (MAP_STATUS|MAP_SERVICE|MAP_ORIGIN|MAP_TRANSFER|MAP_WAITING|MAP_WAITCHANGE),
-		MAP_MODE_FLAGS = (MAP_TOWN|MAP_CITYLIMIT|MAP_STATUS|MAP_SERVICE|MAP_WAITING|MAP_WAITCHANGE|MAP_TRANSFER|MAP_LINES|MAP_FACTORIES|MAP_ORIGIN|MAP_DEPOT|MAP_TOURIST|MAP_PAX_DEST)
+		MAP_MODE_FLAGS = (MAP_TOWN|MAP_CITYLIMIT|MAP_STATUS|MAP_SERVICE|MAP_WAITING|MAP_WAITCHANGE|MAP_TRANSFER|MAP_LINES|MAP_FACTORIES|MAP_ORIGIN|MAP_DEPOT|MAP_TOURIST|MAP_CONVOYS)
 	};
 
 private:
@@ -175,6 +176,7 @@ private:
 
 	bool is_matching_freight_catg(const minivec_tpl<uint8> &goods_catg_index);
 
+
 public:
 	scr_coord karte_to_screen(const koord &k) const;
 
@@ -183,6 +185,8 @@ public:
 	// 45 rotated map
 	bool isometric;
 	bool show_network_load_factor;
+	bool show_contour;
+	bool show_buildings;
 
 	int player_showed_on_map;
 	int transport_type_showed_on_map;
@@ -208,7 +212,7 @@ public:
 	static uint8 calc_hoehe_farbe(const sint16 height, const sint16 groundwater);
 
 	// needed for town passenger map
-	static uint8 calc_relief_farbe(const grund_t *gr);
+	static uint8 calc_relief_farbe(const grund_t *gr, bool show_contour = true, bool show_buildings = true);
 
 	// public, since the convoi updates need this
 	// nonstatic, if we have someday many maps ...
