@@ -3669,7 +3669,7 @@ Show contour
 等高線を表示
 Show buildings
 建物を表示
-Color-coded according to ground / sea level altitude
+Color-coded terrain according to altitude.
 海抜高度に応じて地面／海面を色分けします
 Displays buildings in gray and stations in red and have priority over bridges and tunnels
 建物を灰色、駅を赤色で表示します。建物は橋やトンネルより優先表示されます。

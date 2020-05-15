@@ -685,7 +685,12 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour, boo
 					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
 					if(fab==NULL) {
 						sint16 height = (gr->get_grund_hang()%3);
-						color = show_contour ? calc_hoehe_farbe( welt->lookup_hgt( gr->get_pos().get_2d() ) + height, welt->get_water_hgt( gr->get_pos().get_2d() ) ) : map_type_color[MAX_MAP_TYPE_WATER-1];
+						if (show_contour) {
+							color = calc_hoehe_farbe(welt->lookup_hgt(gr->get_pos().get_2d()) + height, welt->get_water_hgt(gr->get_pos().get_2d()));
+						}
+						else {
+							color = map_type_color[MAX_MAP_TYPE_WATER - 1];
+						}
 						//color = COL_BLUE;	// water with boat?
 					}
 					else {

@@ -4044,8 +4044,8 @@ Show contour
 Show contour
 Show buildings
 Show buildings
-Color-coded according to ground / sea level altitude
-Color-coded according to ground / sea level altitude
+Color-coded terrain according to altitude.
+Color-coded terrain according to altitude.
 Displays buildings in gray and stations in red and have priority over bridges and tunnels
 Displays buildings in gray and stations in red and have priority over bridges and tunnels
 map_btn_freight

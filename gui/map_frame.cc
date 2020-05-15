@@ -201,7 +201,7 @@ map_frame_t::map_frame_t() :
 	zoom_buttons[1].init(button_t::repeatarrowright, NULL, cursor);
 	zoom_buttons[1].add_listener( this );
 	add_component( zoom_buttons+1 );
-	cursor.x += zoom_buttons[1].get_size().w + D_H_SPACE;
+	cursor.x += zoom_buttons[1].get_size().w + D_H_SPACE*2;
 
 	// rotate map 45° (isometric view)
 	b_rotate45.init( button_t::square_state, "isometric map", cursor);
@@ -209,15 +209,15 @@ map_frame_t::map_frame_t() :
 	b_rotate45.add_listener(this);
 	b_rotate45.pressed = karte->isometric;
 	add_component(&b_rotate45);
-	cursor.x += b_rotate45.get_size().w + D_H_SPACE;
+	cursor.x += b_rotate45.get_size().w + D_H_SPACE*2;
 
 	// show contour
 	b_show_contour.init(button_t::square_state, "Show contour", cursor);
-	b_show_contour.set_tooltip("Color-coded according to ground / sea level altitude");
+	b_show_contour.set_tooltip("Color-coded terrain according to altitude.");
 	b_show_contour.add_listener(this);
 	b_show_contour.pressed = karte->show_contour;
 	add_component(&b_show_contour);
-	cursor.x += b_show_contour.get_size().w + D_H_SPACE;
+	cursor.x += b_show_contour.get_size().w + D_H_SPACE*2;
 
 	// show the building layer
 	b_show_buildings.init(button_t::square_state, "Show buildings", cursor);
