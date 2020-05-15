@@ -710,6 +710,7 @@ bool fabrik_t::is_within_players_network( const player_t* player ) const
 			}
 		}
 	}
+	return false;
 }
 
 
