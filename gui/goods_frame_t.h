@@ -54,7 +54,7 @@ private:
 	uint16		good_list[256];
 
 	gui_label_t		sort_label;
-	button_t		sortedby;
+	gui_combobox_t	sortedby;
 	button_t		sorteddir;
 	gui_label_t		change_speed_label;
 	gui_label_t		change_distance_label;
