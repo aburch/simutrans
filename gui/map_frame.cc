@@ -264,9 +264,6 @@ map_frame_t::map_frame_t() :
 	filter_container.add_component(&viewed_player_c);
 
 	// freight combo for network overlay
-	freight_type_c.set_pos( scr_coord(2*D_BUTTON_WIDTH+3*D_H_SPACE, 0) );
-	freight_type_c.set_size( scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
-	freight_type_c.set_max_size( scr_size( 116, 5 * D_BUTTON_HEIGHT) );
 	{
 		viewable_freight_types.append(NULL);
 		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("All"), SYSCOL_TEXT) ;
