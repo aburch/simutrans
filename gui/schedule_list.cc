@@ -661,7 +661,7 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 		const bool activate = old_player == player || old_player == welt->get_player( 1 );
 		bt_delete_line.enable( activate );
 		bt_edit_line.enable( activate );
-		bt_new_line.enable( activate );
+		bt_new_line.enable( activate   &&  tabs.get_active_tab_index() > 0);
 		bt_withdraw_line.enable( activate );
 	}
 
