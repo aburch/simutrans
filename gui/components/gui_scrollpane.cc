@@ -112,7 +112,7 @@ void gui_scrollpane_t::set_size(scr_size size)
 
 	cached_min_size = comp->get_min_size();
 	cached_max_size = comp->get_max_size();
-	take_cached_size = true;
+	take_cached_size = false; // disabled, there is no proper way to check whether cache is still valid
 
 	c_size.clip_lefttop( cached_min_size );
 	c_size.clip_rightbottom( cached_max_size );
