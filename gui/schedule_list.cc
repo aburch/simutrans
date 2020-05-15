@@ -123,6 +123,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	schedule_filter[0] = 0;
 	old_schedule_filter[0] = 0;
 	last_schedule = NULL;
+	old_player = NULL;
 
 	// add components
 	// first column: scrolled list of all lines
