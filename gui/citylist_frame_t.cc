@@ -205,7 +205,7 @@ void citylist_frame_t::fill_list()
 }
 
 
-bool citylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
+bool citylist_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 {
 	if(comp == &sortedby) {
 		int i = citylist_stats_t::sort_mode & ~citylist_stats_t::SORT_REVERSE;
@@ -221,7 +221,7 @@ bool citylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		scrolly.sort(0);
 	}
 	else if(comp == &filterowner) {
-		if(  filter_by_owner.pressed ) { 
+		if(  filter_by_owner.pressed ) {
 			fill_list();
 		}
 	}
