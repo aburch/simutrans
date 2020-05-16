@@ -981,7 +981,13 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				const leitung_t* lt = gr->find<leitung_t>();
 				if(lt!=NULL) {
-					set_relief_farbe(k, calc_severity_color((sint32)lt->get_net()->get_demand(),(sint32)lt->get_net()->get_supply()) );
+					const uint64 demand = lt->get_net()->get_demand();
+					if (!lt->get_net()->get_demand() || !lt->get_net()->get_supply()) {
+						set_relief_farbe(k, MAP_COL_NODATA);
+					}
+					else if (demand) {
+						set_relief_farbe(k, calc_severity_color((sint32)lt->get_net()->get_demand(), (sint32)lt->get_net()->get_supply()));
+					}
 				}
 			}
 			break;
