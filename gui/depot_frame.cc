@@ -532,7 +532,7 @@ void depot_frame_t::set_resale_value(uint32 nominal_cost, sint64 resale_value)
 {
 	if (nominal_cost == resale_value) {
 		bt_sell.set_text(translator::translate("Refund"));
-		bt_sell.set_tooltip("Return the vehicle for a full refund.");
+		bt_sell.set_tooltip("Return the vehicle(s) for a full refund.");
 	}
 	else if (resale_value == 0) {
 		bt_sell.set_text(translator::translate("Scrap"));
