@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #if defined(_M_X64)  ||  defined(__x86_64__)
 #if __GNUC__
 #warning "Simutrans is preferably compiled as 32 bit binary!"
@@ -539,8 +544,8 @@ int simu_main(int argc, char** argv)
 	char path_to_simuconf[24];
 	// was  config/simuconf.tab
 	sprintf(path_to_simuconf, "config%csimuconf.tab", path_sep[0]);
-	if(simuconf.open(path_to_simuconf)) 
-	{		
+	if(simuconf.open(path_to_simuconf))
+	{
 		found_simuconf = true;
 	}
 	else
@@ -551,7 +556,7 @@ int simu_main(int argc, char** argv)
 		strcpy(backup_program_dir, env_t::program_dir);
 		strcpy( env_t::program_dir, "/usr/share/games/simutrans-ex/" );
         chdir( env_t::program_dir );
-		if(simuconf.open("config/simuconf.tab")) 
+		if(simuconf.open("config/simuconf.tab"))
 		{
 			found_simuconf = true;
 		}
@@ -643,7 +648,7 @@ int simu_main(int argc, char** argv)
 
 	// now read last setting (might be overwritten by the tab-files)
 	loadsave_t file;
-	
+
 #ifdef DEBUG
 	const char xml_filename[32] = "settings-extended-debug.xml";
 #else
@@ -665,9 +670,9 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	if(xml_settings_found)  
+	if(xml_settings_found)
 	{
-		if(file.get_version() > loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).version 
+		if(file.get_version() > loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).version
 			|| file.get_extended_version() > loadsave_t::int_version(EXTENDED_SAVEGAME_VERSION, NULL, NULL).extended_version
 			|| file.get_extended_revision() > EX_SAVE_MINOR)
 		{
@@ -675,7 +680,7 @@ int simu_main(int argc, char** argv)
 			file.close();
 			remove(xml_filename);
 		}
-		else 
+		else
 		{
 			found_settings = true;
 			env_t::rdwr(&file);
@@ -850,7 +855,7 @@ int simu_main(int argc, char** argv)
 
 	if (gimme_arg(argc, argv, "-autodpi", 0)) {
 		dr_auto_scale(true);
-		
+
 	}
 
 	int parameter[2];
@@ -1049,7 +1054,7 @@ int simu_main(int argc, char** argv)
 
 	dbg->important("Reading electricity consumption configuration ...");
 	stadt_t::electricity_consumption_init(env_t::objfilename);
-	
+
 	dbg->important("Reading menu configuration ...");
 	tool_t::init_menu();
 
@@ -1394,7 +1399,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 
 	// save setting ...
 	chdir( env_t::user_dir );
-	if(file.wr_open(xml_filename,loadsave_t::xml,"settings only/",SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)) 
+	if(file.wr_open(xml_filename,loadsave_t::xml,"settings only/",SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR))
 	{
 		env_t::rdwr(&file);
 		env_t::default_settings.rdwr(&file);

@@ -1,12 +1,11 @@
 /*
- * dialog for setting the climate border and other map related parameters
- *
- * Hj. Malthaner
- * April 2000
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef climate_gui_h
-#define climate_gui_h
+#ifndef GUI_CLIMATES_H
+#define GUI_CLIMATES_H
+
 
 #include "gui_frame.h"
 #include "components/gui_button.h"

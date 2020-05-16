@@ -1,5 +1,11 @@
-#ifndef _overtaker_h
-#define _overtaker_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef VEHICLE_OVERTAKER_H
+#define VEHICLE_OVERTAKER_H
+
 
 /**
  * All vehicles that can overtake must include this class

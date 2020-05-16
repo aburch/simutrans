@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Where factory stats are calculated for list dialog
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "factorylist_stats_t.h"
@@ -99,6 +93,9 @@ class compare_factories
 					break;
 				case factorylist::by_sector:
 					cmp = a->get_sector() - b->get_sector();
+					break;
+				case factorylist::by_staffing:
+					cmp = a->get_staffing_level_percentage() - b->get_staffing_level_percentage();
 					break;
 			}
 			if (cmp == 0) {

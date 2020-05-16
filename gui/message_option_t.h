@@ -1,5 +1,11 @@
-#ifndef message_option_h
-#define message_option_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_MESSAGE_OPTION_T_H
+#define GUI_MESSAGE_OPTION_T_H
+
 
 #include "../simmesg.h"
 #include "../gui/simwin.h"

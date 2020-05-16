@@ -1,8 +1,11 @@
 /*
- * part of the Simutrans project
- * @author hsiegeln
- * 01/12/2003
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
+
+#ifndef GUI_LINE_MANAGEMENT_GUI_H
+#define GUI_LINE_MANAGEMENT_GUI_H
+
 
 #include "schedule_gui.h"
 
@@ -29,3 +32,5 @@ public:
 private:
 	linehandle_t line;
 };
+
+#endif

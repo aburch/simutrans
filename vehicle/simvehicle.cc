@@ -1,14 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
- *
- * All moving stuff (vehicle_base_t) and all player vehicle (derived from vehicle_t)
- *
- * 01.11.99  Moved from simobj.cc
- *
- * Hansjoerg Malthaner, Nov. 1999
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <limits.h>
@@ -243,23 +235,19 @@ vehicle_base_t::vehicle_base_t(koord3d pos):
 
 
 
+
+
+
 void vehicle_base_t::rotate90()
 {
-	koord3d pos_cur = get_pos();
-	pos_cur.rotate90( welt->get_size().y-1 );
-	set_pos( pos_cur );
+	obj_t::rotate90();
 	// directions are counterclockwise to ribis!
 	direction = ribi_t::rotate90( direction );
 	pos_next.rotate90( welt->get_size().y-1 );
-	// new offsets: very tricky ...
+	// new offsets
 	sint8 new_dx = -dy*2;
 	dy = dx/2;
 	dx = new_dx;
-	// new pos + step offsets (only possible, since we know the height!
-	sint8 neu_yoff = get_xoff()/2;
-	set_xoff( -get_yoff()*2 );
-	set_yoff( neu_yoff );
-	// adjust disp_lane individually
 }
 
 
@@ -1460,7 +1448,7 @@ vehicle_t::vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player) 
 		// Initialise these with default values.
 		class_reassignments[i] = i;
 	}
-	
+
 	last_stopped_tile = koord3d::invalid;
 
 }
@@ -1506,7 +1494,7 @@ vehicle_t::vehicle_t() :
 	number_of_classes = 0;
 	fracht = NULL;
 	class_reassignments = NULL;
-	
+
 	last_stopped_tile = koord3d::invalid;
 }
 
@@ -1634,7 +1622,7 @@ bool vehicle_t::can_enter_tile(sint32 &restart_speed, uint8 second_check_count)
 {
 	cnv->set_checked_tile_this_step(get_pos());
 	grund_t *gr = welt->lookup(pos_next);
-	if (gr) 
+	if (gr)
 	{
 		bool ok = can_enter_tile( gr, restart_speed, second_check_count );
 		if (!ok)
@@ -1970,7 +1958,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 
 			// Adjust for tilting.
 			// Tilting only makes a difference to reasonably wide corners.
-			if(is_tilting && radius < tilting_min_radius_effect)
+			if(is_tilting && radius > tilting_min_radius_effect)
 			{
 				// Tilting trains can take corners faster
 				corner_limit = (corner_limit * 130) / 100;
@@ -3053,7 +3041,7 @@ bool vehicle_t::check_access(const weg_t* way) const
 	if (desc->get_engine_type() == vehicle_desc_t::MAX_TRACTION_TYPE && desc->get_topspeed() == 8888)
 	{
 		// This is a wayobj checker - only allow on ways actually owned by the player or wholly unowned.
-		return way && (way->get_owner() == nullptr || (way->get_owner() == get_owner())); 
+		return way && (way->get_owner() == nullptr || (way->get_owner() == get_owner()));
 	}
 	return way && (way->is_public_right_of_way() || way->get_owner() == nullptr || way->get_owner() == get_owner() || get_owner() == nullptr || way->get_owner() == current_way->get_owner() || way->get_owner()->allows_access_to(get_owner()->get_player_nr()));
 }
@@ -3455,7 +3443,7 @@ int road_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 
 	// add cost for going (with maximum speed, cost is 1)
 	int costs = (max_speed <= max_tile_speed) ? 10 : 40 - (30 * max_tile_speed) / max_speed;
-	
+
 	// Take traffic congestion into account in determining the cost. Use the same formula as for private cars.
 	const uint32 congestion_percentage = w->get_congestion_percentage();
 	if (congestion_percentage)
@@ -3931,7 +3919,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			// found a car blocking us after checking at least 1 intersection or crossing
 			// and the car is in a place we could stop. So if it can move, assume it will, so we will too.
 			// but check only upto 8 cars ahead to prevent infinite recursion on roundabouts.
-			log_congestion(str); 
+			log_congestion(str);
 			if(  second_check_count >= 8  ) {
 				return false;
 			}
@@ -4615,7 +4603,7 @@ route_t::route_result_t rail_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 	cnv->set_next_reservation_index( 0 );	// nothing to reserve
 	target_halt = halthandle_t();	// no block reserved
 	// use length > 8888 tiles to advance to the end of terminus stations
-	const sint16 tile_length = (cnv->get_schedule()->get_current_entry().reverse == 1 ? 8888 : 0) + cnv->get_tile_length();
+	const sint16 tile_length = (cnv->get_schedule()->get_current_entry().reverse == 1 ? 8888 : 0) + cnv->get_true_tile_length();
 	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : ((get_sum_weight() + 499) / 1000), is_tall, tile_length, SINT64_MAX_VALUE, cnv ? cnv->get_weight_summary().weight / 1000 : get_total_weight());
 	cnv->set_next_stop_index(0);
  	if(r == route_t::valid_route_halt_too_short)
@@ -4640,7 +4628,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 	// Hajo: diesel and steam engines can use electrified track as well.
 	// also allow driving on foreign tracks ...
 	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : desc->get_engine_type() == vehicle_desc_t::electric);
-	
+
 	if((!needs_no_electric && !sch->is_electrified()) || (sch->get_max_speed() == 0 && speed_limit < INT_MAX) || (cnv ? !cnv->check_way_constraints_of_all_vehicles(*sch) : !check_way_constraints(*sch)))
 	{
 		return false;
@@ -4723,7 +4711,7 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	if(cnv && (cnv->get_highest_axle_load() > max_axle_load || (cnv->get_weight_summary().weight / 1000) > bridge_weight_limit) && welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3)
 	{
 		costs += 400;
-	}
+	} 
 
 	if(w->is_diagonal())
 	{
@@ -4830,7 +4818,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 					if (!(gr->is_halt() && gr->get_halt() != target->get_halt()))
 					{
 						// Ignore end of choose signals on platforms: these make no sense
-						// and cause problems. 
+						// and cause problems.
 						target = gr;
 						break_index = idx;
 						break;
@@ -4870,11 +4858,11 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	const uint16 first_block = start_block == 0 ? start_block : start_block - 1;
 	const uint16 second_block = start_block == 0 ? start_block + 1 : start_block;
 	uint16 third_block = start_block == 0 ? start_block + 2 : start_block + 1;
-	third_block = min(third_block, route->get_count() - 1); 
+	third_block = min(third_block, route->get_count() - 1);
 	const koord3d first_tile = route->at(first_block);
 	const koord3d second_tile = route->at(second_block);
 	const koord3d third_tile = route->at(third_block);
-	const grund_t* third_ground = welt->lookup(third_tile); 
+	const grund_t* third_ground = welt->lookup(third_tile);
 	uint8 direction = ribi_type(first_tile, second_tile);
 
 	if (third_ground)
@@ -5090,7 +5078,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// This should only be encountered when a train comes upon a one train staff cabinet having previously stopped at a double block signal or having started from a station.
 		if (working_method == drive_by_sight)
 		{
-			cnv->set_last_signal_pos(koord3d::invalid); 
+			cnv->set_last_signal_pos(koord3d::invalid);
 			const bool ok = block_reserver(cnv->get_route(), max(route_index, 1), welt->get_settings().get_sighting_distance_tiles(), next_signal, 0, true, false);
 			if (!ok)
 			{
@@ -6357,7 +6345,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 										signalbox_last_distant_signal = signal->get_signalbox();
 										last_distant_signal_was_intermediate_block = signal->get_desc()->get_intermediate_block();
 										signs.append_unique(gr);
-									}						
+									}
 									else if (first_double_block_signal_index != last_stop_signal_index)
 									{
 										// The last combined signal is not compatible with this signal's signalbox:
@@ -6633,7 +6621,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							const bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal->get_pos(), get_owner())) == this_halt)
 								&& (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt) && (cnv->get_akt_speed() == 0);
 							// Do not reserve through a token block signal: the train must stop to take the token.
-							if((last_token_block_signal_index > first_stop_signal_index || (!starting_at_signal && !platform_starter)) && (first_double_block_signal_index != last_stop_signal_index) || (first_double_block_signal_index == INVALID_INDEX && last_stop_signal_index == INVALID_INDEX && !starting_at_signal))
+							if((last_token_block_signal_index > first_stop_signal_index || (!starting_at_signal && !platform_starter)) && (first_double_block_signal_index != last_stop_signal_index) || (first_double_block_signal_index == INVALID_INDEX && last_stop_signal_index == INVALID_INDEX && !starting_at_signal && !platform_starter))
 							{
 								count --;
 								end_of_block = true;
@@ -6713,7 +6701,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				{
 					time_interval_starting_point = i;
 				}
-				time_interval_reservation = 
+				time_interval_reservation =
 					   (!next_signal_protects_no_junctions || first_double_block_signal_index < INVALID_INDEX)
 					&& ((this_stop_signal_index < INVALID_INDEX || last_stop_signal_index < INVALID_INDEX) || last_choose_signal_index < INVALID_INDEX) && (count >= 0 || i == start_index)
 					&& ((i - time_interval_starting_point <= welt->get_settings().get_sighting_distance_tiles()) || next_signal_working_method == time_interval_with_telegraph
@@ -7577,7 +7565,7 @@ void rail_vehicle_t::unreserve_station()
 	bool in_station = gr->get_halt().is_bound();
 
 	route_t* route = cnv ? cnv->get_route() : NULL;
-	route_index = min(route_index, route ? route->get_count() - 1 : route_index); 
+	route_index = min(route_index, route ? route->get_count() - 1 : route_index);
 	if (route->get_count() < route_index || route->empty())
 	{
 		// The route has been recalculated, so we cannot
@@ -8043,7 +8031,7 @@ void water_vehicle_t::enter_tile(grund_t* gr)
 bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 {
 	const weg_t *w = bd->get_weg(water_wt);
-	if (cnv->has_tall_vehicles())
+	if (cnv && cnv->has_tall_vehicles())
 	{
 		if (w)
 		{
@@ -8248,20 +8236,20 @@ bool air_vehicle_t:: is_target(const grund_t *gr,const grund_t *)
 			if(ribi_t::is_single(ribi)  &&  (ribi&approach_dir)!=0)
 			{
 				// pointing in our direction
-				
+
 				// Check for length
 				const uint16 min_runway_length_meters = desc->get_minimum_runway_length();
 				uint16 min_runway_length_tiles = ignore_runway_length ? 0 : min_runway_length_meters / welt->get_settings().get_meters_per_tile();
 				if (!ignore_runway_length && min_runway_length_meters % welt->get_settings().get_meters_per_tile())
 				{
 					// Without this, this will be rounded down incorrectly.
-					min_runway_length_tiles ++; 
+					min_runway_length_tiles ++;
 				}
 				uint32 runway_length_tiles;
 
 				bool runway_36_18 = false;
 				bool runway_09_27 = false;
-				
+
 				switch (ribi)
 				{
 				case 1: // north

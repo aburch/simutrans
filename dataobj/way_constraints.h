@@ -1,24 +1,21 @@
 /*
- * Copyright (c) 2010 Bernd Gabriel
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
- * way_constraints_t: a hood for James Petts' permissive and prohibitive way constraints.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#pragma once
+#ifndef DATAOBJ_WAY_CONSTRAINTS_H
+#define DATAOBJ_WAY_CONSTRAINTS_H
 
-#ifndef way_constraints_h
-#define way_constraints_h
 
 #include "../simtypes.h"
 
 
-typedef
-	uint8 way_constraints_mask;
+typedef uint8 way_constraints_mask;
 
 
+/*
+ * way_constraints_t: a hood for James Petts' permissive and prohibitive way constraints.
+ */
 class way_constraints_t
 {
 private:
@@ -34,7 +31,7 @@ public:
 	// number of constaints == number of bits in type way_constraints
 	static uint8 get_count() { return sizeof(way_constraints_mask) * 8; }
 	// getters
-	way_constraints_mask get_permissive() const { return permissive; } 
+	way_constraints_mask get_permissive() const { return permissive; }
 	way_constraints_mask get_prohibitive() const { return prohibitive; }
 	bool get_permissive(uint8 i) const { return permissive & (1<<i); }
 	bool get_prohibitive(uint8 i) const { return prohibitive & (1<<i); }
@@ -45,7 +42,7 @@ public:
 	* Note: this adds new constraints - it does not replace existing ones or reset the constraints.
 	*/
 	void add(const way_constraints_t& add) { permissive |= add.permissive; 	prohibitive |= add.prohibitive;	}
-	void remove(const way_constraints_t& remove) { permissive ^= remove.permissive; prohibitive ^= remove.prohibitive; } 
+	void remove(const way_constraints_t& remove) { permissive ^= remove.permissive; prohibitive ^= remove.prohibitive; }
 };
 
 class way_constraints_of_vehicle_t : public way_constraints_t
@@ -73,6 +70,5 @@ public:
 	 */
 	bool check_next_tile() { return !get_permissive() && !get_prohibitive(); }
 };
-
 
 #endif

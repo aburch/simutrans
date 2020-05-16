@@ -1,8 +1,6 @@
 ﻿/*
- * Copyright (c) 1997 - 2001 Hansj�rg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 /*
@@ -134,7 +132,7 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 	//	}
 	//}
 
-		
+
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0, 0));
 
@@ -334,7 +332,7 @@ void vehicle_class_manager_t::layout(scr_coord pos)
 	}
 
 	//build_class_entries();
-	
+
 	header_height = y + (current_number_of_classes * LINESPACE) + LINESPACE;
 	int actual_width = column_2 + button_width + 10;
 	int default_window_h = D_TITLEBAR_HEIGHT + 50 + 17 * (LINESPACE + 1) + D_SCROLLBAR_HEIGHT - 6;
@@ -474,7 +472,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				{
 					buf.clear();
 					buf.printf("%s: %i %s", translator::translate(pass_class_name_untranslated[i]), pass_capacity_at_class[i], pass_name);
-					display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);		
+					display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					offset_y += LINESPACE;
 					current_number_of_classes++;
 				}
@@ -499,7 +497,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				}
 			}
 
-			// Now, on the right side of the window, show whether this have any catering- or tpo facilities	
+			// Now, on the right side of the window, show whether this have any catering- or tpo facilities
 			catering_entry += (current_number_of_accommodations * LINESPACE) + (LINESPACE*3);
 			if (highest_catering > 0)
 			{
@@ -810,8 +808,8 @@ gui_class_vehicleinfo_t::gui_class_vehicleinfo_t(convoihandle_t cnv)
 	//	}
 	//}
 
-	
-	
+
+
 }
 
 
@@ -867,7 +865,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 		// When comboboxes eventually makes it to this part of the window....
 		//uint8 class_selector_counter = 0;
 
-		for(unsigned veh=0;  veh<cnv->get_vehicle_count(); veh++ ) 
+		for(unsigned veh=0;  veh<cnv->get_vehicle_count(); veh++ )
 		{
 			vehicle_t *v=cnv->get_vehicle(veh);
 			bool pass_veh = v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS;
@@ -891,7 +889,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 				int reassigned_w = 0;
 				bool reassigned = false;
 				sint64 total_income = 0;
-				
+
 
 				// name of this
 				display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, translator::translate(v->get_desc()->get_name()), ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -925,7 +923,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 						class_name = translator::translate(class_name_untranslated);
 						buf.printf("%s: ", class_name);
 						reassigned_w = display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
-						
+
 
 						// When comboboxes eventually makes it to this part of the window....
 						//if (pass_veh)
@@ -986,8 +984,8 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 						sint64 profit = (v->get_accommodation_capacity(i)*fare + 2048ll) / 4096ll;
 						money_to_string(number, profit / 100.0);
 						display_proportional_clip(pos.x + w + offset.x + len + extra_w, pos.y + offset.y + total_height + extra_y, number, ALIGN_LEFT, profit > 0 ? MONEY_PLUS : MONEY_MINUS, true);
-							
-						extra_y += LINESPACE + 2;						
+
+						extra_y += LINESPACE + 2;
 						total_income += fare;
 					}
 					extra_y += 2;

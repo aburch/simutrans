@@ -1,10 +1,11 @@
-/**
- * @file
- * Contains definition of convoi_t class
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simconvoi_h
-#define simconvoi_h
+#ifndef SIMCONVOI_H
+#define SIMCONVOI_H
+
 
 #include "simtypes.h"
 #include "simunits.h"
@@ -1239,13 +1240,13 @@ public:
 	bool check_destination_reverse(route_t* current_route = NULL, route_t* target_rt = NULL);
 
 	// Reserve the tiles on which the convoy is standing to prevent collisions.
-	void reserve_own_tiles(bool unreserve = false); 
+	void reserve_own_tiles(bool unreserve = false);
 
 	bool has_tall_vehicles();
 
 	inline bool get_allow_clear_reservation() const { return allow_clear_reservation; }
 
-	bool all_vehicles_are_buildable() const; 
+	bool all_vehicles_are_buildable() const;
 
 	bool check_way_constraints_of_all_vehicles(const weg_t& way) const;
 
@@ -1435,8 +1436,11 @@ public:
 	/* the current state of the convoi */
 	COLOR_VAL get_status_color() const;
 
-	// returns tiles needed for this convoi
+	// returns tiles needed for this convoi. This includes 0-8/16 extra padding.
 	uint16 get_tile_length() const;
+
+	// returns total value of vehicle length of this convoy. (not include any padding)
+	uint16 get_true_tile_length() const;
 
 	// get cached obsolescence.
 	inline bool has_obsolete_vehicles() const { return has_obsolete; }
@@ -1631,16 +1635,20 @@ public:
 		}
 	}
 
-	// Returns this convoy's reversing method. (v14.6 - 2019 @Ranran)
+	// Returns this convoy's reversing method. (v14.8 - Jan, 2020 @Ranran)
 	uint8 get_terminal_shunt_mode() const;
 
 	// return a number numbered by position in convoy. This is affected by the number of locomotives and reversals.
 	// The locomotive on the front side is returned a negative value.
 	sint16 get_car_numbering(uint8 car_no) const;
 
+	// @returns vehicle length removed at the same time from the convoy. Feb, 2020 @Ranran
+	uint8 calc_auto_removal_length(uint8 car_no) const;
+	uint8 get_auto_removal_vehicle_count(uint8 car_no) const;
+
 private:
 	/** Train formation checks
-	 *  v14.6 - 2019 @Ranran
+	 *  v14.8 - Jan, 2020 @Ranran
 	 */
 	uint8 get_front_loco_count() const;
 	uint8 check_new_tail(uint8 start) const;

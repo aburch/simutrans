@@ -1,5 +1,11 @@
-#ifndef IMAGELIST3D_WRITER_H
-#define IMAGELIST3D_WRITER_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DESCRIPTOR_WRITER_IMAGELIST3D_WRITER_H
+#define DESCRIPTOR_WRITER_IMAGELIST3D_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"
@@ -9,7 +15,7 @@
 template<class T> class slist_tpl;
 
 
-class imagelist3d_writer_t : public obj_writer_t 
+class imagelist3d_writer_t : public obj_writer_t
 {
 	private:
 		static imagelist3d_writer_t the_instance;

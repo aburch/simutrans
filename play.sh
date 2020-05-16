@@ -1,5 +1,12 @@
+#!/bin/sh
+
+#
+# This file is part of the Simutrans-Extended project under the Artistic License.
+# (see LICENSE.txt)
+#
+
 if test x$1 = x
-then 
+then
 	$0 /d/source/simutrans-experimental-BG-binaries
 elif test x$2 = x
 then

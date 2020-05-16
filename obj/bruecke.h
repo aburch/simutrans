@@ -1,5 +1,11 @@
-#ifndef obj_bruecke_h
-#define obj_bruecke_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef OBJ_BRUECKE_H
+#define OBJ_BRUECKE_H
+
 
 class karte_t;
 
@@ -11,7 +17,6 @@ class karte_t;
  *
  * Hj. Malthaner
  */
-
 class bruecke_t : public obj_no_info_t
 {
 private:

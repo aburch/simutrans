@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "times_history_container.h"
 
 #include "../simhalt.h"
@@ -153,7 +158,7 @@ void times_history_container_t::update_container() {
 	scr_coord_val y = LINESPACE + D_V_SPACE + LINESPACE + D_V_SPACE;
 	for (int i = 0; i < schedule_indices->get_count(); i++)
 	{
-		const uint8 entry_index = min(schedule_indices->at(i), entries.get_count() - 1); 
+		const uint8 entry_index = min(schedule_indices->at(i), entries.get_count() - 1);
 		const schedule_entry_t entry = entries[entry_index];
 		const halthandle_t halt = haltestelle_t::get_halt(entry.pos, owner);
 
@@ -167,7 +172,7 @@ void times_history_container_t::update_container() {
 		}
 
 		gui_label_t *name_label = new gui_label_t(NULL);
-		char *halt_name = halt.is_bound() ? new char[strlen(halt->get_name()) + 1] : new char[128]; 
+		char *halt_name = halt.is_bound() ? new char[strlen(halt->get_name()) + 1] : new char[128];
 		strcpy(halt_name,  halt.is_bound() ? halt->get_name() : translator::translate("Wegpunkt"));
 		name_label->set_text_pointer(halt_name);
 		name_label->set_pos(scr_coord(D_POS_BUTTON_WIDTH + D_H_SPACE, y));

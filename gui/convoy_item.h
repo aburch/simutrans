@@ -1,9 +1,11 @@
 /*
- * Convoi information, name and status color
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef convoy_scrollitem_h
-#define convoy_scrollitem_h
+#ifndef GUI_CONVOY_ITEM_H
+#define GUI_CONVOY_ITEM_H
+
 
 #include "components/gui_scrolled_list.h"
 #include "../convoihandle_t.h"

@@ -1,5 +1,11 @@
-#ifndef simware_h
-#define simware_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SIMWARE_H
+#define SIMWARE_H
+
 
 #include "halthandle_t.h"
 #include "dataobj/koord.h"
@@ -25,15 +31,15 @@ public:
 	/// type of good, used as index into index_to_desc
 	uint32 index: 8;
 
-	// Necessary to determine whether to book 
+	// Necessary to determine whether to book
 	// jobs taken on arrival.
 	bool is_commuting_trip : 1;
 
 	/// The class of mail/passengers. Not used for goods.
 	uint8 g_class;
 
-	/// The percentage of the maximum tolerable journey time for 
-	/// any given level of comfort that this packet of passengers 
+	/// The percentage of the maximum tolerable journey time for
+	/// any given level of comfort that this packet of passengers
 	/// (if passengers) will travel in a lower class of accommodation
 	/// than available on a convoy.
 	uint16 comfort_preference_percentage;
@@ -66,8 +72,8 @@ private:
 
 	/**
 	 * Target position (factory, etc)
-	 * 
-	 * "the final target position, which is on behalf 
+	 *
+	 * "the final target position, which is on behalf
 	 * not the goal stop position"
 	 *
 	 * @author Hj. Malthaner

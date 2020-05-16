@@ -1,16 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * The depot window, where to buy convois
- */
+#ifndef GUI_DEPOT_FRAME_H
+#define GUI_DEPOT_FRAME_H
 
-#ifndef gui_depot_frame2_t_h
-#define gui_depot_frame2_t_h
 
 #include "gui_frame.h"
 #include "components/gui_label.h"
@@ -75,6 +70,8 @@ private:
 	button_t bt_schedule;
 	button_t bt_destroy;
 	button_t bt_sell;
+
+	cbuffer_t txt_convoi_cost;
 
 	/**
 	 * buttons for new route-management
@@ -228,6 +225,8 @@ public:
 	inline void update_convoy() {icnv<0?convoy_assembler.clear_convoy():convoy_assembler.set_vehicles(get_convoy());}
 	// Check the electrification
 	bool check_way_electrified(bool init = false);
+
+	void set_resale_value(uint32 nominal_cost = 0, sint64 resale_value = 0);
 };
 
 #endif

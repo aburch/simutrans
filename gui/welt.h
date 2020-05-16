@@ -1,13 +1,11 @@
 /*
- * Dialog to configure the generation of a new map
- *
- * Hj. Malthaner
- *
- * April 2000
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef welt_gui_h
-#define welt_gui_h
+#ifndef GUI_WELT_H
+#define GUI_WELT_H
+
 
 #include "gui_frame.h"
 #include "components/gui_button.h"

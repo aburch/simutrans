@@ -1,4 +1,9 @@
 /*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/*
  * Base class for grounds in simutrans.
  * by Hj. Malthaner
  */
@@ -623,8 +628,6 @@ void grund_t::info(cbuffer_t& buf, bool dummy) const
 	bool has_way = false;
 	if(!is_water()) {
 		if(flags&has_way1) {
-			buf.append(translator::translate(get_weg_nr(0)->get_name()));
-			buf.append("\n");
 			obj_bei(0)->info(buf, ist_bruecke());
 			has_way = true;
 			if(flags&has_way2) {
@@ -2470,7 +2473,7 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 bool grund_t::get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi ribi) const
 {
 	// must be a single direction
-	assert( ribi_t::is_single(ribi) ); 
+	assert( ribi_t::is_single(ribi) );
 
 	if(  type != invalid_wt  &&   (get_weg_ribi_unmasked(type) & ribi) == 0  ) {
 		// no way on this tile in the given direction

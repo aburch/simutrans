@@ -7,9 +7,9 @@
 </p>
 <p>
 
-<strong>Convoy Details</strong> can be accessed from the <a href="convoiinfo.txt">Details</a> button in the <strong>convoy information</strong> window.
+<strong>Convoy details</strong> can be accessed from the <a href="convoiinfo.txt">Details</a> button in the <strong>convoy information</strong> window.
 <br>
-If not all items are visible, <a href="mouse.txt">re-size</a> the <strong>convoy wetails</strong> window or use the slider bars to scroll.
+If not all items are visible, <a href="mouse.txt">re-size</a> the <strong>convoy details</strong> window or use the slider bars to scroll.
 </p>
 <p>
 At the top of the <strong>convoy details</strong> window, information shown includes:

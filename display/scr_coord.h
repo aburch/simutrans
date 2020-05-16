@@ -1,5 +1,11 @@
-#ifndef scr_coord_h
-#define scr_coord_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DISPLAY_SCR_COORD_H
+#define DISPLAY_SCR_COORD_H
+
 
 #include <assert.h>
 #include "../dataobj/loadsave.h"

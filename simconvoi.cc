@@ -1,6 +1,6 @@
-/**
- * convoi_t Class for vehicle associations
- * Hansjörg Malthaner
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdlib.h>
@@ -1193,11 +1193,11 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 			if (this_gr && this_gr->ist_bruecke())
 			{
 				bridge_tiles++;
-				
+
 				for (uint32 j = i + 1; j < route_count; j++)
 				{
 					const koord3d tile = route.at(j);
-					const grund_t* gr = welt->lookup(tile); 
+					const grund_t* gr = welt->lookup(tile);
 					if (gr && gr->ist_bruecke())
 					{
 						bridge_tiles_ahead++;
@@ -1290,23 +1290,26 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 				while(sp_soll>>12) {
 					// Attempt to move one step.
 					uint32 sp_hat = front()->do_drive(1<<YARDS_PER_VEHICLE_STEP_SHIFT);
-					int v_nr = get_vehicle_at_length((++steps_driven)>>4);
+					if(  sp_hat>0  ) {
+						steps_driven++;
+					}
+					int v_nr = get_vehicle_at_length(steps_driven>>4);
 					// stop when depot reached
-					if(state==INITIAL  ||  state==ROUTING_1) {
+					if (state==INITIAL) {
+						return SYNC_REMOVE;
+					}
+					if (state==ROUTING_1) {
 						break;
 					}
-					// until all are moving or something went wrong (sp_hat==0)
-					if(sp_hat==0  ||  v_nr==vehicle_count) {
-						// Attempted fix of depot squashing problem:
-						// but causes problems with signals.
-						//if (v_nr==vehicle_count) {
-							steps_driven = -1;
-						//}
-						//else {
-						//}
-
+					if(  v_nr==vehicle_count  ) {
+						// all are moving
+						steps_driven = -1;
  						state = DRIVING;
  						return SYNC_OK;
+					}
+					else if(  sp_hat==0  ) {
+						// something went wrong. wait for next sync_step()
+						return SYNC_OK;
 					}
 					// now only the right numbers
 					for(int i=1; i<=v_nr; i++) {
@@ -1416,7 +1419,7 @@ bool convoi_t::prepare_for_routing()
 			if (original_index == schedule->get_count() - 1 && schedule->is_mirrored())
 			{
 				// We do not want the distance from the end to the start in this case, but the distance from
-				// end to the immediately previous stop			
+				// end to the immediately previous stop
 				distance = (shortest_distance(schedule->entries[schedule->get_count() - 1].pos.get_2d(), schedule->entries[schedule->get_count() - 2].pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
 			}
 			else
@@ -1554,10 +1557,10 @@ bool convoi_t::drive_to()
 #endif
 		}
 	}
-	
+
 	allow_clear_reservation = true;
 
-	if(success != route_t::valid_route)
+	if(success != route_t::valid_route && success != route_t::valid_route_halt_too_short)
 	{
 		if(state != NO_ROUTE && state != NO_ROUTE_TOO_COMPLEX)
 		{
@@ -1752,7 +1755,7 @@ void convoi_t::step()
 		wait_lock_next_step = 0;
 		return;
 	}
-	
+
 	checked_tile_this_step = koord3d::invalid;
 
 	// moved check to here, as this will apply the same update
@@ -2877,7 +2880,7 @@ void convoi_t::upgrade_vehicle(uint16 i, vehicle_t* v)
 
 	if (i >= vehicle.get_count())
 	{
-		dbg->error("convoi_t::upgrade_vehicle()", "Attempting to append beyond end of convoy"); 
+		dbg->error("convoi_t::upgrade_vehicle()", "Attempting to append beyond end of convoy");
 		return;
 	}
 
@@ -3045,7 +3048,7 @@ void convoi_t::recalc_catg_index()
 		// Only consider vehicles that really transport something
 		// this helps against routing errors through passenger
 		// trains pulling only freight wagons
-		if(get_vehicle(i)->get_cargo_max() == 0 && (get_vehicle(i)->get_cargo_type() != goods_manager_t::passengers || get_vehicle(i)->get_desc()->get_overcrowded_capacity() == 0)) 
+		if(get_vehicle(i)->get_cargo_max() == 0 && (get_vehicle(i)->get_cargo_type() != goods_manager_t::passengers || get_vehicle(i)->get_desc()->get_overcrowded_capacity() == 0))
 		{
 			continue;
 		}
@@ -3746,7 +3749,7 @@ void convoi_t::reverse_order(bool rev)
 				}
 
 				// reverse loco
-				if (!check_need_turntable()) {
+				if (!check_need_turntable() && loco_b > 0) {
 					for (; loco_a < --loco_b; loco_a++)
 					{
 						reverse = vehicle[loco_a];
@@ -5441,9 +5444,9 @@ void convoi_t::laden() //"load" (Babelfish)
 		// Recalculate comfort
 		// This is an average of comfort for all classes,
 		// weighted by capacity.
-		
+
 		// TODO: Consider whether to have separate graphs for different classes of comfort.
-		
+
 		const uint8 number_of_classes = goods_manager_t::passengers->get_number_of_classes();
 		sint64 comfort_capacity = 0;
 		uint16 class_capacity;
@@ -5461,7 +5464,7 @@ void convoi_t::laden() //"load" (Babelfish)
 			}
 			total_capacity += class_capacity;
 			const uint8 comfort = get_comfort(i, true);
-			comfort_capacity += (comfort * class_capacity); 
+			comfort_capacity += (comfort * class_capacity);
 		}
 
 		const sint64 comfort = total_capacity > 0 ? comfort_capacity / total_capacity : 0;
@@ -7152,6 +7155,16 @@ uint16 convoi_t::get_tile_length() const
 	return tiles;
 }
 
+uint16 convoi_t::get_true_tile_length() const
+{
+	uint16 carunits = 0;
+	for (sint8 i = 0; i < vehicle_count; i++) {
+		carunits += vehicle[i]->get_desc()->get_length();
+	}
+	uint16 tiles = (carunits + CARUNITS_PER_TILE - 1) / CARUNITS_PER_TILE;
+	return tiles;
+}
+
 
 // if withdraw and empty, then self destruct
 void convoi_t::set_withdraw(bool new_withdraw)
@@ -7843,22 +7856,22 @@ uint32 convoi_t::calc_reverse_delay() const
 					// Add reversing time if this must reverse.
 					earliest_departure_time += reverse_delay;
 				}
-				
+
 				halt->set_estimated_arrival_time(self.get_id(), eta);
 				const sint64 max_waiting_time = schedule->get_current_entry().waiting_time_shift ? welt->ticks_per_world_month >> (16ll - (sint64)schedule->get_current_entry().waiting_time_shift) : WAIT_INFINITE;
 				if((schedule->entries[schedule_entry].minimum_loading > 0 || schedule->entries[schedule_entry].wait_for_time) && schedule->get_spacing() > 0)
 				{
 					sint64 spacing_multiplier = 1;
 
-					// This may not be the next convoy on this line to depart from this forthcoming stop, so the spacing may have to be multiplied. 
+					// This may not be the next convoy on this line to depart from this forthcoming stop, so the spacing may have to be multiplied.
 					FOR(const haltestelle_t::arrival_times_map, const& iter, halt->get_estimated_convoy_departure_times())
 					{
 						const uint16 id = iter.key;
 						convoihandle_t tmp_cnv;
-						tmp_cnv.set_id(id); 
+						tmp_cnv.set_id(id);
 						if(tmp_cnv.is_bound() && tmp_cnv->get_line() == get_line())
 						{
-							// This is on the same line. Any earlier departure from the target stop is therefore relevant. 
+							// This is on the same line. Any earlier departure from the target stop is therefore relevant.
 							if(iter.value < earliest_departure_time)
 							{
 								spacing_multiplier ++;
@@ -7880,7 +7893,7 @@ uint32 convoi_t::calc_reverse_delay() const
 					else
 					{
 						// Calculate the departure time based on the spacing
-						
+
 						const sint64 tmp_etd = ((spacing_ticks - spacing_ticks_remainder) * spacing_multiplier) + earliest_departure_time;
 
 						// The loading time and reverse delay will be added later
@@ -8483,6 +8496,64 @@ uint8 convoi_t::check_new_tail(uint8 start = 1) const
 	}
 	return 0;
 }
+
+// calculation(auto remove) algorithm is based on tool_change_depot_t::init - "r"
+uint8 convoi_t::calc_auto_removal_length(uint8 car_no) const
+{
+	uint8 len = 0;
+	int nr = car_no;
+
+	// check rear side
+	while (nr < get_vehicle_count()) {
+		const vehicle_desc_t *info = vehicle[nr]->get_desc();
+		len += info->get_length();
+		nr++;
+		if (info->get_trailer_count() != 1) {
+			break;
+		}
+	}
+
+	// check front side
+	nr = car_no;
+	while (nr > 0) {
+		const vehicle_desc_t *info = vehicle[nr-1]->get_desc();
+		if (info->get_trailer_count() != 1) {
+			return len;
+		}
+		len += info->get_length();
+		nr--;
+	}
+	return len;
+}
+
+uint8 convoi_t::get_auto_removal_vehicle_count(uint8 car_no) const
+{
+	uint8 cnt = 0;
+	int nr = car_no;
+
+	// check rear side
+	while (nr < get_vehicle_count()) {
+		const vehicle_desc_t *info = vehicle[nr]->get_desc();
+		cnt++;
+		nr++;
+		if (info->get_trailer_count() != 1) {
+			break;
+		}
+	}
+
+	// check front side
+	nr = car_no;
+	while (nr > 0) {
+		const vehicle_desc_t *info = vehicle[nr - 1]->get_desc();
+		if (info->get_trailer_count() != 1) {
+			return cnt;
+		}
+		cnt++;
+		nr--;
+	}
+	return cnt;
+}
+
 
 // Currently this is used to determine if neighboring vehicles are in intermediate side each other.
 // They are considered identical groups when reversing convoy.

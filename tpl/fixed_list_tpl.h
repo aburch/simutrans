@@ -1,19 +1,11 @@
-/* A very light 32 or less element list
- * using a fixed sized array with a 
- * head and tail node. Template type.
- *
- * Author: jamespetts. Released under the terms
- * of the Artistic Licence (for use with Simutrans),
- * and also the GPL (v 2.0). 
- * 
- * (To use other than in simutrans, remove the
- * include files and replace Simutrans specific
- * types (such as uint8) with standard types
- * (such as char). 
- */ 
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
-#ifndef TPL_FIXED_LIST_H
-#define TPL_FIXED_LIST_H
+#ifndef TPL_FIXED_LIST_TPL_H
+#define TPL_FIXED_LIST_TPL_H
+
 
 #ifndef ITERATE
 #define ITERATE(collection,enumerator) for(uint32 enumerator = 0; enumerator < (collection).get_count(); enumerator++)
@@ -21,19 +13,34 @@
 
 #ifndef ITERATE_PTR
 #define ITERATE_PTR(collection,enumerator) for(uint32 enumerator = 0; enumerator < (collection)->get_count(); enumerator++)
-#endif 
+#endif
 
 #include <typeinfo>
 #include "../simtypes.h"
 #include "../simdebug.h"
 
+
+/**
+ * A very light 32 or less element list
+ * using a fixed sized array with a
+ * head and tail node. Template type.
+ *
+ * Author: jamespetts. Released under the terms
+ * of the Artistic Licence (for use with Simutrans),
+ * and also the GPL (v 2.0).
+ *
+ * (To use other than in simutrans, remove the
+ * include files and replace Simutrans specific
+ * types (such as uint8) with standard types
+ * (such as char).
+ */
 template<class T, int N> class fixed_list_tpl
 {
 
 public:
 
 	fixed_list_tpl() : size(0), head(0), tail(0)/*, placeholder(0), placeholder_set(false)*/   { }
-	
+
 	T get_element(uint8 e)
 	{
 		//Depracated, retained for backwards compatibility.
@@ -102,11 +109,11 @@ public:
 					placeholder_set = false;
 					placeholder = 0;
 				}*/
-			}	
+			}
 			else
 			{
 				clear();
-			}	
+			}
 		}
 		return;
 	}
@@ -144,7 +151,7 @@ public:
 			else
 			{
 				clear();
-			}			
+			}
 		}
 		return;
 	}
@@ -160,7 +167,7 @@ public:
 		{
 			head = subtract_index(head, 1, N);
 		}
-		else 
+		else
 		{
 			head = 0;
 		}
@@ -175,7 +182,7 @@ public:
 		}
 		/*if(placeholder_set && placeholder == head)
 		{
-			//Placeholder is overwritten		
+			//Placeholder is overwritten
 			placeholder_set = false;
 			placeholder = 0;
 		}*/
@@ -197,7 +204,7 @@ public:
 			head = add_index(tail, 1, N);
 			/*if(placeholder_set && placeholder == tail)
 			{
-				//Placeholder is overwritten		
+				//Placeholder is overwritten
 				placeholder_set = false;
 				placeholder = 0;
 			}*/
@@ -350,7 +357,7 @@ public:
 private:
 
 	T data[N];
-	
+
 	uint8 size;
 
 	uint8 head;
@@ -364,7 +371,7 @@ private:
 	//These methods are used for automating looping arithmetic
 
 	inline uint8 add_index(uint8 base, uint8 addition, int index)
-	{		
+	{
 		return (addition < index ? (base + addition) % index : -1);
 	}
 

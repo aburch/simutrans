@@ -1,5 +1,11 @@
-#ifndef boden_wege_strasse_h
-#define boden_wege_strasse_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef BODEN_WEGE_STRASSE_H
+#define BODEN_WEGE_STRASSE_H
+
 
 #include "weg.h"
 //#include "../../tpl/minivec_tpl.h"

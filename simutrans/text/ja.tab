@@ -1518,7 +1518,7 @@ Pas_tab
 Passagiere
 旅客
 Passagierrate
-旅客度
+訪問者需要
 Passagierziele
 旅客/郵便物の行き先
 Passenger AI
@@ -3615,6 +3615,10 @@ Within own network
 自家輸送網内のみ表示
 Show only connected to own transport network
 アクティブプレイヤーの貨物輸送ネットワークに接続されている産業のみを表示します
+Show only connected to own passenger transportation network
+アクティブプレイヤーの旅客輸送ネットワークに接続されているランドマークのみを表示します
+Show only cities within the active player's transportation network
+アクティブプレイヤーの貨物輸送ネットワークの影響下にある都市のみを表示します
 Power usage
 電力消費量
 Power output
@@ -3663,6 +3667,8 @@ Upgrade will be available in the near future
 （混載不可）
 Cannot start: no cab at the front of the convoy.
 編成の構成エラー：\n先頭になれない車両が先頭になっています。（運転台が無い等）
+sort_pas_arrived
+旅客輸送実績
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

@@ -1,16 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjorg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Defines all button types: Normal (roundbox), Checkboxes (square), Arrows, Scrollbars
- */
+#ifndef GUI_COMPONENTS_GUI_BUTTON_H
+#define GUI_COMPONENTS_GUI_BUTTON_H
 
-#ifndef gui_button_h
-#define gui_button_h
 
 #include "gui_action_creator.h"
 #include "gui_component.h"
@@ -22,6 +17,8 @@ class karte_ptr_t;
 
 /**
  * Class for buttons in Windows
+ *
+ * Defines all button types: Normal (roundbox), Checkboxes (square), Arrows, Scrollbars
  *
  * @author Hj. Malthaner, Niels Roest
  * @date December 2000

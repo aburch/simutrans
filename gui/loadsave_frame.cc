@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "../simdebug.h"
@@ -211,7 +209,7 @@ void loadsave_frame_t::set_file_table_default_sort_order()
 	file_table.set_row_sort_column_prio(3, 0);
 	file_table.set_row_sort_column_prio(2, 1);
 }
- 
+
 
 gui_loadsave_table_row_t::gui_loadsave_table_row_t(const char *pathname, const char *buttontext) : gui_file_table_row_t(pathname, buttontext)
 {
@@ -250,7 +248,7 @@ gui_loadsave_table_row_t::gui_loadsave_table_row_t(const char *pathname, const c
 	}
 }
 
-gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_label_column_t(150) 
+gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_label_column_t(150)
 {
 	strcpy(pak, env_t::objfilename.c_str());
 	pak[strlen(pak) - 1] = 0;
@@ -263,8 +261,8 @@ gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_labe
  * Identical strings result to 0.
  * The result rates the number of identical characters.
  */
-sint32 strsim(const char a[], const char b[]) 
-{	
+sint32 strsim(const char a[], const char b[])
+{
 	int i = 0;
 	while (a[i] && b[i] && tolower(a[i]) == tolower(b[i])) i++;
 	if (tolower(a[i]) == tolower(b[i]))
@@ -305,7 +303,7 @@ void gui_file_table_pak_column_t::paint_cell(const scr_coord& offset, coordinate
 
 sint32 gui_file_table_std_column_t::get_int(const gui_table_row_t &row) const
 {
-	// file version 
+	// file version
  	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
 	return (sint32) file_row.get_version();
 }
@@ -326,7 +324,7 @@ void gui_file_table_std_column_t::paint_cell(const scr_coord& offset, coordinate
 
 sint32 gui_file_table_exp_column_t::get_int(const gui_table_row_t &row) const
 {
-	// file version 
+	// file version
  	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
 	return (sint32) file_row.get_extended_version();
 }

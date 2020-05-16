@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2009 : Knightly
- *
- * A centralised, steppable path searching system using Floyd-Warshall Algorithm
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
+#ifndef PATH_EXPLORER_H
+#define PATH_EXPLORER_H
 
-#ifndef path_explorer_h
-#define path_explorer_h
 
 #include "network/memory_rw.h"
 #include "simline.h"
@@ -22,6 +21,9 @@
 #include "tpl/quickstone_hashtable_tpl.h"
 
 
+/*
+ * A centralised, steppable path searching system using Floyd-Warshall Algorithm
+ */
 class path_explorer_t
 {
 public:
@@ -36,7 +38,7 @@ public:
 		limit_set_t() : rebuild_connexions(0), filter_eligible(0), fill_matrix(0), explore_paths(0), reroute_goods(0) { }
 		limit_set_t(bool) : rebuild_connexions(UINT32_MAX_VALUE), filter_eligible(UINT32_MAX_VALUE), fill_matrix(UINT32_MAX_VALUE), explore_paths(UINT64_MAX_VALUE), reroute_goods(UINT32_MAX_VALUE) { }
 		limit_set_t(uint32 c, uint32 e, uint32 m, uint64 p, uint32 g) : rebuild_connexions(c), filter_eligible(e), fill_matrix(m), explore_paths(p), reroute_goods(g) { }
-		
+
 		void find_min_with(const limit_set_t &other)
 		{
 			if( other.rebuild_connexions < rebuild_connexions ) { rebuild_connexions = other.rebuild_connexions; }
@@ -85,13 +87,13 @@ public:
 
 	static bool must_refresh_on_loading;
 
-	static void rdwr(loadsave_t* file); 
+	static void rdwr(loadsave_t* file);
 
 private:
 
 	class compartment_t
 	{
-	
+
 		friend class path_explorer_t;
 
 	protected:
@@ -119,7 +121,7 @@ private:
 		{
 			uint16 first_transport;
 			uint16 last_transport;
-			
+
 			transport_element_t() : first_transport(0), last_transport(0) { }
 		};
 
@@ -135,15 +137,15 @@ private:
 				uint16 transport;
 				vector_tpl<uint16> connected_halts;
 
-				connection_cluster_t(const uint32 halt_vector_size, const uint16 transport_id, const uint16 halt_id) 
+				connection_cluster_t(const uint32 halt_vector_size, const uint16 transport_id, const uint16 halt_id)
 					: transport(transport_id), connected_halts(halt_vector_size)
 				{
 					connected_halts.append(halt_id);
 				}
 
-				connection_cluster_t(loadsave_t* file); 
+				connection_cluster_t(loadsave_t* file);
 
-				void rdwr(loadsave_t* file); 
+				void rdwr(loadsave_t* file);
 			};
 
 		private:
@@ -156,7 +158,7 @@ private:
 
 		public:
 
-			connection_t(const uint32 cluster_count, const uint32 working_halt_count) 
+			connection_t(const uint32 cluster_count, const uint32 working_halt_count)
 				: connection_clusters(cluster_count), usage_level(0), halt_vector_size(working_halt_count) { }
 
 			~connection_t()
@@ -190,7 +192,7 @@ private:
 					return;
 				}
 
-				// reaching here means no match is found --> re-use or create a new connection cluster 
+				// reaching here means no match is found --> re-use or create a new connection cluster
 				if ( usage_level < connection_clusters.get_count() )
 				{
 					// case : free connection clusters available for use
@@ -207,7 +209,7 @@ private:
 				}
 				++usage_level;
 			};
-			
+
 			uint32 get_cluster_count() const { return usage_level; }
 
 			uint32 get_total_member_count() const
@@ -229,7 +231,7 @@ private:
 				return *(connection_clusters[element_id]);
 			}
 
-			void rdwr(loadsave_t* file); 
+			void rdwr(loadsave_t* file);
 		};
 
 		// data structure for temporarily storing lines and lineless conovys
@@ -302,11 +304,11 @@ private:
 
 		// an array of names for the various phases
 		static const char *const phase_name[];
-		
+
 protected:
 		// an array for keeping a list of connexion hash table
 		static connexion_list_entry_t connexion_list[65536];
-		
+
 private:
 
 		// iteration representative
@@ -316,7 +318,7 @@ private:
 		// indicate whether phase limits are used or not
 		// -> it is turned off for initial full instant search
 		static bool use_limits;
-		
+
 		// iteration limitslinkages
 		static uint32 limit_rebuild_connexions;
 		static uint32 limit_filter_eligible;
@@ -351,7 +353,7 @@ private:
 		static const uint8 phase_reroute_goods = 6;
 
 		// absolute time limits
-		// The higher this number, the more processing will be done per step and the more quickly that a refresh will complete, but the more computationally intensive that it will be. 
+		// The higher this number, the more processing will be done per step and the more quickly that a refresh will complete, but the more computationally intensive that it will be.
 		// Knightly's original setting was 24. The revised setting was 64.
 		// Now set by simuconf.tab.
 		static uint32 time_midpoint;
@@ -376,7 +378,7 @@ private:
 		static void initialise();
 		static void finalise();
 
-		void rdwr(loadsave_t* file); 
+		void rdwr(loadsave_t* file);
 
 		static void set_absolute_limits();
 
@@ -396,7 +398,7 @@ private:
 		uint32 get_total_iterations() { const uint32 ti = total_iterations; total_iterations = 0; return ti; }
 
 		void set_category(uint8 category);
-		void set_class(uint8 value); 
+		void set_class(uint8 value);
 		void set_refresh() { refresh_requested = true; }
 
 		bool get_path_between(const halthandle_t origin_halt, const halthandle_t target_halt,
@@ -418,7 +420,7 @@ private:
 		{
 			use_limits = yesno;
 		}
-		
+
 		static limit_set_t get_local_limits()
 		{
 			return limit_set_t( local_rebuild_connexions, local_filter_eligible, local_fill_matrix, local_explore_paths, local_reroute_goods );
@@ -504,7 +506,7 @@ public:
 	static const char *get_current_category_name() { return goods_compartment[current_compartment_category][current_compartment_class].get_category_name(); }
 	static const char *get_current_class_name() { return  goods_compartment[current_compartment_category][current_compartment_class].get_class_name(); }
 	static const char *get_current_phase_name() { return goods_compartment[current_compartment_category][current_compartment_class].get_current_phase_name(); }
-	
+
 	// Note that these are only used for the client/server synchronisation checklist for diagnostic purposes.
 	static uint8 get_current_compartment_category() { return current_compartment_category; }
 	static uint8 get_current_compartment_class() { return current_compartment_class;  }

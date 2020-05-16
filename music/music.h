@@ -1,5 +1,11 @@
-#ifndef MUSIC_H
-#define MUSIC_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef MUSIC_MUSIC_H
+#define MUSIC_MUSIC_H
+
 
 #include "../simtypes.h"
 

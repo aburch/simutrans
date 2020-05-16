@@ -1,16 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Convoi info stats, like loading status bar
- */
+#ifndef GUI_COMPONENTS_GUI_CONVOIINFO_H
+#define GUI_COMPONENTS_GUI_CONVOIINFO_H
 
-#ifndef gui_convoiinfo_h
-#define gui_convoiinfo_h
 
 #include "../../display/scr_coord.h"
 #include "gui_container.h"
@@ -19,6 +14,7 @@
 
 
 /**
+ * Convoi info stats, like loading status bar
  * One element of the vehicle list display
  *
  * @author Hj. Malthaner

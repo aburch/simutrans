@@ -1,5 +1,11 @@
-#ifndef schedule_entry_h
-#define schedule_entry_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DATAOBJ_SCHEDULE_ENTRY_H
+#define DATAOBJ_SCHEDULE_ENTRY_H
+
 
 #include "koord3d.h"
 
@@ -53,9 +59,9 @@ public:
 	 * @author: jamespetts
 	 */
 	sint8 reverse;
-	
+
 	/**
-	 * Whether a convoy must wait for a 
+	 * Whether a convoy must wait for a
 	 * time slot at this entry.
 	 * @author: jamespetts
 	 */

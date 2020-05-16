@@ -1,7 +1,7 @@
 /*
-* Copyright 2010 Simutrans contributors
-* Available under the Artistic License (see license.txt)
-*/
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #include "../simconst.h"
 #include "../simsys.h"
@@ -33,9 +33,9 @@ void set_zoom_factor(int)
 {
 }
 
-int get_zoom_factor() 
-{ 
-	return zoom_factor; 
+int get_zoom_factor()
+{
+	return zoom_factor;
 }
 
 int zoom_factor_up()

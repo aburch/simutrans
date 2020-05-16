@@ -1,5 +1,11 @@
-#ifndef gui_time_history_h
-#define gui_time_history_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_TIMES_HISTORY_H
+#define GUI_TIMES_HISTORY_H
+
 
 #include "components/gui_textarea.h"
 

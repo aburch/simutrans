@@ -1,18 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Displays a filter settings dialog for the convoi list
- *
- * @author V. Meyer
- */
+#ifndef GUI_CONVOI_FILTER_FRAME_H
+#define GUI_CONVOI_FILTER_FRAME_H
 
-#ifndef CONVOI_FILTER_FRAME_H
-#define  CONVOI_FILTER_FRAME_H
 
 #include "gui_frame.h"
 #include "components/gui_label.h"
@@ -25,6 +18,11 @@ class convoi_frame_t;
 class player_t;
 class goods_desc_t;
 
+/*
+ * Displays a filter settings dialog for the convoi list
+ *
+ * @author V. Meyer
+ */
 class convoi_filter_frame_t : public gui_frame_t , private action_listener_t
 {
 public:

@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <string>
 #include "../../dataobj/tabfile.h"
 #include "obj_node.h"
@@ -77,7 +82,7 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 	uint16 version = 0x8001;
 
 	// This is the overlay flag for Simutrans-Extended
-	// This sets the *second* highest bit to 1. 
+	// This sets the *second* highest bit to 1.
 	version |= EX_VER;
 
 	// Finally, this is the extended version number. This is *added*
@@ -91,7 +96,7 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 	node.write_uint16(fp, offset, 					6);
 
 	node.write_uint16(fp, intro_date,				 8);
-	node.write_uint16(fp, retire_date,				 10); 
+	node.write_uint16(fp, retire_date,				 10);
 
 	node.write(fp);
 }

@@ -1,17 +1,11 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- * Copyright 2013 Nathanael Nerode, James Petts
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Goods list dialog
- */
+#ifndef GUI_GOODS_FRAME_T_H
+#define GUI_GOODS_FRAME_T_H
 
-#ifndef goods_frame_t_h
-#define goods_frame_t_h
 
 #include "gui_frame.h"
 #include "components/gui_button.h"
@@ -42,7 +36,7 @@ private:
 	static uint32 distance_meters;
 	// Distance in km
 	static uint16 distance;
-	
+
 	static uint32 vehicle_speed;
 	static uint8 comfort;
 	static uint8 catering_level;
@@ -78,7 +72,7 @@ private:
 	button_t		catering_up;
 	button_t		catering_down;
 	*/
-	
+
 	// replace button list with numberinput components for faster navigation
 	// @author: HeinBloed, April 2012
 	gui_numberinput_t distance_input, comfort_input, catering_input, speed_input, class_input;

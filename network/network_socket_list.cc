@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "network_socket_list.h"
 #include "network_cmd.h"
 #include "network_cmd_ingame.h"

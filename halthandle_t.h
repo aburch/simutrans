@@ -1,5 +1,11 @@
-#ifndef halthandle_t_h
-#define halthandle_t_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef HALTHANDLE_T_H
+#define HALTHANDLE_T_H
+
 
 #include "tpl/quickstone_tpl.h"
 

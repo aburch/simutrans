@@ -1,10 +1,11 @@
-#ifndef dataobj_livery_scheme_h
-#define dataobj_livery_scheme_h 
 /*
-  * @author: jamespetts, April 2011
-  * This file is part of the Simutrans project under the artistic licence.
-  * (see licence.txt)
-  */
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DATAOBJ_LIVERY_SCHEME_H
+#define DATAOBJ_LIVERY_SCHEME_H
+
 
 #include <string>
 
@@ -29,7 +30,7 @@ private:
 
 public:
 	livery_scheme_t(const char* n, const uint16 date);
-	
+
 	const char* get_name() const { return scheme_name.c_str(); }
 
 	void add_livery(const char* name, uint16 intro)
@@ -55,16 +56,31 @@ public:
 			ITERATE(liveries, i)
 			{
 				if(date >= liveries.get_element(i).intro_date)
-				{ 
+				{
 					return true;
 				}
 			}
-			
+
 			return false;
 		}
 	}
 
 	const char* get_latest_available_livery(uint16 date, const vehicle_desc_t* desc) const;
+
+	// returns whether the livery belongs to this livery scheme
+	// If you want to check if it already appears, pass get_timeline_year_month @ Ranran
+	bool is_contained(const char* name, uint16 date = 0) const
+	{
+		ITERATE(liveries, i)
+		{
+			if ((date && date >= liveries.get_element(i).intro_date && liveries.get_element(i).name.compare(name) == 0)
+				|| (!date && liveries.get_element(i).name.compare(name) == 0))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 
 	void rdwr(loadsave_t *file);
 };

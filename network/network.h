@@ -1,5 +1,11 @@
-#ifndef sim_network_h
-#define sim_network_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef NETWORK_NETWORK_H
+#define NETWORK_NETWORK_H
+
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #define USE_WINSOCK 1

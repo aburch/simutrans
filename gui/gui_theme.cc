@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) 1997 - 2001 Hansj�rg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 /* this file has all functions for variable gui elements */
@@ -147,7 +145,7 @@ void gui_theme_t::init_gui_defaults()
 	gui_color_button_text_disabled         = MN_GREY0;
 	gui_color_button_text_selected         = COL_BLACK;
 	gui_color_colored_button_text          = COL_BLACK;
-	gui_color_colored_button_text_selected = COL_BLACK;
+	gui_color_colored_button_text_selected = COL_WHITE;
 	gui_color_checkbox_text                = COL_BLACK;
 	gui_color_checkbox_text_disabled       = MN_GREY0;
 	gui_color_ticker_background            = MN_GREY2;

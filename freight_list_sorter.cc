@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <algorithm>
 
 #include "freight_list_sorter.h"
@@ -210,7 +215,7 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 		//If given a class total, we want to display that
 		sum=class_total;
 	}
-	
+
 	buf.printf("%u", sum);
 	if (max != 0) {
 		// convois

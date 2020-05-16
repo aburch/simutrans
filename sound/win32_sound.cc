@@ -1,7 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -75,7 +74,7 @@ void dr_play_sample(int sample_number, int volume)
 
 		// Too late: DirectSound is deprecated.
 		/* TODO: Use DirectSound to render the sound in Windows 32-bit
-		 * so as to enable better quality sound playback without 
+		 * so as to enable better quality sound playback without
 		 * interfering with system volume levels.
 		HWND this_window = NULL;
 		bool mixing = true;

@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef fabrikbauer_t_h
-#define fabrikbauer_t_h
+#ifndef BAUER_FABRIKBAUER_H
+#define BAUER_FABRIKBAUER_H
+
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"
@@ -61,9 +60,9 @@ private:
 	static void find_producer(weighted_vector_tpl<const factory_desc_t *> &producer, const goods_desc_t *ware, uint16 timeline );
 
 public:
-	/// This is only for the set_scale function in simworld.cc	
+	/// This is only for the set_scale function in simworld.cc
 	static stringhashtable_tpl<factory_desc_t *> modifiable_table;
-	
+
 	/// Registers the factory description so the factory can be built in-game.
 	static void register_desc(factory_desc_t *desc);
 

@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2010 Bernd Gabriel
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string.h>
@@ -88,21 +86,21 @@ void gui_component_table_t::change_size(const coordinates_t &old_size, const coo
 
 
 // BG, 11.04.2010
-gui_component_t *gui_component_table_t::get_cell_component(coordinate_t x, coordinate_t y) 
-{ 
+gui_component_t *gui_component_table_t::get_cell_component(coordinate_t x, coordinate_t y)
+{
 
 	if (x < (coordinate_t) gui_cells.get_count() &&	y < (coordinate_t) gui_cells[x].get_count())
 	{
-		return gui_cells[x][y]; 
+		return gui_cells[x][y];
 	}
 	return NULL;
 }
 
 
 // BG, 11.04.2010
-void gui_component_table_t::set_cell_component(coordinate_t x, coordinate_t y, gui_component_t *component) 
-{ 
-	gui_cells[x].set(y, component); 
+void gui_component_table_t::set_cell_component(coordinate_t x, coordinate_t y, gui_component_t *component)
+{
+	gui_cells[x].set(y, component);
 }
 
 // BG, 11.04.2010
@@ -151,7 +149,7 @@ void gui_component_table_t::remove_cell(coordinate_t x, coordinate_t y) {
 }
 
 // BG, 27.03.2010
-void gui_component_table_t::remove_column(coordinate_t x) 
+void gui_component_table_t::remove_column(coordinate_t x)
 {
 	// remove cells
 	for (coordinate_t y = get_grid_size().get_y(); y > 0; ) {

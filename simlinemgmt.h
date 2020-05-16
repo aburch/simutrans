@@ -1,11 +1,11 @@
 /*
- * part of the Simutrans project
- * @author hsiegeln
- * 01/12/2003
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simlinemgmt_h
-#define simlinemgmt_h
+#ifndef SIMLINEMGMT_H
+#define SIMLINEMGMT_H
+
 
 #include "linehandle_t.h"
 #include "simtypes.h"

@@ -1,10 +1,6 @@
 /*
- * Copyright (c) 1997 - 2004 Hj. Malthaner
- *
- * Line management
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -58,7 +54,7 @@ static const char *cost_type[MAX_LINE_COST] =
 	"Transported",
 	"Average speed",
 	"Comfort",
-	"Revenue", 
+	"Revenue",
 	"Operation",
 	"Profit",
 	"Convoys",
@@ -72,22 +68,22 @@ static const char *cost_type[MAX_LINE_COST] =
 
 const int cost_type_color[MAX_LINE_COST] =
 {
-	COL_FREE_CAPACITY, 
-	COL_TRANSPORTED, 
-	COL_AVERAGE_SPEED, 
-	COL_COMFORT, 
-	COL_REVENUE, 
-	COL_OPERATION, 
+	COL_FREE_CAPACITY,
+	COL_TRANSPORTED,
+	COL_AVERAGE_SPEED,
+	COL_COMFORT,
+	COL_REVENUE,
+	COL_OPERATION,
 	COL_PROFIT,
-	COL_VEHICLE_ASSETS, 
-	COL_DISTANCE, 
+	COL_VEHICLE_ASSETS,
+	COL_DISTANCE,
 	COL_CAR_OWNERSHIP,
 	//COL_COUNVOI_COUNT,
 	//COL_DISTANCE,
 	COL_MAXSPEED,
 	COL_TOLL
 };
- 
+
 static uint8 tabs_to_lineindex[8];
 static uint8 max_idx=0;
 
@@ -409,16 +405,16 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 			create_win( new times_history_t(line, convoihandle_t()), w_info, (ptrdiff_t)line.get_rep() + 1 );
 		}
 	}
-	else if(comp == &livery_selector) 
+	else if(comp == &livery_selector)
 	{
 			int livery_selection = livery_selector.get_selection();
-			if(livery_selection < 0) 
+			if(livery_selection < 0)
 			{
 				livery_selector.set_selection(0);
 				livery_selection = 0;
 			}
 			livery_scheme_index = livery_scheme_indices.empty()? 0 : livery_scheme_indices[livery_selection];
-			if (line.is_bound()) 
+			if (line.is_bound())
 			{
 				tool_t *tmp_tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 				cbuffer_t buf;
@@ -580,11 +576,11 @@ void schedule_list_gui_t::display(scr_coord pos)
 		break;
 	}
 	display_proportional_clip(pos.x + LINE_NAME_COLUMN_WIDTH, pos.y + 7 + SCL_HEIGHT + D_MARGIN_TOP, buf, ALIGN_LEFT, line->get_state_color(), true);
-	
+
 	capacity = load = loadfactor = 0; // total capacity and load of line (=sum of all conv's cap/load)
 
 	sint64 profit = line->get_finance_history(0,LINE_PROFIT);
-	
+
 	sint64 total_trip_times = 0;
 	sint64 convoys_with_trip_data = 0;
 	for (int i = 0; i<icnv; i++) {
@@ -615,7 +611,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	{
 		service_frequency /= icnv;
 	}
-	
+
 	const int spacing = line->get_schedule()->get_spacing();
 	if(icnv && spacing > 0)
 	{

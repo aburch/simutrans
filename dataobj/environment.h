@@ -1,5 +1,11 @@
-#ifndef dataobj_environment_h
-#define dataobj_environment_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DATAOBJ_ENVIRONMENT_H
+#define DATAOBJ_ENVIRONMENT_H
+
 
 #include <string>
 #include "../simtypes.h"
@@ -373,7 +379,7 @@ public:
 
 	/// maximum length of city connections
 	static sint32 intercity_road_length;
-	
+
 	// Whether to generate a hilly landscape
 	// @author: jamespetts
 	static bool hilly;

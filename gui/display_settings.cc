@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 /*
@@ -75,7 +73,7 @@
 #define LOOP_DATA						(FRAME_DATA+13)
 
 #define SEPERATE5						(LOOP_DATA+13)
-		
+
 #define PHASE_REBUILD_CONNEXIONS		(SEPERATE5+7)
 #define PHASE_FILTER_ELIGIBLE			(PHASE_REBUILD_CONNEXIONS+13)
 #define PHASE_FILL_MATRIX				(PHASE_FILTER_ELIGIBLE+13)
@@ -215,7 +213,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[b].pressed = env_t::show_names&1;*/
 	buttons[b].set_tooltip("Shows the names of the individual stations in the main game window.");
 
-	//20	
+	//20
 	buttons[++b].set_pos( scr_coord(10,SHOW_STATION_GOODS) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("show waiting bars");
@@ -438,7 +436,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	else if ((buttons + 23) == comp) {
 		// see simtool.cc::tool_hide_under_cursor_t::init
 		env_t::hide_under_cursor = !env_t::hide_under_cursor  &&  env_t::cursor_hide_range > 0;
-		buttons[22].pressed = env_t::hide_under_cursor;
+		buttons[23].pressed = env_t::hide_under_cursor;
 		// renew toolbar
 		tool_t::update_toolbars();
 	}
@@ -457,7 +455,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		env_t::left_to_right_graphs = !env_t::left_to_right_graphs;
 		buttons[22].pressed ^= 1;
 	}
-	
+
 	welt->set_dirty();
 	return true;
 }
@@ -473,7 +471,6 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	buttons[ 7].pressed = welt->get_settings().get_show_pax();
 	buttons[ 8].pressed = welt->get_settings().get_random_pedestrians();
 	buttons[11].pressed = env_t::hide_trees;
-	buttons[22].pressed = env_t::hide_under_cursor;
 	buttons[15].pressed = env_t::station_coverage_show;
 	buttons[16].pressed = env_t::signalbox_coverage_show;
 	buttons[17].pressed = grund_t::underground_mode == grund_t::ugm_all;
@@ -481,6 +478,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	//buttons[19].pressed = env_t::show_names&1;
 	buttons[20].pressed = (env_t::show_names&2)!=0;
 	buttons[21].pressed = grund_t::underground_mode == grund_t::ugm_level;
+	buttons[23].pressed = env_t::hide_under_cursor;
 	buttons[24].pressed = env_t::visualize_schedule;
 
 	gui_frame_t::draw(pos, size);
@@ -565,7 +563,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	char status_string[128];
 	if ( path_explorer_t::is_processing() )
 	{
-		sprintf(status_string, "%s (%s) / %s", translator::translate(path_explorer_t::get_current_category_name()), path_explorer_t::get_current_class_name(), path_explorer_t::get_current_phase_name()); 
+		sprintf(status_string, "%s (%s) / %s", translator::translate(path_explorer_t::get_current_category_name()), path_explorer_t::get_current_class_name(), path_explorer_t::get_current_phase_name());
 		/*
 		tstrncpy(status_string, translator::translate( path_explorer_t::get_current_category_name() ), 15);
 		strcat(status_string, " (");

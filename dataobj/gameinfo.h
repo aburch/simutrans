@@ -1,5 +1,11 @@
-#ifndef dataobj_gameinfo_h
-#define dataobj_gameinfo_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DATAOBJ_GAMEINFO_H
+#define DATAOBJ_GAMEINFO_H
+
 
 #include <string>
 #include "../simtypes.h"

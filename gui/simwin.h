@@ -1,21 +1,22 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjorg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
+
+#ifndef GUI_SIMWIN_H
+#define GUI_SIMWIN_H
+
+
+#include "../simtypes.h"
+#include "../simconst.h"
+
+#include <stddef.h> // for ptrdiff_t
+
 
 /*
  * The function implements a WindowManager 'Object'
  */
 
-#ifndef simwin_h
-#define simwin_h
-
-#include <stddef.h> // for ptrdiff_t
-
-#include "../simtypes.h"
-#include "../simconst.h"
 
 class karte_t;
 class scr_coord;

@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef SIMLOADINGSCREEN_H
 #define SIMLOADINGSCREEN_H
+
 
 #include "simtypes.h"
 #include "tpl/slist_tpl.h"

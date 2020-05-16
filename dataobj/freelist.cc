@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -79,7 +84,8 @@ void *freelist_t::gimme_node(size_t size)
 	size <<= 2;
 
 #ifdef MULTI_THREAD
-	pthread_mutex_lock( &freelist_mutex );
+	int error = pthread_mutex_lock( &freelist_mutex );
+	assert(error == 0);
 #endif
 
 	// hold return value
@@ -88,7 +94,8 @@ void *freelist_t::gimme_node(size_t size)
 		// too large: just use malloc anyway
 		tmp = (nodelist_node_t *)xmalloc(size);
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock( &freelist_mutex );
+		error = pthread_mutex_unlock( &freelist_mutex );
+		assert(error == 0);
 #endif
 #ifdef DEBUG_FREELIST
 		tmp->magic = 0xAA;
@@ -148,7 +155,8 @@ void *freelist_t::gimme_node(size_t size)
 #endif
 
 #ifdef MULTI_THREAD
-	pthread_mutex_unlock( &freelist_mutex );
+	error = pthread_mutex_unlock( &freelist_mutex );
+	assert(error == 0);
 #endif
 
 #ifdef DEBUG_FREELIST
@@ -166,7 +174,7 @@ void freelist_t::putback_node( size_t size, void *p )
 	if(  size==0  ||  p==NULL  ) {
 		return;
 	}
-	
+
 	// all sizes should be dividable by 4
 #ifdef DEBUG_FREELIST
 	size = max( min_size, size + min_size );
@@ -177,13 +185,15 @@ void freelist_t::putback_node( size_t size, void *p )
 	size <<= 2;
 
 #ifdef MULTI_THREAD
-	pthread_mutex_lock( &freelist_mutex );
+	int error = pthread_mutex_lock( &freelist_mutex );
+	assert(error == 0);
 #endif
 
 	if(  size > MAX_LIST_INDEX  ) {
 		free(p);
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock( &freelist_mutex );
+		int error = pthread_mutex_unlock( &freelist_mutex );
+		assert(error == 0);
 #endif
 		return;
 	}
@@ -208,7 +218,8 @@ void freelist_t::putback_node( size_t size, void *p )
 	*list = tmp;
 
 #ifdef MULTI_THREAD
-	pthread_mutex_unlock( &freelist_mutex );
+	error = pthread_mutex_unlock( &freelist_mutex );
+	assert(error == 0);
 #endif
 }
 
@@ -230,7 +241,7 @@ void freelist_t::free_all_nodes()
 	}
 	printf("freelist_t::free_all_nodes(): zeroing\n");
 	for( int i=0;  i<NUM_LIST;  i++  ) {
-		all_lists[i] = NULL;
+		all_lists[i] = nullptr;
 	}
 	printf("freelist_t::free_all_nodes(): ok\n");
 }

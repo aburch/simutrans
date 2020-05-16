@@ -1,9 +1,6 @@
-﻿/*
- * Dialog window for defining a schedule
- *
- * Hj. Malthaner
- *
- * Juli 2000
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "../simline.h"
@@ -98,7 +95,7 @@ void schedule_gui_stats_t::highlight_schedule( schedule_t *markschedule, bool ma
 void schedule_gui_t::gimme_stop_name(cbuffer_t & buf, const player_t *player_, const schedule_entry_t &entry, bool no_control_tower )
 {
 	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_);
-	if(halt.is_bound()) 
+	if(halt.is_bound())
 	{
 		char modified_name[320];
 		if(no_control_tower)
@@ -242,9 +239,9 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 		offset.y += D_V_SPACE;
 		koord last_stop_pos = schedule->entries[0].pos.get_2d();
 		double distance;
-		FOR(minivec_tpl<schedule_entry_t>, const& e, schedule->entries) 
+		FOR(minivec_tpl<schedule_entry_t>, const& e, schedule->entries)
 		{
-			if (sel == 0) 
+			if (sel == 0)
 			{
 				// highlight current entry (width is just wide enough, scrolly will do clipping)
 				display_fillbox_wh_clip(offset.x, offset.y - 1, 2048, LINESPACE + 1, player->get_player_color1() + 1, false);
@@ -254,10 +251,10 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 			{
 				distance = (double)(shortest_distance(last_stop_pos, e.pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
 				buf.printf(" %.1f%s", distance, "km");
-				
+
 				PLAYER_COLOR_VAL const c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 				sint16           const w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
-				if (width < w) 
+				if (width < w)
 				{
 					width = w;
 				}
@@ -277,11 +274,11 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 				halthandle_t halt = welt->lookup(e.pos)->get_halt();
 				no_control_tower = halt.is_bound() && halt->has_no_control_tower();
 			}
-			
-			schedule_gui_t::gimme_stop_name(buf, player, e, no_control_tower);	
+
+			schedule_gui_t::gimme_stop_name(buf, player, e, no_control_tower);
 		}
 
-		if (sel == 0) 
+		if (sel == 0)
 		{
 			// highlight current entry (width is just wide enough, scrolly will do clipping)
 			display_fillbox_wh_clip(offset.x, offset.y - 1, 2048, LINESPACE + 1, player->get_player_color1() + 1, false);
@@ -290,7 +287,7 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 		buf.printf(" %.1f%s", distance, "km");
 		PLAYER_COLOR_VAL c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 		sint16           w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
-		if (width < w) 
+		if (width < w)
 		{
 			width = w;
 		}
@@ -495,7 +492,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 			numimp_spacing_shift.set_width_by_len(3);
 			numimp_spacing_shift.set_value( schedule->get_current_entry().spacing_shift  );
 			numimp_spacing_shift.set_limits( 0,welt->get_settings().get_spacing_shift_divisor() );
-			numimp_spacing_shift.set_increment_mode( 1 ); 
+			numimp_spacing_shift.set_increment_mode( 1 );
 			numimp_spacing_shift.add_listener(this);
 			add_component(&numimp_spacing_shift);
 		}
@@ -626,11 +623,11 @@ void schedule_gui_t::update_selection()
 			}
 			else if(!schedule->get_spacing())
 			{
-				// Cannot have wait for time without some spacing. 
+				// Cannot have wait for time without some spacing.
 				schedule->set_spacing(1);
 				numimp_spacing.set_value(1);
 			}
-			
+
 			if(  schedule->entries[current_stop].minimum_loading>0 || schedule->entries[current_stop].wait_for_time ) {
 				bt_wait_prev.enable();
 				lb_wait.set_color( SYSCOL_TEXT );
@@ -817,7 +814,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	else if (comp == &numimp_spacing) {
 		schedule->set_spacing(p.i);
 		update_selection();
-	} 
+	}
 	else if(comp == &numimp_spacing_shift) {
 		if (!schedule->empty()) {
 			if ( schedule->is_same_spacing_shift() ) {
@@ -829,13 +826,13 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			}
 			update_selection();
 		}
-	} 
+	}
 	else if (comp == &bt_mirror) {
 		schedule->set_mirrored(bt_mirror.pressed);
-	} 
+	}
 	else if (comp == &bt_bidirectional) {
 		schedule->set_bidirectional(bt_bidirectional.pressed);
-	} 
+	}
 	else if (comp == &bt_same_spacing_shift) {
 		schedule->set_same_spacing_shift(bt_same_spacing_shift.pressed);
 		if ( schedule->is_same_spacing_shift() ) {
@@ -843,7 +840,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 				schedule->entries[i].spacing_shift = schedule->entries[schedule->get_current_stop()].spacing_shift;
 			}
 		}
-	} 
+	}
 	else if(comp == &bt_wait_for_time)
 	{
 		if(!schedule->empty())

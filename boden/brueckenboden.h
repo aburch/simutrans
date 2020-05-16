@@ -1,5 +1,11 @@
-#ifndef brueckenboden_h
-#define brueckenboden_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef BODEN_BRUECKENBODEN_H
+#define BODEN_BRUECKENBODEN_H
+
 
 #include "grund.h"
 

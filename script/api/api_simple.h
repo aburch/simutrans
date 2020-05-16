@@ -1,5 +1,11 @@
-#ifndef _API_SIMPLE_H__
-#define _API_SIMPLE_H__
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SCRIPT_API_API_SIMPLE_H
+#define SCRIPT_API_API_SIMPLE_H
+
 
 #include "../../squirrel/squirrel.h"
 #include "../../dataobj/ribi.h"

@@ -1,13 +1,11 @@
 /*
- * Copyright (c) 2008 prissi
- *
- * This file is part of the Simutrans project under the artistic license.
- *
- * New configurable OOP tool system
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simmenu_h
-#define simmenu_h
+#ifndef SIMMENU_H
+#define SIMMENU_H
+
 
 #include <string>
 #include "descriptor/sound_desc.h"
@@ -17,6 +15,8 @@
 
 #include "simtypes.h"
 #include "display/simimg.h"
+
+/// New configurable OOP tool system
 
 
 template<class T> class vector_tpl;

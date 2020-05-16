@@ -1,5 +1,11 @@
-#ifndef simmesg_h
-#define simmesg_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SIMMESG_H
+#define SIMMESG_H
+
 
 #include "simtypes.h"
 #include "gui/gui_theme.h"

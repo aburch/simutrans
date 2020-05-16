@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simview_h
-#define simview_h
+#ifndef DISPLAY_SIMVIEW_H
+#define DISPLAY_SIMVIEW_H
+
 
 class karte_t;
 class viewport_t;

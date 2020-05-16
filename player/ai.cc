@@ -1,11 +1,7 @@
 /*
- * Copyright (c) 2008 Markus Pristovsek
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
-
-/* Helper routines for AIs */
 
 #include "finance.h"
 #include "ai.h"
@@ -120,7 +116,7 @@ bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const good
 	ware_t ware(wtyp);
 	ware.set_zielpos(dest_pos);
 	ware.menge = 1;
-	for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) 
+	for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++)
 	{
 		if(start_list[hh].halt->find_route(ware) < UINT32_MAX_VALUE)
 		{
@@ -413,7 +409,7 @@ bool ai_t::built_update_headquarter()
 
 
 /**
- * Find the last water tile using line algorithm 
+ * Find the last water tile using line algorithm
  * start MUST be on land!
  **/
 koord ai_t::find_shore(koord start, koord end) const

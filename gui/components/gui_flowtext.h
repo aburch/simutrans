@@ -1,5 +1,11 @@
-#ifndef GUI_COMPONENTS_FLOWTEXT_H
-#define GUI_COMPONENTS_FLOWTEXT_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_COMPONENTS_GUI_FLOWTEXT_H
+#define GUI_COMPONENTS_GUI_FLOWTEXT_H
+
 
 #include <string>
 

@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef message_stats_t_h
-#define message_stats_t_h
+#ifndef GUI_MESSAGE_STATS_T_H
+#define GUI_MESSAGE_STATS_T_H
+
 
 #include "components/gui_component.h"
 #include "../display/simimg.h"

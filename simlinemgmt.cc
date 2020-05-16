@@ -1,7 +1,6 @@
 /*
- * part of the Simutrans project
- * @author hsiegeln
- * 01/12/2003
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <algorithm>
@@ -62,7 +61,7 @@ void simlinemgmt_t::update_line(linehandle_t line, bool do_not_renew_stops)
 {
 	// when a line is updated, all managed convoys must get the new schedule!
 	const int count = line->count_convoys();
-	for(int i = 0; i<count; i++) 
+	for(int i = 0; i<count; i++)
 	{
 		const convoihandle_t cnv = line->get_convoy(i);
 		cnv->set_update_line(line);
