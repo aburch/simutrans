@@ -1635,7 +1635,7 @@ void *check_road_connexions_threaded(void *args)
 			int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
 
-			if (!city)
+			if (!city || world()->get_settings().get_assume_everywhere_connected_by_road())
 			{
 				continue;
 			}
@@ -5131,18 +5131,6 @@ void karte_t::new_month()
 	stadt.update_weights(get_population);
 	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt)
 	{
-		if(recheck_road_connexions)
-		{
-#ifdef MULTI_THREAD
-			int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
-			assert(error == 0);
-#endif
-			cities_awaiting_private_car_route_check.append_unique(s);
-#ifdef MULTI_THREAD
-			error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
-			assert(error == 0);
-#endif
-		}
 		s->new_month();
 		//INT_CHECK("simworld 3117");
 		total_electric_demand += s->get_power_demand();
@@ -5507,10 +5495,10 @@ void karte_t::step()
 		// There can be many mutex clashes with this; however, processing only one city at a time can make it take an unfeasible amount of time to refresh all routes.
 		//cities_to_process = stadt.get_count() > 64 ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		//cities_to_process = 1;
-		cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		start_private_car_threads();
 #else			
-		const sint32 cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		const sint32 cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		for (sint32 j = 0; j < cities_to_process; j++)
 		{
 			stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
