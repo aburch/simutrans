@@ -1121,6 +1121,8 @@ Thor
 Fel
 %259_CITY_SYLL
 Rut
+%25A_CITY_SYLL
+Wul
 #
 # Max: 400 (hex)
 #
@@ -4040,3 +4042,21 @@ No bridges over runways!
 Bridges cannnot be built over runways or taxiways.
 overtaking
 Overtaking
+Show contour
+Show contour
+Show buildings
+Show buildings
+Color-coded terrain according to altitude.
+Color-coded terrain according to altitude.
+Displays buildings in gray and stations in red and have priority over bridges and tunnels
+Displays buildings in gray and stations in red and have priority over bridges and tunnels
+map_btn_freight
+Freight
+Stop coverage
+Stop coverage
+Show the distance to the nearest station
+Show the distance to the nearest station
+Show convoys
+Show convoys
+map_btn_building_level
+Density
