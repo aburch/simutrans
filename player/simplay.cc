@@ -109,6 +109,12 @@ player_t::~player_t()
 		delete messages.remove_first();
 	}
 	destroy_win(magic_finances_t + get_player_nr());
+	destroy_win(magic_convoi_list + get_player_nr());
+	destroy_win(magic_halt_list + get_player_nr());
+	destroy_win(magic_line_management_t + get_player_nr());
+	destroy_win(magic_convoi_list_filter + get_player_nr());
+	destroy_win(magic_line_list + get_player_nr());
+	destroy_win(magic_ai_options_t + get_player_nr());
 	delete finance;
 	finance = NULL;
 }
