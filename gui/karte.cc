@@ -895,7 +895,11 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				// maximum two ways for one ground
 				const weg_t *way = gr->get_weg_nr(0);
 				condition_percent = way->get_condition_percent();
-				if(const weg_t *second_way = gr->get_weg_nr(1))
+				if (way->get_desc()->is_mothballed()) {
+					set_relief_farbe(k, MAP_COL_NODATA);
+					break;
+				}
+				else if(const weg_t *second_way = gr->get_weg_nr(1))
 				{
 					condition_percent = min(condition_percent, second_way->get_condition_percent());
 				}
@@ -939,6 +943,10 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		// show max speed (if there)
 		case MAX_SPEEDLIMIT:
 			{
+				if (gr->hat_wege() && gr->get_weg_nr(0)->get_desc()->is_mothballed()) {
+					set_relief_farbe(k, MAP_COL_NODATA);
+					break;
+				}
 				const sint32 speed_factor = 450-gr->get_max_speed() > 0 ? 450 - gr->get_max_speed() : 0;
 				if(gr->get_max_speed()) {
 					set_relief_farbe(k, calc_severity_color(pow(speed_factor,2.0)/100, 2025));
@@ -952,7 +960,11 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				if(gr->hat_wege())
 				{
 					const weg_t* way =  gr->get_weg_nr(0);
-					if(way->get_waytype() == powerline_wt || !way->get_max_axle_load())
+					if (way->get_desc()->is_mothballed()) {
+						set_relief_farbe(k, MAP_COL_NODATA);
+						break;
+					}
+					else if(way->get_waytype() == powerline_wt || !way->get_max_axle_load())
 					{
 						break;
 					}
@@ -973,7 +985,13 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				const leitung_t* lt = gr->find<leitung_t>();
 				if(lt!=NULL) {
-					set_relief_farbe(k, calc_severity_color((sint32)lt->get_net()->get_demand(),(sint32)lt->get_net()->get_supply()) );
+					const uint64 demand = lt->get_net()->get_demand();
+					if (!lt->get_net()->get_demand() || !lt->get_net()->get_supply()) {
+						set_relief_farbe(k, MAP_COL_NODATA);
+					}
+					else if (demand) {
+						set_relief_farbe(k, calc_severity_color((sint32)lt->get_net()->get_demand(), (sint32)lt->get_net()->get_supply()));
+					}
 				}
 			}
 			break;
