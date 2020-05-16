@@ -18,11 +18,7 @@ uint32 vehicle_desc_t::calc_running_cost(const karte_t *welt, uint32 base_cost) 
 	}
 
 	// I am not obsolete --> no obsolescence cost increase.
-	uint16 months_after_retire = increase_maintenance_after_years * 12;
-	if(months_after_retire == 0)
-	{
-		months_after_retire = welt->get_settings().get_obsolete_running_cost_increase_phase_years() * 12;
-	}
+	const uint16 months_after_retire = get_obsolete_year_month(welt) - retire_date;
 	sint32 months_of_obsolescence = welt->get_current_month() - (get_retire_year_month() + months_after_retire);
 	if (months_of_obsolescence <= 0)
 	{

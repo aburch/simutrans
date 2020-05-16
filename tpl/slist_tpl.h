@@ -144,8 +144,8 @@ public:
 	 */
 	slist_tpl()
 	{
-		head = 0;             // empty list
-		tail = 0;
+		head = nullptr;             // empty list
+		tail = nullptr;
 		node_count = 0;
 	}
 
@@ -163,7 +163,7 @@ public:
 	{
 		node_t* tmp = new node_t(data, head);
 		head = tmp;
-		if(  tail == NULL  ) {
+		if(  tail == nullptr) {
 			tail = tmp;
 		}
 		node_count++;
@@ -178,7 +178,7 @@ public:
 	{
 		node_t* tmp = new node_t(head);
 		head = tmp;
-		if(  tail == NULL  ) {
+		if(  tail == nullptr ) {
 			tail = tmp;
 		}
 		node_count++;
@@ -191,7 +191,7 @@ public:
 	 */
 	void append(const T& data)
 	{
-		if (tail == 0) {
+		if (tail == nullptr) {
 			insert(data);
 		}
 		else {
@@ -208,7 +208,7 @@ public:
 	 */
 	void append()
 	{
-		if (tail == 0) {
+		if (tail == nullptr) {
 			insert();
 		}
 		else {
@@ -226,7 +226,7 @@ public:
 	 */
 	void append_unique(const T& data)
 	{
-		if (tail == 0) {
+		if (tail == nullptr) {
 			insert(data);
 		}
 		else if(  !is_contained(data)  ) {
@@ -258,8 +258,8 @@ public:
 		node_count += other.node_count;
 
 		// empty other list
-		other.tail = NULL;
-		other.head = NULL;
+		other.tail = nullptr;
+		other.head = nullptr;
 		other.node_count = 0;
 	}
 
@@ -302,10 +302,10 @@ public:
 		else {
 			node_t *p = head;
 
-			while(p->next != 0 && !(p->next->data == data)) {
+			while(p->next != nullptr && !(p->next->data == data)) {
 				p = p->next;
 			}
-			if(p->next == 0) {
+			if(p->next == nullptr) {
 				//MESSAGE("slist_tpl<T>::remove()", "data not in list!");
 				return false;
 			}
@@ -313,7 +313,7 @@ public:
 			delete p->next;
 			p->next = tmp;
 
-			if(tmp == 0) {
+			if(tmp == nullptr) {
 				tail = p;
 			}
 		}
@@ -340,9 +340,9 @@ public:
 
 		node_count--;
 
-		if(head == 0) {
+		if(head == nullptr) {
 			// list is empty now
-			tail = 0;
+			tail = nullptr;
 		}
 
 		return tmp;
@@ -361,8 +361,8 @@ public:
 			p = p->next;
 			delete tmp;
 		}
-		head = 0;
-		tail = 0;
+		head = nullptr;
+		tail = nullptr;
 		node_count = 0;
 	}
 
@@ -371,7 +371,7 @@ public:
 		return node_count;
 	}
 
-	bool empty() const { return head == 0; }
+	bool empty() const { return head == nullptr; }
 
 	T& at(uint32 pos) const
 	{
@@ -422,13 +422,13 @@ public:
 	iterator insert(iterator pos, const T& x)
 	{
 		node_t* tmp = new node_t(x, pos.ptr);
-		if (pos.pred == NULL) {
+		if (pos.pred == nullptr) {
 			head = tmp;
 		}
 		else {
 			pos.pred->next = tmp;
 		}
-		if (pos.ptr == NULL) {
+		if (pos.ptr == nullptr) {
 			tail = tmp;
 		}
 		++node_count;
@@ -441,13 +441,13 @@ public:
 	iterator insert(iterator pos)
 	{
 		node_t* tmp = new node_t(pos.ptr);
-		if (pos.pred == NULL) {
+		if (pos.pred == nullptr) {
 			head = tmp;
 		}
 		else {
 			pos.pred->next = tmp;
 		}
-		if (pos.ptr == NULL) {
+		if (pos.ptr == nullptr) {
 			tail = tmp;
 		}
 		++node_count;
@@ -470,7 +470,7 @@ public:
 	 * sorts list using specified comparator
 	 */
 	void sort( int (*compare)(const T &l, const T &r) ){
-		if(  NULL == head  ||  head == tail  ) {
+		if( nullptr == head  ||  head == tail  ) {
 			return;
 		}
 

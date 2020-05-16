@@ -185,7 +185,8 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	scrolly_electrics.set_size_corner(false);
 	// add only if there are any trolleybuses
 	const uint16 shifter = 1 << vehicle_desc_t::electric;
-	const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_desc()->get_enabled());
+
+	const bool correct_traction_type = veh_action == va_sell || !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_desc()->get_enabled());
 	if(!electrics_vec.empty() && correct_traction_type)
 	{
 		tabs.add_tab(&scrolly_electrics, translator::translate( get_electrics_name(wt) ) );
@@ -720,7 +721,6 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *comp,value_
 	{
 		update_data();
 		update_tabs();
-
 	}
 	layout();
 	return true;
@@ -1007,27 +1007,30 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			const uint32 max_acceleration_distance = convoy.calc_acceleration_distance(weight_summary_t(max_weight, friction), min_speed);
 			tooltip_convoi_acceleration.printf(min_weight == max_weight ? translator::translate("; %i m") : translator::translate("; %i m - %i m"),
 				min_acceleration_distance, max_acceleration_distance);
+		}
 
-			{
-				char buf[128];
-				sint64 resale_value = total_cost;
-				if (depot_frame) {
-					convoihandle_t cnv = depot_frame->get_convoy();
-					if (cnv.is_bound())
-					{
-						resale_value = cnv->calc_sale_value();
-						depot_frame->set_resale_value(resale_value);
-					}
+		{
+			char buf[128];
+			sint64 resale_value = total_cost;
+			if (depot_frame) {
+				convoihandle_t cnv = depot_frame->get_convoy();
+				if (cnv.is_bound())
+				{
+					resale_value = cnv->calc_sale_value();
+					depot_frame->set_resale_value(total_cost, resale_value);
 				}
-
-				money_to_string(buf, total_cost / 100.0);
-				// FIXME: The correct term must be used for the translation of "Cost:"
-				txt_convoi_cost.append(translator::translate("Cost:"));
-				const COLOR_VAL col_cost = (uint32)resale_value == total_cost ? SYSCOL_TEXT : COL_ROYAL_BLUE;
-				display_proportional_clip(parent_pos.x + D_MARGIN_LEFT + proportional_string_width(translator::translate("Cost:")) + 10, parent_pos.y + pos.y + lb_convoi_cost.get_pos().y, buf, ALIGN_LEFT, col_cost, true);
-
-				txt_convoi_maintenance.printf(translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), (double)maint_per_km / 100.0, (double)maint_per_month / 100.0);
+				else {
+					depot_frame->set_resale_value();
+				}
 			}
+
+			money_to_string(buf, total_cost / 100.0);
+			// FIXME: The correct term must be used for the translation of "Cost:"
+			txt_convoi_cost.append(translator::translate("Cost:"));
+			const COLOR_VAL col_cost = (uint32)resale_value == total_cost ? SYSCOL_TEXT : COL_ROYAL_BLUE;
+			display_proportional_clip(parent_pos.x + D_MARGIN_LEFT + proportional_string_width(translator::translate("Cost:")) + 10, parent_pos.y + pos.y + lb_convoi_cost.get_pos().y, buf, ALIGN_LEFT, col_cost, true);
+
+			txt_convoi_maintenance.printf(translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), (double)maint_per_km / 100.0, (double)maint_per_month / 100.0);
 		}
 
 		txt_convoi_power.clear();
@@ -1268,7 +1271,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 						}
 					}
 					const uint16 shifter = 1 << info->get_engine_type();
-					const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_desc()->get_enabled());
+					const bool correct_traction_type = veh_action == va_sell || !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_desc()->get_enabled());
 					const weg_t* way = depot_frame ? welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype()) : NULL;
 					const bool correct_way_constraint = !way || missing_way_constraints_t(info->get_way_constraints(), way->get_way_constraints()).check_next_tile();
 					if(!correct_way_constraint || (!correct_traction_type && (info->get_power() > 0 || (veh_action == va_insert && info->get_leader_count() == 1 && info->get_leader(0) && info->get_leader(0)->get_power() > 0))))
@@ -2066,7 +2069,7 @@ void gui_convoy_assembler_t::update_tabs()
 	scrolly_electrics.set_size_corner(false);
 	// add only if there are any trolleybuses
 	const uint16 shifter = 1 << vehicle_desc_t::electric;
-	const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_desc()->get_enabled());
+	const bool correct_traction_type = veh_action == va_sell || !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_desc()->get_enabled());
 	if(!electrics_vec.empty() && correct_traction_type)
 	{
 		tabs.add_tab(&scrolly_electrics, translator::translate( get_electrics_name(wt) ) );

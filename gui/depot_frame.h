@@ -226,7 +226,7 @@ public:
 	// Check the electrification
 	bool check_way_electrified(bool init = false);
 
-	void set_resale_value(sint64 value = 0);
+	void set_resale_value(uint32 nominal_cost = 0, sint64 resale_value = 0);
 };
 
 #endif

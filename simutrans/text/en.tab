@@ -1115,6 +1115,16 @@ Pres
 Var
 %256_CITY_SYLL
 Ket
+%257_CITY_SYLL
+Thor
+%258_CITY_SYLL
+Fel
+%259_CITY_SYLL
+Rut
+%25A_CITY_SYLL
+Wul
+#
+# Max: 400 (hex)
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -1394,6 +1404,8 @@ age
 &87_CITY_SYLL
 tye
 #
+# Max: 200 (hex)
+#
 # Town name prefixes.
 # There can be up to 256 of these.
 # They must be specified in hexadecimal
@@ -1525,6 +1537,8 @@ Royal
 Corn 
 &3D_CITY_PREFIX
 Worth 
+#
+# Max: 50 (hex)
 #
 # Town name suffixes.
 # There can be up to 256 of these.
@@ -1672,6 +1686,8 @@ heath
 &43_CITY_SUFFIX
 er's Lock
 # 
+# Max: 50 (hex)
+#
 # Other strings
 # 
 %d buildings\n
@@ -4041,4 +4057,22 @@ Starting acceleration:
 overtaking
 Overtaking
 no power at all
-No power at all!
+Entirely unpowered
+Show contour
+Show contour
+Show buildings
+Show buildings
+Color-coded terrain according to altitude.
+Color-coded terrain according to altitude.
+Displays buildings in gray and stations in red and have priority over bridges and tunnels
+Displays buildings in gray and stations in red and have priority over bridges and tunnels
+map_btn_freight
+Freight
+Stop coverage
+Stop coverage
+Show the distance to the nearest station
+Show the distance to the nearest station
+Show convoys
+Show convoys
+map_btn_building_level
+Density

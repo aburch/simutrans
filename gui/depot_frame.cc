@@ -138,7 +138,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	bt_sell.set_typ(button_t::roundbox);
 	bt_sell.add_listener(this);
-	bt_sell.set_tooltip("Sell the selected vehicle(s)");
+	set_resale_value();
 	add_component(&bt_sell);
 
 	scr_size size(0,0);
@@ -366,7 +366,7 @@ void depot_frame_t::layout(scr_size *size)
 
 	bt_sell.set_pos(scr_coord(D_MARGIN_LEFT + (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 + 3, ACTIONS_VSTART));
 	bt_sell.set_size(scr_size((DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) - (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 - 3, D_BUTTON_HEIGHT));
-	bt_sell.set_text("verkaufen");
+	set_resale_value();
 
 	const scr_coord_val margin = 4;
 	img_bolt.set_pos(scr_coord(get_windowsize().w - skinverwaltung_t::electricity->get_image(0)->get_pic()->w - margin, margin));
@@ -528,17 +528,25 @@ sint64 depot_frame_t::calc_sale_value(const vehicle_desc_t *veh_type)
 }
 
 
-void depot_frame_t::set_resale_value(sint64 value)
+void depot_frame_t::set_resale_value(uint32 nominal_cost, sint64 resale_value)
 {
-	if (value == 0) {
-		bt_sell.set_text(translator::translate("verkaufen"));
-		return;
+	if (nominal_cost == resale_value) {
+		bt_sell.set_text(translator::translate("Refund"));
+		bt_sell.set_tooltip("Return the vehicle(s) for a full refund.");
 	}
-	txt_convoi_cost.clear();
-	char buf[128];
-	money_to_string(buf, value/100.0);
-	txt_convoi_cost.printf(translator::translate("Sell for %s"), buf);
-	bt_sell.set_text(txt_convoi_cost);
+	else if (resale_value == 0) {
+		bt_sell.set_text(translator::translate("Scrap"));
+		bt_sell.set_tooltip("Scrap all vehicles in the convoy.");
+	}
+	else {
+		bt_sell.set_text(translator::translate("verkaufen"));
+		txt_convoi_cost.clear();
+		char buf[128];
+		money_to_string(buf, resale_value/100.0);
+		txt_convoi_cost.printf(translator::translate("Sell the convoy for %s"), buf);
+		bt_sell.set_tooltip(txt_convoi_cost);
+	}
+	return;
 }
 
 
