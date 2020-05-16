@@ -11,6 +11,7 @@
 #include "components/gui_scrollpane.h"
 #include "components/gui_label.h"
 #include "factorylist_stats_t.h"
+#include "components/gui_combobox.h"
 
 
 /*
@@ -23,7 +24,7 @@ private:
 	static const char *sort_text[factorylist::SORT_MODES];
 
 	gui_label_t sort_label;
-	button_t	sortedby;
+	gui_combobox_t	sortedby;
 	button_t	sorteddir;
 	button_t	filter_within_network;
 	factorylist_stats_t stats;
