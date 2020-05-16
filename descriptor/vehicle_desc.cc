@@ -311,8 +311,52 @@ uint16 vehicle_desc_t::get_available_livery_count(karte_t *welt) const
 	return livery_count;
 }
 
+// calculation(auto connect) algorithm is based on tool_change_depot_t::init
+uint8 vehicle_desc_t::calc_auto_connection_length(bool rear_side) const
+{
+	if ((rear_side && trailer_count != 1) || (!rear_side && leader_count != 1))
+	{
+		return 0;
+	}
 
+	slist_tpl<const vehicle_desc_t *>new_vehicle_info;
+	const vehicle_desc_t *next_veh = rear_side ? get_trailer(0) : get_leader(0);
+	if (next_veh == NULL) { return 0; }
+	uint8 len = next_veh ? next_veh->get_length(): 0;
 
+	while (((rear_side && next_veh->get_trailer_count() == 1 && next_veh->get_trailer(0) != NULL) ||
+		(!rear_side && next_veh->get_leader_count() == 1 && next_veh->get_leader(0) != NULL))
+		&& !new_vehicle_info.is_contained(next_veh)) {
+		next_veh = rear_side ? next_veh->get_trailer(0) : next_veh->get_leader(0);
+		new_vehicle_info.insert(next_veh);
+		len += next_veh->get_length();
+	}
+
+	return len;
+}
+
+uint8 vehicle_desc_t::get_auto_connection_vehicle_count(bool rear_side) const
+{
+	if ((rear_side && trailer_count != 1) || (!rear_side && leader_count != 1))
+	{
+		return 0;
+	}
+
+	slist_tpl<const vehicle_desc_t *>new_vehicle_info;
+	const vehicle_desc_t *next_veh = rear_side ? get_trailer(0) : get_leader(0);
+	if (next_veh == NULL) { return 0; }
+	uint8 cnt=1;
+
+	while (((rear_side && next_veh->get_trailer_count() == 1 && next_veh->get_trailer(0) != NULL) ||
+		(!rear_side && next_veh->get_leader_count() == 1 && next_veh->get_leader(0) != NULL))
+		&& !new_vehicle_info.is_contained(next_veh)) {
+		next_veh = rear_side ? next_veh->get_trailer(0) : next_veh->get_leader(0);
+		new_vehicle_info.insert(next_veh);
+		cnt ++;
+	}
+
+	return cnt;
+}
 
 
 void vehicle_desc_t::calc_checksum(checksum_t *chk) const

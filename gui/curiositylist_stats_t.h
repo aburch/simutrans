@@ -14,7 +14,7 @@
 class gebaeude_t;
 
 namespace curiositylist {
-    enum sort_mode_t { by_name=0, by_paxlevel/*, by_maillevel*/, SORT_MODES };
+    enum sort_mode_t { by_name=0, by_paxlevel, by_pax_arrived/*, by_maillevel*/, SORT_MODES };
 };
 
 /**
@@ -30,11 +30,12 @@ private:
 	uint32 last_world_curiosities;
 	curiositylist::sort_mode_t sortby;
 	bool sortreverse;
+	bool filter_own_network;
 
 public:
-	curiositylist_stats_t(curiositylist::sort_mode_t sortby, bool sortreverse);
+	curiositylist_stats_t(curiositylist::sort_mode_t sortby, bool sortreverse, bool own_network);
 
-	void get_unique_attractions(curiositylist::sort_mode_t sortby, bool reverse);
+	void get_unique_attractions(curiositylist::sort_mode_t sortby, bool reverse, bool own_network);
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

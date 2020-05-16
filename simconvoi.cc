@@ -1560,7 +1560,7 @@ bool convoi_t::drive_to()
 
 	allow_clear_reservation = true;
 
-	if(success != route_t::valid_route)
+	if(success != route_t::valid_route && success != route_t::valid_route_halt_too_short)
 	{
 		if(state != NO_ROUTE && state != NO_ROUTE_TOO_COMPLEX)
 		{
@@ -7155,6 +7155,16 @@ uint16 convoi_t::get_tile_length() const
 	return tiles;
 }
 
+uint16 convoi_t::get_true_tile_length() const
+{
+	uint16 carunits = 0;
+	for (sint8 i = 0; i < vehicle_count; i++) {
+		carunits += vehicle[i]->get_desc()->get_length();
+	}
+	uint16 tiles = (carunits + CARUNITS_PER_TILE - 1) / CARUNITS_PER_TILE;
+	return tiles;
+}
+
 
 // if withdraw and empty, then self destruct
 void convoi_t::set_withdraw(bool new_withdraw)
@@ -8486,6 +8496,64 @@ uint8 convoi_t::check_new_tail(uint8 start = 1) const
 	}
 	return 0;
 }
+
+// calculation(auto remove) algorithm is based on tool_change_depot_t::init - "r"
+uint8 convoi_t::calc_auto_removal_length(uint8 car_no) const
+{
+	uint8 len = 0;
+	int nr = car_no;
+
+	// check rear side
+	while (nr < get_vehicle_count()) {
+		const vehicle_desc_t *info = vehicle[nr]->get_desc();
+		len += info->get_length();
+		nr++;
+		if (info->get_trailer_count() != 1) {
+			break;
+		}
+	}
+
+	// check front side
+	nr = car_no;
+	while (nr > 0) {
+		const vehicle_desc_t *info = vehicle[nr-1]->get_desc();
+		if (info->get_trailer_count() != 1) {
+			return len;
+		}
+		len += info->get_length();
+		nr--;
+	}
+	return len;
+}
+
+uint8 convoi_t::get_auto_removal_vehicle_count(uint8 car_no) const
+{
+	uint8 cnt = 0;
+	int nr = car_no;
+
+	// check rear side
+	while (nr < get_vehicle_count()) {
+		const vehicle_desc_t *info = vehicle[nr]->get_desc();
+		cnt++;
+		nr++;
+		if (info->get_trailer_count() != 1) {
+			break;
+		}
+	}
+
+	// check front side
+	nr = car_no;
+	while (nr > 0) {
+		const vehicle_desc_t *info = vehicle[nr - 1]->get_desc();
+		if (info->get_trailer_count() != 1) {
+			return cnt;
+		}
+		cnt++;
+		nr--;
+	}
+	return cnt;
+}
+
 
 // Currently this is used to determine if neighboring vehicles are in intermediate side each other.
 // They are considered identical groups when reversing convoy.

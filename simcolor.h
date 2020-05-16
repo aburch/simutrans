@@ -138,6 +138,9 @@ typedef unsigned char COLOR_VAL;
 #define COL_OUT_OF_PRODUCTION COL_ROYAL_BLUE
 //#define COL_OVERCROWDED     COL_DARK_PURPLE
 
+// used in tilebar (and text)
+#define COL_ADDITIONAL COL_LIGHT_TURQUOISE
+#define COL_REDUCED    COL_LIGHT_ORANGE
 
 #define SYSCOL_TEXT                         gui_theme_t::gui_color_text
 #define SYSCOL_TEXT_HIGHLIGHT               gui_theme_t::gui_color_text_highlight

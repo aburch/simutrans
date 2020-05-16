@@ -267,7 +267,7 @@ void replace_frame_t::layout(scr_size *gr)
 	convoy_assembler.set_size(scr_size(fgr.w,convoy_assembler.get_height()));
 	convoy_assembler.layout();
 
-	uint32 buttons_y = current_y + convoy_assembler.get_convoy_height() - LINESPACE + 24;
+	uint32 buttons_y = current_y + convoy_assembler.get_convoy_height() - LINESPACE*2 + 24;
 	uint32 buttons_width=(fgr.w-2*margin)/4;
 	bt_autostart.set_size(scr_size(buttons_width, a_D_BUTTON_HEIGHT));
 	bt_depot.set_size(scr_size(buttons_width, a_D_BUTTON_HEIGHT));
@@ -279,13 +279,13 @@ void replace_frame_t::layout(scr_size *gr)
 	bt_clear.set_pos(scr_coord(margin+(buttons_width*3),buttons_y));
 
 	current_y=buttons_y+a_D_BUTTON_HEIGHT+margin;
-	lb_money.set_pos(scr_coord(margin + (203 *2),current_y));
-	lb_replace_cycle.set_pos(scr_coord(fgr.w-170,current_y));
-	lb_replace.set_pos(scr_coord(fgr.w-166,current_y));
+	lb_money.set_pos(scr_coord(margin + (186 *2),current_y));
+	lb_replace_cycle.set_pos(scr_coord(fgr.w-250,current_y));
+	lb_replace.set_pos(scr_coord(fgr.w-150,current_y));
 
-	numinp[state_replace].set_pos(scr_coord( fgr.w-110, current_y ) );
+	numinp[state_replace].set_pos(scr_coord( fgr.w-95, current_y ) );
 	numinp[state_replace].set_size(scr_size( 50, a_D_BUTTON_HEIGHT ) );
-	lb_n_replace.set_pos(scr_coord( fgr.w-50, current_y ) );
+	lb_n_replace.set_pos(scr_coord( fgr.w-35, current_y ) );
 
 	bt_replace_line.set_pos(scr_coord(margin,current_y));
 	bt_retain_in_depot.set_pos(scr_coord(margin + 162,current_y));
@@ -295,15 +295,15 @@ void replace_frame_t::layout(scr_size *gr)
 	bt_allow_using_existing_vehicles.set_pos(scr_coord(margin + (162 *2),current_y));
 	bt_replace_all.set_pos(scr_coord(margin,current_y));
 	bt_use_home_depot.set_pos(scr_coord(margin + 162,current_y));
-	numinp[state_sell].set_pos(scr_coord( fgr.w-110, current_y ) );
+	numinp[state_sell].set_pos(scr_coord( fgr.w-95, current_y ) );
 	numinp[state_sell].set_size(scr_size( 50, a_D_BUTTON_HEIGHT ) );
-	lb_n_sell.set_pos(scr_coord( fgr.w-50, current_y ) );
-	lb_sell.set_pos(scr_coord(fgr.w-166,current_y));
+	lb_n_sell.set_pos(scr_coord( fgr.w-35, current_y ) );
+	lb_sell.set_pos(scr_coord(fgr.w-150,current_y));
 	current_y+=LINESPACE+2;
-	lb_skip.set_pos(scr_coord(fgr.w-166,current_y));
-	numinp[state_skip].set_pos(scr_coord( fgr.w-110, current_y ) );
+	lb_skip.set_pos(scr_coord(fgr.w-150,current_y));
+	numinp[state_skip].set_pos(scr_coord( fgr.w-95, current_y ) );
 	numinp[state_skip].set_size(scr_size( 50, a_D_BUTTON_HEIGHT ) );
-	lb_n_skip.set_pos(scr_coord( fgr.w-50, current_y ) );
+	lb_n_skip.set_pos(scr_coord( fgr.w-35, current_y ) );
 
 	current_y+=LINESPACE+margin;
 }
