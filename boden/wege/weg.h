@@ -515,7 +515,7 @@ public:
 	uint32 get_runway_length(bool is_36_18) const;
 
 	void increment_traffic_stopped_counter() { statistics[0][WAY_STAT_WAITING] ++; }
-	uint32 get_congestion_percentage() const { return statistics[0][WAY_STAT_CONVOIS] + statistics[1][WAY_STAT_CONVOIS] ? ((statistics[0][WAY_STAT_WAITING] + statistics[1][WAY_STAT_WAITING]) * 100) / (statistics[0][WAY_STAT_CONVOIS] + statistics[1][WAY_STAT_CONVOIS]) : 0; }
+	uint32 get_congestion_percentage() const { return statistics[0][WAY_STAT_CONVOIS] + statistics[1][WAY_STAT_CONVOIS] ? ((statistics[0][WAY_STAT_WAITING] + statistics[1][WAY_STAT_WAITING]) * 200) / (statistics[0][WAY_STAT_CONVOIS] + statistics[1][WAY_STAT_CONVOIS]) : 0; }
 
 } GCC_PACKED;
 
