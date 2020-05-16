@@ -1560,7 +1560,7 @@ bool convoi_t::drive_to()
 
 	allow_clear_reservation = true;
 
-	if(success != route_t::valid_route)
+	if(success != route_t::valid_route && success != route_t::valid_route_halt_too_short)
 	{
 		if(state != NO_ROUTE && state != NO_ROUTE_TOO_COMPLEX)
 		{
@@ -7151,6 +7151,16 @@ uint16 convoi_t::get_tile_length() const
 	//     see convoi_t::hat_gehalten
 	carunits += max(CARUNITS_PER_TILE/2, vehicle[vehicle_count-1]->get_desc()->get_length());
 
+	uint16 tiles = (carunits + CARUNITS_PER_TILE - 1) / CARUNITS_PER_TILE;
+	return tiles;
+}
+
+uint16 convoi_t::get_true_tile_length() const
+{
+	uint16 carunits = 0;
+	for (sint8 i = 0; i < vehicle_count; i++) {
+		carunits += vehicle[i]->get_desc()->get_length();
+	}
 	uint16 tiles = (carunits + CARUNITS_PER_TILE - 1) / CARUNITS_PER_TILE;
 	return tiles;
 }
