@@ -6062,7 +6062,7 @@ void stadt_t::remove_connected_city(stadt_t* city)
 	{
 		connected_cities.remove(city->get_pos());
 	}
-}
+} 
 
 
 void stadt_t::remove_connected_industry(fabrik_t* fab)
