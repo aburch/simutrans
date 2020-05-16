@@ -15,6 +15,7 @@
 #include "components/gui_label.h"
 #include "components/action_listener.h"  // 28-Dec-2001  Markus Weber    Added
 #include "components/gui_button.h"
+#include "components/gui_convoiinfo.h"
 #include "../convoihandle_t.h"
 
 class player_t;
@@ -52,7 +53,8 @@ private:
 	gui_label_t sort_label;
 	button_t	sortedby;
 	button_t	sorteddir;
-	gui_label_t filter_label;
+	gui_label_t mode_label;
+	button_t	display_mode;
 	button_t	filter_on;
 	button_t	filter_details;
 
@@ -82,6 +84,17 @@ private:
 	bool passes_filter(convoihandle_t cnv);
 
 	void sort_list();
+
+	inline const uint8 get_cinfo_height(uint8 cl_display_mode) {
+		switch (cl_display_mode) {
+		case gui_convoiinfo_t::cnvlist_formation:
+			return 55;
+		case gui_convoiinfo_t::cnvlist_payload:
+		case gui_convoiinfo_t::cnvlist_normal:
+		default:
+			return 40;
+		}
+	}
 
 public:
 	/**

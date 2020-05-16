@@ -338,7 +338,7 @@ void simline_t::rdwr(loadsave_t *file)
 					sint64 dummy = 0;
 					file->rdwr_longlong(dummy);
 				}
-				else if (j == LINE_WAYTOLL && (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 20)))
+				else if (j == LINE_WAYTOLL && (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 21)))
 				{
 					if (file->is_loading())
 					{
@@ -375,7 +375,7 @@ void simline_t::rdwr(loadsave_t *file)
 			file->rdwr_long(rolling_average[i]);
 			file->rdwr_short(rolling_average_count[i]);
 		}
-		if (file->get_extended_version() > 14 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 20))
+		if (file->get_extended_version() > 14 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 21))
 		{
 			file->rdwr_long(rolling_average[LINE_WAYTOLL]);
 			file->rdwr_short(rolling_average_count[LINE_WAYTOLL]);
@@ -671,20 +671,10 @@ void simline_t::recalc_status()
 	// Note that if the pakset has no symbols, it depends on the text color.
 	if (welt->use_timeline())
 	{
-		// Has obsolete vehicles.
-		// Has obsolete vehicles that can upgrade.
-		bool has_obsolete = false;
-		bool has_obsolete_that_can_upgrade = false;
 		const uint16 month_now = welt->get_timeline_year_month();
 
 		FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys)
 		{
-			if (i->has_obsolete_vehicles())
-			{
-				has_obsolete = true;
-				state |= line_has_obsolete_vehicles;
-			}
-
 			for (uint16 j = 0; j < i->get_vehicle_count(); j++)
 			{
 				vehicle_t *v = i->get_vehicle(j);
@@ -692,37 +682,23 @@ void simline_t::recalc_status()
 				{
 					for (int k = 0; k < v->get_desc()->get_upgrades_count(); k++)
 					{
-						if (v->get_desc()->get_upgrades(k) && !v->get_desc()->get_upgrades(k)->is_future(month_now) && (!v->get_desc()->get_upgrades(k)->is_retired(month_now)))
+						if (v->get_desc()->get_upgrades(k) && !v->get_desc()->get_upgrades(k)->is_future(month_now))
 						{
-							has_obsolete_that_can_upgrade = true;
-							state |= line_has_obsolete_vehicles_with_upgrades;
+							state |= line_has_upgradeable_vehicles;
+							state_color = COL_UPGRADEABLE;
 						}
 					}
 				}
 			}
 
-		}
-		// now we have to set it
-		if (has_obsolete_that_can_upgrade)
-		{
-			state_color = COL_UPGRADEABLE;
-		}
-		else if (has_obsolete)
-		{
-			state_color = COL_OBSOLETE;
+			if (i->has_obsolete_vehicles())
+			{
+				state |= line_has_obsolete_vehicles;
+				// obsolete has priority over upgradeable (only for color)
+				state_color = COL_OBSOLETE;
+			}
 		}
 	}
-	//else if (welt->use_timeline())
-	//{
-	//	// Has obsolete vehicles.
-	//	bool has_obsolete = false;
-	//	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
-	//		has_obsolete = i->has_obsolete_vehicles();
-	//		if (has_obsolete) break;
-	//	}
-	//	// now we have to set it
-	//	state_color = has_obsolete ? COL_OBSOLETE : COL_BLACK;
-	//}
 
 	if (financial_history[1][LINE_DEPARTURES] < financial_history[1][LINE_DEPARTURES_SCHEDULED])
 	{

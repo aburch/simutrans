@@ -103,7 +103,7 @@ static const char * line_alert_helptexts[5] =
   "line_missing_scheduled_slots",
   "line_has_obsolete_vehicles",
   "line_overcrowded",
-  "line_has_obsolete_vehicles_with_upgrades"
+  "line_has_upgradeable_vehicles"
 };
 
 
@@ -698,6 +698,15 @@ void schedule_list_gui_t::display(scr_coord pos)
 			buf.append(translator::translate(line_alert_helptexts[0]));
 		}
 	}
+	if (line->get_state() & simline_t::line_has_upgradeable_vehicles) {
+		if (skinverwaltung_t::upgradable) {
+			display_color_img_with_tooltip(skinverwaltung_t::upgradable->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[4]));
+			left += GOODS_SYMBOL_CELL_WIDTH;
+		}
+		else if (!buf.len() && line->get_state_color() == COL_PURPLE) {
+			buf.append(translator::translate(line_alert_helptexts[4]));
+		}
+	}
 	if (line->get_state() & simline_t::line_has_obsolete_vehicles) {
 		if (skinverwaltung_t::alerts) {
 			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[2]));
@@ -714,15 +723,6 @@ void schedule_list_gui_t::display(scr_coord pos)
 		}
 		else if (!buf.len() && line->get_state_color() == COL_DARK_PURPLE) {
 			buf.append(translator::translate(line_alert_helptexts[3]));
-		}
-	}
-	if (line->get_state() & simline_t::line_has_obsolete_vehicles_with_upgrades) {
-		if (skinverwaltung_t::upgradable) {
-			display_color_img_with_tooltip(skinverwaltung_t::upgradable->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[4]));
-			left += GOODS_SYMBOL_CELL_WIDTH;
-		}
-		else if (!buf.len() && line->get_state_color() == COL_PURPLE) {
-			buf.append(translator::translate(line_alert_helptexts[4]));
 		}
 	}
 	if (buf.len() > 0) {
@@ -1031,7 +1031,7 @@ void schedule_list_gui_t::rdwr( loadsave_t *file )
 	if (file->get_version() < 112008) {
 		chart_records = 8;
 	}
-	else if (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 20)) {
+	else if (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 21)) {
 		chart_records = 12;
 	}
 	for (int i=0; i<chart_records; i++) {

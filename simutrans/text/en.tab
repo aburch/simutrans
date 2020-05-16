@@ -3794,7 +3794,7 @@ line_missing_scheduled_slots
 This line missed scheduled slots last month
 line_has_obsolete_vehicles
 This line has obsolete vehicles
-line_has_obsolete_vehicles_with_upgrades
+line_has_upgradeable_vehicles
 This line has vehicles to which upgrades are available
 staff_shortage
 Staff shortage
