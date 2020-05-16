@@ -1184,7 +1184,7 @@ grund_t* private_car_t::hop_check()
 			if(current_speed<48) {
 				current_speed = 48;
 			}
-			return from;
+			return from; 
 		}
 	}
 	else {
