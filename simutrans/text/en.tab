@@ -3783,19 +3783,19 @@ additional upgrades
 reassign_classes
 Reassign prices
 line_no_convoys
-This line has no convoys assigned
+This line has no convoys assigned to it
 line_loss_making
 This line made a loss last month
 line_nothing_moved
-This line did not move any good last month
+This line did not transport anything last month
 line_overcrowded
 This line is frequently overcrowded
 line_missing_scheduled_slots
-This line was missing scheduled slots last month
+This line missed scheduled slots last month
 line_has_obsolete_vehicles
-This line operates with obsolete vehicles
+This line has obsolete vehicles
 line_has_obsolete_vehicles_with_upgrades
-This line has obsolete vehicles with upgrades
+This line has vehicles to which upgrades are available
 staff_shortage
 Staff shortage
 reset_all_pass_classes
@@ -4063,9 +4063,9 @@ Show contour
 Show buildings
 Show buildings
 Color-coded terrain according to altitude.
-Color-coded terrain according to altitude.
+Color coded terrain according to altitude.
 Displays buildings in gray and stations in red and have priority over bridges and tunnels
-Displays buildings in gray and stations in red and have priority over bridges and tunnels
+Displays buildings in grey and stations in red and have priority over bridges and tunnels
 map_btn_freight
 Freight
 Stop coverage
@@ -4076,3 +4076,9 @@ Show convoys
 Show convoys
 map_btn_building_level
 Density
+cl_btn_general
+General
+cl_btn_payload
+Payload
+cl_btn_formation
+Formation
