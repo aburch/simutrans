@@ -943,6 +943,10 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		// show max speed (if there)
 		case MAX_SPEEDLIMIT:
 			{
+				if (gr->hat_wege() && gr->get_weg_nr(0)->get_desc()->is_mothballed()) {
+					set_relief_farbe(k, MAP_COL_NODATA);
+					break;
+				}
 				const sint32 speed_factor = 450-gr->get_max_speed() > 0 ? 450 - gr->get_max_speed() : 0;
 				if(gr->get_max_speed()) {
 					set_relief_farbe(k, calc_severity_color(pow(speed_factor,2.0)/100, 2025));
