@@ -3600,9 +3600,10 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 	}
 	else {
 		// get a default vehicle
+		vehicle_desc_t remover_desc(wt, 500, vehicle_desc_t::diesel );
 		test_driver_t* test_driver;
+
 		if(  wt!=powerline_wt  ) {
-			vehicle_desc_t remover_desc(wt, 500, vehicle_desc_t::diesel );
 			vehicle_t *driver = vehicle_builder_t::build(start, player, NULL, &remover_desc);
 			driver->set_flag( obj_t::not_on_map );
 			test_driver = driver;

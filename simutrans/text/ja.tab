@@ -1735,8 +1735,6 @@ Select a theme for display
 表示するテーマの選択
 Select display font
 テキストのフォントを選択
-Sell the selected vehicle(s)
-選択している乗り物を売却します
 sended
 配達実績
 SEP_FRACTION
@@ -3665,6 +3663,14 @@ Cannot start: no cab at the front of the convoy.
 編成の構成エラー：\n先頭になれない車両が先頭になっています。（運転台が無い等）
 no power at all
 編成に動力がありません！
+Dismantle
+車両を解体
+Dismantle all vehicles in the convoy. No costs will be refunded.
+編成中の車両を全て解体します。車両購入費用は一切戻ってきません。
+The purchase will be canceled and the cost will be fully refunded.
+車両の購入はキャンセルされ、購入費用は全額返還されます。
+Sell the convoy for %s
+編成を %s にて売却します
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

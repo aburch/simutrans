@@ -250,7 +250,7 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 koord haltestelle_t::get_basis_pos() const
 {
 	if (tiles.empty()) return koord::invalid;
-	assert(tiles.front().grund->get_pos().get_2d() == init_pos);
+	//assert(tiles.front().grund->get_pos().get_2d() == init_pos);
 	return tiles.front().grund->get_pos().get_2d();
 }
 
@@ -414,7 +414,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	}
 
 #ifdef MULTI_THREAD
-	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations() + 2];
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[max(world()->get_parallel_operations() + 2, env_t::num_threads + 1)];
 #else
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[1];
 #endif

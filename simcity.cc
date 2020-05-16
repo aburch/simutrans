@@ -2700,9 +2700,18 @@ void stadt_t::check_all_private_car_routes()
 	const grund_t* gr = plan ? plan->get_kartenboden() : NULL;
 	const koord3d origin = gr ? gr->get_pos() : koord3d::invalid;
 
+#ifdef MULTI_THREAD
+	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+	assert(error == 0);
+#endif
 	connected_cities.clear();
 	connected_industries.clear();
 	connected_attractions.clear();
+#ifdef MULTI_THREAD
+	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+	assert(error == 0);
+#endif
+
 
 	weg_t* const w = gr ? gr->get_weg(road_wt) : NULL;
 	if (w)
