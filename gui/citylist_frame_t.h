@@ -15,6 +15,7 @@
 #include "components/gui_chart.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_tab_panel.h"
+#include "components/gui_combobox.h"
 
 // for the number of cost entries
 #include "../simworld.h"
@@ -36,7 +37,7 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
 
 	gui_label_t sort_label;
 
-	button_t	sortedby;
+	gui_combobox_t sortedby;
     button_t	sorteddir;
 	button_t	filter_within_network;
 
