@@ -3338,7 +3338,7 @@ void fabrik_t::recalc_nearby_halts()
 				const nearby_halt_t *haltlist = plan->get_haltlist();
 				for(int i = 0; i < haltlist_count; i++)
 				{
-					// We've found a halt.
+					// We've found a halt. 
 					const nearby_halt_t new_nearby_halt = haltlist[i];
 					// However, it might be a duplicate.
 					bool duplicate = false;
