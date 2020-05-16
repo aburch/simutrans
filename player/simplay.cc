@@ -1328,6 +1328,7 @@ void player_t::take_over(player_t* target_player, bool do_not_adopt_liabilities)
 
 	// Transfer vehicles
 	// Adapted from the liquidation algorithm
+	vector_tpl<linehandle_t> lines_to_transfer;
 	for (size_t i = welt->convoys().get_count(); i-- != 0;) 
 	{
 		convoihandle_t const cnv = welt->convoys()[i];
@@ -1341,10 +1342,15 @@ void player_t::take_over(player_t* target_player, bool do_not_adopt_liabilities)
 		linehandle_t line = cnv->get_line();
 		if (line.is_bound())
 		{
-			line->set_owner(this);
-			target_player->simlinemgmt.deregister_line(line);
-			simlinemgmt.add_line(line); 
+			lines_to_transfer.append_unique(line);
 		}
+	}
+
+	FOR(vector_tpl<linehandle_t>, line, lines_to_transfer)
+	{
+		line->set_owner(this);
+		target_player->simlinemgmt.deregister_line(line);
+		simlinemgmt.add_line(line);
 	}
 
 	// Inherit access rights from taken over player
@@ -1362,8 +1368,6 @@ void player_t::take_over(player_t* target_player, bool do_not_adopt_liabilities)
 	}
 
 	// TODO: Add record of the takeover to a log that can be displayed in perpetuity for historical interest.
-
-	
 
 	welt->remove_player(target_player->get_player_nr());
 }
