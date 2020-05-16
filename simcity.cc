@@ -1448,6 +1448,44 @@ bool stadt_t::is_within_city_limits(koord k) const
 }
 
 
+bool stadt_t::is_within_players_network(const player_t* player) const
+{
+	vector_tpl<halthandle_t> halts;
+	// Find all stations whose coverage affects this city
+	for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = buildings.begin(); i != buildings.end(); ++i)
+	{
+		gebaeude_t* gb = *i;
+		const planquadrat_t *plan = welt->access(gb->get_pos().get_2d());
+		if (plan->get_haltlist_count() > 0) {
+			const nearby_halt_t *const halt_list = plan->get_haltlist();
+			for (int h = 0; h < plan->get_haltlist_count(); h++)
+			{
+				const halthandle_t halt = halt_list[h].halt;
+				if (halt->get_owner()==player) {
+					return true;
+				}
+				else if (halts.is_contained(halt)) {
+					continue;
+				}
+				else if (halt->check_access(player)) {
+					halts.append(halt);
+				}
+			}
+		}
+	}
+
+	// Check if these stations are in the player's network...
+	FOR(vector_tpl<halthandle_t>, const halt, halts)
+	{
+		if (halt->has_available_network(player))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
 void stadt_t::check_city_tiles(bool del)
 {
 	// ur = SE corner

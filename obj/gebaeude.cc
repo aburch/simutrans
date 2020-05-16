@@ -14,7 +14,6 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 #include "../bauer/hausbauer.h"
-#include "../bauer/goods_manager.h"
 #include "../gui/money_frame.h"
 #include "../simworld.h"
 #include "../simobj.h"
@@ -836,6 +835,27 @@ bool gebaeude_t::is_same_building(gebaeude_t* other) const
 {
 	return (other != NULL) && (get_tile()->get_desc() == other->get_tile()->get_desc())
 		&& (get_first_tile() == other->get_first_tile());
+}
+
+bool gebaeude_t::is_within_players_network(const player_t* player, uint8 catg_index) const
+{
+	const planquadrat_t* plan = welt->access(get_pos().get_2d());
+	const nearby_halt_t *const halt_list = plan->get_haltlist();
+	if (plan->get_haltlist_count() > 0) {
+		const nearby_halt_t *const halt_list = plan->get_haltlist();
+		for (int h = 0; h < plan->get_haltlist_count(); h++)
+		{
+			const halthandle_t halt = halt_list[h].halt;
+			if (halt->get_owner() == player && catg_index == goods_manager_t::INDEX_NONE) {
+				return true;
+			}
+			if (halt->has_available_network(player, catg_index))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 

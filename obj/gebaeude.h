@@ -12,6 +12,7 @@
 #include "../simcolor.h"
 #include "../tpl/minivec_tpl.h"
 #include "../simworld.h"
+#include "../bauer/goods_manager.h"
 
 class building_tile_desc_t;
 class fabrik_t;
@@ -341,7 +342,6 @@ public:
 	*/
 	void set_commute_trip(uint16 number);
 
-	uint16 get_population() const;
 	uint16 get_adjusted_population() const;
 
 	uint16 get_visitor_demand() const;
@@ -362,6 +362,9 @@ public:
 	 * @returns true if both building tiles are part of one (multi-tile) building.
 	 */
 	bool is_same_building(gebaeude_t* other) const;
+
+	// @returns whether it is within the player's network. helper function for making the list
+	bool is_within_players_network(const player_t* player, uint8 catg_index = goods_manager_t::INDEX_NONE) const;
 
 	/**
 	* Returns the number of jobs left in this building this month.

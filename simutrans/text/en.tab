@@ -3956,6 +3956,10 @@ Within own network
 Within own network
 Show only connected to own transport network
 Show only connected to own transport network
+Show only connected to own passenger transportation network
+Show only connected to own passenger transportation network
+Show only cities within the active player's transportation network
+Show only cities within the active player's transportation network
 Fully stocked
 Fully stocked
 Power usage
@@ -4076,3 +4080,5 @@ Show convoys
 Show convoys
 map_btn_building_level
 Density
+sort_pas_arrived
+Sort by no. pass. arrived

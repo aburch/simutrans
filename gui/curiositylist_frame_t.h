@@ -12,6 +12,7 @@
 #include "components/action_listener.h"
 #include "components/gui_label.h"
 #include "components/gui_scrollpane.h"
+#include "components/gui_combobox.h"
 
 
 /**
@@ -24,8 +25,9 @@ class curiositylist_frame_t : public gui_frame_t, private action_listener_t
 	static const char *sort_text[curiositylist::SORT_MODES];
 
 	gui_label_t sort_label;
-	button_t	sortedby;
+	gui_combobox_t	sortedby;
 	button_t	sorteddir;
+	button_t	filter_within_network;
 	curiositylist_stats_t stats;
 	gui_scrollpane_t scrolly;
 
@@ -35,6 +37,7 @@ class curiositylist_frame_t : public gui_frame_t, private action_listener_t
 	 */
 	static curiositylist::sort_mode_t sortby;
 	static bool sortreverse;
+	static bool filter_own_network;
 
  public:
 	curiositylist_frame_t();
@@ -63,6 +66,7 @@ class curiositylist_frame_t : public gui_frame_t, private action_listener_t
 
 	static bool get_reverse() { return sortreverse; }
 	static void set_reverse(const bool& reverse) { sortreverse = reverse; }
+	static bool get_filter_own_network() { return filter_own_network; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
