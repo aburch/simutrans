@@ -39,7 +39,7 @@
 #	else
 #		include <sys\unistd.h>
 #	endif
-#	include "simdebug.h"
+#	include "../simdebug.h"
 #else
 #	include <limits.h>
 #	include <dirent.h>
@@ -429,7 +429,7 @@ const char *dr_query_fontpath(int which)
 	}
 
 	for( int i = which - which_offset; trypaths[ i ]; i++ ) {
-		char fontpath[PATH_MAX];
+		static char fontpath[PATH_MAX];
 		if( trypaths[i][0] == '~' ) {
 			// prepace with homedirectory
 			snprintf( fontpath, PATH_MAX, "%s/%s", getenv("HOME"), trypaths[i]+2 );
@@ -461,7 +461,7 @@ const char *dr_query_fontpath(int which)
 			// last return parent folder
 			closedir( dir );
 			subdir_offset = 0; // we do not increase which_offset, so next the the next folder will be searched
-			return trypaths[i];
+			return fontpath;
 		}
 		which_offset--;
 	}

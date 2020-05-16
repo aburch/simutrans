@@ -524,6 +524,8 @@ public:
 	void link_halt(halthandle_t halt);
 	void unlink_halt(halthandle_t halt);
 
+	bool is_within_players_network( const player_t* player ) const;
+
 	const vector_tpl<koord>& get_lieferziele() const { return lieferziele; }
 	bool is_active_lieferziel( koord k ) const;
 

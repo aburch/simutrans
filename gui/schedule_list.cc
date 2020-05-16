@@ -123,6 +123,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	schedule_filter[0] = 0;
 	old_schedule_filter[0] = 0;
 	last_schedule = NULL;
+	old_player = NULL;
 
 	// add components
 	// first column: scrolled list of all lines
@@ -471,7 +472,7 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 		const bool activate = old_player == player || old_player == welt->get_player( 1 );
 		bt_delete_line.enable( activate );
 		bt_edit_line.enable( activate );
-		bt_new_line.enable( activate );
+		bt_new_line.enable( activate   &&  tabs.get_active_tab_index() > 0);
 		bt_withdraw_line.enable( activate );
 	}
 

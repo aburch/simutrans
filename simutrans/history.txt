@@ -20,6 +20,7 @@
 	CHG: record messages and some status messages are now not saved, while stuck and full stations expire after a month on server chat to keep overview
 	ADD: new button in minimap to hide contour for higher contrast of other stuff
 	CHG: Also show convoi name and line name as overlay
+	ADD: (inspired by Ranran) Option in city and factory lists to show only towns/factories already served by a player
 
 
 Release of 121.0 (r8870 on 1-Dec-2019):

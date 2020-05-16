@@ -57,6 +57,7 @@ public:
 	 *
 	 * @param player the player wanting to build the  bridge.
 	 * @param gr the ground to check.
+	 * @param r is ribi_t::none of the direction from bridge to ground.
 	 * @return true, if bridge ramp can be built here.
 	 */
 	static bool can_place_ramp(player_t *player, const grund_t *gr, waytype_t wt, ribi_t::ribi r );

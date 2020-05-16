@@ -197,7 +197,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 				ribi = gr->get_weg_ribi_unmasked(wt);
 			}
 			// same waytype, same direction, no stop or depot or any other stuff */
-			if(  gr->get_weg(wt)  &&  ribi_t::doubles(ribi) == ribi_t::doubles( check_ribi )  ) {
+			if(  gr->get_weg(wt)  &&  ribi_check(ribi, check_ribi)  ) {
 				// ok too
 				return NULL;
 			}
@@ -598,6 +598,61 @@ bool bridge_builder_t::can_place_ramp(player_t *player, const grund_t *gr, wayty
 	     gr->get_typ()!=grund_t::tunnelboden  ) {
 		return false;
 	}
+	// wrong slope
+	if(!slope_t::is_way(gr->get_grund_hang())) {
+		return false;
+	}
+	// blocked from above
+	koord3d pos = gr->get_pos();
+	if(  welt->lookup( pos + koord3d(0, 0, 1))  ||  (welt->get_settings().get_way_height_clearance()==2  &&  welt->lookup( pos + koord3d(0, 0, 2) ))  ) {
+		return false;
+	}
+	// check for ribis and crossings
+	bool test_ribi = r != ribi_t::none;
+	if (wt==powerline_wt) {
+		if (gr->hat_wege()) {
+			return false;
+		}
+		if (test_ribi  &&  gr->find<leitung_t>()  &&  (gr->find<leitung_t>()->get_ribi() & ~r) != 0) {
+			return false;
+		}
+	}
+	else {
+		if (gr->find<leitung_t>()) {
+			return false;
+		}
+
+		if(wt!=road_wt) {
+			// only road bridges can have other ways on it (ie trams)
+			if(gr->has_two_ways()  ||  (gr->hat_wege()  && gr->get_weg(wt) == NULL) ) {
+				return false;
+			}
+			if (test_ribi  &&  (gr->get_weg_ribi_unmasked(wt) & ~r) != 0) {
+				return false;
+			}
+		}
+		else {
+			// If road and tram, we have to check both ribis.
+			ribi_t::ribi ribi = ribi_t::none;
+			for(int i=0;i<2;i++) {
+				if (const weg_t *w = gr->get_weg_nr(i)) {
+					if (w->get_waytype()!=road_wt  &&  !w->get_desc()->is_tram()) {
+						return false;
+					}
+					ribi |= w->get_ribi_unmasked();
+				}
+				else break;
+			}
+			if (test_ribi  &&  (ribi & ~r) != 0) {
+				return false;
+			}
+		}
+	}
+	// ribi from slope
+	if (test_ribi  &&  gr->get_grund_hang()  &&  (ribi_type(gr->get_grund_hang()) & ~r) != 0) {
+		return false;
+	}
+	// check everything else
 	const char *error_msg = check_tile( gr, player, wt, r );
 	return (error_msg == NULL  ||  *error_msg == 0  );
 }

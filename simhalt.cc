@@ -280,6 +280,12 @@ void haltestelle_t::recalc_basis_pos()
 		if(  new_center != tiles.front().grund  &&  new_center->get_text()==NULL  ) {
 			// move the name to new center, if there is not yet a name on it
 			new_center->set_text( tiles.front().grund->get_text() );
+
+			// all_names contains pointers to ground-texts
+			// we need to adjust them
+			all_names.remove(tiles.front().grund->get_text());
+			all_names.set(new_center->get_text(), self);
+
 			tiles.front().grund->set_text(NULL);
 			tiles.remove( new_center );
 			tiles.insert( new_center );

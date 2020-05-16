@@ -395,6 +395,8 @@ private:
 	void pruefe_grenzen(koord pos);
 
 public:
+	bool is_within_players_network( const player_t* player ) const;
+
 	/// Connects factories to this city.
 	void verbinde_fabriken();
 

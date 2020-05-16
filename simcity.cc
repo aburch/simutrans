@@ -673,6 +673,29 @@ void stadt_t::pruefe_grenzen(koord k)
 }
 
 
+
+// returns true, if there is a halt serving at least on building of the town.
+bool stadt_t::is_within_players_network(const player_t* player) const
+{
+	vector_tpl<halthandle_t> halts;
+	// Find all stations whose coverage affects this city
+	for(  weighted_vector_tpl<gebaeude_t *>::const_iterator i = buildings.begin();  i != buildings.end();  ++i  ) {
+		gebaeude_t* gb = *i;
+		const planquadrat_t *plan = welt->access( gb->get_pos().get_2d() );
+		if(  plan->get_haltlist_count() > 0   ) {
+			const halthandle_t *const halt_list = plan->get_haltlist();
+			for(  int h = 0;  h < plan->get_haltlist_count();  h++  ) {
+				if(  halt_list[h].is_bound()  &&  player_t::check_owner( player, halt_list[h]->get_owner() )  ) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+
+
 // recalculate the spreading of a city
 // will be updated also after house deletion
 void stadt_t::recalc_city_size()
