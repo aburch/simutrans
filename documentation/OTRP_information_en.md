@@ -114,6 +114,16 @@ You can use all add-ons for simutrans standard on OTRP. There is no OTRP-special
 - No compatibility for ex-OTRP.
 - If you press "Readable by standard" button, the game is saved so that it is readable by simutrans standard. In this mode, please be ware that **OTRP specific data is lost.**
 
+# Privacy Policy
+From v24_4, OTRP collects your usage data. Only anonymous data is collected and the collected data will be used for statistical analysis only. Please note that **OTRP is not intended to be used by EU citizens** since collected data is stored in Japan and that is not GDPR compatible.
+
+The followings are collected.
+- version
+- language setting
+- OS 
+- your pak name
+- network mode or not
+
 # License
 OTRP derives from simutrans standard, so OTRP follows [Artistic License](https://github.com/aburch/simutrans/blob/master/simutrans/license.txt). Re-distribution of OTRP (including modified version) is permitted under the following conditions.
 - Please follow and respect the original license of simutrans standard.
