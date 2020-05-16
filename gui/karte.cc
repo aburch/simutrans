@@ -939,9 +939,9 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		// show max speed (if there)
 		case MAX_SPEEDLIMIT:
 			{
-				sint32 speed=gr->get_max_speed();
-				if(speed) {
-					set_relief_farbe(k, calc_severity_color(gr->get_max_speed(), 450));
+				const sint32 speed_factor = 450-gr->get_max_speed() > 0 ? 450 - gr->get_max_speed() : 0;
+				if(gr->get_max_speed()) {
+					set_relief_farbe(k, calc_severity_color(pow(speed_factor,2.0)/100, 2025));
 				}
 			}
 			break;
@@ -958,11 +958,11 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 					}
 					if(gr->ist_bruecke())
 					{
-						set_relief_farbe(k, calc_severity_color(way->get_max_axle_load(), 350));
+						set_relief_farbe(k, calc_severity_color(350-way->get_bridge_weight_limit()>0 ? 350-way->get_bridge_weight_limit() : 0, 350));
 					}
 					else
 					{
-						set_relief_farbe(k, calc_severity_color(way->get_max_axle_load(), 30));
+						set_relief_farbe(k, calc_severity_color(30-way->get_max_axle_load()>0 ? 30-way->get_max_axle_load() : 0, 30));
 					}
 				}
 			}

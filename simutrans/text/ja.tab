@@ -3660,7 +3660,7 @@ Upgrade will be available in the near future
 Cannot start: no cab at the front of the convoy.
 編成の構成エラー：\n先頭になれない車両が先頭になっています。（運転台が無い等）
 map_btn_freight
-輸送量
+輸送密度
 Stop coverage
 駅の集客範囲
 Show the distance to the nearest station
