@@ -627,6 +627,7 @@ void player_t::ai_bankrupt()
 					obj_t *obj = gr->obj_bei(i);
 					if(obj->get_owner()==this) {
 						switch(obj->get_typ()) {
+							case obj_t::is_vehicle:
 							case obj_t::roadsign:
 							case obj_t::signal:
 							case obj_t::airdepot:
@@ -1268,13 +1269,14 @@ void player_t::take_over(player_t* target_player, bool do_not_adopt_liabilities)
 						{
 						case obj_t::roadsign:
 							
-							// Fallthrough intended
+						// Fallthrough intended
 						case obj_t::signal:
 						case obj_t::airdepot:
 						case obj_t::bahndepot:
 						case obj_t::monoraildepot:
 						case obj_t::tramdepot:
 						case obj_t::strassendepot:
+						case obj_t::narrowgaugedepot:
 						case obj_t::schiffdepot:
 						case obj_t::senke:
 						case obj_t::pumpe:
