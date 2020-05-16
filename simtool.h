@@ -848,6 +848,18 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
+class tool_convoy_nameplate_t : public tool_t {
+public:
+	tool_convoy_nameplate_t() : tool_t(TOOL_CONVOY_NAMEPLATES | SIMPLE_TOOL) {}
+	bool init(player_t *) {
+		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + 1) % 3;
+		welt->set_dirty();
+		return false;
+	}
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+};
+
 class tool_show_name_t : public tool_t {
 public:
 	tool_show_name_t() : tool_t(TOOL_SHOW_NAME | SIMPLE_TOOL) {}

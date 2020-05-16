@@ -3239,14 +3239,38 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		}
 
 		// something to show?
+		if (!tooltip_text[0] && !env_t::show_cnv_nameplates) {
+			return;
+		}
+
+		const int raster_width = get_current_tile_raster_width();
+		get_screen_offset( xpos, ypos, raster_width );
+		xpos += tile_raster_scale_x(get_xoff(), raster_width);
+		ypos += tile_raster_scale_y(get_yoff(), raster_width)+14;
 		if(  tooltip_text[0]  ) {
 			const int width = proportional_string_width(tooltip_text)+7;
-			const int raster_width = get_current_tile_raster_width();
-			get_screen_offset( xpos, ypos, raster_width );
-			xpos += tile_raster_scale_x(get_xoff(), raster_width);
-			ypos += tile_raster_scale_y(get_yoff(), raster_width)+14;
 			if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
 				display_ddd_proportional_clip( xpos, ypos, width, 0, color, COL_BLACK, tooltip_text, true );
+			}
+		}
+
+		if (cnv && (env_t::show_cnv_nameplates == 2 || (env_t::show_cnv_nameplates == 1 && welt->get_zeiger()->get_pos() == get_pos()))) {
+			char nameplate_text[1024];
+			// show the line name, including when the convoy is coupled.
+			linehandle_t lh = cnv->get_line();
+			if (lh.is_bound()) {
+				// line name
+				tstrncpy(nameplate_text, lh->get_name(), lengthof(nameplate_text));
+			}
+			else {
+				// the convoy belongs to no line -> show convoy name
+				tstrncpy(nameplate_text, cnv->get_name(), lengthof(nameplate_text));
+			}
+			color = lh.is_bound() ? cnv->get_owner()->get_player_color1()+3 : cnv->get_owner()->get_player_color1()+1;
+
+			const int width = proportional_string_width(nameplate_text) + 7;
+			if (ypos > LINESPACE + 32 && ypos + LINESPACE < display_get_clip_wh().yy) {
+				display_ddd_proportional_clip(xpos, ypos-LINESPACE-3, width, 0, color, COL_WHITE, nameplate_text, true);
 			}
 		}
 	}
