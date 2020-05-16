@@ -895,7 +895,11 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				// maximum two ways for one ground
 				const weg_t *way = gr->get_weg_nr(0);
 				condition_percent = way->get_condition_percent();
-				if(const weg_t *second_way = gr->get_weg_nr(1))
+				if (way->get_desc()->is_mothballed()) {
+					set_relief_farbe(k, MAP_COL_NODATA);
+					break;
+				}
+				else if(const weg_t *second_way = gr->get_weg_nr(1))
 				{
 					condition_percent = min(condition_percent, second_way->get_condition_percent());
 				}
@@ -952,7 +956,11 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				if(gr->hat_wege())
 				{
 					const weg_t* way =  gr->get_weg_nr(0);
-					if(way->get_waytype() == powerline_wt || !way->get_max_axle_load())
+					if (way->get_desc()->is_mothballed()) {
+						set_relief_farbe(k, MAP_COL_NODATA);
+						break;
+					}
+					else if(way->get_waytype() == powerline_wt || !way->get_max_axle_load())
 					{
 						break;
 					}
