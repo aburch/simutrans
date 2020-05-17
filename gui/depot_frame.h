@@ -71,6 +71,8 @@ private:
 	button_t bt_destroy;
 	button_t bt_sell;
 
+	cbuffer_t txt_convoi_cost;
+
 	/**
 	 * buttons for new route-management
 	 * @author hsiegeln
@@ -223,6 +225,8 @@ public:
 	inline void update_convoy() {icnv<0?convoy_assembler.clear_convoy():convoy_assembler.set_vehicles(get_convoy());}
 	// Check the electrification
 	bool check_way_electrified(bool init = false);
+
+	void set_resale_value(uint32 nominal_cost = 0, sint64 resale_value = 0);
 };
 
 #endif

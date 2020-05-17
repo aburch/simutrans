@@ -15,6 +15,7 @@
 #include "components/gui_chart.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_tab_panel.h"
+#include "components/gui_combobox.h"
 
 // for the number of cost entries
 #include "../simworld.h"
@@ -36,8 +37,9 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
 
 	gui_label_t sort_label;
 
-	button_t	sortedby;
+	gui_combobox_t sortedby;
     button_t	sorteddir;
+	button_t	filter_within_network;
 
     citylist_stats_t stats;
     gui_scrollpane_t scrolly;
@@ -53,6 +55,7 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
      */
     static citylist::sort_mode_t sortby;
     static bool sortreverse;
+	static bool filter_own_network;
 
  public:
 
@@ -84,6 +87,7 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
 
     static bool get_reverse() { return sortreverse; }
     static void set_reverse(const bool& reverse) { sortreverse = reverse; }
+	static bool get_filter_own_network() { return filter_own_network; }
 
     bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

@@ -5642,6 +5642,44 @@ bool haltestelle_t::check_access(const player_t* player) const
 	return !player || player == owner || owner == NULL || owner->allows_access_to(player->get_player_nr());
 }
 
+bool haltestelle_t::has_available_network(const player_t* player, uint8 catg_index) const
+{
+	if(!check_access(player)) { return false; };
+	if (catg_index != goods_manager_t::INDEX_NONE && !is_enabled(catg_index)) {
+		return false;
+	}
+
+	// Check if there is a player's line
+	if (!registered_lines.empty()) {
+		for (uint32 i = 0; i < registered_lines.get_count(); i++) {
+			if (registered_lines[i]->get_owner() != player) {
+				continue;
+			}
+			if (catg_index == goods_manager_t::INDEX_NONE) {
+				return true;
+			}
+			else if (registered_lines[i]->get_goods_catg_index().is_contained(catg_index)) {
+				return true;
+			}
+		}
+	}
+	// Check lineless convoys
+	if (!registered_convoys.empty()) {
+		for (uint32 i = 0; i < registered_convoys.get_count(); i++) {
+			if (registered_convoys[i]->get_owner() != player) {
+				continue;
+			}
+			if (catg_index == goods_manager_t::INDEX_NONE) {
+				return true;
+			}
+			else if (registered_convoys[i]->get_goods_catg_index().is_contained(catg_index)) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 bool haltestelle_t::has_no_control_tower() const
 {
 	return welt->get_settings().get_allow_airports_without_control_towers() ? false : control_towers == 0;

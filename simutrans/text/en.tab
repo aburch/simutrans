@@ -3956,6 +3956,10 @@ Within own network
 Within own network
 Show only connected to own transport network
 Show only connected to own transport network
+Show only connected to own passenger transportation network
+Show only connected to own passenger transportation network
+Show only cities within the active player's transportation network
+Show only cities within the active player's transportation network
 Fully stocked
 Fully stocked
 Power usage
@@ -4040,8 +4044,24 @@ No bridges over runways!
 Bridges cannnot be built over runways or taxiways.
 No bridges over runways!
 Bridges cannnot be built over runways or taxiways.
+Selectable livery schemes
+Selectable livery schemes
+Starting acceleration:
+Starting acceleration:
+; %i km/h @ %.2f sec
+; %i km/h @ %.2f sec
+; %i km/h @ %.2f - %.2f sec
+; %i km/h @ %.2f - %.2f sec
+; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
+; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
+(%.*ft laden)
+(%.*ft laden)
+(%.*f-%.*ft laden)
+(%.*f-%.*ft laden)
 overtaking
 Overtaking
+no power at all
+Entirely unpowered
 Show contour
 Show contour
 Show buildings
@@ -4060,3 +4080,5 @@ Show convoys
 Show convoys
 map_btn_building_level
 Density
+sort_pas_arrived
+Passengers arrived

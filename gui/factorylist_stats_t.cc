@@ -94,6 +94,9 @@ class compare_factories
 				case factorylist::by_sector:
 					cmp = a->get_sector() - b->get_sector();
 					break;
+				case factorylist::by_staffing:
+					cmp = a->get_staffing_level_percentage() - b->get_staffing_level_percentage();
+					break;
 			}
 			if (cmp == 0) {
 				cmp = STRICMP(a->get_name(), b->get_name());

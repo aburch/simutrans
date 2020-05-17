@@ -62,7 +62,6 @@ bool privatesign_info_t::action_triggered( gui_action_creator_t *comp, value_t /
 	return true;
 }
 
-
 // notify for an external update
 void privatesign_info_t::update_data()
 {
