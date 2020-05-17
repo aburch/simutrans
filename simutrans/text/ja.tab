@@ -2203,9 +2203,9 @@ Zu nah am Kartenrand
 分待ち)
  via %s
 %s 経由
-; brakes from max. speed in %i - %i m
+brakes from max. speed in %i - %i m
 (制動距離: %i - %i m)
-; brakes from max. speed in %i m
+brakes from max. speed in %i m
 (制動距離: %i m)
 "%s has built a new %s %s %s."
 %1$sは新しい%2$sを%$4s%3$s建設しました。
