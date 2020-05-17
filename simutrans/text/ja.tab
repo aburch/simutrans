@@ -2593,6 +2593,8 @@ convoy_times_history
 所要時間の履歴
 Cost of overdraft interest payments
 負債がある場合の貸付利子を表します。
+Cost:
+購入費:
 Cost: %8s (%.2f$/km, %.2f$/month)\n
 購入費: %8s\n維持費: 1kmあたり%.2f$, 1ヶ月あたり%.2f$\n
 Cost: %8s %s
@@ -3699,6 +3701,28 @@ Return the vehicle(s) for a full refund.
 車両の購入はキャンセルされ、購入費用は全額返還されます。
 Sell the convoy for %s
 編成を %s にて売却します
+Congestion: %i%%
+混雑度： %i%%
+Display loaded detail
+積載情報の詳細を表示
+Displays detailed information of the vehicle's load.
+積載中の積荷の詳細情報の表示／非表示を切り替えます。
+Selectable livery schemes
+選択可能な塗装スキーム
+Starting acceleration:
+起動加速度:
+; %i km/h @ %.2f sec
+，%i km/h @ %.2f 秒
+; %i km/h @ %.2f - %.2f sec
+，%i km/h @ %.2f - %.2f 秒
+; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
+，%i km/h @ %.2f 秒 -  %i km/h @ %.2f 秒
+(%.*ft laden)
+(満載時 %.*ft)
+(%.*f-%.*ft laden)
+(満載時 %.*f-%.*ft)
+Sell for %s
+%sで売却
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
