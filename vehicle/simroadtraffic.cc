@@ -1078,7 +1078,7 @@ grund_t* private_car_t::hop_check()
 					{
 						direction_allowed = true;
 					}
-				} 
+				}
 
 				if (!direction_allowed)
 				{
