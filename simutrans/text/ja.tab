@@ -3661,9 +3661,9 @@ Cannot start: no cab at the front of the convoy.
 編成の構成エラー：\n先頭になれない車両が先頭になっています。（運転台が無い等）
 no convoy nameplate
 系統名非表示
-mouseover convoy nameplates
+mouseover convoy name
 マウスオーバーで系統名表示
-always show convoy nameplates
+always show convoy name
 常に系統名を表示
 map_btn_freight
 輸送量

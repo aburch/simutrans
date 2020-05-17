@@ -536,7 +536,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	const char *ctc = translator::translate( env_t::show_vehicle_states==0 ? "convoi error tooltips" : (env_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
 	display_proportional_clip(x+10+16, y+CONVOI_TOOLTIPS+1, ctc, ALIGN_LEFT, SYSCOL_TEXT, true);
 
-	const char *nameplate_settings = translator::translate(env_t::show_cnv_nameplates == 0 ? "no convoy nameplate" : (env_t::show_cnv_nameplates == 1 ? "mouseover convoy nameplates" : "always show convoy nameplates"));
+	const char *nameplate_settings = translator::translate(env_t::show_cnv_nameplates == 0 ? "no convoy nameplate" : (env_t::show_cnv_nameplates == 1 ? "mouseover convoy name" : "always show convoy name"));
 	display_proportional_clip(x+10+16, y+CONVOI_NAMEPLATES+1, nameplate_settings, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 	int len=15+display_proportional_clip(x+10, y+FPS_DATA, translator::translate("Frame time:"), ALIGN_LEFT, SYSCOL_TEXT, true);
