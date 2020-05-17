@@ -1092,6 +1092,15 @@ grund_t* private_car_t::hop_check()
 						//welt->add_queued_city(origin_city); // Prioritise re-checking this city even if already re-checked in this cycle.
 					}
 				}
+				else
+				{
+					// Check whether the tile is passable: do not drive onto an impassible tile.
+					if (!(next_way && next_way->get_max_speed() > 0 && next_way->get_max_axle_load() > 0 && (next_way->get_owner() == NULL || next_way->get_owner()->allows_access_to(welt->get_public_player()->get_player_nr()))))
+					{
+						// Next tile not passable even though this is on a route: mothballed, or made private. Revert to heuristic mode.
+						pos_next_next = koord3d::invalid;
+					}
+				}
 
 				if (backwards)
 				{
