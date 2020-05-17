@@ -12,6 +12,7 @@
 #include "components/action_listener.h"
 #include "components/gui_label.h"
 #include "components/gui_scrollpane.h"
+#include "components/gui_combobox.h"
 
 
 /**
@@ -24,7 +25,7 @@ class labellist_frame_t : public gui_frame_t, private action_listener_t
     static const char *sort_text[labellist::SORT_MODES];
 
     gui_label_t sort_label;
-    button_t	sortedby;
+	gui_combobox_t	sortedby;
     button_t	sorteddir;
     button_t	filter;
     labellist_stats_t stats;
