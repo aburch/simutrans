@@ -336,6 +336,7 @@ void color_gui_t::set_windowsize(scr_size size)
 	column = size.w - D_MARGIN_RIGHT - D_ARROW_RIGHT_WIDTH;
 	buttons[1].set_pos            ( scr_coord( column, buttons[1].get_pos().y            ) );
 	buttons[13].set_pos           ( scr_coord( column, buttons[13].get_pos().y           ) );
+	buttons[26].set_pos           ( scr_coord( column, buttons[26].get_pos().y           ) );
 
 	column = size.w - D_MARGINS_X;
 	divider1.set_width            ( column );
