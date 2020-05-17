@@ -114,7 +114,7 @@ typedef unsigned int FLAGGED_PIXVAL;
 
 // used in vehicle status
 #define COL_UPGRADEABLE       color_idx_to_rgb(COL_PURPLE)
-#define COL_OBSOLETE          color_idx_to_rgb(COL_DARK_BLUE)
+#define COL_OBSOLETE          SYSCOL_OBSOLETE
 #define COL_OUT_OF_PRODUCTION color_idx_to_rgb(COL_SOFT_BLUE)
 //#define COL_OVERCROWDED     color_idx_to_rgb(COL_DARK_PURPLE)
 
@@ -199,6 +199,8 @@ typedef unsigned int FLAGGED_PIXVAL;
 #define SYSCOL_SHADOW                       gui_theme_t::gui_shadow_color
 #define SYSCOL_LOADINGBAR_INNER             gui_theme_t::gui_color_loadingbar_inner
 #define SYSCOL_LOADINGBAR_PROGRESS          gui_theme_t::gui_color_loadingbar_progress
+#define SYSCOL_OBSOLETE                     gui_theme_t::gui_color_obsolete
+#define SYSCOL_EMPTY                        gui_theme_t::gui_color_empty
 #define SYSCOL_UP_TRIANGLE                  gui_theme_t::gui_color_up_pointing_triangle
 #define SYSCOL_DOWN_TRIANGLE                gui_theme_t::gui_color_down_pointing_triangle
 

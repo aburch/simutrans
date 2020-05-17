@@ -146,7 +146,7 @@ void vehiclelist_stats_t::draw( scr_coord offset )
 		offset.x, offset.y,
 		translator::translate( veh->get_name(), world()->get_settings().get_name_language_id() ),
 		ALIGN_LEFT|DT_CLIP,
-		veh->is_future(month) ? SYSCOL_TEXT_HIGHLIGHT : (veh->is_available(month) ? SYSCOL_TEXT : color_idx_to_rgb(COL_BLUE)),
+		veh->is_future(month) ? SYSCOL_TEXT_HIGHLIGHT : (veh->is_available(month) ? SYSCOL_TEXT : gui_theme_t::gui_color_obsolete),
 		false
 	);
 	if( veh->get_power() > 0 ) {

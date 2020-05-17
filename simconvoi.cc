@@ -6829,9 +6829,8 @@ PIXVAL convoi_t::get_status_color() const
 		// Overcrowded
 		return color_idx_to_rgb(COL_DARK_PURPLE);
 	}
-	else if(has_obsolete)
-	{
-		return color_idx_to_rgb(COL_OBSOLETE);
+	else if(has_obsolete) {
+		return SYSCOL_OBSOLETE;
 	}
 	// normal state
 	return SYSCOL_TEXT;

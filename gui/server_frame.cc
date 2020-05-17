@@ -199,7 +199,7 @@ void server_frame_t::update_error (const char* errortext)
 }
 
 
-void server_frame_t::update_info ()
+PIXVAL server_frame_t::update_info()
 {
 	map->set_gameinfo(&gi);
 
@@ -256,11 +256,11 @@ void server_frame_t::update_info ()
 	buf.printf( "%s %u\n", translator::translate("Stops"), gi.get_halt_count() );
 
 	revision.buf().printf( "%s %u", translator::translate( "Revision:" ), gi.get_game_engine_revision() );
-	revision.set_color( engine_match ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG );
+	revision.set_color( engine_match ? SYSCOL_TEXT : MONEY_MINUS );
 	revision.update();
 
 	pak_version.set_text( gi.get_pak_name() );
-	pak_version.set_color( pakset_match ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG );
+	pak_version.set_color( pakset_match ? SYSCOL_TEXT : SYSCOL_OBSOLETE );
 
 #if DEBUG>=4
 	pakset_checksum.buf().printf("%s %s",translator::translate( "Pakset checksum:" ), gi.get_pakset_checksum().get_str(8));
@@ -272,6 +272,8 @@ void server_frame_t::update_info ()
 	date.update();
 	set_dirty();
 	resize(scr_size(0,0));
+
+	return pakset_match  &&  engine_match ? SYSCOL_TEXT : SYSCOL_OBSOLETE;
 }
 
 
@@ -360,7 +362,11 @@ bool server_frame_t::update_serverlist ()
 
 		// Only show offline servers if the checkbox is set
 		if(  status == 1  ||  show_offline.pressed  ) {
-			serverlist.new_component<server_scrollitem_t>( servername, serverdns, status, status == 1 ? color_idx_to_rgb(COL_BLUE) : SYSCOL_TEXT_STRONG ) ;
+			PIXVAL color = status == 1 ? SYSCOL_TEXT_UNUSED : MONEY_MINUS;
+			if(  pakset  &&  !strstart( serverpakset.get_str(), pakset )  ) {
+				color = SYSCOL_OBSOLETE;
+			}
+			serverlist.new_component<server_scrollitem_t>( servername, serverdns, status, color ) ;
 			dbg->message( "server_frame_t::update_serverlist", "Appended %s (%s) to list", servername.get_str(), serverdns.get_str() );
 		}
 
@@ -397,17 +403,16 @@ bool server_frame_t::action_triggered (gui_action_creator_t *comp, value_t p)
 			server_scrollitem_t *item = (server_scrollitem_t*)serverlist.get_element( p.i );
 			if(  item->online()  ) {
 				const char *err = network_gameinfo( ((server_scrollitem_t*)serverlist.get_element( p.i ))->get_dns(), &gi );
-				if (  err == NULL  ) {
-					item->set_color( SYSCOL_TEXT );
-					update_info();
+				if(  err == NULL  ) {
+					item->set_color( update_info() );
 				}
 				else {
-					item->set_color( SYSCOL_TEXT_STRONG );
+					item->set_color( MONEY_MINUS );
 					update_error( "Server did not respond!" );
 				}
 			}
 			else {
-				item->set_color( SYSCOL_TEXT_STRONG );
+				item->set_color( MONEY_MINUS );
 				update_error( "Cannot connect to offline server!" );
 			}
 		}
