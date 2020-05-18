@@ -37,16 +37,16 @@
 #define LOADING_BAR_WIDTH 150
 #define LOADING_BAR_HEIGHT 5
 
-convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
-: gui_frame_t( cnv->get_name(), cnv->get_owner() ),
-  scrolly(&veh_info),
+convoi_detail_t::convoi_detail_t(convoihandle_t cnv) :
+	gui_frame_t( cnv->get_name(), cnv->get_owner() ),
+	scrolly(&veh_info),
 	scrolly_formation(&formation),
 	scrolly_payload_info(&cont_payload),
 	scrolly_maintenance(&maintenance),
+	veh_info(cnv),
 	formation(cnv),
 	payload_info(cnv),
-	maintenance(cnv),
-	veh_info(cnv)
+	maintenance(cnv)
 {
 	this->cnv = cnv;
 
@@ -241,16 +241,16 @@ void convoi_detail_t::set_windowsize(scr_size size)
 
 
 // dummy for loading
-convoi_detail_t::convoi_detail_t()
-: gui_frame_t("", NULL ),
-  scrolly(&veh_info),
+convoi_detail_t::convoi_detail_t() :
+	gui_frame_t("", NULL ),
+	scrolly(&veh_info),
 	scrolly_formation(&formation),
 	scrolly_payload_info(&cont_payload),
 	scrolly_maintenance(&maintenance),
+	veh_info(convoihandle_t()),
 	formation(cnv),
 	payload_info(cnv),
-	maintenance(cnv),
-	veh_info(convoihandle_t())
+	maintenance(cnv)
 {
 	cnv = convoihandle_t();
 }
@@ -1193,7 +1193,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 						}
 						display_veh_form(pos.x + extra_w + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height + extra_y + 1, VEHICLE_BAR_HEIGHT * 2, upgrade_state_color, true, desc->get_basic_constraint_prev(), desc->get_interactivity(), false);
 						display_veh_form(pos.x + extra_w + offset.x + D_MARGIN_LEFT + VEHICLE_BAR_HEIGHT * 2 - 1, pos.y + offset.y + total_height + extra_y + 1, VEHICLE_BAR_HEIGHT * 2, upgrade_state_color, true, desc->get_basic_constraint_next(), desc->get_interactivity(), true);
-						
+
 						buf.clear();
 						buf.append(translator::translate(v->get_desc()->get_upgrades(i)->get_name()));
 						if (intro_date) {

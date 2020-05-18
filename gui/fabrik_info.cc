@@ -52,11 +52,11 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	gui_frame_t("", fab_->get_owner()),
 	fab(fab_),
 	chart(fab_),
+	lbl_factory_status(factory_status),
 	view(gb, scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
 	scrolly(&fab_info),
 	prod(&prod_buf),
-	txt(&info_buf),
-	lbl_factory_status(factory_status)
+	txt(&info_buf)
 {
 	lieferbuttons = supplierbuttons = NULL;
 	staffing_level = staffing_level2 = staff_shortage_factor = 0;

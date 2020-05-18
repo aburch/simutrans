@@ -132,12 +132,12 @@ private:
 	gui_container_t cont_payload;
 
 	convoihandle_t cnv;
-	button_t	sale_button;
-	button_t	withdraw_button;
-	button_t	retire_button;
-	button_t	class_management_button;
+	button_t sale_button;
+	button_t withdraw_button;
+	button_t retire_button;
+	button_t class_management_button;
 
-	button_t	display_detail_button;
+	button_t display_detail_button;
 
 public:
 	convoi_detail_t(convoihandle_t cnv);

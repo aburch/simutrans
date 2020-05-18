@@ -51,10 +51,10 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	only_directories(only_directories),
 	searchpath_defined(false),
 	fnlabel("Filename"),
-	use_table(use_table),
 	scrolly(use_table ? (gui_component_t*)&file_table : (gui_component_t*)&button_frame),
 	num_sections(0),
-	delete_enabled(delete_enabled)
+	delete_enabled(delete_enabled),
+	use_table(use_table)
 {
 	init(suffix, path);
 }

@@ -94,10 +94,20 @@ protected:
 	uint8 upgrade_group;		///< The group of elevated ways between which this can be upgraded for the way only cost.
 
 public:
-	obj_desc_transport_related_t() : obj_desc_timelined_t(),
-		base_maintenance(0), base_cost(0),
-               maintenance(0), price(0), axle_load(9999), wtyp(255), topspeed(0), topspeed_gradient_1(0), topspeed_gradient_2(0),
-               base_way_only_cost(0), way_only_cost(0) {}
+	obj_desc_transport_related_t() :
+		obj_desc_timelined_t(),
+		base_maintenance(0),
+		base_cost(0),
+		maintenance(0),
+		price(0),
+		wtyp(255),
+		axle_load(9999),
+		topspeed(0),
+		topspeed_gradient_1(0),
+		topspeed_gradient_2(0),
+		base_way_only_cost(0),
+		way_only_cost(0)
+	{}
 
 	inline sint32 get_base_maintenance() const { return base_maintenance; }
 	inline sint32 get_maintenance() const { return maintenance; }
