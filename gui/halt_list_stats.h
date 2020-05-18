@@ -26,7 +26,7 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 };
 
 #endif

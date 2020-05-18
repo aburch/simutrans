@@ -76,7 +76,7 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	/**
 	 * add element to droplist
@@ -136,7 +136,7 @@ public:
 	* Set this component's position.
 	* @author Hj. Malthaner
 	*/
-	virtual void set_pos(scr_coord pos_par);
+	virtual void set_pos(scr_coord pos_par) OVERRIDE;
 
 	void set_size(scr_size size) OVERRIDE;
 

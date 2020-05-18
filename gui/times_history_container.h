@@ -56,7 +56,7 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	inline void set_schedule(schedule_t *s) { schedule = s; }
 };
