@@ -263,7 +263,7 @@ public:
 		sound = -1;
 		wtyp = wtype;
 		axle_load = al;
-		weight = weight;
+		this->weight = weight;
 		engine_type = (uint8)engine;
 		topspeed = speed;
 		mixed_load_prohibition = false;
@@ -718,7 +718,7 @@ public:
 	uint16 get_minimum_runway_length() const { return minimum_runway_length; }
 
 	uint16 get_range() const { return range; }
-	
+
 	// returns bit flags of bidirectional and has power (v14.8 - Jan, 2020 @Ranran)
 	uint8 get_interactivity() const;
 
