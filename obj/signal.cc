@@ -124,7 +124,7 @@ void signal_t::show_info()
 * @author Hj. Malthaner
 */
 
-void signal_t::info(cbuffer_t & buf, bool dummy) const
+void signal_t::info(cbuffer_t & buf) const
 {
 	// well, needs to be done
 	obj_t::info(buf);

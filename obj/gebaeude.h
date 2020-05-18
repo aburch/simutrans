@@ -249,7 +249,7 @@ public:
 	 * @return A description string, as might be displayed in an infobox
 	 * @author Hj. Malthaner
 	 */
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
 	void get_class_percentage(cbuffer_t & buf) const;
 

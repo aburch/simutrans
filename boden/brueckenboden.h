@@ -33,7 +33,7 @@ public:
 	const char *get_name() const {return "Brueckenboden";}
 	typ get_typ() const { return brueckenboden; }
 
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 };
 
 #endif

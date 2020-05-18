@@ -1009,7 +1009,7 @@ void gebaeude_t::get_description(cbuffer_t & buf) const
 }
 
 
-void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
+void gebaeude_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
 

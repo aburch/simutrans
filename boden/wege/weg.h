@@ -339,7 +339,7 @@ public:
 	* Info-text for this way
 	* @author Hj. Malthaner
 	*/
-	virtual void info(cbuffer_t & buf, bool is_bridge = false) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
 	/**
 	 * @return NULL if OK, otherwise an error message

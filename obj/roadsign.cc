@@ -244,7 +244,7 @@ void roadsign_t::show_info()
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void roadsign_t::info(cbuffer_t & buf, bool dummy) const
+void roadsign_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
 	roadsign_t* rs = (roadsign_t*)this;

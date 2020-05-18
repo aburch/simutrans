@@ -606,7 +606,7 @@ void grund_t::show_info()
 }
 
 
-void grund_t::info(cbuffer_t& buf, bool dummy) const
+void grund_t::info(cbuffer_t& buf) const
 {
 	stadt_t* city = welt->get_city(get_pos().get_2d());
 	if(city)
@@ -628,12 +628,12 @@ void grund_t::info(cbuffer_t& buf, bool dummy) const
 	bool has_way = false;
 	if(!is_water()) {
 		if(flags&has_way1) {
-			obj_bei(0)->info(buf, ist_bruecke());
+			obj_bei(0)->info(buf);
 			has_way = true;
 			if(flags&has_way2) {
 				buf.append(translator::translate(get_weg_nr(1)->get_name()));
 				buf.append("\n");
-				obj_bei(1)->info(buf, ist_bruecke());
+				obj_bei(1)->info(buf);
 				buf.append("\n");
 				if(ist_uebergang()) {
 					crossing_t* crossing = find<crossing_t>(2);

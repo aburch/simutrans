@@ -149,7 +149,7 @@ player_t *obj_t::get_owner() const
  * we want to format it nicely,
  * with two linebreaks at the end => thus the little extra effort
  */
-void obj_t::info(cbuffer_t & buf, bool is_bridge) const
+void obj_t::info(cbuffer_t & buf) const
 {
 	char              translation[256];
 	char const* const owner =

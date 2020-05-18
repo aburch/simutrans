@@ -550,7 +550,7 @@ bool weg_t::is_height_restricted() const
  * Info-text for this way
  * @author Hj. Malthaner
  */
-void weg_t::info(cbuffer_t & buf, bool is_bridge) const
+void weg_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
 
@@ -644,7 +644,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		buf.append(max_axle_load);
 		buf.append(translator::translate("tonnen"));
 		buf.append("\n");
-		if (is_bridge && bridge_weight_limit < UINT32_MAX_VALUE)
+		if (bridge_weight_limit < UINT32_MAX_VALUE)
 		{
 			buf.append(translator::translate("Max. weight:"));
 			buf.append(" ");

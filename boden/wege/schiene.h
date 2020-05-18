@@ -56,13 +56,8 @@ public:
 
 	schiene_t();
 
-	//virtual waytype_t get_waytype() const {return track_wt;}
-
-	/**
-	* @return additional info is reservation!
-	* @author prissi
-	*/
-	void info(cbuffer_t & buf, bool is_bridge = false) const;
+	/// @author prissi
+	void info(cbuffer_t &buf) const OVERRIDE;
 
 	/**
 	* true, if this rail can be reserved

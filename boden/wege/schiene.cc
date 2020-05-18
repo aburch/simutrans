@@ -80,9 +80,9 @@ void schiene_t::show_info()
 }
 
 
-void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
+void schiene_t::info(cbuffer_t & buf) const
 {
-	weg_t::info(buf, is_bridge);
+	weg_t::info(buf);
 
 	schiene_t* sch = (schiene_t*)this;
 

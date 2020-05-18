@@ -1252,17 +1252,6 @@ private:
 	journey_times_map average_journey_times;
 public:
 
-#if 0
-private:
-	/**
-	* @return a description string for the object, der z.B. in einem
-	* Beobachtungsfenster angezeigt wird.
-	* @author Hj. Malthaner
-	* @see simwin
-	*/
-	void info(cbuffer_t & buf, bool dummy = false) const;
-public:
-#endif
 	/**
 	* @param buf the buffer to fill
 	* @return Freight description text (buf)

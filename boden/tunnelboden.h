@@ -26,7 +26,7 @@ public:
 	const char *get_name() const {return "Tunnelboden";}
 	typ get_typ() const { return tunnelboden; }
 
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 };
 
 #endif

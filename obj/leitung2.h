@@ -108,7 +108,7 @@ public:
 	* Beobachtungsfenster angezeigt wird.
 	* @author Hj. Malthaner
 	*/
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	void info(cbuffer_t & buf) const;
 
 	ribi_t::ribi get_ribi() const { return ribi; }
 
@@ -179,7 +179,7 @@ public:
 
 	const char *get_name() const {return "Aufspanntransformator";}
 
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
 	void finish_rd();
 
@@ -224,7 +224,7 @@ public:
 
 	const char *get_name() const {return "Abspanntransformator";}
 
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
 	void finish_rd();
 

@@ -502,17 +502,6 @@ public:
 
 	void show_info();
 
-#if 0
-private:
-	/**
-	* der normale Infotext
-	* @author Hj. Malthaner
-	*/
-	void info(cbuffer_t & buf, bool dummy = false) const;
-public:
-#endif
-
-
 	/* return friction constant: changes in hill and curves; may even negative downhill *
 	* @author prissi
 	*/
