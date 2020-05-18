@@ -161,6 +161,9 @@ uint32 env_t::tooltip_delay;
 uint32 env_t::tooltip_duration;
 sint8 env_t::show_money_message;
 
+uint8 env_t::gui_player_color_dark = 1;
+uint8 env_t::gui_player_color_bright = 4;
+
 std::string env_t::fontname = FONT_PATH_X "prop.fnt";
 uint8 env_t::fontsize = 11;
 
@@ -537,12 +540,11 @@ void env_t::rdwr(loadsave_t *file)
 	if (file->get_version()>120007) {
 		rdwr_win_settings(file);
 	}
-	if(  file->get_version()>=120007  ) {
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 31) || file->get_extended_version() >= 15)
 		file->rdwr_byte(show_money_message);
-	}
-	// TODO: Recheck this version number
-	if(  file->get_version()>=120009  ) {
 		file->rdwr_byte(follow_convoi_underground);
+		file->rdwr_byte( gui_player_color_dark );
+		file->rdwr_byte( gui_player_color_bright );
 	}
 	// server settings are not saved, since they are server specific
 	// and could be different on different servers on the same computers

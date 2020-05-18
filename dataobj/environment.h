@@ -229,6 +229,9 @@ public:
 	static PIXVAL default_window_title_color;
 	static uint8 bottom_window_darkness;
 
+	static uint8 gui_player_color_dark;
+	static uint8 gui_player_color_bright;
+
 	// default font name and -size
 	static std::string fontname;
 	static uint8 fontsize;

@@ -393,7 +393,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 
 		info_buf.clear();
 		info_buf.printf("%s", halt->get_owner()->get_name());
-		display_proportional_rgb(left, top, info_buf, ALIGN_LEFT, PLAYER_FLAG|color_idx_to_rgb(halt->get_owner()->get_player_color1()+0), true);
+		display_proportional_rgb(left, top, info_buf, ALIGN_LEFT, PLAYER_FLAG|color_idx_to_rgb(halt->get_owner()->get_player_color1()+env_t::gui_player_color_dark), true);
 		top += D_LABEL_HEIGHT * 2;
 
 		bool enabled = false;

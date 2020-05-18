@@ -543,13 +543,15 @@ bool gui_theme_t::themes_init(const char *file_name, bool init_fonts )
 	gui_theme_t::gui_drop_shadows =    contents.get_int("gui_drop_shadows",          gui_theme_t::gui_drop_shadows );
 	env_t::bottom_window_darkness =    contents.get_int("bottom_window_darkness",    env_t::bottom_window_darkness );
 
+	env_t::gui_player_color_bright =   contents.get_int("gui_player_color_bright",   env_t::gui_player_color_bright );
+	env_t::gui_player_color_dark =     contents.get_int("gui_player_color_dark",     env_t::gui_player_color_dark );
 
-	env_t::default_window_title_color = contents.get_color("default_window_title_color", env_t::default_window_title_color, &env_t::default_window_title_color_rgb );
-	env_t::front_window_text_color =    contents.get_color("front_window_text_color",    env_t::front_window_text_color,    &env_t::front_window_text_color_rgb );
-	env_t::bottom_window_text_color =   contents.get_color("front_window_text_color",    env_t::bottom_window_text_color,   &env_t::bottom_window_text_color_rgb );
-	env_t::cursor_overlay_color =       contents.get_color("cursor_overlay_color",       env_t::cursor_overlay_color,       &env_t::cursor_overlay_color_rgb );
-	env_t::tooltip_color =              contents.get_color("tooltip_background_color",   env_t::tooltip_color ,             &env_t::tooltip_color_rgb );
-	env_t::tooltip_textcolor =          contents.get_color("tooltip_text_color",         env_t::tooltip_textcolor,          &env_t::tooltip_textcolor_rgb );
+	env_t::default_window_title_color = contents.get_color("default_window_title_color", env_t::default_window_title_color,  &env_t::default_window_title_color_rgb );
+	env_t::front_window_text_color =    contents.get_color("front_window_text_color",    env_t::front_window_text_color,  &env_t::front_window_text_color_rgb );
+	env_t::bottom_window_text_color =   contents.get_color("bottom_window_text_color",   env_t::bottom_window_text_color, &env_t::bottom_window_text_color_rgb );
+	env_t::cursor_overlay_color =       contents.get_color("cursor_overlay_color",       env_t::cursor_overlay_color,     &env_t::cursor_overlay_color_rgb );
+	env_t::tooltip_color =              contents.get_color("tooltip_background_color",   env_t::tooltip_color,            &env_t::tooltip_color_rgb );
+	env_t::tooltip_textcolor =          contents.get_color("tooltip_text_color",         env_t::tooltip_textcolor,        &env_t::tooltip_textcolor_rgb );
 
 	env_t::show_tooltips =        contents.get_int("show_tooltips",              env_t::show_tooltips );
 	env_t::tooltip_delay =        contents.get_int("tooltip_delay",              env_t::tooltip_delay );

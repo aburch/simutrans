@@ -1849,7 +1849,7 @@ void win_display_flush(double konto)
 
 	if(wl->get_active_player()) {
 		char buffer[256];
-		display_proportional_rgb( middle-5, status_bar_text_y, wl->get_active_player()->get_name(), ALIGN_RIGHT, PLAYER_FLAG|color_idx_to_rgb(wl->get_active_player()->get_player_color1()+0), true);
+		display_proportional_rgb( middle-5, status_bar_text_y, wl->get_active_player()->get_name(), ALIGN_RIGHT, PLAYER_FLAG|color_idx_to_rgb(wl->get_active_player()->get_player_color1()+env_t::gui_player_color_dark), true);
 		money_to_string(buffer, konto );
 		display_proportional_rgb( middle+5, status_bar_text_y, buffer, ALIGN_LEFT, konto >= 0.0?MONEY_PLUS:MONEY_MINUS, true);
 	}
