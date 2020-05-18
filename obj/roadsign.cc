@@ -247,7 +247,6 @@ void roadsign_t::show_info()
 void roadsign_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
-	roadsign_t* rs = (roadsign_t*)this;
 
 	buf.append(translator::translate(desc->get_name()));
 	buf.append("\n\n");
@@ -283,7 +282,7 @@ void roadsign_t::info(cbuffer_t & buf) const
 		buf.append("\n");
 	}
 
-	koord3d rs_pos = rs->get_pos();
+	koord3d rs_pos = this->get_pos();
 
 	const grund_t* rs_gr3d = welt->lookup(rs_pos);
 	const weg_t* way = rs_gr3d->get_weg(desc->get_wtyp() != tram_wt ? desc->get_wtyp() : track_wt);
@@ -895,7 +894,7 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 			player_t* player = welt->get_active_player();
 			if(player)
 			{
-				signalbox_t* sb = player->get_selected_signalbox();
+				const signalbox_t* sb = player->get_selected_signalbox();
 				if(!sb)
 				{
 					allowed_given_current_signalbox = false;

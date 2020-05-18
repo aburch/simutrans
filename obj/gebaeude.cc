@@ -1028,7 +1028,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 
 		if (tile->get_desc()->is_signalbox())
 		{
-			signalbox_t* sb = (signalbox_t*)get_first_tile();
+			const signalbox_t *sb = static_cast<const signalbox_t *>(get_first_tile());
 			buf.printf("%s: %d/%d\n", translator::translate("Signals"), sb->get_number_of_signals_controlled_from_this_box(), tile->get_desc()->get_capacity());
 
 			buf.printf("%s: ", translator::translate("radius"));

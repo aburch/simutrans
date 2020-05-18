@@ -5714,7 +5714,7 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 			const grund_t* gr_signalbox = welt->lookup(signal[player->get_player_nr()].signalbox);
 			if(gr_signalbox)
 			{
-				const gebaeude_t* gb = gr_signalbox->get_building();
+				gebaeude_t* gb = gr_signalbox->get_building();
 				if(gb && gb->get_tile()->get_desc()->is_signalbox())
 				{
 					sb = (signalbox_t*)gb;

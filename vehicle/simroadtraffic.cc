@@ -1061,7 +1061,8 @@ grund_t* private_car_t::hop_check()
 			{
 				const ribi_t::ribi current_dir = ribi_type(get_pos(), pos_next);
 				const ribi_t::ribi dir_next = ribi_type(pos_next, pos_next_next);
-				const strasse_t* str = (strasse_t*)next_way;
+				const strasse_t* str = static_cast<const strasse_t *>(next_way);
+
 				const bool backwards = dir_next == ribi_t::backward(current_dir);
 
 				bool direction_allowed = str->get_ribi() & dir_next;

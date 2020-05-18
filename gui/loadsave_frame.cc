@@ -30,7 +30,7 @@ class gui_loadsave_table_row_t : public gui_file_table_row_t
 	sve_info_t* svei;
 public:
 	//loadsave_t file;
-	const char* get_pak_extension() { return svei ? svei->pak.c_str() : ""; }
+	const char* get_pak_extension() const { return svei ? svei->pak.c_str() : ""; }
 	uint32 get_version() const { return svei ? svei->version : 0; }
 	uint32 get_extended_version() const { return svei ? svei->extended_version : 0; }
 
@@ -289,8 +289,7 @@ int gui_file_table_pak_column_t::compare_rows(const gui_table_row_t &row1, const
 
 const char *gui_file_table_pak_column_t::get_text(const gui_table_row_t &row) const
 {
- 	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
-	const char *pak = file_row.get_pak_extension();
+	const char *pak = static_cast<const gui_loadsave_table_row_t &>(row).get_pak_extension();
 	return strlen(pak) > 3 && (!STRNICMP(pak, "zip", 3) || !STRNICMP(pak, "xml", 3)) ? pak + 3 : pak;
 }
 
@@ -304,8 +303,7 @@ void gui_file_table_pak_column_t::paint_cell(const scr_coord& offset, coordinate
 sint32 gui_file_table_std_column_t::get_int(const gui_table_row_t &row) const
 {
 	// file version
- 	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
-	return (sint32) file_row.get_version();
+	return (sint32)static_cast<const gui_loadsave_table_row_t &>(row).get_version();
 }
 
 
@@ -325,8 +323,7 @@ void gui_file_table_std_column_t::paint_cell(const scr_coord& offset, coordinate
 sint32 gui_file_table_exp_column_t::get_int(const gui_table_row_t &row) const
 {
 	// file version
- 	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
-	return (sint32) file_row.get_extended_version();
+	return (sint32)static_cast<const gui_loadsave_table_row_t &>(row).get_extended_version();
 }
 
 

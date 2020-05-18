@@ -27,9 +27,9 @@ private:
 
 	// Used for time interval signalling
 	sint64 train_last_passed;
-protected:
 
- uint8 textlines_in_signal_window;
+protected:
+	mutable uint8 textlines_in_signal_window;
 
 public:
 	signal_t(loadsave_t *file);

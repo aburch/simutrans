@@ -1004,8 +1004,8 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append("\n");
 #endif
 
-if(  get_waytype() == road_wt  ) {
-		strasse_t* str = (strasse_t*) this;
+	if(  get_waytype() == road_wt  ) {
+		const strasse_t* str = static_cast<const strasse_t*>(this);
 		assert(str);
 		// Display overtaking_info
 		switch (str->get_overtaking_mode()) {
@@ -1036,21 +1036,14 @@ if(  get_waytype() == road_wt  ) {
 #ifndef DEBUG_WAY_STATS
 	//buf.append("\n");
 	buf.printf(translator::translate("convoi passed last\nmonth %i\n"), statistics[1][1]);
-#if 0
-	if (desc->get_waytype() == road_wt)
-	{
-		buf.printf("\n");
-		buf.printf(translator::translate("Vehicles stopped here last month: %i"), statistics[1][2]);
-		buf.printf("\n");
-	}
-#else
+
 	if (desc->get_waytype() == road_wt)
 	{
 		buf.printf("\n");
 		buf.printf(translator::translate("Congestion: %i%%"), get_congestion_percentage()); // TODO: Set up this text for translating
 		buf.printf("\n");
 	}
-#endif
+
 #else
 	// Debug - output stats
 	buf.append("\n");
@@ -1063,6 +1056,8 @@ if(  get_waytype() == road_wt  ) {
 #endif
 	buf.append("\n");
 }
+
+
 weg_t::runway_directions weg_t::get_runway_directions() const
 {
 	bool runway_36_18 = false;

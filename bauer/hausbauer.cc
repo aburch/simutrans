@@ -199,7 +199,7 @@ bool hausbauer_t::successfully_loaded()
 		}
 
 		// Casting away the const is nasty:
-		((building_desc_t*)desc)->fix_number_of_classes();
+		const_cast<building_desc_t *>(desc)->fix_number_of_classes();
 	}
 
 	// now sort them according level

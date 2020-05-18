@@ -84,7 +84,7 @@ void schiene_t::info(cbuffer_t & buf) const
 {
 	weg_t::info(buf);
 
-	schiene_t* sch = (schiene_t*)this;
+	const schiene_t* sch = static_cast<const schiene_t *>(this);
 
 	uint8 textlines = 1; // to locate the clickable button
 	if (reserved.is_bound())
@@ -183,7 +183,6 @@ void schiene_t::info(cbuffer_t & buf) const
 #ifdef DEBUG_PBS
 		reserved->show_info();
 #endif
-
 	}
 	else
 	{
