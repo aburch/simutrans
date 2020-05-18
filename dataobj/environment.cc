@@ -297,7 +297,7 @@ void env_t::rdwr(loadsave_t *file)
 	if(  file->get_version()<110007  ) {
 		bool dummy_b = 0;
 		file->rdwr_bool( dummy_b );
-	}
+	} 
 	file->rdwr_byte( show_month );
 
 	file->rdwr_bool( use_transparency_station_coverage );
