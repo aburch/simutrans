@@ -482,6 +482,7 @@ SOURCES += script/api_param.cc
 SOURCES += script/dynamic_string.cc
 SOURCES += script/export_objs.cc
 SOURCES += script/script.cc
+SOURCES += script/script_loader.cc
 SOURCES += simcity.cc
 SOURCES += simconvoi.cc
 SOURCES += simdebug.cc
