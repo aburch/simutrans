@@ -61,7 +61,7 @@ static pthread_mutex_t weg_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZE
 static pthread_mutexattr_t mutex_attributes;
 #endif
 
-static uint32 private_car_routes_currently_reading_element = 0; 
+static uint32 private_car_routes_currently_reading_element = 0;
 
 /**
  * Alle instantiierten Wege
@@ -78,7 +78,7 @@ const vector_tpl <weg_t *> & weg_t::get_alle_wege()
 	return alle_wege;
 }
 
-const uint32 weg_t::get_all_ways_count()
+uint32 weg_t::get_all_ways_count()
 {
 	return alle_wege.get_count();
 }
@@ -370,7 +370,7 @@ weg_t::~weg_t()
 		welt->await_private_car_threads();
 #endif
 		delete_all_routes_from_here();
-		
+
 		alle_wege.remove(this);
 		player_t *player = get_owner();
 		if (player  &&  desc)
@@ -1378,7 +1378,7 @@ void weg_t::calc_image()
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &weg_calc_image_mutex );
 #endif
-	
+
 #ifdef DEBUG_PRIVATE_CAR_ROUTES
 	if (private_car_routes[private_car_routes_currently_reading_element].empty())
 	{
@@ -1390,7 +1390,7 @@ void weg_t::calc_image()
 		return;
 	}
 #endif
-	
+
 	grund_t *from = welt->lookup(get_pos());
 	grund_t *to;
 	image_id old_image = image;
@@ -1859,14 +1859,14 @@ void weg_t::add_private_car_route(koord destination, koord3d next_tile)
 #ifdef MULTI_THREAD
 	int error = pthread_mutex_lock(&private_car_store_route_mutex);
 	assert(error == 0);
-#endif	
-	private_car_routes[get_private_car_routes_currently_writing_element()].set(destination, next_tile); 
+#endif
+	private_car_routes[get_private_car_routes_currently_writing_element()].set(destination, next_tile);
 
 	//private_car_routes_std[get_private_car_routes_currently_writing_element()].emplace(destination, next_tile); // Old performance test - but this was worse than the Simutrans type
 #ifdef MULTI_THREAD
 	error = pthread_mutex_unlock(&private_car_store_route_mutex);
 	assert(error == 0);
-#endif	
+#endif
 #ifdef DEBUG_PRIVATE_CAR_ROUTES
 	calc_image();
 #endif
@@ -1882,7 +1882,7 @@ void weg_t::delete_all_routes_from_here(bool reading_set)
 		FOR(private_car_route_map, const& route, private_car_routes[routes_index])
 		{
 			koord dest = route.key;
-			destinations_to_delete.append(dest); 
+			destinations_to_delete.append(dest);
 		}
 
 		FOR(vector_tpl<koord>, dest, destinations_to_delete)
@@ -1905,7 +1905,7 @@ void weg_t::delete_route_to(koord destination, bool reading_set)
 	while (next_tile != koord3d::invalid && next_tile != koord3d(0, 0, 0))
 	{
 		const grund_t* gr = welt->lookup(next_tile);
-		
+
 		next_tile = koord3d::invalid;
 		if (gr)
 		{
@@ -1930,12 +1930,12 @@ void weg_t::remove_private_car_route(koord destination, bool reading_set)
 #ifdef MULTI_THREAD
 	int error = pthread_mutex_lock(&private_car_store_route_mutex);
 	assert(error == 0);
-#endif	
-	private_car_routes[routes_index].remove(destination); 
+#endif
+	private_car_routes[routes_index].remove(destination);
 	//private_car_routes_std[routes_index].erase(destination); // Old test - but this was much slower than the Simutrans hashtable.
 #ifdef MULTI_THREAD
 	error = pthread_mutex_unlock(&private_car_store_route_mutex);
 	assert(error == 0);
-#endif	
-	
+#endif
+
 }

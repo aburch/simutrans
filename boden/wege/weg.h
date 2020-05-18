@@ -49,7 +49,7 @@ enum way_statistics {
 #if 0
 // This was used to test the performance of the std unordered map as against the
 // built-in Simutrans hashtable, but the latter performed far better.
-namespace std 
+namespace std
 {
 	template <>
 	struct hash<koord>
@@ -85,8 +85,8 @@ public:
 	* Get list of all ways
 	* @author Hj. Malthaner
 	*/
-	static const vector_tpl <weg_t *> & get_alle_wege();
-	static const uint32 get_all_ways_count();
+	static const vector_tpl <weg_t *> &get_alle_wege();
+	static uint32 get_all_ways_count();
 	static void clear_list_of__ways();
 
 	enum {
@@ -249,17 +249,17 @@ public:
 	static uint32 private_car_routes_currently_reading_element;
 	static uint32 get_private_car_routes_currently_writing_element() { return private_car_routes_currently_reading_element == 1 ? 0 : 1; }
 
-	void add_private_car_route(koord dest, koord3d next_tile); 
+	void add_private_car_route(koord dest, koord3d next_tile);
 private:
 	/// Set the boolean value to true to modify the set currently used for reading (this must ONLY be done when this is called from a single threaded part of the code).
-	void remove_private_car_route(koord dest, bool reading_set = false); 
+	void remove_private_car_route(koord dest, bool reading_set = false);
 public:
 	static void swap_private_car_routes_currently_reading_element() { private_car_routes_currently_reading_element = private_car_routes_currently_reading_element == 0 ? 1 : 0; }
 
 	/// Delete all private car routes originating from or passing through this tile.
 	/// Set the boolean value to true to modify the set currently used for reading (this must ONLY be done when this is called from a single threaded part of the code).
-	void delete_all_routes_from_here(bool reading_set = false); 
-	void delete_route_to(koord destination, bool reading_set = false); 
+	void delete_all_routes_from_here(bool reading_set = false);
+	void delete_route_to(koord destination, bool reading_set = false);
 
 
 

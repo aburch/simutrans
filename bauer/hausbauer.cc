@@ -964,7 +964,8 @@ const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::bty
 	return pick_any_weighted(auswahl);
 }
 
-const bool is_allowed_size(const building_desc_t* bldg, koord size) {
+bool is_allowed_size(const building_desc_t* bldg, koord size)
+{
 	if(size.x==-1  ||  bldg->get_size()==size) {
 		return true;
 	} else if(bldg->get_size().x==size.y  &&  bldg->get_size().y==size.x) {
