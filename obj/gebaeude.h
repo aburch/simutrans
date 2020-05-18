@@ -179,7 +179,7 @@ public:
 #endif
 	virtual ~gebaeude_t();
 
-	void rotate90();
+	void rotate90() OVERRIDE;
 
 	void add_alter(sint64 a);
 
@@ -204,31 +204,31 @@ public:
 	/**
 	 * waytype associated with this object
 	 */
-	waytype_t get_waytype() const;
+	waytype_t get_waytype() const OVERRIDE;
 
-	image_id get_image() const;
-	image_id get_image(int nr) const;
-	image_id get_front_image() const;
+	image_id get_image() const OVERRIDE;
+	image_id get_image(int nr) const OVERRIDE;
+	image_id get_front_image() const OVERRIDE;
 	void mark_images_dirty() const;
 
-	image_id get_outline_image() const;
-	PLAYER_COLOR_VAL get_outline_colour() const;
+	image_id get_outline_image() const OVERRIDE;
+	PLAYER_COLOR_VAL get_outline_colour() const OVERRIDE;
 
 	// caches image at height 0
-	void calc_image();
+	void calc_image() OVERRIDE;
 
 	/**
 	 * Called whenever the season or snowline height changes
 	 * return false and the obj_t will be deleted
 	 */
-	bool check_season(const bool) { calc_image(); return true; }
+	bool check_season(const bool) OVERRIDE { calc_image(); return true; }
 
 	/**
 	 * @return Building's own name, or factory name (if building
 	 * belongs to a factory)
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *get_name() const;
+	virtual const char *get_name() const OVERRIDE;
 	const char* get_individual_name() const;
 
 	void get_description(cbuffer_t & buf) const;
@@ -253,7 +253,7 @@ public:
 
 	void get_class_percentage(cbuffer_t & buf) const;
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	void display_coverage_radius(bool display);
 
@@ -261,17 +261,17 @@ public:
 	 * Play animations of animated buildings.
 	 * Count-down to replace construction site image by regular image.
 	 */
-	sync_result sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
 	void set_tile( const building_tile_desc_t *t, bool start_with_construction );
 
 	const building_tile_desc_t *get_tile() const { return tile; }
 
-	virtual void show_info();
+	virtual void show_info() OVERRIDE;
 
-	void cleanup(player_t *player);
+	void cleanup(player_t *player) OVERRIDE;
 
-	void finish_rd();
+	void finish_rd() OVERRIDE;
 
 	// currently animated
 	bool is_sync() const { return sync; }

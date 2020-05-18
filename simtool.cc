@@ -248,7 +248,7 @@ static halthandle_t suche_nahe_haltestelle(player_t *player, karte_t *welt, koor
 
 
 // converts a 2d koord to a suitable ground pointer
-static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, koord3d pos, waytype_t wt, bool allow_public = false)
+static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, koord3d pos, waytype_t wt)
 {
 	// check for valid ground
 	grund_t *gr=welt->lookup(pos);
@@ -284,7 +284,7 @@ static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, 
 		return NULL;
 	}
 	// check for ownership
-	if(gr->get_weg(wt)-> is_deletable(player, allow_public) != NULL)
+	if(gr->get_weg(wt)-> is_deletable(player) != NULL)
 	{
 		return NULL;
 	}
@@ -4911,7 +4911,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 
 	// underground is checked in work(); if underground only simple stations are allowed
 	// get valid ground
-	grund_t *bd = tool_intern_koord_to_weg_grund(player, welt, pos, wegtype, (wegtype == road_wt || wegtype == water_wt));
+	grund_t *bd = tool_intern_koord_to_weg_grund(player, welt, pos, wegtype);
 
 	if(  !bd  ||  bd->get_weg_hang()!=slope_t::flat  ) {
 		// only flat tiles, only one stop per map square

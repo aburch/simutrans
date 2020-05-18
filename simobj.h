@@ -340,7 +340,7 @@ public:
 	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
-	virtual const char * is_deletable(const player_t *player);
+	virtual const char *is_deletable(const player_t *player);
 
 	/**
 	 * Draw background image of object

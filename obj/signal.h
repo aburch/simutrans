@@ -38,7 +38,7 @@ public:
 
 	void rdwr_signal(loadsave_t *file);
 
-	void rotate90();
+	void rotate90() OVERRIDE;
 
 	/**
 	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
@@ -51,14 +51,14 @@ public:
 #else
 	typ get_typ() const { return obj_t::signal; }
 #endif
-	const char *get_name() const { return desc->get_name(); }
+	const char *get_name() const OVERRIDE { return desc->get_name(); }
 
 	uint8 get_textlines() const { return textlines_in_signal_window; }
 
 	/**
 	* Calculate actual image
 	*/
-	void calc_image();
+	void calc_image() OVERRIDE;
 
 	void set_signalbox(koord3d k) { signalbox = k; }
 	koord3d get_signalbox() const { return signalbox; }
@@ -71,9 +71,7 @@ public:
 	void set_train_last_passed(sint64 value) { train_last_passed = value; }
 	sint64 get_train_last_passed() const { return train_last_passed; }
 
-	void show_info();
-
-
+	void show_info() OVERRIDE;
 };
 
 #endif
