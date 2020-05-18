@@ -10,6 +10,8 @@
 #include "gui_frame.h"
 #include "components/action_listener.h"
 #include "components/gui_scrolled_list.h"
+#include "components/gui_button.h"
+#include "components/gui_combobox.h"
 
 
 /**
@@ -22,6 +24,8 @@ private:
 	button_t	sorteddir;
 	gui_scrolled_list_t scrolly;
 	gui_aligned_container_t list;
+	button_t filter_by_owner;
+	gui_combobox_t filterowner;
 
 	uint32 attraction_count;
 

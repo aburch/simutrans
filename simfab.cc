@@ -697,14 +697,15 @@ void fabrik_t::unlink_halt(halthandle_t halt)
 }
 
 
-// returns true, if there is a halt serving us
+// returns true, if there is a freight halt serving us
 bool fabrik_t::is_within_players_network( const player_t* player ) const
 {
 	if( const planquadrat_t *plan = welt->access( pos.get_2d() ) ) {
 		if( plan->get_haltlist_count() > 0 ) {
 			const halthandle_t *const halt_list = plan->get_haltlist();
 			for( int h = 0; h < plan->get_haltlist_count(); h++ ) {
-				if(  halt_list[h].is_bound()  &&  player_t::check_owner( player, halt_list[h]->get_owner() )  ) {
+				halthandle_t halt = halt_list[h];
+				if(  halt.is_bound()  &&  halt->is_enabled(haltestelle_t::WARE)  &&  halt->has_available_network(player)  ) {
 					return true;
 				}
 			}
