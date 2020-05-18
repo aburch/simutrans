@@ -1,7 +1,6 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29020.237
+# Visual Studio Express 14 for Windows Desktop
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simutrans-Main", "Simutrans-Main.vcxitems", "{5A9777DD-CE40-45AE-8CB4-0FF2DB4ABD27}"
 EndProject
@@ -31,13 +30,11 @@ Global
 		{0621B295-BEB7-4767-82F1-F27995610323}.Stable|x86.ActiveCfg = Stable|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Stable|x86.Build.0 = Stable|Win32
 		{E74757E8-C2FD-44AD-87BD-3D55F4709484}.Debug|x86.ActiveCfg = Debug|Win32
-		{E74757E8-C2FD-44AD-87BD-3D55F4709484}.Debug|x86.Build.0 = Debug|Win32
 		{E74757E8-C2FD-44AD-87BD-3D55F4709484}.Release|x86.ActiveCfg = Release|Win32
 		{E74757E8-C2FD-44AD-87BD-3D55F4709484}.Release|x86.Build.0 = Release|Win32
 		{E74757E8-C2FD-44AD-87BD-3D55F4709484}.Stable|x86.ActiveCfg = Stable|Win32
 		{E74757E8-C2FD-44AD-87BD-3D55F4709484}.Stable|x86.Build.0 = Stable|Win32
 		{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}.Debug|x86.ActiveCfg = Debug|Win32
-		{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}.Debug|x86.Build.0 = Debug|Win32
 		{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}.Release|x86.ActiveCfg = Release|Win32
 		{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}.Release|x86.Build.0 = Release|Win32
 		{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}.Stable|x86.ActiveCfg = Stable|Win32

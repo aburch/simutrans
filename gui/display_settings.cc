@@ -61,7 +61,7 @@ public:
 	{
 		scr_coord p = pos + offset;
 
-		FLAGGED_PIXVAL pc = welt->get_active_player() ? color_idx_to_rgb(welt->get_active_player()->get_player_color1()+4) : color_idx_to_rgb(COL_ORANGE);
+		FLAGGED_PIXVAL pc = welt->get_active_player() ? color_idx_to_rgb(welt->get_active_player()->get_player_color1()+3) : color_idx_to_rgb(COL_ORANGE);
 		const char *text = get_text_pointer();
 
 		switch( env_t::show_names >> 2 ) {
