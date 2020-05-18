@@ -2403,7 +2403,6 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 	if(neighbouring_grounds.get_count() > 1)
 	{
 		// It is necessary to do this to simulate the way not being there for testing purposes.
-		grund_t* way_gr = welt->lookup(w->get_pos());
 		koord3d start = koord3d::invalid;
 		koord3d end;
 		vehicle_desc_t diversion_check_type(w->get_waytype(), kmh_to_speed(w->get_max_speed()), vehicle_desc_t::petrol, w->get_max_axle_load());

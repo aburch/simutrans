@@ -525,13 +525,10 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 		}
 	}
 	else {
-		// connect factory to stations
-		// search for nearby stations and connect factory to them
-		koord k, dim = info->get_building()->get_size(rotate);
-
 		// Must recalc nearby halts after the halt is set up
 		fab->recalc_nearby_halts();
 	}
+
 	// This must be done here because the building is not valid on generation, so setting the building's
 	// jobs, population and mail figures based on the factory's cannot be done.
 	fab->update_scaled_pax_demand();
@@ -602,8 +599,8 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 			pos->rotate90( welt->get_size().y-info->get_building()->get_y(rotate) );
 			welt->rotate90();
 		}
-		bool can_save = !welt->cannot_save();
-		assert( can_save );
+
+		assert( !welt->cannot_save() );
 	}
 
 	// Industries in town needs different place search

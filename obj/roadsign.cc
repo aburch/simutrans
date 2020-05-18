@@ -395,8 +395,6 @@ void roadsign_t::calc_image()
 	      ||  (desc->get_wtyp()!=air_wt  &&  desc->get_wtyp()!=road_wt  &&  welt->get_settings().is_signals_left())
 	    );
 
-	const sint8 height_step = TILE_HEIGHT_STEP << slope_t::is_doubles(gr->get_weg_hang());
-
 	const slope_t::type full_hang = gr->get_weg_hang();
 	const sint8 hang_diff = slope_t::max_diff(full_hang);
 	const ribi_t::ribi hang_dir = ribi_t::backward( ribi_type(full_hang) );

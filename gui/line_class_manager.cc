@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the Simutrans-Extended project under the Artistic License.
  * (see LICENSE.txt)
  */
@@ -294,9 +294,9 @@ void line_class_manager_t::layout()
 	sint16 y = 2;
 	cbuffer_t buf;
 	int assumed_longest_class_name = 5 * 32;
-	const scr_coord_val column_1 = D_MARGIN_LEFT;
 	const scr_coord_val column_2 = assumed_longest_class_name + 35;
 	y += LINESPACE;
+
 	if (show_pass)
 	{
 		for (int i = 0; i < pass_class_sel.get_count(); i++)

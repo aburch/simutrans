@@ -70,8 +70,6 @@
 #include "utils/simthread.h"
 static pthread_mutex_t step_convois_mutex = PTHREAD_MUTEX_INITIALIZER;
 static vector_tpl<pthread_t> unreserve_threads;
-static pthread_attr_t thread_attributes;
-static pthread_mutexattr_t mutex_attributes;
 waytype_t convoi_t::current_waytype = road_wt;
 uint16 convoi_t::current_unreserver = 0;
 #endif
@@ -534,9 +532,8 @@ void convoi_t::finish_rd()
 		}
 		else {
 			// test also for realignment
-			sint16 step_pos = 0;
 			koord3d drive_pos;
-			uint8 const diagonal_vehicle_steps_per_tile = (uint8)(130560U / welt->get_settings().get_pak_diagonal_multiplier());
+
 			for( uint8 i=0;  i<vehicle_count;  i++ ) {
 				vehicle_t* v = vehicle[i];
 				/*if(v->get_route_index() > max_route_index && max_route_index > 0 && i > 0)
@@ -2330,7 +2327,6 @@ end_loop:
 				if(schedule->matches(welt, l->get_schedule()))
 				{
 					// if a line is assigned, set line!
-					const uint32 needs_refresh = l->count_convoys();
 					set_line(l);
 					line->renew_stops();
 					break;
@@ -4535,7 +4531,6 @@ void convoi_t::rdwr(loadsave_t *file)
 
 				dep = departures.get(departure_point);
 
-				uint16 last_halt_id = gr->get_halt().get_id();
 				sint64 departure_time = dep.departure_time;
 				file->rdwr_longlong(departure_time);
 				if(file->is_loading())
@@ -5303,7 +5298,6 @@ void convoi_t::laden() //"load" (Babelfish)
 	// last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later)
 	// so code inside if will be executed once. At arrival time.
 	minivec_tpl<uint8> departure_entries_to_remove(schedule->get_count());
-	bool clear_departures = false;
 
 	if(journey_distance > 0 && last_stop_id != this_halt_id)
 	{
@@ -5830,7 +5824,6 @@ station_tile_search_ready: ;
 	// Initialize it to the correct size and blank out all entries
 	// It will be added to by the load_cargo method for each vehicle
 	array_tpl<sint64> apportioned_revenues (MAX_PLAYER_COUNT, 0);
-	uint8 convoy_length = 0;
 	for(int i = 0; i < vehicles_loading ; i++)
 	{
 		vehicle_t* v = vehicle[i];
@@ -7801,7 +7794,6 @@ uint32 convoi_t::calc_reverse_delay() const
 		dep.departure_time = time;
 		uint8 schedule_entry = schedule->get_current_stop();
 		bool rev_rev = !reverse_schedule;
-		bool has_not_found_halt = true;
 		// decrement(see negation of reverse_schedule) index until previous halt
 		schedule->increment_index_until_next_halt(front()->get_owner(), &schedule_entry, &rev_rev);
 		departure_point_t departure_point(schedule_entry, !rev_rev);
@@ -8445,7 +8437,7 @@ uint8 convoi_t::get_terminal_shunt_mode() const
 	if (!back()->get_desc()->is_bidirectional()) {
 		return wye;
 	}
-	uint8 mode = wye;
+
 	const bool need_turn_table = front()->get_desc()->is_bidirectional() ? false : true;
 
 	if (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)

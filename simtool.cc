@@ -1645,7 +1645,6 @@ const char *tool_clear_reservation_t::work( player_t *player, koord3d pos )
 				 * - we search all ways for reservations of this convoi and remove them
 				 * - we set the convoi state to ROUTING_1; it must reserve again its ways then
 				 */
-				const waytype_t waytype = w->get_waytype();
 				const convoihandle_t cnv = w->get_reserved_convoi();
 				if(cnv->get_state()==convoi_t::DRIVING) {
 					// reset driving state
@@ -2958,7 +2957,7 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 		const char *error;
 		koord3d end2 = bridge_builder_t::find_end_pos(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 		assert(end2 == end); (void)end2;
-		waytype_t wt = desc->get_waytype();
+
 		if (way_desc == NULL || (way_desc->get_styp() == type_elevated  &&  way_desc->get_wtyp() != air_wt))
 		{
 			// Cannot build an elevated way on top of a bridge
@@ -5533,8 +5532,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 	sint8 rotation = 0;
 	const building_desc_t *desc=get_desc(rotation);
 	const char *msg = NULL;
-	sint64 cost;
-	settings_t const& s = welt->get_settings();
+
 	switch (desc->get_type())
 	{
 		case building_desc_t::dock:
@@ -7920,9 +7918,9 @@ const char *tool_make_stop_public_t::move(player_t *player, uint16, koord3d p)
 
 const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 {
-	sint64 const COST_MONTHS_MAINTAINANCE = welt->calc_adjusted_monthly_figure(welt->get_settings().cst_make_public_months);
 	player_t *const psplayer = welt->get_public_player();
 	grund_t const *gr = welt->lookup(p);
+
 	if (!gr || !gr->get_halt().is_bound() || gr->get_halt()->get_owner() == psplayer) {
 		weg_t *w = NULL;
 

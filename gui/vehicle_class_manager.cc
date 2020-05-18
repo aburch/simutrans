@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the Simutrans-Extended project under the Artistic License.
  * (see LICENSE.txt)
  */
@@ -287,8 +287,8 @@ void vehicle_class_manager_t::layout(scr_coord pos)
 	sint16 y = LINESPACE + 2;
 	cbuffer_t buf;
 	int assumed_longest_class_name = 5 * 32;
-	const scr_coord_val column_1 = D_MARGIN_LEFT;
 	const scr_coord_val column_2 = assumed_longest_class_name + 35;
+
 	for (int i = 0; i < pass_class_sel.get_count(); i++)
 	{
 		pass_class_sel.at(i)->set_visible(false);
@@ -334,16 +334,14 @@ void vehicle_class_manager_t::layout(scr_coord pos)
 	//build_class_entries();
 
 	header_height = y + (current_number_of_classes * LINESPACE) + LINESPACE;
-	int actual_width = column_2 + button_width + 10;
 	int default_window_h = D_TITLEBAR_HEIGHT + 50 + 17 * (LINESPACE + 1) + D_SCROLLBAR_HEIGHT - 6;
 	int old_window_h = min(get_windowsize().h, default_window_h);
-
 
 	scrolly.set_pos(scr_coord(0, header_height));
 	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, column_2), D_TITLEBAR_HEIGHT + header_height+50));
 	set_windowsize(scr_size(max(D_DEFAULT_WIDTH, column_2), max(default_window_h, old_window_h)));
-
 }
+
 
 void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 {
@@ -833,7 +831,6 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 		uint8 higest_tpo = 0;
 		uint32 passenger_count = 0;
 		uint32 mail_count = 0;
-		const scr_coord_val column_2 = 100;
 		char class_name_untranslated[32];
 		const char* class_name = "\0";
 
@@ -841,7 +838,6 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 		{
 			vehicle_t *v = cnv->get_vehicle(veh);
 			bool pass_veh = v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS;
-			bool mail_veh = v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL;
 
 			if (pass_veh)
 			{
@@ -873,7 +869,6 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 
 			if ((pass_veh || mail_veh) && v->get_desc()->get_total_capacity() > 0)
 			{
-				int returns = 0;
 				freight_info.clear();
 
 				// first image
@@ -1029,8 +1024,8 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 				int len = 5 + display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, translator::translate("Base profit per km (when full):"), ALIGN_LEFT, SYSCOL_TEXT, true);
 				// Revenue for moving 1 unit 1000 meters -- comes in 1/4096 of simcent, convert to simcents
 				// Excludes TPO/catering revenue, class and comfort effects.  FIXME --neroden
-				sint64 overcrowded_fare = v->get_cargo_type()->get_total_fare(1000); // Class needs to be added here (Ves?)
-																		 // Multiply by capacity, convert to simcents, subtract running costs
+
+				// Multiply by capacity, convert to simcents, subtract running costs
 				sint64 profit = (v->get_cargo_max()*total_income + 2048ll) / 4096ll - v->get_running_cost(welt);
 				money_to_string(number, profit / 100.0);
 				display_proportional_clip(pos.x + w + offset.x + len, pos.y + offset.y + total_height + extra_y, number, ALIGN_LEFT, profit>0 ? MONEY_PLUS : MONEY_MINUS, true);

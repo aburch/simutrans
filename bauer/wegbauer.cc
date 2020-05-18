@@ -2663,7 +2663,6 @@ void way_builder_t::build_road()
 			}
 			else {
 				// make new way
-				const obj_t* obj = gr->obj_bei(0);
 				str = new strasse_t();
 
 				str->set_desc(desc);
@@ -2775,7 +2774,6 @@ void way_builder_t::build_track()
 
 					if(  change_desc  ) {
 						// we take ownership => we take care to maintain the roads completely ...
-						player_t *p = weg->get_owner();
 						cost -= weg->get_desc()->get_upgrade_group() == desc->get_upgrade_group() ? desc->get_way_only_cost() : desc->get_value();
 
 						if (!desc->is_mothballed())
@@ -2818,7 +2816,6 @@ void way_builder_t::build_track()
 				}
 				else
 				{
-					const obj_t* obj = gr->obj_bei(0);
 
 					weg_t* const sch = weg_t::alloc(desc->get_wtyp());
 					sch->set_pos(gr->get_pos());

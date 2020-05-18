@@ -93,13 +93,8 @@ private:
 	gui_container_t cont;
 
 	uint16 current_number_of_classes;
-	uint16 old_number_of_classes;
-
 	uint16 current_number_of_accommodations;
-	uint16 old_number_of_accommodations;
-
 	uint32 current_number_of_vehicles;
-	uint32 old_number_of_vehicles;
 
 	uint8 highest_catering;
 	bool is_tpo;
@@ -109,11 +104,7 @@ private:
 
 	uint16 header_height;
 
-	int longest_class_name;
-
 	uint32 overcrowded_capacity;
-
-	bool convoy_bound = false;
 
 	char *pass_class_name_untranslated[32];
 	char *mail_class_name_untranslated[32];

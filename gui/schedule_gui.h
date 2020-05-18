@@ -106,7 +106,6 @@ private:
 	gui_numberinput_t numimp_spacing_shift;
 	gui_label_t lb_spacing_shift_as_clock;
 
-	char str_ladegrad[16];
 	char str_parts_month[32];
 	char str_parts_month_as_clock[32];
 

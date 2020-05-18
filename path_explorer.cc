@@ -174,8 +174,6 @@ void path_explorer_t::rdwr(loadsave_t* file)
 	}
 
 	// Load/save the connexion_list, which is static
-	uint8 serving_transport;
-
 	uint32 connexion_list_size = 65536;
 	if (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 11))
 	{

@@ -840,7 +840,7 @@ bool gebaeude_t::is_same_building(gebaeude_t* other) const
 bool gebaeude_t::is_within_players_network(const player_t* player, uint8 catg_index) const
 {
 	const planquadrat_t* plan = welt->access(get_pos().get_2d());
-	const nearby_halt_t *const halt_list = plan->get_haltlist();
+
 	if (plan->get_haltlist_count() > 0) {
 		const nearby_halt_t *const halt_list = plan->get_haltlist();
 		for (int h = 0; h < plan->get_haltlist_count(); h++)
@@ -1075,7 +1075,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 #endif
 		buf.printf("%s: %d\n", translator::translate("Mail demand/output"), get_adjusted_mail_demand());
 
-                buf.printf("%s: %s (%d)\n", translator::translate("Built in"), 
+                buf.printf("%s: %s (%d)\n", translator::translate("Built in"),
                            translator::get_year_month(((purchase_time / welt->ticks_per_world_month)+welt->get_settings().get_starting_month())+
                                                       welt->get_settings().get_starting_year()*12),
                            (purchase_time / welt->ticks_per_world_month));
@@ -1199,7 +1199,6 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		const nearby_halt_t *const halt_list = plan->get_haltlist();
 		bool any_suitable_stops_passengers = false;
 		bool any_suitable_stops_mail = false;
-		int total_stop_entries = plan->get_haltlist_count() - 1;
 		int max_stop_entries = 6;
 		int stop_entry_counter;
 		uint16 max_walking_time;

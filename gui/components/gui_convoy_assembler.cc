@@ -147,7 +147,6 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	* otherwise the tabs will not be present at all
 	*/
 	bool old_retired=show_retired_vehicles;
-	bool show_outdated_vehicles = true;
 	bool old_show_all=show_all;
 	show_retired_vehicles = true;
 	show_all = true;

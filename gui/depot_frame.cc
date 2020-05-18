@@ -274,8 +274,6 @@ void depot_frame_t::layout(scr_size *size)
 	*	Structure of [VINFO] is one multiline text.
 	*/
 
-	//const scr_coord_val VINFO_HEIGHT = 14 * LINESPACE - 1;
-	const scr_coord_val VINFO_HEIGHT = convoy_assembler.get_height();
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
 	*/

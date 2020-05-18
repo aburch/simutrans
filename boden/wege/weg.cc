@@ -61,7 +61,6 @@ static pthread_mutex_t weg_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZE
 static pthread_mutexattr_t mutex_attributes;
 #endif
 
-static uint32 private_car_routes_currently_reading_element = 0;
 
 /**
  * Alle instantiierten Wege
@@ -562,10 +561,6 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	const bruecke_t *bridge = gr ? gr->find<bruecke_t>() : NULL;
 	const tunnel_t *tunnel = gr ? gr->find<tunnel_t>() : NULL;
 
-	const sint32 city_road_topspeed = welt->get_city_road()->get_topspeed();
-	const sint32 wayobj_topspeed = wayobj ? wayobj->get_desc()->get_topspeed() : UINT32_MAX_VALUE;
-	const sint32 bridge_topspeed = bridge ?  bridge->get_desc()->get_topspeed() : UINT32_MAX_VALUE;
-	const sint32 tunnel_topspeed = tunnel ? tunnel->get_desc()->get_topspeed() : UINT32_MAX_VALUE;
 	const sint32 topspeed = desc->get_topspeed();
 
 	const bool impassible = remaining_wear_capacity == 0;
@@ -1108,8 +1103,6 @@ uint32 weg_t::get_runway_length(bool runway_36_18) const
 	{
 		return 0;
 	}
-
-	bool runway_09_27 = !runway_36_18;
 
 	uint32 runway_tiles = 0;
 	koord3d pos = get_pos();

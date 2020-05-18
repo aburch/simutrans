@@ -2151,9 +2151,6 @@ const char *vehicle_t::get_cargo_name() const
 
 void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 {
-	const goods_desc_t* ware_desc = get_desc()->get_freight_type();
-	const uint16 menge = get_desc()->get_total_capacity();
-
 	vector_tpl<vector_tpl<ware_t>> fracht_array(number_of_classes);
 	for (uint8 i = 0; i < number_of_classes; i++)
 	{
@@ -4733,9 +4730,9 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	uint32 max_axle_load = w->get_max_axle_load();
 	uint32 bridge_weight_limit = w->get_bridge_weight_limit();
 	if(cnv && (cnv->get_highest_axle_load() > max_axle_load || (cnv->get_weight_summary().weight / 1000) > bridge_weight_limit) && welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3)
-	{ 
+	{
 		costs += 400;
-	} 
+	}
 
 	if(w->is_diagonal())
 	{
@@ -4923,7 +4920,6 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	else
 	{
 		// The target is an end of choose sign along the route.
-		const sint16 tile_length = (cnv->get_schedule()->get_current_entry().reverse ? 8888 : 0) + cnv->get_tile_length();
 		can_find_route = target_rt.calc_route(welt, route->at(start_block), target->get_pos(), this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000, koord3d::invalid, direction) == route_t::valid_route;
 		// This route only takes us to the end of choose sign, so we must calculate the route again beyond that point to the actual destination then concatenate them.
 		if(can_find_route)
@@ -5060,7 +5056,6 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		for (uint32 i = route_index; i < route_count; i ++)
 		{
 			const koord3d tile_to_check_ahead = cnv->get_route()->at(min(route_count - 1u, i));
-			const koord3d previous_tile = cnv->get_route()->at(min(route_count - 1u, i) - 1u);
 			grund_t *gr_ahead = welt->lookup(tile_to_check_ahead);
 			weg_t *way = gr_ahead ? gr_ahead->get_weg(get_waytype()) : NULL;
 			if (!way)
@@ -5495,7 +5490,6 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			const uint32 route_count = route.get_count() - 1u;
 			const uint32 check_ahead_tile = route_index + tiles_to_check;
 			const koord3d tile_to_check_ahead = cnv->get_route()->at(std::min(route_count, check_ahead_tile));
-			const koord3d previous_tile = cnv->get_route()->at(std::min(route_count, check_ahead_tile -1u));
 			grund_t *gr_ahead = welt->lookup(tile_to_check_ahead);
 			weg_t *way = gr_ahead ? gr_ahead->get_weg(get_waytype()) : NULL;
 			if(!way)
@@ -5830,7 +5824,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	uint16 platform_size_needed = 0;
 	uint16 platform_size_found = 0;
 	ribi_t::ribi ribi_last = ribi_t::none;
-	ribi_t::ribi ribi = ribi_t::none;
 	halthandle_t dest_halt = halthandle_t();
 	uint16 early_platform_index = INVALID_INDEX;
 	uint16 first_stop_signal_index = INVALID_INDEX;
@@ -7192,7 +7185,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			start_index = 0;
 		}
 
-		ribi_t::ribi direction = ribi_type(route->at(max(1u,start_index)-1u), route->at(min(route->get_count()-1u,start_index+1u)));
 		if((working_method == token_block || working_method == one_train_staff) && success == false)
 		{
 			cnv->unreserve_route();
@@ -7214,11 +7206,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					&& (!halt_current.is_bound() || halt_current != halt_this))
 				{
 					sch1->unreserve(cnv->self);
-					const sint32 n = min(i, route->get_count() - 1);
 					if(sch1->has_signal())
 					{
-						ribi_t::ribi direction_of_travel = ribi_type(route->at(max(1u,n)-1u), route->at(min(route->get_count()-1u,n+1u)));
-						signal_t* signal = sch1->get_signal(direction_of_travel);
 						signs.remove(gr_this);
 					}
 					if(sch1->is_crossing())
@@ -7705,8 +7694,6 @@ void rail_vehicle_t::leave_tile()
 					signal_t* sig;
 					if(route)
 					{
-						grund_t *gr_ahead = welt->lookup(this_tile);
-						weg_t *way = gr_ahead->get_weg(get_waytype());
 						const koord3d dir = this_tile - previous_tile;
 						ribi_t::ribi direction_of_travel = ribi_type(dir);
 						sig = sch0->get_signal(direction_of_travel);
@@ -8866,8 +8853,6 @@ int air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) cons
 	uint16 runway_tiles = end - start;
 	uint16 runway_meters = runway_tiles * welt->get_settings().get_meters_per_tile();
 	const uint16 min_runway_length_meters = desc->get_minimum_runway_length();
-	const uint16 min_runway_tiles = min_runway_length_meters / welt->get_settings().get_meters_per_tile() + 1;
-	//	std::cout << "min = "<<min_runway_length_meters <<", len = "<<runway_meters << std::endl;
 
 	int success = runway_meters >= min_runway_length_meters ? 1 : 2;
 

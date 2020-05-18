@@ -157,8 +157,6 @@ bool karte_t::threads_initialised = false;
 thread_local uint32 karte_t::passenger_generation_thread_number;
 thread_local uint32 karte_t::marker_index = UINT32_MAX_VALUE;
 
-static void swap_private_car_routes_currently_reading_element();
-
 sint32 karte_t::cities_to_process = 0;
 vector_tpl<convoihandle_t> convoys_next_step;
 
@@ -1639,7 +1637,7 @@ void *check_road_connexions_threaded(void *args)
 			{
 				continue;
 			}
-			
+
 			city->check_all_private_car_routes();
 
 			simthread_barrier_wait(&karte_t::private_car_barrier);
@@ -1653,7 +1651,7 @@ void *check_road_connexions_threaded(void *args)
 				simthread_barrier_wait(&karte_t::private_car_barrier);
 			}
 		}
-		
+
 		// Having two barrier waits here is intentional.
 		simthread_barrier_wait(&karte_t::private_car_barrier);
 	} while (!world()->is_terminating_threads());
@@ -1665,7 +1663,7 @@ void *check_road_connexions_threaded(void *args)
 	pthread_exit(NULL);
 	return args;
 }
- 
+
 void *step_passengers_and_mail_threaded(void* args)
 {
 	const uint32* thread_number_ptr = (const uint32*)args;
@@ -1846,7 +1844,6 @@ void karte_t::await_passengers_and_mail_threads()
 void *step_convoys_threaded(void* args)
 {
 	karte_t* world = (karte_t*)args;
-	const sint32 parallel_operations = world->get_parallel_operations();
 
 	while (true)
 	{
@@ -2104,7 +2101,7 @@ void karte_t::init_threads()
 
 	private_car_route_mutex_initialised = true;
 	pthread_mutex_init(&private_car_route_mutex, &mutex_attributes);
-	
+
 	pthread_mutex_init(&step_passengers_and_mail_mutex, &mutex_attributes);
 	pthread_mutex_init(&path_explorer_await_mutex, &mutex_attributes);
 	pthread_mutex_init(&unreserve_route_mutex, &mutex_attributes);
@@ -3719,8 +3716,6 @@ const char* karte_t::can_lower_to(const player_t* player, sint16 x, sint16 y, si
 {
 	assert(is_within_limits(x,y));
 
-	grund_t *gr = lookup_kartenboden_nocheck(x,y);
-	const sint8 water_hgt = get_water_hgt_nocheck(x,y);
 	const sint8 min_hgt = min(min(hsw,hse),min(hne,hnw));
 
 	const sint8 hneu = min( min( hsw, hse ), min( hne, hnw ) );
@@ -5474,7 +5469,7 @@ void karte_t::step()
 
 	// Check the private car routes. In multi-threaded mode, this can be running in the background whilst a number of other steps are processed.
 	// This is computationally intensive, but intermittently. The computational intensity increases exponentially with the size of the map.
-	const uint32 check_frequency = max(stadt.get_count() / 6, 1);
+	//const uint32 check_frequency = max(stadt.get_count() / 6, 1);
 	//const bool check_city_routes = (steps % check_frequency) == 0;
 	const bool check_city_routes = true;
 	if (check_city_routes)
@@ -5486,10 +5481,10 @@ void karte_t::step()
 			weg_t::swap_private_car_routes_currently_reading_element();
 			FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
 			{
-				cities_awaiting_private_car_route_check.append(i); 
+				cities_awaiting_private_car_route_check.append(i);
 			}
 		}
-		
+
 #ifdef MULTI_THREAD
 		// This cannot be started at the end of the step, as we will not know at that point whether we need to call this at all.
 		// There can be many mutex clashes with this; however, processing only one city at a time can make it take an unfeasible amount of time to refresh all routes.
@@ -5497,7 +5492,7 @@ void karte_t::step()
 		//cities_to_process = 1;
 		cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		start_private_car_threads();
-#else			
+#else
 		const sint32 cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		for (sint32 j = 0; j < cities_to_process; j++)
 		{
@@ -9675,31 +9670,11 @@ void karte_t::update_map()
  * by default create a new halt if none found
  * -- create_halt==true is used during loading of *old* saved games
  */
-halthandle_t karte_t::get_halt_koord_index(koord k, player_t *player, bool create_halt)
+halthandle_t karte_t::get_halt_koord_index(koord k, player_t *, bool create_halt)
 {
-	halthandle_t my_halt;
-
-	// already there?
-	// check through all the grounds
-	const planquadrat_t* plan = access(k);
-	if (plan)
-	{
-		//for(  uint8 i=0;  i < plan->get_boden_count();  i++  ) {
-		//	halthandle_t my_halt = plan->get_boden_bei(i)->get_halt();
-		//	if(  my_halt.is_bound()  ) {
-		//		// Stop at first halt found (always prefer ground level)
-		//		return my_halt;
-		//	}
-		//}
-		// for compatibility with old code (see above) we do not pass player to get_halt():
-		halthandle_t my_halt = plan->get_halt(NULL);
-	}
-	if( create_halt && !my_halt.is_bound() ) {
-		// No halts found => create one
-		my_halt = haltestelle_t::create( k, NULL );
-	}
-	return my_halt;
+	return create_halt ? haltestelle_t::create( k, NULL ) : halthandle_t();
 }
+
 
 void karte_t::calc_climate(koord k, bool recalc)
 {
@@ -11513,9 +11488,9 @@ double karte_t::get_forge_cost(waytype_t waytype, koord3d position)
 			continue;
 		}
 		const koord3d kn3d(kn, lookup_hgt(kn));
-		grund_t* to = lookup(kn3d);
 		const grund_t* gr_this_tile = lookup_kartenboden(pos.get_2d());
 		const grund_t* gr_neighbour = lookup_kartenboden(kn);
+
 		if (gr_this_tile && gr_this_tile->get_weg(waytype))
 		{
 			// There exists a way of the same waytype on this tile - no forge costs.
@@ -11536,7 +11511,6 @@ double karte_t::get_forge_cost(waytype_t waytype, koord3d position)
 
 bool karte_t::is_forge_cost_reduced(waytype_t waytype, koord3d position)
 {
-	sint64 forge_cost = get_settings().get_forge_cost(waytype);
 	const koord3d pos = position;
 	bool is_cost_reduced = false;
 
@@ -11547,10 +11521,10 @@ bool karte_t::is_forge_cost_reduced(waytype_t waytype, koord3d position)
 		{
 			continue;
 		}
-		const koord3d kn3d(kn, lookup_hgt(kn));
-		grund_t* to = lookup(kn3d);
 
+		const koord3d kn3d(kn, lookup_hgt(kn));
 		const grund_t* gr_neighbour = lookup_kartenboden(kn);
+
 		if (gr_neighbour && gr_neighbour->get_weg(waytype))
 		{
 			// This is a parallel way of the same type - reduce the forge cost.

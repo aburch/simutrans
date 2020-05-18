@@ -181,7 +181,6 @@ void times_history_container_t::update_container() {
 
 		if (i < schedule_indices->get_count() - 1) {
 			times_history_data_t value;
-			departure_point_t t = *time_keys->at(i);
 			const times_history_data_t *retrieved_value = map->access(*time_keys->at(i));
 			if (retrieved_value) value = *retrieved_value;
 

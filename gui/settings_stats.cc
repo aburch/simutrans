@@ -349,7 +349,7 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM( sets->set_congestion_density_factor );
 	READ_BOOL( sets->set_quick_city_growth );
 	READ_BOOL( sets->set_assume_everywhere_connected_by_road );
-	READ_NUM( sets->set_max_route_tiles_to_process_in_a_step ); 
+	READ_NUM( sets->set_max_route_tiles_to_process_in_a_step );
 	READ_BOOL_VALUE(sets->toll_free_public_roads);
 	READ_NUM( sets->set_spacing_shift_mode );
 	READ_NUM( sets->set_spacing_shift_divisor);
@@ -557,6 +557,8 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 void settings_extended_revenue_stats_t::read(settings_t *sets)
 {
 	READ_INIT
+	(void)booliter;
+
 	READ_NUM_VALUE( sets->passenger_trips_per_month_hundredths );
 	READ_NUM_VALUE( sets->mail_packets_per_month_hundredths );
 	READ_NUM_VALUE( sets->passenger_routing_packet_size );

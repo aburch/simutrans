@@ -403,10 +403,6 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 			// now add the other info
 			int extra_y = 0;
-			int extra_w = 10;
-			int even_more_extra_w = 30;
-			int reassigned_w = 0;
-			bool reassigned = false;
 
 			// cars number in this convoy
 			sint8 car_number = cnv->get_car_numbering(veh);
@@ -659,16 +655,15 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 			int extra_y = 0;
 			const uint16 grid_width = D_BUTTON_WIDTH / 3;
 			extra_w = grid_width;
-			int reassigned_w = 0;
 
 			int boarding_rate = 0;
-
 			int returns = 0;
 
 			// cars number in this convoy
 			COLOR_VAL veh_bar_color;
 			sint8 car_number = cnv->get_car_numbering(veh);
 			buf.clear();
+
 			if (car_number < 0) {
 				buf.printf("%.2s%d", translator::translate("LOCO_SYM"), abs(car_number)); // This also applies to horses and tractors and push locomotives.
 			}
@@ -698,7 +693,6 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 			if (v->get_desc()->get_total_capacity() > 0)
 			{
 				boarding_rate = v->get_total_cargo() * 100 / v->get_cargo_max();
-				int w_icon = 16; // goods symbol width + margin
 
 				//Loading time
 				welt->sprintf_ticks(min_loading_time_as_clock, sizeof(min_loading_time_as_clock), v->get_desc()->get_min_loading_time());
@@ -717,17 +711,14 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 
 				goods_desc_t const& g = *v->get_cargo_type();
 
-				if (pass_veh || mail_veh)
-				{
-					int classes_counter = 0;
-					int classes_reassigned_counter = 0;
+				if (pass_veh || mail_veh) {
 
 					//char classes_display[32];
 					int classes_to_check = pass_veh ? pass_classes : mail_classes;
 
 					char g_class_untranslated[32] = "\0";
-					char g_class_text[32] = "\0";
 					int left;
+
 					for (uint8 i = 0; i < classes_to_check; i++)
 					{
 						buf.clear();
@@ -863,7 +854,6 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 
 void gui_convoy_payload_info_t::display_loading_bar(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, uint16 loading, uint16 capacity, uint16 overcrowd_capacity)
 {
-	int top = yp + (LINESPACE - h) / 2;
 	if (capacity > 0 || overcrowd_capacity > 0) {
 		// base
 		display_fillbox_wh_clip(xp, yp + (LINESPACE - h) / 2, w * capacity / (capacity + overcrowd_capacity), h, COL_GREY4, false);

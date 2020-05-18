@@ -75,8 +75,6 @@ inthashtable_tpl<sint32,halthandle_t> *haltestelle_t::all_koords = NULL;
 //uint8 haltestelle_t::status_step = 0;
 uint8 haltestelle_t::reconnect_counter = 0;
 
-static const uint8 pedestrian_generate_max = 16;
-
 // controls the halt iterator in step_all():
 static bool restart_halt_iterator = true;
 
@@ -3291,7 +3289,6 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		}
 		vector_tpl<ware_t> ware_transfers;
 		ware_t ware;
-		const sint64 current_time = welt->get_ticks();
 #ifdef MULTI_THREAD
 		sint32 po = world()->get_parallel_operations();
 #else
@@ -6035,7 +6032,6 @@ bool haltestelle_t::is_using() const {
 
 void haltestelle_t::set_all_building_tiles()
 {
-	koord find = koord::invalid;
 
 	if (!tiles.empty())
 	{

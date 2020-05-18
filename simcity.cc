@@ -3006,7 +3006,6 @@ void stadt_t::calc_growth()
 		// It is possible that only one threshold percentage is set. In this case, assume the other.
 		uint8 capital_threshold_percentage = s.get_capital_threshold_percentage() ? s.get_capital_threshold_percentage() : s.get_city_threshold_percentage() / 4;
 		capital_threshold_percentage = capital_threshold_percentage ? capital_threshold_percentage : 1;
-		uint8 city_threshold_percentage = s.get_city_threshold_percentage() ? s.get_city_threshold_percentage() : capital_threshold_percentage * 4;
 
 		// Now that we have the percentages, calculate how large that this city is compared to others in the game.
 		uint32 number_of_larger_cities = 0;
@@ -4615,13 +4614,11 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 
 bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 {
-	const building_desc_t::btype alt_typ = gb->get_tile()->get_desc()->get_type();
 	if (!gb->is_city_building()) {
 		return false; // only renovate res, com, ind
 	}
 
 	// Now we are sure that this is a city building
-	const int level = gb->get_tile()->get_desc()->get_level();
 	const koord k = gb->get_pos().get_2d();
 
 	//
@@ -5471,7 +5468,6 @@ void stadt_t::build(bool new_town, bool map_generation)
 	// renovation
 	koord c( (ur.x + lo.x)/2 , (ur.y + lo.y)/2);
 	uint32 maxdist(koord_distance(ur,c));
-	uint32 halfdist(maxdist / 2);
 	uint32 pop(get_city_population());
 
 	// Renovation range setting
@@ -6062,7 +6058,7 @@ void stadt_t::remove_connected_city(stadt_t* city)
 	{
 		connected_cities.remove(city->get_pos());
 	}
-} 
+}
 
 
 void stadt_t::remove_connected_industry(fabrik_t* fab)

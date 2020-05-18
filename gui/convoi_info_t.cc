@@ -466,7 +466,6 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		{
 			air_vehicle = (air_vehicle_t*)cnv->front();
 		}
-		const air_vehicle_t* air = (const air_vehicle_t*)this;
 
 		speed_bar.set_visible(false);
 

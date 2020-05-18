@@ -334,8 +334,7 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 }
 
 
-static inline koord const& get_coord(koord   const&       c) { return c; }
-static inline koord        get_coord(stadt_t const* const c) { return c->get_pos(); }
+static inline koord const& get_coord(const koord &c) { return c; }
 
 
 template <typename T> static void make_buttons(button_t*& dst, T const& coords, int& y_off, gui_container_t& fab_info, action_listener_t* const listener)

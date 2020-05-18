@@ -29,19 +29,11 @@ class gebaeude_t : public obj_t, sync_steppable
 private:
 	const building_tile_desc_t *tile;
 
-
-
 	/**
 	 * Time control for animation progress.
 	 * @author Hj. Malthaner
 	 */
 	uint16 anim_time;
-
-	/**
-	 * Current anim frame
-	 * @author Hj. Malthaner
-	 */
-	uint8 count;
 
 	/**
 	 * Is this a sync animated object?
@@ -71,7 +63,7 @@ private:
 	uint8 anim_frame;
 
 	/**
-	 * Construction began at this tick. "Pit" under-construction graphics handled by sync_step() 
+	 * Construction began at this tick. "Pit" under-construction graphics handled by sync_step()
 	 * @author Hj. Malthaner
 	 */
 	sint64 purchase_time;

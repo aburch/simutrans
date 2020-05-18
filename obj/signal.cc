@@ -841,9 +841,9 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 				}
 				char sb_name[1024] = { '\0' };
 				int max_width = 250;
-				int offset = 0;
 				int max_lines = 5; // Set a limit
-				sprintf(sb_name, translator::translate(gb->get_name()));
+				sprintf(sb_name, "%s", translator::translate(gb->get_name()));
+
 				//sprintf(sb_name,"This is a very very long signal box name which is so long that no one remembers what it was actually called before the super long name of the signalbox got changed to its current slightly longer name which is still too long to display in only one line therefore splitting this very long signalbox name into several lines although maximum five lines which should suffice more than enough to guard against silly long signal box names");
 				int next_char_index = 0;
 				int old_next_char_index = 0;
@@ -987,8 +987,6 @@ void signal_t::calc_image()
 		const slope_t::type full_hang = gr->get_weg_hang();
 		const sint8 hang_diff = slope_t::max_diff(full_hang);
 		const ribi_t::ribi hang_dir = ribi_t::backward( ribi_type(full_hang) );
-
-		const sint8 height_step = TILE_HEIGHT_STEP << slope_t::is_doubles(gr->get_weg_hang());
 
 		weg_t *sch = gr->get_weg(desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt);
 		if(sch)
