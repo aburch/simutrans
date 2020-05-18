@@ -243,6 +243,7 @@ void convoi_detail_t::set_windowsize(scr_size size)
 // dummy for loading
 convoi_detail_t::convoi_detail_t() :
 	gui_frame_t("", NULL ),
+	cnv(convoihandle_t()),
 	scrolly(&veh_info),
 	scrolly_formation(&formation),
 	scrolly_payload_info(&cont_payload),
@@ -252,7 +253,6 @@ convoi_detail_t::convoi_detail_t() :
 	payload_info(cnv),
 	maintenance(cnv)
 {
-	cnv = convoihandle_t();
 }
 
 

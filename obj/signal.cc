@@ -577,7 +577,7 @@ void signal_t::info(cbuffer_t & buf) const
 									{
 										// Determine if the signal are facing the right way.
 										uint8 sig_dir = next_signal->get_dir();
-										uint8 sig_ribi_dir;
+										uint8 sig_ribi_dir = 0;
 
 										if (next_signal->get_desc()->is_station_signal())
 										{
@@ -607,6 +607,7 @@ void signal_t::info(cbuffer_t & buf) const
 												sig_dir == 4 ? 1 :
 												sig_dir == 8 ? 2 :
 												sig_ribi_dir;
+
 											if (ribi_t::nsew[r] == sig_ribi_dir)
 											{
 												signal = true;

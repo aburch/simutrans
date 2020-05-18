@@ -262,7 +262,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->mail_demand_and_production_capacity = 65535;
 	}
 
-	old_btyp::typ btyp;
+	old_btyp::typ btyp = old_btyp::unknown;
 
 	if (version == 8 || version == 9)
 	{

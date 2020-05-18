@@ -4570,7 +4570,7 @@ void rail_vehicle_t::set_convoi(convoi_t *c)
 				route_t& r = *cnv->get_route();
 				if(  !r.empty()  &&  route_index + 1U < r.get_count() - 1  ) {
 
-					uint16 dummy;
+					uint16 dummy = 0;
 					block_reserver(&r, cnv->back()->get_route_index(), dummy, dummy, 100000, false, false);
 					target_halt = halthandle_t();
 				}
@@ -4616,7 +4616,7 @@ route_t::route_result_t rail_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 		}
 		else
 		{
-			uint16 dummy;
+			uint16 dummy = 0;
 			block_reserver(cnv->get_route(), cnv->back()->get_route_index(), dummy, dummy, target_halt.is_bound() ? 100000 : 1, false, true);
 		}
 	}
