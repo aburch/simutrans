@@ -59,7 +59,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	init(suffix, path);
 }
 
-void savegame_frame_t::init(const char *suffix, const char *path)
+void savegame_frame_t::init(const char *, const char *path)
 {
 	scr_coord cursor = scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP);
 

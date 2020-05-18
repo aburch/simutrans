@@ -126,7 +126,7 @@ void times_history_t::update_components()
 	update_time = welt->get_ticks();
 }
 
-bool times_history_t::action_triggered(gui_action_creator_t *comp, value_t extra)
+bool times_history_t::action_triggered(gui_action_creator_t *, value_t)
 {
 	return true;
 }

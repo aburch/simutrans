@@ -617,7 +617,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
  * This method is called if an action is triggered
  * @author Markus Weber
  */
-bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t p)
+bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t)
 {
 	for (int i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
 	{

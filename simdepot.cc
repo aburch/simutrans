@@ -874,7 +874,7 @@ bool depot_t::is_suitable_for( const vehicle_t * test_vehicle, const uint16 trac
 	return true;
 }
 
-void depot_t::add_to_world_list(bool lock)
+void depot_t::add_to_world_list(bool)
 {
 	welt->add_building_to_world_list(this);
 	const planquadrat_t* tile = welt->access(get_pos().get_2d());

@@ -878,7 +878,8 @@ DBG_MESSAGE("tool_remover()", "removing way");
 	return true;
 }
 
-char const* tool_remover_t::check_diversionary_route(koord3d pos, weg_t* w, player_t* player)
+
+char const* tool_remover_t::check_diversionary_route(koord3d pos, weg_t* w, player_t *)
 {
 	grund_t *gr = welt->lookup(pos);
 
@@ -888,6 +889,7 @@ char const* tool_remover_t::check_diversionary_route(koord3d pos, weg_t* w, play
 
 	return NULL;
 }
+
 
 const char *tool_remover_t::work( player_t *player, koord3d pos )
 {
@@ -5332,7 +5334,7 @@ image_id tool_build_station_t::get_icon( player_t * ) const
 }
 
 
-char const* tool_build_station_t::get_tooltip(player_t const*player) const
+char const* tool_build_station_t::get_tooltip(const player_t *) const
 {
 	sint8               dummy;
 	building_desc_t const* desc    = get_desc(dummy);
@@ -6439,7 +6441,7 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 	return "";
 }
 
-image_id tool_signalbox_t::get_icon(player_t* player) const
+image_id tool_signalbox_t::get_icon(player_t *) const
 {
 	const building_desc_t *desc = hausbauer_t::find_tile(default_param,0)->get_desc();
 	const uint16 time = welt->get_timeline_year_month();
@@ -6497,7 +6499,7 @@ const char* tool_signalbox_t::check_pos(player_t *, koord3d pos)
 	return NULL;
 }
 
-bool tool_signalbox_t::init(player_t *player)
+bool tool_signalbox_t::init(player_t *)
 {
 	building_desc_t const* desc = hausbauer_t::find_tile(default_param, 0)->get_desc();
 	if (desc == NULL)
@@ -7751,7 +7753,7 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 	}
 }
 
-const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &last_pos, const koord3d &pos)
+const char *tool_reassign_signal_t::do_work( player_t *, const koord3d &last_pos, const koord3d &pos)
 {
 	// read conditions at start point
 	read_start_position(last_pos);
@@ -9297,7 +9299,7 @@ bool tool_change_traffic_light_t::init( player_t *player )
 /* Sets overtaking_mode via default_param:
  *
  */
-bool tool_change_roadsign_t::init( player_t *player )
+bool tool_change_roadsign_t::init(player_t *)
 {
 	koord3d pos;
 	sint16 z, inst;
@@ -9478,7 +9480,7 @@ bool tool_rename_t::init(player_t *player)
 	return false;
 }
 
-bool tool_recolour_t::init(player_t *player)
+bool tool_recolour_t::init(player_t *)
 {
 	uint16 id = 0;
 
@@ -9529,7 +9531,7 @@ bool tool_recolour_t::init(player_t *player)
 	return false;
 }
 
-bool tool_access_t::init(player_t *player)
+bool tool_access_t::init(player_t *)
 {
 	uint16 id_setting_player;
 	uint16 id_receiving_player;

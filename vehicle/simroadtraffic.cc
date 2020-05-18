@@ -1346,7 +1346,7 @@ void private_car_t::calc_image()
 
 
 
-void private_car_t::calc_current_speed(grund_t* gr)
+void private_car_t::calc_current_speed(grund_t *)
 {
 	const weg_t * weg = get_weg();
 	sint32 max_speed = desc ? desc->get_topspeed() : kmh_to_speed(90);

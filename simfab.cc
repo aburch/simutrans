@@ -1016,7 +1016,7 @@ fabrik_t::~fabrik_t()
 }
 
 
-void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodbase, bool from_saved)
+void fabrik_t::build(sint32 rotate, bool build_fields, bool, bool from_saved)
 {
 	this->rotate = rotate;
 	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();

@@ -234,7 +234,7 @@ void vehicle_class_manager_t::build_class_entries()
 
 
 
-void vehicle_class_manager_t::layout(scr_coord pos)
+void vehicle_class_manager_t::layout(scr_coord)
 {
 
 	uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
@@ -528,7 +528,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
  * This method is called if an action is triggered
  * @author Markus Weber
  */
-bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t p)
+bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t)
 {
 	int number_of_classes;
 	number_of_classes = goods_manager_t::passengers->get_number_of_classes();

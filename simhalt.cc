@@ -2918,7 +2918,7 @@ void haltestelle_t::add_to_waiting_list(ware_t ware, sint64 ready_time)
 	resort_freight_info = true;
 }
 
-sint64 haltestelle_t::calc_ready_time(ware_t ware, bool arriving_from_vehicle, koord origin_pos) const
+sint64 haltestelle_t::calc_ready_time(ware_t ware, bool, koord origin_pos) const
 {
 	sint64 ready_time = welt->get_ticks();
 

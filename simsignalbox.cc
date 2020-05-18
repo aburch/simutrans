@@ -80,7 +80,7 @@ signalbox_t::~signalbox_t()
 	}
 }
 
-void signalbox_t::add_to_world_list(bool lock)
+void signalbox_t::add_to_world_list(bool)
 {
 	welt->add_building_to_world_list(access_first_tile());
 	const planquadrat_t* tile = welt->access(get_pos().get_2d());

@@ -228,7 +228,7 @@ void times_history_container_t::draw(scr_coord offset) {
 	gui_container_t::draw(offset);
 }
 
-bool times_history_container_t::action_triggered(gui_action_creator_t *comp, value_t extra)
+bool times_history_container_t::action_triggered(gui_action_creator_t *, value_t extra)
 {
 	if (extra.i & ~1) {
 		koord k = *(const koord *)extra.p;

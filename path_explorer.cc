@@ -1280,7 +1280,7 @@ void path_explorer_t::compartment_t::step()
 				}
 
 				// swap the old connexion hash table with a new one
-				current_halt->swap_connexions(catg, g_class, max_classes, connexion_list[current_halt.get_id()].connexion_table);
+				current_halt->swap_connexions(catg, g_class, connexion_list[current_halt.get_id()].connexion_table);
 
 				// transfer the value of the serving transport counter
 				current_halt->set_schedule_count( catg, g_class, max_classes, connexion_list[ current_halt.get_id() ].serving_transport );
