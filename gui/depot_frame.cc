@@ -888,7 +888,7 @@ void depot_frame_t::update_data()
 	FOR(vehicle_image_map, const& i, vehicle_map) {
 		vehicle_desc_t const* const    info = i.key;
 		gui_image_list_t::image_data_t& img  = *i.value;
-		const PIXVAL ok_color = color_idx_to_rgb(info->is_available(month_now) ? COL_GREEN : gui_theme_t::gui_color_obsolete);
+		const PIXVAL ok_color = info->is_available(month_now) ? color_idx_to_rgb(COL_GREEN) : gui_theme_t::gui_color_obsolete;
 
 		img.count = 0;
 		img.lcolor = ok_color;
