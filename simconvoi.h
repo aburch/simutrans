@@ -226,15 +226,15 @@ private:
 	static const sint32 timings_reduction_point = 6;
 	bool re_ordered; // Whether this convoy's vehicles are currently arranged in reverse order.
 protected:
-	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
-	virtual void update_adverse_summary(adverse_summary_t &adverse);
-	virtual void update_freight_summary(freight_summary_t &freight);
+	virtual void update_vehicle_summary(vehicle_summary_t &vehicle) OVERRIDE;
+	virtual void update_adverse_summary(adverse_summary_t &adverse) OVERRIDE;
+	virtual void update_freight_summary(freight_summary_t &freight) OVERRIDE;
 	virtual void update_weight_summary(weight_summary_t &weight);
-	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */);
-	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */);
-	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */) OVERRIDE;
+	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */) OVERRIDE;
+	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */) OVERRIDE;
 public:
-	virtual sint16 get_current_friction();
+	virtual sint16 get_current_friction() OVERRIDE;
 
 	// weight_summary becomes invalid, when vehicle_summary or envirion_summary
 	// becomes invalid.
@@ -1091,7 +1091,7 @@ public:
 	 * all other stuff => convoi_t::step()
 	 * @author Hj. Malthaner
 	 */
-	sync_result sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
 	/**
 	 * All things like route search or loading, that may take a little
@@ -1483,7 +1483,7 @@ public:
 	uint32 get_average_kmh();
 
 	// Overtaking for convois
-	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
+	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other) OVERRIDE;
 
 	/*
 	 * Functions related to requested_change_lane

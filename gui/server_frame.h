@@ -83,14 +83,14 @@ private:
 public:
 	server_frame_t();
 
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Return name of file which contains associated help text for this window
 	 * @return Help file name, nor NULL if no help file exists
 	 * @author Hj. Malthaner
 	 */
-	const char *get_help_filename() const {return "server.txt";}
+	const char *get_help_filename() const OVERRIDE {return "server.txt";}
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

@@ -94,16 +94,16 @@ public:
 	* @author Hj. Malthaner
 	* @date   16-Oct-2003
 	*/
-	void resize(const scr_coord delta);
+	void resize(const scr_coord delta) OVERRIDE;
 
-	bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const {return "goods_filter.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "goods_filter.txt"; }
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -111,7 +111,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

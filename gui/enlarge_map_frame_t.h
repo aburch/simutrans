@@ -85,7 +85,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const { return "enlarge_map.txt";}
+	const char * get_help_filename() const OVERRIDE { return "enlarge_map.txt";}
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -93,7 +93,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 };
 
 #endif

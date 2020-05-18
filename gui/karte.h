@@ -252,7 +252,7 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	void draw(scr_coord pos);
+	void draw(scr_coord pos) OVERRIDE;
 
 	void set_current_cnv( convoihandle_t c );
 

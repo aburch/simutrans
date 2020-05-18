@@ -63,7 +63,7 @@ public:
 	* Draw the component
 	* @author Hj. Malthaner
 	*/
-	virtual void draw(scr_coord offset);
+	virtual void draw(scr_coord offset) OVERRIDE;
 
 	/**
 	* Removes all Components in the Container.
@@ -75,7 +75,7 @@ public:
 	 * Returns true if any child component is focusable
 	 * @author Knightly
 	 */
-	virtual bool is_focusable();
+	virtual bool is_focusable() OVERRIDE;
 
 	/**
 	 * Activates this element.
@@ -90,14 +90,14 @@ public:
 	 * returns element that has the focus
 	 * that is: go down the hierarchy as much as possible
 	 */
-	virtual gui_component_t *get_focus();
+	virtual gui_component_t *get_focus() OVERRIDE;
 
 	/**
 	 * Get the relative position of the focused component.
 	 * Used for auto-scrolling inside a scroll pane.
 	 * @author Knightly
 	 */
-	virtual scr_coord get_focus_pos() { return comp_focus ? pos+comp_focus->get_focus_pos() : scr_coord::invalid; }
+	virtual scr_coord get_focus_pos() OVERRIDE { return comp_focus ? pos+comp_focus->get_focus_pos() : scr_coord::invalid; }
 };
 
 #endif

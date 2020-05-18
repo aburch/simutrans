@@ -45,14 +45,14 @@ public:
 	 * resize window in response to a resize event
 	 * @author Hj. Malthaner
 	 */
-	void resize(const scr_coord delta);
+	void resize(const scr_coord delta) OVERRIDE;
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const {return "factorylist_filter.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "factorylist_filter.txt"; }
 
 	static factorylist::sort_mode_t get_sortierung() { return sortby; }
 	static void set_sortierung(const factorylist::sort_mode_t& sm) { sortby = sm; }
