@@ -310,7 +310,7 @@ void env_t::rdwr(loadsave_t *file)
 	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 22) || file->get_extended_version() >= 15)
 	{ 
 		file->rdwr_byte(show_cnv_nameplates);
-	}
+	} 
 
 	file->rdwr_bool( hide_with_transparency );
 	file->rdwr_byte( hide_buildings );
