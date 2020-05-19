@@ -1097,7 +1097,7 @@ public:
 	virtual void display_overlay(int xpos, int ypos) const OVERRIDE;
 #else
 	// this draws the "real" aircrafts (when flying)
-	virtual void display_after(int xpos, int ypos, bool dirty) const;
+	virtual void display_after(int xpos, int ypos, bool dirty) const OVERRIDE;
 #endif
 
 	// the drag calculation happens it calc_height

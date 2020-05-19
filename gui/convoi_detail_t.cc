@@ -1285,7 +1285,10 @@ void gui_convoy_formaion_t::draw(scr_coord offset)
 			else {
 				buf.append(car_number);
 			}
+
 			int left = display_proportional_clip(offset.x+2, offset.y, buf, ALIGN_LEFT, v->get_desc()->has_available_upgrade(month_now) ? COL_UPGRADEABLE : COL_GREY2, true);
+			(void)left;
+
 #ifdef DEBUG
 			if (v->is_reversed()) {
 				display_proportional_clip(offset.x + 2 + left, offset.y-2, "*", ALIGN_LEFT, COL_YELLOW, true);

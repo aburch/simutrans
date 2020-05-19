@@ -1048,7 +1048,9 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 		}
 	}
 	else {
-		uint32 best = tmp->g;
+#ifdef DEBUG
+		const uint32 best = tmp->g;
+#endif
 		// reached => construct route
 		route.store_at( tmp->count, tmp->gr->get_pos() );
 		while(tmp != NULL) {

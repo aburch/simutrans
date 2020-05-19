@@ -177,7 +177,7 @@ public:
 #ifdef MULTI_THREAD
 	void display_after(int xpos, int ypos, const sint8 clip_num) const OVERRIDE;
 #else
-	void display_after(int xpos, int ypos, bool dirty) const;
+	void display_after(int xpos, int ypos, bool dirty) const OVERRIDE;
 #endif
 
 	void rdwr(loadsave_t *file) OVERRIDE;

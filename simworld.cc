@@ -996,7 +996,9 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 
 	{
 		// Loop only new cities:
-		uint32 tbegin = dr_time();
+#ifdef DEBUG
+		const uint32 tbegin = dr_time();
+#endif
 		for (unsigned i = 0; i < new_city_count; i++) {
 			stadt_t* s = new stadt_t(players[1], (*pos)[i], 1);
 			DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "Erzeuge stadt %i with %ld inhabitants", i, (s->get_city_history_month())[HIST_CITICENS]);
