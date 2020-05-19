@@ -71,6 +71,8 @@ private:
 	button_t bt_destroy;
 	button_t bt_sell;
 
+	cbuffer_t txt_convoi_cost;
+
 	/**
 	 * buttons for new route-management
 	 * @author hsiegeln
@@ -116,7 +118,7 @@ private:
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	// true if already stored here
 	bool is_contained(const vehicle_desc_t *info);
@@ -157,7 +159,7 @@ public:
 	 * @author (Mathew Hounsell)
 	 * @date   11-Mar-2003
 	 */
-	void set_windowsize(scr_size size);
+	void set_windowsize(scr_size size) OVERRIDE;
 
 	/**
 	 * Create and fill loks_vec and waggons_vec.
@@ -178,17 +180,17 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const {return "depot.txt";}
+	const char * get_help_filename() const OVERRIDE {return "depot.txt";}
 
 	/**
 	 * Does this window need a next button in the title bar?
 	 * @return true if such a button is needed
 	 * @author Volker Meyer
 	 */
-	bool has_next() const {return true;}
+	bool has_next() const OVERRIDE {return true;}
 
-	virtual koord3d get_weltpos(bool);
-	virtual bool is_weltpos();
+	virtual koord3d get_weltpos(bool) OVERRIDE;
+	virtual bool is_weltpos() OVERRIDE;
 
 	/**
 	 * Open dialog for schedule entry.
@@ -202,7 +204,7 @@ public:
 	 * Draw the Frame
 	 * @author Hansjörg Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	// @author hsiegeln
 	void apply_line();
@@ -223,6 +225,8 @@ public:
 	inline void update_convoy() {icnv<0?convoy_assembler.clear_convoy():convoy_assembler.set_vehicles(get_convoy());}
 	// Check the electrification
 	bool check_way_electrified(bool init = false);
+
+	void set_resale_value(uint32 nominal_cost = 0, sint64 resale_value = 0);
 };
 
 #endif

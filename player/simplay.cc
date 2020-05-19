@@ -631,6 +631,7 @@ void player_t::ai_bankrupt()
 							case obj_t::monoraildepot:
 							case obj_t::tramdepot:
 							case obj_t::strassendepot:
+							case obj_t::narrowgaugedepot:
 							case obj_t::schiffdepot:
 							case obj_t::senke:
 							case obj_t::pumpe:

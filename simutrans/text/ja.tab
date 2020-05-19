@@ -277,10 +277,6 @@ Show initial passenger departure
 旅客および郵便の発生源を表示
 Show level of city buildings
 市内建築物の旅客度/郵便度を表示
-Show mail service coverage/mail network
-郵便事業が行われている範囲を表示
-Show passenger coverage/passenger network
-旅客事業が行われている範囲を表示
 Show speedlimit of ways
 軌道/道路の制限速度を表示
 Show the change of waiting at halts
@@ -388,9 +384,9 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 (in depot)
 (入庫中)
 \nBauzeit bis
- ～ 
+ ～
 \nBauzeit von
-\n登場する年: 
+\n登場する年:
 \nCan't open heightfield file.\n
 \nマップファイルを\n読み込むことが出来ません。\n
 \ndirection:
@@ -690,7 +686,7 @@ Capacity: %s\nLoad: %d (%d%%)
 Cars are not available yet!
 自動車は・・・\nいえ、馬すら見あたりません・・・
 cars.\nstate
-\n状態　　　: 
+\n状態　　　:
 Cash
 現金
 Change player
@@ -698,7 +694,7 @@ Change player
 Chart
 グラフ
 Chat_msg
- チャット 
+ チャット
 Choose direction
 向きを選択してください
 Choose operation executed on clicking stored/new vehicles
@@ -818,7 +814,7 @@ Convois
 Convois: %d\nProfit: %s
 就役編成: %d\n利益: %s
 Convoys
-編成数
+編成
 Copy Convoi
 編成をコピー
 Copy the selected convoi and its schedule or line
@@ -826,7 +822,7 @@ Copy the selected convoi and its schedule or line
 Cost
 輸送費
 cost for removal
-撤去費用: 
+撤去費用:
 Cost per unit
 単位あたりの輸送費
 Cost: %8s (%.2f$/km %.f$/m)\n
@@ -1018,7 +1014,7 @@ Friction:
 fuel_cell
 燃料電池
 Full load
-積むまで待機(％): 
+積むまで待機(％):
 Fundament
 土地
 Fussgaenger
@@ -1328,7 +1324,7 @@ Max income:
 Max. speed
 最高速度
 Max. speed:
-最高速度: 
+最高速度:
 Maximum 254 stops\nin a schedule!\n
 スケジュールには最大\n254ヶ所までしか設定できま\nせん\n
 maximum length of rivers
@@ -1518,7 +1514,7 @@ Pas_tab
 Passagiere
 旅客
 Passagierrate
-旅客度
+訪問者需要
 Passagierziele
 旅客/郵便物の行き先
 Passenger AI
@@ -1588,7 +1584,7 @@ Powerlines
 Price
 車両価格
 Problems_msg
- 問題 
+ 問題
 Produced
 生産量
 Produces: %.1f units/minute
@@ -1667,7 +1663,7 @@ Restore natural slope
 スロープを戻す
 Restwert:
 売却価格：
-Retire date 
+Retire date
 引退年月
 Retire. date:
 引退年月:
@@ -1735,8 +1731,6 @@ Select a theme for display
 表示するテーマの選択
 Select display font
 テキストのフォントを選択
-Sell the selected vehicle(s)
-選択している乗り物を売却します
 sended
 配達実績
 SEP_FRACTION
@@ -1874,7 +1868,7 @@ Starte Spiel
 Station tiles:
 ホームの長さ：
 Station_msg
- 駅 
+ 駅
 Status
 待合状態
 steam
@@ -1940,7 +1934,7 @@ Tourist attractions
 Tourists
 名所
 Town_msg
- 都市 
+ 都市
 Town: %s\n
 所在地: %s\n
 Towns
@@ -2050,7 +2044,7 @@ Walked
 walking
 徒歩連絡
 Warnings_msg
- 警告 
+ 警告
 Wasser
 海上
 Water
@@ -2207,15 +2201,15 @@ Zu nah am Kartenrand
 分待ち)
  via %s
 %s 経由
-; brakes from max. speed in %i - %i m
+brakes from max. speed in %i - %i m
 (制動距離: %i - %i m)
-; brakes from max. speed in %i m
+brakes from max. speed in %i m
 (制動距離: %i m)
 "%s has built a new %s %s %s."
 %1$sは新しい%2$sを%$4s%3$s建設しました。
 (catering_levels: %s)
 (車内サービスレベル: %s)
-(Max. comfortable journey time: 
+(Max. comfortable journey time:
 (快適に移動できる最大時間:
 (speed_restricted_by_bridge)
 (橋梁による速度制限)
@@ -2231,15 +2225,15 @@ Zu nah am Kartenrand
 \n借入に対する利率は %i %%です。
 \n\nYour credit rating is being affected.
 \n\n信用格付けに影響があります。
-\nCity: 
-\n都市: 
+\nCity:
+\n都市:
 \nMax. axle load:
 \n軸重制限:
 \nMax. weight:
-重量制限: 
-\nMAY USE:  
-\n通行可能: 
-\nMUST USE: 
+重量制限:
+\nMAY USE:
+\n通行可能:
+\nMUST USE:
 \n必須:
 \nNetwork ID:
 \nネットワークID:
@@ -2599,6 +2593,8 @@ convoy_times_history
 所要時間の履歴
 Cost of overdraft interest payments
 負債がある場合の貸付利子を表します。
+Cost:
+購入費:
 Cost: %8s (%.2f$/km, %.2f$/month)\n
 購入費: %8s\n維持費: 1kmあたり%.2f$, 1ヶ月あたり%.2f$\n
 Cost: %8s %s
@@ -2687,11 +2683,11 @@ east_and_west
 東-西
 east_west
 東西
-Electrical consumption: 
-電力消費: 
-Electrical demand: 
-電力需要: 
-Electrical output: 
+Electrical consumption:
+電力消費:
+Electrical demand:
+電力需要:
+Electrical output:
 発電能力:
 Emergency stop
 緊急停止
@@ -2924,7 +2920,7 @@ near
 Net ID: %u\n
 送電線ネットワークID: %u\n
 new_way_is
-更新後の軌道: 
+更新後の軌道:
 Next Month:
 来月:
 NO CONTROL TOWER
@@ -3111,6 +3107,8 @@ Recurring expenses of infrastructure maintenance
 インフラ維持にかかる経費を表します。
 Refresh routes instantly
 直ちに経路を再探索する
+Refund
+払戻し
 Refunds
 払戻し
 remove interm. signals
@@ -3429,15 +3427,15 @@ Tractive force:
 牽引力:
 traffic_light
 道路信号機
-Transfer time: 
-構内の移動時間: 
+Transfer time:
+構内の移動時間:
 transferring
 移動中
 transfers
 移動中の旅客/貨物
 Transformer only next to factory or in city!
 変電所は産業の隣接マスか市域内にのみ建設できます。
-Transshipment time: 
+Transshipment time:
 駅構内の移動時間:
 traveling_post_office
 郵便車 取扱便
@@ -3466,7 +3464,7 @@ Unpowered vehicles only
 Upgrade
 改造/更新
 Upgrade price:
-改造/更新費: 
+改造/更新費:
 upgradeable_vehicles
 改造/更新可能な車両
 Usage: %u %%
@@ -3519,7 +3517,7 @@ Walked
 徒歩
 Walking time
 駅までの徒歩時間
-Way constraint permissive 
+Way constraint permissive
 許容的軌道制約
 Way constraint prohibitive %n\n
 禁止的軌道制約 %n\n
@@ -3663,6 +3661,88 @@ Upgrade will be available in the near future
 （混載不可）
 Cannot start: no cab at the front of the convoy.
 編成の構成エラー：\n先頭になれない車両が先頭になっています。（運転台が無い等）
+no convoy nameplate
+系統名非表示
+mouseover convoy name
+マウスオーバーで系統名表示
+always show convoy name
+常に系統名を表示
+map_btn_freight
+輸送量
+Stop coverage
+駅の集客範囲
+Show the distance to the nearest station
+最寄りの駅までの距離をカラースケールで表示します。対象駅はフィルターで絞り込めます
+Show contour
+等高線を表示
+Show buildings
+建物を表示
+Color-coded terrain according to altitude.
+海抜高度に応じて地面／海面を色分けします
+Displays buildings in gray and stations in red and have priority over bridges and tunnels
+建物を灰色、駅を赤色で表示します。建物は橋やトンネルより優先表示されます。
+Show how congested that roads are
+道路の混雑度を表示します
+Show convoys
+編成を表示します
+map_btn_building_level
+発展度
+sort_pas_arrived
+旅客輸送実績
+Scrap
+車両を解体
+Scrap all vehicles in the convoy.
+編成中の車両を全て解体します。車両購入費用は一切戻ってきません。
+Return the vehicle(s) for a full refund.
+車両の購入はキャンセルされ、購入費用は全額返還されます。
+Sell the convoy for %s
+編成を %s にて売却します
+Congestion: %i%%
+混雑度： %i%%
+Display loaded detail
+積載情報の詳細を表示
+Displays detailed information of the vehicle's load.
+積載中の積荷の詳細情報の表示／非表示を切り替えます。
+Selectable livery schemes
+選択可能な塗装スキーム
+Starting acceleration:
+起動加速度:
+; %i km/h @ %.2f sec
+，%i km/h @ %.2f 秒
+; %i km/h @ %.2f - %.2f sec
+，%i km/h @ %.2f - %.2f 秒
+; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
+，%i km/h @ %.2f 秒 -  %i km/h @ %.2f 秒
+(%.*ft laden)
+(満載時 %.*ft)
+(%.*f-%.*ft laden)
+(満載時 %.*f-%.*ft)
+Sell for %s
+%sで売却
+Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
+旅客 %d %c, %d %c, %d 経路なし\n\n定員/容量: %i\n
+Passengers %d %c, %d %c, %d no route
+旅客の評価 %d %c, %d %c, %d 経路無し
+Passengers %d %s, %d %s, %d no route
+旅客の評価 %d %s, %d %s, %d 経路無し
+Passengers %d %c, %d %c, %d no route, %d too slow
+旅客の評価 %d %c, %d %c, %d 経路無し, %d 許容時間超過
+Passengers %d %s, %d %s, %d no route, %d too slow
+旅客の評価 %d %s, %d %s, %d 経路無し, %d 許容時間超過
+Unhappy
+不幸せ
+The number of passengers who have left because of overcrowding or excess waiting
+混雑や駅での待ち時間のため旅行を取り止めた旅客の人数を表します。
+Arbeiter aus:
+労働者居住地:
+No Route
+経路無し
+Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community
+ようこそSimutrans-Extendedへ! Simutrans-StandardはHj. MalthanerとSimutransコミュニティによって開発されました。Simutrans-ExtendedはSimutrans-Standardを元にしてJames E. PettsとSimutransコミュニティによって開発されました。
+Usage/Output
+使用量/発電量
+Power (MW)
+電力 (MW)
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
@@ -3689,3 +3769,7 @@ Usage/Output
 使用量/発電量
 Power (MW)
 電力 (MW)
+#Show mail service coverage/mail network
+#郵便事業が行われている範囲を表示
+#Show passenger coverage/passenger network
+#旅客事業が行われている範囲を表示

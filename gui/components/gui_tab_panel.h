@@ -75,7 +75,7 @@ public:
 	 * Draw tabs
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	/**
 	 * Resizing must be propagated!
@@ -104,16 +104,16 @@ public:
 	 * Returns true if the hosted component of the active tab is focusable
 	 * @author Knightly
 	 */
-	virtual bool is_focusable() { return get_aktives_tab()->is_focusable(); }
+	virtual bool is_focusable() OVERRIDE { return get_aktives_tab()->is_focusable(); }
 
-	gui_component_t *get_focus() { return get_aktives_tab()->get_focus(); }
+	gui_component_t *get_focus() OVERRIDE { return get_aktives_tab()->get_focus(); }
 
 	/**
 	 * Get the relative position of the focused component.
 	 * Used for auto-scrolling inside a scroll pane.
 	 * @author Knightly
 	 */
-	virtual scr_coord get_focus_pos() { return pos + get_aktives_tab()->get_focus_pos(); }
+	virtual scr_coord get_focus_pos() OVERRIDE { return pos + get_aktives_tab()->get_focus_pos(); }
 };
 
 #endif

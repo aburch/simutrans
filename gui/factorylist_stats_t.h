@@ -14,7 +14,7 @@ class fabrik_t;
 
 
 namespace factorylist {
-    enum sort_mode_t { by_name=0, by_available, by_output, by_maxprod, by_status, by_power, by_sector, SORT_MODES, by_input, by_transit,  };	// the last two not used
+    enum sort_mode_t { by_name=0, by_available, by_output, by_maxprod, by_status, by_power, by_sector, by_staffing, SORT_MODES, by_input, by_transit,  };	// the last two not used
 };
 
 /**
@@ -48,7 +48,7 @@ public:
 	* Draw the component
 	* @author Hj. Malthaner
 	*/
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 };
 
 #endif

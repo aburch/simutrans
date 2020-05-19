@@ -1121,6 +1121,8 @@ Thor
 Fel
 %259_CITY_SYLL
 Rut
+%25A_CITY_SYLL
+Wul
 #
 # Max: 400 (hex)
 #
@@ -3954,6 +3956,10 @@ Within own network
 Within own network
 Show only connected to own transport network
 Show only connected to own transport network
+Show only connected to own passenger transportation network
+Show only connected to own passenger transportation network
+Show only cities within the active player's transportation network
+Show only cities within the active player's transportation network
 Fully stocked
 Fully stocked
 Power usage
@@ -4038,5 +4044,47 @@ No bridges over runways!
 Bridges cannnot be built over runways or taxiways.
 No bridges over runways!
 Bridges cannnot be built over runways or taxiways.
+Selectable livery schemes
+Selectable livery schemes
+Starting acceleration:
+Starting acceleration:
+; %i km/h @ %.2f sec
+; %i km/h @ %.2f sec
+; %i km/h @ %.2f - %.2f sec
+; %i km/h @ %.2f - %.2f sec
+; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
+; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
+(%.*ft laden)
+(%.*ft laden)
+(%.*f-%.*ft laden)
+(%.*f-%.*ft laden)
 overtaking
 Overtaking
+no power at all
+Entirely unpowered
+Show contour
+Show contour
+Show buildings
+Show buildings
+Color-coded terrain according to altitude.
+Color-coded terrain according to altitude.
+Displays buildings in gray and stations in red and have priority over bridges and tunnels
+Displays buildings in gray and stations in red and have priority over bridges and tunnels
+map_btn_freight
+Freight
+Stop coverage
+Stop coverage
+Show the distance to the nearest station
+Show the distance to the nearest station
+Show convoys
+Show convoys
+map_btn_building_level
+Density
+sort_pas_arrived
+Passengers arrived
+mouseover convoy name
+Mouse-over line name
+always show convoy name
+Always show line name
+no convoy nameplate
+Never show line name

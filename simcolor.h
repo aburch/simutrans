@@ -39,6 +39,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_LIGHT_YELLOW    (175)
 #define COL_LEMON_YELLOW    (31)
 #define COL_BRONZE          (24)
+#define COL_HORIZON_BLUE    (6)
 #define COL_DODGER_BLUE     (151)
 #define COL_BLUE            (147)
 #define COL_DARK_BLUE       (144)
@@ -94,7 +95,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_OPS_PROFIT      (87)
 #define COL_NEW_VEHICLES    COL_LIGHT_PURPLE
 #define COL_CONSTRUCTION    (110)
-#define COL_PROFIT          (6)
+#define COL_PROFIT          COL_HORIZON_BLUE
 #define COL_TRANSPORTED     COL_YELLOW
 #define COL_MAXSPEED        COL_TURQUOISE
 
@@ -137,6 +138,9 @@ typedef unsigned char COLOR_VAL;
 #define COL_OUT_OF_PRODUCTION COL_ROYAL_BLUE
 //#define COL_OVERCROWDED     COL_DARK_PURPLE
 
+// used in tilebar (and text)
+#define COL_ADDITIONAL COL_LIGHT_TURQUOISE
+#define COL_REDUCED    COL_LIGHT_ORANGE
 
 #define SYSCOL_TEXT                         gui_theme_t::gui_color_text
 #define SYSCOL_TEXT_HIGHLIGHT               gui_theme_t::gui_color_text_highlight

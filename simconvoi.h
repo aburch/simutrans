@@ -226,15 +226,15 @@ private:
 	static const sint32 timings_reduction_point = 6;
 	bool re_ordered; // Whether this convoy's vehicles are currently arranged in reverse order.
 protected:
-	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
-	virtual void update_adverse_summary(adverse_summary_t &adverse);
-	virtual void update_freight_summary(freight_summary_t &freight);
+	virtual void update_vehicle_summary(vehicle_summary_t &vehicle) OVERRIDE;
+	virtual void update_adverse_summary(adverse_summary_t &adverse) OVERRIDE;
+	virtual void update_freight_summary(freight_summary_t &freight) OVERRIDE;
 	virtual void update_weight_summary(weight_summary_t &weight);
-	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */);
-	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */);
-	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */) OVERRIDE;
+	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */) OVERRIDE;
+	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */) OVERRIDE;
 public:
-	virtual sint16 get_current_friction();
+	virtual sint16 get_current_friction() OVERRIDE;
 
 	// weight_summary becomes invalid, when vehicle_summary or envirion_summary
 	// becomes invalid.
@@ -1091,7 +1091,7 @@ public:
 	 * all other stuff => convoi_t::step()
 	 * @author Hj. Malthaner
 	 */
-	sync_result sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
 	/**
 	 * All things like route search or loading, that may take a little
@@ -1434,8 +1434,11 @@ public:
 	/* the current state of the convoi */
 	COLOR_VAL get_status_color() const;
 
-	// returns tiles needed for this convoi
+	// returns tiles needed for this convoi. This includes 0-8/16 extra padding.
 	uint16 get_tile_length() const;
+
+	// returns total value of vehicle length of this convoy. (not include any padding)
+	uint16 get_true_tile_length() const;
 
 	// get cached obsolescence.
 	inline bool has_obsolete_vehicles() const { return has_obsolete; }
@@ -1480,7 +1483,7 @@ public:
 	uint32 get_average_kmh();
 
 	// Overtaking for convois
-	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
+	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other) OVERRIDE;
 
 	/*
 	 * Functions related to requested_change_lane
@@ -1630,16 +1633,20 @@ public:
 		}
 	}
 
-	// Returns this convoy's reversing method. (v14.6 - 2019 @Ranran)
+	// Returns this convoy's reversing method. (v14.8 - Jan, 2020 @Ranran)
 	uint8 get_terminal_shunt_mode() const;
 
 	// return a number numbered by position in convoy. This is affected by the number of locomotives and reversals.
 	// The locomotive on the front side is returned a negative value.
 	sint16 get_car_numbering(uint8 car_no) const;
 
+	// @returns vehicle length removed at the same time from the convoy. Feb, 2020 @Ranran
+	uint8 calc_auto_removal_length(uint8 car_no) const;
+	uint8 get_auto_removal_vehicle_count(uint8 car_no) const;
+
 private:
 	/** Train formation checks
-	 *  v14.6 - 2019 @Ranran
+	 *  v14.8 - Jan, 2020 @Ranran
 	 */
 	uint8 get_front_loco_count() const;
 	uint8 check_new_tail(uint8 start) const;

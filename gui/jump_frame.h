@@ -30,7 +30,7 @@ public:
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	const char * get_help_filename() const { return "jump_frame.txt"; }
+	const char * get_help_filename() const OVERRIDE { return "jump_frame.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

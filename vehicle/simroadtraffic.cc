@@ -1054,8 +1054,7 @@ grund_t* private_car_t::hop_check()
 				stadt_t* origin_city = tile ? tile->get_city() : NULL;
 				if (origin_city)
 				{
-					//origin_city->clear_private_car_route(check_target, true); // DEPRECATED code
-					welt->add_queued_city(origin_city); // Prioritise re-checking this city even if already re-checked in this cycle.
+					//welt->add_queued_city(origin_city); // Prioritise re-checking this city even if already re-checked in this cycle.
 				}
 			}
 			else
@@ -1065,7 +1064,21 @@ grund_t* private_car_t::hop_check()
 				const strasse_t* str = (strasse_t*)next_way;
 				const bool backwards = dir_next == ribi_t::backward(current_dir);
 
-				const bool direction_allowed = str->get_ribi() & dir_next; 
+				bool direction_allowed = str->get_ribi() & dir_next; 
+				if (!direction_allowed)
+				{
+					// Check whether the private car is allowed on the subsequent way's direction
+					const koord3d pos_next_next_next = next_way->private_car_routes[weg_t::private_car_routes_currently_reading_element].get(check_target);
+					if (pos_next_next_next != koord3d::invalid)
+					{
+						const ribi_t::ribi dir_next_next = ribi_type(pos_next_next, pos_next_next_next);
+						direction_allowed = str->get_ribi() & dir_next_next;
+					}
+					else
+					{
+						direction_allowed = true;
+					}
+				}
 
 				if (!direction_allowed)
 				{
@@ -1076,8 +1089,16 @@ grund_t* private_car_t::hop_check()
 					stadt_t* origin_city = tile ? tile->get_city() : NULL;
 					if (origin_city)
 					{
-						//origin_city->clear_private_car_route(check_target, true); // DEPRECATED code
-						welt->add_queued_city(origin_city); // Prioritise re-checking this city even if already re-checked in this cycle.
+						//welt->add_queued_city(origin_city); // Prioritise re-checking this city even if already re-checked in this cycle.
+					}
+				}
+				else
+				{
+					// Check whether the tile is passable: do not drive onto an impassible tile.
+					if (!(next_way && next_way->get_max_speed() > 0 && next_way->get_max_axle_load() > 0 && (next_way->get_owner() == NULL || next_way->get_owner()->allows_access_to(welt->get_public_player()->get_player_nr()))))
+					{
+						// Next tile not passable even though this is on a route: mothballed, or made private. Revert to heuristic mode.
+						pos_next_next = koord3d::invalid;
 					}
 				}
 
@@ -1108,10 +1129,6 @@ grund_t* private_car_t::hop_check()
 		bool city_exit = false;
 		for (uint32 n = 0; n < 2; n++)
 		{
-			if (n == 0)
-			{
-				city_exit = false;
-			}
 			if (!poslist.empty())
 			{
 				break;
@@ -1165,8 +1182,35 @@ grund_t* private_car_t::hop_check()
 								// We have checked whether this is on a route above, so if we reach here, we assume that this
 								// city exit tile is not on a route.
 								weg = from->get_weg(road_wt);
-								city_exit = true;
-								continue;
+								grund_t* gr_backwards;
+								if (city_exit)
+								{
+									// We have already been here once, so there is probably not an alternative. Can we at least make a u-turn?
+									const ribi_t::ribi backwards = ribi_t::backward(ribi_type(get_pos(), pos_next));
+									
+									const bool backwards_allowed_this_tile = w ? w->get_ribi() & backwards : false;
+									bool backwards_allowed_next_tile = false;
+									
+									const bool backwards_way = from->get_neighbour(gr_backwards, road_wt, backwards);
+
+									if (backwards_way)
+									{
+										const weg_t* last_way = gr_backwards ? gr_backwards->get_weg(road_wt) : NULL;
+										backwards_allowed_next_tile = last_way ? last_way->get_ribi() & backwards : false;
+									}
+
+									if (backwards_allowed_this_tile && backwards_allowed_next_tile)
+									{
+										const uint32 dist = 8192 / max(1, shortest_distance(to->get_pos().get_2d(), target));
+										poslist.append(gr_backwards->get_pos(), dist);
+										continue;
+									}
+								}
+								else
+								{
+									city_exit = true;
+									continue;
+								}
 							}
 						}
 
@@ -1186,10 +1230,12 @@ grund_t* private_car_t::hop_check()
 				}
 			}
 		}
-		if (!poslist.empty()) {
+		if (!poslist.empty())
+		{
 			pos_next_next = pick_any_weighted(poslist);
 		}
-		else {
+		else
+		{
 			pos_next_next = get_pos();
 		}
 		if(can_enter_tile(from)) {
