@@ -44,12 +44,6 @@ private:
 	uint16 current_pass_entries;
 	uint16 pass_entries;
 
-	uint32 current_number_of_vehicles;
-	uint32 old_number_of_vehicles;
-
-	uint32 current_number_of_convoys;
-	uint32 old_number_of_convoys;
-
 	uint32 text_height;
 
 	uint8 highest_catering;
@@ -59,16 +53,9 @@ private:
 	uint32 tpo_amount;
 
 	uint8 vehicle_count;
-	uint8 convoy_count;
 	uint8 old_vehicle_count;
 
-	uint16 header_height;
-
-	int longest_class_name;
-
 	uint32 overcrowded_capacity;
-
-	bool convoy_bound = false;
 
 	char *pass_class_name_untranslated[32];
 	char *mail_class_name_untranslated[32];

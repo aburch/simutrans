@@ -21,8 +21,8 @@ public:
 	schedule_entry_t(koord3d const& pos, uint16 const minimum_loading, sint8 const waiting_time_shift, sint16 spacing_shift, sint8 reverse, bool wait_for_time) :
 		pos(pos),
 		minimum_loading(minimum_loading),
-		waiting_time_shift(waiting_time_shift),
 		spacing_shift(spacing_shift),
+		waiting_time_shift(waiting_time_shift),
 		reverse(reverse),
 		wait_for_time(wait_for_time)
 	{}

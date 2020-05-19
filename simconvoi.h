@@ -418,45 +418,6 @@ private:
 	sint16 steps_driven;
 
 	/**
-	* Overall performance.
-	* Is not stored, but is calculated from individual functions
-	* @author Hj. Malthaner
-	*/
-	//uint32 sum_power;
-
-	/**
-	* Overall performance with Gear.
-	* Is not stored, but is calculated from individual functions
-	* @author prissi
-	*/
-	//sint32 sum_gear_and_power;
-
-	/* sum_gewicht: unloaded weight of all vehicles *
-	* sum_gesamtgewicht: total weight of all vehicles *
-	* Are not stored, but are calculated from individual weights
-	* when loading/driving.
-	* @author Hj. Malthaner, prissi
-	*/
-	//sint64 sum_weight;
-	//sint64 sum_gesamtweight;
-
-	// cached values
-	// will be recalculated if
-	// recalc_data is true
-	bool recalc_data_front; // true when front vehicle in convoi hops
-	//bool recalc_data; // true when any vehicle in convoi hops
-
-	//sint64 sum_friction_weight;
-	//sint32 speed_limit;
-
-	/**
-	* Lowest top speed of all vehicles. Doesn't get saved, but calculated
-	* from the vehicles data
-	* @author Hj. Malthaner
-	*/
-	//sint32 min_top_speed;
-
-	/**
 	 * this give the index of the next signal or the end of the route
 	 * convois will slow down before it, if this is not a waypoint or the cannot pass
 	 * The slowdown is done by the vehicle routines
@@ -1252,17 +1213,6 @@ private:
 	journey_times_map average_journey_times;
 public:
 
-#if 0
-private:
-	/**
-	* @return a description string for the object, der z.B. in einem
-	* Beobachtungsfenster angezeigt wird.
-	* @author Hj. Malthaner
-	* @see simwin
-	*/
-	void info(cbuffer_t & buf, bool dummy = false) const;
-public:
-#endif
 	/**
 	* @param buf the buffer to fill
 	* @return Freight description text (buf)

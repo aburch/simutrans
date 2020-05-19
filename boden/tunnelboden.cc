@@ -117,7 +117,7 @@ void tunnelboden_t::rdwr(loadsave_t *file)
 }
 
 
-void tunnelboden_t::info(cbuffer_t & buf, bool dummy) const
+void tunnelboden_t::info(cbuffer_t &buf) const
 {
 	const tunnel_t *tunnel = find<tunnel_t>();
 	if(tunnel  &&  tunnel->get_desc()) {

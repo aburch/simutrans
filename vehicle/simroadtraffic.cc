@@ -140,14 +140,14 @@ void road_user_t::show_info()
 }
 
 
-grund_t* road_user_t::hop()
+void road_user_t::hop(grund_t *)
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos_next);
 
 	if(!from) {
 		time_to_life = 0;
-		return NULL;
+		return;
 	}
 
 	// It is not clear why this is necessary in
@@ -169,7 +169,7 @@ grund_t* road_user_t::hop()
 			// destroy it
 			time_to_life = 0;
 		}
-		return NULL;
+		return;
 	}
 
 	grund_t *to;
@@ -210,8 +210,6 @@ grund_t* road_user_t::hop()
 	leave_tile();
 	set_pos(from->get_pos());
 	calc_image();
-
-	return to;
 }
 
 
@@ -1061,10 +1059,11 @@ grund_t* private_car_t::hop_check()
 			{
 				const ribi_t::ribi current_dir = ribi_type(get_pos(), pos_next);
 				const ribi_t::ribi dir_next = ribi_type(pos_next, pos_next_next);
-				const strasse_t* str = (strasse_t*)next_way;
+				const strasse_t* str = static_cast<const strasse_t *>(next_way);
+
 				const bool backwards = dir_next == ribi_t::backward(current_dir);
 
-				bool direction_allowed = str->get_ribi() & dir_next; 
+				bool direction_allowed = str->get_ribi() & dir_next;
 				if (!direction_allowed)
 				{
 					// Check whether the private car is allowed on the subsequent way's direction
@@ -1187,10 +1186,10 @@ grund_t* private_car_t::hop_check()
 								{
 									// We have already been here once, so there is probably not an alternative. Can we at least make a u-turn?
 									const ribi_t::ribi backwards = ribi_t::backward(ribi_type(get_pos(), pos_next));
-									
+
 									const bool backwards_allowed_this_tile = w ? w->get_ribi() & backwards : false;
 									bool backwards_allowed_next_tile = false;
-									
+
 									const bool backwards_way = from->get_neighbour(gr_backwards, road_wt, backwards);
 
 									if (backwards_way)
@@ -1346,7 +1345,7 @@ void private_car_t::calc_image()
 
 
 
-void private_car_t::calc_current_speed(grund_t* gr)
+void private_car_t::calc_current_speed(grund_t *)
 {
 	const weg_t * weg = get_weg();
 	sint32 max_speed = desc ? desc->get_topspeed() : kmh_to_speed(90);
@@ -1361,7 +1360,7 @@ void private_car_t::calc_current_speed(grund_t* gr)
 }
 
 
-void private_car_t::info(cbuffer_t & buf, bool dummy) const
+void private_car_t::info(cbuffer_t & buf) const
 {
 	const stadt_t* const origin_city = welt->get_city(origin);
 	// We cannot get an origin name as the origin is the starting road tile, not building

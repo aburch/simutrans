@@ -8,10 +8,9 @@
 
 
 #include <iostream>
-using namespace std;
-
 #include <string>
 #include <math.h>
+
 
 #ifndef NO_SIMUTRANS
 	#include "../simtypes.h"
@@ -92,7 +91,6 @@ public:
 
 	inline float32e8_t() : m(0L), e(0), ms(false) {};
 
-	inline float32e8_t(const float32e8_t &value) { m = value.m; e = value.e; ms = value.ms; }
 	inline float32e8_t(const uint32 mantissa, const sint16 exponent, const bool negative_man) { m = mantissa; e = exponent; ms = negative_man; }
 	inline void set_value(const float32e8_t &value) { m = value.m; e = value.e; ms = value.ms; }
 	inline bool is_zero() const { return m == 0L; }
@@ -327,7 +325,7 @@ private:
 #ifdef USE_DOUBLE
 public:
 #else
-	friend ostream & operator << (ostream &out, const float32e8_t &x);
+	friend std::ostream & operator << (std::ostream &out, const float32e8_t &x);
 #endif
 public:
 	double to_double() const;
@@ -337,7 +335,7 @@ public:
 	inline operator sint32 () const { return to_sint32(); }
 };
 
-ostream & operator << (ostream &out, const float32e8_t &x);
+std::ostream & operator << (std::ostream &out, const float32e8_t &x);
 
 inline const float32e8_t operator + (const uint8 x, const float32e8_t &y) {return float32e8_t(x) + y; }
 inline const float32e8_t operator - (const uint8 x, const float32e8_t &y) {return float32e8_t(x) - y; }

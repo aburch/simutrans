@@ -460,8 +460,6 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 
 	// Now we build the invisible part
 	while(pos.get_2d()!=end.get_2d()) {
-		const grund_t* gr = welt->lookup(start);
-		const weg_t* old_way = gr ? gr->get_weg(waytyp) : NULL;
 		tunnelboden_t *tunnel = new tunnelboden_t( pos, 0);
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		if(waytyp != powerline_wt)
@@ -539,10 +537,10 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 	}
 	else {
 		// construct end tunnel tile
-		const grund_t* gr = welt->lookup(start);
-		const weg_t* old_way = gr ? gr->get_weg(waytyp) : NULL;
 		tunnelboden_t *tunnel = new tunnelboden_t( pos, 0);
+
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
+
 		if(waytyp != powerline_wt) {
 			weg = weg_t::alloc(desc->get_waytype());
 			weg->set_desc(way_desc);

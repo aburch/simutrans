@@ -10,7 +10,7 @@
 #include "../simdebug.h"
 #include "../dataobj/loadsave.h"
 
-ostream & operator << (ostream &out, const float32e8_t &x)
+std::ostream & operator << (std::ostream &out, const float32e8_t &x)
 {
 	out << x.to_double();
 	return out;

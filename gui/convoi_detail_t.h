@@ -64,9 +64,6 @@ class gui_convoy_formaion_t : public gui_container_t
 private:
 	convoihandle_t cnv;
 
-	enum { OK=0, out_of_producton=1, obsolete=2, STAT_COLORS  };
-	uint8 status_to_color[STAT_COLORS] { COL_DARK_GREEN, COL_OUT_OF_PRODUCTION, COL_OBSOLETE };
-
 public:
 	gui_convoy_formaion_t(convoihandle_t cnv);
 
@@ -119,6 +116,7 @@ public:
 	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
 
 private:
+	convoihandle_t cnv;
 
 	gui_scrollpane_t scrolly;
 	gui_scrollpane_t scrolly_formation;
@@ -131,13 +129,12 @@ private:
 	gui_tab_panel_t tabs;
 	gui_container_t cont_payload;
 
-	convoihandle_t cnv;
-	button_t	sale_button;
-	button_t	withdraw_button;
-	button_t	retire_button;
-	button_t	class_management_button;
+	button_t sale_button;
+	button_t withdraw_button;
+	button_t retire_button;
+	button_t class_management_button;
 
-	button_t	display_detail_button;
+	button_t display_detail_button;
 
 public:
 	convoi_detail_t(convoihandle_t cnv);

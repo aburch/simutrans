@@ -108,7 +108,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->sound = decode_sint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
-		desc->engine_type = decode_uint8(p);
+		desc->engine_type = (vehicle_desc_t::engine_t)decode_uint8(p);
 
 		desc->retire_date = (DEFAULT_RETIRE_DATE*16);
 	}
@@ -133,7 +133,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->sound = decode_sint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
-		desc->engine_type = decode_uint8(p);
+		desc->engine_type = (vehicle_desc_t::engine_t)decode_uint8(p);
 	}
 	else if (version==6) {
 		// version 5 just 32 bit for power and 16 Bit for gear
@@ -152,7 +152,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
-		desc->engine_type = decode_uint8(p);
+		desc->engine_type = (vehicle_desc_t::engine_t)decode_uint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
 	}
@@ -173,7 +173,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
-		desc->engine_type = decode_uint8(p);
+		desc->engine_type = (vehicle_desc_t::engine_t)decode_uint8(p);
 		desc->len = decode_uint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
@@ -195,7 +195,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
-		desc->engine_type = decode_uint8(p);
+		desc->engine_type = (vehicle_desc_t::engine_t)decode_uint8(p);
 		desc->len = decode_uint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
@@ -312,7 +312,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
-		desc->engine_type = decode_uint8(p);
+		desc->engine_type = (vehicle_desc_t::engine_t)decode_uint8(p);
 		desc->len = decode_uint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
@@ -464,7 +464,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			desc->sound = decode_sint8(p);
 		}
-		desc->engine_type = decode_uint8(p);
+		desc->engine_type = (vehicle_desc_t::engine_t)decode_uint8(p);
 		desc->len = decode_uint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);

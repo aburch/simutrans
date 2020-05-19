@@ -221,7 +221,7 @@ protected:
 	bool file_table_button_pressed;
 	coordinates_t pressed_file_table_button;
 
-	void press_file_table_button(coordinates_t &cell);
+	void press_file_table_button(const coordinates_t &cell);
 	void release_file_table_button();
 	// use file_table instead of button_frame:
 	bool use_table;

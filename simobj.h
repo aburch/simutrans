@@ -328,7 +328,7 @@ public:
 	 * @author Hj. Malthaner
 	 * @see simwin
 	 */
-	virtual void info(cbuffer_t & buf, bool is_bridge = false) const;
+	virtual void info(cbuffer_t & buf) const;
 
 	/**
 	 * Opens a new info window for the object
@@ -340,7 +340,7 @@ public:
 	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
-	virtual const char * is_deletable(const player_t *player);
+	virtual const char *is_deletable(const player_t *player);
 
 	/**
 	 * Draw background image of object

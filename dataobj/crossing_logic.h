@@ -49,7 +49,7 @@ public:
 	 * @return string (only used for debug at the moment)
 	 * @author prissi
 	 */
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	void info(cbuffer_t & buf) const;
 
 	// recalcs the current state
 	void recalc_state();

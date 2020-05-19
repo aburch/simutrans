@@ -1202,7 +1202,6 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 				ribi_t::ribi r = wegtyp==powerline_wt ? from->get_leitung()->get_ribi() : from->get_weg_nr(0)->get_ribi_unmasked();
 				ribi_t::ribi dir1 = r & ribi_t::northeast;
 				ribi_t::ribi dir2 = r & ribi_t::southwest;
-				bool dir1_ok = false, dir2_ok = false;
 
 				grund_t *to;
 				// test if we are at the end of a bridge:

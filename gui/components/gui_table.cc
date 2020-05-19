@@ -350,7 +350,6 @@ gui_table_row_t *gui_table_row_list_t::create_item() const
 // BG, 18.03.2010
 void gui_table_t::draw(scr_coord offset)
 {
-	coordinates_t size = get_grid_size();
 	scr_coord pos = get_pos() + offset;
 
 	if (get_grid_visible())

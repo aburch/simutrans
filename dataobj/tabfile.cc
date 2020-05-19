@@ -371,7 +371,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 							sprintf(delim_expand, "%.*s%d", (int)(expansion[0] - delim), delim, expansion_value[0]);
 							for(int i=1; i<expansions; i++) {
 								char *prev_end = expansion[i-1]+expansion_length[i-1]+2;
-								sprintf(buffer, "%.*s%d", expansion[i]-prev_end, prev_end, expansion_value[i]);
+								sprintf(buffer, "%.*s%d", (int)(expansion[i]-prev_end), prev_end, expansion_value[i]);
 								strcat(delim_expand, buffer);
 							}
 							strcat(delim_expand, expansion[expansions-1]+expansion_length[expansions-1]+2);

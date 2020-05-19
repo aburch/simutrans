@@ -197,8 +197,6 @@ public:
 		}
 	}
 
-	quickstone_tpl(const quickstone_tpl& r) : entry(r.entry) {}
-
 	// returns true, if no handles left
 	static bool is_exhausted()
 	{

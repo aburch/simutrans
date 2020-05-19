@@ -61,7 +61,6 @@ static pthread_mutex_t weg_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZE
 static pthread_mutexattr_t mutex_attributes;
 #endif
 
-static uint32 private_car_routes_currently_reading_element = 0; 
 
 /**
  * Alle instantiierten Wege
@@ -78,7 +77,7 @@ const vector_tpl <weg_t *> & weg_t::get_alle_wege()
 	return alle_wege;
 }
 
-const uint32 weg_t::get_all_ways_count()
+uint32 weg_t::get_all_ways_count()
 {
 	return alle_wege.get_count();
 }
@@ -370,7 +369,7 @@ weg_t::~weg_t()
 		welt->await_private_car_threads();
 #endif
 		delete_all_routes_from_here();
-		
+
 		alle_wege.remove(this);
 		player_t *player = get_owner();
 		if (player  &&  desc)
@@ -551,7 +550,7 @@ bool weg_t::is_height_restricted() const
  * Info-text for this way
  * @author Hj. Malthaner
  */
-void weg_t::info(cbuffer_t & buf, bool is_bridge) const
+void weg_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
 
@@ -562,10 +561,6 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	const bruecke_t *bridge = gr ? gr->find<bruecke_t>() : NULL;
 	const tunnel_t *tunnel = gr ? gr->find<tunnel_t>() : NULL;
 
-	const sint32 city_road_topspeed = welt->get_city_road()->get_topspeed();
-	const sint32 wayobj_topspeed = wayobj ? wayobj->get_desc()->get_topspeed() : UINT32_MAX_VALUE;
-	const sint32 bridge_topspeed = bridge ?  bridge->get_desc()->get_topspeed() : UINT32_MAX_VALUE;
-	const sint32 tunnel_topspeed = tunnel ? tunnel->get_desc()->get_topspeed() : UINT32_MAX_VALUE;
 	const sint32 topspeed = desc->get_topspeed();
 
 	const bool impassible = remaining_wear_capacity == 0;
@@ -649,7 +644,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		buf.append(max_axle_load);
 		buf.append(translator::translate("tonnen"));
 		buf.append("\n");
-		if (is_bridge && bridge_weight_limit < UINT32_MAX_VALUE)
+		if (bridge_weight_limit < UINT32_MAX_VALUE)
 		{
 			buf.append(translator::translate("Max. weight:"));
 			buf.append(" ");
@@ -782,7 +777,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	if (replacement_way)
 	{
 		const uint16 time = welt->get_timeline_year_month();
-		bool is_current = !time || replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month();
+		const bool is_current = replacement_way->is_available(time);
 
 		// Publicly owned roads in towns are replaced with the latest city road type.
 		const bool public_city_road = get_waytype() == road_wt && (get_owner() == NULL || get_owner()->is_public_service()) && welt->get_city(get_pos().get_2d());
@@ -1009,8 +1004,8 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append("\n");
 #endif
 
-if(  get_waytype() == road_wt  ) {
-		strasse_t* str = (strasse_t*) this;
+	if(  get_waytype() == road_wt  ) {
+		const strasse_t* str = static_cast<const strasse_t*>(this);
 		assert(str);
 		// Display overtaking_info
 		switch (str->get_overtaking_mode()) {
@@ -1041,21 +1036,14 @@ if(  get_waytype() == road_wt  ) {
 #ifndef DEBUG_WAY_STATS
 	//buf.append("\n");
 	buf.printf(translator::translate("convoi passed last\nmonth %i\n"), statistics[1][1]);
-#if 0
-	if (desc->get_waytype() == road_wt)
-	{
-		buf.printf("\n");
-		buf.printf(translator::translate("Vehicles stopped here last month: %i"), statistics[1][2]);
-		buf.printf("\n");
-	}
-#else
+
 	if (desc->get_waytype() == road_wt)
 	{
 		buf.printf("\n");
 		buf.printf(translator::translate("Congestion: %i%%"), get_congestion_percentage()); // TODO: Set up this text for translating
 		buf.printf("\n");
 	}
-#endif
+
 #else
 	// Debug - output stats
 	buf.append("\n");
@@ -1068,6 +1056,8 @@ if(  get_waytype() == road_wt  ) {
 #endif
 	buf.append("\n");
 }
+
+
 weg_t::runway_directions weg_t::get_runway_directions() const
 {
 	bool runway_36_18 = false;
@@ -1108,8 +1098,6 @@ uint32 weg_t::get_runway_length(bool runway_36_18) const
 	{
 		return 0;
 	}
-
-	bool runway_09_27 = !runway_36_18;
 
 	uint32 runway_tiles = 0;
 	koord3d pos = get_pos();
@@ -1378,7 +1366,7 @@ void weg_t::calc_image()
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &weg_calc_image_mutex );
 #endif
-	
+
 #ifdef DEBUG_PRIVATE_CAR_ROUTES
 	if (private_car_routes[private_car_routes_currently_reading_element].empty())
 	{
@@ -1390,7 +1378,7 @@ void weg_t::calc_image()
 		return;
 	}
 #endif
-	
+
 	grund_t *from = welt->lookup(get_pos());
 	grund_t *to;
 	image_id old_image = image;
@@ -1569,13 +1557,13 @@ void weg_t::finish_rd()
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways (Depracated)
-const char *weg_t:: is_deletable(const player_t *player, bool allow_public)
+const char *weg_t:: is_deletable(const player_t *player)
 {
-	if(allow_public && get_owner() && get_owner()->is_public_service())
-	{
+	if(  get_player_nr()==welt->get_public_player()->get_player_nr()  ) {
 		return NULL;
 	}
-	return obj_t:: is_deletable(player);
+
+	return obj_t::is_deletable(player);
 }
 
 /**
@@ -1859,14 +1847,14 @@ void weg_t::add_private_car_route(koord destination, koord3d next_tile)
 #ifdef MULTI_THREAD
 	int error = pthread_mutex_lock(&private_car_store_route_mutex);
 	assert(error == 0);
-#endif	
-	private_car_routes[get_private_car_routes_currently_writing_element()].set(destination, next_tile); 
+#endif
+	private_car_routes[get_private_car_routes_currently_writing_element()].set(destination, next_tile);
 
 	//private_car_routes_std[get_private_car_routes_currently_writing_element()].emplace(destination, next_tile); // Old performance test - but this was worse than the Simutrans type
 #ifdef MULTI_THREAD
 	error = pthread_mutex_unlock(&private_car_store_route_mutex);
 	assert(error == 0);
-#endif	
+#endif
 #ifdef DEBUG_PRIVATE_CAR_ROUTES
 	calc_image();
 #endif
@@ -1882,7 +1870,7 @@ void weg_t::delete_all_routes_from_here(bool reading_set)
 		FOR(private_car_route_map, const& route, private_car_routes[routes_index])
 		{
 			koord dest = route.key;
-			destinations_to_delete.append(dest); 
+			destinations_to_delete.append(dest);
 		}
 
 		FOR(vector_tpl<koord>, dest, destinations_to_delete)
@@ -1905,7 +1893,7 @@ void weg_t::delete_route_to(koord destination, bool reading_set)
 	while (next_tile != koord3d::invalid && next_tile != koord3d(0, 0, 0))
 	{
 		const grund_t* gr = welt->lookup(next_tile);
-		
+
 		next_tile = koord3d::invalid;
 		if (gr)
 		{
@@ -1930,12 +1918,12 @@ void weg_t::remove_private_car_route(koord destination, bool reading_set)
 #ifdef MULTI_THREAD
 	int error = pthread_mutex_lock(&private_car_store_route_mutex);
 	assert(error == 0);
-#endif	
-	private_car_routes[routes_index].remove(destination); 
+#endif
+	private_car_routes[routes_index].remove(destination);
 	//private_car_routes_std[routes_index].erase(destination); // Old test - but this was much slower than the Simutrans hashtable.
 #ifdef MULTI_THREAD
 	error = pthread_mutex_unlock(&private_car_store_route_mutex);
 	assert(error == 0);
-#endif	
-	
+#endif
+
 }

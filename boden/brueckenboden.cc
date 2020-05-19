@@ -134,7 +134,7 @@ sint8 brueckenboden_t::get_weg_yoff() const
 	}
 }
 
-void brueckenboden_t::info(cbuffer_t & buf, bool dummy) const
+void brueckenboden_t::info(cbuffer_t & buf) const
 {
 	const bruecke_t *bridge = find<bruecke_t>();
 	if(bridge  &&  bridge->get_desc()) {
