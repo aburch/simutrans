@@ -33,12 +33,6 @@ gui_text_highlight= #FFFFFF
 # Use the default height
 #gui_button_height = 22
 
-# Having a colourful ticker is problematic because lots of different coloured text needs
-# to be able to be displayed there. The default grey is probably preferable. 
-#gui_color_ticker_background = 7
-
-gui_color_text_title = 4
-
 # larger icons too
 icon_width = 32
 
@@ -53,7 +47,7 @@ window_snap_distance = 8
 
 # show the windows close etc. buttons on the right (like windows 98)
 # Should be rather a user setting, if the theme does not absolutely require it
-# window_buttons_right = 0
+#window_buttons_right = 0
 
 # closes windows/toolbar when button clicked a second time (default off=0)
 # Should be rather a user setting, if the theme does not absolutely require it
@@ -78,7 +72,9 @@ remember_window_positions = 1
 #front_window_text_color = #FFFFFF
 #bottom_window_text_color = #DDDDDD
 
-
+# How much shade for player colors (7 brightest 0 darkest)
+gui_player_color_bright = 4
+gui_player_color_dark = 1
 
 ##################################size stuff##################################
 

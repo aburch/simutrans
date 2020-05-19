@@ -36,20 +36,6 @@ icon_width = 48
 # use the larger Button height
 gui_button_height = 22
 
-# arrows and scrollbars
-gui_horizontal_arrow_height = 22
-gui_horizontal_arrow_width = 22
-gui_vertical_arrow_height = 22
-gui_vertical_arrow_width = 22
-gui_scrollbar_width = 22
-gui_scrollbar_height = 22
-
-# and a matching edit field height
-gui_edit_height = 22
-
-# request larger font size (the resulting spacing is about 15% larger due to decent)
-font_size = 16
-
 ##################################window stuff##################################
 
 # when moving, you can use windows to snap onto each other seamlessly
@@ -57,10 +43,12 @@ font_size = 16
 window_snap_distance = 8
 
 # show the windows close etc. buttons on the right (like windows 98)
-window_buttons_right = 0
+# Should be rather a user setting, if the theme does not absolutely require it
+#window_buttons_right = 0
 
 # closes windows/toolbar when button clicked a second time (default off=0)
-second_open_closes_win = 0
+# Should be rather a user setting, if the theme does not absolutely require it
+#second_open_closes_win = 0
 
 # restores window position when window is reopening
 # This will be saved, but will be discarded when screen is resized

@@ -187,6 +187,9 @@ void gui_theme_t::init_gui_defaults()
 	gui_color_up_pointing_triangle         = COL_ADDITIONAL;
 	gui_color_down_pointing_triangle       = COL_REDUCED_TEXT;
 
+	gui_player_color_bright = 4;
+	gui_player_color_dark   = 1;
+
 	gui_button_size              = scr_size(92,14);
 	gui_color_button_size        = scr_size(92,16);
 	gui_button_text_offset       = scr_size(0,0);
