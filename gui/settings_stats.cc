@@ -695,7 +695,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	// comboboxes for Extended savegame version and revision
 	savegame_ex.set_pos( scr_coord(2,ypos-2) );
 	savegame_ex.set_size( scr_size(70,D_BUTTON_HEIGHT) );
-	for(  int i=0;  i<lengthof(version_ex);  i++  )
+	for(  uint32 i=0;  i<lengthof(version_ex);  i++  )
 	{
 		if(i == 0)
 		{
@@ -722,7 +722,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 
 	savegame_ex_rev.set_pos( scr_coord(2,ypos-2) );
 	savegame_ex_rev.set_size( scr_size(70,D_BUTTON_HEIGHT) );
-	for(  int i=0;  i<lengthof(revision_ex);  i++  )
+	for(  uint32 i=0;  i<lengthof(revision_ex);  i++  )
 	{
 		if(i == 0)
 		{
@@ -887,7 +887,7 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 void settings_routing_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
-	const uint32 old_route_steps = sets->max_route_steps;
+	const sint32 old_route_steps = sets->max_route_steps;
 	// routing of goods
 	READ_BOOL_VALUE( sets->separate_halt_capacities );
 	READ_BOOL_VALUE( sets->avoid_overcrowding );

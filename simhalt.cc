@@ -4360,14 +4360,14 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			file->rdwr_long(arrival_count);
 			file->rdwr_long(departure_count);
 
-			for(int i = 0; i < arrival_count; i++)
+			for(uint32 i = 0; i < arrival_count; i++)
 			{
 				file->rdwr_short(convoy_id);
 				file->rdwr_longlong(time);
 				estimated_convoy_arrival_times.put(convoy_id, time);
 			}
 
-			for(int i = 0; i < departure_count; i++)
+			for(uint32 i = 0; i < departure_count; i++)
 			{
 				file->rdwr_short(convoy_id);
 				file->rdwr_longlong(time);
@@ -4834,7 +4834,7 @@ void haltestelle_t::recalc_status()
 		// For goods, include transferring goods when determining whether a stop is overcrowded.
 		// This is necessary as goods tend to come all at once and take a long time to transfer.
 		uint32 transferring_total = 0;
-		for (uint32 i = 0; i <= welt->get_parallel_operations(); i++)
+		for (sint32 i = 0; i <= welt->get_parallel_operations(); i++)
 		{
 			for (uint32 n = 0; n < transferring_cargoes[i].get_count(); n++)
 			{

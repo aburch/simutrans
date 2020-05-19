@@ -299,7 +299,7 @@ void line_class_manager_t::layout()
 
 	if (show_pass)
 	{
-		for (int i = 0; i < pass_class_sel.get_count(); i++)
+		for (uint32 i = 0; i < pass_class_sel.get_count(); i++)
 		{
 			pass_class_sel.at(i)->set_visible(true);
 			pass_class_sel.at(i)->set_pos(scr_coord(column_2, y));
@@ -317,7 +317,7 @@ void line_class_manager_t::layout()
 	y = 2 + LINESPACE*pass_entries; // To get it to match up with the text from draw(...)
 	if (show_mail)
 	{
-		for (int i = 0; i < mail_class_sel.get_count(); i++)
+		for (uint32 i = 0; i < mail_class_sel.get_count(); i++)
 		{
 
 			mail_class_sel.at(i)->set_visible(true);
@@ -694,7 +694,7 @@ bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t)
 			cnv->call_convoi_tool('c', buf);
 		}
 
-		for (int i = 0; i < pass_class_sel.get_count(); i++)
+		for (uint32 i = 0; i < pass_class_sel.get_count(); i++)
 		{
 			pass_class_sel.at(i)->set_selection(i);
 			if (pass_class_sel.at(i)->count_elements() > goods_manager_t::passengers->get_number_of_classes())
@@ -718,7 +718,7 @@ bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t)
 			cnv->call_convoi_tool('c', buf);
 		}
 
-		for (int i = 0; i < mail_class_sel.get_count(); i++)
+		for (uint32 i = 0; i < mail_class_sel.get_count(); i++)
 		{
 			mail_class_sel.at(i)->set_selection(i);
 			if (mail_class_sel.at(i)->count_elements() > goods_manager_t::mail->get_number_of_classes())
@@ -755,14 +755,14 @@ line_class_manager_t::line_class_manager_t()
 // destruction!
 line_class_manager_t::~line_class_manager_t()
 {
-	for (int i = 0; i < pass_class_sel.get_count(); i++)
+	for (uint32 i = 0; i < pass_class_sel.get_count(); i++)
 	{
 		if (pass_class_sel.at(i))
 		{
 			delete pass_class_sel.at(i);
 		}
 	}
-	for (int i = 0; i < mail_class_sel.get_count(); i++)
+	for (uint32 i = 0; i < mail_class_sel.get_count(); i++)
 	{
 		if (mail_class_sel.at(i))
 		{

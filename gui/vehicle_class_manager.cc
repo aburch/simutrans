@@ -289,7 +289,7 @@ void vehicle_class_manager_t::layout(scr_coord)
 	int assumed_longest_class_name = 5 * 32;
 	const scr_coord_val column_2 = assumed_longest_class_name + 35;
 
-	for (int i = 0; i < pass_class_sel.get_count(); i++)
+	for (uint32 i = 0; i < pass_class_sel.get_count(); i++)
 	{
 		pass_class_sel.at(i)->set_visible(false);
 		if (pass_capacity_at_accommodation[i] > 0)
@@ -307,7 +307,7 @@ void vehicle_class_manager_t::layout(scr_coord)
 	{
 		y += LINESPACE;
 	}
-	for (int i = 0; i < mail_class_sel.get_count(); i++)
+	for (uint32 i = 0; i < mail_class_sel.get_count(); i++)
 	{
 		mail_class_sel.at(i)->set_visible(false);
 		if (mail_capacity_at_accommodation[i] > 0)
@@ -612,11 +612,11 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 		buf.printf("%i,%i,%i,%i", 0, 0, good_type, reset);
 		cnv->call_convoi_tool('c', buf);
 
-		for (int i = 0; i < pass_class_sel.get_count(); i++)
+		for (uint32 i = 0; i < pass_class_sel.get_count(); i++)
 		{
 			pass_class_sel.at(i)->set_selection(i);
 		}
-		for (int i = 0; i < mail_class_sel.get_count(); i++)
+		for (uint32 i = 0; i < mail_class_sel.get_count(); i++)
 		{
 			mail_class_sel.at(i)->set_selection(i);
 		}
@@ -653,14 +653,14 @@ vehicle_class_manager_t::vehicle_class_manager_t()
 // destruction!
 vehicle_class_manager_t::~vehicle_class_manager_t()
 {
-	for (int i = 0; i < pass_class_sel.get_count(); i++)
+	for (uint32 i = 0; i < pass_class_sel.get_count(); i++)
 	{
 		if (pass_class_sel.at(i))
 		{
 			delete pass_class_sel.at(i);
 		}
 	}
-	for (int i = 0; i < mail_class_sel.get_count(); i++)
+	for (uint32 i = 0; i < mail_class_sel.get_count(); i++)
 	{
 		if (mail_class_sel.at(i))
 		{
@@ -669,7 +669,7 @@ vehicle_class_manager_t::~vehicle_class_manager_t()
 	}
 	uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
 	uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
-	for (int i = 0; i < pass_classes; i++)
+	for (uint32 i = 0; i < pass_classes; i++)
 	{
 		if (pass_class_name_untranslated[i] != nullptr)
 		{

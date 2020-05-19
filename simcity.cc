@@ -2026,7 +2026,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	{
 		for(uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++)
 		{
-			for(uint hist_type = 0; hist_type < adapted_max_city_history; hist_type++)
+			for(uint32 hist_type = 0; hist_type < adapted_max_city_history; hist_type++)
 			{
 				if(hist_type == HIST_PAS_WALKED && (file->get_extended_version() < 10 || file->get_version() < 111001))
 				{

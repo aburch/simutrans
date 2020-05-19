@@ -156,7 +156,7 @@ void times_history_container_t::update_container() {
 	delete_labels();
 
 	scr_coord_val y = LINESPACE + D_V_SPACE + LINESPACE + D_V_SPACE;
-	for (int i = 0; i < schedule_indices->get_count(); i++)
+	for (uint32 i = 0; i < schedule_indices->get_count(); i++)
 	{
 		const uint8 entry_index = min(schedule_indices->at(i), entries.get_count() - 1);
 		const schedule_entry_t entry = entries[entry_index];
@@ -216,11 +216,11 @@ void times_history_container_t::draw(scr_coord offset) {
 	lbl_average_header.set_width(TIME_TEXT_WIDTH);
 	y += LINESPACE + D_V_SPACE;
 
-	for (int i = 0; i < name_labels.get_count(); i++) {
+	for (uint32 i = 0; i < name_labels.get_count(); i++) {
 		gui_label_t *name_label = name_labels.at(i);
 		name_label->set_width(time_column_x - D_POS_BUTTON_WIDTH - D_H_SPACE);
 	}
-	for (int i = 0; i < entry_labels.get_count(); i++) {
+	for (uint32 i = 0; i < entry_labels.get_count(); i++) {
 		times_history_entry_t *entry_label = entry_labels.at(i);
 		entry_label->set_pos(scr_coord(time_column_x, y + LINESPACE * (2 * i + 1)));
 	}

@@ -4621,7 +4621,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				departures.clear();
 				departures_already_booked.clear();
 				journey_times_between_schedule_points.clear();
-				for(int i = 0; i < count; i ++)
+				for(uint32 i = 0; i < count; i ++)
 				{
 					file->rdwr_short(departure_point.entry);
 					file->rdwr_short(departure_point.reversed);
@@ -4646,7 +4646,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				uint16 x;
 				uint16 y;
 				sint64 departure_time;
-				for(int i = 0; i < count; i ++)
+				for(uint32 i = 0; i < count; i ++)
 				{
 					file->rdwr_short(x);
 					file->rdwr_short(y);
@@ -4659,7 +4659,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				file->rdwr_long(count);
 				uint16 total;
 				uint16 ave_count;
-				for(int i = 0; i < count; i ++)
+				for(uint32 i = 0; i < count; i ++)
 				{
 					file->rdwr_short(departure_point.entry);
 					file->rdwr_short(departure_point.reversed);
