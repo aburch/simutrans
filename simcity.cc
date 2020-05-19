@@ -3006,7 +3006,7 @@ void stadt_t::calc_growth()
 		// It is possible that only one threshold percentage is set. In this case, assume the other.
 		uint8 capital_threshold_percentage = s.get_capital_threshold_percentage() ? s.get_capital_threshold_percentage() : s.get_city_threshold_percentage() / 4;
 		capital_threshold_percentage = capital_threshold_percentage ? capital_threshold_percentage : 1;
-		uint8 city_threshold_percentage = s.get_city_threshold_percentage() ? s.get_city_threshold_percentage() : capital_threshold_percentage * 4;
+		const uint8 city_threshold_percentage = s.get_city_threshold_percentage() ? s.get_city_threshold_percentage() : capital_threshold_percentage * 4;
 
 		// Now that we have the percentages, calculate how large that this city is compared to others in the game.
 		uint32 number_of_larger_cities = 0;
@@ -3031,11 +3031,11 @@ void stadt_t::calc_growth()
 		const uint32 rank = number_of_larger_cities + 1;
 		const uint32 percentage = (rank * 100) / total_cities;
 
-		if (rank == 1 || percentage <= s.get_capital_threshold_percentage())
+		if (rank == 1 || percentage <= capital_threshold_percentage)
 		{
 			weight_factor = s.get_growthfactor_large();
 		}
-		else if (percentage <= s.get_city_threshold_percentage())
+		else if (percentage <= city_threshold_percentage)
 		{
 			weight_factor = s.get_growthfactor_medium();
 		}
