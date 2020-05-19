@@ -328,6 +328,21 @@ money_frame_t::money_frame_t(player_t *player)
 	old_transport.set_pos(scr_coord(c1_x + 100, top+10*BUTTONSPACE));
 	old_transport.set_size(lbl_size);
 
+	transport_type_c.set_pos(scr_coord(c2_x - 14 - D_H_SPACE, 0)); // below fixed costs
+	transport_type_c.set_size(scr_size(85 + 14 + 14, D_BUTTON_HEIGHT)); // width of column plus spacing
+	transport_type_c.set_max_size(scr_size(85 + 14 + 14, TT_MAX * BUTTONSPACE));
+	for (int i = 0, count = 0; i < TT_MAX; ++i) {
+		if (!is_chart_table_zero(i)) {
+			transport_type_c.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(transport_type_values[i]), SYSCOL_TEXT));
+			transport_types[count++] = i;
+		}
+	}
+	transport_type_c.set_selection(0);
+	transport_type_c.set_focusable(false);
+	add_component(&transport_type_c);
+	transport_type_c.add_listener(this);
+
+	set_focus(&transport_type_c);
 
 	// center column (above selector box)
 	maintenance_label.set_pos(scr_coord(c2_x, top-1*BUTTONSPACE));
@@ -504,22 +519,6 @@ money_frame_t::money_frame_t(player_t *player)
 			mchart.hide_curve(i);
 		}
 	}
-
-	transport_type_c.set_pos( scr_coord(c2_x - 14 - D_H_SPACE, 0) ); // below fixed costs
-	transport_type_c.set_size( scr_size( 85 + 14 + 14, D_BUTTON_HEIGHT) ); // width of column plus spacing
-	transport_type_c.set_max_size( scr_size( 85 + 14 + 14, TT_MAX * BUTTONSPACE ) );
-	for(int i=0, count=0; i<TT_MAX; ++i) {
-		if (!is_chart_table_zero(i)) {
-			transport_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(transport_type_values[i]), SYSCOL_TEXT));
-			transport_types[ count++ ] = i;
-		}
-	}
-	transport_type_c.set_selection(0);
-	transport_type_c.set_focusable( false );
-	add_component(&transport_type_c);
-	transport_type_c.add_listener( this );
-
-	set_focus( &transport_type_c );
 
 	const int WINDOW_HEIGHT = TOP_OF_CHART + HEIGHT_OF_CHART + 10 + BUTTONSPACE * 2 ; // formerly 340
 	// The extra room below the chart is for (a) labels, (b) year label (BUTTONSPACE), (c) empty space
