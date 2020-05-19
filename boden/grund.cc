@@ -801,6 +801,7 @@ image_id grund_t::get_back_image(int leftback) const
 }
 
 
+#if COLOUR_DEPTH != 0
 // with double height ground tiles!
 // can also happen with single height tiles
 static inline uint8 get_back_image_from_diff(sint8 h1, sint8 h2)
@@ -820,6 +821,8 @@ static inline uint8 get_back_image_from_diff(sint8 h1, sint8 h2)
 		return (h1>0?h1:0)+(h2>0?h2:0)*3;
 	}
 }
+#endif
+
 
 /**
 * if ground is deleted mark the old spot as dirty
@@ -834,7 +837,7 @@ void grund_t::mark_image_dirty()
 }
 
 #if COLOUR_DEPTH == 0
-void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
+void grund_t::calc_back_image(const sint8, const slope_t::type)
 {
 	back_imageid = IMG_EMPTY;
 }

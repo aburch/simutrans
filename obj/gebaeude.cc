@@ -79,7 +79,7 @@ void gebaeude_t::init()
 	passengers_generated_visiting = 0;
 	passengers_succeeded_visiting = 0;
 	passenger_success_percent_last_year_visiting = 65535;
-	available_jobs_by_time = -9223372036854775808ll;
+	available_jobs_by_time = std::numeric_limits<sint64>::min();
 	mail_generated = 0;
 	mail_delivery_succeeded_last_year = 65535;
 	mail_delivery_succeeded = 0;
