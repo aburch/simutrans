@@ -3231,7 +3231,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 
 		if(get_waytype() == air_wt && air->airport_too_close_to_the_edge)
 		{
-			sprintf(tooltip_text, translator::translate("Airport too close to the edge"));
+			sprintf(tooltip_text, "%s", translator::translate("Airport too close to the edge"));
 			color = COL_ORANGE;
 		}
 

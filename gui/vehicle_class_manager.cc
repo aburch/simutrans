@@ -1036,12 +1036,12 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 					char catering_service[64];
 					if (mail_veh)
 					{
-						sprintf(catering_service, translator::translate("tpo_income_pr_km_(full_convoy):"));
+						sprintf(catering_service, "%s", translator::translate("tpo_income_pr_km_(full_convoy):"));
 						unit_count = mail_count;
 					}
 					else
 					{
-						sprintf(catering_service, translator::translate("catering_income_pr_km_(full_convoy):"));
+						sprintf(catering_service, "%s", translator::translate("catering_income_pr_km_(full_convoy):"));
 						unit_count = passenger_count;
 					}
 					extra_y += LINESPACE;

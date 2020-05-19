@@ -2468,13 +2468,13 @@ const char* tool_build_way_t::get_tooltip(const player_t *) const
 			if(!any_prohibitive)
 			{
 				n += sprintf(toolstr + n, " (" );
-				n += sprintf(toolstr + n, translator::translate("Restrictions:"));
+				n += sprintf(toolstr + n, "%s", translator::translate("Restrictions:"));
 			}
 			any_prohibitive = true;
 			char tmpbuf[30];
 			sprintf(tmpbuf, "Prohibitive %i-%i", desc->get_wtyp(), i);
 			n += sprintf(toolstr + n, " ");
-			n += sprintf(toolstr + n, translator::translate(tmpbuf));
+			n += sprintf(toolstr + n, "%s", translator::translate(tmpbuf));
 		}
 	}
 	n = strlen(toolstr);
@@ -2889,13 +2889,13 @@ const char* tool_build_bridge_t::get_tooltip(const player_t *) const
 			if(!any_prohibitive)
 			{
 				n += sprintf(toolstr + n, " (" );
-				n += sprintf(toolstr + n, translator::translate("Restrictions:"));
+				n += sprintf(toolstr + n, "%s", translator::translate("Restrictions:"));
 			}
 			any_prohibitive = true;
 			char tmpbuf[30];
 			sprintf(tmpbuf, "Prohibitive %i-%i", desc->get_wtyp(), i);
 			n += sprintf(toolstr + n, " ");
-			n += sprintf(toolstr + n, translator::translate(tmpbuf));
+			n += sprintf(toolstr + n, "%s", translator::translate(tmpbuf));
 		}
 	}
 	n = strlen(toolstr);
@@ -3244,13 +3244,13 @@ const char* tool_build_tunnel_t::get_tooltip(const player_t *) const
 			if(!any_prohibitive)
 			{
 				n += sprintf(toolstr + n, " (" );
-				n += sprintf(toolstr + n, translator::translate("Restrictions:"));
+				n += sprintf(toolstr + n, "%s", translator::translate("Restrictions:"));
 			}
 			any_prohibitive = true;
 			char tmpbuf[30];
 			sprintf(tmpbuf, "Prohibitive %i-%i", desc->get_wtyp(), i);
 			n += sprintf(toolstr + n, " ");
-			n += sprintf(toolstr + n, translator::translate(tmpbuf));
+			n += sprintf(toolstr + n, "%s", translator::translate(tmpbuf));
 		}
 	}
 	n = strlen(toolstr);
@@ -3865,13 +3865,13 @@ const char* tool_build_wayobj_t::get_tooltip(const player_t *) const
 					if(!any_prohibitive)
 					{
 						n += sprintf(toolstr + n, " (" );
-						n += sprintf(toolstr + n, translator::translate("Restrictions:"));
+						n += sprintf(toolstr + n, "%s", translator::translate("Restrictions:"));
 					}
 					any_prohibitive = true;
 					char tmpbuf[30];
 					sprintf(tmpbuf, "Prohibitive %i-%i", desc->get_waytype(), i);
 					n += sprintf(toolstr + n, " ");
-					n += sprintf(toolstr + n, translator::translate(tmpbuf));
+					n += sprintf(toolstr + n, "%s", translator::translate(tmpbuf));
 				}
 			}
 			n = strlen(toolstr);
