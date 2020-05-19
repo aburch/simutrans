@@ -3123,12 +3123,9 @@ void karte_t::set_scale()
 	// Vehicles
 	for(int i = road_wt; i <= air_wt; i++)
 	{
-		if(&vehicle_builder_t::get_info((waytype_t)i) != NULL)
+		FOR(slist_tpl<vehicle_desc_t*>, const & info, vehicle_builder_t::get_info((waytype_t)i))
 		{
-			FOR(slist_tpl<vehicle_desc_t*>, const & info, vehicle_builder_t::get_info((waytype_t)i))
-			{
-				info->set_scale(scale_factor, get_settings().get_way_wear_power_factor_rail_type(), get_settings().get_way_wear_power_factor_road_type(), get_settings().get_standard_axle_load());
-			}
+			info->set_scale(scale_factor, get_settings().get_way_wear_power_factor_rail_type(), get_settings().get_way_wear_power_factor_road_type(), get_settings().get_standard_axle_load());
 		}
 	}
 
