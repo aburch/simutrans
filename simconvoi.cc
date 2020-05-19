@@ -5178,7 +5178,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 				freight_list_sorter_t::sort_freight(mail_fracht[j], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", j, max_loaded_mail[j], &ware);
 			}
 		}
-		freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", NULL, NULL, NULL);
+		freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", 0, 0, NULL);
 	}
 }
 

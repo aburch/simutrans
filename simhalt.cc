@@ -3277,7 +3277,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 			const vector_tpl<ware_t> * warray = cargo[i];
 			if (warray)
 			{
-				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting", NULL, NULL, NULL);
+				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting", 0, 0, NULL);
 			}
 		}
 
@@ -3302,7 +3302,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 			}
 		}
 		// show new info
-		freight_list_sorter_t::sort_freight(ware_transfers, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "transferring", NULL, NULL, NULL);
+		freight_list_sorter_t::sort_freight(ware_transfers, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "transferring", 0, 0, NULL);
 	}
 }
 

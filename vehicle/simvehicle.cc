@@ -2180,7 +2180,7 @@ void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 		ware_t ware = get_cargo_type();
 		ware.menge = desc->get_total_capacity();
 		capacity.insert(ware);
-		freight_list_sorter_t::sort_freight(fracht_array[0], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", NULL, NULL, NULL, true);
+		freight_list_sorter_t::sort_freight(fracht_array[0], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", 0, 0, NULL, true);
 	}
 }
 
