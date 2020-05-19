@@ -140,14 +140,14 @@ void road_user_t::show_info()
 }
 
 
-grund_t* road_user_t::hop()
+void road_user_t::hop(grund_t *)
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos_next);
 
 	if(!from) {
 		time_to_life = 0;
-		return NULL;
+		return;
 	}
 
 	// It is not clear why this is necessary in
@@ -169,7 +169,7 @@ grund_t* road_user_t::hop()
 			// destroy it
 			time_to_life = 0;
 		}
-		return NULL;
+		return;
 	}
 
 	grund_t *to;
@@ -210,8 +210,6 @@ grund_t* road_user_t::hop()
 	leave_tile();
 	set_pos(from->get_pos());
 	calc_image();
-
-	return to;
 }
 
 

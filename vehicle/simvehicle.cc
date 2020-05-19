@@ -1524,14 +1524,12 @@ route_t::route_result_t vehicle_t::calc_route(koord3d start, koord3d ziel, sint3
 	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : ((get_sum_weight() + 499) / 1000), is_tall, 0, SINT64_MAX_VALUE, cnv != NULL ? cnv->get_weight_summary().weight / 1000 : get_total_weight());
 }
 
-route_t::route_result_t vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route)
+route_t::route_result_t vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel)
 {
 	route_t xroute;    // new scheduled route from position at reroute_index to ziel
+	route_t *route = cnv ? cnv->get_route() : NULL;
 	const bool live = route == NULL;
-	if(route == NULL && cnv)
-	{
-		route = (cnv->get_route());
-	}
+
 	route_t::route_result_t done = route ? calc_route(route->at(reroute_index), ziel, speed_to_kmh(cnv->get_min_top_speed()), cnv->has_tall_vehicles(), &xroute) : route_t::no_route;
 	if(done == route_t::valid_route && live)
 	{
