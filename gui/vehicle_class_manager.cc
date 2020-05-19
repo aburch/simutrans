@@ -53,7 +53,7 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 	// Create the list of comboboxes, as well as the names of the classes
 	for (int i = 0; i < pass_classes; i++)
 	{
-		gui_combobox_t *class_selector = new (nothrow) gui_combobox_t();
+		gui_combobox_t *class_selector = new (std::nothrow) gui_combobox_t();
 		if (class_selector != nullptr)
 		{
 			add_component(class_selector);
@@ -62,7 +62,7 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 			pass_class_sel.append(class_selector);
 		}
 
-		char *class_name = new (nothrow) char[32]();
+		char *class_name = new (std::nothrow) char[32]();
 		if (class_name != nullptr)
 		{
 			sprintf(class_name, "p_class[%u]", i);
@@ -72,7 +72,7 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 
 	for (int i = 0; i < mail_classes; i++)
 	{
-		gui_combobox_t *class_selector = new (nothrow) gui_combobox_t();
+		gui_combobox_t *class_selector = new (std::nothrow) gui_combobox_t();
 		if (class_selector != nullptr)
 		{
 			add_component(class_selector);
@@ -81,7 +81,7 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 			mail_class_sel.append(class_selector);
 		}
 
-		char *class_name = new (nothrow) char[32]();
+		char *class_name = new (std::nothrow) char[32]();
 		if (class_name != nullptr)
 		{
 			sprintf(class_name, "m_class[%u]", i);
