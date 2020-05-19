@@ -272,8 +272,7 @@ bool button_t::infowin_event(const event_t *ev)
 		if(  (type & TYPE_MASK)==posbutton  ) {
 			call_listeners( &targetpos );
 			if (type == posbutton_automatic) {
-				welt->get_viewport()->change_world_position( koord3d(targetpos.x,targetpos.y,targetpos.z) );
-
+				welt->get_viewport()->change_world_position( targetpos );
 			}
 
 		}
@@ -377,7 +376,7 @@ void button_t::draw(scr_coord offset)
 			{
 				uint8 offset = get_state_offset();
 				if(  offset == 0  ) {
-					if(  grund_t *gr = welt->lookup_kartenboden(targetpos.x,targetpos.y)  ) {
+					if(  grund_t *gr = welt->lookup_kartenboden(targetpos.get_2d())  ) {
 						offset = welt->get_viewport()->is_on_center( gr->get_pos() );
 					}
 				}

@@ -76,12 +76,11 @@ private:
 	 * The displayed text of the button
 	 * direct access provided to avoid translations
 	 */
-	union {
-		const char * text;
-		struct { sint16 x, y; sint8 z; } targetpos;
-	};
+	const char *text;
+
 	const char *translated_text;
 
+	koord3d targetpos;
 	// any click will go to this world
 	static karte_ptr_t welt;
 
@@ -121,7 +120,7 @@ public:
 	 * Set position for posbuttons, will be returned on calling listener
 	 */
 	void set_targetpos( const koord k ); // assuming this is on map ground
-	void set_targetpos3d( const koord3d k ) { targetpos.x = k.x; targetpos.y = k.y; targetpos.z= k.z; }
+	void set_targetpos3d( const koord3d k ) { targetpos = k; }
 
 	/**
 	 * Set the displayed text of the button when not to translate
