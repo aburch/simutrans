@@ -112,11 +112,11 @@ void schiene_t::info(cbuffer_t & buf) const
 		case monorail_wt:
 		case maglev_wt:
 			rail_vehicle = (rail_vehicle_t*)reserved->front();
+		default: break;
 		}
 
 		if (rail_vehicle)
 		{
-
 			buf.append(translator::translate(get_working_method_name(rail_vehicle->get_working_method())));
 			textlines += 1;
 			buf.append("\n   ");

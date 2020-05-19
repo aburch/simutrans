@@ -649,6 +649,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			case old_btyp::wohnung:    desc->type = building_desc_t::city_res; break;
 			case old_btyp::gewerbe:    desc->type = building_desc_t::city_com; break;
 			case old_btyp::industrie:  desc->type = building_desc_t::city_ind; break;
+			case old_btyp::unknown:    desc->type = building_desc_t::unknown;  break;
 		}
 	}
 

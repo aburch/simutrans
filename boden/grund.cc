@@ -661,14 +661,15 @@ void grund_t::info(cbuffer_t& buf) const
 				char waytype_name[32] = "\0";
 				switch (waytype_t(i))
 				{
-				case tram_wt:	sprintf(waytype_name, "cap_tram_track"); break;
-				case track_wt:	sprintf(waytype_name, "cap_track"); break;
-				case monorail_wt: sprintf(waytype_name, "cap_monorail_track"); break;
-				case maglev_wt: sprintf(waytype_name, "cap_maglev_track"); break;
+				case tram_wt:        sprintf(waytype_name, "cap_tram_track");        break;
+				case track_wt:       sprintf(waytype_name, "cap_track");             break;
+				case monorail_wt:    sprintf(waytype_name, "cap_monorail_track");    break;
+				case maglev_wt:      sprintf(waytype_name, "cap_maglev_track");      break;
 				case narrowgauge_wt: sprintf(waytype_name, "cap_narrowgauge_track"); break;
-				case road_wt:	sprintf(waytype_name, "cap_road"); break;
-				case water_wt:	sprintf(waytype_name, "cap_water_canal"); break;
-				case air_wt:	sprintf(waytype_name, "cap_taxiway/runway"); break;
+				case road_wt:        sprintf(waytype_name, "cap_road");              break;
+				case water_wt:       sprintf(waytype_name, "cap_water_canal");       break;
+				case air_wt:         sprintf(waytype_name, "cap_taxiway/runway");    break;
+				default: break;
 				}
 
 				if (waytype_name[1] != '\0')
