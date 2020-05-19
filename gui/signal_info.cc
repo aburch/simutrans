@@ -95,4 +95,6 @@ bool signal_info_t::action_triggered(gui_action_creator_t *comp, value_t)
 			return true;
 		}
 	}
+
+	return false;
 }
