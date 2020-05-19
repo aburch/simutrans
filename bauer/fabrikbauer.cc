@@ -747,7 +747,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 			// for sources (oil fields, forests ... ) prefer those with a smaller distance
 			const uint32 distance = shortest_distance(fab->get_pos().get_2d(), our_fab->get_pos().get_2d());
 
-			if(distance >= welt->get_settings().get_min_factory_spacing() && distance <= fab->get_desc()->get_max_distance_to_consumer())
+			if(distance >= (uint32)welt->get_settings().get_min_factory_spacing() && distance <= fab->get_desc()->get_max_distance_to_consumer())
 			{
 				// ok, this would match
 				// but can she supply enough?
@@ -1177,7 +1177,7 @@ next_ware_check:
 				if(do_not_add_beyond_target_density && !consumer->is_electricity_producer())
 				{
 					// Make sure that industries are not added beyond target density.
-					if(100 / consumer->get_distribution_weight() > (welt->get_target_industry_density() - welt->get_actual_industry_density()))
+					if(100U / consumer->get_distribution_weight() > (welt->get_target_industry_density() - welt->get_actual_industry_density()))
 					{
 						continue;
 					}

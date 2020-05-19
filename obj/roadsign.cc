@@ -286,7 +286,7 @@ void roadsign_t::info(cbuffer_t & buf) const
 
 	const grund_t* rs_gr3d = welt->lookup(rs_pos);
 	const weg_t* way = rs_gr3d->get_weg(desc->get_wtyp() != tram_wt ? desc->get_wtyp() : track_wt);
-	if (way->get_max_speed() * 2 >= speed_to_kmh(desc->get_max_speed()))
+	if ((uint32)way->get_max_speed() * 2U >= speed_to_kmh(desc->get_max_speed()))
 	{
 		buf.printf("%s%s%d%s%s", translator::translate("Max. speed:"), " ", speed_to_kmh(desc->get_max_speed()), " ", "km/h");
 		buf.append("\n");

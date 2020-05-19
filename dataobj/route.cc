@@ -731,7 +731,7 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 	uint32 beat=1;
 #endif
 	sint32 bridge_tile_count = 0;
-	sint32 best_distance = 65535;
+	uint32 best_distance = 0xFFFF;
 
 	do {
 #ifndef MULTI_THREAD
@@ -1187,7 +1187,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 {
 	route.clear();
 	const uint32 distance = shortest_distance(start.get_2d(), ziel.get_2d()) * 600;
-	if(tdriver->get_waytype() == water_wt && distance > welt->get_settings().get_max_route_steps())
+	if(tdriver->get_waytype() == water_wt && distance > (uint32)welt->get_settings().get_max_route_steps())
 	{
 		// Do not actually try to calculate the route if it is doomed to failure.
 		// This ensures that the game does not become overloaded if a line

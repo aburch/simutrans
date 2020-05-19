@@ -461,7 +461,7 @@ void signal_t::info(cbuffer_t & buf) const
 		bool dead_end = false;
 		bool crossing = false;
 		bool signal = false;
-		int max_tiles_to_look = 1000;
+		uint32 max_tiles_to_look = 1000;
 		char direction[20];
 		char spaces[5];
 		char block_text[20];

@@ -354,7 +354,7 @@ void gebaeude_t::check_road_tiles(bool del)
 				{
 					continue;
 				}
-				for (int j = 0; j<plan->get_boden_count(); j++)
+				for (uint32 j = 0; j<plan->get_boden_count(); j++)
 				{
 					grund_t *bd = plan->get_boden_bei(j);
 					weg_t *way = bd->get_weg(road_wt);
@@ -2324,7 +2324,7 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 		}
 		koord end = city->get_townhall_road();
 
-		if (shortest_distance(start.get_2d(), end) > env_t::intercity_road_length)
+		if (shortest_distance(start.get_2d(), end) > (uint32)env_t::intercity_road_length)
 		{
 			return;
 		}

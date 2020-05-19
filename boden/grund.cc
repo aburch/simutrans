@@ -2455,7 +2455,7 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 
 		FOR(minivec_tpl<route_t>, const& diversionary_route, diversionary_routes)
 		{
-			for(int n = 1; n < diversionary_route.get_count()-1; n++)
+			for(uint32 n = 1; n < diversionary_route.get_count()-1; n++)
 			{
 				// All diversionary routes must themselves be set as public rights of way.
 				weg_t* way = welt->lookup(diversionary_route.at(n))->get_weg(w->get_waytype());
