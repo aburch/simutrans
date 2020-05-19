@@ -180,8 +180,8 @@ void gui_theme_t::init_gui_defaults()
 	gui_color_obsolete                     = color_idx_to_rgb(COL_BLUE);
 	gui_color_empty                        = color_idx_to_rgb(COL_WHITE);
 
-	gui_player_color_bright = 4;
-	gui_player_color_dark   = 1;
+	env_t::gui_player_color_bright = 4;
+	env_t::gui_player_color_dark   = 1;
 
 	gui_button_size              = scr_size(92,14);
 	gui_color_button_size        = scr_size(92,16);
