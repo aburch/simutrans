@@ -338,7 +338,7 @@ void simline_t::rdwr(loadsave_t *file)
 					sint64 dummy = 0;
 					file->rdwr_longlong(dummy);
 				}
-				else if (j == LINE_WAYTOLL && (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 21)))
+				else if (j == LINE_WAYTOLL && (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 23)))
 				{
 					if (file->is_loading())
 					{
@@ -375,7 +375,7 @@ void simline_t::rdwr(loadsave_t *file)
 			file->rdwr_long(rolling_average[i]);
 			file->rdwr_short(rolling_average_count[i]);
 		}
-		if (file->get_extended_version() > 14 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 21))
+		if (file->get_extended_version() > 14 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 23))
 		{
 			file->rdwr_long(rolling_average[LINE_WAYTOLL]);
 			file->rdwr_short(rolling_average_count[LINE_WAYTOLL]);

@@ -984,6 +984,8 @@ public:
 
 	bool check_access(const player_t* player) const;
 
+	bool has_available_network(const player_t* player, uint8 catg_index=goods_manager_t::INDEX_NONE) const;
+
 	bool has_no_control_tower() const;
 
 	/**

@@ -59,22 +59,22 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const { return "station_details.txt"; }
+	const char * get_help_filename() const OVERRIDE { return "station_details.txt"; }
 
 	// Set window size and adjust component sizes and/or positions accordingly
-	virtual void set_windowsize(scr_size size);
+	virtual void set_windowsize(scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// only defined to update schedule, if changed
-	void draw( scr_coord pos, scr_size size );
+	void draw( scr_coord pos, scr_size size ) OVERRIDE;
 
 	// this constructor is only used during loading
 	halt_detail_t();
 
-	void rdwr( loadsave_t *file );
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	uint32 get_rdwr_id() { return magic_halt_detail; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_halt_detail; }
 };
 
 #endif

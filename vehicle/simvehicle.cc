@@ -3239,14 +3239,38 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		}
 
 		// something to show?
+		if (!tooltip_text[0] && !env_t::show_cnv_nameplates) {
+			return;
+		}
+
+		const int raster_width = get_current_tile_raster_width();
+		get_screen_offset( xpos, ypos, raster_width );
+		xpos += tile_raster_scale_x(get_xoff(), raster_width);
+		ypos += tile_raster_scale_y(get_yoff(), raster_width)+14;
 		if(  tooltip_text[0]  ) {
 			const int width = proportional_string_width(tooltip_text)+7;
-			const int raster_width = get_current_tile_raster_width();
-			get_screen_offset( xpos, ypos, raster_width );
-			xpos += tile_raster_scale_x(get_xoff(), raster_width);
-			ypos += tile_raster_scale_y(get_yoff(), raster_width)+14;
 			if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
 				display_ddd_proportional_clip( xpos, ypos, width, 0, color, COL_BLACK, tooltip_text, true );
+			}
+		}
+
+		if (cnv && (env_t::show_cnv_nameplates == 2 || (env_t::show_cnv_nameplates == 1 && welt->get_zeiger()->get_pos() == get_pos()))) {
+			char nameplate_text[1024];
+			// show the line name, including when the convoy is coupled.
+			linehandle_t lh = cnv->get_line();
+			if (lh.is_bound()) {
+				// line name
+				tstrncpy(nameplate_text, lh->get_name(), lengthof(nameplate_text));
+			}
+			else {
+				// the convoy belongs to no line -> show convoy name
+				tstrncpy(nameplate_text, cnv->get_name(), lengthof(nameplate_text));
+			}
+			color = lh.is_bound() ? cnv->get_owner()->get_player_color1()+3 : cnv->get_owner()->get_player_color1()+1;
+
+			const int width = proportional_string_width(nameplate_text) + 7;
+			if (ypos > LINESPACE + 32 && ypos + LINESPACE < display_get_clip_wh().yy) {
+				display_ddd_proportional_clip(xpos, ypos-LINESPACE-3, width, 0, color, COL_WHITE, nameplate_text, true);
 			}
 		}
 	}
@@ -4603,7 +4627,7 @@ route_t::route_result_t rail_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 	cnv->set_next_reservation_index( 0 );	// nothing to reserve
 	target_halt = halthandle_t();	// no block reserved
 	// use length > 8888 tiles to advance to the end of terminus stations
-	const sint16 tile_length = (cnv->get_schedule()->get_current_entry().reverse == 1 ? 8888 : 0) + cnv->get_tile_length();
+	const sint16 tile_length = (cnv->get_schedule()->get_current_entry().reverse == 1 ? 8888 : 0) + cnv->get_true_tile_length();
 	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : ((get_sum_weight() + 499) / 1000), is_tall, tile_length, SINT64_MAX_VALUE, cnv ? cnv->get_weight_summary().weight / 1000 : get_total_weight());
 	cnv->set_next_stop_index(0);
  	if(r == route_t::valid_route_halt_too_short)
@@ -4709,9 +4733,9 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	uint32 max_axle_load = w->get_max_axle_load();
 	uint32 bridge_weight_limit = w->get_bridge_weight_limit();
 	if(cnv && (cnv->get_highest_axle_load() > max_axle_load || (cnv->get_weight_summary().weight / 1000) > bridge_weight_limit) && welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3)
-	{
+	{ 
 		costs += 400;
-	}
+	} 
 
 	if(w->is_diagonal())
 	{

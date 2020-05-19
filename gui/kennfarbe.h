@@ -40,7 +40,7 @@ class farbengui_t : public gui_frame_t, action_listener_t
 		 * @return the filename for the helptext, or NULL
 		 * @author Hj. Malthaner
 		 */
-		const char * get_help_filename() const { return "color.txt"; }
+		const char * get_help_filename() const OVERRIDE { return "color.txt"; }
 
 		bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

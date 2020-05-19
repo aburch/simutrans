@@ -691,6 +691,9 @@ public:
 	// Checks whether any given postition is within the city limits.
 	bool is_within_city_limits(koord k) const;
 
+	// Checks whether any builinding is within players network.
+	bool is_within_players_network(const player_t* player) const;
+
 	/**
 	 * Erzeugt ein Array zufaelliger Startkoordinaten,
 	 * die fuer eine Citygruendung geeignet sind.

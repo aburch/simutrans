@@ -95,6 +95,7 @@ bool env_t::use_transparency_station_coverage;
 uint8 env_t::station_coverage_show;
 uint8 env_t::signalbox_coverage_show;
 sint32 env_t::show_names;
+uint8 env_t::show_cnv_nameplates;
 sint32 env_t::message_flags[4];
 uint32 env_t::water_animation;
 uint32 env_t::ground_object_probability;
@@ -187,6 +188,7 @@ void env_t::init()
 	signalbox_coverage_show = 0;
 
 	show_names = 3;
+	show_cnv_nameplates = 0;
 	player_finance_display_account = true;
 
 	water_animation = 250; // 250ms per wave stage
@@ -295,7 +297,7 @@ void env_t::rdwr(loadsave_t *file)
 	if(  file->get_version()<110007  ) {
 		bool dummy_b = 0;
 		file->rdwr_bool( dummy_b );
-	}
+	} 
 	file->rdwr_byte( show_month );
 
 	file->rdwr_bool( use_transparency_station_coverage );
@@ -305,6 +307,10 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(signalbox_coverage_show);
 	}
 	file->rdwr_long( show_names );
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 22) || file->get_extended_version() >= 15)
+	{ 
+		file->rdwr_byte(show_cnv_nameplates);
+	} 
 
 	file->rdwr_bool( hide_with_transparency );
 	file->rdwr_byte( hide_buildings );

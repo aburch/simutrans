@@ -205,8 +205,7 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 		//staff_shortage_factor = 0;
 	}
 	staffing_bar.add_color_value(&staff_shortage_factor, COL_YELLOW);
-	gebaeude_t* gb = fab->get_building();
-	staffing_level = gb->get_staffing_level_percentage();
+	staffing_level = fab->get_staffing_level_percentage();
 	const goods_desc_t *wtyp = goods_manager_t::get_info((uint16)0);
 	staffing_bar.add_color_value(&staffing_level, wtyp->get_color());
 	staffing_level2 = staff_shortage_factor > staffing_level ? staffing_level : 0;

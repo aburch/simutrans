@@ -531,12 +531,12 @@ sint64 depot_frame_t::calc_sale_value(const vehicle_desc_t *veh_type)
 void depot_frame_t::set_resale_value(uint32 nominal_cost, sint64 resale_value)
 {
 	if (nominal_cost == resale_value) {
-		bt_sell.set_text(translator::translate("Clear"));
-		bt_sell.set_tooltip("The purchase will be canceled and the cost will be fully refunded.");
+		bt_sell.set_text(translator::translate("Refund"));
+		bt_sell.set_tooltip("Return the vehicle(s) for a full refund.");
 	}
 	else if (resale_value == 0) {
-		bt_sell.set_text(translator::translate("Dismantle"));
-		bt_sell.set_tooltip("Dismantle all vehicles in the convoy. No costs will be refunded.");
+		bt_sell.set_text(translator::translate("Scrap"));
+		bt_sell.set_tooltip("Scrap all vehicles in the convoy.");
 	}
 	else {
 		bt_sell.set_text(translator::translate("verkaufen"));

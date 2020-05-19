@@ -63,7 +63,8 @@
 #define STOP_WALKER								(CITY_WALKER+13)
 #define DENS_TRAFFIC							(STOP_WALKER+13)
 #define CONVOI_TOOLTIPS							(DENS_TRAFFIC+13)
-#define HIGHLITE_SCHEDULE						(CONVOI_TOOLTIPS+13)
+#define CONVOI_NAMEPLATES						(CONVOI_TOOLTIPS+13)
+#define HIGHLITE_SCHEDULE						(CONVOI_NAMEPLATES+13)
 
 #define SEPERATE4	(HIGHLITE_SCHEDULE+13)
 
@@ -247,6 +248,11 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[0].set_typ(button_t::arrowleft);
 	buttons[1].set_pos( scr_coord(L_DIALOG_WIDTH-10-10-2,CONVOI_TOOLTIPS) );
 	buttons[1].set_typ(button_t::arrowright);
+	// left/right for convoi nameplates
+	buttons[25].set_pos(scr_coord(10, CONVOI_NAMEPLATES));
+	buttons[25].set_typ(button_t::arrowleft);
+	buttons[26].set_pos(scr_coord(L_DIALOG_WIDTH - 10 - 10 - 2, CONVOI_NAMEPLATES));
+	buttons[26].set_typ(button_t::arrowright);
 
 	//23, Hide buildings and trees under mouse cursor
 	buttons[++b].set_pos( scr_coord(10,HIDE_UNDER_CURSOR) );
@@ -291,6 +297,8 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	add_component( buttons+22);
 	add_component(buttons + 23);
 	add_component(buttons + 24);
+	add_component(buttons + 25);
+	add_component(buttons + 26);
 
 	// unused buttons
 	// add_component( buttons+2 );
@@ -328,6 +336,7 @@ void color_gui_t::set_windowsize(scr_size size)
 	column = size.w - D_MARGIN_RIGHT - D_ARROW_RIGHT_WIDTH;
 	buttons[1].set_pos            ( scr_coord( column, buttons[1].get_pos().y            ) );
 	buttons[13].set_pos           ( scr_coord( column, buttons[13].get_pos().y           ) );
+	buttons[26].set_pos           ( scr_coord( column, buttons[26].get_pos().y           ) );
 
 	column = size.w - D_MARGINS_X;
 	divider1.set_width            ( column );
@@ -455,6 +464,12 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		env_t::left_to_right_graphs = !env_t::left_to_right_graphs;
 		buttons[22].pressed ^= 1;
 	}
+	else if ((buttons + 25) == comp) {
+		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + 2) % 3;
+	}
+	else if ((buttons + 26) == comp) {
+		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + 1) % 3;
+	}
 
 	welt->set_dirty();
 	return true;
@@ -520,6 +535,9 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 
 	const char *ctc = translator::translate( env_t::show_vehicle_states==0 ? "convoi error tooltips" : (env_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
 	display_proportional_clip(x+10+16, y+CONVOI_TOOLTIPS+1, ctc, ALIGN_LEFT, SYSCOL_TEXT, true);
+
+	const char *nameplate_settings = translator::translate(env_t::show_cnv_nameplates == 0 ? "no convoy nameplate" : (env_t::show_cnv_nameplates == 1 ? "mouseover convoy name" : "always show convoy name"));
+	display_proportional_clip(x+10+16, y+CONVOI_NAMEPLATES+1, nameplate_settings, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 	int len=15+display_proportional_clip(x+10, y+FPS_DATA, translator::translate("Frame time:"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	sprintf(buf,"%ld ms", get_frame_time() );

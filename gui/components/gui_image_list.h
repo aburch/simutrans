@@ -113,7 +113,7 @@ public:
 	 * Draw/record the picture
 	 * @author Hj. Malthaner
 	 */
-	virtual void draw(scr_coord offset);
+	virtual void draw(scr_coord offset) OVERRIDE;
 
 	/**
 	 * Looks for the image at given position.

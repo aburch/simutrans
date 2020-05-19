@@ -51,7 +51,7 @@ public:
 	* Draw the component
 	* @author Hj. Malthaner
 	*/
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	void set_mode(uint8 mode);
 
