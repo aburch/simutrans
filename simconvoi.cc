@@ -552,35 +552,6 @@ void convoi_t::finish_rd()
 					// diagonal => convoi must restart
 					realing_position |= ribi_t::is_bend(v->get_direction())  &&  (state==DRIVING  ||  is_waiting());
 				}
-				// if version is 99.17 or lower, some convois are broken, i.e. had too large gaps between vehicles
-				/*if(  !realing_position  &&  state!=INITIAL  &&  state!=LEAVING_DEPOT  ) {
-					if(  i==0  ) {
-						step_pos = v->get_steps();
-					}
-					else {
-						if(  drive_pos!=v->get_pos()  ) {
-							// with long vehicles on diagonals, vehicles need not to be on consecutive tiles
-							// do some guessing here
-							uint32 dist = koord_distance(drive_pos, v->get_pos());
-							if (dist>1) {
-								step_pos += (dist-1) * diagonal_vehicle_steps_per_tile;
-							}
-							step_pos += ribi_t::is_bend(v->get_direction()) ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
-						}
-						DBG_MESSAGE("convoi_t::finish_rd()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_desc()->get_length()*16, v->get_direction(),  drive_pos.get_2d().get_str(), step_pos);
-						/*
-						// This causes convoys re-loading from diagonal tiles to fail in Simutrans-Extended
-						// and no longer seems to be necessary. This might conceivably also cause network
-						// desyncs in some cases, although this has not been tested.
-						if(  abs( v->get_steps() - step_pos )>15  ) {
-							// not where it should be => realign
-							realing_position = true;
-							dbg->warning( "convoi_t::finish_rd()", "convoi (%s) is broken => realign", get_name() );
-						} // /*
-					}
-					step_pos -= v->get_desc()->get_length_in_steps();
-					drive_pos = v->get_pos();
-				}*/
 			}
 		}
 DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
