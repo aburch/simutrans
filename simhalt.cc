@@ -203,8 +203,7 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 		}
 
 		// Stops on public roads, even those belonging to other players, should be able to be used by all players.
-		if(gr->get_halt().is_bound() && (gr->get_halt()->check_access(player) ||
-			(w && player_t::check_owner(w->get_owner(), player))) ||
+		if((gr->get_halt().is_bound() && (gr->get_halt()->check_access(player) || (w && player_t::check_owner(w->get_owner(), player)))) ||
 			(w && (w->get_waytype() == road_wt || w->get_waytype() == tram_wt) && (w->get_owner() == NULL || w->get_owner()->is_public_service())))
 		{
 			return gr->get_halt();
@@ -1308,7 +1307,7 @@ void haltestelle_t::step()
 				const grund_t* gr = welt->lookup_kartenboden(tmp.get_zielpos());
 				const gebaeude_t* const gb = gr ? gr->get_building() : NULL;
 				fabrik_t* const fab = gb ? gb->get_fabrik() : NULL;
-				if(!gb || tmp.is_freight() && !fab)
+				if(!gb || (tmp.is_freight() && !fab))
 				{
 					// The goods/passengers leave.  We must record the lower "in transit" count on factories.
 					fabrik_t::update_transit(tmp, false);
@@ -3070,7 +3069,7 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	const grund_t* gr = plan ? plan->get_kartenboden() : NULL;
 	gebaeude_t* const gb = gr ? gr->get_building() : NULL;
 	fabrik_t* const fab = gb ? gb->get_fabrik() : NULL;
-	if(!gb || ware.is_freight() && !fab)
+	if(!gb || (ware.is_freight() && !fab))
 	{
 		// Destination building has been deleted: write a log entry and discard the goods.
 #ifdef MULTI_THREAD

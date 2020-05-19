@@ -245,7 +245,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	//HACK: I have no idea why the above does not work.
-	if (extended && (v == 49928 && version == 8) || (v == 49929 && version == 9))
+	if ((extended && (v == 49928 && version == 8)) || (v == 49929 && version == 9))
 	{
 		extended_version = 3;
 	}
@@ -616,7 +616,8 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	{
 		desc->level = extended_version > 0 ? 1 : 4;
 	}
-	else if((desc->level > 32767 && (desc->type >= building_desc_t::bahnhof || desc->type == building_desc_t::factory)) || version<=3  &&  ((uint8)desc->type >= building_desc_t::bahnhof  ||  desc->type == building_desc_t::factory  ||  desc->type == building_desc_t::depot)  &&  desc->level==0)
+	else if((desc->level > 32767 && (desc->type >= building_desc_t::bahnhof || desc->type == building_desc_t::factory)) ||
+	        (version<=3  &&  ((uint8)desc->type >= building_desc_t::bahnhof  ||  desc->type == building_desc_t::factory  ||  desc->type == building_desc_t::depot)  &&  desc->level==0))
 	{
 		DBG_DEBUG("building_reader_t::read_node()","old station building -> set level to 4");
 		desc->level = 4;

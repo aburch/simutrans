@@ -517,7 +517,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 							// Avoid routing over ways for which the convoy is overweight.
 							continue;
 						}
-						else if(enforce_weight_limits == 3 && (way_max_axle_load == 0 || (axle_load * 100) / way_max_axle_load > 110) || (bridge_weight_limit == 0 || (adjusted_convoy_weight * 100) / bridge_weight_limit > 110))
+						else if((enforce_weight_limits == 3 && (way_max_axle_load == 0 || (axle_load * 100) / way_max_axle_load > 110)) || (bridge_weight_limit == 0 || (adjusted_convoy_weight * 100) / bridge_weight_limit > 110))
 						{
 							// Avoid routing over ways for which the convoy is more than 10% overweight or which have a zero weight limit.
 							continue;

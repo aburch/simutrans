@@ -777,7 +777,7 @@ void weg_t::info(cbuffer_t & buf) const
 	if (replacement_way)
 	{
 		const uint16 time = welt->get_timeline_year_month();
-		bool is_current = !time || replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month();
+		const bool is_current = replacement_way->is_available(time);
 
 		// Publicly owned roads in towns are replaced with the latest city road type.
 		const bool public_city_road = get_waytype() == road_wt && (get_owner() == NULL || get_owner()->is_public_service()) && welt->get_city(get_pos().get_2d());

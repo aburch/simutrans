@@ -1816,9 +1816,10 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 		s->finish_rd();
 		check = (leitung_t*)s;
 	}
-	if (fab != NULL && (city == NULL) || (fab && fab->get_desc()->is_electricity_producer()))
+
+	// Do not connect directly to factories that are in cities, except for power stations.
+	if (fab && (!city || fab->get_desc()->is_electricity_producer()))
 	{
-		// Do not connect directly to factories that are in cities, except for power stations.
 		fab->set_transformer_connected(check);
 	}
 
@@ -3658,7 +3659,7 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 					}
 					// all other stuff
 					// Ignore crossings: look only to the underlying way.
-					else if (!obj->get_typ() == obj_t::crossing)
+					else if (obj->get_typ() != obj_t::crossing)
 					{
 						can_delete = (calc_route_error = obj->is_deletable(player)) == NULL;
 					}
@@ -7892,7 +7893,7 @@ bool tool_daynight_level_t::init( player_t * ) {
 bool tool_make_stop_public_t::init( player_t *player )
 {
 	win_set_static_tooltip( NULL );
-	return welt->get_settings().get_allow_making_public() || player && player->is_public_service();
+	return welt->get_settings().get_allow_making_public() || (player && player->is_public_service());
 }
 
 const char *tool_make_stop_public_t::get_tooltip(const player_t *player) const

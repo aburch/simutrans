@@ -2201,7 +2201,7 @@ end_loop:
 		case ROUTE_JUST_FOUND:
 			gr = welt->lookup(get_route()->back());
 
-			if (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt && gr && !gr->get_depot())
+			if (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || (front()->get_waytype() == monorail_wt && gr && !gr->get_depot()))
 			{
 				rail_vehicle_t* rv = (rail_vehicle_t*)back();
 				rail_vehicle_t* rv_front = (rail_vehicle_t*)front();
