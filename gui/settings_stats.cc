@@ -790,12 +790,12 @@ void settings_general_stats_t::read(settings_t* const sets)
 	sets->calc_job_replenishment_ticks();
 
 	const int selected_ex = savegame_ex.get_selection();
-	if (0 <= selected_ex  &&  selected_ex < lengthof(version_ex)) {
+	if (selected_ex >= 0 &&  selected_ex < (sint32)lengthof(version_ex)) {
 		env_t::savegame_ex_version_str = version_ex[ selected_ex ];
 	}
 
 	const int selected_ex_rev = savegame_ex_rev.get_selection();
-	if (0 <= selected_ex  &&  selected_ex < lengthof(revision_ex)) {
+	if (selected_ex_rev >= 0 &&  selected_ex_rev < (sint32)lengthof(revision_ex)) {
 		env_t::savegame_ex_revision_str = revision_ex[ selected_ex_rev ];
 	}
 }
