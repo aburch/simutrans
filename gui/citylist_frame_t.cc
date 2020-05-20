@@ -128,7 +128,7 @@ citylist_frame_t::citylist_frame_t() :
 
 	sortedby.set_pos(scr_coord(BUTTON1_X,40 - D_BUTTON_HEIGHT));
 	sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
-	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, LINESPACE*8));
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, LINESPACE*4));
 
 	for (int i = 0; i < citylist::SORT_MODES; i++) {
 		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
@@ -266,6 +266,7 @@ void citylist_frame_t::resize(const scr_coord delta)
 	}
 	scrolly.set_pos( scr_coord(0, 42+(show_stats.pressed*CHART_HEIGHT) ) );
 	scrolly.set_size(size);
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, scrolly.get_size().h));
 	set_dirty();
 }
 
