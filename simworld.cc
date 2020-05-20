@@ -8786,7 +8786,7 @@ void karte_t::load(loadsave_t *file)
 		bool read_userdir_simuconf = env_t::default_settings.get_userdir_overrides_savegame_settings();
 		tabfile_t simuconf;
 		sint16 idummy;
-		std::string dummy;
+		string dummy;
 
 		if (read_progdir_simuconf) {
 			chdir( env_t::program_dir );
