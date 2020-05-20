@@ -3997,7 +3997,6 @@ bool fabrik_t::is_connect_own_network() const
 
 bool fabrik_t::has_goods_catg_demand(uint8 catg_index) const
 {
-	bool has_potential_demand; // Check descriptor registration. but, there is not always a partner
 	if (!output.empty()) {
 		for (uint32 index = 0; index < output.get_count(); index++) {
 			if (output[index].get_typ()->get_catg_index() == catg_index) {
