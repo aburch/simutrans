@@ -1,10 +1,11 @@
- /*
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef _simsignalbox_h
-#define _simsignalbox_h
+#ifndef SIMSIGNALBOX_H
+#define SIMSIGNALBOX_H
+
 
 #include "obj/gebaeude.h"
 #include "tpl/slist_tpl.h"
@@ -43,8 +44,8 @@ public:
 
 	// Checks whether a specific signal can be added without adding it. Returns true if it succeeds.
 	bool can_add_signal(const signal_t* s) const;
-	bool can_add_signal(const roadsign_desc_t* b) const; 
-	
+	bool can_add_signal(const roadsign_desc_t* b) const;
+
 	// Check whether any more signals can be added. Returns true if it succeeds.
 	// Separate from the above in order to give better error messages.
 	bool can_add_more_signals() const;
@@ -58,7 +59,7 @@ public:
 	// Transfer all signals *from* this box to the specified box.
 	// (Intended to be a preparation for closure).
 	// Returns number of signals transferred successfully, number that failed (x,y).
-	koord transfer_all_signals(signalbox_t* sb); 
+	koord transfer_all_signals(signalbox_t* sb);
 
 	uint32 get_number_of_signals_controlled_from_this_box() const { return signals.get_count(); }
 };

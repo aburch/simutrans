@@ -1,16 +1,11 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * signal infowindow buttons //Ves
- */
+#ifndef GUI_SIGNAL_INFO_H
+#define GUI_SIGNAL_INFO_H
 
-#ifndef signal_info_t_h
-#define signal_info_t_h
 
 #include "obj_info.h"
 #include "../obj/signal.h"
@@ -18,6 +13,7 @@
 #include "components/gui_numberinput.h"
 #include "components/gui_container.h"
 #include "../player/simplay.h"
+
 
 /**
  * Info window for signals
@@ -32,13 +28,13 @@ class signal_info_t : public obj_infowin_t, public action_listener_t
 
  public:
 	signal_info_t(signal_t* const s);
-	
+
 	/*
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *get_help_filename() const { return "signals_overview.txt"; }
+	const char *get_help_filename() const OVERRIDE { return "signals_overview.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

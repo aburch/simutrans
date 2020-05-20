@@ -1,5 +1,11 @@
-#ifndef schedule_h
-#define schedule_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DATAOBJ_SCHEDULE_H
+#define DATAOBJ_SCHEDULE_H
+
 
 #include "schedule_entry.h"
 

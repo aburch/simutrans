@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjoerg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
- * Ways (Roads, Railways, etc.)
- *
- * Hj. Malthaner
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <algorithm>
@@ -460,7 +454,13 @@ bool way_builder_t::check_crossing(const koord zv, const grund_t *bd, waytype_t 
 		return false;
 	}
 	// crossing available and ribis ok
-	if(crossing_logic_t::get_crossing(wtyp, w->get_waytype(), 0, 0, welt->get_timeline_year_month())!=NULL) {
+	const crossing_desc_t *crd = crossing_logic_t::get_crossing(wtyp, w->get_waytype(), 0, 0, welt->get_timeline_year_month());
+	if(crd!=NULL) {
+		// If existing way is water, then only allow building if desired way (presumably road) has max axle load of 0.
+		if ( (w->get_waytype() == water_wt) && (desc->get_axle_load() > 0)) {
+			return false;
+		}
+
 		ribi_t::ribi w_ribi = w->get_ribi_unmasked();
 		// it is our way we want to cross: can we built a crossing here?
 		// both ways must be straight and no ends
@@ -671,7 +671,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		if (ri.pos != koord::invalid)
 		{
 			// There is a nearby runway. Only build if we are a runway in the same direction connecting to it,
-			// or a perpendicular taxiway.	
+			// or a perpendicular taxiway.
 			if (desc->get_waytype() != air_wt)
 			{
 				// A non air waytype: cannot be built near a runway at all.
@@ -2663,7 +2663,6 @@ void way_builder_t::build_road()
 			}
 			else {
 				// make new way
-				const obj_t* obj = gr->obj_bei(0);
 				str = new strasse_t();
 
 				str->set_desc(desc);
@@ -2775,9 +2774,8 @@ void way_builder_t::build_track()
 
 					if(  change_desc  ) {
 						// we take ownership => we take care to maintain the roads completely ...
-						player_t *p = weg->get_owner();
 						cost -= weg->get_desc()->get_upgrade_group() == desc->get_upgrade_group() ? desc->get_way_only_cost() : desc->get_value();
-						
+
 						if (!desc->is_mothballed())
 						{
 							// If we are upgrading an unowned bridge or tunnel's way, take ownership of the bridge or tunnel.
@@ -2818,7 +2816,6 @@ void way_builder_t::build_track()
 				}
 				else
 				{
-					const obj_t* obj = gr->obj_bei(0);
 
 					weg_t* const sch = weg_t::alloc(desc->get_wtyp());
 					sch->set_pos(gr->get_pos());

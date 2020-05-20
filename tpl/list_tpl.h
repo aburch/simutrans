@@ -1,14 +1,11 @@
 /*
- * Copyright (c) 2010 Bernd Gabriel
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#pragma once
+#ifndef TPL_LIST_TPL_H
+#define TPL_LIST_TPL_H
 
-#ifndef list_tpl_h
-#define list_tpl_h
 
 /* <typeinfo> is needed for typeid... which is only used for debugging */
 #include <typeinfo>
@@ -19,7 +16,7 @@
 #include "../simdebug.h"
 
 /**
- * template<class item_t> list_tpl is a template for lists of polymorphic objects. 
+ * template<class item_t> list_tpl is a template for lists of polymorphic objects.
  *
  * It hold pointers to objects of the common base class item_t and any classes derived from item_t.
  * It may be the owner of these objects, which causes, that the objects are deleted, when they are removed from the list.
@@ -71,19 +68,19 @@ protected:
 	 * Descendant must override this method, as the template itself
 	 * may run into compile errors, if item_t is an abstract class.
 	 *
-	 * create_item() is used by set_count(). 
-	 * If you plan to use this template for a class that owns its items 
+	 * create_item() is used by set_count().
+	 * If you plan to use this template for a class that owns its items
 	 * and to use set_count(), you might want to override this method.
 	 */
-	virtual item_t *create_item() const { 
+	virtual item_t *create_item() const {
 		return NULL;
 	}
 	/**
 	 * delete_item() deletes the given item, if list owns items.
 	 */
-	virtual void delete_item(item_t *item) { 
+	virtual void delete_item(item_t *item) {
 		if (item && owns_items) {
-			delete item; 
+			delete item;
 		}
 	}
 public:
@@ -91,7 +88,7 @@ public:
 // construction / destruction
 
 	explicit list_tpl() : data(NULL), capacity(0), count(0), owns_items(false), is_sorted(false) {}
-	explicit list_tpl(bool owns_its_items) : data(NULL), capacity(0), count(0), owns_items(owns_its_items), is_sorted(false) {} 
+	explicit list_tpl(bool owns_its_items) : data(NULL), capacity(0), count(0), owns_items(owns_its_items), is_sorted(false) {}
 	explicit list_tpl(bool owns_its_items, uint32 initial_capacity) : data(NULL), capacity(0), count(0), owns_items(owns_its_items), is_sorted(false) { set_capacity(initial_capacity); }
 	explicit list_tpl(uint32 initial_capacity) : data(NULL), capacity(0), count(0), owns_items(false), is_sorted(false) { set_capacity(initial_capacity); }
 	virtual ~list_tpl() { set_capacity(0); }
@@ -99,7 +96,7 @@ public:
 // administration
 
 	/**
-	 * If list owns its items, it automatically creates or deletes items, 
+	 * If list owns its items, it automatically creates or deletes items,
 	 * whenever the size of the list changes or an item is replaced by another one.
 	 */
 	bool get_owns_items() const { return owns_items; }
@@ -138,12 +135,12 @@ public:
 	 *
 	 * Uses qsort(), a stack friendly implementation of the quicksort algorithm.
 	 */
-	void sort(); 
+	void sort();
 
 // querying data
 
 	/**
-	 * index_of() gets the position of the given item in the list. 
+	 * index_of() gets the position of the given item in the list.
 	 * Items are compared by their pointers.
 	 *
 	 * returns the position of the item or -1, if it is not in the list.
@@ -153,7 +150,7 @@ public:
 	/**
 	 * In a sorted list search() finds the position of an item like the given one
 	 * or, if there is no such item in the list, the position, where to insert it.
-	 * Items are compared by compare_item(). 
+	 * Items are compared by compare_item().
 	 *
 	 * Uses bsearch(), a fast binary search method, that works on sorted data.
 	 */
@@ -175,7 +172,7 @@ public:
 
 	/**
 	 * append() adds the given item at the end of the list.
-	 * If the list owns its items, it owns the added item too now. 
+	 * If the list owns its items, it owns the added item too now.
 	 *
 	 * returns items's new position in the list.
 	 */
@@ -183,7 +180,7 @@ public:
 
 	/**
 	 * insert() inserts the given item at the given position into the list.
-	 * If the list owns its items, it owns the inserted item too now. 
+	 * If the list owns its items, it owns the inserted item too now.
 	 *
 	 * All items at and above this position are moved up one position.
 	 */
@@ -198,10 +195,10 @@ public:
 
 	/**
 	 * set() replaces the item at position 'index' with the given item.
-	 * If the list owns its items, it owns the given item too now. 
+	 * If the list owns its items, it owns the given item too now.
 	 *
 	 * returns the item, that has been at this position before.
-	 * or NULL, if there was none or the list owns items 
+	 * or NULL, if there was none or the list owns items
 	 * (as in this case the list has deleted the old item).
 	 */
 	item_t *set(uint32 index, item_t *item);
@@ -209,14 +206,14 @@ public:
 // removing items
 
 	/**
-	 * extract() removes the item at position 'index' from the list and returns it. 
-	 * The item is not deleted, even if the list owns its items. 
+	 * extract() removes the item at position 'index' from the list and returns it.
+	 * The item is not deleted, even if the list owns its items.
 	 */
 	item_t *extract(uint32 index);
 
 	/**
-	 * remove() removes the item at position 'index' from the list. 
-	 * If the list owns its items, the item is deleted. 
+	 * remove() removes the item at position 'index' from the list.
+	 * If the list owns its items, the item is deleted.
 	 */
 	void remove(uint32 index) {	delete_item(extract(index)); }
 };
@@ -226,7 +223,7 @@ public:
 
 
 // BG, 05.04.2010
-template<class item_t> uint32 list_tpl<item_t>::add(item_t *item) 
+template<class item_t> uint32 list_tpl<item_t>::add(item_t *item)
 {
 	uint32 index;
 	if (is_sorted) {
@@ -246,7 +243,7 @@ template<class item_t> uint32 list_tpl<item_t>::add(item_t *item)
 
 
 // BG, 04.04.2010
-template<class item_t> uint32 list_tpl<item_t>::append(item_t *item) 
+template<class item_t> uint32 list_tpl<item_t>::append(item_t *item)
 {
 	if (count == capacity) {
 		grow();
@@ -293,7 +290,7 @@ template<class item_t> uint32 list_tpl<item_t>::bsearch(const item_t *item) cons
 
 
 // BG, 04.04.2010
-template<class item_t> item_t *list_tpl<item_t>::extract(uint32 index) 
+template<class item_t> item_t *list_tpl<item_t>::extract(uint32 index)
 {
 	assert_index_in_bounds(index, "index to extract");
 	item_t *item = data[index];
@@ -307,9 +304,9 @@ template<class item_t> item_t *list_tpl<item_t>::extract(uint32 index)
 
 
 // BG, 04.04.2010
-template<class item_t> sint32 list_tpl<item_t>::index_of(const item_t *item) const 
+template<class item_t> sint32 list_tpl<item_t>::index_of(const item_t *item) const
 {
-	sint32 index = (sint32) count; 
+	sint32 index = (sint32) count;
 	while (--index >= 0) {
 		if (data[index] == item) {
 			break;
@@ -320,7 +317,7 @@ template<class item_t> sint32 list_tpl<item_t>::index_of(const item_t *item) con
 
 
 // BG, 04.04.2010
-template<class item_t> void list_tpl<item_t>::insert(uint32 index, item_t *item) 
+template<class item_t> void list_tpl<item_t>::insert(uint32 index, item_t *item)
 {
 	assert_index_in_bounds(index, "index to insert into");
 	if (count == capacity) {
@@ -339,14 +336,14 @@ template<class item_t> void list_tpl<item_t>::insert(uint32 index, item_t *item)
 // BG, 05.04.2010
 template<class item_t> bool list_tpl<item_t>::is_item_in_sort_order(uint32 index, const item_t *item)
 {
-	return get_is_sorted() && 
-		(index == 0 || compare_items(data[index - 1], item) <= 0) && 
-		(index + 1 == count || compare_items(item, data[index + 1]) <= 0); 
+	return get_is_sorted() &&
+		(index == 0 || compare_items(data[index - 1], item) <= 0) &&
+		(index + 1 == count || compare_items(item, data[index + 1]) <= 0);
 }
 
 
 // BG, 04.04.2010
-template<class item_t> void list_tpl<item_t>::move(uint32 from, uint32 to) 
+template<class item_t> void list_tpl<item_t>::move(uint32 from, uint32 to)
 {
 	assert_index_in_bounds(from, "index 'from'");
 	assert_index_in_bounds(to, "index 'to'");
@@ -355,7 +352,7 @@ template<class item_t> void list_tpl<item_t>::move(uint32 from, uint32 to)
 		while (++from <= to)
 		{
 			data[from-1] = data[from];
-		}			
+		}
 	}
 	else if (from > to) {
 		while (--from >= to) {
@@ -405,7 +402,7 @@ template<class item_t> void list_tpl<item_t>::qsort(sint32 l, sint32 r)
 
 
 // BG, 04.04.2010
-template<class item_t> item_t *list_tpl<item_t>::set(uint32 index, item_t *item) 
+template<class item_t> item_t *list_tpl<item_t>::set(uint32 index, item_t *item)
 {
 	assert_index_in_bounds(index, "index to set value of");
 	item_t *old = data[index];
@@ -452,7 +449,7 @@ template<class item_t> void list_tpl<item_t>::set_capacity(uint32 value) {
 
 
 // BG, 04.04.2010
-template<class item_t> void list_tpl<item_t>::set_count(uint32 new_count) 
+template<class item_t> void list_tpl<item_t>::set_count(uint32 new_count)
 {
 	set_capacity(new_count);
 	if (count < new_count) {
@@ -465,15 +462,15 @@ template<class item_t> void list_tpl<item_t>::set_count(uint32 new_count)
 
 
 // BG, 04.04.2010
-template<class item_t> void list_tpl<item_t>::sort() 
-{ 
+template<class item_t> void list_tpl<item_t>::sort()
+{
 	qsort(0, (sint32)count - 1);
 	set_is_sorted(true);
 }
 
 
 // BG, 04.04.2010
-template<class item_t> void list_tpl<item_t>::swap(uint32 from, uint32 to) 
+template<class item_t> void list_tpl<item_t>::swap(uint32 from, uint32 to)
 {
 	assert_index_in_bounds(from, "index 'from'");
 	assert_index_in_bounds(to, "index 'to'");

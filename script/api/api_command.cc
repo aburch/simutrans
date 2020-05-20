@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "api.h"
 
 /** @file api_command.cc exports the command_x class, which encodes the tools to manipulate a game */

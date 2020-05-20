@@ -1,12 +1,6 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- *  2006 completely changed by prissi and Kieron Green
- *
- * This file is part of the Simutrans project under the artistic licence.
- *
- *  Moduldescreibung:
- *      Calculates the ground for different levels using the textures here
- *
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>

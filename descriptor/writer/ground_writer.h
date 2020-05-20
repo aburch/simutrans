@@ -1,5 +1,11 @@
-#ifndef GROUND_WRITER_H
-#define GROUND_WRITER_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DESCRIPTOR_WRITER_GROUND_WRITER_H
+#define DESCRIPTOR_WRITER_GROUND_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"

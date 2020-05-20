@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef route_h
-#define route_h
+#ifndef DATAOBJ_ROUTE_H
+#define DATAOBJ_ROUTE_H
+
 
 #include "../simdebug.h"
 
@@ -88,9 +87,11 @@ public:
 	static thread_local uint32 MAX_STEP;
 	static thread_local uint32 max_used_steps;
 	static void INIT_NODES(uint32 max_route_steps, const koord &world_size);
-	static uint8 GET_NODES(ANode **nodes); 
+	static uint8 GET_NODES(ANode **nodes);
 	static void RELEASE_NODES(uint8 nodes_index);
 	static void TERM_NODES(void* args = NULL);
+
+	static bool suspend_private_car_routing;
 
 	const koord3d_vector_t &get_route() const { return route; }
 
@@ -150,7 +151,7 @@ public:
 	 * Removes all tiles before
 	 * this position.
 	 */
-	void remove_koord_to(uint32 i); 
+	void remove_koord_to(uint32 i);
 
 	/**
 	 * Appends a straight line to the @p target.

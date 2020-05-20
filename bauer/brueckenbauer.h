@@ -1,10 +1,11 @@
 /*
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef __simbridge_h
-#define __simbridge_h
+#ifndef BAUER_BRUECKENBAUER_H
+#define BAUER_BRUECKENBAUER_H
+
 
 #include "../simtypes.h"
 #include "../dataobj/koord.h"

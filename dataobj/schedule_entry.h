@@ -1,5 +1,11 @@
-#ifndef schedule_entry_h
-#define schedule_entry_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DATAOBJ_SCHEDULE_ENTRY_H
+#define DATAOBJ_SCHEDULE_ENTRY_H
+
 
 #include "koord3d.h"
 
@@ -15,8 +21,8 @@ public:
 	schedule_entry_t(koord3d const& pos, uint16 const minimum_loading, sint8 const waiting_time_shift, sint16 spacing_shift, sint8 reverse, bool wait_for_time) :
 		pos(pos),
 		minimum_loading(minimum_loading),
-		waiting_time_shift(waiting_time_shift),
 		spacing_shift(spacing_shift),
+		waiting_time_shift(waiting_time_shift),
 		reverse(reverse),
 		wait_for_time(wait_for_time)
 	{}
@@ -53,9 +59,9 @@ public:
 	 * @author: jamespetts
 	 */
 	sint8 reverse;
-	
+
 	/**
-	 * Whether a convoy must wait for a 
+	 * Whether a convoy must wait for a
 	 * time slot at this entry.
 	 * @author: jamespetts
 	 */

@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -407,7 +412,7 @@ void loadsave_t::rdwr_string(std::string &s) {
 }
 
 
-bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex, const char* savegame_revision_ex)
+bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex, const char *)
 {
 	mode = m;
 	close();
@@ -472,7 +477,7 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 
 	loadsave_t::combined_version combined_version = int_version(savegame_version, NULL, NULL);
 	version = combined_version.version;
-	
+
 	const char* pakset_string = this->pak_extension;
 
 	if(  !is_xml()  ) {

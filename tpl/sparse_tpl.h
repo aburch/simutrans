@@ -1,5 +1,11 @@
-#ifndef tpl_sparse_tpl_h
-#define tpl_sparse_tpl_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef TPL_SPARSE_TPL_H
+#define TPL_SPARSE_TPL_H
+
 
 #include "../dataobj/koord.h"
 #include "../simtypes.h"
@@ -207,10 +213,10 @@ class sparse_tpl
 		 */
 		uint16 pos_to_index( koord pos ) const {
 			uint16 row_start = row_ptr[ pos.y ];
-			uint16 row_end = row_ptr[ pos.y + 1 ];			
+			uint16 row_end = row_ptr[ pos.y + 1 ];
 			if (row_start >= row_end || col_ind[row_end-1] < pos.x) return row_end;
-			if (col_ind[row_start]>=pos.x) return row_start;	
-			
+			if (col_ind[row_start]>=pos.x) return row_start;
+
 			do {
 				uint16 i = (row_start + row_end) / 2;
 				if( col_ind[i] >= pos.x ) {
@@ -220,8 +226,8 @@ class sparse_tpl
 					row_start = i;
 				}
 			} while (row_end > row_start + 1);
-				
-			
+
+
 			/*for( uint16 i = row_start; i < row_end; i++ ) {
 				if( col_ind[i] >= pos.x ) {
 

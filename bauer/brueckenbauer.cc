@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string.h>
@@ -329,8 +327,8 @@ bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, player_t
 		if (const gebaeude_t* gb = gr->get_building())
 		{
 			const uint8 max_level = welt->get_settings().get_max_elevated_way_building_level();
-			
-			if((gb->get_tile()->get_desc()->get_level() > max_level) && gr->get_halt().is_bound()) 
+
+			if((gb->get_tile()->get_desc()->get_level() > max_level) && gr->get_halt().is_bound())
 			{
 				error_msg = "Bridges cannot be built over large buildings.";
 				return true;
@@ -468,7 +466,7 @@ koord3d bridge_builder_t::find_end_pos(player_t *player, koord3d pos, const koor
 		}
 
 		// Check for non-length restricted bridges over deep water.
-		if(desc->get_max_length() == 0 && welt->lookup_hgt( pos.get_2d() ) < welt->get_water_hgt( pos.get_2d())) 
+		if(desc->get_max_length() == 0 && welt->lookup_hgt( pos.get_2d() ) < welt->get_water_hgt( pos.get_2d()))
 		{
 			error_msg = "Bridge cannot be built over deep water\n";
 			return koord3d::invalid;
@@ -1204,7 +1202,6 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 				ribi_t::ribi r = wegtyp==powerline_wt ? from->get_leitung()->get_ribi() : from->get_weg_nr(0)->get_ribi_unmasked();
 				ribi_t::ribi dir1 = r & ribi_t::northeast;
 				ribi_t::ribi dir2 = r & ribi_t::southwest;
-				bool dir1_ok = false, dir2_ok = false;
 
 				grund_t *to;
 				// test if we are at the end of a bridge:

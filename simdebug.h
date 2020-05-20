@@ -1,12 +1,10 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simdebug_h
-#define simdebug_h
+#ifndef SIMDEBUG_H
+#define SIMDEBUG_H
 
 
  // do not check assertions

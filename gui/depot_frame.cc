@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 /*
@@ -140,7 +138,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	bt_sell.set_typ(button_t::roundbox);
 	bt_sell.add_listener(this);
-	bt_sell.set_tooltip("Sell the selected vehicle(s)");
+	set_resale_value();
 	add_component(&bt_sell);
 
 	scr_size size(0,0);
@@ -276,8 +274,6 @@ void depot_frame_t::layout(scr_size *size)
 	*	Structure of [VINFO] is one multiline text.
 	*/
 
-	//const scr_coord_val VINFO_HEIGHT = 14 * LINESPACE - 1;
-	const scr_coord_val VINFO_HEIGHT = convoy_assembler.get_height();
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
 	*/
@@ -289,7 +285,7 @@ void depot_frame_t::layout(scr_size *size)
 	*/
 	const scr_coord_val SELECT_VSTART = D_MARGIN_TOP;
 	const scr_coord_val ASSEMBLER_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE;
-	const scr_coord_val ACTIONS_VSTART = ASSEMBLER_VSTART + convoy_assembler.get_convoy_height() + LINESPACE;
+	const scr_coord_val ACTIONS_VSTART = ASSEMBLER_VSTART + convoy_assembler.get_convoy_height();
 
 	/*
 	* Now we determine the row/col layout for the panel and the total panel
@@ -336,12 +332,12 @@ void depot_frame_t::layout(scr_size *size)
 	 * [SELECT ROUTE]:
 	 * @author hsiegeln
 	 */
-	line_button.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART + D_BUTTON_HEIGHT + 3));
-	lb_convoi_line.set_pos(scr_coord(D_MARGIN_LEFT + line_button.get_size().w + 2, SELECT_VSTART + D_BUTTON_HEIGHT + 3));
+	line_button.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART + D_BUTTON_HEIGHT + 3));
+	lb_convoi_line.set_pos(scr_coord(D_MARGIN_LEFT + selector_x + line_button.get_size().w + 2, SELECT_VSTART + D_BUTTON_HEIGHT + 3));
 	lb_convoi_line.set_width( selector_x - line_button.get_size().w - 2 - D_H_SPACE );
 
-	line_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART + D_BUTTON_HEIGHT));
-	line_selector.set_size(scr_size(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, D_BUTTON_HEIGHT));
+	line_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x*2, SELECT_VSTART + D_BUTTON_HEIGHT));
+	line_selector.set_size(scr_size(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x*2, D_BUTTON_HEIGHT));
 	line_selector.set_max_size(scr_size(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, LINESPACE * 13 + 2 + 16));
 
 	/*
@@ -368,7 +364,7 @@ void depot_frame_t::layout(scr_size *size)
 
 	bt_sell.set_pos(scr_coord(D_MARGIN_LEFT + (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 + 3, ACTIONS_VSTART));
 	bt_sell.set_size(scr_size((DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) - (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 - 3, D_BUTTON_HEIGHT));
-	bt_sell.set_text("verkaufen");
+	set_resale_value();
 
 	const scr_coord_val margin = 4;
 	img_bolt.set_pos(scr_coord(get_windowsize().w - skinverwaltung_t::electricity->get_image(0)->get_pic()->w - margin, margin));
@@ -413,7 +409,7 @@ void depot_frame_t::update_data()
 			txt_convois.printf( translator::translate("no convois") );
 			break;
 		}
-		
+
 		case 1: {
 			if(  icnv == -1  ) {
 				txt_convois.append( translator::translate("1 convoi") );
@@ -530,6 +526,28 @@ sint64 depot_frame_t::calc_sale_value(const vehicle_desc_t *veh_type)
 }
 
 
+void depot_frame_t::set_resale_value(uint32 nominal_cost, sint64 resale_value)
+{
+	if (nominal_cost == resale_value) {
+		bt_sell.set_text(translator::translate("Refund"));
+		bt_sell.set_tooltip("Return the vehicle(s) for a full refund.");
+	}
+	else if (resale_value == 0) {
+		bt_sell.set_text(translator::translate("Scrap"));
+		bt_sell.set_tooltip("Scrap all vehicles in the convoy.");
+	}
+	else {
+		bt_sell.set_text(translator::translate("verkaufen"));
+		txt_convoi_cost.clear();
+		char buf[128];
+		money_to_string(buf, resale_value/100.0);
+		txt_convoi_cost.printf(translator::translate("Sell the convoy for %s"), buf);
+		bt_sell.set_tooltip(txt_convoi_cost);
+	}
+	return;
+}
+
+
 bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 {
 	convoihandle_t cnv = depot->get_convoi( icnv );
@@ -604,7 +622,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		}
 		else if(  comp == &bt_copy_convoi  )
 		{
-			if(  cnv.is_bound() && cnv->all_vehicles_are_buildable()) 
+			if(  cnv.is_bound() && cnv->all_vehicles_are_buildable())
 			{
 				if (cnv->get_schedule() && (!cnv->get_schedule()->is_editing_finished()))
 				{
@@ -614,7 +632,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 				{
 					depot->call_depot_tool('c', cnv, NULL, gui_convoy_assembler_t::get_livery_scheme_index());
 				}
-				else 
+				else
 				{
 					create_win( new news_img("Can't buy obsolete vehicles!"), w_time_delete, magic_none );
 				}
@@ -864,7 +882,7 @@ bool depot_frame_t::check_way_electrified(bool init)
 	{
 		convoy_assembler.set_electrified( way_electrified );
 	}
-	if( way_electrified ) 
+	if( way_electrified )
 	{
 		//img_bolt.set_image(skinverwaltung_t::electricity->get_image_id(0));
 	}

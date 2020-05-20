@@ -1,13 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Line class manager window
- */
+#ifndef GUI_LINE_CLASS_MANAGER_H
+#define GUI_LINE_CLASS_MANAGER_H
+
 
 #include "gui_frame.h"
 #include "components/gui_container.h"
@@ -24,10 +22,13 @@
 
 class scr_coord;
 
-class line_class_manager_t : public gui_frame_t , private action_listener_t
+/*
+ * Line class manager window
+ */
+class line_class_manager_t : public gui_frame_t, private action_listener_t
 {
 private:
-	
+
 	linehandle_t line;
 	button_t reset_all_pass_button, reset_all_mail_button;
 
@@ -43,12 +44,6 @@ private:
 	uint16 current_pass_entries;
 	uint16 pass_entries;
 
-	uint32 current_number_of_vehicles;
-	uint32 old_number_of_vehicles;
-
-	uint32 current_number_of_convoys;
-	uint32 old_number_of_convoys;
-
 	uint32 text_height;
 
 	uint8 highest_catering;
@@ -58,16 +53,9 @@ private:
 	uint32 tpo_amount;
 
 	uint8 vehicle_count;
-	uint8 convoy_count;
 	uint8 old_vehicle_count;
 
-	uint16 header_height;
-
-	int longest_class_name;
-
 	uint32 overcrowded_capacity;
-
-	bool convoy_bound = false;
 
 	char *pass_class_name_untranslated[32];
 	char *mail_class_name_untranslated[32];
@@ -86,7 +74,7 @@ private:
 public:
 
 	line_class_manager_t(linehandle_t line);
-	
+
 	/**
 	* Do the dynamic component layout
 	*/
@@ -104,20 +92,20 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const {return "line_class_manager.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "line_class_manager.txt"; }
 
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_windowsize(scr_size size);
+	virtual void set_windowsize(scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
@@ -129,9 +117,11 @@ public:
 	// this constructor is only used during loading
 	line_class_manager_t();
 
-	void rdwr( loadsave_t *file );
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	uint32 get_rdwr_id() { return magic_line_class_manager; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_line_class_manager; }
 
 	~line_class_manager_t();
 };
+
+#endif

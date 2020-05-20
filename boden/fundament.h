@@ -1,5 +1,11 @@
-#ifndef boden_fundament_h
-#define boden_fundament_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef BODEN_FUNDAMENT_H
+#define BODEN_FUNDAMENT_H
+
 
 #include "grund.h"
 

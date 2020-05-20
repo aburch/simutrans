@@ -1,17 +1,17 @@
-Simutrans-Experimental is a fork of Simutrans, which is released under the Artistic Licence (both the original and this fork). Note, however, that individual pak sets may come with their own license.
+Simutrans-Extended is a fork of Simutrans, which is released under the Artistic Licence (both the original and this fork). Note, however, that individual pak sets may come with their own license.
 Simutrans is copyright (C) 1997-2004 by Hansjoerg Malthaner.
 (c) 2004-2012 Simutrans Team
 
 >>>>>>>>>>> NO WARRANTIES, EXPRESS OR IMPLIED. <<<<<<<<<<<
 
-Download the sources from 
+Download the sources from
 
-        https://github.com/jamespetts/simutrans-experimental
-        
+        https://github.com/jamespetts/simutrans-extended
 
-Find out more about Simutrans-Experimental on the forum:
 
-        http://forum.simutrans.com
-        
+Find out more about Simutrans-Extended on the forum:
 
-Have lots of fun playing Simutrans-Experimental!
+        https://forum.simutrans.com
+
+
+Have lots of fun playing Simutrans-Extended!

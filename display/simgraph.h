@@ -1,8 +1,19 @@
 /*
- * Copyright (c) 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
+
+#ifndef DISPLAY_SIMGRAPH_H
+#define DISPLAY_SIMGRAPH_H
+
+
+#include "../simcolor.h"
+#include "../unicode.h"
+#include "../simtypes.h"
+#include "clip_num.h"
+#include "simimg.h"
+#include "scr_coord.h"
+
 
 /*
  * Attempt of graphics for the Simulation game
@@ -11,15 +22,6 @@
  *
  * 3D, isometric representation
  */
-#ifndef simgraph_h
-#define simgraph_h
-
-#include "../simcolor.h"
-#include "../unicode.h"
-#include "../simtypes.h"
-#include "clip_num.h"
-#include "simimg.h"
-#include "scr_coord.h"
 
 
 extern int large_font_ascent;

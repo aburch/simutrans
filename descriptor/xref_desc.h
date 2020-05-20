@@ -1,5 +1,11 @@
-#ifndef XREF_BESCH_H
-#define XREF_BESCH_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DESCRIPTOR_XREF_DESC_H
+#define DESCRIPTOR_XREF_DESC_H
+
 
 #include "obj_desc.h"
 #include "objversion.h"

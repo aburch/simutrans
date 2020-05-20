@@ -1,5 +1,11 @@
-#ifndef _SCRIPT_H_
-#define _SCRIPT_H_
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SCRIPT_SCRIPT_H
+#define SCRIPT_SCRIPT_H
+
 
 /** @file script.h handles the virtual machine, interface to squirrel */
 

@@ -1,10 +1,11 @@
 /*
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_chart_h
-#define gui_chart_h
+#ifndef GUI_COMPONENTS_GUI_CHART_H
+#define GUI_COMPONENTS_GUI_CHART_H
+
 
 #include "../../simtypes.h"
 #include "gui_component.h"
@@ -33,7 +34,7 @@ public:
 	 * paint chart
 	 * @author hsiegeln
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -98,7 +99,7 @@ public:
 	void set_show_x_axis(bool yesno) { show_x_axis = yesno; }
 
 	void set_show_y_axis(bool yesno) { show_y_axis = yesno; }
-	
+
 	void set_ltr(bool yesno) { ltr = yesno; }
 
 	int get_curve_count() { return curves.get_count(); }

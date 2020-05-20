@@ -1,14 +1,19 @@
 /*
- * Routines to manage special object descriptors (descs) lists used in the program.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef __SPECIAL_OBJ_TPL_H
-#define __SPECIAL_OBJ_TPL_H
+#ifndef DESCRIPTOR_SPEZIAL_OBJ_TPL_H
+#define DESCRIPTOR_SPEZIAL_OBJ_TPL_H
+
 
 #include <string.h>
 #include <typeinfo>
 #include "../simdebug.h"
 
+/*
+ * Routines to manage special object descriptors lists used in the program.
+ */
 
 /**
  * Descriptors (descs) of required objects. The following functions manage

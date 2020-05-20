@@ -1,5 +1,11 @@
-#ifndef gui_messagebox_h
-#define gui_messagebox_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_MESSAGEBOX_H
+#define GUI_MESSAGEBOX_H
+
 
 #include "base_info.h"
 #include "components/gui_location_view_t.h"

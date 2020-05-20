@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef HAUSBAUER_H
-#define HAUSBAUER_H
+#ifndef BAUER_HAUSBAUER_H
+#define BAUER_HAUSBAUER_H
+
 
 #include "../descriptor/building_desc.h"
 #include "../dataobj/koord3d.h"

@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2002 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "../simdebug.h"
@@ -194,7 +192,7 @@ const goods_desc_t *goods_manager_t::get_info_catg_index(const uint8 catg_index)
 }
 
 
-const uint8 goods_manager_t::get_classes_catg_index(const uint8 catg_index)
+uint8 goods_manager_t::get_classes_catg_index(const uint8 catg_index)
 {
 	if (catg_index == goods_manager_t::INDEX_PAS) {
 		return goods_manager_t::passengers->get_number_of_classes();
@@ -210,7 +208,7 @@ const uint8 goods_manager_t::get_classes_catg_index(const uint8 catg_index)
 void goods_manager_t::set_multiplier(sint32 multiplier, uint16 scale_factor)
 {
 //DBG_MESSAGE("goods_manager_t::set_multiplier()","new factor %i",multiplier);
-	for(unsigned i=0;  i<get_count();  i++  ) 
+	for(unsigned i=0;  i<get_count();  i++  )
 	{
 		goods[i]->values.clear();
 		ITERATE(goods[i]->base_values, n)

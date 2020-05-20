@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2010 Bernd Gabriel
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string.h>
@@ -37,7 +35,7 @@ gui_table_t::~gui_table_t()
 
 
 // BG, 22.03.2010
-coordinate_t gui_table_t::add_column(gui_table_column_t *column) 
+coordinate_t gui_table_t::add_column(gui_table_column_t *column)
 {
 	coordinate_t x = columns.add(column);
 	return x;
@@ -45,7 +43,7 @@ coordinate_t gui_table_t::add_column(gui_table_column_t *column)
 
 
 // BG, 22.03.2010
-coordinate_t gui_table_t::add_row(gui_table_row_t *row) 
+coordinate_t gui_table_t::add_row(gui_table_row_t *row)
 {
 	coordinate_t y = rows.add(row);
 	return y;
@@ -53,7 +51,7 @@ coordinate_t gui_table_t::add_row(gui_table_row_t *row)
 
 
 // BG, 18.03.2010
-void gui_table_t::change_size(const coordinates_t & /*old_size*/, const coordinates_t &new_size) 
+void gui_table_t::change_size(const coordinates_t & /*old_size*/, const coordinates_t &new_size)
 {
 	// change size of arrays
 	rows.set_count(new_size.get_y());
@@ -77,7 +75,7 @@ bool gui_table_t::get_column_at(scr_coord_val x, coordinate_t &column, scr_coord
 		ref += width;
 		if (x < ref) {
 			column = i;
-			offset = ref - width; 
+			offset = ref - width;
 			return true;
 		}
 	}
@@ -116,12 +114,12 @@ bool gui_table_t::get_cell_at(scr_coord_val x, scr_coord_val y, coordinates_t &c
 		cell.set_y(cy);
 		return true;
 	}
-	return false;	
+	return false;
 }
 
 
 // BG, 18.03.2010
-scr_coord_val gui_table_t::get_table_width() const 
+scr_coord_val gui_table_t::get_table_width() const
 {
 	coordinate_t i = columns.get_count();
 	scr_coord_val width = (i + 1) * grid_width.x;
@@ -133,7 +131,7 @@ scr_coord_val gui_table_t::get_table_width() const
 
 
 // BG, 18.03.2010
-scr_coord_val gui_table_t::get_table_height() const 
+scr_coord_val gui_table_t::get_table_height() const
 {
 	coordinate_t i = rows.get_count();
 	scr_coord_val height = (i + 1) * grid_width.y;
@@ -155,13 +153,13 @@ bool gui_table_t::infowin_event(const event_t *ev)
 
 
 // BG, 18.03.2010
-void gui_table_t::paint_cell(const scr_coord& /*offset*/, coordinate_t /*x*/, coordinate_t /*y*/) 
+void gui_table_t::paint_cell(const scr_coord& /*offset*/, coordinate_t /*x*/, coordinate_t /*y*/)
 {
 }
 
 
 // BG, 18.03.2010
-void gui_table_t::paint_cells(const scr_coord& offset) 
+void gui_table_t::paint_cells(const scr_coord& offset)
 {
 	coordinates_t size = get_grid_size();
 	scr_coord pos = offset;
@@ -181,7 +179,7 @@ void gui_table_t::paint_cells(const scr_coord& offset)
 
 
 // BG, 18.03.2010
-void gui_table_t::paint_grid(const scr_coord& offset) 
+void gui_table_t::paint_grid(const scr_coord& offset)
 {
 	coordinates_t size = get_grid_size();
 	scr_coord s(get_table_width(), get_table_height());
@@ -211,7 +209,7 @@ void gui_table_t::paint_grid(const scr_coord& offset)
 
 
 // BG, 27.03.2010
-void gui_table_t::remove_column(coordinate_t x) 
+void gui_table_t::remove_column(coordinate_t x)
 {
 	columns.remove(x);
 }
@@ -230,11 +228,11 @@ void gui_table_t::set_column_sort_row_prio(coordinate_t y, int prio)
 	assert(y >= 0 && (uint32) y < rows.get_count());
 	gui_table_row_t *row = rows.get(y);
 	int index = column_sort_row_order.index_of(row);
-	if (index >= 0) 
+	if (index >= 0)
 	{
 		column_sort_row_order.move(index, prio);
 	}
-	else 
+	else
 	{
 		if (column_sort_row_order.get_count() < rows.get_count()) {
 			column_sort_row_order.set_count(rows.get_count());
@@ -258,11 +256,11 @@ void gui_table_t::set_row_sort_column_prio(coordinate_t x, int prio)
 {
 	gui_table_column_t *column = columns.get(x);
 	int index = row_sort_column_order.index_of(column);
-	if (index >= 0) 
+	if (index >= 0)
 	{
 		row_sort_column_order.move(index, prio);
 	}
-	else 
+	else
 	{
 		if (row_sort_column_order.get_count() < columns.get_count()) {
 			row_sort_column_order.set_count(columns.get_count());
@@ -304,14 +302,14 @@ int gui_table_column_list_t::compare_items(const gui_table_column_t *item1, cons
 
 
 // BG, 11.02.2010
-gui_table_column_t *gui_table_column_list_t::create_item() const 
-{ 
+gui_table_column_t *gui_table_column_list_t::create_item() const
+{
 	scr_coord_val width = 99;
 	gui_table_t *owner = get_owner();
 	if (owner) {
 		width = owner->get_default_column_width();
 	}
-	return new gui_table_column_t(width); 
+	return new gui_table_column_t(width);
 }
 
 
@@ -338,21 +336,20 @@ int gui_table_row_list_t::compare_items(const gui_table_row_t *item1, const gui_
 
 
 // BG, 11.02.2010
-gui_table_row_t *gui_table_row_list_t::create_item() const 
-{ 
+gui_table_row_t *gui_table_row_list_t::create_item() const
+{
 	scr_coord_val height = 14;
 	gui_table_t *owner = get_owner();
 	if (owner) {
 		height = owner->get_default_row_height();
 	}
-	return new gui_table_row_t(height); 
+	return new gui_table_row_t(height);
 }
 
 
 // BG, 18.03.2010
-void gui_table_t::draw(scr_coord offset) 
+void gui_table_t::draw(scr_coord offset)
 {
-	coordinates_t size = get_grid_size();
 	scr_coord pos = get_pos() + offset;
 
 	if (get_grid_visible())

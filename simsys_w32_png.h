@@ -1,5 +1,11 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef SIMSYS_W32_PNG_H
 #define SIMSYS_W32_PNG_H
+
 
 #ifdef _WIN32
 // Try using GDIplus to save an screenshot.

@@ -1,11 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
- * Renovation in dec 2004 for other vehicles, timeline
- * @author prissi
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -98,10 +93,10 @@ player_t::player_t(karte_t *wl, uint8 nr) :
 	}
 
 	// By default, allow access to the public player.
-	// In most cases, the public player can override the absence of 
+	// In most cases, the public player can override the absence of
 	// access in any event, but this is relevant to whether private
 	// cars may use player roads.
-	access[1] = true; 
+	access[1] = true;
 }
 
 
@@ -391,7 +386,7 @@ bool player_t::new_month()
 		finance->increase_account_overdrawn();
 		if(!welt->get_settings().is_freeplay() && player_nr != 1 /* public player*/ )
 		{
-			if(welt->get_active_player_nr() == player_nr) 
+			if(welt->get_active_player_nr() == player_nr)
 			{
 				if(  account_balance < finance->get_hard_credit_limit() && welt->get_settings().bankruptcy_allowed() && !env_t::networkmode )
 				{
@@ -405,7 +400,7 @@ bool player_t::new_month()
 					// Warnings about financial problems
 					buf.clear();
 					enum message_t::msg_typ warning_message_type = message_t::warnings;
-					// Plural detection for the months. 
+					// Plural detection for the months.
 					// Different languages pluralise in different ways, so whole string must
 					// be re-translated.
 					if(finance->get_account_overdrawn() > 1)
@@ -434,7 +429,7 @@ bool player_t::new_month()
 					welt->get_message()->add_message( buf, koord::invalid, warning_message_type, player_nr, IMG_EMPTY );
 				}
 			}
-			
+
 			if(welt->get_active_player_nr() != player_nr || env_t::networkmode)  // Not the active player or a multi-player game
 			{
 				// AI players play by the same rules as human players regarding bankruptcy.
@@ -636,6 +631,7 @@ void player_t::ai_bankrupt()
 							case obj_t::monoraildepot:
 							case obj_t::tramdepot:
 							case obj_t::strassendepot:
+							case obj_t::narrowgaugedepot:
 							case obj_t::schiffdepot:
 							case obj_t::senke:
 							case obj_t::pumpe:
@@ -779,7 +775,7 @@ void player_t::rdwr(loadsave_t *file)
 	file->rdwr_bool(active);
 
 	// state is not saved anymore
-	if(file->get_version()<99014) 
+	if(file->get_version()<99014)
 	{
 		sint32 ldummy=0;
 		file->rdwr_long(ldummy);
@@ -787,7 +783,7 @@ void player_t::rdwr(loadsave_t *file)
 	}
 
 	// the AI stuff is now saved directly by the different AI
-	if(  file->get_version()<101000) 
+	if(  file->get_version()<101000)
 	{
 		sint32 ldummy = -1;
 		file->rdwr_long(ldummy);
@@ -851,7 +847,7 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 	}
 
 	// save the name too
-	if(file->get_version()>102003 && (file->get_extended_version() >= 9 || file->get_extended_version() == 0)) 
+	if(file->get_version()>102003 && (file->get_extended_version() >= 9 || file->get_extended_version() == 0))
 	{
 		file->rdwr_str( player_name_buf, lengthof(player_name_buf) );
 	}
@@ -907,7 +903,7 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d position)
 		if (this == welt->get_active_player()) {
 			cbuffer_t buf;
 			buf.printf("%s ", cnv->get_name());
-			buf.printf(translator::translate("no_route_too_complex_message")); 
+			buf.printf(translator::translate("no_route_too_complex_message"));
 			welt->get_message()->add_message((const char *)buf, cnv->get_pos().get_2d(), message_t::problems, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
 		}
 		break;
@@ -921,7 +917,7 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d position)
 				const uint32 cnv_weight = cnv->get_highest_axle_load();
 				if (cnv_weight > max_axle_load) {
 					buf.printf(" ");
-					buf.printf(translator::translate("Vehicle weighs %it, but max weight is %it"), cnv_weight, max_axle_load); 
+					buf.printf(translator::translate("Vehicle weighs %it, but max weight is %it"), cnv_weight, max_axle_load);
 				}
 				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::problems, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
 			}
@@ -937,7 +933,7 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d position)
 				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
 			}
 			break;
-		
+
 		case convoi_t::OUT_OF_RANGE:
 			{
 				koord destination = position.get_2d();
@@ -950,7 +946,7 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d position)
 					bool rev = cnv->is_reversed();
 					uint8 index = sch->get_current_stop();
 					sch->increment_index(&index, &rev);
-					destination = sch->entries.get_element(index).pos.get_2d(); 
+					destination = sch->entries.get_element(index).pos.get_2d();
 					count++;
 				}
 				const uint32 distance_from_last_stop_to_here_tiles = shortest_distance(cnv->get_pos().get_2d(), cnv->front()->get_last_stop_pos().get_2d());
@@ -1130,21 +1126,20 @@ bool player_t::has_money_or_assets() const
 void player_t::set_selected_signalbox(signalbox_t* sb)
 {
 	signalbox_t* old_selected = get_selected_signalbox();
-	gebaeude_t* gb_old = (gebaeude_t*)old_selected;
+	gebaeude_t* gb_old = old_selected;
 	if (gb_old)
 	{
 		gb_old->display_coverage_radius(false);
 	}
-	
-	selected_signalbox = sb ? (signalbox_t*)sb->get_first_tile() : NULL;
+
+	selected_signalbox = sb ? (signalbox_t*)sb->access_first_tile() : NULL;
 	if(!welt->is_destroying())
-	{	
-		signalbox_t* new_selected = selected_signalbox;
-		gebaeude_t* gb_new = (gebaeude_t*)new_selected;
-		if (gb_new)
+	{
+		if (selected_signalbox)
 		{
-			gb_new->display_coverage_radius(env_t::signalbox_coverage_show);
+			selected_signalbox->display_coverage_radius(env_t::signalbox_coverage_show);
 		}
+
 		tool_t::update_toolbars();
 		welt->set_dirty();
 	}

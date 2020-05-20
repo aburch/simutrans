@@ -1,12 +1,10 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_loadsave_frame_h
-#define gui_loadsave_frame_h
+#ifndef GUI_LOADSAVE_FRAME_H
+#define GUI_LOADSAVE_FRAME_H
 
 
 #include "savegame_frame.h"
@@ -62,7 +60,17 @@ public:
 	uint32 extended_version;
 	uint32 extended_revision;
 	bool file_exists;
-	sve_info_t() : pak(""), mod_time(0), file_size(0), file_exists(false), version(0), extended_version(0), extended_revision(0) {}
+
+	sve_info_t() :
+		pak(""),
+		mod_time(0),
+		file_size(0),
+		version(0),
+		extended_version(0),
+		extended_revision(0),
+		file_exists(false)
+	{}
+
 	sve_info_t(const char *pak_, time_t mod_, sint32 fs, uint32 version, uint32 extended_version);
 	bool operator== (const sve_info_t &) const;
 	void rdwr(loadsave_t *file);

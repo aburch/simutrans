@@ -1,5 +1,11 @@
-#ifndef _NETWORK_CMD_SCENARIO_H_
-#define _NETWORK_CMD_SCENARIO_H_
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef NETWORK_NETWORK_CMD_SCENARIO_H
+#define NETWORK_NETWORK_CMD_SCENARIO_H
+
 
 #include "network_cmd.h"
 #include "network_cmd_ingame.h"

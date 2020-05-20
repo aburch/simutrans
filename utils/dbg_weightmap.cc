@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifdef DEBUG_WEIGHTMAPS
 #include <iostream>
 #include <fstream>
@@ -26,7 +31,7 @@ void dbg_weightmap(array2d_tpl<double> &map, array2d_tpl< vector_tpl<koord> > &p
 			else if ( f > 1.0 ) {
 				f = 1.0;
 			}
-			file << int( weight_max * (f + 1.0)/2.0)<< ' '; 
+			file << int( weight_max * (f + 1.0)/2.0)<< ' ';
 		}
 		file << '\n';
 	}

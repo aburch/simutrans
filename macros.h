@@ -1,17 +1,17 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef MACROS_H
 #define MACROS_H
 
+
 #include "simtypes.h"
 
-// XXX Workaround: Old GCCs choke on type check.
-#if !defined __GNUC__ || GCC_ATLEAST(3, 0)
 // Ensures that the argument has array type.
 template <typename T, unsigned N> static inline void lengthof_check(T (&)[N]) {}
-#	define lengthof(x) (1 ? sizeof(x) / sizeof(*(x)) : (lengthof_check((x)), 0))
-#else
-#	define lengthof(x) (sizeof(x) / sizeof(*(x)))
-#endif
-
+#define lengthof(x) (1 ? sizeof(x) / sizeof(*(x)) : (lengthof_check((x)), 0))
 #define endof(x) ((x) + lengthof(x))
 
 #define QUOTEME_(x) #x

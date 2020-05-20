@@ -1,21 +1,20 @@
 /*
- * just displays an image
- *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_image_h
-#define gui_image_h
+#ifndef GUI_COMPONENTS_GUI_IMAGE_H
+#define GUI_COMPONENTS_GUI_IMAGE_H
+
 
 #include "../../display/simimg.h"
 #include "../../display/simgraph.h"
 #include "gui_component.h"
 
 
-
+/*
+ * just displays an image
+ */
 class gui_image_t : public gui_component_t
 {
 		control_alignment_t alignment;
@@ -35,7 +34,7 @@ class gui_image_t : public gui_component_t
 		 * Draw the component
 		 * @author Hj. Malthaner
 		 */
-		void draw( scr_coord offset );
+		void draw( scr_coord offset ) OVERRIDE;
 };
 
 #endif

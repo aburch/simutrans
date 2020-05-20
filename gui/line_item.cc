@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <algorithm>
 
 #include "line_item.h"
@@ -46,7 +51,7 @@ bool line_scrollitem_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scro
 	line_scrollitem_t *b = dynamic_cast<line_scrollitem_t*>(bb);
 	// good luck with mixed lists
 	assert(a != NULL  &&  b != NULL);
-	
+
 	if(  sort_mode != SORT_BY_NAME  ) {
 		line_scrollitem_t *a = (line_scrollitem_t *)aa;
 		line_scrollitem_t *b = (line_scrollitem_t *)bb;

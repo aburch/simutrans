@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2007 prissi
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -39,7 +37,7 @@ crossing_logic_t::crossing_logic_t( const crossing_desc_t *desc )
  * @return string; currently unused but useful for debugging
  * @author prissi
  */
-void crossing_logic_t::info(cbuffer_t & buf, bool dummy) const
+void crossing_logic_t::info(cbuffer_t & buf) const
 {
 	static char const* const state_str[4] = { "invalid", "open", "request closing", "closed" };
 	assert(state<4);

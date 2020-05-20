@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string.h>
@@ -373,7 +371,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 							sprintf(delim_expand, "%.*s%d", (int)(expansion[0] - delim), delim, expansion_value[0]);
 							for(int i=1; i<expansions; i++) {
 								char *prev_end = expansion[i-1]+expansion_length[i-1]+2;
-								sprintf(buffer, "%.*s%d", expansion[i]-prev_end, prev_end, expansion_value[i]);
+								sprintf(buffer, "%.*s%d", (int)(expansion[i]-prev_end), prev_end, expansion_value[i]);
 								strcat(delim_expand, buffer);
 							}
 							strcat(delim_expand, expansion[expansions-1]+expansion_length[expansions-1]+2);
@@ -420,7 +418,7 @@ bool tabfile_t::read_line(char *s, int size)
 }
 
 
-	
+
 int tabfile_t::find_parameter_expansion(char *key, char *data, int *parameters, int *expansions, char *param_ptr[10], char *expansion_ptr[10])
 {
 	char *s;

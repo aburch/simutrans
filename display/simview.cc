@@ -1,7 +1,6 @@
 /*
- * Copyright (c) 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -33,6 +32,8 @@ main_view_t::main_view_t(karte_t *welt)
 	assert(welt  &&  viewport);
 }
 
+
+#if COLOUR_DEPTH != 0
 static const sint8 hours2night[] =
 {
     4,4,4,4,4,4,4,4,
@@ -42,6 +43,8 @@ static const sint8 hours2night[] =
     0,0,0,0,0,0,0,1,
     2,3,4,4,4,4,4,4
 };
+#endif
+
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"

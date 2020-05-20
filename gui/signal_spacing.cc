@@ -1,6 +1,6 @@
 /*
- * Dialogue to set the signal spacing, when CTRL+clicking a signal on toolbar
- * Used by tool_build_roadsign_t
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "gui_frame.h"
@@ -94,7 +94,7 @@ bool signal_spacing_frame_t::action_triggered( gui_action_creator_t *comp, value
 		replace_button.pressed = !backward;
 		remove  = !backward;
 		remove_button.pressed = !backward;
-		
+
 	}
 	tool->set_values(player, signal_spacing, remove, replace, backward, signalbox);
 	return true;

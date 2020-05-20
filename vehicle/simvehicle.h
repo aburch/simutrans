@@ -1,16 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansj�rg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Vehicle base type.
- */
+#ifndef VEHICLE_SIMVEHICLE_H
+#define VEHICLE_SIMVEHICLE_H
 
-#ifndef _simvehicle_h
-#define _simvehicle_h
 
 #include <limits>
 #include <string>
@@ -452,7 +447,7 @@ public:
 	void set_route_index(uint16 value) { route_index = value; }
 	const koord3d get_pos_prev() const {return pos_prev;}
 
-	virtual route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route = NULL);
+	virtual route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel);
 
 	/**
 	* Get the base image.
@@ -524,17 +519,6 @@ public:
 	void make_smoke() const;
 
 	void show_info();
-
-#if 0
-private:
-	/**
-	* der normale Infotext
-	* @author Hj. Malthaner
-	*/
-	void info(cbuffer_t & buf, bool dummy = false) const;
-public:
-#endif
-
 
 	/* return friction constant: changes in hill and curves; may even negative downhill *
 	* @author prissi
@@ -1019,7 +1003,7 @@ private:
 	// Used to re-run the routing algorithm without
 	// checking runway length in order to display
 	// the correct error message.
-	bool ignore_runway_length = false; 
+	bool ignore_runway_length = false;
 
 #ifdef USE_DIFFERENT_WIND
 	static uint8 get_approach_ribi( koord3d start, koord3d ziel );
@@ -1061,11 +1045,11 @@ private:
 
 protected:
 	// jumps to next tile and correct the height ...
-	virtual void hop(grund_t*);
+	void hop(grund_t*) OVERRIDE;
 
-	bool check_next_tile(const grund_t *bd) const;
+	bool check_next_tile(const grund_t *bd) const OVERRIDE;
 
-	void enter_tile(grund_t*);
+	void enter_tile(grund_t*) OVERRIDE;
 
 	int block_reserver( uint32 start, uint32 end, bool reserve ) const;
 
@@ -1083,79 +1067,79 @@ public:
 	// since we are drawing ourselves, we must mark ourselves dirty during deletion
 	virtual ~air_vehicle_t();
 
-	virtual waytype_t get_waytype() const { return air_wt; }
+	waytype_t get_waytype() const OVERRIDE { return air_wt; }
 
 	// returns true for the way search to an unknown target.
-	virtual bool  is_target(const grund_t *,const grund_t *);
+	bool  is_target(const grund_t *,const grund_t *) OVERRIDE;
 
 	//bool can_takeoff_here(const grund_t *gr, ribi_t::ribi test_dir, uint8 len) const;
 
 	// return valid direction
-	virtual ribi_t::ribi get_ribi(const grund_t* ) const;
+	ribi_t::ribi get_ribi(const grund_t* ) const OVERRIDE;
 
 	// how expensive to go here (for way search)
-	virtual int get_cost(const grund_t *, const sint32, koord);
+	int get_cost(const grund_t *, const sint32, koord) OVERRIDE;
 
-	virtual bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8);
+	bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8) OVERRIDE;
 
-	virtual void set_convoi(convoi_t *c);
+	void set_convoi(convoi_t *c) OVERRIDE;
 
-	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route);
+	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route) OVERRIDE;
 
 	// BG, 08.08.2012: extracted from can_enter_tile()
-	route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel);
+	route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel) OVERRIDE;
 
 #ifdef INLINE_OBJ_TYPE
 #else
 	typ get_typ() const { return air_vehicle; }
 #endif
 
-	schedule_t *generate_new_schedule() const;
+	schedule_t *generate_new_schedule() const OVERRIDE;
 
-	void rdwr_from_convoi(loadsave_t *file);
+	void rdwr_from_convoi(loadsave_t *file) OVERRIDE;
 
 	int get_flyingheight() const {return flying_height-get_hoff()-2;}
 
 	void force_land() { flying_height = 0; target_height = 0; state = taxiing_to_halt; }
 
 	// image: when flying empty, on ground the plane
-	virtual image_id get_image() const {return !is_on_ground() ? IMG_EMPTY : image;}
+	virtual image_id get_image() const OVERRIDE {return !is_on_ground() ? IMG_EMPTY : image;}
 
 	// image: when flying the shadow, on ground empty
-	virtual image_id get_outline_image() const {return !is_on_ground() ? image : IMG_EMPTY;}
+	virtual image_id get_outline_image() const OVERRIDE {return !is_on_ground() ? image : IMG_EMPTY;}
 
 	// shadow has black color (when flying)
-	virtual PLAYER_COLOR_VAL get_outline_colour() const {return !is_on_ground() ? TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_BLACK : 0;}
+	virtual PLAYER_COLOR_VAL get_outline_colour() const OVERRIDE {return !is_on_ground() ? TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_BLACK : 0;}
 
 #ifdef MULTI_THREAD
 	// this draws the "real" aircrafts (when flying)
-	virtual void display_after(int xpos, int ypos, const sint8 clip_num) const;
+	virtual void display_after(int xpos, int ypos, const sint8 clip_num) const OVERRIDE;
 
 	// this routine will display a tooltip for lost, on depot order, and stuck vehicles
-	virtual void display_overlay(int xpos, int ypos) const;
+	virtual void display_overlay(int xpos, int ypos) const OVERRIDE;
 #else
 	// this draws the "real" aircrafts (when flying)
-	virtual void display_after(int xpos, int ypos, bool dirty) const;
+	virtual void display_after(int xpos, int ypos, bool dirty) const OVERRIDE;
 #endif
 
 	// the drag calculation happens it calc_height
-	void calc_drag_coefficient(const grund_t*) {}
+	void calc_drag_coefficient(const grund_t*) OVERRIDE {}
 
 	bool is_on_ground() const { return flying_height==0  &&  !(state==circling  ||  state==flying); }
 
 	// Used for running cost calculations
 	bool is_using_full_power() const { return state != circling && state != taxiing; }
 
-	const char * is_deletable(const player_t *player);
+	const char * is_deletable(const player_t *player) OVERRIDE;
 
-	virtual bool is_flying() const { return !is_on_ground(); }
+	virtual bool is_flying() const OVERRIDE { return !is_on_ground(); }
 
 	bool runway_too_short;
 	bool airport_too_close_to_the_edge;
 	bool is_runway_too_short() {return runway_too_short; }
 	bool is_airport_too_close_to_the_edge() { return airport_too_close_to_the_edge; }
-	virtual sint32 get_takeoff_route_index() const { return (sint32) takeoff; }
-	virtual sint32 get_touchdown_route_index() const { return (sint32) touchdown; }
+	virtual sint32 get_takeoff_route_index() const OVERRIDE { return (sint32) takeoff; }
+	virtual sint32 get_touchdown_route_index() const OVERRIDE { return (sint32) touchdown; }
 };
 
 sint16 get_friction_of_waytype(waytype_t waytype);

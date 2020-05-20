@@ -1,5 +1,11 @@
-#ifndef OBJ_PAK_EXCEPTION_H
-#define OBJ_PAK_EXCEPTION_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DESCRIPTOR_WRITER_OBJ_PAK_EXCEPTION_H
+#define DESCRIPTOR_WRITER_OBJ_PAK_EXCEPTION_H
+
 
 #include <string>
 

@@ -1,4 +1,9 @@
-/* ICON and Version info for Simutrans-Extended Windows */
+/*
+* This file is part of the Simutrans-Extended project under the Artistic License.
+* (see LICENSE.txt)
+*/
+
+/* ICON and Version info for Simutrans Windows */
 
 #include <windows.h>
 #include "simversion.h"

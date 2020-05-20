@@ -1,9 +1,8 @@
-﻿/*
- * Copyright (c) 1997 - 2001 Hansj�rg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
+
 #include <string>
 #include <stdio.h>
 #include <string.h>
@@ -308,26 +307,24 @@ void translator::init_custom_names(int lang)
 				char *const c = MALLOCN(char, l1 + l2 + 1);
 				sprintf(c, "%s%s", s1, s2);
 				city_name_list.append(c);
-				
-				// Now prefixes and suffixes. 
+
+				// Now prefixes and suffixes.
 				// Only add a random fraction of these, as
 				// it would be too repetative to have every
 				// prefix and suffix with every name.
 
-				// TODO: Add geographically specific 
+				// TODO: Add geographically specific
 				// prefixes and suffixes (e.g. "-on-sea"
 				// appearing only where the town is
-				// actually by the sea). 
+				// actually by the sea).
 
 				const uint32 random_percent = sim_async_rand(100);
-				
+
 				// TODO: Have these set from simuconf.tab
 				const uint32 prefix_probability = 5;
 				const uint32 suffix_probability = 5;
 
 				const uint32 max_prefixes_per_name = 5;
-				const uint32 max_suffixes_per_name = 5;
-
 				const bool allow_prefixes_and_suffixes_together = false;
 
 				uint32 prefixes_this_name = 0;
@@ -341,7 +338,7 @@ void translator::init_custom_names(int lang)
 						sprintf(name, "&%X_CITY_PREFIX", p);
 						const char *s3 = translator::translate(name, lang);
 						const uint32 random_percent_prefix = sim_async_rand(100);
-						
+
 						if (s3 == name || random_percent_prefix > prefix_probability)
 						{
 							// name not available ...
@@ -370,7 +367,7 @@ void translator::init_custom_names(int lang)
 						if (s3 == name || random_percent_suffix > prefix_probability || strcmp(s3, s2) == 0)
 						{
 							// Name not available or the suffix is identical to the final syllable
-							// (This should avoid names such as Tarwoodwood). 
+							// (This should avoid names such as Tarwoodwood).
 							continue;
 						}
 

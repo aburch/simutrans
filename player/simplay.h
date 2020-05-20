@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simplay_h
-#define simplay_h
+#ifndef PLAYER_SIMPLAY_H
+#define PLAYER_SIMPLAY_H
+
 
 #include "../network/pwd_hash.h"
 #include "../simtypes.h"
@@ -126,7 +126,7 @@ protected:
 	 */
 	bool access[MAX_PLAYER_COUNT];
 
-	
+
 	/* This flag is set if the player has already been
 	 * warned this month that there is insufficient money
 	 * for automatic way renewals*/
@@ -187,7 +187,7 @@ public:
 	void book_vehicle_maintenance(const sint64 amount, const waytype_t wt=ignore_wt);
 
 	/**
-	 * Adds way renewals to accounting statistics. 
+	 * Adds way renewals to accounting statistics.
 	 * @param amount (should be negative, will be adjusted for bits_per_month)
 	 * @param wt type of transport for accounting
 	 * @author jamespetts
@@ -455,7 +455,7 @@ private:
 	// headquarters stuff
 	sint32 headquarter_level;
 	koord headquarter_pos;
-		
+
 	// The signalbox last selected. Used for placing signals attached to this box.
 	// Local only: this datum is transmitted over the network when the tool is used.
 	// Do not load/save.
@@ -475,8 +475,9 @@ public:
 	bool allows_access_to(uint8 other_player_nr) const { return player_nr == other_player_nr || access[other_player_nr]; }
 	void set_allow_access_to(uint8 other_player_nr, bool allow) { access[other_player_nr] = allow; }
 
-	void set_selected_signalbox(signalbox_t* sb);
-	signalbox_t* get_selected_signalbox() const { return selected_signalbox; }
+	void set_selected_signalbox(signalbox_t *sb);
+	const signalbox_t* get_selected_signalbox() const { return selected_signalbox; }
+	signalbox_t *get_selected_signalbox() { return selected_signalbox; }
 };
 
 #endif

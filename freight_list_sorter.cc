@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <algorithm>
 
 #include "freight_list_sorter.h"
@@ -95,11 +100,9 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 	case by_name: { // sort by destination stop name
 		halthandle_t const d1 = w1.get_ziel();
 		halthandle_t const d2 = w2.get_ziel();
+
 		if (d1.is_bound() && d2.is_bound()) {
-			const fabrik_t *fab = NULL;
-			const char *const name1 = d1->get_name();
-			const char *const name2 = d2->get_name();
-			return strcmp(name1, name2) < 0;
+			return strcmp(d1->get_name(), d2->get_name()) < 0;
 		}
 		else if (d1.is_bound()) {
 			return false;
@@ -199,7 +202,6 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 	char const*  const  what = translator::translate(what_doing);
 	char class_entry[32] = "\0";
 	char const*  unit = translator::translate(desc.get_mass());
-	bool sorting_by_wealth = sortby == by_wealth_detail || sortby == by_wealth_via ? true : false;
 	bool sorting_by_accommodation = sortby == by_accommodation_detail || sortby == by_accommodation_via ? true : false;
 	bool is_class_cargo = ware->get_index() == goods_manager_t::INDEX_PAS || ware->get_index() == goods_manager_t::INDEX_MAIL ? true : false;
 
@@ -210,7 +212,7 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 		//If given a class total, we want to display that
 		sum=class_total;
 	}
-	
+
 	buf.printf("%u", sum);
 	if (max != 0) {
 		// convois
@@ -412,7 +414,6 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		int last_ware_class = -1;
 		ware_t last;
 		const bool sorting_by_wealth = sortby == by_wealth_detail || sortby == by_wealth_via ? true : false;
-		const bool sorting_by_accommodation = sortby == by_accommodation_detail || sortby == by_accommodation_via ? true : false;
 
 		for (int j = 0; j < pos; j++)
 		{
@@ -460,7 +461,6 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					while (full_i != full_end)
 					{
 						ware_t const& current = *full_i++;
-						current;
 						if (last_goods_index == current.get_index() || last_ware_catg == current.get_catg())
 						{
 							add_ware_heading(buf, sum, current.menge, &current, what_doing, accommodation, 0, show_empty);

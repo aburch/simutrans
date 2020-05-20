@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "../../dataobj/tabfile.h"
 
 #include "../goods_desc.h"
@@ -16,7 +21,7 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	uint16 version = 0x8003;
 
 	// This is the overlay flag for Simutrans-Extended
-	// This sets the *second* highest bit to 1. 
+	// This sets the *second* highest bit to 1.
 	version |= EX_VER;
 
 	// Finally, this is the extended version number. This is *added*
@@ -44,7 +49,7 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	const uint8 mapcolor = obj.get_int("mapcolor", 255);
 	len += sizeof(mapcolor);
 
-	const uint8 number_of_classes = obj.get_int("number_of_classes", 1); 
+	const uint8 number_of_classes = obj.get_int("number_of_classes", 1);
 	len += sizeof(number_of_classes);
 
 	uint16 val = 0;
@@ -79,16 +84,16 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// For each fare stage, there are 2x 16-bit variables.
 	len += (fare_stages * 4);
 
-	vector_tpl<uint16> class_revenue_percents(number_of_classes); 
+	vector_tpl<uint16> class_revenue_percents(number_of_classes);
 	uint16 class_revenue_percent;
 	char buf_crp[56];
 
 	for (uint8 i = 0; i < number_of_classes; i++)
 	{
 		// The revenue factor percentages for each class
-		sprintf(buf_crp, "class_revenue_percent[%i]", i); 
-		class_revenue_percent = obj.get_int(buf_crp, 100); 
-		class_revenue_percents.append(class_revenue_percent); 
+		sprintf(buf_crp, "class_revenue_percent[%i]", i);
+		class_revenue_percent = obj.get_int(buf_crp, 100);
+		class_revenue_percents.append(class_revenue_percent);
 		len += 2;
 	}
 
@@ -96,7 +101,7 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 
 	node.write_uint16(fp, version, pos);
 	pos += sizeof(uint16);
-		
+
 	write_head(fp, node, obj);
 	text_writer_t::instance()->write_obj(fp, node, obj.get("metric"));
 
@@ -111,7 +116,7 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint8(fp, mapcolor,			pos);
 	pos += sizeof(mapcolor);
 	node.write_uint8(fp, number_of_classes,	pos);
-	pos += sizeof(number_of_classes); 
+	pos += sizeof(number_of_classes);
 	node.write_uint8(fp, fare_stages,		pos);
 	pos += sizeof(fare_stages);
 
@@ -126,7 +131,7 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	for (uint8 i = 0; i < number_of_classes; i++)
 	{
 		node.write_uint16(fp, class_revenue_percents[i], pos);
-		pos += sizeof(uint16); 
+		pos += sizeof(uint16);
 	}
 
 	node.write(fp);

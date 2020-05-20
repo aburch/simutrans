@@ -1,5 +1,6 @@
 /*
- * selection of paks at the start time
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string>
@@ -132,7 +133,7 @@ bool pakselector_t::check_only_one_option() const
 
 
 
-void pakselector_t::add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix)
+void pakselector_t::add_file(const char *, const char *filename, const bool not_cutting_suffix)
 {
 	char buttontext[1024];
 	strcpy( buttontext, filename );

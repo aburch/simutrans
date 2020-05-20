@@ -1,10 +1,11 @@
 /*
- * Menu with display settings
- * @author Hj. Malthaner
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef _display_settings_h_
-#define _display_settings_h_
+#ifndef GUI_DISPLAY_SETTINGS_H
+#define GUI_DISPLAY_SETTINGS_H
+
 
 #include "gui_frame.h"
 #include "components/gui_divider.h"
@@ -58,12 +59,6 @@ private:
 		label_container,
 		value_container;
 
-	// Non translated text buffers for label values
-	char frame_time_buf[BUF_MAXLEN_MS_FORMAT];
-	char idle_time_buf[BUF_MAXLEN_MS_FORMAT];
-	char fps_buf[BUF_MAXLEN_MS_FORMAT];
-	char simloops_buf[BUF_MAXLEN_MS_FORMAT];
-
 public:
 	color_gui_t();
 
@@ -72,13 +67,13 @@ public:
 	 * @return The help file name or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const { return "display.txt"; }
+	const char * get_help_filename() const OVERRIDE { return "display.txt"; }
 
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	virtual void set_windowsize(scr_size size);
+	virtual void set_windowsize(scr_size size) OVERRIDE;
 };
 
 #endif

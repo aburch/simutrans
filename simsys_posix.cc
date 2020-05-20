@@ -1,7 +1,6 @@
-﻿/*
- * Copyright (c) 1997 - 2001 Hansj�rg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifdef _WIN32
@@ -100,18 +99,13 @@ int dr_screenshot(const char *,int,int,int,int)
 	return -1;
 }
 
-static inline unsigned int ModifierKeys()
-{
-	return 0;
-}
-
 void GetEvents()
- {
+{
 	if(  sigterm_received  ) {
 		sys_event.type = SIM_SYSTEM;
 		sys_event.code = SYSTEM_QUIT;
 	}
- }
+}
 
 
 void GetEventsNoWait()

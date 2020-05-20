@@ -1,12 +1,11 @@
 /*
- * dialog for setting the climate border and other map related parameters
- *
- * Hj. Malthaner
- * April 2000
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef climate_gui_h
-#define climate_gui_h
+#ifndef GUI_CLIMATES_H
+#define GUI_CLIMATES_H
+
 
 #include "gui_frame.h"
 #include "components/gui_button.h"
@@ -75,10 +74,10 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const {return "climates.txt";}
+	const char * get_help_filename() const OVERRIDE {return "climates.txt";}
 
 	// does not work during new world dialog
-	virtual bool has_sticky() const { return false; }
+	virtual bool has_sticky() const OVERRIDE { return false; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

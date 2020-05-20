@@ -1,13 +1,11 @@
 /*
- * Dialog window for defining a schedule
- *
- * Hj. Malthaner
- *
- * Juli 2000
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_schedule_gui_h
-#define gui_schedule_gui_h
+#ifndef GUI_SCHEDULE_GUI_H
+#define GUI_SCHEDULE_GUI_H
+
 
 #include "gui_frame.h"
 
@@ -108,7 +106,6 @@ private:
 	gui_numberinput_t numimp_spacing_shift;
 	gui_label_t lb_spacing_shift_as_clock;
 
-	char str_ladegrad[16];
 	char str_parts_month[32];
 	char str_parts_month_as_clock[32];
 
@@ -145,19 +142,19 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	const char *get_help_filename() const {return "schedule.txt";}
+	const char *get_help_filename() const OVERRIDE {return "schedule.txt";}
 
 	/**
 	 * Draw the Frame
 	 * @author Hansjörg Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_windowsize(scr_size size);
+	virtual void set_windowsize(scr_size size) OVERRIDE;
 
 	/**
 	 * show or hide the line selector combobox and its associated label
@@ -173,14 +170,14 @@ public:
 	/**
 	 * Map rotated, rotate schedules too
 	 */
-	void map_rotate90( sint16 );
+	void map_rotate90( sint16 ) OVERRIDE;
 
 	// this constructor is only used during loading
 	schedule_gui_t();
 
-	virtual void rdwr( loadsave_t *file );
+	virtual void rdwr( loadsave_t *file ) OVERRIDE;
 
-	uint32 get_rdwr_id() { return magic_schedule_rdwr_dummy; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_schedule_rdwr_dummy; }
 };
 
 #endif

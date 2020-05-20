@@ -1,5 +1,11 @@
-#ifndef PWD_HASH_H
-#define PWD_HASH_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef NETWORK_PWD_HASH_H
+#define NETWORK_PWD_HASH_H
+
 
 #include <string.h>
 

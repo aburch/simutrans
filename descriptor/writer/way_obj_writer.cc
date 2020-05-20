@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <cmath>
 #include <string>
 #include "../../dataobj/tabfile.h"
@@ -31,7 +36,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	uint16 version     = 0x8001;
 
 	// This is the overlay flag for Simutrans-Extended
-	// This sets the *second* highest bit to 1. 
+	// This sets the *second* highest bit to 1.
 	version |= EX_VER;
 
 	// Finally, this is the extended version number. This is *added*
@@ -61,7 +66,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	// Prohibitive: way allows only vehicles with matching constraint:
 	// vehicles with matching constraint allowed on other sorts of way.
 	// @author: jamespetts
-	
+
 	uint8 permissive_way_constraints = 0;
 	uint8 prohibitive_way_constraints = 0;
 	char buf_permissive[60];
@@ -73,7 +78,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 		sprintf(buf_prohibitive, "way_constraint_prohibitive[%d]", i);
 		uint8 tmp_permissive = (obj.get_int(buf_permissive, 255));
 		uint8 tmp_prohibitive = (obj.get_int(buf_prohibitive, 255));
-		
+
 		//Compress values into a single byte using bitwise OR.
 		if(tmp_permissive < 8)
 		{

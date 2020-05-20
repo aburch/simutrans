@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef obj_baum_h
-#define obj_baum_h
+#ifndef OBJ_BAUM_H
+#define OBJ_BAUM_H
+
 
 #include <string>
 #include "../tpl/stringhashtable_tpl.h"
@@ -106,7 +105,7 @@ public:
 
 	void show_info();
 
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	void info(cbuffer_t & buf) const;
 
 	void cleanup(player_t *player);
 

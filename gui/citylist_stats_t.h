@@ -1,16 +1,11 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Where the citylist status are calculated (for graphs and statistics)
- */
+#ifndef GUI_CITYLIST_STATS_T_H
+#define GUI_CITYLIST_STATS_T_H
 
-#ifndef CITYLIST_STATS_T_H
-#define CITYLIST_STATS_T_H
 
 #include "components/gui_component.h"
 #include "../tpl/vector_tpl.h"
@@ -33,13 +28,14 @@ private:
 
 	citylist::sort_mode_t sortby;
 	bool sortreverse;
+	bool filter_own_network;
 
 public:
 	static char total_bev_string[128];
 
-	citylist_stats_t(citylist::sort_mode_t sortby, bool sortreverse);
+	citylist_stats_t(citylist::sort_mode_t sortby, bool sortreverse, bool own_network);
 
-	void sort(citylist::sort_mode_t sortby, bool sortreverse);
+	void sort(citylist::sort_mode_t sortby, bool sortreverse, bool own_network);
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -49,7 +45,7 @@ public:
 	void recalc_size();
 
 	// Draw the component
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 };
 
 #endif

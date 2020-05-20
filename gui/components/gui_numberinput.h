@@ -1,19 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjorg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
- * @author Dwachs
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * An input field for integer numbers (with arrow buttons for dec/inc)
- * @author Dwachs
- */
+#ifndef GUI_COMPONENTS_GUI_NUMBERINPUT_H
+#define GUI_COMPONENTS_GUI_NUMBERINPUT_H
 
-#ifndef gui_components_gui_numberinput_h
-#define gui_components_gui_numberinput_h
 
 #include "../../simtypes.h"
 #include "../../display/scr_coord.h"
@@ -24,6 +16,10 @@
 #include "../gui_theme.h"
 
 
+/*
+ * An input field for integer numbers (with arrow buttons for dec/inc)
+ * @author Dwachs
+ */
 class gui_numberinput_t :
 	public gui_action_creator_t,
 	public gui_component_t,
@@ -105,14 +101,14 @@ public:
 	 * Draw the component
 	 * @author Dwachs
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void enable() { b_enabled = true; set_focusable(true); bt_left.enable(); bt_right.enable(); }
 	void disable() { b_enabled = false; set_focusable(false); bt_left.disable(); bt_right.disable(); }
 	bool enabled() const { return b_enabled; }
-	virtual bool is_focusable() { return b_enabled && gui_component_t::is_focusable(); }
+	virtual bool is_focusable() OVERRIDE { return b_enabled && gui_component_t::is_focusable(); }
 };
 
 #endif

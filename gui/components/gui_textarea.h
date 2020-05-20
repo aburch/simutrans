@@ -1,23 +1,21 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
+
+#ifndef GUI_COMPONENTS_GUI_TEXTAREA_H
+#define GUI_COMPONENTS_GUI_TEXTAREA_H
+
+
+#include "gui_component.h"
+
+class cbuffer_t;
 
 /*
  * A text display component
  *
  * @author Hj. Malthaner
  */
-
-#ifndef gui_textarea_h
-#define gui_textarea_h
-
-#include "gui_component.h"
-
-class cbuffer_t;
-
 class gui_textarea_t : public gui_component_t
 {
 private:

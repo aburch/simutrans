@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "network_address.h"
 #include "network_packet.h"
 
@@ -30,15 +35,6 @@ net_address_t::net_address_t(const char *text)
 			break;
 		}
 	}
-	init_ipstr();
-}
-
-
-net_address_t::net_address_t(const net_address_t &other)
-{
-	ip = other.ip;
-	mask = other.mask;
-	ipstr[0] = '\0';
 	init_ipstr();
 }
 

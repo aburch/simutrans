@@ -1,11 +1,11 @@
 /*
- * definitions for the system dependent part of simutrans
- *
- * This file is part of the Simutrans project under the artistic license.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simsys_h
-#define simsys_h
+#ifndef SIMSYS_H
+#define SIMSYS_H
+
 
 #include <stddef.h>
 #include "simtypes.h"

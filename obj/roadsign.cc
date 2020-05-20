@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Roadsigns functions and dialogs
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -115,6 +109,9 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 		// on this tile of way before or after this function is indeterminate.
 		world()->await_convoy_threads();
 	}
+#endif
+#ifdef MULTI_THREAD
+	welt->await_private_car_threads();
 #endif
 	this->desc = desc;
 	this->dir = dir;
@@ -247,10 +244,9 @@ void roadsign_t::show_info()
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void roadsign_t::info(cbuffer_t & buf, bool dummy) const
+void roadsign_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
-	roadsign_t* rs = (roadsign_t*)this;
 
 	buf.append(translator::translate(desc->get_name()));
 	buf.append("\n\n");
@@ -286,11 +282,11 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append("\n");
 	}
 
-	koord3d rs_pos = rs->get_pos();
+	koord3d rs_pos = this->get_pos();
 
 	const grund_t* rs_gr3d = welt->lookup(rs_pos);
 	const weg_t* way = rs_gr3d->get_weg(desc->get_wtyp() != tram_wt ? desc->get_wtyp() : track_wt);
-	if (way->get_max_speed() * 2 >= speed_to_kmh(desc->get_max_speed()))
+	if ((uint32)way->get_max_speed() * 2U >= speed_to_kmh(desc->get_max_speed()))
 	{
 		buf.printf("%s%s%d%s%s", translator::translate("Max. speed:"), " ", speed_to_kmh(desc->get_max_speed()), " ", "km/h");
 		buf.append("\n");
@@ -397,8 +393,6 @@ void roadsign_t::calc_image()
 	    (     (desc->get_wtyp()==road_wt  &&  welt->get_settings().is_drive_left()  )
 	      ||  (desc->get_wtyp()!=air_wt  &&  desc->get_wtyp()!=road_wt  &&  welt->get_settings().is_signals_left())
 	    );
-
-	const sint8 height_step = TILE_HEIGHT_STEP << slope_t::is_doubles(gr->get_weg_hang());
 
 	const slope_t::type full_hang = gr->get_weg_hang();
 	const sint8 hang_diff = slope_t::max_diff(full_hang);
@@ -900,7 +894,7 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 			player_t* player = welt->get_active_player();
 			if(player)
 			{
-				signalbox_t* sb = player->get_selected_signalbox();
+				const signalbox_t* sb = player->get_selected_signalbox();
 				if(!sb)
 				{
 					allowed_given_current_signalbox = false;

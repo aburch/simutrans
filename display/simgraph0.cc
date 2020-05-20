@@ -1,7 +1,7 @@
 /*
-* Copyright 2010 Simutrans contributors
-* Available under the Artistic License (see license.txt)
-*/
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #include "../simconst.h"
 #include "../simsys.h"
@@ -33,9 +33,9 @@ void set_zoom_factor(int)
 {
 }
 
-int get_zoom_factor() 
-{ 
-	return zoom_factor; 
+int get_zoom_factor()
+{
+	return zoom_factor;
 }
 
 int zoom_factor_up()
@@ -109,7 +109,7 @@ COLOR_VAL display_get_index_from_rgb(uint8, uint8, uint8)
 	return 0;
 }
 
-void register_image(struct image_t* image)
+void register_image(class image_t* image)
 {
 	image->imageid = 1;
 }
@@ -175,14 +175,6 @@ void display_pop_clip_wh(CLIP_NUM_DEF_NOUSE0)
 }
 
 void display_scroll_band(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL)
-{
-}
-
-static inline void pixcopy(PIXVAL *, const PIXVAL *, const unsigned int)
-{
-}
-
-static inline void colorpixcopy(PIXVAL *, const PIXVAL *, const PIXVAL * const)
 {
 }
 

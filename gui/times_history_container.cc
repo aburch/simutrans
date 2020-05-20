@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "times_history_container.h"
 
 #include "../simhalt.h"
@@ -151,9 +156,9 @@ void times_history_container_t::update_container() {
 	delete_labels();
 
 	scr_coord_val y = LINESPACE + D_V_SPACE + LINESPACE + D_V_SPACE;
-	for (int i = 0; i < schedule_indices->get_count(); i++)
+	for (uint32 i = 0; i < schedule_indices->get_count(); i++)
 	{
-		const uint8 entry_index = min(schedule_indices->at(i), entries.get_count() - 1); 
+		const uint8 entry_index = min(schedule_indices->at(i), entries.get_count() - 1);
 		const schedule_entry_t entry = entries[entry_index];
 		const halthandle_t halt = haltestelle_t::get_halt(entry.pos, owner);
 
@@ -167,7 +172,7 @@ void times_history_container_t::update_container() {
 		}
 
 		gui_label_t *name_label = new gui_label_t(NULL);
-		char *halt_name = halt.is_bound() ? new char[strlen(halt->get_name()) + 1] : new char[128]; 
+		char *halt_name = halt.is_bound() ? new char[strlen(halt->get_name()) + 1] : new char[128];
 		strcpy(halt_name,  halt.is_bound() ? halt->get_name() : translator::translate("Wegpunkt"));
 		name_label->set_text_pointer(halt_name);
 		name_label->set_pos(scr_coord(D_POS_BUTTON_WIDTH + D_H_SPACE, y));
@@ -176,7 +181,6 @@ void times_history_container_t::update_container() {
 
 		if (i < schedule_indices->get_count() - 1) {
 			times_history_data_t value;
-			departure_point_t t = *time_keys->at(i);
 			const times_history_data_t *retrieved_value = map->access(*time_keys->at(i));
 			if (retrieved_value) value = *retrieved_value;
 
@@ -212,11 +216,11 @@ void times_history_container_t::draw(scr_coord offset) {
 	lbl_average_header.set_width(TIME_TEXT_WIDTH);
 	y += LINESPACE + D_V_SPACE;
 
-	for (int i = 0; i < name_labels.get_count(); i++) {
+	for (uint32 i = 0; i < name_labels.get_count(); i++) {
 		gui_label_t *name_label = name_labels.at(i);
 		name_label->set_width(time_column_x - D_POS_BUTTON_WIDTH - D_H_SPACE);
 	}
-	for (int i = 0; i < entry_labels.get_count(); i++) {
+	for (uint32 i = 0; i < entry_labels.get_count(); i++) {
 		times_history_entry_t *entry_label = entry_labels.at(i);
 		entry_label->set_pos(scr_coord(time_column_x, y + LINESPACE * (2 * i + 1)));
 	}
@@ -224,7 +228,7 @@ void times_history_container_t::draw(scr_coord offset) {
 	gui_container_t::draw(offset);
 }
 
-bool times_history_container_t::action_triggered(gui_action_creator_t *comp, value_t extra)
+bool times_history_container_t::action_triggered(gui_action_creator_t *, value_t extra)
 {
 	if (extra.i & ~1) {
 		koord k = *(const koord *)extra.p;

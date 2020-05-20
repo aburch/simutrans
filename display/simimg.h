@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
+
+#ifndef DISPLAY_SIMIMG_H
+#define DISPLAY_SIMIMG_H
+
+
+#include "../simtypes.h"
+
 
 /*
  * Defines to handle images
  * Hj. Malthaner, 13.07.98
  */
-
-#ifndef _simimg_h
-#define _simimg_h
-
-#include "../simtypes.h"
 
 typedef uint32 image_id;
 

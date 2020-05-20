@@ -1,16 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Displays an information window for a convoi
- *
- * @author Hj. Malthaner
- * @date 22-Aug-01
- */
+#ifndef GUI_CONVOI_INFO_T_H
+#define GUI_CONVOI_INFO_T_H
+
 
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
@@ -30,7 +25,7 @@
 
 #include "../utils/cbuffer_t.h"
 
-//Bernd Gabriel, Dec, 03 2009: acceleration curve. 
+//Bernd Gabriel, Dec, 03 2009: acceleration curve.
 // define ACCELERATION_BUTTON to show it and the graph.
 // do not define it and there are neither button nor graph.
 #define ACCELERATION_BUTTON convoi_t::MAX_CONVOI_COST
@@ -40,19 +35,25 @@
 #define BUTTON_COUNT MAX_CONVOI_COST
 #endif
 
+/*
+ * Displays an information window for a convoi
+ *
+ * @author Hj. Malthaner
+ * @date 22-Aug-01
+ */
 class convoi_info_t : public gui_frame_t, private action_listener_t
 {
 public:
-	enum sort_mode_t { 
+	enum sort_mode_t {
 		by_destination = 0,
 		by_via = 1,
-		by_amount_via = 2, 
+		by_amount_via = 2,
 		by_amount = 3,
 		by_origin = 4,
-		by_origin_sum = 5, 
-		by_destination_detail = 6, 
-		by_wealth_detail = 7, 
-		by_wealth_via = 8, 
+		by_origin_sum = 5,
+		by_destination_detail = 6,
+		by_wealth_detail = 7,
+		by_wealth_via = 8,
 		by_accommodation_detail = 9,
 		by_accommodation_via = 10,
 		SORT_MODES = 11
@@ -133,7 +134,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const { return "convoiinfo.txt"; }
+	const char * get_help_filename() const OVERRIDE { return "convoiinfo.txt"; }
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -141,17 +142,17 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_windowsize(scr_size size);
+	virtual void set_windowsize(scr_size size) OVERRIDE;
 
-	virtual bool is_weltpos();
+	virtual bool is_weltpos() OVERRIDE;
 
-	virtual koord3d get_weltpos( bool set );
+	virtual koord3d get_weltpos( bool set ) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
@@ -163,7 +164,9 @@ public:
 	// this constructor is only used during loading
 	convoi_info_t();
 
-	void rdwr( loadsave_t *file );
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	uint32 get_rdwr_id() { return magic_convoi_info; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_convoi_info; }
 };
+
+#endif

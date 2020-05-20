@@ -1,5 +1,11 @@
-#ifndef scenario_h
-#define scenario_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DATAOBJ_SCENARIO_H
+#define DATAOBJ_SCENARIO_H
+
 
 /** @file scenario.h declarations for scenario interface */
 

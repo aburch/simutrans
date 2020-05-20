@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string>
@@ -61,7 +59,7 @@ void baum_t::distribute_trees(int dichte)
 	uint8      const c_forest_count = (unsigned)pow(((double)x * (double)y), 0.5)  / s.get_forest_count_divisor();
 
 DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
-	loadingscreen_t ls(translator::translate("Placing trees"),c_forest_count, true, true); 
+	loadingscreen_t ls(translator::translate("Placing trees"),c_forest_count, true, true);
 	for (uint8 c1 = 0 ; c1 < c_forest_count ; c1++) {
 		// to have same execution order for simrand
 		koord const start = koord::koord_random(x, y);
@@ -432,7 +430,7 @@ uint16 baum_t::random_tree_for_climate_intern(climate cl)
 }
 
 
-baum_t::baum_t(loadsave_t *file) : 
+baum_t::baum_t(loadsave_t *file) :
 #ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::baum)
 #else
@@ -446,7 +444,7 @@ baum_t::baum_t(loadsave_t *file) :
 }
 
 
-baum_t::baum_t(koord3d pos) : 
+baum_t::baum_t(koord3d pos) :
 #ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::baum, pos)
 #else
@@ -463,7 +461,7 @@ baum_t::baum_t(koord3d pos) :
 }
 
 
-baum_t::baum_t(koord3d pos, uint8 type, sint32 age, uint8 slope ) : 
+baum_t::baum_t(koord3d pos, uint8 type, sint32 age, uint8 slope ) :
 #ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::baum, pos)
 #else
@@ -478,7 +476,7 @@ baum_t::baum_t(koord3d pos, uint8 type, sint32 age, uint8 slope ) :
 }
 
 
-baum_t::baum_t(koord3d pos, const tree_desc_t *desc) : 
+baum_t::baum_t(koord3d pos, const tree_desc_t *desc) :
 #ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::baum, pos)
 #else
@@ -624,7 +622,7 @@ void baum_t::show_info()
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void baum_t::info(cbuffer_t & buf, bool dummy) const
+void baum_t::info(cbuffer_t &buf) const
 {
 	obj_t::info(buf);
 

@@ -1,5 +1,11 @@
-#ifndef gui_image_list_h
-#define gui_image_list_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_COMPONENTS_GUI_IMAGE_LIST_H
+#define GUI_COMPONENTS_GUI_IMAGE_LIST_H
+
 
 #include "gui_action_creator.h"
 #include "gui_component.h"
@@ -107,7 +113,7 @@ public:
 	 * Draw/record the picture
 	 * @author Hj. Malthaner
 	 */
-	virtual void draw(scr_coord offset);
+	virtual void draw(scr_coord offset) OVERRIDE;
 
 	/**
 	 * Looks for the image at given position.

@@ -1,3 +1,8 @@
+#
+# This file is part of the Simutrans-Extended project under the Artistic License.
+# (see LICENSE.txt)
+#
+
 simutrans.ac
 
 AC_INIT(simutrans, version-0.1)

@@ -1,10 +1,11 @@
 /*
- * Dialogue to set the signal spacing, when CTRL+clicking a signal on toolbar
- * Used by tool_build_roadsign_t
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef signal_spacing_h
-#define signal_spacing_h
+#ifndef GUI_SIGNAL_SPACING_H
+#define GUI_SIGNAL_SPACING_H
+
 
 #include "gui_frame.h"
 #include "components/action_listener.h"
@@ -15,6 +16,10 @@ class gui_label_t;
 class tool_build_roadsign_t;
 class player_t;
 
+/*
+ * Dialogue to set the signal spacing, when CTRL+clicking a signal on toolbar
+ * Used by tool_build_roadsign_t
+ */
 class signal_spacing_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
@@ -32,7 +37,7 @@ private:
 public:
 	signal_spacing_frame_t( player_t *, tool_build_roadsign_t * );
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
-	const char * get_help_filename() const { return "signal_spacing.txt"; }
+	const char * get_help_filename() const OVERRIDE { return "signal_spacing.txt"; }
 };
 
 #endif

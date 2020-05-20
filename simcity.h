@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjï¿½rg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simcity_h
-#define simcity_h
+#ifndef SIMCITY_H
+#define SIMCITY_H
+
 
 #include "dataobj/ribi.h"
 
@@ -29,7 +28,7 @@ class karte_ptr_t;
 class player_t;
 class fabrik_t;
 class rule_t;
-struct route_range_specification; 
+struct route_range_specification;
 
 // For private subroutines
 class building_desc_t;
@@ -289,25 +288,7 @@ private:
 
 	sint32 number_of_cars;
 
-	/// Storage for private car routes (1) awaiting processing; and (2) processed (for easy deletion)
-	// We swap between two routing tables to avert the need for copying, which is too expensive.
-	typedef koordhashtable_tpl<koord, vector_tpl<koord3d> > private_car_route_map;
-	private_car_route_map private_car_routes[2];
-	enum private_car_route_maps 
-	{
-		ROUTE_MAP_AWAITING_PROCESSING,
-		ROUTE_MAP_PROCESSED,
-		MAX_ROUTE_MAPS
-	};
-	/// This is the set of routes that is currently being used by the running game, 
-	/// not the one that is set aside for multi-threaded insertion by the route-finder.
-	uint32 currently_active_route_map;
-
 public:
-
-	inline uint32 get_currently_active_route_map() const { return currently_active_route_map; }
-	inline uint32 get_currently_inactive_route_map() const { return currently_active_route_map == 1 ? 0 : 1; }
-	void swap_active_route_map() { currently_active_route_map == 0 ? currently_active_route_map = 1 : currently_active_route_map = 0; }
 
 	void add_building_to_list(gebaeude_t* building, bool ordered = false, bool do_not_add_to_world_list = false, bool do_not_update_stats = false);
 
@@ -365,7 +346,7 @@ public:
 	*/
 	void check_city_tiles(bool del = false);
 
-	
+
 private:
 	sint32 best_haus_wert;
 	sint32 best_strasse_wert;
@@ -565,26 +546,26 @@ public:
 	const char *get_name() const { return name; }
 
 	/**
-	 * Ermï¿½glicht Zugriff auf Namesnarray
+	 * Ermöglicht Zugriff auf Namesnarray
 	 * @author Hj. Malthaner
 	 */
 	void set_name( const char *name );
 
 	/**
-	 * gibt einen zufï¿½llingen gleichverteilten Punkt innerhalb der
-	 * Citygrenzen zurï¿½ck
+	 * gibt einen zufällingen gleichverteilten Punkt innerhalb der
+	 * Citygrenzen zurück
 	 * @author Hj. Malthaner
 	 */
 	koord get_zufallspunkt(uint32 min_distance = 0, uint32 max_distance = 16384, koord origin = koord::invalid) const;
 
 	/**
-	 * gibt das pax-statistik-array fï¿½r letzten monat zurï¿½ck
+	 * gibt das pax-statistik-array für letzten monat zurück
 	 * @author Hj. Malthaner
 	 */
 	const sparse_tpl<unsigned char>* get_pax_destinations_old() const { return &pax_destinations_old; }
 
 	/**
-	 * gibt das pax-statistik-array fï¿½r den aktuellen monat zurï¿½ck
+	 * gibt das pax-statistik-array für den aktuellen monat zurück
 	 * @author Hj. Malthaner
 	 */
 	const sparse_tpl<unsigned char>* get_pax_destinations_new() const { return &pax_destinations_new; }
@@ -631,7 +612,7 @@ public:
 
 	/**
 	 * Wird am Ende der LAderoutine aufgerufen, wenn die Welt geladen ist
-	 * und nur noch die Datenstrukturenneu verknï¿½pft werden mï¿½ssen.
+	 * und nur noch die Datenstrukturenneu verknüpft werden müssen.
 	 * @author Hj. Malthaner
 	 */
 	void finish_rd();
@@ -647,9 +628,6 @@ public:
 	bool get_citygrowth() const { return allow_citygrowth; }
 
 	void step(uint32 delta_t);
-	
-	/// Things that only one city per world step should do.
-	void step_heavy();
 
 	void new_month();
 
@@ -667,23 +645,6 @@ public:
 	uint32 check_road_connexion_to(const gebaeude_t* attraction) const;
 
 	void generate_private_cars(koord pos, uint32 journey_tenths_of_minutes, koord target, uint8 number_of_passengers);
-
-	/// Stores a private car route in the city ready to be added to road tiles later. This should be thread-safe.
-	void store_private_car_route(vector_tpl<koord3d> route, koord pos);
-
-	/// Clears a private car route to a particular destination, including iterating over road tiles deleting the routes there.
-	void clear_private_car_route(koord pos, bool clear_connected_tables); 
-
-	/// Take stored routes from the newly added list and add them to route tiles, moving the route to the procesed list.
-	void process_private_car_routes();
-	sint32 route_processing_counter = -1;
-#ifdef MULTI_THREAD_ROUTE_PROCESSING
-	void process_private_car_routes_threaded();
-	static void* process_private_car_route_threaded(void* args);
-	void process_private_car_route_range(route_range_specification range);
-	static koord current_key;
-	static stadt_t* current_city;
-#endif
 
 private:
 	/**
@@ -729,6 +690,9 @@ public:
 
 	// Checks whether any given postition is within the city limits.
 	bool is_within_city_limits(koord k) const;
+
+	// Checks whether any builinding is within players network.
+	bool is_within_players_network(const player_t* player) const;
 
 	/**
 	 * Erzeugt ein Array zufaelliger Startkoordinaten,

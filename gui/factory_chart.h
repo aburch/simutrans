@@ -1,16 +1,11 @@
 /*
- * Copyright (c) 2011 Knightly
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Where the current factory chart statistics are calculated
- */
+#ifndef GUI_FACTORY_CHART_H
+#define GUI_FACTORY_CHART_H
 
-#ifndef factory_chart_h
-#define factory_chart_h
 
 #define MAX_PROD_LABEL      (7-1)
 
@@ -58,7 +53,7 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	virtual void draw(scr_coord pos);
+	virtual void draw(scr_coord pos) OVERRIDE;
 
 	void rdwr( loadsave_t *file );
 };

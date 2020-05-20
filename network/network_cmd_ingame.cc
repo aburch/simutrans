@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "network_cmd_ingame.h"
 #include "network.h"
 #include "network_file_transfer.h"
@@ -711,7 +716,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		// first save password hashes
 		sprintf( fn, "server%d-pwdhash.sve", env_t::server );
 		loadsave_t file;
-		if(file.wr_open(fn, loadsave_t::zipped, "hashes", SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)) 
+		if(file.wr_open(fn, loadsave_t::zipped, "hashes", SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR))
 		{
 			welt->rdwr_player_password_hashes( &file );
 			file.close();
@@ -863,7 +868,7 @@ bool nwc_routesearch_t::execute(karte_t *world)
 }
 
 
-void nwc_routesearch_t::do_command(karte_t *world)
+void nwc_routesearch_t::do_command(karte_t *)
 {
 	// apply the limits
 	path_explorer_t::set_limits(limit_set);

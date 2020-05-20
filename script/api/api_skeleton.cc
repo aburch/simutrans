@@ -1,4 +1,9 @@
-/** @file api_skeleton.cc Documents the necessary functions to be implemented of a scenario script */
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/** @file api_skeleton.cc Documents the necessary functions to be implemented by a script */
 
 // It is in a C++ file to be processed by Doxygen filters to get function typemasks right
 

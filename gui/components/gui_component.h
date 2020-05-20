@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjorg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef ifc_gui_component_h
-#define ifc_gui_component_h
+#ifndef GUI_COMPONENTS_GUI_COMPONENT_H
+#define GUI_COMPONENTS_GUI_COMPONENT_H
+
 
 #include "../../display/scr_coord.h"
 #include "../../simevent.h"

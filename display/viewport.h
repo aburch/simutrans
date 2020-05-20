@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2013 The Simutrans Community
- *
- * This file is part of the Simutrans project under the artistic license.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simviewport_h
-#define simviewport_h
+#ifndef DISPLAY_VIEWPORT_H
+#define DISPLAY_VIEWPORT_H
+
 
 #include "../simtypes.h"
 #include "scr_coord.h"

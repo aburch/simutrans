@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <stdio.h>
 #include "../../simdebug.h"
 
@@ -246,9 +251,9 @@ obj_desc_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	DBG_DEBUG("bridge_reader_t::read_node()",
 		"version=%d, waytype=%d, price=%d, topspeed=%d, pillars=%i, max_length=%i, max_weight%d, axle_load=%i",
-		version, 
-		desc->wtyp, 
-		desc->price, 
+		version,
+		desc->wtyp,
+		desc->price,
 		desc->maintenance,
 		desc->topspeed,
 		desc->axle_load,

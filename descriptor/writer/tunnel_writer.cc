@@ -1,5 +1,10 @@
-#include <cmath>
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <string>
+#include <cmath>
 #include "../../dataobj/tabfile.h"
 #include "../../dataobj/ribi.h"
 #include "../tunnel_desc.h"
@@ -22,7 +27,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 		"nse2", "new2", "nsw2", "sew2", "nsew2",
 	};
 	int ribi, hang;
-	
+
 	obj_node_t node(this, 32, &parent);
 
 	sint32 topspeed					= obj.get_int("topspeed",    1000);
@@ -35,8 +40,8 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	sint8 max_altitude				= obj.get_int("max_altitude", 0);
 	uint8 max_vehicles_on_tile		= obj.get_int("max_vehicles_on_tile", 251);
 
-	// BG, 11.02.2014: max_weight was missused as axle_load 
-	// in experimetal before standard introduced axle_load. 
+	// BG, 11.02.2014: max_weight was missused as axle_load
+	// in experimetal before standard introduced axle_load.
 	//
 	// Therefore set new standard axle_load with old extended
 	// max_weight, if axle_load not specified, but max_weight.
@@ -90,7 +95,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// Prohibitive: way allows only vehicles with matching constraint:
 	// vehicles with matching constraint allowed on other sorts of way.
 	// @author: jamespetts
-	
+
 	uint8 permissive_way_constraints = 0;
 	uint8 prohibitive_way_constraints = 0;
 	char buf_permissive[60];
@@ -102,7 +107,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 		sprintf(buf_prohibitive, "way_constraint_prohibitive[%d]", i);
 		uint8 tmp_permissive = (obj.get_int(buf_permissive, 255));
 		uint8 tmp_prohibitive = (obj.get_int(buf_prohibitive, 255));
-		
+
 		//Compress values into a single byte using bitwise OR.
 		if(tmp_permissive < 8)
 		{
@@ -121,7 +126,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	uint16 version = 0x8005;
 
 	// This is the overlay flag for Simutrans-Extended
-	// This sets the *second* highest bit to 1. 
+	// This sets the *second* highest bit to 1.
 	version |= EX_VER;
 
 	// Finally, this is the extended version number. This is *added*
@@ -191,7 +196,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	static const char* const image_type[] = { "", "front" };
 	for (int backtofront = 0; backtofront<2; backtofront++)
 	{
-		for (ribi = 0; ribi < 16; ribi++) 
+		for (ribi = 0; ribi < 16; ribi++)
 		{
 			char buf[64];
 
@@ -203,7 +208,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 		imagelist_writer_t::instance()->write_obj(fp, node, keys);
 
 		keys.clear();
-		for (hang = 3; hang <= 12; hang += 3) 
+		for (hang = 3; hang <= 12; hang += 3)
 		{
 			char buf[64];
 
@@ -212,7 +217,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 			keys.append(str);
 			has_tunnel_internal_images++;
 		}
-		for (hang = 3; hang <= 12; hang += 3) 
+		for (hang = 3; hang <= 12; hang += 3)
 		{
 			char buf[64];
 
@@ -253,7 +258,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 			node.write_sint8(fp, 1, 22);
 		}
 	}
-	else 
+	else
 	{
 		if (has_tunnel_internal_images >= 4)
 		{

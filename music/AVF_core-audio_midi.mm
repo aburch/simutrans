@@ -1,7 +1,7 @@
 /*
  * Apple OSX Core Audio MIDI routine added by Leopard
  *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans-Extended project under the artistic licence.
  *
  */
 
@@ -46,9 +46,11 @@ void dr_play_midi(int const key)
 
 void dr_stop_midi()
 {
-	// We assume the 'nowPlaying' key holds the most recently started track.
-	AVMIDIPlayer* const player = [players objectAtIndex: nowPlaying];
-	[player stop];
+	if (nowPlaying != -1) {
+		// We assume the 'nowPlaying' key holds the most recently started track.
+		AVMIDIPlayer* const player = [players objectAtIndex: nowPlaying];
+		[player stop];
+	}
 }
 
 

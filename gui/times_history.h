@@ -1,5 +1,11 @@
-#ifndef gui_time_history_h
-#define gui_time_history_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_TIMES_HISTORY_H
+#define GUI_TIMES_HISTORY_H
+
 
 #include "components/gui_textarea.h"
 
@@ -45,12 +51,12 @@ public:
 	// const char * get_help_filename() const { return ".txt"; }
 
 	// Set window size and adjust component sizes and/or positions accordingly
-	virtual void set_windowsize(scr_size size);
+	virtual void set_windowsize(scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// only defined to update, if changed
-	void draw( scr_coord pos, scr_size size );
+	void draw( scr_coord pos, scr_size size ) OVERRIDE;
 
 	// this constructor is only used during loading
 	times_history_t();

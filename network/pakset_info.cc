@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "pakset_info.h"
 #include "../simdebug.h"
 #include "../dataobj/translator.h"
@@ -18,6 +23,7 @@ void pakset_info_t::append(const char* name, checksum_t *chk)
 void pakset_info_t::debug()
 {
 	FOR(stringhashtable_tpl<checksum_t*>, const& i, info) {
+		(void)i;
 		DBG_MESSAGE("pakset_info_t::debug", "%.30s -> sha1 = %s", i.key, i.value->get_str());
 	}
 }

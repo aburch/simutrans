@@ -1,14 +1,11 @@
 /*
- * Dialog with list of schedules.
- * Contains buttons: edit new remove
- * Resizable.
- *
- * @author Niels Roest
- * @author hsiegeln: major redesign
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_schedule_list_h
-#define gui_schedule_list_h
+#ifndef GUI_SCHEDULE_LIST_H
+#define GUI_SCHEDULE_LIST_H
+
 
 #include "gui_frame.h"
 #include "components/gui_container.h"
@@ -43,7 +40,7 @@ private:
 
 	// vector of convoy info objects that are being displayed
 	vector_tpl<gui_convoiinfo_t *> convoy_infos;
-	
+
 	// vector of stop info objects that are being displayed
 	vector_tpl<halt_list_stats_t *> stop_infos;
 
@@ -101,14 +98,14 @@ public:
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	const char* get_help_filename() const { return "linemanagement.txt"; }
+	const char* get_help_filename() const OVERRIDE { return "linemanagement.txt"; }
 
 	/**
 	* Does this window need a min size button in the title bar?
 	* @return true if such a button is needed
 	* @author Hj. Malthaner
 	*/
-	bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	/**
 	* Draw new component. The values to be passed refer to the window
@@ -116,13 +113,13 @@ public:
 	* component is displayed.
 	* @author Hj. Malthaner
 	*/
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	* Set window size and adjust component sizes and/or positions accordingly
 	* @author Hj. Malthaner
 	*/
-	virtual void set_windowsize(scr_size size);
+	virtual void set_windowsize(scr_size size) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -140,8 +137,8 @@ public:
 	void update_data(linehandle_t changed_line);
 
 	// following: rdwr stuff
-	void rdwr( loadsave_t *file );
-	uint32 get_rdwr_id();
+	void rdwr( loadsave_t *file ) OVERRIDE;
+	uint32 get_rdwr_id() OVERRIDE;
 };
 
 #endif
