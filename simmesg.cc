@@ -144,7 +144,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	}
 
 	// filter out AI messages for a similar area to recent activity messages
-	if(  what_bit == (1<<ai)  &&  pos != koord::invalid  ) {
+	if(  what_bit == (1<<ai)  &&  pos != koord::invalid  &&  env_t::networkmode  ) {
 		uint32 i = 0;
 		FOR(slist_tpl<node*>, const iter, list) {
 			node const& n = *iter;
