@@ -48,7 +48,7 @@ curiositylist_frame_t::curiositylist_frame_t() :
 
 	sortedby.set_pos(scr_coord(BUTTON1_X, 14));
 	sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
-	sortedby.set_max_size(scr_size(LINESPACE * 8, D_BUTTON_HEIGHT));
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, LINESPACE * 4));
 
 	for (int i = 0; i < curiositylist::SORT_MODES; i++) {
 		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
@@ -118,6 +118,7 @@ void curiositylist_frame_t::resize(const scr_coord delta)
 	// window size -titlebar -offset (header)
 	scr_size size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT+14+D_BUTTON_HEIGHT+2+1);
 	scrolly.set_size(size);
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, scrolly.get_size().h));
 }
 
 
