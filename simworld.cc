@@ -5991,7 +5991,7 @@ sint64 karte_t::calc_ready_time(ware_t ware, koord origin_pos) const
 		const sint64 walking_time = get_seconds_to_ticks(seconds);
 		ready_time += walking_time;
 	}
-
+	 
 	return ready_time;
 }
 
