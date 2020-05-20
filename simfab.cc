@@ -334,7 +334,7 @@ void fabrik_t::book_weighted_sums(sint64 delta_time)
 	}
 
 	// production level
-	const sint32 current_prod = get_current_production();
+	const sint32 current_prod = get_current_productivity();
 	weighted_sum_production += current_prod * delta_time;
 	set_stat(current_prod, FAB_PRODUCTION);
 
@@ -1628,6 +1628,12 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 					continue;
 				}
 				file->rdwr_longlong(statistics[m][s]);
+				if (s== FAB_PRODUCTION && (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 23))) {
+					// convert production to producivity
+					if (prodbase) {
+						statistics[m][s] = statistics[m][s] * 100 / welt->calc_adjusted_monthly_figure(get_base_production());
+					}
+				}
 			}
 		}
 		file->rdwr_longlong( weighted_sum_production );
@@ -2644,7 +2650,7 @@ void fabrik_t::new_month()
 	aggregate_weight = 0;
 
 	// restore the current values
-	set_stat( get_current_production(), FAB_PRODUCTION );
+	set_stat( get_current_productivity(), FAB_PRODUCTION );
 	set_stat( prodfactor_electric, FAB_BOOST_ELECTRIC );
 	set_stat( prodfactor_pax, FAB_BOOST_PAX );
 	set_stat( prodfactor_mail, FAB_BOOST_MAIL );
@@ -3138,10 +3144,13 @@ void fabrik_t::show_info()
 void fabrik_t::info_prod(cbuffer_t& buf) const
 {
 	buf.clear();
-	buf.append(translator::translate("Durchsatz"));
-	buf.append(get_current_production(), 0);
-	buf.append(translator::translate("units/day"));
-	buf.append("\n");
+	if (get_base_production()) {
+		buf.append(translator::translate("Productivity")); // Note: This term is used in width calculation in fabrik_info. And it is common with the chart button label.
+		buf.printf(": %u%% ", get_current_productivity());
+		const uint32 max_productivity = (100 * (get_desc()->get_electric_boost() + get_desc()->get_pax_boost() + get_desc()->get_mail_boost())) >> DEFAULT_PRODUCTION_FACTOR_BITS;
+		buf.printf(translator::translate("(Max. %d%%)"), max_productivity+100);
+		buf.append("\n");
+	}
 	if(get_desc()->is_electricity_producer())
 	{
 		buf.append(translator::translate("Electrical output: "));

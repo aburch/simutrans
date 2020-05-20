@@ -242,36 +242,39 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 		prod_buf.clear();
 	}
 
-	scr_coord_val x_view_pos = D_MARGIN_LEFT;
-	scr_coord_val x_prod_pos = view.get_pos().x - 30 - D_H_SPACE*2;
+	scr_coord_val x_boost_symbol_pos = proportional_string_width(translator::translate("Productivity")) + proportional_string_width(" : 000% ") + proportional_string_width(translator::translate("(Max. %u%%)")) + D_MARGIN_LEFT + D_H_SPACE;
 	if (skinverwaltung_t::electricity->get_image_id(0) != IMG_EMPTY) {
 		// indicator for receiving
-		if (fab->get_prodfactor_electric() > 0) {
-			display_color_img(skinverwaltung_t::electricity->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, top + 4, 0, false, false);
-			x_view_pos += skinverwaltung_t::electricity->get_image(0)->get_pic()->w + 4;
-		}
-		// indicator for enabled
 		if (fab->get_desc()->get_electric_boost()) {
-			display_color_img(skinverwaltung_t::electricity->get_image_id(0), pos.x + x_prod_pos, top, 0, false, false);
-			x_prod_pos += skinverwaltung_t::electricity->get_image(0)->get_pic()->w + 4;
+			if (fab->get_prodfactor_electric() > 0) {
+				display_color_img(skinverwaltung_t::electricity->get_image_id(0), pos.x + x_boost_symbol_pos, top + LINESPACE, 0, false, false);
+			}
+			else {
+				display_img_blend(skinverwaltung_t::electricity->get_image_id(0), pos.x + x_boost_symbol_pos, top + LINESPACE, TRANSPARENT50_FLAG | OUTLINE_FLAG | COL_GREY2, false, false);
+			}
+			x_boost_symbol_pos += skinverwaltung_t::electricity->get_image(0)->get_pic()->w + 4;
 		}
 	}
+
 	if (skinverwaltung_t::passengers->get_image_id(0) != IMG_EMPTY) {
-		if (fab->get_prodfactor_pax() > 0) {
-			display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, top + 4, 0, false, false);
-			x_view_pos += skinverwaltung_t::passengers->get_image(0)->get_pic()->w + 4;
-		}
 		if (fab->get_desc()->get_pax_boost()) {
-			display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + x_prod_pos, top, 0, false, false);
-			x_prod_pos += skinverwaltung_t::passengers->get_image(0)->get_pic()->w + 4;
+			if (fab->get_prodfactor_pax() > 0) {
+				display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + x_boost_symbol_pos, top + LINESPACE, 0, false, false);
+			}
+			else {
+				display_img_blend(skinverwaltung_t::passengers->get_image_id(0), pos.x + x_boost_symbol_pos, top + LINESPACE, TRANSPARENT50_FLAG | OUTLINE_FLAG | COL_GREY2, false, false);
+			}
+			x_boost_symbol_pos += skinverwaltung_t::passengers->get_image(0)->get_pic()->w + 4;
 		}
 	}
 	if (skinverwaltung_t::mail->get_image_id(0) != IMG_EMPTY) {
-		if (fab->get_prodfactor_mail() > 0) {
-			display_color_img(skinverwaltung_t::mail->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, top + 4, 0, false, false);
-		}
 		if (fab->get_desc()->get_mail_boost()) {
-			display_color_img(skinverwaltung_t::mail->get_image_id(0), pos.x + x_prod_pos, top, 0, false, false);
+			if (fab->get_prodfactor_mail() > 0) {
+				display_color_img(skinverwaltung_t::mail->get_image_id(0), pos.x + x_boost_symbol_pos, top + LINESPACE, 0, false, false);
+			}
+			else {
+				display_img_blend(skinverwaltung_t::mail->get_image_id(0), pos.x + x_boost_symbol_pos, top + LINESPACE, TRANSPARENT50_FLAG | OUTLINE_FLAG | COL_GREY2, false, false);
+			}
 		}
 	}
 

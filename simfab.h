@@ -32,7 +32,7 @@ class ware_t;
  * @author Knightly
  */
 #define MAX_MONTH                  (12)
-#define FAB_PRODUCTION              (0)
+#define FAB_PRODUCTION              (0) // total boost rate - it means productivity
 #define FAB_POWER                   (1)
 #define FAB_BOOST_ELECTRIC          (2)
 #define FAB_BOOST_PAX               (3)
@@ -710,6 +710,9 @@ public:
 
 	// This is done this way rather than reusing get_prodfactor() because the latter causes a lack of precision (everything being rounded to the nearest 16).
 	sint32 get_current_production() const { return (sint32)(welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + (get_sector() == fabrik_t::end_consumer ? 0 : prodfactor_pax + prodfactor_mail))))) >> 8l; }
+
+	// returns the current productivity relative to 100
+	sint32 get_current_productivity() const { return prodbase ? get_current_production() * 100 / welt->calc_adjusted_monthly_figure(prodbase) : 0; }
 
 	/* prissi: returns the status of the current factory */
 	enum { nothing, good, water_resource, medium, water_resource_full, storage_full, inactive, shipment_stuck, material_shortage, no_material, bad, mat_overstocked, stuck, staff_shortage, MAX_FAB_STATUS };
