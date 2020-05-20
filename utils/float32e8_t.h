@@ -8,9 +8,10 @@
 
 
 #include <iostream>
+using namespace std;
+
 #include <string>
 #include <math.h>
-
 
 #ifndef NO_SIMUTRANS
 	#include "../simtypes.h"
@@ -325,7 +326,7 @@ private:
 #ifdef USE_DOUBLE
 public:
 #else
-	friend std::ostream & operator << (std::ostream &out, const float32e8_t &x);
+	friend ostream & operator << (ostream &out, const float32e8_t &x);
 #endif
 public:
 	double to_double() const;
@@ -335,7 +336,7 @@ public:
 	inline operator sint32 () const { return to_sint32(); }
 };
 
-std::ostream & operator << (std::ostream &out, const float32e8_t &x);
+ostream & operator << (ostream &out, const float32e8_t &x);
 
 inline const float32e8_t operator + (const uint8 x, const float32e8_t &y) {return float32e8_t(x) + y; }
 inline const float32e8_t operator - (const uint8 x, const float32e8_t &y) {return float32e8_t(x) - y; }

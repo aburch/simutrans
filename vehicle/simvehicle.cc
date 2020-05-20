@@ -5574,9 +5574,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// With cab signalling, even if we need do nothing else at this juncture, we may need to change the working method.
 		const uint16 check_route_index = next_block <= 0 ? 0 : next_block - 1u;
 		const uint32 cnv_route_count = cnv->get_route()->get_count() - 1u;
-		ribi_t::ribi ribi = next_block < INVALID_INDEX ? ribi_type(cnv->get_route()->at(std::max(1u, std::min(cnv_route_count, (uint32)check_route_index)) - 1u),
-																   cnv->get_route()->at(std::min((uint32)max_element, std::min(cnv_route_count - 1u, ((uint32)check_route_index + 1u)))))
-													   : ribi_t::all;
+		ribi_t::ribi ribi = next_block < INVALID_INDEX ? ribi_type(cnv->get_route()->at(max(1u, std::min(cnv_route_count, (uint32)check_route_index)) - 1u), cnv->get_route()->at(std::min((uint32)max_element, min(cnv_route_count - 1u, ((uint32)check_route_index + 1u))))) : ribi_t::all;
 		signal_t* signal = w_current->get_signal(ribi);
 
 		if (signal && working_method == one_train_staff && starting_from_stand)

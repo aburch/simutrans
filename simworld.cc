@@ -6021,6 +6021,14 @@ void karte_t::check_transferring_cargoes()
 					deposit_ware_at_destination(ware);
 				}
 			}
+			if (tc.ready_time > current_time + UINT32_MAX_VALUE)
+			{
+				// HACK: Fix after-effects of bug from 20 May 2020 causing extremely high transnfer times.
+				// This can be removed shortly afterwards.
+				transferring_cargoes[i].remove(tc);
+				tc.ready_time = current_time + 10000;
+				transferring_cargoes[i].append(tc); 
+			}
 		}
 	}
 }
@@ -8786,7 +8794,7 @@ void karte_t::load(loadsave_t *file)
 		bool read_userdir_simuconf = env_t::default_settings.get_userdir_overrides_savegame_settings();
 		tabfile_t simuconf;
 		sint16 idummy;
-		std::string dummy;
+		string dummy;
 
 		if (read_progdir_simuconf) {
 			chdir( env_t::program_dir );
