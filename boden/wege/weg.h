@@ -534,8 +534,17 @@ public:
 	}
 
 	//will return the % ratio of actual to ideal traversal times
-	inline uint32 get_congestion_percentage() const { return travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_IDEAL] 
-		? (travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_ACTUAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_ACTUAL]) * 100 / (travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_IDEAL]) - 100 : 0; }
+	inline uint32 get_congestion_percentage() const { 
+		uint32 combined_ideal = travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_IDEAL];
+		if(combined_ideal == 0u) {
+			return 0u;
+		}
+		uint32 combined_actual = travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_ACTUAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_ACTUAL];
+		if(combined_actual <= combined_ideal) {
+			return 0u;
+		}
+		return (combined_actual * 100u / combined_ideal) - 100u;
+	}
 
 } GCC_PACKED;
 
