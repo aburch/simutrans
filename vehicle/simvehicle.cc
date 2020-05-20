@@ -3477,7 +3477,7 @@ int road_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	const uint32 congestion_percentage = w->get_congestion_percentage();
 	if (congestion_percentage)
 	{
-		costs += (costs * congestion_percentage) / 100;
+		costs += (costs * congestion_percentage) / 200;
 	}
 
 	// effect of slope

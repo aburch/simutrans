@@ -6012,7 +6012,7 @@ int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_spe
 	const uint32 congestion_percentage = w->get_congestion_percentage();
 	if (congestion_percentage)
 	{
-		speed -= (speed * congestion_percentage) / 100;
+		speed -= (speed * congestion_percentage) / 200;
 		speed = max(4, speed);
 	}
 #endif
