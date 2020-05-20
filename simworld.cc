@@ -6021,6 +6021,14 @@ void karte_t::check_transferring_cargoes()
 					deposit_ware_at_destination(ware);
 				}
 			}
+			if (tc.ready_time > current_time + UINT32_MAX_VALUE)
+			{
+				// HACK: Fix after-effects of bug from 20 May 2020 causing extremely high transnfer times.
+				// This can be removed shortly afterwards.
+				transferring_cargoes[i].remove(tc);
+				tc.ready_time = current_time + 10000;
+				transferring_cargoes[i].append(tc); 
+			}
 		}
 	}
 }
