@@ -43,7 +43,6 @@
 
 #include "descriptor/factory_desc.h"
 #include "bauer/hausbauer.h"
-#include "bauer/goods_manager.h"
 #include "bauer/fabrikbauer.h"
 
 #include "gui/fabrik_info.h"
@@ -3990,6 +3989,31 @@ bool fabrik_t::is_connect_own_network() const
 				if (i.halt->has_available_network(welt->get_active_player(), catg_index)) {
 					return true;
 				}
+			}
+		}
+	}
+	return false;
+}
+
+bool fabrik_t::has_goods_catg_demand(uint8 catg_index) const
+{
+	bool has_potential_demand; // Check descriptor registration. but, there is not always a partner
+	if (!output.empty()) {
+		for (uint32 index = 0; index < output.get_count(); index++) {
+			if (output[index].get_typ()->get_catg_index() == catg_index) {
+				return true;
+			}
+		}
+	}
+
+	if (!input.empty()) {
+		for (uint32 index = 0; index < input.get_count(); index++) {
+			if (!desc->get_supplier(index))
+			{
+				continue;
+			}
+			if (input[index].get_typ()->get_catg_index() == catg_index) {
+				return true; 
 			}
 		}
 	}

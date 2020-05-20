@@ -12,7 +12,7 @@
 #include "components/gui_label.h"
 #include "factorylist_stats_t.h"
 #include "components/gui_combobox.h"
-
+#include "../descriptor/goods_desc.h"
 
 /*
  * Factory list window
@@ -25,6 +25,7 @@ private:
 
 	gui_label_t sort_label;
 	gui_combobox_t	sortedby;
+	gui_combobox_t	freight_type_c;
 	button_t	sorteddir;
 	button_t	filter_within_network;
 	factorylist_stats_t stats;
@@ -37,6 +38,9 @@ private:
 	static factorylist::sort_mode_t sortby;
 	static bool sortreverse;
 	static bool filter_own_network;
+	static uint8 filter_goods_catg;
+
+	vector_tpl<const goods_desc_t *> viewable_freight_types;
 
 public:
 	factorylist_frame_t();
@@ -60,6 +64,7 @@ public:
 	static bool get_reverse() { return sortreverse; }
 	static void set_reverse(const bool& reverse) { sortreverse = reverse; }
 	static bool get_filter_own_network() { return filter_own_network; }
+	static uint8 get_filter_goods_catg() { return filter_goods_catg; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
