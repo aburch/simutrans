@@ -2831,7 +2831,7 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 			* OLD SYSTEM - did not take account of origins and timings when merging.
 			*
 			* // es wird auf basis von Haltestellen vereinigt
-			* // prissi: das ist aber ein Fehler für all anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
+			* // prissi: das ist aber ein Fehler fï¿½r all anderen Gï¿½ter, daher Zielkoordinaten fï¿½r alles, was kein passagier ist ...
 			*
 			* //it is based on uniting stops.
 			* //prissi: but that is a mistake for all other goods, therefore, target coordinates for everything that is not a passenger ...
@@ -3910,30 +3910,29 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			else {
 				file->rdwr_long(count);
 			}
-			if(count>0) {
-				for(  uint32 i = 0;  i < count;  i++  ) {
-					// add to internal storage (use this function, since the old categories were different)
-					ware_t ware(file);
-					if( ware.get_desc() && ware.menge>0 && welt->is_within_limits(ware.get_zielpos()) ) {
-						add_ware_to_halt(ware, true);
-						/*
-						 * It's very easy for in-transit information to get corrupted,
-						 * if an intermediate program version fails to compute it right.
-						 * So *always* compute it fresh.
-						 */
-						fabrik_t::update_transit( ware, true );
-					}
-					else if(  ware.menge>0  )
-					{
-						if(  ware.get_desc()  ) {
-							dbg->error( "haltestelle_t::rdwr()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
-						}
-						else {
-							dbg->error( "haltestelle_t::rdwr()", "%i of unknown to %s ignored!", ware.menge, ware.get_zielpos().get_str() );
-						}
-					}
-				}
-			}
+            //Note: in case of count==0, we won't enter the loop anyway, so no need to exclude that case explicitly.
+            for(  uint32 i = 0;  i < count;  i++  ) {
+                // add to internal storage (use this function, since the old categories were different)
+                ware_t ware(file);
+                if( ware.get_desc() && ware.menge>0 && welt->is_within_limits(ware.get_zielpos()) ) {
+                    add_ware_to_halt(ware, true);
+                    /*
+                     * It's very easy for in-transit information to get corrupted,
+                     * if an intermediate program version fails to compute it right.
+                     * So *always* compute it fresh.
+                     */
+                    fabrik_t::update_transit( ware, true );
+                }
+                else if(  ware.menge>0  )
+                {
+                    if(  ware.get_desc()  ) {
+                        dbg->error( "haltestelle_t::rdwr()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
+                    }
+                    else {
+                        dbg->error( "haltestelle_t::rdwr()", "%i of unknown to %s ignored!", ware.menge, ware.get_zielpos().get_str() );
+                    }
+                }
+            }
 			file->rdwr_str(s, lengthof(s));
 		}
 
@@ -4470,6 +4469,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 				if (file->is_loading())
 				{
+				    //Hotfix: ignore excessively long transfer times, as these resulted from a bug bug in one specific nightly version.
+				    if(ready - welt->get_ticks() > welt->get_seconds_to_ticks(1<<31)){
+                        ready=welt->get_ticks();
+				    }
 					transferring_cargo_t tc;
 					tc.ready_time = ready;
 					tc.ware = ware;
