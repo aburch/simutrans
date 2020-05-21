@@ -173,7 +173,7 @@ uint32 simrand_normal(const uint32 max, uint32 exponent, const char*)
 		random_number += simrand(max, "simrand_normal unskewed");
 		random_number /= 2ll; // Averaging a larger numbers will create a stronger normal peak, but it will still be unskewed.
 		return (uint32)random_number;
-	} 
+	}
 
 	// Any higher number than 3 would produce integer overflows even with unsigned. 64-bit integers
 	// if the model was followed. Interpret higher numbers as directives for recursion.
