@@ -3259,9 +3259,11 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 				buf.append(", ");
 				buf.append(translator::translate(type->get_catg_name()));
 			}
-			// Primary industry displays monthly production
-			buf.printf(", %d", get_current_production()*pfactor >> DEFAULT_PRODUCTION_FACTOR_BITS);
-			buf.printf(" %s%s", translator::translate(type->get_mass()),translator::translate("/month"));
+			// monthly production
+			const uint32 monthly_prod = (uint32)(get_current_production()*pfactor*10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
+			buf.append(", ");
+			buf.append((float)monthly_prod/10.0, monthly_prod < 100 ? 1 : 0);
+			buf.printf("%s%s", translator::translate(type->get_mass()),translator::translate("/month"));
 		}
 	}
 
@@ -3278,29 +3280,31 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 			const uint16 max_intransit_percentage = max_intransit_percentages.get(input[index].get_typ()->get_catg());
 
 			if(  max_intransit_percentage  ) {
-				buf.printf("\n - %s %i/%i(%i)/%u %s, %u %s%s",
+				buf.printf("\n - %s %i/%i(%i)/%u %s, ",
 					translator::translate(input[index].get_typ()->get_name()),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					input[index].get_in_transit(),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max_transit * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					translator::translate(input[index].get_typ()->get_mass()),
-					(uint32)(get_current_production() * pfactor >> DEFAULT_PRODUCTION_FACTOR_BITS),
-					translator::translate(input[index].get_typ()->get_mass()),
-					translator::translate("/month")
+					translator::translate(input[index].get_typ()->get_mass())
 				);
+				const uint32 monthly_prod = (uint32)(get_current_production()*pfactor * 10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
+				buf.append(", ");
+				buf.append((float)monthly_prod / 10.0, monthly_prod < 100 ? 1 : 0);
+				buf.printf("%s%s", translator::translate(input[index].get_typ()->get_mass()), translator::translate("/month"));
 			}
 			else {
-				buf.printf("\n - %s %i/%i/%u %s, %u %s%s",
+				buf.printf("\n - %s %i/%i/%u %s, ",
 					translator::translate(input[index].get_typ()->get_name()),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					input[index].get_in_transit(),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					translator::translate(input[index].get_typ()->get_mass()),
-					(uint32)(get_current_production() * pfactor >> DEFAULT_PRODUCTION_FACTOR_BITS),
-					translator::translate(input[index].get_typ()->get_mass()),
-					translator::translate("/month")
+					translator::translate(input[index].get_typ()->get_mass())
 				);
+				const uint32 monthly_prod = (uint32)(get_current_production()*pfactor * 10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
+				buf.append(", ");
+				buf.append((float)monthly_prod / 10.0, monthly_prod < 100 ? 1 : 0);
+				buf.printf("%s%s", translator::translate(input[index].get_typ()->get_mass()), translator::translate("/month"));
 			}
 		}
 	}
