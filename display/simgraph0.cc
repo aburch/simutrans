@@ -129,15 +129,15 @@ void display_get_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, 
 	}
 }
 
-void display_get_base_image_offset(image_id image, scr_coord_val *xoff, scr_coord_val *yoff, scr_coord_val *xw, scr_coord_val *yw)
+void display_get_base_image_offset(image_id image, scr_coord_val& xoff, scr_coord_val& yoff, scr_coord_val& xw, scr_coord_val& yw)
 {
-	if (image < 2) {
-		// initialize offsets with dummy values
-		*xoff = 0;
-		*yoff = 0;
-		*xw = 0;
-		*yw = 0;
-	}
+    if (image < 2) {
+        // initialize offsets with dummy values
+        xoff = 0;
+        yoff = 0;
+        xw = 0;
+        yw = 0;
+    }
 }
 
 /*
