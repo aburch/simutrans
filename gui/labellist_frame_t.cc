@@ -26,6 +26,7 @@ bool labellist_frame_t::filter_state = true;
  * @author Markus Weber
  */
 labellist::sort_mode_t labellist_frame_t::sortby = labellist::by_name;
+static uint8 default_sortmode = 0;
 
 const char *labellist_frame_t::sort_text[labellist::SORT_MODES] = {
 	"hl_btn_sort_name",
@@ -49,7 +50,7 @@ labellist_frame_t::labellist_frame_t() :
 	for (int i = 0; i < labellist::SORT_MODES; i++) {
 		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
 	}
-	sortedby.set_selection(get_sortierung());
+	sortedby.set_selection(default_sortmode);
 
 	sortedby.add_listener(this);
 	add_component(&sortedby);
@@ -86,7 +87,17 @@ labellist_frame_t::labellist_frame_t() :
 bool labellist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if(comp == &sortedby) {
-		set_sortierung((labellist::sort_mode_t)((get_sortierung() + 1) % labellist::SORT_MODES));
+		int tmp = sortedby.get_selection();
+		if (tmp >= 0 && tmp < sortedby.count_elements())
+		{
+			sortedby.set_selection(tmp);
+			set_sortierung((labellist::sort_mode_t)tmp);
+		}
+		else {
+			sortedby.set_selection(0);
+			set_sortierung(labellist::by_name);
+		}
+		default_sortmode = (uint8)tmp;
 		display_list();
 	}
 	else if(comp == &sorteddir) {

@@ -23,6 +23,7 @@ bool factorylist_frame_t::sortreverse = false;
  * @author Markus Weber
  */
 factorylist::sort_mode_t factorylist_frame_t::sortby = factorylist::by_name;
+static uint8 default_sortmode = 0;
 
 // filter by within current player's network
 bool factorylist_frame_t::filter_own_network = false;
@@ -54,7 +55,7 @@ factorylist_frame_t::factorylist_frame_t() :
 	for (int i = 0; i < factorylist::SORT_MODES; i++) {
 		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
 	}
-	sortedby.set_selection(get_sortierung());
+	sortedby.set_selection(default_sortmode);
 
 	sortedby.add_listener(this);
 	add_component(&sortedby);
@@ -92,20 +93,30 @@ factorylist_frame_t::factorylist_frame_t() :
 bool factorylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if(comp == &sortedby) {
-		set_sortierung((factorylist::sort_mode_t)((get_sortierung() + 1) % factorylist::SORT_MODES));
-		stats.sort(get_sortierung(),get_reverse(), get_filter_own_network());
+		int tmp = sortedby.get_selection();
+		if (tmp >= 0 && tmp < sortedby.count_elements())
+		{
+			sortedby.set_selection(tmp);
+			set_sortierung((factorylist::sort_mode_t)tmp);
+		}
+		else {
+			sortedby.set_selection(0);
+			set_sortierung(factorylist::by_name);
+		}
+		default_sortmode = (uint8)tmp;
+		stats.sort(sortby, get_reverse(), get_filter_own_network());
 		stats.recalc_size();
 	}
 	else if(comp == &sorteddir) {
 		set_reverse(!get_reverse());
 		sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-		stats.sort(get_sortierung(),get_reverse(), get_filter_own_network());
+		stats.sort(sortby,get_reverse(), get_filter_own_network());
 		stats.recalc_size();
 	}
 	else if (comp == &filter_within_network) {
 		filter_own_network = !filter_own_network;
 		filter_within_network.pressed = filter_own_network;
-		stats.sort(get_sortierung(), get_reverse(), get_filter_own_network());
+		stats.sort(sortby, get_reverse(), get_filter_own_network());
 		stats.recalc_size();
 	}
 	return true;
