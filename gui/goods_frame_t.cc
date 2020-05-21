@@ -143,7 +143,7 @@ goods_frame_t::goods_frame_t() :
 
 	sortedby.set_pos(scr_coord(BUTTON1_X, y));
 	sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
-	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, LINESPACE * 8));
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, LINESPACE * 4));
 	for (int i = 0; i < SORT_MODES; i++) {
 		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
 	}
@@ -258,6 +258,7 @@ void goods_frame_t::resize(const scr_coord delta)
 	gui_frame_t::resize(delta);
 	scr_size size = get_windowsize()-scrolly.get_pos()-scr_size(0,D_TITLEBAR_HEIGHT+2);
 	scrolly.set_size(size);
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, scrolly.get_size().h));
 }
 
 

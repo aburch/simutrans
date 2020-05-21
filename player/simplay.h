@@ -475,8 +475,9 @@ public:
 	bool allows_access_to(uint8 other_player_nr) const { return player_nr == other_player_nr || access[other_player_nr]; }
 	void set_allow_access_to(uint8 other_player_nr, bool allow) { access[other_player_nr] = allow; }
 
-	void set_selected_signalbox(signalbox_t* sb);
-	signalbox_t* get_selected_signalbox() const { return selected_signalbox; }
+	void set_selected_signalbox(signalbox_t *sb);
+	const signalbox_t* get_selected_signalbox() const { return selected_signalbox; }
+	signalbox_t *get_selected_signalbox() { return selected_signalbox; }
 };
 
 #endif

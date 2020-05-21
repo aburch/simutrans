@@ -933,7 +933,7 @@ public:
 	static pthread_mutex_t unreserve_route_mutex;
 	static pthread_mutex_t step_passengers_and_mail_mutex;
 	static bool private_car_route_mutex_initialised;
-	static pthread_mutex_t private_car_route_mutex; 
+	static pthread_mutex_t private_car_route_mutex;
 	void start_passengers_and_mail_threads();
 	void start_convoy_threads();
 	void start_path_explorer();
@@ -1220,14 +1220,6 @@ public:
 	void clear_player_password_hashes();
 	void rdwr_player_password_hashes(loadsave_t *file);
 	void remove_player(uint8 player_nr);
-
-	/**
-	 * Get the public service player whos domain of influence includes the ground gr.
-	 * If gr is NULL then the default public service player is returned.
-	 * @param gr the ground to lookup
-	 * @return a public service player
-	 */
-	player_t *get_public_player(grund_t const *const gr) const;
 
 	/**
 	* Get the default public service player.

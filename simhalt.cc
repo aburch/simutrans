@@ -75,8 +75,6 @@ inthashtable_tpl<sint32,halthandle_t> *haltestelle_t::all_koords = NULL;
 //uint8 haltestelle_t::status_step = 0;
 uint8 haltestelle_t::reconnect_counter = 0;
 
-static const uint8 pedestrian_generate_max = 16;
-
 // controls the halt iterator in step_all():
 static bool restart_halt_iterator = true;
 
@@ -205,8 +203,7 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 		}
 
 		// Stops on public roads, even those belonging to other players, should be able to be used by all players.
-		if(gr->get_halt().is_bound() && (gr->get_halt()->check_access(player) ||
-			(w && player_t::check_owner(w->get_owner(), player))) ||
+		if((gr->get_halt().is_bound() && (gr->get_halt()->check_access(player) || (w && player_t::check_owner(w->get_owner(), player)))) ||
 			(w && (w->get_waytype() == road_wt || w->get_waytype() == tram_wt) && (w->get_owner() == NULL || w->get_owner()->is_public_service())))
 		{
 			return gr->get_halt();
@@ -1310,7 +1307,7 @@ void haltestelle_t::step()
 				const grund_t* gr = welt->lookup_kartenboden(tmp.get_zielpos());
 				const gebaeude_t* const gb = gr ? gr->get_building() : NULL;
 				fabrik_t* const fab = gb ? gb->get_fabrik() : NULL;
-				if(!gb || tmp.is_freight() && !fab)
+				if(!gb || (tmp.is_freight() && !fab))
 				{
 					// The goods/passengers leave.  We must record the lower "in transit" count on factories.
 					fabrik_t::update_transit(tmp, false);
@@ -2834,7 +2831,7 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 			* OLD SYSTEM - did not take account of origins and timings when merging.
 			*
 			* // es wird auf basis von Haltestellen vereinigt
-			* // prissi: das ist aber ein Fehler für all anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
+			* // prissi: das ist aber ein Fehler fÃ¼r all anderen GÃ¼ter, daher Zielkoordinaten fÃ¼r alles, was kein passagier ist ...
 			*
 			* //it is based on uniting stops.
 			* //prissi: but that is a mistake for all other goods, therefore, target coordinates for everything that is not a passenger ...
@@ -2920,7 +2917,7 @@ void haltestelle_t::add_to_waiting_list(ware_t ware, sint64 ready_time)
 	resort_freight_info = true;
 }
 
-sint64 haltestelle_t::calc_ready_time(ware_t ware, bool arriving_from_vehicle, koord origin_pos) const
+sint64 haltestelle_t::calc_ready_time(ware_t ware, bool, koord origin_pos) const
 {
 	sint64 ready_time = welt->get_ticks();
 
@@ -3072,7 +3069,7 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	const grund_t* gr = plan ? plan->get_kartenboden() : NULL;
 	gebaeude_t* const gb = gr ? gr->get_building() : NULL;
 	fabrik_t* const fab = gb ? gb->get_fabrik() : NULL;
-	if(!gb || ware.is_freight() && !fab)
+	if(!gb || (ware.is_freight() && !fab))
 	{
 		// Destination building has been deleted: write a log entry and discard the goods.
 #ifdef MULTI_THREAD
@@ -3280,7 +3277,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 			const vector_tpl<ware_t> * warray = cargo[i];
 			if (warray)
 			{
-				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting", NULL, NULL, NULL);
+				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting", 0, 0, NULL);
 			}
 		}
 
@@ -3291,7 +3288,6 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		}
 		vector_tpl<ware_t> ware_transfers;
 		ware_t ware;
-		const sint64 current_time = welt->get_ticks();
 #ifdef MULTI_THREAD
 		sint32 po = world()->get_parallel_operations();
 #else
@@ -3306,7 +3302,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 			}
 		}
 		// show new info
-		freight_list_sorter_t::sort_freight(ware_transfers, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "transferring", NULL, NULL, NULL);
+		freight_list_sorter_t::sort_freight(ware_transfers, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "transferring", 0, 0, NULL);
 	}
 }
 
@@ -3914,30 +3910,29 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			else {
 				file->rdwr_long(count);
 			}
-			if(count>0) {
-				for(  uint32 i = 0;  i < count;  i++  ) {
-					// add to internal storage (use this function, since the old categories were different)
-					ware_t ware(file);
-					if( ware.get_desc() && ware.menge>0 && welt->is_within_limits(ware.get_zielpos()) ) {
-						add_ware_to_halt(ware, true);
-						/*
-						 * It's very easy for in-transit information to get corrupted,
-						 * if an intermediate program version fails to compute it right.
-						 * So *always* compute it fresh.
-						 */
-						fabrik_t::update_transit( ware, true );
-					}
-					else if(  ware.menge>0  )
-					{
-						if(  ware.get_desc()  ) {
-							dbg->error( "haltestelle_t::rdwr()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
-						}
-						else {
-							dbg->error( "haltestelle_t::rdwr()", "%i of unknown to %s ignored!", ware.menge, ware.get_zielpos().get_str() );
-						}
-					}
-				}
-			}
+            //Note: in case of count==0, we won't enter the loop anyway, so no need to exclude that case explicitly.
+            for(  uint32 i = 0;  i < count;  i++  ) {
+                // add to internal storage (use this function, since the old categories were different)
+                ware_t ware(file);
+                if( ware.get_desc() && ware.menge>0 && welt->is_within_limits(ware.get_zielpos()) ) {
+                    add_ware_to_halt(ware, true);
+                    /*
+                     * It's very easy for in-transit information to get corrupted,
+                     * if an intermediate program version fails to compute it right.
+                     * So *always* compute it fresh.
+                     */
+                    fabrik_t::update_transit( ware, true );
+                }
+                else if(  ware.menge>0  )
+                {
+                    if(  ware.get_desc()  ) {
+                        dbg->error( "haltestelle_t::rdwr()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
+                    }
+                    else {
+                        dbg->error( "haltestelle_t::rdwr()", "%i of unknown to %s ignored!", ware.menge, ware.get_zielpos().get_str() );
+                    }
+                }
+            }
 			file->rdwr_str(s, lengthof(s));
 		}
 
@@ -4364,14 +4359,14 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			file->rdwr_long(arrival_count);
 			file->rdwr_long(departure_count);
 
-			for(int i = 0; i < arrival_count; i++)
+			for(uint32 i = 0; i < arrival_count; i++)
 			{
 				file->rdwr_short(convoy_id);
 				file->rdwr_longlong(time);
 				estimated_convoy_arrival_times.put(convoy_id, time);
 			}
 
-			for(int i = 0; i < departure_count; i++)
+			for(uint32 i = 0; i < departure_count; i++)
 			{
 				file->rdwr_short(convoy_id);
 				file->rdwr_longlong(time);
@@ -4474,6 +4469,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 				if (file->is_loading())
 				{
+				    //Hotfix: ignore excessively long transfer times, as these resulted from a bug bug in one specific nightly version.
+				    if(ready - welt->get_ticks() > welt->get_seconds_to_ticks(1<<31)){
+                        ready=welt->get_ticks();
+				    }
 					transferring_cargo_t tc;
 					tc.ready_time = ready;
 					tc.ware = ware;
@@ -4838,7 +4837,7 @@ void haltestelle_t::recalc_status()
 		// For goods, include transferring goods when determining whether a stop is overcrowded.
 		// This is necessary as goods tend to come all at once and take a long time to transfer.
 		uint32 transferring_total = 0;
-		for (uint32 i = 0; i <= welt->get_parallel_operations(); i++)
+		for (sint32 i = 0; i <= welt->get_parallel_operations(); i++)
 		{
 			for (uint32 n = 0; n < transferring_cargoes[i].get_count(); n++)
 			{
@@ -6035,7 +6034,6 @@ bool haltestelle_t::is_using() const {
 
 void haltestelle_t::set_all_building_tiles()
 {
-	koord find = koord::invalid;
 
 	if (!tiles.empty())
 	{

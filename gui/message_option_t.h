@@ -36,11 +36,11 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const {return "mailbox.txt";}
+	const char * get_help_filename() const OVERRIDE {return "mailbox.txt";}
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	uint32 get_rdwr_id() { return magic_message_options; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_message_options; }
 };
 
 #endif

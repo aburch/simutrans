@@ -79,7 +79,7 @@ void gebaeude_t::init()
 	passengers_generated_visiting = 0;
 	passengers_succeeded_visiting = 0;
 	passenger_success_percent_last_year_visiting = 65535;
-	available_jobs_by_time = -9223372036854775808ll;
+	available_jobs_by_time = std::numeric_limits<sint64>::min();
 	mail_generated = 0;
 	mail_delivery_succeeded_last_year = 65535;
 	mail_delivery_succeeded = 0;
@@ -354,7 +354,7 @@ void gebaeude_t::check_road_tiles(bool del)
 				{
 					continue;
 				}
-				for (int j = 0; j<plan->get_boden_count(); j++)
+				for (uint32 j = 0; j<plan->get_boden_count(); j++)
 				{
 					grund_t *bd = plan->get_boden_bei(j);
 					weg_t *way = bd->get_weg(road_wt);
@@ -613,7 +613,7 @@ void gebaeude_t::calc_image()
 
 	static uint8 effective_season[][5] = { { 0,0,0,0,0 },{ 0,0,0,0,1 },{ 0,0,0,0,1 },{ 0,1,2,3,2 },{ 0,1,2,3,4 } };  // season image lookup from [number of images] and [actual season/snow]
 
-	if (gr && (gr->ist_tunnel() && !gr->ist_karten_boden()) || tile->get_seasons() < 2) {
+	if ((gr && gr->ist_tunnel() && !gr->ist_karten_boden()) || tile->get_seasons() < 2) {
 		season = 0;
 	}
 	else if (get_pos().z - (get_yoff() / TILE_HEIGHT_STEP) >= welt->get_snowline() || welt->get_climate(get_pos().get_2d()) == arctic_climate) {
@@ -840,7 +840,7 @@ bool gebaeude_t::is_same_building(gebaeude_t* other) const
 bool gebaeude_t::is_within_players_network(const player_t* player, uint8 catg_index) const
 {
 	const planquadrat_t* plan = welt->access(get_pos().get_2d());
-	const nearby_halt_t *const halt_list = plan->get_haltlist();
+
 	if (plan->get_haltlist_count() > 0) {
 		const nearby_halt_t *const halt_list = plan->get_haltlist();
 		for (int h = 0; h < plan->get_haltlist_count(); h++)
@@ -1009,7 +1009,7 @@ void gebaeude_t::get_description(cbuffer_t & buf) const
 }
 
 
-void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
+void gebaeude_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
 
@@ -1028,7 +1028,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 		if (tile->get_desc()->is_signalbox())
 		{
-			signalbox_t* sb = (signalbox_t*)get_first_tile();
+			const signalbox_t *sb = static_cast<const signalbox_t *>(get_first_tile());
 			buf.printf("%s: %d/%d\n", translator::translate("Signals"), sb->get_number_of_signals_controlled_from_this_box(), tile->get_desc()->get_capacity());
 
 			buf.printf("%s: ", translator::translate("radius"));
@@ -1075,7 +1075,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 #endif
 		buf.printf("%s: %d\n", translator::translate("Mail demand/output"), get_adjusted_mail_demand());
 
-                buf.printf("%s: %s (%d)\n", translator::translate("Built in"), 
+                buf.printf("%s: %s (%d)\n", translator::translate("Built in"),
                            translator::get_year_month(((purchase_time / welt->ticks_per_world_month)+welt->get_settings().get_starting_month())+
                                                       welt->get_settings().get_starting_year()*12),
                            (purchase_time / welt->ticks_per_world_month));
@@ -1199,7 +1199,6 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		const nearby_halt_t *const halt_list = plan->get_haltlist();
 		bool any_suitable_stops_passengers = false;
 		bool any_suitable_stops_mail = false;
-		int total_stop_entries = plan->get_haltlist_count() - 1;
 		int max_stop_entries = 6;
 		int stop_entry_counter;
 		uint16 max_walking_time;
@@ -2325,7 +2324,7 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 		}
 		koord end = city->get_townhall_road();
 
-		if (shortest_distance(start.get_2d(), end) > env_t::intercity_road_length)
+		if (shortest_distance(start.get_2d(), end) > (uint32)env_t::intercity_road_length)
 		{
 			return;
 		}

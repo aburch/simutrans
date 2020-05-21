@@ -45,7 +45,7 @@ public:
 	void recalc_size();
 
 	// Draw the component
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 };
 
 #endif

@@ -466,7 +466,6 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		{
 			air_vehicle = (air_vehicle_t*)cnv->front();
 		}
-		const air_vehicle_t* air = (const air_vehicle_t*)this;
 
 		speed_bar.set_visible(false);
 
@@ -482,7 +481,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			}
 			else
 			{
-				sprintf(speed_text, translator::translate("Waiting for clearance!"));
+				sprintf(speed_text, "%s", translator::translate("Waiting for clearance!"));
 				speed_color = COL_YELLOW;
 			}
 			break;
@@ -490,7 +489,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		case convoi_t::CAN_START:
 		case convoi_t::CAN_START_ONE_MONTH:
 
-			sprintf(speed_text, translator::translate("Waiting for clearance!"));
+			sprintf(speed_text, "%s", translator::translate("Waiting for clearance!"));
 			speed_color = COL_BLACK;
 			break;
 
@@ -562,7 +561,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			}
 			else
 			{
-				sprintf(speed_text, translator::translate("clf_chk_stucked"));
+				sprintf(speed_text, "%s", translator::translate("clf_chk_stucked"));
 				speed_color = COL_ORANGE;
 			}
 			break;
@@ -575,14 +574,14 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			}
 			else
 			{
-				sprintf(speed_text, translator::translate("clf_chk_noroute"));
+				sprintf(speed_text, "%s", translator::translate("clf_chk_noroute"));
 			}
 			speed_color = COL_RED;
 			break;
 
 		case convoi_t::NO_ROUTE_TOO_COMPLEX:
 			//sprintf(speed_text, translator::translate("no_route_too_complex_message"));
-			sprintf(speed_text, translator::translate("clf_chk_noroute"));
+			sprintf(speed_text, "%s", translator::translate("clf_chk_noroute"));
 			speed_color = COL_RED;
 			break;
 
@@ -732,7 +731,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			int existing_caracters = len / 4;
 			int extra_caracters = (get_windowsize().w - get_min_windowsize().w) / 6;
 			char convoy_line[256] = "\0";
-			sprintf(convoy_line, cnv->get_line()->get_name());
+			sprintf(convoy_line, "%s", cnv->get_line()->get_name());
 			tmp[0] = '\0';
 			if (convoy_line[48 - existing_caracters + extra_caracters] != '\0')
 			{

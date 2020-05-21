@@ -80,7 +80,7 @@ signalbox_t::~signalbox_t()
 	}
 }
 
-void signalbox_t::add_to_world_list(bool lock)
+void signalbox_t::add_to_world_list(bool)
 {
 	welt->add_building_to_world_list(access_first_tile());
 	const planquadrat_t* tile = welt->access(get_pos().get_2d());
@@ -186,7 +186,7 @@ bool signalbox_t::transfer_signal(signal_t* s, signalbox_t* sb)
 		return false;
 	}
 
-	if(!s->get_desc()->get_working_method() != moving_block)
+	if(s->get_desc()->get_working_method() == moving_block)
 	{
 		if(s->get_desc()->get_max_distance_to_signalbox() != 0 && ((s->get_desc()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d())))
 		{
@@ -231,7 +231,7 @@ koord signalbox_t::transfer_all_signals(signalbox_t* sb)
 				continue;
 			}
 
-			if(!s->get_desc()->get_working_method() != moving_block)
+			if(s->get_desc()->get_working_method() == moving_block)
 			{
 				if (s->get_desc()->get_max_distance_to_signalbox() != 0 && sb && ((s->get_desc()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d())))
 				{

@@ -57,11 +57,6 @@
 
 #include "path_explorer.h"
 
-#if MULTI_THREAD
-#include "utils/simthread.h"
-static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t add_to_world_list_mutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
 
 // Fabrik_t
 
@@ -1021,7 +1016,7 @@ fabrik_t::~fabrik_t()
 }
 
 
-void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodbase, bool from_saved)
+void fabrik_t::build(sint32 rotate, bool build_fields, bool, bool from_saved)
 {
 	this->rotate = rotate;
 	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();
@@ -1101,7 +1096,6 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 		else if(  build_fields  )
 		{
 			// make sure not to exceed initial prodbase too much
-			sint32 org_prodbase = prodbase;
 			// we will start with a minimum number and try to get closer to start_fields
 			const uint16 spawn_fields = desc->get_field_group()->get_min_fields() + simrand(desc->get_field_group()->get_start_fields() - desc->get_field_group()->get_min_fields(), "fabrik_t::build");
 			while(  fields.get_count() < spawn_fields  &&  add_random_field(10000u)  )
@@ -1202,7 +1196,6 @@ void fabrik_t::remove_field_at(koord pos)
 	field_data_t field(pos);
 	assert(fields.is_contained( field ));
 	field = fields[ fields.index_of(field) ];
-	const field_class_desc_t *const field_class = desc->get_field_group()->get_field_class( field.field_class_index );
 	fields.remove(field);
 	// Knightly : revert the field's effect on production base and storage capacities
 	adjust_production_for_fields();
@@ -2797,7 +2790,6 @@ void fabrik_t::new_month()
 						// If this is an end consumer, check whether we have a good number
 						// of customers before deciding whether to close/upgrade.
 
-						const uint32 passengers_visiting_this_year = (uint32)building->get_passengers_succeeded_visiting();
 						const uint32 visitor_demand = (uint32)building->get_adjusted_visitor_demand();
 
 						const uint32 current_month = world()->get_last_month();
@@ -3176,7 +3168,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 	if (building)
 	{
 		buf.append("\n");
-                buf.printf("%s: %s\n", translator::translate("Built in"), 
+                buf.printf("%s: %s\n", translator::translate("Built in"),
                            translator::get_year_month(((building->get_purchase_time() / welt->ticks_per_world_month)+welt->get_settings().get_starting_month())+
                                                       welt->get_settings().get_starting_year()*12));
 		buf.printf("%s: %d\n", translator::translate("Visitor demand"), building->get_adjusted_visitor_demand());
@@ -3346,7 +3338,7 @@ void fabrik_t::recalc_nearby_halts()
 				const nearby_halt_t *haltlist = plan->get_haltlist();
 				for(int i = 0; i < haltlist_count; i++)
 				{
-					// We've found a halt. 
+					// We've found a halt.
 					const nearby_halt_t new_nearby_halt = haltlist[i];
 					// However, it might be a duplicate.
 					bool duplicate = false;
@@ -3625,10 +3617,10 @@ void fabrik_t::rem_supplier(koord pos)
 		FOR( vector_tpl<koord>, ziel, suppliers ) {
 			if(  fabrik_t *fab = get_fab( ziel )  ) {
 				for(  uint32 i=0;  i < fab->get_output().get_count();  i++   ) {
-					const ware_production_t &w_out = fab->get_output()[i];
 					// now update transit limits
 					FOR(  array_tpl<ware_production_t>,  &w,  input )
 					{
+						(void)w;
 						calc_max_intransit_percentages();
 					}
 				}

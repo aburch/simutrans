@@ -137,7 +137,6 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	freight_selector_size.w = button_size.w+30;
 	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
 
-	const sint16 offset_below_viewport = D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + view.get_size().h;
 	const sint16 client_width = 3*(L_BUTTON_WIDTH + D_H_SPACE) + max(freight_selector_size.w, view.get_size().w );
 	const sint16 total_width = D_MARGIN_LEFT + client_width + D_MARGIN_RIGHT;
 

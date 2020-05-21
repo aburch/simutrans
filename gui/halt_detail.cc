@@ -293,7 +293,9 @@ void halt_detail_t::halt_detail_info()
 
 	bool has_stops = false;
 
+#if MSG_LEVEL>=4
 	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+#endif
 
 	for (uint i=0; i<goods_manager_t::get_max_catg_index(); i++)
 	{

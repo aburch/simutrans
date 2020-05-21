@@ -1514,7 +1514,7 @@ Pas_tab
 Passagiere
 旅客
 Passagierrate
-旅客度
+訪問者需要
 Passagierziele
 旅客/郵便物の行き先
 Passenger AI
@@ -3687,34 +3687,6 @@ Show convoys
 編成を表示します
 map_btn_building_level
 発展度
-
-#_______________________________unnecessary_text________________________________
-#_______________________________unnecessary_text________________________________
-#Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
-#旅客 %d %c, %d %c, %d 経路なし\n\n定員/容量: %i\n
-#Passengers %d %c, %d %c, %d no route
-#旅客の評価 %d %c, %d %c, %d 経路無し
-#Passengers %d %s, %d %s, %d no route
-#旅客の評価 %d %s, %d %s, %d 経路無し
-#Passengers %d %c, %d %c, %d no route, %d too slow
-#旅客の評価 %d %c, %d %c, %d 経路無し, %d 許容時間超過
-#Passengers %d %s, %d %s, %d no route, %d too slow
-#旅客の評価 %d %s, %d %s, %d 経路無し, %d 許容時間超過
-#Unhappy
-#不幸せ
-#The number of passengers who have left because of overcrowding or excess waiting
-#混雑や駅での待ち時間のため旅行を取り止めた旅客の人数を表します。
-#Arbeiter aus:
-#労働者居住地:
-#No Route
-#経路無し
-#Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community
-#ようこそSimutrans-Extendedへ! Simutrans-StandardはHj. MalthanerとSimutransコミュニティによって開発されました。Simutrans-ExtendedはSimutrans-Standardを元にしてJames E. PettsとSimutransコミュニティによって開発されました。
-#Usage/Output
-#使用量/発電量
-#Power (MW)
-#電力 (MW)
-
 sort_pas_arrived
 旅客輸送実績
 Scrap
@@ -3747,6 +3719,32 @@ Starting acceleration:
 (満載時 %.*f-%.*ft)
 Sell for %s
 %sで売却
+Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
+旅客 %d %c, %d %c, %d 経路なし\n\n定員/容量: %i\n
+Passengers %d %c, %d %c, %d no route
+旅客の評価 %d %c, %d %c, %d 経路無し
+Passengers %d %s, %d %s, %d no route
+旅客の評価 %d %s, %d %s, %d 経路無し
+Passengers %d %c, %d %c, %d no route, %d too slow
+旅客の評価 %d %c, %d %c, %d 経路無し, %d 許容時間超過
+Passengers %d %s, %d %s, %d no route, %d too slow
+旅客の評価 %d %s, %d %s, %d 経路無し, %d 許容時間超過
+Unhappy
+不幸せ
+The number of passengers who have left because of overcrowding or excess waiting
+混雑や駅での待ち時間のため旅行を取り止めた旅客の人数を表します。
+Arbeiter aus:
+労働者居住地:
+No Route
+経路無し
+Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community
+ようこそSimutrans-Extendedへ! Simutrans-StandardはHj. MalthanerとSimutransコミュニティによって開発されました。Simutrans-ExtendedはSimutrans-Standardを元にしてJames E. PettsとSimutransコミュニティによって開発されました。
+Usage/Output
+使用量/発電量
+Power (MW)
+電力 (MW)
+#_______________________________unnecessary_text________________________________
+#_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
 旅客 %d %c, %d %c, %d 経路なし\n\n定員/容量: %i\n
 Passengers %d %c, %d %c, %d no route

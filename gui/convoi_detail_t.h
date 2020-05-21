@@ -64,9 +64,6 @@ class gui_convoy_formaion_t : public gui_container_t
 private:
 	convoihandle_t cnv;
 
-	enum { OK=0, out_of_producton=1, obsolete=2, STAT_COLORS  };
-	uint8 status_to_color[STAT_COLORS] { COL_DARK_GREEN, COL_OUT_OF_PRODUCTION, COL_OBSOLETE };
-
 public:
 	gui_convoy_formaion_t(convoihandle_t cnv);
 
@@ -119,6 +116,7 @@ public:
 	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
 
 private:
+	convoihandle_t cnv;
 
 	gui_scrollpane_t scrolly;
 	gui_scrollpane_t scrolly_formation;
@@ -131,13 +129,12 @@ private:
 	gui_tab_panel_t tabs;
 	gui_container_t cont_payload;
 
-	convoihandle_t cnv;
-	button_t	sale_button;
-	button_t	withdraw_button;
-	button_t	retire_button;
-	button_t	class_management_button;
+	button_t sale_button;
+	button_t withdraw_button;
+	button_t retire_button;
+	button_t class_management_button;
 
-	button_t	display_detail_button;
+	button_t display_detail_button;
 
 public:
 	convoi_detail_t(convoihandle_t cnv);
@@ -148,20 +145,20 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const {return "convoidetail.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "convoidetail.txt"; }
 
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_windowsize(scr_size size);
+	virtual void set_windowsize(scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
@@ -173,9 +170,9 @@ public:
 	// this constructor is only used during loading
 	convoi_detail_t();
 
-	void rdwr( loadsave_t *file );
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	uint32 get_rdwr_id() { return magic_convoi_detail; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_convoi_detail; }
 };
 
 #endif
