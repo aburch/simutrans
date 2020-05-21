@@ -55,6 +55,8 @@ public:
 	
 	uint16 spacing, spacing_shift, delay_tolerance;
 	
+	vector_tpl<uint16> departure_slots;
+	
 private:
 	uint8 stop_flags;
 	
@@ -86,6 +88,21 @@ public:
 			&&  a.spacing            == this->spacing
 			&&  a.spacing_shift      == this->spacing_shift
 			&&  a.delay_tolerance    == this->delay_tolerance;
+	}
+	
+	schedule_entry_t &operator=(const schedule_entry_t &a) {
+		pos = a.pos;
+		minimum_loading = a.minimum_loading;
+		waiting_time_shift = a.waiting_time_shift;
+		stop_flags = a.get_stop_flags();
+		spacing = a.spacing;
+		spacing_shift = a.spacing_shift;
+		delay_tolerance = a.delay_tolerance;
+		departure_slots.clear();
+		for(uint16 i=0; i<a.departure_slots.get_count(); i++) {
+			departure_slots.append(a.departure_slots[i]);
+		}
+		return *this;
 	}
 };
 

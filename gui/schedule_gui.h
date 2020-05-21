@@ -28,8 +28,10 @@ class player_t;
 class cbuffer_t;
 class loadsave_t;
 class schedule_gui_stats_t;
+class departure_slot_stats_t;
 class zeiger_t;
 class gui_schedule_entry_t;
+struct schedule_entry_t;
 
 
 /**
@@ -61,12 +63,14 @@ class schedule_gui_t :	public gui_frame_t,
 	button_t bt_find_parent, bt_wait_for_child; // convoy coupling
 	button_t bt_no_load, bt_no_unload, bt_tmp_schedule, bt_wait_for_time, 
 		bt_same_dep_time, bt_full_load_acceleration;
+	button_t bt_slot_add, bt_slot_remove;
 	gui_numberinput_t numimp_spacing, numimp_spacing_shift, numimp_delay_tolerance;
 	gui_label_t lb_spacing, lb_title1, lb_title2;
 	char lb_spacing_str[10];
 
 	schedule_gui_stats_t* stats;
-	gui_scrollpane_t scrolly;
+	departure_slot_stats_t* slot_stats;
+	gui_scrollpane_t scrolly, slot_scrolly;
 
 	// to add new lines automatically
 	uint32 old_line_count;
@@ -79,6 +83,7 @@ class schedule_gui_t :	public gui_frame_t,
 	void update_selection();
 	
 	void extract_advanced_settings(bool yesno);
+	void extract_slot_settings(bool yesno);
 	
 protected:
 	schedule_t *schedule;
@@ -146,6 +151,24 @@ public:
 	// shows/deletes highlighting of tiles
 	void highlight_schedule(bool marking);
 	void update_schedule();
+	void draw(scr_coord offset) OVERRIDE;
+	bool action_triggered(gui_action_creator_t *, value_t v) OVERRIDE;
+};
+
+
+/**
+ * List of displayed schedule entries.
+ */
+class departure_slot_stats_t : public gui_aligned_container_t, action_listener_t, public gui_action_creator_t
+{
+	vector_tpl<gui_numberinput_t*> numimp_slot;
+	
+public:
+	schedule_entry_t *schedule;      ///< schedule entry under editing
+
+	departure_slot_stats_t();
+
+	void update_slot();
 	void draw(scr_coord offset) OVERRIDE;
 	bool action_triggered(gui_action_creator_t *, value_t v) OVERRIDE;
 };
