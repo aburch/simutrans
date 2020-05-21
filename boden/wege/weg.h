@@ -78,12 +78,12 @@ enum travel_times {
  * Wege "gehören" immer zu einem Grund. Sie besitzen Richtungsbits sowie
  * eine Maske fuer Richtungsbits.</p>
  *
- * <p>Ein Weg gehört immer zu genau einer Wegsorte</p
+ * <p>Ein Weg gehört immer zu genau einer Wegsorte</p>
  *
  * <p>Kreuzungen werden dadurch unterstützt, daß ein Grund zwei Wege
  * enthalten kann (prinzipiell auch mehrere möglich.</p>
  *
- * <p>Wetype -1 ist reserviert und kann nicht für Wege benutzt werden<p>>
+ * <p>Wetype -1 ist reserviert und kann nicht für Wege benutzt werden<p>
  *
  * @author Hj. Malthaner
  */
