@@ -6,7 +6,6 @@
 #include "factorylist_frame_t.h"
 
 #include "../dataobj/translator.h"
-#include "../bauer/goods_manager.h"
 
 /**
  * This variable defines the sort order (ascending or descending)
@@ -91,7 +90,8 @@ factorylist_frame_t::factorylist_frame_t() :
 			}
 		}
 	}
-	freight_type_c.set_selection(0);
+	freight_type_c.set_selection(filter_goods_catg = goods_manager_t::INDEX_NONE ? 0 : filter_goods_catg);
+	set_filter_goods_catg(filter_goods_catg);
 
 	freight_type_c.add_listener(this);
 	add_component(&freight_type_c);
@@ -108,6 +108,8 @@ factorylist_frame_t::factorylist_frame_t() :
 	scrolly.set_pos(scr_coord(0, 14+D_BUTTON_HEIGHT+2));
 	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_component(&scrolly);
+
+	display_list();
 
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+18*(LINESPACE+1)+14+D_BUTTON_HEIGHT+2+1));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+4*(LINESPACE+1)+14+D_BUTTON_HEIGHT+2+1));
@@ -136,20 +138,17 @@ bool factorylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /
 			set_sortierung(factorylist::by_name);
 		}
 		default_sortmode = (uint8)tmp;
-		stats.sort(sortby, get_reverse(), get_filter_own_network(), get_filter_goods_catg());
-		stats.recalc_size();
+		display_list();
 	}
 	else if(comp == &sorteddir) {
 		set_reverse(!get_reverse());
 		sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-		stats.sort(sortby,get_reverse(), get_filter_own_network(), get_filter_goods_catg());
-		stats.recalc_size();
+		display_list();
 	}
 	else if (comp == &filter_within_network) {
 		filter_own_network = !filter_own_network;
 		filter_within_network.pressed = filter_own_network;
-		stats.sort(sortby, get_reverse(), get_filter_own_network(), get_filter_goods_catg());
-		stats.recalc_size();
+		display_list();
 	}
 	else if (comp == &freight_type_c) {
 		if (freight_type_c.get_selection() > 0) {
@@ -158,8 +157,7 @@ bool factorylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /
 		else if (freight_type_c.get_selection() == 0) {
 			filter_goods_catg = goods_manager_t::INDEX_NONE;
 		}
-		stats.sort(get_sortierung(), get_reverse(), get_filter_own_network(), get_filter_goods_catg());
-		stats.recalc_size();
+		display_list();
 	}
 	return true;
 }
@@ -178,4 +176,12 @@ void factorylist_frame_t::resize(const scr_coord delta)
 	scrolly.set_size(size);
 	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, scrolly.get_size().h));
 	freight_type_c.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, scrolly.get_size().h));
+}
+
+
+void factorylist_frame_t::display_list()
+{
+	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+	stats.sort(sortby, get_reverse(), get_filter_own_network(), filter_goods_catg);
+	stats.recalc_size();
 }

@@ -13,6 +13,7 @@
 #include "factorylist_stats_t.h"
 #include "components/gui_combobox.h"
 #include "../descriptor/goods_desc.h"
+#include "../bauer/goods_manager.h"
 
 /*
  * Factory list window
@@ -58,13 +59,15 @@ public:
 	 */
 	const char * get_help_filename() const OVERRIDE {return "factorylist_filter.txt"; }
 
+	void display_list();
+
 	static factorylist::sort_mode_t get_sortierung() { return sortby; }
 	static void set_sortierung(const factorylist::sort_mode_t& sm) { sortby = sm; }
 
 	static bool get_reverse() { return sortreverse; }
 	static void set_reverse(const bool& reverse) { sortreverse = reverse; }
 	static bool get_filter_own_network() { return filter_own_network; }
-	static uint8 get_filter_goods_catg() { return filter_goods_catg; }
+	static void set_filter_goods_catg(uint8 g) { filter_goods_catg = g < goods_manager_t::INDEX_NONE ? 2 : g; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
