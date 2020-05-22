@@ -807,6 +807,10 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 					sum_gesamtweight += total_vehicle_weight;
 				}
 			}
+			if(  c->get_schedule()->get_max_speed()>0  ) {
+				// max speed of schedule is enforced.
+				speed_limit = min( speed_limit, kmh_to_speed(c->get_schedule()->get_max_speed()) );
+			}
 			c = c->get_coupling_convoi();
 		}
 		if(  get_yielding_quit_index() != -1 && speed_limit > kmh_to_speed(15)  ) {
