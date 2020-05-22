@@ -130,7 +130,8 @@ public:
 	static const skin_desc_t *intown;
 	/// image to indicate that the vehicle has upgrade target
 	static const skin_desc_t *upgradable;
-
+	/// image shown in display of industry input/output
+	static const skin_desc_t *input_output;
 
 	/// @name cursors
 	/// @{
