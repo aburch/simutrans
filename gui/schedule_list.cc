@@ -210,6 +210,16 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_delete_line.add_listener(this);
 	bt_delete_line.disable();
 	add_component(&bt_delete_line);
+	
+	bt_y += (D_BUTTON_HEIGHT+ D_V_SPACE);
+	
+	bt_copy_line.init(button_t::roundbox, "Copy Line",
+		scr_coord(D_MARGIN_LEFT, bt_y),
+		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_copy_line.set_tooltip("Copy the selected line");
+	bt_copy_line.add_listener(this);
+	bt_copy_line.disable();
+	add_component(&bt_copy_line);
 
 	// lower left corner: halt list of selected line
 	scrolly_haltestellen.set_pos(scr_coord(D_MARGIN_LEFT, bt_y + D_BUTTON_HEIGHT+ D_V_SPACE));
@@ -343,11 +353,13 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		delete tmp_tool;
 		depot_t::update_all_win();
 	}
-	else if(  comp == &bt_delete_line  ) {
+	else if(  comp == &bt_delete_line  ||  comp == &bt_copy_line  ) {
 		if(  line.is_bound()  ) {
 			tool_t *tmp_tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 			cbuffer_t buf;
-			buf.printf( "d,%i", line.get_id() );
+			// delete -> d, copy -> p
+			buf.printf( comp == &bt_delete_line ? "d" : "p" );
+			buf.printf( ",%i", line.get_id() );
 			tmp_tool->set_default_param(buf);
 			welt->set_tool( tmp_tool, player );
 			// since init always returns false, it is safe to delete immediately
@@ -631,6 +643,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			bt_delete_line.enable();
 		}
 		bt_edit_line.enable();
+		bt_copy_line.enable();
 
 		bt_withdraw_line.pressed = new_line->get_withdraw();
 
@@ -679,6 +692,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		scl.set_selection(-1);
 		bt_delete_line.disable();
 		bt_edit_line.disable();
+		bt_copy_line.disable();
 		for(  int i=0; i<MAX_LINE_COST; i++  )  {
 			chart.hide_curve(i);
 		}

@@ -7940,6 +7940,34 @@ bool tool_change_line_t::init( player_t *player )
 				}
 			}
 			break;
+			
+		case 'p': // copy line
+			{
+				if(  !line.is_bound()  ) {
+					break;
+				}
+				linehandle_t new_line = player->simlinemgmt.create_line( line->get_linetype(), player , line->get_schedule());
+				// check scenario conditions
+				if (!scenario_check_schedule(welt, player, new_line->get_schedule(), can_use_gui())) {
+					player->simlinemgmt.delete_line(new_line);
+					break;
+				}
+				new_line->get_schedule()->finish_editing();	// just in case ...
+				if(  can_use_gui()  ) {
+					/*
+					// TODO: provide appropriate "t" value
+					schedule_gui_t *fg = dynamic_cast<schedule_gui_t *>(win_get_magic((ptrdiff_t)t));
+					if(  fg  ) {
+						fg->init_line_selector();
+					}
+					*/
+					schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic(magic_line_management_t+player->get_player_nr()));
+					if(  sl  ) {
+						sl->show_lineinfo( new_line );
+					}
+				}
+			}
+			break;
 	}
 	return false;
 }

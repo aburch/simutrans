@@ -30,6 +30,7 @@ private:
 	player_t *player;
 
 	button_t bt_new_line, bt_edit_line, bt_delete_line, bt_withdraw_line;
+	button_t bt_copy_line;
 	gui_scrolled_list_t scl, scrolly_convois, scrolly_haltestellen;
 	gui_speedbar_t filled_bar;
 	gui_textinput_t inp_name, inp_filter;
