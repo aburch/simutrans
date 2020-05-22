@@ -16,6 +16,7 @@
 #include "components/action_listener.h"  // 28-Dec-2001  Markus Weber    Added
 #include "components/gui_button.h"
 #include "../convoihandle_t.h"
+#include "components/gui_combobox.h"
 
 class player_t;
 class goods_desc_t;
@@ -50,7 +51,7 @@ private:
 
 	// these are part of the top UI
 	gui_label_t sort_label;
-	button_t	sortedby;
+	gui_combobox_t sortedby;
 	button_t	sorteddir;
 	gui_label_t filter_label;
 	button_t	filter_on;
