@@ -32,6 +32,7 @@ class departure_slot_stats_t;
 class zeiger_t;
 class gui_schedule_entry_t;
 struct schedule_entry_t;
+class gui_departure_slot_entry_t;
 
 
 /**
@@ -161,10 +162,11 @@ public:
  */
 class departure_slot_stats_t : public gui_aligned_container_t, action_listener_t, public gui_action_creator_t
 {
-	vector_tpl<gui_numberinput_t*> numimp_slot;
+	vector_tpl<gui_departure_slot_entry_t*> numimp_slots;
 	
 public:
 	schedule_entry_t *schedule;      ///< schedule entry under editing
+	uint16 multiplier = 1;
 
 	departure_slot_stats_t();
 

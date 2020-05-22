@@ -312,6 +312,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	stats->schedule = schedule;
 	stats->update_schedule();
 	stats->add_listener(this);
+	slot_stats->add_listener(this);
 
 	set_table_layout(1,0);
 
@@ -589,6 +590,7 @@ void schedule_gui_t::update_selection()
 	numimp_spacing_shift.disable();
 	numimp_delay_tolerance.disable();
 	extract_slot_settings(false);
+	bt_slot_remove.disable();
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
@@ -618,7 +620,11 @@ void schedule_gui_t::update_selection()
 				numimp_spacing_shift.enable();
 				numimp_delay_tolerance.enable();
 				slot_stats->schedule = &(schedule->entries[current_stop]);
+				slot_stats->multiplier = schedule->entries[current_stop].spacing;
 				extract_slot_settings(bt_tmp_schedule.is_visible());
+				if(  schedule->entries[current_stop].departure_slots.get_count()>1  ) {
+					bt_slot_remove.enable();
+				}
 			}
 			else {
 				// disable departure time settings and enable minimum loading
@@ -890,6 +896,20 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 		schedule->set_full_load_acceleration(!schedule->is_full_load_acceleration());
 		bt_full_load_acceleration.pressed = schedule->is_full_load_acceleration();
 	}
+	else if(comp == &bt_slot_add) {
+		schedule->entries[schedule->get_current_stop()].departure_slots.append(0);
+		update_selection();
+	}
+	else if(comp == &bt_slot_remove) {
+		vector_tpl<uint16>* slt = &(schedule->entries[schedule->get_current_stop()].departure_slots);
+		if(  slt->get_count()>1  ) {
+			slt->remove_at(slt->get_count()-1);
+		}
+		update_selection();
+	}
+	else if(comp == slot_stats) {
+		update_selection();
+	}
 	// recheck lines
 	if(  cnv.is_bound()  ) {
 		// unequal to line => remove from line ...
@@ -984,6 +1004,7 @@ void schedule_gui_t::set_windowsize(scr_size size)
 	wait_load.set_size( scr_size(numimp_load.get_size().w, wait_load.get_size().h) );
 	// make scrolly take all of space
 	scrolly.set_size( scr_size(scrolly.get_size().w, get_client_windowsize().h - scrolly.get_pos().y - D_MARGIN_BOTTOM));
+	slot_scrolly.set_size( scr_size(scrolly.get_size().w, LINESPACE*5));
 
 }
 
@@ -1068,6 +1089,52 @@ void schedule_gui_t::extract_slot_settings(bool yesno) {
 }
 
 
+class gui_departure_slot_entry_t : public gui_aligned_container_t, public gui_action_creator_t
+{
+public:
+	uint16 multiplier;
+	gui_numberinput_t numimp_offset;
+	gui_label_buf_t stop;
+	
+	gui_departure_slot_entry_t(uint16 mul, uint16 offset_value)
+	{
+		multiplier = mul;
+		set_table_layout(2,1);
+		numimp_offset.set_width( 90 );
+		numimp_offset.set_limits( 0, world()->get_settings().get_spacing_shift_divisor() / multiplier + 1 );
+		numimp_offset.set_increment_mode(1);
+		numimp_offset.set_value(offset_value);
+		add_component(&numimp_offset);
+		add_component(&stop);
+		update_label();
+	}
+
+	void update_label()
+	{
+		for(uint16 i=1; i<multiplier; i++) {
+			stop.buf().printf("%i", (uint32)i * world()->get_settings().get_spacing_shift_divisor() / multiplier);
+			if(i!=multiplier-1) {
+				stop.buf().printf(",");
+			}
+		}
+		stop.set_color(SYSCOL_TEXT);
+		stop.update();
+	}
+
+	void draw(scr_coord offset) OVERRIDE
+	{
+		update_label();
+		gui_aligned_container_t::draw(offset);
+	}
+	
+	bool action_triggered(gui_action_creator_t *, value_t v)
+	{
+		call_listeners(v);
+		return true;
+	}
+};
+
+
 void departure_slot_stats_t::draw(scr_coord offset)
 {
 	update_slot();
@@ -1079,22 +1146,26 @@ departure_slot_stats_t::departure_slot_stats_t()
 	set_table_layout(1,0);
 }
 
-bool departure_slot_stats_t::action_triggered(gui_action_creator_t *, value_t v)
+bool departure_slot_stats_t::action_triggered(gui_action_creator_t *comp, value_t v)
 {
+	gui_departure_slot_entry_t* imp = static_cast<gui_departure_slot_entry_t*>(comp);
+	if(  !numimp_slots.is_contained(imp)  ) {
+		dbg->warning("departure_slot_stats_t::action_triggered", "no registered component matched.");
+	}
+	// update value
+	schedule->departure_slots[numimp_slots.index_of(imp)] = (uint16)v.i;
 	call_listeners(v);
 	return true;
 }
 
 void departure_slot_stats_t::update_slot() {
 	remove_all();
-	numimp_slot.clear();
+	numimp_slots.clear();
 	for(uint16 i=0; i<schedule->departure_slots.get_count(); i++) {
-		gui_numberinput_t* n = new gui_numberinput_t();
-		n->set_width( 90 );
-		n->set_value( 0 );
-		n->set_limits( 0, 100 );
-		n->set_increment_mode(1);
-		n->add_listener(this);
-		add_component(n);
+		gui_departure_slot_entry_t* entry = new gui_departure_slot_entry_t(multiplier, schedule->departure_slots[i]);
+		entry->numimp_offset.add_listener(this);
+		numimp_slots.append(entry);
+		add_component(entry);
 	}
+	set_size(get_min_size());
 }
