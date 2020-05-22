@@ -29,6 +29,9 @@ class schedule_t
 	uint8 current_stop;
 	
 	uint8 flags;
+	
+	// operational maximum speed of this schedule. 0 => no limit.
+	uint16 max_speed;
 
 	static schedule_entry_t dummy_entry;
 
@@ -46,7 +49,7 @@ class schedule_t
 	}
 
 protected:
-	schedule_t() : editing_finished(false), current_stop(0), flags(0) {}
+	schedule_t() : editing_finished(false), current_stop(0), flags(0), max_speed(0) {}
 
 public:
 	enum schedule_type {
@@ -119,6 +122,8 @@ public:
 	void set_same_dep_time(bool y) { y ? flags |= SAME_DEP_TIME : flags &= ~SAME_DEP_TIME; }
 	bool is_full_load_acceleration() const { return (flags&FULL_LOAD_ACCELERATION)>0; }
 	void set_full_load_acceleration(bool y) { y ? flags |= FULL_LOAD_ACCELERATION : flags &= ~FULL_LOAD_ACCELERATION; }
+	uint16 get_max_speed() const { return max_speed; }
+	void set_max_speed(uint16 v) { max_speed = v; }
 	
 	void set_spacing_for_all(uint16);
 	void set_spacing_shift_for_all(uint16);

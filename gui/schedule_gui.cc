@@ -263,6 +263,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	lb_waitlevel(SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 	lb_wait("month wait time"),
 	lb_load("Full load"),
+	lb_max_speed("Max speed"),
 	stats(new schedule_gui_stats_t() ),
 	scrolly(stats)
 {
@@ -398,6 +399,19 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		bt_no_unload.add_listener(this);
 		bt_no_unload.disable();
 		add_component(&bt_no_unload);
+	}
+	end_table();
+	
+	// max speed setting
+	add_table(2,1);
+	{
+		add_component(&lb_max_speed);
+		numimp_max_speed.set_width( 60 );
+		numimp_max_speed.set_value( schedule->get_max_speed() );
+		numimp_max_speed.set_limits( 0, 65535 );
+		numimp_max_speed.set_increment_mode(1);
+		numimp_max_speed.add_listener(this);
+		add_component(&numimp_max_speed);
 	}
 	end_table();
 	
@@ -862,6 +876,9 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 		schedule->set_full_load_acceleration(!schedule->is_full_load_acceleration());
 		bt_full_load_acceleration.pressed = schedule->is_full_load_acceleration();
 	}
+	else if(comp == &numimp_max_speed) {
+		schedule->set_max_speed((uint16)p.i);
+	}
 	// recheck lines
 	if(  cnv.is_bound()  ) {
 		// unequal to line => remove from line ...
@@ -1021,9 +1038,11 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	lb_spacing.set_visible(yesno);
 	lb_title1.set_visible(yesno);
 	lb_title2.set_visible(yesno);
+	lb_max_speed.set_visible(yesno);
 	numimp_spacing.set_visible(yesno);
 	numimp_spacing_shift.set_visible(yesno);
 	numimp_delay_tolerance.set_visible(yesno);
+	numimp_max_speed.set_visible(yesno);
 	bt_same_dep_time.set_visible(yesno);
 	
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
