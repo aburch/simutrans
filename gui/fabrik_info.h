@@ -18,6 +18,7 @@
 #include "components/gui_container.h"
 #include "../utils/cbuffer_t.h"
 #include "components/gui_speedbar.h"
+#include "components/gui_factory_storage_info.h"
 
 class welt_t;
 class fabrik_t;
@@ -75,6 +76,8 @@ private:
 	gui_scrollpane_t scrolly;
 	gui_fabrik_info_t fab_info;
 	gui_textarea_t prod, txt;
+
+	gui_factory_storage_info_t storage;
 
 	void rename_factory();
 

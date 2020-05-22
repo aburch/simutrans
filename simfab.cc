@@ -3239,75 +3239,6 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 			buf.printf("\n");
 		}
 	}
-
-	if (!output.empty()) {
-		buf.append("\n");
-		buf.append(translator::translate("Produktion"));
-
-		for (uint32 index = 0; index < output.get_count(); index++) {
-			const goods_desc_t * type = output[index].get_typ();
-			const sint64 pfactor = (sint64)desc->get_product(index)->get_factor();
-
-			buf.printf( "\n - %s %u/%u %s",
-				translator::translate(type->get_name()),
-				(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)output[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-				(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)output[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-				translator::translate(type->get_mass())
-			);
-
-			if(type->get_catg() != 0) {
-				buf.append(", ");
-				buf.append(translator::translate(type->get_catg_name()));
-			}
-			// monthly production
-			const uint32 monthly_prod = (uint32)(get_current_production()*pfactor*10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
-			buf.append(", ");
-			buf.append((float)monthly_prod/10.0, monthly_prod < 100 ? 1 : 0);
-			buf.printf("%s%s", translator::translate(type->get_mass()),translator::translate("/month"));
-		}
-	}
-
-	if (!input.empty()) {
-		buf.append("\n");
-		buf.append(translator::translate("Verbrauch"));
-
-		for (uint32 index = 0; index < input.get_count(); index++) {
-			if(!desc->get_supplier(index))
-			{
-				continue;
-			}
-			const sint64 pfactor = desc->get_supplier(index) ? (sint64)desc->get_supplier(index)->get_consumption() : 1ll;
-			const uint16 max_intransit_percentage = max_intransit_percentages.get(input[index].get_typ()->get_catg());
-
-			if(  max_intransit_percentage  ) {
-				buf.printf("\n - %s %i/%i(%i)/%u %s, ",
-					translator::translate(input[index].get_typ()->get_name()),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					input[index].get_in_transit(),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max_transit * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					translator::translate(input[index].get_typ()->get_mass())
-				);
-				const uint32 monthly_prod = (uint32)(get_current_production()*pfactor * 10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
-				buf.append(", ");
-				buf.append((float)monthly_prod / 10.0, monthly_prod < 100 ? 1 : 0);
-				buf.printf("%s%s", translator::translate(input[index].get_typ()->get_mass()), translator::translate("/month"));
-			}
-			else {
-				buf.printf("\n - %s %i/%i/%u %s, ",
-					translator::translate(input[index].get_typ()->get_name()),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					input[index].get_in_transit(),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					translator::translate(input[index].get_typ()->get_mass())
-				);
-				const uint32 monthly_prod = (uint32)(get_current_production()*pfactor * 10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
-				buf.append(", ");
-				buf.append((float)monthly_prod / 10.0, monthly_prod < 100 ? 1 : 0);
-				buf.printf("%s%s", translator::translate(input[index].get_typ()->get_mass()), translator::translate("/month"));
-			}
-		}
-	}
 }
 
 /**
@@ -3796,6 +3727,14 @@ void fabrik_t::calc_max_intransit_percentages()
 		input[index].max_transit = max(1, (modified_max_intransit_percentage * input[index].max) / 100); // This puts max_transit in internal units
 		index ++;
 	}
+}
+
+uint16 fabrik_t::get_max_intransit_percentage(uint32 index)
+{
+	if (!input.get_count() || input.get_count() < index ) {
+		return 0;
+	}
+	return max_intransit_percentages.get(input[index].get_typ()->get_catg());
 }
 
 uint32 fabrik_t::get_lead_time(const goods_desc_t* wtype)

@@ -56,7 +56,8 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	view(gb, scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
 	scrolly(&fab_info),
 	prod(&prod_buf),
-	txt(&info_buf)
+	txt(&info_buf),
+	storage(fab_)
 {
 	lieferbuttons = supplierbuttons = NULL;
 	staffing_level = staffing_level2 = staff_shortage_factor = 0;
@@ -76,7 +77,10 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	prod.recalc_size();
 	add_component( &prod );
 
-	const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE+ max( prod.get_size().h, view.get_size().h + 8 ) + D_V_SPACE+LINESPACE;
+	storage.set_pos(scr_coord(0, D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + max(prod.get_size().h, view.get_size().h + 8) + D_V_SPACE + LINESPACE));
+	add_component(&storage);
+
+	const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE+ max( prod.get_size().h + storage.get_size().h, view.get_size().h + 8 ) + LINESPACE*2;
 
 	chart.set_pos( scr_coord(0, offset_below_viewport) );
 	chart_button.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X,offset_below_viewport), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
@@ -375,6 +379,12 @@ void fabrik_info_t::update_info()
 	txt.set_pos( scr_coord(D_MARGIN_LEFT,0) );
 	fab_info.add_component(&txt);
 
+	const sint16 offset_below_viewport = D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + max(prod.get_size().h + storage.get_size().h, view.get_size().h + 8) + LINESPACE*2;
+	chart.set_pos(scr_coord(0, offset_below_viewport));
+	chart_button.set_pos(scr_coord(BUTTON3_X, offset_below_viewport));
+	scrolly.set_pos(scr_coord(0, offset_below_viewport + D_BUTTON_HEIGHT + D_V_SPACE + 12));
+	scrolly.set_size(get_client_windowsize() - scrolly.get_pos());
+
 	int y_off = LINESPACE;
 	make_buttons(lieferbuttons,   fab->get_lieferziele(),   y_off, fab_info, this);
 	make_buttons(supplierbuttons, fab->get_suppliers(),     y_off, fab_info, this);
@@ -427,7 +437,8 @@ fabrik_info_t::fabrik_info_t() :
 	view(scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
 	scrolly(&fab_info),
 	prod(&prod_buf),
-	txt(&info_buf)
+	txt(&info_buf),
+	storage(NULL)
 {
 	lieferbuttons = supplierbuttons = NULL;
 
@@ -493,7 +504,7 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 		fab->info_prod( prod_buf );
 		prod.recalc_size();
 
-		const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE*2+ max( prod.get_size().h, view.get_size().h + 8 + D_V_SPACE )+ LINESPACE;
+		const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE*2+ max( prod.get_size().h + storage.get_size().h, view.get_size().h + 8 + D_V_SPACE )+ LINESPACE;
 		chart.set_pos( scr_coord(0, offset_below_viewport - 5) );
 		chart_button.set_pos( scr_coord(BUTTON3_X,offset_below_viewport) );
 

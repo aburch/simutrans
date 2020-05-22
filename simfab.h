@@ -770,6 +770,8 @@ public:
 	inline uint32 get_base_mail_demand() const { return arrival_stats_mail.get_scaled_demand(); }
 
 	void calc_max_intransit_percentages();
+	uint16 get_max_intransit_percentage(uint32 index);
+
 	// Average journey time to delivery goods of this type
 	uint32 get_lead_time (const goods_desc_t* wtype);
 	// Time to consume the full input store of these goods at full capacity
