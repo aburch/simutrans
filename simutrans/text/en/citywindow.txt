@@ -49,7 +49,7 @@ The y-axis is quantity, the x-axis time.<br>
 Click on a graph index tab to change scale of x-axis:<br>
 <em>Years:</em> shows annual values for last twelve game calendar years.<br>
 <em>Months:</em> shows monthly values for last twelve game months.
-</p>
+</p> 
 
 <p>
 Click on a graph option button to see choose which information to display on graph (the button is indented when an option selected). Multiple graphs can be overlaid over each other.<br>
