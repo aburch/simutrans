@@ -2879,11 +2879,8 @@ static const way_desc_t *get_timeline_road_type( uint16 year, uint16 num_roads, 
 	const way_desc_t *test;
 	for(  int i=0;  i<num_roads;  i++  ) {
 		test = way_builder_t::get_desc( roads[i].name, 0 );
-		if(  test  ) {
-			// return first available for no timeline
-			if(  year==0  ) {
-				return test;
-			}
+		if(  test  ) 
+		{
 			if(  roads[i].intro==0  ) {
 				// fill in real intro date
 				roads[i].intro = test->get_intro_year_month( );
@@ -2895,9 +2892,11 @@ static const way_desc_t *get_timeline_road_type( uint16 year, uint16 num_roads, 
 					roads[i].retire = NEVER;
 				}
 			}
-			// find newest available ...
-			if(  year>=roads[i].intro  &&  year<roads[i].retire  ) {
-				if(  desc==0  ||  desc->get_intro_year_month()<test->get_intro_year_month()  ) {
+			// find newest available 
+			if(year == 0 || (year>=roads[i].intro && year<roads[i].retire))
+			{
+				if(desc==0 || desc->get_intro_year_month()<test->get_intro_year_month())
+				{
 					desc = test;
 				}
 			}

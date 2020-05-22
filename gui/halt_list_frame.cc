@@ -268,18 +268,26 @@ halt_list_frame_t::halt_list_frame_t(player_t *player) :
 
 	sort_label.set_pos(scr_coord(BUTTON1_X, 2));
 	add_component(&sort_label);
-	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sortedby.set_pos(scr_coord(BUTTON1_X, 14));
+	sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
+	sortedby.set_max_size(scr_size(LINESPACE * 8, D_BUTTON_HEIGHT));
+
+	for (int i = 0; i < SORT_MODES; i++) {
+		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
+	}
+	sortedby.set_selection(get_sortierung());
+
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH*1.5 + D_H_SPACE, 14), scr_size(D_BUTTON_WIDTH*0.75,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	add_component(&sorteddir);
 
-	filter_label.set_pos(scr_coord(BUTTON3_X, 2));
+	filter_label.set_pos(scr_coord(BUTTON4_X - D_BUTTON_WIDTH * 0.75 - D_H_SPACE, 2));
 	add_component(&filter_label);
 
-	filter_on.init(button_t::roundbox, translator::translate(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), scr_coord(BUTTON3_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	filter_on.init(button_t::roundbox, translator::translate(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), scr_coord(filter_label.get_pos().x, 14), scr_size(D_BUTTON_WIDTH*0.75,D_BUTTON_HEIGHT));
 	filter_on.add_listener(this);
 	add_component(&filter_on);
 
@@ -333,7 +341,6 @@ void halt_list_frame_t::display_list()
 	}
 	std::sort(a, a + n, compare_halts);
 
-	sortedby.set_text(sort_text[get_sortierung()]);
 	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
 	/****************************
