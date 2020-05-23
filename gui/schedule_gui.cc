@@ -805,7 +805,6 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			if(  mode == removing  ) {
 				stats->highlight_schedule( false );
 				schedule->remove();
-				action_triggered( &bt_add, value_t() );
 			}
 			update_selection();
 		}
