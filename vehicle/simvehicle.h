@@ -45,7 +45,7 @@ class traffic_vehicle_t
 	private:
 		sint64 time_at_last_hop; // ticks
 		uint32 dist_travelled_since_last_hop; // yards
-		virtual uint32 get_max_speed() {}; // returns y/t
+		virtual uint32 get_max_speed() { return 0; } // returns y/t
 	protected:
 		inline void reset_measurements()
 		{
