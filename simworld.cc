@@ -10392,7 +10392,7 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 					socket_list_t::remove_client( nwc->get_sender() );
 					delete nwc;
 					nwc = NULL;
-				}
+				} 
 			}
 		}
 
