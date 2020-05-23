@@ -43,7 +43,6 @@
 
 #include "descriptor/factory_desc.h"
 #include "bauer/hausbauer.h"
-#include "bauer/goods_manager.h"
 #include "bauer/fabrikbauer.h"
 
 #include "gui/fabrik_info.h"
@@ -329,7 +328,7 @@ void fabrik_t::book_weighted_sums(sint64 delta_time)
 	}
 
 	// production level
-	const sint32 current_prod = get_current_production();
+	const sint32 current_prod = get_current_productivity();
 	weighted_sum_production += current_prod * delta_time;
 	set_stat(current_prod, FAB_PRODUCTION);
 
@@ -1621,6 +1620,12 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 					continue;
 				}
 				file->rdwr_longlong(statistics[m][s]);
+				if (s== FAB_PRODUCTION && (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 23))) {
+					// convert production to producivity
+					if (prodbase) {
+						statistics[m][s] = statistics[m][s] * 100 / welt->calc_adjusted_monthly_figure(get_base_production());
+					}
+				}
 			}
 		}
 		file->rdwr_longlong( weighted_sum_production );
@@ -2637,7 +2642,7 @@ void fabrik_t::new_month()
 	aggregate_weight = 0;
 
 	// restore the current values
-	set_stat( get_current_production(), FAB_PRODUCTION );
+	set_stat( get_current_productivity(), FAB_PRODUCTION );
 	set_stat( prodfactor_electric, FAB_BOOST_ELECTRIC );
 	set_stat( prodfactor_pax, FAB_BOOST_PAX );
 	set_stat( prodfactor_mail, FAB_BOOST_MAIL );
@@ -3130,10 +3135,13 @@ void fabrik_t::show_info()
 void fabrik_t::info_prod(cbuffer_t& buf) const
 {
 	buf.clear();
-	buf.append(translator::translate("Durchsatz"));
-	buf.append(get_current_production(), 0);
-	buf.append(translator::translate("units/day"));
-	buf.append("\n");
+	if (get_base_production()) {
+		buf.append(translator::translate("Productivity")); // Note: This term is used in width calculation in fabrik_info. And it is common with the chart button label.
+		buf.printf(": %u%% ", get_current_productivity());
+		const uint32 max_productivity = (100 * (get_desc()->get_electric_boost() + get_desc()->get_pax_boost() + get_desc()->get_mail_boost())) >> DEFAULT_PRODUCTION_FACTOR_BITS;
+		buf.printf(translator::translate("(Max. %d%%)"), max_productivity+100);
+		buf.append("\n");
+	}
 	if(get_desc()->is_electricity_producer())
 	{
 		buf.append(translator::translate("Electrical output: "));
@@ -3250,14 +3258,11 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 				buf.append(", ");
 				buf.append(translator::translate(type->get_catg_name()));
 			}
-			// Primary industry displays monthly production
-			if (get_sector() == marine_resource || get_sector() == resource) {
-				buf.printf(", %d", get_current_production()*pfactor >> DEFAULT_PRODUCTION_FACTOR_BITS);
-				buf.printf("%s%s", translator::translate(type->get_mass()),translator::translate("/month"));
-			}
-			else {
-				buf.printf(", %u%%", (uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS));
-			}
+			// monthly production
+			const uint32 monthly_prod = (uint32)(get_current_production()*pfactor*10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
+			buf.append(", ");
+			buf.append((float)monthly_prod/10.0, monthly_prod < 100 ? 1 : 0);
+			buf.printf("%s%s", translator::translate(type->get_mass()),translator::translate("/month"));
 		}
 	}
 
@@ -3274,25 +3279,31 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 			const uint16 max_intransit_percentage = max_intransit_percentages.get(input[index].get_typ()->get_catg());
 
 			if(  max_intransit_percentage  ) {
-				buf.printf("\n - %s %i/%i(%i)/%u %s, %u%%",
+				buf.printf("\n - %s %i/%i(%i)/%u %s, ",
 					translator::translate(input[index].get_typ()->get_name()),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					input[index].get_in_transit(),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max_transit * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					translator::translate(input[index].get_typ()->get_mass()),
-					(uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS)
+					translator::translate(input[index].get_typ()->get_mass())
 				);
+				const uint32 monthly_prod = (uint32)(get_current_production()*pfactor * 10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
+				buf.append(", ");
+				buf.append((float)monthly_prod / 10.0, monthly_prod < 100 ? 1 : 0);
+				buf.printf("%s%s", translator::translate(input[index].get_typ()->get_mass()), translator::translate("/month"));
 			}
 			else {
-				buf.printf("\n - %s %i/%i/%u %s, %u%%",
+				buf.printf("\n - %s %i/%i/%u %s, ",
 					translator::translate(input[index].get_typ()->get_name()),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					input[index].get_in_transit(),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					translator::translate(input[index].get_typ()->get_mass()),
-					(uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS)
+					translator::translate(input[index].get_typ()->get_mass())
 				);
+				const uint32 monthly_prod = (uint32)(get_current_production()*pfactor * 10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
+				buf.append(", ");
+				buf.append((float)monthly_prod / 10.0, monthly_prod < 100 ? 1 : 0);
+				buf.printf("%s%s", translator::translate(input[index].get_typ()->get_mass()), translator::translate("/month"));
 			}
 		}
 	}
@@ -3990,6 +4001,30 @@ bool fabrik_t::is_connect_own_network() const
 				if (i.halt->has_available_network(welt->get_active_player(), catg_index)) {
 					return true;
 				}
+			}
+		}
+	}
+	return false;
+}
+
+bool fabrik_t::has_goods_catg_demand(uint8 catg_index) const
+{
+	if (!output.empty()) {
+		for (uint32 index = 0; index < output.get_count(); index++) {
+			if (output[index].get_typ()->get_catg_index() == catg_index) {
+				return true;
+			}
+		}
+	}
+
+	if (!input.empty()) {
+		for (uint32 index = 0; index < input.get_count(); index++) {
+			if (!desc->get_supplier(index))
+			{
+				continue;
+			}
+			if (input[index].get_typ()->get_catg_index() == catg_index) {
+				return true; 
 			}
 		}
 	}

@@ -23,9 +23,9 @@
 #include "../utils/simstring.h"
 
 
-factorylist_stats_t::factorylist_stats_t(factorylist::sort_mode_t sortby, bool sortreverse, bool own_network)
+factorylist_stats_t::factorylist_stats_t(factorylist::sort_mode_t sortby, bool sortreverse, bool own_network, uint8 goods_catg)
 {
-	sort(sortby,sortreverse,own_network);
+	sort(sortby,sortreverse,own_network, goods_catg);
 	recalc_size();
 	line_selected = 0xFFFFFFFFu;
 }
@@ -172,7 +172,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 
 	if(  fab_list.get_count()!=welt->get_fab_list().get_count()  ) {
 		// some deleted/ added => resort
-		sort( sortby, sortreverse, filter_own_network);
+		sort( sortby, sortreverse, filter_own_network, filter_goods_catg);
 	}
 
 	uint32 sel = line_selected;
@@ -239,11 +239,12 @@ void factorylist_stats_t::draw(scr_coord offset)
 	}
 }
 
-void factorylist_stats_t::sort(factorylist::sort_mode_t sb, bool sr, bool own_network)
+void factorylist_stats_t::sort(factorylist::sort_mode_t sb, bool sr, bool own_network, uint8 goods_catg_index)
 {
 	sortby = sb;
 	sortreverse = sr;
 	filter_own_network = own_network;
+	filter_goods_catg = goods_catg_index;
 
 	fab_list.clear();
 	int lines = 0;
@@ -251,6 +252,10 @@ void factorylist_stats_t::sort(factorylist::sort_mode_t sb, bool sr, bool own_ne
 	{
 		// own network filter
 		if(filter_own_network && !welt->get_fab_list()[i]->is_connect_own_network()){
+			continue;
+		}
+		// goods category filter
+		if (filter_goods_catg != goods_manager_t::INDEX_NONE && !welt->get_fab_list()[i]->has_goods_catg_demand(filter_goods_catg)) {
 			continue;
 		}
 		fab_list.insert_ordered( welt->get_fab_list()[i], compare_factories(sortby, sortreverse) );
