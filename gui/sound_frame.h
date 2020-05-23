@@ -37,7 +37,7 @@ private:
 public:
 	const char *get_help_filename() const OVERRIDE {return "sound.txt";}
 
-    sound_frame_t();
+	sound_frame_t();
 
 	virtual ~sound_frame_t();
 

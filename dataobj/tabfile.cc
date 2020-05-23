@@ -12,7 +12,7 @@
 #define dr_fopen fopen
 #endif
 
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simdebug.h"
 #include "../descriptor/image.h"
 #include "koord.h"

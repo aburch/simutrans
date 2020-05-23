@@ -107,7 +107,6 @@
     <ClInclude Include="..\simmem.h" />
     <ClInclude Include="..\simobj.h" />
     <ClInclude Include="..\simplan.h" />
-    <ClInclude Include="..\simsys.h" />
     <ClInclude Include="..\simtypes.h" />
     <ClInclude Include="..\simunits.h" />
     <ClInclude Include="..\simversion.h" />
@@ -149,6 +148,7 @@
     <ClInclude Include="..\network\network_socket_list.h" />
     <ClInclude Include="..\network\pakset_info.h" />
     <ClInclude Include="..\network\pwd_hash.h" />
+    <ClInclude Include="..\sys\simsys.h" />
     <ClInclude Include="..\tpl\hashtable_tpl.h" />
     <ClInclude Include="..\tpl\quickstone_tpl.h" />
     <ClInclude Include="..\tpl\slist_tpl.h" />

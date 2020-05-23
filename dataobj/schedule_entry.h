@@ -15,7 +15,11 @@
 struct schedule_entry_t
 {
 public:
-	schedule_entry_t() {}
+	schedule_entry_t() {
+		// journey time is not loaded or saved.
+		journey_time[0] = journey_time[1] = journey_time[2] = 0;
+		jtime_index = 0;
+	}
 
 	schedule_entry_t(koord3d const& pos, uint const minimum_loading, sint8 const waiting_time_shift, uint8 const stop_flags) :
 		pos(pos),
@@ -25,6 +29,8 @@ public:
 	{
 		spacing = 1;
 		spacing_shift = delay_tolerance = 0;
+		journey_time[0] = journey_time[1] = journey_time[2] = 0;
+		jtime_index = 0;
 	}
 
 	enum {
@@ -55,6 +61,14 @@ public:
 	
 	uint16 spacing, spacing_shift, delay_tolerance;
 	
+	/*
+	 * store last 3 lengths of journey time which a convoy took from a prev stop.
+	 * time = 0 means that journey time is not registered.
+	 * journey times are not saved to reduce save/load time.
+	 */
+	uint32 journey_time[4];
+	uint8 jtime_index; // which index of journey_time should be overwritten next.
+	
 private:
 	uint8 stop_flags;
 	
@@ -76,6 +90,11 @@ public:
 		spacing = a;
 		spacing_shift = b;
 		delay_tolerance = c;
+	}
+	
+	void push_journey_time(uint32 t) {
+		journey_time[jtime_index] = t;
+		jtime_index = (jtime_index+1)%3;
 	}
 	
 	bool operator ==(const schedule_entry_t &a) {

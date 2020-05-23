@@ -52,7 +52,7 @@ FLAGGED_PIXVAL message_t::node::get_player_color(karte_t *welt) const
 	FLAGGED_PIXVAL colorval = color;
 	if(  color&PLAYER_FLAG  ) {
 		player_t *player = welt->get_player(color&(~PLAYER_FLAG));
-		colorval = player ? PLAYER_FLAG+color_idx_to_rgb(player->get_player_color1()+1) : color_idx_to_rgb(MN_GREY0);
+		colorval = player ? PLAYER_FLAG+color_idx_to_rgb(player->get_player_color1()+env_t::gui_player_color_dark) : color_idx_to_rgb(MN_GREY0);
 	}
 	return colorval;
 }
@@ -144,7 +144,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	}
 
 	// filter out AI messages for a similar area to recent activity messages
-	if(  what_bit == (1<<ai)  &&  pos != koord::invalid  ) {
+	if(  what_bit == (1<<ai)  &&  pos != koord::invalid  &&  env_t::networkmode  ) {
 		uint32 i = 0;
 		FOR(slist_tpl<node*>, const iter, list) {
 			node const& n = *iter;

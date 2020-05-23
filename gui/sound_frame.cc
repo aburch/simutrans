@@ -38,9 +38,9 @@ const char *specific_volume_names[ MAX_SOUND_TYPES ] = {
 };
 
 
-sound_frame_t::sound_frame_t()
-  : gui_frame_t( translator::translate("Sound settings") ),
-    sound_volume_scrollbar(scrollbar_t::horizontal),
+sound_frame_t::sound_frame_t() :
+	gui_frame_t( translator::translate("Sound settings") ),
+	sound_volume_scrollbar(scrollbar_t::horizontal),
 	music_volume_scrollbar(scrollbar_t::horizontal)
 {
 	set_table_layout(1,0);

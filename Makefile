@@ -55,7 +55,7 @@ else ifeq ($(OSTYPE),mingw)
     LDFLAGS += -static-libgcc -static-libstdc++ -static
   endif
   LDFLAGS   += -pthread -Wl,--large-address-aware
-  SOURCES   += simsys_w32_png.cc
+  SOURCES   += sys/simsys_w32_png.cc
   CFLAGS    += -Wno-deprecated-copy -Wno-c++11-narrowing -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
   LIBS      += -lmingw32 -lgdi32 -lwinmm -lws2_32 -limm32
 
@@ -72,11 +72,11 @@ else ifeq ($(OSTYPE),mingw)
 endif
 
 ifeq ($(BACKEND),sdl2)
-  SOURCES += clipboard_s2.cc
+  SOURCES += sys/clipboard_s2.cc
 else ifeq ($(OSTYPE),mingw)
-  SOURCES += clipboard_w32.cc
+  SOURCES += sys/clipboard_w32.cc
 else
-  SOURCES += clipboard_internal.cc
+  SOURCES += sys/clipboard_internal.cc
 endif
 
 LIBS += -lbz2 -lz
@@ -378,6 +378,7 @@ SOURCES += gui/halt_list_frame.cc
 SOURCES += gui/halt_list_stats.cc
 SOURCES += gui/headquarter_info.cc
 SOURCES += gui/help_frame.cc
+SOURCES += gui/journey_time_info.cc
 SOURCES += gui/jump_frame.cc
 SOURCES += gui/minimap.cc
 SOURCES += gui/kennfarbe.cc
@@ -488,6 +489,7 @@ SOURCES += script/api_param.cc
 SOURCES += script/dynamic_string.cc
 SOURCES += script/export_objs.cc
 SOURCES += script/script.cc
+SOURCES += script/script_loader.cc
 SOURCES += simcity.cc
 SOURCES += simconvoi.cc
 SOURCES += simdebug.cc
@@ -509,7 +511,6 @@ SOURCES += simobj.cc
 SOURCES += simplan.cc
 SOURCES += simskin.cc
 SOURCES += simsound.cc
-SOURCES += simsys.cc
 SOURCES += simticker.cc
 SOURCES += simtool.cc
 SOURCES += simware.cc
@@ -535,6 +536,7 @@ SOURCES += squirrel/squirrel/sqobject.cc
 SOURCES += squirrel/squirrel/sqstate.cc
 SOURCES += squirrel/squirrel/sqtable.cc
 SOURCES += squirrel/squirrel/sqvm.cc
+SOURCES += sys/simsys.cc
 SOURCES += unicode.cc
 SOURCES += utils/cbuffer_t.cc
 SOURCES += utils/csv.cc
@@ -550,7 +552,7 @@ SOURCES += vehicle/simroadtraffic.cc
 SOURCES += vehicle/simvehicle.cc
 
 ifeq ($(BACKEND),allegro)
-  SOURCES += simsys_d.cc
+  SOURCES += sys/simsys_d.cc
   SOURCES += sound/allegro_sound.cc
   SOURCES += music/allegro_midi.cc
   ifeq ($(ALLEGRO_CONFIG),)
@@ -565,13 +567,13 @@ ifeq ($(BACKEND),allegro)
 endif
 
 ifeq ($(BACKEND),gdi)
-  SOURCES += simsys_w.cc
+  SOURCES += sys/simsys_w.cc
   SOURCES += music/w32_midi.cc
   SOURCES += sound/win32_sound.cc
 endif
 
 ifeq ($(BACKEND),sdl)
-  SOURCES += simsys_s.cc
+  SOURCES += sys/simsys_s.cc
   ifeq ($(OSTYPE),mac)
     ifeq ($(shell expr $(AV_FOUNDATION) \>= 1), 1)
       # Core Audio (AVFoundation) base sound system routines
@@ -614,7 +616,7 @@ ifeq ($(BACKEND),sdl)
 endif
 
 ifeq ($(BACKEND),sdl2)
-  SOURCES += simsys_s2.cc
+  SOURCES += sys/simsys_s2.cc
   ifeq ($(OSTYPE),mac)
     ifeq ($(shell expr $(AV_FOUNDATION) \>= 1), 1)
       # Core Audio (AVFoundation) base sound system routines
@@ -657,7 +659,7 @@ ifeq ($(BACKEND),sdl2)
 endif
 
 ifeq ($(BACKEND),mixer_sdl2)
-  SOURCES += simsys_s2.cc
+  SOURCES += sys/simsys_s2.cc
   ifeq ($(SDL2_CONFIG),)
     ifeq ($(OSTYPE),mac)
       SDL_CFLAGS  := -F /Library/Frameworks -I/Library/Frameworks/SDL2.framework/Headers
@@ -681,7 +683,7 @@ ifeq ($(BACKEND),mixer_sdl2)
 endif
 
 ifeq ($(BACKEND),mixer_sdl)
-  SOURCES += simsys_s.cc
+  SOURCES += sys/simsys_s.cc
   SOURCES += sound/sdl_mixer_sound.cc
   SOURCES += music/sdl_midi.cc
   ifeq ($(SDL_CONFIG),)
@@ -696,7 +698,7 @@ ifeq ($(BACKEND),mixer_sdl)
 endif
 
 ifeq ($(BACKEND),posix)
-  SOURCES += simsys_posix.cc
+  SOURCES += sys/simsys_posix.cc
   SOURCES += music/no_midi.cc
   SOURCES += sound/no_sound.cc
 endif

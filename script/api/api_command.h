@@ -40,13 +40,13 @@ namespace script_api {
 	 *
 	 * call_tool_work call_x_tool(parameters..)
 	 * {
-	 * 	....
+	 *      ....
 	 *      return call_tool_work(tool, player, koord3d)
 	 * }
 	 *
 	 * call_tool_init call_x_tool(parameters..)
 	 * {
-	 * 	....
+	 *      ....
 	 *      return call_tool_init(tool, player)
 	 * }
 	 */

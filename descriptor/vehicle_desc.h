@@ -41,8 +41,8 @@ class checksum_t;
  *  n+m+6 freight for which special images are defined
  */
 class vehicle_desc_t : public obj_desc_transport_related_t {
-    friend class vehicle_reader_t;
-    friend class vehicle_builder_t;
+	friend class vehicle_reader_t;
+	friend class vehicle_builder_t;
 
 public:
 	/**

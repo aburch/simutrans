@@ -56,13 +56,14 @@ class schedule_gui_t :	public gui_frame_t,
 	gui_combobox_t wait_load;
 	
 	// for advanced settings
-	// coupling, load/unload only, temp schedule, departure time
+	// coupling, load/unload only, temp schedule, departure time, max_speed
 	button_t bt_extract_settings;
 	button_t bt_find_parent, bt_wait_for_child; // convoy coupling
 	button_t bt_no_load, bt_no_unload, bt_tmp_schedule, bt_wait_for_time, 
 		bt_same_dep_time, bt_full_load_acceleration;
-	gui_numberinput_t numimp_spacing, numimp_spacing_shift, numimp_delay_tolerance;
-	gui_label_t lb_spacing, lb_title1, lb_title2;
+	gui_numberinput_t numimp_spacing, numimp_spacing_shift, 
+		numimp_delay_tolerance, numimp_max_speed;
+	gui_label_t lb_spacing, lb_title1, lb_title2, lb_max_speed;
 	char lb_spacing_str[10];
 
 	schedule_gui_stats_t* stats;

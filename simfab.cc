@@ -697,6 +697,25 @@ void fabrik_t::unlink_halt(halthandle_t halt)
 }
 
 
+// returns true, if there is a freight halt serving us
+bool fabrik_t::is_within_players_network( const player_t* player ) const
+{
+	if( const planquadrat_t *plan = welt->access( pos.get_2d() ) ) {
+		if( plan->get_haltlist_count() > 0 ) {
+			const halthandle_t *const halt_list = plan->get_haltlist();
+			for( int h = 0; h < plan->get_haltlist_count(); h++ ) {
+				halthandle_t halt = halt_list[h];
+				if(  halt.is_bound()  &&  halt->is_enabled(haltestelle_t::WARE)  &&  halt->has_available_network(player)  ) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+
+
 void fabrik_t::add_lieferziel(koord ziel)
 {
 	if(  !lieferziele.is_contained(ziel)  ) {
@@ -1529,7 +1548,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 /**
  * let the chimney smoke, if there is something to produce
  */
-void fabrik_t::smoke() const
+void fabrik_t::smoke()
 {
 	const smoke_desc_t *rada = desc->get_smoke();
 	if(rada) {
@@ -1540,8 +1559,10 @@ void fabrik_t::smoke() const
 		gr->obj_add(smoke);
 		welt->sync_way_eyecandy.add( smoke );
 	}
+
 	// maybe sound?
 	if(  desc->get_sound()!=NO_SOUND  &&  welt->get_ticks()>last_sound_ms+desc->get_sound_interval_ms()  ) {
+		last_sound_ms = welt->get_ticks();
 		welt->play_sound_area_clipped( get_pos().get_2d(), desc->get_sound(), FACTORY_SOUND );
 	}
 }

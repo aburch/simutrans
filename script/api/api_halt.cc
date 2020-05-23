@@ -20,6 +20,7 @@ halthandle_t get_halt_from_koord3d(koord3d pos, const player_t *player ); // api
 namespace script_api {
 
 	declare_specialized_param(haltestelle_t::tile_t, "t|x|y", "tile_x");
+	declare_specialized_param(haltestelle_t::connection_t, "t|x|y", "halt_x");
 
 
 	SQInteger param<haltestelle_t::tile_t>::push(HSQUIRRELVM vm, haltestelle_t::tile_t const& v)
@@ -27,7 +28,12 @@ namespace script_api {
 		return param<grund_t*>::push(vm, v.grund);
 	}
 
+	SQInteger param<haltestelle_t::connection_t>::push(HSQUIRRELVM vm, haltestelle_t::connection_t const& v)
+	{
+		return param<halthandle_t>::push(vm, v.halt);
+	}
 };
+
 
 using namespace script_api;
 
@@ -120,6 +126,14 @@ sint8 is_halt_connected(const haltestelle_t *a, halthandle_t b, const goods_desc
 SQInteger halt_compare(halthandle_t a, halthandle_t b)
 {
 	return (SQInteger)a.get_id() - (SQInteger)b.get_id();
+}
+
+
+vector_tpl<haltestelle_t::connection_t> const& halt_get_connections(const haltestelle_t *halt, const goods_desc_t* freight)
+{
+	static vector_tpl<haltestelle_t::connection_t> dummy;
+	dummy.clear();
+	return freight ? halt->get_connections(freight->get_catg_index()) : dummy;
 }
 
 
@@ -275,7 +289,11 @@ void export_halt(HSQUIRRELVM vm)
 	 * @param freight freight type
 	 */
 	register_method(vm, &halt_get_capacity, "get_capacity", true);
-
+	/**
+	 * Returns list of connected halts for the specific @p freight type.
+	 * @param freight freight type
+	 */
+	register_method(vm, &halt_get_connections, "get_connections", true);
 	/**
 	 * Returns halt at given position.
 	 * @param pos coordinate

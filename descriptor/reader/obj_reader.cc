@@ -9,9 +9,9 @@
 // for the progress bar
 #include "../../simcolor.h"
 #include "../../display/simimg.h"
-#include "../../simsys.h"
 #include "../../simtypes.h"
 #include "../../simloadingscreen.h"
+#include "../../sys/simsys.h"
 
 #include "../skin_desc.h"	// just for the logo
 #include "../ground_desc.h"	// for the error message!

@@ -55,18 +55,17 @@ map;
  * @code
  *
  * class my_class_with_save {
- * 	foo = 0
+ *     foo = 0
  *
- * 	constructor(f)
- *	{
- *		foo = f;
- * 	}
- *	function _save()
- * 	{
- * 		return "my_class_with_save("+ foo + ")"
- * 	}
+ *     constructor(f)
+ *     {
+ *         foo = f;
+ *     }
+ *     function _save()
+ *     {
+ *         return "my_class_with_save("+ foo + ")"
+ *     }
  * }
- *
  * @endcode
  *
  * @brief

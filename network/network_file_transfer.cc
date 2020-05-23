@@ -6,7 +6,7 @@
 #include "network_file_transfer.h"
 #include "../simdebug.h"
 #include "../simloadingscreen.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 
 #include <string.h>
 #include <errno.h>
@@ -98,8 +98,6 @@ char const* network_receive_file( SOCKET const s, char const* const save_as, sin
 #include "../dataobj/environment.h"
 #include "../simworld.h"
 #include "../utils/simstring.h"
-
-#include "../simsys.h"
 
 
 // connect to address (cp), receive gameinfo, close
@@ -307,10 +305,8 @@ error:
 	return "Client closed connection during transfer";
 }
 
-/*
-  POST a message (poststr) to an HTTP server at the specified address and relative path (name)
-  Optionally: Receive response to file localname
-*/
+/// POST a message (poststr) to an HTTP server at the specified address and relative path (name)
+/// Optionally: Receive response to file localname
 const char *network_http_post( const char *address, const char *name, const char *poststr, const char *localname )
 {
 	DBG_MESSAGE("network_http_post", "");

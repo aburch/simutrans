@@ -12,7 +12,7 @@
 #include "environment.h"
 #include "height_map_loader.h"
 #include "../simio.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 
 
 height_map_loader_t::height_map_loader_t(bool new_format):

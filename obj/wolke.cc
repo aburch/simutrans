@@ -125,7 +125,7 @@ sync_result wolke_t::sync_step(uint32 delta_t)
 	}
 	const image_id new_img = get_front_image();
 
- 	// move cloud up
+	// move cloud up
 	const sint16 new_yoff = calc_yoff();
 	if(  new_img != old_img  ) {
 		// change cloud

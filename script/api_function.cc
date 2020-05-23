@@ -6,7 +6,7 @@
 #include "api_function.h"
 #include <stdio.h>
 
-#include "../simsys.h"
+#include "../sys/simsys.h"
 
 #include "../dataobj/environment.h"
 

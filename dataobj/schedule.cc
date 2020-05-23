@@ -47,6 +47,7 @@ void schedule_t::copy_from(const schedule_t *src)
 
 	editing_finished = src->is_editing_finished();
 	flags = src->get_flags();
+	max_speed = src->get_max_speed();
 }
 
 
@@ -240,6 +241,12 @@ void schedule_t::rdwr(loadsave_t *file)
 	} else {
 		flags = NONE;
 	}
+	
+	if(  file->get_OTRP_version()>=25  ) {
+		file->rdwr_short(max_speed);
+	} else {
+		max_speed = 0;
+	}
 
 	if(file->is_version_less(99, 12)) {
 		for(  uint8 i=0; i<size; i++  ) {
@@ -266,8 +273,18 @@ void schedule_t::rdwr(loadsave_t *file)
 				uint8 flags = entries[i].get_stop_flags();
 				file->rdwr_byte(flags);
 				entries[i].set_stop_flags(flags);
+			} else {
+				entries[i].set_stop_flags(0);
 			}
-			if(file->get_OTRP_version()>=23) {
+			if(file->get_OTRP_version()>=25) {
+				// prepare for configurable departure slots
+				file->rdwr_short(entries[i].spacing);
+				file->rdwr_short(entries[i].delay_tolerance);
+				uint16 dummy = 1;
+				file->rdwr_short(dummy); // num of departure slots
+				file->rdwr_short(entries[i].spacing_shift);
+			}
+			else if(file->get_OTRP_version()>=23) {
 				file->rdwr_short(entries[i].spacing);
 				file->rdwr_short(entries[i].spacing_shift);
 				file->rdwr_short(entries[i].delay_tolerance);
@@ -430,7 +447,7 @@ void schedule_t::add_return_way()
 
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
-	uint16 s = current_stop + (flags<<8);
+	uint32 s = current_stop + (flags<<8) + (max_speed<<16);
 	buf.printf("%u|%d|", s, (int)get_type());
 	FOR(minivec_tpl<schedule_entry_t>, const& i, entries) {
 		buf.printf("%s,%i,%i,%i,%i,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time_shift, i.get_stop_flags(), i.spacing, i.spacing_shift, i.delay_tolerance);
@@ -450,9 +467,10 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 		return false;
 	}
 	//  first get current_stop pointer
-	uint16 s = atoi( p );
+	uint32 s = atoi( p );
 	current_stop = s & 0xff;
-	flags = (s>>8);
+	flags = ((s&0xff00) >> 8);
+	max_speed = (s>>16);
 	while(  *p  &&  *p!='|'  ) {
 		p++;
 	}

@@ -109,7 +109,7 @@ bool pos_list_t::get_pos(koord &k)
 
 
 pos_list_wh_t::pos_list_wh_t(sint16 max_radius, sint16 w, sint16 h) :
-    pos_list_t(max_radius)
+	pos_list_t(max_radius)
 {
 	restart(w, h);
 }

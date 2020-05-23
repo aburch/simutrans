@@ -9,7 +9,7 @@
 #include <mmsystem.h>
 
 #include "sound.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 
 
 /*

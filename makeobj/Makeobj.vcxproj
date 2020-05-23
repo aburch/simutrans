@@ -124,7 +124,6 @@
     <ClInclude Include="..\simconst.h" />
     <ClInclude Include="..\simdebug.h" />
     <ClInclude Include="..\simmem.h" />
-    <ClInclude Include="..\simsys.h" />
     <ClInclude Include="..\simtypes.h" />
     <ClInclude Include="..\simunits.h" />
     <ClInclude Include="..\simversion.h" />
@@ -188,6 +187,7 @@
     <ClInclude Include="..\display\simgraph.h" />
     <ClInclude Include="..\display\simimg.h" />
     <ClInclude Include="..\network\checksum.h" />
+    <ClInclude Include="..\sys\simsys.h" />
     <ClInclude Include="..\tpl\hashtable_tpl.h" />
     <ClInclude Include="..\tpl\inthashtable_tpl.h" />
     <ClInclude Include="..\tpl\stringhashtable_tpl.h" />

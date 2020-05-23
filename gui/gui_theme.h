@@ -243,7 +243,9 @@ public:
 	static PIXVAL gui_shadow_color;                       //@< Color to draw shadowed dividers (tabs)
 	static PIXVAL gui_color_loadingbar_inner;
 	static PIXVAL gui_color_loadingbar_progress;
-    /// @}
+	static PIXVAL gui_color_obsolete;                     //@< Color for obsolete convois/server entries
+	static PIXVAL gui_color_empty;                        //@< Color for empty entries
+														  /// @}
 
 	/// @name GUI element sizes used by gui components
 	/// @{

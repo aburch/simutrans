@@ -151,8 +151,8 @@ public:
 
 	/**
 	 * Returns an index to a halt at koord k
-   	 * optionally limit to that owned by player sp
-   	 * by default create a new halt if none found
+	 * optionally limit to that owned by player sp
+	 * by default create a new halt if none found
 	 * Only used during loading.
 	 */
 	static halthandle_t get_halt_koord_index(koord k);
@@ -420,6 +420,8 @@ public:
 	 */
 	sint8 is_connected(halthandle_t halt, uint8 catg_index) const;
 
+	bool has_available_network( const player_t* player, uint8 catg_index = goods_manager_t::INDEX_NONE ) const;
+		
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
 	/**

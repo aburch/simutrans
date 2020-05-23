@@ -8,7 +8,7 @@
 #include "pakselector.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 
 pakselector_t::pakselector_t() :
 	savegame_frame_t( NULL, true, env_t::program_dir, true ),

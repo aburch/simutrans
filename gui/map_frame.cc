@@ -11,7 +11,7 @@
 #include "map_frame.h"
 
 #include "simwin.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 
 #include "../simworld.h"
 #include "../display/simgraph.h"
@@ -209,7 +209,9 @@ map_frame_t::map_frame_t() :
 		add_component( zoom_buttons+0 );
 
 		// zoom level value label
-		zoom_value_label.buf().append("1:1");
+		sint16 zoom_in, zoom_out;
+		minimap_t::get_instance()->get_zoom_factors(zoom_out, zoom_in);
+		zoom_value_label.buf().printf("%i:%i", zoom_in, zoom_out );
 		zoom_value_label.update();
 		add_component( &zoom_value_label );
 
@@ -254,7 +256,7 @@ map_frame_t::map_frame_t() :
 	viewable_players[ 0 ] = -1;
 	for(  int np = 0, count = 1;  np < MAX_PLAYER_COUNT;  np++  ) {
 		if(  welt->get_player( np )  &&  welt->get_player( np )->get_finance()->has_convoi()) {
-			viewed_player_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(welt->get_player( np )->get_name(), color_idx_to_rgb(welt->get_player( np )->get_player_color1()+4));
+			viewed_player_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(welt->get_player( np )->get_name(), color_idx_to_rgb(welt->get_player( np )->get_player_color1()+env_t::gui_player_color_dark));
 			viewable_players[ count++ ] = np;
 		}
 	}
@@ -264,9 +266,6 @@ map_frame_t::map_frame_t() :
 	filter_container.add_component(&viewed_player_c);
 
 	// freight combo for network overlay
-	freight_type_c.set_pos( scr_coord(2*D_BUTTON_WIDTH+3*D_H_SPACE, 0) );
-	freight_type_c.set_size( scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
-	freight_type_c.set_max_size( scr_size( 116, 5 * D_BUTTON_HEIGHT) );
 	{
 		viewable_freight_types.append(NULL);
 		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("All"), SYSCOL_TEXT) ;

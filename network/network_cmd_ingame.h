@@ -265,11 +265,11 @@ private:
 
 /**
  * nwc_chg_player_t
- * 		commands that require special authentication checks: toggle freeplay, start AI player
+ *      commands that require special authentication checks: toggle freeplay, start AI player
  * @from-server:
- * 		@data cmd command to perform (see karte_t::change_player_tool)
- * 		@data player_nr affected player
- * 		@data param
+ *      @data cmd command to perform (see karte_t::change_player_tool)
+ *      @data player_nr affected player
+ *      @data param
  */
 class nwc_chg_player_t : public network_broadcast_world_command_t {
 public:
@@ -309,13 +309,13 @@ private:
  * nwc_tool_t
  * @from-client: client sends tool init/work
  * @from-server: server sends nwc_tool_t to all clients with step when tool has to be executed
- *		@data client_id (the client that launched the tool, sent by server)
- *		@data player_nr
- *		@data init (if true call init else work)
- *		@data tool_id
- *		@data pos
- *		@data default_param
- *		@data exec (if true executes, else server sends it to clients)
+ *      @data client_id (the client that launched the tool, sent by server)
+ *      @data player_nr
+ *      @data init (if true call init else work)
+ *      @data tool_id
+ *      @data pos
+ *      @data default_param
+ *      @data exec (if true executes, else server sends it to clients)
  */
 class nwc_tool_t : public network_broadcast_world_command_t {
 public:

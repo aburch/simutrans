@@ -18,7 +18,7 @@
 #include "../simversion.h"
 #include "../gui/simwin.h"
 #include "../simmesg.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../dataobj/environment.h"
 #include "../player/simplay.h"
 #include "../gui/player_frame_t.h"
@@ -284,7 +284,7 @@ void nwc_chat_t::add_message (karte_t* welt) const
 	dbg->warning("nwc_chat_t::add_message", "");
 	cbuffer_t buf;  // Output which will be printed to chat window
 
-	FLAGGED_PIXVAL color = player_nr < PLAYER_UNOWNED  ?  color_idx_to_rgb(welt->get_player( player_nr )->get_player_color1())  :  color_idx_to_rgb(COL_WHITE);
+	FLAGGED_PIXVAL color = player_nr < PLAYER_UNOWNED  ?  color_idx_to_rgb(welt->get_player( player_nr )->get_player_color1()+env_t::gui_player_color_dark)  :  color_idx_to_rgb(COL_WHITE);
 	uint16 flag = message_t::chat;
 
 	if (  destination == NULL  ) {

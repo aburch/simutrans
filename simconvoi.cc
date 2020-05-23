@@ -30,6 +30,7 @@
 #include "gui/depot_frame.h"
 #include "gui/messagebox.h"
 #include "gui/convoi_detail_t.h"
+#include "gui/journey_time_info.h"
 #include "boden/grund.h"
 #include "boden/wege/schiene.h"	// for railblocks
 #include "boden/wege/strasse.h"
@@ -807,6 +808,10 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 					sum_gesamtweight += total_vehicle_weight;
 				}
 			}
+			if(  c->get_schedule()->get_max_speed()>0  ) {
+				// max speed of schedule is enforced.
+				speed_limit = min( speed_limit, kmh_to_speed(c->get_schedule()->get_max_speed()) );
+			}
 			c = c->get_coupling_convoi();
 		}
 		if(  get_yielding_quit_index() != -1 && speed_limit > kmh_to_speed(15)  ) {
@@ -1565,7 +1570,7 @@ void convoi_t::step()
 
 void convoi_t::new_year()
 {
-    jahresgewinn = 0;
+	jahresgewinn = 0;
 }
 
 
@@ -1777,74 +1782,91 @@ void convoi_t::ziel_erreicht()
 		welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_EMPTY);
 
 		betrete_depot(dp);
+		wait_lock = 0;
+		return;
 	}
-	else {
-		halthandle_t halt = haltestelle_t::get_halt(schedule->get_current_entry().pos,owner);
-		// check for coupling
-		if(  next_coupling_index!=INVALID_INDEX  &&  next_coupling_index<=v->get_route_index()  ) {
-			const uint16 route_index = v->get_route_index();
-			const grund_t* grc[2];
-			grc[0] = gr;
-			grc[1] = route_index>=get_route()->get_count() ? NULL : welt->lookup(get_route()->at(route_index));
-			// find convoy to couple with
-			// convoy can be on the next tile of coupling_index.
-			for(  uint8 i=0;  i<2;  i++  ) {
-				const grund_t* g = grc[i];
-				if(  !g  ) {
-					continue;
+	
+	halthandle_t halt = haltestelle_t::get_halt(schedule->get_current_entry().pos,owner);
+	// when arrived at a stop, register journey time
+	if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
+		c = self;
+		while(  c.is_bound()  ) {
+			if(  c->get_line().is_bound()  ) {
+				// register journey time
+				c->get_line()->get_schedule()->entries[c->get_schedule()->get_current_stop()].push_journey_time(world()->get_ticks()-arrived_time);
+				// update journey time window
+				gui_journey_time_info_t* window = dynamic_cast<gui_journey_time_info_t*>(win_get_magic((ptrdiff_t)c->get_line().get_rep()));
+				if(  window  ) {
+					window->update();
 				}
-				for(  uint8 pos=1;  pos<(volatile uint8)g->get_top();  pos++  ) {
-					if(  vehicle_t* const v = dynamic_cast<vehicle_t*>(g->obj_bei(pos))  ) {
-						// there is a suitable waiting convoy for coupling -> this is coupling point.
-						if(  can_start_coupling(v->get_convoi())  &&  v->get_convoi()->is_loading()  ) {
-							akt_speed = 0;
-							if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
-								halt->book(1, HALT_CONVOIS_ARRIVED);
-							}
-							if(  ribi_t::backward(front()->get_direction())==v->get_convoi()->get_next_initial_direction()  ) {
-								// this convoy leads the other.
-								couple_convoi(v->get_convoi()->self);
-							} else {
-								// this convoy follows the other.
-								v->get_convoi()->couple_convoi(self);
-							}
-							wait_lock = 0;
-							set_next_coupling(INVALID_INDEX, 0);
-							v->get_convoi()->set_coupling_done(true);
-							coupling_done = true;
-							return;
+			}
+			c = c->get_coupling_convoi();
+		}
+	}
+	
+	// check for coupling
+	if(  next_coupling_index!=INVALID_INDEX  &&  next_coupling_index<=v->get_route_index()  ) {
+		const uint16 route_index = v->get_route_index();
+		const grund_t* grc[2];
+		grc[0] = gr;
+		grc[1] = route_index>=get_route()->get_count() ? NULL : welt->lookup(get_route()->at(route_index));
+		// find convoy to couple with
+		// convoy can be on the next tile of coupling_index.
+		for(  uint8 i=0;  i<2;  i++  ) {
+			const grund_t* g = grc[i];
+			if(  !g  ) {
+				continue;
+			}
+			for(  uint8 pos=1;  pos<(volatile uint8)g->get_top();  pos++  ) {
+				if(  vehicle_t* const v = dynamic_cast<vehicle_t*>(g->obj_bei(pos))  ) {
+					// there is a suitable waiting convoy for coupling -> this is coupling point.
+					if(  can_start_coupling(v->get_convoi())  &&  v->get_convoi()->is_loading()  ) {
+						akt_speed = 0;
+						if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
+							halt->book(1, HALT_CONVOIS_ARRIVED);
 						}
+						if(  ribi_t::backward(front()->get_direction())==v->get_convoi()->get_next_initial_direction()  ) {
+							// this convoy leads the other.
+							couple_convoi(v->get_convoi()->self);
+						} else {
+							// this convoy follows the other.
+							v->get_convoi()->couple_convoi(self);
+						}
+						wait_lock = 0;
+						set_next_coupling(INVALID_INDEX, 0);
+						v->get_convoi()->set_coupling_done(true);
+						coupling_done = true;
+						return;
 					}
 				}
 			}
-			// convoy to couple with is not found!
-			set_next_coupling(INVALID_INDEX, 0);
+		}
+		// convoy to couple with is not found!
+		set_next_coupling(INVALID_INDEX, 0);
+	}
+	
+	// no depot reached, no coupling, check for stop!
+	if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
+		// seems to be a stop, so book the money for the trip
+		halt->book(1, HALT_CONVOIS_ARRIVED);
+		c = self;
+		while(  c.is_bound()  ) {
+			c->set_akt_speed(0);
+			c->set_state(c==self ? LOADING : COUPLED_LOADING);
+			c->set_arrived_time(world()->get_ticks());
+			c = c->get_coupling_convoi();
 		}
 		
-		arrived_time = welt->get_ticks();
-		// no depot reached, no coupling, check for stop!
-		if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
-			// seems to be a stop, so book the money for the trip
-			halt->book(1, HALT_CONVOIS_ARRIVED);
-			c = self;
-			while(  c.is_bound()  ) {
-				c->set_akt_speed(0);
-				c->set_state(c==self ? LOADING : COUPLED_LOADING);
-				c->set_arrived_time(arrived_time);
-				c = c->get_coupling_convoi();
-			}
-			
+	}
+	else {
+		// Neither depot nor station: waypoint
+		c = self;
+		// advance schedule for all coupling convoys.
+		while(  c.is_bound()  ) {
+			c->get_schedule()->advance();
+			c = c->get_coupling_convoi();
 		}
-		else {
-			// Neither depot nor station: waypoint
-			c = self;
-			// advance schedule for all coupling convoys.
-			while(  c.is_bound()  ) {
-				c->get_schedule()->advance();
-				c = c->get_coupling_convoi();
-			}
-			state = ROUTING_1;
-		}
+		state = ROUTING_1;
 	}
 	wait_lock = 0;
 }
@@ -4034,7 +4056,7 @@ PIXVAL convoi_t::get_status_color() const
 		return SYSCOL_TEXT_UNUSED;
 	}
 	else if(has_obsolete) {
-		return color_idx_to_rgb(COL_BLUE);
+		return SYSCOL_OBSOLETE;
 	}
 	// normal state
 	return SYSCOL_TEXT;

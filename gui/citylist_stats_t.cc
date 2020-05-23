@@ -75,7 +75,7 @@ bool citylist_stats_t::infowin_event(const event_t *ev)
 
 
 citylist_stats_t::sort_mode_t citylist_stats_t::sort_mode = citylist_stats_t::SORT_BY_NAME;
-
+uint8 citylist_stats_t::player_nr = -1;
 
 bool citylist_stats_t::compare(const gui_component_t *aa, const gui_component_t *bb)
 {

@@ -288,7 +288,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 			// For each address in remote, try and connect
 			struct addrinfo *walk_remote;
 			for (  walk_remote = remote;  !connected  &&  walk_remote != NULL;  walk_remote = walk_remote->ai_next  ) {
-  				char ipstr_remote[INET6_ADDRSTRLEN];
+				char ipstr_remote[INET6_ADDRSTRLEN];
 
 				// Validate remote address + get string representation for logging
 				if (  (ret = getnameinfo( walk_remote->ai_addr, (socklen_t)walk_remote->ai_addrlen, ipstr_remote, sizeof(ipstr_remote), NULL, 0, NI_NUMERICHOST )) !=0  ) {

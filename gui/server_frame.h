@@ -65,7 +65,7 @@ private:
 	/**
 	 * Update UI fields with data from the current state of gameinfo_t gi
 	 */
-	void update_info();
+	PIXVAL update_info();
 
 	/**
 	 * Update UI fields to show connection errors

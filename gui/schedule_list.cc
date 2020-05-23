@@ -11,6 +11,7 @@
 #include "components/gui_convoiinfo.h"
 #include "line_item.h"
 #include "simwin.h"
+#include "journey_time_info.h"
 
 #include "../simcolor.h"
 #include "../simdepot.h"
@@ -123,6 +124,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	schedule_filter[0] = 0;
 	old_schedule_filter[0] = 0;
 	last_schedule = NULL;
+	old_player = NULL;
 
 	// add components
 	// first column: scrolled list of all lines
@@ -210,6 +212,23 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_delete_line.add_listener(this);
 	bt_delete_line.disable();
 	add_component(&bt_delete_line);
+	
+	bt_y += (D_BUTTON_HEIGHT+ D_V_SPACE);
+	
+	bt_copy_line.init(button_t::roundbox, "Copy Line",
+		scr_coord(D_MARGIN_LEFT, bt_y),
+		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_copy_line.set_tooltip("Copy the selected line");
+	bt_copy_line.add_listener(this);
+	bt_copy_line.disable();
+	add_component(&bt_copy_line);
+	
+	bt_show_journey_time.init(button_t::roundbox, "Journey Time",
+		scr_coord(D_MARGIN_LEFT+D_BUTTON_WIDTH+D_H_SPACE, bt_y),
+		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_show_journey_time.add_listener(this);
+	bt_show_journey_time.disable();
+	add_component(&bt_show_journey_time);
 
 	// lower left corner: halt list of selected line
 	scrolly_haltestellen.set_pos(scr_coord(D_MARGIN_LEFT, bt_y + D_BUTTON_HEIGHT+ D_V_SPACE));
@@ -343,11 +362,13 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		delete tmp_tool;
 		depot_t::update_all_win();
 	}
-	else if(  comp == &bt_delete_line  ) {
+	else if(  comp == &bt_delete_line  ||  comp == &bt_copy_line  ) {
 		if(  line.is_bound()  ) {
 			tool_t *tmp_tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 			cbuffer_t buf;
-			buf.printf( "d,%i", line.get_id() );
+			// delete -> d, copy -> p
+			buf.printf( comp == &bt_delete_line ? "d" : "p" );
+			buf.printf( ",%i", line.get_id() );
 			tmp_tool->set_default_param(buf);
 			welt->set_tool( tmp_tool, player );
 			// since init always returns false, it is safe to delete immediately
@@ -365,6 +386,11 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 			welt->set_tool( tmp_tool, player );
 			// since init always returns false, it is safe to delete immediately
 			delete tmp_tool;
+		}
+	}
+	else if(  comp == &bt_show_journey_time  ) {
+		if(  line.is_bound()  ) {
+			create_win( new gui_journey_time_info_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
 		}
 	}
 	else if(  comp == &tabs  ) {
@@ -464,6 +490,17 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 	if(  old_line_count != player->simlinemgmt.get_line_count()  ) {
 		show_lineinfo( line );
 	}
+
+	if(  old_player != welt->get_active_player()  ) {
+		// deativate buttons, if not curretn player
+		old_player = welt->get_active_player();
+		const bool activate = old_player == player || old_player == welt->get_player( 1 );
+		bt_delete_line.enable( activate );
+		bt_edit_line.enable( activate );
+		bt_new_line.enable( activate   &&  tabs.get_active_tab_index() > 0);
+		bt_withdraw_line.enable( activate );
+	}
+
 	// if search string changed, update line selection
 	if(  strcmp( old_schedule_filter, schedule_filter )  ) {
 		build_line_list(tabs.get_active_tab_index());
@@ -631,6 +668,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			bt_delete_line.enable();
 		}
 		bt_edit_line.enable();
+		bt_copy_line.enable();
+		bt_show_journey_time.enable();
 
 		bt_withdraw_line.pressed = new_line->get_withdraw();
 
@@ -679,6 +718,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		scl.set_selection(-1);
 		bt_delete_line.disable();
 		bt_edit_line.disable();
+		bt_copy_line.disable();
+		bt_show_journey_time.disable();
 		for(  int i=0; i<MAX_LINE_COST; i++  )  {
 			chart.hide_curve(i);
 		}

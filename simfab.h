@@ -429,7 +429,7 @@ private:
 	void recalc_factory_status();
 
 	// create some smoke on the map
-	void smoke() const;
+	void smoke();
 
 	// scales the amount of production based on the amount already in storage
 	uint32 scale_output_production(const uint32 product, uint32 menge) const;
@@ -523,6 +523,8 @@ public:
 
 	void link_halt(halthandle_t halt);
 	void unlink_halt(halthandle_t halt);
+
+	bool is_within_players_network( const player_t* player ) const;
 
 	const vector_tpl<koord>& get_lieferziele() const { return lieferziele; }
 	bool is_active_lieferziel( koord k ) const;

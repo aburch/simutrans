@@ -147,6 +147,9 @@ uint32 env_t::tooltip_delay;
 uint32 env_t::tooltip_duration;
 sint8 env_t::show_money_message;
 
+uint8 env_t::gui_player_color_dark = 1;
+uint8 env_t::gui_player_color_bright = 4;
+
 std::string env_t::fontname = FONT_PATH_X "prop.fnt";
 uint8 env_t::fontsize = 11;
 
@@ -166,6 +169,7 @@ uint32 env_t::default_ai_construction_speed;
 bool env_t::hide_keyboard = false;
 
 bool env_t::previous_OTRP_data;
+char env_t::otrp_statistics_log[PATH_MAX];
 
 bool  env_t::commandline_snapshot = false;
 koord3d env_t::commandline_snapshot_world_position = koord3d(0, 0, 0);
@@ -297,6 +301,8 @@ void env_t::init()
 
 	previous_OTRP_data = false;
 	show_money_message = 0;
+	
+	sprintf(otrp_statistics_log, "");
 }
 
 
@@ -515,6 +521,12 @@ void env_t::rdwr(loadsave_t *file)
 
 	if (file->is_version_atleast(121, 1)) {
 		file->rdwr_long(sound_distance_scaling);
+		file->rdwr_byte( gui_player_color_dark );
+		file->rdwr_byte( gui_player_color_bright );
+	}
+	
+	if (file->get_OTRP_version()>=25) {
+		file->rdwr_str(otrp_statistics_log, PATH_MAX);
 	}
 
 	// server settings are not saved, since they are server specific

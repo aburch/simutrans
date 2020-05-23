@@ -10,6 +10,8 @@
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_label.h"
+#include "components/gui_button.h"
+#include "components/gui_combobox.h"
 #include "factorylist_stats_t.h"
 
 
@@ -23,9 +25,14 @@ private:
 
 	button_t	sortedby;
 	button_t	sorteddir;
+	button_t filter_by_owner;
+	gui_combobox_t filterowner;
+
 	gui_scrolled_list_t scrolly;
 
 	void fill_list();
+
+	uint32 old_factories_count;
 
 public:
 	factorylist_frame_t();

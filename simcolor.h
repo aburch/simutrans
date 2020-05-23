@@ -155,5 +155,7 @@ typedef unsigned int FLAGGED_PIXVAL;
 #define SYSCOL_SHADOW                       gui_theme_t::gui_shadow_color
 #define SYSCOL_LOADINGBAR_INNER             gui_theme_t::gui_color_loadingbar_inner
 #define SYSCOL_LOADINGBAR_PROGRESS          gui_theme_t::gui_color_loadingbar_progress
+#define SYSCOL_OBSOLETE                     gui_theme_t::gui_color_obsolete
+#define SYSCOL_EMPTY                        gui_theme_t::gui_color_empty
 
 #endif

@@ -308,14 +308,14 @@ karte_t *ground_desc_t::world = NULL;
  */
 const uint8 ground_desc_t::slopetable[80] =
 {
-	0,	1,	0xFF,	2,	3,	0xFF,	0xFF,	0xFF,	0xFF,	4,
-	5, 	0xFF,	6,	7,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,
-	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	8,	9,	0xFF,
-	10,	11,	0xFF,	0xFF,	0xFF,	0xFF,	12,	13,	0xFF,	14,
-	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,
-	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,
-	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,
-	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF
+	0,    1,    0xFF, 2,    3,    0xFF, 0xFF, 0xFF, 0xFF, 4,
+	5,    0xFF, 6,    7,    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 8,    9,    0xFF,
+	10,   11,   0xFF, 0xFF, 0xFF, 0xFF, 12,   13,   0xFF, 14,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 };
 
 
@@ -352,25 +352,25 @@ const ground_desc_t *ground_desc_t::sea = NULL;
 const ground_desc_t *ground_desc_t::outside = NULL;
 
 static special_obj_tpl<ground_desc_t> const grounds[] = {
-    { &ground_desc_t::shore,    "Shore" },
-    { &boden_texture,	    "ClimateTexture" },
-    { &light_map,	    "LightTexture" },
-    { &transition_water_texture,    "ShoreTrans" },
-    { &transition_slope_texture,    "SlopeTrans" },
-    { &ground_desc_t::fundament,    "Basement" },
-    { &ground_desc_t::slopes,    "Slopes" },
-    { &ground_desc_t::fences,   "Fence" },
-    { &ground_desc_t::marker,   "Marker" },
-    { &ground_desc_t::borders,   "Borders" },
-    { &ground_desc_t::sea,   "Water" },
-    { &ground_desc_t::outside,   "Outside" },
-    { NULL, NULL }
+	{ &ground_desc_t::shore,    "Shore" },
+	{ &boden_texture,	    "ClimateTexture" },
+	{ &light_map,	    "LightTexture" },
+	{ &transition_water_texture,    "ShoreTrans" },
+	{ &transition_slope_texture,    "SlopeTrans" },
+	{ &ground_desc_t::fundament,    "Basement" },
+	{ &ground_desc_t::slopes,    "Slopes" },
+	{ &ground_desc_t::fences,   "Fence" },
+	{ &ground_desc_t::marker,   "Marker" },
+	{ &ground_desc_t::borders,   "Borders" },
+	{ &ground_desc_t::sea,   "Water" },
+	{ &ground_desc_t::outside,   "Outside" },
+	{ NULL, NULL }
 };
 
 // the water and seven climates
 static const char* const climate_names[MAX_CLIMATES] =
 {
-    "Water", "desert", "tropic", "mediterran", "temperate", "tundra", "rocky", "arctic"
+	"Water", "desert", "tropic", "mediterran", "temperate", "tundra", "rocky", "arctic"
 };
 
 // from this number on there will be all ground images
