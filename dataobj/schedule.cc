@@ -273,6 +273,8 @@ void schedule_t::rdwr(loadsave_t *file)
 				uint8 flags = entries[i].get_stop_flags();
 				file->rdwr_byte(flags);
 				entries[i].set_stop_flags(flags);
+			} else {
+				entries[i].set_stop_flags(0);
 			}
 			if(file->get_OTRP_version()>=25) {
 				// prepare for configurable departure slots
