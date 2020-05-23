@@ -7036,7 +7036,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				}
 			}
 
-			break;
+			break; 
 
 		case too_slow:
 			if(city && wtyp == goods_manager_t::passengers)
