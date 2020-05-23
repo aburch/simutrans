@@ -4,6 +4,7 @@
 #include "../dataobj/schedule_entry.h"
 #include "../simhalt.h"
 #include "../simworld.h"
+#include "../simline.h"
 
 
 uint16 tick_to_divided_time(uint32 tick) {
@@ -116,12 +117,16 @@ void gui_journey_time_stat_t::update(schedule_t* schedule) {
 }
 
 
-gui_journey_time_info_t::gui_journey_time_info_t(schedule_t* schedule, player_t* player) : 
-  gui_frame_t( translator::translate("Journey Time"), player ),
-  stat(schedule, player),
+gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* player) : 
+  gui_frame_t( NULL, player ),
+  stat(line->get_schedule(), player),
   scrolly(&stat),
-  schedule(schedule)
+  schedule(line->get_schedule())
 {
+  title_buf = new cbuffer_t();
+  title_buf->printf(translator::translate("Journey time of %s"), line->get_name());
+  set_name(*title_buf);
+  
   set_table_layout(1,0);
   gui_aligned_container_t* container = add_table(5,1);
   new_component<gui_label_t>("Stop");
@@ -147,4 +152,8 @@ gui_journey_time_info_t::gui_journey_time_info_t(schedule_t* schedule, player_t*
 
 bool gui_journey_time_info_t::action_triggered(gui_action_creator_t*, value_t) {
   return true;
+}
+
+gui_journey_time_info_t::~gui_journey_time_info_t() {
+  delete title_buf;
 }

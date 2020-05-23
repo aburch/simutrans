@@ -13,6 +13,7 @@
 #include "components/gui_label.h"
 #include "components/action_listener.h"
 #include "gui_frame.h"
+#include "../linehandle_t.h"
 
 class schedule_t;
 class player_t;
@@ -33,9 +34,11 @@ private:
   gui_journey_time_stat_t stat;
 	gui_scrollpane_t scrolly;
   schedule_t* schedule;
+  cbuffer_t* title_buf;
   
 public:
-	gui_journey_time_info_t(schedule_t*, player_t*);
+	gui_journey_time_info_t(linehandle_t, player_t*);
+  ~gui_journey_time_info_t();
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

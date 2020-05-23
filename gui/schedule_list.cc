@@ -390,7 +390,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	}
 	else if(  comp == &bt_show_journey_time  ) {
 		if(  line.is_bound()  ) {
-			create_win( new gui_journey_time_info_t(line->get_schedule(), player), w_info, (ptrdiff_t)line.get_rep() );
+			create_win( new gui_journey_time_info_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
 		}
 	}
 	else if(  comp == &tabs  ) {
