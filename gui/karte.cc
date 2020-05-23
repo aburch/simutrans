@@ -918,7 +918,10 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				const weg_t* road = gr->get_weg(road_wt);
 				if (road)
 				{
-					set_relief_farbe(k, calc_severity_color(road->get_congestion_percentage(), 100));
+					// Because it is possible for congestion to be >100% (as 100% merely means that traffic
+					// takes 100% longer than the uncongested time to traverse the tile), set the colour range
+					// based on a maximum of 250% to allow more granularity in congested places.
+					set_relief_farbe(k, calc_severity_color(road->get_congestion_percentage(), 250));
 				}
 			}
 			break;
