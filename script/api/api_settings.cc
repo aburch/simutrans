@@ -97,6 +97,15 @@ void export_settings(HSQUIRRELVM vm)
 	register_method(vm, &settings_t::get_max_ship_convoi_length, "get_max_ship_convoi_length");
 	/// @returns max number of vehicles of air convois
 	register_method(vm, &settings_t::get_max_air_convoi_length, "get_max_air_convoi_length");
+	/// @returns true, if drive-on-left is on
+	register_method(vm, &settings_t::is_drive_left, "get_drive_on_left");
+	/**
+	 * Three modes of transfer payment:
+	 * 0 = pay for travelled Manhattan distance
+	 * 1 = pay for distance difference to next transfer stop
+	 * 2 = pay for distance to destination
+	 */
+	register_method(vm, &settings_t::get_pay_for_total_distance_mode, "get_pay_for_total_distance_mode");
 
 	end_class(vm);
 }

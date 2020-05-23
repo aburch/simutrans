@@ -36,7 +36,7 @@
 
 
 class sound_desc_t : public obj_named_desc_t {
-    friend class sound_reader_t;
+	friend class sound_reader_t;
 
 private:
 	static sint16 compatible_sound_id[MAX_OLD_SOUNDS];

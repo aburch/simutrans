@@ -399,6 +399,8 @@ private:
 	static bool process_city_street(grund_t& gr, const way_desc_t* cr);
 
 public:
+	bool is_within_players_network( const player_t* player ) const;
+
 	/// Connects factories to this city.
 	void verbinde_fabriken();
 

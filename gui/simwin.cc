@@ -13,7 +13,7 @@
 #include "../display/viewport.h"
 #include "../simmenu.h"
 #include "../simskin.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simticker.h"
 #include "simwin.h"
 #include "../simintr.h"
@@ -245,11 +245,8 @@ static int display_gadget_boxes(
 }
 
 
-static sint8 decode_gadget_boxes(
-               simwin_gadget_flags_t const * const flags,
-               int const x,
-               int const px
-) {
+static sint8 decode_gadget_boxes(simwin_gadget_flags_t const * const flags, int const x,int const px)
+{
 	int offset = px-x;
 	const int w=(REVERSE_GADGETS?-D_GADGET_WIDTH:D_GADGET_WIDTH);
 
@@ -1806,7 +1803,7 @@ void win_display_flush(double konto)
 
 	if(wl->get_active_player()) {
 		char buffer[256];
-		display_proportional_rgb( middle-5, status_bar_text_y, wl->get_active_player()->get_name(), ALIGN_RIGHT, PLAYER_FLAG|color_idx_to_rgb(wl->get_active_player()->get_player_color1()+0), true);
+		display_proportional_rgb( middle-5, status_bar_text_y, wl->get_active_player()->get_name(), ALIGN_RIGHT, PLAYER_FLAG|color_idx_to_rgb(wl->get_active_player()->get_player_color1()+env_t::gui_player_color_dark), true);
 		money_to_string(buffer, konto );
 		display_proportional_rgb( middle+5, status_bar_text_y, buffer, ALIGN_LEFT, konto >= 0.0?MONEY_PLUS:MONEY_MINUS, true);
 	}

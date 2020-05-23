@@ -159,18 +159,18 @@ class finance_t {
 
 	/**
 	 * Finance history having relation with particular type of service
- 	 */
+	 */
 	sint64 veh_year[TT_MAX][MAX_PLAYER_HISTORY_YEARS][ATV_MAX];
 	sint64 veh_month[TT_MAX][MAX_PLAYER_HISTORY_MONTHS][ATV_MAX];
 
 	/**
- 	 * Monthly maintenance cost
- 	 */
+	 * Monthly maintenance cost
+	 */
 	sint64 maintenance[TT_MAX];
 
 	/**
 	 * Monthly vehicle maintenance cost per transport type.
- 	 */
+	 */
 	sint64 vehicle_maintenance[TT_MAX];
 
 public:
@@ -460,12 +460,12 @@ public:
 	/**
 	 * Translates building_desc_t to transport_type
 	 * Building can be assigned to transport type using utyp
- 	 */
+	 */
 	static transport_type translate_utyp_to_tt(int utyp);
 
 	/**
- 	 * Translates waytype_t to transport_type
- 	 */
+	 * Translates waytype_t to transport_type
+	 */
 	static transport_type translate_waytype_to_tt(waytype_t wt);
 
 	void update_assets(sint64 delta, waytype_t wt);

@@ -199,5 +199,5 @@ obj_desc_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		(desc->retire_date%12)+1,
 		desc->retire_date/12);
 
-  return desc;
+	return desc;
 }

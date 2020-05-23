@@ -3158,51 +3158,27 @@ uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 
 	error = NULL;
 	grund_t *gr = welt->lookup(pos);
-	if(  gr==NULL  ||  !slope_t::is_way(gr->get_grund_hang())  ||  !bridge_builder_t::can_place_ramp( player, gr, wt, (is_first_click() ? 0 : ribi_type(pos-start)) )  ) {
-		return 0;
-	}
-
-	if(  welt->lookup( pos + koord3d(0, 0, 1))  ||  (welt->get_settings().get_way_height_clearance()==2  &&  welt->lookup( pos + koord3d(0, 0, 2) ))  ) {
+	if(  gr==NULL  ||  !bridge_builder_t::can_place_ramp( player, gr, wt, (is_first_click() ? 0 : ribi_type(pos-start)) )  ) {
 		return 0;
 	}
 
 	if(  is_first_click()  ) {
 		if(  gr->ist_karten_boden()  ) {
 			// first click
+			// check ribis, all other checks already done
 			ribi_t::ribi rw = ribi_t::none;
 			if (wt==powerline_wt) {
-				if (gr->hat_wege()) {
-					return 0;
-				}
 				if (gr->find<leitung_t>()) {
 					rw |= gr->find<leitung_t>()->get_ribi();
 				}
 			}
 			else {
-				if (gr->find<leitung_t>()) {
-					return 0;
-				}
-				if(wt!=road_wt) {
-					// only road bridges can have other ways on it (ie trams)
-					if(gr->has_two_ways()  ||  (gr->hat_wege() && gr->get_weg_nr(0)->get_waytype()!=wt) ) {
-						return 0;
+				// way types are checked, take all ribis
+				for(int i=0;i<2;i++) {
+					if (const weg_t *w = gr->get_weg_nr(i)) {
+						rw |= w->get_ribi_unmasked();
 					}
-					if(gr->hat_wege()){
-						rw |= gr->get_weg_nr(0)->get_ribi_unmasked();
-					}
-				}
-				else {
-					// If road and tram, we have to check both ribis.
-					for(int i=0;i<2;i++) {
-						const weg_t *w = gr->get_weg_nr(i);
-						if (w) {
-							if (w->get_waytype()!=road_wt  &&  !w->get_desc()->is_tram()) {
-								return 0;
-							}
-							rw |= w->get_ribi_unmasked();
-						}
-						else break;
-					}
+					else break;
 				}
 			}
 			// ribi from slope
@@ -7753,7 +7729,12 @@ bool tool_change_line_t::init( player_t *player )
 	switch(  tool  ) {
 		case 'c': // create line, next parameter line type and magic of schedule window (only right window gets updated)
 			{
-				line = player->simlinemgmt.create_line( atoi(p), player );
+				int ltype = atoi(p);
+				if(ltype < simline_t::truckline  ||  ltype > simline_t::narrowgaugeline) {
+					// invalid line type
+					break;
+				}
+				line = player->simlinemgmt.create_line( ltype, player );
 				while(  *p  &&  *p++!=','  ) {
 				}
 				long t;

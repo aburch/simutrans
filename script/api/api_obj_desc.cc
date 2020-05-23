@@ -632,6 +632,8 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Calculates transport revenue per tile and freight unit.
 	 * Takes speedbonus into account.
+	 * Value contains an additional factor of 3000. Don't ask.
+	 * Divide by 3000 *after* calculating revenue for a loaded convoy.
 	 * @param wt waytype of vehicle
 	 * @param speedkmh actual achieved speed in km/h
 	 * @returns revenue

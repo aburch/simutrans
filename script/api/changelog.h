@@ -9,6 +9,8 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added @ref settings::get_pay_for_total_distance_mode, @ref settings::get_drive_on_left
+ * - Added @ref halt_x::get_connections
  * - Added @ref command_x::can_set_slope
  * - Added @ref halt_x::get_halt
  * - Changed possible direction parameter of @ref command_x::build_station (useful for flat docks)

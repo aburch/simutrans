@@ -884,10 +884,10 @@ void depot_frame_t::update_data()
 		for(  unsigned i = 0;  i < cnv->get_vehicle_count();  i++  ) {
 			if(  !cnv->get_vehikel(i)->get_desc()->is_available(month_now)  ) {
 				if(  convoi_pics[i]->lcolor == color_idx_to_rgb(COL_GREEN)  ) {
-					convoi_pics[i]->lcolor = color_idx_to_rgb(COL_BLUE);
+					convoi_pics[i]->lcolor = gui_theme_t::gui_color_obsolete;
 				}
 				if(  convoi_pics[i]->rcolor == color_idx_to_rgb(COL_GREEN)  ) {
-					convoi_pics[i]->rcolor = color_idx_to_rgb(COL_BLUE);
+					convoi_pics[i]->rcolor = gui_theme_t::gui_color_obsolete;
 				}
 			}
 		}
@@ -900,7 +900,7 @@ void depot_frame_t::update_data()
 	FOR(vehicle_image_map, const& i, vehicle_map) {
 		vehicle_desc_t const* const    info = i.key;
 		gui_image_list_t::image_data_t& img  = *i.value;
-		const PIXVAL ok_color = color_idx_to_rgb(info->is_available(month_now) ? COL_GREEN : COL_BLUE);
+		const PIXVAL ok_color = info->is_available(month_now) ? color_idx_to_rgb(COL_GREEN) : gui_theme_t::gui_color_obsolete;
 
 		img.count = 0;
 		img.lcolor = ok_color;
@@ -1725,7 +1725,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		}
 
 		int yyy = pos.y + D_TITLEBAR_HEIGHT + div_action_bottom.get_pos().y + div_action_bottom.get_size().h + 2;
- 		display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, yyy, buf, SYSCOL_TEXT);
+		display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, yyy, buf, SYSCOL_TEXT);
 
 		// column 2
 		buf.clear();

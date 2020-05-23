@@ -77,16 +77,16 @@ settings_t::settings_t() :
 	signals_on_left = false;
 
 	// forest setting ...
-	forest_base_size = 36; 	// Base forest size - minimal size of forest - map independent
-	forest_map_size_divisor = 38;	// Map size divisor - smaller it is the larger are individual forests
-	forest_count_divisor = 16;	// Forest count divisor - smaller it is, the more forest are generated
-	forest_inverse_spare_tree_density = 5;	// Determines how often are spare trees going to be planted (works inversely)
-	max_no_of_trees_on_square = 3;	// Number of trees on square 2 - minimal usable, 3 good, 5 very nice looking
-	tree_climates = 0;	// bit set, if this climate is to be covered with trees entirely
-	no_tree_climates = 0;	// bit set, if this climate is to be void of random trees
-	no_trees = false;	// if set, no trees at all, may be useful for low end engines
+	forest_base_size = 36;                 // Base forest size - minimal size of forest - map independent
+	forest_map_size_divisor = 38;          // Map size divisor - smaller it is the larger are individual forests
+	forest_count_divisor = 16;             // Forest count divisor - smaller it is, the more forest are generated
+	forest_inverse_spare_tree_density = 5; // Determines how often are spare trees going to be planted (works inversely)
+	max_no_of_trees_on_square = 3;         // Number of trees on square 2 - minimal usable, 3 good, 5 very nice looking
+	tree_climates = 0;                     // bit set, if this climate is to be covered with trees entirely
+	no_tree_climates = 0;                  // bit set, if this climate is to be void of random trees
+	no_trees = false;                      // if set, no trees at all, may be useful for low end engines
 
-	lake = true;	// if set lakes will be added to map
+	lake = true; // if set lakes will be added to map
 
 	// some settings more
 	allow_player_change = true;

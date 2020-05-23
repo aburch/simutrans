@@ -17,10 +17,10 @@
 
 #include <signal.h>
 
-#include "macros.h"
-#include "simdebug.h"
-#include "simevent.h"
 #include "simsys.h"
+#include "../macros.h"
+#include "../simdebug.h"
+#include "../simevent.h"
 
 
 static bool sigterm_received = false;
@@ -192,10 +192,10 @@ static void posix_sigterm(int)
 
 
 int main(int argc, char **argv)
- {
+{
 	signal( SIGTERM, posix_sigterm );
 #ifndef _MSC_VER
- 	gettimeofday(&first,NULL);
+	gettimeofday(&first,NULL);
 #endif
- 	return sysmain(argc, argv);
- }
+	return sysmain(argc, argv);
+}

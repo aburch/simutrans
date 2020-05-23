@@ -673,6 +673,30 @@ void stadt_t::pruefe_grenzen(koord k)
 }
 
 
+
+// returns true, if there is a halt serving at least one building of the town.
+bool stadt_t::is_within_players_network(const player_t* player) const
+{
+	vector_tpl<halthandle_t> halts;
+	// Find all stations whose coverage affects this city
+	for(  weighted_vector_tpl<gebaeude_t *>::const_iterator i = buildings.begin();  i != buildings.end();  ++i  ) {
+		gebaeude_t* gb = *i;
+		if(  const planquadrat_t *plan = welt->access( gb->get_pos().get_2d() )  ) {
+			if(  plan->get_haltlist_count() > 0   ) {
+				const halthandle_t *const halt_list = plan->get_haltlist();
+				for(  int h = 0;  h < plan->get_haltlist_count();  h++  ) {
+					if(  halt_list[h].is_bound()  &&  (halt_list[h]->get_pax_enabled()  || halt_list[h]->get_mail_enabled() )  &&  halt_list[h]->has_available_network(player)  ) {
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
+
+
 // recalculate the spreading of a city
 // will be updated also after house deletion
 void stadt_t::recalc_city_size()
@@ -3258,8 +3282,8 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 		}
 	}
 	// check for industry, also if we wanted com, but there was no com good enough ...
-	if(    (sum_industrial > sum_commercial  &&  sum_industrial > sum_residential)
-      || (sum_commercial > sum_residential  &&  want_to_have == building_desc_t::unknown)  ) {
+	if(    (sum_industrial > sum_commercial  &&  sum_industrial > sum_residential) ||
+	       (sum_commercial > sum_residential  &&  want_to_have == building_desc_t::unknown)  ) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == building_desc_t::city_ind ? level + 1 : level);
 		h = hausbauer_t::get_industrial(try_level , current_month, cl, neighbor_building_clusters, minsize, maxsize );

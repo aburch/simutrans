@@ -95,8 +95,7 @@ public:
 
 	array2d_tpl<T> & operator = (const array2d_tpl <T> &other)
 	{
-		if(  this != &other  ) // protect against invalid self-assignment
-        {
+		if(  this != &other  ) {// protect against invalid self-assignment
 			if(  h != other.h  &&  w != other.w  ) {
 				if(  h*w!=0  ) {
 					dbg->error("array2d_tpl<T>::=()","source has different size!");

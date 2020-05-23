@@ -8,7 +8,7 @@
 #include "../simmem.h"
 #include "simwin.h"
 #include "../simmenu.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simworld.h"
 #include "../simticker.h" // TICKER_HEIGHT
 

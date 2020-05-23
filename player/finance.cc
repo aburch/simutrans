@@ -217,9 +217,9 @@ void finance_t::rdwr(loadsave_t *file)
 
 	/* following lines enables FORWARD compatibility
 	/ you will be still able to load future versions of games with:
-	* 	longer history
-	*	more transport_types
-	*	and new items in ATC_ or ATV_
+	*   longer history
+	*   more transport_types
+	*   and new items in ATC_ or ATV_
 	*/
 	sint8 max_years  = MAX_PLAYER_HISTORY_YEARS;
 	sint8 max_months = MAX_PLAYER_HISTORY_MONTHS;

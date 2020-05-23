@@ -21,12 +21,12 @@ enum sync_result {
 class sync_steppable
 {
 public:
-    /**
-     * Method for real-time features of an object.
-     */
-    virtual sync_result sync_step(uint32 delta_t) = 0;
+	/**
+	 * Method for real-time features of an object.
+	 */
+	virtual sync_result sync_step(uint32 delta_t) = 0;
 
-    virtual ~sync_steppable() {}
+	virtual ~sync_steppable() {}
 };
 
 #endif

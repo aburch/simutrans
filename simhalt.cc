@@ -279,6 +279,12 @@ void haltestelle_t::recalc_basis_pos()
 		if(  new_center != tiles.front().grund  &&  new_center->get_text()==NULL  ) {
 			// move the name to new center, if there is not yet a name on it
 			new_center->set_text( tiles.front().grund->get_text() );
+
+			// all_names contains pointers to ground-texts
+			// we need to adjust them
+			all_names.remove(tiles.front().grund->get_text());
+			all_names.set(new_center->get_text(), self);
+
 			tiles.front().grund->set_text(NULL);
 			tiles.remove( new_center );
 			tiles.insert( new_center );
@@ -576,7 +582,7 @@ void haltestelle_t::set_name(const char *new_name)
 		if(!gr->find<label_t>()) {
 			gr->set_text( new_name );
 			if(new_name  &&  all_names.set(gr->get_text(),self).is_bound() ) {
- 				DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",new_name);
+				DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",new_name);
 			}
 		}
 		halt_info_t *const info_frame = dynamic_cast<halt_info_t *>( win_get_magic( magic_halt_info + self.get_id() ) );
@@ -923,6 +929,42 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 		}
 	}
 }
+
+
+
+bool haltestelle_t::has_available_network(const player_t* player, uint8 catg_index) const
+{
+	if(!player_t::check_owner( player, owner )) {
+		return false; 
+	}
+	if(  catg_index != goods_manager_t::INDEX_NONE  &&  !is_enabled(catg_index)  ) {
+		return false;
+	}
+	// Check if there is a player's line
+	FOR(vector_tpl<linehandle_t>, const l, registered_lines) {
+		if(  l->get_owner() == player  &&  l->count_convoys()>0  ) {
+			if(  catg_index == goods_manager_t::INDEX_NONE  ) {
+				return true;
+			}
+			else if(  l->get_goods_catg_index().is_contained(catg_index)) {
+				return true;
+			}
+		}
+	}
+	// Check lineless convoys
+	FOR( vector_tpl<convoihandle_t>, cnv, registered_convoys ) {
+		if(  cnv->get_owner() == player  &&  cnv->get_state() != convoi_t::INITIAL  ) {
+			if(  catg_index == goods_manager_t::INDEX_NONE  ) {
+				return true;
+			}
+			else if(  cnv->get_goods_catg_index().is_contained(catg_index)  ) {
+				return true;
+			}
+		}
+	};
+	return false;
+}
+
 
 
 

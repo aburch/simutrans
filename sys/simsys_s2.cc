@@ -17,17 +17,19 @@ extern int __argc;
 extern char **__argv;
 #endif
 
-#include "macros.h"
 #include "simsys_w32_png.h"
-#include "simversion.h"
 #include "simsys.h"
-#include "simevent.h"
-#include "display/simgraph.h"
-#include "simdebug.h"
-#include "dataobj/environment.h"
-#include "gui/simwin.h"
-#include "gui/components/gui_component.h"
-#include "gui/components/gui_textinput.h"
+
+#include "../macros.h"
+#include "../simversion.h"
+#include "../simevent.h"
+#include "../display/simgraph.h"
+#include "../simdebug.h"
+#include "../dataobj/environment.h"
+#include "../gui/simwin.h"
+#include "../gui/components/gui_component.h"
+#include "../gui/components/gui_textinput.h"
+
 
 // Maybe Linux is not fine too, had critical bugs...
 #if !defined(__linux__)
@@ -250,7 +252,7 @@ bool internal_create_surfaces(const bool, int w, int h )
 	if(  screen == NULL  ) {
 		dbg->error( "internal_create_surfaces()", "Couldn't get the window surface: %s", SDL_GetError() );
 		return false;
- 	}
+	}
 
 	return true;
 }

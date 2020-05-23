@@ -124,14 +124,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="clipboard_w32.cc" />
-    <ClCompile Include="simsys_w.cc" />
-    <ClCompile Include="simsys_w32_png.cc" />
+    <ClCompile Include="display\simgraph16.cc" />
     <ClCompile Include="music\w32_midi.cc" />
     <ClCompile Include="sound\win32_sound.cc" />
+    <ClCompile Include="sys\clipboard_w32.cc" />
+    <ClCompile Include="sys\simsys_w.cc" />
+    <ClCompile Include="sys\simsys_w32_png.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="simsys_w32_png.h" />
+    <ClInclude Include="sys\simsys_w32_png.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

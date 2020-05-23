@@ -1570,7 +1570,7 @@ void convoi_t::step()
 
 void convoi_t::new_year()
 {
-    jahresgewinn = 0;
+	jahresgewinn = 0;
 }
 
 
@@ -4049,7 +4049,7 @@ PIXVAL convoi_t::get_status_color() const
 		return SYSCOL_TEXT_UNUSED;
 	}
 	else if(has_obsolete) {
-		return color_idx_to_rgb(COL_BLUE);
+		return SYSCOL_OBSOLETE;
 	}
 	// normal state
 	return SYSCOL_TEXT;

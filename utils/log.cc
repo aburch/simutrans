@@ -16,7 +16,7 @@
 
 #include "log.h"
 #include "../simdebug.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 
 
 #ifdef MAKEOBJ

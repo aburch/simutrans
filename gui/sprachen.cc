@@ -18,7 +18,7 @@
 
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../utils/simstring.h"
 
 

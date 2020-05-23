@@ -65,10 +65,10 @@ typedef pthread_barrier_t simthread_barrier_t;
 // add barrier support using other pthread primitives
 typedef int simthread_barrierattr_t;
 typedef struct {
-    pthread_mutex_t mutex;
-    pthread_cond_t cond;
-    int count;
-    int tripCount;
+	pthread_mutex_t mutex;
+	pthread_cond_t cond;
+	int count;
+	int tripCount;
 } simthread_barrier_t;
 
 // needed because our signature doesn't match the one from simthread_barrier_init(3)

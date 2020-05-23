@@ -7,7 +7,7 @@
 
 #include "../macros.h"
 #include "../simdebug.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simtypes.h"
 #include "../utils/simstring.h"
 
