@@ -64,7 +64,7 @@ private:
 	// this correction corresponds to the correction in convoi_t::get_tile_length()
 	uint32 adjust_convoy_length(uint32 total_len, uint8 last_veh_len);
 	// these two are needed for adding automatic margin
-	uint8 last_veh_length; 
+	uint8 last_veh_length;
 	uint8 switched_last_veh_length = -1;
 
 	// specify fill width and color of specified tile

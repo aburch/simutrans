@@ -5991,7 +5991,7 @@ sint64 karte_t::calc_ready_time(ware_t ware, koord origin_pos) const
 		const sint64 walking_time = get_seconds_to_ticks(seconds);
 		ready_time += walking_time;
 	}
-	
+
 	return ready_time;
 }
 
@@ -7076,7 +7076,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 		case no_route:
 		case destination_unavailable:
-		default: 
+		default:
 no_route:
 			if(city && wtyp == goods_manager_t::passengers)
 			{
