@@ -17,15 +17,15 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version24_4現在、simutrans standard nightly r9070をベースにしています。
+version25現在、simutrans standard nightly r9112をベースにしています。
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2020年5月6日PM8時　ver24_4に更新）**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/72897/sim-WinGDI-OTRPv24_4.exe/  
-mac: https://osdn.net/projects/otrp/downloads/72897/sim-mac-OTRPv24_4.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/72897/sim-linux-OTRPv24_4.zip/  
+本体は下のリンクからどうぞ。**（2020年5月23日PM8時　ver25に更新）**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/73052/sim-WinGDI-OTRPv25.exe/  
+mac: https://osdn.net/projects/otrp/downloads/73052/sim-mac-OTRPv25.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/73052/sim-linux-OTRPv25.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 OTRP専用のmakeobjはありません。simutrans standardのmakeobjをご利用ください。
@@ -102,7 +102,7 @@ OTRPでは高度なスケジュール設定により，より柔軟な運行が�
 スケジュール画面で「詳細設定を展開」の三角形アイコンをクリックすると，詳細設定が出現します．詳細設定を閉じるには，もう一度三角形アイコンをクリックします．  
 ![fig12](images/fig12.png)  
 
-### 臨時系統/乗車・降車不可
+### 臨時系統/乗車・降車不可 等
 - **臨時系統**：このスケジュールはRouteCostの計算に影響を与えなくなります．一時的な混雑解消用の直通路線の設定によって旅客の経由地を変更させたくない場合に便利です．
 - **乗車不可**：この停留所で乗車・積載が不可能になります．すなはち，降車専用になります．
 - **降車不可**：この停留所で降車・荷降ろしが不可能になります．すなはち，乗車専用になります．
@@ -110,6 +110,7 @@ OTRPでは高度なスケジュール設定により，より柔軟な運行が�
 乗車不可・降車不可を両方有効にすると，乗車・降車ともにできなくなりますので，運転停車となります．
 
 - **応荷重制御**：このスケジュールが登録された編成は，積載率に関わらず満載時の加速度で運転します．
+- **最高速度**：このスケジュールにおける最高速度を指定できます．0は指定なしです．
 
 ### 増解結
 本機能はInternational Forumで議論中の機能の先行実装です． [本家フォーラムのスレッドはこちら](https://forum.simutrans.com/index.php/topic,19064.0.html)
@@ -140,7 +141,7 @@ OTRPでは高度なスケジュール設定により，より柔軟な運行が�
 - longblocksignal（多閉塞信号）は検査した範囲をすべて予約するようになっています。すなはち、停車駅をこえて次の信号まで予約するようになっています。これは本家フォーラムで議論中の機能の先行実装です。
 - 起動時に`-snapshot x,y,z,f`オプションで起動すると、スナップショットを撮影して終了します。x,y,zは中心座標、fはズーム率（0から9まで）です。異なるセーブファイルである固定地点のスクリーンショットを撮りたいときなどに便利です。
 - 車庫画面で「置換編成に登録」を押すと，車庫に到着した編成の組成をその編成と同じにします．
-- 車両の状態表示として路線名を表示できます．表示設定ウィンドウから設定してください．（soukoukiさん）
+- 路線ごとに駅間所要時間を表示できます．路線一覧ウィンドウから利用できます．
 
 # 設定項目
 主にsimuconf.tabや「高度な設定」で編集する項目です。  
@@ -182,6 +183,7 @@ v24_4から皆さまの使用状況を収集させていただくこととしま
 - OS
 - 使用pak（名前だけ）
 - ネットワークモードか
+- 起動時間
 
 # ライセンス
 OTRPはSimutrans Standardからの派生物ですので、Standardのライセンスである[Artistic License](https://github.com/aburch/simutrans/blob/master/simutrans/license.txt) に従います。OTRPの再配布および改造したものの配布などについては以下の条件下で自由です。

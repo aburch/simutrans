@@ -77,6 +77,14 @@ Uncouple the back convoy now.
 即時に後ろの編成を解放します．
 Please decouple the other convoy to edit the schedule.
 スケジュールを編集するには連結解除してください．
+Copy Line
+路線複製
+Copy the selected line
+選択されている路線をコピーします
+Journey Time
+路線所要時間
+Journey time of %s
+%sの所要時間
 #------Schedule window related stuff------
 #------スケジュールウィンドウ関連のエントリ------
 Extract advanced settings
