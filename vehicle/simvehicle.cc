@@ -1831,13 +1831,13 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		if(  state==1  ) {
 			// only show when mouse over vehicle
 			if(  welt->get_zeiger()->get_pos()==get_pos()  ) {
-				state = 3;
+				state = 2;
 			}
 			else {
 				state = 0;
 			}
 		}
-		if( state != 3 ) {
+		if( state != 2 ) {
 			// nothing to show
 			return;
 		}
@@ -1848,14 +1848,14 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 			case convoi_t::WAITING_FOR_CLEARANCE:
 			case convoi_t::CAN_START:
 			case convoi_t::CAN_START_ONE_MONTH:
-				if(  state>=3  ) {
+				if(  state>=2  ) {
 					snprintf( tooltip_text, lengthof(tooltip_text), "%s (%s)", translator::translate("Waiting for clearance!"), cnv->get_schedule()->get_current_entry().pos.get_str() );
 					color = color_idx_to_rgb(COL_YELLOW);
 				}
 				break;
 
 			case convoi_t::LOADING:
-				if(  state>=1  ) {
+				if(  state>=2  ) {
 					if(  cnv->get_departure_time()>0  ) {
 						// the convoy is waiting for departure time.
 						// we use floating operation just for display purpose.
@@ -1876,14 +1876,14 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 
 			case convoi_t::EDIT_SCHEDULE:
 //			case convoi_t::ROUTING_1:
-				if(  state>=3  ) {
+				if(  state>=2  ) {
 					tstrncpy( tooltip_text, translator::translate("Schedule changing!"), lengthof(tooltip_text) );
 					color = color_idx_to_rgb(COL_YELLOW);
 				}
 				break;
 
 			case convoi_t::DRIVING:
-				if(  state>=3  ) {
+				if(  state>=2  ) {
 					grund_t const* const gr = welt->lookup(cnv->get_route()->back());
 					if(  gr  &&  gr->get_depot()  ) {
 						tstrncpy( tooltip_text, translator::translate("go home"), lengthof(tooltip_text) );
