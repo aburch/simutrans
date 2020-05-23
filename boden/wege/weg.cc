@@ -439,7 +439,6 @@ void weg_t::rdwr(loadsave_t *file)
 	}
 
 
-	// NOTE: Revision 23 refers to the travel-time-congestion patch - if other patches that increment this number are merged first, then this must be updated too.
 	if (file->is_loading() && ((file->get_extended_version() < 14) || (file->get_extended_version() == 14 && file->get_extended_revision() < 19)))
 	{
 		// Very early version - initialise the travel time statistics
@@ -452,8 +451,8 @@ void weg_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	// NOTE: Revision 23 refers to the travel-time-congestion patch - if other patches that increment this number are merged first, then this must be updated too.
-	else if(file->is_loading() && file->get_extended_version() == 14 && file->get_extended_revision() >= 19 && file->get_extended_revision() < 23)
+	// NOTE: Revision 24 refers to the travel-time-congestion patch - if other patches that increment this number are merged first, then this must be updated too.
+	else if(file->is_loading() && file->get_extended_version() == 14 && file->get_extended_revision() >= 19 && file->get_extended_revision() < 24)
 	{
 		// Older version - estimate travel time statistics from deprecated stopped vehicle statistics
 		// Use 10 seconds as the base time to cross the way — the actual value is not important at all but the ratio is.
@@ -473,8 +472,8 @@ void weg_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	// NOTE: Revision 23 refers to the travel-time-congestion patch - if other patches that increment this number are merged first, then this must be updated too.
-	else if ((file->get_extended_version() >= 15) || (file->get_extended_version() == 14 && file->get_extended_revision() >= 23))
+	// NOTE: Revision 24 refers to the travel-time-congestion patch - if other patches that increment this number are merged first, then this must be updated too.
+	else if ((file->get_extended_version() >= 15) || (file->get_extended_version() == 14 && file->get_extended_revision() >= 24))
 	{
 		for(uint32 type = 0; type < MAX_WAY_TRAVEL_TIMES; type++)
 		{
