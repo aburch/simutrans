@@ -3138,7 +3138,8 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 	buf.clear();
 	if (get_base_production()) {
 		buf.append(translator::translate("Productivity")); // Note: This term is used in width calculation in fabrik_info. And it is common with the chart button label.
-		buf.printf(": %u%% ", get_current_productivity());
+		// get_current_productivity() does not include factory connections and staffing
+		buf.printf(": %u%% ", status == inactive ? 0 : status >= staff_shortage ? get_current_productivity() * building->get_staffing_level_percentage() / 100 : get_current_productivity());
 		const uint32 max_productivity = (100 * (get_desc()->get_electric_boost() + get_desc()->get_pax_boost() + get_desc()->get_mail_boost())) >> DEFAULT_PRODUCTION_FACTOR_BITS;
 		buf.printf(translator::translate("(Max. %d%%)"), max_productivity+100);
 		buf.append("\n");
