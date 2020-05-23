@@ -2749,7 +2749,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			lb_livery_counter.set_text(txt_livery_count);
 
 			// which livery scheme this vehicle has? - this list is not displayed for convoy's vehicles being assembled
-			if (veh_type->get_available_livery_count(welt) > 1 && convoi.index_at(pos, x, y) == -1) {
+			if (veh_type->get_available_livery_count(welt) > 0 && convoi.index_at(pos, x, y) == -1) {
 				const char* current_livery_text = NULL;
 				if (livery_scheme_index) {
 					livery_scheme_t* selected_scheme = welt->get_settings().get_livery_schemes()->get_element(livery_scheme_index);
