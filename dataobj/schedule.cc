@@ -279,8 +279,6 @@ void schedule_t::rdwr(loadsave_t *file)
 				entries[i].spacing = 1;
 				entries[i].spacing_shift = entries[i].delay_tolerance = 0;
 			}
-			entries[i].departure_slots.clear();
-			entries[i].departure_slots.append(entries[i].spacing_shift);
 		}
 	}
 	if(file->is_loading()) {
