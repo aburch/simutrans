@@ -1465,6 +1465,9 @@ bool convoi_t::drive_to()
 {
 	koord3d start = front()->get_pos();
 	koord3d ziel = schedule->get_current_entry().pos;
+	const koord3d original_destination = ziel;
+	const uint8 original_current_stop = schedule->get_current_stop();
+	bool schedule_advanced = false;
 
 	const bool check_onwards = front()->get_waytype() == road_wt || front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
 
@@ -1475,8 +1478,7 @@ bool convoi_t::drive_to()
 
 	if(check_onwards && gr && !gr->get_depot())
 	{
-		// We need to calculate the full route through to the next signal or reversing point
-		// to avoid ignoring signals.
+		// Set reversing statuses
 		uint32 counter = schedule->get_count();
 		const uint32 count = counter;
 
@@ -1506,8 +1508,17 @@ bool convoi_t::drive_to()
 				break;
 			}
 			advance_schedule();
+			schedule_advanced = true;
 			schedule_entry = &schedule->entries[schedule->get_current_stop()];
+			// The below does not actually change the stored route: it only checks that the route is valid.
 			success = front()->reroute(route.get_count() - 1, schedule_entry->pos);
+		}
+
+		if (schedule_advanced)
+		{
+			// Reset these for now to allow waypoint check below to work.
+			ziel = original_destination;
+			schedule->set_current_stop(original_current_stop);
 		}
 
 		if (update_line)
@@ -1546,7 +1557,7 @@ bool convoi_t::drive_to()
 		// wait before next attempt for a normal no route.
 		// For a "too complex" no route, wait much, much longer, as this can cause serious lag
 		// when repeated many times. The expectation is that the player will manually find
-		// another route in this state,
+		// another route in this state.
 		if (success == route_t::route_too_complex)
 		{
 			// 2 minutes
@@ -1573,18 +1584,21 @@ bool convoi_t::drive_to()
 			ziel = schedule->get_current_entry().pos;
 
 			// set next schedule target position if next is a waypoint
-			if(  is_waypoint(ziel)  ) {
+			if(  is_waypoint(ziel)  ) 
+			{
 				schedule_target = ziel;
 			}
 
 			// continue route search until the destination is a station
-			while(  is_waypoint(ziel)  ) {
+			while(  is_waypoint(ziel)  )
+			{
 				allow_clear_reservation = false;
 				start = ziel;
 				schedule->advance();
 				ziel = schedule->get_current_entry().pos;
 
-				if(  schedule->get_current_stop() == current_stop  ) {
+				if(  schedule->get_current_stop() == current_stop  )
+				{
 					// looped around without finding a halt => entire schedule is waypoints.
 					break;
 				}
@@ -1631,7 +1645,7 @@ bool convoi_t::drive_to()
 					}
 
 					if(  looped  ) {
-						// proceed upto the waypoint before the loop. Will pause there for a new route search.
+						// proceed up to the waypoint before the loop. Will pause there for a new route search.
 						schedule_target = koord3d::invalid;
 						break;
 					}
