@@ -378,6 +378,7 @@ SOURCES += gui/halt_list_frame.cc
 SOURCES += gui/halt_list_stats.cc
 SOURCES += gui/headquarter_info.cc
 SOURCES += gui/help_frame.cc
+SOURCES += gui/journey_time_info.cc
 SOURCES += gui/jump_frame.cc
 SOURCES += gui/minimap.cc
 SOURCES += gui/kennfarbe.cc

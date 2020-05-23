@@ -30,6 +30,7 @@
 #include "gui/depot_frame.h"
 #include "gui/messagebox.h"
 #include "gui/convoi_detail_t.h"
+#include "gui/journey_time_info.h"
 #include "boden/grund.h"
 #include "boden/wege/schiene.h"	// for railblocks
 #include "boden/wege/strasse.h"
@@ -1825,7 +1826,17 @@ void convoi_t::ziel_erreicht()
 			set_next_coupling(INVALID_INDEX, 0);
 		}
 		
-		arrived_time = welt->get_ticks();
+		const uint32 current_tick = welt->get_ticks();
+		if(  line.is_bound()  ) {
+			// register journey time
+			line->get_schedule()->entries[schedule->get_current_stop()].push_journey_time(current_tick-arrived_time);
+			// update journey time window
+			gui_journey_time_info_t* window = dynamic_cast<gui_journey_time_info_t*>(win_get_magic((ptrdiff_t)line.get_rep()));
+			if(  window  ) {
+				window->update();
+			}
+		}
+		arrived_time = current_tick;
 		// no depot reached, no coupling, check for stop!
 		if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
 			// seems to be a stop, so book the money for the trip
