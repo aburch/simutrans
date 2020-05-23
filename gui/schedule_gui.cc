@@ -263,7 +263,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	lb_waitlevel(SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 	lb_wait("month wait time"),
 	lb_load("Full load"),
-	lb_max_speed("Max speed"),
+	lb_max_speed("Maxspeed"),
 	stats(new schedule_gui_stats_t() ),
 	scrolly(stats)
 {
