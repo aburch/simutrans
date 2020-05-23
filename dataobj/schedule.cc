@@ -274,7 +274,15 @@ void schedule_t::rdwr(loadsave_t *file)
 				file->rdwr_byte(flags);
 				entries[i].set_stop_flags(flags);
 			}
-			if(file->get_OTRP_version()>=23) {
+			if(file->get_OTRP_version()>=25) {
+				// prepare for configurable departure slots
+				file->rdwr_short(entries[i].spacing);
+				file->rdwr_short(entries[i].delay_tolerance);
+				uint16 dummy = 1;
+				file->rdwr_short(dummy); // num of departure slots
+				file->rdwr_short(entries[i].spacing_shift);
+			}
+			else if(file->get_OTRP_version()>=23) {
 				file->rdwr_short(entries[i].spacing);
 				file->rdwr_short(entries[i].spacing_shift);
 				file->rdwr_short(entries[i].delay_tolerance);
