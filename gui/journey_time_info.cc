@@ -43,27 +43,76 @@ public:
     } else {
       buf[4].printf("%d", tick_to_divided_time(sum_ticks/cnt));
     }
-    
-    add_table(5,1);
-    for(uint8 i=0; i<5; i++) {
-      /*gui_label_t* label = */new_component<gui_label_t>(buf[i]);
-    }
     end_table();
   }
 };
 
 gui_journey_time_stat_t::gui_journey_time_stat_t(schedule_t* schedule, player_t* pl) {
   player = pl;
-  set_table_layout(1,0);
   update(schedule);
 }
 
 void gui_journey_time_stat_t::update(schedule_t* schedule) {
+  scr_size size = get_size();
   remove_all();
+  set_table_layout(5,0);
+  uint32 journey_time_sum = 0;
   FOR(minivec_tpl<schedule_entry_t>, const& e, schedule->entries) {
-    new_component<gui_journey_time_entry_t>(e, player);
+    //new_component<gui_journey_time_entry_t>(e, player);
+    gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::left);
+    halthandle_t const halt = haltestelle_t::get_halt(e.pos, player);
+    if(  halt.is_bound()  ) {
+      // show halt name
+      lb->buf().printf("%s", halt->get_name());
+    } else {
+      // maybe a waypoint
+      lb->buf().printf("waypoint");
+    }
+    lb->update();
+    
+    // show last 3 actual journey time
+    // calc average
+    uint32 sum_ticks = 0;
+    uint8 cnt = 0;
+    for(uint8 i=0; i<3; i++) {
+      lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
+      uint32 t = e.journey_time[(i+e.jtime_index)%3];
+      if(  t==0  ) {
+        lb->buf().printf("-");
+      } else {
+        lb->buf().printf("%d", tick_to_divided_time(t));
+        cnt += 1;
+        sum_ticks += t;
+      }
+      lb->update();
+    }
+    
+    lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
+    if(  cnt==0  ) {
+      lb->buf().printf("-");
+    } else {
+      lb->buf().printf("%d", tick_to_divided_time(sum_ticks/cnt));
+      journey_time_sum += (sum_ticks/cnt);
+    }
+    lb->update();
   }
-  set_size(get_min_size());
+  
+  // show total journey time
+  gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::left);
+  lb->buf().printf("Total");
+  lb->update();
+  
+  for(uint8 i=0; i<3; i++) {
+    lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
+    lb->buf().printf("");
+    lb->update();
+  }
+  lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
+  lb->buf().printf("%d", tick_to_divided_time(journey_time_sum)); 
+  lb->update();
+  
+  scr_size min_size = get_min_size();
+	set_size(scr_size(max(size.w, min_size.w), min_size.h) );
 }
 
 
@@ -74,14 +123,20 @@ gui_journey_time_info_t::gui_journey_time_info_t(schedule_t* schedule, player_t*
   schedule(schedule)
 {
   set_table_layout(1,0);
-  add_table(5,0)->set_force_equal_columns(true);
+  gui_aligned_container_t* container = add_table(5,1);
   new_component<gui_label_t>("Stop");
-  new_component<gui_label_t>("Time 1");
-  new_component<gui_label_t>("Time 2");
-  new_component<gui_label_t>("Time 3");
-  new_component<gui_label_t>("Average");
+  const char* texts[4] = {"1st", "2nd", "3rd", "Ave."};
+  gui_label_buf_t* lb;
+  for(uint8 i=0; i<4; i++) {
+    lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
+    lb->buf().printf("%s", texts[i]);
+    lb->update();
+  }
   end_table();
+  scr_size min_size = get_min_size();
+	container->set_size(scr_size(max(get_size().w, min_size.w), min_size.h) );
   
+  scrolly.set_maximize(true);
   add_component(&scrolly);
   
   set_resizemode(diagonal_resize);
