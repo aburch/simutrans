@@ -1509,7 +1509,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 
 	intr_disable();
 	
-	log_sender.send_quit_log();
+	log_sender.save_statistics();
 
 	// save setting ...
 	dr_chdir( env_t::user_dir );

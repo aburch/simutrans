@@ -458,6 +458,9 @@ public:
 	/// as if ctrl-key permanently pressed
 	/// cannot be used in network mode
 	static bool straight_way_without_control;
+	
+	/// statistical log string of otrp
+	static char otrp_statistics_log[PATH_MAX];
 
 	/// initialize with default values
 	static void init();
