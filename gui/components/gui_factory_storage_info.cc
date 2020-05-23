@@ -63,8 +63,8 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 				const uint32 storage_capacity = max_intransit_percentage ? (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max_transit * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS))
 					: (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
 				const COLOR_VAL goods_color = goods.get_typ()->get_color();
-				const COLOR_VAL frame_color1 = !stock_quantity ? COL_YELLOW : stock_quantity >= storage_capacity ? COL_ORANGE_RED : MN_GREY0;
-				const COLOR_VAL frame_color2 = !stock_quantity ? COL_YELLOW : stock_quantity >= storage_capacity ? COL_ORANGE_RED : MN_GREY4;
+				const COLOR_VAL frame_color1 = (!stock_quantity && !goods.get_in_transit()) ? COL_YELLOW : stock_quantity >= storage_capacity ? COL_ORANGE_RED : MN_GREY0;
+				const COLOR_VAL frame_color2 = (!stock_quantity && !goods.get_in_transit()) ? COL_YELLOW : stock_quantity >= storage_capacity ? COL_ORANGE_RED : MN_GREY4;
 
 				left = 2;
 				yoff += 2; // box position adjistment
