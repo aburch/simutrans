@@ -6094,3 +6094,4 @@ void stadt_t::remove_city_factory(fabrik_t *fab)
 {
 	city_factories.remove(fab);
 }
+ 
