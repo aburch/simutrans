@@ -1866,8 +1866,15 @@ void reliefkarte_t::draw(scr_coord pos)
 	if(  mode & MAP_FACTORIES  ) {
 		FOR(  vector_tpl<fabrik_t*>,  const f,  welt->get_fab_list()  ) {
 			// filter check
-			if (freight_type_group_index_showed_on_map == goods_manager_t::mail || freight_type_group_index_showed_on_map == goods_manager_t::passengers) {
-				continue;
+			if (freight_type_group_index_showed_on_map == goods_manager_t::passengers) {
+				if (!f->get_building()->get_adjusted_visitor_demand() && !f->get_building()->get_adjusted_jobs()) {
+					continue;
+				}
+			}
+			else if (freight_type_group_index_showed_on_map == goods_manager_t::mail) {
+				if(!f->get_building()->get_adjusted_mail_demand()) {
+					continue;
+				}
 			}
 			else if (
 				((freight_type_group_index_showed_on_map != NULL && freight_type_group_index_showed_on_map != goods_manager_t::none)
