@@ -21,6 +21,9 @@
 	ADD: new button in minimap to hide contour for higher contrast of other stuff
 	CHG: Also show convoi name and line name as overlay
 	ADD: (inspired by Ranran) Option in city and factory lists to show only towns/factories already served by a player
+	ADD: network filter also on curiosities
+	ADD: two more theme colors: gui_color_obsolete, gui_color_empty for lines and server
+	ADD: (Yona-TNT) configurable offsets for player colors for gui elements
 
 
 Release of 121.0 (r8870 on 1-Dec-2019):

@@ -146,6 +146,9 @@ uint32 env_t::tooltip_delay;
 uint32 env_t::tooltip_duration;
 sint8 env_t::show_money_message;
 
+uint8 env_t::gui_player_color_dark = 1;
+uint8 env_t::gui_player_color_bright = 4;
+
 std::string env_t::fontname = FONT_PATH_X "prop.fnt";
 uint8 env_t::fontsize = 11;
 
@@ -508,6 +511,8 @@ void env_t::rdwr(loadsave_t *file)
 
 	if (file->is_version_atleast(121, 1)) {
 		file->rdwr_long(sound_distance_scaling);
+		file->rdwr_byte( gui_player_color_dark );
+		file->rdwr_byte( gui_player_color_bright );
 	}
 
 	// server settings are not saved, since they are server specific

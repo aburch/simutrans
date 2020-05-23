@@ -933,6 +933,42 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 
 
 
+bool haltestelle_t::has_available_network(const player_t* player, uint8 catg_index) const
+{
+	if(!player_t::check_owner( player, owner )) {
+		return false; 
+	}
+	if(  catg_index != goods_manager_t::INDEX_NONE  &&  !is_enabled(catg_index)  ) {
+		return false;
+	}
+	// Check if there is a player's line
+	FOR(vector_tpl<linehandle_t>, const l, registered_lines) {
+		if(  l->get_owner() == player  &&  l->count_convoys()>0  ) {
+			if(  catg_index == goods_manager_t::INDEX_NONE  ) {
+				return true;
+			}
+			else if(  l->get_goods_catg_index().is_contained(catg_index)) {
+				return true;
+			}
+		}
+	}
+	// Check lineless convoys
+	FOR( vector_tpl<convoihandle_t>, cnv, registered_convoys ) {
+		if(  cnv->get_owner() == player  &&  cnv->get_state() != convoi_t::INITIAL  ) {
+			if(  catg_index == goods_manager_t::INDEX_NONE  ) {
+				return true;
+			}
+			else if(  cnv->get_goods_catg_index().is_contained(catg_index)  ) {
+				return true;
+			}
+		}
+	};
+	return false;
+}
+
+
+
+
 bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
 {
 	switch(what) {

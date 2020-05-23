@@ -12,7 +12,7 @@
 
 // scripting
 #include "../script/script.h"
-#include "../script/export_objs.h"
+#include "../script/script_loader.h"
 #include "../script/api/api.h"
 
 // TODO ai debug window
@@ -71,31 +71,14 @@ const char* ai_scripted_t::init( const char *ai_base, const char *ai_name_)
 	return NULL;
 }
 
-bool load_base_script(script_vm_t *script, const char* base); // scenario.cc
 
 bool ai_scripted_t::load_script(const char* filename)
 {
 	cbuffer_t buf;
 	buf.printf("script-ai-%d.log", player_nr);
-
-	script = new script_vm_t(ai_path.c_str(), buf);
-	// load global stuff
-	// constants must be known compile time
-	export_global_constants(script->get_vm());
-
-	// load scripting base definitions
-	if (!load_base_script(script, "script_base.nut")) {
-		return false;
-	}
-	// load ai base definitions
-	if (!load_base_script(script, "ai_base.nut")) {
-		return false;
-	}
-
-	// register api functions
-	register_export_function(script->get_vm(), false);
-	if (script->get_error()) {
-		dbg->error("ai_scripted_t::load_script", "error [%s] calling register_export_function", script->get_error());
+	// start vm
+	script = script_loader_t::start_vm("ai_base.nut", buf, ai_path.c_str(), false);
+	if (script == NULL) {
 		return false;
 	}
 	// set my player number

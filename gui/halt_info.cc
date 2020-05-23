@@ -565,7 +565,7 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 			new_component<gui_line_button_t>(line);
 
 			// Line labels with color of player
-			gui_label_buf_t *lb = new_component<gui_label_buf_t>(PLAYER_FLAG | color_idx_to_rgb(line->get_owner()->get_player_color1()) );
+			gui_label_buf_t *lb = new_component<gui_label_buf_t>(PLAYER_FLAG | color_idx_to_rgb(line->get_owner()->get_player_color1()+env_t::gui_player_color_dark) );
 			lb->buf().append( line->get_name() );
 			lb->update();
 		}
@@ -585,7 +585,7 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 			new_component<gui_convoi_button_t>(cnv);
 
 			// Line labels with color of player
-			gui_label_buf_t *lb = new_component<gui_label_buf_t>(PLAYER_FLAG | color_idx_to_rgb(cnv->get_owner()->get_player_color1()) );
+			gui_label_buf_t *lb = new_component<gui_label_buf_t>(PLAYER_FLAG | color_idx_to_rgb(cnv->get_owner()->get_player_color1()+env_t::gui_player_color_dark) );
 			lb->buf().append( cnv->get_name() );
 			lb->update();
 		}
