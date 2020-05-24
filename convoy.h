@@ -346,7 +346,7 @@ public:
 	double calc_acceleration_time(const weight_summary_t &weight, sint32 speed);
 	uint32 calc_acceleration_distance(const weight_summary_t &weight, sint32 speed);
 
-	/** 
+	/**
 	 * Calculate the movement within delta_t
 	 *
 	 * @param simtime_factor the factor for translating simutrans time. Currently (Oct, 23th 2011) this is the length of a tile in meters divided by the standard tile length (1000 meters).
