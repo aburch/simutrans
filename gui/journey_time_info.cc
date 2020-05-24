@@ -53,14 +53,14 @@ public:
 
 gui_journey_time_stat_t::gui_journey_time_stat_t(schedule_t* schedule, player_t* pl) {
   player = pl;
-  update(schedule);
 }
 
-void gui_journey_time_stat_t::update(schedule_t* schedule) {
+void gui_journey_time_stat_t::update(schedule_t* schedule, uint32 time_average[256]) {
   scr_size size = get_size();
   remove_all();
   set_table_layout(5,0);
   uint32 journey_time_sum = 0;
+  uint8 cnt = 0;
   FOR(minivec_tpl<schedule_entry_t>, const& e, schedule->entries) {
     //new_component<gui_journey_time_entry_t>(e, player);
     gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::left);
@@ -74,10 +74,6 @@ void gui_journey_time_stat_t::update(schedule_t* schedule) {
     }
     lb->update();
     
-    // show last 3 actual journey time
-    // calc average
-    uint32 sum_ticks = 0;
-    uint8 cnt = 0;
     for(uint8 i=0; i<3; i++) {
       lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
       uint32 t = e.journey_time[(i+e.jtime_index)%3];
@@ -85,20 +81,19 @@ void gui_journey_time_stat_t::update(schedule_t* schedule) {
         lb->buf().printf("-");
       } else {
         lb->buf().printf("%d", tick_to_divided_time(t));
-        cnt += 1;
-        sum_ticks += t;
       }
       lb->update();
     }
     
     lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
-    if(  cnt==0  ) {
+    if(  time_average[cnt]==0  ) {
       lb->buf().printf("-");
     } else {
-      lb->buf().printf("%d", tick_to_divided_time(sum_ticks/cnt));
-      journey_time_sum += (sum_ticks/cnt);
+      lb->buf().printf("%d", tick_to_divided_time(time_average[cnt]));
+      journey_time_sum += (time_average[cnt]);
     }
     lb->update();
+    cnt += 1;
   }
   
   // show total journey time
@@ -142,6 +137,128 @@ void copy_stations_to_clipboard(schedule_t* schedule, player_t* player, bool nam
   }
 }
 
+const char* oudia_syubetsu_text = "Ressyasyubetsu.\n\
+Syubetsumei=普通\n\
+JikokuhyouMojiColor=00000000\n\
+JikokuhyouFontIndex=0\n\
+DiagramSenColor=00000000\n\
+DiagramSenStyle=SenStyle_Jissen\n\
+StopMarkDrawType=EStopMarkDrawType_DrawOnStop\n\
+.\n\
+Dia.\n\
+DiaName=ノーマル\n\
+Kudari.\n\
+Ressya.\n\
+Houkou=Kudari\n\
+Syubetsu=0\n\
+EkiJikoku=";
+
+const char* oudia_footer = ".\n\
+.\n\
+Nobori.\n\
+.\n\
+.\n\
+KitenJikoku=000\n\
+DiagramDgrYZahyouKyoriDefault=60\n\
+Comment=\n\
+.\n\
+DispProp.\n\
+JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
+JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック;Bold=1\n\
+JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック;Itaric=1\n\
+JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック;Bold=1;Itaric=1\n\
+JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
+JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
+JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
+JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
+JikokuhyouVFont=PointTextHeight=9;Facename=@ＭＳ ゴシック\n\
+DiaEkimeiFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
+DiaJikokuFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
+DiaRessyaFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
+CommentFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
+DiaMojiColor=00000000\n\
+DiaHaikeiColor=00FFFFFF\n\
+DiaRessyaColor=00000000\n\
+DiaJikuColor=00C0C0C0\n\
+EkimeiLength=6\n\
+JikokuhyouRessyaWidth=5\n\
+.\n\
+FileTypeAppComment=OuDia Ver. 1.02.05";
+
+void oudia_print_eki(cbuffer_t& clipboard, const char* name, sint8 pos) {
+  clipboard.append("Eki.\nEkimei=");
+  clipboard.append(name);
+  clipboard.append("\nEkijikokukeisiki=");
+  if(  pos==1  ) {
+    // top
+    clipboard.append("Jikokukeisiki_NoboriChaku");
+  } else if(  pos==-1  ) {
+    // tail
+    clipboard.append("Jikokukeisiki_KudariChaku");
+  } else {
+    clipboard.append("Jikokukeisiki_Hatsu");
+  }
+  clipboard.append("\nEkikibo=Ekikibo_Ippan\n.\n");
+}
+
+void copy_oudia_format(schedule_t* schedule, player_t* player, uint32 time_average[]) {
+  // first, find start and end index except waypoint.
+  uint8 start = 0;
+  uint8 end = schedule->entries.get_count()-1;
+  for(uint8 i=0; i<schedule->entries.get_count(); i++) {
+    halthandle_t const halt = haltestelle_t::get_halt(schedule->entries[i].pos, player);
+    if(  halt.is_bound()  ) {
+      start = i;
+      break;
+    }
+  }
+  for(sint16 i=schedule->entries.get_count()-1; 0<=i; i--) {
+    halthandle_t const halt = haltestelle_t::get_halt(schedule->entries[i].pos, player);
+    if(  halt.is_bound()  ) {
+      end = i;
+      break;
+    }
+  }
+  
+  cbuffer_t clipboard;
+  clipboard.append("FileType=OuDia.1.02\nRosen.\nRosenmei=\n"); // Rosen header
+  // Eki section
+  for(uint8 i=start; i<=end; i++) {
+    halthandle_t const halt = haltestelle_t::get_halt(schedule->entries[i].pos, player);
+    if(  !halt.is_bound()  ) {
+      // do not export waypoint
+      continue;
+    }
+    oudia_print_eki(clipboard, halt->get_name(), i==0);
+  }
+  // append first stop again.
+  halthandle_t const start_halt = haltestelle_t::get_halt(schedule->entries[start].pos, player);
+  oudia_print_eki(clipboard, start_halt->get_name(), -1);
+  
+  // Ressyasyubetsu and Dia section
+  clipboard.append(oudia_syubetsu_text);
+  const uint16 div = tick_to_divided_time(time_average[schedule->entries.get_count()])/1440 + 1;
+  uint16 time_sum = 0;
+  for(uint8 i=start; i<=end; i++) {
+    halthandle_t const halt = haltestelle_t::get_halt(schedule->entries[i].pos, player);
+    if(  !halt.is_bound()  ) {
+      // do not export waypoint
+      continue;
+    }
+    clipboard.append("1;");
+    clipboard.printf("%d%02d", time_sum/60, time_sum%60);
+    clipboard.append(",");
+    time_sum += tick_to_divided_time(time_average[i]/div);
+  }
+  clipboard.append("1;");
+  clipboard.printf("%d%2d", time_sum/60, time_sum%60);
+  clipboard.append("/\n");
+  clipboard.append(oudia_footer);
+  
+  dr_copy( clipboard, clipboard.len() );
+  create_win( new news_img("Station infos were copied to clipboard.\n"), w_time_delete, magic_none );
+}
+
 
 gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* player) : 
   gui_frame_t( NULL, player ),
@@ -150,6 +267,11 @@ gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* pl
   player(player),
   schedule(line->get_schedule())
 {
+  for(uint16 i=0; i<256; i++) {
+    time_average[i] = 0;
+  }
+  update();
+  
   title_buf = new cbuffer_t();
   title_buf->printf(translator::translate("Journey time of %s"), line->get_name());
   set_name(*title_buf);
@@ -203,9 +325,40 @@ bool gui_journey_time_info_t::action_triggered(gui_action_creator_t* comp, value
   else if(  comp==&bt_copy_stations  ) {
     copy_stations_to_clipboard(schedule, player, false);
   }
+  else if(  comp==&bt_copy_oudia  ) {
+    copy_oudia_format(schedule, player, time_average);
+  }
   return true;
 }
 
 gui_journey_time_info_t::~gui_journey_time_info_t() {
   delete title_buf;
+}
+
+
+void gui_journey_time_info_t::update() {
+  // calculate average jounrey time
+  uint32 journey_time_sum = 0;
+  for(uint8 i=0; i<schedule->entries.get_count(); i++) {
+    halthandle_t const halt = haltestelle_t::get_halt(schedule->entries[i].pos, player);
+    if(  !halt.is_bound()  ) {
+      continue;
+    }
+    uint32 sum = 0;
+    uint32 cnt = 0;
+    for(uint8 k=0; k<3; k++) {
+      if(schedule->entries[i].journey_time[k]>0) {
+        sum += schedule->entries[i].journey_time[k];
+        cnt += 1;
+      }
+    }
+    if(  cnt>0  ) {
+      time_average[i] = sum/cnt;
+      journey_time_sum += time_average[i];
+    }
+  }
+  time_average[schedule->entries.get_count()] = journey_time_sum;
+  
+  // update stat
+  stat.update(schedule, time_average);
 }

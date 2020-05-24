@@ -24,7 +24,7 @@ class gui_journey_time_stat_t : public gui_aligned_container_t {
 public:
   gui_journey_time_stat_t(schedule_t*, player_t*);
   
-  void update(schedule_t*);
+  void update(schedule_t*, uint32[]);
 };
 
 
@@ -38,6 +38,7 @@ private:
   player_t* player;
   schedule_t* schedule;
   cbuffer_t* title_buf;
+  uint32 time_average[257];
   
 public:
 	gui_journey_time_info_t(linehandle_t, player_t*);
@@ -45,7 +46,7 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	void update() { stat.update(schedule); }
+	void update();
 
 	//void rdwr( loadsave_t *file );
 };
