@@ -59,12 +59,6 @@ private:
 		label_container,
 		value_container;
 
-	// Non translated text buffers for label values
-	char frame_time_buf[BUF_MAXLEN_MS_FORMAT];
-	char idle_time_buf[BUF_MAXLEN_MS_FORMAT];
-	char fps_buf[BUF_MAXLEN_MS_FORMAT];
-	char simloops_buf[BUF_MAXLEN_MS_FORMAT];
-
 public:
 	color_gui_t();
 

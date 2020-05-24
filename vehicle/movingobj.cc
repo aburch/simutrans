@@ -263,7 +263,7 @@ void movingobj_t::show_info()
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void movingobj_t::info(cbuffer_t & buf, bool dummy) const
+void movingobj_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
 

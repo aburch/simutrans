@@ -325,8 +325,6 @@ void translator::init_custom_names(int lang)
 				const uint32 suffix_probability = 5;
 
 				const uint32 max_prefixes_per_name = 5;
-				const uint32 max_suffixes_per_name = 5;
-
 				const bool allow_prefixes_and_suffixes_together = false;
 
 				uint32 prefixes_this_name = 0;

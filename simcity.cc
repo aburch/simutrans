@@ -2026,7 +2026,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	{
 		for(uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++)
 		{
-			for(uint hist_type = 0; hist_type < adapted_max_city_history; hist_type++)
+			for(uint32 hist_type = 0; hist_type < adapted_max_city_history; hist_type++)
 			{
 				if(hist_type == HIST_PAS_WALKED && (file->get_extended_version() < 10 || file->get_version() < 111001))
 				{
@@ -3006,7 +3006,7 @@ void stadt_t::calc_growth()
 		// It is possible that only one threshold percentage is set. In this case, assume the other.
 		uint8 capital_threshold_percentage = s.get_capital_threshold_percentage() ? s.get_capital_threshold_percentage() : s.get_city_threshold_percentage() / 4;
 		capital_threshold_percentage = capital_threshold_percentage ? capital_threshold_percentage : 1;
-		uint8 city_threshold_percentage = s.get_city_threshold_percentage() ? s.get_city_threshold_percentage() : capital_threshold_percentage * 4;
+		const uint8 city_threshold_percentage = s.get_city_threshold_percentage() ? s.get_city_threshold_percentage() : capital_threshold_percentage * 4;
 
 		// Now that we have the percentages, calculate how large that this city is compared to others in the game.
 		uint32 number_of_larger_cities = 0;
@@ -3031,11 +3031,11 @@ void stadt_t::calc_growth()
 		const uint32 rank = number_of_larger_cities + 1;
 		const uint32 percentage = (rank * 100) / total_cities;
 
-		if (rank == 1 || percentage <= s.get_capital_threshold_percentage())
+		if (rank == 1 || percentage <= capital_threshold_percentage)
 		{
 			weight_factor = s.get_growthfactor_large();
 		}
-		else if (percentage <= s.get_city_threshold_percentage())
+		else if (percentage <= city_threshold_percentage)
 		{
 			weight_factor = s.get_growthfactor_medium();
 		}
@@ -4615,13 +4615,11 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 
 bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 {
-	const building_desc_t::btype alt_typ = gb->get_tile()->get_desc()->get_type();
 	if (!gb->is_city_building()) {
 		return false; // only renovate res, com, ind
 	}
 
 	// Now we are sure that this is a city building
-	const int level = gb->get_tile()->get_desc()->get_level();
 	const koord k = gb->get_pos().get_2d();
 
 	//
@@ -5070,11 +5068,11 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction, bool map_generat
 	sint8 bridge_height;
 	// Prefer "non-AI bridge"
 	koord3d end = bridge_builder_t::find_end_pos(NULL, k3d, zv, bridge, err, bridge_height, false, 0, high_bridge);
-	if(err && *err || koord_distance(k, end.get_2d()) > 3  ) {
+	if((err && *err) || koord_distance(k, end.get_2d()) > 3  ) {
 		// allow "AI bridge"
 		end = bridge_builder_t::find_end_pos(NULL, k3d, zv, bridge, err, bridge_height, true, 0, high_bridge);
 	}
-	if(  err && *err || koord_distance(k, end.get_2d()) > 3  ) {
+	if(  (err && *err) || koord_distance(k, end.get_2d()) > 3  ) {
 		// no bridge short enough
 		return false;
 	}
@@ -5471,7 +5469,6 @@ void stadt_t::build(bool new_town, bool map_generation)
 	// renovation
 	koord c( (ur.x + lo.x)/2 , (ur.y + lo.y)/2);
 	uint32 maxdist(koord_distance(ur,c));
-	uint32 halfdist(maxdist / 2);
 	uint32 pop(get_city_population());
 
 	// Renovation range setting
@@ -5980,7 +5977,7 @@ bool private_car_destination_finder_t::is_target(const grund_t* gr, const grund_
 	return false;
 }
 
-int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_speed, koord from_pos)
+int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_speed, koord)
 {
 	const weg_t *w = gr->get_weg(road_wt);
 	if(!w)
@@ -6062,7 +6059,7 @@ void stadt_t::remove_connected_city(stadt_t* city)
 	{
 		connected_cities.remove(city->get_pos());
 	}
-} 
+}
 
 
 void stadt_t::remove_connected_industry(fabrik_t* fab)

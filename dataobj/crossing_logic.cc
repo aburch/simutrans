@@ -37,7 +37,7 @@ crossing_logic_t::crossing_logic_t( const crossing_desc_t *desc )
  * @return string; currently unused but useful for debugging
  * @author prissi
  */
-void crossing_logic_t::info(cbuffer_t & buf, bool dummy) const
+void crossing_logic_t::info(cbuffer_t & buf) const
 {
 	static char const* const state_str[4] = { "invalid", "open", "request closing", "closed" };
 	assert(state<4);

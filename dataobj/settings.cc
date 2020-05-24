@@ -472,7 +472,7 @@ settings_t::settings_t() :
 	random_mode_commuting = random_mode_visiting = 2;
 
 	max_route_tiles_to_process_in_a_step = 2048;
-	
+
 	for(uint8 i = 0; i < 17; i ++)
 	{
 		if(i != road_wt)
@@ -908,7 +908,7 @@ void settings_t::rdwr(loadsave_t *file)
 			// cost for transformers
 			file->rdwr_longlong(cst_transformer );
 			file->rdwr_longlong(cst_maintain_transformer );
-			if (file->get_version() > 120002 && (file->get_extended_revision() == 0 || file->get_extended_revision() >= 16) || file->get_extended_version() >= 13)
+			if ((file->get_version() > 120002 && (file->get_extended_revision() == 0 || file->get_extended_revision() >= 16)) || file->get_extended_version() >= 13)
 			{
 				file->rdwr_longlong(cst_make_public_months);
 			}
@@ -1668,7 +1668,7 @@ void settings_t::rdwr(loadsave_t *file)
 		// otherwise the default values of the last one will be used
 		}
 
-		if (file->get_version() > 120003 && (file->get_extended_version() == 0 || file->get_extended_revision() >= 19) || file->get_extended_version() >= 13)
+		if ((file->get_version() > 120003 && (file->get_extended_version() == 0 || file->get_extended_revision() >= 19)) || file->get_extended_version() >= 13)
 		{
 			file->rdwr_bool(disable_make_way_public);
 		}
@@ -2308,7 +2308,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::pak_height_conversion_factor = contents.get_int("height_conversion_factor", env_t::pak_height_conversion_factor );
 
 	// minimum clearance under under bridges: 1 or 2? (HACK: value only zero during loading of pak set config)
-	const uint32 bounds = way_height_clearance != 0 ? 1 : 0;
+	const int bounds = way_height_clearance != 0 ? 1 : 0;
 	way_height_clearance  = contents.get_int("way_height_clearance", way_height_clearance );
 	if(  way_height_clearance > 2  &&  way_height_clearance < bounds  ) {
 		sint8 new_whc = clamp( way_height_clearance, bounds, 2 );
@@ -2879,11 +2879,8 @@ static const way_desc_t *get_timeline_road_type( uint16 year, uint16 num_roads, 
 	const way_desc_t *test;
 	for(  int i=0;  i<num_roads;  i++  ) {
 		test = way_builder_t::get_desc( roads[i].name, 0 );
-		if(  test  ) {
-			// return first available for no timeline
-			if(  year==0  ) {
-				return test;
-			}
+		if(  test  ) 
+		{
 			if(  roads[i].intro==0  ) {
 				// fill in real intro date
 				roads[i].intro = test->get_intro_year_month( );
@@ -2895,9 +2892,11 @@ static const way_desc_t *get_timeline_road_type( uint16 year, uint16 num_roads, 
 					roads[i].retire = NEVER;
 				}
 			}
-			// find newest available ...
-			if(  year>=roads[i].intro  &&  year<roads[i].retire  ) {
-				if(  desc==0  ||  desc->get_intro_year_month()<test->get_intro_year_month()  ) {
+			// find newest available 
+			if(year == 0 || (year>=roads[i].intro && year<roads[i].retire))
+			{
+				if(desc==0 || desc->get_intro_year_month()<test->get_intro_year_month())
+				{
 					desc = test;
 				}
 			}

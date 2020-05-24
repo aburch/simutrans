@@ -38,6 +38,7 @@ uint32 goods_frame_t::vehicle_speed = 50;
  * @author prissi
  */
 goods_frame_t::sort_mode_t goods_frame_t::sortby = unsortiert;
+static uint8 default_sortmode = 0;
 
 /**
  * This variable defines the sort order (ascending or descending)
@@ -143,11 +144,11 @@ goods_frame_t::goods_frame_t() :
 
 	sortedby.set_pos(scr_coord(BUTTON1_X, y));
 	sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
-	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, LINESPACE * 8));
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, LINESPACE * 4));
 	for (int i = 0; i < SORT_MODES; i++) {
 		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
 	}
-	sortedby.set_selection(sortby);
+	sortedby.set_selection(default_sortmode);
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
@@ -258,6 +259,7 @@ void goods_frame_t::resize(const scr_coord delta)
 	gui_frame_t::resize(delta);
 	scr_size size = get_windowsize()-scrolly.get_pos()-scr_size(0,D_TITLEBAR_HEIGHT+2);
 	scrolly.set_size(size);
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, scrolly.get_size().h));
 }
 
 
@@ -269,7 +271,17 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {
 	if(comp == &sortedby) {
 		// sort by what
-		sortby = (sort_mode_t)((int)(sortby+1)%(int)SORT_MODES);
+		int tmp = sortedby.get_selection();
+		if (tmp >= 0 && tmp < sortedby.count_elements())
+		{
+			sortedby.set_selection(tmp);
+			sortby =(goods_frame_t::sort_mode_t)tmp;
+		}
+		else {
+			sortedby.set_selection(0);
+			sortby = goods_frame_t::unsortiert;
+		}
+		default_sortmode = (uint8)tmp;
 		sort_list();
 	}
 	else if(comp == &sorteddir) {

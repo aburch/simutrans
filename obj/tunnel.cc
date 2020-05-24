@@ -74,10 +74,9 @@ void tunnel_t::calc_image()
 	if(desc)
 	{
 		grund_t *from = welt->lookup(get_pos());
-		image_id old_image = image;
 		slope_t::type hang = gr->get_grund_hang();
-		ribi_t::ribi ribi = gr->get_weg_ribi(desc->get_waytype());
 		ribi_t::ribi ribi_unmasked = gr->get_weg_ribi_unmasked(desc->get_waytype());
+
 		if(gr->ist_karten_boden())
 		{
 			// Tunnel portal

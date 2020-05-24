@@ -59,8 +59,21 @@ public:
 	void draw(scr_coord offset);
 };
 
+// content of convoy formation
+class gui_convoy_formaion_t : public gui_container_t
+{
+private:
+	convoihandle_t cnv;
 
-// content of payload info tab @Ranran
+public:
+	gui_convoy_formaion_t(convoihandle_t cnv);
+
+	void set_cnv(convoihandle_t c) { cnv = c; }
+
+	void draw(scr_coord offset);
+};
+
+// content of payload info tab
 class gui_convoy_payload_info_t : public gui_container_t
 {
 private:
@@ -77,7 +90,7 @@ public:
 	void display_loading_bar(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, uint16 loading, uint16 capacity, uint16 overcrowd_capacity);
 };
 
-// content of maintenance info tab @Ranran
+// content of maintenance info tab
 class gui_convoy_maintenance_info_t : public gui_container_t
 {
 private:
@@ -104,6 +117,7 @@ public:
 	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
 
 private:
+	convoihandle_t cnv;
 
 	gui_scrollpane_t scrolly;
 	gui_scrollpane_t scrolly_formation;
@@ -116,13 +130,12 @@ private:
 	gui_tab_panel_t tabs;
 	gui_container_t cont_payload;
 
-	convoihandle_t cnv;
-	button_t	sale_button;
-	button_t	withdraw_button;
-	button_t	retire_button;
-	button_t	class_management_button;
+	button_t sale_button;
+	button_t withdraw_button;
+	button_t retire_button;
+	button_t class_management_button;
 
-	button_t	display_detail_button;
+	button_t display_detail_button;
 
 public:
 	convoi_detail_t(convoihandle_t cnv);

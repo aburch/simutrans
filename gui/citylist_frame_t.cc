@@ -28,6 +28,7 @@ bool citylist_frame_t::sortreverse = false;
  * @author Markus Weber
  */
 citylist::sort_mode_t citylist_frame_t::sortby = citylist::by_name;
+static uint8 default_sortmode = 0;
 
 // filter by within current player's network
 bool citylist_frame_t::filter_own_network = false;
@@ -128,12 +129,12 @@ citylist_frame_t::citylist_frame_t() :
 
 	sortedby.set_pos(scr_coord(BUTTON1_X,40 - D_BUTTON_HEIGHT));
 	sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
-	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, LINESPACE*8));
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, LINESPACE*4));
 
 	for (int i = 0; i < citylist::SORT_MODES; i++) {
 		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
 	}
-	sortedby.set_selection(get_sortierung());
+	sortedby.set_selection(default_sortmode);
 
 	sortedby.add_listener(this);
 	add_component(&sortedby);
@@ -210,20 +211,30 @@ citylist_frame_t::citylist_frame_t() :
 bool citylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if(comp == &sortedby) {
-		set_sortierung((citylist::sort_mode_t)((get_sortierung() + 1) % citylist::SORT_MODES));
-		stats.sort(get_sortierung(),get_reverse(), get_filter_own_network());
+		int tmp = sortedby.get_selection();
+		if (tmp >= 0 && tmp < sortedby.count_elements())
+		{
+			sortedby.set_selection(tmp);
+			set_sortierung((citylist::sort_mode_t)tmp);
+		}
+		else {
+			sortedby.set_selection(0);
+			set_sortierung(citylist::by_name);
+		}
+		default_sortmode = (uint8)tmp;
+		stats.sort(sortby,get_reverse(), get_filter_own_network());
 		stats.recalc_size();
 	}
 	else if(comp == &sorteddir) {
 		set_reverse(!get_reverse());
 		sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-		stats.sort(get_sortierung(),get_reverse(), get_filter_own_network());
+		stats.sort(sortby,get_reverse(), get_filter_own_network());
 		stats.recalc_size();
 	}
 	else if (comp == &filter_within_network) {
 		filter_own_network = !filter_own_network;
 		filter_within_network.pressed = filter_own_network;
-		stats.sort(get_sortierung(), get_reverse(), get_filter_own_network());
+		stats.sort(sortby, get_reverse(), get_filter_own_network());
 		stats.recalc_size();
 	}
 	else if(comp == &show_stats) {
@@ -266,6 +277,7 @@ void citylist_frame_t::resize(const scr_coord delta)
 	}
 	scrolly.set_pos( scr_coord(0, 42+(show_stats.pressed*CHART_HEIGHT) ) );
 	scrolly.set_size(size);
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, scrolly.get_size().h));
 	set_dirty();
 }
 
