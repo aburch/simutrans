@@ -671,6 +671,8 @@ private:
 		static bool less_than(const target_city_t &a, const target_city_t &b) { return a.distance < b.distance; }
 	};
 
+	/// Calculate this town's level of congestion this month and update the statistics accordingly.
+	void calc_congestion();
 
 public:
 
