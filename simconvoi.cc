@@ -1584,7 +1584,7 @@ bool convoi_t::drive_to()
 			ziel = schedule->get_current_entry().pos;
 
 			// set next schedule target position if next is a waypoint
-			if(  is_waypoint(ziel)  ) 
+			if(  is_waypoint(ziel)  )
 			{
 				schedule_target = ziel;
 			}

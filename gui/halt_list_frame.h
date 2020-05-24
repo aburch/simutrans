@@ -13,7 +13,6 @@
 #include "components/gui_scrollpane.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
-#include "components/gui_combobox.h"
 #include "components/action_listener.h"
 #include "../tpl/vector_tpl.h"
 
@@ -62,7 +61,7 @@ private:
 	scrollbar_t vscroll;
 
     gui_label_t sort_label;
-	gui_combobox_t sortedby;
+    button_t	sortedby;
     button_t	sorteddir;
     gui_label_t filter_label;
     button_t	filter_on;

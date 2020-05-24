@@ -205,7 +205,7 @@ void gui_chart_t::draw(scr_coord offset)
 				else {
 					display_tmp = tmp;
 				}
-				
+
 				// display marker(box) for financial value
 				display_fillbox_wh_clip(tmpx+factor*(size.w / (x_elements - 1))*i-2, (scr_coord_val)(offset.y+baseline- (long)(tmp/scale)-2), 5, 5, c.color, true);
 
