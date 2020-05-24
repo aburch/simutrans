@@ -4403,7 +4403,13 @@ void road_vehicle_t::hop(grund_t* gr_to) {
 			strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
 			if(str) 
 			{
-				flush_travel_times(str);
+				if(get_last_stop_pos() != get_pos() && get_pos_next() != get_pos_prev())
+				{
+					flush_travel_times(str);
+				}
+				else {
+					reset_measurements();
+				}
 			}
 		}
 	}
