@@ -459,12 +459,12 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 		set_cell_component(tbl, new_textarea(scr_coord(2, 0), translator::translate("waiting\ntolerance\nmax. min")), 5, 0);
 		row++;
 		set_cell_component(tbl, new_label(scr_coord(2, 3), "commuting"), 0, row);
-		set_cell_component(tbl, new_numinp(scr_coord(0, 3), sets->get_min_commuting_tolerance() / 10, 2, 9600, 1), 4, row);
-		set_cell_component(tbl, new_numinp(scr_coord(0, 3), sets->get_range_commuting_tolerance() / 10, 2, 9600, 1), 5, row);
+		set_cell_component(tbl, new_numinp(scr_coord(0, 3), sets->get_min_commuting_tolerance() / 10, 2, 21600, 1), 4, row);
+		set_cell_component(tbl, new_numinp(scr_coord(0, 3), sets->get_range_commuting_tolerance() / 10, 2, 21600, 1), 5, row);
 		row++;
 		set_cell_component(tbl, new_label(scr_coord(2, 0), "visiting"), 0, row);
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_min_visiting_tolerance() / 10, 2, 9600, 1), 4, row);
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_range_visiting_tolerance() / 10, 2, 9600, 1), 5, row);
+		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_min_visiting_tolerance() / 10, 2, 21600, 1), 4, row);
+		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_range_visiting_tolerance() / 10, 2, 21600, 1), 5, row);
 		INIT_TABLE_END(tbl);
 	}
 	SEPERATOR;

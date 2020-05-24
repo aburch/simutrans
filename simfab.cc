@@ -1622,7 +1622,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 				file->rdwr_longlong(statistics[m][s]);
 				if (s== FAB_PRODUCTION && (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 23))) {
 					// convert production to producivity
-					if (prodbase) {
+					if (prodbase && welt->calc_adjusted_monthly_figure(get_base_production())) {
 						statistics[m][s] = statistics[m][s] * 100 / welt->calc_adjusted_monthly_figure(get_base_production());
 					}
 				}
@@ -4024,7 +4024,7 @@ bool fabrik_t::has_goods_catg_demand(uint8 catg_index) const
 				continue;
 			}
 			if (input[index].get_typ()->get_catg_index() == catg_index) {
-				return true; 
+				return true;
 			}
 		}
 	}
