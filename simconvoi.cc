@@ -1514,12 +1514,12 @@ bool convoi_t::drive_to()
 			success = front()->reroute(route.get_count() - 1, schedule_entry->pos);
 		}
 
-		if (schedule_advanced)
+		if (schedule_advanced && (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt))
 		{
 			// Reset these for now to allow waypoint check below to work.
 			ziel = original_destination;
 			schedule->set_current_stop(original_current_stop);
-		}
+		} 
 
 		if (update_line)
 		{
