@@ -7444,6 +7444,7 @@ return_on_foot:
 
 		} // Set return trip
 	} // Onward journeys (for loop)
+
 	return (sint32)units_this_step;
 }
 
@@ -8464,6 +8465,7 @@ bool karte_t::load(const char *filename)
 #ifdef MULTI_THREAD
 	suspend_private_car_threads(); // Necessary here to prevent thread deadlocks.
 #endif
+
 	cbuffer_t name;
 	bool ok = false;
 	bool restore_player_nr = false;
