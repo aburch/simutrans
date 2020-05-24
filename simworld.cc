@@ -7104,7 +7104,8 @@ no_route:
 					{
 						start_halt->add_mail_no_route(units_this_step);
 					}
-					else {
+					else
+					{
 						start_halt->add_pax_no_route(units_this_step);
 					}
 				}
@@ -7270,7 +7271,8 @@ no_route:
 								mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 								assert(mutex_error == 0);
 #endif
-								if (trip == mail_trip) {
+								if (trip == mail_trip) 
+								{
 									current_destination.building->get_fabrik()->book_stat(units_this_step, FAB_MAIL_DEPARTED);
 								}
 #ifdef MULTI_THREAD
