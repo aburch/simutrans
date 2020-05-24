@@ -80,7 +80,7 @@
 
 void traffic_vehicle_t::flush_travel_times(strasse_t* str)
 {
-	if(get_max_speed() && str->get_max_speed() && dist_travelled_since_last_hop)
+	if(get_max_speed() && str->get_max_speed() && dist_travelled_since_last_hop > 4096)
 	{	
 		str->update_travel_times(world()->get_ticks() - time_at_last_hop, dist_travelled_since_last_hop / min(get_max_speed(), kmh_to_speed(str->get_max_speed())));
 	}
