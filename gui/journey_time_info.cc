@@ -5,6 +5,9 @@
 #include "../simhalt.h"
 #include "../simworld.h"
 #include "../simline.h"
+#include "../sys/simsys.h"
+#include "messagebox.h"
+#include "simwin.h"
 
 
 uint16 tick_to_divided_time(uint32 tick) {
@@ -117,10 +120,34 @@ void gui_journey_time_stat_t::update(schedule_t* schedule) {
 }
 
 
+void copy_stations_to_clipboard(schedule_t* schedule, player_t* player, bool name_only) {
+  cbuffer_t clipboard;
+  FOR(minivec_tpl<schedule_entry_t>, const& e, schedule->entries) {
+    halthandle_t const halt = haltestelle_t::get_halt(e.pos, player);
+    if(  !halt.is_bound()  ) {
+      // do not export waypoint
+      continue;
+    }
+    clipboard.append(halt->get_name());
+    if(  !name_only  ) {
+      clipboard.append(",");
+      clipboard.append(e.pos.get_str());
+    }
+    clipboard.append("\n");
+  }
+  // copy, if there was anything ...
+  if( clipboard.len() > 0 ) {
+    dr_copy( clipboard, clipboard.len() );
+    create_win( new news_img("Station infos were copied to clipboard.\n"), w_time_delete, magic_none );
+  }
+}
+
+
 gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* player) : 
   gui_frame_t( NULL, player ),
   stat(line->get_schedule(), player),
   scrolly(&stat),
+  player(player),
   schedule(line->get_schedule())
 {
   title_buf = new cbuffer_t();
@@ -144,13 +171,38 @@ gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* pl
   scrolly.set_maximize(true);
   add_component(&scrolly);
   
+  add_table(3,1)->set_force_equal_columns(true);
+  {
+    bt_copy_names.init(button_t::roundbox | button_t::flexible, translator::translate("Copy names"));
+    bt_copy_names.set_tooltip("Copy station names to clipboard.");
+    bt_copy_names.add_listener(this);
+    add_component(&bt_copy_names);
+    
+    bt_copy_stations.init(button_t::roundbox | button_t::flexible, translator::translate("Copy stations"));
+    bt_copy_stations.set_tooltip("Copy station names and their position to clipboard.");
+    bt_copy_stations.add_listener(this);
+    add_component(&bt_copy_stations);
+    
+    bt_copy_oudia.init(button_t::roundbox | button_t::flexible, translator::translate("Copy oudia format"));
+    bt_copy_oudia.set_tooltip("Copy station names and journey time to clipboard in oudia format.");
+    bt_copy_oudia.add_listener(this);
+    add_component(&bt_copy_oudia);
+  }
+  end_table();
+  
   set_resizemode(diagonal_resize);
 
 	reset_min_windowsize();
 	set_windowsize(get_min_windowsize());
 }
 
-bool gui_journey_time_info_t::action_triggered(gui_action_creator_t*, value_t) {
+bool gui_journey_time_info_t::action_triggered(gui_action_creator_t* comp, value_t) {
+  if(  comp==&bt_copy_names  ) {
+    copy_stations_to_clipboard(schedule, player, true);
+  }
+  else if(  comp==&bt_copy_stations  ) {
+    copy_stations_to_clipboard(schedule, player, false);
+  }
   return true;
 }
 
