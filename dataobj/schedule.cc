@@ -280,20 +280,9 @@ void schedule_t::rdwr(loadsave_t *file)
 				// prepare for configurable departure slots
 				file->rdwr_short(entries[i].spacing);
 				file->rdwr_short(entries[i].delay_tolerance);
-				uint16 n = entries[i].departure_slots.get_count();
-				file->rdwr_short(n);
-				if(  file->is_loading()  ) {
-					entries[i].departure_slots.clear();
-					for(uint16 idx=0; idx<n; idx++) {
-						uint16 v;
-						file->rdwr_short(v);
-						entries[i].departure_slots.append(v);
-					}
-				} else {
-					for(uint16 idx=0; idx<n; idx++) {
-						file->rdwr_short(entries[i].departure_slots[idx]);
-					}
-				}
+				uint16 dummy = 1;
+				file->rdwr_short(dummy); // num of departure slots
+				file->rdwr_short(entries[i].spacing_shift);
 			}
 			else if(file->get_OTRP_version()>=23) {
 				file->rdwr_short(entries[i].spacing);

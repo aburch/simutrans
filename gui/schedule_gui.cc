@@ -265,9 +265,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	lb_load("Full load"),
 	lb_max_speed("Maxspeed"),
 	stats(new schedule_gui_stats_t() ),
-	slot_stats(new departure_slot_stats_t()),
-	scrolly(stats),
-	slot_scrolly(slot_stats)
+	scrolly(stats)
 {
 	schedule = NULL;
 	player   = NULL;
@@ -285,7 +283,6 @@ schedule_gui_t::~schedule_gui_t()
 	}
 	delete schedule;
 	delete stats;
-	delete slot_stats;
 }
 
 void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_t cnv)
@@ -492,25 +489,6 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	bt_same_dep_time.pressed = schedule->is_same_dep_time();
 	add_component(&bt_same_dep_time);
 	
-	add_table(2,1);
-	{
-		bt_slot_add.init(button_t::roundbox_state | button_t::flexible, "Add slot");
-		bt_slot_add.set_tooltip("Add a slot");
-		bt_slot_add.add_listener(this);
-		add_component(&bt_slot_add);
-		
-		bt_slot_remove.init(button_t::roundbox_state | button_t::flexible, "Remove slot");
-		bt_slot_remove.set_tooltip("Remove selected slot");
-		bt_slot_remove.add_listener(this);
-		bt_slot_remove.disable();
-		add_component(&bt_slot_remove);
-	}	
-	end_table();
-	
-	slot_scrolly.set_show_scroll_x(true);
-	slot_scrolly.set_scroll_amount_y(LINESPACE+1);
-	add_component(&slot_scrolly);
-	
 	extract_advanced_settings(false);
 
 	// return tickets
@@ -602,7 +580,6 @@ void schedule_gui_t::update_selection()
 	numimp_spacing.disable();
 	numimp_spacing_shift.disable();
 	numimp_delay_tolerance.disable();
-	extract_slot_settings(false);
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
@@ -631,8 +608,6 @@ void schedule_gui_t::update_selection()
 				numimp_spacing.enable();
 				numimp_spacing_shift.enable();
 				numimp_delay_tolerance.enable();
-				slot_stats->schedule = &(schedule->entries[current_stop]);
-				extract_slot_settings(bt_tmp_schedule.is_visible());
 			}
 			else {
 				// disable departure time settings and enable minimum loading
@@ -663,9 +638,6 @@ void schedule_gui_t::update_selection()
 			
 		}
 	}
-	// reload window
-	reset_min_windowsize();
-	set_windowsize(get_min_windowsize());
 }
 
 
@@ -1075,44 +1047,4 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
 	bt_wait_for_child.set_visible(coupling_waytype  &&  yesno);
 	bt_find_parent.set_visible(coupling_waytype  &&  yesno);
-	
-	extract_slot_settings(yesno  &&  schedule->get_current_entry().get_wait_for_time());
-}
-
-void schedule_gui_t::extract_slot_settings(bool yesno) {
-	slot_scrolly.set_visible(yesno);
-	bt_slot_add.set_visible(yesno);
-	bt_slot_remove.set_visible(yesno);
-}
-
-
-void departure_slot_stats_t::draw(scr_coord offset)
-{
-	update_slot();
-	gui_aligned_container_t::draw(offset);
-}
-
-departure_slot_stats_t::departure_slot_stats_t()
-{
-	set_table_layout(1,0);
-}
-
-bool departure_slot_stats_t::action_triggered(gui_action_creator_t *, value_t v)
-{
-	call_listeners(v);
-	return true;
-}
-
-void departure_slot_stats_t::update_slot() {
-	remove_all();
-	numimp_slot.clear();
-	for(uint16 i=0; i<schedule->departure_slots.get_count(); i++) {
-		gui_numberinput_t* n = new gui_numberinput_t();
-		n->set_width( 90 );
-		n->set_value( 0 );
-		n->set_limits( 0, 100 );
-		n->set_increment_mode(1);
-		n->add_listener(this);
-		add_component(n);
-	}
 }
