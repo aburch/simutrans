@@ -1031,7 +1031,7 @@ grund_t* private_car_t::hop_check()
 			// Check whether we are at the end of the route (i.e. the destination)
 			if ((current_city == destination_city) && pos_next_next == koord3d::invalid)
 			{
-				time_to_life = 0;
+				time_to_life = 0; 
 				return NULL;
 			}
 
