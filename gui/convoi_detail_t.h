@@ -59,20 +59,6 @@ public:
 	void draw(scr_coord offset);
 };
 
-// content of convoy formation
-class gui_convoy_formaion_t : public gui_container_t
-{
-private:
-	convoihandle_t cnv;
-
-public:
-	gui_convoy_formaion_t(convoihandle_t cnv);
-
-	void set_cnv(convoihandle_t c) { cnv = c; }
-
-	void draw(scr_coord offset);
-};
-
 // content of payload info tab
 class gui_convoy_payload_info_t : public gui_container_t
 {
