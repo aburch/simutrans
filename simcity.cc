@@ -2523,7 +2523,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		assert( color != 0 );
 		pax_destinations_temp.set(pos.y, pos.x, color);
 	}
-	swap<uint8>( pax_destinations_temp, pax_destinations_new );
+	swap( pax_destinations_temp, pax_destinations_new );
 
 	pax_destinations_temp.clear();
 	for( uint16 i = 0; i < pax_destinations_old.get_data_count(); i++ ) {
@@ -2532,7 +2532,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		pax_destinations_temp.set(pos.y, pos.x, color);
 	}
 	pax_destinations_new_change ++;
-	swap<uint8>( pax_destinations_temp, pax_destinations_old );
+	swap( pax_destinations_temp, pax_destinations_old );
 
 	vector_tpl<koord> k_list(connected_cities.get_count());
 	vector_tpl<uint32> f_list(connected_cities.get_count());
@@ -2844,7 +2844,7 @@ void stadt_t::calc_traffic_level()
 
 void stadt_t::new_month()
 {
-	swap<uint8>( pax_destinations_old, pax_destinations_new );
+	swap( pax_destinations_old, pax_destinations_new );
 	pax_destinations_new.clear();
 	pax_destinations_new_change = 0;
 
@@ -2855,7 +2855,7 @@ void stadt_t::new_month()
 
 	roll_history();
 
-	calc_congestion();	
+	calc_congestion();
 }
 
 void stadt_t::calc_growth()
@@ -6007,7 +6007,7 @@ void stadt_t::remove_city_factory(fabrik_t *fab)
 void stadt_t::calc_congestion()
 {
 	calc_traffic_level();
-	
+
 	// Calculate the level of congestion.
 	// Used in determining growth and passenger preferences.
 	// If we do not actually calculate private car routes, use a statistical system.
@@ -6105,7 +6105,7 @@ void stadt_t::calc_congestion()
 		}
 		else // Measure congestion by actual tiles.
 		{
-			city_history_month[0][HIST_CONGESTION] = total_congestion / road_tiles; 
+			city_history_month[0][HIST_CONGESTION] = total_congestion / road_tiles;
 		}
 	}
 
