@@ -28,6 +28,7 @@
 class citycar_desc_t;
 class karte_t;
 
+
 /**
  * Base class for traffic participants with random movement
  * @author Hj. Malthaner
@@ -100,12 +101,11 @@ public:
 };
 
 
-class private_car_t : public road_user_t, public overtaker_t
+class private_car_t : public road_user_t, public overtaker_t, public traffic_vehicle_t
 {
 private:
 
 	koord origin;
-
 	const citycar_desc_t *desc;
 
 	// prissi: time to life in blocks
@@ -157,6 +157,8 @@ public:
 
 	void calc_current_speed(grund_t*);
 	uint16 get_current_speed() const {return current_speed;}
+
+	uint32 get_max_speed() override;
 
 	const char *get_name() const OVERRIDE {return "Verkehrsteilnehmer";}
 	//typ get_typ() const { return road_user; }

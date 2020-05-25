@@ -22,6 +22,7 @@
 #include "../tpl/array_tpl.h"
 #include "../dataobj/route.h"
 
+
 #include "../tpl/fixed_list_tpl.h"
 
 class convoi_t;
@@ -30,6 +31,7 @@ class signal_t;
 class ware_t;
 class schiene_t;
 class strasse_t;
+//class karte_ptr_t;
 
 // for aircraft:
 // length of the holding pattern.
@@ -37,6 +39,22 @@ class strasse_t;
 // offset of end tile of the holding pattern before touchdown tile.
 #define HOLDING_PATTERN_OFFSET 3
 /*----------------------- Movables ------------------------------------*/
+
+class traffic_vehicle_t
+{
+	private:
+		sint64 time_at_last_hop; // ticks
+		uint32 dist_travelled_since_last_hop; // yards
+		virtual uint32 get_max_speed() { return 0; } // returns y/t
+	protected:
+		inline void reset_measurements()
+		{
+			dist_travelled_since_last_hop = 0; //yards
+			time_at_last_hop = world()->get_ticks(); //ticks
+		}
+		inline void add_distance(uint32 distance) { dist_travelled_since_last_hop += distance; } // yards
+		void flush_travel_times(strasse_t*); // calculate travel times, write to way, reset measurements
+};
 
 /**
  * Base class for all vehicles
@@ -182,7 +200,7 @@ public:
 	// if true, this convoi needs to restart for correct alignment
 	bool need_realignment() const;
 
-	uint32 do_drive(uint32 dist);	// basis movement code
+	virtual uint32 do_drive(uint32 dist);	// basis movement code
 
 	inline void set_image( image_id b ) { image = b; }
 	virtual image_id get_image() const {return image;}
@@ -701,7 +719,7 @@ template<> inline vehicle_t* obj_cast<vehicle_t>(obj_t* const d)
  * @author Hj. Malthaner
  * @see vehicle_t
  */
-class road_vehicle_t : public vehicle_t
+class road_vehicle_t : public vehicle_t, public traffic_vehicle_t
 {
 private:
 	// called internally only from can_enter_tile()
@@ -716,6 +734,8 @@ protected:
 
 public:
 	virtual void enter_tile(grund_t*);
+	virtual void hop(grund_t*);
+	virtual uint32 do_drive(uint32 distance);
 
 	virtual void rotate90();
 
@@ -726,6 +746,8 @@ public:
 	road_vehicle_t(loadsave_t *file, bool first, bool last);
 	road_vehicle_t();
 	road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv); // start und schedule
+
+	uint32 get_max_speed() override;
 
 	virtual void set_convoi(convoi_t *c);
 

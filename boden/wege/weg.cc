@@ -330,6 +330,11 @@ void weg_t::init_statistics()
 			statistics[month][type] = 0;
 		}
 	}
+	for(  int type=0;  type<MAX_WAY_TRAVEL_TIMES;  type++  ) {
+		for(  int month=0;  month<MAX_WAY_STAT_MONTHS;  month++  ) {
+			travel_times[month][type] = 0;
+		}
+	}
 	creation_month_year = welt->get_timeline_year_month();
 }
 
@@ -422,6 +427,7 @@ void weg_t::rdwr(loadsave_t *file)
 	}
 
 	const uint32 max_stat_types = file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 19) ? MAX_WAY_STATISTICS : 2;
+
 	for(uint32 type = 0; type < max_stat_types; type++)
 	{
 		for(uint32 month = 0; month < MAX_WAY_STAT_MONTHS; month++)
@@ -432,12 +438,51 @@ void weg_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if (file->is_loading() && file->get_extended_version() < 15 && file->get_extended_revision() < 19)
+
+	if (file->is_loading() && ((file->get_extended_version() < 14) || (file->get_extended_version() == 14 && file->get_extended_revision() < 19)))
 	{
-		// Older version - initialise the stopped vehicle statistics
+		// Very early version - initialise the travel time statistics
+		for(uint32 type = 0; type < MAX_WAY_TRAVEL_TIMES; type++)
+		{
+			for (uint32 month = 0; month < MAX_WAY_STAT_MONTHS; month++)
+			{
+				travel_times[month][type] = 0;
+			}
+		}
+	}
+
+	// NOTE: Revision 24 refers to the travel-time-congestion patch - if other patches that increment this number are merged first, then this must be updated too.
+	else if(file->is_loading() && file->get_extended_version() == 14 && file->get_extended_revision() >= 19 && file->get_extended_revision() < 24)
+	{
+		// Older version - estimate travel time statistics from deprecated stopped vehicle statistics
+		// Use 10 seconds as the base time to cross the way — the actual value is not important at all but the ratio is.
+		uint32 mul = welt->get_seconds_to_ticks(10);
+
 		for (uint32 month = 0; month < MAX_WAY_STAT_MONTHS; month++)
 		{
-			statistics[month][WAY_STAT_WAITING] = 0;
+			uint32 w = travel_times[month][WAY_TRAVEL_TIME_ACTUAL];
+			
+			// Get the now-deprecated stopped vehicles count
+			file->rdwr_long(w);
+
+			travel_times[month][WAY_TRAVEL_TIME_IDEAL] = statistics[month][WAY_STAT_CONVOIS] * mul;
+
+			// We'll estimate a stopped vehicle to take twice longer than usual to cross the tile
+			travel_times[month][WAY_TRAVEL_TIME_ACTUAL] = (statistics[month][WAY_STAT_CONVOIS] + (uint32)w) * mul;
+		}
+	}
+
+	// NOTE: Revision 24 refers to the travel-time-congestion patch - if other patches that increment this number are merged first, then this must be updated too.
+	else if ((file->get_extended_version() >= 15) || (file->get_extended_version() == 14 && file->get_extended_revision() >= 24))
+	{
+		for(uint32 type = 0; type < MAX_WAY_TRAVEL_TIMES; type++)
+		{
+			for (uint32 month = 0; month < MAX_WAY_STAT_MONTHS; month++)
+			{
+				uint32 w = travel_times[month][type];
+				file->rdwr_long(w);
+				travel_times[month][type] = (uint32)w;
+			}
 		}
 	}
 
@@ -1532,6 +1577,13 @@ void weg_t::new_month()
 			statistics[month][type] = statistics[month-1][type];
 		}
 		statistics[0][type] = 0;
+	}
+
+	for (int type=0; type<MAX_WAY_TRAVEL_TIMES; type++) {
+		for (int month=MAX_WAY_STAT_MONTHS-1; month>0; month--) {
+			travel_times[month][type] = travel_times[month-1][type];
+		}
+		travel_times[0][type] = 0;
 	}
 	wear_way(desc->get_monthly_base_wear());
 }

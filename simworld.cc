@@ -5991,7 +5991,7 @@ sint64 karte_t::calc_ready_time(ware_t ware, koord origin_pos) const
 		const sint64 walking_time = get_seconds_to_ticks(seconds);
 		ready_time += walking_time;
 	}
-	
+
 	return ready_time;
 }
 
@@ -7076,7 +7076,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 		case no_route:
 		case destination_unavailable:
-		default: 
+		default:
 no_route:
 			if(city && wtyp == goods_manager_t::passengers)
 			{
@@ -7104,7 +7104,8 @@ no_route:
 					{
 						start_halt->add_mail_no_route(units_this_step);
 					}
-					else {
+					else
+					{
 						start_halt->add_pax_no_route(units_this_step);
 					}
 				}
@@ -7270,7 +7271,8 @@ no_route:
 								mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 								assert(mutex_error == 0);
 #endif
-								if (trip == mail_trip) {
+								if (trip == mail_trip) 
+								{
 									current_destination.building->get_fabrik()->book_stat(units_this_step, FAB_MAIL_DEPARTED);
 								}
 #ifdef MULTI_THREAD
@@ -7442,6 +7444,7 @@ return_on_foot:
 
 		} // Set return trip
 	} // Onward journeys (for loop)
+
 	return (sint32)units_this_step;
 }
 
@@ -8462,6 +8465,7 @@ bool karte_t::load(const char *filename)
 #ifdef MULTI_THREAD
 	suspend_private_car_threads(); // Necessary here to prevent thread deadlocks.
 #endif
+
 	cbuffer_t name;
 	bool ok = false;
 	bool restore_player_nr = false;
@@ -10385,14 +10389,14 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 				// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
 				else if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
 					// lost synchronisation -> server kicks client out actively
-					char buf[256];
+					char buf[1024];
 					const int offset = LCHKLST(nwt->last_sync_step).print(buf, "server");
 					nwt->last_checklist.print(buf + offset, "initiator");
 					dbg->warning("karte_t::process_network_commands", "kicking client due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
 					socket_list_t::remove_client( nwc->get_sender() );
 					delete nwc;
 					nwc = NULL;
-				}
+				} 
 			}
 		}
 

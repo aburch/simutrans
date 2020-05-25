@@ -139,6 +139,11 @@ void road_user_t::show_info()
 	}
 }
 
+uint32 private_car_t::get_max_speed()
+{
+	return get_desc()->get_topspeed();
+}
+
 
 void road_user_t::hop(grund_t *)
 {
@@ -433,6 +438,7 @@ private_car_t::private_car_t(loadsave_t *file) :
 	if(desc) {
 		welt->sync.add(this);
 	}
+	reset_measurements();
 }
 
 
@@ -453,6 +459,7 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 	calc_image();
 	origin = gr ? gr->get_pos().get_2d() : koord::invalid;
 	last_tile_marked_as_stopped = koord3d::invalid;
+	reset_measurements();
 }
 
 
@@ -467,20 +474,6 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 		// stuck in traffic jam
 		uint32 old_ms_traffic_jam = ms_traffic_jam;
 		ms_traffic_jam += delta_t;
-		if (ms_traffic_jam >= 1000)
-		{
-			// If stopped for long enough, mark the tile as congested
-			if (get_pos() != last_tile_marked_as_stopped)
-			{
-				grund_t* const gr_this = welt->lookup(get_pos());
-				weg_t* const way = gr_this ? gr_this->get_weg(road_wt) : NULL;
-				last_tile_marked_as_stopped = get_pos();
-				if (way)
-				{
-					way->increment_traffic_stopped_counter();
-				}
-			}
-		}
 		// check only every 1.024 s if stopped
 		if(  (ms_traffic_jam>>10) != (old_ms_traffic_jam>>10)  ) {
 			pos_next_next = koord3d::invalid;
@@ -512,6 +505,7 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 			weg_next += current_speed * delta_t;
 		}
 		const uint32 distance = do_drive( weg_next );
+		add_distance(distance);
 		// hop_check could have set weg_next to zero, check for possible underflow here
 		if (weg_next > distance) {
 			weg_next -= distance;
@@ -614,6 +608,8 @@ void private_car_t::rdwr(loadsave_t *file)
 
 	// do not start with zero speed!
 	current_speed ++;
+
+	reset_measurements();
 }
 
 
@@ -950,7 +946,6 @@ void private_car_t::enter_tile(grund_t* gr)
 	get_weg()->book(1, WAY_STAT_CONVOIS);
 }
 
-
 grund_t* private_car_t::hop_check()
 {
 	// TODO: Consider multi-threading this. This only ultimately
@@ -1266,6 +1261,7 @@ grund_t* private_car_t::hop_check()
 
 void private_car_t::hop(grund_t* to)
 {
+
 	// Check whether this private car should pay a road toll.
 
 	//weg_t* const way = get_weg(); // Occasionally, the way returned here was corrupt (possibly deleted)
@@ -1280,6 +1276,16 @@ void private_car_t::hop(grund_t* to)
 		{
 			const sint64 toll = welt->get_settings().get_private_car_toll_per_km();
 			player->book_toll_received(toll, road_wt);
+		}
+	}
+
+	grund_t* gr = get_grund();
+	if(gr)
+	{
+		strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
+		if(str)
+		{
+			flush_travel_times(str);
 		}
 	}
 
