@@ -259,6 +259,25 @@ void copy_oudia_format(schedule_t* schedule, player_t* player, uint32 time_avera
   create_win( new news_img("Station infos were copied to clipboard.\n"), w_time_delete, magic_none );
 }
 
+void copy_csv_format(schedule_t* schedule, player_t* player, uint32 time_average[]) {
+  // copy in csv format. separator is \t.
+  cbuffer_t clipboard;
+  clipboard.append("Station Name\t1st\t2nd\t3rd\tAverage\n");
+  for(uint8 i=0; i<schedule->entries.get_count(); i++) {
+    halthandle_t const halt = haltestelle_t::get_halt(schedule->entries[i].pos, player);
+    if(  !halt.is_bound()  ) {
+      continue;
+    }
+    clipboard.append(halt->get_name());
+    for(uint8 k=0; k<3; k++) {
+      clipboard.printf("\t%d", tick_to_divided_time(schedule->entries[i].journey_time[k]));
+    }
+    clipboard.printf("\t%d\n", tick_to_divided_time(time_average[i]));
+  }
+  dr_copy( clipboard, clipboard.len() );
+  create_win( new news_img("Station infos were copied to clipboard.\n"), w_time_delete, magic_none );
+}
+
 
 gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* player) : 
   gui_frame_t( NULL, player ),
@@ -293,7 +312,7 @@ gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* pl
   scrolly.set_maximize(true);
   add_component(&scrolly);
   
-  add_table(3,1)->set_force_equal_columns(true);
+  add_table(2,2)->set_force_equal_columns(true);
   {
     bt_copy_names.init(button_t::roundbox | button_t::flexible, translator::translate("Copy names"));
     bt_copy_names.set_tooltip("Copy station names to clipboard.");
@@ -309,6 +328,11 @@ gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* pl
     bt_copy_oudia.set_tooltip("Copy station names and journey time to clipboard in oudia format.");
     bt_copy_oudia.add_listener(this);
     add_component(&bt_copy_oudia);
+    
+    bt_copy_csv.init(button_t::roundbox | button_t::flexible, translator::translate("Copy csv format"));
+    bt_copy_csv.set_tooltip("Copy station names and journey time to clipboard in csv format.");
+    bt_copy_csv.add_listener(this);
+    add_component(&bt_copy_csv);
   }
   end_table();
   
@@ -327,6 +351,9 @@ bool gui_journey_time_info_t::action_triggered(gui_action_creator_t* comp, value
   }
   else if(  comp==&bt_copy_oudia  ) {
     copy_oudia_format(schedule, player, time_average);
+  }
+  else if(  comp==&bt_copy_csv  ) {
+    copy_csv_format(schedule, player, time_average);
   }
   return true;
 }

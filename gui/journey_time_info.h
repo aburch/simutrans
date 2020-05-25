@@ -33,7 +33,7 @@ class gui_journey_time_info_t : public gui_frame_t, private action_listener_t
 private:
   gui_journey_time_stat_t stat;
 	gui_scrollpane_t scrolly;
-  button_t bt_copy_names, bt_copy_stations, bt_copy_oudia;
+  button_t bt_copy_names, bt_copy_stations, bt_copy_oudia, bt_copy_csv;
   
   player_t* player;
   schedule_t* schedule;
