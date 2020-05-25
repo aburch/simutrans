@@ -59,17 +59,15 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 				}
 				const sint64 pfactor = fab->get_desc()->get_supplier(i) ? (sint64)fab->get_desc()->get_supplier(i)->get_consumption() : 1ll;
 				const uint16 max_intransit_percentage = fab->get_max_intransit_percentage(i);
+				const sint64 max_transit = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max_transit * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
 				const uint32 stock_quantity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
-				const uint32 storage_capacity = max_intransit_percentage ? (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max_transit * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS))
-					: (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+				const uint32 storage_capacity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
 				const COLOR_VAL goods_color = goods.get_typ()->get_color();
-				const COLOR_VAL frame_color1 = (!stock_quantity && !goods.get_in_transit()) ? COL_YELLOW : stock_quantity >= storage_capacity ? COL_ORANGE_RED : MN_GREY0;
-				const COLOR_VAL frame_color2 = (!stock_quantity && !goods.get_in_transit()) ? COL_YELLOW : stock_quantity >= storage_capacity ? COL_ORANGE_RED : MN_GREY4;
 
 				left = 2;
 				yoff += 2; // box position adjistment
 				// [storage indicator]
-				display_ddd_box_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, STORAGE_INDICATOR_WIDTH + 2, 8, frame_color1, frame_color2);
+				display_ddd_box_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, STORAGE_INDICATOR_WIDTH + 2, 8, MN_GREY0, MN_GREY4);
 				display_fillbox_wh_clip(pos.x + offset.x + left + 1, pos.y + offset.y + yoff + 1, STORAGE_INDICATOR_WIDTH, 6, MN_GREY2, true);
 				if (storage_capacity) {
 					const uint16 colored_width = min(STORAGE_INDICATOR_WIDTH, (uint16)(STORAGE_INDICATOR_WIDTH * stock_quantity / storage_capacity));
@@ -100,9 +98,29 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 
 				// [storage capacity]
 				buf.clear();
-				buf.printf(" %u/%u %s,", stock_quantity, storage_capacity, translator::translate(goods.get_typ()->get_mass()));
+				buf.printf("%u/%u%s,", stock_quantity, storage_capacity, translator::translate(goods.get_typ()->get_mass()));
 				left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				left += D_H_SPACE;
+
+				// [in transit]
+				if (fab->get_status() != fabrik_t::inactive) {
+				buf.clear();
+					const bool in_transit_over_storage = (stock_quantity + (uint32)goods.get_in_transit() > storage_capacity);
+					if (skinverwaltung_t::in_transit) {
+						display_color_img(skinverwaltung_t::in_transit->get_image_id(0), pos.x + offset.x + left, pos.y + offset.y + yoff, 0, false, false); // ToDo: replace this with img_with_tooltip - ranran
+						left += 14;
+					}
+					buf.append(goods.get_in_transit(), 0);
+					left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, in_transit_over_storage ? COL_ORANGE_RED : SYSCOL_TEXT, true);
+					buf.clear();
+					if (max_intransit_percentage) {
+						buf.printf("/%i", max_transit);
+					}
+					buf.printf("%s, ", translator::translate(goods.get_typ()->get_mass()));
+					left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+					left += D_H_SPACE;
+				}
+
 
 				// [monthly production]
 				buf.clear();
@@ -136,13 +154,11 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 				const uint32 stock_quantity   = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
 				const uint32 storage_capacity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
 				const COLOR_VAL goods_color  = goods.get_typ()->get_color();
-				const COLOR_VAL frame_color1 = stock_quantity >= storage_capacity ? COL_ORANGE_RED : MN_GREY0;
-				const COLOR_VAL frame_color2 = stock_quantity >= storage_capacity ? COL_ORANGE_RED : MN_GREY4;
 
 				left = 2;
 				yoff+=2; // box position adjistment
 				// [storage indicator]
-				display_ddd_box_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, STORAGE_INDICATOR_WIDTH+2, 8, frame_color1, frame_color2);
+				display_ddd_box_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, STORAGE_INDICATOR_WIDTH+2, 8, MN_GREY0, MN_GREY4);
 				display_fillbox_wh_clip(pos.x + offset.x + left+1, pos.y + offset.y + yoff+1, STORAGE_INDICATOR_WIDTH, 6, MN_GREY2, true);
 				if (storage_capacity) {
 					const uint16 colored_width = min(STORAGE_INDICATOR_WIDTH, (uint16)(STORAGE_INDICATOR_WIDTH * stock_quantity / storage_capacity));
@@ -169,7 +185,7 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 
 				// [storage capacity]
 				buf.clear();
-				buf.printf(" %u/%u %s,", stock_quantity,	storage_capacity, translator::translate(goods.get_typ()->get_mass()));
+				buf.printf("%u/%u%s,", stock_quantity,	storage_capacity, translator::translate(goods.get_typ()->get_mass()));
 				left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				left += D_H_SPACE;
 

@@ -132,6 +132,8 @@ public:
 	static const skin_desc_t *upgradable;
 	/// image shown in display of industry input/output
 	static const skin_desc_t *input_output;
+	/// image shown in display of goods in transit
+	static const skin_desc_t *in_transit;
 
 	/// @name cursors
 	/// @{
