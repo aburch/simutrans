@@ -6073,11 +6073,14 @@ void stadt_t::calc_congestion()
 			{
 				const koord k(i, j);
 				const grund_t* const gr = welt->lookup_kartenboden(k);
-				const weg_t* w = gr->get_weg(road_wt);
-				if (gr && w)
+				if (gr)
 				{
-					road_tiles++;
-					total_congestion += w->get_congestion_percentage();
+					const weg_t* w = gr->get_weg(road_wt);
+					if (w)
+					{
+						road_tiles++;
+						total_congestion += w->get_congestion_percentage();
+					}
 				}
 			}
 		}
