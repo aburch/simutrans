@@ -139,15 +139,20 @@ void road_user_t::show_info()
 	}
 }
 
+uint32 private_car_t::get_max_speed()
+{
+	return get_desc()->get_topspeed();
+}
 
-grund_t* road_user_t::hop()
+
+void road_user_t::hop(grund_t *)
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos_next);
 
 	if(!from) {
 		time_to_life = 0;
-		return NULL;
+		return;
 	}
 
 	// It is not clear why this is necessary in
@@ -169,7 +174,7 @@ grund_t* road_user_t::hop()
 			// destroy it
 			time_to_life = 0;
 		}
-		return NULL;
+		return;
 	}
 
 	grund_t *to;
@@ -210,8 +215,6 @@ grund_t* road_user_t::hop()
 	leave_tile();
 	set_pos(from->get_pos());
 	calc_image();
-
-	return to;
 }
 
 
@@ -435,6 +438,7 @@ private_car_t::private_car_t(loadsave_t *file) :
 	if(desc) {
 		welt->sync.add(this);
 	}
+	reset_measurements();
 }
 
 
@@ -455,6 +459,7 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 	calc_image();
 	origin = gr ? gr->get_pos().get_2d() : koord::invalid;
 	last_tile_marked_as_stopped = koord3d::invalid;
+	reset_measurements();
 }
 
 
@@ -469,20 +474,6 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 		// stuck in traffic jam
 		uint32 old_ms_traffic_jam = ms_traffic_jam;
 		ms_traffic_jam += delta_t;
-		if (ms_traffic_jam >= 1000)
-		{
-			// If stopped for long enough, mark the tile as congested
-			if (get_pos() != last_tile_marked_as_stopped)
-			{
-				grund_t* const gr_this = welt->lookup(get_pos());
-				weg_t* const way = gr_this ? gr_this->get_weg(road_wt) : NULL;
-				last_tile_marked_as_stopped = get_pos();
-				if (way)
-				{
-					way->increment_traffic_stopped_counter();
-				}
-			}
-		}
 		// check only every 1.024 s if stopped
 		if(  (ms_traffic_jam>>10) != (old_ms_traffic_jam>>10)  ) {
 			pos_next_next = koord3d::invalid;
@@ -514,6 +505,7 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 			weg_next += current_speed * delta_t;
 		}
 		const uint32 distance = do_drive( weg_next );
+		add_distance(distance);
 		// hop_check could have set weg_next to zero, check for possible underflow here
 		if (weg_next > distance) {
 			weg_next -= distance;
@@ -616,6 +608,8 @@ void private_car_t::rdwr(loadsave_t *file)
 
 	// do not start with zero speed!
 	current_speed ++;
+
+	reset_measurements();
 }
 
 
@@ -952,7 +946,6 @@ void private_car_t::enter_tile(grund_t* gr)
 	get_weg()->book(1, WAY_STAT_CONVOIS);
 }
 
-
 grund_t* private_car_t::hop_check()
 {
 	// TODO: Consider multi-threading this. This only ultimately
@@ -1061,10 +1054,11 @@ grund_t* private_car_t::hop_check()
 			{
 				const ribi_t::ribi current_dir = ribi_type(get_pos(), pos_next);
 				const ribi_t::ribi dir_next = ribi_type(pos_next, pos_next_next);
-				const strasse_t* str = (strasse_t*)next_way;
+				const strasse_t* str = static_cast<const strasse_t *>(next_way);
+
 				const bool backwards = dir_next == ribi_t::backward(current_dir);
 
-				bool direction_allowed = str->get_ribi() & dir_next; 
+				bool direction_allowed = str->get_ribi() & dir_next;
 				if (!direction_allowed)
 				{
 					// Check whether the private car is allowed on the subsequent way's direction
@@ -1090,6 +1084,15 @@ grund_t* private_car_t::hop_check()
 					if (origin_city)
 					{
 						//welt->add_queued_city(origin_city); // Prioritise re-checking this city even if already re-checked in this cycle.
+					}
+				}
+				else
+				{
+					// Check whether the tile is passable: do not drive onto an impassible tile.
+					if (!(next_way && next_way->get_max_speed() > 0 && next_way->get_max_axle_load() > 0 && (next_way->get_owner() == NULL || next_way->get_owner()->allows_access_to(welt->get_public_player()->get_player_nr()))))
+					{
+						// Next tile not passable even though this is on a route: mothballed, or made private. Revert to heuristic mode.
+						pos_next_next = koord3d::invalid;
 					}
 				}
 
@@ -1178,10 +1181,10 @@ grund_t* private_car_t::hop_check()
 								{
 									// We have already been here once, so there is probably not an alternative. Can we at least make a u-turn?
 									const ribi_t::ribi backwards = ribi_t::backward(ribi_type(get_pos(), pos_next));
-									
+
 									const bool backwards_allowed_this_tile = w ? w->get_ribi() & backwards : false;
 									bool backwards_allowed_next_tile = false;
-									
+
 									const bool backwards_way = from->get_neighbour(gr_backwards, road_wt, backwards);
 
 									if (backwards_way)
@@ -1258,6 +1261,7 @@ grund_t* private_car_t::hop_check()
 
 void private_car_t::hop(grund_t* to)
 {
+
 	// Check whether this private car should pay a road toll.
 
 	//weg_t* const way = get_weg(); // Occasionally, the way returned here was corrupt (possibly deleted)
@@ -1272,6 +1276,16 @@ void private_car_t::hop(grund_t* to)
 		{
 			const sint64 toll = welt->get_settings().get_private_car_toll_per_km();
 			player->book_toll_received(toll, road_wt);
+		}
+	}
+
+	grund_t* gr = get_grund();
+	if(gr)
+	{
+		strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
+		if(str)
+		{
+			flush_travel_times(str);
 		}
 	}
 
@@ -1337,7 +1351,7 @@ void private_car_t::calc_image()
 
 
 
-void private_car_t::calc_current_speed(grund_t* gr)
+void private_car_t::calc_current_speed(grund_t *)
 {
 	const weg_t * weg = get_weg();
 	sint32 max_speed = desc ? desc->get_topspeed() : kmh_to_speed(90);
@@ -1352,7 +1366,7 @@ void private_car_t::calc_current_speed(grund_t* gr)
 }
 
 
-void private_car_t::info(cbuffer_t & buf, bool dummy) const
+void private_car_t::info(cbuffer_t & buf) const
 {
 	const stadt_t* const origin_city = welt->get_city(origin);
 	// We cannot get an origin name as the origin is the starting road tile, not building

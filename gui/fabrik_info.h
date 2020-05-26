@@ -90,15 +90,15 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *get_help_filename() const {return "industry_info.txt";}
+	const char *get_help_filename() const OVERRIDE {return "industry_info.txt";}
 
-	virtual bool has_min_sizer() const {return true;}
+	virtual bool has_min_sizer() const OVERRIDE {return true;}
 
-	virtual koord3d get_weltpos(bool) { return fab->get_pos(); }
+	virtual koord3d get_weltpos(bool) OVERRIDE { return fab->get_pos(); }
 
-	virtual bool is_weltpos();
+	virtual bool is_weltpos() OVERRIDE;
 
-	virtual void set_windowsize(scr_size size);
+	virtual void set_windowsize(scr_size size) OVERRIDE;
 
 	/**
 	* Draw new component. The values to be passed refer to the window
@@ -106,19 +106,19 @@ public:
 	* component is displayed.
 	* @author Hj. Malthaner
 	*/
-	virtual void draw(scr_coord pos, scr_size size);
+	virtual void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// rotated map need new info ...
-	void map_rotate90( sint16 ) { update_info(); }
+	void map_rotate90( sint16 ) OVERRIDE { update_info(); }
 
 	// this constructor is only used during loading
 	fabrik_info_t();
 
-	void rdwr( loadsave_t *file );
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	uint32 get_rdwr_id() { return magic_factory_info; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_factory_info; }
 };
 
 #endif

@@ -980,7 +980,7 @@ static void remove_old_win()
 }
 
 
-static inline void snap_check_distance( sint16 *r, const sint16 a, const sint16 b )
+static inline void snap_check_distance( scr_coord_val *r, const scr_coord_val a, const scr_coord_val b )
 {
 	if(  abs(a-b)<=env_t::window_snap_distance  ) {
 		*r = a;

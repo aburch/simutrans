@@ -606,7 +606,7 @@ void grund_t::show_info()
 }
 
 
-void grund_t::info(cbuffer_t& buf, bool dummy) const
+void grund_t::info(cbuffer_t& buf) const
 {
 	stadt_t* city = welt->get_city(get_pos().get_2d());
 	if(city)
@@ -628,12 +628,12 @@ void grund_t::info(cbuffer_t& buf, bool dummy) const
 	bool has_way = false;
 	if(!is_water()) {
 		if(flags&has_way1) {
-			obj_bei(0)->info(buf, ist_bruecke());
+			obj_bei(0)->info(buf);
 			has_way = true;
 			if(flags&has_way2) {
 				buf.append(translator::translate(get_weg_nr(1)->get_name()));
 				buf.append("\n");
-				obj_bei(1)->info(buf, ist_bruecke());
+				obj_bei(1)->info(buf);
 				buf.append("\n");
 				if(ist_uebergang()) {
 					crossing_t* crossing = find<crossing_t>(2);
@@ -661,14 +661,15 @@ void grund_t::info(cbuffer_t& buf, bool dummy) const
 				char waytype_name[32] = "\0";
 				switch (waytype_t(i))
 				{
-				case tram_wt:	sprintf(waytype_name, "cap_tram_track"); break;
-				case track_wt:	sprintf(waytype_name, "cap_track"); break;
-				case monorail_wt: sprintf(waytype_name, "cap_monorail_track"); break;
-				case maglev_wt: sprintf(waytype_name, "cap_maglev_track"); break;
+				case tram_wt:        sprintf(waytype_name, "cap_tram_track");        break;
+				case track_wt:       sprintf(waytype_name, "cap_track");             break;
+				case monorail_wt:    sprintf(waytype_name, "cap_monorail_track");    break;
+				case maglev_wt:      sprintf(waytype_name, "cap_maglev_track");      break;
 				case narrowgauge_wt: sprintf(waytype_name, "cap_narrowgauge_track"); break;
-				case road_wt:	sprintf(waytype_name, "cap_road"); break;
-				case water_wt:	sprintf(waytype_name, "cap_water_canal"); break;
-				case air_wt:	sprintf(waytype_name, "cap_taxiway/runway"); break;
+				case road_wt:        sprintf(waytype_name, "cap_road");              break;
+				case water_wt:       sprintf(waytype_name, "cap_water_canal");       break;
+				case air_wt:         sprintf(waytype_name, "cap_taxiway/runway");    break;
+				default: break;
 				}
 
 				if (waytype_name[1] != '\0')
@@ -800,6 +801,7 @@ image_id grund_t::get_back_image(int leftback) const
 }
 
 
+#if COLOUR_DEPTH != 0
 // with double height ground tiles!
 // can also happen with single height tiles
 static inline uint8 get_back_image_from_diff(sint8 h1, sint8 h2)
@@ -819,6 +821,8 @@ static inline uint8 get_back_image_from_diff(sint8 h1, sint8 h2)
 		return (h1>0?h1:0)+(h2>0?h2:0)*3;
 	}
 }
+#endif
+
 
 /**
 * if ground is deleted mark the old spot as dirty
@@ -833,7 +837,7 @@ void grund_t::mark_image_dirty()
 }
 
 #if COLOUR_DEPTH == 0
-void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
+void grund_t::calc_back_image(const sint8, const slope_t::type)
 {
 	back_imageid = IMG_EMPTY;
 }
@@ -2403,7 +2407,6 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 	if(neighbouring_grounds.get_count() > 1)
 	{
 		// It is necessary to do this to simulate the way not being there for testing purposes.
-		grund_t* way_gr = welt->lookup(w->get_pos());
 		koord3d start = koord3d::invalid;
 		koord3d end;
 		vehicle_desc_t diversion_check_type(w->get_waytype(), kmh_to_speed(w->get_max_speed()), vehicle_desc_t::petrol, w->get_max_axle_load());
@@ -2455,7 +2458,7 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 
 		FOR(minivec_tpl<route_t>, const& diversionary_route, diversionary_routes)
 		{
-			for(int n = 1; n < diversionary_route.get_count()-1; n++)
+			for(uint32 n = 1; n < diversionary_route.get_count()-1; n++)
 			{
 				// All diversionary routes must themselves be set as public rights of way.
 				weg_t* way = welt->lookup(diversionary_route.at(n))->get_weg(w->get_waytype());

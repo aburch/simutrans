@@ -39,7 +39,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const {return "players.txt";}
+	const char * get_help_filename() const OVERRIDE {return "players.txt";}
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

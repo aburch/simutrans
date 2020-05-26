@@ -116,14 +116,14 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const {return "map.txt";}
+	const char * get_help_filename() const OVERRIDE {return "map.txt";}
 
 	/**
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	/**
 	 * Constructor. Adds all necessary Subcomponents.
@@ -131,9 +131,9 @@ public:
 	 */
 	map_frame_t();
 
-	void rdwr( loadsave_t *file );
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	virtual uint32 get_rdwr_id() { return magic_reliefmap; }
+	virtual uint32 get_rdwr_id() OVERRIDE { return magic_reliefmap; }
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -142,14 +142,14 @@ public:
 	 * @author (Mathew Hounsell)
 	 * @date   11-Mar-2003
 	 */
-	void set_windowsize(scr_size size);
+	void set_windowsize(scr_size size) OVERRIDE;
 
 	/**
 	 * resize window in response to a resize event
 	 * @author Hj. Malthaner
 	 * @date   01-Jun-2002
 	 */
-	void resize(const scr_coord delta=scr_coord(0,0));
+	void resize(const scr_coord delta=scr_coord(0,0)) OVERRIDE;
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -157,7 +157,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

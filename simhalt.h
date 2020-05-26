@@ -518,7 +518,7 @@ private:
 
 public:
 	// Added by : Knightly
-	void swap_connexions(const uint8 category, const uint8 g_class, uint8 max_classes, quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* &cxns)
+	void swap_connexions(const uint8 category, const uint8 g_class, quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* &cxns)
 	{
 		// swap the connexion hashtables
 		connexions_map *temp = connexions[category][g_class];
@@ -782,8 +782,6 @@ public:
 	bool is_reservable(const grund_t *gr, convoihandle_t cnv) const;
 	uint8 get_empty_lane(const grund_t *gr, convoihandle_t cnv) const;
 
-	//void info(cbuffer_t & buf, bool dummy = false) const;
-
 	/**
 	 * @param buf the buffer to fill
 	 * @return Goods description text (buf)
@@ -983,6 +981,8 @@ public:
 	int get_queue_pos(convoihandle_t cnv) const;
 
 	bool check_access(const player_t* player) const;
+
+	bool has_available_network(const player_t* player, uint8 catg_index=goods_manager_t::INDEX_NONE) const;
 
 	bool has_no_control_tower() const;
 

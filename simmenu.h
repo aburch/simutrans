@@ -131,6 +131,7 @@ enum {
 	TOOL_RECOLOUR_TOOL,
 	TOOL_ACCESS_TOOL,
 	TOOL_SHOW_SIGNALBOX_COVERAGE,
+	TOOL_CONVOY_NAMEPLATES,
 	SIMPLE_TOOL_COUNT,
 	SIMPLE_TOOL = 0x2000
 };
@@ -343,7 +344,7 @@ public:
 
 	virtual waytype_t get_waytype() const { return invalid_wt; }
 
-	virtual void rotate90(sint16 y_diff) { return; }
+	virtual void rotate90(sint16) {}
 };
 
 /*

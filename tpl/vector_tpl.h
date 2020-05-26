@@ -327,16 +327,14 @@ template<class T> class vector_tpl
 		uint32 size;  ///< Capacity
 		uint32 count; ///< Number of elements in vector
 
-	friend void swap<>(vector_tpl<T>& a, vector_tpl<T>& b);
+	friend void swap(vector_tpl<T>& a, vector_tpl<T>& b)
+	{
+		sim::swap(a.data,  b.data);
+		sim::swap(a.size,  b.size);
+		sim::swap(a.count, b.count);
+	}
 };
 
-
-template<class T> void swap(vector_tpl<T>& a, vector_tpl<T>& b)
-{
-	sim::swap(a.data,  b.data);
-	sim::swap(a.size,  b.size);
-	sim::swap(a.count, b.count);
-}
 
 /**
  * Clears vectors of the type vector_tpl<someclass*>

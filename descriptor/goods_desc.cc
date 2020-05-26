@@ -91,7 +91,7 @@ image_id goods_desc_t::get_catg_symbol() const
 /**
  * Reset the scaled values.
  */
-void goods_desc_t::set_scale(uint16 scale_factor)
+void goods_desc_t::set_scale(uint16)
 {
 	scaled_values.clear();
 	uint16 new_price;

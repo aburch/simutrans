@@ -412,7 +412,7 @@ void loadsave_t::rdwr_string(std::string &s) {
 }
 
 
-bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex, const char* savegame_revision_ex)
+bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex, const char *)
 {
 	mode = m;
 	close();

@@ -77,9 +77,9 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	lb_traction_types(NULL, SYSCOL_TEXT, gui_label_t::left),
 	lb_vehicle_count(NULL, SYSCOL_TEXT, gui_label_t::right),
 	lb_veh_action("Fahrzeuge:", SYSCOL_TEXT, gui_label_t::left),
+	lb_too_heavy_notice("too heavy", COL_RED, gui_label_t::left),
 	lb_livery_selector("Livery scheme:", SYSCOL_TEXT, gui_label_t::left),
 	lb_livery_counter(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left),
-	lb_too_heavy_notice("too heavy", COL_RED, gui_label_t::left),
 	convoi_pics(depot_t::get_max_convoy_length(wt)),
 	convoi(&convoi_pics),
 	pas(&pas_vec),
@@ -147,7 +147,6 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	* otherwise the tabs will not be present at all
 	*/
 	bool old_retired=show_retired_vehicles;
-	bool show_outdated_vehicles = true;
 	bool old_show_all=show_all;
 	show_retired_vehicles = true;
 	show_all = true;
@@ -1192,7 +1191,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 			if ((depot_frame && depot_frame->get_depot()->is_contained(info)) ||
 				((way_electrified || info->get_engine_type() != vehicle_desc_t::electric) &&
 				(((!info->is_future(month_now)) && (!info->is_retired(month_now))) ||
-					(info->is_retired(month_now) &&	((show_retired_vehicles && info->is_obsolete(month_now, welt) ||
+					(info->is_retired(month_now) &&	(((show_retired_vehicles && info->is_obsolete(month_now, welt)) ||
 					(show_outdated_vehicles && (!info->is_obsolete(month_now, welt)))))))))
 			{
 				// check if allowed
@@ -1825,7 +1824,7 @@ void gui_convoy_assembler_t::update_data()
 						img.rcolor = COL_DARK_ORANGE;
 					}
 				}
-				if(depot_frame && (i.key->get_power() > 0 || veh_action == va_insert && i.key->get_leader_count() == 1 && i.key->get_leader(0) && i.key->get_leader(0)->get_power() > 0))
+				if(depot_frame && (i.key->get_power() > 0 || (veh_action == va_insert && i.key->get_leader_count() == 1 && i.key->get_leader(0) && i.key->get_leader(0)->get_power() > 0)))
 				{
 					const uint16 traction_type = i.key->get_engine_type();
 					const uint16 shifter = 1 << traction_type;
@@ -2382,7 +2381,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		buf.printf("%s", translator::translate(veh_type->get_name(), welt->get_settings().get_name_language_id()));
 		if (veh_type->get_power() > 0)
 		{
-			buf.printf(" (%s)", translator::translate(engine_type_names[veh_type->get_engine_type() + 1]));
+			const uint8 et = (uint8)veh_type->get_engine_type() + 1;
+			buf.printf(" (%s)", translator::translate(engine_type_names[et]));
 		}
 		buf.append("\n");
 
@@ -2395,7 +2395,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			money_to_string(tmp, resale_value / 100.0, false);
 			sprintf(resale_entry, "(%s %8s)", translator::translate("Restwert:"), tmp);
 		}
-		else if (depot_frame && (veh_action == va_upgrade || show_all && veh_type->is_available_only_as_upgrade())) {
+		else if (depot_frame && (veh_action == va_upgrade || (show_all && veh_type->is_available_only_as_upgrade()))) {
 			char tmp[128];
 			double upgrade_price = veh_type->get_upgrade_price();
 			if (veh_type->is_available_only_as_upgrade() && !upgrade_price) {
@@ -2461,7 +2461,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				min_speed == max_speed ? translator::translate(" %gt @ %d km/h ") : translator::translate(" %gt @ %dkm/h%s%gt @ %dkm/h")  /*" %g t @ %d km/h " : " %g t @ %d km/h %s %g t @ %d km/h"*/,
 				min_weight * 0.001f, max_speed, translator::translate("..."), max_weight * 0.001f, min_speed);
 			buf.append("\n");
-			buf.printf(translator::translate("Power/tractive force (%s): %4d kW / %d kN\n"), translator::translate(engine_type_names[veh_type->get_engine_type() + 1]), veh_type->get_power(), veh_type->get_tractive_effort());
+			const uint8 et = (uint8)veh_type->get_engine_type() + 1;
+			buf.printf(translator::translate("Power/tractive force (%s): %4d kW / %d kN\n"), translator::translate(engine_type_names[et]), veh_type->get_power(), veh_type->get_tractive_effort());
 			if (veh_type->get_gear() != 64) // Do this entry really have to be here...??? If not, it should be skipped. Space is precious..
 			{
 				buf.printf("%s %0.2f : 1", translator::translate("Gear:"), veh_type->get_gear() / 64.0);
@@ -2748,7 +2749,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			lb_livery_counter.set_text(txt_livery_count);
 
 			// which livery scheme this vehicle has? - this list is not displayed for convoy's vehicles being assembled
-			if (veh_type->get_available_livery_count(welt) > 1 && convoi.index_at(pos, x, y) == -1) {
+			if (veh_type->get_available_livery_count(welt) > 0 && convoi.index_at(pos, x, y) == -1) {
 				const char* current_livery_text = NULL;
 				if (livery_scheme_index) {
 					livery_scheme_t* selected_scheme = welt->get_settings().get_livery_schemes()->get_element(livery_scheme_index);

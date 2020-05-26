@@ -36,13 +36,9 @@
 
 #include "utils/cbuffer_t.h"
 
-#ifdef MULTI_THREAD
-#include "utils/simthread.h"
-static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t add_to_world_list_mutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
 
 slist_tpl<depot_t *> depot_t::all_depots;
+
 
 #ifdef INLINE_OBJ_TYPE
 depot_t::depot_t(obj_t::typ type, loadsave_t *file) : gebaeude_t(type)
@@ -598,7 +594,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
 			}
 		}
-		else if(  cnv->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed()) != route_t::valid_route) {
+		else if(  !cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->has_tall_vehicles(), cnv->access_route())) {
 			// no route to go ...
 			if(local_execution) {
 				static cbuffer_t buf;
@@ -878,7 +874,7 @@ bool depot_t::is_suitable_for( const vehicle_t * test_vehicle, const uint16 trac
 	return true;
 }
 
-void depot_t::add_to_world_list(bool lock)
+void depot_t::add_to_world_list(bool)
 {
 	welt->add_building_to_world_list(this);
 	const planquadrat_t* tile = welt->access(get_pos().get_2d());

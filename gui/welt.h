@@ -139,12 +139,12 @@ public:
 		* @return the filename for the helptext, or NULL
 		* @author Hj. Malthaner
 		*/
-	const char * get_help_filename() const {return "new_world.txt";}
+	const char * get_help_filename() const OVERRIDE {return "new_world.txt";}
 
 	settings_t* get_sets() const { return sets; }
 
 	// does not work during new world dialog
-	bool has_sticky() const { return false; }
+	bool has_sticky() const OVERRIDE { return false; }
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -154,7 +154,7 @@ public:
 		* component is displayed.
 		* @author Hj. Malthaner
 		*/
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

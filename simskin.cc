@@ -72,6 +72,7 @@ const skin_desc_t* skinverwaltung_t::pax_evaluation_icons = NULL;
 const skin_desc_t* skinverwaltung_t::mail_evaluation_icons = NULL;
 
 const skin_desc_t* skinverwaltung_t::alerts             = NULL;
+const skin_desc_t* skinverwaltung_t::input_output       = NULL; // industry input/output
 
 // cursors
 const skin_desc_t* skinverwaltung_t::cursor_general     = NULL;	// new cursors
@@ -126,6 +127,7 @@ static spezial_obj_tpl<skin_desc_t> const symbol_objekte[] = {
 	{ &skinverwaltung_t::mail_evaluation_icons, "MailEvaluation" },
 	{ &skinverwaltung_t::alerts,             "Alerts"         },
 	{ &skinverwaltung_t::goods_categories,   "GoodsCategories"},
+	{ &skinverwaltung_t::input_output,       "InputOutput"    },
 	{ &skinverwaltung_t::seasons_icons,      "Seasons"        },
 	{ &skinverwaltung_t::message_options,    "MessageOptions" },
 	{ &skinverwaltung_t::color_options,      "ColorOptions"   },

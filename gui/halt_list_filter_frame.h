@@ -48,7 +48,7 @@ private:
 			}
 			return button_t::infowin_event(ev);
 		}
-		virtual void draw(scr_coord offset) {
+		virtual void draw(scr_coord offset) OVERRIDE {
 			if(ware_ab) {
 				pressed = parent->get_ware_filter_ab(ware_ab);
 			}
@@ -118,7 +118,7 @@ public:
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
 	 */
-	bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -126,19 +126,19 @@ public:
 	 * component is displayed.
 	 * @author V. Meyer
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
     /**
      * resize window in response to a resize event
      */
-	void resize(const scr_coord delta);
+	void resize(const scr_coord delta) OVERRIDE;
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const {return "haltlist_filter.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "haltlist_filter.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

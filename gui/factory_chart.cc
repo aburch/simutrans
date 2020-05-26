@@ -59,7 +59,7 @@ static const gui_chart_t::convert_proc goods_convert[MAX_FAB_GOODS_STAT] =
 
 static const char *const prod_type[MAX_FAB_STAT+1] =
 {
-	"Produktion", "Power usage",
+	"Productivity", "Power usage",
 	"Electricity", "Jobs", "Post",
 	"", "", "Commuters", "", "Post",
 	"Post", "Consumers",

@@ -531,9 +531,10 @@ bool reliefkarte_t::change_zoom_factor(bool magnify)
 			zoomed = true;
 		}
 		else {
-			// check here for maximum zoom-out, otherwise there will be integer overflows
-			// with large maps as we calculate with sint16 coordinates ...
-			int max_zoom_in = min( 32767 / (2*welt->get_size_max()), 16);
+			// Ensure that zoom*x < INT32_MAX, for any x < welt->get_size_max();
+			// zoom*welt->get_size_max() < INT32_MAX <=> zoom < INT32_MAX/welt->get_size_max();
+			// hint: will only happen at maximum zoom level if the map is larger than
+			int max_zoom_in = min(16, INT32_MAX/welt->get_size_max());
 			if(  zoom_in < max_zoom_in  ) {
 				zoom_in++;
 				zoomed = true;
@@ -895,7 +896,11 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				// maximum two ways for one ground
 				const weg_t *way = gr->get_weg_nr(0);
 				condition_percent = way->get_condition_percent();
-				if(const weg_t *second_way = gr->get_weg_nr(1))
+				if (way->get_desc()->is_mothballed()) {
+					set_relief_farbe(k, MAP_COL_NODATA);
+					break;
+				}
+				else if(const weg_t *second_way = gr->get_weg_nr(1))
 				{
 					condition_percent = min(condition_percent, second_way->get_condition_percent());
 				}
@@ -913,7 +918,10 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				const weg_t* road = gr->get_weg(road_wt);
 				if (road)
 				{
-					set_relief_farbe(k, calc_severity_color(road->get_congestion_percentage(), 100));
+					// Because it is possible for congestion to be >100% (as 100% merely means that traffic
+					// takes 100% longer than the uncongested time to traverse the tile), set the colour range
+					// based on a maximum of 250% to allow more granularity in congested places.
+					set_relief_farbe(k, calc_severity_color(road->get_congestion_percentage(), 250));
 				}
 			}
 			break;
@@ -939,6 +947,10 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		// show max speed (if there)
 		case MAX_SPEEDLIMIT:
 			{
+				if (gr->hat_wege() && gr->get_weg_nr(0)->get_desc()->is_mothballed()) {
+					set_relief_farbe(k, MAP_COL_NODATA);
+					break;
+				}
 				const sint32 speed_factor = 450-gr->get_max_speed() > 0 ? 450 - gr->get_max_speed() : 0;
 				if(gr->get_max_speed()) {
 					set_relief_farbe(k, calc_severity_color(pow(speed_factor,2.0)/100, 2025));
@@ -952,7 +964,11 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				if(gr->hat_wege())
 				{
 					const weg_t* way =  gr->get_weg_nr(0);
-					if(way->get_waytype() == powerline_wt || !way->get_max_axle_load())
+					if (way->get_desc()->is_mothballed()) {
+						set_relief_farbe(k, MAP_COL_NODATA);
+						break;
+					}
+					else if(way->get_waytype() == powerline_wt || !way->get_max_axle_load())
 					{
 						break;
 					}
@@ -973,7 +989,13 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				const leitung_t* lt = gr->find<leitung_t>();
 				if(lt!=NULL) {
-					set_relief_farbe(k, calc_severity_color((sint32)lt->get_net()->get_demand(),(sint32)lt->get_net()->get_supply()) );
+					const uint64 demand = lt->get_net()->get_demand();
+					if (!lt->get_net()->get_demand() || !lt->get_net()->get_supply()) {
+						set_relief_farbe(k, MAP_COL_NODATA);
+					}
+					else if (demand) {
+						set_relief_farbe(k, calc_severity_color((sint32)lt->get_net()->get_demand(), (sint32)lt->get_net()->get_supply()));
+					}
 				}
 			}
 			break;
@@ -1846,6 +1868,22 @@ void reliefkarte_t::draw(scr_coord pos)
 
 	if(  mode & MAP_FACTORIES  ) {
 		FOR(  vector_tpl<fabrik_t*>,  const f,  welt->get_fab_list()  ) {
+			// filter check
+			if (freight_type_group_index_showed_on_map == goods_manager_t::passengers) {
+				if (!f->get_building()->get_adjusted_visitor_demand() && !f->get_building()->get_adjusted_jobs()) {
+					continue;
+				}
+			}
+			else if (freight_type_group_index_showed_on_map == goods_manager_t::mail) {
+				if(!f->get_building()->get_adjusted_mail_demand()) {
+					continue;
+				}
+			}
+			else if (
+				((freight_type_group_index_showed_on_map != NULL && freight_type_group_index_showed_on_map != goods_manager_t::none)
+					&& !f->has_goods_catg_demand(freight_type_group_index_showed_on_map->get_catg_index()))) {
+				continue;
+			}
 			// find top-left tile position
 			koord3d fab_tl_pos = f->get_pos();
 			if (grund_t *gr = welt->lookup(f->get_pos())) {
