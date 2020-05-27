@@ -51,7 +51,7 @@ public:
   }
 };
 
-gui_journey_time_stat_t::gui_journey_time_stat_t(schedule_t* schedule, player_t* pl) {
+gui_journey_time_stat_t::gui_journey_time_stat_t(schedule_t*, player_t* pl) {
   player = pl;
 }
 
@@ -134,6 +134,8 @@ void copy_stations_to_clipboard(schedule_t* schedule, player_t* player, bool nam
   if( clipboard.len() > 0 ) {
     dr_copy( clipboard, clipboard.len() );
     create_win( new news_img("Station infos were copied to clipboard.\n"), w_time_delete, magic_none );
+  } else {
+    create_win( new news_img("There is nothing to copy.\n"), w_time_delete, magic_none );
   }
 }
 
@@ -203,7 +205,7 @@ void oudia_print_eki(cbuffer_t& clipboard, const char* name, sint8 pos) {
 
 void copy_oudia_format(schedule_t* schedule, player_t* player, uint32 time_average[]) {
   // first, find start and end index except waypoint.
-  uint8 start = 0;
+  sint16 start = -1;
   uint8 end = schedule->entries.get_count()-1;
   for(uint8 i=0; i<schedule->entries.get_count(); i++) {
     halthandle_t const halt = haltestelle_t::get_halt(schedule->entries[i].pos, player);
@@ -211,6 +213,11 @@ void copy_oudia_format(schedule_t* schedule, player_t* player, uint32 time_avera
       start = i;
       break;
     }
+  }
+  if(  start==-1  ) {
+    // all entries are waypoint -> abort.
+    create_win( new news_img("There is nothing to copy.\n"), w_time_delete, magic_none );
+    return;
   }
   for(sint16 i=schedule->entries.get_count()-1; 0<=i; i--) {
     halthandle_t const halt = haltestelle_t::get_halt(schedule->entries[i].pos, player);
@@ -274,8 +281,12 @@ void copy_csv_format(schedule_t* schedule, player_t* player, uint32 time_average
     }
     clipboard.printf("\t%d\n", tick_to_divided_time(time_average[i]));
   }
-  dr_copy( clipboard, clipboard.len() );
-  create_win( new news_img("Station infos were copied to clipboard.\n"), w_time_delete, magic_none );
+  if(  clipboard.len()>0  ) {
+    dr_copy( clipboard, clipboard.len() );
+    create_win( new news_img("Station infos were copied to clipboard.\n"), w_time_delete, magic_none );
+  } else {
+    create_win( new news_img("There is nothing to copy.\n"), w_time_delete, magic_none );
+  }
 }
 
 
@@ -385,6 +396,12 @@ void gui_journey_time_info_t::update() {
     }
   }
   time_average[schedule->entries.get_count()] = journey_time_sum;
+  
+  // disable copy buttons if schedule is empty
+  bt_copy_names.enable(!schedule->entries.empty());
+  bt_copy_stations.enable(!schedule->entries.empty());
+  bt_copy_oudia.enable(!schedule->entries.empty());
+  bt_copy_csv.enable(!schedule->entries.empty());
   
   // update stat
   stat.update(schedule, time_average);
