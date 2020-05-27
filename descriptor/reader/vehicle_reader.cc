@@ -471,7 +471,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->freight_image_type = decode_uint8(p);
 		if(extended)
 		{
-			if(extended_version < 6)
+			if(extended_version < 7)
 			{
 				// NOTE: Extended version reset to 1 with incrementing of
 				// Standard version to 10.
@@ -552,6 +552,14 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				else
 				{
 					desc->mixed_load_prohibition = false;
+				}
+				if (extended && extended_version >= 6)
+				{
+					desc->override_way_speed = decode_uint8(p);
+				}
+				else
+				{
+					desc->override_way_speed = false;
 				}
 			}
 			else
@@ -680,6 +688,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
 		desc->basic_constraint_next = vehicle_desc_t::unknown_constraint;
 		desc->mixed_load_prohibition = false;
+		desc->override_way_speed = false;
 	}
 	desc->set_way_constraints(way_constraints);
 
@@ -746,6 +755,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc-
 		desc->len,
 		desc->is_tilting,
 		desc->mixed_load_prohibition,
+		desc->override_way_speed,
 		desc->catering_level,
 		desc->get_way_constraints().get_permissive(),
 		desc->get_way_constraints().get_prohibitive(),

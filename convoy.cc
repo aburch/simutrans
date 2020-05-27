@@ -76,7 +76,7 @@ void adverse_summary_t::add_vehicle(const vehicle_t &v)
 	if (waytype != air_wt || ((const air_vehicle_t &)v).get_flyingheight() <= 0)
 	{
 		weg_t *way = v.get_weg();
-		if (way)
+		if (way && v.get_desc()->get_override_way_speed() == false)
 		{
 			max_speed = min(max_speed, way->get_max_speed());
 		}
