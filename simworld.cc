@@ -1666,9 +1666,11 @@ void *check_road_connexions_threaded(void *args)
 	return args;
 }
 
+
 #ifdef DEBUG_MARCHETTI_CONSTANT
 uint32 passengers_generated_this_month = 0;
 uint32 total_journey_time_tolerance_this_month = 0;
+uint32 passengers_this_month_with_tolerance_of_over_10_hours = 0;
 
 uint32 passengers_travelled_this_month = 0;
 uint32 total_journey_times_this_month = 0;
@@ -5222,6 +5224,7 @@ void karte_t::new_month()
 #ifdef DEBUG_MARCHETTI_CONSTANT
 	passengers_generated_this_month = 0;
 	total_journey_time_tolerance_this_month = 0;
+	passengers_this_month_with_tolerance_of_over_10_hours = 0;
 
 	passengers_travelled_this_month = 0;
 	total_journey_times_this_month = 0;
@@ -6252,6 +6255,10 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::generate_passengers_and_mail (visiting tolerance?)") + (min_visiting_tolerance * onward_trips);
 #ifdef DEBUG_MARCHETTI_CONSTANT
 				total_journey_time_tolerance_this_month += tolerance;
+				if (tolerance > 6000)
+				{
+					passengers_this_month_with_tolerance_of_over_10_hours++;
+				}
 #endif 
 			}
 		}
@@ -8731,6 +8738,7 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
 #ifdef DEBUG_MARCHETTI_CONSTANT
 	passengers_generated_this_month = 0;
 	total_journey_time_tolerance_this_month = 0;
+	passengers_this_month_with_tolerance_of_over_10_hours = 0;
 
 	passengers_travelled_this_month = 0;
 	total_journey_times_this_month = 0;
