@@ -2417,10 +2417,27 @@ sint64 haltestelle_t::calc_maintenance() const
 
 
 // changes this to a public transfer exchange stop
-void haltestelle_t::change_owner( player_t *player )
+void haltestelle_t::change_owner( player_t *player, bool halt_only )
 {
 	// check if already public
 	if(  owner == player  ) {
+		return;
+	}
+	
+	// change owner of halt
+	owner = player;
+	rebuild_connections();
+	rebuild_linked_connections();
+
+	// tell the world of it ...
+	if(  player == welt->get_public_player()  &&  env_t::networkmode  ) {
+		cbuffer_t buf;
+		buf.printf( translator::translate("%s at (%i,%i) now public stop."), get_name(), get_basis_pos().x, get_basis_pos().y );
+		welt->get_message()->add_message( buf, get_basis_pos(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY );
+	}
+	
+	if(  halt_only  ) {
+		// do not change 
 		return;
 	}
 
@@ -2492,18 +2509,6 @@ void haltestelle_t::change_owner( player_t *player )
 			}
 		}
 	}
-
-	// now finally change owner
-	owner = player;
-	rebuild_connections();
-	rebuild_linked_connections();
-
-	// tell the world of it ...
-	if(  player == welt->get_public_player()  &&  env_t::networkmode  ) {
-		cbuffer_t buf;
-		buf.printf( translator::translate("%s at (%i,%i) now public stop."), get_name(), get_basis_pos().x, get_basis_pos().y );
-		welt->get_message()->add_message( buf, get_basis_pos(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY );
-	}
 }
 
 
@@ -2514,7 +2519,7 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 		return;
 	}
 
-	halt_merged->change_owner( owner );
+	halt_merged->change_owner( owner, false );
 
 	// add statistics
 	for(  int month=0;  month<MAX_MONTHS;  month++  ) {

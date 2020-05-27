@@ -550,11 +550,12 @@ DBG_MESSAGE("tool_remover()",  "removing roadsign at (%s)", pos.get_str());
 	}
 
 	// check stations
+	gebaeude_t* const gb = gr->find<gebaeude_t>();
 	halthandle_t halt = gr->get_halt();
 DBG_MESSAGE("tool_remover()", "bound=%i",halt.is_bound());
-	if (gr->is_halt()  &&  halt.is_bound()  &&  fabrik_t::get_fab(k)==NULL  &&  type == obj_t::undefined) {
+	if (gr->is_halt()  &&  halt.is_bound()  &&  fabrik_t::get_fab(k)==NULL  &&  type == obj_t::undefined  &&  gb) {
 		// halt and not a factory (oil rig etc.)
-		const player_t* owner = halt->get_owner();
+		const player_t* owner = gb->get_owner();
 		if(  player_t::check_owner( owner, player )  ) {
 			return haltestelle_t::remove(player, gr->get_pos());
 		}
@@ -624,7 +625,6 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 	}
 
 	// since buildings can have more than one tile, we must handle them together
-	gebaeude_t* gb = gr->find<gebaeude_t>();
 	if(gb != NULL  &&  (type == obj_t::gebaeude  ||  type == obj_t::undefined)) {
 		msg = gb->is_deletable(player);
 		if(msg) {
@@ -7006,7 +7006,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 	}
 	
 	// [mod : shingoushori] mod : changes this to a private transfer exchange stop 1/3
-	if( is_shift_pressed() || is_ctrl_pressed() ){
+	if( is_shift_pressed()  ){
 		// [mod : shingoushori] shortcut the process "// make way public if any suitable" for avoid complexity
 		if( halt.is_bound()  &&  (halt->get_owner() != player) /* !player_t::check_owner(halt->get_owner(), player)*/ ) {
 			// check funds
@@ -7078,7 +7078,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 	}
 
 	// change ownership
-	halt->change_owner( welt->get_public_player() );
+	halt->change_owner( welt->get_public_player(), is_ctrl_pressed() );
 	halt->merge_halt( merge_to );
 
 	return NULL;
