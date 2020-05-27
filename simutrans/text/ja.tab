@@ -37,6 +37,14 @@ cl_btn_sort_name
 名前
 cl_btn_sort_type
 タイプ
+cl_btn_sort_loading_lvl
+積載率
+cl_btn_sort_max_speed
+最高速度
+cl_btn_sort_value
+取得原価
+cl_btn_sort_age
+平均車齢
 clf_btn_alle
 全選択
 clf_btn_invers

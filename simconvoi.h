@@ -1390,6 +1390,9 @@ public:
 	// returns total value of vehicle length of this convoy. (not include any padding)
 	uint16 get_true_tile_length() const;
 
+	// returns vehicle average age in month
+	uint16 get_average_age();
+
 	// get cached obsolescence.
 	inline bool has_obsolete_vehicles() const { return has_obsolete; }
 

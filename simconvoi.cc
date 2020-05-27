@@ -7648,6 +7648,17 @@ bool convoi_t::calc_obsolescence(uint16 timeline_year_month)
 	return false;
 }
 
+uint16 convoi_t::get_average_age()
+{
+	if (!get_vehicle_count()) { return 0; }
+	uint32 total_age = 0;
+	for (int j = get_vehicle_count(); --j >= 0; ) {
+		total_age += welt->get_current_month() - (uint32)vehicle[j]->get_purchase_time();
+	}
+	return total_age / get_vehicle_count();
+}
+
+
 void convoi_t::clear_replace()
 {
 	if(replace)
