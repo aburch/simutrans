@@ -83,6 +83,7 @@ const int cost_type_color[MAX_LINE_COST] =
 	COL_MAXSPEED,
 	COL_LILAC
 };
+static uint32 bFilterStates = 0;
 
 static uint8 tabs_to_lineindex[8];
 static uint8 max_idx=0;
@@ -114,8 +115,10 @@ static uint8 current_sort_mode = 0;
 #define LINE_NAME_COLUMN_WIDTH ((D_BUTTON_WIDTH*3)+11+4)
 #define SCL_HEIGHT (15*LINESPACE)
 
+/// selected convoy tab
+static uint8 selected_convoy_tab = 0;
 
-/// selected tab per player
+/// selected line tab per player
 static uint8 selected_tab[MAX_PLAYER_COUNT] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 /// selected line per tab (static)
@@ -309,6 +312,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 		cont_charts.add_component(filterButtons + i);
 	}
 	info_tabs.add_tab(&cont_charts, translator::translate("Chart"));
+	info_tabs.set_active_tab_index(selected_convoy_tab);
 
 	// recover last selected line
 	int index = 0;
@@ -330,10 +334,10 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	update_lineinfo( line );
 
 	// resize button
-	set_min_windowsize(scr_size(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH*3 + D_MARGIN_LEFT*2, 302));
+	set_min_windowsize(scr_size(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH*3 + D_MARGIN_LEFT*2, 305));
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0,0));
-	resize(scr_coord(192,126)); // suitable for 4 buttons horizontally and 4 convoys vertically
+	resize(scr_coord(D_BUTTON_WIDTH, LINESPACE*3+D_V_SPACE)); // suitable for 4 buttons horizontally and 5 convoys vertically
 
 	build_line_list(index);
 }
@@ -469,6 +473,9 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 			bt_new_line.disable();
 		}
 	}
+	else if(comp == &info_tabs){
+		selected_convoy_tab = (uint8)info_tabs.get_active_tab_index();
+	}
 	else if (comp == &scl) {
 		if(  line_scrollitem_t *li=(line_scrollitem_t *)scl.get_element(v.i)  ) {
 			update_lineinfo( li->get_line() );
@@ -493,8 +500,8 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		if (line.is_bound()) {
 			for ( int i = 0; i<MAX_LINE_COST; i++) {
 				if (comp == &filterButtons[i]) {
-					filterButtons[i].pressed ^= 1;
-					if(filterButtons[i].pressed) {
+					bFilterStates ^= (1 << i);
+					if(bFilterStates & (1 << i)) {
 						chart.show_curve(i);
 					}
 					else {
@@ -573,6 +580,10 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 		PUSH_CLIP( pos.x + 1, pos.y + D_TITLEBAR_HEIGHT, size.w - 2, size.h - D_TITLEBAR_HEIGHT);
 		display(pos);
 		POP_CLIP();
+	}
+
+	for (int i = 0; i < MAX_LINE_COST; i++) {
+		filterButtons[i].pressed = ((bFilterStates & (1 << i)) != 0);
 	}
 }
 
@@ -921,7 +932,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		chart.remove_curves();
 		for(i=0; i<MAX_LINE_COST; i++)  {
 			chart.add_curve(cost_type_color[i], new_line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true, statistic_type[i]*2 );
-			if(filterButtons[i].pressed) {
+			if (bFilterStates & (1 << i)) {
 				chart.show_curve(i);
 			}
 		}
