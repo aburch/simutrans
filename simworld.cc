@@ -1666,7 +1666,7 @@ void *check_road_connexions_threaded(void *args)
 	return args;
 }
 
-
+#define DEBUG_MARCHETTI_CONSTANT
 #ifdef DEBUG_MARCHETTI_CONSTANT
 uint32 passengers_generated_this_month = 0;
 uint32 total_journey_time_tolerance_this_month = 0;
@@ -6253,6 +6253,27 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			else
 			{
 				tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::generate_passengers_and_mail (visiting tolerance?)") + (min_visiting_tolerance * onward_trips);
+
+				// Now multiply the tolerance by the success percentage of the origin building so as to normalise per inhabitant travel time over any given period of time:
+				// passengers who travel more often must have a lower average journey time tolerance than those who travel less often.
+
+				const uint32 success_percentage = (uint32)gb->get_average_passenger_success_percent_visiting();
+				uint32 tolerance_multiplier = 100;
+				if (success_percentage > 0)
+				{
+					if (success_percentage < 65535)
+					{
+						tolerance_multiplier = (10000 / success_percentage); // Units: 10,000ths (%^2)
+					}
+					else
+					{
+						tolerance_multiplier = 200;
+					}
+				}
+
+				tolerance *= tolerance_multiplier;
+				tolerance /= 100;
+
 #ifdef DEBUG_MARCHETTI_CONSTANT
 				total_journey_time_tolerance_this_month += tolerance;
 				if (tolerance > 6000)
