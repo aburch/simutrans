@@ -3002,7 +3002,7 @@ origin (amount)
 origin (detail)
 出発地 (詳細)
 out of range
-次駅までの距離が航続距離を超えています
+航続距離オーバー
 overcrowded_capacity
 過積載定員/容量
 partly_forged
@@ -3212,7 +3212,7 @@ Extendedセーブバージョン
 Schedule is incomplete/not finished
 経路設定が完了していません
 Scheduled
-発車間隔設定数
+設定発車回数
 See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.
 地上/地下を1層ごとに表示します。Ctrl+Uで切り替えできます。階層を変更するにはHOMEキー/ENDキーを使用してください。
 See under the ground, to build tunnels and underground railways/metros. Toggle with SHIFT + U
