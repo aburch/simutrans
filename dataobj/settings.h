@@ -335,6 +335,15 @@ private:
 	*/
 	uint32 max_route_tiles_to_process_in_a_step = 1024;
 
+	/**
+	* This modifies the base journey time tolerance for passenger
+	* trips to allow more fine grained control of the journey time
+	* tolernace algorithm. If this be set to zero, then the per
+	* building adjustment of journey time tolerance will be disabled.
+	* This only affects visiting passengers.
+	*/
+	uint32 tolerance_modifier_percentage = 100;
+
 public:
 	//Cornering settings
 	//@author: jamespetts
@@ -1114,6 +1123,8 @@ public:
 
 	uint32 get_random_mode_commuting() const { return random_mode_commuting; }
 	uint32 get_random_mode_visiting() const { return random_mode_visiting; }
+
+	uint32 get_tolerance_modifier_percentage() const { return tolerance_modifier_percentage; }
 
 #ifndef NETTOOL
 	float32e8_t get_simtime_factor() const { return simtime_factor; }

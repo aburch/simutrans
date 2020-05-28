@@ -450,6 +450,7 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 	INIT_NUM("min_wait_airport", sets->get_min_wait_airport(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("random_mode_commuting", sets->get_random_mode_commuting(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("random_mode_visiting", sets->get_random_mode_visiting(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("tolerance_modifier_percentage", sets->get_tolerance_modifier_percentage(), 0, 8192, gui_numberinput_t::AUTOLINEAR, false );
 	{
 		gui_component_table_t &tbl = new_table(scr_coord(0, ypos), 6, 4);
 		int row = 0;
@@ -577,6 +578,7 @@ void settings_extended_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->min_wait_airport );
 	READ_NUM_VALUE( sets->random_mode_commuting );
 	READ_NUM_VALUE( sets->random_mode_visiting );
+	READ_NUM_VALUE( sets->tolerance_modifier_percentage );
 
 	READ_NUM_VALUE_TENTHS( (sets->min_commuting_tolerance) );
 	READ_NUM_VALUE_TENTHS( sets->range_commuting_tolerance);
