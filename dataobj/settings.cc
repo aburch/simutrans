@@ -471,6 +471,8 @@ settings_t::settings_t() :
 
 	random_mode_commuting = random_mode_visiting = 2;
 
+	tolerance_modifier_percentage = 100;
+
 	max_route_tiles_to_process_in_a_step = 2048;
 
 	for(uint8 i = 0; i < 17; i ++)
@@ -1835,6 +1837,15 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_long(max_route_tiles_to_process_in_a_step);
 			}
 		}
+
+		if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 25))
+		{
+			file->rdwr_long(tolerance_modifier_percentage); 
+		}
+		else if (file->is_loading())
+		{
+			tolerance_modifier_percentage = 100;
+		}
 	}
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -2567,6 +2578,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	towns_adopt_player_roads = (bool)contents.get_int("towns_adopt_player_roads", towns_adopt_player_roads);
 
 	max_elevated_way_building_level = (uint8)contents.get_int("max_elevated_way_building_level", max_elevated_way_building_level);
+
+	tolerance_modifier_percentage = contents.get_int("tolerance_modifier_percentage", tolerance_modifier_percentage); 
 
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 
