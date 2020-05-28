@@ -26,7 +26,7 @@
  * All filter and sort settings are static, so the old settings are
  * used when the window is reopened.
  */
-convoi_frame_t::sort_mode_t convoi_frame_t::sortby = convoi_frame_t::nach_name;
+convoi_frame_t::sort_mode_t convoi_frame_t::sortby = convoi_frame_t::by_name;
 bool convoi_frame_t::sortreverse = false;
 static uint8 cl_display_mode = gui_convoiinfo_t::cnvlist_normal;
 
@@ -34,7 +34,8 @@ const char *convoi_frame_t::sort_text[SORT_MODES] = {
 	"cl_btn_sort_name",
 	"cl_btn_sort_income",
 	"cl_btn_sort_type",
-	"cl_btn_sort_id"
+	"cl_btn_sort_id",
+	"cl_btn_sort_power"
 };
 
 
@@ -137,13 +138,13 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 
 	switch (sortby) {
 		default:
-		case nach_name:
+		case by_name:
 			result = strcmp(cnv1->get_internal_name(), cnv2->get_internal_name());
 			break;
-		case nach_gewinn:
+		case by_profit:
 			result = sgn(cnv1->get_jahresgewinn() - cnv2->get_jahresgewinn());
 			break;
-		case nach_typ:
+		case by_type:
 			if(cnv1->get_vehicle_count()*cnv2->get_vehicle_count()>0) {
 				vehicle_t const* const tdriver1 = cnv1->front();
 				vehicle_t const* const tdriver2 = cnv2->front();
@@ -157,8 +158,11 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 				}
 			}
 			break;
-		case nach_id:
+		case by_id:
 			result = cnv1.get_id()-cnv2.get_id();
+			break;
+		case by_power:
+			result = cnv1->get_sum_power() - cnv2->get_sum_power();
 			break;
 	}
 	return sortreverse ? result > 0 : result < 0;
