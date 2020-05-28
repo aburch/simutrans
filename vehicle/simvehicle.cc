@@ -1197,6 +1197,7 @@ void vehicle_t::hop(grund_t* gr)
 			cnv->set_schedule_target( koord3d::invalid );
 		}
 		else {
+			cnv->register_arrival_time();
 			// advance schedule for all coupling convoys.
 			convoihandle_t c = cnv->self;
 			while(  c.is_bound()  ) {

@@ -1786,23 +1786,8 @@ void convoi_t::ziel_erreicht()
 		return;
 	}
 	
+	register_arrival_time();
 	halthandle_t halt = haltestelle_t::get_halt(schedule->get_current_entry().pos,owner);
-	// when arrived at a stop, register journey time
-	if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
-		c = self;
-		while(  c.is_bound()  ) {
-			if(  c->get_line().is_bound()  ) {
-				// register journey time
-				c->get_line()->get_schedule()->entries[c->get_schedule()->get_current_stop()].push_journey_time(world()->get_ticks()-arrived_time);
-				// update journey time window
-				gui_journey_time_info_t* window = dynamic_cast<gui_journey_time_info_t*>(win_get_magic((ptrdiff_t)c->get_line().get_rep()));
-				if(  window  ) {
-					window->update();
-				}
-			}
-			c = c->get_coupling_convoi();
-		}
-	}
 	
 	// check for coupling
 	if(  next_coupling_index!=INVALID_INDEX  &&  next_coupling_index<=v->get_route_index()  ) {
@@ -4772,4 +4757,20 @@ sint32 convoi_t::calc_min_top_speed() {
 		c = c->get_coupling_convoi();
 	}
 	return min_top_speed;
+}
+
+void convoi_t::register_arrival_time() {
+	convoihandle_t c = self;
+	while(  c.is_bound()  ) {
+		if(  c->get_line().is_bound()  ) {
+			// register journey time
+			c->get_line()->get_schedule()->entries[c->get_schedule()->get_current_stop()].push_arrival_time(world()->get_ticks());
+			// update journey time window
+			gui_journey_time_info_t* window = dynamic_cast<gui_journey_time_info_t*>(win_get_magic((ptrdiff_t)c->get_line().get_rep()));
+			if(  window  ) {
+				window->update();
+			}
+		}
+		c = c->get_coupling_convoi();
+	}
 }

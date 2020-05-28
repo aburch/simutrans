@@ -1,7 +1,6 @@
 #include "journey_time_info.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/schedule.h"
-#include "../dataobj/schedule_entry.h"
 #include "../simhalt.h"
 #include "../simworld.h"
 #include "../simline.h"
@@ -15,54 +14,17 @@ uint16 tick_to_divided_time(uint32 tick) {
   return (uint16)((uint64)tick * divisor / world()->ticks_per_world_month);
 }
 
-class gui_journey_time_entry_t : public gui_aligned_container_t {
-  cbuffer_t buf[5];
-public:
-  gui_journey_time_entry_t(schedule_entry_t e, player_t* player) {
-    set_table_layout(1,0);
-    halthandle_t const halt = haltestelle_t::get_halt(e.pos, player);
-    if(  halt.is_bound()  ) {
-      // show halt name
-      buf[0].printf("%s", halt->get_name());
-    } else {
-      // maybe a waypoint
-      buf[0].printf("waypoint");
-    }
-    // show last 3 actual journey time
-    // calc average
-    uint32 sum_ticks = 0;
-    uint8 cnt = 0;
-    for(uint8 i=0; i<3; i++) {
-      uint32 t = e.journey_time[(i+e.jtime_index)%3];
-      if(  t==0  ) {
-        buf[i+1].printf("-");
-      } else {
-        buf[i+1].printf("%d", tick_to_divided_time(t));
-        cnt += 1;
-        sum_ticks += t;
-      }
-    }
-    if(  cnt==0  ) {
-      buf[4].printf("-");
-    } else {
-      buf[4].printf("%d", tick_to_divided_time(sum_ticks/cnt));
-    }
-    end_table();
-  }
-};
 
 gui_journey_time_stat_t::gui_journey_time_stat_t(schedule_t*, player_t* pl) {
   player = pl;
 }
 
-void gui_journey_time_stat_t::update(schedule_t* schedule, uint32 time_average[256]) {
+void gui_journey_time_stat_t::update(schedule_t* schedule, vector_tpl<uint32*>& journey_times) {
   scr_size size = get_size();
   remove_all();
-  set_table_layout(5,0);
-  uint32 journey_time_sum = 0;
-  uint8 cnt = 0;
-  FOR(minivec_tpl<schedule_entry_t>, const& e, schedule->entries) {
-    //new_component<gui_journey_time_entry_t>(e, player);
+  set_table_layout(NUM_ARRIVAL_TIME_STORED+2,0);
+  for(uint8 idx=0; idx<schedule->entries.get_count(); idx++) {
+    schedule_entry_t& e = schedule->entries[idx];
     gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::left);
     halthandle_t const halt = haltestelle_t::get_halt(e.pos, player);
     if(  halt.is_bound()  ) {
@@ -74,41 +36,17 @@ void gui_journey_time_stat_t::update(schedule_t* schedule, uint32 time_average[2
     }
     lb->update();
     
-    for(uint8 i=0; i<3; i++) {
+    for(uint8 i=0; i<NUM_ARRIVAL_TIME_STORED+1; i++) {
       lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
-      uint32 t = e.journey_time[(i+e.jtime_index)%3];
+      uint32 t = journey_times[idx][i];
       if(  t==0  ) {
         lb->buf().printf("-");
       } else {
-        lb->buf().printf("%d", tick_to_divided_time(t));
+        lb->buf().printf("%d", t);
       }
       lb->update();
     }
-    
-    lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
-    if(  time_average[cnt]==0  ) {
-      lb->buf().printf("-");
-    } else {
-      lb->buf().printf("%d", tick_to_divided_time(time_average[cnt]));
-      journey_time_sum += (time_average[cnt]);
-    }
-    lb->update();
-    cnt += 1;
   }
-  
-  // show total journey time
-  gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::left);
-  lb->buf().printf("Total");
-  lb->update();
-  
-  for(uint8 i=0; i<3; i++) {
-    lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
-    lb->buf().printf("");
-    lb->update();
-  }
-  lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
-  lb->buf().printf("%d", tick_to_divided_time(journey_time_sum)); 
-  lb->update();
   
   scr_size min_size = get_min_size();
 	set_size(scr_size(max(size.w, min_size.w), min_size.h) );
@@ -203,7 +141,8 @@ void oudia_print_eki(cbuffer_t& clipboard, const char* name, sint8 pos) {
   clipboard.append("\nEkikibo=Ekikibo_Ippan\n.\n");
 }
 
-void copy_oudia_format(schedule_t* schedule, player_t* player, uint32 time_average[]) {
+void copy_oudia_format(schedule_t* schedule, player_t* player, vector_tpl<uint32*>& journey_times) {
+  /*
   // first, find start and end index except waypoint.
   sint16 start = -1;
   uint8 end = schedule->entries.get_count()-1;
@@ -264,22 +203,24 @@ void copy_oudia_format(schedule_t* schedule, player_t* player, uint32 time_avera
   
   dr_copy( clipboard, clipboard.len() );
   create_win( new news_img("Station infos were copied to clipboard.\n"), w_time_delete, magic_none );
+  */
 }
 
-void copy_csv_format(schedule_t* schedule, player_t* player, uint32 time_average[]) {
+void copy_csv_format(schedule_t* schedule, player_t* player, vector_tpl<uint32*>& journey_times) {
   // copy in csv format. separator is \t.
   cbuffer_t clipboard;
-  clipboard.append("Station Name\t1st\t2nd\t3rd\tAverage\n");
+  clipboard.append("Station Name\t1st\t2nd\t3rd\t4th\t5th\tAverage\n");
   for(uint8 i=0; i<schedule->entries.get_count(); i++) {
     halthandle_t const halt = haltestelle_t::get_halt(schedule->entries[i].pos, player);
-    if(  !halt.is_bound()  ) {
-      continue;
+    if(  halt.is_bound()  ) {
+      clipboard.append(halt->get_name());
+    } else {
+      clipboard.append("waypoint");
     }
-    clipboard.append(halt->get_name());
-    for(uint8 k=0; k<3; k++) {
-      clipboard.printf("\t%d", tick_to_divided_time(schedule->entries[i].journey_time[k]));
+    for(uint8 k=0; k<NUM_ARRIVAL_TIME_STORED+1; k++) {
+      clipboard.printf("\t%d", journey_times[i][k]);
     }
-    clipboard.printf("\t%d\n", tick_to_divided_time(time_average[i]));
+    clipboard.append("\n");
   }
   if(  clipboard.len()>0  ) {
     dr_copy( clipboard, clipboard.len() );
@@ -297,9 +238,6 @@ gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* pl
   player(player),
   schedule(line->get_schedule())
 {
-  for(uint16 i=0; i<256; i++) {
-    time_average[i] = 0;
-  }
   update();
   
   title_buf = new cbuffer_t();
@@ -307,11 +245,11 @@ gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* pl
   set_name(*title_buf);
   
   set_table_layout(1,0);
-  gui_aligned_container_t* container = add_table(5,1);
+  gui_aligned_container_t* container = add_table(NUM_ARRIVAL_TIME_STORED+2,1);
   new_component<gui_label_t>("Stop");
-  const char* texts[4] = {"1st", "2nd", "3rd", "Ave."};
+  const char* texts[NUM_ARRIVAL_TIME_STORED+1] = {"1st", "2nd", "3rd", "4th", "5th", "Ave."};
   gui_label_buf_t* lb;
-  for(uint8 i=0; i<4; i++) {
+  for(uint8 i=0; i<NUM_ARRIVAL_TIME_STORED+1; i++) {
     lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
     lb->buf().printf("%s", texts[i]);
     lb->update();
@@ -361,41 +299,63 @@ bool gui_journey_time_info_t::action_triggered(gui_action_creator_t* comp, value
     copy_stations_to_clipboard(schedule, player, false);
   }
   else if(  comp==&bt_copy_oudia  ) {
-    copy_oudia_format(schedule, player, time_average);
+    copy_oudia_format(schedule, player, journey_times);
   }
   else if(  comp==&bt_copy_csv  ) {
-    copy_csv_format(schedule, player, time_average);
+    copy_csv_format(schedule, player,  journey_times);
   }
   return true;
 }
 
 gui_journey_time_info_t::~gui_journey_time_info_t() {
   delete title_buf;
+  for(uint8 i=0; i<journey_times.get_count(); i++) {
+    delete[] journey_times[i];
+  }
 }
 
 
 void gui_journey_time_info_t::update() {
-  // calculate average jounrey time
-  uint32 journey_time_sum = 0;
+  // append journey_times entries if required.
+  for(uint8 i=journey_times.get_count(); i<schedule->entries.get_count(); i++) {
+    journey_times.append(new uint32[NUM_ARRIVAL_TIME_STORED+1]);
+  }
+  
+  // calculate journey time and average time
+  journey_time_sum = 0;
   for(uint8 i=0; i<schedule->entries.get_count(); i++) {
-    halthandle_t const halt = haltestelle_t::get_halt(schedule->entries[i].pos, player);
-    if(  !halt.is_bound()  ) {
-      continue;
-    }
+    const sint16 prev_idx = i==0 ? schedule->entries.get_count()-1 : i-1;
     uint32 sum = 0;
-    uint32 cnt = 0;
-    for(uint8 k=0; k<3; k++) {
-      if(schedule->entries[i].journey_time[k]>0) {
-        sum += schedule->entries[i].journey_time[k];
+    uint8 cnt = 0;
+    const uint8 kc = (schedule->entries[i].at_index + NUM_ARRIVAL_TIME_STORED - 1) % NUM_ARRIVAL_TIME_STORED;
+    const uint8 kp = (schedule->entries[prev_idx].at_index + NUM_ARRIVAL_TIME_STORED - 1) % NUM_ARRIVAL_TIME_STORED;
+    for(uint8 k=0; k<NUM_ARRIVAL_TIME_STORED; k++) {
+      uint32* ca = schedule->entries[i].arrival_time;
+      uint8 ica = (kc + NUM_ARRIVAL_TIME_STORED - k) % NUM_ARRIVAL_TIME_STORED;
+      uint32* pa = schedule->entries[prev_idx].arrival_time;
+      uint8 ipa = (kp + NUM_ARRIVAL_TIME_STORED - k) % NUM_ARRIVAL_TIME_STORED;
+      // see previous entry if the arrival of previous halt is newer.
+      if(  ca[ica]<pa[ipa]  ) {
+        ipa = (ipa + NUM_ARRIVAL_TIME_STORED - 1) % NUM_ARRIVAL_TIME_STORED;
+      }
+      // check both entries are valid
+      if(  ca[ica]>0  &&  pa[ipa]>0  &&  ca[ica]>pa[ipa]  ) {
+        journey_times[i][k] = tick_to_divided_time(ca[ica]-pa[ipa]);
+        sum += journey_times[i][k];
         cnt += 1;
       }
+      else {
+        journey_times[i][k] = 0;
+      }
     }
+    
     if(  cnt>0  ) {
-      time_average[i] = sum/cnt;
-      journey_time_sum += time_average[i];
+      journey_times[i][NUM_ARRIVAL_TIME_STORED] = sum/cnt;
+      journey_time_sum += sum/cnt;
+    } else {
+      journey_times[i][NUM_ARRIVAL_TIME_STORED] = 0;
     }
   }
-  time_average[schedule->entries.get_count()] = journey_time_sum;
   
   // disable copy buttons if schedule is empty
   bt_copy_names.enable(!schedule->entries.empty());
@@ -404,5 +364,5 @@ void gui_journey_time_info_t::update() {
   bt_copy_csv.enable(!schedule->entries.empty());
   
   // update stat
-  stat.update(schedule, time_average);
+  stat.update(schedule, journey_times);
 }

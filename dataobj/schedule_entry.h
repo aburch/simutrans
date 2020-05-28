@@ -6,6 +6,7 @@
 #ifndef DATAOBJ_SCHEDULE_ENTRY_H
 #define DATAOBJ_SCHEDULE_ENTRY_H
 
+#define NUM_ARRIVAL_TIME_STORED 5
 
 #include "koord3d.h"
 
@@ -17,8 +18,8 @@ struct schedule_entry_t
 public:
 	schedule_entry_t() {
 		// journey time is not loaded or saved.
-		journey_time[0] = journey_time[1] = journey_time[2] = 0;
-		jtime_index = 0;
+		init_arrival_time();
+		at_index = 0;
 	}
 
 	schedule_entry_t(koord3d const& pos, uint const minimum_loading, sint8 const waiting_time_shift, uint8 const stop_flags) :
@@ -29,8 +30,8 @@ public:
 	{
 		spacing = 1;
 		spacing_shift = delay_tolerance = 0;
-		journey_time[0] = journey_time[1] = journey_time[2] = 0;
-		jtime_index = 0;
+		init_arrival_time();
+		at_index = 0;
 	}
 
 	enum {
@@ -62,15 +63,21 @@ public:
 	uint16 spacing, spacing_shift, delay_tolerance;
 	
 	/*
-	 * store last 3 lengths of journey time which a convoy took from a prev stop.
-	 * time = 0 means that journey time is not registered.
-	 * journey times are not saved to reduce save/load time.
+	 * store last 3 arrival time of this stop.
+	 * time = 0 means that arrival time is not registered.
+	 * arrival times are not saved to reduce save/load time.
 	 */
-	uint32 journey_time[4];
-	uint8 jtime_index; // which index of journey_time should be overwritten next.
+	uint32 arrival_time[NUM_ARRIVAL_TIME_STORED];
+	uint8 at_index; // which index of arrival_time should be overwritten next.
 	
 private:
 	uint8 stop_flags;
+	
+	void init_arrival_time() {
+		for(uint8 i=0; i<NUM_ARRIVAL_TIME_STORED; i++) {
+			arrival_time[i] = 0;
+		}
+	}
 	
 public:
 	uint8 get_coupling_point() const { return (stop_flags&0x03); }
@@ -92,9 +99,9 @@ public:
 		delay_tolerance = c;
 	}
 	
-	void push_journey_time(uint32 t) {
-		journey_time[jtime_index] = t;
-		jtime_index = (jtime_index+1)%3;
+	void push_arrival_time(uint32 t) {
+		arrival_time[at_index] = t;
+		at_index = (at_index+1)%NUM_ARRIVAL_TIME_STORED;
 	}
 	
 	bool operator ==(const schedule_entry_t &a) {

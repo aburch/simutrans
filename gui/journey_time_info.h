@@ -14,6 +14,7 @@
 #include "components/action_listener.h"
 #include "gui_frame.h"
 #include "../linehandle_t.h"
+#include "../dataobj/schedule_entry.h"
 
 class schedule_t;
 class player_t;
@@ -24,7 +25,7 @@ class gui_journey_time_stat_t : public gui_aligned_container_t {
 public:
   gui_journey_time_stat_t(schedule_t*, player_t*);
   
-  void update(schedule_t*, uint32[]);
+  void update(schedule_t*, vector_tpl<uint32*>&);
 };
 
 
@@ -38,7 +39,8 @@ private:
   player_t* player;
   schedule_t* schedule;
   cbuffer_t* title_buf;
-  uint32 time_average[257];
+  vector_tpl<uint32*> journey_times; // in divisor time unit
+  uint32 journey_time_sum;
   
 public:
 	gui_journey_time_info_t(linehandle_t, player_t*);

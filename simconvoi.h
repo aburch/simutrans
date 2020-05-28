@@ -959,6 +959,9 @@ public:
 	
 	void set_arrived_time(uint32 t) { arrived_time = t; }
 	uint32 get_departure_time() const { return scheduled_departure_time; } // in ticks.
+	
+	// register arrival time to the current schedule entry
+	void register_arrival_time();
 };
 
 #endif
