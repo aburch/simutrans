@@ -134,6 +134,7 @@ bool schedule_list_gui_t::sortreverse = false;
 
 const char *schedule_list_gui_t::sort_text[SORT_MODES] = {
 	"cl_btn_sort_name",
+	"cl_btn_sort_schedule",
 	"cl_btn_sort_income",
 	"cl_btn_sort_loading_lvl",
 	"cl_btn_sort_max_speed",
@@ -296,11 +297,11 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&livery_selector);
 
 	// convoy tab buttons
-	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 2));
+	sortedby.init(button_t::roundbox, schedule_list_gui_t::sort_text[get_sortierung()], scr_coord(BUTTON1_X, 2));
 	sortedby.add_listener(this);
 	cont_convoys.add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc", scr_coord(BUTTON2_X, 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	cont_convoys.add_component(&sorteddir);
 
@@ -1044,8 +1045,12 @@ bool schedule_list_gui_t::compare_convois(convoihandle_t const cnv1, convoihandl
 	sint32 cmp = 0;
 
 	switch (sortby) {
+		default:
 		case by_name:
 			cmp = strcmp(cnv1->get_internal_name(), cnv2->get_internal_name());
+			break;
+		case by_schedule:
+			cmp = cnv1->get_schedule()->get_current_stop() - cnv2->get_schedule()->get_current_stop();
 			break;
 		case by_profit:
 			cmp = sgn(cnv1->get_jahresgewinn() - cnv2->get_jahresgewinn());
@@ -1063,7 +1068,6 @@ bool schedule_list_gui_t::compare_convois(convoihandle_t const cnv1, convoihandl
 			cmp = cnv1->get_average_age() - cnv2->get_average_age();
 			break;
 		case by_value:
-		default:
 			cmp = cnv1->get_purchase_cost() - cnv2->get_purchase_cost();
 			break;
 	}

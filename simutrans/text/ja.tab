@@ -45,6 +45,8 @@ cl_btn_sort_value
 取得原価
 cl_btn_sort_age
 平均車齢
+cl_btn_sort_schedule
+次の停車駅
 clf_btn_alle
 全選択
 clf_btn_invers
