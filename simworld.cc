@@ -7188,11 +7188,11 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			{
 				if(car_minutes >= best_journey_time)
 				{
-					city->merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
-				}
-				else if(car_minutes < UINT32_MAX_VALUE)
-				{
 					city->merke_passagier_ziel(best_bad_destination, COL_PURPLE);
+				}
+				else if(car_minutes < UINT32_MAX_VALUE) 
+				{
+					city->merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
 				}
 				else
 				{
