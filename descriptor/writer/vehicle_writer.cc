@@ -87,7 +87,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 87;
+	int total_len = 88;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -177,7 +177,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Standard 11, 0x400 - 16-bit sound
 	// Standard 11, 0x500 - classes
 	// Standard 11, 0x600 - prev=any, cab_setting
-	version += 0x600;
+	// Standard 11, 0x700 - prev=any, cab_setting
+	version += 0x700;
 
 	node.write_uint16(fp, version, pos);
 
@@ -1100,6 +1101,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint8 mixed_load_prohibition = obj.get_int("mixed_load_prohibition", 0);
 	node.write_uint8(fp, mixed_load_prohibition, pos);
 	pos += sizeof(mixed_load_prohibition);
+
+	uint8 override_way_speed = obj.get_int("override_way_speed", 0);
+	node.write_uint8(fp, override_way_speed, pos);
+	pos += sizeof(override_way_speed); 
 
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {

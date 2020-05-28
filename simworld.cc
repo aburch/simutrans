@@ -1666,6 +1666,20 @@ void *check_road_connexions_threaded(void *args)
 	return args;
 }
 
+#ifdef DEBUG_MARCHETTI_CONSTANT
+uint32 passengers_generated_this_month = 0;
+uint32 total_journey_time_tolerance_this_month = 0;
+uint32 passengers_this_month_with_tolerance_of_over_10_hours = 0;
+uint32 passengers_this_month_with_tolerance_of_under_10_minutes = 0;
+uint32 passengers_this_month_with_tolerance_of_under_30_minutes = 0;
+uint32 passengers_this_month_with_tolerance_of_under_1_hour = 0;
+uint32 passengers_this_month_with_tolerance_of_under_3_hours = 0;
+
+uint32 passengers_travelled_this_month = 0;
+uint32 passengers_travelled_this_month_with_tolerance_of_under_10_minutes = 0;
+uint32 total_journey_times_this_month = 0;
+#endif
+
 void *step_passengers_and_mail_threaded(void* args)
 {
 	const uint32* thread_number_ptr = (const uint32*)args;
@@ -5211,6 +5225,20 @@ void karte_t::new_month()
 
 	pedestrian_t::check_timeline_pedestrians();
 
+#ifdef DEBUG_MARCHETTI_CONSTANT
+	passengers_generated_this_month = 0;
+	total_journey_time_tolerance_this_month = 0;
+	passengers_this_month_with_tolerance_of_over_10_hours = 0;
+	passengers_this_month_with_tolerance_of_under_10_minutes = 0;
+	passengers_this_month_with_tolerance_of_under_30_minutes = 0;
+	passengers_this_month_with_tolerance_of_under_1_hour = 0;
+	passengers_this_month_with_tolerance_of_under_3_hours = 0;
+
+	passengers_travelled_this_month = 0;
+	passengers_travelled_this_month_with_tolerance_of_under_10_minutes = 0;
+	total_journey_times_this_month = 0;
+#endif
+
 #ifdef MULTI_THREAD
 	await_path_explorer();
 #endif
@@ -6111,7 +6139,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 	{
 		// Pick a passenger building at random
 		const uint32 weight = simrand(passenger_origins.get_sum_weight() - 1, "void karte_t::generate_passengers_and_mail(uint32 delta_t) pick origin building (passengers)");
-		gb = passenger_origins.at_weight(weight);
+		gb = passenger_origins.at_weight(weight); 
 	}
 	else
 	{
@@ -6216,6 +6244,9 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		// Split passengers between commuting trips and other trips.
 		if(trip_count == 0)
 		{
+#ifdef DEBUG_MARCHETTI_CONSTANT
+			passengers_generated_this_month++;
+#endif
 			// Set here because we deduct the previous journey time from the tolerance for onward trips.
 			if(trip == mail_trip)
 			{
@@ -6224,10 +6255,56 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			else if(trip == commuting_trip)
 			{
 				tolerance = simrand_normal(range_commuting_tolerance, settings.get_random_mode_commuting(), "karte_t::generate_passengers_and_mail (commuting tolerance?)") + (min_commuting_tolerance * onward_trips);
+#ifdef DEBUG_MARCHETTI_CONSTANT
+				total_journey_time_tolerance_this_month += tolerance;
+#endif 
 			}
 			else
 			{
 				tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::generate_passengers_and_mail (visiting tolerance?)") + (min_visiting_tolerance * onward_trips);
+				const uint32 tolerance_modifier_percentage = settings.get_tolerance_modifier_percentage();
+				// Now multiply the tolerance by the success percentage of the origin building so as to normalise per inhabitant travel time over any given period of time:
+				// passengers who travel more often must have a lower average journey time tolerance than those who travel less often.
+				const uint32 success_percentage = (uint32)gb->get_average_passenger_success_percent_visiting();
+				uint32 tolerance_multiplier = tolerance_modifier_percentage;
+				if (success_percentage > 0 && tolerance_modifier_percentage > 0)
+				{
+					if (success_percentage < 65535)
+					{
+						tolerance_multiplier = ((tolerance_modifier_percentage * 100) / success_percentage); // Units: 10,000ths (%^2)
+					}
+					else
+					{
+						tolerance_multiplier = tolerance_modifier_percentage * 2;
+					}
+				}
+
+				tolerance *= tolerance_multiplier;
+				tolerance /= 100;
+
+#ifdef DEBUG_MARCHETTI_CONSTANT
+				total_journey_time_tolerance_this_month += tolerance;
+				if (tolerance > 6000)
+				{
+					passengers_this_month_with_tolerance_of_over_10_hours++;
+				}
+				else if (tolerance < 100)
+				{
+					passengers_this_month_with_tolerance_of_under_10_minutes++;
+				}
+				if (tolerance < 300)
+				{
+					passengers_this_month_with_tolerance_of_under_30_minutes++;
+				}
+				if (tolerance < 600)
+				{
+					passengers_this_month_with_tolerance_of_under_1_hour++;
+				}
+				if (tolerance < (600 * 3))
+				{
+					passengers_this_month_with_tolerance_of_under_3_hours++;
+				}
+#endif 
 			}
 		}
 		else
@@ -6891,10 +6968,32 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			if(trip == commuting_trip && first_origin)
 			{
 				first_origin->add_passengers_succeeded_commuting(units_this_step);
+#ifdef DEBUG_MARCHETTI_CONSTANT
+				if (trip_count == 0)
+				{
+					total_journey_times_this_month += best_journey_time;
+					passengers_travelled_this_month += 1;
+					if (tolerance + best_journey_time < 100)
+					{
+						passengers_travelled_this_month_with_tolerance_of_under_10_minutes++;
+					}
+				}
+#endif 
 			}
 			else if(trip == visiting_trip && first_origin)
 			{
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
+#ifdef DEBUG_MARCHETTI_CONSTANT
+				if (trip_count == 0)
+				{
+					total_journey_times_this_month += best_journey_time;
+					passengers_travelled_this_month += 1;
+					if (tolerance + best_journey_time < 100)
+					{
+						passengers_travelled_this_month_with_tolerance_of_under_10_minutes++;
+					}
+				}
+#endif
 			}
 			else if (trip == mail_trip && first_origin)
 			{
@@ -6934,10 +7033,32 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			if(trip == commuting_trip)
 			{
 				first_origin->add_passengers_succeeded_commuting(units_this_step);
+#ifdef DEBUG_MARCHETTI_CONSTANT
+				if (trip_count == 0)
+				{
+					total_journey_times_this_month += best_journey_time;
+					passengers_travelled_this_month += 1;
+					if (tolerance + best_journey_time < 100)
+					{
+						passengers_travelled_this_month_with_tolerance_of_under_10_minutes++;
+					}
+				}
+#endif
 			}
 			else if(trip == visiting_trip)
 			{
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
+#ifdef DEBUG_MARCHETTI_CONSTANT
+				if (trip_count == 0)
+				{
+					total_journey_times_this_month += best_journey_time;
+					passengers_travelled_this_month += 1;
+					if (tolerance + best_journey_time < 100)
+					{
+						passengers_travelled_this_month_with_tolerance_of_under_10_minutes++;
+					}
+				}
+#endif
 			}
 			else if(trip == mail_trip)
 			{
@@ -6990,11 +7111,32 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			if(trip == commuting_trip)
 			{
 				first_origin->add_passengers_succeeded_commuting(units_this_step);
+#ifdef DEBUG_MARCHETTI_CONSTANT
+				if (trip_count == 0)
+				{
+					total_journey_times_this_month += best_journey_time;
+					passengers_travelled_this_month += 1;
+					if (tolerance + best_journey_time < 100)
+					{
+						passengers_travelled_this_month_with_tolerance_of_under_10_minutes++;
+					}
+				}
+#endif
 			}
 			else if(trip == visiting_trip)
 			{
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
-
+#ifdef DEBUG_MARCHETTI_CONSTANT
+				if (trip_count == 0)
+				{
+					total_journey_times_this_month += best_journey_time;
+					passengers_travelled_this_month += 1;
+					if (tolerance + best_journey_time < 100)
+					{
+						passengers_travelled_this_month_with_tolerance_of_under_10_minutes++;
+					}
+				}
+#endif
 			}
 			else if (trip == mail_trip)
 			{
@@ -7043,11 +7185,11 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			{
 				if(car_minutes >= best_journey_time)
 				{
-					city->merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
-				}
-				else if(car_minutes < UINT32_MAX_VALUE)
-				{
 					city->merke_passagier_ziel(best_bad_destination, COL_PURPLE);
+				}
+				else if(car_minutes < UINT32_MAX_VALUE) 
+				{
+					city->merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
 				}
 				else
 				{
@@ -8679,6 +8821,20 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
 	calc_generic_road_time_per_tile_city();
 	calc_generic_road_time_per_tile_intercity();
 	calc_max_road_check_depth();
+
+#ifdef DEBUG_MARCHETTI_CONSTANT
+	passengers_generated_this_month = 0;
+	total_journey_time_tolerance_this_month = 0;
+	passengers_this_month_with_tolerance_of_over_10_hours = 0;
+	passengers_this_month_with_tolerance_of_under_10_minutes = 0;
+	passengers_this_month_with_tolerance_of_under_30_minutes = 0;
+	passengers_this_month_with_tolerance_of_under_1_hour = 0;
+	passengers_this_month_with_tolerance_of_under_3_hours = 0;
+
+	passengers_travelled_this_month = 0;
+	passengers_travelled_this_month_with_tolerance_of_under_10_minutes = 0;
+	total_journey_times_this_month = 0;
+#endif
 
 	return ok;
 }

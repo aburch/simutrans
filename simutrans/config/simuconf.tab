@@ -267,7 +267,17 @@ commuting_trip_chance_percent = 67
 # As with nos. 2, 3, 4, and 5 with an ever more extreme degree of skew. Use with caution.
 
 random_mode_commuting = 2
-random_mode_visiting = 2
+random_mode_visiting = 6
+
+# The tolerance modifier percentage applies a percentage modification to all visiting passengers'
+# journey time tolerances to allow for a more precise adjustment of these numbers than is possible
+# with the basic figures alone, especially where a high skew value be used. 
+#
+# Also, setting this number to zero will disable not only the tolerance modifier percentage, but 
+# also the system for modifying the tolerance dynamically based on the visiting passenger success
+# rates of the individual buildings from which passengers originate.
+
+tolerance_modifier_percentage = 100
 
 # Some passengers who are not able to find a route will be content to go to an alternative destination. 
 # This is set separately for visiting passengers and commuting passengers. It can either be set in

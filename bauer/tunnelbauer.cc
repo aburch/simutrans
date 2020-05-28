@@ -510,6 +510,7 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 		assert(!tunnel->ist_karten_boden());
 		player_t::add_maintenance( player, desc->get_maintenance(), desc->get_finance_waytype() );
 		cost += desc->get_value();
+		cost += way_desc->get_value();
 		pos = pos + zv;
 	}
 
@@ -578,6 +579,7 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 		assert(!tunnel->ist_karten_boden());
 		player_t::add_maintenance( player,  desc->get_maintenance(), desc->get_finance_waytype() );
 		cost += desc->get_value();
+		cost += way_desc->get_value();
 	}
 
 	player_t::book_construction_costs(player, -cost, start.get_2d(), desc->get_waytype());
