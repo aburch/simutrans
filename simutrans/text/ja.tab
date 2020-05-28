@@ -47,6 +47,8 @@ cl_btn_sort_age
 平均車齢
 cl_btn_sort_schedule
 次の停車駅
+cl_btn_sort_power
+出力
 clf_btn_alle
 全選択
 clf_btn_invers
@@ -2072,7 +2074,7 @@ way %s now available:\n
 way %s now available:\n%s\n
 %s が\n新しく建設可能になりました。\n%s\n
 Way toll
-通行料
+通行料・使用料
 Ways not connected
 道路/線路が\n繋がっていません。
 Wegpunkt
@@ -2656,7 +2658,7 @@ Demand: %u KW\n
 Demand: %u MW\n
 電力需要: %u MW\n
 Departures
-発車本数
+定刻発車回数
 Departures to\n
 出発予想時間:\n
 Depot found but could not be inserted in schedule.  This is a bug!%s\n
@@ -3210,7 +3212,7 @@ Extendedセーブバージョン
 Schedule is incomplete/not finished
 経路設定が完了していません
 Scheduled
-発車許可本数
+発車間隔設定数
 See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.
 地上/地下を1層ごとに表示します。Ctrl+Uで切り替えできます。階層を変更するにはHOMEキー/ENDキーを使用してください。
 See under the ground, to build tunnels and underground railways/metros. Toggle with SHIFT + U

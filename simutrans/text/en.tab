@@ -2054,6 +2054,18 @@ cl_btn_sort_name
 Name
 cl_btn_sort_type
 Type
+cl_btn_sort_loading_lvl
+Loading level
+cl_btn_sort_max_speed
+Max. speed
+cl_btn_sort_value
+Value
+cl_btn_sort_age
+Average age
+cl_btn_sort_schedule
+Next stop
+cl_btn_sort_power
+Power
 cl_title
 Vehicle List
 cl_txt_filter
@@ -4092,13 +4104,3 @@ Productivity
 Productivity
 (Max. %d%%)
 (Max. %d%%)
-cl_btn_sort_loading_lvl
-Loading level
-cl_btn_sort_max_speed
-Max. speed
-cl_btn_sort_value
-Value
-cl_btn_sort_age
-Average age
-cl_btn_sort_schedule
-Next stop
