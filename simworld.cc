@@ -9123,7 +9123,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 	}
 	// so far, player 1 will be active (may change in future)
 	active_player = players[0];
-	active_player_nr = 0; 
+	active_player_nr = 0;
 
 	// rdwr cityrules for networkgames
 	if(file->get_version() > 102002 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9)) {
