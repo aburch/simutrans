@@ -1498,6 +1498,8 @@ public:
 	// Returns the number of standing passengers (etc.) in this convoy.
 	uint16 get_overcrowded() const;
 
+	uint16 get_overcrowded_capacity() const;
+
 	// @author: jamespetts
 	// Returns the average comfort of this convoy,
 	// taking into account any catering.
@@ -1567,6 +1569,9 @@ public:
 	void clear_estimated_times();
 
 	void calc_classes_carried();
+
+	uint16 get_total_cargo_by_fare_class(uint8 catg, uint8 g_class) const;
+	uint16 get_unique_fare_capacity(uint8 catg, uint8 g_class) const;
 
 	bool carries_this_or_lower_class(uint8 catg, uint8 g_class) const;
 
