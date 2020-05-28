@@ -2405,6 +2405,19 @@ uint16 convoi_t::get_overcrowded() const
 	return overcrowded;
 }
 
+uint16 convoi_t::get_overcrowded_capacity() const
+{
+	uint16 standing_capacity = 0;
+	for (uint8 i = 0; i < vehicle_count; i++)
+	{
+		for (uint8 j = 0; j < vehicle[i]->get_desc()->get_number_of_classes(); j++)
+		{
+			standing_capacity += vehicle[i]->get_overcrowded_capacity(j);
+		}
+	}
+	return standing_capacity;
+}
+
 uint8 convoi_t::get_comfort(uint8 g_class, bool check_reassigned) const
 {
 	uint32 comfort = 0;
@@ -7648,6 +7661,17 @@ bool convoi_t::calc_obsolescence(uint16 timeline_year_month)
 	return false;
 }
 
+uint16 convoi_t::get_average_age()
+{
+	if (!get_vehicle_count()) { return 0; }
+	uint32 total_age = 0;
+	for (int j = get_vehicle_count(); --j >= 0; ) {
+		total_age += welt->get_current_month() - (uint32)vehicle[j]->get_purchase_time();
+	}
+	return total_age / get_vehicle_count();
+}
+
+
 void convoi_t::clear_replace()
 {
 	if(replace)
@@ -8274,6 +8298,64 @@ void convoi_t::calc_classes_carried()
 			}
 		}
 	}
+}
+
+uint16 convoi_t::get_total_cargo_by_fare_class(uint8 catg, uint8 g_class) const
+{
+	if ((catg == goods_manager_t::INDEX_PAS && g_class >= goods_manager_t::passengers->get_number_of_classes())
+		|| (catg == goods_manager_t::INDEX_MAIL && g_class >= goods_manager_t::mail->get_number_of_classes()))
+	{
+		return 0;
+	}
+	else if (catg != goods_manager_t::INDEX_PAS && catg != goods_manager_t::INDEX_MAIL && g_class > 0) {
+		return 0; // freight does not have classes
+	}
+
+	uint16 sum = 0;
+	const uint8 classes = catg == goods_manager_t::INDEX_PAS ? goods_manager_t::passengers->get_number_of_classes() : goods_manager_t::mail->get_number_of_classes();
+	for (const_iterator i = begin(); i != end(); ++i)
+	{
+		const vehicle_t &v = **i;
+		if (v.get_cargo_type()->get_catg_index() != catg) {
+			continue;
+		}
+		if (catg == goods_manager_t::INDEX_PAS || catg == goods_manager_t::INDEX_MAIL) {
+			for (uint8 c = 0; c < classes; c++) {
+				if (v.get_reassigned_class(c) == g_class)
+				{
+					sum += v.get_total_cargo_by_class(c);
+				}
+			}
+		}
+		else
+		{
+			sum += v.get_total_cargo_by_class(0);
+		}
+	}
+	return sum;
+}
+
+uint16 convoi_t::get_unique_fare_capacity(uint8 catg, uint8 g_class) const
+{
+	if ((catg == goods_manager_t::INDEX_PAS && g_class >= goods_manager_t::passengers->get_number_of_classes())
+		|| (catg == goods_manager_t::INDEX_MAIL && g_class >= goods_manager_t::mail->get_number_of_classes()))
+	{
+		return 0;
+	}
+	else if(catg != goods_manager_t::INDEX_PAS && catg != goods_manager_t::INDEX_MAIL && g_class>0){
+		return 0; // freight does not have classes
+	}
+
+	uint16 sum = 0;
+	for (const_iterator i = begin(); i != end(); ++i)
+	{
+		const vehicle_t &v = **i;
+		if (v.get_cargo_type()->get_catg_index() != catg) {
+			continue;
+		}
+		sum += v.get_fare_capacity(g_class);
+	}
+	return sum;
 }
 
 bool convoi_t::carries_this_or_lower_class(uint8 catg, uint8 g_class) const

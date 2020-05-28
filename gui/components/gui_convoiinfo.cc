@@ -21,7 +21,9 @@
 #include "../../dataobj/translator.h"
 
 #include "../../utils/simstring.h"
+#include "../../utils/cbuffer_t.h"
 #include "../gui_frame.h"
+#include "../schedule_gui.h"
 
 
 const char *gui_convoiinfo_t::cnvlist_mode_button_texts[gui_convoiinfo_t::DISPLAY_MODES] = {
@@ -122,11 +124,12 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 		int max_x = display_proportional_clip(pos.x+offset.x+2+w, pos.y+offset.y+6, cnv->get_name(), ALIGN_LEFT, cnv->get_status_color(), true)+2;
 
 		// 2nd row
+		w = D_MARGIN_LEFT;
 		if (display_mode == cnvlist_normal) {
-			w = display_proportional_clip(pos.x + offset.x + 2, pos.y + offset.y + 6 + LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true) + 2;
+			w += display_proportional_clip(pos.x + offset.x + w, pos.y + offset.y + 6 + LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true) + 2;
 			char buf[256];
 			money_to_string(buf, cnv->get_jahresgewinn() / 100.0);
-			w += display_proportional_clip(pos.x + offset.x + 2 + w + 5, pos.y + offset.y + 6 + LINESPACE, buf, ALIGN_LEFT, cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS, true);
+			w += display_proportional_clip(pos.x + offset.x + w + 5, pos.y + offset.y + 6 + LINESPACE, buf, ALIGN_LEFT, cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS, true);
 			max_x = max(max_x, w + 5);
 
 		}
@@ -140,18 +143,27 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 		}
 
 		// 3rd row
+		w = D_MARGIN_LEFT;
 		if (display_mode == cnvlist_normal || display_mode == cnvlist_payload)
 		{
 			// only show assigned line, if there is one!
 			if (cnv->in_depot()) {
 				const char *txt = translator::translate("(in depot)");
-				w = display_proportional_clip(pos.x + offset.x + 2, pos.y + offset.y + 6 + 2 * LINESPACE, txt, ALIGN_LEFT, SYSCOL_TEXT, true) + 2;
+				w += display_proportional_clip(pos.x + offset.x + w, pos.y + offset.y + 6 + 2 * LINESPACE, txt, ALIGN_LEFT, SYSCOL_TEXT, true) + 2;
 				max_x = max(max_x, w);
 			}
 			else if (cnv->get_line().is_bound() && show_line_name) {
-				w = display_proportional_clip(pos.x + offset.x + 2, pos.y + offset.y + 6 + 2 * LINESPACE, translator::translate("Line"), ALIGN_LEFT, SYSCOL_TEXT, true) + 2;
-				w += display_proportional_clip(pos.x + offset.x + 2 + w + 5, pos.y + offset.y + 6 + 2 * LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
+				w += display_proportional_clip(pos.x + offset.x + w, pos.y + offset.y + 6 + 2 * LINESPACE, translator::translate("Line"), ALIGN_LEFT, SYSCOL_TEXT, true) + 2;
+				w += display_proportional_clip(pos.x + offset.x + w + 5, pos.y + offset.y + 6 + 2 * LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
 				max_x = max(max_x, w + 5);
+			}
+			else if(!show_line_name && display_mode == cnvlist_payload){
+				// next stop
+				cbuffer_t info_buf;
+				info_buf.printf("%s: ", translator::translate("Fahrtziel")); // "Destination"
+				const schedule_t *schedule = cnv->get_schedule();
+				schedule_gui_t::gimme_short_stop_name(info_buf, cnv->get_owner(), schedule, schedule->get_current_stop(), 255);
+				display_proportional_clip(pos.x + offset.x + w, pos.y + offset.y + 6 + 2 * LINESPACE, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			}
 
 			if (display_mode == cnvlist_normal) {

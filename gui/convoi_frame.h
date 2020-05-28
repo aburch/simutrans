@@ -32,7 +32,7 @@ class convoi_frame_t :
 	private action_listener_t  //28-Dec-01     Markus Weber    Added , private action_listener_t
 {
 public:
-	enum sort_mode_t { nach_name=0, nach_gewinn=1, nach_typ=2, nach_id=3, SORT_MODES=4 };
+	enum sort_mode_t { by_name = 0, by_profit, by_type, by_id, by_power, SORT_MODES };
 
 private:
 	player_t *owner;

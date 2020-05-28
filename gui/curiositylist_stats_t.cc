@@ -26,6 +26,8 @@
 #include "gui_frame.h"
 #include "simwin.h"
 
+#include "../simcity.h"
+
 #define L_DIALOG_WIDTH (210)
 
 curiositylist_stats_t::curiositylist_stats_t(curiositylist::sort_mode_t sortby, bool sortreverse, bool own_network)
@@ -238,8 +240,7 @@ void curiositylist_stats_t::draw(scr_coord offset)
 		xoff += 9; // symbol width
 
 		if (geb->get_tile()->get_desc()->get_extra() != 0) {
-			// TODO: Replace with function with tooltip and display city name in tooltip - Ranran
-		    display_color_img(skinverwaltung_t::intown->get_image_id(0), xoff, yoff, 0, false, false);
+		    display_color_img_with_tooltip(skinverwaltung_t::intown->get_image_id(0), xoff, yoff, 0, false, false, welt->get_city(geb->get_pos().get_2d())->get_name());
 		}
 		xoff += 9 + 2; // symbol width + margin
 

@@ -2054,6 +2054,18 @@ cl_btn_sort_name
 Name
 cl_btn_sort_type
 Type
+cl_btn_sort_loading_lvl
+Loading level
+cl_btn_sort_max_speed
+Max. speed
+cl_btn_sort_value
+Value
+cl_btn_sort_age
+Average age
+cl_btn_sort_schedule
+Next stop
+cl_btn_sort_power
+Power
 cl_title
 Vehicle List
 cl_txt_filter
@@ -4080,14 +4092,8 @@ Show convoys
 Show convoys
 map_btn_building_level
 Density
-cl_btn_general
-General
-cl_btn_payload
-Payload
-cl_btn_formation
-Formation
 cl_txt_mode
-Show information type:
+Show:
 sort_pas_arrived
 Passengers arrived
 mouseover convoy name
@@ -4100,4 +4106,9 @@ Productivity
 Productivity
 (Max. %d%%)
 (Max. %d%%)
-  
+cl_btn_payload
+Payload
+cl_btn_formation
+Formation
+cl_btn_general
+Overview
