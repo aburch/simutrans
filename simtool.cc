@@ -9266,7 +9266,7 @@ bool tool_change_player_t::init( player_t *player_in)
 				}
 				else
 				{
-					message.printf(translator::translate("%s has_taken_over %s!"), player->get_name(), welt->get_player(state)->get_name());
+					message.printf("%s %s %s"), player->get_name(), translator::translate("has_taken_over"), welt->get_player(state)->get_name();
 					player->take_over(welt->get_player(state), false);
 					welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
 				}

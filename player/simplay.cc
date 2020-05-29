@@ -732,10 +732,12 @@ void player_t::ai_bankrupt()
 	if (finance->get_account_balance() > 0) {
 		finance->book_account( -finance->get_account_balance() -1 );
 	}
-
-	cbuffer_t buf;
-	buf.printf( translator::translate("%s\nwas liquidated."), get_name() );
-	welt->get_message()->add_message( buf, koord::invalid, message_t::ai, PLAYER_FLAG|player_nr );
+	if (!available_for_takeover()) 
+	{
+		cbuffer_t buf;
+		buf.printf(translator::translate("%s\nwas liquidated."), get_name());
+		welt->get_message()->add_message(buf, koord::invalid, message_t::ai, PLAYER_FLAG | player_nr);
+	}
 }
 
 
@@ -1192,8 +1194,7 @@ sint64 player_t::calc_takeover_cost(bool do_not_adopt_liabilities) const
 
 const char* player_t::can_take_over(player_t* target_player, bool do_not_adopt_liabilities)
 {
-	// TODO: Allow involuntary takeovers with refined insolvency settings
-	if (!target_player->get_allow_voluntary_takeover())
+	if (!target_player->available_for_takeover())
 	{
 		return "Takeover not permitted."; // TODO: Set this up for translation
 	}

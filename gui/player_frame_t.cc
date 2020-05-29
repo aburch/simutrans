@@ -213,7 +213,8 @@ ki_kontroll_t::ki_kontroll_t() :
 	allow_take_over_of_company.init(button_t::roundbox, text_allow_takeover, cursor, scr_size(display_calc_proportional_string_len_width(text_allow_takeover, -1) + 10 ,D_BUTTON_HEIGHT));
 	allow_take_over_of_company.add_listener(this);
 	allow_take_over_of_company.set_tooltip(translator::translate("allows_other_players_to_take_over_your_company")); // TODO: Set this in Simutranslator
-	if (current_player->get_allow_voluntary_takeover()){
+	if (current_player->get_allow_voluntary_takeover())
+	{
 		allow_take_over_of_company.disable();
 	}
 	add_component( &allow_take_over_of_company );
@@ -222,7 +223,8 @@ ki_kontroll_t::ki_kontroll_t() :
 	cancel_take_over.init(button_t::roundbox, text_cancel_takeover, cursor, scr_size(display_calc_proportional_string_len_width(text_cancel_takeover, -1) + 10, D_BUTTON_HEIGHT));
 	cancel_take_over.add_listener(this);
 	cancel_take_over.set_tooltip(translator::translate("cancel_the_takeover_of_your_company")); // TODO: Set this in Simutranslator
-	if (!current_player->get_allow_voluntary_takeover()) {
+	if (!current_player->get_allow_voluntary_takeover())
+	{
 		cancel_take_over.disable();
 	}
 	add_component(&cancel_take_over);
@@ -476,7 +478,7 @@ void ki_kontroll_t::update_data()
 		lb_take_over_player[i].set_visible(false);
 		lb_take_over_cost[i].set_visible(false);
 
-		if (player && player->get_allow_voluntary_takeover())
+		if (player && player->available_for_takeover())
 		{
 			take_over_player[i].enable();
 			take_over_player[i].set_pos(cursor);
@@ -498,8 +500,8 @@ void ki_kontroll_t::update_data()
 				take_over_player[i].disable();
 			}
 
-			// If we have set our own company to allow being taken over, or we are the public player, disable the take over buttons for the others
-			if (welt->get_active_player()->get_allow_voluntary_takeover() || welt->get_active_player()->is_public_service()) {
+			// If this company is available to be taken over, or we are the public player, disable the take over buttons for the others
+			if (welt->get_active_player()->available_for_takeover() || welt->get_active_player()->is_public_service()) {
 				take_over_player[i].disable();
 			}
 
@@ -709,7 +711,7 @@ void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 	sint64 takeover_money = 0;
 	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
 		player_t* player = welt->get_player(i);
-		if (player && player->get_allow_voluntary_takeover()) {
+		if (player && player->available_for_takeover()) {
 			money_to_string(text_take_over_cost[i], player->calc_takeover_cost(false) / 100, true);
 		}
 	}

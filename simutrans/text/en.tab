@@ -4123,10 +4123,12 @@ Allow takeover of this company
 allows_other_players_to_take_over_your_company
 Allow any other player to take over this company
 cancel_the_takeover_of_your_company
-Stop other players from being able to take over this company
+Stops others from being able to take over this company unless it is insolvent
 available_company_takeovers:
 Companies available for takeover:
 is_available_for_take_over_by_another_company
 is now available for takeover.
 is_not_available_for_takeover_any_more
 is no longer available for takeover.
+has_taken_over
+has taken over

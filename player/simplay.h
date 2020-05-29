@@ -484,6 +484,8 @@ public:
 	bool get_allow_voluntary_takeover() const { return allow_voluntary_takeover; }
 	void set_allow_voluntary_takeover(bool value) { allow_voluntary_takeover = value; }
 
+	bool available_for_takeover() const { return allow_voluntary_takeover; } // TODO: Also return true when non-voluntary takeovers are allowed.
+
 	void set_selected_signalbox(signalbox_t* sb);
 	const signalbox_t* get_selected_signalbox() const { return selected_signalbox; }
 	signalbox_t* get_selected_signalbox() { return selected_signalbox; }
