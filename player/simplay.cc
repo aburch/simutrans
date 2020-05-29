@@ -1198,7 +1198,7 @@ const char* player_t::can_take_over(player_t* target_player, bool do_not_adopt_l
 		return "Takeover not permitted."; // TODO: Set this up for translation
 	}
 	
-	if (!can_afford(target_player->calc_takeover_cost(do_not_adopt_liabilities)))
+	if (!can_afford(-target_player->calc_takeover_cost(do_not_adopt_liabilities)))
 	{
 		return NOTICE_INSUFFICIENT_FUNDS;
 	}
@@ -1365,6 +1365,14 @@ void player_t::take_over(player_t* target_player, bool do_not_adopt_liabilities)
 			}
 		}
 	}
+
+	calc_assets();
+
+	// After recalculating the assets, recalculate the credit limits
+	// Credit limits are NEGATIVE numbers
+	finance->calc_credit_limits();
+
+	finance->calc_finance_history();
 
 	// TODO: Add record of the takeover to a log that can be displayed in perpetuity for historical interest.
 
