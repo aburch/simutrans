@@ -76,7 +76,7 @@ void adverse_summary_t::add_vehicle(const vehicle_t &v)
 	if (waytype != air_wt || ((const air_vehicle_t &)v).get_flyingheight() <= 0)
 	{
 		weg_t *way = v.get_weg();
-		if (way)
+		if (way && v.get_desc()->get_override_way_speed() == false)
 		{
 			max_speed = min(max_speed, way->get_max_speed());
 		}
@@ -292,7 +292,7 @@ sint32 convoy_t::calc_min_braking_distance(const settings_t &settings, const wei
 
 uint32 convoy_t::calc_acceleration(const weight_summary_t &weight, sint32 speed)
 {
-	return ((get_force_summary(speed * kmh2ms) - calc_speed_holding_force(speed * kmh2ms, get_adverse_summary().fr))/g_accel).to_sint32() * 1000 / 30.9 / weight.weight * 100;
+	return ((get_force_summary(speed * kmh2ms) - calc_speed_holding_force(speed * kmh2ms, get_adverse_summary().fr))/g_accel).to_sint32() * 1000 / 28.35 / weight.weight * 100;
 }
 
 double convoy_t::calc_acceleration_time(const weight_summary_t &weight, sint32 speed)

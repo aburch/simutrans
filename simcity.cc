@@ -2523,7 +2523,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		assert( color != 0 );
 		pax_destinations_temp.set(pos.y, pos.x, color);
 	}
-	swap<uint8>( pax_destinations_temp, pax_destinations_new );
+	swap( pax_destinations_temp, pax_destinations_new );
 
 	pax_destinations_temp.clear();
 	for( uint16 i = 0; i < pax_destinations_old.get_data_count(); i++ ) {
@@ -2532,7 +2532,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		pax_destinations_temp.set(pos.y, pos.x, color);
 	}
 	pax_destinations_new_change ++;
-	swap<uint8>( pax_destinations_temp, pax_destinations_old );
+	swap( pax_destinations_temp, pax_destinations_old );
 
 	vector_tpl<koord> k_list(connected_cities.get_count());
 	vector_tpl<uint32> f_list(connected_cities.get_count());
@@ -2844,7 +2844,7 @@ void stadt_t::calc_traffic_level()
 
 void stadt_t::new_month()
 {
-	swap<uint8>( pax_destinations_old, pax_destinations_new );
+	swap( pax_destinations_old, pax_destinations_new );
 	pax_destinations_new.clear();
 	pax_destinations_new_change = 0;
 
@@ -2855,98 +2855,7 @@ void stadt_t::new_month()
 
 	roll_history();
 
-	calc_traffic_level();
-
-	// Calculate the level of congestion.
-	// Used in determining growth and passenger preferences.
-	// Old system:
-	// From observations in game: anything < 2, not very congested.
-	// Anything > 4, very congested.
-	// For new system, see http://www.tomtom.com/lib/doc/congestionindex/2013-0322-TomTom-CongestionIndex-2012-Annual-EUR-mi.pdf
-	// @author: jamespetts
-
-	settings_t const& s = welt->get_settings();
-
-	uint16 congestion_density_factor = s.get_congestion_density_factor();
-
-#ifdef MULTI_THREAD
-	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
-	assert(error == 0);
-#endif
-
-	if(congestion_density_factor < 32)
-	{
-		// Old method - congestion density factor
-		const uint32 city_size = (ur.x - lo.x + 1) * (ur.y - lo.y + 1);
-		uint32 cars_per_tile_thousandths = (city_history_month[1][HIST_CITYCARS] * 1000) / city_size;
-		const uint32 population_density = (city_history_month[1][HIST_CITICENS] * 10) / city_size;
-		congestion_density_factor *= 100;
-
-		uint32 cars_per_tile_base = 800;
-
-		cars_per_tile_thousandths = welt->calc_adjusted_monthly_figure(cars_per_tile_thousandths);
-		cars_per_tile_base = welt->calc_adjusted_monthly_figure(cars_per_tile_base);
-		congestion_density_factor = welt->calc_adjusted_monthly_figure(congestion_density_factor);
-
-		uint32 congestion = 0;
-		if(cars_per_tile_thousandths > cars_per_tile_base)
-		{
-			if(congestion_density_factor == 0)
-			{
-				congestion = (cars_per_tile_thousandths -= cars_per_tile_base) / 30;
-			}
-			else
-			{
-				congestion = (((cars_per_tile_thousandths -= cars_per_tile_base) / 45) * population_density) / congestion_density_factor;
-			}
-		}
-		city_history_month[0][HIST_CONGESTION] = congestion;
-	}
-
-	else // Congestion density factor > 32:  new system
-	{
-		// Based on TomTom congestion index system
-		// See http://www.tomtom.com/lib/doc/congestionindex/2013-0322-TomTom-CongestionIndex-2012-Annual-EUR-mi.pdf
-
-		// First - check the length of the road network in the city.
-		uint32 road_tiles = 0;
-		for(sint16 j = lo.y; j <= ur.y; ++j)
-		{
-			for(sint16 i = lo.x; i <= ur.x; ++i)
-			{
-				const koord k(i, j);
-				const grund_t *const gr = welt->lookup_kartenboden(k);
-				if(gr && gr->get_weg(road_wt))
-				{
-					road_tiles ++;
-				}
-			}
-		}
-		uint32 road_hectometers = (road_tiles * (uint32)s.get_meters_per_tile()) / 10;
-		if (road_hectometers == 0) {
-			// Avoid divide by zero errors
-			road_hectometers = 1;
-		}
-
-		// Second - get the number of car trips per hour
-		const sint64 seconds_per_month = welt->ticks_to_seconds(welt->ticks_per_world_month);
-		// Add incoming private cars as these are no longer tracked in the city history statistics to make them clearer.
-		const sint64 trips_per_hour = ((city_history_month[1][HIST_CITYCARS] + incoming_private_cars) * 3600l) / seconds_per_month;
-
-		// Third - combine the information, multiplying by a ratio based on
-		// congestion_density_factor == 141 is the ideal factor based on the 2012 TomTom congestion index for British cities
-		// (Average: range is 70 (London) to 227 (Newcastle/Sunderland).
-		// Further reduce this by the traffic_level factor to adjust for occupancy rates (permille).
-		const sint64 adjusted_ratio = ((sint64)traffic_level * congestion_density_factor) / 1000l;
-		city_history_month[0][HIST_CONGESTION] = (trips_per_hour * adjusted_ratio) / (sint64)road_hectometers;
-	}
-
-	incoming_private_cars = 0;
-
-#ifdef MULTI_THREAD
-	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
-	assert(error == 0);
-#endif
+	calc_congestion();
 }
 
 void stadt_t::calc_growth()
@@ -6012,7 +5921,7 @@ int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_spe
 	const uint32 congestion_percentage = w->get_congestion_percentage();
 	if (congestion_percentage)
 	{
-		speed -= (speed * congestion_percentage) / 100;
+		speed -= (speed * congestion_percentage) / 200;
 		speed = max(4, speed);
 	}
 #endif
@@ -6093,4 +6002,120 @@ void stadt_t::add_city_factory(fabrik_t *fab)
 void stadt_t::remove_city_factory(fabrik_t *fab)
 {
 	city_factories.remove(fab);
+}
+
+void stadt_t::calc_congestion()
+{
+	calc_traffic_level();
+
+	// Calculate the level of congestion.
+	// Used in determining growth and passenger preferences.
+	// If we do not actually calculate private car routes, use a statistical system.
+	// If we do calcualte private car routes, use actual measured congestion from city
+	// route tiles.
+
+	settings_t const& s = welt->get_settings();
+
+	// Old system:
+	// From observations in game: anything < 2, not very congested.
+	// Anything > 4, very congested.
+	// For new system, see http://www.tomtom.com/lib/doc/congestionindex/2013-0322-TomTom-CongestionIndex-2012-Annual-EUR-mi.pdf
+	// @author: jamespetts
+
+	uint16 congestion_density_factor = s.get_congestion_density_factor();
+
+#ifdef MULTI_THREAD
+		int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+	assert(error == 0);
+#endif
+
+	if (s.get_assume_everywhere_connected_by_road() && congestion_density_factor < 32)
+	{
+		// Old method - congestion density factor
+		const uint32 city_size = (ur.x - lo.x + 1) * (ur.y - lo.y + 1);
+		uint32 cars_per_tile_thousandths = (city_history_month[1][HIST_CITYCARS] * 1000) / city_size;
+		const uint32 population_density = (city_history_month[1][HIST_CITICENS] * 10) / city_size;
+		congestion_density_factor *= 100;
+
+		uint32 cars_per_tile_base = 800;
+
+		cars_per_tile_thousandths = welt->calc_adjusted_monthly_figure(cars_per_tile_thousandths);
+		cars_per_tile_base = welt->calc_adjusted_monthly_figure(cars_per_tile_base);
+		congestion_density_factor = welt->calc_adjusted_monthly_figure(congestion_density_factor);
+
+		uint32 congestion = 0;
+		if (cars_per_tile_thousandths > cars_per_tile_base)
+		{
+			if (congestion_density_factor == 0)
+			{
+				congestion = (cars_per_tile_thousandths -= cars_per_tile_base) / 30;
+			}
+			else
+			{
+				congestion = (((cars_per_tile_thousandths -= cars_per_tile_base) / 45) * population_density) / congestion_density_factor;
+			}
+		}
+		city_history_month[0][HIST_CONGESTION] = congestion;
+	}
+
+	else // Congestion density factor > 32 or do not assume everywhere connected by road: new system
+	{
+		// Based on TomTom congestion index system
+		// See http://www.tomtom.com/lib/doc/congestionindex/2013-0322-TomTom-CongestionIndex-2012-Annual-EUR-mi.pdf
+
+		// First - check the length of the road network in the city.
+		// For tile based congestion measurement, use only this.
+		uint32 total_congestion = 0;
+		uint32 road_tiles = 0;
+		for (sint16 j = lo.y; j <= ur.y; ++j)
+		{
+			for (sint16 i = lo.x; i <= ur.x; ++i)
+			{
+				const koord k(i, j);
+				const grund_t* const gr = welt->lookup_kartenboden(k);
+				if (gr)
+				{
+					const weg_t* w = gr->get_weg(road_wt);
+					if (w)
+					{
+						road_tiles++;
+						total_congestion += w->get_congestion_percentage();
+					}
+				}
+			}
+		}
+
+		if (s.get_assume_everywhere_connected_by_road())
+		{
+			uint32 road_hectometers = (road_tiles * (uint32)s.get_meters_per_tile()) / 10;
+			if (road_hectometers == 0)
+			{
+				// Avoid divide by zero errors
+				road_hectometers = 1;
+			}
+
+			// Second - get the number of car trips per hour
+			const sint64 seconds_per_month = welt->ticks_to_seconds(welt->ticks_per_world_month);
+			// Add incoming private cars as these are no longer tracked in the city history statistics to make them clearer.
+			const sint64 trips_per_hour = ((city_history_month[1][HIST_CITYCARS] + incoming_private_cars) * 3600l) / seconds_per_month;
+
+			// Third - combine the information, multiplying by a ratio based on
+			// congestion_density_factor == 141 is the ideal factor based on the 2012 TomTom congestion index for British cities
+			// (Average: range is 70 (London) to 227 (Newcastle/Sunderland).
+			// Further reduce this by the traffic_level factor to adjust for occupancy rates (permille).
+			const sint64 adjusted_ratio = ((sint64)traffic_level * congestion_density_factor) / 1000l;
+			city_history_month[0][HIST_CONGESTION] = (trips_per_hour * adjusted_ratio) / (sint64)road_hectometers;
+		}
+		else // Measure congestion by actual tiles.
+		{
+			city_history_month[0][HIST_CONGESTION] = total_congestion / road_tiles;
+		}
+	}
+
+	incoming_private_cars = 0;
+
+#ifdef MULTI_THREAD
+	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+	assert(error == 0);
+#endif
 }

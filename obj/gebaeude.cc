@@ -1097,7 +1097,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 			}
 			else
 			{
-				buf.printf(" 0%%");
+				buf.printf(" -");
 			}
 
 			buf.printf("\n");
@@ -1108,18 +1108,19 @@ void gebaeude_t::info(cbuffer_t & buf) const
 			}
 			else
 			{
-				buf.printf(" 0%%");
+				buf.printf(" -");
 			}
 			buf.printf("\n");
 			if (adjusted_mail_demand)
 			{
 				buf.printf("%s", translator::translate("Mail delivery success this year:"));
-				if (get_mail_delivery_success_percent_this_year() < 65535)
+				if (mail_generated)
 				{
 					buf.printf(" %i%%", get_mail_delivery_success_percent_this_year());
 				}
-				else {
-					buf.printf(" 0%%");
+				else 
+				{
+					buf.printf(" -");
 				}
 				buf.printf("\n");
 			}
@@ -1146,7 +1147,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 					buf.printf(" %i%%", mail_delivery_success_percent_last_year);
 				}
 				else {
-					buf.printf(" 0%%");
+					buf.printf(" -");
 				}
 				buf.printf("\n");
 			}
@@ -1166,7 +1167,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 					buf.printf(" %i (%i%%)", mail_delivery_succeeded, get_mail_delivery_success_percent_this_year());
 				}
 				else {
-					buf.printf(" 0 (0%%)");
+					buf.printf(" 0");
 				}
 				buf.printf("\n");
 			}
@@ -1188,7 +1189,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 					buf.printf(" %i (%i%%)", mail_delivery_succeeded_last_year, mail_delivery_success_percent_last_year);
 				}
 				else {
-					buf.printf(" 0 (0%%)");
+					buf.printf(" 0");
 				}
 				buf.printf("\n");
 			}
@@ -1590,7 +1591,7 @@ void gebaeude_t::new_year()
 	mail_delivery_succeeded_last_year = mail_delivery_succeeded;
 	mail_delivery_success_percent_last_year = get_mail_delivery_success_percent_this_year();
 
-	passengers_succeeded_commuting = passengers_generated_commuting = passengers_succeeded_visiting = passengers_generated_visiting = mail_delivery_succeeded = mail_delivery_succeeded = 0;
+	passengers_succeeded_commuting = passengers_generated_commuting = passengers_succeeded_visiting = passengers_generated_visiting = mail_generated = mail_delivery_succeeded = mail_delivery_succeeded = 0;
 }
 
 

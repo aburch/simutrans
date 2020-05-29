@@ -20,6 +20,7 @@
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
 #include "../gui/simwin.h"
+#include "components/gui_convoy_formation.h"
 
 class scr_coord;
 
@@ -58,21 +59,7 @@ public:
 	void draw(scr_coord offset);
 };
 
-// content of convoy formation @Ranran
-class gui_convoy_formaion_t : public gui_container_t
-{
-private:
-	convoihandle_t cnv;
-
-public:
-	gui_convoy_formaion_t(convoihandle_t cnv);
-
-	void set_cnv(convoihandle_t c) { cnv = c; }
-
-	void draw(scr_coord offset);
-};
-
-// content of payload info tab @Ranran
+// content of payload info tab
 class gui_convoy_payload_info_t : public gui_container_t
 {
 private:
@@ -89,7 +76,7 @@ public:
 	void display_loading_bar(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, uint16 loading, uint16 capacity, uint16 overcrowd_capacity);
 };
 
-// content of maintenance info tab @Ranran
+// content of maintenance info tab
 class gui_convoy_maintenance_info_t : public gui_container_t
 {
 private:

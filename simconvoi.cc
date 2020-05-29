@@ -818,7 +818,7 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 		}
 		weg->get_owner()->book_toll_received( toll, get_schedule()->get_waytype() );
 		get_owner()->book_toll_paid(         -toll, get_schedule()->get_waytype() );
-//		book( -toll, CONVOI_WAYTOLL);
+		book( -toll, CONVOI_WAYTOLL);
 		book( -toll, CONVOI_PROFIT);
 	}
 
@@ -1465,6 +1465,9 @@ bool convoi_t::drive_to()
 {
 	koord3d start = front()->get_pos();
 	koord3d ziel = schedule->get_current_entry().pos;
+	const koord3d original_destination = ziel;
+	const uint8 original_current_stop = schedule->get_current_stop();
+	bool schedule_advanced = false;
 
 	const bool check_onwards = front()->get_waytype() == road_wt || front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
 
@@ -1475,8 +1478,7 @@ bool convoi_t::drive_to()
 
 	if(check_onwards && gr && !gr->get_depot())
 	{
-		// We need to calculate the full route through to the next signal or reversing point
-		// to avoid ignoring signals.
+		// Set reversing statuses
 		uint32 counter = schedule->get_count();
 		const uint32 count = counter;
 
@@ -1506,9 +1508,18 @@ bool convoi_t::drive_to()
 				break;
 			}
 			advance_schedule();
+			schedule_advanced = true;
 			schedule_entry = &schedule->entries[schedule->get_current_stop()];
+			// The below does not actually change the stored route: it only checks that the route is valid.
 			success = front()->reroute(route.get_count() - 1, schedule_entry->pos);
 		}
+
+		if (schedule_advanced && (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt))
+		{
+			// Reset these for now to allow waypoint check below to work.
+			ziel = original_destination;
+			schedule->set_current_stop(original_current_stop);
+		} 
 
 		if (update_line)
 		{
@@ -1546,7 +1557,7 @@ bool convoi_t::drive_to()
 		// wait before next attempt for a normal no route.
 		// For a "too complex" no route, wait much, much longer, as this can cause serious lag
 		// when repeated many times. The expectation is that the player will manually find
-		// another route in this state,
+		// another route in this state.
 		if (success == route_t::route_too_complex)
 		{
 			// 2 minutes
@@ -1573,18 +1584,21 @@ bool convoi_t::drive_to()
 			ziel = schedule->get_current_entry().pos;
 
 			// set next schedule target position if next is a waypoint
-			if(  is_waypoint(ziel)  ) {
+			if(  is_waypoint(ziel)  )
+			{
 				schedule_target = ziel;
 			}
 
 			// continue route search until the destination is a station
-			while(  is_waypoint(ziel)  ) {
+			while(  is_waypoint(ziel)  )
+			{
 				allow_clear_reservation = false;
 				start = ziel;
 				schedule->advance();
 				ziel = schedule->get_current_entry().pos;
 
-				if(  schedule->get_current_stop() == current_stop  ) {
+				if(  schedule->get_current_stop() == current_stop  )
+				{
 					// looped around without finding a halt => entire schedule is waypoints.
 					break;
 				}
@@ -1631,7 +1645,7 @@ bool convoi_t::drive_to()
 					}
 
 					if(  looped  ) {
-						// proceed upto the waypoint before the loop. Will pause there for a new route search.
+						// proceed up to the waypoint before the loop. Will pause there for a new route search.
 						schedule_target = koord3d::invalid;
 						break;
 					}
@@ -2389,6 +2403,19 @@ uint16 convoi_t::get_overcrowded() const
 		}
 	}
 	return overcrowded;
+}
+
+uint16 convoi_t::get_overcrowded_capacity() const
+{
+	uint16 standing_capacity = 0;
+	for (uint8 i = 0; i < vehicle_count; i++)
+	{
+		for (uint8 j = 0; j < vehicle[i]->get_desc()->get_number_of_classes(); j++)
+		{
+			standing_capacity += vehicle[i]->get_overcrowded_capacity(j);
+		}
+	}
+	return standing_capacity;
 }
 
 uint8 convoi_t::get_comfort(uint8 g_class, bool check_reassigned) const
@@ -4059,7 +4086,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--)
 			{
-				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_extended_version() <= 1) || (j == CONVOI_REFUNDS && file->get_extended_version() < 8))
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_extended_version() <= 1) || (j >= CONVOI_REFUNDS && file->get_extended_version() < 8))
 				{
 					// Versions of Extended saves with 1 and below
 					// did not have settings for average speed or comfort.
@@ -4079,7 +4106,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--)
 			{
-				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_extended_version() <= 1) || (j == CONVOI_REFUNDS && file->get_extended_version() < 8))
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_extended_version() <= 1) || (j >= CONVOI_REFUNDS && file->get_extended_version() < 8))
 				{
 					// Versions of Extended saves with 1 and below
 					// did not have settings for average speed or comfort.
@@ -4107,7 +4134,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k>=0; k--)
 			{
-				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_extended_version() <= 1) || (j == CONVOI_REFUNDS && file->get_extended_version() < 8))
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_extended_version() <= 1) || (j >= CONVOI_REFUNDS && file->get_extended_version() < 8))
 				{
 					// Versions of Extended saves with 1 and below
 					// did not have settings for average speed or comfort.
@@ -4123,7 +4150,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
-		for (int j = 7; j<MAX_CONVOI_COST; j++)
+		for (int j = 7; j< CONVOI_WAYTOLL; j++)
 		{
 			for (int k = MAX_MONTHS-1; k>=0; k--)
 			{
@@ -4205,6 +4232,19 @@ void convoi_t::rdwr(loadsave_t *file)
 					continue;
 				}
 				break;
+			case CONVOI_WAYTOLL:
+				if (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 25))
+				{
+					if (file->is_loading())
+					{
+						for (int k = MAX_MONTHS - 1; k >= 0; k--)
+						{
+							financial_history[k][j] = 0;
+						}
+					}
+					continue;
+				}
+				break;
 			}
 
 			for (int k = MAX_MONTHS-1; k >= 0; k--)
@@ -4217,7 +4257,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		{
 			if (file->get_extended_version() == 0 && file->get_version() >= 112008 )
 			{
-				// CONVOY_WAYTOLL - not used in Extended
+				// CONVOI_WAYTOLL - not used in Extended until Jan 2020
 				sint64 dummy = 0;
 				for (int k = MAX_MONTHS-1; k >= 0; k--)
 				{
@@ -4672,7 +4712,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				}
 			}
 		}
-		const uint8 count = file->get_version() < 103000 ? CONVOI_DISTANCE : MAX_CONVOI_COST;
+		const uint8 count = file->get_version() < 103000 ? CONVOI_DISTANCE : CONVOI_WAYTOLL;
 		for(uint8 i = 0; i < count; i ++)
 		{
 			file->rdwr_long(rolling_average[i]);
@@ -5948,6 +5988,7 @@ station_tile_search_ready: ;
 				player->book_toll_received(modified_apportioned_revenue, get_schedule()->get_waytype() );
 				owner->book_toll_paid(-modified_apportioned_revenue, get_schedule()->get_waytype() );
 				book(-modified_apportioned_revenue, CONVOI_PROFIT);
+				book(-modified_apportioned_revenue, CONVOI_WAYTOLL);
 			}
 		}
 
@@ -5973,6 +6014,7 @@ station_tile_search_ready: ;
 				halt->get_owner()->book_toll_received(port_charge, get_schedule()->get_waytype() );
 				owner->book_toll_paid(-port_charge, get_schedule()->get_waytype() );
 				book(-port_charge, CONVOI_PROFIT);
+				book(-port_charge, CONVOI_WAYTOLL);
 			}
 		}
 	}
@@ -6734,13 +6776,12 @@ COLOR_VAL convoi_t::get_status_color() const
 		// in depot/under assembly
 		return SYSCOL_TEXT_HIGHLIGHT;
 	}
-	else if (state == WAITING_FOR_CLEARANCE_ONE_MONTH || state == CAN_START_ONE_MONTH || get_state() == NO_ROUTE || get_state() == NO_ROUTE_TOO_COMPLEX || get_state() == OUT_OF_RANGE || get_state() == EMERGENCY_STOP) {
-		// stuck or no route
+	else if (skinverwaltung_t::alerts && (state == WAITING_FOR_CLEARANCE_ONE_MONTH || state == CAN_START_ONE_MONTH || get_state() == EMERGENCY_STOP)) {
+		// Display symbol if pakset has alert symbols.
 		return COL_ORANGE;
 	}
-	else if(financial_history[0][CONVOI_PROFIT]+financial_history[1][CONVOI_PROFIT]<0)
-	{
-		// ok, not performing best
+	else if (state == WAITING_FOR_CLEARANCE_TWO_MONTHS || state == CAN_START_TWO_MONTHS || get_state() == NO_ROUTE || get_state() == NO_ROUTE_TOO_COMPLEX || get_state() == OUT_OF_RANGE) {
+		// stuck or no route
 		return COL_RED;
 	}
 	else if((financial_history[0][CONVOI_OPERATIONS]|financial_history[1][CONVOI_OPERATIONS])==0)
@@ -7620,6 +7661,17 @@ bool convoi_t::calc_obsolescence(uint16 timeline_year_month)
 	return false;
 }
 
+uint16 convoi_t::get_average_age()
+{
+	if (!get_vehicle_count()) { return 0; }
+	uint32 total_age = 0;
+	for (int j = get_vehicle_count(); --j >= 0; ) {
+		total_age += welt->get_current_month() - (uint32)vehicle[j]->get_purchase_time();
+	}
+	return total_age / get_vehicle_count();
+}
+
+
 void convoi_t::clear_replace()
 {
 	if(replace)
@@ -8068,6 +8120,7 @@ sint64 convoi_t::get_stat_converted(int month, convoi_cost_t cost_type) const
 		case CONVOI_OPERATIONS:
 		case CONVOI_PROFIT:
 		case CONVOI_REFUNDS:
+		case CONVOI_WAYTOLL:
 			value = convert_money(value);
 			break;
 		default: ;
@@ -8245,6 +8298,64 @@ void convoi_t::calc_classes_carried()
 			}
 		}
 	}
+}
+
+uint16 convoi_t::get_total_cargo_by_fare_class(uint8 catg, uint8 g_class) const
+{
+	if ((catg == goods_manager_t::INDEX_PAS && g_class >= goods_manager_t::passengers->get_number_of_classes())
+		|| (catg == goods_manager_t::INDEX_MAIL && g_class >= goods_manager_t::mail->get_number_of_classes()))
+	{
+		return 0;
+	}
+	else if (catg != goods_manager_t::INDEX_PAS && catg != goods_manager_t::INDEX_MAIL && g_class > 0) {
+		return 0; // freight does not have classes
+	}
+
+	uint16 sum = 0;
+	const uint8 classes = catg == goods_manager_t::INDEX_PAS ? goods_manager_t::passengers->get_number_of_classes() : goods_manager_t::mail->get_number_of_classes();
+	for (const_iterator i = begin(); i != end(); ++i)
+	{
+		const vehicle_t &v = **i;
+		if (v.get_cargo_type()->get_catg_index() != catg) {
+			continue;
+		}
+		if (catg == goods_manager_t::INDEX_PAS || catg == goods_manager_t::INDEX_MAIL) {
+			for (uint8 c = 0; c < classes; c++) {
+				if (v.get_reassigned_class(c) == g_class)
+				{
+					sum += v.get_total_cargo_by_class(c);
+				}
+			}
+		}
+		else
+		{
+			sum += v.get_total_cargo_by_class(0);
+		}
+	}
+	return sum;
+}
+
+uint16 convoi_t::get_unique_fare_capacity(uint8 catg, uint8 g_class) const
+{
+	if ((catg == goods_manager_t::INDEX_PAS && g_class >= goods_manager_t::passengers->get_number_of_classes())
+		|| (catg == goods_manager_t::INDEX_MAIL && g_class >= goods_manager_t::mail->get_number_of_classes()))
+	{
+		return 0;
+	}
+	else if(catg != goods_manager_t::INDEX_PAS && catg != goods_manager_t::INDEX_MAIL && g_class>0){
+		return 0; // freight does not have classes
+	}
+
+	uint16 sum = 0;
+	for (const_iterator i = begin(); i != end(); ++i)
+	{
+		const vehicle_t &v = **i;
+		if (v.get_cargo_type()->get_catg_index() != catg) {
+			continue;
+		}
+		sum += v.get_fare_capacity(g_class);
+	}
+	return sum;
 }
 
 bool convoi_t::carries_this_or_lower_class(uint8 catg, uint8 g_class) const

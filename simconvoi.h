@@ -84,8 +84,8 @@ public:
 		CONVOI_DISTANCE,			//  7 | 5 | total distance traveled this month
 		CONVOI_REFUNDS,				//  8 |   | the refunds passengers waiting for this convoy (only when not attached to a line) have received.
 //		CONVOI_MAXSPEED,			//    | 6 | average max. possible speed
-//		CONVOI_WAYTOLL,				//    | 7 |
-		MAX_CONVOI_COST				//  9 | 8 |
+		CONVOI_WAYTOLL,				//  9 | 7 |
+		MAX_CONVOI_COST				// 10 | 8 |
 	};
 
 	/* Constants
@@ -1390,6 +1390,9 @@ public:
 	// returns total value of vehicle length of this convoy. (not include any padding)
 	uint16 get_true_tile_length() const;
 
+	// returns vehicle average age in month
+	uint16 get_average_age();
+
 	// get cached obsolescence.
 	inline bool has_obsolete_vehicles() const { return has_obsolete; }
 
@@ -1495,6 +1498,8 @@ public:
 	// Returns the number of standing passengers (etc.) in this convoy.
 	uint16 get_overcrowded() const;
 
+	uint16 get_overcrowded_capacity() const;
+
 	// @author: jamespetts
 	// Returns the average comfort of this convoy,
 	// taking into account any catering.
@@ -1564,6 +1569,9 @@ public:
 	void clear_estimated_times();
 
 	void calc_classes_carried();
+
+	uint16 get_total_cargo_by_fare_class(uint8 catg, uint8 g_class) const;
+	uint16 get_unique_fare_capacity(uint8 catg, uint8 g_class) const;
 
 	bool carries_this_or_lower_class(uint8 catg, uint8 g_class) const;
 

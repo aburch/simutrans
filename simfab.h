@@ -20,6 +20,7 @@
 #include "halthandle_t.h"
 #include "simworld.h"
 #include "utils/plainstring.h"
+#include "bauer/goods_manager.h"
 
 
 class player_t;
@@ -712,7 +713,7 @@ public:
 	sint32 get_current_production() const { return (sint32)(welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + (get_sector() == fabrik_t::end_consumer ? 0 : prodfactor_pax + prodfactor_mail))))) >> 8l; }
 
 	// returns the current productivity relative to 100
-	sint32 get_current_productivity() const { return prodbase ? get_current_production() * 100 / welt->calc_adjusted_monthly_figure(prodbase) : 0; }
+	sint32 get_current_productivity() const { return welt->calc_adjusted_monthly_figure(prodbase) ? get_current_production() * 100 / welt->calc_adjusted_monthly_figure(prodbase) : 0; }
 
 	/* prissi: returns the status of the current factory */
 	enum { nothing, good, water_resource, medium, water_resource_full, storage_full, inactive, shipment_stuck, material_shortage, no_material, bad, mat_overstocked, stuck, staff_shortage, MAX_FAB_STATUS };
@@ -785,6 +786,11 @@ public:
 
 	// check connected to public or current player stop
 	bool is_connect_own_network() const;
+
+	// Returns whether this factory has potential demand for passed goods category
+	bool has_goods_catg_demand(uint8 catg_index = goods_manager_t::INDEX_NONE) const;
+
+
 };
 
 #endif

@@ -78,6 +78,14 @@
 #include "../path_explorer.h"
 #include "../freight_list_sorter.h"
 
+void traffic_vehicle_t::flush_travel_times(strasse_t* str)
+{
+	if(get_max_speed() && str->get_max_speed() && dist_travelled_since_last_hop > (128 << YARDS_PER_VEHICLE_STEP_SHIFT))
+	{	
+		str->update_travel_times(world()->get_ticks() - time_at_last_hop, dist_travelled_since_last_hop / min(get_max_speed(), kmh_to_speed(str->get_max_speed())));
+	}
+	reset_measurements();
+}
 
 /* get dx and dy from dir (just to remind you)
  * any vehicle (including city cars and pedestrians)
@@ -1805,7 +1813,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 	const bool is_corner = current_direction != previous_direction;
 
 	const bool is_tilting = desc->get_tilting();
-	const sint32 base_limit = kmh_to_speed(w->get_max_speed());
+	const sint32 base_limit = desc->get_override_way_speed() ? SINT32_MAX_VALUE : kmh_to_speed(w->get_max_speed());
 	const uint32 max_axle_load = w->get_max_axle_load();
 	const uint32 bridge_weight_limit = w->get_bridge_weight_limit();
 	const sint32 total_weight = cnv->get_weight_summary().weight / 1000;
@@ -2501,7 +2509,6 @@ void vehicle_t::rdwr(loadsave_t *file)
 	// this is only called from objlist => we save nothing ...
 	assert(  file->is_saving()  );
 }
-
 
 
 void vehicle_t::rdwr_from_convoi(loadsave_t *file)
@@ -3281,6 +3288,7 @@ void vehicle_t::before_delete()
 {
 }
 
+uint32 road_vehicle_t::get_max_speed() { return cnv->get_min_top_speed(); }
 
 road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
 #ifdef INLINE_OBJ_TYPE
@@ -3292,6 +3300,7 @@ road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t
 	cnv = cn;
 	is_checker = false;
 	drives_on_left = welt->get_settings().is_drive_left();
+	reset_measurements();
 }
 
 road_vehicle_t::road_vehicle_t() :
@@ -3362,6 +3371,7 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) 
 	fix_class_accommodations();
 	is_checker = false;
 	drives_on_left = welt->get_settings().is_drive_left();
+	reset_measurements();
 }
 
 void road_vehicle_t::rotate90()
@@ -3461,13 +3471,18 @@ int road_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	sint32 max_tile_speed = w->get_max_speed();
 
 	// add cost for going (with maximum speed, cost is 1)
-	int costs = (max_speed <= max_tile_speed) ? 10 : 40 - (30 * max_tile_speed) / max_speed;
+	sint32 costs = (max_speed <= max_tile_speed) ? 10 : 40 - (30 * max_tile_speed) / max_speed;
+
+	if (desc->get_override_way_speed())
+	{
+		costs = 1;
+	}
 
 	// Take traffic congestion into account in determining the cost. Use the same formula as for private cars.
 	const uint32 congestion_percentage = w->get_congestion_percentage();
 	if (congestion_percentage)
 	{
-		costs += (costs * congestion_percentage) / 100;
+		costs += (costs * congestion_percentage) / 200;
 	}
 
 	// effect of slope
@@ -3938,7 +3953,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			// found a car blocking us after checking at least 1 intersection or crossing
 			// and the car is in a place we could stop. So if it can move, assume it will, so we will too.
 			// but check only upto 8 cars ahead to prevent infinite recursion on roundabouts.
-			log_congestion(str);
 			if(  second_check_count >= 8  ) {
 				return false;
 			}
@@ -3974,8 +3988,24 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 								return true;
 							}
 							strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
-							sint32 cnv_max_speed = (int)fmin(cnv->get_min_top_speed(), str->get_max_speed()*kmh_to_speed(1));
-							sint32 other_max_speed = (int)fmin(ocnv->get_min_top_speed(), str->get_max_speed()*kmh_to_speed(1));
+							sint32 cnv_max_speed;
+							sint32 other_max_speed;
+							if (desc->get_override_way_speed())
+							{
+								cnv_max_speed = cnv->get_min_top_speed() * kmh_to_speed(1);
+							}
+							else
+							{
+								cnv_max_speed = (int)fmin(cnv->get_min_top_speed(), str->get_max_speed() * kmh_to_speed(1));
+							}
+							if (ocnv->front()->get_desc()->get_override_way_speed())
+							{
+								other_max_speed = ocnv->get_min_top_speed() * kmh_to_speed(1);
+							}
+							else
+							{
+								other_max_speed = (int)fmin(ocnv->get_min_top_speed(), str->get_max_speed() * kmh_to_speed(1));
+							}
 							if(  cnv->is_overtaking() && kmh_to_speed(10) <  cnv_max_speed - other_max_speed  ) {
 								// If the convoi is on passing lane and there is slower convoi in front of this, this convoi request the slower to go to traffic lane.
 								ocnv->set_requested_change_lane(true);
@@ -4080,7 +4110,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(  (cnv->is_overtaking()  &&  str->get_overtaking_mode()==prohibited_mode)  ||  (cnv->is_overtaking()  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<inverted_mode  &&  static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode()<=oneway_mode)  ) {
 			if(  vehicle_base_t* v = other_lane_blocked(false, offset)  ) {
 				if(  v->get_waytype() == road_wt  ) {
-					log_congestion(str);
 					restart_speed = 0;
 					cnv->reset_waiting();
 					cnv->set_next_cross_lane(true);
@@ -4095,7 +4124,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			halthandle_t halt = haltestelle_t::get_halt(welt->lookup(r.at(route_index))->get_pos(),cnv->get_owner());
 			vehicle_base_t* v = other_lane_blocked(false, offset);
 			if(  halt.is_bound()  &&  gr->get_weg_ribi(get_waytype())!=0  &&  v  &&  v->get_waytype() == road_wt  ) {
-				log_congestion(str);
 				restart_speed = 0;
 				cnv->reset_waiting();
 				cnv->set_next_cross_lane(true);
@@ -4107,7 +4135,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(  !cnv->is_overtaking()  &&  str->get_overtaking_mode() == inverted_mode  ) {
 			if(  vehicle_base_t* v = other_lane_blocked(false, offset)  ) {
 				if(  v->get_waytype() == road_wt  ) {
-					log_congestion(str);
 					restart_speed = 0;
 					cnv->reset_waiting();
 					cnv->set_next_cross_lane(true);
@@ -4128,7 +4155,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
 					if(  at->get_convoi()->get_akt_speed()!=0  &&  judge_lane_crossing(calc_direction(get_pos(),pos_next), calc_direction(pos_next,pos_next2), at->get_90direction(), cnv->is_overtaking(), false)  ) {
 						// vehicle must stop.
-						log_congestion(str);
 						restart_speed = 0;
 						cnv->reset_waiting();
 						cnv->set_next_cross_lane(true);
@@ -4158,7 +4184,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
 				if(  at->get_convoi()->get_next_cross_lane()  &&  at==at->get_convoi()->back()  ) {
 					// vehicle must stop.
-					log_congestion(str);
 					restart_speed = 0;
 					cnv->reset_waiting();
 					return false;
@@ -4170,15 +4195,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	}
 
 	return true;
-}
-
-void vehicle_t::log_congestion(strasse_t* road)
-{
-	if (last_stopped_tile != get_pos())
-	{
-		last_stopped_tile = get_pos();
-		road->increment_traffic_stopped_counter();
-	}
 }
 
 overtaker_t* road_vehicle_t::get_overtaker()
@@ -4314,10 +4330,19 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 	return NULL;
 }
 
+uint32 road_vehicle_t::do_drive(uint32 distance) 
+{
+	uint32 distance_travelled = vehicle_base_t::do_drive(distance);
+	if(leading)
+	{
+		add_distance(distance_travelled);
+	}
+	return distance_travelled;
+}
+
 void road_vehicle_t::enter_tile(grund_t* gr)
 {
 	vehicle_t::enter_tile(gr);
-
 	const int cargo = get_total_cargo();
 	strasse_t *str = (strasse_t*)gr->get_weg(road_wt);
 	if(str == NULL)
@@ -4390,7 +4415,27 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
 }
 
-
+void road_vehicle_t::hop(grund_t* gr_to) {
+	if(leading)
+	{
+		grund_t* gr = get_grund();
+		if(gr)
+		{
+			strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
+			if(str) 
+			{
+				if(get_last_stop_pos() != get_pos() && get_pos_next() != get_pos_prev())
+				{
+					flush_travel_times(str);
+				}
+				else {
+					reset_measurements();
+				}
+			}
+		}
+	}
+	vehicle_t::hop(gr_to);
+}
 
 
 schedule_t * road_vehicle_t::generate_new_schedule() const
@@ -4714,6 +4759,10 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	// add cost for going (with maximum speed, cost is 10)
 	const sint32 max_tile_speed = w->get_max_speed();
 	int costs = (max_speed <= max_tile_speed) ? 10 : 40 - (30 * max_tile_speed) / max_speed;
+	if (desc->get_override_way_speed())
+	{
+		costs = 1;
+	}
 
 	// effect of slope
 	if(  gr->get_weg_hang()!=0  ) {
@@ -4951,7 +5000,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	return blocks;
 }
 
-
+ 
 bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uint8)
 {
 	assert(leading);

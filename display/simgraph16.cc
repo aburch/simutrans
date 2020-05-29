@@ -25,6 +25,8 @@
 #include "../utils/simstring.h"
 #include "simgraph.h"
 #include "../descriptor/vehicle_desc.h"
+#include "../gui/simwin.h"
+#include "../gui/gui_theme.h"
 
 
 #ifdef _MSC_VER
@@ -2835,6 +2837,13 @@ void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 playe
 	} // number ok
 }
 
+void display_color_img_with_tooltip(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty, const char *text  CLIP_NUM_DEF)
+{
+	display_color_img(n, xp, yp, player_nr_raw, daynight, dirty);
+	if (text && ( xp <= get_mouse_x() && yp <= get_mouse_y() && (xp+ images[n].w) > get_mouse_x() && (yp+ images[n].h) > get_mouse_y())) {
+		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X/2, yp + images[n].y + images[n].h + TOOLTIP_MOUSE_OFFSET_Y/2, text);
+	}
+}
 
 /**
 * draw unscaled images, replaces base color

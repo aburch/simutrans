@@ -37,6 +37,18 @@ cl_btn_sort_name
 名前
 cl_btn_sort_type
 タイプ
+cl_btn_sort_loading_lvl
+積載率
+cl_btn_sort_max_speed
+最高速度
+cl_btn_sort_value
+取得原価
+cl_btn_sort_age
+平均車齢
+cl_btn_sort_schedule
+次の停車駅
+cl_btn_sort_power
+出力
 clf_btn_alle
 全選択
 clf_btn_invers
@@ -2062,7 +2074,7 @@ way %s now available:\n
 way %s now available:\n%s\n
 %s が\n新しく建設可能になりました。\n%s\n
 Way toll
-通行料
+通行料・使用料
 Ways not connected
 道路/線路が\n繋がっていません。
 Wegpunkt
@@ -2646,7 +2658,7 @@ Demand: %u KW\n
 Demand: %u MW\n
 電力需要: %u MW\n
 Departures
-発車本数
+定刻発車回数
 Departures to\n
 出発予想時間:\n
 Depot found but could not be inserted in schedule.  This is a bug!%s\n
@@ -2808,7 +2820,7 @@ line_no_convoys
 line_nothing_moved
 運行していません
 line_overcrowded
-路線が混雑しています
+路線に混雑している編成があります
 line_times_history
 路線の実測所要時間
 Livery scheme:
@@ -2990,7 +3002,7 @@ origin (amount)
 origin (detail)
 出発地 (詳細)
 out of range
-次駅までの距離が航続距離を超えています
+航続距離オーバー
 overcrowded_capacity
 過積載定員/容量
 partly_forged
@@ -3200,7 +3212,7 @@ Extendedセーブバージョン
 Schedule is incomplete/not finished
 経路設定が完了していません
 Scheduled
-発車許可本数
+設定発車回数
 See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.
 地上/地下を1層ごとに表示します。Ctrl+Uで切り替えできます。階層を変更するにはHOMEキー/ENDキーを使用してください。
 See under the ground, to build tunnels and underground railways/metros. Toggle with SHIFT + U
@@ -3719,30 +3731,12 @@ Starting acceleration:
 (満載時 %.*f-%.*ft)
 Sell for %s
 %sで売却
-Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
-旅客 %d %c, %d %c, %d 経路なし\n\n定員/容量: %i\n
-Passengers %d %c, %d %c, %d no route
-旅客の評価 %d %c, %d %c, %d 経路無し
-Passengers %d %s, %d %s, %d no route
-旅客の評価 %d %s, %d %s, %d 経路無し
-Passengers %d %c, %d %c, %d no route, %d too slow
-旅客の評価 %d %c, %d %c, %d 経路無し, %d 許容時間超過
-Passengers %d %s, %d %s, %d no route, %d too slow
-旅客の評価 %d %s, %d %s, %d 経路無し, %d 許容時間超過
-Unhappy
-不幸せ
-The number of passengers who have left because of overcrowding or excess waiting
-混雑や駅での待ち時間のため旅行を取り止めた旅客の人数を表します。
-Arbeiter aus:
-労働者居住地:
-No Route
-経路無し
-Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community
-ようこそSimutrans-Extendedへ! Simutrans-StandardはHj. MalthanerとSimutransコミュニティによって開発されました。Simutrans-ExtendedはSimutrans-Standardを元にしてJames E. PettsとSimutransコミュニティによって開発されました。
-Usage/Output
-使用量/発電量
-Power (MW)
-電力 (MW)
+cl_btn_general
+編成外観・積載率
+cl_btn_payload
+カテゴリ別積載状況
+cl_btn_formation
+編成図
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

@@ -471,6 +471,8 @@ settings_t::settings_t() :
 
 	random_mode_commuting = random_mode_visiting = 2;
 
+	tolerance_modifier_percentage = 100;
+
 	max_route_tiles_to_process_in_a_step = 2048;
 
 	for(uint8 i = 0; i < 17; i ++)
@@ -1835,6 +1837,15 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_long(max_route_tiles_to_process_in_a_step);
 			}
 		}
+
+		if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 25))
+		{
+			file->rdwr_long(tolerance_modifier_percentage); 
+		}
+		else if (file->is_loading())
+		{
+			tolerance_modifier_percentage = 100;
+		}
 	}
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -2568,6 +2579,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	max_elevated_way_building_level = (uint8)contents.get_int("max_elevated_way_building_level", max_elevated_way_building_level);
 
+	tolerance_modifier_percentage = contents.get_int("tolerance_modifier_percentage", tolerance_modifier_percentage); 
+
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 
 	allow_making_public = (bool)(contents.get_int("allow_making_public", allow_making_public));
@@ -2879,11 +2892,8 @@ static const way_desc_t *get_timeline_road_type( uint16 year, uint16 num_roads, 
 	const way_desc_t *test;
 	for(  int i=0;  i<num_roads;  i++  ) {
 		test = way_builder_t::get_desc( roads[i].name, 0 );
-		if(  test  ) {
-			// return first available for no timeline
-			if(  year==0  ) {
-				return test;
-			}
+		if(  test  )
+		{
 			if(  roads[i].intro==0  ) {
 				// fill in real intro date
 				roads[i].intro = test->get_intro_year_month( );
@@ -2895,9 +2905,11 @@ static const way_desc_t *get_timeline_road_type( uint16 year, uint16 num_roads, 
 					roads[i].retire = NEVER;
 				}
 			}
-			// find newest available ...
-			if(  year>=roads[i].intro  &&  year<roads[i].retire  ) {
-				if(  desc==0  ||  desc->get_intro_year_month()<test->get_intro_year_month()  ) {
+			// find newest available
+			if(year == 0 || (year>=roads[i].intro && year<roads[i].retire))
+			{
+				if(desc==0 || desc->get_intro_year_month()<test->get_intro_year_month())
+				{
 					desc = test;
 				}
 			}

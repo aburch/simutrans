@@ -1729,6 +1729,10 @@ public:
 		return (distance * unit_movement_numerator) >> movement_denominator_shift;
 	}
 
+	uint32 meters_from_yards(uint32 yards) const {
+		return (yards * get_settings().get_meters_per_tile()) >> YARDS_PER_TILE_SHIFT;
+	}
+
 	/**
 	 * @return 0=winter, 1=spring, 2=summer, 3=autumn
 	 * @author prissi

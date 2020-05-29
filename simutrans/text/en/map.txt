@@ -24,7 +24,7 @@ If the <em>factory details</em> checkbox is checked, hovering the mouse cursor o
 On the map (when not using certain legend options): <a href="citywindow.txt">urban areas</a>, attractions and tunnels, appear light grey; rivers and canals appear blue; bridges appear off-white, roads appear dark grey; railways, and tramways appear dark red; monorail tracks appear orange; narrow gauge and maglev railways appear black; runways and taxiways appear dark yellow; <a href="station.txt">stops</a> appear light red; and vehicles appear light yellow.
 </p>
 <p>
-Check the <em>show schedules</em> checkbox to enable a graphical display of a convoy or line's schedule on the map when a schedule is being edited: a light terquoise thin line will link all the points in the currently selected schedule by a straight line.
+Check the <em>show schedules</em> checkbox to enable a graphical display of a convoy or line's schedule on the map when a schedule is being edited: a light turquoise thin line will link all the points in the currently selected schedule by a straight line.
 </p>
 <p>
 Check the <em>isometric view</em> checkbox to show the map in the same isometric orientation as the main game window.

@@ -34,12 +34,14 @@ The following statistics show whether a city is fulfilling demand:<br>
 <p>
 <em>Mini-maps</em> of the game world in the <strong>City Information</strong> window show the destinations of passengers and mail produced in the present urban area.<br>
 Destinations are shown by coloured dots for the current game calendar month (right mini-map) and the previous game calendar month (left mini-map). The colour of destination dots shows information about passengers and mail:<br>
-- <em>Dark yellow</em>: passengers were able to walk the whole way to their destination.<br>
-- <em>Yellow</em>: a suitable route was found, and the starting stop was not too crowded (equivalent to the happy face in the <a href="station.txt">stop</a> window).<br>
-- <em>Terquoise</em>: passengers reached the destination by means of their private cars.<br>
-- <em>Orange</em>: there is no available route to the desired destination.<br>
-- <em>Purple</em>: there is a route to the desired destination, but it takes too long for passengers to tolerate.<br>
-- <em>Red</em>: a suitable route was found, but the starting stop was too crowded to be used (equivalent to the unhappy face in the <a href="station.txt">stop</a> window).
+- <em>Dark yellow</em>: passengers walked to their destination.<br>
+- <em>Yellow</em>: passengers took public transport to their desintation (equivalent to the tick in the <a href="station.txt">stop</a> window).<br>
+- <em>Turquoise</em>: passengers reached the destination by means of their private cars.<br>
+- <em>Orange</em>: there is no available route to the desired destination and it is too far to walk (equivalent to the no entry in the <a href="station.txt">stop</a> window).<br>
+- <em>Purple</em>: there is a route to the desired destination by public transport, but the journey takes too long (equivalent to the snail in the <a href="station.txt">stop</a> window).<br>
+- <em>Pink</em>: there is a route to the desired destination by private car, but the journey takes too long.<br>
+- <em>Red</em>: there is a route to the desired destination by public transport, but the local transport stop was overcrowded (equivalent to the queue in the <a href="station.txt">stop</a> window).</br>
+- <em>Dark red</em>: there is a route to the desired destination, but the desired destination is unavailable (either there are no available jobs for a commuting trip, or, for a visiting trip, the business is closed because of lack of goods or lack of staff).
 </p>
 <p>
 <em>Graph</em> shows statistics for the urban area. <br>

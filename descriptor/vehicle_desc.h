@@ -231,6 +231,10 @@ private:
 	// if true, can not mix another goods in the same car.  @Ranran, July 2019(v14.6)
 	bool mixed_load_prohibition;
 
+	// If true, the vehicle is not bound by the speed limit of the underlying way.
+	// This is intended for use with fly boats.
+	bool override_way_speed;
+
 	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
 	void loaded();
 
@@ -267,6 +271,7 @@ public:
 		engine_type = engine;
 		topspeed = speed;
 		mixed_load_prohibition = false;
+		override_way_speed = false;
 		is_tilting = false;
 		bidirectional = false;
 		can_lead_from_rear = false;
@@ -719,7 +724,7 @@ public:
 
 	uint16 get_range() const { return range; }
 
-	// returns bit flags of bidirectional and has power (v14.8 - Jan, 2020 @Ranran)
+	// returns bit flags of bidirectional and has power for drawing formation picture
 	uint8 get_interactivity() const;
 
 	/**
@@ -836,6 +841,7 @@ public:
 
 	bool get_is_tall() const { return is_tall; }
 	bool get_mixed_load_prohibition() const { return mixed_load_prohibition; }
+	bool get_override_way_speed() const { return override_way_speed; }
 
 	void set_scale(uint16 scale_factor, uint32 way_wear_factor_rail, uint32 way_wear_factor_road, uint16 standard_axle_load)
 	{

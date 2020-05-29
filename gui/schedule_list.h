@@ -24,11 +24,16 @@
 class player_t;
 class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 {
+public:
+	enum sort_mode_t { by_name = 0, by_schedule, by_profit, by_loading_lvl, by_max_speed, /*by_power,*/ by_value, by_age, SORT_MODES };
 private:
 	player_t *player;
 
-	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line, bt_line_class_manager, bt_times_history;
-	gui_container_t cont, cont_haltestellen;
+	static const char *sort_text[SORT_MODES];
+
+	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line, bt_line_class_manager, bt_times_history, bt_mode_convois;
+	button_t sortedby, sorteddir;
+	gui_container_t cont, cont_haltestellen, cont_charts, cont_convoys;
 	gui_scrollpane_t scrolly_convois, scrolly_haltestellen;
 	gui_scrolled_list_t scl;
 	gui_speedbar_t filled_bar;
@@ -36,10 +41,12 @@ private:
 	gui_label_t lbl_filter;
 	gui_chart_t chart;
 	button_t filterButtons[MAX_LINE_COST];
-	gui_tab_panel_t tabs;
+	gui_tab_panel_t tabs; // line selector
+	gui_tab_panel_t info_tabs;
 
 	// vector of convoy info objects that are being displayed
 	vector_tpl<gui_convoiinfo_t *> convoy_infos;
+	vector_tpl<convoihandle_t> line_convoys;
 
 	// vector of stop info objects that are being displayed
 	vector_tpl<halt_list_stats_t *> stop_infos;
@@ -79,6 +86,16 @@ private:
 	static uint16 livery_scheme_index;
 	vector_tpl<uint16> livery_scheme_indices;
 
+	cbuffer_t tab_name;
+
+	// sort stuff
+	static sort_mode_t sortby;
+	static bool sortreverse;
+
+	static bool compare_convois(convoihandle_t, convoihandle_t);
+	void sort_list();
+
+
 public:
 	/// last selected line per tab
 	static linehandle_t selected_line[MAX_PLAYER_COUNT][simline_t::MAX_LINE_TYPE];
@@ -99,6 +116,12 @@ public:
 	* @author Hj. Malthaner
 	*/
 	const char* get_help_filename() const OVERRIDE { return "linemanagement.txt"; }
+
+	static sort_mode_t get_sortierung() { return sortby; }
+	static void set_sortierung(sort_mode_t sm) { sortby = sm; }
+
+	static bool get_reverse() { return sortreverse; }
+	static void set_reverse(bool reverse) { sortreverse = reverse; }
 
 	/**
 	* Does this window need a min size button in the title bar?
