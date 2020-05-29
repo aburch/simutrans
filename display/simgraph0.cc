@@ -230,7 +230,7 @@ void display_blend_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, in
 {
 }
 
-void display_color_img_with_tooltip(const image_id, KOORD_VAL, KOORD_VAL, sint8, const int, const int, const char*)
+void display_color_img_with_tooltip(const image_id, KOORD_VAL, KOORD_VAL, sint8, const int, const int, const char*, sint8)
 {
 }
 
