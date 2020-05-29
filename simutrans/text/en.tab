@@ -4150,3 +4150,11 @@ in_administration
 In administration
 The maximum amount that can be borrowed without going bankrupt
 The maximum amount that can be borrowed without becoming insolvent
+other_player_in_administration
+is in administration and available for take-over.
+other_player_administration_duration
+It has been in administration for
+other_player_in_liquidation
+is in liquidation and is available for take-over without incurring liability for its debts.
+other_player_liquidation_duration
+It has been in liquidation for

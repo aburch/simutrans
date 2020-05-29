@@ -446,6 +446,11 @@ bool player_t::new_month()
 				}
 				welt->get_message()->add_message( buf, koord::invalid, warning_message_type, player_nr, IMG_EMPTY );
 			}
+			else
+			{
+				// Show when other players are in administration or liquidation.
+				
+			}
 		}
 	}
 	else
@@ -453,8 +458,32 @@ bool player_t::new_month()
 		finance->set_account_overdrawn( 0 );
 	}
 
-	if (ss == player_t::in_liquidation)
+	if (ss == player_t::in_administration)
 	{
+		buf.clear();
+		enum message_t::msg_typ warning_message_type = message_t::ai;
+		buf.printf(get_name());
+		buf.printf(" ");
+		buf.printf(translator::translate("other_player_in_administration"));
+		buf.printf(" \n\n");
+		buf.printf(translator::translate("other_player_administration_duration"));
+		buf.printf(" %i ", finance->get_number_of_months_insolvent());
+		buf.printf(translator::translate("months"));
+		welt->get_message()->add_message(buf, koord::invalid, warning_message_type, player_nr, IMG_EMPTY);
+	}
+	else if (ss == player_t::in_liquidation)
+	{
+		buf.clear();
+		enum message_t::msg_typ warning_message_type = message_t::ai;
+		buf.printf(get_name());
+		buf.printf(" ");
+		buf.printf(translator::translate("other_player_in_liquidation"));
+		buf.printf(" \n\n");
+		buf.printf(translator::translate("other_player_liquidation_duration"));
+		buf.printf(" %i ", finance->get_number_of_months_insolvent() - 12);
+		buf.printf(translator::translate("months"));
+		welt->get_message()->add_message(buf, koord::invalid, warning_message_type, player_nr, IMG_EMPTY);
+
 		// If the company has been in liquidation for too long, fully liquidate it.
 		if (false && finance->get_number_of_months_insolvent() >= 24)
 		{
