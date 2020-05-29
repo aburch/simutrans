@@ -489,7 +489,7 @@ public:
 	//@author: jamespetts
 	// Insolvency and debt settings
 	uint8 interest_rate_percent;
-	bool allow_bankruptcy;
+	bool allow_insolvency;
 	bool allow_purchases_when_insolvent;
 
 	// Reversing settings
@@ -961,7 +961,7 @@ public:
 	uint16 get_factory_max_years_obsolete() const { return factory_max_years_obsolete; }
 
 	uint8 get_interest_rate_percent() const { return interest_rate_percent; }
-	bool bankruptcy_allowed() const { return allow_bankruptcy; }
+	bool insolvency_allowed() const { return allow_insolvency; }
 	bool insolvent_purchases_allowed() const { return allow_purchases_when_insolvent; }
 
 	uint32 get_unit_reverse_time() const { return unit_reverse_time; }

@@ -385,72 +385,87 @@ bool player_t::new_month()
 
 	simlinemgmt.new_month();
 
+	player_t::solvency_status ss = check_solvency();
 
-	// Insolvency settings.
-	// Modified by jamespetts, February 2009
-	// Bankrupt ?
+	// Insolvency and credit settings
 	sint64 account_balance = finance->get_account_balance();
-	if(  account_balance < 0  )
+	if(account_balance < 0)
 	{
 		finance->increase_account_overdrawn();
 		if(!welt->get_settings().is_freeplay() && player_nr != 1 /* public player*/ )
 		{
+			// The old, message based bankruptcy system is now abolished.
+			
 			if(welt->get_active_player_nr() == player_nr)
 			{
-				if(  account_balance < finance->get_hard_credit_limit() && welt->get_settings().bankruptcy_allowed() && !env_t::networkmode )
+				// Warnings about financial problems
+				buf.clear();
+				enum message_t::msg_typ warning_message_type = message_t::warnings;
+				// Plural detection for the months.
+				// Different languages pluralise in different ways, so whole string must
+				// be re-translated.
+				if (ss == player_t::solvent)
 				{
-					destroy_all_win(true);
-					create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
-					ticker::add_msg( translator::translate("Bankrott:\n\nDu bist bankrott.\n"), koord::invalid, PLAYER_FLAG + player_color_1 + 1 );
-					welt->stop(false);
-				}
-				else
-				{
-					// Warnings about financial problems
-					buf.clear();
-					enum message_t::msg_typ warning_message_type = message_t::warnings;
-					// Plural detection for the months.
-					// Different languages pluralise in different ways, so whole string must
-					// be re-translated.
-					if(finance->get_account_overdrawn() > 1)
+					// Overdraft messages for a solvent player
+					if (finance->get_account_overdrawn() > 1)
 					{
-						buf.printf(translator::translate("You have been overdrawn\nfor %i months"), finance->get_account_overdrawn() );
+						buf.printf(translator::translate("You have been overdrawn\nfor %i months"), finance->get_account_overdrawn());
 					}
 					else
 					{
 						buf.printf("%s", translator::translate("You have been overdrawn\nfor one month"));
 					}
-					if(welt->get_settings().get_interest_rate_percent() > 0)
+					if (welt->get_settings().get_interest_rate_percent() > 0)
 					{
-						buf.printf(translator::translate("\n\nInterest on your debt is\naccumulating at %i %%"),welt->get_settings().get_interest_rate_percent() );
+						buf.printf(translator::translate("\n\nInterest on your debt is\naccumulating at %i %%"), welt->get_settings().get_interest_rate_percent());
 					}
-					if(  account_balance < finance->get_hard_credit_limit()  ) {
-						buf.printf( translator::translate("\n\nYou are insolvent!") );
-						// Only in network mode, freeplay, or no-bankruptcy
-						// This is a more serious problem than the interest
-						warning_message_type = message_t::problems;
-					}
-					else if(  account_balance < finance->get_soft_credit_limit()  ) {
-						buf.printf( translator::translate("\n\nYou have exceeded your credit limit!") );
-						// This is a more serious problem than the interest
-						warning_message_type = message_t::problems;
-					}
-					welt->get_message()->add_message( buf, koord::invalid, warning_message_type, player_nr, IMG_EMPTY );
 				}
-			}
-
-			if(welt->get_active_player_nr() != player_nr || env_t::networkmode)  // Not the active player or a multi-player game
-			{
-				// AI players play by the same rules as human players regarding bankruptcy.
-				if(  account_balance < finance->get_hard_credit_limit() && welt->get_settings().bankruptcy_allowed() )
+				else if(ss == player_t::in_administration)
 				{
-					ai_bankrupt();
+					buf.printf(translator::translate("in_administration_warning"));
+					buf.printf("\n\n");
+					buf.printf(translator::translate("administration_duration"));
+					buf.printf(" %i ", finance->get_number_of_months_insolvent());
+					buf.printf(translator::translate("months")); 
+					warning_message_type = message_t::problems;
 				}
+				else if (ss == player_t::in_liquidation)
+				{
+					buf.printf(translator::translate("in_liquidation_warning"));
+					buf.printf("\n\n");
+					buf.printf(translator::translate("liquidation_duration_remaining"));
+					buf.printf(" %i ", 24 - finance->get_number_of_months_insolvent());
+					buf.printf(translator::translate("months")); 
+					warning_message_type = message_t::problems;
+				}
+				else if(  account_balance < finance->get_soft_credit_limit()  )
+				{
+					buf.printf( translator::translate("\n\nYou have exceeded your credit limit!") );
+					// This is a more serious problem than the interest
+					warning_message_type = message_t::problems;
+				}
+				welt->get_message()->add_message( buf, koord::invalid, warning_message_type, player_nr, IMG_EMPTY );
 			}
 		}
 	}
-	else {
+	else
+	{
 		finance->set_account_overdrawn( 0 );
+	}
+
+	if (ss == player_t::in_liquidation)
+	{
+		// If the company has been in liquidation for too long, fully liquidate it.
+		if (false && finance->get_number_of_months_insolvent() >= 24)
+		{
+			// Ready to liquidate fully.
+			complete_liquidation();
+			return false;
+		}
+		else
+		{
+			begin_liquidation();
+		}
 	}
 
 	if(  env_t::networkmode  &&  player_nr>1  &&  !active  ) {
@@ -485,13 +500,16 @@ bool player_t::new_month()
 			// never changed convoi, never built => abandoned
 			if(  abandoned  ) {
 				pwd_hash.clear();
-				locked = false;
+				if (ss != player_t::in_liquidation)
+				{
+					locked = false;
+				}
 				unlock_pending = false;
 			}
 		}
 	}
 
-	// subtract maintenance after bankruptcy check
+	// subtract maintenance after insolvency check
 	finance->book_account( -finance->get_maintenance_with_bits(TT_ALL) );
 	// company gets older ...
 	player_age ++;
@@ -555,10 +573,44 @@ bool player_t::check_owner( const player_t *owner, const player_t *test )
 	return owner == test || owner == NULL || (test != NULL  &&  test->is_public_service());
 }
 
-
-void player_t::ai_bankrupt()
+void player_t::begin_liquidation()
 {
-	DBG_MESSAGE("player_t::ai_bankrupt()","Removing convois");
+	// Lock the player
+	locked = true;
+
+	// Send all convoys to the depot
+	for (size_t i = welt->convoys().get_count(); i-- != 0;)
+	{
+		convoihandle_t const cnv = welt->convoys()[i];
+		if (cnv->get_owner() != this)
+		{
+			continue;
+		}
+
+		if (!cnv->in_depot())
+		{
+			const bool go_to_depot_succeeded = cnv->go_to_depot(false, false);
+			if (!go_to_depot_succeeded)
+			{
+				cnv->emergency_go_to_depot(false); 
+			}
+		}
+
+		// TODO: Mark all vehicles for sale here, including those not part of convoys.
+		// Do this when the secondhand vehicle market is implemented.
+	}
+
+	// Allow all players to access ways/ports/etc. to allow earning access revenue
+	// for the creditors.
+	for (int i = 0; i < MAX_PLAYER_COUNT; i++)
+	{
+		access[i] = true;
+	}
+}
+
+void player_t::complete_liquidation()
+{
+	DBG_MESSAGE("player_t::complete_liquidation()","Removing convois");
 
 	for (size_t i = welt->convoys().get_count(); i-- != 0;) {
 		convoihandle_t const cnv = welt->convoys()[i];
@@ -909,6 +961,8 @@ void player_t::load_finished()
 	calc_assets();
 
 	finance->calc_finance_history();
+
+	locked |= check_solvency() == in_liquidation;
 }
 
 
@@ -1181,7 +1235,7 @@ sint64 player_t::calc_takeover_cost(bool do_not_adopt_liabilities) const
 	{
 		if (finance->get_account_balance() < 0)
 		{
-			cost += finance->get_account_balance();
+			cost -= finance->get_account_balance();
 		}
 		
 		// TODO: Add any liability for longer term loans here whenever longer term loans come to be implemented.
@@ -1199,7 +1253,7 @@ const char* player_t::can_take_over(player_t* target_player, bool do_not_adopt_l
 		return "Takeover not permitted."; // TODO: Set this up for translation
 	}
 	
-	if (!can_afford(-target_player->calc_takeover_cost(do_not_adopt_liabilities)))
+	if (!can_afford(target_player->calc_takeover_cost(do_not_adopt_liabilities)))
 	{
 		return NOTICE_INSUFFICIENT_FUNDS;
 	}
@@ -1378,4 +1432,27 @@ void player_t::take_over(player_t* target_player, bool do_not_adopt_liabilities)
 	// TODO: Add record of the takeover to a log that can be displayed in perpetuity for historical interest.
 
 	welt->remove_player(target_player->get_player_nr());
+}
+
+player_t::solvency_status player_t::check_solvency() const
+{
+	if (welt->get_settings().is_freeplay() || !welt->get_settings().insolvency_allowed() || is_public_service())
+	{
+		return player_t::solvent;
+	}
+
+	const uint32 months_insolvent = finance->get_number_of_months_insolvent();
+
+	if (months_insolvent == 0)
+	{
+		return solvent;
+	}
+	else if (months_insolvent <= 12)
+	{
+		return player_t::in_administration;
+	}
+	else
+	{
+		return player_t::in_liquidation;
+	}
 }

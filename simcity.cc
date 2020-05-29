@@ -5092,19 +5092,44 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 {
 	grund_t* bd = welt->lookup_kartenboden(k);
 
+	const bool can_delete_all_objects = bd->kann_alle_obj_entfernen(NULL);
+
+	// somebody else's things on it?
+	if (!can_delete_all_objects)
+	{
+		return false;
+	}
+
 	if (bd->get_typ() != grund_t::boden) {
 		// not on water, monorails, foundations, tunnel or bridges
 		return false;
 	}
 
 	// we must not built on water or runways etc.
-	if(  bd->hat_wege()  &&  !bd->hat_weg(road_wt)  &&  !bd->hat_weg(track_wt)  ) {
-		return false;
+	if(  bd->hat_wege()  &&  !bd->hat_weg(road_wt)  &&  !bd->hat_weg(track_wt)  )
+	{
+		// But allow destroying unowned degraded ways of liquidated companies.
+		bool allow_deletion = true;
+
+		const weg_t* runway = bd->get_weg(air_wt);
+		allow_deletion &= !runway || (runway->get_player_nr() == PLAYER_UNOWNED && runway->get_max_speed() == 0);
+
+		const weg_t* waterway = bd->get_weg(water_wt);
+		allow_deletion &= !waterway || (!waterway->is_public_right_of_way() && waterway->get_player_nr() == PLAYER_UNOWNED && waterway->is_degraded()); 
+
+		if (!allow_deletion)
+		{
+			return false;
+		}
 	}
 
-	// somebody else's things on it?
-	if(  bd->kann_alle_obj_entfernen(NULL)  ) {
-		return false;
+	if (bd->hat_weg(road_wt))
+	{
+		const weg_t* road = bd->get_weg(road_wt);
+		if (road->get_owner() != welt->get_public_player() && !welt->get_settings().get_towns_adopt_player_roads() && road->get_max_speed() > 0 && road->get_max_axle_load() > 0)
+		{
+			return false;
+		}
 	}
 
 	// dwachs: If not able to built here, try to make artificial slope
@@ -5157,9 +5182,13 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 		if (sch->get_desc()->get_styp() != type_tram) {
 			// not a tramway
 			ribi_t::ribi r = sch->get_ribi_unmasked();
-			if (!ribi_t::is_straight(r)) {
-				// no building on crossings, curves, dead ends
-				return false;
+			if (!ribi_t::is_straight(r))
+			{
+				// no building on crossings, curves, dead ends unless this is an unowned degraded way
+				if (!(sch->get_player_nr() == PLAYER_UNOWNED && sch->is_degraded()))
+				{
+					return false;
+				}
 			}
 			// just the other directions are allowed
 			allowed_dir &= ~r;
@@ -6106,9 +6135,13 @@ void stadt_t::calc_congestion()
 			const sint64 adjusted_ratio = ((sint64)traffic_level * congestion_density_factor) / 1000l;
 			city_history_month[0][HIST_CONGESTION] = (trips_per_hour * adjusted_ratio) / (sint64)road_hectometers;
 		}
-		else // Measure congestion by actual tiles.
+		else if(road_tiles > 0) // Measure congestion by actual tiles.
 		{
 			city_history_month[0][HIST_CONGESTION] = total_congestion / road_tiles;
+		}
+		else
+		{
+			city_history_month[0][HIST_CONGESTION] = 0;
 		}
 	}
 

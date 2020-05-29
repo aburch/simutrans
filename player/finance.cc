@@ -181,23 +181,6 @@ sint64 finance_t::get_maintenance_with_bits(transport_type tt) const
 	return world->calc_adjusted_monthly_figure( (sint64)maintenance[tt] );
 }
 
-
-/**
- * Simworld.cc will shut down and remove any player except the public player who
- * satisfies these conditions
- */
-bool finance_t::is_bankrupted() const
-{
-	// Must have no convois and no infrastructure as well as being "bust"
-	return (
-		account_balance < ( com_month[0][ATC_HARD_CREDIT_LIMIT] )  &&
-		veh_year[TT_ALL][0][ATV_INFRASTRUCTURE_MAINTENANCE] == 0  &&
-		maintenance[TT_ALL] == 0  &&
-		com_year[0][ATC_ALL_CONVOIS] == 0
-	);
-}
-
-
 void finance_t::new_month()
 {
 	// First, make sure everything is recorded right, before changing the month.
@@ -348,7 +331,7 @@ void finance_t::rdwr(loadsave_t *file)
 	if( file->get_version() < 112005 ) {
 		rdwr_compatibility(file);
 		if ( file->is_loading() ) {
-			// Loaded hard credit limit will be wrong, fix it quick to avoid bankruptcies
+			// Loaded hard credit limit will be wrong, fix it quick to avoid spurious insolvency
 			calc_credit_limits();
 		}
 		return;

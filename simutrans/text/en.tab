@@ -1875,7 +1875,7 @@ Available
 Bahndepot
 Rail depot
 Bankrott:\n\nDu bist bankrott.\n
-Bankrupt:\n\nYou are insolvent.\n
+This company has now been fully liquidated.\n
 battery
 Battery
 Baum
@@ -3282,8 +3282,12 @@ Groundobj
 Ground object
 Movingobj
 Moving object
-On loan since %i month(s)
+You have been overdrawn\nfor %i months
 You have been overdrawn for %i months
+You have been overdrawn\nfor one month
+You have been overdrawn for one month.
+\n\nInterest on your debt is\naccumulating at %i %%
+\n\nInterest on your debt is accumulating at %i %%
 Loading. %s left!
 Loading: %s left
 Destroying map ...
@@ -4132,3 +4136,17 @@ is_not_available_for_takeover_any_more
 is no longer available for takeover.
 has_taken_over
 has taken over
+in_administration_warning
+*** WARNING ***\n\nThis company is in administration. It can be taken over by another player at any time. It will be placed into liquidation if it has been in administration for more than 12 months.
+administration_duration
+This company has been in administration for
+in_liquidation_warning
+*** NOTICE ***\n\nThis company is in liquidation. It has permanently ceased trading and is controlled by the liquidators.
+liquidation_duration_remaining
+Its assets are available for other players to take over for another
+in_liquidation
+In liquidation
+in_administration
+In administration
+The maximum amount that can be borrowed without going bankrupt
+The maximum amount that can be borrowed without becoming insolvent

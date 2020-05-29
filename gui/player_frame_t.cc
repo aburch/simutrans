@@ -283,7 +283,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 
 		// Changed active player
 		if(comp==(player_change_to+i)) {
-			// make active player
+			// make active player (if not in liquidation)
 			player_t *const prevplayer = welt->get_active_player();
 			welt->switch_active_player(i,false);
 			// unlocked public service player can change into any company in multiplayer games
@@ -500,8 +500,11 @@ void ki_kontroll_t::update_data()
 				take_over_player[i].disable();
 			}
 
-			// If this company is available to be taken over, or we are the public player, disable the take over buttons for the others
-			if (welt->get_active_player()->available_for_takeover() || welt->get_active_player()->is_public_service()) {
+			// If this company is available to be taken over, disable the take over buttons for the others
+			const bool public_player = welt->get_active_player() == welt->get_public_player();
+			const bool available_for_takeover = welt->get_active_player()->available_for_takeover();
+			if (available_for_takeover || (!public_player && (!welt->get_active_player()->can_afford(player->calc_takeover_cost(player->check_solvency() == player_t::in_liquidation)))))
+			{
 				take_over_player[i].disable();
 			}
 
@@ -675,12 +678,21 @@ void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 		player_lock[i].background_color = player  &&  player->is_locked() ? (player->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN;
 
 
-		if(  player != NULL  ) {
-			if (i != 1 && !welt->get_settings().is_freeplay() && player->get_finance()->get_account_balance() < player->get_finance()->get_hard_credit_limit() ) {
-				ai_income[i]->set_color( MONEY_MINUS );
-				tstrncpy(account_str[i], translator::translate("Company bankrupt"), lengthof(account_str[i]));
+		if(player != NULL)
+		{
+			const player_t::solvency_status ss = player->check_solvency();
+			if (ss == player_t::in_liquidation)
+			{
+				ai_income[i]->set_color(COL_DARK_RED);
+				tstrncpy(account_str[i], translator::translate("in_liquidation"), lengthof(account_str[i]));
 			}
-			else {
+			else if (ss == player_t::in_administration)
+			{
+				ai_income[i]->set_color(COL_DARK_BLUE);
+				tstrncpy(account_str[i], translator::translate("in_administration"), lengthof(account_str[i]));
+			}
+			else
+			{
 				double account=player->get_account_balance_as_double();
 				money_to_string(account_str[i], account );
 				ai_income[i]->set_color( account>=0.0 ? MONEY_PLUS : MONEY_MINUS );
@@ -712,7 +724,7 @@ void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
 		player_t* player = welt->get_player(i);
 		if (player && player->available_for_takeover()) {
-			money_to_string(text_take_over_cost[i], player->calc_takeover_cost(false) / 100, true);
+			money_to_string(text_take_over_cost[i], player->calc_takeover_cost(player->check_solvency() == player_t::in_liquidation) / 100, true);
 		}
 	}
 

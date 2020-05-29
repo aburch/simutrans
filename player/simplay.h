@@ -81,6 +81,14 @@ public:
 	 */
 	void add_money_message(sint64 amount, koord k);
 
+	/*
+	* This defines the three possible solvency states of a player. Solvent is normal.
+	* A company in administration can keep playing, but may be taken over. A company
+	* in liquidation ceases operation and its assets are put up for sale. After a
+	* period, if they be not sold, the assets will be scrapped.
+	*/
+	enum solvency_status { solvent, in_administration, in_liquidation };
+
 protected:
 	/**
 	 * Colors of the player
@@ -263,9 +271,9 @@ public:
 
 	bool is_unlock_pending() const { return unlock_pending; }
 
-	void unlock(bool unlock_, bool unlock_pending_=false) { locked = !unlock_; unlock_pending = unlock_pending_; }
+	void unlock(bool unlock_, bool unlock_pending_=false) { if(check_solvency() != in_liquidation) locked = !unlock_; unlock_pending = unlock_pending_; }
 
-	void check_unlock( const pwd_hash_t& hash ) { locked = (pwd_hash != hash); }
+	void check_unlock( const pwd_hash_t& hash ) { locked = (pwd_hash != hash) || check_solvency() == in_liquidation; }
 
 	bool get_has_been_warned_about_no_money_for_renewals() const { return has_been_warned_about_no_money_for_renewals; }
 	void set_has_been_warned_about_no_money_for_renewals(bool value) { has_been_warned_about_no_money_for_renewals = value; }
@@ -370,7 +378,7 @@ public:
 	/**
 	 * Called monthly by simworld.cc during simulation
 	 * @author Hj. Malthaner
-	 * @returns false if player has to be removed (bankrupt/inactive)
+	 * @returns false if player has to be removed (inactive)
 	 */
 	virtual bool new_month();
 
@@ -430,6 +438,8 @@ public:
 	};
 	virtual void notify_factory(notification_factory_t, const fabrik_t*) {}
 
+	solvency_status check_solvency() const;
+
 private:
 	/* undo informations *
 	 * @author prissi
@@ -476,7 +486,8 @@ public:
 	koord get_headquarter_pos() const { return headquarter_pos; }
 	short get_headquarters_level() const { return headquarter_level; }
 
-	void ai_bankrupt();
+	void begin_liquidation(); 
+	void complete_liquidation();
 
 	bool allows_access_to(uint8 other_player_nr) const { return player_nr == other_player_nr || access[other_player_nr]; }
 	void set_allow_access_to(uint8 other_player_nr, bool allow) { access[other_player_nr] = allow; }
@@ -484,7 +495,7 @@ public:
 	bool get_allow_voluntary_takeover() const { return allow_voluntary_takeover; }
 	void set_allow_voluntary_takeover(bool value) { allow_voluntary_takeover = value; }
 
-	bool available_for_takeover() const { return allow_voluntary_takeover; } // TODO: Also return true when non-voluntary takeovers are allowed.
+	bool available_for_takeover() const { return allow_voluntary_takeover || check_solvency() != solvent; } 
 
 	void set_selected_signalbox(signalbox_t* sb);
 	const signalbox_t* get_selected_signalbox() const { return selected_signalbox; }
