@@ -1299,7 +1299,6 @@ void player_t::take_over(player_t* target_player)
 						// We must set private way signs of all players to
 						// permit the taking over player where the previous
 						// player was permitted.
-						// FIXME: This does not work.
 						roadsign_t* sign = (roadsign_t*)obj;
 						if (sign->get_desc()->is_private_way())
 						{
