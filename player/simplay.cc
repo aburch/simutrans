@@ -1310,17 +1310,24 @@ void player_t::take_over(player_t* target_player)
 							{
 								const uint8 player_number_this = get_player_nr();
 								mask ^= 1 << player_number_this;
-								// change active player mask for this private sign
-								if (player_number_this < 8)
+								sint16 ns = player_number_target < 8 ? 1 : 0;
+
+								if (ns == 1)
 								{
-									sprintf(param, "%s,1,%i", sign->get_pos().get_str(), mask & 0x00FF);
+									sign->set_ticks_ns((uint8)mask);
 								}
-								else
+								else if (ns == 0)
 								{
-									sprintf(param, "%s,0,%i", sign->get_pos().get_str(), mask >> 8);
+									sign->set_ticks_ow((uint8)mask);
 								}
-								tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT]->set_default_param(param);
-								welt->set_tool(tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT], welt->get_active_player());
+								else if (ns == 2)
+								{
+									sign->set_ticks_offset((uint8)mask);
+								}
+								else if (ns == 3)
+								{
+									sign->set_open_direction((uint8)mask);
+								}
 							}
 						}
 					}
