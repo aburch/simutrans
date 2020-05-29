@@ -328,7 +328,7 @@ void fabrik_t::book_weighted_sums(sint64 delta_time)
 	}
 
 	// production level
-	const sint32 current_prod = get_current_productivity();
+	const sint32 current_prod = get_actual_productivity();
 	weighted_sum_production += current_prod * delta_time;
 	set_stat(current_prod, FAB_PRODUCTION);
 
@@ -2642,7 +2642,7 @@ void fabrik_t::new_month()
 	aggregate_weight = 0;
 
 	// restore the current values
-	set_stat( get_current_productivity(), FAB_PRODUCTION );
+	set_stat(get_actual_productivity(), FAB_PRODUCTION);
 	set_stat( prodfactor_electric, FAB_BOOST_ELECTRIC );
 	set_stat( prodfactor_pax, FAB_BOOST_PAX );
 	set_stat( prodfactor_mail, FAB_BOOST_MAIL );
@@ -3138,7 +3138,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 	if (get_base_production()) {
 		buf.append(translator::translate("Productivity")); // Note: This term is used in width calculation in fabrik_info. And it is common with the chart button label.
 		// get_current_productivity() does not include factory connections and staffing
-		buf.printf(": %u%% ", status == inactive ? 0 : status >= staff_shortage ? get_current_productivity() * building->get_staffing_level_percentage() / 100 : get_current_productivity());
+		buf.printf(": %u%% ", get_actual_productivity());
 		const uint32 max_productivity = (100 * (get_desc()->get_electric_boost() + get_desc()->get_pax_boost() + get_desc()->get_mail_boost())) >> DEFAULT_PRODUCTION_FACTOR_BITS;
 		buf.printf(translator::translate("(Max. %d%%)"), max_productivity+100);
 		buf.append("\n");
