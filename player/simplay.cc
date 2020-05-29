@@ -446,11 +446,6 @@ bool player_t::new_month()
 				}
 				welt->get_message()->add_message( buf, koord::invalid, warning_message_type, player_nr, IMG_EMPTY );
 			}
-			else
-			{
-				// Show when other players are in administration or liquidation.
-				
-			}
 		}
 	}
 	else
