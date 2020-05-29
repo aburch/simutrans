@@ -93,7 +93,9 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 				left += 10;
 
 				// [goods category]
-				display_color_img(goods.get_typ()->get_catg_symbol(), pos.x + offset.x + left, pos.y + offset.y + yoff, 0, false, false);
+				display_color_img_with_tooltip(goods.get_typ()->get_catg_symbol(), pos.x + offset.x + left, pos.y + offset.y + yoff, 0, false, false, translator::translate(goods.get_typ()->get_catg_name()));
+				goods.get_typ()->get_catg_name();
+				//->get_catg_name()
 				left += 14;
 
 				// [storage capacity]
@@ -107,7 +109,7 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 				buf.clear();
 					const bool in_transit_over_storage = (stock_quantity + (uint32)goods.get_in_transit() > storage_capacity);
 					if (skinverwaltung_t::in_transit) {
-						display_color_img(skinverwaltung_t::in_transit->get_image_id(0), pos.x + offset.x + left, pos.y + offset.y + yoff, 0, false, false); // ToDo: replace this with img_with_tooltip - ranran
+						display_color_img_with_tooltip(skinverwaltung_t::in_transit->get_image_id(0), pos.x + offset.x + left, pos.y + offset.y + yoff, 0, false, false, translator::translate("symbol_help_txt_in_transit"));
 						left += 14;
 					}
 					buf.append(goods.get_in_transit(), 0);
@@ -180,7 +182,7 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 				left += 10;
 
 				// [goods category]
-				display_color_img(goods.get_typ()->get_catg_symbol(), pos.x + offset.x + left, pos.y + offset.y + yoff, 0, false, false);
+				display_color_img_with_tooltip(goods.get_typ()->get_catg_symbol(), pos.x + offset.x + left, pos.y + offset.y + yoff, 0, false, false, translator::translate(goods.get_typ()->get_catg_name()));
 				left += 14;
 
 				// [storage capacity]
