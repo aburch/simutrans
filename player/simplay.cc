@@ -936,7 +936,6 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 		file->rdwr_short( player_age );
 	}
 
-#ifdef SAVE_INSOLVENCY_DATA
 	if (file->get_extended_version() >= 15 || (file->get_extended_revision() >= 26 && file->get_extended_version() == 14))
 	{
 		file->rdwr_bool(allow_voluntary_takeover); 
@@ -945,9 +944,6 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 	{
 		allow_voluntary_takeover = false;
 	}
-#else
-	allow_voluntary_takeover = false;
-#endif
 }
 
 /**
