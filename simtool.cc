@@ -9262,8 +9262,8 @@ bool tool_change_player_t::init( player_t *player_in)
 		case 'u': // Take over another company
 			if (player && player == player_in) {
 				sscanf(p, "%c,%i,%i", &tool, &id, &state);		
-				const char* err = player->can_take_over(welt->get_player(state), false);
-				if (err) // TODO: Set up system for not adopting liabilities here.
+				const char* err = player->can_take_over(welt->get_player(state));
+				if (err) 
 				{
 					message.printf(translator::translate(err));
 					welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
@@ -9271,7 +9271,7 @@ bool tool_change_player_t::init( player_t *player_in)
 				else
 				{
 					message.printf("%s %s %s", player->get_name(), translator::translate("has_taken_over"), welt->get_player(state)->get_name());
-					player->take_over(welt->get_player(state), player->check_solvency() == player_t::in_liquidation);
+					player->take_over(welt->get_player(state));
 					welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
 				}
 			}

@@ -1228,9 +1228,10 @@ void player_t::set_selected_signalbox(signalbox_t* sb)
 	}
 }
 
-sint64 player_t::calc_takeover_cost(bool do_not_adopt_liabilities) const
+sint64 player_t::calc_takeover_cost() const
 {
 	sint64 cost = 0;
+	const bool do_not_adopt_liabilities = check_solvency() == player_t::in_liquidation;
 	if (!do_not_adopt_liabilities)
 	{
 		if (finance->get_account_balance() < 0)
@@ -1246,14 +1247,14 @@ sint64 player_t::calc_takeover_cost(bool do_not_adopt_liabilities) const
 	return cost;
 }
 
-const char* player_t::can_take_over(player_t* target_player, bool do_not_adopt_liabilities)
+const char* player_t::can_take_over(player_t* target_player)
 {
 	if (!target_player->available_for_takeover())
 	{
 		return "Takeover not permitted."; // TODO: Set this up for translation
 	}
 	
-	if (!can_afford(target_player->calc_takeover_cost(do_not_adopt_liabilities)))
+	if (!can_afford(target_player->calc_takeover_cost()))
 	{
 		return NOTICE_INSUFFICIENT_FUNDS;
 	}
@@ -1261,12 +1262,12 @@ const char* player_t::can_take_over(player_t* target_player, bool do_not_adopt_l
 	return NULL;
 }
 
-void player_t::take_over(player_t* target_player, bool do_not_adopt_liabilities)
+void player_t::take_over(player_t* target_player)
 {
 	// Pay for the takeover
-	finance->book_account(target_player->calc_takeover_cost(do_not_adopt_liabilities)); 
+	finance->book_account(target_player->calc_takeover_cost());
 	
-	if (!do_not_adopt_liabilities)
+	if (check_solvency() != player_t::in_liquidation)
 	{
 		// Take the player's account balance, whether negative or not.
 		finance->book_account(target_player->get_account_balance()); 

@@ -503,7 +503,7 @@ void ki_kontroll_t::update_data()
 			// If this company is available to be taken over, disable the take over buttons for the others
 			const bool public_player = welt->get_active_player() == welt->get_public_player();
 			const bool available_for_takeover = welt->get_active_player()->available_for_takeover();
-			if (available_for_takeover || (!public_player && (!welt->get_active_player()->can_afford(player->calc_takeover_cost(player->check_solvency() == player_t::in_liquidation)))))
+			if (available_for_takeover || (!public_player && (!welt->get_active_player()->can_afford(player->calc_takeover_cost()))))
 			{
 				take_over_player[i].disable();
 			}
@@ -724,7 +724,7 @@ void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
 		player_t* player = welt->get_player(i);
 		if (player && player->available_for_takeover()) {
-			money_to_string(text_take_over_cost[i], player->calc_takeover_cost(player->check_solvency() == player_t::in_liquidation) / 100, true);
+			money_to_string(text_take_over_cost[i], player->calc_takeover_cost() / 100, true);
 		}
 	}
 

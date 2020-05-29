@@ -501,10 +501,10 @@ public:
 	const signalbox_t* get_selected_signalbox() const { return selected_signalbox; }
 	signalbox_t* get_selected_signalbox() { return selected_signalbox; }
 
-	const char* can_take_over(player_t* target_player, bool do_not_adopt_liabilities); 
-	void take_over(player_t* target_player, bool do_no_adopt_liabilities); 
+	const char* can_take_over(player_t* target_player); 
+	void take_over(player_t* target_player); 
 	/// Returns *negative* number constituting the cost
-	sint64 calc_takeover_cost(bool do_not_adopt_liabilities) const; 
+	sint64 calc_takeover_cost() const; 
 };
 
 #endif
