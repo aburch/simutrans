@@ -5092,14 +5092,6 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 {
 	grund_t* bd = welt->lookup_kartenboden(k);
 
-	const bool can_delete_all_objects = bd->kann_alle_obj_entfernen(NULL);
-
-	// somebody else's things on it?
-	if (!can_delete_all_objects)
-	{
-		return false;
-	}
-
 	if (bd->get_typ() != grund_t::boden) {
 		// not on water, monorails, foundations, tunnel or bridges
 		return false;
@@ -5130,6 +5122,11 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 		{
 			return false;
 		}
+	}
+
+	// somebody else's things on it?
+	if (bd->kann_alle_obj_entfernen(NULL)) {
+		return false;
 	}
 
 	// dwachs: If not able to built here, try to make artificial slope
