@@ -9244,11 +9244,13 @@ bool tool_change_player_t::init( player_t *player_in)
 		case 't': // Sets the company to "allow takover"
 			if (player && player == player_in) {
 				player->set_allow_voluntary_takeover(state);
-				if (state) {
-					message.printf(translator::translate("%s is_available_for_take_over_by_another_company!"), player->get_name());
+				if (state)
+				{
+					message.printf("%s %s", player->get_name(), translator::translate("is_available_for_take_over_by_another_company"));
 				}
-				else {
-					message.printf(translator::translate("%s is_not_available_for_takeover_any_more"), player->get_name());
+				else
+				{
+					message.printf("%s %s", player->get_name(), translator::translate("is_not_available_for_takeover_any_more"));
 				}
 				welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
 			}
