@@ -84,8 +84,8 @@ public:
 		CONVOI_DISTANCE,			//  7 | 5 | total distance traveled this month
 		CONVOI_REFUNDS,				//  8 |   | the refunds passengers waiting for this convoy (only when not attached to a line) have received.
 //		CONVOI_MAXSPEED,			//    | 6 | average max. possible speed
-//		CONVOI_WAYTOLL,				//    | 7 |
-		MAX_CONVOI_COST				//  9 | 8 |
+		CONVOI_WAYTOLL,				//  9 | 7 |
+		MAX_CONVOI_COST				// 10 | 8 |
 	};
 
 	/* Constants
@@ -226,15 +226,15 @@ private:
 	static const sint32 timings_reduction_point = 6;
 	bool re_ordered; // Whether this convoy's vehicles are currently arranged in reverse order.
 protected:
-	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
-	virtual void update_adverse_summary(adverse_summary_t &adverse);
-	virtual void update_freight_summary(freight_summary_t &freight);
+	virtual void update_vehicle_summary(vehicle_summary_t &vehicle) OVERRIDE;
+	virtual void update_adverse_summary(adverse_summary_t &adverse) OVERRIDE;
+	virtual void update_freight_summary(freight_summary_t &freight) OVERRIDE;
 	virtual void update_weight_summary(weight_summary_t &weight);
-	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */);
-	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */);
-	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */) OVERRIDE;
+	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */) OVERRIDE;
+	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */) OVERRIDE;
 public:
-	virtual sint16 get_current_friction();
+	virtual sint16 get_current_friction() OVERRIDE;
 
 	// weight_summary becomes invalid, when vehicle_summary or envirion_summary
 	// becomes invalid.
@@ -416,45 +416,6 @@ private:
 	 * (only needed for leaving/entering depot)
 	 */
 	sint16 steps_driven;
-
-	/**
-	* Overall performance.
-	* Is not stored, but is calculated from individual functions
-	* @author Hj. Malthaner
-	*/
-	//uint32 sum_power;
-
-	/**
-	* Overall performance with Gear.
-	* Is not stored, but is calculated from individual functions
-	* @author prissi
-	*/
-	//sint32 sum_gear_and_power;
-
-	/* sum_gewicht: unloaded weight of all vehicles *
-	* sum_gesamtgewicht: total weight of all vehicles *
-	* Are not stored, but are calculated from individual weights
-	* when loading/driving.
-	* @author Hj. Malthaner, prissi
-	*/
-	//sint64 sum_weight;
-	//sint64 sum_gesamtweight;
-
-	// cached values
-	// will be recalculated if
-	// recalc_data is true
-	bool recalc_data_front; // true when front vehicle in convoi hops
-	//bool recalc_data; // true when any vehicle in convoi hops
-
-	//sint64 sum_friction_weight;
-	//sint32 speed_limit;
-
-	/**
-	* Lowest top speed of all vehicles. Doesn't get saved, but calculated
-	* from the vehicles data
-	* @author Hj. Malthaner
-	*/
-	//sint32 min_top_speed;
 
 	/**
 	 * this give the index of the next signal or the end of the route
@@ -1091,7 +1052,7 @@ public:
 	 * all other stuff => convoi_t::step()
 	 * @author Hj. Malthaner
 	 */
-	sync_result sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
 	/**
 	 * All things like route search or loading, that may take a little
@@ -1254,17 +1215,6 @@ private:
 	journey_times_map average_journey_times;
 public:
 
-#if 0
-private:
-	/**
-	* @return a description string for the object, der z.B. in einem
-	* Beobachtungsfenster angezeigt wird.
-	* @author Hj. Malthaner
-	* @see simwin
-	*/
-	void info(cbuffer_t & buf, bool dummy = false) const;
-public:
-#endif
 	/**
 	* @param buf the buffer to fill
 	* @return Freight description text (buf)
@@ -1442,6 +1392,9 @@ public:
 	// returns total value of vehicle length of this convoy. (not include any padding)
 	uint16 get_true_tile_length() const;
 
+	// returns vehicle average age in month
+	uint16 get_average_age();
+
 	// get cached obsolescence.
 	inline bool has_obsolete_vehicles() const { return has_obsolete; }
 
@@ -1485,7 +1438,7 @@ public:
 	uint32 get_average_kmh();
 
 	// Overtaking for convois
-	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
+	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other) OVERRIDE;
 
 	/*
 	 * Functions related to requested_change_lane
@@ -1546,6 +1499,8 @@ public:
 	// @author: jamespetts
 	// Returns the number of standing passengers (etc.) in this convoy.
 	uint16 get_overcrowded() const;
+
+	uint16 get_overcrowded_capacity() const;
 
 	// @author: jamespetts
 	// Returns the average comfort of this convoy,
@@ -1616,6 +1571,9 @@ public:
 	void clear_estimated_times();
 
 	void calc_classes_carried();
+
+	uint16 get_total_cargo_by_fare_class(uint8 catg, uint8 g_class) const;
+	uint16 get_unique_fare_capacity(uint8 catg, uint8 g_class) const;
 
 	bool carries_this_or_lower_class(uint8 catg, uint8 g_class) const;
 

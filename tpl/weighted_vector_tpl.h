@@ -451,16 +451,13 @@ template<class T> class weighted_vector_tpl
 
 		weighted_vector_tpl& operator=( weighted_vector_tpl const& other );
 
-	friend void swap<>(weighted_vector_tpl<T>&, weighted_vector_tpl<T>&);
+		friend void swap(weighted_vector_tpl<T>&a, weighted_vector_tpl<T>&b)
+		{
+			sim::swap(a.nodes, b.nodes);
+			sim::swap(a.size, b.size);
+			sim::swap(a.count, b.count);
+			sim::swap(a.total_weight, b.total_weight);
+		}
 };
-
-
-template<class T> void swap(weighted_vector_tpl<T>& a, weighted_vector_tpl<T>& b)
-{
-	sim::swap(a.nodes, b.nodes);
-	sim::swap(a.size, b.size);
-	sim::swap(a.count, b.count);
-	sim::swap(a.total_weight, b.total_weight);
-}
 
 #endif

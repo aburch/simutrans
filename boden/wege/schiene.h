@@ -39,7 +39,7 @@ protected:
 
 	schiene_t(waytype_t waytype);
 
-	uint8 textlines_in_info_window;
+	mutable uint8 textlines_in_info_window;
 
 	bool is_type_rail_type(waytype_t wt) { return wt == track_wt || wt == monorail_wt || wt == maglev_wt || wt == tram_wt || wt == narrowgauge_wt; }
 
@@ -56,13 +56,8 @@ public:
 
 	schiene_t();
 
-	//virtual waytype_t get_waytype() const {return track_wt;}
-
-	/**
-	* @return additional info is reservation!
-	* @author prissi
-	*/
-	void info(cbuffer_t & buf, bool is_bridge = false) const;
+	/// @author prissi
+	void info(cbuffer_t &buf) const OVERRIDE;
 
 	/**
 	* true, if this rail can be reserved
@@ -123,7 +118,7 @@ public:
 	/* called before deletion;
 	 * last chance to unreserve tiles ...
 	 */
-	virtual void cleanup(player_t *player);
+	virtual void cleanup(player_t *player) OVERRIDE;
 
 	/**
 	* gets the related convoi
@@ -131,18 +126,18 @@ public:
 	*/
 	convoihandle_t get_reserved_convoi() const { return reserved; }
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
-	void rotate90();
+	void rotate90() OVERRIDE;
 
-	void show_info();
+	void show_info() OVERRIDE;
 
 	/**
 	 * if a function return here a value with TRANSPARENT_FLAGS set
 	 * then a transparent outline with the color form the lower 8 Bit is drawn
 	 * @author kierongreen
 	 */
-	virtual PLAYER_COLOR_VAL get_outline_colour() const
+	virtual PLAYER_COLOR_VAL get_outline_colour() const OVERRIDE
 	{
 		uint8 reservation_colour;
 		switch(type)
@@ -171,7 +166,7 @@ public:
 	/*
 	 * to show reservations if needed
 	 */
-	virtual image_id get_outline_image() const { return weg_t::get_image(); }
+	virtual image_id get_outline_image() const OVERRIDE { return weg_t::get_image(); }
 
 	uint8 get_textlines() const { return textlines_in_info_window; }
 

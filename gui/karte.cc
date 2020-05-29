@@ -531,9 +531,10 @@ bool reliefkarte_t::change_zoom_factor(bool magnify)
 			zoomed = true;
 		}
 		else {
-			// check here for maximum zoom-out, otherwise there will be integer overflows
-			// with large maps as we calculate with sint16 coordinates ...
-			int max_zoom_in = min( 32767 / (2*welt->get_size_max()), 16);
+			// Ensure that zoom*x < INT32_MAX, for any x < welt->get_size_max();
+			// zoom*welt->get_size_max() < INT32_MAX <=> zoom < INT32_MAX/welt->get_size_max();
+			// hint: will only happen at maximum zoom level if the map is larger than
+			int max_zoom_in = min(16, INT32_MAX/welt->get_size_max());
 			if(  zoom_in < max_zoom_in  ) {
 				zoom_in++;
 				zoomed = true;
@@ -917,7 +918,10 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				const weg_t* road = gr->get_weg(road_wt);
 				if (road)
 				{
-					set_relief_farbe(k, calc_severity_color(road->get_congestion_percentage(), 100));
+					// Because it is possible for congestion to be >100% (as 100% merely means that traffic
+					// takes 100% longer than the uncongested time to traverse the tile), set the colour range
+					// based on a maximum of 250% to allow more granularity in congested places.
+					set_relief_farbe(k, calc_severity_color(road->get_congestion_percentage(), 250));
 				}
 			}
 			break;
@@ -1864,6 +1868,22 @@ void reliefkarte_t::draw(scr_coord pos)
 
 	if(  mode & MAP_FACTORIES  ) {
 		FOR(  vector_tpl<fabrik_t*>,  const f,  welt->get_fab_list()  ) {
+			// filter check
+			if (freight_type_group_index_showed_on_map == goods_manager_t::passengers) {
+				if (!f->get_building()->get_adjusted_visitor_demand() && !f->get_building()->get_adjusted_jobs()) {
+					continue;
+				}
+			}
+			else if (freight_type_group_index_showed_on_map == goods_manager_t::mail) {
+				if(!f->get_building()->get_adjusted_mail_demand()) {
+					continue;
+				}
+			}
+			else if (
+				((freight_type_group_index_showed_on_map != NULL && freight_type_group_index_showed_on_map != goods_manager_t::none)
+					&& !f->has_goods_catg_demand(freight_type_group_index_showed_on_map->get_catg_index()))) {
+				continue;
+			}
 			// find top-left tile position
 			koord3d fab_tl_pos = f->get_pos();
 			if (grund_t *gr = welt->lookup(f->get_pos())) {

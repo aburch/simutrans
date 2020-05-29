@@ -30,8 +30,6 @@ public:
 
 	net_address_t(const char *);
 
-	net_address_t(const net_address_t&);
-
 	bool matches(const net_address_t &other) const {
 		return (other.ip & mask)==(ip & mask);
 	}

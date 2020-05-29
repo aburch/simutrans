@@ -883,7 +883,7 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 	}
 
 #ifdef SAVE_INSOLVENCY_DATA
-	if (file->get_extended_version() >= 15 || (file->get_extended_revision() >= 20 && file->get_extended_version() == 14))
+	if (file->get_extended_version() >= 15 || (file->get_extended_revision() >= 26 && file->get_extended_version() == 14))
 	{
 		file->rdwr_bool(allow_voluntary_takeover); 
 	}
@@ -1153,21 +1153,20 @@ bool player_t::has_money_or_assets() const
 void player_t::set_selected_signalbox(signalbox_t* sb)
 {
 	signalbox_t* old_selected = get_selected_signalbox();
-	gebaeude_t* gb_old = (gebaeude_t*)old_selected;
+	gebaeude_t* gb_old = old_selected;
 	if (gb_old)
 	{
 		gb_old->display_coverage_radius(false);
 	}
 
-	selected_signalbox = sb ? (signalbox_t*)sb->get_first_tile() : NULL;
+	selected_signalbox = sb ? (signalbox_t*)sb->access_first_tile() : NULL;
 	if(!welt->is_destroying())
 	{
-		signalbox_t* new_selected = selected_signalbox;
-		gebaeude_t* gb_new = (gebaeude_t*)new_selected;
-		if (gb_new)
+		if (selected_signalbox)
 		{
-			gb_new->display_coverage_radius(env_t::signalbox_coverage_show);
+			selected_signalbox->display_coverage_radius(env_t::signalbox_coverage_show);
 		}
+
 		tool_t::update_toolbars();
 		welt->set_dirty();
 	}

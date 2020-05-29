@@ -868,7 +868,7 @@ bool nwc_routesearch_t::execute(karte_t *world)
 }
 
 
-void nwc_routesearch_t::do_command(karte_t *world)
+void nwc_routesearch_t::do_command(karte_t *)
 {
 	// apply the limits
 	path_explorer_t::set_limits(limit_set);

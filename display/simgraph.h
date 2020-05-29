@@ -160,10 +160,10 @@ void display_free_all_images_above(image_id above);
 
 // unzoomed offsets
 //void display_set_base_image_offset( unsigned image, KOORD_VAL xoff, KOORD_VAL yoff );
-void display_get_base_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw);
+void display_get_base_image_offset(image_id image, scr_coord_val& xoff, scr_coord_val& yoff, scr_coord_val& xw, scr_coord_val& yw);
 // zoomed offsets
 void display_get_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw);
-void display_get_base_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw);
+//void display_get_base_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw);
 void display_mark_img_dirty(image_id image, KOORD_VAL x, KOORD_VAL y);
 
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to screen only
@@ -215,6 +215,9 @@ void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const 
 
 // display image with color (if there) and optional day and night change
 void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+
+// displays image that shows a tooltip when hovering the mouse over
+void display_color_img_with_tooltip(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const char *text  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 
 // display unzoomed image
 void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);

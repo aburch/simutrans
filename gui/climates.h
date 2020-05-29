@@ -74,10 +74,10 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const {return "climates.txt";}
+	const char * get_help_filename() const OVERRIDE {return "climates.txt";}
 
 	// does not work during new world dialog
-	virtual bool has_sticky() const { return false; }
+	virtual bool has_sticky() const OVERRIDE { return false; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

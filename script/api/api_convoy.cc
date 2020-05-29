@@ -188,7 +188,7 @@ void export_convoy(HSQUIRRELVM vm)
 	 * @returns array, index [0] corresponds to current month
 	 */
 	// CONVOI_WAYTOLL not in Extended; unsure whether this is safe to comment out - ACarlotti
-	//register_method_fv(vm, &get_convoy_stat, "get_way_tolls",         freevariable<sint32>(convoi_t::CONVOI_WAYTOLL), true );
+	register_method_fv(vm, &get_convoy_stat, "get_way_tolls",         freevariable<sint32>(convoi_t::CONVOI_WAYTOLL), true );
 	/**
 	 * @returns lifetime traveled distance of this convoy
 	 */

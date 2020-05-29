@@ -25,6 +25,8 @@
 #include "../utils/simstring.h"
 #include "simgraph.h"
 #include "../descriptor/vehicle_desc.h"
+#include "../gui/simwin.h"
+#include "../gui/gui_theme.h"
 
 
 #ifdef _MSC_VER
@@ -2112,13 +2114,13 @@ void display_get_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, 
 
 
 // prissi: query un-zoomed offsets
-void display_get_base_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
+void display_get_base_image_offset(image_id image, scr_coord_val& xoff, scr_coord_val& yoff, scr_coord_val& xw, scr_coord_val& yw)
 {
 	if (image < anz_images) {
-		*xoff = images[image].base_x;
-		*yoff = images[image].base_y;
-		*xw = images[image].base_w;
-		*yw = images[image].base_h;
+		xoff = images[image].base_x;
+		yoff = images[image].base_y;
+		xw = images[image].base_w;
+		yw = images[image].base_h;
 	}
 }
 
@@ -2835,6 +2837,13 @@ void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 playe
 	} // number ok
 }
 
+void display_color_img_with_tooltip(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty, const char *text  CLIP_NUM_DEF)
+{
+	display_color_img(n, xp, yp, player_nr_raw, daynight, dirty);
+	if (text && ( xp <= get_mouse_x() && yp <= get_mouse_y() && (xp+ images[n].w) > get_mouse_x() && (yp+ images[n].h) > get_mouse_y())) {
+		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X/2, yp + images[n].y + images[n].h + TOOLTIP_MOUSE_OFFSET_Y/2, text);
+	}
+}
 
 /**
 * draw unscaled images, replaces base color
@@ -3940,7 +3949,7 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 	}
 }
 
-void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVAL color, bool dirty, uint8 basic_constraint_flags, uint8 interactivity, bool is_rightside  CLIP_NUM_DEF)
+void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVAL color, bool dirty, uint8 basic_constraint_flags, uint8 interactivity, bool is_rightside  CLIP_NUM_DEF_NOUSE)
 {
 	uint8 h = VEHICLE_BAR_HEIGHT;
 	uint8 width = (w + 1) * 0.9;

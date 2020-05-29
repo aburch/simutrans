@@ -31,11 +31,12 @@ private:
 	factorylist::sort_mode_t sortby;
 	bool sortreverse;
 	bool filter_own_network;
+	uint8 filter_goods_catg;
 
 public:
-	factorylist_stats_t(factorylist::sort_mode_t sortby, bool sortreverse, bool own_network);
+	factorylist_stats_t(factorylist::sort_mode_t sortby, bool sortreverse, bool own_network, uint8 goods_catg_index);
 
-	void sort(factorylist::sort_mode_t sortby, bool sortreverse, bool own_network);
+	void sort(factorylist::sort_mode_t sortby, bool sortreverse, bool own_network, uint8 goods_catg_index);
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -48,7 +49,7 @@ public:
 	* Draw the component
 	* @author Hj. Malthaner
 	*/
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 };
 
 #endif

@@ -46,9 +46,9 @@ private:
 	gui_numberinput_t inp_production;
 	gui_label_t lb_production_info;
 
-	void fill_list( bool translate );
+	void fill_list( bool translate ) OVERRIDE;
 
-	virtual void change_item_info( sint32 i );
+	virtual void change_item_info( sint32 i ) OVERRIDE;
 
 public:
 	factory_edit_frame_t(player_t* player);
@@ -65,7 +65,7 @@ public:
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	const char* get_help_filename() const { return "factory_build.txt"; }
+	const char* get_help_filename() const OVERRIDE { return "factory_build.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

@@ -124,11 +124,10 @@ void signal_t::show_info()
 * @author Hj. Malthaner
 */
 
-void signal_t::info(cbuffer_t & buf, bool dummy) const
+void signal_t::info(cbuffer_t & buf) const
 {
 	// well, needs to be done
 	obj_t::info(buf);
-	signal_t* sig = (signal_t*)this;
 
 	buf.append(translator::translate(desc->get_name()));
 	buf.append("\n\n");
@@ -177,7 +176,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append("\n");
 	}
 
-	koord3d sig_pos = sig->get_pos();
+	koord3d sig_pos = this->get_pos();
 	const grund_t *sig_gr = welt->lookup_kartenboden(sig_pos.x, sig_pos.y);
 
 	if (sig_gr->get_hoehe() > sig_pos.z == true)
@@ -452,7 +451,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		// However, display nothing for station signals, one train staffs and drive by sight, since the information would be very random dependent on where you put the signal and would not be very informative anyway.
 	if (!desc->is_station_signal() && desc->get_working_method() != one_train_staff && desc->get_working_method() != drive_by_sight)
 	{
-		const waytype_t waytype = sig->get_waytype();
+		const waytype_t waytype = this->get_waytype();
 		uint8 initial_direction = get_dir();
 		uint8 initial_direction_2 = get_dir();
 		uint8 directions = 1;
@@ -462,7 +461,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		bool dead_end = false;
 		bool crossing = false;
 		bool signal = false;
-		int max_tiles_to_look = 1000;
+		uint32 max_tiles_to_look = 1000;
 		char direction[20];
 		char spaces[5];
 		char block_text[20];
@@ -577,7 +576,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 									{
 										// Determine if the signal are facing the right way.
 										uint8 sig_dir = next_signal->get_dir();
-										uint8 sig_ribi_dir;
+										uint8 sig_ribi_dir = 0;
 
 										if (next_signal->get_desc()->is_station_signal())
 										{
@@ -607,6 +606,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 												sig_dir == 4 ? 1 :
 												sig_dir == 8 ? 2 :
 												sig_ribi_dir;
+
 											if (ribi_t::nsew[r] == sig_ribi_dir)
 											{
 												signal = true;
@@ -730,7 +730,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	}
 
 	// Deal with station signals where the time since the train last passed is standardised for the whole station.
-	halthandle_t this_tile_halt = haltestelle_t::get_halt(sig->get_pos(), get_owner());
+	halthandle_t this_tile_halt = haltestelle_t::get_halt(this->get_pos(), get_owner());
 	uint32 station_signals_count = this_tile_halt.is_bound() ? this_tile_halt->get_station_signals_count() : 0;
 	if(station_signals_count)
 	{
@@ -765,7 +765,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate("Time since a train last passed"));
 		buf.append(": ");
 		char time_since_train_last_passed[32];
-		welt->sprintf_ticks(time_since_train_last_passed, sizeof(time_since_train_last_passed), welt->get_ticks() - sig->get_train_last_passed());
+		welt->sprintf_ticks(time_since_train_last_passed, sizeof(time_since_train_last_passed), welt->get_ticks() - this->get_train_last_passed());
 		buf.append(time_since_train_last_passed);
 		buf.append("\n");
 	}
@@ -813,7 +813,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	// "Controlled from signalbox" section. The "\n" is in this first section set before the entry to help accommodate the layout in the name, coordinates etc.
 	buf.append(translator::translate("Controlled from"));
 	buf.append(":");
-	koord3d sb = sig->get_signalbox();
+	koord3d sb = this->get_signalbox();
 	if(sb == koord3d::invalid)
 	{
 		buf.append("\n");
@@ -841,9 +841,9 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 				}
 				char sb_name[1024] = { '\0' };
 				int max_width = 250;
-				int offset = 0;
 				int max_lines = 5; // Set a limit
-				sprintf(sb_name, translator::translate(gb->get_name()));
+				sprintf(sb_name, "%s", translator::translate(gb->get_name()));
+
 				//sprintf(sb_name,"This is a very very long signal box name which is so long that no one remembers what it was actually called before the super long name of the signalbox got changed to its current slightly longer name which is still too long to display in only one line therefore splitting this very long signalbox name into several lines although maximum five lines which should suffice more than enough to guard against silly long signal box names");
 				int next_char_index = 0;
 				int old_next_char_index = 0;
@@ -884,8 +884,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 				buf.append("\n   ");
 
 				// Show the distance between the signal and its signalbox, along with the signals maximum range
-				koord3d sigpos = sig->get_pos();
-				const uint32 tiles_to_signalbox = shortest_distance(sigpos.get_2d(), sb.get_2d());
+				const uint32 tiles_to_signalbox = shortest_distance(get_pos().get_2d(), sb.get_2d());
 				const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
 				const double km_to_signalbox = (double)tiles_to_signalbox * km_per_tile;
 
@@ -953,7 +952,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 					buf.append(")");
 				}
 
-				sig->textlines_in_signal_window = textlines;
+				this->textlines_in_signal_window = textlines;
 			}
 			else
 			{
@@ -987,8 +986,6 @@ void signal_t::calc_image()
 		const slope_t::type full_hang = gr->get_weg_hang();
 		const sint8 hang_diff = slope_t::max_diff(full_hang);
 		const ribi_t::ribi hang_dir = ribi_t::backward( ribi_type(full_hang) );
-
-		const sint8 height_step = TILE_HEIGHT_STEP << slope_t::is_doubles(gr->get_weg_hang());
 
 		weg_t *sch = gr->get_weg(desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt);
 		if(sch)

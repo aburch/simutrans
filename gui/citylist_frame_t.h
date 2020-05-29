@@ -67,20 +67,20 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
      * component is displayed.
      * @author Hj. Malthaner
      */
-    void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
     /**
      * resize window in response to a resize event
      * @author Hj. Malthaner
      */
-    void resize(const scr_coord delta);
+	void resize(const scr_coord delta) OVERRIDE;
 
     /**
      * Set the window associated helptext
      * @return the filename for the helptext, or NULL
      * @author V. Meyer
      */
-    const char * get_help_filename() const {return "citylist_filter.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "citylist_filter.txt"; }
 
     static citylist::sort_mode_t get_sortierung() { return sortby; }
     static void set_sortierung(const citylist::sort_mode_t& sm) { sortby = sm; }

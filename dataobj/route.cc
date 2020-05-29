@@ -144,7 +144,7 @@ void route_t::INIT_NODES(uint32 max_route_steps, const koord &world_size)
 	}
 }
 
-void route_t::TERM_NODES(void* args)
+void route_t::TERM_NODES(void *)
 {
 	if (MAX_STEP)
 	{
@@ -415,19 +415,19 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			koord3d previous = koord3d::invalid;
 			weg_t* w;
 			while (tmp != NULL)
-			{	 
+			{
 				private_car_route_step_counter++;
 				w = tmp->gr->get_weg(road_wt);
-			
+
 				if (w)
 				{
 					// The route is added here in a different array index to the set of routes
 					// that are currently being read.
 
-					// Also, the route is iterated here *backwards*. 
+					// Also, the route is iterated here *backwards*.
 					w->add_private_car_route(destination_pos, previous);
 				}
-			
+
 				// Old route storage - we probably no longer need this.
 				//route.store_at(tmp->count, tmp->gr->get_pos());
 
@@ -436,8 +436,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			}
 
 #ifdef MULTI_THREAD
-			const uint32 max_steps = welt->get_settings().get_max_route_tiles_to_process_in_a_step(); 
-			if (max_steps && !suspend_private_car_routing && private_car_route_step_counter >= max_steps) 
+			const uint32 max_steps = welt->get_settings().get_max_route_tiles_to_process_in_a_step();
+			if (max_steps && !suspend_private_car_routing && private_car_route_step_counter >= max_steps)
 			{
 				// Halt this mid step if there are too many routes being calculated so as not to make the game unresponsive.
 				// On a Ryzen 3900x, calculating all routes from one city on a 600 city map can take ~4 seconds.
@@ -509,7 +509,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 
 					// This ensures that only that part of the convoy that is actually on the bridge counts.
 					uint32 adjusted_convoy_weight = max_tile_len == 0 ? total_weight : (total_weight * max(bridge_tile_count - 2, 1)) / max_tile_len;
-					const uint32 min_weight = min(adjusted_convoy_weight, total_weight);
 
 					if(axle_load > way_max_axle_load || adjusted_convoy_weight > bridge_weight_limit)
 					{
@@ -518,7 +517,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 							// Avoid routing over ways for which the convoy is overweight.
 							continue;
 						}
-						else if(enforce_weight_limits == 3 && (way_max_axle_load == 0 || (axle_load * 100) / way_max_axle_load > 110) || (bridge_weight_limit == 0 || (adjusted_convoy_weight * 100) / bridge_weight_limit > 110))
+						else if((enforce_weight_limits == 3 && (way_max_axle_load == 0 || (axle_load * 100) / way_max_axle_load > 110)) || (bridge_weight_limit == 0 || (adjusted_convoy_weight * 100) / bridge_weight_limit > 110))
 						{
 							// Avoid routing over ways for which the convoy is more than 10% overweight or which have a zero weight limit.
 							continue;
@@ -728,9 +727,12 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 	ANode* new_top = NULL;
 
 	const uint8 enforce_weight_limits = welt->get_settings().get_enforce_weight_limits();
+#ifndef MULTI_THREAD
 	uint32 beat=1;
+#endif
 	sint32 bridge_tile_count = 0;
-	sint32 best_distance = 65535;
+	uint32 best_distance = 0xFFFF;
+
 	do {
 #ifndef MULTI_THREAD
 		// If this is multi-threaded, we cannot have random
@@ -1046,7 +1048,9 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 		}
 	}
 	else {
-		uint32 best = tmp->g;
+#ifdef DEBUG
+		const uint32 best = tmp->g;
+#endif
 		// reached => construct route
 		route.store_at( tmp->count, tmp->gr->get_pos() );
 		while(tmp != NULL) {
@@ -1185,7 +1189,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 {
 	route.clear();
 	const uint32 distance = shortest_distance(start.get_2d(), ziel.get_2d()) * 600;
-	if(tdriver->get_waytype() == water_wt && distance > welt->get_settings().get_max_route_steps())
+	if(tdriver->get_waytype() == water_wt && distance > (uint32)welt->get_settings().get_max_route_steps())
 	{
 		// Do not actually try to calculate the route if it is doomed to failure.
 		// This ensures that the game does not become overloaded if a line

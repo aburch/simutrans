@@ -26,6 +26,7 @@ bool curiositylist_frame_t::sortreverse = false;
  * @author Markus Weber
  */
 curiositylist::sort_mode_t curiositylist_frame_t::sortby = curiositylist::by_name;
+static uint8 default_sortmode = 0;
 
 // filter by within current player's network
 bool curiositylist_frame_t::filter_own_network = false;
@@ -48,12 +49,12 @@ curiositylist_frame_t::curiositylist_frame_t() :
 
 	sortedby.set_pos(scr_coord(BUTTON1_X, 14));
 	sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
-	sortedby.set_max_size(scr_size(LINESPACE * 8, D_BUTTON_HEIGHT));
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, LINESPACE * 4));
 
 	for (int i = 0; i < curiositylist::SORT_MODES; i++) {
 		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
 	}
-	sortedby.set_selection(get_sortierung());
+	sortedby.set_selection(default_sortmode);
 
 	sortedby.add_listener(this);
 	add_component(&sortedby);
@@ -90,7 +91,17 @@ curiositylist_frame_t::curiositylist_frame_t() :
 bool curiositylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if(comp == &sortedby) {
-		set_sortierung((curiositylist::sort_mode_t)((get_sortierung() + 1) % curiositylist::SORT_MODES));
+		int tmp = sortedby.get_selection();
+		if (tmp >= 0 && tmp < sortedby.count_elements())
+		{
+			sortedby.set_selection(tmp);
+			set_sortierung((curiositylist::sort_mode_t)tmp);
+		}
+		else {
+			sortedby.set_selection(0);
+			set_sortierung(curiositylist::by_name);
+		}
+		default_sortmode = (uint8)tmp;
 		display_list();
 	}
 	else if(comp == &sorteddir) {
@@ -118,6 +129,7 @@ void curiositylist_frame_t::resize(const scr_coord delta)
 	// window size -titlebar -offset (header)
 	scr_size size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT+14+D_BUTTON_HEIGHT+2+1);
 	scrolly.set_size(size);
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, scrolly.get_size().h));
 }
 
 

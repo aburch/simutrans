@@ -127,7 +127,7 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	virtual void draw(scr_coord offset);
+	virtual void draw(scr_coord offset) OVERRIDE;
 
 	// x position of the current cursor (for IME purposes)
 	scr_coord_val get_current_cursor_x() { return calc_cursor_pos(head_cursor_pos); };
@@ -156,7 +156,7 @@ class gui_hidden_textinput_t : public gui_textinput_t
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	// function that performs the actual display; just draw with stars ...
-	virtual void display_with_cursor(scr_coord offset, bool cursor_active, bool cursor_visible);
+	virtual void display_with_cursor(scr_coord offset, bool cursor_active, bool cursor_visible) OVERRIDE;
 };
 
 
