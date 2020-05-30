@@ -4158,3 +4158,5 @@ other_player_in_liquidation
 is in liquidation and is available for take-over without incurring liability for its debts.
 other_player_liquidation_duration
 It has been in liquidation for
+On loan since %i month(s)
+In debt for the last %i month(s)
