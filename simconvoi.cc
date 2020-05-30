@@ -2723,7 +2723,8 @@ void convoi_t::ziel_erreicht()
 		// Provide the message since we got here "on schedule".
 		cbuffer_t buf;
 
-		if (!replace || !replace->get_autostart()) {
+		if ((!replace || !replace->get_autostart()) && owner->check_solvency() != player_t::in_liquidation)
+		{
 			buf.printf( translator::translate("!1_DEPOT_REACHED"), get_name() );
 			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_EMPTY);
 		}
@@ -8031,7 +8032,7 @@ uint32 convoi_t::calc_reverse_delay() const
 	 };
  }
 
-void convoi_t::emergency_go_to_depot()
+void convoi_t::emergency_go_to_depot(bool show_success)
 {
 	// First try going to a depot the normal way.
 	if(!go_to_depot(false))
@@ -8051,10 +8052,13 @@ void convoi_t::emergency_go_to_depot()
 #ifdef MULTI_THREAD
 			pthread_mutex_lock(&step_convois_mutex);
 #endif
-			buf.printf( translator::translate("No route to depot for convoy %s: teleported to depot!"), get_name() );
-			const vehicle_t* v = front();
+			if (show_success)
+			{
+				buf.printf(translator::translate("No route to depot for convoy %s: teleported to depot!"), get_name());
+				const vehicle_t* v = front();
 
-			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_EMPTY);
+				welt->get_message()->add_message(buf, v->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | get_owner()->get_player_nr(), IMG_EMPTY);
+			}
 
 			enter_depot(dep);
 #ifdef MULTI_THREAD

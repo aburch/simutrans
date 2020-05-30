@@ -1166,6 +1166,8 @@ public:
 
 	player_t * get_owner() const { return owner; }
 
+	void set_owner(player_t* value) { owner = value; }
+
 	/**
 	* Opens an information window
 	* @author Hj. Malthaner
@@ -1550,7 +1552,7 @@ public:
 	/** For going to a depot automatically
 	 *  when stuck - will teleport if necessary.
 	 */
-	void emergency_go_to_depot();
+	void emergency_go_to_depot(bool show_success = true);
 
 	journey_times_map& get_average_journey_times();
 	inline const journey_times_map& get_average_journey_times_this_convoy_only() const { return average_journey_times; }

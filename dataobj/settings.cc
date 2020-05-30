@@ -385,7 +385,7 @@ settings_t::settings_t() :
 	//@author: jamespetts
 	// Insolvency and debt settings
 	interest_rate_percent = 10;
-	allow_bankruptcy  = 0;
+	allow_insolvency  = 0;
 	allow_purchases_when_insolvent  = 0;
 
 	// Reversing settings
@@ -1317,7 +1317,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(factory_max_years_obsolete);
 
 			file->rdwr_byte(interest_rate_percent);
-			file->rdwr_bool(allow_bankruptcy);
+			file->rdwr_bool(allow_insolvency);
 			file->rdwr_bool(allow_purchases_when_insolvent);
 
 			if(file->get_extended_version() >= 11)
@@ -2525,8 +2525,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// Insolvency and debt settings
 	interest_rate_percent = contents.get_int("interest_rate_percent", interest_rate_percent);
 	// Check for misspelled version
-	allow_bankruptcy = contents.get_int("allow_bankruptsy", allow_bankruptcy);
-	allow_bankruptcy = contents.get_int("allow_bankruptcy", allow_bankruptcy);
+	allow_insolvency = contents.get_int("allow_bankruptsy", allow_insolvency);
+	// Check for deprecated version
+	allow_insolvency = contents.get_int("allow_bankruptcy", allow_insolvency);
+	allow_insolvency = contents.get_int("allow_insolvency", allow_insolvency);
 	// Check for misspelled version
 	allow_purchases_when_insolvent = contents.get_int("allow_purhcases_when_insolvent", allow_purchases_when_insolvent);
 	allow_purchases_when_insolvent = contents.get_int("allow_purchases_when_insolvent", allow_purchases_when_insolvent);

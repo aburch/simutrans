@@ -5032,18 +5032,13 @@ void karte_t::new_month()
 
 	// Put players before convoys and depots so as to make sure that the "fixed maintenance" graph does not always show 0 for the current month
 	// players
-	for(uint i=0; i<MAX_PLAYER_COUNT; i++) {
-		if( last_month == 0  &&  !settings.is_freeplay() ) {
-			// remove all player (but first and second) who went bankrupt during last year
-			if(  players[i] != NULL  &&  players[i]->get_finance()->is_bankrupted()  )
+	for(uint i = 0; i < MAX_PLAYER_COUNT; i++)
+	{
+		if(players[i] != NULL)
+		{
+			// if returns false (inactive company) -> remove player
+			if (!players[i]->new_month())
 			{
-				remove_player(i);
-			}
-		}
-
-		if(  players[i] != NULL  ) {
-			// if returns false -> remove player
-			if (!players[i]->new_month()) {
 				remove_player(i);
 			}
 		}
@@ -10279,7 +10274,7 @@ const char *karte_t::init_new_player(uint8 new_player_in, uint8 type)
 void karte_t::remove_player(uint8 player_nr)
 {
 	if ( player_nr!=1  &&  player_nr<PLAYER_UNOWNED  &&  players[player_nr]!=NULL) {
-		players[player_nr]->ai_bankrupt();
+		players[player_nr]->complete_liquidation();
 		delete players[player_nr];
 		players[player_nr] = 0;
 		nwc_chg_player_t::company_removed(player_nr);
@@ -11715,7 +11710,7 @@ karte_t::runway_info karte_t::check_nearby_runways(koord pos)
 			continue;
 		}
 		runway_t* rw = (runway_t*)gr->get_weg(air_wt);
-		if (rw && rw->get_desc()->get_styp() == type_runway)
+		if (rw && rw->get_desc()->get_styp() == type_runway && !(rw->get_player_nr() == PLAYER_UNOWNED && rw->is_degraded() && rw->get_max_speed() == 0)) // Do not care about degraded, unowned runways
 		{
 			ri.pos = gr->get_pos().get_2d();
 			// We must iterate through all directions in case there are multiple runways.

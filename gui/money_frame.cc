@@ -116,7 +116,7 @@ const uint8 money_frame_t::cost_type[3*MAX_PLAYER_COST_BUTTON] =
 	ATV_NON_FINANCIAL_ASSETS,       TT_ALL, MONEY,   // value of all vehicles and buildings
 	ATC_NETWEALTH,                  TT_MAX, MONEY,   // Total Cash + Assets
 	ATC_SOFT_CREDIT_LIMIT,			TT_MAX, MONEY,	// Maximum amount that can be borrowed
-	ATC_HARD_CREDIT_LIMIT,			TT_MAX, MONEY,	// Borrowing which will lead to bankruptcy
+	ATC_HARD_CREDIT_LIMIT,			TT_MAX, MONEY,	// Borrowing which will lead to insolvency
 	ATV_PROFIT_MARGIN,              TT_ALL, STANDARD
 };
 
@@ -601,19 +601,28 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 			tstrncpy(str_buf[17], translator::translate("Scenario lost!"), lengthof(str_buf[17]) );
 		}
 	}
-	else if(player->get_finance()->get_history_com_month(0, ATC_CASH)<player->get_finance()->get_history_com_month(0, ATC_HARD_CREDIT_LIMIT)) {
-		warn.set_color( MONEY_MINUS );
-		tstrncpy(str_buf[17], translator::translate("Company bankrupt"), lengthof(str_buf[17]) );
+	else if(player->check_solvency() == player_t::in_administration)
+	{
+		warn.set_color( COL_DARK_BLUE );
+		tstrncpy(str_buf[17], translator::translate("in_administration"), lengthof(str_buf[17]) );
 	}
-	else if(player->get_finance()->get_history_com_month(0, ATC_CASH)<player->get_finance()->get_history_com_month(0, ATC_SOFT_CREDIT_LIMIT)) {
+	else if (player->check_solvency() == player_t::in_liquidation)
+	{
+		warn.set_color(COL_DARK_RED);
+		tstrncpy(str_buf[17], translator::translate("in_liquidation"), lengthof(str_buf[17]));
+	}
+	else if(player->get_finance()->get_history_com_month(0, ATC_CASH)<player->get_finance()->get_history_com_month(0, ATC_SOFT_CREDIT_LIMIT))
+	{
 		warn.set_color( MONEY_MINUS );
 		tstrncpy(str_buf[17], translator::translate("Credit limit exceeded"), lengthof(str_buf[17]) );
 	}
-	else if(  player->get_finance()->get_history_com_year(0, ATC_NETWEALTH)*10 < welt->get_settings().get_starting_money(welt->get_current_month()/12)  ){
+	else if(  player->get_finance()->get_history_com_year(0, ATC_NETWEALTH)*10 < welt->get_settings().get_starting_money(welt->get_current_month()/12)  )
+	{
 		warn.set_color( MONEY_MINUS );
 		tstrncpy(str_buf[17], translator::translate("Net wealth near zero"), lengthof(str_buf[17]) );
 	}
-	else if(  player->get_account_overdrawn()  ) {
+	else if(  player->get_account_overdrawn()  )
+	{
 		warn.set_color( COL_YELLOW );
 		sprintf( str_buf[17], translator::translate("On loan since %i month(s)"), player->get_account_overdrawn() );
 	}
