@@ -185,7 +185,7 @@ bool skinverwaltung_t::successfully_loaded(skintyp_t type)
 	switch (type) {
 		case menu:    sb = menu_objekte+1;     break;
 		case cursor:  sb = cursor_objekte;     break;
-		case symbol:  sb = symbol_objekte+7;   break;
+		case symbol:  sb = symbol_objekte+8;   break;
 		case misc:
 			sb = misc_objekte+3;
 			// for compatibility: use sidewalk as tunneltexture
