@@ -1811,9 +1811,11 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		return speed_limit;
 	}
 	const bool is_corner = current_direction != previous_direction;
+	const bool is_slope = welt->lookup(w->get_pos())->get_weg_hang() != slope_t::flat;
+	const bool slope_specific_speed = w->get_desc()->get_topspeed_gradient_1() < w->get_desc()->get_topspeed() || w->get_desc()->get_topspeed_gradient_2() < w->get_desc()->get_topspeed(); 
 
 	const bool is_tilting = desc->get_tilting();
-	const sint32 base_limit = desc->get_override_way_speed() ? SINT32_MAX_VALUE : kmh_to_speed(w->get_max_speed());
+	const sint32 base_limit = desc->get_override_way_speed() && !(slope_specific_speed && is_slope) ? SINT32_MAX_VALUE : kmh_to_speed(w->get_max_speed());
 	const uint32 max_axle_load = w->get_max_axle_load();
 	const uint32 bridge_weight_limit = w->get_bridge_weight_limit();
 	const sint32 total_weight = cnv->get_weight_summary().weight / 1000;
