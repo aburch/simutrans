@@ -7309,7 +7309,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		return false;
 	}
 	// Do not overtake a vehicle which has higher max_power_speed than this.
-	if(  other_overtaker->get_max_power_speed() - this->get_max_power_speed() > kmh_to_speed(5)  ) {
+	if(  other_overtaker->get_max_power_speed() - this->get_max_power_speed() > kmh_to_speed(2)  ) {
 		return false;
 	}
 
@@ -7317,7 +7317,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	// On one-way road, other_speed is current speed. Otherwise, other_speed is the theoretical max power speed.
 	bool in_congestion = false;
 	int diff_speed = akt_speed - other_speed;
-	if(  diff_speed < kmh_to_speed(5)  ) {
+	if(  diff_speed < kmh_to_speed(2)  ) {
 		// Overtaking in traffic jam is only accepted on one-way road.
 		if(  overtaking_mode <= oneway_mode  ) {
 			grund_t *gr = welt->lookup(get_pos());
