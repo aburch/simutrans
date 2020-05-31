@@ -1875,7 +1875,7 @@ Available
 Bahndepot
 Rail depot
 Bankrott:\n\nDu bist bankrott.\n
-Bankrupt:\n\nYou are insolvent.\n
+This company has now been fully liquidated.\n
 battery
 Battery
 Baum
@@ -3282,8 +3282,12 @@ Groundobj
 Ground object
 Movingobj
 Moving object
-On loan since %i month(s)
+You have been overdrawn\nfor %i months
 You have been overdrawn for %i months
+You have been overdrawn\nfor one month
+You have been overdrawn for one month.
+\n\nInterest on your debt is\naccumulating at %i %%
+\n\nInterest on your debt is accumulating at %i %%
 Loading. %s left!
 Loading: %s left
 Destroying map ...
@@ -3795,19 +3799,19 @@ additional upgrades
 reassign_classes
 Reassign prices
 line_no_convoys
-This line has no convoys assigned
+This line has no convoys assigned to it
 line_loss_making
 This line made a loss last month
 line_nothing_moved
-This line did not move any good last month
+This line did not transport anything last month
 line_overcrowded
 This line is frequently overcrowded
 line_missing_scheduled_slots
-This line was missing scheduled slots last month
+This line missed scheduled slots last month
 line_has_obsolete_vehicles
-This line operates with obsolete vehicles
+This line has obsolete vehicles
 line_has_upgradeable_vehicles
-This line has upgradeable vehicles
+This line has vehicles to which upgrades are available
 staff_shortage
 Staff shortage
 reset_all_pass_classes
@@ -4079,9 +4083,9 @@ Show contour
 Show buildings
 Show buildings
 Color-coded terrain according to altitude.
-Color-coded terrain according to altitude.
+Color coded terrain according to altitude.
 Displays buildings in gray and stations in red and have priority over bridges and tunnels
-Displays buildings in gray and stations in red and have priority over bridges and tunnels
+Displays buildings in grey and stations in red and have priority over bridges and tunnels
 map_btn_freight
 Freight
 Stop coverage
@@ -4092,6 +4096,8 @@ Show convoys
 Show convoys
 map_btn_building_level
 Density
+cl_txt_mode
+Show:
 sort_pas_arrived
 Passengers arrived
 mouseover convoy name
@@ -4108,5 +4114,49 @@ cl_btn_payload
 Payload
 cl_btn_formation
 Formation
-#cl_btn_general
-#cl_btn_general
+cl_btn_general
+Overview
+take_over
+Take over
+Takeover not permitted.
+Takeover not permitted.
+take_over_this_company
+Take over this company
+allow_takeover_of_your_company
+Allow takeover of this company
+allows_other_players_to_take_over_your_company
+Allow any other player to take over this company
+cancel_the_takeover_of_your_company
+Stops others from being able to take over this company unless it is insolvent
+available_company_takeovers:
+Companies available for takeover:
+is_available_for_take_over_by_another_company
+is now available for takeover.
+is_not_available_for_takeover_any_more
+is no longer available for takeover.
+has_taken_over
+has taken over
+in_administration_warning
+*** WARNING ***\n\nThis company is in administration. It can be taken over by another player at any time. It will be placed into liquidation if it has been in administration for more than 12 months.
+administration_duration
+This company has been in administration for
+in_liquidation_warning
+*** NOTICE ***\n\nThis company is in liquidation. It has permanently ceased trading and is controlled by the liquidators.
+liquidation_duration_remaining
+Its assets are available for other players to take over for another
+in_liquidation
+In liquidation
+in_administration
+In administration
+The maximum amount that can be borrowed without going bankrupt
+The maximum amount that can be borrowed without becoming insolvent
+other_player_in_administration
+is in administration and available for take-over.
+other_player_administration_duration
+It has been in administration for
+other_player_in_liquidation
+is in liquidation and is available for take-over without incurring liability for its debts.
+other_player_liquidation_duration
+It has been in liquidation for
+On loan since %i month(s)
+In debt for the last %i month(s)

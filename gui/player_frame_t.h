@@ -34,16 +34,25 @@ private:
 	gui_combobox_t	player_select[MAX_PLAYER_COUNT-1];
 	button_t		access_out[MAX_PLAYER_COUNT-1];
 	button_t		access_in[MAX_PLAYER_COUNT-1];
+	button_t		allow_take_over_of_company, cancel_take_over;
+	button_t		take_over_player[MAX_PLAYER_COUNT - 1];
 
 	gui_label_t		player_label;
 	gui_label_t		password_label;
 	gui_label_t		access_label;
 	gui_label_t		cash_label;
+	gui_label_t		company_takeovers;
+	gui_label_t		lb_take_over_player[MAX_PLAYER_COUNT - 1];
+	gui_label_t		lb_take_over_cost[MAX_PLAYER_COUNT - 1];
 
 	cbuffer_t tooltip_out[MAX_PLAYER_COUNT];
 	cbuffer_t tooltip_in[MAX_PLAYER_COUNT];
 
 	button_t	freeplay;
+
+	char text_take_over_cost[MAX_PLAYER_COUNT - 1][50];
+	char text_allow_takeover[50];
+	char text_cancel_takeover[50];
 
 public:
 	ki_kontroll_t();

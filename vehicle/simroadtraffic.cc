@@ -1238,7 +1238,7 @@ grund_t* private_car_t::hop_check()
 			if(current_speed<48) {
 				current_speed = 48;
 			}
-			return from;
+			return from; 
 		}
 	}
 	else {
@@ -1494,7 +1494,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 	}
 	// On one-way road, other_speed is current speed. Otherwise, other_speed is the theoretical max power speed.
 	sint32 diff_speed = (sint32)current_speed - other_speed;
-	if(  diff_speed < kmh_to_speed(5)  ) {
+	if(  diff_speed < kmh_to_speed(2)  ) {
 		// not fast enough to overtake
 		return false;
 	}

@@ -1811,9 +1811,11 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		return speed_limit;
 	}
 	const bool is_corner = current_direction != previous_direction;
+	const bool is_slope = welt->lookup(w->get_pos())->get_weg_hang() != slope_t::flat;
+	const bool slope_specific_speed = w->get_desc()->get_topspeed_gradient_1() < w->get_desc()->get_topspeed() || w->get_desc()->get_topspeed_gradient_2() < w->get_desc()->get_topspeed(); 
 
 	const bool is_tilting = desc->get_tilting();
-	const sint32 base_limit = kmh_to_speed(w->get_max_speed());
+	const sint32 base_limit = desc->get_override_way_speed() && !(slope_specific_speed && is_slope) ? SINT32_MAX_VALUE : kmh_to_speed(w->get_max_speed());
 	const uint32 max_axle_load = w->get_max_axle_load();
 	const uint32 bridge_weight_limit = w->get_bridge_weight_limit();
 	const sint32 total_weight = cnv->get_weight_summary().weight / 1000;
@@ -3473,6 +3475,11 @@ int road_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	// add cost for going (with maximum speed, cost is 1)
 	sint32 costs = (max_speed <= max_tile_speed) ? 10 : 40 - (30 * max_tile_speed) / max_speed;
 
+	if (desc->get_override_way_speed())
+	{
+		costs = 1;
+	}
+
 	// Take traffic congestion into account in determining the cost. Use the same formula as for private cars.
 	const uint32 congestion_percentage = w->get_congestion_percentage();
 	if (congestion_percentage)
@@ -3983,8 +3990,24 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 								return true;
 							}
 							strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
-							sint32 cnv_max_speed = (int)fmin(cnv->get_min_top_speed(), str->get_max_speed()*kmh_to_speed(1));
-							sint32 other_max_speed = (int)fmin(ocnv->get_min_top_speed(), str->get_max_speed()*kmh_to_speed(1));
+							sint32 cnv_max_speed;
+							sint32 other_max_speed;
+							if (desc->get_override_way_speed())
+							{
+								cnv_max_speed = cnv->get_min_top_speed() * kmh_to_speed(1);
+							}
+							else
+							{
+								cnv_max_speed = (int)fmin(cnv->get_min_top_speed(), str->get_max_speed() * kmh_to_speed(1));
+							}
+							if (ocnv->front()->get_desc()->get_override_way_speed())
+							{
+								other_max_speed = ocnv->get_min_top_speed() * kmh_to_speed(1);
+							}
+							else
+							{
+								other_max_speed = (int)fmin(ocnv->get_min_top_speed(), str->get_max_speed() * kmh_to_speed(1));
+							}
 							if(  cnv->is_overtaking() && kmh_to_speed(10) <  cnv_max_speed - other_max_speed  ) {
 								// If the convoi is on passing lane and there is slower convoi in front of this, this convoi request the slower to go to traffic lane.
 								ocnv->set_requested_change_lane(true);
@@ -4738,6 +4761,10 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	// add cost for going (with maximum speed, cost is 10)
 	const sint32 max_tile_speed = w->get_max_speed();
 	int costs = (max_speed <= max_tile_speed) ? 10 : 40 - (30 * max_tile_speed) / max_speed;
+	if (desc->get_override_way_speed())
+	{
+		costs = 1;
+	}
 
 	// effect of slope
 	if(  gr->get_weg_hang()!=0  ) {

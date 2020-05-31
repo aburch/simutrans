@@ -6596,7 +6596,7 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 
 image_id tool_build_depot_t::get_icon(player_t *player) const
 {
-	if(  player  &&  player->get_player_nr()!=1  ) {
+	if(  player  /*&&  player->get_player_nr()!=1*/  ) {
 		const building_desc_t *desc = hausbauer_t::find_tile(default_param,0)->get_desc();
 		const uint16 time = welt->get_timeline_year_month();
 		if( desc && desc->is_available(time) ) {
@@ -6612,11 +6612,13 @@ bool tool_build_depot_t::init( player_t *player )
 	if (desc == NULL) {
 		return false;
 	}
+
 	// no depots for player 1
-	if(player!=welt->get_public_player()) {
+	if(true /*player!=welt->get_public_player()*/) {
 		cursor = desc->get_cursor()->get_image_id(0);
 		return true;
 	}
+
 	return false;
 }
 
@@ -6652,10 +6654,12 @@ waytype_t tool_build_depot_t::get_waytype() const
 
 const char *tool_build_depot_t::work( player_t *player, koord3d pos )
 {
-	if(player==welt->get_public_player()) {
+#if 0
+		if(player==welt->get_public_player()) {
 		// no depots for player 1
 		return 0;
 	}
+#endif 
 
 	building_desc_t const* const desc = hausbauer_t::find_tile(default_param,0)->get_desc();
 	settings_t   const&       s     = welt->get_settings();
@@ -9220,6 +9224,7 @@ bool tool_change_player_t::init( player_t *player_in)
 	sscanf( p, "%c,%i,%i", &tool, &id, &state );
 
 	player_t *player = welt->get_player(id);
+	cbuffer_t message;
 
 	// ok now do our stuff
 	switch(  tool  ) {
@@ -9240,6 +9245,38 @@ bool tool_change_player_t::init( player_t *player_in)
 		case 'f': // WAS: activate/deactivate freeplay
 			dbg->error( "tool_change_player_t::init()", "deprecated command called" );
 			break;
+		case 't': // Sets the company to "allow takover"
+			if (player && player == player_in) {
+				player->set_allow_voluntary_takeover(state);
+				if (state)
+				{
+					message.printf("%s %s", player->get_name(), translator::translate("is_available_for_take_over_by_another_company"));
+				}
+				else
+				{
+					message.printf("%s %s", player->get_name(), translator::translate("is_not_available_for_takeover_any_more"));
+				}
+				welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
+			}
+			break;
+		case 'u': // Take over another company
+			if (player && player == player_in) {
+				sscanf(p, "%c,%i,%i", &tool, &id, &state);		
+				const char* err = player->can_take_over(welt->get_player(state));
+				if (err) 
+				{
+					message.printf(translator::translate(err));
+					welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
+				}
+				else
+				{
+					message.printf("%s %s %s", player->get_name(), translator::translate("has_taken_over"), welt->get_player(state)->get_name());
+					player->take_over(welt->get_player(state));
+					welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
+				}
+			}
+			break;
+
 	}
 
 	// update the window

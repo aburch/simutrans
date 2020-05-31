@@ -335,6 +335,15 @@ private:
 	*/
 	uint32 max_route_tiles_to_process_in_a_step = 1024;
 
+	/**
+	* This modifies the base journey time tolerance for passenger
+	* trips to allow more fine grained control of the journey time
+	* tolernace algorithm. If this be set to zero, then the per
+	* building adjustment of journey time tolerance will be disabled.
+	* This only affects visiting passengers.
+	*/
+	uint32 tolerance_modifier_percentage = 100;
+
 public:
 	//Cornering settings
 	//@author: jamespetts
@@ -480,7 +489,7 @@ public:
 	//@author: jamespetts
 	// Insolvency and debt settings
 	uint8 interest_rate_percent;
-	bool allow_bankruptcy;
+	bool allow_insolvency;
 	bool allow_purchases_when_insolvent;
 
 	// Reversing settings
@@ -952,7 +961,7 @@ public:
 	uint16 get_factory_max_years_obsolete() const { return factory_max_years_obsolete; }
 
 	uint8 get_interest_rate_percent() const { return interest_rate_percent; }
-	bool bankruptcy_allowed() const { return allow_bankruptcy; }
+	bool insolvency_allowed() const { return allow_insolvency; }
 	bool insolvent_purchases_allowed() const { return allow_purchases_when_insolvent; }
 
 	uint32 get_unit_reverse_time() const { return unit_reverse_time; }
@@ -1114,6 +1123,8 @@ public:
 
 	uint32 get_random_mode_commuting() const { return random_mode_commuting; }
 	uint32 get_random_mode_visiting() const { return random_mode_visiting; }
+
+	uint32 get_tolerance_modifier_percentage() const { return tolerance_modifier_percentage; }
 
 #ifndef NETTOOL
 	float32e8_t get_simtime_factor() const { return simtime_factor; }
