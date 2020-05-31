@@ -45,6 +45,13 @@ void gui_journey_time_stat_t::update(schedule_t* schedule, vector_tpl<uint32*>& 
         lb->buf().printf("%d", t);
       }
       lb->update();
+      if(  t>0  &&  (sint32)t-(sint32)journey_times[idx][0]>4  ) {
+        lb->set_color(color_idx_to_rgb(COL_RED));
+      } else if(  t>0  &&  (sint32)journey_times[idx][0]-(sint32)t>4  ) {
+        lb->set_color(color_idx_to_rgb(COL_BLUE));
+      } else {
+        lb->set_color(SYSCOL_TEXT);
+      }
     }
   }
   
