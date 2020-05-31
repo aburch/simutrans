@@ -480,7 +480,15 @@ void ki_kontroll_t::update_data()
 
 		if (player && player->available_for_takeover())
 		{
-			take_over_player[i].enable();
+			if (welt->get_active_player()->is_locked())
+			{
+				take_over_player[i].disable();
+			}
+			else
+			{
+				take_over_player[i].enable();
+			}
+			
 			take_over_player[i].set_pos(cursor);
 			take_over_player[i].set_visible(true);
 			cursor.x += D_BUTTON_WIDTH + 10;
@@ -521,14 +529,26 @@ void ki_kontroll_t::update_data()
 	cursor.y += D_BUTTON_HEIGHT;
 	cursor.x = D_MARGIN_LEFT;
 
-	allow_take_over_of_company.enable();
+	if (!welt->get_active_player()->is_locked())
+	{
+		allow_take_over_of_company.enable();
+	}
+	else
+	{
+		allow_take_over_of_company.disable();
+	}
 	cancel_take_over.set_visible(true);
 	cancel_take_over.disable();
-	if (welt->get_active_player()->get_allow_voluntary_takeover()) {
+	if (welt->get_active_player()->get_allow_voluntary_takeover())
+	{
 		allow_take_over_of_company.disable();
-		cancel_take_over.enable();
+		if (!welt->get_active_player()->is_locked())
+		{
+			cancel_take_over.enable();
+		}
 	}
-	if (welt->get_active_player()->is_public_service()) {
+	if (welt->get_active_player()->is_public_service())
+	{
 		allow_take_over_of_company.disable();
 		cancel_take_over.set_visible(false);
 	}
