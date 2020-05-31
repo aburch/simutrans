@@ -32,7 +32,7 @@ void gui_journey_time_stat_t::update(schedule_t* schedule, vector_tpl<uint32*>& 
       lb->buf().printf("%s", halt->get_name());
     } else {
       // maybe a waypoint
-      lb->buf().printf("waypoint");
+      lb->buf().printf(translator::translate("Wegpunkt"));
     }
     lb->update();
     
@@ -246,8 +246,8 @@ gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* pl
   
   set_table_layout(1,0);
   gui_aligned_container_t* container = add_table(NUM_ARRIVAL_TIME_STORED+2,1);
-  new_component<gui_label_t>("Stop");
-  const char* texts[NUM_ARRIVAL_TIME_STORED+1] = {"1st", "2nd", "3rd", "4th", "5th", "Ave."};
+  new_component<gui_label_t>("Halt name");
+  const char* texts[NUM_ARRIVAL_TIME_STORED+1] = {"Average", "1st", "2nd", "3rd", "4th", "5th"};
   gui_label_buf_t* lb;
   for(uint8 i=0; i<NUM_ARRIVAL_TIME_STORED+1; i++) {
     lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
@@ -340,20 +340,20 @@ void gui_journey_time_info_t::update() {
       }
       // check both entries are valid
       if(  ca[ica]>0  &&  pa[ipa]>0  &&  ca[ica]>pa[ipa]  ) {
-        journey_times[i][k] = tick_to_divided_time(ca[ica]-pa[ipa]);
-        sum += journey_times[i][k];
+        journey_times[i][k+1] = tick_to_divided_time(ca[ica]-pa[ipa]);
+        sum += journey_times[i][k+1];
         cnt += 1;
       }
       else {
-        journey_times[i][k] = 0;
+        journey_times[i][k+1] = 0;
       }
     }
     
     if(  cnt>0  ) {
-      journey_times[i][NUM_ARRIVAL_TIME_STORED] = sum/cnt;
+      journey_times[i][0] = sum/cnt;
       journey_time_sum += sum/cnt;
     } else {
-      journey_times[i][NUM_ARRIVAL_TIME_STORED] = 0;
+      journey_times[i][0] = 0;
     }
   }
   
