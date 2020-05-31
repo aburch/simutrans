@@ -12,6 +12,7 @@
 #include "../../vehicle/simvehicle.h"
 #include "../../simconvoi.h"
 #include "../../simcolor.h"
+#include "../../simhalt.h"
 #include "../../display/simgraph.h"
 #include "../../display/viewport.h"
 #include "../../player/simplay.h"
@@ -69,28 +70,40 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 	set_table_layout(2,1);
 	set_alignment(ALIGN_LEFT | ALIGN_TOP);
 
-	add_table(1,3);
+	
+	add_table(1,4);
 	{
 		add_component(&label_name);
-		add_component(&label_line);
+
 		add_table(2,1);
 		{
 			new_component<gui_label_t>("Gewinn");
 			add_component(&label_profit);
 		}
 		end_table();
+
+		add_component( &label_line );
+
+		container_next_halt = add_table(2,1);
+		{
+			pos_next_halt.init( button_t::posbutton_automatic, "" );
+			add_component( &pos_next_halt );
+			add_component( &label_next_halt );
+		};
+		end_table();
+
 	}
 	end_table();
 
 	add_table(1,2);
 	{
 		new_component<gui_convoi_images_t>(cnv);
+		filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
+		filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
 		add_component(&filled_bar);
 	}
 	end_table();
 
-	filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
-	filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
 	update_label();
 }
 
@@ -101,6 +114,12 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 bool gui_convoiinfo_t::infowin_event(const event_t *ev)
 {
 	if(cnv.is_bound()) {
+		// check whether some child must handle this!
+		event_t ev2 = *ev;
+		translate_event(&ev2, -container_next_halt->get_pos().x, -container_next_halt->get_pos().y);
+		if( container_next_halt->infowin_event( &ev2 ) ) {
+			return true;
+		}
 		if(IS_LEFTRELEASE(ev)) {
 			cnv->open_info_window();
 			return true;
@@ -123,22 +142,32 @@ void gui_convoiinfo_t::update_label()
 {
 	label_profit.buf().append_money(cnv->get_jahresgewinn() / 100.0);
 	label_profit.update();
-	label_line.set_visible(true);
+	label_line.buf().clear();
 
 	if (cnv->in_depot()) {
-		label_line.buf().append(translator::translate("(in depot)"));
-	}
-	else if (cnv->get_line().is_bound()) {
-		label_line.buf().printf("%s %s", translator::translate("Line"), cnv->get_line()->get_name());
+		label_line.set_visible( false );
+		pos_next_halt.set_targetpos3d(cnv->get_home_depot());
+		label_next_halt.set_text("(in depot)");
 	}
 	else {
-		label_line.buf();
-		label_line.set_visible(false);
+		label_line.set_visible(true);
+		if( cnv->get_line().is_bound() ) {
+			label_line.buf().printf( "%s: %s", translator::translate( "Line" ), cnv->get_line()->get_name() );
+		}
+		else {
+			label_line.buf();
+			label_line.set_visible( false );
+		}
+		label_line.update();
+		halthandle_t h;
+		if( grund_t *gr = world()->lookup( cnv->get_route()->back() ) ) { 
+			h = gr->get_halt();
+		}
+		pos_next_halt.set_targetpos3d( cnv->get_route()->back() );
+		label_next_halt.set_text_pointer(h.is_bound()?h->get_name():translator::translate("wegpunkt"));
 	}
-	label_line.update();
 
-	label_name.buf().append(cnv->get_name());
-	label_name.update();
+	label_name.set_text_pointer(cnv->get_name());
 	label_name.set_color(cnv->get_status_color());
 
 	set_size(get_size());
