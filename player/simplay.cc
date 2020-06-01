@@ -1325,7 +1325,7 @@ void player_t::take_over(player_t* target_player)
 							char param[256];
 							uint16 mask = sign->get_player_mask();
 							const uint8 player_number_target = target_player->get_player_nr();
-							if (1 << player_number_target & mask)
+							if ((1 << player_number_target & mask) || obj->get_owner() == target_player)
 							{
 								const uint8 player_number_this = get_player_nr();
 								mask ^= 1 << player_number_this;
