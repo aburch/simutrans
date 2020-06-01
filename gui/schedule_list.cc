@@ -129,7 +129,8 @@ linehandle_t schedule_list_gui_t::selected_line[MAX_PLAYER_COUNT][simline_t::MAX
 static uint8 selected_cnvlist_mode[MAX_PLAYER_COUNT] = {0};
 
 // sort stuff
-schedule_list_gui_t::sort_mode_t schedule_list_gui_t::sortby = schedule_list_gui_t::by_name;
+schedule_list_gui_t::sort_mode_t schedule_list_gui_t::sortby = by_name;
+static uint8 default_sortmode = 0;
 bool schedule_list_gui_t::sortreverse = false;
 
 const char *schedule_list_gui_t::sort_text[SORT_MODES] = {
@@ -220,6 +221,17 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
+	// sort button on convoy list, define this first to prevent overlapping
+	sortedby.set_pos(scr_coord(BUTTON1_X, 2));
+	sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH * 1.5, LINESPACE * 8));
+	for (int i = 0; i < SORT_MODES; i++) {
+		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
+	}
+	sortedby.set_selection(default_sortmode);
+	sortedby.add_listener(this);
+	cont_convoys.add_component(&sortedby);
+
 	// convoi list
 	cont.set_size(scr_size(200, 80));
 	cont.set_pos(scr_coord(D_H_SPACE, D_V_SPACE));
@@ -296,16 +308,11 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	livery_selector.add_listener(this);
 	add_component(&livery_selector);
 
-	// convoy tab buttons
-	sortedby.init(button_t::roundbox, schedule_list_gui_t::sort_text[get_sortierung()], scr_coord(BUTTON1_X, 2));
-	sortedby.add_listener(this);
-	cont_convoys.add_component(&sortedby);
-
-	sorteddir.init(button_t::roundbox, get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc", scr_coord(BUTTON2_X, 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc", scr_coord(BUTTON1_X + D_BUTTON_WIDTH*1.5, 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	cont_convoys.add_component(&sorteddir);
 
-	bt_mode_convois.init(button_t::roundbox, gui_convoiinfo_t::cnvlist_mode_button_texts[selected_cnvlist_mode[player->get_player_nr()]], scr_coord(BUTTON3_X, 2), scr_size(D_BUTTON_WIDTH+15, D_BUTTON_HEIGHT));
+	bt_mode_convois.init(button_t::roundbox, gui_convoiinfo_t::cnvlist_mode_button_texts[selected_cnvlist_mode[player->get_player_nr()]], scr_coord(BUTTON2_X + D_BUTTON_WIDTH*1.5, 2), scr_size(D_BUTTON_WIDTH+15, D_BUTTON_HEIGHT));
 	bt_mode_convois.add_listener(this);
 	cont_convoys.add_component(&bt_mode_convois);
 	info_tabs.add_tab(&cont_convoys, tab_name);
@@ -457,7 +464,17 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		}
 	}
 	else if (comp == &sortedby) {
-		set_sortierung((sort_mode_t)((get_sortierung() + 1) % SORT_MODES));
+		int tmp = sortedby.get_selection();
+		if (tmp >= 0 && tmp < sortedby.count_elements())
+		{
+			sortedby.set_selection(tmp);
+			set_sortierung((sort_mode_t)tmp);
+		}
+		else {
+			sortedby.set_selection(0);
+			set_sortierung(by_name);
+		}
+		default_sortmode = (uint8)tmp;
 		update_lineinfo(line);
 	}
 	else if (comp == &sorteddir) {
@@ -1056,7 +1073,7 @@ bool schedule_list_gui_t::compare_convois(convoihandle_t const cnv1, convoihandl
 			cmp = sgn(cnv1->get_jahresgewinn() - cnv2->get_jahresgewinn());
 			break;
 		case by_loading_lvl:
-			cmp = sgn(cnv1->get_loading_level() - cnv2->get_loading_level());
+			cmp = cnv1->get_loading_level() - cnv2->get_loading_level();
 			break;
 		case by_max_speed:
 			cmp = cnv1->get_min_top_speed() - cnv2->get_min_top_speed();
@@ -1068,7 +1085,7 @@ bool schedule_list_gui_t::compare_convois(convoihandle_t const cnv1, convoihandl
 			cmp = cnv1->get_average_age() - cnv2->get_average_age();
 			break;
 		case by_value:
-			cmp = cnv1->get_purchase_cost() - cnv2->get_purchase_cost();
+			cmp = sgn(cnv1->get_purchase_cost() - cnv2->get_purchase_cost());
 			break;
 	}
 
@@ -1084,7 +1101,6 @@ void schedule_list_gui_t::sort_list()
 	}
 	std::sort(line_convoys.begin(), line_convoys.end(), compare_convois);
 
-	sortedby.set_text(sort_text[get_sortierung()]);
 	sorteddir.set_text(get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
 }
 

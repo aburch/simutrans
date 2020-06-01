@@ -24,15 +24,15 @@
 class player_t;
 class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 {
+private:
 public:
 	enum sort_mode_t { by_name = 0, by_schedule, by_profit, by_loading_lvl, by_max_speed, /*by_power,*/ by_value, by_age, SORT_MODES };
-private:
 	player_t *player;
 
 	static const char *sort_text[SORT_MODES];
 
 	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line, bt_line_class_manager, bt_times_history, bt_mode_convois;
-	button_t sortedby, sorteddir;
+	button_t sorteddir;
 	gui_container_t cont, cont_haltestellen, cont_charts, cont_convoys;
 	gui_scrollpane_t scrolly_convois, scrolly_haltestellen;
 	gui_scrolled_list_t scl;
@@ -50,8 +50,6 @@ private:
 
 	// vector of stop info objects that are being displayed
 	vector_tpl<halt_list_stats_t *> stop_infos;
-
-	gui_combobox_t livery_selector;
 
 	sint32 selection, capacity, load, loadfactor;
 
@@ -95,6 +93,8 @@ private:
 	static bool compare_convois(convoihandle_t, convoihandle_t);
 	void sort_list();
 
+	gui_combobox_t livery_selector, sortedby;
+
 
 public:
 	/// last selected line per tab
@@ -117,8 +117,7 @@ public:
 	*/
 	const char* get_help_filename() const OVERRIDE { return "linemanagement.txt"; }
 
-	static sort_mode_t get_sortierung() { return sortby; }
-	static void set_sortierung(sort_mode_t sm) { sortby = sm; }
+	static void set_sortierung(const sort_mode_t sm) { sortby = sm; }
 
 	static bool get_reverse() { return sortreverse; }
 	static void set_reverse(bool reverse) { sortreverse = reverse; }
