@@ -61,7 +61,6 @@ public:
 
 	void display_list();
 
-	static factorylist::sort_mode_t get_sortierung() { return sortby; }
 	static void set_sortierung(const factorylist::sort_mode_t& sm) { sortby = sm; }
 
 	static bool get_reverse() { return sortreverse; }
