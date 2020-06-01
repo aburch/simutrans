@@ -240,7 +240,8 @@ void curiositylist_stats_t::draw(scr_coord offset)
 		xoff += 9; // symbol width
 
 		if (geb->get_tile()->get_desc()->get_extra() != 0) {
-		    display_color_img_with_tooltip(skinverwaltung_t::intown->get_image_id(0), xoff, yoff, 0, false, false, welt->get_city(geb->get_pos().get_2d())->get_name());
+		    display_color_img(skinverwaltung_t::intown->get_image_id(0), xoff, yoff, 0, false, false);
+			//display_color_img_with_tooltip(skinverwaltung_t::intown->get_image_id(0), xoff, yoff, 0, false, false, welt->get_city(geb->get_pos().get_2d())->get_name());
 		}
 		xoff += 9 + 2; // symbol width + margin
 

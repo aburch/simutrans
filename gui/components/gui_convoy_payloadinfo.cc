@@ -65,7 +65,8 @@ void gui_convoy_payloadinfo_t::draw(scr_coord offset)
 					buf.clear();
 					if (skinverwaltung_t::pax_evaluation_icons) {
 						if (cnv->get_overcrowded() > 0) {
-							display_color_img_with_tooltip(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), offset.x + left, offset.y, 0, false, false, translator::translate("Standing passengers"));
+							display_color_img(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), offset.x + left, offset.y, 0, false, false);
+							//display_color_img_with_tooltip(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), offset.x + left, offset.y, 0, false, false, translator::translate("Standing passengers"));
 						}
 						else {
 							display_img_blend(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), offset.x + left, offset.y, TRANSPARENT50_FLAG | OUTLINE_FLAG | COL_GREY2, false, false);
