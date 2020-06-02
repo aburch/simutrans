@@ -227,10 +227,12 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 		for(  int j=0;  image!=IMG_EMPTY;  ) {
 
 			if(  owner_n != PLAYER_UNOWNED  ) {
-				if(  obj_t::show_owner  ) {
+				if(  obj_t::show_owner && welt->get_player(owner_n))
+				{
 					display_blend( image, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 				}
-				else {
+				else
+				{
 					display_color( image, xpos, ypos, owner_n, true, is_dirty  CLIP_NUM_PAR);
 				}
 			}

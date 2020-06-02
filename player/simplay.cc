@@ -1352,12 +1352,11 @@ void player_t::take_over(player_t* target_player)
 					}
 					if (obj->get_owner() == target_player)
 					{
+						depot_t* dep = NULL;
 						switch (obj->get_typ())
 						{
-						case obj_t::roadsign:
-							
 						// Fallthrough intended
-						case obj_t::signal:
+						
 						case obj_t::airdepot:
 						case obj_t::bahndepot:
 						case obj_t::monoraildepot:
@@ -1365,6 +1364,19 @@ void player_t::take_over(player_t* target_player)
 						case obj_t::strassendepot:
 						case obj_t::narrowgaugedepot:
 						case obj_t::schiffdepot:
+
+							// Transfer vehicles in a depot not in a convoy, then fall through
+							dep = (depot_t*)obj;
+							FOR(slist_tpl<vehicle_t*>, vehicle, dep->get_vehicle_list())
+							{
+								if (vehicle->get_owner() == target_player)
+								{
+									vehicle->set_owner(this);
+								}
+							}
+
+						case obj_t::roadsign:
+						case obj_t::signal:
 						case obj_t::senke:
 						case obj_t::pumpe:
 						case obj_t::wayobj:

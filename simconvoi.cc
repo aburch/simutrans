@@ -667,6 +667,13 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 	for(int i = 0; i < vehicle_count; i++)
 	{
 		vehicle[i]->remove_stale_cargo();
+
+		// This anomaly can arise afer takeovers in some instances before a bug was fixed.
+		// Vehicles should not be owned by no-one.
+		if (vehicle[i]->get_owner() == NULL)
+		{
+			vehicle[i]->set_owner(get_owner());
+		}
 	}
 
 	loading_limit = schedule->get_current_entry().minimum_loading;

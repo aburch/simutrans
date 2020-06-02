@@ -547,6 +547,12 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 		return false;
 	}
 
+	if (cnv.is_bound() && cnv->front()->get_owner() == NULL)
+	{
+		// It it not clear why the version for this on loading does not work.
+		cnv->front()->set_owner(cnv->get_owner());
+		cnv->back()->set_owner(cnv->get_owner());
+	}
 	if (cnv.is_bound() && cnv->get_schedule() && !cnv->get_schedule()->empty()) {
 		// if next schedule entry is this depot => advance to next entry
 		const koord3d& cur_pos = cnv->get_schedule()->get_current_entry().pos;
@@ -600,6 +606,8 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 				static cbuffer_t buf;
 				buf.clear();
 				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name() );
+				const char* TEST_owner = cnv->get_owner()->get_name();
+				const player_t* TEST_veh_owner = cnv->front()->get_owner();
 				create_win( new news_img(buf), w_time_delete, magic_none);
 			}
 		}
@@ -691,36 +699,42 @@ void depot_t::rdwr_vehicle(slist_tpl<vehicle_t *> &list, loadsave_t *file)
 		}
 
 		DBG_MESSAGE("depot_t::vehicle_laden()","loading %d vehicles",count);
-		for(int i=0; i<count; i++) {
+		for (int i = 0; i < count; i++) {
 			obj_t::typ typ = (obj_t::typ)file->rd_obj_id();
 
-			vehicle_t *v = NULL;
+			vehicle_t* v = NULL;
 			const bool first = false;
 			const bool last = false;
 
-			switch( typ ) {
-				case old_road_vehicle:
-				case road_vehicle: v = new road_vehicle_t(file, first, last);    break;
-				case old_waggon:
-				case rail_vehicle:    v = new rail_vehicle_t(file, first, last);       break;
-				case old_schiff:
-				case water_vehicle:    v = new water_vehicle_t(file, first, last);       break;
-				case old_aircraft:
-				case air_vehicle: v = new air_vehicle_t(file, first, last);  break;
-				case old_monorail_vehicle:
-				case monorail_vehicle: v = new monorail_rail_vehicle_t(file, first, last);  break;
-				case maglev_vehicle:   v = new maglev_rail_vehicle_t(file, first, last);  break;
-				case narrowgauge_vehicle: v = new narrowgauge_rail_vehicle_t(file, first, last);  break;
-				default:
-					dbg->fatal("depot_t::vehicle_laden()","invalid vehicle type $%X", typ);
+			switch (typ) {
+			case old_road_vehicle:
+			case road_vehicle: v = new road_vehicle_t(file, first, last);    break;
+			case old_waggon:
+			case rail_vehicle:    v = new rail_vehicle_t(file, first, last);       break;
+			case old_schiff:
+			case water_vehicle:    v = new water_vehicle_t(file, first, last);       break;
+			case old_aircraft:
+			case air_vehicle: v = new air_vehicle_t(file, first, last);  break;
+			case old_monorail_vehicle:
+			case monorail_vehicle: v = new monorail_rail_vehicle_t(file, first, last);  break;
+			case maglev_vehicle:   v = new maglev_rail_vehicle_t(file, first, last);  break;
+			case narrowgauge_vehicle: v = new narrowgauge_rail_vehicle_t(file, first, last);  break;
+			default:
+				dbg->fatal("depot_t::vehicle_laden()", "invalid vehicle type $%X", typ);
 			}
-			const vehicle_desc_t *desc = v->get_desc();
-			if(desc) {
-				DBG_MESSAGE("depot_t::vehicle_laden()","loaded %s", desc->get_name());
-				list.insert( v );
+			const vehicle_desc_t* desc = v->get_desc();
+			if (desc) {
+				DBG_MESSAGE("depot_t::vehicle_laden()", "loaded %s", desc->get_name());
+				list.insert(v);
 			}
 			else {
-				dbg->error("depot_t::vehicle_laden()","vehicle has no desc => ignored");
+				dbg->error("depot_t::vehicle_laden()", "vehicle has no desc => ignored");
+			}
+
+			if (v->get_owner() == NULL)
+			{
+				// Vehicles should not be unowned in depots; assume that the owner of the depot owns the vehicle.
+				v->set_owner(get_owner());
 			}
 		}
 	}
