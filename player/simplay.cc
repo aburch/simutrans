@@ -1447,7 +1447,7 @@ void player_t::take_over(player_t* target_player)
 			}
 		}
 	}
-
+	 
 	calc_assets();
 
 	// After recalculating the assets, recalculate the credit limits
