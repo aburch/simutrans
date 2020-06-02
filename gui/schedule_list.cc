@@ -308,11 +308,18 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	livery_selector.add_listener(this);
 	add_component(&livery_selector);
 
-	sorteddir.init(button_t::roundbox, get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc", scr_coord(BUTTON1_X + D_BUTTON_WIDTH*1.5, 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-	sorteddir.add_listener(this);
-	cont_convoys.add_component(&sorteddir);
+	// sort button
+	sort_asc.init(button_t::arrowup_state, "cl_btn_sort_asc", scr_coord(BUTTON1_X + D_BUTTON_WIDTH * 1.5 + D_H_SPACE, 3), scr_size(D_ARROW_UP_WIDTH, D_ARROW_UP_HEIGHT));
+	sort_asc.add_listener(this);
+	sort_asc.pressed = sortreverse;
+	cont_convoys.add_component(&sort_asc);
 
-	bt_mode_convois.init(button_t::roundbox, gui_convoiinfo_t::cnvlist_mode_button_texts[selected_cnvlist_mode[player->get_player_nr()]], scr_coord(BUTTON2_X + D_BUTTON_WIDTH*1.5, 2), scr_size(D_BUTTON_WIDTH+15, D_BUTTON_HEIGHT));
+	sort_desc.init(button_t::arrowdown_state, "cl_btn_sort_desc", sort_asc.get_pos() + scr_coord(D_ARROW_UP_WIDTH+2, 0), scr_size(D_ARROW_DOWN_WIDTH, D_ARROW_DOWN_HEIGHT));
+	sort_desc.add_listener(this);
+	sort_desc.pressed = !sortreverse;
+	cont_convoys.add_component(&sort_desc);
+
+	bt_mode_convois.init(button_t::roundbox, gui_convoiinfo_t::cnvlist_mode_button_texts[selected_cnvlist_mode[player->get_player_nr()]], scr_coord(BUTTON3_X, 2), scr_size(D_BUTTON_WIDTH+15, D_BUTTON_HEIGHT));
 	bt_mode_convois.add_listener(this);
 	cont_convoys.add_component(&bt_mode_convois);
 	info_tabs.add_tab(&cont_convoys, tab_name);
@@ -477,9 +484,11 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		default_sortmode = (uint8)tmp;
 		update_lineinfo(line);
 	}
-	else if (comp == &sorteddir) {
+	else if (comp == &sort_asc || comp == &sort_desc) {
 		set_reverse(!get_reverse());
 		update_lineinfo(line);
+		sort_asc.pressed = sortreverse;
+		sort_desc.pressed = !sortreverse;
 	}
 	else if (comp == &bt_mode_convois) {
 		selected_cnvlist_mode[player->get_player_nr()] = (selected_cnvlist_mode[player->get_player_nr()] + 1) % gui_convoiinfo_t::DISPLAY_MODES;
@@ -1106,8 +1115,6 @@ void schedule_list_gui_t::sort_list()
 		return;
 	}
 	std::sort(line_convoys.begin(), line_convoys.end(), compare_convois);
-
-	sorteddir.set_text(get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
 }
 
 
