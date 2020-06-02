@@ -55,7 +55,7 @@ private:
 
 	gui_label_t		sort_label;
 	gui_combobox_t	sortedby;
-	button_t		sorteddir;
+	button_t		sort_asc, sort_desc;
 	gui_label_t		change_speed_label;
 	gui_label_t		change_distance_label;
 	gui_label_t		change_comfort_label;

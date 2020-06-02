@@ -59,9 +59,18 @@ curiositylist_frame_t::curiositylist_frame_t() :
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH*1.5, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
-	sorteddir.add_listener(this);
-	add_component(&sorteddir);
+	// sort ascend/descend button
+	sort_asc.init(button_t::arrowup_state, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH * 1.5 + D_H_SPACE, 14 + 1), scr_size(D_ARROW_UP_WIDTH, D_ARROW_UP_HEIGHT));
+	sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
+	sort_asc.add_listener(this);
+	sort_asc.pressed = sortreverse;
+	add_component(&sort_asc);
+
+	sort_desc.init(button_t::arrowdown_state, "", sort_asc.get_pos() + scr_coord(D_ARROW_UP_WIDTH + 2, 0), scr_size(D_ARROW_DOWN_WIDTH, D_ARROW_DOWN_HEIGHT));
+	sort_desc.set_tooltip(translator::translate("hl_btn_sort_desc"));
+	sort_desc.add_listener(this);
+	sort_desc.pressed = !sortreverse;
+	add_component(&sort_desc);
 
 	filter_within_network.init(button_t::square_state, "Within own network", scr_coord(BUTTON2_X + D_BUTTON_WIDTH*1.5 + D_H_SPACE, 14));
 	filter_within_network.set_tooltip("Show only connected to own passenger transportation network");
@@ -104,9 +113,11 @@ bool curiositylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t
 		default_sortmode = (uint8)tmp;
 		display_list();
 	}
-	else if(comp == &sorteddir) {
+	else if (comp == &sort_asc || comp == &sort_desc) {
 		set_reverse(!get_reverse());
 		display_list();
+		sort_asc.pressed = sortreverse;
+		sort_desc.pressed = !sortreverse;
 	}
 	else if (comp == &filter_within_network) {
 		filter_own_network = !filter_own_network;
@@ -140,7 +151,6 @@ void curiositylist_frame_t::resize(const scr_coord delta)
 */
 void curiositylist_frame_t::display_list()
 {
-	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 	stats.get_unique_attractions(sortby,sortreverse, filter_own_network);
 	stats.recalc_size();
 }

@@ -26,8 +26,8 @@ class labellist_frame_t : public gui_frame_t, private action_listener_t
 
     gui_label_t sort_label;
 	gui_combobox_t	sortedby;
-    button_t	sorteddir;
-    button_t	filter;
+	button_t sort_asc, sort_desc;
+	button_t	filter;
     labellist_stats_t stats;
 
     gui_scrollpane_t scrolly;
