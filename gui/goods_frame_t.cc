@@ -152,9 +152,19 @@ goods_frame_t::goods_frame_t() :
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH*1.5, y), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
-	sorteddir.add_listener(this);
-	add_component(&sorteddir);
+	// sort ascend/descend button
+	sort_asc.init(button_t::arrowup_state, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH * 1.5 + D_H_SPACE, y + 1), scr_size(D_ARROW_UP_WIDTH, D_ARROW_UP_HEIGHT));
+	sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
+	sort_asc.add_listener(this);
+	sort_asc.pressed = sortreverse;
+	add_component(&sort_asc);
+
+	sort_desc.init(button_t::arrowdown_state, "", sort_asc.get_pos() + scr_coord(D_ARROW_UP_WIDTH + 2, 0), scr_size(D_ARROW_DOWN_WIDTH, D_ARROW_DOWN_HEIGHT));
+	sort_desc.set_tooltip(translator::translate("hl_btn_sort_desc"));
+	sort_desc.add_listener(this);
+	sort_desc.pressed = !sortreverse;
+	add_component(&sort_desc);
+
 
 	filter_goods_toggle.init(button_t::square_state, "Show only used", scr_coord(BUTTON2_X + D_BUTTON_WIDTH*1.5 + D_H_SPACE, y));
 	filter_goods_toggle.set_tooltip(translator::translate("Only show goods which are currently handled by factories"));
@@ -226,8 +236,6 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 // creates the list and pass it to the child function good_stats, which does the display stuff ...
 void goods_frame_t::sort_list()
 {
-	sorteddir.set_text(sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-
 	// Fetch the list of goods produced by the factories that exist in the current game
 	const vector_tpl<const goods_desc_t*> &goods_in_game = welt->get_goods_list();
 
@@ -284,10 +292,12 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		default_sortmode = (uint8)tmp;
 		sort_list();
 	}
-	else if(comp == &sorteddir) {
+	else if (comp == &sort_asc || comp == &sort_desc) {
 		// order
 		sortreverse ^= 1;
 		sort_list();
+		sort_asc.pressed = sortreverse;
+		sort_desc.pressed = !sortreverse;
 	}
 	else if (comp == &speed_input) {
 		vehicle_speed = v.i;

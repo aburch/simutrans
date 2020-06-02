@@ -309,12 +309,14 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&livery_selector);
 
 	// sort button
-	sort_asc.init(button_t::arrowup_state, "cl_btn_sort_asc", scr_coord(BUTTON1_X + D_BUTTON_WIDTH * 1.5 + D_H_SPACE, 3), scr_size(D_ARROW_UP_WIDTH, D_ARROW_UP_HEIGHT));
+	sort_asc.init(button_t::arrowup_state, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH * 1.5 + D_H_SPACE, 3), scr_size(D_ARROW_UP_WIDTH, D_ARROW_UP_HEIGHT));
+	sort_asc.set_tooltip(translator::translate("cl_btn_sort_asc"));
 	sort_asc.add_listener(this);
 	sort_asc.pressed = sortreverse;
 	cont_convoys.add_component(&sort_asc);
 
-	sort_desc.init(button_t::arrowdown_state, "cl_btn_sort_desc", sort_asc.get_pos() + scr_coord(D_ARROW_UP_WIDTH+2, 0), scr_size(D_ARROW_DOWN_WIDTH, D_ARROW_DOWN_HEIGHT));
+	sort_desc.init(button_t::arrowdown_state, "", sort_asc.get_pos() + scr_coord(D_ARROW_UP_WIDTH+2, 0), scr_size(D_ARROW_DOWN_WIDTH, D_ARROW_DOWN_HEIGHT));
+	sort_desc.set_tooltip(translator::translate("cl_btn_sort_desc"));
 	sort_desc.add_listener(this);
 	sort_desc.pressed = !sortreverse;
 	cont_convoys.add_component(&sort_desc);

@@ -139,9 +139,18 @@ citylist_frame_t::citylist_frame_t() :
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON1_X+ D_BUTTON_WIDTH*1.5, 40-D_BUTTON_HEIGHT), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
-	sorteddir.add_listener(this);
-	add_component(&sorteddir);
+	// sort ascend/descend button
+	sort_asc.init(button_t::arrowup_state, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH * 1.5 + D_H_SPACE, 40 - D_BUTTON_HEIGHT + 1), scr_size(D_ARROW_UP_WIDTH, D_ARROW_UP_HEIGHT));
+	sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
+	sort_asc.add_listener(this);
+	sort_asc.pressed = sortreverse;
+	add_component(&sort_asc);
+
+	sort_desc.init(button_t::arrowdown_state, "", sort_asc.get_pos() + scr_coord(D_ARROW_UP_WIDTH + 2, 0), scr_size(D_ARROW_DOWN_WIDTH, D_ARROW_DOWN_HEIGHT));
+	sort_desc.set_tooltip(translator::translate("hl_btn_sort_desc"));
+	sort_desc.add_listener(this);
+	sort_desc.pressed = !sortreverse;
+	add_component(&sort_desc);
 
 	filter_within_network.init(button_t::square_state, "Within own network", scr_coord(D_BUTTON_WIDTH*1.5 + BUTTON2_X + D_H_SPACE, 40-D_BUTTON_HEIGHT));
 	filter_within_network.set_tooltip("Show only cities within the active player's transportation network");
@@ -155,7 +164,6 @@ citylist_frame_t::citylist_frame_t() :
 	add_component(&show_stats);
 
 	// name buttons
-	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
 	year_month_tabs.add_tab(&chart, translator::translate("Years"));
 	year_month_tabs.add_tab(&mchart, translator::translate("Months"));
@@ -225,10 +233,11 @@ bool citylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* *
 		stats.sort(sortby,get_reverse(), get_filter_own_network());
 		stats.recalc_size();
 	}
-	else if(comp == &sorteddir) {
+	else if (comp == &sort_asc || comp == &sort_desc) {
 		set_reverse(!get_reverse());
-		sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 		stats.sort(sortby,get_reverse(), get_filter_own_network());
+		sort_asc.pressed = sortreverse;
+		sort_desc.pressed = !sortreverse;
 		stats.recalc_size();
 	}
 	else if (comp == &filter_within_network) {
