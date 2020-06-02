@@ -60,7 +60,6 @@ class labellist_frame_t : public gui_frame_t, private action_listener_t
      */
     void display_list();
 
-    static labellist::sort_mode_t get_sortierung() { return sortby; }
     static void set_sortierung(const labellist::sort_mode_t sm) { sortby = sm; }
 
     static bool get_reverse() { return sortreverse; }

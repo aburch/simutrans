@@ -85,38 +85,45 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 		if (skinverwaltung_t::alerts) {
 			switch (cnv->get_state()) {
 				case convoi_t::EMERGENCY_STOP:
-					display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("Waiting for clearance!"));
+					display_color_img(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false);
+					//display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("Waiting for clearance!"));
 					w += 14;
 					break;
 				case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 				case convoi_t::CAN_START_ONE_MONTH:
-					display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(3), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("Waiting for clearance!"));
+					display_color_img(skinverwaltung_t::alerts->get_image_id(3), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false);
+					//display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(3), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("Waiting for clearance!"));
 					w += 14;
 					break;
 				case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
 				case convoi_t::CAN_START_TWO_MONTHS:
-					display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(4), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("clf_chk_stucked"));
+					display_color_img(skinverwaltung_t::alerts->get_image_id(4), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false);
+					//display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(4), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("clf_chk_stucked"));
 					w += 14;
 					break;
 				case convoi_t::OUT_OF_RANGE:
 				case convoi_t::NO_ROUTE:
 				case convoi_t::NO_ROUTE_TOO_COMPLEX:
-					display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(4), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("clf_chk_noroute"));
+					display_color_img(skinverwaltung_t::alerts->get_image_id(4), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false);
+					//display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(4), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("clf_chk_noroute"));
 					w += 14;
 					break;
 				default:
 					break;
 			}
 			if (cnv->get_withdraw()){
-				display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("withdraw"));
+				display_color_img(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false);
+				//display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("withdraw"));
 				w += 14;
 			}
 			else if (cnv->get_no_load() && !cnv->in_depot()) {
-				display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("No load setting"));
+				display_color_img(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false);
+				//display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("No load setting"));
 				w += 14;
 			}
 			if (cnv->get_replace()) {
-				display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(1), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("Replacing"));
+				display_color_img(skinverwaltung_t::alerts->get_image_id(1), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false);
+				//display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(1), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("Replacing"));
 				w += 14;
 			}
 		}

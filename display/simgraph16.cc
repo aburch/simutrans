@@ -4835,6 +4835,27 @@ void display_filled_circle_rgb(KOORD_VAL x0, KOORD_VAL  y0, int radius, const PI
 }
 
 
+int display_fluctuation_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, const bool dirty, sint64 value)
+{
+	if (!value) { return 0; } // nothing to draw
+	COLOR_VAL col = value > 0 ? COL_LIGHT_TURQUOISE : COL_LIGHT_ORANGE;
+	uint8 width = height - height % 2;
+	for (uint i = 0; i < width; i++) {
+		uint8 h = height - 2 * abs(int(width / 2 - i));
+		KOORD_VAL y0 = value > 0 ? y + 2 + height - h : y+2;
+		KOORD_VAL y1 = value > 0 ? y0 - 1 : y + h +1;
+
+		if (h > 1) {
+			display_vline_wh(x + i, y0, h - 1, col, dirty);
+		}
+		if (h > 0) {
+			display_blend_wh(x + i, y1, 1, 1, col, 50);
+		}
+	}
+	return width;
+}
+
+
 /**
 * Print a bezier curve between points A and B
 * @author yorkeiser
