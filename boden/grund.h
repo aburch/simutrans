@@ -307,7 +307,6 @@ public:
 
 	virtual bool ist_natur() const {return false;}
 	virtual bool is_water() const {return false;}
-	virtual bool is_lake() {return false;}
 
 	/**
 	* This is called very often, it must be inlined and therefore

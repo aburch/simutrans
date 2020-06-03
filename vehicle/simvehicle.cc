@@ -8120,7 +8120,7 @@ bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 	{
 		// If there are permissive constraints, this vehicle cannot
 		// traverse open seas, but it may use lakes.
-		if(bd->is_lake())
+		if(bd->get_hoehe() > welt->get_groundwater())
 		{
 			return true;
 		}

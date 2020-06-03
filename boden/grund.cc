@@ -617,7 +617,7 @@ void grund_t::info(cbuffer_t& buf) const
 	{
 		if(is_water())
 		{
-			buf.append(translator::translate(is_lake() ? "Lake" : "Open water"));
+			buf.append(translator::translate((is_water() && (get_hoehe() > welt->get_groundwater())) ? "Lake" : "Open water"));
 		}
 		else
 		{
@@ -646,8 +646,8 @@ void grund_t::info(cbuffer_t& buf) const
 		}
 	}
 
-	char *n1 = translator::translate(get_name());
-	char *n2 = translator::translate(ground_desc_t::get_climate_name_from_bit(welt->get_climate(get_pos().get_2d())));
+	const char *n1 = translator::translate(get_name());
+	const char *n2 = translator::translate(ground_desc_t::get_climate_name_from_bit(welt->get_climate(get_pos().get_2d())));
 
 	buf.printf("%s\n", n1 );
 	if (strcmp(n1, n2)) {
