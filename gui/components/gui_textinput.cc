@@ -423,25 +423,29 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		return true;
 	}
 	else if(  IS_LEFTDBLCLK(ev)  ) {
-		// Knightly : select a word as delimited by spaces
-		// for tail cursor pos -> skip over all contiguous non-space characters to the left
-		const char* tmp_text = text + tail_cursor_pos;
-		uint8 byte_length;
-		uint8 pixel_width;
-		while(  tail_cursor_pos>0  &&  get_prev_char_with_metrics(tmp_text, text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
-			tail_cursor_pos -= byte_length;
-		}
-		// for head cursor pos -> skip over all contiguous non-space characters to the right
-		const size_t len = strlen(text);
-		tmp_text = text + head_cursor_pos;
-		while(  head_cursor_pos<len  &&  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
-			head_cursor_pos += byte_length;
+		if( text ) {
+			// Knightly : select a word as delimited by spaces
+			// for tail cursor pos -> skip over all contiguous non-space characters to the left
+			const char* tmp_text = text + tail_cursor_pos;
+			uint8 byte_length;
+			uint8 pixel_width;
+			while(  tail_cursor_pos>0  &&  get_prev_char_with_metrics(tmp_text, text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
+				tail_cursor_pos -= byte_length;
+			}
+			// for head cursor pos -> skip over all contiguous non-space characters to the right
+			const size_t len = strlen(text);
+			tmp_text = text + head_cursor_pos;
+			while(  head_cursor_pos<len  &&  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
+				head_cursor_pos += byte_length;
+			}
 		}
 	}
 	else if(  IS_LEFTTPLCLK(ev)  ) {
-		// Knightly : select the whole text
-		head_cursor_pos = strlen(text);
-		tail_cursor_pos = 0;
+		if( text ) {
+			// Knightly : select the whole text
+			head_cursor_pos = strlen(text);
+			tail_cursor_pos = 0;
+		}
 	}
 	else if(  ev->ev_class==INFOWIN  &&  ev->ev_code==WIN_UNTOP  ) {
 		if(  text_dirty  ) {
