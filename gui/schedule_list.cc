@@ -627,9 +627,7 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 	if(  line.is_bound()  ) {
 		tab_name.clear();
 		tab_name.append(translator::translate("Convoys"));
-		char temp_buf[5];
-		sprintf(temp_buf, "(%i)", line->count_convoys());
-		tab_name.printf("%5s", temp_buf);
+		tab_name.printf(" (%u)", line->count_convoys());
 
 		if(  (!line->get_schedule()->empty()  &&  !line->get_schedule()->matches( welt, last_schedule ))  ||  last_vehicle_count != line->count_convoys()  ) {
 			update_lineinfo( line );
@@ -1035,7 +1033,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		bt_delete_line.disable();
 		bt_change_line.disable();
 		tab_name.clear();
-		tab_name.printf("%s%5s",translator::translate("Convoys"),"(0)");
+		tab_name.printf("%s (0)",translator::translate("Convoys"));
 		for(int i=0; i<MAX_LINE_COST; i++)  {
 			chart.hide_curve(i);
 		}
