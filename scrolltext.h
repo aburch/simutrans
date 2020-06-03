@@ -57,6 +57,7 @@
 " Isidoro","developer (vehicle replacement)",
 " Ranran", "UI features",
 " Freddy Hayward", "patches",
+" W. Lindley", "patches",
 " ceeac", "patches",
 " Freahk", "patches",
 " Progger", "patches",
