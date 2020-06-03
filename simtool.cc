@@ -8599,6 +8599,7 @@ bool tool_change_convoi_t::init( player_t *player )
 		if (cnv->get_replace())
 		{
 			cnv->get_replace()->clear_all();
+			cnv->set_replace(NULL); 
 			// This convoy might already have been sent to a depot. This will need to be undone.
 			schedule_t* sch = cnv->get_schedule();
 			const schedule_entry_t le = sch->get_current_entry();

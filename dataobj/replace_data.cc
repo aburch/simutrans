@@ -233,7 +233,7 @@ void replace_data_t::decrement_convoys(convoihandle_t cnv)
 
 	if(--number_of_convoys <= 0 && !clearing)
 	{
-		// See http://www.parashift.com/c++-faq-lite/freestore-mgmt.html#faq-16.15
+		// See https://isocpp.org/wiki/faq/freestore-mgmt#delete-this
 		// When maintaining this code, ensure that the above criteria remain satisfied.
 		delete this;
 	}
