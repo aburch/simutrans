@@ -113,9 +113,9 @@ class factory_place_with_road_finder: public building_placefinder_t  {
 public:
 	factory_place_with_road_finder(karte_t* welt) : building_placefinder_t(welt) {}
 
-	virtual bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const
+	virtual bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions) const
 	{
-		if(  !building_placefinder_t::is_area_ok(pos, b, h, cl)  ) {
+		if(  !building_placefinder_t::is_area_ok(pos, b, h, cl, allowed_regions)  ) {
 			// We need a clear space to build, first of all
 			return false;
 		}
@@ -172,7 +172,7 @@ static bool compare_fabrik_desc(const factory_desc_t* a, const factory_desc_t* b
 
 
 // returns a random consumer
-const factory_desc_t *factory_builder_t::get_random_consumer(bool electric, climate_bits cl, uint16 timeline, const goods_desc_t* input )
+const factory_desc_t *factory_builder_t::get_random_consumer(bool electric, climate_bits cl, uint16 allowed_regions, uint16 timeline, const goods_desc_t* input )
 {
 	// get a random city factory
 	weighted_vector_tpl<const factory_desc_t *> consumer;
@@ -183,6 +183,7 @@ const factory_desc_t *factory_builder_t::get_random_consumer(bool electric, clim
 		// only insert end consumers, if applicable, with the requested input goods.
 		if (  current->is_consumer_only()  &&
 			current->get_building()->is_allowed_climate_bits(cl)  &&
+			current->get_building()->is_allowed_region_bits(allowed_regions) &&
 			(electric ^ !current->is_electricity_producer())  &&
 			current->get_building()->is_available(timeline)  &&
 			(input == NULL || current->get_accepts_these_goods(input))
@@ -301,7 +302,7 @@ void factory_builder_t::find_producer(weighted_vector_tpl<const factory_desc_t *
 }
 
 
-bool factory_builder_t::check_construction_site(koord pos, koord size, bool water, bool is_fabrik, climate_bits cl)
+bool factory_builder_t::check_construction_site(koord pos, koord size, bool water, bool is_fabrik, climate_bits cl, uint16 regions_allowed)
 {
 	// check for water (no shore in sight!)
 	if(water) {
@@ -316,7 +317,7 @@ bool factory_builder_t::check_construction_site(koord pos, koord size, bool wate
 	}
 	else {
 		// check on land
-		if (!welt->square_is_free(pos, size.x, size.y, NULL, cl)) {
+		if (!welt->square_is_free(pos, size.x, size.y, NULL, cl, regions_allowed)) {
 			return false;
 		}
 	}
@@ -367,7 +368,7 @@ koord3d factory_builder_t::find_random_construction_site( koord pos, const int r
 		k = koord( pos.x - radius + (index % diam), pos.y - radius + (index / diam) );
 
 		// check place (it will actually check an grosse.x/y size rectangle, so we can iterate over less tiles)
-		if(  factory_builder_t::check_construction_site(k, size, wasser, is_fabrik, climates)  ) {
+		if(  factory_builder_t::check_construction_site(k, size, wasser, is_fabrik, climates, desc->get_allowed_region_bits())  ) {
 			// then accept first hit
 			goto finish;
 		}
@@ -612,6 +613,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		stadt_t *city = welt->find_nearest_city(pos->get_2d());
 
 		climate_bits cl = ignore_climates ? ALL_CLIMATES : info->get_building()->get_allowed_climate_bits();
+		uint16 regions_allowed = info->get_building()->get_allowed_region_bits();
 
 		/* Three variants:
 		 * A:
@@ -622,12 +624,12 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		 */
 		bool is_rotate=info->get_building()->get_all_layouts()>1  &&  size.x!=size.y  &&  info->get_building()->can_rotate();
 		// first try with standard orientation
-		koord k = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.x, size.y, cl);
+		koord k = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.x, size.y, cl, regions_allowed);
 
 		// second try: rotated
 		koord k1 = koord::invalid;
 		if (is_rotate  &&  (k == koord::invalid  ||  simrand(256, " factory_builder_t::build_link")<128)) {
-			k1 = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.y, size.x, cl);
+			k1 = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.y, size.x, cl, regions_allowed);
 		}
 
 		rotate = simrand( info->get_building()->get_all_layouts(), " factory_builder_t::build_link" );
@@ -1171,7 +1173,7 @@ next_ware_check:
 				// Give up trying to find the right consumer after trying too many times.
 				input_for_consumer = NULL;
 			}
-			const factory_desc_t *consumer = get_random_consumer(no_electric==0, ALL_CLIMATES, welt->get_timeline_year_month(), input_for_consumer);
+			const factory_desc_t *consumer = get_random_consumer(no_electric==0, ALL_CLIMATES, 65535, welt->get_timeline_year_month(), input_for_consumer);
 			if(consumer)
 			{
 				if(do_not_add_beyond_target_density && !consumer->is_electricity_producer())

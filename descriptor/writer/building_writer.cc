@@ -123,9 +123,10 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 	delete [] ints;
 
-	building_desc_t::btype        type = building_desc_t::unknown;
+	building_desc_t::btype     type = building_desc_t::unknown;
 	uint32                     extra_data       = 0;
 	climate_bits               allowed_climates = all_but_water_climate; // all but water
+	uint16					   allowed_regions = 65535; // This allows up to 16 regions to be defined. By default (at 65535), the building can be built in all regions.
 	uint16                     enables          = 0;
 	uint16                     level            = obj.get_int("level", 1);
 	building_desc_t::flag_t const flags            =
@@ -140,6 +141,12 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	const char* climate_str = obj.get("climates");
 	if (climate_str && strlen(climate_str) > 4) {
 		allowed_climates = get_climate_bits(climate_str);
+	}
+
+	const char* region_str = obj.get("regions"); 
+	if (region_str && strlen(region_str) > 1)
+	{
+		allowed_regions = (uint16)cluster_writer_t::get_cluster_data(obj, "regions");
 	}
 
 	const char* type_name = obj.get("type");
@@ -320,7 +327,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint16 mail_demand_and_production_capacity = obj.get_int("mail_demand", 65535);
 	mail_demand_and_production_capacity = obj.get_int("mail_demand_and_production_capacity", mail_demand_and_production_capacity);
 
-	total_len = 49;
+	total_len = 51;
 
 	uint16 current_class_proportion;
 	vector_tpl<uint16> class_proportions(2);
@@ -484,7 +491,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// 0x300: 16-bit traction types
 	// 0x400: Unused due to versioning errors
 	// 0x500: Class proportions
-	version += 0x500;
+	version += 0x600;
 
 	int pos = 0;
 
@@ -515,6 +522,9 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	pos += sizeof(uint8);
 
 	node.write_uint16(fp, allowed_climates, pos);
+	pos += sizeof(uint16);
+
+	node.write_uint16(fp, allowed_regions, pos);
 	pos += sizeof(uint16);
 
 	node.write_uint16(fp, enables, pos);

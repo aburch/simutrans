@@ -2547,14 +2547,14 @@ public:
 	 * @return true, if square in place (i,j) with size w, h is constructible.
 	 * @author Hj. Malthaner
 	 */
-	bool square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_bits cl) const;
+	bool square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_bits cl, uint16 regions_allowed) const;
 
 	/**
 	 * @return A list of all buildable squares with size w, h.
 	 * @note Only used for town creation at the moment.
 	 * @author Hj. Malthaner
 	 */
-	slist_tpl<koord> * find_squares(sint16 w, sint16 h, climate_bits cl, sint16 old_x, sint16 old_y) const;
+	slist_tpl<koord> * find_squares(sint16 w, sint16 h, climate_bits cl, uint16 regions_allowed, sint16 old_x, sint16 old_y) const;
 
 	/**
 	 * Plays the sound when the position is inside the visible region.

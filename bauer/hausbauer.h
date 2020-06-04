@@ -125,7 +125,7 @@ public:
 	static void monument_erected(const building_desc_t* desc) { unbuilt_monuments.remove(desc); }
 
 	/// Called for a city attraction or a town hall with a certain number of inhabitants (bev).
-	static const building_desc_t* get_special(uint32 bev, building_desc_t::btype btype, uint16 time, bool ignore_retire, climate cl);
+	static const building_desc_t* get_special(uint32 bev, building_desc_t::btype btype, uint16 time, bool ignore_retire, climate cl, uint8 region);
 
 	/**
 	 * Removes an arbitrary building.

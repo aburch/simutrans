@@ -92,7 +92,7 @@ public:
 	 * @param cl allowed climates
 	 * @returns a random consumer
 	 */
-	static const factory_desc_t *get_random_consumer(bool electric, climate_bits cl, uint16 timeline, const goods_desc_t* input = NULL );
+	static const factory_desc_t *get_random_consumer(bool electric, climate_bits cl, uint16 allowed_regions, uint16 timeline, const goods_desc_t* input = NULL );
 
 	/**
 	 * Builds a single new factory.
@@ -139,7 +139,7 @@ private:
 	 * @param water true to search on water
 	 * @param cl allowed climates
 	 */
-	static bool check_construction_site(koord pos, koord size, bool water, bool is_fabrik, climate_bits cl);
+	static bool check_construction_site(koord pos, koord size, bool water, bool is_fabrik, climate_bits cl, uint16 regions_allowed);
 
 	/**
 	 * Find a random site to place a factory.

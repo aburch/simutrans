@@ -928,7 +928,7 @@ const building_desc_t* hausbauer_t::get_random_station(const building_desc_t::bt
 }
 
 
-const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::btype btype, uint16 time, bool ignore_retire, climate cl)
+const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::btype btype, uint16 time, bool ignore_retire, climate cl, uint8 region)
 {
 	weighted_vector_tpl<const building_desc_t *> auswahl(16);
 
@@ -946,7 +946,8 @@ const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::bty
 	FOR(vector_tpl<building_desc_t const*>, const desc, *list) {
 		// extra data contains number of inhabitants for building
 		if(  desc->get_extra()==bev  ) {
-			if(  cl==MAX_CLIMATES  ||  desc->is_allowed_climate(cl)  ) {
+			if((cl == MAX_CLIMATES || desc->is_allowed_climate(cl)) && desc->is_allowed_region(region))
+			{
 				// ok, now check timeline
 				if(  time==0  ||  (desc->get_intro_year_month()<=time  &&  (ignore_retire  ||  desc->get_retire_year_month() > time)  )  ) {
 					auswahl.append(desc, desc->get_distribution_weight());

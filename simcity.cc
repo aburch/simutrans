@@ -1095,7 +1095,7 @@ class monument_placefinder_t : public placefinder_t {
 	public:
 		monument_placefinder_t(karte_t* welt, sint16 radius) : placefinder_t(welt, radius) {}
 
-		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl) const
+		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl, uint16 allowed_regions) const
 		{
 			const planquadrat_t* plan = welt->access(pos + d);
 
@@ -1104,6 +1104,10 @@ class monument_placefinder_t : public placefinder_t {
 
 			const grund_t* gr = plan->get_kartenboden();
 			if(  ((1 << welt->get_climate( gr->get_pos().get_2d() )) & cl) == 0  ) {
+				return false;
+			}
+
+			if (((1 << welt->get_region(gr->get_pos().get_2d())) & allowed_regions) == 0) {
 				return false;
 			}
 
@@ -1176,12 +1180,16 @@ class townhall_placefinder_t : public placefinder_t {
 	public:
 		townhall_placefinder_t(karte_t* welt, uint8 dir_) : placefinder_t(welt), dir(dir_) {}
 
-		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl) const
+		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl, uint16 allowed_regions) const
 		{
 			const grund_t* gr = welt->lookup_kartenboden(pos + d);
 			if (gr == NULL  ||  gr->get_grund_hang() != slope_t::flat) return false;
 
 			if(  ((1 << welt->get_climate( gr->get_pos().get_2d() )) & cl) == 0  ) {
+				return false;
+			}
+
+			if (((1 << welt->get_region(gr->get_pos().get_2d())) & allowed_regions) == 0) {
 				return false;
 			}
 
@@ -3448,9 +3456,9 @@ class building_place_with_road_finder: public building_placefinder_t
 			return dist;
 		}
 
-		virtual bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const
+		virtual bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl, uint16 allowed_regions) const
 		{
-			if(  !building_placefinder_t::is_area_ok(pos, w, h, cl)  ) {
+			if(  !building_placefinder_t::is_area_ok(pos, w, h, cl, allowed_regions)  ) {
 				return false;
 			}
 			bool next_to_road = false;
@@ -3502,7 +3510,7 @@ class building_place_with_road_finder: public building_placefinder_t
 void stadt_t::check_bau_spezial(bool new_town)
 {
 	// tourist attraction buildings
-	const building_desc_t* desc = hausbauer_t::get_special(has_townhall ? bev : 0, building_desc_t::attraction_city, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos));
+	const building_desc_t* desc = hausbauer_t::get_special(has_townhall ? bev : 0, building_desc_t::attraction_city, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos), welt->get_region(pos));
 	if (desc != NULL) {
 		if (simrand(100, "void stadt_t::check_bau_spezial") < (uint)desc->get_distribution_weight()) {
 			// build was immer es ist
@@ -3511,7 +3519,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 			bool is_rotate = desc->get_all_layouts() > 1;
 			sint16 radius = koord_distance( get_rechtsunten(), get_linksoben() )/2 + 10;
 			// find place
-			koord best_pos = building_place_with_road_finder(welt, radius, big_city).find_place(pos, desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), &is_rotate);
+			koord best_pos = building_place_with_road_finder(welt, radius, big_city).find_place(pos, desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), desc->get_allowed_region_bits(), &is_rotate);
 
 			if (best_pos != koord::invalid) {
 				// then built it
@@ -3538,7 +3546,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 		if (desc) {
 			koord total_size = koord(2 + desc->get_x(), 2 + desc->get_y());
 			sint16 radius = koord_distance( get_rechtsunten(), get_linksoben() )/2 + 10;
-			koord best_pos(monument_placefinder_t(welt, radius).find_place(pos, total_size.x, total_size.y, desc->get_allowed_climate_bits()));
+			koord best_pos(monument_placefinder_t(welt, radius).find_place(pos, total_size.x, total_size.y, desc->get_allowed_climate_bits(), desc->get_allowed_region_bits()));
 
 			if (best_pos != koord::invalid) {
 				// check if borders around the monument are inside the map limits
@@ -3629,7 +3637,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 
 void stadt_t::check_bau_townhall(bool new_town)
 {
-	const building_desc_t* desc = hausbauer_t::get_special( bev, building_desc_t::townhall, welt->get_timeline_year_month(), bev == 0, welt->get_climate(pos) );
+	const building_desc_t* desc = hausbauer_t::get_special( bev, building_desc_t::townhall, welt->get_timeline_year_month(), bev == 0, welt->get_climate(pos), welt->get_region(pos) );
 	if(desc != NULL) {
 		grund_t* gr = welt->lookup_kartenboden(pos);
 		gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_obj());
@@ -3796,7 +3804,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 				road1.y = desc->get_y(layout);
 		}
 		if (neugruendung || umziehen) {
-			best_pos = townhall_placefinder_t(welt, dir).find_place(pos, desc->get_x(layout) + (dir & ribi_t::eastwest ? 1 : 0), desc->get_y(layout) + (dir & ribi_t::northsouth ? 1 : 0), desc->get_allowed_climate_bits());
+			best_pos = townhall_placefinder_t(welt, dir).find_place(pos, desc->get_x(layout) + (dir & ribi_t::eastwest ? 1 : 0), desc->get_y(layout) + (dir & ribi_t::northsouth ? 1 : 0), desc->get_allowed_climate_bits(), desc->get_allowed_region_bits());
 		}
 		// check, if the was something found
 		if(best_pos==koord::invalid) {
@@ -5563,14 +5571,22 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 	vector_tpl<koord>* result = new vector_tpl<koord>(sizes_list->get_count());
 
 	int cl = 0;
-	for (int i = 0; i < MAX_CLIMATES; i++) {
-		if (hausbauer_t::get_special(0, building_desc_t::townhall, welt->get_timeline_year_month(), false, (climate)i)) {
-			cl |= (1 << i);
+	uint16 regions_allowed = 0;
+	for (uint32 j = 0; j < 16; j++)
+	{
+		for (int i = 0; i < MAX_CLIMATES; i++)
+		{
+			if (hausbauer_t::get_special(0, building_desc_t::townhall, welt->get_timeline_year_month(), false, (climate)i, j))
+			{
+				cl |= (1 << i);
+				regions_allowed |= (1 << j); 
+			}
 		}
 	}
+
 	DBG_DEBUG("karte_t::init()", "get random places in climates %x", cl);
 	// search at least places which are 5x5 squares large
-	slist_tpl<koord>* list = welt->find_squares( 5, 5, (climate_bits)cl, old_x, old_y);
+	slist_tpl<koord>* list = welt->find_squares( 5, 5, (climate_bits)cl, regions_allowed, old_x, old_y);
 	DBG_DEBUG("karte_t::init()", "found %i places", list->get_count());
 	unsigned int weight_max;
 	// unsigned long here -- from weighted_vector_tpl.h(weight field type)
