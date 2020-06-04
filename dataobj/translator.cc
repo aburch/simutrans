@@ -377,7 +377,7 @@ void translator::init_custom_names(int lang)
 						}
 					}
 					const size_t l2 = strlen(s2);
-					char* const c = MALLOCN(char, l1 + l2 + 1);
+					char* const c = MALLOCN(char, l1 + l2 + 1); 
 					sprintf(c, "%s%s", s1, s2);
 					city_names_this_region.append(c);
 
