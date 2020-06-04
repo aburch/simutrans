@@ -4427,6 +4427,7 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 	// does the timeline allow this building?
 	const uint16 current_month = welt->get_timeline_year_month();
 	const climate cl = welt->get_climate_at_height(welt->max_hgt(k));
+	const uint8 region = welt->get_region(k); 
 
 	// Run through orthogonal neighbors (only) looking for which cluster to build
 	// This is a bitmap -- up to 32 clustering types are allowed.
@@ -4461,14 +4462,14 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 	const building_desc_t* h = NULL;
 
 	if (!worker_shortage && (sum_commercial > sum_industrial  &&  sum_commercial > sum_residential)) {
-		h = hausbauer_t::get_commercial(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
+		h = hausbauer_t::get_commercial(0, size_single, current_month, cl, region, new_town, neighbor_building_clusters);
 		if (h != NULL) {
 			want_to_have = building_desc_t::city_com;
 		}
 	}
 
 	if (!worker_shortage && (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_commercial)) {
-		h = hausbauer_t::get_industrial(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
+		h = hausbauer_t::get_industrial(0, size_single, current_month, cl, region, new_town, neighbor_building_clusters);
 		if (h != NULL) {
 			want_to_have = building_desc_t::city_ind;
 		}
@@ -4477,7 +4478,7 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 	if (h == NULL  &&  ((sum_residential > sum_industrial  &&  sum_residential > sum_commercial) || worker_shortage)) {
 		if (!job_shortage || worker_shortage)
 		{
-			h = hausbauer_t::get_residential(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
+			h = hausbauer_t::get_residential(0, size_single, current_month, cl, region, new_town, neighbor_building_clusters);
 		}
 		if (h != NULL) {
 			want_to_have = building_desc_t::city_res;
@@ -4555,6 +4556,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 	// does the timeline allow this building?
 	const uint16 current_month = welt->get_timeline_year_month();
 	const climate cl = welt->get_climate_at_height(gb->get_pos().z);
+	uint8 region = welt->get_region(gb->get_pos().get_2d()); 
 
 	// Run through orthogonal neighbors (only) looking for which cluster to build
 	// This is a bitmap -- up to 32 clustering types are allowed.
@@ -4606,7 +4608,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		// we must check, if we can really update to higher level ...
 		for(uint8 i=0; i<available_sizes.get_count(); i++) {
 			const koord dimension = available_sizes[(i+size_offset)%available_sizes.get_count()];
-			h = hausbauer_t::get_commercial(k, dimension, current_month, cl, false, neighbor_building_clusters);
+			h = hausbauer_t::get_commercial(k, dimension, current_month, cl, region, false, neighbor_building_clusters);
 			if(  h != NULL  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
 				want_to_have = building_desc_t::city_com;
 				sum = sum_commercial;
@@ -4621,7 +4623,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		// we must check, if we can really update to higher level ...
 		for(uint8 i=0; i<available_sizes.get_count(); i++) {
 			const koord dimension = available_sizes[(i+size_offset)%available_sizes.get_count()];
-			h = hausbauer_t::get_industrial(k, dimension, current_month, cl, false, neighbor_building_clusters);
+			h = hausbauer_t::get_industrial(k, dimension, current_month, cl, region, false, neighbor_building_clusters);
 			if(  h != NULL  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
 				want_to_have = building_desc_t::city_ind;
 				sum = sum_industrial;
@@ -4637,7 +4639,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		bool found = false;
 		for(uint8 i=0; i<available_sizes.get_count(); i++) {
 			const koord dimension = available_sizes[(i+size_offset)%available_sizes.get_count()];
-			h = hausbauer_t::get_residential(k, dimension, current_month, cl, false, neighbor_building_clusters);
+			h = hausbauer_t::get_residential(k, dimension, current_month, cl, region, false, neighbor_building_clusters);
 			if(  h != NULL  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
 				want_to_have = building_desc_t::city_res;
 				sum = sum_residential;
