@@ -1846,7 +1846,41 @@ void settings_t::rdwr(loadsave_t *file)
 		{
 			tolerance_modifier_percentage = 100;
 		}
+
+		if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 27))
+		{
+			file->rdwr_bool(absolute_regions);
+			if (file->is_saving())
+			{
+				uint32 count = regions.get_count();
+				file->rdwr_long(count);
+
+				FOR(vector_tpl<region_definition_t>, region, regions)
+				{
+					region.top_left.rdwr(file); 
+					region.bottom_right.rdwr(file);
+					file->rdwr_string(region.name); 
+				}
+			}
+			else // Loading
+			{
+				uint32 count = 0;
+				file->rdwr_long(count);
+
+				regions.clear();
+				for (uint32 i = 0; i < count; i++)
+				{
+					region_definition_t r;
+					r.top_left.rdwr(file);
+					r.bottom_right.rdwr(file);
+					file->rdwr_string(r.name);
+					regions.append(r); 
+				}
+			}
+		}
 	}
+
+
 
 #ifdef DEBUG_SIMRAND_CALLS
 	char buf[256];
@@ -1860,7 +1894,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 {
 	tabfileobj_t contents;
 
-	simuconf.read(contents );
+	simuconf.read(contents);
 
 	// Meta-options.
 	// Only the version in default_einstellungen is meaningful.  These determine whether savegames
@@ -2770,6 +2804,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	// Read region data
 	regions.clear();
+	absolute_regions = false;
 	for (int i = 0; i < 255; i++) // NOTE: We can define up to 254 regions. The number 255 is reserved for indicating no region in some contexts.
 	{
 		char name[128];
@@ -2835,6 +2870,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		// Hard coded values override percentages where specified
 		if (contents.get_int(upper_left, 65536) < 65536 && contents.get_int(lower_right, 65536) < 65536)
 		{
+			absolute_regions = true;
 			ul = contents.get_ints(upper_left);
 			lr = contents.get_ints(lower_right);
 
@@ -2872,7 +2908,6 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 		regions.append(r); 
 	}
-
 
 	/*
 	 * Selection of savegame format through inifile
@@ -2947,6 +2982,82 @@ int settings_t::get_name_language_id() const
 		lang = translator::get_language();
 	}
 	return lang;
+}
+
+void settings_t::set_groesse(sint32 x, sint32 y, bool preserve_regions)
+{
+	sint32 old_x = size_x;
+	sint32 old_y = size_y;
+
+	size_x = x;
+	size_y = y;
+	if (!preserve_regions)
+	{
+		reset_regions(old_x, old_y);
+	}
+}
+
+void settings_t::set_size_x(sint32 g)
+{
+	sint32 old_x = size_x;
+	size_x = g;
+
+	reset_regions(old_x, size_y);
+}
+
+void settings_t::set_size_y(sint32 g)
+{
+	sint32 old_y = size_y;
+	size_y = g;
+
+	reset_regions(size_x, old_y);
+}
+
+void settings_t::reset_regions(sint32 old_x, sint32 old_y)
+{
+	if (absolute_regions || (env_t::networkmode && !env_t::server))
+	{
+		return;
+	}
+
+	// Necessary when changing the map size unless regions are specified in absolute
+	// rather than relative terms in ther relevant simuconf.tab
+	vector_tpl<region_definition_t> temp_regions;
+	FOR(vector_tpl<region_definition_t>, region, regions)
+	{
+		sint32 old_percent_x = (region.top_left.x * 100u) / old_x;
+		sint32 old_percent_y = (region.top_left.y * 100u) / old_y;
+		region.top_left.x = (size_x * old_percent_x) / 100u;
+		region.top_left.y = (size_y * old_percent_y) / 100u;
+
+		old_percent_x = (region.bottom_right.x * 100u) / old_x;
+		old_percent_y = (region.bottom_right.y * 100u) / old_y;
+		region.bottom_right.x = (size_x * old_percent_x) / 100u;
+		region.bottom_right.y = (size_y * old_percent_y) / 100u;
+		temp_regions.append(region);
+	}
+
+	regions.clear();
+	FOR(vector_tpl<region_definition_t>, region, temp_regions)
+	{
+		regions.append(region); 
+	}
+}
+
+void settings_t::rotate_regions(sint16 y_size)
+{
+	vector_tpl<region_definition_t> temp_regions;
+	FOR(vector_tpl<region_definition_t>, region, regions)
+	{
+		region.top_left.rotate90(y_size);
+		region.bottom_right.rotate90(y_size);
+	}
+
+	regions.clear();
+	FOR(vector_tpl<region_definition_t>, region, temp_regions)
+	{
+		regions.append(region);
+	}
 }
 
 
