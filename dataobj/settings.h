@@ -13,6 +13,7 @@
 #include "../simunits.h"
 #include "livery_scheme.h"
 #include "../tpl/piecewise_linear_tpl.h" // for various revenue tables
+#include "../dataobj/koord.h"
 
 /**
  * Game settings
@@ -33,7 +34,12 @@ struct road_timeline_t
 	uint16 intro;
 	uint16 retire;
 };
-
+struct region_definition_t
+{
+	std::string name;
+	koord top_left = koord::invalid;
+	koord bottom_right = koord::invalid;
+};
 
 template <class T>
 class vector_with_ptr_ownership_tpl : public vector_tpl<T*>
@@ -261,7 +267,14 @@ private:
 	// true, if the different capacities (passengers/mail/freight) are counted separately
 	bool separate_halt_capacities;
 
+	/// The set of livery schemes
 	vector_with_ptr_ownership_tpl<class livery_scheme_t> livery_schemes;
+
+public:
+	/// The set of all regions
+	vector_tpl<region_definition_t> regions;
+
+private:
 
 	// Whether passengers might walk between stops en route.
 	// @author: jamespetts, August 2011
@@ -343,6 +356,8 @@ private:
 	* This only affects visiting passengers.
 	*/
 	uint32 tolerance_modifier_percentage = 100;
+
+	void initialise_regions();
 
 public:
 	//Cornering settings

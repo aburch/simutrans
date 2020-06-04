@@ -2768,6 +2768,112 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		}
 	}
 
+	// Read region data
+	regions.clear();
+	for (int i = 0; i < 255; i++) // NOTE: We can define up to 254 regions. The number 255 is reserved for indicating no region in some contexts.
+	{
+		char name[128];
+		sprintf(name, "region_name[%i]", i);
+
+		const char* region_name = ltrim(contents.get(name));
+		if (region_name[0] == '\0')
+		{
+			break;
+		}
+
+		char upper_left[128];
+		sprintf(upper_left, "region_upper_left_percent[%i]", i);
+
+		char lower_right[128];
+		sprintf(lower_right, "region_lower_right_percent[%i]", i);
+
+		int* ul = contents.get_ints(upper_left);
+		int* lr = contents.get_ints(lower_right);
+
+		uint32 x_percent;
+		uint32 y_percent;
+		region_definition_t r;
+
+		if ((ul[0] & 1) == 1)
+		{
+			dbg->message("void settings_t::parse_simuconf(", "Ill formed line in config/simuconf.tab.\nWill use default value. Format is region_upper_left[percent]=x,y");
+			break;
+		}
+		for (int i = 1; i < ul[0]; i += 2)
+		{
+			x_percent = (uint32)ul[i];
+			y_percent = (uint32)ul[i+1];
+		}
+
+		uint32 x = x_percent > 0 ? ((uint32)size_x * x_percent) / 100u : 0;
+		uint32 y = y_percent > 0 ? ((uint32)size_y * y_percent) / 100u : 0;
+
+		r.top_left = koord(x, y);
+
+		if ((lr[0] & 1) == 1)
+		{
+			dbg->message("void settings_t::parse_simuconf(", "Ill formed line in config/simuconf.tab.\nWill use default value. Format is region_upper_left[percent]=x,y");
+			break;
+		}
+		for (int i = 1; i < lr[0]; i += 2)
+		{
+			x_percent = (uint32)lr[i];
+			y_percent = (uint32)lr[i + 1];
+		}
+
+		x = x_percent > 0 ? ((uint32)size_x * x_percent) / 100u : 0;
+		y = y_percent > 0 ? ((uint32)size_y * y_percent) / 100u : 0;
+
+		r.bottom_right = koord(x, y);
+
+		delete[] ul;
+		delete[] lr;
+
+		sprintf(upper_left, "region_upper_left[%i]", i);
+		sprintf(lower_right, "region_lower_right[%i]", i);
+
+		// Hard coded values override percentages where specified
+		if (contents.get_int(upper_left, 65536) < 65536 && contents.get_int(lower_right, 65536) < 65536)
+		{
+			ul = contents.get_ints(upper_left);
+			lr = contents.get_ints(lower_right);
+
+			if ((ul[0] & 1) == 1)
+			{
+				dbg->message("void settings_t::parse_simuconf(", "Ill formed line in config/simuconf.tab.\nWill use default value. Format is region_upper_left[percent]=x,y");
+				break;
+			}
+			for (int i = 1; i < ul[0]; i += 2)
+			{
+				x = (uint32)ul[i];
+				y = (uint32)ul[i + 1];
+			}
+
+			r.top_left = koord(x, y);
+
+			if ((lr[0] & 1) == 1)
+			{
+				dbg->message("void settings_t::parse_simuconf(", "Ill formed line in config/simuconf.tab.\nWill use default value. Format is region_upper_left[percent]=x,y");
+				break;
+			}
+			for (int i = 1; i < lr[0]; i += 2)
+			{
+				x = (uint32)lr[i];
+				y = (uint32)lr[i + 1];
+			}
+
+			r.bottom_right = koord(x, y);
+
+			delete[] ul;
+			delete[] lr;
+		}
+
+		r.name = region_name;
+
+		regions.append(r); 
+	}
+
+
 	/*
 	 * Selection of savegame format through inifile
 	 */

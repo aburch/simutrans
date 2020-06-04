@@ -11753,3 +11753,37 @@ bool karte_t::check_neighbouring_objects(koord pos)
 	}
 	return true;
 }
+
+uint8 karte_t::get_region(koord k) const
+{
+	uint8 region_number = 0;
+
+	if (settings.regions.empty())
+	{
+		return 0;
+	}
+
+	uint32 current_region = 0;
+	FOR(vector_tpl<region_definition_t>, region, settings.regions)
+	{
+		if (k.x >= region.top_left.x && k.x < region.bottom_right.x && k.y >= region.top_left.y && k.y < region.bottom_right.y)
+		{
+			region_number = current_region;
+		}
+		current_region++;
+	}
+
+	return region_number;
+}
+
+std::string karte_t::get_region_name(koord k) const
+{
+	uint8 region_number = get_region(k);
+
+	if (settings.regions.empty())
+	{
+		return std::string("");
+	}
+	
+	return settings.regions[region_number].name;
+}
