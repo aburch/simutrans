@@ -1703,7 +1703,7 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	char                          const* n       = "simcity";
 	weighted_vector_tpl<stadt_t*> const& staedte = welt->get_cities();
 
-	const vector_tpl<char*>& city_names = translator::get_city_name_list();
+	const vector_tpl<char*>& city_names = translator::get_city_name_list(welt->get_region(pos));
 
 	// make sure we do only ONE random call regardless of how many names are available (to avoid desyncs in network games)
 	if(  const uint32 count = city_names.get_count()  ) {

@@ -1103,7 +1103,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 
 	// If we cannot use a standard name, use a name from the list of street names
 	if (inside || suburb) {
-		const vector_tpl<char*>& street_names(translator::get_street_name_list());
+		const vector_tpl<char*>& street_names(translator::get_street_name_list(welt->get_region(k)));
 		// make sure we do only ONE random call regardless of how many names are available (to avoid desyncs in network games)
 		if (const uint32 count = street_names.get_count()) {
 			uint32 idx = simrand(count, "char* haltestelle_t::create_name(koord const k, char const* const typ)");
