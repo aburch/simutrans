@@ -646,6 +646,13 @@ void grund_t::info(cbuffer_t& buf) const
 		}
 	}
 
+	// Region name
+	std::string region = welt->get_region_name(pos.get_2d());
+	if (!region.empty())
+	{
+		buf.printf("%s\n\n", translator::translate(region.c_str()));
+	}
+
 	const char *n1 = translator::translate(get_name());
 	const char *n2 = translator::translate(ground_desc_t::get_climate_name_from_bit(welt->get_climate(get_pos().get_2d())));
 

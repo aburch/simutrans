@@ -918,7 +918,7 @@ private:
 	// >0: This is the number of parallel operations to use.
 	sint32 parallel_operations;
 
-	// A helper method for use in init/new month
+	/// A helper method for use in init/new month
 	void recalc_passenger_destination_weights();
 
 #ifdef MULTI_THREAD
@@ -1601,6 +1601,12 @@ public:
 	* the world. Used when deleting cities.
 	*/
 	void remove_all_building_references_to_city(stadt_t* city);
+
+	/// Returns the region of the selected co-ordinate.
+	uint8 get_region(koord k) const;
+
+	/// Returns the region name of the selected co-ordinate
+	std::string get_region_name(koord k) const;
 
 private:
 	/*
@@ -2541,14 +2547,14 @@ public:
 	 * @return true, if square in place (i,j) with size w, h is constructible.
 	 * @author Hj. Malthaner
 	 */
-	bool square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_bits cl) const;
+	bool square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_bits cl, uint16 regions_allowed) const;
 
 	/**
 	 * @return A list of all buildable squares with size w, h.
 	 * @note Only used for town creation at the moment.
 	 * @author Hj. Malthaner
 	 */
-	slist_tpl<koord> * find_squares(sint16 w, sint16 h, climate_bits cl, sint16 old_x, sint16 old_y) const;
+	slist_tpl<koord> * find_squares(sint16 w, sint16 h, climate_bits cl, uint16 regions_allowed, sint16 old_x, sint16 old_y) const;
 
 	/**
 	 * Plays the sound when the position is inside the visible region.

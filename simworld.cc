@@ -7987,7 +7987,7 @@ bool karte_t::is_water(koord k, koord dim) const
 }
 
 
-bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_bits cl) const
+bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_bits cl, uint16 regions_allowed) const
 {
 	if(k.x < 0  ||  k.y < 0  ||  k.x+w > get_size().x || k.y+h > get_size().y) {
 		return false;
@@ -7997,29 +7997,45 @@ bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_b
 	const sint16 platz_h = gr->get_grund_hang() ? max_hgt(k) : gr->get_hoehe();	// remember the max height of the first tile
 
 	koord k_check;
-	for(k_check.y=k.y+h-1; k_check.y>=k.y; k_check.y--) {
-		for(k_check.x=k.x; k_check.x<k.x+w; k_check.x++) {
+	for(k_check.y=k.y+h-1; k_check.y>=k.y; k_check.y--)
+	{
+		for(k_check.x=k.x; k_check.x<k.x+w; k_check.x++)
+		{
 			const grund_t *gr = lookup_kartenboden(k_check);
+
+			uint8 test_region = get_region(k_check);
+
+			if ((regions_allowed & (1 << test_region)) == 0)
+			{
+				return false;
+			}
 
 			// we can built, if: max height all the same, everything removable and no buildings there
 			slope_t::type slope = gr->get_grund_hang();
 			sint8 max_height = gr->get_hoehe() + slope_t::max_diff(slope);
+
 			climate test_climate = get_climate(k_check);
-			if(  cl & (1 << water_climate)  &&  test_climate != water_climate  ) {
+			if(  cl & (1 << water_climate)  &&  test_climate != water_climate  )
+			{
 				bool neighbour_water = false;
-				for(int i=0; i<8  &&  !neighbour_water; i++) {
-					if(  is_within_limits(k_check + koord::neighbours[i])  &&  get_climate( k_check + koord::neighbours[i] ) == water_climate  ) {
+				for(int i=0; i<8  &&  !neighbour_water; i++)
+				{
+					if(  is_within_limits(k_check + koord::neighbours[i])  &&  get_climate( k_check + koord::neighbours[i] ) == water_climate  )
+					{
 						neighbour_water = true;
 					}
 				}
-				if(  neighbour_water  ) {
+				if(  neighbour_water  )
+				{
 					test_climate = water_climate;
 				}
 			}
 			if(  platz_h != max_height  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||
 			     (cl & (1 << test_climate)) == 0  ||  ( slope && (lookup( gr->get_pos()+koord3d(0,0,1) ) ||
-			     (slope_t::max_diff(slope)==2 && lookup( gr->get_pos()+koord3d(0,0,2) )) ))  ) {
-				if(  last_y  ) {
+			     (slope_t::max_diff(slope)==2 && lookup( gr->get_pos()+koord3d(0,0,2) )) ))  )
+			{
+				if(  last_y  )
+				{
 					*last_y = k_check.y;
 				}
 				return false;
@@ -8030,7 +8046,7 @@ bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_b
 }
 
 
-slist_tpl<koord> *karte_t::find_squares(sint16 w, sint16 h, climate_bits cl, sint16 old_x, sint16 old_y) const
+slist_tpl<koord> *karte_t::find_squares(sint16 w, sint16 h, climate_bits cl, uint16 regions_allowed, sint16 old_x, sint16 old_y) const
 {
 	slist_tpl<koord> * list = new slist_tpl<koord>();
 	koord start;
@@ -8039,7 +8055,7 @@ slist_tpl<koord> *karte_t::find_squares(sint16 w, sint16 h, climate_bits cl, sin
 DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_size().x,get_size().y );
 	for(start.x=0; start.x<get_size().x-w; start.x++) {
 		for(start.y=start.x<old_x?old_y:0; start.y<get_size().y-h; start.y++) {
-			if(square_is_free(start, w, h, &last_y, cl)) {
+			if(square_is_free(start, w, h, &last_y, cl, regions_allowed)) {
 				list->insert(start);
 			}
 			else {
@@ -11752,4 +11768,38 @@ bool karte_t::check_neighbouring_objects(koord pos)
 		}
 	}
 	return true;
+}
+
+uint8 karte_t::get_region(koord k) const
+{
+	uint8 region_number = 0;
+
+	if (settings.regions.empty())
+	{
+		return 0;
+	}
+
+	uint32 current_region = 0;
+	FOR(vector_tpl<region_definition_t>, region, settings.regions)
+	{
+		if (k.x >= region.top_left.x && k.x < region.bottom_right.x && k.y >= region.top_left.y && k.y < region.bottom_right.y)
+		{
+			region_number = current_region;
+		}
+		current_region++;
+	}
+
+	return region_number;
+}
+
+std::string karte_t::get_region_name(koord k) const
+{
+	uint8 region_number = get_region(k);
+
+	if (settings.regions.empty())
+	{
+		return std::string("");
+	}
+	
+	return settings.regions[region_number].name;
 }
