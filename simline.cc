@@ -725,7 +725,7 @@ void simline_t::recalc_status()
 		state |= line_no_convoys;
 		withdraw = false;
 	}
-	if(financial_history[0][LINE_PROFIT]<0) 
+	if(financial_history[0][LINE_PROFIT]<0 && financial_history[1][LINE_PROFIT]<0) 
 	{
 		// Loss-making
 		state_color = MONEY_MINUS;
