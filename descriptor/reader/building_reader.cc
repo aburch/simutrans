@@ -276,7 +276,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.y = decode_uint16(p);
 		desc->layouts   = decode_uint8(p);
 		desc->allowed_climates = (climate_bits)decode_uint16(p);
-		if (extended_version >= 4)
+		if (extended_version >= 5)
 		{
 			desc->allowed_regions = decode_uint16(p); 
 		}
