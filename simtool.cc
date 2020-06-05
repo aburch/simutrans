@@ -6277,12 +6277,12 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 	// check funds
 	sint64 workcost = -welt->scale_with_month_length(halt->calc_maintenance() * welt->get_settings().cst_make_public_months);
 
-	// check waycost and soem forbidden cases too
+	// check waycost and some forbidden cases too
 	FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
 		// make way public if any suitable
 		for(  int j=0;  j<2;  j++  ) {
 			if(  weg_t *w=i.grund->get_weg_nr(0)  ) {
-				if(  w->get_owner() != welt->get_public_player()  ) {
+				if(  player_t::check_owner( player, w->get_owner() )  &&  w->get_owner()  ) {
 					// no public ways?
 					if(  welt->get_settings().get_disable_make_way_public()  ) {
 						return NOTICE_DISABLED_PUBLIC_WAY;
