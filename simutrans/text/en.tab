@@ -1435,6 +1435,97 @@ Caer
 Tar
 #
 # Max: 400 (hex)
+#
+#
+# Region 3: Cambria
+#
+%0_CITY_SYLL[3]
+Tre
+%1_CITY_SYLL[3]
+Aber
+%2_CITY_SYLL[3]
+Porth
+%3_CITY_SYLL[3]
+Pen-y-
+%4_CITY_SYLL[3]
+Pen
+%5_CITY_SYLL[3]
+Llan
+%6_CITY_SYLL[3]
+Maes
+%7_CITY_SYLL[3]
+Gor
+%8_CITY_SYLL[3]
+Kid
+%9_CITY_SYLL[3]
+Te
+%A_CITY_SYLL[3]
+Caer
+%B_CITY_SYLL[3]
+Ponty
+%C_CITY_SYLL[3]
+Bryn
+%D_CITY_SYLL[3]
+Cwm
+%E_CITY_SYLL[3]
+Ystra
+%F_CITY_SYLL[3]
+Glam
+%10_CITY_SYLL[3]
+Moyl
+%11_CITY_SYLL[3]
+Moel
+%12_CITY_SYLL[3]
+Blaen
+%13_CITY_SYLL[3]
+Nar
+%14_CITY_SYLL[3]
+Nor
+%15_CITY_SYLL[3]
+Fas
+%16_CITY_SYLL[3]
+Borth
+%17_CITY_SYLL[3]
+Gog
+%18_CITY_SYLL[3]
+Dwy
+%19_CITY_SYLL[3]
+Col
+%1A_CITY_SYLL[3]
+Hen
+%1B_CITY_SYLL[3]
+Bod
+%1C_CITY_SYLL[3]
+Groes
+%1D_CITY_SYLL[3]
+Panty
+%1E_CITY_SYLL[3]
+Tyn
+%1F_CITY_SYLL[3]
+Laugh
+%20_CITY_SYLL[3]
+Beth
+%21_CITY_SYLL[3]
+Bro
+%22_CITY_SYLL[3]
+Tyl
+%23_CITY_SYLL[3]
+Pan
+%24_CITY_SYLL[3]
+Dol
+%25_CITY_SYLL[3]
+Cyn
+%26_CITY_SYLL[3]
+Llan
+%27_CITY_SYLL[3]
+Tro
+%28_CITY_SYLL[3]
+Tal
+%29_CITY_SYLL[3]
+Hen
+#
+# Max: 400 (hex)
+#
 # Town name end syllables.
 # There can be up to 1024 of these.
 # They must be specified in hexadecimal
@@ -1786,7 +1877,6 @@ with
 #
 # Max: 200 (hex)
 #
-#
 # Region 2: Caledonia
 # 
 &1_CITY_SYLL[2]
@@ -1902,6 +1992,126 @@ gow
 #
 # Max: 200 (hex)
 #
+# Region 3: Cambria
+# 
+&1_CITY_SYLL[3]
+-y-Coed
+&2_CITY_SYLL[3]
+-y-Bryn
+&3_CITY_SYLL[3]
+-y-Fan
+&4_CITY_SYLL[3]
+waun
+&5_CITY_SYLL[3]
+gwyn
+&6_CITY_SYLL[3]
+-y-Bont
+&7_CITY_SYLL[3]
+owen
+&8_CITY_SYLL[3]
+lliw
+&9_CITY_SYLL[3]
+gwyn
+&A_CITY_SYLL[3]
+arthen
+&B_CITY_SYLL[3]
+rhyd
+&C_CITY_SYLL[3]
+fawr
+&D_CITY_SYLL[3]
+parc
+&E_CITY_SYLL[3]
+wyn
+&F_CITY_SYLL[3]
+-y-bwlch
+&10_CITY_SYLL[3]
+-y-Groes
+&11_CITY_SYLL[3]
+fod
+&12_CITY_SYLL[3]
+lech
+&13_CITY_SYLL[3]
+ycwm
+&14_CITY_SYLL[3]
+gaer
+&15_CITY_SYLL[3]
+lliw
+&16_CITY_SYLL[3]
+nydd
+&17_CITY_SYLL[3]
+avon
+&18_CITY_SYLL[3]
+nant
+&19_CITY_SYLL[3]
+dulais
+&1A_CITY_SYLL[3]
+mawr
+&1B_CITY_SYLL[3]
+teg
+&1C_CITY_SYLL[3]
+gwynfi
+&1D_CITY_SYLL[3]
+bach
+&1E_CITY_SYLL[3]
+coed
+&1F_CITY_SYLL[3]
+cawl
+&20_CITY_SYLL[3]
+arth
+&21_CITY_SYLL[3]
+banog
+&22_CITY_SYLL[3]
+orchy
+&23_CITY_SYLL[3]
+ryd
+&24_CITY_SYLL[3]
+dare
+&25_CITY_SYLL[3]
+bran
+&26_CITY_SYLL[3]
+gare
+&27_CITY_SYLL[3]
+-y-clawdd
+&28_CITY_SYLL[3]
+clawdd
+&29_CITY_SYLL[3]
+ellen
+&2A_CITY_SYLL[3]
+elli
+&2B_CITY_SYLL[3]
+goch
+&2C_CITY_SYLL[3]
+fan
+&2C_CITY_SYLL[3]
+og
+&2D_CITY_SYLL[3]
+aber
+&2E_CITY_SYLL[3]
+llwyd
+&2F_CITY_SYLL[3]
+fair
+&30_CITY_SYLL[3]
+-y-Gest
+&31_CITY_SYLL[3]
+madog
+&32_CITY_SYLL[3]
+ffordd
+&33_CITY_SYLL[3]
+nor
+&34_CITY_SYLL[3]
+wydd
+&35_CITY_SYLL[3]
+for
+&36_CITY_SYLL[3]
+rug
+&37_CITY_SYLL[3]
+-y-maen
+&38_CITY_SYLL[3]
+-y-foel
+&39_CITY_SYLL[3]
+carreg
+&3A_CITY_SYLL[3]
+ann
 # Town name prefixes.
 # There can be up to 256 of these.
 # They must be specified in hexadecimal
@@ -2065,7 +2275,7 @@ Long
 &C_CITY_PREFIX[1]
 Kirk 
 &D_CITY_PREFIX[1]
-New   
+New 
 #
 # Max: 50 (hex)
 #
@@ -2099,6 +2309,23 @@ Kirk
 Muir of 
 &E_CITY_PREFIX[2]
 Nether 
+#
+# Max: 50 (hex)
+#
+# Region 3: Cambria
+#
+&1_CITY_PREFIX[3]
+Cefn 
+&2_CITY_PREFIX[3]
+Castell 
+&3_CITY_PREFIX[3]
+Ty 
+&4_CITY_PREFIX[3]
+Cwm 
+&5_CITY_PREFIX[3]
+Ystrad 
+&6_CITY_PREFIX[3]
+Capel 
 #
 # Max: 50 (hex)
 #
@@ -2297,6 +2524,29 @@ er's Lock
 green
 &6_CITY_SUFFIX[2]
  Bridge
+# 
+# Max: 50 (hex)
+#
+# Region 3: Cambria
+#
+&1_CITY_SUFFIX[3]
+'r Cwm
+&2_CITY_SUFFIX[3]
+'r-Fan
+&3_CITY_SUFFIX[3]
+-ddu
+&4_CITY_SUFFIX[3]
+ Mawr
+&5_CITY_SUFFIX[3]
+-y-Coch
+&6_CITY_SUFFIX[3]
+-y-garth
+&7_CITY_SUFFIX[3]
+-fawr
+&8_CITY_SUFFIX[3]
+ Wells
+&9_CITY_SUFFIX[3]
+ Coch
 # 
 # Max: 50 (hex)
 #
