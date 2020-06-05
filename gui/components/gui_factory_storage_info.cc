@@ -100,7 +100,7 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 
 				// [storage capacity]
 				buf.clear();
-				buf.printf("%u/%u%s,", stock_quantity, storage_capacity, translator::translate(goods.get_typ()->get_mass()));
+				buf.printf("%u/%u,", stock_quantity, storage_capacity);
 				left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				left += D_H_SPACE;
 
@@ -113,12 +113,12 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 						left += 14;
 					}
 					buf.append(goods.get_in_transit(), 0);
-					left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, in_transit_over_storage ? COL_ORANGE_RED : SYSCOL_TEXT, true);
+					left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					buf.clear();
 					if (max_intransit_percentage) {
 						buf.printf("/%i", max_transit);
 					}
-					buf.printf("%s, ", translator::translate(goods.get_typ()->get_mass()));
+					buf.append(", ");
 					left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					left += D_H_SPACE;
 				}
@@ -187,7 +187,7 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 
 				// [storage capacity]
 				buf.clear();
-				buf.printf("%u/%u%s,", stock_quantity,	storage_capacity, translator::translate(goods.get_typ()->get_mass()));
+				buf.printf("%u/%u,", stock_quantity,	storage_capacity);
 				left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				left += D_H_SPACE;
 
