@@ -231,7 +231,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&bt_show_journey_time);
 
 	// lower left corner: halt list of selected line
-	scrolly_haltestellen.set_pos(scr_coord(D_MARGIN_LEFT, bt_y + D_BUTTON_HEIGHT+ D_V_SPACE));
+	scrolly_haltestellen.set_pos(scr_coord(0, bt_y + D_BUTTON_HEIGHT+ D_V_SPACE));
 	scrolly_haltestellen.set_show_scroll_x(true);
 	scrolly_haltestellen.set_scroll_amount_y(28);
 	scrolly_haltestellen.set_visible(false);
@@ -251,7 +251,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&filled_bar);
 
 	// convoi list
-	scrolly_convois.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, bt_y + D_BUTTON_HEIGHT+ D_V_SPACE + 2*LINESPACE));
+	scrolly_convois.set_pos(scr_coord(RIGHT_COLUMN_OFFSET-D_H_SPACE, bt_y + D_BUTTON_HEIGHT+ D_V_SPACE + 2*LINESPACE));
 	scrolly_convois.set_show_scroll_x(true);
 	scrolly_convois.set_scroll_amount_y(40);
 	scrolly_convois.set_visible(false);
@@ -592,8 +592,8 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 	int button_per_row = max(1, (rest_width+D_H_SPACE)/(D_BUTTON_WIDTH+D_H_SPACE));
 	int button_rows = MAX_LINE_COST/button_per_row + ((MAX_LINE_COST%button_per_row)!=0);
 
-	scrolly_convois.set_size( scr_size(rest_width, get_client_windowsize().h-scrolly_convois.get_pos().y) );
-	scrolly_haltestellen.set_size( scr_size(RIGHT_COLUMN_OFFSET-2*D_V_SPACE, get_client_windowsize().h-scrolly_haltestellen.get_pos().y) );
+	scrolly_convois.set_size( scr_size(rest_width+D_MARGIN_RIGHT, get_client_windowsize().h-scrolly_convois.get_pos().y) );
+	scrolly_haltestellen.set_size( scr_size(RIGHT_COLUMN_OFFSET, get_client_windowsize().h-scrolly_haltestellen.get_pos().y) );
 
 	chart.set_size( scr_size( rest_width, SCL_HEIGHT-D_MARGIN_TOP-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE)) ) );
 	inp_name.set_size(scr_size(rest_width, D_EDIT_HEIGHT));

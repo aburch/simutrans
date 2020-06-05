@@ -2463,30 +2463,32 @@ void haltestelle_t::change_owner( player_t *player, bool halt_only )
 		}
 
 		// change way ownership
+		bool has_been_announced = false;
 		for(  int j=0;  j<2;  j++  ) {
 			if(  weg_t *w=gr->get_weg_nr(j)  ) {
 				// change ownership of way...
 				player_t *wplayer = w->get_owner();
-				if(  player!=wplayer  ) {
-					w->set_owner( welt->get_public_player() );
+				if(  owner==wplayer  ) {
+					w->set_owner( player );
 					w->set_flag(obj_t::dirty);
 					sint32 cost = w->get_desc()->get_maintenance();
 					// of tunnel...
 					if(  tunnel_t *t=gr->find<tunnel_t>()  ) {
-						t->set_owner( welt->get_public_player() );
+						t->set_owner( player );
 						t->set_flag(obj_t::dirty);
 						cost = t->get_desc()->get_maintenance();
 					}
 					waytype_t const financetype = w->get_desc()->get_finance_waytype();
 					player_t::add_maintenance( wplayer, -cost, financetype);
-					player_t::add_maintenance( welt->get_public_player(), cost, financetype);
+					player_t::add_maintenance( player, cost, financetype);
 					// multiplayer notification message
-					if(  player != welt->get_public_player()  &&  env_t::networkmode  ) {
+					if(  owner != welt->get_public_player()  &&  env_t::networkmode  &&  !has_been_announced  ) {
 						cbuffer_t buf;
 						buf.printf( translator::translate("(%s) now public way."), w->get_pos().get_str() );
 						welt->get_message()->add_message( buf, w->get_pos().get_2d(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY );
+						has_been_announced = true; // one message is enough
 					}
-					cost = -welt->scale_with_month_length(cost * welt->get_settings().cst_make_public_months);
+					cost = -welt->scale_with_month_length(cost * (player==welt->get_public_player())*welt->get_settings().cst_make_public_months );
 					player_t::book_construction_costs(wplayer, cost, koord::invalid, financetype);
 				}
 			}
@@ -2496,7 +2498,7 @@ void haltestelle_t::change_owner( player_t *player, bool halt_only )
 		for(  uint8 i = 1;  i < gr->get_top();  i++  ) {
 			if(  wayobj_t *const wo = obj_cast<wayobj_t>(gr->obj_bei(i))  ) {
 				player_t *woplayer = wo->get_owner();
-				if(  player!=woplayer  ) {
+				if(  owner==woplayer  ) {
 					sint32 const cost = wo->get_desc()->get_maintenance();
 					// change ownership
 					wo->set_owner( player );
