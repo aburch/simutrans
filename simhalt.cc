@@ -2425,6 +2425,7 @@ void haltestelle_t::change_owner( player_t *player, bool halt_only )
 	}
 	
 	// change owner of halt
+	player_t* const prev_owner = owner;
 	owner = player;
 	rebuild_connections();
 	rebuild_linked_connections();
@@ -2468,7 +2469,7 @@ void haltestelle_t::change_owner( player_t *player, bool halt_only )
 			if(  weg_t *w=gr->get_weg_nr(j)  ) {
 				// change ownership of way...
 				player_t *wplayer = w->get_owner();
-				if(  owner==wplayer  ) {
+				if(  prev_owner==wplayer  ) {
 					w->set_owner( player );
 					w->set_flag(obj_t::dirty);
 					sint32 cost = w->get_desc()->get_maintenance();
@@ -2482,7 +2483,7 @@ void haltestelle_t::change_owner( player_t *player, bool halt_only )
 					player_t::add_maintenance( wplayer, -cost, financetype);
 					player_t::add_maintenance( player, cost, financetype);
 					// multiplayer notification message
-					if(  owner != welt->get_public_player()  &&  env_t::networkmode  &&  !has_been_announced  ) {
+					if(  prev_owner != welt->get_public_player()  &&  env_t::networkmode  &&  !has_been_announced  ) {
 						cbuffer_t buf;
 						buf.printf( translator::translate("(%s) now public way."), w->get_pos().get_str() );
 						welt->get_message()->add_message( buf, w->get_pos().get_2d(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY );
@@ -2498,7 +2499,7 @@ void haltestelle_t::change_owner( player_t *player, bool halt_only )
 		for(  uint8 i = 1;  i < gr->get_top();  i++  ) {
 			if(  wayobj_t *const wo = obj_cast<wayobj_t>(gr->obj_bei(i))  ) {
 				player_t *woplayer = wo->get_owner();
-				if(  owner==woplayer  ) {
+				if(  prev_owner==woplayer  ) {
 					sint32 const cost = wo->get_desc()->get_maintenance();
 					// change ownership
 					wo->set_owner( player );
