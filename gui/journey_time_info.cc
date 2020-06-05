@@ -84,135 +84,6 @@ void copy_stations_to_clipboard(schedule_t* schedule, player_t* player, bool nam
   }
 }
 
-const char* oudia_syubetsu_text = "Ressyasyubetsu.\n\
-Syubetsumei=普通\n\
-JikokuhyouMojiColor=00000000\n\
-JikokuhyouFontIndex=0\n\
-DiagramSenColor=00000000\n\
-DiagramSenStyle=SenStyle_Jissen\n\
-StopMarkDrawType=EStopMarkDrawType_DrawOnStop\n\
-.\n\
-Dia.\n\
-DiaName=ノーマル\n\
-Kudari.\n\
-Ressya.\n\
-Houkou=Kudari\n\
-Syubetsu=0\n\
-EkiJikoku=";
-
-const char* oudia_footer = ".\n\
-.\n\
-Nobori.\n\
-.\n\
-.\n\
-KitenJikoku=000\n\
-DiagramDgrYZahyouKyoriDefault=60\n\
-Comment=\n\
-.\n\
-DispProp.\n\
-JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
-JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック;Bold=1\n\
-JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック;Itaric=1\n\
-JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック;Bold=1;Itaric=1\n\
-JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
-JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
-JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
-JikokuhyouFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
-JikokuhyouVFont=PointTextHeight=9;Facename=@ＭＳ ゴシック\n\
-DiaEkimeiFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
-DiaJikokuFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
-DiaRessyaFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
-CommentFont=PointTextHeight=9;Facename=ＭＳ ゴシック\n\
-DiaMojiColor=00000000\n\
-DiaHaikeiColor=00FFFFFF\n\
-DiaRessyaColor=00000000\n\
-DiaJikuColor=00C0C0C0\n\
-EkimeiLength=6\n\
-JikokuhyouRessyaWidth=5\n\
-.\n\
-FileTypeAppComment=OuDia Ver. 1.02.05";
-
-void oudia_print_eki(cbuffer_t& clipboard, const char* name, sint8 pos) {
-  clipboard.append("Eki.\nEkimei=");
-  clipboard.append(name);
-  clipboard.append("\nEkijikokukeisiki=");
-  if(  pos==1  ) {
-    // top
-    clipboard.append("Jikokukeisiki_NoboriChaku");
-  } else if(  pos==-1  ) {
-    // tail
-    clipboard.append("Jikokukeisiki_KudariChaku");
-  } else {
-    clipboard.append("Jikokukeisiki_Hatsu");
-  }
-  clipboard.append("\nEkikibo=Ekikibo_Ippan\n.\n");
-}
-
-void copy_oudia_format(schedule_t* schedule, player_t* player, vector_tpl<uint32*>& journey_times) {
-  /*
-  // first, find start and end index except waypoint.
-  sint16 start = -1;
-  uint8 end = schedule->entries.get_count()-1;
-  for(uint8 i=0; i<schedule->entries.get_count(); i++) {
-    halthandle_t const halt = haltestelle_t::get_halt(schedule->entries[i].pos, player);
-    if(  halt.is_bound()  ) {
-      start = i;
-      break;
-    }
-  }
-  if(  start==-1  ) {
-    // all entries are waypoint -> abort.
-    create_win( new news_img("There is nothing to copy.\n"), w_time_delete, magic_none );
-    return;
-  }
-  for(sint16 i=schedule->entries.get_count()-1; 0<=i; i--) {
-    halthandle_t const halt = haltestelle_t::get_halt(schedule->entries[i].pos, player);
-    if(  halt.is_bound()  ) {
-      end = i;
-      break;
-    }
-  }
-  
-  cbuffer_t clipboard;
-  clipboard.append("FileType=OuDia.1.02\nRosen.\nRosenmei=\n"); // Rosen header
-  // Eki section
-  for(uint8 i=start; i<=end; i++) {
-    halthandle_t const halt = haltestelle_t::get_halt(schedule->entries[i].pos, player);
-    if(  !halt.is_bound()  ) {
-      // do not export waypoint
-      continue;
-    }
-    oudia_print_eki(clipboard, halt->get_name(), i==0);
-  }
-  // append first stop again.
-  halthandle_t const start_halt = haltestelle_t::get_halt(schedule->entries[start].pos, player);
-  oudia_print_eki(clipboard, start_halt->get_name(), -1);
-  
-  // Ressyasyubetsu and Dia section
-  clipboard.append(oudia_syubetsu_text);
-  const uint16 div = tick_to_divided_time(time_average[schedule->entries.get_count()])/1440 + 1;
-  uint16 time_sum = 0;
-  for(uint8 i=start; i<=end; i++) {
-    halthandle_t const halt = haltestelle_t::get_halt(schedule->entries[i].pos, player);
-    if(  !halt.is_bound()  ) {
-      // do not export waypoint
-      continue;
-    }
-    clipboard.append("1;");
-    clipboard.printf("%d%02d", time_sum/60, time_sum%60);
-    clipboard.append(",");
-    time_sum += tick_to_divided_time(time_average[i]/div);
-  }
-  clipboard.append("1;");
-  clipboard.printf("%d%2d", time_sum/60, time_sum%60);
-  clipboard.append("/\n");
-  clipboard.append(oudia_footer);
-  
-  dr_copy( clipboard, clipboard.len() );
-  create_win( new news_img("Station infos were copied to clipboard.\n"), w_time_delete, magic_none );
-  */
-}
-
 void copy_csv_format(schedule_t* schedule, player_t* player, vector_tpl<uint32*>& journey_times) {
   // copy in csv format. separator is \t.
   cbuffer_t clipboard;
@@ -280,15 +151,12 @@ gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* pl
     bt_copy_stations.add_listener(this);
     add_component(&bt_copy_stations);
     
-    bt_copy_oudia.init(button_t::roundbox | button_t::flexible, translator::translate("Copy oudia format"));
-    bt_copy_oudia.set_tooltip("Copy station names and journey time to clipboard in oudia format.");
-    bt_copy_oudia.add_listener(this);
-    add_component(&bt_copy_oudia);
-    
     bt_copy_csv.init(button_t::roundbox | button_t::flexible, translator::translate("Copy csv format"));
     bt_copy_csv.set_tooltip("Copy station names and journey time to clipboard in csv format.");
     bt_copy_csv.add_listener(this);
     add_component(&bt_copy_csv);
+    
+    new_component<gui_fill_t>();
   }
   end_table();
   
@@ -304,9 +172,6 @@ bool gui_journey_time_info_t::action_triggered(gui_action_creator_t* comp, value
   }
   else if(  comp==&bt_copy_stations  ) {
     copy_stations_to_clipboard(schedule, player, false);
-  }
-  else if(  comp==&bt_copy_oudia  ) {
-    copy_oudia_format(schedule, player, journey_times);
   }
   else if(  comp==&bt_copy_csv  ) {
     copy_csv_format(schedule, player,  journey_times);
@@ -367,7 +232,6 @@ void gui_journey_time_info_t::update() {
   // disable copy buttons if schedule is empty
   bt_copy_names.enable(!schedule->entries.empty());
   bt_copy_stations.enable(!schedule->entries.empty());
-  bt_copy_oudia.enable(!schedule->entries.empty());
   bt_copy_csv.enable(!schedule->entries.empty());
   
   // update stat
