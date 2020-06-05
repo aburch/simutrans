@@ -7862,6 +7862,7 @@ uint32 convoi_t::calc_reverse_delay() const
 													  get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) :
 													   (speed_to_kmh(get_min_top_speed()) >> 1));
 				journey_time_tenths_minutes = welt->travel_time_tenths_from_distance(distance, current_average_speed);
+				schedule->set_current_stop(next_schedule_entry); 
 			}
 
 			journey_time_ticks = welt->get_seconds_to_ticks(journey_time_tenths_minutes * 6);

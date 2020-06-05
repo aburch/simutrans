@@ -2474,6 +2474,15 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 					{
 						dbg->error("bool haltestelle_t::fetch_goods()", "A convoy's arrival time is not in the database");
 						this_arrival_time = welt->get_ticks();
+
+						// Fall back to convoy's general average speed if a point-to-point average is not available.
+						// If we do not estimate speed here, we get odd results when the passengers/mail/goods decide what to board and what class to use.
+						const uint32 distance = shortest_distance(get_basis_pos(), check_halt->get_basis_pos());
+						const uint32 recorded_average_speed = cnv->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED);
+						const uint32 average_speed = recorded_average_speed > 0 ? recorded_average_speed : speed_to_kmh(cnv->get_min_top_speed()) / 2;
+						const uint32 journey_time_tenths_minutes = welt->travel_time_tenths_from_distance(distance, average_speed);
+
+						this_arrival_time += welt->get_seconds_to_ticks(journey_time_tenths_minutes * 6);
 					}
 
 					bool wait_for_faster_convoy = true;
