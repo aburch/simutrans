@@ -2110,6 +2110,8 @@ syth
 bride
 &36_CITY_SYLL[2]
 gow
+&37_CITY_SYLL[2]
+dyce
 #
 # Max: 200 (hex)
 #
@@ -2875,6 +2877,8 @@ green
  Wells
 &9_CITY_SUFFIX[3]
  Coch
+&A_CITY_SUFFIX[3]
+ Emlyn
 # 
 # Max: 50 (hex)
 #
