@@ -1195,7 +1195,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 		// This ensures that the game does not become overloaded if a line
 		// is altered so as to have many ships suddenly unable to find a route.
 		route.append(start); // just to be safe
-		return no_route;
+		return route_too_complex;
 	}
 //	INT_CHECK("route 336");
 
