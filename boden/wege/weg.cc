@@ -1908,7 +1908,7 @@ void weg_t::add_private_car_route(koord destination, koord3d next_tile)
 	assert(error == 0);
 #endif
 #ifdef DEBUG_PRIVATE_CAR_ROUTES
-	calc_image();
+	calc_image(); 
 #endif
 }
 
