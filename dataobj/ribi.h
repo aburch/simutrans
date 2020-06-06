@@ -36,14 +36,16 @@ public:
 	typedef sint8 type;
 
 	/*
-	* Macros to access the height of the 4 corners:
-	* Each corner has height 0,1,2.
-	* Calculation has to be done modulo 3 (% 3).
-	*/
-#define corner_sw(i) (i%3)    	// sw corner
-#define corner_se(i) ((i/3)%3)	// se corner
-#define corner_ne(i) ((i/9)%3)	// ne corner
-#define corner_nw(i) (i/27)   	// nw corner
+	 * Macros to access the height of the 4 corners:
+	 * Each corner has height 0,1,2.
+	 * Calculation has to be done modulo 3 (% 3).
+	 */
+#define corner_sw(i) ((i)%3)      // sw corner
+#define corner_se(i) (((i)/3)%3)  // se corner
+#define corner_ne(i) (((i)/9)%3)  // ne corner
+#define corner_nw(i) ((i)/27)     // nw corner
+
+#define encode_corners(sw, se, ne, nw) ( (sw) * slope_t::southwest + (se) * slope_t::southeast + (ne) * slope_t::northeast + (nw) * slope_t::northwest )
 
 	/**
 	* Named constants for special cases.

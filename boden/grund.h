@@ -156,7 +156,7 @@ protected:
 	/**
 	 * Slope (now saved locally), because different grounds need different slopes
 	 */
-	uint8 slope;
+	slope_t::type slope;
 
 	/**
 	 * Image of the walls
@@ -188,7 +188,7 @@ protected:
 	static karte_ptr_t welt;
 
 	// calculates the slope image and sets the draw_as_obj flag correctly
-	void calc_back_image(const sint8 hgt,const sint8 slope_this);
+	void calc_back_image(const sint8 hgt,const slope_t::type slope_this);
 
 	// this is the real image calculation, called for the actual ground image
 	virtual void calc_image_internal(const bool calc_only_snowline_change) = 0;
@@ -370,7 +370,7 @@ public:
 	inline void set_pos(koord3d newpos) { pos = newpos;}
 
 	// slope are now maintained locally
-	slope_t::type get_grund_hang() const { return (slope_t::type)slope; }
+	slope_t::type get_grund_hang() const { return slope; }
 	void set_grund_hang(slope_t::type sl) { slope = sl; }
 
 	/**

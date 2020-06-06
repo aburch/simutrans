@@ -1171,21 +1171,21 @@ bool way_builder_t::check_terraforming( const grund_t *from, const grund_t *to, 
 		const uint8 m_to = (middle >> 1) - to_hgt;
 
 		// write middle heights
-		if(  dir ==  koord::north  ) {
-			*new_from_slope = corner_sw(from_slope) + corner_se(from_slope) * 3 + m_from * 9              + m_from * 27;
-			*new_to_slope =   m_to                + m_to * 3                + corner_ne(to_slope) * 9   + corner_nw(to_slope) * 27;
+		if(  dir == koord::north  ) {
+			*new_from_slope = encode_corners(corner_sw(from_slope), corner_se(from_slope), m_from, m_from);
+			*new_to_slope =   encode_corners(m_to, m_to, corner_ne(to_slope), corner_nw(to_slope));
 		}
 		else if(  dir == koord::east  ) {
-			*new_from_slope = corner_sw(from_slope) + m_from * 3              + m_from * 9              + corner_nw(from_slope) * 27;
-			*new_to_slope =   m_to                + corner_se(to_slope) * 3   + corner_ne(to_slope) * 9   + m_to * 27;
+			*new_from_slope = encode_corners(corner_sw(from_slope), m_from, m_from, corner_nw(from_slope));
+			*new_to_slope =   encode_corners(m_to, corner_se(to_slope), corner_ne(to_slope), m_to);
 		}
 		else if(  dir == koord::south  ) {
-			*new_from_slope = m_from              + m_from * 3              + corner_ne(from_slope) * 9 + corner_nw(from_slope) * 27;
-			*new_to_slope =   corner_sw(to_slope)   + corner_se(to_slope) * 3   + m_to * 9                + m_to * 27;
+			*new_from_slope = encode_corners(m_from, m_from, corner_ne(from_slope), corner_nw(from_slope));
+			*new_to_slope =   encode_corners(corner_sw(to_slope), corner_se(to_slope), m_to, m_to);
 		}
 		else if(  dir == koord::west  ) {
-			*new_from_slope = m_from              + corner_se(from_slope) * 3 + corner_ne(from_slope) * 9 + m_from * 27;
-			*new_to_slope =   corner_sw(to_slope)   + m_to * 3                + m_to * 9                + corner_nw(to_slope) * 27;
+			*new_from_slope = encode_corners(m_from, corner_se(from_slope), corner_ne(from_slope), m_from);
+			*new_to_slope =   encode_corners(corner_sw(to_slope), m_to, m_to, corner_nw(to_slope));
 		}
 		return true;
 	}
