@@ -343,7 +343,7 @@ void planquadrat_t::correct_water()
 		sint8 disp_hn_se = max( gr->get_hoehe() + corner_se(slope), water_hgt );
 		sint8 disp_hn_ne = max( gr->get_hoehe() + corner_ne(slope), water_hgt );
 		sint8 disp_hn_nw = max( gr->get_hoehe() + corner_nw(slope), water_hgt );
-		const uint8 sneu = (disp_hn_sw - disp_hneu) + ((disp_hn_se - disp_hneu) * 3) + ((disp_hn_ne - disp_hneu) * 9) + ((disp_hn_nw - disp_hneu) * 27);
+		const slope_t::type sneu = encode_corners(disp_hn_sw - disp_hneu, disp_hn_se - disp_hneu, disp_hn_ne - disp_hneu, disp_hn_nw - disp_hneu);
 		gr->set_hoehe( disp_hneu );
 		gr->set_grund_hang( (slope_t::type)sneu );
 	}

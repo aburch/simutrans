@@ -749,7 +749,7 @@ PIXVAL minimap_t::calc_ground_color(const grund_t *gr)
 					gebaeude_t *gb = gr->find<gebaeude_t>();
 					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
 					if(fab==NULL) {
-						sint16 height = (gr->get_grund_hang()%3);
+						sint16 height = corner_sw(gr->get_grund_hang());
 						if( mode&MAP_HIDE_CONTOUR ) { 
 							color = color_idx_to_rgb(map_type_color[1]); // second deep water color
 						}
@@ -788,7 +788,7 @@ PIXVAL minimap_t::calc_ground_color(const grund_t *gr)
 							color = color_idx_to_rgb(map_type_color[MAX_MAP_TYPE_WATER+2]); // lowest land color
 						}
 						else {
-							sint16 height = (gr->get_grund_hang() % 3);
+							sint16 height = corner_sw(gr->get_grund_hang());
 							if(  gr->get_hoehe() > world->get_groundwater()  ) {
 								color = calc_height_color( gr->get_hoehe() + height, world->get_groundwater() );
 							}

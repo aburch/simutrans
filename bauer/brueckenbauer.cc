@@ -930,7 +930,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 
 void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t* desc)
 {
-	assert(weg_hang < 81);
+	assert(weg_hang <= slope_t::raised);
 
 	grund_t *alter_boden = welt->lookup(end);
 	brueckenboden_t *bruecke;
