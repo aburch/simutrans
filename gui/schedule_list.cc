@@ -735,9 +735,9 @@ void schedule_list_gui_t::display(scr_coord pos)
 	len2 += display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH+len2+5, pos.y+top+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
 
+	int rest_width = max( (get_windowsize().w-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
+	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + rest_width + 24, top - LINESPACE - D_BUTTON_HEIGHT));
 	if (capacity > 0) {
-		int rest_width = max( (get_windowsize().w-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
-		filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + rest_width + 24, top - LINESPACE - D_BUTTON_HEIGHT));
 		number_to_string(ctmp, capacity, 0);
 		buf.clear();
 		buf.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor );
@@ -926,14 +926,13 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 
 		bt_withdraw_line.pressed = new_line->get_withdraw();
 
-		livery_selector.set_focusable(false);
+		livery_selector.set_focusable(true);
+		livery_selector.clear_elements();
+		livery_scheme_indices.clear();
 		if(icnv > 0)
 		{
-			livery_selector.set_focusable(true);
 			// build available livery schemes list for this line
 			if (new_line->count_convoys()) {
-				livery_selector.clear_elements();
-				livery_scheme_indices.clear();
 				const uint16 month_now = welt->get_timeline_year_month();
 				vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
 
@@ -961,7 +960,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 								}
 							}
 							if (found) {
-								livery_selector.set_selection(i);
+								livery_selector.set_selection(livery_scheme_indices.index_of(i));
 								break;
 							}
 						}
@@ -969,11 +968,9 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 				}
 			}
 		}
-		if(!livery_scheme_indices.empty())
-		{
-
-			uint16 idx = new_line->get_livery_scheme_index();
-			livery_selector.set_selection(livery_scheme_indices.index_of(idx));
+		if(livery_scheme_indices.empty()) {
+			livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("No livery"), SYSCOL_TEXT));
+			livery_selector.set_selection(0);
 		}
 
 
