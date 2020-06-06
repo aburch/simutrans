@@ -1,5 +1,6 @@
 <img src="logo/OTRP_logo.png" width="600">  
-This logo was made by [128Na](https://twitter.com/128na) .  
+
+This logo was made by [128Na](https://twitter.com/128na).
 
 [日本語はこちら](OTRP_v13_information.md)  
 
@@ -23,7 +24,7 @@ As of version 26, OTRP is based on Simutrans Standard nightly r9114.
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset folder.  
 
-You can download the OTRP executable binary from the links below. **(2020 June 6th, updated to ver 26.)**  
+You can download the OTRP executable binary from the links below. **(2020 June 7th, updated to ver 26.)**  
 windows（GDI）: https://osdn.net/projects/otrp/downloads/73135/sim-WinGDI-OTRPv26.exe/  
 mac: https://osdn.net/projects/otrp/downloads/73135/sim-mac-OTRPv26.zip/    
 Linux: https://osdn.net/projects/otrp/downloads/73135/sim-linux-OTRPv26.zip/  

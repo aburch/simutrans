@@ -24,7 +24,7 @@ version26現在，simutrans standard nightly r9114をベースにしています
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください．  
 
-本体は下のリンクからどうぞ．**（2020年6月6日PM8時　ver26に更新）**  
+本体は下のリンクからどうぞ．**（2020年6月7日AM0時　ver26に更新）**  
 windows（GDI）: https://osdn.net/projects/otrp/downloads/73135/sim-WinGDI-OTRPv26.exe/  
 mac: https://osdn.net/projects/otrp/downloads/73135/sim-mac-OTRPv26.zip/    
 Linux: https://osdn.net/projects/otrp/downloads/73135/sim-linux-OTRPv26.zip/  
