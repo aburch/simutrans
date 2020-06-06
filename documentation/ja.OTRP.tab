@@ -85,6 +85,24 @@ Journey Time
 路線所要時間
 Journey time of %s
 %sの所要時間
+Halt name
+停留所名
+Copy names
+駅名をコピー
+Copy stations
+駅名と座標をコピー
+Copy csv format
+csv形式でコピー
+Station infos were copied to clipboard.\n
+クリップボードに駅情報をコピーしました．\n
+There is nothing to copy.\n
+コピーする情報がありません．\n
+Copy station names to clipboard.
+クリップボードに駅名をコピーします．
+Copy station names and their position to clipboard.
+クリップボードに駅名と座標をコピーします．
+Copy station names and journey time to clipboard in csv format.
+クリップボードに駅名と所要時間をcsv形式でコピーします．
 #------Schedule window related stuff------
 #------スケジュールウィンドウ関連のエントリ------
 Extract advanced settings
