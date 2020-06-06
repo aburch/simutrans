@@ -2820,7 +2820,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(file->is_version_atleast(99, 17)) {
 		if(file->is_saving()) {
 			if(  has_schedule  &&  schedule->get_current_entry().waiting_time_shift > 0  ) {
-				uint32 diff_ticks = arrived_time + (welt->ticks_per_world_month >> (16 - schedule->get_current_entry().waiting_time_shift)) - welt->get_ticks();
+				uint32 diff_ticks = arrived_time + welt->ticks_per_world_month / schedule->get_current_entry().waiting_time_shift - welt->get_ticks();
 				file->rdwr_long(diff_ticks);
 			}
 			else {
@@ -2831,7 +2831,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		else {
 			uint32 diff_ticks = 0;
 			file->rdwr_long(diff_ticks);
-			arrived_time = has_schedule ? welt->get_ticks() - (welt->ticks_per_world_month >> (16 - schedule->get_current_entry().waiting_time_shift)) + diff_ticks : 0;
+			arrived_time = has_schedule &&  schedule->get_current_entry().waiting_time_shift > 0 ? welt->get_ticks() - welt->ticks_per_world_month / schedule->get_current_entry().waiting_time_shift + diff_ticks : 0;
 		}
 	}
 
@@ -3247,7 +3247,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 	while(  c.is_bound()  &&  cond  ) {
 		const schedule_entry_t e = c->get_schedule()->get_current_entry();
 		const bool loading_cond = cnv->get_loading_level() >= e.minimum_loading; // minimum loading
-		const bool waiting_time_cond = (e.waiting_time_shift > 0  &&  world()->get_ticks() - arrived_time > (world()->ticks_per_world_month >> (16 - cnv->get_schedule()->get_current_entry().waiting_time_shift)) ); // waiting time
+		const bool waiting_time_cond = (e.waiting_time_shift > 0  &&  world()->get_ticks() - arrived_time > (world()->ticks_per_world_month / cnv->get_schedule()->get_current_entry().waiting_time_shift) ); // waiting time
 		bool c_cond = loading_cond; // condition of this convoy
 		c_cond &= !(e.get_coupling_point()==1  &&  !c->is_coupling_done()  &&  !(c->get_coupling_convoi().is_bound()  &&  c->is_coupled())); // coupling condition
 		c_cond |= c->get_no_load(); // no load

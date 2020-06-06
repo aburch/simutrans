@@ -50,10 +50,10 @@ class schedule_gui_t :	public gui_frame_t,
 	// always needed
 	button_t bt_add, bt_insert, bt_remove; // stop management
 	button_t bt_return;
+	button_t bt_wait_load;
 
 	gui_label_t lb_wait, lb_load;
-	gui_numberinput_t numimp_load;
-	gui_combobox_t wait_load;
+	gui_numberinput_t numimp_load, numimp_wait_load;
 	
 	// for advanced settings
 	// coupling, load/unload only, temp schedule, departure time, max_speed

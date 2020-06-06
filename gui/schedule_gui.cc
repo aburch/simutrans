@@ -229,39 +229,13 @@ bool schedule_gui_stats_t::action_triggered(gui_action_creator_t *, value_t v)
 }
 
 
-/**
- * Entries in the waiting-time selection.
- */
-class gui_waiting_time_item_t : public gui_scrolled_list_t::const_text_scrollitem_t
-{
-private:
-	cbuffer_t buf;
-	sint8 wait;
-
-public:
-	gui_waiting_time_item_t(sint8 w) : gui_scrolled_list_t::const_text_scrollitem_t(NULL, SYSCOL_TEXT)
-	{
-		wait = w;
-		if (wait == 0) {
-			buf.append(translator::translate("off"));
-		}
-		else {
-			buf.printf("1/%d",  1<<(16 - wait) );
-		}
-	}
-
-	char const* get_text () const OVERRIDE { return buf; }
-
-	sint8 get_wait_shift() const { return wait; }
-};
-
 cbuffer_t schedule_gui_stats_t::buf;
 
 schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoihandle_t cnv_) :
 	gui_frame_t( translator::translate("Fahrplan"), NULL),
 	line_selector(line_scrollitem_t::compare),
 	lb_waitlevel(SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
-	lb_wait("month wait time"),
+	lb_wait("1/"),
 	lb_load("Full load"),
 	lb_max_speed("Maxspeed"),
 	stats(new schedule_gui_stats_t() ),
@@ -343,16 +317,19 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		numimp_load.add_listener(this);
 		add_component(&numimp_load);
 
+		bt_wait_load.init(button_t::square_state, "month wait time");
+		bt_wait_load.add_listener(this);
+		add_component(&bt_wait_load);
+
+		add_table(2, 1);
 		add_component(&lb_wait);
-
-		add_component(&wait_load);
-		wait_load.add_listener(this);
-
-		wait_load.new_component<gui_waiting_time_item_t>(0);
-		for(sint8 w = 7; w<=16; w++) {
-			wait_load.new_component<gui_waiting_time_item_t>(w);
-		}
-		wait_load.set_rigid(true);
+		numimp_wait_load.set_width( 60 );
+		numimp_wait_load.set_value( max(schedule->get_current_entry().waiting_time_shift, 1) );
+		numimp_wait_load.set_limits( 1, 65535 );
+		numimp_wait_load.set_increment_mode( gui_numberinput_t::POWER2 );
+		numimp_wait_load.add_listener(this);
+		add_component(&numimp_wait_load);
+		end_table();
 	}
 	end_table();
 	
@@ -568,7 +545,8 @@ void schedule_gui_t::update_selection()
 {
 	// First, disable all.
 	lb_wait.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
-	wait_load.disable();
+	numimp_wait_load.disable();
+	bt_wait_load.disable();
 	lb_load.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
 	numimp_load.disable();
 	numimp_load.set_value( 0 );
@@ -600,7 +578,6 @@ void schedule_gui_t::update_selection()
 			const bool wft = schedule->entries[current_stop].get_wait_for_time();
 			bt_wait_for_time.enable();
 			bt_wait_for_time.pressed = wft;
-			sint8 wait = 0;
 			if(  wft  ) {
 				// enable departure time settings only
 				//schedule->entries[current_stop].spacing cannot be zero.
@@ -614,28 +591,22 @@ void schedule_gui_t::update_selection()
 				lb_load.set_color( SYSCOL_TEXT );
 				numimp_load.enable();
 				if(  schedule->entries[current_stop].minimum_loading>0  ||  schedule->entries[current_stop].get_coupling_point()!=0  ) {
-					lb_wait.set_color( SYSCOL_TEXT );
-					wait_load.enable();
-					wait = schedule->entries[current_stop].waiting_time_shift;
+					bt_wait_load.enable();
+					uint16 wait = schedule->entries[current_stop].waiting_time_shift;
+					bt_wait_load.pressed = wait>0;
+					if(  wait>0  ) {
+						lb_wait.set_color( SYSCOL_TEXT );
+						numimp_wait_load.enable();
+					}
 				}
 				sprintf(lb_spacing_str, "off");
 			}
 			
 			numimp_load.set_value( schedule->entries[current_stop].minimum_loading );
+			numimp_wait_load.set_value( max(1, schedule->entries[current_stop].waiting_time_shift) );
 			numimp_spacing.set_value( schedule->entries[current_stop].spacing );
 			numimp_spacing_shift.set_value( schedule->entries[current_stop].spacing_shift );
 			numimp_delay_tolerance.set_value( schedule->entries[current_stop].delay_tolerance );
-			
-			// wait_load configuration
-			for(int i=0; i<wait_load.count_elements(); i++) {
-				if (gui_waiting_time_item_t *item = dynamic_cast<gui_waiting_time_item_t*>( wait_load.get_element(i) ) ) {
-					if (item->get_wait_shift() == wait) {
-						wait_load.set_selection(i);
-						break;
-					}
-				}
-			}
-			
 		}
 	}
 }
@@ -759,13 +730,16 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			update_selection();
 		}
 	}
-	else if(comp == &wait_load) {
+	else if(comp == &bt_wait_load) {
+		if (!schedule->empty()) {
+			schedule->entries[schedule->get_current_stop()].waiting_time_shift = !bt_wait_load.pressed;
+			update_selection();
+		}
+	}
+	else if(comp == &numimp_wait_load) {
 		if(!schedule->empty()) {
-			if (gui_waiting_time_item_t *item = dynamic_cast<gui_waiting_time_item_t*>( wait_load.get_selected_item())) {
-				schedule->entries[schedule->get_current_stop()].waiting_time_shift = item->get_wait_shift();
-
-				update_selection();
-			}
+			schedule->entries[schedule->get_current_stop()].waiting_time_shift = (uint16)p.i;
+			update_selection();
 		}
 	}
 	else if(comp == &bt_return) {
@@ -968,8 +942,6 @@ void schedule_gui_t::draw(scr_coord pos, scr_size size)
 void schedule_gui_t::set_windowsize(scr_size size)
 {
 	gui_frame_t::set_windowsize(size);
-	// manually enlarge size of wait_load combobox
-	wait_load.set_size( scr_size(numimp_load.get_size().w, wait_load.get_size().h) );
 	// make scrolly take all of space
 	scrolly.set_size( scr_size(scrolly.get_size().w, get_client_windowsize().h - scrolly.get_pos().y - D_MARGIN_BOTTOM));
 

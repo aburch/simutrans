@@ -116,7 +116,7 @@ halthandle_t schedule_t::get_prev_halt( player_t *player ) const
 }
 
 
-bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint8 waiting_time_shift, uint8 coupling_point )
+bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint8 coupling_point )
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(  entries.get_count()>=254  ) {
@@ -139,7 +139,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint8 waiting_
 
 
 
-bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint8 waiting_time_shift, uint8 coupling_point)
+bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint8 coupling_point)
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(entries.get_count()>=254) {
@@ -266,8 +266,17 @@ void schedule_t::rdwr(loadsave_t *file)
 			}
 			entries[i].pos.rdwr(file);
 			file->rdwr_byte(entries[i].minimum_loading);
-			if(file->is_version_atleast(99, 18)) {
-				file->rdwr_byte(entries[i].waiting_time_shift);
+			if(file->get_OTRP_version()>=26) {
+				file->rdwr_short(entries[i].waiting_time_shift);
+			}
+			else if(file->is_version_atleast(99, 18)) {
+				sint8 n;
+				file->rdwr_byte(n);
+				if(  n==0  ) {
+					entries[i].waiting_time_shift = 0;
+				} else {
+					entries[i].waiting_time_shift = ( 1<<(16-n) );
+				}
 			}
 			if(file->get_OTRP_version()>=22) {
 				uint8 flags = entries[i].get_stop_flags();

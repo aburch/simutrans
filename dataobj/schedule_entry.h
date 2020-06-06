@@ -22,7 +22,7 @@ public:
 		at_index = 0;
 	}
 
-	schedule_entry_t(koord3d const& pos, uint const minimum_loading, sint8 const waiting_time_shift, uint8 const stop_flags) :
+	schedule_entry_t(koord3d const& pos, uint const minimum_loading, uint16 const waiting_time_shift, uint8 const stop_flags) :
 		pos(pos),
 		minimum_loading(minimum_loading),
 		waiting_time_shift(waiting_time_shift),
@@ -55,10 +55,10 @@ public:
 	uint8 minimum_loading;
 
 	/**
-	 * maximum waiting time in 1/2^(16-n) parts of a month
+	 * maximum waiting time in 1/n parts of a month
 	 * (only active if minimum_loading!=0)
 	 */
-	sint8 waiting_time_shift;
+	uint16 waiting_time_shift;
 	
 	uint16 spacing, spacing_shift, delay_tolerance;
 	

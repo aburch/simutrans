@@ -64,7 +64,7 @@ void append_entry(HSQUIRRELVM vm, SQInteger index, schedule_t* sched)
 	uint8 minimum_loading = 0;
 	get_slot(vm, "load", minimum_loading, index);
 
-	sint8 waiting_time_shift = 0;
+	uint16 waiting_time_shift = 0;
 	get_slot(vm, "wait", waiting_time_shift, index);
 
 	grund_t *gr = welt->lookup(pos);
