@@ -143,10 +143,20 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		allowed_climates = get_climate_bits(climate_str);
 	}
 
-	const char* region_str = obj.get("regions"); 
-	if (region_str && strlen(region_str) > 1)
+	int* region_ints = obj.get_ints("regions");
+	uint32 ar = 0;
+	for (int i = 1; i <= region_ints[0]; i++)
 	{
-		allowed_regions = (uint16)cluster_writer_t::get_cluster_data(obj, "regions");
+		if (region_ints[i] <= 16)
+		{
+			ar |= 1 << region_ints[i];
+		}
+	}
+	delete[] region_ints;
+
+	if (ar)
+	{
+		allowed_regions = (uint16)ar;
 	}
 
 	const char* type_name = obj.get("type");

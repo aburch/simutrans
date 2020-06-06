@@ -612,8 +612,8 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		// build consumer (factory) in town
 		stadt_t *city = welt->find_nearest_city(pos->get_2d());
 
-		climate_bits cl = ignore_climates ? ALL_CLIMATES : info->get_building()->get_allowed_climate_bits();
-		uint16 regions_allowed = info->get_building()->get_allowed_region_bits();
+		const climate_bits cl = ignore_climates ? ALL_CLIMATES : info->get_building()->get_allowed_climate_bits();
+		const uint16 regions_allowed = info->get_building()->get_allowed_region_bits();
 
 		/* Three variants:
 		 * A:
@@ -736,20 +736,44 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 
 	DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need %i of %s)",info->get_supplier_count(),lcount,consumption,ware->get_name());
 
+	// We only observe the max_distance_to_supplier if the supplier can exist in our region. 
+	const uint8 our_factory_region = welt->get_region(our_fab->get_pos().get_2d());
+
+	uint16 max_distance_to_supplier = our_fab->get_desc()->get_max_distance_to_supplier();
+	if (max_distance_to_supplier < 65535)
+	{
+		// Check whether any types of factory that can be built at this time in this factory's region can supply this input good.
+		weighted_vector_tpl<const factory_desc_t*>producer;
+		find_producer(producer, ware, welt->get_timeline_year_month());
+		bool local_supplier_unavailable = true;
+		FOR(weighted_vector_tpl<const factory_desc_t*>, producer_type, producer)
+		{
+			if (producer_type->get_building()->is_allowed_region(our_factory_region))
+			{
+				local_supplier_unavailable = false;
+				break;
+			}
+		}
+		if (local_supplier_unavailable)
+		{
+			max_distance_to_supplier = 65535;
+		}
+	}
+
 	// Hajo: search if there already is one or two (crossconnect everything if possible)
-	FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
+	FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list())
+	{
 		// Try to find matching factories for this consumption, but don't find more than two times number of factories requested.
 		//if ((lcount != 0 || consumption <= 0) && lcount < lfound + 1) break;
 
 		// For reference, our_fab is the consumer and fab is the potential producer already in the game.
 
 		// connect to an existing one if this is a producer
-		if(fab->vorrat_an(ware) > -1) {
-
-			// for sources (oil fields, forests ... ) prefer those with a smaller distance
+		if(fab->vorrat_an(ware) > -1)
+		{
 			const uint32 distance = shortest_distance(fab->get_pos().get_2d(), our_fab->get_pos().get_2d());
 
-			if(distance >= (uint32)welt->get_settings().get_min_factory_spacing() && distance <= fab->get_desc()->get_max_distance_to_consumer())
+			if(distance >= (uint32)welt->get_settings().get_min_factory_spacing() && distance <= fab->get_desc()->get_max_distance_to_consumer() && distance <= max_distance_to_supplier)
 			{
 				// ok, this would match
 				// but can she supply enough?
@@ -838,7 +862,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 
 			INT_CHECK("fabrikbauer 697");
 			const int max_distance_to_consumer = producer_d->get_max_distance_to_consumer() == 0 ? max_factory_spacing_general : producer_d->get_max_distance_to_consumer();
-			koord3d k = find_random_construction_site( our_fab->get_pos().get_2d(), min(max_factory_spacing_general, max_distance_to_consumer), producer_d->get_building()->get_size(rotate),producer_d->get_placement()==factory_desc_t::Water, producer_d->get_building(), ignore_climates, 20000 );
+			koord3d k = find_random_construction_site( our_fab->get_pos().get_2d(), min(max_distance_to_supplier, min(max_factory_spacing_general, max_distance_to_consumer)), producer_d->get_building()->get_size(rotate),producer_d->get_placement()==factory_desc_t::Water, producer_d->get_building(), ignore_climates, 20000 );
 			if(  k == koord3d::invalid  ) {
 				// this factory cannot build in the desired vincinity
 				producer.remove( producer_d );

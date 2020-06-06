@@ -364,7 +364,7 @@ public:
 	// for the paltzsucher needed
 	climate_bits get_allowed_climate_bits() const { return allowed_climates; }
 
-	bool is_allowed_region(uint8 r) const { return ((1 << r) & allowed_regions) != 0;}
+	bool is_allowed_region(uint8 r) const { return ((1 << r) & allowed_regions) != 0; }
 
 	bool is_allowed_region_bits(uint16 rb) const { return (rb & allowed_regions) != 0; }
 

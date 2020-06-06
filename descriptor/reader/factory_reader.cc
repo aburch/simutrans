@@ -323,7 +323,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 			desc->upgrades = decode_uint8(p);
 
-			if (extended_version > 3)
+			if (extended_version > 4)
 			{
 				// Check for incompatible future versions
 				dbg->fatal("factory_reader_t::read_node()", "Incompatible pak file version for Simutrans-Extended, number %i", extended_version);
@@ -359,6 +359,15 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->sound_id = decode_sint8(p);
 		}
 		desc->field_output_divider = decode_uint8(p);
+
+		if (extended && extended_version >= 4)
+		{
+			desc->base_max_distance_to_supplier = decode_uint16(p); 
+		}
+		else
+		{
+			desc->base_max_distance_to_supplier = 65535;
+		}
 
 		DBG_DEBUG("factory_reader_t::read_node()", "version=4, platz=%i, supplier_count=%i, pax=%i, sound_interval=%li, sound_id=%i", desc->placement, desc->supplier_count, desc->pax_level, desc->sound_interval, desc->sound_id);
 	}
@@ -420,6 +429,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->mail_demand = decode_uint16(p);
 			desc->base_max_distance_to_consumer = 65535;
 		}
+		desc->base_max_distance_to_supplier = 65535;
 		DBG_DEBUG("factory_reader_t::read_node()","version=3, platz=%i, supplier_count=%i, pax=%i", desc->placement, desc->supplier_count, desc->pax_level );
 	} else if(version == 2) {
 		// Versioned node, version 2
@@ -468,6 +478,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->pax_demand = 65535;
 		desc->mail_demand = 65535;
 		desc->base_max_distance_to_consumer = 65535;
+		desc->base_max_distance_to_supplier = 65535;
 		desc->field_output_divider = 1;
 	} else if(version == 1)
 	{
@@ -498,6 +509,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->pax_demand = 65535;
 		desc->mail_demand = 65535;
 		desc->base_max_distance_to_consumer = 65535;
+		desc->base_max_distance_to_supplier = 65535;
 		desc->field_output_divider = 1;
 	}
 
@@ -532,6 +544,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->pax_demand = 65535;
 		desc->mail_demand = 65535;
 		desc->base_max_distance_to_consumer = 65535;
+		desc->base_max_distance_to_supplier = 65535;
 		desc->field_output_divider = 1;
 	}
 
@@ -543,6 +556,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	desc->max_distance_to_consumer = desc->base_max_distance_to_consumer;
+	desc->max_distance_to_supplier = desc->base_max_distance_to_supplier;
 
 	DBG_DEBUG("factory_reader_t::read_node()",
 		"version=%i, place=%i, productivity=%i, suppliers=%i, products=%i, fields=%i, range=%i, level=%i"

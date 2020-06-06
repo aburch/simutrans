@@ -8005,7 +8005,8 @@ bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_b
 
 			uint8 test_region = get_region(k_check);
 
-			if ((regions_allowed & (1 << test_region)) == 0)
+			
+			if ((1 << test_region & regions_allowed) == 0) //((regions_allowed & (1 << test_region + 1)) == 0)
 			{
 				return false;
 			}

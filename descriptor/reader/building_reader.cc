@@ -296,6 +296,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			desc->enables = 65535;
 		}
+
 		desc->flags     = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight    = decode_uint8(p);
 		desc->intro_date    = decode_uint16(p);
