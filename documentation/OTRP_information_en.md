@@ -70,7 +70,7 @@ Press the colon key to view roads' configured modes and direction of travel, ill
 As the amount of traffic increases, traffic jams at junctions can be often seen, as in the image below. This is due to vehicles in the fast lane merging across the slow lane to reach the exit, obstructing the flow of traffic.
 ![fig3](images/fig3.png)  
 
-OTRP provides a sign to assign lanes to vehicles, smoothing the flow of traffic. Placing a one-way sign on a one-lane road enables lane assignments, which are valid until the next intersection, the coordinate of which is displayed in the road sign window.
+OTRP provides a sign to assign lanes to vehicles, smoothing the flow of traffic. Placing a one-way sign on a one-lane road enables lane assignments, which are valid until the next intersection, the coordinate of which is displayed in the road sign window.  
 <img src="images/fig7.png" width="526">  
 
 When "Left" is enabled, cars that will turn or exit left at the next intersection will take the left lane. Cars going straight on will take the right lane. When "Right" is enabled, cars that turn or exit right will take the right lane, and cars going straight on will take the left lane. 
@@ -83,19 +83,11 @@ In Simutrans, traffic lights only control traffic on one tile. This works for Si
 
 To control such intersections, you will need to place traffic lights on all tiles of the intersection. But doing so in Simutrans Standard will prevent vehicles from making turns that cross the opposite side of the road; as shown in the image above, the timing of the traffic lights will conflict with each other. Phase offsets can be used as a workaround in Simutrans Standard, but are difficult to manage and not a good permanent solution.
 
-<object data="images/TrafficLightGraphicsPart1.pdf" type="application/pdf" width="700px">
-    <embed src="images/TrafficLightGraphicsPart1.pdf">
-        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="images/TrafficLightGraphicsPart1.pdf">Download PDF</a>.</p>
-    </embed>
-</object>
+![TrafficLightGraphicsPart1](images/TrafficLightGraphicsPart1.png)  
 
 In OTRP, you can configure the directions from which vehicles can enter tiles during each phase of a traffic light. By adding specific entrance directions to each phase of all traffic lights in an intersection, you can resolve signal conflicts and allow traffic to turn properly. For example, in the image above, when the southern traffic light allows traffic to flow from the east to the west, it also allows traffic from the north, therefore allowing eastbound traffic to make right turns, while still blocking north-south traffic. Conversely, the northern traffic light allows traffic to enter from the south during the west-east phase, allowing westbound traffic to turn right.
 
-<object data="images/TrafficLightSimuPart2.pdf" type="application/pdf" width="700px">
-    <embed src="images/TrafficLightSimuPart2.pdf">
-        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="images/TrafficLightSimuPart2.pdf">Download PDF</a>.</p>
-    </embed>
-</object>
+![TrafficLightSimuPart2](images/TrafficLightSimuPart2.png)
 
 To confirm a traffic light's current status, open its window and check the "directions" display. A number will be assigned to each direction: 1 for north, 2 for east, 4 for south, and 8 for west. The direction display will show the sum of the numbers assigned to all currently valid entrance directions. For example, if traffic is currently allowed to enter the intersection from the north and south, 5 (1+4) will be displayed.
 
@@ -121,7 +113,7 @@ OTRP's advanced schedule settings create flexible operational possibilities. Adv
 
 ## Convoy coupling
 
-Please refer [here](Convoy_Coupling_Eng) for information on how to use this feature.
+Please refer [here](Convoy_Coupling_Eng.pdf) for information on how to use this feature.
 
 ## Specify departure time
 
