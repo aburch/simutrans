@@ -793,6 +793,9 @@ public:
 	bool has_goods_catg_demand(uint8 catg_index = goods_manager_t::INDEX_NONE) const;
 
 
+	// Returns the operating ratio to basic production. (x 10)
+	// NOTE: not added the formula for this month yet - Ranran
+	uint32 calc_occupancy_rate(sint8 month) const;
 };
 
 #endif
