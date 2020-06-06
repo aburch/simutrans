@@ -7855,7 +7855,7 @@ uint32 convoi_t::calc_reverse_delay() const
 			{
 				// Journey time uninitialised - use average or estimated average speed instead.
 				uint8 next_schedule_entry = schedule_entry;
-				schedule->increment_index_until_next_halt(front()->get_owner(), &schedule_entry, &rev);
+				schedule->increment_index_until_next_halt(front()->get_owner(), &next_schedule_entry, &rev);
 				const koord3d stop1_pos = schedule->entries[schedule_entry].pos;
 				const koord3d stop2_pos = schedule->entries[next_schedule_entry].pos;
 				const uint16 distance = shortest_distance(stop1_pos.get_2d(), stop2_pos.get_2d());
@@ -7863,7 +7863,6 @@ uint32 convoi_t::calc_reverse_delay() const
 													  get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) :
 													   (speed_to_kmh(get_min_top_speed()) >> 1));
 				journey_time_tenths_minutes = welt->travel_time_tenths_from_distance(distance, current_average_speed);
-				schedule->set_current_stop(next_schedule_entry); 
 			}
 
 			journey_time_ticks = welt->get_seconds_to_ticks(journey_time_tenths_minutes * 6);
@@ -7958,12 +7957,6 @@ uint32 convoi_t::calc_reverse_delay() const
 			schedule->increment_index_until_next_halt(front()->get_owner(), &schedule_entry, &rev);
 			departure_point.entry = schedule_entry;
 			departure_point.reversed = rev;
-		}
-		if (front()->get_waytype() == water_wt && (shortest_distance(get_pos().get_2d(), schedule->get_current_entry().pos.get_2d()) * 600) > (uint32)welt->get_settings().get_max_route_steps())
-		{
-			// In checking ahead, we have put the schedule into a position preventing the ship from completing a route. Reset this.
-			schedule->increment_index(&old_schedule_entry, &rev);
-			schedule->set_current_stop(old_schedule_entry);
 		}
 	}
 	else
