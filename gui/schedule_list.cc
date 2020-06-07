@@ -40,6 +40,8 @@
 #include "../boden/wege/schiene.h"
 #include "../boden/wege/strasse.h"
 
+#include "../unicode.h"
+
 
 #include "minimap.h"
 
@@ -589,7 +591,7 @@ void schedule_list_gui_t::build_line_list(int filter)
 
 	FOR(vector_tpl<linehandle_t>, const l, lines) {
 		// search name
-		if(  strstr(l->get_name(), schedule_filter)  ) {
+		if(  utf8caseutf8(l->get_name(), schedule_filter)  ) {
 			scl.new_component<line_scrollitem_t>(l);
 
 			if(  line == l  ) {

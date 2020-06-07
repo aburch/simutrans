@@ -54,6 +54,7 @@
 
 #include "../boden/wege/weg.h"
 
+#include "../unicode.h"
 
 char depot_frame_t::name_filter_value[64] = "";
 
@@ -772,7 +773,7 @@ void depot_frame_t::build_vehicle_lists()
 				}
 				if(append) {
 					// name filter. Try to check both object name and translation name (case sensitive though!)
-					if(  name_filter_value[0]==0  ||  (strstr(info->get_name(), name_filter_value)  ||  strstr(translator::translate(info->get_name()), name_filter_value))  ) {
+					if(  name_filter_value[0]==0  ||  (utf8caseutf8(info->get_name(), name_filter_value)  ||  utf8caseutf8(translator::translate(info->get_name()), name_filter_value))  ) {
 						add_to_vehicle_list( info );
 					}
 				}

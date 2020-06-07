@@ -74,5 +74,9 @@ int	utf16_to_utf8(utf16 unicode, utf8 *out);
 uint8 unicode_to_latin2( utf16 chr );
 utf16 latin2_to_unicode( uint8 chr );
 
+// caseless strstr with utf8
+const utf8 *utf8caseutf8( const utf8 *haystack_start, const utf8 *needle_start );
+char *utf8caseutf8( const char *haystack, const char *needle );
+
 
 #endif
