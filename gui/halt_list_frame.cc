@@ -12,6 +12,7 @@
 #include "../simhalt.h"
 #include "../simware.h"
 #include "../simfab.h"
+#include "../unicode.h"
 #include "simwin.h"
 #include "../descriptor/skin_desc.h"
 
@@ -130,7 +131,7 @@ static bool passes_filter_name(haltestelle_t const& s)
 {
 	if (!halt_list_frame_t::get_filter(halt_list_frame_t::name_filter)) return true;
 
-	return strstr(s.get_name(), halt_list_frame_t::access_name_filter());
+	return utf8caseutf8(s.get_name(), halt_list_frame_t::access_name_filter());
 }
 
 

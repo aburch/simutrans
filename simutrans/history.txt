@@ -12,6 +12,7 @@ Release of 122.0 (r9274 on 10-Oct-2020):
 	ADD: customisable loading bar colors with gui_color_loadingbar_inner and gui_color_loadingbar_progress
 	ADD: two more theme colors: gui_color_obsolete, gui_color_empty for lines and server
 	ADD: (Yona-TNT) configurable offsets for player colors for gui elements
+	ADD: caseless matching in depots, lines, halt and convoi list dialogs even with umlaute
 	ADD: (ranran) new GUI element routebar
 	FIX: space.w added in container not space.h for vertical distance
 	CHG: On consequeutive traffic lights, only the first is obeyed to allow turns on four traffic lights crossings

@@ -59,6 +59,7 @@ void set_thousand_sep_exponent(int new_thousand_sep_exponent)
 }
 
 
+
 /**
  * Set fraction separator, used in money_to_string and
  * number_to_string

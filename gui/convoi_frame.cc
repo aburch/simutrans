@@ -14,6 +14,7 @@
 #include "simwin.h"
 #include "../simconvoi.h"
 #include "../simworld.h"
+#include "../unicode.h"
 #include "../descriptor/goods_desc.h"
 #include "../bauer/goods_manager.h"
 #include "../dataobj/translator.h"
@@ -85,7 +86,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 		return true;
 	}
 
-	if(  name_filter!=NULL  &&  !strstr(cnv->get_name(), name_filter)  ) {
+	if(  name_filter!=NULL  &&  !utf8caseutf8(cnv->get_name(), name_filter)  ) {
 		// not the right name
 		return false;
 	}

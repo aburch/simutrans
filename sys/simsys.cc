@@ -1093,6 +1093,7 @@ int sysmain(int const argc, char** const argv)
 	argv[0] = realpath(argv[0], buffer2);
 #endif
 
+	setlocale( LC_CTYPE, "" );
 	return simu_main(argc, argv);
 
 #ifdef _WIN32
