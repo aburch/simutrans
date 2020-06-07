@@ -440,9 +440,32 @@ sint32 karte_t::perlin_hoehe(settings_t const* const sets, koord k, koord const 
 		case 3: k = koord(size.y-k.y,k.x); break;
 	}
 //    double perlin_noise_2D(double x, double y, double persistence);
-//    return ((int)(perlin_noise_2D(x, y, 0.6)*160.0)) & 0xFFFFFFF0;
+//    return ((int)(perlin_noise_2D(x, y, 0.6)*160.0)) & 0xFFFFFFF0; 
 	k = k + koord(sets->get_origin_x(), sets->get_origin_y());
-	return ((int)(perlin_noise_2D(k.x, k.y, sets->get_map_roughness(), map_size_max)*(double)sets->get_max_mountain_height())) / 16;
+	double map_roughness = sets->get_map_roughness();
+	double mountain_height = sets->get_max_mountain_height();
+
+	// This allows for different regions to have different landscapes - but
+	// the transitions between regions are too harsh and it is not easy to
+	// change this without vastly more sophisticated code.
+	/*
+	const uint8 region = get_region(k, sets);
+	if (region == 0)
+	{
+		//map_roughness -= 0.2;
+		mountain_height -= 50;
+	}
+	if (region == 3)
+	{
+		//map_roughness += 0.2;
+		mountain_height += 50;
+	}
+	if (region == 2)
+	{
+		//map_roughness += 0.3;
+		mountain_height += 100;
+	}*/
+	return ((int)(perlin_noise_2D(k.x, k.y, map_roughness, map_size_max)*(double)mountain_height)) / 16;
 }
 
 sint32 karte_t::perlin_hoehe(settings_t const* const sets, koord k, koord const size)
@@ -11769,6 +11792,30 @@ bool karte_t::check_neighbouring_objects(koord pos)
 		}
 	}
 	return true;
+}
+
+uint8 karte_t::get_region(koord k, settings_t const* const sets)
+{
+	// Unfortunately, there is no easy to re-use the code from the non-static version here because 
+	// the non-static version must be const, whereas a static member function cannot be.
+	uint8 region_number = 0;
+
+	if (sets->regions.empty())
+	{
+		return 0;
+	}
+
+	uint32 current_region = 0;
+	FOR(vector_tpl<region_definition_t>, region, sets->regions)
+	{
+		if (k.x >= region.top_left.x && k.x < region.bottom_right.x && k.y >= region.top_left.y && k.y < region.bottom_right.y)
+		{
+			region_number = current_region;
+		}
+		current_region++;
+	}
+
+	return region_number;
 }
 
 uint8 karte_t::get_region(koord k) const
