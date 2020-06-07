@@ -480,7 +480,7 @@ bool player_t::new_month()
 		welt->get_message()->add_message(buf, koord::invalid, warning_message_type, player_nr, IMG_EMPTY);
 
 		// If the company has been in liquidation for too long, fully liquidate it.
-		if (false && finance->get_number_of_months_insolvent() >= 24)
+		if (finance->get_number_of_months_insolvent() >= 24)
 		{
 			// Ready to liquidate fully.
 			complete_liquidation();
