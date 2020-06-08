@@ -279,23 +279,23 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 
 	int offset_y = D_MARGIN_TOP + D_BUTTON_HEIGHT*2 + LINESPACE*2;
-	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All", scr_coord(LINE_NAME_COLUMN_WIDTH, offset_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-	bt_withdraw_line.set_tooltip("Convoi is sold when all wagons are empty.");
-	bt_withdraw_line.set_visible(false);
-	bt_withdraw_line.add_listener(this);
-	add_component(&bt_withdraw_line);
-
-	bt_line_class_manager.init(button_t::roundbox_state, "line_class_manager", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH, offset_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_line_class_manager.init(button_t::roundbox_state, "line_class_manager", scr_coord(LINE_NAME_COLUMN_WIDTH, offset_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_line_class_manager.set_tooltip("change_the_classes_for_the_entire_line");
 	bt_line_class_manager.set_visible(false);
 	bt_line_class_manager.add_listener(this);
 	add_component(&bt_line_class_manager);
 
-	bt_times_history.init(button_t::roundbox, "times_history", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH * 2, offset_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_times_history.init(button_t::roundbox, "times_history", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH, offset_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_times_history.set_tooltip("view_journey_times_history_of_this_line");
 	bt_times_history.set_visible(true);
 	bt_times_history.add_listener(this);
 	add_component(&bt_times_history);
+
+	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH * 2, offset_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_withdraw_line.set_tooltip("Convoi is sold when all wagons are empty.");
+	bt_withdraw_line.set_visible(false);
+	bt_withdraw_line.add_listener(this);
+	add_component(&bt_withdraw_line);
 
 	offset_y += D_BUTTON_HEIGHT;
 	// Select livery
