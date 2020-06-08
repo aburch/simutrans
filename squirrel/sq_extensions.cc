@@ -25,10 +25,13 @@ void unregister_vm(HSQUIRRELVM v)
 void* get_instanceup(HSQUIRRELVM vm, SQInteger index, void* tag, const char* type)
 {
 	void* ptr = NULL;
-	if(!SQ_SUCCEEDED(sq_getinstanceup(vm, index, &ptr, tag))) {
-		sq_raise_error(vm, "Expected instance of class %s.", type ? type : "<unknown>");
+	if(SQ_SUCCEEDED(sq_getinstanceup(vm, index, &ptr, tag))) {
+		return ptr;
 	}
-	return ptr;
+	else {
+		sq_raise_error(vm, "Expected instance of class %s.", type ? type : "<unknown>");
+		return NULL;
+	}
 }
 
 
