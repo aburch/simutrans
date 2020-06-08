@@ -1476,7 +1476,8 @@ bool convoi_t::drive_to()
 	const uint8 original_current_stop = schedule->get_current_stop();
 	bool schedule_advanced = false;
 
-	const bool check_onwards = front()->get_waytype() == road_wt || front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
+	const bool rail_type = front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
+	const bool check_onwards = front()->get_waytype() == road_wt || rail_type;
 
 	route_t::route_result_t success = calc_route(start, ziel, speed_to_kmh(get_min_top_speed()));
 
@@ -1555,7 +1556,7 @@ bool convoi_t::drive_to()
 #ifdef MULTI_THREAD
 			pthread_mutex_lock(&step_convois_mutex);
 #endif
-			get_owner()->report_vehicle_problem( self, ziel );
+			get_owner()->report_vehicle_problem(self, ziel);
 #ifdef MULTI_THREAD
 			int error = pthread_mutex_unlock(&step_convois_mutex);
 			assert(error == 0);
@@ -1580,15 +1581,15 @@ bool convoi_t::drive_to()
 	{
 		bool route_ok = true;
 		const uint8 current_stop = schedule->get_current_stop();
-		if(  front()->get_waytype() != water_wt  )
+		if(front()->get_waytype() != water_wt)
 		{
 			air_vehicle_t *const plane = dynamic_cast<air_vehicle_t *>(front());
 			uint32 takeoff = 0, search = 0, landing = 0;
 			air_vehicle_t::flight_state plane_state = air_vehicle_t::taxiing;
-			if(  plane  )
+			if(plane)
 			{
-				// due to the complex state system of aircrafts, we have to save index and state
-				plane->get_event_index( plane_state, takeoff, search, landing );
+				// due to the complex state system of aircraft, we have to save index and state
+				plane->get_event_index(plane_state, takeoff, search, landing);
 			}
 
 			ziel = schedule->get_current_entry().pos;
@@ -1599,15 +1600,15 @@ bool convoi_t::drive_to()
 				schedule_target = ziel;
 			}
 
-			// continue route search until the destination is a station/stop
-			while(is_waypoint(ziel))
+			// continue route search until the destination is a station/stop or a reversing waypoint
+			while(is_waypoint(ziel) && schedule->get_current_entry().reverse == false)
 			{
 				allow_clear_reservation = false;
 				start = ziel;
 				schedule->advance();
 				ziel = schedule->get_current_entry().pos;
 
-				if(  schedule->get_current_stop() == current_stop  )
+				if(schedule->get_current_stop() == current_stop)
 				{
 					// looped around without finding a halt => entire schedule is waypoints.
 					break;
@@ -1640,7 +1641,8 @@ bool convoi_t::drive_to()
 					route_ok = false;
 					break;
 				}
-				else {
+				else
+				{
 					bool looped = false;
 					if(  front()->get_waytype() != air_wt  )
 					{
@@ -1668,22 +1670,22 @@ bool convoi_t::drive_to()
 					else
 					{
 						uint32 count_offset = route.get_count()-1;
-						route.append( &next_segment);
-						if(  plane  )
+						route.append(&next_segment);
+						if(plane)
 						{
 							// maybe we need to restore index
 							air_vehicle_t::flight_state dummy1;
 							uint32 new_takeoff, new_search, new_landing;
 							plane->get_event_index( dummy1, new_takeoff, new_search, new_landing );
-							if(  takeoff == 0x7FFFFFFF  &&  new_takeoff != 0x7FFFFFFF  )
+							if(takeoff == 0x7FFFFFFF  &&  new_takeoff != 0x7FFFFFFF)
 							{
 								takeoff = new_takeoff + count_offset;
 							}
-							if(  landing == 0x7FFFFFFF  &&  new_landing != 0x7FFFFFFF  )
+							if(landing == 0x7FFFFFFF  &&  new_landing != 0x7FFFFFFF)
 							{
 								landing = new_landing + count_offset;
 							}
-							if(  search == 0x7FFFFFFF  &&  new_search != 0x7FFFFFFF )
+							if(search == 0x7FFFFFFF  &&  new_search != 0x7FFFFFF)
 							{
 								search = new_search + count_offset;
 							}
