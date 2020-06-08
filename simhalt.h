@@ -372,6 +372,15 @@ public:
 	 * Fabrikliste auf.
 	 */
 	void verbinde_fabriken();
+
+	/**
+	 * Connects factory to this halt if not already connected and
+	 * reachability check for oil rigs passed.
+	 * No station coverage checked.
+	 * @returns true if succeeded
+	 */
+	bool connect_factory(fabrik_t *fab);
+
 	void remove_fabriken(fabrik_t *fab);
 
 	/**

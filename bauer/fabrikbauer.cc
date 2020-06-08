@@ -536,8 +536,16 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 			for(  int y=pos.y;  y<pos.y+dim.y;  y++  ) {
 				const planquadrat_t *plan = welt->access(x,y);
 				const halthandle_t *halt_list = plan->get_haltlist();
+
 				for(  unsigned h=0;  h<plan->get_haltlist_count();  h++  ) {
-					halt_list[h]->verbinde_fabriken();
+					if (halt_list[h]->connect_factory(fab)) {
+						if (x != pos.x  ||  y != pos.y) {
+							// factory halt list is already correct at pos
+							fab->link_halt(halt_list[h]);
+						}
+					}
+					// cannot call halt_list[h]->verbinde_fabriken() here,
+					// as it modifies halt_list in its calls to fabrik_t::unlink_halt and fabrik_t::link_halt
 				}
 			}
 		}

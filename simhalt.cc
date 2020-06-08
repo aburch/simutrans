@@ -1103,6 +1103,20 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 /*
  * connects a factory to a halt
  */
+bool haltestelle_t::connect_factory(fabrik_t *fab)
+{
+	if(!fab_list.is_contained(fab)) {
+		// water factories can only connect to docks
+		if(  fab->get_desc()->get_placement() != factory_desc_t::Water  ||  (station_type & dock) > 0  ) {
+			// do no link to oil rigs via stations ...
+			fab_list.insert(fab);
+			return true;
+		}
+	}
+	return false;
+}
+
+
 void haltestelle_t::verbinde_fabriken()
 {
 	// unlink all
@@ -1117,13 +1131,9 @@ void haltestelle_t::verbinde_fabriken()
 
 		uint16 const cov = welt->get_settings().get_station_coverage();
 		FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(p - koord(cov, cov), p + koord(cov, cov))) {
-			if(!fab_list.is_contained(fab)) {
-				// water factories can only connect to docks
-				if(  fab->get_desc()->get_placement() != factory_desc_t::Water  ||  (station_type & dock) > 0  ) {
-					// do no link to oil rigs via stations ...
-					fab_list.insert(fab);
-					fab->link_halt(self);
-				}
+			if (connect_factory(fab)) {
+				// also connect the factory to this halt
+				fab->link_halt(self);
 			}
 		}
 	}
