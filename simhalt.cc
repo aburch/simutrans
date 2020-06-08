@@ -936,7 +936,7 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 bool haltestelle_t::has_available_network(const player_t* player, uint8 catg_index) const
 {
 	if(!player_t::check_owner( player, owner )) {
-		return false; 
+		return false;
 	}
 	if(  catg_index != goods_manager_t::INDEX_NONE  &&  !is_enabled(catg_index)  ) {
 		return false;
