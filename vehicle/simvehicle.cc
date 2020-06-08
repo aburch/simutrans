@@ -146,6 +146,18 @@ static sint8 driveleft_base_offsets[8][2] =
 //	{ 6, 6, 6, 0, -6, -6, -6, 0 }
 };
 
+static sint8 reverse_base_offsets[8][3] =
+{
+	{ 4, -1, 34 },
+	{ -1, 0, 2 },
+	{ 0, 0, 0 }, 
+	{ 0, 0, 0 }, 
+	{ -1, 0, 14 }, 
+	{ -3, -2, 32 },
+	{ 0, 0, 0 }, 
+	{ 0, 0, 0 } 
+};
+
 // [0]=xoff [1]=yoff
 sint8 vehicle_base_t::overtaking_base_offsets[8][2];
 
@@ -446,7 +458,6 @@ uint32 vehicle_base_t::do_drive(uint32 distance)
 	return distance_travelled;
 }
 
-
 // For reversing: length-8*(paksize/16)
 
 // to make smaller steps than the tile granularity, we have to use this trick
@@ -454,9 +465,11 @@ void vehicle_base_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 {
 	sint32 adjusted_steps = steps;
 	const vehicle_t* veh = obj_cast<vehicle_t>(this);
+	const int dir = ribi_t::get_dir(get_direction());
 	if (veh  &&  veh->is_reversed())
 	{
 		adjusted_steps += (VEHICLE_STEPS_PER_TILE / 2 - veh->get_desc()->get_length_in_steps());
+		adjusted_steps += reverse_base_offsets[dir][2];
 	}
 
 	// vehicles needs finer steps to appear smoother
@@ -472,10 +485,15 @@ void vehicle_base_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 	xoff += (display_steps*dx) >> 10;
 	yoff += ((display_steps*dy) >> 10) + (get_hoff(raster_width)) / (4 * 16);
 
+	if (veh && veh->is_reversed())
+	{
+		xoff += tile_raster_scale_x(reverse_base_offsets[dir][0], raster_width);
+		yoff += tile_raster_scale_y(reverse_base_offsets[dir][1], raster_width);
+	}
+
 	if(  drives_on_left  ) {
-		const int drive_left_dir = ribi_t::get_dir(get_direction());
-		xoff += tile_raster_scale_x( driveleft_base_offsets[drive_left_dir][0], raster_width );
-		yoff += tile_raster_scale_y( driveleft_base_offsets[drive_left_dir][1], raster_width );
+		xoff += tile_raster_scale_x( driveleft_base_offsets[dir][0], raster_width );
+		yoff += tile_raster_scale_y( driveleft_base_offsets[dir][1], raster_width );
 	}
 }
 
