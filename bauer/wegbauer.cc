@@ -417,8 +417,8 @@ bool way_builder_t::check_slope( const grund_t *from, const grund_t *to )
 	const koord zv=to_pos-from_pos;
 
 	if(  !desc->has_double_slopes()
-		&&  (    (from->get_weg_hang()  &&  !(from->get_weg_hang() & 7))
-		      ||   (to->get_weg_hang()  &&    !(to->get_weg_hang() & 7))  )  ) {
+		&&  (    (from->get_weg_hang()  &&  !is_one_high(from->get_weg_hang()))
+		      ||   (to->get_weg_hang()  &&    !is_one_high(to->get_weg_hang()))  )  ) {
 		return false;
 	}
 
@@ -976,16 +976,16 @@ void way_builder_t::do_terraforming()
 		bool changed = false;
 		// change slope of from
 		if(  from_slope != from->get_grund_hang()  ) {
-			if(  from_slope == slope_t::raised  ) {
+			if(  from_slope == slope_t::all_up_two  ) {
 				from->set_hoehe( from->get_hoehe() + 2 );
 				from->set_grund_hang( slope_t::flat );
 				route[i].z = from->get_hoehe();
 			}
-			else if(  from_slope != slope_t::raised / 2  ) {
+			else if(  from_slope != slope_t::all_up_one  ) {
 				// bit of a hack to recognise single height slopes shifted up 1
-				if(  from_slope > slope_t::raised / 2  &&  slope_t::is_single( from_slope-slope_t::raised / 2 )  ) {
+				if(  from_slope > slope_t::all_up_one  &&  slope_t::is_single( from_slope-slope_t::all_up_one )  ) {
 					from->set_hoehe( from->get_hoehe() + 1 );
-					from_slope -= slope_t::raised / 2;
+					from_slope -= slope_t::all_up_one;
 					route[i].z = from->get_hoehe();
 				}
 				from->set_grund_hang( from_slope );
@@ -1003,16 +1003,16 @@ void way_builder_t::do_terraforming()
 		}
 		// change slope of to
 		if(  to_slope != to->get_grund_hang()  ) {
-			if(  to_slope == slope_t::raised  ) {
+			if(  to_slope == slope_t::all_up_two  ) {
 				to->set_hoehe( to->get_hoehe() + 2 );
 				to->set_grund_hang( slope_t::flat );
 				route[i + 1].z = to->get_hoehe();
 			}
-			else if(  to_slope != slope_t::raised / 2  ) {
+			else if(  to_slope != slope_t::all_up_one  ) {
 				// bit of a hack to recognise single height slopes shifted up 1
-				if(  to_slope > slope_t::raised / 2  &&  slope_t::is_single( to_slope-slope_t::raised / 2 )  ) {
+				if(  to_slope > slope_t::all_up_one  &&  slope_t::is_single( to_slope-slope_t::all_up_one )  ) {
 					to->set_hoehe( to->get_hoehe() + 1 );
-					to_slope -= slope_t::raised / 2;
+					to_slope -= slope_t::all_up_one;
 					route[i + 1].z = to->get_hoehe();
 				}
 				to->set_grund_hang(to_slope);

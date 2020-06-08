@@ -481,7 +481,7 @@ void vehicle_base_t::calc_height(grund_t *gr)
 		// will not work great with ways, but is very short!
 		slope_t::type hang = gr->get_weg_hang();
 		if(  hang  ) {
-			const uint slope_height = (hang & 7) ? 1 : 2;
+			const uint slope_height = is_one_high(hang) ? 1 : 2;
 			ribi_t::ribi hang_ribi = ribi_type(hang);
 			if(  ribi_t::doubles(hang_ribi)  ==  ribi_t::doubles(direction)) {
 				zoff_start = hang_ribi & direction                      ? 2*slope_height : 0;  // 0 .. 4
@@ -1192,7 +1192,7 @@ void vehicle_t::calc_friction(const grund_t *gr)
 	// or a hill?
 	const slope_t::type hang = gr->get_weg_hang();
 	if(  hang != slope_t::flat  ) {
-		const uint slope_height = (hang & 7) ? 1 : 2;
+		const uint slope_height = is_one_high(hang) ? 1 : 2;
 		if(  ribi_type(hang) == direction  ) {
 			// hill up, since height offsets are negative: heavy decelerate
 			current_friction += 15 * slope_height * slope_height;
