@@ -1576,14 +1576,17 @@ bool convoi_t::drive_to()
 			wait_lock_next_step = 25000;
 		}
 	}
-	else {
+	else
+	{
 		bool route_ok = true;
 		const uint8 current_stop = schedule->get_current_stop();
-		if(  front()->get_waytype() != water_wt  ) {
+		if(  front()->get_waytype() != water_wt  )
+		{
 			air_vehicle_t *const plane = dynamic_cast<air_vehicle_t *>(front());
 			uint32 takeoff = 0, search = 0, landing = 0;
 			air_vehicle_t::flight_state plane_state = air_vehicle_t::taxiing;
-			if(  plane  ) {
+			if(  plane  )
+			{
 				// due to the complex state system of aircrafts, we have to save index and state
 				plane->get_event_index( plane_state, takeoff, search, landing );
 			}
@@ -1591,13 +1594,13 @@ bool convoi_t::drive_to()
 			ziel = schedule->get_current_entry().pos;
 
 			// set next schedule target position if next is a waypoint
-			if(  is_waypoint(ziel)  )
+			if(is_waypoint(ziel))
 			{
 				schedule_target = ziel;
 			}
 
-			// continue route search until the destination is a station
-			while(  is_waypoint(ziel)  )
+			// continue route search until the destination is a station/stop
+			while(is_waypoint(ziel))
 			{
 				allow_clear_reservation = false;
 				start = ziel;
@@ -1612,13 +1615,15 @@ bool convoi_t::drive_to()
 
 				route_t next_segment;
 				const route_t::route_result_t result = front()->calc_route(start, ziel, speed_to_kmh(get_min_top_speed()), has_tall_vehicles(), &next_segment);
-				if (result != route_t::valid_route) {
+				if (result != route_t::valid_route)
+				{
 					// do we still have a valid route to proceed => then go until there
-					if(  route.get_count()>1  ) {
+					if(route.get_count() > 1)
+					{
 						break;
 					}
 					// we are stuck on our first routing attempt => give up
-					if(  state != NO_ROUTE && state != NO_ROUTE_TOO_COMPLEX )
+					if(state != NO_ROUTE && state != NO_ROUTE_TOO_COMPLEX)
 					{
 						state = result == route_t::route_too_complex ? NO_ROUTE_TOO_COMPLEX : NO_ROUTE;
 #ifdef MULTI_THREAD
@@ -1637,13 +1642,16 @@ bool convoi_t::drive_to()
 				}
 				else {
 					bool looped = false;
-					if(  front()->get_waytype() != air_wt  ) {
-							// check if the route circles back on itself (only check the first tile, should be enough)
+					if(  front()->get_waytype() != air_wt  )
+					{
+						// check if the route circles back on itself (only check the first tile, should be enough)
 						looped = route.is_contained(next_segment.at(1));
 #if 0
-						// this will forbid an eight figure, which might be clever to avoid a problem of reserving one own track
-						for(  unsigned i = 1;  i<next_segment.get_count();  i++  ) {
-							if(  route.is_contained(next_segment.at(i))  ) {
+						// this will forbid an eight figure, which might be clever to avoid a problem of reserving one's own track
+						for(unsigned i = 1; i < next_segment.get_count(); i++)
+						{
+							if(route.is_contained(next_segment.at(i)))
+							{
 								looped = true;
 								break;
 							}
@@ -1651,26 +1659,32 @@ bool convoi_t::drive_to()
 #endif
 					}
 
-					if(  looped  ) {
+					if(looped)
+					{
 						// proceed up to the waypoint before the loop. Will pause there for a new route search.
 						schedule_target = koord3d::invalid;
 						break;
 					}
-					else {
+					else
+					{
 						uint32 count_offset = route.get_count()-1;
 						route.append( &next_segment);
-						if(  plane  ) {
+						if(  plane  )
+						{
 							// maybe we need to restore index
 							air_vehicle_t::flight_state dummy1;
 							uint32 new_takeoff, new_search, new_landing;
 							plane->get_event_index( dummy1, new_takeoff, new_search, new_landing );
-							if(  takeoff == 0x7FFFFFFF  &&  new_takeoff != 0x7FFFFFFF  ) {
+							if(  takeoff == 0x7FFFFFFF  &&  new_takeoff != 0x7FFFFFFF  )
+							{
 								takeoff = new_takeoff + count_offset;
 							}
-							if(  landing == 0x7FFFFFFF  &&  new_landing != 0x7FFFFFFF  ) {
+							if(  landing == 0x7FFFFFFF  &&  new_landing != 0x7FFFFFFF  )
+							{
 								landing = new_landing + count_offset;
 							}
-							if(  search == 0x7FFFFFFF  &&  new_search != 0x7FFFFFFF ) {
+							if(  search == 0x7FFFFFFF  &&  new_search != 0x7FFFFFFF )
+							{
 								search = new_search + count_offset;
 							}
 						}
@@ -1679,14 +1693,16 @@ bool convoi_t::drive_to()
 				allow_clear_reservation = true;
 			}
 
-			if(  plane  ) {
+			if(plane)
+			{
 				// due to the complex state system of aircrafts, we have to restore index and state
-				plane->set_event_index( plane_state, takeoff, search, landing );
+				plane->set_event_index(plane_state, takeoff, search, landing);
 			}
 		}
 
 		schedule_target = ziel;
-		if(  route_ok  ) {
+		if(route_ok)
+		{
 			// When this was single threaded, this was an immediate call to vorfahren(), but this cannot be called when multi-threaded.
 			state = ROUTE_JUST_FOUND;
 			return true;
