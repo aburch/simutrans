@@ -2230,7 +2230,7 @@ void way_builder_t::build_tunnel_and_bridges()
 	// check for bridges and tunnels (no tunnel/bridge at last/first tile)
 	for(uint32 i=1; i<get_count()-2; i++) {
 		koord d = (route[i + 1] - route[i]).get_2d();
-		koord zv = koord (sgn(d.x), sgn(d.y));
+		const koord zv(ribi_type(d));
 
 		// ok, here is a gap ...
 		if(d.x > 1 || d.y > 1 || d.x < -1 || d.y < -1) {
@@ -2254,9 +2254,16 @@ void way_builder_t::build_tunnel_and_bridges()
 				continue;
 			}
 
-			if(start->get_grund_hang()==0  ||  start->get_grund_hang()==slope_type(zv*(-1))) {
-				// bridge here, since the route is saved backwards, we have to build it at the posterior end
-				bridge_builder_t::build( player_builder, route[i+1], bridge_desc);
+			if(start->get_grund_hang()==slope_t::flat  ||  start->get_grund_hang()==slope_type(zv*(-1))  ||  start->get_grund_hang()==2*slope_type(zv*(-1))) {
+				// code derived from simtool
+				
+				sint8 bridge_height = 0;
+				const char *error;
+
+				koord3d end = bridge_builder_t::find_end_pos(player_builder, route[i], zv, bridge_desc, error, bridge_height, false, koord_distance(route[i], route[i+1]), false);
+				if (end == route[i+1]) {
+					bridge_builder_t::build_bridge( player_builder, route[i], route[i+1], zv, bridge_height, bridge_desc, way_builder_t::weg_search(bridge_desc->get_waytype(), bridge_desc->get_topspeed(), welt->get_timeline_year_month(), type_flat));
+				}
 			}
 			else {
 				// tunnel

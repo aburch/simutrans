@@ -65,7 +65,7 @@ public:
 
 
 	/// Compute the slope opposite to @p x. Returns flat if @p x does not allow ways on it.
-	static type opposite(type x) { return is_single(x) ? (x & 7 ? (40 - x) : (80 - x * 2)) : flat; }
+	static type opposite(type x) { return is_single(x) ? (x & 7 ? (40 - x) : (80 - x)) : flat; }
 	/// Rotate.
 	static type rotate90(type x) { return ( ( (x % 3) * 27 ) + ( ( x - (x % 3) ) / 3 ) ); }
 	/// Returns true if @p x has all corners raised.
