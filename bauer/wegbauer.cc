@@ -2101,7 +2101,7 @@ void way_builder_t::build_tunnel_and_bridges()
 	// check for bridges and tunnels (no tunnel/bridge at last/first tile)
 	for(uint32 i=1; i<get_count()-2; i++) {
 		koord d = (route[i + 1] - route[i]).get_2d();
-		koord zv = koord (sgn(d.x), sgn(d.y));
+		const koord zv(ribi_type(d));
 
 		// ok, here is a gap ...
 		if(d.x > 1 || d.y > 1 || d.x < -1 || d.y < -1) {
