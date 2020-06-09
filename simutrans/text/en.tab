@@ -1278,6 +1278,8 @@ Scraw
 Brad
 %49_CITY_SYLL[1]
 Scramp
+%4A_CITY_SYLL[1]
+Apple
 #
 # Max: 400 (hex)
 #
@@ -2156,6 +2158,8 @@ bury
 ton
 &20_CITY_SYLL[1]
 with
+&21_CITY_SYLL[1]
+by
 #
 # Max: 200 (hex)
 #
