@@ -817,12 +817,18 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 								crossconnected_supplier.append(fab);
 								FOR(vector_tpl<koord>, const& t, lieferziele) {
 									fabrik_t* zfab = fabrik_t::get_fab(t);
-									slist_tpl<factories_to_crossconnect_t>::iterator i = std::find(factories_to_correct.begin(), factories_to_correct.end(), factories_to_crossconnect_t(zfab, 0));
-									if (i == factories_to_correct.end()) {
-										factories_to_correct.append(factories_to_crossconnect_t(zfab, 1));
-									}
-									else {
-										i->demand += 1;
+									for(int zz=0;  zz<zfab->get_desc()->get_supplier_count();  zz++) {
+										if(zfab->get_desc()->get_supplier(zz)->get_input_type()==ware) {
+
+											slist_tpl<factories_to_crossconnect_t>::iterator i = std::find(factories_to_correct.begin(), factories_to_correct.end(), factories_to_crossconnect_t(zfab, 0));
+											if (i == factories_to_correct.end()) {
+												factories_to_correct.append(factories_to_crossconnect_t(zfab, 1));
+											}
+											else {
+												i->demand += 1;
+											}
+
+										}
 									}
 								}
 								// the needed production to be built does not change!
