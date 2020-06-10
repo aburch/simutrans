@@ -822,6 +822,7 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 	chart.set_size(scr_size(rest_width-68-D_MARGIN_RIGHT, SCL_HEIGHT-14-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))));
 	inp_name.set_size(scr_size(rest_width - 31, 14));
 	filled_bar.set_size(scr_size(rest_width/2-24-D_MARGIN_RIGHT, 4));
+	bt_withdraw_line.set_pos(scr_coord(get_windowsize().w - D_BUTTON_WIDTH - D_MARGIN_LEFT, bt_withdraw_line.get_pos().y));
 
 	int y=SCL_HEIGHT-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))+18;
 	for (int i=0; i<MAX_LINE_COST; i++) {
