@@ -1652,7 +1652,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		if(  sint64 fix_cost = welt->scale_with_month_length(veh_type->get_maintenance())  ) {
 			char tmp[128];
 			money_to_string( tmp, veh_type->get_price() / 100.0, false );
-			buf.printf( translator::translate("Cost: %8s (%.2f$/km %.2f$/m)\n"), tmp, veh_type->get_running_cost()/100.0, fix_cost/100.0 );
+			buf.printf( translator::translate("Cost: %8s (%.2f$/km %.f$/m)\n"), tmp, veh_type->get_running_cost()/100.0, fix_cost/100.0 );
 		}
 		else {
 			char tmp[128];

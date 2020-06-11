@@ -86,6 +86,7 @@ public:
 					l->set_color(MONEY_MINUS);
 					l->update();
 				}
+				end_table();
 			}
 
 			if(v->get_cargo_max() > 0) {
