@@ -27,6 +27,7 @@ public:
 	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
 
 private:
+	char buf[64];
 
 	gui_aligned_container_t container;
 	gui_scrollpane_t scrolly;

@@ -55,14 +55,6 @@ public:
 			l->update();
 			// value
 			add_component(&label_resale);
-			// power
-			if(v->get_desc()->get_power()>0) {
-				l = new_component<gui_label_buf_t>();
-				l->buf().printf("%s %i kW, %s %.2f", translator::translate("Power:"), v->get_desc()->get_power(), translator::translate("Gear:"), v->get_desc()->get_gear()/64.0 );
-				l->update();
-			}
-			// friction
-			add_component(&label_friction);
 			// max income
 			sint64 max_income = - v->get_operating_cost();
 			if(v->get_cargo_max() > 0) {
@@ -76,6 +68,15 @@ public:
 				l->update();
 			}
 			end_table();
+			// power
+			if(v->get_desc()->get_power()>0) {
+				l = new_component<gui_label_buf_t>();
+				l->buf().printf("%s %i kW, %s %.2f", translator::translate("Power:"), v->get_desc()->get_power(), translator::translate("Gear:"), v->get_desc()->get_gear()/64.0 );
+				l->update();
+			}
+			// friction
+			add_component(&label_friction);
+#if 0
 			// maintenance
 			if(  sint64 cost = welt->scale_with_month_length(v->get_desc()->get_maintenance())  ) {
 				add_table(2,1);
@@ -88,7 +89,7 @@ public:
 				}
 				end_table();
 			}
-
+#endif
 			if(v->get_cargo_max() > 0) {
 				// freight type
 				goods_desc_t const& g    = *v->get_cargo_type();
@@ -106,8 +107,17 @@ public:
 
 	void update_labels()
 	{
-		label_resale.buf().printf("%s ", translator::translate("Restwert:"));
-		label_resale.buf().append_money(v->calc_sale_value() / 100.0);
+		char buf[128];
+		if(  sint64 fix_cost = world()->scale_with_month_length((sint64)v->get_desc()->get_maintenance())  ) {
+			money_to_string(  buf, (double)v->calc_sale_value() / 100.0, false );
+			label_resale.buf().printf( translator::translate("Cost: %8s (%.2f$/km %.2f$/m)\n"), buf, (double)v->get_desc()->get_running_cost()/100.0, (double)fix_cost/100.0 );
+		}
+		else {
+			money_to_string(  buf, v->calc_sale_value() / 100.0, false );
+			label_resale.buf().printf( translator::translate("Cost: %8s (%.2f$/km)\n"), buf, (double)v->get_desc()->get_running_cost()/100.0 );
+		}
+//		label_resale.buf().printf("%s ", translator::translate("Restwert:"));
+//		label_resale.buf().append_money(v->calc_sale_value() / 100.0);
 		label_resale.update();
 		label_friction.buf().printf( "%s %i", translator::translate("Friction:"), v->get_frictionfactor() );
 		label_friction.update();

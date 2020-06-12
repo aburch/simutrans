@@ -385,6 +385,9 @@ bool player_t::new_month()
 
 	// subtract maintenance after bankruptcy check
 	finance->book_account( -finance->get_maintenance_with_bits(TT_ALL) );
+
+	// book vehicle fixed costs
+
 	// company gets older ...
 	player_age ++;
 
