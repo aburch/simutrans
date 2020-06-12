@@ -62,7 +62,7 @@ settings_t::settings_t() :
 
 	// default climate zones
 	set_default_climates( );
-	winter_snowline = 7;	// not mediterranean
+	winter_snowline = 7; // not mediterranean
 	groundwater = -2;
 
 	max_mountain_height = 160;                  //can be 0-160.0
@@ -161,7 +161,7 @@ settings_t::settings_t() :
 	just_in_time = env_t::just_in_time;
 
 	random_pedestrians = true;
-	stadtauto_duration = 36;	// three years
+	stadtauto_duration = 36; // three years
 
 	// to keep names consistent
 	numbered_stations = false;
@@ -233,7 +233,7 @@ settings_t::settings_t() :
 	// off
 	unprotect_abandoned_player_months = 0;
 
-	maint_building = 5000;	// normal buildings
+	maint_building = 5000; // normal buildings
 	way_toll_runningcost_percentage = 0;
 	way_toll_waycost_percentage = 0;
 
@@ -295,7 +295,7 @@ settings_t::settings_t() :
 	used_vehicle_reduction = 0;
 
 	// some network thing to keep client in sync
-	random_counter = 0;	// will be set when actually saving
+	random_counter = 0; // will be set when actually saving
 	frames_per_second = 20;
 	frames_per_step = 4;
 	server_frames_ahead = 4;
@@ -326,7 +326,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 		// to be compatible with previous savegames
 		dummy = 0;
-		file->rdwr_long(dummy );	//dummy!
+		file->rdwr_long(dummy ); //dummy!
 		factory_count = 12;
 		tourist_attractions = 12;
 
@@ -341,7 +341,7 @@ void settings_t::rdwr(loadsave_t *file)
 		city_count = dummy;
 
 		// rest
-		file->rdwr_long(dummy );	// scroll ignored
+		file->rdwr_long(dummy ); // scroll ignored
 		file->rdwr_long(traffic_level );
 		file->rdwr_long(show_pax );
 		dummy = groundwater;
@@ -362,7 +362,7 @@ void settings_t::rdwr(loadsave_t *file)
 		// industries
 		file->rdwr_long(factory_count );
 		if(file->is_version_less(99, 18)) {
-			uint32 dummy;	// was city chains
+			uint32 dummy; // was city chains
 			file->rdwr_long(dummy );
 		}
 		else {
@@ -376,7 +376,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 		// rest
 		if(file->is_version_less(101, 0)) {
-			uint32 dummy;	// was scroll dir
+			uint32 dummy; // was scroll dir
 			file->rdwr_long(dummy );
 		}
 		file->rdwr_long(traffic_level );
@@ -701,13 +701,13 @@ void settings_t::rdwr(loadsave_t *file)
 			random_counter = get_random_seed( );
 			file->rdwr_long( random_counter );
 			if(  !env_t::networkmode  ||  env_t::server  ) {
-				frames_per_second = clamp(env_t::fps,5,100 );	// update it on the server to the current setting
+				frames_per_second = clamp(env_t::fps,5,100 ); // update it on the server to the current setting
 				frames_per_step = env_t::network_frames_per_step;
 			}
 			file->rdwr_long( frames_per_second );
 			file->rdwr_long( frames_per_step );
 			if(  !env_t::networkmode  ||  env_t::server  ) {
-				frames_per_second = env_t::fps;	// update it on the server to the current setting
+				frames_per_second = env_t::fps; // update it on the server to the current setting
 				frames_per_step = env_t::network_frames_per_step;
 			}
 			file->rdwr_bool( allow_buying_obsolete_vehicles );
@@ -1161,8 +1161,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	random_pedestrians = contents.get_int("random_pedestrians", random_pedestrians ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
-	traffic_level = contents.get_int("citycar_level", traffic_level );	// ten normal years
-	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration );	// ten normal years
+	traffic_level = contents.get_int("citycar_level", traffic_level ); // ten normal years
+	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration ); // ten normal years
 	allow_buying_obsolete_vehicles = contents.get_int("allow_buying_obsolete_vehicles", allow_buying_obsolete_vehicles );
 	used_vehicle_reduction  = clamp( contents.get_int("used_vehicle_reduction", used_vehicle_reduction ), 0, 1000 );
 

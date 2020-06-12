@@ -57,11 +57,11 @@ private:
 	unsigned buf_pos[2];
 	unsigned buf_len[2];
 	char* ls_buf[2];
-	uint32 version; ///< savegame version
-	int ident;		// only for XML formatting
-	char pak_extension[64];	// name of the pak folder during savetime
+	uint32 version;         ///< savegame version
+	int ident;              // only for XML formatting
+	char pak_extension[64]; // name of the pak folder during savetime
 
-	std::string filename;	// the current name ...
+	std::string filename;   // the current name ...
 
 	file_descriptors_t *fd;
 
@@ -93,7 +93,7 @@ private:
 public:
 	static mode_t save_mode;     ///< default to use for saving
 	static mode_t autosave_mode; ///< default to use for autosaves and network mode client temp saves
-	static int save_level;    ///< default to use for compression (various libraries allow for szie/speed settings)
+	static int save_level;       ///< default to use for compression (various libraries allow for size/speed settings)
 	static int autosave_level;
 
 	/**

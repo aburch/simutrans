@@ -95,14 +95,14 @@ weg_t* weg_t::alloc(waytype_t wt)
 const char *weg_t::waytype_to_string(waytype_t wt)
 {
 	switch(wt) {
-		case tram_wt:	return "tram_track";
-		case track_wt:	return "track";
-		case monorail_wt: return "monorail_track";
-		case maglev_wt: return "maglev_track";
+		case tram_wt:        return "tram_track";
+		case track_wt:       return "track";
+		case monorail_wt:    return "monorail_track";
+		case maglev_wt:      return "maglev_track";
 		case narrowgauge_wt: return "narrowgauge_track";
-		case road_wt:	return "road";
-		case water_wt:	return "water";
-		case air_wt:	return "air";
+		case road_wt:        return "road";
+		case water_wt:       return "water";
+		case air_wt:         return "air";
 		default:
 			// keep compiler happy; should never reach here anyway
 			break;
@@ -177,8 +177,8 @@ void weg_t::rdwr(loadsave_t *file)
 	uint8 dummy8 = ribi;
 	file->rdwr_byte(dummy8);
 	if(  file->is_loading()  ) {
-		ribi = dummy8 & 15;	// before: high bits was maske
-		ribi_maske = 0;	// maske will be restored by signal/roadsing
+		ribi = dummy8 & 15; // before: high bits was maske
+		ribi_maske = 0; // maske will be restored by signal/roadsing
 	}
 
 	uint16 dummy16=max_speed;
@@ -417,7 +417,7 @@ void weg_t::calc_image()
 #ifdef MULTI_THREAD
 		pthread_mutex_unlock( &weg_calc_image_mutex );
 #endif
-		return;	// otherwise crashing during enlargement
+		return; // otherwise crashing during enlargement
 	}
 	else if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
 		// in tunnel mouth, no underground mode

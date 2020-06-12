@@ -19,11 +19,11 @@ class message_stats_t : public gui_world_component_t
 {
 private:
 	message_t *msg;
-	sint32 message_type;								// message type for filtering; -1 indicates no filtering
+	sint32 message_type;                              // message type for filtering; -1 indicates no filtering
 	uint32 last_count;
 	sint32 message_selected;
-	const slist_tpl<message_t::node *> *message_list;	// points to the active message list (original or filtered)
-	slist_tpl<message_t::node *> filtered_messages;		// cache the list of messages belonging to a certain type
+	const slist_tpl<message_t::node *> *message_list; // points to the active message list (original or filtered)
+	slist_tpl<message_t::node *> filtered_messages;   // cache the list of messages belonging to a certain type
 
 	scr_size min_size;
 

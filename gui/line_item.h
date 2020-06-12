@@ -27,7 +27,7 @@ public:
 	linehandle_t get_line() const { return line; }
 	char const* get_text() const OVERRIDE;
 	void set_text(char const*) OVERRIDE;
-	bool is_valid() const OVERRIDE { return line.is_bound(); }	//  can be used to indicate invalid entries
+	bool is_valid() const OVERRIDE { return line.is_bound(); } //  can be used to indicate invalid entries
 	bool is_editable() const OVERRIDE { return true; }
 	static bool compare(const gui_component_t *a, const gui_component_t *b );
 };

@@ -50,7 +50,7 @@ char const* network_receive_file( SOCKET const s, char const* const save_as, sin
 					fd_set fds;
 					FD_ZERO(&fds);
 					FD_SET(s,&fds);
-					struct timeval tv;	// 10 s timeout
+					struct timeval tv; // 10 s timeout
 					tv.tv_sec = 10000 / 1000;
 					tv.tv_usec = (10000 % 1000) * 1000ul;
 					// can we read?
@@ -123,7 +123,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 			}
 		}
 		// wait for join command (tolerate some wrong commands)
-		nwc = network_check_activity( NULL, 10000 );	// 10s should be enough for reply ...
+		nwc = network_check_activity( NULL, 10000 ); // 10s should be enough for reply ...
 		if (nwc==NULL) {
 			err = "Server did not respond!";
 			goto end;
@@ -343,7 +343,7 @@ const char *network_http_post( const char *address, const char *name, const char
 		unsigned int pos = 0;
 		sint32 length = 0;
 
-		// TODO better handling of error message from listing server		// TODO
+		// TODO better handling of error message from listing server // TODO
 
 		while(1) {
 			// Returns number of bytes received

@@ -9,7 +9,7 @@
 #include "../obj_desc.h"
 
 
-uint32 obj_node_t::free_offset;	    // next free offset in file
+uint32 obj_node_t::free_offset; // next free offset in file
 
 
 obj_node_t::obj_node_t(obj_writer_t* writer, uint32 size, obj_node_t* parent)
@@ -20,11 +20,11 @@ obj_node_t::obj_node_t(obj_writer_t* writer, uint32 size, obj_node_t* parent)
 	desc.children = 0;
 	desc.size = size;
 	if(  size<LARGE_RECORD_SIZE  ) {
-		write_offset = free_offset + OBJ_NODE_INFO_SIZE;	// put size of dis here!
+		write_offset = free_offset + OBJ_NODE_INFO_SIZE; // put size of dis here!
 		free_offset = write_offset + desc.size;
 	}
 	else {
-		write_offset = free_offset + EXT_OBJ_NODE_INFO_SIZE;	// put size of dis here!
+		write_offset = free_offset + EXT_OBJ_NODE_INFO_SIZE; // put size of dis here!
 		free_offset = write_offset + desc.size;
 	}
 }
@@ -69,7 +69,7 @@ void obj_node_t::write(FILE* fp)
 		uint32 size     = endian(desc.size);
 		fwrite(&type, 4, 1, fp);
 		fwrite(&children, 2, 1, fp);
-		fwrite(&size16, 2, 1, fp);	// 0xFFFF
+		fwrite(&size16, 2, 1, fp); // 0xFFFF
 		fwrite(&size, 4, 1, fp);
 	}
 	if (parent) {

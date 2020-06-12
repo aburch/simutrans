@@ -121,7 +121,7 @@ private:
 	sint64 sum_friction_weight;
 	// 56 bytes
 	sint32 akt_speed_soll;    // target speed
-	sint32 akt_speed;	      // current speed
+	sint32 akt_speed;         // current speed
 	// 64 bytes
 
 	/**
@@ -161,7 +161,7 @@ private:
 	// TODO number of vehicles is stored in array_tpl too!
 	uint8 anz_vehikel;
 
-	uint32 next_wolke;	// time to next smoke
+	uint32 next_wolke; // time to next smoke
 
 	/**
 	 * Route of this convoi - a sequence of coordinates. Actually
@@ -272,7 +272,7 @@ private:
 	uint32 sum_speed_limit; // sum of the speed limits encountered since the last stop
 
 	sint32 speedbonus_kmh; // speed used for speedbonus calculation in km/h
-	sint32 maxspeed_average_count;	// just a simple count to average for statistics
+	sint32 maxspeed_average_count; // just a simple count to average for statistics
 
 
 	ribi_t::ribi alte_richtung;

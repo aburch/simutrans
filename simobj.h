@@ -115,7 +115,7 @@ public:
 		undefined=-1, obj=0, baum=1, zeiger=2,
 		wolke=3, sync_wolke=4, async_wolke=5,
 
-		gebaeude=7,	// animated buildings (6 not used any more)
+		gebaeude=7, // animated buildings (6 not used any more)
 		signal=8,
 
 		bruecke=9, tunnel=10,
@@ -130,7 +130,7 @@ public:
 		wayobj = 25,
 		way = 26, // since 99.04 ways are normal things and stored in the objliste_t!
 
-		label = 27,	// indicates ownership
+		label = 27, // indicates ownership
 		field = 28,
 		crossing = 29,
 		groundobj = 30, // lakes, stones
@@ -152,8 +152,8 @@ public:
 
 		// other new objs (obsolete, only used during loading old games
 		// lagerhaus = 24, (never really used)
-		// gebaeude_alt=6,	(very, very old?)
-		old_gebaeudefundament=11,	// wall below buildings, not used any more
+		// gebaeude_alt=6, (very, very old?)
+		old_gebaeudefundament=11, // wall below buildings, not used any more
 		old_automobil=32, old_waggon=33,
 		old_schiff=34, old_aircraft=35, old_monorailwaggon=36,
 		old_verkehr=41,

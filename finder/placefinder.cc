@@ -75,10 +75,10 @@ bool pos_list_t::get_next_pos(koord &k)
 	}
 	if(row != -1) {
 		if(quadrant == 1 && !row) {
-			quadrant += 2;		// skip second 0, +/-y
+			quadrant += 2; // skip second 0, +/-y
 		}
 		if(quadrant % 2 == 1 && !columns[row]) {
-			quadrant ++;		// skip second +/-x, 0
+			quadrant ++; // skip second +/-x, 0
 		}
 		return get_pos(k);
 	}

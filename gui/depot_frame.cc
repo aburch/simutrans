@@ -139,7 +139,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	cont_convoi.add_component(&lb_convoi_number);
 	cont_convoi.add_component(&convoi);
 
-	//	add_component(&convoi);
+	// add_component(&convoi);
 
 	add_component(&lb_convoi_count);
 	add_component(&lb_convoi_speed);
@@ -332,24 +332,23 @@ void depot_frame_t::layout(scr_size *size)
 	}
 
 	/*
-	*	Dialog format:
-	*
-	*	Main structure are these parts from top to bottom:
-	*
-	*	    [SELECT]		convoi-selector
-	*	    [CONVOI]		current convoi
-	*	    [ACTIONS]		convoi action buttons
-	*	    [PANEL]		vehicle panel
-	*	    [VINFO]		vehicle infotext
-	*
-	*
-	*	Structure of [SELECT] is:
-	*
-	*	    [Info]
-	*	    [PREV][LABEL][NEXT]
-	*
-	*  PREV and NEXT are small buttons - Label is adjusted to total width.
-	*/
+	 * Dialog format:
+	 *
+	 * Main structure are these parts from top to bottom:
+	 *
+	 *     [SELECT]    convoi-selector
+	 *     [CONVOI]    current convoi
+	 *     [ACTIONS]   convoi action buttons
+	 *     [PANEL]     vehicle panel
+	 *     [VINFO]     vehicle infotext
+	 *
+	 * Structure of [SELECT] is:
+	 *
+	 *     [Info]
+	 *     [PREV][LABEL][NEXT]
+	 *
+	 *  PREV and NEXT are small buttons - Label is adjusted to total width.
+	 */
 	const scr_coord_val SELECT_HEIGHT = D_BUTTON_HEIGHT;
 	const scr_coord_val selector_x = max(max(max(max(max(102, proportional_string_width(translator::translate("no convois")) + 4),
 		proportional_string_width(translator::translate("1 convoi")) + 4),
@@ -361,32 +360,32 @@ void depot_frame_t::layout(scr_size *size)
 	const scr_coord_val BUTTON_WIDTH_DEPOT = max(D_BUTTON_WIDTH,(win_size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT - 4*D_H_SPACE) / 4);
 
 	/*
-	*	Structure of [CONVOI] is a image_list and an infos:
-	*
-	*	    [List]
-	*	    [Info]
-	*
-	* The image list is horizontally "condensed".
-	*/
+	 * Structure of [CONVOI] is a image_list and an infos:
+	 *
+	 *     [List]
+	 *     [Info]
+	 *
+	 * The image list is horizontally "condensed".
+	 */
 	const scr_coord_val CLIST_WIDTH = depot->get_max_convoi_length() * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;
 	const scr_coord_val CLIST_HEIGHT = grid.y + 2 * gui_image_list_t::BORDER + 5;
 	const scr_coord_val CINFO_HEIGHT = LINESPACE * 3 + D_BUTTON_HEIGHT + 1;
 
 	/*
-	*	Structure of [ACTIONS] is a row of buttons:
-	*
-	*	    [Start][Schedule][Destroy][Sell]
-	*	    [new Route][change Route][delete Route]
-	*/
+	 * Structure of [ACTIONS] is a row of buttons:
+	 *
+	 *     [Start][Schedule][Destroy][Sell]
+	 *     [new Route][change Route][delete Route]
+	 */
 	/*
-	*	Structure of [VINFO] is one multiline text.
-	*/
+	 * Structure of [VINFO] is one multiline text.
+	 */
 	const scr_coord_val VINFO_HEIGHT =  7*LINESPACE + D_BUTTON_HEIGHT + D_EDIT_HEIGHT + 5*D_V_SPACE;
 
 	/*
-	*  Now we can do the first vertical adjustment:
-	*  Calculate position of each element to tabs.
-	*/
+	 *  Now we can do the first vertical adjustment:
+	 *  Calculate position of each element to tabs.
+	 */
 	const scr_coord_val SELECT_VSTART = D_MARGIN_TOP;
 	const scr_coord_val CONVOI_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE + D_V_SPACE;
 	const scr_coord_val CINFO_VSTART = CONVOI_VSTART + CLIST_HEIGHT +  D_SCROLLBAR_HEIGHT*(CLIST_WIDTH >= win_size.w-D_MARGIN_LEFT-D_MARGIN_RIGHT);
@@ -394,11 +393,11 @@ void depot_frame_t::layout(scr_size *size)
 	const scr_coord_val PANEL_VSTART = ACTIONS_VSTART + D_BUTTON_HEIGHT;
 
 	/*
-	* Now we determine the row/col layout for the panel and the total panel
-	* size.
-	* build_vehicle_lists() fills loks_vec and waggon_vec.
-	* Total width will be expanded to match complete columns in panel.
-	*/
+	 * Now we determine the row/col layout for the panel and the total panel
+	 * size.
+	 * build_vehicle_lists() fills loks_vec and waggon_vec.
+	 * Total width will be expanded to match complete columns in panel.
+	 */
 	const scr_coord_val TAB_HEADER_HEIGHT = tabs.get_required_size().h;
 	const scr_coord_val total_h = PANEL_VSTART + VINFO_HEIGHT + D_TITLEBAR_HEIGHT + TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER + D_MARGIN_BOTTOM + 1;
 	scr_coord_val PANEL_ROWS = max(1, ((win_size.h - total_h) / grid.y));
@@ -410,8 +409,8 @@ void depot_frame_t::layout(scr_size *size)
 	const scr_coord_val INFO_VSTART = PANEL_VSTART + PANEL_HEIGHT + div_tabbottom.get_size().h;
 
 	/*
-	*  Now we can do the complete vertical adjustment:
-	*/
+	 *  Now we can do the complete vertical adjustment:
+	 */
 	const scr_coord_val TOTAL_HEIGHT = PANEL_VSTART + PANEL_HEIGHT + D_V_SPACE + VINFO_HEIGHT + D_TITLEBAR_HEIGHT + 1 + D_MARGIN_BOTTOM;
 	const scr_coord_val MIN_TOTAL_HEIGHT = PANEL_VSTART + MIN_PANEL_HEIGHT + D_V_SPACE + VINFO_HEIGHT + D_TITLEBAR_HEIGHT + 1 + D_MARGIN_BOTTOM;
 
@@ -428,8 +427,8 @@ void depot_frame_t::layout(scr_size *size)
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, MIN_TOTAL_HEIGHT));
 
 	/*
-	* DONE with layout planning - now build everything.
-	*/
+	 * DONE with layout planning - now build everything.
+	 */
 
 	/*
 	 * [SELECT]:
@@ -620,7 +619,7 @@ void depot_frame_t::set_windowsize( scr_size size )
 
 void depot_frame_t::activate_convoi( convoihandle_t c )
 {
-	icnv = -1;	// deselect
+	icnv = -1; // deselect
 	for(  uint i = 0;  i < depot->convoi_count();  i++  ) {
 		if(  c == depot->get_convoi(i)  ) {
 			icnv = i;
@@ -897,10 +896,10 @@ void depot_frame_t::update_data()
 
 		/*
 		* color bars for current convoi:
-		*  green/green	okay to append/insert
-		*  red/red		cannot be appended/inserted
-		*  green/yellow	append okay, cannot be end of train
-		*  yellow/green	insert okay, cannot be start of train
+		*  green/green  okay to append/insert
+		*  red/red      cannot be appended/inserted
+		*  green/yellow append okay, cannot be end of train
+		*  yellow/green insert okay, cannot be start of train
 		*/
 
 		if(veh_action == va_insert) {
@@ -1276,7 +1275,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		return true;
 	}
 
-	if(  comp != NULL  ) {	// message from outside!
+	if(  comp != NULL  ) { // message from outside!
 		if(  comp == &bt_start  ) {
 			if(  cnv.is_bound()  ) {
 				//first: close schedule (will update schedule on clients)
@@ -1367,12 +1366,14 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		}
 		else if(  comp == &convoy_selector  ) {
 			icnv = p.i - 1;
-/*			if(  !depot->get_convoi(icnv).is_bound()  ) {
+/*
+			if(  !depot->get_convoi(icnv).is_bound()  ) {
 				set_focus( NULL );
 			}
 			else {
 				set_focus( (gui_component_t *)&convoy_selector );
-			}*/
+			}
+*/
 		}
 		else if(  comp == &line_selector  ) {
 			const int selection = p.i;
@@ -1393,7 +1394,8 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 							schedule->sprintf_schedule( buf );
 						}
 					}
-					last_selected_line = linehandle_t();	// clear last selected line so we can get a new one ...
+
+					last_selected_line = linehandle_t(); // clear last selected line so we can get a new one ...
 					depot->call_depot_tool('l', convoihandle_t(), buf);
 				}
 				return true;

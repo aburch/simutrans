@@ -28,10 +28,10 @@ class checksum_t;
  */
 class field_class_desc_t : public obj_desc_t {
 	friend class factory_field_class_reader_t;
-	friend class factory_field_group_reader_t;		// this is a special case due to desc restructuring
+	friend class factory_field_group_reader_t; // this is a special case due to desc restructuring
 
 private:
-	uint8  snow_image;			// 0 or 1 for snow
+	uint8  snow_image;           // 0 or 1 for snow
 	uint16 production_per_field;
 	uint16 storage_capacity;
 	uint16 spawn_weight;
@@ -55,11 +55,11 @@ class field_group_desc_t : public obj_desc_t {
 	friend class factory_field_group_reader_t;
 
 private:
-	uint16 probability;		// between 0 ...10000
-	uint16 max_fields;		// maximum number of fields around a single factory
-	uint16 min_fields;		// minimum number of fields around a single factory
-	uint16 start_fields;	// number of fields between min and start_fields to spawn on creation
-	uint16 field_classes;	// number of field classes
+	uint16 probability;     // between 0 ...10000
+	uint16 max_fields;      // maximum number of fields around a single factory
+	uint16 min_fields;      // minimum number of fields around a single factory
+	uint16 start_fields;    // number of fields between min and start_fields to spawn on creation
+	uint16 field_classes;   // number of field classes
 
 	weighted_vector_tpl<uint16> field_class_indices;
 
@@ -93,8 +93,8 @@ public:
 /**
  * Smoke objects for factories.
  *
- *  Child nodes:
- *	0   SKin
+ * Child nodes:
+ *  0   SKin
  */
 class smoke_desc_t : public obj_desc_t {
 	friend class factory_smoke_reader_t;
@@ -133,8 +133,8 @@ public:
 /**
  * Information about required goods for production
  *
- *  Child nodes:
- *	0   Ware
+ * Child nodes:
+ *  0   Ware
  */
 class factory_supplier_desc_t : public obj_desc_t {
 	friend class factory_supplier_reader_t;
@@ -156,8 +156,8 @@ public:
 /**
  * Information about produced goods of a factory
  *
- *  Child nodes:
- *	0   Ware
+ * Child nodes:
+ *  0   Ware
  */
 class factory_product_desc_t : public obj_desc_t {
 	friend class factory_product_reader_t;
@@ -182,16 +182,16 @@ public:
 /**
  * Factory.
  *
- *  Child nodes:
- *	0   House descriptor
- *	1   Smoke descriptor
- *	2   Supplier descriptor 1
- *	3   Supplier descriptor 2
- *	... ...
- *	n+1 Supplier descriptor n
- *	n+2 Consumer descriptor 1
- *	n+3 Consumer descriptor 2
- *	... ...
+ * Child nodes:
+ *  0   House descriptor
+ *  1   Smoke descriptor
+ *  2   Supplier descriptor 1
+ *  3   Supplier descriptor 2
+ * ... ...
+ *  n+1 Supplier descriptor n
+ *  n+2 Consumer descriptor 1
+ *  n+3 Consumer descriptor 2
+ * ... ...
  */
 class factory_desc_t : public obj_desc_t {
 	friend class factory_reader_t;
@@ -203,11 +203,11 @@ private:
 	site_t placement;
 	uint16 productivity;
 	uint16 range;
-	uint16 distribution_weight;	// probability of construction of this factory
+	uint16 distribution_weight; // probability of construction of this factory
 	uint8 color;
 	uint16 supplier_count;
 	uint16 product_count;
-	uint8 fields;	// only if there are any ...
+	uint8 fields; // only if there are any ...
 	uint16 pax_level;
 	bool electricity_producer;
 	uint16 expand_probability;

@@ -341,7 +341,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		else {
 			DBG_MESSAGE("gui_textinput_t::infowin_event", "called but text is NULL");
 		}
-		cursor_reference_time = dr_time();	// update reference time for cursor blinking
+		cursor_reference_time = dr_time(); // update reference time for cursor blinking
 		return true;
 	}
 	else if(  ev->ev_class==EVENT_STRING  ) {
@@ -418,7 +418,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		if(  text  ) {
 			tail_cursor_pos = head_cursor_pos = display_fit_proportional( text, ev->cx - 2 + scroll_offset );
 		}
-		cursor_reference_time = dr_time();	// update reference time for cursor blinking
+		cursor_reference_time = dr_time(); // update reference time for cursor blinking
 		return true;
 	}
 	else if(  IS_LEFTDRAG(ev)  ) {
@@ -433,7 +433,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		if(  text  ) {
 			head_cursor_pos = display_fit_proportional( text, ev->mx - 1 + scroll_offset );
 		}
-		cursor_reference_time = dr_time();	// update reference time for cursor blinking
+		cursor_reference_time = dr_time(); // update reference time for cursor blinking
 		return true;
 	}
 	else if(  IS_LEFTDBLCLK(ev)  ) {
@@ -528,15 +528,15 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 		const KOORD_VAL cursor_offset = cursor_active ? proportional_string_len_width(text, head_cursor_pos) : 0;
 		if(  text_width<=view_width  ) {
 			// case : text is shorter than displayable width of the text input
-			//			-> the only case where left and right alignments differ
-			//			-> pad empty spaces on the left if right-aligned
+			//        -> the only case where left and right alignments differ
+			//        -> pad empty spaces on the left if right-aligned
 			scroll_offset = align==ALIGN_RIGHT ? text_width - view_width : 0;
 		}
 		else {
 			if(  scroll_offset<0  ) {
 				// case : if text is longer than displayable width of the text input
-				//			but there is empty space to the left
-				//			-> the text should move leftwards to fill up the empty space
+				//        but there is empty space to the left
+				//        -> the text should move leftwards to fill up the empty space
 				scroll_offset = 0;
 			}
 			if(  cursor_offset-scroll_offset>view_width  ) {
@@ -549,8 +549,8 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 			}
 			if(  scroll_offset+view_width>text_width  ) {
 				// case : if text is longer than displayable width of the text input
-				//			but there is empty space to the right
-				//			-> the text should move rightwards to fill up the empty space
+				//        but there is empty space to the right
+				//        -> the text should move rightwards to fill up the empty space
 				scroll_offset = text_width - view_width;
 			}
 		}
@@ -645,7 +645,7 @@ bool gui_hidden_textinput_t::infowin_event(const event_t *ev)
 		if (  text  ) {
 			head_cursor_pos = min( strlen(text), ev->cx/asterix_width );
 		}
-		cursor_reference_time = dr_time();	// update reference time for cursor blinking
+		cursor_reference_time = dr_time(); // update reference time for cursor blinking
 		return true;
 	}
 	else {

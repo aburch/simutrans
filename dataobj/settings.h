@@ -65,7 +65,7 @@ private:
 	sint32 growthfactor_medium;
 	sint32 growthfactor_large;
 
-	sint16 special_building_distance;	// distance between attraction to factory or other special buildings
+	sint16 special_building_distance; // distance between attraction to factory or other special buildings
 	uint32 minimum_city_distance;
 	uint32 industry_increase;
 
@@ -76,8 +76,8 @@ private:
 	// higher number: passengers are more evenly distributed around the map
 	struct yearly_locality_factor_t
 	{
-		sint16	year;
-		uint32	factor;
+		sint16 year;
+		uint32 factor;
 	};
 	yearly_locality_factor_t locality_factor_per_year[10];
 
@@ -267,7 +267,7 @@ private:
 	sint16 used_vehicle_reduction;
 
 	uint32 random_counter;
-	uint32 frames_per_second;	// only used in network mode ...
+	uint32 frames_per_second; // only used in network mode ...
 	uint32 frames_per_step;
 	uint32 server_frames_ahead;
 
@@ -286,7 +286,7 @@ private:
 
 public:
 	/* the big cost section */
-	sint32 maint_building;	// normal building
+	sint32 maint_building; // normal building
 
 	sint64 cst_multiply_dock;
 	sint64 cst_multiply_station;

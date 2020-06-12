@@ -15,10 +15,10 @@
 class checksum_t;
 
 /**
- *  Child nodes:
- *	0   Name
- *	1   Copyright
- *	2   Text: Name of measurement unit
+ * Child nodes:
+ *  0   Name
+ *  1   Copyright
+ *  2   Text: Name of measurement unit
  */
 class goods_desc_t : public obj_named_desc_t {
 	friend class goods_reader_t;

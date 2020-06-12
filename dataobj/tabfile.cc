@@ -631,10 +631,11 @@ void tabfile_t::add_operator_brackets(char *expression, char *processed)
 			if(expression_end==NULL) expression_end = expression_pos;
 
 			// construct expression with brackets around 'a operator b'
-			sprintf(buffer,"%.*s(%.*s%.*s)%s",	(int)(expression_start-processed+1), processed,
-								(int)(expression_ptr-expression_start-1), expression_start+1,
-								(int)(expression_end-expression_ptr), expression_ptr,
-								expression_end);
+			sprintf(buffer,"%.*s(%.*s%.*s)%s",
+			        (int)(expression_start-processed+1), processed,
+			        (int)(expression_ptr-expression_start-1), expression_start+1,
+			        (int)(expression_end-expression_ptr), expression_ptr,
+			        expression_end);
 
 			strcpy(processed, buffer);
 			operator_count++;

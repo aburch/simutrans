@@ -17,10 +17,10 @@
 /**
  * Private city cars, not player owned. They automatically appear in cities.
  *
- *  Child nodes:
- *	0   Name
- *	1   Copyright
- *	2   Image-list
+ * Child nodes:
+ *  0   Name
+ *  1   Copyright
+ *  2   Image-list
  */
 class citycar_desc_t : public obj_desc_timelined_t {
 	friend class citycar_reader_t;

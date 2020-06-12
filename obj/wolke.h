@@ -24,9 +24,9 @@ class wolke_t : public obj_no_info_t, public sync_steppable
 private:
 	static vector_tpl<const skin_desc_t *>all_clouds;
 
-	uint16 insta_zeit;	// clouds vanish when insta_zeit>2500 => maximum 5 images ...
-	sint16 base_y_off;	// since sint8 may overflow wiht larger pak sizes
-	uint16 lifetime;	// since factories generate other smoke than
+	uint16 insta_zeit; // clouds vanish when insta_zeit>2500 => maximum 5 images ...
+	sint16 base_y_off; // since sint8 may overflow wiht larger pak sizes
+	uint16 lifetime;   // since factories generate other smoke than
 	uint16 uplift;
 	uint8 cloud_nr;
 

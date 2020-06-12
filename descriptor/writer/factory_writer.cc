@@ -47,7 +47,7 @@ void factory_field_group_writer_t::write_obj(FILE* outfp, obj_node_t& parent, ta
 		const char *field_name = obj.get("fields");
 		int snow_image = obj.get_int("has_snow", 1);
 		int production = obj.get_int("production_per_field", 16);
-		int capacity = obj.get_int("storage_capacity", 0);		// default is 0 to avoid breaking the balance of existing pakset objects
+		int capacity = obj.get_int("storage_capacity", 0); // default is 0 to avoid breaking the balance of existing pakset objects
 		int weight = obj.get_int("spawn_weight", 1000);
 
 		factory_field_class_writer_t::instance()->write_obj(outfp, node, field_name, snow_image, production, capacity, weight);
@@ -68,7 +68,7 @@ void factory_field_group_writer_t::write_obj(FILE* outfp, obj_node_t& parent, ta
 			sprintf(buf, "production_per_field[%d]", field_classes);
 			int production = obj.get_int(buf, 16);
 			sprintf(buf, "storage_capacity[%d]", field_classes);
-			int capacity = obj.get_int(buf, 0);		// default is 0 to avoid breaking the balance of existing pakset objects
+			int capacity = obj.get_int(buf, 0); // default is 0 to avoid breaking the balance of existing pakset objects
 			sprintf(buf, "spawn_weight[%d]", field_classes);
 			int weight = obj.get_int(buf, 1000);
 

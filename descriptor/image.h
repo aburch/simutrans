@@ -22,8 +22,8 @@
 /**
  * Data of one image
  *
- *  Child nodes:
- *	(none)
+ * Child nodes:
+ *  (none)
  */
 class image_t : public obj_desc_t
 {

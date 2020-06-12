@@ -236,7 +236,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 			return err_msg;
 		}
 	}
-	return "";	// could end here but need not end here
+	return ""; // could end here but need not end here
 }
 
 bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, const char *&error_msg)
@@ -1088,7 +1088,7 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 							w->set_ribi( (~ribi_t::backward( ribi_t::nsew[i] )) & w->get_ribi_unmasked() );
 							if(  w->get_ribi_unmasked() == 0  ) {
 								// nowthing left => then remove completel
-								prev->remove_everything_from_way( player, wegtyp, bridge_ribi );	// removes stop and signals correctly
+								prev->remove_everything_from_way( player, wegtyp, bridge_ribi ); // removes stop and signals correctly
 								prev->weg_entfernen( wegtyp, true );
 								if(  prev->get_typ() == grund_t::monorailboden  ) {
 									welt->access( prev->get_pos().get_2d() )->boden_entfernen( prev );
@@ -1110,7 +1110,7 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 		br->cleanup(player);
 		delete br;
 
-		gr->remove_everything_from_way(player,wegtyp,ribi_t::none);	// removes stop and signals correctly
+		gr->remove_everything_from_way(player,wegtyp,ribi_t::none); // removes stop and signals correctly
 		// remove also the second way on the bridge
 		if(gr->get_weg_nr(0)!=0) {
 			gr->remove_everything_from_way(player,gr->get_weg_nr(0)->get_waytype(),ribi_t::none);
@@ -1151,7 +1151,7 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 						w->set_ribi( (~ribi_t::backward( ribi_t::nsew[i] )) & w->get_ribi_unmasked() );
 						if(  w->get_ribi_unmasked() == 0  ) {
 							// nowthing left => then remove completel
-							prev->remove_everything_from_way( player, wegtyp, bridge_ribi );	// removes stop and signals correctly
+							prev->remove_everything_from_way( player, wegtyp, bridge_ribi ); // removes stop and signals correctly
 							prev->weg_entfernen( wegtyp, true );
 							if(  prev->get_typ() == grund_t::monorailboden  ) {
 								welt->access( prev->get_pos().get_2d() )->boden_entfernen( prev );
@@ -1217,7 +1217,7 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 			if(weg) {
 				gr->remove_everything_from_way(player,weg->get_waytype(),bridge_ribi);
 			}
-			gr->remove_everything_from_way(player,wegtyp,bridge_ribi);	// removes stop and signals correctly
+			gr->remove_everything_from_way(player,wegtyp,bridge_ribi); // removes stop and signals correctly
 
 			// corrects the ways
 			weg = gr->get_weg(wegtyp);

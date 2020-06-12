@@ -33,14 +33,14 @@
 #define MAX_HALT_COST   8 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
 #define MAX_HALT_NON_MONEY_TYPES 7 // number of non money types in HALT's financial statistic
-#define HALT_ARRIVED   0 // the amount of ware that arrived here
-#define HALT_DEPARTED 1 // the amount of ware that has departed from here
-#define HALT_WAITING		2 // the amount of ware waiting
-#define HALT_HAPPY		3 // number of happy passengers
-#define HALT_UNHAPPY		4 // number of unhappy passengers
+#define HALT_ARRIVED         0 // the amount of ware that arrived here
+#define HALT_DEPARTED        1 // the amount of ware that has departed from here
+#define HALT_WAITING         2 // the amount of ware waiting
+#define HALT_HAPPY           3 // number of happy passengers
+#define HALT_UNHAPPY         4 // number of unhappy passengers
 #define HALT_NOROUTE         5 // number of no-route passengers
-#define HALT_CONVOIS_ARRIVED             6 // number of convois arrived this month
-#define HALT_WALKED 7 // could walk to destination
+#define HALT_CONVOIS_ARRIVED 6 // number of convois arrived this month
+#define HALT_WALKED          7 // could walk to destination
 
 class cbuffer_t;
 class grund_t;
@@ -101,12 +101,12 @@ private:
 	uint32 capacity[3]; // passenger, mail, goods
 	uint8 overcrowded[256/8]; ///< bit field for each goods type (max 256)
 
-	static uint8 status_step;	// NONE or SCHEDULING or REROUTING
+	static uint8 status_step; // NONE or SCHEDULING or REROUTING
 
 	slist_tpl<convoihandle_t> loading_here;
 	sint32 last_loading_step;
 
-	koord init_pos;	// for halt without grounds, created during game initialisation
+	koord init_pos; // for halt without grounds, created during game initialisation
 
 	/**
 	 * Handle for ourselves. Can be used like the 'this' pointer

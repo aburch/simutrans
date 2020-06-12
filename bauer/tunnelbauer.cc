@@ -707,7 +707,7 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 		if(gr->get_weg_nr(1)) {
 			gr->remove_everything_from_way(player,gr->get_weg_nr(1)->get_waytype(),ribi_t::none);
 		}
-		gr->remove_everything_from_way(player,wegtyp,ribi_t::none);	// removes stop and signals correctly
+		gr->remove_everything_from_way(player,wegtyp,ribi_t::none); // removes stop and signals correctly
 		// remove everything else
 		gr->obj_loesche_alle(player);
 		gr->mark_image_dirty();
@@ -749,7 +749,7 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 
 			tunnel_t *t = gr->find<tunnel_t>();
 			uint8 broad_type = t->get_broad_type();
-			gr->remove_everything_from_way(player,wegtyp,ribi);	// removes stop and signals correctly
+			gr->remove_everything_from_way(player,wegtyp,ribi); // removes stop and signals correctly
 
 			// remove tunnel portals
 			t = gr->find<tunnel_t>();

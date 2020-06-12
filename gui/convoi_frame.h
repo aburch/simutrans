@@ -35,10 +35,10 @@ private:
 	uint32 last_world_convois;
 
 	// these are part of the top UI
-	button_t	sortedby;
-	button_t	sorteddir;
-	button_t	filter_on;
-	button_t	filter_details;
+	button_t sortedby;
+	button_t sorteddir;
+	button_t filter_on;
+	button_t filter_details;
 
 	// scroll container of list of convois
 	gui_scrolled_convoy_list_t *scrolly;

@@ -108,8 +108,10 @@ void dr_destroy_midi(void)
  */
 bool dr_init_midi(void)
 {
-	if(!SDL_WasInit(SDL_INIT_AUDIO)) {				//if audio not init
-		if(SDL_InitSubSystem(SDL_INIT_AUDIO) != -1) {		//if audio subsys is ok
+	// if audio not init
+	if(!SDL_WasInit(SDL_INIT_AUDIO)) {
+		// if audio subsys is ok
+		if(SDL_InitSubSystem(SDL_INIT_AUDIO) != -1) {
 			if(Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024)==-1) {
 				//if OpenAudio returns error, dr_init_midi is false
 				return false;
@@ -120,6 +122,7 @@ bool dr_init_midi(void)
 			return false;
 		}
 	}
+
 	//if all is fine, return true
 	return true;
 }

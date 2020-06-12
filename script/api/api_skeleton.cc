@@ -228,9 +228,9 @@ register_function("is_tool_allowed");
  * The error message can contain a coordinate, which is used to show a location on the map.
  * In order to show the right place, use @ref coord_to_string. The must be enclosed in parentheses
  * or prefixed with @ .
- *	@code
+ * @code
 		return "You cannot do this. The guy living at (" + coord_to_string({x=47, y=11}) + ") does not like you!"
-	@endcode
+   @endcode
  *
  * @attention Does not work with waybuilding and all tools that need path-finding, use the functions provided in #rules in this case.
  *

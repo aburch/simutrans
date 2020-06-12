@@ -155,8 +155,8 @@ static vector_tpl<rule_t *> road_rules;
  * n = is nature/empty
  * H = not a house
  * h = is a house
- * T = not a stop	// added in 88.03.3
- * t = is a stop // added in 88.03.3
+ * T = not a stop // added in 88.03.3
+ * t = is a stop  // added in 88.03.3
  * u = good slope for way
  * U = not a slope for ways
  * . = beliebig
@@ -556,7 +556,7 @@ class townhall_placefinder_t : public placefinder_t {
 					gr->kann_alle_obj_entfernen(NULL) == NULL;
 			} else {
 				// we want to build the townhall here: maybe replace existing buildings
-				return ((gr->get_typ()==grund_t::boden  &&  gr->ist_natur()) ||	gr->get_typ()==grund_t::fundament) &&
+				return ((gr->get_typ()==grund_t::boden  &&  gr->ist_natur()) || gr->get_typ()==grund_t::fundament) &&
 					gr->kann_alle_obj_entfernen(NULL) == NULL;
 			}
 		}
@@ -766,7 +766,8 @@ const stadt_t::factory_entry_t* stadt_t::factory_set_t::get_entry(const fabrik_t
 			return &e;
 		}
 	}
-	return NULL;	// not found
+
+	return NULL; // not found
 }
 
 
@@ -801,7 +802,7 @@ void stadt_t::factory_set_t::update_factory(fabrik_t *const factory, const sint3
 		entries.append( factory_entry_t(factory, demand) );
 		total_demand += demand;
 	}
-	ratio_stale = true;		// always trigger recalculation of ratio
+	ratio_stale = true; // always trigger recalculation of ratio
 }
 
 
@@ -818,10 +819,11 @@ void stadt_t::factory_set_t::remove_factory(fabrik_t *const factory)
 
 
 #define SUPPLY_BITS   (3)
-#define SUPPLY_FACTOR (9)	// out of 2^SUPPLY_BITS
+#define SUPPLY_FACTOR (9) // out of 2^SUPPLY_BITS
+
 void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percent, const sint64 *city_stats, const int stats_count, const int stat_type)
 {
-	ratio_stale = false;		// reset flag
+	ratio_stale = false; // reset flag
 
 	// calculate an average of at most 3 previous months' pax/mail generation amounts
 	uint32 months = 0;
@@ -1017,7 +1019,7 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	has_low_density = false;
 	has_townhall = false;
 
-	stadtinfo_options = 3;	// citizen and growth
+	stadtinfo_options = 3; // citizen and growth
 
 	owner = player;
 
@@ -1501,10 +1503,10 @@ void stadt_t::step(uint32 delta_t)
 	}
 
 	// update history (might be changed do to construction/destroying of houses)
-	city_history_month[0][HIST_CITICENS] = get_einwohner();	// total number
+	city_history_month[0][HIST_CITICENS] = get_einwohner(); // total number
 	city_history_year[0][HIST_CITICENS] = get_einwohner();
 
-	city_history_month[0][HIST_GROWTH] = city_history_month[0][HIST_CITICENS]-city_history_month[1][HIST_CITICENS];	// growth
+	city_history_month[0][HIST_GROWTH] = city_history_month[0][HIST_CITICENS]-city_history_month[1][HIST_CITICENS]; // growth
 	city_history_year[0][HIST_GROWTH] = city_history_year[0][HIST_CITICENS]-city_history_year[1][HIST_CITICENS];
 
 	city_history_month[0][HIST_BUILDING] = buildings.get_count();
@@ -2082,7 +2084,7 @@ void stadt_t::step_passagiere()
 			halthandle_t halt = plan->get_haltlist()[h];
 			if(  halt->is_enabled(wtyp)  ) {
 				halt->add_pax_unhappy(num_pax);
-				is_there_any_stop = true;	// only overcrowded
+				is_there_any_stop = true; // only overcrowded
 				break;
 			}
 		}
@@ -2219,7 +2221,7 @@ koord stadt_t::find_destination(factory_set_t &target_factories, const sint64 ge
 	if(  target_factories.total_remaining>0  &&  (sint64)target_factories.generation_ratio>((sint64)(target_factories.total_generated*100)<<RATIO_BITS)/(generated+1)  ) {
 		factory_entry_t *const entry = target_factories.get_random_entry();
 		assert( entry );
-		*will_return = factory_return;	// worker will return
+		*will_return = factory_return; // worker will return
 		factory_entry = entry;
 		dest_city = this; // factory is part of city
 		return entry->factory->get_pos().get_2d();
@@ -2228,7 +2230,7 @@ koord stadt_t::find_destination(factory_set_t &target_factories, const sint64 ge
 	// chance to generate tourist traffic
 	const sint16 rand = simrand(100 - (target_factories.generation_ratio >> RATIO_BITS));
 	if(  rand < welt->get_settings().get_tourist_percentage()  &&  target_attractions.get_sum_weight() > 0  ) {
-		*will_return = tourist_return;	// tourists will return
+		*will_return = tourist_return; // tourists will return
 		gebaeude_t *const &attraction = pick_any_weighted(target_attractions);
 		dest_city = attraction->get_stadt(); // unsure if return value always valid
 		if (dest_city == NULL) {
@@ -2308,7 +2310,7 @@ class building_place_with_road_finder: public building_placefinder_t
 					if (!gr) {
 						return false;
 					}
-					if (	0 <= x  &&  x < w-1  &&  0 <= y  &&  y < h-1) {
+					if (  0 <= x  &&  x < w-1  &&  0 <= y  &&  y < h-1  ) {
 						// inside: nothing on top like elevated monorails?
 						if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1)  )!=NULL) {
 							// something on top (monorail or powerlines)
@@ -2774,7 +2776,7 @@ bool update_city_street(koord pos)
 					weg->set_desc(cr);
 					gr->calc_image();
 					minimap_t::get_instance()->calc_map_pixel(pos+neighbors[i]);
-					return true;	// update only one road per renovation
+					return true; // update only one road per renovation
 				}
 			}
 		}
@@ -3618,7 +3620,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 			weg->set_desc(welt->get_city_road());
 			weg->set_gehweg(true);
 			bd->neuen_weg_bauen(weg, connection_roads, player_);
-			bd->calc_image();	// otherwise the
+			bd->calc_image(); // otherwise the
 		}
 		// check to bridge a river
 		if(ribi_t::is_single(connection_roads)) {
@@ -3721,7 +3723,7 @@ void stadt_t::build()
 		// since only a single location is checked, we can stop after we have found a positive rule
 		best_strasse.reset(k);
 		const uint32 num_road_rules = road_rules.get_count();
-		uint32 offset = simrand(num_road_rules);	// start with random rule
+		uint32 offset = simrand(num_road_rules); // start with random rule
 		for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
 			uint32 rule = ( i+offset ) % num_road_rules;
 			bewerte_strasse(k, 8 + road_rules[rule]->chance, *road_rules[rule]);
@@ -3738,7 +3740,7 @@ void stadt_t::build()
 		// since only a single location is checked, we can stop after we have found a positive rule
 		best_haus.reset(k);
 		const uint32 num_house_rules = house_rules.get_count();
-		offset = simrand(num_house_rules);	// start with random rule
+		offset = simrand(num_house_rules); // start with random rule
 		for(  uint32 i = 0;  i < num_house_rules  &&  !best_haus.found();  i++  ) {
 			uint32 rule = ( i+offset ) % num_house_rules;
 			bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);

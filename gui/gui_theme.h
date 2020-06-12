@@ -147,7 +147,7 @@ enum {
 	SKIN_WINDOW_RESIZE,
 	SKIN_GADGET_GOTOPOS,
 //	SKIN_GADGET_BUTTON,
-	SKIN_GADGET_COUNT,	// maximum number, NOT AN IMAGE
+	SKIN_GADGET_COUNT, // maximum number, NOT AN IMAGE
 
 	// scrollbars horizontal
 	SKIN_BUTTON_ARROW_LEFT = 0,
@@ -261,7 +261,7 @@ public:
 	static scr_size gui_arrow_up_size;
 	static scr_size gui_arrow_down_size;
 	static scr_size gui_scrollbar_size;
-	static scr_size gui_min_scrollbar_size;	// minimum width and height of a scrollbar slider
+	static scr_size gui_min_scrollbar_size; // minimum width and height of a scrollbar slider
 	static scr_size gui_label_size;
 	static scr_size gui_edit_size;
 	static scr_size gui_indicator_size;

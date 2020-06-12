@@ -165,10 +165,10 @@ public:
 
 	/** underground modes */
 	enum _underground_modes {
-		ugm_none = 0,	// normal view
-		ugm_all  = 1,   // everything underground visible, grid for grounds
-		ugm_level= 2	// overground things visible if their height  <= underground_level
-						// underground things visible if their height == underground_level
+		ugm_none = 0, // normal view
+		ugm_all  = 1, // everything underground visible, grid for grounds
+		ugm_level= 2  // overground things visible if their height  <= underground_level
+		              // underground things visible if their height == underground_level
 	};
 	static uint8 underground_mode;
 	static sint8 underground_level;
@@ -724,26 +724,26 @@ public:
 
 	/**
 	 * A new way is built with the given ribis. Registered and assigned to the builder.
-	 * @param weg	    der neue Weg
-	 * @param ribi	    die neuen ribis
-	 * @param player    Player building the way
+	 * @param weg     der neue Weg
+	 * @param ribi    die neuen ribis
+	 * @param player  Player building the way
 	 */
 	sint64 neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player);
 
 	/**
 	 * Bauhilfsfunktion - die ribis eines vorhandenen weges werden erweitert
 	 *
-	 * @return bool	    true, falls weg vorhanden
-	 * @param wegtyp	    um welchen wegtyp geht es
-	 * @param ribi	    die neuen ribis
+	 * @return bool  true, falls weg vorhanden
+	 * @param wegtyp um welchen wegtyp geht es
+	 * @param ribi   die neuen ribis
 	 */
 	bool weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi);
 
 	/**
 	 * Bauhilfsfunktion - einen Weg entfernen
 	 *
-	 * @param wegtyp	    um welchen wegtyp geht es
-	 * @param ribi_rem  sollen die ribis der nachbar zururckgesetzt werden?
+	 * @param wegtyp   um welchen wegtyp geht es
+	 * @param ribi_rem sollen die ribis der nachbar zururckgesetzt werden?
 	 */
 	sint32 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
 

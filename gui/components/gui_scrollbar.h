@@ -24,15 +24,15 @@ class scrollbar_t :
 
 public:
 	enum type_t {
-		vertical,  //@< Vertical scrollbar
-		horizontal //@< Horizontal scrollbar
+		vertical,  ///< Vertical scrollbar
+		horizontal ///< Horizontal scrollbar
 	};
 
 	enum visible_mode_t {
-		show_never,    //@< Never show the scrollbar
-		show_always,   //@< Always show the scrollbar, even at maximum
-		show_disabled, //@< Disable scrollbar at maximum value
-		show_auto      //@< Hide scrollbar at maximum value, else show
+		show_never,    ///< Never show the scrollbar
+		show_always,   ///< Always show the scrollbar, even at maximum
+		show_disabled, ///< Disable scrollbar at maximum value
+		show_auto      ///< Hide scrollbar at maximum value, else show
 	};
 
 private:
@@ -46,7 +46,7 @@ private:
 	type_t         type;
 	visible_mode_t visible_mode; // Show, hide or auto hide
 	bool           full;         // Scrollbar is full
-	bool dragging;	// to handle event even when outside the knob ...
+	bool dragging; // to handle event even when outside the knob ...
 
 	// the following three values are from host (e.g. list), NOT actual size.
 	sint32 knob_offset; // offset from top-left
@@ -54,8 +54,8 @@ private:
 	sint32 total_size;
 
 	/**
-		* number of elements to scroll with arrow button press. default: 11
-		*/
+	 * number of elements to scroll with arrow button press. default: 11
+	 */
 	sint32 knob_scroll_amount;
 	bool   knob_scroll_discrete;  // if true, knob_offset forced to be integer multiples of knob_scroll_amount
 

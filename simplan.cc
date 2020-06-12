@@ -98,7 +98,8 @@ void planquadrat_t::boden_hinzufuegen(grund_t *bd)
 	}
 	else if(ground_size==1) {
 		// needs to convert to array
-//	assert(data.one->get_hoehe()!=bd->get_hoehe());
+//		assert(data.one->get_hoehe()!=bd->get_hoehe());
+
 		if(data.one->get_hoehe()==bd->get_hoehe()) {
 DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%i) will be ignored!",bd->get_name(),bd->get_pos().x,bd->get_pos().y,bd->get_pos().z);
 			return;
@@ -257,16 +258,17 @@ void planquadrat_t::rdwr(loadsave_t *file, koord pos )
 
 			switch(gtyp) {
 				case -1: gr = NULL; break;
-				case grund_t::boden:	    gr = new boden_t(file, pos);                 break;
-				case grund_t::wasser:	    gr = new wasser_t(file, pos);                break;
-				case grund_t::fundament:	    gr = new fundament_t(file, pos);	       break;
-				case grund_t::tunnelboden:	    gr = new tunnelboden_t(file, pos);       break;
-				case grund_t::brueckenboden:    gr = new brueckenboden_t(file, pos);     break;
-				case grund_t::monorailboden:	    gr = new monorailboden_t(file, pos); break;
+				case grund_t::boden:         gr = new boden_t(file, pos);         break;
+				case grund_t::wasser:        gr = new wasser_t(file, pos);        break;
+				case grund_t::fundament:     gr = new fundament_t(file, pos);     break;
+				case grund_t::tunnelboden:   gr = new tunnelboden_t(file, pos);   break;
+				case grund_t::brueckenboden: gr = new brueckenboden_t(file, pos); break;
+				case grund_t::monorailboden: gr = new monorailboden_t(file, pos); break;
 				default:
 					gr = 0; // keep compiler happy, fatal() never returns
 					dbg->fatal("planquadrat_t::rdwr()","Error while loading game: Unknown ground type '%d'",gtyp);
 			}
+
 			// check if we have a matching building here, otherwise set to nothing
 			if (gr  &&  gtyp == grund_t::fundament  &&  gr->find<gebaeude_t>() == NULL) {
 				koord3d pos = gr->get_pos();
@@ -532,11 +534,13 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 
 	// building transformers - show outlines of factories
 
-/*	alternative method of finding selected tool - may be more useful in future but use simpler method for now
+/*
+	// alternative method of finding selected tool - may be more useful in future but use simpler method for now
 	tool_t *tool = welt->get_tool(welt->get_active_player_nr());
 	int tool_id = tool->get_id();
 
-	if(tool_id==(TOOL_TRANSFORMER|GENERAL_TOOL)....	*/
+	if(tool_id==(TOOL_TRANSFORMER|GENERAL_TOOL)....
+*/
 
 	if( (grund_t::underground_mode == grund_t::ugm_all
 		||  (grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() == grund_t::underground_level + welt->get_settings().get_way_height_clearance()) )

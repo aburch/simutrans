@@ -74,7 +74,7 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->max_weight = decode_uint32(p);
 			desc->intro_date = decode_uint16(p);
 			desc->retire_date = decode_uint16(p);
-			desc->axle_load = decode_uint16(p);	// new
+			desc->axle_load = decode_uint16(p); // new
 			desc->wtyp = decode_uint8(p);
 			desc->styp = decode_uint8(p);
 			desc->draw_as_obj = decode_uint8(p);

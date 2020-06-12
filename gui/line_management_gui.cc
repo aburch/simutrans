@@ -30,7 +30,7 @@ line_management_gui_t::line_management_gui_t(linehandle_t line, player_t* player
 
 line_management_gui_t::~line_management_gui_t()
 {
-	delete old_schedule;	// since we pass a *copy* of the line's schedule to the base class
+	delete old_schedule; // since we pass a *copy* of the line's schedule to the base class
 	old_schedule = NULL;
 }
 
@@ -88,7 +88,8 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 	old_schedule->rdwr(file);
 
 	if(  file->is_loading()  ) {
-		assert(player);	// since it was alive during saving, this should never happen
+		assert(player); // since it was alive during saving, this should never happen
+
 		if(  line.is_bound()  &&  old_schedule->matches( welt, line->get_schedule() )  ) {
 
 			delete old_schedule;

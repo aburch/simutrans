@@ -14,10 +14,10 @@
 class cbuffer_t;
 
 /**
- *	A fixed-width, automatically line-wrapping text-area,
- *	optionally with a reserved area in the upper right corner.
- *	It does *not* add 10px margins from the top and the left.
- *	Core code borrowed from ding_infowin_t::calc_draw_info() with adaptation.
+ * A fixed-width, automatically line-wrapping text-area,
+ * optionally with a reserved area in the upper right corner.
+ * It does *not* add 10px margins from the top and the left.
+ * Core code borrowed from ding_infowin_t::calc_draw_info() with adaptation.
  */
 class gui_fixedwidth_textarea_t : public gui_component_t
 {

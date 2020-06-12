@@ -12,10 +12,10 @@
 /**
  * One-dimensional image list.
  *
- *  Child nodes:
- *	0   1st Image
- *	1   2nd Image
- *	... ...
+ * Child nodes:
+ *  0   1st Image
+ *  1   2nd Image
+ * ... ...
  */
 class image_list_t : public obj_desc_t {
 	friend class imagelist_reader_t;

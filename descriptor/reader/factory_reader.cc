@@ -423,7 +423,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 		// old node, version 0, without pax_level
 		desc->placement = (site_t)v;
-		decode_uint16(p);	// alsways zero
+		decode_uint16(p); // alsways zero
 		desc->productivity = decode_uint16(p)|0x8000;
 		desc->range = decode_uint16(p);
 		desc->distribution_weight = decode_uint16(p);

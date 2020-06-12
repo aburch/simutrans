@@ -154,7 +154,7 @@ private:
 	}
 
 public:
-	uint8 destination_counter;	// last destination counter of the halt; if mismatch to current, then redraw destinations
+	uint8 destination_counter; // last destination counter of the halt; if mismatch to current, then redraw destinations
 
 	gui_halt_detail_t(halthandle_t h) : gui_aligned_container_t()
 	{
@@ -393,7 +393,7 @@ void halt_info_t::init(halthandle_t halt)
 	container_chart.end_table();
 
 	update_components();
-	set_resizemode(diagonal_resize);     // 31-May-02	markus weber	added
+	set_resizemode(diagonal_resize);
 	reset_min_windowsize();
 	set_windowsize(get_min_windowsize());
 }

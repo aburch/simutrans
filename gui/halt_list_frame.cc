@@ -317,7 +317,7 @@ halt_list_frame_t::~halt_list_frame_t()
 */
 void halt_list_frame_t::fill_list()
 {
-	last_world_stops = haltestelle_t::get_alle_haltestellen().get_count();				// count of stations
+	last_world_stops = haltestelle_t::get_alle_haltestellen().get_count(); // count of stations
 
 	scrolly->clear_elements();
 	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {

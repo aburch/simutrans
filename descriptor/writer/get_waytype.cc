@@ -5,7 +5,7 @@
 
 #include <stdlib.h>
 #include "../../simdebug.h"
-#include "../../utils/simstring.h"	// for STRICMP
+#include "../../utils/simstring.h" // for STRICMP
 #include "../../dataobj/tabfile.h"
 
 /**

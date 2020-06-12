@@ -424,7 +424,7 @@ void private_car_t::rdwr(loadsave_t *file)
 	}
 	else if(file->is_version_less(89, 5)) {
 		file->rdwr_long(time_to_life);
-		time_to_life *= 10000;	// converting from hops left to ms since start
+		time_to_life *= 10000; // converting from hops left to ms since start
 	}
 
 	if(file->is_version_less(86, 5)) {
@@ -778,7 +778,7 @@ void private_car_t::hop(grund_t* to)
 
 	if(pos_next_next==get_pos()) {
 		direction = calc_set_direction( pos_next, pos_next_next );
-		steps_next = 0;	// mark for starting at end of tile!
+		steps_next = 0; // mark for starting at end of tile!
 	}
 	else {
 		direction = calc_set_direction( get_pos(), pos_next_next );

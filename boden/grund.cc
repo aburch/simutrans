@@ -35,7 +35,7 @@
 #include "../obj/crossing.h"
 #include "../obj/groundobj.h"
 #include "../obj/label.h"
-#include "../obj/leitung2.h"	// for construction of new ways ...
+#include "../obj/leitung2.h"
 #include "../obj/roadsign.h"
 #include "../obj/signal.h"
 #include "../obj/tunnel.h"
@@ -405,7 +405,7 @@ void grund_t::rdwr(loadsave_t *file)
 						// we do not delete them, to keep maintenance costs correct
 					}
 					else {
-						assert((flags&has_way2)==0);	// maximum two ways on one tile ...
+						assert((flags&has_way2)==0); // maximum two ways on one tile ...
 						weg->set_pos(pos);
 						if(owner_n!=-1) {
 							weg->set_owner(welt->get_player(owner_n));
@@ -1460,7 +1460,8 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 
 	// display background
 	if (!tunnel_portal  ||  slope == 0) {
-		activate_ribi_clip( (ribi_t::northwest & ribi) | 16 CLIP_NUM_PAR );	}
+		activate_ribi_clip( (ribi_t::northwest & ribi) | 16 CLIP_NUM_PAR );
+	}
 	else {
 		// also clip along the upper edge of the tunnel tile
 		activate_ribi_clip( ribi | 16 CLIP_NUM_PAR );
@@ -1852,7 +1853,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 			}
 		}
 
-		sint32 costs=weg->get_desc()->get_price();	// costs for removal are construction costs
+		sint32 costs=weg->get_desc()->get_price(); // costs for removal are construction costs
 		weg->cleanup( NULL );
 		delete weg;
 

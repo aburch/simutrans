@@ -81,7 +81,7 @@ private:
 	const char* new_convoy_text;
 	gui_combobox_t convoy_selector;
 
-	button_t line_button;	// goto line ...
+	button_t line_button; // goto line ...
 
 	gui_label_t lb_convoi_count;
 

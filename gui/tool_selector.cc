@@ -50,7 +50,7 @@ void tool_selector_t::add_tool_selector(tool_t *tool_in)
 	// only for non-empty icons ...
 	tools.append(tool_in);
 
-	int ww = max(2,(display_get_width()/env_t::iconsize.w)-2);	// to avoid zero or negative ww on posix (no graphic) backends
+	int ww = max(2,(display_get_width()/env_t::iconsize.w)-2); // to avoid zero or negative ww on posix (no graphic) backends
 	tool_icon_width = tools.get_count();
 DBG_DEBUG4("tool_selector_t::add_tool()","ww=%i, tool_icon_width=%i",ww,tool_icon_width);
 	if(  allow_break  &&  (ww<tool_icon_width  ||  (env_t::toolbar_max_width>0  &&  env_t::toolbar_max_width<tool_icon_width))  ) {

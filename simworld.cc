@@ -157,7 +157,7 @@ void *karte_t::world_xy_loop_thread(void *ptr)
 	world_thread_param_t *param = reinterpret_cast<world_thread_param_t *>(ptr);
 	while(true) {
 		if(param->keep_running) {
-			simthread_barrier_wait( &world_barrier_start );	// wait for all to start
+			simthread_barrier_wait( &world_barrier_start ); // wait for all to start
 		}
 
 		sint16 x_min = 0;
@@ -179,7 +179,7 @@ void *karte_t::world_xy_loop_thread(void *ptr)
 		}
 
 		if(param->keep_running) {
-			simthread_barrier_wait( &world_barrier_end );	// wait for all to finish
+			simthread_barrier_wait( &world_barrier_end ); // wait for all to finish
 		}
 		else {
 			return NULL;
@@ -857,8 +857,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
 				// do final init after world was loaded/created
 				stadt[i]->finish_rd();
 
-	//			int citizens=(int)(new_mean_citizen_count*0.9);
-	//			citizens = citizens/10+simrand(2*citizens+1);
+//				int citizens=(int)(new_mean_citizen_count*0.9);
+//				citizens = citizens/10+simrand(2*citizens+1);
 				const sint32 citizens = (2500l * new_mean_citizen_count) /(simrand(20000)+100);
 
 				sint32 diff = (original_start_year-game_start)/2;
@@ -1237,7 +1237,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	sync_steps = 0;
 	sync_steps_barrier = sync_steps;
 	map_counter = 0;
-	recalc_average_speed();	// resets timeline
+	recalc_average_speed(); // resets timeline
 	koord::locality_factor = settings.get_locality_factor( last_year );
 
 	world_maximum_height = sets->get_maximumheight();
@@ -1634,8 +1634,8 @@ void karte_t::init_height_to_climate()
 
 	// now arrange the remaining ones
 	for( uint h=0;  h<lengthof(height_to_climate);  h++  ) {
-		sint16 current_height = 999;	      // current maximum
-		sint16 current_cl = arctic_climate;	// and the climate
+		sint16 current_height = 999;        // current maximum
+		sint16 current_cl = arctic_climate; // and the climate
 		for( int cl=0;  cl<MAX_CLIMATES;  cl++ ) {
 			if(  climate_border[cl] >= (sint16)h + groundwater  &&  climate_border[cl] < current_height  ) {
 				current_height = climate_border[cl];
@@ -3415,7 +3415,7 @@ stadt_t *karte_t::find_nearest_city(const koord k) const
 {
 	uint32 min_dist = 99999999;
 	bool contains = false;
-	stadt_t *best = NULL;	// within city limits
+	stadt_t *best = NULL; // within city limits
 
 	if(  is_within_limits(k)  ) {
 		FOR(  weighted_vector_tpl<stadt_t*>,  const s,  stadt  ) {
@@ -3892,7 +3892,7 @@ void karte_t::recalc_average_speed()
 		average_speed[typ] = vehicle_builder_t::get_speedbonus( this->get_timeline_year_month(), i==4 ? air_wt : (waytype_t)i );
 	}
 
-	//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
+//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
 	if(use_timeline()) {
 		for(int i=road_wt; i<=air_wt; i++) {
 			const char *vehicle_type=NULL;
@@ -4504,7 +4504,7 @@ bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_b
 	}
 
 	grund_t *gr = lookup_kartenboden(k);
-	const sint16 platz_h = gr->get_grund_hang() ? max_hgt(k) : gr->get_hoehe();	// remember the max height of the first tile
+	const sint16 platz_h = gr->get_grund_hang() ? max_hgt(k) : gr->get_hoehe(); // remember the max height of the first tile
 
 	koord k_check;
 	for(k_check.y=k.y+h-1; k_check.y>=k.y; k_check.y--) {
@@ -5328,8 +5328,8 @@ DBG_DEBUG("karte_t::load", "init felder ok");
 	step_mode = PAUSE_FLAG;
 
 DBG_MESSAGE("karte_t::load()","savegame loading at tick count %i",ticks);
-	recalc_average_speed();	// resets timeline
-	koord::locality_factor = settings.get_locality_factor( last_year );	// resets weight factor
+	recalc_average_speed(); // resets timeline
+	koord::locality_factor = settings.get_locality_factor( last_year ); // resets weight factor
 	// recalc_average_speed may have opened message windows
 	destroy_all_win(true);
 
@@ -5639,7 +5639,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		halthandle_t const h = *i;
 		if(  !h->get_owner()  ||  !h->existiert_in_welt()  ) {
 			// this stop was only needed for loading goods ...
-			haltestelle_t::destroy(h);	// remove from list
+			haltestelle_t::destroy(h); // remove from list
 		}
 		else {
 			++i;
@@ -6383,12 +6383,13 @@ void karte_t::stop(bool exit_game)
 void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 {
 	if (env_t::networkmode) {
-		time_multiplier = 16;	// reset to normal speed
+		time_multiplier = 16; // reset to normal speed
 		sync_steps = syncsteps_;
 		sync_steps_barrier = sync_steps;
 		steps = sync_steps / settings.get_frames_per_step();
 		network_frame_count = sync_steps % settings.get_frames_per_step();
 		dbg->warning("karte_t::network_game_set_pause", "steps=%d sync_steps=%d pause=%d", steps, sync_steps, pause_);
+
 		if (pause_) {
 			if (!env_t::server) {
 				reset_timer();
@@ -6685,7 +6686,7 @@ bool karte_t::interactive(uint32 quit_month)
 	sync_steps_barrier = sync_steps;
 
 	network_frame_count = 0;
-	vector_tpl<uint16>hashes_ok;	// bit set: this client can do something with this player
+	vector_tpl<uint16>hashes_ok; // bit set: this client can do something with this player
 
 	if(  !scenario->rdwr_ok()  ) {
 		// error during loading of savegame of scenario

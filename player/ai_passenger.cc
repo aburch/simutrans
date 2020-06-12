@@ -991,12 +991,13 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 				const weighted_vector_tpl<gebaeude_t*> &attractions = welt->get_attractions();
 				// this way, we are sure, our factory is connected to this town ...
 				const vector_tpl<stadt_t::factory_entry_t> &fabriken = start_stadt->get_target_factories_for_pax().get_entries();
-				unsigned	last_dist = 0xFFFFFFFF;
-				bool ausflug=simrand(2)!=0;	// holidays first ...
+				unsigned last_dist = 0xFFFFFFFF;
+				bool ausflug=simrand(2)!=0; // holidays first ...
 				int ziel_count=ausflug?attractions.get_count():fabriken.get_count();
 				for( int i=0;  i<ziel_count;  i++  ) {
-					unsigned	dist;
+					unsigned dist;
 					koord pos, size;
+
 					if(ausflug) {
 						const gebaeude_t* a = attractions[i];
 						if (a->get_mail_level() <= 25) {
@@ -1141,7 +1142,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		// built a simple road (no bridges, no tunnels)
 		case NR_BAUE_STRASSEN_ROUTE:
 		{
-			state = NR_BAUE_WATER_ROUTE;	// assume failure
+			state = NR_BAUE_WATER_ROUTE; // assume failure
 			if(  !ai_t::road_transport  ) {
 				// no overland bus lines
 				break;
@@ -1328,8 +1329,8 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				}
 				// next: check for stuck convois ...
 
-				sint64	free_cap = line->get_finance_history(0,LINE_CAPACITY);
-				sint64	used_cap = line->get_finance_history(0,LINE_TRANSPORTED_GOODS);
+				sint64 free_cap = line->get_finance_history(0,LINE_CAPACITY);
+				sint64 used_cap = line->get_finance_history(0,LINE_TRANSPORTED_GOODS);
 
 				if(free_cap+used_cap==0) {
 					continue;
@@ -1365,7 +1366,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		break;
 
 		default:
-			DBG_MESSAGE("ai_passenger_t::do_passenger_ki()",	"Illegal state %d!", state );
+			DBG_MESSAGE("ai_passenger_t::do_passenger_ki()", "Illegal state %d!", state );
 			end_stadt = NULL;
 			state = NR_INIT;
 	}

@@ -202,7 +202,8 @@ void convoi_filter_frame_t::sort_list()
 	active_ware.clear();
 	FOR( slist_tpl<ware_item_t *>, wi, all_ware ) {
 		if(  wi->pressed  ) {
-/*			uint8 catg = wi->ware->get_catg();
+/*
+			uint8 catg = wi->ware->get_catg();
 			if(  catg  ) {
 				// now all goods of this category
 				for(  int i=1;  i<goods_manager_t::get_max_catg_index();  i++   ) {
@@ -214,7 +215,8 @@ void convoi_filter_frame_t::sort_list()
 			else {
 				active_ware.append( wi->ware );
 			}
-*/			active_ware.append( wi->ware );
+*/
+			active_ware.append( wi->ware );
 		}
 	}
 	main_frame->sort_list( filter_flags&name_filter ? name_filter_text : NULL, filter_flags, &active_ware );

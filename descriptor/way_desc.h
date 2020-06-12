@@ -20,18 +20,18 @@ class tool_t;
  * way type in Simutrans.
  *
  * Child nodes:
- *	0   Name
- *	1   Copyright
- *	2   Images for flat ways (indexed by ribi)
- *	3   Images for slopes
- *	4   Images for straight diagonal ways
- *	5   Skin (cursor and icon)
+ *  0   Name
+ *  1   Copyright
+ *  2   Images for flat ways (indexed by ribi)
+ *  3   Images for slopes
+ *  4   Images for straight diagonal ways
+ *  5   Skin (cursor and icon)
  * if number_of_seasons == 0  (no winter images)
- *	6-8  front images of image lists 2-4
+ *  6-8  front images of image lists 2-4
  * else
- *	6-8  winter images of image lists 2-4
- *	9-11 front images of image lists 2-4
- *	12-14 front winter images of image lists 2-4
+ *  6-8  winter images of image lists 2-4
+ *  9-11 front images of image lists 2-4
+ *  12-14 front winter images of image lists 2-4
  */
 class way_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class way_reader_t;

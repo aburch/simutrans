@@ -429,7 +429,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	if (desc->level == 65535) {
-		desc->level = 0;	// apparently wrong level
+		desc->level = 0; // apparently wrong level
 		dbg->warning("building_reader_t::read_node()","level was 65535, intended was probably 0 => changed." );
 	}
 

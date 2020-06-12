@@ -35,11 +35,10 @@ private:
 
 	gui_chart_t chart, mchart;
 
-
-	gui_label_buf_t	maintenance_money,
-	                scenario_desc,
-					scenario_completion,
-					warn;
+	gui_label_buf_t maintenance_money;
+	gui_label_buf_t scenario_desc;
+	gui_label_buf_t scenario_completion;
+	gui_label_buf_t warn;
 
 	gui_aligned_container_t container_year, container_month;
 

@@ -335,7 +335,7 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 		if(gb) {
 			DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
 			hausbauer_t::remove( player, gb );
-			bd = NULL;	// no need to recalc image
+			bd = NULL; // no need to recalc image
 			// removing the building could have destroyed this halt already
 			if (!halt.is_bound()){
 				return true;
@@ -1094,8 +1094,8 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 	}
 	// likely the display must be updated after this
 	resort_freight_info = true;
-	last_catg_index = 255;	// all categories are rerouted
-	return true;	// all updated ...
+	last_catg_index = 255; // all categories are rerouted
+	return true; // all updated ...
 }
 
 
@@ -1174,9 +1174,9 @@ sint32 haltestelle_t::rebuild_connections()
 		all_links[i].clear();
 		consecutive_halts[i].clear();
 	}
-	resort_freight_info = true;	// might result in error in routing
+	resort_freight_info = true; // might result in error in routing
 
-	last_catg_index = 255;	// must reroute everything
+	last_catg_index = 255; // must reroute everything
 	sint32 connections_searched = 0;
 
 // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
@@ -1202,7 +1202,7 @@ sint32 haltestelle_t::rebuild_connections()
 			if(  current_index >= registered_lines.get_count()  ) {
 				// We have looped over all lines.
 				lines = false;
-				current_index = 0;	// start over for registered lineless convoys
+				current_index = 0; // start over for registered lineless convoys
 				continue;
 			}
 
@@ -1227,7 +1227,7 @@ sint32 haltestelle_t::rebuild_connections()
 		while(  start_index < schedule->get_count()  &&  get_halt( schedule->entries[start_index].pos, owner ) != self  ) {
 			++start_index;
 		}
-		++start_index;	// the next index after self halt; it's okay to be out-of-range
+		++start_index; // the next index after self halt; it's okay to be out-of-range
 
 		// determine goods category indices supported by this halt
 		supported_catg_index.clear();
@@ -1579,7 +1579,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 	uint16 const max_transfers = welt->get_settings().get_max_transfers();
 	uint16 const max_hops      = welt->get_settings().get_max_hops();
 	uint16 allocation_pointer = 0;
-	uint16 best_destination_weight = 65535u;		// best weight among all destinations
+	uint16 best_destination_weight = 65535u; // best weight among all destinations
 
 	open_list.clear();
 
@@ -1714,11 +1714,11 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 					halt_data[ reachable_halt_id ].best_weight = 0;
 				}
 
-			}	// if not processed before
+			} // if not processed before
 			else if(  halt_data[ reachable_halt_id ].best_weight!=0  &&  halt_data[ reachable_halt_id ].depth>0) {
 				// Case : processed before but not in closed list : that is, in open list
-				//			--> can only be destination halt or transfer halt
-				//			    or start halt (filter the latter out with the condition depth>0)
+				//        --> can only be destination halt or transfer halt
+				//        or start halt (filter the latter out with the condition depth>0)
 
 				uint16 total_weight = current_halt_data.best_weight + current_conn.weight;
 
@@ -1744,8 +1744,8 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 					allocation_pointer++;
 					open_list.insert( route_node_t(current_conn.halt, total_weight) );
 				}
-			}	// else if not in closed list
-		}	// for each connection entry
+			} // else if not in closed list
+		} // for each connection entry
 
 		// indicate that the current halt is in closed list
 		current_halt_data.best_weight = 0;
@@ -1951,7 +1951,7 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 					allocation_pointer++;
 					open_list.insert( route_node_t(current_conn.halt, total_weight) );
 				}
-			}	// if not processed before
+			} // if not processed before
 			else {
 				// Case : processed before (or destination halt)
 				//        -> need to check whether we can reach it with smaller weight
@@ -1968,8 +1968,8 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 						open_list.insert( route_node_t(current_conn.halt, total_weight) );
 					}
 				}
-			}	// else processed before
-		}	// for each connection entry
+			} // else processed before
+		} // for each connection entry
 	}
 
 	// clear destinations since we may want to do another search with the same current_marker
@@ -2753,7 +2753,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		bool dummy;
 		file->rdwr_bool(dummy); // pax
 		file->rdwr_bool(dummy); // mail
-		file->rdwr_bool(dummy);	// ware
+		file->rdwr_bool(dummy); // ware
 	}
 
 	if(file->is_loading()) {
@@ -2799,7 +2799,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		for(unsigned i=0; i<goods_manager_t::get_max_catg_index(); i++) {
 			vector_tpl<ware_t> *warray = cargo[i];
 			if(warray) {
-				s = "y";	// needs to be non-empty
+				s = "y"; // needs to be non-empty
 				file->rdwr_str(s);
 				if(  file->is_version_less(112, 3)  ) {
 					uint16 count = warray->get_count();

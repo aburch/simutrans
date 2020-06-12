@@ -14,7 +14,7 @@ class field_class_desc_t;
 
 // new reader for field class desc
 class factory_field_class_reader_t : public obj_reader_t {
-	friend class factory_field_group_reader_t;	// this is a special case due to desc restructuring
+	friend class factory_field_group_reader_t; // this is a special case due to desc restructuring
 
 	static factory_field_class_reader_t the_instance;
 

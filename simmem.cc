@@ -3,7 +3,7 @@
  * (see LICENSE.txt)
  */
 
-#include <stdio.h>	// since BeOS needs size_t from there ...
+#include <stdio.h> // since BeOS needs size_t from there ...
 #include <stdlib.h>
 
 #include "simmem.h"

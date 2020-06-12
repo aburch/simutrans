@@ -35,7 +35,7 @@ private:
 	gui_label_buf_t label_power, label_odometer, label_resale, label_length, label_speed;
 
 	convoihandle_t cnv;
-	button_t	sale_button;
+	button_t sale_button;
 	button_t withdraw_button;
 
 	static karte_ptr_t welt;

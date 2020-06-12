@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "../../obj/roadsign.h"
-#include "../../simunits.h"	// for kmh to speed conversion
+#include "../../simunits.h" // for kmh to speed conversion
 #include "../roadsign_desc.h"
 #include "../intro_dates.h"
 

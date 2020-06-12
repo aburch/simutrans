@@ -111,7 +111,7 @@ void interaction_t::move_cursor( const event_t &ev )
 		if(  (ev.button_state&7)==0  ) {
 			// time, since mouse got here
 			world->set_mouse_rest_time(dr_time());
-			world->set_sound_wait_time(AMBIENT_SOUND_INTERVALL);	// 13s no movement: play sound
+			world->set_sound_wait_time(AMBIENT_SOUND_INTERVALL); // 13s no movement: play sound
 		}
 	}
 }

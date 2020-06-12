@@ -25,20 +25,20 @@ class settings_frame_t : public gui_frame_t, action_listener_t
 {
 private:
 	settings_t* sets;
-	gui_tab_panel_t	tabs;
+	gui_tab_panel_t tabs;
 
-	settings_general_stats_t	general;
-	gui_scrollpane_t scrolly_general;
-	settings_display_stats_t	display;
-	gui_scrollpane_t scrolly_display;
-	settings_economy_stats_t	economy;
-	gui_scrollpane_t scrolly_economy;
-	settings_routing_stats_t	routing;
-	gui_scrollpane_t scrolly_routing;
-	settings_costs_stats_t	costs;
-	gui_scrollpane_t scrolly_costs;
-	settings_climates_stats_t	climates;
-	gui_scrollpane_t scrolly_climates;
+	settings_general_stats_t  general;
+	gui_scrollpane_t          scrolly_general;
+	settings_display_stats_t  display;
+	gui_scrollpane_t          scrolly_display;
+	settings_economy_stats_t  economy;
+	gui_scrollpane_t          scrolly_economy;
+	settings_routing_stats_t  routing;
+	gui_scrollpane_t          scrolly_routing;
+	settings_costs_stats_t    costs;
+	gui_scrollpane_t          scrolly_costs;
+	settings_climates_stats_t climates;
+	gui_scrollpane_t          scrolly_climates;
 
 	button_t revert_to_default, revert_to_last_save;
 

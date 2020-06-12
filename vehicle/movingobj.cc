@@ -161,7 +161,7 @@ movingobj_t::movingobj_t(koord3d pos, const groundobj_desc_t *b ) : vehicle_base
 {
 	movingobjtype = movingobj_typen.index_of(b);
 	weg_next = 0;
-	timetochange = 0;	// will do random direct change anyway during next step
+	timetochange = 0; // will do random direct change anyway during next step
 	direction = calc_set_direction( koord3d(0,0,0), koord3d(koord::west,0) );
 	calc_image();
 	welt->sync.add( this );

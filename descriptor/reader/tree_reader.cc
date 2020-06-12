@@ -57,7 +57,7 @@ obj_desc_t * tree_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Versioned node, version 1
 		desc->allowed_climates = all_but_arctic_climate;
 		desc->number_of_seasons = 0;
-		decode_uint8(p);	// ignore hoehenlage
+		decode_uint8(p); // ignore hoehenlage
 		desc->distribution_weight = (uint8)decode_uint8(p);
 	}
 	else {

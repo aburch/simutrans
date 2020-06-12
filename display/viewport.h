@@ -84,9 +84,9 @@ private:
 	 * @}
 	 */
 
-	sint16 cached_disp_width;	//!< Cached window width
-	sint16 cached_disp_height;	//!< Cached window height
-	sint16 cached_img_size;		//!< Cached base raster image size
+	sint16 cached_disp_width;  ///< Cached window width
+	sint16 cached_disp_height; ///< Cached window height
+	sint16 cached_img_size;    ///< Cached base raster image size
 
 	/**
 	 * Sets current ij offsets of this viewport, depends of its proportions and the zoom level.

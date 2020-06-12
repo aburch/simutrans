@@ -67,8 +67,8 @@ player_t::player_t(uint8 nr) :
 	finance = new finance_t(this, welt);
 	player_nr = nr;
 	player_age = 0;
-	active = false;		// Don't start as an AI player
-	locked = false;			// allowed to change anything
+	active = false; // Don't start as an AI player
+	locked = false; // allowed to change anything
 	unlock_pending = false;
 
 	headquarter_pos = koord::invalid;

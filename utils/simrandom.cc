@@ -100,7 +100,7 @@ uint32 simrand(const uint32 max)
 {
 	assert( (random_origin&INTERACTIVE_RANDOM) == 0  );
 
-	if(max<=1) {	// may rather assert this?
+	if(max<=1) { // may rather assert this?
 		return 0;
 	}
 	return simrand_plain() % max;

@@ -33,7 +33,7 @@ bool dr_init_sound()
 {
 	int sound_ok = 0;
 	if(use_sound!=0) {
-		return true;	// avoid init twice
+		return true; // avoid init twice
 	}
 	use_sound = 1;
 

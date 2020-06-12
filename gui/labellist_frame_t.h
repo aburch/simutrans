@@ -18,9 +18,9 @@
 class labellist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	button_t	sortedby;
-	button_t	sorteddir;
-	button_t	filter;
+	button_t sortedby;
+	button_t sorteddir;
+	button_t filter;
 
 	gui_scrolled_list_t scrolly;
 

@@ -230,8 +230,8 @@ void savegame_frame_t::fill_list( void )
 	// for each path, we search.
 	FOR(vector_tpl<std::string>, &path, paths){
 
-		const char		*path_c = path.c_str();
-		const size_t	path_c_len = strlen(path_c);
+		const char *path_c      = path.c_str();
+		const size_t path_c_len = strlen(path_c);
 
 		sf.search(path, std::string(suffixnodot), this->only_directories, false);
 

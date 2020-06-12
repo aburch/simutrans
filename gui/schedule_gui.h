@@ -33,8 +33,7 @@ class schedule_gui_stats_t;
 /**
  * GUI for Schedule dialog
  */
-class schedule_gui_t :	public gui_frame_t,
-						public action_listener_t
+class schedule_gui_t : public gui_frame_t, public action_listener_t
 {
 	enum mode_t {adding, inserting, removing, undefined_mode};
 

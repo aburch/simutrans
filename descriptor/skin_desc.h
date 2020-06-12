@@ -15,10 +15,10 @@
 /**
  * An image list, with name and author attributes. Mostly used for gui purposes.
  *
- *  Child nodes:
- *	0   Name
- *	1   Copyright
- *	2   Image list
+ * Child nodes:
+ *  0   Name
+ *  1   Copyright
+ *  2   Image list
  */
 class skin_desc_t : public obj_named_desc_t {
 public:

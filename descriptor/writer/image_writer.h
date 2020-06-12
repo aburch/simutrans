@@ -25,7 +25,7 @@ class image_writer_t : public obj_writer_t {
 		static unsigned char* block;
 		static unsigned width;
 		static unsigned height;
-		static int img_size;	// default 64
+		static int img_size; // default 64
 
 		image_writer_t() { register_writer(false); }
 

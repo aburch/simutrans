@@ -695,7 +695,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 			// calculate costs
 			*costs = str ? 0 : s.way_count_straight;
 			if((str==NULL  &&  to->hat_wege())  ||  (str  &&  to->has_two_ways())) {
-				*costs += 4;	// avoid crossings
+				*costs += 4; // avoid crossings
 			}
 			if(to->get_weg_hang()!=0  &&  !to_flat) {
 				*costs += s.way_count_slope;
@@ -727,7 +727,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 			*costs = s.way_count_straight;
 			if (!sch) *costs += 1; // only prefer existing rails a little
 			if((sch  &&  to->has_two_ways())  ||  (sch==NULL  &&  to->hat_wege())) {
-				*costs += 4;	// avoid crossings
+				*costs += 4; // avoid crossings
 			}
 			if(to->get_weg_hang()!=0  &&  !to_flat) {
 				*costs += s.way_count_slope;
@@ -1280,7 +1280,7 @@ sint32 way_builder_t::intern_calc_route(const vector_tpl<koord3d> &start, const 
 
 	// some thing for the search
 	grund_t *to;
-	koord3d gr_pos;	// just the last valid pos ...
+	koord3d gr_pos; // just the last valid pos ...
 	route_t::ANode *tmp=NULL;
 	uint32 step = 0;
 	const grund_t* gr=NULL;
@@ -1748,7 +1748,7 @@ sint32 way_builder_t::intern_calc_route_elevated(const koord3d start, const koor
 
 	// some thing for the search
 	grund_t *to;
-	koord3d gr_pos;	// just the last valid pos ...
+	koord3d gr_pos; // just the last valid pos ...
 	route_t::ANode *tmp=NULL;
 	uint32 step = 0;
 	const grund_t *gr=NULL, *gu = NULL;
@@ -2060,8 +2060,8 @@ bool way_builder_t::intern_calc_route_runways(koord3d start3d, const koord3d zie
 	const ribi_t::ribi ribi_straight = ribi_t::doubles(ribi);
 
 	// not too close to the border?
-	if(	 !(welt->is_within_limits(start-koord(5,5))  &&  welt->is_within_limits(start+koord(5,5)))  ||
-		 !(welt->is_within_limits(ziel-koord(5,5))  &&  welt->is_within_limits(ziel+koord(5,5)))  ) {
+	if(  !(welt->is_within_limits(start-koord(5,5))  &&  welt->is_within_limits(start+koord(5,5)))  ||
+	     !(welt->is_within_limits(ziel-koord(5,5))  &&  welt->is_within_limits(ziel+koord(5,5)))  ) {
 		if(player_builder==welt->get_active_player()) {
 			create_win( new news_img("Zu nah am Kartenrand"), w_time_delete, magic_none);
 			return false;
@@ -2519,7 +2519,7 @@ bool way_builder_t::build_tunnel_tile()
 					gr->obj_add( lt );
 				}
 				else {
-					lt->leitung_t::finish_rd();	// only change powerline aspect
+					lt->leitung_t::finish_rd(); // only change powerline aspect
 					player_t::add_maintenance( player_builder, -lt->get_desc()->get_maintenance(), powerline_wt);
 				}
 			}
@@ -2627,7 +2627,7 @@ void way_builder_t::build_road()
 				player_builder->add_undo( route[i] );
 			}
 		}
-		gr->calc_image();	// because it may be a crossing ...
+		gr->calc_image(); // because it may be a crossing ...
 		minimap_t::get_instance()->calc_map_pixel(k);
 		player_t::book_construction_costs(player_builder, cost, k, road_wt);
 	} // for

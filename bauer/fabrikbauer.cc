@@ -442,7 +442,7 @@ void factory_builder_t::distribute_attractions(int max_number)
 
 	int retrys = max_number*4;
 	while(current_number<max_number  &&  retrys-->0) {
-		koord3d	pos=koord3d( koord::koord_random(welt->get_size().x,welt->get_size().y),1);
+		koord3d pos=koord3d( koord::koord_random(welt->get_size().x,welt->get_size().y),1);
 		const building_desc_t *attraction=hausbauer_t::get_random_attraction(welt->get_timeline_year_month(),true,(climate)simrand((int)arctic_climate+1));
 
 		// no attractions for that climate or too new
@@ -450,8 +450,8 @@ void factory_builder_t::distribute_attractions(int max_number)
 			continue;
 		}
 
-		int	rotation=simrand(attraction->get_all_layouts()-1);
-		pos = find_random_construction_site(pos.get_2d(), 20, attraction->get_size(rotation), factory_desc_t::Land, attraction, false, 0x0FFFFFFF);	// so far -> land only
+		int rotation=simrand(attraction->get_all_layouts()-1);
+		pos = find_random_construction_site(pos.get_2d(), 20, attraction->get_size(rotation), factory_desc_t::Land, attraction, false, 0x0FFFFFFF); // so far -> land only
 		if(welt->lookup(pos)) {
 			// space found, build attraction
 			hausbauer_t::build(welt->get_public_player(), pos, rotation, attraction);
@@ -743,7 +743,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 
 int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_desc_t* info, int supplier_nr, player_t* player)
 {
-	int n = 0;	// number of additional factories
+	int n = 0; // number of additional factories
 	/* first we try to connect to existing factories and will do some
 	 * cross-connect (if wanted)
 	 * We must take care to add capacity for cross-connected factories!
@@ -761,11 +761,11 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 	sint32 consumption = our_fab->get_base_production()*supplier->get_consumption();
 
 	slist_tpl<factories_to_crossconnect_t> factories_to_correct;
-	slist_tpl<fabrik_t *> new_factories;	      // since the cross-correction must be done later
-	slist_tpl<fabrik_t *> crossconnected_supplier;	// also done after the construction of new chains
+	slist_tpl<fabrik_t *> new_factories;           // since the cross-correction must be done later
+	slist_tpl<fabrik_t *> crossconnected_supplier; // also done after the construction of new chains
 
 	int lcount = supplier->get_supplier_count();
-	int lfound = 0;	// number of found producers
+	int lfound = 0; // number of found producers
 
 	DBG_MESSAGE("factory_builder_t::build_chain_link","supplier_count %i, lcount %i (need %i of %s)",info->get_supplier_count(),lcount,consumption,ware->get_name());
 
@@ -860,10 +860,10 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 		}
 	}
 
-	bool ignore_climates = false;	// ignore climates after some retrys
-	int retry=25;	// and not more than 25 (happens mostly in towns)
-	while(  (lcount>lfound  ||  lcount==0)  &&  consumption>0  &&  retry>0  ) {
+	bool ignore_climates = false; // ignore climates after some retrys
+	int retry=25; // and not more than 25 (happens mostly in towns)
 
+	while(  (lcount>lfound  ||  lcount==0)  &&  consumption>0  &&  retry>0  ) {
 		const factory_desc_t *producer_d = pick_any_weighted( producer );
 		int rotate = simrand(producer_d->get_building()->get_all_layouts()-1);
 		koord3d parent_pos = our_fab->get_pos();
