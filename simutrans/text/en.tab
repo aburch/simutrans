@@ -2277,6 +2277,8 @@ bride
 gow
 &37_CITY_SYLL[2]
 dyce
+&38_CITY_SYLL[2]
+gussie
 #
 # Max: 200 (hex)
 #
@@ -5794,4 +5796,3 @@ other_player_liquidation_duration
 It has been in liquidation for
 On loan since %i month(s)
 Overdrawn for the last %i month(s)
- 
