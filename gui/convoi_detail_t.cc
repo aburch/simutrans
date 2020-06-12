@@ -76,20 +76,6 @@ public:
 			}
 			// friction
 			add_component(&label_friction);
-#if 0
-			// maintenance
-			if(  sint64 cost = welt->scale_with_month_length(v->get_desc()->get_maintenance())  ) {
-				add_table(2,1);
-				{
-					new_component<gui_label_t>("Maintenance");
-					l = new_component<gui_label_buf_t>();
-					l->buf().append_money(cost/100.0);
-					l->set_color(MONEY_MINUS);
-					l->update();
-				}
-				end_table();
-			}
-#endif
 			if(v->get_cargo_max() > 0) {
 				// freight type
 				goods_desc_t const& g    = *v->get_cargo_type();
@@ -107,17 +93,18 @@ public:
 
 	void update_labels()
 	{
-		char buf[128];
+		label_resale.buf().printf("%s ", translator::translate("Restwert:"));
+		label_resale.buf().append_money(v->calc_sale_value() / 100.0);
 		if(  sint64 fix_cost = world()->scale_with_month_length((sint64)v->get_desc()->get_maintenance())  ) {
-			money_to_string(  buf, (double)v->calc_sale_value() / 100.0, false );
-			label_resale.buf().printf( translator::translate("Cost: %8s (%.2f$/km %.2f$/m)\n"), buf, (double)v->get_desc()->get_running_cost()/100.0, (double)fix_cost/100.0 );
+			cbuffer_t temp_buf;
+			temp_buf.printf( translator::translate("(%.2f$/km %.2f$/m)"), (double)v->get_desc()->get_running_cost()/100.0, (double)fix_cost/100.0 );
+			label_resale.buf().append( temp_buf );
 		}
 		else {
-			money_to_string(  buf, v->calc_sale_value() / 100.0, false );
-			label_resale.buf().printf( translator::translate("Cost: %8s (%.2f$/km)\n"), buf, (double)v->get_desc()->get_running_cost()/100.0 );
+			cbuffer_t temp_buf;
+			temp_buf.printf( translator::translate("(%.2f$/km)"), (double)v->get_desc()->get_running_cost()/100.0 );
+			label_resale.buf().append( temp_buf );
 		}
-//		label_resale.buf().printf("%s ", translator::translate("Restwert:"));
-//		label_resale.buf().append_money(v->calc_sale_value() / 100.0);
 		label_resale.update();
 		label_friction.buf().printf( "%s %i", translator::translate("Friction:"), v->get_frictionfactor() );
 		label_friction.update();
