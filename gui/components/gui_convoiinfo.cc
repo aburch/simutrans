@@ -67,7 +67,7 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
 
-	set_table_layout(2,1);
+	set_table_layout(2,2);
 	set_alignment(ALIGN_LEFT | ALIGN_TOP);
 
 
@@ -82,16 +82,6 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 		}
 		end_table();
 
-		add_component( &label_line );
-
-		container_next_halt = add_table(2,1);
-		{
-			pos_next_halt.init( button_t::posbutton_automatic, "" );
-			add_component( &pos_next_halt );
-			add_component( &label_next_halt );
-		};
-		end_table();
-
 	}
 	end_table();
 
@@ -101,6 +91,16 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 		filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
 		filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
 		add_component(&filled_bar);
+	}
+	end_table();
+
+	add_component( &label_line );
+
+	container_next_halt = add_table(2,1);
+	{
+		pos_next_halt.init( button_t::posbutton_automatic, "" );
+		add_component( &pos_next_halt );
+		add_component( &label_next_halt );
 	}
 	end_table();
 
