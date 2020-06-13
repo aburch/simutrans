@@ -76,7 +76,7 @@ static const uint8 cost_type[3*MAX_PLAYER_COST_BUTTON] =
 	ATV_WAY_TOLL,                   TT_ALL, MONEY,
 	ATV_OPERATING_PROFIT,           TT_ALL, MONEY,
 	ATV_NEW_VEHICLE,                TT_ALL, MONEY,   // New vehicles
-	ATV_CONSTRUCTION_COST,	        TT_ALL, MONEY,   // Construction
+	ATV_CONSTRUCTION_COST,          TT_ALL, MONEY,   // Construction
 	ATV_PROFIT,                     TT_ALL, MONEY,
 	ATC_CASH,                       TT_MAX, MONEY,   // Cash
 	ATV_NON_FINANCIAL_ASSETS,       TT_ALL, MONEY,   // value of all vehicles and buildings
@@ -86,15 +86,15 @@ static const uint8 cost_type[3*MAX_PLAYER_COST_BUTTON] =
 
 static const sint8 cell_to_buttons[] =
 {
-	0,		-1,		-1,		-1,		-1,
-	1,		-1,		-1,		-1,		-1,
-	2,		-1,		-1,		-1,		-1,
-	3,		-1,		-1,		-1,		-1,
-	4,		-1,		-1,		-1,		-1,
-	5,		-1,		-1,		 9,		-1,
-	6,		-1,		-1,		10,		-1,
-	7,		-1,		-1,		11,		-1,
-	8,		-1,		-1,		12,		-1
+	0,  -1,  -1,  -1,  -1,
+	1,  -1,  -1,  -1,  -1,
+	2,  -1,  -1,  -1,  -1,
+	3,  -1,  -1,  -1,  -1,
+	4,  -1,  -1,  -1,  -1,
+	5,  -1,  -1,   9,  -1,
+	6,  -1,  -1,  10,  -1,
+	7,  -1,  -1,  11,  -1,
+	8,  -1,  -1,  12,  -1
 };
 
 
@@ -370,7 +370,7 @@ money_frame_t::money_frame_t(player_t *player) :
 					button_to_chart.append(b, current_chart, curve);
 				}
 				else if (l >= 0) {
-					//	money_frame_label_t(uint8 tt, uint8 t, uint8 lt, uint8 i, bool mon)
+					// money_frame_label_t(uint8 tt, uint8 t, uint8 lt, uint8 i, bool mon)
 					money_labels.append( current->new_component<money_frame_label_t>(label_type[4*l], label_type[4*l+1], label_type[4*l+3], label_type[4*l+2], i==1) );
 				}
 				else {

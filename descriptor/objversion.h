@@ -21,7 +21,7 @@
  * obj as 1 byte: 3058022 bytes total
  * saves 4 to 1:  15072 bytes = 0,5% not worth it
  */
-#define	C4ID(a, b ,c ,d) (((uint32)a) | ((uint32)b) << 8 | ((uint32)c) << 16 | ((uint32)d) << 24)
+#define C4ID(a, b ,c ,d) (((uint32)a) | ((uint32)b) << 8 | ((uint32)c) << 16 | ((uint32)d) << 24)
 
 
 enum obj_type

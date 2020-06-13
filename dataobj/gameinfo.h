@@ -61,7 +61,7 @@ private:
 
 	// 0 = empty, otherwise some value from simplay
 	uint8 player_type[MAX_PLAYER_COUNT];
-	uint8 clients;	// currently connected players
+	uint8 clients; // currently connected players
 
 public:
 	gameinfo_t( karte_t *welt );

@@ -77,14 +77,14 @@ static vector_tpl<bonus_record_t>speedbonus[8];
 
 static sint32 default_speedbonus[8] =
 {
-	60,	// road
-	80,	// track
-	35,	// water
-	350,	// air
-	80,	// monorail
-	200,	// maglev
-	60,	// tram
-	60	// narrowgauge
+	60,  // road
+	80,  // track
+	35,  // water
+	350, // air
+	80,  // monorail
+	200, // maglev
+	60,  // tram
+	60   // narrowgauge
 };
 
 bool vehicle_builder_t::speedbonus_init(const std::string &objfilename)
@@ -257,7 +257,7 @@ static int compare_price(const vehicle_desc_t* a, const vehicle_desc_t* b) { ret
 static int compare_cost(const vehicle_desc_t* a, const vehicle_desc_t* b) { return a->get_running_cost() - b->get_running_cost(); }
 static int compare_cost_per_unit(const vehicle_desc_t* a, const vehicle_desc_t* b) { return a->get_running_cost()*b->get_capacity() - b->get_running_cost()*a->get_capacity(); }
 static int compare_topspeed(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_topspeed() - b->get_topspeed();}
-static int compare_power(const vehicle_desc_t* a, const vehicle_desc_t* b)	{return (a->get_power() == 0 ? 0x7FFFFFF : a->get_power()) - (b->get_power() == 0 ? 0x7FFFFFF : b->get_power());}
+static int compare_power(const vehicle_desc_t* a, const vehicle_desc_t* b) {return (a->get_power() == 0 ? 0x7FFFFFF : a->get_power()) - (b->get_power() == 0 ? 0x7FFFFFF : b->get_power());}
 static int compare_weight(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_weight() - b->get_weight();}
 static int compare_intro_year_month(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_intro_year_month() - b->get_intro_year_month();}
 static int compare_retire_year_month(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_retire_year_month() - b->get_retire_year_month();}
@@ -436,7 +436,7 @@ const vehicle_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
 				continue;
 			}
 
-			sint32 difference=0;	// smaller is better
+			sint32 difference=0; // smaller is better
 			// assign this vehicle if we have not found one yet, or we only found one too weak
 			if(  desc!=NULL  ) {
 				// is it cheaper to run? (this is most important)
@@ -558,7 +558,7 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 				continue;
 			}
 
-			sint32 difference=0;	// smaller is better
+			sint32 difference=0; // smaller is better
 			// assign this vehicle if we have not found one yet, or we only found one too weak
 			if(  desc!=NULL  ) {
 				// is it cheaper to run? (this is most important)

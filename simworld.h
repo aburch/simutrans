@@ -101,22 +101,22 @@ public:
 	void perlin_hoehe_loop(sint16, sint16, sint16, sint16);
 
 	enum player_cost {
-		WORLD_CITICENS=0,		//!< total people
-		WORLD_GROWTH,			//!< growth (just for convenience)
-		WORLD_TOWNS,			//!< number of all cities
-		WORLD_FACTORIES,		//!< number of all consuming only factories
-		WORLD_CONVOIS,			//!< total number of convois
-		WORLD_CITYCARS,			//!< number of citycars generated
-		WORLD_PAS_RATIO,		//!< percentage of passengers that started successful
-		WORLD_PAS_GENERATED,	//!< total number generated
-		WORLD_MAIL_RATIO,		//!< percentage of mail that started successful
-		WORLD_MAIL_GENERATED,	//!< all letters generated
-		WORLD_GOODS_RATIO,		//!< ratio of chain completeness
-		WORLD_TRANSPORTED_GOODS,//!< all transported goods
+		WORLD_CITICENS=0,        ///< total people
+		WORLD_GROWTH,            ///< growth (just for convenience)
+		WORLD_TOWNS,             ///< number of all cities
+		WORLD_FACTORIES,         ///< number of all consuming only factories
+		WORLD_CONVOIS,           ///< total number of convois
+		WORLD_CITYCARS,          ///< number of citycars generated
+		WORLD_PAS_RATIO,         ///< percentage of passengers that started successful
+		WORLD_PAS_GENERATED,     ///< total number generated
+		WORLD_MAIL_RATIO,        ///< percentage of mail that started successful
+		WORLD_MAIL_GENERATED,    ///< all letters generated
+		WORLD_GOODS_RATIO,       ///< ratio of chain completeness
+		WORLD_TRANSPORTED_GOODS, ///< all transported goods
 		MAX_WORLD_COST
 	};
 
-	#define MAX_WORLD_HISTORY_YEARS  (12) // number of years to keep history
+	#define MAX_WORLD_HISTORY_YEARS   (12) // number of years to keep history
 	#define MAX_WORLD_HISTORY_MONTHS  (12) // number of months to keep history
 
 	enum { NORMAL=0, PAUSE_FLAG = 0x01, FAST_FORWARD=0x02, FIX_RATIO=0x04 };
@@ -1320,13 +1320,13 @@ public:
 	 * @return The natural slope at a position.
 	 * @note Uses the corner height for the best slope.
 	 */
-	uint8	recalc_natural_slope( const koord k, sint8 &new_height ) const;
+	uint8 recalc_natural_slope( const koord k, sint8 &new_height ) const;
 
 	/**
 	 * Returns the natural slope a a position using the grid.
 	 * @note No checking, and only using the grind for calculation.
 	 */
-	uint8	calc_natural_slope( const koord k ) const;
+	uint8 calc_natural_slope( const koord k ) const;
 
 	 /**
 	  * Initialize map.
@@ -1528,7 +1528,8 @@ public:
 	/**
 	 * Synchronous stepping of objects like vehicles.
 	 */
-	void sync_step(uint32 delta_t, bool sync, bool display );	// advance also the timer
+	void sync_step(uint32 delta_t, bool sync, bool display ); // advance also the timer
+
 	/**
 	 * Tasks that are more time-consuming, like route search of vehicles and production of factories.
 	 */

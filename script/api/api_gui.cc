@@ -104,7 +104,7 @@ void export_gui(HSQUIRRELVM vm, bool scenario)
 		 * with specific tab open.
 		 * @param tab possible values are "info", "goal", "rules", "result", "about", "debug"
 		 * @param player_nr opens scenario info window on all clients that have this player unlocked.
-		 * @note Window is always opened on server.		 *
+		 * @note Window is always opened on server.
 		 */
 		STATIC register_method(vm, open_info_win_client, "open_info_win_client");
 		/**

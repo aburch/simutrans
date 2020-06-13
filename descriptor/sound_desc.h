@@ -15,14 +15,6 @@
 
 #define AMBIENT_SOUND_INTERVALL (13000)
 
-/**
- * Sounds in the game; name is the file name
- * ingame, sounds are referred to by their number
- *
- *  Child nodes:
- *	0   Name
- *	1   Copyright
- */
 
 #define SFX_CASH sound_desc_t::get_compatible_sound_id(15)
 #define SFX_REMOVER sound_desc_t::get_compatible_sound_id(14)
@@ -35,6 +27,14 @@
 #define MAX_OLD_SOUNDS (16)
 
 
+/**
+ * Sounds in the game; name is the file name
+ * ingame, sounds are referred to by their number
+ *
+ * Child nodes:
+ *  0   Name
+ *  1   Copyright
+ */
 class sound_desc_t : public obj_named_desc_t {
 	friend class sound_reader_t;
 
@@ -42,7 +42,7 @@ private:
 	static sint16 compatible_sound_id[MAX_OLD_SOUNDS];
 
 	sint16 sound_id;
-	sint16 nr;	// for old sounds/system sounds etc.
+	sint16 nr; // for old sounds/system sounds etc.
 
 public:
 	// sounds for ambient

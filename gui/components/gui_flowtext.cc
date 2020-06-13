@@ -63,7 +63,7 @@ private:
 	enum attributes
 	{
 		ATT_NONE,
-		ATT_NO_SPACE,	// same as none, but no trailing space
+		ATT_NO_SPACE, // same as none, but no trailing space
 		ATT_NEWLINE,
 		ATT_A_START,      ATT_A_END,
 		ATT_H1_START,     ATT_H1_END,
@@ -364,9 +364,9 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 	PIXVAL color        = SYSCOL_TEXT;
 	PIXVAL double_color = SYSCOL_TEXT_SHADOW;
 	bool double_it      = false;
-	bool link_it        = false;	// true, if currently underlining for a link
-	int extra_pixel     = 0;		// extra pixel before next line
-	int last_link_x     = 0;		// at this position ye need to continue underline drawing
+	bool link_it        = false; // true, if currently underlining for a link
+	int extra_pixel     = 0;     // extra pixel before next line
+	int last_link_x     = 0;     // at this position ye need to continue underline drawing
 	int max_width    = width;
 	int text_width   = width;
 	const int space_width = proportional_string_width(" ");

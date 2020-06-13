@@ -912,7 +912,7 @@ const char *tool_raise_t::work(player_t* player, koord3d pos )
 
 		if(  hgt <= welt->get_maximumheight()  ) {
 
-			int n = 0;	// tiles changed
+			int n = 0; // tiles changed
 			if(  !strempty(default_param)  ) {
 				// called by dragging or by AI
 				err = drag(player, k, atoi(default_param), n);
@@ -1109,7 +1109,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				ribis |= gr1->get_leitung()->get_ribi();
 			}
 
-			if(  new_slope==RESTORE_SLOPE  ||  !ribi_t::is_single(ribis)  ||  (new_slope<slope_t::raised  &&  ribi_t::backward(ribi_type(new_slope))!=ribis)  ) {
+			if(  new_slope==RESTORE_SLOPE  ||  !ribi_t::is_single(ribis)  ||  (new_slope<slope_t::max_number  &&  ribi_t::backward(ribi_type(new_slope))!=ribis)  ) {
 				// has the wrong tilt
 				return NOTICE_TILE_FULL;
 			}
@@ -1588,7 +1588,7 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 		return "Only one transformer per factory!";
 	}
 
-	// underground: first build tunnel tile	at coordinate pos
+	// underground: first build tunnel tile at coordinate pos
 	if(underground) {
 		if(gr->is_water()) {
 			return "Transformer only next to factory!";
@@ -1638,7 +1638,7 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 		s->finish_rd();
 	}
 
-	return NULL;	// ok
+	return NULL; // ok
 }
 
 
@@ -1820,7 +1820,7 @@ void tool_set_climate_t::mark_tiles(player_t *, const koord3d &start, const koor
 
 const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
-	int n = 0;	// tiles altered
+	int n = 0; // tiles altered
 	climate cl = (climate) atoi(default_param);
 	koord k1, k2;
 	if(  end == koord3d::invalid  ) {
@@ -2684,7 +2684,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	// single height -> height is 1
 	// double height -> height is 2
 	const slope_t::type end_slope = gr->get_weg_hang();
-	const uint8 end_max_height = end_slope ? ((end_slope & 7) ? 1 : 2) : (pos.z-end.z);
+	const uint8 end_max_height = end_slope ? (is_one_high(end_slope) ? 1 : 2) : (pos.z-end.z);
 
 	if(  gr->ist_karten_boden()  &&  end.z + end_max_height == start.z + max_height  ) {
 		zeiger_t *way = new zeiger_t(end, player );
@@ -3189,7 +3189,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 			return "Ways not connected";
 		}
 	}
-	bool can_delete = true;	// assume success
+	bool can_delete = true; // assume success
 
 	// if successful => delete everything
 	for( uint32 i=0;  i<verbindung.get_count();  i++  ) {
@@ -5152,7 +5152,7 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 					rs = new roadsign_t(player, gr->get_pos(), dir, desc);
 built_sign:
 					gr->obj_add(rs);
-					rs->finish_rd();	// to make them visible
+					rs->finish_rd(); // to make them visible
 					weg->count_sign();
 					player_t::book_construction_costs(player, -desc->get_price(), gr->get_pos().get_2d(), weg->get_waytype());
 				}
@@ -5692,7 +5692,8 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 
 
 
-/**	link tool: links products of factory one with factory two (if possible)
+/**
+ * link tool: links products of factory one with factory two (if possible)
  */
 image_id tool_link_factory_t::get_marker_image()
 {
@@ -6928,8 +6929,7 @@ bool tool_change_convoi_t::init( player_t *player )
 		}
 	}
 
-
-	return false;	// no related work tool ...
+	return false; // no related work tool ...
 }
 
 
@@ -6993,7 +6993,7 @@ bool tool_change_line_t::init( player_t *player )
 					break;
 				}
 
-				line->get_schedule()->finish_editing();	// just in case ...
+				line->get_schedule()->finish_editing(); // just in case ...
 				if(  can_use_gui()  ) {
 					schedule_gui_t *fg = dynamic_cast<schedule_gui_t *>(win_get_magic((ptrdiff_t)t));
 					if(  fg  ) {
@@ -7011,7 +7011,7 @@ bool tool_change_line_t::init( player_t *player )
 			}
 			break;
 
-		case 'd':	// delete line
+		case 'd': // delete line
 			{
 				if (line.is_bound()  &&  line->count_convoys()==0) {
 					// close a schedule window, if still active
@@ -7041,7 +7041,7 @@ bool tool_change_line_t::init( player_t *player )
 			}
 			break;
 
-		case 't':	// trims away convois on all lines of linetype with this default parameter
+		case 't': // trims away convois on all lines of linetype with this default parameter
 			{
 				vector_tpl<linehandle_t> const& lines = player->simlinemgmt.get_line_list();
 				// what kind of lines to trim
@@ -7120,7 +7120,7 @@ bool tool_change_line_t::init( player_t *player )
 			}
 			break;
 
-		case 'u':	// unite all lineless convois with similar schedules
+		case 'u': // unite all lineless convois with similar schedules
 			{
 				array_tpl<vector_tpl<convoihandle_t> > cnvs(welt->convoys().get_count());
 				uint32 max_cnvs=0;

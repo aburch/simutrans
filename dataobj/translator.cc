@@ -94,8 +94,8 @@ static void dump_hashtable(stringhashtable_tpl<const char*>* tbl)
  */
 static bool is_unicode_file(FILE* f)
 {
-	unsigned char	str[2];
-	int	pos = ftell(f);
+	unsigned char str[2];
+	int pos = ftell(f);
 //	DBG_DEBUG("is_unicode_file()", "checking for unicode");
 //	fflush(NULL);
 	fread( str, 1, 2,  f );

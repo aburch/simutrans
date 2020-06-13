@@ -286,7 +286,7 @@ void viewport_t::metrics_updated()
 	cached_disp_height = display_get_height();
 	cached_img_size = get_tile_raster_width();
 
-	set_viewport_ij_offset(	koord(
+	set_viewport_ij_offset(koord(
 		- cached_disp_width/(2*cached_img_size) - cached_disp_height/cached_img_size,
 		  cached_disp_width/(2*cached_img_size) - cached_disp_height/cached_img_size
 		) );

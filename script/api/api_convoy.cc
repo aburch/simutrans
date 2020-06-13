@@ -337,6 +337,10 @@ void export_convoy(HSQUIRRELVM vm)
 	 * @returns returns true if the schedule of the convoy is currently being edited.
 	 */
 	register_method(vm, convoy_is_schedule_editor_open, "is_schedule_editor_open", true);
+	/**
+	 * @returns returns the number of station tiles covered by the convoy.
+	 */
+	register_method(vm, &convoi_t::get_tile_length, "get_tile_length");
 
 #define STATIC
 	/**

@@ -132,7 +132,7 @@ public:
 	 * Building size can be larger than 1x1.
 	 * Also the underlying ground will be changed to foundation.
 	 * @param param if building a factory, pointer to the factory,
-	 * 				if building a stop, pointer to the halt handle.
+	 *              if building a stop, pointer to the halt handle.
 	 *
 	 * @return The first built part of the building. Usually at @p pos, if this
 	 *         building tile is not empty.

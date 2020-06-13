@@ -68,7 +68,7 @@ volatile HDC hdc = NULL;
 
 #ifdef MULTI_THREAD
 
-HANDLE	hFlushThread=0;
+HANDLE hFlushThread=0;
 CRITICAL_SECTION redraw_underway;
 
 // forward deceleration
@@ -140,7 +140,7 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 	delete[] wSIM_TITLE;
 
 	ShowWindow(hwnd, SW_SHOW);
-	SetTimer( hwnd, 0, 1111, NULL );	// HACK: so windows thinks we are not dead when processing a timer every 1111 ms ...
+	SetTimer( hwnd, 0, 1111, NULL ); // HACK: so windows thinks we are not dead when processing a timer every 1111 ms ...
 }
 
 
@@ -466,9 +466,9 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 	static utf8 *u8buf = NULL;
 	static size_t u8bufsize;
 
-	static int last_mb = 0;	// last mouse button state
+	static int last_mb = 0; // last mouse button state
 	switch (msg) {
-		case WM_TIMER:	// dummy timer even to keep windows thinking we are still active
+		case WM_TIMER: // dummy timer even to keep windows thinking we are still active
 			return 0;
 
 		case WM_ACTIVATE: // may check, if we have to restore color depth
@@ -646,8 +646,8 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					case VK_NUMPAD4:   sys_event.code = SIM_KEY_LEFT;  break;
 					case VK_NUMPAD6:   sys_event.code = SIM_KEY_RIGHT; break;
 					case VK_NUMPAD8:   sys_event.code = SIM_KEY_UP;    break;
-					case VK_PAUSE:     sys_event.code = 16;            break;	// Pause -> ^P
-					case VK_SEPARATOR: sys_event.code = 127;           break;	// delete
+					case VK_PAUSE:     sys_event.code = 16;            break; // Pause -> ^P
+					case VK_SEPARATOR: sys_event.code = 127;           break; // delete
 				}
 				// check for numlock!
 				if (sys_event.code != 0) break;
@@ -1031,7 +1031,7 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 	}
 
 #ifdef MULTI_THREAD
-	if(	hFlushThread ) {
+	if(  hFlushThread ) {
 		TerminateThread( hFlushThread, 0 );
 	}
 #endif

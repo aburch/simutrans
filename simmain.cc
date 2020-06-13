@@ -62,7 +62,7 @@
 #include "utils/simstring.h"
 #include "utils/searchfolder.h"
 
-#include "network/network.h"	// must be before any "windows.h" is included via bzlib2.h ...
+#include "network/network.h" // must be before any "windows.h" is included via bzlib2.h ...
 #include "dataobj/loadsave.h"
 #include "dataobj/environment.h"
 #include "dataobj/tabfile.h"
@@ -356,7 +356,7 @@ static void ask_objfilename()
 	sel->infowin_event(&ev);
 
 	if(sel->has_pak()) {
-		destroy_all_win(true);	// since eventually the successful load message is still there ....
+		destroy_all_win(true); // since eventually the successful load message is still there ....
 		modal_dialogue( sel, magic_none, NULL, empty_objfilename );
 	}
 	else {
@@ -378,7 +378,7 @@ static void ask_language()
 	}
 	else {
 		sprachengui_t* sel = new sprachengui_t();
-		destroy_all_win(true);	// since eventually the successful load message is still there ....
+		destroy_all_win(true); // since eventually the successful load message is still there ....
 		modal_dialogue( sel, magic_none, NULL, no_language );
 		destroy_win( sel );
 	}
@@ -1082,7 +1082,7 @@ int simu_main(int argc, char** argv)
 	// loading all objects in the pak
 	dbg->message("simmain()","Reading object data from %s...", env_t::objfilename.c_str());
 	obj_reader_t::load( env_t::objfilename.c_str(), translator::translate("Loading paks ...") );
-	std::string overlaid_warning;	// more prominent handling of double objects
+	std::string overlaid_warning; // more prominent handling of double objects
 	if(  dbg->had_overlaid()  ) {
 		overlaid_warning = translator::translate("<h1>Error</h1><p><strong>");
 		overlaid_warning.append( env_t::objfilename + translator::translate("contains the following doubled objects:</strong><p>") + dbg->get_overlaid() + "<p>" );
@@ -1318,7 +1318,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 
 	// reset random counter to true randomness
 	setsimrand(dr_time(), dr_time());
-	clear_random_mode( 7 );	// allow all
+	clear_random_mode( 7 ); // allow all
 
 	if(  loadgame==""  ||  !welt->load(loadgame.c_str())  ) {
 		// create a default map

@@ -510,10 +510,12 @@ void settings_climates_stats_t::init(settings_t* const sets)
 		if(sets->get_climate_borders()[i]>arctic) {
 			arctic = sets->get_climate_borders()[i];
 		}
-	}	cbuffer_t buf;
+	}
 
+	cbuffer_t buf;
 	summer->buf().printf("%s %i", translator::translate( "Summer snowline" ), arctic );
 	summer->update();
+
 	SEPERATOR
 	INIT_BOOL( "lake", sets->get_lake() );
 	INIT_NUM_NEW( "Number of rivers", sets->get_river_number(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );

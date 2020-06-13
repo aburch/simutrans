@@ -107,7 +107,7 @@ static redraw_param_t redraw_param;
 void* redraw_thread( void* ptr )
 {
 	while(true) {
-		simthread_barrier_wait( &redraw_barrier );	// wait to start
+		simthread_barrier_wait( &redraw_barrier ); // wait to start
 		pthread_mutex_lock( &redraw_mutex );
 		if ( ((redraw_param_t*)ptr)->ready ) {
 			pthread_mutex_unlock( &redraw_mutex );
@@ -354,7 +354,7 @@ void dr_flush()
 {
 #ifdef MULTI_THREAD
 	pthread_mutex_unlock( &redraw_mutex );
-	simthread_barrier_wait( &redraw_barrier );	// start thread
+	simthread_barrier_wait( &redraw_barrier ); // start thread
 #else
 	display_flush_buffer();
 	if(  use_hw  ) {
@@ -587,7 +587,7 @@ static void internal_GetEvents(bool const wait)
 					if (event.key.keysym.unicode != 0) {
 						code = event.key.keysym.unicode;
 						if (event.key.keysym.unicode == 22 /* ^V */) {
-#if 0	// disabled as internal buffer is used; code is retained for possible future implementation of dr_paste()
+#if 0 // disabled as internal buffer is used; code is retained for possible future implementation of dr_paste()
 							// X11 magic ... not tested yet!
 							SDL_SysWMinfo si;
 							if (SDL_GetWMInfo(&si) && si.subsystem == SDL_SYSWM_X11) {
@@ -596,7 +596,7 @@ static void internal_GetEvents(bool const wait)
 								Atom           sseln   = XA_CLIPBOARD(si.x11.display);
 								Atom           target  = XA_STRING;
 								unsigned char* sel_buf = 0;
-								unsigned long  sel_len = 0;	/* length of sel_buf */
+								unsigned long  sel_len = 0; /* length of sel_buf */
 								unsigned int   context = XCLIB_XCOUT_NONE;
 								xcout(si.x11.display, si.x11.window, evt, sseln, target, &sel_buf, &sel_len, &context);
 								/* fallback is needed. set XA_STRING to target and restart the loop. */

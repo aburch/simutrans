@@ -23,8 +23,8 @@ class factorylist_frame_t : public gui_frame_t, private action_listener_t
 private:
 	static const char *sort_text[factorylist::SORT_MODES];
 
-	button_t	sortedby;
-	button_t	sorteddir;
+	button_t sortedby;
+	button_t sorteddir;
 	button_t filter_by_owner;
 	gui_combobox_t filterowner;
 

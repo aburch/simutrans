@@ -67,10 +67,10 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
 
-	set_table_layout(2,1);
+	set_table_layout(2,2);
 	set_alignment(ALIGN_LEFT | ALIGN_TOP);
 
-	
+
 	add_table(1,4);
 	{
 		add_component(&label_name);
@@ -82,16 +82,6 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 		}
 		end_table();
 
-		add_component( &label_line );
-
-		container_next_halt = add_table(2,1);
-		{
-			pos_next_halt.init( button_t::posbutton_automatic, "" );
-			add_component( &pos_next_halt );
-			add_component( &label_next_halt );
-		};
-		end_table();
-
 	}
 	end_table();
 
@@ -101,6 +91,16 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 		filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
 		filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
 		add_component(&filled_bar);
+	}
+	end_table();
+
+	add_component( &label_line );
+
+	container_next_halt = add_table(2,1);
+	{
+		pos_next_halt.init( button_t::posbutton_automatic, "" );
+		add_component( &pos_next_halt );
+		add_component( &label_next_halt );
 	}
 	end_table();
 
@@ -159,12 +159,17 @@ void gui_convoiinfo_t::update_label()
 			label_line.set_visible( false );
 		}
 		label_line.update();
-		halthandle_t h;
-		if( grund_t *gr = world()->lookup( cnv->get_route()->back() ) ) { 
-			h = gr->get_halt();
+
+		if (!cnv->get_route()->empty()) {
+			halthandle_t h;
+			const koord3d end = cnv->get_route()->back();
+
+			if( grund_t *gr = world()->lookup( end ) ) {
+				h = gr->get_halt();
+			}
+			pos_next_halt.set_targetpos3d( end );
+			label_next_halt.set_text_pointer(h.is_bound()?h->get_name():translator::translate("wegpunkt"));
 		}
-		pos_next_halt.set_targetpos3d( cnv->get_route()->back() );
-		label_next_halt.set_text_pointer(h.is_bound()?h->get_name():translator::translate("wegpunkt"));
 	}
 
 	label_name.set_text_pointer(cnv->get_name());

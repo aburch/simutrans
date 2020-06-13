@@ -181,7 +181,7 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
  */
 int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 {
-	int numbers=0;	// how many missing?
+	int numbers=0; // how many missing?
 
 	factory_desc_t const& d = *fab->get_desc();
 	// ok, this is a source ...
@@ -193,7 +193,7 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 	for (int i = 0; i < d.get_supplier_count(); ++i) {
 		goods_desc_t const* const ware = d.get_supplier(i)->get_input_type();
 
-		bool complete = false;	// found at least one factory
+		bool complete = false; // found at least one factory
 		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
 			fabrik_t* const qfab = fabrik_t::get_fab(q);
 			if(!qfab) {
@@ -459,11 +459,11 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		koord3d pos1 = welt->lookup_kartenboden(platz1)->get_pos();
 		koord3d pos2 = welt->lookup_kartenboden(platz2)->get_pos();
 
-		int	start_location=0;
+		int start_location=0;
 		// sometimes, when factories are very close, we need exact calculation
 		const koord3d& qpos = qfab->get_pos();
 		if ((qpos.x - platz1.x) * (qpos.x - platz1.x) + (qpos.y - platz1.y) * (qpos.y - platz1.y) >
-				(qpos.x - platz2.x) * (qpos.x - platz2.x) + (qpos.y - platz2.y) * (qpos.y - platz2.y)) {
+		    (qpos.x - platz2.x) * (qpos.x - platz2.x) + (qpos.y - platz2.y) * (qpos.y - platz2.y)) {
 			start_location = 1;
 		}
 
@@ -897,7 +897,7 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 
 DBG_MESSAGE("do_ki()","check railway");
 			/* calculate number of cars for railroad */
-			count_rail=255;	// no cars yet
+			count_rail=255; // no cars yet
 			if(  rail_vehicle!=NULL  ) {
 				// if our car is faster: well use slower speed to save money
 				best_rail_speed = min(51, rail_vehicle->get_topspeed());
@@ -937,7 +937,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No railway possible.");
 
 DBG_MESSAGE("do_ki()","check railway");
 			/* calculate number of cars for road; much easier */
-			count_road=255;	// no cars yet
+			count_road=255; // no cars yet
 			if(  road_vehicle!=NULL  ) {
 				best_road_speed = road_vehicle->get_topspeed();
 				// find cheapest road
@@ -958,8 +958,8 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 
 			// find the cheapest transport ...
 			// assume maximum cost
-			int	cost_rail=0x7FFFFFFF, cost_road=0x7FFFFFFF;
-			int	income_rail=0, income_road=0;
+			int cost_rail=0x7FFFFFFF, cost_road=0x7FFFFFFF;
+			int income_rail=0, income_road=0;
 
 			// calculate cost for rail
 			if(  count_rail<255  ) {
@@ -1008,7 +1008,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 			if(state==NR_BAUE_ROUTE1) {
 				// maybe this route is not builtable ... add to forbidden connections
 				forbidden_connections.append( new fabconnection_t( start, ziel, freight ) );
-				ziel = NULL;	// otherwise it may always try to built the same route!
+				ziel = NULL; // otherwise it may always try to built the same route!
 				state = CHECK_CONVOI;
 			}
 		}
@@ -1251,7 +1251,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 					cnv->self_destruct();
 					if(cnv.is_bound()) {
-						cnv->step();	// to really get rid of it
+						cnv->step(); // to really get rid of it
 					}
 
 					// last vehicle on that connection (no line => railroad)

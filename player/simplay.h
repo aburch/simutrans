@@ -334,7 +334,7 @@ public:
 	 * is going to be deleted (flag==0)
 	 */
 	enum notification_factory_t {
-		notify_delete	// notified immediately before object is deleted (and before nulled in the slist_tpl<>)!
+		notify_delete // notified immediately before object is deleted (and before nulled in the slist_tpl<>)!
 	};
 	virtual void notify_factory(notification_factory_t, const fabrik_t*) {}
 

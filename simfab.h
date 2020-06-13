@@ -151,7 +151,7 @@ public:
 	}
 	void book_weighted_sum_storage(uint32 factor, sint64 delta_time);
 
-	sint32 menge;	// in internal units shifted by precision_bits (see step)
+	sint32 menge; // in internal units shifted by precision_bits (see step)
 	sint32 max;
 	/// Cargo currently in transit from/to this slot. Equivalent to statistics[0][FAB_GOODS_TRANSIT].
 	sint32 get_in_transit() const { return (sint32)statistics[0][FAB_GOODS_TRANSIT]; }
@@ -172,7 +172,7 @@ public:
 	bool placing_orders;
 
 #ifdef TRANSIT_DISTANCE
-	sint32 count_suppliers;	// only needed for averaging
+	sint32 count_suppliers; // only needed for averaging
 #endif
 	uint32 index_offset; // used for haltlist and lieferziele searches in verteile_waren to produce round robin results
 
@@ -387,15 +387,16 @@ private:
 	/**
 	 * Class for collecting arrival data and calculating pax/mail boost with fixed period length
 	 */
-	#define PERIOD_BITS   (18)				// determines period length on which boost calculation is based
-	#define SLOT_BITS     (6)				// determines the number of time slots available
-	#define SLOT_COUNT    (1<<SLOT_BITS)	// number of time slots for accumulating arrived pax/mail
+	#define PERIOD_BITS   (18)              // determines period length on which boost calculation is based
+	#define SLOT_BITS     (6)               // determines the number of time slots available
+	#define SLOT_COUNT    (1<<SLOT_BITS)    // number of time slots for accumulating arrived pax/mail
+
 	class arrival_statistics_t
 	{
 	private:
 		uint16 slots[SLOT_COUNT];
 		uint16 current_slot;
-		uint16 active_slots;		// number of slots covered since aggregate arrival last increased from 0 to +ve
+		uint16 active_slots;      // number of slots covered since aggregate arrival last increased from 0 to +ve
 		uint32 aggregate_arrival;
 		uint32 scaled_demand;
 	public:

@@ -592,7 +592,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 
 gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d pos, int built_layout, const building_desc_t *desc, void *param)
 {
-	uint8 corner_layout = 6;	// assume single building (for more than 4 layouts)
+	uint8 corner_layout = 6; // assume single building (for more than 4 layouts)
 
 	// adjust layout of neighbouring building
 	if(desc->is_transport_building()  &&  desc->get_all_layouts()>1) {

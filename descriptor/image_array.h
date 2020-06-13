@@ -12,10 +12,10 @@
 /**
  * Two-dimensional array of images
  *
- *  Child nodes:
- *	0   1st Image-list
- *	1   2nd Image-list
- *	... ...
+ * Child nodes:
+ *  0   1st Image-list
+ *  1   2nd Image-list
+ * ... ...
  */
 class image_array_t : public obj_desc_t {
 	friend class imagelist2d_reader_t;

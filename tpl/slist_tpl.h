@@ -467,7 +467,7 @@ public:
 					break;
 				}
 			}
-			for(  node_t *node = head;  node != tail  &&  node->next != tail;  node = node->next  )	{
+			for(  node_t *node = head;  node != tail  &&  node->next != tail;  node = node->next  ) {
 				if(  compare( node->next->data, node->next->next->data ) > 0  ) {
 					node_t * tmp = node->next;
 					node->next = node->next->next;

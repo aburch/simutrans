@@ -208,8 +208,8 @@ struct file_descriptors_t {
 };
 
 
-loadsave_t::mode_t loadsave_t::save_mode = bzip2;	// default to use for saving
-loadsave_t::mode_t loadsave_t::autosave_mode = zipped;	// default to use for autosaving
+loadsave_t::mode_t loadsave_t::save_mode = bzip2;      // default to use for saving
+loadsave_t::mode_t loadsave_t::autosave_mode = zipped; // default to use for autosaving
 int loadsave_t::save_level = 6;
 int loadsave_t::autosave_level = 1;
 

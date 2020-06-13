@@ -19,8 +19,8 @@ class depot_t;
 class depotlist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	button_t	sortedby;
-	button_t	sorteddir;
+	button_t sortedby;
+	button_t sorteddir;
 	gui_scrolled_list_t scrolly;
 
 	uint32 last_depot_count;
@@ -50,7 +50,7 @@ private:
 	depot_t *depot;
 	gui_label_buf_t label;
 	gui_image_t waytype_symbol;
-	button_t	gotopos;
+	button_t gotopos;
 
 	void update_label();
 

@@ -208,7 +208,7 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, int &count)
 			// we create maximal 4 pedestrians here for performance reasons
 			for (int i = 0; i < 4 && count > 0; i++) {
 				pedestrian_t* fg = new pedestrian_t(bd);
-				bool ok = bd->obj_add(fg) != 0;	// 256 limit reached
+				bool ok = bd->obj_add(fg) != 0; // 256 limit reached
 				if (ok) {
 					fg->calc_height(bd);
 					if (i > 0) {

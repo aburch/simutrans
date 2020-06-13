@@ -96,7 +96,6 @@ scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, co
 
 		// smaller than the allowed width?
 		do {
-
 			// end of line?
 			utf32 next_char = utf8_decoder_t::decode(p);
 
@@ -124,7 +123,7 @@ scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, co
 				x += ch_width;
 				word_x += ch_width;
 			}
-		}	while(  x<max_width  );
+		} while(  x<max_width  );
 
 		// spaces at the end can be omitted
 		line_end = word_start;

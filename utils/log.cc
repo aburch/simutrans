@@ -290,7 +290,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 #  ifdef MSG_LEVEL
 	int old_level = env_t::verbose_debug;
 #  endif
-	env_t::verbose_debug = 0;	// no more window concerning messages
+	env_t::verbose_debug = 0; // no more window concerning messages
 	if(is_display_init()) {
 		// show notification
 		destroy_all_win( true );

@@ -27,6 +27,7 @@ public:
 	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
 
 private:
+	char buf[64];
 
 	gui_aligned_container_t container;
 	gui_scrollpane_t scrolly;
@@ -34,7 +35,7 @@ private:
 	gui_label_buf_t label_power, label_odometer, label_resale, label_length, label_speed;
 
 	convoihandle_t cnv;
-	button_t	sale_button;
+	button_t sale_button;
 	button_t withdraw_button;
 
 	static karte_ptr_t welt;

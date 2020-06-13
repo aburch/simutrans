@@ -30,7 +30,7 @@
 #include "gui/messagebox.h"
 #include "gui/convoi_detail_t.h"
 #include "boden/grund.h"
-#include "boden/wege/schiene.h"	// for railblocks
+#include "boden/wege/schiene.h" // for railblocks
 
 #include "descriptor/vehicle_desc.h"
 #include "descriptor/roadsign_desc.h"
@@ -80,7 +80,7 @@ static const char * state_names[convoi_t::MAX_STATES] =
 	"WAITING_FOR_CLEARANCE_ONE_MONTH",
 	"CAN_START",
 	"CAN_START_ONE_MONTH",
-	"SELF_DESTRUCT",	// self destruct
+	"SELF_DESTRUCT",
 	"WAITING_FOR_CLEARANCE_TWO_MONTHS",
 	"CAN_START_TWO_MONTHS",
 	"LEAVING_DEPOT",
@@ -761,7 +761,7 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 		 * since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100
 		 * But since the acceleration was too fast, we just decelerate 4x more => >>6 instead >>8
 		 */
-		//sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtweight*64);	// this order is needed to prevent overflows!
+		//sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtweight*64); // this order is needed to prevent overflows!
 		//sint32 deccel = (sint32)( ( (sint64)akt_speed * (sint64)sum_friction_weight * (sint64)akt_speed ) / (25ll*256ll) + sum_gesamtweight * 64ll) / 1000ll; // intermediate still overflows so sint64
 		//sint32 deccel = (sint32)( ( (sint64)akt_speed * ( (sum_friction_weight * (sint64)akt_speed ) / 3125ll + 1ll) ) / 2048ll + (sum_gesamtweight * 64ll) / 1000ll);
 
@@ -939,7 +939,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 					}
 				}
 			}
-			break;	// LEAVING_DEPOT
+			break; // LEAVING_DEPOT
 
 		case DRIVING:
 			{
@@ -968,7 +968,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 					}
 				}
 			}
-			break;	// DRIVING
+			break; // DRIVING
 
 		case LOADING:
 			// loading is an async task, see laden()
@@ -1324,7 +1324,7 @@ void convoi_t::step()
 			destroy();
 			return; // must not continue method after deleting this object
 
-		default:	/* keeps compiler silent*/
+		default: /* keeps compiler silent*/
 			break;
 	}
 
@@ -1797,7 +1797,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 		if(  line.is_bound()  ) {
 			if(  !f->matches( welt, line->get_schedule() )  ) {
 				// change from line to individual schedule
-				//		-> unset line now and register stops from new schedule later
+				// -> unset line now and register stops from new schedule later
 				changed = true;
 				unset_line();
 			}
@@ -1818,9 +1818,9 @@ bool convoi_t::set_schedule(schedule_t * f)
 		schedule = f;
 		if(  changed  ) {
 			// if line is unset or schedule is changed
-			//				-> register stops from new schedule
+			// -> register stops from new schedule
 			register_stops();
-			welt->set_schedule_counter();	// must trigger refresh
+			welt->set_schedule_counter(); // must trigger refresh
 		}
 	}
 
@@ -1876,7 +1876,7 @@ bool convoi_t::can_go_alte_richtung()
 	// now get the actual length and the tile length
 	uint16 convoi_length = 15;
 	uint16 tile_length = 24;
-	unsigned i;	// for visual C++
+	unsigned i; // for visual C++
 	const vehicle_t* pred = NULL;
 	for(i=0; i<anz_vehikel; i++) {
 		const vehicle_t* v = fahr[i];
@@ -1918,7 +1918,7 @@ bool convoi_t::can_go_alte_richtung()
 		return false;
 	}
 
-	uint16 length = min((convoi_length/16u)+4u,route.get_count());	// maximum length in tiles to check
+	uint16 length = min((convoi_length/16u)+4u,route.get_count()); // maximum length in tiles to check
 
 	// we just check, whether we go back (i.e. route tiles other than zero have convoi vehicles on them)
 	for( int index=1;  index<length;  index++ ) {
@@ -1954,7 +1954,7 @@ bool convoi_t::can_go_alte_richtung()
 
 	// since we need the route for every vehicle of this convoi,
 	// we must set the current route index (instead assuming 1)
-	length = min((convoi_length/8u),route.get_count()-1);	// maximum length in tiles to check
+	length = min((convoi_length/8u),route.get_count()-1); // maximum length in tiles to check
 	bool ok=false;
 	for(i=0; i<anz_vehikel; i++) {
 		vehicle_t* v = fahr[i];
@@ -2225,7 +2225,7 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	file->rdwr_str(name_and_id + name_offset, lengthof(name_and_id) - name_offset);
 	if(file->is_loading()) {
-		set_name(name_and_id+name_offset);	// will add id automatically
+		set_name(name_and_id+name_offset); // will add id automatically
 	}
 
 	koord3d dummy_pos;
@@ -2466,7 +2466,7 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	// save/restore pending line updates
 	if(file->is_version_atleast(84, 9)  &&  file->is_version_less(99, 13)) {
-		file->rdwr_long(dummy);	// ignore
+		file->rdwr_long(dummy); // ignore
 	}
 	if(file->is_loading()) {
 		line_update_pending = linehandle_t();
@@ -2707,7 +2707,7 @@ void convoi_t::open_schedule_window( bool show )
 		calc_gewinn();
 	}
 
-	akt_speed = 0;	// stop the train ...
+	akt_speed = 0; // stop the train ...
 	if(state!=INITIAL) {
 		state = EDIT_SCHEDULE;
 	}
@@ -2898,7 +2898,7 @@ station_tile_search_ready: ;
 	// only load vehicles in station
 	// don't load when vehicle is being withdrawn
 	bool changed_loading_level = false;
-	uint32 time = WTT_LOADING;	// min time for loading/unloading
+	uint32 time = WTT_LOADING; // min time for loading/unloading
 	sint64 gewinn = 0;
 
 	// cargo type of previous vehicle that could not be filled
@@ -3019,7 +3019,7 @@ void convoi_t::calc_loading()
 		fracht_menge += v->get_total_cargo();
 	}
 	loading_level = fracht_max > 0 ? (fracht_menge*100)/fracht_max : 100;
-	loading_limit = 0;	// will be set correctly from hat_gehalten() routine
+	loading_limit = 0; // will be set correctly from hat_gehalten() routine
 
 	// since weight has changed
 	recalc_data=true;
@@ -3091,7 +3091,7 @@ uint32 convoi_t::get_average_kmh() const
  */
 void convoi_t::self_destruct()
 {
-	line_update_pending = linehandle_t();	// does not bother to add it to a new line anyway ...
+	line_update_pending = linehandle_t(); // does not bother to add it to a new line anyway ...
 	// convois in depot are not contained in the map array!
 	if(state==INITIAL) {
 		destroy();
@@ -3176,7 +3176,7 @@ void convoi_t::dump() const
 		"state = %d\n"
 		"statename = %s\n"
 		"alte_richtung = %d\n"
-		"jahresgewinn = %ld\n"	// %lld crashes mingw now, cast gewinn to long ...
+		"jahresgewinn = %ld\n" // %lld crashes mingw now, cast gewinn to long ...
 		"name = '%s'\n"
 		"line_id = '%d'\n"
 		"schedule = '%p'",

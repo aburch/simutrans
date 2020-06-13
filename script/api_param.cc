@@ -88,7 +88,7 @@ namespace script_api {
 
 	void coordinate_transform_t::slope_w2sq(slope_t::type &s)
 	{
-		if (s < slope_t::raised) {
+		if (s < slope_t::max_number) {
 			for(uint8 i=1; i <= 4-rotation; i++) {
 				s = slope_t::rotate90(s);
 			}
@@ -97,7 +97,7 @@ namespace script_api {
 
 	void coordinate_transform_t::slope_sq2w(slope_t::type &s)
 	{
-		if (s < slope_t::raised) {
+		if (s < slope_t::max_number) {
 			for(uint8 i=1; i <= rotation; i++) {
 				s = slope_t::rotate90(s);
 			}

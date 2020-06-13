@@ -23,21 +23,21 @@ class checksum_t;
 /**
  * Vehicle type description - all attributes of a vehicle type
  *
- *  child nodes:
- *	0   Name
- *	1   Copyright
- *	2   freight
- *	3   smoke
- *	4   empty 1d image list
- *	5   either 1d (freight_image_type==0) or 2d image list
- *	6   required leading vehicle 1
- *	7   required leading vehicle 2
- *	... ...
- *	n+5 required leading vehicle n
- *	n+6 allowed trailing vehicle 1
- *	n+7 allowed trailing vehicle 2
- *	... ...
- *	n+m+5 allowed trailing vehicle m
+ * Child nodes:
+ *  0   Name
+ *  1   Copyright
+ *  2   freight
+ *  3   smoke
+ *  4   empty 1d image list
+ *  5   either 1d (freight_image_type==0) or 2d image list
+ *  6   required leading vehicle 1
+ *  7   required leading vehicle 2
+ * ... ...
+ *  n+5 required leading vehicle n
+ *  n+6 allowed trailing vehicle 1
+ *  n+7 allowed trailing vehicle 2
+ * ... ...
+ *  n+m+5 allowed trailing vehicle m
  *  n+m+6 freight for which special images are defined
  */
 class vehicle_desc_t : public obj_desc_transport_related_t {
@@ -63,7 +63,7 @@ public:
 
 private:
 	uint16  capacity;
-	uint16  loading_time;	// time per full loading/unloading
+	uint16  loading_time; // time per full loading/unloading
 	uint32  weight;
 	uint32  power;
 	uint16  running_cost;
@@ -71,16 +71,15 @@ private:
 
 	uint16  gear;       // engine gear (power multiplier), 64=100
 
-	uint8 len;			// length (=8 is half a tile, the old default)
+	uint8 len;          // length (=8 is half a tile, the old default)
 	sint8 sound;
 
-	uint8  leader_count;	// all defined leading vehicles
-	uint8  trailer_count;	// all defined trailer
+	uint8  leader_count;  // all defined leading vehicles
+	uint8  trailer_count; // all defined trailer
 
 	uint8  engine_type; // diesel, steam, electric (requires electrified ways), fuel_cell, etc.
 
-	sint8 freight_image_type;	// number of freight images (displayed for different goods)
-
+	sint8 freight_image_type; // number of freight images (displayed for different goods)
 
 public:
 	// dummy vehicle for the XREF reader

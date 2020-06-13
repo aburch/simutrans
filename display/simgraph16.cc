@@ -411,21 +411,21 @@ static int night_shift = -1;
  * special colors during daytime
  */
 uint8 display_day_lights[LIGHT_COUNT*3] = {
-	0x57,	0x65,	0x6F, // Dark windows, lit yellowish at night
-	0x7F,	0x9B,	0xF1, // Lighter windows, lit blueish at night
-	0xFF,	0xFF,	0x53, // Yellow light
-	0xFF,	0x21,	0x1D, // Red light
-	0x01,	0xDD,	0x01, // Green light
-	0x6B,	0x6B,	0x6B, // Non-darkening grey 1 (menus)
-	0x9B,	0x9B,	0x9B, // Non-darkening grey 2 (menus)
-	0xB3,	0xB3,	0xB3, // non-darkening grey 3 (menus)
-	0xC9,	0xC9,	0xC9, // Non-darkening grey 4 (menus)
-	0xDF,	0xDF,	0xDF, // Non-darkening grey 5 (menus)
-	0xE3,	0xE3,	0xFF, // Nearly white light at day, yellowish light at night
-	0xC1,	0xB1,	0xD1, // Windows, lit yellow
-	0x4D,	0x4D,	0x4D, // Windows, lit yellow
-	0xE1,	0x00,	0xE1, // purple light for signals
-	0x01,	0x01,	0xFF, // blue light
+	0x57, 0x65, 0x6F, // Dark windows, lit yellowish at night
+	0x7F, 0x9B, 0xF1, // Lighter windows, lit blueish at night
+	0xFF, 0xFF, 0x53, // Yellow light
+	0xFF, 0x21, 0x1D, // Red light
+	0x01, 0xDD, 0x01, // Green light
+	0x6B, 0x6B, 0x6B, // Non-darkening grey 1 (menus)
+	0x9B, 0x9B, 0x9B, // Non-darkening grey 2 (menus)
+	0xB3, 0xB3, 0xB3, // non-darkening grey 3 (menus)
+	0xC9, 0xC9, 0xC9, // Non-darkening grey 4 (menus)
+	0xDF, 0xDF, 0xDF, // Non-darkening grey 5 (menus)
+	0xE3, 0xE3, 0xFF, // Nearly white light at day, yellowish light at night
+	0xC1, 0xB1, 0xD1, // Windows, lit yellow
+	0x4D, 0x4D, 0x4D, // Windows, lit yellow
+	0xE1, 0x00, 0xE1, // purple light for signals
+	0x01, 0x01, 0xFF, // blue light
 };
 
 
@@ -433,21 +433,21 @@ uint8 display_day_lights[LIGHT_COUNT*3] = {
  * special colors during nighttime
  */
 uint8 display_night_lights[LIGHT_COUNT*3] = {
-	0xD3,	0xC3,	0x80, // Dark windows, lit yellowish at night
-	0x80,	0xC3,	0xD3, // Lighter windows, lit blueish at night
-	0xFF,	0xFF,	0x53, // Yellow light
-	0xFF,	0x21,	0x1D, // Red light
-	0x01,	0xDD,	0x01, // Green light
-	0x6B,	0x6B,	0x6B, // Non-darkening grey 1 (menus)
-	0x9B,	0x9B,	0x9B, // Non-darkening grey 2 (menus)
-	0xB3,	0xB3,	0xB3, // non-darkening grey 3 (menus)
-	0xC9,	0xC9,	0xC9, // Non-darkening grey 4 (menus)
-	0xDF,	0xDF,	0xDF, // Non-darkening grey 5 (menus)
-	0xFF,	0xFF,	0xE3, // Nearly white light at day, yellowish light at night
-	0xD3,	0xC3,	0x80, // Windows, lit yellow
-	0xD3,	0xC3,	0x80, // Windows, lit yellow
-	0xE1,	0x00,	0xE1, // purple light for signals
-	0x01,	0x01,	0xFF, // blue light
+	0xD3, 0xC3, 0x80, // Dark windows, lit yellowish at night
+	0x80, 0xC3, 0xD3, // Lighter windows, lit blueish at night
+	0xFF, 0xFF, 0x53, // Yellow light
+	0xFF, 0x21, 0x1D, // Red light
+	0x01, 0xDD, 0x01, // Green light
+	0x6B, 0x6B, 0x6B, // Non-darkening grey 1 (menus)
+	0x9B, 0x9B, 0x9B, // Non-darkening grey 2 (menus)
+	0xB3, 0xB3, 0xB3, // non-darkening grey 3 (menus)
+	0xC9, 0xC9, 0xC9, // Non-darkening grey 4 (menus)
+	0xDF, 0xDF, 0xDF, // Non-darkening grey 5 (menus)
+	0xFF, 0xFF, 0xE3, // Nearly white light at day, yellowish light at night
+	0xD3, 0xC3, 0x80, // Windows, lit yellow
+	0xD3, 0xC3, 0x80, // Windows, lit yellow
+	0xE1, 0x00, 0xE1, // purple light for signals
+	0x01, 0x01, 0xFF, // blue light
 };
 
 
@@ -685,8 +685,8 @@ static const uint8 special_pal[SPECIAL_COLOR_COUNT*3] =
 /*
  * tile raster width
  */
-KOORD_VAL tile_raster_width = 16;	// zoomed
-KOORD_VAL base_tile_raster_width = 16;	// original
+KOORD_VAL tile_raster_width = 16;      // zoomed
+KOORD_VAL base_tile_raster_width = 16; // original
 
 // variables for storing currently used image procedure set and tile raster width
 display_image_proc display_normal = NULL;
@@ -1827,16 +1827,16 @@ static void rezoom_img(const image_id n)
 					}
 
 					/*
-					 *		If it is not the first clear-colored-run pair and its colored run is empty
-					 *		--> it is superfluous and can be removed by rolling back the pointer
+					 * If it is not the first clear-colored-run pair and its colored run is empty
+					 * --> it is superfluous and can be removed by rolling back the pointer
 					 */
 					if(  clear_colored_run_pair_count > 0  &&  count == 0  ) {
 						dest--;
 						// this only happens at the end of a line, so no need to increment clear_colored_run_pair_count
 					}
 					else {
-						*dest++ = count+has_alpha;	// number of colored pixel
-						dest += count;	// skip them
+						*dest++ = count+has_alpha; // number of colored pixels
+						dest += count; // skip them
 						clear_colored_run_pair_count++;
 					}
 				} while(  x < newzoomwidth  );
@@ -2136,7 +2136,7 @@ void register_image(image_t *image_in)
 				}
 			}
 			runlen = *src++;
-		} while(  runlen!=0  );	// end of row: runlen == 0
+		} while(  runlen!=0  ); // end of row: runlen == 0
 	}
 
 	for(  uint8 i = 0;  i < MAX_PLAYER_COUNT;  i++  ) {
@@ -2307,8 +2307,8 @@ static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL* c
  * to be used in display_img_pc
  */
 enum pixcopy_routines {
-	plain = 0,	/// simply copies the pixels
-	colored = 1	/// replaces player colors
+	plain = 0,  /// simply copies the pixels
+	colored = 1 /// replaces player colors
 };
 
 
@@ -2846,7 +2846,7 @@ static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOO
 			xpos += (runlen & ~TRANSPARENT_RUN);
 
 			// now get colored pixels
-			runlen = (*sp++) & ~TRANSPARENT_RUN;	// we recode anyway, so no need to do it explicitely
+			runlen = (*sp++) & ~TRANSPARENT_RUN; // we recode anyway, so no need to do it explicitely
 
 			// something to display?
 			if(  xpos + runlen > CR.clip_rect.x  &&  xpos < CR.clip_rect.xx  ) {
@@ -3008,7 +3008,7 @@ PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_bl
 	const PIXVAL alpha = (percent_blend*64)/100;
 
 	switch( alpha ) {
-		case 0:	// nothing to do ...
+		case 0: // nothing to do ...
 			return background;
 		case 16:
 		{
@@ -3274,7 +3274,7 @@ void display_blend_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, 
 		const PIXVAL alpha = (percent_blend*64)/100;
 
 		switch( alpha ) {
-			case 0:	// nothing to do ...
+			case 0: // nothing to do ...
 				break;
 
 			case 16:
@@ -4828,7 +4828,7 @@ void draw_bezier_rgb(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOO
 	Dx = Bx + BDx;
 	Dy = By + BDy;
 
-	/*	float a,b,rx,ry,oldx,oldy;
+	/* float a,b,rx,ry,oldx,oldy;
 	for (float t=0.0;t<=1;t+=0.05)
 	{
 		a = t;

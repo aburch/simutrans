@@ -13,8 +13,8 @@
 #include "../../simloadingscreen.h"
 #include "../../sys/simsys.h"
 
-#include "../skin_desc.h"	// just for the logo
-#include "../ground_desc.h"	// for the error message!
+#include "../skin_desc.h"   // just for the logo
+#include "../ground_desc.h" // for the error message!
 #include "../../simskin.h"
 
 // normal stuff
@@ -36,9 +36,9 @@
 #include "obj_reader.h"
 
 
-obj_reader_t::obj_map*                                         obj_reader_t::obj_reader;
+obj_reader_t::obj_map*                                        obj_reader_t::obj_reader;
 inthashtable_tpl<obj_type, stringhashtable_tpl<obj_desc_t*> > obj_reader_t::loaded;
-obj_reader_t::unresolved_map                                   obj_reader_t::unresolved;
+obj_reader_t::unresolved_map                                  obj_reader_t::unresolved;
 ptrhashtable_tpl<obj_desc_t**, int>                           obj_reader_t::fatals;
 
 void obj_reader_t::register_reader()
@@ -184,7 +184,7 @@ void obj_reader_t::read_file(const char *name)
 		} while(!feof(fp) && c != 0x1a);
 
 		if(feof(fp)) {
-			dbg->error("obj_reader_t::read_file()",	"unexpected end of file after %d bytes while reading '%s'!",n, name);
+			dbg->error("obj_reader_t::read_file()", "unexpected end of file after %d bytes while reading '%s'!",n, name);
 		}
 		else {
 //			DBG_DEBUG("obj_reader_t::read_file()", "skipped %d header bytes", n);
@@ -240,7 +240,7 @@ void obj_reader_t::read_nodes(FILE* fp, obj_desc_t*& data, int register_nodes, u
 	obj_reader_t *reader = obj_reader->get(static_cast<obj_type>(node.type));
 	if(reader) {
 
-//DBG_DEBUG("obj_reader_t::read_nodes()","Reading %.4s-node of length %d with '%s'",	reinterpret_cast<const char *>(&node.type),	node.size,	reader->get_type_name());
+//DBG_DEBUG("obj_reader_t::read_nodes()","Reading %.4s-node of length %d with '%s'", reinterpret_cast<const char *>(&node.type), node.size, reader->get_type_name());
 		data = reader->read_node(fp, node);
 		if (node.children != 0) {
 			data->children = new obj_desc_t*[node.children];

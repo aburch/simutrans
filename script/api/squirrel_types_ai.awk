@@ -63,6 +63,7 @@ BEGIN {
 	export_types["convoy_x::is_schedule_editor_open"] = "bool()"
 	export_types["convoy_x::calc_max_speed"] = "integer(integer, integer, integer)"
 	export_types["convoy_x::speed_to_tiles_per_month"] = "integer(integer)"
+	export_types["convoy_x::get_tile_length"] = "integer()"
 	export_types["factory_x::is_valid"] = "bool()"
 	export_types["factory_x::get_consumers"] = "array<coord>()"
 	export_types["factory_x::get_suppliers"] = "array<coord>()"

@@ -59,7 +59,7 @@ private:
 	gui_scrollpane_t scroll_freight;
 
 	button_t sort_button;
-	button_t line_button;	// goto line ...
+	button_t line_button; // goto line ...
 	bool line_bound;
 
 	convoihandle_t cnv;

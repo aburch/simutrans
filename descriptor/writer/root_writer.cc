@@ -307,9 +307,9 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 	printf("writing to temporary file %s\n", tmpfile_name.c_str());
 	write_header(outfp);
 
-	long start = ftell(outfp);	// remember position for adding children
+	long start = ftell(outfp); // remember position for adding children
 	obj_node_info_t root;
-	root.children = 0;	// we will change this later
+	root.children = 0; // we will change this later
 	root.size = 0;
 	root.type = obj_root;
 	this->write_obj_node_info_t(outfp, root);

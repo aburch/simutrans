@@ -70,7 +70,7 @@ static uint8 type_to_pri[256]=
 	255, //
 	baum_pri, // tree
 	254, // cursor/pointers
-	200, 200, 200,	// wolke
+	200, 200, 200, // wolke
 	3, 3, // buildings
 	6, // signal
 	2, 2, // bridge/tunnel
@@ -88,28 +88,28 @@ static uint8 type_to_pri[256]=
 	1, // crossings, treated like bridges or tunnels
 	1, // groundobjs, overlays over bare ground like lakes etc.
 	1,  // narrowgaugedepot
-	255, 255, 255, 255, 255, 255, 255, 255,	// 32-63 left empty (old numbers)
+	255, 255, 255, 255, 255, 255, 255, 255, // 32-63 left empty (old numbers)
 	255, 255, 255, 255, 255, 255, 255, 255,
 	255, 255, 255, 255, 255, 255, 255, 255,
 	255, 255, 255, 255, 255, 255, 255, 255,
-	moving_obj_pri,	// pedestrians
-	moving_obj_pri,	// city cars
-	moving_obj_pri,	// road vehicle
-	moving_obj_pri,	// rail vehicle
-	moving_obj_pri,	// monorail
-	moving_obj_pri,	// maglev
-	moving_obj_pri,	// narrowgauge
+	moving_obj_pri, // pedestrians
+	moving_obj_pri, // city cars
+	moving_obj_pri, // road vehicle
+	moving_obj_pri, // rail vehicle
+	moving_obj_pri, // monorail
+	moving_obj_pri, // maglev
+	moving_obj_pri, // narrowgauge
 	255, 255, 255, 255, 255, 255, 255, 255, 255,
-	moving_obj_pri,	// ship
-	moving_obj_pri+1,	// aircraft (no trailer, could be handled by normal method)
-	moving_obj_pri+1,	// movingobject (no trailer, could be handled by normal method)
-	255, 255, 255, 255, 255, 255, 255, 255,	// 83-95 left empty (for other moving stuff) 95, is reserved for old choosesignals
+	moving_obj_pri,   // ship
+	moving_obj_pri+1, // aircraft (no trailer, could be handled by normal method)
+	moving_obj_pri+1, // movingobject (no trailer, could be handled by normal method)
+	255, 255, 255, 255, 255, 255, 255, 255, // 83-95 left empty (for other moving stuff) 95, is reserved for old choosesignals
 	255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,	// 96-128 left empty (old numbers)
+	255, 255, 255, 255, 255, 255, 255, 255, // 96-128 left empty (old numbers)
 	255, 255, 255, 255, 255, 255, 255, 255,
 	255, 255, 255, 255, 255, 255, 255, 255,
 	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,	// 128-255 left empty
+	255, 255, 255, 255, 255, 255, 255, 255, // 128-255 left empty
 	255, 255, 255, 255, 255, 255, 255, 255,
 	255, 255, 255, 255, 255, 255, 255, 255,
 	255, 255, 255, 255, 255, 255, 255, 255,
@@ -753,7 +753,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::leitung:    new_obj = new leitung_t(file);  break;
 				case obj_t::senke:      new_obj = new senke_t(file);    break;
 				case obj_t::zeiger:     new_obj = new zeiger_t(file);   break;
-				case obj_t::signal:     new_obj = new signal_t(file);	break;
+				case obj_t::signal:     new_obj = new signal_t(file);   break;
 				case obj_t::label:      new_obj = new label_t(file);    break;
 				case obj_t::crossing:   new_obj = new crossing_t(file); break;
 

@@ -17,7 +17,7 @@ void sound_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	std::string str = obj.get("sound_name");
 	uint16 len = str.size();
 
-	obj_node_t	node(this, 6+len+1, &parent);
+	obj_node_t node(this, 6+len+1, &parent);
 
 	write_head(fp, node, obj);
 
@@ -26,7 +26,7 @@ void sound_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	uint16 uv16 = 0x8002;
 	node.write_uint16(fp, uv16, 0);
 
-	uv16 = obj.get_int("sound_nr", NO_SOUND);	// for compatibility reasons; the old nr of a sound
+	uv16 = obj.get_int("sound_nr", NO_SOUND); // for compatibility reasons; the old nr of a sound
 	node.write_uint16(fp, uv16, 2);
 
 	node.write_uint16(fp, len, 4);

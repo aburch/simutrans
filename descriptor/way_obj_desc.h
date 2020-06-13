@@ -21,12 +21,12 @@ class checksum_t;
  * Way objects type description (like overhead lines).
  *
  * Child nodes:
- *	0	Name
- *	1	Copyright
- *	2	Image on flat ways
- *	3	Image on sloped ways
- *	4	Image on diagonal ways
- *	5	Skin (cursor and icon)
+ *  0  Name
+ *  1  Copyright
+ *  2  Image on flat ways
+ *  3  Image on sloped ways
+ *  4  Image on diagonal ways
+ *  5  Skin (cursor and icon)
  */
 class way_obj_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class way_obj_reader_t;

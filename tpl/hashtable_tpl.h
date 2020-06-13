@@ -25,8 +25,8 @@ class hashtable_tpl
 protected:
 	struct node_t {
 	public:
-		key_t	  key;
-		value_t	value;
+		key_t   key;
+		value_t value;
 
 		int operator == (const node_t &x) const { return key == x.key; }
 	};

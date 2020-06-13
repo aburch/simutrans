@@ -165,10 +165,10 @@ public:
 
 	/** underground modes */
 	enum _underground_modes {
-		ugm_none = 0,	// normal view
-		ugm_all  = 1,   // everything underground visible, grid for grounds
-		ugm_level= 2	// overground things visible if their height  <= underground_level
-						// underground things visible if their height == underground_level
+		ugm_none = 0, // normal view
+		ugm_all  = 1, // everything underground visible, grid for grounds
+		ugm_level= 2  // overground things visible if their height  <= underground_level
+		              // underground things visible if their height == underground_level
 	};
 	static uint8 underground_mode;
 	static sint8 underground_level;
@@ -198,7 +198,7 @@ protected:
 	/**
 	 * Slope (now saved locally), because different grounds need different slopes
 	 */
-	uint8 slope;
+	slope_t::type slope;
 
 	/**
 	 * Image of the walls
@@ -229,7 +229,7 @@ protected:
 	static karte_ptr_t welt;
 
 	// calculates the slope image and sets the draw_as_obj flag correctly
-	void calc_back_image(const sint8 hgt,const sint8 slope_this);
+	void calc_back_image(const sint8 hgt,const slope_t::type slope_this);
 
 	// this is the real image calculation, called for the actual ground image
 	virtual void calc_image_internal(const bool calc_only_snowline_change) = 0;
@@ -410,7 +410,7 @@ public:
 	inline void set_pos(koord3d newpos) { pos = newpos;}
 
 	// slope are now maintained locally
-	slope_t::type get_grund_hang() const { return (slope_t::type)slope; }
+	slope_t::type get_grund_hang() const { return slope; }
 	void set_grund_hang(slope_t::type sl) { slope = sl; }
 
 	/**
@@ -724,26 +724,26 @@ public:
 
 	/**
 	 * A new way is built with the given ribis. Registered and assigned to the builder.
-	 * @param weg	    der neue Weg
-	 * @param ribi	    die neuen ribis
-	 * @param player    Player building the way
+	 * @param weg     der neue Weg
+	 * @param ribi    die neuen ribis
+	 * @param player  Player building the way
 	 */
 	sint64 neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player);
 
 	/**
 	 * Bauhilfsfunktion - die ribis eines vorhandenen weges werden erweitert
 	 *
-	 * @return bool	    true, falls weg vorhanden
-	 * @param wegtyp	    um welchen wegtyp geht es
-	 * @param ribi	    die neuen ribis
+	 * @return bool  true, falls weg vorhanden
+	 * @param wegtyp um welchen wegtyp geht es
+	 * @param ribi   die neuen ribis
 	 */
 	bool weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi);
 
 	/**
 	 * Bauhilfsfunktion - einen Weg entfernen
 	 *
-	 * @param wegtyp	    um welchen wegtyp geht es
-	 * @param ribi_rem  sollen die ribis der nachbar zururckgesetzt werden?
+	 * @param wegtyp   um welchen wegtyp geht es
+	 * @param ribi_rem sollen die ribis der nachbar zururckgesetzt werden?
 	 */
 	sint32 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
 
@@ -809,8 +809,7 @@ public:
 		if(  way_slope != slope  ) {
 			if(  ist_bruecke()  &&  slope  ) {
 				// calculate height quicker because we know that slope exists and is north, south, east or west
-				// single heights are not integer multiples of 8, double heights are
-				h += (slope & 7) ? 1 : 2;
+				h += is_one_high(slope) ? 1 : 2;
 			}
 		}
 

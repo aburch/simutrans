@@ -99,7 +99,7 @@ bool height_map_loader_t::get_height_data_from_file( const char *filename, sint8
 					int B = fgetc(file);
 					int G = fgetc(file);
 					int R = fgetc(file);
-					fgetc(file);	// dummy
+					fgetc(file); // dummy
 					h_table[i] = height_map_loader_t::rgb_to_height(R, G, B);
 				}
 				// now read the data
@@ -152,7 +152,7 @@ bool height_map_loader_t::get_height_data_from_file( const char *filename, sint8
 								for( sint32 k = 0;  k < Count;  k++, x++  ) {
 									hfield[x+y*w] = h_table[(uint8)fgetc(file)];
 								}
-								if (ftell(file) & 1) {	// alway even offset in file
+								if (ftell(file) & 1) { // always even offset in file
 									fseek(file, 1, SEEK_CUR);
 								}
 							}
@@ -172,7 +172,7 @@ bool height_map_loader_t::get_height_data_from_file( const char *filename, sint8
 						int R = fgetc(file);
 						hfield[x+offset] = height_map_loader_t::rgb_to_height(R, G, B);
 					}
-					fseek( file, (4-((w*3)&3))&3, SEEK_CUR );	// skip superfluos bytes at the end of each scanline
+					fseek( file, (4-((w*3)&3))&3, SEEK_CUR ); // skip superfluos bytes at the end of each scanline
 				}
 			}
 			// success ...

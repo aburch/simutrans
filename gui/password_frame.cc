@@ -39,7 +39,7 @@ password_frame_t::password_frame_t( player_t *player ) :
 		const_player_name.set_text( player->get_name() );
 		add_component(&const_player_name, 2);
 	}
-	fnlabel.set_text( "Password" );	// so we have a width now
+	fnlabel.set_text( "Password" ); // so we have a width now
 	add_component(&fnlabel);
 
 	// Input box for password

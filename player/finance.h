@@ -51,8 +51,8 @@ enum transport_type {
  * - the data are concerning to whole company
  */
 enum accounting_type_common {
-	ATC_CASH = 0,		///< Cash
-	ATC_NETWEALTH,		///< Total Cash + Assets
+	ATC_CASH = 0,           ///< Cash
+	ATC_NETWEALTH,          ///< Total Cash + Assets
 	ATC_ALL_CONVOIS,        ///< Convoy count
 	ATC_SCENARIO_COMPLETED, ///< Scenario success (only useful if there is one ... )
 	ATC_MAX
@@ -67,22 +67,22 @@ enum accounting_type_vehicles {
 	ATV_REVENUE_PASSENGER=0, ///< Revenue from passenger transport
 	ATV_REVENUE_MAIL,        ///< Revenue from mail transport
 	ATV_REVENUE_GOOD,        ///< Revenue from good transport
-	ATV_REVENUE_TRANSPORT,	 ///< Operating profit = passenger + mail + goods = was: COST_INCOME
-	ATV_TOLL_RECEIVED,	 ///< Toll paid to you by another player
+	ATV_REVENUE_TRANSPORT,   ///< Operating profit = passenger + mail + goods = was: COST_INCOME
+	ATV_TOLL_RECEIVED,       ///< Toll paid to you by another player
 	ATV_REVENUE,             ///< Operating profit = revenue_transport + toll = passenger + mail+ goods + toll_received
 
 	ATV_RUNNING_COST,               ///< Distance based running costs, was: COST_VEHICLE_RUN
 	ATV_VEHICLE_MAINTENANCE,        ///< Monthly vehicle maintenance. Unused.
 	ATV_INFRASTRUCTURE_MAINTENANCE, ///< Infrastructure maintenance (roads, railway, ...), was: COST_MAINTENANCE
-	ATV_TOLL_PAID,			  ///< Toll paid by you to another player
-	ATV_EXPENDITURE,		        ///< Total expenditure = RUNNING_COSTS+VEHICLE_MAINTENANCE+INFRACTRUCTURE_MAINTENANCE+TOLL_PAID
-	ATV_OPERATING_PROFIT,		  ///< ATV_REVENUE - ATV_EXPENDITURE, was: COST_OPERATING_PROFIT
-	ATV_NEW_VEHICLE,			  ///< New vehicles
-	ATV_CONSTRUCTION_COST,		  ///< Construction cost, COST_CONSTRUCTION mapped here
-	ATV_PROFIT,			        ///< ATV_OPERATING_PROFIT - (CONSTRUCTION_COST + NEW_VEHICLE), was: COST_PROFIT
-	ATV_WAY_TOLL,			  ///< = ATV_TOLL_PAID + ATV_TOLL_RECEIVED, was: COST_WAY_TOLLS
-	ATV_NON_FINANCIAL_ASSETS,	  ///< Value of vehicles owned by your company, was: COST_ASSETS
-	ATV_PROFIT_MARGIN,		  ///< ATV_OPERATING_PROFIT / ATV_REVENUE, was: COST_MARGIN
+	ATV_TOLL_PAID,                  ///< Toll paid by you to another player
+	ATV_EXPENDITURE,                ///< Total expenditure = RUNNING_COSTS+VEHICLE_MAINTENANCE+INFRACTRUCTURE_MAINTENANCE+TOLL_PAID
+	ATV_OPERATING_PROFIT,           ///< ATV_REVENUE - ATV_EXPENDITURE, was: COST_OPERATING_PROFIT
+	ATV_NEW_VEHICLE,                ///< New vehicles
+	ATV_CONSTRUCTION_COST,          ///< Construction cost, COST_CONSTRUCTION mapped here
+	ATV_PROFIT,                     ///< ATV_OPERATING_PROFIT - (CONSTRUCTION_COST + NEW_VEHICLE), was: COST_PROFIT
+	ATV_WAY_TOLL,                   ///< = ATV_TOLL_PAID + ATV_TOLL_RECEIVED, was: COST_WAY_TOLLS
+	ATV_NON_FINANCIAL_ASSETS,       ///< Value of vehicles owned by your company, was: COST_ASSETS
+	ATV_PROFIT_MARGIN,              ///< ATV_OPERATING_PROFIT / ATV_REVENUE, was: COST_MARGIN
 
 	ATV_TRANSPORTED_PASSENGER, ///< Number of transported passengers
 	ATV_TRANSPORTED_MAIL,      ///< Number of transported mail

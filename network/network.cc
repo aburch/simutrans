@@ -133,11 +133,11 @@ SOCKET network_open_address(char const* cp, char const*& err)
 	server_name.sin_family=AF_INET;
 #if USE_WINSOCK
 	bool ok = true;
-	server_name.sin_addr.s_addr = inet_addr(cp);	// for windows we must first try to resolve the number
-	if((int)server_name.sin_addr.s_addr==-1) {// Bad address
+	server_name.sin_addr.s_addr = inet_addr(cp); // for windows we must first try to resolve the number
+	if((int)server_name.sin_addr.s_addr==-1) { // Bad address
 		ok = false;
 		struct hostent *theHost;
-		theHost = gethostbyname( cp );	// ... before resolving a name ...
+		theHost = gethostbyname( cp ); // ... before resolving a name ...
 		if(theHost) {
 			server_name.sin_addr = *(struct in_addr *)theHost->h_addr_list[0];
 			ok = true;
@@ -826,7 +826,7 @@ void network_core_shutdown()
 	network_active = false;
 #ifndef NETTOOL
 	env_t::networkmode = false;
-	network_server_port = 0;	// this also sets ent_t::server to zero
+	network_server_port = 0; // this also sets env_t::server to zero
 #endif
 }
 
@@ -904,7 +904,7 @@ extern "C" {
 
 bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, int port )
 {
-	char lanaddr[64] = "unset";	/* my ip address on the LAN */
+	char lanaddr[64] = "unset"; /* my ip address on the LAN */
 	int error = 0;
 	const char *multicastif = 0;
 	const char *minissdpdpath = 0;
@@ -998,7 +998,7 @@ void remove_port_forwarding( int port )
 		return;
 	}
 
-	char lanaddr[64] = "unset";	/* my ip address on the LAN */
+	char lanaddr[64] = "unset"; /* my ip address on the LAN */
 	char externalIPAddress[64];
 	int error = 0;
 	const char *multicastif = 0;

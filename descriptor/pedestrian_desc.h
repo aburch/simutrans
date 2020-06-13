@@ -14,12 +14,12 @@
 #include "../network/checksum.h"
 
 /**
- *	Pedestrians.
+ * Pedestrians.
  *
- *  Child nodes:
- *	0   Name
- *	1   Copyright
- *	2   Image-list or 2d
+ * Child nodes:
+ *  0   Name
+ *  1   Copyright
+ *  2   Image-list or 2d
  */
 class pedestrian_desc_t : public obj_desc_timelined_t {
 	friend class pedestrian_reader_t;

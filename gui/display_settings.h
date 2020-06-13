@@ -81,7 +81,7 @@ private:
 	station_settings_t station_settings;
 	traffic_settings_t traffic_settings;
 	gui_scrollpane_t scrolly_gui, scrolly_map, scrolly_transparency, scrolly_station, scrolly_traffic;
-	gui_tab_panel_t	tabs;
+	gui_tab_panel_t tabs;
 
 public:
 	color_gui_t();

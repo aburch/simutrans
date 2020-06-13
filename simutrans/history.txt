@@ -25,6 +25,7 @@
 	ADD: two more theme colors: gui_color_obsolete, gui_color_empty for lines and server
 	ADD: (Yona-TNT) configurable offsets for player colors for gui elements
 	ADD: convois (in convoi list and schedule) also show their next stop with a posbutton to jump there
+	ADD: caseless matching in depots, lines, halt and convoi list dialogs even with umlaute
 
 
 Release of 121.0 (r8870 on 1-Dec-2019):

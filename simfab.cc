@@ -416,7 +416,7 @@ void fabrik_t::update_scaled_pax_demand()
 	// then, scaling based on month length
 	scaled_pax_demand = (uint32)welt->scale_with_month_length(pax_demand);
 	if(  scaled_pax_demand == 0  &&  desc_pax_demand > 0  ) {
-		scaled_pax_demand = 1;	// since desc pax demand > 0 -> ensure no less than 1
+		scaled_pax_demand = 1; // since desc pax demand > 0 -> ensure no less than 1
 	}
 	// pax demand for fixed period length
 	arrival_stats_pax.set_scaled_demand( pax_demand );
@@ -433,7 +433,7 @@ void fabrik_t::update_scaled_mail_demand()
 	// then, scaling based on month length
 	scaled_mail_demand = (uint32)welt->scale_with_month_length(mail_demand);
 	if(  scaled_mail_demand == 0  &&  desc_mail_demand > 0  ) {
-		scaled_mail_demand = 1;	// since desc mail demand > 0 -> ensure no less than 1
+		scaled_mail_demand = 1; // since desc mail demand > 0 -> ensure no less than 1
 	}
 	// mail demand for fixed period length
 	arrival_stats_mail.set_scaled_demand( mail_demand );
@@ -1838,10 +1838,10 @@ void fabrik_t::step(uint32 delta_t)
 				// limit increase rate
 				prodfactor_electric += prodfactor_change;
 			}
-			//else if(  prodfactor_delta  <  -prodfactor_change  ) {
-				// limit decrease rate, off because of possible exploit
-			//	prodfactor_electric -= prodfactor_change;
-			//}
+			// limit decrease rate, off because of possible exploit
+//			else if(  prodfactor_delta  <  -prodfactor_change  ) {
+//				prodfactor_electric -= prodfactor_change;
+//			}
 			else {
 				// no limit
 				prodfactor_electric = prodfactor_want;
@@ -2787,13 +2787,13 @@ void fabrik_t::recalc_factory_status()
 			status = nothing;
 		}
 		else if(  status_aus&FL_WARE_ALLEUEBER75  ||  status_aus&FL_WARE_UEBER75  ) {
-			status = inactive;	// not connected?
+			status = inactive; // not connected?
 			if(haltcount>0) {
 				if(status_aus&FL_WARE_ALLEUEBER75) {
-					status = bad;	// connect => needs better service
+					status = bad; // connect => needs better service
 				}
 				else {
-					status = medium;	// connect => needs better service for at least one product
+					status = medium; // connect => needs better service for at least one product
 				}
 			}
 		}
@@ -2813,7 +2813,7 @@ void fabrik_t::recalc_factory_status()
 			status = medium;
 		}
 		else if(status_ein&FL_WARE_ALLENULL) {
-			status = inactive;	// assume not served
+			status = inactive; // assume not served
 			if(haltcount>0) {
 				// there is a halt => needs better service
 				status = bad;

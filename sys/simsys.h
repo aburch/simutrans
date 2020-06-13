@@ -135,8 +135,8 @@ void dr_textur(int xp, int yp, int w, int h);
 int dr_textur_resize(unsigned short** textur, int w, int h);
 
 // needed for screen update
-void dr_prepare_flush();	// waits, if previous update not yet finished
-void dr_flush();	// copy to screen (eventually multithreaded)
+void dr_prepare_flush(); // waits, if previous update not yet finished
+void dr_flush();         // copy to screen (eventually multithreaded)
 
 /**
  * Transform a 24 bit RGB color into the system format.

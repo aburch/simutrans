@@ -166,7 +166,7 @@ public:
 	void rdwr(loadsave_t *file) OVERRIDE;
 	void finish_rd() OVERRIDE;
 
-	void calc_image() OVERRIDE {}	// otherwise it will change to leitung
+	void calc_image() OVERRIDE {} // empty; otherwise it will change to leitung
 
 	const fabrik_t* get_factory() const { return fab; }
 };
@@ -253,7 +253,7 @@ public:
 	void rdwr(loadsave_t *file) OVERRIDE;
 	void finish_rd() OVERRIDE;
 
-	void calc_image() OVERRIDE {}	// otherwise it will change to leitung
+	void calc_image() OVERRIDE {} // empty; otherwise it will change to leitung
 
 	const fabrik_t* get_factory() const { return fab; }
 };
