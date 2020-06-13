@@ -238,6 +238,7 @@ private:
 	 * caches the running costs
 	 */
 	sint32 sum_running_costs;
+	sint32 sum_fixed_costs;
 
 	/**
 	* Overall performance.
@@ -443,7 +444,7 @@ public:
 	/**
 	 * @return the total monthly fix cost for all vehicles in convoi
 	 */
-	sint32 get_fix_cost() const;
+	sint32 get_fixed_cost() const;
 
 	/**
 	 * returns the total running cost for all vehicles in convoi

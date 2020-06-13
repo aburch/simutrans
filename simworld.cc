@@ -3729,40 +3729,47 @@ void karte_t::new_month()
 	update_history();
 
 	// advance history ...
-	last_month_bev = finance_history_month[0][WORLD_CITICENS];
-	for(  int hist=0;  hist<karte_t::MAX_WORLD_COST;  hist++  ) {
-		for( int y=MAX_WORLD_HISTORY_MONTHS-1; y>0;  y--  ) {
-			finance_history_month[y][hist] = finance_history_month[y-1][hist];
+	last_month_bev = finance_history_month[ 0 ][ WORLD_CITICENS ];
+	for( int hist = 0; hist < karte_t::MAX_WORLD_COST; hist++ ) {
+		for( int y = MAX_WORLD_HISTORY_MONTHS - 1; y > 0; y-- ) {
+			finance_history_month[ y ][ hist ] = finance_history_month[ y - 1 ][ hist ];
 		}
 	}
 
-	current_month ++;
-	last_month ++;
+	current_month++;
+	last_month++;
 	if( last_month > 11 ) {
 		last_month = 0;
 		// check for changed distance weight
 		uint32 old_locality_factor = koord::locality_factor;
-		koord::locality_factor = settings.get_locality_factor( last_year+1 );
+		koord::locality_factor = settings.get_locality_factor( last_year + 1 );
 		need_locality_update = (old_locality_factor != koord::locality_factor);
 
 		if( current_month > DEFAULT_RETIRE_DATE * 12 ) {
 			// switch off timeline after 2999, since everything retires
-			settings.set_use_timeline(0);
+			settings.set_use_timeline( 0 );
 			dbg->warning( "karte_t::new_month()", "Timeline disabled after the year 2999" );
 		}
 	}
-	DBG_MESSAGE("karte_t::new_month()","Month (%d/%d) has started", (last_month%12)+1, last_month/12 );
+	DBG_MESSAGE( "karte_t::new_month()", "Month (%d/%d) has started", (last_month % 12) + 1, last_month / 12 );
 
 	// this should be done before a map update, since the map may want an update of the way usage
 //	DBG_MESSAGE("karte_t::new_month()","ways");
-	FOR(slist_tpl<weg_t*>, const w, weg_t::get_alle_wege()) {
+	FOR( slist_tpl<weg_t*>, const w, weg_t::get_alle_wege() ) {
 		w->new_month();
 	}
 
 	// recalc old settings (and maybe update the stops with the current values)
 	minimap_t::get_instance()->new_month();
 
-	INT_CHECK("simworld 1701");
+	INT_CHECK( "simworld 1701" );
+
+	// the lines finanance history must update before the convois
+	for(  uint i=0;  i < MAX_PLAYER_COUNT;  i++  ) {
+		if(  players[i]  ) {
+			players[i]->new_month_linemanagement();
+		}
+	}
 
 //	DBG_MESSAGE("karte_t::new_month()","convois");
 	// call new month for convois
@@ -3804,6 +3811,7 @@ void karte_t::new_month()
 			}
 		}
 	}
+
 	// update the window
 	ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
 	if(  playerwin  ) {

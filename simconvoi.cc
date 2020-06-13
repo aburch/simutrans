@@ -107,7 +107,7 @@ void convoi_t::init(player_t *player)
 
 	is_electric = false;
 	sum_gesamtweight = sum_weight = 0;
-	sum_running_costs = sum_gear_and_power = previous_delta_v = 0;
+	sum_running_costs = sum_fixed_costs = sum_gear_and_power = previous_delta_v = 0;
 	sum_power = 0;
 	min_top_speed = SPEED_UNLIMITED;
 	speedbonus_kmh = SPEED_UNLIMITED; // speed_to_kmh() not needed
@@ -659,6 +659,7 @@ void convoi_t::add_running_cost( const weg_t *weg )
 		get_owner()->book_toll_paid(         -toll, get_schedule()->get_waytype() );
 		book( -toll, CONVOI_WAYTOLL);
 		book( -toll, CONVOI_PROFIT);
+
 	}
 	get_owner()->book_running_costs( sum_running_costs, get_schedule()->get_waytype());
 
@@ -1454,6 +1455,10 @@ void convoi_t::new_month()
 			}
 		}
 	}
+	// book fixed cost as running cost
+	book( sum_fixed_costs, CONVOI_OPERATIONS );
+	book( sum_fixed_costs, CONVOI_PROFIT );
+	get_owner()->book_running_costs( sum_fixed_costs, get_schedule()->get_waytype());
 }
 
 
@@ -1629,7 +1634,8 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_
 				fahr[i] = fahr[i - 1];
 			}
 			fahr[0] = v;
-		} else {
+		}
+		else {
 			fahr[anz_vehikel] = v;
 		}
 		anz_vehikel ++;
@@ -1642,6 +1648,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_
 		sum_gear_and_power += info->get_power()*info->get_gear();
 		sum_weight += info->get_weight();
 		sum_running_costs -= info->get_running_cost();
+		sum_fixed_costs -= welt->scale_with_month_length( info->get_fixed_cost() );
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_desc()->get_topspeed() ) );
 		sum_gesamtweight = sum_weight;
 		calc_loading();
@@ -1657,7 +1664,6 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_
 		if(!has_obsolete  &&  welt->use_timeline()) {
 			has_obsolete = info->is_retired( welt->get_timeline_year_month() );
 		}
-		player_t::add_maintenance( get_owner(), info->get_maintenance(), info->get_waytype() );
 	}
 	else {
 		return false;
@@ -1691,7 +1697,7 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 			sum_gear_and_power -= info->get_power()*info->get_gear();
 			sum_weight -= info->get_weight();
 			sum_running_costs += info->get_running_cost();
-			player_t::add_maintenance( get_owner(), -info->get_maintenance(), info->get_waytype() );
+			sum_fixed_costs += welt->scale_with_month_length( info->get_fixed_cost() );
 		}
 		sum_gesamtweight = sum_weight;
 		calc_loading();
@@ -2302,6 +2308,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				sum_gear_and_power += info->get_power()*info->get_gear();
 				sum_weight += info->get_weight();
 				sum_running_costs -= info->get_running_cost();
+				sum_fixed_costs -= welt->scale_with_month_length( info->get_fixed_cost() );
 				is_electric |= info->get_engine_type()==vehicle_desc_t::electric;
 				has_obsolete |= welt->use_timeline()  &&  info->is_retired( welt->get_timeline_year_month() );
 				player_t::add_maintenance( get_owner(), info->get_maintenance(), info->get_waytype() );
@@ -3217,13 +3224,13 @@ void convoi_t::init_financial_history()
 }
 
 
-sint32 convoi_t::get_fix_cost() const
+sint32 convoi_t::get_fixed_cost() const
 {
-	sint32 running_cost = 0;
+	sint32 fix_cost = 0;
 	for(  unsigned i = 0;  i < get_vehicle_count();  i++  ) {
-		running_cost += fahr[i]->get_desc()->get_maintenance();
+		fix_cost += welt->scale_with_month_length( fahr[i]->get_desc()->get_fixed_cost() );
 	}
-	return running_cost;
+	return fix_cost;
 }
 
 

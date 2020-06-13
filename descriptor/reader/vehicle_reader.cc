@@ -186,7 +186,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->axle_load = decode_uint16(p);
 		desc->power = decode_uint32(p);
 		desc->running_cost = decode_uint16(p);
-		desc->fixed_cost = decode_uint16(p);
+		desc->maintenance = decode_uint16(p);
 
 		desc->intro_date = decode_uint16(p);
 		desc->retire_date = decode_uint16(p);
@@ -210,7 +210,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->axle_load = decode_uint16(p);
 		desc->power = decode_uint32(p);
 		desc->running_cost = decode_uint16(p);
-		desc->fixed_cost = decode_uint16(p);
+		desc->maintenance = decode_uint16(p);
 
 		desc->intro_date = decode_uint16(p);
 		desc->retire_date = decode_uint16(p);
@@ -234,7 +234,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->axle_load = decode_uint16(p);
 		desc->power = decode_uint32(p);
 		desc->running_cost = decode_uint16(p);
-		desc->fixed_cost = decode_uint32(p);
+		desc->maintenance = decode_uint32(p);
 
 		desc->intro_date = decode_uint16(p);
 		desc->retire_date = decode_uint16(p);
@@ -310,7 +310,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	if(version<9) {
-		desc->fixed_cost = 0;
+		desc->maintenance = 0;
 		desc->axle_load = 0;
 		desc->loading_time = 1000;
 	}
@@ -350,7 +350,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc-
 		desc->axle_load,
 		desc->power,
 		desc->running_cost,
-		desc->fixed_cost,
+		desc->maintenance,
 		desc->sound,
 		desc->leader_count,
 		desc->trailer_count,
