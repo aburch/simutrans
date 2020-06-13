@@ -1103,7 +1103,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 
 	// If we cannot use a standard name, use a name from the list of street names
 	if (inside || suburb) {
-		const vector_tpl<char*>& street_names(translator::get_street_name_list());
+		const vector_tpl<char*>& street_names(translator::get_street_name_list(welt->get_region(k)));
 		// make sure we do only ONE random call regardless of how many names are available (to avoid desyncs in network games)
 		if (const uint32 count = street_names.get_count()) {
 			uint32 idx = simrand(count, "char* haltestelle_t::create_name(koord const k, char const* const typ)");
@@ -2474,6 +2474,15 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 					{
 						dbg->error("bool haltestelle_t::fetch_goods()", "A convoy's arrival time is not in the database");
 						this_arrival_time = welt->get_ticks();
+
+						// Fall back to convoy's general average speed if a point-to-point average is not available.
+						// If we do not estimate speed here, we get odd results when the passengers/mail/goods decide what to board and what class to use.
+						const uint32 distance = shortest_distance(get_basis_pos(), check_halt->get_basis_pos());
+						const uint32 recorded_average_speed = cnv->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED);
+						const uint32 average_speed = recorded_average_speed > 0 ? recorded_average_speed : speed_to_kmh(cnv->get_min_top_speed()) / 2;
+						const uint32 journey_time_tenths_minutes = welt->travel_time_tenths_from_distance(distance, average_speed);
+
+						this_arrival_time += welt->get_seconds_to_ticks(journey_time_tenths_minutes * 6);
 					}
 
 					bool wait_for_faster_convoy = true;

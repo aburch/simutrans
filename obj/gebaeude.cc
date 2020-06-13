@@ -71,7 +71,7 @@ void gebaeude_t::init()
 	background_animated = false;
 	remove_ground = true;
 	anim_frame = 0;
-	//	purchase_time = 0; // init in set_tile()
+	//	construction_start = 0; // init in set_tile()
 	ptr.fab = NULL;
 	passengers_generated_commuting = 0;
 	passengers_succeeded_commuting = 0;
@@ -421,9 +421,9 @@ void gebaeude_t::rotate90()
 		if (building_desc->get_x(layout) > new_offset.x  &&  building_desc->get_y(layout) > new_offset.y) {
 			const building_tile_desc_t* const new_tile = building_desc->get_tile(layout, new_offset.x, new_offset.y);
 			// add new tile: but make them old (no construction)
-			sint64 old_purchase_time = purchase_time;
+			sint64 old_construction_start = construction_start;
 			set_tile(new_tile, false);
-			purchase_time = old_purchase_time;
+			construction_start = old_construction_start;
 			if (building_desc->get_type() != building_desc_t::dock && !tile->has_image()) {
 				// may have a rotation, that is not recoverable
 				if (!is_factory  &&  new_offset != koord(0, 0)) {
@@ -500,13 +500,14 @@ void gebaeude_t::set_stadt(stadt_t *s)
 /* make this building without construction */
 void gebaeude_t::add_alter(sint64 a)
 {
-	purchase_time -= min(a, purchase_time);
+	construction_start -= min(a, construction_start);
 }
 
 
 void gebaeude_t::set_tile(const building_tile_desc_t *new_tile, bool start_with_construction)
 {
-	purchase_time = welt->get_ticks();
+	construction_start = welt->get_ticks();
+        purchase_time = welt->get_current_month();
 
 	if (!show_construction  &&  tile != NULL) {
 		// mark old tile dirty
@@ -549,15 +550,15 @@ void gebaeude_t::set_tile(const building_tile_desc_t *new_tile, bool start_with_
 
 sync_result gebaeude_t::sync_step(uint32 delta_t)
 {
-	if (purchase_time > welt->get_ticks())
+	if (construction_start > welt->get_ticks())
 	{
 		// There were some integer overflow issues with
 		// this when some intermediate values were uint32.
-		purchase_time = welt->get_ticks() - 5000ll;
+		construction_start = welt->get_ticks() - 5000ll;
 	}
 	if (show_construction) {
 		// still under construction?
-		if (welt->get_ticks() - purchase_time > 5000) {
+		if (welt->get_ticks() - construction_start > 5000) {
 			set_flag(obj_t::dirty);
 			mark_image_dirty(get_image(), 0);
 			show_construction = false;
@@ -1075,10 +1076,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 #endif
 		buf.printf("%s: %d\n", translator::translate("Mail demand/output"), get_adjusted_mail_demand());
 
-                buf.printf("%s: %s (%d)\n", translator::translate("Built in"),
-                           translator::get_year_month(((purchase_time / welt->ticks_per_world_month)+welt->get_settings().get_starting_month())+
-                                                      welt->get_settings().get_starting_year()*12),
-                           (purchase_time / welt->ticks_per_world_month));
+        buf.printf("%s: %s\n", translator::translate("Built in"), translator::get_year_month(purchase_time));
 
 		building_desc_t const& h = *tile->get_desc();
 
@@ -1615,14 +1613,20 @@ void gebaeude_t::rdwr(loadsave_t *file)
 	file->rdwr_short(idx);
 	if (file->get_extended_version() <= 1)
 	{
-		uint32 old_purchase_time = (uint32)purchase_time;
-		file->rdwr_long(old_purchase_time);
-		purchase_time = old_purchase_time;
+		uint32 old_construction_start = (uint32)construction_start;
+		file->rdwr_long(old_construction_start);
+		construction_start = old_construction_start;
 	}
 	else
 	{
-		file->rdwr_longlong(purchase_time);
+        	sint64 month_start = (purchase_time - welt->get_settings().get_starting_month() - welt->get_settings().get_starting_year()*12) *
+        		welt->ticks_per_world_month;
+        	file->rdwr_longlong(file->is_saving() ? month_start : construction_start);
 	}
+        if (!file->is_saving()) { // stepping year in game results in mismatch of Ticks vs. Year/Month; avoid updating here
+        	purchase_time = (construction_start / welt->ticks_per_world_month)+welt->get_settings().get_starting_month()+
+	        	welt->get_settings().get_starting_year()*12;
+        }
 
 	if (file->get_extended_version() >= 12)
 	{
@@ -1697,9 +1701,9 @@ void gebaeude_t::rdwr(loadsave_t *file)
 				switch (type) {
 				case building_desc_t::city_res:
 				{
-					const building_desc_t *bdsc = hausbauer_t::get_residential(level, single, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z));
+					const building_desc_t *bdsc = hausbauer_t::get_residential(level, single, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z), welt->get_region(get_pos().get_2d()));
 					if (bdsc == NULL) {
-						bdsc = hausbauer_t::get_residential(level, single, 0, MAX_CLIMATES);
+						bdsc = hausbauer_t::get_residential(level, single, 0, MAX_CLIMATES, 65535);
 					}
 					if (bdsc) {
 						dbg->message("gebaeude_t::rwdr", "replace unknown building %s with residence level %i by %s", buf, level, bdsc->get_name());
@@ -1710,9 +1714,9 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 				case building_desc_t::city_com:
 				{
-					const building_desc_t *bdsc = hausbauer_t::get_commercial(level, single, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z));
+					const building_desc_t *bdsc = hausbauer_t::get_commercial(level, single, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z), welt->get_region(get_pos().get_2d()));
 					if (bdsc == NULL) {
-						bdsc = hausbauer_t::get_commercial(level, single, 0, MAX_CLIMATES);
+						bdsc = hausbauer_t::get_commercial(level, single, 0, MAX_CLIMATES, 65535);
 					}
 					if (bdsc) {
 						dbg->message("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i by %s", buf, level, bdsc->get_name());
@@ -1723,11 +1727,11 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 				case building_desc_t::city_ind:
 				{
-					const building_desc_t *bdsc = hausbauer_t::get_industrial(level, single, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z));
+					const building_desc_t *bdsc = hausbauer_t::get_industrial(level, single, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z), welt->get_region(get_pos().get_2d()));
 					if (bdsc == NULL) {
-						bdsc = hausbauer_t::get_industrial(level, single, 0, MAX_CLIMATES);
+						bdsc = hausbauer_t::get_industrial(level, single, 0, MAX_CLIMATES, 65535);
 						if (bdsc == NULL) {
-							bdsc = hausbauer_t::get_residential(level, single, 0, MAX_CLIMATES);
+							bdsc = hausbauer_t::get_residential(level, single, 0, MAX_CLIMATES, 65535);
 						}
 					}
 					if (bdsc) {

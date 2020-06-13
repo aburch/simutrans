@@ -2840,7 +2840,7 @@ void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 playe
 void display_color_img_with_tooltip(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty, const char *text  CLIP_NUM_DEF)
 {
 	display_color_img(n, xp, yp, player_nr_raw, daynight, dirty);
-	if (text && ( xp <= get_mouse_x() && yp <= get_mouse_y() && (xp+ images[n].w) > get_mouse_x() && (yp+ images[n].h) > get_mouse_y())) {
+	if (text && n < anz_images && ( xp <= get_mouse_x() && yp <= get_mouse_y() && (xp+ images[n].w) > get_mouse_x() && (yp+ images[n].h) > get_mouse_y())) {
 		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X/2, yp + images[n].y + images[n].h + TOOLTIP_MOUSE_OFFSET_Y/2, text);
 	}
 }
@@ -4832,6 +4832,27 @@ void display_filled_circle_rgb(KOORD_VAL x0, KOORD_VAL  y0, int radius, const PI
 		display_fb_internal(x0 - y, y0 - x, y + y, 1, colval, false, CR0.clip_rect.x, CR0.clip_rect.xx, CR0.clip_rect.y, CR0.clip_rect.yy);
 	}
 	//	mark_rect_dirty_wc( x0-radius, y0-radius, x0+radius+1, y0+radius+1 );
+}
+
+
+int display_fluctuation_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, const bool dirty, sint64 value)
+{
+	if (!value) { return 0; } // nothing to draw
+	COLOR_VAL col = value > 0 ? COL_LIGHT_TURQUOISE : COL_LIGHT_ORANGE;
+	uint8 width = height - height % 2;
+	for (uint i = 0; i < width; i++) {
+		uint8 h = height - 2 * abs(int(width / 2 - i));
+		KOORD_VAL y0 = value > 0 ? y + 2 + height - h : y+2;
+		KOORD_VAL y1 = value > 0 ? y0 - 1 : y + h +1;
+
+		if (h > 1) {
+			display_vline_wh(x + i, y0, h - 1, col, dirty);
+		}
+		if (h > 0) {
+			display_blend_wh(x + i, y1, 1, 1, col, 50);
+		}
+	}
+	return width;
 }
 
 

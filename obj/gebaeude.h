@@ -62,11 +62,9 @@ private:
 
 	uint8 anim_frame;
 
-	/**
-	 * Construction began at this tick. "Pit" under-construction graphics handled by sync_step()
-	 * @author Hj. Malthaner
-	 */
-	sint64 purchase_time;
+	sint64 construction_start;  // Time in ticks. "Pit" under-construction graphics handled by sync_step() 
+    sint32 purchase_time;       // Date in months
+
 
 	/**
 	* either point to a factory or a city
@@ -325,7 +323,7 @@ public:
 
 	bool get_is_factory() const { return is_factory; }
 
-        sint64 get_purchase_time() const { return purchase_time; }
+        sint32 get_purchase_time() const { return purchase_time; }
 
 	/**
 	* Call this method when commuting passengers are sent to this building.

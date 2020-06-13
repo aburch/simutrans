@@ -1,11 +1,15 @@
-#ifndef gui_convoy_payloadinfo_h
-#define gui_convoy_payloadinfo_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
-#include "../../display/scr_coord.h"
+#ifndef GUI_CONVOY_PAYLOADINFO_H
+#define GUI_CONVOY_PAYLOADINFO_H
+
 #include "gui_container.h"
+#include "../../display/scr_coord.h"
 #include "../../convoihandle_t.h"
 
-// Display convoy's payload information along with goods category symbol. @Ranan 2020
 class gui_convoy_payloadinfo_t : public gui_container_t
 {
 private:

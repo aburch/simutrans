@@ -440,9 +440,32 @@ sint32 karte_t::perlin_hoehe(settings_t const* const sets, koord k, koord const 
 		case 3: k = koord(size.y-k.y,k.x); break;
 	}
 //    double perlin_noise_2D(double x, double y, double persistence);
-//    return ((int)(perlin_noise_2D(x, y, 0.6)*160.0)) & 0xFFFFFFF0;
+//    return ((int)(perlin_noise_2D(x, y, 0.6)*160.0)) & 0xFFFFFFF0; 
 	k = k + koord(sets->get_origin_x(), sets->get_origin_y());
-	return ((int)(perlin_noise_2D(k.x, k.y, sets->get_map_roughness(), map_size_max)*(double)sets->get_max_mountain_height())) / 16;
+	double map_roughness = sets->get_map_roughness();
+	double mountain_height = sets->get_max_mountain_height();
+
+	// This allows for different regions to have different landscapes - but
+	// the transitions between regions are too harsh and it is not easy to
+	// change this without vastly more sophisticated code.
+	/*
+	const uint8 region = get_region(k, sets);
+	if (region == 0)
+	{
+		//map_roughness -= 0.2;
+		mountain_height -= 50;
+	}
+	if (region == 3)
+	{
+		//map_roughness += 0.2;
+		mountain_height += 50;
+	}
+	if (region == 2)
+	{
+		//map_roughness += 0.3;
+		mountain_height += 100;
+	}*/
+	return ((int)(perlin_noise_2D(k.x, k.y, map_roughness, map_size_max)*(double)mountain_height)) / 16;
 }
 
 sint32 karte_t::perlin_hoehe(settings_t const* const sets, koord k, koord const size)
@@ -2104,7 +2127,13 @@ void karte_t::init_threads()
 	pthread_attr_init(&thread_attributes);
 	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
 
-	simthread_barrier_init(&private_car_barrier, NULL, env_t::networkmode ? 2 : parallel_operations + 1);
+#ifdef DEBUG
+	const bool one_private_car_thread = true;
+#else
+	const bool one_private_car_thread = env_t::networkmode;
+#endif
+
+	simthread_barrier_init(&private_car_barrier, NULL, one_private_car_thread ? 2 : parallel_operations + 1);
 	simthread_barrier_init(&karte_t::unreserve_route_barrier, NULL, parallel_operations + 2); // This and the next does not run concurrently with anything significant on the main thread, so the number of parallel operations need to be +1 compared to the others.
 	simthread_barrier_init(&step_passengers_and_mail_barrier, NULL, parallel_operations + 2);
 	simthread_barrier_init(&step_convoys_barrier_external, NULL, 2);
@@ -2126,7 +2155,7 @@ void karte_t::init_threads()
 
 	for (uint32 i = 0; i < parallel_operations + 1; i++)
 	{
-		if ((i < parallel_operations && !env_t::networkmode) || i < 1)
+		if ((i < parallel_operations && !one_private_car_thread) || i < 1)
 		{
 			uint32* thread_number_checker = new uint32;
 			*thread_number_checker = i;
@@ -5032,18 +5061,13 @@ void karte_t::new_month()
 
 	// Put players before convoys and depots so as to make sure that the "fixed maintenance" graph does not always show 0 for the current month
 	// players
-	for(uint i=0; i<MAX_PLAYER_COUNT; i++) {
-		if( last_month == 0  &&  !settings.is_freeplay() ) {
-			// remove all player (but first and second) who went bankrupt during last year
-			if(  players[i] != NULL  &&  players[i]->get_finance()->is_bankrupted()  )
+	for(uint i = 0; i < MAX_PLAYER_COUNT; i++)
+	{
+		if(players[i] != NULL)
+		{
+			// if returns false (inactive company) -> remove player
+			if (!players[i]->new_month())
 			{
-				remove_player(i);
-			}
-		}
-
-		if(  players[i] != NULL  ) {
-			// if returns false -> remove player
-			if (!players[i]->new_month()) {
 				remove_player(i);
 			}
 		}
@@ -7992,7 +8016,7 @@ bool karte_t::is_water(koord k, koord dim) const
 }
 
 
-bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_bits cl) const
+bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_bits cl, uint16 regions_allowed) const
 {
 	if(k.x < 0  ||  k.y < 0  ||  k.x+w > get_size().x || k.y+h > get_size().y) {
 		return false;
@@ -8002,29 +8026,46 @@ bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_b
 	const sint16 platz_h = gr->get_grund_hang() ? max_hgt(k) : gr->get_hoehe();	// remember the max height of the first tile
 
 	koord k_check;
-	for(k_check.y=k.y+h-1; k_check.y>=k.y; k_check.y--) {
-		for(k_check.x=k.x; k_check.x<k.x+w; k_check.x++) {
+	for(k_check.y=k.y+h-1; k_check.y>=k.y; k_check.y--)
+	{
+		for(k_check.x=k.x; k_check.x<k.x+w; k_check.x++)
+		{
 			const grund_t *gr = lookup_kartenboden(k_check);
+
+			uint8 test_region = get_region(k_check);
+
+			
+			if ((1 << test_region & regions_allowed) == 0) //((regions_allowed & (1 << test_region + 1)) == 0)
+			{
+				return false;
+			}
 
 			// we can built, if: max height all the same, everything removable and no buildings there
 			slope_t::type slope = gr->get_grund_hang();
 			sint8 max_height = gr->get_hoehe() + slope_t::max_diff(slope);
+
 			climate test_climate = get_climate(k_check);
-			if(  cl & (1 << water_climate)  &&  test_climate != water_climate  ) {
+			if(  cl & (1 << water_climate)  &&  test_climate != water_climate  )
+			{
 				bool neighbour_water = false;
-				for(int i=0; i<8  &&  !neighbour_water; i++) {
-					if(  is_within_limits(k_check + koord::neighbours[i])  &&  get_climate( k_check + koord::neighbours[i] ) == water_climate  ) {
+				for(int i=0; i<8  &&  !neighbour_water; i++)
+				{
+					if(  is_within_limits(k_check + koord::neighbours[i])  &&  get_climate( k_check + koord::neighbours[i] ) == water_climate  )
+					{
 						neighbour_water = true;
 					}
 				}
-				if(  neighbour_water  ) {
+				if(  neighbour_water  )
+				{
 					test_climate = water_climate;
 				}
 			}
 			if(  platz_h != max_height  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||
 			     (cl & (1 << test_climate)) == 0  ||  ( slope && (lookup( gr->get_pos()+koord3d(0,0,1) ) ||
-			     (slope_t::max_diff(slope)==2 && lookup( gr->get_pos()+koord3d(0,0,2) )) ))  ) {
-				if(  last_y  ) {
+			     (slope_t::max_diff(slope)==2 && lookup( gr->get_pos()+koord3d(0,0,2) )) ))  )
+			{
+				if(  last_y  )
+				{
 					*last_y = k_check.y;
 				}
 				return false;
@@ -8035,7 +8076,7 @@ bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_b
 }
 
 
-slist_tpl<koord> *karte_t::find_squares(sint16 w, sint16 h, climate_bits cl, sint16 old_x, sint16 old_y) const
+slist_tpl<koord> *karte_t::find_squares(sint16 w, sint16 h, climate_bits cl, uint16 regions_allowed, sint16 old_x, sint16 old_y) const
 {
 	slist_tpl<koord> * list = new slist_tpl<koord>();
 	koord start;
@@ -8044,7 +8085,7 @@ slist_tpl<koord> *karte_t::find_squares(sint16 w, sint16 h, climate_bits cl, sin
 DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_size().x,get_size().y );
 	for(start.x=0; start.x<get_size().x-w; start.x++) {
 		for(start.y=start.x<old_x?old_y:0; start.y<get_size().y-h; start.y++) {
-			if(square_is_free(start, w, h, &last_y, cl)) {
+			if(square_is_free(start, w, h, &last_y, cl, regions_allowed)) {
 				list->insert(start);
 			}
 			else {
@@ -10279,7 +10320,7 @@ const char *karte_t::init_new_player(uint8 new_player_in, uint8 type)
 void karte_t::remove_player(uint8 player_nr)
 {
 	if ( player_nr!=1  &&  player_nr<PLAYER_UNOWNED  &&  players[player_nr]!=NULL) {
-		players[player_nr]->ai_bankrupt();
+		players[player_nr]->complete_liquidation();
 		delete players[player_nr];
 		players[player_nr] = 0;
 		nwc_chg_player_t::company_removed(player_nr);
@@ -11715,7 +11756,7 @@ karte_t::runway_info karte_t::check_nearby_runways(koord pos)
 			continue;
 		}
 		runway_t* rw = (runway_t*)gr->get_weg(air_wt);
-		if (rw && rw->get_desc()->get_styp() == type_runway)
+		if (rw && rw->get_desc()->get_styp() == type_runway && !(rw->get_player_nr() == PLAYER_UNOWNED && rw->is_degraded() && rw->get_max_speed() == 0)) // Do not care about degraded, unowned runways
 		{
 			ri.pos = gr->get_pos().get_2d();
 			// We must iterate through all directions in case there are multiple runways.
@@ -11757,4 +11798,62 @@ bool karte_t::check_neighbouring_objects(koord pos)
 		}
 	}
 	return true;
+}
+
+uint8 karte_t::get_region(koord k, settings_t const* const sets)
+{
+	// Unfortunately, there is no easy to re-use the code from the non-static version here because 
+	// the non-static version must be const, whereas a static member function cannot be.
+	uint8 region_number = 0;
+
+	if (sets->regions.empty())
+	{
+		return 0;
+	}
+
+	uint32 current_region = 0;
+	FOR(vector_tpl<region_definition_t>, region, sets->regions)
+	{
+		if (k.x >= region.top_left.x && k.x < region.bottom_right.x && k.y >= region.top_left.y && k.y < region.bottom_right.y)
+		{
+			region_number = current_region;
+		}
+		current_region++;
+	}
+
+	return region_number;
+}
+
+uint8 karte_t::get_region(koord k) const
+{
+	uint8 region_number = 0;
+
+	if (settings.regions.empty())
+	{
+		return 0;
+	}
+
+	uint32 current_region = 0;
+	FOR(vector_tpl<region_definition_t>, region, settings.regions)
+	{
+		if (k.x >= region.top_left.x && k.x < region.bottom_right.x && k.y >= region.top_left.y && k.y < region.bottom_right.y)
+		{
+			region_number = current_region;
+		}
+		current_region++;
+	}
+
+	return region_number;
+}
+
+std::string karte_t::get_region_name(koord k) const
+{
+	uint8 region_number = get_region(k);
+
+	if (settings.regions.empty())
+	{
+		return std::string("");
+	}
+	
+	return settings.regions[region_number].name;
 }

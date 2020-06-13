@@ -1847,7 +1847,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 		if(gr->ist_natur() &&
 			!gr->is_water() &&
 			gr->get_grund_hang() == 0  &&
-			hausbauer_t::get_special( 0, building_desc_t::townhall, welt->get_timeline_year_month(), 0, welt->get_climate( k ) ) != NULL  ) {
+			hausbauer_t::get_special( 0, building_desc_t::townhall, welt->get_timeline_year_month(), 0, welt->get_climate( k ), welt->get_region(k) ) != NULL  ) {
 
 			gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj());
 			if(gb && gb->is_townhall()) {
@@ -4139,7 +4139,7 @@ const char *tool_build_station_t::tool_station_building_aux(player_t *player, bo
 			for(  sint8 j=3;  j>=0;  j-- ) {
 				bool ok = true;
 				koord offset(((j&1)^1)*(testsize.x-1),((j>>1)&1)*(testsize.y-1));
-				if(welt->square_is_free(k-offset, testsize.x, testsize.y, NULL, desc->get_allowed_climate_bits())) {
+				if(welt->square_is_free(k-offset, testsize.x, testsize.y, NULL, desc->get_allowed_climate_bits(), desc->get_allowed_region_bits())) {
 					// first we must check over/under halt
 					halthandle_t last_halt;
 					for(  sint16 x=0;  x<testsize.x;  x++  ) {
@@ -4280,7 +4280,7 @@ const char *tool_build_station_t::tool_station_building_aux(player_t *player, bo
 		koord testsize = desc->get_size(rotation);
 		offsets = koord(0,0);
 
-		if(  !welt->square_is_free(k, testsize.x, testsize.y, NULL, desc->get_allowed_climate_bits())  ) {
+		if(  !welt->square_is_free(k, testsize.x, testsize.y, NULL, desc->get_allowed_climate_bits(), desc->get_allowed_region_bits())  ) {
 			return NOTICE_TILE_FULL;
 		}
 		// check over/under halt
@@ -6306,13 +6306,14 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 	koord size = desc->get_size(rotation);
 
 	const climate_bits cl = desc->get_allowed_climate_bits();
-	bool can_be_placed = welt->square_is_free( pos.get_2d(), desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
+	const uint16 regions_allowed = desc->get_allowed_region_bits();
+	bool can_be_placed = welt->square_is_free( pos.get_2d(), desc->get_x(rotation), desc->get_y(rotation), NULL, cl, regions_allowed );
 
 	if(!can_be_placed  &&  size.y!=size.x  &&  desc->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#'))
 	{
 		// try other rotation too ...
 		rotation = (rotation+1) % desc->get_all_layouts();
-		can_be_placed = welt->square_is_free( pos.get_2d(), desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
+		can_be_placed = welt->square_is_free( pos.get_2d(), desc->get_x(rotation), desc->get_y(rotation), NULL, cl, regions_allowed );
 	}
 
 	if (!can_be_placed)
@@ -6417,11 +6418,11 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 			uint8 rotation = desc->get_all_layouts();
 			koord size = desc->get_size(rotation);
 
-			bool hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, desc->get_allowed_climate_bits() );
+			bool hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, desc->get_allowed_climate_bits(), desc->get_allowed_region_bits());
 			if(!hat_platz  &&  size.y!=size.x  &&  desc->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#'  ||  default_param[1]=='A')) {
 				// try other rotation too ...
 				rotation = (rotation+1) % desc->get_all_layouts();
-				hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, desc->get_allowed_climate_bits() );
+				hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, desc->get_allowed_climate_bits(), desc->get_allowed_region_bits());
 			}
 
 			if(hat_platz)
@@ -6596,7 +6597,7 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 
 image_id tool_build_depot_t::get_icon(player_t *player) const
 {
-	if(  player  &&  player->get_player_nr()!=1  ) {
+	if(  player  /*&&  player->get_player_nr()!=1*/  ) {
 		const building_desc_t *desc = hausbauer_t::find_tile(default_param,0)->get_desc();
 		const uint16 time = welt->get_timeline_year_month();
 		if( desc && desc->is_available(time) ) {
@@ -6612,11 +6613,13 @@ bool tool_build_depot_t::init( player_t *player )
 	if (desc == NULL) {
 		return false;
 	}
+
 	// no depots for player 1
-	if(player!=welt->get_public_player()) {
+	if(true /*player!=welt->get_public_player()*/) {
 		cursor = desc->get_cursor()->get_image_id(0);
 		return true;
 	}
+
 	return false;
 }
 
@@ -6652,10 +6655,12 @@ waytype_t tool_build_depot_t::get_waytype() const
 
 const char *tool_build_depot_t::work( player_t *player, koord3d pos )
 {
-	if(player==welt->get_public_player()) {
+#if 0
+		if(player==welt->get_public_player()) {
 		// no depots for player 1
 		return 0;
 	}
+#endif 
 
 	building_desc_t const* const desc = hausbauer_t::find_tile(default_param,0)->get_desc();
 	settings_t   const&       s     = welt->get_settings();
@@ -6783,12 +6788,13 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 
 	// process ignore climates switch
 	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : desc->get_allowed_climate_bits();
-
-	bool hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
+	uint16 regions_allowed = desc->get_allowed_region_bits();
+	
+	bool hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, cl, regions_allowed);
 	if(!hat_platz  &&  size.y!=size.x  &&  desc->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#'  ||  default_param[1]=='A')) {
 		// try other rotation too ...
 		rotation = (rotation+1) % desc->get_all_layouts();
-		hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
+		hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, cl, regions_allowed );
 	}
 
 	// Place found...
@@ -6859,7 +6865,7 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 		fab = factory_builder_t::get_desc(c);
 	}
 	else {
-		fab = factory_builder_t::get_random_consumer( false, (climate_bits)(1 << welt->get_climate( pos.get_2d() )), welt->get_timeline_year_month() );
+		fab = factory_builder_t::get_random_consumer( false, (climate_bits)(1 << welt->get_climate( pos.get_2d() )), (1 << welt->get_region(pos.get_2d())), welt->get_timeline_year_month() );
 	}
 
 	if(fab==NULL) {
@@ -6871,6 +6877,7 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 	// process ignore climates switch
 	bool ignore_climates = default_param  &&  default_param[0] == '1';
 	climate_bits cl = ignore_climates ? ALL_CLIMATES : fab->get_building()->get_allowed_climate_bits();
+	uint16 regions_allowed = fab->get_building()->get_allowed_region_bits();
 
 	bool hat_platz = false;
 	if(fab->get_placement()==factory_desc_t::Water) {
@@ -6885,12 +6892,12 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 	}
 	else {
 		// and on solid ground
-		hat_platz = welt->square_is_free( pos.get_2d(), fab->get_building()->get_x(rotation), fab->get_building()->get_y(rotation), NULL, cl );
+		hat_platz = welt->square_is_free( pos.get_2d(), fab->get_building()->get_x(rotation), fab->get_building()->get_y(rotation), NULL, cl, regions_allowed);
 
 		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_building()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
 			// try other rotation too ...
 			rotation = (rotation+1) % fab->get_building()->get_all_layouts();
-			hat_platz = welt->square_is_free( pos.get_2d(), fab->get_building()->get_x(rotation), fab->get_building()->get_y(rotation), NULL, cl );
+			hat_platz = welt->square_is_free( pos.get_2d(), fab->get_building()->get_x(rotation), fab->get_building()->get_y(rotation), NULL, cl, regions_allowed);
 		}
 	}
 
@@ -6959,7 +6966,7 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 		fab = factory_builder_t::get_desc(c);
 	}
 	else {
-		fab = factory_builder_t::get_random_consumer( false, (climate_bits)(1 << welt->get_climate( pos.get_2d() )), welt->get_timeline_year_month() );
+		fab = factory_builder_t::get_random_consumer( false, (climate_bits)(1 << welt->get_climate( pos.get_2d() )), (1 << welt->get_region(pos.get_2d())), welt->get_timeline_year_month() );
 	}
 
 	if(fab==NULL) {
@@ -7030,7 +7037,7 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 	}
 	else
 	{
-		fab = factory_builder_t::get_random_consumer( false, (climate_bits)(1<<welt->get_climate_at_height(gr->get_hoehe())), welt->get_timeline_year_month() );
+		fab = factory_builder_t::get_random_consumer( false, (climate_bits)(1<<welt->get_climate_at_height(gr->get_hoehe())), (1 << welt->get_region(gr->get_pos().get_2d())), welt->get_timeline_year_month() );
 //		fab = factory_builder_t::get_random_consumer( false, (climate_bits)(1 << welt->get_climate( pos.get_2d() )), welt->get_timeline_year_month() );
 	}
 
@@ -7043,6 +7050,7 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 
 	// process ignore climates switch
 	climate_bits cl = (default_param  &&  default_param[0] == '1') ? ALL_CLIMATES : fab->get_building()->get_allowed_climate_bits();
+	uint16 regions_allowed = fab->get_building()->get_allowed_region_bits();
 
 	bool hat_platz = false;
 	if(fab->get_placement()==factory_desc_t::Water)
@@ -7060,13 +7068,13 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 	else
 	{
 		// and on solid ground
-		hat_platz = welt->square_is_free( pos.get_2d(), fab->get_building()->get_x(rotation), fab->get_building()->get_y(rotation), NULL, cl );
+		hat_platz = welt->square_is_free( pos.get_2d(), fab->get_building()->get_x(rotation), fab->get_building()->get_y(rotation), NULL, cl, regions_allowed);
 
 		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_building()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#'))
 		{
 			// try other rotation too ...
 			rotation = (rotation+1) % fab->get_building()->get_all_layouts();
-			hat_platz = welt->square_is_free( pos.get_2d(), fab->get_building()->get_x(rotation), fab->get_building()->get_y(rotation), NULL, cl );
+			hat_platz = welt->square_is_free( pos.get_2d(), fab->get_building()->get_x(rotation), fab->get_building()->get_y(rotation), NULL, cl, regions_allowed);
 		}
 	}
 
@@ -7277,10 +7285,10 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 		if (!built) {
 			int rotate = 0;
 
-			if(welt->square_is_free(k, size.x, size.y, NULL, desc->get_allowed_climate_bits())) {
+			if(welt->square_is_free(k, size.x, size.y, NULL, desc->get_allowed_climate_bits(), desc->get_allowed_region_bits())) {
 				ok = true;
 			}
-			if(!ok  &&  desc->get_all_layouts()>1  &&  size.y != size.x  &&  welt->square_is_free(k, size.y, size.x, NULL, desc->get_allowed_climate_bits())) {
+			if(!ok  &&  desc->get_all_layouts()>1  &&  size.y != size.x  &&  welt->square_is_free(k, size.y, size.x, NULL, desc->get_allowed_climate_bits(), desc->get_allowed_region_bits())) {
 				rotate = 1;
 				ok = true;
 			}
@@ -8595,6 +8603,7 @@ bool tool_change_convoi_t::init( player_t *player )
 		if (cnv->get_replace())
 		{
 			cnv->get_replace()->clear_all();
+			cnv->set_replace(NULL); 
 			// This convoy might already have been sent to a depot. This will need to be undone.
 			schedule_t* sch = cnv->get_schedule();
 			const schedule_entry_t le = sch->get_current_entry();
@@ -9220,6 +9229,7 @@ bool tool_change_player_t::init( player_t *player_in)
 	sscanf( p, "%c,%i,%i", &tool, &id, &state );
 
 	player_t *player = welt->get_player(id);
+	cbuffer_t message;
 
 	// ok now do our stuff
 	switch(  tool  ) {
@@ -9240,6 +9250,38 @@ bool tool_change_player_t::init( player_t *player_in)
 		case 'f': // WAS: activate/deactivate freeplay
 			dbg->error( "tool_change_player_t::init()", "deprecated command called" );
 			break;
+		case 't': // Sets the company to "allow takover"
+			if (player && player == player_in) {
+				player->set_allow_voluntary_takeover(state);
+				if (state)
+				{
+					message.printf("%s %s", player->get_name(), translator::translate("is_available_for_take_over_by_another_company"));
+				}
+				else
+				{
+					message.printf("%s %s", player->get_name(), translator::translate("is_not_available_for_takeover_any_more"));
+				}
+				welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
+			}
+			break;
+		case 'u': // Take over another company
+			if (player && player == player_in) {
+				sscanf(p, "%c,%i,%i", &tool, &id, &state);		
+				const char* err = player->can_take_over(welt->get_player(state));
+				if (err) 
+				{
+					message.printf(translator::translate(err));
+					welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
+				}
+				else
+				{
+					message.printf("%s %s %s", player->get_name(), translator::translate("has_taken_over"), welt->get_player(state)->get_name());
+					player->take_over(welt->get_player(state));
+					welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
+				}
+			}
+			break;
+
 	}
 
 	// update the window

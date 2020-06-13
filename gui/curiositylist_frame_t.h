@@ -26,7 +26,7 @@ class curiositylist_frame_t : public gui_frame_t, private action_listener_t
 
 	gui_label_t sort_label;
 	gui_combobox_t	sortedby;
-	button_t	sorteddir;
+	button_t sort_asc, sort_desc;
 	button_t	filter_within_network;
 	curiositylist_stats_t stats;
 	gui_scrollpane_t scrolly;
@@ -61,7 +61,6 @@ class curiositylist_frame_t : public gui_frame_t, private action_listener_t
 	 */
 	void display_list();
 
-	static curiositylist::sort_mode_t get_sortierung() { return sortby; }
 	static void set_sortierung(const curiositylist::sort_mode_t sm) { sortby = sm; }
 
 	static bool get_reverse() { return sortreverse; }

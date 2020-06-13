@@ -38,7 +38,7 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
 	gui_label_t sort_label;
 
 	gui_combobox_t sortedby;
-    button_t	sorteddir;
+	button_t sort_asc, sort_desc;
 	button_t	filter_within_network;
 
     citylist_stats_t stats;
@@ -82,7 +82,6 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
      */
 	const char * get_help_filename() const OVERRIDE {return "citylist_filter.txt"; }
 
-    static citylist::sort_mode_t get_sortierung() { return sortby; }
     static void set_sortierung(const citylist::sort_mode_t& sm) { sortby = sm; }
 
     static bool get_reverse() { return sortreverse; }

@@ -33,6 +33,9 @@ public:
 	 */
 	void delete_line(linehandle_t line);
 
+	/// Used for takeovers
+	void deregister_line(linehandle_t line);
+
 	/*
 	 * update a line -> apply updated schedule to all convoys
 	 * @author hsiegeln

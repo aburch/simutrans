@@ -39,8 +39,8 @@ bool ai_building_place_with_road_finder::is_road_at(sint16 x, sint16 y) const {
 }
 
 
-bool ai_building_place_with_road_finder::is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
-	if(building_placefinder_t::is_area_ok(pos, b, h, cl)) {
+bool ai_building_place_with_road_finder::is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions) const {
+	if(building_placefinder_t::is_area_ok(pos, b, h, cl, allowed_regions)) {
 		// check to not built on a road
 		int i, j;
 		for(j=pos.x; j<pos.x+b; j++) {
@@ -384,7 +384,7 @@ bool ai_t::built_update_headquarter()
 				}
 				if(st) {
 					bool is_rotate=desc->get_all_layouts()>1;
-					place = ai_building_place_with_road_finder(welt).find_place(st->get_pos(), desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), &is_rotate);
+					place = ai_building_place_with_road_finder(welt).find_place(st->get_pos(), desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), desc->get_allowed_region_bits(), &is_rotate);
 				}
 			}
 			const char *err=NOTICE_UNSUITABLE_GROUND;

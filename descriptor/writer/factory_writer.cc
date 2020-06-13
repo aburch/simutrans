@@ -187,10 +187,11 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 electric_demand       =  obj.get_int("electricity_amount", 65535);
 	electric_demand              =  obj.get_int("electricity_demand", electric_demand);
 	uint16 const max_distance_to_consumer = obj.get_int("max_distance_to_consumer", 65535); // In km, not tiles.
+	uint16 const max_distance_to_supplier = obj.get_int("max_distance_to_supplier", 65535); // In km, not tiles.
 	// how long between sounds
 	uint32 const sound_interval = obj.get_int("sound_interval", 10000u);
 
-	uint16 total_len = 46;
+	uint16 total_len = 48;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim(obj.get("sound"));
@@ -309,7 +310,8 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// 0x300 - version 12.0 and greater. Removes passenger/mail parameters,
 	// which are now in the gebaeude_t objects, and adds max_distance_to_consumer.
 	// 0x400 - 16-bit sound ID
-	version += 0x400;
+	// 0x500 - 14.11 - max distance to supplier added
+	version += 0x500;
 
 	node.write_uint16(fp, version,						0);
 	node.write_uint16(fp, placement,					2);
@@ -329,17 +331,18 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, electric_boost,				27);
 	node.write_uint16(fp, pax_boost,					29);
 	node.write_uint16(fp, mail_boost,					31);
-	node.write_uint16(fp,  electric_demand,				33);
+	node.write_uint16(fp, electric_demand,				33);
 	node.write_uint16(fp, max_distance_to_consumer,		35);
 	node.write_uint32(fp, sound_interval,				37);
 	node.write_uint16(fp, sound_id,						41);
-	node.write_uint8(fp, field_output_divider, 			43);
+	node.write_uint8(fp,  field_output_divider, 		43);
+	node.write_uint16(fp, max_distance_to_supplier,		45);
 
 	// this should be always at the end
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
-		node.write_sint8(fp, sound_str_len, 44);
-		node.write_data_at(fp, sound_str.c_str(), 45, sound_str_len);
+		node.write_sint8(fp, sound_str_len, 46);
+		node.write_data_at(fp, sound_str.c_str(), 47, sound_str_len);
 	}
 
 	node.write(fp);

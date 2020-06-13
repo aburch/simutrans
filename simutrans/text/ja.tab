@@ -3737,6 +3737,12 @@ cl_btn_payload
 カテゴリ別積載状況
 cl_btn_formation
 編成図
+available_company_takeovers:
+買収可能なプレイヤー会社：
+allow_takeover_of_your_company
+会社の買収を許可
+take_over
+買収
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

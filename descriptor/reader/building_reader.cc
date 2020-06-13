@@ -276,6 +276,14 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.y = decode_uint16(p);
 		desc->layouts   = decode_uint8(p);
 		desc->allowed_climates = (climate_bits)decode_uint16(p);
+		if (extended_version >= 5)
+		{
+			desc->allowed_regions = decode_uint16(p); 
+		}
+		else
+		{
+			desc->allowed_regions = 65535;
+		}
 		if (extended_version >= 3)
 		{
 			desc->enables = decode_uint16(p);
@@ -288,6 +296,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			desc->enables = 65535;
 		}
+
 		desc->flags     = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight    = decode_uint8(p);
 		desc->intro_date    = decode_uint16(p);
@@ -299,7 +308,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->allow_underground = decode_uint8(p);
 		if(extended)
 		{
-			if(extended_version > 4)
+			if(extended_version > 5)
 			{
 				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Extended, number %i", extended_version );
 			}

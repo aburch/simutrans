@@ -22,8 +22,6 @@
 int wasser_t::stage = 0;
 bool wasser_t::change_stage = false;
 
-
-
 // for animated waves
 void wasser_t::prepare_for_refresh()
 {

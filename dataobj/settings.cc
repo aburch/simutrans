@@ -385,7 +385,7 @@ settings_t::settings_t() :
 	//@author: jamespetts
 	// Insolvency and debt settings
 	interest_rate_percent = 10;
-	allow_bankruptcy  = 0;
+	allow_insolvency  = 0;
 	allow_purchases_when_insolvent  = 0;
 
 	// Reversing settings
@@ -1317,7 +1317,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(factory_max_years_obsolete);
 
 			file->rdwr_byte(interest_rate_percent);
-			file->rdwr_bool(allow_bankruptcy);
+			file->rdwr_bool(allow_insolvency);
 			file->rdwr_bool(allow_purchases_when_insolvent);
 
 			if(file->get_extended_version() >= 11)
@@ -1846,7 +1846,41 @@ void settings_t::rdwr(loadsave_t *file)
 		{
 			tolerance_modifier_percentage = 100;
 		}
+
+		if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 27))
+		{
+			file->rdwr_bool(absolute_regions);
+			if (file->is_saving())
+			{
+				uint32 count = regions.get_count();
+				file->rdwr_long(count);
+
+				FOR(vector_tpl<region_definition_t>, region, regions)
+				{
+					region.top_left.rdwr(file); 
+					region.bottom_right.rdwr(file);
+					file->rdwr_string(region.name); 
+				}
+			}
+			else // Loading
+			{
+				uint32 count = 0;
+				file->rdwr_long(count);
+
+				regions.clear();
+				for (uint32 i = 0; i < count; i++)
+				{
+					region_definition_t r;
+					r.top_left.rdwr(file);
+					r.bottom_right.rdwr(file);
+					file->rdwr_string(r.name);
+					regions.append(r); 
+				}
+			}
+		}
 	}
+
+
 
 #ifdef DEBUG_SIMRAND_CALLS
 	char buf[256];
@@ -1860,7 +1894,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 {
 	tabfileobj_t contents;
 
-	simuconf.read(contents );
+	simuconf.read(contents);
 
 	// Meta-options.
 	// Only the version in default_einstellungen is meaningful.  These determine whether savegames
@@ -2525,8 +2559,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// Insolvency and debt settings
 	interest_rate_percent = contents.get_int("interest_rate_percent", interest_rate_percent);
 	// Check for misspelled version
-	allow_bankruptcy = contents.get_int("allow_bankruptsy", allow_bankruptcy);
-	allow_bankruptcy = contents.get_int("allow_bankruptcy", allow_bankruptcy);
+	allow_insolvency = contents.get_int("allow_bankruptsy", allow_insolvency);
+	// Check for deprecated version
+	allow_insolvency = contents.get_int("allow_bankruptcy", allow_insolvency);
+	allow_insolvency = contents.get_int("allow_insolvency", allow_insolvency);
 	// Check for misspelled version
 	allow_purchases_when_insolvent = contents.get_int("allow_purhcases_when_insolvent", allow_purchases_when_insolvent);
 	allow_purchases_when_insolvent = contents.get_int("allow_purchases_when_insolvent", allow_purchases_when_insolvent);
@@ -2766,6 +2802,113 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		}
 	}
 
+	// Read region data
+	regions.clear();
+	absolute_regions = false;
+	for (int i = 0; i < 255; i++) // NOTE: We can define up to 254 regions. The number 255 is reserved for indicating no region in some contexts.
+	{
+		char name[128];
+		sprintf(name, "region_name[%i]", i);
+
+		const char* region_name = ltrim(contents.get(name));
+		if (region_name[0] == '\0')
+		{
+			break;
+		}
+
+		char upper_left[128];
+		sprintf(upper_left, "region_upper_left_percent[%i]", i);
+
+		char lower_right[128];
+		sprintf(lower_right, "region_lower_right_percent[%i]", i);
+
+		int* ul = contents.get_ints(upper_left);
+		int* lr = contents.get_ints(lower_right);
+
+		uint32 x_percent;
+		uint32 y_percent;
+		region_definition_t r;
+
+		if ((ul[0] & 1) == 1)
+		{
+			dbg->message("void settings_t::parse_simuconf(", "Ill formed line in config/simuconf.tab.\nWill use default value. Format is region_upper_left[percent]=x,y");
+			break;
+		}
+		for (int i = 1; i < ul[0]; i += 2)
+		{
+			x_percent = (uint32)ul[i];
+			y_percent = (uint32)ul[i+1];
+		}
+
+		uint32 x = x_percent > 0 ? ((uint32)size_x * x_percent) / 100u : 0;
+		uint32 y = y_percent > 0 ? ((uint32)size_y * y_percent) / 100u : 0;
+
+		r.top_left = koord(x, y);
+
+		if ((lr[0] & 1) == 1)
+		{
+			dbg->message("void settings_t::parse_simuconf(", "Ill formed line in config/simuconf.tab.\nWill use default value. Format is region_upper_left[percent]=x,y");
+			break;
+		}
+		for (int i = 1; i < lr[0]; i += 2)
+		{
+			x_percent = (uint32)lr[i];
+			y_percent = (uint32)lr[i + 1];
+		}
+
+		x = x_percent > 0 ? ((uint32)size_x * x_percent) / 100u : 0;
+		y = y_percent > 0 ? ((uint32)size_y * y_percent) / 100u : 0;
+
+		r.bottom_right = koord(x, y);
+
+		delete[] ul;
+		delete[] lr;
+
+		sprintf(upper_left, "region_upper_left[%i]", i);
+		sprintf(lower_right, "region_lower_right[%i]", i);
+
+		// Hard coded values override percentages where specified
+		if (contents.get_int(upper_left, 65536) < 65536 && contents.get_int(lower_right, 65536) < 65536)
+		{
+			absolute_regions = true;
+			ul = contents.get_ints(upper_left);
+			lr = contents.get_ints(lower_right);
+
+			if ((ul[0] & 1) == 1)
+			{
+				dbg->message("void settings_t::parse_simuconf(", "Ill formed line in config/simuconf.tab.\nWill use default value. Format is region_upper_left[percent]=x,y");
+				break;
+			}
+			for (int i = 1; i < ul[0]; i += 2)
+			{
+				x = (uint32)ul[i];
+				y = (uint32)ul[i + 1];
+			}
+
+			r.top_left = koord(x, y);
+
+			if ((lr[0] & 1) == 1)
+			{
+				dbg->message("void settings_t::parse_simuconf(", "Ill formed line in config/simuconf.tab.\nWill use default value. Format is region_upper_left[percent]=x,y");
+				break;
+			}
+			for (int i = 1; i < lr[0]; i += 2)
+			{
+				x = (uint32)lr[i];
+				y = (uint32)lr[i + 1];
+			}
+
+			r.bottom_right = koord(x, y);
+
+			delete[] ul;
+			delete[] lr;
+		}
+
+		r.name = region_name;
+
+		regions.append(r); 
+	}
+
 	/*
 	 * Selection of savegame format through inifile
 	 */
@@ -2839,6 +2982,82 @@ int settings_t::get_name_language_id() const
 		lang = translator::get_language();
 	}
 	return lang;
+}
+
+void settings_t::set_groesse(sint32 x, sint32 y, bool preserve_regions)
+{
+	sint32 old_x = size_x;
+	sint32 old_y = size_y;
+
+	size_x = x;
+	size_y = y;
+	if (!preserve_regions)
+	{
+		reset_regions(old_x, old_y);
+	}
+}
+
+void settings_t::set_size_x(sint32 g)
+{
+	sint32 old_x = size_x;
+	size_x = g;
+
+	reset_regions(old_x, size_y);
+}
+
+void settings_t::set_size_y(sint32 g)
+{
+	sint32 old_y = size_y;
+	size_y = g;
+
+	reset_regions(size_x, old_y);
+}
+
+void settings_t::reset_regions(sint32 old_x, sint32 old_y)
+{
+	if (absolute_regions || (env_t::networkmode && !env_t::server))
+	{
+		return;
+	}
+
+	// Necessary when changing the map size unless regions are specified in absolute
+	// rather than relative terms in ther relevant simuconf.tab
+	vector_tpl<region_definition_t> temp_regions;
+	FOR(vector_tpl<region_definition_t>, region, regions)
+	{
+		sint32 old_percent_x = (region.top_left.x * 100u) / old_x;
+		sint32 old_percent_y = (region.top_left.y * 100u) / old_y;
+		region.top_left.x = (size_x * old_percent_x) / 100u;
+		region.top_left.y = (size_y * old_percent_y) / 100u;
+
+		old_percent_x = (region.bottom_right.x * 100u) / old_x;
+		old_percent_y = (region.bottom_right.y * 100u) / old_y;
+		region.bottom_right.x = (size_x * old_percent_x) / 100u;
+		region.bottom_right.y = (size_y * old_percent_y) / 100u;
+		temp_regions.append(region);
+	}
+
+	regions.clear();
+	FOR(vector_tpl<region_definition_t>, region, temp_regions)
+	{
+		regions.append(region); 
+	}
+}
+
+void settings_t::rotate_regions(sint16 y_size)
+{
+	vector_tpl<region_definition_t> temp_regions;
+	FOR(vector_tpl<region_definition_t>, region, regions)
+	{
+		region.top_left.rotate90(y_size);
+		region.bottom_right.rotate90(y_size);
+	}
+
+	regions.clear();
+	FOR(vector_tpl<region_definition_t>, region, temp_regions)
+	{
+		regions.append(region);
+	}
 }
 
 

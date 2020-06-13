@@ -129,7 +129,8 @@ linehandle_t schedule_list_gui_t::selected_line[MAX_PLAYER_COUNT][simline_t::MAX
 static uint8 selected_cnvlist_mode[MAX_PLAYER_COUNT] = {0};
 
 // sort stuff
-schedule_list_gui_t::sort_mode_t schedule_list_gui_t::sortby = schedule_list_gui_t::by_name;
+schedule_list_gui_t::sort_mode_t schedule_list_gui_t::sortby = by_name;
+static uint8 default_sortmode = 0;
 bool schedule_list_gui_t::sortreverse = false;
 
 const char *schedule_list_gui_t::sort_text[SORT_MODES] = {
@@ -220,6 +221,17 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
+	// sort button on convoy list, define this first to prevent overlapping
+	sortedby.set_pos(scr_coord(BUTTON1_X, 2));
+	sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH * 1.5, LINESPACE * 8));
+	for (int i = 0; i < SORT_MODES; i++) {
+		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
+	}
+	sortedby.set_selection(default_sortmode);
+	sortedby.add_listener(this);
+	cont_convoys.add_component(&sortedby);
+
 	// convoi list
 	cont.set_size(scr_size(200, 80));
 	cont.set_pos(scr_coord(D_H_SPACE, D_V_SPACE));
@@ -267,23 +279,23 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 
 	int offset_y = D_MARGIN_TOP + D_BUTTON_HEIGHT*2 + LINESPACE*2;
-	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All", scr_coord(LINE_NAME_COLUMN_WIDTH, offset_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-	bt_withdraw_line.set_tooltip("Convoi is sold when all wagons are empty.");
-	bt_withdraw_line.set_visible(false);
-	bt_withdraw_line.add_listener(this);
-	add_component(&bt_withdraw_line);
-
-	bt_line_class_manager.init(button_t::roundbox_state, "line_class_manager", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH, offset_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_line_class_manager.init(button_t::roundbox_state, "line_class_manager", scr_coord(LINE_NAME_COLUMN_WIDTH, offset_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_line_class_manager.set_tooltip("change_the_classes_for_the_entire_line");
 	bt_line_class_manager.set_visible(false);
 	bt_line_class_manager.add_listener(this);
 	add_component(&bt_line_class_manager);
 
-	bt_times_history.init(button_t::roundbox, "times_history", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH * 2, offset_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_times_history.init(button_t::roundbox, "times_history", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH, offset_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_times_history.set_tooltip("view_journey_times_history_of_this_line");
 	bt_times_history.set_visible(true);
 	bt_times_history.add_listener(this);
 	add_component(&bt_times_history);
+
+	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH * 2, offset_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_withdraw_line.set_tooltip("Convoi is sold when all wagons are empty.");
+	bt_withdraw_line.set_visible(false);
+	bt_withdraw_line.add_listener(this);
+	add_component(&bt_withdraw_line);
 
 	offset_y += D_BUTTON_HEIGHT;
 	// Select livery
@@ -296,14 +308,18 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	livery_selector.add_listener(this);
 	add_component(&livery_selector);
 
-	// convoy tab buttons
-	sortedby.init(button_t::roundbox, schedule_list_gui_t::sort_text[get_sortierung()], scr_coord(BUTTON1_X, 2));
-	sortedby.add_listener(this);
-	cont_convoys.add_component(&sortedby);
+	// sort button
+	sort_asc.init(button_t::arrowup_state, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH * 1.5 + D_H_SPACE, 3), scr_size(D_ARROW_UP_WIDTH, D_ARROW_UP_HEIGHT));
+	sort_asc.set_tooltip(translator::translate("cl_btn_sort_asc"));
+	sort_asc.add_listener(this);
+	sort_asc.pressed = sortreverse;
+	cont_convoys.add_component(&sort_asc);
 
-	sorteddir.init(button_t::roundbox, get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc", scr_coord(BUTTON2_X, 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-	sorteddir.add_listener(this);
-	cont_convoys.add_component(&sorteddir);
+	sort_desc.init(button_t::arrowdown_state, "", sort_asc.get_pos() + scr_coord(D_ARROW_UP_WIDTH+2, 0), scr_size(D_ARROW_DOWN_WIDTH, D_ARROW_DOWN_HEIGHT));
+	sort_desc.set_tooltip(translator::translate("cl_btn_sort_desc"));
+	sort_desc.add_listener(this);
+	sort_desc.pressed = !sortreverse;
+	cont_convoys.add_component(&sort_desc);
 
 	bt_mode_convois.init(button_t::roundbox, gui_convoiinfo_t::cnvlist_mode_button_texts[selected_cnvlist_mode[player->get_player_nr()]], scr_coord(BUTTON3_X, 2), scr_size(D_BUTTON_WIDTH+15, D_BUTTON_HEIGHT));
 	bt_mode_convois.add_listener(this);
@@ -457,12 +473,24 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		}
 	}
 	else if (comp == &sortedby) {
-		set_sortierung((sort_mode_t)((get_sortierung() + 1) % SORT_MODES));
+		int tmp = sortedby.get_selection();
+		if (tmp >= 0 && tmp < sortedby.count_elements())
+		{
+			sortedby.set_selection(tmp);
+			set_sortierung((sort_mode_t)tmp);
+		}
+		else {
+			sortedby.set_selection(0);
+			set_sortierung(by_name);
+		}
+		default_sortmode = (uint8)tmp;
 		update_lineinfo(line);
 	}
-	else if (comp == &sorteddir) {
+	else if (comp == &sort_asc || comp == &sort_desc) {
 		set_reverse(!get_reverse());
 		update_lineinfo(line);
+		sort_asc.pressed = sortreverse;
+		sort_desc.pressed = !sortreverse;
 	}
 	else if (comp == &bt_mode_convois) {
 		selected_cnvlist_mode[player->get_player_nr()] = (selected_cnvlist_mode[player->get_player_nr()] + 1) % gui_convoiinfo_t::DISPLAY_MODES;
@@ -599,9 +627,7 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 	if(  line.is_bound()  ) {
 		tab_name.clear();
 		tab_name.append(translator::translate("Convoys"));
-		char temp_buf[5];
-		sprintf(temp_buf, "(%i)", line->count_convoys());
-		tab_name.printf("%5s", temp_buf);
+		tab_name.printf(" (%u)", line->count_convoys());
 
 		if(  (!line->get_schedule()->empty()  &&  !line->get_schedule()->matches( welt, last_schedule ))  ||  last_vehicle_count != line->count_convoys()  ) {
 			update_lineinfo( line );
@@ -707,9 +733,9 @@ void schedule_list_gui_t::display(scr_coord pos)
 	len2 += display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH+len2+5, pos.y+top+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
 
+	int rest_width = max( (get_windowsize().w-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
+	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + rest_width + 24, top - LINESPACE - D_BUTTON_HEIGHT));
 	if (capacity > 0) {
-		int rest_width = max( (get_windowsize().w-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
-		filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + rest_width + 24, top - LINESPACE - D_BUTTON_HEIGHT));
 		number_to_string(ctmp, capacity, 0);
 		buf.clear();
 		buf.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor );
@@ -790,6 +816,7 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 	chart.set_size(scr_size(rest_width-68-D_MARGIN_RIGHT, SCL_HEIGHT-14-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))));
 	inp_name.set_size(scr_size(rest_width - 31, 14));
 	filled_bar.set_size(scr_size(rest_width/2-24-D_MARGIN_RIGHT, 4));
+	bt_withdraw_line.set_pos(scr_coord(get_windowsize().w - D_BUTTON_WIDTH - D_MARGIN_LEFT, bt_withdraw_line.get_pos().y));
 
 	int y=SCL_HEIGHT-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))+18;
 	for (int i=0; i<MAX_LINE_COST; i++) {
@@ -894,14 +921,13 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 
 		bt_withdraw_line.pressed = new_line->get_withdraw();
 
-		livery_selector.set_focusable(false);
+		livery_selector.set_focusable(true);
+		livery_selector.clear_elements();
+		livery_scheme_indices.clear();
 		if(icnv > 0)
 		{
-			livery_selector.set_focusable(true);
 			// build available livery schemes list for this line
 			if (new_line->count_convoys()) {
-				livery_selector.clear_elements();
-				livery_scheme_indices.clear();
 				const uint16 month_now = welt->get_timeline_year_month();
 				vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
 
@@ -929,7 +955,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 								}
 							}
 							if (found) {
-								livery_selector.set_selection(i);
+								livery_selector.set_selection(livery_scheme_indices.index_of(i));
 								break;
 							}
 						}
@@ -937,11 +963,9 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 				}
 			}
 		}
-		if(!livery_scheme_indices.empty())
-		{
-
-			uint16 idx = new_line->get_livery_scheme_index();
-			livery_selector.set_selection(livery_scheme_indices.index_of(idx));
+		if(livery_scheme_indices.empty()) {
+			livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("No livery"), SYSCOL_TEXT));
+			livery_selector.set_selection(0);
 		}
 
 
@@ -1001,7 +1025,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		bt_delete_line.disable();
 		bt_change_line.disable();
 		tab_name.clear();
-		tab_name.printf("%s%5s",translator::translate("Convoys"),"(0)");
+		tab_name.printf("%s (0)",translator::translate("Convoys"));
 		for(int i=0; i<MAX_LINE_COST; i++)  {
 			chart.hide_curve(i);
 		}
@@ -1056,7 +1080,7 @@ bool schedule_list_gui_t::compare_convois(convoihandle_t const cnv1, convoihandl
 			cmp = sgn(cnv1->get_jahresgewinn() - cnv2->get_jahresgewinn());
 			break;
 		case by_loading_lvl:
-			cmp = sgn(cnv1->get_loading_level() - cnv2->get_loading_level());
+			cmp = cnv1->get_loading_level() - cnv2->get_loading_level();
 			break;
 		case by_max_speed:
 			cmp = cnv1->get_min_top_speed() - cnv2->get_min_top_speed();
@@ -1068,7 +1092,7 @@ bool schedule_list_gui_t::compare_convois(convoihandle_t const cnv1, convoihandl
 			cmp = cnv1->get_average_age() - cnv2->get_average_age();
 			break;
 		case by_value:
-			cmp = cnv1->get_purchase_cost() - cnv2->get_purchase_cost();
+			cmp = sgn(cnv1->get_purchase_cost() - cnv2->get_purchase_cost());
 			break;
 	}
 
@@ -1083,9 +1107,6 @@ void schedule_list_gui_t::sort_list()
 		return;
 	}
 	std::sort(line_convoys.begin(), line_convoys.end(), compare_convois);
-
-	sortedby.set_text(sort_text[get_sortierung()]);
-	sorteddir.set_text(get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
 }
 
 

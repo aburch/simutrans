@@ -27,7 +27,7 @@ private:
 	gui_label_t sort_label;
 	gui_combobox_t	sortedby;
 	gui_combobox_t	freight_type_c;
-	button_t	sorteddir;
+	button_t sort_asc, sort_desc;
 	button_t	filter_within_network;
 	factorylist_stats_t stats;
 	gui_scrollpane_t scrolly;
@@ -61,7 +61,6 @@ public:
 
 	void display_list();
 
-	static factorylist::sort_mode_t get_sortierung() { return sortby; }
 	static void set_sortierung(const factorylist::sort_mode_t& sm) { sortby = sm; }
 
 	static bool get_reverse() { return sortreverse; }

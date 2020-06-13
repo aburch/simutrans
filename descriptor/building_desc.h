@@ -221,6 +221,7 @@ class building_desc_t : public obj_desc_timelined_t {
 	#define PRICE_MAGIC (2147483647)
 
 	climate_bits allowed_climates;
+	uint16 allowed_regions = 65535;
 
 	/**
 	 * Whether this building can or must be built underground.
@@ -362,6 +363,12 @@ public:
 
 	// for the paltzsucher needed
 	climate_bits get_allowed_climate_bits() const { return allowed_climates; }
+
+	bool is_allowed_region(uint8 r) const { return ((1 << r) & allowed_regions) != 0; }
+
+	bool is_allowed_region_bits(uint16 rb) const { return (rb & allowed_regions) != 0; }
+
+	uint16 get_allowed_region_bits() const { return allowed_regions; }
 
 	/**
 	* @return station flags (only used for station buildings, oil rigs and traction types in depots)

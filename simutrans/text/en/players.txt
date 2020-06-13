@@ -18,10 +18,10 @@ Each slot occupied by an activated player shows: <br>
 - the <a href="finances.txt">account balance</a> of that player. Click the player's name to see detailed financial information about that player.
 </p>
 <p>
-Each empty slot has allows a selection between human or AI players (and different types of AI players). AI players are those controlled by the computer: they will build transport networks in competition with yours automatically. By switching to an AI player, you can take over the running of an AI transport network.
+Each empty slot has allows a selection between human or AI players (and different types of AI players). AI players are those controlled by the computer: they will build transport networks in competition with yours automatically. By switching to an AI player, you can take over the running of an AI transport network. Note that the AI has not been adapted for Simutrans-Extended and it is not recommended to use this.
 </p>
 <p>
-Human players work in the same way as the AI players, except they do not build anything automatically. Selecting multiple human players is useful for playing as multiple transport companies at once, or hot-seat or play-by-e-mail multiplayer games. (Simutrans does not currently support network multiplayer games, although this feature is planned for the future).
+Human players work in the same way as the AI players, except they do not build anything automatically. Selecting multiple human players is useful for playing as multiple transport companies at once in a single player game, or in multiplayer games, whether online over the internet or by using the hotseat or play by e-mail methods of old.
 </p>
 <p>
 If switching between players was not disabled when the game was started, or subsequently locked, clicking on the arrows next to each player's name will activate that particular player. Players can also be changed by pressing <a href="keyboard.txt">SHIFT+[P]</a>, or by the "+P" button in the <a href="special.txt">special construction tools</a> menu.
@@ -32,8 +32,11 @@ To activate an inactive slot, first select a type of player (human or one of the
 <p>
 The <em>Public Service</em> player is a special type of player: it can remove items from the world (such as insutries and other players' netowrks) that ordinary players cannot, and also has access to special <a href="edittools.txt">editing tools</a> for changing basic settings on the map (such as adding new industries or city buildings individually).</p>
 <p>
-Transport infrastructure owned by the public service player can be used by any players (individual players can make their stops public, which is a useful way of connecting two companies' transport networks together). The public service player has an account balance, but it does not become unable to purchase more or go bankrupt however much that it goes into debt. Finally, the public service player cannot have any vehicles of its own, or build any depots. The public service player is activated by default, and can never be controlled by the AI.
+Transport infrastructure owned by the public service player can be used by any players (individual players can make their stops public, which is a useful way of connecting two companies' transport networks together). The public service player has an account balance, but it does not become unable to purchase more or become insolvent however much that it goes into debt. The public service player is activated by default, and can never be controlled by the AI.
 </p>
 <p>
-At the foot of the players window is a button to toggle <em>Freeplay mode</em>. Freeplay mode is for playing Simutrans without any financial challenge - in freeplay mode, a player will never go bankrupt nor exceed the credit limit. 
+Beneath the list of players is a button to toggle <em>Freeplay mode</em>. Freeplay mode is for playing Simutrans without any financial challenge - in freeplay mode, there is no credit limit and players will never become <a href="insolvency.txt">insolvent</a>.
+</p>
+<p>
+At the bottom of the window there are controls allowing players to take over other players' companies. <a href="takeover.txt">See here</a> for more information on takeovers, both solvent and insolvent.
 </p>
