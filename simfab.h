@@ -504,6 +504,8 @@ public:
 
 	const vector_tpl<koord>& get_suppliers() const { return suppliers; }
 
+	const vector_tpl<nearby_halt_t>& get_nearby_freight_halts() const { return nearby_freight_halts; }
+
 	/**
 	 * Recalculate nearby halts
 	 * These are stashed, so must be recalced

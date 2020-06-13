@@ -3172,9 +3172,9 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 	if (building)
 	{
 		buf.append("\n");
-                buf.printf("%s: %s\n", translator::translate("Built in"),
-                           translator::get_year_month(((building->get_purchase_time() / welt->ticks_per_world_month)+welt->get_settings().get_starting_month())+
-                                                      welt->get_settings().get_starting_year()*12));
+		buf.printf("%s: %s\n", translator::translate("Built in"),
+			translator::get_year_month(((building->get_purchase_time() / welt->ticks_per_world_month) + welt->get_settings().get_starting_month()) +
+				welt->get_settings().get_starting_year() * 12));
 		buf.printf("%s: %d\n", translator::translate("Visitor demand"), building->get_adjusted_visitor_demand());
 #ifdef DEBUG
 		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), building->get_adjusted_jobs(), building->check_remaining_available_jobs());
@@ -3182,66 +3182,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), building->get_adjusted_jobs(), max(0, building->check_remaining_available_jobs()));
 #endif
 		buf.printf("%s: %d\n", translator::translate("Mail demand/output"), building->get_adjusted_mail_demand());
-		// Class entries:
-		building->get_class_percentage(buf);
-		buf.append("\n");
-		if (building->get_adjusted_visitor_demand() > 0)
-		{
-			buf.printf("%s %i\n", translator::translate("Visitors this year:"), building->get_passengers_succeeded_visiting());
-		}
-		if (building->get_adjusted_jobs() > 0)
-		{
-			buf.printf("%s", translator::translate("Commuters this year:"));
-			if (building->get_passengers_succeeded_commuting() != 65535)
-			{
-				buf.printf(" %i", building->get_passengers_succeeded_commuting());
-			}
-			else {
-				buf.printf(" 0");
-			}
-			buf.printf("\n");
-		}
-		if (building->get_adjusted_mail_demand() > 0)
-		{
-			buf.printf("%s", translator::translate("Mail sent this year:"));
-			if (building->get_mail_delivery_success_percent_this_year() < 65535)
-			{
-				buf.printf(" %i (%i%%)", building->get_mail_delivery_succeeded(), building->get_mail_delivery_success_percent_this_year());
-			}
-			else {
-				buf.printf(" 0 (0%%)");
-			}
-			buf.printf("\n");
-		}
-		if (building->get_adjusted_visitor_demand() > 0 && building->get_passenger_success_percent_last_year_visiting() < 65535)
-		{
-			buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());
-		}
-		else {
-			buf.printf("\n");
-		}
-		if (building->get_adjusted_jobs() > 0 && building->get_passenger_success_percent_last_year_commuting() < 65535)
-		{
-			buf.printf("%s %i\n", translator::translate("Commuters last year:"), building->get_passenger_success_percent_last_year_commuting());
-		}
-		else{
-			buf.printf("\n");
-		}
-		if (building->get_adjusted_mail_demand() > 0 && building->get_mail_delivery_succeeded_last_year() < 65535)
-		{
-			buf.printf("%s", translator::translate("Mail sent last year:"));
-			if (building->get_mail_delivery_success_percent_last_year() < 65535)
-			{
-				buf.printf(" %i (%i%%)", building->get_mail_delivery_succeeded_last_year(), building->get_mail_delivery_success_percent_last_year());
-			}
-			else {
-				buf.printf(" 0 (0%%)");
-			}
-			buf.printf("\n");
-		}
-		else {
-			buf.printf("\n");
-		}
+
 	}
 }
 
@@ -3343,83 +3284,70 @@ void fabrik_t::recalc_nearby_halts()
 void fabrik_t::info_conn(cbuffer_t& buf) const
 {
 	buf.clear();
-	bool has_previous = false;
-	double distance;
-	char distance_display[10];
-	if (!lieferziele.empty()) {
-		has_previous = true;
-		buf.append(translator::translate("Abnehmer"));
-
-		FOR(vector_tpl<koord>, const& lieferziel, lieferziele) {
-			fabrik_t *fab = get_fab( lieferziel );
-			if(fab) {
-				distance = (double)(shortest_distance(get_pos().get_2d(), fab->get_pos().get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
-				if (distance < 1)
-				{
-					sprintf(distance_display, "%.0fm", distance * 1000);
-				}
-				else
-				{
-					uint n_actual = distance < 5 ? 1 : 0;
-					char tmp[10];
-					number_to_string(tmp, distance, n_actual);
-					sprintf(distance_display, "%skm", tmp);
-				}
-
-				if (is_active_lieferziel(lieferziel)) {
-					buf.printf("\n      %s - %s (%d,%d)", fab->get_name(), distance_display, lieferziel.x, lieferziel.y);
-				}
-				else {
-					buf.printf("\n   %s - %s (%d,%d)", fab->get_name(), distance_display, lieferziel.x, lieferziel.y);
-				}
-			}
-		}
-	}
-
-	if (!suppliers.empty()) {
-		if(  has_previous  ) {
-			buf.append("\n\n");
-		}
-		has_previous = true;
-		buf.append(translator::translate("Suppliers"));
-
-		FOR(vector_tpl<koord>, const& supplier, suppliers) {
-			if(  fabrik_t *src = get_fab( supplier )  )
-			{
-				distance = (double)(shortest_distance(get_pos().get_2d(), src->get_pos().get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
-				if (distance < 1)
-				{
-					sprintf(distance_display, "%.0fm", distance * 1000);
-				}
-				else
-				{
-					uint n_actual = distance < 5 ? 1 : 0;
-					char tmp[10];
-					number_to_string(tmp, distance, n_actual);
-					sprintf(distance_display, "%skm", tmp);
-				}
-				if(  src->is_active_lieferziel(get_pos().get_2d())  )
-				{
-					buf.printf("\n      %s - %s (%d,%d)", src->get_name(), distance_display, supplier.x, supplier.y);
-				}
-				else {
-					buf.printf("\n   %s - %s (%d,%d)", src->get_name(), distance_display, supplier.x, supplier.y);
-				}
-			}
-		}
-	}
-
-	// Check *all* tiles for nearby stops... but don't update!
-	if ( !nearby_freight_halts.empty() )
+	if (building)
 	{
-		if(  has_previous  ) {
-			buf.append("\n\n");
-		}
-		buf.append(translator::translate("Connected stops (freight)"));
-		FOR(vector_tpl<nearby_halt_t>, const i, nearby_freight_halts)
+		// Class entries:
+		building->get_class_percentage(buf);
+		buf.append("\n");
+		if (building->get_adjusted_visitor_demand() > 0)
 		{
-			buf.printf("\n - %s", i.halt->get_name());
+			buf.printf("%s %i\n", translator::translate("Visitors this year:"), building->get_passengers_succeeded_visiting());
 		}
+		if (building->get_adjusted_jobs() > 0)
+		{
+			buf.printf("%s", translator::translate("Commuters this year:"));
+			if (building->get_passengers_succeeded_commuting() != 65535)
+			{
+				buf.printf(" %i", building->get_passengers_succeeded_commuting());
+			}
+			else {
+				buf.printf(" 0");
+			}
+			buf.printf("\n");
+		}
+		if (building->get_adjusted_mail_demand() > 0)
+		{
+			buf.printf("%s", translator::translate("Mail sent this year:"));
+			if (building->get_mail_delivery_success_percent_this_year() < 65535)
+			{
+				buf.printf(" %i (%i%%)", building->get_mail_delivery_succeeded(), building->get_mail_delivery_success_percent_this_year());
+			}
+			else {
+				buf.printf(" 0 (0%%)");
+			}
+			buf.printf("\n");
+		}
+		if (building->get_adjusted_visitor_demand() > 0 && building->get_passenger_success_percent_last_year_visiting() < 65535)
+		{
+			buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());
+		}
+		else {
+			buf.printf("\n");
+		}
+		if (building->get_adjusted_jobs() > 0 && building->get_passenger_success_percent_last_year_commuting() < 65535)
+		{
+			buf.printf("%s %i\n", translator::translate("Commuters last year:"), building->get_passenger_success_percent_last_year_commuting());
+		}
+		else {
+			buf.printf("\n");
+		}
+		if (building->get_adjusted_mail_demand() > 0 && building->get_mail_delivery_succeeded_last_year() < 65535)
+		{
+			buf.printf("%s", translator::translate("Mail sent last year:"));
+			if (building->get_mail_delivery_success_percent_last_year() < 65535)
+			{
+				buf.printf(" %i (%i%%)", building->get_mail_delivery_succeeded_last_year(), building->get_mail_delivery_success_percent_last_year());
+			}
+			else {
+				buf.printf(" 0 (0%%)");
+			}
+			buf.printf("\n");
+		}
+		else {
+			buf.printf("\n");
+		}
+
+		buf.printf(translator::translate("Constructed by %s"), get_fab(building->get_pos().get_2d())->get_desc()->get_copyright());
 	}
 }
 
