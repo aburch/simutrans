@@ -13,9 +13,13 @@
 #include "../../simfab.h"
 #include "../simwin.h"
 
+#include "gui_component.h"
+
+#include "../../simhalt.h"
+
 class fabrik_t;
 
-// display factory storage info
+// A GUI component of the factory storage info
 class gui_factory_storage_info_t : public gui_container_t
 {
 private:
@@ -27,6 +31,49 @@ public:
 	void set_fab(fabrik_t *f) { fab = f; }
 
 	void draw(scr_coord offset);
+	void recalc_size();
+};
+
+
+// A GUI component of connectable factory list
+class gui_factory_connection_stat_t : public gui_world_component_t
+{
+private:
+	fabrik_t *fab;
+	vector_tpl<koord> fab_list; // connectable factory list(pos)
+	uint32 line_selected;
+
+	bool display_input; // which display is needed? - input or output
+
+public:
+	gui_factory_connection_stat_t(fabrik_t *factory, bool display_input);
+
+	bool infowin_event(event_t const *ev) OVERRIDE;
+
+	void recalc_size();
+
+	void draw(scr_coord offset) OVERRIDE;
+};
+
+
+// A display of nearby freight stations for factory GUI
+class gui_factory_nearby_halt_info_t : public gui_world_component_t
+{
+private:
+	fabrik_t *fab;
+	vector_tpl<nearby_halt_t> halt_list;
+	uint32 line_selected;
+
+public:
+	gui_factory_nearby_halt_info_t(fabrik_t *factory);
+
+	bool infowin_event(event_t const *ev) OVERRIDE;
+
+	void recalc_size();
+	void update(fabrik_t *factory);
+
+	void draw(scr_coord offset) OVERRIDE;
+
 };
 
 #endif
