@@ -36,6 +36,20 @@ icon_width = 48
 # use the larger Button height
 gui_button_height = 22
 
+# arrows and scrollbars
+gui_horizontal_arrow_height = 22
+gui_horizontal_arrow_width = 22
+gui_vertical_arrow_height = 22
+gui_vertical_arrow_width = 22
+gui_scrollbar_width = 22
+gui_scrollbar_height = 22
+
+# and a matching edit field height
+gui_edit_height = 22
+
+# request larger font size (the resulting spacing is about 15% larger due to decent)
+font_size = 16
+
 ##################################window stuff##################################
 
 # when moving, you can use windows to snap onto each other seamlessly
@@ -67,6 +81,10 @@ remember_window_positions = 1
 # some colors are 215-white, 240-black 208-214- all shades of gray
 #front_window_text_color = #FFFFFF
 #bottom_window_text_color = #DDDDDD
+
+# How much shade for player colors (7 brightest 0 darkest)
+gui_player_color_bright = 4
+gui_player_color_dark = 1
 
 ##################################size stuff##################################
 
