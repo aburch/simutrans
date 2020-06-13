@@ -388,7 +388,6 @@ void fabrik_info_t::update_info()
 
 
 
-	container_info.remove_all();
 
 	const sint16 offset_below_viewport = D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + max(prod.get_size().h + storage.get_size().h, view.get_size().h + 8) + LINESPACE*3;
 }
