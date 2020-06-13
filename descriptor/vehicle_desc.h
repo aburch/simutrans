@@ -247,7 +247,7 @@ public:
 	uint32 get_weight() const { return weight; }
 	uint32 get_power() const { return power; }
 	uint32 get_running_cost() const { return running_cost; }
-	uint16 get_fixed_cost() const { return get_maintenance(); }
+	sint32 get_fixed_cost() const { return get_maintenance(); }
 	sint8 get_sound() const { return sound; }
 
 	/**

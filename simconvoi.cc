@@ -1459,6 +1459,7 @@ void convoi_t::new_month()
 	book( sum_fixed_costs, CONVOI_OPERATIONS );
 	book( sum_fixed_costs, CONVOI_PROFIT );
 	get_owner()->book_running_costs( sum_fixed_costs, get_schedule()->get_waytype());
+	jahresgewinn = sum_fixed_costs;
 }
 
 
