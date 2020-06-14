@@ -3344,7 +3344,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		else {
 			buf.printf("\n");
 		}
-
+		buf.printf("\n");
 		buf.printf(translator::translate("Constructed by %s"), get_fab(building->get_pos().get_2d())->get_desc()->get_copyright());
 	}
 }
