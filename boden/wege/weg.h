@@ -39,17 +39,21 @@ template <class T> class vector_tpl;
 // maximum number of months to store information
 #define MAX_WAY_STAT_MONTHS 2
 
+enum way_stat_months {
+	WAY_STAT_THIS_MONTH,
+	WAY_STAT_LAST_MONTH
+};
+
 enum way_statistics {
 	WAY_STAT_GOODS,		///< number of goods transported over this way
 	WAY_STAT_CONVOIS,	///< number of convois that passed this way
-	WAY_STAT_WAITING,	///< Number of vehicles waiting in a traffic jam on this way
 	MAX_WAY_STATISTICS
 };
 
 #if 0
 // This was used to test the performance of the std unordered map as against the
 // built-in Simutrans hashtable, but the latter performed far better.
-namespace std 
+namespace std
 {
 	template <>
 	struct hash<koord>
@@ -62,19 +66,24 @@ namespace std
 	};
 }
 #endif
+enum travel_times {
+	WAY_TRAVEL_TIME_IDEAL,	///< number of ticks vehicles would spend traversing this way without traffic
+	WAY_TRAVEL_TIME_ACTUAL,///< number of ticks vehicles actually spent passing over this way
+	MAX_WAY_TRAVEL_TIMES
+};
 
 
 /**
  * <p>Der Weg ist die Basisklasse fuer all Verkehrswege in Simutrans.
- * Wege "gehören" immer zu einem Grund. Sie besitzen Richtungsbits sowie
+ * Wege "gehÃ¶ren" immer zu einem Grund. Sie besitzen Richtungsbits sowie
  * eine Maske fuer Richtungsbits.</p>
  *
- * <p>Ein Weg gehört immer zu genau einer Wegsorte</p>
+ * <p>Ein Weg gehÃ¶rt immer zu genau einer Wegsorte</p>
  *
- * <p>Kreuzungen werden dadurch unterstützt, daß ein Grund zwei Wege
- * enthalten kann (prinzipiell auch mehrere möglich.</p>
+ * <p>Kreuzungen werden dadurch unterstÃ¼tzt, daÃŸ ein Grund zwei Wege
+ * enthalten kann (prinzipiell auch mehrere mÃ¶glich.</p>
  *
- * <p>Wetype -1 ist reserviert und kann nicht für Wege benutzt werden<p>
+ * <p>Wetype -1 ist reserviert und kann nicht fÃ¼r Wege benutzt werden<p>
  *
  * @author Hj. Malthaner
  */
@@ -85,8 +94,8 @@ public:
 	* Get list of all ways
 	* @author Hj. Malthaner
 	*/
-	static const vector_tpl <weg_t *> & get_alle_wege();
-	static const uint32 get_all_ways_count();
+	static const vector_tpl <weg_t *> &get_alle_wege();
+	static uint32 get_all_ways_count();
 	static void clear_list_of__ways();
 
 	enum {
@@ -121,6 +130,9 @@ private:
 	*/
 	sint16 statistics[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS];
 
+	uint32 travel_times[MAX_WAY_STAT_MONTHS][MAX_WAY_TRAVEL_TIMES];
+
+
 	/**
 	* Way type description
 	* @author Hj. Malthaner
@@ -128,7 +140,7 @@ private:
 	const way_desc_t * desc;
 
 	/**
-	* Richtungsbits für den Weg. Norden ist oben rechts auf dem Monitor.
+	* Richtungsbits fÃ¼r den Weg. Norden ist oben rechts auf dem Monitor.
 	* 1=Nord, 2=Ost, 4=Sued, 8=West
 	* @author Hj. Malthaner
 	*/
@@ -249,17 +261,17 @@ public:
 	static uint32 private_car_routes_currently_reading_element;
 	static uint32 get_private_car_routes_currently_writing_element() { return private_car_routes_currently_reading_element == 1 ? 0 : 1; }
 
-	void add_private_car_route(koord dest, koord3d next_tile); 
+	void add_private_car_route(koord dest, koord3d next_tile);
 private:
 	/// Set the boolean value to true to modify the set currently used for reading (this must ONLY be done when this is called from a single threaded part of the code).
-	void remove_private_car_route(koord dest, bool reading_set = false); 
+	void remove_private_car_route(koord dest, bool reading_set = false);
 public:
 	static void swap_private_car_routes_currently_reading_element() { private_car_routes_currently_reading_element = private_car_routes_currently_reading_element == 0 ? 1 : 0; }
 
 	/// Delete all private car routes originating from or passing through this tile.
 	/// Set the boolean value to true to modify the set currently used for reading (this must ONLY be done when this is called from a single threaded part of the code).
-	void delete_all_routes_from_here(bool reading_set = false); 
-	void delete_route_to(koord destination, bool reading_set = false); 
+	void delete_all_routes_from_here(bool reading_set = false);
+	void delete_route_to(koord destination, bool reading_set = false);
 
 
 
@@ -273,16 +285,16 @@ public:
 	/**
 	 * Actual image recalculation
 	 */
-	void calc_image();
+	void calc_image() OVERRIDE;
 
 	/**
 	 * Called whenever the season or snowline height changes
 	 * return false and the obj_t will be deleted
 	 */
-	bool check_season(const bool calc_only_season_change);
+	bool check_season(const bool calc_only_season_change) OVERRIDE;
 
 	/**
-	* Setzt die erlaubte Höchstgeschwindigkeit
+	* Setzt die erlaubte HÃ¶chstgeschwindigkeit
 	* @author Hj. Malthaner
 	*/
 	void set_max_speed(sint32 s) { max_speed = s; }
@@ -308,7 +320,7 @@ public:
 	void remove_way_constraints(const way_constraints_of_way_t& value) { way_constraints.remove(value); }
 
 	/**
-	* Ermittelt die erlaubte Höchstgeschwindigkeit
+	* Ermittelt die erlaubte HÃ¶chstgeschwindigkeit
 	* @author Hj. Malthaner
 	*/
 	sint32 get_max_speed() const { return max_speed; }
@@ -317,7 +329,7 @@ public:
 	uint32 get_bridge_weight_limit() const { return bridge_weight_limit; }
 
 	/**
-	* Setzt neue Description. Ersetzt alte Höchstgeschwindigkeit
+	* Setzt neue Description. Ersetzt alte HÃ¶chstgeschwindigkeit
 	* mit wert aus Description.
 	*
 	* Sets a new description. Replaces old with maximum speed
@@ -333,24 +345,24 @@ public:
 	// returns a string with the "official name of the waytype"
 	static const char *waytype_to_string(waytype_t wt);
 
-	virtual void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	/**
 	* Info-text for this way
 	* @author Hj. Malthaner
 	*/
-	virtual void info(cbuffer_t & buf, bool is_bridge = false) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
 	/**
 	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
-	virtual const char * is_deletable(const player_t *player, bool allow_public = false);
+	const char *is_deletable(const player_t *player) OVERRIDE;
 
 	/**
-	* Wetype zurückliefern
+	* Wetype zurÃ¼ckliefern
 	*/
-	waytype_t get_waytype() const { return wtyp; }
+	waytype_t get_waytype() const OVERRIDE { return wtyp; }
 
 	inline bool is_rail_type() const { return wtyp == track_wt || wtyp == maglev_wt || wtyp == tram_wt || wtyp == narrowgauge_wt || wtyp == monorail_wt;  }
 
@@ -365,14 +377,14 @@ public:
 	* Die Bezeichnung des Wegs
 	* @author Hj. Malthaner
 	*/
-	const char *get_name() const { return desc->get_name(); }
+	const char *get_name() const OVERRIDE { return desc->get_name(); }
 
 	/**
 	* Add direction bits (ribi) for a way.
 	*
-	* Nachdem die ribis geändert werden, ist das weg_image des
-	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
-	* zur Reparatur muß folgen).
+	* Nachdem die ribis geÃ¤ndert werden, ist das weg_image des
+	* zugehÃ¶rigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
+	* zur Reparatur muÃŸ folgen).
 	* @param ribi Richtungsbits
 	*/
 	void ribi_add(ribi_t::ribi ribi) { this->ribi |= (uint8)ribi;}
@@ -380,9 +392,9 @@ public:
 	/**
 	* Remove direction bits (ribi) on a way.
 	*
-	* Nachdem die ribis geändert werden, ist das weg_image des
-	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
-	* zur Reparatur muß folgen).
+	* Nachdem die ribis geÃ¤ndert werden, ist das weg_image des
+	* zugehÃ¶rigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
+	* zur Reparatur muÃŸ folgen).
 	* @param ribi Richtungsbits
 	*/
 	void ribi_rem(ribi_t::ribi ribi) { this->ribi &= (uint8)~ribi;}
@@ -390,9 +402,9 @@ public:
 	/**
 	* Set direction bits (ribi) for the way.
 	*
-	* Nachdem die ribis geändert werden, ist das weg_image des
-	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
-	* zur Reparatur muß folgen).
+	* Nachdem die ribis geÃ¤ndert werden, ist das weg_image des
+	* zugehÃ¶rigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
+	* zur Reparatur muÃŸ folgen).
 	* @param ribi Richtungsbits
 	*/
 	void set_ribi(ribi_t::ribi ribi) { this->ribi = (uint8)ribi;}
@@ -408,8 +420,8 @@ public:
 	virtual ribi_t::ribi get_ribi() const { return (ribi_t::ribi)(ribi & ~ribi_maske); }
 
 	/**
-	* für Signale ist es notwendig, bestimmte Richtungsbits auszumaskieren
-	* damit Fahrzeuge nicht "von hinten" über Ampeln fahren können.
+	* fÃ¼r Signale ist es notwendig, bestimmte Richtungsbits auszumaskieren
+	* damit Fahrzeuge nicht "von hinten" Ã¼ber Ampeln fahren kÃ¶nnen.
 	* @param ribi Richtungsbits
 	*/
 	void set_ribi_maske(ribi_t::ribi ribi) { ribi_maske = (uint8)ribi; }
@@ -419,20 +431,20 @@ public:
 	 * called during map rotation
 	 * @author priss
 	 */
-	virtual void rotate90();
+	virtual void rotate90() OVERRIDE;
 
 	/**
 	* book statistics - is called very often and therefore inline
 	* @author hsiegeln
 	*/
-	void book(int amount, way_statistics type) { statistics[0][type] += amount; }
+	void book(int amount, way_statistics type) { statistics[WAY_STAT_THIS_MONTH][type] += amount; }
 
 	/**
 	* return statistics value
 	* always returns last month's value
 	* @author hsiegeln
 	*/
-	int get_statistics(int type) const { return statistics[1][type]; }
+	int get_statistics(int type) const { return statistics[WAY_STAT_LAST_MONTH][type]; }
 
 	/**
 	* new month
@@ -468,13 +480,13 @@ public:
 	void clear_sign_flag() { flags &= ~(HAS_SIGN | HAS_SIGNAL); }
 
 	inline void set_image( image_id b ) { image = b; }
-	image_id get_image() const {return image;}
+	image_id get_image() const OVERRIDE {return image;}
 
 	inline void set_after_image( image_id b ) { foreground_image = b; }
-	virtual image_id get_front_image() const { return foreground_image; }
+	image_id get_front_image() const OVERRIDE { return foreground_image; }
 
 	// correct maintenance
-	void finish_rd();
+	void finish_rd() OVERRIDE;
 
 	// Should a city adopt this, if it is being built/upgrade by player player?
 	bool should_city_adopt_this(const player_t* player);
@@ -514,8 +526,25 @@ public:
 	runway_directions get_runway_directions() const;
 	uint32 get_runway_length(bool is_36_18) const;
 
-	void increment_traffic_stopped_counter() { statistics[0][WAY_STAT_WAITING] ++; }
-	uint32 get_congestion_percentage() const { return statistics[0][WAY_STAT_CONVOIS] + statistics[1][WAY_STAT_CONVOIS] ? ((statistics[0][WAY_STAT_WAITING] + statistics[1][WAY_STAT_WAITING]) * 100) / (statistics[0][WAY_STAT_CONVOIS] + statistics[1][WAY_STAT_CONVOIS]) : 0; }
+	//void increment_traffic_stopped_counter() { statistics[0][WAY_STAT_WAITING] ++; }
+	inline void update_travel_times(uint32 actual, uint32 ideal) 
+	{
+		travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_ACTUAL] += actual;
+		travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] += ideal;
+	}
+
+	//will return the % ratio of actual to ideal traversal times
+	inline uint32 get_congestion_percentage() const { 
+		uint32 combined_ideal = travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_IDEAL];
+		if(combined_ideal == 0u) {
+			return 0u;
+		}
+		uint32 combined_actual = travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_ACTUAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_ACTUAL];
+		if(combined_actual <= combined_ideal) {
+			return 0u;
+		}
+		return (combined_actual * 100u / combined_ideal) - 100u;
+	}
 
 } GCC_PACKED;
 

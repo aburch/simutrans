@@ -53,7 +53,7 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	virtual void draw(scr_coord pos);
+	virtual void draw(scr_coord pos) OVERRIDE;
 
 	void rdwr( loadsave_t *file );
 };

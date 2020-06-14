@@ -41,8 +41,8 @@ public:
 	void set_x(coordinate_t value) { x = value; }
 	void set_y(coordinate_t value) { y = value; }
 	bool equals(const coordinates_t &value) const { return x == value.x && y == value.y; }
-	bool operator == (const coordinates_t &value) { return equals(value); }
-	bool operator != (const coordinates_t &value) { return !equals(value); }
+	bool operator == (const coordinates_t &value) const { return equals(value); }
+	bool operator != (const coordinates_t &value) const { return !equals(value); }
 };
 
 

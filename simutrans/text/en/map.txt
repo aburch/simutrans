@@ -24,10 +24,16 @@ If the <em>factory details</em> checkbox is checked, hovering the mouse cursor o
 On the map (when not using certain legend options): <a href="citywindow.txt">urban areas</a>, attractions and tunnels, appear light grey; rivers and canals appear blue; bridges appear off-white, roads appear dark grey; railways, and tramways appear dark red; monorail tracks appear orange; narrow gauge and maglev railways appear black; runways and taxiways appear dark yellow; <a href="station.txt">stops</a> appear light red; and vehicles appear light yellow.
 </p>
 <p>
-Check the <em>show schedules</em> checkbox to enable a graphical display of a convoy or line's schedule on the map when a schedule is being edited: a light terquoise thin line will link all the points in the currently selected schedule by a straight line.
+Check the <em>show schedules</em> checkbox to enable a graphical display of a convoy or line's schedule on the map when a schedule is being edited: a light turquoise thin line will link all the points in the currently selected schedule by a straight line.
 </p>
 <p>
 Check the <em>isometric view</em> checkbox to show the map in the same isometric orientation as the main game window.
+</p>
+<p>
+Check the <em>show contour</em> checkbox to show or hide information about the height of the land. Hiding this may make other elements easier to see.
+</p>
+<p>
+Check the <em>show buildings</em> checkbox to show or hide buildings. Hiding this may make other elements easier to see.
 </p>
 <p>
 Click <em>show map scale</em> to see how various quantitative information (depending on the setting selected in <em>show legend</em> (explained below) is represented in colours in the map. Clicking this button will also show the scale that has been set in tiles per kilometre. 
@@ -36,10 +42,38 @@ Click <em>show map scale</em> to see how various quantitative information (depen
 Click <em>show industry</em> to see which colours represent which industries on the map. 
 </p>
 <p>
-Click <em>show legend</em> to see additional options about what is displayed on the map. The following options are available:
+Check the <em>networks</em> checkbox to show or hide a schematic overlay of public and freight transport networks on the map.
 </p>
 <p>
-<em>Cities:</em> shows the names of <a href="citywindow.txt">urban areas</a>;
+<p>
+Click <em>show legend</em> to see additional options about what is displayed on the map. Most of these will use the colour scale visible when selecting "show scale". The following options are available:
+</p>
+<p>
+<em>Towns:</em> shows the names of <a href="citywindow.txt">towns</a>;
+</p>
+<p>
+<em>City limits:</em> shows the extent of towns; 
+</p>
+<p>
+<em>Attractions:</em> shows the level of passengers that each tourist attraction generates;
+</p>
+<p>
+<em>Industries:</em> highlights each <a href="industry_info.txt">industry</a>; 
+</p>
+<p>
+<em>Depots:</em> highlights each <a href="depot.txt">depot</a>. Colours indicate the transport type of each depot: shipyards are shown as red; road depots as yellow; railway depots as orange; aircraft hangars as dark orange; narrow gauge railway and magnetic levitation depots as dark blue; and monorail depots as dark red;
+</p>
+<p>
+<em>Convoys:</em> highlights player convoys (assemblages of vehicles) in yellow on the map - these are shown moving;
+</p>
+<p>
+<em>Stop status:</em> shows colours to indicate the status of stops in the game, status being how well that the stops are coping with their current traffic level. The colours used here are the same as in the <a href="haltlist.txt">stop list</a>, <a href="station.txt">stop information</a> and <a href="linemanagement.txt">line ,anagement</a> windows, and is the same colour displayed in the colour bar above the name of a stop in the main game window);
+</p>
+<p>
+<em>Waiting:</em> shows the level of mail, goods and passengers waiting for transport at each <a href="station.txt">stop</a>;
+</p>
+<p>
+<em>Queuing:</em> shows how much that the amount of mail, passengers and goods at each <a href="station.txt">stop</a> is increasing or decreasing over time;
 </p>
 <p>
 <em>Passengers:</em> shows catchment areas for passengers by <a href="station.txt">stops</a>, colour coded by player;
@@ -48,63 +82,78 @@ Click <em>show legend</em> to see additional options about what is displayed on 
 <em>Mail:</em>shows catchment areas for mail by <a href="station.txt">stops</a>, colour coded by player;
 </p>
 <p>
-<em>Freight:</em> shows the quantity of goods and passengers transported on roads, railways, canals, and other ways (use the scale to understand the colours);
+<em>Freight:</em> shows the quantity of goods and passengers transported on roads, railways, canals, and other ways;
 </p>
 <p>
-<em>Stop status:</em> shows colours to indicate the status of stops in the game, status being how well that the stops are coping with their current traffic level. The colours used here are the same as in the <a href="haltlist.txt">stop list</a>, <a href="station.txt">stop information</a> and <a href="linemanagement.txt">line ,anagement</a> windows, and is the same colour displayed in the colour bar above the name of a stop in the main game window);
+<em>Service:</em> shows the quantity of goods, mail and passengers using each <a href="station.txt">stop</a>;
 </p>
 <p>
-<em>Service:</em> the quantity of goods, mail and passengers using each <a href="station.txt">stop</a> (use the scale to understand the colours);
+<em>Transfers:</em> shows the amount of mail, passengers and goods transferring between different legs of their journey at each <a href="station.txt">stop</a>;
 </p>
 <p>
-<em>Traffic:</em> shows the level of <a href="convoiinfo.txt">vehicle</a> traffic on roads, railways, tramways, canals, rivers and other such ways (use the scale to understand the colours);
+<em>Origin:</em> shows the level of mail, goods and passengers that start journey at each <a href="station.txt">stop</a>);
 </p>
 <p>
-<em>Origin:</em> shows the level of mail, goods and passengers that start journey at each <a href="station.txt">stop</a> (use the scale to understand the colours);
+<em>Freight:</em> shows the level of freight traffic on roads, railways, tramways, canals, rivers and other such ways;
 </p>
 <p>
-<em>Destination:</em> shows the level of mail, goods and passengers terminating their journeys at each <a href="station.txt">stop</a> (use the scale to understand the colours);
+<em>Traffic:</em> shows the level of <a href="convoiinfo.txt">vehicle</a> traffic on roads, railways, tramways, canals, rivers and other such ways;
 </p>
 <p>
-<em>Waiting:</em> shows the level of mail, goods and passengers waiting for transport at each <a href="station.txt">stop</a> (use the scale to understand the colours);
+<em>Wear:</em> shows the <a href="way_wear.txt">condition</a> of roads, railways, tramways, canals and other such ways;
+</p>
+<p>
+<em>Congestion:</em> shows how much traffic congestion that there is on roads;
+</p>
+<p>
+<em>Speed limit:</em> shows the maximum speed for roads, railways and other such ways;
+</p>
+<p>
+<em>Weight limit:</em> shows the maximum weight for roads, railways and other such ways;
 </p>
 <p>
 <em>Tracks:</em> shows railway, narrow gauge railway and tramway tracks and signals; unelectrified tracks, bridges and tunnels are shown as white; electrified tracks, bridges and tunnels as red, and signals as yellow;
 </p>
 <p>
-<em>Speed Limit:</em> shows the maximum speed for roads, railways and other such ways (use the scale to understand the colours);
-</p>
-<p>
-<em>Powerlines:</em> shows <a href="special.txt">power transmission lines</a> and how much electricity that they are transmitting (use the scale to understand the colours);
-</p>
-<p>
-<em>Attractions:</em> shows the level of passengers that each tourist attraction generates (use the scale to understand the colours);
-</p>
-<p>
-<em>Factories:</em> highlights each <a href="industry_info.txt">industry</a>; 
-</p>
-<p>
-<em>Depots:</em> highlights each <a href="depot.txt">depot</a>. Colours indicate the transport type of each depot: shipyards are shown as red; road depots as yellow; railway depots as orange; aircraft hangars as dark orange; narrow gauge railway and magnetic levitation depots as dark blue; and monorail depots as dark red;
-</p>
-<p>
-<em>Forest:</em> highlights each area of dense woodland in bright green;
-</p>
-<p>
-<em>Way wear:</em> shows the condition of the ways. (use the scale to understand the colours). Read more about <a href="way_wear.txt">way wear</a>;
-</p>
-<p>
-<em>City limits:</em> shows the extent of urban areas; and
+<em>Powerlines:</em> shows <a href="special.txt">power transmission lines</a> and how much electricity that they are transmitting;
 </p>
 <p>
 <em>Destinations:</em> shows the destinations of passengers and mail produced in a particular urban area. This will show destinations for passengers for the urban area(s) whose information window(s) are currently open. If no information windows are currently open, it will not show any information.<br>
 Destinations are shown by coloured dots. The colour of destination dots shows information about passengers and mail:<br>
 - <em>Dark yellow</em>: passengers walked to their destination.<br>
-- <em>Yellow</em>: passengers took public transport to their desintation (equivalent to the happy face in the <a href="station.txt">stop</a> window).<br>
+- <em>Yellow</em>: passengers took public transport to their desintation (equivalent to the tick in the <a href="station.txt">stop</a> window).<br>
 - <em>Turquoise</em>: passengers reached the destination by means of their private cars.<br>
-- <em>Orange</em>: there is no available route to the desired destination and it is too far to walk.<br>
-- <em>Purple</em>: there is a route to the desired destination by public transport, but the journey takes too long.<br>
+- <em>Orange</em>: there is no available route to the desired destination and it is too far to walk (equivalent to the no entry in the <a href="station.txt">stop</a> window).<br>
+- <em>Purple</em>: there is a route to the desired destination by public transport, but the journey takes too long (equivalent to the snail in the <a href="station.txt">stop</a> window).<br>
 - <em>Pink</em>: there is a route to the desired destination by private car, but the journey takes too long.<br>
-- <em>Red</em>: there is a route to the desired destination by public transport, but the local transport stop was overcrowded (equivalent to the unhappy face in the <a href="station.txt">stop</a> window).
+- <em>Red</em>: there is a route to the desired destination by public transport, but the local transport stop was overcrowded (equivalent to the queue in the <a href="station.txt">stop</a> window).</br>
 - <em>Dark red</em>: there is a route to the desired destination, but the desired destination is unavailable (either there are no available jobs for a commuting trip, or, for a visiting trip, the business is closed because of lack of goods or lack of staff).
+</p>
+<p>
+<em>Density:</em> shows the population density of buildings in towns;
+</p>
+<p>
+<em>Stop coverage:</em> shows the distance of each building within reach of a stop to its nearest stop;
+</p>
+<p>
+<em>Commuting:</em> shows the proportion of passengers in each building not succeeding in making commuting trips;
+</p>
+<p>
+<em>Visiting:</em> shows the proportion of passengers in each building not succeeding in making visiting trips;
+</p>
+<p>
+<em>Visiting:</em> shows the proportion of passengers in each building not succeeding in making visiting trips;
+</p>
+<p>
+<em>Staffing:</em> shows the extent to which buildings that employ staff are short of workers;
+</p>
+<p>
+<em>Mail delivery:</em> shows the proportion of mail produced by buildings unable to reach its destination;
+</p>
+<p>
+<em>Ownership:</em> shows which players own which tiles of land, using each player's colour as a key; and
+</p>
+<p>
+<em>Forest:</em> highlights each area of dense woodland in bright green.
 </p>
 </p>

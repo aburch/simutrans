@@ -39,7 +39,7 @@ public:
 	overtaking_mode_frame_t( player_t *, tool_build_bridge_t * );
 	overtaking_mode_frame_t( player_t *, tool_build_tunnel_t * );
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
-	const char * get_help_filename() const { return "overtaking_mode_frame.txt"; }
+	const char * get_help_filename() const OVERRIDE { return "overtaking_mode_frame.txt"; }
 };
 
 #endif

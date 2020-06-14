@@ -604,7 +604,7 @@ static koord find_airport_pos(karte_t* welt, const stadt_t *s )
 					// malus for out of town
 					testdist += 5;
 				}
-				if(  testdist<bestdist  &&  welt->square_is_free( k, 3, 3, NULL, ALL_CLIMATES )  ) {
+				if(  testdist<bestdist  &&  welt->square_is_free( k, 3, 3, NULL, ALL_CLIMATES, 65535 )  ) {
 					bestpos = k;
 					bestdist = testdist;
 				}

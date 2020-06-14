@@ -1095,7 +1095,7 @@ class monument_placefinder_t : public placefinder_t {
 	public:
 		monument_placefinder_t(karte_t* welt, sint16 radius) : placefinder_t(welt, radius) {}
 
-		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl) const
+		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl, uint16 allowed_regions) const
 		{
 			const planquadrat_t* plan = welt->access(pos + d);
 
@@ -1104,6 +1104,10 @@ class monument_placefinder_t : public placefinder_t {
 
 			const grund_t* gr = plan->get_kartenboden();
 			if(  ((1 << welt->get_climate( gr->get_pos().get_2d() )) & cl) == 0  ) {
+				return false;
+			}
+
+			if (((1 << welt->get_region(gr->get_pos().get_2d())) & allowed_regions) == 0) {
 				return false;
 			}
 
@@ -1176,12 +1180,16 @@ class townhall_placefinder_t : public placefinder_t {
 	public:
 		townhall_placefinder_t(karte_t* welt, uint8 dir_) : placefinder_t(welt), dir(dir_) {}
 
-		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl) const
+		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl, uint16 allowed_regions) const
 		{
 			const grund_t* gr = welt->lookup_kartenboden(pos + d);
 			if (gr == NULL  ||  gr->get_grund_hang() != slope_t::flat) return false;
 
 			if(  ((1 << welt->get_climate( gr->get_pos().get_2d() )) & cl) == 0  ) {
+				return false;
+			}
+
+			if (((1 << welt->get_region(gr->get_pos().get_2d())) & allowed_regions) == 0) {
 				return false;
 			}
 
@@ -1448,6 +1456,44 @@ bool stadt_t::is_within_city_limits(koord k) const
 }
 
 
+bool stadt_t::is_within_players_network(const player_t* player) const
+{
+	vector_tpl<halthandle_t> halts;
+	// Find all stations whose coverage affects this city
+	for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = buildings.begin(); i != buildings.end(); ++i)
+	{
+		gebaeude_t* gb = *i;
+		const planquadrat_t *plan = welt->access(gb->get_pos().get_2d());
+		if (plan->get_haltlist_count() > 0) {
+			const nearby_halt_t *const halt_list = plan->get_haltlist();
+			for (int h = 0; h < plan->get_haltlist_count(); h++)
+			{
+				const halthandle_t halt = halt_list[h].halt;
+				if (halt->get_owner()==player) {
+					return true;
+				}
+				else if (halts.is_contained(halt)) {
+					continue;
+				}
+				else if (halt->check_access(player)) {
+					halts.append(halt);
+				}
+			}
+		}
+	}
+
+	// Check if these stations are in the player's network...
+	FOR(vector_tpl<halthandle_t>, const halt, halts)
+	{
+		if (halt->has_available_network(player))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
 void stadt_t::check_city_tiles(bool del)
 {
 	// ur = SE corner
@@ -1657,7 +1703,7 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	char                          const* n       = "simcity";
 	weighted_vector_tpl<stadt_t*> const& staedte = welt->get_cities();
 
-	const vector_tpl<char*>& city_names = translator::get_city_name_list();
+	const vector_tpl<char*>& city_names = translator::get_city_name_list(welt->get_region(pos));
 
 	// make sure we do only ONE random call regardless of how many names are available (to avoid desyncs in network games)
 	if(  const uint32 count = city_names.get_count()  ) {
@@ -1988,7 +2034,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	{
 		for(uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++)
 		{
-			for(uint hist_type = 0; hist_type < adapted_max_city_history; hist_type++)
+			for(uint32 hist_type = 0; hist_type < adapted_max_city_history; hist_type++)
 			{
 				if(hist_type == HIST_PAS_WALKED && (file->get_extended_version() < 10 || file->get_version() < 111001))
 				{
@@ -2485,7 +2531,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		assert( color != 0 );
 		pax_destinations_temp.set(pos.y, pos.x, color);
 	}
-	swap<uint8>( pax_destinations_temp, pax_destinations_new );
+	swap( pax_destinations_temp, pax_destinations_new );
 
 	pax_destinations_temp.clear();
 	for( uint16 i = 0; i < pax_destinations_old.get_data_count(); i++ ) {
@@ -2494,7 +2540,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		pax_destinations_temp.set(pos.y, pos.x, color);
 	}
 	pax_destinations_new_change ++;
-	swap<uint8>( pax_destinations_temp, pax_destinations_old );
+	swap( pax_destinations_temp, pax_destinations_old );
 
 	vector_tpl<koord> k_list(connected_cities.get_count());
 	vector_tpl<uint32> f_list(connected_cities.get_count());
@@ -2806,7 +2852,7 @@ void stadt_t::calc_traffic_level()
 
 void stadt_t::new_month()
 {
-	swap<uint8>( pax_destinations_old, pax_destinations_new );
+	swap( pax_destinations_old, pax_destinations_new );
 	pax_destinations_new.clear();
 	pax_destinations_new_change = 0;
 
@@ -2817,98 +2863,7 @@ void stadt_t::new_month()
 
 	roll_history();
 
-	calc_traffic_level();
-
-	// Calculate the level of congestion.
-	// Used in determining growth and passenger preferences.
-	// Old system:
-	// From observations in game: anything < 2, not very congested.
-	// Anything > 4, very congested.
-	// For new system, see http://www.tomtom.com/lib/doc/congestionindex/2013-0322-TomTom-CongestionIndex-2012-Annual-EUR-mi.pdf
-	// @author: jamespetts
-
-	settings_t const& s = welt->get_settings();
-
-	uint16 congestion_density_factor = s.get_congestion_density_factor();
-
-#ifdef MULTI_THREAD
-	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
-	assert(error == 0);
-#endif
-
-	if(congestion_density_factor < 32)
-	{
-		// Old method - congestion density factor
-		const uint32 city_size = (ur.x - lo.x + 1) * (ur.y - lo.y + 1);
-		uint32 cars_per_tile_thousandths = (city_history_month[1][HIST_CITYCARS] * 1000) / city_size;
-		const uint32 population_density = (city_history_month[1][HIST_CITICENS] * 10) / city_size;
-		congestion_density_factor *= 100;
-
-		uint32 cars_per_tile_base = 800;
-
-		cars_per_tile_thousandths = welt->calc_adjusted_monthly_figure(cars_per_tile_thousandths);
-		cars_per_tile_base = welt->calc_adjusted_monthly_figure(cars_per_tile_base);
-		congestion_density_factor = welt->calc_adjusted_monthly_figure(congestion_density_factor);
-
-		uint32 congestion = 0;
-		if(cars_per_tile_thousandths > cars_per_tile_base)
-		{
-			if(congestion_density_factor == 0)
-			{
-				congestion = (cars_per_tile_thousandths -= cars_per_tile_base) / 30;
-			}
-			else
-			{
-				congestion = (((cars_per_tile_thousandths -= cars_per_tile_base) / 45) * population_density) / congestion_density_factor;
-			}
-		}
-		city_history_month[0][HIST_CONGESTION] = congestion;
-	}
-
-	else // Congestion density factor > 32:  new system
-	{
-		// Based on TomTom congestion index system
-		// See http://www.tomtom.com/lib/doc/congestionindex/2013-0322-TomTom-CongestionIndex-2012-Annual-EUR-mi.pdf
-
-		// First - check the length of the road network in the city.
-		uint32 road_tiles = 0;
-		for(sint16 j = lo.y; j <= ur.y; ++j)
-		{
-			for(sint16 i = lo.x; i <= ur.x; ++i)
-			{
-				const koord k(i, j);
-				const grund_t *const gr = welt->lookup_kartenboden(k);
-				if(gr && gr->get_weg(road_wt))
-				{
-					road_tiles ++;
-				}
-			}
-		}
-		uint32 road_hectometers = (road_tiles * (uint32)s.get_meters_per_tile()) / 10;
-		if (road_hectometers == 0) {
-			// Avoid divide by zero errors
-			road_hectometers = 1;
-		}
-
-		// Second - get the number of car trips per hour
-		const sint64 seconds_per_month = welt->ticks_to_seconds(welt->ticks_per_world_month);
-		// Add incoming private cars as these are no longer tracked in the city history statistics to make them clearer.
-		const sint64 trips_per_hour = ((city_history_month[1][HIST_CITYCARS] + incoming_private_cars) * 3600l) / seconds_per_month;
-
-		// Third - combine the information, multiplying by a ratio based on
-		// congestion_density_factor == 141 is the ideal factor based on the 2012 TomTom congestion index for British cities
-		// (Average: range is 70 (London) to 227 (Newcastle/Sunderland).
-		// Further reduce this by the traffic_level factor to adjust for occupancy rates (permille).
-		const sint64 adjusted_ratio = ((sint64)traffic_level * congestion_density_factor) / 1000l;
-		city_history_month[0][HIST_CONGESTION] = (trips_per_hour * adjusted_ratio) / (sint64)road_hectometers;
-	}
-
-	incoming_private_cars = 0;
-
-#ifdef MULTI_THREAD
-	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
-	assert(error == 0);
-#endif
+	calc_congestion();
 }
 
 void stadt_t::calc_growth()
@@ -2968,7 +2923,7 @@ void stadt_t::calc_growth()
 		// It is possible that only one threshold percentage is set. In this case, assume the other.
 		uint8 capital_threshold_percentage = s.get_capital_threshold_percentage() ? s.get_capital_threshold_percentage() : s.get_city_threshold_percentage() / 4;
 		capital_threshold_percentage = capital_threshold_percentage ? capital_threshold_percentage : 1;
-		uint8 city_threshold_percentage = s.get_city_threshold_percentage() ? s.get_city_threshold_percentage() : capital_threshold_percentage * 4;
+		const uint8 city_threshold_percentage = s.get_city_threshold_percentage() ? s.get_city_threshold_percentage() : capital_threshold_percentage * 4;
 
 		// Now that we have the percentages, calculate how large that this city is compared to others in the game.
 		uint32 number_of_larger_cities = 0;
@@ -2993,11 +2948,11 @@ void stadt_t::calc_growth()
 		const uint32 rank = number_of_larger_cities + 1;
 		const uint32 percentage = (rank * 100) / total_cities;
 
-		if (rank == 1 || percentage <= s.get_capital_threshold_percentage())
+		if (rank == 1 || percentage <= capital_threshold_percentage)
 		{
 			weight_factor = s.get_growthfactor_large();
 		}
-		else if (percentage <= s.get_city_threshold_percentage())
+		else if (percentage <= city_threshold_percentage)
 		{
 			weight_factor = s.get_growthfactor_medium();
 		}
@@ -3501,9 +3456,9 @@ class building_place_with_road_finder: public building_placefinder_t
 			return dist;
 		}
 
-		virtual bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const
+		virtual bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl, uint16 allowed_regions) const
 		{
-			if(  !building_placefinder_t::is_area_ok(pos, w, h, cl)  ) {
+			if(  !building_placefinder_t::is_area_ok(pos, w, h, cl, allowed_regions)  ) {
 				return false;
 			}
 			bool next_to_road = false;
@@ -3555,7 +3510,7 @@ class building_place_with_road_finder: public building_placefinder_t
 void stadt_t::check_bau_spezial(bool new_town)
 {
 	// tourist attraction buildings
-	const building_desc_t* desc = hausbauer_t::get_special(has_townhall ? bev : 0, building_desc_t::attraction_city, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos));
+	const building_desc_t* desc = hausbauer_t::get_special(has_townhall ? bev : 0, building_desc_t::attraction_city, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos), welt->get_region(pos));
 	if (desc != NULL) {
 		if (simrand(100, "void stadt_t::check_bau_spezial") < (uint)desc->get_distribution_weight()) {
 			// build was immer es ist
@@ -3564,7 +3519,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 			bool is_rotate = desc->get_all_layouts() > 1;
 			sint16 radius = koord_distance( get_rechtsunten(), get_linksoben() )/2 + 10;
 			// find place
-			koord best_pos = building_place_with_road_finder(welt, radius, big_city).find_place(pos, desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), &is_rotate);
+			koord best_pos = building_place_with_road_finder(welt, radius, big_city).find_place(pos, desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), desc->get_allowed_region_bits(), &is_rotate);
 
 			if (best_pos != koord::invalid) {
 				// then built it
@@ -3591,7 +3546,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 		if (desc) {
 			koord total_size = koord(2 + desc->get_x(), 2 + desc->get_y());
 			sint16 radius = koord_distance( get_rechtsunten(), get_linksoben() )/2 + 10;
-			koord best_pos(monument_placefinder_t(welt, radius).find_place(pos, total_size.x, total_size.y, desc->get_allowed_climate_bits()));
+			koord best_pos(monument_placefinder_t(welt, radius).find_place(pos, total_size.x, total_size.y, desc->get_allowed_climate_bits(), desc->get_allowed_region_bits()));
 
 			if (best_pos != koord::invalid) {
 				// check if borders around the monument are inside the map limits
@@ -3682,7 +3637,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 
 void stadt_t::check_bau_townhall(bool new_town)
 {
-	const building_desc_t* desc = hausbauer_t::get_special( bev, building_desc_t::townhall, welt->get_timeline_year_month(), bev == 0, welt->get_climate(pos) );
+	const building_desc_t* desc = hausbauer_t::get_special( bev, building_desc_t::townhall, welt->get_timeline_year_month(), bev == 0, welt->get_climate(pos), welt->get_region(pos) );
 	if(desc != NULL) {
 		grund_t* gr = welt->lookup_kartenboden(pos);
 		gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_obj());
@@ -3849,7 +3804,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 				road1.y = desc->get_y(layout);
 		}
 		if (neugruendung || umziehen) {
-			best_pos = townhall_placefinder_t(welt, dir).find_place(pos, desc->get_x(layout) + (dir & ribi_t::eastwest ? 1 : 0), desc->get_y(layout) + (dir & ribi_t::northsouth ? 1 : 0), desc->get_allowed_climate_bits());
+			best_pos = townhall_placefinder_t(welt, dir).find_place(pos, desc->get_x(layout) + (dir & ribi_t::eastwest ? 1 : 0), desc->get_y(layout) + (dir & ribi_t::northsouth ? 1 : 0), desc->get_allowed_climate_bits(), desc->get_allowed_region_bits());
 		}
 		// check, if the was something found
 		if(best_pos==koord::invalid) {
@@ -4472,6 +4427,7 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 	// does the timeline allow this building?
 	const uint16 current_month = welt->get_timeline_year_month();
 	const climate cl = welt->get_climate_at_height(welt->max_hgt(k));
+	const uint8 region = welt->get_region(k); 
 
 	// Run through orthogonal neighbors (only) looking for which cluster to build
 	// This is a bitmap -- up to 32 clustering types are allowed.
@@ -4506,14 +4462,14 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 	const building_desc_t* h = NULL;
 
 	if (!worker_shortage && (sum_commercial > sum_industrial  &&  sum_commercial > sum_residential)) {
-		h = hausbauer_t::get_commercial(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
+		h = hausbauer_t::get_commercial(0, size_single, current_month, cl, region, new_town, neighbor_building_clusters);
 		if (h != NULL) {
 			want_to_have = building_desc_t::city_com;
 		}
 	}
 
 	if (!worker_shortage && (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_commercial)) {
-		h = hausbauer_t::get_industrial(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
+		h = hausbauer_t::get_industrial(0, size_single, current_month, cl, region, new_town, neighbor_building_clusters);
 		if (h != NULL) {
 			want_to_have = building_desc_t::city_ind;
 		}
@@ -4522,7 +4478,7 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 	if (h == NULL  &&  ((sum_residential > sum_industrial  &&  sum_residential > sum_commercial) || worker_shortage)) {
 		if (!job_shortage || worker_shortage)
 		{
-			h = hausbauer_t::get_residential(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
+			h = hausbauer_t::get_residential(0, size_single, current_month, cl, region, new_town, neighbor_building_clusters);
 		}
 		if (h != NULL) {
 			want_to_have = building_desc_t::city_res;
@@ -4577,13 +4533,11 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 
 bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 {
-	const building_desc_t::btype alt_typ = gb->get_tile()->get_desc()->get_type();
 	if (!gb->is_city_building()) {
 		return false; // only renovate res, com, ind
 	}
 
 	// Now we are sure that this is a city building
-	const int level = gb->get_tile()->get_desc()->get_level();
 	const koord k = gb->get_pos().get_2d();
 
 	//
@@ -4602,6 +4556,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 	// does the timeline allow this building?
 	const uint16 current_month = welt->get_timeline_year_month();
 	const climate cl = welt->get_climate_at_height(gb->get_pos().z);
+	uint8 region = welt->get_region(gb->get_pos().get_2d()); 
 
 	// Run through orthogonal neighbors (only) looking for which cluster to build
 	// This is a bitmap -- up to 32 clustering types are allowed.
@@ -4653,7 +4608,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		// we must check, if we can really update to higher level ...
 		for(uint8 i=0; i<available_sizes.get_count(); i++) {
 			const koord dimension = available_sizes[(i+size_offset)%available_sizes.get_count()];
-			h = hausbauer_t::get_commercial(k, dimension, current_month, cl, false, neighbor_building_clusters);
+			h = hausbauer_t::get_commercial(k, dimension, current_month, cl, region, false, neighbor_building_clusters);
 			if(  h != NULL  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
 				want_to_have = building_desc_t::city_com;
 				sum = sum_commercial;
@@ -4668,7 +4623,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		// we must check, if we can really update to higher level ...
 		for(uint8 i=0; i<available_sizes.get_count(); i++) {
 			const koord dimension = available_sizes[(i+size_offset)%available_sizes.get_count()];
-			h = hausbauer_t::get_industrial(k, dimension, current_month, cl, false, neighbor_building_clusters);
+			h = hausbauer_t::get_industrial(k, dimension, current_month, cl, region, false, neighbor_building_clusters);
 			if(  h != NULL  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
 				want_to_have = building_desc_t::city_ind;
 				sum = sum_industrial;
@@ -4684,7 +4639,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		bool found = false;
 		for(uint8 i=0; i<available_sizes.get_count(); i++) {
 			const koord dimension = available_sizes[(i+size_offset)%available_sizes.get_count()];
-			h = hausbauer_t::get_residential(k, dimension, current_month, cl, false, neighbor_building_clusters);
+			h = hausbauer_t::get_residential(k, dimension, current_month, cl, region, false, neighbor_building_clusters);
 			if(  h != NULL  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
 				want_to_have = building_desc_t::city_res;
 				sum = sum_residential;
@@ -5032,11 +4987,11 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction, bool map_generat
 	sint8 bridge_height;
 	// Prefer "non-AI bridge"
 	koord3d end = bridge_builder_t::find_end_pos(NULL, k3d, zv, bridge, err, bridge_height, false, 0, high_bridge);
-	if(err && *err || koord_distance(k, end.get_2d()) > 3  ) {
+	if((err && *err) || koord_distance(k, end.get_2d()) > 3  ) {
 		// allow "AI bridge"
 		end = bridge_builder_t::find_end_pos(NULL, k3d, zv, bridge, err, bridge_height, true, 0, high_bridge);
 	}
-	if(  err && *err || koord_distance(k, end.get_2d()) > 3  ) {
+	if(  (err && *err) || koord_distance(k, end.get_2d()) > 3  ) {
 		// no bridge short enough
 		return false;
 	}
@@ -5153,12 +5108,34 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 	}
 
 	// we must not built on water or runways etc.
-	if(  bd->hat_wege()  &&  !bd->hat_weg(road_wt)  &&  !bd->hat_weg(track_wt)  ) {
-		return false;
+	if(  bd->hat_wege()  &&  !bd->hat_weg(road_wt)  &&  !bd->hat_weg(track_wt)  )
+	{
+		// But allow destroying unowned degraded ways of liquidated companies.
+		bool allow_deletion = true;
+
+		const weg_t* runway = bd->get_weg(air_wt);
+		allow_deletion &= !runway || (runway->get_player_nr() == PLAYER_UNOWNED && runway->get_max_speed() == 0);
+
+		const weg_t* waterway = bd->get_weg(water_wt);
+		allow_deletion &= !waterway || (!waterway->is_public_right_of_way() && waterway->get_player_nr() == PLAYER_UNOWNED && waterway->is_degraded()); 
+
+		if (!allow_deletion)
+		{
+			return false;
+		}
+	}
+
+	if (bd->hat_weg(road_wt))
+	{
+		const weg_t* road = bd->get_weg(road_wt);
+		if (road->get_owner() != welt->get_public_player() && !welt->get_settings().get_towns_adopt_player_roads() && road->get_max_speed() > 0 && road->get_max_axle_load() > 0)
+		{
+			return false;
+		}
 	}
 
 	// somebody else's things on it?
-	if(  bd->kann_alle_obj_entfernen(NULL)  ) {
+	if (bd->kann_alle_obj_entfernen(NULL)) {
 		return false;
 	}
 
@@ -5212,9 +5189,13 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 		if (sch->get_desc()->get_styp() != type_tram) {
 			// not a tramway
 			ribi_t::ribi r = sch->get_ribi_unmasked();
-			if (!ribi_t::is_straight(r)) {
-				// no building on crossings, curves, dead ends
-				return false;
+			if (!ribi_t::is_straight(r))
+			{
+				// no building on crossings, curves, dead ends unless this is an unowned degraded way
+				if (!(sch->get_player_nr() == PLAYER_UNOWNED && sch->is_degraded()))
+				{
+					return false;
+				}
 			}
 			// just the other directions are allowed
 			allowed_dir &= ~r;
@@ -5433,7 +5414,6 @@ void stadt_t::build(bool new_town, bool map_generation)
 	// renovation
 	koord c( (ur.x + lo.x)/2 , (ur.y + lo.y)/2);
 	uint32 maxdist(koord_distance(ur,c));
-	uint32 halfdist(maxdist / 2);
 	uint32 pop(get_city_population());
 
 	// Renovation range setting
@@ -5593,14 +5573,22 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 	vector_tpl<koord>* result = new vector_tpl<koord>(sizes_list->get_count());
 
 	int cl = 0;
-	for (int i = 0; i < MAX_CLIMATES; i++) {
-		if (hausbauer_t::get_special(0, building_desc_t::townhall, welt->get_timeline_year_month(), false, (climate)i)) {
-			cl |= (1 << i);
+	uint16 regions_allowed = 0;
+	for (uint32 j = 0; j < 16; j++)
+	{
+		for (int i = 0; i < MAX_CLIMATES; i++)
+		{
+			if (hausbauer_t::get_special(0, building_desc_t::townhall, welt->get_timeline_year_month(), false, (climate)i, j))
+			{
+				cl |= (1 << i);
+				regions_allowed |= (1 << j); 
+			}
 		}
 	}
+
 	DBG_DEBUG("karte_t::init()", "get random places in climates %x", cl);
 	// search at least places which are 5x5 squares large
-	slist_tpl<koord>* list = welt->find_squares( 5, 5, (climate_bits)cl, old_x, old_y);
+	slist_tpl<koord>* list = welt->find_squares( 5, 5, (climate_bits)cl, regions_allowed, old_x, old_y);
 	DBG_DEBUG("karte_t::init()", "found %i places", list->get_count());
 	unsigned int weight_max;
 	// unsigned long here -- from weighted_vector_tpl.h(weight field type)
@@ -5714,7 +5702,18 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 					case 15: weight = 2; break;
 					default: weight = 1;
 				}
+
 				f = weight/12.0 - 1.0;
+				/*
+				const uint8 region = wl->get_region(pos);
+				switch (region)
+				{
+					case 0: f *= 1.25; break;
+					case 2: f /= 1.4; break;
+					case 3: f /= 1.2; break;
+					case 5: f /= 1.5; break;
+					default: break;
+				}*/
 			}
 			koord grid_pos(pos.x/grid_step, pos.y/grid_step);
 			terrain_field.at(grid_pos) += f/(grid_step*grid_step);
@@ -5942,7 +5941,7 @@ bool private_car_destination_finder_t::is_target(const grund_t* gr, const grund_
 	return false;
 }
 
-int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_speed, koord from_pos)
+int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_speed, koord)
 {
 	const weg_t *w = gr->get_weg(road_wt);
 	if(!w)
@@ -5977,7 +5976,7 @@ int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_spe
 	const uint32 congestion_percentage = w->get_congestion_percentage();
 	if (congestion_percentage)
 	{
-		speed -= (speed * congestion_percentage) / 100;
+		speed -= (speed * congestion_percentage) / 200;
 		speed = max(4, speed);
 	}
 #endif
@@ -6058,4 +6057,124 @@ void stadt_t::add_city_factory(fabrik_t *fab)
 void stadt_t::remove_city_factory(fabrik_t *fab)
 {
 	city_factories.remove(fab);
+}
+
+void stadt_t::calc_congestion()
+{
+	calc_traffic_level();
+
+	// Calculate the level of congestion.
+	// Used in determining growth and passenger preferences.
+	// If we do not actually calculate private car routes, use a statistical system.
+	// If we do calcualte private car routes, use actual measured congestion from city
+	// route tiles.
+
+	settings_t const& s = welt->get_settings();
+
+	// Old system:
+	// From observations in game: anything < 2, not very congested.
+	// Anything > 4, very congested.
+	// For new system, see http://www.tomtom.com/lib/doc/congestionindex/2013-0322-TomTom-CongestionIndex-2012-Annual-EUR-mi.pdf
+	// @author: jamespetts
+
+	uint16 congestion_density_factor = s.get_congestion_density_factor();
+
+#ifdef MULTI_THREAD
+		int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+	assert(error == 0);
+#endif
+
+	if (s.get_assume_everywhere_connected_by_road() && congestion_density_factor < 32)
+	{
+		// Old method - congestion density factor
+		const uint32 city_size = (ur.x - lo.x + 1) * (ur.y - lo.y + 1);
+		uint32 cars_per_tile_thousandths = (city_history_month[1][HIST_CITYCARS] * 1000) / city_size;
+		const uint32 population_density = (city_history_month[1][HIST_CITICENS] * 10) / city_size;
+		congestion_density_factor *= 100;
+
+		uint32 cars_per_tile_base = 800;
+
+		cars_per_tile_thousandths = welt->calc_adjusted_monthly_figure(cars_per_tile_thousandths);
+		cars_per_tile_base = welt->calc_adjusted_monthly_figure(cars_per_tile_base);
+		congestion_density_factor = welt->calc_adjusted_monthly_figure(congestion_density_factor);
+
+		uint32 congestion = 0;
+		if (cars_per_tile_thousandths > cars_per_tile_base)
+		{
+			if (congestion_density_factor == 0)
+			{
+				congestion = (cars_per_tile_thousandths -= cars_per_tile_base) / 30;
+			}
+			else
+			{
+				congestion = (((cars_per_tile_thousandths -= cars_per_tile_base) / 45) * population_density) / congestion_density_factor;
+			}
+		}
+		city_history_month[0][HIST_CONGESTION] = congestion;
+	}
+
+	else // Congestion density factor > 32 or do not assume everywhere connected by road: new system
+	{
+		// Based on TomTom congestion index system
+		// See http://www.tomtom.com/lib/doc/congestionindex/2013-0322-TomTom-CongestionIndex-2012-Annual-EUR-mi.pdf
+
+		// First - check the length of the road network in the city.
+		// For tile based congestion measurement, use only this.
+		uint32 total_congestion = 0;
+		uint32 road_tiles = 0;
+		for (sint16 j = lo.y; j <= ur.y; ++j)
+		{
+			for (sint16 i = lo.x; i <= ur.x; ++i)
+			{
+				const koord k(i, j);
+				const grund_t* const gr = welt->lookup_kartenboden(k);
+				if (gr)
+				{
+					const weg_t* w = gr->get_weg(road_wt);
+					if (w)
+					{
+						road_tiles++;
+						total_congestion += w->get_congestion_percentage();
+					}
+				}
+			}
+		}
+
+		if (s.get_assume_everywhere_connected_by_road())
+		{
+			uint32 road_hectometers = (road_tiles * (uint32)s.get_meters_per_tile()) / 10;
+			if (road_hectometers == 0)
+			{
+				// Avoid divide by zero errors
+				road_hectometers = 1;
+			}
+
+			// Second - get the number of car trips per hour
+			const sint64 seconds_per_month = welt->ticks_to_seconds(welt->ticks_per_world_month);
+			// Add incoming private cars as these are no longer tracked in the city history statistics to make them clearer.
+			const sint64 trips_per_hour = ((city_history_month[1][HIST_CITYCARS] + incoming_private_cars) * 3600l) / seconds_per_month;
+
+			// Third - combine the information, multiplying by a ratio based on
+			// congestion_density_factor == 141 is the ideal factor based on the 2012 TomTom congestion index for British cities
+			// (Average: range is 70 (London) to 227 (Newcastle/Sunderland).
+			// Further reduce this by the traffic_level factor to adjust for occupancy rates (permille).
+			const sint64 adjusted_ratio = ((sint64)traffic_level * congestion_density_factor) / 1000l;
+			city_history_month[0][HIST_CONGESTION] = (trips_per_hour * adjusted_ratio) / (sint64)road_hectometers;
+		}
+		else if(road_tiles > 0) // Measure congestion by actual tiles.
+		{
+			city_history_month[0][HIST_CONGESTION] = total_congestion / road_tiles;
+		}
+		else
+		{
+			city_history_month[0][HIST_CONGESTION] = 0;
+		}
+	}
+
+	incoming_private_cars = 0;
+
+#ifdef MULTI_THREAD
+	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
+	assert(error == 0);
+#endif
 }

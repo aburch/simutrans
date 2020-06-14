@@ -79,7 +79,7 @@ public:
 
 	void show_info();
 
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	void info(cbuffer_t & buf) const;
 
 	void cleanup(player_t *player);
 

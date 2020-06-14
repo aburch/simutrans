@@ -34,16 +34,25 @@ private:
 	gui_combobox_t	player_select[MAX_PLAYER_COUNT-1];
 	button_t		access_out[MAX_PLAYER_COUNT-1];
 	button_t		access_in[MAX_PLAYER_COUNT-1];
+	button_t		allow_take_over_of_company, cancel_take_over;
+	button_t		take_over_player[MAX_PLAYER_COUNT - 1];
 
 	gui_label_t		player_label;
 	gui_label_t		password_label;
 	gui_label_t		access_label;
 	gui_label_t		cash_label;
+	gui_label_t		company_takeovers;
+	gui_label_t		lb_take_over_player[MAX_PLAYER_COUNT - 1];
+	gui_label_t		lb_take_over_cost[MAX_PLAYER_COUNT - 1];
 
 	cbuffer_t tooltip_out[MAX_PLAYER_COUNT];
 	cbuffer_t tooltip_in[MAX_PLAYER_COUNT];
 
 	button_t	freeplay;
+
+	char text_take_over_cost[MAX_PLAYER_COUNT - 1][50];
+	char text_allow_takeover[50];
+	char text_cancel_takeover[50];
 
 public:
 	ki_kontroll_t();
@@ -54,7 +63,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const {return "players.txt";}
+	const char * get_help_filename() const OVERRIDE {return "players.txt";}
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -62,7 +71,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
@@ -75,7 +84,7 @@ public:
 	void update_data();
 
 	// since no information are needed to be saved to restore this, returning magic is enough
-	virtual uint32 get_rdwr_id() { return magic_ki_kontroll_t; }
+	virtual uint32 get_rdwr_id() OVERRIDE { return magic_ki_kontroll_t; }
 };
 
 #endif

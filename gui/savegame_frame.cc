@@ -51,15 +51,15 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	only_directories(only_directories),
 	searchpath_defined(false),
 	fnlabel("Filename"),
-	use_table(use_table),
 	scrolly(use_table ? (gui_component_t*)&file_table : (gui_component_t*)&button_frame),
 	num_sections(0),
-	delete_enabled(delete_enabled)
+	delete_enabled(delete_enabled),
+	use_table(use_table)
 {
 	init(suffix, path);
 }
 
-void savegame_frame_t::init(const char *suffix, const char *path)
+void savegame_frame_t::init(const char *, const char *path)
 {
 	scr_coord cursor = scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP);
 
@@ -535,7 +535,7 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t
 		destroy_win(this);      //29-Oct-2001         Markus Weber    Added   savebutton case
 	}
 	else if (component == &file_table) {
-		gui_table_event_t *event = (gui_table_event_t *) p.p;
+		const gui_table_event_t *event = (const gui_table_event_t *) p.p;
 		if (event->is_cell_hit) {
 			const event_t *ev = event->get_event();
 			if (file_table_button_pressed && event->cell != pressed_file_table_button) {
@@ -784,7 +784,7 @@ void savegame_frame_t::set_filename(const char *file_name)
 	}
 }
 
-void savegame_frame_t::press_file_table_button(coordinates_t &cell)
+void savegame_frame_t::press_file_table_button(const coordinates_t &cell)
 {
 	pressed_file_table_button = cell;
 	file_table_button_pressed = true;
@@ -815,7 +815,7 @@ void savegame_frame_t::release_file_table_button()
 // BG, 26.03.2010
 void gui_file_table_button_column_t::paint_cell(const scr_coord& offset, coordinate_t /*x*/, coordinate_t /*y*/, const gui_table_row_t &row)
 {
- 	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
+	const gui_file_table_row_t &file_row = (const gui_file_table_row_t&)row;
 	scr_size size = scr_size(get_width(), row.get_height());
 	scr_coord mouse(get_mouse_x() - offset.x, get_mouse_y() - offset.y);
 	if (0 <= mouse.x && mouse.x < size.w && 0 <= mouse.y && mouse.y < size.h){
@@ -835,7 +835,7 @@ void gui_file_table_button_column_t::paint_cell(const scr_coord& offset, coordin
 // BG, 06.04.2010
 void gui_file_table_delete_column_t::paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row)
 {
- 	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
+	const gui_file_table_row_t &file_row = (const gui_file_table_row_t&)row;
 	if (file_row.delete_enabled) {
 		gui_file_table_button_column_t::paint_cell(offset, x, y, row);
 	}
@@ -855,7 +855,7 @@ void gui_file_table_label_column_t::paint_cell(const scr_coord& offset, coordina
 // BG, 26.03.2010
 const char *gui_file_table_action_column_t::get_text(const gui_table_row_t &row) const
 {
- 	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
+	const gui_file_table_row_t &file_row = (const gui_file_table_row_t &)row;
 	return file_row.text.c_str();
 }
 
@@ -870,8 +870,7 @@ void gui_file_table_action_column_t::paint_cell(const scr_coord& offset, coordin
 // BG, 26.03.2010
 time_t gui_file_table_time_column_t::get_time(const gui_table_row_t &row) const
 {
- 	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
-	return file_row.info.st_mtime;
+	return static_cast<const gui_file_table_row_t &>(row).info.st_mtime;
 }
 
 

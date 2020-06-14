@@ -55,6 +55,7 @@ const skin_desc_t* skinverwaltung_t::pausesymbol        = NULL;
 const skin_desc_t* skinverwaltung_t::electricity        = NULL;
 const skin_desc_t* skinverwaltung_t::intown             = NULL;
 const skin_desc_t* skinverwaltung_t::upgradable         = NULL;
+const skin_desc_t* skinverwaltung_t::missing_scheduled_slot = NULL;
 const skin_desc_t* skinverwaltung_t::passengers         = NULL;
 const skin_desc_t* skinverwaltung_t::mail               = NULL;
 const skin_desc_t* skinverwaltung_t::goods              = NULL;
@@ -71,6 +72,7 @@ const skin_desc_t* skinverwaltung_t::pax_evaluation_icons = NULL;
 const skin_desc_t* skinverwaltung_t::mail_evaluation_icons = NULL;
 
 const skin_desc_t* skinverwaltung_t::alerts             = NULL;
+const skin_desc_t* skinverwaltung_t::input_output       = NULL; // industry input/output
 
 // cursors
 const skin_desc_t* skinverwaltung_t::cursor_general     = NULL;	// new cursors
@@ -119,11 +121,13 @@ static spezial_obj_tpl<skin_desc_t> const menu_objekte[] = {
 };
 
 static spezial_obj_tpl<skin_desc_t> const symbol_objekte[] = {
+	{ &skinverwaltung_t::missing_scheduled_slot, "MissingScheduledSlot" },
 	{ &skinverwaltung_t::upgradable,         "Upgradable"     },
 	{ &skinverwaltung_t::pax_evaluation_icons, "PassengersEvaluation" },
 	{ &skinverwaltung_t::mail_evaluation_icons, "MailEvaluation" },
 	{ &skinverwaltung_t::alerts,             "Alerts"         },
 	{ &skinverwaltung_t::goods_categories,   "GoodsCategories"},
+	{ &skinverwaltung_t::input_output,       "InputOutput"    },
 	{ &skinverwaltung_t::seasons_icons,      "Seasons"        },
 	{ &skinverwaltung_t::message_options,    "MessageOptions" },
 	{ &skinverwaltung_t::color_options,      "ColorOptions"   },
@@ -179,7 +183,7 @@ bool skinverwaltung_t::successfully_loaded(skintyp_t type)
 	switch (type) {
 		case menu:    sb = menu_objekte+1;     break;
 		case cursor:  sb = cursor_objekte;     break;
-		case symbol:  sb = symbol_objekte+5;   break;
+		case symbol:  sb = symbol_objekte+7;   break;
 		case misc:
 			sb = misc_objekte+3;
 			// for compatibility: use sidewalk as tunneltexture

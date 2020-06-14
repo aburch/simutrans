@@ -18,11 +18,7 @@ uint32 vehicle_desc_t::calc_running_cost(const karte_t *welt, uint32 base_cost) 
 	}
 
 	// I am not obsolete --> no obsolescence cost increase.
-	uint16 months_after_retire = increase_maintenance_after_years * 12;
-	if(months_after_retire == 0)
-	{
-		months_after_retire = welt->get_settings().get_obsolete_running_cost_increase_phase_years() * 12;
-	}
+	const uint16 months_after_retire = get_obsolete_year_month(welt) - retire_date;
 	sint32 months_of_obsolescence = welt->get_current_month() - (get_retire_year_month() + months_after_retire);
 	if (months_of_obsolescence <= 0)
 	{
@@ -315,8 +311,52 @@ uint16 vehicle_desc_t::get_available_livery_count(karte_t *welt) const
 	return livery_count;
 }
 
+// calculation(auto connect) algorithm is based on tool_change_depot_t::init
+uint8 vehicle_desc_t::calc_auto_connection_length(bool rear_side) const
+{
+	if ((rear_side && trailer_count != 1) || (!rear_side && leader_count != 1))
+	{
+		return 0;
+	}
 
+	slist_tpl<const vehicle_desc_t *>new_vehicle_info;
+	const vehicle_desc_t *next_veh = rear_side ? get_trailer(0) : get_leader(0);
+	if (next_veh == NULL) { return 0; }
+	uint8 len = next_veh ? next_veh->get_length(): 0;
 
+	while (((rear_side && next_veh->get_trailer_count() == 1 && next_veh->get_trailer(0) != NULL) ||
+		(!rear_side && next_veh->get_leader_count() == 1 && next_veh->get_leader(0) != NULL))
+		&& !new_vehicle_info.is_contained(next_veh)) {
+		next_veh = rear_side ? next_veh->get_trailer(0) : next_veh->get_leader(0);
+		new_vehicle_info.insert(next_veh);
+		len += next_veh->get_length();
+	}
+
+	return len;
+}
+
+uint8 vehicle_desc_t::get_auto_connection_vehicle_count(bool rear_side) const
+{
+	if ((rear_side && trailer_count != 1) || (!rear_side && leader_count != 1))
+	{
+		return 0;
+	}
+
+	slist_tpl<const vehicle_desc_t *>new_vehicle_info;
+	const vehicle_desc_t *next_veh = rear_side ? get_trailer(0) : get_leader(0);
+	if (next_veh == NULL) { return 0; }
+	uint8 cnt=1;
+
+	while (((rear_side && next_veh->get_trailer_count() == 1 && next_veh->get_trailer(0) != NULL) ||
+		(!rear_side && next_veh->get_leader_count() == 1 && next_veh->get_leader(0) != NULL))
+		&& !new_vehicle_info.is_contained(next_veh)) {
+		next_veh = rear_side ? next_veh->get_trailer(0) : next_veh->get_leader(0);
+		new_vehicle_info.insert(next_veh);
+		cnt ++;
+	}
+
+	return cnt;
+}
 
 
 void vehicle_desc_t::calc_checksum(checksum_t *chk) const
@@ -355,6 +395,7 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(upgrades);
 	chk->input(is_tilting ? 1 : 0);
 	chk->input(mixed_load_prohibition ? 1 : 0);
+	chk->input(override_way_speed ? 1 : 0); 
 	chk->input(basic_constraint_prev);
 	chk->input(basic_constraint_next);
 	chk->input(way_constraints.get_permissive());

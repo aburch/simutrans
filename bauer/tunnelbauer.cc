@@ -460,8 +460,6 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 
 	// Now we build the invisible part
 	while(pos.get_2d()!=end.get_2d()) {
-		const grund_t* gr = welt->lookup(start);
-		const weg_t* old_way = gr ? gr->get_weg(waytyp) : NULL;
 		tunnelboden_t *tunnel = new tunnelboden_t( pos, 0);
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		if(waytyp != powerline_wt)
@@ -512,6 +510,7 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 		assert(!tunnel->ist_karten_boden());
 		player_t::add_maintenance( player, desc->get_maintenance(), desc->get_finance_waytype() );
 		cost += desc->get_value();
+		cost += way_desc->get_value();
 		pos = pos + zv;
 	}
 
@@ -539,10 +538,10 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 	}
 	else {
 		// construct end tunnel tile
-		const grund_t* gr = welt->lookup(start);
-		const weg_t* old_way = gr ? gr->get_weg(waytyp) : NULL;
 		tunnelboden_t *tunnel = new tunnelboden_t( pos, 0);
+
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
+
 		if(waytyp != powerline_wt) {
 			weg = weg_t::alloc(desc->get_waytype());
 			weg->set_desc(way_desc);
@@ -580,6 +579,7 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 		assert(!tunnel->ist_karten_boden());
 		player_t::add_maintenance( player,  desc->get_maintenance(), desc->get_finance_waytype() );
 		cost += desc->get_value();
+		cost += way_desc->get_value();
 	}
 
 	player_t::book_construction_costs(player, -cost, start.get_2d(), desc->get_waytype());

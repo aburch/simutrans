@@ -31,7 +31,7 @@ public:
 	char const* get_text() const OVERRIDE;
 	void set_text(char const*) OVERRIDE;
 	bool is_valid() OVERRIDE { return line.is_bound(); }	//  can be used to indicate invalid entries
-	bool is_editable() { return true; }
+	bool is_editable() OVERRIDE { return true; }
 };
 
 #endif

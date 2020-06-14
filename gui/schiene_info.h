@@ -40,11 +40,11 @@ protected:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *get_help_filename() const { return "track_info.txt"; }
+	const char *get_help_filename() const OVERRIDE { return "track_info.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	virtual void draw(scr_coord pos, scr_size size);
+	virtual void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	// called, after external change
 	//void update_data();

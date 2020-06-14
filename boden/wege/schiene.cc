@@ -80,11 +80,11 @@ void schiene_t::show_info()
 }
 
 
-void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
+void schiene_t::info(cbuffer_t & buf) const
 {
-	weg_t::info(buf, is_bridge);
+	weg_t::info(buf);
 
-	schiene_t* sch = (schiene_t*)this;
+	const schiene_t* sch = static_cast<const schiene_t *>(this);
 
 	uint8 textlines = 1; // to locate the clickable button
 	if (reserved.is_bound())
@@ -112,11 +112,11 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 		case monorail_wt:
 		case maglev_wt:
 			rail_vehicle = (rail_vehicle_t*)reserved->front();
+		default: break;
 		}
 
 		if (rail_vehicle)
 		{
-
 			buf.append(translator::translate(get_working_method_name(rail_vehicle->get_working_method())));
 			textlines += 1;
 			buf.append("\n   ");
@@ -183,7 +183,6 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 #ifdef DEBUG_PBS
 		reserved->show_info();
 #endif
-
 	}
 	else
 	{

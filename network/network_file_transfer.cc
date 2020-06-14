@@ -232,7 +232,7 @@ const char *network_connect(const char *cp, karte_t *world)
 		// guaranteed individual file name ...
 		char filename[256];
 		sprintf( filename, "client%i-network.sve", network_get_client_id() );
-		if(  err = network_receive_file( my_client_socket, filename, len )  ) {
+		if(  (err = network_receive_file( my_client_socket, filename, len )) != NULL  ) {
 			goto end;
 		}
 		// Knightly : update iteration limits

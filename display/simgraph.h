@@ -160,10 +160,10 @@ void display_free_all_images_above(image_id above);
 
 // unzoomed offsets
 //void display_set_base_image_offset( unsigned image, KOORD_VAL xoff, KOORD_VAL yoff );
-void display_get_base_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw);
+void display_get_base_image_offset(image_id image, scr_coord_val& xoff, scr_coord_val& yoff, scr_coord_val& xw, scr_coord_val& yw);
 // zoomed offsets
 void display_get_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw);
-void display_get_base_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw);
+//void display_get_base_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw);
 void display_mark_img_dirty(image_id image, KOORD_VAL x, KOORD_VAL y);
 
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to screen only
@@ -215,6 +215,9 @@ void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const 
 
 // display image with color (if there) and optional day and night change
 void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+
+// displays image that shows a tooltip when hovering the mouse over
+void display_color_img_with_tooltip(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const char *text  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 
 // display unzoomed image
 void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
@@ -400,6 +403,9 @@ void display_circle_rgb(KOORD_VAL x0, KOORD_VAL  y0, int radius, const PIXVAL co
 #define display_circle(xp,yp,radius,color) display_circle_rgb( xp,yp,radius,specialcolormap_all_day[(color)&0xFF] )
 void display_filled_circle_rgb(KOORD_VAL x0, KOORD_VAL  y0, int radius, const PIXVAL color);
 #define display_filled_circle(xp,yp,radius,color) display_filled_circle_rgb( xp,yp,radius,specialcolormap_all_day[(color)&0xFF] )
+int display_fluctuation_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, const bool dirty, sint64 value=0);
+#define display_fluctuation_triangle(xp,yp,height,dirty,positive) display_fluctuation_triangle_rgb( xp,yp,height,dirty,positive )
+
 void draw_bezier_rgb(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_VAL ADx, KOORD_VAL ADy, KOORD_VAL BDx, KOORD_VAL BDy, const PIXVAL colore, KOORD_VAL draw, KOORD_VAL dontDraw);
 #define draw_bezier(xp,yp,xd,yd,ADx,ADy,BDx,BDy,color,draw,dont_draw) draw_bezier_rgb( xp,yp,xd,yd,ADx,ADy,BDx,BDy,specialcolormap_all_day[(color)&0xFF],draw,dont_draw )
 

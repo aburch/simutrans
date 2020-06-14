@@ -283,11 +283,7 @@ public:
 	*/
 	const char* get_text() const;
 
-	/**
-	* @return NULL
-	* @author Hj. Malthaner
-	*/
-	virtual void info(cbuffer_t & buf, bool dummy = false) const;
+	virtual void info(cbuffer_t & buf) const;
 
 	/**
 	* Auffforderung, ein Infofenster zu oeffnen.

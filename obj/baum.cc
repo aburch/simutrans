@@ -622,7 +622,7 @@ void baum_t::show_info()
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void baum_t::info(cbuffer_t & buf, bool dummy) const
+void baum_t::info(cbuffer_t &buf) const
 {
 	obj_t::info(buf);
 
