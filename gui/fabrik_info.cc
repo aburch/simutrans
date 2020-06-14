@@ -173,7 +173,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TAB_HEADER_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT + tabs.get_size().h));
 
-	tabs.set_size(get_client_windowsize() - tabs.get_pos());
+	tabs.set_size(get_client_windowsize() - tabs.get_pos() - scr_size(0, 1));
 
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0,0));
@@ -222,7 +222,7 @@ void fabrik_info_t::set_windowsize(scr_size size)
 	staffing_bar.set_pos(scr_coord(view.get_pos().x + 1, view.get_pos().y + view.get_size().h));
 	staffing_bar.set_size(scr_size(view.get_size().w-2, D_INDICATOR_HEIGHT));
 
-	tabs.set_size(get_client_windowsize() - tabs.get_pos());
+	tabs.set_size(get_client_windowsize() - tabs.get_pos() - scr_size(0, 1));
 }
 
 
@@ -371,7 +371,6 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	}
 	else if (tabstate != tabs.get_active_tab_index() || get_windowsize().h == get_min_windowsize().h) {
 		tabstate = tabs.get_active_tab_index();
-		//const sint16 offset_below_viewport = D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + max(prod.get_size().h + storage.get_size().h, view.get_size().h + 8) + LINESPACE * 3;
 		switch (tabstate)
 		{
 			case 0: // info
