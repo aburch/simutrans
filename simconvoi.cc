@@ -3237,8 +3237,7 @@ void convoi_t::init_financial_history()
 sint64 convoi_t::get_fixed_cost() const
 {
 	sint64 fix_cost = 0;
-	FOR(array_tpl<vehicle_t*>,const v,fahr)
-	for(  unsigned i = 0;  i < get_vehicle_count();  i++  ) {
+	FOR(array_tpl<vehicle_t*>,const v,fahr) {
 		fix_cost += welt->scale_with_month_length( v->get_desc()->get_fixed_cost() );
 	}
 	return fix_cost;
