@@ -127,10 +127,11 @@ SQInteger exp_obj_pos_constructor(HSQUIRRELVM vm) // parameters: sint16 x, sint1
 	for(uint8 i=1, end = ground_desc_t::double_grounds ? 2 : 1; gr == NULL  &&  i<=end; i++) {
 		gr = welt->lookup(koord3d(pos, z-i));
 	}
-	// correct z-coordinate
-	set_slot(vm, "z", gr->get_pos().z, 1);
 	// find object and set instance up
 	if (gr) {
+		// correct z-coordinate
+		set_slot(vm, "z", gr->get_pos().z, 1);
+		// search for object
 		obj_t::typ type = (obj_t::typ)param<uint8>::get(vm, 5);
 		obj_t *obj = NULL;
 		if (type == obj_t::roadsign  ||  type == obj_t::signal) {
