@@ -48,6 +48,8 @@ static const int fab_alert_level[fabrik_t::MAX_FAB_STATUS] =
 	0
 };
 
+sint16 fabrik_info_t::tabstate = 0;
+
 fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	gui_frame_t("", fab_->get_owner()),
 	storage(fab_),
@@ -366,6 +368,29 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		sprintf(key, "factory_%s_details", fab->get_desc()->get_name());
 		frame->set_text(translator::translate(key));
 		create_win(frame, w_info, (ptrdiff_t)this);
+	}
+	else if (tabstate != tabs.get_active_tab_index() || get_windowsize().h == get_min_windowsize().h) {
+		tabstate = tabs.get_active_tab_index();
+		//const sint16 offset_below_viewport = D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + max(prod.get_size().h + storage.get_size().h, view.get_size().h + 8) + LINESPACE * 3;
+		switch (tabstate)
+		{
+			case 0: // info
+			default:
+				tabs.set_size(scrolly_info.get_size());
+				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + D_V_SPACE*2 + min(22 * LINESPACE, container_info.get_size().h)));
+				break;
+			case 1: // goods chart 
+				goods_chart.recalc_size();
+				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + goods_chart.get_size().h));
+				break;
+			case 2: // prod chart
+				chart.recalc_size();
+				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + chart.get_size().h));
+				break;
+			case 3: // details 
+				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + D_V_SPACE*2 + container_details.get_size().h));
+				break;
+		}
 	}
 
 	return true;

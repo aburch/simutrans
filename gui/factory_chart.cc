@@ -297,6 +297,16 @@ void factory_chart_t::rdwr( loadsave_t *file )
 	}
 }
 
+void factory_chart_t::recalc_size()
+{
+	if (factory) {
+		set_size(scr_size(get_size().w, CHART_HEIGHT + 6 * (D_BUTTON_HEIGHT + D_H_SPACE) + D_MARGINS_Y + LINESPACE));
+	}
+	else {
+		set_size(scr_size(400, LINESPACE + 1));
+	}
+}
+
 
 factory_goods_chart_t::factory_goods_chart_t(const fabrik_t *_factory) :
 	factory(NULL),
@@ -400,7 +410,7 @@ void factory_goods_chart_t::set_factory(const fabrik_t *_factory)
 
 
 	const int max_rows = max(goods_label_row, label_pos[MAX_PROD_LABEL - 1].y + 1);
-	const scr_size size(20 + 80 + CHART_WIDTH + (input_count > 0 ? D_H_SPACE + D_BUTTON_WIDTH : 0), D_TAB_HEADER_HEIGHT + CHART_HEIGHT + 20 + max_rows * D_BUTTON_HEIGHT + (max_rows - 1)*D_H_SPACE + D_MARGIN_TOP + D_MARGIN_BOTTOM);
+	const scr_size size(20 + 80 + CHART_WIDTH + (input_count > 0 ? D_H_SPACE + D_BUTTON_WIDTH : 0), D_TAB_HEADER_HEIGHT + CHART_HEIGHT + 20 + max_rows * D_BUTTON_HEIGHT + (max_rows - 1)*D_H_SPACE + D_MARGINS_Y);
 	set_size(size);
 }
 
@@ -455,6 +465,17 @@ void factory_goods_chart_t::rdwr(loadsave_t *file)
 				goods_chart.show_curve(b);
 			}
 		}
+	}
+}
+
+void factory_goods_chart_t::recalc_size()
+{
+	if (factory) {
+		uint rows = factory->get_input().get_count() * 2 + 1 + factory->get_output().get_count() + 1;
+		set_size(scr_size(get_size().w, CHART_HEIGHT + rows * (D_BUTTON_HEIGHT + D_H_SPACE) + D_MARGINS_Y + LINESPACE));
+	}
+	else {
+		set_size(scr_size(400, LINESPACE + 1));
 	}
 }
 

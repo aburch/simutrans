@@ -42,6 +42,8 @@ public:
 
 	virtual void draw(scr_coord pos) OVERRIDE;
 
+	void recalc_size();
+
 	void rdwr( loadsave_t *file );
 };
 
@@ -71,6 +73,8 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	virtual void draw(scr_coord pos) OVERRIDE;
+
+	void recalc_size();
 
 	void rdwr(loadsave_t *file);
 };

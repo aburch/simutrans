@@ -55,6 +55,7 @@ private:
 	cbuffer_t factory_status;
 
 	gui_tab_panel_t tabs;
+	static sint16 tabstate;
 
 	factory_goods_chart_t goods_chart;
 	factory_chart_t chart;
