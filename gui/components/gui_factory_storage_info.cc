@@ -103,28 +103,24 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 				left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				left += D_H_SPACE;
 
+				buf.clear();
 				// [in transit]
 				if (fab->get_status() != fabrik_t::inactive) {
-				buf.clear();
 					//const bool in_transit_over_storage = (stock_quantity + (uint32)goods.get_in_transit() > storage_capacity);
+					const sint32 actual_max_transit = max(goods.get_in_transit(), max_transit);
 					if (skinverwaltung_t::in_transit) {
 						display_color_img_with_tooltip(skinverwaltung_t::in_transit->get_image_id(0), pos.x + offset.x + left, pos.y + offset.y + yoff, 0, false, false, translator::translate("symbol_help_txt_in_transit"));
 						left += 14;
 					}
-					buf.append(goods.get_in_transit(), 0);
-					left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+					buf.printf("%i/%i", goods.get_in_transit(), actual_max_transit);
+					COLOR_VAL col = actual_max_transit == 0 ? COL_RED : max_transit == 0 ? COL_DARK_ORANGE: SYSCOL_TEXT;
+					left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, col, true);
 					buf.clear();
-					if (max_intransit_percentage) {
-						buf.printf("/%i", max_transit);
-					}
 					buf.append(", ");
-					left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-					left += D_H_SPACE;
 				}
 
 
 				// [monthly production]
-				buf.clear();
 				const uint32 monthly_prod = (uint32)(fab->get_current_production()*pfactor * 10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
 				buf.append((float)monthly_prod / 10.0, monthly_prod < 100 ? 1 : 0);
 				buf.printf("%s%s", translator::translate(goods.get_typ()->get_mass()), translator::translate("/month"));
@@ -303,7 +299,7 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 		fabrik_t *target_fab = fabrik_t::get_fab(k);
 
 		if (target_fab) {
-			const bool is_connected = display_input ?
+			const bool is_active = display_input ?
 				target_fab->is_active_lieferziel(fab->get_pos().get_2d()) :
 				fab->is_active_lieferziel(k);
 			const bool is_connected_to_own_network = fab->is_connect_own_network() && target_fab->is_connect_own_network();
@@ -332,19 +328,19 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 
 			// [status color bar]
 			if (fab->get_status() >= fabrik_t::staff_shortage) {
-				display_ddd_box_clip(offset.x + xoff, offset.y + yoff + 2, D_INDICATOR_WIDTH/2, D_INDICATOR_HEIGHT + 2, COL_STAFF_SHORTAGE, COL_STAFF_SHORTAGE);
+				display_ddd_box_clip(offset.x + xoff, offset.y + yoff + 2, D_INDICATOR_WIDTH / 2, D_INDICATOR_HEIGHT + 2, COL_STAFF_SHORTAGE, COL_STAFF_SHORTAGE);
 			}
 			COLOR_VAL col = fabrik_t::status_to_color[target_fab->get_status() % fabrik_t::staff_shortage];
 			uint indikatorfarbe = fabrik_t::status_to_color[target_fab->get_status() % fabrik_t::staff_shortage];
-			display_fillbox_wh_clip(offset.x + xoff+1, offset.y + yoff + 3, D_INDICATOR_WIDTH/2-1, D_INDICATOR_HEIGHT, col, true);
-			xoff += D_INDICATOR_WIDTH/2+3;
+			display_fillbox_wh_clip(offset.x + xoff + 1, offset.y + yoff + 3, D_INDICATOR_WIDTH / 2 - 1, D_INDICATOR_HEIGHT, col, true);
+			xoff += D_INDICATOR_WIDTH / 2 + 3;
 
 			// [name]
 			buf.clear();
 			buf.printf("%s (%d,%d) - ", target_fab->get_name(), k.x, k.y);
 			xoff += display_proportional_clip(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			if (is_connected) {
-				display_color_img_with_tooltip(transport_goods->get_catg_symbol(), offset.x + xoff-2, offset.y + yoff, 0, false, false, translator::translate("hlptxt_factory_connected"));
+			if (is_active) {
+				display_color_img_with_tooltip(transport_goods->get_catg_symbol(), offset.x + xoff - 2, offset.y + yoff, 0, false, false, translator::translate("hlptxt_factory_connected"));
 				xoff += 11;
 			}
 			col = is_within_own_network ? SYSCOL_TEXT : COL_GREY3;
@@ -366,62 +362,93 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 
 			xoff += D_H_SPACE;
 			// [goods color box] This design is the same as the goods list
-			display_ddd_box_clip(offset.x + xoff, offset.y + yoff+2, 8, 8, MN_GREY0, MN_GREY4);
+			display_ddd_box_clip(offset.x + xoff, offset.y + yoff + 2, 8, 8, MN_GREY0, MN_GREY4);
 			display_fillbox_wh_clip(offset.x + xoff + 1, offset.y + yoff + 3, 6, 6, transport_goods->get_color(), true);
 			xoff += 12;
 
-			// [lead time]
-			const uint32 lead_time = display_input ? fab->get_lead_time(transport_goods) : target_fab->get_lead_time(transport_goods);
-			buf.clear();
-			if (lead_time == UINT32_MAX_VALUE || (display_input && !is_connected)) {
-				buf.append("--:--:--");
-				col = COL_GREY4;
-			}
-			else {
-				char lead_time_as_clock[32];
-				welt->sprintf_time_tenths(lead_time_as_clock, 32, lead_time);
-				buf.append(lead_time_as_clock);
-				col = is_connected_to_own_network ? SYSCOL_TEXT : COL_GREY4;
-			}
-			xoff += display_proportional_clip(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, col, true);
-			xoff += D_H_SPACE*2;
-
-			buf.clear();
-			// [max transit] for consumer
-			sint32 max_transit=-1;
-			sint32 in_transit = 0;
-			sint32 goods_needed = 0;
-			int index = 0;
-			if (!display_input) {
-				// NOTE: this is not the only shipping situation from THIS factory.
-				// may have been shipped from another factory.
-				// but we can't tell it apart, and that affects shipping from this factory.
-				FORX(array_tpl<ware_production_t>, const& buyingup_goods, target_fab->get_input(), index++) {
-					if (transport_goods == buyingup_goods.get_typ()) {
-						const sint64 pfactor = target_fab->get_desc()->get_supplier(index) ? (sint64)target_fab->get_desc()->get_supplier(index)->get_consumption() : 1ll;
-						max_transit = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)buyingup_goods.max_transit * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
-						goods_needed = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)(target_fab->goods_needed(buyingup_goods.get_typ())) * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
-						in_transit = buyingup_goods.get_in_transit();
-						break;
-					}
-				}
-				if (max_transit > 0) {
-					if (skinverwaltung_t::in_transit) {
-						display_color_img_with_tooltip(skinverwaltung_t::in_transit->get_image_id(0), offset.x + xoff, offset.y + yoff, 0, false, false, translator::translate("Incoming shippment status of this item for this factory"));
-						xoff += 14;
-					}
-					buf.printf("%i/%i (%i)", in_transit, max_transit, goods_needed);
+			if (target_fab->get_status() != fabrik_t::inactive && fab->get_status() != fabrik_t::inactive) {
+				// [lead time]
+				const uint32 lead_time = display_input ? fab->get_lead_time(transport_goods) : target_fab->get_lead_time(transport_goods);
+				buf.clear();
+				if (lead_time == UINT32_MAX_VALUE) {
+					buf.append("--:--:--");
+					col = COL_GREY4;
 				}
 				else {
-					if (skinverwaltung_t::pax_evaluation_icons) {
-						display_color_img_with_tooltip(skinverwaltung_t::pax_evaluation_icons->get_image_id(4), offset.x + xoff, offset.y + yoff, 0, false, false, translator::translate("Incoming shippment status of this item for this factory"));
-						xoff += 14;
-					}
-					buf.append(translator::translate("Shipment is suspended"));
+					char lead_time_as_clock[32];
+					welt->sprintf_time_tenths(lead_time_as_clock, 32, lead_time);
+					buf.append(lead_time_as_clock);
+					col = is_connected_to_own_network ? SYSCOL_TEXT : COL_GREY4;
 				}
-			}
+				xoff += display_proportional_clip(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, col, true);
+				xoff += D_H_SPACE * 2;
 
-			xoff += display_proportional_clip(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, col, true);
+				buf.clear();
+				// [max transit] for consumer
+				sint32 max_transit = -1;
+				sint32 in_transit = 0;
+				sint32 goods_needed = 0;
+				int index = 0;
+				if (!display_input) {
+					// NOTE: this is not the only shipping situation from THIS factory.
+					// may have been shipped from another factory.
+					// but we can't tell it apart, and that affects shipping from this factory.
+					FORX(array_tpl<ware_production_t>, const& buyingup_goods, target_fab->get_input(), index++) {
+						if (transport_goods == buyingup_goods.get_typ()) {
+							const sint64 pfactor = target_fab->get_desc()->get_supplier(index) ? (sint64)target_fab->get_desc()->get_supplier(index)->get_consumption() : 1ll;
+							goods_needed = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)(target_fab->goods_needed(buyingup_goods.get_typ())) * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+							max_transit = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)buyingup_goods.max_transit * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+							in_transit = buyingup_goods.get_in_transit();
+							break;
+						}
+					}
+					if (max(in_transit, min(max_transit, goods_needed))) {
+						if (skinverwaltung_t::in_transit) {
+							display_color_img_with_tooltip(skinverwaltung_t::in_transit->get_image_id(0), offset.x + xoff, offset.y + yoff, 0, false, false, translator::translate("Incoming shippment status of this item for this factory"));
+							xoff += 14;
+						}
+						//buf.printf("%i/%i (%i)", in_transit, max_transit, goods_needed);
+						buf.printf("%i/%i", in_transit, max(in_transit, min(max_transit, goods_needed)));
+					}
+					else {
+						if (skinverwaltung_t::pax_evaluation_icons) {
+							display_color_img_with_tooltip(skinverwaltung_t::pax_evaluation_icons->get_image_id(4), offset.x + xoff, offset.y + yoff, 0, false, false, translator::translate("Shipment has been suspended due to consumption demand"));
+							xoff += 14;
+						}
+						buf.append(translator::translate("Shipment is suspended"));
+					}
+				}
+				else {
+					// - supplier
+					// We do not know which supplier the goods are coming from.
+					// So it doesn't show the number in transit, just informs player that this factory has stopped the order.
+					FORX(array_tpl<ware_production_t>, const& buyingup_goods, fab->get_input(), index++) {
+						if (transport_goods == buyingup_goods.get_typ()) {
+							const sint64 pfactor = fab->get_desc()->get_supplier(index) ? (sint64)fab->get_desc()->get_supplier(index)->get_consumption() : 1ll;
+							goods_needed = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)(fab->goods_needed(buyingup_goods.get_typ())) * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+							//max_transit = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)buyingup_goods.max_transit * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+							in_transit = buyingup_goods.get_in_transit();
+							break;
+						}
+					}
+					if (!in_transit && goods_needed <= 0) {
+						if (skinverwaltung_t::pax_evaluation_icons) {
+							display_color_img_with_tooltip(skinverwaltung_t::pax_evaluation_icons->get_image_id(4), offset.x + xoff, offset.y + yoff, 0, false, false, translator::translate("Shipment has been suspended due to consumption demand"));
+							xoff += 14;
+						}
+						buf.append(translator::translate("Shipment is suspended"));
+					}
+					else if (goods_needed <= 0) {
+						if (skinverwaltung_t::alerts) {
+							display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(3), offset.x + xoff, offset.y + yoff, 0, false, false, translator::translate("Suspension of new orders due to sufficient supply"));
+							xoff += 14;
+						}
+					}
+					//buf.printf("%i/%i (%i)", in_transit, max_transit, goods_needed);
+				}
+
+				xoff += display_proportional_clip(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, col, true);
+			}
 
 			// goto button
 			bool selected = sel == 0 || welt->get_viewport()->is_on_center(target_fab->get_pos());
