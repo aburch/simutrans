@@ -1458,8 +1458,17 @@ void convoi_t::new_month()
 	// book fixed cost as running cost
 	book( sum_fixed_costs, CONVOI_OPERATIONS );
 	book( sum_fixed_costs, CONVOI_PROFIT );
-	get_owner()->book_running_costs( sum_fixed_costs, get_schedule()->get_waytype());
-	jahresgewinn = sum_fixed_costs;
+	// since convois can be in the depot, the waytypewithout schedule is determined from the vechile (if there)
+	// one can argue that convois in depots should not cost money ...
+	waytype_t wtyp = ignore_wt;
+	if(  schedule_t* s = get_schedule()  ) {
+		wtyp = s->get_waytype();
+	}
+	else if(  !fahr.empty()  ) {
+		wtyp = fahr[0]->get_waytype();
+	}
+	get_owner()->book_running_costs( sum_fixed_costs, wtyp );
+	jahresgewinn += sum_fixed_costs;
 }
 
 
@@ -3225,11 +3234,12 @@ void convoi_t::init_financial_history()
 }
 
 
-sint32 convoi_t::get_fixed_cost() const
+sint64 convoi_t::get_fixed_cost() const
 {
-	sint32 fix_cost = 0;
+	sint64 fix_cost = 0;
+	FOR(array_tpl<vehicle_t*>,const v,fahr)
 	for(  unsigned i = 0;  i < get_vehicle_count();  i++  ) {
-		fix_cost += welt->scale_with_month_length( fahr[i]->get_desc()->get_fixed_cost() );
+		fix_cost += welt->scale_with_month_length( v->get_desc()->get_fixed_cost() );
 	}
 	return fix_cost;
 }

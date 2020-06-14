@@ -444,7 +444,7 @@ public:
 	/**
 	 * @return the total monthly fix cost for all vehicles in convoi
 	 */
-	sint32 get_fixed_cost() const;
+	sint64 get_fixed_cost() const;
 
 	/**
 	 * returns the total running cost for all vehicles in convoi
