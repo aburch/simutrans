@@ -90,6 +90,8 @@ private:
 	button_t(const button_t&);        // forbidden
 	void operator =(const button_t&); // forbidden
 
+	image_id image;
+
 public:
 	COLOR_VAL background_color; //@author hsiegeln
 	COLOR_VAL text_color;
@@ -129,6 +131,8 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void set_tooltip(const char * tooltip);
+
+	void set_image(image_id b) { image = b; };
 
 	/**
 	 * @return true when x, y is within button area, i.e. the button was clicked
