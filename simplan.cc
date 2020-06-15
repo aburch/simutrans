@@ -614,11 +614,12 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 
 	gr->display_overlay( xpos, ypos );
 	if(  ground_size > 1  ) {
+		const sint16 raster_tile_width = get_tile_raster_width();
 		const sint8 h0 = gr->get_disp_height();
 		for(  uint8 i = 1;  i < ground_size;  i++  ) {
 			grund_t* gr = data.some[i];
 			const sint8 h = gr->get_disp_height();
-			const sint16 yypos = ypos - (h - h0 ) * get_tile_raster_width() / 2;
+			const sint16 yypos = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width );
 			gr->display_overlay( xpos, yypos );
 		}
 	}
