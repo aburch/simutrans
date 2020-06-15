@@ -2321,7 +2321,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				sum_fixed_costs -= welt->scale_with_month_length( info->get_fixed_cost() );
 				is_electric |= info->get_engine_type()==vehicle_desc_t::electric;
 				has_obsolete |= welt->use_timeline()  &&  info->is_retired( welt->get_timeline_year_month() );
-				player_t::add_maintenance( get_owner(), info->get_maintenance(), info->get_waytype() );
+				// we do not add maintenance here, the fixed costs are booked as running costs
 			}
 
 			// some versions save vehicles after leaving depot with koord3d::invalid
@@ -3166,7 +3166,7 @@ void convoi_t::destroy()
 			fahr[i]->set_flag( obj_t::not_on_map );
 
 		}
-		player_t::add_maintenance( owner, -fahr[i]->get_desc()->get_maintenance(), fahr[i]->get_desc()->get_waytype() );
+		// no need to substract maintenance, since it is booked as running costs
 
 		fahr[i]->discard_cargo();
 		fahr[i]->cleanup(owner);
@@ -3231,26 +3231,6 @@ void convoi_t::init_financial_history()
 			financial_history[k][j] = 0;
 		}
 	}
-}
-
-
-sint64 convoi_t::get_fixed_cost() const
-{
-	sint64 fix_cost = 0;
-	FOR(array_tpl<vehicle_t*>,const v,fahr) {
-		fix_cost += welt->scale_with_month_length( v->get_desc()->get_fixed_cost() );
-	}
-	return fix_cost;
-}
-
-
-sint32 convoi_t::get_running_cost() const
-{
-	sint32 running_cost = 0;
-	for(  unsigned i = 0;  i < get_vehicle_count();  i++  ) {
-		running_cost += fahr[i]->get_operating_cost();
-	}
-	return running_cost;
 }
 
 

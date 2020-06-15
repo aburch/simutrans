@@ -291,12 +291,6 @@ public:
 	virtual bool new_month();
 
 	/**
-	* Called monthly by simworld.cc during simulation
-	* @returns false if player has to be removed (bankrupt/inactive)
-	*/
-	void new_month_linemanagement() { simlinemgmt.new_month();  }
-
-	/**
 	 * Called yearly by simworld.cc during simulation
 	 */
 	virtual void new_year() {}

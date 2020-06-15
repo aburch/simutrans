@@ -3754,7 +3754,6 @@ void karte_t::new_month()
 	DBG_MESSAGE( "karte_t::new_month()", "Month (%d/%d) has started", (last_month % 12) + 1, last_month / 12 );
 
 	// this should be done before a map update, since the map may want an update of the way usage
-//	DBG_MESSAGE("karte_t::new_month()","ways");
 	FOR( slist_tpl<weg_t*>, const w, weg_t::get_alle_wege() ) {
 		w->new_month();
 	}
@@ -3763,21 +3762,6 @@ void karte_t::new_month()
 	minimap_t::get_instance()->new_month();
 
 	INT_CHECK( "simworld 1701" );
-
-	// the lines finanance history must update before the convois
-	for(  uint i=0;  i < MAX_PLAYER_COUNT;  i++  ) {
-		if(  players[i]  ) {
-			players[i]->new_month_linemanagement();
-		}
-	}
-
-//	DBG_MESSAGE("karte_t::new_month()","convois");
-	// call new month for convois
-	FOR(vector_tpl<convoihandle_t>, const cnv, convoi_array) {
-		cnv->new_month();
-	}
-
-	INT_CHECK("simworld 1701");
 
 //	DBG_MESSAGE("karte_t::new_month()","factories");
 	FOR(slist_tpl<fabrik_t*>, const fab, fab_list) {
@@ -3812,6 +3796,13 @@ void karte_t::new_month()
 		}
 	}
 
+	//	DBG_MESSAGE("karte_t::new_month()","convois");
+	// call new month for convois, must be after player, because fixed costs are booked here and to connected lines
+	FOR(vector_tpl<convoihandle_t>, const cnv, convoi_array) {
+		cnv->new_month();
+	}
+
+	INT_CHECK("simworld 1701");
 	// update the window
 	ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
 	if(  playerwin  ) {

@@ -381,6 +381,9 @@ bool player_t::new_month()
 		}
 	}
 
+	// update line info
+	simlinemgmt.new_month();
+
 	// subtract maintenance after bankruptcy check
 	finance->book_account( -finance->get_maintenance_with_bits(TT_ALL) );
 
