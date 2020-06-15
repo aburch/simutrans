@@ -768,7 +768,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 			buf.append(translator::translate(line_alert_helptexts[0]));
 		}
 	}
-	if (line->get_state() & simline_t::line_has_upgradeable_vehicles) {
+	if (line->count_convoys() && line->get_state() & simline_t::line_has_upgradeable_vehicles) {
 		if (skinverwaltung_t::upgradable) {
 			display_color_img_with_tooltip(skinverwaltung_t::upgradable->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[4]));
 			left += GOODS_SYMBOL_CELL_WIDTH;
@@ -777,7 +777,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 			buf.append(translator::translate(line_alert_helptexts[4]));
 		}
 	}
-	if (line->get_state() & simline_t::line_has_obsolete_vehicles) {
+	if (line->count_convoys() && line->get_state() & simline_t::line_has_obsolete_vehicles) {
 		if (skinverwaltung_t::alerts) {
 			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[2]));
 			left += GOODS_SYMBOL_CELL_WIDTH;
@@ -786,7 +786,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 			buf.append(translator::translate(line_alert_helptexts[2]));
 		}
 	}
-	if (line->get_state() & simline_t::line_overcrowded) {
+	if (line->count_convoys() && line->get_state() & simline_t::line_overcrowded) {
 		if (skinverwaltung_t::pax_evaluation_icons) {
 			display_color_img_with_tooltip(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[3]));
 			left += GOODS_SYMBOL_CELL_WIDTH;
