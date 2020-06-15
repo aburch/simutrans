@@ -26,8 +26,8 @@
 	ADD: (Yona-TNT) configurable offsets for player colors for gui elements
 	ADD: convois (in convoi list and schedule) also show their next stop with a posbutton to jump there
 	ADD: caseless matching in depots, lines, halt and convoi list dialogs even with umlaute
-	CHG: fixed vehicle costs are now booked as running costs at the begin of a month
-	CHG: a server will puase without clients if '-pause' is set on the command line
+	CHG: fixed vehicle costs are now booked as running costs at the begin of a month, also convoi details changed to accomodate
+	CHG: a server will pause without clients if '-pause' is set on the command line
 
 
 Release of 121.0 (r8870 on 1-Dec-2019):

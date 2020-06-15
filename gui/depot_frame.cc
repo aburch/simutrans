@@ -1158,7 +1158,7 @@ void depot_frame_t::update_data()
 
 				txt_convoi_cost.clear();
 				if(  sint64 fix_cost = cnv->get_fixed_cost()  ) {
-					money_to_string(  buf, (double)fix_cost / 100.0, false );
+					money_to_string(  buf, (double)cnv->get_purchase_cost() / 100.0, false );
 					txt_convoi_cost.printf( translator::translate("Cost: %8s (%.2f$/km %.2f$/m)\n"), buf, (double)cnv->get_running_cost()/100.0, (double)fix_cost/100.0 );
 				}
 				else {
