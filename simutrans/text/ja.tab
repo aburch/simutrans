@@ -3743,6 +3743,12 @@ allow_takeover_of_your_company
 会社の買収を許可
 take_over
 買収
+filter_pas_line
+旅客取扱い路線
+filter_mail_line
+郵便取扱い路線
+filter_freight_line
+貨物取扱い路線
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

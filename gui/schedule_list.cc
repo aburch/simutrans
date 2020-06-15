@@ -115,6 +115,7 @@ static uint8 current_sort_mode = 0;
 
 #define LINE_NAME_COLUMN_WIDTH ((D_BUTTON_WIDTH*3)+11+4)
 #define SCL_HEIGHT (15*LINESPACE)
+#define D_IMG_BUTTON_WIDTH (14)
 
 /// selected convoy tab
 static uint8 selected_convoy_tab = 0;
@@ -254,11 +255,33 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&lbl_filter);
 
 	inp_filter.set_pos( scr_coord( 11+D_BUTTON_WIDTH, 7+SCL_HEIGHT ) );
-	inp_filter.set_size( scr_size( D_BUTTON_WIDTH*2, D_BUTTON_HEIGHT ) );
+	inp_filter.set_size( scr_size( D_BUTTON_WIDTH*2- D_IMG_BUTTON_WIDTH *3, D_BUTTON_HEIGHT ) );
 	inp_filter.set_text( schedule_filter, lengthof(schedule_filter) );
 //	inp_filter.set_tooltip("Only show lines containing");
 	inp_filter.add_listener(this);
 	add_component(&inp_filter);
+
+	filter_btn_all_pas.init(button_t::roundbox_state, NULL, scr_coord(inp_filter.get_pos() + scr_coord(inp_filter.get_size().w, 0)), scr_size(D_IMG_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	filter_btn_all_pas.set_image(skinverwaltung_t::passengers->get_image_id(0));
+	filter_btn_all_pas.set_tooltip("filter_pas_line");
+	filter_btn_all_pas.pressed = line_type_flags & (1 << 1);
+	add_component(&filter_btn_all_pas);
+	filter_btn_all_pas.add_listener(this);
+
+	filter_btn_all_mails.init(button_t::roundbox_state, NULL, scr_coord(filter_btn_all_pas.get_pos() + scr_coord(D_IMG_BUTTON_WIDTH, 0)), scr_size(D_IMG_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	filter_btn_all_mails.set_image(skinverwaltung_t::mail->get_image_id(0));
+	filter_btn_all_mails.set_tooltip("filter_mail_line");
+	filter_btn_all_mails.pressed = line_type_flags & (1 << 2);
+	filter_btn_all_mails.add_listener(this);
+	add_component(&filter_btn_all_mails);
+
+	filter_btn_all_freights.init(button_t::roundbox_state, NULL, scr_coord(filter_btn_all_mails.get_pos() + scr_coord(D_IMG_BUTTON_WIDTH, 0)), scr_size(D_IMG_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	filter_btn_all_freights.set_image(skinverwaltung_t::goods->get_image_id(0));
+	filter_btn_all_freights.set_tooltip("filter_freight_line");
+	filter_btn_all_freights.pressed = line_type_flags & (1 << 3);
+	filter_btn_all_freights.add_listener(this);
+	add_component(&filter_btn_all_freights);
+
 
 	// normal buttons edit new remove
 	bt_new_line.init(button_t::roundbox, "New Line", scr_coord(11, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
@@ -557,6 +580,21 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	else if (comp == &inp_name) {
 		rename_line();
 	}
+	else if (comp == &filter_btn_all_pas) {
+		line_type_flags ^= (1 << 1);
+		filter_btn_all_pas.pressed = line_type_flags & (1 << 1);
+		build_line_list(tabs.get_active_tab_index());
+	}
+	else if (comp == &filter_btn_all_mails) {
+		line_type_flags ^= (1 << 2);
+		filter_btn_all_mails.pressed = line_type_flags & (1 << 2);
+		build_line_list(tabs.get_active_tab_index());
+	}
+	else if (comp == &filter_btn_all_freights) {
+		line_type_flags ^= (1 << 3);
+		filter_btn_all_freights.pressed = line_type_flags & (1 << 3);
+		build_line_list(tabs.get_active_tab_index());
+	}
 	else {
 		if (line.is_bound()) {
 			for ( int i = 0; i<MAX_LINE_COST; i++) {
@@ -824,17 +862,45 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 	}
 }
 
-
-void schedule_list_gui_t::build_line_list(int filter)
+void schedule_list_gui_t::build_line_list(int selected_tab)
 {
 	sint32 sel = -1;
 	scl.clear_elements();
-	player->simlinemgmt.get_lines(tabs_to_lineindex[filter], &lines);
+	player->simlinemgmt.get_lines(tabs_to_lineindex[selected_tab], &lines);
 	vector_tpl<line_scrollitem_t *>selected_lines;
 
+	uint8 filter_type_bits = get_filter_type_bits();
+
 	FOR(vector_tpl<linehandle_t>, const l, lines) {
+		bool match = true;
+		if (schedule_filter) {
+			match = false;
+		}
 		// search name
 		if(  strstr(l->get_name(), schedule_filter)  ) {
+			match = true;
+		}
+		// filter goods type
+		if (filter_type_bits && match) {
+			match = false;
+			if (filter_type_bits & (1 << 1) && l->get_goods_catg_index().is_contained(goods_manager_t::INDEX_PAS)) {
+				match = true;
+			}
+			if (filter_type_bits & (1 << 2) && l->get_goods_catg_index().is_contained(goods_manager_t::INDEX_MAIL)) {
+				match = true;
+			}
+			if (filter_type_bits & (1 << 3)) {
+				for (uint8 catg_index = goods_manager_t::INDEX_NONE+1; catg_index < goods_manager_t::get_max_catg_index(); catg_index++)
+				{
+					if (l->get_goods_catg_index().is_contained(catg_index)) {
+						match = true;
+						break;
+					}
+				}
+			}
+		}
+
+		if (match) {
 			selected_lines.append(new line_scrollitem_t(l));
 		}
 	}
