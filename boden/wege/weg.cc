@@ -697,13 +697,16 @@ void weg_t::info(cbuffer_t & buf) const
 			buf.append(translator::translate("tonnen"));
 			buf.append("\n");
 		}
-#ifdef DEBUG
 		// Private car routes from here
-		// This generates a lot of text spam, so this should not be enabled by default.
-		if (!private_car_routes[private_car_routes_currently_reading_element].empty())
+		if (wtyp == road_wt)
 		{
 			buf.append("\n");
-			buf.append(translator::translate("Road routes from here:")); // TODO: Add translator entry for this text - if this does not remain debug only.
+			// TODO: Add translator entry for this text
+			buf.append(translator::translate("Road routes from here:")); 
+			buf.append("\n");
+
+			uint32 cities_count = 0;
+			uint32 buildings_count = 0;
 			FOR(private_car_route_map, const& route, private_car_routes[private_car_routes_currently_reading_element])
 			{
 
@@ -711,22 +714,27 @@ void weg_t::info(cbuffer_t & buf) const
 				const gebaeude_t* building = gr ? gr->get_building() : NULL;
 				if (building)
 				{
+					buildings_count++;
+#ifdef DEBUG
 					buf.append("\n");
 					buf.append(translator::translate(building->get_individual_name()));
+#endif
 				}
 				else
 				{
 					const stadt_t* city = welt->get_city(route.key);
 					if (city)
 					{
+						cities_count++;
+#ifdef DEBUG
 						buf.append("\n");
 						buf.append(city->get_name());
+#endif
 					}
 				}
 			}
-			buf.append("\n");
+			buf.printf("%u buildings\n%u cities\n\n", buildings_count, cities_count);
 		}
-#endif
 	}
 
 	if (wtyp == air_wt && desc->get_styp() == type_runway)
