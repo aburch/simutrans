@@ -74,7 +74,7 @@ typedef long long SQRawObjectVal; //must be 64bits
 #else
 typedef SQUnsignedInteger SQRawObjectVal; //is 32 bits on 32 bits builds and 64 bits otherwise
 #define SQ_OBJECT_RAWINIT()
-#endif
+#endif 
 
 #ifndef SQ_ALIGNMENT // SQ_ALIGNMENT shall be less than or equal to SQ_MALLOC alignments, and its value shall be power of 2.
 #if defined(SQUSEDOUBLE) || defined(_SQ64)
