@@ -198,8 +198,40 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_new_line.add_listener(this);
 	add_component(&bt_new_line);
 
+	// freight type filter
+	viewable_freight_types.append(NULL);
+	freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("All"), SYSCOL_TEXT) ;
+	viewable_freight_types.append(goods_manager_t::passengers);
+	freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Passagiere"), SYSCOL_TEXT) ;
+	viewable_freight_types.append(goods_manager_t::mail);
+	freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Post"), SYSCOL_TEXT) ;
+	viewable_freight_types.append(goods_manager_t::none); // for all freight ...
+	freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Fracht"), SYSCOL_TEXT) ;
+	for(  int i = 0;  i < goods_manager_t::get_max_catg_index();  i++  ) {
+		const goods_desc_t *freight_type = goods_manager_t::get_info_catg(i);
+		const int index = freight_type->get_catg_index();
+		if(  index == goods_manager_t::INDEX_NONE  ||  freight_type->get_catg()==0  ) {
+			continue;
+		}
+		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(freight_type->get_catg_name()), SYSCOL_TEXT);
+		viewable_freight_types.append(freight_type);
+	}
+	for(  int i=0;  i < goods_manager_t::get_count();  i++  ) {
+		const goods_desc_t *ware = goods_manager_t::get_info(i);
+		if(  ware->get_catg() == 0  &&  ware->get_index() > 2  ) {
+			// Special freight: Each good is special
+			viewable_freight_types.append(ware);
+			freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate(ware->get_name()), SYSCOL_TEXT) ;
+		}
+	}
+	freight_type_c.set_selection(0);
+	freight_type_c.set_focusable( true );
+	freight_type_c.add_listener( this );
+	freight_type_c.init( scr_coord( D_MARGIN_LEFT+D_BUTTON_WIDTH+D_H_SPACE, bt_y ), scr_size( D_BUTTON_WIDTH*2+D_H_SPACE, D_BUTTON_HEIGHT ) );
+	add_component(&freight_type_c);
+
 	bt_edit_line.init(button_t::roundbox, "Update Line",
-		scr_coord(D_MARGIN_LEFT+D_BUTTON_WIDTH+D_H_SPACE, bt_y),
+		scr_coord(D_MARGIN_LEFT+D_BUTTON_WIDTH+D_H_SPACE, bt_y+D_BUTTON_HEIGHT+D_V_SPACE),
 		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_edit_line.set_tooltip("Modify the selected line");
 	bt_edit_line.add_listener(this);
@@ -207,7 +239,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&bt_edit_line);
 
 	bt_delete_line.init(button_t::roundbox, "Delete Line",
-		scr_coord(D_MARGIN_LEFT+2*(D_BUTTON_WIDTH+D_H_SPACE), bt_y),
+		scr_coord(D_MARGIN_LEFT+2*(D_BUTTON_WIDTH+D_H_SPACE), bt_y+D_BUTTON_HEIGHT+D_V_SPACE),
 		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_delete_line.set_tooltip("Delete the selected line (if without associated convois).");
 	bt_delete_line.add_listener(this);
@@ -215,7 +247,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&bt_delete_line);
 
 	// lower left corner: halt list of selected line
-	scrolly_haltestellen.set_pos(scr_coord(0, bt_y + D_BUTTON_HEIGHT+ D_V_SPACE));
+	scrolly_haltestellen.set_pos(scr_coord(0, bt_y + D_BUTTON_HEIGHT*2+ D_V_SPACE*2));
 	scrolly_haltestellen.set_show_scroll_x(true);
 	scrolly_haltestellen.set_scroll_amount_y(28);
 	scrolly_haltestellen.set_visible(false);
@@ -405,6 +437,9 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 			strcpy(old_schedule_filter,schedule_filter);
 		}
 	}
+	else if(  comp == &freight_type_c  ) {
+		build_line_list(tabs.get_active_tab_index());
+	}
 	else if(  comp == &inp_name  ) {
 		rename_line();
 	}
@@ -592,8 +627,10 @@ void schedule_list_gui_t::build_line_list(int filter)
 	FOR(vector_tpl<linehandle_t>, const l, lines) {
 		// search name
 		if(  utf8caseutf8(l->get_name(), schedule_filter)  ) {
-			scl.new_component<line_scrollitem_t>(l);
-
+			// match good category
+			if(  is_matching_freight_catg( l->get_goods_catg_index() )  ) {
+				scl.new_component<line_scrollitem_t>(l);
+			}
 			if(  line == l  ) {
 				sel = scl.get_count() - 1;
 			}
@@ -790,4 +827,37 @@ void schedule_list_gui_t::rdwr( loadsave_t *file )
 		scrolly_convois.set_scroll_position( cont_xoff, cont_yoff );
 		scrolly_haltestellen.set_scroll_position( halt_xoff, halt_yoff );
 	}
+}
+
+
+// borrowed code from minimap
+bool schedule_list_gui_t::is_matching_freight_catg(const minivec_tpl<uint8> &goods_catg_index)
+{
+	const goods_desc_t *line_freight_type_group_index = viewable_freight_types[ freight_type_c.get_selection() ];
+	// does this line/convoi has a matching freight
+	if(  line_freight_type_group_index == goods_manager_t::passengers  ) {
+		return goods_catg_index.is_contained(goods_manager_t::INDEX_PAS);
+	}
+	else if(  line_freight_type_group_index == goods_manager_t::mail  ) {
+		return goods_catg_index.is_contained(goods_manager_t::INDEX_MAIL);
+	}
+	else if(  line_freight_type_group_index == goods_manager_t::none  ) {
+		// all freights but not pax or mail
+		for(  uint8 i = 0;  i < goods_catg_index.get_count();  i++  ) {
+			if(  goods_catg_index[i] > goods_manager_t::INDEX_NONE  ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	else if(  line_freight_type_group_index != NULL  ) {
+		for(  uint8 i = 0;  i < goods_catg_index.get_count();  i++  ) {
+			if(  goods_catg_index[i] == line_freight_type_group_index->get_catg_index()  ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	// all true
+	return true;
 }
