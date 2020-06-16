@@ -733,6 +733,9 @@ void weg_t::info(cbuffer_t & buf) const
 					}
 				}
 			}
+#ifdef DEBUG
+			buf.printf("\n");
+#endif
 			buf.printf("%u buildings\n%u cities\n\n", buildings_count, cities_count);
 		}
 	}
