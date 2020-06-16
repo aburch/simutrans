@@ -701,7 +701,7 @@ void weg_t::info(cbuffer_t & buf) const
 		if (wtyp == road_wt)
 		{
 			buf.append("\n");
-			// TODO: Add translator entry for this text
+			// TODO: Add translator entry for this text 
 			buf.append(translator::translate("Road routes from here:")); 
 			buf.append("\n");
 
