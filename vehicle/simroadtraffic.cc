@@ -329,10 +329,14 @@ private_car_t::private_car_t(loadsave_t *file) :
 }
 
 
-private_car_t::private_car_t(grund_t* gr, koord const target) :
-	road_user_t(gr, simrand(65535)),
-	desc(liste_timeline.empty() ? 0 : pick_any_weighted(liste_timeline))
+private_car_t::private_car_t(grund_t* gr, koord const target, const char* name) :
+	road_user_t(gr, simrand(65535))
 {
+	desc = name ? table.get(name) : NULL;
+	if (desc == NULL) {
+		desc = liste_timeline.empty() ? 0 : pick_any_weighted(liste_timeline);
+	}
+
 	pos_next_next = koord3d::invalid;
 	time_to_life = welt->get_settings().get_stadtauto_duration() << 20;  // ignore welt->ticks_per_world_month_shift;
 	current_speed = 48;
