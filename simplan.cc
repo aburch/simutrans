@@ -520,6 +520,11 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 			for(  uint8 j = i;  j < ground_size;  j++  ) {
 				const sint8 h = data.some[j]->get_hoehe();
 				const sint8 htop = h + slope_t::max_diff(data.some[j]->get_grund_hang());
+
+				// still underground
+				if(  h < h0  ) {
+					continue;
+				}
 				// too high?
 				if(  h > hmax  ) {
 					break;
@@ -547,6 +552,11 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 		const sint8 h = gr->get_hoehe();
 		const slope_t::type slope = gr->get_grund_hang();
 		const sint8 htop = h + max(max(corner_sw(slope), corner_se(slope)),max(corner_ne(slope), corner_nw(slope)));
+
+		// still underground
+		if(  h < h0  ) {
+			continue;
+		}
 		// too high?
 		if(  h > hmax  ) {
 			break;
