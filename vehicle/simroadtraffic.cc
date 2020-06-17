@@ -454,7 +454,6 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 	time_to_life = welt->get_settings().get_stadtauto_duration() << welt->ticks_per_world_month_shift;
 	current_speed = 48;
 	ms_traffic_jam = 2147483647;
-	max_power_speed = 0; // should be calculated somehow!
 	this->target = target;
 	calc_image();
 	origin = gr ? gr->get_pos().get_2d() : koord::invalid;
@@ -712,7 +711,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 			// this fails with two crossings together; however, I see no easy way out here ...
 		}
 		else {
-			// not a crossing => skip 90° check!
+			// not a crossing => skip 90Â° check!
 			dt = no_cars_blocking( gr, NULL, this_direction, next_direction, next_90direction, this, next_lane );
 			frei = true;
 		}

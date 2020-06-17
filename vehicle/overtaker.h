@@ -33,7 +33,7 @@ protected:
 	sint8 prev_tiles_overtaking;
 	sint8 diff;
 
-	sint32 max_power_speed; // max achievable speed at current power/weight
+	sint32 max_power_speed; // NOT CURRENTLY USED. max achievable speed at current power/weight
 public:
 	overtaker_t():tiles_overtaking(0), diff(0), max_power_speed(SPEED_UNLIMITED) {}
 	virtual ~overtaker_t() {}
@@ -70,7 +70,7 @@ public:
 	// since citycars and convois can react quite different
 	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other) = 0;
 
-	sint32 get_max_power_speed() const { return max_power_speed; }
+	virtual sint32 get_max_power_speed() = 0;
 
 	sint8 get_tiles_overtaking() const { return tiles_overtaking; }
 

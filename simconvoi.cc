@@ -1466,7 +1466,7 @@ bool convoi_t::prepare_for_routing()
 /**
  * Berechne route von Start- zu Zielkoordinate
  * "Compute route from starting to goal coordinate" (Babelfish)
- * @author Hanjsörg Malthaner
+ * @author HanjsÃ¶rg Malthaner
  */
 bool convoi_t::drive_to()
 {
@@ -1719,7 +1719,7 @@ bool convoi_t::drive_to()
  * Berechnung einer neuen Route
  *
  * "A vehicle recognized and forces a problem the computation of a new route" (Babelfish)
- * @author Hanjsörg Malthaner
+ * @author HanjsÃ¶rg Malthaner
  */
 void convoi_t::suche_neue_route()
 {
@@ -7350,7 +7350,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
 			if(  str==NULL  ) {
 				return false;
-			}else if(  akt_speed < fmin(max_power_speed, str->get_max_speed())/2  &&  diff_speed >= kmh_to_speed(0)  ){
+			}else if(  akt_speed < fmin(get_max_power_speed(), str->get_max_speed())/2  &&  diff_speed >= kmh_to_speed(0)  ){
 				//Warning: diff_speed == 0 is acceptable. We must consider the case diff_speed == 0.
 				in_congestion = true;
 			}else{
@@ -7373,7 +7373,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		distance = akt_speed*(front()->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/diff_speed;
 	}
 	else {
-		distance = max_power_speed*(front()->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/(max_power_speed-other_speed);
+		distance = get_max_power_speed()*(front()->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/(get_max_power_speed()-other_speed);
 	}
 	int time_overtaking = 0;
 
@@ -8234,7 +8234,7 @@ float32e8_t convoi_t::get_brake_summary(/*const float32e8_t &speed*/ /* in m/s *
 		}
 		else
 		{
-			// Usual brake deceleration is about -0.5 .. -1.5 m/s² depending on vehicle and ground.
+			// Usual brake deceleration is about -0.5 .. -1.5 m/sÂ² depending on vehicle and ground.
 			// With F=ma, a = F/m follows that brake force in N is ~= 1/2 weight in kg
 			force += br * v.get_total_weight();
 		}

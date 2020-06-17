@@ -436,7 +436,7 @@ private:
 	 * The convoi is not processed every sync step for various actions
 	 * (like waiting before signals, loading etc.) Such action will only
 	 * continue after a waiting time larger than wait_lock
-	 * @author Hanjsörg Malthaner
+	 * @author HanjsÃ¶rg Malthaner
 	 */
 	sint32 wait_lock;
 
@@ -454,7 +454,7 @@ private:
 
 	/**
 	* accumulated profit over a year
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	sint64 jahresgewinn;
 
@@ -504,7 +504,7 @@ private:
 
 	/**
 	* Calculate route from Start to Target Coordinate
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	bool drive_to();
 
@@ -518,13 +518,13 @@ private:
 	/**
 	* Setup vehicles for moving in same direction than before
 	* if the direction is the same as before
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	bool can_go_alte_direction();
 
 	/**
 	* Mark first and last vehicle.
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	void set_erstes_letztes();
 
@@ -903,13 +903,13 @@ public:
 	/**
 	* The handle for ourselves. In Anlehnung an 'this' aber mit
 	* allen checks beim Zugriff.
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	convoihandle_t self;
 
 	/**
 	 * The profit in this year
-	 * @author Hanjsörg Malthaner
+	 * @author HanjsÃ¶rg Malthaner
 	 */
 	inline const sint64 & get_jahresgewinn() const {return jahresgewinn;}
 
@@ -1016,6 +1016,7 @@ public:
 	 */
 	inline uint32 get_sum_power() {return get_continuous_power();}
 	inline sint32 get_min_top_speed() {return get_vehicle_summary().max_sim_speed;}
+	inline sint32 get_max_power_speed() OVERRIDE {return get_min_top_speed();}
 
 	/// @returns weight of the convoy's vehicles (excluding freight)
 	inline sint64 get_sum_weight() {return get_vehicle_summary().weight;}
@@ -1080,7 +1081,7 @@ public:
 	/**
 	* When a vehicle has detected a problem
 	* force calculate a new route
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	void suche_neue_route();
 
@@ -1249,7 +1250,7 @@ public:
 
 	/**
 	* Setup vehicles before starting to move
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	void vorfahren();
 
