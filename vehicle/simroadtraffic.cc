@@ -933,7 +933,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 	}
 
 	sint32 diff_speed = (sint32)current_speed - other_speed;
-	if(  diff_speed < kmh_to_speed(5)  ) {
+	if( diff_speed < kmh_to_speed( 5 ) ) {
 		// not fast enough to overtake
 		return false;
 	}
@@ -947,7 +947,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 	 * convoi_length for city cars? ==> a bit over half a tile (10)
 	 */
 	sint32 time_overtaking = 0;
-	sint32 distance = current_speed*((10<<4)+steps_other)/max(desc->get_topspeed()-other_speed,diff_speed);
+	sint32 distance = current_speed*((10<<4)+steps_other)/diff_speed;
 
 	// Conditions for overtaking:
 	// Flat tiles, with no stops, no crossings, no signs, no change of road speed limit
@@ -996,7 +996,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		}
 
 		// street gets too slow (TODO: should be able to be correctly accounted for)
-		if(  desc->get_topspeed() > kmh_to_speed(str->get_max_speed())  ) {
+		if(  current_speed > kmh_to_speed(str->get_max_speed())  ) {
 			return false;
 		}
 

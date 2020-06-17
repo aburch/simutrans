@@ -32,8 +32,9 @@
 #include "boden/grund.h"
 #include "boden/wege/schiene.h" // for railblocks
 
-#include "descriptor/vehicle_desc.h"
+#include "descriptor/citycar_desc.h"
 #include "descriptor/roadsign_desc.h"
+#include "descriptor/vehicle_desc.h"
 
 #include "dataobj/schedule.h"
 #include "dataobj/route.h"
@@ -47,6 +48,7 @@
 #include "obj/roadsign.h"
 #include "obj/wayobj.h"
 
+#include "vehicle/simroadtraffic.h"
 #include "vehicle/simvehicle.h"
 #include "vehicle/overtaker.h"
 
@@ -957,7 +959,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 				for(unsigned i=1; i<anz_vehikel; i++) {
 					fahr[i]->do_drive(sp_hat);
 				}
-				// maybe we have been stopped be something => avoid wide jumps
+				// maybe we have been stopped by something => avoid wide jumps
 				sp_soll = (sp_soll-sp_hat) & 0x0FFF;
 
 				// smoke for the engines
@@ -3641,8 +3643,8 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	// Distance it takes overtaking (unit: vehicle_steps) = my_speed * time_overtaking
 	// time_overtaking = tiles_to_overtake/diff_speed
 	// tiles_to_overtake = convoi_length + current pos within tile + (pos_other_convoi within tile + length of other convoi) - one tile
-	int distance = akt_speed*(fahr[0]->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/diff_speed;
-	int time_overtaking = 0;
+	sint32 distance = akt_speed*(fahr[0]->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/diff_speed;
+	sint32 time_overtaking = 0;
 
 	// Conditions for overtaking:
 	// Flat tiles, with no stops, no crossings, no signs, no change of road speed limit
@@ -3675,7 +3677,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			if(rs) {
 				const roadsign_desc_t *rb = rs->get_desc();
 				if(rb->is_choose_sign()  ||  rb->is_traffic_light()  ) {
-					// because we need to stop here ...
+					// because we may need to stop here ...
 					return false;
 				}
 			}
@@ -3716,16 +3718,19 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	}
 
 	// Second phase: only facing traffic is forbidden
-	//   Since street speed can change, we do the calculation with time.
-	//   Each empty tile will subtract tile_dimension/max_street_speed.
-	//   If time is exhausted, we are guaranteed that no facing traffic will
-	//   invade the dangerous zone.
-	// Conditions for the street are milder: e.g. if no street, no facing traffic
+
+	// the original routine was checking using the maximum road speed.
+	// However, we can tolerate slower vehicles if they are closer
+
+	// Furthermore, if we reach the end of the route for a vehcile as fast as us,
+	// we simply assume it to be ok too
+	sint32 overtaking_distance = time_overtaking; 
+	distance = 0; // distance to needed traveled to crash int us from this point
 	time_overtaking = (time_overtaking << 16)/akt_speed;
 	while(  time_overtaking > 0  ) {
 
 		if(  route_index >= route.get_count()  ) {
-			return false;
+			return distance>=time_overtaking; // we assume ok, if there is enough distance when we would face ourselves
 		}
 
 		pos_next = route.at(route_index++);
@@ -3746,9 +3751,11 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 
 		if(  ribi_t::is_straight(str->get_ribi())  ) {
 			time_overtaking -= (VEHICLE_STEPS_PER_TILE<<16) / kmh_to_speed(str->get_max_speed());
+			distance -= VEHICLE_STEPS_PER_TILE;
 		}
 		else {
 			time_overtaking -= (vehicle_base_t::get_diagonal_vehicle_steps_per_tile()<<16) / kmh_to_speed(str->get_max_speed());
+			distance -= vehicle_base_t::get_diagonal_vehicle_steps_per_tile();
 		}
 
 		// Check for other vehicles in facing direction
@@ -3756,8 +3763,19 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
 			vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));
-			if (v && v->get_direction() == their_direction && v->get_overtaker()) {
-				return false;
+			if(  v  &&  v->get_direction() == their_direction  &&  v->get_overtaker()  ) {
+				// tolerated distance us>them: total_distance*akt_speed > current_distance*other_speed
+				if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(v)  ) {
+					convoi_t* const ocnv = car->get_convoi();
+					if(  ocnv  &&  ocnv->get_max_power_speed()*distance > akt_speed*overtaking_distance  ) {
+						return false;
+					}
+				}
+				else if(  private_car_t* const caut = obj_cast<private_car_t>(v)  ) {
+					if(  caut->get_desc()->get_topspeed()*distance > akt_speed*overtaking_distance  ) {
+						return false;
+					}
+				}
 			}
 		}
 		pos_prev = pos;
