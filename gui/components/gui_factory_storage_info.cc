@@ -220,10 +220,10 @@ void gui_factory_storage_info_t::recalc_size()
 }
 
 
-gui_factory_connection_stat_t::gui_factory_connection_stat_t(fabrik_t *factory, bool display_input)
+gui_factory_connection_stat_t::gui_factory_connection_stat_t(fabrik_t *factory, bool is_input_display)
 {
 	this->fab = factory;
-	this->display_input = display_input;
+	this->is_input_display = is_input_display;
 	recalc_size();
 	line_selected = 0xFFFFFFFFu;
 }
@@ -267,7 +267,7 @@ void gui_factory_connection_stat_t::recalc_size()
 {
 	// show_scroll_x==false ->> size.w not important ->> no need to calc text pixel length
 	if (fab) {
-		uint lines = display_input ? fab->get_suppliers().get_count() : fab->get_lieferziele().get_count();
+		uint lines = is_input_display ? fab->get_suppliers().get_count() : fab->get_lieferziele().get_count();
 		set_size(scr_size(400, lines * (LINESPACE + 1)));
 	}
 	else {
@@ -291,7 +291,7 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 	double distance;
 	char distance_display[10];
 
-	fab_list = display_input ? fab->get_suppliers() : fab->get_lieferziele();
+	fab_list = is_input_display ? fab->get_suppliers() : fab->get_lieferziele();
 
 
 	uint32 sel = line_selected;
@@ -299,7 +299,7 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 		fabrik_t *target_fab = fabrik_t::get_fab(k);
 
 		if (target_fab) {
-			const bool is_active = display_input ?
+			const bool is_active = is_input_display ?
 				target_fab->is_active_lieferziel(fab->get_pos().get_2d()) :
 				fab->is_active_lieferziel(k);
 			const bool is_connected_to_own_network = fab->is_connect_own_network() && target_fab->is_connect_own_network();
@@ -307,7 +307,7 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 			xoff = D_POS_BUTTON_WIDTH + D_H_SPACE;
 
 			const goods_desc_t *transport_goods;
-			if (!display_input) {
+			if (!is_input_display) {
 				FOR(array_tpl<ware_production_t>, const& product, fab->get_output()) {
 					const goods_desc_t *inquiry_goods = product.get_typ();
 					if (target_fab->get_desc()->get_accepts_these_goods(inquiry_goods)) {
@@ -368,7 +368,7 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 
 			if (target_fab->get_status() != fabrik_t::inactive && fab->get_status() != fabrik_t::inactive) {
 				// [lead time]
-				const uint32 lead_time = display_input ? fab->get_lead_time(transport_goods) : target_fab->get_lead_time(transport_goods);
+				const uint32 lead_time = is_input_display ? fab->get_lead_time(transport_goods) : target_fab->get_lead_time(transport_goods);
 				if (skinverwaltung_t::travel_time){
 					display_color_img_with_tooltip(skinverwaltung_t::travel_time->get_image_id(0), offset.x + xoff, offset.y + yoff, 0, false, false, translator::translate("symbol_help_txt_lead_time"));
 					xoff += 12;
@@ -393,7 +393,7 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 				sint32 in_transit = 0;
 				sint32 goods_needed = 0;
 				int index = 0;
-				if (!display_input) {
+				if (!is_input_display) {
 					// NOTE: this is not the only shipping situation from THIS factory.
 					// may have been shipped from another factory.
 					// but we can't tell it apart, and that affects shipping from this factory.
