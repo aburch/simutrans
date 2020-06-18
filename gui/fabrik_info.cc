@@ -159,7 +159,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	tabs.add_tab(&scrolly_info, translator::translate("Connections"));
 	tabs.add_tab(&goods_chart, translator::translate("Goods chart"));
 	tabs.add_tab(&chart, translator::translate("Production chart"));
-	tabs.add_tab(&scrolly_details, translator::translate("Building Info."));
+	tabs.add_tab(&scrolly_details, translator::translate("Building info."));
 
 	tabs.add_listener(this);
 	add_component(&tabs);
