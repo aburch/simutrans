@@ -2726,6 +2726,7 @@
     <ClCompile Include="gui\ai_option_t.cc" />
     <ClCompile Include="gui\components\gui_container.cc" />
     <ClCompile Include="gui\components\gui_convoiinfo.cc" />
+    <ClCompile Include="gui\components\gui_factory_storage_info.cc" />
     <ClCompile Include="gui\components\gui_convoy_formation.cc" />
     <ClCompile Include="gui\components\gui_convoy_payloadinfo.cc" />
     <ClCompile Include="gui\components\gui_image.cc" />
@@ -3431,6 +3432,7 @@
     <ClInclude Include="gui\components\gui_action_creator.h" />
     <ClInclude Include="gui\components\gui_container.h" />
     <ClInclude Include="gui\components\gui_convoiinfo.h" />
+    <ClInclude Include="gui\components\gui_factory_storage_info.h" />
     <ClInclude Include="gui\components\gui_convoy_formation.h" />
     <ClInclude Include="gui\components\gui_convoy_payloadinfo.h" />
     <ClInclude Include="gui\components\gui_fixedwidth_textarea.h" />

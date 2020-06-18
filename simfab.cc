@@ -328,7 +328,7 @@ void fabrik_t::book_weighted_sums(sint64 delta_time)
 	}
 
 	// production level
-	const sint32 current_prod = get_current_productivity();
+	const sint32 current_prod = get_actual_productivity();
 	weighted_sum_production += current_prod * delta_time;
 	set_stat(current_prod, FAB_PRODUCTION);
 
@@ -2642,7 +2642,7 @@ void fabrik_t::new_month()
 	aggregate_weight = 0;
 
 	// restore the current values
-	set_stat( get_current_productivity(), FAB_PRODUCTION );
+	set_stat(get_actual_productivity(), FAB_PRODUCTION);
 	set_stat( prodfactor_electric, FAB_BOOST_ELECTRIC );
 	set_stat( prodfactor_pax, FAB_BOOST_PAX );
 	set_stat( prodfactor_mail, FAB_BOOST_MAIL );
@@ -3137,9 +3137,14 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 	buf.clear();
 	if (get_base_production()) {
 		buf.append(translator::translate("Productivity")); // Note: This term is used in width calculation in fabrik_info. And it is common with the chart button label.
-		buf.printf(": %u%% ", get_current_productivity());
+		// get_current_productivity() does not include factory connections and staffing
+		buf.printf(": %u%% ", get_actual_productivity());
 		const uint32 max_productivity = (100 * (get_desc()->get_electric_boost() + get_desc()->get_pax_boost() + get_desc()->get_mail_boost())) >> DEFAULT_PRODUCTION_FACTOR_BITS;
 		buf.printf(translator::translate("(Max. %d%%)"), max_productivity+100);
+		buf.append("\n");
+
+		buf.append(translator::translate("Occupancy rate last month"));
+		buf.printf(": %.1f%% ", calc_occupancy_rate(1)/10.0);
 		buf.append("\n");
 	}
 	if(get_desc()->is_electricity_producer())
@@ -3167,7 +3172,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 	if (building)
 	{
 		buf.append("\n");
-        buf.printf("%s: %s\n", translator::translate("Built in"), translator::get_year_month(building->get_purchase_time()));
+        	buf.printf("%s: %s\n", translator::translate("Built in"), translator::get_year_month(building->get_purchase_time()));
 		buf.printf("%s: %d\n", translator::translate("Visitor demand"), building->get_adjusted_visitor_demand());
 #ifdef DEBUG
 		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), building->get_adjusted_jobs(), building->check_remaining_available_jobs());
@@ -3175,135 +3180,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), building->get_adjusted_jobs(), max(0, building->check_remaining_available_jobs()));
 #endif
 		buf.printf("%s: %d\n", translator::translate("Mail demand/output"), building->get_adjusted_mail_demand());
-		// Class entries:
-		building->get_class_percentage(buf);
-		buf.append("\n");
-		if (building->get_adjusted_visitor_demand() > 0)
-		{
-			buf.printf("%s %i\n", translator::translate("Visitors this year:"), building->get_passengers_succeeded_visiting());
-		}
-		if (building->get_adjusted_jobs() > 0)
-		{
-			buf.printf("%s", translator::translate("Commuters this year:"));
-			if (building->get_passengers_succeeded_commuting() != 65535)
-			{
-				buf.printf(" %i", building->get_passengers_succeeded_commuting());
-			}
-			else {
-				buf.printf(" 0");
-			}
-			buf.printf("\n");
-		}
-		if (building->get_adjusted_mail_demand() > 0)
-		{
-			buf.printf("%s", translator::translate("Mail sent this year:"));
-			if (building->get_mail_delivery_success_percent_this_year() < 65535)
-			{
-				buf.printf(" %i (%i%%)", building->get_mail_delivery_succeeded(), building->get_mail_delivery_success_percent_this_year());
-			}
-			else {
-				buf.printf(" 0 (0%%)");
-			}
-			buf.printf("\n");
-		}
-		if (building->get_adjusted_visitor_demand() > 0 && building->get_passenger_success_percent_last_year_visiting() < 65535)
-		{
-			buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());
-		}
-		else {
-			buf.printf("\n");
-		}
-		if (building->get_adjusted_jobs() > 0 && building->get_passenger_success_percent_last_year_commuting() < 65535)
-		{
-			buf.printf("%s %i\n", translator::translate("Commuters last year:"), building->get_passenger_success_percent_last_year_commuting());
-		}
-		else{
-			buf.printf("\n");
-		}
-		if (building->get_adjusted_mail_demand() > 0 && building->get_mail_delivery_succeeded_last_year() < 65535)
-		{
-			buf.printf("%s", translator::translate("Mail sent last year:"));
-			if (building->get_mail_delivery_success_percent_last_year() < 65535)
-			{
-				buf.printf(" %i (%i%%)", building->get_mail_delivery_succeeded_last_year(), building->get_mail_delivery_success_percent_last_year());
-			}
-			else {
-				buf.printf(" 0 (0%%)");
-			}
-			buf.printf("\n");
-		}
-		else {
-			buf.printf("\n");
-		}
-	}
 
-	if (!output.empty()) {
-		buf.append("\n");
-		buf.append(translator::translate("Produktion"));
-
-		for (uint32 index = 0; index < output.get_count(); index++) {
-			const goods_desc_t * type = output[index].get_typ();
-			const sint64 pfactor = (sint64)desc->get_product(index)->get_factor();
-
-			buf.printf( "\n - %s %u/%u %s",
-				translator::translate(type->get_name()),
-				(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)output[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-				(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)output[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-				translator::translate(type->get_mass())
-			);
-
-			if(type->get_catg() != 0) {
-				buf.append(", ");
-				buf.append(translator::translate(type->get_catg_name()));
-			}
-			// monthly production
-			const uint32 monthly_prod = (uint32)(get_current_production()*pfactor*10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
-			buf.append(", ");
-			buf.append((float)monthly_prod/10.0, monthly_prod < 100 ? 1 : 0);
-			buf.printf("%s%s", translator::translate(type->get_mass()),translator::translate("/month"));
-		}
-	}
-
-	if (!input.empty()) {
-		buf.append("\n");
-		buf.append(translator::translate("Verbrauch"));
-
-		for (uint32 index = 0; index < input.get_count(); index++) {
-			if(!desc->get_supplier(index))
-			{
-				continue;
-			}
-			const sint64 pfactor = desc->get_supplier(index) ? (sint64)desc->get_supplier(index)->get_consumption() : 1ll;
-			const uint16 max_intransit_percentage = max_intransit_percentages.get(input[index].get_typ()->get_catg());
-
-			if(  max_intransit_percentage  ) {
-				buf.printf("\n - %s %i/%i(%i)/%u %s, ",
-					translator::translate(input[index].get_typ()->get_name()),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					input[index].get_in_transit(),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max_transit * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					translator::translate(input[index].get_typ()->get_mass())
-				);
-				const uint32 monthly_prod = (uint32)(get_current_production()*pfactor * 10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
-				buf.append(", ");
-				buf.append((float)monthly_prod / 10.0, monthly_prod < 100 ? 1 : 0);
-				buf.printf("%s%s", translator::translate(input[index].get_typ()->get_mass()), translator::translate("/month"));
-			}
-			else {
-				buf.printf("\n - %s %i/%i/%u %s, ",
-					translator::translate(input[index].get_typ()->get_name()),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					input[index].get_in_transit(),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					translator::translate(input[index].get_typ()->get_mass())
-				);
-				const uint32 monthly_prod = (uint32)(get_current_production()*pfactor * 10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
-				buf.append(", ");
-				buf.append((float)monthly_prod / 10.0, monthly_prod < 100 ? 1 : 0);
-				buf.printf("%s%s", translator::translate(input[index].get_typ()->get_mass()), translator::translate("/month"));
-			}
-		}
 	}
 }
 
@@ -3405,83 +3282,70 @@ void fabrik_t::recalc_nearby_halts()
 void fabrik_t::info_conn(cbuffer_t& buf) const
 {
 	buf.clear();
-	bool has_previous = false;
-	double distance;
-	char distance_display[10];
-	if (!lieferziele.empty()) {
-		has_previous = true;
-		buf.append(translator::translate("Abnehmer"));
-
-		FOR(vector_tpl<koord>, const& lieferziel, lieferziele) {
-			fabrik_t *fab = get_fab( lieferziel );
-			if(fab) {
-				distance = (double)(shortest_distance(get_pos().get_2d(), fab->get_pos().get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
-				if (distance < 1)
-				{
-					sprintf(distance_display, "%.0fm", distance * 1000);
-				}
-				else
-				{
-					uint n_actual = distance < 5 ? 1 : 0;
-					char tmp[10];
-					number_to_string(tmp, distance, n_actual);
-					sprintf(distance_display, "%skm", tmp);
-				}
-
-				if (is_active_lieferziel(lieferziel)) {
-					buf.printf("\n      %s - %s (%d,%d)", fab->get_name(), distance_display, lieferziel.x, lieferziel.y);
-				}
-				else {
-					buf.printf("\n   %s - %s (%d,%d)", fab->get_name(), distance_display, lieferziel.x, lieferziel.y);
-				}
-			}
-		}
-	}
-
-	if (!suppliers.empty()) {
-		if(  has_previous  ) {
-			buf.append("\n\n");
-		}
-		has_previous = true;
-		buf.append(translator::translate("Suppliers"));
-
-		FOR(vector_tpl<koord>, const& supplier, suppliers) {
-			if(  fabrik_t *src = get_fab( supplier )  )
-			{
-				distance = (double)(shortest_distance(get_pos().get_2d(), src->get_pos().get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
-				if (distance < 1)
-				{
-					sprintf(distance_display, "%.0fm", distance * 1000);
-				}
-				else
-				{
-					uint n_actual = distance < 5 ? 1 : 0;
-					char tmp[10];
-					number_to_string(tmp, distance, n_actual);
-					sprintf(distance_display, "%skm", tmp);
-				}
-				if(  src->is_active_lieferziel(get_pos().get_2d())  )
-				{
-					buf.printf("\n      %s - %s (%d,%d)", src->get_name(), distance_display, supplier.x, supplier.y);
-				}
-				else {
-					buf.printf("\n   %s - %s (%d,%d)", src->get_name(), distance_display, supplier.x, supplier.y);
-				}
-			}
-		}
-	}
-
-	// Check *all* tiles for nearby stops... but don't update!
-	if ( !nearby_freight_halts.empty() )
+	if (building)
 	{
-		if(  has_previous  ) {
-			buf.append("\n\n");
-		}
-		buf.append(translator::translate("Connected stops (freight)"));
-		FOR(vector_tpl<nearby_halt_t>, const i, nearby_freight_halts)
+		// Class entries:
+		building->get_class_percentage(buf);
+		buf.append("\n");
+		if (building->get_adjusted_visitor_demand() > 0)
 		{
-			buf.printf("\n - %s", i.halt->get_name());
+			buf.printf("%s %i\n", translator::translate("Visitors this year:"), building->get_passengers_succeeded_visiting());
 		}
+		if (building->get_adjusted_jobs() > 0)
+		{
+			buf.printf("%s", translator::translate("Commuters this year:"));
+			if (building->get_passengers_succeeded_commuting() != 65535)
+			{
+				buf.printf(" %i", building->get_passengers_succeeded_commuting());
+			}
+			else {
+				buf.printf(" 0");
+			}
+			buf.printf("\n");
+		}
+		if (building->get_adjusted_mail_demand() > 0)
+		{
+			buf.printf("%s", translator::translate("Mail sent this year:"));
+			if (building->get_mail_delivery_success_percent_this_year() < 65535)
+			{
+				buf.printf(" %i (%i%%)", building->get_mail_delivery_succeeded(), building->get_mail_delivery_success_percent_this_year());
+			}
+			else {
+				buf.printf(" 0 (0%%)");
+			}
+			buf.printf("\n");
+		}
+		if (building->get_adjusted_visitor_demand() > 0 && building->get_passenger_success_percent_last_year_visiting() < 65535)
+		{
+			buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());
+		}
+		else {
+			buf.printf("\n");
+		}
+		if (building->get_adjusted_jobs() > 0 && building->get_passenger_success_percent_last_year_commuting() < 65535)
+		{
+			buf.printf("%s %i\n", translator::translate("Commuters last year:"), building->get_passenger_success_percent_last_year_commuting());
+		}
+		else {
+			buf.printf("\n");
+		}
+		if (building->get_adjusted_mail_demand() > 0 && building->get_mail_delivery_succeeded_last_year() < 65535)
+		{
+			buf.printf("%s", translator::translate("Mail sent last year:"));
+			if (building->get_mail_delivery_success_percent_last_year() < 65535)
+			{
+				buf.printf(" %i (%i%%)", building->get_mail_delivery_succeeded_last_year(), building->get_mail_delivery_success_percent_last_year());
+			}
+			else {
+				buf.printf(" 0 (0%%)");
+			}
+			buf.printf("\n");
+		}
+		else {
+			buf.printf("\n");
+		}
+		buf.printf("\n");
+		buf.printf(translator::translate("Constructed by %s"), get_fab(building->get_pos().get_2d())->get_desc()->get_copyright());
 	}
 }
 
@@ -3795,6 +3659,14 @@ void fabrik_t::calc_max_intransit_percentages()
 	}
 }
 
+uint16 fabrik_t::get_max_intransit_percentage(uint32 index)
+{
+	if (!input.get_count() || input.get_count() < index ) {
+		return 0;
+	}
+	return max_intransit_percentages.get(input[index].get_typ()->get_catg());
+}
+
 uint32 fabrik_t::get_lead_time(const goods_desc_t* wtype)
 {
 	if(suppliers.empty())
@@ -4027,4 +3899,40 @@ bool fabrik_t::has_goods_catg_demand(uint8 catg_index) const
 		}
 	}
 	return false;
+}
+
+// NOTE: not added the formula for this month yet
+// TODO: (for this month calcuration) Multiply the production amount and the basic production amount by the ratio to the length of the month time
+uint32 fabrik_t::calc_occupancy_rate(sint8 month) const
+{
+	if (month <= 0 || month >= MAX_MONTH) {
+		return 0;
+	}
+	const sint32 base_monthly_prod = welt->calc_adjusted_monthly_figure(prodbase*10); // need to consider the decimal point for small units
+	if (!base_monthly_prod) { return 0; }
+
+	sint32 temp_sum = 0;
+
+	// which sector?
+	if ((sector == end_consumer || sector == power_plant) && input.get_count()) {
+		// check the consuming rate
+		for (int i = 0; i < input.get_count(); i++) {
+			const sint64 pfactor = desc->get_supplier(i) ? (sint64)desc->get_supplier(i)->get_consumption() : 1ll;
+			const uint32 prod_rate = (uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS);
+			temp_sum += convert_goods(input[i].get_stat(month, FAB_GOODS_CONSUMED)) * 10000 / (sint32)prod_rate * 100 / base_monthly_prod;
+		}
+		return (uint32)(temp_sum / input.get_count());
+	}
+	else if(sector != unknown && output.get_count()){
+		// check the producing rate of this factory
+		for (int i = 0; i < output.get_count(); i++) {
+			const sint64 pfactor = (sint64)desc->get_product(i)->get_factor();
+			const uint32 prod_rate = (uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS);
+
+			temp_sum += convert_goods(output[i].get_stat(month, FAB_GOODS_PRODUCED)) * 10000 / (sint32)prod_rate * 100 / base_monthly_prod;
+		}
+		return (uint32)(temp_sum / output.get_count());
+	}
+
+	return 0;
 }

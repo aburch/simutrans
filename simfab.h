@@ -504,6 +504,8 @@ public:
 
 	const vector_tpl<koord>& get_suppliers() const { return suppliers; }
 
+	const vector_tpl<nearby_halt_t>& get_nearby_freight_halts() const { return nearby_freight_halts; }
+
 	/**
 	 * Recalculate nearby halts
 	 * These are stashed, so must be recalced
@@ -714,6 +716,8 @@ public:
 
 	// returns the current productivity relative to 100
 	sint32 get_current_productivity() const { return welt->calc_adjusted_monthly_figure(prodbase) ? get_current_production() * 100 / welt->calc_adjusted_monthly_figure(prodbase) : 0; }
+	// returns the current productivity including the effect of staff shortage
+	sint32 get_actual_productivity() const { return status == inactive ? 0 : status >= staff_shortage ? get_current_productivity() * get_staffing_level_percentage() / 100 : get_current_productivity(); }
 
 	/* prissi: returns the status of the current factory */
 	enum { nothing, good, water_resource, medium, water_resource_full, storage_full, inactive, shipment_stuck, material_shortage, no_material, bad, mat_overstocked, stuck, staff_shortage, MAX_FAB_STATUS };
@@ -771,6 +775,8 @@ public:
 	inline uint32 get_base_mail_demand() const { return arrival_stats_mail.get_scaled_demand(); }
 
 	void calc_max_intransit_percentages();
+	uint16 get_max_intransit_percentage(uint32 index);
+
 	// Average journey time to delivery goods of this type
 	uint32 get_lead_time (const goods_desc_t* wtype);
 	// Time to consume the full input store of these goods at full capacity
@@ -789,6 +795,9 @@ public:
 	bool has_goods_catg_demand(uint8 catg_index = goods_manager_t::INDEX_NONE) const;
 
 
+	// Returns the operating ratio to basic production. (x 10)
+	// NOTE: not added the formula for this month yet - Ranran
+	uint32 calc_occupancy_rate(sint8 month) const;
 };
 
 #endif

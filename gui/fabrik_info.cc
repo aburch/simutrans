@@ -48,17 +48,24 @@ static const int fab_alert_level[fabrik_t::MAX_FAB_STATUS] =
 	0
 };
 
+sint16 fabrik_info_t::tabstate = 0;
+
 fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	gui_frame_t("", fab_->get_owner()),
+	storage(fab_),
 	fab(fab_),
+	goods_chart(fab_),
 	chart(fab_),
 	lbl_factory_status(factory_status),
 	view(gb, scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
-	scrolly(&fab_info),
+	scrolly_info(&container_info),
+	scrolly_details(&container_details),
+	all_suppliers(fab_, true),
+	all_consumers(fab_, false),
+	nearby_halts(fab_),
 	prod(&prod_buf),
 	txt(&info_buf)
 {
-	lieferbuttons = supplierbuttons = NULL;
 	staffing_level = staffing_level2 = staff_shortage_factor = 0;
 
 	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );
@@ -76,13 +83,66 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	prod.recalc_size();
 	add_component( &prod );
 
-	const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE+ max( prod.get_size().h, view.get_size().h + 8 ) + D_V_SPACE+LINESPACE;
+	const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE+ max( prod.get_size().h + storage.get_size().h, view.get_size().h + 8 ) + LINESPACE;
 
-	chart.set_pos( scr_coord(0, offset_below_viewport) );
-	chart_button.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X,offset_below_viewport), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-	chart_button.set_tooltip("Show/hide statistics");
-	chart_button.add_listener(this);
-	add_component(&chart_button);
+	storage.set_pos(scr_coord(0, offset_below_viewport));
+	storage.recalc_size();
+	add_component(&storage);
+
+	tabs.set_pos(scr_coord(0, offset_below_viewport + storage.get_size().h + LINESPACE));
+	tabs.set_size(scr_size(D_DEFAULT_WIDTH-2, D_TAB_HEADER_HEIGHT + 70 + LINESPACE*2));
+
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TAB_HEADER_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT));
+
+	// calculate height
+	fab->info_prod(prod_buf);
+
+	// fill position buttons etc
+	fab->info_conn(info_buf);
+	txt.recalc_size();
+	update_info();
+
+	// tab1 - connections
+	container_info.set_pos(scr_coord(0, D_MARGIN_TOP));
+	scr_coord_val y = 0; // calc for layout
+	lb_suppliers.set_visible(false);
+	lb_suppliers.init(translator::translate("Suppliers"), scr_coord(D_H_SPACE, y));
+	if (all_suppliers.get_size().h) {
+		lb_suppliers.set_visible(true);
+		y += LINESPACE;
+	}
+	all_suppliers.set_pos(scr_coord(0, y));
+	y += all_suppliers.get_size().h;
+	if (all_suppliers.get_size().h) {
+		y += LINESPACE;
+	}
+
+	lb_consumers.set_visible(false);
+	lb_consumers.init(translator::translate("Abnehmer"), scr_coord(D_H_SPACE, y));
+	if (all_consumers.get_size().h) {
+		lb_consumers.set_visible(true);
+		y += LINESPACE;
+	}
+	all_consumers.set_pos(scr_coord(0, y));
+	y += all_consumers.get_size().h;
+	y += LINESPACE;
+
+	lb_nearby_halts.init(translator::translate("Connected stops (freight)"), scr_coord(D_H_SPACE, y));
+	y += LINESPACE;
+	nearby_halts.set_pos(scr_coord(0, y));
+	y += nearby_halts.get_size().h;
+	y += D_MARGIN_BOTTOM;
+
+	container_info.add_component(&lb_suppliers);
+	container_info.add_component(&all_suppliers);
+	container_info.add_component(&lb_consumers);
+	container_info.add_component(&all_consumers);
+	container_info.add_component(&lb_nearby_halts);
+	container_info.add_component(&nearby_halts);
+	container_info.set_size(scr_size(400, y));
+
+	// tab4 - building info
+	container_details.init(scr_coord(0, D_MARGIN_TOP), scr_size(D_BUTTON_WIDTH*3, txt.get_size().h));
 
 	// Hajo: "About" button only if translation is available
 	char key[256];
@@ -95,13 +155,14 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 		add_component(&details_button);
 	}
 
-	// calculate height
-	fab->info_prod(prod_buf);
 
-	// fill position buttons etc
-	fab->info_conn(info_buf);
-	txt.recalc_size();
-	update_info();
+	tabs.add_tab(&scrolly_info, translator::translate("Connections"));
+	tabs.add_tab(&goods_chart, translator::translate("Goods chart"));
+	tabs.add_tab(&chart, translator::translate("Production chart"));
+	tabs.add_tab(&scrolly_details, translator::translate("Building Info."));
+
+	tabs.add_listener(this);
+	add_component(&tabs);
 
 	// staffing bar
 	add_component(&staffing_bar);
@@ -110,12 +171,9 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	lbl_factory_status.set_tooltip(translator::translate("staffing_bar_tooltip_help"));
 	add_component(&lbl_factory_status);
 
-	scrolly.set_pos(scr_coord(0, offset_below_viewport+D_BUTTON_HEIGHT+D_V_SPACE+12));
-	add_component(&scrolly);
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TAB_HEADER_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT + tabs.get_size().h));
 
-	set_min_windowsize(scr_size( D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+scrolly.get_pos().y+LINESPACE*5+D_MARGINS_Y));
-	scr_coord_val y = min( D_TITLEBAR_HEIGHT+scrolly.get_pos().y+fab_info.get_size().h+D_MARGINS_Y,  display_get_height() - env_t::iconsize.h - 16);
-	set_windowsize( scr_size(D_DEFAULT_WIDTH, y ) );
+	tabs.set_size(get_client_windowsize() - tabs.get_pos() - scr_size(0, 1));
 
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0,0));
@@ -127,8 +185,6 @@ fabrik_info_t::~fabrik_info_t()
 	rename_factory();
 	fabname[0] = 0;
 
-	delete [] lieferbuttons;
-	delete [] supplierbuttons;
 	//delete [] stadtbuttons;
 }
 
@@ -166,7 +222,7 @@ void fabrik_info_t::set_windowsize(scr_size size)
 	staffing_bar.set_pos(scr_coord(view.get_pos().x + 1, view.get_pos().y + view.get_size().h));
 	staffing_bar.set_size(scr_size(view.get_size().w-2, D_INDICATOR_HEIGHT));
 
-	scrolly.set_size(get_client_windowsize()-scrolly.get_pos());
+	tabs.set_size(get_client_windowsize() - tabs.get_pos() - scr_size(0, 1));
 }
 
 
@@ -303,22 +359,7 @@ bool fabrik_info_t::is_weltpos()
  */
 bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
-	if(comp == &chart_button) {
-		chart_button.pressed ^= 1;
-		if(  !chart_button.pressed  ) {
-			remove_component( &chart );
-		}
-		else {
-			add_component( &chart );
-		}
-		const scr_coord offset = chart_button.pressed ? scr_coord(0, chart.get_size().h - 6) : scr_coord(0, -(chart.get_size().h - 6));
-		set_min_windowsize(get_min_windowsize() + offset);
-		chart_button.set_pos( chart_button.get_pos() + offset );
-		details_button.set_pos( details_button.get_pos() + offset );
-		scrolly.set_pos( scrolly.get_pos() + offset );
-		resize( scr_coord(0,(chart_button.pressed ? chart.get_size().h : -chart.get_size().h) ) );
-	}
-	else if(comp == &input) {
+	if(comp == &input) {
 		rename_factory();
 	}
 	else if(comp == &details_button) {
@@ -328,36 +369,30 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		frame->set_text(translator::translate(key));
 		create_win(frame, w_info, (ptrdiff_t)this);
 	}
-	else if(v.i&~1) {
-		koord k = *(const koord *)v.p;
-		welt->get_viewport()->change_world_position( koord3d(k,welt->max_hgt(k)) );
+	else if (tabstate != tabs.get_active_tab_index() || get_windowsize().h == get_min_windowsize().h) {
+		tabstate = tabs.get_active_tab_index();
+		switch (tabstate)
+		{
+			case 0: // info
+			default:
+				tabs.set_size(scrolly_info.get_size());
+				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + D_V_SPACE*2 + min(22 * LINESPACE, container_info.get_size().h)));
+				break;
+			case 1: // goods chart 
+				goods_chart.recalc_size();
+				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + goods_chart.get_size().h));
+				break;
+			case 2: // prod chart
+				chart.recalc_size();
+				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + chart.get_size().h));
+				break;
+			case 3: // details 
+				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + D_V_SPACE*2 + container_details.get_size().h));
+				break;
+		}
 	}
 
 	return true;
-}
-
-
-static inline koord const& get_coord(const koord &c) { return c; }
-
-
-template <typename T> static void make_buttons(button_t*& dst, T const& coords, int& y_off, gui_container_t& fab_info, action_listener_t* const listener)
-{
-	delete [] dst;
-	if (coords.empty()) {
-		dst = 0;
-	}
-	else {
-		button_t* b = dst = new button_t[coords.get_count()];
-		FORTX(T, const& i, coords, ++b) {
-			b->set_pos(scr_coord(D_MARGIN_LEFT, y_off));
-			y_off += LINESPACE;
-			b->set_typ(button_t::posbutton);
-			b->set_targetpos(get_coord(i));
-			b->add_listener(listener);
-			fab_info.add_component(b);
-		}
-		y_off += 2 * LINESPACE;
-	}
 }
 
 
@@ -367,19 +402,18 @@ void fabrik_info_t::update_info()
 	gui_frame_t::set_name( fabname );
 	input.set_text( fabname, lengthof(fabname) );
 
-	fab_info.fab = fab;
-	fab_info.remove_all();
-
 	// needs to update all text
-	fab_info.set_pos( scr_coord(0,0) );
 	txt.set_pos( scr_coord(D_MARGIN_LEFT,0) );
-	fab_info.add_component(&txt);
+	container_details.add_component(&txt);
+	all_suppliers.recalc_size();
+	all_consumers.recalc_size();
+	nearby_halts.update(fab);
+	nearby_halts.recalc_size();
 
-	int y_off = LINESPACE;
-	make_buttons(lieferbuttons,   fab->get_lieferziele(),   y_off, fab_info, this);
-	make_buttons(supplierbuttons, fab->get_suppliers(),     y_off, fab_info, this);
 
-	fab_info.set_size( scr_size( fab_info.get_size().w, txt.get_size().h ) );
+
+
+	const sint16 offset_below_viewport = D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + max(prod.get_size().h + storage.get_size().h, view.get_size().h + 8) + LINESPACE*3;
 }
 
 
@@ -390,30 +424,6 @@ void gui_fabrik_info_t::draw(scr_coord offset)
 	int yoff = pos.y+offset.y;
 
 	gui_container_t::draw( offset );
-
-	if(  fab->get_lieferziele().get_count()  ) {
-		yoff += LINESPACE;
-		FOR(  const vector_tpl<koord>, k, fab->get_lieferziele() ) {
-			if(  fab->is_active_lieferziel(k)  ) {
-				display_color_img(skinverwaltung_t::goods->get_image_id(0), xoff, yoff, 0, false, true);
-			}
-			yoff += LINESPACE;
-		}
-		yoff += LINESPACE;
-	}
-
-	if(  fab->get_suppliers().get_count()  ) {
-		yoff += LINESPACE;
-		FOR(  const vector_tpl<koord>, k, fab->get_suppliers() ) {
-			if(  const fabrik_t *src = fabrik_t::get_fab(k)  ) {
-				if(  src->is_active_lieferziel(fab->get_pos().get_2d())  ) {
-					display_color_img(skinverwaltung_t::goods->get_image_id(0), xoff, yoff, 0, false, true);
-				}
-			}
-			yoff += LINESPACE;
-		}
-		yoff += LINESPACE;
-	}
 }
 
 
@@ -422,14 +432,19 @@ void gui_fabrik_info_t::draw(scr_coord offset)
 
 fabrik_info_t::fabrik_info_t() :
 	gui_frame_t("", welt->get_public_player()),
+	storage(NULL),
 	fab(NULL),
+	goods_chart(NULL),
 	chart(NULL),
+	all_suppliers(NULL, true),
+	all_consumers(NULL, false),
+	nearby_halts(NULL),
 	view(scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
-	scrolly(&fab_info),
+	scrolly_info(&container_info),
+	scrolly_details(&container_details),
 	prod(&prod_buf),
 	txt(&info_buf)
 {
-	lieferbuttons = supplierbuttons = NULL;
 
 	input.set_pos(scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP));
 	input.set_text( fabname, lengthof(fabname) );
@@ -441,15 +456,8 @@ fabrik_info_t::fabrik_info_t() :
 	prod.set_pos( scr_coord( D_MARGIN_LEFT, D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE+LINESPACE ) );
 	add_component( &prod );
 
-	chart_button.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X,0), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-	chart_button.set_tooltip("Show/hide statistics");
-	chart_button.add_listener(this);
-	add_component(&chart_button);
-
-	add_component(&scrolly);
-
 	const sint16 total_width = D_MARGIN_LEFT + 3*(D_BUTTON_WIDTH + D_H_SPACE) + max( D_BUTTON_WIDTH, view.get_size().w ) + D_MARGIN_RIGHT;
-	set_min_windowsize(scr_size(total_width, D_TITLEBAR_HEIGHT+scrolly.get_pos().y+LINESPACE*5+D_MARGIN_BOTTOM));
+	set_min_windowsize(scr_size(total_width, D_TITLEBAR_HEIGHT+LINESPACE*5+D_MARGIN_BOTTOM));
 
 	set_resizemode(diagonal_resize);
 }
@@ -458,12 +466,11 @@ fabrik_info_t::fabrik_info_t() :
 void fabrik_info_t::rdwr( loadsave_t *file )
 {
 	scr_size size = get_windowsize();
-	sint32 scroll_x = scrolly.get_scroll_x();
-	sint32 scroll_y = scrolly.get_scroll_y();
+	//sint32 scroll_y = scrolly.get_scroll_y();
 	koord fabpos;
 	scr_coord viewpos = view.get_pos();
 	scr_size viewsize = view.get_size();
-	scr_coord scrollypos = scrolly.get_pos();
+	//scr_coord scrollypos = scrolly.get_pos();
 
 	if(  file->is_saving()  ) {
 		fabpos = fab->get_pos().get_2d();
@@ -473,11 +480,10 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 	fabpos.rdwr( file );
 	viewpos.rdwr( file );
 	viewsize.rdwr( file );
-	scrollypos.rdwr( file );
+	//scrollypos.rdwr( file );
 	file->rdwr_str( fabname, lengthof(fabname) );
-	file->rdwr_long( scroll_x );
-	file->rdwr_long( scroll_y );
-	file->rdwr_bool( chart_button.pressed );
+	//file->rdwr_long( scroll_x );
+	//file->rdwr_long( scroll_y );
 
 	if(  file->is_loading()  ) {
 		fab = fabrik_t::get_fab(fabpos );
@@ -486,16 +492,14 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 		view.set_obj( welt->lookup_kartenboden( fabpos )->find<gebaeude_t>() );
 		view.set_size( viewsize );
 		view.set_pos( viewpos );
-		chart.set_factory( fab );
-		chart.rdwr( file );
+		//chart.set_factory( fab );
+		//chart.rdwr( file );
 
 		// now put stuff at old positions
 		fab->info_prod( prod_buf );
 		prod.recalc_size();
 
-		const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE*2+ max( prod.get_size().h, view.get_size().h + 8 + D_V_SPACE )+ LINESPACE;
-		chart.set_pos( scr_coord(0, offset_below_viewport - 5) );
-		chart_button.set_pos( scr_coord(BUTTON3_X,offset_below_viewport) );
+		const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE*2+ max( prod.get_size().h + storage.get_size().h, view.get_size().h + 8 + D_V_SPACE )+ LINESPACE;
 
 		// calculate height
 		fab->info_prod(prod_buf);
@@ -505,8 +509,7 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 		txt.recalc_size();
 		update_info();
 
-		scrolly.set_pos( scrollypos );
-		set_min_windowsize(scr_size(get_min_windowsize().w, D_TITLEBAR_HEIGHT+scrollypos.y+LINESPACE*5+D_MARGIN_BOTTOM));
+		set_min_windowsize(scr_size(get_min_windowsize().w, D_TITLEBAR_HEIGHT+LINESPACE*5+D_MARGIN_BOTTOM));
 
 		// Hajo: "About" button only if translation is available
 		char key[256];
@@ -519,17 +522,15 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 			add_component(&details_button);
 		}
 
-		if(  chart_button.pressed  ) {
+		/*if(  chart_button.pressed  ) {
 			add_component( &chart );
 			const scr_coord offset = scr_coord(0, chart.get_size().h - 6);
-			chart_button.set_pos( chart_button.get_pos() + offset );
 			details_button.set_pos( details_button.get_pos() + offset );
-		}
+		}*/
 		set_windowsize( size );
 		resize( scr_coord(0,0) );
-		scrolly.set_scroll_position( scroll_x, scroll_y );
 	}
 	else {
-		chart.rdwr( file );
+		//chart.rdwr( file );
 	}
 }

@@ -18,6 +18,7 @@
 #include "components/gui_container.h"
 #include "../utils/cbuffer_t.h"
 #include "components/gui_speedbar.h"
+#include "components/gui_factory_storage_info.h"
 
 class welt_t;
 class fabrik_t;
@@ -53,8 +54,12 @@ private:
 	cbuffer_t info_buf, prod_buf;
 	cbuffer_t factory_status;
 
+	gui_tab_panel_t tabs;
+	static sint16 tabstate;
+
+	factory_goods_chart_t goods_chart;
 	factory_chart_t chart;
-	button_t chart_button;
+
 	gui_label_t lbl_factory_status;
 	gui_speedbar_t staffing_bar;
 	sint32 staffing_level;
@@ -68,13 +73,17 @@ private:
 	char fabname[256];
 	gui_textinput_t input;
 
-	button_t *lieferbuttons;
-	button_t *supplierbuttons;
 	//button_t *stadtbuttons;
 
-	gui_scrollpane_t scrolly;
-	gui_fabrik_info_t fab_info;
 	gui_textarea_t prod, txt;
+
+	gui_factory_storage_info_t storage;
+
+	gui_scrollpane_t scrolly_info, scrolly_details;
+	gui_container_t container_info, container_details;
+	gui_factory_connection_stat_t all_suppliers, all_consumers;
+	gui_label_t lb_suppliers, lb_consumers, lb_nearby_halts;
+	gui_factory_nearby_halt_info_t nearby_halts;
 
 	void rename_factory();
 
