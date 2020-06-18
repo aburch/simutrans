@@ -3172,7 +3172,6 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 	if (building)
 	{
 		buf.append("\n");
-        	buf.printf("%s: %s\n", translator::translate("Built in"), translator::get_year_month(building->get_purchase_time()));
 		buf.printf("%s: %d\n", translator::translate("Visitor demand"), building->get_adjusted_visitor_demand());
 #ifdef DEBUG
 		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), building->get_adjusted_jobs(), building->check_remaining_available_jobs());
@@ -3344,6 +3343,8 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		else {
 			buf.printf("\n");
 		}
+		buf.printf("\n");
+		buf.printf("%s: %s\n", translator::translate("Built in"), translator::get_year_month(building->get_purchase_time()));
 		buf.printf("\n");
 		buf.printf(translator::translate("Constructed by %s"), get_fab(building->get_pos().get_2d())->get_desc()->get_copyright());
 	}
