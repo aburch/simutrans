@@ -1755,7 +1755,13 @@ void reliefkarte_t::draw(scr_coord pos)
 				}
 
 				if(  stype & haltestelle_t::dock  ) {
-					display_harbor( temp_stop.x+diagonal_dist, temp_stop.y+diagonal_dist, color );
+					fabrik_t *fab = fabrik_t::get_fab(station->get_basis_pos());
+					if (fab && fab->get_sector() == fabrik_t::marine_resource && skinverwaltung_t::ind_sector_symbol) {
+						display_color_img(skinverwaltung_t::ind_sector_symbol->get_image_id(0), temp_stop.x + diagonal_dist+4, temp_stop.y + diagonal_dist+4, 0, false, false);
+					}
+					else {
+						display_harbor(temp_stop.x + diagonal_dist, temp_stop.y + diagonal_dist, color);
+					}
 				}
 			}
 		}
