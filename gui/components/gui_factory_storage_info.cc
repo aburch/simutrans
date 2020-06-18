@@ -369,6 +369,10 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 			if (target_fab->get_status() != fabrik_t::inactive && fab->get_status() != fabrik_t::inactive) {
 				// [lead time]
 				const uint32 lead_time = display_input ? fab->get_lead_time(transport_goods) : target_fab->get_lead_time(transport_goods);
+				if (skinverwaltung_t::travel_time){
+					display_color_img_with_tooltip(skinverwaltung_t::travel_time->get_image_id(0), offset.x + xoff, offset.y + yoff, 0, false, false, translator::translate("symbol_help_txt_lead_time"));
+					xoff += 12;
+				}
 				buf.clear();
 				if (lead_time == UINT32_MAX_VALUE) {
 					buf.append("--:--:--");
