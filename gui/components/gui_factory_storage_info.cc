@@ -158,7 +158,7 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 				display_fillbox_wh_clip(pos.x + offset.x + left+1, pos.y + offset.y + yoff+1, STORAGE_INDICATOR_WIDTH, 6, MN_GREY2, true);
 				if (storage_capacity) {
 					const uint16 colored_width = min(STORAGE_INDICATOR_WIDTH, (uint16)(STORAGE_INDICATOR_WIDTH * stock_quantity / storage_capacity));
-					display_fillbox_wh_clip(pos.x + offset.x + left + 1, pos.y + offset.y + yoff + 1, colored_width, 6, goods_color, true);
+					display_cylinderbar_wh_clip(pos.x + offset.x + left + 1, pos.y + offset.y + yoff + 1, colored_width, 6, goods_color, true);
 				}
 				left += STORAGE_INDICATOR_WIDTH + 2 + D_H_SPACE;
 
