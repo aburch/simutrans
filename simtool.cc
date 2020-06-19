@@ -6847,7 +6847,7 @@ bool tool_change_convoi_t::init( player_t *player )
 			{
 				schedule_t *schedule = cnv->create_schedule()->copy();
 				schedule->finish_editing();
-				if (schedule->sscanf_schedule( p )  &&  scenario_check_schedule(welt, player, schedule, can_use_gui())) {
+				if (schedule->sscanf_schedule( p )  &&  (no_check()  ||  scenario_check_schedule(welt, player, schedule, can_use_gui())) ) {
 					cnv->set_schedule( schedule );
 				}
 				else {
@@ -6988,7 +6988,7 @@ bool tool_change_line_t::init( player_t *player )
 
 				line->get_schedule()->sscanf_schedule( p );
 				// check scenario conditions
-				if (!scenario_check_schedule(welt, player, line->get_schedule(), can_use_gui())) {
+				if (!no_check()  &&  !scenario_check_schedule(welt, player, line->get_schedule(), can_use_gui())) {
 					player->simlinemgmt.delete_line(line);
 					break;
 				}
