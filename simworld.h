@@ -15,6 +15,7 @@
 #include "halthandle_t.h"
 
 #include "tpl/weighted_vector_tpl.h"
+#include "tpl/array2d_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
 
@@ -256,6 +257,13 @@ private:
 	 * Table for fast conversion from height to climate.
 	 */
 	uint8 height_to_climate[128];
+	uint8 num_climates_at_height[128];
+
+	/**
+	 * Contains the intended climate for a tile
+	 * (needed to restore tiles after height changes)
+	 */
+	array2d_tpl<uint8>climate_map;
 
 	/**
 	 * Array containing the convois.
@@ -1348,8 +1356,6 @@ public:
 
 	~karte_t();
 
-
-
 	/**
 	 * File version used when loading (or current if generated)
 	 * @note Useful for finish_rd
@@ -1620,6 +1626,11 @@ public:
 	 * Calculates appropriate climate for a tile
 	 */
 	void calc_climate(koord k, bool recalc);
+
+	/**
+	 * Calculates appropriate climate for a region using elliptic areas for each
+	 */
+	void calc_climate_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom );
 
 	/**
 	 * Rotates climate and water transitions for a tile

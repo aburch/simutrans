@@ -6,7 +6,7 @@
 	ADD: Vehicle list as dialog tool 33 (to see also upcoming vehicles)
 	ADD: goods waiting bar with now configurable: gui_waitingbar_width
 	ADD: button to copy the last 20 messages to the clipboard
-	CHG: factory smoke location now depend on factory. Four parameters smoketile[], smokeoffset[] (koord), and smokeuplift (16) and smokelifetime (2499)
+	CHG: factory smoke location now depended on factory. Four parameters smoketile[], smokeoffset[] (koord), and smokeuplift (16) and smokelifetime (2499)
 	FIX: several list stored wrong coordinates after map rotation
 	FIX: Too new pak file version check now enforced for all objects
 	FIX: airplane should stuck much less upon runway rebuilds
@@ -16,12 +16,11 @@
 	ADD: if shift is pressed during road building then city roads or faster ways will not be overbuilt
 	ADD: more folders searched for fonts on non-windows systems
 	FIX: broken connection could kill (especially server) games on Linux
-	ADD: customisable laoding bar colors with gui_color_loadingbar_inner and gui_color_loadingbar_progress
+	ADD: customisable loading bar colors with gui_color_loadingbar_inner and gui_color_loadingbar_progress
 	CHG: record messages and some status messages are now not saved, while stuck and full stations expire after a month on server chat to keep overview
 	ADD: new button in minimap to hide contour for higher contrast of other stuff
-	CHG: Also show convoi name and line name as overlay
-	ADD: (inspired by Ranran) Option in city and factory lists to show only towns/factories already served by a player
-	ADD: network filter also on curiosities
+	CHG: Option to show convoi name and line name as overlay
+	ADD: (inspired by Ranran) Option in city, curiosity, and factory lists to show only towns/factories already served by a player
 	ADD: two more theme colors: gui_color_obsolete, gui_color_empty for lines and server
 	ADD: (Yona-TNT) configurable offsets for player colors for gui elements
 	ADD: convois (in convoi list and schedule) also show their next stop with a posbutton to jump there
@@ -29,6 +28,8 @@
 	CHG: fixed vehicle costs are now booked as running costs at the begin of a month, also convoi details changed to accomodate
 	CHG: a server will pause without clients if '-pause' is set on the command line
 	ADD: freight type filter on line window
+	CHG: speedup of map generation but reorganising and multithreading lake code
+	ADD: defining overlapping climate height limits will generate maps with climate patches at these heights
 
 
 Release of 121.0 (r8870 on 1-Dec-2019):

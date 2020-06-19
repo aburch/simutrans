@@ -11,8 +11,6 @@
 #include "../simtypes.h"
 #include "../simconst.h"
 
-
-
 class player_t;
 class loadsave_t;
 class tabfile_t;
@@ -119,10 +117,9 @@ private:
 	 /**
 	 * waterlevel, climate borders, lowest snow in winter
 	 */
-
 	sint16 groundwater;
-	sint16 climate_borders[MAX_CLIMATES];
 	sint16 winter_snowline;
+	sint16 climate_borders[MAX_CLIMATES][2];
 
 	double max_mountain_height;
 	double map_roughness;
@@ -430,9 +427,9 @@ public:
 	uint8 get_just_in_time() const {return just_in_time;}
 
 	void set_default_climates();
-	const sint16 *get_climate_borders() const { return climate_borders; }
+	sint8 get_climate_borders( sint8 climate, sint8 start_end ) const { return climate_borders[climate][start_end]; }
 
-	sint16 get_winter_snowline() const {return winter_snowline;}
+	sint16 get_winter_snowline() const { return winter_snowline; }
 
 	void rotate90() {
 		rotation = (rotation+1)&3;

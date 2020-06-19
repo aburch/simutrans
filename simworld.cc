@@ -71,10 +71,12 @@
 #include "network/network_file_transfer.h"
 #include "network/network_socket_list.h"
 #include "network/network_cmd_ingame.h"
+
 #include "dataobj/height_map_loader.h"
 #include "dataobj/ribi.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
+#include "dataobj/marker.h"
 #include "dataobj/scenario.h"
 #include "dataobj/settings.h"
 #include "dataobj/environment.h"
@@ -304,7 +306,7 @@ void karte_t::recalc_season_snowline(bool set_pending)
 	}
 
 	const sint16 winterline = settings.get_winter_snowline();
-	const sint16 summerline = settings.get_climate_borders()[arctic_climate] + 1;
+	const sint16 summerline = max(settings.get_climate_borders(arctic_climate,1),settings.get_climate_borders(arctic_climate,0));
 	snowline = summerline - (sint16)(((summerline-winterline)*factor)/100);
 	if(  old_snowline != snowline  &&  set_pending  ) {
 		pending_snowline_change++;
@@ -1665,30 +1667,26 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 
 void karte_t::init_height_to_climate()
 {
-	// create height table
-	sint16 climate_border[MAX_CLIMATES];
-	memcpy(climate_border, get_settings().get_climate_borders(), sizeof(climate_border));
-	// set climate_border[0] to sea level
-	climate_border[0] = groundwater;
-
-	for( int cl=0;  cl<MAX_CLIMATES-1;  cl++ ) {
-		if(climate_border[cl]>climate_border[arctic_climate]) {
-			// unused climate
-			climate_border[cl] = groundwater-1;
+	// mark unused as arctic
+	memset( height_to_climate, arctic_climate, lengthof(height_to_climate) );
+	memset( num_climates_at_height, 0, lengthof(num_climates_at_height) );
+	
+	// now just add them, the later climates will win (we will do a fineer assessment later
+	for( int cl=0;  cl<MAX_CLIMATES;  cl++ ) {
+		DBG_DEBUG( "init_height_to_climate()", "climate %i, start %i end %i", cl,  settings.get_climate_borders( cl, 0 ),  settings.get_climate_borders( cl, 1 ) );
+		for( sint8 h = settings.get_climate_borders( cl, 0 ); h < settings.get_climate_borders( cl, 1 ); h++ ) {
+			height_to_climate[h-groundwater] = (uint8)cl;
+			num_climates_at_height[h-groundwater]++;
 		}
 	}
-
-	// now arrange the remaining ones
-	for( uint h=0;  h<lengthof(height_to_climate);  h++  ) {
-		sint16 current_height = 999;        // current maximum
-		sint16 current_cl = arctic_climate; // and the climate
-		for( int cl=0;  cl<MAX_CLIMATES;  cl++ ) {
-			if(  climate_border[cl] >= (sint16)h + groundwater  &&  climate_border[cl] < current_height  ) {
-				current_height = climate_border[cl];
-				current_cl = cl;
-			}
+	for( int h = 0; h < 128; h++ ) {
+		if( h-groundwater > settings.get_climate_borders( arctic_climate, 1 )   &&   num_climates_at_height[h]==0  ) {
+			height_to_climate[h] = h==0  ? (uint8)arctic_climate : desert_climate;
+			num_climates_at_height[h] = 1;
 		}
-		height_to_climate[h] = (uint8)current_cl;
+		if( num_climates_at_height[ h ] > 0 ) {
+			DBG_DEBUG( "init_height_to_climate()", "Height %i, climate %i, num_climates %i", h - groundwater, height_to_climate[ h ], num_climates_at_height[ h ] );
+		}
 	}
 }
 
@@ -1882,12 +1880,15 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		ls.set_progress(13);
 	}
 
-	// set climates in new area and old map near seam
-	for(  sint16 iy = 0;  iy < new_size_y;  iy++  ) {
-		for(  sint16 ix = (iy >= old_y - 19) ? 0 : max( old_x - 19, 0 );  ix < new_size_x;  ix++  ) {
-			calc_climate( koord( ix, iy ), false );
-		}
+	// set climates in new area
+	if( old_x == 0   &&  old_y == 0 ) {
+		calc_climate_region( 0, 0, new_size_x, new_size_y );
 	}
+	else {
+		calc_climate_region( old_x, 0, new_size_x, new_size_y );
+		calc_climate_region( 0, old_y, old_x, new_size_y );
+	}
+
 	if (  old_x == 0  &&  old_y == 0  ) {
 		ls.set_progress(14);
 	}
@@ -2011,7 +2012,8 @@ karte_t::karte_t() :
 	settings(env_t::default_settings),
 	convoi_array(0),
 	attractions(16),
-	stadt(0)
+	stadt(0),
+	climate_map(0,0)
 {
 	destroying = false;
 
@@ -4755,6 +4757,16 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved tiles");
 	DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved hgt");
 	}
 
+	// save default climate amp
+	if(  file->is_version_atleast( 121, 1 )  ) {
+		for(  sint16 y = 0;  y < get_size().y;  y++  ) {
+			for(  sint16 x = 0;  x < get_size().x;  x++  ) {
+				file->rdwr_byte( climate_map.at(x,y) );
+			}
+		}
+	}
+	DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved default climates");
+
 	sint32 fabs = fab_list.get_count();
 	file->rdwr_long(fabs);
 	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
@@ -5299,7 +5311,7 @@ void karte_t::load(loadsave_t *file)
 	if(  file->is_version_less(112, 7)  ) {
 		// r7930 fixed a bug in init_height_to_climate
 		// recover old behavior to not mix up climate when loading old savegames
-		groundwater = settings.get_climate_borders()[0];
+		groundwater = settings.get_climate_borders(0,0);
 		init_height_to_climate();
 		groundwater = settings.get_groundwater();
 	}
@@ -5472,11 +5484,28 @@ DBG_MESSAGE("karte_t::load()", "init player");
 		}
 	}
 
-	if(  file->is_version_less(112, 7)  ) {
-		// set climates
+	// init climates and default climate map
+	DBG_MESSAGE("karte_t::load()", "init climates");
+	climate_map.resize( get_size().x, get_size().y );
+	if(  file->is_version_atleast( 121, 1 )  ) {
 		for(  sint16 y = 0;  y < get_size().y;  y++  ) {
 			for(  sint16 x = 0;  x < get_size().x;  x++  ) {
-				calc_climate( koord( x, y ), false );
+				file->rdwr_byte( climate_map.at(x,y) );
+			}
+		}
+	}
+	else if(  file->is_version_less(112, 7)  ) {
+		// distribute climates
+		calc_climate_region(0,0,get_size().x,get_size().y);
+	}
+	else {
+		for(  sint16 y = 0;  y < get_size().y;  y++  ) {
+			for(  sint16 x = 0;  x < get_size().x;  x++  ) {
+				climate_map.at(x,y) = access(x,y)->get_climate();
+				if( climate_map.at( x, y ) > arctic_climate ) {
+					dbg->warning( "karte_t::load()", "Wrong climate %i at (%i%i) set to temperate", climate_map.at( x, y ), x, y );
+					climate_map.at( x, y ) = temperate_climate;
+				}
 			}
 		}
 	}
@@ -5894,6 +5923,7 @@ void karte_t::calc_climate(koord k, bool recalc)
 	if(  gr  ) {
 		if(  !gr->is_water()  ) {
 			bool beach = false;
+			climate default_cl = (climate)climate_map.at( k.x, k.y );
 			if(  gr->get_pos().z == groundwater  ) {
 				for(  int i = 0;  i < 8 && !beach;  i++  ) {
 					grund_t *gr2 = lookup_kartenboden( k + koord::neighbours[i] );
@@ -5902,7 +5932,16 @@ void karte_t::calc_climate(koord k, bool recalc)
 					}
 				}
 			}
-			pl->set_climate( beach ? desert_climate : get_climate_at_height( max( gr->get_pos().z, groundwater + 1 ) ) );
+			if( beach ) {
+				pl->set_climate( desert_climate );
+			}
+			else if(  default_cl>water_climate  &&  default_cl<=arctic_climate  &&  settings.get_climate_borders(default_cl,false)<=gr->get_pos().z  &&  settings.get_climate_borders(default_cl,true)>=gr->get_pos().z  ) {
+				// if possible keep (or revert) to original climate
+				pl->set_climate( default_cl );
+			}
+			else {
+				pl->set_climate( get_climate_at_height( max( gr->get_pos().z, groundwater + 1 ) ) );
+			}
 		}
 		else {
 			pl->set_climate( water_climate );
@@ -5918,6 +5957,122 @@ void karte_t::calc_climate(koord k, bool recalc)
 		}
 	}
 }
+
+
+// distributes climates in a rectangle
+void karte_t::calc_climate_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom  )
+{
+	sint32 points = (xbottom - xtop)*(ybottom - ytop);
+
+	if( xtop == 0 && ytop == 0 ) {
+		climate_map.clear();
+	}
+	climate_map.resize( xbottom, ybottom, 0xFF );
+
+	sint16 groundwater = settings.get_groundwater();
+
+	// first remove water and beach tiles from distribution effort
+	for(  sint16 y = ytop;  y < ybottom;  y++  ) {
+		for(  sint16 x = xtop;  x < xbottom;  x++  ) {
+			if(  planquadrat_t *pl = access( x, y )  ) {
+				if(  pl->get_kartenboden()->is_water()  ) {
+					// full water tile
+					points--;
+					pl->set_climate( water_climate );
+					pl->set_climate_transition_flag(false);
+					pl->set_climate_corners(0);
+					climate_map.at( x, y ) = water_climate;
+				}
+				else {
+					// test for beach tiles
+					grund_t *gr = pl->get_kartenboden();
+					bool beach = false;
+					if(  gr->get_pos().z == groundwater  ) {
+						for(  int i = 0;  i < 8 && !beach;  i++  ) {
+							grund_t *gr2 = lookup_kartenboden( koord(x,y) + koord::neighbours[i] );
+							if(  gr2 && gr2->is_water()  ) {
+								beach = true;
+							}
+						}
+					}
+					sint8 rel_h = max( gr->get_pos().z - groundwater, 1 );
+					if(  beach  ||  num_climates_at_height[rel_h] <= 1  ) {
+						// beach or only one climate
+						uint8 cl = beach ? desert_climate : (num_climates_at_height[rel_h] == 0 ? temperate_climate : height_to_climate[rel_h]);
+						points--;
+						pl->set_climate( (climate)cl );
+						climate_map.at( x, y ) = cl;
+						pl->set_climate_transition_flag(false);
+						pl->set_climate_corners(0);
+					}
+				}
+			}
+		}
+	}
+
+	/* Now all unmarked tiles are still pending to get their climate
+	 * We will start an ellispe at the first tile than is inmarked with a random allowed climate for that height
+	 * The region sizes depends on the map (within reason)
+	 */
+	const sint16 max_patchsize_x = clamp( 5, xbottom / 24, 256 );
+	const sint16 max_patchsize_y = clamp( 5, ybottom / 24, 256 );
+
+	sint16 last_x = xtop, last_y = ytop;
+	minivec_tpl<uint8> allowed( 8 );
+	 {
+		// find the next climateless tile
+		for(  sint16 y = ytop;  y < ybottom;  y++  ) {
+			for(  sint16 x = xtop;  x < xbottom;  x++  ) {
+				if( climate_map.at( x, y ) == 0xFF ) {
+					planquadrat_t *pl = access( x, y );
+					grund_t *gr = pl->get_kartenboden();
+					// not assigned yet => start with a random allowed climate
+					allowed.clear();
+					for( int cl=1;  cl<MAX_CLIMATES;  cl++ ) {
+						if(  gr->get_hoehe() >= settings.get_climate_borders( cl, 0 )  &&  gr->get_hoehe() <= settings.get_climate_borders( cl, 1 )  ) {
+							allowed.append(cl);
+						}
+					}
+					climate cl = (climate)allowed[ simrand( allowed.get_count() - 1 ) ];
+					// now we do an ellipse with size wx and wy around the starting point
+					const sint32 wx = simrand( max_patchsize_x );
+					const sint32 wy = simrand( max_patchsize_y );
+					for( sint16 j = 0; j < wx; j++) {
+						for( sint16 i = 0; i < wy; i++) {
+
+							const sint32 x_off = (j-(wx>>1));
+							const sint32 y_off = (i-(wy>>1));
+							if(  x+x_off>=xtop  &&  x+x_off<xbottom  &&  y+y_off>=ytop  &&  y+y_off<ybottom  &&  climate_map.at( x+x_off, y+y_off )==0xFF  ) {
+
+								const uint64 distance = 1 + sqrt_i64( ((uint64)x_off*x_off*(wx*wx) + (uint64)y_off*y_off*(wy*wy)));
+								const uint32 threshold = (uint32)( ( 8 * (uint32)((wx*wx)+(wy*wy)) ) / distance );
+
+								if(  threshold > 40  ) {
+									planquadrat_t *pl = access( x+x_off, y+y_off );
+									grund_t *gr = pl->get_kartenboden();
+									// find out if the climate is still allowed here
+									if(  gr->get_hoehe() >= settings.get_climate_borders( cl, 0 )  &&  gr->get_hoehe() <= settings.get_climate_borders( cl, 1 )  ) 	{
+										points--;
+										pl->set_climate( cl );
+										climate_map.at( x+x_off, y+y_off ) = cl;
+										pl->set_climate_transition_flag(false);
+										pl->set_climate_corners(0);
+									}
+								}
+							}
+						}
+					}
+					// all set = finish
+					if( points == 0 ) {
+						return;
+					}
+				}
+			}
+		}
+	}
+}
+
+
 
 
 // fills array with neighbour heights
