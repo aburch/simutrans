@@ -413,7 +413,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			}
 		}
 
-		// Relax the route here if this is a private car route checker, as we may find many destinations.
+		// Relax the route here if this is a private car route checker, as we may find many destinations. 
 		if (reached_target && flags == private_car_checker && (destination_attraction || destination_industry || destination_city))
 		{
 			route.clear();
