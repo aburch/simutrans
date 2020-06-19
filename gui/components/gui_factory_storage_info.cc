@@ -343,6 +343,11 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 				display_color_img_with_tooltip(transport_goods->get_catg_symbol(), offset.x + xoff - 2, offset.y + yoff, 0, false, false, translator::translate("hlptxt_factory_connected"));
 				xoff += 11;
 			}
+			// [goods color box] This design is the same as the goods list
+			display_ddd_box_clip(offset.x + xoff, offset.y + yoff + 2, 8, 8, MN_GREY0, MN_GREY4);
+			display_fillbox_wh_clip(offset.x + xoff + 1, offset.y + yoff + 3, 6, 6, transport_goods->get_color(), true);
+			xoff += 12;
+			// [distance]
 			col = is_within_own_network ? SYSCOL_TEXT : COL_GREY3;
 			distance = (double)(shortest_distance(k, fab->get_pos().get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
 			if (distance < 1)
@@ -361,10 +366,6 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 			xoff += display_proportional_clip(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, col, true);
 
 			xoff += D_H_SPACE;
-			// [goods color box] This design is the same as the goods list
-			display_ddd_box_clip(offset.x + xoff, offset.y + yoff + 2, 8, 8, MN_GREY0, MN_GREY4);
-			display_fillbox_wh_clip(offset.x + xoff + 1, offset.y + yoff + 3, 6, 6, transport_goods->get_color(), true);
-			xoff += 12;
 
 			if (target_fab->get_status() != fabrik_t::inactive && fab->get_status() != fabrik_t::inactive) {
 				// [lead time]
