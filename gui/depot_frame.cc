@@ -48,6 +48,8 @@
 
 #include "depot_frame.h"
 
+static uint8 line_type_flags = 0;
+
 depot_frame_t::depot_frame_t(depot_t* depot) :
 	gui_frame_t( translator::translate(depot->get_name()), depot->get_owner()),
 	depot(depot),
@@ -337,8 +339,30 @@ void depot_frame_t::layout(scr_size *size)
 	lb_convoi_line.set_width( selector_x - line_button.get_size().w - 2 - D_H_SPACE );
 
 	line_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x*2, SELECT_VSTART + D_BUTTON_HEIGHT));
-	line_selector.set_size(scr_size(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x*2, D_BUTTON_HEIGHT));
+	line_selector.set_size(scr_size(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x * 2 - D_BUTTON_HEIGHT*3, D_BUTTON_HEIGHT));
 	line_selector.set_max_size(scr_size(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, LINESPACE * 13 + 2 + 16));
+
+	// [freight type filter buttons]
+	filter_btn_all_pas.init(button_t::roundbox_state, NULL, scr_coord(line_selector.get_pos() + scr_coord(line_selector.get_size().w, 0)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
+	filter_btn_all_pas.set_image(skinverwaltung_t::passengers->get_image_id(0));
+	filter_btn_all_pas.set_tooltip("filter_pas_line");
+	filter_btn_all_pas.pressed = line_type_flags & (1 << simline_t::all_freight);
+	add_component(&filter_btn_all_pas);
+	filter_btn_all_pas.add_listener(this);
+
+	filter_btn_all_mails.init(button_t::roundbox_state, NULL, scr_coord(filter_btn_all_pas.get_pos() + scr_coord(D_BUTTON_HEIGHT, 0)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
+	filter_btn_all_mails.set_image(skinverwaltung_t::mail->get_image_id(0));
+	filter_btn_all_mails.set_tooltip("filter_mail_line");
+	filter_btn_all_mails.pressed = line_type_flags & (1 << simline_t::all_mail);
+	filter_btn_all_mails.add_listener(this);
+	add_component(&filter_btn_all_mails);
+
+	filter_btn_all_freights.init(button_t::roundbox_state, NULL, scr_coord(filter_btn_all_mails.get_pos() + scr_coord(D_BUTTON_HEIGHT, 0)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
+	filter_btn_all_freights.set_image(skinverwaltung_t::goods->get_image_id(0));
+	filter_btn_all_freights.set_tooltip("filter_freight_line");
+	filter_btn_all_freights.pressed = line_type_flags & (1 << simline_t::all_freight);
+	filter_btn_all_freights.add_listener(this);
+	add_component(&filter_btn_all_freights);
 
 	/*
 	 * [CONVOI]
@@ -391,10 +415,9 @@ void depot_frame_t::activate_convoi( convoihandle_t c )
 	build_vehicle_lists();
 }
 
-
 static void get_line_list(const depot_t* depot, vector_tpl<linehandle_t>* lines)
 {
-	depot->get_owner()->simlinemgmt.get_lines(depot->get_line_type(), lines);
+	depot->get_owner()->simlinemgmt.get_lines(depot->get_line_type(), lines, line_type_flags, true);
 }
 
 
@@ -450,8 +473,15 @@ void depot_frame_t::update_data()
 	}
 
 	// update the line selector
-	line_selector.clear_elements();
+	build_line_list();
 
+	convoy_assembler.update_data();
+}
+
+void depot_frame_t::build_line_list()
+{
+	convoihandle_t cnv = depot->get_convoi(icnv);
+	line_selector.clear_elements();
 	if(  !last_selected_line.is_bound()  ) {
 		// new line may have a valid line now
 		last_selected_line = selected_line;
@@ -472,8 +502,8 @@ void depot_frame_t::update_data()
 		line_selector.insert_element( new line_scrollitem_t( last_selected_line ) );
 	}
 	if(  cnv.is_bound()  &&  cnv->get_schedule()  &&  !cnv->get_schedule()->empty()  ) {
-		if(  cnv->get_line().is_bound()  ) {
-			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, SYSCOL_TEXT ) );
+		line_selector.insert_element(new gui_scrolled_list_t::const_text_scrollitem_t(clear_schedule_text, SYSCOL_TEXT));
+		if (cnv->get_line().is_bound()) {
 			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( clear_schedule_text, SYSCOL_TEXT ) );
 		}
 		else {
@@ -509,8 +539,6 @@ void depot_frame_t::update_data()
 		selected_line = linehandle_t();
 	}
 	line_selector.sort( last_selected_line.is_bound()+3, NULL );
-
-	convoy_assembler.update_data();
 }
 
 
@@ -695,6 +723,24 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 				return true;
 			}
 			line_selector.set_focusable( false );
+		}
+		else if (comp == &filter_btn_all_pas) {
+			line_type_flags ^= (1 << simline_t::all_pas);
+			filter_btn_all_pas.pressed = line_type_flags & (1 << simline_t::all_pas);
+			build_line_list();
+			return true;
+		}
+		else if (comp == &filter_btn_all_mails) {
+			line_type_flags ^= (1 << simline_t::all_mail);
+			filter_btn_all_mails.pressed = line_type_flags & (1 << simline_t::all_mail);
+			build_line_list();
+			return true;
+		}
+			else if (comp == &filter_btn_all_freights) {
+			line_type_flags ^= (1 << simline_t::all_freight);
+			filter_btn_all_freights.pressed = line_type_flags & (1 << simline_t::all_freight);
+			build_line_list();
+			return true;
 		}
 		else {
 			return false;
