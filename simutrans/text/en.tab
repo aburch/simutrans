@@ -5796,3 +5796,9 @@ other_player_liquidation_duration
 It has been in liquidation for
 On loan since %i month(s)
 Overdrawn for the last %i month(s)
+filter_pas_line
+Show only passenger lines
+filter_mail_line
+Show only mail lines
+filter_freight_line
+Show only freight lines
