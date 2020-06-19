@@ -391,18 +391,21 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 		filter_btn_all_pas.init(button_t::roundbox_state, NULL, scr_coord(line_selector.get_pos() + scr_coord(line_selector.get_size().w, 0)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
 		filter_btn_all_pas.set_image(skinverwaltung_t::passengers->get_image_id(0));
 		filter_btn_all_pas.set_tooltip("filter_pas_line");
-		add_component(&filter_btn_all_pas);
+		filter_btn_all_pas.disable();
 		filter_btn_all_pas.add_listener(this);
+		add_component(&filter_btn_all_pas);
 
 		filter_btn_all_mails.init(button_t::roundbox_state, NULL, scr_coord(filter_btn_all_pas.get_pos() + scr_coord(D_BUTTON_HEIGHT, 0)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
 		filter_btn_all_mails.set_image(skinverwaltung_t::mail->get_image_id(0));
 		filter_btn_all_mails.set_tooltip("filter_mail_line");
+		filter_btn_all_mails.disable();
 		filter_btn_all_mails.add_listener(this);
 		add_component(&filter_btn_all_mails);
 
 		filter_btn_all_freights.init(button_t::roundbox_state, NULL, scr_coord(filter_btn_all_mails.get_pos() + scr_coord(D_BUTTON_HEIGHT, 0)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
 		filter_btn_all_freights.set_image(skinverwaltung_t::goods->get_image_id(0));
 		filter_btn_all_freights.set_tooltip("filter_freight_line");
+		filter_btn_all_freights.disable();
 		filter_btn_all_freights.add_listener(this);
 		add_component(&filter_btn_all_freights);
 
@@ -975,6 +978,21 @@ void schedule_gui_t::init_line_selector()
 
 void schedule_gui_t::draw(scr_coord pos, scr_size size)
 {
+	if (cnv.is_bound()) {
+		if (cnv->get_goods_catg_index().is_contained(goods_manager_t::INDEX_PAS)) {
+			filter_btn_all_pas.enable();
+		}
+		if (cnv->get_goods_catg_index().is_contained(goods_manager_t::INDEX_MAIL)) {
+			filter_btn_all_mails.enable();
+		}
+		for (uint8 catg_index = goods_manager_t::INDEX_NONE + 1; catg_index < goods_manager_t::get_max_catg_index(); catg_index++)
+		{
+			if (cnv->get_goods_catg_index().is_contained(catg_index)) {
+				filter_btn_all_freights.enable();
+				break;
+			}
+		}
+	}
 	if(  player->simlinemgmt.get_line_count()!=old_line_count  ||  last_schedule_count!=schedule->get_count()  ) {
 		// lines added or deleted
 		init_line_selector();
