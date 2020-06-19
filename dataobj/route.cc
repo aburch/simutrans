@@ -348,7 +348,15 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 							continue;
 						}
 
-						const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k.get_2d());
+						uint16 straight_line_distance;
+						if (origin_city)
+						{
+							straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k.get_2d());
+						}
+						else
+						{
+							straight_line_distance = shortest_distance(start.get_2d(), k.get_2d()); 
+						}
 						uint16 journey_time_per_tile;
 						if(straight_line_distance == 0)
 						{
