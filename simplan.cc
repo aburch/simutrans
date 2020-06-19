@@ -483,7 +483,7 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 	}
 	const sint8 h0 = gr0->get_disp_height();
 	uint8 i = 1;
-	// underground
+	// tiles below ground drawing height (tunnels in full underground mode)
 	if(  hmin < h0  ) {
 		for(  ;  i < ground_size;  i++  ) {
 			const grund_t* gr = data.some[i];
@@ -546,7 +546,7 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
 		}
 	}
-	// above ground
+	// above ground drawing height
 	for(  ;  i < ground_size;  i++  ) {
 		const grund_t* gr = data.some[i];
 		const sint8 h = gr->get_hoehe();
