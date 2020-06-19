@@ -5797,9 +5797,9 @@ It has been in liquidation for
 On loan since %i month(s)
 Overdrawn for the last %i month(s)
 filter_pas_line
-Show only passenger lines
+Show only passenger
 filter_mail_line
-Show only mail lines
+Show only mail
 filter_freight_line
-Show only freight lines
+Show only freight
 
