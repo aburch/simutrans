@@ -232,10 +232,10 @@ map_frame_t::map_frame_t() :
 		c_show_outlines.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Show climates" ), SYSCOL_TEXT );
 		c_show_outlines.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Show outline" ), SYSCOL_TEXT );
 		c_show_outlines.add_listener( this );
-		if( env_t::default_mapmode & minimap_t::MAP_CLIMATES != 0 ) {
+		if( (env_t::default_mapmode & minimap_t::MAP_CLIMATES) != 0 ) {
 			c_show_outlines.set_selection( 1 );
 		}
-		else if( env_t::default_mapmode & minimap_t::MAP_HIDE_CONTOUR != 0 ) {
+		else if( (env_t::default_mapmode & minimap_t::MAP_HIDE_CONTOUR) != 0 ) {
 			c_show_outlines.set_selection( 2 );
 		}
 		else {

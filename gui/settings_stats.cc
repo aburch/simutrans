@@ -503,7 +503,6 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	add_table(3,0);
 	{
 		// other climate borders ...
-		sint16 arctic = 0;
 		for(  int i=desert_climate;  i<=arctic_climate;  i++  ) {
 			INIT_NUM( ground_desc_t::get_climate_name_from_bit((climate)i), sets->get_climate_borders(i,0), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
 			gui_numberinput_t *ni = new_component<gui_numberinput_t>();
@@ -549,7 +548,6 @@ void settings_climates_stats_t::read(settings_t* const sets)
 		sets->map_roughness = (n+8.0)/20.0;
 	}
 	// other climate borders ...
-	sint16 arctic = 0;
 	for(  int i=desert_climate;  i<=arctic_climate;  i++  ) {
 		sint16 ch;
 		READ_NUM_VALUE( ch );

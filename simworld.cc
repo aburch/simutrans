@@ -1670,7 +1670,7 @@ void karte_t::init_height_to_climate()
 	// mark unused as arctic
 	memset( height_to_climate, arctic_climate, lengthof(height_to_climate) );
 	memset( num_climates_at_height, 0, lengthof(num_climates_at_height) );
-	
+
 	// now just add them, the later climates will win (we will do a fineer assessment later
 	for( int cl=0;  cl<MAX_CLIMATES;  cl++ ) {
 		DBG_DEBUG( "init_height_to_climate()", "climate %i, start %i end %i", cl,  settings.get_climate_borders( cl, 0 ),  settings.get_climate_borders( cl, 1 ) );
@@ -1681,7 +1681,7 @@ void karte_t::init_height_to_climate()
 	}
 	for( int h = 0; h < 128; h++ ) {
 		if( h-groundwater > settings.get_climate_borders( arctic_climate, 1 )   &&   num_climates_at_height[h]==0  ) {
-			height_to_climate[h] = h==0  ? (uint8)arctic_climate : desert_climate;
+			height_to_climate[h] = h==0  ? arctic_climate : desert_climate;
 			num_climates_at_height[h] = 1;
 		}
 		DBG_DEBUG( "init_height_to_climate()", "Height %i, climate %i, num_climates %i", h - groundwater, height_to_climate[ h ], num_climates_at_height[ h ] );
@@ -2008,10 +2008,10 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 karte_t::karte_t() :
 	settings(env_t::default_settings),
+	climate_map(0,0),
 	convoi_array(0),
 	attractions(16),
-	stadt(0),
-	climate_map(0,0)
+	stadt(0)
 {
 	destroying = false;
 
@@ -5988,9 +5988,8 @@ void karte_t::calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 	const sint16 max_patchsize_x = clamp( 5, xbottom / 24, 256 );
 	const sint16 max_patchsize_y = clamp( 5, ybottom / 24, 256 );
 
-	sint16 last_x = xtop, last_y = ytop;
 	minivec_tpl<uint8> allowed( 8 );
-	 {
+	{
 		// find the next climateless tile
 		for(  sint16 y = ytop;  y < ybottom;  y++  ) {
 			for(  sint16 x = xtop;  x < xbottom;  x++  ) {
@@ -6031,7 +6030,7 @@ void karte_t::calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 			}
 		}
 	}
-	 assign_climate_map_region( xtop, ytop, xbottom, ybottom );
+	assign_climate_map_region( xtop, ytop, xbottom, ybottom );
 }
 
 
@@ -6063,7 +6062,7 @@ void karte_t::assign_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbotto
 						}
 					}
 					// beach or only one climate
-					uint8 cl = beach ? desert_climate : climate_map.at(x,y);
+					uint8 cl = beach ? (uint8)desert_climate : climate_map.at(x,y);
 					pl->set_climate( (climate)cl );
 					climate_map.at( x, y ) = cl;
 					pl->set_climate_transition_flag(false);

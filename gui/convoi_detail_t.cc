@@ -35,7 +35,7 @@ class gui_vehicleinfo_t : public gui_aligned_container_t
 
 public:
 
-	gui_vehicleinfo_t(vehicle_t *v, sint32 cnv_kmh, karte_t *welt)
+	gui_vehicleinfo_t(vehicle_t *v, sint32 cnv_kmh)
 	: freight(&freight_info)
 	{
 		this->v = v;
@@ -175,7 +175,7 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	container.set_table_layout(1,0);
 	for(unsigned veh=0;  veh<cnv->get_vehicle_count(); veh++ ) {
 		vehicle_t *v = cnv->get_vehikel(veh);
-		container.new_component<gui_vehicleinfo_t>(v, cnv_kmh, welt);
+		container.new_component<gui_vehicleinfo_t>(v, cnv_kmh);
 		container.new_component<gui_divider_t>();
 	}
 	update_labels();

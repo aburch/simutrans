@@ -69,7 +69,6 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	add_table(3,0);
 	{
 		// other climate borders ...
-		sint16 arctic = 0;
 		for(  int i=desert_climate-1;  i<MAX_CLIMATES-1;  i++  ) {
 			climate_borders_ui[i][0].init( sets->get_climate_borders(i+1,0), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
 			climate_borders_ui[i][0].add_listener( this );
