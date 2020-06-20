@@ -502,8 +502,8 @@ void depot_frame_t::build_line_list()
 		line_selector.insert_element( new line_scrollitem_t( last_selected_line ) );
 	}
 	if(  cnv.is_bound()  &&  cnv->get_schedule()  &&  !cnv->get_schedule()->empty()  ) {
-		line_selector.insert_element(new gui_scrolled_list_t::const_text_scrollitem_t(clear_schedule_text, SYSCOL_TEXT));
 		if (cnv->get_line().is_bound()) {
+			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, SYSCOL_TEXT ) );
 			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( clear_schedule_text, SYSCOL_TEXT ) );
 		}
 		else {
