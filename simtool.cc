@@ -7028,7 +7028,7 @@ bool tool_change_line_t::init( player_t *player )
 			{
 				if (line.is_bound()) {
 					schedule_t *schedule = line->get_schedule()->copy();
-					if (schedule->sscanf_schedule( p )  &&  scenario_check_schedule(welt, player, schedule, can_use_gui()) ) {
+					if (schedule->sscanf_schedule( p )  &&  (no_check()  ||  scenario_check_schedule(welt, player, schedule, can_use_gui())) ) {
 						schedule->finish_editing();
 						line->set_schedule( schedule );
 						line->get_owner()->simlinemgmt.update_line(line);
