@@ -8,6 +8,7 @@
 
 
 #include "gui_frame.h"
+#include "components/gui_combobox.h"
 #include "components/gui_container.h"
 #include "components/gui_label.h"
 #include "components/gui_chart.h"
@@ -16,8 +17,11 @@
 #include "components/gui_scrollpane.h"
 #include "components/gui_tab_panel.h"
 #include "components/gui_convoiinfo.h"
+#include "../tpl/vector_tpl.h"
+#include "../tpl/minivec_tpl.h"
 #include "halt_list_stats.h"
 #include "../simline.h"
+#include "../descriptor/goods_desc.h"
 
 class player_t;
 
@@ -37,6 +41,8 @@ private:
 	gui_chart_t chart;
 	button_t filterButtons[MAX_LINE_COST];
 	gui_tab_panel_t tabs;
+
+	gui_combobox_t freight_type_c;
 
 	sint32 selection, capacity, load, loadfactor;
 
@@ -65,6 +71,9 @@ private:
 	linehandle_t line;
 
 	vector_tpl<linehandle_t> lines;
+
+	vector_tpl<const goods_desc_t *> viewable_freight_types;
+	bool is_matching_freight_catg( const minivec_tpl<uint8> &goods_catg_index );
 
 	void build_line_list(int filter);
 

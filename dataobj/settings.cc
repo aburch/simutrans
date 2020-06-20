@@ -62,8 +62,8 @@ settings_t::settings_t() :
 
 	// default climate zones
 	set_default_climates( );
-	winter_snowline = 7; // not mediterranean
 	groundwater = -2;
+	winter_snowline = 7; // not mediterranean
 
 	max_mountain_height = 160;                  //can be 0-160.0
 	map_roughness = 0.6;                        //can be 0-1
@@ -305,8 +305,12 @@ settings_t::settings_t() :
 
 void settings_t::set_default_climates()
 {
-	static sint16 borders[MAX_CLIMATES] = { 0, -3, -2, 3, 6, 8, 10, 10 };
-	memcpy( climate_borders, borders, sizeof(sint16)*MAX_CLIMATES );
+	static sint16 borders[MAX_CLIMATES+1] = { -3, -3, -2, 3, 6, 8, 9, 10, 11 };
+	for( int i = 0; i < MAX_CLIMATES; i++ ) {
+		climate_borders[i][0] = borders[i];
+		climate_borders[i][1] = borders[i+1];
+	}
+	climate_borders[0][1] = borders[0];
 }
 
 
@@ -455,30 +459,49 @@ void settings_t::rdwr(loadsave_t *file)
 			filename = "";
 		}
 
-		// climate borders
-		if(file->is_version_atleast(91, 0)) {
-			if(  file->is_version_less(120, 6)  ) {
-				climate_borders[arctic_climate] -= groundwater;
+		// climate borders, no overlapping borders are possible
+		if(  file->is_version_atleast(91, 0)  ){
+			if(  file->is_version_less(121,1)  ) {
+				sint16 old_climate_borders[ MAX_CLIMATES ];
+				for( int cl = 0; cl < MAX_CLIMATES; cl++ ) {
+					old_climate_borders[cl] = climate_borders[cl][0];
+				}
+				if(  file->is_version_less(120, 6)  ) {
+					old_climate_borders[arctic_climate] -= groundwater;
+				}
+				for(  int i=0;  i<8;  i++ ) {
+					file->rdwr_short(old_climate_borders[i] );
+				}
+				if(  file->is_version_less(120, 6)  ) {
+					old_climate_borders[arctic_climate] += groundwater;
+				}
+
+				if(  file->is_loading()  &&  file->is_version_less(112, 7)  ) {
+					groundwater *= env_t::pak_height_conversion_factor;
+					for(  int i = 0;  i < MAX_CLIMATES;  i++  ) {
+						old_climate_borders[i] *= env_t::pak_height_conversion_factor;
+					}
+				}
+				// convert to new borders if loading, es keep the current
+				if(  file->is_loading()  ) {
+					for(  int cl = 0;  cl < MAX_CLIMATES-1;  cl++  ) {
+						climate_borders[cl][0] = old_climate_borders[cl];
+						climate_borders[cl][1] = old_climate_borders[cl+1];
+					}
+					climate_borders[0][1] = old_climate_borders[0];
+					climate_borders[arctic_climate][1] = old_climate_borders[arctic_climate];
+				}
 			}
-			for(  int i=0;  i<8;  i++ ) {
-				file->rdwr_short(climate_borders[i] );
+			else {
+				for(  int i=0;  i<8;  i++ ) {
+					file->rdwr_short( climate_borders[i][0] );
+					file->rdwr_short( climate_borders[i][1] );
+				}
 			}
-			if(  file->is_version_less(120, 6)  ) {
-				climate_borders[arctic_climate] += groundwater;
-			}
-			file->rdwr_short(winter_snowline );
+			file->rdwr_short( winter_snowline );
 		}
 
-		if(  file->is_loading()  &&  file->is_version_less(112, 7)  ) {
-			groundwater *= env_t::pak_height_conversion_factor;
-			for(  int i = 0;  i < 8;  i++  ) {
-				climate_borders[i] *= env_t::pak_height_conversion_factor;
-			}
-			winter_snowline *= env_t::pak_height_conversion_factor;
-			way_height_clearance = env_t::pak_height_conversion_factor;
-		}
-
-		// since vehicle will need realignment afterwards!
+		// vehicle may need realignment afterwards!
 		if(file->is_version_less(99, 19)) {
 			vehicle_base_t::set_diagonal_multiplier( pak_diagonal_multiplier, 1024 );
 		}

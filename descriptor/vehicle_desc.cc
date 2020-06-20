@@ -19,7 +19,7 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(weight);
 	chk->input(power);
 	chk->input(running_cost);
-	chk->input(fixed_cost);
+	chk->input(maintenance);
 	chk->input(gear);
 	chk->input(len);
 	chk->input(leader_count);

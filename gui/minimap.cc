@@ -787,6 +787,10 @@ PIXVAL minimap_t::calc_ground_color(const grund_t *gr)
 						if( mode&MAP_HIDE_CONTOUR ) {
 							color = color_idx_to_rgb(map_type_color[MAX_MAP_TYPE_WATER+2]); // lowest land color
 						}
+						else if( mode&MAP_CLIMATES ) {
+							static uint8 climate_color[ 8 ] = { 0, COL_YELLOW, COL_LIGHT_GREEN, COL_GREEN, COL_DARK_GREEN, COL_DARK_YELLOW, COL_BROWN, COL_GREY4 };
+							color = color_idx_to_rgb( climate_color[ world->get_climate(gr->get_pos().get_2d()) ] );
+						}
 						else {
 							sint16 height = corner_sw(gr->get_grund_hang());
 							if(  gr->get_hoehe() > world->get_groundwater()  ) {

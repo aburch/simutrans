@@ -237,6 +237,11 @@ void export_scenario(HSQUIRRELVM vm)
 	 */
 	STATIC register_method(vm, &scenario_t::clear_rules,  "clear");
 
+	/**
+	 * Signals that toolbars and active tools need to be checked against scenario rules again.
+	 */
+	STATIC register_method(vm, &scenario_t::gui_needs_update,  "gui_needs_update");
+
 	end_class(vm);
 
 

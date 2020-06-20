@@ -5926,7 +5926,7 @@ const char *tool_add_citycar_t::work( player_t *player, koord3d pos )
 
 	if(  gr != NULL  &&  ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt))  &&  gr->find<private_car_t>() == NULL) {
 		// add citycar
-		private_car_t* vt = new private_car_t(gr, koord::invalid);
+		private_car_t* vt = new private_car_t(gr, koord::invalid, default_param);
 		gr->obj_add(vt);
 		welt->sync.add(vt);
 		return NULL;
@@ -6847,7 +6847,7 @@ bool tool_change_convoi_t::init( player_t *player )
 			{
 				schedule_t *schedule = cnv->create_schedule()->copy();
 				schedule->finish_editing();
-				if (schedule->sscanf_schedule( p )  &&  scenario_check_schedule(welt, player, schedule, can_use_gui())) {
+				if (schedule->sscanf_schedule( p )  &&  (no_check()  ||  scenario_check_schedule(welt, player, schedule, can_use_gui())) ) {
 					cnv->set_schedule( schedule );
 				}
 				else {
@@ -6988,7 +6988,7 @@ bool tool_change_line_t::init( player_t *player )
 
 				line->get_schedule()->sscanf_schedule( p );
 				// check scenario conditions
-				if (!scenario_check_schedule(welt, player, line->get_schedule(), can_use_gui())) {
+				if (!no_check()  &&  !scenario_check_schedule(welt, player, line->get_schedule(), can_use_gui())) {
 					player->simlinemgmt.delete_line(line);
 					break;
 				}
@@ -7028,7 +7028,7 @@ bool tool_change_line_t::init( player_t *player )
 			{
 				if (line.is_bound()) {
 					schedule_t *schedule = line->get_schedule()->copy();
-					if (schedule->sscanf_schedule( p )  &&  scenario_check_schedule(welt, player, schedule, can_use_gui()) ) {
+					if (schedule->sscanf_schedule( p )  &&  (no_check()  ||  scenario_check_schedule(welt, player, schedule, can_use_gui())) ) {
 						schedule->finish_editing();
 						line->set_schedule( schedule );
 						line->get_owner()->simlinemgmt.update_line(line);

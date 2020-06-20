@@ -430,7 +430,7 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 
 	const sint8 h0 = gr0->get_disp_height();
 	uint8 i = 1;
-	// underground
+	// tiles below ground drawing height (tunnels in full underground mode)
 	if(  hmin < h0  ) {
 		for(  ;  i < ground_size;  i++  ) {
 			const grund_t* gr = data.some[i];
@@ -468,6 +468,11 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 			for(  uint8 j = i;  j < ground_size;  j++  ) {
 				const sint8 h = data.some[j]->get_hoehe();
 				const sint8 htop = h + slope_t::max_diff(data.some[j]->get_grund_hang());
+
+				// still underground
+				if(  h < h0  ) {
+					continue;
+				}
 				// too high?
 				if(  h > hmax  ) {
 					break;
@@ -489,12 +494,17 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
 		}
 	}
-	// above ground
+	// above ground drawing height
 	for(  ;  i < ground_size;  i++  ) {
 		const grund_t* gr = data.some[i];
 		const sint8 h = gr->get_hoehe();
 		const slope_t::type slope = gr->get_grund_hang();
 		const sint8 htop = h + max(max(corner_sw(slope), corner_se(slope)),max(corner_ne(slope), corner_nw(slope)));
+
+		// still underground
+		if(  h < h0  ) {
+			continue;
+		}
 		// too high?
 		if(  h > hmax  ) {
 			break;
@@ -614,11 +624,12 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 
 	gr->display_overlay( xpos, ypos );
 	if(  ground_size > 1  ) {
+		const sint16 raster_tile_width = get_tile_raster_width();
 		const sint8 h0 = gr->get_disp_height();
 		for(  uint8 i = 1;  i < ground_size;  i++  ) {
 			grund_t* gr = data.some[i];
 			const sint8 h = gr->get_disp_height();
-			const sint16 yypos = ypos - (h - h0 ) * get_tile_raster_width() / 2;
+			const sint16 yypos = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width );
 			gr->display_overlay( xpos, yypos );
 		}
 	}

@@ -32,8 +32,9 @@
 #include "boden/grund.h"
 #include "boden/wege/schiene.h" // for railblocks
 
-#include "descriptor/vehicle_desc.h"
+#include "descriptor/citycar_desc.h"
 #include "descriptor/roadsign_desc.h"
+#include "descriptor/vehicle_desc.h"
 
 #include "dataobj/schedule.h"
 #include "dataobj/route.h"
@@ -47,6 +48,7 @@
 #include "obj/roadsign.h"
 #include "obj/wayobj.h"
 
+#include "vehicle/simroadtraffic.h"
 #include "vehicle/simvehicle.h"
 #include "vehicle/overtaker.h"
 
@@ -107,7 +109,7 @@ void convoi_t::init(player_t *player)
 
 	is_electric = false;
 	sum_gesamtweight = sum_weight = 0;
-	sum_running_costs = sum_gear_and_power = previous_delta_v = 0;
+	sum_running_costs = sum_fixed_costs = sum_gear_and_power = previous_delta_v = 0;
 	sum_power = 0;
 	min_top_speed = SPEED_UNLIMITED;
 	speedbonus_kmh = SPEED_UNLIMITED; // speed_to_kmh() not needed
@@ -659,6 +661,7 @@ void convoi_t::add_running_cost( const weg_t *weg )
 		get_owner()->book_toll_paid(         -toll, get_schedule()->get_waytype() );
 		book( -toll, CONVOI_WAYTOLL);
 		book( -toll, CONVOI_PROFIT);
+
 	}
 	get_owner()->book_running_costs( sum_running_costs, get_schedule()->get_waytype());
 
@@ -956,7 +959,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 				for(unsigned i=1; i<anz_vehikel; i++) {
 					fahr[i]->do_drive(sp_hat);
 				}
-				// maybe we have been stopped be something => avoid wide jumps
+				// maybe we have been stopped by something => avoid wide jumps
 				sp_soll = (sp_soll-sp_hat) & 0x0FFF;
 
 				// smoke for the engines
@@ -1454,6 +1457,20 @@ void convoi_t::new_month()
 			}
 		}
 	}
+	// book fixed cost as running cost
+	book( sum_fixed_costs, CONVOI_OPERATIONS );
+	book( sum_fixed_costs, CONVOI_PROFIT );
+	// since convois can be in the depot, the waytypewithout schedule is determined from the vechile (if there)
+	// one can argue that convois in depots should not cost money ...
+	waytype_t wtyp = ignore_wt;
+	if(  schedule_t* s = get_schedule()  ) {
+		wtyp = s->get_waytype();
+	}
+	else if(  !fahr.empty()  ) {
+		wtyp = fahr[0]->get_waytype();
+	}
+	get_owner()->book_running_costs( sum_fixed_costs, wtyp );
+	jahresgewinn += sum_fixed_costs;
 }
 
 
@@ -1629,7 +1646,8 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_
 				fahr[i] = fahr[i - 1];
 			}
 			fahr[0] = v;
-		} else {
+		}
+		else {
 			fahr[anz_vehikel] = v;
 		}
 		anz_vehikel ++;
@@ -1642,6 +1660,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_
 		sum_gear_and_power += info->get_power()*info->get_gear();
 		sum_weight += info->get_weight();
 		sum_running_costs -= info->get_running_cost();
+		sum_fixed_costs -= welt->scale_with_month_length( info->get_fixed_cost() );
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_desc()->get_topspeed() ) );
 		sum_gesamtweight = sum_weight;
 		calc_loading();
@@ -1657,7 +1676,6 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_
 		if(!has_obsolete  &&  welt->use_timeline()) {
 			has_obsolete = info->is_retired( welt->get_timeline_year_month() );
 		}
-		player_t::add_maintenance( get_owner(), info->get_maintenance(), info->get_waytype() );
 	}
 	else {
 		return false;
@@ -1691,7 +1709,7 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 			sum_gear_and_power -= info->get_power()*info->get_gear();
 			sum_weight -= info->get_weight();
 			sum_running_costs += info->get_running_cost();
-			player_t::add_maintenance( get_owner(), -info->get_maintenance(), info->get_waytype() );
+			sum_fixed_costs += welt->scale_with_month_length( info->get_fixed_cost() );
 		}
 		sum_gesamtweight = sum_weight;
 		calc_loading();
@@ -2302,9 +2320,10 @@ void convoi_t::rdwr(loadsave_t *file)
 				sum_gear_and_power += info->get_power()*info->get_gear();
 				sum_weight += info->get_weight();
 				sum_running_costs -= info->get_running_cost();
+				sum_fixed_costs -= welt->scale_with_month_length( info->get_fixed_cost() );
 				is_electric |= info->get_engine_type()==vehicle_desc_t::electric;
 				has_obsolete |= welt->use_timeline()  &&  info->is_retired( welt->get_timeline_year_month() );
-				player_t::add_maintenance( get_owner(), info->get_maintenance(), info->get_waytype() );
+				// we do not add maintenance here, the fixed costs are booked as running costs
 			}
 
 			// some versions save vehicles after leaving depot with koord3d::invalid
@@ -3149,7 +3168,7 @@ void convoi_t::destroy()
 			fahr[i]->set_flag( obj_t::not_on_map );
 
 		}
-		player_t::add_maintenance( owner, -fahr[i]->get_desc()->get_maintenance(), fahr[i]->get_desc()->get_waytype() );
+		// no need to substract maintenance, since it is booked as running costs
 
 		fahr[i]->discard_cargo();
 		fahr[i]->cleanup(owner);
@@ -3214,26 +3233,6 @@ void convoi_t::init_financial_history()
 			financial_history[k][j] = 0;
 		}
 	}
-}
-
-
-sint32 convoi_t::get_fix_cost() const
-{
-	sint32 running_cost = 0;
-	for(  unsigned i = 0;  i < get_vehicle_count();  i++  ) {
-		running_cost += fahr[i]->get_desc()->get_maintenance();
-	}
-	return running_cost;
-}
-
-
-sint32 convoi_t::get_running_cost() const
-{
-	sint32 running_cost = 0;
-	for(  unsigned i = 0;  i < get_vehicle_count();  i++  ) {
-		running_cost += fahr[i]->get_operating_cost();
-	}
-	return running_cost;
 }
 
 
@@ -3644,8 +3643,8 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	// Distance it takes overtaking (unit: vehicle_steps) = my_speed * time_overtaking
 	// time_overtaking = tiles_to_overtake/diff_speed
 	// tiles_to_overtake = convoi_length + current pos within tile + (pos_other_convoi within tile + length of other convoi) - one tile
-	int distance = akt_speed*(fahr[0]->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/diff_speed;
-	int time_overtaking = 0;
+	sint32 distance = akt_speed*(fahr[0]->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/diff_speed;
+	sint32 time_overtaking = 0;
 
 	// Conditions for overtaking:
 	// Flat tiles, with no stops, no crossings, no signs, no change of road speed limit
@@ -3678,7 +3677,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			if(rs) {
 				const roadsign_desc_t *rb = rs->get_desc();
 				if(rb->is_choose_sign()  ||  rb->is_traffic_light()  ) {
-					// because we need to stop here ...
+					// because we may need to stop here ...
 					return false;
 				}
 			}
@@ -3719,16 +3718,19 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	}
 
 	// Second phase: only facing traffic is forbidden
-	//   Since street speed can change, we do the calculation with time.
-	//   Each empty tile will subtract tile_dimension/max_street_speed.
-	//   If time is exhausted, we are guaranteed that no facing traffic will
-	//   invade the dangerous zone.
-	// Conditions for the street are milder: e.g. if no street, no facing traffic
+
+	// the original routine was checking using the maximum road speed.
+	// However, we can tolerate slower vehicles if they are closer
+
+	// Furthermore, if we reach the end of the route for a vehcile as fast as us,
+	// we simply assume it to be ok too
+	sint32 overtaking_distance = time_overtaking; 
+	distance = 0; // distance to needed traveled to crash int us from this point
 	time_overtaking = (time_overtaking << 16)/akt_speed;
 	while(  time_overtaking > 0  ) {
 
 		if(  route_index >= route.get_count()  ) {
-			return false;
+			return distance>=time_overtaking; // we assume ok, if there is enough distance when we would face ourselves
 		}
 
 		pos_next = route.at(route_index++);
@@ -3749,9 +3751,11 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 
 		if(  ribi_t::is_straight(str->get_ribi())  ) {
 			time_overtaking -= (VEHICLE_STEPS_PER_TILE<<16) / kmh_to_speed(str->get_max_speed());
+			distance -= VEHICLE_STEPS_PER_TILE;
 		}
 		else {
 			time_overtaking -= (vehicle_base_t::get_diagonal_vehicle_steps_per_tile()<<16) / kmh_to_speed(str->get_max_speed());
+			distance -= vehicle_base_t::get_diagonal_vehicle_steps_per_tile();
 		}
 
 		// Check for other vehicles in facing direction
@@ -3759,8 +3763,19 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
 			vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));
-			if (v && v->get_direction() == their_direction && v->get_overtaker()) {
-				return false;
+			if(  v  &&  v->get_direction() == their_direction  &&  v->get_overtaker()  ) {
+				// tolerated distance us>them: total_distance*akt_speed > current_distance*other_speed
+				if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(v)  ) {
+					convoi_t* const ocnv = car->get_convoi();
+					if(  ocnv  &&  ocnv->get_max_power_speed()*distance > akt_speed*overtaking_distance  ) {
+						return false;
+					}
+				}
+				else if(  private_car_t* const caut = obj_cast<private_car_t>(v)  ) {
+					if(  caut->get_desc()->get_topspeed()*distance > akt_speed*overtaking_distance  ) {
+						return false;
+					}
+				}
 			}
 		}
 		pos_prev = pos;

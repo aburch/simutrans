@@ -289,8 +289,6 @@ bool player_t::new_month()
 
 	finance->calc_finance_history();
 
-	simlinemgmt.new_month();
-
 	// Bankrupt ?
 	if(  finance->get_account_balance() < 0  ) {
 		finance->increase_account_overdrawn();
@@ -383,10 +381,11 @@ bool player_t::new_month()
 		}
 	}
 
+	// update line info
+	simlinemgmt.new_month();
+
 	// subtract maintenance after bankruptcy check
 	finance->book_account( -finance->get_maintenance_with_bits(TT_ALL) );
-
-	// book vehicle fixed costs
 
 	// company gets older ...
 	player_age ++;
