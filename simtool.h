@@ -860,6 +860,18 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
+class tool_convoy_loadingbar_t : public tool_t {
+public:
+	tool_convoy_loadingbar_t() : tool_t(TOOL_CONVOY_LOADINGBAR | SIMPLE_TOOL) {}
+	bool init(player_t *) OVERRIDE {
+		env_t::show_cnv_loadingbar = (env_t::show_cnv_loadingbar + 1) % 3;
+		welt->set_dirty();
+		return false;
+	}
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+};
+
 class tool_show_name_t : public tool_t {
 public:
 	tool_show_name_t() : tool_t(TOOL_SHOW_NAME | SIMPLE_TOOL) {}
