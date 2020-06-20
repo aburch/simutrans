@@ -396,6 +396,14 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 }
 
 
+bool fabrik_info_t::infowin_event(const event_t *ev)
+{
+	if (ev->ev_class == EVENT_KEYBOARD && ev->ev_code == SIM_KEY_DOWN) {
+		set_windowsize(get_min_windowsize());
+	}
+	return gui_frame_t::infowin_event(ev);
+}
+
 void fabrik_info_t::update_info()
 {
 	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );

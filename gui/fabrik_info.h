@@ -119,6 +119,8 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
+	bool infowin_event(const event_t *ev) OVERRIDE;
+
 	// rotated map need new info ...
 	void map_rotate90( sint16 ) OVERRIDE { update_info(); }
 
