@@ -134,13 +134,15 @@ class gui_convoy_assembler_t :
 	/* Gui elements */
 	gui_label_t lb_convoi_number;
 	gui_label_t lb_convoi_count;
+	gui_label_t lb_convoi_count_fluctuation;
+	gui_label_t lb_convoi_tiles;
 	gui_label_t lb_convoi_speed;
 	gui_label_t lb_convoi_cost;
-	gui_label_t lb_convoi_value;
+	gui_label_t lb_convoi_maintenance;
 	gui_label_t lb_convoi_power;
 	gui_label_t lb_convoi_weight;
 	gui_label_t lb_convoi_brake_force;
-	gui_label_t lb_convoi_rolling_resistance;
+	gui_label_t lb_convoi_axle_load;
 	gui_label_t lb_convoi_way_wear_factor;
 	gui_label_t lb_convoi_line;
 	// Specifies the traction types handled by
@@ -153,8 +155,9 @@ class gui_convoy_assembler_t :
 
 	depot_convoi_capacity_t cont_convoi_capacity;
 
-	gui_speedbar_t sb_convoi_length;
-	sint32 convoi_length_ok_sb, convoi_length_slower_sb, convoi_length_too_slow_sb, convoi_tile_length_sb, new_vehicle_length_sb;
+	gui_tile_occupancybar_t tile_occupancy;
+	sint8 new_vehicle_length;
+	//sint32 convoi_length_ok_sb, convoi_length_slower_sb, convoi_length_too_slow_sb, convoi_tile_length_sb, new_vehicle_length_sb;
 
 	button_t bt_outdated;
 	button_t bt_obsolete;
@@ -204,17 +207,23 @@ class gui_convoy_assembler_t :
 
 	cbuffer_t txt_convoi_number;
 	cbuffer_t txt_convoi_count;
-	cbuffer_t txt_convoi_value;
+	cbuffer_t txt_convoi_tiles;
+	cbuffer_t txt_convoi_maintenance;
 	cbuffer_t txt_convoi_speed;
 	cbuffer_t txt_convoi_cost;
 	cbuffer_t txt_convoi_power;
 	cbuffer_t txt_convoi_weight;
 	cbuffer_t txt_convoi_brake_force;
-	cbuffer_t txt_convoi_rolling_resistance;
+	cbuffer_t tooltip_convoi_rolling_resistance;
 	cbuffer_t txt_convoi_way_wear_factor;
 	cbuffer_t txt_traction_types;
 	cbuffer_t txt_vehicle_count;
 	cbuffer_t txt_livery_count;
+	cbuffer_t tooltip_convoi_acceleration;
+	cbuffer_t tooltip_convoi_brake_distance;
+	cbuffer_t tooltip_convoi_speed;
+	cbuffer_t text_convoi_axle_load;
+	char txt_convoi_count_fluctuation[4];
 
 	KOORD_VAL second_column_x; // x position of the second text column
 
@@ -261,6 +270,9 @@ class gui_convoy_assembler_t :
 	//vector_tpl<uint16> cs_pas_0_indicies;
 	vector_tpl<uint16> cs_pass_indicies;
 
+	/* color bars for current convoi: */
+	void init_convoy_color_bars(vector_tpl<const vehicle_desc_t *>*vehs);
+	void set_vehicle_bar_shape(gui_image_list_t::image_data_t *pic, const vehicle_desc_t *v);
 
 public:
 	// Last selected vehicle filter
@@ -336,7 +348,7 @@ public:
 
 	inline sint16 get_convoy_image_height() const {return grid.y + 2 * gui_image_list_t::BORDER;}
 
-	inline sint16 get_convoy_height() const {return get_convoy_image_height() + LINESPACE * 4 + 6;}
+	inline sint16 get_convoy_height() const {return get_convoy_image_height() + LINESPACE * 5 + 6;}
 
 	inline sint16 get_vinfo_height() const { return VINFO_HEIGHT; }
 

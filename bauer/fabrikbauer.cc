@@ -113,9 +113,9 @@ class factory_place_with_road_finder: public building_placefinder_t  {
 public:
 	factory_place_with_road_finder(karte_t* welt) : building_placefinder_t(welt) {}
 
-	virtual bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const
+	virtual bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions) const
 	{
-		if(  !building_placefinder_t::is_area_ok(pos, b, h, cl)  ) {
+		if(  !building_placefinder_t::is_area_ok(pos, b, h, cl, allowed_regions)  ) {
 			// We need a clear space to build, first of all
 			return false;
 		}
@@ -172,7 +172,7 @@ static bool compare_fabrik_desc(const factory_desc_t* a, const factory_desc_t* b
 
 
 // returns a random consumer
-const factory_desc_t *factory_builder_t::get_random_consumer(bool electric, climate_bits cl, uint16 timeline, const goods_desc_t* input )
+const factory_desc_t *factory_builder_t::get_random_consumer(bool electric, climate_bits cl, uint16 allowed_regions, uint16 timeline, const goods_desc_t* input )
 {
 	// get a random city factory
 	weighted_vector_tpl<const factory_desc_t *> consumer;
@@ -183,6 +183,7 @@ const factory_desc_t *factory_builder_t::get_random_consumer(bool electric, clim
 		// only insert end consumers, if applicable, with the requested input goods.
 		if (  current->is_consumer_only()  &&
 			current->get_building()->is_allowed_climate_bits(cl)  &&
+			current->get_building()->is_allowed_region_bits(allowed_regions) &&
 			(electric ^ !current->is_electricity_producer())  &&
 			current->get_building()->is_available(timeline)  &&
 			(input == NULL || current->get_accepts_these_goods(input))
@@ -301,7 +302,7 @@ void factory_builder_t::find_producer(weighted_vector_tpl<const factory_desc_t *
 }
 
 
-bool factory_builder_t::check_construction_site(koord pos, koord size, bool water, bool is_fabrik, climate_bits cl)
+bool factory_builder_t::check_construction_site(koord pos, koord size, bool water, bool is_fabrik, climate_bits cl, uint16 regions_allowed)
 {
 	// check for water (no shore in sight!)
 	if(water) {
@@ -316,7 +317,7 @@ bool factory_builder_t::check_construction_site(koord pos, koord size, bool wate
 	}
 	else {
 		// check on land
-		if (!welt->square_is_free(pos, size.x, size.y, NULL, cl)) {
+		if (!welt->square_is_free(pos, size.x, size.y, NULL, cl, regions_allowed)) {
 			return false;
 		}
 	}
@@ -367,7 +368,7 @@ koord3d factory_builder_t::find_random_construction_site( koord pos, const int r
 		k = koord( pos.x - radius + (index % diam), pos.y - radius + (index / diam) );
 
 		// check place (it will actually check an grosse.x/y size rectangle, so we can iterate over less tiles)
-		if(  factory_builder_t::check_construction_site(k, size, wasser, is_fabrik, climates)  ) {
+		if(  factory_builder_t::check_construction_site(k, size, wasser, is_fabrik, climates, desc->get_allowed_region_bits())  ) {
 			// then accept first hit
 			goto finish;
 		}
@@ -525,13 +526,10 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 		}
 	}
 	else {
-		// connect factory to stations
-		// search for nearby stations and connect factory to them
-		koord k, dim = info->get_building()->get_size(rotate);
-
 		// Must recalc nearby halts after the halt is set up
 		fab->recalc_nearby_halts();
 	}
+
 	// This must be done here because the building is not valid on generation, so setting the building's
 	// jobs, population and mail figures based on the factory's cannot be done.
 	fab->update_scaled_pax_demand();
@@ -602,8 +600,8 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 			pos->rotate90( welt->get_size().y-info->get_building()->get_y(rotate) );
 			welt->rotate90();
 		}
-		bool can_save = !welt->cannot_save();
-		assert( can_save );
+
+		assert( !welt->cannot_save() );
 	}
 
 	// Industries in town needs different place search
@@ -614,7 +612,8 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		// build consumer (factory) in town
 		stadt_t *city = welt->find_nearest_city(pos->get_2d());
 
-		climate_bits cl = ignore_climates ? ALL_CLIMATES : info->get_building()->get_allowed_climate_bits();
+		const climate_bits cl = ignore_climates ? ALL_CLIMATES : info->get_building()->get_allowed_climate_bits();
+		const uint16 regions_allowed = info->get_building()->get_allowed_region_bits();
 
 		/* Three variants:
 		 * A:
@@ -625,12 +624,12 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		 */
 		bool is_rotate=info->get_building()->get_all_layouts()>1  &&  size.x!=size.y  &&  info->get_building()->can_rotate();
 		// first try with standard orientation
-		koord k = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.x, size.y, cl);
+		koord k = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.x, size.y, cl, regions_allowed);
 
 		// second try: rotated
 		koord k1 = koord::invalid;
 		if (is_rotate  &&  (k == koord::invalid  ||  simrand(256, " factory_builder_t::build_link")<128)) {
-			k1 = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.y, size.x, cl);
+			k1 = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.y, size.x, cl, regions_allowed);
 		}
 
 		rotate = simrand( info->get_building()->get_all_layouts(), " factory_builder_t::build_link" );
@@ -737,20 +736,44 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 
 	DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need %i of %s)",info->get_supplier_count(),lcount,consumption,ware->get_name());
 
+	// We only observe the max_distance_to_supplier if the supplier can exist in our region. 
+	const uint8 our_factory_region = welt->get_region(our_fab->get_pos().get_2d());
+
+	uint16 max_distance_to_supplier = our_fab->get_desc()->get_max_distance_to_supplier();
+	if (max_distance_to_supplier < 65535)
+	{
+		// Check whether any types of factory that can be built at this time in this factory's region can supply this input good.
+		weighted_vector_tpl<const factory_desc_t*>producer;
+		find_producer(producer, ware, welt->get_timeline_year_month());
+		bool local_supplier_unavailable = true;
+		FOR(weighted_vector_tpl<const factory_desc_t*>, producer_type, producer)
+		{
+			if (producer_type->get_building()->is_allowed_region(our_factory_region))
+			{
+				local_supplier_unavailable = false;
+				break;
+			}
+		}
+		if (local_supplier_unavailable)
+		{
+			max_distance_to_supplier = 65535;
+		}
+	}
+
 	// Hajo: search if there already is one or two (crossconnect everything if possible)
-	FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
+	FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list())
+	{
 		// Try to find matching factories for this consumption, but don't find more than two times number of factories requested.
 		//if ((lcount != 0 || consumption <= 0) && lcount < lfound + 1) break;
 
 		// For reference, our_fab is the consumer and fab is the potential producer already in the game.
 
 		// connect to an existing one if this is a producer
-		if(fab->vorrat_an(ware) > -1) {
-
-			// for sources (oil fields, forests ... ) prefer those with a smaller distance
+		if(fab->vorrat_an(ware) > -1)
+		{
 			const uint32 distance = shortest_distance(fab->get_pos().get_2d(), our_fab->get_pos().get_2d());
 
-			if(distance >= welt->get_settings().get_min_factory_spacing() && distance <= fab->get_desc()->get_max_distance_to_consumer())
+			if(distance >= (uint32)welt->get_settings().get_min_factory_spacing() && distance <= fab->get_desc()->get_max_distance_to_consumer() && distance <= max_distance_to_supplier)
 			{
 				// ok, this would match
 				// but can she supply enough?
@@ -839,7 +862,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 
 			INT_CHECK("fabrikbauer 697");
 			const int max_distance_to_consumer = producer_d->get_max_distance_to_consumer() == 0 ? max_factory_spacing_general : producer_d->get_max_distance_to_consumer();
-			koord3d k = find_random_construction_site( our_fab->get_pos().get_2d(), min(max_factory_spacing_general, max_distance_to_consumer), producer_d->get_building()->get_size(rotate),producer_d->get_placement()==factory_desc_t::Water, producer_d->get_building(), ignore_climates, 20000 );
+			koord3d k = find_random_construction_site( our_fab->get_pos().get_2d(), min(max_distance_to_supplier, min(max_factory_spacing_general, max_distance_to_consumer)), producer_d->get_building()->get_size(rotate),producer_d->get_placement()==factory_desc_t::Water, producer_d->get_building(), ignore_climates, 20000 );
 			if(  k == koord3d::invalid  ) {
 				// this factory cannot build in the desired vincinity
 				producer.remove( producer_d );
@@ -1174,13 +1197,13 @@ next_ware_check:
 				// Give up trying to find the right consumer after trying too many times.
 				input_for_consumer = NULL;
 			}
-			const factory_desc_t *consumer = get_random_consumer(no_electric==0, ALL_CLIMATES, welt->get_timeline_year_month(), input_for_consumer);
+			const factory_desc_t *consumer = get_random_consumer(no_electric==0, ALL_CLIMATES, 65535, welt->get_timeline_year_month(), input_for_consumer);
 			if(consumer)
 			{
 				if(do_not_add_beyond_target_density && !consumer->is_electricity_producer())
 				{
 					// Make sure that industries are not added beyond target density.
-					if(100 / consumer->get_distribution_weight() > (welt->get_target_industry_density() - welt->get_actual_industry_density()))
+					if(100U / consumer->get_distribution_weight() > (welt->get_target_industry_density() - welt->get_actual_industry_density()))
 					{
 						continue;
 					}

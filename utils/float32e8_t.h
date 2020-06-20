@@ -92,7 +92,6 @@ public:
 
 	inline float32e8_t() : m(0L), e(0), ms(false) {};
 
-	inline float32e8_t(const float32e8_t &value) { m = value.m; e = value.e; ms = value.ms; }
 	inline float32e8_t(const uint32 mantissa, const sint16 exponent, const bool negative_man) { m = mantissa; e = exponent; ms = negative_man; }
 	inline void set_value(const float32e8_t &value) { m = value.m; e = value.e; ms = value.ms; }
 	inline bool is_zero() const { return m == 0L; }

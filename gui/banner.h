@@ -35,9 +35,9 @@ private:
 public:
 	banner_t();
 
-	bool has_sticky() const { return false; }
+	bool has_sticky() const OVERRIDE { return false; }
 
-	virtual bool has_title() const { return false; }
+	virtual bool has_title() const OVERRIDE { return false; }
 
 	/**
 	* Window Title
@@ -50,7 +50,7 @@ public:
 	* -borders and -body background
 	* @author Hj. Malthaner
 	*/
-	PLAYER_COLOR_VAL get_titlecolor() const {return WIN_TITLE; }
+	PLAYER_COLOR_VAL get_titlecolor() const OVERRIDE {return WIN_TITLE; }
 
 	bool is_hit(int, int) OVERRIDE { return true; }
 
@@ -62,7 +62,7 @@ public:
 	* component is displayed.
 	* @author Hj. Malthaner
 	*/
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

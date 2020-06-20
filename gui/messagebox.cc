@@ -62,7 +62,7 @@ void news_img::init(image_id id)
 		image.set_image(id, true);
 
 		scr_coord_val xoff, yoff, xw, yw;
-		display_get_base_image_offset(id, &xoff, &yoff, &xw, &yw);
+		display_get_base_image_offset(id, xoff, yoff, xw, yw);
 		image.set_size( scr_size(xw, yw) );
 
 		set_embedded(&image);

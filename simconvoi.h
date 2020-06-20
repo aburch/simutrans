@@ -84,8 +84,8 @@ public:
 		CONVOI_DISTANCE,			//  7 | 5 | total distance traveled this month
 		CONVOI_REFUNDS,				//  8 |   | the refunds passengers waiting for this convoy (only when not attached to a line) have received.
 //		CONVOI_MAXSPEED,			//    | 6 | average max. possible speed
-//		CONVOI_WAYTOLL,				//    | 7 |
-		MAX_CONVOI_COST				//  9 | 8 |
+		CONVOI_WAYTOLL,				//  9 | 7 |
+		MAX_CONVOI_COST				// 10 | 8 |
 	};
 
 	/* Constants
@@ -226,15 +226,15 @@ private:
 	static const sint32 timings_reduction_point = 6;
 	bool re_ordered; // Whether this convoy's vehicles are currently arranged in reverse order.
 protected:
-	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
-	virtual void update_adverse_summary(adverse_summary_t &adverse);
-	virtual void update_freight_summary(freight_summary_t &freight);
+	virtual void update_vehicle_summary(vehicle_summary_t &vehicle) OVERRIDE;
+	virtual void update_adverse_summary(adverse_summary_t &adverse) OVERRIDE;
+	virtual void update_freight_summary(freight_summary_t &freight) OVERRIDE;
 	virtual void update_weight_summary(weight_summary_t &weight);
-	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */);
-	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */);
-	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */);
+	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */) OVERRIDE;
+	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */) OVERRIDE;
+	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */) OVERRIDE;
 public:
-	virtual sint16 get_current_friction();
+	virtual sint16 get_current_friction() OVERRIDE;
 
 	// weight_summary becomes invalid, when vehicle_summary or envirion_summary
 	// becomes invalid.
@@ -418,45 +418,6 @@ private:
 	sint16 steps_driven;
 
 	/**
-	* Overall performance.
-	* Is not stored, but is calculated from individual functions
-	* @author Hj. Malthaner
-	*/
-	//uint32 sum_power;
-
-	/**
-	* Overall performance with Gear.
-	* Is not stored, but is calculated from individual functions
-	* @author prissi
-	*/
-	//sint32 sum_gear_and_power;
-
-	/* sum_gewicht: unloaded weight of all vehicles *
-	* sum_gesamtgewicht: total weight of all vehicles *
-	* Are not stored, but are calculated from individual weights
-	* when loading/driving.
-	* @author Hj. Malthaner, prissi
-	*/
-	//sint64 sum_weight;
-	//sint64 sum_gesamtweight;
-
-	// cached values
-	// will be recalculated if
-	// recalc_data is true
-	bool recalc_data_front; // true when front vehicle in convoi hops
-	//bool recalc_data; // true when any vehicle in convoi hops
-
-	//sint64 sum_friction_weight;
-	//sint32 speed_limit;
-
-	/**
-	* Lowest top speed of all vehicles. Doesn't get saved, but calculated
-	* from the vehicles data
-	* @author Hj. Malthaner
-	*/
-	//sint32 min_top_speed;
-
-	/**
 	 * this give the index of the next signal or the end of the route
 	 * convois will slow down before it, if this is not a waypoint or the cannot pass
 	 * The slowdown is done by the vehicle routines
@@ -475,7 +436,7 @@ private:
 	 * The convoi is not processed every sync step for various actions
 	 * (like waiting before signals, loading etc.) Such action will only
 	 * continue after a waiting time larger than wait_lock
-	 * @author Hanjsörg Malthaner
+	 * @author HanjsÃ¶rg Malthaner
 	 */
 	sint32 wait_lock;
 
@@ -493,7 +454,7 @@ private:
 
 	/**
 	* accumulated profit over a year
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	sint64 jahresgewinn;
 
@@ -543,7 +504,7 @@ private:
 
 	/**
 	* Calculate route from Start to Target Coordinate
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	bool drive_to();
 
@@ -557,13 +518,13 @@ private:
 	/**
 	* Setup vehicles for moving in same direction than before
 	* if the direction is the same as before
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	bool can_go_alte_direction();
 
 	/**
 	* Mark first and last vehicle.
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	void set_erstes_letztes();
 
@@ -942,13 +903,13 @@ public:
 	/**
 	* The handle for ourselves. In Anlehnung an 'this' aber mit
 	* allen checks beim Zugriff.
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	convoihandle_t self;
 
 	/**
 	 * The profit in this year
-	 * @author Hanjsörg Malthaner
+	 * @author HanjsÃ¶rg Malthaner
 	 */
 	inline const sint64 & get_jahresgewinn() const {return jahresgewinn;}
 
@@ -1055,6 +1016,7 @@ public:
 	 */
 	inline uint32 get_sum_power() {return get_continuous_power();}
 	inline sint32 get_min_top_speed() {return get_vehicle_summary().max_sim_speed;}
+	inline sint32 get_max_power_speed() OVERRIDE {return get_min_top_speed();}
 
 	/// @returns weight of the convoy's vehicles (excluding freight)
 	inline sint64 get_sum_weight() {return get_vehicle_summary().weight;}
@@ -1091,7 +1053,7 @@ public:
 	 * all other stuff => convoi_t::step()
 	 * @author Hj. Malthaner
 	 */
-	sync_result sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
 	/**
 	 * All things like route search or loading, that may take a little
@@ -1119,7 +1081,7 @@ public:
 	/**
 	* When a vehicle has detected a problem
 	* force calculate a new route
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	void suche_neue_route();
 
@@ -1205,6 +1167,8 @@ public:
 
 	player_t * get_owner() const { return owner; }
 
+	void set_owner(player_t* value) { owner = value; }
+
 	/**
 	* Opens an information window
 	* @author Hj. Malthaner
@@ -1252,17 +1216,6 @@ private:
 	journey_times_map average_journey_times;
 public:
 
-#if 0
-private:
-	/**
-	* @return a description string for the object, der z.B. in einem
-	* Beobachtungsfenster angezeigt wird.
-	* @author Hj. Malthaner
-	* @see simwin
-	*/
-	void info(cbuffer_t & buf, bool dummy = false) const;
-public:
-#endif
 	/**
 	* @param buf the buffer to fill
 	* @return Freight description text (buf)
@@ -1297,7 +1250,7 @@ public:
 
 	/**
 	* Setup vehicles before starting to move
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	void vorfahren();
 
@@ -1434,8 +1387,14 @@ public:
 	/* the current state of the convoi */
 	COLOR_VAL get_status_color() const;
 
-	// returns tiles needed for this convoi
+	// returns tiles needed for this convoi. This includes 0-8/16 extra padding.
 	uint16 get_tile_length() const;
+
+	// returns total value of vehicle length of this convoy. (not include any padding)
+	uint16 get_true_tile_length() const;
+
+	// returns vehicle average age in month
+	uint16 get_average_age();
 
 	// get cached obsolescence.
 	inline bool has_obsolete_vehicles() const { return has_obsolete; }
@@ -1480,7 +1439,7 @@ public:
 	uint32 get_average_kmh();
 
 	// Overtaking for convois
-	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
+	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other) OVERRIDE;
 
 	/*
 	 * Functions related to requested_change_lane
@@ -1542,6 +1501,8 @@ public:
 	// Returns the number of standing passengers (etc.) in this convoy.
 	uint16 get_overcrowded() const;
 
+	uint16 get_overcrowded_capacity() const;
+
 	// @author: jamespetts
 	// Returns the average comfort of this convoy,
 	// taking into account any catering.
@@ -1592,7 +1553,7 @@ public:
 	/** For going to a depot automatically
 	 *  when stuck - will teleport if necessary.
 	 */
-	void emergency_go_to_depot();
+	void emergency_go_to_depot(bool show_success = true);
 
 	journey_times_map& get_average_journey_times();
 	inline const journey_times_map& get_average_journey_times_this_convoy_only() const { return average_journey_times; }
@@ -1612,6 +1573,9 @@ public:
 
 	void calc_classes_carried();
 
+	uint16 get_total_cargo_by_fare_class(uint8 catg, uint8 g_class) const;
+	uint16 get_unique_fare_capacity(uint8 catg, uint8 g_class) const;
+
 	bool carries_this_or_lower_class(uint8 catg, uint8 g_class) const;
 
 	const minivec_tpl<uint8>* get_classes_carried(uint8 catg) const
@@ -1630,16 +1594,20 @@ public:
 		}
 	}
 
-	// Returns this convoy's reversing method. (v14.6 - 2019 @Ranran)
+	// Returns this convoy's reversing method. (v14.8 - Jan, 2020 @Ranran)
 	uint8 get_terminal_shunt_mode() const;
 
 	// return a number numbered by position in convoy. This is affected by the number of locomotives and reversals.
 	// The locomotive on the front side is returned a negative value.
 	sint16 get_car_numbering(uint8 car_no) const;
 
+	// @returns vehicle length removed at the same time from the convoy. Feb, 2020 @Ranran
+	uint8 calc_auto_removal_length(uint8 car_no) const;
+	uint8 get_auto_removal_vehicle_count(uint8 car_no) const;
+
 private:
 	/** Train formation checks
-	 *  v14.6 - 2019 @Ranran
+	 *  v14.8 - Jan, 2020 @Ranran
 	 */
 	uint8 get_front_loco_count() const;
 	uint8 check_new_tail(uint8 start) const;

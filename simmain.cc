@@ -451,6 +451,7 @@ int simu_main(int argc, char** argv)
 			" -nosound            turns off ambient sounds\n"
 			" -objects DIR_NAME/  load the pakset in specified directory\n"
 			" -pause              starts game with paused after loading\n"
+			"                     a server will pause if there are no clients, even if this be not specified in simuconf.tab\n"
 			" -res N              starts in specified resolution: \n"
 			"                      1=640x480, 2=800x600, 3=1024x768, 4=1280x1024\n"
 			" -screensize WxH     set screensize to width W and height H\n"
@@ -1088,8 +1089,13 @@ int simu_main(int argc, char** argv)
 	std::string loadgame;
 
 	bool pause_after_load = false;
-	if (gimme_arg(argc, argv, "-pause", 0)) {
-		pause_after_load = true;
+	if(  gimme_arg(argc, argv, "-pause", 0)  ) {
+		if( env_t::server ) {
+			env_t::pause_server_no_clients = true;
+		}
+		else {
+			pause_after_load = true;
+		}
 	}
 
 	if(  gimme_arg(argc, argv, "-load", 0) != NULL  ) {

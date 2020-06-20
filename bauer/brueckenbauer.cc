@@ -891,7 +891,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 				}
 			}
 			weg->set_bridge_weight_limit(desc->get_max_weight());
-			bruecke->neuen_weg_bauen(weg, ribi_t::doubles(ribi), player);
+			player->book_construction_costs(player, -bruecke->neuen_weg_bauen(weg, ribi_t::doubles(ribi), player) - weg->get_desc()->get_value(), weg->get_pos().get_2d(), weg->get_waytype());
 			const grund_t* gr = welt->lookup(weg->get_pos());
 			const slope_t::type hang = gr ? gr->get_weg_hang() :  slope_t::flat;
 			const weg_t* old_way = gr ? gr->get_weg(way_desc->get_wtyp()) : NULL;
@@ -1093,7 +1093,7 @@ void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ri
 			weg = weg_t::alloc( desc->get_waytype() );
 			weg->set_desc(way_desc);
 			weg->set_bridge_weight_limit(desc->get_max_weight());
-			player_t::book_construction_costs(player, -bruecke->neuen_weg_bauen( weg, ribi_neu, player ), end.get_2d(), desc->get_waytype());
+			player_t::book_construction_costs(player, -bruecke->neuen_weg_bauen( weg, ribi_neu, player ) - weg->get_desc()->get_value(), end.get_2d(), desc->get_waytype());
 		}
 		const grund_t* gr = welt->lookup(weg->get_pos());
 		const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
@@ -1202,7 +1202,6 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 				ribi_t::ribi r = wegtyp==powerline_wt ? from->get_leitung()->get_ribi() : from->get_weg_nr(0)->get_ribi_unmasked();
 				ribi_t::ribi dir1 = r & ribi_t::northeast;
 				ribi_t::ribi dir2 = r & ribi_t::southwest;
-				bool dir1_ok = false, dir2_ok = false;
 
 				grund_t *to;
 				// test if we are at the end of a bridge:

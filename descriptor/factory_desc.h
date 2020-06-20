@@ -234,7 +234,9 @@ private:
 	uint16 pax_demand; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
 	uint16 mail_demand; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
 	uint16 base_max_distance_to_consumer;
+	uint16 base_max_distance_to_supplier;
 	uint16 max_distance_to_consumer;
+	uint16 max_distance_to_supplier;
 	uint16 sound_id;
 	uint32 sound_interval;
 	uint8 field_output_divider; // The number by which the total production of all fields is divided.
@@ -309,17 +311,25 @@ public:
 	uint32 get_sound_interval_ms() const { return sound_interval; }
 
 	uint16 get_max_distance_to_consumer() const { return max_distance_to_consumer; }
+	uint16 get_max_distance_to_supplier() const { return max_distance_to_supplier;	}
 
 	uint8 get_field_output_divider() const { return field_output_divider; }
 
 	void set_scale(uint16 scale_factor)
 	{
-		if(base_max_distance_to_consumer < 65535)
+		if (base_max_distance_to_consumer < 65535)
 		{
 			uint32 mdc = (uint32)base_max_distance_to_consumer;
 			mdc *= 1000u;
 			mdc /= scale_factor;
 			max_distance_to_consumer = (uint16)mdc;
+		}
+		if(base_max_distance_to_supplier < 65535)
+		{
+			uint32 mds = (uint32)base_max_distance_to_supplier;
+			mds *= 1000u;
+			mds /= scale_factor;
+			max_distance_to_supplier = (uint16)mds;
 		}
 	}
 

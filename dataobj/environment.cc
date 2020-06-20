@@ -307,7 +307,7 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(signalbox_coverage_show);
 	}
 	file->rdwr_long( show_names );
-	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 21) || file->get_extended_version() >= 15)
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 22) || file->get_extended_version() >= 15)
 	{
 		file->rdwr_byte(show_cnv_nameplates);
 	}

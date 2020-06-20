@@ -918,7 +918,7 @@ private:
 	// >0: This is the number of parallel operations to use.
 	sint32 parallel_operations;
 
-	// A helper method for use in init/new month
+	/// A helper method for use in init/new month
 	void recalc_passenger_destination_weights();
 
 #ifdef MULTI_THREAD
@@ -933,7 +933,7 @@ public:
 	static pthread_mutex_t unreserve_route_mutex;
 	static pthread_mutex_t step_passengers_and_mail_mutex;
 	static bool private_car_route_mutex_initialised;
-	static pthread_mutex_t private_car_route_mutex; 
+	static pthread_mutex_t private_car_route_mutex;
 	void start_passengers_and_mail_threads();
 	void start_convoy_threads();
 	void start_path_explorer();
@@ -1220,14 +1220,6 @@ public:
 	void clear_player_password_hashes();
 	void rdwr_player_password_hashes(loadsave_t *file);
 	void remove_player(uint8 player_nr);
-
-	/**
-	 * Get the public service player whos domain of influence includes the ground gr.
-	 * If gr is NULL then the default public service player is returned.
-	 * @param gr the ground to lookup
-	 * @return a public service player
-	 */
-	player_t *get_public_player(grund_t const *const gr) const;
 
 	/**
 	* Get the default public service player.
@@ -1610,6 +1602,13 @@ public:
 	*/
 	void remove_all_building_references_to_city(stadt_t* city);
 
+	/// Returns the region of the selected co-ordinate.
+	uint8 get_region(koord k) const;
+	static uint8 get_region(koord k, settings_t const* const sets); 
+
+	/// Returns the region name of the selected co-ordinate
+	std::string get_region_name(koord k) const;
+
 private:
 	/*
 	 * This is a cache to speed up several unit conversions and avoid
@@ -1735,6 +1734,10 @@ public:
 			set_speed_factors();
 		}
 		return (distance * unit_movement_numerator) >> movement_denominator_shift;
+	}
+
+	uint32 meters_from_yards(uint32 yards) const {
+		return (yards * get_settings().get_meters_per_tile()) >> YARDS_PER_TILE_SHIFT;
 	}
 
 	/**
@@ -2545,14 +2548,14 @@ public:
 	 * @return true, if square in place (i,j) with size w, h is constructible.
 	 * @author Hj. Malthaner
 	 */
-	bool square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_bits cl) const;
+	bool square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_bits cl, uint16 regions_allowed) const;
 
 	/**
 	 * @return A list of all buildable squares with size w, h.
 	 * @note Only used for town creation at the moment.
 	 * @author Hj. Malthaner
 	 */
-	slist_tpl<koord> * find_squares(sint16 w, sint16 h, climate_bits cl, sint16 old_x, sint16 old_y) const;
+	slist_tpl<koord> * find_squares(sint16 w, sint16 h, climate_bits cl, uint16 regions_allowed, sint16 old_x, sint16 old_y) const;
 
 	/**
 	 * Plays the sound when the position is inside the visible region.

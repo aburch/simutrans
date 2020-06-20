@@ -14,6 +14,8 @@
 #include "../simmenu.h"
 #include "../simworld.h"
 #include "../display/viewport.h"
+#include "../simsignalbox.h"
+
 
 signal_info_t::signal_info_t(signal_t* const s) :
 	obj_infowin_t(s),
@@ -80,17 +82,19 @@ bool signal_info_t::action_triggered(gui_action_creator_t *comp, value_t)
 			const grund_t* gr = welt->lookup(sb);
 			if (gr)
 			{
-				const gebaeude_t* gb = gr->get_building();
+				gebaeude_t* gb = gr->get_building();
 				if (gb)
 				{
 					gr->get_building()->show_info();
 					if (sig->get_player_nr() == welt->get_active_player()->get_player_nr())
 					{
-						welt->get_active_player()->set_selected_signalbox((signalbox_t*)gb);
+						welt->get_active_player()->set_selected_signalbox(static_cast<signalbox_t *>(gb));
 					}
 				}
 			}
 			return true;
 		}
 	}
+
+	return false;
 }

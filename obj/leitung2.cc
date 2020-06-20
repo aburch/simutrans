@@ -390,7 +390,7 @@ void print_power(cbuffer_t & buf, uint64 power_in_internal_units, const char *fm
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void leitung_t::info(cbuffer_t & buf, bool dummy) const
+void leitung_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
 
@@ -694,7 +694,7 @@ void pumpe_t::finish_rd()
 }
 
 
-void pumpe_t::info(cbuffer_t & buf, bool dummy) const
+void pumpe_t::info(cbuffer_t & buf) const
 {
 	obj_t::info( buf );
 
@@ -1126,7 +1126,7 @@ void senke_t::check_industry_connexion()
 }
 
 
-void senke_t::info(cbuffer_t & buf, bool dummy) const
+void senke_t::info(cbuffer_t & buf) const
 {
 	obj_t::info( buf );
 

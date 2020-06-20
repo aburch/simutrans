@@ -192,7 +192,7 @@ uint32 simrand_normal(const uint32 max, uint32 exponent, const char*)
 			recursion_exponent = 3;
 		}
 
-		exponent = 3;
+		exponent = 3; 
 	}
 
 	const uint64 abs_max = max == 0 ? 1 : max;

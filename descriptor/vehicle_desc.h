@@ -62,9 +62,9 @@ public:
 	 * Engine type
 	 * @author Hj. Malthaner
 	 */
-	enum engine_t {
-		 unknown=-1,
-		steam=0,
+	enum engine_t : uint8 {
+		unknown = 0xFF,
+		steam = 0,
 		diesel,
 		electric,
 		bio,
@@ -138,7 +138,7 @@ private:
 	uint8 trailer_count;			// all defined trailer
 	uint8 upgrades;					// The number of vehicles that are upgrades of this vehicle.
 
-	uint8 engine_type;				// diesel, steam, electric (requires electrified ways), fuel_cell, etc.
+	engine_t engine_type;			// diesel, steam, electric (requires electrified ways), fuel_cell, etc.
 
 	uint8 freight_image_type;		// number of freight images (displayed for different goods)
 	uint8 livery_image_type;		// Number of different liveries (@author: jamespetts, April 2011)
@@ -231,6 +231,10 @@ private:
 	// if true, can not mix another goods in the same car.  @Ranran, July 2019(v14.6)
 	bool mixed_load_prohibition;
 
+	// If true, the vehicle is not bound by the speed limit of the underlying way.
+	// This is intended for use with fly boats.
+	bool override_way_speed;
+
 	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
 	void loaded();
 
@@ -263,10 +267,11 @@ public:
 		sound = -1;
 		wtyp = wtype;
 		axle_load = al;
-		weight = weight;
-		engine_type = (uint8)engine;
+		this->weight = weight;
+		engine_type = engine;
 		topspeed = speed;
 		mixed_load_prohibition = false;
+		override_way_speed = false;
 		is_tilting = false;
 		bidirectional = false;
 		can_lead_from_rear = false;
@@ -782,12 +787,17 @@ public:
 	* eletric engines require an electrified way to run
 	* @author Hj. Malthaner
 	*/
-	uint16 get_engine_type() const { return engine_type; }
+	engine_t get_engine_type() const { return engine_type; }
 
 	/* @return the vehicles length in 1/8 of the normal len
 	* @author prissi
 	*/
 	uint8 get_length() const { return len; }
+
+	/* Calculate the length of a group of vehicles considered as one group by the auto connect function.
+	 * Use the function of convoy_t for removal. Feb, 2020 @Ranran */
+	uint8 calc_auto_connection_length(bool rear_side) const;
+	uint8 get_auto_connection_vehicle_count(bool rear_side) const;
 
 	uint32 get_length_in_steps() const { return get_length() * VEHICLE_STEPS_PER_CARUNIT; }
 
@@ -831,6 +841,7 @@ public:
 
 	bool get_is_tall() const { return is_tall; }
 	bool get_mixed_load_prohibition() const { return mixed_load_prohibition; }
+	bool get_override_way_speed() const { return override_way_speed; }
 
 	void set_scale(uint16 scale_factor, uint32 way_wear_factor_rail, uint32 way_wear_factor_road, uint16 standard_axle_load)
 	{

@@ -13,6 +13,7 @@
 #include "../simunits.h"
 #include "livery_scheme.h"
 #include "../tpl/piecewise_linear_tpl.h" // for various revenue tables
+#include "../dataobj/koord.h"
 
 /**
  * Game settings
@@ -33,7 +34,12 @@ struct road_timeline_t
 	uint16 intro;
 	uint16 retire;
 };
-
+struct region_definition_t
+{
+	std::string name;
+	koord top_left = koord::invalid;
+	koord bottom_right = koord::invalid;
+};
 
 template <class T>
 class vector_with_ptr_ownership_tpl : public vector_tpl<T*>
@@ -261,7 +267,19 @@ private:
 	// true, if the different capacities (passengers/mail/freight) are counted separately
 	bool separate_halt_capacities;
 
+	/// The set of livery schemes
 	vector_with_ptr_ownership_tpl<class livery_scheme_t> livery_schemes;
+
+	/// This is automatically set if the simuconf.tab region specifications are in absolute
+	/// rather than percentage terms. Stops regions from being modified when the map is resized
+	/// or a new map generated. Does not affect saved games.
+	bool absolute_regions = false;
+
+public:
+	/// The set of all regions
+	vector_tpl<region_definition_t> regions;
+
+private:
 
 	// Whether passengers might walk between stops en route.
 	// @author: jamespetts, August 2011
@@ -334,6 +352,15 @@ private:
 	* unresponsiveness be noticed frequently.
 	*/
 	uint32 max_route_tiles_to_process_in_a_step = 1024;
+
+	/**
+	* This modifies the base journey time tolerance for passenger
+	* trips to allow more fine grained control of the journey time
+	* tolernace algorithm. If this be set to zero, then the per
+	* building adjustment of journey time tolerance will be disabled.
+	* This only affects visiting passengers.
+	*/
+	uint32 tolerance_modifier_percentage = 100;
 
 public:
 	//Cornering settings
@@ -480,7 +507,7 @@ public:
 	//@author: jamespetts
 	// Insolvency and debt settings
 	uint8 interest_rate_percent;
-	bool allow_bankruptcy;
+	bool allow_insolvency;
 	bool allow_purchases_when_insolvent;
 
 	// Reversing settings
@@ -739,11 +766,14 @@ public:
 	// init form this file ...
 	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename );
 
-	void set_size_x(sint32 g) {size_x=g;}
-	void set_size_y(sint32 g) {size_y=g;}
-	void set_groesse(sint32 x, sint32 y) {size_x = x; size_y=y;}
+	void set_size_x(sint32 g);
+	void set_size_y(sint32 g);
+	void set_groesse(sint32 x, sint32 y, bool preserve_regions = false);
 	sint32 get_size_x() const {return size_x;}
 	sint32 get_size_y() const {return size_y;}
+
+	void reset_regions(sint32 old_x, sint32 old_y);
+	void rotate_regions(sint16 y_size);
 
 	sint32 get_map_number() const {return map_number;}
 
@@ -804,9 +834,11 @@ public:
 
 	sint16 get_winter_snowline() const {return winter_snowline;}
 
-	void rotate90() {
+	void rotate90()
+	{
 		rotation = (rotation+1)&3;
-		set_groesse( size_y, size_x );
+		set_groesse( size_y, size_x, true);
+		rotate_regions(size_y); 
 	}
 	uint8 get_rotation() const { return rotation; }
 
@@ -952,7 +984,7 @@ public:
 	uint16 get_factory_max_years_obsolete() const { return factory_max_years_obsolete; }
 
 	uint8 get_interest_rate_percent() const { return interest_rate_percent; }
-	bool bankruptcy_allowed() const { return allow_bankruptcy; }
+	bool insolvency_allowed() const { return allow_insolvency; }
 	bool insolvent_purchases_allowed() const { return allow_purchases_when_insolvent; }
 
 	uint32 get_unit_reverse_time() const { return unit_reverse_time; }
@@ -1114,6 +1146,8 @@ public:
 
 	uint32 get_random_mode_commuting() const { return random_mode_commuting; }
 	uint32 get_random_mode_visiting() const { return random_mode_visiting; }
+
+	uint32 get_tolerance_modifier_percentage() const { return tolerance_modifier_percentage; }
 
 #ifndef NETTOOL
 	float32e8_t get_simtime_factor() const { return simtime_factor; }

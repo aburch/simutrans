@@ -90,6 +90,8 @@ private:
 	button_t(const button_t&);        // forbidden
 	void operator =(const button_t&); // forbidden
 
+	image_id image;
+
 public:
 	COLOR_VAL background_color; //@author hsiegeln
 	COLOR_VAL text_color;
@@ -130,6 +132,8 @@ public:
 	 */
 	void set_tooltip(const char * tooltip);
 
+	void set_image(image_id b) { image = b; };
+
 	/**
 	 * @return true when x, y is within button area, i.e. the button was clicked
 	 * @return false when x, y is outside button area
@@ -143,7 +147,7 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	void enable(bool true_false_par = true) { b_enabled = true_false_par; }
 
@@ -152,7 +156,7 @@ public:
 	bool enabled() { return b_enabled; }
 
 	// Knightly : a button can only be focusable when it is enabled
-	virtual bool is_focusable() { return b_enabled && gui_component_t::is_focusable(); }
+	virtual bool is_focusable() OVERRIDE { return b_enabled && gui_component_t::is_focusable(); }
 
 	void update_focusability();
 

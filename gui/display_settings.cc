@@ -336,6 +336,7 @@ void color_gui_t::set_windowsize(scr_size size)
 	column = size.w - D_MARGIN_RIGHT - D_ARROW_RIGHT_WIDTH;
 	buttons[1].set_pos            ( scr_coord( column, buttons[1].get_pos().y            ) );
 	buttons[13].set_pos           ( scr_coord( column, buttons[13].get_pos().y           ) );
+	buttons[26].set_pos           ( scr_coord( column, buttons[26].get_pos().y           ) );
 
 	column = size.w - D_MARGINS_X;
 	divider1.set_width            ( column );
@@ -535,7 +536,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	const char *ctc = translator::translate( env_t::show_vehicle_states==0 ? "convoi error tooltips" : (env_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
 	display_proportional_clip(x+10+16, y+CONVOI_TOOLTIPS+1, ctc, ALIGN_LEFT, SYSCOL_TEXT, true);
 
-	const char *nameplate_settings = translator::translate(env_t::show_cnv_nameplates == 0 ? "no convoy nameplate" : (env_t::show_cnv_nameplates == 1 ? "mouseover convoy nameplates" : "always show convoy nameplates"));
+	const char *nameplate_settings = translator::translate(env_t::show_cnv_nameplates == 0 ? "no convoy nameplate" : (env_t::show_cnv_nameplates == 1 ? "mouseover convoy name" : "always show convoy name"));
 	display_proportional_clip(x+10+16, y+CONVOI_NAMEPLATES+1, nameplate_settings, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 	int len=15+display_proportional_clip(x+10, y+FPS_DATA, translator::translate("Frame time:"), ALIGN_LEFT, SYSCOL_TEXT, true);

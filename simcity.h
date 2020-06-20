@@ -42,6 +42,8 @@ class building_desc_t;
 
 #define PAX_DESTINATIONS_SIZE (256) // size of the minimap in the city window (sparse array)
 
+#define CITY_NAME_LABEL_WIDTH (126)	// size of
+
 enum city_cost {
 	HIST_CITICENS=0,		// total people
 	HIST_JOBS,				// Total jobs
@@ -671,6 +673,8 @@ private:
 		static bool less_than(const target_city_t &a, const target_city_t &b) { return a.distance < b.distance; }
 	};
 
+	/// Calculate this town's level of congestion this month and update the statistics accordingly.
+	void calc_congestion();
 
 public:
 
@@ -690,6 +694,9 @@ public:
 
 	// Checks whether any given postition is within the city limits.
 	bool is_within_city_limits(koord k) const;
+
+	// Checks whether any builinding is within players network.
+	bool is_within_players_network(const player_t* player) const;
 
 	/**
 	 * Erzeugt ein Array zufaelliger Startkoordinaten,
