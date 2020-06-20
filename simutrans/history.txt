@@ -28,7 +28,7 @@
 	CHG: fixed vehicle costs are now booked as running costs at the begin of a month, also convoi details changed to accomodate
 	CHG: a server will pause without clients if '-pause' is set on the command line
 	ADD: freight type filter on line window
-	CHG: speedup of map generation but reorganising and multithreading lake code
+	CHG: speedup of map generation by reorganising and multithreading lake code
 	ADD: defining overlapping climate height limits will generate maps with climate patches at these heights
 
 

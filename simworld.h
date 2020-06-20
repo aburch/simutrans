@@ -1628,9 +1628,14 @@ public:
 	void calc_climate(koord k, bool recalc);
 
 	/**
-	 * Calculates appropriate climate for a region using elliptic areas for each
-	 */
-	void calc_climate_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom );
+	* Calculates appropriate climate for a region using elliptic areas for each
+	*/
+	void calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom );
+
+	/**
+	* assign climated from the climate map to a region
+	*/
+	void assign_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom );
 
 	/**
 	 * Rotates climate and water transitions for a tile

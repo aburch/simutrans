@@ -1684,9 +1684,7 @@ void karte_t::init_height_to_climate()
 			height_to_climate[h] = h==0  ? (uint8)arctic_climate : desert_climate;
 			num_climates_at_height[h] = 1;
 		}
-		if( num_climates_at_height[ h ] > 0 ) {
-			DBG_DEBUG( "init_height_to_climate()", "Height %i, climate %i, num_climates %i", h - groundwater, height_to_climate[ h ], num_climates_at_height[ h ] );
-		}
+		DBG_DEBUG( "init_height_to_climate()", "Height %i, climate %i, num_climates %i", h - groundwater, height_to_climate[ h ], num_climates_at_height[ h ] );
 	}
 }
 
@@ -1882,11 +1880,11 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 	// set climates in new area
 	if( old_x == 0   &&  old_y == 0 ) {
-		calc_climate_region( 0, 0, new_size_x, new_size_y );
+		calc_climate_map_region( 0, 0, new_size_x, new_size_y );
 	}
 	else {
-		calc_climate_region( old_x, 0, new_size_x, new_size_y );
-		calc_climate_region( 0, old_y, old_x, new_size_y );
+		calc_climate_map_region( old_x, 0, new_size_x, new_size_y );
+		calc_climate_map_region( 0, old_y, old_x, new_size_y );
 	}
 
 	if (  old_x == 0  &&  old_y == 0  ) {
@@ -5496,7 +5494,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 	}
 	else if(  file->is_version_less(112, 7)  ) {
 		// distribute climates
-		calc_climate_region(0,0,get_size().x,get_size().y);
+		calc_climate_map_region(0,0,get_size().x,get_size().y);
 	}
 	else {
 		for(  sint16 y = 0;  y < get_size().y;  y++  ) {
@@ -5960,10 +5958,8 @@ void karte_t::calc_climate(koord k, bool recalc)
 
 
 // distributes climates in a rectangle
-void karte_t::calc_climate_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom  )
+void karte_t::calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom  )
 {
-	sint32 points = (xbottom - xtop)*(ybottom - ytop);
-
 	if( xtop == 0 && ytop == 0 ) {
 		climate_map.clear();
 	}
@@ -5971,41 +5967,16 @@ void karte_t::calc_climate_region( sint16 xtop, sint16 ytop, sint16 xbottom, sin
 
 	sint16 groundwater = settings.get_groundwater();
 
-	// first remove water and beach tiles from distribution effort
+	// first remove water all clear single tiles from effort
+	// for the first passes, we only work on the grid, which is much faster
 	for(  sint16 y = ytop;  y < ybottom;  y++  ) {
 		for(  sint16 x = xtop;  x < xbottom;  x++  ) {
-			if(  planquadrat_t *pl = access( x, y )  ) {
-				if(  pl->get_kartenboden()->is_water()  ) {
-					// full water tile
-					points--;
-					pl->set_climate( water_climate );
-					pl->set_climate_transition_flag(false);
-					pl->set_climate_corners(0);
-					climate_map.at( x, y ) = water_climate;
-				}
-				else {
-					// test for beach tiles
-					grund_t *gr = pl->get_kartenboden();
-					bool beach = false;
-					if(  gr->get_pos().z == groundwater  ) {
-						for(  int i = 0;  i < 8 && !beach;  i++  ) {
-							grund_t *gr2 = lookup_kartenboden( koord(x,y) + koord::neighbours[i] );
-							if(  gr2 && gr2->is_water()  ) {
-								beach = true;
-							}
-						}
-					}
-					sint8 rel_h = max( gr->get_pos().z - groundwater, 1 );
-					if(  beach  ||  num_climates_at_height[rel_h] <= 1  ) {
-						// beach or only one climate
-						uint8 cl = beach ? desert_climate : (num_climates_at_height[rel_h] == 0 ? temperate_climate : height_to_climate[rel_h]);
-						points--;
-						pl->set_climate( (climate)cl );
-						climate_map.at( x, y ) = cl;
-						pl->set_climate_transition_flag(false);
-						pl->set_climate_corners(0);
-					}
-				}
+			sint8 hgt = lookup_hgt_nocheck( x, y );
+			if( hgt < groundwater ) {
+				climate_map.at( x, y ) = water_climate;
+			}
+			else if( num_climates_at_height[ hgt-groundwater ] == 1 ) {
+				climate_map.at( x, y ) = height_to_climate[hgt-groundwater];
 			}
 		}
 	}
@@ -6023,13 +5994,12 @@ void karte_t::calc_climate_region( sint16 xtop, sint16 ytop, sint16 xbottom, sin
 		// find the next climateless tile
 		for(  sint16 y = ytop;  y < ybottom;  y++  ) {
 			for(  sint16 x = xtop;  x < xbottom;  x++  ) {
-				if( climate_map.at( x, y ) == 0xFF ) {
-					planquadrat_t *pl = access( x, y );
-					grund_t *gr = pl->get_kartenboden();
+				if( climate_map.at( x, y ) > arctic_climate ) {
 					// not assigned yet => start with a random allowed climate
 					allowed.clear();
+					sint8 hgt = lookup_hgt_nocheck( x, y );
 					for( int cl=1;  cl<MAX_CLIMATES;  cl++ ) {
-						if(  gr->get_hoehe() >= settings.get_climate_borders( cl, 0 )  &&  gr->get_hoehe() <= settings.get_climate_borders( cl, 1 )  ) {
+						if(  hgt >= settings.get_climate_borders( cl, 0 )  &&  hgt <= settings.get_climate_borders( cl, 1 )  ) {
 							allowed.append(cl);
 						}
 					}
@@ -6042,30 +6012,62 @@ void karte_t::calc_climate_region( sint16 xtop, sint16 ytop, sint16 xbottom, sin
 
 							const sint32 x_off = (j-(wx>>1));
 							const sint32 y_off = (i-(wy>>1));
-							if(  x+x_off>=xtop  &&  x+x_off<xbottom  &&  y+y_off>=ytop  &&  y+y_off<ybottom  &&  climate_map.at( x+x_off, y+y_off )==0xFF  ) {
+							if(  x+x_off>=xtop  &&  x+x_off<xbottom  &&  y+y_off>=ytop  &&  y+y_off<ybottom  &&  climate_map.at( x+x_off, y+y_off )>arctic_climate  ) {
 
 								const uint64 distance = 1 + sqrt_i64( ((uint64)x_off*x_off*(wx*wx) + (uint64)y_off*y_off*(wy*wy)));
 								const uint32 threshold = (uint32)( ( 8 * (uint32)((wx*wx)+(wy*wy)) ) / distance );
 
 								if(  threshold > 40  ) {
-									planquadrat_t *pl = access( x+x_off, y+y_off );
-									grund_t *gr = pl->get_kartenboden();
+									hgt = lookup_hgt_nocheck( x+x_off, y+y_off );
 									// find out if the climate is still allowed here
-									if(  gr->get_hoehe() >= settings.get_climate_borders( cl, 0 )  &&  gr->get_hoehe() <= settings.get_climate_borders( cl, 1 )  ) 	{
-										points--;
-										pl->set_climate( cl );
+									if(  hgt >= settings.get_climate_borders( cl, 0 )  &&  hgt <= settings.get_climate_borders( cl, 1 )  ) 	{
 										climate_map.at( x+x_off, y+y_off ) = cl;
-										pl->set_climate_transition_flag(false);
-										pl->set_climate_corners(0);
 									}
 								}
 							}
 						}
 					}
-					// all set = finish
-					if( points == 0 ) {
-						return;
+				}
+			}
+		}
+	}
+	 assign_climate_map_region( xtop, ytop, xbottom, ybottom );
+}
+
+
+
+void karte_t::assign_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom  )
+{
+	for(  sint16 y = ytop;  y < ybottom;  y++  ) {
+		for(  sint16 x = xtop;  x < xbottom;  x++  ) {
+			if(  planquadrat_t *pl = access( x, y )  ) {
+				if(  pl->get_kartenboden()->is_water()  ) {
+					// full water tile
+					pl->set_climate( water_climate );
+					pl->set_climate_transition_flag(false);
+					pl->set_climate_corners(0);
+					climate_map.at( x, y ) = water_climate;
+				}
+				else {
+					// test for beach tiles (if climate is not desert)
+					bool beach = false;
+					if(  climate_map.at(x,y)!=desert_climate  ) {
+						grund_t *gr = pl->get_kartenboden();
+						if(  gr->get_pos().z == groundwater  ) {
+							for(  int i = 0;  i < 8 && !beach;  i++  ) {
+								grund_t *gr2 = lookup_kartenboden( koord(x,y) + koord::neighbours[i] );
+								if(   gr2  &&  gr2->is_water()  ) {
+									beach = true;
+								}
+							}
+						}
 					}
+					// beach or only one climate
+					uint8 cl = beach ? desert_climate : climate_map.at(x,y);
+					pl->set_climate( (climate)cl );
+					climate_map.at( x, y ) = cl;
+					pl->set_climate_transition_flag(false);
+					pl->set_climate_corners(0);
 				}
 			}
 		}
