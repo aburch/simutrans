@@ -3679,6 +3679,12 @@ mouseover convoy name
 マウスオーバーで系統名表示
 always show convoy name
 常に系統名を表示
+no convoy loading bar
+積載率バー非表示
+mouseover loading bar
+マウスオーバーで積載率バーを表示
+always show loading bar
+常に積載率バーを表示
 map_btn_freight
 輸送量
 Stop coverage
