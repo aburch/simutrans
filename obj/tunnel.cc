@@ -179,7 +179,7 @@ void tunnel_t::cleanup( player_t *player2 )
 		const grund_t *gr = welt->lookup(get_pos());
 		if(gr) {
 			weg_t *weg = gr->get_weg( desc->get_waytype() );
-			if(weg)	{
+			if(weg) {
 				weg->set_max_speed( weg->get_desc()->get_topspeed() );
 				player_t::add_maintenance( player,  weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
 			}

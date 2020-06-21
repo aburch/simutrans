@@ -138,9 +138,9 @@ public:
 /**
  * nwc_auth_player_t
  * @from-client: client sends password hash to unlock player / set player password
- *		 server sends nwc_auth_player_t to sender
+ *               server sends nwc_auth_player_t to sender
  * @from-server:
- *		 information whether players are locked / unlocked
+ *               information whether players are locked / unlocked
  */
 class nwc_auth_player_t : public network_command_t {
 public:

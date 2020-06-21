@@ -29,7 +29,7 @@ public:
 	koord3d(koord xyp, sint8 zp) : x(xyp.x), y(xyp.y), z(zp) {}
 
 	const char *get_str() const;
-	const char *get_fullstr() const;	// including brackets
+	const char *get_fullstr() const; // including brackets
 
 	void rotate90( sint16 y_diff );
 

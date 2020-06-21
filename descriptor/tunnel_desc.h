@@ -27,7 +27,7 @@
  */
 class tunnel_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class tunnel_reader_t;
-	friend class tunnel_builder_t;	// to convert the old tunnels to new ones
+	friend class tunnel_builder_t; // to convert the old tunnels to new ones
 
 private:
 	static int slope_indices[81];

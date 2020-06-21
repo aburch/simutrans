@@ -40,9 +40,9 @@ network_command_t* network_command_t::read_from_packet(packet_t *p)
 	network_command_t* nwc = NULL;
 	switch (p->get_id()) {
 		case NWC_GAMEINFO:    nwc = new nwc_gameinfo_t(); break;
-		case NWC_NICK:	      nwc = new nwc_nick_t(); break;
-		case NWC_CHAT:	      nwc = new nwc_chat_t(); break;
-		case NWC_JOIN:	      nwc = new nwc_join_t(); break;
+		case NWC_NICK:        nwc = new nwc_nick_t(); break;
+		case NWC_CHAT:        nwc = new nwc_chat_t(); break;
+		case NWC_JOIN:        nwc = new nwc_join_t(); break;
 		case NWC_SYNC:        nwc = new nwc_sync_t(); break;
 		case NWC_GAME:        nwc = new nwc_game_t(); break;
 		case NWC_READY:       nwc = new nwc_ready_t(); break;

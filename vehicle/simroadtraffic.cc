@@ -348,9 +348,8 @@ private_car_t::private_car_t(loadsave_t *file) :
 }
 
 
-private_car_t::private_car_t(grund_t* gr, koord const target) :
-	road_user_t(gr, simrand(65535)),
-	desc(liste_timeline.empty() ? 0 : pick_any_weighted(liste_timeline))
+private_car_t::private_car_t(grund_t* gr, koord const target, const char* name) :
+	road_user_t(gr, simrand(65535))
 {
 	route_index = 0;
 	route.resize(welt->get_settings().get_citycar_max_look_forward());
@@ -464,7 +463,7 @@ void private_car_t::rdwr(loadsave_t *file)
 	}
 	else if(file->is_version_less(89, 5)) {
 		file->rdwr_long(time_to_life);
-		time_to_life *= 10000;	// converting from hops left to ms since start
+		time_to_life *= 10000; // converting from hops left to ms since start
 	}
 
 	if(file->is_version_less(86, 5)) {
@@ -1353,7 +1352,7 @@ void private_car_t::hop(grund_t* to)
 	const koord3d pos_next_next = route[(route_index+1)%welt->get_settings().get_citycar_max_look_forward()];
 	if(pos_next_next==get_pos()) {
 		direction = calc_set_direction( pos_next, pos_next_next );
-		steps_next = 0;	// mark for starting at end of tile!
+		steps_next = 0; // mark for starting at end of tile!
 	}
 	else {
 		direction = calc_set_direction( get_pos(), pos_next_next );
@@ -1532,7 +1531,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 	}
 	// On one-way road, other_speed is current speed. Otherwise, other_speed is the theoretical max power speed.
 	sint32 diff_speed = (sint32)current_speed - other_speed;
-	if(  diff_speed < kmh_to_speed(5)  ) {
+	if( diff_speed < kmh_to_speed( 5 ) ) {
 		// not fast enough to overtake
 		return false;
 	}
@@ -1546,7 +1545,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 	 * convoi_length for city cars? ==> a bit over half a tile (10)
 	 */
 	sint32 time_overtaking = 0;
-	sint32 distance = current_speed*((10<<4)+steps_other)/max(desc->get_topspeed()-other_speed,diff_speed);
+	sint32 distance = current_speed*((10<<4)+steps_other)/diff_speed;
 
 	// Conditions for overtaking:
 	// Flat tiles, with no stops, no crossings, no signs, no change of road speed limit

@@ -221,8 +221,8 @@ void env_t::init()
 	// debug level (0: only fatal, 1: error, 2: warning, 3: all
 	verbose_debug = 0;
 
-	default_sortmode = 1;	// sort by amount
-	default_mapmode = 0;	// show cities
+	default_sortmode = 1; // sort by amount
+	default_mapmode = 0;  // show cities
 
 	savegame_version_str = SAVEGAME_VER_NR;
 

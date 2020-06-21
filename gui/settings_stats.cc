@@ -522,23 +522,21 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	INIT_NUM_NEW( "Water level", sets->get_groundwater(), -20*(ground_desc_t::double_grounds?2:1), 20, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "Mountain height", mountain_height_start, 0, min(1000,100*(11-mountain_roughness_start)), 10, false );
 	INIT_NUM_NEW( "Map roughness", mountain_roughness_start, 0, min(10, 11-((mountain_height_start+99)/100)), gui_numberinput_t::AUTOLINEAR, false );
-	SEPERATOR
-	INIT_LB( "Summer snowline" );
-	summer = new_component<gui_label_buf_t>();
 
-	INIT_NUM( "Winter snowline", sets->get_winter_snowline(), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
-	// other climate borders ...
-	sint16 arctic = 0;
-	for(  int i=desert_climate;  i!=arctic_climate;  i++  ) {
-		INIT_NUM( ground_desc_t::get_climate_name_from_bit((climate)i), sets->get_climate_borders()[i], sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
-		if(sets->get_climate_borders()[i]>arctic) {
-			arctic = sets->get_climate_borders()[i];
+	INIT_LB( "" );
+	add_table(3,0);
+	{
+		// other climate borders ...
+		for(  int i=desert_climate;  i<=arctic_climate;  i++  ) {
+			INIT_NUM( ground_desc_t::get_climate_name_from_bit((climate)i), sets->get_climate_borders(i,0), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
+			gui_numberinput_t *ni = new_component<gui_numberinput_t>();
+			ni->init( sets->get_climate_borders(i,1), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
+			numinp.append( ni );
 		}
-	}	cbuffer_t buf;
+	}
+	end_table();
 
-	summer->buf().printf("%s %i", translator::translate( "Summer snowline" ), arctic );
-	summer->update();
 	SEPERATOR
 	INIT_BOOL( "lake", sets->get_lake() );
 	INIT_NUM_NEW( "Number of rivers", sets->get_river_number(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );
@@ -574,19 +572,14 @@ void settings_climates_stats_t::read(settings_t* const sets)
 	if(  new_world  ) {
 		sets->map_roughness = (n+8.0)/20.0;
 	}
-	READ_NUM_VALUE( sets->winter_snowline );
 	// other climate borders ...
-	sint16 arctic = 0;
-	for(  int i=desert_climate;  i!=arctic_climate;  i++  ) {
+	for(  int i=desert_climate;  i<=arctic_climate;  i++  ) {
 		sint16 ch;
 		READ_NUM_VALUE( ch );
-		sets->climate_borders[i] = ch;
-		if(  ch>arctic  ) {
-			arctic = ch;
-		}
+		sets->climate_borders[i][0] = ch;
+		READ_NUM_VALUE( ch );
+		sets->climate_borders[i][1] = ch;
 	}
-	summer->buf().printf("%s %i", translator::translate( "Summer snowline" ), arctic );
-	summer->update();
 	READ_BOOL_VALUE( sets->lake );
 	READ_NUM_VALUE_NEW( sets->river_number );
 	READ_NUM_VALUE_NEW( sets->min_river_length );

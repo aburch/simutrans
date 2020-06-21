@@ -60,7 +60,7 @@ FLAGGED_PIXVAL message_t::node::get_player_color(karte_t *welt) const
 
 message_t::message_t()
 {
-	ticker_flags = 0xFF7F;	// everything on the ticker only
+	ticker_flags = 0xFF7F; // everything on the ticker only
 	win_flags = 0;
 	auto_win_flags = 0;
 	ignore_flags = 0;

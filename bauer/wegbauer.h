@@ -59,30 +59,30 @@ public:
 	static void fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, const systemtype_t styp, sint16 ok_sound);
 
 	enum bautyp_t {
-		strasse=road_wt,
-		schiene=track_wt,
-		schiene_tram=tram_wt, // Dario: Tramway
-		monorail=monorail_wt,
-		maglev=maglev_wt,
-		wasser=water_wt,
-		luft=air_wt,
-		narrowgauge=narrowgauge_wt,
-		leitung=powerline_wt,
-		river=127,
-		bautyp_mask=255,
-		bot_flag=0x100,					// do not connect to other ways
-		elevated_flag=0x200,			// elevated structure
-		terraform_flag=0x400,
-		tunnel_flag=0x800				// underground structure
+		strasse        = road_wt,
+		schiene        = track_wt,
+		schiene_tram   = tram_wt,
+		monorail       = monorail_wt,
+		maglev         = maglev_wt,
+		wasser         = water_wt,
+		luft           = air_wt,
+		narrowgauge    = narrowgauge_wt,
+		leitung        = powerline_wt,
+		river          = 127,
+		bautyp_mask    = 255,
+		bot_flag       = 0x100, // do not connect to other ways
+		elevated_flag  = 0x200, // elevated structure
+		terraform_flag = 0x400,
+		tunnel_flag    = 0x800  // underground structure
 	};
 
 private:
 	/// flags used in intern_calc_route, saved in the otherwise unused route_t::ANode->count
 	enum build_type_t {
-		build_straight = 1,      ///< next step has to be straight
-		terraform      = 2,      ///< terraform this tile
+		build_straight      = 1, ///< next step has to be straight
+		terraform           = 2, ///< terraform this tile
 		build_tunnel_bridge = 4, ///< bridge/tunnel ends here
-		is_upperlayer = 8,       ///only used when elevated  true:upperlayer
+		is_upperlayer       = 8  ///< only used when elevated  true:upperlayer
 	};
 
 	struct next_gr_t

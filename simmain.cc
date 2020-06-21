@@ -62,7 +62,7 @@
 #include "utils/simstring.h"
 #include "utils/searchfolder.h"
 
-#include "network/network.h"	// must be before any "windows.h" is included via bzlib2.h ...
+#include "network/network.h" // must be before any "windows.h" is included via bzlib2.h ...
 #include "dataobj/loadsave.h"
 #include "dataobj/environment.h"
 #include "dataobj/tabfile.h"
@@ -358,7 +358,7 @@ static void ask_objfilename()
 	sel->infowin_event(&ev);
 
 	if(sel->has_pak()) {
-		destroy_all_win(true);	// since eventually the successful load message is still there ....
+		destroy_all_win(true); // since eventually the successful load message is still there ....
 		modal_dialogue( sel, magic_none, NULL, empty_objfilename );
 	}
 	else {
@@ -380,7 +380,7 @@ static void ask_language()
 	}
 	else {
 		sprachengui_t* sel = new sprachengui_t();
-		destroy_all_win(true);	// since eventually the successful load message is still there ....
+		destroy_all_win(true); // since eventually the successful load message is still there ....
 		modal_dialogue( sel, magic_none, NULL, no_language );
 		destroy_win( sel );
 	}
@@ -473,6 +473,7 @@ int simu_main(int argc, char** argv)
 			" -nosound            turns off ambient sounds\n"
 			" -objects DIR_NAME/  load the pakset in specified directory\n"
 			" -pause              starts game with paused after loading\n"
+			"                     a server will pause if there are no clients\n"
 			" -res N              starts in specified resolution: \n"
 			"                      1=640x480, 2=800x600, 3=1024x768, 4=1280x1024\n"
 			" -screensize WxH     set screensize to width W and height H\n"
@@ -1115,7 +1116,7 @@ int simu_main(int argc, char** argv)
 	// loading all objects in the pak
 	dbg->message("simmain()","Reading object data from %s...", env_t::objfilename.c_str());
 	obj_reader_t::load( env_t::objfilename.c_str(), translator::translate("Loading paks ...") );
-	std::string overlaid_warning;	// more prominent handling of double objects
+	std::string overlaid_warning; // more prominent handling of double objects
 	if(  dbg->had_overlaid()  ) {
 		overlaid_warning = translator::translate("<h1>Error</h1><p><strong>");
 		overlaid_warning.append( env_t::objfilename + translator::translate("contains the following doubled objects:</strong><p>") + dbg->get_overlaid() + "<p>" );
@@ -1184,8 +1185,13 @@ int simu_main(int argc, char** argv)
 	std::string loadgame;
 
 	bool pause_after_load = false;
-	if (gimme_arg(argc, argv, "-pause", 0)) {
-		pause_after_load = true;
+	if(  gimme_arg(argc, argv, "-pause", 0)  ) {
+		if( env_t::server ) {
+			env_t::pause_server_no_clients = true;
+		}
+		else {
+			pause_after_load = true;
+		}
 	}
 
 	if(  gimme_arg(argc, argv, "-load", 0) != NULL  ) {

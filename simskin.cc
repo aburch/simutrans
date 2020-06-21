@@ -63,10 +63,10 @@ const skin_desc_t* skinverwaltung_t::message_options    = NULL;
 const skin_desc_t* skinverwaltung_t::color_options      = NULL;
 
 const skin_desc_t* skinverwaltung_t::compass_iso        = NULL;
-const skin_desc_t* skinverwaltung_t::compass_map        = NULL;	// compass for minimap
+const skin_desc_t* skinverwaltung_t::compass_map        = NULL; // compass for minimap
 
 // cursors
-const skin_desc_t* skinverwaltung_t::cursor_general     = NULL;	// new cursors
+const skin_desc_t* skinverwaltung_t::cursor_general     = NULL; // new cursors
 const skin_desc_t* skinverwaltung_t::bauigelsymbol      = NULL;
 const skin_desc_t* skinverwaltung_t::belegtzeiger       = NULL;
 const skin_desc_t* skinverwaltung_t::mouse_cursor       = NULL;

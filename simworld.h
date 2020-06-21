@@ -15,6 +15,7 @@
 #include "halthandle_t.h"
 
 #include "tpl/weighted_vector_tpl.h"
+#include "tpl/array2d_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
 
@@ -101,22 +102,22 @@ public:
 	void perlin_hoehe_loop(sint16, sint16, sint16, sint16);
 
 	enum player_cost {
-		WORLD_CITICENS=0,		//!< total people
-		WORLD_GROWTH,			//!< growth (just for convenience)
-		WORLD_TOWNS,			//!< number of all cities
-		WORLD_FACTORIES,		//!< number of all consuming only factories
-		WORLD_CONVOIS,			//!< total number of convois
-		WORLD_CITYCARS,			//!< number of citycars generated
-		WORLD_PAS_RATIO,		//!< percentage of passengers that started successful
-		WORLD_PAS_GENERATED,	//!< total number generated
-		WORLD_MAIL_RATIO,		//!< percentage of mail that started successful
-		WORLD_MAIL_GENERATED,	//!< all letters generated
-		WORLD_GOODS_RATIO,		//!< ratio of chain completeness
-		WORLD_TRANSPORTED_GOODS,//!< all transported goods
+		WORLD_CITICENS=0,        ///< total people
+		WORLD_GROWTH,            ///< growth (just for convenience)
+		WORLD_TOWNS,             ///< number of all cities
+		WORLD_FACTORIES,         ///< number of all consuming only factories
+		WORLD_CONVOIS,           ///< total number of convois
+		WORLD_CITYCARS,          ///< number of citycars generated
+		WORLD_PAS_RATIO,         ///< percentage of passengers that started successful
+		WORLD_PAS_GENERATED,     ///< total number generated
+		WORLD_MAIL_RATIO,        ///< percentage of mail that started successful
+		WORLD_MAIL_GENERATED,    ///< all letters generated
+		WORLD_GOODS_RATIO,       ///< ratio of chain completeness
+		WORLD_TRANSPORTED_GOODS, ///< all transported goods
 		MAX_WORLD_COST
 	};
 
-	#define MAX_WORLD_HISTORY_YEARS  (12) // number of years to keep history
+	#define MAX_WORLD_HISTORY_YEARS   (12) // number of years to keep history
 	#define MAX_WORLD_HISTORY_MONTHS  (12) // number of months to keep history
 
 	enum { NORMAL=0, PAUSE_FLAG = 0x01, FAST_FORWARD=0x02, FIX_RATIO=0x04 };
@@ -256,6 +257,13 @@ private:
 	 * Table for fast conversion from height to climate.
 	 */
 	uint8 height_to_climate[128];
+	uint8 num_climates_at_height[128];
+
+	/**
+	 * Contains the intended climate for a tile
+	 * (needed to restore tiles after height changes)
+	 */
+	array2d_tpl<uint8>climate_map;
 
 	/**
 	 * Array containing the convois.
@@ -647,6 +655,11 @@ private:
 	 * Will create rivers.
 	 */
 	void create_rivers(sint16 number);
+
+	/**
+	 * Will create lakes (multithreaded).
+	 */
+	void create_lakes_loop(sint16, sint16, sint16, sint16);
 
 	/**
 	 * Will create lakes.
@@ -1117,7 +1130,7 @@ private:
 	 * lakes are left where there is no drainage
 	 */
 	void drain_tile(koord k, sint8 water_height);
-	bool can_flood_to_depth(koord k, sint8 new_water_height, sint8 *stage, sint8 *our_stage) const;
+	bool can_flood_to_depth(koord k, sint8 new_water_height, sint8 *stage, sint8 *our_stage, sint16, sint16, sint16, sint16) const;
 
 public:
 	void flood_to_depth(sint8 new_water_height, sint8 *stage);
@@ -1320,13 +1333,13 @@ public:
 	 * @return The natural slope at a position.
 	 * @note Uses the corner height for the best slope.
 	 */
-	uint8	recalc_natural_slope( const koord k, sint8 &new_height ) const;
+	uint8 recalc_natural_slope( const koord k, sint8 &new_height ) const;
 
 	/**
 	 * Returns the natural slope a a position using the grid.
 	 * @note No checking, and only using the grind for calculation.
 	 */
-	uint8	calc_natural_slope( const koord k ) const;
+	uint8 calc_natural_slope( const koord k ) const;
 
 	 /**
 	  * Initialize map.
@@ -1342,8 +1355,6 @@ public:
 	karte_t();
 
 	~karte_t();
-
-
 
 	/**
 	 * File version used when loading (or current if generated)
@@ -1529,7 +1540,8 @@ public:
 	/**
 	 * Synchronous stepping of objects like vehicles.
 	 */
-	void sync_step(uint32 delta_t, bool sync, bool display );	// advance also the timer
+	void sync_step(uint32 delta_t, bool sync, bool display ); // advance also the timer
+
 	/**
 	 * Tasks that are more time-consuming, like route search of vehicles and production of factories.
 	 */
@@ -1617,6 +1629,16 @@ public:
 	void calc_climate(koord k, bool recalc);
 
 	/**
+	* Calculates appropriate climate for a region using elliptic areas for each
+	*/
+	void calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom );
+
+	/**
+	* assign climated from the climate map to a region
+	*/
+	void assign_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom );
+
+	/**
 	 * Rotates climate and water transitions for a tile
 	 */
 	void rotate_transitions(koord k);
@@ -1630,11 +1652,6 @@ public:
 	 * Loop recalculating transitions - suitable for multithreading
 	 */
 	void recalc_transitions_loop(sint16, sint16, sint16, sint16);
-
-	/**
-	 * Loop creating grounds on all plans from height and water height - suitable for multithreading
-	 */
-	void create_grounds_loop(sint16, sint16, sint16, sint16);
 
 	/**
 	 * Loop cleans grounds so that they have correct boden and slope - suitable for multithreading

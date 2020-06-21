@@ -228,11 +228,20 @@ map_frame_t::map_frame_t() :
 		add_component(&b_rotate45);
 
 		// show contour
-		b_show_contour.init(button_t::square_state, "Show contour");
-		b_show_contour.set_tooltip("Color-coded terrain according to altitude.");
-		b_show_contour.add_listener(this);
-		b_show_contour.pressed = (karte->get_display_mode() & minimap_t::MAP_HIDE_CONTOUR)==0;
-		add_component(&b_show_contour);
+		c_show_outlines.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Show contour" ), SYSCOL_TEXT );
+		c_show_outlines.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Show climates" ), SYSCOL_TEXT );
+		c_show_outlines.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Show outline" ), SYSCOL_TEXT );
+		c_show_outlines.add_listener( this );
+		if( (env_t::default_mapmode & minimap_t::MAP_CLIMATES) != 0 ) {
+			c_show_outlines.set_selection( 1 );
+		}
+		else if( (env_t::default_mapmode & minimap_t::MAP_HIDE_CONTOUR) != 0 ) {
+			c_show_outlines.set_selection( 2 );
+		}
+		else {
+			c_show_outlines.set_selection( 0 );
+		}
+		add_component(&c_show_outlines);
 
 		new_component<gui_fill_t>();
 	}
@@ -434,7 +443,7 @@ void map_frame_t::show_hide_directory(const bool show)
 }
 
 
-bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
+bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 {
 	if(  comp == &b_show_legend  ) {
 		show_hide_legend( !b_show_legend.pressed );
@@ -445,14 +454,18 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 	else if(  comp == &b_show_directory  ) {
 		show_hide_directory( !b_show_directory.pressed );
 	}
-	else if(  comp == &b_show_contour  ) {
-		if( !b_show_contour.pressed ) {
-			b_show_contour.pressed = 1;
+	else if(  comp == &c_show_outlines  ) {
+		if( v.i == 2 ) {
+			env_t::default_mapmode |= minimap_t::MAP_HIDE_CONTOUR;
+			env_t::default_mapmode &= ~minimap_t::MAP_CLIMATES;
+		}
+		else if( v.i == 1 ) {
+			env_t::default_mapmode |= minimap_t::MAP_CLIMATES;
 			env_t::default_mapmode &= ~minimap_t::MAP_HIDE_CONTOUR;
 		}
 		else {
-			b_show_contour.pressed = 0;
-			env_t::default_mapmode |= minimap_t::MAP_HIDE_CONTOUR;
+			env_t::default_mapmode &= ~minimap_t::MAP_CLIMATES;
+			env_t::default_mapmode &= ~minimap_t::MAP_HIDE_CONTOUR;
 		}
 		minimap_t::get_instance()->set_display_mode(  ( minimap_t::MAP_DISPLAY_MODE)env_t::default_mapmode  );
 	}

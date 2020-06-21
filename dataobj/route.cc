@@ -213,10 +213,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			grund_t* to;
 			if(  (ribi & ribi_t::nsew[r] )!=0 // do not go backwards
-				&& koord_distance(start, gr->get_pos() + koord::nsew[r])<max_depth	// not too far away
-				&& gr->get_neighbour(to, wegtyp, ribi_t::nsew[r])  // is connected
-				&& !marker.is_marked(to) // not already tested
-				&& tdriver->check_next_tile(to, true)	// can be driven on
+			    && koord_distance(start, gr->get_pos() + koord::nsew[r])<max_depth // not too far away
+			    && gr->get_neighbour(to, wegtyp, ribi_t::nsew[r])  // is connected
+			    && !marker.is_marked(to) // not already tested
+			    && tdriver->check_next_tile(to, true) // can be driven on
 			) {
 				// not in there or taken out => add new
 				ANode* k = &nodes[step++];

@@ -610,6 +610,18 @@ void scenario_t::step()
 	if (need_toolbar_update) {
 		tool_t::update_toolbars();
 		need_toolbar_update = false;
+
+		// reset active tool if now forbidden
+		// check scenario conditions for all players
+		for(uint8 player_nr = 0; player_nr < PLAYER_UNOWNED; player_nr++) {
+			if (player_t *player = welt->get_player(player_nr)) {
+				tool_t *tool = welt->get_tool(player_nr);
+
+				if (!is_tool_allowed(player, tool->get_id(), tool->get_waytype())) {
+					welt->local_set_tool(tool_t::general_tool[TOOL_QUERY], player);
+				}
+			}
+		}
 	}
 }
 

@@ -11,8 +11,6 @@
 #include "../simtypes.h"
 #include "../simconst.h"
 
-
-
 class player_t;
 class loadsave_t;
 class tabfile_t;
@@ -72,7 +70,7 @@ private:
 	sint32 growthfactor_medium;
 	sint32 growthfactor_large;
 
-	sint16 special_building_distance;	// distance between attraction to factory or other special buildings
+	sint16 special_building_distance; // distance between attraction to factory or other special buildings
 	uint32 minimum_city_distance;
 	uint32 industry_increase;
 
@@ -83,8 +81,8 @@ private:
 	// higher number: passengers are more evenly distributed around the map
 	struct yearly_locality_factor_t
 	{
-		sint16	year;
-		uint32	factor;
+		sint16 year;
+		uint32 factor;
 	};
 	yearly_locality_factor_t locality_factor_per_year[10];
 
@@ -126,10 +124,9 @@ private:
 	 /**
 	 * waterlevel, climate borders, lowest snow in winter
 	 */
-
 	sint16 groundwater;
-	sint16 climate_borders[MAX_CLIMATES];
 	sint16 winter_snowline;
+	sint16 climate_borders[MAX_CLIMATES][2];
 
 	double max_mountain_height;
 	double map_roughness;
@@ -274,7 +271,7 @@ private:
 	sint16 used_vehicle_reduction;
 
 	uint32 random_counter;
-	uint32 frames_per_second;	// only used in network mode ...
+	uint32 frames_per_second; // only used in network mode ...
 	uint32 frames_per_step;
 	uint32 server_frames_ahead;
 
@@ -312,7 +309,7 @@ private:
 
 public:
 	/* the big cost section */
-	sint32 maint_building;	// normal building
+	sint32 maint_building; // normal building
 
 	sint64 cst_multiply_dock;
 	sint64 cst_multiply_station;
@@ -456,9 +453,9 @@ public:
 	uint8 get_just_in_time() const {return just_in_time;}
 
 	void set_default_climates();
-	const sint16 *get_climate_borders() const { return climate_borders; }
+	sint8 get_climate_borders( sint8 climate, sint8 start_end ) const { return climate_borders[climate][start_end]; }
 
-	sint16 get_winter_snowline() const {return winter_snowline;}
+	sint16 get_winter_snowline() const { return winter_snowline; }
 
 	void rotate90() {
 		rotation = (rotation+1)&3;

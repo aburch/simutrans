@@ -95,7 +95,7 @@ bool citylist_stats_t::compare(const gui_component_t *aa, const gui_component_t 
 
 	if(  sort_mode != SORT_BY_NAME  ) {
 		switch(  sort_mode  ) {
-			case SORT_BY_NAME:	// default
+			case SORT_BY_NAME: // default
 				break;
 			case SORT_BY_SIZE:
 				return a->city->get_einwohner() < b->city->get_einwohner();

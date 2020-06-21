@@ -31,7 +31,7 @@ gui_combobox_t::gui_combobox_t(gui_scrolled_list_t::item_compare_func cmp) :
 
 	bt_next.set_typ(button_t::arrowright);
 
-	set_focusable( true );	// needed, otherwise fails on closing when clicking elsewhere!
+	set_focusable( true ); // needed, otherwise fails on closing when clicking elsewhere!
 
 	editstr[0] = 0;
 	old_editstr[0] = 0;

@@ -13,7 +13,7 @@
 static char thousand_sep = ',';
 static char fraction_sep = '.';
 static const char *large_number_string = "M";
-static double large_number_factor = 1e99;	// off
+static double large_number_factor = 1e99; // off
 static int thousand_sep_exponent = 3;
 
 
@@ -35,6 +35,7 @@ void set_thousand_sep_exponent(int new_thousand_sep_exponent)
 {
 	thousand_sep_exponent = new_thousand_sep_exponent>0 ? new_thousand_sep_exponent : 3;
 }
+
 
 
 /**

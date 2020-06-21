@@ -95,7 +95,7 @@ public:
 	uint8 wt;               // the flags for the window type
 	ptrdiff_t magic_number; // either magic number or this pointer (which is unique too)
 	gui_frame_t *gui;
-	uint16	gadget_state;	// which buttons to hilite
+	uint16 gadget_state;    // which buttons to hilite
 	bool sticky;            // true if window is sticky
 	bool rollup;
 	bool dirty;
@@ -128,9 +128,9 @@ static const char * static_tooltip_text = 0;
 
 // For timed tooltip with initial delay and finite visible duration.
 // Valid owners are required for timing. Invalid (NULL) owners disable timing.
-static const void * tooltip_owner = 0;	// owner of the registered tooltip
-static const void * tooltip_group = 0;	// group to which the owner belongs
-static uint32 tooltip_register_time = 0;	// time at which a tooltip is initially registered
+static const void * tooltip_owner = 0;   // owner of the registered tooltip
+static const void * tooltip_group = 0;   // group to which the owner belongs
+static uint32 tooltip_register_time = 0; // time at which a tooltip is initially registered
 
 static bool show_ticker=0;
 
@@ -186,13 +186,13 @@ static int display_gadget_box(sint8 code,
 			gadget_text = gadget_texts[code];
 		}
 		else if(  code == SKIN_GADGET_GOTOPOS  ) {
-			gadget_text	= "*";
+			gadget_text = "*";
 		}
 		else if(  code == SKIN_GADGET_NOTPINNED  ) {
-			gadget_text	= "s";
+			gadget_text = "s";
 		}
 		else if(  code == SKIN_GADGET_PINNED  ) {
-			gadget_text	= "S";
+			gadget_text = "S";
 		}
 		display_proportional_rgb( x+4, y+4, gadget_text, ALIGN_LEFT, color_idx_to_rgb(COL_BLACK), false );
 	}
@@ -945,7 +945,7 @@ int top_win(int win, bool keep_state )
 	simwin_t tmp = wins[win];
 	wins.remove_at(win);
 	if(  !keep_state  ) {
-		tmp.rollup = false;	// make visible when topping
+		tmp.rollup = false; // make visible when topping
 	}
 	wins.append(tmp);
 
@@ -1460,7 +1460,8 @@ bool check_pos_win(event_t *ev)
 									wins[i].gui->infowin_event( ev );
 									break;
 								case SKIN_GADGET_GOTOPOS:
-									{	// change position on map (or follow)
+									{
+										// change position on map (or follow)
 										koord3d k = wins[i].gui->get_weltpos(true);
 										if(  k!=koord3d::invalid  ) {
 											wl->get_viewport()->change_world_position( k );
@@ -1881,7 +1882,7 @@ void win_set_tooltip(int xpos, int ypos, const char *text, const void *const own
 			if(  group  &&  group==tooltip_group  ) {
 				// case : same group
 				const uint32 elapsed_time = current_time - tooltip_register_time;
-				const uint32 threshold = env_t::tooltip_delay - (env_t::tooltip_delay>>2);	// 3/4 of delay
+				const uint32 threshold = env_t::tooltip_delay - (env_t::tooltip_delay>>2); // 3/4 of delay
 				if(  elapsed_time>threshold  &&  elapsed_time<=env_t::tooltip_delay+env_t::tooltip_duration  ) {
 					// case : threshold was reached and duration not expired -> delay time is reduced to 1/4
 					tooltip_register_time = current_time - threshold;

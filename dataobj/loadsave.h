@@ -62,7 +62,7 @@ private:
 	int ident;		// only for XML formatting
 	char pak_extension[64];	// name of the pak folder during savetime
 
-	std::string filename;	// the current name ...
+	std::string filename;   // the current name ...
 
 	file_descriptors_t *fd;
 
@@ -96,7 +96,7 @@ public:
 	
 	static mode_t save_mode;     ///< default to use for saving
 	static mode_t autosave_mode; ///< default to use for autosaves and network mode client temp saves
-	static int save_level;    ///< default to use for compression (various libraries allow for szie/speed settings)
+	static int save_level;       ///< default to use for compression (various libraries allow for size/speed settings)
 	static int autosave_level;
 	static combined_version int_version(const char *version_text, char *pak);
 

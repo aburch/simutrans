@@ -489,7 +489,7 @@ void simline_t::set_withdraw( bool yes_no )
 	withdraw = yes_no && !line_managed_convoys.empty();
 	// convois in depots will be immediately destroyed, thus we go backwards
 	for (size_t i = line_managed_convoys.get_count(); i-- != 0;) {
-		line_managed_convoys[i]->set_no_load(yes_no);	// must be first, since set withdraw might destroy convoi if in depot!
+		line_managed_convoys[i]->set_no_load(yes_no); // must be first, since set withdraw might destroy convoi if in depot!
 		line_managed_convoys[i]->set_withdraw(yes_no);
 	}
 }

@@ -132,8 +132,9 @@ public:
 	/**
 	 * Creates citycar at position given by @p gr.
 	 * Does not add car to the tile!
+	 * If @p name == NULL then a random car is created.
 	 */
-	private_car_t(grund_t* gr, koord target);
+	private_car_t(grund_t* gr, koord target, const char* name = NULL);
 
 	virtual ~private_car_t();
 

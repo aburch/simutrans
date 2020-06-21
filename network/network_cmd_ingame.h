@@ -22,10 +22,10 @@ class tool_t;
 /**
  * nwc_gameinfo_t
  * @from-client: client wants map info
- *		server sends nwc_gameinfo_t to sender
+ *      server sends nwc_gameinfo_t to sender
  * @from-server:
- *		@data len of gameinfo
- *		client processes this in network_connect
+ *      @data len of gameinfo
+ *      client processes this in network_connect
  */
 class nwc_gameinfo_t : public network_command_t {
 public:
@@ -86,7 +86,7 @@ public:
 
 	plainstring message;            // Message text
 	sint8 player_nr;                // Company number message was sent as
-	plainstring clientname;	        // Name of client message is from
+	plainstring clientname;         // Name of client message is from
 	plainstring destination;        // Client to send message to (NULL for all)
 
 private:
@@ -97,11 +97,11 @@ private:
 /**
  * nwc_join_t
  * @from-client: client wants to join the server
- *		server sends nwc_join_t to sender, nwc_sync_t to all clients
+ *      server sends nwc_join_t to sender, nwc_sync_t to all clients
  * @from-server:
- *		@data answer == 1 (if joining now is ok)
- *		@data client_id
- *		client ignores the following nwc_sync_t, waits for nwc_ready_t
+ *      @data answer == 1 (if joining now is ok)
+ *      @data client_id
+ *      client ignores the following nwc_sync_t, waits for nwc_ready_t
  */
 class nwc_join_t : public nwc_nick_t {
 public:
@@ -129,12 +129,12 @@ private:
 /**
  * nwc_ready_t
  * @from-client:
- *		@data sync_steps at which client will continue
- *		client paused, waits for unpause
+ *      @data sync_steps at which client will continue
+ *      client paused, waits for unpause
  * @from-server:
- *		data is resent to client
- *		map_counter to identify network_commands
- *		unpause client
+ *      data is resent to client
+ *      map_counter to identify network_commands
+ *      unpause client
  */
 class nwc_ready_t : public network_command_t {
 public:
@@ -157,8 +157,8 @@ private:
 /**
  * nwc_game_t
  * @from-server:
- *		@data len of savegame
- *		client processes this in network_connect
+ *      @data len of savegame
+ *     client processes this in network_connect
  */
 class nwc_game_t : public network_command_t {
 public:
@@ -199,10 +199,10 @@ protected:
 /**
  * nwc_sync_t
  * @from-server:
- *		@data client_id this client wants to receive the game
- *		@data new_map_counter new map counter for the new world after game reloading
- *		clients: pause game, save, load, wait for nwc_ready_t command to unpause
- *		server: pause game, save, load, send game to client, send nwc_ready_t command to client
+ *      @data client_id this client wants to receive the game
+ *      @data new_map_counter new map counter for the new world after game reloading
+ *      clients: pause game, save, load, wait for nwc_ready_t command to unpause
+ *      server: pause game, save, load, send game to client, send nwc_ready_t command to client
  */
 class nwc_sync_t : public network_world_command_t {
 public:
@@ -215,15 +215,15 @@ public:
 	uint32 get_new_map_counter() const { return new_map_counter; }
 private:
 	uint32 client_id; // this client shall receive the game
-	uint32 new_map_counter;	// map counter to be applied to the new world after game reloading
+	uint32 new_map_counter; // map counter to be applied to the new world after game reloading
 };
 
 /**
  * nwc_check_t
  * @from-server:
- *		@data checklist random seed and quickstone next check entries at previous sync_step
- *		clients: check random seed, if check fails disconnect.
- *		the check is done in karte_t::interactive
+ *      @data checklist random seed and quickstone next check entries at previous sync_step
+ *      clients: check random seed, if check fails disconnect.
+ *      the check is done in karte_t::interactive
  */
 class nwc_check_t : public network_world_command_t {
 public:
@@ -366,11 +366,11 @@ private:
 };
 
 /**
-* nwc_step_t
-* @from-server:
-*		@data contains the current sync_steps of the server
-*       defining the maximum sync_steps a client can advance to.
-*/
+ * nwc_step_t
+ * @from-server:
+ *      @data contains the current sync_steps of the server
+ *      defining the maximum sync_steps a client can advance to.
+ */
 class nwc_step_t : public network_world_command_t {
 public:
 	nwc_step_t() : network_world_command_t(NWC_STEP, 0, 0) { }

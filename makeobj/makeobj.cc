@@ -40,11 +40,11 @@ int main(int argc, char* argv[])
 		}
 		else if (argc && !STRICMP(argv[0], "verbose")) {
 			argv++, argc--;
-			debuglevel = 3;	// only messages errors
+			debuglevel = 3; // only messages errors
 		}
 		else if (argc && !STRICMP(argv[0], "quiet")) {
 			argv++, argc--;
-			debuglevel = 1;	// only fatal errors
+			debuglevel = 1; // only fatal errors
 		}
 	}
 

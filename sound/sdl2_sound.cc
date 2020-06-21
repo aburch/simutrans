@@ -32,7 +32,7 @@ struct sample {
 	 * format */
 	Uint8 *audio_data;
 
-	Uint32 audio_len;	/* number of samples in the audio data */
+	Uint32 audio_len; /* number of samples in the audio data */
 };
 
 
@@ -48,9 +48,9 @@ static int samplenumber = 0;
 /* this structure contains the information about one channel
  */
 struct channel {
-	Uint32 sample_pos;	/* the current position inside this sample */
-	Uint8 sample;		/* which sample is played, 255 for no sample */
-	Uint8 volume;		/* the volume this channel should be played */
+	Uint32 sample_pos; /* the current position inside this sample */
+	Uint8 sample;      /* which sample is played, 255 for no sample */
+	Uint8 volume;      /* the volume this channel should be played */
 };
 
 
@@ -103,7 +103,7 @@ bool dr_init_sound()
 {
 	int sound_ok = 0;
 	if(use_sound!=0) {
-		return use_sound;	// avoid init twice
+		return use_sound; // avoid init twice
 	}
 	use_sound = 1;
 

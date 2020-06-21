@@ -278,7 +278,7 @@ public:
 
 class tool_build_way_t : public two_click_tool_t {
 private:
-	static const way_desc_t *defaults[17];	// default ways for all types
+	static const way_desc_t *defaults[17]; // default ways for all types
 
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;

@@ -24,7 +24,7 @@ public:
 	char const* get_text() const OVERRIDE;
 	void set_text(char const*) OVERRIDE;
 	bool is_editable() const OVERRIDE { return true; }
-	bool is_valid() const OVERRIDE { return cnv.is_bound(); }	//  can be used to indicate invalid entries
+	bool is_valid() const OVERRIDE { return cnv.is_bound(); } //  can be used to indicate invalid entries
 };
 
 #endif

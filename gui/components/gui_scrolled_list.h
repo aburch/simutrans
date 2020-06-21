@@ -54,7 +54,7 @@ public:
 
 		virtual char const* get_text() const = 0;
 		virtual void set_text(char const *) {}
-		virtual bool is_valid() const { return true; }	//  can be used to indicate invalid entries
+		virtual bool is_valid() const { return true; } //  can be used to indicate invalid entries
 		virtual bool is_editable()  const { return false; }
 
 		/// compares using get_text
@@ -94,7 +94,7 @@ public:
 private:
 	enum type type;
 
-	bool maximize;	// true if to expand to bottom right corner
+	bool maximize; // true if to expand to bottom right corner
 
 	item_compare_func compare;
 

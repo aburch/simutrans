@@ -62,8 +62,8 @@ settings_t::settings_t() :
 
 	// default climate zones
 	set_default_climates( );
-	winter_snowline = 7;	// not mediterranean
 	groundwater = -2;
+	winter_snowline = 7; // not mediterranean
 
 	max_mountain_height = 160;                  //can be 0-160.0
 	map_roughness = 0.6;                        //can be 0-1
@@ -161,7 +161,7 @@ settings_t::settings_t() :
 	just_in_time = env_t::just_in_time;
 
 	random_pedestrians = true;
-	stadtauto_duration = 36;	// three years
+	stadtauto_duration = 36; // three years
 
 	// to keep names consistent
 	numbered_stations = false;
@@ -233,7 +233,7 @@ settings_t::settings_t() :
 	// off
 	unprotect_abandoned_player_months = 0;
 
-	maint_building = 5000;	// normal buildings
+	maint_building = 5000; // normal buildings
 	way_toll_runningcost_percentage = 0;
 	way_toll_waycost_percentage = 0;
 
@@ -295,7 +295,7 @@ settings_t::settings_t() :
 	used_vehicle_reduction = 0;
 
 	// some network thing to keep client in sync
-	random_counter = 0;	// will be set when actually saving
+	random_counter = 0; // will be set when actually saving
 	frames_per_second = 20;
 	frames_per_step = 4;
 	server_frames_ahead = 4;
@@ -319,8 +319,12 @@ settings_t::settings_t() :
 
 void settings_t::set_default_climates()
 {
-	static sint16 borders[MAX_CLIMATES] = { 0, -3, -2, 3, 6, 8, 10, 10 };
-	memcpy( climate_borders, borders, sizeof(sint16)*MAX_CLIMATES );
+	static sint16 borders[MAX_CLIMATES+1] = { -3, -3, -2, 3, 6, 8, 9, 10, 11 };
+	for( int i = 0; i < MAX_CLIMATES; i++ ) {
+		climate_borders[i][0] = borders[i];
+		climate_borders[i][1] = borders[i+1];
+	}
+	climate_borders[0][1] = borders[0];
 }
 
 
@@ -340,7 +344,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 		// to be compatible with previous savegames
 		dummy = 0;
-		file->rdwr_long(dummy );	//dummy!
+		file->rdwr_long(dummy ); //dummy!
 		factory_count = 12;
 		tourist_attractions = 12;
 
@@ -355,7 +359,7 @@ void settings_t::rdwr(loadsave_t *file)
 		city_count = dummy;
 
 		// rest
-		file->rdwr_long(dummy );	// scroll ignored
+		file->rdwr_long(dummy ); // scroll ignored
 		file->rdwr_long(traffic_level );
 		file->rdwr_long(show_pax );
 		dummy = groundwater;
@@ -376,7 +380,7 @@ void settings_t::rdwr(loadsave_t *file)
 		// industries
 		file->rdwr_long(factory_count );
 		if(file->is_version_less(99, 18)) {
-			uint32 dummy;	// was city chains
+			uint32 dummy; // was city chains
 			file->rdwr_long(dummy );
 		}
 		else {
@@ -390,7 +394,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 		// rest
 		if(file->is_version_less(101, 0)) {
-			uint32 dummy;	// was scroll dir
+			uint32 dummy; // was scroll dir
 			file->rdwr_long(dummy );
 		}
 		file->rdwr_long(traffic_level );
@@ -469,30 +473,49 @@ void settings_t::rdwr(loadsave_t *file)
 			filename = "";
 		}
 
-		// climate borders
-		if(file->is_version_atleast(91, 0)) {
-			if(  file->is_version_less(120, 6)  ) {
-				climate_borders[arctic_climate] -= groundwater;
+		// climate borders, no overlapping borders are possible
+		if(  file->is_version_atleast(91, 0)  ){
+			if(  file->is_version_less(121,1)  ) {
+				sint16 old_climate_borders[ MAX_CLIMATES ];
+				for( int cl = 0; cl < MAX_CLIMATES; cl++ ) {
+					old_climate_borders[cl] = climate_borders[cl][0];
+				}
+				if(  file->is_version_less(120, 6)  ) {
+					old_climate_borders[arctic_climate] -= groundwater;
+				}
+				for(  int i=0;  i<8;  i++ ) {
+					file->rdwr_short(old_climate_borders[i] );
+				}
+				if(  file->is_version_less(120, 6)  ) {
+					old_climate_borders[arctic_climate] += groundwater;
+				}
+
+				if(  file->is_loading()  &&  file->is_version_less(112, 7)  ) {
+					groundwater *= env_t::pak_height_conversion_factor;
+					for(  int i = 0;  i < MAX_CLIMATES;  i++  ) {
+						old_climate_borders[i] *= env_t::pak_height_conversion_factor;
+					}
+				}
+				// convert to new borders if loading, es keep the current
+				if(  file->is_loading()  ) {
+					for(  int cl = 0;  cl < MAX_CLIMATES-1;  cl++  ) {
+						climate_borders[cl][0] = old_climate_borders[cl];
+						climate_borders[cl][1] = old_climate_borders[cl+1];
+					}
+					climate_borders[0][1] = old_climate_borders[0];
+					climate_borders[arctic_climate][1] = old_climate_borders[arctic_climate];
+				}
 			}
-			for(  int i=0;  i<8;  i++ ) {
-				file->rdwr_short(climate_borders[i] );
+			else {
+				for(  int i=0;  i<8;  i++ ) {
+					file->rdwr_short( climate_borders[i][0] );
+					file->rdwr_short( climate_borders[i][1] );
+				}
 			}
-			if(  file->is_version_less(120, 6)  ) {
-				climate_borders[arctic_climate] += groundwater;
-			}
-			file->rdwr_short(winter_snowline );
+			file->rdwr_short( winter_snowline );
 		}
 
-		if(  file->is_loading()  &&  file->is_version_less(112, 7)  ) {
-			groundwater *= env_t::pak_height_conversion_factor;
-			for(  int i = 0;  i < 8;  i++  ) {
-				climate_borders[i] *= env_t::pak_height_conversion_factor;
-			}
-			winter_snowline *= env_t::pak_height_conversion_factor;
-			way_height_clearance = env_t::pak_height_conversion_factor;
-		}
-
-		// since vehicle will need realignment afterwards!
+		// vehicle may need realignment afterwards!
 		if(file->is_version_less(99, 19)) {
 			vehicle_base_t::set_diagonal_multiplier( pak_diagonal_multiplier, 1024 );
 		}
@@ -715,13 +738,13 @@ void settings_t::rdwr(loadsave_t *file)
 			random_counter = get_random_seed( );
 			file->rdwr_long( random_counter );
 			if(  !env_t::networkmode  ||  env_t::server  ) {
-				frames_per_second = clamp(env_t::fps,5,100 );	// update it on the server to the current setting
+				frames_per_second = clamp(env_t::fps,5,100 ); // update it on the server to the current setting
 				frames_per_step = env_t::network_frames_per_step;
 			}
 			file->rdwr_long( frames_per_second );
 			file->rdwr_long( frames_per_step );
 			if(  !env_t::networkmode  ||  env_t::server  ) {
-				frames_per_second = env_t::fps;	// update it on the server to the current setting
+				frames_per_second = env_t::fps; // update it on the server to the current setting
 				frames_per_step = env_t::network_frames_per_step;
 			}
 			file->rdwr_bool( allow_buying_obsolete_vehicles );
@@ -1198,8 +1221,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	random_pedestrians = contents.get_int("random_pedestrians", random_pedestrians ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
-	traffic_level = contents.get_int("citycar_level", traffic_level );	// ten normal years
-	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration );	// ten normal years
+	traffic_level = contents.get_int("citycar_level", traffic_level ); // ten normal years
+	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration ); // ten normal years
 	allow_buying_obsolete_vehicles = contents.get_int("allow_buying_obsolete_vehicles", allow_buying_obsolete_vehicles );
 	used_vehicle_reduction  = clamp( contents.get_int("used_vehicle_reduction", used_vehicle_reduction ), 0, 1000 );
 

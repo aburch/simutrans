@@ -154,7 +154,7 @@ private:
 	vector_tpl<forbidden_t*>forbidden_tools;
 
 	/// set to true if rules changed to update toolbars,
-	/// toolbars will be updated in next call to step()
+	/// toolbars and active tools will be updated in next call to step()
 	bool need_toolbar_update;
 
 	/**
@@ -392,6 +392,12 @@ public:
 	 * @ingroup squirrel-api
 	 */
 	void clear_rules();
+
+	/**
+	 * Toolbars/active tools need an update due to changed rules; update is done in step().
+	 * @ingroup squirrel-api
+	 */
+	void gui_needs_update() { need_toolbar_update = true; }
 
 	/**
 	 * Checks if player can use this tool at all.

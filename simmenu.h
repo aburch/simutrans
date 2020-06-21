@@ -469,7 +469,7 @@ public:
 	bool init(player_t*) OVERRIDE;
 	// close this toolbar
 	bool exit(player_t*) OVERRIDE;
-	virtual void update(player_t *);	// just refresh content
+	virtual void update(player_t *); // just refresh content
 	void append(tool_t *tool) { tools.append(tool); }
 };
 
@@ -481,7 +481,7 @@ private:
 public:
 	toolbar_last_used_t(uint16 const id, char const* const t, char const* const h) : toolbar_t(id,t,h) {}
 	static toolbar_last_used_t *last_used_tools;
-	void update(player_t *) OVERRIDE;	// just refresh content
+	void update(player_t *) OVERRIDE; // just refresh content
 	void append(tool_t *, player_t *);
 	void clear();
 };

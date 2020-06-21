@@ -52,7 +52,7 @@ obj_desc_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->h = decode_uint8(p);
 		desc->alloc(decode_uint32(p)); // len
 		desc->imageid = IMG_EMPTY;
-		p += 2;	// dummys
+		p += 2; // dummys
 		desc->zoomable = decode_uint8(p);
 
 		skip_reading_pixels_if_no_graphics;
@@ -142,7 +142,7 @@ adjust_image:
 				dest++;
 				dest += *dest + 1;
 			} while (*dest);
-			dest++;	// skip trailing zero
+			dest++; // skip trailing zero
 		}
 
 		if(left<desc->x) {
@@ -157,7 +157,7 @@ adjust_image:
 				dest++;
 				dest += *dest + 1;
 			} while (*dest);
-			dest++;	// skip trailing zero
+			dest++; // skip trailing zero
 		}
 	}
 
@@ -185,7 +185,7 @@ adjust_image:
 		// unique image here
 		if(  do_register_image  ) {
 			if(!same) {
-				images_adlers.put(adler,desc);	// still with imageid == IMG_EMPTY!
+				images_adlers.put(adler,desc); // still with imageid == IMG_EMPTY!
 			}
 			// register image adds this image to the internal array maintained by simgraph??.cc
 			register_image(desc);

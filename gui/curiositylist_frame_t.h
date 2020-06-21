@@ -20,8 +20,8 @@
 class curiositylist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	button_t	sortedby;
-	button_t	sorteddir;
+	button_t sortedby;
+	button_t sorteddir;
 	gui_scrolled_list_t scrolly;
 	gui_aligned_container_t list;
 	button_t filter_by_owner;

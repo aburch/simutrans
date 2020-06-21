@@ -197,7 +197,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					ware_t const& sumware = wlist[i];
 					if(  last_goods_index != sumware.get_index()  ) {
 						if(  last_ware_catg != sumware.get_catg()  ) {
-							break;	// next category reached ...
+							break; // next category reached ...
 						}
 					}
 					sum += sumware.menge;
@@ -228,7 +228,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			buf.printf(good_description_format, ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()));
 
 			// the target name is not correct for the via sort
-			const bool is_factory_going = ( sortby!=by_via_sum  &&  ware.to_factory );	// exclude merged packets
+			const bool is_factory_going = ( sortby!=by_via_sum  &&  ware.to_factory ); // exclude merged packets
 			if(  sortby!=by_via_sum  ||  via_halt==halt  ) {
 				if(  is_factory_going  ) {
 					const fabrik_t *const factory = fabrik_t::get_fab( ware.get_zielpos() );

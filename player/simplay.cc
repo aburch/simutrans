@@ -67,8 +67,8 @@ player_t::player_t(uint8 nr) :
 	finance = new finance_t(this, welt);
 	player_nr = nr;
 	player_age = 0;
-	active = false;		// Don't start as an AI player
-	locked = false;			// allowed to change anything
+	active = false; // Don't start as an AI player
+	locked = false; // allowed to change anything
 	unlock_pending = false;
 
 	headquarter_pos = koord::invalid;
@@ -289,8 +289,6 @@ bool player_t::new_month()
 
 	finance->calc_finance_history();
 
-	simlinemgmt.new_month();
-
 	// Bankrupt ?
 	if(  finance->get_account_balance() < 0  ) {
 		finance->increase_account_overdrawn();
@@ -383,8 +381,12 @@ bool player_t::new_month()
 		}
 	}
 
+	// update line info
+	simlinemgmt.new_month();
+
 	// subtract maintenance after bankruptcy check
 	finance->book_account( -finance->get_maintenance_with_bits(TT_ALL) );
+
 	// company gets older ...
 	player_age ++;
 

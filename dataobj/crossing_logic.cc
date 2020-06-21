@@ -325,7 +325,7 @@ void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t state )
 	}
 	// remove all old crossing logics
 	crossing_logic_t *found_logic = NULL;
-	if(	crossings_logics.get_count()>=1  ) {
+	if(  crossings_logics.get_count()>=1  ) {
 		// leave one logic to be used further
 		while(  crossings_logics.get_count()>1  ) {
 			crossing_logic_t *cl = crossings_logics[0];

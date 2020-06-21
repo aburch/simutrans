@@ -35,7 +35,7 @@ class gui_vehicleinfo_t : public gui_aligned_container_t
 
 public:
 
-	gui_vehicleinfo_t(vehicle_t *v, sint32 cnv_kmh, karte_t *welt)
+	gui_vehicleinfo_t(vehicle_t *v, sint32 cnv_kmh)
 	: freight(&freight_info)
 	{
 		this->v = v;
@@ -55,14 +55,6 @@ public:
 			l->update();
 			// value
 			add_component(&label_resale);
-			// power
-			if(v->get_desc()->get_power()>0) {
-				l = new_component<gui_label_buf_t>();
-				l->buf().printf("%s %i kW, %s %.2f", translator::translate("Power:"), v->get_desc()->get_power(), translator::translate("Gear:"), v->get_desc()->get_gear()/64.0 );
-				l->update();
-			}
-			// friction
-			add_component(&label_friction);
 			// max income
 			sint64 max_income = - v->get_operating_cost();
 			if(v->get_cargo_max() > 0) {
@@ -76,18 +68,14 @@ public:
 				l->update();
 			}
 			end_table();
-			// maintenance
-			if(  sint64 cost = welt->scale_with_month_length(v->get_desc()->get_maintenance())  ) {
-				add_table(2,1);
-				{
-					new_component<gui_label_t>("Maintenance");
-					l = new_component<gui_label_buf_t>();
-					l->buf().append_money(cost/100.0);
-					l->set_color(MONEY_MINUS);
-					l->update();
-				}
+			// power
+			if(v->get_desc()->get_power()>0) {
+				l = new_component<gui_label_buf_t>();
+				l->buf().printf("%s %i kW, %s %.2f", translator::translate("Power:"), v->get_desc()->get_power(), translator::translate("Gear:"), v->get_desc()->get_gear()/64.0 );
+				l->update();
 			}
-
+			// friction
+			add_component(&label_friction);
 			if(v->get_cargo_max() > 0) {
 				// freight type
 				goods_desc_t const& g    = *v->get_cargo_type();
@@ -107,6 +95,16 @@ public:
 	{
 		label_resale.buf().printf("%s ", translator::translate("Restwert:"));
 		label_resale.buf().append_money(v->calc_sale_value() / 100.0);
+		if(  sint64 fix_cost = world()->scale_with_month_length((sint64)v->get_desc()->get_maintenance())  ) {
+			cbuffer_t temp_buf;
+			temp_buf.printf( translator::translate("(%.2f$/km %.2f$/m)"), (double)v->get_desc()->get_running_cost()/100.0, (double)fix_cost/100.0 );
+			label_resale.buf().append( temp_buf );
+		}
+		else {
+			cbuffer_t temp_buf;
+			temp_buf.printf( translator::translate("(%.2f$/km)"), (double)v->get_desc()->get_running_cost()/100.0 );
+			label_resale.buf().append( temp_buf );
+		}
 		label_resale.update();
 		label_friction.buf().printf( "%s %i", translator::translate("Friction:"), v->get_frictionfactor() );
 		label_friction.update();
@@ -177,7 +175,7 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	container.set_table_layout(1,0);
 	for(unsigned veh=0;  veh<cnv->get_vehicle_count(); veh++ ) {
 		vehicle_t *v = cnv->get_vehikel(veh);
-		container.new_component<gui_vehicleinfo_t>(v, cnv_kmh, welt);
+		container.new_component<gui_vehicleinfo_t>(v, cnv_kmh);
 		container.new_component<gui_divider_t>();
 	}
 	update_labels();

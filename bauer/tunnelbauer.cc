@@ -350,7 +350,7 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 /************************************** FIX ME ***************************************************
 ********************** THIS MUST BE RATHER A PROPERTY OF THE TUNNEL IN QUESTION ! ****************/
 	// for conversion factor 1, must be single height, for conversion factor 2, must be double
-	if(  (env_t::pak_height_conversion_factor == 1  &&  !(slope & 7))  ||  (env_t::pak_height_conversion_factor == 2  &&  (slope & 7))  ) {
+	if(  (env_t::pak_height_conversion_factor == 1  &&  !is_one_high(slope))  ||  (env_t::pak_height_conversion_factor == 2  &&  is_one_high(slope))  ) {
 		return "Tunnel muss an\neinfachem\nHang beginnen!\n";
 	}
 
@@ -726,7 +726,7 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 		if(gr->get_weg_nr(1)) {
 			gr->remove_everything_from_way(player,gr->get_weg_nr(1)->get_waytype(),ribi_t::none);
 		}
-		gr->remove_everything_from_way(player,wegtyp,ribi_t::none);	// removes stop and signals correctly
+		gr->remove_everything_from_way(player,wegtyp,ribi_t::none); // removes stop and signals correctly
 		// remove everything else
 		gr->obj_loesche_alle(player);
 		gr->mark_image_dirty();
@@ -768,7 +768,7 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 
 			tunnel_t *t = gr->find<tunnel_t>();
 			uint8 broad_type = t->get_broad_type();
-			gr->remove_everything_from_way(player,wegtyp,ribi);	// removes stop and signals correctly
+			gr->remove_everything_from_way(player,wegtyp,ribi); // removes stop and signals correctly
 
 			// remove tunnel portals
 			t = gr->find<tunnel_t>();

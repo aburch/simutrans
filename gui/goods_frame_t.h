@@ -61,19 +61,19 @@ private:
 
 	static simline_t::linetype last_scheduletype;
 
-	cbuffer_t	speed_message;
+	cbuffer_t speed_message;
 	vector_tpl<const goods_desc_t*> good_list;
 
-	button_t	sortedby;
-	button_t	sorteddir;
+	button_t sortedby;
+	button_t sorteddir;
 
-	gui_numberinput_t	speed;
-	gui_combobox_t	scheduletype;
+	gui_numberinput_t speed;
+	gui_combobox_t    scheduletype;
 
 	gui_textarea_t speed_text;
 	gui_aligned_container_t *sort_row;
 
-	button_t	filter_goods_toggle;
+	button_t filter_goods_toggle;
 
 	goods_stats_t goods_stats;
 	gui_scrollpane_t scrolly;

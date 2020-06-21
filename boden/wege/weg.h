@@ -59,7 +59,7 @@ public:
 		HAS_WAYOBJ     = 0x10,
 		HAS_CROSSING   = 0x20,
 		IS_DIAGONAL    = 0x40, // marker for diagonal image
-		IS_SNOW = 0x80	// marker, if above snowline currently
+		IS_SNOW        = 0x80  // marker, if above snowline currently
 	};
 
 private:

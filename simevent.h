@@ -69,8 +69,8 @@
 #define SIM_KEY_LEFT                276
 
 /* other navigation keys */
-#define	SIM_KEY_HOME			    278
-#define SIM_KEY_END				    279
+#define SIM_KEY_HOME                278
+#define SIM_KEY_END                 279
 #define SIM_KEY_PGUP                 62
 #define SIM_KEY_PGDN                 60
 
@@ -108,7 +108,7 @@
 #define IS_RIGHTDBLCLK(ev) ((ev)->ev_class == EVENT_DOUBLE_CLICK && (ev)->ev_code == MOUSE_RIGHTBUTTON)
 #define IS_RIGHTTPLCLK(ev) ((ev)->ev_class == EVENT_TRIPLE_CLICK && (ev)->ev_code == MOUSE_RIGHTBUTTON)
 
-#define IS_WINDOW_RESIZE(ev) ((ev)->ev_class == WINDOW_RESIZE) //19-may-02	markus weber	added
+#define IS_WINDOW_RESIZE(ev) ((ev)->ev_class == WINDOW_RESIZE)
 #define IS_WINDOW_MAKE_MIN_SIZE(ev) ((ev)->ev_class == WINDOW_MAKE_MIN_SIZE)
 #define IS_WINDOW_CHOOSE_NEXT(ev) ((ev)->ev_class == WINDOW_CHOOSE_NEXT)
 

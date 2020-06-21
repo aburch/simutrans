@@ -352,18 +352,18 @@ const ground_desc_t *ground_desc_t::sea = NULL;
 const ground_desc_t *ground_desc_t::outside = NULL;
 
 static special_obj_tpl<ground_desc_t> const grounds[] = {
-	{ &ground_desc_t::shore,    "Shore" },
-	{ &boden_texture,	    "ClimateTexture" },
-	{ &light_map,	    "LightTexture" },
-	{ &transition_water_texture,    "ShoreTrans" },
-	{ &transition_slope_texture,    "SlopeTrans" },
-	{ &ground_desc_t::fundament,    "Basement" },
-	{ &ground_desc_t::slopes,    "Slopes" },
-	{ &ground_desc_t::fences,   "Fence" },
-	{ &ground_desc_t::marker,   "Marker" },
-	{ &ground_desc_t::borders,   "Borders" },
-	{ &ground_desc_t::sea,   "Water" },
-	{ &ground_desc_t::outside,   "Outside" },
+	{ &ground_desc_t::shore,     "Shore"          },
+	{ &boden_texture,            "ClimateTexture" },
+	{ &light_map,                "LightTexture"   },
+	{ &transition_water_texture, "ShoreTrans"     },
+	{ &transition_slope_texture, "SlopeTrans"     },
+	{ &ground_desc_t::fundament, "Basement"       },
+	{ &ground_desc_t::slopes,    "Slopes"         },
+	{ &ground_desc_t::fences,    "Fence"          },
+	{ &ground_desc_t::marker,    "Marker"         },
+	{ &ground_desc_t::borders,   "Borders"        },
+	{ &ground_desc_t::sea,       "Water"          },
+	{ &ground_desc_t::outside,   "Outside"        },
 	{ NULL, NULL }
 };
 

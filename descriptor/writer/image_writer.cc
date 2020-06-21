@@ -69,7 +69,7 @@ static uint16 pixrgb_to_pixval(uint32 rgb)
 	// first: find about alpha
 	assert(  rgb < ALPHA_THRESHOLD  );
 
-	int alpha = 30 - (rgb >> 24)/8;	// transparency in 32 steps, but simutrans uses internally the reverse format
+	int alpha = 30 - (rgb >> 24)/8; // transparency in 32 steps, but simutrans uses internally the reverse format
 	if(  rgb > 0x00FFFFFF  ) {
 		// alpha is now between 0 ... 30
 
@@ -162,7 +162,7 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 	const int img_height = dim->ymax - dim->ymin + 1;
 
 	for(  line = 0;  line < img_height;  line++  ) {
-		int row_px_count = 0;	// index of the currently handled pixel
+		int row_px_count = 0; // index of the currently handled pixel
 		uint16 clear_colored_run_pair_count = 0;
 
 		uint32 pix = block_getpix( x + row_px_count, y + line );
