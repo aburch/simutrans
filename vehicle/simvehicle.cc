@@ -78,6 +78,10 @@
 #include "../path_explorer.h"
 #include "../freight_list_sorter.h"
 
+#define LOADINGBAR_HEIGHT 6
+#define WAITINGBAR_HEIGHT 4
+#define LOADINGBAR_WIDTH 100
+
 void traffic_vehicle_t::flush_travel_times(strasse_t* str)
 {
 	if(get_max_speed() && str->get_max_speed() && dist_travelled_since_last_hop > (128 << YARDS_PER_VEHICLE_STEP_SHIFT))
@@ -3243,21 +3247,15 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		}
 
 		// something to show?
-		if (!tooltip_text[0] && !env_t::show_cnv_nameplates) {
+		if (!tooltip_text[0] && !env_t::show_cnv_nameplates && !env_t::show_cnv_loadingbar) {
 			return;
 		}
-
 		const int raster_width = get_current_tile_raster_width();
-		get_screen_offset( xpos, ypos, raster_width );
+		get_screen_offset(xpos, ypos, raster_width);
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
-		ypos += tile_raster_scale_y(get_yoff(), raster_width)+14;
-		if(  tooltip_text[0]  ) {
-			const int width = proportional_string_width(tooltip_text)+7;
-			if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
-				display_ddd_proportional_clip( xpos, ypos, width, 0, color, COL_BLACK, tooltip_text, true );
-			}
-		}
+		ypos += tile_raster_scale_y(get_yoff(), raster_width) + 14;
 
+		// convoy(line) nameplate
 		if (cnv && (env_t::show_cnv_nameplates == 2 || (env_t::show_cnv_nameplates == 1 && welt->get_zeiger()->get_pos() == get_pos()))) {
 			char nameplate_text[1024];
 			// show the line name, including when the convoy is coupled.
@@ -3270,11 +3268,84 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				// the convoy belongs to no line -> show convoy name
 				tstrncpy(nameplate_text, cnv->get_name(), lengthof(nameplate_text));
 			}
-			color = lh.is_bound() ? cnv->get_owner()->get_player_color1()+3 : cnv->get_owner()->get_player_color1()+1;
+			const COLOR_VAL pcolor = lh.is_bound() ? cnv->get_owner()->get_player_color1()+3 : cnv->get_owner()->get_player_color1()+1;
 
 			const int width = proportional_string_width(nameplate_text) + 7;
 			if (ypos > LINESPACE + 32 && ypos + LINESPACE < display_get_clip_wh().yy) {
-				display_ddd_proportional_clip(xpos, ypos-LINESPACE-3, width, 0, color, COL_WHITE, nameplate_text, true);
+				display_ddd_proportional_clip(xpos, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT - LINESPACE/2-2, width, 0, pcolor, COL_WHITE, nameplate_text, true);
+				// (*)display_ddd_proportional_clip's height is LINESPACE/2+1+1
+			}
+		}
+
+		// loading bar
+		int extra_y = 0; // yoffset from the default tooltip position
+		sint64 waiting_time_per_month = 0;
+		COLOR_VAL waiting_bar_col = 95; //test
+		if (cnv && (env_t::show_cnv_loadingbar == 2 || (env_t::show_cnv_loadingbar == 1 && welt->get_zeiger()->get_pos() == get_pos()))) {
+			switch (cnv->get_state()) {
+				case convoi_t::LOADING:
+					waiting_time_per_month = int(0.9 + cnv->calc_remaining_loading_time()*200 / welt->ticks_per_world_month);
+					break;
+				case convoi_t::REVERSING:
+					waiting_time_per_month = int(0.9 + cnv->get_wait_lock()*200 / welt->ticks_per_world_month);
+					break;
+				case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
+				case convoi_t::CAN_START_TWO_MONTHS:
+					waiting_time_per_month = 100;
+					waiting_bar_col = COL_ORANGE;
+					if (skinverwaltung_t::alerts) {
+						display_color_img(skinverwaltung_t::alerts->get_image_id(3), xpos - 15, ypos - LINESPACE, 0, false, true);
+					}
+					break;
+				case convoi_t::NO_ROUTE:
+				case convoi_t::NO_ROUTE_TOO_COMPLEX:
+				case convoi_t::OUT_OF_RANGE:
+					waiting_time_per_month = 100;
+					waiting_bar_col = COL_RED+1;
+					if (skinverwaltung_t::pax_evaluation_icons) {
+						display_color_img(skinverwaltung_t::pax_evaluation_icons->get_image_id(4), xpos - 15, ypos - LINESPACE, 0, false, true);
+					}
+					break;
+				default:
+					break;
+			}
+
+			display_ddd_box_clip(xpos-2, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y, LOADINGBAR_WIDTH+2, LOADINGBAR_HEIGHT, MN_GREY2, MN_GREY0);
+			sint32 colored_width = cnv->get_loading_level() > 100 ? 100 : cnv->get_loading_level();
+			if (cnv->get_loading_limit()) {
+				display_blend_wh(xpos-1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, cnv->get_loading_limit(), LOADINGBAR_HEIGHT - 2, COL_YELLOW, 75);
+			}
+			else {
+				display_blend_wh(xpos-1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, LOADINGBAR_WIDTH, LOADINGBAR_HEIGHT - 2, MN_GREY2, colored_width ? 65 : 40);
+			}
+			display_cylinderbar_wh_clip(xpos-1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, colored_width, LOADINGBAR_HEIGHT-2, COL_GREEN-1, true);
+
+			// overcrowding
+			if (cnv->get_overcrowded() && skinverwaltung_t::pax_evaluation_icons) {
+				display_color_img(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), xpos + LOADINGBAR_WIDTH + 5, ypos - LINESPACE, 0, false, true);
+			}
+
+			extra_y += LOADINGBAR_HEIGHT;
+
+			// winting gauge
+			if (waiting_time_per_month) {
+				colored_width = waiting_time_per_month > 100 ? 100 : waiting_time_per_month;
+				display_ddd_box_clip(xpos - 2, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y, colored_width + 2, WAITINGBAR_HEIGHT, MN_GREY2, MN_GREY0);
+				display_cylinderbar_wh_clip(xpos - 1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, colored_width, WAITINGBAR_HEIGHT - 2, waiting_bar_col, true);
+				if (waiting_time_per_month > 100) {
+					colored_width = waiting_time_per_month-100;
+					display_cylinderbar_wh_clip(xpos - 1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, colored_width, WAITINGBAR_HEIGHT - 2, waiting_bar_col-2, true);
+				}
+				extra_y += WAITINGBAR_HEIGHT;
+			}
+		}
+
+		// normal tooltip
+		if (tooltip_text[0]) {
+			const int width = proportional_string_width(tooltip_text) + 7;
+			if (ypos > LINESPACE + 32 && ypos + LINESPACE < display_get_clip_wh().yy) {
+				display_ddd_proportional_clip(xpos, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + LINESPACE/2+2 + extra_y, width, 0, color, COL_BLACK, tooltip_text, true);
+				// (*)display_ddd_proportional_clip's height is LINESPACE/2+1+1
 			}
 		}
 	}
