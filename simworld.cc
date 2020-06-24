@@ -5504,6 +5504,12 @@ DBG_MESSAGE("karte_t::load()", "init player");
 					dbg->warning( "karte_t::load()", "Wrong climate %i at (%i%i) set to temperate", climate_map.at( x, y ), x, y );
 					climate_map.at( x, y ) = temperate_climate;
 				}
+				if(  grund_t *gr = access( x, y )->get_kartenboden()  ) {
+					sint8 hgt = gr->get_hoehe() + corner_nw( gr->get_grund_hang() );
+					if( climate_map.at( x, y ) != water_climate  &&  hgt != grid_hgts[x + y*(cached_grid_size.x+1)]  ) { 
+						grid_hgts[x + y*(cached_grid_size.x+1)] = hgt;
+					}
+				}
 			}
 		}
 	}

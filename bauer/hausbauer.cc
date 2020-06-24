@@ -13,7 +13,9 @@
 #include "../boden/wasser.h"
 #include "../boden/fundament.h"
 
+#include "../dataobj/ribi.h"
 #include "../dataobj/scenario.h"
+
 #include "../obj/leitung2.h"
 #include "../obj/tunnel.h"
 #include "../obj/zeiger.h"
@@ -463,6 +465,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::south)) {
 								gr->calc_image();
 							}
+							welt->set_grid_hgt( pos.get_2d(), pos.z+corner_nw(new_slope) );
 						}
 					}
 					else if (wasser_t* sea = dynamic_cast<wasser_t*>(gr)) {
