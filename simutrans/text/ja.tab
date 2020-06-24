@@ -3679,16 +3679,20 @@ no convoy nameplate
 系統名非表示
 mouseover convoy name
 マウスオーバーで系統名表示
+active player's line name
+自社車両の系統名を常時表示
 always show convoy name
-常に系統名を表示
+全ての車両の系統名を常時表示
 switch the convoy loading bar display mode
 積載率表示モードの切り替え
 no convoy loading bar
 積載率バー非表示
 mouseover loading bar
 マウスオーバーで積載率バーを表示
+active player's loading bar
+自社車両の積載率バーを常時表示
 always show loading bar
-常に積載率バーを表示
+全ての車両の積載率バーを常時表示
 map_btn_freight
 輸送量
 Stop coverage

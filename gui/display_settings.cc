@@ -90,6 +90,20 @@
 // Local params
 #define L_DIALOG_WIDTH (220)
 
+const char *color_gui_t::nameplate_setting_texts[MAX_NAMEPLATE_OPTIONS] = {
+	"no convoy nameplate",
+	"mouseover convoy name",
+	"active player's line name",
+	"always show convoy name"
+};
+
+const char *color_gui_t::loadingbar_setting_texts[MAX_LOADING_BAR_OPTIONS] = {
+	"no convoy loading bar",
+	"mouseover loading bar",
+	"active player's loading bar",
+	"always show loading bar"
+};
+
 
 color_gui_t::color_gui_t() :
 gui_frame_t( translator::translate("Helligk. u. Farben") )
@@ -473,16 +487,16 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		buttons[22].pressed ^= 1;
 	}
 	else if ((buttons + 25) == comp) {
-		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + 2) % 3;
+		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + (MAX_NAMEPLATE_OPTIONS-1)) % MAX_NAMEPLATE_OPTIONS;
 	}
 	else if ((buttons + 26) == comp) {
-		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + 1) % 3;
+		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + 1) % MAX_NAMEPLATE_OPTIONS;
 	}
 	else if ((buttons + 27) == comp) {
-		env_t::show_cnv_loadingbar = (env_t::show_cnv_loadingbar + 2) % 3;
+		env_t::show_cnv_loadingbar = (env_t::show_cnv_loadingbar + (MAX_LOADING_BAR_OPTIONS-1)) % MAX_LOADING_BAR_OPTIONS;
 	}
 	else if ((buttons + 28) == comp) {
-		env_t::show_cnv_loadingbar = (env_t::show_cnv_loadingbar + 1) % 3;
+		env_t::show_cnv_loadingbar = (env_t::show_cnv_loadingbar + 1) % MAX_LOADING_BAR_OPTIONS;
 	}
 
 	welt->set_dirty();
@@ -550,11 +564,9 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	const char *ctc = translator::translate( env_t::show_vehicle_states==0 ? "convoi error tooltips" : (env_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
 	display_proportional_clip(x+10+16, y+CONVOI_TOOLTIPS+1, ctc, ALIGN_LEFT, SYSCOL_TEXT, true);
 
-	const char *nameplate_settings = translator::translate(env_t::show_cnv_nameplates == 0 ? "no convoy nameplate" : (env_t::show_cnv_nameplates == 1 ? "mouseover convoy name" : "always show convoy name"));
-	display_proportional_clip(x+10+16, y+CONVOI_NAMEPLATES+1, nameplate_settings, ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional_clip(x+10+16, y+CONVOI_NAMEPLATES+1, translator::translate(nameplate_setting_texts[env_t::show_cnv_nameplates]), ALIGN_LEFT, SYSCOL_TEXT, true);
 
-	const char *loadingbar_settings = translator::translate(env_t::show_cnv_loadingbar == 0 ? "no convoy loading bar" : (env_t::show_cnv_loadingbar == 1 ? "mouseover loading bar" : "always show loading bar"));
-	display_proportional_clip(x + 10 + 16, y + CONVOI_LOADINGBAR + 1, loadingbar_settings, ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional_clip(x + 10 + 16, y + CONVOI_LOADINGBAR + 1, translator::translate(loadingbar_setting_texts[env_t::show_cnv_loadingbar]), ALIGN_LEFT, SYSCOL_TEXT, true);
 
 	int len=15+display_proportional_clip(x+10, y+FPS_DATA, translator::translate("Frame time:"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	sprintf(buf,"%ld ms", get_frame_time() );

@@ -3256,7 +3256,9 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		ypos += tile_raster_scale_y(get_yoff(), raster_width) + 14;
 
 		// convoy(line) nameplate
-		if (cnv && (env_t::show_cnv_nameplates == 2 || (env_t::show_cnv_nameplates == 1 && welt->get_zeiger()->get_pos() == get_pos()))) {
+		if (cnv && (env_t::show_cnv_nameplates == 3 || (env_t::show_cnv_nameplates == 2 && cnv->get_owner() == welt->get_active_player())
+			|| ((env_t::show_cnv_nameplates == 1 || env_t::show_cnv_nameplates == 2) && welt->get_zeiger()->get_pos() == get_pos()) ))
+		{
 			char nameplate_text[1024];
 			// show the line name, including when the convoy is coupled.
 			linehandle_t lh = cnv->get_line();
@@ -3280,8 +3282,10 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		// loading bar
 		int extra_y = 0; // yoffset from the default tooltip position
 		sint64 waiting_time_per_month = 0;
-		COLOR_VAL waiting_bar_col = 95; //test
-		if (cnv && (env_t::show_cnv_loadingbar == 2 || (env_t::show_cnv_loadingbar == 1 && welt->get_zeiger()->get_pos() == get_pos()))) {
+		COLOR_VAL waiting_bar_col = COL_APRICOT;
+		if (cnv && (env_t::show_cnv_loadingbar == 3 || (env_t::show_cnv_loadingbar == 2 && cnv->get_owner() == welt->get_active_player())
+			|| ((env_t::show_cnv_loadingbar == 1 || env_t::show_cnv_loadingbar == 2) && welt->get_zeiger()->get_pos() == get_pos()) ))
+		{
 			switch (cnv->get_state()) {
 				case convoi_t::LOADING:
 					waiting_time_per_month = int(0.9 + cnv->calc_remaining_loading_time()*200 / welt->ticks_per_world_month);
