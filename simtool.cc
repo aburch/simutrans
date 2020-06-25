@@ -2415,7 +2415,7 @@ const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month, bool r
 	const way_desc_t *desc = default_param ? way_builder_t::get_desc(default_param,0) : NULL;
 	if(  desc==NULL  &&  default_param  ) {
 		waytype_t wt = (waytype_t)atoi(default_param);
-		desc = defaults[wt & 63];
+		desc = defaults[wt & (sint8)63];
 		if(desc == NULL || !desc->is_available(timeline_year_month)) {
 			// Search for default way
 			desc = way_builder_t::weg_search(wt, 0xffffffff, timeline_year_month, type_flat);
@@ -2426,7 +2426,7 @@ const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month, bool r
 			defaults[ tram_wt ] = desc;
 		}
 		else {
-			defaults[desc->get_wtyp()&63] = desc;
+			defaults[desc->get_wtyp()&(sint8)63] = desc;
 		}
 	}
 	return desc;
@@ -2990,7 +2990,7 @@ void tool_build_bridge_t::rdwr_custom_data(memory_rw_t *packet)
 	{
 		const bridge_desc_t* bb = bridge_builder_t::get_desc(default_param);
 		const waytype_t wt = bb ? bb->get_waytype() : invalid_wt;
-		way_desc = tool_build_way_t::defaults[wt & 63];
+		way_desc = tool_build_way_t::defaults[wt & (sint8)63];
 
 		plainstring way_desc_string = way_desc ? way_desc->get_name() : "none";
 		packet->rdwr_str(way_desc_string);
@@ -3220,7 +3220,7 @@ tool_build_tunnel_t::tool_build_tunnel_t() : two_click_tool_t(TOOL_BUILD_TUNNEL 
 {
 	if (!env_t::networkmode)
 	{
-		way_desc = default_param ? way_builder_t::get_desc(default_param, 0) : tool_build_way_t::defaults[get_waytype() & 63];
+		way_desc = default_param ? way_builder_t::get_desc(default_param, 0) : tool_build_way_t::defaults[get_waytype() & (sint8)63];
 	}
   overtaking_mode = twoway_mode;
 }
@@ -3319,7 +3319,7 @@ void tool_build_tunnel_t::rdwr_custom_data(memory_rw_t *packet)
 	{
 		const tunnel_desc_t* tb = tunnel_builder_t::get_desc(default_param);
 		const waytype_t wt = tb ? tb->get_waytype() : invalid_wt;
-		way_desc = tool_build_way_t::defaults[wt & 63];
+		way_desc = tool_build_way_t::defaults[wt & (sint8)63];
 
 		plainstring way_desc_string = way_desc ? way_desc->get_name() : "none";
 		packet->rdwr_str(way_desc_string);
