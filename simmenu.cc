@@ -1044,8 +1044,9 @@ const char *two_click_tool_t::work(player_t *player, koord3d pos )
 	// remove marker
 	cleanup( true );
 
-	const char *error = "";	//default: nosound
+	const char *error = NULL;
 	uint8 value = is_valid_pos( player, pos, error, !is_first_click() ? start : koord3d::invalid );
+	assert(error == NULL  ||  value > 0);
 	DBG_MESSAGE("two_click_tool_t::work", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
 		if (error == NULL) {
@@ -1067,6 +1068,7 @@ const char *two_click_tool_t::work(player_t *player, koord3d pos )
 			// set starting position.
 			DBG_MESSAGE("two_click_tool_t::work", "Setting start to %s", pos.get_str() );
 			start_at( pos );
+			error = NULL;
 		}
 	}
 	else {
