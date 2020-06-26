@@ -307,7 +307,7 @@ const utf8 *utf8caseutf8(const utf8 *haystack_start, const utf8 *needle_start)
 
 
 // defining it in the include did not work for whatever reason
-char *utf8caseutf8( const char *haystack, const char *needle )
+const char *utf8caseutf8( const char *haystack, const char *needle )
 {
-	return (char *)utf8caseutf8( (const utf8 *)haystack, (const utf8 *)needle );
+	return (const char *)utf8caseutf8( (const utf8 *)haystack, (const utf8 *)needle );
 }
