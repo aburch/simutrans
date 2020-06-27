@@ -86,6 +86,7 @@ private:
 	gui_factory_nearby_halt_info_t nearby_halts;
 
 	void rename_factory();
+	void set_tab_opened();
 
 public:
 	// refreshes all text and location pointers

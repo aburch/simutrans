@@ -370,26 +370,7 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		create_win(frame, w_info, (ptrdiff_t)this);
 	}
 	else if (tabstate != tabs.get_active_tab_index() || get_windowsize().h == get_min_windowsize().h) {
-		tabstate = tabs.get_active_tab_index();
-		switch (tabstate)
-		{
-			case 0: // info
-			default:
-				tabs.set_size(scrolly_info.get_size());
-				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + D_V_SPACE*2 + min(22 * LINESPACE, container_info.get_size().h)));
-				break;
-			case 1: // goods chart 
-				goods_chart.recalc_size();
-				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + goods_chart.get_size().h));
-				break;
-			case 2: // prod chart
-				chart.recalc_size();
-				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + chart.get_size().h));
-				break;
-			case 3: // details 
-				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + D_V_SPACE*2 + container_details.get_size().h));
-				break;
-		}
+		set_tab_opened();
 	}
 
 	return true;
@@ -399,10 +380,49 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 bool fabrik_info_t::infowin_event(const event_t *ev)
 {
 	if (ev->ev_class == EVENT_KEYBOARD && ev->ev_code == SIM_KEY_DOWN) {
+		set_tab_opened();
+	}
+	if (ev->ev_class == EVENT_KEYBOARD && ev->ev_code == SIM_KEY_UP) {
 		set_windowsize(get_min_windowsize());
 	}
+	if (ev->ev_class == EVENT_KEYBOARD && ev->ev_code == SIM_KEY_LEFT) {
+		tabstate = (tabstate + tabs.get_count() - 1)% tabs.get_count();
+		tabs.set_active_tab_index(tabstate);
+		set_tab_opened();
+	}
+	if (ev->ev_class == EVENT_KEYBOARD && ev->ev_code == SIM_KEY_RIGHT) {
+		tabstate = (tabstate + 1) % tabs.get_count();
+		tabs.set_active_tab_index(tabstate);
+		set_tab_opened();
+	}
+
 	return gui_frame_t::infowin_event(ev);
 }
+
+void fabrik_info_t::set_tab_opened()
+{
+	tabstate = tabs.get_active_tab_index();
+	switch (tabstate)
+	{
+	case 0: // info
+	default:
+		tabs.set_size(scrolly_info.get_size());
+		set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + D_V_SPACE * 2 + min(22 * LINESPACE, container_info.get_size().h)));
+		break;
+	case 1: // goods chart 
+		goods_chart.recalc_size();
+		set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + goods_chart.get_size().h));
+		break;
+	case 2: // prod chart
+		chart.recalc_size();
+		set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + chart.get_size().h));
+		break;
+	case 3: // details 
+		set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + D_V_SPACE * 2 + container_details.get_size().h));
+		break;
+	}
+}
+
 
 void fabrik_info_t::update_info()
 {
