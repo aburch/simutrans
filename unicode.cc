@@ -284,7 +284,7 @@ const utf8 *utf8caseutf8(const utf8 *haystack_start, const utf8 *needle_start)
 		if(   towlower( hs ) == c   ) {
 			const utf8 *haystack_next = haystack_p;
 
-			for( size_t i = 0; ; ) {
+			while(true) {
 				sint32 nc = utf8_decoder_t::decode( needle_p );
 				if(  nc == 0  ) {
 					return haystack_current;
