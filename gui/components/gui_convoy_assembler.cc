@@ -94,6 +94,25 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	scrolly_waggons(&cont_waggons),
 	lb_vehicle_filter("Filter:", SYSCOL_TEXT, gui_label_t::left)
 {
+	livery_selector.add_listener(this);
+	add_component(&livery_selector);
+	livery_selector.clear_elements();
+	livery_scheme_indices.clear();
+
+	vehicle_filter.set_highlight_color(depot_frame ? depot_frame->get_depot()->get_owner()->get_player_color1() + 1 : replace_frame ? replace_frame->get_convoy()->get_owner()->get_player_color1() + 1 : COL_BLACK);
+	vehicle_filter.add_listener(this);
+	add_component(&vehicle_filter);
+
+	veh_action = va_append;
+	action_selector.add_listener(this);
+	add_component(&action_selector);
+	action_selector.clear_elements();
+	static const char *txt_veh_action[4] = { "anhaengen", "voranstellen", "verkaufen", "Upgrade" };
+	action_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_veh_action[0]), SYSCOL_TEXT));
+	action_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_veh_action[1]), SYSCOL_TEXT));
+	action_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_veh_action[2]), SYSCOL_TEXT));
+	action_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_veh_action[3]), SYSCOL_TEXT));
+	action_selector.set_selection(0);
 
 	/*
 	* These parameter are adjusted to resolution.
@@ -240,17 +259,6 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	add_component(&lb_livery_counter);
 	add_component(&lb_vehicle_filter);
 
-	veh_action = va_append;
-	action_selector.add_listener(this);
-	add_component(&action_selector);
-	action_selector.clear_elements();
-	static const char *txt_veh_action[4] = { "anhaengen", "voranstellen", "verkaufen", "Upgrade" };
-	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[0]), SYSCOL_TEXT ) );
-	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[1]), SYSCOL_TEXT ) );
-	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[2]), SYSCOL_TEXT ) );
-	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[3]), SYSCOL_TEXT ) );
-	action_selector.set_selection( 0 );
-
 	bt_outdated.set_typ(button_t::square);
 	bt_outdated.set_text("Show outdated");
 	if (welt->use_timeline() && welt->get_settings().get_allow_buying_obsolete_vehicles() ) {
@@ -272,15 +280,6 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	bt_show_all.add_listener(this);
 	bt_show_all.set_tooltip("Show also vehicles that do not match for current action.");
 	add_component(&bt_show_all);
-
-	vehicle_filter.set_highlight_color(depot_frame ? depot_frame->get_depot()->get_owner()->get_player_color1() + 1 : replace_frame ? replace_frame->get_convoy()->get_owner()->get_player_color1() + 1 : COL_BLACK);
-	vehicle_filter.add_listener(this);
-	add_component(&vehicle_filter);
-
-	livery_selector.add_listener(this);
-	add_component(&livery_selector);
-	livery_selector.clear_elements();
-	livery_scheme_indices.clear();
 
 	bt_class_management.set_typ(button_t::roundbox);
 	bt_class_management.set_text("class_manager");
