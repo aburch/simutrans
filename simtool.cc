@@ -3220,7 +3220,13 @@ tool_build_tunnel_t::tool_build_tunnel_t() : two_click_tool_t(TOOL_BUILD_TUNNEL 
 {
 	if (!env_t::networkmode)
 	{
-		way_desc = default_param ? way_builder_t::get_desc(default_param, 0) : tool_build_way_t::defaults[get_waytype() & (sint8)63];
+		waytype_t wt = get_waytype();
+		if (wt == invalid_wt)
+		{
+			dbg->error("tool_build_tunnel_t::tool_build_tunnel_t()", "Tunnel builder object could not be retrieved; using default tunnel waytype (road), but this may cause errors");
+			wt = road_wt;
+		}
+		way_desc = default_param ? way_builder_t::get_desc(default_param, 0) : tool_build_way_t::defaults[wt & (sint8)63];
 	}
   overtaking_mode = twoway_mode;
 }
