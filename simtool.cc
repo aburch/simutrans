@@ -3320,7 +3320,7 @@ void tool_build_tunnel_t::rdwr_custom_data(memory_rw_t *packet)
 		const tunnel_desc_t* tb = tunnel_builder_t::get_desc(default_param);
 		waytype_t wt = tb ? tb->get_waytype() : road_wt;
 		if (!tb || wt == invalid_wt)
-		{
+		{ 
 			dbg->error("void tool_build_tunnel_t::rdwr_custom_data(memory_rw_t *packet)", "Tunnel builder object could not be retrieved; using default tunnel waytype (road), but this may cause errors");
 			wt = road_wt;
 		}
