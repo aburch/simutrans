@@ -3891,6 +3891,13 @@ void display_fillbox_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_
 	display_fb_internal(xp, yp, w, h, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
 }
 
+void display_filled_roundbox_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty)
+{
+	display_fillbox_wh_clip(xp, yp+1, w, h-2, color, dirty);
+	display_fillbox_wh_clip(xp+1, yp, w-2, 1, color, dirty);
+	display_fillbox_wh_clip(xp+1, yp + h-1, w-2, 1, color, dirty);
+}
+
 /**
 * Draw vertical line
 * @author Hj. Malthaner
