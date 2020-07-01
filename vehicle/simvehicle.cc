@@ -3316,8 +3316,11 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 
 			display_ddd_box_clip(xpos-2, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y, LOADINGBAR_WIDTH+2, LOADINGBAR_HEIGHT, MN_GREY2, MN_GREY0);
 			sint32 colored_width = cnv->get_loading_level() > 100 ? 100 : cnv->get_loading_level();
-			if (cnv->get_loading_limit()) {
-				display_blend_wh(xpos-1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, cnv->get_loading_limit(), LOADINGBAR_HEIGHT - 2, COL_YELLOW, 75);
+			if (cnv->get_loading_limit() && cnv->get_state() == convoi_t::LOADING) {
+				display_fillbox_wh_clip(xpos - 1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, cnv->get_loading_limit(), LOADINGBAR_HEIGHT - 2, COL_YELLOW, true);
+			}
+			else if (cnv->get_loading_limit()) {
+				display_blend_wh(xpos-1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, cnv->get_loading_limit(), LOADINGBAR_HEIGHT - 2, COL_YELLOW, 60);
 			}
 			else {
 				display_blend_wh(xpos-1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, LOADINGBAR_WIDTH, LOADINGBAR_HEIGHT - 2, MN_GREY2, colored_width ? 65 : 40);
