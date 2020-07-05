@@ -537,6 +537,12 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 			break;
 
+		case convoi_t::WAITING_FOR_LOADING_THREE_MONTHS:
+		case convoi_t::WAITING_FOR_LOADING_FOUR_MONTHS:
+			sprintf(speed_text, translator::translate("Waiting too much for loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit());
+			speed_color = COL_ORANGE;
+			break;
+
 		case convoi_t::REVERSING:
 
 			char reversing_time[64];
@@ -847,6 +853,8 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				case convoi_t::OUT_OF_RANGE:	sprintf(state_text, "OUT_OF_RANGE");	break;
 				case convoi_t::EMERGENCY_STOP:	sprintf(state_text, "EMERGENCY_STOP");	break;
 				case convoi_t::ROUTE_JUST_FOUND:	sprintf(state_text, "ROUTE_JUST_FOUND");	break;
+				case convoi_t::WAITING_FOR_LOADING_THREE_MONTHS:	sprintf(state_text, "WAITING_FOR_LOADING_THREE_MONTHS");	break;
+				case convoi_t::WAITING_FOR_LOADING_FOUR_MONTHS:	sprintf(state_text, "WAITING_FOR_LOADING_FOUR_MONTHS");	break;
 				default:	sprintf(state_text, "default");	break;
 
 				}

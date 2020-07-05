@@ -997,7 +997,7 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d position)
 {
 	switch(cnv->get_state())
 	{
-	case convoi_t::NO_ROUTE_TOO_COMPLEX:
+		case convoi_t::NO_ROUTE_TOO_COMPLEX:
 		DBG_MESSAGE("player_t::report_vehicle_problem", "Vehicle %s can't find a route to (%i,%i) because the route is too long/complex", cnv->get_name(), position.x, position.y);
 		if (this == welt->get_active_player()) {
 			cbuffer_t buf;
@@ -1007,7 +1007,7 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d position)
 		}
 		break;
 
-	case convoi_t::NO_ROUTE:
+		case convoi_t::NO_ROUTE:
 		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),position.x,position.y);
 			if(this==welt->get_active_player()) {
 				cbuffer_t buf;
@@ -1021,6 +1021,17 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d position)
 				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::problems, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
 			}
 			break;
+
+		case convoi_t::WAITING_FOR_LOADING_THREE_MONTHS:
+		case convoi_t::WAITING_FOR_LOADING_FOUR_MONTHS:
+			DBG_MESSAGE("player_t::report_vehicle_problem", "Vehicle %s wait loading too much!", cnv->get_name(), position.x, position.y);
+			{
+				cbuffer_t buf;
+				buf.printf(translator::translate("Vehicle %s wait loading too much!"), cnv->get_name());
+				welt->get_message()->add_message((const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
+			}
+			break;
+
 
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 		case convoi_t::CAN_START_ONE_MONTH:
