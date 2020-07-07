@@ -709,7 +709,6 @@ void player_t::complete_liquidation()
 					obj_t *obj = gr->obj_bei(i);
 					if(obj->get_owner()==this) {
 						switch(obj->get_typ()) {
-							case obj_t::is_vehicle:
 							case obj_t::roadsign:
 							case obj_t::signal:
 							case obj_t::airdepot:
