@@ -304,7 +304,7 @@ void roadsign_t::info(cbuffer_t & buf) const
 
 
 	const grund_t *rs_gr = welt->lookup_kartenboden(rs_pos.x, rs_pos.y);
-	if (rs_gr->get_hoehe() > rs_pos.z == true)
+	if (rs_gr->get_hoehe() > rs_pos.z)
 	{
 		buf.append(translator::translate("underground_sign"));
 		buf.append("\n");

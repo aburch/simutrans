@@ -179,7 +179,7 @@ void signal_t::info(cbuffer_t & buf) const
 	koord3d sig_pos = this->get_pos();
 	const grund_t *sig_gr = welt->lookup_kartenboden(sig_pos.x, sig_pos.y);
 
-	if (sig_gr->get_hoehe() > sig_pos.z == true)
+	if (sig_gr->get_hoehe() > sig_pos.z)
 	{
 		buf.append(translator::translate("underground_signal"));
 		buf.append("\n");
