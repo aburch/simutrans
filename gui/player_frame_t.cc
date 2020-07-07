@@ -209,7 +209,7 @@ ki_kontroll_t::ki_kontroll_t() :
 			add_component(&lb_take_over_cost[i]);
 	}
 
-	sprintf(text_allow_takeover, translator::translate("allow_takeover_of_your_company")); // TODO: Set this in Simutranslator
+	sprintf(text_allow_takeover, "%s", translator::translate("allow_takeover_of_your_company")); // TODO: Set this in Simutranslator
 	allow_take_over_of_company.init(button_t::roundbox, text_allow_takeover, cursor, scr_size(display_calc_proportional_string_len_width(text_allow_takeover, -1) + 10 ,D_BUTTON_HEIGHT));
 	allow_take_over_of_company.add_listener(this);
 	allow_take_over_of_company.set_tooltip(translator::translate("allows_other_players_to_take_over_your_company")); // TODO: Set this in Simutranslator
@@ -219,7 +219,7 @@ ki_kontroll_t::ki_kontroll_t() :
 	}
 	add_component( &allow_take_over_of_company );
 
-	sprintf(text_cancel_takeover, translator::translate("cancel"));
+	sprintf(text_cancel_takeover, "%s", translator::translate("cancel"));
 	cancel_take_over.init(button_t::roundbox, text_cancel_takeover, cursor, scr_size(display_calc_proportional_string_len_width(text_cancel_takeover, -1) + 10, D_BUTTON_HEIGHT));
 	cancel_take_over.add_listener(this);
 	cancel_take_over.set_tooltip(translator::translate("cancel_the_takeover_of_your_company")); // TODO: Set this in Simutranslator
