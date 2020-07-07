@@ -14,12 +14,12 @@
 
 
 // component for vehicle display
-gui_convoy_formaion_t::gui_convoy_formaion_t(convoihandle_t cnv)
+gui_convoy_formation_t::gui_convoy_formation_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
 }
 
-void gui_convoy_formaion_t::draw(scr_coord offset)
+void gui_convoy_formation_t::draw(scr_coord offset)
 {
 	if (cnv.is_bound()) {
 		offset.y += 2; // margin top

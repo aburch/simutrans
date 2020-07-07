@@ -31,7 +31,7 @@ private:
 	convoihandle_t cnv;
 
 	gui_speedbar_t filled_bar;
-	gui_convoy_formaion_t formation;
+	gui_convoy_formation_t formation;
 	gui_convoy_payloadinfo_t payload;
 
 	bool show_line_name = true;
