@@ -384,11 +384,11 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 	}
 
 
-	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
+	for (uint8 i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
 		if (comp == take_over_player + i)
 		{
 			static char param[16];
-			sprintf(param, "u, %hi, %hi", welt->get_active_player_nr(), i);
+			sprintf(param, "u, %hhu, %hhu", welt->get_active_player_nr(), i);
 			tool_t* tool = create_tool(TOOL_CHANGE_PLAYER | SIMPLE_TOOL);
 			tool->set_default_param(param);
 			welt->set_tool(tool, welt->get_active_player());
