@@ -7326,7 +7326,7 @@ bool tool_change_depot_t::init( player_t *player )
 
 					if(tool!='a') {
 						// start of composition
-						while(  info->get_leader_count() == 1  &&  info->get_leader(0) != NULL  &&  info->get_leader(0) != vehicle_desc_t::any_vehicle  &&  !new_vehicle_info.is_contained(info)) {
+						while(  info->get_leader_count() == 1  &&  info->get_leader(0) != NULL  &&  info->get_leader(0) != vehicle_desc_t::any_vehicle  &&  !new_vehicle_info.is_contained(info->get_leader(0))) {
 							info = info->get_leader(0);
 							new_vehicle_info.insert(info);
 						}
@@ -7334,7 +7334,7 @@ bool tool_change_depot_t::init( player_t *player )
 					}
 					new_vehicle_info.append( info );
 					if (tool != 'i') {
-						while(info->get_trailer_count() == 1  &&  info->get_trailer(0) != NULL  &&  info->get_trailer(0) != vehicle_desc_t::any_vehicle  &&  !new_vehicle_info.is_contained(info)) {
+						while(info->get_trailer_count() == 1  &&  info->get_trailer(0) != NULL  &&  info->get_trailer(0) != vehicle_desc_t::any_vehicle  &&  !new_vehicle_info.is_contained(info->get_trailer(0))) {
 							info = info->get_trailer(0);
 							new_vehicle_info.append(info);
 						}
