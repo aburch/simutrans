@@ -874,7 +874,7 @@ const char *translator::get_year_month(uint16 year_month)
 		case env_t::DATE_FMT_JAPANESE:
 		case env_t::DATE_FMT_JAPANESE_NO_SEASON:
 		case env_t::DATE_FMT_JAPANESE_INTERNAL_MINUTE: // Extended unique
-			if (year_sym == "") {
+			if (strcmp(year_sym, "") == 0) {
 				year_sym = "/";
 				mon_sym = "";
 			}
