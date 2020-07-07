@@ -21,6 +21,8 @@
 #include "crossing_logic.h"
 #include "../obj/crossing.h"
 
+#include <algorithm>
+
 
 karte_ptr_t crossing_logic_t::welt;
 
