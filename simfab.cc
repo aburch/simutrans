@@ -3413,7 +3413,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 	buf.clear();
 	bool has_previous = false;
 	double distance;
-	char distance_display[10];
+	char distance_display[13];
 	if (!lieferziele.empty()) {
 		has_previous = true;
 		buf.append(translator::translate("Abnehmer"));

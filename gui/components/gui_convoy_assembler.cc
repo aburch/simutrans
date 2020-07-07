@@ -2283,7 +2283,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 						}
 					}
 					// display upgrade counter
-					sprintf(txt_convoi_count_fluctuation, "(%i)", upgrade_count);
+					sprintf(txt_convoi_count_fluctuation, "(%hhu)", upgrade_count);
 					lb_convoi_count_fluctuation.set_visible(true);
 					lb_convoi_count_fluctuation.set_pos(scr_coord(lb_convoi_count.get_pos().x + proportional_string_width(txt_convoi_count) + D_H_SPACE, lb_convoi_count.get_pos().y));
 					lb_convoi_count_fluctuation.set_color(COL_UPGRADEABLE);
@@ -2388,7 +2388,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		// Cost information:
 		char tmp[128];
 		money_to_string(tmp, veh_type->get_value() / 100.0, false);
-		char resale_entry[32] = "\0";
+		char resale_entry[256] = "\0";
 		if (resale_value != -1.0) {
 			char tmp[128];
 			money_to_string(tmp, resale_value / 100.0, false);

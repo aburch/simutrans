@@ -698,7 +698,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			info_buf.clear();
 
 			double distance;
-			char distance_display[10];
+			char distance_display[13];
 			distance = (double)(cnv_route_index_left * welt->get_settings().get_meters_per_tile()) / 1000.0;
 
 			if (distance <= 0)
