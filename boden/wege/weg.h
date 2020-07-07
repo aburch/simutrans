@@ -545,7 +545,7 @@ public:
 		}
 		return (combined_actual * 100u / combined_ideal) - 100u;
 	}
+};
 
-} GCC_PACKED;
 
 #endif
