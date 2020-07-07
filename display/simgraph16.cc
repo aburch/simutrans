@@ -2847,7 +2847,7 @@ void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 playe
 	} // number ok
 }
 
-void display_color_img_with_tooltip(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty, const char *text  CLIP_NUM_DEF)
+void display_color_img_with_tooltip(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty, const char *text  CLIP_NUM_DEF_NOUSE)
 {
 	display_color_img(n, xp, yp, player_nr_raw, daynight, dirty);
 	if (text && n < anz_images && ( xp <= get_mouse_x() && yp <= get_mouse_y() && (xp+ images[n].w) > get_mouse_x() && (yp+ images[n].h) > get_mouse_y())) {

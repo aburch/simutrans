@@ -6618,7 +6618,7 @@ image_id tool_build_depot_t::get_icon(player_t *player) const
 	return IMG_EMPTY;
 }
 
-bool tool_build_depot_t::init( player_t *player )
+bool tool_build_depot_t::init( player_t * )
 {
 	building_desc_t const* desc = hausbauer_t::find_tile(default_param, 0)->get_desc();
 	if (desc == NULL) {

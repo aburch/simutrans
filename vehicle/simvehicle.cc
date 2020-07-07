@@ -2510,6 +2510,7 @@ void vehicle_t::rdwr(loadsave_t *file)
 {
 	// this is only called from objlist => we save nothing ...
 	assert(  file->is_saving()  );
+	(void)file;
 }
 
 
