@@ -78,7 +78,6 @@ factorylist_frame_t::factorylist_frame_t() :
 	freight_type_c.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
 	freight_type_c.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, LINESPACE * 4));
 	{
-		int count = 0;
 		viewable_freight_types.append(NULL);
 		freight_type_c.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), SYSCOL_TEXT));
 		for (int i = 0; i < goods_manager_t::get_max_catg_index(); i++) {

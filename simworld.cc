@@ -697,6 +697,7 @@ void karte_t::destroy()
 
 	bool empty_depot_list = depot_t::get_depot_list().empty();
 	assert( empty_depot_list );
+	(void)empty_depot_list;
 
 	DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 
@@ -926,6 +927,7 @@ void karte_t::add_queued_city(stadt_t* city)
 	{
 		int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 		assert(error == 0);
+		(void)error;
 	}
 #endif
 	cities_awaiting_private_car_route_check.append_unique(city);
@@ -934,6 +936,7 @@ void karte_t::add_queued_city(stadt_t* city)
 	{
 		int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 		assert(error == 0);
+		(void)error;
 	}
 #endif
 }
@@ -1650,6 +1653,8 @@ void *check_road_connexions_threaded(void *args)
 		}
 		int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 		assert(error == 0);
+		(void)error;
+
 		if (karte_t::cities_to_process > 0 && karte_t::cities_to_process >= thread_number + 1 && route_t::suspend_private_car_routing == false && !world()->cities_awaiting_private_car_route_check.empty())
 		{
 			stadt_t* city;
@@ -1657,6 +1662,7 @@ void *check_road_connexions_threaded(void *args)
 			karte_t::cities_to_process--;
 			int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
+			(void)error;
 
 			if (!city || world()->get_settings().get_assume_everywhere_connected_by_road())
 			{
@@ -1671,6 +1677,8 @@ void *check_road_connexions_threaded(void *args)
 		{
 			int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
+			(void)error;
+
 			if (!world()->is_terminating_threads() && route_t::suspend_private_car_routing)
 			{
 				simthread_barrier_wait(&karte_t::private_car_barrier);
@@ -2067,6 +2075,8 @@ void* unreserve_route_threaded(void* args)
 		{
 			int error = pthread_mutex_unlock(&karte_t::unreserve_route_mutex);
 			assert(error == 0);
+			(void)error;
+
 			continue;
 		}
 
@@ -10645,10 +10655,14 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 		const uint32 server_sync_step = nwcheck->server_sync_step;
 		const checklist_t client_checklist = LCHKLST(server_sync_step);
 		char buf[2048];
+
 		const int offset = server_checklist.print(buf, "server");
 		assert(offset < 2048);
+
 		const int offset2 = offset + client_checklist.print(buf + offset, "client");
 		assert(offset2 < 2048);
+		(void)offset2;
+
 		dbg->warning("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
 		if(client_checklist != server_checklist) {
 			dbg->warning("karte_t:::do_network_world_command", "disconnecting due to checklist mismatch" );
@@ -10665,6 +10679,8 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 				assert(offset < 2048);
 				const int offset2 = offset + LCHKLST(nwt->last_sync_step).print(buf + offset, "executor");
 				assert(offset2 < 2048);
+				(void)offset2;
+
 				dbg->warning("karte_t:::do_network_world_command", "skipping command due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
 				if(  !env_t::server  ) {
 					network_disconnect();

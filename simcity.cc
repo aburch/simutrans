@@ -3611,8 +3611,8 @@ void stadt_t::check_bau_spezial(bool new_town)
 								}
 
 								bool success = build_road(k, NULL, true, false);
-
 								assert(success);
+								(void)success;
 							}
 						}
 					}

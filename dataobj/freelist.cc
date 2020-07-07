@@ -194,6 +194,7 @@ void freelist_t::putback_node( size_t size, void *p )
 #ifdef MULTI_THREAD
 		int error = pthread_mutex_unlock( &freelist_mutex );
 		assert(error == 0);
+		(void)error;
 #endif
 		return;
 	}

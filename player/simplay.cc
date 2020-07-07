@@ -1322,7 +1322,6 @@ void player_t::take_over(player_t* target_player)
 						roadsign_t* sign = (roadsign_t*)obj;
 						if (sign->get_desc()->is_private_way())
 						{
-							char param[256];
 							uint16 mask = sign->get_player_mask();
 							const uint8 player_number_target = target_player->get_player_nr();
 							if ((1 << player_number_target & mask) || obj->get_owner() == target_player)

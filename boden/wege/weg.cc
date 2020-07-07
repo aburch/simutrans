@@ -566,6 +566,7 @@ void weg_t::rdwr(loadsave_t *file)
 						next_tile.rdwr(file);
 						bool put_succeeded = private_car_routes[i].put(destination, next_tile);
 						assert(put_succeeded);
+						(void)put_succeeded;
 					}
 				}
 				if (route_array_number == 1)

@@ -429,8 +429,6 @@ void ki_kontroll_t::update_data()
 		cursor.y += D_EDIT_HEIGHT + D_V_SPACE;
 		cursor.x = D_MARGIN_LEFT;
 
-		const player_t* const player = welt->get_player(i);
-
 		if (i >= 2) {
 			player_active[i - 2].set_pos(cursor);
 		}
@@ -740,7 +738,6 @@ void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 	player_change_to[welt->get_active_player_nr()].pressed = true;
 
 	// Update take over money entry
-	sint64 takeover_money = 0;
 	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
 		player_t* player = welt->get_player(i);
 		if (player && player->available_for_takeover()) {

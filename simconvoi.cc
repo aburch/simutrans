@@ -451,7 +451,7 @@ uint32 convoi_t::move_to(uint16 const start_index)
 	for (unsigned i = 0; i != vehicle_count; ++i) {
 		vehicle_t& v = *vehicle[i];
 
-		if(  grund_t const* gr = welt->lookup(v.get_pos())  ) {
+		if(  welt->lookup(v.get_pos())  ) {
 			v.mark_image_dirty(v.get_image(), 0);
 			v.leave_tile();
 			// maybe unreserve this
@@ -1541,6 +1541,7 @@ bool convoi_t::drive_to()
 #ifdef MULTI_THREAD
 			int error = pthread_mutex_unlock(&step_convois_mutex);
 			assert(error == 0);
+			(void)error;
 #endif
 		}
 	}
@@ -1560,6 +1561,7 @@ bool convoi_t::drive_to()
 #ifdef MULTI_THREAD
 			int error = pthread_mutex_unlock(&step_convois_mutex);
 			assert(error == 0);
+			(void)error;
 #endif
 		}
 		// wait before next attempt for a normal no route.
@@ -1634,6 +1636,7 @@ bool convoi_t::drive_to()
 #ifdef MULTI_THREAD
 						int error = pthread_mutex_unlock(&step_convois_mutex);
 						assert(error == 0);
+						(void)error;
 #endif
 					}
 					// wait 25s before next attempt
@@ -7824,6 +7827,7 @@ uint32 convoi_t::calc_reverse_delay() const
 #ifdef MULTI_THREAD
 						int error = pthread_mutex_unlock(&step_convois_mutex);
 						assert(error == 0);
+						(void)error;
 #endif
 					 }
 				 }
@@ -7864,7 +7868,6 @@ uint32 convoi_t::calc_reverse_delay() const
 		sint64 etd = eta;
 		vector_tpl<uint16> halts_already_processed;
 		const uint32 reverse_delay = calc_reverse_delay();
-		uint8 old_schedule_entry = schedule_entry;
 		schedule->increment_index_until_next_halt(front()->get_owner(), &schedule_entry, &rev);
 		for(uint8 i = 0; i < count; i++)
 		{
@@ -8090,6 +8093,7 @@ void convoi_t::emergency_go_to_depot(bool show_success)
 #ifdef MULTI_THREAD
 			int error = pthread_mutex_unlock(&step_convois_mutex);
 			assert(error == 0);
+			(void)error;
 #endif
 			// Do NOT do the convoi_arrived here: it's done in enter_depot!
 			state = INITIAL;
@@ -8115,6 +8119,7 @@ void convoi_t::emergency_go_to_depot(bool show_success)
 #ifdef MULTI_THREAD
 			int error = pthread_mutex_unlock(&step_convois_mutex);
 			assert(error == 0);
+			(void)error;
 #endif
 		}
 	}
