@@ -859,10 +859,12 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 				weg->set_max_speed(min(desc->get_topspeed(), way_desc->get_topspeed()));
 			}
 			const weg_t* old_way = start_gr ? start_gr->get_weg(way_desc->get_wtyp()) : NULL;
-			const wayobj_t* way_object = old_way ? way_object = start_gr->get_wayobj(desc->get_waytype()) : NULL;
+			const wayobj_t* way_object = old_way ? start_gr->get_wayobj(desc->get_waytype()) : NULL;
+
 			// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
 			weg->clear_way_constraints();
 			weg->add_way_constraints(desc->get_way_constraints());
+
 			if(old_way)
 			{
 				if(way_object)
@@ -895,7 +897,6 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 			const grund_t* gr = welt->lookup(weg->get_pos());
 			const slope_t::type hang = gr ? gr->get_weg_hang() :  slope_t::flat;
 			const weg_t* old_way = gr ? gr->get_weg(way_desc->get_wtyp()) : NULL;
-			const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(desc->get_waytype()) : NULL;
 
 			if(hang != slope_t::flat)
 			{
@@ -983,7 +984,6 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 				}
 				weg->set_bridge_weight_limit(desc->get_max_weight());
 				const weg_t* old_way = gr ? gr->get_weg(way_desc->get_wtyp()) : NULL;
-				const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(desc->get_waytype()) : NULL;
 				const slope_t::type hang = gr ? gr->get_weg_hang() :  slope_t::flat;
 				if(hang != slope_t::flat)
 				{
