@@ -233,7 +233,7 @@ void freelist_t::free_all_nodes()
 	printf("freelist_t::free_all_nodes(): frees all list memory\n" );
 	while(chunk_list) {
 		nodelist_node_t *p = chunk_list;
-		printf("freelist_t::free_all_nodes(): free node %p (next %p)\n",p,chunk_list->next);
+		printf("freelist_t::free_all_nodes(): free node %p (next %p)\n", (void *)p, (void *)chunk_list->next);
 		chunk_list = chunk_list->next;
 
 		// now release memory
