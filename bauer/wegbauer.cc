@@ -1292,29 +1292,30 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 		switch(  bautyp&bautyp_mask  ) {
 			case schiene_tram:
 			case strasse: {
-				const weg_t *other = way1;
-				if (  way0->get_waytype() != desc->get_wtyp()  ) {
-					if (  way1  ) {
-						// two different ways
-						return;
-					}
-					other = way0;
-				}
-				if (  other  ) {
-					if (  (bautyp&bautyp_mask) == strasse  ) {
-						if (  other->get_waytype() != track_wt  ||  other->get_desc()->get_styp()!=type_tram  ) {
-							// road only on tram
+					const weg_t *other = way1;
+					if (  way0->get_waytype() != desc->get_wtyp()  ) {
+						if (  way1  ) {
+							// two different ways
 							return;
 						}
+						other = way0;
 					}
-					else {
-						if (  other->get_waytype() != road_wt  ) {
-							// tram only on road
-							return;
+					if (  other  ) {
+						if (  (bautyp&bautyp_mask) == strasse  ) {
+							if (  other->get_waytype() != track_wt  ||  other->get_desc()->get_styp()!=type_tram  ) {
+								// road only on tram
+								return;
+							}
+						}
+						else {
+							if (  other->get_waytype() != road_wt  ) {
+								// tram only on road
+								return;
+							}
 						}
 					}
 				}
-			}
+				// fallthrough
 
 			default:
 				if (way0->get_waytype()!=desc->get_wtyp()  ||  way1!=NULL) {

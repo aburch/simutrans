@@ -958,9 +958,12 @@ route_t::route_result_t convoi_t::calc_route(koord3d start, koord3d ziel, sint32
 			// in this case.
 			needs_full_route_flush = true;
 		}
+		// fallthrough
+
 	default:
 		return success;
 	};
+
 	return success;
 }
 
@@ -2312,10 +2315,9 @@ end_loop:
 				}
 				break;
 			}
-			// no break
-			// continue with case SELF_DESTRUCT.
+			// fallthrough
 
-		// must be here; may otherwise confuse window management
+			// must be here; may otherwise confuse window management
 		case SELF_DESTRUCT:
 			welt->set_dirty();
 			destroy();
@@ -2353,7 +2355,8 @@ end_loop:
 			{
 				front()->play_sound();
 			}
-			// Fallthrough intended.
+			// fallthrough
+
 		case SELF_DESTRUCT:
 		case ENTERING_DEPOT:
 		case DRIVING:
@@ -2373,12 +2376,12 @@ end_loop:
 			{
 				state = WAITING_FOR_CLEARANCE;
 			}
+			// fallthrough
 
-		// action soon needed
 		case ROUTING_1:
 		case CAN_START:
 		case WAITING_FOR_CLEARANCE:
-			//wait_lock = 500;
+			// action soon needed
 			// Bernd Gabriel: simutrans extended may have presets the wait_lock before. Don't overwrite it here, if it ought to wait longer.
 			wait_lock = max(wait_lock, 250);
 			break;

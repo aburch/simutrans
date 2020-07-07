@@ -1127,18 +1127,19 @@ sint64 player_t::undo()
 					// special case airplane
 					// they can be everywhere, so we allow for everything but runway undo
 					case obj_t::air_vehicle: {
-						if(undo_type!=air_wt) {
-							break;
+							if(undo_type!=air_wt) {
+								break;
+							}
+							const air_vehicle_t* aircraft = obj_cast<air_vehicle_t>(gr->obj_bei(i));
+							// flying aircrafts are ok
+							if(!aircraft->is_on_ground()) {
+								break;
+							}
 						}
-						const air_vehicle_t* aircraft = obj_cast<air_vehicle_t>(gr->obj_bei(i));
-						// flying aircrafts are ok
-						if(!aircraft->is_on_ground()) {
-							break;
-						}
-						// fall through !
-					}
-					// all other are forbidden => no undo any more
+						// fallthrough
+
 					default:
+						// all other are forbidden => no undo any more
 						last_built.clear();
 						return false;
 				}
@@ -1373,6 +1374,7 @@ void player_t::take_over(player_t* target_player)
 									vehicle->set_owner(this);
 								}
 							}
+							// fallthrough
 
 						case obj_t::roadsign:
 						case obj_t::signal:

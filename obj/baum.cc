@@ -120,6 +120,7 @@ uint8 baum_t::plant_tree_on_coordinate(koord pos, const uint8 maximum_count, con
 							break;
 						}
 						// leave these (and all other empty)
+						// fallthrough
 					default:
 						return 0;
 				}
@@ -155,13 +156,16 @@ bool baum_t::plant_tree_on_coordinate(koord pos, const tree_desc_t *desc, const 
 					case obj_t::leitung:
 					case obj_t::label:
 					case obj_t::zeiger:
-						// ok to built here
+						// ok to build here
 						break;
+
 					case obj_t::groundobj:
 						if(((groundobj_t *)(gr->obj_bei(0)))->get_desc()->can_build_trees_here()) {
 							break;
 						}
 						// leave these (and all other empty)
+						// fallthrough
+
 					default:
 						return false;
 				}
