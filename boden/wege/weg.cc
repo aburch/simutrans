@@ -857,7 +857,7 @@ void weg_t::info(cbuffer_t & buf) const
 			{
 				if (!is_current)
 				{
-					buf.append(translator::translate(way_builder_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity())->get_name()));
+					buf.append(translator::translate(way_builder_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity())->get_name()));
 				}
 				else
 				{
@@ -1792,7 +1792,7 @@ bool weg_t::renew()
 			way_constraints_of_vehicle_t constraints;
 			constraints.set_permissive(desc->get_way_constraints().get_permissive());
 			constraints.set_prohibitive(desc->get_way_constraints().get_prohibitive());
-			replacement_way = way_builder_t::weg_search(wt, replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity(), constraints);
+			replacement_way = way_builder_t::weg_search(wt, replacement_way->get_topspeed(), (sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity(), constraints);
 		}
 
 		if(!replacement_way)
