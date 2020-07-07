@@ -5167,7 +5167,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		{
 			// We need to check whether this is a station signal that does not protect any junctions: if so, just check its state, do not call the block reserver.
 			enum station_signal_status { none, forward, inverse };
-			station_signal_status station_signal;
+			station_signal_status station_signal = station_signal_status::none;
 			signal_t* sig = NULL;
 			for(uint32 k = 0; k < this_halt->get_station_signals_count(); k ++)
 			{
@@ -5178,17 +5178,16 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					sig = way_check ? way_check->get_signal(ribi) : NULL;
 					if(sig)
 					{
-						station_signal = forward;
+						station_signal = station_signal_status::forward;
 						break;
 					}
 					else
 					{
 						// Check the opposite direction as station signals work in the exact opposite direction
-						ribi_t::ribi ribi_backwards = ribi_t::backward(ribi);
-						sig = gr_check->get_weg(get_waytype())->get_signal(ribi_backwards);
+						sig = gr_check->get_weg(get_waytype())->get_signal(ribi_t::backward(ribi));
 						if(sig)
 						{
-							station_signal = inverse;
+							station_signal = station_signal_status::inverse;
 							break;
 						}
 					}
@@ -5220,7 +5219,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					{
 						// Caution
 						cnv->set_maximum_signal_speed(min(kmh_to_speed(w_current->get_max_speed()) / 2, sig->get_desc()->get_max_speed() / 2));
-						sig->set_state(inverse ? roadsign_t::caution : roadsign_t::caution_no_choose);
+						sig->set_state(station_signal == station_signal_status::inverse ? roadsign_t::caution : roadsign_t::caution_no_choose);
 						find_next_signal(cnv->get_route(),  max(route_index, 1) - 1, next_signal);
 						if (next_signal <= route_index)
 						{
@@ -5231,7 +5230,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					{
 						// Clear
 						cnv->set_maximum_signal_speed(kmh_to_speed(sig->get_desc()->get_max_speed()));
-						sig->set_state(inverse ? roadsign_t::clear : roadsign_t::clear_no_choose);
+						sig->set_state(station_signal == station_signal_status::inverse ? roadsign_t::clear : roadsign_t::clear_no_choose);
 						find_next_signal(cnv->get_route(),  max(route_index, 1) - 1, next_signal);
 						if (next_signal <= route_index)
 						{
