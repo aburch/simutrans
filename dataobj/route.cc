@@ -308,11 +308,13 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 #ifdef MULTI_THREAD
 						int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 						assert(error == 0);
+						(void)error;
 #endif
 						origin_city->add_road_connexion(10, destination_city);
 #ifdef MULTI_THREAD
 						error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 						assert(error == 0);
+						(void)error;
 #endif
 					}
 					else if(origin_city)
@@ -321,11 +323,13 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 #ifdef MULTI_THREAD
 						int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 						assert(error == 0);
+						(void)error;
 #endif
 						origin_city->add_road_connexion(tmp->g / straight_line_distance, welt->access(k.get_2d())->get_city());
 #ifdef MULTI_THREAD
 						error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 						assert(error == 0);
+						(void)error;
 #endif
 					}
 				}
@@ -373,11 +377,13 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 #ifdef MULTI_THREAD
 							int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 							assert(error == 0);
+							(void)error;
 #endif
 							origin_city->add_road_connexion(journey_time_per_tile, destination_industry);
 #ifdef MULTI_THREAD
 							error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 							assert(error == 0);
+							(void)error;
 #endif
 #if 0
 							if (destination_city)
@@ -392,11 +398,13 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 #ifdef MULTI_THREAD
 							int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 							assert(error == 0);
+							(void)error;
 #endif
 							origin_city->add_road_connexion(journey_time_per_tile, gb);
 #ifdef MULTI_THREAD
 							error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 							assert(error == 0);
+							(void)error;
 #endif
 #if 0
 							if (!destination_city)

@@ -2191,14 +2191,8 @@ sint64 way_builder_t::calc_costs()
 	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? welt->get_settings().get_way_height_clearance() : 0 );
 
 	sint32 single_cost = 0;
-	sint32 new_speedlimit;
-
 	if( bautyp&tunnel_flag ) {
 		assert( tunnel_desc );
-		new_speedlimit = tunnel_desc->get_topspeed();
-	}
-	else {
-		new_speedlimit = desc->get_topspeed();
 	}
 
 	// calculate costs for terraforming
@@ -2226,7 +2220,6 @@ sint64 way_builder_t::calc_costs()
 	}
 
 	for(uint32 i=0; i<get_count(); i++) {
-		sint32 old_speedlimit = -1;
 		sint64 replace_cost = 0;
 		bool upgrading = false;
 
@@ -2238,17 +2231,11 @@ sint64 way_builder_t::calc_costs()
 				if( tunnel->get_desc() == tunnel_desc ) {
 					continue; // Nothing to pay on this tile.
 				}
-				old_speedlimit = tunnel->get_desc()->get_topspeed();
 				single_cost = tunnel_desc->get_value();
 			}
 			else {
 				single_cost = desc->get_value();
-				if(  desc->get_wtyp() == powerline_wt  ) {
-					if( leitung_t *lt=gr->get_leitung() ) {
-						old_speedlimit = lt->get_desc()->get_topspeed();
-					}
-				}
-				else {
+				if(  desc->get_wtyp() != powerline_wt  ) {
 					if (weg_t const* const weg = gr->get_weg(desc->get_wtyp())) {
 						replace_cost = weg->get_desc()->get_upgrade_group() == desc->get_upgrade_group() ? desc->get_way_only_cost() : desc->get_value();
 						upgrading = true;
@@ -2259,10 +2246,6 @@ sint64 way_builder_t::calc_costs()
 							// Don't replace a tram on a road with a normal track.
 							continue;
 						}
-						old_speedlimit = weg->get_desc()->get_topspeed();
-					}
-					else if (desc->get_wtyp()==water_wt  &&  gr->is_water()) {
-						old_speedlimit = new_speedlimit;
 					}
 				}
 			}

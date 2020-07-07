@@ -3004,9 +3004,10 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
 	const char *error;
 	sint8 bridge_height;
-	koord3d end2 = bridge_builder_t::find_end_pos(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 
+	koord3d end2 = bridge_builder_t::find_end_pos(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 	assert(end == end2);
+	(void)end2;
 
 	sint64 costs = 0;
 	// start
@@ -9611,7 +9612,6 @@ bool tool_access_t::init(player_t *)
 		player_t* const receiving_player = welt->get_player(id_receiving_player);
 		schedule_t* schedule;
 		koord3d pos;
-		waytype_t    wtyp;
 
 		uint8 current_aktuell;
 		halthandle_t halt;
@@ -9628,8 +9628,9 @@ bool tool_access_t::init(player_t *)
 				{
 					continue;
 				}
+
 				current_aktuell = schedule->get_current_stop();
-				wtyp = schedule->get_waytype();
+
 				for(uint8 n = 0; n < schedule->get_count(); n ++)
 				{
 					bool tram_stop_public = false;
@@ -9692,7 +9693,6 @@ bool tool_access_t::init(player_t *)
 				continue;
 			}
 			current_aktuell = schedule->get_current_stop();
-			wtyp = schedule->get_waytype();
 			for(uint8 n = 0; n < schedule->get_count(); n ++)
 			{
 				bool tram_stop_public = false;

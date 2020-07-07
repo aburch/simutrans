@@ -1850,11 +1850,15 @@ void *step_passengers_and_mail_threaded(void* args)
 		simthread_barrier_wait(&step_passengers_and_mail_barrier); // Having three of these is intentional.
 		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 		assert(mutex_error == 0);
+		(void)mutex_error;
+
 		karte_t::world->next_step_passenger -= (total_units_passenger * karte_t::world->passenger_step_interval);
 		karte_t::world->next_step_mail -= (total_units_mail * karte_t::world->mail_step_interval);
+
 		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 		assert(mutex_error == 0);
+		(void)mutex_error;
 	}
 
 	return args;
@@ -1993,7 +1997,9 @@ void karte_t::suspend_private_car_threads()
 	{
 		return;
 	}
+
 	await_private_car_threads();
+
 	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 	assert(error == 0 || error == EINVAL);
 	route_t::suspend_private_car_routing = true;
@@ -2006,6 +2012,7 @@ void karte_t::suspend_private_car_threads()
 	route_t::suspend_private_car_routing = false;
 	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 	assert(error == 0 || error == EINVAL);
+	(void)error;
 }
 
 void* path_explorer_threaded(void* args)
@@ -2037,6 +2044,8 @@ void karte_t::await_path_explorer()
 		// ensure only one thread reaches the barrier.
 		int error = pthread_mutex_lock(&path_explorer_await_mutex);
 		assert(error == 0);
+		(void)error;
+
 		if (path_explorer_working)
 		{
 			simthread_barrier_wait(&path_explorer_barrier);
@@ -6194,11 +6203,13 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #ifdef MULTI_THREAD
 		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 		assert(mutex_error == 0);
+		(void)mutex_error;
 #endif
 		city->set_generated_passengers(units_this_step, history_type + 1);
 #ifdef MULTI_THREAD
 		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 		assert(mutex_error == 0);
+		(void)mutex_error;
 #endif
 	}
 
@@ -6371,11 +6382,13 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #ifdef MULTI_THREAD
 				int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 				assert(mutex_error == 0);
+				(void)mutex_error;
 #endif
 				city->set_generated_passengers(units_this_step, history_type + 1);
 #ifdef MULTI_THREAD
 				mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 				assert(mutex_error == 0);
+				(void)mutex_error;
 #endif
 			}
 
@@ -6423,11 +6436,13 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #ifdef MULTI_THREAD
 			int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 			assert(mutex_error == 0);
+			(void)mutex_error;
 #endif
 			first_origin->add_passengers_generated_commuting(units_this_step);
 #ifdef MULTI_THREAD
 			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 			assert(mutex_error == 0);
+			(void)mutex_error;
 #endif
 		}
 
@@ -6436,11 +6451,13 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #ifdef MULTI_THREAD
 			int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 			assert(mutex_error == 0);
+			(void)mutex_error;
 #endif
 			first_origin->add_passengers_generated_visiting(units_this_step);
 #ifdef MULTI_THREAD
 			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 			assert(mutex_error == 0);
+			(void)mutex_error;
 #endif
 		}
 
@@ -6449,6 +6466,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #ifdef MULTI_THREAD
 			int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 			assert(mutex_error == 0);
+			(void)mutex_error;
 #endif
 			first_origin->add_mail_generated(units_this_step);
 #ifdef MULTI_THREAD
@@ -6700,7 +6718,6 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				// Search for a route using public transport.
 
 				uint32 best_start_halt = 0;
-				uint32 best_non_crowded_start_halt = 0;
 				uint32 best_journey_time_including_crowded_halts = UINT32_MAX_VALUE;
 
 				sint32 i = 0;
@@ -6749,7 +6766,6 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 						if(!current_halt->is_overcrowded(wtyp->get_index()))
 						{
 							best_journey_time = current_journey_time;
-							best_non_crowded_start_halt = i;
 							if(pax.get_ziel().is_bound())
 							{
 								route_status = public_transport;
@@ -6862,6 +6878,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #ifdef MULTI_THREAD
 					int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 					assert(mutex_error == 0);
+					(void)mutex_error;
 #endif
 					dbg->error("simworld.cc", "Incorrect destination type detected");
 #ifdef MULTI_THREAD
@@ -6967,6 +6984,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #ifdef MULTI_THREAD
 		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 		assert(mutex_error == 0);
+		(void)mutex_error;
 #endif
 
 		switch(route_status)

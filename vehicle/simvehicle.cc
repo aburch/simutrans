@@ -1081,7 +1081,6 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 	if (total_freight < total_capacity)
 	{
 		schedule_t *schedule = cnv->get_schedule();
-		uint16 capacity_left = total_capacity - total_freight;
 		slist_tpl<ware_t> freight_add;
 		uint16 capacity_this_class;
 		uint32 freight_this_class;
@@ -1168,8 +1167,6 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 							iter_z = freight_add.erase(iter_z);
 						}
 					}
-
-					capacity_left = total_capacity - total_freight;
 
 					if (!freight_add.empty())
 					{
@@ -5943,7 +5940,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	sint32 choose_return = 0;
 	bool reached_end_of_loop = false;
 	bool no_junctions_to_next_signal = true;
-	bool no_junctions_to_last_signal = true;
 	signal_t* previous_signal = NULL;
 	bool end_of_block = false;
 	bool not_entirely_free = false;
@@ -6705,8 +6701,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							last_longblock_signal_index = i;
 						}
+
 						// Any junctions previously found no longer apply to the next signal, unless this is a pre-signal
-						no_junctions_to_last_signal = no_junctions_to_next_signal;
 						no_junctions_to_next_signal = true;
 
 					}

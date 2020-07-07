@@ -2749,6 +2749,7 @@ void stadt_t::check_all_private_car_routes()
 #ifdef MULTI_THREAD
 	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 	assert(error == 0);
+	(void)error;
 #endif
 	connected_cities.clear();
 	connected_industries.clear();
@@ -2756,6 +2757,7 @@ void stadt_t::check_all_private_car_routes()
 #ifdef MULTI_THREAD
 	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 	assert(error == 0);
+	(void)error;
 #endif
 
 
@@ -6080,8 +6082,9 @@ void stadt_t::calc_congestion()
 	uint16 congestion_density_factor = s.get_congestion_density_factor();
 
 #ifdef MULTI_THREAD
-		int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 	assert(error == 0);
+	(void)error;
 #endif
 
 	if (s.get_assume_everywhere_connected_by_road() && congestion_density_factor < 32)

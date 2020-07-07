@@ -422,11 +422,6 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			halthandle_t const via_halt = wlist[j].get_zwischenziel();
 			halthandle_t const origin_halt = wlist[j].get_origin();
 
-			const char * name = translator::translate("unknown");
-			if (halt.is_bound()) {
-				name = halt->get_name();
-			}
-
 			ware_t const& ware = wlist[j];
 			bool is_class_cargo = ware.get_index() == goods_manager_t::INDEX_PAS || ware.get_index() == goods_manager_t::INDEX_MAIL ? true : false;
 
@@ -481,6 +476,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					}
 				}
 			}
+
 			//Do we need to show a new wealth heading?
 			if (sorting_by_wealth && is_class_cargo && (last_ware_class != ware.get_class() ||  sum > 0))
 			{

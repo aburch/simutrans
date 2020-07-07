@@ -846,7 +846,6 @@ void signal_t::info(cbuffer_t & buf) const
 
 				//sprintf(sb_name,"This is a very very long signal box name which is so long that no one remembers what it was actually called before the super long name of the signalbox got changed to its current slightly longer name which is still too long to display in only one line therefore splitting this very long signalbox name into several lines although maximum five lines which should suffice more than enough to guard against silly long signal box names");
 				int next_char_index = 0;
-				int old_next_char_index = 0;
 
 				for (int l = 0; l < max_lines; l++)
 				{
@@ -877,7 +876,6 @@ void signal_t::info(cbuffer_t & buf) const
 						{
 							sb_name[i] = sb_name[i + next_char_index];
 						}
-						old_next_char_index = next_char_index;
 					}
 
 				}

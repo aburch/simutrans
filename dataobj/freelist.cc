@@ -86,6 +86,7 @@ void *freelist_t::gimme_node(size_t size)
 #ifdef MULTI_THREAD
 	int error = pthread_mutex_lock( &freelist_mutex );
 	assert(error == 0);
+	(void)error;
 #endif
 
 	// hold return value
@@ -187,6 +188,7 @@ void freelist_t::putback_node( size_t size, void *p )
 #ifdef MULTI_THREAD
 	int error = pthread_mutex_lock( &freelist_mutex );
 	assert(error == 0);
+	(void)error;
 #endif
 
 	if(  size > MAX_LIST_INDEX  ) {
