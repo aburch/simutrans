@@ -6406,8 +6406,8 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		ware_t pax(wtyp);
 		pax.is_commuting_trip = trip == commuting_trip;
 		start_halt.set_id(0);
-		uint32 best_journey_time;
-		uint32 walking_time;
+		uint32 best_journey_time = UINT32_MAX_VALUE;
+		uint32 walking_time = UINT32_MAX_VALUE;
 		route_status = initialising;
 		pax.g_class = g_class;
 		if (wtyp == goods_manager_t::passengers)
@@ -6493,7 +6493,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			walking_time_preference_threshold = simrand(walking_tolerance > min_commuting_tolerance ? walking_tolerance - min_commuting_tolerance : min_commuting_tolerance, "karte_t::generate_passengers_and_mail (walking walking_time_preference_threshold)") + min_commuting_tolerance;
 		}
 
-		uint32 car_minutes;
+		uint32 car_minutes = UINT32_MAX_VALUE;
 
 		best_bad_destination = first_destination.location;
 		best_bad_start_halt = 0;

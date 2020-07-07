@@ -5166,7 +5166,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 		free(name);
 	}
 
-	sint64 cost;
+	sint64 cost = 0;
 	if(desc->get_base_price() == PRICE_MAGIC)
 	{
 		switch(desc->get_extra()) {

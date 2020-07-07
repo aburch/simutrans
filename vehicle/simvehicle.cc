@@ -3775,7 +3775,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 						}
 						if(  other_direction != 255  ){
 							//There is another car. We have to check if this convoi is facing or not.
-							ribi_t::ribi this_direction;
+							ribi_t::ribi this_direction = 0;
 							if(  test_index-route_index==0  ) this_direction = get_90direction();
 							if(  test_index-route_index==1  ) this_direction = get_next_90direction();
 							if(  ribi_t::reverse_single(this_direction) == other_direction  ) {
@@ -5912,7 +5912,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	koord3d last_pos = start_index > 0 ? route->at(start_index - 1) : pos;
 	const halthandle_t this_halt = haltestelle_t::get_halt(pos, get_owner());
 	halthandle_t last_step_halt;
-	uint16 this_stop_signal_index;
+	uint16 this_stop_signal_index = INVALID_INDEX;
 	uint16 last_pre_signal_index = INVALID_INDEX;
 	uint16 last_stop_signal_index = INVALID_INDEX;
 	uint16 restore_last_stop_signal_index = INVALID_INDEX;
@@ -5962,7 +5962,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	const uint32 station_signals = this_halt.is_bound() ? this_halt->get_station_signals_count() : 0;
 	signal_t* first_station_signal = NULL;
 	enum station_signal_status { none, forward, inverse };
-	station_signal_status station_signal;
+	station_signal_status station_signal = station_signal_status::none;
 	uint32 steps_so_far = 0;
 	roadsign_t::signal_aspects next_time_interval_state = roadsign_t::danger;
 	roadsign_t::signal_aspects first_time_interval_state = roadsign_t::advance_caution; // A time interval signal will never be in advance caution, so this is a placeholder to indicate that this value has not been set.

@@ -2825,8 +2825,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		int* ul = contents.get_ints(upper_left);
 		int* lr = contents.get_ints(lower_right);
 
-		uint32 x_percent;
-		uint32 y_percent;
+		uint32 x_percent = 0;
+		uint32 y_percent = 0;
 		region_definition_t r;
 
 		if ((ul[0] & 1) == 1)
@@ -2834,6 +2834,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 			dbg->message("void settings_t::parse_simuconf(", "Ill formed line in config/simuconf.tab.\nWill use default value. Format is region_upper_left[percent]=x,y");
 			break;
 		}
+
 		for (int i = 1; i < ul[0]; i += 2)
 		{
 			x_percent = (uint32)ul[i];
