@@ -4797,7 +4797,7 @@ void convoi_t::rdwr(loadsave_t *file)
 					file->rdwr_short(value);
 					if (iter.value.total == UINT32_MAX_VALUE)
 					{
-						value = 65535;
+						value = -1;
 					}
 					else
 					{
