@@ -98,7 +98,7 @@ factorylist_frame_t::factorylist_frame_t() :
 			}
 		}
 	}
-	freight_type_c.set_selection(filter_goods_catg = goods_manager_t::INDEX_NONE ? 0 : filter_goods_catg);
+	freight_type_c.set_selection((filter_goods_catg == goods_manager_t::INDEX_NONE) ? 0 : filter_goods_catg);
 	set_filter_goods_catg(filter_goods_catg);
 
 	freight_type_c.add_listener(this);
