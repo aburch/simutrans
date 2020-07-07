@@ -16,7 +16,6 @@ private:
 	convoihandle_t cnv;
 
 	enum { OK = 0, out_of_producton = 1, obsolete = 2, STAT_COLORS };
-	uint8 status_to_color[STAT_COLORS]{ COL_DARK_GREEN, COL_OUT_OF_PRODUCTION, COL_OBSOLETE };
 
 public:
 	gui_convoy_formaion_t(convoihandle_t cnv);

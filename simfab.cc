@@ -62,8 +62,6 @@
 static const int FAB_MAX_INPUT = 15000;
 // Half a display unit (0.5).
 static const sint64 FAB_DISPLAY_UNIT_HALF = ((sint64)1 << (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS - 1));
-// Half a production factor unit (0.5).
-static const sint32 FAB_PRODFACT_UNIT_HALF = ((sint32)1 << (DEFAULT_PRODUCTION_FACTOR_BITS - 1));
 
 karte_ptr_t fabrik_t::welt;
 
