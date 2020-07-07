@@ -4427,7 +4427,7 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 	// does the timeline allow this building?
 	const uint16 current_month = welt->get_timeline_year_month();
 	const climate cl = welt->get_climate_at_height(welt->max_hgt(k));
-	const uint8 region = welt->get_region(k); 
+	const uint8 region = welt->get_region(k);
 
 	// Run through orthogonal neighbors (only) looking for which cluster to build
 	// This is a bitmap -- up to 32 clustering types are allowed.
@@ -4556,7 +4556,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 	// does the timeline allow this building?
 	const uint16 current_month = welt->get_timeline_year_month();
 	const climate cl = welt->get_climate_at_height(gb->get_pos().z);
-	uint8 region = welt->get_region(gb->get_pos().get_2d()); 
+	uint8 region = welt->get_region(gb->get_pos().get_2d());
 
 	// Run through orthogonal neighbors (only) looking for which cluster to build
 	// This is a bitmap -- up to 32 clustering types are allowed.
@@ -5117,7 +5117,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 		allow_deletion &= !runway || (runway->get_player_nr() == PLAYER_UNOWNED && runway->get_max_speed() == 0);
 
 		const weg_t* waterway = bd->get_weg(water_wt);
-		allow_deletion &= !waterway || (!waterway->is_public_right_of_way() && waterway->get_player_nr() == PLAYER_UNOWNED && waterway->is_degraded()); 
+		allow_deletion &= !waterway || (!waterway->is_public_right_of_way() && waterway->get_player_nr() == PLAYER_UNOWNED && waterway->is_degraded());
 
 		if (!allow_deletion)
 		{
@@ -5581,7 +5581,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 			if (hausbauer_t::get_special(0, building_desc_t::townhall, welt->get_timeline_year_month(), false, (climate)i, j))
 			{
 				cl |= (1 << i);
-				regions_allowed |= (1 << j); 
+				regions_allowed |= (1 << j);
 			}
 		}
 	}

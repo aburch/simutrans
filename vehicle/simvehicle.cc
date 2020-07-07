@@ -81,7 +81,7 @@
 void traffic_vehicle_t::flush_travel_times(strasse_t* str)
 {
 	if(get_max_speed() && str->get_max_speed() && dist_travelled_since_last_hop > (128 << YARDS_PER_VEHICLE_STEP_SHIFT))
-	{	
+	{
 		str->update_travel_times(world()->get_ticks() - time_at_last_hop, dist_travelled_since_last_hop / min(get_max_speed(), kmh_to_speed(str->get_max_speed())));
 	}
 	reset_measurements();
@@ -1812,7 +1812,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 	}
 	const bool is_corner = current_direction != previous_direction;
 	const bool is_slope = welt->lookup(w->get_pos())->get_weg_hang() != slope_t::flat;
-	const bool slope_specific_speed = w->get_desc()->get_topspeed_gradient_1() < w->get_desc()->get_topspeed() || w->get_desc()->get_topspeed_gradient_2() < w->get_desc()->get_topspeed(); 
+	const bool slope_specific_speed = w->get_desc()->get_topspeed_gradient_1() < w->get_desc()->get_topspeed() || w->get_desc()->get_topspeed_gradient_2() < w->get_desc()->get_topspeed();
 
 	const bool is_tilting = desc->get_tilting();
 	const sint32 base_limit = desc->get_override_way_speed() && !(slope_specific_speed && is_slope) ? SINT32_MAX_VALUE : kmh_to_speed(w->get_max_speed());
@@ -4332,7 +4332,7 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 	return NULL;
 }
 
-uint32 road_vehicle_t::do_drive(uint32 distance) 
+uint32 road_vehicle_t::do_drive(uint32 distance)
 {
 	uint32 distance_travelled = vehicle_base_t::do_drive(distance);
 	if(leading)
@@ -4424,7 +4424,7 @@ void road_vehicle_t::hop(grund_t* gr_to) {
 		if(gr)
 		{
 			strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
-			if(str) 
+			if(str)
 			{
 				if(get_last_stop_pos() != get_pos() && get_pos_next() != get_pos_prev())
 				{
@@ -5002,7 +5002,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	return blocks;
 }
 
- 
+
 bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uint8)
 {
 	assert(leading);

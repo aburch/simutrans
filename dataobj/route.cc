@@ -355,7 +355,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 						}
 						else
 						{
-							straight_line_distance = shortest_distance(start.get_2d(), k.get_2d()); 
+							straight_line_distance = shortest_distance(start.get_2d(), k.get_2d());
 						}
 						uint16 journey_time_per_tile;
 						if(straight_line_distance == 0)
@@ -413,7 +413,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			}
 		}
 
-		// Relax the route here if this is a private car route checker, as we may find many destinations. 
+		// Relax the route here if this is a private car route checker, as we may find many destinations.
 		if (reached_target && flags == private_car_checker && (destination_attraction || destination_industry || destination_city))
 		{
 			route.clear();

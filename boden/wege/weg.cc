@@ -461,7 +461,7 @@ void weg_t::rdwr(loadsave_t *file)
 		for (uint32 month = 0; month < MAX_WAY_STAT_MONTHS; month++)
 		{
 			uint32 w = travel_times[month][WAY_TRAVEL_TIME_ACTUAL];
-			
+
 			// Get the now-deprecated stopped vehicles count
 			file->rdwr_long(w);
 
@@ -701,8 +701,8 @@ void weg_t::info(cbuffer_t & buf) const
 		if (wtyp == road_wt)
 		{
 			buf.append("\n");
-			// TODO: Add translator entry for this text 
-			buf.append(translator::translate("Road routes from here:")); 
+			// TODO: Add translator entry for this text
+			buf.append(translator::translate("Road routes from here:"));
 			buf.append("\n");
 
 			uint32 cities_count = 0;
@@ -1919,7 +1919,7 @@ void weg_t::add_private_car_route(koord destination, koord3d next_tile)
 	assert(error == 0);
 #endif
 #ifdef DEBUG_PRIVATE_CAR_ROUTES
-	calc_image(); 
+	calc_image();
 #endif
 }
 

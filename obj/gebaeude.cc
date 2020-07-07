@@ -1116,7 +1116,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 				{
 					buf.printf(" %i%%", get_mail_delivery_success_percent_this_year());
 				}
-				else 
+				else
 				{
 					buf.printf(" -");
 				}

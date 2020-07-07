@@ -1840,7 +1840,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 25))
 		{
-			file->rdwr_long(tolerance_modifier_percentage); 
+			file->rdwr_long(tolerance_modifier_percentage);
 		}
 		else if (file->is_loading())
 		{
@@ -1857,9 +1857,9 @@ void settings_t::rdwr(loadsave_t *file)
 
 				FOR(vector_tpl<region_definition_t>, region, regions)
 				{
-					region.top_left.rdwr(file); 
+					region.top_left.rdwr(file);
 					region.bottom_right.rdwr(file);
-					file->rdwr_string(region.name); 
+					file->rdwr_string(region.name);
 				}
 			}
 			else // Loading
@@ -1874,7 +1874,7 @@ void settings_t::rdwr(loadsave_t *file)
 					r.top_left.rdwr(file);
 					r.bottom_right.rdwr(file);
 					file->rdwr_string(r.name);
-					regions.append(r); 
+					regions.append(r);
 				}
 			}
 		}
@@ -2615,7 +2615,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	max_elevated_way_building_level = (uint8)contents.get_int("max_elevated_way_building_level", max_elevated_way_building_level);
 
-	tolerance_modifier_percentage = contents.get_int("tolerance_modifier_percentage", tolerance_modifier_percentage); 
+	tolerance_modifier_percentage = contents.get_int("tolerance_modifier_percentage", tolerance_modifier_percentage);
 
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 
@@ -2906,7 +2906,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 		r.name = region_name;
 
-		regions.append(r); 
+		regions.append(r);
 	}
 
 	/*
@@ -3040,7 +3040,7 @@ void settings_t::reset_regions(sint32 old_x, sint32 old_y)
 	regions.clear();
 	FOR(vector_tpl<region_definition_t>, region, temp_regions)
 	{
-		regions.append(region); 
+		regions.append(region);
 	}
 }
 

@@ -527,14 +527,14 @@ public:
 	uint32 get_runway_length(bool is_36_18) const;
 
 	//void increment_traffic_stopped_counter() { statistics[0][WAY_STAT_WAITING] ++; }
-	inline void update_travel_times(uint32 actual, uint32 ideal) 
+	inline void update_travel_times(uint32 actual, uint32 ideal)
 	{
 		travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_ACTUAL] += actual;
 		travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] += ideal;
 	}
 
 	//will return the % ratio of actual to ideal traversal times
-	inline uint32 get_congestion_percentage() const { 
+	inline uint32 get_congestion_percentage() const {
 		uint32 combined_ideal = travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_IDEAL];
 		if(combined_ideal == 0u) {
 			return 0u;

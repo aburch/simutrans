@@ -440,7 +440,7 @@ sint32 karte_t::perlin_hoehe(settings_t const* const sets, koord k, koord const 
 		case 3: k = koord(size.y-k.y,k.x); break;
 	}
 //    double perlin_noise_2D(double x, double y, double persistence);
-//    return ((int)(perlin_noise_2D(x, y, 0.6)*160.0)) & 0xFFFFFFF0; 
+//    return ((int)(perlin_noise_2D(x, y, 0.6)*160.0)) & 0xFFFFFFF0;
 	k = k + koord(sets->get_origin_x(), sets->get_origin_y());
 	double map_roughness = sets->get_map_roughness();
 	double mountain_height = sets->get_max_mountain_height();
@@ -935,7 +935,7 @@ void karte_t::add_queued_city(stadt_t* city)
 		int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 		assert(error == 0);
 	}
-#endif 
+#endif
 }
 
 void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sint16 old_y)
@@ -6163,7 +6163,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 	{
 		// Pick a passenger building at random
 		const uint32 weight = simrand(passenger_origins.get_sum_weight() - 1, "void karte_t::generate_passengers_and_mail(uint32 delta_t) pick origin building (passengers)");
-		gb = passenger_origins.at_weight(weight); 
+		gb = passenger_origins.at_weight(weight);
 	}
 	else
 	{
@@ -6281,7 +6281,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				tolerance = simrand_normal(range_commuting_tolerance, settings.get_random_mode_commuting(), "karte_t::generate_passengers_and_mail (commuting tolerance?)") + (min_commuting_tolerance * onward_trips);
 #ifdef DEBUG_MARCHETTI_CONSTANT
 				total_journey_time_tolerance_this_month += tolerance;
-#endif 
+#endif
 			}
 			else
 			{
@@ -6328,7 +6328,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				{
 					passengers_this_month_with_tolerance_of_under_3_hours++;
 				}
-#endif 
+#endif
 			}
 		}
 		else
@@ -7002,7 +7002,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 						passengers_travelled_this_month_with_tolerance_of_under_10_minutes++;
 					}
 				}
-#endif 
+#endif
 			}
 			else if(trip == visiting_trip && first_origin)
 			{
@@ -7211,7 +7211,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				{
 					city->merke_passagier_ziel(best_bad_destination, COL_PURPLE);
 				}
-				else if(car_minutes < UINT32_MAX_VALUE) 
+				else if(car_minutes < UINT32_MAX_VALUE)
 				{
 					city->merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
 				}
@@ -7437,7 +7437,7 @@ no_route:
 								mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 								assert(mutex_error == 0);
 #endif
-								if (trip == mail_trip) 
+								if (trip == mail_trip)
 								{
 									current_destination.building->get_fabrik()->book_stat(units_this_step, FAB_MAIL_DEPARTED);
 								}
@@ -8034,7 +8034,7 @@ bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_b
 
 			uint8 test_region = get_region(k_check);
 
-			
+
 			if ((1 << test_region & regions_allowed) == 0) //((regions_allowed & (1 << test_region + 1)) == 0)
 			{
 				return false;
@@ -9164,7 +9164,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 	}
 	// so far, player 1 will be active (may change in future)
 	active_player = players[0];
-	active_player_nr = 0; 
+	active_player_nr = 0;
 
 	// rdwr cityrules for networkgames
 	if(file->get_version() > 102002 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9)) {
@@ -10593,7 +10593,7 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 					socket_list_t::remove_client( nwc->get_sender() );
 					delete nwc;
 					nwc = NULL;
-				} 
+				}
 			}
 		}
 
@@ -11802,7 +11802,7 @@ bool karte_t::check_neighbouring_objects(koord pos)
 
 uint8 karte_t::get_region(koord k, settings_t const* const sets)
 {
-	// Unfortunately, there is no easy to re-use the code from the non-static version here because 
+	// Unfortunately, there is no easy to re-use the code from the non-static version here because
 	// the non-static version must be const, whereas a static member function cannot be.
 	uint8 region_number = 0;
 
@@ -11854,6 +11854,6 @@ std::string karte_t::get_region_name(koord k) const
 	{
 		return std::string("");
 	}
-	
+
 	return settings.regions[region_number].name;
 }

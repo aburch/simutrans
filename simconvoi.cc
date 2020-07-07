@@ -1527,7 +1527,7 @@ bool convoi_t::drive_to()
 			// Reset these for now to allow waypoint check below to work.
 			ziel = original_destination;
 			schedule->set_current_stop(original_current_stop);
-		} 
+		}
 
 		if (update_line)
 		{

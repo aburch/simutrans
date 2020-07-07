@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_CONVOY_PAYLOADINFO_H
-#define GUI_CONVOY_PAYLOADINFO_H
+#ifndef GUI_COMPONENTS_GUI_CONVOY_PAYLOADINFO_H
+#define GUI_COMPONENTS_GUI_CONVOY_PAYLOADINFO_H
+
 
 #include "gui_container.h"
 #include "../../display/scr_coord.h"
