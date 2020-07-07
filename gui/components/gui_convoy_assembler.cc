@@ -2174,7 +2174,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			vehicle_fluctuation++;
 			lb_convoi_count.set_visible(true);
 		}
-		tile_occupancy.set_new_veh_length(new_vehicle_length + auto_addition_length, veh_action == va_insert ? true : false, new_vehicle_length_sb_force_zero ? -1 : new_vehicle_length);
+		tile_occupancy.set_new_veh_length(new_vehicle_length + auto_addition_length, veh_action == va_insert ? true : false, new_vehicle_length_sb_force_zero ? 0xFFu : new_vehicle_length);
 		if (!new_vehicle_length_sb_force_zero) {
 			if (veh_action == va_append && auto_addition_length == 0) {
 				tile_occupancy.set_assembling_incomplete(vec[sel_index]->rcolor == COL_YELLOW ? true : false);
