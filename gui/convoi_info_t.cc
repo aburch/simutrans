@@ -539,7 +539,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 		case convoi_t::WAITING_FOR_LOADING_THREE_MONTHS:
 		case convoi_t::WAITING_FOR_LOADING_FOUR_MONTHS:
-			sprintf(speed_text, translator::translate("Waiting too much for loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit());
+			sprintf(speed_text, translator::translate("Loading (%i->%i%%) Long Time"), cnv->get_loading_level(), cnv->get_loading_limit());
 			speed_color = COL_ORANGE;
 			break;
 

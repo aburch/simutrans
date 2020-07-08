@@ -3152,7 +3152,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				break;
 			case convoi_t::WAITING_FOR_LOADING_THREE_MONTHS:
 			case convoi_t::WAITING_FOR_LOADING_FOUR_MONTHS:
-				sprintf(tooltip_text, translator::translate("Waiting too much for loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit());
+				sprintf(tooltip_text, translator::translate("Loading (%i->%i%%) Long Time"), cnv->get_loading_level(), cnv->get_loading_limit());
 				color = COL_ORANGE;
 				break;
 
