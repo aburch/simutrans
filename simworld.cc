@@ -1366,7 +1366,6 @@ void karte_t::create_lakes_loop(  sint16 x_min, sint16 x_max, sint16 y_min, sint
 
 	if(  x_min < 1  ) x_min = 1;
 	if(  y_min < 1  ) y_min = 1;
-	//y_min++; // first row is barrier even if not at world edge
 	if(  x_max > size_x-1  ) x_max = size_x-1;
 	if(  y_max > size_y-1  ) y_max = size_y-1;
 
@@ -1377,55 +1376,42 @@ void karte_t::create_lakes_loop(  sint16 x_min, sint16 x_max, sint16 y_min, sint
 	for(  uint16 y = y_min;  y < y_max;  y++  ) {
 		for(  uint16 x = x_min;  x < x_max;  x++  ) {
 			uint32 offset = array_koord(x,y);
-			if(  max_water_hgt[offset]==-1  &&  this_stage[offset]==-1  ) {
+			if(  h>max_water_hgt[offset]  &&  max_water_hgt[offset]!=-126  &&  this_stage[offset]==-1  ) {
+				koord k(x,y);
+				if(  global_lake_fill == true  ) {
+					memcpy( this_new_stage, this_stage, sizeof(sint8) * size_x * size_y );
+				}
+				else {
+					memcpy( this_new_stage + sizeof(sint8) * array_koord(0,y_min), this_stage + sizeof(sint8) * array_koord(0,y_min), sizeof(sint8) * size_x * (y_max-y_min) );
+				}
 
-				/*sint8 hgt = lookup_hgt_nocheck( x, y );*/
+				bool success = false;
 
-				grund_t *gr = lookup_kartenboden_nocheck(x,y);
+				if(  global_lake_fill == true  ) {
+					success = can_flood_to_depth(  k, h, this_new_stage, local_stage, 1, size_x-1, 1, size_y-1 );
+				}
+				else {
+					success = can_flood_to_depth(  k, h, this_new_stage, local_stage, x_min, x_max, y_min, y_max );
+				}
 
-				sint8 hgt = gr->get_hoehe();
-
-				const sint8 water_hgt = water_hgts[offset]; // optimised <- get_water_hgt_nocheck(x, y);
-				const sint8 new_water_hgt = max(hgt, water_hgt);
-				if(  h>new_water_hgt  ) {
-					koord k(x,y);
-					if(  global_lake_fill == true  ) {
-						memcpy( this_new_stage, this_stage, sizeof(sint8) * size_x * size_y );
+				if(  success  ) {
+					if(  alternate_stage  ) {
+						this_new_stage = new_stage;
+						this_stage = stage;
 					}
 					else {
-						memcpy( this_new_stage + sizeof(sint8) * array_koord(0,y_min), this_stage + sizeof(sint8) * array_koord(0,y_min), sizeof(sint8) * size_x * (y_max-y_min) );
+						this_new_stage = stage;
+						this_stage = new_stage;
 					}
 
-					bool success = false;
-
-					if(  global_lake_fill == true  ) {
-						success = can_flood_to_depth(  k, h, this_new_stage, local_stage, 1, size_x-1, 1, size_y-1 );
-					}
-					else {
-						success = can_flood_to_depth(  k, h, this_new_stage, local_stage, x_min, x_max, y_min, y_max );
-					}
-
-					if(  success  ) {
-						if(  alternate_stage  ) {
-							this_new_stage = new_stage;
-							this_stage = stage;
-						}
-						else {
-							this_new_stage = stage;
-							this_stage = new_stage;
-						}
-
-						alternate_stage = !alternate_stage;
-						need_to_flood = true;
-					}
-					else {
-						for(  uint16 iy = (global_lake_fill?0:y_min);  iy<(global_lake_fill?size_y:y_max);  iy++  ) {
-							uint32 offset_end = array_koord(x_max,iy);
-							for(  uint32 local_offset = array_koord(x_min,iy);  local_offset<offset_end;  local_offset++  ) {
-								if(  local_stage[local_offset] > -1  ) {
-									max_water_hgt[local_offset] = 0;
-								}
-							}
+					alternate_stage = !alternate_stage;
+					need_to_flood = true;
+				}
+				else {
+					uint32 offset_end = array_koord(0,(global_lake_fill?size_y-1:y_max));
+					for(  uint32 local_offset = array_koord(0,(global_lake_fill?1:y_min));  local_offset<offset_end;  local_offset++  ) {
+						if(  local_stage[local_offset] > -1  ) {
+							max_water_hgt[local_offset] = -126;
 						}
 					}
 				}
@@ -1467,8 +1453,8 @@ void karte_t::create_lakes(  int xoff, int yoff  )
 			sint8 hgt = gr->get_hoehe();
 
 			const sint8 water_hgt = water_hgts[offset]; // optimised <- get_water_hgt_nocheck(x, y);
-			const sint8 new_water_hgt = max(hgt, water_hgt);
-			max_water_hgt[offset] = new_water_hgt>max_lake_height ? 0 : -1;
+
+			max_water_hgt[offset] = max(hgt, water_hgt);
 		}
 	}
 
@@ -1480,7 +1466,7 @@ void karte_t::create_lakes(  int xoff, int yoff  )
 		need_to_flood = false;
 		memset( stage, -1, sizeof(sint8) * size_x * size_y );
 
-// run over seams first to separate regions - must overlap threaded area to ensure correct fill
+// run over seams first to separate regions
 		global_lake_fill = true;
 
 		for(  int t = 1;  t < env_t::num_threads;  t++  ) {
@@ -1532,54 +1518,49 @@ bool karte_t::can_flood_to_depth(  koord k, sint8 new_water_height, sint8 *stage
 		our_stage = new sint8[get_size().x * get_size().y];
 	}
 
-	//memset( from_dir + sizeof(sint8) * array_koord(0,y_min), -1, sizeof(sint8) * get_size().x * (y_max-y_min) );
 	memset( our_stage + sizeof(sint8) * array_koord(0,y_min), -1, sizeof(sint8) * get_size().x * (y_max-y_min) );
 
 	uint32 offset = array_koord(k.x,k.y);
 	from_dir[offset]=-1;
 	stage[offset]=0;
 	our_stage[offset]=0;
+
 	do {
-		for(  ;  our_stage[offset] < 8;  our_stage[offset]++  ) {
-			koord k_neighbour = k + koord::neighbours[our_stage[offset]];
-			if(  k_neighbour.x >= x_min  &&  k_neighbour.x<x_max  &&  k_neighbour.y >= y_min  &&  k_neighbour.y<y_max  ) {
-				const uint32 neighbour_offset = array_koord(k_neighbour.x,k_neighbour.y);
+		koord k_neighbour = k + koord::neighbours[our_stage[offset]];
+		if(  k_neighbour.x < x_min  ||  k_neighbour.x>=x_max) {
+			succeeded = false;
+		} else if(  k_neighbour.y >= y_min  &&  k_neighbour.y<y_max  ) {
+			const uint32 neighbour_offset = array_koord(k_neighbour.x,k_neighbour.y);
 
-				// already visited
-				if(our_stage[neighbour_offset] != -1) goto next_neighbour;
+			// already visited
+			if(our_stage[neighbour_offset] != -1) goto next_neighbour;
 
-				// water height above
-				if(water_hgts[neighbour_offset] >= new_water_height) goto next_neighbour;
+			// land or water height above
+			if(max_water_hgt[neighbour_offset] >= new_water_height) goto next_neighbour;
 
-				grund_t *gr2 = lookup_kartenboden_nocheck(k_neighbour);
-				if(  !gr2  ) goto next_neighbour;
-
-				sint8 neighbour_height = gr2->get_hoehe();
-
-				// land height above
-				if(neighbour_height >= new_water_height) goto next_neighbour;
-
-				//move on to next tile
-				from_dir[neighbour_offset] = our_stage[offset];
-				stage[neighbour_offset] = 0;
-				our_stage[neighbour_offset] = 0;
-				k = k_neighbour;
-				offset = array_koord(k.x,k.y);
-				break;
-			}
-			else if(  succeeded  &&  (global_lake_fill  ||  k_neighbour.x < 1  ||  k_neighbour.x>=get_size().x-1  ||  k_neighbour.y < 1  ||  k_neighbour.y>=get_size().y-1)  ) {
-				// edge of map - we keep iterating so we can mark all connected tiles as failing
-				succeeded = false;
-			}
-			next_neighbour:
-			//return back to previous tile
-			if(  our_stage[offset]==7  ) {
-				if(  from_dir[offset] == -1  ) break;
-				k = k - koord::neighbours[from_dir[offset]];
-			}
+			//move on to next tile
+			from_dir[neighbour_offset] = our_stage[offset];
+			stage[neighbour_offset] = 0;
+			our_stage[neighbour_offset] = 0;
+			k = k_neighbour;
+			offset = neighbour_offset;
+			continue;
 		}
-		offset = array_koord(k.x,k.y);
-	} while(  from_dir[offset] != -1  );
+		else if(  succeeded  &&  (global_lake_fill  ||  k_neighbour.y < 1  ||  k_neighbour.y>=get_size().y-1)  ) {
+			// edge of map - we keep iterating so we can mark all connected tiles as failing
+			succeeded = false;
+		}
+		next_neighbour:
+		//return back to previous tile
+		while(  our_stage[offset]==7  ) {
+			if(  from_dir[offset] == -1  ) goto exit_iteration;    // for natural maps only need to have checked one path out from original tile
+			k = k - koord::neighbours[from_dir[offset]];
+			offset = array_koord(k.x,k.y);
+		}
+		our_stage[offset]++;
+	} while(  true  );
+
+	exit_iteration:
 
 	delete [] from_dir;
 
