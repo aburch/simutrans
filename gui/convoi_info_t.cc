@@ -40,16 +40,16 @@
 
 static const char cost_type[BUTTON_COUNT][64] =
 {
-	"Free Capacity", 
-	"Transported", 
-	"Distance", 
-	"Average speed", 
+	"Free Capacity",
+	"Transported",
+	"Distance",
+	"Average speed",
 	//"Maxspeed",
-	"Comfort", 
-	"Revenue", 
-	"Operation", 
+	"Comfort",
+	"Revenue",
+	"Operation",
 	"Refunds",
-	"Road toll", 
+	"Road toll",
 	"Profit"
 #ifdef ACCELERATION_BUTTON
 	, "Acceleration"
@@ -58,16 +58,16 @@ static const char cost_type[BUTTON_COUNT][64] =
 
 static const int cost_type_color[BUTTON_COUNT] =
 {
-	COL_FREE_CAPACITY, 
-	COL_TRANSPORTED, 
+	COL_FREE_CAPACITY,
+	COL_TRANSPORTED,
 	COL_DISTANCE,
-	COL_AVERAGE_SPEED, 
+	COL_AVERAGE_SPEED,
 //	COL_MAXSPEED,
-	COL_COMFORT, 
-	COL_REVENUE, 
-	COL_OPERATION, 
+	COL_COMFORT,
+	COL_REVENUE,
+	COL_OPERATION,
 	COL_CAR_OWNERSHIP,
-	COL_TOLL, 
+	COL_TOLL,
 	COL_PROFIT
 #ifdef ACCELERATION_BUTTON
 	, COL_YELLOW
@@ -76,16 +76,16 @@ static const int cost_type_color[BUTTON_COUNT] =
 
 static const bool cost_type_money[BUTTON_COUNT] =
 {
-	false, 
-	false, 
-	false, 
-	false, 
+	false,
+	false,
+	false,
+	false,
 	//false,
-	false, 
-	true, 
+	false,
 	true,
 	true,
-	true, 
+	true,
+	true,
 	true
 #ifdef ACCELERATION_BUTTON
 	, false
@@ -197,8 +197,8 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	int btn;
 	for (btn = 0; btn < convoi_t::MAX_CONVOI_COST; btn++) {
 		chart.add_curve( cost_type_color[btn], cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, statistic[btn], MAX_MONTHS, cost_type_money[btn], false, true, cost_type_money[btn]*2 );
-		filterButtons[btn].init(button_t::box_state, cost_type[btn], 
-			scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(btn%4), offset_below_chart+(D_BUTTON_HEIGHT+D_V_SPACE)*(btn/4)), 
+		filterButtons[btn].init(button_t::box_state, cost_type[btn],
+			scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(btn%4), offset_below_chart+(D_BUTTON_HEIGHT+D_V_SPACE)*(btn/4)),
 			D_BUTTON_SIZE);
 		filterButtons[btn].add_listener(this);
 		filterButtons[btn].background_color = cost_type_color[btn];
@@ -698,7 +698,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			info_buf.clear();
 
 			double distance;
-			char distance_display[10];
+			char distance_display[13];
 			distance = (double)(cnv_route_index_left * welt->get_settings().get_meters_per_tile()) / 1000.0;
 
 			if (distance <= 0)

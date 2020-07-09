@@ -90,7 +90,7 @@ public:
 	bool is_reserved_directional(reservation_type t = directional) const { return reserved.is_bound() && t == type; }
 	bool is_reserved_priority(reservation_type t = priority) const { return reserved.is_bound() && t == type; }
 
-	void set_stale() { type == block ? type = stale_block : type == block /* null code for ternery */ ; }
+	void set_stale() { if (type == block) { type = stale_block; } }
 	bool is_stale() { return type == stale_block; }
 
 	reservation_type get_reservation_type() const { return type != stale_block ? type : block; }

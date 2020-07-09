@@ -205,7 +205,7 @@ char const* dr_query_homedir()
 #else
 	strcat(buffer, "/");
 #endif
-	char b2[PATH_MAX+24];
+	char b2[PATH_MAX+24 + 11];
 	sprintf(b2, "%smaps", buffer);
 	dr_mkdir(b2);
 	sprintf(b2, "%ssave", buffer);

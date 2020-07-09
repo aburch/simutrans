@@ -62,8 +62,6 @@
 static const int FAB_MAX_INPUT = 15000;
 // Half a display unit (0.5).
 static const sint64 FAB_DISPLAY_UNIT_HALF = ((sint64)1 << (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS - 1));
-// Half a production factor unit (0.5).
-static const sint32 FAB_PRODFACT_UNIT_HALF = ((sint32)1 << (DEFAULT_PRODUCTION_FACTOR_BITS - 1));
 
 karte_ptr_t fabrik_t::welt;
 
@@ -3326,13 +3324,19 @@ void fabrik_t::recalc_nearby_halts()
 	// Go through all the base tiles of the factory.
 	vector_tpl<koord> tile_list;
 	get_tile_list(tile_list);
+
+#ifdef DEBUG
 	bool any_distribution_target = false; // just for debugging
+#endif
+
 	FOR(vector_tpl<koord>, const k, tile_list)
 	{
 		const planquadrat_t* plan = welt->access(k);
 		if(plan)
 		{
+#ifdef DEBUG
 			any_distribution_target=true;
+#endif
 			const uint8 haltlist_count = plan->get_haltlist_count();
 			if(haltlist_count)
 			{
@@ -3407,7 +3411,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 	buf.clear();
 	bool has_previous = false;
 	double distance;
-	char distance_display[10];
+	char distance_display[13];
 	if (!lieferziele.empty()) {
 		has_previous = true;
 		buf.append(translator::translate("Abnehmer"));

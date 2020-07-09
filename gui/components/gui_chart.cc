@@ -113,7 +113,7 @@ void gui_chart_t::draw(scr_coord offset)
 	offset += pos;
 
 	sint64 last_year=0, tmp=0;
-	char cmin[128] = "0", cmax[128] = "0", digit[8];
+	char cmin[128] = "0", cmax[128] = "0", digit[11];
 
 	sint64 baseline = 0;
 	sint64* pbaseline = &baseline;

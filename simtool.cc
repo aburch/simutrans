@@ -3004,9 +3004,10 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
 	const char *error;
 	sint8 bridge_height;
-	koord3d end2 = bridge_builder_t::find_end_pos(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 
+	koord3d end2 = bridge_builder_t::find_end_pos(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 	assert(end == end2);
+	(void)end2;
 
 	sint64 costs = 0;
 	// start
@@ -3326,7 +3327,7 @@ void tool_build_tunnel_t::rdwr_custom_data(memory_rw_t *packet)
 		const tunnel_desc_t* tb = tunnel_builder_t::get_desc(default_param);
 		waytype_t wt = tb ? tb->get_waytype() : road_wt;
 		if (!tb || wt == invalid_wt)
-		{ 
+		{
 			dbg->error("void tool_build_tunnel_t::rdwr_custom_data(memory_rw_t *packet)", "Tunnel builder object could not be retrieved; using default tunnel waytype (road), but this may cause errors");
 			wt = road_wt;
 		}
@@ -5166,7 +5167,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 		free(name);
 	}
 
-	sint64 cost;
+	sint64 cost = 0;
 	if(desc->get_base_price() == PRICE_MAGIC)
 	{
 		switch(desc->get_extra()) {
@@ -6618,7 +6619,7 @@ image_id tool_build_depot_t::get_icon(player_t *player) const
 	return IMG_EMPTY;
 }
 
-bool tool_build_depot_t::init( player_t *player )
+bool tool_build_depot_t::init( player_t * )
 {
 	building_desc_t const* desc = hausbauer_t::find_tile(default_param, 0)->get_desc();
 	if (desc == NULL) {
@@ -6671,7 +6672,7 @@ const char *tool_build_depot_t::work( player_t *player, koord3d pos )
 		// no depots for player 1
 		return 0;
 	}
-#endif 
+#endif
 
 	building_desc_t const* const desc = hausbauer_t::find_tile(default_param,0)->get_desc();
 	settings_t   const&       s     = welt->get_settings();
@@ -6800,7 +6801,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 	// process ignore climates switch
 	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : desc->get_allowed_climate_bits();
 	uint16 regions_allowed = desc->get_allowed_region_bits();
-	
+
 	bool hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, cl, regions_allowed);
 	if(!hat_platz  &&  size.y!=size.x  &&  desc->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#'  ||  default_param[1]=='A')) {
 		// try other rotation too ...
@@ -8614,7 +8615,7 @@ bool tool_change_convoi_t::init( player_t *player )
 		if (cnv->get_replace())
 		{
 			cnv->get_replace()->clear_all();
-			cnv->set_replace(NULL); 
+			cnv->set_replace(NULL);
 			// This convoy might already have been sent to a depot. This will need to be undone.
 			schedule_t* sch = cnv->get_schedule();
 			const schedule_entry_t le = sch->get_current_entry();
@@ -9277,9 +9278,9 @@ bool tool_change_player_t::init( player_t *player_in)
 			break;
 		case 'u': // Take over another company
 			if (player && player == player_in) {
-				sscanf(p, "%c,%i,%i", &tool, &id, &state);		
+				sscanf(p, "%c,%i,%i", &tool, &id, &state);
 				const char* err = player->can_take_over(welt->get_player(state));
-				if (err) 
+				if (err)
 				{
 					message.printf(translator::translate(err));
 					welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
@@ -9611,7 +9612,6 @@ bool tool_access_t::init(player_t *)
 		player_t* const receiving_player = welt->get_player(id_receiving_player);
 		schedule_t* schedule;
 		koord3d pos;
-		waytype_t    wtyp;
 
 		uint8 current_aktuell;
 		halthandle_t halt;
@@ -9628,8 +9628,9 @@ bool tool_access_t::init(player_t *)
 				{
 					continue;
 				}
+
 				current_aktuell = schedule->get_current_stop();
-				wtyp = schedule->get_waytype();
+
 				for(uint8 n = 0; n < schedule->get_count(); n ++)
 				{
 					bool tram_stop_public = false;
@@ -9692,7 +9693,6 @@ bool tool_access_t::init(player_t *)
 				continue;
 			}
 			current_aktuell = schedule->get_current_stop();
-			wtyp = schedule->get_waytype();
 			for(uint8 n = 0; n < schedule->get_count(); n ++)
 			{
 				bool tram_stop_public = false;

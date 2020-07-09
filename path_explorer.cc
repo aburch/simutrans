@@ -2029,7 +2029,7 @@ void path_explorer_t::compartment_t::set_class(uint8 value)
 	}
 	else
 	{
-		sprintf(class_name, "");
+		class_name[0] = '\0';
 	}
 }
 

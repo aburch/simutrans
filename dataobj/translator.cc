@@ -311,7 +311,7 @@ void translator::init_custom_names(int lang)
 			sprintf(name_text, "streetlist[%u]_", count);
 			load_custom_list(lang, street_names_this_region, name_text);
 		}
-			
+
 		if (city_names_this_region.empty()) {
 			DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");
 			// Hajo: try to read list failed, create random names
@@ -377,7 +377,7 @@ void translator::init_custom_names(int lang)
 						}
 					}
 					const size_t l2 = strlen(s2);
-					char* const c = MALLOCN(char, l1 + l2 + 1); 
+					char* const c = MALLOCN(char, l1 + l2 + 1);
 					sprintf(c, "%s%s", s1, s2);
 					city_names_this_region.append(c);
 
@@ -461,7 +461,7 @@ void translator::init_custom_names(int lang)
 							{
 								sprintf(name, "&%X_CITY_SUFFIX[%u]", p, count);
 							}
-							
+
 							const char* s3 = translator::translate(name, lang);
 							const uint32 random_percent_suffix = sim_async_rand(100);
 
@@ -874,7 +874,7 @@ const char *translator::get_year_month(uint16 year_month)
 		case env_t::DATE_FMT_JAPANESE:
 		case env_t::DATE_FMT_JAPANESE_NO_SEASON:
 		case env_t::DATE_FMT_JAPANESE_INTERNAL_MINUTE: // Extended unique
-			if (year_sym == "") {
+			if (strcmp(year_sym, "") == 0) {
 				year_sym = "/";
 				mon_sym = "";
 			}

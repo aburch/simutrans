@@ -1292,29 +1292,30 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 		switch(  bautyp&bautyp_mask  ) {
 			case schiene_tram:
 			case strasse: {
-				const weg_t *other = way1;
-				if (  way0->get_waytype() != desc->get_wtyp()  ) {
-					if (  way1  ) {
-						// two different ways
-						return;
-					}
-					other = way0;
-				}
-				if (  other  ) {
-					if (  (bautyp&bautyp_mask) == strasse  ) {
-						if (  other->get_waytype() != track_wt  ||  other->get_desc()->get_styp()!=type_tram  ) {
-							// road only on tram
+					const weg_t *other = way1;
+					if (  way0->get_waytype() != desc->get_wtyp()  ) {
+						if (  way1  ) {
+							// two different ways
 							return;
 						}
+						other = way0;
 					}
-					else {
-						if (  other->get_waytype() != road_wt  ) {
-							// tram only on road
-							return;
+					if (  other  ) {
+						if (  (bautyp&bautyp_mask) == strasse  ) {
+							if (  other->get_waytype() != track_wt  ||  other->get_desc()->get_styp()!=type_tram  ) {
+								// road only on tram
+								return;
+							}
+						}
+						else {
+							if (  other->get_waytype() != road_wt  ) {
+								// tram only on road
+								return;
+							}
 						}
 					}
 				}
-			}
+				// fallthrough
 
 			default:
 				if (way0->get_waytype()!=desc->get_wtyp()  ||  way1!=NULL) {
@@ -2190,14 +2191,8 @@ sint64 way_builder_t::calc_costs()
 	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? welt->get_settings().get_way_height_clearance() : 0 );
 
 	sint32 single_cost = 0;
-	sint32 new_speedlimit;
-
 	if( bautyp&tunnel_flag ) {
 		assert( tunnel_desc );
-		new_speedlimit = tunnel_desc->get_topspeed();
-	}
-	else {
-		new_speedlimit = desc->get_topspeed();
 	}
 
 	// calculate costs for terraforming
@@ -2225,7 +2220,6 @@ sint64 way_builder_t::calc_costs()
 	}
 
 	for(uint32 i=0; i<get_count(); i++) {
-		sint32 old_speedlimit = -1;
 		sint64 replace_cost = 0;
 		bool upgrading = false;
 
@@ -2237,17 +2231,11 @@ sint64 way_builder_t::calc_costs()
 				if( tunnel->get_desc() == tunnel_desc ) {
 					continue; // Nothing to pay on this tile.
 				}
-				old_speedlimit = tunnel->get_desc()->get_topspeed();
 				single_cost = tunnel_desc->get_value();
 			}
 			else {
 				single_cost = desc->get_value();
-				if(  desc->get_wtyp() == powerline_wt  ) {
-					if( leitung_t *lt=gr->get_leitung() ) {
-						old_speedlimit = lt->get_desc()->get_topspeed();
-					}
-				}
-				else {
+				if(  desc->get_wtyp() != powerline_wt  ) {
 					if (weg_t const* const weg = gr->get_weg(desc->get_wtyp())) {
 						replace_cost = weg->get_desc()->get_upgrade_group() == desc->get_upgrade_group() ? desc->get_way_only_cost() : desc->get_value();
 						upgrading = true;
@@ -2258,10 +2246,6 @@ sint64 way_builder_t::calc_costs()
 							// Don't replace a tram on a road with a normal track.
 							continue;
 						}
-						old_speedlimit = weg->get_desc()->get_topspeed();
-					}
-					else if (desc->get_wtyp()==water_wt  &&  gr->is_water()) {
-						old_speedlimit = new_speedlimit;
 					}
 				}
 			}
