@@ -6021,7 +6021,7 @@ void karte_t::calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 							allowed.append(cl);
 						}
 					}
-					climate cl = (climate)allowed[ simrand( allowed.get_count() - 1 ) ];
+					climate cl = !allowed.empty() ? (climate)pick_any(allowed) : temperate_climate;
 					// now we do an ellipse with size wx and wy around the starting point
 					const sint32 wx = simrand( max_patchsize_x );
 					const sint32 wy = simrand( max_patchsize_y );
