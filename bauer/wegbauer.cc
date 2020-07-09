@@ -1477,7 +1477,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 			if((step&0x03)==0) {
 				INT_CHECK( "wegbauer 1347" );
 #ifdef DEBUG_ROUTES
-				if((step&1023)==0) {minimap_t::get_karte()->calc_map();}
+				if((step&1023)==0) {minimap_t::get_instance()->calc_map();}
 #endif
 			}
 
@@ -1986,7 +1986,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 			if((step&0x03)==0) {
 				INT_CHECK( "wegbauer 1347" );
 #ifdef DEBUG_ROUTES
-				if((step&1023)==0) {minimap_t::get_karte()->calc_map();}
+				if((step&1023)==0) {minimap_t::get_instance()->calc_map();}
 #endif
 			}
 
@@ -2256,7 +2256,7 @@ void way_builder_t::build_tunnel_and_bridges()
 
 			if(start->get_grund_hang()==slope_t::flat  ||  start->get_grund_hang()==slope_type(zv*(-1))  ||  start->get_grund_hang()==2*slope_type(zv*(-1))) {
 				// code derived from simtool
-				
+
 				sint8 bridge_height = 0;
 				const char *error;
 

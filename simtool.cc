@@ -296,7 +296,7 @@ static halthandle_t suche_nahe_haltestelle(player_t *player, karte_t *welt, koor
 		}
 	}
 
-#if AUTOJOIN_PUBLIC
+#ifdef AUTOJOIN_PUBLIC
 	// now search everything for public stops
 	for(  int i=0;  i<8;  i++ ) {
 		if(  planquadrat_t* plan=welt->access(k+koord::neighbours[i])  ) {
