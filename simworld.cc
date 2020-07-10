@@ -1688,6 +1688,7 @@ void karte_t::init_height_to_climate()
 {
 	// mark unused as arctic
 	memset( height_to_climate, arctic_climate, lengthof(height_to_climate) );
+	memset( height_to_climate, temperate_climate, max( 0, settings.get_climate_borders(arctic_climate,1)-groundwater ) );
 	memset( num_climates_at_height, 0, lengthof(num_climates_at_height) );
 
 	// now just add them, the later climates will win (we will do a fineer assessment later
@@ -1699,9 +1700,15 @@ void karte_t::init_height_to_climate()
 		}
 	}
 	for( int h = 0; h < 128; h++ ) {
-		if( h-groundwater > settings.get_climate_borders( arctic_climate, 1 )   &&   num_climates_at_height[h]==0  ) {
-			height_to_climate[h] = h==0  ? arctic_climate : desert_climate;
-			num_climates_at_height[h] = 1;
+		if(  num_climates_at_height[h]==0  ) {
+			if( h == 0 ) {
+				height_to_climate[ h ] = desert_climate;
+				num_climates_at_height[ h ] = 1;
+			}
+			else if( h - groundwater > settings.get_climate_borders( arctic_climate, 1 ) ) {
+				height_to_climate[ h ] = arctic_climate;
+				num_climates_at_height[ h ] = 1;
+			}
 		}
 		DBG_DEBUG( "init_height_to_climate()", "Height %i, climate %i, num_climates %i", h - groundwater, height_to_climate[ h ], num_climates_at_height[ h ] );
 	}
@@ -5982,7 +5989,7 @@ void karte_t::calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 	if( xtop == 0 && ytop == 0 ) {
 		climate_map.clear();
 	}
-	climate_map.resize( xbottom, ybottom, 0xFF );
+	climate_map.resize( xbottom, ybottom, 0x7F );
 
 	sint16 groundwater = settings.get_groundwater();
 
@@ -5994,7 +6001,7 @@ void karte_t::calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 			if( hgt < groundwater ) {
 				climate_map.at( x, y ) = water_climate;
 			}
-			else if( num_climates_at_height[ hgt-groundwater ] == 1 ) {
+			else if( num_climates_at_height[ hgt-groundwater ] <= 1 ) {
 				climate_map.at( x, y ) = height_to_climate[hgt-groundwater];
 			}
 		}
@@ -6015,13 +6022,15 @@ void karte_t::calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 				if( climate_map.at( x, y ) > arctic_climate ) {
 					// not assigned yet => start with a random allowed climate
 					allowed.clear();
-					sint8 hgt = lookup_hgt_nocheck( x, y );
+					sint8 hgt = lookup_hgt_nocheck( x, y )-groundwater;
 					for( int cl=1;  cl<MAX_CLIMATES;  cl++ ) {
 						if(  hgt >= settings.get_climate_borders( cl, 0 )  &&  hgt <= settings.get_climate_borders( cl, 1 )  ) {
 							allowed.append(cl);
 						}
 					}
+//					assert( !allowed.empty() );
 					climate cl = !allowed.empty() ? (climate)pick_any(allowed) : temperate_climate;
+
 					// now we do an ellipse with size wx and wy around the starting point
 					const sint32 wx = simrand( max_patchsize_x );
 					const sint32 wy = simrand( max_patchsize_y );
@@ -6091,8 +6100,6 @@ void karte_t::assign_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbotto
 		}
 	}
 }
-
-
 
 
 // fills array with neighbour heights
