@@ -3963,7 +3963,11 @@ void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsi
 // scrolls horizontally, will ignore clipping etc.
 void display_scroll_band(const KOORD_VAL start_y, const KOORD_VAL x_offset, const KOORD_VAL h)
 {
-	const PIXVAL*const src = textur + start_y * disp_width + x_offset;
+	start_y  = max(start_y,  0);
+	x_offset = min(x_offset, disp_width);
+	h        = min(h,        disp_height);
+
+	const PIXVAL *const src = textur + start_y * disp_width + x_offset;
 	PIXVAL *const dst = textur + start_y * disp_width;
 	const size_t amount = sizeof(PIXVAL) * (h * disp_width - x_offset);
 
