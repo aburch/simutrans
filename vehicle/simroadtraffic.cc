@@ -351,6 +351,11 @@ private_car_t::private_car_t(loadsave_t *file) :
 private_car_t::private_car_t(grund_t* gr, koord const target, const char* name) :
 	road_user_t(gr, simrand(65535))
 {
+	desc = name ? table.get(name) : NULL;
+	if (desc == NULL) {
+		desc = liste_timeline.empty() ? 0 : pick_any_weighted(liste_timeline);
+	}
+	
 	route_index = 0;
 	route.resize(welt->get_settings().get_citycar_max_look_forward());
 	route.clear();
