@@ -193,8 +193,17 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	sint16 bt_y = D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT+D_V_SPACE ;
 
 	// normal buttons edit new remove
-	bt_new_line.init(button_t::roundbox, "New Line",
+	
+	bt_copy_line.init(button_t::roundbox, "Copy Line",
 		scr_coord(D_MARGIN_LEFT, bt_y),
+		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_copy_line.set_tooltip("Copy the selected line");
+	bt_copy_line.add_listener(this);
+	bt_copy_line.disable();
+	add_component(&bt_copy_line);
+	
+	bt_new_line.init(button_t::roundbox, "New Line",
+		scr_coord(D_MARGIN_LEFT, bt_y + D_BUTTON_HEIGHT+ D_V_SPACE),
 		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_new_line.add_listener(this);
 	add_component(&bt_new_line);
@@ -246,23 +255,6 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_delete_line.add_listener(this);
 	bt_delete_line.disable();
 	add_component(&bt_delete_line);
-	
-	bt_y += (D_BUTTON_HEIGHT+ D_V_SPACE);
-	
-	bt_copy_line.init(button_t::roundbox, "Copy Line",
-		scr_coord(D_MARGIN_LEFT, bt_y),
-		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-	bt_copy_line.set_tooltip("Copy the selected line");
-	bt_copy_line.add_listener(this);
-	bt_copy_line.disable();
-	add_component(&bt_copy_line);
-	
-	bt_show_journey_time.init(button_t::roundbox, "Journey Time",
-		scr_coord(D_MARGIN_LEFT+D_BUTTON_WIDTH+D_H_SPACE, bt_y),
-		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-	bt_show_journey_time.add_listener(this);
-	bt_show_journey_time.disable();
-	add_component(&bt_show_journey_time);
 
 	// lower left corner: halt list of selected line
 	scrolly_haltestellen.set_pos(scr_coord(0, bt_y + D_BUTTON_HEIGHT*2+ D_V_SPACE*2));
@@ -297,6 +289,15 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_withdraw_line.set_visible(false);
 	bt_withdraw_line.add_listener(this);
 	add_component(&bt_withdraw_line);
+	
+	bt_show_journey_time.init(button_t::roundbox, "Journey Time",
+		scr_coord(RIGHT_COLUMN_OFFSET+D_BUTTON_WIDTH+D_H_SPACE, bt_y),
+		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_show_journey_time.set_tooltip("Show journey times between stations.");
+	bt_show_journey_time.set_visible(false);
+	bt_show_journey_time.add_listener(this);
+	bt_show_journey_time.disable();
+	add_component(&bt_show_journey_time);
 
 	//CHART
 	chart.set_dimension(12, 1000);
@@ -616,7 +617,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 		buf.clear();
 		buf.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor );
 		display_multiline_text_rgb(pos.x + RIGHT_COLUMN_OFFSET + rest_width,
-			pos.y+D_TITLEBAR_HEIGHT+D_MARGIN_TOP + SCL_HEIGHT + 2*D_BUTTON_HEIGHT+D_V_SPACE, buf, SYSCOL_TEXT);
+			pos.y+text_y, buf, SYSCOL_TEXT);
 	}
 }
 
@@ -773,6 +774,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 	}
 	line = new_line;
 	bt_withdraw_line.set_visible( line.is_bound() );
+	bt_show_journey_time.set_visible( line.is_bound() );
 
 	reset_line_name();
 }
