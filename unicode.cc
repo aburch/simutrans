@@ -285,7 +285,7 @@ const utf8 *utf8caseutf8(const utf8 *haystack_start, const utf8 *needle_start)
 		if(   towlower( hs ) == c   ) {
 			const utf8 *haystack_next = haystack_p;
 
-			for( size_t i = 0; ; ) {
+			while(true) {
 				sint32 nc = utf8_decoder_t::decode( needle_p );
 				if(  nc == 0  ) {
 					return haystack_current;
@@ -308,7 +308,7 @@ const utf8 *utf8caseutf8(const utf8 *haystack_start, const utf8 *needle_start)
 
 
 // defining it in the include did not work for whatever reason
-char *utf8caseutf8( const char *haystack, const char *needle )
+const char *utf8caseutf8( const char *haystack, const char *needle )
 {
-	return (char *)utf8caseutf8( (const utf8 *)haystack, (const utf8 *)needle );
+	return (const char *)utf8caseutf8( (const utf8 *)haystack, (const utf8 *)needle );
 }

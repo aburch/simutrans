@@ -192,22 +192,6 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	sint16 bt_y = D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT+D_V_SPACE ;
 
-	// normal buttons edit new remove
-	
-	bt_copy_line.init(button_t::roundbox, "Copy Line",
-		scr_coord(D_MARGIN_LEFT, bt_y),
-		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-	bt_copy_line.set_tooltip("Copy the selected line");
-	bt_copy_line.add_listener(this);
-	bt_copy_line.disable();
-	add_component(&bt_copy_line);
-	
-	bt_new_line.init(button_t::roundbox, "New Line",
-		scr_coord(D_MARGIN_LEFT, bt_y + D_BUTTON_HEIGHT+ D_V_SPACE),
-		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-	bt_new_line.add_listener(this);
-	add_component(&bt_new_line);
-
 	// freight type filter
 	viewable_freight_types.append(NULL);
 	freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("All"), SYSCOL_TEXT) ;
@@ -239,6 +223,21 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	freight_type_c.add_listener( this );
 	freight_type_c.init( scr_coord( D_MARGIN_LEFT+D_BUTTON_WIDTH+D_H_SPACE, bt_y ), scr_size( D_BUTTON_WIDTH*2+D_H_SPACE, D_BUTTON_HEIGHT ) );
 	add_component(&freight_type_c);
+
+	// normal buttons edit new remove
+	bt_copy_line.init(button_t::roundbox, "Copy Line",
+		scr_coord(D_MARGIN_LEFT, bt_y),
+		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_copy_line.set_tooltip("Copy the selected line");
+	bt_copy_line.add_listener(this);
+	bt_copy_line.disable();
+	add_component(&bt_copy_line);
+	
+	bt_new_line.init(button_t::roundbox, "New Line",
+		scr_coord(D_MARGIN_LEFT, bt_y+D_BUTTON_HEIGHT+D_V_SPACE),
+		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_new_line.add_listener(this);
+	add_component(&bt_new_line);
 
 	bt_edit_line.init(button_t::roundbox, "Update Line",
 		scr_coord(D_MARGIN_LEFT+D_BUTTON_WIDTH+D_H_SPACE, bt_y+D_BUTTON_HEIGHT+D_V_SPACE),

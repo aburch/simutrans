@@ -687,9 +687,14 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 
 	INT_CHECK("route 336");
 
+#ifdef DEBUG_ROUTES
+	const uint32 ms = dr_time();
+#endif
 	bool ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, 0xFFFFFFFFul );
 #ifdef DEBUG_ROUTES
-	if(tdriver->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
+	if(tdriver->get_waytype()==water_wt) {
+		DBG_DEBUG("route_t::calc_route()", "route from %d,%d to %d,%d with %i steps in %u ms found.", start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );
+	}
 #endif
 
 	INT_CHECK("route 343");

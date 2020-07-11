@@ -295,8 +295,8 @@ void planquadrat_t::rdwr(loadsave_t *file, koord pos )
 					hgt = welt->lookup_hgt(pos);
 				}
 				else {
-					// other ground must not reset the height
 					boden_hinzufuegen(gr);
+					// other ground must not change the grid height => reset it
 					welt->set_grid_hgt( pos, hgt );
 				}
 			}
