@@ -842,7 +842,7 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 							for( uint8 own=0;  own<pl->get_haltlist_count();  own++  ) {
 								if(  hl[own]->is_enabled(goods_manager_t::INDEX_PAS)  ) {
 									// our stop => nothing to do
-#if AUTOJOIN_PUBLIC
+#ifdef AUTOJOIN_PUBLIC
 									// we leave also public stops alone
 									if(  hl[own]->get_owner()==this  ||  hl[own]->get_owner()==welt->get_public_player()  ) {
 #else

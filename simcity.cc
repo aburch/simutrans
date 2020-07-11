@@ -2754,7 +2754,8 @@ static koord const area3x3[] = {
 	koord( 2, 0),  //  3x1
 	koord( 2, 1),  //  3x2
 	koord( 0, 2),  //  1x3
-	koord( 2, 2)   // 3x3
+	koord( 1, 2),  //  2x3
+	koord( 2, 2)   //  3x3
 };
 
 // updates one surrounding road with current city road
@@ -3101,7 +3102,7 @@ void stadt_t::build_city_building(const koord k)
 		case 3:
 			if(  hausbauer_t::get_largest_city_building_area() > 2  ) {
 				// now test the remaining tiles for even laregr size
-				for(  area_level=2;  area_level < 8;  area_level++  ) {
+				for(  area_level=2;  area_level < lengthof(area3x3);  area_level++  ) {
 					grund_t* gr = welt->lookup_kartenboden(k + area3x3[area_level]);
 					if(  gr  &&  gr->get_typ() == grund_t::fundament  &&  gr->obj_bei(0)->get_typ() == obj_t::gebaeude  ) {
 						// We have a building as a neighbor...
@@ -3233,7 +3234,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	// now test the surrounding tiles for larger size
 	koord maxsize=minsize;
 	if(  hausbauer_t::get_largest_city_building_area() > 1  ) {
-		for(  int area_level=0;  area_level < 8;  area_level++  ) {
+		for(  uint area_level=0;  area_level < lengthof(area3x3);  area_level++  ) {
 			grund_t* gr = welt->lookup_kartenboden(k + area3x3[area_level]);
 			if(  gr  &&  gr->get_typ() == grund_t::fundament  &&  gr->obj_bei(0)->get_typ() == obj_t::gebaeude  ) {
 				// We have a building as a neighbor...

@@ -362,7 +362,7 @@ void font_t::print_debug() const
 		char *c = msg + sprintf(msg, "glyph %c: width %i, top %i\n", glyph_nr, get_glyph_width(glyph_nr), get_glyph_yoffset(glyph_nr) );
 
 		for(  uint32 y = 0;  y < GLYPH_BITMAP_HEIGHT;  y++  ) {
-			for(  uint32 x = 0;  x < min(GLYPH_BITMAP_WIDTH, (uint32)get_glyph_width(glyph_nr));  x++  ) {
+			for(  uint32 x = 0;  x < (uint32)min(GLYPH_BITMAP_WIDTH, get_glyph_width(glyph_nr));  x++  ) {
 				const uint8 data = get_glyph_bitmap(glyph_nr)[y+(x/CHAR_BIT)*GLYPH_BITMAP_HEIGHT];
 				const bool bit_set = (data & (0x80>>(x%CHAR_BIT))) != 0;
 
