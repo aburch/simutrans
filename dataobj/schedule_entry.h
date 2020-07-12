@@ -40,7 +40,8 @@ public:
 		TRY_COUPLING      = 1U << 1, // The convoy finds a parent and couple with. 
 		NO_LOAD           = 1U << 2, // The convoy loads nothing here.
 		NO_UNLOAD         = 1U << 3, // The convoy unloads nothing here.
-		WAIT_FOR_TIME     = 1U << 4  // The convoy waits for the departure time.
+		WAIT_FOR_TIME     = 1U << 4, // The convoy waits for the departure time.
+		UNLOAD_ALL         = 1U << 5 // The convoy unloads all loads here.
 	};
 
 	/**
@@ -88,6 +89,8 @@ public:
 	void set_no_load(bool y) { y ? stop_flags |= NO_LOAD : stop_flags &= ~NO_LOAD; }
 	bool is_no_unload() const { return (stop_flags&NO_UNLOAD)>0; }
 	void set_no_unload(bool y) { y ? stop_flags |= NO_UNLOAD : stop_flags &= ~NO_UNLOAD; }
+	bool is_unload_all() const { return (stop_flags&UNLOAD_ALL)>0; }
+	void set_unload_all(bool y) { y ? stop_flags |= UNLOAD_ALL : stop_flags &= ~UNLOAD_ALL; }
 	bool get_wait_for_time() const { return (stop_flags&WAIT_FOR_TIME)>0; }
 	void set_wait_for_time(bool y) { y ? stop_flags |= WAIT_FOR_TIME : stop_flags &= ~WAIT_FOR_TIME; }
 	uint8 get_stop_flags() const { return stop_flags; }

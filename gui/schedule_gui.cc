@@ -364,7 +364,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	end_table();
 	
 	// load and unload settings
-	add_table(2,1);
+	add_table(3,1);
 	{
 		bt_no_load.init(button_t::square_state, "No Load");
 		bt_no_load.set_tooltip("The convoy does not load goods and passengers at this stop.");
@@ -376,6 +376,11 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		bt_no_unload.add_listener(this);
 		bt_no_unload.disable();
 		add_component(&bt_no_unload);
+		bt_unload_all.init(button_t::square_state, "Unload All");
+		bt_unload_all.set_tooltip("All passengers once get off at this stop.");
+		bt_unload_all.add_listener(this);
+		bt_unload_all.disable();
+		add_component(&bt_unload_all);
 	}
 	end_table();
 	
@@ -554,6 +559,7 @@ void schedule_gui_t::update_selection()
 	bt_wait_for_child.disable();
 	bt_no_load.disable();
 	bt_no_unload.disable();
+	bt_unload_all.disable();
 	bt_wait_for_time.disable();
 	numimp_spacing.disable();
 	numimp_spacing_shift.disable();
@@ -573,6 +579,8 @@ void schedule_gui_t::update_selection()
 			bt_no_load.pressed = schedule->entries[current_stop].is_no_load();
 			bt_no_unload.enable();
 			bt_no_unload.pressed = schedule->entries[current_stop].is_no_unload();
+			bt_unload_all.enable();
+			bt_unload_all.pressed = schedule->entries[current_stop].is_unload_all();
 			
 			// wait_for_time releated things
 			const bool wft = schedule->entries[current_stop].get_wait_for_time();
@@ -801,6 +809,12 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			update_selection();
 		}
 	}
+	else if(comp == &bt_unload_all) {
+		if (!schedule->empty()) {
+			schedule->entries[schedule->get_current_stop()].set_unload_all(!bt_unload_all.pressed);
+			update_selection();
+		}
+	}
 	else if(comp == &bt_tmp_schedule) {
 		schedule->set_temporary(!bt_tmp_schedule.pressed);
 		bt_tmp_schedule.pressed = schedule->is_temporary();
@@ -1005,6 +1019,7 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	bt_full_load_acceleration.set_visible(yesno);
 	bt_no_load.set_visible(yesno);
 	bt_no_unload.set_visible(yesno);
+	bt_unload_all.set_visible(yesno);
 	bt_wait_for_time.set_visible(yesno);
 	lb_spacing.set_visible(yesno);
 	lb_title1.set_visible(yesno);
