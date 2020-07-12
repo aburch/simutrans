@@ -2137,6 +2137,7 @@ void way_builder_t::calc_straight_route(koord3d start, const koord3d ziel)
 		intern_calc_straight_route(start,ziel);
 		if (route.empty()) {
 			intern_calc_straight_route(ziel,start);
+			route_reversed = true;
 		}
 	}
 }
