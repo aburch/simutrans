@@ -1231,7 +1231,6 @@ sint32 haltestelle_t::rebuild_connections()
 		while(  start_index < schedule->get_count()  &&  get_halt( schedule->entries[start_index].pos, owner ) != self  ) {
 			++start_index;
 		}
-		bool no_load = schedule->entries[start_index].is_no_load();
 		++start_index;	// the next index after self halt; it's okay to be out-of-range
 
 		// determine goods category indices supported by this halt
@@ -1255,6 +1254,7 @@ sint32 haltestelle_t::rebuild_connections()
 
 		// now we add the schedule to the connection array
 		uint16 aggregate_weight = WEIGHT_WAIT;
+		bool no_load_section = schedule->entries[start_index-1].is_no_load();
 		for(  uint8 j=0;  j<schedule->get_count();  ++j  ) {
 
 			const schedule_entry_t current_entry = schedule->entries[(start_index+j)%schedule->get_count()];
@@ -1272,9 +1272,9 @@ sint32 haltestelle_t::rebuild_connections()
 						previous_halt[catg_index] = self;
 					}
 				}
-				// reset aggregate weight and no_load
+				// reset aggregate weight and no_load_section
 				aggregate_weight = WEIGHT_WAIT;
-				no_load = current_entry.is_no_load();
+				no_load_section = current_entry.is_no_load();
 				no_unload_halts.clear();
 				continue;
 			}
@@ -1284,7 +1284,7 @@ sint32 haltestelle_t::rebuild_connections()
 
 			aggregate_weight += WEIGHT_HALT;
 			
-			if(  no_unload_halts.is_contained(current_halt)  ||  no_load  ) {
+			if(  no_unload_halts.is_contained(current_halt)  ||  no_load_section  ) {
 				// do not add connection if this halt is set no_unload or if the previous self stop is set no_load.
 				continue;
 			}
