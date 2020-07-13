@@ -1194,6 +1194,9 @@ sint32 haltestelle_t::rebuild_connections()
 	 */
 	bool lines = true;
 	uint32 current_index = 0;
+	// Is unload_all applied for this halt?
+	// HACK: When unload_all_applied is true, is_transfer is true regardless of connections.
+	bool unload_all_applied = false;
 	while(  lines  ||  current_index < registered_convoys.get_count()  ) {
 
 		// Now, collect the "schedule", "owner" and "add_catg_index" from line resp. convoy.
@@ -1254,7 +1257,9 @@ sint32 haltestelle_t::rebuild_connections()
 
 		// now we add the schedule to the connection array
 		uint16 aggregate_weight = WEIGHT_WAIT;
-		bool no_load_section = schedule->entries[start_index-1].is_no_load();
+		const schedule_entry_t start_entry = schedule->entries[start_index-1];
+		bool no_load_section = start_entry.is_no_load() || start_entry.is_unload_all();
+		unload_all_applied |= start_entry.is_unload_all();
 		for(  uint8 j=0;  j<schedule->get_count();  ++j  ) {
 
 			const schedule_entry_t current_entry = schedule->entries[(start_index+j)%schedule->get_count()];
@@ -1274,6 +1279,7 @@ sint32 haltestelle_t::rebuild_connections()
 				}
 				// reset aggregate weight and no_load_section
 				aggregate_weight = WEIGHT_WAIT;
+			 	unload_all_applied |= current_entry.is_unload_all();
 				no_load_section = current_entry.is_no_load();
 				no_unload_halts.clear();
 				continue;
@@ -1281,13 +1287,14 @@ sint32 haltestelle_t::rebuild_connections()
 			else if(  current_entry.is_no_unload()  ) {
 				no_unload_halts.append_unique(current_halt);
 			}
-
-			aggregate_weight += WEIGHT_HALT;
 			
 			if(  no_unload_halts.is_contained(current_halt)  ||  no_load_section  ) {
 				// do not add connection if this halt is set no_unload or if the previous self stop is set no_load.
 				continue;
 			}
+			
+			aggregate_weight += WEIGHT_HALT;
+			no_load_section |= current_entry.is_unload_all();
 
 			FOR(minivec_tpl<uint8>, const catg_index, supported_catg_index) {
 				if(  current_halt->is_enabled(catg_index)  ) {
@@ -1315,14 +1322,10 @@ sint32 haltestelle_t::rebuild_connections()
 		connections_searched += schedule->get_count();
 	}
 	for(  uint8 i=0;  i<goods_manager_t::get_max_catg_index();  i++  ){
-		if(  !consecutive_halts[i].empty()  ) {
-			if(  consecutive_halts[i].get_count() == max_consecutive_halts_schedule[i]  ) {
-				// one schedule reaches all consecutive halts -> this is not transfer halt
-			}
-			else {
-				all_links[i].is_transfer = true;
-			}
-		}
+		// one schedule reaches all consecutive halts -> this is not transfer halt
+		all_links[i].is_transfer = !consecutive_halts[i].empty()  &&
+			(consecutive_halts[i].get_count() != max_consecutive_halts_schedule[i]  ||
+			unload_all_applied);
 	}
 	return connections_searched;
 }

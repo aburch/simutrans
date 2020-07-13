@@ -3363,6 +3363,10 @@ station_tile_search_ready: ;
 				continue;
 			}
 			destination_halts.append(plan_halt);
+			if(  schedule->entries[wrap_i].is_unload_all()  ) {
+				// passengers/cargos cannot keep boarding beyond this stop.
+				break;
+			}
 		}
 	}
 
