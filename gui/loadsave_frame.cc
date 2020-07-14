@@ -94,15 +94,15 @@ bool loadsave_frame_t::item_action(const char *filename)
 			#define STD_SAVEGAME_VER_NR "0." QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_SAVE_MINOR)
 			env_t::savegame_version_str = STD_SAVEGAME_VER_NR;
 		}
-		if(  save_as_standard.pressed  ) {
-			// restore savegame_version_str
-			env_t::savegame_version_str = SAVEGAME_VER_NR;
-		}
 		long start_save = dr_time();
 		welt->save( filename, loadsave_t::save_mode, env_t::savegame_version_str, false );
 		DBG_MESSAGE( "loadsave_frame_t::item_action", "save world %li ms", dr_time() - start_save );
 		welt->set_dirty();
 		welt->reset_timer();
+		if(  save_as_standard.pressed  ) {
+			// restore savegame_version_str
+			env_t::savegame_version_str = SAVEGAME_VER_NR;
+		}
 	}
 
 	return true;
