@@ -60,9 +60,9 @@ line name tooltips
 #------Convoy coupling related stuff------
 #------増解結関連のエントリ------
 Wait for coupling
-連結相手を待つ
+連結相手を待つ(W)
 Try coupling
-連結を試みる
+連結を試みる(C)
 Waiting for coupling!
 連結相手を待機中
 Require parent convoy to enter.
@@ -112,13 +112,17 @@ Temporary schedule
 This schedule does not affect the route cost calculation.
 このスケジュールはルートコストの計算に寄与しません．
 No Load
-乗車不可
+乗車不可(L)
 The convoy does not load goods and passengers at this stop.
 この停留所での積載を禁止します．
 No Unload
-降車不可
+降車不可(U)
 The convoy does not unload goods and passengers at this stop.
 この停留所での降車/荷降ろしを禁止します．
+Unload All
+全員降車(A)
+All passengers once get off at this stop.
+この停留所ですべての積載物を一旦降ろします．
 Wait for time
 発車時刻まで待機
 Spacing cnv/month, shift
