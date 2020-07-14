@@ -202,18 +202,27 @@ static char pakset_path[256];
 // List of custom city and streetnames
 vector_tpl< vector_tpl<char*> > translator::city_name_list;
 vector_tpl < vector_tpl<char *> > translator::street_name_list;
-
+void translator::clear_custom_list(vector_tpl<vector_tpl<char *>>&name_list)
+{
+	FOR(vector_tpl<vector_tpl<char *>>, i, name_list) {
+		clear_custom_list(i);
+	}
+	name_list.clear();
+}
+void translator::clear_custom_list(vector_tpl<char *>&name_list)
+{
+	FOR(vector_tpl<char*>, const i, name_list) {
+		free(i);
+	}
+	name_list.clear();
+}
 
 // fills a list from a file with the given prefix followed by a language code
 void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const char *fileprefix )
 {
 	FILE *file;
 
-	// Clean up all names
-	FOR(vector_tpl<char*>, const i, name_list) {
-		free(i);
-	}
-	name_list.clear();
+	clear_custom_list(name_list);
 
 	// @author prissi: first try in pakset
 	{
