@@ -536,15 +536,46 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	return true;
 }
 
+void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const& entry) {
+	uint8 cnt = 1;
+	char str[10];
+	str[0] = '[';
+	const uint8 flag = entry.get_stop_flags();
+	if(  flag&schedule_entry_t::WAIT_FOR_COUPLING  ) {
+		str[cnt] = 'W';
+		cnt++;
+	}
+	if(  flag&schedule_entry_t::TRY_COUPLING  ) {
+		str[cnt] = 'C';
+		cnt++;
+	}
+	if(  flag&schedule_entry_t::NO_LOAD  ) {
+		str[cnt] = 'L';
+		cnt++;
+	}
+	if(  flag&schedule_entry_t::NO_UNLOAD  ) {
+		str[cnt] = 'U';
+		cnt++;
+	}
+	if(  flag&schedule_entry_t::UNLOAD_ALL  ) {
+		str[cnt] = 'A';
+		cnt++;
+	}
+	// there are at least one attributes.
+	if(  cnt>1  ) {
+		str[cnt] = ']';
+		str[cnt+1] = ' ';
+		str[cnt+2] = '\0';
+		buf.append(str);
+	}
+}
 
 void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* const player_, schedule_entry_t const& entry, int const max_chars)
 {
 	const char *p;
 	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_);
 	if(halt.is_bound()) {
-		if(  entry.get_coupling_point()!=0  ) {
-			buf.printf("[#] ");
-		}
+		construct_schedule_entry_attributes(buf, entry);
 		if(  max_chars <= 0  ) {
 			if(  entry.get_wait_for_time()  ) {
 				buf.printf("%dT ", entry.spacing);
