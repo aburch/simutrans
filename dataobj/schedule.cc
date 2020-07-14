@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <cmath>
 
 #include "../simdebug.h"
 #include "../gui/simwin.h"
@@ -270,12 +271,18 @@ void schedule_t::rdwr(loadsave_t *file)
 				file->rdwr_short(entries[i].waiting_time_shift);
 			}
 			else if(file->is_version_atleast(99, 18)) {
-				sint8 n;
+				sint8 n = 0;
+				// Conversion for standard compatible writing.
+				if(  entries[i].waiting_time_shift>0  ) {
+					n = 16-max(int(log2(entries[i].waiting_time_shift)), 9);
+				}
 				file->rdwr_byte(n);
-				if(  n==0  ) {
-					entries[i].waiting_time_shift = 0;
-				} else {
-					entries[i].waiting_time_shift = ( 1<<(16-n) );
+				if(  file->is_loading()  ) {
+					if(  n==0  ) {
+						entries[i].waiting_time_shift = 0;
+					} else {
+						entries[i].waiting_time_shift = ( 1<<(16-n) );
+					}
 				}
 			}
 			if(file->get_OTRP_version()>=22) {
