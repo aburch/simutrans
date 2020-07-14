@@ -2539,7 +2539,21 @@ void convoi_t::rdwr(loadsave_t *file)
 	file->rdwr_long(akt_speed);
 	file->rdwr_long(akt_speed_soll);
 	file->rdwr_long(sp_soll);
-	file->rdwr_enum(state);
+	// when we are writing for standard, we have convert some states.
+	if(  !file->is_loading()  &&  loadsave_t::int_version(env_t::savegame_version_str, NULL).OTRP_version==0  ) {
+		states s = state;
+		if(  s==COUPLED  ) {
+			s = DRIVING;
+		} else if(  s==COUPLED_LOADING  ) {
+			s = LOADING;
+		} else if(  s==WAITING_FOR_LEAVING_DEPOT  ) {
+			s = INITIAL;
+		}
+		file->rdwr_enum(s);
+	} else {
+		// just read/write state
+		file->rdwr_enum(state);
+	}
 	file->rdwr_enum(alte_richtung);
 
 	// read the yearly income (which has since then become a 64 bit value)
