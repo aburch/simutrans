@@ -165,22 +165,14 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		sets->winter_snowline = (sint16)v.i;
 	}
 
-	// climate border buttons
-	for(  int i=desert_climate;  i<MAX_CLIMATES;  i++  ) {
-		if(  comp==&(climate_borders_ui[i-1][0])  ) {
-			sets->climate_borders[i][0] = (sint16)v.i;
-		}
-		if(  comp==&(climate_borders_ui[i-1][1])  ) {
-			sets->climate_borders[i][1] = (sint16)v.i;
-		}
-	}
-
 	// Update borders
 	for(  int i=desert_climate-1;  i<=arctic_climate-1;  i++  ) {
 		climate_borders_ui[i][0].set_limits( sets->get_groundwater(), 127 );
 		climate_borders_ui[i][0].set_value( climate_borders_ui[i][0].get_value() );
 		climate_borders_ui[i][1].set_limits( climate_borders_ui[i][0].get_value(), 127 );
 		climate_borders_ui[i][1].set_value( climate_borders_ui[i][1].get_value() );
+		sets->climate_borders[i+1][0] = climate_borders_ui[i][0].get_value();
+		sets->climate_borders[i+1][1] = climate_borders_ui[i][1].get_value();
 	}
 
 	summer_snowline.buf().printf("%d", sets->get_climate_borders(arctic_climate,1) );
