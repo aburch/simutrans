@@ -1309,10 +1309,9 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	factory_builder_t::distribute_attractions(settings.get_tourist_attractions());
 
 	dbg->message("karte_t::init()", "Preparing startup ...");
-	if(zeiger == 0) {
+	if(zeiger == NULL) {
 		zeiger = new zeiger_t(koord3d::invalid, NULL );
 	}
-
 	// finishes the line preparation and sets id 0 to invalid ...
 	players[0]->simlinemgmt.finish_rd();
 
@@ -2070,7 +2069,7 @@ karte_t::karte_t() :
 	// standard prices
 	goods_manager_t::set_multiplier( 1000 );
 
-	zeiger = 0;
+	zeiger = NULL;
 	plan = 0;
 
 	grid_hgts = 0;
@@ -4632,7 +4631,7 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_s
  */
 bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, sound_type_t type ) const
 {
-	if(is_sound  &&  zeiger) {
+	if(is_sound  &&  zeiger!=NULL) {
 		const uint32 dist = koord_distance( k, zeiger->get_pos() );
 
 		if(dist < 100) {
@@ -6027,7 +6026,7 @@ void karte_t::calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 				if( climate_map.at( x, y ) > arctic_climate ) {
 					// not assigned yet => start with a random allowed climate
 					allowed.clear();
-					sint8 hgt = lookup_hgt_nocheck( x, y )-groundwater;
+					sint8 hgt = lookup_hgt_nocheck( x, y );
 					for( int cl=1;  cl<MAX_CLIMATES;  cl++ ) {
 						if(  hgt >= settings.get_climate_borders( cl, 0 )  &&  hgt <= settings.get_climate_borders( cl, 1 )  ) {
 							allowed.append(cl);
