@@ -78,6 +78,47 @@ public:
 			return weg_t::get_front_image();
 		}
 	}
+	virtual PLAYER_COLOR_VAL get_outline_colour() const OVERRIDE
+	{
+		uint8 restriction_colour;
+		switch (overtaking_mode)
+		{
+			case halt_mode:
+			case loading_only_mode:
+			case prohibited_mode:
+			case inverted_mode:
+				restriction_colour = overtaking_mode_to_color(overtaking_mode);
+				break;
+			case invalid_mode:
+			case twoway_mode:
+			case oneway_mode:
+			default:
+				return 0;
+		}
+		return (show_masked_ribi && restriction_colour) ? TRANSPARENT75_FLAG | OUTLINE_FLAG | restriction_colour : 0;
+	}
+
+	static uint8 overtaking_mode_to_color(overtaking_mode_t o) {
+		switch (o)
+		{
+			// Do not set the lightest color to make a difference between the tile color and the text color
+			case halt_mode:
+				return COL_LIGHT_PURPLE - 1;
+			case loading_only_mode:
+				return COL_DARK_GREEN + 1;
+			case prohibited_mode:
+				return COL_ORANGE + 1;
+			case inverted_mode:
+				return COL_LEMON_YELLOW - 1;
+			case oneway_mode:
+				return 22;
+			case invalid_mode:
+			case twoway_mode:
+			default:
+				return COL_WHITE-1;
+		}
+		return 0;
+	}
 };
 
 #endif
