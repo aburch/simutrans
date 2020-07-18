@@ -1186,7 +1186,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 	// now always writing in user dir (which points the the program dir in multiuser mode)
 	chdir( env_t::user_dir );
 
-	// init midi before loading sounds
+	// init midi before loading sounds 
 	if(  dr_init_midi()  ) {
 		dbg->important("Reading midi data ...");
 		if(!midi_init(env_t::user_dir)) {
