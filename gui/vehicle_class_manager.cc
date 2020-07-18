@@ -673,14 +673,14 @@ vehicle_class_manager_t::~vehicle_class_manager_t()
 	{
 		if (pass_class_name_untranslated[i] != nullptr)
 		{
-			delete pass_class_name_untranslated[i];
+			delete[] pass_class_name_untranslated[i];
 		}
 	}
 	for (int i = 0; i < mail_classes; i++)
 	{
 		if (mail_class_name_untranslated[i])
 		{
-			delete mail_class_name_untranslated[i];
+			delete[] mail_class_name_untranslated[i];
 		}
 	}
 }
