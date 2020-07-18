@@ -19,15 +19,15 @@ You should try OTRP because...
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitter hashtag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
-As of version 26_1, OTRP is based on Simutrans Standard nightly r9151.
+As of version 26_1, OTRP is based on Simutrans Standard nightly r9170.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset folder.  
 
-You can download the OTRP executable binary from the links below. **(2020 June 26th, updated to ver 26_1.)**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/73218/sim-WinGDI-OTRPv26_1.exe/  
-mac: https://osdn.net/projects/otrp/downloads/73218/sim-mac-OTRPv26_1.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/73218/sim-linux-OTRPv26_1.zip/  
+You can download the OTRP executable binary from the links below. **(2020 July 18th, updated to ver 26_2.)**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/73329/sim-WinGDI-OTRPv26_2.exe/  
+mac: https://osdn.net/projects/otrp/downloads/73329/sim-mac-OTRPv26_2.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/73329/sim-linux-OTRPv26_2.zip/  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 There is no special makeobj for OTRP. Please use one made for Simutrans Standard.
@@ -110,6 +110,7 @@ OTRP's advanced schedule settings create flexible operational possibilities. Adv
 - **Full load acceleration**: Specifies that all convoys acclerate as if they were at full load, regardless of their actual load. This prevents emptier, lighter convoys from catching up to fuller, heavier convoys, which causes convoys to bunch together.
 - **No load**: Select a station on the schedule, then apply this setting to prevent passengers from boarding at this station.
 - **No unload**: Select a station on the schedule, then apply this setting to prevent passengers from exiting or transfering at this station.
+- **Unload All**: Select a station on the schedule, then apply this setting to make all loads once get off at this station.
 - **Max speed**: Specifies the maximum speed convoys can travel on this line. Useful for maintaining consistent spacing between convoys when vehicles with differing maximum speeds are used on a line.
 
 ## Convoy coupling
