@@ -1420,8 +1420,15 @@ bool convoi_t::prepare_for_routing()
 		}
 
 		halthandle_t destination_halt = haltestelle_t::get_halt(ziel, get_owner());
+		if (start == ziel)
+		{
+			// For some reason, the schedule has failed to advance. Advance it before calculating the route.
+			reverse_schedule ? schedule->advance_reverse() : schedule->advance();
+			ziel = schedule->get_current_entry().pos;
+		}
 
 		// avoid stopping mid-halt
+		// check ziel again, as it may have been advanced in the previous check
 		if (start == ziel) {
 			if (destination_halt.is_bound() && route.is_contained(start)) {
 				for (uint32 i = route.index_of(start); i < route.get_count(); i++) {
