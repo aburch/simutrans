@@ -4,7 +4,11 @@
 
 <p>
 - <em>Parallel stop mode</em>: 
+<br>
 - <em>One way</em>: 
+<br>
 - <em>Two way (default)</em>: 
+<br>
 - <em>Overtaking prohibited</em>: 
+<br>
 </p>
