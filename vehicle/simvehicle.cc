@@ -4042,7 +4042,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					restart_speed = (cnv->get_akt_speed()*3)/4;
 				}
 			}
-			else if(  overtaking_mode <= loading_only_mode  ) {
+			else if(  overtaking_mode <= twoway_mode) {
 				// road is two-way and overtaking is allowed on the stricter condition.
 				if(  obj->is_stuck()  ) {
 					// end of traffic jam, but no stuck message, because previous vehicle is stuck too

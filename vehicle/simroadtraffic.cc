@@ -1487,7 +1487,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		return true;
 	}
 
-	if(  overtaking_mode == loading_only_mode  ) {
+	if(  overtaking_mode == twoway_mode  ) {
 		// since other vehicle is moving...
 		return false;
 	}

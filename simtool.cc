@@ -2781,25 +2781,22 @@ void tool_build_way_t::set_mode_str(char* str, overtaking_mode_t overtaking_mode
 	switch (overtaking_mode) {
 		case halt_mode:
 			sprintf(str, "H");
-		break;
+			break;
 		case oneway_mode:
 			sprintf(str, "O");
-		break;
+			break;
 		case twoway_mode:
 			sprintf(str, "T");
-		break;
-		case loading_only_mode:
-			sprintf(str, "L");
-		break;
+			break;
 		case prohibited_mode:
 			sprintf(str, "P");
-		break;
+			break;
 		case inverted_mode:
 			sprintf(str, "I");
-		break;
+			break;
 		default:
 			sprintf(str, "X");
-		break;
+			break;
 	}
 }
 

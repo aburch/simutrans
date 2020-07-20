@@ -55,7 +55,6 @@ public:
 	* halt_mode = vehicles can stop on passing lane
 	* oneway_mode = condition for one-way road
 	* twoway_mode = condition for two-way road
-	* loading_only_mode = overtaking a loading convoy only
 	* prohibited_mode = overtaking is completely forbidden
 	* inverted_mode = vehicles can go only on passing lane
 	* @author teamhimeH
@@ -84,7 +83,6 @@ public:
 		switch (overtaking_mode)
 		{
 			case halt_mode:
-			case loading_only_mode:
 			case prohibited_mode:
 			case inverted_mode:
 				restriction_colour = overtaking_mode_to_color(overtaking_mode);
@@ -104,8 +102,6 @@ public:
 			// Do not set the lightest color to make a difference between the tile color and the text color
 			case halt_mode:
 				return COL_LIGHT_PURPLE - 1;
-			case loading_only_mode:
-				return COL_DARK_GREEN + 1;
 			case prohibited_mode:
 				return COL_ORANGE + 1;
 			case inverted_mode:

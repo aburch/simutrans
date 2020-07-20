@@ -1075,9 +1075,6 @@ void weg_t::info(cbuffer_t & buf) const
 			case twoway_mode:
 				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("twoway"));
 				break;
-			case loading_only_mode:
-				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("only loading convoi"));
-				break;
 			case prohibited_mode:
 				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("prohibited"));
 				break;
