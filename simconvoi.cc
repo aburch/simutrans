@@ -2257,7 +2257,7 @@ end_loop:
 				}
 				if(  front()->get_waytype()==road_wt  ) {
 					overtaking_mode_t overtaking_mode = static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode();
-					if(  (state==CAN_START  ||  state==CAN_START_ONE_MONTH)  &&  overtaking_mode>oneway_mode  &&  overtaking_mode!=inverted_mode  ) {
+					if(  (state==CAN_START  ||  state==CAN_START_ONE_MONTH)  &&  overtaking_mode>oneway_mode  ) {
 						set_tiles_overtaking( 0 );
 					}
 				}
@@ -2282,7 +2282,7 @@ end_loop:
 				}
 				if(  front()->get_waytype()==road_wt  ) {
 					overtaking_mode_t overtaking_mode = static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode();
-					if(  state!=DRIVING  &&  overtaking_mode>oneway_mode  &&  overtaking_mode!=inverted_mode  ) {
+					if(  state!=DRIVING  &&  overtaking_mode>oneway_mode  ) {
 						set_tiles_overtaking( 0 );
 					}
 				}
@@ -2308,7 +2308,7 @@ end_loop:
 			{
 				//When loading, vehicle should not be on passing lane.
 				str = (strasse_t*)welt->lookup(get_pos())->get_weg(road_wt);
-				if(  str  &&  str->get_overtaking_mode()!=inverted_mode  &&  str->get_overtaking_mode()!=halt_mode  ) set_tiles_overtaking(0);
+				if(  str  &&  str->get_overtaking_mode()!=halt_mode  ) set_tiles_overtaking(0);
 				if(get_depot_when_empty() && has_no_cargo())
 				{
 					go_to_depot(false, (replace && replace->get_use_home_depot()));

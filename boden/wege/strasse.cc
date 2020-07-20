@@ -88,8 +88,8 @@ void strasse_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(mask_oneway);
 		set_ribi_mask_oneway(mask_oneway);
 		sint8 ov = get_overtaking_mode();
-		if (file->is_loading() && file->get_extended_version() == 14 && ov == 2) {
-			ov = twoway_mode; // loading_only_mode has been integrated
+		if (file->is_loading() && file->get_extended_version() == 14 && (ov == 2 || ov == 4)) {
+			ov = twoway_mode; // loading_only_mode and inverted_mode has been removed
 		}
 		file->rdwr_byte(ov);
 		overtaking_mode_t nov = (overtaking_mode_t)ov;

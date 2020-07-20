@@ -5512,8 +5512,8 @@ Two way (default)
 #Overtake stationary only
 prohibited
 Overtaking prohibited
-inverted
-Opposite lane driving
+#inverted
+#Opposite lane driving
 has changed its colour scheme.
 has changed its colour scheme.
 Vehicle running costs per km

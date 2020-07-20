@@ -56,7 +56,6 @@ public:
 	* oneway_mode = condition for one-way road
 	* twoway_mode = condition for two-way road
 	* prohibited_mode = overtaking is completely forbidden
-	* inverted_mode = vehicles can go only on passing lane
 	* @author teamhimeH
 	*/
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; };
@@ -84,7 +83,6 @@ public:
 		{
 			case halt_mode:
 			case prohibited_mode:
-			case inverted_mode:
 				restriction_colour = overtaking_mode_to_color(overtaking_mode);
 				break;
 			case invalid_mode:
@@ -104,8 +102,6 @@ public:
 				return COL_LIGHT_PURPLE - 1;
 			case prohibited_mode:
 				return COL_ORANGE + 1;
-			case inverted_mode:
-				return COL_LEMON_YELLOW - 1;
 			case oneway_mode:
 				return 22;
 			case invalid_mode:
