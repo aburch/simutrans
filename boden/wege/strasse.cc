@@ -280,6 +280,7 @@ void strasse_t::rdwr(loadsave_t *file)
 }
 
 void strasse_t::set_overtaking_mode(overtaking_mode_t o) {
+	if (o == invalid_mode) { return; }
 	grund_t* gr = welt->lookup(get_pos());
 	if (!welt->get_active_player()->is_public_service() && is_public_right_of_way() && gr->removing_way_would_disrupt_public_right_of_way(road_wt)) {
 		return;

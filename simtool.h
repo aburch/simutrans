@@ -278,7 +278,7 @@ protected:
 
 public:
 	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), desc() {
-		overtaking_mode = twoway_mode;
+		overtaking_mode = invalid_mode;
 	}
 	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE;
@@ -323,7 +323,7 @@ private:
 public:
 	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) {
 		way_desc = NULL;
-		overtaking_mode = twoway_mode;
+		overtaking_mode = invalid_mode;
 	}
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
 	char const* get_tooltip(player_t const*) const OVERRIDE;

@@ -17,7 +17,7 @@ class tool_build_bridge_t;
 class tool_build_tunnel_t;
 class player_t;
 
-#define MAX_OVERTAKING_MODE 4
+#define MAX_OVERTAKING_MODE 5
 
 /*
  * Dialogue to set the signal spacing, when CTRL+clicking a signal on toolbar
