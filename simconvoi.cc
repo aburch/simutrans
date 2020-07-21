@@ -1606,7 +1606,7 @@ bool convoi_t::drive_to()
 			}
 
 			// continue route search until the destination is a station/stop or a reversing waypoint
-			while(is_waypoint(ziel) && schedule->get_current_entry().reverse == false)
+			while(is_waypoint(ziel) && schedule->get_current_entry().reverse < 1)
 			{
 				allow_clear_reservation = false;
 				start = ziel;
