@@ -851,8 +851,22 @@ public:
 class tool_convoy_nameplate_t : public tool_t {
 public:
 	tool_convoy_nameplate_t() : tool_t(TOOL_CONVOY_NAMEPLATES | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("switch the convoy nameplate display mode"); }
 	bool init(player_t *) OVERRIDE {
-		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + 1) % 3;
+		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + 1) % 4;
+		welt->set_dirty();
+		return false;
+	}
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+};
+
+class tool_convoy_loadingbar_t : public tool_t {
+public:
+	tool_convoy_loadingbar_t() : tool_t(TOOL_CONVOY_LOADINGBAR | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("switch the convoy loading bar display mode"); }
+	bool init(player_t *) OVERRIDE {
+		env_t::show_cnv_loadingbar = (env_t::show_cnv_loadingbar + 1) % 4;
 		welt->set_dirty();
 		return false;
 	}

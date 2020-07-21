@@ -1198,6 +1198,7 @@ public:
 	sint32 get_max_signal_speed() const { return max_signal_speed; }
 
 	inline void set_wait_lock(sint32 value) { wait_lock = value; }
+	inline sint32 get_wait_lock() { return wait_lock; }
 
 	bool check_destination_reverse(route_t* current_route = NULL, route_t* target_rt = NULL);
 
