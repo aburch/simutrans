@@ -3128,6 +3128,9 @@ bool way_builder_t::check_access(const weg_t* way, const player_t* player) const
 }
 
 void way_builder_t::update_ribi_mask_oneway(strasse_t* str, uint32 i) {
+	if (str->is_deletable(player_builder) != NULL) {
+		return;
+	}
 	if(  str->get_overtaking_mode()>oneway_mode  ) {
 		str->set_ribi_mask_oneway(ribi_t::none);
 	} else if(  overtaking_mode<=oneway_mode  &&  get_count()>1   ){ //of course street is oneway_mode
