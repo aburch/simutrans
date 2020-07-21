@@ -1424,6 +1424,8 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 	delete eventmanager;
 	eventmanager = 0;
 
+	translator::delete_all_lists();
+
 	network_core_shutdown();
 
 	simgraph_exit();
