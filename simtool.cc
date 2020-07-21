@@ -2837,7 +2837,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 			way->mark_image_dirty( way->get_image(), 0 );
 			if (desc->get_wtyp() == road_wt && (j < bauigel.get_count() - 1)
 				&& (get_overtaking_mode() <= oneway_mode || get_build_way_tool_from_toolbar(desc)->get_overtaking_mode() <= oneway_mode)) {
-				uint8 dir;
+				uint8 dir = 0;
 				if (route_reversed && (j > 1)) {
 					dir = ribi_type(pos, bauigel.get_route()[j - 1]);
 				}
