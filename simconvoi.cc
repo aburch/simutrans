@@ -1420,8 +1420,7 @@ bool convoi_t::prepare_for_routing()
 		}
 
 		halthandle_t destination_halt = haltestelle_t::get_halt(ziel, get_owner());
-		halthandle_t this_halt = haltestelle_t::get_halt(start, get_owner());
-		if (this_halt.is_bound() && this_halt == destination_halt)
+		if (start == ziel)
 		{
 			// For some reason, the schedule has failed to advance. Advance it before calculating the route.
 			reverse_schedule ? schedule->advance_reverse() : schedule->advance();
@@ -1429,6 +1428,7 @@ bool convoi_t::prepare_for_routing()
 		}
 
 		// avoid stopping mid-halt
+		// check ziel again, as it may have been advanced in the previous check
 		if (start == ziel) {
 			if (destination_halt.is_bound() && route.is_contained(start)) {
 				for (uint32 i = route.index_of(start); i < route.get_count(); i++) {
@@ -5342,7 +5342,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	// so code inside if will be executed once. At arrival time.
 	minivec_tpl<uint8> departure_entries_to_remove(schedule->get_count());
 
-	if(journey_distance > 0 && last_stop_id != this_halt_id)
+	if(journey_distance > 0)
 	{
 		arrival_time = welt->get_ticks();
 		inthashtable_tpl<uint16, sint64> best_times_in_schedule; // Key: halt ID; value: departure time.
