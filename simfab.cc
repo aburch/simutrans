@@ -62,8 +62,6 @@
 static const int FAB_MAX_INPUT = 15000;
 // Half a display unit (0.5).
 static const sint64 FAB_DISPLAY_UNIT_HALF = ((sint64)1 << (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS - 1));
-// Half a production factor unit (0.5).
-static const sint32 FAB_PRODFACT_UNIT_HALF = ((sint32)1 << (DEFAULT_PRODUCTION_FACTOR_BITS - 1));
 
 karte_ptr_t fabrik_t::welt;
 
@@ -3202,13 +3200,19 @@ void fabrik_t::recalc_nearby_halts()
 	// Go through all the base tiles of the factory.
 	vector_tpl<koord> tile_list;
 	get_tile_list(tile_list);
+
+#ifdef DEBUG
 	bool any_distribution_target = false; // just for debugging
+#endif
+
 	FOR(vector_tpl<koord>, const k, tile_list)
 	{
 		const planquadrat_t* plan = welt->access(k);
 		if(plan)
 		{
+#ifdef DEBUG
 			any_distribution_target=true;
+#endif
 			const uint8 haltlist_count = plan->get_haltlist_count();
 			if(haltlist_count)
 			{
@@ -3529,6 +3533,9 @@ bool fabrik_t::add_supplier(fabrik_t* fab)
 			if(  fab!=this  &&  fab->vorrat_an(ware) > -1  ) { //"inventory to" (Google)
 				// add us to this factory
 				fab->add_lieferziel(pos.get_2d());
+				cbuffer_t buf;
+				buf.printf(translator::translate("New shipping destination added to Factory %s"), translator::translate(fab->get_name()));
+				welt->get_message()->add_message(buf, fab->get_pos().get_2d(), message_t::industry, CITY_KI, fab->get_desc()->get_building()->get_tile(0)->get_background(0, 0, 0));
 				return true;
 			}
 	}

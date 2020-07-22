@@ -463,7 +463,7 @@ random_grounds_probability = 10
 # show random moving animals (n = every n suited tiles, default 1000)
 random_wildlife_probability = 1000
 
-# animate the water each intervall (if images available)
+# animate the water each interval (if images available)
 # costs some time for the additional redraw (~1-3%)
 water_animation_ms = 250
 

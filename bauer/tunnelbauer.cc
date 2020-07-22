@@ -595,9 +595,6 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 		ribi = alter_boden->get_weg_ribi_unmasked(desc->get_waytype()) | ribi_type(zv);
 	}
 
-	const grund_t* gr = welt->lookup(end);
-	const weg_t* old_way = gr ? gr->get_weg(way_desc->get_wtyp()) : NULL;
-	const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(desc->get_waytype()) : NULL;
 	tunnelboden_t *tunnel = new tunnelboden_t( end, alter_boden->get_grund_hang());
 	tunnel->obj_add(new tunnel_t(end, player, desc));
 

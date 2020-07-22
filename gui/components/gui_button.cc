@@ -57,6 +57,7 @@ button_t::button_t() :
 	translated_tooltip = tooltip = NULL;
 	background_color = COL_WHITE;
 	b_enabled = true;
+	image = IMG_EMPTY;
 
 	// By default a box button
 	init(box,"");
@@ -121,6 +122,8 @@ void button_t::set_typ(enum type t)
 
 		case box:
 			text_color = SYSCOL_COLORED_BUTTON_TEXT;
+			// fallthrough
+
 		case roundbox:
 			set_size( scr_size(gui_theme_t::gui_button_size.w, max(D_BUTTON_HEIGHT,LINESPACE)) );
 			break;
@@ -293,6 +296,9 @@ void button_t::draw(scr_coord offset)
 					area_text.set_pos( gui_theme_t::gui_button_text_offset + area.get_pos() );
 					if (pressed) { area_text.y++; }
 					display_proportional_ellipse( area_text, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
+				}
+				else if(image) {
+					display_img_aligned(image, area, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, true);
 				}
 				if(  win_get_focus()==this  ) {
 					draw_focus_rect( area );

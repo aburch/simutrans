@@ -736,7 +736,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 
 	DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need %i of %s)",info->get_supplier_count(),lcount,consumption,ware->get_name());
 
-	// We only observe the max_distance_to_supplier if the supplier can exist in our region. 
+	// We only observe the max_distance_to_supplier if the supplier can exist in our region.
 	const uint8 our_factory_region = welt->get_region(our_fab->get_pos().get_2d());
 
 	uint16 max_distance_to_supplier = our_fab->get_desc()->get_max_distance_to_supplier();

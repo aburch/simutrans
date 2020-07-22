@@ -159,6 +159,7 @@ public:
 	uint16 get_current_speed() const {return current_speed;}
 
 	uint32 get_max_speed() override;
+	inline sint32 get_max_power_speed() OVERRIDE {return get_max_speed();}
 
 	const char *get_name() const OVERRIDE {return "Verkehrsteilnehmer";}
 	//typ get_typ() const { return road_user; }

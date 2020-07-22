@@ -246,10 +246,9 @@ void bruecke_t::finish_rd()
 		{
 			weg->set_max_speed(min(desc->get_topspeed(), way_desc->get_topspeed()));
 		}
+
 		weg->set_bridge_weight_limit(desc->get_max_weight());
 
-		const weg_t* old_way = gr ? gr->get_weg(desc->get_wtyp()) : NULL;
-		const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(desc->get_waytype()) : NULL;
 		// take ownership of way
 		player_t::add_maintenance( weg->get_owner(), -weg->get_desc()->get_maintenance(), desc->get_finance_waytype());
 		weg->set_owner(player);

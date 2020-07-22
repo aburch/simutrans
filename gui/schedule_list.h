@@ -57,6 +57,9 @@ private:
 	schedule_t *last_schedule;
 	uint32 last_vehicle_count;
 
+	button_t filter_btn_all_pas, filter_btn_all_mails, filter_btn_all_freights;
+	uint8 line_type_flags = simline_t::all_ftype;
+
 	// only show schedules containing ...
 	char schedule_filter[512], old_schedule_filter[512];
 
@@ -95,6 +98,7 @@ private:
 
 	gui_combobox_t livery_selector, sortedby;
 
+	uint8 get_filter_type_bits() { return line_type_flags; }
 
 public:
 	/// last selected line per tab
