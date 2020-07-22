@@ -5804,3 +5804,5 @@ filter_freight_line
 Show only freight
 New shipping destination added to Factory %s
 %s now supplies its products to a new industry.
+Loading (%i->%i%%) Long Time
+Loading (%i->%i%%) (long wait)
