@@ -451,7 +451,7 @@ uint32 convoi_t::move_to(uint16 const start_index)
 	for (unsigned i = 0; i != vehicle_count; ++i) {
 		vehicle_t& v = *vehicle[i];
 
-		if(  grund_t const* gr = welt->lookup(v.get_pos())  ) {
+		if(  welt->lookup(v.get_pos())  ) {
 			v.mark_image_dirty(v.get_image(), 0);
 			v.leave_tile();
 			// maybe unreserve this
@@ -958,9 +958,12 @@ route_t::route_result_t convoi_t::calc_route(koord3d start, koord3d ziel, sint32
 			// in this case.
 			needs_full_route_flush = true;
 		}
+		// fallthrough
+
 	default:
 		return success;
 	};
+
 	return success;
 }
 
@@ -1417,8 +1420,7 @@ bool convoi_t::prepare_for_routing()
 		}
 
 		halthandle_t destination_halt = haltestelle_t::get_halt(ziel, get_owner());
-		halthandle_t this_halt = haltestelle_t::get_halt(start, get_owner());
-		if (this_halt.is_bound() && this_halt == destination_halt)
+		if (start == ziel)
 		{
 			// For some reason, the schedule has failed to advance. Advance it before calculating the route.
 			reverse_schedule ? schedule->advance_reverse() : schedule->advance();
@@ -1426,6 +1428,7 @@ bool convoi_t::prepare_for_routing()
 		}
 
 		// avoid stopping mid-halt
+		// check ziel again, as it may have been advanced in the previous check
 		if (start == ziel) {
 			if (destination_halt.is_bound() && route.is_contained(start)) {
 				for (uint32 i = route.index_of(start); i < route.get_count(); i++) {
@@ -1527,7 +1530,7 @@ bool convoi_t::drive_to()
 			// Reset these for now to allow waypoint check below to work.
 			ziel = original_destination;
 			schedule->set_current_stop(original_current_stop);
-		} 
+		}
 
 		if (update_line)
 		{
@@ -1541,6 +1544,7 @@ bool convoi_t::drive_to()
 #ifdef MULTI_THREAD
 			int error = pthread_mutex_unlock(&step_convois_mutex);
 			assert(error == 0);
+			(void)error;
 #endif
 		}
 	}
@@ -1560,6 +1564,7 @@ bool convoi_t::drive_to()
 #ifdef MULTI_THREAD
 			int error = pthread_mutex_unlock(&step_convois_mutex);
 			assert(error == 0);
+			(void)error;
 #endif
 		}
 		// wait before next attempt for a normal no route.
@@ -1601,7 +1606,7 @@ bool convoi_t::drive_to()
 			}
 
 			// continue route search until the destination is a station/stop or a reversing waypoint
-			while(is_waypoint(ziel) && schedule->get_current_entry().reverse == false)
+			while(is_waypoint(ziel) && schedule->get_current_entry().reverse < 1)
 			{
 				allow_clear_reservation = false;
 				start = ziel;
@@ -1634,6 +1639,7 @@ bool convoi_t::drive_to()
 #ifdef MULTI_THREAD
 						int error = pthread_mutex_unlock(&step_convois_mutex);
 						assert(error == 0);
+						(void)error;
 #endif
 					}
 					// wait 25s before next attempt
@@ -2309,10 +2315,9 @@ end_loop:
 				}
 				break;
 			}
-			// no break
-			// continue with case SELF_DESTRUCT.
+			// fallthrough
 
-		// must be here; may otherwise confuse window management
+			// must be here; may otherwise confuse window management
 		case SELF_DESTRUCT:
 			welt->set_dirty();
 			destroy();
@@ -2350,7 +2355,8 @@ end_loop:
 			{
 				front()->play_sound();
 			}
-			// Fallthrough intended.
+			// fallthrough
+
 		case SELF_DESTRUCT:
 		case ENTERING_DEPOT:
 		case DRIVING:
@@ -2370,12 +2376,12 @@ end_loop:
 			{
 				state = WAITING_FOR_CLEARANCE;
 			}
+			// fallthrough
 
-		// action soon needed
 		case ROUTING_1:
 		case CAN_START:
 		case WAITING_FOR_CLEARANCE:
-			//wait_lock = 500;
+			// action soon needed
 			// Bernd Gabriel: simutrans extended may have presets the wait_lock before. Don't overwrite it here, if it ought to wait longer.
 			wait_lock = max(wait_lock, 250);
 			break;
@@ -3566,7 +3572,7 @@ void convoi_t::vorfahren()
 					sch->increment_index(&stop, &rev);
 				}
 
-				if((haltestelle_t::get_halt(sch->entries[stop].pos, owner).is_bound() && sch->entries[stop].reverse == 1 != (state == REVERSING)) && (state != ROUTE_JUST_FOUND || front()->get_waytype() != road_wt) && !last_stop_was_depot)
+				if((haltestelle_t::get_halt(sch->entries[stop].pos, owner).is_bound() && ((sch->entries[stop].reverse == 1) != (state == REVERSING))) && (state != ROUTE_JUST_FOUND || front()->get_waytype() != road_wt) && !last_stop_was_depot)
 				{
 					need_to_update_line = true;
 					const sint8 reverse_state = state == REVERSING ? 1 : 0;
@@ -4791,7 +4797,7 @@ void convoi_t::rdwr(loadsave_t *file)
 					file->rdwr_short(value);
 					if (iter.value.total == UINT32_MAX_VALUE)
 					{
-						value = 65535;
+						value = -1;
 					}
 					else
 					{
@@ -5336,7 +5342,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	// so code inside if will be executed once. At arrival time.
 	minivec_tpl<uint8> departure_entries_to_remove(schedule->get_count());
 
-	if(journey_distance > 0 && last_stop_id != this_halt_id)
+	if(journey_distance > 0)
 	{
 		arrival_time = welt->get_ticks();
 		inthashtable_tpl<uint16, sint64> best_times_in_schedule; // Key: halt ID; value: departure time.
@@ -7824,6 +7830,7 @@ uint32 convoi_t::calc_reverse_delay() const
 #ifdef MULTI_THREAD
 						int error = pthread_mutex_unlock(&step_convois_mutex);
 						assert(error == 0);
+						(void)error;
 #endif
 					 }
 				 }
@@ -7864,7 +7871,6 @@ uint32 convoi_t::calc_reverse_delay() const
 		sint64 etd = eta;
 		vector_tpl<uint16> halts_already_processed;
 		const uint32 reverse_delay = calc_reverse_delay();
-		uint8 old_schedule_entry = schedule_entry;
 		schedule->increment_index_until_next_halt(front()->get_owner(), &schedule_entry, &rev);
 		for(uint8 i = 0; i < count; i++)
 		{
@@ -8090,6 +8096,7 @@ void convoi_t::emergency_go_to_depot(bool show_success)
 #ifdef MULTI_THREAD
 			int error = pthread_mutex_unlock(&step_convois_mutex);
 			assert(error == 0);
+			(void)error;
 #endif
 			// Do NOT do the convoi_arrived here: it's done in enter_depot!
 			state = INITIAL;
@@ -8115,6 +8122,7 @@ void convoi_t::emergency_go_to_depot(bool show_success)
 #ifdef MULTI_THREAD
 			int error = pthread_mutex_unlock(&step_convois_mutex);
 			assert(error == 0);
+			(void)error;
 #endif
 		}
 	}

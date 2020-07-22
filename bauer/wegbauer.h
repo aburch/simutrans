@@ -272,6 +272,8 @@ public:
 	void build();
 };
 
-ENUM_BITSET(way_builder_t::bautyp_t);
+
+ENUM_BITSET(way_builder_t::bautyp_t)
+
 
 #endif

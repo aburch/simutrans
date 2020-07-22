@@ -7,7 +7,7 @@ CFG ?= default
 -include config.$(CFG)
 
 
-BACKENDS      = allegro gdi opengl sdl sdl2 mixer_sdl posix
+BACKENDS      = allegro gdi opengl sdl sdl2 mixer_sdl mixer_sdl2 posix
 COLOUR_DEPTHS = 0 16
 OSTYPES       = amiga beos cygwin freebsd haiku linux mingw32 mingw64 mac openbsd
 
@@ -596,6 +596,34 @@ ifeq ($(BACKEND),sdl2)
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)
+endif
+
+ifeq ($(BACKEND),mixer_sdl2)
+  SOURCES += simsys_s2.cc
+  ifeq ($(SDL2_CONFIG),)
+    ifeq ($(OSTYPE),mac)
+      SDL_CFLAGS  := -I/Library/Frameworks/SDL2.framework/Headers
+      SDL_LDFLAGS := -framework SDL2
+    else
+      SDL_CFLAGS  := -I$(MINGDIR)/include/SDL2 -Dmain=SDL_main
+      SDL_LDFLAGS := -lSDL2main -lSDL2
+    endif
+  else
+		SOURCES += sound/sdl_mixer_sound.cc
+		SOURCES += music/sdl_midi.cc
+    SDL_CFLAGS  := $(shell $(SDL2_CONFIG) --cflags)
+    ifneq ($(STATIC),)
+      ifeq ($(shell expr $(STATIC) \>= 1), 1)
+        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
+      else
+        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
+      endif
+    else
+      SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
+    endif
+  endif
+  CFLAGS += $(SDL_CFLAGS)
+  LIBS   += $(SDL_LDFLAGS) -lSDL2_mixer
 endif
 
 ifeq ($(BACKEND),mixer_sdl)

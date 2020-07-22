@@ -85,7 +85,7 @@
 void traffic_vehicle_t::flush_travel_times(strasse_t* str)
 {
 	if(get_max_speed() && str->get_max_speed() && dist_travelled_since_last_hop > (128 << YARDS_PER_VEHICLE_STEP_SHIFT))
-	{	
+	{
 		str->update_travel_times(world()->get_ticks() - time_at_last_hop, dist_travelled_since_last_hop / min(get_max_speed(), kmh_to_speed(str->get_max_speed())));
 	}
 	reset_measurements();
@@ -1085,7 +1085,6 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 	if (total_freight < total_capacity)
 	{
 		schedule_t *schedule = cnv->get_schedule();
-		uint16 capacity_left = total_capacity - total_freight;
 		slist_tpl<ware_t> freight_add;
 		uint16 capacity_this_class;
 		uint32 freight_this_class;
@@ -1172,8 +1171,6 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 							iter_z = freight_add.erase(iter_z);
 						}
 					}
-
-					capacity_left = total_capacity - total_freight;
 
 					if (!freight_add.empty())
 					{
@@ -1816,7 +1813,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 	}
 	const bool is_corner = current_direction != previous_direction;
 	const bool is_slope = welt->lookup(w->get_pos())->get_weg_hang() != slope_t::flat;
-	const bool slope_specific_speed = w->get_desc()->get_topspeed_gradient_1() < w->get_desc()->get_topspeed() || w->get_desc()->get_topspeed_gradient_2() < w->get_desc()->get_topspeed(); 
+	const bool slope_specific_speed = w->get_desc()->get_topspeed_gradient_1() < w->get_desc()->get_topspeed() || w->get_desc()->get_topspeed_gradient_2() < w->get_desc()->get_topspeed();
 
 	const bool is_tilting = desc->get_tilting();
 	const sint32 base_limit = desc->get_override_way_speed() && !(slope_specific_speed && is_slope) ? SINT32_MAX_VALUE : kmh_to_speed(w->get_max_speed());
@@ -2514,6 +2511,7 @@ void vehicle_t::rdwr(loadsave_t *file)
 {
 	// this is only called from objlist => we save nothing ...
 	assert(  file->is_saving()  );
+	(void)file;
 }
 
 
@@ -3125,7 +3123,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				char emergency_stop_time[64];
 				cnv->snprintf_remaining_emergency_stop_time(emergency_stop_time, sizeof(emergency_stop_time));
 				sprintf( tooltip_text, translator::translate("emergency_stop %s left"),emergency_stop_time/*, lengthof(tooltip_text) */);
-					color = COL_RED;
+				color = COL_RED;
 
 			case convoi_t::LOADING:
 				if(  state>=1  )
@@ -3853,7 +3851,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 						}
 						if(  other_direction != 255  ){
 							//There is another car. We have to check if this convoi is facing or not.
-							ribi_t::ribi this_direction;
+							ribi_t::ribi this_direction = 0;
 							if(  test_index-route_index==0  ) this_direction = get_90direction();
 							if(  test_index-route_index==1  ) this_direction = get_next_90direction();
 							if(  ribi_t::reverse_single(this_direction) == other_direction  ) {
@@ -4410,7 +4408,7 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 	return NULL;
 }
 
-uint32 road_vehicle_t::do_drive(uint32 distance) 
+uint32 road_vehicle_t::do_drive(uint32 distance)
 {
 	uint32 distance_travelled = vehicle_base_t::do_drive(distance);
 	if(leading)
@@ -4502,7 +4500,7 @@ void road_vehicle_t::hop(grund_t* gr_to) {
 		if(gr)
 		{
 			strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
-			if(str) 
+			if(str)
 			{
 				if(get_last_stop_pos() != get_pos() && get_pos_next() != get_pos_prev())
 				{
@@ -5080,7 +5078,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	return blocks;
 }
 
- 
+
 bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uint8)
 {
 	assert(leading);
@@ -5245,7 +5243,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		{
 			// We need to check whether this is a station signal that does not protect any junctions: if so, just check its state, do not call the block reserver.
 			enum station_signal_status { none, forward, inverse };
-			station_signal_status station_signal;
+			station_signal_status station_signal = station_signal_status::none;
 			signal_t* sig = NULL;
 			for(uint32 k = 0; k < this_halt->get_station_signals_count(); k ++)
 			{
@@ -5256,17 +5254,16 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					sig = way_check ? way_check->get_signal(ribi) : NULL;
 					if(sig)
 					{
-						station_signal = forward;
+						station_signal = station_signal_status::forward;
 						break;
 					}
 					else
 					{
 						// Check the opposite direction as station signals work in the exact opposite direction
-						ribi_t::ribi ribi_backwards = ribi_t::backward(ribi);
-						sig = gr_check->get_weg(get_waytype())->get_signal(ribi_backwards);
+						sig = gr_check->get_weg(get_waytype())->get_signal(ribi_t::backward(ribi));
 						if(sig)
 						{
-							station_signal = inverse;
+							station_signal = station_signal_status::inverse;
 							break;
 						}
 					}
@@ -5298,7 +5295,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					{
 						// Caution
 						cnv->set_maximum_signal_speed(min(kmh_to_speed(w_current->get_max_speed()) / 2, sig->get_desc()->get_max_speed() / 2));
-						sig->set_state(inverse ? roadsign_t::caution : roadsign_t::caution_no_choose);
+						sig->set_state(station_signal == station_signal_status::inverse ? roadsign_t::caution : roadsign_t::caution_no_choose);
 						find_next_signal(cnv->get_route(),  max(route_index, 1) - 1, next_signal);
 						if (next_signal <= route_index)
 						{
@@ -5309,7 +5306,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					{
 						// Clear
 						cnv->set_maximum_signal_speed(kmh_to_speed(sig->get_desc()->get_max_speed()));
-						sig->set_state(inverse ? roadsign_t::clear : roadsign_t::clear_no_choose);
+						sig->set_state(station_signal == station_signal_status::inverse ? roadsign_t::clear : roadsign_t::clear_no_choose);
 						find_next_signal(cnv->get_route(),  max(route_index, 1) - 1, next_signal);
 						if (next_signal <= route_index)
 						{
@@ -5991,7 +5988,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	koord3d last_pos = start_index > 0 ? route->at(start_index - 1) : pos;
 	const halthandle_t this_halt = haltestelle_t::get_halt(pos, get_owner());
 	halthandle_t last_step_halt;
-	uint16 this_stop_signal_index;
+	uint16 this_stop_signal_index = INVALID_INDEX;
 	uint16 last_pre_signal_index = INVALID_INDEX;
 	uint16 last_stop_signal_index = INVALID_INDEX;
 	uint16 restore_last_stop_signal_index = INVALID_INDEX;
@@ -6021,7 +6018,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	sint32 choose_return = 0;
 	bool reached_end_of_loop = false;
 	bool no_junctions_to_next_signal = true;
-	bool no_junctions_to_last_signal = true;
 	signal_t* previous_signal = NULL;
 	bool end_of_block = false;
 	bool not_entirely_free = false;
@@ -6041,7 +6037,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	const uint32 station_signals = this_halt.is_bound() ? this_halt->get_station_signals_count() : 0;
 	signal_t* first_station_signal = NULL;
 	enum station_signal_status { none, forward, inverse };
-	station_signal_status station_signal;
+	station_signal_status station_signal = station_signal_status::none;
 	uint32 steps_so_far = 0;
 	roadsign_t::signal_aspects next_time_interval_state = roadsign_t::danger;
 	roadsign_t::signal_aspects first_time_interval_state = roadsign_t::advance_caution; // A time interval signal will never be in advance caution, so this is a placeholder to indicate that this value has not been set.
@@ -6783,8 +6779,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							last_longblock_signal_index = i;
 						}
+
 						// Any junctions previously found no longer apply to the next signal, unless this is a pre-signal
-						no_junctions_to_last_signal = no_junctions_to_next_signal;
 						no_junctions_to_next_signal = true;
 
 					}

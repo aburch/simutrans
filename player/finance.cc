@@ -508,7 +508,7 @@ transport_type finance_t::translate_waytype_to_tt(const waytype_t wt)
 
 waytype_t finance_t::translate_tt_to_waytype(const transport_type tt)
 {
-	switch (tt) 
+	switch (tt)
 	{
 		case TT_ROAD:			return road_wt;
 		case TT_RAILWAY:		return track_wt;

@@ -1278,7 +1278,7 @@ bool check_pos_win(event_t *ev)
 		move_win( is_moving, ev );
 		return true;
 	}
-	 
+
 	// just resize window until button release
 	if(  is_resizing>=0  &&  (unsigned)is_resizing<wins.get_count()  &&  (IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  ) {
 		resize_win( is_resizing, ev );

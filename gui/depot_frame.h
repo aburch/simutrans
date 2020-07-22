@@ -100,7 +100,8 @@ private:
 	button_t filter_btn_all_pas, filter_btn_all_mails, filter_btn_all_freights;
 	// rebuild the line selector
 	void build_line_list();
-
+	// pas=1, mail=2, freight=3
+	uint8 line_type_flags = 0;
 
 	gui_convoy_assembler_t convoy_assembler;
 

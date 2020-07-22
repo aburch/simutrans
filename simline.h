@@ -36,7 +36,7 @@ enum line_cost_t {
 	LINE_REFUNDS,				//  9 |   | Total refunds paid to passengers/goods owners desiring to use this line but kept waiting too long to do so.
 	LINE_DEPARTURES,			// 10 |   | number of departures of convoys on this line from scheduled points
 	LINE_DEPARTURES_SCHEDULED,	// 11 |   | number of departures scheduled on this line from scheduled departure points
-	LINE_WAYTOLL,				// 12 | 8 | 
+	LINE_WAYTOLL,				// 12 | 8 |
 	MAX_LINE_COST				// 13 | 9 | Total number of cost items
 };
 
@@ -53,7 +53,7 @@ public:
 	enum line_fireight_group { all_ftype = 0, all_pas = 1, all_mail = 2, all_freight = 3 };
 
 	enum states { line_normal_state = 0, line_no_convoys = 1, line_loss_making = 2, line_nothing_moved = 4, line_overcrowded = 8, line_missing_scheduled_slots = 16, line_has_obsolete_vehicles = 32, line_has_upgradeable_vehicles = 64	};
-	
+
 protected:
 	schedule_t * schedule;
 	player_t *player;

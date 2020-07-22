@@ -38,6 +38,8 @@ void begin_desc_class(HSQUIRRELVM vm, const char* name, const char* base, GETBES
 {
 	SQInteger res = create_class(vm, name, base);
 	assert( SQ_SUCCEEDED(res) );
+	(void)res;
+
 	// store method to retrieve desc in typetag pointer
 	sq_settypetag(vm, -1, (void*)func);
 	registered_desc_functions.append_unique( func );
