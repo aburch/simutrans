@@ -3344,10 +3344,10 @@ bool convoi_t::can_go_alte_direction()
 				ok = true;
 
 				// check direction
-				uint8 richtung = v->get_direction();
-				uint8 neu_richtung = v->calc_direction(get_route()->at(max(idx - 1, 0)), v->get_pos_next());
+				ribi_t::ribi dir = v->get_direction();
+				ribi_t::ribi new_dir = v->calc_direction(get_route()->at(max(idx - 1, 0)), v->get_pos_next());
 				// we need to move to this place ...
-				if (neu_richtung != richtung && (i != 0 || vehicle_count == 1 || ribi_t::is_bend(neu_richtung))) {
+				if (!(dir&new_dir) && (i != 0 || vehicle_count == 1 || ribi_t::is_bend(new_dir))) {
 					// 90 deg bend!
 					return false;
 				}
