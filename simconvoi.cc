@@ -113,7 +113,9 @@ static const char * state_names[convoi_t::MAX_STATES] =
 	"OUT_OF_RANGE",
 	"EMERGENCY_STOP",
 	"JUST_FOUND_ROUTE",
-	"NO_ROUTE_TOO_COMPLEX"
+	"NO_ROUTE_TOO_COMPLEX",
+	"WAITING_FOR_LOADING_THREE_MONTHS",
+	"WAITING_FOR_LOADING_FOUR_MONTHS"
 };
 
 
@@ -1245,6 +1247,8 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 		case CAN_START:
 		case CAN_START_ONE_MONTH:
 		case CAN_START_TWO_MONTHS:
+		case WAITING_FOR_LOADING_THREE_MONTHS:
+		case WAITING_FOR_LOADING_FOUR_MONTHS:
 		case REVERSING:
 			// Hajo: this is an async task, see step() or threaded_step()
 			break;
@@ -2303,6 +2307,8 @@ end_loop:
 			break;
 
 		case LOADING:
+		case WAITING_FOR_LOADING_THREE_MONTHS:
+		case WAITING_FOR_LOADING_FOUR_MONTHS:
 			laden();
 			if (state != SELF_DESTRUCT)
 			{
@@ -2595,6 +2601,16 @@ void convoi_t::new_month()
 	else if(state==CAN_START_ONE_MONTH  ||  state==CAN_START_TWO_MONTHS  ) {
 		get_owner()->report_vehicle_problem( self, koord3d::invalid );
 		state = CAN_START_TWO_MONTHS;
+	}
+	// check for endless loading
+	if (state == LOADING && get_loading_limit() && financial_history[1][CONVOI_DISTANCE] == 0 && financial_history[2][CONVOI_DISTANCE] == 0 && financial_history[2][CONVOI_AVERAGE_SPEED] != 0) {
+		if (financial_history[3][CONVOI_DISTANCE] == 0 && financial_history[3][CONVOI_AVERAGE_SPEED] != 0) {
+			state = WAITING_FOR_LOADING_FOUR_MONTHS;
+			get_owner()->report_vehicle_problem(self, koord3d::invalid);
+		}
+		else {
+			state = WAITING_FOR_LOADING_THREE_MONTHS;
+		}
 	}
 	// check for obsolete vehicles in the convoi
 	if(!has_obsolete  &&  welt->use_timeline()) {
@@ -6808,7 +6824,7 @@ COLOR_VAL convoi_t::get_status_color() const
 		// in depot/under assembly
 		return SYSCOL_TEXT_HIGHLIGHT;
 	}
-	else if (skinverwaltung_t::alerts && (state == WAITING_FOR_CLEARANCE_ONE_MONTH || state == CAN_START_ONE_MONTH || get_state() == EMERGENCY_STOP)) {
+	else if (skinverwaltung_t::alerts && (state == WAITING_FOR_CLEARANCE_ONE_MONTH || state == CAN_START_ONE_MONTH || get_state() == EMERGENCY_STOP || get_state() == WAITING_FOR_LOADING_THREE_MONTHS || get_state() == WAITING_FOR_LOADING_FOUR_MONTHS)) {
 		// Display symbol if pakset has alert symbols.
 		return COL_ORANGE;
 	}
