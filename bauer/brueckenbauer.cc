@@ -227,8 +227,8 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 				// else only the straight ones
 				ribi = gr->get_weg_ribi_unmasked(wt);
 			}
-			// same waytype, same direction, no stop or depot or any other stuff */
-			if(  gr->get_weg(wt)  &&  ribi_t::doubles(ribi) == ribi_t::doubles( check_ribi )  ) {
+			// same waytype, same direction, no stop or depot or any other stuff
+			if (gr->get_weg(wt) && ribi_check(ribi, check_ribi)) {
 				// ok too
 				return NULL;
 			}
@@ -297,14 +297,14 @@ bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, player_t
 			const bool public_service = player ? player->is_public_service() : true;
 			const sint8 player_nr = player ? player->get_player_nr() : -1;
 			if (w
-				&& (w->get_max_speed() > 0
+				&& (w->get_max_speed() > 0 && w->get_max_axle_load() > 0
 
 				&& ((w->get_desc()->get_waytype() != road_wt
 					&& w->get_desc()->get_waytype() != tram_wt
 					&& w->get_desc()->get_waytype() != water_wt)
 
 					|| (w->get_player_nr() != player_nr && !public_service)
-					|| (w->is_public_right_of_way() && !public_service))))
+					|| (w->is_public_right_of_way() && !w->is_disused()))))
 			{
 				error_msg = "Bridge blocked by way below or above.";
 				return true;

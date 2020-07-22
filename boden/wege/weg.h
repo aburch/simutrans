@@ -446,6 +446,8 @@ public:
 	*/
 	int get_statistics(int type) const { return statistics[WAY_STAT_LAST_MONTH][type]; }
 
+	bool is_disused() const { return statistics[WAY_STAT_LAST_MONTH][WAY_STAT_CONVOIS] == 0 && statistics[WAY_STAT_THIS_MONTH][WAY_STAT_CONVOIS] == 0; }
+
 	/**
 	* new month
 	* @author hsiegeln

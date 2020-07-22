@@ -5355,9 +5355,70 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 			     (bd_next->is_water() || bd_next->hat_weg(water_wt) || bd_next->hat_weg(track_wt) || bd_next->hat_weg(narrowgauge_wt) ||
 			       bd_next->hat_weg(monorail_wt) || bd_next->hat_weg(maglev_wt) || (bd_next->hat_weg(road_wt) && !bd_next->get_weg(road_wt)->is_public_right_of_way()))) {
 				// There is a river, a canal, railway, a private road, or a lake in the way. Build a bridge.
-				build_bridge(bd, direction, map_generation);
+				const bridge_desc_t* bridge = bridge_builder_t::find_bridge(road_wt, welt->get_city_road()->get_topspeed(), welt->get_timeline_year_month());
+				if (bridge == NULL) {
+					// does not have a bridge available ...
+					return false;
+				}
+				const char* err = NULL;
+				sint8 bridge_height;
+				koord3d end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, false);
+				if (err || koord_distance(k, end.get_2d()) > 3) {
+					// try to find shortest possible
+					end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
+				}
+				// if the river is nagigable, we need a two hight slope, so we have to start on a flat tile
+				if (err && *err != 0 && strcmp(err, "Bridge is too long for this type!\n") != 0 && bd->get_weg_hang() != slope_t::flat) {
+					slope_t::type old_slope = bd->get_grund_hang();
+					sint8 h_diff = slope_t::max_diff(old_slope);
+					// raise up the tile
+					bd->set_grund_hang(slope_t::flat);
+					bd->set_hoehe(bd->get_hoehe() + h_diff);
+					end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, false);
+					if (err || koord_distance(k, end.get_2d()) > 3) {
+						// try to find shortest possible
+						end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
+					}
+					// not successful: restore old slope
+					if (err && *err != 0 || end == koord3d::invalid || koord_distance(k, end.get_2d()) > 5) {
+						bd->set_grund_hang(old_slope);
+						bd->set_hoehe(bd->get_hoehe() - h_diff);
+					}
+					else
+					{
+						// update slope graphics on tile and tile in front
+						// The below code from Standard does not seem to exist in Extended
+						// (that is, the check_update_underground() logic.
+						/*
+						if (grund_t* bd_recalc = welt->lookup_kartenboden(k + koord(0, 1))) {
+							bd_recalc->check_update_underground();
+						}
+						if (grund_t* bd_recalc = welt->lookup_kartenboden(k + koord(1, 0))) {
+							bd_recalc->check_update_underground();
+						}
+						if (grund_t* bd_recalc = welt->lookup_kartenboden(k + koord(1, 1))) {
+							bd_recalc->check_update_underground();
+						}*/
+						bd->mark_image_dirty();
+					}
+				}
+				if ((err == NULL || *err == 0) && koord_distance(k, end.get_2d()) <= 5 && welt->is_within_limits((end + zv).get_2d())) {
+					bridge_builder_t::build_bridge(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
+					// try to build one connecting piece of road
+					build_road((end + zv).get_2d(), NULL, forced, map_generation);
+					// try to build a house near the bridge end
+					uint32 old_count = buildings.get_count();
+					for (uint8 i = 0; i < lengthof(koord::neighbours) && buildings.get_count() == old_count; i++) {
+						koord c(end.get_2d() + zv + koord::neighbours[i]);
+						if (welt->is_within_limits(c)) {
+							build_city_building(end.get_2d() + zv + koord::neighbours[i], forced, map_generation);
+						}
+					}
+				}
 			}
 		}
+		return true;
+
 		return true;
 	}
 
