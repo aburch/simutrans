@@ -2454,7 +2454,7 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 					necessary_diversions ++;
 				}
 				const bool route_good = diversionary_route.calc_route(welt, start, end, diversion_checker, max_speed, max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight_limit, w->get_pos()) == route_t::valid_route;
-				if(route_good && (diversionary_route.get_count() < welt->get_settings().get_max_diversion_tiles()))
+				if(route_good && (diversionary_route.get_count() <= welt->get_settings().get_max_diversion_tiles()))
 				{
 					successful_diversions ++;
 					diversionary_routes.append(diversionary_route);
