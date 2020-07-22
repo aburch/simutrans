@@ -5611,7 +5611,7 @@ Show only connected to own transport network
 Show only connected to own passenger transportation network
 Show only connected to own passenger transportation network
 Show only cities within the active player's transportation network
-Show only cities within the active player's transportation network
+Show only cities within the current player's transportation network
 Fully stocked
 Fully stocked
 Power usage
@@ -5743,7 +5743,7 @@ Always show line name
 no convoy nameplate
 Never show line name
 active player's line name
-Show line name for active player only
+Current playher line name
 Productivity
 Productivity
 (Max. %d%%)
@@ -5807,10 +5807,10 @@ Show only freight
 New shipping destination added to Factory %s
 %s now supplies its products to a new industry.
 mouseover loading bar
-Mouse-over convoy load indicator
+Mouse-over loading bar
 no convoy loading bar
-No convoy load indicator
+No loading bar
 active player's loading bar
-Show convoy load indicator for active player
+Current player loading bar
 always show loading bar
-Always show convoy load indicator
+Always show loading bar
