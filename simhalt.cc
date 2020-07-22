@@ -5563,29 +5563,29 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 	linehandle_t line = cnv->get_line();
 	int count = 0;
 	const bool is_road_type = cnv->get_vehicle(0)->get_waytype() == road_wt;
-	for(slist_tpl<convoihandle_t>::const_iterator i = loading_here.begin(), end = loading_here.end();  i != end && (*i) != cnv; ++i)
+	FOR(slist_tpl<convoihandle_t>, loading_cnv, loading_here)
 	{
-		if(!(*i).is_bound() || get_halt((*i)->get_pos(), owner) != self)
+		if(!loading_cnv.is_bound() || get_halt(loading_cnv->get_pos(), owner) != self || loading_cnv == cnv)
 		{
 			continue;
 		}
-		const int state = (*i)->get_state();
+		const int state = loading_cnv->get_state();
 		// QUERY: If this stop is the stop at which the reverse_route setting is set/unset, might
-		// ((*i)->get_reverse_schedule() == cnv->get_reverse_schedule())
+		// (loading_cnv->get_reverse_schedule() == cnv->get_reverse_schedule())
 		// give a false negative, therefore incorrectly assigning two vehicles to the same queue position?
 		//
 		// ANSWER: No, as the reverse route is only engaged/disengaged on leaving the stop.
 
-		if((*i)->get_line() == line &&
-			(((*i)->get_schedule()->get_current_stop() == cnv->get_schedule()->get_current_stop()
-			&& ((*i)->get_reverse_schedule() == cnv->get_reverse_schedule())
+		if(loading_cnv->get_line() == line &&
+			((loading_cnv->get_schedule()->get_current_stop() == cnv->get_schedule()->get_current_stop()
+			&& (loading_cnv->get_reverse_schedule() == cnv->get_reverse_schedule())
 			&& (!is_road_type || state == convoi_t::LOADING))
 			|| (state == convoi_t::REVERSING
 			&& !is_road_type
 			&& cnv->calc_remaining_loading_time() > 100
-			&& ((*i)->get_reverse_schedule() ?
-				(*i)->get_schedule()->get_current_stop() + 1 == cnv->get_schedule()->get_current_stop() :
-				(*i)->get_schedule()->get_current_stop() - 1 == cnv->get_schedule()->get_current_stop()))))
+			&& (loading_cnv->get_reverse_schedule() ?
+				loading_cnv->get_schedule()->get_current_stop() + 1 == cnv->get_schedule()->get_current_stop() :
+				loading_cnv->get_schedule()->get_current_stop() - 1 == cnv->get_schedule()->get_current_stop()))))
 		{
 			count++;
 		}

@@ -593,6 +593,11 @@ path_explorer_t::compartment_t::~compartment_t()
 	{
 		delete outbound_connections;
 	}
+
+	if (class_name)
+	{
+		delete [] class_name;
+	}
 }
 
 
