@@ -97,8 +97,8 @@ void boden_t::calc_image_internal(const bool calc_only_snowline_change)
 
 	const weg_t *const weg = get_weg( road_wt );
 	if(  weg  &&  weg->hat_gehweg()  ) {
-		// single or double slope? (single slopes are not divisible by 8)
-		const uint8 imageid = (!slope_this  ||  (slope_this & 7)) ? ground_desc_t::slopetable[slope_this] : ground_desc_t::slopetable[slope_this >> 1] + 12;
+		// single or double slope
+		const uint8 imageid = (!slope_this  ||  is_one_high(slope_this)) ? ground_desc_t::slopetable[slope_this] : ground_desc_t::slopetable[slope_this >> 1] + 12;
 
 		if(  (get_hoehe() >= welt->get_snowline()  ||  welt->get_climate(pos.get_2d()) == arctic_climate)  &&  skinverwaltung_t::fussweg->get_image_id(imageid + 1) != IMG_EMPTY  ) {
 			// snow images

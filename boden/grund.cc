@@ -279,11 +279,11 @@ void grund_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		if(  file->get_version() < 112007  ) {
 			// convert slopes from old single height saved game
-			slope = (scorner_sw(slope) + scorner_se(slope) * 3 + scorner_ne(slope) * 9 + scorner_nw(slope) * 27) * env_t::pak_height_conversion_factor;
+			slope = encode_corners(scorner_sw(slope), scorner_se(slope), scorner_ne(slope), scorner_nw(slope)) * env_t::pak_height_conversion_factor;
 		}
 		if(  !ground_desc_t::double_grounds  ) {
 			// truncate double slopes to single slopes
-			slope = min( corner_sw(slope), 1 ) + min( corner_se(slope), 1 ) * 3 + min( corner_ne(slope), 1 ) * 9 + min( corner_nw(slope), 1 ) * 27;
+			slope = encode_corners(min( corner_sw(slope), 1 ), min( corner_se(slope), 1 ), min( corner_ne(slope), 1 ), min( corner_nw(slope), 1 ));
 		}
 	}
 
@@ -892,8 +892,8 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 		if (const grund_t *gr = welt->lookup_kartenboden(k + koord::nsew[(i - 1) & 3])) {
 			const uint8 back_height = min(corner_nw(slope_this), (i == 0 ? corner_sw(slope_this) : corner_ne(slope_this)));
 
-			const sint16 left_hgt = gr->get_disp_height() - back_height;
-			const sint8 slope = gr->get_disp_slope();
+			const sint16 left_hgt=gr->get_disp_height()-back_height;
+			const slope_t::type slope=gr->get_disp_slope();
 
 			const uint8 corner_a = (i == 0 ? corner_sw(slope_this) : corner_nw(slope_this)) - back_height;
 			const uint8 corner_b = (i == 0 ? corner_nw(slope_this) : corner_ne(slope_this)) - back_height;
@@ -972,7 +972,13 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 		for (int i = 0; i <= 2; i++) {
 			if (const grund_t *gr = welt->lookup_kartenboden(k + testdir[i] - koord(step, step))) {
 				sint16 h = gr->get_disp_height()*scale_z_step;
-				sint8 s = gr->get_disp_slope();
+				slope_t::type s = gr->get_disp_slope();
+				// tile should hide anything in tunnel portal behind (tile not in direction of tunnel)
+				if (step == 0  &&  ((i&1)==0)  &&  s  &&  gr->ist_tunnel()) {
+					if ( ribi_t::reverse_single(ribi_type(s)) != ribi_type(testdir[i])) {
+						s = slope_t::flat;
+					}
+				}
 				// take backimage into account, take base-height of back image as corner heights
 				sint8 bb = abs(gr->back_imageid);
 				sint8 lh = 2, rh = 2; // height of start of back image
@@ -1042,7 +1048,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 			// choose foundation or natural slopes
 			const ground_desc_t *sl_draw = artificial ? ground_desc_t::fundament : ground_desc_t::slopes;
 
-			const sint8 disp_slope = get_disp_slope();
+			const slope_t::type disp_slope = get_disp_slope();
 			// first draw left, then back slopes
 			for(  int i=0;  i<2;  i++  ) {
 				const uint8 back_height = min(i==0?corner_sw(disp_slope):corner_ne(disp_slope),corner_nw(disp_slope));
@@ -1056,7 +1062,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 					grund_t *gr = welt->lookup_kartenboden( k + koord::nsew[(i-1)&3] );
 					if(  gr  ) {
 						// for left we test corners 2 and 3 (east), for back we use 1 and 2 (south)
-						const sint8 gr_slope = gr->get_disp_slope();
+						const slope_t::type gr_slope = gr->get_disp_slope();
 						uint8 corner_a = corner_se(gr_slope);
 						uint8 corner_b = i==0?corner_ne(gr_slope):corner_sw(gr_slope);
 
@@ -1129,7 +1135,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 
 					// get transition climate - look for each corner in turn
 					for(  int i = 0;  i < 4;  i++  ) {
-						sint8 corner_height = get_hoehe() + (slope_corner % 3);
+						sint8 corner_height = get_hoehe() + corner_sw(slope_corner);
 
 						climate transition_climate = climate0;
 						climate min_climate = arctic_climate;
@@ -1152,14 +1158,14 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 								uint8 overlay_corners = 1 << i;
 								slope_t::type slope_corner_se = slope_corner;
 								for(  int j = i + 1;  j < 4;  j++  ) {
-									slope_corner_se /= 3;
+									slope_corner_se /= slope_t::southeast;
 
 									// now we check to see if any of remaining corners have same climate transition (also using highest of course)
 									// if so we combine into this overlay layer
 									if(  (climate_corners >> j) & 1  ) {
 										climate compare = climate0;
 										for(  int k = 1;  k < 4;  k++  ) {
-											corner_height = get_hoehe() + (slope_corner_se % 3);
+											corner_height = get_hoehe() + corner_sw(slope_corner_se);
 											if(  corner_height == neighbour_height[(j * 2 + k) & 7][(j + k) & 3]) {
 												climate climatej = neighbour_climate[(j * 2 + k) & 7];
 												climatej > compare ? compare = climatej : 0;
@@ -1176,7 +1182,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 								display_alpha( ground_desc_t::get_climate_tile( transition_climate, slope ), ground_desc_t::get_alpha_tile( slope, overlay_corners ), ALPHA_GREEN | ALPHA_BLUE, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
 							}
 						}
-						slope_corner /= 3;
+						slope_corner /= slope_t::southeast;
 					}
 					// finally overlay any water transition
 					if(  water_corners  ) {
@@ -1363,8 +1369,8 @@ slope_t::type grund_t::get_disp_way_slope() const
 		if (ist_bruecke()) {
 			const slope_t::type slope = get_grund_hang();
 			if(  slope != 0  ) {
-				// for half height slopes we want all corners at 1, for full height all corners at 2
-				return (slope & 7) ? slope_t::raised / 2 : slope_t::raised;
+				// all corners to same height
+				return is_one_high(slope) ? slope_t::all_up_one : slope_t::all_up_two;
 			}
 			else {
 				return get_weg_hang();
