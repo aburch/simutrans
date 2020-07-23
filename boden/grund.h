@@ -846,8 +846,7 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 		if(  way_slope != slope  ) {
 			if(  ist_bruecke()  &&  slope  ) {
 				// calculate height quicker because we know that slope exists and is north, south, east or west
-				// single heights are not integer multiples of 8, double heights are
-				h += (slope & 7) ? 1 : 2;
+				h += is_one_high(slope) ? 1 : 2;
 			}
 		}
 

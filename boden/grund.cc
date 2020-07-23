@@ -1369,8 +1369,8 @@ slope_t::type grund_t::get_disp_way_slope() const
 		if (ist_bruecke()) {
 			const slope_t::type slope = get_grund_hang();
 			if(  slope != 0  ) {
-				// for half height slopes we want all corners at 1, for full height all corners at 2
-				return (slope & 7) ? slope_t::raised / 2 : slope_t::raised;
+				// all corners to same height
+				return is_one_high(slope) ? slope_t::all_up_one : slope_t::all_up_two;
 			}
 			else {
 				return get_weg_hang();
