@@ -1189,10 +1189,10 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 		{
 			convoihandle_t const c = *i;
 			if (c.is_bound()
-				&& (c->get_state() == convoi_t::LOADING || c->get_state() == convoi_t::REVERSING || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE)
+				&& (c->is_loading() || c->get_state() == convoi_t::REVERSING || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE)
 				&& ((get_halt(c->get_pos(), owner) == self)
 					|| (c->get_vehicle(0)->get_waytype() == water_wt
-					&& c->get_state() == convoi_t::LOADING
+					&& c->is_loading()
 					&& get_halt(c->get_schedule()->get_current_entry().pos, owner) == self)))
 			{
 				++i;
@@ -5579,7 +5579,7 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 		if(loading_cnv->get_line() == line &&
 			((loading_cnv->get_schedule()->get_current_stop() == cnv->get_schedule()->get_current_stop()
 			&& (loading_cnv->get_reverse_schedule() == cnv->get_reverse_schedule())
-			&& (!is_road_type || state == convoi_t::LOADING))
+			&& (!is_road_type || loading_cnv->is_loading()))
 			|| (state == convoi_t::REVERSING
 			&& !is_road_type
 			&& cnv->calc_remaining_loading_time() > 100

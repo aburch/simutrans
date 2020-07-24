@@ -756,7 +756,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 						if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(dt)  ) {
 							convoi_t* const ocnv = car->get_convoi();
 							if(  ocnv  ) {
-								if(  next_lane<1  &&  !is_overtaking()  &&  !other_lane_blocked(false)  &&  !ocnv->is_overtaking()   &&  can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : ocnv->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->get_vehicle(0)->get_steps())  ) {
+								if(  next_lane<1  &&  !is_overtaking()  &&  !other_lane_blocked(false)  &&  !ocnv->is_overtaking()   &&  can_overtake( ocnv, (ocnv->is_loading() ? 0 : ocnv->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->get_vehicle(0)->get_steps())  ) {
 									if(current_speed==0) {
 										ms_traffic_jam = 0;
 										current_speed = 48;
@@ -798,7 +798,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 								if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(dt)  ) {
 									convoi_t* const ocnv = car->get_convoi();
 									if(  ocnv  ) {
-										if(  can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehicle(0)->get_steps())  ) {
+										if(  can_overtake( ocnv, (ocnv->is_loading() ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehicle(0)->get_steps())  ) {
 											if(current_speed==0) {
 												ms_traffic_jam = 0;
 												current_speed = 48;
