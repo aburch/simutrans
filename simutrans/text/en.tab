@@ -5806,3 +5806,5 @@ New shipping destination added to Factory %s
 %s now supplies its products to a new industry.
 Loading (%i->%i%%) Long Time
 Loading (%i->%i%%) (long wait)
+Vehicle %s wait loading too much!
+Vehicle %s has been loading for a long time.
