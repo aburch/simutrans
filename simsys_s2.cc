@@ -281,8 +281,7 @@ int dr_os_open(int width, int height, int const fullscreen)
 	if (!internal_create_surfaces(true, w, h)) {
 		return 0;
 	}
-	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (internal w=%d, h=%d)", width, height, w, h);
-	SDL_SetWindowSize(window, width, height);
+	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (internal w=%d, h=%d)", width, height, w, h );
 
 	SDL_ShowCursor(0);
 	arrow = SDL_GetCursor();
@@ -342,8 +341,9 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 		}
 		fflush(NULL);
 	}
-	display_set_actual_width(screen->w);
-	SDL_SetWindowSize(window, width, height);
+
+	display_set_actual_width( screen->w );
+
 	*textur = dr_textur_init();
 	return screen->w;
 }
