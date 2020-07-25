@@ -5545,7 +5545,7 @@ bool tool_city_chain_t::init( player_t * )
 }
 
 /* builds a industry chain in the next town
- * defaukt_param see previous function
+ * default_param see previous function
  */
 const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 {
