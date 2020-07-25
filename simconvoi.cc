@@ -1253,6 +1253,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
         case WAITING_FOR_CLEARANCE_ONE_MONTH:
         case WAITING_FOR_CLEARANCE_TWO_MONTHS:
         case SELF_DESTRUCT:
+		case EMERGENCY_STOP:
             break;
 
         case INITIAL:
