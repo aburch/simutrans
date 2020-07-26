@@ -142,18 +142,22 @@ void interaction_t::interactive_event( const event_t &ev )
 				world->set_dirty();
 				break;
 			case '6':
+			case SIM_KEY_RIGHT:
 				viewport->change_world_position(viewport->get_world_position() + koord(+1,-1));
 				world->set_dirty();
 				break;
 			case '2':
+			case SIM_KEY_DOWN:
 				viewport->change_world_position(viewport->get_world_position() + koord(+1,+1));
 				world->set_dirty();
 				break;
 			case '8':
+			case SIM_KEY_UP:
 				viewport->change_world_position(viewport->get_world_position() + koord(-1,-1));
 				world->set_dirty();
 				break;
 			case '4':
+			case SIM_KEY_LEFT:
 				viewport->change_world_position(viewport->get_world_position() + koord(-1,+1));
 				world->set_dirty();
 				break;
@@ -210,10 +214,6 @@ void interaction_t::interactive_event( const event_t &ev )
 						ok=true;
 					}
 #endif
-					// The arrow keys are used for pull-down lists, selectors and dialog operations.
-					if (ev.ev_code == SIM_KEY_UP || ev.ev_code == SIM_KEY_DOWN || ev.ev_code == SIM_KEY_LEFT || ev.ev_code == SIM_KEY_RIGHT) {
-						ok = true;
-					}
 					if(!ok) {
 						help_frame_t::open_help_on( "keys.txt" );
 					}
