@@ -397,7 +397,7 @@ void planquadrat_t::correct_water()
 		sint8 disp_hn_se = max( gr->get_hoehe() + corner_se(slope), water_hgt );
 		sint8 disp_hn_ne = max( gr->get_hoehe() + corner_ne(slope), water_hgt );
 		sint8 disp_hn_nw = max( gr->get_hoehe() + corner_nw(slope), water_hgt );
-		const uint8 sneu = (disp_hn_sw - disp_hneu) + ((disp_hn_se - disp_hneu) * 3) + ((disp_hn_ne - disp_hneu) * 9) + ((disp_hn_nw - disp_hneu) * 27);
+		const slope_t::type sneu = encode_corners(disp_hn_sw - disp_hneu, disp_hn_se - disp_hneu, disp_hn_ne - disp_hneu, disp_hn_nw - disp_hneu);
 		gr->set_hoehe( disp_hneu );
 		gr->set_grund_hang( (slope_t::type)sneu );
 	}
@@ -411,7 +411,7 @@ void planquadrat_t::abgesenkt()
 		const uint8 slope = gr->get_grund_hang();
 
 		gr->obj_loesche_alle(NULL);
-		sint8 max_hgt = gr->get_hoehe() + (slope != 0 ? (slope & 7 ? 1 : 2) : 0);
+		sint8 max_hgt = gr->get_hoehe() + (slope ? 1 : 0);		// only matters that not flat
 
 		koord k(gr->get_pos().get_2d());
 		if(  max_hgt <= welt->get_water_hgt( k )  &&  gr->get_typ() != grund_t::wasser  ) {
@@ -440,7 +440,7 @@ void planquadrat_t::angehoben()
 		const uint8 slope = gr->get_grund_hang();
 
 		gr->obj_loesche_alle(NULL);
-		sint8 max_hgt = gr->get_hoehe() + (slope != 0 ? (slope & 7 ? 1 : 2) : 0);
+		sint8 max_hgt = gr->get_hoehe() + (slope ? 1 : 0);		// only matters that not flat
 
 		koord k(gr->get_pos().get_2d());
 		if(  max_hgt > welt->get_water_hgt( k )  &&  gr->get_typ() == grund_t::wasser  ) {
