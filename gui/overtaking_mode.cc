@@ -19,7 +19,7 @@
 #define L_DIALOG_WIDTH (200)
 
 overtaking_mode_t overtaking_mode_frame_t::overtaking_mode = invalid_mode;
-char overtaking_mode_frame_t::mode_name[MAX_OVERTAKING_MODE][20] = {"halt mode", "oneway", "twoway", "prohibited", "default"};
+char overtaking_mode_frame_t::mode_name[MAX_OVERTAKING_MODE][20] = {"halt mode", "oneway", "twoway", "prohibited", "do not change the mode for existing ways"};
 
 overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_way_t* tool_) :
 	gui_frame_t( translator::translate("set overtaking mode") )
