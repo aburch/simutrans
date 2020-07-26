@@ -57,6 +57,9 @@ const skin_desc_t* skinverwaltung_t::intown             = NULL;
 const skin_desc_t* skinverwaltung_t::passengers         = NULL;
 const skin_desc_t* skinverwaltung_t::mail               = NULL;
 const skin_desc_t* skinverwaltung_t::goods              = NULL;
+const skin_desc_t* skinverwaltung_t::happy              = NULL;
+const skin_desc_t* skinverwaltung_t::unhappy            = NULL;
+const skin_desc_t* skinverwaltung_t::no_route           = NULL;
 const skin_desc_t* skinverwaltung_t::station_type       = NULL;
 const skin_desc_t* skinverwaltung_t::seasons_icons      = NULL;
 const skin_desc_t* skinverwaltung_t::message_options    = NULL;
@@ -147,6 +150,9 @@ static special_obj_tpl<skin_desc_t> const fakultative_objekte[] = {
 	{ &skinverwaltung_t::toolbar_background, "ToolsBackground"},
 	{ &skinverwaltung_t::compass_iso,        "CompassIso"     },
 	{ &skinverwaltung_t::compass_map,        "CompassMap"     },
+	{ &skinverwaltung_t::happy,              "Happy"          },
+	{ &skinverwaltung_t::unhappy,            "Unhappy"        },
+	{ &skinverwaltung_t::no_route,           "NoRoute"        },
 	{ NULL, NULL }
 };
 

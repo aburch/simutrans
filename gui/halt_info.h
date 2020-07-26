@@ -51,7 +51,7 @@ class halt_info_t : public gui_frame_t, private action_listener_t
 private:
 
 	gui_aligned_container_t *container_top;
-	gui_label_buf_t lb_capacity[3], lb_happy;
+	gui_label_buf_t lb_capacity[3], lb_happy[3];
 	gui_colorbox_t indicator_color;
 	gui_image_t img_enable[3];
 	gui_halt_type_images_t *img_types;
