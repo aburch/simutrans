@@ -987,12 +987,12 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			tooltip_convoi_acceleration.append(translator::translate("no power at all"));
 		}
 		else{
-			const uint32 starting_acceleration_max = convoy.calc_acceleration(weight_summary_t(min_weight, friction), 0);
-			const uint32 starting_acceleration_min = convoy.calc_acceleration(weight_summary_t(max_weight, friction), 0);
+			const float32e8_t starting_acceleration_max = convoy.calc_acceleration(weight_summary_t(min_weight, friction), 0);
+			const float32e8_t starting_acceleration_min = convoy.calc_acceleration(weight_summary_t(max_weight, friction), 0);
 			tooltip_convoi_acceleration.append(translator::translate("Starting acceleration:"));
 			tooltip_convoi_acceleration.printf(
 				starting_acceleration_min == starting_acceleration_max ? " %.2f km/h/s" : " %.2f - %.2f km/h/s",
-				(double)starting_acceleration_min / 100.0, (double)starting_acceleration_max / 100.0);
+				starting_acceleration_min.to_double() / 1000.0, starting_acceleration_max.to_double() / 1000.0);
 			// acceleration time
 			const double min_acceleration_time = convoy.calc_acceleration_time(weight_summary_t(min_weight, friction), max_speed);
 			const double max_acceleration_time = convoy.calc_acceleration_time(weight_summary_t(max_weight, friction), min_speed);
