@@ -1219,7 +1219,7 @@ int convoi_t::get_vehicle_at_length(uint16 length)
 		}
 	}
 	return vehicle_count;
-}
+} 
 
 
 // moves all vehicles of a convoi
