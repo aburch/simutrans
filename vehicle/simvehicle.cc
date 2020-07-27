@@ -3120,6 +3120,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				cnv->snprintf_remaining_emergency_stop_time(emergency_stop_time, sizeof(emergency_stop_time));
 				sprintf( tooltip_text, translator::translate("emergency_stop %s left"),emergency_stop_time/*, lengthof(tooltip_text) */);
 				color = COL_RED;
+				break;
 
 			case convoi_t::LOADING:
 				if(  state>=1  )
