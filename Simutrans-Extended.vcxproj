@@ -3944,6 +3944,7 @@
     <Text Include="simutrans\text\en\mouse.txt" />
     <Text Include="simutrans\text\en\new_world.txt" />
     <Text Include="simutrans\text\en\options.txt" />
+    <Text Include="simutrans\text\en\overtaking_mode_frame.txt" />
     <Text Include="simutrans\text\en\password.txt" />
     <Text Include="simutrans\text\en\players.txt" />
     <Text Include="simutrans\text\en\privatecar.txt" />

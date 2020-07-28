@@ -1065,30 +1065,26 @@ void weg_t::info(cbuffer_t & buf) const
 		const strasse_t* str = static_cast<const strasse_t*>(this);
 		assert(str);
 		// Display overtaking_info
+		buf.printf("%s: ", translator::translate("overtaking"));
 		switch (str->get_overtaking_mode()) {
 			case halt_mode:
-				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("halt mode"));
+				buf.append(translator::translate("halt mode"));
 				break;
 			case oneway_mode:
-				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("oneway"));
+				buf.append(translator::translate("oneway"));
 				break;
 			case twoway_mode:
-				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("twoway"));
-				break;
-			case loading_only_mode:
-				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("only loading convoi"));
+				buf.append(translator::translate("twoway"));
 				break;
 			case prohibited_mode:
-				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("prohibited"));
-				break;
-			case inverted_mode:
-				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("inverted"));
+				buf.append(translator::translate("prohibited"));
 				break;
 			default:
-				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("ERROR"));
+				buf.append(translator::translate("ERROR"));
 				break;
 		}
-}
+		buf.append("\n");
+	}
 
 #ifndef DEBUG_WAY_STATS
 	//buf.append("\n");
