@@ -1020,21 +1020,12 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 			if(  count_road<255  ) {
 				// for short distance: reduce number of cars
 				// calculated here, since the above number was based on production
-				count_road = CLIP( (sint32)(dist*15)/best_road_speed, 2, count_road );
-;
-				// Guess that average speed is half of "best" speed
-				const uint32 average_speed = best_road_speed / 2;
-
-				const sint64 freight_revenue_per_trip = freight->get_total_fare(distance_meters) * road_vehicle->get_capacity() * count_road / 3000;
-				const sint64 freight_cost_per_trip
-				  = ( (sint64) road_vehicle->get_running_cost(welt) * count_road
-				    )
-					* distance_meters * 2 / 1000;
-				const uint32 tpm = welt->speed_to_tiles_per_month(kmh_to_speed(average_speed));
-				const sint32 profit_per_month = ( (freight_revenue_per_trip - freight_cost_per_trip) * tpm / dist * 2) ;
-
-				cost_road = road_weg->get_maintenance() - profit_per_month;
-				DBG_MESSAGE("ai_goods_t::do_ki()","Net credits per month for road transport %.2f (income %.2f)",cost_road/100.0, profit_per_month/100.0 );
+				count_road = clamp( (sint32)(dist*15)/best_road_speed, 2, count_road );
+				int freight_price = (freight->get_value()*road_vehicle->get_capacity()*count_road)/24*((8000+(best_road_speed-80)*freight->get_speed_bonus())/1000);
+				cost_road = road_weg->get_maintenance() + 300/dist + (count_road*road_vehicle->get_running_cost()*best_road_speed)/(2*dist+5);
+				income_road = (freight_price*best_road_speed)/(2*dist+5);
+				DBG_MESSAGE("ai_goods_t::do_ki()","Netto credits per day and km for road transport %.2f (income %.2f)",cost_road/100.0, income_road/100.0 );
+				cost_road -= income_road;
 			}
 
 			// check location, if vehicles found

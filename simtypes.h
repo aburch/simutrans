@@ -130,12 +130,7 @@ enum systemtype_t {
 
 enum working_method_t { drive_by_sight, time_interval, absolute_block, token_block, track_circuit_block, cab_signalling, moving_block, one_train_staff, time_interval_with_telegraph };
 
-// makros are not very safe: thus use these macro like functions
-// otherwise things may fail or functions are called uneccessarily twice
-
-#define CLIP(wert,mini,maxi)  min(max((wert),(mini)),(maxi))
-
-// Hajo: define machine independent types
+// define machine independent types
 typedef unsigned int        uint;
 typedef   signed char       sint8;
 typedef unsigned char       uint8;

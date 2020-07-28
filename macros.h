@@ -22,15 +22,9 @@ static inline size_t lengthof(T (&)[N]) { return N; }
 #define MEMZERO(obj)     MEMZERON(&(obj), 1)
 
 // make sure, a value in within the borders
-static inline int clamp(int x, int min, int max)
+template<typename T> static inline T clamp(T v, T l, T u)
 {
-	if (x <= min) {
-		return min;
-	}
-	if (x >= max) {
-		return max;
-	}
-	return x;
+	return v < l ? l : (v > u ? u :v);
 }
 
 
