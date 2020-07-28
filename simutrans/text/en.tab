@@ -5808,3 +5808,15 @@ Loading (%i->%i%%) Long Time
 Loading (%i->%i%%) (long wait)
 Vehicle %s wait loading too much!
 Vehicle %s has been loading for a long time.
+hlptxt_factory_connected
+Connected to transport
+symbol_help_txt_in_transit
+In transit
+symbol_help_txt_lead_time
+Lead time
+Suspension of new orders due to sufficient supply
+No shipments demanded: sufficient product en route and in stock
+Shipment has been suspended due to consumption demand
+No shipments demanded: sufficient product is in stock
+Shipment is suspended
+No shipments demanded
