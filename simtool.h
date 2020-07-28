@@ -1021,7 +1021,7 @@ public:
 	bool is_selected() const OVERRIDE { return false; }
 	bool init( player_t * ) OVERRIDE {
 		assert(  default_param  );
-		sint16 level = min( max( atoi(default_param), 0), 16);
+		sint16 level = clamp(atoi(default_param), 0, 16);
 		welt->get_settings().set_traffic_level(level);
 		return false;
 	}
