@@ -147,11 +147,6 @@ enum systemtype_t {
 };
 
 
-// makros are not very safe: thus use these macro like functions
-// otherwise things may fail or functions are called uneccessarily twice
-
-#define CLIP(wert,mini,maxi)  min(max((wert),(mini)),(maxi))
-
 // define machine independent types
 typedef unsigned int        uint;
 typedef   signed char       sint8;

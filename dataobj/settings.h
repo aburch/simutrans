@@ -256,7 +256,7 @@ private:
 	bool with_private_paks;
 
 	/// what is the minimum clearance required under bridges
-	sint8 way_height_clearance;
+	uint8 way_height_clearance;
 
 	// if true, you can buy obsolete stuff
 	bool allow_buying_obsolete_vehicles;

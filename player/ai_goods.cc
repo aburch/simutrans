@@ -977,7 +977,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 			if(  count_road<255  ) {
 				// for short distance: reduce number of cars
 				// calculated here, since the above number was based on production
-				count_road = CLIP( (sint32)(dist*15)/best_road_speed, 2, count_road );
+				count_road = clamp( (sint32)(dist*15)/best_road_speed, 2, count_road );
 				int freight_price = (freight->get_value()*road_vehicle->get_capacity()*count_road)/24*((8000+(best_road_speed-80)*freight->get_speed_bonus())/1000);
 				cost_road = road_weg->get_maintenance() + 300/dist + (count_road*road_vehicle->get_running_cost()*best_road_speed)/(2*dist+5);
 				income_road = (freight_price*best_road_speed)/(2*dist+5);

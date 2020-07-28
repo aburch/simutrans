@@ -18,8 +18,6 @@
 #include "api/api_simple.h"  // my_ribi_t
 
 
-template<typename T> T clamp(T v, T l, T u) { return v < l ? l : (v > u ? u :v); }
-
 namespace script_api {
 
 	karte_ptr_t welt;
