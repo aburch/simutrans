@@ -27,7 +27,7 @@ class overtaking_mode_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
 	static overtaking_mode_t overtaking_mode;
-	static char mode_name[MAX_OVERTAKING_MODE][20];
+	static char mode_name[MAX_OVERTAKING_MODE][96];
 	player_t *player;
 	tool_build_way_t* tool_w;
 	tool_build_bridge_t* tool_b;
