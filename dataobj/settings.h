@@ -592,8 +592,8 @@ public:
 	uint16 get_remove_dummy_player_months() const { return remove_dummy_player_months; }
 	uint16 get_unprotect_abandoned_player_months() const { return unprotect_abandoned_player_months; }
 
-	sint8 get_way_height_clearance() const { return way_height_clearance; }
-	void set_way_height_clearance( sint8 n ) { way_height_clearance = n; }
+	uint8 get_way_height_clearance() const { return way_height_clearance; }
+	void set_way_height_clearance( uint8 n ) { way_height_clearance = n; }
 
 	uint32 get_default_ai_construction_speed() const { return default_ai_construction_speed; }
 	void set_default_ai_construction_speed( uint32 n ) { default_ai_construction_speed = n; }
