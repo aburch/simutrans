@@ -838,7 +838,7 @@ public:
 	{
 		rotation = (rotation+1)&3;
 		set_groesse( size_y, size_x, true);
-		rotate_regions(size_y); 
+		rotate_regions(size_y);
 	}
 	uint8 get_rotation() const { return rotation; }
 

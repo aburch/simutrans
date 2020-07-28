@@ -227,8 +227,8 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 				// else only the straight ones
 				ribi = gr->get_weg_ribi_unmasked(wt);
 			}
-			// same waytype, same direction, no stop or depot or any other stuff */
-			if(  gr->get_weg(wt)  &&  ribi_t::doubles(ribi) == ribi_t::doubles( check_ribi )  ) {
+			// same waytype, same direction, no stop or depot or any other stuff
+			if (gr->get_weg(wt) && ribi_check(ribi, check_ribi)) {
 				// ok too
 				return NULL;
 			}
@@ -297,14 +297,14 @@ bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, player_t
 			const bool public_service = player ? player->is_public_service() : true;
 			const sint8 player_nr = player ? player->get_player_nr() : -1;
 			if (w
-				&& (w->get_max_speed() > 0
+				&& (w->get_max_speed() > 0 && w->get_max_axle_load() > 0
 
 				&& ((w->get_desc()->get_waytype() != road_wt
 					&& w->get_desc()->get_waytype() != tram_wt
 					&& w->get_desc()->get_waytype() != water_wt)
 
 					|| (w->get_player_nr() != player_nr && !public_service)
-					|| (w->is_public_right_of_way() && !public_service))))
+					|| (w->is_public_right_of_way() && !w->is_disused()))))
 			{
 				error_msg = "Bridge blocked by way below or above.";
 				return true;
@@ -859,10 +859,12 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 				weg->set_max_speed(min(desc->get_topspeed(), way_desc->get_topspeed()));
 			}
 			const weg_t* old_way = start_gr ? start_gr->get_weg(way_desc->get_wtyp()) : NULL;
-			const wayobj_t* way_object = old_way ? way_object = start_gr->get_wayobj(desc->get_waytype()) : NULL;
+			const wayobj_t* way_object = old_way ? start_gr->get_wayobj(desc->get_waytype()) : NULL;
+
 			// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
 			weg->clear_way_constraints();
 			weg->add_way_constraints(desc->get_way_constraints());
+
 			if(old_way)
 			{
 				if(way_object)
@@ -895,7 +897,6 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 			const grund_t* gr = welt->lookup(weg->get_pos());
 			const slope_t::type hang = gr ? gr->get_weg_hang() :  slope_t::flat;
 			const weg_t* old_way = gr ? gr->get_weg(way_desc->get_wtyp()) : NULL;
-			const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(desc->get_waytype()) : NULL;
 
 			if(hang != slope_t::flat)
 			{
@@ -983,7 +984,6 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 				}
 				weg->set_bridge_weight_limit(desc->get_max_weight());
 				const weg_t* old_way = gr ? gr->get_weg(way_desc->get_wtyp()) : NULL;
-				const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(desc->get_waytype()) : NULL;
 				const slope_t::type hang = gr ? gr->get_weg_hang() :  slope_t::flat;
 				if(hang != slope_t::flat)
 				{
@@ -1068,8 +1068,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 
 void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t* desc, const way_desc_t *way_desc, overtaking_mode_t overtaking_mode, bool beginning)
 {
-	assert(weg_hang >= 0);
-	assert(weg_hang < 81);
+	assert(weg_hang <= slope_t::max_number);
 
 	grund_t *alter_boden = welt->lookup(end);
 	brueckenboden_t *bruecke;

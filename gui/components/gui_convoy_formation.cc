@@ -14,12 +14,12 @@
 
 
 // component for vehicle display
-gui_convoy_formaion_t::gui_convoy_formaion_t(convoihandle_t cnv)
+gui_convoy_formation_t::gui_convoy_formation_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
 }
 
-void gui_convoy_formaion_t::draw(scr_coord offset)
+void gui_convoy_formation_t::draw(scr_coord offset)
 {
 	if (cnv.is_bound()) {
 		offset.y += 2; // margin top
@@ -82,6 +82,7 @@ void gui_convoy_formaion_t::draw(scr_coord offset)
 			else {
 				buf.append(car_number);
 			}
+
 			int left = display_proportional_clip(offset.x + 2, offset.y, buf, ALIGN_LEFT, v->get_desc()->has_available_upgrade(month_now) ? COL_UPGRADEABLE : COL_GREY2, true);
 #ifdef DEBUG
 			if (v->is_reversed()) {
@@ -90,6 +91,8 @@ void gui_convoy_formaion_t::draw(scr_coord offset)
 			if (!v->get_desc()->is_bidirectional()) {
 				display_proportional_clip(offset.x + 2 + left, offset.y - 2, "<", ALIGN_LEFT, COL_LIGHT_TURQUOISE, true);
 			}
+#else
+			(void)left;
 #endif
 
 			color = v->get_desc()->is_future(month_now) || v->get_desc()->is_retired(month_now) ? COL_OUT_OF_PRODUCTION : COL_DARK_GREEN;

@@ -179,7 +179,7 @@ void signal_t::info(cbuffer_t & buf) const
 	koord3d sig_pos = this->get_pos();
 	const grund_t *sig_gr = welt->lookup_kartenboden(sig_pos.x, sig_pos.y);
 
-	if (sig_gr->get_hoehe() > sig_pos.z == true)
+	if (sig_gr->get_hoehe() > sig_pos.z)
 	{
 		buf.append(translator::translate("underground_signal"));
 		buf.append("\n");
@@ -521,8 +521,20 @@ void signal_t::info(cbuffer_t & buf) const
 		{
 			// If the signal is doubleheaded, apply the new "initial_direction" and write the direction to char
 			initial_direction = j == 1 ? initial_direction_2 : initial_direction;
-			directions == 2 ? sprintf(direction, "%s:", translator::translate(get_directions_name(initial_direction == 1 ? 4 : initial_direction == 2 ? 8 : initial_direction == 4 ? 1 : initial_direction == 8 ? 2 : initial_direction))) : sprintf(direction, "");
-			directions == 2 ? sprintf(spaces, "  ") : sprintf(spaces, "");
+			if (directions == 2) {
+				sprintf(direction,  "%s:", translator::translate(get_directions_name(
+					initial_direction == 1 ? 4 :
+					initial_direction == 2 ? 8 :
+					initial_direction == 4 ? 1 :
+					initial_direction == 8 ? 2 :
+					initial_direction)));
+				sprintf(spaces, "  ");
+			}
+			else {
+				direction[0] = '\0';
+				spaces[0] = '\0';
+			}
+
 			coming_from_direction = get_dir();
 			tiles = 0;
 			crossing = false;
@@ -531,7 +543,13 @@ void signal_t::info(cbuffer_t & buf) const
 			for (int b = 0; b < blocks_amount; b++)
 			{
 				gr = previous_signal ? welt->lookup(previous_signal->get_pos()) : welt->lookup(get_pos());
-				blocks_amount > 1 ? sprintf(block_text, translator::translate(" (block %i)"), b + 1) : sprintf(block_text, "");
+				if (blocks_amount > 1) {
+					sprintf(block_text, translator::translate(" (block %i)"), b + 1);
+				}
+				else {
+					block_text[0] = '\0';
+				}
+
 				signal = false;
 
 				for (uint32 i = 0; i < max_tiles_to_look; i++)
@@ -647,7 +665,7 @@ void signal_t::info(cbuffer_t & buf) const
 				// Convert the tiles counted to actual distance
 				const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
 				const double distance_km = (double)tiles * km_per_tile;
-				char distance[10];
+				char distance[20];
 
 				if (distance_km < 1)
 				{
@@ -665,7 +683,7 @@ void signal_t::info(cbuffer_t & buf) const
 				if (direction[0] != '\0')
 				{
 					buf.printf("%s\n", direction);
-					sprintf(direction, "");
+					direction[0] = '\0';
 				}
 
 				if (crossing)
@@ -673,8 +691,9 @@ void signal_t::info(cbuffer_t & buf) const
 					// If there is no signal before the first crossing, erase the "(block X)" display
 					if (b == 0)
 					{
-						sprintf(block_text, "");
+						block_text[0] = '\0';
 					}
+
 					// We want to emphasize the crossings importance in time interval (with telegraph) working method, by explicitly saying that the signal is protecting the crossing
 					// However, presignals in that WM would not protect the crossing, so just tell the distance.
 					if (!desc->is_pre_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph))
@@ -704,8 +723,9 @@ void signal_t::info(cbuffer_t & buf) const
 					{
 						if (b == 0)
 						{
-							sprintf(block_text, "");
+							block_text[0] = '\0';
 						}
+
 						buf.printf("%s%s%s: %s\n", spaces, translator::translate("distance_to_dead_end"), block_text, distance);
 						break; // break out of the "block counts"
 					}
@@ -846,7 +866,6 @@ void signal_t::info(cbuffer_t & buf) const
 
 				//sprintf(sb_name,"This is a very very long signal box name which is so long that no one remembers what it was actually called before the super long name of the signalbox got changed to its current slightly longer name which is still too long to display in only one line therefore splitting this very long signalbox name into several lines although maximum five lines which should suffice more than enough to guard against silly long signal box names");
 				int next_char_index = 0;
-				int old_next_char_index = 0;
 
 				for (int l = 0; l < max_lines; l++)
 				{
@@ -877,7 +896,6 @@ void signal_t::info(cbuffer_t & buf) const
 						{
 							sb_name[i] = sb_name[i + next_char_index];
 						}
-						old_next_char_index = next_char_index;
 					}
 
 				}

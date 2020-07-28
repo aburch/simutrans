@@ -2950,7 +2950,7 @@ void fabrik_t::new_month()
 // static !
 unsigned fabrik_t::status_to_color[MAX_FAB_STATUS] = {
 	COL_WHITE, COL_GREEN, COL_DODGER_BLUE, COL_LIGHT_TURQUOISE, COL_BLUE, COL_DARK_GREEN,
-	COL_GREY3, COL_DARK_BROWN+1, COL_YELLOW-1, COL_YELLOW, COL_ORANGE, COL_ORANGE_RED, COL_RED, COL_STAFF_SHORTAGE };
+	COL_GREY3, COL_DARK_BROWN + 1, COL_YELLOW - 1, COL_YELLOW, COL_ORANGE, COL_ORANGE_RED, COL_RED, COL_BLACK, COL_STAFF_SHORTAGE };
 
 #define FL_WARE_NULL           1
 #define FL_WARE_ALLENULL       2
@@ -2975,6 +2975,8 @@ void fabrik_t::recalc_factory_status()
 	total_transit = 0;
 	status_ein = FL_WARE_ALLELIMIT;
 	uint32 i = 0;
+	uint32 input_count = input.get_count();
+	uint32 supplier_check = 0;
 	FOR(array_tpl<ware_production_t>, const& j, input) {
 		if (j.menge >= j.max) {
 			status_ein |= FL_WARE_LIMIT;
@@ -2987,7 +2989,25 @@ void fabrik_t::recalc_factory_status()
 		if ((j.menge >> fabrik_t::precision_bits) == 0) {
 			status_ein |= FL_WARE_FEHLT_WAS;
 		}
-
+		// Does each input goods have one or more suppliers. If not, this factory will not be operational.
+		if (sector == manufacturing) {
+			FOR(vector_tpl<koord>, k, suppliers)
+			{
+				fabrik_t* supplier = fabrik_t::get_fab(k);
+				FOR(array_tpl<ware_production_t>, sw, supplier->get_output())
+				{
+					if (sw.get_typ() == j.get_typ())
+					{
+						supplier_check++;
+						continue;
+					}
+				}
+			}
+		}
+	}
+	if (sector == manufacturing && input_count > supplier_check) {
+		status = missing_connection;
+		return;
 	}
 	warenlager >>= fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS;
 	if (warenlager == 0) {
@@ -3027,16 +3047,28 @@ void fabrik_t::recalc_factory_status()
 	total_output = (uint32)warenlager;
 
 	// now calculate status bar
-	if (!haltcount) { status = inactive; }
-	else {
-		switch (sector) {
+	switch (sector) {
 		case marine_resource:
+			if (!lieferziele.get_count())
+			{
+				if (!add_customer(this)) {
+					status = missing_connection;
+					return;
+				}
+			}
 			// since it has a station function, it discriminates only whether stock is full or not
 			status = status_aus & FL_WARE_ALLEUEBER75 ? water_resource_full : water_resource;
 			break;
 		case resource:
 		case resource_city:
-			if (status_aus&FL_WARE_ALLEUEBER75 || status_aus & FL_WARE_UEBER75) {
+			if (!lieferziele.get_count())
+			{
+				status = missing_connection;
+			}
+			else if (!haltcount) {
+				status = inactive;
+			}
+			else if (status_aus&FL_WARE_ALLEUEBER75 || status_aus & FL_WARE_UEBER75) {
 				if (status_aus&FL_WARE_ALLEUEBER75) {
 					status = storage_full;	// connect => needs better service
 				}
@@ -3050,7 +3082,15 @@ void fabrik_t::recalc_factory_status()
 			}
 			break;
 		case manufacturing:
-			if (status_ein&FL_WARE_ALLELIMIT && status_aus&FL_WARE_ALLELIMIT) {
+			// Check if it has at least the minimum required connections
+			if (!lieferziele.get_count())
+			{
+				status = missing_connection;
+			}
+			else if (!haltcount) {
+				status = inactive;
+			}
+			else if (status_ein&FL_WARE_ALLELIMIT && status_aus&FL_WARE_ALLELIMIT) {
 				status = stuck; // all storages are full => Shipment and arrival are stagnant, and it can not produce anything
 			}
 			else if (status_ein&FL_WARE_ALLENULL) {
@@ -3075,7 +3115,14 @@ void fabrik_t::recalc_factory_status()
 			break;
 		case end_consumer:
 		case power_plant:
-			if (status_ein&FL_WARE_ALLELIMIT) {
+			if (!suppliers.get_count())
+			{
+				status = missing_connection;
+			}
+			else if (!haltcount) {
+				status = inactive;
+			}
+			else if (status_ein&FL_WARE_ALLELIMIT) {
 				// Excess supply or Stagnation of shipment or Low productivity or Customer shortage => receiving stop
 				status = mat_overstocked;
 			}
@@ -3097,13 +3144,17 @@ void fabrik_t::recalc_factory_status()
 			}
 			break;
 		default:
-			status = nothing;
+			if (!haltcount) {
+				status = inactive;
+			}
+			else {
+				status = nothing;
+			}
 			break;
-		}
-		// staff shortage check
-		if (chk_staff_shortage(sector, building->get_staffing_level_percentage())) {
-			status += staff_shortage;
-		}
+	}
+	// staff shortage check
+	if (chk_staff_shortage(sector, building->get_staffing_level_percentage())) {
+		status += staff_shortage;
 	}
 }
 
@@ -3172,7 +3223,6 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 	if (building)
 	{
 		buf.append("\n");
-        	buf.printf("%s: %s\n", translator::translate("Built in"), translator::get_year_month(building->get_purchase_time()));
 		buf.printf("%s: %d\n", translator::translate("Visitor demand"), building->get_adjusted_visitor_demand());
 #ifdef DEBUG
 		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), building->get_adjusted_jobs(), building->check_remaining_available_jobs());
@@ -3203,13 +3253,19 @@ void fabrik_t::recalc_nearby_halts()
 	// Go through all the base tiles of the factory.
 	vector_tpl<koord> tile_list;
 	get_tile_list(tile_list);
+
+#ifdef DEBUG
 	bool any_distribution_target = false; // just for debugging
+#endif
+
 	FOR(vector_tpl<koord>, const k, tile_list)
 	{
 		const planquadrat_t* plan = welt->access(k);
 		if(plan)
 		{
+#ifdef DEBUG
 			any_distribution_target=true;
+#endif
 			const uint8 haltlist_count = plan->get_haltlist_count();
 			if(haltlist_count)
 			{
@@ -3344,6 +3400,8 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		else {
 			buf.printf("\n");
 		}
+		buf.printf("\n");
+		buf.printf("%s: %s\n", translator::translate("Built in"), translator::get_year_month(building->get_purchase_time()));
 		buf.printf("\n");
 		buf.printf(translator::translate("Constructed by %s"), get_fab(building->get_pos().get_2d())->get_desc()->get_copyright());
 	}
@@ -3528,6 +3586,9 @@ bool fabrik_t::add_supplier(fabrik_t* fab)
 			if(  fab!=this  &&  fab->vorrat_an(ware) > -1  ) { //"inventory to" (Google)
 				// add us to this factory
 				fab->add_lieferziel(pos.get_2d());
+				cbuffer_t buf;
+				buf.printf(translator::translate("New shipping destination added to Factory %s"), translator::translate(fab->get_name()));
+				welt->get_message()->add_message(buf, fab->get_pos().get_2d(), message_t::industry, CITY_KI, fab->get_desc()->get_building()->get_tile(0)->get_background(0, 0, 0));
 				return true;
 			}
 	}

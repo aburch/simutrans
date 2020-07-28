@@ -86,6 +86,7 @@ private:
 	gui_factory_nearby_halt_info_t nearby_halts;
 
 	void rename_factory();
+	void set_tab_opened();
 
 public:
 	// refreshes all text and location pointers
@@ -118,6 +119,8 @@ public:
 	virtual void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	bool infowin_event(const event_t *ev) OVERRIDE;
 
 	// rotated map need new info ...
 	void map_rotate90( sint16 ) OVERRIDE { update_info(); }

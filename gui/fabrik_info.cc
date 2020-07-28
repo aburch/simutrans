@@ -34,6 +34,7 @@ static const char factory_status_type[fabrik_t::MAX_FAB_STATUS][64] =
 	"Material shortage", "No material",
 	"stop_some_goods_arrival", "Fully stocked",
 	"fab_stuck",
+	"missing_connection",
 	"staff_shortage"
 };
 
@@ -45,7 +46,7 @@ static const int fab_alert_level[fabrik_t::MAX_FAB_STATUS] =
 	2, 2,
 	3, 3,
 	4,
-	0
+	4, 0
 };
 
 sint16 fabrik_info_t::tabstate = 0;
@@ -92,7 +93,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	tabs.set_pos(scr_coord(0, offset_below_viewport + storage.get_size().h + LINESPACE));
 	tabs.set_size(scr_size(D_DEFAULT_WIDTH-2, D_TAB_HEADER_HEIGHT + 70 + LINESPACE*2));
 
-	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TAB_HEADER_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT));
+	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, 250+view.get_size().w), D_TAB_HEADER_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT));
 
 	// calculate height
 	fab->info_prod(prod_buf);
@@ -159,7 +160,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	tabs.add_tab(&scrolly_info, translator::translate("Connections"));
 	tabs.add_tab(&goods_chart, translator::translate("Goods chart"));
 	tabs.add_tab(&chart, translator::translate("Production chart"));
-	tabs.add_tab(&scrolly_details, translator::translate("Building Info."));
+	tabs.add_tab(&scrolly_details, translator::translate("Building info."));
 
 	tabs.add_listener(this);
 	add_component(&tabs);
@@ -370,29 +371,57 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		create_win(frame, w_info, (ptrdiff_t)this);
 	}
 	else if (tabstate != tabs.get_active_tab_index() || get_windowsize().h == get_min_windowsize().h) {
-		tabstate = tabs.get_active_tab_index();
-		switch (tabstate)
-		{
-			case 0: // info
-			default:
-				tabs.set_size(scrolly_info.get_size());
-				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + D_V_SPACE*2 + min(22 * LINESPACE, container_info.get_size().h)));
-				break;
-			case 1: // goods chart 
-				goods_chart.recalc_size();
-				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + goods_chart.get_size().h));
-				break;
-			case 2: // prod chart
-				chart.recalc_size();
-				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + chart.get_size().h));
-				break;
-			case 3: // details 
-				set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + D_V_SPACE*2 + container_details.get_size().h));
-				break;
-		}
+		set_tab_opened();
 	}
 
 	return true;
+}
+
+
+bool fabrik_info_t::infowin_event(const event_t *ev)
+{
+	if (ev->ev_class == EVENT_KEYBOARD && ev->ev_code == SIM_KEY_DOWN) {
+		set_tab_opened();
+	}
+	if (ev->ev_class == EVENT_KEYBOARD && ev->ev_code == SIM_KEY_UP) {
+		set_windowsize(get_min_windowsize());
+	}
+	if (ev->ev_class == EVENT_KEYBOARD && ev->ev_code == SIM_KEY_LEFT) {
+		tabstate = (tabstate + tabs.get_count() - 1)% tabs.get_count();
+		tabs.set_active_tab_index(tabstate);
+		set_tab_opened();
+	}
+	if (ev->ev_class == EVENT_KEYBOARD && ev->ev_code == SIM_KEY_RIGHT) {
+		tabstate = (tabstate + 1) % tabs.get_count();
+		tabs.set_active_tab_index(tabstate);
+		set_tab_opened();
+	}
+
+	return gui_frame_t::infowin_event(ev);
+}
+
+void fabrik_info_t::set_tab_opened()
+{
+	tabstate = tabs.get_active_tab_index();
+	switch (tabstate)
+	{
+	case 0: // info
+	default:
+		tabs.set_size(scrolly_info.get_size());
+		set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + D_V_SPACE * 2 + min(22 * LINESPACE, container_info.get_size().h)));
+		break;
+	case 1: // goods chart 
+		goods_chart.recalc_size();
+		set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + goods_chart.get_size().h));
+		break;
+	case 2: // prod chart
+		chart.recalc_size();
+		set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + chart.get_size().h));
+		break;
+	case 3: // details 
+		set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + D_V_SPACE * 2 + container_details.get_size().h));
+		break;
+	}
 }
 
 

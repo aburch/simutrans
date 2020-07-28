@@ -88,7 +88,7 @@ public:
 	 * fill the list with all lines of a certain type
 	 * type == simline_t::line will return all lines
 	 */
-	void get_lines(int type, vector_tpl<linehandle_t>* lines) const;
+	void get_lines(int type, vector_tpl<linehandle_t>* lines, uint8 freight_type_bits = 0, bool show_empty_line = false) const;
 
 	// Added by : Knightly
 	// Purpose	: Return all managed lines

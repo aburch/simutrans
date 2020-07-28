@@ -511,11 +511,10 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				if (way_constraints.get_permissive(i))
 				{
 					buf.clear();
-					char tmpbuf1[13];
-					sprintf(tmpbuf1, "\nMUST USE: ");
-					char tmpbuf[15];
-					sprintf(tmpbuf, "Permissive %i-%i", v->get_desc()->get_waytype(), i);
-					buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
+
+					char tmpbuf[17];
+					sprintf(tmpbuf, "Permissive %i-%hhu", v->get_desc()->get_waytype(), i);
+					buf.printf("%s %s", translator::translate("\nMUST USE: "), translator::translate(tmpbuf));
 					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					extra_y += LINESPACE;
 				}
@@ -540,11 +539,9 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				if (way_constraints.get_prohibitive(i))
 				{
 					buf.clear();
-					char tmpbuf1[13];
-					sprintf(tmpbuf1, "\nMAY USE: ");
-					char tmpbuf[16];
-					sprintf(tmpbuf, "Prohibitive %i-%i", v->get_desc()->get_waytype(), i);
-					buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
+					char tmpbuf[18];
+					sprintf(tmpbuf, "Prohibitive %i-%hhu", v->get_desc()->get_waytype(), i);
+					buf.printf("%s %s", translator::translate("\nMAY USE: "), translator::translate(tmpbuf));
 					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					extra_y += LINESPACE;
 				}

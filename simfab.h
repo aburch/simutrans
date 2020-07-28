@@ -720,7 +720,7 @@ public:
 	sint32 get_actual_productivity() const { return status == inactive ? 0 : status >= staff_shortage ? get_current_productivity() * get_staffing_level_percentage() / 100 : get_current_productivity(); }
 
 	/* prissi: returns the status of the current factory */
-	enum { nothing, good, water_resource, medium, water_resource_full, storage_full, inactive, shipment_stuck, material_shortage, no_material, bad, mat_overstocked, stuck, staff_shortage, MAX_FAB_STATUS };
+	enum { nothing, good, water_resource, medium, water_resource_full, storage_full, inactive, shipment_stuck, material_shortage, no_material, bad, mat_overstocked, stuck, missing_connection, staff_shortage, MAX_FAB_STATUS };
 	static unsigned status_to_color[MAX_FAB_STATUS];
 
 	uint8  get_status() const { return status; }

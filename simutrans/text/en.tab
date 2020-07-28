@@ -5796,3 +5796,15 @@ other_player_liquidation_duration
 It has been in liquidation for
 On loan since %i month(s)
 Overdrawn for the last %i month(s)
+filter_pas_line
+Show only passenger
+filter_mail_line
+Show only mail
+filter_freight_line
+Show only freight
+New shipping destination added to Factory %s
+%s now supplies its products to a new industry.
+Loading (%i->%i%%) Long Time
+Loading (%i->%i%%) (long wait)
+Vehicle %s wait loading too much!
+Vehicle %s has been loading for a long time.

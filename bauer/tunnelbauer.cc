@@ -338,7 +338,7 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 /************************************** FIX ME ***************************************************
 ********************** THIS MUST BE RATHER A PROPERTY OF THE TUNNEL IN QUESTION ! ****************/
 	// for conversion factor 1, must be single height, for conversion factor 2, must be double
-	if(  (env_t::pak_height_conversion_factor == 1  &&  !(slope & 7))  ||  (env_t::pak_height_conversion_factor == 2  &&  (slope & 7))  ) {
+	if(  (env_t::pak_height_conversion_factor == 1  &&  !is_one_high(slope))  ||  (env_t::pak_height_conversion_factor == 2  &&  is_one_high(slope))  ) {
 		return "Tunnel muss an\nsingleem\nHang beginnen!\n";
 	}
 
@@ -595,9 +595,6 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 		ribi = alter_boden->get_weg_ribi_unmasked(desc->get_waytype()) | ribi_type(zv);
 	}
 
-	const grund_t* gr = welt->lookup(end);
-	const weg_t* old_way = gr ? gr->get_weg(way_desc->get_wtyp()) : NULL;
-	const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(desc->get_waytype()) : NULL;
 	tunnelboden_t *tunnel = new tunnelboden_t( end, alter_boden->get_grund_hang());
 	tunnel->obj_add(new tunnel_t(end, player, desc));
 
