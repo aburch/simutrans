@@ -2994,13 +2994,18 @@ void fabrik_t::recalc_factory_status()
 			FOR(vector_tpl<koord>, k, suppliers)
 			{
 				fabrik_t* supplier = fabrik_t::get_fab(k);
+				bool found = false;
 				FOR(array_tpl<ware_production_t>, sw, supplier->get_output())
 				{
 					if (sw.get_typ() == j.get_typ())
 					{
 						supplier_check++;
-						continue;
+						found = true;
+						break;
 					}
+				}
+				if (found) {
+					break; // same goods count only once
 				}
 			}
 		}
