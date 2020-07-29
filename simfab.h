@@ -797,7 +797,7 @@ public:
 
 	// Returns the operating ratio to basic production. (x 10)
 	// NOTE: not added the formula for this month yet - Ranran
-	uint32 calc_occupancy_rate(sint8 month) const;
+	uint32 calc_production_ratio(sint8 month) const;
 };
 
 #endif

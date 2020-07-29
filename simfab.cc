@@ -3199,8 +3199,8 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.printf(translator::translate("(Max. %d%%)"), max_productivity+100);
 		buf.append("\n");
 
-		buf.append(translator::translate("Occupancy rate last month"));
-		buf.printf(": %.1f%% ", calc_occupancy_rate(1)/10.0);
+		buf.append(translator::translate("Production ratio last month"));
+		buf.printf(": %.1f%% ", calc_production_ratio(1)/10.0);
 		buf.append("\n");
 	}
 	if(get_desc()->is_electricity_producer())
@@ -3969,7 +3969,7 @@ bool fabrik_t::has_goods_catg_demand(uint8 catg_index) const
 
 // NOTE: not added the formula for this month yet
 // TODO: (for this month calcuration) Multiply the production amount and the basic production amount by the ratio to the length of the month time
-uint32 fabrik_t::calc_occupancy_rate(sint8 month) const
+uint32 fabrik_t::calc_production_ratio(sint8 month) const
 {
 	if (month <= 0 || month >= MAX_MONTH) {
 		return 0;
