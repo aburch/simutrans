@@ -48,6 +48,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_GREEN           (140)
 #define COL_DARK_GREEN      (136)
 #define COL_LIGHT_GREEN     (143)
+#define COL_APRICOT         (95)
 #define COL_ORANGE          (155)
 #define COL_DARK_ORANGE     (153)
 #define COL_LIGHT_ORANGE    (158)
@@ -102,7 +103,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_CASH            (52)
 #define COL_VEHICLE_ASSETS  COL_MAGENTA
 #define COL_MARGIN          COL_LIGHT_YELLOW
-#define COL_WEALTH          (95)
+#define COL_WEALTH          COL_APRICOT
 
 #define COL_COUNVOI_COUNT   COL_VEHICLE_ASSETS
 #define COL_FREE_CAPACITY   (157)
@@ -128,7 +129,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_INTEREST        (67)
 #define COL_SOFT_CREDIT_LIMIT COL_PURPLE
 #define COL_HARD_CREDIT_LIMIT 77
-#define COL_CAR_OWNERSHIP   (95)
+#define COL_CAR_OWNERSHIP   COL_APRICOT
 //#define COL_DISTANCE      (87)
 #define COL_STAFF_SHORTAGE COL_DARK_ORCHID
 

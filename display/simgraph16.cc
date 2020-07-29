@@ -3901,6 +3901,18 @@ void display_fillbox_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_
 	display_fb_internal(xp, yp, w, h, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
 }
 
+void display_cylinderbar_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty  CLIP_NUM_DEF)
+{
+	display_fb_internal(xp, yp, w, h, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
+	display_blend_wh(xp, yp, w, min(3,h/2), COL_WHITE, 15);
+	display_blend_wh(xp, yp + 1, w, 1, COL_WHITE, 15);
+	uint8 start = h * 2 / 3;
+	for (uint8 i = start; i < h; i++) {
+		display_blend_wh(xp, yp + i, w, 1, COL_RED, i*25/h);
+	}
+}
+
+
 /**
 * Draw vertical line
 * @author Hj. Malthaner
