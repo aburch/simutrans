@@ -1937,6 +1937,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player,
 				return 0;
 			}
 			// add the way
+			objlist.add(weg);
 			weg->set_ribi(ribi);
 			weg->set_pos(pos);
 			flags |= has_way2;
@@ -1951,15 +1952,10 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player,
 				}
 				else
 				{
-					objlist.add(weg);
 					crossing_t* cr = new crossing_t(obj_bei(0)->get_owner(), pos, cr_desc, ribi_t::is_straight_ns(get_weg(cr_desc->get_waytype(1))->get_ribi_unmasked()));
 					objlist.add(cr);
 					cr->finish_rd();
 				}
-			}
-			else
-			{
-				objlist.add(weg);
 			}
 		}
 
