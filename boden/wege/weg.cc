@@ -1281,7 +1281,7 @@ void weg_t::count_sign()
 			flags |= HAS_CROSSING;
 			i = 3;
 			const crossing_t* cr = gr->find<crossing_t>();
-			sint32 top_speed = cr->get_desc()->get_maxspeed( cr->get_desc()->get_waytype(0)==get_waytype() ? 0 : 1);
+			sint32 top_speed = cr ? cr->get_desc()->get_maxspeed(cr->get_desc()->get_waytype(0) == get_waytype() ? 0 : 1) : SINT32_MAX_VALUE;
 			if(  top_speed < max_speed  ) {
 				max_speed = top_speed;
 			}

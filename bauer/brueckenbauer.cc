@@ -1055,6 +1055,15 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 					} else {
 						bauigel.calc_route( pos, to->get_pos() );
 					}
+					const grund_t* gr_to = welt->lookup(to->get_pos());
+					if (!gr_to)
+					{
+						break;
+					}
+					if (gr_to->hat_wege())
+					{
+						continue;
+					}
 					bauigel.set_overtaking_mode(overtaking_mode);
 					if (bauigel.get_count() == 2) {
 						bauigel.build();
@@ -1101,7 +1110,7 @@ void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ri
 			const uint slope_height = (hang & 7) ? 1 : 2;
 			if(slope_height == 1)
 			{
-			weg->set_max_speed(min(desc->get_topspeed_gradient_1(), way_desc->get_topspeed_gradient_1()));
+				weg->set_max_speed(min(desc->get_topspeed_gradient_1(), way_desc->get_topspeed_gradient_1()));
 			}
 			else
 			{
