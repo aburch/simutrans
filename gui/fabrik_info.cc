@@ -172,7 +172,8 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	lbl_factory_status.set_tooltip(translator::translate("staffing_bar_tooltip_help"));
 	add_component(&lbl_factory_status);
 
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TAB_HEADER_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT + tabs.get_size().h));
+	// Adjust window to optimal size
+	set_tab_opened();
 
 	tabs.set_size(get_client_windowsize() - tabs.get_pos() - scr_size(0, 1));
 
