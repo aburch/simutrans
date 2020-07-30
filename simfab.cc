@@ -3047,11 +3047,6 @@ void fabrik_t::recalc_factory_status()
 	warenlager >>= fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS;
 	total_output = (uint32)warenlager;
 
-	if (sector == manufacturing && input_count > supplier_check) {
-		status = missing_connection;
-		return;
-	}
-
 	// now calculate status bar
 	switch (sector) {
 		case marine_resource:
@@ -3089,8 +3084,7 @@ void fabrik_t::recalc_factory_status()
 			break;
 		case manufacturing:
 			// Check if it has at least the minimum required connections
-			if (!lieferziele.get_count())
-			{
+			if (input_count > supplier_check || !lieferziele.get_count()) {
 				status = missing_connection;
 			}
 			else if (!haltcount) {
