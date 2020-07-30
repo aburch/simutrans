@@ -279,20 +279,23 @@ void strasse_t::rdwr(loadsave_t *file)
 	}
 }
 
-void strasse_t::set_overtaking_mode(overtaking_mode_t o) {
+void strasse_t::set_overtaking_mode(overtaking_mode_t o, player_t* calling_player)
+{
 	if (o == invalid_mode) { return; }
 	grund_t* gr = welt->lookup(get_pos());
-	if (!welt->get_active_player()->is_public_service() && is_public_right_of_way() && gr && gr->removing_way_would_disrupt_public_right_of_way(road_wt)) {
+	if (!calling_player->is_public_service() && is_public_right_of_way() && gr && gr->removing_way_would_disrupt_public_right_of_way(road_wt))
+	{
 		return;
 	}
-	if (is_deletable(welt->get_active_player()) == NULL) {
+	if (is_deletable(calling_player) == NULL)
+	{
 		overtaking_mode = o;
 	}
 }
 
-void strasse_t::update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow)
+void strasse_t::update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow, player_t* calling_player)
 {
-	if (is_deletable(welt->get_active_player()) != NULL) {
+	if (is_deletable(calling_player) != NULL) {
 		return;
 	}
 

@@ -5341,7 +5341,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 			weg->set_desc(welt->get_city_road());
 			strasse_t *str = static_cast<strasse_t *>(weg);
 			str->set_gehweg(true);
-			str->set_overtaking_mode(twoway_mode);
+			str->set_overtaking_mode(twoway_mode, player_);
 			weg->set_public_right_of_way();
 			bd->neuen_weg_bauen(weg, connection_roads, player_);
 			bd->calc_image();
