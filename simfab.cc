@@ -3013,7 +3013,7 @@ void fabrik_t::recalc_factory_status()
 			else {
 				status_aus &= ~FL_WARE_ALLEUEBER75;
 			}
-			warenlager += (uint64)j.menge * (uint64)(desc->get_product(i)->get_factor());
+			warenlager += (uint64)FAB_DISPLAY_UNIT_HALF + (uint64)j.menge * (uint64)(desc->get_product(i)->get_factor());
 			status_aus &= ~FL_WARE_ALLENULL;
 		}
 		else {
