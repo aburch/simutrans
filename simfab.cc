@@ -3026,7 +3026,7 @@ void fabrik_t::recalc_factory_status()
 	warenlager = 0;
 	status_aus = FL_WARE_ALLEUEBER75 | FL_WARE_ALLENULL;
 	i = 0;
-	FOR(array_tpl<ware_production_t>, const& j, output) {
+	FORX(array_tpl<ware_production_t>, const& j, output, i++) {
 		if (j.menge > 0) {
 
 			status_aus &= ~FL_WARE_ALLENULL;
@@ -3036,7 +3036,7 @@ void fabrik_t::recalc_factory_status()
 			else {
 				status_aus &= ~FL_WARE_ALLEUEBER75;
 			}
-			warenlager += (uint64)j.menge * (uint64)(desc->get_product(i)->get_factor());
+			warenlager += (uint64)FAB_DISPLAY_UNIT_HALF + (uint64)j.menge * (uint64)(desc->get_product(i)->get_factor());
 			status_aus &= ~FL_WARE_ALLENULL;
 		}
 		else {

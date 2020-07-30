@@ -5508,12 +5508,12 @@ oneway
 One way
 twoway
 Two way (default)
-only loading convoi
-Overtake stationary only
+#only loading convoi
+#Overtake stationary only
 prohibited
 Overtaking prohibited
-inverted
-Opposite lane driving
+#inverted
+#Opposite lane driving
 has changed its colour scheme.
 has changed its colour scheme.
 Vehicle running costs per km
@@ -5611,7 +5611,7 @@ Show only connected to own transport network
 Show only connected to own passenger transportation network
 Show only connected to own passenger transportation network
 Show only cities within the active player's transportation network
-Show only cities within the active player's transportation network
+Show only cities within the current player's transportation network
 Fully stocked
 Fully stocked
 Power usage
@@ -5742,6 +5742,8 @@ always show convoy name
 Always show line name
 no convoy nameplate
 Never show line name
+active player's line name
+Current player line name
 Productivity
 Productivity
 (Max. %d%%)
@@ -5808,3 +5810,13 @@ Loading (%i->%i%%) Long Time
 Loading (%i->%i%%) (long wait)
 Vehicle %s wait loading too much!
 Vehicle %s has been loading for a long time.
+do not change the mode for existing ways
+Keep mode for existing ways
+mouseover loading bar
+Mouse-over loading bar
+no convoy loading bar
+No loading bar
+active player's loading bar
+Current player loading bar
+always show loading bar
+Always show loading bar
