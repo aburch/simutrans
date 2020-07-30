@@ -3199,8 +3199,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.printf(translator::translate("(Max. %d%%)"), max_productivity+100);
 		buf.append("\n");
 
-		buf.append(translator::translate("Production ratio last month"));
-		buf.printf(": %.1f%% ", calc_production_ratio(1)/10.0);
+		buf.printf("%s: %.1f%% (Last month: %.1f%%)", translator::translate("Operation rate"), calc_operation_rate(0) / 10.0, calc_operation_rate(1) / 10.0);
 		buf.append("\n");
 	}
 	if(get_desc()->is_electricity_producer())
@@ -3969,25 +3968,28 @@ bool fabrik_t::has_goods_catg_demand(uint8 catg_index) const
 
 // NOTE: not added the formula for this month yet
 // TODO: (for this month calcuration) Multiply the production amount and the basic production amount by the ratio to the length of the month time
-uint32 fabrik_t::calc_production_ratio(sint8 month) const
+uint32 fabrik_t::calc_operation_rate(sint8 month) const
 {
-	if (month <= 0 || month >= MAX_MONTH) {
+	if (month < 0 || month >= MAX_MONTH) {
 		return 0;
 	}
-	const sint32 base_monthly_prod = welt->calc_adjusted_monthly_figure(prodbase*10); // need to consider the decimal point for small units
+	sint64 base_monthly_prod = welt->calc_adjusted_monthly_figure(prodbase*10); // need to consider the decimal point for small units
+	if (month == 0) {
+		const uint32 ticks_this_month = welt->get_ticks() % welt->ticks_per_world_month;
+		base_monthly_prod = base_monthly_prod * ticks_this_month / welt->ticks_per_world_month;
+	}
 	if (!base_monthly_prod) { return 0; }
 
 	sint32 temp_sum = 0;
-
 	// which sector?
 	if ((sector == end_consumer || sector == power_plant) && input.get_count()) {
 		// check the consuming rate
 		for (int i = 0; i < input.get_count(); i++) {
 			const sint64 pfactor = desc->get_supplier(i) ? (sint64)desc->get_supplier(i)->get_consumption() : 1ll;
 			const uint32 prod_rate = (uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS);
-			temp_sum += convert_goods(input[i].get_stat(month, FAB_GOODS_CONSUMED)) * 10000 / (sint32)prod_rate * 100 / base_monthly_prod;
+			temp_sum += convert_goods(input[i].get_stat(month, FAB_GOODS_CONSUMED)) * 10000 / (sint32)prod_rate;
 		}
-		return (uint32)(temp_sum / input.get_count());
+		return (uint32)(temp_sum * 100 / input.get_count() / base_monthly_prod);
 	}
 	else if(sector != unknown && output.get_count()){
 		// check the producing rate of this factory
@@ -3995,9 +3997,9 @@ uint32 fabrik_t::calc_production_ratio(sint8 month) const
 			const sint64 pfactor = (sint64)desc->get_product(i)->get_factor();
 			const uint32 prod_rate = (uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS);
 
-			temp_sum += convert_goods(output[i].get_stat(month, FAB_GOODS_PRODUCED)) * 10000 / (sint32)prod_rate * 100 / base_monthly_prod;
+			temp_sum += convert_goods(output[i].get_stat(month, FAB_GOODS_PRODUCED)) * 10000 / (sint32)prod_rate;
 		}
-		return (uint32)(temp_sum / output.get_count());
+		return (uint32)(temp_sum * 100 / output.get_count() / base_monthly_prod);
 	}
 
 	return 0;
