@@ -3010,10 +3010,7 @@ void fabrik_t::recalc_factory_status()
 			}
 		}
 	}
-	if (sector == manufacturing && input_count > supplier_check) {
-		status = missing_connection;
-		return;
-	}
+
 	warenlager >>= fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS;
 	if (warenlager == 0) {
 		status_ein |= FL_WARE_ALLENULL;
@@ -3023,7 +3020,6 @@ void fabrik_t::recalc_factory_status()
 	// one ware missing, but producing
 	if (status_ein & FL_WARE_FEHLT_WAS && !output.empty() && haltcount > 0) {
 		status = material_shortage;
-		return;
 	}
 
 	// set bits for output
@@ -3050,6 +3046,11 @@ void fabrik_t::recalc_factory_status()
 	}
 	warenlager >>= fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS;
 	total_output = (uint32)warenlager;
+
+	if (sector == manufacturing && input_count > supplier_check) {
+		status = missing_connection;
+		return;
+	}
 
 	// now calculate status bar
 	switch (sector) {
