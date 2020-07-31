@@ -783,7 +783,7 @@ public:
 	bool is_input_empty() const;
 
 	// check connected to public or current player stop
-	bool is_connect_own_network() const;
+    bool is_connected_to_network(player_t *player) const;
 
 	// Returns whether this factory has potential demand for passed goods category
 	bool has_goods_catg_demand(uint8 catg_index = goods_manager_t::INDEX_NONE) const;
