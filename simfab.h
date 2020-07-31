@@ -728,6 +728,10 @@ public:
 	uint32 get_total_transit() const { return total_transit; }
 	uint32 get_total_out() const { return total_output; }
 
+	// return total storage occupancy for UI. should ignore the overflow of certain goods.
+	uint16 get_total_input_occupancy() const;
+	uint32 get_total_output_capacity() const;
+
 	/**
 	 * Crossconnects all factories
 	 * @author prissi

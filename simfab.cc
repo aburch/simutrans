@@ -3726,6 +3726,34 @@ uint16 fabrik_t::get_max_intransit_percentage(uint32 index)
 	return max_intransit_percentages.get(input[index].get_typ()->get_catg());
 }
 
+uint16 fabrik_t::get_total_input_occupancy() const
+{
+	uint32 i = 0;
+	uint32 capacity_sum = 0;
+	uint32 stock_sum = 0;
+	FORX(array_tpl<ware_production_t>, const& goods, input, i++) {
+		const sint64 pfactor =desc->get_supplier(i) ? (sint64)desc->get_supplier(i)->get_consumption() : 1ll;
+		const uint32 stock_quantity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+		const uint32 storage_capacity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+
+		stock_sum += min(stock_quantity, storage_capacity);
+		capacity_sum += storage_capacity;
+	}
+	return capacity_sum > 0 ? (uint16)(stock_sum * 100 / capacity_sum) : 0;
+}
+
+uint32 fabrik_t::get_total_output_capacity() const
+{
+	uint32 sum = 0;
+	uint32 i = 0;
+	FORX(array_tpl<ware_production_t>, const& goods, output, i++) {
+		const goods_desc_t * type = goods.get_typ();
+		const sint64 pfactor = (sint64)desc->get_product(i)->get_factor();
+		sum += (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+	}
+	return sum;
+}
+
 uint32 fabrik_t::get_lead_time(const goods_desc_t* wtype)
 {
 	if(suppliers.empty())
