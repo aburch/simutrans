@@ -263,6 +263,9 @@ inline void display_set_image_proc(bool is_global)
 void display_blend_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, int percent_blend);
 #define display_blend_wh(xp,yp,w,h,color,percent_blend) display_blend_wh_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],percent_blend )
 
+void display_vlinear_gradient_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, int percent_blend_start, int percent_blend_end);
+#define display_vlinear_gradiwnt_wh(xp,yp,w,h,color,percent_blend_start,percent_blend_end) display_vlinear_gradient_wh_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],percent_blend_start,percent_blend_end )
+
 void display_fillbox_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty);
 #define display_fillbox_wh(xp,yp,w,h,color,dirty) display_fillbox_wh_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],dirty)
 
