@@ -6629,7 +6629,7 @@ end_check:
 
 		if(is_depot) {
 			// next was depot. restore it
-			schedule->insert(welt->lookup(depot), 0, 0, 0, owner == welt->get_active_player());
+			schedule->insert(welt->lookup(depot), 0, 0, 0, false, owner == welt->get_active_player());
 			// Insert will move the pointer past the inserted item; move back to it
 			schedule->advance_reverse();
 		}
