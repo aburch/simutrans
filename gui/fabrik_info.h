@@ -98,7 +98,10 @@ public:
 	void update_info();
 
 	fabrik_info_t(fabrik_t* fab, const gebaeude_t* gb);
+
 	virtual ~fabrik_info_t();
+
+	void init(fabrik_t* fab, const gebaeude_t* gb);
 
 	/**
 	 * Set the window associated helptext
@@ -128,7 +131,7 @@ public:
 	bool infowin_event(const event_t *ev) OVERRIDE;
 
 	// rotated map need new info ...
-	void map_rotate90( sint16 ) OVERRIDE { update_info(); }
+	void map_rotate90(sint16) OVERRIDE;
 
 	// this constructor is only used during loading
 	fabrik_info_t();

@@ -67,6 +67,14 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	prod(&prod_buf),
 	txt(&info_buf)
 {
+	if (fab) {
+		init(fab, gb);
+	}
+}
+
+
+void fabrik_info_t::init(fabrik_t* fab_, const gebaeude_t* gb)
+{
 	staffing_level = staffing_level2 = staff_shortage_factor = 0;
 
 	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );
@@ -394,6 +402,17 @@ void fabrik_info_t::set_tab_opened()
 	}
 }
 
+
+void fabrik_info_t::map_rotate90(sint16)
+{
+	// force update
+	old_suppliers_count++;
+	old_consumers_count++;
+	old_stops_count++;
+	update_components();
+}
+
+
 // update name and buffers
 void fabrik_info_t::update_info()
 {
@@ -515,71 +534,49 @@ fabrik_info_t::fabrik_info_t() :
 void fabrik_info_t::rdwr( loadsave_t *file )
 {
 	scr_size size = get_windowsize();
-	//sint32 scroll_y = scrolly.get_scroll_y();
 	koord fabpos;
-	scr_coord viewpos = view.get_pos();
-	scr_size viewsize = view.get_size();
-	//scr_coord scrollypos = scrolly.get_pos();
-
 	if(  file->is_saving()  ) {
 		fabpos = fab->get_pos().get_2d();
 	}
+	scr_coord viewpos = view.get_pos();
+	scr_size viewsize = view.get_size();
+	scr_coord scrollypos = scrolly_info.get_pos();
+	sint32 scroll_x = scrolly_info.get_scroll_x();
+	sint32 scroll_y = scrolly_info.get_scroll_y();
 
 	size.rdwr( file );
 	fabpos.rdwr( file );
 	viewpos.rdwr( file );
 	viewsize.rdwr( file );
-	//scrollypos.rdwr( file );
+	scrollypos.rdwr( file );
 	file->rdwr_str( fabname, lengthof(fabname) );
-	//file->rdwr_long( scroll_x );
-	//file->rdwr_long( scroll_y );
+	file->rdwr_long( scroll_x );
+	file->rdwr_long( scroll_y );
 
 	if(  file->is_loading()  ) {
 		fab = fabrik_t::get_fab(fabpos );
+		gebaeude_t* gb = welt->lookup_kartenboden(fabpos)->find<gebaeude_t>();
 
-		// will fail on factories with no ground or no building at (0,0)
-		view.set_obj( welt->lookup_kartenboden( fabpos )->find<gebaeude_t>() );
-		view.set_size( viewsize );
-		view.set_pos( viewpos );
-		//chart.set_factory( fab );
-		//chart.rdwr( file );
+		if (fab != NULL && gb != NULL) {
+			view.set_obj(gb);
+			view.set_size( viewsize );
+			view.set_pos( viewpos );
 
-		// now put stuff at old positions
-		fab->info_prod( prod_buf );
-		prod.recalc_size();
+			storage.set_fab(fab);
+			all_suppliers.set_fab(fab);
+			all_consumers.set_fab(fab);
+			nearby_halts.set_fab(fab);
 
-		const sint16 offset_below_viewport = D_MARGIN_TOP+D_V_SPACE+ max( prod.get_size().h + storage.get_size().h, view.get_size().h + 8 + D_V_SPACE )+ LINESPACE;
+			goods_chart.set_factory(fab);
+			chart.set_factory(fab);
 
-		// calculate height
-		fab->info_prod(prod_buf);
-
-		// fill position buttons etc
-		fab->info_conn(info_buf);
-		txt.recalc_size();
-		update_info();
-
-		set_min_windowsize(scr_size(get_min_windowsize().w, D_TITLEBAR_HEIGHT+LINESPACE*5+D_MARGIN_BOTTOM));
-
-		// Hajo: "About" button only if translation is available
-		char key[256];
-		sprintf(key, "factory_%s_details", fab->get_desc()->get_name());
-		const char * value = translator::translate(key);
-		if(value && *value != 'f') {
-			details_button.init( button_t::roundbox, "Details", scr_coord(BUTTON4_X,offset_below_viewport), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-//			details_button.set_tooltip("Factory details");
-			details_button.add_listener(this);
-			add_component(&details_button);
+			init(fab, gb);
+			scrolly_info.set_scroll_amount_y(scroll_y);
+			scrolly_info.set_scroll_position(scroll_x, scroll_y);
+			set_tab_opened();
 		}
 
-		/*if(  chart_button.pressed  ) {
-			add_component( &chart );
-			const scr_coord offset = scr_coord(0, chart.get_size().h - 6);
-			details_button.set_pos( details_button.get_pos() + offset );
-		}*/
 		set_windowsize( size );
-		resize( scr_coord(0,0) );
 	}
-	else {
-		//chart.rdwr( file );
-	}
+	chart.rdwr( file );
 }
