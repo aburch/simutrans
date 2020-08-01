@@ -3193,7 +3193,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.printf(translator::translate("(Max. %d%%)"), max_productivity+100);
 		buf.append("\n");
 
-		buf.printf("%s: %.1f%% (Last month: %.1f%%)", translator::translate("Operation rate"), calc_operation_rate(0) / 10.0, calc_operation_rate(1) / 10.0);
+		buf.printf("%s: %.1f%% (%s: %.1f%%)", translator::translate("Operation rate"), calc_operation_rate(0) / 10.0, translator::translate("Last Month"), calc_operation_rate(1) / 10.0);
 		buf.append("\n");
 	}
 	if(get_desc()->is_electricity_producer())

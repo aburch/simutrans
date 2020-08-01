@@ -299,7 +299,7 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 		prod_buf.clear();
 	}
 
-	scr_coord_val x_boost_symbol_pos = proportional_string_width(translator::translate("Productivity")) + proportional_string_width(" : 000% ") + proportional_string_width(translator::translate("(Max. %u%%)")) + D_MARGIN_LEFT + D_H_SPACE;
+	scr_coord_val x_boost_symbol_pos = proportional_string_width(translator::translate("Productivity")) + proportional_string_width(" : 000% ") + proportional_string_width(translator::translate("(Max. %d%%)")) + D_MARGIN_LEFT + D_H_SPACE;
 	if (skinverwaltung_t::electricity->get_image_id(0) != IMG_EMPTY) {
 		// indicator for receiving
 		if (fab->get_desc()->get_electric_boost()) {
