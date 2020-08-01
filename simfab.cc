@@ -3991,11 +3991,11 @@ sint32 fabrik_t::get_staffing_level_percentage() const {
 	return gb->get_staffing_level_percentage();
 }
 
-bool fabrik_t::is_connect_own_network() const
+bool fabrik_t::is_connected_to_network(player_t *player) const
 {
 	FOR(vector_tpl<nearby_halt_t>, const i, nearby_freight_halts)
 	{
-		if(i.halt->get_owner() == welt->get_active_player()){
+		if(i.halt->get_owner() == player){
 			// In the case of owning station, it only needs to have freight facilities.
 			// It may still be in preparation...
 			return true;
@@ -4003,7 +4003,7 @@ bool fabrik_t::is_connect_own_network() const
 		else {
 			for (uint8 catg_index = goods_manager_t::INDEX_NONE+1; catg_index < goods_manager_t::get_max_catg_index(); catg_index++)
 			{
-				if (i.halt->has_available_network(welt->get_active_player(), catg_index)) {
+				if (i.halt->has_available_network(player, catg_index)) {
 					return true;
 				}
 			}

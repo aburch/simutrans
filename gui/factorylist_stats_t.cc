@@ -251,7 +251,7 @@ void factorylist_stats_t::sort(factorylist::sort_mode_t sb, bool sr, bool own_ne
 	for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
 	{
 		// own network filter
-		if(filter_own_network && !welt->get_fab_list()[i]->is_connect_own_network()){
+		if(filter_own_network && !welt->get_fab_list()[i]->is_connected_to_network(welt->get_active_player())){
 			continue;
 		}
 		// goods category filter
