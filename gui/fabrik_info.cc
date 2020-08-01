@@ -84,7 +84,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	prod.recalc_size();
 	add_component( &prod );
 
-	const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE+ max( prod.get_size().h + storage.get_size().h, view.get_size().h + 8 ) + LINESPACE;
+	const sint16 offset_below_viewport = D_MARGIN_TOP+D_V_SPACE+ max( prod.get_size().h + storage.get_size().h, view.get_size().h + 8 ) + LINESPACE;
 
 	storage.set_pos(scr_coord(0, offset_below_viewport));
 	storage.recalc_size();
@@ -193,9 +193,9 @@ void fabrik_info_t::set_windowsize(scr_size size)
 	const uint8 alert_icon_with = skinverwaltung_t::alerts ? skinverwaltung_t::alerts->get_image(0)->get_pic()->w + 4 : 0;
 
 	// would be only needed in case of enabling horizontal resizes
-	input.set_size(scr_size(get_windowsize().w-D_MARGIN_LEFT-D_MARGIN_RIGHT, D_BUTTON_HEIGHT));
-	view.set_pos(scr_coord(get_windowsize().w - view.get_size().w - D_MARGIN_RIGHT , D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE ));
-	lbl_factory_status.set_pos(scr_coord(get_windowsize().w - view.get_size().w - D_MARGIN_RIGHT, D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE*2 + view.get_size().h + D_INDICATOR_HEIGHT+2));
+	input.set_size(scr_size(get_windowsize().w - view.get_size().w - D_MARGINS_X - D_H_SPACE, D_BUTTON_HEIGHT));
+	view.set_pos( scr_coord(get_windowsize().w - view.get_size().w - D_MARGIN_RIGHT , D_MARGIN_TOP));
+	lbl_factory_status.set_pos(scr_coord(get_windowsize().w - view.get_size().w - D_MARGIN_RIGHT, D_MARGIN_TOP + D_V_SPACE + view.get_size().h + D_INDICATOR_HEIGHT+2));
 	lbl_factory_status.set_size(scr_size(view.get_size().w - alert_icon_with, LINESPACE));
 	staffing_bar.set_pos(scr_coord(view.get_pos().x + 1, view.get_pos().y + view.get_size().h));
 	staffing_bar.set_size(scr_size(view.get_size().w-2, D_INDICATOR_HEIGHT));
@@ -240,6 +240,15 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 	int left = D_MARGIN_LEFT + D_INDICATOR_WIDTH + D_H_SPACE;
 	int top = pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT;
 
+	display_ddd_box_clip(pos.x + view.get_pos().x, top + view.get_size().h, view.get_size().w, D_INDICATOR_HEIGHT + 2, MN_GREY0, MN_GREY4);
+	// tooltip for staffing_bar
+	if (abs((int)(pos.x + view.get_pos().x + view.get_size().h/2 - get_mouse_x())) < view.get_size().h/2 && abs((int)(top + view.get_size().h + (D_INDICATOR_HEIGHT+2)/2 - get_mouse_y())) < (D_INDICATOR_HEIGHT+2)/2) {
+		prod_buf.append(translator::translate("staffing_bar_tooltip_help"));
+		win_set_tooltip(pos.x + view.get_pos().x, top + view.get_size().h + D_INDICATOR_HEIGHT + 2, prod_buf);
+		prod_buf.clear();
+	}
+	top += D_BUTTON_HEIGHT+D_V_SPACE;
+
 	// status color bar
 	if (fab->get_status() >= fabrik_t::staff_shortage) {
 		display_ddd_box_clip(pos.x + D_MARGIN_LEFT - 1, top + 1, D_INDICATOR_WIDTH + 2, D_INDICATOR_HEIGHT + 2, COL_STAFF_SHORTAGE, COL_STAFF_SHORTAGE);
@@ -259,14 +268,6 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 	display_proportional(pos.x + left, top, prod_buf, ALIGN_LEFT, indikatorfarbe, true);
 
 	prod_buf.clear();
-
-	display_ddd_box_clip(pos.x + view.get_pos().x, top + view.get_size().h, view.get_size().w, D_INDICATOR_HEIGHT + 2, MN_GREY0, MN_GREY4);
-	// tooltip for staffing_bar
-	if (abs((int)(pos.x + view.get_pos().x + view.get_size().h/2 - get_mouse_x())) < view.get_size().h/2 && abs((int)(top + view.get_size().h + (D_INDICATOR_HEIGHT+2)/2 - get_mouse_y())) < (D_INDICATOR_HEIGHT+2)/2) {
-		prod_buf.append(translator::translate("staffing_bar_tooltip_help"));
-		win_set_tooltip(pos.x + view.get_pos().x, top + view.get_size().h + D_INDICATOR_HEIGHT + 2, prod_buf);
-		prod_buf.clear();
-	}
 
 	scr_coord_val x_boost_symbol_pos = proportional_string_width(translator::translate("Productivity")) + proportional_string_width(" : 000% ") + proportional_string_width(translator::translate("(Max. %d%%)")) + D_MARGIN_LEFT + D_H_SPACE;
 	if (skinverwaltung_t::electricity->get_image_id(0) != IMG_EMPTY) {
@@ -547,7 +548,7 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 		fab->info_prod( prod_buf );
 		prod.recalc_size();
 
-		const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE*2+ max( prod.get_size().h + storage.get_size().h, view.get_size().h + 8 + D_V_SPACE )+ LINESPACE;
+		const sint16 offset_below_viewport = D_MARGIN_TOP+D_V_SPACE+ max( prod.get_size().h + storage.get_size().h, view.get_size().h + 8 + D_V_SPACE )+ LINESPACE;
 
 		// calculate height
 		fab->info_prod(prod_buf);
