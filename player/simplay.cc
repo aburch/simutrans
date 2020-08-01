@@ -613,7 +613,7 @@ void player_t::begin_liquidation()
 
 		if (!cnv->in_depot())
 		{
-			const bool go_to_depot_succeeded = cnv->go_to_depot(false, false);
+			const bool go_to_depot_succeeded = cnv->go_to_depot(false);
 			if (!go_to_depot_succeeded)
 			{
 				cnv->emergency_go_to_depot(false);
