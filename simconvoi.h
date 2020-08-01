@@ -1432,7 +1432,7 @@ public:
 	bool has_same_vehicles(convoihandle_t other) const;
 
 	// Go to depot, if possible
-	bool go_to_depot(bool show_success, bool use_home_depot = false);
+	bool go_to_depot(bool show_success = true, bool use_home_depot = false);
 
 	// True if convoy has no cargo
 	//@author: isidoro
