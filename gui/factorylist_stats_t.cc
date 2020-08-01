@@ -270,14 +270,18 @@ void factorylist_stats_t::draw(scr_coord offset)
 					// in transit
 					if (fab->get_total_transit())
 					{
-						display_color_img(skinverwaltung_t::in_transit->get_image_id(0), xoff + offset_left, yoff, 0, false, false);
+						if (skinverwaltung_t::in_transit) {
+							display_color_img(skinverwaltung_t::in_transit->get_image_id(0), xoff + offset_left, yoff, 0, false, false);
+						}
 						buf.printf("%i", fab->get_total_transit());
 						display_proportional_clip(xoff + offset_left + 14, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						buf.clear();
 					}
 
 					// input
-					display_color_img(skinverwaltung_t::input_output->get_image_id(0), xoff + offset_left + 14 + 32, yoff, 0, false, false);
+					if (skinverwaltung_t::input_output) {
+						display_color_img(skinverwaltung_t::input_output->get_image_id(0), xoff + offset_left + 14 + 32, yoff, 0, false, false);
+					}
 					uint colored_with = fab->get_total_input_occupancy() * STORAGE_BAR_WIDTH / 100;
 					display_vlinear_gradiwnt_wh(xoff + offset_left + 14 + 32 + 12, yoff + 2, colored_with, LINESPACE - 3, colored_with == STORAGE_BAR_WIDTH ? COL_DARK_GREEN : COL_DARK_GREEN + 1, 10, 75);
 
@@ -289,7 +293,9 @@ void factorylist_stats_t::draw(scr_coord offset)
 
 				// output storage
 				if (!fab->get_output().empty()) {
-					display_color_img(skinverwaltung_t::input_output->get_image_id(1), xoff + offset_left, yoff, 0, false, false);
+					if (skinverwaltung_t::input_output) {
+						display_color_img(skinverwaltung_t::input_output->get_image_id(1), xoff + offset_left, yoff, 0, false, false);
+					}
 
 					if (fab->get_total_output_capacity()) {
 						uint colored_with = fab->get_total_out() * STORAGE_BAR_WIDTH / fab->get_total_output_capacity();
