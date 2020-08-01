@@ -3155,3 +3155,4 @@ void way_builder_t::update_ribi_mask_oneway(strasse_t* str, uint32 i) {
 		}
 	}
 }
+
