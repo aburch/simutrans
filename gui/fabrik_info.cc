@@ -95,44 +95,24 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 
 	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, 250+view.get_size().w), D_TAB_HEADER_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT));
 
-	// calculate height
-	fab->info_prod(prod_buf);
+	// tabs
+	// initialize to zero, update_info will do the rest
+	old_suppliers_count = 0;
+	old_consumers_count = 0;
+	old_stops_count = 0;
 
-	// fill position buttons etc
-	fab->info_conn(info_buf);
-	txt.recalc_size();
-	update_info();
-
-	// tab1 - connections
-	container_info.set_pos(scr_coord(0, D_MARGIN_TOP));
-	scr_coord_val y = 0; // calc for layout
+	// tab1 - components of connections
+	lb_suppliers.set_text(translator::translate("Suppliers"));
 	lb_suppliers.set_visible(false);
-	lb_suppliers.init(translator::translate("Suppliers"), scr_coord(D_H_SPACE, y));
-	if (all_suppliers.get_size().h) {
-		lb_suppliers.set_visible(true);
-		y += LINESPACE;
-	}
-	all_suppliers.set_pos(scr_coord(0, y));
-	y += all_suppliers.get_size().h;
-	if (all_suppliers.get_size().h) {
-		y += LINESPACE;
-	}
-
+	lb_consumers.set_text(translator::translate("Abnehmer"));
 	lb_consumers.set_visible(false);
-	lb_consumers.init(translator::translate("Abnehmer"), scr_coord(D_H_SPACE, y));
-	if (all_consumers.get_size().h) {
-		lb_consumers.set_visible(true);
-		y += LINESPACE;
-	}
-	all_consumers.set_pos(scr_coord(0, y));
-	y += all_consumers.get_size().h;
-	y += LINESPACE;
+	lb_nearby_halts.set_text(translator::translate("Connected stops (freight)"));
 
-	lb_nearby_halts.init(translator::translate("Connected stops (freight)"), scr_coord(D_H_SPACE, y));
-	y += LINESPACE;
-	nearby_halts.set_pos(scr_coord(0, y));
-	y += nearby_halts.get_size().h;
-	y += D_MARGIN_BOTTOM;
+	// tab4 - building info
+	container_details.set_pos(scr_coord(0, D_MARGIN_TOP));
+	txt.set_pos(scr_coord(D_MARGIN_LEFT, 0));
+
+	update_info();
 
 	container_info.add_component(&lb_suppliers);
 	container_info.add_component(&all_suppliers);
@@ -140,10 +120,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	container_info.add_component(&all_consumers);
 	container_info.add_component(&lb_nearby_halts);
 	container_info.add_component(&nearby_halts);
-	container_info.set_size(scr_size(400, y));
-
-	// tab4 - building info
-	container_details.init(scr_coord(0, D_MARGIN_TOP), scr_size(D_BUTTON_WIDTH*3, txt.get_size().h));
+	container_details.add_component(&txt);
 
 	// Hajo: "About" button only if translation is available
 	char key[256];
@@ -155,7 +132,6 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 		details_button.add_listener(this);
 		add_component(&details_button);
 	}
-
 
 	tabs.add_tab(&scrolly_info, translator::translate("Connections"));
 	tabs.add_tab(&goods_chart, translator::translate("Goods chart"));
@@ -240,17 +216,10 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 	{
 		return;
 	}
-	const scr_size old_size = txt.get_size();
 
-	fab->info_prod(prod_buf);
-	fab->info_conn(info_buf);
+	update_components();
 
 	gui_frame_t::draw(pos, size);
-	set_dirty();
-
-	if (old_size != txt.get_size()) {
-		update_info();
-	}
 
 	// staffing bar
 	if (fab->get_sector() == fabrik_t::end_consumer) {
@@ -424,27 +393,77 @@ void fabrik_info_t::set_tab_opened()
 	}
 }
 
-
+// update name and buffers
 void fabrik_info_t::update_info()
 {
 	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );
 	gui_frame_t::set_name( fabname );
 	input.set_text( fabname, lengthof(fabname) );
 
-	// needs to update all text
-	txt.set_pos( scr_coord(D_MARGIN_LEFT,0) );
-	container_details.add_component(&txt);
-	all_suppliers.recalc_size();
-	all_consumers.recalc_size();
-	nearby_halts.update(fab);
-	nearby_halts.recalc_size();
-
-
-
-
-	const sint16 offset_below_viewport = D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + max(prod.get_size().h + storage.get_size().h, view.get_size().h + 8) + LINESPACE*3;
+	update_components();
 }
 
+// update all buffers
+void fabrik_info_t::update_components()
+{
+	// update texts
+	fab->info_prod(prod_buf);
+	fab->info_conn(info_buf);
+
+	// tab1 - connections
+	scr_coord_val y = D_V_SPACE; // calc for layout
+	container_info.set_pos(scr_coord(0, y));
+	// suppliers
+	if (fab->get_suppliers().get_count() != old_suppliers_count) {
+		lb_suppliers.set_pos(scr_coord(D_H_SPACE, y));
+		all_suppliers.recalc_size();
+		if (fab->get_suppliers().get_count()) {
+			lb_suppliers.set_visible(true);
+		}
+		all_suppliers.set_pos(scr_coord(0, y + LINESPACE));
+		old_suppliers_count = fab->get_suppliers().get_count();
+	}
+	if (fab->get_suppliers().get_count()) {
+		y += (fab->get_suppliers().get_count() + 2) * (LINESPACE + 1);
+	}
+
+	// consumers
+	if (fab->get_lieferziele().get_count() != old_consumers_count) {
+		lb_consumers.set_pos(scr_coord(D_H_SPACE, y));
+		all_consumers.recalc_size();
+		if (fab->get_lieferziele().get_count()) {
+			lb_consumers.set_visible(true);
+		}
+		all_consumers.set_pos(scr_coord(0, y+LINESPACE));
+
+		old_consumers_count = fab->get_lieferziele().get_count();
+	}
+	if (fab->get_lieferziele().get_count()) {
+		y += (fab->get_lieferziele().get_count()+2) * (LINESPACE+1);
+	}
+
+	// connected stops
+	lb_nearby_halts.set_pos(scr_coord(D_H_SPACE, y));
+	y += LINESPACE;
+	if (fab->get_nearby_freight_halts().get_count() != old_stops_count)
+	{
+		nearby_halts.update();
+		nearby_halts.set_pos(scr_coord(0, y));
+		old_stops_count = fab->get_nearby_freight_halts().get_count();
+	}
+	y += fab->get_nearby_freight_halts().get_count() * (LINESPACE + 1);
+	y += D_MARGIN_BOTTOM;
+
+	if (y != container_info.get_size().h) {
+		container_info.set_size(scr_size(400, y));
+	}
+
+	// details tab
+	txt.recalc_size();
+	container_details.set_size(scr_size(D_BUTTON_WIDTH * 3, txt.get_size().h));
+
+	set_dirty();
+}
 
 // component for city demand icons display
 void gui_fabrik_info_t::draw(scr_coord offset)

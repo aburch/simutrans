@@ -519,13 +519,12 @@ void gui_factory_nearby_halt_info_t::recalc_size()
 }
 
 
-void gui_factory_nearby_halt_info_t::update(fabrik_t *factory)
+void gui_factory_nearby_halt_info_t::update()
 {
-	this->fab = factory;
 	if (fab) {
 		halt_list = fab->get_nearby_freight_halts();
-		draw(get_pos());
 	}
+	recalc_size();
 }
 
 

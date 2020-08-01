@@ -85,7 +85,12 @@ private:
 	gui_label_t lb_suppliers, lb_consumers, lb_nearby_halts;
 	gui_factory_nearby_halt_info_t nearby_halts;
 
+	uint32 old_suppliers_count, old_consumers_count, old_stops_count;
+
 	void rename_factory();
+
+	void update_components();
+
 	void set_tab_opened();
 
 public:

@@ -70,7 +70,7 @@ public:
 	bool infowin_event(event_t const *ev) OVERRIDE;
 
 	void recalc_size();
-	void update(fabrik_t *factory);
+	void update();
 
 	void draw(scr_coord offset) OVERRIDE;
 
