@@ -327,10 +327,8 @@ void fabrik_t::book_weighted_sums(sint64 delta_time)
 		output[out].book_weighted_sum_storage(desc->get_product(out)->get_factor(), delta_time);
 	}
 
-	// production level
-	const sint32 current_prod = get_actual_productivity();
-	weighted_sum_production += current_prod * delta_time;
-	set_stat(current_prod, FAB_PRODUCTION);
+	// production rate
+	set_stat(calc_operation_rate(0), FAB_PRODUCTION);
 
 	// electricity, pax and mail boosts
 	weighted_sum_boost_electric += prodfactor_electric * delta_time;
@@ -1620,10 +1618,13 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 					continue;
 				}
 				file->rdwr_longlong(statistics[m][s]);
-				if (s== FAB_PRODUCTION && (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 23))) {
+				if (s== FAB_PRODUCTION && (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 29))) {
 					// convert production to producivity
 					if (prodbase && welt->calc_adjusted_monthly_figure(get_base_production())) {
-						statistics[m][s] = statistics[m][s] * 100 / welt->calc_adjusted_monthly_figure(get_base_production());
+						statistics[m][s] = calc_operation_rate(m);
+					}
+					else {
+						statistics[m][s] = 0;
 					}
 				}
 			}
@@ -2615,7 +2616,7 @@ void fabrik_t::new_month()
 
 	// calculate weighted averages
 	if(  aggregate_weight>0  ) {
-		set_stat( weighted_sum_production / aggregate_weight, FAB_PRODUCTION );
+		set_stat(calc_operation_rate(1), FAB_PRODUCTION );
 		set_stat( weighted_sum_boost_electric / aggregate_weight, FAB_BOOST_ELECTRIC );
 		set_stat( weighted_sum_boost_pax / aggregate_weight, FAB_BOOST_PAX );
 		set_stat( weighted_sum_boost_mail / aggregate_weight, FAB_BOOST_MAIL );
@@ -2642,7 +2643,7 @@ void fabrik_t::new_month()
 	aggregate_weight = 0;
 
 	// restore the current values
-	set_stat(get_actual_productivity(), FAB_PRODUCTION);
+	set_stat(calc_operation_rate(0), FAB_PRODUCTION);
 	set_stat( prodfactor_electric, FAB_BOOST_ELECTRIC );
 	set_stat( prodfactor_pax, FAB_BOOST_PAX );
 	set_stat( prodfactor_mail, FAB_BOOST_MAIL );
@@ -3193,7 +3194,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.printf(translator::translate("(Max. %d%%)"), max_productivity+100);
 		buf.append("\n");
 
-		buf.printf("%s: %.1f%% (%s: %.1f%%)", translator::translate("Operation rate"), calc_operation_rate(0) / 100.0, translator::translate("Last Month"), calc_operation_rate(1) / 100.0);
+		buf.printf("%s: %.1f%% (%s: %.1f%%)", translator::translate("Operation rate"), statistics[0][FAB_PRODUCTION] / 100.0, translator::translate("Last Month"), statistics[1][FAB_PRODUCTION] / 100.0);
 		buf.append("\n");
 	}
 	if(get_desc()->is_electricity_producer())

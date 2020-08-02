@@ -99,7 +99,7 @@ class compare_factories
 					cmp = a->get_staffing_level_percentage() - b->get_staffing_level_percentage();
 					break;
 				case factorylist::by_operation_rate:
-					cmp = a->calc_operation_rate(1) - b->calc_operation_rate(1);
+					cmp = a->get_stat(1, FAB_PRODUCTION) - b->get_stat(1, FAB_PRODUCTION);
 					break;
 			}
 			if (cmp == 0) {
