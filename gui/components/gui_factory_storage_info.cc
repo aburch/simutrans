@@ -302,8 +302,8 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 			const bool is_active = is_input_display ?
 				target_fab->is_active_lieferziel(fab->get_pos().get_2d()) :
 				fab->is_active_lieferziel(k);
-			const bool is_connected_to_own_network = fab->is_connect_own_network() && target_fab->is_connect_own_network();
-			const bool is_within_own_network = target_fab->is_connect_own_network();
+			const bool is_connected_to_own_network = fab->is_connected_to_network(welt->get_active_player()) && target_fab->is_connected_to_network(welt->get_active_player());
+			const bool is_within_own_network = target_fab->is_connected_to_network(welt->get_active_player());
 			xoff = D_POS_BUTTON_WIDTH + D_H_SPACE;
 
 			const goods_desc_t *transport_goods;
