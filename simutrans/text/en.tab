@@ -5840,3 +5840,5 @@ production %.1f%s/month
 %.1f%s/month
 production %u%s/month
 %u%s/month
+station_capacity_freight
+Freight capacity
