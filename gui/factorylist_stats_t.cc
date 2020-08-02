@@ -211,11 +211,11 @@ void factorylist_stats_t::draw(scr_coord offset)
 
 			if (display_operation_stats) {
 				// this month and last month operation rate
-				buf.printf("%3.1f - ", fab->calc_operation_rate(0) / 10.0);
+				buf.printf("%3.1f - ", fab->calc_operation_rate(0) / 100.0);
 				offset_left += proportional_string_width("0000.0 -");
 				display_proportional_clip(xoff + offset_left, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 				buf.clear();
-				buf.printf("%3.1f", fab->calc_operation_rate(1) / 10.0);
+				buf.printf("%3.1f", fab->calc_operation_rate(1) / 100.0);
 				offset_left += proportional_string_width("0000.0");
 				display_proportional_clip(xoff + offset_left, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 				buf.clear();

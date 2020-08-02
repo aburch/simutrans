@@ -3193,7 +3193,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.printf(translator::translate("(Max. %d%%)"), max_productivity+100);
 		buf.append("\n");
 
-		buf.printf("%s: %.1f%% (%s: %.1f%%)", translator::translate("Operation rate"), calc_operation_rate(0) / 10.0, translator::translate("Last Month"), calc_operation_rate(1) / 10.0);
+		buf.printf("%s: %.1f%% (%s: %.1f%%)", translator::translate("Operation rate"), calc_operation_rate(0) / 100.0, translator::translate("Last Month"), calc_operation_rate(1) / 100.0);
 		buf.append("\n");
 	}
 	if(get_desc()->is_electricity_producer())
@@ -4011,7 +4011,7 @@ uint32 fabrik_t::calc_operation_rate(sint8 month) const
 			const uint32 prod_rate = (uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS);
 			temp_sum += convert_goods(input[i].get_stat(month, FAB_GOODS_CONSUMED)) * 10000 / (sint32)prod_rate;
 		}
-		return (uint32)(temp_sum * 100 / input.get_count() / base_monthly_prod);
+		return (uint32)(temp_sum * 1000 / input.get_count() / base_monthly_prod);
 	}
 	else if(sector != unknown && output.get_count()){
 		// check the producing rate of this factory
@@ -4021,7 +4021,7 @@ uint32 fabrik_t::calc_operation_rate(sint8 month) const
 
 			temp_sum += convert_goods(output[i].get_stat(month, FAB_GOODS_PRODUCED)) * 10000 / (sint32)prod_rate;
 		}
-		return (uint32)(temp_sum * 100 / output.get_count() / base_monthly_prod);
+		return (uint32)(temp_sum * 1000 / output.get_count() / base_monthly_prod);
 	}
 
 	return 0;
