@@ -2021,18 +2021,18 @@ void way_builder_t::calc_straight_route(koord3d start, const koord3d ziel)
 }
 
 
-void way_builder_t::calc_route(const koord3d &start, const koord3d &ziel)
+bool way_builder_t::calc_route(const koord3d &start, const koord3d &ziel)
 {
 	vector_tpl<koord3d> start_vec(1), ziel_vec(1);
 	start_vec.append(start);
 	ziel_vec.append(ziel);
-	calc_route(start_vec, ziel_vec);
+	return calc_route(start_vec, ziel_vec);
 }
 
 /* calc_route
  *
  */
-void way_builder_t::calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
+bool way_builder_t::calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
 {
 #ifdef DEBUG_ROUTES
 uint32 ms = dr_time();
@@ -2067,7 +2067,7 @@ uint32 ms = dr_time();
 			// not successful: try backwards
 			intern_calc_route(ziel,start);
 			route_reversed = false;
-			return;
+			return route_reversed;
 		}
 
 #ifdef REVERSE_CALC_ROUTE_TOO
@@ -2091,6 +2091,7 @@ uint32 ms = dr_time();
 #ifdef DEBUG_ROUTES
 DBG_MESSAGE("calc_route::calc_route", "took %i ms",dr_time()-ms);
 #endif
+	return route_reversed;
 }
 
 void way_builder_t::build_tunnel_and_bridges()
@@ -2387,7 +2388,7 @@ bool way_builder_t::build_tunnel_tile()
 				if(  tunnel_desc->get_waytype()==road_wt  ) {
 					strasse_t* str = (strasse_t*) weg;
 					assert(str);
-					str->set_overtaking_mode(overtaking_mode);
+					str->set_overtaking_mode(overtaking_mode, player_builder);
 					update_ribi_mask_oneway(str,i);
 				}
 				const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
@@ -2438,7 +2439,7 @@ bool way_builder_t::build_tunnel_tile()
 					if(  tunnel_desc->get_waytype()==road_wt  ) {
 						strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
 						assert(str);
-						str->set_overtaking_mode(overtaking_mode);
+						str->set_overtaking_mode(overtaking_mode, player_builder);
 					}
 					// respect max speed of catenary
 					wayobj_t const* const wo = gr->get_wayobj(tunnel_desc->get_waytype());
@@ -2572,7 +2573,7 @@ void way_builder_t::build_road()
 			{
 				way->set_replacement_way(desc);
 				if(  strasse_t* str = static_cast<strasse_t*>(way)  ) {
-					str -> set_overtaking_mode(overtaking_mode);
+					str -> set_overtaking_mode(overtaking_mode, player_builder);
 				}
 			}
 		}
@@ -2586,7 +2587,7 @@ void way_builder_t::build_road()
 
 				if(  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  ) {
 					// To make changing of overtaking_mode easy, only update overtaking_mode and ribi_mask_oneway
-					str->set_overtaking_mode(overtaking_mode);
+					str->set_overtaking_mode(overtaking_mode, player_builder);
 					update_ribi_mask_oneway(str,i);
 				}
 				// keep faster ways or if it is the same way ... (@author prissi)
@@ -2596,7 +2597,7 @@ void way_builder_t::build_road()
 					||  (  player_builder!=NULL  &&  str-> is_deletable(player_builder)!=NULL  )
 					) {
 					// only update overtaking_mode
-					str->set_overtaking_mode(overtaking_mode);
+					str->set_overtaking_mode(overtaking_mode, player_builder);
 				}
 				else
 				{
@@ -2614,7 +2615,7 @@ void way_builder_t::build_road()
 					}
 
 					str->set_desc(desc);
-					str->set_overtaking_mode(overtaking_mode);
+					str->set_overtaking_mode(overtaking_mode, player_builder);
 					// respect speed limit of crossing
 					str->count_sign();
 					// respect max speed of catenary
@@ -2650,7 +2651,7 @@ void way_builder_t::build_road()
 				str = new strasse_t();
 
 				str->set_desc(desc);
-				str->set_overtaking_mode(overtaking_mode);
+				str->set_overtaking_mode(overtaking_mode, player_builder);
 				if (build_sidewalk) {
 					str->set_gehweg(build_sidewalk);
 					str->set_public_right_of_way();
@@ -3127,27 +3128,31 @@ bool way_builder_t::check_access(const weg_t* way, const player_t* player) const
 }
 
 void way_builder_t::update_ribi_mask_oneway(strasse_t* str, uint32 i) {
+	if (str->is_deletable(player_builder) != NULL) {
+		return;
+	}
 	if(  str->get_overtaking_mode()>oneway_mode  ) {
 		str->set_ribi_mask_oneway(ribi_t::none);
 	} else if(  overtaking_mode<=oneway_mode  &&  get_count()>1   ){ //of course street is oneway_mode
 		if(  i==0  ) {
 			if(  route_reversed  ) {
-				str->update_ribi_mask_oneway(ribi_type(route[0],route[1]),ribi_t::none);
+				str->update_ribi_mask_oneway(ribi_type(route[0],route[1]),ribi_t::none, player_builder);
 			} else {
-				str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));
+				str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]), player_builder);
 			}
 		} else if(  i==get_count()-1  ) {
 			if(  route_reversed  ) {
-				str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[i],route[i-1]));
+				str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[i],route[i-1]), player_builder);
 			} else {
-				str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none);
+				str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none, player_builder);
 			}
 		} else {
 			if(  route_reversed  ) {
-				str->update_ribi_mask_oneway(ribi_type(route[i],route[i+1]),ribi_type(route[i],route[i-1]));
+				str->update_ribi_mask_oneway(ribi_type(route[i],route[i+1]),ribi_type(route[i],route[i-1]), player_builder);
 			} else {
-				str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
+				str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]), player_builder);
 			}
 		}
 	}
 }
+

@@ -327,10 +327,8 @@ void fabrik_t::book_weighted_sums(sint64 delta_time)
 		output[out].book_weighted_sum_storage(desc->get_product(out)->get_factor(), delta_time);
 	}
 
-	// production level
-	const sint32 current_prod = get_actual_productivity();
-	weighted_sum_production += current_prod * delta_time;
-	set_stat(current_prod, FAB_PRODUCTION);
+	// production rate
+	set_stat(calc_operation_rate(0), FAB_PRODUCTION);
 
 	// electricity, pax and mail boosts
 	weighted_sum_boost_electric += prodfactor_electric * delta_time;
@@ -1620,10 +1618,13 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 					continue;
 				}
 				file->rdwr_longlong(statistics[m][s]);
-				if (s== FAB_PRODUCTION && (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 23))) {
+				if (s== FAB_PRODUCTION && (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 29))) {
 					// convert production to producivity
 					if (prodbase && welt->calc_adjusted_monthly_figure(get_base_production())) {
-						statistics[m][s] = statistics[m][s] * 100 / welt->calc_adjusted_monthly_figure(get_base_production());
+						statistics[m][s] = calc_operation_rate(m);
+					}
+					else {
+						statistics[m][s] = 0;
 					}
 				}
 			}
@@ -2615,7 +2616,7 @@ void fabrik_t::new_month()
 
 	// calculate weighted averages
 	if(  aggregate_weight>0  ) {
-		set_stat( weighted_sum_production / aggregate_weight, FAB_PRODUCTION );
+		set_stat(calc_operation_rate(1), FAB_PRODUCTION );
 		set_stat( weighted_sum_boost_electric / aggregate_weight, FAB_BOOST_ELECTRIC );
 		set_stat( weighted_sum_boost_pax / aggregate_weight, FAB_BOOST_PAX );
 		set_stat( weighted_sum_boost_mail / aggregate_weight, FAB_BOOST_MAIL );
@@ -2642,7 +2643,7 @@ void fabrik_t::new_month()
 	aggregate_weight = 0;
 
 	// restore the current values
-	set_stat(get_actual_productivity(), FAB_PRODUCTION);
+	set_stat(calc_operation_rate(0), FAB_PRODUCTION);
 	set_stat( prodfactor_electric, FAB_BOOST_ELECTRIC );
 	set_stat( prodfactor_pax, FAB_BOOST_PAX );
 	set_stat( prodfactor_mail, FAB_BOOST_MAIL );
@@ -2994,21 +2995,23 @@ void fabrik_t::recalc_factory_status()
 			FOR(vector_tpl<koord>, k, suppliers)
 			{
 				fabrik_t* supplier = fabrik_t::get_fab(k);
+				bool found = false;
 				FOR(array_tpl<ware_production_t>, sw, supplier->get_output())
 				{
 					if (sw.get_typ() == j.get_typ())
 					{
 						supplier_check++;
-						continue;
+						found = true;
+						break;
 					}
+				}
+				if (found) {
+					break; // same goods count only once
 				}
 			}
 		}
 	}
-	if (sector == manufacturing && input_count > supplier_check) {
-		status = missing_connection;
-		return;
-	}
+
 	warenlager >>= fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS;
 	if (warenlager == 0) {
 		status_ein |= FL_WARE_ALLENULL;
@@ -3018,14 +3021,13 @@ void fabrik_t::recalc_factory_status()
 	// one ware missing, but producing
 	if (status_ein & FL_WARE_FEHLT_WAS && !output.empty() && haltcount > 0) {
 		status = material_shortage;
-		return;
 	}
 
 	// set bits for output
 	warenlager = 0;
 	status_aus = FL_WARE_ALLEUEBER75 | FL_WARE_ALLENULL;
 	i = 0;
-	FOR(array_tpl<ware_production_t>, const& j, output) {
+	FORX(array_tpl<ware_production_t>, const& j, output, i++) {
 		if (j.menge > 0) {
 
 			status_aus &= ~FL_WARE_ALLENULL;
@@ -3035,7 +3037,7 @@ void fabrik_t::recalc_factory_status()
 			else {
 				status_aus &= ~FL_WARE_ALLEUEBER75;
 			}
-			warenlager += (uint64)j.menge * (uint64)(desc->get_product(i)->get_factor());
+			warenlager += (uint64)(FAB_DISPLAY_UNIT_HALF + (uint64)j.menge * (uint64)(desc->get_product(i)->get_factor())) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS);
 			status_aus &= ~FL_WARE_ALLENULL;
 		}
 		else {
@@ -3043,7 +3045,6 @@ void fabrik_t::recalc_factory_status()
 			status_aus &= ~FL_WARE_ALLEUEBER75;
 		}
 	}
-	warenlager >>= fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS;
 	total_output = (uint32)warenlager;
 
 	// now calculate status bar
@@ -3083,8 +3084,7 @@ void fabrik_t::recalc_factory_status()
 			break;
 		case manufacturing:
 			// Check if it has at least the minimum required connections
-			if (!lieferziele.get_count())
-			{
+			if (input_count > supplier_check || !lieferziele.get_count()) {
 				status = missing_connection;
 			}
 			else if (!haltcount) {
@@ -3194,8 +3194,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.printf(translator::translate("(Max. %d%%)"), max_productivity+100);
 		buf.append("\n");
 
-		buf.append(translator::translate("Occupancy rate last month"));
-		buf.printf(": %.1f%% ", calc_occupancy_rate(1)/10.0);
+		buf.printf("%s: %.1f%% (%s: %.1f%%)", translator::translate("Operation rate"), statistics[0][FAB_PRODUCTION] / 100.0, translator::translate("Last Month"), statistics[1][FAB_PRODUCTION] / 100.0);
 		buf.append("\n");
 	}
 	if(get_desc()->is_electricity_producer())
@@ -3728,6 +3727,34 @@ uint16 fabrik_t::get_max_intransit_percentage(uint32 index)
 	return max_intransit_percentages.get(input[index].get_typ()->get_catg());
 }
 
+uint16 fabrik_t::get_total_input_occupancy() const
+{
+	uint32 i = 0;
+	uint32 capacity_sum = 0;
+	uint32 stock_sum = 0;
+	FORX(array_tpl<ware_production_t>, const& goods, input, i++) {
+		const sint64 pfactor =desc->get_supplier(i) ? (sint64)desc->get_supplier(i)->get_consumption() : 1ll;
+		const uint32 stock_quantity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+		const uint32 storage_capacity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+
+		stock_sum += min(stock_quantity, storage_capacity);
+		capacity_sum += storage_capacity;
+	}
+	return capacity_sum > 0 ? (uint16)(stock_sum * 100 / capacity_sum) : 0;
+}
+
+uint32 fabrik_t::get_total_output_capacity() const
+{
+	uint32 sum = 0;
+	uint32 i = 0;
+	FORX(array_tpl<ware_production_t>, const& goods, output, i++) {
+		const goods_desc_t * type = goods.get_typ();
+		const sint64 pfactor = (sint64)desc->get_product(i)->get_factor();
+		sum += (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+	}
+	return sum;
+}
+
 uint32 fabrik_t::get_lead_time(const goods_desc_t* wtype)
 {
 	if(suppliers.empty())
@@ -3917,11 +3944,11 @@ sint32 fabrik_t::get_staffing_level_percentage() const {
 	return gb->get_staffing_level_percentage();
 }
 
-bool fabrik_t::is_connect_own_network() const
+bool fabrik_t::is_connected_to_network(player_t *player) const
 {
 	FOR(vector_tpl<nearby_halt_t>, const i, nearby_freight_halts)
 	{
-		if(i.halt->get_owner() == welt->get_active_player()){
+		if(i.halt->get_owner() == player){
 			// In the case of owning station, it only needs to have freight facilities.
 			// It may still be in preparation...
 			return true;
@@ -3929,7 +3956,7 @@ bool fabrik_t::is_connect_own_network() const
 		else {
 			for (uint8 catg_index = goods_manager_t::INDEX_NONE+1; catg_index < goods_manager_t::get_max_catg_index(); catg_index++)
 			{
-				if (i.halt->has_available_network(welt->get_active_player(), catg_index)) {
+				if (i.halt->has_available_network(player, catg_index)) {
 					return true;
 				}
 			}
@@ -3964,25 +3991,28 @@ bool fabrik_t::has_goods_catg_demand(uint8 catg_index) const
 
 // NOTE: not added the formula for this month yet
 // TODO: (for this month calcuration) Multiply the production amount and the basic production amount by the ratio to the length of the month time
-uint32 fabrik_t::calc_occupancy_rate(sint8 month) const
+uint32 fabrik_t::calc_operation_rate(sint8 month) const
 {
-	if (month <= 0 || month >= MAX_MONTH) {
+	if (month < 0 || month >= MAX_MONTH) {
 		return 0;
 	}
-	const sint32 base_monthly_prod = welt->calc_adjusted_monthly_figure(prodbase*10); // need to consider the decimal point for small units
+	sint64 base_monthly_prod = welt->calc_adjusted_monthly_figure(prodbase*10); // need to consider the decimal point for small units
+	if (month == 0) {
+		const uint32 ticks_this_month = welt->get_ticks() % welt->ticks_per_world_month;
+		base_monthly_prod = base_monthly_prod * ticks_this_month / welt->ticks_per_world_month;
+	}
 	if (!base_monthly_prod) { return 0; }
 
 	sint32 temp_sum = 0;
-
 	// which sector?
 	if ((sector == end_consumer || sector == power_plant) && input.get_count()) {
 		// check the consuming rate
 		for (int i = 0; i < input.get_count(); i++) {
 			const sint64 pfactor = desc->get_supplier(i) ? (sint64)desc->get_supplier(i)->get_consumption() : 1ll;
 			const uint32 prod_rate = (uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS);
-			temp_sum += convert_goods(input[i].get_stat(month, FAB_GOODS_CONSUMED)) * 10000 / (sint32)prod_rate * 100 / base_monthly_prod;
+			temp_sum += convert_goods(input[i].get_stat(month, FAB_GOODS_CONSUMED)) * 10000 / (sint32)prod_rate;
 		}
-		return (uint32)(temp_sum / input.get_count());
+		return (uint32)(temp_sum * 1000 / input.get_count() / base_monthly_prod);
 	}
 	else if(sector != unknown && output.get_count()){
 		// check the producing rate of this factory
@@ -3990,9 +4020,9 @@ uint32 fabrik_t::calc_occupancy_rate(sint8 month) const
 			const sint64 pfactor = (sint64)desc->get_product(i)->get_factor();
 			const uint32 prod_rate = (uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS);
 
-			temp_sum += convert_goods(output[i].get_stat(month, FAB_GOODS_PRODUCED)) * 10000 / (sint32)prod_rate * 100 / base_monthly_prod;
+			temp_sum += convert_goods(output[i].get_stat(month, FAB_GOODS_PRODUCED)) * 10000 / (sint32)prod_rate;
 		}
-		return (uint32)(temp_sum / output.get_count());
+		return (uint32)(temp_sum * 1000 / output.get_count() / base_monthly_prod);
 	}
 
 	return 0;

@@ -2347,6 +2347,7 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 		builder.set_maximum(env_t::intercity_road_length);
 		builder.set_keep_city_roads(true);
 		builder.set_build_sidewalk(false);
+		builder.set_overtaking_mode(invalid_mode);
 
 		koord3d end3d = welt->lookup_kartenboden(end)->get_pos();
 

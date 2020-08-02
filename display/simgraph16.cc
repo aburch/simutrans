@@ -3198,6 +3198,14 @@ void display_blend_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, 
 	}
 }
 
+void display_vlinear_gradient_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL colval, int percent_blend_start, int percent_blend_end)
+{
+	uint8 transparency = 0;
+	for (int i = 0; i < h; i++) {
+		transparency = percent_blend_start + (percent_blend_end - percent_blend_start)/h*i;
+		display_blend_wh_rgb(xp, yp+i, w, 1, colval, transparency);
+	}
+}
 
 static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour, blend_proc p  CLIP_NUM_DEF)
 {

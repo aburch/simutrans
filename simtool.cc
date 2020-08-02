@@ -2555,9 +2555,12 @@ void tool_build_way_t::draw_after(scr_coord k, bool dirty) const
 	if(  desc  &&  desc->get_waytype()==road_wt  ) {
 		if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
-			char level_str[16];
-			tool_build_way_t::set_mode_str(level_str, overtaking_mode);
-			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+			if (overtaking_mode != invalid_mode) {
+				char level_str[16];
+				tool_build_way_t::set_mode_str(level_str, overtaking_mode);
+				display_proportional_rgb(k.x + 5, k.y + 5, level_str, ALIGN_LEFT, color_idx_to_rgb(SYSCOL_TEXT_SHADOW), true);
+				display_proportional_rgb(k.x + 4, k.y + 4, level_str, ALIGN_LEFT, color_idx_to_rgb(strasse_t::overtaking_mode_to_color(overtaking_mode) + 1), true);
+			}
 		}
 	} else {
 		two_click_tool_t::draw_after(k,dirty);
@@ -2675,8 +2678,9 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 	return positive_return;
 }
 
-void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start, const koord3d &end )
+bool tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start, const koord3d &end )
 {
+	bool route_reversed = false;
 	// recalc type of construction
 	way_builder_t::bautyp_t bautyp = (way_builder_t::bautyp_t)desc->get_wtyp();
 	if (desc->is_tram()) {
@@ -2709,10 +2713,11 @@ void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 		bauigel.calc_straight_route(start,end);
 	}
 	else {
-		bauigel.calc_route(start,end);
+		route_reversed = bauigel.calc_route(start,end);
 	}
 
 	DBG_MESSAGE("tool_build_way_t()", "builder found route with %d squares length.", bauigel.get_count());
+	return route_reversed;
 }
 
 tool_build_way_t* get_build_way_tool_from_toolbar(const way_desc_t* desc) {
@@ -2735,7 +2740,8 @@ const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, c
 		// look toolbar variable indicates this tool is called from a shortcut key. When a tool is called from a shortcut key, we have to use overtaking_mode of the tool in a toolbar.
 		mode = toolbar_tool->get_overtaking_mode();
 	}
-  bauigel.set_overtaking_mode(mode);
+	
+	bauigel.set_overtaking_mode(mode);
 	if(  bauigel.get_route().get_count()>1  ) {
 		sint64 cost = bauigel.calc_costs();
 
@@ -2777,32 +2783,26 @@ void tool_build_way_t::set_mode_str(char* str, overtaking_mode_t overtaking_mode
 	switch (overtaking_mode) {
 		case halt_mode:
 			sprintf(str, "H");
-		break;
+			break;
 		case oneway_mode:
 			sprintf(str, "O");
-		break;
+			break;
 		case twoway_mode:
 			sprintf(str, "T");
-		break;
-		case loading_only_mode:
-			sprintf(str, "L");
-		break;
+			break;
 		case prohibited_mode:
 			sprintf(str, "P");
-		break;
-		case inverted_mode:
-			sprintf(str, "I");
-		break;
+			break;
 		default:
-			sprintf(str, "X");
-		break;
+			sprintf(str, "-");
+			break;
 	}
 }
 
 void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, const koord3d &end )
 {
 	way_builder_t bauigel(player);
-	calc_route( bauigel, start, end );
+	bool route_reversed = calc_route( bauigel, start, end );
 
 	uint8 offset = (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt) ? welt->get_settings().get_way_height_clearance() : 0;
 
@@ -2837,6 +2837,17 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 			way->set_yoff(-gr->get_weg_yoff() );
 			marked.insert( way );
 			way->mark_image_dirty( way->get_image(), 0 );
+			if (desc->get_wtyp() == road_wt && (j < bauigel.get_count() - 1)
+				&& (get_overtaking_mode() <= oneway_mode || get_build_way_tool_from_toolbar(desc)->get_overtaking_mode() <= oneway_mode)) {
+				uint8 dir = 0;
+				if (route_reversed && (j > 1)) {
+					dir = ribi_type(pos, bauigel.get_route()[j - 1]);
+				}
+				else if(!route_reversed && (j < bauigel.get_count() - 1)) {
+					dir = ribi_type(pos, bauigel.get_route()[j + 1]);
+				}
+				way->set_after_image(skinverwaltung_t::ribi_arrow->get_image_id(dir));
+			}
 		}
 	}
 }
@@ -2852,7 +2863,7 @@ const char *tool_build_cityroad::do_work( player_t *player, const koord3d &start
 {
 	way_builder_t bauigel(player);
 	bauigel.set_build_sidewalk(true);
-  bauigel.set_overtaking_mode(overtaking_mode);
+	bauigel.set_overtaking_mode(overtaking_mode);
 	calc_route( bauigel, start, end );
 	if(  bauigel.get_route().get_count()>1  ) {
 		welt->mute_sound(true);
@@ -2939,9 +2950,12 @@ void tool_build_bridge_t::draw_after(scr_coord k, bool dirty) const
 	if(  desc  &&  desc->get_waytype()==road_wt  ) {
 		if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
-			char level_str[16];
-			tool_build_way_t::set_mode_str(level_str, overtaking_mode);
-			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+			if (overtaking_mode != invalid_mode) {
+				char level_str[16];
+				tool_build_way_t::set_mode_str(level_str, overtaking_mode);
+				display_proportional_rgb(k.x + 5, k.y + 5, level_str, ALIGN_LEFT, color_idx_to_rgb(SYSCOL_TEXT_SHADOW), true);
+				display_proportional_rgb(k.x + 4, k.y + 4, level_str, ALIGN_LEFT, color_idx_to_rgb(strasse_t::overtaking_mode_to_color(overtaking_mode) + 1), true);
+			}
 		}
 	} else {
 		two_click_tool_t::draw_after(k,dirty);
@@ -3067,6 +3081,9 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 		way->set_after_image(desc->get_foreground(desc->get_straight(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())), 0));
 		marked.insert( way );
 		way->mark_image_dirty( way->get_image(), 0 );
+		if (desc->get_wtyp() == road_wt && get_overtaking_mode() <= oneway_mode) {
+			way->set_after_image(skinverwaltung_t::ribi_arrow->get_image_id(ribi_mark));
+		}
 		pos = pos + zv;
 	}
 	costs += desc->get_value() * koord_distance(start, pos);
@@ -3295,9 +3312,12 @@ void tool_build_tunnel_t::draw_after(scr_coord k, bool dirty) const
 	if(  desc  &&  desc->get_waytype()==road_wt  ) {
 		if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
-			char level_str[16];
-			tool_build_way_t::set_mode_str(level_str, overtaking_mode);
-			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+			if (overtaking_mode != invalid_mode) {
+				char level_str[16];
+				tool_build_way_t::set_mode_str(level_str, overtaking_mode);
+				display_proportional_rgb(k.x + 5, k.y + 5, level_str, ALIGN_LEFT, color_idx_to_rgb(SYSCOL_TEXT_SHADOW), true);
+				display_proportional_rgb(k.x + 4, k.y + 4, level_str, ALIGN_LEFT, color_idx_to_rgb(strasse_t::overtaking_mode_to_color(overtaking_mode) + 1), true);
+			}
 		}
 	} else {
 		two_click_tool_t::draw_after(k,dirty);
@@ -8583,7 +8603,7 @@ bool tool_change_convoi_t::init( player_t *player )
 
 	case 'P': // Go to depot
 	{
-		cnv->go_to_depot(true);
+		cnv->go_to_depot();
 		break;
 	}
 

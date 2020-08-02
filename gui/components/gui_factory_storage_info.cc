@@ -122,8 +122,12 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 
 				// [monthly production]
 				const uint32 monthly_prod = (uint32)(fab->get_current_production()*pfactor * 10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
-				buf.append((float)monthly_prod / 10.0, monthly_prod < 100 ? 1 : 0);
-				buf.printf("%s%s", translator::translate(goods.get_typ()->get_mass()), translator::translate("/month"));
+				if (monthly_prod < 100) {
+					buf.printf(translator::translate("consumption %.1f%s/month"), (float)monthly_prod / 10.0, translator::translate(goods.get_typ()->get_mass()));
+				}
+				else {
+					buf.printf(translator::translate("consumption %u%s/month"), monthly_prod/10, translator::translate(goods.get_typ()->get_mass()));
+				}
 				left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 				yoff += LINESPACE;
@@ -188,8 +192,12 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 				// [monthly production]
 				buf.clear();
 				const uint32 monthly_prod = (uint32)(fab->get_current_production()*pfactor * 10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
-				buf.append((float)monthly_prod / 10.0, monthly_prod < 100 ? 1 : 0);
-				buf.printf("%s%s", translator::translate(goods.get_typ()->get_mass()), translator::translate("/month"));
+				if (monthly_prod < 100) {
+					buf.printf(translator::translate("production %.1f%s/month"), (float)monthly_prod / 10.0, translator::translate(goods.get_typ()->get_mass()));
+				}
+				else {
+					buf.printf(translator::translate("production %u%s/month"), monthly_prod / 10, translator::translate(goods.get_typ()->get_mass()));
+				}
 				left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 				yoff += LINESPACE;
@@ -302,8 +310,8 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 			const bool is_active = is_input_display ?
 				target_fab->is_active_lieferziel(fab->get_pos().get_2d()) :
 				fab->is_active_lieferziel(k);
-			const bool is_connected_to_own_network = fab->is_connect_own_network() && target_fab->is_connect_own_network();
-			const bool is_within_own_network = target_fab->is_connect_own_network();
+			const bool is_connected_to_own_network = fab->is_connected_to_network(welt->get_active_player()) && target_fab->is_connected_to_network(welt->get_active_player());
+			const bool is_within_own_network = target_fab->is_connected_to_network(welt->get_active_player());
 			xoff = D_POS_BUTTON_WIDTH + D_H_SPACE;
 
 			const goods_desc_t *transport_goods;
@@ -519,13 +527,12 @@ void gui_factory_nearby_halt_info_t::recalc_size()
 }
 
 
-void gui_factory_nearby_halt_info_t::update(fabrik_t *factory)
+void gui_factory_nearby_halt_info_t::update()
 {
-	this->fab = factory;
 	if (fab) {
 		halt_list = fab->get_nearby_freight_halts();
-		draw(get_pos());
 	}
+	recalc_size();
 }
 
 

@@ -1931,25 +1931,31 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player,
 		{
 			weg_t *other = (weg_t *)obj_bei(0);
 			// another way will be added
-			if(flags&has_way2) {
-				dbg->fatal("grund_t::neuen_weg_bauen()","cannot built more than two ways on %i,%i,%i!",pos.x,pos.y,pos.z);
+			if(flags&has_way2)
+			{
+				dbg->error("grund_t::neuen_weg_bauen()","cannot built more than two ways on %i,%i,%i!",pos.x,pos.y,pos.z);
 				return 0;
 			}
 			// add the way
-			objlist.add( weg );
+			objlist.add(weg);
 			weg->set_ribi(ribi);
 			weg->set_pos(pos);
 			flags |= has_way2;
-			if(ist_uebergang()) {
+			if(ist_uebergang())
+			{
 				// no tram => crossing needed!
-				waytype_t w2 =  other->get_waytype();
+				waytype_t w2 = other->get_waytype();
 				const crossing_desc_t *cr_desc = crossing_logic_t::get_crossing( weg->get_waytype(), w2, weg->get_max_speed(), other->get_desc()->get_topspeed(), welt->get_timeline_year_month() );
-				if(cr_desc==0) {
-					dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", weg->get_waytype(), w2 );
+				if(cr_desc == nullptr)
+				{
+					dbg->error("crossing_t::crossing_t()", "requested for waytypes %i and %i but nothing defined!", weg->get_waytype(), w2);
 				}
-				crossing_t *cr = new crossing_t(obj_bei(0)->get_owner(), pos, cr_desc, ribi_t::is_straight_ns(get_weg(cr_desc->get_waytype(1))->get_ribi_unmasked()) );
-				objlist.add( cr );
-				cr->finish_rd();
+				else
+				{
+					crossing_t* cr = new crossing_t(obj_bei(0)->get_owner(), pos, cr_desc, ribi_t::is_straight_ns(get_weg(cr_desc->get_waytype(1))->get_ribi_unmasked()));
+					objlist.add(cr);
+					cr->finish_rd();
+				}
 			}
 		}
 

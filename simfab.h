@@ -728,6 +728,10 @@ public:
 	uint32 get_total_transit() const { return total_transit; }
 	uint32 get_total_out() const { return total_output; }
 
+	// return total storage occupancy for UI. should ignore the overflow of certain goods.
+	uint16 get_total_input_occupancy() const;
+	uint32 get_total_output_capacity() const;
+
 	/**
 	 * Crossconnects all factories
 	 * @author prissi
@@ -789,15 +793,14 @@ public:
 	bool is_input_empty() const;
 
 	// check connected to public or current player stop
-	bool is_connect_own_network() const;
+    bool is_connected_to_network(player_t *player) const;
 
 	// Returns whether this factory has potential demand for passed goods category
 	bool has_goods_catg_demand(uint8 catg_index = goods_manager_t::INDEX_NONE) const;
 
 
-	// Returns the operating ratio to basic production. (x 10)
-	// NOTE: not added the formula for this month yet - Ranran
-	uint32 calc_occupancy_rate(sint8 month) const;
+	// Returns the operating rate to basic production. (x 10)
+	uint32 calc_operation_rate(sint8 month) const;
 };
 
 #endif

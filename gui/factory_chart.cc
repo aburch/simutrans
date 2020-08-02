@@ -60,7 +60,7 @@ static const gui_chart_t::convert_proc goods_convert[MAX_FAB_GOODS_STAT] =
 
 static const char *const prod_type[MAX_FAB_STAT+1] =
 {
-	"Productivity", "Power usage",
+	"Operation rate", "Power usage",
 	"Electricity", "Jobs", "Post",
 	"", "", "Commuters", "", "Post",
 	"Post", "Consumers",
@@ -78,6 +78,12 @@ static const int prod_color[MAX_FAB_STAT] =
 static const gui_chart_t::convert_proc prod_convert[MAX_FAB_STAT] =
 {
 	NULL, convert_power, convert_boost, convert_boost, convert_boost, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+
+static const uint8 chart_type[MAX_FAB_STAT] =
+{
+	MONEY, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD
 };
 
 static const gui_chart_t::convert_proc ref_convert[MAX_FAB_REF_LINE] =
@@ -146,7 +152,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	prod_chart.set_background(SYSCOL_CHART_BACKGROUND);
 	prod_chart.set_ltr(env_t::left_to_right_graphs);
 	for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
-		prod_chart.add_curve( prod_color[s], factory->get_stats(), MAX_FAB_STAT, s, MAX_MONTH, false, false, true, 0, prod_convert[s] );
+		prod_chart.add_curve(prod_color[s], factory->get_stats(), MAX_FAB_STAT, s, MAX_MONTH, chart_type[s], false, true, (chart_type[s] == 1) ? 1 : 0, prod_convert[s]);
 		if (s==1 && factory->get_desc()->is_electricity_producer()) {
 			// if power plant, switch label to output
 			prod_buttons[s].init(button_t::box_state, prod_type[MAX_FAB_STAT], scr_coord(D_MARGIN_LEFT + (D_H_SPACE + D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart + (D_H_SPACE + D_BUTTON_HEIGHT)*button_pos[s].y));
@@ -263,7 +269,6 @@ void factory_chart_t::draw(scr_coord pos)
 
 void factory_chart_t::rdwr( loadsave_t *file )
 {
-	sint16 tabstate;
 	uint32 goods_flag = 0;
 	uint32 prod_flag = 0;
 	uint32 ref_flag = 0;
@@ -276,7 +281,6 @@ void factory_chart_t::rdwr( loadsave_t *file )
 		}
 	}
 
-	file->rdwr_short( tabstate );
 	file->rdwr_long( goods_flag );
 	file->rdwr_long( prod_flag );
 	file->rdwr_long( ref_flag );
@@ -316,12 +320,6 @@ factory_goods_chart_t::factory_goods_chart_t(const fabrik_t *_factory) :
 	goods_label_count(0)
 {
 	if (_factory) {
-		// GUI components for goods input/output statistics
-		goods_chart.set_pos(scr_coord(10 + 80, D_TAB_HEADER_HEIGHT));
-		goods_chart.set_size(scr_size(CHART_WIDTH, CHART_HEIGHT));
-		goods_chart.set_dimension(12, 10000);
-		goods_chart.set_background(SYSCOL_CHART_BACKGROUND);
-		goods_chart.set_ltr(env_t::left_to_right_graphs);
 
 		set_factory(_factory);
 	}
@@ -337,6 +335,13 @@ void factory_goods_chart_t::set_factory(const fabrik_t *_factory)
 		goods_label_count = 0;
 	}
 	factory = _factory;
+
+	// GUI components for goods input/output statistics
+	goods_chart.set_pos(scr_coord(10 + 80, D_TAB_HEADER_HEIGHT));
+	goods_chart.set_size(scr_size(CHART_WIDTH, CHART_HEIGHT));
+	goods_chart.set_dimension(12, 10000);
+	goods_chart.set_background(SYSCOL_CHART_BACKGROUND);
+	goods_chart.set_ltr(env_t::left_to_right_graphs);
 
 	const scr_coord_val offset_below_chart = CHART_HEIGHT + D_TAB_HEADER_HEIGHT + D_MARGIN_TOP + D_V_SPACE*2;
 	const scr_coord_val label_offset = D_GET_CENTER_ALIGN_OFFSET(LINESPACE, D_BUTTON_HEIGHT);
@@ -445,18 +450,14 @@ void factory_goods_chart_t::draw(scr_coord pos)
 
 void factory_goods_chart_t::rdwr(loadsave_t *file)
 {
-	sint16 tabstate;
 	uint32 goods_flag = 0;
-	uint32 ref_flag = 0;
 	if (file->is_saving()) {
 		for (int b = 0; b < goods_button_count; b++) {
 			goods_flag |= (goods_buttons[b].pressed << b);
 		}
 	}
 
-	file->rdwr_short(tabstate);
 	file->rdwr_long(goods_flag);
-	file->rdwr_long(ref_flag);
 
 	if (file->is_loading()) {
 		for (int b = 0; b < goods_button_count; b++) {

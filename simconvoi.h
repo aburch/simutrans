@@ -1202,6 +1202,7 @@ public:
 	sint32 get_max_signal_speed() const { return max_signal_speed; }
 
 	inline void set_wait_lock(sint32 value) { wait_lock = value; }
+	inline sint32 get_wait_lock() { return wait_lock; }
 
 	bool check_destination_reverse(route_t* current_route = NULL, route_t* target_rt = NULL);
 
@@ -1431,7 +1432,7 @@ public:
 	bool has_same_vehicles(convoihandle_t other) const;
 
 	// Go to depot, if possible
-	bool go_to_depot(bool show_success, bool use_home_depot = false);
+	bool go_to_depot(bool show_success = true, bool use_home_depot = false);
 
 	// True if convoy has no cargo
 	//@author: isidoro

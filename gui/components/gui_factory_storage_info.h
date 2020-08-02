@@ -28,7 +28,7 @@ private:
 public:
 	gui_factory_storage_info_t(fabrik_t *factory);
 
-	void set_fab(fabrik_t *f) { fab = f; }
+	void set_fab(fabrik_t *f) { this->fab = f; }
 
 	void draw(scr_coord offset);
 	void recalc_size();
@@ -47,6 +47,8 @@ private:
 
 public:
 	gui_factory_connection_stat_t(fabrik_t *factory, bool is_input_display);
+
+	void set_fab(fabrik_t *f) { this->fab = f; }
 
 	bool infowin_event(event_t const *ev) OVERRIDE;
 
@@ -67,10 +69,12 @@ private:
 public:
 	gui_factory_nearby_halt_info_t(fabrik_t *factory);
 
+	void set_fab(fabrik_t *f) { this->fab = f; }
+
 	bool infowin_event(event_t const *ev) OVERRIDE;
 
 	void recalc_size();
-	void update(fabrik_t *factory);
+	void update();
 
 	void draw(scr_coord offset) OVERRIDE;
 
