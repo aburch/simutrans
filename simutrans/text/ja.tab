@@ -3803,6 +3803,14 @@ Building info.
 建物情報
 #hlptxt_factory_connected
 #
+consumption %.1f%s/month
+月消費 %.1f%s
+consumption %u%s/month
+月消費 %u%s
+production %.1f%s/month
+月生産 %.1f%s
+production %u%s/month
+月生産 %u%s
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

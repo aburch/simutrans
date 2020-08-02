@@ -5820,3 +5820,11 @@ active player's loading bar
 Current player loading bar
 always show loading bar
 Always show loading bar
+consumption %.1f%s/month
+%.1f%s/month
+consumption %u%s/month
+%u%s/month
+production %.1f%s/month
+%.1f%s/month
+production %u%s/month
+%u%s/month

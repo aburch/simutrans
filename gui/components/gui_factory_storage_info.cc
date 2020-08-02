@@ -122,8 +122,12 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 
 				// [monthly production]
 				const uint32 monthly_prod = (uint32)(fab->get_current_production()*pfactor * 10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
-				buf.append((float)monthly_prod / 10.0, monthly_prod < 100 ? 1 : 0);
-				buf.printf("%s%s", translator::translate(goods.get_typ()->get_mass()), translator::translate("/month"));
+				if (monthly_prod < 100) {
+					buf.printf(translator::translate("consumption %.1f%s/month"), (float)monthly_prod / 10.0, translator::translate(goods.get_typ()->get_mass()));
+				}
+				else {
+					buf.printf(translator::translate("consumption %u%s/month"), monthly_prod/10, translator::translate(goods.get_typ()->get_mass()));
+				}
 				left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 				yoff += LINESPACE;
@@ -188,8 +192,12 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 				// [monthly production]
 				buf.clear();
 				const uint32 monthly_prod = (uint32)(fab->get_current_production()*pfactor * 10 >> DEFAULT_PRODUCTION_FACTOR_BITS);
-				buf.append((float)monthly_prod / 10.0, monthly_prod < 100 ? 1 : 0);
-				buf.printf("%s%s", translator::translate(goods.get_typ()->get_mass()), translator::translate("/month"));
+				if (monthly_prod < 100) {
+					buf.printf(translator::translate("production %.1f%s/month"), (float)monthly_prod / 10.0, translator::translate(goods.get_typ()->get_mass()));
+				}
+				else {
+					buf.printf(translator::translate("production %u%s/month"), monthly_prod / 10, translator::translate(goods.get_typ()->get_mass()));
+				}
 				left += display_proportional_clip(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 				yoff += LINESPACE;
