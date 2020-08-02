@@ -269,7 +269,6 @@ void factory_chart_t::draw(scr_coord pos)
 
 void factory_chart_t::rdwr( loadsave_t *file )
 {
-	sint16 tabstate;
 	uint32 goods_flag = 0;
 	uint32 prod_flag = 0;
 	uint32 ref_flag = 0;
@@ -282,7 +281,6 @@ void factory_chart_t::rdwr( loadsave_t *file )
 		}
 	}
 
-	file->rdwr_short( tabstate );
 	file->rdwr_long( goods_flag );
 	file->rdwr_long( prod_flag );
 	file->rdwr_long( ref_flag );
@@ -322,12 +320,6 @@ factory_goods_chart_t::factory_goods_chart_t(const fabrik_t *_factory) :
 	goods_label_count(0)
 {
 	if (_factory) {
-		// GUI components for goods input/output statistics
-		goods_chart.set_pos(scr_coord(10 + 80, D_TAB_HEADER_HEIGHT));
-		goods_chart.set_size(scr_size(CHART_WIDTH, CHART_HEIGHT));
-		goods_chart.set_dimension(12, 10000);
-		goods_chart.set_background(SYSCOL_CHART_BACKGROUND);
-		goods_chart.set_ltr(env_t::left_to_right_graphs);
 
 		set_factory(_factory);
 	}
@@ -343,6 +335,13 @@ void factory_goods_chart_t::set_factory(const fabrik_t *_factory)
 		goods_label_count = 0;
 	}
 	factory = _factory;
+
+	// GUI components for goods input/output statistics
+	goods_chart.set_pos(scr_coord(10 + 80, D_TAB_HEADER_HEIGHT));
+	goods_chart.set_size(scr_size(CHART_WIDTH, CHART_HEIGHT));
+	goods_chart.set_dimension(12, 10000);
+	goods_chart.set_background(SYSCOL_CHART_BACKGROUND);
+	goods_chart.set_ltr(env_t::left_to_right_graphs);
 
 	const scr_coord_val offset_below_chart = CHART_HEIGHT + D_TAB_HEADER_HEIGHT + D_MARGIN_TOP + D_V_SPACE*2;
 	const scr_coord_val label_offset = D_GET_CENTER_ALIGN_OFFSET(LINESPACE, D_BUTTON_HEIGHT);
@@ -451,18 +450,14 @@ void factory_goods_chart_t::draw(scr_coord pos)
 
 void factory_goods_chart_t::rdwr(loadsave_t *file)
 {
-	sint16 tabstate;
 	uint32 goods_flag = 0;
-	uint32 ref_flag = 0;
 	if (file->is_saving()) {
 		for (int b = 0; b < goods_button_count; b++) {
 			goods_flag |= (goods_buttons[b].pressed << b);
 		}
 	}
 
-	file->rdwr_short(tabstate);
 	file->rdwr_long(goods_flag);
-	file->rdwr_long(ref_flag);
 
 	if (file->is_loading()) {
 		for (int b = 0; b < goods_button_count; b++) {
