@@ -47,6 +47,8 @@ private:
 	slist_tpl<button_t *> convoybuttons;
 	slist_tpl<char*> label_names;
 
+	bool has_min_sizer() const OVERRIDE { return true; }
+
 public:
 	halt_detail_t(halthandle_t halt);
 
