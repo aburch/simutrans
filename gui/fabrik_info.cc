@@ -101,7 +101,7 @@ void fabrik_info_t::init(fabrik_t* fab_, const gebaeude_t* gb)
 	tabs.set_pos(scr_coord(0, offset_below_viewport + storage.get_size().h + LINESPACE));
 	tabs.set_size(scr_size(D_DEFAULT_WIDTH-2, D_TAB_HEADER_HEIGHT + 70 + LINESPACE*2));
 
-	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, 250+view.get_size().w), D_TAB_HEADER_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT));
+	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, 250+view.get_size().w), D_TITLEBAR_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT));
 
 	// tabs
 	// initialize to zero, update_info will do the rest
