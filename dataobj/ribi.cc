@@ -249,7 +249,7 @@ const int slope_t::flags[81] = {
 	doubles | all_up,                   // slope 77 # nw2,ne2,se1,sw2   TODO    37 up 1
 	doubles,                            // slope 78 # nw2,ne2,se2
 	doubles | all_up,                   // slope 79 # nw2,ne2,se2,sw1   TODO    39 up 1
-	way_ns | way_ew | all_up            // slope 80 # nw2,ne2,se2,sw2   TODO    0  up 2
+	doubles | way_ns | way_ew | all_up            // slope 80 # nw2,ne2,se2,sw2   TODO    0  up 2
 };
 
 
