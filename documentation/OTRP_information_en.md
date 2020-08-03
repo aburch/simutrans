@@ -190,7 +190,7 @@ The following data is collected.
 # License
 OTRP is derived from from Simutrans Standard, so OTRP follows [Artistic License](https://github.com/aburch/simutrans/blob/master/simutrans/license.txt). Re-distribution of OTRP (including modified version) is permitted under the following conditions.
 - Please follow and respect the original license of Simutrans Standard.
-- In case that you distribute OTRP to many and unspecified persons, please notify Himeshi where OTRP is distributed. twitter: [@himeshi_hob](https://twitter.com/himeshi_hob)
+- In case that you distribute OTRP to many and unspecified persons, please notify Himeshi where OTRP is distributed. twitter: [@OTRPatch](https://twitter.com/OTRPatch)
 
 # Contact Me
-If you have any questions or requests, please feel free to ask me through the international Simutrans forum (THLeaderH) or [@himeshi_hob](https://twitter.com/himeshi_hob) in Twitter. All opinions and issue reports are greatly appreciated.
+If you have any questions or requests, please feel free to ask me through the international Simutrans forum (THLeaderH) or [@OTRPatch](https://twitter.com/OTRPatch) in Twitter. All opinions and issue reports are greatly appreciated.
