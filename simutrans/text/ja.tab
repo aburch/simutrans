@@ -3813,6 +3813,8 @@ production %.1f%s/month
 月生産 %.1f%s
 production %u%s/month
 月生産 %u%s
+No service
+運行されている編成がありません
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

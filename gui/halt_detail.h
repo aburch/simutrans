@@ -49,6 +49,8 @@ private:
 
 	bool has_min_sizer() const OVERRIDE { return true; }
 
+	void update_components();
+
 public:
 	halt_detail_t(halthandle_t halt);
 
