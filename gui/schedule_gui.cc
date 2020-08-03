@@ -795,7 +795,6 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 		extract_advanced_settings(!bt_tmp_schedule.is_visible());
 		// reload window
 		reset_min_windowsize();
-		set_windowsize(get_min_windowsize());
 	}
 	else if(comp == &bt_no_load) {
 		if (!schedule->empty()) {
