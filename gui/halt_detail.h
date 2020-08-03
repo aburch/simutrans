@@ -66,6 +66,10 @@ public:
 	// Set window size and adjust component sizes and/or positions accordingly
 	virtual void set_windowsize(scr_size size) OVERRIDE;
 
+	virtual koord3d get_weltpos(bool set) OVERRIDE;
+
+	virtual bool is_weltpos() OVERRIDE;
+
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// only defined to update schedule, if changed

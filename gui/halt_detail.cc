@@ -84,6 +84,18 @@ halt_detail_t::~halt_detail_t()
 	}
 }
 
+
+koord3d halt_detail_t::get_weltpos(bool)
+{
+	return halt->get_basis_pos3d();
+}
+
+
+bool halt_detail_t::is_weltpos()
+{
+	return (welt->get_viewport()->is_on_center(get_weltpos(false)));
+}
+
 void halt_detail_t::halt_detail_info()
 {
 	if (!halt.is_bound()) {
