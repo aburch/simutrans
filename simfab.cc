@@ -2317,7 +2317,7 @@ public:
 
 
 /**
- * distribute stuff to all best destination
+ * distribute stuff to all best destination 
  * @author Hj. Malthaner
  */
 void fabrik_t::verteile_waren(const uint32 product)
