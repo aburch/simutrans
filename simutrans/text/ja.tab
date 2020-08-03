@@ -3621,6 +3621,8 @@ Fully stocked
 入荷停止（在庫飽和）
 fab_stuck
 生産停止（資材＆在庫飽和）
+missing_connection
+必要最低限の提携先がありません！
 Within own network
 自家輸送網内のみ表示
 Show only connected to own transport network
