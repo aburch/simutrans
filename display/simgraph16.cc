@@ -3916,7 +3916,7 @@ void display_cylinderbar_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KO
 	display_blend_wh(xp, yp + 1, w, 1, COL_WHITE, 15);
 	uint8 start = h * 2 / 3;
 	for (uint8 i = start; i < h; i++) {
-		display_blend_wh(xp, yp + i, w, 1, COL_RED, i*25/h);
+		display_blend_wh(xp, yp + i, w, 1, COL_BLACK, i*25/h);
 	}
 }
 
