@@ -202,8 +202,8 @@ const int slope_t::flags[81] = {
 	0,                                  // slope 30 # nw1,    se1
 	0,                                  // slope 31 # nw1,    se1,sw1
 	doubles,                            // slope 32 # nw1,    se1,sw2
-	0,                                  // slope 33 # nw1,    se2
-	0,                                  // slope 34 # nw1,    se2,sw1
+	doubles,                            // slope 33 # nw1,    se2
+	doubles,                            // slope 34 # nw1,    se2,sw1
 	doubles,                            // slope 35 # nw1,    se2,sw2
 	way_ns | single,                    // slope 36 # nw1,ne1           straight ns
 	0,                                  // slope 37 # nw1,ne1,    sw1
