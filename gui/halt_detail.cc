@@ -442,6 +442,16 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 }
 
 
+bool halt_detail_t::infowin_event(const event_t *ev)
+{
+	if (ev->ev_class == EVENT_KEYBOARD && ev->ev_code == SIM_KEY_UP) {
+		set_windowsize(get_min_windowsize());
+	}
+
+	return gui_frame_t::infowin_event(ev);
+}
+
+
 
 void halt_detail_t::draw(scr_coord pos, scr_size size)
 {

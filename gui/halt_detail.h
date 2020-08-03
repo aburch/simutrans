@@ -72,6 +72,8 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
+	bool infowin_event(const event_t *ev) OVERRIDE;
+
 	// only defined to update schedule, if changed
 	void draw( scr_coord pos, scr_size size ) OVERRIDE;
 
