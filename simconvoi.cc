@@ -1417,7 +1417,8 @@ void convoi_t::step()
 					// check first, if we are already there:
 					assert( schedule->get_current_stop()<schedule->get_count()  );
 					if(  v->get_pos()==schedule->get_current_entry().pos  ) {
-						schedule->advance();
+						ziel_erreicht();
+						break;
 					}
 					// now calculate a new route
 					drive_to();
