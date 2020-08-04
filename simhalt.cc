@@ -1258,7 +1258,7 @@ sint32 haltestelle_t::rebuild_connections()
 		// now we add the schedule to the connection array
 		uint16 aggregate_weight = WEIGHT_WAIT;
 		const schedule_entry_t start_entry = schedule->entries[start_index-1];
-		bool no_load_section = start_entry.is_no_load() || start_entry.is_unload_all();
+		bool no_load_section = start_entry.is_no_load();
 		unload_all_applied |= start_entry.is_unload_all();
 		for(  uint8 j=0;  j<schedule->get_count();  ++j  ) {
 
