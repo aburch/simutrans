@@ -67,6 +67,9 @@ public:
 	// Number of classes for a given category index
 	static uint8 get_classes_catg_index(const uint8 catg_index);
 
+	// @return translated class name
+	static const char * get_translated_wealth_name(const uint8 catg_index, const uint8 g_class);
+
 	/*
 	 * allow to multiply all prices, 1000=1.0
 	 * used for the beginner mode
