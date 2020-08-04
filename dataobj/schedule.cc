@@ -168,27 +168,6 @@ void schedule_t::cleanup()
 	if(  entries.empty()  ) {
 		return; // nothing to check
 	}
-
-	// first and last must not be the same!
-	koord3d lastpos = entries.back().pos;
-	// now we have to check all entries ...
-	for(  uint8 i=0;  i<entries.get_count();  i++  ) {
-		if(  entries[i].pos == lastpos  ) {
-			// ignore double entries just one after the other
-			entries.remove_at(i);
-			if(  i<current_stop  ) {
-				current_stop --;
-			}
-			i--;
-		} else if(  entries[i].pos == koord3d::invalid  ) {
-			// ignore double entries just one after the other
-			entries.remove_at(i);
-		}
-		else {
-			// next pos for check
-			lastpos = entries[i].pos;
-		}
-	}
 	make_current_stop_valid();
 }
 
