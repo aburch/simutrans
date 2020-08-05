@@ -220,7 +220,7 @@ const char * goods_manager_t::get_translated_wealth_name(const uint8 catg_index,
 	}
 
 	static char translated_name[32];
-	sprintf(translated_name, "%s ", translator::translate(class_name));
+	sprintf(translated_name, "%s", translator::translate(class_name));
 
 	return translated_name;
 }
