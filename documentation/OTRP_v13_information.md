@@ -24,10 +24,10 @@ version26_1現在，simutrans standard nightly r9170をベースにしていま�
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください．  
 
-本体は下のリンクからどうぞ．**（2020年7月18日PM0時　ver26_2に更新）**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/73329/sim-WinGDI-OTRPv26_2.exe/  
-mac: https://osdn.net/projects/otrp/downloads/73329/sim-mac-OTRPv26_2.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/73329/sim-linux-OTRPv26_2.zip/  
+本体は下のリンクからどうぞ．**（2020年8月5日PM23時　ver26_3に更新）**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/73427/sim-WinGDI-OTRPv26_3.exe/  
+mac: https://osdn.net/projects/otrp/downloads/73427/sim-mac-OTRPv26_3.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/73427/sim-linux-OTRPv26_3.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 OTRP専用のmakeobjはありません．simutrans standardのmakeobjをご利用ください．
