@@ -2729,6 +2729,7 @@
     <ClCompile Include="gui\components\gui_factory_storage_info.cc" />
     <ClCompile Include="gui\components\gui_convoy_formation.cc" />
     <ClCompile Include="gui\components\gui_convoy_payloadinfo.cc" />
+    <ClCompile Include="gui\components\gui_halthandled_lines.cc" />
     <ClCompile Include="gui\components\gui_image.cc" />
     <ClCompile Include="gui\components\gui_component.cc" />
     <ClCompile Include="gui\components\gui_map_preview.cc" />
@@ -3435,6 +3436,7 @@
     <ClInclude Include="gui\components\gui_factory_storage_info.h" />
     <ClInclude Include="gui\components\gui_convoy_formation.h" />
     <ClInclude Include="gui\components\gui_convoy_payloadinfo.h" />
+    <ClInclude Include="gui\components\gui_halthandled_lines.h" />
     <ClInclude Include="gui\components\gui_fixedwidth_textarea.h" />
     <ClInclude Include="gui\components\gui_component.h" />
     <ClInclude Include="gui\components\gui_location_view_t.h" />

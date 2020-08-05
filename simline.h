@@ -11,7 +11,6 @@
 #include "linehandle_t.h"
 #include "simtypes.h"
 #include "simconvoi.h"
-#include "simskin.h"
 
 #include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
@@ -287,37 +286,14 @@ public:
 
 	inline times_history_map& get_journey_times_history() { return journey_times_history; }
 
-	inline image_id get_linetype_symbol(linetype lt)
+	image_id get_linetype_symbol() const
 	{
-		switch (lt)
-		{
-		case simline_t::truckline:
-			return skinverwaltung_t::autohaltsymbol->get_image_id(0);
-		case simline_t::trainline:
-			return skinverwaltung_t::zughaltsymbol->get_image_id(0);
-		case simline_t::shipline:
-			return skinverwaltung_t::schiffshaltsymbol->get_image_id(0);
-		case simline_t::airline:
-			return skinverwaltung_t::airhaltsymbol->get_image_id(0);
-		case simline_t::monorailline:
-			return skinverwaltung_t::monorailhaltsymbol->get_image_id(0);
-		case simline_t::tramline:
-			return skinverwaltung_t::tramhaltsymbol->get_image_id(0);
-		case simline_t::maglevline:
-			return skinverwaltung_t::maglevhaltsymbol->get_image_id(0);
-		case simline_t::narrowgaugeline:
-			return skinverwaltung_t::narrowgaugehaltsymbol->get_image_id(0);
-		case simline_t::line:
-		case simline_t::MAX_LINE_TYPE:
-		default:
-			return IMG_EMPTY;
-				break;
+		if (type == truckline && goods_catg_index.is_contained(goods_manager_t::INDEX_PAS)) {
+			return skinverwaltung_t::bushaltsymbol->get_image_id(0);
 		}
-		return IMG_EMPTY;
-	}
-	inline image_id get_linetype_symbol()
-	{
-		return get_linetype_symbol(type);
+		else {
+			return schedule->get_schedule_type_symbol();
+		}
 	}
 
 	sint64 calc_departures_scheduled();
