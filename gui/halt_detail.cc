@@ -32,14 +32,18 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	halt(halt_),
 	scrolly(&cont),
 	txt_info(&buf)
+	txt_info(&buf),
+	line_number(halt_)
 {
 	cont.add_component(&txt_info);
 
 	// fill buffer with halt detail
 	update_components();
+	line_number.set_pos(scr_coord(0, D_V_SPACE));
+	add_component(&line_number);
 	txt_info.set_pos(scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP));
 
-	scrolly.set_pos(scr_coord(0, LINESPACE*3 + D_MARGIN_TOP*2));
+	scrolly.set_pos(scr_coord(0, LINESPACE*4 + D_MARGIN_TOP*2));
 	scrolly.set_show_scroll_x(true);
 	add_component(&scrolly);
 
@@ -447,7 +451,7 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 	}
 	gui_frame_t::draw( pos, size );
 
-	int yoff = D_TITLEBAR_HEIGHT + D_MARGIN_TOP;
+	int yoff = D_TITLEBAR_HEIGHT + D_MARGIN_TOP + LINESPACE;
 	int left = D_MARGIN_LEFT;
 
 	image_id symbol;
@@ -579,6 +583,8 @@ halt_detail_t::halt_detail_t():
 	gui_frame_t("", NULL),
 	scrolly(&cont),
 	txt_info(&buf)
+	txt_info(&buf),
+	line_number(halthandle_t())
 {
 	// just a dummy
 }

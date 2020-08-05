@@ -12,6 +12,7 @@
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_label.h"
+#include "components/gui_halthandled_lines.h"
 
 #include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
@@ -39,6 +40,7 @@ private:
 	gui_container_t cont;
 	gui_scrollpane_t scrolly;
 	gui_textarea_t txt_info;
+	gui_halthandled_lines_t line_number;
 
 	slist_tpl<button_t *>posbuttons;
 	slist_tpl<gui_label_t *>linelabels;
