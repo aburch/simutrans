@@ -511,11 +511,10 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				if (way_constraints.get_permissive(i))
 				{
 					buf.clear();
-					char tmpbuf1[13];
-					sprintf(tmpbuf1, "\nMUST USE: ");
-					char tmpbuf[15];
-					sprintf(tmpbuf, "Permissive %i-%i", v->get_desc()->get_waytype(), i);
-					buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
+
+					char tmpbuf[17];
+					sprintf(tmpbuf, "Permissive %i-%hhu", v->get_desc()->get_waytype(), i);
+					buf.printf("%s %s", translator::translate("\nMUST USE: "), translator::translate(tmpbuf));
 					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					extra_y += LINESPACE;
 				}
@@ -540,11 +539,9 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				if (way_constraints.get_prohibitive(i))
 				{
 					buf.clear();
-					char tmpbuf1[13];
-					sprintf(tmpbuf1, "\nMAY USE: ");
-					char tmpbuf[16];
-					sprintf(tmpbuf, "Prohibitive %i-%i", v->get_desc()->get_waytype(), i);
-					buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
+					char tmpbuf[18];
+					sprintf(tmpbuf, "Prohibitive %i-%hhu", v->get_desc()->get_waytype(), i);
+					buf.printf("%s %s", translator::translate("\nMAY USE: "), translator::translate(tmpbuf));
 					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					extra_y += LINESPACE;
 				}
@@ -801,10 +798,7 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 						int bar_end_offset = cargo_sum * LOADING_BAR_WIDTH / v->get_desc()->get_total_capacity();
 						COLOR_VAL goods_color = wtyp->get_color();
 						if (bar_end_offset - bar_start_offset) {
-							display_fillbox_wh_clip(pos.x + extra_w + offset.x + left + bar_start_offset, pos.y + offset.y + total_height + extra_y, bar_end_offset - bar_start_offset, LOADING_BAR_HEIGHT, goods_color, true);
-							display_blend_wh(pos.x + extra_w + offset.x + left + bar_start_offset, pos.y + offset.y + total_height + extra_y, bar_end_offset - bar_start_offset, 3, COL_WHITE, 15);
-							display_blend_wh(pos.x + extra_w + offset.x + left + bar_start_offset, pos.y + offset.y + total_height + extra_y + 1, bar_end_offset - bar_start_offset, 1, COL_WHITE, 15);
-							display_blend_wh(pos.x + extra_w + offset.x + left + bar_start_offset, pos.y + offset.y + total_height + extra_y + LOADING_BAR_HEIGHT - 1, bar_end_offset - bar_start_offset, 1, COL_BLACK, 10);
+							display_cylinderbar_wh_clip(pos.x + extra_w + offset.x + left + bar_start_offset, pos.y + offset.y + total_height + extra_y, bar_end_offset - bar_start_offset, LOADING_BAR_HEIGHT, goods_color, true);
 						}
 						bar_start_offset += bar_end_offset - bar_start_offset;
 					}

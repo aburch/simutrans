@@ -715,6 +715,9 @@ public:
 	 */
 	uint32 get_ware_summe(const goods_desc_t *warentyp) const;
 
+	uint32 get_leaving_goods_sum(const goods_desc_t *warentyp, uint8 g_class) const;
+	uint32 get_transferring_goods_sum(const goods_desc_t *warentyp, uint8 g_class) const;
+
 	/**
 	 * returns total number for a certain position (since more than one factory might connect to a stop)
 	 * @author Hj. Malthaner

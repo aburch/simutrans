@@ -40,7 +40,7 @@ void simlinemgmt_t::add_line(linehandle_t new_line)
 
 void simlinemgmt_t::delete_line(linehandle_t line)
 {
-	if (line.is_bound()) 
+	if (line.is_bound())
 	{
 		all_managed_lines.remove(line);
 		//destroy line object

@@ -1604,7 +1604,7 @@ public:
 
 	/// Returns the region of the selected co-ordinate.
 	uint8 get_region(koord k) const;
-	static uint8 get_region(koord k, settings_t const* const sets); 
+	static uint8 get_region(koord k, settings_t const* const sets);
 
 	/// Returns the region name of the selected co-ordinate
 	std::string get_region_name(koord k) const;

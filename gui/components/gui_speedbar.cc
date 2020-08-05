@@ -73,7 +73,7 @@ void gui_tile_occupancybar_t::set_new_veh_length(sint8 new_veh_length, bool inse
 {
 	this->new_veh_length = new_veh_length;
 	this->insert_mode = insert;
-	if (new_last_veh_length != -1) {
+	if (new_last_veh_length != 0xFFu) {
 		this->switched_last_veh_length = new_last_veh_length;
 	}
 }

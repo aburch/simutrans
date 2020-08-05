@@ -156,7 +156,7 @@ protected:
 	/**
 	 * Slope (now saved locally), because different grounds need different slopes
 	 */
-	uint8 slope;
+	slope_t::type slope;
 
 	/**
 	 * Image of the walls
@@ -188,7 +188,7 @@ protected:
 	static karte_ptr_t welt;
 
 	// calculates the slope image and sets the draw_as_obj flag correctly
-	void calc_back_image(const sint8 hgt,const sint8 slope_this);
+	void calc_back_image(const sint8 hgt,const slope_t::type slope_this);
 
 	// this is the real image calculation, called for the actual ground image
 	virtual void calc_image_internal(const bool calc_only_snowline_change) = 0;
@@ -370,7 +370,7 @@ public:
 	inline void set_pos(koord3d newpos) { pos = newpos;}
 
 	// slope are now maintained locally
-	slope_t::type get_grund_hang() const { return (slope_t::type)slope; }
+	slope_t::type get_grund_hang() const { return slope; }
 	void set_grund_hang(slope_t::type sl) { slope = sl; }
 
 	/**
@@ -418,7 +418,7 @@ public:
 		}
 	}
 
-	void set_hoehe(int h) { pos.z = h;}
+	void set_hoehe(sint8 h) { pos.z = h;}
 
 	// Helper functions for underground modes
 	//
@@ -690,7 +690,7 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	* Strassenbahnschienen duerfen nicht als Kreuzung erkannt werden!
 	* @author V. Meyer, dariok
 	*/
-	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)objlist.bei(1))->get_desc()->get_styp()!=type_tram; }
+	inline bool ist_uebergang() const { return (flags&has_way2)!=0  && ((weg_t*)objlist.bei(1)) && ((weg_t *)objlist.bei(1))->get_desc()->get_styp()!=type_tram; }
 
 	/**
 	* returns the vehicle of a convoi (if there)
@@ -846,8 +846,7 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 		if(  way_slope != slope  ) {
 			if(  ist_bruecke()  &&  slope  ) {
 				// calculate height quicker because we know that slope exists and is north, south, east or west
-				// single heights are not integer multiples of 8, double heights are
-				h += (slope & 7) ? 1 : 2;
+				h += is_one_high(slope) ? 1 : 2;
 			}
 		}
 

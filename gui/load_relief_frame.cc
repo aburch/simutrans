@@ -33,12 +33,12 @@ bool load_relief_frame_t::item_action(const char *fullpath)
 
 load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_frame_t( NULL, false, "maps/", env_t::show_delete_buttons )
 {
-	static char extra_path[1024];
 
 	new_format.init( button_t::square_automatic, "Maximize height levels", scr_coord(D_MARGIN_LEFT,savebutton.get_pos().y), scr_size(savebutton.get_pos().x-D_MARGIN_LEFT-D_H_SPACE,D_BUTTON_HEIGHT) );
 	new_format.pressed = env_t::new_height_map_conversion;
 	add_component( &new_format );
 
+	static char extra_path[1024 + 5 + 1];
 	sprintf(extra_path,"%s%smaps/", env_t::program_dir, env_t::objfilename.c_str());
 	//sprintf(extra_path,"%smaps/", env_t::program_dir);
 

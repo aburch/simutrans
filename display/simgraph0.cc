@@ -17,12 +17,13 @@ KOORD_VAL tile_raster_width = 16; // zoomed
 KOORD_VAL base_tile_raster_width = 16; // original
 
 
-									   /*
-									   * Hajo: mapping table for special-colors (AI player colors)
-									   * to actual output format - all day mode
-									   * 16 sets of 16 colors
-									   */
+/*
+ * Hajo: mapping table for special-colors (AI player colors)
+ * to actual output format - all day mode
+ * 16 sets of 16 colors
+ */
 PIXVAL specialcolormap_all_day[256];
+
 
 KOORD_VAL display_set_base_raster_width(KOORD_VAL)
 {
@@ -35,7 +36,7 @@ void set_zoom_factor(int)
 
 int get_zoom_factor()
 {
-	return zoom_factor;
+	return 1;
 }
 
 int zoom_factor_up()
@@ -230,7 +231,11 @@ void display_blend_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, in
 {
 }
 
-void display_color_img_with_tooltip(const image_id, KOORD_VAL, KOORD_VAL, sint8, const int, const int, const char*, sint8)
+void display_vlinear_gradient_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, int, int)
+{
+}
+
+void display_color_img_with_tooltip(const image_id, KOORD_VAL, KOORD_VAL, sint8, const int, const int, const char* CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -240,6 +245,10 @@ void display_fillbox_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_C
 
 
 void display_fillbox_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool  CLIP_NUM_DEF_NOUSE)
+{
+}
+
+void display_cylinderbar_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 

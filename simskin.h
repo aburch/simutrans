@@ -132,8 +132,18 @@ public:
 	static const skin_desc_t *upgradable;
 	/// image to indicate that the line missing scheduled slot
 	static const skin_desc_t *missing_scheduled_slot;
-	/// image shown in display of industry input/output
+	/// image shown in display of travel time to the destination / lead time
+	static const skin_desc_t *travel_time;
+
+	/// images for the factory information
 	static const skin_desc_t *input_output;
+	static const skin_desc_t *in_transit;
+	static const skin_desc_t *ind_sector_symbol;
+
+	/// arrows representing the reverse order of the schedule
+	static const skin_desc_t *reverse_arrows;
+
+
 
 	/// @name cursors
 	/// @{

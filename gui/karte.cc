@@ -685,7 +685,7 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour, boo
 					gebaeude_t *gb = gr->find<gebaeude_t>();
 					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
 					if(fab==NULL) {
-						sint16 height = (gr->get_grund_hang()%3);
+						sint16 height = corner_sw(gr->get_grund_hang());
 						if (show_contour) {
 							color = calc_hoehe_farbe(welt->lookup_hgt(gr->get_pos().get_2d()) + height, welt->get_water_hgt(gr->get_pos().get_2d()));
 						}
@@ -735,7 +735,7 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour, boo
 						color = map_type_color[MAX_MAP_TYPE_WATER];
 					}
 					else {
-						sint16 height = (gr->get_grund_hang()%3);
+						sint16 height = corner_sw(gr->get_grund_hang());
 						if(  gr->get_hoehe() > welt->get_groundwater()  ) {
 							color = calc_hoehe_farbe(gr->get_hoehe() + height, welt->get_groundwater());
 						}
@@ -1755,7 +1755,13 @@ void reliefkarte_t::draw(scr_coord pos)
 				}
 
 				if(  stype & haltestelle_t::dock  ) {
-					display_harbor( temp_stop.x+diagonal_dist, temp_stop.y+diagonal_dist, color );
+					fabrik_t *fab = fabrik_t::get_fab(station->get_basis_pos());
+					if (fab && fab->get_sector() == fabrik_t::marine_resource && skinverwaltung_t::ind_sector_symbol) {
+						display_color_img(skinverwaltung_t::ind_sector_symbol->get_image_id(0), temp_stop.x + diagonal_dist+4, temp_stop.y + diagonal_dist+4, 0, false, false);
+					}
+					else {
+						display_harbor(temp_stop.x + diagonal_dist, temp_stop.y + diagonal_dist, color);
+					}
 				}
 			}
 		}

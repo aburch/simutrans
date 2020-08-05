@@ -673,14 +673,14 @@ vehicle_class_manager_t::~vehicle_class_manager_t()
 	{
 		if (pass_class_name_untranslated[i] != nullptr)
 		{
-			delete pass_class_name_untranslated[i];
+			delete[] pass_class_name_untranslated[i];
 		}
 	}
 	for (int i = 0; i < mail_classes; i++)
 	{
 		if (mail_class_name_untranslated[i])
 		{
-			delete mail_class_name_untranslated[i];
+			delete[] mail_class_name_untranslated[i];
 		}
 	}
 }
@@ -828,7 +828,6 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 		cbuffer_t buf;
 		static cbuffer_t freight_info;
 		uint8 higest_catering = 0;
-		uint8 higest_tpo = 0;
 		uint32 passenger_count = 0;
 		uint32 mail_count = 0;
 		char class_name_untranslated[32];
@@ -850,10 +849,6 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 			else // is mail vehicle
 			{
 				mail_count += v->get_desc()->get_total_capacity();
-				if (v->get_desc()->get_catering_level() > higest_catering)
-				{
-					higest_tpo = v->get_desc()->get_catering_level();
-				}
 			}
 		}
 
