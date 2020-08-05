@@ -191,10 +191,10 @@ v24_4から皆さまの使用状況を収集させていただくこととしま
 # ライセンス
 OTRPはSimutrans Standardからの派生物ですので，Standardのライセンスである[Artistic License](https://github.com/aburch/simutrans/blob/master/simutrans/license.txt) に従います．OTRPの再配布および改造したものの配布などについては以下の条件下で自由です．
 - Artistic Licenseに違反しない条件下で配布してください．
-- OTRPを不特定多数（NetSimutrans参加者に配布する等の用途は含まない）に再配布する際は，配布する場所をひめしにご一報ください． twitter: [@himeshi_hob](https://twitter.com/himeshi_hob)
+- OTRPを不特定多数（NetSimutrans参加者に配布する等の用途は含まない）に再配布する際は，配布する場所をひめしにご一報ください． twitter: [@OTRPatch](https://twitter.com/OTRPatch)
 
 # おねがい
-バグ探しには皆さんのお力が必要です．バグと思われる挙動があればtwitter [@himeshi_hob](https://twitter.com/himeshi_hob) に報告していただけるとありがたいです．  
+バグ探しには皆さんのお力が必要です．バグと思われる挙動があればtwitter [@OTRPatch](https://twitter.com/OTRPatch) に報告していただけるとありがたいです．  
 特に「ネットワークプレイ」が安定動作するかが確認取れてないので遊んでみて動作状況を教えていただけるとうれしいです．ぜひOTRPでNSを楽しんでみてください．
 
 [1]:https://twitter.com/shingoushori
