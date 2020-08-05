@@ -80,7 +80,7 @@ void init_fab_map( karte_t *welt )
 	FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
 		add_factory_to_fab_map(welt, f);
 	}
-	if(  welt->get_settings().get_max_factory_spacing_percent()  ) {
+	if(  welt->get_settings().get_max_factory_spacing_percent() > 0  ) {
 		DISTANCE = (welt->get_size_max() * welt->get_settings().get_max_factory_spacing_percent()) / 100l;
 	}
 	else {
@@ -958,9 +958,10 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 {
 	int nr = 0;
 	fabrik_t *last_built_consumer = NULL;
-	int last_built_consumer_ware = 0;
+	const goods_desc_t *last_built_consumer_ware;
 
 	// find last consumer
+	minivec_tpl<const goods_desc_t *>ware_needed;
 	if(!welt->get_fab_list().empty()) {
 		FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 			if (fab->get_desc()->is_consumer_only()) {
@@ -968,28 +969,27 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 				break;
 			}
 		}
+
 		// ok, found consumer
 		if(  last_built_consumer  ) {
+			ware_needed.clear();
+			ware_needed.resize( last_built_consumer->get_desc()->get_supplier_count() );
 			for(  int i=0;  i < last_built_consumer->get_desc()->get_supplier_count();  i++  ) {
-				goods_desc_t const* const w = last_built_consumer->get_desc()->get_supplier(i)->get_input_type();
-				FOR(vector_tpl<koord>, const& j, last_built_consumer->get_suppliers()) {
-					factory_desc_t const* const fd = fabrik_t::get_fab(j)->get_desc();
-					for (uint32 k = 0; k < fd->get_product_count(); k++) {
-						if (fd->get_product(k)->get_output_type() == w) {
-							last_built_consumer_ware = i+1;
-							goto next_ware_check;
-						}
-					}
+				ware_needed.append_unique( last_built_consumer->get_desc()->get_supplier(i)->get_input_type() );
+			}
+
+			FOR(vector_tpl<koord>, const& j, last_built_consumer->get_suppliers()) {
+				factory_desc_t const* const fd = fabrik_t::get_fab(j)->get_desc();
+				for (uint32 k = 0; k < fd->get_product_count(); k++) {
+					ware_needed.remove( fd->get_product(k)->get_output_type() );
 				}
-next_ware_check:
-				// ok, found something, test next
-				;
 			}
 		}
 	}
+build_chain_now:
 
 	// first: do we have to continue unfinished factory chains?
-	if(last_built_consumer  &&  last_built_consumer_ware < last_built_consumer->get_desc()->get_supplier_count()) {
+	if(  !ware_needed.empty()  ) {
 
 		int org_rotation = -1;
 		// rotate until we can save it if one of the factories is non-rotate-able ...
@@ -1001,11 +1001,23 @@ next_ware_check:
 			assert( !welt->cannot_save() );
 		}
 
+
 		uint32 last_suppliers = last_built_consumer->get_suppliers().get_count();
 		do {
-			nr += build_chain_link( last_built_consumer, last_built_consumer->get_desc(), last_built_consumer_ware, welt->get_public_player() );
-			last_built_consumer_ware ++;
-		} while(  last_built_consumer_ware < last_built_consumer->get_desc()->get_supplier_count()  &&  last_built_consumer->get_suppliers().get_count()==last_suppliers  );
+			// we have the ware but not the supplier for it ...
+			int last_built_consumer_missing_supplier = 99999;
+			for(  int i=0;  i < last_built_consumer->get_desc()->get_supplier_count();  i++  ) {
+				if(  last_built_consumer->get_desc()->get_supplier(i)->get_input_type() == ware_needed[0]  ) { 
+					last_built_consumer_missing_supplier = i;
+					break;
+				}
+			}
+
+			nr += build_chain_link( last_built_consumer, last_built_consumer->get_desc(), last_built_consumer_missing_supplier, welt->get_public_player() );
+			last_built_consumer_ware = ware_needed[ 0 ];
+			ware_needed.remove_at( 0 );
+
+		} while(  !ware_needed.empty()  &&  last_built_consumer->get_suppliers().get_count()==last_suppliers  );
 
 		// must rotate back?
 		if(org_rotation>=0) {
@@ -1017,7 +1029,7 @@ next_ware_check:
 
 		// only return if successful
 		if(  last_built_consumer->get_suppliers().get_count() > last_suppliers  ) {
-			DBG_MESSAGE( "factory_builder_t::increase_industry_density()", "added ware %i to factory %s", last_built_consumer_ware, last_built_consumer->get_name() );
+			DBG_MESSAGE( "factory_builder_t::increase_industry_density()", "added ware %s to factory %s", last_built_consumer_ware->get_name(), last_built_consumer->get_name() );
 			// tell the player
 			if(tell_me) {
 				stadt_t *s = welt->find_nearest_city( last_built_consumer->get_pos().get_2d() );
@@ -1028,6 +1040,9 @@ next_ware_check:
 			}
 			minimap_t::get_instance()->calc_map();
 			return nr;
+		}
+		else {
+			DBG_MESSAGE( "factory_builder_t::increase_industry_density()", "failed to add ware %s to factory %s", last_built_consumer_ware->get_name(), last_built_consumer->get_name() );
 		}
 	}
 

@@ -110,6 +110,13 @@ public:
 	static const skin_desc_t *goods;
 	/// @}
 
+	/// @name icons used to passenger evaluations happy / unhappy / no route
+	/// @{
+	static const skin_desc_t *happy;
+	static const skin_desc_t *unhappy;
+	static const skin_desc_t *no_route;
+	/// @}
+
 	/// images shown in display of lines in mini-map
 	static const skin_desc_t *station_type;
 

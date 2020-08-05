@@ -329,7 +329,19 @@ void halt_info_t::init(halthandle_t halt)
 				}
 			}
 			end_table();
-			add_component(&lb_happy);
+			// happy / unhappy / no route
+			add_table(6,1);
+			{
+				add_component(&lb_happy[0]);
+				if (skinverwaltung_t::happy && skinverwaltung_t::unhappy && skinverwaltung_t::no_route) {
+					new_component<gui_image_t>(skinverwaltung_t::happy->get_image_id(0), 0, ALIGN_NONE, true);
+					add_component(&lb_happy[1]);
+					new_component<gui_image_t>(skinverwaltung_t::unhappy->get_image_id(0), 0, ALIGN_NONE, true);
+					add_component(&lb_happy[2]);
+					new_component<gui_image_t>(skinverwaltung_t::no_route->get_image_id(0), 0, ALIGN_NONE, true);
+				}
+			}
+			end_table();
 		}
 		end_table();
 
@@ -439,16 +451,29 @@ void halt_info_t::update_components()
 	lb_capacity[2].buf().printf("  %u", halt->get_capacity(2));
 	lb_capacity[2].update();
 
-	if(  has_character( 0x263A )  ) {
-		utf8 happy[4], unhappy[4];
-		happy[ utf16_to_utf8( 0x263A, happy ) ] = 0;
-		unhappy[ utf16_to_utf8( 0x2639, unhappy ) ] = 0;
-		lb_happy.buf().printf(translator::translate("Passengers %d %s, %d %s, %d no route"), halt->get_pax_happy(), happy, halt->get_pax_unhappy(), unhappy, halt->get_pax_no_route());
+	if (skinverwaltung_t::happy && skinverwaltung_t::unhappy && skinverwaltung_t::no_route) {
+		lb_happy[0].buf().printf("%s: %u", translator::translate("Passagiere"), halt->get_pax_happy());
+		lb_happy[0].update();
+		lb_happy[1].buf().printf("  %u", halt->get_pax_unhappy());
+		lb_happy[1].update();
+		lb_happy[2].buf().printf("  %u", halt->get_pax_no_route());
+		lb_happy[2].update();
 	}
 	else {
-		lb_happy.buf().printf(translator::translate("Passengers %d %c, %d %c, %d no route"), halt->get_pax_happy(), 30, halt->get_pax_unhappy(), 31, halt->get_pax_no_route());
+		if(  has_character( 0x263A )  ) {
+			utf8 happy[4], unhappy[4];
+			happy[ utf16_to_utf8( 0x263A, happy ) ] = 0;
+			unhappy[ utf16_to_utf8( 0x2639, unhappy ) ] = 0;
+			lb_happy[0].buf().printf(translator::translate("Passengers %d %s, %d %s, %d no route"), halt->get_pax_happy(), happy, halt->get_pax_unhappy(), unhappy, halt->get_pax_no_route());
+		}
+		else if(  has_character( 0x30 )  ) {
+			lb_happy[0].buf().printf(translator::translate("Passengers %d %c, %d %c, %d no route"), halt->get_pax_happy(), 30, halt->get_pax_unhappy(), 31, halt->get_pax_no_route());
+		}
+		else {
+			lb_happy[0].buf().printf(translator::translate("Passengers %d %c, %d %c, %d no route"), halt->get_pax_happy(), '+', halt->get_pax_unhappy(), '-', halt->get_pax_no_route());
+		}
+		lb_happy[0].update();
 	}
-	lb_happy.update();
 
 	img_enable[0].set_visible(halt->get_pax_enabled());
 	img_enable[1].set_visible(halt->get_mail_enabled());

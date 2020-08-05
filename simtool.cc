@@ -6273,7 +6273,7 @@ bool tool_city_chain_t::init( player_t * )
 }
 
 /* builds a industry chain in the next town
- * defaukt_param see previous function
+ * default_param see previous function
  */
 const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 {
@@ -7140,7 +7140,7 @@ void tool_merge_stop_t::mark_tiles(  player_t *player, const koord3d &start, con
 	}
 
 	if(  distance  < welt->get_settings().allow_merge_distant_halt  ) {
-		distance = clamp(distance,2,33)-2;
+		distance = clamp(distance,2u,33u)-2;
 		workcost = welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", workcost) );
 	}
@@ -7172,7 +7172,7 @@ const char *tool_merge_stop_t::do_work( player_t *player, const koord3d &last_po
 	}
 
 	if(  distance  < welt->get_settings().allow_merge_distant_halt  ) {
-		distance = clamp(distance,2,33)-2;
+		distance = clamp(distance,2u,33u)-2;
 		workcost = welt->scale_with_month_length( (1<<distance) * welt->get_settings().cst_multiply_merge_halt );
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", workcost) );
 		if(  player != welt->get_public_player()  &&  !player->can_afford(workcost)  ) {

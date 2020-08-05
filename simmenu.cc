@@ -1112,7 +1112,6 @@ const char *two_click_tool_t::work(player_t *player, koord3d pos )
 
 	const char *error = NULL;
 	uint8 value = is_valid_pos( player, pos, error, !is_first_click() ? start : koord3d::invalid );
-	assert(error == NULL  ||  value > 0);
 	DBG_MESSAGE("two_click_tool_t::work", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
 		if (error == NULL) {

@@ -171,7 +171,7 @@ bool font_t::load_from_bdf(FILE *bdf_file)
 	dbg->message("font_t::load_from_bdf", "Loading BDF font '%s'", fname);
 	glyphs.clear();
 
-	int f_height = 0;
+	uint32 f_height = 0;
 	int f_desc = 0;
 	int f_numglyphs = 0;
 	sint32 max_glyph = 0;
@@ -193,7 +193,7 @@ bool font_t::load_from_bdf(FILE *bdf_file)
 			f_numglyphs = atoi(str + 5) <= 0x100 ? 0x100 : 0xFFFE;
 
 			glyphs.resize(max(f_numglyphs, 0));
-			glyphs[(uint32)' '].advance = clamp(f_height / 2, 3, GLYPH_BITMAP_HEIGHT);
+			glyphs[(uint32)' '].advance = clamp(f_height / 2, 3u, GLYPH_BITMAP_HEIGHT);
 			continue;
 		}
 

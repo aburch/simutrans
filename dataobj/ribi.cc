@@ -202,8 +202,8 @@ const int slope_t::flags[81] = {
 	0,                                  // slope 30 # nw1,    se1
 	0,                                  // slope 31 # nw1,    se1,sw1
 	doubles,                            // slope 32 # nw1,    se1,sw2
-	0,                                  // slope 33 # nw1,    se2
-	0,                                  // slope 34 # nw1,    se2,sw1
+	doubles,                            // slope 33 # nw1,    se2
+	doubles,                            // slope 34 # nw1,    se2,sw1
 	doubles,                            // slope 35 # nw1,    se2,sw2
 	way_ns | single,                    // slope 36 # nw1,ne1           straight ns
 	0,                                  // slope 37 # nw1,ne1,    sw1
@@ -249,7 +249,7 @@ const int slope_t::flags[81] = {
 	doubles | all_up,                   // slope 77 # nw2,ne2,se1,sw2   TODO    37 up 1
 	doubles,                            // slope 78 # nw2,ne2,se2
 	doubles | all_up,                   // slope 79 # nw2,ne2,se2,sw1   TODO    39 up 1
-	way_ns | way_ew | all_up            // slope 80 # nw2,ne2,se2,sw2   TODO    0  up 2
+	doubles | way_ns | way_ew | all_up            // slope 80 # nw2,ne2,se2,sw2   TODO    0  up 2
 };
 
 
