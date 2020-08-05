@@ -21,12 +21,12 @@ extern int __argc;
 extern char **__argv;
 #endif
 
-#include "display/simgraph.h"
-#include "simdebug.h"
-#include "gui/simwin.h"
-#include "gui/gui_frame.h"
-#include "gui/components/gui_component.h"
-#include "gui/components/gui_textinput.h"
+#include "../display/simgraph.h"
+#include "../simdebug.h"
+#include "../gui/simwin.h"
+#include "../gui/gui_frame.h"
+#include "../gui/components/gui_component.h"
+#include "../gui/components/gui_textinput.h"
 
 
 // needed for wheel
@@ -40,12 +40,13 @@ extern char **__argv;
 // 16 Bit may be much slower than 15 unfortunately on some hardware
 #define USE_16BIT_DIB
 
-#include "simmem.h"
+#include "../simmem.h"
 #include "simsys_w32_png.h"
-#include "simversion.h"
 #include "simsys.h"
-#include "simevent.h"
-#include "macros.h"
+#include "../simversion.h"
+#include "../simevent.h"
+#include "../macros.h"
+
 
 static volatile HWND hwnd;
 static bool is_fullscreen = false;

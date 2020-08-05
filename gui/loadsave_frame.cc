@@ -14,7 +14,7 @@
 
 #include "loadsave_frame.h"
 
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simworld.h"
 #include "../simversion.h"
 #include "../dataobj/loadsave.h"
@@ -88,7 +88,7 @@ void sve_info_t::rdwr(loadsave_t *file)
 
 /**
  * Action that's started with a button click
- * @author Hansjörg Malthaner
+ * @author Hansjï¿½rg Malthaner
  */
 bool loadsave_frame_t::item_action(const char *filename)
 {

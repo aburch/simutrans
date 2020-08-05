@@ -7,7 +7,7 @@
 
 #include <string.h>
 
-#include "simsys.h"
+#include "sys/simsys.h"
 #include "display/simgraph.h"
 #include "simdebug.h"
 #include "dataobj/translator.h"

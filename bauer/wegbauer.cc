@@ -65,7 +65,7 @@
 #include "../gui/messagebox.h"
 
 #ifdef DEBUG_ROUTES
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #endif
 
 // built bridges automatically

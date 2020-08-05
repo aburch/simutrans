@@ -20,7 +20,7 @@
 #include "macros.h"
 #include "simdebug.h"
 #include "simevent.h"
-#include "simsys.h"
+#include "sys/simsys.h"
 
 
 static bool sigterm_received = false;

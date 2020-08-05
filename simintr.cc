@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include "simdebug.h"
-#include "simsys.h"
+#include "sys/simsys.h"
 #include "simintr.h"
 #include "gui/simwin.h"
 #include "player/simplay.h"

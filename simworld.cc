@@ -34,7 +34,7 @@
 #include "simmesg.h"
 #include "simskin.h"
 #include "simsound.h"
-#include "simsys.h"
+#include "sys/simsys.h"
 #include "simticker.h"
 #include "simunits.h"
 #include "simversion.h"
