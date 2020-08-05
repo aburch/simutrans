@@ -451,9 +451,7 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 	int left = D_MARGIN_LEFT;
 
 	image_id symbol;
-	uint32 wainting_sum = 0;
-	uint32 transship_in_sum = 0;
-	uint32 leaving_sum = 0;
+	uint32 wainting_sum, transship_in_sum, leaving_sum;
 	bool is_operating;
 	bool overcrowded;
 	char transfer_time_as_clock[32];
@@ -461,6 +459,9 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 	for (uint8 i=0; i<3; i++) {
 		is_operating = false;
 		overcrowded = false;
+		wainting_sum = 0;
+		transship_in_sum = 0;
+		leaving_sum = 0;
 		switch (i) {
 			case 0:
 				if (!halt->get_pax_enabled()) {
