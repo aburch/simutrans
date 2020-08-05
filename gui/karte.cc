@@ -79,18 +79,6 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 	COL_DARK_GREEN, 138, COL_LIGHT_GREEN, COL_LIGHT_YELLOW, COL_YELLOW, 30, COL_LIGHT_ORANGE, COL_ORANGE, COL_ORANGE_RED, COL_RED // Green/yellow/orange/red
 };
 
-uint linetype_to_stationtype[MAP_TRANSPORT_TYPE_ITEMS] = {
-	haltestelle_t::invalid,
-	haltestelle_t::busstop,
-	haltestelle_t::railstation,
-	haltestelle_t::dock,
-	haltestelle_t::airstop,
-	haltestelle_t::monorailstop,
-	haltestelle_t::tramstop,
-	haltestelle_t::maglevstop,
-	haltestelle_t::narrowgaugestop
-};
-
 // Way colours for the map
 #define STRASSE_KENN      (208)
 #define SCHIENE_KENN      (185)
@@ -793,7 +781,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 						continue;
 					}
 					// station waytype compatible filter
-					if(transport_type_showed_on_map != simline_t::line && !(halt->get_station_type() & linetype_to_stationtype[transport_type_showed_on_map]))
+					if(transport_type_showed_on_map != simline_t::line && !(halt->get_station_type() & simline_t::linetype_to_stationtype[transport_type_showed_on_map]))
 					{
 						continue;
 					}
