@@ -2677,7 +2677,7 @@
     <ClCompile Include="descriptor\reader\imagelist3d_reader.cc" />
     <ClCompile Include="descriptor\vehicle_desc.cc" />
     <ClCompile Include="descriptor\way_desc.cc" />
-    <ClCompile Include="clipboard_w32.cc" />
+    <ClCompile Include="sys\clipboard_w32.cc" />
     <ClCompile Include="dataobj\environment.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
     <ClCompile Include="dataobj\height_map_loader.cc" />

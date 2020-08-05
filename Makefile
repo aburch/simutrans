@@ -75,12 +75,12 @@ ifeq ($(OSTYPE),mac)
 endif
 
 ifeq ($(OSTYPE), mingw64)
-  SOURCES += clipboard_w32.cc
+  SOURCES += sys/clipboard_w32.cc
 else
 	ifeq ($(OSTYPE),mingw32)
-	  SOURCES += clipboard_w32.cc
+	  SOURCES += sys/clipboard_w32.cc
 	else
-	  SOURCES += clipboard_internal.cc
+	  SOURCES += sys/clipboard_internal.cc
   endif
 endif
 
