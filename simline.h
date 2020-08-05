@@ -54,6 +54,8 @@ public:
 
 	enum states { line_normal_state = 0, line_no_convoys = 1, line_loss_making = 2, line_nothing_moved = 4, line_overcrowded = 8, line_missing_scheduled_slots = 16, line_has_obsolete_vehicles = 32, line_has_upgradeable_vehicles = 64	};
 
+	static const uint linetype_to_stationtype[simline_t::MAX_LINE_TYPE];
+
 protected:
 	schedule_t * schedule;
 	player_t *player;
