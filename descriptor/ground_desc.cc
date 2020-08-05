@@ -204,11 +204,11 @@ static image_t* create_alpha_tile(const image_t* image_lightmap, slope_t::type s
 				// now we have calulated the y_t of square tile that is rotated by 45 degree
 				// so we just have to do a 45 deg backtransform ...
 				// (and do not forget: tile_y_corrected middle = 0!
-				sint16 x_t = tile_x - tile_y_corrected;
-				sint16 y_t = tile_y_corrected + tile_x;
+				sint32 x_t = tile_x - tile_y_corrected;
+				sint32 y_t = tile_y_corrected + tile_x;
 				// due to some inexactness of integer arithmethics, we have to take care of overflow and underflow
-				x_t = max(0, min(x_t, x_y-1));
-				y_t = max(0, min(y_t, x_y-1));
+				x_t = clamp(x_t, 0, x_y-1);
+				y_t = clamp(y_t, 0, x_y-1);
 				sint32 alphamap_offset = ((y_t * mix_x_y) / x_y) * (mix_x_y + 3) + 2 + (x_t * mix_x_y) / x_y;
 
 				// see only the mixmap for mixing

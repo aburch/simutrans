@@ -253,7 +253,7 @@ void gui_container_t::draw(scr_coord offset)
 
 	// For debug purpose, draw the container's boundary
 #ifdef SHOW_BBOX
-#define shorten(d) max(0, min(d, 0x4fff))
+#define shorten(d) clamp(d, 0, 0x4fff)
 	display_ddd_box_clip_rgb(shorten(screen_pos.x), shorten(screen_pos.y), shorten(get_size().w), shorten(get_size().h), color_idx_to_rgb(COL_RED), color_idx_to_rgb(COL_RED));
 #endif
 	// iterate backwards
