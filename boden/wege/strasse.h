@@ -48,7 +48,7 @@ public:
 
 	void set_gehweg(bool janein);
 
-	virtual void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	/**
 	* Overtaking mode (declared in simtypes.h)
@@ -65,10 +65,12 @@ public:
 	// used in wegbauer. param @allow is ribi in which vehicles can go. without this, ribi cannot be updated correctly at intersections.
 	void update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow, player_t* calling_player);
 	ribi_t::ribi get_ribi_mask_oneway() const { return (ribi_t::ribi)ribi_mask_oneway; }
-	virtual ribi_t::ribi get_ribi() const;
+	ribi_t::ribi get_ribi() const OVERRIDE;
 
-	virtual void rotate90();
-	image_id get_front_image() const {
+	void rotate90() OVERRIDE;
+
+	image_id get_front_image() const OVERRIDE
+	{
 		if (show_masked_ribi && overtaking_mode <= oneway_mode) {
 			return skinverwaltung_t::ribi_arrow->get_image_id(get_ribi());
 		}
@@ -76,7 +78,8 @@ public:
 			return weg_t::get_front_image();
 		}
 	}
-	virtual PLAYER_COLOR_VAL get_outline_colour() const OVERRIDE
+
+	PLAYER_COLOR_VAL get_outline_colour() const OVERRIDE
 	{
 		uint8 restriction_colour;
 		switch (overtaking_mode)
