@@ -710,12 +710,8 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 
 				if (pass_veh || mail_veh) {
 
-					//char classes_display[32];
 					int classes_to_check = pass_veh ? pass_classes : mail_classes;
-
-					char g_class_untranslated[32] = "\0";
 					int left;
-
 					for (uint8 i = 0; i < classes_to_check; i++)
 					{
 						buf.clear();
@@ -730,15 +726,8 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 								buf.clear();
 							}
 
-							if (pass_veh)
-							{
-								sprintf(g_class_untranslated, "p_class[%u]", v->get_reassigned_class(i));
-							}
-							if (mail_veh)
-							{
-								sprintf(g_class_untranslated, "m_class[%u]", v->get_reassigned_class(i));
-							}
-							buf.printf("%s:", translator::translate(g_class_untranslated));
+							buf.append(goods_manager_t::get_translated_wealth_name(v->get_cargo_type()->get_catg_index(), v->get_reassigned_class(i)));
+							buf.append(":");
 
 							COLOR_VAL text_color = boarding_rate > 100 ? COL_DARK_PURPLE : SYSCOL_TEXT;
 							// [comfort]
