@@ -425,12 +425,11 @@ uint32 baum_t::get_age() const
 /* also checks for distribution values
  * @author prissi
  */
-uint16 baum_t::random_tree_for_climate_intern(climate cl)
+uint8 baum_t::random_tree_for_climate_intern(climate cl)
 {
 	// now weight their distribution
 	weighted_vector_tpl<uint32> const& t = tree_list_per_climate[cl];
-	assert(!t.empty());
-	return pick_any_weighted(t);
+	return !t.empty() ? pick_any_weighted(t) : invalid_tree_id;
 }
 
 
