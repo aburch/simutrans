@@ -26,7 +26,7 @@
 #include "../display/viewport.h"
 #include "../simmenu.h"
 #include "../simskin.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simticker.h"
 #include "simwin.h"
 #include "../simintr.h"

@@ -8,7 +8,7 @@
 
 
 #include <stddef.h>
-#include "simtypes.h"
+#include "../simtypes.h"
 
 // Provide chdir().
 #if defined(_WIN32) && !defined(__CYGWIN__)

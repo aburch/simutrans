@@ -12,7 +12,7 @@
 
 #include "simwin.h"
 
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simworld.h"
 #include "../display/simgraph.h"
 #include "../display/viewport.h"
@@ -203,7 +203,7 @@ map_frame_t::map_frame_t() :
 	add_component( zoom_buttons+1 );
 	cursor.x += zoom_buttons[1].get_size().w + D_H_SPACE*2;
 
-	// rotate map 45° (isometric view)
+	// rotate map 45ï¿½ (isometric view)
 	b_rotate45.init( button_t::square_state, "isometric map", cursor);
 	b_rotate45.set_tooltip("Similar view as the main window");
 	b_rotate45.add_listener(this);

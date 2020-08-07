@@ -3,7 +3,7 @@
  * (see LICENSE.txt)
  */
 
-/* simsys_opengl.cc
+/* sys/simsys_opengl.cc
  * OpenGL backend
  * Copyright (c) 2012 Ters, Markohs
  */
@@ -20,13 +20,14 @@
 #include <stdio.h>
 #include <vector>
 
-#include "macros.h"
+#include "../macros.h"
 #include "simsys_w32_png.h"
-#include "simversion.h"
 #include "simsys.h"
-#include "simevent.h"
-#include "display/simgraph.h"
-#include "simdebug.h"
+#include "../simversion.h"
+#include "../simevent.h"
+#include "../display/simgraph.h"
+#include "../simdebug.h"
+
 
 static Uint8 hourglass_cursor[] = {
 	0x3F, 0xFE, //   *************

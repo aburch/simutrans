@@ -6,11 +6,12 @@
 #include <string.h>
 
 #include "simsys.h"
-#include "display/simgraph.h"
-#include "simdebug.h"
+#include "../display/simgraph.h"
+#include "../simdebug.h"
 
 
 #define MAX_SIZE (4096)
+
 static char content[MAX_SIZE] = "";
 static size_t content_length = 0;
 

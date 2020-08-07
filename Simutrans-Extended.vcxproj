@@ -2677,7 +2677,7 @@
     <ClCompile Include="descriptor\reader\imagelist3d_reader.cc" />
     <ClCompile Include="descriptor\vehicle_desc.cc" />
     <ClCompile Include="descriptor\way_desc.cc" />
-    <ClCompile Include="clipboard_w32.cc" />
+    <ClCompile Include="sys\clipboard_w32.cc" />
     <ClCompile Include="dataobj\environment.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
     <ClCompile Include="dataobj\height_map_loader.cc" />
@@ -2827,8 +2827,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="simsignalbox.cc" />
-    <ClCompile Include="simsys.cc" />
-    <ClCompile Include="simsys_d.cc">
+    <ClCompile Include="sys\simsys.cc" />
+    <ClCompile Include="sys\simsys_d.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (non-graphical server)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Optimised debug|x64'">true</ExcludedFromBuild>
@@ -2861,7 +2861,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="simsys_opengl.cc">
+    <ClCompile Include="sys\simsys_opengl.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Optimised debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (open GL)|Win32'">true</ExcludedFromBuild>
@@ -2888,7 +2888,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="simsys_posix.cc">
+    <ClCompile Include="sys\simsys_posix.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Optimised debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (open GL)|Win32'">true</ExcludedFromBuild>
@@ -2921,7 +2921,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="simsys_s2.cc">
+    <ClCompile Include="sys\simsys_s2.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Optimised debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (open GL)|Win32'">false</ExcludedFromBuild>
@@ -2948,7 +2948,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="simsys_w.cc">
+    <ClCompile Include="sys\simsys_w.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (non-graphical server)|Win32'">true</ExcludedFromBuild>
@@ -2963,7 +2963,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (open GL)|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (open GL 2)|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="simsys_w32_png.cc">
+    <ClCompile Include="sys\simsys_w32_png.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="simunits.cc" />
@@ -3335,7 +3335,7 @@
     <ClCompile Include="simskin.cc" />
     <ClCompile Include="simsound.cc" />
     <ClCompile Include="utils\simstring.cc" />
-    <ClCompile Include="simsys_s.cc">
+    <ClCompile Include="sys\simsys_s.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Optimised debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (open GL)|Win32'">true</ExcludedFromBuild>
@@ -3767,7 +3767,7 @@
     <ClInclude Include="simskin.h" />
     <ClInclude Include="simsound.h" />
     <ClInclude Include="utils\simstring.h" />
-    <ClInclude Include="simsys.h" />
+    <ClInclude Include="sys\simsys.h" />
     <ClInclude Include="simticker.h" />
     <ClInclude Include="simtypes.h" />
     <ClInclude Include="vehicle\simvehicle.h" />
