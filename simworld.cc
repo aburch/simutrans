@@ -1908,8 +1908,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		calc_climate_map_region( 0, 0, new_size_x, new_size_y );
 	}
 	else {
-		calc_climate_map_region( old_x, 0, new_size_x, new_size_y );
 		calc_climate_map_region( 0, old_y, old_x, new_size_y );
+		calc_climate_map_region( old_x, 0, new_size_x, new_size_y );
 	}
 
 	if (  old_x == 0  &&  old_y == 0  ) {
