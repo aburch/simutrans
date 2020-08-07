@@ -19,6 +19,7 @@
 #include "../../simline.h"
 
 #include "../../dataobj/translator.h"
+#include "../../dataobj/schedule.h"
 
 #include "../../utils/simstring.h"
 
@@ -164,8 +165,15 @@ void gui_convoiinfo_t::update_label()
 			halthandle_t h;
 			const koord3d end = cnv->get_route()->back();
 
-			if( grund_t *gr = world()->lookup( end ) ) {
+			if(  grund_t *gr = world()->lookup( end )  ) {
 				h = gr->get_halt();
+				// oil riggs and fish swarms can load anywhere in ther coverage area
+				if(  !h.is_bound()  &&  gr->is_water()  &&  cnv->get_schedule()  &&  cnv->get_schedule()->get_waytype()==water_wt   ) {
+					planquadrat_t *pl = world()->access( end.get_2d() );
+					if(  pl->get_haltlist_count() > 0  ) {
+						h = pl->get_haltlist()[0];
+					}
+				}
 			}
 			pos_next_halt.set_targetpos3d( end );
 			label_next_halt.set_text_pointer(h.is_bound()?h->get_name():translator::translate("wegpunkt"));
