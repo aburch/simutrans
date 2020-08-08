@@ -51,6 +51,7 @@ private:
 	void calc_off(uint8 slope, sint8 x=-128, sint8 y=-128);
 
 	static const uint8 invalid_tree_id = 0xFF;
+
 	static uint8 random_tree_for_climate_intern(climate cl);
 
 	static uint8 plant_tree_on_coordinate(koord pos, const uint8 maximum_count, const uint8 count);
