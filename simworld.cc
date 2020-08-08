@@ -10492,7 +10492,7 @@ const char* karte_t::call_work(tool_t *tool, player_t *player, koord3d pos, bool
 		suspended = false;
 	}
 	else {
-		// queue tool for network
+		// queue tool for network 
 		nwc_tool_t *nwc = new nwc_tool_t(player, tool, pos, get_steps(), get_map_counter(), false);
 		network_send_server(nwc);
 		suspended = true;
