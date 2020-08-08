@@ -17,10 +17,10 @@
 
 #include <signal.h>
 
-#include "macros.h"
-#include "simdebug.h"
-#include "simevent.h"
-#include "sys/simsys.h"
+#include "../macros.h"
+#include "../simdebug.h"
+#include "../simevent.h"
+#include "simsys.h"
 
 
 static bool sigterm_received = false;
