@@ -3257,10 +3257,10 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 	if(  current_entry.get_wait_for_time()  ) {
 		// consider spacing
 		// subtract wait_lock (time_to_load) from spacing_shift
-		const sint32 spacing_shift = current_entry.spacing_shift * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor() - time_to_load;
+		const sint32 spacing_shift = (sint64)current_entry.spacing_shift * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor() - time_to_load;
 		// NOTE: Treating spacing as int causes numerical error due to decimal amount.
 		// const sint32 spacing = world()->ticks_per_world_month / current_entry.spacing;
-		const uint32 delay_tolerance = current_entry.delay_tolerance * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
+		const uint32 delay_tolerance = (uint64)current_entry.delay_tolerance * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
 		// slot = (arrived_time - delay_tolerance - spacing_shift) / spacing + 1
 		uint64 slot = ((arrived_time - delay_tolerance - spacing_shift) * (uint64)current_entry.spacing / world()->ticks_per_world_month + 1);
 		// go_on_ticks = slot * spacing + spacing_shift
