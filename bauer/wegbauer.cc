@@ -94,6 +94,22 @@ static void set_default(way_desc_t const*& def, waytype_t const wtyp, systemtype
 
 bool way_builder_t::successfully_loaded()
 {
+	FOR(stringhashtable_tpl<const way_desc_t *>, & i, desc_table) {
+		way_desc_t *desc = (way_desc_t *)i.value;
+		if(  desc->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
+			// add the tool
+			tool_build_way_t *tool = new tool_build_way_t();
+			tool->set_icon( desc->get_cursor()->get_image_id(1) );
+			tool->cursor = desc->get_cursor()->get_image_id(0);
+			tool->set_default_param(desc->get_name());
+			tool_t::general_tool.append( tool );
+			desc->set_builder( tool );
+		}
+		else {
+			desc->set_builder( NULL );
+		}
+	}
+
 	// some defaults to avoid hardcoded values
 	set_default(strasse_t::default_strasse,         road_wt,        type_flat, 50);
 	if(  strasse_t::default_strasse == NULL ) {
@@ -122,18 +138,6 @@ bool way_builder_t::register_desc(way_desc_t *desc)
 		delete old_desc;
 	}
 
-	if(  desc->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
-		// add the tool
-		tool_build_way_t *tool = new tool_build_way_t();
-		tool->set_icon( desc->get_cursor()->get_image_id(1) );
-		tool->cursor = desc->get_cursor()->get_image_id(0);
-		tool->set_default_param(desc->get_name());
-		tool_t::general_tool.append( tool );
-		desc->set_builder( tool );
-	}
-	else {
-		desc->set_builder( NULL );
-	}
 	desc_table.put(desc->get_name(), desc);
 	return true;
 }
