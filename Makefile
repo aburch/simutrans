@@ -736,3 +736,6 @@ endif
 
 makeobj:
 	$(Q)$(MAKE) -e -C makeobj FLAGS="$(FLAGS)"
+
+nettool:
+	$(Q)$(MAKE) -e -C nettools FLAGS="$(FLAGS)"

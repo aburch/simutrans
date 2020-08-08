@@ -21,6 +21,17 @@ OST=unknown
 # now get the OSTYPE from config.default and remove all spaces around
 OST=`grep "^OSTYPE" config.default | sed "s/OSTYPE[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
 
+PGC=0
+# now get the OSTYPE from config.default and remove all spaces around
+PGC=`grep "^BUNDLE_PTHREADGC2" config.default | sed "s/BUNDLE_PTHREADGC2[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
+
+BUILDDIR=`grep "^PROGDIR" config.default | sed "s/PROGDIR[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
+if [ -n "$BUILDDIR" ]; then
+  BUILDDIR=../simutrans-extended
+else
+  BUILDDIR=../build/default/simutrans-extended
+fi
+
 # now make the correct archive name
 simexe=
 if [ "$OST" = "mac" ]; then
@@ -77,6 +88,7 @@ buildOSX()
 	cp ../sim.exe   "simutrans.app/Contents/MacOS/simutrans"
 	strip "simutrans.app/Contents/MacOS/simutrans"
 	cp "../OSX/simutrans.icns" "simutrans.app/Contents/Resources/simutrans.icns"
+		hdiutil eject /Volumes/SDL2 >>/dev/stderr
 	echo "APPL????" > "simutrans.app/Contents/PkgInfo"
 	sh ../OSX/plistgen.sh "simutrans.app" "simutrans"
 }
@@ -90,6 +102,7 @@ fi
 cd simutrans
 if [ $OSTYPE = darwin* ]; then
   buildOSX
+  ls
 else
   cp ../sim$simexe ./simutrans$simexe
   strip simutrans$simexe
