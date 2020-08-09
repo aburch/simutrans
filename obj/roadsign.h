@@ -262,9 +262,9 @@ public:
 	*/
 
 	// Presignals:
-	static const char* get_pre_signal_aspects_name(signal_aspects wm)
+	static const char* get_pre_signal_aspects_name(signal_aspects aspect)
 	{
-		switch (wm)
+		switch (aspect)
 		{
 		case clear:
 			return "clearpre";
@@ -275,9 +275,9 @@ public:
 		};
 	}
 	// Two aspect signals. This also holds the station signals:
-	static const char* get_2_signal_aspects_name(signal_aspects wm)
+	static const char* get_2_signal_aspects_name(signal_aspects aspect)
 	{
-		switch (wm)
+		switch (aspect)
 		{
 		case clear:
 			return "clear2";
@@ -294,9 +294,9 @@ public:
 		};
 	}
 	// Three aspect signals:
-	static const char* get_3_signal_aspects_name(signal_aspects wm)
+	static const char* get_3_signal_aspects_name(signal_aspects aspect)
 	{
-		switch (wm)
+		switch (aspect)
 		{
 		case clear:
 			return "clear3";
@@ -313,9 +313,9 @@ public:
 		};
 	}
 	// Four aspect signals:
-	static const char* get_4_signal_aspects_name(signal_aspects wm)
+	static const char* get_4_signal_aspects_name(signal_aspects aspect)
 	{
-		switch (wm)
+		switch (aspect)
 		{
 		case clear:
 			return "clear4";
@@ -336,9 +336,9 @@ public:
 		};
 	}
 	// Five aspect signals:
-	static const char* get_5_signal_aspects_name(signal_aspects wm)
+	static const char* get_5_signal_aspects_name(signal_aspects aspect)
 	{
-		switch (wm)
+		switch (aspect)
 		{
 		case clear:
 			return "clear5";
@@ -364,9 +364,9 @@ public:
 	}
 	// Now the same for Choose signals!
 	// Two aspect choose signals:
-	static const char* get_2_choose_signal_aspects_name(signal_aspects wm)
+	static const char* get_2_choose_signal_aspects_name(signal_aspects aspect)
 	{
-		switch (wm)
+		switch (aspect)
 		{
 		case clear:
 			return "clear2_alternate";
@@ -379,9 +379,9 @@ public:
 		};
 	}
 	// Three aspect choose signals:
-	static const char* get_3_choose_signal_aspects_name(signal_aspects wm)
+	static const char* get_3_choose_signal_aspects_name(signal_aspects aspect)
 	{
-		switch (wm)
+		switch (aspect)
 		{
 		case clear:
 			return "clear3_alternate";
@@ -398,9 +398,9 @@ public:
 		};
 	}
 	// Four aspect choose signals:
-	static const char* get_4_choose_signal_aspects_name(signal_aspects wm)
+	static const char* get_4_choose_signal_aspects_name(signal_aspects aspect)
 	{
-		switch (wm)
+		switch (aspect)
 		{
 		case clear:
 			return "clear4_alternate";
@@ -421,9 +421,9 @@ public:
 		};
 	}
 	// Five aspect choose signals:
-	static const char* get_5_choose_signal_aspects_name(signal_aspects wm)
+	static const char* get_5_choose_signal_aspects_name(signal_aspects aspect)
 	{
-		switch (wm)
+		switch (aspect)
 		{
 		case clear:
 			return "clear5_alternate";
@@ -449,9 +449,9 @@ public:
 	}
 	// Now some time interval signals.
 	// Time interval three aspect signals (There is no two aspect signal). Presignal use the standard presignal:
-	static const char* get_time_signal_aspects_name(signal_aspects wm)
+	static const char* get_time_signal_aspects_name(signal_aspects aspect)
 	{
-		switch (wm)
+		switch (aspect)
 		{
 		case clear:
 			return "cleartime";
@@ -468,9 +468,9 @@ public:
 		};
 	}
 	// Time interval choose signals:
-	static const char* get_time_choose_signal_aspects_name(signal_aspects wm)
+	static const char* get_time_choose_signal_aspects_name(signal_aspects aspect)
 	{
-		switch (wm)
+		switch (aspect)
 		{
 		case clear:
 			return "cleartime_alternate";
@@ -486,9 +486,9 @@ public:
 			return "unknown";
 		};
 	}
-	static const char* get_directions_name(ribi_t::ribi wm)
+	static const char* get_directions_name(ribi_t::ribi r)
 	{
-		switch (wm)
+		switch (r)
 		{
 		case 1:
 			return "south";
