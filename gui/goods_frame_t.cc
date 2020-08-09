@@ -37,7 +37,7 @@ uint32 goods_frame_t::vehicle_speed = 50;
  *         2 = Revenue
  * @author prissi
  */
-goods_frame_t::sort_mode_t goods_frame_t::sortby = unsortiert;
+goods_frame_t::sort_mode_t goods_frame_t::sortby = by_number;
 static uint8 default_sortmode = 0;
 
 /**
@@ -202,10 +202,10 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 
 	switch (sortby)
 	{
-		case 0: // sort by number
+		case by_number:
 			order = a - b;
 			break;
-		case 2: // sort by revenue
+		case by_revenue:
 			{
 				sint64 price[2];
 				for(uint8 i = 0; i < 2; i ++)
@@ -218,10 +218,10 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 				order = price[0] - price[1];
 			}
 			break;
-		case 3: // sort by catg_index
+		case by_category:
 			order = w[1]->get_catg()-w[0]->get_catg();
 			break;
-		case 4: // sort by weight
+		case by_weight:
 			order = w[0]->get_weight_per_unit() - w[1]->get_weight_per_unit();
 		default: ; // make compiler happy, order will be determined below anyway
 	}
@@ -287,7 +287,7 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		}
 		else {
 			sortedby.set_selection(0);
-			sortby = goods_frame_t::unsortiert;
+			sortby = goods_frame_t::by_number;
 		}
 		default_sortmode = (uint8)tmp;
 		sort_list();
