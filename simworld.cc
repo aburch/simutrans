@@ -34,7 +34,7 @@
 #include "simmesg.h"
 #include "simskin.h"
 #include "simsound.h"
-#include "simsys.h"
+#include "sys/simsys.h"
 #include "simticker.h"
 #include "simunits.h"
 #include "simversion.h"
@@ -481,7 +481,7 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 			planquadrat_t *pl = access_nocheck(x,y);
 			grund_t *gr = pl->get_kartenboden();
 			koord k(x,y);
-			uint8 slope = calc_natural_slope(k);
+			slope_t::type slope = calc_natural_slope(k);
 			sint8 height = min_hgt_nocheck(k);
 			sint8 water_hgt = get_water_hgt_nocheck(k);
 
@@ -491,7 +491,7 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 				const sint8 disp_hn_ne = max( height + corner_ne(slope), water_hgt );
 				const sint8 disp_hn_nw = max( height + corner_nw(slope), water_hgt );
 				height = water_hgt;
-				slope = (disp_hn_sw - height) + ((disp_hn_se - height) * 3) + ((disp_hn_ne - height) * 9) + ((disp_hn_nw - height) * 27);
+				slope = encode_corners(disp_hn_sw - height, disp_hn_se - height, disp_hn_ne - height, disp_hn_nw - height);
 			}
 
 			gr->set_pos( koord3d( k, height) );
@@ -3602,7 +3602,7 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 	const sint8 disp_hn_se = max( hn_se, water_hgt );
 	const sint8 disp_hn_ne = max( hn_ne, water_hgt );
 	const sint8 disp_hn_nw = max( hn_nw, water_hgt );
-	const uint8 sneu = (disp_hn_sw - disp_hneu) + ((disp_hn_se - disp_hneu) * 3) + ((disp_hn_ne - disp_hneu) * 9) + ((disp_hn_nw - disp_hneu) * 27);
+	const slope_t::type sneu = encode_corners(disp_hn_sw - disp_hneu, disp_hn_se - disp_hneu, disp_hn_ne - disp_hneu, disp_hn_nw - disp_hneu);
 
 	bool ok = (hmaxneu - hneu <= max_hdiff); // may fail on water tiles since lookup_hgt might be modified from previous raise_to calls
 	if (!ok && !gr->is_water()) {
@@ -3611,7 +3611,7 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 	// change height and slope, for water tiles only if they will become land
 	if(  !gr->is_water()  ||  (hmaxneu > water_hgt  ||  (hneu == water_hgt  &&  hmaxneu == water_hgt)  )  ) {
 		gr->set_pos( koord3d( x, y, disp_hneu ) );
-		gr->set_grund_hang( (slope_t::type)sneu );
+		gr->set_grund_hang( sneu );
 		access_nocheck(x,y)->angehoben();
 		set_water_hgt(x, y, groundwater-4);
 	}
@@ -3913,7 +3913,7 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 	const sint8 disp_hn_se = max( hn_se, water_hgt );
 	const sint8 disp_hn_ne = max( hn_ne, water_hgt );
 	const sint8 disp_hn_nw = max( hn_nw, water_hgt );
-	const uint8 sneu = (disp_hn_sw - disp_hneu) + ((disp_hn_se - disp_hneu) * 3) + ((disp_hn_ne - disp_hneu) * 9) + ((disp_hn_nw - disp_hneu) * 27);
+	const slope_t::type sneu = encode_corners(disp_hn_sw - disp_hneu, disp_hn_se - disp_hneu, disp_hn_ne - disp_hneu, disp_hn_nw - disp_hneu);
 
 	// change height and slope for land tiles only
 	if(  !gr->is_water()  ||  (hmaxneu > water_hgt)  ) {
@@ -8000,7 +8000,7 @@ uint8 karte_t::recalc_natural_slope( const koord k, sint8 &new_height ) const
 		const sint16 d2 = min( corner_height[1] - new_height, max_hdiff );
 		const sint16 d3 = min( corner_height[2] - new_height, max_hdiff );
 		const sint16 d4 = min( corner_height[3] - new_height, max_hdiff );
-		return d4 * 27 + d3 * 9 + d2 * 3 + d1;
+		return encode_corners(d1, d2, d3, d4);
 	}
 	return 0;
 }
@@ -8024,7 +8024,7 @@ uint8 karte_t::calc_natural_slope( const koord k ) const
 		const int d3=h3-mini;
 		const int d4=h4-mini;
 
-		return d1 * 27 + d2 * 9 + d3 * 3 + d4;
+		return encode_corners(d4, d3, d2, d1);
 	}
 	return 0;
 }
@@ -8956,9 +8956,41 @@ void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 
 #endif
 }
 
+void karte_t::clear_checklist_history()
+{
+	// TODO: either explain or remove the use of pre-increment (++i)
+	for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
+		last_checklists[i] = checklist_t();
+	}
+}
+
+void karte_t::clear_checklist_rands()
+{
+	for(  int i = 0;  i < CHK_RANDS  ;  i++  ) {
+		rands[i] = 0;
+	}
+}
+
+void karte_t::clear_checklist_debug_sums()
+{
+	for(  int i = 0;  i < CHK_DEBUG_SUMS  ;  i++  ) {
+		debug_sums[i] = 0;
+	}
+}
+
+void karte_t::clear_all_checklists()
+{
+	clear_checklist_history();
+	clear_checklist_rands();
+	clear_checklist_debug_sums();
+}
 
 void karte_t::load(loadsave_t *file)
 {
+	if(  env_t::networkmode  ) {
+		clear_all_checklists();
+	}
+
 	char buf[80];
 
 	intr_disable();
@@ -9055,18 +9087,7 @@ void karte_t::load(loadsave_t *file)
 	load_version.extended_version = file->get_extended_version();
 	load_version.extended_revision = file->get_extended_revision();
 
-	if(  env_t::networkmode  ) {
-		// clear the checklist history
-		for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
-			last_checklists[i] = checklist_t();
-		}
-		for(  int i = 0;  i < CHK_RANDS  ;  i++  ) {
-			rands[i] = 0;
-		}
-		for(  int i = 0;  i < CHK_DEBUG_SUMS  ;  i++  ) {
-			debug_sums[i] = 0;
-		}
-	}
+
 
 
 	if(  env_t::networkmode  ) {
@@ -9294,7 +9315,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 				sint8 slope;
 				file->rdwr_byte(slope);
 				// convert slopes from old single height saved game
-				slope = (scorner_sw(slope) + scorner_se(slope) * 3 + scorner_ne(slope) * 9 + scorner_nw(slope) * 27) * env_t::pak_height_conversion_factor;
+				slope = encode_corners(scorner_sw(slope), scorner_se(slope), scorner_ne(slope), scorner_nw(slope)) * env_t::pak_height_conversion_factor;
 				access_nocheck(x, y)->get_kartenboden()->set_grund_hang(slope);
 			}
 		}
@@ -9955,8 +9976,8 @@ void karte_t::get_neighbour_heights(const koord k, sint8 neighbour_height[8][4])
 			grund_t *gr2 = pl2->get_kartenboden();
 			slope_t::type slope_corner = gr2->get_grund_hang();
 			for(  int j = 0;  j < 4;  j++  ) {
-				neighbour_height[i][j] = gr2->get_hoehe() + slope_corner % 3;
-				slope_corner /= 3;
+				neighbour_height[i][j] = gr2->get_hoehe() + corner_sw(slope_corner);
+				slope_corner /= slope_t::southeast;
 			}
 		}
 		else {
@@ -10077,7 +10098,7 @@ void karte_t::recalc_transitions(koord k)
 			// corner_se (i=1): tests vs neighbour 3:s (corner 3 j=2),4:se (corner 4) and 5:e (corner 1)
 			// corner_ne (i=2): tests vs neighbour 5:e (corner 4 j=3),6:ne (corner 1) and 7:n (corner 2)
 			// corner_nw (i=3): tests vs neighbour 7:n (corner 1 j=0),0:nw (corner 2) and 1:w (corner 3)
-			sint8 corner_height = gr->get_hoehe() + slope_corner % 3;
+			sint8 corner_height = gr->get_hoehe() + corner_sw(slope_corner);
 
 			climate transition_climate = water_climate;
 			climate min_climate = arctic_climate;
@@ -10093,7 +10114,7 @@ void karte_t::recalc_transitions(koord k)
 			if(  min_climate == water_climate  ||  transition_climate > climate0  ) {
 				climate_corners |= 1 << i;
 			}
-			slope_corner /= 3;
+			slope_corner /= slope_t::southeast;
 		}
 		pl->set_climate_transition_flag( climate_corners != 0 );
 		pl->set_climate_corners( climate_corners );
@@ -10492,7 +10513,7 @@ const char* karte_t::call_work(tool_t *tool, player_t *player, koord3d pos, bool
 		suspended = false;
 	}
 	else {
-		// queue tool for network
+		// queue tool for network 
 		nwc_tool_t *nwc = new nwc_tool_t(player, tool, pos, get_steps(), get_map_counter(), false);
 		network_send_server(nwc);
 		suspended = true;
@@ -10762,10 +10783,7 @@ bool karte_t::interactive(uint32 quit_month)
 	}
 	// only needed for network
 	if(  env_t::networkmode  ) {
-		// clear the checklist history
-		for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
-			last_checklists[i] = checklist_t();
-		}
+		clear_checklist_history();
 	}
 	sint32 ms_difference = 0;
 	reset_timer();

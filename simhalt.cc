@@ -25,7 +25,7 @@
 #include "gui/simwin.h"
 #include "simworld.h"
 #include "simware.h"
-#include "simsys.h"
+#include "sys/simsys.h"
 
 #include "bauer/hausbauer.h"
 #include "bauer/goods_manager.h"
@@ -1189,10 +1189,10 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 		{
 			convoihandle_t const c = *i;
 			if (c.is_bound()
-				&& (c->get_state() == convoi_t::LOADING || c->get_state() == convoi_t::REVERSING || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE)
+				&& (c->is_loading() || c->get_state() == convoi_t::REVERSING || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE)
 				&& ((get_halt(c->get_pos(), owner) == self)
 					|| (c->get_vehicle(0)->get_waytype() == water_wt
-					&& c->get_state() == convoi_t::LOADING
+					&& c->is_loading()
 					&& get_halt(c->get_schedule()->get_current_entry().pos, owner) == self)))
 			{
 				++i;
@@ -2810,6 +2810,59 @@ uint32 haltestelle_t::get_ware_summe(const goods_desc_t *wtyp) const
 	return sum;
 }
 
+
+uint32 haltestelle_t::get_transferring_goods_sum(const goods_desc_t *wtyp, uint8 g_class) const
+{
+	if (g_class >= wtyp->get_number_of_classes()) {
+		return 0;
+	}
+	int sum = 0;
+	ware_t ware;
+
+#ifdef MULTI_THREAD
+	sint32 po = world()->get_parallel_operations();
+#else
+	sint32 po = 1;
+#endif
+	for (sint32 i = 0; i < po; i++)
+	{
+		FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes[i])
+		{
+			ware = tc.ware;
+			if (wtyp->get_index() == ware.get_index() && g_class == ware.get_class()) {
+				sum += ware.menge;
+			}
+		}
+	}
+	return sum;
+}
+
+// transferring goods which leaving from the station
+uint32 haltestelle_t::get_leaving_goods_sum(const goods_desc_t *wtyp, uint8 g_class) const
+{
+	if (g_class >= wtyp->get_number_of_classes()) {
+		return 0;
+	}
+	int sum = 0;
+	ware_t ware;
+
+#ifdef MULTI_THREAD
+	sint32 po = world()->get_parallel_operations();
+#else
+	sint32 po = 1;
+#endif
+	for (sint32 i = 0; i < po; i++)
+	{
+		FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes[i])
+		{
+			ware = tc.ware;
+			if (wtyp->get_index() == ware.get_index() && g_class == ware.get_class() && ware.get_zwischenziel() == self) {
+				sum += ware.menge;
+			}
+		}
+	}
+	return sum;
+}
 
 
 uint32 haltestelle_t::get_ware_fuer_zielpos(const goods_desc_t *wtyp, const koord zielpos) const
@@ -5579,7 +5632,7 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 		if(loading_cnv->get_line() == line &&
 			((loading_cnv->get_schedule()->get_current_stop() == cnv->get_schedule()->get_current_stop()
 			&& (loading_cnv->get_reverse_schedule() == cnv->get_reverse_schedule())
-			&& (!is_road_type || state == convoi_t::LOADING))
+			&& (!is_road_type || loading_cnv->is_loading()))
 			|| (state == convoi_t::REVERSING
 			&& !is_road_type
 			&& cnv->calc_remaining_loading_time() > 100

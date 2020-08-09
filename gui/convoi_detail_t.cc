@@ -710,12 +710,8 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 
 				if (pass_veh || mail_veh) {
 
-					//char classes_display[32];
 					int classes_to_check = pass_veh ? pass_classes : mail_classes;
-
-					char g_class_untranslated[32] = "\0";
 					int left;
-
 					for (uint8 i = 0; i < classes_to_check; i++)
 					{
 						buf.clear();
@@ -730,15 +726,8 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 								buf.clear();
 							}
 
-							if (pass_veh)
-							{
-								sprintf(g_class_untranslated, "p_class[%u]", v->get_reassigned_class(i));
-							}
-							if (mail_veh)
-							{
-								sprintf(g_class_untranslated, "m_class[%u]", v->get_reassigned_class(i));
-							}
-							buf.printf("%s:", translator::translate(g_class_untranslated));
+							buf.append(goods_manager_t::get_translated_wealth_name(v->get_cargo_type()->get_catg_index(), v->get_reassigned_class(i)));
+							buf.append(":");
 
 							COLOR_VAL text_color = boarding_rate > 100 ? COL_DARK_PURPLE : SYSCOL_TEXT;
 							// [comfort]
@@ -798,10 +787,7 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 						int bar_end_offset = cargo_sum * LOADING_BAR_WIDTH / v->get_desc()->get_total_capacity();
 						COLOR_VAL goods_color = wtyp->get_color();
 						if (bar_end_offset - bar_start_offset) {
-							display_fillbox_wh_clip(pos.x + extra_w + offset.x + left + bar_start_offset, pos.y + offset.y + total_height + extra_y, bar_end_offset - bar_start_offset, LOADING_BAR_HEIGHT, goods_color, true);
-							display_blend_wh(pos.x + extra_w + offset.x + left + bar_start_offset, pos.y + offset.y + total_height + extra_y, bar_end_offset - bar_start_offset, 3, COL_WHITE, 15);
-							display_blend_wh(pos.x + extra_w + offset.x + left + bar_start_offset, pos.y + offset.y + total_height + extra_y + 1, bar_end_offset - bar_start_offset, 1, COL_WHITE, 15);
-							display_blend_wh(pos.x + extra_w + offset.x + left + bar_start_offset, pos.y + offset.y + total_height + extra_y + LOADING_BAR_HEIGHT - 1, bar_end_offset - bar_start_offset, 1, COL_BLACK, 10);
+							display_cylinderbar_wh_clip(pos.x + extra_w + offset.x + left + bar_start_offset, pos.y + offset.y + total_height + extra_y, bar_end_offset - bar_start_offset, LOADING_BAR_HEIGHT, goods_color, true);
 						}
 						bar_start_offset += bar_end_offset - bar_start_offset;
 					}

@@ -35,37 +35,47 @@ public:
 
 	typedef sint8 type;
 
-	/*
-	* Macros to access the height of the 4 corners:
-	* Each corner has height 0,1,2.
-	* Calculation has to be done modulo 3 (% 3).
-	*/
-#define corner_sw(i) (i%3)    	// sw corner
-#define corner_se(i) ((i/3)%3)	// se corner
-#define corner_ne(i) ((i/9)%3)	// ne corner
-#define corner_nw(i) (i/27)   	// nw corner
 
 	/**
 	* Named constants for special cases.
 	*/
 	enum _type {
-		flat = 0,
-		north = 3 + 1,    ///< North slope
-		west = 9 + 3,     ///< West slope
-		east = 27 + 1,    ///< East slope
-		south = 27 + 9,   ///< South slope
+		flat=0,
+
 		northwest = 27, ///< NW corner
 		northeast = 9,  ///< NE corner
 		southeast = 3,  ///< SE corner
 		southwest = 1,  ///< SW corner
-		raised = 80,    ///< special meaning: used as slope of bridgeheads and in terraforming tools
+
+		north = slope_t::southeast+slope_t::southwest,	///< North slope
+		west  = slope_t::northeast+slope_t::southeast,  ///< West slope
+		east  = slope_t::northwest+slope_t::southwest,  ///< East slope
+		south = slope_t::northwest+slope_t::northeast,  ///< South slope
+
+		all_up_one = slope_t::southwest+slope_t::southeast+slope_t::northeast+slope_t::northwest, ///all corners 1 high
+		all_up_two = slope_t::all_up_one * 2,                                                     ///all corners 2 high
+
+		raised = all_up_two,    ///< special meaning: used as slope of bridgeheads and in terraforming tools (keep for compatibility)
+
+		max_number = all_up_two
 	};
 
+	/*
+	 * Macros to access the height of the 4 corners:
+	 */
+#define corner_sw(i)  ((i)%slope_t::southeast)                      // sw corner
+#define corner_se(i) (((i)/slope_t::southeast)%slope_t::southeast)  // se corner
+#define corner_ne(i) (((i)/slope_t::northeast)%slope_t::southeast)  // ne corner
+#define corner_nw(i)  ((i)/slope_t::northwest)                      // nw corner
+
+#define encode_corners(sw, se, ne, nw) ( (sw) * slope_t::southwest + (se) * slope_t::southeast + (ne) * slope_t::northeast + (nw) * slope_t::northwest )
+
+#define is_one_high(i)   (i & 7)  // quick method to know whether a slope is one high - relies on two high slopes being divisible by 8 -> i&7=0 (only works for slopes with flag single)
 
 	/// Compute the slope opposite to @p x. Returns flat if @p x does not allow ways on it.
-	static type opposite(type x) { return is_single(x) ? (x & 7 ? (40 - x) : (80 - x * 2)) : flat; }
+	static type opposite(type x) { return is_single(x) ? (is_one_high(x) ? (slope_t::all_up_one - x) : (slope_t::all_up_two - x)) : flat; }
 	/// Rotate.
-	static type rotate90(type x) { return (((x % 3) * 27) + ((x - (x % 3)) / 3)); }
+	static type rotate90(type x) { return ( ( (x % slope_t::southeast) * slope_t::northwest ) + ( ( x - (x % slope_t::southeast) ) / slope_t::southeast ) ); }
 	/// Returns true if @p x has all corners raised.
 	static bool is_all_up(type x) { return (flags[x] & all_up)>0; }
 	/// Returns maximal height difference between the corners of this slope.

@@ -5,7 +5,7 @@
 
 #include "simloadingscreen.h"
 
-#include "simsys.h"
+#include "sys/simsys.h"
 #include "descriptor/image.h"
 #include "descriptor/skin_desc.h"
 #include "simskin.h"

@@ -16,7 +16,7 @@
 #include "../gui_frame.h"
 #include "gui_textinput.h"
 #include "../simwin.h"
-#include "../../simsys.h"
+#include "../../sys/simsys.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
 

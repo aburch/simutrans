@@ -14,7 +14,7 @@
 #include "font.h"
 #include "../pathes.h"
 #include "../simconst.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simmem.h"
 #include "../simdebug.h"
 #include "../descriptor/image.h"
@@ -2851,7 +2851,7 @@ void display_color_img_with_tooltip(const image_id n, KOORD_VAL xp, KOORD_VAL yp
 {
 	display_color_img(n, xp, yp, player_nr_raw, daynight, dirty);
 	if (text && n < anz_images && ( xp <= get_mouse_x() && yp <= get_mouse_y() && (xp+ images[n].w) > get_mouse_x() && (yp+ images[n].h) > get_mouse_y())) {
-		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X/2, yp + images[n].y + images[n].h + TOOLTIP_MOUSE_OFFSET_Y/2, text);
+		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X + D_H_SPACE, yp + images[n].y + images[n].h + TOOLTIP_MOUSE_OFFSET_Y/2 + D_V_SPACE, text);
 	}
 }
 
@@ -3198,6 +3198,14 @@ void display_blend_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, 
 	}
 }
 
+void display_vlinear_gradient_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL colval, int percent_blend_start, int percent_blend_end)
+{
+	uint8 transparency = 0;
+	for (int i = 0; i < h; i++) {
+		transparency = percent_blend_start + (percent_blend_end - percent_blend_start)/h*i;
+		display_blend_wh_rgb(xp, yp+i, w, 1, colval, transparency);
+	}
+}
 
 static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour, blend_proc p  CLIP_NUM_DEF)
 {
@@ -3908,7 +3916,7 @@ void display_cylinderbar_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KO
 	display_blend_wh(xp, yp + 1, w, 1, COL_WHITE, 15);
 	uint8 start = h * 2 / 3;
 	for (uint8 i = start; i < h; i++) {
-		display_blend_wh(xp, yp + i, w, 1, COL_RED, i*25/h);
+		display_blend_wh(xp, yp + i, w, 1, COL_BLACK, i*25/h);
 	}
 }
 

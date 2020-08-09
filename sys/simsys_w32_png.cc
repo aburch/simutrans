@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#include "macros.h"
-#include "simmem.h"
+#include "../macros.h"
+#include "../simmem.h"
 #include "simsys_w32_png.h"
 
 #include <stdio.h>
@@ -165,7 +165,7 @@ bool dr_screenshot_png(char const* filename, int w, int h, int maxwidth, unsigne
 		free( newdata );
 	}
 
-	// Passenden Encoder für jpegs suchen:
+	// Passenden Encoder fï¿½r jpegs suchen:
 	// Genausogut kann man auch image/png benutzen um png's zu speichern ;D
 	// ...oder image/gif um gif's zu speichern, ...
 	bool ok = false;

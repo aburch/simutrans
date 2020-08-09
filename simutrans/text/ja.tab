@@ -3621,6 +3621,8 @@ Fully stocked
 入荷停止（在庫飽和）
 fab_stuck
 生産停止（資材＆在庫飽和）
+missing_connection
+必要最低限の提携先がありません！
 Within own network
 自家輸送網内のみ表示
 Show only connected to own transport network
@@ -3763,6 +3765,54 @@ filter_mail_line
 郵便取扱い路線
 filter_freight_line
 貨物取扱い路線
+New shipping destination added to Factory %s
+工場%sに新しい出荷先が追加されました
+Loading (%i->%i%%) Long Time
+積込待ち(%i->%i%%) 数か月以上
+Vehicle %s wait loading too much!
+%sは数か月に渡る積載待ちを行っています！
+Productivity
+生産性
+(Max. %d%%)
+（最大 %d%%）
+Operation rate
+稼働率
+fl_btn_operation
+稼働率
+fl_btn_storage
+在庫
+Incoming shippment status of this item for this factory
+この工場に対する同一製品の輸送状況
+Shipment has been suspended due to consumption demand
+供給過多につき出荷が停止されています
+Suspension of new orders due to sufficient supply
+供給過多につき新規受注は停止しています
+Shipment is suspended
+出荷停止
+symbol_help_txt_lead_time
+リードタイム
+symbol_help_txt_in_transit
+輸送中
+station_capacity_freight
+駅の貨物容量
+Connections
+提携先・接続駅
+Goods chart
+製品に関する統計
+Production chart
+生産性に関する統計
+Building info.
+建物情報
+#hlptxt_factory_connected
+#
+consumption %.1f%s/month
+月消費 %.1f%s
+consumption %u%s/month
+月消費 %u%s
+production %.1f%s/month
+月生産 %.1f%s
+production %u%s/month
+月生産 %u%s
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

@@ -655,7 +655,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 	// remove wrong freight
 	check_freight();
 	// some convois had wrong old direction in them
-	if(  state<DRIVING  ||  state==LOADING  ) {
+	if(  state<DRIVING  ||  is_loading()  ) {
 		alte_direction = front()->get_direction();
 	}
 	// Knightly : if lineless convoy -> register itself with stops
@@ -679,7 +679,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 	}
 
 	loading_limit = schedule->get_current_entry().minimum_loading;
-	if(state == LOADING)
+	if(is_loading())
 	{
 		laden();
 	}
@@ -1222,7 +1222,7 @@ int convoi_t::get_vehicle_at_length(uint16 length)
 }
 
 
-// moves all vehicles of a convoi
+// moves all vehicles of a convoi 
 sync_result convoi_t::sync_step(uint32 delta_t)
 {
 	// still have to wait before next action?
@@ -1233,9 +1233,6 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 	wait_lock = 0;
 
 	switch(state) {
-		case INITIAL:
-			// in depot, should not be in sync list, remove
-			return SYNC_REMOVE;
 		case EDIT_SCHEDULE:
 		case ROUTING_1:
 		case ROUTING_2:
@@ -1250,11 +1247,18 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 		case WAITING_FOR_LOADING_THREE_MONTHS:
 		case WAITING_FOR_LOADING_FOUR_MONTHS:
 		case REVERSING:
-			// Hajo: this is an async task, see step() or threaded_step()
-			break;
-
 		case ENTERING_DEPOT:
-			break;
+        case LOADING:
+        case WAITING_FOR_CLEARANCE:
+        case WAITING_FOR_CLEARANCE_ONE_MONTH:
+        case WAITING_FOR_CLEARANCE_TWO_MONTHS:
+        case SELF_DESTRUCT:
+		case EMERGENCY_STOP:
+            break;
+
+        case INITIAL:
+            // in depot, should not be in sync list, remove
+            return SYNC_REMOVE;
 
 		case LEAVING_DEPOT:
 			{
@@ -1348,21 +1352,6 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 				}
 			}
 			break;	// DRIVING
-
-		case LOADING:
-			// Hajo: loading is an async task, see laden()
-			break;
-
-		case WAITING_FOR_CLEARANCE:
-		case WAITING_FOR_CLEARANCE_ONE_MONTH:
-		case WAITING_FOR_CLEARANCE_TWO_MONTHS:
-		case EMERGENCY_STOP:
-			// Hajo: waiting is asynchronous => fixed waiting order and route search
-			break;
-
-		case SELF_DESTRUCT:
-			// see step, since destruction during a screen update may give strange effects
-			break;
 
 		default:
 			dbg->fatal("convoi_t::sync_step()", "Wrong state %d!\n", state);
@@ -2261,7 +2250,7 @@ end_loop:
 				}
 				if(  front()->get_waytype()==road_wt  ) {
 					overtaking_mode_t overtaking_mode = static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode();
-					if(  (state==CAN_START  ||  state==CAN_START_ONE_MONTH)  &&  overtaking_mode>oneway_mode  &&  overtaking_mode!=inverted_mode  ) {
+					if(  (state==CAN_START  ||  state==CAN_START_ONE_MONTH)  &&  overtaking_mode>oneway_mode  ) {
 						set_tiles_overtaking( 0 );
 					}
 				}
@@ -2286,7 +2275,7 @@ end_loop:
 				}
 				if(  front()->get_waytype()==road_wt  ) {
 					overtaking_mode_t overtaking_mode = static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode();
-					if(  state!=DRIVING  &&  overtaking_mode>oneway_mode  &&  overtaking_mode!=inverted_mode  ) {
+					if(  state!=DRIVING  &&  overtaking_mode>oneway_mode  ) {
 						set_tiles_overtaking( 0 );
 					}
 				}
@@ -2314,10 +2303,10 @@ end_loop:
 			{
 				//When loading, vehicle should not be on passing lane.
 				str = (strasse_t*)welt->lookup(get_pos())->get_weg(road_wt);
-				if(  str  &&  str->get_overtaking_mode()!=inverted_mode  &&  str->get_overtaking_mode()!=halt_mode  ) set_tiles_overtaking(0);
+				if(  str  &&  str->get_overtaking_mode()!=halt_mode  ) set_tiles_overtaking(0);
 				if(get_depot_when_empty() && has_no_cargo())
 				{
-					go_to_depot(false, (replace && replace->get_use_home_depot()));
+					go_to_depot(!replace, (replace && replace->get_use_home_depot()));
 				}
 				break;
 			}
@@ -2336,6 +2325,8 @@ end_loop:
 	vector_tpl<linehandle_t> lines;
 	switch( state ) {
 		// handled by routine
+	    case WAITING_FOR_LOADING_THREE_MONTHS:
+	    case WAITING_FOR_LOADING_FOUR_MONTHS:
 		case LOADING:
 			break;
 
@@ -6638,7 +6629,7 @@ end_check:
 
 		if(is_depot) {
 			// next was depot. restore it
-			schedule->insert(welt->lookup(depot), 0, 0, 0, owner == welt->get_active_player());
+			schedule->insert(welt->lookup(depot), 0, 0, 0, false, owner == welt->get_active_player());
 			// Insert will move the pointer past the inserted item; move back to it
 			schedule->advance_reverse();
 		}
@@ -6657,7 +6648,7 @@ end_check:
 				state = EDIT_SCHEDULE;
 			}
 			// make this change immediately
-			if(  state!=LOADING  ) {
+			if(  !is_loading()  ) {
 				wait_lock = 0;
 			}
 		}
@@ -6962,7 +6953,7 @@ void convoi_t::set_depot_when_empty(bool new_dwe)
 	}
 	else if(new_dwe)
 	{
-		go_to_depot(get_owner() == welt->get_active_player());
+		go_to_depot();
 	}
 }
 

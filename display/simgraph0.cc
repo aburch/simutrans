@@ -4,7 +4,7 @@
  */
 
 #include "../simconst.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../descriptor/image.h"
 
 #include "simgraph.h"
@@ -228,6 +228,10 @@ display_alpha_proc display_alpha = display_base_img_alpha;
 signed short current_tile_raster_width = 0;
 
 void display_blend_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, int)
+{
+}
+
+void display_vlinear_gradient_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, int, int)
 {
 }
 

@@ -2566,18 +2566,11 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				{
 					if (veh_type->get_capacity(i) > 0)
 					{
-						char class_name_untranslated[32];
-						if (mail_veh)
-						{
-							sprintf(class_name_untranslated, "m_class[%u]", i);
-						}
-						else
-						{
-							sprintf(class_name_untranslated, "p_class[%u]", i);
-						}
-						const char* class_name = translator::translate(class_name_untranslated);
-
-						buf.printf("%s: %3d %s %s", class_name, veh_type->get_capacity(i), translator::translate(veh_type->get_freight_type()->get_mass()), translator::translate(veh_type->get_freight_type()->get_name()));
+						buf.printf("%s: %3d %s %s",
+							goods_manager_t::get_translated_wealth_name(veh_type->get_freight_type()->get_catg_index(), i),
+							veh_type->get_capacity(i),
+							translator::translate(veh_type->get_freight_type()->get_mass()),
+							translator::translate(veh_type->get_freight_type()->get_name()));
 						buf.append("\n");
 						lines++;
 

@@ -594,7 +594,7 @@ void vehicle_base_t::calc_height(grund_t *gr)
 		// will not work great with ways, but is very short!
 		slope_t::type hang = gr->get_weg_hang();
 		if(  hang  ) {
-			const uint slope_height = (hang & 7) ? 1 : 2;
+			const uint slope_height = is_one_high(hang) ? 1 : 2;
 			ribi_t::ribi hang_ribi = ribi_type(hang);
 			if(  ribi_t::doubles(hang_ribi)  ==  ribi_t::doubles(direction)) {
 				zoff_start = hang_ribi & direction                      ? 2*slope_height : 0;  // 0 .. 4
@@ -2048,7 +2048,7 @@ void vehicle_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 	{
 		// Bernd Gabriel, Nov, 30 2009: at least 1 partial direction must match for uphill (op '&'), but not the
 		// complete direction. The hill might begin in a curve and then '==' accidently accelerates the vehicle.
-		const uint slope_height = (hang & 7) ? 1 : 2;
+		const uint slope_height = is_one_high(hang) ? 1 : 2;
 		if(ribi_type(hang) & direction)
 		{
 			// Uphill
@@ -3124,6 +3124,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				cnv->snprintf_remaining_emergency_stop_time(emergency_stop_time, sizeof(emergency_stop_time));
 				sprintf( tooltip_text, translator::translate("emergency_stop %s left"),emergency_stop_time/*, lengthof(tooltip_text) */);
 				color = COL_RED;
+				break;
 
 			case convoi_t::LOADING:
 				if(  state>=1  )
@@ -3800,12 +3801,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// When overtaking_mode changes from inverted_mode to others, no cars blocking must work as the convoi is on traffic lane. Otherwise, no_cars_blocking cannot recognize vehicles on the traffic lane of the next tile.
 		//next_lane = -1 does NOT mean that the vehicle must go traffic lane on the next tile.
 		const strasse_t* current_str = (strasse_t*)(welt->lookup(get_pos())->get_weg(road_wt));
-		if(  current_str  &&  current_str->get_overtaking_mode()==inverted_mode  ) {
-			if(  str->get_overtaking_mode()<inverted_mode  ) {
-				next_lane = -1;
-			}
-		}
-
 		if( current_str && current_str->get_overtaking_mode()<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  ) {
 			next_lane = -1;
 		}
@@ -3827,7 +3822,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		bool int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction)) & str->get_ribi_unmasked())  ||  curr_90direction != next_90direction  ||  (rs  &&  rs->get_desc()->is_traffic_light()));
 
 		//If this convoi is overtaking, the convoi must avoid a head-on crash.
-		if(  cnv->is_overtaking()  &&  current_str->get_overtaking_mode()!=inverted_mode  ){
+		if(  cnv->is_overtaking()  ){
 			while(  test_index < route_index + 2u && test_index < r.get_count()  ){
 				grund_t *grn = welt->lookup(r.at(test_index));
 				if(  !grn  ) {
@@ -3910,7 +3905,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 
 			if(  mode_of_start_point<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  ) lane_of_the_tile = -1;
-			if(  str->get_overtaking_mode()==inverted_mode  ) lane_of_the_tile = 1;
 
 			// check cars
 			curr_direction   = next_direction;
@@ -4067,7 +4061,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 							if(  ocnv->get_yielding_quit_index() != -1  &&  this->get_speed_limit() - ocnv->get_min_top_speed() < kmh_to_speed(10)  ) {
 								yielding_factor = false;
 							}
-							if(  cnv->get_lane_affinity() != -1  &&  next_lane<1  &&  !cnv->is_overtaking()  &&  !other_lane_blocked()  &&  yielding_factor  &&  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : ocnv->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->front()->get_steps())  ) {
+							if(  cnv->get_lane_affinity() != -1  &&  next_lane<1  &&  !cnv->is_overtaking()  &&  !other_lane_blocked()  &&  yielding_factor  &&  cnv->can_overtake( ocnv, (ocnv->is_loading() ? 0 : ocnv->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->front()->get_steps())  ) {
 								return true;
 							}
 							strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
@@ -4125,7 +4119,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					restart_speed = (cnv->get_akt_speed()*3)/4;
 				}
 			}
-			else if(  overtaking_mode <= loading_only_mode  ) {
+			else if(  overtaking_mode <= twoway_mode) {
 				// road is two-way and overtaking is allowed on the stricter condition.
 				if(  obj->is_stuck()  ) {
 					// end of traffic jam, but no stuck message, because previous vehicle is stuck too
@@ -4147,7 +4141,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 							// not overtaking/being overtake: we need to make a more thought test!
 							if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(obj)  ) {
 								convoi_t* const ocnv = car->get_convoi();
-								if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->front()->get_steps())  ) {
+								if(  cnv->can_overtake( ocnv, (ocnv->is_loading() ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->front()->get_steps())  ) {
 									return true;
 								}
 							}
@@ -4190,7 +4184,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 		// If this vehicle is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
 		// When condition changes, overtaking should be quitted once.
-		if(  (cnv->is_overtaking()  &&  str->get_overtaking_mode()==prohibited_mode)  ||  (cnv->is_overtaking()  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<inverted_mode  &&  static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode()<=oneway_mode)  ) {
+		if(  (cnv->is_overtaking()  &&  str->get_overtaking_mode()==prohibited_mode)  ||  (cnv->is_overtaking()  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<=prohibited_mode  &&  static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode()<=oneway_mode)  ) {
 			if(  vehicle_base_t* v = other_lane_blocked(false, offset)  ) {
 				if(  v->get_waytype() == road_wt  ) {
 					restart_speed = 0;
@@ -4213,20 +4207,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				return false;
 			}
 			// There is no vehicle on traffic lane.
-		}
-		// If this vehicle is on traffic lane and the next tile forces to go passing lane, this vehicle must wait until passing lane become safe.
-		if(  !cnv->is_overtaking()  &&  str->get_overtaking_mode() == inverted_mode  ) {
-			if(  vehicle_base_t* v = other_lane_blocked(false, offset)  ) {
-				if(  v->get_waytype() == road_wt  ) {
-					restart_speed = 0;
-					cnv->reset_waiting();
-					cnv->set_next_cross_lane(true);
-					return false;
-				}
-			}
-			// There is no vehicle on passing lane.
-			next_lane = 1;
-			return true;
 		}
 		// If the next tile is a intersection, lane crossing must be checked before entering.
 		// The other vehicle is ignored if it is stopping to avoid stuck.
@@ -4320,7 +4300,7 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 			}
 			// this function cannot process vehicles on twoway and related mode road.
 			const strasse_t* str = (strasse_t *)gr->get_weg(road_wt);
-			if(  !str  ||  (str->get_overtaking_mode()>=twoway_mode  &&  str->get_overtaking_mode()<inverted_mode)  ) {
+			if(  !str  ||  (str->get_overtaking_mode()>=twoway_mode  &&  str->get_overtaking_mode() <= prohibited_mode)  ) {
 				break;
 			}
 
@@ -4469,9 +4449,6 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 		if(  cnv->get_yielding_quit_index() <= route_index  ) {
 			cnv->quit_yielding_lane();
 		}
-		if(  str->get_overtaking_mode() == inverted_mode  ) {
-			cnv->set_tiles_overtaking(1);
-		}
 		cnv->set_next_cross_lane(false); // since this convoi moved...
 		// If there is one-way sign, calc lane_affinity. This should not be calculated in can_enter_tile().
 		if(  roadsign_t* rs = gr->find<roadsign_t>()  ) {
@@ -4489,7 +4466,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 			grund_t* prev_gr = welt->lookup(pos_prev);
 			if(  prev_gr  ){
 				strasse_t* prev_str = (strasse_t*)prev_gr->get_weg(road_wt);
-				if(  (prev_str  &&  (prev_str->get_overtaking_mode()<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<inverted_mode))  ||  str->get_overtaking_mode()==prohibited_mode  ){
+				if(  (prev_str  &&  (prev_str->get_overtaking_mode()<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode() <= prohibited_mode))  ||  str->get_overtaking_mode()==prohibited_mode  ){
 					cnv->set_tiles_overtaking(0);
 				}
 			}
@@ -4706,7 +4683,7 @@ void rail_vehicle_t::set_convoi(convoi_t *c)
 				assert(c!=NULL);
 				// eventually search new route
 				route_t& r = *c->get_route();
-				if(  (r.get_count()<=route_index  ||  r.empty()  ||  get_pos()==r.back())  &&  c->get_state()!=convoi_t::INITIAL  &&  c->get_state()!=convoi_t::LOADING  &&  c->get_state()!=convoi_t::SELF_DESTRUCT  ) {
+				if(  (r.get_count()<=route_index  ||  r.empty()  ||  get_pos()==r.back())  &&  c->get_state()!=convoi_t::INITIAL  &&  !c->is_loading()  &&  c->get_state()!=convoi_t::SELF_DESTRUCT  ) {
 					check_for_finish = true;
 					dbg->warning("rail_vehicle_t::set_convoi()", "convoi %i had a too high route index! (%i of max %i)", c->self.get_id(), route_index, r.get_count() - 1);
 				}
@@ -6369,9 +6346,9 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 					}
 
-					if(next_signal_working_method == drive_by_sight || one_train_staff_loop_complete || (((working_method != one_train_staff && (first_one_train_staff_index < INVALID_INDEX && first_one_train_staff_index > start_index))) && (first_double_block_signal_index == INVALID_INDEX || first_double_block_signal_index != last_stop_signal_index)))
+					if((next_signal_working_method == drive_by_sight && working_method != drive_by_sight) || one_train_staff_loop_complete || (((working_method != one_train_staff && (first_one_train_staff_index < INVALID_INDEX && first_one_train_staff_index > start_index))) && (first_double_block_signal_index == INVALID_INDEX || first_double_block_signal_index != last_stop_signal_index)))
 					{
-						// Do not reserve through end of signalling signs or one train staff cabinets
+						// Do not reserve through end of signalling signs (unless already in drive by side mode) or one train staff cabinets
 						next_signal_index = i;
 						count --;
 					}
@@ -8329,7 +8306,7 @@ bool water_vehicle_t::check_tile_occupancy(const grund_t* gr)
 				if(obj && obj->get_typ() == obj_t::water_vehicle)
 				{
 					const vehicle_t* water_craft = (const vehicle_t*)obj;
-					if(water_craft->get_convoi()->get_state() == convoi_t::LOADING)
+					if(water_craft->get_convoi()->is_loading())
 					{
 						continue;
 					}

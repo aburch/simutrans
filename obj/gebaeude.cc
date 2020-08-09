@@ -1552,9 +1552,7 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 	}
 	for (int i = 0; i < pass_classes; i++)
 	{
-		char class_name_untranslated[32];
-		sprintf(class_name_untranslated, "p_class[%u]", i);
-		const char* class_name = translator::translate(class_name_untranslated);
+		const char* class_name = goods_manager_t::get_translated_wealth_name(goods_manager_t::INDEX_PAS,i);
 		if (condition == 1)
 		{
 			buf.printf(" %3i%% %s\n", class_percentage[i], class_name);
@@ -2347,6 +2345,7 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 		builder.set_maximum(env_t::intercity_road_length);
 		builder.set_keep_city_roads(true);
 		builder.set_build_sidewalk(false);
+		builder.set_overtaking_mode(invalid_mode);
 
 		koord3d end3d = welt->lookup_kartenboden(end)->get_pos();
 
