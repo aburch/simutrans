@@ -73,7 +73,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 }
 
 
-void fabrik_info_t::init(fabrik_t* fab_, const gebaeude_t* gb)
+void fabrik_info_t::init(fabrik_t *, const gebaeude_t *)
 {
 	staffing_level = staffing_level2 = staff_shortage_factor = 0;
 
@@ -336,7 +336,7 @@ bool fabrik_info_t::is_weltpos()
  * components should be triggered.
  * V.Meyer
  */
-bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
+bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t)
 {
 	if(comp == &input) {
 		rename_factory();
@@ -489,9 +489,6 @@ void fabrik_info_t::update_components()
 // component for city demand icons display
 void gui_fabrik_info_t::draw(scr_coord offset)
 {
-	int xoff = pos.x+offset.x+D_MARGIN_LEFT+16;
-	int yoff = pos.y+offset.y;
-
 	gui_container_t::draw( offset );
 }
 
