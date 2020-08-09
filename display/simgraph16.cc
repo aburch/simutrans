@@ -3928,6 +3928,17 @@ void display_cylinderbar_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KO
 }
 
 
+void display_colorbox_with_tooltip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty, const char *text)
+{
+	display_ddd_box_clip(xp, yp, w, h, MN_GREY0, MN_GREY4);
+	//display_fb_internal(xp+1, yp+1, w-2, h-2, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
+	display_fillbox_wh_clip(xp + 1, yp + 1, w - 2, h - 2, color, dirty);
+	if (text && (xp <= get_mouse_x() && yp <= get_mouse_y() && (xp + w) > get_mouse_x() && (yp + h) > get_mouse_y())) {
+		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X + D_H_SPACE, yp + h + h/2 + TOOLTIP_MOUSE_OFFSET_Y / 2 + D_V_SPACE, text);
+	}
+}
+
+
 /**
 * Draw vertical line
 * @author Hj. Malthaner
