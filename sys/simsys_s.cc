@@ -11,13 +11,13 @@
 
 #include <stdio.h>
 
-#include "macros.h"
+#include "../macros.h"
 #include "simsys_w32_png.h"
-#include "simversion.h"
 #include "simsys.h"
-#include "simevent.h"
-#include "display/simgraph.h"
-#include "simdebug.h"
+#include "../simversion.h"
+#include "../simevent.h"
+#include "../display/simgraph.h"
+#include "../simdebug.h"
 
 
 static Uint8 hourglass_cursor[] = {

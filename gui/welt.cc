@@ -37,7 +37,7 @@
 
 #include "../display/simgraph.h"
 
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../utils/simstring.h"
 #include "../utils/simrandom.h"
 

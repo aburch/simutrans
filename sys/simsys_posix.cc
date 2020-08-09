@@ -17,9 +17,9 @@
 
 #include <signal.h>
 
-#include "macros.h"
-#include "simdebug.h"
-#include "simevent.h"
+#include "../macros.h"
+#include "../simdebug.h"
+#include "../simevent.h"
 #include "simsys.h"
 
 

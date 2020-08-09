@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include "simrandom.h"
 #include "../dataobj/environment.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 
 /* This is the mersenne random generator: More random and faster! */
 

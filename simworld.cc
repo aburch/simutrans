@@ -34,7 +34,7 @@
 #include "simmesg.h"
 #include "simskin.h"
 #include "simsound.h"
-#include "simsys.h"
+#include "sys/simsys.h"
 #include "simticker.h"
 #include "simunits.h"
 #include "simversion.h"
@@ -8956,9 +8956,41 @@ void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 
 #endif
 }
 
+void karte_t::clear_checklist_history()
+{
+	// TODO: either explain or remove the use of pre-increment (++i)
+	for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
+		last_checklists[i] = checklist_t();
+	}
+}
+
+void karte_t::clear_checklist_rands()
+{
+	for(  int i = 0;  i < CHK_RANDS  ;  i++  ) {
+		rands[i] = 0;
+	}
+}
+
+void karte_t::clear_checklist_debug_sums()
+{
+	for(  int i = 0;  i < CHK_DEBUG_SUMS  ;  i++  ) {
+		debug_sums[i] = 0;
+	}
+}
+
+void karte_t::clear_all_checklists()
+{
+	clear_checklist_history();
+	clear_checklist_rands();
+	clear_checklist_debug_sums();
+}
 
 void karte_t::load(loadsave_t *file)
 {
+	if(  env_t::networkmode  ) {
+		clear_all_checklists();
+	}
+
 	char buf[80];
 
 	intr_disable();
@@ -9055,18 +9087,7 @@ void karte_t::load(loadsave_t *file)
 	load_version.extended_version = file->get_extended_version();
 	load_version.extended_revision = file->get_extended_revision();
 
-	if(  env_t::networkmode  ) {
-		// clear the checklist history
-		for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
-			last_checklists[i] = checklist_t();
-		}
-		for(  int i = 0;  i < CHK_RANDS  ;  i++  ) {
-			rands[i] = 0;
-		}
-		for(  int i = 0;  i < CHK_DEBUG_SUMS  ;  i++  ) {
-			debug_sums[i] = 0;
-		}
-	}
+
 
 
 	if(  env_t::networkmode  ) {
@@ -10492,7 +10513,7 @@ const char* karte_t::call_work(tool_t *tool, player_t *player, koord3d pos, bool
 		suspended = false;
 	}
 	else {
-		// queue tool for network
+		// queue tool for network 
 		nwc_tool_t *nwc = new nwc_tool_t(player, tool, pos, get_steps(), get_map_counter(), false);
 		network_send_server(nwc);
 		suspended = true;
@@ -10762,10 +10783,7 @@ bool karte_t::interactive(uint32 quit_month)
 	}
 	// only needed for network
 	if(  env_t::networkmode  ) {
-		// clear the checklist history
-		for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
-			last_checklists[i] = checklist_t();
-		}
+		clear_checklist_history();
 	}
 	sint32 ms_difference = 0;
 	reset_timer();

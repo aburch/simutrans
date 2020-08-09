@@ -25,7 +25,7 @@
 #include "gui/simwin.h"
 #include "simworld.h"
 #include "simware.h"
-#include "simsys.h"
+#include "sys/simsys.h"
 
 #include "bauer/hausbauer.h"
 #include "bauer/goods_manager.h"

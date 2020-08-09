@@ -101,7 +101,7 @@ void fabrik_info_t::init(fabrik_t* fab_, const gebaeude_t* gb)
 	tabs.set_pos(scr_coord(0, offset_below_viewport + storage.get_size().h + LINESPACE));
 	tabs.set_size(scr_size(D_DEFAULT_WIDTH-2, D_TAB_HEADER_HEIGHT + 70 + LINESPACE*2));
 
-	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, 250+view.get_size().w), D_TAB_HEADER_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT));
+	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, 250+view.get_size().w), D_TITLEBAR_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT));
 
 	// tabs
 	// initialize to zero, update_info will do the rest
@@ -381,23 +381,24 @@ bool fabrik_info_t::infowin_event(const event_t *ev)
 void fabrik_info_t::set_tab_opened()
 {
 	tabstate = tabs.get_active_tab_index();
+	int margin_above_tab = tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y;
 	switch (tabstate)
 	{
 	case 0: // info
 	default:
 		tabs.set_size(scrolly_info.get_size());
-		set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + D_V_SPACE * 2 + min(22 * LINESPACE, container_info.get_size().h)));
+		set_windowsize(scr_size(get_windowsize().w, margin_above_tab + D_V_SPACE * 2 + min(22 * LINESPACE, container_info.get_size().h)));
 		break;
 	case 1: // goods chart 
 		goods_chart.recalc_size();
-		set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + goods_chart.get_size().h));
+		set_windowsize(scr_size(get_windowsize().w, margin_above_tab + goods_chart.get_size().h));
 		break;
 	case 2: // prod chart
 		chart.recalc_size();
-		set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + chart.get_size().h));
+		set_windowsize(scr_size(get_windowsize().w, margin_above_tab + chart.get_size().h));
 		break;
 	case 3: // details 
-		set_windowsize(scr_size(get_windowsize().w, tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGINS_Y + D_V_SPACE * 2 + container_details.get_size().h));
+		set_windowsize(scr_size(get_windowsize().w, margin_above_tab + D_V_SPACE * 2 + container_details.get_size().h));
 		break;
 	}
 }

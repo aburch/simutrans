@@ -1222,7 +1222,7 @@ int convoi_t::get_vehicle_at_length(uint16 length)
 }
 
 
-// moves all vehicles of a convoi
+// moves all vehicles of a convoi 
 sync_result convoi_t::sync_step(uint32 delta_t)
 {
 	// still have to wait before next action?

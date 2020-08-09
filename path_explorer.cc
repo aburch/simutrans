@@ -9,7 +9,7 @@
 #include "dataobj/translator.h"
 #include "bauer/goods_manager.h"
 #include "descriptor/goods_desc.h"
-#include "simsys.h"
+#include "sys/simsys.h"
 #include "display/simgraph.h"
 #include "player/simplay.h"
 #include "dataobj/environment.h"

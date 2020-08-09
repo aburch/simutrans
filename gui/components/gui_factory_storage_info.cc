@@ -58,7 +58,6 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 					continue;
 				}
 				const sint64 pfactor = fab->get_desc()->get_supplier(i) ? (sint64)fab->get_desc()->get_supplier(i)->get_consumption() : 1ll;
-				const uint16 max_intransit_percentage = fab->get_max_intransit_percentage(i);
 				const sint64 max_transit = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max_transit * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
 				const uint32 stock_quantity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
 				const uint32 storage_capacity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
@@ -150,7 +149,6 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 
 			int i = 0;
 			FORX(array_tpl<ware_production_t>, const& goods, fab->get_output(), i++) {
-				const goods_desc_t * type = goods.get_typ();
 				const sint64 pfactor = (sint64)fab->get_desc()->get_product(i)->get_factor();
 				const uint32 stock_quantity   = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
 				const uint32 storage_capacity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
@@ -288,9 +286,6 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 	if (!fab) {
 		return;
 	}
-	clip_dimension const cd = display_get_clip_wh();
-	const int start = cd.y - LINESPACE - 1;
-	const int end = cd.yy + LINESPACE + 1;
 
 	static cbuffer_t buf;
 	int xoff = pos.x;
@@ -314,7 +309,7 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 			const bool is_within_own_network = target_fab->is_connected_to_network(welt->get_active_player());
 			xoff = D_POS_BUTTON_WIDTH + D_H_SPACE;
 
-			const goods_desc_t *transport_goods;
+			const goods_desc_t *transport_goods = NULL;
 			if (!is_input_display) {
 				FOR(array_tpl<ware_production_t>, const& product, fab->get_output()) {
 					const goods_desc_t *inquiry_goods = product.get_typ();
@@ -334,12 +329,13 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 				}
 			}
 
+			assert(transport_goods != NULL);
+
 			// [status color bar]
 			if (fab->get_status() >= fabrik_t::staff_shortage) {
 				display_ddd_box_clip(offset.x + xoff, offset.y + yoff + 2, D_INDICATOR_WIDTH / 2, D_INDICATOR_HEIGHT + 2, COL_STAFF_SHORTAGE, COL_STAFF_SHORTAGE);
 			}
 			COLOR_VAL col = fabrik_t::status_to_color[target_fab->get_status() % fabrik_t::staff_shortage];
-			uint indikatorfarbe = fabrik_t::status_to_color[target_fab->get_status() % fabrik_t::staff_shortage];
 			display_fillbox_wh_clip(offset.x + xoff + 1, offset.y + yoff + 3, D_INDICATOR_WIDTH / 2 - 1, D_INDICATOR_HEIGHT, col, true);
 			xoff += D_INDICATOR_WIDTH / 2 + 3;
 
@@ -541,18 +537,11 @@ void gui_factory_nearby_halt_info_t::draw(scr_coord offset)
 	if (!halt_list.get_count()) {
 		return;
 	}
-	clip_dimension const cd = display_get_clip_wh();
-	const int start = cd.y - LINESPACE - 1;
-	const int end = cd.yy + LINESPACE + 1;
 
 	static cbuffer_t buf;
 	int xoff = pos.x;
 	int yoff = pos.y;
 
-	double distance;
-	char distance_display[10];
-
-	uint32 sel = line_selected;
 	FORX(const vector_tpl<nearby_halt_t>, freight_halt, halt_list, yoff += LINESPACE + 1) {
 		COLOR_VAL col = SYSCOL_TEXT;
 
@@ -575,7 +564,7 @@ void gui_factory_nearby_halt_info_t::draw(scr_coord offset)
 			uint32 wainting_sum = 0;
 			uint32 transship_in_sum = 0;
 			uint32 leaving_sum = 0;
-			const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+
 			for (uint i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
 				if (i == goods_manager_t::INDEX_PAS || i == goods_manager_t::INDEX_MAIL)
 				{

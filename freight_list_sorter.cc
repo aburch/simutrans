@@ -222,9 +222,7 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 
 	if (is_class_cargo && (class_total || sorting_by_accommodation))
 	{
-		char class_name[32];
-		sprintf(class_name, ware->get_index() == goods_manager_t::INDEX_PAS ? "p_class[%u]" : "m_class[%u]", g_class);
-		sprintf(class_entry, "(%s) ", translator::translate(class_name));
+		sprintf(class_entry, "(%s) ", goods_manager_t::get_translated_wealth_name(ware->get_index(), g_class));
 	}
 
 	if (ware->get_index() == goods_manager_t::INDEX_PAS)
