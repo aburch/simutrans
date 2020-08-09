@@ -8958,6 +8958,7 @@ void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 
 
 void karte_t::clear_checklist_history()
 {
+	// TODO: either explain or remove the use of pre-increment (++i)
 	for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
 		last_checklists[i] = checklist_t();
 	}
