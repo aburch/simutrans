@@ -266,9 +266,9 @@ public:
 	{
 		switch (wm)
 		{
-		case 1:
+		case clear:
 			return "clearpre";
-		case 2:
+		case caution:
 			return "cautionpre";
 		default:
 			return "unknown";
@@ -279,15 +279,15 @@ public:
 	{
 		switch (wm)
 		{
-		case 1:
+		case clear:
 			return "clear2";
-		case 2:
+		case caution:
 			return "caution2";
-		case 5:
+		case clear_no_choose:
 			return "clear2";
-		case 6:
+		case caution_no_choose:
 			return "caution2";
-		case 9:
+		case call_on:
 			return "call_on";
 		default:
 			return "unknown";
@@ -298,15 +298,15 @@ public:
 	{
 		switch (wm)
 		{
-		case 1:
+		case clear:
 			return "clear3";
-		case 2:
+		case caution:
 			return "caution3";
-		case 5:
+		case clear_no_choose:
 			return "clear3";
-		case 6:
+		case caution_no_choose:
 			return "caution3";
-		case 9:
+		case call_on:
 			return "call_on";
 		default:
 			return "unknown";
@@ -317,19 +317,19 @@ public:
 	{
 		switch (wm)
 		{
-		case 1:
+		case clear:
 			return "clear4";
-		case 2:
+		case caution:
 			return "caution4";
-		case 3:
+		case preliminary_caution:
 			return "preliminary_caution4";
-		case 5:
+		case clear_no_choose:
 			return "clear4";
-		case 6:
+		case caution_no_choose:
 			return "caution4";
-		case 7:
+		case preliminary_caution_no_choose:
 			return "preliminary_caution4";
-		case 9:
+		case call_on:
 			return "call_on";
 		default:
 			return "unknown";
@@ -340,23 +340,23 @@ public:
 	{
 		switch (wm)
 		{
-		case 1:
+		case clear:
 			return "clear5";
-		case 2:
+		case caution:
 			return "caution5";
-		case 3:
+		case preliminary_caution:
 			return "preliminary_caution5";
-		case 4:
+		case advance_caution:
 			return "advanced_caution5";
-		case 5:
+		case clear_no_choose:
 			return "clear5";
-		case 6:
+		case caution_no_choose:
 			return "caution5";
-		case 7:
+		case preliminary_caution_no_choose:
 			return "preliminary_caution5";
-		case 8:
+		case advance_caution_no_choose:
 			return "advanced_caution5";
-		case 9:
+		case call_on:
 			return "call_on";
 		default:
 			return "unknown";
@@ -368,11 +368,11 @@ public:
 	{
 		switch (wm)
 		{
-		case 1:
+		case clear:
 			return "clear2_alternate";
-		case 5:
+		case clear_no_choose:
 			return "clear2_main";
-		case 9:
+		case call_on:
 			return "call_on_choose";
 		default:
 			return "unknown";
@@ -383,15 +383,15 @@ public:
 	{
 		switch (wm)
 		{
-		case 1:
+		case clear:
 			return "clear3_alternate";
-		case 2:
+		case caution:
 			return "caution3_alternate";
-		case 5:
+		case clear_no_choose:
 			return "clear3_main";
-		case 6:
+		case caution_no_choose:
 			return "caution3_main";
-		case 9:
+		case call_on:
 			return "call_on_choose";
 		default:
 			return "unknown";
@@ -402,19 +402,19 @@ public:
 	{
 		switch (wm)
 		{
-		case 1:
+		case clear:
 			return "clear4_alternate";
-		case 2:
+		case caution:
 			return "caution4_alternate";
-		case 3:
+		case preliminary_caution:
 			return "preliminary_caution4_alternate";
-		case 5:
+		case clear_no_choose:
 			return "clear4_main";
-		case 6:
+		case caution_no_choose:
 			return "caution4_main";
-		case 7:
+		case preliminary_caution_no_choose:
 			return "preliminary_caution4_main";
-		case 9:
+		case call_on:
 			return "call_on_choose";
 		default:
 			return "unknown";
@@ -425,23 +425,23 @@ public:
 	{
 		switch (wm)
 		{
-		case 1:
+		case clear:
 			return "clear5_alternate";
-		case 2:
+		case caution:
 			return "caution5_alternate";
-		case 3:
+		case preliminary_caution:
 			return "preliminary_caution5_alternate";
-		case 4:
+		case advance_caution:
 			return "advanced_caution5_alternate";
-		case 5:
+		case clear_no_choose:
 			return "clear5_main";
-		case 6:
+		case caution_no_choose:
 			return "caution5_main";
-		case 7:
+		case preliminary_caution_no_choose:
 			return "preliminary_caution5_main";
-		case 8:
+		case advance_caution_no_choose:
 			return "advanced_caution5_main";
-		case 9:
+		case call_on:
 			return "call_on_choose";
 		default:
 			return "unknown";
@@ -453,15 +453,15 @@ public:
 	{
 		switch (wm)
 		{
-		case 1:
+		case clear:
 			return "cleartime";
-		case 2:
+		case caution:
 			return "cautiontime";
-		case 5:
+		case clear_no_choose:
 			return "cleartime";
-		case 6:
+		case caution_no_choose:
 			return "cautiontime";
-		case 9:
+		case call_on:
 			return "call_ontime";
 		default:
 			return "unknown";
@@ -472,15 +472,15 @@ public:
 	{
 		switch (wm)
 		{
-		case 1:
+		case clear:
 			return "cleartime_alternate";
-		case 2:
+		case caution:
 			return "cautiontime_alternate";
-		case 5:
+		case clear_no_choose:
 			return "cleartime_main";
-		case 6:
+		case caution_no_choose:
 			return "cautiontime_main";
-		case 9:
+		case call_on:
 			return "call_ontime_choose";
 		default:
 			return "unknown";
