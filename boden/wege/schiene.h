@@ -201,12 +201,12 @@ public:
 	{
 		switch (rt)
 		{
-		case 0:
+		case block:
 		default:
 			return "block_reservation";
-		case 1:
+		case directional:
 			return "directional_reservation";
-		case 2:
+		case priority:
 			return "priority_reservation";
 		};
 	}
