@@ -12,36 +12,6 @@
 #define CHART_WIDTH (D_DEFAULT_WIDTH-104)
 #define CHART_HEIGHT (70)
 
-/*
-#define MAX_GOODS_COLOR (24)
-
-static const int goods_color[MAX_GOODS_COLOR] =
-{
-	/* greyish blue  */ //0,
-	/* bright orange */ //33,
-	/* cyan          */ //48,
-	/* lemon yellow  */ //24,
-	/* purple        */ //57,
-	/* greyish green */ //80,
-	/* lilac         */ //105,
-	/* pale brown    */ //89,
-	/* blue          */ //144,
-	/* dark green    */ //161,
-	/* dark brown    */ //177,
-	/* dark blue     */ //97,
-	/* green         */ //41,
-	/* reddish brown */ //113,
-	/* magenta       */ //73,
-	/* turquoise     */ //121,
-	/* red           */ //129,
-	/* muddy yellow  */ //192,
-	/* bright green  */ //136,
-	/* dull orange   */ //65,
-	/* pale yellow   */ //167,
-	/* pale green    */ //201,
-	/* orange        */ //152,
-	/* pale purple   */ //217
-//};*/
 
 static const char *const input_type[MAX_FAB_GOODS_STAT] =
 {
