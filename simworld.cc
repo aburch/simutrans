@@ -8959,6 +8959,19 @@ void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 
 
 void karte_t::load(loadsave_t *file)
 {
+	if(  env_t::networkmode  ) {
+		// clear the checklist history
+		for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
+			last_checklists[i] = checklist_t();
+		}
+		for(  int i = 0;  i < CHK_RANDS  ;  i++  ) {
+			rands[i] = 0;
+		}
+		for(  int i = 0;  i < CHK_DEBUG_SUMS  ;  i++  ) {
+			debug_sums[i] = 0;
+		}
+	}
+
 	char buf[80];
 
 	intr_disable();
@@ -9055,18 +9068,7 @@ void karte_t::load(loadsave_t *file)
 	load_version.extended_version = file->get_extended_version();
 	load_version.extended_revision = file->get_extended_revision();
 
-	if(  env_t::networkmode  ) {
-		// clear the checklist history
-		for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
-			last_checklists[i] = checklist_t();
-		}
-		for(  int i = 0;  i < CHK_RANDS  ;  i++  ) {
-			rands[i] = 0;
-		}
-		for(  int i = 0;  i < CHK_DEBUG_SUMS  ;  i++  ) {
-			debug_sums[i] = 0;
-		}
-	}
+
 
 
 	if(  env_t::networkmode  ) {
