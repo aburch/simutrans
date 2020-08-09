@@ -8956,20 +8956,38 @@ void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 
 #endif
 }
 
+void karte_t::clear_checklist_history()
+{
+	for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
+		last_checklists[i] = checklist_t();
+	}
+}
+
+void karte_t::clear_checklist_rands()
+{
+	for(  int i = 0;  i < CHK_RANDS  ;  i++  ) {
+		rands[i] = 0;
+	}
+}
+
+void karte_t::clear_checklist_debug_sums()
+{
+	for(  int i = 0;  i < CHK_DEBUG_SUMS  ;  i++  ) {
+		debug_sums[i] = 0;
+	}
+}
+
+void karte_t::clear_all_checklists()
+{
+	clear_checklist_history();
+	clear_checklist_rands();
+	clear_checklist_debug_sums();
+}
 
 void karte_t::load(loadsave_t *file)
 {
 	if(  env_t::networkmode  ) {
-		// clear the checklist history
-		for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
-			last_checklists[i] = checklist_t();
-		}
-		for(  int i = 0;  i < CHK_RANDS  ;  i++  ) {
-			rands[i] = 0;
-		}
-		for(  int i = 0;  i < CHK_DEBUG_SUMS  ;  i++  ) {
-			debug_sums[i] = 0;
-		}
+		clear_all_checklists();
 	}
 
 	char buf[80];
@@ -10764,10 +10782,7 @@ bool karte_t::interactive(uint32 quit_month)
 	}
 	// only needed for network
 	if(  env_t::networkmode  ) {
-		// clear the checklist history
-		for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
-			last_checklists[i] = checklist_t();
-		}
+		clear_checklist_history();
 	}
 	sint32 ms_difference = 0;
 	reset_timer();

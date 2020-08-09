@@ -2617,6 +2617,11 @@ public:
 	const checklist_t& get_last_checklist() const { return LCHKLST(sync_steps); }
 	uint32 get_last_checklist_sync_step() const { return sync_steps; }
 
+	void clear_checklist_history();
+	void clear_checklist_debug_sums();
+	void clear_checklist_rands();
+	void clear_all_checklists();
+
 	void command_queue_append(network_world_command_t*) const;
 
 	void clear_command_queue() const;
