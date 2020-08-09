@@ -240,7 +240,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 			/*if(  (ribi_t::doubles(ribi) ^ ribi_t::doubles(check_ribi) ) == ribi_t::all  &&  crossing_logic_t::get_crossing(wt, w->get_waytype(), 0, 0, welt->get_timeline_year_month()  )  ) {
 				return NULL;
 			}
-			return "A bridge must start on a way!"; 
+			return "A bridge must start on a way!";
 			}*/
 		}
 

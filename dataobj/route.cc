@@ -359,7 +359,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 						}
 						else
 						{
-							straight_line_distance = shortest_distance(start.get_2d(), k.get_2d()); 
+							straight_line_distance = shortest_distance(start.get_2d(), k.get_2d());
 						}
 						uint16 journey_time_per_tile;
 						if(straight_line_distance == 0)
