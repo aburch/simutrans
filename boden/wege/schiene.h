@@ -84,6 +84,7 @@ public:
 				|| c == reserved; // TODO: Obtain the priority data from the convoy here and comapre it.
 
 			default:
+				// Fail with non-standard reservation type
 				return false;
 		}
 	}
