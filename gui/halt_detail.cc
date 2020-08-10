@@ -1073,8 +1073,8 @@ void gui_halt_nearby_factory_info_t::draw(scr_coord offset)
 				xoff += GOODS_SYMBOL_CELL_WIDTH;
 			}
 			// input goods color square box
-			display_ddd_box_clip(offset.x + xoff, offset.y + yoff, 8, 8, MN_GREY0, MN_GREY4);
-			display_fillbox_wh_clip(offset.x + xoff + 1, offset.y + yoff + 1, 6, 6, ware->get_color(), true);
+			ware->get_name();
+			display_colorbox_with_tooltip(offset.x + xoff, offset.y + yoff, 8, 8, ware->get_color(), true, translator::translate(ware->get_name()));
 			xoff += GOODS_SYMBOL_CELL_WIDTH - 2;
 
 			if (!required_material.is_contained(ware)) {
@@ -1094,8 +1094,7 @@ void gui_halt_nearby_factory_info_t::draw(scr_coord offset)
 				xoff += GOODS_SYMBOL_CELL_WIDTH;
 			}
 			// output goods color square box
-			display_ddd_box_clip(offset.x + xoff, offset.y + yoff, 8, 8, MN_GREY0, MN_GREY4);
-			display_fillbox_wh_clip(offset.x + xoff + 1, offset.y + yoff + 1, 6, 6, ware->get_color(), true);
+			display_colorbox_with_tooltip(offset.x + xoff, offset.y + yoff, 8, 8, ware->get_color(), true, translator::translate(ware->get_name()));
 			xoff += GOODS_SYMBOL_CELL_WIDTH - 2;
 
 			if (!active_product.is_contained(ware)) {
