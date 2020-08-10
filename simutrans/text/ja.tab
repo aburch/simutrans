@@ -3831,6 +3831,10 @@ hd_category
 貨物品目分類
 hd_transship
 積替・搬出中
+Needed
+商品・資材需要
+Products
+生産品
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
