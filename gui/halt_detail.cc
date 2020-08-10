@@ -60,7 +60,7 @@ void halt_detail_t::init(halthandle_t halt_)
 	cont.add_component(&txt_info);
 	txt_info.set_pos(scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP));
 
-	tabs.set_pos(scr_coord(0, LINESPACE*4 + D_MARGIN_TOP*2));
+	tabs.set_pos(scr_coord(0, LINESPACE*4 + D_MARGIN_TOP + D_V_SPACE));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT));
 
 	old_factory_count = 0;
