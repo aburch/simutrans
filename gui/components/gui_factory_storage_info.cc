@@ -562,9 +562,7 @@ void gui_factory_nearby_halt_info_t::draw(scr_coord offset)
 
 			// [capacity]
 			uint32 wainting_sum = 0;
-			uint32 transship_in_sum = 0;
-			uint32 leaving_sum = 0;
-
+			uint32 transship_sum = 0;
 			for (uint i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
 				if (i == goods_manager_t::INDEX_PAS || i == goods_manager_t::INDEX_MAIL)
 				{
@@ -583,8 +581,7 @@ void gui_factory_nearby_halt_info_t::draw(scr_coord offset)
 								continue;
 							}
 							wainting_sum += halt->get_ware_summe(wtyp2);
-							transship_in_sum += halt->get_transferring_goods_sum(wtyp2, 0);
-							leaving_sum += halt->get_leaving_goods_sum(wtyp2, 0);
+							transship_sum += halt->get_transferring_goods_sum(wtyp2, 0);
 						}
 						break;
 				}
@@ -592,14 +589,14 @@ void gui_factory_nearby_halt_info_t::draw(scr_coord offset)
 			display_color_img_with_tooltip(skinverwaltung_t::goods->get_image_id(0), offset.x + xoff, offset.y + yoff, 0, false, false, translator::translate("station_capacity_freight"));
 			xoff += 14;
 
-			if (wainting_sum || transship_in_sum || leaving_sum) {
+			if (wainting_sum || transship_sum) {
 				has_active_freight_connection = true;
 			}
 
 			buf.clear();
 			buf.printf("%u", wainting_sum);
-			if (transship_in_sum || leaving_sum) {
-				buf.printf("(%u)", transship_in_sum + leaving_sum);
+			if (transship_sum) {
+				buf.printf("(%u)", transship_sum);
 			}
 			buf.printf("/%u", halt->get_capacity(2));
 			xoff += display_proportional_clip(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, col, true);
@@ -630,13 +627,13 @@ void gui_factory_nearby_halt_info_t::draw(scr_coord offset)
 			if (!has_active_freight_connection) {
 				col = COL_GREY3; // seems that the freight convoy is not running here
 			}
-			else if (wainting_sum + transship_in_sum + leaving_sum > halt->get_capacity(2)) {
+			else if (wainting_sum + transship_sum > halt->get_capacity(2)) {
 				col = COL_RED;
 			}
-			else if (wainting_sum + transship_in_sum + transship_in_sum > halt->get_capacity(2)*0.9) {
+			else if (wainting_sum + transship_sum > halt->get_capacity(2)*0.9) {
 				col = COL_ORANGE;
 			}
-			else if (!wainting_sum && !transship_in_sum && !transship_in_sum) {
+			else if (!wainting_sum && !transship_sum) {
 				// Still have to consider
 				col = COL_YELLOW;
 			}
