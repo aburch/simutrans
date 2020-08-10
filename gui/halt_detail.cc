@@ -550,6 +550,7 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 				wainting_sum = halt->get_ware_summe(goods_manager_t::get_info(goods_manager_t::INDEX_PAS));
 				is_operating = halt->gibt_ab(goods_manager_t::get_info(goods_manager_t::INDEX_PAS));
 				overcrowded = halt->is_overcrowded(goods_manager_t::INDEX_PAS);
+				transship_in_sum = halt->get_transferring_goods_sum(goods_manager_t::get_info(goods_manager_t::INDEX_PAS)) - halt->get_leaving_goods_sum(goods_manager_t::get_info(goods_manager_t::INDEX_PAS));
 				break;
 			case 1:
 				if (!halt->get_mail_enabled()) {
@@ -559,6 +560,7 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 				wainting_sum = halt->get_ware_summe(goods_manager_t::get_info(goods_manager_t::INDEX_MAIL));
 				is_operating = halt->gibt_ab(goods_manager_t::get_info(goods_manager_t::INDEX_MAIL));
 				overcrowded = halt->is_overcrowded(goods_manager_t::INDEX_MAIL);
+				transship_in_sum = halt->get_transferring_goods_sum(goods_manager_t::get_info(goods_manager_t::INDEX_MAIL)) - halt->get_leaving_goods_sum(goods_manager_t::get_info(goods_manager_t::INDEX_MAIL));
 				break;
 			case 2:
 				if (!halt->get_ware_enabled()) {
@@ -594,6 +596,7 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 					}
 				}
 				overcrowded = ((wainting_sum + transship_in_sum) > halt->get_capacity(i));
+				transship_in_sum -= leaving_sum;
 				break;
 			default:
 				continue;
@@ -614,6 +617,9 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 		if (halt->get_capacity(i) > 0) {
 			display_ddd_box_clip(pos.x + left, pos.y + yoff, HALT_CAPACITY_BAR_WIDTH + 2, 8, MN_GREY0, MN_GREY4);
 			display_fillbox_wh_clip(pos.x + left + 1, pos.y + yoff + 1, HALT_CAPACITY_BAR_WIDTH, 6, MN_GREY2, true);
+			// transferring (to this station) bar
+			display_fillbox_wh_clip(pos.x + left + 1, pos.y + yoff + 1, min(100, (transship_in_sum + wainting_sum) * 100 / halt->get_capacity(i)), 6, MN_GREY1, true);
+
 			const COLOR_VAL col = overcrowded ? COL_OVERCROWD : COL_GREEN;
 			uint8 waiting_factor = min(100, wainting_sum * 100 / halt->get_capacity(i));
 
