@@ -593,7 +593,7 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 						break;
 					}
 				}
-				overcrowded = ((wainting_sum + transship_in_sum + leaving_sum) > halt->get_capacity(i));
+				overcrowded = ((wainting_sum + transship_in_sum) > halt->get_capacity(i));
 				break;
 			default:
 				continue;
