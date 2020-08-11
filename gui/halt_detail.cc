@@ -83,6 +83,7 @@ void halt_detail_t::init(halthandle_t halt_)
 	tabs.add_listener(this);
 	add_component(&tabs);
 
+	cont_goods.set_pos(scr_coord(0, 0));
 	cont_goods.add_component(&goods);
 	cont_goods.add_component(&lb_nearby_factory);
 	cont_goods.add_component(&nearby_factory);
@@ -198,7 +199,6 @@ void halt_detail_t::update_components()
 
 	// tab2
 	scr_coord_val y = 0; // calc for layout
-	cont_goods.set_pos(scr_coord(0, 0));
 	if (goods.active_freight_catg != old_catg_count)
 	{
 		goods.recalc_size();
