@@ -1083,9 +1083,7 @@ void gui_halt_nearby_factory_info_t::draw(scr_coord offset)
 			display_colorbox_with_tooltip(offset.x + xoff, offset.y + yoff, 8, 8, ware->get_color(), true, translator::translate(ware->get_name()));
 			xoff += GOODS_SYMBOL_CELL_WIDTH - 2;
 
-			if (!required_material.is_contained(ware)) {
-				required_material.append(ware);
-			}
+			required_material.append_unique(ware);
 			has_input_output++;
 		}
 
@@ -1104,12 +1102,9 @@ void gui_halt_nearby_factory_info_t::draw(scr_coord offset)
 			xoff += GOODS_SYMBOL_CELL_WIDTH - 2;
 
 			if (!active_product.is_contained(ware)) {
-
 				if ((fab->get_status() % fabrik_t::no_material || fab->get_status() % fabrik_t::material_shortage) && !i.menge) {
 					// this factory is not in operation
-					if (!inactive_product.is_contained(ware)) {
-						inactive_product.append(ware);
-					}
+					inactive_product.append_unique(ware);
 				}
 				else {
 					active_product.append(ware);
