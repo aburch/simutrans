@@ -509,13 +509,13 @@ void halt_detail_t::set_tab_opened()
 	{
 		case 0: // info
 		default:
-			set_windowsize(scr_size(get_windowsize().w, margin_above_tab + cashed_size_y));
+			set_windowsize(scr_size(get_windowsize().w, min(display_get_height() - margin_above_tab, margin_above_tab + cashed_size_y)));
 			break;
 		case 1: // goods
-			set_windowsize(scr_size(get_windowsize().w, margin_above_tab + cont_goods.get_size().h));
+			set_windowsize(scr_size(get_windowsize().w, min(display_get_height() - margin_above_tab, margin_above_tab + cont_goods.get_size().h)));
 			break;
 		case 2:
-			set_windowsize(scr_size(get_windowsize().w, margin_above_tab + txt_info.get_size().h));
+			set_windowsize(scr_size(get_windowsize().w, min(display_get_height() - margin_above_tab, margin_above_tab + txt_info.get_size().h)));
 			break;
 	}
 }
