@@ -251,9 +251,6 @@ bool hausbauer_t::successfully_loaded()
 
 bool hausbauer_t::register_desc(building_desc_t *desc)
 {
-	// We might still need to fix the number of classes, so the const will
-	// be casted away (temporarily) in succesfully_loaded()
-
 	::register_desc(special_objects, desc);
 
 	// avoid duplicates with same name
