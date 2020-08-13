@@ -136,7 +136,6 @@ gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* pl
   scr_size min_size = get_min_size();
 	container->set_size(scr_size(max(get_size().w, min_size.w), min_size.h) );
   
-  scrolly.set_maximize(true);
   add_component(&scrolly);
   
   add_table(2,2)->set_force_equal_columns(true);
