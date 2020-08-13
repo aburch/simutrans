@@ -138,8 +138,8 @@ static bool compare_station_desc(const building_desc_t* a, const building_desc_t
 
 bool hausbauer_t::successfully_loaded()
 {
-	FOR(stringhashtable_tpl<building_desc_t*>, const& i, desc_table) {
-		building_desc_t *desc = i.value;
+	FOR(stringhashtable_tpl<const building_desc_t*>, const& i, desc_table) {
+		building_desc_t *desc = (building_desc_t *)i.value;
 
 		// probably needs a tool if it has a cursor
 		const skin_desc_t *sd = desc->get_cursor();
