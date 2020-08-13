@@ -3736,7 +3736,7 @@ bool haltestelle_t::is_halt_covered(const halthandle_t &halt) const
 
 
 bool haltestelle_t::book_departure (uint32 arr_tick, uint32 dep_tick, uint32 exp_tick, convoihandle_t cnv) {
-	uint8 idx = dep_tick % DST_SIZE;
+	const uint8 idx = dep_tick % DST_SIZE;
 	slist_tpl<departure_t>::iterator i = departure_slot_table[idx].begin();
 	while(  i!=departure_slot_table[idx].end()  ) {
 		if(  welt->get_ticks()>i->exp_tick  ||  !i->cnv.is_bound()  ) {
@@ -3757,4 +3757,19 @@ bool haltestelle_t::book_departure (uint32 arr_tick, uint32 dep_tick, uint32 exp
 	departure_t dep(arr_tick, dep_tick, exp_tick, cnv);
 	departure_slot_table[idx].insert(departure_slot_table[idx].begin(), dep);
 	return true;
+}
+
+
+bool haltestelle_t::erase_departure(uint32 dep_tick, convoihandle_t cnv) {
+	const uint8 idx = dep_tick % DST_SIZE;
+	slist_tpl<departure_t>::iterator i = departure_slot_table[idx].begin();
+	// find and remove the requested departure slot
+	while(  i!=departure_slot_table[idx].end()  ) {
+		if(  i->cnv==cnv  &&  i->dep_tick==dep_tick  ) {
+			departure_slot_table[idx].erase(i);
+			return true;
+		}
+		i++;
+	}
+	return false; // we cannot find the requested departure slot.
 }

@@ -1401,6 +1401,12 @@ void convoi_t::step()
 						// go to next
 						state = ROUTING_1;
 					}
+					
+					// release departure slot if needed.
+					if(  h.is_bound()  &&  scheduled_departure_time_intern>0  ) {
+						h->erase_departure(scheduled_departure_time_intern, self);
+						scheduled_departure_time_intern = 0;
+					}
 				}
 			}
 			break;
