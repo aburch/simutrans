@@ -845,6 +845,13 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 					continue;
 				}
 
+				// Check for low bridges on open water
+				const grund_t* gr_above = world()->lookup(to->get_pos() + koord3d(0, 0, 1));
+				if (env_t::pak_height_conversion_factor == 2 && gr_above && gr_above->get_weg_nr(0))
+				{
+					continue;
+				}
+
 				// Weight limits
 				sint32 is_overweight = not_overweight;
 				if (enforce_weight_limits > 0 && w != NULL)
