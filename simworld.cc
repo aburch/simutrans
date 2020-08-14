@@ -9930,6 +9930,52 @@ halthandle_t karte_t::get_halt_koord_index(koord k, player_t *, bool create_halt
 }
 
 
+void karte_t::update_underground()
+{
+	DBG_MESSAGE( "karte_t::update_underground_map()", "" );
+	get_view()->clear_prepared();
+	world_view_t::invalidate_all();
+	set_dirty();
+}
+
+void karte_t::prepare_tiles(rect_t const &new_area, rect_t const &old_area) {
+	if (new_area == old_area) {
+		// area already prepared
+		return;
+	}
+
+	size_t const prepare_rects_capacity = rect_t::MAX_FRAGMENT_DIFFERENCE_COUNT;
+	rect_t prepare_rects[prepare_rects_capacity];
+	size_t const prepare_rects_length = new_area.fragment_difference(old_area, prepare_rects, prepare_rects_capacity);
+
+	// additional tiles to prepare for correct hiding behaviour
+	sint16 const prefix_tiles_x = min(grund_t::MAXIMUM_HIDE_TEST_DISTANCE, new_area.origin.x);
+	sint16 const prefix_tiles_y = min(grund_t::MAXIMUM_HIDE_TEST_DISTANCE, new_area.origin.y);
+
+	for (size_t rect_index = 0 ; rect_index < prepare_rects_length ; rect_index++) {
+		rect_t const &prepare_rect = prepare_rects[rect_index];
+
+		sint16 x_start = prepare_rect.origin.x;
+		sint16 const x_end = x_start + prepare_rect.size.x;
+		if (x_start == new_area.origin.x) {
+			x_start-= prefix_tiles_x;
+		}
+
+		sint16 y_start = prepare_rect.origin.y;
+		sint16 const y_end = y_start + prepare_rect.size.y;
+		if (y_start == new_area.origin.y) {
+			y_start-= prefix_tiles_y;
+		}
+
+		for (sint16 y = y_start ; y < y_end ; y++) {
+			for (sint16 x = x_start ; x < x_end ; x++) {
+				const planquadrat_t &tile = plan[y * cached_grid_size.x + x];
+				tile.update_underground();
+			}
+		}
+	}
+}
+
 void karte_t::calc_climate(koord k, bool recalc)
 {
 	planquadrat_t *pl = access(k);

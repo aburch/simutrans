@@ -964,13 +964,18 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 	for (int i = 0; i<3; i++) {
 		corners[i] += corners_add[i];
 	}
-	// now test more tiles behind whether they are hidden by this tile
-	const koord  testdir[3] = { koord(-1,0), koord(-1,-1), koord(0,-1) };
 
-	for (int step = 0; step<5 && !get_flag(draw_as_obj); step++) {
-		sint16 test[3] = { (sint16)(corners[0] + 1), (sint16)(corners[1] + 1), (sint16)(corners[2] + 1) };
-		for (int i = 0; i <= 2; i++) {
-			if (const grund_t *gr = welt->lookup_kartenboden(k + testdir[i] - koord(step, step))) {
+	// now test more tiles behind whether they are hidden by this tile
+	static const koord  testdir[grund_t::BACK_CORNER_COUNT] = { koord(-1,0), koord(-1,-1), koord(0,-1) };
+	for(sint16 step = 0; step<grund_t::MAXIMUM_HIDE_TEST_DISTANCE  &&  !get_flag(draw_as_obj); step ++) {
+		sint16 test[grund_t::BACK_CORNER_COUNT];
+
+		for(uint i=0; i<grund_t::BACK_CORNER_COUNT; i++) {
+			test[i] = corners[i] + 1;
+		}
+
+		for(uint i=0; i<grund_t::BACK_CORNER_COUNT; i++) {
+			if(  const grund_t *gr=welt->lookup_kartenboden(k + testdir[i] - koord(step,step))  ) {
 				sint16 h = gr->get_disp_height()*scale_z_step;
 				slope_t::type s = gr->get_disp_slope();
 				// tile should hide anything in tunnel portal behind (tile not in direction of tunnel)
@@ -999,9 +1004,10 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 				}
 			}
 		}
-		if (test[0] < corners[0] || test[1] < corners[1] || test[2] < corners[2]) {
-			// we hide something behind
+		if (test[0] < corners[0]  ||  test[1] < corners[1]  ||  test[2] < corners[2]) {
+			// we hide at least 1 thing behind
 			set_flag(draw_as_obj);
+			break;
 		}
 		else if (test[0] > corners[0] && test[1] > corners[1] && test[2] > corners[2]) {
 			// we cannot hide anything anymore
