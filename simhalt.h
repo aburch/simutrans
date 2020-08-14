@@ -804,6 +804,8 @@ public:
 	
 	bool erase_departure(uint32 dep_tick, convoihandle_t cnv);
 	
+	bool is_departure_booked(uint32 dep_tick, linehandle_t line) const;
+	
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

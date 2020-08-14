@@ -3773,3 +3773,16 @@ bool haltestelle_t::erase_departure(uint32 dep_tick, convoihandle_t cnv) {
 	}
 	return false; // we cannot find the requested departure slot.
 }
+
+
+bool haltestelle_t::is_departure_booked(uint32 dep_tick, linehandle_t line) const {
+	const uint8 idx = dep_tick % DST_SIZE;
+	slist_tpl<departure_t>::const_iterator i = departure_slot_table[idx].begin();
+	while(  i!=departure_slot_table[idx].end()  ) {
+		if(  i->dep_tick==dep_tick  &&  i->cnv->get_line()==line  ) {
+			return true;
+		}
+		i++;
+	}
+	return false;
+}

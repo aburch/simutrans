@@ -14,12 +14,18 @@ uint16 tick_to_divided_time(uint32 tick) {
   return (uint16)((uint64)tick * divisor / world()->ticks_per_world_month);
 }
 
+uint32 get_latest_dep_slot(schedule_entry_t& entry, uint32 current_time) {
+  const sint32 spacing_shift = (sint64)entry.spacing_shift * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
+  uint64 slot = (current_time - spacing_shift) * (uint64)entry.spacing / world()->ticks_per_world_month;
+  return slot * world()->ticks_per_world_month / entry.spacing + spacing_shift;
+}
 
 gui_journey_time_stat_t::gui_journey_time_stat_t(schedule_t*, player_t* pl) {
   player = pl;
 }
 
-void gui_journey_time_stat_t::update(schedule_t* schedule, vector_tpl<uint32*>& journey_times) {
+void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& journey_times) {
+  schedule_t* schedule = line->get_schedule();
   scr_size size = get_size();
   remove_all();
   set_table_layout(NUM_ARRIVAL_TIME_STORED+2,0);
@@ -30,6 +36,8 @@ void gui_journey_time_stat_t::update(schedule_t* schedule, vector_tpl<uint32*>& 
     if(  halt.is_bound()  ) {
       // show halt name
       lb->buf().printf("%s", halt->get_name());
+      const bool last_slot_empty = e.get_wait_for_time() && !halt->is_departure_booked(get_latest_dep_slot(e, world()->get_ticks()), line);
+      lb->set_color(last_slot_empty ? color_idx_to_rgb(COL_ORANGE) : SYSCOL_TEXT);
     } else {
       // maybe a waypoint
       lb->buf().printf(translator::translate("Wegpunkt"));
@@ -114,7 +122,8 @@ gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* pl
   stat(line->get_schedule(), player),
   scrolly(&stat),
   player(player),
-  schedule(line->get_schedule())
+  schedule(line->get_schedule()),
+  line(line)
 {
   update();
   
@@ -234,5 +243,5 @@ void gui_journey_time_info_t::update() {
   bt_copy_csv.enable(!schedule->entries.empty());
   
   // update stat
-  stat.update(schedule, journey_times);
+  stat.update(line, journey_times);
 }
