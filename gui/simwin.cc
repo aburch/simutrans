@@ -1261,7 +1261,7 @@ bool check_pos_win(event_t *ev)
 		return true;
 	}
 
-	// cursor event only go to top window (but not if rolled up) 
+	// cursor event only go to top window (but not if rolled up)
 	if ((ev->ev_class == EVENT_KEYBOARD /*|| ev->ev_class == EVENT_STRING*/) && !wins.empty()) { // The commented out section caused problems with Japanese text input - but is this necessary for something else?
 		simwin_t &win  = wins.back();
 		if(  !win.rollup  )  {
@@ -1283,7 +1283,7 @@ bool check_pos_win(event_t *ev)
 	if(  is_resizing>=0  &&  (unsigned)is_resizing<wins.get_count()  &&  (IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  ) {
 		resize_win( is_resizing, ev );
 		return true;
-	} 
+	}
 
 	// swallow all other events in the infobar
 	if (!(ev->ev_class == EVENT_KEYBOARD || ev->ev_class == EVENT_STRING) && y > display_get_height() - 16) {

@@ -2740,7 +2740,7 @@ const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, c
 		// look toolbar variable indicates this tool is called from a shortcut key. When a tool is called from a shortcut key, we have to use overtaking_mode of the tool in a toolbar.
 		mode = toolbar_tool->get_overtaking_mode();
 	}
-	
+
 	bauigel.set_overtaking_mode(mode);
 	if(  bauigel.get_route().get_count()>1  ) {
 		sint64 cost = bauigel.calc_costs();
