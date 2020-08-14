@@ -52,13 +52,6 @@ void tunnel_builder_t::register_desc(tunnel_desc_t *desc)
 		delete old_desc->get_builder();
 		delete old_desc;
 	}
-	// add the tool
-	tool_build_tunnel_t *tool = new tool_build_tunnel_t();
-	tool->set_icon( desc->get_cursor()->get_image_id(1) );
-	tool->cursor = desc->get_cursor()->get_image_id(0);
-	tool->set_default_param( desc->get_name() );
-	tool_t::general_tool.append( tool );
-	desc->set_builder( tool );
 	tunnel_by_name.put(desc->get_name(), desc);
 }
 
@@ -66,6 +59,23 @@ stringhashtable_tpl <tunnel_desc_t *> * tunnel_builder_t::get_all_tunnels()
 {
 	return &tunnel_by_name;
 }
+
+// to allow overlaying, the tool must be registered here!
+bool tunnel_builder_t::successfully_loaded()
+{
+	FOR( stringhashtable_tpl<tunnel_desc_t*>, & i, tunnel_by_name ) {
+		// add the tool
+		tunnel_desc_t* desc = i.value;
+		tool_build_tunnel_t *tool = new tool_build_tunnel_t();
+		tool->set_icon( desc->get_cursor()->get_image_id(1) );
+		tool->cursor = desc->get_cursor()->get_image_id(0);
+		tool->set_default_param( desc->get_name() );
+		tool_t::general_tool.append( tool );
+		desc->set_builder( tool );
+	}
+	return true;
+}
+
 
 const tunnel_desc_t *tunnel_builder_t::get_desc(const char *name)
 {
