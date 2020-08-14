@@ -87,7 +87,7 @@
 
 #define L_DIALOG_HEIGHT					(PATH_EXPLORE_STATUS_TEXT+30)
 
-// Local params 
+// Local params
 #define L_DIALOG_WIDTH (220)
 
 const char *color_gui_t::nameplate_setting_texts[MAX_NAMEPLATE_OPTIONS] = {
