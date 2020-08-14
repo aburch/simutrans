@@ -2672,6 +2672,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="bauer\goods_manager.cc" />
+    <ClCompile Include="dataobj\rect.cc" />
     <ClCompile Include="descriptor\factory_desc.cc" />
     <ClCompile Include="descriptor\obj_base_desc.cc" />
     <ClCompile Include="descriptor\reader\imagelist3d_reader.cc" />
