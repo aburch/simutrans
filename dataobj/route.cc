@@ -393,7 +393,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 							}
 #endif
 						}
-						else if (origin_city && gb->is_attraction())
+						else if (origin_city && gb && gb->is_attraction())
 						{
 #ifdef MULTI_THREAD
 							int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
