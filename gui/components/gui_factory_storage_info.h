@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_FACTORY_STORAGE_INFO_H
-#define GUI_FACTORY_STORAGE_INFO_H
+#ifndef GUI_COMPONENTS_GUI_FACTORY_STORAGE_INFO_H
+#define GUI_COMPONENTS_GUI_FACTORY_STORAGE_INFO_H
+
 
 #include "gui_container.h"
 #include "gui_scrollpane.h"

@@ -111,6 +111,54 @@ public:
 		has_way2 = 128
 	};
 
+	/**
+	 * @brief Back wall corner count.
+	 *
+	 * Number of corners used to produce tile back walls. Visually these corners
+	 * are the left, top and right corners of a tile.
+	 */
+	static size_t const BACK_CORNER_COUNT = 3;
+
+	/**
+	 * @brief Back wall count.
+	 *
+	 * Number of back walls a tile can have. Visually these walls are along the
+	 * top left and right edges of the tile.
+	 */
+	static size_t const BACK_WALL_COUNT = BACK_CORNER_COUNT - 1;
+
+	/**
+	 * @brief Number of wall images per wall.
+	 *
+	 * Number of unique wall image graphics per wall.
+	 */
+	static uint16 const WALL_IMAGE_COUNT = 11;
+
+	/**
+	 * @brief Number of fence images.
+	 *
+	 * Number of unique fence image graphics available. Unlike walls, fence
+	 * images are for an entire tile.
+	 */
+	static uint16 const FENCE_IMAGE_COUNT = 3;
+
+	/**
+	 * @brief Back image ID offset for encoding fences.
+	 *
+	 * The offset used to encode the fence image into a back image ID. Anything
+	 * less than this offset can be considered a wall.
+	 */
+	static sint8 const BIID_ENCODE_FENCE_OFFSET = (sint8)(WALL_IMAGE_COUNT * WALL_IMAGE_COUNT);
+
+	/**
+	 * @brief Maximum distance in tiles that hide test will be performed for.
+	 *
+	 * Maximum distance in tiles that object hide test will be performed for.
+	 * The hide test is needed for correct graphic reproduction of tunnel
+	 * entrances and such.
+	 */
+	static uint16 const MAXIMUM_HIDE_TEST_DISTANCE = 5;
+
 	// just to calculate the offset for skipping the ways ...
 	static uint8 offsets[4];
 
@@ -235,6 +283,19 @@ public:
 	 * Sets all objects to dirty to prevent artifacts with smart hide cursor
 	 */
 	void set_all_obj_dirty() { objlist.set_all_dirty(); }
+
+	/**
+	 * Updates images after change of underground mode.
+	 */
+	void check_update_underground()
+	{
+		if (ist_tunnel()  ||  ist_bruecke()  ||  is_water()) {
+			calc_image();
+		}
+		else {
+			calc_back_image( get_disp_height(), get_disp_slope() );
+		}
+	}
 
 	/**
 	 * Dient zur Neuberechnung des Bildes, wenn sich die Umgebung

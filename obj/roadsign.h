@@ -192,7 +192,7 @@ public:
 	// static routines from here
 private:
 	static vector_tpl<roadsign_desc_t *> list;
-	static stringhashtable_tpl<const roadsign_desc_t *> table;
+	static stringhashtable_tpl<roadsign_desc_t *> table;
 
 protected:
 	static const roadsign_desc_t *default_signal;

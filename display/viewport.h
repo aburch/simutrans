@@ -11,6 +11,7 @@
 #include "scr_coord.h"
 #include "../dataobj/koord.h"
 #include "../dataobj/koord3d.h"
+#include "../dataobj/rect.h"
 #include "../convoihandle_t.h"
 
 class karte_t;
@@ -39,6 +40,16 @@ class grund_t;
  */
 class viewport_t
 {
+public:
+	/**
+	 * @brief The prepared area of the view port.
+	 *
+	 * The area that has already been prepared for this view port. When the view
+	 * port is moved then only the new area not already prepared will be
+	 * prepared. If the view port is stationary no area will be prepared.
+	 */
+	rect_t prepared_rect;
+
 private:
 	/// The simulated world this view is associated to.
 	karte_t *world;
