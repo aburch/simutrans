@@ -87,9 +87,9 @@ PGC=`grep "^BUNDLE_PTHREADGC2" config.default | sed "s/BUNDLE_PTHREADGC2[ ]*=[ ]
 
 BUILDDIR=`grep "^PROGDIR" config.default | sed "s/PROGDIR[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
 if [ -n "$BUILDDIR" ]; then
-  BUILDDIR=../sim
+  BUILDDIR=../simutrans/simutrans-extended
 else
-  BUILDDIR=../build/default/sim
+  BUILDDIR=../build/default/simutrans-extended
 fi
 
 # now make the correct archive name
@@ -127,9 +127,9 @@ elif [ "$OST" = "amiga" ]; then
 fi
 
 # Test if there is something to distribute ...
-if [ ! -f ./simutrans/$BUILDDIR$simexe ]; then
-  echo "No simutrans executable found at './simutrans/$BUILDDIR$simexe'! Aborted!"
-  echo "$(pwd)"
+if [ ! -f $BUILDDIR$simexe ]; then
+  echo "No simutrans executable found at '$(pwd)/$BUILDDIR$simexe'! Aborted!"
+  find .. -type f -name "*simutrans-ex*"
   exit 1
 fi
 
@@ -176,7 +176,7 @@ buildOSX()
 		# assume MacOS
 		hdiutil attach ../SDL2-2.0.10.dmg >>/dev/stderr
 		cp -R -v /Volumes/SDL2 .
-		hdiutil eject /Volumes/SDL2 >>/dev/stderr 
+		hdiutil eject /Volumes/SDL2 >>/dev/stderr
 	fi
 	echo "APPL????" > "simutrans.app/Contents/PkgInfo"
 	sh ../OSX/plistgen.sh "simutrans.app" "simutrans"
@@ -193,7 +193,7 @@ cd simutrans
 if [ "$OST" = "mac" ]; then
   buildOSX
   cd ..
-  ls 
+  ls
   pwd
   zip -r -9 simumac.zip simutrans
   cd simutrans
