@@ -809,6 +809,8 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	 */
 	sint32 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
 
+	bool is_height_restricted() const;
+
 	bool removing_road_would_disconnect_city_building();
 	bool removing_way_would_disrupt_public_right_of_way(waytype_t wt);
 	bool removing_road_would_break_monument_loop();
