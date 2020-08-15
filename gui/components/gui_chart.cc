@@ -209,28 +209,26 @@ void gui_chart_t::draw(scr_coord offset)
 				}
 
 				// display marker(box) for financial value
-				if (i >= start && i < end) {
-					scr_coord_val x = tmpx + factor * (size.w / (x_elements - 1))*i - 2;
-					scr_coord_val y = (scr_coord_val)(offset.y + baseline - (long)(tmp / scale) - 2);
-					switch (c.marker_type)
-					{
-						case cross:
-							display_direct_line(x, y, x+4, y+4, c.color);
-							display_direct_line(x+4, y, x, y+4, c.color);
-							break;
-						case diamond:
-							for (int j = 0; j < 5; j++) {
-								display_vline_wh_clip(x+j, y + abs(2 - j), 5-2*abs(2-j), c.color, false);
-							}
-							break;
-						case none:
-							// display nothing
-							break;
-						case square:
-						default:
-							display_fillbox_wh_clip(x, y, 5, 5, c.color, true);
-							break;
-					}
+				scr_coord_val x = tmpx + factor * (size.w / (x_elements - 1))*i - 2;
+				scr_coord_val y = (scr_coord_val)(offset.y + baseline - (long)(tmp / scale) - 2);
+				switch (c.marker_type)
+				{
+					case cross:
+						display_direct_line(x, y, x+4, y+4, c.color);
+						display_direct_line(x+4, y, x, y+4, c.color);
+						break;
+					case diamond:
+						for (int j = 0; j < 5; j++) {
+							display_vline_wh_clip(x+j, y + abs(2 - j), 5-2*abs(2-j), c.color, false);
+						}
+						break;
+					case none:
+						// display nothing
+						break;
+					case square:
+					default:
+						display_fillbox_wh_clip(x, y, 5, 5, c.color, true);
+						break;
 				}
 
 				// display tooltip?
