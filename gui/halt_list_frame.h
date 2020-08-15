@@ -62,8 +62,8 @@ private:
 
     gui_label_t sort_label;
     button_t	sortedby;
-    button_t	sorteddir;
-    gui_label_t filter_label;
+	button_t	sort_asc, sort_desc;
+	gui_label_t filter_label;
     button_t	filter_on;
     button_t	filter_details;
 

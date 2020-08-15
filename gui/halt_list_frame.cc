@@ -268,13 +268,22 @@ halt_list_frame_t::halt_list_frame_t(player_t *player) :
 
 	sort_label.set_pos(scr_coord(BUTTON1_X, 2));
 	add_component(&sort_label);
-	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 14), scr_size(D_BUTTON_WIDTH*1.5,D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
-	sorteddir.add_listener(this);
-	add_component(&sorteddir);
+	// sort ascend/descend button
+	sort_asc.init(button_t::arrowup_state, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH * 1.5 + D_H_SPACE, 14), scr_size(D_ARROW_UP_WIDTH, D_ARROW_UP_HEIGHT));
+	sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
+	sort_asc.add_listener(this);
+	sort_asc.pressed = sortreverse;
+	add_component(&sort_asc);
+
+	sort_desc.init(button_t::arrowdown_state, "", sort_asc.get_pos() + scr_coord(D_ARROW_UP_WIDTH + 2, 0), scr_size(D_ARROW_DOWN_WIDTH, D_ARROW_DOWN_HEIGHT));
+	sort_desc.set_tooltip(translator::translate("hl_btn_sort_desc"));
+	sort_desc.add_listener(this);
+	sort_desc.pressed = !sortreverse;
+	add_component(&sort_desc);
 
 	filter_label.set_pos(scr_coord(BUTTON3_X, 2));
 	add_component(&filter_label);
@@ -334,7 +343,6 @@ void halt_list_frame_t::display_list()
 	std::sort(a, a + n, compare_halts);
 
 	sortedby.set_text(sort_text[get_sortierung()]);
-	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
 	/****************************
 	 * Display the station list
@@ -401,8 +409,10 @@ bool halt_list_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* 
 		set_sortierung((sort_mode_t)((get_sortierung() + 1) % SORT_MODES));
 		display_list();
 	}
-	else if (comp == &sorteddir) {
+	else if (comp == &sort_asc || comp == &sort_desc) {
 		set_reverse(!get_reverse());
+		sort_asc.pressed = sortreverse;
+		sort_desc.pressed = !sortreverse;
 		display_list();
 	}
 	else if (comp == &filter_details) {
