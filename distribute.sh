@@ -194,17 +194,6 @@ fi
 
 echo "Targeting archive $simarchiv"
 
-
-# fetch language files
-if [ "$#" = "0"  ]  ||  [ `expr match "$*" "-no-lang"` = "0" ]; then
-	echo "Fetching language files..."
-	sh ./get_lang_files.sh &>/dev/null
-	if [ $? -ne 0 ]; then
-		echo "Could not download language files!"
-		exit 1
-	fi
-fi
-
 # now build the archive for distribution
 
 if [ "$OST" = "mac" ]; then
