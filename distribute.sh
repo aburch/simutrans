@@ -117,9 +117,12 @@ OST=unknown
 # now get the OSTYPE from config.default and remove all spaces around
 OST=$(grep "^OSTYPE" config.default | sed "s/OSTYPE[ ]*=[ ]*//" | sed "s/[ ]*\#.*//")
 
-PGC=0
 # now get the OSTYPE from config.default and remove all spaces around
 PGC=$(grep "^BUNDLE_PTHREADGC2" config.default | sed "s/BUNDLE_PTHREADGC2[ ]*=[ ]*//" | sed "s/[ ]*\#.*//")
+
+if [ -n $PCG ]; then
+	PGC=0
+fi
 
 BUILDDIR="$(grep '^PROGDIR' config.default | sed 's/PROGDIR[ ]*=[ ]*//' | sed 's/[ ]*\#.*//')"
 if [ -n "$BUILDDIR" ]; then
@@ -146,7 +149,7 @@ elif [ "$OST" = "mingw" ]; then
 	fi
 
 	pushd simutrans
-		if [ "$PGC" -ne 0 ]; then
+		if [ $PGC -ne 0 ]; then
 			getDLL
 		fi
 	popd
@@ -228,7 +231,7 @@ fi
 
 
 # cleanup dll's
-if [ "$PGC" -ne 0 ]; then
+if [ $PGC -ne 0 ]; then
 	rm simutrans/pthreadGC2.dll
 fi
 
