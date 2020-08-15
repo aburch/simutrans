@@ -340,7 +340,7 @@ void factory_goods_chart_t::set_factory(const fabrik_t *_factory)
 			goods_labels[goods_label_count].set_width(D_BUTTON_WIDTH - (D_H_SPACE << 1));
 			add_component(goods_labels + goods_label_count);
 			for (int s = 0; s < MAX_FAB_GOODS_STAT; ++s) {
-				goods_chart.add_curve(goods_color + s*4/3, input[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s]);
+				goods_chart.add_curve(goods_color + s*4/3, input[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s], gui_chart_t::chart_marker_t(s%MAX_FAB_GOODS_STAT));
 				goods_buttons[goods_button_count].init(button_t::box_state, input_type[s], scr_coord(D_MARGIN_LEFT + (D_H_SPACE + D_BUTTON_WIDTH)*(s % 2 + 1), offset_below_chart + (D_H_SPACE + D_BUTTON_HEIGHT)*(goods_label_row + s / 2)));
 				goods_buttons[goods_button_count].background_color = goods_color + s*4/3;
 				goods_buttons[goods_button_count].pressed = false;
@@ -368,7 +368,7 @@ void factory_goods_chart_t::set_factory(const fabrik_t *_factory)
 			goods_labels[goods_label_count].set_width(D_BUTTON_WIDTH);
 			add_component(goods_labels + goods_label_count);
 			for (int s = 0; s < 3; ++s) {
-				goods_chart.add_curve(goods_color + s * 2, output[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s]);
+				goods_chart.add_curve(goods_color + s * 2, output[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s], gui_chart_t::chart_marker_t(s));
 				goods_buttons[goods_button_count].init(button_t::box_state, output_type[s], scr_coord(D_MARGIN_LEFT + (D_H_SPACE + D_BUTTON_WIDTH)*(s + 1), offset_below_chart + (D_H_SPACE + D_BUTTON_HEIGHT)*goods_label_row));
 				goods_buttons[goods_button_count].background_color = goods_color + s * 2;
 				goods_buttons[goods_button_count].pressed = false;
