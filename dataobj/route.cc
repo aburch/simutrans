@@ -359,7 +359,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 						}
 						else
 						{
-							straight_line_distance = shortest_distance(start.get_2d(), k.get_2d()); 
+							straight_line_distance = shortest_distance(start.get_2d(), k.get_2d());
 						}
 						uint16 journey_time_per_tile;
 						if(straight_line_distance == 0)
@@ -393,7 +393,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 							}
 #endif
 						}
-						else if (origin_city && gb->is_attraction())
+						else if (origin_city && gb && gb->is_attraction())
 						{
 #ifdef MULTI_THREAD
 							int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
@@ -841,6 +841,13 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 
 				// Low bridges
 				if (is_tall && w && w->is_height_restricted())
+				{
+					continue;
+				}
+
+				// Check for low bridges on open water
+				const grund_t* gr_above = world()->lookup(to->get_pos() + koord3d(0, 0, 1));
+				if (env_t::pak_height_conversion_factor == 2 && gr_above && gr_above->get_weg_nr(0))
 				{
 					continue;
 				}

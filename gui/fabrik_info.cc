@@ -53,19 +53,19 @@ sint16 fabrik_info_t::tabstate = 0;
 
 fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	gui_frame_t("", fab_->get_owner()),
-	storage(fab_),
 	fab(fab_),
 	goods_chart(fab_),
 	chart(fab_),
 	lbl_factory_status(factory_status),
 	view(gb, scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
+	prod(&prod_buf),
+	txt(&info_buf),
+	storage(fab_),
 	scrolly_info(&container_info),
 	scrolly_details(&container_details),
 	all_suppliers(fab_, true),
 	all_consumers(fab_, false),
-	nearby_halts(fab_),
-	prod(&prod_buf),
-	txt(&info_buf)
+	nearby_halts(fab_)
 {
 	if (fab) {
 		init(fab, gb);
@@ -73,7 +73,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 }
 
 
-void fabrik_info_t::init(fabrik_t* fab_, const gebaeude_t* gb)
+void fabrik_info_t::init(fabrik_t *, const gebaeude_t *)
 {
 	staffing_level = staffing_level2 = staff_shortage_factor = 0;
 
@@ -336,7 +336,7 @@ bool fabrik_info_t::is_weltpos()
  * components should be triggered.
  * V.Meyer
  */
-bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
+bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t)
 {
 	if(comp == &input) {
 		rename_factory();
@@ -389,7 +389,7 @@ void fabrik_info_t::set_tab_opened()
 		tabs.set_size(scrolly_info.get_size());
 		set_windowsize(scr_size(get_windowsize().w, margin_above_tab + D_V_SPACE * 2 + min(22 * LINESPACE, container_info.get_size().h)));
 		break;
-	case 1: // goods chart 
+	case 1: // goods chart
 		goods_chart.recalc_size();
 		set_windowsize(scr_size(get_windowsize().w, margin_above_tab + goods_chart.get_size().h));
 		break;
@@ -397,7 +397,7 @@ void fabrik_info_t::set_tab_opened()
 		chart.recalc_size();
 		set_windowsize(scr_size(get_windowsize().w, margin_above_tab + chart.get_size().h));
 		break;
-	case 3: // details 
+	case 3: // details
 		set_windowsize(scr_size(get_windowsize().w, margin_above_tab + D_V_SPACE * 2 + container_details.get_size().h));
 		break;
 	}
@@ -489,9 +489,6 @@ void fabrik_info_t::update_components()
 // component for city demand icons display
 void gui_fabrik_info_t::draw(scr_coord offset)
 {
-	int xoff = pos.x+offset.x+D_MARGIN_LEFT+16;
-	int yoff = pos.y+offset.y;
-
 	gui_container_t::draw( offset );
 }
 
@@ -501,18 +498,18 @@ void gui_fabrik_info_t::draw(scr_coord offset)
 
 fabrik_info_t::fabrik_info_t() :
 	gui_frame_t("", welt->get_public_player()),
-	storage(NULL),
 	fab(NULL),
 	goods_chart(NULL),
 	chart(NULL),
-	all_suppliers(NULL, true),
-	all_consumers(NULL, false),
-	nearby_halts(NULL),
 	view(scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
+	prod(&prod_buf),
+	txt(&info_buf),
+	storage(NULL),
 	scrolly_info(&container_info),
 	scrolly_details(&container_details),
-	prod(&prod_buf),
-	txt(&info_buf)
+	all_suppliers(NULL, true),
+	all_consumers(NULL, false),
+	nearby_halts(NULL)
 {
 
 	input.set_pos(scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP));
