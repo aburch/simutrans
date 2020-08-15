@@ -30,13 +30,11 @@ jobs:
         run: make -j$(nproc) all
       - name: Build Zip
         run: sh distribute.sh
-      - name: Prepare Zip
-        run: mv sim*.zip artifact.zip
-      - name: Upload Zip (CI)
+      - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}-nightly.zip
-          path: artifact.zip
+          name: ${{ github.job }}-nightly
+          path: sim*.zip
 
 
   sim-linux-posix:
@@ -55,13 +53,11 @@ jobs:
         run: make -j$(nproc) all
       - name: Build Zip
         run: sh distribute.sh
-      - name: Prepare Zip
-        run: mv sim*.zip artifact.zip
-      - name: Upload Zip (CI)
+      - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}-nightly.zip
-          path: artifact.zip
+          name: ${{ github.job }}-nightly
+          path: sim*.zip
 
 
   sim-linux-allegro:
@@ -80,13 +76,11 @@ jobs:
         run: make -j$(nproc) all
       - name: Build Zip
         run: sh distribute.sh
-      - name: Prepare Zip
-        run: mv sim*.zip artifact.zip
-      - name: Upload Zip (CI)
+      - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}-nightly.zip
-          path: artifact.zip
+          name: ${{ github.job }}-nightly
+          path: sim*.zip
 
 
   sim-linux-sdl:
@@ -105,13 +99,11 @@ jobs:
         run: make -j$(nproc) all
       - name: Build Zip
         run: sh distribute.sh
-      - name: Prepare Zip
-        run: mv sim*.zip artifact.zip
-      - name: Upload Zip (CI)
+      - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}-nightly.zip
-          path: artifact.zip
+          name: ${{ github.job }}-nightly
+          path: sim*.zip
 
 
   sim-linux-sdlmixer:
@@ -130,13 +122,11 @@ jobs:
         run: make -j$(nproc) all
       - name: Build Zip
         run: sh distribute.sh
-      - name: Prepare Zip
-        run: mv sim*.zip artifact.zip
-      - name: Upload Zip (CI)
+      - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}-nightly.zip
-          path: artifact.zip
+          name: ${{ github.job }}-nightly
+          path: sim*.zip
 
 
   sim-linux-opengl:
@@ -155,13 +145,11 @@ jobs:
         run: make -j$(nproc) all
       - name: Build Zip
         run: sh distribute.sh
-      - name: Prepare Zip
-        run: mv sim*.zip artifact.zip
-      - name: Upload Zip (CI)
+      - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}-nightly.zip
-          path: artifact.zip
+          name: ${{ github.job }}-nightly
+          path: sim*.zip
 
 
   sim-linux-debug-sdl2:
@@ -180,13 +168,11 @@ jobs:
         run: make -j$(nproc) all
       - name: Build Zip
         run: sh distribute.sh
-      - name: Prepare Zip
-        run: mv sim*.zip artifact.zip
-      - name: Upload Zip (CI)
+      - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}-nightly.zip
-          path: artifact.zip
+          name: ${{ github.job }}-nightly
+          path: sim*.zip
 
 
   makeobj-linux:
@@ -203,7 +189,7 @@ jobs:
         run: cp configs/config.${{ github.job }} config.default
       - name: Build
         run: make -j$(nproc) makeobj
-      - name: Upload Artifacts
+      - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.job }}-nightly
@@ -224,7 +210,7 @@ jobs:
         run: cp configs/config.${{ github.job }} config.default
       - name: Build
         run: make -j$(nproc) nettool
-      - name: Upload Artifacts
+      - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.job }}-nightly
@@ -254,13 +240,11 @@ jobs:
         run: make -j2
       - name: Build Zip
         run: sh distribute.sh
-      - name: Prepare Zip
-        run: mv sim*.zip artifact.zip
-      - name: Upload Zip (CI)
+      - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.job }}-nightly
-          path: artifact.zip
+          path: sim*.zip
 
 
   makeobj-mac:
@@ -274,7 +258,7 @@ jobs:
         run: cp configs/config.${{ github.job }} config.default
       - name: Build
         run: make -j2 makeobj
-      - name: Upload Artifacts
+      - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.job }}-nightly
@@ -292,7 +276,7 @@ jobs:
         run: cp configs/config.${{ github.job }} config.default
       - name: Build
         run: make -j2 nettool
-      - name: Upload Artifacts
+      - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.job }}-nightly
