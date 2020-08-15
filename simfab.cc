@@ -2741,66 +2741,28 @@ void fabrik_t::new_month()
 				if(list_count > 0)
 				{
 					// Upgrade if this industry is well served, otherwise close.
-
-					// TODO: Use statistics for a longer-term view. The statuses are just a snapshot.
-					// However, the statistics need some reworking when town growth is implemented to
-					// remove redundancy - they are also somewhat opaque at present.
-
 					uint32 upgrade_chance_percent;
-					switch (status % staff_shortage)
+
+					// Get average and max. operation rate for the last 12 months
+					uint32 total_operation_rate = 0;
+					uint32 max_operation_rate = 0;
+					for (uint32 i = 0; i < 12; i++)
 					{
-					case mat_overstocked:
-						upgrade_chance_percent = 100;
-						break;
-					case good:
-					case water_resource:
-						upgrade_chance_percent = 90;
-						break;
-					case stuck:
-					case nothing:
-					case medium:
-						upgrade_chance_percent = 75;
-						break;
-					//case staff_shortage:
-					//	upgrade_chance_percent = 66;
-					//	break;
-					case bad:
-						upgrade_chance_percent = 50;
-						break;
-					case inactive:
-					case material_shortage:
-						upgrade_chance_percent = 25;
-						break;
-					case storage_full:
-					case no_material:
-					case shipment_stuck:
-						upgrade_chance_percent = 10;
-						break;
-					default:
-						// Should not be reached.
-						dbg->error("void fabrik_t::new_month()", "Unknown industry status type %i", status);
-						upgrade_chance_percent = 33;
-					};
-					if(status >= staff_shortage){
-						// Note that there is a possibility that staff shortage is involved in the above bad status
-						upgrade_chance_percent *= (uint32)building->get_staffing_level_percentage() / 100; // TODO: review the calculation
+						max_operation_rate = max(max_operation_rate, statistics[i][FAB_PRODUCTION]);
+						total_operation_rate += statistics[i][FAB_PRODUCTION];
 					}
-					if (get_sector() == fabrik_t::end_consumer)
+					const uint32 average_operation_rate = total_operation_rate / 12u;
+
+					upgrade_chance_percent = max(average_operation_rate, max_operation_rate / 2);
+
+					uint32 minimum_base_upgrade_chance_percent = 50;
+					if (status >= staff_shortage)
 					{
-						// If this is an end consumer, check whether we have a good number
-						// of customers before deciding whether to close/upgrade.
-
-						const uint32 visitor_demand = (uint32)building->get_adjusted_visitor_demand();
-
-						const uint32 current_month = world()->get_last_month();
-						const uint32 visitor_demand_this_year_so_far = (visitor_demand * current_month) / 12u;
-						const uint32 visitors_this_year_so_far = max(1, (uint32)building->get_passengers_succeeded_visiting()); // A zero here will guarantee deletion, which is too harsh.
-
-						const uint32 percentage = visitor_demand_this_year_so_far > 0 ? (visitors_this_year_so_far * 100u) / visitor_demand_this_year_so_far : 100;
-						uint32 upgrade_chance_percent = 100;
-						upgrade_chance_percent *= percentage;
-						upgrade_chance_percent /= 100;
+						minimum_base_upgrade_chance_percent = min(50, max(33, building->get_staffing_level_percentage() / 2)); 
 					}
+
+					upgrade_chance_percent += (minimum_base_upgrade_chance_percent * 2);
+					upgrade_chance_percent /= 2;
 
 					const uint32 probability = simrand(101, "void fabrik_t::new_month()");
 
