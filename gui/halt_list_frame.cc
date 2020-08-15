@@ -46,6 +46,8 @@ bool halt_list_frame_t::sortreverse = false;
  */
 int halt_list_frame_t::filter_flags = 0;
 
+bool halt_list_frame_t::filter_is_on = false;
+
 char halt_list_frame_t::name_filter_value[64] = "";
 
 slist_tpl<const goods_desc_t *> halt_list_frame_t::waren_filter_ab;
@@ -260,8 +262,7 @@ static bool passes_filter(haltestelle_t & s)
 halt_list_frame_t::halt_list_frame_t(player_t *player) :
 	gui_frame_t( translator::translate("hl_title"), player),
 	vscroll( scrollbar_t::vertical ),
-	sort_label(translator::translate("hl_txt_sort")),
-	filter_label(translator::translate("hl_txt_filter"))
+	sort_label(translator::translate("hl_txt_sort"))
 {
 	m_player = player;
 	filter_frame = NULL;
@@ -285,10 +286,8 @@ halt_list_frame_t::halt_list_frame_t(player_t *player) :
 	sort_desc.pressed = !sortreverse;
 	add_component(&sort_desc);
 
-	filter_label.set_pos(scr_coord(BUTTON3_X, 2));
-	add_component(&filter_label);
-
-	filter_on.init(button_t::roundbox, translator::translate(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), scr_coord(BUTTON3_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	filter_on.init(button_t::square, "cl_txt_filter", scr_coord(BUTTON4_X, 2));
+	filter_on.set_tooltip(translator::translate("cl_btn_filter_tooltip"));
 	filter_on.add_listener(this);
 	add_component(&filter_on);
 
@@ -402,7 +401,7 @@ bool halt_list_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* 
 {
 	if (comp == &filter_on) {
 		set_filter(any_filter, !get_filter(any_filter));
-		filter_on.set_text(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable");
+		set_filter_is_on(!get_filter_is_on());
 		display_list();
 	}
 	else if (comp == &sortedby) {
@@ -456,6 +455,7 @@ void halt_list_frame_t::resize(const scr_coord size_change)
 void halt_list_frame_t::draw(scr_coord pos, scr_size size)
 {
 	filter_details.pressed = filter_frame != NULL;
+	filter_on.pressed = get_filter_is_on();
 
 	gui_frame_t::draw(pos, size);
 
