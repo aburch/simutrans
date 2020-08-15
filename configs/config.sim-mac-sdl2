@@ -3,11 +3,13 @@
 # (see LICENSE.txt)
 #
 
-DEBUG=0
-OPTIMISE=1
 BACKEND=sdl2
 COLOUR_DEPTH=0
 OSTYPE=mac
+
+AV_FOUNDATION=1
+DEBUG=0
+OPTIMISE=1
 
 FLAGS = -DUSE_C -fno-delete-null-pointer-checks -fno-strict-aliasing -std=c++11
 
