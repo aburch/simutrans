@@ -2743,23 +2743,20 @@ void fabrik_t::new_month()
 					// Upgrade if this industry is well served, otherwise close.
 					uint32 upgrade_chance_percent;
 
-					// Get average and max. operation rate for the last 12 months
+					// Get average and max. operation rate for the last 11 months
+					// Note that we have already rolled the statistics, so we cannot count the current (blank) month.
 					uint32 total_operation_rate = 0;
 					uint32 max_operation_rate = 0;
-					for (uint32 i = 0; i < 12; i++)
+					for (uint32 i = 1; i < 11; i++)
 					{
 						max_operation_rate = max(max_operation_rate, statistics[i][FAB_PRODUCTION]);
 						total_operation_rate += statistics[i][FAB_PRODUCTION];
 					}
-					const uint32 average_operation_rate = total_operation_rate / 12u;
+					const uint32 average_operation_rate = total_operation_rate / 11u;
 
 					upgrade_chance_percent = max(average_operation_rate, max_operation_rate / 2);
 
-					uint32 minimum_base_upgrade_chance_percent = 50;
-					if (status >= staff_shortage)
-					{
-						minimum_base_upgrade_chance_percent = min(50, max(33, building->get_staffing_level_percentage() / 2)); 
-					}
+					const uint32 minimum_base_upgrade_chance_percent = 50;
 
 					upgrade_chance_percent += (minimum_base_upgrade_chance_percent * 2);
 					upgrade_chance_percent /= 2;
