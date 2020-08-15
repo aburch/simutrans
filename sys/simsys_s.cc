@@ -90,7 +90,7 @@ static SDL_Cursor* hourglass;
 static SDL_Cursor* blank;
 
 #ifdef MULTI_THREAD
-#include "utils/simthread.h"
+#include "../utils/simthread.h"
 
 static simthread_barrier_t redraw_barrier;
 static pthread_mutex_t redraw_mutex = PTHREAD_MUTEX_INITIALIZER;
