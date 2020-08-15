@@ -3,8 +3,8 @@
 # (see LICENSE.txt)
 #
 
-CC=clang-10
-CXX=clang++-10
+CC=gcc-10
+CXX=g++-10
 
 BACKEND=mixer_sdl
 COLOUR_DEPTH=16
