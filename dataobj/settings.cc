@@ -1864,7 +1864,7 @@ void settings_t::rdwr(loadsave_t *file)
 					file->rdwr_string(region.name);
 				}
 			}
-			else // Loading 
+			else // Loading
 			{
 				uint32 count = 0;
 				file->rdwr_long(count);
