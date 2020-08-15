@@ -1,0 +1,14 @@
+#
+# This file is part of the Simutrans-Extended project under the Artistic License.
+# (see LICENSE.txt)
+#
+
+CC=gcc-10
+CXX=g++-10
+
+BACKEND=posix
+COLOUR_DEPTH=0
+OSTYPE=linux
+
+DEBUG=0
+OPTIMISE=1

@@ -24,10 +24,10 @@ jobs:
       - name: Get Dependencies
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential clang++-10 zlib1g-dev libbz2-dev libsdl2-dev libfreetype6-dev
+      - name: Configure
+        run: mv configs/config.${{ github.job }} config.default
       - name: Build
-        shell: bash
-        run: |
-          CC=clang-10 CXX=clang++-10 DEBUG=0 OPTIMISE=1 BACKEND=sdl2 COLOUR_DEPTH=16 OSTYPE=linux MULTI_THREAD=1 USE_FREETYPE=1 make -j$(nproc) all
+        run: make -j$(nproc) all
       - name: Build Zip
         run: sh distribute.sh
       - name: Prepare Zip
@@ -49,10 +49,10 @@ jobs:
       - name: Get Dependencies
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential clang++-10 zlib1g-dev libbz2-dev
+      - name: Configure
+        run: mv configs/config.${{ github.job }} config.default
       - name: Build
-        shell: bash
-        run: |
-          CC=clang-10 CXX=clang++-10 DEBUG=0 OPTIMISE=1 BACKEND=posix COLOUR_DEPTH=0 OSTYPE=linux make -j$(nproc) all
+        run: make -j$(nproc) all
       - name: Build Zip
         run: sh distribute.sh
       - name: Prepare Zip
@@ -74,10 +74,10 @@ jobs:
       - name: Get Dependencies
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential clang++-10 zlib1g-dev libbz2-dev liballegro4-dev
+      - name: Configure
+        run: mv configs/config.${{ github.job }} config.default
       - name: Build
-        shell: bash
-        run: |
-          CC=clang-10 CXX=clang++-10 DEBUG=0 OPTIMISE=1 BACKEND=allegro COLOUR_DEPTH=16 OSTYPE=linux make -j$(nproc) all
+        run: make -j$(nproc) all
       - name: Build Zip
         run: sh distribute.sh
       - name: Prepare Zip
@@ -99,10 +99,10 @@ jobs:
       - name: Get Dependencies
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential clang++-10 zlib1g-dev libbz2-dev libsdl1.2-dev
+      - name: Configure
+        run: mv configs/config.${{ github.job }} config.default
       - name: Build
-        shell: bash
-        run: |
-          CC=clang-10 CXX=clang++-10 DEBUG=0 OPTIMISE=1 BACKEND=sdl COLOUR_DEPTH=16 OSTYPE=linux make -j$(nproc) all
+        run: make -j$(nproc) all
       - name: Build Zip
         run: sh distribute.sh
       - name: Prepare Zip
@@ -124,10 +124,10 @@ jobs:
       - name: Get Dependencies
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential g++-10 zlib1g-dev libbz2-dev libsdl1.2-dev libsdl-mixer1.2-dev
+      - name: Configure
+        run: mv configs/config.${{ github.job }} config.default
       - name: Build
-        shell: bash
-        run: |
-          CC=gcc-10 CXX=g++-10 DEBUG=0 OPTIMISE=1 BACKEND=mixer_sdl COLOUR_DEPTH=16 OSTYPE=linux make -j$(nproc) all
+        run: make -j$(nproc) all
       - name: Build Zip
         run: sh distribute.sh
       - name: Prepare Zip
@@ -149,10 +149,10 @@ jobs:
       - name: Get Dependencies
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential clang++-10 zlib1g-dev libbz2-dev libsdl1.2-dev libglew-dev
+      - name: Configure
+        run: mv configs/config.${{ github.job }} config.default
       - name: Build
-        shell: bash
-        run: |
-          CC=clang-10 CXX=clang++-10 DEBUG=0 OPTIMISE=1 BACKEND=opengl COLOUR_DEPTH=16 OSTYPE=linux make -j$(nproc) all
+        run: make -j$(nproc) all
       - name: Build Zip
         run: sh distribute.sh
       - name: Prepare Zip
@@ -174,10 +174,10 @@ jobs:
       - name: Get Dependencies
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential clang++-10 zlib1g-dev libbz2-dev libsdl2-dev
+      - name: Configure
+        run: mv configs/config.${{ github.job }} config.default
       - name: Build
-        shell: bash
-        run: |
-          CC=clang-10 CXX=clang++-10 DEBUG=1 OPTIMISE=0 BACKEND=sdl2 COLOUR_DEPTH=16 OSTYPE=linux MULTI_THREAD=1 make -j$(nproc) all
+        run: make -j$(nproc) all
       - name: Build Zip
         run: sh distribute.sh
       - name: Prepare Zip
@@ -199,11 +199,14 @@ jobs:
       - name: Get Dependencies
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential g++-10 zlib1g-dev libbz2-dev libpng-dev
+      - name: Configure
+        run: mv configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j$(nproc) makeobj
       - name: Build
         shell: bash
         run: |
-          cd makeobj &&
-          CC=gcc-10 CXX=g++-10 DEBUG=0 OPTIMISE=1 BACKEND=posix COLOUR_DEPTH=0 OSTYPE=linux make -j$(nproc) all
+          CC=gcc-10 CXX=g++-10 DEBUG=0 OPTIMISE=1 BACKEND=posix COLOUR_DEPTH=0 OSTYPE=linux make -j$(nproc) makeobj
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -221,10 +224,10 @@ jobs:
       - name: Get Dependencies
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential g++-10
+      - name: Configure
+        run: mv configs/config.${{ github.job }} config.default
       - name: Build
-        shell: bash
-        run: |
-          CC=gcc-10 CXX=g++-10 DEBUG=0 OPTIMISE=1 BACKEND=posix COLOUR_DEPTH=0 OSTYPE=linux make -j$(nproc) nettool
+        run: make -j$(nproc) nettool
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -239,7 +242,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
       - name: Get Dependencies
         run: |
           curl http://www.libsdl.org/release/SDL2-2.0.10.dmg > SDL2-2.0.10.dmg
@@ -247,22 +249,13 @@ jobs:
           sudo cp -R -v /Volumes/SDL2/SDL2.framework /Library/Frameworks/
           sudo ls /Library/Frameworks/ >>/dev/stderr
           hdiutil eject /Volumes/SDL2 >>/dev/stderr
-          brew install autoconf
-
       - name: Configure
         run: |
-          autoconf
-          ./configure
-          echo "CFLAGS = -F /Library/Frameworks -DREVISION=$(svn info --show-item revision svn://servers.simutrans.org/simutrans) " >>config.default
-          echo "LDFLAGS = -framework SDL2 -F /Library/Frameworks -I /Library/Frameworks/SDL2.framework/Headers " >>config.default
-          echo "AV_FOUNDATION=1 " >>config.default
-          mv config.default cfd
-          sed 's/BACKEND = posix/#BACKEND = posix/' cfd | sed 's/#BACKEND = sdl2/BACKEND = sdl2/' > config.default
-          cat config.default >>/dev/stderr
-
+          mv configs/config.${{ github.job }} config.default
+          echo "CFLAGS += -DREVISION=$(svn info --show-item revision svn://servers.simutrans.org/simutrans)" >> config.default
+          cat config.default >> /dev/stderr
       - name: Build
         run: make -j2
-
       - name: Build Zip
         run: sh distribute.sh
       - name: Prepare Zip
@@ -270,7 +263,7 @@ jobs:
       - name: Upload Zip (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}-nightly.zip
+          name: ${{ github.job }}-nightly
           path: artifact.zip
 
 
@@ -281,9 +274,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Configure
+        run: mv configs/config.${{ github.job }} config.default
       - name: Build
-        run: |
-          DEBUG=0 OPTIMISE=1 BACKEND=posix COLOUR_DEPTH=0 OSTYPE=mac make -j2 makeobj
+        run: make -j2 makeobj
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -298,9 +292,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Configure
+        run: mv configs/config.${{ github.job }} config.default
       - name: Build
-        run: |
-          DEBUG=0 OPTIMISE=1 BACKEND=posix COLOUR_DEPTH=0 OSTYPE=mac make -j2 nettool
+        run: make -j2 nettool
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
