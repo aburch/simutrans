@@ -5155,7 +5155,7 @@ void karte_t::new_month()
 	if(industry_density_proportion == 0 && finance_history_month[0][WORLD_CITICENS] > 0)
 	{
 		// Set the industry density proportion for the first time when the number of citizens is populated.
-		industry_density_proportion = (uint32)((sint64)actual_industry_density * 1000000ll) / finance_history_month[0][WORLD_CITICENS];
+		industry_density_proportion = (uint32)(((sint64)actual_industry_density * 1000000ll) / finance_history_month[0][WORLD_CITICENS]);
 	}
 	const uint32 target_industry_density = get_target_industry_density();
 	if(actual_industry_density < target_industry_density)
