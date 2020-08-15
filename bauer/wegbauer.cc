@@ -2643,7 +2643,12 @@ void way_builder_t::build_road()
 					}
 					else
 					{
-						str->set_owner(player_builder);
+						if (str->get_owner() != player_builder)
+						{
+							// If taking ownership of a way, must buy the underlying land.
+							str->set_owner(player_builder);
+							cost += welt->get_land_value(gr->get_pos());
+						}
 						// Set maintenance costs here
 						// including corrections for diagonals.
 						str->finish_rd();
