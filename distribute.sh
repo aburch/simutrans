@@ -5,6 +5,8 @@
 # (see LICENSE.txt)
 #
 
+set -ex
+
 #
 # parameters (in this order):
 # "-no-lang" prevents downloading the translations
@@ -77,28 +79,29 @@ getSDL2mac()
 distribute()
 {
 	# pack all files of the current release
-	FILELISTE=`find simutrans -type f "(" -name "*.tab" -o -name "*.mid" -o -name "*.bdf" -o -name "*.fnt" -o -name "*.txt"  -o -name "*.dll" -o -name "*.pak" -o -name "*.nut" -o -name "*.dll" ")"`
-	zip -9 $simarchiv.zip $FILELISTE simutrans/simutrans$simexe_extension simutrans/$updater
+	FILELISTE=$(find simutrans -type f "(" -name "*.tab" -o -name "*.mid" -o -name "*.bdf" -o -name "*.fnt" -o -name "*.txt"  -o -name "*.dll" -o -name "*.pak" -o -name "*.nut" -o -name "*.dll" ")")
+	zip -9 $simarchiv.zip $FILELISTE simutrans/$simexe_name simutrans/$updater 1>/dev/null
 }
+
 
 buildOSX()
 {
-	echo "Build Mac OS package"
+	echo "Building macOS package"
 
 	# builds a bundle for macOS
 	mkdir -p "simutrans.app/Contents/MacOS"
 	mkdir -p "simutrans.app/Contents/Resources"
-	cp $BUILDDIR$simexe_extension "simutrans.app/Contents/MacOS/simutrans"
+	cp $BUILDDIR/$simexe_name "simutrans.app/Contents/MacOS/simutrans"
 	strip "simutrans.app/Contents/MacOS/simutrans"
 	cp "../OSX/simutrans.icns" "simutrans.app/Contents/Resources/simutrans.icns"
-	localostype=`uname -o`
+	localostype=$(uname -o)
 	if [ "Msys" == "$localostype" ] || [ "Linux" == "$localostype" ]; then
 		# only 7z on linux and windows can do that ...
 		getSDL2mac
 		7z x "SDL2-2.0.10.dmg"
 		rm SDL2-2.0.10.dmg
 	else
-		# assume MacOS
+		# assume macOS
 		hdiutil attach ../SDL2-2.0.10.dmg >>/dev/stderr
 		cp -R -v /Volumes/SDL2 .
 		hdiutil eject /Volumes/SDL2 >>/dev/stderr
@@ -109,11 +112,11 @@ buildOSX()
 }
 
 
+
 # first assume unix name defaults ...
 updatepath="/"
 updater="get_pak.sh"
 
-OST=unknown
 # now get the OSTYPE from config.default and remove all spaces around
 OST=$(grep "^OSTYPE" config.default | sed "s/OSTYPE[ ]*=[ ]*//" | sed "s/[ ]*\#.*//")
 
@@ -124,23 +127,25 @@ if [ -n $PCG ]; then
 	PGC=0
 fi
 
+
 BUILDDIR="$(grep '^PROGDIR' config.default | sed 's/PROGDIR[ ]*=[ ]*//' | sed 's/[ ]*\#.*//')"
+
 if [ -n "$BUILDDIR" ]; then
-	BUILDDIR="$(pwd)/simutrans/simutrans-extended"
+	BUILDDIR="$(pwd)/simutrans"
 else
-	BUILDDIR="$(pwd)/build/default/simutrans-extended"
+	BUILDDIR="$(pwd)/build/default"
 fi
 
 # now make the correct archive name
-simexe_extension=
+simexe_name=simutrans-extended
 
 if [ "$OST" = "mac" ]; then
 	simarchivbase=simumac
 elif [ "$OST" = "haiku" ]; then
 	simarchivbase=simuhaiku
 elif [ "$OST" = "mingw" ]; then
-	simexe_extension=.exe
-	SDLTEST=$(grep "^BACKEND =" config.default | sed "s/BACKEND[ ]*=[ ]*//" | sed "s/[ ]*\#.*//")
+	simexe_name="$(simexe_name).exe"
+	SDLTEST=$(grep "^BACKEND[ ]*=" config.default | sed "s/BACKEND[ ]*=[ ]*//" | sed "s/[ ]*\#.*//")
 	if [ "$SDLTEST" = "sdl" ]  ||  [ "$SDLTEST" = "sdl2" ]; then
 		simarchivbase=simuwin-sdl
 	else
@@ -170,9 +175,8 @@ elif [ "$OST" = "amiga" ]; then
 fi
 
 # Test if there is something to distribute ...
-if [ ! -f $BUILDDIR$simexe_extension ]; then
-	echo "No simutrans executable found at '$(pwd)/$BUILDDIR$simexe'! Aborted!"
-	find .. -type f -name "*simutrans-ex*"
+if [ ! -f "$BUILDDIR/$simexe_name" ]; then
+	echo "No simutrans executable found at '$BUILDDIR/$simexe'! Aborted!"
 	exit 1
 fi
 
@@ -195,40 +199,46 @@ echo "Targeting archive $simarchiv"
 
 # fetch language files
 if [ "$#" = "0"  ]  ||  [ `expr match "$*" "-no-lang"` = "0" ]; then
-	sh ./get_lang_files.sh
+	echo "Fetching language files..."
+	sh ./get_lang_files.sh &>/dev/null
+	if [ $? -ne 0 ]; then
+		echo "Could not download language files" >> /dev/stderr
+		return 1
+	fi
 fi
 
 # now build the archive for distribution
 
 if [ "$OST" = "mac" ]; then
-	pushd simutrans
+	pushd simutrans 1>/dev/null
 		buildOSX
-	popd
+	popd 1>/dev/null
 
 	ls
 	pwd
 
-	zip -r -9 simumac.zip simutrans
+	zip -r -9 simumac.zip simutrans 1>/dev/null
 
-	pushd simutrans
+	pushd simutrans 1>/dev/null
 		rm -rf SDL2
 		rm -rf simutrans.app
-	popd
+	popd 1>/dev/null
 	exit 0
 else
-	pushd simutrans
-		echo "Build default zip archive"
-		cp $BUILDDIR$simexe_extension ./simutrans$simexe_extension
-		strip simutrans$simexe_extension
+	pushd simutrans 1>/dev/null
+		echo "Building default zip archive..."
+		cp "$BUILDDIR/$simexe_name" ./$simexe_name
+		strip ./$simexe_name
 		cp ..$updatepath$updater $updater
-	popd
+	popd 1>/dev/null
 
 	distribute
 
 	# .. finally delete executable and language files
-	rm simutrans/simutrans$simexe_extension
+	rm simutrans/$simexe_name
 fi
 
+echo "Created archive $simarchiv.zip"
 
 # cleanup dll's
 if [ $PGC -ne 0 ]; then
