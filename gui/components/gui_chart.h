@@ -22,7 +22,7 @@
 class gui_chart_t : public gui_component_t
 {
 public:
-	enum chart_marker_t { square = 0, diamond, cross, round_box, none };
+	enum chart_marker_t { square = 0, cross, diamond, round_box, none };
 
 	/**
 	 * Set background color. -1 means no background
