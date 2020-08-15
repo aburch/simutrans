@@ -24,6 +24,8 @@
 
 #include "halt_detail.h"
 
+#include "../dataobj/koord.h"
+
 
 #define HALT_CAPACITY_BAR_WIDTH 100
 #define GOODS_SYMBOL_CELL_WIDTH 14
@@ -31,6 +33,7 @@
 #define GOODS_WAITING_BAR_BASE_WIDTH 160
 #define GOODS_LEAVING_BAR_HEIGHT 2
 #define BARCOL_TRANSFER_IN (10)
+#define MAX_CATEGORY_COLS 16
 
 sint16 halt_detail_t::tabstate = -1;
 
@@ -40,10 +43,12 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	scrolly(&cont),
 	scrolly_pas(&pas),
 	scrolly_goods(&cont_goods),
+	scrolly_route(&route),
 	pas(halt_),
 	goods(halt_),
 	nearby_factory(halt_),
 	txt_info(&buf),
+	route(halt_, selected_route_catg_index),
 	line_number(halt_)
 {
 	if (halt.is_bound()) {
@@ -87,7 +92,47 @@ void halt_detail_t::init(halthandle_t halt_)
 	cont_goods.add_component(&goods);
 	cont_goods.add_component(&lb_nearby_factory);
 	cont_goods.add_component(&nearby_factory);
-	
+
+	// route tab components
+	cont_route.set_pos(scr_coord(0, D_TAB_HEADER_HEIGHT + D_MARGIN_TOP));
+	lb_routes.init(translator::translate("Direkt erreichbare Haltestellen"), scr_coord(D_MARGIN_LEFT, D_V_SPACE));
+	lb_routes.set_size(scr_size(D_DEFAULT_WIDTH - D_BUTTON_WIDTH*2, D_BUTTON_HEIGHT));
+	cont_route.add_component(&lb_routes);
+
+	uint col = 0;
+	for (int i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
+		if (goods_manager_t::get_info_catg_index(i) == goods_manager_t::none) {
+			continue;
+		}
+		button_t *b = new button_t();
+		uint row;
+		switch (i)
+		{
+			case goods_manager_t::INDEX_PAS:
+				row = 0;
+				break;
+			case goods_manager_t::INDEX_MAIL:
+				row = 1;
+				break;
+			default:
+				row = (col/MAX_CATEGORY_COLS)+2;
+				break;
+		}
+		b->init(button_t::roundbox_state, NULL, scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT*2*(col%MAX_CATEGORY_COLS), D_V_SPACE+D_BUTTON_HEIGHT*(row+1)), scr_size(D_BUTTON_HEIGHT*2, D_BUTTON_HEIGHT));
+		b->set_image(goods_manager_t::get_info_catg_index(i)->get_catg_symbol());
+		b->set_tooltip(translator::translate(goods_manager_t::get_info_catg_index(i)->get_catg_name()));
+		b->add_listener(this);
+		catg_buttons.append(b);
+		cont_route.add_component(b);
+		if (row > 1) { col++; }
+	}
+
+	lb_selected_route_catg.set_pos(scr_coord(D_MARGIN_LEFT, D_BUTTON_HEIGHT * 4 + D_V_SPACE * 2));
+	lb_selected_route_catg.set_size(D_BUTTON_SIZE);
+	cont_route.add_component(&lb_selected_route_catg);
+	scrolly_route.set_pos(scr_coord(0, lb_selected_route_catg.get_pos().y + D_BUTTON_HEIGHT));
+	cont_route.add_component(&scrolly_route);
+
 	// Adjust window to optimal size
 	set_tab_opened();
 
@@ -99,11 +144,6 @@ void halt_detail_t::init(halthandle_t halt_)
 
 halt_detail_t::~halt_detail_t()
 {
-	while(!posbuttons.empty()) {
-		button_t *b = posbuttons.remove_first();
-		cont.remove_component( b );
-		delete b;
-	}
 	while(!linelabels.empty()) {
 		gui_label_t *l = linelabels.remove_first();
 		cont.remove_component( l );
@@ -167,6 +207,7 @@ void halt_detail_t::update_components()
 			tabs.add_tab(&scrolly_goods, translator::translate("Freight"));
 		}
 		tabs.add_tab(&scrolly, translator::translate("Services"));
+		tabs.add_tab(&cont_route, translator::translate("Route_tab"));
 		if (tabstate != -1) {
 			tabs.set_active_tab_index(old_tab);
 			tabstate = old_tab;
@@ -185,7 +226,7 @@ void halt_detail_t::update_components()
 			// fill buffer with halt detail
 			halt_detail_info();
 			cached_active_player = welt->get_active_player();
-			update_time = welt->get_ticks();
+			update_time = (uint32)welt->get_ticks();
 		}
 	}
 
@@ -220,6 +261,62 @@ void halt_detail_t::update_components()
 		cont_goods.set_size(scr_size(400, y));
 	}
 
+	// tab4
+	// catg buttons
+	bool chk_pressed = (selected_route_catg_index == goods_manager_t::INDEX_NONE) ? false : true;
+	int i = 0;
+	FORX(slist_tpl<button_t *>, btn, catg_buttons, i++) {
+		uint8 catg_index = i >= goods_manager_t::INDEX_NONE ? i+1 : i;
+		btn->disable();
+		if (halt->is_enabled(catg_index)) {
+			// check station handled goods category
+			if (catg_index == goods_manager_t::INDEX_PAS || i == goods_manager_t::INDEX_MAIL)
+			{
+				btn->enable();
+				if (!chk_pressed) {
+					btn->pressed = true;
+					chk_pressed = true;
+					selected_route_catg_index = catg_index;
+					lb_selected_route_catg.set_text(goods_manager_t::get_info_catg_index(selected_route_catg_index)->get_catg_name());
+					route.build_halt_list(selected_route_catg_index);
+					route.recalc_size();
+				}
+				else if (selected_route_catg_index != catg_index) {
+					btn->pressed = false;
+				}
+			}
+			else {
+				typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
+				uint8 g_class = goods_manager_t::get_classes_catg_index(catg_index) - 1;
+				connexions_map_single_remote *connexions = halt->get_connexions(catg_index, g_class);
+				if (!connexions->empty())
+				{
+					btn->enable();
+					if (!chk_pressed) {
+						btn->pressed = true;
+						chk_pressed = true;
+						selected_route_catg_index = catg_index;
+						lb_selected_route_catg.set_text(goods_manager_t::get_info_catg_index(selected_route_catg_index)->get_catg_name());
+						route.build_halt_list(selected_route_catg_index);
+						route.recalc_size();
+					}
+					else if (selected_route_catg_index != catg_index) {
+						btn->pressed = false;
+					}
+				}
+			}
+		}
+	}
+
+	//
+	y = scrolly_route.get_pos().y;
+	scrolly_route.set_size(scr_size(tabs.get_size().w, tabs.get_size().h - scrolly_route.get_pos().y - D_TAB_HEADER_HEIGHT));
+	y += route.get_size().h;
+
+	if (y != cont_route.get_size().h) {
+		cont_route.set_size(scr_size(400, y));
+	}
+
 	set_dirty();
 }
 
@@ -229,11 +326,6 @@ void halt_detail_t::halt_detail_info()
 		return;
 	}
 
-	while(!posbuttons.empty()) {
-		button_t *b = posbuttons.remove_first();
-		cont.remove_component( b );
-		delete b;
-	}
 	while(!linelabels.empty()) {
 		gui_label_t *l = linelabels.remove_first();
 		cont.remove_component( l );
@@ -353,104 +445,9 @@ void halt_detail_t::halt_detail_info()
 	buf.append("\n");
 	offset_y += LINESPACE;
 
-	buf.append(translator::translate("Direkt erreichbare Haltestellen"));
-	buf.append("\n");
-	offset_y += LINESPACE;
+		// If it is a special freight, we display the name of the good, otherwise the name of the category.
+		//buf.append( translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()) );
 
-	bool has_stops = false;
-
-#if MSG_LEVEL>=4
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-#endif
-
-	for (uint i=0; i<goods_manager_t::get_max_catg_index(); i++)
-	{
-		typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
-
-		// TODO: Add UI to show different connexions for multiple classes
-		uint8 g_class = goods_manager_t::get_classes_catg_index(i)-1;
-
-		connexions_map_single_remote *connexions = halt->get_connexions(i, g_class);
-
-		if(!connexions->empty())
-		{
-			buf.append("\n");
-			offset_y += LINESPACE;
-			buf.append(" · ");
-			const goods_desc_t* info = goods_manager_t::get_info_catg_index(i);
-			// If it is a special freight, we display the name of the good, otherwise the name of the category.
-			buf.append( translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()) );
-#if MSG_LEVEL>=4
-			if(  halt->is_transfer(i, g_class, max_classes)  ) {
-				buf.append("*");
-			}
-#endif
-			buf.append(":\n");
-			offset_y += LINESPACE;
-
-			FOR(connexions_map_single_remote, &iter, *connexions)
-			{
-				halthandle_t a_halt = iter.key;
-				haltestelle_t::connexion* cnx = iter.value;
-				if(a_halt.is_bound())
-				{
-					has_stops = true;
-					buf.append("   ");
-					buf.append(a_halt->get_name());
-
-					const uint32 tiles_to_halt = shortest_distance(halt->get_next_pos(a_halt->get_basis_pos()), a_halt->get_next_pos(halt->get_basis_pos()));
-					const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
-					const double km_to_halt = (double)tiles_to_halt * km_per_tile;
-
-					// Distance indication
-					buf.append(" (");
-					char number[10];
-					number_to_string(number, km_to_halt, 2);
-					buf.append(number);
-					buf.append("km)");
-
-					// target button ...
-					button_t *pb = new button_t();
-					pb->init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y) );
-					pb->set_targetpos( a_halt->get_basis_pos() );
-					pb->add_listener( this );
-					posbuttons.append( pb );
-					cont.add_component( pb );
-
-					buf.append("\n");
-					buf.append("(");
-					char travelling_time_as_clock[32];
-					welt->sprintf_time_tenths(travelling_time_as_clock, sizeof(travelling_time_as_clock), cnx->journey_time );
-					buf.append(travelling_time_as_clock);
-					buf.append(translator::translate(" mins. travelling"));
-					buf.append(", ");
-					if(halt->is_within_walking_distance_of(a_halt) && !cnx->best_convoy.is_bound() && !cnx->best_line.is_bound())
-					{
-						buf.append(translator::translate("on foot)"));
-					}
-					else if(cnx->waiting_time > 0)
-					{
-						char waiting_time_as_clock[32];
-						welt->sprintf_time_tenths(waiting_time_as_clock, sizeof(waiting_time_as_clock),  cnx->waiting_time );
-						buf.append(waiting_time_as_clock);
-						buf.append(translator::translate(" mins. waiting)"));
-					}
-					else
-					{
-						// Test for the default waiting value
-						buf.append(translator::translate("waiting time unknown)"));
-					}
-					buf.append("\n\n");
-
-					offset_y += 3 * LINESPACE;
-				}
-			}
-		}
-	}
-
-	if (!has_stops) {
-		buf.printf(" %s\n", translator::translate("keine"));
-	}
 
 	txt_info.recalc_size();
 	cont.set_size( txt_info.get_size() );
@@ -466,11 +463,7 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *comp, value_t extra)
 {
 	if( comp != &tabs && extra.i & ~1  ) {
 		koord k = *(const koord *)extra.p;
-		if(  k.x>=0  ) {
-			// goto button pressed
-			welt->get_viewport()->change_world_position( koord3d(k,welt->max_hgt(k)) );
-		}
-		else if(  k.x==-1  ) {
+		if(  k.x==-1  ) {
 			// Line button pressed.
 			uint16 j=k.y;
 			if(  j < halt->registered_lines.get_count()  ) {
@@ -495,6 +488,20 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *comp, value_t extra)
 	else if (tabstate != tabs.get_active_tab_index() || get_windowsize().h == get_min_windowsize().h) {
 		set_tab_opened();
 	}
+	else {
+		int i = 0;
+		FORX(slist_tpl<button_t *>, btn, catg_buttons,i++) {
+			uint8 catg_index = i >= goods_manager_t::INDEX_NONE ? i + 1 : i;
+			if (comp == btn) {
+				btn->pressed = true; // Don't release when press the same button
+				selected_route_catg_index = catg_index;
+				lb_selected_route_catg.set_text(goods_manager_t::get_info_catg_index(catg_index)->get_catg_name());
+				route.build_halt_list(selected_route_catg_index);
+				route.recalc_size();
+			}
+		}
+		update_components();
+	}
 	return true;
 }
 
@@ -507,7 +514,6 @@ bool halt_detail_t::infowin_event(const event_t *ev)
 	if (ev->ev_class == EVENT_KEYBOARD && ev->ev_code == SIM_KEY_UP) {
 		set_windowsize(get_min_windowsize());
 	}
-
 	return gui_frame_t::infowin_event(ev);
 }
 
@@ -536,6 +542,9 @@ void halt_detail_t::set_tab_opened()
 			break;
 		case 2: // info
 			set_windowsize(scr_size(get_windowsize().w, min(display_get_height() - margin_above_tab, margin_above_tab + txt_info.get_size().h)));
+			break;
+		case 3: // route
+			set_windowsize(scr_size(get_windowsize().w, min(display_get_height() - margin_above_tab, margin_above_tab + cont_route.get_size().h)));
 			break;
 	}
 }
@@ -685,12 +694,13 @@ halt_detail_t::halt_detail_t():
 	scrolly(&cont),
 	scrolly_pas(&pas),
 	scrolly_goods(&goods),
+	scrolly_route(&route),
 	pas(halthandle_t()),
 	goods(halthandle_t()),
 	nearby_factory(halthandle_t()),
 	txt_info(&buf),
+	route(halthandle_t(), goods_manager_t::INDEX_NONE),
 	line_number(halthandle_t())
-
 {
 	// just a dummy
 }
@@ -1039,11 +1049,11 @@ void halt_detail_goods_t::recalc_size()
 	set_size(scr_size(400, D_MARGIN_TOP + active_freight_catg * (LINESPACE + GOODS_LEAVING_BAR_HEIGHT + 1) + LINESPACE * 4 + 12));
 }
 
+
 gui_halt_nearby_factory_info_t::gui_halt_nearby_factory_info_t(const halthandle_t & halt)
 {
 	this->halt = halt;
 
-	//recalc_size();
 	line_selected = 0xFFFFFFFFu;
 }
 
@@ -1054,7 +1064,7 @@ void gui_halt_nearby_factory_info_t::recalc_size()
 		// set for default size
 		yoff = halt->get_fab_list().get_count() * (LINESPACE + 1);
 		if (yoff) { yoff += LINESPACE; }
-		yoff += LINESPACE*2;
+		yoff += LINESPACE * 2;
 
 		yoff += LINESPACE * max(required_material.get_count(), active_product.get_count() + inactive_product.get_count());
 
@@ -1154,7 +1164,7 @@ void gui_halt_nearby_factory_info_t::draw(scr_coord offset)
 	yoff += LINESPACE;
 
 	// [Goods needed by nearby industries]
-	xoff = GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH * 1.5; // 2nd col x offset
+	xoff = GOODS_SYMBOL_CELL_WIDTH + (int)(D_BUTTON_WIDTH*1.5); // 2nd col x offset
 	offset.x += D_MARGIN_LEFT;
 	if ((!required_material.empty() || !active_product.empty() || !inactive_product.empty()) && halt->get_ware_enabled()) {
 		int input_cnt = 0;
@@ -1241,4 +1251,211 @@ bool gui_halt_nearby_factory_info_t::infowin_event(const event_t * ev)
 		welt->get_viewport()->change_world_position(fab_pos);
 	}
 	return false;
+}
+
+
+class RelativeDistanceOrdering
+{
+private:
+	const koord m_origin;
+
+public:
+	RelativeDistanceOrdering(const koord& origin)
+		: m_origin(origin)
+	{ /* nothing */
+	}
+
+	/// @returns true if @p a is closer to the origin than @p b, otherwise false.
+	bool operator()(const halthandle_t &a, const halthandle_t &b) const
+	{
+		return koord_distance(m_origin, a->get_basis_pos()) < koord_distance(m_origin, b->get_basis_pos());
+	}
+};
+
+
+gui_halt_route_info_t::gui_halt_route_info_t(const halthandle_t & halt, uint8 catg_index)
+{
+	this->halt = halt;
+	build_halt_list(catg_index);
+	recalc_size();
+	line_selected = 0xFFFFFFFFu;
+}
+
+
+void gui_halt_route_info_t::build_halt_list(uint8 catg_index)
+{
+	halt_list.clear();
+	if (!halt.is_bound() || !halt->is_enabled(catg_index) || catg_index == goods_manager_t::INDEX_NONE || catg_index >= goods_manager_t::get_max_catg_index()) {
+		return;
+	}
+	selected_route_catg_index = catg_index;
+
+	typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
+
+	// TODO: Add UI to show different connexions for multiple classes
+	uint8 g_class = goods_manager_t::get_classes_catg_index(selected_route_catg_index) - 1;
+	connexions_map_single_remote *connexions = halt->get_connexions(selected_route_catg_index, g_class);
+	if (!connexions->empty())
+	{
+		FOR(connexions_map_single_remote, &iter, *connexions)
+		{
+			halthandle_t a_halt = iter.key;
+			halt_list.insert_unique_ordered(a_halt, RelativeDistanceOrdering(halt->get_basis_pos()));
+		}
+	}
+	halt_list.resize(halt_list.get_count());
+}
+
+
+bool gui_halt_route_info_t::infowin_event(const event_t * ev)
+{
+	const unsigned int line = (ev->cy) / (LINESPACE + 1);
+	line_selected = 0xFFFFFFFFu;
+	if (line >= halt_list.get_count()) {
+		return false;
+	}
+
+	halthandle_t halt = halt_list[line];
+	const koord3d halt_pos = halt->get_basis_pos3d();
+	if (!halt.is_bound()) {
+		welt->get_viewport()->change_world_position(halt_pos);
+		return false;
+	}
+
+	if (IS_LEFTRELEASE(ev)) {
+		if (ev->cx > 0 && ev->cx < 15) {
+			welt->get_viewport()->change_world_position(halt_pos);
+		}
+		else {
+			halt->show_info();
+		}
+	}
+	else if (IS_RIGHTRELEASE(ev)) {
+		welt->get_viewport()->change_world_position(halt_pos);
+	}
+	return false;
+}
+
+
+void gui_halt_route_info_t::recalc_size()
+{
+	const int y_size = halt_list.get_count() ? halt_list.get_count() * (LINESPACE + 1) + D_MARGIN_BOTTOM : LINESPACE*2;
+	set_size(scr_size(400, y_size));
+}
+
+
+// TODO: Add UI to show different connexions for multiple classes
+void gui_halt_route_info_t::draw(scr_coord offset)
+{
+	build_halt_list(selected_route_catg_index);
+
+	clip_dimension const cd = display_get_clip_wh();
+	const int start = cd.y - LINESPACE - 1;
+	const int end = cd.yy + LINESPACE + 1;
+
+	static cbuffer_t buf;
+	int xoff = pos.x;
+	int yoff = pos.y;
+	int max_x = D_DEFAULT_WIDTH;
+
+	uint8 g_class = goods_manager_t::get_classes_catg_index(selected_route_catg_index) - 1;
+
+	uint32 sel = line_selected;
+	FORX(const vector_tpl<halthandle_t>, const dest, halt_list, yoff += LINESPACE + 1) {
+		xoff = D_POS_BUTTON_WIDTH + D_H_SPACE;
+		haltestelle_t::connexion* cnx = halt->get_connexions(selected_route_catg_index, g_class)->get(dest);
+
+		// [distance]
+		buf.clear();
+		const uint32 tiles_to_halt = shortest_distance(halt->get_next_pos(dest->get_basis_pos()), dest->get_next_pos(halt->get_basis_pos()));
+		const double &km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
+		const double km_to_halt = (double)tiles_to_halt * km_per_tile;
+		const bool is_walking = halt->is_within_walking_distance_of(dest) && !cnx->best_convoy.is_bound() && !cnx->best_line.is_bound();
+		if (km_to_halt < 1000.0) {
+			buf.printf("%.2fkm", km_to_halt);
+		}
+		else if(km_to_halt < 10000.0) {
+			buf.printf("%.1fkm", km_to_halt);
+		}
+		else {
+			buf.printf("%ukm", (uint)km_to_halt);
+		}
+		xoff += proportional_string_width("000.00km");
+		display_proportional_clip(offset.x + xoff, offset.y + yoff, buf, ALIGN_RIGHT, is_walking ? MN_GREY0 : SYSCOL_TEXT, true);
+		if (is_walking && skinverwaltung_t::on_foot) {
+			display_color_img(skinverwaltung_t::on_foot->get_image_id(0), offset.x + D_MARGIN_LEFT, offset.y + yoff, 0, false, false);
+		}
+		xoff += D_H_SPACE;
+
+		// [name]
+		xoff += max(display_proportional_clip(offset.x + xoff, offset.y + yoff, dest->get_name(), ALIGN_LEFT, dest->get_owner()->get_player_color1(), true), D_BUTTON_WIDTH * 2);
+
+		// [travel time]
+		buf.clear();
+		char travelling_time_as_clock[32];
+		welt->sprintf_time_tenths(travelling_time_as_clock, sizeof(travelling_time_as_clock), cnx->journey_time);
+		buf.append(travelling_time_as_clock);
+		if (skinverwaltung_t::travel_time) {
+			display_color_img(skinverwaltung_t::travel_time->get_image_id(0), offset.x + xoff, offset.y + yoff, 0, false, false);
+			xoff += GOODS_SYMBOL_CELL_WIDTH;
+		}
+		else {
+			buf.append(translator::translate(" mins. travelling"));
+			buf.append(", ");
+		}
+		xoff += display_proportional_clip(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+#ifdef DEBUG
+		// [avarage speed]
+		buf.clear();
+		sint64 test = kmh_from_meters_and_tenths((int)(km_to_halt*1000), cnx->journey_time);
+		buf.printf(" (%ukm/h) ", test);
+		xoff += display_proportional_clip(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, MN_GREY0, true);
+#endif
+
+		// [waiting time]
+		buf.clear();
+		if (!is_walking){
+			if (skinverwaltung_t::waiting_time) {
+				display_color_img(skinverwaltung_t::waiting_time->get_image_id(0), offset.x + xoff, offset.y + yoff, 0, false, false);
+				xoff += GOODS_SYMBOL_CELL_WIDTH;
+			}
+			if (cnx->waiting_time > 0) {
+				char waiting_time_as_clock[32];
+				welt->sprintf_time_tenths(waiting_time_as_clock, sizeof(waiting_time_as_clock), cnx->waiting_time);
+				buf.append(waiting_time_as_clock);
+				if (!skinverwaltung_t::waiting_time) {
+					buf.append(translator::translate(" mins. waiting)"));
+				}
+			}
+			else {
+				if (skinverwaltung_t::waiting_time) {
+					buf.append("--:--");
+				}
+				else {
+					buf.append(translator::translate("waiting time unknown)"));
+				}
+			}
+			xoff += display_proportional_clip(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+#ifdef DEBUG
+			// [avarage schedule speed]
+			buf.clear();
+			sint64 test = kmh_from_meters_and_tenths((int)(km_to_halt * 1000), cnx->journey_time + cnx->waiting_time);
+			buf.printf(" (%ukm/h) ", test);
+			xoff += display_proportional_clip(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, MN_GREY0, true);
+#endif
+
+		}
+		max_x = max(max_x, xoff);
+		if (win_get_magic(magic_halt_info + dest.get_id())) {
+			display_blend_wh(offset.x, offset.y + yoff, max_x, LINESPACE, SYSCOL_TEXT, 20);
+		}
+	}
+
+	if (!halt_list.get_count()) {
+		display_proportional_clip(offset.x + D_MARGIN_LEFT, offset.y + yoff, translator::translate("keine"), ALIGN_LEFT, MN_GREY0, true);
+		yoff += LINESPACE;
+	}
+	yoff += D_MARGIN_BOTTOM;
+
+	set_size(scr_size(max_x, yoff - pos.y));
 }

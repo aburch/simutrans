@@ -89,6 +89,26 @@ public:
 };
 
 
+class gui_halt_route_info_t : public gui_world_component_t
+{
+private:
+	halthandle_t halt;
+
+	vector_tpl<halthandle_t> halt_list;
+	uint32 line_selected;
+
+	uint8 selected_route_catg_index = goods_manager_t::INDEX_PAS;
+
+public:
+	gui_halt_route_info_t(const halthandle_t& halt, uint8 catg_index);
+
+	void build_halt_list(uint8 catg_index);
+	bool infowin_event(event_t const *ev) OVERRIDE;
+
+	void recalc_size();
+
+	void draw(scr_coord offset) OVERRIDE;
+};
 
 class halt_detail_t : public gui_frame_t, action_listener_t
 {
@@ -105,19 +125,21 @@ private:
 
 	cbuffer_t buf;
 
-	gui_container_t cont, cont_goods;
-	gui_scrollpane_t scrolly, scrolly_pas, scrolly_goods;
-	gui_label_t lb_nearby_factory;
+	gui_container_t cont, cont_goods, cont_route;
+	gui_scrollpane_t scrolly, scrolly_pas, scrolly_goods, scrolly_route;
+	gui_label_t lb_nearby_factory, lb_routes, lb_selected_route_catg;
 	gui_textarea_t txt_info;
 
 	halt_detail_pas_t pas;
 	halt_detail_goods_t goods;
 	gui_halt_nearby_factory_info_t nearby_factory;
+	gui_halt_route_info_t route;
 	gui_tab_panel_t tabs;
 	gui_halthandled_lines_t line_number;
 
+	slist_tpl<button_t *>catg_buttons;
+	uint8 selected_route_catg_index = goods_manager_t::INDEX_NONE;
 
-	slist_tpl<button_t *>posbuttons;
 	slist_tpl<gui_label_t *>linelabels;
 	slist_tpl<button_t *>linebuttons;
 	slist_tpl<gui_label_t *> convoylabels;
