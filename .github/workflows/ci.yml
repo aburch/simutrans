@@ -31,7 +31,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: "${{ github.job }}-${{ github.sha }}"
+          name: ${{ github.job }}
           path: build/default/simutrans-extended
 
 
@@ -52,7 +52,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: "${{ github.job }}-${{ github.sha }}"
+          name: ${{ github.job }}
           path: build/default/simutrans-extended
 
 
@@ -73,7 +73,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: "${{ github.job }}-${{ github.sha }}"
+          name: ${{ github.job }}
           path: build/default/simutrans-extended
 
 
@@ -94,7 +94,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: "${{ github.job }}-${{ github.sha }}"
+          name: ${{ github.job }}
           path: build/default/simutrans-extended
 
 
@@ -115,7 +115,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: "${{ github.job }}-${{ github.sha }}"
+          name: ${{ github.job }}
           path: build/default/simutrans-extended
 
 
@@ -136,7 +136,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: "${{ github.job }}-${{ github.sha }}"
+          name: ${{ github.job }}
           path: build/default/simutrans-extended
 
 
@@ -157,7 +157,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: "${{ github.job }}-${{ github.sha }}"
+          name: ${{ github.job }}
           path: build/default/simutrans-extended
 
 
@@ -179,7 +179,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: "${{ github.job }}-${{ github.sha }}"
+          name: ${{ github.job }}
           path: build/default/makeobj-extended/makeobj-extended
 
 
@@ -200,7 +200,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: "${{ github.job }}-${{ github.sha }}"
+          name: ${{ github.job }}
           path: build/default/nettool/nettool
 
 
@@ -247,7 +247,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          #name: "${{ github.job }}-${{ github.sha }}"
+          name: ${{ github.job }}
           path: simumac-nightly.zip
 
 
@@ -264,7 +264,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: "${{ github.job }}-${{ github.sha }}"
+          name: ${{ github.job }}
           path: build/default/makeobj-extended/makeobj-extended
 
 
@@ -281,5 +281,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: "${{ github.job }}-${{ github.sha }}"
+          name: ${{ github.job }}
           path: build/default/nettool/nettool
