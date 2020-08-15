@@ -42,128 +42,53 @@ getSDL2mac()
 	# Use curl if available, else use wget
 	curl -h > /dev/null
 	if [ $? -eq 0 ]; then
-	    curl http://www.libsdl.org/release/SDL2-2.0.10.dmg > SDL2-2.0.10.dmg || {
-	      echo "Error: download of file SDL2-2.0.10.dmg failed (curl returned $?)" >&2
-	      rm -f "SDL2-2.0.10.dmg"
-	      exit 4
-	    }
-	    curl http://www.libsdl.org/release/SDL2-2.0.10.dmg > SDL2-2.0.10.dmg || {
-	      echo "Error: download of file SDL2-2.0.10.dmg failed (curl returned $?)" >&2
-	      rm -f "SDL2-2.0.10.dmg"
-	      exit 4
-	    }
+		curl http://www.libsdl.org/release/SDL2-2.0.10.dmg > SDL2-2.0.10.dmg || {
+			echo "Error: download of file SDL2-2.0.10.dmg failed (curl returned $?)" >&2
+			rm -f "SDL2-2.0.10.dmg"
+			exit 4
+		}
+		curl http://www.libsdl.org/release/SDL2-2.0.10.dmg > SDL2-2.0.10.dmg || {
+			echo "Error: download of file SDL2-2.0.10.dmg failed (curl returned $?)" >&2
+			rm -f "SDL2-2.0.10.dmg"
+			exit 4
+		}
 	else
-	    wget --help > /dev/null
-	    if [ $? -eq 0 ]; then
-	        wget -N  http://www.libsdl.org/release/SDL2-2.0.10.dmg || {
-	          echo "Error: download of file SDL2-2.0.10.dmg failed (wget returned $?)" >&2
-	          rm -f "SDL2-2.0.10.dmg"
-	          exit 4
-	        }
-	        wget -N http://www.libsdl.org/release/SDL2-2.0.10.dmg || {
-	          echo "Error: download of file SDL2-2.0.10.dmg failed (wget returned $?)" >&2
-	          rm -f "SDL2-2.0.10.dmg"
-	          exit 4
-	        }
-	    else
-	        echo "Error: Neither curl or wget are available on your system, please install either and try again!" >&2
-	        exit 6
-	    fi
+		wget --help > /dev/null
+		if [ $? -eq 0 ]; then
+			wget -N  http://www.libsdl.org/release/SDL2-2.0.10.dmg || {
+				echo "Error: download of file SDL2-2.0.10.dmg failed (wget returned $?)" >&2
+				rm -f "SDL2-2.0.10.dmg"
+				exit 4
+			}
+			wget -N http://www.libsdl.org/release/SDL2-2.0.10.dmg || {
+				echo "Error: download of file SDL2-2.0.10.dmg failed (wget returned $?)" >&2
+				rm -f "SDL2-2.0.10.dmg"
+				exit 4
+			}
+		else
+			echo "Error: Neither curl or wget are available on your system, please install either and try again!" >&2
+			exit 6
+		fi
 	fi
 }
 
-# first assume unix name defaults ...
-simexe=
-updatepath="/"
-updater="get_pak.sh"
-
-OST=unknown
-# now get the OSTYPE from config.default and remove all spaces around
-OST=`grep "^OSTYPE" config.default | sed "s/OSTYPE[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
-
-PGC=0
-# now get the OSTYPE from config.default and remove all spaces around
-PGC=`grep "^BUNDLE_PTHREADGC2" config.default | sed "s/BUNDLE_PTHREADGC2[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
-
-BUILDDIR=`grep "^PROGDIR" config.default | sed "s/PROGDIR[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
-if [ -n "$BUILDDIR" ]; then
-  BUILDDIR=../simutrans/simutrans-extended
-else
-  BUILDDIR=../build/default/simutrans-extended
-fi
-
-# now make the correct archive name
-simexe=
-if [ "$OST" = "mac" ]; then
-  simarchivbase=simumac
-elif [ "$OST" = "haiku" ]; then
- simarchivbase=simuhaiku
-elif [ "$OST" = "mingw" ]; then
-  simexe=.exe
-  SDLTEST=`grep "^BACKEND =" config.default | sed "s/BACKEND[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
-  if [ "$SDLTEST" = "sdl" ]  ||  [ "$SDLTEST" = "sdl2" ]; then
-    simarchivbase=simuwin-sdl
-  else
-    simarchivbase=simuwin
-# Missing: Copy matching SDL dll!
-  fi
-  cd simutrans
-
-  if [ "$PGC" -ne 0	]; then
-    getDLL
-  fi
-  cd ..
-  updatepath="/nsis/"
-  updater="download-paksets.exe"
-  cd nsis
-  makensis onlineupgrade.nsi
-  cd ..
-elif [ "$OST" = "linux" ]; then
- simarchivbase=simulinux
-elif [ "$OST" = "freebsd" ]; then
- simarchivbase=simubsd
-elif [ "$OST" = "amiga" ]; then
- simarchivbase=simuamiga
-fi
-
-# Test if there is something to distribute ...
-if [ ! -f $BUILDDIR$simexe ]; then
-  echo "No simutrans executable found at '$(pwd)/$BUILDDIR$simexe'! Aborted!"
-  find .. -type f -name "*simutrans-ex*"
-  exit 1
-fi
-
-# now add revision number without any modificators
-# fetch language files
-if [ "$#" = "0"  ]; then
-  # try local answer assuming we use svn
-  REV_NR=$(git rev-parse --short HEAD)
-  simarchiv=$simarchivbase-$REV_NR
-elif [ `expr match "$*" ".*-rev="` > 0 ]; then
-  REV_NR=$(echo $* | sed "s/.*-rev=[ ]*//" | sed "s/[^0-9]*//")
-  simarchiv=$simarchivbase-$REV_NR
-else
-  echo "No revision given!"
-  simarchiv=$simarchivbase
-fi
-
-echo "Targeting archive $simarchiv"
 
 # (otherwise there will be many .svn included under windows)
 distribute()
 {
 	# pack all files of the current release
 	FILELISTE=`find simutrans -type f "(" -name "*.tab" -o -name "*.mid" -o -name "*.bdf" -o -name "*.fnt" -o -name "*.txt"  -o -name "*.dll" -o -name "*.pak" -o -name "*.nut" -o -name "*.dll" ")"`
-	zip -9 $simarchiv.zip $FILELISTE simutrans/simutrans$simexe simutrans/$updater
+	zip -9 $simarchiv.zip $FILELISTE simutrans/simutrans$simexe_extension simutrans/$updater
 }
 
 buildOSX()
 {
-  echo "Build Mac OS package"
-	# builds a bundle for MAC OS
+	echo "Build Mac OS package"
+
+	# builds a bundle for macOS
 	mkdir -p "simutrans.app/Contents/MacOS"
 	mkdir -p "simutrans.app/Contents/Resources"
-	cp $BUILDDIR$simexe   "simutrans.app/Contents/MacOS/simutrans"
+	cp $BUILDDIR$simexe_extension "simutrans.app/Contents/MacOS/simutrans"
 	strip "simutrans.app/Contents/MacOS/simutrans"
 	cp "../OSX/simutrans.icns" "simutrans.app/Contents/Resources/simutrans.icns"
 	localostype=`uname -o`
@@ -178,43 +103,133 @@ buildOSX()
 		cp -R -v /Volumes/SDL2 .
 		hdiutil eject /Volumes/SDL2 >>/dev/stderr
 	fi
+
 	echo "APPL????" > "simutrans.app/Contents/PkgInfo"
 	sh ../OSX/plistgen.sh "simutrans.app" "simutrans"
 }
 
-# fetch language files
-if [ "$#" = "0"  ]  ||  [ `expr match "$*" "-no-lang"` = "0" ]; then
-  sh ./get_lang_files.sh
+
+# first assume unix name defaults ...
+updatepath="/"
+updater="get_pak.sh"
+
+OST=unknown
+# now get the OSTYPE from config.default and remove all spaces around
+OST=$(grep "^OSTYPE" config.default | sed "s/OSTYPE[ ]*=[ ]*//" | sed "s/[ ]*\#.*//")
+
+PGC=0
+# now get the OSTYPE from config.default and remove all spaces around
+PGC=$(grep "^BUNDLE_PTHREADGC2" config.default | sed "s/BUNDLE_PTHREADGC2[ ]*=[ ]*//" | sed "s/[ ]*\#.*//")
+
+BUILDDIR="$(grep '^PROGDIR' config.default | sed 's/PROGDIR[ ]*=[ ]*//' | sed 's/[ ]*\#.*//')"
+if [ -n "$BUILDDIR" ]; then
+	BUILDDIR="$(pwd)/simutrans/simutrans-extended"
+else
+	BUILDDIR="$(pwd)/build/default/simutrans-extended"
 fi
 
-# now built the archive for distribution
-cd simutrans
+# now make the correct archive name
+simexe_extension=
 
 if [ "$OST" = "mac" ]; then
-  buildOSX
-  cd ..
-  ls
-  pwd
-  zip -r -9 simumac.zip simutrans
-  cd simutrans
-  rm -rf SDL2
-  rm -rf simutrans.app
-  exit 0
+	simarchivbase=simumac
+elif [ "$OST" = "haiku" ]; then
+	simarchivbase=simuhaiku
+elif [ "$OST" = "mingw" ]; then
+	simexe_extension=.exe
+	SDLTEST=$(grep "^BACKEND =" config.default | sed "s/BACKEND[ ]*=[ ]*//" | sed "s/[ ]*\#.*//")
+	if [ "$SDLTEST" = "sdl" ]  ||  [ "$SDLTEST" = "sdl2" ]; then
+		simarchivbase=simuwin-sdl
+	else
+		simarchivbase=simuwin
+		# Missing: Copy matching SDL dll!
+	fi
+
+	pushd simutrans
+		if [ "$PGC" -ne 0 ]; then
+			getDLL
+		fi
+	popd
+
+	updatepath="/nsis/"
+	updater="download-paksets.exe"
+
+	pushd nsis
+		makensis onlineupgrade.nsi
+	popd
+
+elif [ "$OST" = "linux" ]; then
+	simarchivbase=simulinux
+elif [ "$OST" = "freebsd" ]; then
+	simarchivbase=simubsd
+elif [ "$OST" = "amiga" ]; then
+	simarchivbase=simuamiga
+fi
+
+# Test if there is something to distribute ...
+if [ ! -f $BUILDDIR$simexe_extension ]; then
+	echo "No simutrans executable found at '$(pwd)/$BUILDDIR$simexe'! Aborted!"
+	find .. -type f -name "*simutrans-ex*"
+	exit 1
+fi
+
+# now add revision number without any modificators
+# fetch language files
+if [ "$#" = "0"  ]; then
+	# try local answer assuming we use svn
+	REV_NR=$(git rev-parse --short HEAD)
+	simarchiv=$simarchivbase-$REV_NR
+elif [ `expr match "$*" ".*-rev="` > 0 ]; then
+	REV_NR=$(echo $* | sed "s/.*-rev=[ ]*//" | sed "s/[^0-9]*//")
+	simarchiv=$simarchivbase-$REV_NR
 else
-  echo "Build default zip archive"
-  cp $BUILDDIR$simexe ./simutrans$simexe
-  strip simutrans$simexe
-  cp ..$updatepath$updater $updater
-  cd ..
-  distribute
-  # .. finally delete executable and language files
-  rm simutrans/simutrans$simexe
+	echo "No revision given!"
+	simarchiv=$simarchivbase
+fi
+
+echo "Targeting archive $simarchiv"
+
+
+# fetch language files
+if [ "$#" = "0"  ]  ||  [ `expr match "$*" "-no-lang"` = "0" ]; then
+	sh ./get_lang_files.sh
+fi
+
+# now build the archive for distribution
+
+if [ "$OST" = "mac" ]; then
+	pushd simutrans
+		buildOSX
+	popd
+
+	ls
+	pwd
+
+	zip -r -9 simumac.zip simutrans
+
+	pushd simutrans
+		rm -rf SDL2
+		rm -rf simutrans.app
+	popd
+	exit 0
+else
+	pushd simutrans
+		echo "Build default zip archive"
+		cp $BUILDDIR$simexe_extension ./simutrans$simexe_extension
+		strip simutrans$simexe_extension
+		cp ..$updatepath$updater $updater
+	popd
+
+	distribute
+
+	# .. finally delete executable and language files
+	rm simutrans/simutrans$simexe_extension
 fi
 
 
 # cleanup dll's
 if [ "$PGC" -ne 0 ]; then
-  rm simutrans/pthreadGC2.dll
+	rm simutrans/pthreadGC2.dll
 fi
 
 # swallow any error values, return success in any case

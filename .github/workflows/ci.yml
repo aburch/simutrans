@@ -25,7 +25,7 @@ jobs:
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential clang++-10 zlib1g-dev libbz2-dev libsdl2-dev libfreetype6-dev
       - name: Configure
-        run: mv configs/config.${{ github.job }} config.default
+        run: cp configs/config.${{ github.job }} config.default
       - name: Build
         run: make -j$(nproc) all
       - name: Build Zip
@@ -50,7 +50,7 @@ jobs:
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential clang++-10 zlib1g-dev libbz2-dev
       - name: Configure
-        run: mv configs/config.${{ github.job }} config.default
+        run: cp configs/config.${{ github.job }} config.default
       - name: Build
         run: make -j$(nproc) all
       - name: Build Zip
@@ -75,7 +75,7 @@ jobs:
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential clang++-10 zlib1g-dev libbz2-dev liballegro4-dev
       - name: Configure
-        run: mv configs/config.${{ github.job }} config.default
+        run: cp configs/config.${{ github.job }} config.default
       - name: Build
         run: make -j$(nproc) all
       - name: Build Zip
@@ -100,7 +100,7 @@ jobs:
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential clang++-10 zlib1g-dev libbz2-dev libsdl1.2-dev
       - name: Configure
-        run: mv configs/config.${{ github.job }} config.default
+        run: cp configs/config.${{ github.job }} config.default
       - name: Build
         run: make -j$(nproc) all
       - name: Build Zip
@@ -125,7 +125,7 @@ jobs:
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential g++-10 zlib1g-dev libbz2-dev libsdl1.2-dev libsdl-mixer1.2-dev
       - name: Configure
-        run: mv configs/config.${{ github.job }} config.default
+        run: cp configs/config.${{ github.job }} config.default
       - name: Build
         run: make -j$(nproc) all
       - name: Build Zip
@@ -150,7 +150,7 @@ jobs:
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential clang++-10 zlib1g-dev libbz2-dev libsdl1.2-dev libglew-dev
       - name: Configure
-        run: mv configs/config.${{ github.job }} config.default
+        run: cp configs/config.${{ github.job }} config.default
       - name: Build
         run: make -j$(nproc) all
       - name: Build Zip
@@ -175,7 +175,7 @@ jobs:
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential clang++-10 zlib1g-dev libbz2-dev libsdl2-dev
       - name: Configure
-        run: mv configs/config.${{ github.job }} config.default
+        run: cp configs/config.${{ github.job }} config.default
       - name: Build
         run: make -j$(nproc) all
       - name: Build Zip
@@ -200,13 +200,9 @@ jobs:
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential g++-10 zlib1g-dev libbz2-dev libpng-dev
       - name: Configure
-        run: mv configs/config.${{ github.job }} config.default
+        run: cp configs/config.${{ github.job }} config.default
       - name: Build
         run: make -j$(nproc) makeobj
-      - name: Build
-        shell: bash
-        run: |
-          CC=gcc-10 CXX=g++-10 DEBUG=0 OPTIMISE=1 BACKEND=posix COLOUR_DEPTH=0 OSTYPE=linux make -j$(nproc) makeobj
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -225,7 +221,7 @@ jobs:
         shell: bash
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential g++-10
       - name: Configure
-        run: mv configs/config.${{ github.job }} config.default
+        run: cp configs/config.${{ github.job }} config.default
       - name: Build
         run: make -j$(nproc) nettool
       - name: Upload Artifacts
@@ -251,7 +247,7 @@ jobs:
           hdiutil eject /Volumes/SDL2 >>/dev/stderr
       - name: Configure
         run: |
-          mv configs/config.${{ github.job }} config.default
+          cp configs/config.${{ github.job }} config.default
           echo "CFLAGS += -DREVISION=$(svn info --show-item revision svn://servers.simutrans.org/simutrans)" >> config.default
           cat config.default >> /dev/stderr
       - name: Build
@@ -275,7 +271,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: mv configs/config.${{ github.job }} config.default
+        run: cp configs/config.${{ github.job }} config.default
       - name: Build
         run: make -j2 makeobj
       - name: Upload Artifacts
@@ -293,7 +289,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: mv configs/config.${{ github.job }} config.default
+        run: cp configs/config.${{ github.job }} config.default
       - name: Build
         run: make -j2 nettool
       - name: Upload Artifacts
