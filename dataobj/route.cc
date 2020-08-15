@@ -511,7 +511,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 
 				weg_t* w = to->get_weg(tdriver->get_waytype());
 
-				if (is_tall && w && w->is_height_restricted())
+				if (is_tall && to->is_height_restricted())
 				{
 					// Tall vehicles cannot pass under low bridges
 					continue;
@@ -658,6 +658,7 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 	next_ribi[3] = ribi_t::reverse_single(next_ribi[0]);
 	return next_ribi;
 }
+
 
 route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t* const tdriver, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, bool is_tall, const sint32 tile_length, koord3d avoid_tile, uint8 start_dir, find_route_flags flags)
 {
@@ -840,14 +841,7 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 				}
 
 				// Low bridges
-				if (is_tall && w && w->is_height_restricted())
-				{
-					continue;
-				}
-
-				// Check for low bridges on open water
-				const grund_t* gr_above = world()->lookup(to->get_pos() + koord3d(0, 0, 1));
-				if (env_t::pak_height_conversion_factor == 2 && gr_above && gr_above->get_weg_nr(0))
+				if (is_tall && to->is_height_restricted())
 				{
 					continue;
 				}

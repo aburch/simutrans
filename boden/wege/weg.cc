@@ -578,20 +578,6 @@ void weg_t::rdwr(loadsave_t *file)
 	}
 }
 
-bool weg_t::is_height_restricted() const
-{
-	const grund_t* gr_above = world()->lookup(get_pos() + koord3d(0, 0, 1));
-	if (env_t::pak_height_conversion_factor == 2 && gr_above && gr_above->get_weg_nr(0))
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-
 /**
  * Info-text for this way
  * @author Hj. Malthaner
@@ -606,6 +592,7 @@ void weg_t::info(cbuffer_t & buf) const
 	const wayobj_t *wayobj = gr ? gr->get_wayobj(get_waytype()) : NULL;
 	const bruecke_t *bridge = gr ? gr->find<bruecke_t>() : NULL;
 	const tunnel_t *tunnel = gr ? gr->find<tunnel_t>() : NULL;
+	const bool height_restricted = gr ? gr->is_height_restricted() : false;
 
 	const sint32 topspeed = desc->get_topspeed();
 
@@ -1039,7 +1026,7 @@ void weg_t::info(cbuffer_t & buf) const
 				buf.append("\n");
 			}
 		}
-		if (is_height_restricted())
+		if (height_restricted)
 		{
 			if (!any_prohibitive)
 			{
