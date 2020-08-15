@@ -5,8 +5,6 @@
 # (see LICENSE.txt)
 #
 
-set -ex
-
 #
 # parameters (in this order):
 # "-no-lang" prevents downloading the translations
