@@ -511,10 +511,25 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 
 				weg_t* w = to->get_weg(tdriver->get_waytype());
 
-				if (is_tall && w && w->is_height_restricted())
+				// Check for low bridges if the vehicle is tall
+				if (is_tall)
 				{
-					// Tall vehicles cannot pass under low bridges
-					continue;
+					// Check ways
+					if (w)
+					{
+						if (w->is_height_restricted())
+						{
+							continue;
+						}
+					}
+					else // Check open water
+					{
+						const grund_t* gr_above = world()->lookup(to->get_pos() + koord3d(0, 0, 1));
+						if (env_t::pak_height_conversion_factor == 2 && gr_above && gr_above->get_weg_nr(0))
+						{
+							continue;
+						}
+					}
 				}
 
 				if(enforce_weight_limits > 1 && w != NULL)
@@ -839,17 +854,25 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 					}
 				}
 
-				// Low bridges
-				if (is_tall && w && w->is_height_restricted())
+				// Check for low bridges if the vehicle is tall
+				if (is_tall)
 				{
-					continue;
-				}
-
-				// Check for low bridges on open water
-				const grund_t* gr_above = world()->lookup(to->get_pos() + koord3d(0, 0, 1));
-				if (env_t::pak_height_conversion_factor == 2 && gr_above && gr_above->get_weg_nr(0))
-				{
-					continue;
+					// Check ways
+					if (w)
+					{
+						if (w->is_height_restricted())
+						{
+							continue;
+						}
+					}
+					else // Check open water
+					{
+						const grund_t* gr_above = world()->lookup(to->get_pos() + koord3d(0, 0, 1));
+						if (env_t::pak_height_conversion_factor == 2 && gr_above && gr_above->get_weg_nr(0))
+						{
+							continue;
+						}
+					}
 				}
 
 				// Weight limits
