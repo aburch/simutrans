@@ -94,7 +94,7 @@ buildOSX()
 	cp $BUILDDIR/$simexe_name "simutrans.app/Contents/MacOS/simutrans"
 	strip "simutrans.app/Contents/MacOS/simutrans"
 	cp "../OSX/simutrans.icns" "simutrans.app/Contents/Resources/simutrans.icns"
-	localostype=$(uname -o)
+	localostype=$(uname)
 	if [ "Msys" == "$localostype" ] || [ "Linux" == "$localostype" ]; then
 		# only 7z on linux and windows can do that ...
 		getSDL2mac
