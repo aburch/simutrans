@@ -153,18 +153,18 @@ elif [ "$OST" = "mingw" ]; then
 		# Missing: Copy matching SDL dll!
 	fi
 
-	pushd simutrans
+	cd simutrans
 		if [ $PGC -ne 0 ]; then
 			getDLL
 		fi
-	popd
+	cd ..
 
 	updatepath="/nsis/"
 	updater="download-paksets.exe"
 
-	pushd nsis
+	cd nsis
 		makensis onlineupgrade.nsi
-	popd
+	cd ..
 
 elif [ "$OST" = "linux" ]; then
 	simarchivbase=simulinux
@@ -210,27 +210,28 @@ fi
 # now build the archive for distribution
 
 if [ "$OST" = "mac" ]; then
-	pushd simutrans 1>/dev/null
+	cd simutrans
 		buildOSX
-	popd 1>/dev/null
+	cd ..
 
 	ls
 	pwd
 
 	zip -r -9 simumac.zip simutrans 1>/dev/null
 
-	pushd simutrans 1>/dev/null
+	cd simutrans
 		rm -rf SDL2
 		rm -rf simutrans.app
-	popd 1>/dev/null
+	cd ..
 	exit 0
+
 else
-	pushd simutrans 1>/dev/null
+	cd simutrans
 		echo "Building default zip archive..."
 		cp "$BUILDDIR/$simexe_name" ./$simexe_name
 		strip ./$simexe_name
 		cp ..$updatepath$updater $updater
-	popd 1>/dev/null
+	cd ..
 
 	distribute
 
