@@ -28,11 +28,15 @@ jobs:
         shell: bash
         run: |
           CC=clang-10 CXX=clang++-10 DEBUG=0 OPTIMISE=1 BACKEND=sdl2 COLOUR_DEPTH=16 OSTYPE=linux MULTI_THREAD=1 USE_FREETYPE=1 make -j$(nproc) all
-      - name: Upload Artifacts
+      - name: Build Zip
+        run: sh distribute.sh
+      - name: Prepare Zip
+        run: mv sim*.zip artifact.zip
+      - name: Upload Zip (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}
-          path: build/default/simutrans-extended
+          name: ${{ github.job }}-nightly.zip
+          path: artifact.zip
 
 
   sim-linux-posix:
@@ -49,11 +53,15 @@ jobs:
         shell: bash
         run: |
           CC=clang-10 CXX=clang++-10 DEBUG=0 OPTIMISE=1 BACKEND=posix COLOUR_DEPTH=0 OSTYPE=linux make -j$(nproc) all
-      - name: Upload Artifacts
+      - name: Build Zip
+        run: sh distribute.sh
+      - name: Prepare Zip
+        run: mv sim*.zip artifact.zip
+      - name: Upload Zip (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}
-          path: build/default/simutrans-extended
+          name: ${{ github.job }}-nightly.zip
+          path: artifact.zip
 
 
   sim-linux-allegro:
@@ -70,11 +78,15 @@ jobs:
         shell: bash
         run: |
           CC=clang-10 CXX=clang++-10 DEBUG=0 OPTIMISE=1 BACKEND=allegro COLOUR_DEPTH=16 OSTYPE=linux make -j$(nproc) all
-      - name: Upload Artifacts
+      - name: Build Zip
+        run: sh distribute.sh
+      - name: Prepare Zip
+        run: mv sim*.zip artifact.zip
+      - name: Upload Zip (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}
-          path: build/default/simutrans-extended
+          name: ${{ github.job }}-nightly.zip
+          path: artifact.zip
 
 
   sim-linux-sdl:
@@ -91,11 +103,15 @@ jobs:
         shell: bash
         run: |
           CC=clang-10 CXX=clang++-10 DEBUG=0 OPTIMISE=1 BACKEND=sdl COLOUR_DEPTH=16 OSTYPE=linux make -j$(nproc) all
-      - name: Upload Artifacts
+      - name: Build Zip
+        run: sh distribute.sh
+      - name: Prepare Zip
+        run: mv sim*.zip artifact.zip
+      - name: Upload Zip (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}
-          path: build/default/simutrans-extended
+          name: ${{ github.job }}-nightly.zip
+          path: artifact.zip
 
 
   sim-linux-sdlmixer:
@@ -112,11 +128,15 @@ jobs:
         shell: bash
         run: |
           CC=gcc-10 CXX=g++-10 DEBUG=0 OPTIMISE=1 BACKEND=mixer_sdl COLOUR_DEPTH=16 OSTYPE=linux make -j$(nproc) all
-      - name: Upload Artifacts
+      - name: Build Zip
+        run: sh distribute.sh
+      - name: Prepare Zip
+        run: mv sim*.zip artifact.zip
+      - name: Upload Zip (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}
-          path: build/default/simutrans-extended
+          name: ${{ github.job }}-nightly.zip
+          path: artifact.zip
 
 
   sim-linux-opengl:
@@ -133,11 +153,15 @@ jobs:
         shell: bash
         run: |
           CC=clang-10 CXX=clang++-10 DEBUG=0 OPTIMISE=1 BACKEND=opengl COLOUR_DEPTH=16 OSTYPE=linux make -j$(nproc) all
-      - name: Upload Artifacts
+      - name: Build Zip
+        run: sh distribute.sh
+      - name: Prepare Zip
+        run: mv sim*.zip artifact.zip
+      - name: Upload Zip (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}
-          path: build/default/simutrans-extended
+          name: ${{ github.job }}-nightly.zip
+          path: artifact.zip
 
 
   sim-linux-debug-sdl2:
@@ -154,11 +178,15 @@ jobs:
         shell: bash
         run: |
           CC=clang-10 CXX=clang++-10 DEBUG=1 OPTIMISE=0 BACKEND=sdl2 COLOUR_DEPTH=16 OSTYPE=linux MULTI_THREAD=1 make -j$(nproc) all
-      - name: Upload Artifacts
+      - name: Build Zip
+        run: sh distribute.sh
+      - name: Prepare Zip
+        run: mv sim*.zip artifact.zip
+      - name: Upload Zip (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}
-          path: build/default/simutrans-extended
+          name: ${{ github.job }}-nightly.zip
+          path: artifact.zip
 
 
   makeobj-linux:
@@ -179,7 +207,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}
+          name: ${{ github.job }}-nightly
           path: build/default/makeobj-extended/makeobj-extended
 
 
@@ -200,7 +228,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}
+          name: ${{ github.job }}-nightly
           path: build/default/nettool/nettool
 
 
@@ -235,20 +263,15 @@ jobs:
       - name: Build
         run: make -j2
 
+      - name: Build Zip
+        run: sh distribute.sh
       - name: Prepare Zip
-        run: sh ./distribute.sh
-
-      - name: Rename Zip
-        run:  |
-          ls *.zip >>/dev/stderr
-          echo ::set-env name=LATEST::$(ls *.zip)
-          mv sim*.zip simumac-nightly.zip
-
-      - name: Upload Artifacts
+        run: mv sim*.zip artifact.zip
+      - name: Upload Zip (CI)
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}
-          path: simumac-nightly.zip
+          name: ${{ github.job }}-nightly.zip
+          path: artifact.zip
 
 
   makeobj-mac:
@@ -264,7 +287,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}
+          name: ${{ github.job }}-nightly
           path: build/default/makeobj-extended/makeobj-extended
 
 
@@ -281,5 +304,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ github.job }}
+          name: ${{ github.job }}-nightly
           path: build/default/nettool/nettool
