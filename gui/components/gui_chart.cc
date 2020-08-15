@@ -222,6 +222,9 @@ void gui_chart_t::draw(scr_coord offset)
 							display_vline_wh_clip(x+j, y + abs(2 - j), 5-2*abs(2-j), c.color, false);
 						}
 						break;
+					case round_box:
+						display_filled_roundbox_clip(x, y, 5, 5, c.color, true);
+						break;
 					case none:
 						// display nothing
 						break;
