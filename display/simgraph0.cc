@@ -268,6 +268,10 @@ void display_array_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const COLOR_VA
 {
 }
 
+void display_filled_roundbox_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool)
+{
+}
+
 size_t get_next_char(const char*, size_t pos)
 {
 	return pos + 1;
