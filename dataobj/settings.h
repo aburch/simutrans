@@ -362,6 +362,14 @@ private:
 	*/
 	uint32 tolerance_modifier_percentage = 100;
 
+	/**
+	* Setting this allows overriding of the calculated industry density
+	* proportion to (1) allow players the ability to control industry growth
+	* after map editing; and (2) correct errors/balance issues in server games.
+	* Setting this to 0, its default setting, will mean that it has no effect.
+	*/
+	uint32 industry_density_proportion_override = 0;
+
 public:
 	//Cornering settings
 	//@author: jamespetts
@@ -1148,6 +1156,8 @@ public:
 	uint32 get_random_mode_visiting() const { return random_mode_visiting; }
 
 	uint32 get_tolerance_modifier_percentage() const { return tolerance_modifier_percentage; }
+
+	uint32 get_industry_density_proportion_override() const { return industry_density_proportion_override; }
 
 #ifndef NETTOOL
 	float32e8_t get_simtime_factor() const { return simtime_factor; }
