@@ -2628,7 +2628,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	tolerance_modifier_percentage = contents.get_int("tolerance_modifier_percentage", tolerance_modifier_percentage);
 
-	industry_density_proportion_override = contents.get_int("industry_density_proportion_override", industry_density_proportion_override); 
+	industry_density_proportion_override = contents.get_int("industry_density_proportion_override", industry_density_proportion_override);
 
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 
