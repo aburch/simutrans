@@ -68,7 +68,7 @@ public:
 	 */
 	int add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc=NULL, chart_marker_t marker=square);
 
-	uint32 add_line(int color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc=NULL, chart_marker_t marker = square);
+	uint32 add_line(int color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc=NULL, chart_marker_t marker=square);
 
 	void remove_curves() { curves.clear(); }
 
