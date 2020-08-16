@@ -639,7 +639,7 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 			welt->sprintf_time_tenths(transfer_time_as_clock, sizeof(transfer_time_as_clock), (halt->get_transfer_time()));
 		}
 		capacity_buf.append(transfer_time_as_clock);
-		left += display_proportional_clip(pos.x + left, pos.y + yoff, capacity_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + D_H_SPACE;
+		left += display_proportional_clip(pos.x + left, pos.y + yoff, capacity_buf, ALIGN_LEFT, is_operating ? SYSCOL_TEXT : MN_GREY0, true) + D_H_SPACE;
 
 		if (!is_operating)
 		{
