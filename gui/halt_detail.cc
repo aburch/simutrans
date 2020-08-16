@@ -259,6 +259,7 @@ void halt_detail_t::halt_detail_info()
 	}
 	buf.clear();
 
+	sint16 offset_x = 0;
 	sint16 offset_y = D_MARGIN_TOP;
 
 	// add lines that serve this stop
@@ -267,25 +268,43 @@ void halt_detail_t::halt_detail_info()
 	offset_y += LINESPACE;
 
 	if(  !halt->registered_lines.empty()  ) {
-		for (unsigned int i = 0; i<halt->registered_lines.get_count(); i++) {
-			// Line buttons only if owner ...
-			if (welt->get_active_player()==halt->registered_lines[i]->get_owner()) {
-				button_t *b = new button_t();
-				b->init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y) );
-				b->set_targetpos( koord(-1,i) );
-				b->add_listener( this );
-				linebuttons.append( b );
-				cont.add_component( b );
+		for (uint8 lt = 1; lt < simline_t::MAX_LINE_TYPE; lt++) {
+			uint waytype_line_cnt = 0;
+			for (unsigned int i = 0; i<halt->registered_lines.get_count(); i++) {
+				if (halt->registered_lines[i]->get_linetype() != lt) {
+					continue;
+				}
+				int offset_x = D_MARGIN_LEFT;
+				if (!waytype_line_cnt) {
+					buf.append("\n");
+					offset_y += LINESPACE;
+					buf.append(translator::translate(halt->registered_lines[i]->get_linetype_name()));
+					buf.append("\n");
+					offset_y += LINESPACE;
+				}
+
+				// Line buttons only if owner ...
+				if (welt->get_active_player() == halt->registered_lines[i]->get_owner()) {
+					button_t *b = new button_t();
+					b->init(button_t::posbutton, NULL, scr_coord(offset_x, offset_y));
+					b->set_targetpos(koord(-1, i));
+					b->add_listener(this);
+					linebuttons.append(b);
+					cont.add_component(b);
+				}
+				offset_x += D_BUTTON_HEIGHT+D_H_SPACE;
+				// Line labels with color of player
+				label_names.append( strdup(halt->registered_lines[i]->get_name()) );
+				gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_lines[i]->get_owner()->get_player_color1()+0) );
+				l->set_pos( scr_coord(offset_x, offset_y) );
+				linelabels.append( l );
+				cont.add_component( l );
+				buf.append("\n");
+				offset_y += LINESPACE;
+				waytype_line_cnt++;
 			}
 
-			// Line labels with color of player
-			label_names.append( strdup(halt->registered_lines[i]->get_name()) );
-			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_lines[i]->get_owner()->get_player_color1()+0) );
-			l->set_pos( scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
-			linelabels.append( l );
-			cont.add_component( l );
-			buf.append("\n");
-			offset_y += LINESPACE;
+
 		}
 	}
 	else {
