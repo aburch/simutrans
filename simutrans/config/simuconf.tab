@@ -349,6 +349,7 @@ allow_underground_transformers = 1
 # At 1, industries will demand enough goods to fill their internal storage initially, then will demand only enough goods to keep up with the demand of their consumers.
 # At 2, industries will demand only enough goods to keep up with the demand of their consumers without trying to fill their internal storage first, but will not demand so many goods that their internal storage is likely to overflow.
 # At 3, industries behave as in 2, save that the internal storage of consumer industries is ignored.
+# At 4, industries will demand goods whenever their internal storage does not have sufficient stock to last until the next delivery is estimated to arrive if the goods were to leave the producing factory now.
 just_in_time = 2
 
 # How much amount in transport is sent before further distribution stops
