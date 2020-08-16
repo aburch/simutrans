@@ -411,7 +411,7 @@ auto_connect_industries_and_attractions_by_road = 4
 # density proportion of a running game. Do not alter this without a full understanding,
 # or else industry generation might not work properly.
 # 
-industry_density_proportion_override = 0
+#industry_density_proportion_override = 0
 
 ################################# Display settings ################################
 
