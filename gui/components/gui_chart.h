@@ -22,6 +22,8 @@
 class gui_chart_t : public gui_component_t
 {
 public:
+	enum chart_marker_t { square = 0, cross, diamond, round_box, none };
+
 	/**
 	 * Set background color. -1 means no background
 	 * @author Hj. Malthaner
@@ -64,9 +66,9 @@ public:
 	 * @returns curve's id
 	 * @author hsiegeln
 	 */
-	int add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc=NULL);
+	int add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc=NULL, chart_marker_t marker=square);
 
-	uint32 add_line(int color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc=NULL);
+	uint32 add_line(int color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc=NULL, chart_marker_t marker=square);
 
 	void remove_curves() { curves.clear(); }
 
@@ -123,6 +125,7 @@ private:
 		int type; // 0 = standard, 1 = money
 		int precision;	// how many numbers ...
 		convert_proc convert;	// Knightly : procedure for converting supplied values before use
+		chart_marker_t marker_type;
 	};
 
 	/**
@@ -137,6 +140,7 @@ private:
 		bool show_value;			// whether to show the value as number on the chart
 		int precision;
 		convert_proc convert;	// Knightly : procedure for converting supplied value before use
+		chart_marker_t marker_type;
 	};
 
 	slist_tpl <curve_t> curves;
