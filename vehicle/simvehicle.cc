@@ -6067,7 +6067,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			steps_so_far += VEHICLE_STEPS_PER_TILE;
 		}
 
-		if((working_method == drive_by_sight && (i - (start_index - 1)) > modified_sighting_distance_tiles) && (!this_halt.is_bound() || (haltestelle_t::get_halt(pos, get_owner())) != this_halt))
+		if((working_method == drive_by_sight && (i - (start_index - 1)) > modified_sighting_distance_tiles)
+		&& (!this_halt.is_bound() || (haltestelle_t::get_halt(pos, get_owner())) != this_halt))
 		{
 			// In drive by sight mode, do not reserve further than can be seen (taking account of obstacles);
 			// but treat signals at the end of the platform as a signal at which the train is now standing.
@@ -6075,7 +6076,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			break;
 		}
 
-		if(working_method == moving_block && !directional_only && last_choose_signal_index >= INVALID_INDEX && !is_choosing)
+		if(working_method == moving_block
+		&& !directional_only
+		&& last_choose_signal_index >= INVALID_INDEX
+		&& !is_choosing)
 		{
 			next_signal_index = i;
 
@@ -7214,7 +7218,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		}
 	}
 
-	if(last_bidirectional_signal_index < INVALID_INDEX && first_oneway_sign_index >= INVALID_INDEX && directional_reservation_succeeded && end_of_block)
+	if(last_stop_signal_index < INVALID_INDEX && last_bidirectional_signal_index < INVALID_INDEX && first_oneway_sign_index >= INVALID_INDEX && directional_reservation_succeeded && end_of_block)
 	{
 		 next_signal_index = last_stop_signal_index;
 		 platform_starter = (this_halt.is_bound() && i < route->get_count() && (haltestelle_t::get_halt(route->at(last_stop_signal_index), get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt);
