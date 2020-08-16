@@ -3813,6 +3813,8 @@ production %.1f%s/month
 月生産 %.1f%s
 production %u%s/month
 月生産 %u%s
+own convoi tooltips
+所有車両の状態を表示
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

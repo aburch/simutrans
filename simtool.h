@@ -1015,7 +1015,7 @@ public:
 	tool_vehicle_tooltips_t() : tool_t(TOOL_VEHICLE_TOOLTIPS | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Toggle vehicle tooltips"); }
 	bool init( player_t * ) OVERRIDE {
-		env_t::show_vehicle_states = (env_t::show_vehicle_states+1)%3;
+		env_t::show_vehicle_states = (env_t::show_vehicle_states+1)%4;
 		welt->set_dirty();
 		return false;
 	}

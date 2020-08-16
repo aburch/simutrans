@@ -3095,15 +3095,12 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		COLOR_VAL color = COL_GREEN; // not used, but stop compiler warning about uninitialized
 		char tooltip_text[1024];
 		tooltip_text[0] = 0;
-		uint8 state = env_t::show_vehicle_states;
-		if(  state==1  ) {
-			// only show when mouse over vehicle
-			if(  welt->get_zeiger()->get_pos()==get_pos()  ) {
-				state = 2;
-			}
-			else {
-				state = 0;
-			}
+		uint8 tooltip_display_level = env_t::show_vehicle_states;
+		// only show when mouse over vehicle
+		if(  welt->get_zeiger()->get_pos()==get_pos()  ) {
+			tooltip_display_level = 4;
+		}else if(tooltip_display_level ==2 && cnv->get_owner() == welt->get_active_player()) {
+			tooltip_display_level = 3;
 		}
 
 		// now find out what has happened
@@ -3112,7 +3109,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			case convoi_t::WAITING_FOR_CLEARANCE:
 			case convoi_t::CAN_START:
 			case convoi_t::CAN_START_ONE_MONTH:
-				if(  state>=2  ) {
+				if(tooltip_display_level >=3  ) {
 					tstrncpy( tooltip_text, translator::translate("Waiting for clearance!"), lengthof(tooltip_text) );
 					color = COL_YELLOW;
 				}
@@ -3120,14 +3117,16 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 
 			case convoi_t::EMERGENCY_STOP:
 
-				char emergency_stop_time[64];
-				cnv->snprintf_remaining_emergency_stop_time(emergency_stop_time, sizeof(emergency_stop_time));
-				sprintf( tooltip_text, translator::translate("emergency_stop %s left"),emergency_stop_time/*, lengthof(tooltip_text) */);
-				color = COL_RED;
+				if (tooltip_display_level > 0) {
+					char emergency_stop_time[64];
+					cnv->snprintf_remaining_emergency_stop_time(emergency_stop_time, sizeof(emergency_stop_time));
+					sprintf(tooltip_text, translator::translate("emergency_stop %s left"), emergency_stop_time/*, lengthof(tooltip_text) */);
+					color = COL_RED;
+				}
 				break;
 
 			case convoi_t::LOADING:
-				if(  state>=1  )
+				if( tooltip_display_level >=3 )
 				{
 					char waiting_time[64];
 					cnv->snprintf_remaining_loading_time(waiting_time, sizeof(waiting_time));
@@ -3155,21 +3154,23 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				break;
 			case convoi_t::WAITING_FOR_LOADING_THREE_MONTHS:
 			case convoi_t::WAITING_FOR_LOADING_FOUR_MONTHS:
-				sprintf(tooltip_text, translator::translate("Loading (%i->%i%%) Long Time"), cnv->get_loading_level(), cnv->get_loading_limit());
-				color = COL_ORANGE;
+				if (tooltip_display_level > 0) {
+					sprintf(tooltip_text, translator::translate("Loading (%i->%i%%) Long Time"), cnv->get_loading_level(), cnv->get_loading_limit());
+					color = COL_ORANGE;
+				}
 				break;
 
 			case convoi_t::EDIT_SCHEDULE:
 			case convoi_t::ROUTING_2:
 			case convoi_t::ROUTE_JUST_FOUND:
-				if(  state>=2  ) {
+				if( tooltip_display_level >=3 ) {
 					tstrncpy( tooltip_text, translator::translate("Schedule changing!"), lengthof(tooltip_text) );
 					color = COL_LIGHT_YELLOW;
 				}
 				break;
 
 			case convoi_t::DRIVING:
-				if(  state>=1  ) {
+				if( tooltip_display_level >=3 ) {
 					grund_t const* const gr = welt->lookup(cnv->get_route()->back());
 					if(  gr  &&  gr->get_depot()  ) {
 						tstrncpy( tooltip_text, translator::translate("go home"), lengthof(tooltip_text) );
@@ -3183,14 +3184,14 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				break;
 
 			case convoi_t::LEAVING_DEPOT:
-				if(  state>=2  ) {
+				if( tooltip_display_level >=3 ) {
 					tstrncpy( tooltip_text, translator::translate("Leaving depot!"), lengthof(tooltip_text) );
 					color = COL_GREEN;
 				}
 				break;
 
 				case convoi_t::REVERSING:
-				if(  state>=2  )
+				if( tooltip_display_level >=3 )
 				{
 					char reversing_time[64];
 					cnv->snprintf_remaining_reversing_time(reversing_time, sizeof(reversing_time));
@@ -3212,42 +3213,56 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 
 			case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
 			case convoi_t::CAN_START_TWO_MONTHS:
-				tstrncpy( tooltip_text, translator::translate("clf_chk_stucked"), lengthof(tooltip_text) );
-				color = COL_ORANGE;
+				if (tooltip_display_level > 0) {
+					tstrncpy(tooltip_text, translator::translate("clf_chk_stucked"), lengthof(tooltip_text));
+					color = COL_ORANGE;
+				}
 				break;
 
 			case convoi_t::NO_ROUTE:
-				tstrncpy( tooltip_text, translator::translate("clf_chk_noroute"), lengthof(tooltip_text) );
-				color = COL_RED;
+				if (tooltip_display_level > 0) {
+					tstrncpy(tooltip_text, translator::translate("clf_chk_noroute"), lengthof(tooltip_text));
+					color = COL_RED;
+				}
 				break;
 
 			case convoi_t::NO_ROUTE_TOO_COMPLEX:
-				tstrncpy(tooltip_text, translator::translate("clf_chk_noroute_too_complex"), lengthof(tooltip_text));
-				color = COL_RED;
+				if (tooltip_display_level > 0) {
+					tstrncpy(tooltip_text, translator::translate("clf_chk_noroute_too_complex"), lengthof(tooltip_text));
+					color = COL_RED;
+				}
 				break;
 
 			case convoi_t::OUT_OF_RANGE:
-				tstrncpy( tooltip_text, translator::translate("out of range"), lengthof(tooltip_text) );
-				color = COL_RED;
+				if (tooltip_display_level > 0) {
+					tstrncpy(tooltip_text, translator::translate("out of range"), lengthof(tooltip_text));
+					color = COL_RED;
+				}
 				break;
 		}
 		if(is_overweight)
 		{
-			sprintf(tooltip_text, translator::translate("Too heavy"), cnv->get_name());
-			color = COL_ORANGE;
+			if (tooltip_display_level > 0) {
+				sprintf(tooltip_text, translator::translate("Too heavy"), cnv->get_name());
+				color = COL_ORANGE;
+			}
 		}
 
 		const air_vehicle_t* air = (const air_vehicle_t*)this;
 		if(get_waytype() == air_wt && air->runway_too_short)
 		{
-			sprintf(tooltip_text, translator::translate("Runway too short, require %dm"), desc->get_minimum_runway_length() );
-			color = COL_ORANGE;
+			if (tooltip_display_level > 0) {
+				sprintf(tooltip_text, translator::translate("Runway too short, require %dm"), desc->get_minimum_runway_length());
+				color = COL_ORANGE;
+			}
 		}
 
 		if(get_waytype() == air_wt && air->airport_too_close_to_the_edge)
 		{
-			sprintf(tooltip_text, "%s", translator::translate("Airport too close to the edge"));
-			color = COL_ORANGE;
+			if (tooltip_display_level > 0) {
+				sprintf(tooltip_text, "%s", translator::translate("Airport too close to the edge"));
+				color = COL_ORANGE;
+			}
 		}
 
 		// something to show?
