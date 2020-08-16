@@ -20,6 +20,10 @@
 
 #define TIMES_HISTORY_SIZE 3
 
+static const char const* schedule_type_text[] =
+{
+	"All", "Truck", "Train", "Ship", "Air", "Monorail", "Tram", "Maglev", "Narrowgauge"
+};
 
 class cbuffer_t;
 class grund_t;
@@ -254,6 +258,11 @@ public:
 		}
 		return IMG_EMPTY;
 	}
+
+	inline char const *get_schedule_type_name() const
+	{
+		return schedule_type_text[get_type()];
+	};
 
 private:
 	bool editing_finished;
