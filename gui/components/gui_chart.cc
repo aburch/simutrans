@@ -275,7 +275,31 @@ void gui_chart_t::draw(scr_coord offset)
 			tmp = ( line.convert ? line.convert(*(line.value)) : *(line.value) );
 			for(  int t=0;  t<line.times;  ++t  ) {
 				// display marker(box) for financial value
-				display_fillbox_wh_clip(tmpx+factor*(size.w / (x_elements - 1))*t-2, (scr_coord_val)(offset.y+baseline- (int)(tmp/scale)-2), 5, 5, line.color, true);
+				scr_coord_val x = tmpx + factor * (size.w / (x_elements - 1))*t - 2;
+				scr_coord_val y = (scr_coord_val)(offset.y + baseline - (int)(tmp / scale) - 2);
+				switch (line.marker_type)
+				{
+					case cross:
+						display_direct_line(x, y, x + 4, y + 4, line.color);
+						display_direct_line(x + 4, y, x, y + 4, line.color);
+						break;
+					case diamond:
+						for (int j = 0; j < 5; j++) {
+							display_vline_wh_clip(x + j, y + abs(2 - j), 5 - 2 * abs(2 - j), line.color, false);
+						}
+						break;
+					case round_box:
+						display_filled_roundbox_clip(x, y, 5, 5, line.color, true);
+						break;
+					case none:
+						// display nothing
+						// Note. not recommended this option to "lines". Applying this to line only shows the label
+						break;
+					case square:
+					default:
+						display_fillbox_wh_clip(x, y, 5, 5, line.color, true);
+						break;
+				}
 
 				// display tooltip?
 				if(  t==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10  ) {
