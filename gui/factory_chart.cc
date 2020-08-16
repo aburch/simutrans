@@ -56,6 +56,11 @@ static const uint8 chart_type[MAX_FAB_STAT] =
 	MONEY, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD
 };
 
+static const gui_chart_t::chart_marker_t marker_type[MAX_FAB_REF_LINE] =
+{
+	gui_chart_t::cross, gui_chart_t::cross, gui_chart_t::cross, gui_chart_t::diamond, gui_chart_t::diamond, gui_chart_t::diamond
+};
+
 static const gui_chart_t::convert_proc ref_convert[MAX_FAB_REF_LINE] =
 {
 	convert_boost, convert_boost, convert_boost, convert_power, NULL, NULL
@@ -149,7 +154,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 		if(  s==FAB_BOOST_MAIL  ) {
 			// insert the reference line buttons here to ensure correct tab order
 			for(  int r=0;  r<MAX_FAB_REF_LINE;  ++r  ) {
-				prod_chart.add_line( ref_color[r], prod_ref_line_data + r, MAX_MONTH, false, true, 0, ref_convert[r] );
+				prod_chart.add_line( ref_color[r], prod_ref_line_data + r, MAX_MONTH, false, true, 0, ref_convert[r], marker_type[r] );
 				prod_ref_line_buttons[r].init(button_t::box_state, prod_type[2+(r%3)], scr_coord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(1+r%3), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*(2+(r/3))));
 				prod_ref_line_buttons[r].background_color = ref_color[r];
 				prod_ref_line_buttons[r].pressed = false;
