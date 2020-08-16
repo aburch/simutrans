@@ -1,0 +1,17 @@
+#
+# This file is part of the Simutrans-Extended project under the Artistic License.
+# (see LICENSE.txt)
+#
+
+CC=clang-10
+CXX=clang++-10
+
+DEBUG=1
+OPTIMISE=0
+MULTI_THREAD=1
+
+BACKEND=sdl2
+COLOUR_DEPTH=16
+OSTYPE=linux
+
+FLAGS = -DUSE_C -fno-delete-null-pointer-checks -fno-strict-aliasing -std=c++11
