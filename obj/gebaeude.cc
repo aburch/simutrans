@@ -2182,6 +2182,55 @@ uint16 gebaeude_t::get_adjusted_visitor_demand() const
 	return reduced_demand > 0 ? reduced_demand : 1;
 }
 
+uint16 gebaeude_t::get_adjusted_visitor_demand_by_class(uint8 p_class) const
+{
+	if (get_tile()->get_desc()->get_type() == building_desc_t::city_res) {
+		return 0; // Tentatively ignore. Mostly less than 1
+	}
+	const uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+	const uint32 class_proportions_sum = get_tile()->get_desc()->get_class_proportions_sum();
+	if (class_proportions_sum == 0) {
+		return adjusted_people.visitor_demand / pass_classes;
+	}
+	if (p_class > pass_classes - 1) {
+		return adjusted_people.visitor_demand; // error
+	}
+	switch (p_class) {
+		case -1:
+			return adjusted_people.visitor_demand;
+		case 0:
+			return adjusted_people.visitor_demand * tile->get_desc()->get_class_proportion(p_class) / class_proportions_sum;
+		default:
+			return adjusted_people.visitor_demand * tile->get_desc()->get_class_proportion(p_class) / class_proportions_sum - adjusted_people.visitor_demand * tile->get_desc()->get_class_proportion(p_class - 1) / class_proportions_sum;
+	}
+	return 0;
+}
+
+uint16 gebaeude_t::get_adjusted_jobs_by_class(uint8 p_class) const
+{
+	if (get_tile()->get_desc()->get_type() == building_desc_t::city_res) {
+		return 0;
+	}
+	const uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+	const uint32 class_proportions_sum = get_tile()->get_desc()->get_class_proportions_sum_jobs();
+	if (class_proportions_sum == 0) {
+		return adjusted_jobs / pass_classes;
+	}
+	if (p_class > pass_classes - 1) {
+		return adjusted_jobs; // error
+	}
+	switch (p_class) {
+	case -1:
+		return adjusted_jobs;
+	case 0:
+		return adjusted_jobs * tile->get_desc()->get_class_proportion_jobs(p_class) / class_proportions_sum;
+	default:
+		return adjusted_jobs * tile->get_desc()->get_class_proportion_jobs(p_class) / class_proportions_sum - adjusted_jobs * tile->get_desc()->get_class_proportion_jobs(p_class - 1) / class_proportions_sum;
+	}
+	return 0;
+}
+
+
 sint32 gebaeude_t::check_remaining_available_jobs() const
 {
 	// Commenting out the "if(!jobs_available())" code will allow jobs to be shown as negative.
