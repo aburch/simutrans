@@ -3835,6 +3835,8 @@ Needed
 商品・資材需要
 Products
 生産品
+own convoi tooltips
+所有車両の状態を表示
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

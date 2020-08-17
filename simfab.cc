@@ -1965,7 +1965,7 @@ sint32 fabrik_t::goods_needed(const goods_desc_t *typ) const
 			// Version that respects the new industry internal scale and properly deals with the just in time setting being disabled
 			if(typ->get_catg() == 0 || !welt->get_settings().get_just_in_time())
 			{
-				// The simple system
+				// Just in time 0 (or no just in time) - the simple system
 				return ware.max - ware.menge;
 			}
 			else if(welt->get_settings().get_just_in_time() == 1)
@@ -1973,20 +1973,40 @@ sint32 fabrik_t::goods_needed(const goods_desc_t *typ) const
 				// Original just in time with industries always demanding enough goods to fill their storage but no more.
 				return ware.max_transit - (transit_internal_units + ware.menge - ware.max);
 			}
-			else // just_in_time > 1
+			else if(welt->get_settings().get_just_in_time() == 2 || welt->get_settings().get_just_in_time() == 3)
 			{
 				// Modified just in time, with industries not filling more of their storage than they are likely to need.
 				sint32 adjusted_factory_value = ware.menge - ware.max_transit;
 				adjusted_factory_value = max(adjusted_factory_value, 0);
-				const sint32 overall_maximum = ware.max + ware.max_transit;
 				if (welt->get_settings().get_just_in_time() == 2)
 				{
+					const sint32 overall_maximum = ware.max + ware.max_transit;
 					return min(overall_maximum, ware.max_transit - (transit_internal_units + adjusted_factory_value));
 				}
-				else // just_in_time >= 3
+				else if (welt->get_settings().get_just_in_time() == 3)
 				{
 					// In this state, the size of the consumer's storage is ignored.
 					return ware.max_transit - (transit_internal_units + adjusted_factory_value);
+				}
+			}
+			else //just_in_time >= 4
+			{
+				// With this just in time algorithm, industries put goods in transit in time to fill their storage.
+				if (ware.max >= ware.max_transit)
+				{
+					if (ware.menge < ware.max_transit) // Use max_transit as a warehouse stock level at which more goods need to be ordered.
+					{
+						// Demand goods enough goods to fill the internal storage.
+						return ware.max - transit_internal_units;
+					}
+					else
+					{
+						return 0;
+					}
+				}
+				else
+				{
+					return ware.max_transit - ware.menge - transit_internal_units;
 				}
 			}
 		}
@@ -2322,7 +2342,7 @@ public:
  */
 void fabrik_t::verteile_waren(const uint32 product)
 {
-	// wohin liefern ?
+	// Check consumers
 	if(  lieferziele.empty()  )
 	{
 		return;
@@ -2342,7 +2362,7 @@ void fabrik_t::verteile_waren(const uint32 product)
 
 	// We already know the distribution amount. However it has to be converted from factory units into real units.
 	const uint32 prod_factor = desc->get_product(product)->get_factor();
-	sint32 menge = (sint32)(((sint64)output[product].menge * (sint64)(prod_factor)) >> (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits));
+	sint32 menge = (sint32)(((sint64)output[product].menge * (sint64)(prod_factor)) >> (sint64)(DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits));
 
 	// Check to see whether any consumers are within carting distance: there is no point in boarding transport
 	// if the consumer industry is next door.
@@ -2741,66 +2761,25 @@ void fabrik_t::new_month()
 				if(list_count > 0)
 				{
 					// Upgrade if this industry is well served, otherwise close.
-
-					// TODO: Use statistics for a longer-term view. The statuses are just a snapshot.
-					// However, the statistics need some reworking when town growth is implemented to
-					// remove redundancy - they are also somewhat opaque at present.
-
 					uint32 upgrade_chance_percent;
-					switch (status % staff_shortage)
+
+					// Get average and max. operation rate for the last 11 months
+					// Note that we have already rolled the statistics, so we cannot count the current (blank) month.
+					uint32 total_operation_rate = 0;
+					uint32 max_operation_rate = 0;
+					for (uint32 i = 1; i < 11; i++)
 					{
-					case mat_overstocked:
-						upgrade_chance_percent = 100;
-						break;
-					case good:
-					case water_resource:
-						upgrade_chance_percent = 90;
-						break;
-					case stuck:
-					case nothing:
-					case medium:
-						upgrade_chance_percent = 75;
-						break;
-					//case staff_shortage:
-					//	upgrade_chance_percent = 66;
-					//	break;
-					case bad:
-						upgrade_chance_percent = 50;
-						break;
-					case inactive:
-					case material_shortage:
-						upgrade_chance_percent = 25;
-						break;
-					case storage_full:
-					case no_material:
-					case shipment_stuck:
-						upgrade_chance_percent = 10;
-						break;
-					default:
-						// Should not be reached.
-						dbg->error("void fabrik_t::new_month()", "Unknown industry status type %i", status);
-						upgrade_chance_percent = 33;
-					};
-					if(status >= staff_shortage){
-						// Note that there is a possibility that staff shortage is involved in the above bad status
-						upgrade_chance_percent *= (uint32)building->get_staffing_level_percentage() / 100; // TODO: review the calculation
+						max_operation_rate = max(max_operation_rate, statistics[i][FAB_PRODUCTION]);
+						total_operation_rate += statistics[i][FAB_PRODUCTION];
 					}
-					if (get_sector() == fabrik_t::end_consumer)
-					{
-						// If this is an end consumer, check whether we have a good number
-						// of customers before deciding whether to close/upgrade.
+					const uint32 average_operation_rate = total_operation_rate / 11u;
 
-						const uint32 visitor_demand = (uint32)building->get_adjusted_visitor_demand();
+					upgrade_chance_percent = max(average_operation_rate, max_operation_rate / 2);
 
-						const uint32 current_month = world()->get_last_month();
-						const uint32 visitor_demand_this_year_so_far = (visitor_demand * current_month) / 12u;
-						const uint32 visitors_this_year_so_far = max(1, (uint32)building->get_passengers_succeeded_visiting()); // A zero here will guarantee deletion, which is too harsh.
+					const uint32 minimum_base_upgrade_chance_percent = 50;
 
-						const uint32 percentage = visitor_demand_this_year_so_far > 0 ? (visitors_this_year_so_far * 100u) / visitor_demand_this_year_so_far : 100;
-						uint32 upgrade_chance_percent = 100;
-						upgrade_chance_percent *= percentage;
-						upgrade_chance_percent /= 100;
-					}
+					upgrade_chance_percent += (minimum_base_upgrade_chance_percent * 2);
+					upgrade_chance_percent /= 2;
 
 					const uint32 probability = simrand(101, "void fabrik_t::new_month()");
 

@@ -5152,10 +5152,18 @@ void karte_t::new_month()
 	// to replace ones that have closed.
 	// @author: jamespetts
 
-	if(industry_density_proportion == 0 && finance_history_month[0][WORLD_CITICENS] > 0)
+	if (settings.get_industry_density_proportion_override() > 0)
 	{
-		// Set the industry density proportion for the first time when the number of citizens is populated.
-		industry_density_proportion = (uint32)((sint64)actual_industry_density * 1000000ll) / finance_history_month[0][WORLD_CITICENS];
+		dbg->message("karte_t::new_month()", "Industry density proportion of %i being overriden with a value of %i", industry_density_proportion, settings.get_industry_density_proportion_override());
+		industry_density_proportion = settings.get_industry_density_proportion_override();
+	}
+	else
+	{
+		if (industry_density_proportion == 0 && finance_history_month[0][WORLD_CITICENS] > 0)
+		{
+			// Set the industry density proportion for the first time when the number of citizens is populated.
+			industry_density_proportion = (uint32)(((sint64)actual_industry_density * 1000000ll) / finance_history_month[0][WORLD_CITICENS]);
+		}
 	}
 	const uint32 target_industry_density = get_target_industry_density();
 	if(actual_industry_density < target_industry_density)

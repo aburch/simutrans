@@ -107,7 +107,10 @@ static const char *revision_ex[] =
 	"24",
 	"25",
 	"26",
-	"27"
+	"27",
+	"28",
+	"29",
+	"30"
 };
 
 // just free memory
@@ -324,6 +327,8 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 
 	SEPERATOR;
 
+	INIT_NUM("industry_density_proportion_override", sets->get_industry_density_proportion_override(), 0, 65535, gui_numberinput_t::AUTOLINEAR, false);
+
 	clear_dirty();
 	height = ypos;
 	set_size(settings_stats_t::get_size());
@@ -424,6 +429,8 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_BOOL_VALUE(sets->save_path_explorer_data);
 
 	READ_BOOL_VALUE(sets->show_future_vehicle_info);
+
+	READ_NUM_VALUE(sets->industry_density_proportion_override);
 
 	path_explorer_t::set_absolute_limits_external();
 }

@@ -473,6 +473,8 @@ settings_t::settings_t() :
 
 	tolerance_modifier_percentage = 100;
 
+	industry_density_proportion_override = 0;
+
 	max_route_tiles_to_process_in_a_step = 2048;
 
 	for(uint8 i = 0; i < 17; i ++)
@@ -1862,7 +1864,7 @@ void settings_t::rdwr(loadsave_t *file)
 					file->rdwr_string(region.name);
 				}
 			}
-			else // Loading 
+			else // Loading
 			{
 				uint32 count = 0;
 				file->rdwr_long(count);
@@ -1877,6 +1879,15 @@ void settings_t::rdwr(loadsave_t *file)
 					regions.append(r);
 				}
 			}
+		}
+
+		if (file->get_extended_version() >= 15 || file->get_extended_version() == 14 && file->get_extended_revision() >= 30)
+		{
+			file->rdwr_long(industry_density_proportion_override);
+		}
+		else if (file->is_loading())
+		{
+			industry_density_proportion_override = 0;
 		}
 	}
 
@@ -2616,6 +2627,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	max_elevated_way_building_level = (uint8)contents.get_int("max_elevated_way_building_level", max_elevated_way_building_level);
 
 	tolerance_modifier_percentage = contents.get_int("tolerance_modifier_percentage", tolerance_modifier_percentage);
+
+	industry_density_proportion_override = contents.get_int("industry_density_proportion_override", industry_density_proportion_override);
 
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 

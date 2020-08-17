@@ -2061,6 +2061,14 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 	return 0;
 }
 
+bool grund_t::is_height_restricted() const
+{
+	const grund_t* gr_above = world()->lookup(pos + koord3d(0, 0, 1));
+	return env_t::pak_height_conversion_factor == 2
+		   && gr_above
+		   && gr_above->get_weg_nr(0);
+}
+
 bool grund_t::would_create_excessive_roads(int dx, int dy, road_network_plan_t &road_tiles)
 {
 	grund_t *gr[4];
