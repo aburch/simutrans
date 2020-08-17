@@ -2810,7 +2810,7 @@ uint32 haltestelle_t::get_ware_summe(const goods_desc_t *wtyp) const
 	return sum;
 }
 
-uint32 haltestelle_t::get_ware_summe(const goods_desc_t *wtyp, uint8 g_class) const
+uint32 haltestelle_t::get_ware_summe(const goods_desc_t *wtyp, uint8 g_class, bool chk_only_commuter) const
 {
 	if (g_class >= wtyp->get_number_of_classes()) {
 		return 0;
@@ -2819,7 +2819,8 @@ uint32 haltestelle_t::get_ware_summe(const goods_desc_t *wtyp, uint8 g_class) co
 	const vector_tpl<ware_t> * warray = cargo[wtyp->get_catg_index()];
 	if (warray != NULL) {
 		FOR(vector_tpl<ware_t>, const& i, *warray) {
-			if (wtyp->get_index() == i.get_index() && g_class == i.get_class()) {
+			if (wtyp->get_index() == i.get_index() && g_class == i.get_class()
+				&& (!chk_only_commuter || (chk_only_commuter && wtyp == goods_manager_t::passengers && i.is_commuting_trip))) {
 				sum += i.menge;
 			}
 		}
