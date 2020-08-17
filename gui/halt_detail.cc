@@ -33,7 +33,6 @@
 #define GOODS_WAITING_BAR_BASE_WIDTH 128
 #define GOODS_LEAVING_BAR_HEIGHT 2
 #define BARCOL_TRANSFER_IN (10)
-#define BARCOL_COMMUTERS (22)
 #define MAX_CATEGORY_COLS 16
 
 sint16 halt_detail_t::tabstate = -1;
@@ -810,7 +809,7 @@ void halt_detail_pas_t::draw_class_table(scr_coord offset, const uint8 class_nam
 		if (waiting_commuter_sum_by_class) {
 			// commuter bar
 			bar_width = (waiting_commuter_sum_by_class * GOODS_WAITING_BAR_BASE_WIDTH) / base_capacity;
-			display_cylinderbar_wh_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH * 2 + 10, y + 1, bar_width, 6, BARCOL_COMMUTERS, true);
+			display_cylinderbar_wh_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH * 2 + 10, y + 1, bar_width, 6, COL_COMMUTER, true);
 		}
 
 		y += LINESPACE + GOODS_LEAVING_BAR_HEIGHT + 1;
@@ -892,7 +891,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 		pas_info.append(translator::translate("visitors"));
 		left += display_proportional_clip(offset.x + left, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true) + D_H_SPACE*2;
 
-		display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, BARCOL_COMMUTERS, true, translator::translate("commuters"));
+		display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, COL_COMMUTER, true, translator::translate("commuters"));
 		left += 10;
 		pas_info.clear();
 		pas_info.append(translator::translate("commuters"));
