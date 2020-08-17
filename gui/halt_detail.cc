@@ -759,6 +759,7 @@ void halt_detail_pas_t::draw_class_table(scr_coord offset, const uint8 class_nam
 		else {
 			served = true;
 		}
+		pas_info.clear();
 		pas_info.append(goods_manager_t::get_translated_wealth_name(good_category->get_catg_index(), i));
 		display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, y, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
 		pas_info.clear();
@@ -820,7 +821,6 @@ void halt_detail_pas_t::draw_class_table(scr_coord offset, const uint8 class_nam
 	pas_info.printf("  %u ", halt->get_ware_summe(good_category) + transferring_sum);
 	pas_info.printf(translator::translate("(max: %u)"), halt->get_capacity(good_category->get_catg_index()));
 	left += display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH * 2 + 10, y, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
-	pas_info.clear();
 }
 
 
@@ -869,8 +869,26 @@ void halt_detail_pas_t::draw(scr_coord offset)
 
 		// TODO: change this to "nearby" info and add nearby atraction building info. and more population and jobs info
 		// Passengers can be further separated into commuters and visitors
+#ifdef DEBUG
+		top += LINESPACE;
+		display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, translator::translate("Around population"), ALIGN_LEFT, SYSCOL_TEXT, true);
+		top += LINESPACE;
+		for (uint8 i = 0; i < pass_classes; i++) {
+			pas_info.clear();
+			pas_info.printf("population of %s = %u (%2.1f%%)", goods_manager_t::get_translated_wealth_name(goods_manager_t::INDEX_PAS, i), halt->get_around_population(i), halt->get_around_population() ? 100.0 * halt->get_around_population(i)/ halt->get_around_population() : 0.0);
+			display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
 
-		top += D_MARGIN_TOP;
+			top += LINESPACE;
+		}
+
+		pas_info.clear();
+		pas_info.printf("total population : %u", halt->get_around_population());
+		display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
+
+		top += LINESPACE;
+#endif
+
+		top += D_MARGIN_BOTTOM;
 
 		scr_size size(max(x_size + pos.x, get_size().w), top);
 		if (size != get_size()) {
