@@ -30,13 +30,7 @@ TEMP=${TEMP:-/tmp}
 #
 do_download()
 {
-	if which curl >/dev/null; then
-		curl --progress-bar -L "$1" > "$2" || {
-			echo "Error: download of file '$2' failed (curl returned $?)" >&2
-			rm -f "$2"
-			return 1
-		}
-	elif which wget >/dev/null; then
+	if which wget >/dev/null; then
 		wget -q --show-progress -O "$2" "$1" || {
 			result=$?
 			rm -f "$2"
@@ -48,6 +42,12 @@ do_download()
 				echo "Unknown error downloading file (wget returned $result)" >&2
 				return 1
 			fi
+		}
+	elif which curl >/dev/null; then
+		curl --progress-bar -L "$1" > "$2" || {
+			echo "Error: download of file '$2' failed (curl returned $?)" >&2
+			rm -f "$2"
+			return 1
 		}
 	else
 		echo "Error: Neither curl or wget are available on your system, please install either and try again!" >&2
