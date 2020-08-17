@@ -199,6 +199,7 @@ paksets=( \
 	"https://github.com/Phystam/pak256-release/archive/2.0.3.0.zip" \
 	"http://bridgewater-brunel.me.uk/downloads/nightly/pakset/pak128.britain-ex-nightly.tar.gz" \
 	"http://bridgewater-brunel.me.uk/downloads/nightly/pakset/pak128.sweden-ex-nightly.tar.gz" \
+	"https://github.com/Flemmbrav/Pak192.Comic/releases/download/Nightly/pak192.comic-extended-nightly.zip" \
 )
 
 
