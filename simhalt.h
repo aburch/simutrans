@@ -926,6 +926,8 @@ public:
 	void mark_unmark_coverage(const bool mark, const bool factories = false) const;
 
 	uint32 get_around_population(uint8 g_class = 255) const;
+	uint32 get_around_visitor_demand(uint8 g_class = 255) const;
+	uint32 get_around_job_demand(uint8 g_class = 255) const;
 
 	// @author: jamespetts
 	// Returns the percentage of unhappy people
