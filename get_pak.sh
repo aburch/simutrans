@@ -101,6 +101,13 @@ install_tgz()
 		destdir="$(pwd)"
 	fi
 
+	# Second, check if ground.Outside.pak exists at the root.
+	# If so, we need to create a separate pakset directory (do not install directly into simutrans/)
+	if [ -n "$(echo "$files" | grep -o "./ground\.Outside\.pak")" ]; then
+		destdir="$destdir/$(basename $pakzippath | sed -E -e "s/\.t(ar\.)?gz//")" # Chop off extension
+		mkdir -p "$destdir"
+	fi
+
 	tar -zxf "$pakzippath" -C "$destdir" || {
 		echo "Error: Could not extract '$pakzippath' to '$destdir'" >&2
 		return 1
