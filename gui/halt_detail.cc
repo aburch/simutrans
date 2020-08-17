@@ -867,6 +867,23 @@ void halt_detail_pas_t::draw(scr_coord offset)
 			top += (mail_classes + 1) * (LINESPACE + GOODS_LEAVING_BAR_HEIGHT + 1) + 6;
 		}
 
+		// bar color description
+		top += LINESPACE;
+		left = D_MARGIN_LEFT;
+		display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, goods_manager_t::passengers->get_color(), true, translator::translate("visitors"));
+		left += 10;
+		pas_info.clear();
+		pas_info.append(translator::translate("visitors"));
+		left += display_proportional_clip(offset.x + left, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true) + D_H_SPACE*2;
+
+		display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, goods_manager_t::mail->get_color(), true, goods_manager_t::mail->get_name());
+		left += 10;
+		pas_info.clear();
+		pas_info.append(goods_manager_t::mail->get_name());
+		left += display_proportional_clip(offset.x + left, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true) + D_H_SPACE*2;
+
+		top += LINESPACE;
+
 		// TODO: change this to "nearby" info and add nearby atraction building info. and more population and jobs info
 		// Passengers can be further separated into commuters and visitors
 #ifdef DEBUG
