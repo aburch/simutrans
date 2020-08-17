@@ -52,7 +52,7 @@ private:
 	// these are part of the top UI
 	gui_label_t sort_label;
 	button_t	sortedby;
-	button_t	sorteddir;
+	button_t	sort_asc, sort_desc;
 	gui_label_t mode_label;
 	button_t	display_mode;
 	button_t	filter_on;

@@ -184,7 +184,6 @@ void convoi_frame_t::sort_list()
 	std::sort(convois.begin(), convois.end(), compare_convois);
 
 	sortedby.set_text(sort_text[get_sortierung()]);
-	sorteddir.set_text( get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
 
 	// only now we know how many convois we have
 	resize(scr_coord(0,0));
@@ -219,14 +218,22 @@ convoi_frame_t::convoi_frame_t(player_t* player) :
 	mode_label.set_pos(scr_coord(BUTTON3_X, 2));
 	add_component(&mode_label);
 
-	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 14));
+	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 14), scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
+	// sort ascend/descend button
+	sort_asc.init(button_t::arrowup_state, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH * 1.5 + D_H_SPACE, 14), scr_size(D_ARROW_UP_WIDTH, D_ARROW_UP_HEIGHT));
+	sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
+	sort_asc.add_listener(this);
+	sort_asc.pressed = sortreverse;
+	add_component(&sort_asc);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
-	sorteddir.add_listener(this);
-	add_component(&sorteddir);
+	sort_desc.init(button_t::arrowdown_state, "", sort_asc.get_pos() + scr_coord(D_ARROW_UP_WIDTH + 2, 0), scr_size(D_ARROW_DOWN_WIDTH, D_ARROW_DOWN_HEIGHT));
+	sort_desc.set_tooltip(translator::translate("hl_btn_sort_desc"));
+	sort_desc.add_listener(this);
+	sort_desc.pressed = !sortreverse;
+	add_component(&sort_desc);
 
 	display_mode.init(button_t::roundbox, gui_convoiinfo_t::cnvlist_mode_button_texts[cl_display_mode], scr_coord(BUTTON3_X, 14), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	display_mode.add_listener(this);
@@ -296,8 +303,10 @@ bool convoi_frame_t::action_triggered( gui_action_creator_t *comp, value_t /* */
 		set_sortierung( (sort_mode_t)((get_sortierung() + 1) % SORT_MODES) );
 		sort_list();
 	}
-	else if(  comp == &sorteddir  ) {
+	else if( comp == &sort_asc || comp == &sort_desc ) {
 		set_reverse( !get_reverse() );
+		sort_asc.pressed = sortreverse;
+		sort_desc.pressed = !sortreverse;
 		sort_list();
 	}
 	else if (comp == &display_mode) {

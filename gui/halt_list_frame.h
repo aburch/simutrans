@@ -62,8 +62,7 @@ private:
 
     gui_label_t sort_label;
     button_t	sortedby;
-    button_t	sorteddir;
-    gui_label_t filter_label;
+	button_t	sort_asc, sort_desc;
     button_t	filter_on;
     button_t	filter_details;
 
@@ -80,10 +79,11 @@ private:
     static bool sortreverse;
 
     static int filter_flags;
+	static bool filter_is_on;
 
     static char name_filter_value[64];
 
-    static slist_tpl<const goods_desc_t *> waren_filter_ab;
+	static slist_tpl<const goods_desc_t *> waren_filter_ab;
     static slist_tpl<const goods_desc_t *> waren_filter_an;
 
     static bool compare_halts(halthandle_t, halthandle_t);
@@ -137,6 +137,8 @@ public:
 
 	static bool get_filter(filter_flag_t filter) { return (filter_flags & filter) != 0; }
 	static void set_filter(filter_flag_t filter, bool on) { filter_flags = on ? (filter_flags | filter) : (filter_flags & ~filter); }
+	static bool get_filter_is_on() { return filter_is_on; }
+	static void set_filter_is_on(bool yesno) { filter_is_on = yesno; }
 
 	static char *access_name_filter() { return name_filter_value; }
 
