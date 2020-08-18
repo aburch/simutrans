@@ -100,12 +100,13 @@ void halt_detail_t::init(halthandle_t halt_)
 	cont_route.add_component(&lb_routes);
 
 	uint col = 0;
+	uint freight_btn_offset_x = D_MARGIN_LEFT;
+	uint row = 2;
 	for (int i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
 		if (goods_manager_t::get_info_catg_index(i) == goods_manager_t::none) {
 			continue;
 		}
 		button_t *b = new button_t();
-		uint row;
 		switch (i)
 		{
 			case goods_manager_t::INDEX_PAS:
@@ -115,11 +116,26 @@ void halt_detail_t::init(halthandle_t halt_)
 				row = 1;
 				break;
 			default:
-				row = (col/MAX_CATEGORY_COLS)+2;
+				if (row < 2) { row = 2; }
+				if (freight_btn_offset_x > D_DEFAULT_WIDTH - 80){
+					row++;
+					freight_btn_offset_x = D_MARGIN_LEFT;
+				}
 				break;
 		}
-		b->init(button_t::roundbox_state, NULL, scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT*2*(col%MAX_CATEGORY_COLS), D_V_SPACE+D_BUTTON_HEIGHT*(row+1)), scr_size(D_BUTTON_HEIGHT*2, D_BUTTON_HEIGHT));
-		b->set_image(goods_manager_t::get_info_catg_index(i)->get_catg_symbol());
+		if (goods_manager_t::get_info_catg_index(i)->get_catg_symbol() == IMG_EMPTY || goods_manager_t::get_info_catg_index(i)->get_catg_symbol() == skinverwaltung_t::goods->get_image_id(0)) {
+			b->init(button_t::roundbox_state, goods_manager_t::get_info_catg_index(i)->get_catg_name(), scr_coord(freight_btn_offset_x, D_V_SPACE + D_BUTTON_HEIGHT * (row + 1)), scr_size(80, D_BUTTON_HEIGHT));
+			if (row > 1) {
+				freight_btn_offset_x += 80;
+			}
+		}
+		else {
+			b->init(button_t::roundbox_state, NULL, scr_coord(freight_btn_offset_x, D_V_SPACE + D_BUTTON_HEIGHT * (row + 1)), scr_size(D_BUTTON_HEIGHT * 2, D_BUTTON_HEIGHT));
+			b->set_image(goods_manager_t::get_info_catg_index(i)->get_catg_symbol());
+			if (row > 1) {
+				freight_btn_offset_x += D_BUTTON_HEIGHT * 2;
+			}
+		}
 		b->set_tooltip(translator::translate(goods_manager_t::get_info_catg_index(i)->get_catg_name()));
 		b->add_listener(this);
 		catg_buttons.append(b);
@@ -127,7 +143,7 @@ void halt_detail_t::init(halthandle_t halt_)
 		if (row > 1) { col++; }
 	}
 
-	lb_selected_route_catg.set_pos(scr_coord(D_MARGIN_LEFT, D_BUTTON_HEIGHT * 4 + D_V_SPACE * 2));
+	lb_selected_route_catg.set_pos(scr_coord(D_MARGIN_LEFT, D_BUTTON_HEIGHT * (row+2) + D_V_SPACE * 2));
 	lb_selected_route_catg.set_size(D_BUTTON_SIZE);
 	cont_route.add_component(&lb_selected_route_catg);
 	scrolly_route.set_pos(scr_coord(0, lb_selected_route_catg.get_pos().y + D_BUTTON_HEIGHT));
@@ -903,11 +919,11 @@ void halt_detail_pas_t::draw(scr_coord offset)
 		pas_info.append(goods_manager_t::mail->get_name());
 		left += display_proportional_clip(offset.x + left, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true) + D_H_SPACE*2;
 
-		top += LINESPACE;
+		top += LINESPACE*2;
 
 		top += LINESPACE;
 		display_proportional_clip(offset.x, offset.y + top, translator::translate("Around passenger demands"), ALIGN_LEFT, SYSCOL_TEXT, true);
-		top += LINESPACE;
+		top += LINESPACE + D_V_SPACE;
 		display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, translator::translate("hd_wealth"), ALIGN_LEFT, SYSCOL_TEXT, true);
 		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100, offset.y + top, translator::translate("Population"), ALIGN_RIGHT, SYSCOL_TEXT, true);
 		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100 * 2 + 5, offset.y + top, translator::translate("Visitor demand"), ALIGN_RIGHT, SYSCOL_TEXT, true);
@@ -957,13 +973,13 @@ void halt_detail_pas_t::draw(scr_coord offset)
 
 		top += 4;
 		pas_info.clear();
-		pas_info.printf("%u        ", arround_population);
+		pas_info.printf("%u         ", arround_population);
 		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 		pas_info.clear();
-		pas_info.printf("%u        ", arround_visitor_demand);
+		pas_info.printf("%u         ", arround_visitor_demand);
 		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100 * 2 + 5, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 		pas_info.clear();
-		pas_info.printf("%u        ", arround_job_demand);
+		pas_info.printf("%u         ", arround_job_demand);
 		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100 * 3 + 5 + 4, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 		top += LINESPACE;
