@@ -661,7 +661,7 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 		capacity_buf.append(transfer_time_as_clock);
 		left += display_proportional_clip(pos.x + left, pos.y + yoff, capacity_buf, ALIGN_LEFT, is_operating ? SYSCOL_TEXT : MN_GREY0, true) + D_H_SPACE;
 
-		if (!is_operating)
+		if (!is_operating && skinverwaltung_t::alerts)
 		{
 			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + left, pos.y + yoff, 0, false, false, translator::translate("No service"));
 		}
