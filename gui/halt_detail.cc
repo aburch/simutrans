@@ -99,7 +99,6 @@ void halt_detail_t::init(halthandle_t halt_)
 	lb_routes.set_size(scr_size(D_DEFAULT_WIDTH - D_BUTTON_WIDTH*2, D_BUTTON_HEIGHT));
 	cont_route.add_component(&lb_routes);
 
-	uint col = 0;
 	uint freight_btn_offset_x = D_MARGIN_LEFT;
 	uint row = 2;
 	for (int i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
@@ -140,7 +139,6 @@ void halt_detail_t::init(halthandle_t halt_)
 		b->add_listener(this);
 		catg_buttons.append(b);
 		cont_route.add_component(b);
-		if (row > 1) { col++; }
 	}
 
 	lb_selected_route_catg.set_pos(scr_coord(D_MARGIN_LEFT, D_BUTTON_HEIGHT * (row+2) + D_V_SPACE * 2));
@@ -412,8 +410,6 @@ void halt_detail_t::halt_detail_info()
 				offset_y += LINESPACE;
 				waytype_line_cnt++;
 			}
-
-
 		}
 	}
 	else {
