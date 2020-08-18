@@ -1,13 +1,12 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * system-independent event handling routines
+ * Hj. Malthaner, Jan. 2001
  */
 
 #include "simevent.h"
 #include "sys/simsys.h"
 #include "tpl/slist_tpl.h"
 
-// system-independent event handling routines
 
 static int cx = -1; // coordinates of last mouse click event
 static int cy = -1; // initialised to "nowhere"

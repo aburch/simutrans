@@ -1,6 +1,7 @@
-/*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+/**
+ * server_frame.h
+ *
+ * Server game listing and current game information window
  */
 
 #ifndef GUI_SERVER_FRAME_H

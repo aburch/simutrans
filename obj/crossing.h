@@ -1,6 +1,8 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Copyright (c) 2007 prissi
+ *
+ * This file is part of the Simutrans project under the artistic licence.
+ * (see licence.txt)
  */
 
 #ifndef OBJ_CROSSING_H

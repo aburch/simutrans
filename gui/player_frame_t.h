@@ -1,6 +1,6 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Player list
+ * Hj. Malthaner, 2000
  */
 
 #ifndef GUI_PLAYER_FRAME_T_H

@@ -1,8 +1,3 @@
-/*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
- */
-
 #include <algorithm>
 
 #include "freight_list_sorter.h"

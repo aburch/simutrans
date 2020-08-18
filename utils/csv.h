@@ -1,6 +1,8 @@
-/*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+/* csv.h
+ *
+ * CSV encoding/decoding class
+ * Feb 2012
+ * by Timothy Baldock <tb@entropy.me.uk>
  */
 
 #ifndef UTILS_CSV_H

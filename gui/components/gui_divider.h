@@ -1,6 +1,9 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Copyright (c) 2001 Hansjörg Malthaner
+ * Written (w) 2001 Markus Weber
+ *
+ * This file is part of the Simutrans project under the artistic licence.
+ * (see licence.txt)
  */
 
 #ifndef GUI_COMPONENTS_GUI_DIVIDER_H

@@ -1,8 +1,3 @@
-;
-; This file is part of the Simutrans-Extended project under the Artistic License.
-; (see LICENSE.txt)
-;
-
 ; Just the paksets
 
 SectionGroup "Pak64: main and addons" pak64group

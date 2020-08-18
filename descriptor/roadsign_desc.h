@@ -1,6 +1,10 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ *  Copyright (c) 2006 by prissi
+ *
+ * This file is part of the Simutrans project under the artistic licence.
+ *
+ *  Module description:
+ *      signs on roads and other ways
  */
 
 #ifndef DESCRIPTOR_ROADSIGN_DESC_H

@@ -1,6 +1,7 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Interface to connect the vehicle with its route
+ *
+ * 15.01.00, Hj. Malthaner
  */
 
 #ifndef IFC_SIMTESTDRIVER_H

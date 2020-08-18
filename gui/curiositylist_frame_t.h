@@ -1,6 +1,6 @@
-/*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+/**
+ * Curiosity list window
+ * @author Hj. Malthaner
  */
 
 #ifndef GUI_CURIOSITYLIST_FRAME_T_H
@@ -15,10 +15,6 @@
 #include "components/gui_combobox.h"
 
 
-/**
- * Curiosity list window
- * @author Hj. Malthaner
- */
 class curiositylist_frame_t : public gui_frame_t, private action_listener_t
 {
  private:

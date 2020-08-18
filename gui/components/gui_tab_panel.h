@@ -1,6 +1,6 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * A class for distribution of tabs through the gui_component_t component.
+ * @author Hj. Malthaner
  */
 
 #ifndef GUI_COMPONENTS_GUI_TAB_PANEL_H
@@ -17,10 +17,6 @@
 
 class image_t;
 
-/*
- * A class for distribution of tabs through the gui_component_t component.
- * @author Hj. Malthaner
- */
 class gui_tab_panel_t :
 	public gui_action_creator_t,
 	public action_listener_t,

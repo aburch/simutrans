@@ -1,6 +1,6 @@
-/*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+/**
+ * @file
+ * Contains definition of convoi_t class
  */
 
 #ifndef SIMCONVOI_H

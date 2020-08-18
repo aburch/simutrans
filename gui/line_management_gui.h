@@ -1,6 +1,7 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * part of the Simutrans project
+ * @author hsiegeln
+ * 01/12/2003
  */
 
 #ifndef GUI_LINE_MANAGEMENT_GUI_H

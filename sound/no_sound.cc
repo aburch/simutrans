@@ -1,9 +1,9 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * stub for no sound
+ *
+ * This file is part of the Simutrans project under the artistic license.
  */
 
-/// stub for no sound
 
 #include "sound.h"
 

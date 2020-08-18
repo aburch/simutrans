@@ -1,8 +1,7 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * This file is part of the Simutrans project under the artistic licence.
+ * (see licence.txt)
  */
-
 #include "scenario_info.h"
 #include "../simworld.h"
 #include "../display/viewport.h"

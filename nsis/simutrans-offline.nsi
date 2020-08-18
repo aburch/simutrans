@@ -1,8 +1,3 @@
-;
-; This file is part of the Simutrans-Extended project under the Artistic License.
-; (see LICENSE.txt)
-;
-
 ; Section define/macro header file
 ; See this header file for more info
 !include "MUI2.nsh"

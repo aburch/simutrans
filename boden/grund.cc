@@ -1,9 +1,4 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
- */
-
-/*
  * Base class for grounds in simutrans.
  * by Hj. Malthaner
  */

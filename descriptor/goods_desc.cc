@@ -1,8 +1,3 @@
-/*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
- */
-
 #include "goods_desc.h"
 #include "../simworld.h"
 #include "../dataobj/settings.h"

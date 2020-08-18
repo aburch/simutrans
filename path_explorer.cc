@@ -1,7 +1,9 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Copyright (c) 2009 : Knightly
+ *
+ * A centralised, steppable path searching system using Floyd-Warshall Algorithm
  */
+
 
 #include "path_explorer.h"
 

@@ -1,11 +1,14 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ *
+ * Dummy midi routines - only provide interface, does nothing
+ *
+ * author: Hj. Malthaner
+ * date:   25-May-2002
  */
 
 #include "music.h"
 
-// Dummy midi routines - only provide interface, does nothing
 
 /**
  * sets midi playback volume

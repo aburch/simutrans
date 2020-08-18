@@ -1,6 +1,5 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * all color related stuff
  */
 
 #ifndef SIMCOLOR_H

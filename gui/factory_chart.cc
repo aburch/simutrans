@@ -1,6 +1,12 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Copyright (c) 2011 Knightly
+ *
+ * This file is part of the Simutrans project under the artistic licence.
+ * (see licence.txt)
+ */
+
+/*
+ * Where the current factory chart statistics are calculated
  */
 
 #include "../obj/leitung2.h"

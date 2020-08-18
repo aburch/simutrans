@@ -1,8 +1,3 @@
-/*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
- */
-
 #ifndef TPL_ORDERED_VECTOR_TPL_H
 #define TPL_ORDERED_VECTOR_TPL_H
 

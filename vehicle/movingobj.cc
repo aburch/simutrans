@@ -1,6 +1,7 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Copyright (c) 2008 by Markus Pristovsek
+ *
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 #include <stdio.h>

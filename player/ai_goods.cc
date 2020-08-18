@@ -1,7 +1,5 @@
-/*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
- */
+
+/* standard good AI code */
 
 #include "../simconvoi.h"
 #include "../simfab.h"

@@ -1,6 +1,14 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * with a connected edit field
+ *
+ * Copyright (c) 1997 - 2001 Hansj?rg Malthaner
+ *
+ * This file is part of the Simutrans project under the artistic licence.
+ * (see licence.txt)
+ */
+
+/*
+ * Defines a drop-down list with left/right arrows
  */
 
 #ifndef GUI_COMPONENTS_GUI_COMBOBOX_H
@@ -14,11 +22,6 @@
 #include "gui_button.h"
 
 
-class loadsave_t;
-
-/*
- * Defines a drop-down list with left/right arrows
- */
 class gui_combobox_t :
 	public gui_action_creator_t,
 	public gui_component_t,

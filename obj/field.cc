@@ -1,6 +1,7 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * field, which can extend factories
+ *
+ * Hj. Malthaner
  */
 
 #include <string.h>

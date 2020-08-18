@@ -1,6 +1,5 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Factories builder dialog
  */
 
 #ifndef GUI_FACTORY_EDIT_H
@@ -18,9 +17,6 @@ class tool_city_chain_t;
 class tool_build_factory_t;
 
 
-/*
- * Factories builder dialog
- */
 class factory_edit_frame_t : public extend_edit_gui_t
 {
 private:

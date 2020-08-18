@@ -1,9 +1,4 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
- */
-
-/*
  * Rails for Simutrans
  *
  * Revised January 2001

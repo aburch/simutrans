@@ -1,6 +1,8 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * dialog for setting the climate border and other map related parameters
+ *
+ * Hj. Malthaner
+ * April 2000
  */
 
 #ifndef GUI_CLIMATES_H

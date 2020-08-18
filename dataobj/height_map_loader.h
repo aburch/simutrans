@@ -1,7 +1,4 @@
-/*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
- */
+/* code for loading heightmaps */
 
 #ifndef DATAOBJ_HEIGHT_MAP_LOADER_H
 #define DATAOBJ_HEIGHT_MAP_LOADER_H
@@ -10,7 +7,6 @@
 #include "../simtypes.h"
 #include "environment.h"
 
-/* code for loading heightmaps */
 class height_map_loader_t {
 public:
 	height_map_loader_t(bool height_map_conversion_version);

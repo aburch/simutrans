@@ -1,6 +1,11 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * simunits.cc
+ *
+ * Created on: 24.02.2013
+ *     Author: Bernd Gabriel
+ *
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
  */
 
 #include "simunits.h"

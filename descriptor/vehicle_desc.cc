@@ -1,8 +1,3 @@
-/*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
- */
-
 #include "vehicle_desc.h"
 #include "xref_desc.h"
 #include "../network/checksum.h"

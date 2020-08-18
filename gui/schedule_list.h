@@ -1,6 +1,10 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Dialog with list of schedules.
+ * Contains buttons: edit new remove
+ * Resizable.
+ *
+ * @author Niels Roest
+ * @author hsiegeln: major redesign
  */
 
 #ifndef GUI_SCHEDULE_LIST_H

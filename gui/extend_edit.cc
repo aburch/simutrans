@@ -1,6 +1,10 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Copyright (c) 1997 - 2004 Hansjörg Malthaner
+ *
+ * Base class for the map editing windows (in files *_edit.cc)
+ *
+ * This file is part of the Simutrans project under the artistic licence.
+ * (see licence.txt)
  */
 
 #include <stdio.h>

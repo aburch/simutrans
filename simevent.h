@@ -1,6 +1,11 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Header for system independent event handling routines
+ *
+ * Hj. Malthaner
+ */
+
+/*
+ * [Mathew Hounsell] Min Size Button On Map Window 20030313
  */
 
 #ifndef SIMEVENT_H

@@ -1,6 +1,13 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
+ *
+ * This file is part of the Simutrans project under the artistic license.
+ * (see license.txt)
+ */
+
+/*
+ * zentrale Datenstruktur von Simutrans
+ * Hj. Malthaner 1998
  */
 
 #ifndef SIMWORLD_H

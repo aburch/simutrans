@@ -1,6 +1,6 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Factory list window
+ * @author Hj. Malthaner
  */
 
 #ifndef GUI_FACTORYLIST_FRAME_T_H
@@ -15,10 +15,7 @@
 #include "../descriptor/goods_desc.h"
 #include "../bauer/goods_manager.h"
 
-/*
- * Factory list window
- * @author Hj. Malthaner
- */
+
 class factorylist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:

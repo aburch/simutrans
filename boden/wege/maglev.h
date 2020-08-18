@@ -1,6 +1,5 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * This file is part of the Simutrans project under the artistic licence.
  */
 
 #ifndef BODEN_WEGE_MAGLEV_H

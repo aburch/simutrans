@@ -1,6 +1,10 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ *
+ * SDL_Mixer music routine interfaces
+ *
+ * author: Kieron Green
+ * date:   17-Jan-2007
  */
 
 #include <SDL.h>
@@ -9,8 +13,6 @@
 #include "../simdebug.h"
 #include "../utils/plainstring.h"
 #include "music.h"
-
-// SDL_Mixer music routine interfaces
 
 static int         midi_number = -1;
 static plainstring midi_filenames[MAX_MIDI];

@@ -1,10 +1,4 @@
 #!/bin/bash
-
-#
-# This file is part of the Simutrans-Extended project under the Artistic License.
-# (see LICENSE.txt)
-#
-
 #
 # parameters (in this order):
 # "-no-lang" prevents downloading the translations

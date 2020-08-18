@@ -1,6 +1,13 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Copyright (c) 2006 prissi
+ *
+ * This file is part of the Simutrans project under the artistic licence.
+ * (see licence.txt)
+ */
+
+/*
+ * AI behavior options from AI finance window
+ * 2006 prissi
  */
 
 #include <stdio.h>

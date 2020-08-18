@@ -1,6 +1,7 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * definitions for the system dependent part of simutrans
+ *
+ * This file is part of the Simutrans project under the artistic license.
  */
 
 #ifndef SYS_SIMSYS_H

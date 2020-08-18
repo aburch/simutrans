@@ -1,6 +1,11 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Fabrikfunktionen und Fabrikbau
+ *
+ * Hansjörg Malthaner
+ *
+ *
+ * 25.03.00 Anpassung der Lagerkapazitäten: min. 5 normale Lieferungen
+ *          sollten an Lager gehalten werden.
  */
 
 #include <math.h>

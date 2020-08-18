@@ -1,6 +1,8 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
+ *  Copyright 2013 James Petts, Nathanael Nerode (neroden)
+ *
+ * This file is part of the Simutrans project under the artistic licence.
  */
 
 #ifndef DESCRIPTOR_GOODS_DESC_H

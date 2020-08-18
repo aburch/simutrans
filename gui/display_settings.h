@@ -1,6 +1,6 @@
 /*
- * This file is part of the Simutrans-Extended project under the Artistic License.
- * (see LICENSE.txt)
+ * Menu with display settings
+ * @author Hj. Malthaner
  */
 
 #ifndef GUI_DISPLAY_SETTINGS_H
