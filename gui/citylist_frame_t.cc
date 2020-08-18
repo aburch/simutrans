@@ -152,13 +152,13 @@ citylist_frame_t::citylist_frame_t() :
 	sort_desc.pressed = !sortreverse;
 	add_component(&sort_desc);
 
-	filter_within_network.init(button_t::square_state, "Within own network", scr_coord(D_BUTTON_WIDTH*1.5 + BUTTON2_X + D_H_SPACE, 40-D_BUTTON_HEIGHT));
+	filter_within_network.init(button_t::square_state, "Within own network", scr_coord(sort_desc.get_pos() + scr_coord(D_ARROW_DOWN_WIDTH + 5, -14)));
 	filter_within_network.set_tooltip("Show only cities within the active player's transportation network");
 	filter_within_network.add_listener(this);
 	filter_within_network.pressed = filter_own_network;
 	add_component(&filter_within_network);
 
-	show_stats.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON4_X, 0), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	show_stats.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON4_X, 40 - D_BUTTON_HEIGHT), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	show_stats.set_tooltip("Show/hide statistics");
 	show_stats.add_listener(this);
 	add_component(&show_stats);
