@@ -20,7 +20,7 @@
 
 #define TIMES_HISTORY_SIZE 3
 
-static const char const* schedule_type_text[] =
+static const char* const schedule_type_text[] =
 {
 	"All", "Truck", "Train", "Ship", "Air", "Monorail", "Tram", "Maglev", "Narrowgauge"
 };
