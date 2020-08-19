@@ -281,3 +281,31 @@ jobs:
         with:
           name: ${{ github.job }}-nightly
           path: build/default/nettool/nettool
+
+
+  sim-mingw-sdl2:
+    name: Windows (mingw, SDL2)
+    runs-on: ubuntu-latest
+    container:
+      image: ceeac/simutrans-build-env:mingw-sdl2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure
+        run: cp configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j$(nproc)
+
+
+  sim-mingw-gdi:
+    name: Windows (mingw, GDI)
+    runs-on: ubuntu-latest
+    container:
+      image: ceeac/simutrans-build-env:mingw-sdl2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure
+        run: cp configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j$(nproc)
