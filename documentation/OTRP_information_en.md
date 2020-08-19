@@ -68,7 +68,7 @@ Press the colon key to view roads' configured modes and direction of travel, ill
 - both are enabled -> Orange
 
 ## Lane assignment signs
-As the amount of traffic increases, traffic jams at junctions can be often seen, as in the image below. This is due to vehicles in the fast lane merging across the slow lane to reach the exit, obstructing the flow of traffic.
+As the amount of traffic increases, traffic jams at junctions can be often seen, as in the image below. This is due to vehicles in the fast lane merging across the slow lane to reach the exit, obstructing the flow of traffic.  
 ![fig3](images/fig3.png)  
 
 OTRP provides a sign to assign lanes to vehicles, smoothing the flow of traffic. Placing a one-way sign on a one-lane road enables lane assignments, which are valid until the next intersection, the coordinate of which is displayed in the road sign window.  
