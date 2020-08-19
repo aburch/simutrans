@@ -1,7 +1,7 @@
 /*
-* Copyright 2010 Simutrans contributors
-* Available under the Artistic License (see license.txt)
-*/
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #include <stdlib.h>
 #include <string.h>

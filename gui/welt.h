@@ -1,9 +1,6 @@
 /*
- * Dialog to configure the generation of a new map
- *
- * Hj. Malthaner
- *
- * April 2000
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef GUI_WELT_H

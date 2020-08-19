@@ -1,8 +1,9 @@
 /*
- * Bit depth independent backend using allegro (mainly for BeOS)
- *
- * This file is part of the Simutrans project under the artistic license.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
+
+/// Bit depth independent backend using allegro (mainly for BeOS)
 
 #include <stdlib.h>
 #include <stdio.h>

@@ -1,16 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- * Written (w) 2001 Markus Weber
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Displays a scrollable list of all stations of a player
- *
- * @author Markus Weber
- * @date 02-Jan-02
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef GUI_HALT_LIST_FRAME_H
@@ -29,6 +19,12 @@
 class player_t;
 class goods_desc_t;
 
+/*
+ * Displays a scrollable list of all stations of a player
+ *
+ * @author Markus Weber
+ * @date 02-Jan-02
+ */
 class halt_list_frame_t : public gui_frame_t , private action_listener_t
 {
 public:

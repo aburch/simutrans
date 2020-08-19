@@ -1,7 +1,7 @@
 /*
  * Copyright 2013 Nathanael Nerode
  *
- * This file is part of the Simutrans project under the artistic license.
+ * This file is part of the Simutrans-Extended project under the artistic license.
  * This file is also licensed under the Artistic License 2.0 and the GNU GPL 3.0.
  *
  * This is a dumb version of the logging facilities for use with unit tests.

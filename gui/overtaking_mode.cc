@@ -1,4 +1,9 @@
 /*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/*
  * Dialogue to set the overtaking_mode, when CTRL+clicking a way on toolbar
  * Used by tool_roadsign_t
  */

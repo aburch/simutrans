@@ -1,6 +1,7 @@
-// Header file for vehicle replacement class
-// @author: jamespetts, March 2010
-// Distributed under the terms of the Artistic Licence.
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #ifndef DATAOBJ_REPLACE_DATA_H
 #define DATAOBJ_REPLACE_DATA_H

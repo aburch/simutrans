@@ -1,10 +1,6 @@
 /*
- * Displays a minimap
- *
- * Copyright (c) 2013 Max Kielland, (Hj. Malthaner)
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef GUI_COMPONENTS_GUI_MAP_PREVIEW_H

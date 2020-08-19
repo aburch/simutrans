@@ -1,10 +1,6 @@
 /*
- * just displays an image
- *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef GUI_COMPONENTS_GUI_IMAGE_H
@@ -16,7 +12,9 @@
 #include "gui_component.h"
 
 
-
+/*
+ * just displays an image
+ */
 class gui_image_t : public gui_component_t
 {
 		control_alignment_t alignment;

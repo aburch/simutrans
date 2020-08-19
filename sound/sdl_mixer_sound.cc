@@ -1,8 +1,9 @@
 /*
- * sound with SDL_mixer.dll (not chaning the volume of other programs)
- *
- * This file is part of the Simutrans project under the artistic license.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
+
+// Sound with SDL_mixer.dll (not changing the volume of other programs)
 
 #include <SDL.h>
 #include <SDL_mixer.h>

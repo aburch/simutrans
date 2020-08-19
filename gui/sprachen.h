@@ -1,6 +1,6 @@
 /*
- * Dialog for language change
- * @author Hj. Maltahner, Niels Roest, prissi
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef GUI_SPRACHEN_H
@@ -17,6 +17,10 @@
 
 #include "../tpl/vector_tpl.h"
 
+/*
+ * Dialog for language change
+ * @author Hj. Maltahner, Niels Roest, prissi
+ */
 class sprachengui_t : public gui_frame_t, private action_listener_t
 {
 private:

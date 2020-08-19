@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "../simevent.h"
 #include "../simcolor.h"
 #include "../simconvoi.h"

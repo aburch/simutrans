@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Where factory stats are calculated for list dialog
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef GUI_FACTORYLIST_STATS_T_H
@@ -25,6 +19,7 @@ namespace factorylist {
 
 /**
  * Factory list stats display
+ * Where factory stats are calculated for list dialog
  * @author Hj. Malthaner
  */
 class factorylist_stats_t : public gui_world_component_t

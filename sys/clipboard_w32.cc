@@ -1,11 +1,7 @@
-/**
-* Copyright (c) 2010 Knightly
-*
-* Clipboard functions for copy and paste of text
-*
-* This file is part of the Simutrans project under the artistic license.
-* (see license.txt)
-*/
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #include <windows.h>
 
