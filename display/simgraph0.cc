@@ -421,6 +421,10 @@ void display_filled_circle_rgb(KOORD_VAL, KOORD_VAL, int, const PLAYER_COLOR_VAL
 {
 }
 
+int display_fluctuation_triangle_rgb(KOORD_VAL, KOORD_VAL, uint8, const bool, sint64)
+{
+}
+
 void draw_bezier_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const PLAYER_COLOR_VAL, KOORD_VAL, KOORD_VAL)
 {
 }
