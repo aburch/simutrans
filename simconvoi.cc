@@ -3270,14 +3270,14 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 		// slot = (arrived_time - delay_tolerance - spacing_shift) / spacing + 1
 		uint64 slot = ((arrived_time - delay_tolerance - spacing_shift) * (uint64)current_entry.spacing / world()->ticks_per_world_month + 1);
 		// go_on_ticks = slot * spacing + spacing_shift
-		go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
+		go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift + time_to_load;
 		// book the departure slot.
-		while(  !halt->book_departure(arrived_time, go_on_ticks + time_to_load, go_on_ticks + 2 * world()->ticks_per_world_month / current_entry.spacing, cnv)  ) {
+		while(  !halt->book_departure(arrived_time, go_on_ticks, go_on_ticks + 2 * world()->ticks_per_world_month / current_entry.spacing, cnv)  ) {
 			// If the reservation request is denied, increment slot.
 			slot++;
 			go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
 		}
-		return world()->get_ticks() >= go_on_ticks;
+		return world()->get_ticks() >= go_on_ticks - time_to_load;
 	}
 	
 	c = cnv;
@@ -3488,7 +3488,7 @@ station_tile_search_ready: ;
 		coupling_convoi->hat_gehalten(halt);
 	}
 	
-	bool departure_cond = scheduled_departure_time_intern!=0  &&  welt->get_ticks() > scheduled_departure_time_intern;
+	bool departure_cond = scheduled_departure_time_intern!=0  &&  welt->get_ticks() > scheduled_departure_time_intern - time;
 	
 	if(  scheduled_departure_time_intern==0  ) {
 		bool need_coupling_at_this_stop = false;
@@ -3511,7 +3511,7 @@ station_tile_search_ready: ;
 
 	if(  scheduled_departure_time_intern>0  ) {
 		// departure time is set. we have to take wait_lock into account.
-		scheduled_departure_time = scheduled_departure_time_intern + time;
+		scheduled_departure_time = scheduled_departure_time_intern;
 	}
 
 	// loading is finished => maybe drive on
@@ -3551,7 +3551,7 @@ station_tile_search_ready: ;
 
 	// at least wait the minimum time for loading
 	if(  !is_coupled()  &&  scheduled_departure_time_intern>0  ) {
-		const sint32 ticks_remain = scheduled_departure_time_intern - welt->get_ticks();
+		const sint32 ticks_remain = scheduled_departure_time_intern - time - welt->get_ticks();
 		if(  ticks_remain>0  &&  ticks_remain<(sint32)time  ) {
 			// this convoy is about to start. we don't want to wait for 2000 ms or more.
 			// just wait for ticks_remain
