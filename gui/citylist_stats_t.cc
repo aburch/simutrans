@@ -140,22 +140,37 @@ void citylist_stats_t::draw(scr_coord offset)
 
 		sint32 population = stadt->get_finance_history_month(0, HIST_CITICENS);
 		sint32 growth = stadt->get_finance_history_month(0, HIST_GROWTH);
+		uint16 left = D_POS_BUTTON_WIDTH+2;
 		if(  offset.y + LINESPACE > cl.y  &&  offset.y <= cl.yy  ) {
 			if( (stadt->get_finance_history_month(0, HIST_POWER_RECIEVED) * 9) > (welt->get_finance_history_month(0, HIST_POWER_NEEDED) / 10) )
 			{
-				display_color_img(skinverwaltung_t::electricity->get_image_id(0), offset.x + 4 + 10, offset.y, 0, false, false);
+				display_color_img(skinverwaltung_t::electricity->get_image_id(0), offset.x + left, offset.y, 0, false, false);
 			}
 			else if (stadt->get_finance_history_month(0, HIST_POWER_RECIEVED) > 0) {
-				display_img_blend(skinverwaltung_t::electricity->get_image_id(0), offset.x + 4 + 10, offset.y, TRANSPARENT50_FLAG, false, false);
+				display_img_blend(skinverwaltung_t::electricity->get_image_id(0), offset.x + left, offset.y, TRANSPARENT50_FLAG, false, false);
 			}
-
+			left += 9; // symbol width
 			buf.clear();
-			buf.printf( "%s: ", stadt->get_name() );
+			buf.append(stadt->get_name());
+			display_text_proportional_len_clip(offset.x + left, offset.y, buf, ALIGN_LEFT, SYSCOL_TEXT, true, 25);
+
+			left += (int)(D_BUTTON_WIDTH*1.4) + D_H_SPACE;
+			left += proportional_string_width(" 00,000,000");
+			buf.clear();
 			buf.append( population, 0 );
-			buf.append( " (" );
-			buf.append( growth, 0 );
-			buf.append( ")" );
-			display_proportional_clip(offset.x + 4 + 10 + 9, offset.y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			display_proportional_clip(offset.x + left, offset.y, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
+
+			left += D_H_SPACE;
+			display_fluctuation_triangle(offset.x + left, offset.y, LINESPACE-4, true, growth);
+			left += 9;
+			buf.clear();
+			if (growth == 0) {
+				buf.append("-");
+			}
+			else {
+				buf.append(abs(growth), 0);
+			}
+			display_proportional_clip(offset.x + left, offset.y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 			// goto button
 			bool selected = sel==0;
@@ -169,7 +184,7 @@ void citylist_stats_t::draw(scr_coord offset)
 			sel --;
 
 			if(  win_get_magic( (ptrdiff_t)stadt )  ) {
-				display_blend_wh( offset.x, offset.y, size.w, LINESPACE, SYSCOL_TEXT, 25 );
+				display_blend_wh( offset.x, offset.y, D_DEFAULT_WIDTH, LINESPACE, SYSCOL_TEXT, 25 );
 			}
 		}
 	}
