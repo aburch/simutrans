@@ -4886,7 +4886,7 @@ void display_filled_circle_rgb(KOORD_VAL x0, KOORD_VAL  y0, int radius, const PI
 int display_fluctuation_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, const bool dirty, sint64 value)
 {
 	if (!value) { return 0; } // nothing to draw
-	COLOR_VAL col = value > 0 ? COL_TURQUOISE : COL_ORANGE;
+	COLOR_VAL col = value > 0 ? COL_ADDITIONAL : COL_REDUCED-2;
 	uint8 width = height - height % 2;
 	for (uint i = 0; i < width; i++) {
 		uint8 h = height - 2 * abs(int(width / 2 - i));
