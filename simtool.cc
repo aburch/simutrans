@@ -2845,7 +2845,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 			way->set_yoff(-gr->get_weg_yoff() );
 			marked.insert( way );
 			way->mark_image_dirty( way->get_image(), 0 );
-			if (desc->get_wtyp() == road_wt && (j < bauigel.get_count() - 1)
+			if (desc->get_wtyp() == road_wt && (j < bauigel.get_count() - 1) && skinverwaltung_t::ribi_arrow
 				&& (get_overtaking_mode() <= oneway_mode || get_build_way_tool_from_toolbar(desc)->get_overtaking_mode() <= oneway_mode)) {
 				uint8 dir = 0;
 				if (route_reversed && (j > 1)) {

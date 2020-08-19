@@ -86,11 +86,11 @@ public:
 		{
 			case halt_mode:
 			case prohibited_mode:
+			case oneway_mode:
 				restriction_colour = overtaking_mode_to_color(overtaking_mode);
 				break;
 			case invalid_mode:
 			case twoway_mode:
-			case oneway_mode:
 			default:
 				return 0;
 		}
