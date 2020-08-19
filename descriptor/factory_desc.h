@@ -147,8 +147,8 @@ private:
 
 public:
 	goods_desc_t const* get_input_type() const { return get_child<goods_desc_t>(0); }
-	uint16 get_capacity() const { return capacity; } 
-	uint16 get_supplier_count() const { return supplier_count; } 
+	uint16 get_capacity() const { return capacity; }
+	uint16 get_supplier_count() const { return supplier_count; }
 	uint16 get_consumption() const { return consumption; }
 	void calc_checksum(checksum_t *chk) const;
 };
@@ -250,7 +250,7 @@ public:
 
 	// we must take care, for the case of no producer/consumer
 
-	const factory_supplier_desc_t *get_supplier(uint16 i) const 
+	const factory_supplier_desc_t *get_supplier(uint16 i) const
 	{
 		return 0 <= i && i < supplier_count ? get_child<factory_supplier_desc_t>(2 + i) : 0;
 	}

@@ -9987,7 +9987,7 @@ void karte_t::prepare_tiles(rect_t const &new_area, rect_t const &old_area) {
 }
 
 void karte_t::update_underground_intern( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
-{	 
+{
 	for(  sint16 y = y_min;  y < y_max;  y++  ) {
 		for(  sint16 x = x_min; x < x_max;  x++  ) {
 			const sint16 nr = y * cached_grid_size.x + x;
@@ -9995,7 +9995,7 @@ void karte_t::update_underground_intern( sint16 x_min, sint16 x_max, sint16 y_mi
 		}
 	}
 }
- 
+
 void karte_t::calc_climate(koord k, bool recalc)
 {
 	planquadrat_t *pl = access(k);

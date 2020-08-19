@@ -605,7 +605,7 @@ public:
 				}
 			}
 		}
-		for( uint8 i=0;  i<leader_count;  i++  ) 
+		for( uint8 i=0;  i<leader_count;  i++  )
 		{
 			vehicle_desc_t const* const veh = get_child<vehicle_desc_t>(get_add_to_node() + i);
 			if(veh==prev_veh)
