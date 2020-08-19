@@ -27,7 +27,7 @@ In addition to the executable binary, the ribi-arrow pak is required. Please dow
 You can download the OTRP executable binary from the links below. **(2020 August 19th, updated to ver 26_4.)**  
 windows（GDI）: https://osdn.net/projects/otrp/downloads/73490/sim-WinGDI-OTRPv26_4.exe/  
 mac: https://osdn.net/projects/otrp/downloads/73490/sim-mac-OTRPv26_4.zip/  
-Linux: https://osdn.net/projects/otrp/downloads/73427/sim-linux-OTRPv26_3.zip/  
+Linux: https://osdn.net/projects/otrp/downloads/73490/sim-linux-OTRPv26_4.zip/  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 There is no special makeobj for OTRP. Please use one made for Simutrans Standard.

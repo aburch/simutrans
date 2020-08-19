@@ -27,7 +27,7 @@ version26_4現在，simutrans standard nightly r9183をベースにしていま�
 本体は下のリンクからどうぞ．**（2020年8月19日PM22時　ver26_4に更新）**  
 windows（GDI）: https://osdn.net/projects/otrp/downloads/73490/sim-WinGDI-OTRPv26_4.exe/  
 mac: https://osdn.net/projects/otrp/downloads/73490/sim-mac-OTRPv26_4.zip/  
-Linux: https://osdn.net/projects/otrp/downloads/73427/sim-linux-OTRPv26_3.zip/  
+Linux: https://osdn.net/projects/otrp/downloads/73490/sim-linux-OTRPv26_4.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 OTRP専用のmakeobjはありません．simutrans standardのmakeobjをご利用ください．
