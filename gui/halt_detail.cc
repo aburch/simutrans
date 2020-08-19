@@ -1015,7 +1015,7 @@ void halt_detail_goods_t::draw(scr_coord offset)
 			uint transship_sum = 0;
 
 			goods_info.clear();
-			
+
 			// [Waiting goods info]
 			display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, translator::translate("hd_category"), ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_proportional_clip(offset.x + D_BUTTON_WIDTH + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH, offset.y + top, translator::translate("hd_waiting"), ALIGN_RIGHT, SYSCOL_TEXT, true);

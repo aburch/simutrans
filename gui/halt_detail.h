@@ -151,7 +151,7 @@ private:
 	void update_components();
 
 	void set_tab_opened();
-	
+
 public:
 	halt_detail_t(halthandle_t halt);
 
