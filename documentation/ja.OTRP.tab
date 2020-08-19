@@ -103,6 +103,8 @@ Copy station names and their position to clipboard.
 クリップボードに駅名と座標をコピーします．
 Copy station names and journey time to clipboard in csv format.
 クリップボードに駅名と所要時間をcsv形式でコピーします．
+The latest departure slots were not used.
+直近の発車枠が使われませんでした．
 #------Schedule window related stuff------
 #------スケジュールウィンドウ関連のエントリ------
 Extract advanced settings

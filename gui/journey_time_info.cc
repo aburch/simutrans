@@ -24,7 +24,7 @@ gui_journey_time_stat_t::gui_journey_time_stat_t(schedule_t*, player_t* pl) {
   player = pl;
 }
 
-void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& journey_times) {
+void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& journey_times, bool& empty_slot_exists) {
   schedule_t* schedule = line->get_schedule();
   scr_size size = get_size();
   remove_all();
@@ -38,6 +38,7 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
       lb->buf().printf("%s", halt->get_name());
       const bool last_slot_empty = e.get_wait_for_time() && !halt->is_departure_booked(get_latest_dep_slot(e, world()->get_ticks()), line);
       lb->set_color(last_slot_empty ? color_idx_to_rgb(COL_ORANGE) : SYSCOL_TEXT);
+      empty_slot_exists |= last_slot_empty;
     } else {
       // maybe a waypoint
       lb->buf().printf(translator::translate("Wegpunkt"));
@@ -132,6 +133,10 @@ gui_journey_time_info_t::gui_journey_time_info_t(linehandle_t line, player_t* pl
   set_name(*title_buf);
   
   set_table_layout(1,0);
+  insufficient_cnv_label.set_color(color_idx_to_rgb(COL_ORANGE));
+  insufficient_cnv_label.set_text("The latest departure slots were not used.");
+  add_component(&insufficient_cnv_label);
+  
   gui_aligned_container_t* container = add_table(NUM_ARRIVAL_TIME_STORED+2,1);
   new_component<gui_label_t>("Halt name");
   const char* texts[NUM_ARRIVAL_TIME_STORED+1] = {"Average", "1st", "2nd", "3rd", "4th", "5th"};
@@ -243,5 +248,8 @@ void gui_journey_time_info_t::update() {
   bt_copy_csv.enable(!schedule->entries.empty());
   
   // update stat
-  stat.update(line, journey_times);
+  bool empty_slot_exists = false;
+  stat.update(line, journey_times, empty_slot_exists);
+  insufficient_cnv_label.set_visible(empty_slot_exists);
+  reset_min_windowsize();
 }
