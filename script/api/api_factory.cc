@@ -284,7 +284,7 @@ void export_factory(HSQUIRRELVM vm)
 	 * @returns array of tile_x objects
 	 */
 	register_method(vm, &factory_get_tile_list, "get_tile_list", true);
-	
+
 	/**
 	 * Get monthly statistics of arrived visitors.
 	 * @returns array, index [0] corresponds to current month

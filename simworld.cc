@@ -3059,7 +3059,7 @@ karte_t::karte_t() :
 	speed_factors_are_set(false)
 {
 	destroying = false;
-	
+
 	// length of day and other time stuff
 	ticks_per_world_month_shift = 20;
 	ticks_per_world_month = (1LL << ticks_per_world_month_shift);
