@@ -99,9 +99,9 @@ void halt_detail_t::init(halthandle_t halt_)
 	lb_routes.set_size(scr_size(D_DEFAULT_WIDTH - D_BUTTON_WIDTH*2, D_BUTTON_HEIGHT));
 	cont_route.add_component(&lb_routes);
 
-	uint freight_btn_offset_x = D_MARGIN_LEFT;
-	uint row = 2;
-	for (int i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
+	uint16 freight_btn_offset_x = D_MARGIN_LEFT;
+	uint8 row = 2;
+	for (uint8 i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
 		if (goods_manager_t::get_info_catg_index(i) == goods_manager_t::none) {
 			continue;
 		}
@@ -278,7 +278,7 @@ void halt_detail_t::update_components()
 	// tab4
 	// catg buttons
 	bool chk_pressed = (selected_route_catg_index == goods_manager_t::INDEX_NONE) ? false : true;
-	int i = 0;
+	uint8 i = 0;
 	FORX(slist_tpl<button_t *>, btn, catg_buttons, i++) {
 		uint8 catg_index = i >= goods_manager_t::INDEX_NONE ? i+1 : i;
 		btn->disable();
@@ -501,7 +501,7 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *comp, value_t extra)
 		set_tab_opened();
 	}
 	else {
-		int i = 0;
+		uint8 i = 0;
 		FORX(slist_tpl<button_t *>, btn, catg_buttons,i++) {
 			uint8 catg_index = i >= goods_manager_t::INDEX_NONE ? i + 1 : i;
 			if (comp == btn) {
@@ -608,7 +608,7 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 					continue;
 				}
 				symbol = skinverwaltung_t::goods->get_image_id(0);
-				for (uint g1 = 0; g1 < goods_manager_t::get_max_catg_index(); g1++) {
+				for (uint8 g1 = 0; g1 < goods_manager_t::get_max_catg_index(); g1++) {
 					if (g1 == goods_manager_t::INDEX_PAS || g1 == goods_manager_t::INDEX_MAIL)
 					{
 						continue;
@@ -623,7 +623,7 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 						wainting_sum += halt->get_ware_summe(wtyp);
 						break;
 					default:
-						const uint8  count = goods_manager_t::get_count();
+						const uint8 count = goods_manager_t::get_count();
 						for (uint32 g2 = 3; g2 < count; g2++) {
 							goods_desc_t const* const wtyp2 = goods_manager_t::get_info(g2);
 							if (wtyp2->get_catg_index() != g1) {
@@ -756,13 +756,13 @@ void halt_detail_pas_t::draw_class_table(scr_coord offset, const uint8 class_nam
 	}
 	KOORD_VAL y = offset.y;
 
-	int base_capacity = halt->get_capacity(good_category->get_catg_index()) ? max(halt->get_capacity(good_category->get_catg_index()), 10) : 10; // Note that capacity may have 0 even if pax_enabled
-	int transferring_sum = 0;
+	uint base_capacity = halt->get_capacity(good_category->get_catg_index()) ? max(halt->get_capacity(good_category->get_catg_index()), 10) : 10; // Note that capacity may have 0 even if pax_enabled
+	uint transferring_sum = 0;
 	bool served = false;
 	int left = 0;
 
 	display_color_img(good_category == goods_manager_t::mail ? skinverwaltung_t::mail->get_image_id(0) : skinverwaltung_t::passengers->get_image_id(0), offset.x, y, 0, false, false);
-	for (int i = 0; i < good_category->get_number_of_classes(); i++)
+	for (uint8 i = 0; i < good_category->get_number_of_classes(); i++)
 	{
 		if (halt->get_connexions(good_category->get_catg_index(), i)->empty())
 		{
@@ -795,8 +795,8 @@ void halt_detail_pas_t::draw_class_table(scr_coord offset, const uint8 class_nam
 		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH, y, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 		pas_info.clear();
 
-		int transfers_out = halt->get_leaving_goods_sum(good_category, i);
-		int transfers_in = halt->get_transferring_goods_sum(good_category, i) - transfers_out;
+		uint transfers_out = halt->get_leaving_goods_sum(good_category, i);
+		uint transfers_in = halt->get_transferring_goods_sum(good_category, i) - transfers_out;
 		if (served || halt->get_transferring_goods_sum(good_category, i))
 		{
 			pas_info.printf("%4u/%4u", transfers_in, transfers_out);
@@ -810,7 +810,7 @@ void halt_detail_pas_t::draw_class_table(scr_coord offset, const uint8 class_nam
 		// color bar
 		COLOR_VAL overlay_color = i < good_category->get_number_of_classes() / 2 ? COL_BLACK : COL_WHITE;
 		uint8 overlay_transparency = abs(good_category->get_number_of_classes() / 2 - i) * 7;
-		int bar_width = (waiting_sum_by_class * GOODS_WAITING_BAR_BASE_WIDTH) / base_capacity;
+		uint bar_width = (waiting_sum_by_class * GOODS_WAITING_BAR_BASE_WIDTH) / base_capacity;
 		// transferring bar
 		display_fillbox_wh_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH * 2 + 10, y + 1, (transfers_in * GOODS_WAITING_BAR_BASE_WIDTH / base_capacity) + bar_width, 6, BARCOL_TRANSFER_IN, true);
 		transferring_sum += halt->get_transferring_goods_sum(good_category, i);
@@ -1010,9 +1010,9 @@ void halt_detail_goods_t::draw(scr_coord offset)
 		active_freight_catg = 0;
 		if (halt->get_ware_enabled())
 		{
-			int base_capacity = halt->get_capacity(2) ? max(halt->get_capacity(2), 10) : 10; // Note that capacity may have 0 even if enabled
-			int waiting_sum = 0;
-			int transship_sum = 0;
+			uint base_capacity = halt->get_capacity(2) ? max(halt->get_capacity(2), 10) : 10; // Note that capacity may have 0 even if enabled
+			uint waiting_sum = 0;
+			uint transship_sum = 0;
 
 			goods_info.clear();
 			
@@ -1030,7 +1030,7 @@ void halt_detail_goods_t::draw(scr_coord offset)
 
 			uint32 max_capacity = halt->get_capacity(2);
 			const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-			for (uint i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
+			for (uint8 i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
 				if (i == goods_manager_t::INDEX_PAS || i == goods_manager_t::INDEX_MAIL)
 				{
 					continue;
@@ -1063,7 +1063,7 @@ void halt_detail_goods_t::draw(scr_coord offset)
 						break;
 					default:
 						const uint8  count = goods_manager_t::get_count();
-						for (uint32 j = 3; j < count; j++) {
+						for (uint8 j = 3; j < count; j++) {
 							goods_desc_t const* const wtyp2 = goods_manager_t::get_info(j);
 							if (wtyp2->get_catg_index() != i) {
 								continue;
@@ -1073,7 +1073,7 @@ void halt_detail_goods_t::draw(scr_coord offset)
 							transship_in_catg += halt->get_transferring_goods_sum(wtyp2, 0) - halt->get_leaving_goods_sum(wtyp2, 0);
 
 							// color bar
-							int bar_width = halt->get_ware_summe(wtyp2) * GOODS_WAITING_BAR_BASE_WIDTH / base_capacity;
+							uint bar_width = halt->get_ware_summe(wtyp2) * GOODS_WAITING_BAR_BASE_WIDTH / base_capacity;
 
 							// waiting bar
 							if (bar_width) {
@@ -1211,7 +1211,7 @@ void gui_halt_nearby_factory_info_t::draw(scr_coord offset)
 
 		xoff = max(xoff, D_BUTTON_WIDTH * 2 + D_INDICATOR_WIDTH);
 
-		int has_input_output = 0;
+		uint has_input_output = 0;
 		FOR(array_tpl<ware_production_t>, const& i, fab->get_input()) {
 			goods_desc_t const* const ware = i.get_typ();
 			if (skinverwaltung_t::input_output && !has_input_output) {
@@ -1277,8 +1277,8 @@ void gui_halt_nearby_factory_info_t::draw(scr_coord offset)
 	xoff = GOODS_SYMBOL_CELL_WIDTH + (int)(D_BUTTON_WIDTH*1.5); // 2nd col x offset
 	offset.x += D_MARGIN_LEFT;
 	if ((!required_material.empty() || !active_product.empty() || !inactive_product.empty()) && halt->get_ware_enabled()) {
-		int input_cnt = 0;
-		int output_cnt = 0;
+		uint8 input_cnt = 0;
+		uint8 output_cnt = 0;
 		if (skinverwaltung_t::input_output) {
 			display_color_img_with_tooltip(skinverwaltung_t::input_output->get_image_id(0), offset.x, offset.y + yoff, 0, false, false, translator::translate("Angenommene Waren"));
 			display_color_img(skinverwaltung_t::input_output->get_image_id(1), offset.x + xoff, offset.y + yoff, 0, false, false);
@@ -1292,7 +1292,7 @@ void gui_halt_nearby_factory_info_t::draw(scr_coord offset)
 		display_direct_line(offset.x + xoff, offset.y + yoff, offset.x + xoff + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH * 1.5, offset.y + yoff, MN_GREY1);
 		yoff += 4;
 
-		for (uint32 i = 0; i < goods_manager_t::get_count(); i++) {
+		for (uint8 i = 0; i < goods_manager_t::get_count(); i++) {
 			const goods_desc_t *ware = goods_manager_t::get_info(i);
 			// inuput
 			if (required_material.is_contained(ware)) {
