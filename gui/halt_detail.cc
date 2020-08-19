@@ -87,7 +87,7 @@ void halt_detail_t::init(halthandle_t halt_)
 	cont_goods.add_component(&goods);
 	cont_goods.add_component(&lb_nearby_factory);
 	cont_goods.add_component(&nearby_factory);
-	
+
 	// Adjust window to optimal size
 	set_tab_opened();
 
