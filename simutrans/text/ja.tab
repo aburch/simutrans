@@ -3837,6 +3837,14 @@ Needed
 商品・資材需要
 Products
 生産品
+twoway
+対面通行
+oneway
+一方通行
+prohibited
+追越不可(対面)
+do not change the mode for existing ways
+既存の制限を維持
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

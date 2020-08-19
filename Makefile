@@ -733,7 +733,10 @@ ifeq ($(OSTYPE),mac)
 endif
 
 
-.PHONY: makeobj-extended
+.PHONY: makeobj nettool
 
 makeobj:
 	$(Q)$(MAKE) -e -C makeobj FLAGS="$(FLAGS)"
+
+nettool:
+	$(Q)$(MAKE) -e -C nettools FLAGS="$(FLAGS)"

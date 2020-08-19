@@ -7229,8 +7229,9 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		}
 	}
 
-	if(last_bidirectional_signal_index < INVALID_INDEX && first_oneway_sign_index >= INVALID_INDEX && directional_reservation_succeeded && end_of_block)
+	if(last_stop_signal_index < INVALID_INDEX && last_bidirectional_signal_index < INVALID_INDEX && first_oneway_sign_index >= INVALID_INDEX && directional_reservation_succeeded && end_of_block)
 	{
+		 //TODO: Consider whether last_stop_signal_index should be assigned to last_bidirectional_signal_index
 		 next_signal_index = last_stop_signal_index;
 		 platform_starter = (this_halt.is_bound() && i < route->get_count() && (haltestelle_t::get_halt(route->at(last_stop_signal_index), get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt);
 	}

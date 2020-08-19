@@ -1977,7 +1977,7 @@ sint32 fabrik_t::goods_needed(const goods_desc_t *typ) const
 			{
 				// Modified just in time, with industries not filling more of their storage than they are likely to need.
 				sint32 adjusted_factory_value = ware.menge - ware.max_transit;
-				adjusted_factory_value = max(adjusted_factory_value, 0);	
+				adjusted_factory_value = max(adjusted_factory_value, 0);
 				if (welt->get_settings().get_just_in_time() == 2)
 				{
 					const sint32 overall_maximum = ware.max + ware.max_transit;

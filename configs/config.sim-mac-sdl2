@@ -1,0 +1,17 @@
+#
+# This file is part of the Simutrans-Extended project under the Artistic License.
+# (see LICENSE.txt)
+#
+
+BACKEND=sdl2
+COLOUR_DEPTH=0
+OSTYPE=mac
+
+AV_FOUNDATION=1
+DEBUG=0
+OPTIMISE=1
+
+FLAGS = -DUSE_C -fno-delete-null-pointer-checks -fno-strict-aliasing -std=c++11
+
+CFLAGS  += -F /Library/Frameworks
+LDFLAGS += -framework SDL2 -F /Library/Frameworks -I /Library/Frameworks/SDL2.framework/Headers
