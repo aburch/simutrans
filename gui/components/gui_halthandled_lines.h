@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_HALTHANDLED_LINES_H
-#define GUI_HALTHANDLED_LINES_H
+#ifndef GUI_COMPONENTS_GUI_HALTHANDLED_LINES_H
+#define GUI_COMPONENTS_GUI_HALTHANDLED_LINES_H
 
 
 #include "gui_container.h"
