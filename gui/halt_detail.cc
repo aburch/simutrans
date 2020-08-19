@@ -87,7 +87,7 @@ void halt_detail_t::init(halthandle_t halt_)
 	cont_goods.add_component(&goods);
 	cont_goods.add_component(&lb_nearby_factory);
 	cont_goods.add_component(&nearby_factory);
-	
+
 	// Adjust window to optimal size
 	set_tab_opened();
 
@@ -259,6 +259,7 @@ void halt_detail_t::halt_detail_info()
 	}
 	buf.clear();
 
+	sint16 offset_x = 0;
 	sint16 offset_y = D_MARGIN_TOP;
 
 	// add lines that serve this stop
@@ -267,25 +268,44 @@ void halt_detail_t::halt_detail_info()
 	offset_y += LINESPACE;
 
 	if(  !halt->registered_lines.empty()  ) {
-		for (unsigned int i = 0; i<halt->registered_lines.get_count(); i++) {
-			// Line buttons only if owner ...
-			if (welt->get_active_player()==halt->registered_lines[i]->get_owner()) {
-				button_t *b = new button_t();
-				b->init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y) );
-				b->set_targetpos( koord(-1,i) );
-				b->add_listener( this );
-				linebuttons.append( b );
-				cont.add_component( b );
+		for (uint8 lt = 1; lt < simline_t::MAX_LINE_TYPE; lt++) {
+			uint waytype_line_cnt = 0;
+			for (unsigned int i = 0; i<halt->registered_lines.get_count(); i++) {
+				if (halt->registered_lines[i]->get_linetype() != lt) {
+					continue;
+				}
+				int offset_x = D_MARGIN_LEFT;
+				if (!waytype_line_cnt) {
+					buf.append("\n");
+					offset_y += LINESPACE;
+					buf.append(" · ");
+					buf.append(translator::translate(halt->registered_lines[i]->get_linetype_name()));
+					buf.append("\n");
+					offset_y += LINESPACE;
+				}
+
+				// Line buttons only if owner ...
+				if (welt->get_active_player() == halt->registered_lines[i]->get_owner()) {
+					button_t *b = new button_t();
+					b->init(button_t::posbutton, NULL, scr_coord(offset_x, offset_y));
+					b->set_targetpos(koord(-1, i));
+					b->add_listener(this);
+					linebuttons.append(b);
+					cont.add_component(b);
+				}
+				offset_x += D_BUTTON_HEIGHT+D_H_SPACE;
+				// Line labels with color of player
+				label_names.append( strdup(halt->registered_lines[i]->get_name()) );
+				gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_lines[i]->get_owner()->get_player_color1()+0) );
+				l->set_pos( scr_coord(offset_x, offset_y) );
+				linelabels.append( l );
+				cont.add_component( l );
+				buf.append("\n");
+				offset_y += LINESPACE;
+				waytype_line_cnt++;
 			}
 
-			// Line labels with color of player
-			label_names.append( strdup(halt->registered_lines[i]->get_name()) );
-			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_lines[i]->get_owner()->get_player_color1()+0) );
-			l->set_pos( scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
-			linelabels.append( l );
-			cont.add_component( l );
-			buf.append("\n");
-			offset_y += LINESPACE;
+
 		}
 	}
 	else {
@@ -641,7 +661,7 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 		capacity_buf.append(transfer_time_as_clock);
 		left += display_proportional_clip(pos.x + left, pos.y + yoff, capacity_buf, ALIGN_LEFT, is_operating ? SYSCOL_TEXT : MN_GREY0, true) + D_H_SPACE;
 
-		if (!is_operating)
+		if (!is_operating && skinverwaltung_t::alerts)
 		{
 			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + left, pos.y + yoff, 0, false, false, translator::translate("No service"));
 		}
@@ -875,7 +895,7 @@ void halt_detail_goods_t::draw(scr_coord offset)
 			int transship_sum = 0;
 
 			goods_info.clear();
-			
+
 			// [Waiting goods info]
 			display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, translator::translate("hd_category"), ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_proportional_clip(offset.x + D_BUTTON_WIDTH + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH, offset.y + top, translator::translate("hd_waiting"), ALIGN_RIGHT, SYSCOL_TEXT, true);

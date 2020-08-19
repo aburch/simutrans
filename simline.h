@@ -296,6 +296,10 @@ public:
 		}
 	}
 
+	inline char const *get_linetype_name() const {
+		return schedule_type_text[type];
+	}
+
 	sint64 calc_departures_scheduled();
 };
 
