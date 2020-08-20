@@ -3815,6 +3815,28 @@ production %u%s/month
 月生産 %u%s
 own convoi tooltips
 所有車両の状態を表示
+No service
+運行されている編成がありません
+Passengers/mail
+旅客／郵便
+Freight
+貨物
+Services
+サービス
+hd_wealth
+所得層
+hd_waiting
+待機中
+hd_transfers
+乗換・移動中
+hd_category
+貨物品目分類
+hd_transship
+積替・搬出中
+Needed
+商品・資材需要
+Products
+生産品
 twoway
 対面通行
 oneway

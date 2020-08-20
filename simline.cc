@@ -41,6 +41,17 @@ line_cost_t simline_t::convoi_to_line_catgory(convoi_t::convoi_cost_t cnv_cost)
 	return convoi_to_line_catgory_[cnv_cost];
 }
 
+const uint simline_t::linetype_to_stationtype[simline_t::MAX_LINE_TYPE] = {
+	haltestelle_t::invalid,
+	haltestelle_t::busstop,
+	haltestelle_t::railstation,
+	haltestelle_t::dock,
+	haltestelle_t::airstop,
+	haltestelle_t::monorailstop,
+	haltestelle_t::tramstop,
+	haltestelle_t::maglevstop,
+	haltestelle_t::narrowgaugestop
+};
 
 karte_ptr_t simline_t::welt;
 

@@ -14,8 +14,16 @@
 #include "../tpl/minivec_tpl.h"
 #include "../tpl/koordhashtable_tpl.h"
 
+#include "../simskin.h"
+#include "../display/simimg.h"
+#include "../descriptor/skin_desc.h"
+
 #define TIMES_HISTORY_SIZE 3
 
+static const char* const schedule_type_text[] =
+{
+	"All", "Truck", "Train", "Ship", "Air", "Monorail", "Tram", "Maglev", "Narrowgauge"
+};
 
 class cbuffer_t;
 class grund_t;
@@ -221,7 +229,40 @@ public:
 	/** Checks whetehr the given stop is contained in the schedule
 	 * @author: jamespetts, September 2011
 	 */
-	bool is_contained (koord3d pos);
+	bool is_contained(koord3d pos);
+
+	image_id get_schedule_type_symbol() const
+	{
+		switch (get_type())
+		{
+			case schedule_t::truck_schedule:
+				return skinverwaltung_t::autohaltsymbol->get_image_id(0);
+			case schedule_t::train_schedule:
+				return skinverwaltung_t::zughaltsymbol->get_image_id(0);
+			case schedule_t::ship_schedule:
+				return skinverwaltung_t::schiffshaltsymbol->get_image_id(0);
+			case schedule_t::airplane_schedule:
+				return skinverwaltung_t::airhaltsymbol->get_image_id(0);
+			case schedule_t::monorail_schedule:
+				return skinverwaltung_t::monorailhaltsymbol->get_image_id(0);
+			case schedule_t::tram_schedule:
+				return skinverwaltung_t::tramhaltsymbol->get_image_id(0);
+			case schedule_t::maglev_schedule:
+				return skinverwaltung_t::maglevhaltsymbol->get_image_id(0);
+			case schedule_t::narrowgauge_schedule:
+				return skinverwaltung_t::narrowgaugehaltsymbol->get_image_id(0);
+			case schedule_t::schedule:
+			default:
+				return IMG_EMPTY;
+				break;
+		}
+		return IMG_EMPTY;
+	}
+
+	inline char const *get_schedule_type_name() const
+	{
+		return schedule_type_text[get_type()];
+	};
 
 private:
 	bool editing_finished;
