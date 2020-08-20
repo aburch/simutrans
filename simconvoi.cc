@@ -3275,7 +3275,7 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 		while(  !halt->book_departure(arrived_time, go_on_ticks, go_on_ticks + 2 * world()->ticks_per_world_month / current_entry.spacing, cnv)  ) {
 			// If the reservation request is denied, increment slot.
 			slot++;
-			go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
+			go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift + time_to_load;
 		}
 		return world()->get_ticks() >= go_on_ticks - time_to_load;
 	}
