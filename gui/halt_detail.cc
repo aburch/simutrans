@@ -921,9 +921,9 @@ void halt_detail_pas_t::draw(scr_coord offset)
 		display_proportional_clip(offset.x, offset.y + top, translator::translate("Around passenger demands"), ALIGN_LEFT, SYSCOL_TEXT, true);
 		top += LINESPACE + D_V_SPACE;
 		display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, translator::translate("hd_wealth"), ALIGN_LEFT, SYSCOL_TEXT, true);
-		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100, offset.y + top, translator::translate("Population"), ALIGN_RIGHT, SYSCOL_TEXT, true);
-		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100 * 2 + 5, offset.y + top, translator::translate("Visitor demand"), ALIGN_RIGHT, SYSCOL_TEXT, true);
-		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100 * 3 + 5 + 4, offset.y + top, translator::translate("Jobs"), ALIGN_RIGHT, SYSCOL_TEXT, true);
+		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100, offset.y + top, translator::translate("Population"), ALIGN_LEFT, SYSCOL_TEXT, true);
+		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100 * 2 + 5, offset.y + top, translator::translate("Visitor demand"), ALIGN_LEFT, SYSCOL_TEXT, true);
+		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100 * 3 + 5 + 4, offset.y + top, translator::translate("Jobs"), ALIGN_LEFT, SYSCOL_TEXT, true);
 		top += LINESPACE + 2;
 
 		display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width, offset.y + top, MN_GREY1);
