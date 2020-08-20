@@ -971,7 +971,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_version()>102001)
 		{
-			bool dummy;
+			bool dummy = false;
 			file->rdwr_bool(dummy);
 			file->rdwr_bool(with_private_paks);
 		}
