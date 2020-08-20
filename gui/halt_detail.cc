@@ -57,6 +57,7 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 }
 
 
+#define TEXT_GOODS_BUTTON_WIDTH (80)
 void halt_detail_t::init(halthandle_t halt_)
 {
 	line_number.set_pos(scr_coord(0, D_V_SPACE));
@@ -116,16 +117,16 @@ void halt_detail_t::init(halthandle_t halt_)
 				break;
 			default:
 				if (row < 2) { row = 2; }
-				if (freight_btn_offset_x > D_DEFAULT_WIDTH - 80){
+				if (freight_btn_offset_x > D_DEFAULT_WIDTH - TEXT_GOODS_BUTTON_WIDTH){
 					row++;
 					freight_btn_offset_x = D_MARGIN_LEFT;
 				}
 				break;
 		}
 		if (goods_manager_t::get_info_catg_index(i)->get_catg_symbol() == IMG_EMPTY || goods_manager_t::get_info_catg_index(i)->get_catg_symbol() == skinverwaltung_t::goods->get_image_id(0)) {
-			b->init(button_t::roundbox_state, goods_manager_t::get_info_catg_index(i)->get_catg_name(), scr_coord(freight_btn_offset_x, D_V_SPACE + D_BUTTON_HEIGHT * (row + 1)), scr_size(80, D_BUTTON_HEIGHT));
+			b->init(button_t::roundbox_state, goods_manager_t::get_info_catg_index(i)->get_catg_name(), scr_coord(freight_btn_offset_x, D_V_SPACE + D_BUTTON_HEIGHT * (row + 1)), scr_size(TEXT_GOODS_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 			if (row > 1) {
-				freight_btn_offset_x += 80;
+				freight_btn_offset_x += TEXT_GOODS_BUTTON_WIDTH;
 			}
 		}
 		else {
@@ -851,6 +852,7 @@ void halt_detail_pas_t::draw_class_table(scr_coord offset, const uint8 class_nam
 }
 
 
+#define DEMANDS_CELL_WIDTH (100)
 void halt_detail_pas_t::draw(scr_coord offset)
 {
 	// keep previous maximum width
@@ -921,15 +923,15 @@ void halt_detail_pas_t::draw(scr_coord offset)
 		display_proportional_clip(offset.x, offset.y + top, translator::translate("Around passenger demands"), ALIGN_LEFT, SYSCOL_TEXT, true);
 		top += LINESPACE + D_V_SPACE;
 		display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, translator::translate("hd_wealth"), ALIGN_LEFT, SYSCOL_TEXT, true);
-		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100, offset.y + top, translator::translate("Population"), ALIGN_LEFT, SYSCOL_TEXT, true);
-		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100 * 2 + 5, offset.y + top, translator::translate("Visitor demand"), ALIGN_LEFT, SYSCOL_TEXT, true);
-		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100 * 3 + 5 + 4, offset.y + top, translator::translate("Jobs"), ALIGN_LEFT, SYSCOL_TEXT, true);
+		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH, offset.y + top, translator::translate("Population"), ALIGN_LEFT, SYSCOL_TEXT, true);
+		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH * 2 + 5, offset.y + top, translator::translate("Visitor demand"), ALIGN_LEFT, SYSCOL_TEXT, true);
+		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH * 3 + 5 + 4, offset.y + top, translator::translate("Jobs"), ALIGN_LEFT, SYSCOL_TEXT, true);
 		top += LINESPACE + 2;
 
 		display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width, offset.y + top, MN_GREY1);
-		display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 100, offset.y + top, MN_GREY1);
-		display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 100 + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 100 * 2 + 5, offset.y + top, MN_GREY1);
-		display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 100 * 2 + 5 + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 100 * 2 + 5 + 100, offset.y + top, MN_GREY1);
+		display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH, offset.y + top, MN_GREY1);
+		display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 2 + 5, offset.y + top, MN_GREY1);
+		display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 2 + 5 + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 3 + 5, offset.y + top, MN_GREY1);
 		top += 4;
 
 		const uint32 arround_population = halt->get_around_population();
@@ -945,38 +947,38 @@ void halt_detail_pas_t::draw(scr_coord offset)
 			const uint32 arround_population_by_class = halt->get_around_population(i);
 			pas_info.clear();
 			pas_info.printf("%u (%4.1f%%)", arround_population_by_class, arround_population ? 100.0 * arround_population_by_class / arround_population : 0.0);
-			display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+			display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 			// visitor demand
 			const uint32 arround_visitor_demand_by_class = halt->get_around_visitor_demand(i);
 			pas_info.clear();
 			pas_info.printf("%u (%4.1f%%)", arround_visitor_demand_by_class, arround_visitor_demand ? 100.0 * arround_visitor_demand_by_class / arround_visitor_demand : 0.0);
-			display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100*2 + 5, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+			display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH *2 + 5, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 			// job demand
 			const uint32 arround_job_demand_by_class = halt->get_around_job_demand(i);
 			pas_info.clear();
 			pas_info.printf("%u (%4.1f%%)", arround_job_demand_by_class, arround_job_demand ? 100.0 * arround_job_demand_by_class / arround_job_demand : 0.0);
-			display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100*3 + 5 + 4, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+			display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH *3 + 5 + 4, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 			top += LINESPACE;
 		}
 		top += 2;
 		display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width, offset.y + top, MN_GREY1);
-		display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 100, offset.y + top, MN_GREY1);
-		display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 100 + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 100 * 2 + 5, offset.y + top, MN_GREY1);
-		display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 100 * 2 + 5 + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 100 * 2 + 5 + 100, offset.y + top, MN_GREY1);
+		display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH, offset.y + top, MN_GREY1);
+		display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 2 + 5, offset.y + top, MN_GREY1);
+		display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 2 + 5 + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 3 + 5, offset.y + top, MN_GREY1);
 
 		top += 4;
 		pas_info.clear();
 		pas_info.printf("%u         ", arround_population);
-		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 		pas_info.clear();
 		pas_info.printf("%u         ", arround_visitor_demand);
-		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100 * 2 + 5, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH * 2 + 5, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 		pas_info.clear();
 		pas_info.printf("%u         ", arround_job_demand);
-		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 100 * 3 + 5 + 4, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+		display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH * 3 + 5 + 4, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 		top += LINESPACE;
 
