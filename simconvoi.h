@@ -294,16 +294,9 @@ private:
 	
 	/**
 	 * Time when convoi departs the current stop
-	 * Currently used only for display purpose, so not saved.
-	 */
-	uint32 scheduled_departure_time;
-	
-	/**
-	 * Actual ticks when convoi quits loading process.
-	 * This is different from scheduled_departure_time.
 	 * 0 means departure slot is not reserved.
 	 */
-	uint32 scheduled_departure_time_intern;
+	uint32 scheduled_departure_time;
 
 	/**
 	 *The flag whether this convoi is requested to change lane by the convoi behind this.
