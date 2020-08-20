@@ -170,7 +170,12 @@ void citylist_stats_t::draw(scr_coord offset)
 			else {
 				buf.append(abs(growth), 0);
 			}
-			display_proportional_clip(offset.x + left, offset.y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			const bool allow_citygrowth = stadt->get_citygrowth();
+			left += display_proportional_clip(offset.x + left, offset.y, buf, ALIGN_LEFT, allow_citygrowth ? SYSCOL_TEXT : COL_BLUE, true) + D_H_SPACE;
+
+			if (!allow_citygrowth && skinverwaltung_t::alerts) {
+				display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), offset.x + left, offset.y + 1, 0, false, true, translator::translate("City growth is restrained"));
+			}
 
 			// goto button
 			bool selected = sel==0;
@@ -194,9 +199,6 @@ void citylist_stats_t::draw(scr_coord offset)
 		buf.clear();
 		buf.printf( "%s ", total_bev_translation);
 		buf.append(total_bev, 0);
-		buf.append( " (" );
-		buf.append( welt->get_finance_history_month(0, HIST_GROWTH), 0 );
-		buf.append( ")" );
 		tstrncpy(total_bev_string, buf, lengthof(total_bev_string));
 	}
 	else {
