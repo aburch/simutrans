@@ -3823,6 +3823,8 @@ prohibited
 追越不可(対面)
 do not change the mode for existing ways
 既存の制限を維持
+City growth is restrained
+「街を発展させる」オプションがオフにされています
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
