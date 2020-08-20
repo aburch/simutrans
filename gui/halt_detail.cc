@@ -182,6 +182,11 @@ halt_detail_t::~halt_detail_t()
 	while(!label_names.empty()) {
 		free(label_names.remove_first());
 	}
+	while (!catg_buttons.empty()) {
+		button_t *b = catg_buttons.remove_first();
+		cont_route.remove_component(b);
+		delete b;
+	}
 }
 
 
