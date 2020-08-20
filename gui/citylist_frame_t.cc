@@ -298,5 +298,14 @@ void citylist_frame_t::draw(scr_coord pos, scr_size size)
 	}
 	gui_frame_t::draw(pos,size);
 
-	display_proportional( pos.x+2, pos.y+18, citylist_stats_t::total_bev_string, ALIGN_LEFT, SYSCOL_TEXT, true );
+	cbuffer_t buf;
+	uint16 left = D_H_SPACE;
+	left+=display_proportional( pos.x+left, pos.y+18, citylist_stats_t::total_bev_string, ALIGN_LEFT, SYSCOL_TEXT, true );
+	left += D_H_SPACE;
+	display_fluctuation_triangle(pos.x + left, pos.y + 18, LINESPACE - 4, true, welt->get_finance_history_month(0, karte_t::WORLD_GROWTH));
+	left += 9;
+	buf.clear();
+	buf.append(welt->get_finance_history_month(0, karte_t::WORLD_GROWTH),0);
+	display_proportional(pos.x + left, pos.y + 18, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+
 }

@@ -199,9 +199,6 @@ void citylist_stats_t::draw(scr_coord offset)
 		buf.clear();
 		buf.printf( "%s ", total_bev_translation);
 		buf.append(total_bev, 0);
-		buf.append( " (" );
-		buf.append( welt->get_finance_history_month(0, HIST_GROWTH), 0 );
-		buf.append( ")" );
 		tstrncpy(total_bev_string, buf, lengthof(total_bev_string));
 	}
 	else {
