@@ -6,7 +6,7 @@
 CC=clang-10
 CXX=clang++-10
 
-BACKEND=sdl2
+BACKEND=mixer_sdl2
 COLOUR_DEPTH=16
 OSTYPE=linux
 
