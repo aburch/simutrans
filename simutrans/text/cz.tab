@@ -2345,10 +2345,10 @@ Zsuburb
 #_________________________________program_text__________________________________
  from %s
  z %s
- mins. travelling
- minut jízdy
- mins. waiting)
- minut èekání)
+%s mins. travelling
+%s minut jízdy
+%s mins. waiting
+%s minut èekání)
  via %s
  pøes %s
 \n\nInterest on your debt is\naccumulating at %i %%

@@ -2125,10 +2125,10 @@ Potenza utilizzata
 #_________________________________program_text__________________________________
  from %s
 da %s
- mins. travelling
- durata viaggio (minuti)
- mins. waiting)
- tempo attesa (minuti)
+%s mins. travelling
+%s durata viaggio (minuti)
+%s mins. waiting)
+%s tempo attesa (minuti)
  via %s
 via %s
 ; brakes from max. speed in %i - %i m

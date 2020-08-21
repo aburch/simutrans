@@ -2123,10 +2123,10 @@ Bsuburb
 #_________________________________program_text__________________________________
  from %s
  (de %s)
- mins. travelling
- de viagem
- mins. waiting)
- de espera)
+%s mins. travelling
+%s de viagem
+%s mins. waiting
+%s de espera
  via %s
  (via %s)
 ; brakes from max. speed in %i - %i m

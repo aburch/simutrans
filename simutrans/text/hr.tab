@@ -1681,10 +1681,10 @@ Ne postoji!
 #_________________________________program_text__________________________________
  from %s
 od %s
- mins. travelling
-min. putovanja
- mins. waiting)
-min. cekanja)
+%s mins. travelling
+%s min. putovanja
+%s mins. waiting
+%s min. cekanja)
  via %s
 preko %s
 \n\nInterest on your debt is\naccumulating at %i %%
