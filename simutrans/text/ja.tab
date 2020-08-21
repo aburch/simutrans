@@ -3515,7 +3515,7 @@ Wait for time
 ダイヤを設定する
 Waiting for schedule. %s left
 発車時刻まで 残り%s
-waiting time unknown)
+waiting time unknown
 待ち時間不明)
 waiting\ntolerance\nmax. min
 最大許容待機時間(分)
@@ -3845,6 +3845,8 @@ lb_served_goods_and_classes
 取扱い貨物品目
 Fare class
 運賃クラス
+Around passenger demands
+駅周辺の旅客需要
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
