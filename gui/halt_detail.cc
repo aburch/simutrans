@@ -1511,14 +1511,28 @@ void gui_halt_route_info_t::draw(scr_coord offset)
 		buf.clear();
 		char travelling_time_as_clock[32];
 		welt->sprintf_time_tenths(travelling_time_as_clock, sizeof(travelling_time_as_clock), cnx->journey_time);
-		buf.append(travelling_time_as_clock);
-		if (skinverwaltung_t::travel_time) {
-			display_color_img(skinverwaltung_t::travel_time->get_image_id(0), offset.x + xoff, offset.y + yoff, 0, false, false);
-			xoff += GOODS_SYMBOL_CELL_WIDTH;
+		if (is_walking) {
+			if (skinverwaltung_t::on_foot) {
+				buf.printf("%5s", travelling_time_as_clock);
+				display_color_img_with_tooltip(skinverwaltung_t::on_foot->get_image_id(0), offset.x + xoff, offset.y + yoff, 0, false, false, translator::translate("Walking time"));
+				xoff += GOODS_SYMBOL_CELL_WIDTH;
+			}
+			else {
+				buf.printf(translator::translate("%s mins. walking"), travelling_time_as_clock);
+				buf.append(", ");
+			}
+
 		}
 		else {
-			buf.append(translator::translate(" mins. travelling"));
-			buf.append(", ");
+			if (skinverwaltung_t::travel_time) {
+				buf.printf("%5s", travelling_time_as_clock);
+				display_color_img(skinverwaltung_t::travel_time->get_image_id(0), offset.x + xoff, offset.y + yoff, 0, false, false);
+				xoff += GOODS_SYMBOL_CELL_WIDTH;
+			}
+			else {
+				buf.printf(translator::translate("%s mins. travelling"), travelling_time_as_clock);
+				buf.append(", ");
+			}
 		}
 		xoff += display_proportional_clip(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 #ifdef DEBUG
@@ -1539,9 +1553,11 @@ void gui_halt_route_info_t::draw(scr_coord offset)
 			if (cnx->waiting_time > 0) {
 				char waiting_time_as_clock[32];
 				welt->sprintf_time_tenths(waiting_time_as_clock, sizeof(waiting_time_as_clock), cnx->waiting_time);
-				buf.append(waiting_time_as_clock);
 				if (!skinverwaltung_t::waiting_time) {
-					buf.append(translator::translate(" mins. waiting)"));
+					buf.printf(translator::translate("%s mins. waiting"), waiting_time_as_clock);
+				}
+				else {
+					buf.printf("%5s", waiting_time_as_clock);
 				}
 			}
 			else {

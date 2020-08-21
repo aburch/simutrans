@@ -2207,10 +2207,6 @@ Zu nah am Kartenrand
 %1.2f$/月
  from %s
  (%sから)
- mins. travelling
-分所要
- mins. waiting)
-分待ち)
  via %s
 %s 経由
 brakes from max. speed in %i - %i m
@@ -3837,6 +3833,12 @@ Products
 生産品
 own convoi tooltips
 所有車両の状態を表示
+%s mins. walking
+徒歩 %u分
+%s mins. walking
+所要 %u分
+%s mins. waiting
+待ち時間 %u分
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
@@ -3867,3 +3869,7 @@ Power (MW)
 #郵便事業が行われている範囲を表示
 #Show passenger coverage/passenger network
 #旅客事業が行われている範囲を表示
+# mins. travelling
+#分所要
+# mins. waiting)
+#分待ち)
