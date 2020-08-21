@@ -16,5 +16,3 @@ MULTI_THREAD=1
 USE_FREETYPE=1
 
 FLAGS = -DUSE_C -fno-delete-null-pointer-checks -fno-strict-aliasing -std=c++11
-
-VERBOSE=1
