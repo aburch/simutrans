@@ -290,7 +290,7 @@ void halt_detail_t::update_components()
 		btn->disable();
 		if (halt->is_enabled(catg_index)) {
 			// check station handled goods category
-			if (catg_index == goods_manager_t::INDEX_PAS || i == goods_manager_t::INDEX_MAIL)
+			if (catg_index == goods_manager_t::INDEX_PAS || catg_index == goods_manager_t::INDEX_MAIL)
 			{
 				btn->enable();
 				if (!chk_pressed) {
