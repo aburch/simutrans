@@ -19,15 +19,15 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version26_4現在，simutrans standard nightly r9183をベースにしています．
+version26_5現在，simutrans standard nightly r9183をベースにしています．
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください．  
 
-本体は下のリンクからどうぞ．**（2020年8月19日PM10時　ver26_4に更新）**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/73490/sim-WinGDI-OTRPv26_4.exe/  
-mac: https://osdn.net/projects/otrp/downloads/73490/sim-mac-OTRPv26_4.zip/  
-Linux: https://osdn.net/projects/otrp/downloads/73490/sim-linux-OTRPv26_4.zip/  
+本体は下のリンクからどうぞ．**（2020年8月22日AM0時　ver26_5に更新）**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/73492/sim-WinGDI-OTRPv26_5.exe/  
+mac: https://osdn.net/projects/otrp/downloads/73492/sim-mac-OTRPv26_5.zip/  
+Linux: https://osdn.net/projects/otrp/downloads/73492/sim-linux-OTRPv26_5.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 OTRP専用のmakeobjはありません．simutrans standardのmakeobjをご利用ください．
