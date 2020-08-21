@@ -16,6 +16,5 @@ MULTI_THREAD=1
 USE_FREETYPE=1
 
 FLAGS = -DUSE_C -fno-delete-null-pointer-checks -fno-strict-aliasing -std=c++11
-LDFLAGS = -L/usr/x86_64-w64-mingw32/sys-root/mingw/lib/
 
 VERBOSE=1

@@ -16,7 +16,6 @@ MULTI_THREAD=1
 USE_FREETYPE=1
 
 FLAGS = -DUSE_C -fno-delete-null-pointer-checks -fno-strict-aliasing -std=c++11
-LDFLAGS += -lole32 -limm32 -lversion -lwinmm
 
 VERBOSE=1
 SDL2_CONFIG=x86_64-w64-mingw32-pkg-config sdl2
