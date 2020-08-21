@@ -98,11 +98,12 @@ private:
 	uint32 line_selected;
 
 	uint8 selected_route_catg_index = goods_manager_t::INDEX_PAS;
+	uint8 selected_class = 255;
 
 public:
 	gui_halt_route_info_t(const halthandle_t& halt, uint8 catg_index);
 
-	void build_halt_list(uint8 catg_index);
+	void build_halt_list(uint8 catg_index, uint8 g_class = 255);
 	bool infowin_event(event_t const *ev) OVERRIDE;
 
 	void recalc_size();
@@ -120,31 +121,35 @@ private:
 	uint32 old_factory_count, old_catg_count;
 	uint32 update_time;
 	scr_coord_val cashed_size_y;
+
+	gui_tab_panel_t tabs;
 	static sint16 tabstate;
 	bool show_pas_info, show_freight_info;
-
-	cbuffer_t buf;
-
 	gui_container_t cont, cont_goods, cont_route;
 	gui_scrollpane_t scrolly, scrolly_pas, scrolly_goods, scrolly_route;
-	gui_label_t lb_nearby_factory, lb_routes, lb_selected_route_catg;
-	gui_textarea_t txt_info;
+	gui_label_t lb_nearby_factory, lb_serve_catg, lb_routes, lb_selected_route_catg;
 
+	gui_halthandled_lines_t line_number;
 	halt_detail_pas_t pas;
 	halt_detail_goods_t goods;
 	gui_halt_nearby_factory_info_t nearby_factory;
-	gui_halt_route_info_t route;
-	gui_tab_panel_t tabs;
-	gui_halthandled_lines_t line_number;
 
-	slist_tpl<button_t *>catg_buttons;
-	uint8 selected_route_catg_index = goods_manager_t::INDEX_NONE;
-
+	// service tab stuffs
+	cbuffer_t buf;
+	gui_textarea_t txt_info;
 	slist_tpl<gui_label_t *>linelabels;
 	slist_tpl<button_t *>linebuttons;
 	slist_tpl<gui_label_t *> convoylabels;
 	slist_tpl<button_t *> convoybuttons;
 	slist_tpl<char*> label_names;
+
+	// route tab stuffs
+	gui_halt_route_info_t route;
+	slist_tpl<button_t *>catg_buttons, pas_class_buttons, mail_class_buttons;
+	char *pass_class_name_untranslated[32];
+	char *mail_class_name_untranslated[32];
+	uint8 selected_route_catg_index = goods_manager_t::INDEX_NONE;
+	uint8 selected_class = 0;
 
 	bool has_min_sizer() const OVERRIDE { return true; }
 

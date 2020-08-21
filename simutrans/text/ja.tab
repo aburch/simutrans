@@ -3839,6 +3839,12 @@ own convoi tooltips
 所要 %s分
 %s mins. waiting
 待ち時間 %s分
+Route_tab
+接続駅
+lb_served_goods_and_classes
+取扱い貨物品目
+Fare class
+運賃クラス
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
