@@ -647,3 +647,16 @@ schedule_entry_t* schedule_t::access_corresponding_entry(schedule_t* other, uint
 	dbg->error("schedule_t::access_corresponding_entry", "corresponding entry not found.");
 	return NULL;
 }
+
+uint8 schedule_t::get_current_stop_exluding_depot() const {
+	uint8 idx = current_stop;
+	// count the number of depot entries
+	for(uint8 i=0; i<current_stop; i++) {
+		grund_t* gr = world()->lookup(entries[i].pos);
+		if(  gr  &&  gr->get_depot()  ) {
+			// this entry is a depot entry
+			idx -= 1;
+		}
+	}
+	return idx;
+}

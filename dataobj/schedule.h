@@ -204,6 +204,9 @@ public:
 	 * Return NULL if it does not exist.
 	 */
 	schedule_entry_t* access_corresponding_entry(schedule_t* other, uint8 n);
+	
+	// get current_stop excluding depot entries
+	uint8 get_current_stop_exluding_depot() const;
 };
 
 
