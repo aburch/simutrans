@@ -18,7 +18,7 @@ struct schedule_entry_t
 public:
 	schedule_entry_t() {
 		// journey time is not loaded or saved.
-		init_arrival_time();
+		init_journey_time();
 		at_index = 0;
 	}
 
@@ -30,7 +30,7 @@ public:
 	{
 		spacing = 1;
 		spacing_shift = delay_tolerance = 0;
-		init_arrival_time();
+		init_journey_time();
 		at_index = 0;
 	}
 
@@ -64,19 +64,19 @@ public:
 	uint16 spacing, spacing_shift, delay_tolerance;
 	
 	/*
-	 * store last 3 arrival time of this stop.
-	 * time = 0 means that arrival time is not registered.
-	 * arrival times are not saved to reduce save/load time.
+	 * store last 3 journey time of this stop.
+	 * time = 0 means that journey time is not registered.
+	 * journey times are not saved to reduce save/load time.
 	 */
-	uint32 arrival_time[NUM_ARRIVAL_TIME_STORED];
-	uint8 at_index; // which index of arrival_time should be overwritten next.
+	uint32 journey_time[NUM_ARRIVAL_TIME_STORED];
+	uint8 at_index; // which index of journey_time should be overwritten next.
 	
 private:
 	uint8 stop_flags;
 	
-	void init_arrival_time() {
+	void init_journey_time() {
 		for(uint8 i=0; i<NUM_ARRIVAL_TIME_STORED; i++) {
-			arrival_time[i] = 0;
+			journey_time[i] = 0;
 		}
 	}
 	
@@ -102,8 +102,8 @@ public:
 		delay_tolerance = c;
 	}
 	
-	void push_arrival_time(uint32 t) {
-		arrival_time[at_index] = t;
+	void push_journey_time(uint32 t) {
+		journey_time[at_index] = t;
 		at_index = (at_index+1)%NUM_ARRIVAL_TIME_STORED;
 	}
 	

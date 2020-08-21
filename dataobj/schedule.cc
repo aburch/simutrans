@@ -615,3 +615,35 @@ void schedule_t::set_delay_tolerance_for_all(uint16 v) {
 		entries[i].delay_tolerance = v;
 	}
 }
+
+schedule_entry_t* schedule_t::access_corresponding_entry(schedule_t* other, uint8 n) {
+	if(  n >= other->get_count()  ) {
+		// out of range;
+		dbg->error("schedule_t::access_corresponding_entry", "index %d is out of range %d", n, other->get_count());
+		return NULL;
+	}
+	uint8 o_idx = n;
+	// count the number of depot entries
+	for(uint8 i=0; i<n; i++) {
+		grund_t* gr = world()->lookup(other->entries[i].pos);
+		if(  gr  &&  gr->get_depot()  ) {
+			// this entry is a depot entry
+			o_idx -= 1;
+		}
+	}
+	uint8 h = 0;
+	uint8 k = 0;
+	while(  h<get_count()  ) {
+		grund_t* gr = world()->lookup(entries[h].pos);
+		if(  !gr  ||  !gr->get_depot()  ) {
+			// this entry is not a depot entry
+			if(  k==o_idx  ) {
+				return &entries[h];
+			}
+			k++;
+		}
+		h++;
+	}
+	dbg->error("schedule_t::access_corresponding_entry", "corresponding entry not found.");
+	return NULL;
+}

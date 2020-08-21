@@ -119,6 +119,7 @@ void convoi_t::init(player_t *player)
 	wait_lock = 0;
 	arrived_time = 0;
 	scheduled_departure_time = 0;
+	time_last_arrived = 0;
 
 	requested_change_lane = false;
 
@@ -1809,7 +1810,7 @@ void convoi_t::ziel_erreicht()
 		return;
 	}
 	
-	register_arrival_time();
+	register_journey_time();
 	halthandle_t halt = haltestelle_t::get_halt(schedule->get_current_entry().pos,owner);
 	
 	// check for coupling
@@ -4789,18 +4790,25 @@ sint32 convoi_t::calc_min_top_speed() {
 	return min_top_speed;
 }
 
-void convoi_t::register_arrival_time() {
+void convoi_t::register_journey_time() {
+	if(  time_last_arrived==0  ||  time_last_arrived >= world()->get_ticks()  ) {
+		// time_last_arrived is not available.
+		time_last_arrived = world()->get_ticks();
+		return;
+	}
+	const uint32 journey_time = world()->get_ticks() - time_last_arrived;
 	convoihandle_t c = self;
 	while(  c.is_bound()  ) {
 		if(  c->get_line().is_bound()  ) {
 			// register journey time
-			c->get_line()->get_schedule()->entries[c->get_schedule()->get_current_stop()].push_arrival_time(world()->get_ticks());
+			c->get_line()->get_schedule()->access_corresponding_entry(c->get_schedule(), c->get_schedule()->get_current_stop())->push_journey_time(journey_time);
 			// update journey time window
 			gui_journey_time_info_t* window = dynamic_cast<gui_journey_time_info_t*>(win_get_magic((ptrdiff_t)c->get_line().get_rep()));
 			if(  window  ) {
 				window->update();
 			}
 		}
+		c->set_time_last_arrived(world()->get_ticks());
 		c = c->get_coupling_convoi();
 	}
 }

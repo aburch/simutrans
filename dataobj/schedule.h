@@ -197,6 +197,13 @@ public:
 	 * If @p max_chars > 0 then append short version, without loading level and position.
 	 */
 	static void gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* player_, schedule_entry_t const& entry, int max_chars);
+	
+	/*
+	 * Get corresponding entry of this schedule to Nth entry of the other schedule.
+	 * Removes the effect of depot entries.
+	 * Return NULL if it does not exist.
+	 */
+	schedule_entry_t* access_corresponding_entry(schedule_t* other, uint8 n);
 };
 
 

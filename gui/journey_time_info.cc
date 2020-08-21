@@ -209,27 +209,17 @@ void gui_journey_time_info_t::update() {
   // calculate journey time and average time
   journey_time_sum = 0;
   for(uint8 i=0; i<schedule->entries.get_count(); i++) {
-    const sint16 prev_idx = i==0 ? schedule->entries.get_count()-1 : i-1;
     uint32 sum = 0;
     uint8 cnt = 0;
     const uint8 kc = (schedule->entries[i].at_index + NUM_ARRIVAL_TIME_STORED - 1) % NUM_ARRIVAL_TIME_STORED;
-    const uint8 kp = (schedule->entries[prev_idx].at_index + NUM_ARRIVAL_TIME_STORED - 1) % NUM_ARRIVAL_TIME_STORED;
     for(uint8 k=0; k<NUM_ARRIVAL_TIME_STORED; k++) {
-      uint32* ca = schedule->entries[i].arrival_time;
+      uint32* ca = schedule->entries[i].journey_time;
       uint8 ica = (kc + NUM_ARRIVAL_TIME_STORED - k) % NUM_ARRIVAL_TIME_STORED;
-      uint32* pa = schedule->entries[prev_idx].arrival_time;
-      uint8 ipa = (kp + NUM_ARRIVAL_TIME_STORED - k) % NUM_ARRIVAL_TIME_STORED;
-      // see previous entry if the arrival of previous halt is newer.
-      if(  ca[ica]<pa[ipa]  ) {
-        ipa = (ipa + NUM_ARRIVAL_TIME_STORED - 1) % NUM_ARRIVAL_TIME_STORED;
-      }
-      // check both entries are valid
-      if(  ca[ica]>0  &&  pa[ipa]>0  &&  ca[ica]>pa[ipa]  ) {
-        journey_times[i][k+1] = tick_to_divided_time(ca[ica]-pa[ipa]);
+      if(  ca[ica]>0  ) {
+        journey_times[i][k+1] = tick_to_divided_time(ca[ica]);
         sum += journey_times[i][k+1];
         cnt += 1;
-      }
-      else {
+      } else {
         journey_times[i][k+1] = 0;
       }
     }
