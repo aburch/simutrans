@@ -157,7 +157,7 @@ void savegame_frame_t::add_section(std::string &name){
 
 	if (strncmp(name.c_str(),env_t::program_dir,program_dir_len) == 0) {
 		// starts with program_dir
-		strncpy(path_expanded, name.c_str(), FILENAME_MAX);
+		tstrncpy(path_expanded, name.c_str(), FILENAME_MAX);
 	}
 	else {
 		// user_dir path

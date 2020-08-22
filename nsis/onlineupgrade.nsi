@@ -8,7 +8,7 @@
 ; needs the following plugins:
 ; nsisunz
 ; inetc
-; CabDll
+; CabX
 ; untgz
 ; ShellLink
 
