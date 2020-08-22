@@ -1012,6 +1012,7 @@ void halt_detail_pas_t::draw_class_table(scr_coord offset, const uint8 class_nam
 
 
 #define DEMANDS_CELL_WIDTH (100)
+#define GENERATED_CELL_WIDTH (proportional_string_width(" 000,000,000"))
 void halt_detail_pas_t::draw(scr_coord offset)
 {
 	// keep previous maximum width
@@ -1052,7 +1053,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 		if (halt->get_mail_enabled()) {
 			draw_class_table(scr_coord(offset.x, offset.y + top), class_name_cell_width, goods_manager_t::mail);
 			top += (mail_classes + 1) * (LINESPACE + GOODS_LEAVING_BAR_HEIGHT + 1) + 6;
-			top += LINESPACE + D_V_SPACE;
+			top += LINESPACE;
 		}
 
 		// bar color description
@@ -1084,6 +1085,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 			top += LINESPACE * 2;
 		}
 
+		// passenger demands info
 		if (halt->get_pax_enabled()) {
 			top += LINESPACE;
 			display_proportional_clip(offset.x, offset.y + top, translator::translate("Around passenger demands"), ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -1153,6 +1155,64 @@ void halt_detail_pas_t::draw(scr_coord offset)
 			display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH * 3 + 5 + 4, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 			top += LINESPACE;
+		}
+
+		// transportation status
+		if (halt->get_pax_enabled() || halt->get_mail_enabled()) {
+			top += LINESPACE;
+			display_proportional_clip(offset.x, offset.y + top, translator::translate("Transportation status around this stop"), ALIGN_LEFT, SYSCOL_TEXT, true);
+			top += LINESPACE+D_V_SPACE;
+			// header
+			display_proportional_clip(offset.x + D_BUTTON_WIDTH + GOODS_SYMBOL_CELL_WIDTH + 4, offset.y + top, translator::translate("hd_generated"), ALIGN_LEFT, SYSCOL_TEXT, true);
+			display_proportional_clip(offset.x + D_BUTTON_WIDTH + GOODS_SYMBOL_CELL_WIDTH + GENERATED_CELL_WIDTH + D_H_SPACE + 4, offset.y + top, translator::translate("Success rate"), ALIGN_LEFT, SYSCOL_TEXT, true);
+			top += LINESPACE+2;
+			display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH, offset.y + top, MN_GREY1);
+			display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH, offset.y + top, MN_GREY1);
+			display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH*2 + GENERATED_CELL_WIDTH + 5, offset.y + top, MN_GREY1);
+			top += 4;
+			if (halt->get_pax_enabled()) {
+				// visiting trip
+				display_colorbox_with_tooltip(offset.x, offset.y + top + 1, 8, 8, col_passenger, true, translator::translate("visitors"));
+				pas_info.clear();
+				pas_info.append(translator::translate("Visiting trip")); // Note: "Visiting" is used in chart button. "visiting" is used in cargo list
+				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
+				pas_info.clear();
+				pas_info.append(halt->get_around_visitor_generated(), 0);
+				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+				pas_info.clear();
+				pas_info.printf(" %5.1f%%", halt->get_around_visitor_generated() ? 100.0 * halt->get_around_succeeded_visiting() / halt->get_around_visitor_generated() : 0.0);
+				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH + D_H_SPACE, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
+				top += LINESPACE;
+
+				// commuting trip
+				display_colorbox_with_tooltip(offset.x, offset.y + top + 1, 8, 8, COL_COMMUTER, true, translator::translate("commuters"));
+				pas_info.clear();
+				pas_info.append(translator::translate("Commuting trip")); // Note: "Commuting" is used in chart button. "commuting" is used in cargo list
+				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
+				pas_info.clear();
+				pas_info.append(halt->get_around_commuter_generated(), 0);
+				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+				pas_info.clear();
+				pas_info.printf(" %5.1f%%", halt->get_around_commuter_generated() ? 100.0 * halt->get_around_succeeded_commuting() / halt->get_around_commuter_generated() : 0.0);
+				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH + D_H_SPACE, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
+				top += LINESPACE;
+			}
+
+			if (halt->get_mail_enabled()) {
+				display_colorbox_with_tooltip(offset.x, offset.y + top + 1, 8, 8, goods_manager_t::mail->get_color(), true, goods_manager_t::mail->get_name());
+				pas_info.clear();
+				pas_info.append(translator::translate("hd_mailing"));
+				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
+				pas_info.clear();
+				//pas_info.append(halt->get_around_mail_demand(),0);
+				pas_info.append(halt->get_around_mail_generated(), 0);
+				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+				pas_info.clear();
+				pas_info.printf(" %5.1f%%", halt->get_around_mail_generated() ? 100.0 * halt->get_around_mail_delivery_succeeded() / halt->get_around_mail_generated():0.0);
+				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH + D_H_SPACE, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
+
+				top += LINESPACE;
+			}
 		}
 
 		top += D_MARGIN_BOTTOM;

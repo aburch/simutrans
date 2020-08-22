@@ -3845,6 +3845,18 @@ lb_served_goods_and_classes
 取扱い貨物品目
 Around passenger demands
 駅周辺の旅客需要
+Transportation status around this stop
+駅周辺の輸送状況
+hd_generated
+需要
+Success rate
+移動・輸送達成率
+Visiting trip
+訪問需要
+Commuting trip
+通勤需要
+hd_mailing
+郵便需要
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
