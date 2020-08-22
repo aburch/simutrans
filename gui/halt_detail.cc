@@ -620,7 +620,7 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *comp, value_t extra)
 	else if (tabstate != tabs.get_active_tab_index() || get_windowsize().h == get_min_windowsize().h) {
 		set_tab_opened();
 	}
-	else {
+	else if(comp != &tabs){
 		uint8 i = 0;
 		uint8 cl = 0;
 		FORX(slist_tpl<button_t *>, btn, catg_buttons,i++) {
