@@ -5491,6 +5491,86 @@ uint32 haltestelle_t::get_around_job_demand(uint8 g_class) const
 	return sum;
 }
 
+uint32 haltestelle_t::get_around_mail_demand() const
+{
+	uint32 sum = 0;
+	uint16 const cov = welt->get_settings().get_station_coverage();
+
+	koord ul(32767, 32767);
+	koord lr(0, 0);
+	FOR(slist_tpl<tile_t>, const& i, tiles) {
+		ul.clip_max(i.grund->get_pos().get_2d());
+		lr.clip_min(i.grund->get_pos().get_2d());
+	}
+
+	ul.x = max(0, ul.x - cov);
+	ul.y = max(0, ul.y - cov);
+	lr.x = min(welt->get_size().x, lr.x + 1 + cov);
+	lr.y = min(welt->get_size().y, lr.y + 1 + cov);
+	for (int y = ul.y; y < lr.y; y++) {
+		for (int x = ul.x; x < lr.x; x++) {
+			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
+			if (gb) {
+				sum += gb->get_adjusted_mail_demand();
+			}
+		}
+	}
+	return sum;
+}
+
+uint32 haltestelle_t::get_around_mail_generated() const
+{
+	uint32 sum = 0;
+	uint16 const cov = welt->get_settings().get_station_coverage();
+
+	koord ul(32767, 32767);
+	koord lr(0, 0);
+	FOR(slist_tpl<tile_t>, const& i, tiles) {
+		ul.clip_max(i.grund->get_pos().get_2d());
+		lr.clip_min(i.grund->get_pos().get_2d());
+	}
+
+	ul.x = max(0, ul.x - cov);
+	ul.y = max(0, ul.y - cov);
+	lr.x = min(welt->get_size().x, lr.x + 1 + cov);
+	lr.y = min(welt->get_size().y, lr.y + 1 + cov);
+	for (int y = ul.y; y < lr.y; y++) {
+		for (int x = ul.x; x < lr.x; x++) {
+			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
+			if (gb) {
+				sum += gb->get_mail_generated();
+			}
+		}
+	}
+	return sum;
+}
+
+uint32 haltestelle_t::get_around_mail_delivery_succeeded() const
+{
+	uint32 sum = 0;
+	uint16 const cov = welt->get_settings().get_station_coverage();
+
+	koord ul(32767, 32767);
+	koord lr(0, 0);
+	FOR(slist_tpl<tile_t>, const& i, tiles) {
+		ul.clip_max(i.grund->get_pos().get_2d());
+		lr.clip_min(i.grund->get_pos().get_2d());
+	}
+
+	ul.x = max(0, ul.x - cov);
+	ul.y = max(0, ul.y - cov);
+	lr.x = min(welt->get_size().x, lr.x + 1 + cov);
+	lr.y = min(welt->get_size().y, lr.y + 1 + cov);
+	for (int y = ul.y; y < lr.y; y++) {
+		for (int x = ul.x; x < lr.x; x++) {
+			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
+			if (gb) {
+				sum += gb->get_mail_delivery_succeeded();
+			}
+		}
+	}
+	return sum;
+}
 
 
 /* Find a tile where this type of vehicle could stop
