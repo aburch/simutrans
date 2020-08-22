@@ -123,11 +123,9 @@ void halt_detail_t::init(halthandle_t halt_)
 							sprintf(class_name, "p_class[%u]", goods_manager_t::passengers->get_number_of_classes()-c-1);
 							pass_class_name_untranslated[c] = class_name;
 						}
-						// TODO: this is a "fare" class not a "wealth" class, so translation may need to be changed
 						cb->init(button_t::roundbox_state, translator::translate(pass_class_name_untranslated[c]),
 							scr_coord(freight_btn_offset_x + WARE_TYPE_IMG_BUTTON_WIDTH + CLASS_TEXT_BUTTON_WIDTH * (goods_manager_t::passengers->get_number_of_classes() - c-1), D_V_SPACE + D_BUTTON_HEIGHT * (row + 1)),
 							scr_size(CLASS_TEXT_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-						cb->set_tooltip(translator::translate("Fare class"));
 						cb->disable();
 						cb->add_listener(this);
 						cont_route.add_component(cb);
@@ -147,11 +145,9 @@ void halt_detail_t::init(halthandle_t halt_)
 							sprintf(class_name, "m_class[%u]", goods_manager_t::mail->get_number_of_classes() - c - 1);
 							mail_class_name_untranslated[c] = class_name;
 						}
-						// TODO: this is a "fare" class not a "wealth" class, so translation may need to be changed
 						cb->init(button_t::roundbox_state, translator::translate(mail_class_name_untranslated[c]),
 							scr_coord(freight_btn_offset_x + WARE_TYPE_IMG_BUTTON_WIDTH + CLASS_TEXT_BUTTON_WIDTH * (goods_manager_t::mail->get_number_of_classes() - c - 1), D_V_SPACE + D_BUTTON_HEIGHT * (row + 1)),
 							scr_size(CLASS_TEXT_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-						cb->set_tooltip(translator::translate("Fare class"));
 						cb->disable();
 						cb->add_listener(this);
 						cont_route.add_component(cb);
