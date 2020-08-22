@@ -3232,6 +3232,12 @@ void convoi_t::calc_gewinn()
 }
 
 
+// a helper function to compare two ticks considering ticks overflow
+bool is_first_ticks_bigger(uint32 v1, uint32 v2) {
+	return (v1 > v2)  &&  (v1 - v2 < (1<<30));
+}
+
+
 /*
  * a helper function of convoi_t::hat_gehalten()
  * This judges whether the convoy satisfies all departure conditions.
@@ -3277,7 +3283,11 @@ bool can_depart(convoihandle_t cnv, halthandle_t halt, uint32 arrived_time, uint
 			slot++;
 			go_on_ticks = slot * world()->ticks_per_world_month / current_entry.spacing + spacing_shift;
 		}
-		return world()->get_ticks() >= go_on_ticks - time_to_load;
+		// avoid ticks overflow
+		if(  go_on_ticks > go_on_ticks + world()->ticks_per_world_month  ) {
+			go_on_ticks %= world()->ticks_per_world_month;
+		}
+		return is_first_ticks_bigger(world()->get_ticks(), go_on_ticks - time_to_load);
 	}
 	
 	c = cnv;
@@ -3488,7 +3498,7 @@ station_tile_search_ready: ;
 		coupling_convoi->hat_gehalten(halt);
 	}
 	
-	bool departure_cond = scheduled_departure_time!=0  &&  welt->get_ticks() > scheduled_departure_time - time;
+	bool departure_cond = scheduled_departure_time!=0  &&  is_first_ticks_bigger(welt->get_ticks(), scheduled_departure_time - time);
 	
 	if(  scheduled_departure_time==0  ) {
 		bool need_coupling_at_this_stop = false;
