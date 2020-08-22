@@ -1058,7 +1058,8 @@ void halt_detail_pas_t::draw(scr_coord offset)
 		// bar color description
 		top += LINESPACE;
 		left = D_MARGIN_LEFT;
-		display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, goods_manager_t::passengers->get_color(), true, translator::translate("visitors"));
+		const COLOR_VAL col_passenger = goods_manager_t::passengers->get_color();
+		display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, col_passenger, true, translator::translate("visitors"));
 		left += 10;
 		pas_info.clear();
 		pas_info.append(translator::translate("visitors"));
@@ -1107,19 +1108,25 @@ void halt_detail_pas_t::draw(scr_coord offset)
 				const uint32 arround_population_by_class = halt->get_around_population(i);
 				pas_info.clear();
 				pas_info.printf("%u (%4.1f%%)", arround_population_by_class, arround_population ? 100.0 * arround_population_by_class / arround_population : 0.0);
-				display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+				uint colored_with = arround_population ? DEMANDS_CELL_WIDTH * arround_population_by_class / arround_population : 0;
+				display_linear_gradiwnt_wh(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH+5, offset.y + top+1, colored_with, LINESPACE - 3, COL_DARK_GREEN+1, 70, 15, true);
+				display_proportional_clip (offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 				// visitor demand
 				const uint32 arround_visitor_demand_by_class = halt->get_around_visitor_demand(i);
 				pas_info.clear();
 				pas_info.printf("%u (%4.1f%%)", arround_visitor_demand_by_class, arround_visitor_demand ? 100.0 * arround_visitor_demand_by_class / arround_visitor_demand : 0.0);
-				display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH *2 + 5, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+				colored_with = arround_visitor_demand ? DEMANDS_CELL_WIDTH * arround_visitor_demand_by_class / arround_visitor_demand : 0;
+				display_linear_gradiwnt_wh(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH+5, offset.y + top + 1, colored_with, LINESPACE - 3, col_passenger-1, 70, 15, true);
+				display_proportional_clip (offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH *2 + 5, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 				// job demand
 				const uint32 arround_job_demand_by_class = halt->get_around_job_demand(i);
 				pas_info.clear();
 				pas_info.printf("%u (%4.1f%%)", arround_job_demand_by_class, arround_job_demand ? 100.0 * arround_job_demand_by_class / arround_job_demand : 0.0);
-				display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH *3 + 5 + 4, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+				colored_with = arround_job_demand ? DEMANDS_CELL_WIDTH * arround_job_demand_by_class / arround_job_demand : 0;
+				display_linear_gradiwnt_wh(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + (DEMANDS_CELL_WIDTH+5) *2, offset.y + top + 1, colored_with, LINESPACE - 3, COL_COMMUTER-1, 70, 15, true);
+				display_proportional_clip (offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH *3 + 5 + 4, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 				top += LINESPACE;
 			}
@@ -1131,13 +1138,13 @@ void halt_detail_pas_t::draw(scr_coord offset)
 
 			top += 4;
 			pas_info.clear();
-			pas_info.printf("%u         ", arround_population);
+			pas_info.printf("%u          ", arround_population);
 			display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 			pas_info.clear();
-			pas_info.printf("%u         ", arround_visitor_demand);
+			pas_info.printf("%u          ", arround_visitor_demand);
 			display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH * 2 + 5, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 			pas_info.clear();
-			pas_info.printf("%u         ", arround_job_demand);
+			pas_info.printf("%u          ", arround_job_demand);
 			display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH * 3 + 5 + 4, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 			top += LINESPACE;
