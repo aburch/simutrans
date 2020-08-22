@@ -282,6 +282,8 @@ public:
 	gebaeude_t* access_first_tile();
 
 
+	uint16 get_passengers_generated_visiting() const { return passengers_generated_visiting; }
+	uint16 get_passengers_generated_commuting() const { return passengers_generated_commuting; }
 	uint16 get_passengers_succeeded_visiting() const { return passengers_succeeded_visiting; }
 	uint16 get_passengers_succeeded_commuting() const { return passengers_succeeded_commuting; }
 
