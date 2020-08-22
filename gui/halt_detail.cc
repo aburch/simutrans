@@ -1046,38 +1046,43 @@ void halt_detail_pas_t::draw(scr_coord offset)
 		if (halt->get_pax_enabled()) {
 			draw_class_table(scr_coord(offset.x, offset.y + top), class_name_cell_width, goods_manager_t::passengers);
 			top += (pass_classes + 1) * (LINESPACE + GOODS_LEAVING_BAR_HEIGHT + 1) + 6;
-
-			top += LINESPACE * 2;
+			top += LINESPACE + D_V_SPACE;
 		}
 
 		if (halt->get_mail_enabled()) {
 			draw_class_table(scr_coord(offset.x, offset.y + top), class_name_cell_width, goods_manager_t::mail);
 			top += (mail_classes + 1) * (LINESPACE + GOODS_LEAVING_BAR_HEIGHT + 1) + 6;
+			top += LINESPACE + D_V_SPACE;
 		}
 
 		// bar color description
-		top += LINESPACE;
 		left = D_MARGIN_LEFT;
 		const COLOR_VAL col_passenger = goods_manager_t::passengers->get_color();
-		display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, col_passenger, true, translator::translate("visitors"));
-		left += 10;
-		pas_info.clear();
-		pas_info.append(translator::translate("visitors"));
-		left += display_proportional_clip(offset.x + left, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true) + D_H_SPACE*2;
+		if (halt->get_pax_enabled()) {
+			display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, col_passenger, true, translator::translate("visitors"));
+			left += 10;
+			pas_info.clear();
+			pas_info.append(translator::translate("visitors"));
+			left += display_proportional_clip(offset.x + left, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true) + D_H_SPACE * 2;
 
-		display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, COL_COMMUTER, true, translator::translate("commuters"));
-		left += 10;
-		pas_info.clear();
-		pas_info.append(translator::translate("commuters"));
-		left += display_proportional_clip(offset.x + left, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true) + D_H_SPACE * 2;
+			display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, COL_COMMUTER, true, translator::translate("commuters"));
+			left += 10;
+			pas_info.clear();
+			pas_info.append(translator::translate("commuters"));
+			left += display_proportional_clip(offset.x + left, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true) + D_H_SPACE * 2;
+		}
 
-		display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, goods_manager_t::mail->get_color(), true, goods_manager_t::mail->get_name());
-		left += 10;
-		pas_info.clear();
-		pas_info.append(goods_manager_t::mail->get_name());
-		left += display_proportional_clip(offset.x + left, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true) + D_H_SPACE*2;
+		if (halt->get_mail_enabled()) {
+			display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, goods_manager_t::mail->get_color(), true, goods_manager_t::mail->get_name());
+			left += 10;
+			pas_info.clear();
+			pas_info.append(goods_manager_t::mail->get_name());
+			left += display_proportional_clip(offset.x + left, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true) + D_H_SPACE * 2;
+		}
 
-		top += LINESPACE*2;
+		if (halt->get_pax_enabled() || halt->get_mail_enabled()) {
+			top += LINESPACE * 2;
+		}
 
 		if (halt->get_pax_enabled()) {
 			top += LINESPACE;
