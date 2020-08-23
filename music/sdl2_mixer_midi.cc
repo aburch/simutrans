@@ -3,14 +3,16 @@
  * (see LICENSE.txt)
  */
 
-#include <SDL.h>
-#include <SDL_mixer.h>
+#include "music.h"
 
 #include "../simdebug.h"
 #include "../utils/plainstring.h"
-#include "music.h"
 
-// SDL_Mixer music routine interfaces
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
+
+
+// SDL2_Mixer music routine interfaces
 
 static int         midi_number = -1;
 static plainstring midi_filenames[MAX_MIDI];
