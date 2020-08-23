@@ -524,7 +524,7 @@ ifeq ($(BACKEND),sdl2)
       LIBS    += -framework Foundation -framework QTKit
     endif
   else
-    SOURCES  += sound/sdl_sound.cc
+    SOURCES  += sound/sdl2_sound.cc
     ifeq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
       SOURCES += music/no_midi.cc
     else
