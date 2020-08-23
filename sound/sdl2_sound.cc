@@ -3,14 +3,18 @@
  * (see LICENSE.txt)
  */
 
-/// sdl-sound without SDL_mixer.dll
+/// SDL2 sound without SDL_mixer.dll
 
-#include <SDL2/SDL.h>
-#include <string.h>
 #include "sound.h"
+
 #include "../simmem.h"
 #include "../simdebug.h"
-#include <stdio.h>
+
+#include <SDL2/SDL.h>
+
+#include <cstring>
+#include <cstdio>
+
 
 /*
  * flag if sound module should be used
