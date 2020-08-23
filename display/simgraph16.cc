@@ -4894,7 +4894,7 @@ int display_fluctuation_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, con
 		KOORD_VAL y1 = value > 0 ? y0 - 1 : y + h +1;
 
 		if (h > 1) {
-			display_vline_wh(x + i, y0, h - 1, col, dirty);
+			display_vline_wh_clip(x + i, y0, h - 1, col, dirty);
 		}
 		if (h > 0) {
 			display_blend_wh(x + i, y1, 1, 1, col, 50);
