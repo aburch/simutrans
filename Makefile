@@ -573,7 +573,7 @@ ifeq ($(BACKEND),mixer_sdl2)
       SDL_LDFLAGS := -lSDL2main -lSDL2
     endif
   else
-    SOURCES += sound/sdl_mixer_sound.cc
+    SOURCES += sound/sdl2_mixer_sound.cc
     SOURCES += music/sdl_midi.cc
 
     SDL_CFLAGS  := $(shell $(SDL2_CONFIG) --cflags)
