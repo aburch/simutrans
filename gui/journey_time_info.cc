@@ -96,7 +96,7 @@ void copy_stations_to_clipboard(schedule_t* schedule, player_t* player, bool nam
 void copy_csv_format(schedule_t* schedule, player_t* player, vector_tpl<uint32*>& journey_times) {
   // copy in csv format. separator is \t.
   cbuffer_t clipboard;
-  clipboard.append("Station Name\t1st\t2nd\t3rd\t4th\t5th\tAverage\n");
+  clipboard.append("Station Name\tAverage\t1st\t2nd\t3rd\t4th\t5th\n");
   for(uint8 i=0; i<schedule->entries.get_count(); i++) {
     halthandle_t const halt = haltestelle_t::get_halt(schedule->entries[i].pos, player);
     if(  halt.is_bound()  ) {
