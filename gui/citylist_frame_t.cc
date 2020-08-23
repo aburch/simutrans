@@ -152,13 +152,13 @@ citylist_frame_t::citylist_frame_t() :
 	sort_desc.pressed = !sortreverse;
 	add_component(&sort_desc);
 
-	filter_within_network.init(button_t::square_state, "Within own network", scr_coord(D_BUTTON_WIDTH*1.5 + BUTTON2_X + D_H_SPACE, 40-D_BUTTON_HEIGHT));
+	filter_within_network.init(button_t::square_state, "Within own network", scr_coord(sort_desc.get_pos() + scr_coord(D_ARROW_DOWN_WIDTH + 5, -14)));
 	filter_within_network.set_tooltip("Show only cities within the active player's transportation network");
 	filter_within_network.add_listener(this);
 	filter_within_network.pressed = filter_own_network;
 	add_component(&filter_within_network);
 
-	show_stats.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON4_X, 0), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	show_stats.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON4_X, 40 - D_BUTTON_HEIGHT), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	show_stats.set_tooltip("Show/hide statistics");
 	show_stats.add_listener(this);
 	add_component(&show_stats);
@@ -298,5 +298,14 @@ void citylist_frame_t::draw(scr_coord pos, scr_size size)
 	}
 	gui_frame_t::draw(pos,size);
 
-	display_proportional( pos.x+2, pos.y+18, citylist_stats_t::total_bev_string, ALIGN_LEFT, SYSCOL_TEXT, true );
+	cbuffer_t buf;
+	uint16 left = D_H_SPACE;
+	left+=display_proportional( pos.x+left, pos.y+18, citylist_stats_t::total_bev_string, ALIGN_LEFT, SYSCOL_TEXT, true );
+	left += D_H_SPACE;
+	display_fluctuation_triangle(pos.x + left, pos.y + 18, LINESPACE - 4, true, welt->get_finance_history_month(0, karte_t::WORLD_GROWTH));
+	left += 9;
+	buf.clear();
+	buf.append(welt->get_finance_history_month(0, karte_t::WORLD_GROWTH),0);
+	display_proportional(pos.x + left, pos.y + 18, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+
 }

@@ -29,6 +29,7 @@ extern int large_font_total_height;
 
 #define LINEASCENT (large_font_ascent)
 #define LINESPACE (large_font_total_height)
+#define D_HEADING_HEIGHT (LINESPACE+4)
 
 #define VEHICLE_BAR_HEIGHT 7
 
@@ -309,11 +310,13 @@ void display_outline_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL tex
 void display_shadow_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty);
 void display_ddd_box_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PIXVAL tl_color, PIXVAL rd_color, bool dirty);
 void display_ddd_box_clip_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PIXVAL tl_color, PIXVAL rd_color);
+void display_heading_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL text_color, PIXVAL frame_color, const char *text, int dirty, uint8 style);
 
 #define display_outline_proportional( x, y, text_col, shadow_col, text, dirty ) display_outline_proportional_rgb( x, y, specialcolormap_all_day[(text_col)&0xFF], specialcolormap_all_day[(shadow_col)&0xFF], text, dirty )
 #define display_shadow_proportional( x, y, text_col, shadow_col, text, dirty ) display_shadow_proportional_rgb( x, y, specialcolormap_all_day[(text_col)&0xFF], specialcolormap_all_day[(shadow_col)&0xFF], text, dirty )
 #define display_ddd_box( x, y, w, h, box_col, shadow_col, dirty ) display_ddd_box_rgb( x, y, w, h, specialcolormap_all_day[(box_col)&0xFF], specialcolormap_all_day[(shadow_col)&0xFF], dirty )
 #define display_ddd_box_clip( x, y, w, h, box_col, shadow_col ) display_ddd_box_clip_rgb( x, y, w, h, specialcolormap_all_day[(box_col)&0xFF], specialcolormap_all_day[(shadow_col)&0xFF] )
+#define display_heading( x, y, w, h, text_col, frame_col, text, dirty, style ) display_heading_rgb( x, y, w, h, specialcolormap_all_day[(text_col)&0xFF], specialcolormap_all_day[(frame_col)&0xFF], text, dirty, style )
 
 
 // unicode save moving in strings

@@ -1699,13 +1699,18 @@ void fabrik_t::smoke() const
 		const koord size = desc->get_building()->get_size(0)-koord(1,1);
 		const uint8 rot = (4-rotate)%desc->get_building()->get_all_layouts();
 		koord ro = rada->get_pos_off(size,rot);
-		grund_t *gr = welt->lookup_kartenboden(pos_origin.get_2d()+ro);
+		koord smoke_pos = pos_origin.get_2d() + ro;
+		if (!welt->is_within_grid_limits(smoke_pos))
+		{
+			smoke_pos = pos_origin.get_2d();
+		}
+		grund_t *gr = welt->lookup_kartenboden(smoke_pos);
 		// to get same random order on different compilers
-		const sint8 offsetx = ((rada->get_xy_off(rot).x)*OBJECT_OFFSET_STEPS) / 16;
-		const sint8 offsety = ((rada->get_xy_off(rot).y)*OBJECT_OFFSET_STEPS) / 16;
-		wolke_t *smoke =  new wolke_t(gr->get_pos(), offsetx, offsety, rada->get_images() );
+		const sint8 offsetx = ((rada->get_xy_off(rot).x) * OBJECT_OFFSET_STEPS) / 16;
+		const sint8 offsety = ((rada->get_xy_off(rot).y) * OBJECT_OFFSET_STEPS) / 16;
+		wolke_t* smoke = new wolke_t(gr->get_pos(), offsetx, offsety, rada->get_images());
 		gr->obj_add(smoke);
-		welt->sync_way_eyecandy.add( smoke );
+		welt->sync_way_eyecandy.add(smoke);
 	}
 	// maybe sound?
 	if (!world()->is_fast_forward() && desc->get_sound() != NO_SOUND && (welt->get_ticks() > (last_sound_ms + desc->get_sound_interval_ms())))
