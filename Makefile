@@ -545,18 +545,19 @@ else ifeq ($(BACKEND),sdl2)
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL2_CONFIG) --cflags)
-    ifneq ($(findstring  sdl2-config,$(SDL2_CONFIG)),)
-      ifneq ($(findstring mingw,$(OSTYPE)),)
-        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
+
+    ifneq ($(STATIC),)
+      ifeq ($(shell expr $(STATIC) \>= 1), 1)
+        ifneq ($(findstring  sdl2-config,$(SDL2_CONFIG)),)
+          SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
+        else # assume pkg-config
+          SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs --static)
+        endif
       else
         SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
       endif
-    else # assume pkg-config
-      ifneq ($(findstring mingw,$(OSTYPE)),)
-        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs --static)
-      else
-        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
-      endif
+    else
+      SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
     endif
   endif
 
