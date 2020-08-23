@@ -2318,7 +2318,7 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 
 	// Next, find the nearest city
 	const uint32 rank_max = welt->get_settings().get_auto_connect_industries_and_attractions_by_road();
-	const uint32 max_road_length = env_t::networkmode ? 2048 : (uint32)env_t::intercity_road_length;
+	const uint32 max_road_length = env_t::networkmode ? 2048 : (uint32)env_t::intercity_road_length; // The env_t:: settings are not transmitted with network games so may diverge between client and server.
 	for (uint32 rank = 1; rank <= rank_max; rank++)
 	{
 		const stadt_t* city = welt->find_nearest_city(get_pos().get_2d(), rank);
