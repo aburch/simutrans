@@ -498,17 +498,20 @@ SOURCES += dataobj/livery_scheme.cc
 SOURCES += dataobj/replace_data.cc
 
 
-ifeq ($(BACKEND),gdi)
+ifeq ($(BACKEND),posix)
+  SOURCES += sys/simsys_posix.cc
+  SOURCES += music/no_midi.cc
+  SOURCES += sound/no_sound.cc
+
+
+else ifeq ($(BACKEND),gdi)
   SOURCES += sys/simsys_w.cc
   SOURCES += music/w32_midi.cc
   SOURCES += sound/win32_sound.cc
   CFLAGS += -DGDI_SOUND
-endif
 
 
-
-
-ifeq ($(BACKEND),sdl2)
+else ifeq ($(BACKEND),sdl2)
   SOURCES += sys/simsys_s2.cc
 
   ifeq ($(OSTYPE),mac)
@@ -559,10 +562,9 @@ ifeq ($(BACKEND),sdl2)
 
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)
-endif
 
 
-ifeq ($(BACKEND),mixer_sdl2)
+else ifeq ($(BACKEND),mixer_sdl2)
   SOURCES += sys/simsys_s2.cc
   ifeq ($(SDL2_CONFIG),)
     ifeq ($(OSTYPE),mac)
@@ -589,13 +591,6 @@ ifeq ($(BACKEND),mixer_sdl2)
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS) -lSDL2_mixer
-endif
-
-
-ifeq ($(BACKEND),posix)
-  SOURCES += sys/simsys_posix.cc
-  SOURCES += music/no_midi.cc
-  SOURCES += sound/no_sound.cc
 endif
 
 
