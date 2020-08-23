@@ -1,5 +1,5 @@
 /*
- * This file is part of the Simutrans project under the Artistic License.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
  * (see LICENSE.txt)
  */
 
@@ -15,7 +15,7 @@
 
 
 /*
- * flag if sound module should be used
+ * Hajo: flag if sound module should be used
  */
 static int use_sound = 0;
 
@@ -89,6 +89,7 @@ bool dr_init_sound()
 /**
  * loads a sample
  * @return a handle for that sample or -1 on failure
+ * @author Hj. Malthaner
  */
 int dr_load_sample(const char *filename)
 {
@@ -115,6 +116,7 @@ int dr_load_sample(const char *filename)
 /**
  * plays a sample
  * @param key the key for the sample to be played
+ * @author Hj. Malthaner
  */
 void dr_play_sample(int sample_number, int volume)
 {
