@@ -3,13 +3,15 @@
  * (see LICENSE.txt)
  */
 
-// Sound with SDL_mixer.dll (not changing the volume of other programs)
+// Sound with SDL2_mixer.dll (not changing the volume of other programs)
 
-#include <SDL.h>
-#include <SDL_mixer.h>
-#include <string.h>
 #include "sound.h"
 #include "../simdebug.h"
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
+
+#include <string.h>
 
 
 /*
