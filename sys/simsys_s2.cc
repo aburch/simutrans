@@ -3,14 +3,10 @@
  * (see LICENSE.txt)
  */
 
-#if (defined(__MINGW64__) || defined(__MINGW32__))
-#  include <windows.h>
-#  include <SDL2/SDL.h>
-#elif defined(_WIN32)
-#  include <windows.h>
-#  include "SDL.h"
-#else
-#  include <SDL2/SDL.h>
+#include <SDL2/SDL.h>
+
+#if defined(_WIN32)
+#include <windows.h>
 #endif
 
 #include <stdio.h>
