@@ -4636,6 +4636,41 @@ void display_shadow_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text
 }
 
 
+// If want to set the background color in some styles, use it together with display_fillbox_wh_clip
+// style: 0=roundbox back ground, 1=left box + bottom line with shadow, 2=only left box
+void display_heading_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL text_color, PIXVAL frame_color, const char *text, int dirty, uint8 style)
+{
+	if (h < LINESPACE) { h = LINESPACE; }
+	if (style > 2/* max styles */) { style = 0; }
+	uint8 border_left_width=0;
+	uint8 padding_left=h;
+	switch (style)
+	{
+		case 0:
+			display_fillbox_wh_clip_rgb(xp, yp + 1, w, h - 2, frame_color, dirty);
+			display_fillbox_wh_clip_rgb(xp + 1, yp, w - 2, 1, frame_color, dirty);
+			display_fillbox_wh_clip_rgb(xp + 1, yp + h - 1, w - 2, 1, frame_color, dirty);
+			break;
+		case 1:
+			border_left_width = h / 2;
+			display_fillbox_wh_clip_rgb(xp, yp + h, w-1, 1, frame_color, dirty);
+			display_blend_wh_rgb(xp + 1, yp + h+1, w-1, 1, COL_BLACK, 15);
+			break;
+		case 2:
+			border_left_width = h / 3;
+			padding_left = border_left_width*2;
+			break;
+		default:
+			break;
+	}
+	const int flags = ALIGN_LEFT | DT_CLIP;
+	if (border_left_width) {
+		display_fillbox_wh_clip_rgb(xp, yp, border_left_width, h, frame_color, dirty);
+	}
+	display_text_proportional_len_clip_rgb(xp + padding_left, yp + (h - large_font_total_height) / 2, text, flags, text_color, dirty, -1  CLIP_NUM_DEFAULT);
+}
+
+
 /**
 * Draw shaded rectangle using direct color values
 */

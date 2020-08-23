@@ -338,6 +338,10 @@ void display_shadow_proportional_rgb(KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLA
 {
 }
 
+void display_heading_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int, uint8)
+{
+}
+
 void display_ddd_box_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, bool)
 {
 }
