@@ -49,14 +49,6 @@
       <Configuration>Debug (SDL 2)</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug (SDL)|Win32">
-      <Configuration>Debug (SDL)</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug (SDL)|x64">
-      <Configuration>Debug (SDL)</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug (single threaded new)|Win32">
       <Configuration>Debug (single threaded new)</Configuration>
       <Platform>Win32</Platform>
@@ -121,14 +113,6 @@
       <Configuration>Release (IP v. 4 only)</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release (SDL)|Win32">
-      <Configuration>Release (SDL)</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release (SDL)|x64">
-      <Configuration>Release (SDL)</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release (single threaded)|Win32">
       <Configuration>Release (single threaded)</Configuration>
       <Platform>Win32</Platform>
@@ -154,19 +138,7 @@
     <ProjectName>Simutrans-Extended</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
-    <PlatformToolset>v140_xp</PlatformToolset>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
-    <PlatformToolset>v140_xp</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
@@ -176,18 +148,6 @@
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
-    <PlatformToolset>v140_xp</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v140_xp</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <PlatformToolset>v140_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -373,22 +333,10 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
@@ -550,17 +498,9 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|x64'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|x64'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">.\simutrans</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">.\intermediates\release-SDL</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">false</LinkIncremental>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|x64'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">.\simutrans</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">.\simutrans</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">.\intermediates\debug-SDL</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">.\intermediates\debug-SDL</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">true</LinkIncremental>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|x64'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|x64'">true</LinkIncremental>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Optimised debug|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
@@ -632,12 +572,6 @@
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|x64'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|x64'">..\OpenTTD\shared\include;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|x64'">F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\include;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\shared\include;F:\My Documents\Development\Zlib\include;F:\My Documents\Development\Simutrans\SDL-1.2.13\include;$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">F:\My Documents\Development\Lib Png\bin;F:\My Documents\Development\Simutrans\SDL-1.2.13\lib;F:\My Documents\Development\Zlib\lib;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\library;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|x64'">F:\My Documents\Development\Lib Png\bin;F:\My Documents\Development\Simutrans\SDL-1.2.13\lib;F:\My Documents\Development\Zlib\lib;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\library;$(LibraryPath)</LibraryPath>
-    <SourcePath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">F:\My Documents\Development\Zlib\source;$(SourcePath)</SourcePath>
-    <SourcePath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|x64'">F:\My Documents\Development\Zlib\source;$(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Optimised debug|Win32'">(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug (no randomness)|Win32'">$(SourcePath)</SourcePath>
@@ -658,21 +592,13 @@
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug (network)|x64'">(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|x64'">(SourcePath)</SourcePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">C:\Users\James\Documents\Development\sdl2\include;..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|x64'">F:\My Documents\Development\Simutrans\SDL-1.2.13\include;F:\My Documents\Development\Zlib\source;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\include;F:\My Documents\Development\Zlib\include;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\shared\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|x64'">F:\My Documents\Development\Simutrans\SDL-1.2.13\include;F:\My Documents\Development\Zlib\source;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\include;F:\My Documents\Development\Zlib\include;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\shared\include;$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">F:\My Documents\Development\Zlib\lib;F:\My Documents\Development\Lib Png\bin;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\library;F:\My Documents\Development\Simutrans\SDL-1.2.13\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">C:\Users\James\Documents\Development\sdl2\lib\x86;..\bzip\lib;..\OpenTTD\win32\library;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|x64'">F:\My Documents\Development\Zlib\lib;F:\My Documents\Development\Lib Png\bin;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\library;F:\My Documents\Development\Simutrans\SDL-1.2.13\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|x64'">F:\My Documents\Development\Zlib\lib;F:\My Documents\Development\Lib Png\bin;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\library;F:\My Documents\Development\Simutrans\SDL-1.2.13\lib;$(LibraryPath)</LibraryPath>
-    <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">F:\My Documents\Development\Zlib\source;$(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">$(SourcePath)</SourcePath>
-    <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|x64'">F:\My Documents\Development\Zlib\source;$(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|x64'">F:\My Documents\Development\Zlib\source;$(SourcePath)</SourcePath>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">$(ProjectName)-debug-SDL</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">$(ProjectName)-debug-SDL</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|x64'">$(ProjectName)-debug-SDL</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|x64'">$(ProjectName)-debug-SDL</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)-Debug</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Optimised debug|Win32'">$(ProjectName)-Debug</TargetName>
@@ -730,9 +656,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|x64'">
     <OutDir>.\simutrans\</OutDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|x64'">
-    <OutDir>.\simutrans\</OutDir>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|x64'">
     <OutDir>.\simutrans\</OutDir>
   </PropertyGroup>
@@ -744,9 +667,6 @@
     <TargetName>$(ProjectName)-x64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|x64'">
-    <OutDir>.\simutrans\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|x64'">
     <OutDir>.\simutrans\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (network)|x64'">
@@ -1931,116 +1851,6 @@
       </DataExecutionPrevention>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">
-    <PreBuildEvent>
-      <Command>cscript.exe //Nologo revision.jse</Command>
-    </PreBuildEvent>
-    <ClCompile>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;IN32;NDEBUG;SDL;%(PreprocessorDefinitions);COLOUR_DEPTH=16;REVISION_FROM_FILE</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <FloatingPointModel>Fast</FloatingPointModel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4200;4800;4311;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <Optimization>Full</Optimization>
-      <AdditionalOptions>/Zc:sizedDealloc-</AdditionalOptions>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-    </ClCompile>
-    <Link>
-      <AdditionalOptions>SDL.lib SDLmain.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;Imm32.lib;Ws2_32.lib</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(ProjectName)-SDL.exe</OutputFile>
-      <AdditionalLibraryDirectories>F:\My Documents\Development\Bzlib; F:\My Documents\Development\Simutrans\SDL-1.2.13\include;c:\Program Files\PlatformSDK\Lib;F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
-      <TargetMachine>MachineX86</TargetMachine>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <MinimumRequiredVersion />
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|x64'">
-    <PreBuildEvent>
-      <Command>cscript.exe //Nologo revision.jse</Command>
-    </PreBuildEvent>
-    <ClCompile>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;IN32;NDEBUG;SDL;%(PreprocessorDefinitions);COLOUR_DEPTH=16</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <FloatingPointModel>Fast</FloatingPointModel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4200;4800;4311;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <Optimization>Full</Optimization>
-    </ClCompile>
-    <Link>
-      <AdditionalOptions>SDL.lib SDLmain.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Ws2_32.lib</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(ProjectName)-SDL.exe</OutputFile>
-      <AdditionalLibraryDirectories>F:\My Documents\Development\Bzlib; F:\My Documents\Development\Simutrans\SDL-1.2.13\include;c:\Program Files\PlatformSDK\Lib;F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">
-    <PreBuildEvent>
-      <Command>cscript.exe //Nologo revision.jse</Command>
-    </PreBuildEvent>
-    <ClCompile>
-      <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;SDL;%(PreprocessorDefinitions);COLOUR_DEPTH=16;REVISION_FROM_FILE</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <StructMemberAlignment>Default</StructMemberAlignment>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4200;4800;4311;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <AdditionalOptions>/Zc:sizedDealloc-</AdditionalOptions>
-    </ClCompile>
-    <Link>
-      <AdditionalOptions>SDL.lib SDLmain.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;Imm32.lib;Ws2_32.lib</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(ProjectName)-debug-SDL.exe</OutputFile>
-      <AdditionalLibraryDirectories>F:\My Documents\Development\Bzlib;F:\My Documents\Development\Simutrans\SDL-1.2.13\include;G:\Program Files\PlatformSDK\Lib;F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
-      <TargetMachine>MachineX86</TargetMachine>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">
     <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
@@ -2076,39 +1886,6 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|x64'">
-    <PreBuildEvent>
-      <Command>cscript.exe //Nologo revision.jse</Command>
-    </PreBuildEvent>
-    <ClCompile>
-      <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=3;SDL;%(PreprocessorDefinitions);COLOUR_DEPTH=16</PreprocessorDefinitions>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <StructMemberAlignment>Default</StructMemberAlignment>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4200;4800;4311;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-    </ClCompile>
-    <Link>
-      <AdditionalOptions>SDL.lib SDLmain.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Ws2_32.lib</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(ProjectName)-debug-SDL.exe</OutputFile>
-      <AdditionalLibraryDirectories>F:\My Documents\Development\Bzlib;F:\My Documents\Development\Simutrans\SDL-1.2.13\include;G:\Program Files\PlatformSDK\Lib;F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|x64'">
@@ -2164,7 +1941,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Optimised debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (no randomness)|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|Win32'">true</ExcludedFromBuild>
@@ -2175,7 +1951,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-64|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">false</ExcludedFromBuild>
@@ -2306,14 +2081,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-64|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (non-graphical server)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded old)|Win32'">true</ExcludedFromBuild>
@@ -2329,7 +2102,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (non-graphical server)|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">true</ExcludedFromBuild>
@@ -2338,7 +2110,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (non-graphical server)|x64'">true</ExcludedFromBuild>
@@ -2384,7 +2155,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Optimised debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (no randomness)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|Win32'">true</ExcludedFromBuild>
@@ -2392,7 +2162,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded old)|Win32'">true</ExcludedFromBuild>
@@ -2408,7 +2177,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Optimised debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (no randomness)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|Win32'">true</ExcludedFromBuild>
@@ -2416,7 +2184,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded old)|Win32'">true</ExcludedFromBuild>
@@ -2432,7 +2199,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Optimised debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (no randomness)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|Win32'">true</ExcludedFromBuild>
@@ -2440,7 +2206,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded old)|Win32'">true</ExcludedFromBuild>
@@ -2614,13 +2379,9 @@
     <ClCompile Include="simdebug.cc" />
     <ClCompile Include="simdepot.cc" />
     <ClCompile Include="simevent.cc">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|x64'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|x64'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Optimised debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
@@ -2662,10 +2423,6 @@
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug (network)|x64'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|x64'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|x64'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>

@@ -1,20 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug (SDL)|Win32">
-      <Configuration>Debug (SDL)</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug Optimized|Win32">
       <Configuration>Debug Optimized</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release (SDL)|Win32">
-      <Configuration>Release (SDL)</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
@@ -34,16 +26,6 @@
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
@@ -58,12 +40,6 @@
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
@@ -81,27 +57,15 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\binaries\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)$(ProjectName)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">.\binaries\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">$(OutDir)$(ProjectName)\$(Configuration)\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">.\binaries\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">$(OutDir)$(ProjectName)\$(Configuration)\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">true</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">.\binaries\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">$(OutDir)$(ProjectName)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">true</LinkIncremental>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">..\OpenTTD essentials\win32\include;..\bzip;$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">..\OpenTTD essentials\win32\library;..\bzip;$(LibraryPath)</LibraryPath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">..\OpenTTD essentials\win32\include;..\bzip;$(IncludePath)</IncludePath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">..\OpenTTD essentials\win32\library;..\bzip;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OpenTTD essentials\win32\library;..\bzip;$(LibraryPath)</LibraryPath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">..\OpenTTD essentials\win32\include;..\bzip;$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">..\OpenTTD essentials\win32\library;..\bzip;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OpenTTD essentials\win32\library;..\bzip;$(LibraryPath)</LibraryPath>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)-$(Configuration)</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">$(ProjectName)-$(Configuration)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">$(ProjectName)-$(Configuration)</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">$(ProjectName)-$(Configuration)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)-$(Configuration)</TargetName>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\OpenTTD essentials\win32\include;..\bzip;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\OpenTTD essentials\win32\include;..\bzip;$(IncludePath)</IncludePath>
@@ -183,69 +147,6 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">
-    <ClCompile>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CONSOLE;_WIN32;ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;COLOUR_DEPTH=16;NDEBUG;SDL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <FloatingPointModel>Fast</FloatingPointModel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4200;4800;4311;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-    </ClCompile>
-    <Link>
-      <AdditionalOptions>SDL.lib SDLmain.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;c:\Program Files\PlatformSDK\Lib;F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib; msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
-      <TargetMachine>MachineX86</TargetMachine>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">
-    <ClCompile>
-      <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CONSOLE;_WIN32;ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;COLOUR_DEPTH=16;DEBUG=3;SDL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <StructMemberAlignment>Default</StructMemberAlignment>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4200;4800;4311;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-    </ClCompile>
-    <Link>
-      <AdditionalOptions>SDL.lib SDLmain.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;G:\Program Files\PlatformSDK\Lib;F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib; msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
-      <TargetMachine>MachineX86</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">
@@ -540,18 +441,7 @@
     <ClCompile Include="simconvoi.cc" />
     <ClCompile Include="simdebug.cc" />
     <ClCompile Include="simdepot.cc" />
-    <ClCompile Include="simevent.cc">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug Optimized|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-    </ClCompile>
+    <ClCompile Include="simevent.cc"/>
     <ClCompile Include="simfab.cc" />
     <ClCompile Include="simhalt.cc" />
     <ClCompile Include="simintr.cc" />
