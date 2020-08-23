@@ -127,7 +127,8 @@ private:
 	bool show_pas_info, show_freight_info;
 	gui_container_t cont, cont_goods, cont_route;
 	gui_scrollpane_t scrolly, scrolly_pas, scrolly_goods, scrolly_route;
-	gui_label_t lb_nearby_factory, lb_serve_catg, lb_routes, lb_selected_route_catg;
+	gui_label_t lb_selected_route_catg;
+	gui_heading_t lb_nearby_factory, lb_routes, lb_serve_catg, lb_serve_lines;
 
 	gui_halthandled_lines_t line_number;
 	halt_detail_pas_t pas;

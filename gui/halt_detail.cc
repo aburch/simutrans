@@ -66,6 +66,10 @@ void halt_detail_t::init(halthandle_t halt_)
 	line_number.set_pos(scr_coord(0, D_V_SPACE));
 	add_component(&line_number);
 
+	lb_serve_lines.init("Lines serving this stop", scr_coord(D_MARGIN_LEFT, D_V_SPACE),
+		halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1() + 2, 1);
+	cont.add_component(&lb_serve_lines);
+
 	cont.add_component(&txt_info);
 	txt_info.set_pos(scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP));
 
@@ -82,7 +86,8 @@ void halt_detail_t::init(halthandle_t halt_)
 	scrolly.set_pos(scr_coord(0, 0));
 	scrolly.set_show_scroll_x(true);
 
-	lb_nearby_factory.set_text(translator::translate("Fabrikanschluss")); // (en)Connected industries
+	lb_nearby_factory.init("Fabrikanschluss"/* (en)Connected industries */, scr_coord(D_MARGIN_LEFT, 0),
+		halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1() + 2, 1);
 
 	// fill buffer with halt detail
 	goods.recalc_size();
@@ -99,8 +104,8 @@ void halt_detail_t::init(halthandle_t halt_)
 
 	// route tab components
 	cont_route.set_pos(scr_coord(0, D_TAB_HEADER_HEIGHT + D_MARGIN_TOP));
-	lb_serve_catg.init(translator::translate("lb_served_goods_and_classes"), scr_coord(D_MARGIN_LEFT, D_V_SPACE));
-	lb_serve_catg.set_size(scr_size(D_DEFAULT_WIDTH - D_BUTTON_WIDTH * 2, D_BUTTON_HEIGHT));
+	lb_serve_catg.init("lb_served_goods_and_classes", scr_coord(D_MARGIN_LEFT, D_V_SPACE),
+		halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1() + 2, 1);
 	cont_route.add_component(&lb_serve_catg);
 
 	uint16 freight_btn_offset_x = D_MARGIN_LEFT;
@@ -124,7 +129,7 @@ void halt_detail_t::init(halthandle_t halt_)
 							pass_class_name_untranslated[c] = class_name;
 						}
 						cb->init(button_t::roundbox_state, translator::translate(pass_class_name_untranslated[c]),
-							scr_coord(freight_btn_offset_x + WARE_TYPE_IMG_BUTTON_WIDTH + CLASS_TEXT_BUTTON_WIDTH * (goods_manager_t::passengers->get_number_of_classes() - c-1), D_V_SPACE + D_BUTTON_HEIGHT * (row + 1)),
+							scr_coord(freight_btn_offset_x + WARE_TYPE_IMG_BUTTON_WIDTH + CLASS_TEXT_BUTTON_WIDTH * (goods_manager_t::passengers->get_number_of_classes() - c-1), D_MARGIN_TOP + D_BUTTON_HEIGHT * (row + 1)),
 							scr_size(CLASS_TEXT_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 						cb->disable();
 						cb->add_listener(this);
@@ -146,7 +151,7 @@ void halt_detail_t::init(halthandle_t halt_)
 							mail_class_name_untranslated[c] = class_name;
 						}
 						cb->init(button_t::roundbox_state, translator::translate(mail_class_name_untranslated[c]),
-							scr_coord(freight_btn_offset_x + WARE_TYPE_IMG_BUTTON_WIDTH + CLASS_TEXT_BUTTON_WIDTH * (goods_manager_t::mail->get_number_of_classes() - c - 1), D_V_SPACE + D_BUTTON_HEIGHT * (row + 1)),
+							scr_coord(freight_btn_offset_x + WARE_TYPE_IMG_BUTTON_WIDTH + CLASS_TEXT_BUTTON_WIDTH * (goods_manager_t::mail->get_number_of_classes() - c - 1), D_MARGIN_TOP + D_BUTTON_HEIGHT * (row + 1)),
 							scr_size(CLASS_TEXT_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 						cb->disable();
 						cb->add_listener(this);
@@ -167,7 +172,7 @@ void halt_detail_t::init(halthandle_t halt_)
 		button_t *b = new button_t();
 		if (goods_manager_t::get_info_catg_index(i)->get_catg_symbol() == IMG_EMPTY || goods_manager_t::get_info_catg_index(i)->get_catg_symbol() == skinverwaltung_t::goods->get_image_id(0)) {
 			// category text button (pakset does not have symbol)
-			b->init(button_t::roundbox_state, goods_manager_t::get_info_catg_index(i)->get_catg_name(), scr_coord(freight_btn_offset_x + WARE_TYPE_IMG_BUTTON_WIDTH, D_V_SPACE + D_BUTTON_HEIGHT * (row + 1)), scr_size(GOODS_TEXT_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+			b->init(button_t::roundbox_state, goods_manager_t::get_info_catg_index(i)->get_catg_name(), scr_coord(freight_btn_offset_x + WARE_TYPE_IMG_BUTTON_WIDTH, D_MARGIN_TOP + D_BUTTON_HEIGHT * (row + 1)), scr_size(GOODS_TEXT_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 			if (row > 1) {
 				freight_btn_offset_x += GOODS_TEXT_BUTTON_WIDTH;
 			}
@@ -180,13 +185,13 @@ void halt_detail_t::init(halthandle_t halt_)
 			if (row > 1) {
 				// freight category button
 				b->set_size(scr_size(CATG_IMG_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-				b->set_pos(scr_coord(freight_btn_offset_x + WARE_TYPE_IMG_BUTTON_WIDTH, D_V_SPACE + D_BUTTON_HEIGHT * (row + 1)));
+				b->set_pos(scr_coord(freight_btn_offset_x + WARE_TYPE_IMG_BUTTON_WIDTH, D_MARGIN_TOP + D_BUTTON_HEIGHT * (row + 1)));
 				freight_btn_offset_x += CATG_IMG_BUTTON_WIDTH;
 			}
 			else {
 				// pas/mail category button
 				b->set_size(scr_size(WARE_TYPE_IMG_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-				b->set_pos(scr_coord(freight_btn_offset_x, D_V_SPACE + D_BUTTON_HEIGHT * (row + 1)));
+				b->set_pos(scr_coord(freight_btn_offset_x, D_MARGIN_TOP + D_BUTTON_HEIGHT * (row + 1)));
 			}
 		}
 		b->set_tooltip(translator::translate(goods_manager_t::get_info_catg_index(i)->get_catg_name()));
@@ -195,10 +200,10 @@ void halt_detail_t::init(halthandle_t halt_)
 		cont_route.add_component(b);
 	}
 
-	lb_routes.init(translator::translate("Direkt erreichbare Haltestellen"), scr_coord(D_MARGIN_LEFT, D_BUTTON_HEIGHT * (row + 3) + D_V_SPACE));
-	lb_routes.set_size(scr_size(D_DEFAULT_WIDTH - D_BUTTON_WIDTH * 2, D_BUTTON_HEIGHT));
+	lb_routes.init("Direkt erreichbare Haltestellen", scr_coord(D_MARGIN_LEFT, D_BUTTON_HEIGHT * (row + 3) + D_V_SPACE),
+		halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1() + 2, 1);
 	cont_route.add_component(&lb_routes);
-	lb_selected_route_catg.set_pos(lb_routes.get_pos() + scr_coord(0, D_BUTTON_HEIGHT));
+	lb_selected_route_catg.set_pos(lb_routes.get_pos() + scr_coord(0, D_HEADING_HEIGHT+D_V_SPACE));
 	lb_selected_route_catg.set_size(D_BUTTON_SIZE);
 	cont_route.add_component(&lb_selected_route_catg);
 	scrolly_route.set_pos(scr_coord(0, lb_selected_route_catg.get_pos().y + D_BUTTON_HEIGHT));
@@ -350,7 +355,7 @@ void halt_detail_t::update_components()
 	y += goods.get_size().h;
 
 	lb_nearby_factory.set_pos(scr_coord(D_H_SPACE, y));
-	y += LINESPACE+2;
+	y += D_HEADING_HEIGHT + D_V_SPACE;
 	nearby_factory.set_pos(scr_coord(0, y));
 	if (halt->get_fab_list().get_count() != old_factory_count)
 	{
@@ -490,7 +495,6 @@ void halt_detail_t::halt_detail_info()
 	sint16 offset_y = D_MARGIN_TOP;
 
 	// add lines that serve this stop
-	buf.append(translator::translate("Lines serving this stop"));
 	buf.append("\n");
 	offset_y += LINESPACE;
 
@@ -1088,8 +1092,9 @@ void halt_detail_pas_t::draw(scr_coord offset)
 		// passenger demands info
 		if (halt->get_pax_enabled()) {
 			top += LINESPACE;
-			display_proportional_clip(offset.x, offset.y + top, translator::translate("Around passenger demands"), ALIGN_LEFT, SYSCOL_TEXT, true);
-			top += LINESPACE + D_V_SPACE;
+			display_heading(offset.x, offset.y + top, D_DEFAULT_WIDTH - D_MARGINS_X, D_HEADING_HEIGHT,
+				halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1()+2, translator::translate("Around passenger demands"), true, 1);
+			top += D_HEADING_HEIGHT + D_V_SPACE*2;
 			display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, translator::translate("hd_wealth"), ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 4, offset.y + top, translator::translate("Population"), ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_proportional_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH + 4, offset.y + top, translator::translate("Visitor demand"), ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -1160,8 +1165,9 @@ void halt_detail_pas_t::draw(scr_coord offset)
 		// transportation status
 		if (halt->get_pax_enabled() || halt->get_mail_enabled()) {
 			top += LINESPACE;
-			display_proportional_clip(offset.x, offset.y + top, translator::translate("Transportation status around this stop"), ALIGN_LEFT, SYSCOL_TEXT, true);
-			top += LINESPACE+D_V_SPACE;
+			display_heading(offset.x, offset.y + top, D_DEFAULT_WIDTH-D_MARGINS_X, D_HEADING_HEIGHT,
+				halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1()+2, translator::translate("Transportation status around this stop"), true, 1);
+			top += D_HEADING_HEIGHT + D_V_SPACE*2;
 			// header
 			display_proportional_clip(offset.x + D_BUTTON_WIDTH + GOODS_SYMBOL_CELL_WIDTH + 4, offset.y + top, translator::translate("hd_generated"), ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_proportional_clip(offset.x + D_BUTTON_WIDTH + GOODS_SYMBOL_CELL_WIDTH + GENERATED_CELL_WIDTH + D_H_SPACE + 4, offset.y + top, translator::translate("Success rate"), ALIGN_LEFT, SYSCOL_TEXT, true);
