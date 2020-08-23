@@ -1,0 +1,42 @@
+name: Nightly Built Windows
+
+on: [push]
+
+jobs:
+  winSDL2-64:
+    runs-on: windows-latest
+    steps:
+
+      - name: Setup Mingw
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: git zip unzip svn base-devel mingw-w64-x86_64-toolchain autoconf mingw-w64-x86_64-gcc mingw-w64-x86_64-freetype mingw-w64-x86_64-zstd mingw-w64-x86_64-libpng mingw-w64-x86_64-brotli mingw-w64-x86_64-SDL2 mingw-w64-x86_64-pkg-config
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Prepares NSIS plugins
+        run: ./.github/prepare-nsis.ps1
+        shell: powershell
+
+      - name: Create nsis installer
+        uses: joncloud/makensis-action@v2.0
+        with:
+          arguments: "/V3"
+          additional-plugin-paths: NSIS_Plugins/Plugins
+          script-file: Nsis/onlineupgrade.nsi
+
+      - name: CI-Build
+        run: sh ./.github/build64-sdl2.sh
+        shell: msys2 {0}
+
+      - name: Update binaries of Nightly Release
+        uses: svenstaro/upload-release-action@v1-release
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./simuwin64-SDL2-nightly.zip
+          asset_name: simuwin64-SDL2-nightly.zip
+          tag: Nightly
+          overwrite: true
