@@ -567,6 +567,7 @@ else ifeq ($(BACKEND),sdl2)
 
 else ifeq ($(BACKEND),mixer_sdl2)
   SOURCES += sys/simsys_s2.cc
+
   ifeq ($(SDL2_CONFIG),)
     ifeq ($(OSTYPE),mac)
       SDL_CFLAGS  := -I/Library/Frameworks/SDL2.framework/Headers
@@ -580,9 +581,14 @@ else ifeq ($(BACKEND),mixer_sdl2)
     SOURCES += music/sdl2_mixer_midi.cc
 
     SDL_CFLAGS  := $(shell $(SDL2_CONFIG) --cflags)
+
     ifneq ($(STATIC),)
       ifeq ($(shell expr $(STATIC) \>= 1), 1)
-        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
+        ifneq ($(findstring  sdl2-config,$(SDL2_CONFIG)),)
+          SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
+        else # assume pkg-config
+          SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs --static)
+        endif
       else
         SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
       endif
