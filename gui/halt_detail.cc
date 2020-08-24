@@ -359,7 +359,7 @@ void halt_detail_t::update_components()
 	y += goods.get_size().h;
 
 	lb_nearby_factory.set_pos(scr_coord(D_H_SPACE, y));
-	y += D_HEADING_HEIGHT + D_V_SPACE;
+	y += D_HEADING_HEIGHT + D_V_SPACE*2;
 	nearby_factory.set_pos(scr_coord(0, y));
 	if (halt->get_fab_list().get_count() != old_factory_count)
 	{
@@ -1095,6 +1095,8 @@ void halt_detail_pas_t::draw(scr_coord offset)
 		}
 
 		// passenger demands info
+		const uint32 arround_population = halt->get_around_population();
+		const uint32 arround_job_demand = halt->get_around_job_demand();
 		if (halt->get_pax_enabled()) {
 			top += LINESPACE;
 			display_heading(offset.x, offset.y + top, D_DEFAULT_WIDTH - D_MARGINS_X, D_HEADING_HEIGHT,
@@ -1112,9 +1114,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 			display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 2 + 5 + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 3 + 5, offset.y + top, MN_GREY1);
 			top += 4;
 
-			const uint32 arround_population = halt->get_around_population();
 			const uint32 arround_visitor_demand = halt->get_around_visitor_demand();
-			const uint32 arround_job_demand = halt->get_around_job_demand();
 			for (uint8 i = 0; i < pass_classes; i++) {
 				// wealth name
 				pas_info.clear();
@@ -1168,20 +1168,21 @@ void halt_detail_pas_t::draw(scr_coord offset)
 		}
 
 		// transportation status
-		if (halt->get_pax_enabled() || halt->get_mail_enabled()) {
+		if ((halt->get_pax_enabled() && arround_population) || halt->get_mail_enabled()) {
 			top += LINESPACE;
-			display_heading(offset.x, offset.y + top, D_DEFAULT_WIDTH-D_MARGINS_X, D_HEADING_HEIGHT,
-				halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1()+2, translator::translate("Transportation status around this stop"), true, 1);
-			top += D_HEADING_HEIGHT + D_V_SPACE*2;
+			display_heading(offset.x, offset.y + top, D_DEFAULT_WIDTH - D_MARGINS_X, D_HEADING_HEIGHT,
+				halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1() + 2, translator::translate("Transportation status around this stop"), true, 1);
+			top += D_HEADING_HEIGHT + D_V_SPACE * 2;
 			// header
 			display_proportional_clip(offset.x + D_BUTTON_WIDTH + GOODS_SYMBOL_CELL_WIDTH + 4, offset.y + top, translator::translate("hd_generated"), ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_proportional_clip(offset.x + D_BUTTON_WIDTH + GOODS_SYMBOL_CELL_WIDTH + GENERATED_CELL_WIDTH + D_H_SPACE + 4, offset.y + top, translator::translate("Success rate"), ALIGN_LEFT, SYSCOL_TEXT, true);
-			top += LINESPACE+2;
+			top += LINESPACE + 2;
 			display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH, offset.y + top, MN_GREY1);
 			display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH, offset.y + top, MN_GREY1);
-			display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH*2 + GENERATED_CELL_WIDTH + 5, offset.y + top, MN_GREY1);
+			display_direct_line(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH * 2 + GENERATED_CELL_WIDTH + 5, offset.y + top, MN_GREY1);
 			top += 4;
-			if (halt->get_pax_enabled()) {
+			if (halt->get_pax_enabled() && arround_population) {
+				// These are information about RES building
 				// visiting trip
 				display_colorbox_with_tooltip(offset.x, offset.y + top + 1, 8, 8, col_passenger, true, translator::translate("visitors"));
 				pas_info.clear();
@@ -1215,17 +1216,27 @@ void halt_detail_pas_t::draw(scr_coord offset)
 				pas_info.append(translator::translate("hd_mailing"));
 				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
 				pas_info.clear();
-				//pas_info.append(halt->get_around_mail_demand(),0);
 				pas_info.append(halt->get_around_mail_generated(), 0);
 				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 				pas_info.clear();
-				pas_info.printf(" %5.1f%%", halt->get_around_mail_generated() ? 100.0 * halt->get_around_mail_delivery_succeeded() / halt->get_around_mail_generated():0.0);
+				pas_info.printf(" %5.1f%%", halt->get_around_mail_generated() ? 100.0 * halt->get_around_mail_delivery_succeeded() / halt->get_around_mail_generated() : 0.0);
 				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH + D_H_SPACE, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 				top += LINESPACE;
 			}
-		}
 
+			if (halt->get_pax_enabled() && arround_job_demand) {
+				top += LINESPACE;
+				// Staffing rate
+				pas_info.clear();
+				pas_info.append(translator::translate("Staffing"));
+				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
+				pas_info.clear();
+				pas_info.printf(" %5.1f%%", 100.0 * halt->get_around_employee_factor() / arround_job_demand);
+				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+
+			}
+		}
 		top += D_MARGIN_BOTTOM;
 
 		scr_size size(max(x_size + pos.x, get_size().w), top);
