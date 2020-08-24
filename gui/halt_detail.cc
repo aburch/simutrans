@@ -69,6 +69,10 @@ void halt_detail_t::init(halthandle_t halt_)
 	lb_serve_lines.init("Lines serving this stop", scr_coord(D_MARGIN_LEFT, D_V_SPACE),
 		halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1() + 2, 1);
 	cont.add_component(&lb_serve_lines);
+	lb_serve_convoys.init("Lineless convoys serving this stop", scr_coord(D_MARGIN_LEFT, LINESPACE*4),
+		halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1() + 2, 1);
+	lb_serve_convoys.set_visible(false);
+	cont.add_component(&lb_serve_convoys);
 
 	cont.add_component(&txt_info);
 	txt_info.set_pos(scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP));
@@ -548,9 +552,10 @@ void halt_detail_t::halt_detail_info()
 	buf.append("\n");
 	offset_y += LINESPACE;
 
-	buf.append( translator::translate("Lineless convoys serving this stop") );
-	buf.append("\n");
-	offset_y += LINESPACE;
+	lb_serve_convoys.set_visible(true);
+	lb_serve_convoys.set_pos(scr_coord(D_MARGIN_LEFT, offset_y));
+	buf.append("\n\n");
+	offset_y += LINESPACE*2;
 
 	if(  !halt->registered_convoys.empty()  ) {
 		for(  uint32 i=0;  i<halt->registered_convoys.get_count();  ++i  ) {
