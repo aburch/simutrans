@@ -1202,7 +1202,6 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		int stop_entry_counter;
 		uint16 max_walking_time;
 		uint32 max_tiles_to_halt;
-		const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
 
 		if (plan->get_haltlist_count() > 0)
 		{
@@ -1232,7 +1231,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 						buf.printf("\n  %s\n    %s: %s ", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
 
 						buf.append("(");
-						const double km_to_halt = (double)tiles_to_halt * km_per_tile;
+						const double km_to_halt = welt->tiles_to_km(tiles_to_halt);
 						if (km_to_halt < 1)
 						{
 							float m_to_halt = km_to_halt * 1000;
@@ -1267,7 +1266,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 				buf.printf("\n");
 				buf.printf(translator::translate("%i_more_stops,_max_walking_time:_%s"), stop_entry_counter - max_stop_entries, walking_time_as_clock);
 				buf.append(" (");
-				const double km_to_halt = (double)max_tiles_to_halt * km_per_tile;
+				const double km_to_halt = welt->tiles_to_km(max_tiles_to_halt);
 				if (km_to_halt < 1)
 				{
 					float m_to_halt = km_to_halt * 1000;
@@ -1315,7 +1314,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 						buf.printf("\n  %s\n    %s: %s ", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
 
 						buf.append("(");
-						const double km_to_halt = (double)tiles_to_halt * km_per_tile;
+						const double km_to_halt = welt->tiles_to_km(tiles_to_halt);
 						if (km_to_halt < 1)
 						{
 							float m_to_halt = km_to_halt * 1000;
@@ -1349,7 +1348,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 				buf.printf("\n");
 				buf.printf(translator::translate("%i_more_stops,_max_walking_time:_%s"), stop_entry_counter - max_stop_entries, walking_time_as_clock);
 				buf.append(" (");
-				const double km_to_halt = (double)max_tiles_to_halt * km_per_tile;
+				const double km_to_halt = welt->tiles_to_km(max_tiles_to_halt);
 				if (km_to_halt < 1)
 				{
 					float m_to_halt = km_to_halt * 1000;
