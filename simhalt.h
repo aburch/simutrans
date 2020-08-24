@@ -933,6 +933,8 @@ public:
 	uint32 get_around_succeeded_visiting() const;
 	uint32 get_around_commuter_generated() const;
 	uint32 get_around_succeeded_commuting() const;
+	// Returns the current number of workers, but overflows are truncated per building.
+	uint32 get_around_employee_factor() const;
 
 	uint32 get_around_mail_demand() const;
 	uint32 get_around_mail_generated() const;
