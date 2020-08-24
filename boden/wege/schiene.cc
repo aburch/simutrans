@@ -141,9 +141,7 @@ void schiene_t::info(cbuffer_t & buf) const
 
 		koord3d vehpos = reserved->get_pos();
 		koord3d schpos = sch->get_pos();
-		const uint32 tiles_to_vehicle = shortest_distance(schpos.get_2d(), vehpos.get_2d());
-		const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
-		const double km_to_vehicle = (double)tiles_to_vehicle * km_per_tile;
+		const double km_to_vehicle = welt->tiles_to_km(shortest_distance(schpos.get_2d(), vehpos.get_2d()));
 
 		if (km_to_vehicle < 1)
 		{
