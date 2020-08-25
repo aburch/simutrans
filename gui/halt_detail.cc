@@ -1276,11 +1276,14 @@ void halt_detail_pas_t::draw(scr_coord offset)
 				top += LINESPACE;
 				// Staffing rate
 				pas_info.clear();
-				pas_info.append(translator::translate("Staffing"));
+				pas_info.append(translator::translate("Jobs"));
 				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
 				pas_info.clear();
-				pas_info.printf(" %5.1f%%", 100.0 * halt->get_around_employee_factor() / arround_job_demand);
+				pas_info.append(arround_job_demand, 0);
 				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+				pas_info.clear();
+				pas_info.printf(" %5.1f%%", 100.0 * halt->get_around_employee_factor() / arround_job_demand);
+				display_proportional_clip(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH + D_H_SPACE, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 			}
 		}
