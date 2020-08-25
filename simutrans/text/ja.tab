@@ -3860,13 +3860,17 @@ Transportation status around this stop
 hd_generated
 需要
 Success rate
-移動・輸送達成率
+達成率
 Visiting trip
-訪問需要
+訪問移動
 Commuting trip
-通勤需要
+通勤移動
 hd_mailing
-郵便需要
+郵送
+hd_btn_by_station
+目的地別
+hd_btn_by_category
+貨物品目別
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
