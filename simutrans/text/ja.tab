@@ -3852,7 +3852,7 @@ own convoi tooltips
 Route_tab
 接続駅
 lb_served_goods_and_classes
-取扱い貨物品目
+取扱い貨物品目分類
 Around passenger demands
 駅周辺の旅客需要
 Transportation status around this stop
@@ -3870,7 +3870,7 @@ hd_mailing
 hd_btn_by_station
 目的地別
 hd_btn_by_category
-貨物品目別
+貨物品目分類別
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
