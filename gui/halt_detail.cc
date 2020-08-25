@@ -979,17 +979,17 @@ void halt_detail_pas_t::draw_class_table(scr_coord offset, const uint8 class_nam
 		// color bar
 		COLOR_VAL overlay_color = i < good_category->get_number_of_classes() / 2 ? COL_BLACK : COL_WHITE;
 		uint8 overlay_transparency = abs(good_category->get_number_of_classes() / 2 - i) * 7;
-		uint bar_width = (waiting_sum_by_class * GOODS_WAITING_BAR_BASE_WIDTH) / base_capacity;
+		uint bar_width = ((waiting_sum_by_class*GOODS_WAITING_BAR_BASE_WIDTH) + (base_capacity-1)) / base_capacity;
 		// transferring bar
-		display_fillbox_wh_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH * 2 + 10, y + 1, (transfers_in * GOODS_WAITING_BAR_BASE_WIDTH / base_capacity) + bar_width, 6, BARCOL_TRANSFER_IN, true);
+		display_fillbox_wh_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH * 2 + 10, y + 1, (((transfers_in*GOODS_WAITING_BAR_BASE_WIDTH) + (base_capacity-1)) / base_capacity) + bar_width, 6, BARCOL_TRANSFER_IN, true);
 		transferring_sum += halt->get_transferring_goods_sum(good_category, i);
 		// leaving bar
-		display_fillbox_wh_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH * 2 + 10, y + 8, transfers_out * GOODS_WAITING_BAR_BASE_WIDTH / base_capacity, GOODS_LEAVING_BAR_HEIGHT, MN_GREY0, true);
+		display_fillbox_wh_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH * 2 + 10, y + 8, ((transfers_out*GOODS_WAITING_BAR_BASE_WIDTH) + (base_capacity-1)) / base_capacity, GOODS_LEAVING_BAR_HEIGHT, MN_GREY0, true);
 		// waiting bar
 		display_cylinderbar_wh_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH * 2 + 10, y + 1, bar_width, 6, good_category->get_color(), true);
 		if (waiting_commuter_sum_by_class) {
 			// commuter bar
-			bar_width = (waiting_commuter_sum_by_class * GOODS_WAITING_BAR_BASE_WIDTH) / base_capacity;
+			bar_width = ((waiting_commuter_sum_by_class*GOODS_WAITING_BAR_BASE_WIDTH) + (base_capacity-1)) / base_capacity;
 			display_cylinderbar_wh_clip(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH * 2 + 10, y + 1, bar_width, 6, COL_COMMUTER, true);
 		}
 
