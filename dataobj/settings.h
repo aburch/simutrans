@@ -470,16 +470,16 @@ public:
 	// The base comfort revenue table (comfort - tolerable comfort to percentage)
 	piecewise_linear_tpl<sint16, sint16, sint32> base_comfort_revenue;
 	// The comfort derating table (tenths of minutes to percentage)
-	piecewise_linear_tpl<uint16, uint8> comfort_derating;
+	piecewise_linear_tpl<uint16, uint8, uint32> comfort_derating;
 
 	// @author: neroden
 	// Tables 0 through 5 for catering revenue.
 	// One for each level -- so there are 6 of them total.
 	// Dontcha hate C array declaration style?
-	piecewise_linear_tpl<uint16, sint64> catering_revenues[6];
+	piecewise_linear_tpl<uint16, sint64, uint32> catering_revenues[6];
 
 	// Single table for TPO revenues.
-	piecewise_linear_tpl<uint16, sint64> tpo_revenues;
+	piecewise_linear_tpl<uint16, sint64, uint32> tpo_revenues;
 
 
 	//@author: jamespetts
