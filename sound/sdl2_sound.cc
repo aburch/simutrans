@@ -10,7 +10,11 @@
 #include "../simmem.h"
 #include "../simdebug.h"
 
+#ifdef ALT_SDL_DIR
+#include "SDL.h"
+#else
 #include <SDL2/SDL.h>
+#endif
 
 #include <cstring>
 #include <cstdio>

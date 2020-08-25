@@ -3,7 +3,11 @@
  * (see LICENSE.txt)
  */
 
+#ifdef ALT_SDL_DIR
+#include "SDL.h"
+#else
 #include <SDL2/SDL.h>
+#enidf
 
 #if defined(_WIN32)
 #include <windows.h>

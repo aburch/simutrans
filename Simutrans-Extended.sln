@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simutrans-Extended", "Simutrans-Extended.vcxproj", "{0621B295-BEB7-4767-82F1-F27995610323}"
 EndProject
@@ -56,10 +56,10 @@ Global
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (non-graphical server)|Win32.Build.0 = Debug (non-graphical server)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (non-graphical server)|x64.ActiveCfg = Debug (non-graphical server)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (non-graphical server)|x64.Build.0 = Debug (non-graphical server)|x64
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|Win32.ActiveCfg = Debug (open GL)|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|Win32.Build.0 = Debug (open GL)|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|x64.ActiveCfg = Debug (open GL)|x64
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|x64.Build.0 = Debug (open GL)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|Win32.ActiveCfg = Debug (command-line server)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|Win32.Build.0 = Debug (command-line server)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|x64.ActiveCfg = Debug (command-line server)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|x64.Build.0 = Debug (command-line server)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL 2)|Win32.ActiveCfg = Debug (SDL 2)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL 2)|Win32.Build.0 = Debug (SDL 2)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL 2)|x64.ActiveCfg = Debug (SDL 2)|x64
@@ -100,14 +100,14 @@ Global
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|Win32.Build.0 = Release (single threaded)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|x64.ActiveCfg = Release (single threaded)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|x64.Build.0 = Release (single threaded)|x64
-		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|Win32.ActiveCfg = Release (open GL 2)|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|Win32.Build.0 = Release (open GL 2)|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|x64.ActiveCfg = Release (open GL 2)|x64
-		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|x64.Build.0 = Release (open GL 2)|x64
-		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|Win32.ActiveCfg = Release (open GL)|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|Win32.Build.0 = Release (open GL)|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|x64.ActiveCfg = Release (open GL)|x64
-		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|x64.Build.0 = Release (open GL)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|Win32.ActiveCfg = Release (single threaded)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|Win32.Build.0 = Release (single threaded)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|x64.ActiveCfg = Release (single threaded)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|x64.Build.0 = Release (single threaded)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|Win32.ActiveCfg = Release (single threaded)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|Win32.Build.0 = Release (single threaded)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|x64.ActiveCfg = Release (single threaded)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|x64.Build.0 = Release (single threaded)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (single threaded)|Win32.ActiveCfg = Release (single threaded)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (single threaded)|Win32.Build.0 = Release (single threaded)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (single threaded)|x64.ActiveCfg = Release (single threaded)|x64
@@ -119,5 +119,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4DF69C35-F435-418B-B2B0-E34000754AE8}
 	EndGlobalSection
 EndGlobal
