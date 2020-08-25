@@ -99,11 +99,15 @@ private:
 
 	uint8 selected_route_catg_index = goods_manager_t::INDEX_PAS;
 	uint8 selected_class = 255;
+	bool station_display_mode;
+
+	void draw_list_by_catg(scr_coord offset);
+	void draw_list_by_dest(scr_coord offset);
 
 public:
-	gui_halt_route_info_t(const halthandle_t& halt, uint8 catg_index);
+	gui_halt_route_info_t(const halthandle_t& halt, uint8 catg_index, bool station_mode = false);
 
-	void build_halt_list(uint8 catg_index, uint8 g_class = 255);
+	void build_halt_list(uint8 catg_index, uint8 g_class = 255, bool station_mode = false);
 	bool infowin_event(event_t const *ev) OVERRIDE;
 
 	void recalc_size();
@@ -146,11 +150,15 @@ private:
 
 	// route tab stuffs
 	gui_halt_route_info_t route;
+	bool list_by_station = false;
+	button_t bt_by_category, bt_by_station;
 	slist_tpl<button_t *>catg_buttons, pas_class_buttons, mail_class_buttons;
 	char *pass_class_name_untranslated[32];
 	char *mail_class_name_untranslated[32];
 	uint8 selected_route_catg_index = goods_manager_t::INDEX_NONE;
 	uint8 selected_class = 0;
+	// Opening and closing the button panel on the route tab
+	void open_close_catg_buttons();
 
 	bool has_min_sizer() const OVERRIDE { return true; }
 
