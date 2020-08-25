@@ -7,7 +7,7 @@
 #include "SDL.h"
 #else
 #include <SDL2/SDL.h>
-#enidf
+#endif
 
 #if defined(_WIN32)
 #include <windows.h>
