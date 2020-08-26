@@ -3815,6 +3815,28 @@ production %u%s/month
 月生産 %u%s
 own convoi tooltips
 所有車両の状態を表示
+No service
+運行されている編成がありません
+Passengers/mail
+旅客／郵便
+Freight
+貨物
+Services
+サービス
+hd_wealth
+所得層
+hd_waiting
+待機中
+hd_transfers
+乗換・移動中
+hd_category
+貨物品目分類
+hd_transship
+積替・搬出中
+Needed
+商品・資材需要
+Products
+生産品
 twoway
 対面通行
 oneway
@@ -3823,6 +3845,8 @@ prohibited
 追越不可(対面)
 do not change the mode for existing ways
 既存の制限を維持
+City growth is restrained
+「街を発展させる」オプションがオフにされています
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

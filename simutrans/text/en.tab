@@ -5844,3 +5844,15 @@ production %u%s/month
 %u%s/month
 station_capacity_freight
 Freight capacity
+hd_wealth
+wealth
+hd_waiting
+waiting
+hd_transfers
+transfers
+hd_category
+category
+hd_transship
+transship
+City growth is restrained
+This city's growth is disabled.

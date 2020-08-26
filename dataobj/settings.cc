@@ -971,7 +971,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_version()>102001)
 		{
-			bool dummy;
+			bool dummy = false;
 			file->rdwr_bool(dummy);
 			file->rdwr_bool(with_private_paks);
 		}
@@ -1883,11 +1883,22 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if (file->get_extended_version() >= 15 || file->get_extended_version() == 14 && file->get_extended_revision() >= 30)
 		{
-			file->rdwr_long(industry_density_proportion_override);
+			if (!env_t::server)
+			{
+				file->rdwr_long(industry_density_proportion_override);
+			}
+			else
+			{
+				uint32 idpo = industry_density_proportion_override;
+				file->rdwr_long(idpo); // Do not load this value if running a server - allow this to be an override whatever the general override settings.
+			}
 		}
 		else if (file->is_loading())
 		{
-			industry_density_proportion_override = 0;
+			if (!env_t::server)
+			{
+				industry_density_proportion_override = 0;
+			}
 		}
 	}
 

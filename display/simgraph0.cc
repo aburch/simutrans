@@ -252,6 +252,10 @@ void display_cylinderbar_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL,
 {
 }
 
+void display_colorbox_with_tooltip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool, const char*)
+{
+}
+
 void display_veh_form_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool, uint8, uint8, bool CLIP_NUM_DEF_NOUSE)
 {
 }
@@ -418,6 +422,10 @@ void display_circle_rgb(KOORD_VAL, KOORD_VAL, int, const PLAYER_COLOR_VAL)
 }
 
 void display_filled_circle_rgb(KOORD_VAL, KOORD_VAL, int, const PLAYER_COLOR_VAL)
+{
+}
+
+int display_fluctuation_triangle_rgb(KOORD_VAL, KOORD_VAL, uint8, const bool, sint64)
 {
 }
 

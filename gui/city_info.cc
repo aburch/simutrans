@@ -208,7 +208,8 @@ city_info_t::~city_info_t()
 // returns position of depot on the map
 koord3d city_info_t::get_weltpos(bool)
 {
-	return welt->lookup_kartenboden( stadt->get_center() )->get_pos();
+	const grund_t* gr = welt->lookup_kartenboden(stadt->get_center());
+	return gr ? gr->get_pos() : koord3d::invalid;
 }
 
 

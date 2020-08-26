@@ -5740,7 +5740,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			if(signal && ((signal->get_desc()->get_working_method() == cab_signalling) || (check_tile - route_index <= sighting_distance_tiles)))
 			{
 				working_method_t old_working_method = working_method;
-				if(working_method != token_block)
+				if(working_method != token_block && working_method != one_train_staff)
 				{
 					if(signal->get_desc()->get_working_method() != one_train_staff || (!do_not_set_one_train_staff && (signal->get_pos() == get_pos()) && (signal->get_state() != roadsign_t::call_on)))
 					{

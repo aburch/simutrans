@@ -12,7 +12,6 @@
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
 #include "simconvoi.h"
-#include "simskin.h"
 
 #include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
@@ -54,6 +53,8 @@ public:
 	enum line_fireight_group { all_ftype = 0, all_pas = 1, all_mail = 2, all_freight = 3 };
 
 	enum states { line_normal_state = 0, line_no_convoys = 1, line_loss_making = 2, line_nothing_moved = 4, line_overcrowded = 8, line_missing_scheduled_slots = 16, line_has_obsolete_vehicles = 32, line_has_upgradeable_vehicles = 64	};
+
+	static const uint linetype_to_stationtype[simline_t::MAX_LINE_TYPE];
 
 protected:
 	schedule_t * schedule;
@@ -286,37 +287,18 @@ public:
 
 	inline times_history_map& get_journey_times_history() { return journey_times_history; }
 
-	inline image_id get_linetype_symbol(linetype lt)
+	image_id get_linetype_symbol() const
 	{
-		switch (lt)
-		{
-		case simline_t::truckline:
-			return skinverwaltung_t::autohaltsymbol->get_image_id(0);
-		case simline_t::trainline:
-			return skinverwaltung_t::zughaltsymbol->get_image_id(0);
-		case simline_t::shipline:
-			return skinverwaltung_t::schiffshaltsymbol->get_image_id(0);
-		case simline_t::airline:
-			return skinverwaltung_t::airhaltsymbol->get_image_id(0);
-		case simline_t::monorailline:
-			return skinverwaltung_t::monorailhaltsymbol->get_image_id(0);
-		case simline_t::tramline:
-			return skinverwaltung_t::tramhaltsymbol->get_image_id(0);
-		case simline_t::maglevline:
-			return skinverwaltung_t::maglevhaltsymbol->get_image_id(0);
-		case simline_t::narrowgaugeline:
-			return skinverwaltung_t::narrowgaugehaltsymbol->get_image_id(0);
-		case simline_t::line:
-		case simline_t::MAX_LINE_TYPE:
-		default:
-			return IMG_EMPTY;
-				break;
+		if (type == truckline && goods_catg_index.is_contained(goods_manager_t::INDEX_PAS)) {
+			return skinverwaltung_t::bushaltsymbol->get_image_id(0);
 		}
-		return IMG_EMPTY;
+		else {
+			return schedule->get_schedule_type_symbol();
+		}
 	}
-	inline image_id get_linetype_symbol()
-	{
-		return get_linetype_symbol(type);
+
+	inline char const *get_linetype_name() const {
+		return schedule_type_text[type];
 	}
 
 	sint64 calc_departures_scheduled();

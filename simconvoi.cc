@@ -3428,6 +3428,7 @@ void convoi_t::vorfahren()
 	else
 	{
 		const bool must_change_direction = !can_go_alte_direction();
+		bool re_reserve = false;
 		// still leaving depot (steps_driven!=0) or going in other direction or misalignment?
 		if(steps_driven > 0 || must_change_direction)
 		{
@@ -3478,7 +3479,8 @@ void convoi_t::vorfahren()
 							const rail_vehicle_t* rv = (rail_vehicle_t*)front();
 							if (rv->get_working_method() == drive_by_sight || rv->get_working_method() == time_interval || rv->get_working_method() == time_interval_with_telegraph)
 							{
-								reserve_own_tiles(false); // Re-reserve
+								// We have to do this later if we are reversing as the train may occupy different tiles.
+								re_reserve = true;
 							}
 						}
 				}
@@ -3547,6 +3549,11 @@ void convoi_t::vorfahren()
 
 			}
 			front()->set_leading(true);
+		}
+
+		if (re_reserve)
+		{
+			reserve_own_tiles(false); // Re-reserve
 		}
 
 		else if(front()->last_stop_pos == front()->get_pos())

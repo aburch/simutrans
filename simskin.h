@@ -143,6 +143,12 @@ public:
 	/// arrows representing the reverse order of the schedule
 	static const skin_desc_t *reverse_arrows;
 
+	/// image shown in display of waiting time at the station
+	static const skin_desc_t *waiting_time;
+	static const skin_desc_t *service_frequency;
+	/// image to indicate that the movement method is walking
+	static const skin_desc_t *on_foot;
+
 
 
 	/// @name cursors

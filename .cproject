@@ -68,7 +68,7 @@
 					</folderInfo>
 					<fileInfo id="cdt.managedbuild.toolchain.gnu.mingw.base.140205586.1247685372" name="simsys_w32_png.h" rcbsApplicability="disable" resourcePath="simsys_w32_png.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="clipboard_w32.cc|music/w32_midi.cc|simsys_w32_png.h|simsys_w32_png.cc|simsys_w.cc|documentation|Default|OSX/getversion.cc|utils/dumb-log.cc|tpl/test_piecewise_linear_tpl.cc|simsys_s2.cc|display/text_pixel.c|utils/omzet2.c|script/api/api_skeleton.cc|utils/dr_rdpng.cc|clipboard_internal.cc|nettools|music/sdl_midi.cc|music/no_midi.cc|music/allegro_midi.cc|simutrans|makeobj|text_pixel.c|simsys_s.cc|simsys_posix.cc|simsys_opengl.cc|simsys_d.cc|besch/writer|sound/sdl_sound.cc|sound/sdl_mixer_sound.cc|sound/no_sound.cc|sound/allegro_sound.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="clipboard_w32.cc|music/w32_midi.cc|simsys_w32_png.h|simsys_w32_png.cc|simsys_w.cc|documentation|Default|OSX/getversion.cc|utils/dumb-log.cc|tpl/test_piecewise_linear_tpl.cc|simsys_s2.cc|display/text_pixel.c|utils/omzet2.c|script/api/api_skeleton.cc|utils/dr_rdpng.cc|clipboard_internal.cc|nettools|music/no_midi.cc|simutrans|makeobj|text_pixel.c|simsys_s.cc|simsys_posix.cc|simsys_d.cc|besch/writer|sound/sdl2_sound.cc|sound/no_sound.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -138,7 +138,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="clipboard_w32.cc|music/w32_midi.cc|simsys_w32_png.cc|simsys_w.cc|documentation|Default|OSX/getversion.cc|utils/dumb-log.cc|tpl/test_piecewise_linear_tpl.cc|simsys_s2.cc|display/text_pixel.c|utils/omzet2.c|script/api/api_skeleton.cc|utils/dr_rdpng.cc|clipboard_internal.cc|nettools|music/sdl_midi.cc|music/no_midi.cc|music/allegro_midi.cc|simutrans|makeobj|text_pixel.c|simsys_s.cc|simsys_posix.cc|simsys_opengl.cc|simsys_d.cc|besch/writer|sound/sdl_sound.cc|sound/sdl_mixer_sound.cc|sound/no_sound.cc|sound/allegro_sound.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="clipboard_w32.cc|music/w32_midi.cc|simsys_w32_png.cc|simsys_w.cc|documentation|Default|OSX/getversion.cc|utils/dumb-log.cc|tpl/test_piecewise_linear_tpl.cc|simsys_s2.cc|display/text_pixel.c|utils/omzet2.c|script/api/api_skeleton.cc|utils/dr_rdpng.cc|clipboard_internal.cc|nettools|music/no_midi.cc|simutrans|makeobj|text_pixel.c|simsys_s.cc|simsys_posix.cc|simsys_d.cc|besch/writer|sound/no_sound.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

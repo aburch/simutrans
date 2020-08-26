@@ -3920,6 +3920,17 @@ void display_cylinderbar_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KO
 }
 
 
+void display_colorbox_with_tooltip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty, const char *text)
+{
+	display_ddd_box_clip(xp, yp, w, h, MN_GREY0, MN_GREY4);
+	//display_fb_internal(xp+1, yp+1, w-2, h-2, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
+	display_fillbox_wh_clip(xp + 1, yp + 1, w - 2, h - 2, color, dirty);
+	if (text && (xp <= get_mouse_x() && yp <= get_mouse_y() && (xp + w) > get_mouse_x() && (yp + h) > get_mouse_y())) {
+		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X + D_H_SPACE, yp + h + h/2 + TOOLTIP_MOUSE_OFFSET_Y / 2 + D_V_SPACE, text);
+	}
+}
+
+
 /**
 * Draw vertical line
 * @author Hj. Malthaner
@@ -4868,7 +4879,7 @@ void display_filled_circle_rgb(KOORD_VAL x0, KOORD_VAL  y0, int radius, const PI
 int display_fluctuation_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, const bool dirty, sint64 value)
 {
 	if (!value) { return 0; } // nothing to draw
-	COLOR_VAL col = value > 0 ? COL_LIGHT_TURQUOISE : COL_LIGHT_ORANGE;
+	COLOR_VAL col = value > 0 ? COL_ADDITIONAL : COL_REDUCED-2;
 	uint8 width = height - height % 2;
 	for (uint i = 0; i < width; i++) {
 		uint8 h = height - 2 * abs(int(width / 2 - i));
@@ -4876,7 +4887,7 @@ int display_fluctuation_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, con
 		KOORD_VAL y1 = value > 0 ? y0 - 1 : y + h +1;
 
 		if (h > 1) {
-			display_vline_wh(x + i, y0, h - 1, col, dirty);
+			display_vline_wh_clip(x + i, y0, h - 1, col, dirty);
 		}
 		if (h > 0) {
 			display_blend_wh(x + i, y1, 1, 1, col, 50);

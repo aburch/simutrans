@@ -6,19 +6,15 @@
 # this is config.default.in
 
 # allowed backends:
-#BACKEND = allegro
 #BACKEND = gdi
-#BACKEND = opengl
-#BACKEND = sdl
 #BACKEND = sdl2
-#BACKEND = mixer_sdl
 #BACKEND = posix
 BACKEND = @backend@
 
 # color depth either 16 or 0 (the latter needed for server)
 COLOUR_DEPTH = @color@
 
-# architecture specifi flags
+# architecture specific flags
 #OSTYPE = amiga
 #OSTYPE = beos
 #OSTYPE = cygwin
@@ -44,9 +40,7 @@ WITH_REVISION = @svn@ # adds the revision from svn; required for networkgames
 MULTI_THREAD = @multithread@ # Enable multithreading, highly recommended
 
 # Define these as empty strings, if you don't have the respective config program
-#ALLEGRO_CONFIG = allegro-config
 #PNG_CONFIG     = pkg-config libpng
-#SDL_CONFIG     = sdl-config
 #SDL2_CONFIG    = sdl2-config
 
 #VERBOSE = 1

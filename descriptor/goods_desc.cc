@@ -191,8 +191,8 @@ sint64 goods_desc_t::get_total_fare(uint32 distance_meters, uint32 starting_dist
 			// Combine the derating factor with the full percentage to get...
 			const sint64 comfort_fare = (fare * multiplier * comfort_modifier) / 10000ll;
 
-			// Always receive minimum of 95% of fare even with discomfort penalty
-			fare = max(fare + comfort_fare, fare * 19 / 20);
+			// Apply the comfort penalty/bonus to the fare
+			fare += comfort_fare;
 
 			if (catering_level > 0)
 			{

@@ -3,11 +3,14 @@
  * (see LICENSE.txt)
  */
 
-#ifdef _WIN32
-#include <windows.h>
+#ifdef ALT_SDL_DIR
 #include "SDL.h"
 #else
 #include <SDL2/SDL.h>
+#endif
+
+#if defined(_WIN32)
+#include <windows.h>
 #endif
 
 #include <stdio.h>
@@ -178,7 +181,7 @@ resolution dr_query_screen_resolution()
 	resolution res;
 	SDL_DisplayMode mode;
 	SDL_GetCurrentDisplayMode(0, &mode);
-	DBG_MESSAGE("dr_query_screen_resolution(SDL)", "screen resolution width=%d, height=%d", mode.w, mode.h);
+	DBG_MESSAGE("dr_query_screen_resolution(SDL2)", "screen resolution width=%d, height=%d", mode.w, mode.h);
 	res.w = (mode.w * 32) / x_scale;
 	res.h = (mode.h * 32) / y_scale;
 	return res;
@@ -282,7 +285,7 @@ int dr_os_open(int width, int height, int const fullscreen)
 	if (!internal_create_surfaces(true, w, h)) {
 		return 0;
 	}
-	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (internal w=%d, h=%d)", width, height, w, h );
+	DBG_MESSAGE("dr_os_open(SDL2)", "SDL realized screen size width=%d, height=%d (internal w=%d, h=%d)", width, height, w, h );
 
 	SDL_ShowCursor(0);
 	arrow = SDL_GetCursor();
@@ -335,10 +338,10 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 
 		internal_create_surfaces(false, w, h);
 		if (screen) {
-			DBG_MESSAGE("dr_textur_resize(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
+			DBG_MESSAGE("dr_textur_resize(SDL2)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
 		}
 		else {
-			dbg->warning("dr_textur_resize(SDL)", "screen is NULL. Good luck!");
+			dbg->warning("dr_textur_resize(SDL2)", "screen is NULL. Good luck!");
 		}
 		fflush(NULL);
 	}

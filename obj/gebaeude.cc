@@ -2318,6 +2318,7 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 
 	// Next, find the nearest city
 	const uint32 rank_max = welt->get_settings().get_auto_connect_industries_and_attractions_by_road();
+	const uint32 max_road_length = env_t::networkmode ? 2048 : (uint32)env_t::intercity_road_length; // The env_t:: settings are not transmitted with network games so may diverge between client and server.
 	for (uint32 rank = 1; rank <= rank_max; rank++)
 	{
 		const stadt_t* city = welt->find_nearest_city(get_pos().get_2d(), rank);
@@ -2327,7 +2328,7 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 		}
 		koord end = city->get_townhall_road();
 
-		if (shortest_distance(start.get_2d(), end) > (uint32)env_t::intercity_road_length)
+		if (shortest_distance(start.get_2d(), end) > max_road_length)
 		{
 			return;
 		}
@@ -2342,7 +2343,7 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 		way_builder_t builder(NULL);
 		builder.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, desc, tunnel_builder_t::get_tunnel_desc(road_wt, desc->get_topspeed(), welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt, desc->get_topspeed(), welt->get_timeline_year_month(), desc->get_max_axle_load() * 2));
 		builder.set_keep_existing_ways(true);
-		builder.set_maximum(env_t::intercity_road_length);
+		builder.set_maximum(max_road_length);
 		builder.set_keep_city_roads(true);
 		builder.set_build_sidewalk(false);
 		builder.set_overtaking_mode(invalid_mode);

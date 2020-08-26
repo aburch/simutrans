@@ -513,7 +513,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					buf.clear();
 
 					char tmpbuf[17];
-					sprintf(tmpbuf, "Permissive %i-%hhu", v->get_desc()->get_waytype(), i);
+					sprintf(tmpbuf, "Permissive %i-%hu", v->get_desc()->get_waytype(), (uint16)i);
 					buf.printf("%s %s", translator::translate("\nMUST USE: "), translator::translate(tmpbuf));
 					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					extra_y += LINESPACE;
@@ -540,7 +540,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				{
 					buf.clear();
 					char tmpbuf[18];
-					sprintf(tmpbuf, "Prohibitive %i-%hhu", v->get_desc()->get_waytype(), i);
+					sprintf(tmpbuf, "Prohibitive %i-%hu", v->get_desc()->get_waytype(), (uint16)i);
 					buf.printf("%s %s", translator::translate("\nMAY USE: "), translator::translate(tmpbuf));
 					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					extra_y += LINESPACE;

@@ -7,7 +7,7 @@ CFG ?= default
 -include config.$(CFG)
 
 
-BACKENDS      = allegro gdi opengl sdl sdl2 mixer_sdl mixer_sdl2 posix
+BACKENDS      = gdi sdl2 mixer_sdl2 posix
 COLOUR_DEPTHS = 0 16
 OSTYPES       = amiga beos cygwin freebsd haiku linux mingw32 mingw64 mac openbsd
 
@@ -92,16 +92,14 @@ LIBS += -lbz2 -lz
 
 CXXFLAGS +=  -std=gnu++11
 
-ALLEGRO_CONFIG ?= allegro-config
-SDL_CONFIG     ?= sdl-config
 SDL2_CONFIG    ?= sdl2-config
 
 ifneq ($(OPTIMISE),)
   CFLAGS += -O3
   ifeq ($(findstring $(OSTYPE), amiga),)
-	ifneq ($(findstring $(CXX), clang),)
-		CFLAGS += -minline-all-stringops
-	endif
+    ifneq ($(findstring clang,$(CXX)),)
+      CFLAGS += -minline-all-stringops
+    endif
   endif
 else
   CFLAGS += -O
@@ -286,6 +284,7 @@ SOURCES += gui/components/gui_container.cc
 SOURCES += gui/components/gui_convoiinfo.cc
 SOURCES += gui/components/gui_obj_view_t.cc
 SOURCES += gui/components/gui_factory_storage_info.cc
+SOURCES += gui/components/gui_halthandled_lines.cc
 SOURCES += gui/components/gui_fixedwidth_textarea.cc
 SOURCES += gui/components/gui_flowtext.cc
 SOURCES += gui/components/gui_image.cc
@@ -499,92 +498,44 @@ SOURCES += gui/replace_frame.cc
 SOURCES += dataobj/livery_scheme.cc
 SOURCES += dataobj/replace_data.cc
 
-ifeq ($(BACKEND),allegro)
-  SOURCES  += sys/simsys_d.cc
-  SOURCES += sound/allegro_sound.cc
-  SOURCES += music/allegro_midi.cc
-  ifeq ($(ALLEGRO_CONFIG),)
-    ALLEGRO_CFLAGS  :=
-    ALLEGRO_LDFLAGS := -lalleg
-  else
-    ALLEGRO_CFLAGS  := $(shell $(ALLEGRO_CONFIG) --cflags)
-    ALLEGRO_LDFLAGS := $(shell $(ALLEGRO_CONFIG) --libs)
-  endif
-  CFLAGS += $(ALLEGRO_CFLAGS) -DUSE_SOFTPOINTER
-  LIBS   += $(ALLEGRO_LDFLAGS)
-endif
 
-ifeq ($(BACKEND),gdi)
+ifeq ($(BACKEND),posix)
+  SOURCES += sys/simsys_posix.cc
+  SOURCES += music/no_midi.cc
+  SOURCES += sound/no_sound.cc
+
+
+else ifeq ($(BACKEND),gdi)
   SOURCES += sys/simsys_w.cc
   SOURCES += music/w32_midi.cc
   SOURCES += sound/win32_sound.cc
   CFLAGS += -DGDI_SOUND
-endif
 
-ifeq ($(BACKEND),sdl)
-  SOURCES += sys/simsys_s.cc
-  ifeq ($(OSTYPE),mac)
-		ifeq ($(shell expr $(AV_FOUNDATION) \>= 1), 1)
-			# Core Audio (AVFoundation) base sound system routines
-			SOURCES += sound/AVF_core-audio_sound.mm
-			SOURCES += music/AVF_core-audio_midi.mm
-			LIBS    += -framework Foundation -framework AVFoundation
-		else
-			# Core Audio (Quicktime) base sound system routines
-			SOURCES += sound/core-audio_sound.mm
-			SOURCES += music/core-audio_midi.mm
-			LIBS    += -framework Foundation -framework QTKit
-		endif
-  else
-    SOURCES  += sound/sdl_sound.cc
-    ifeq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
-      SOURCES += music/no_midi.cc
-    else
-      SOURCES += music/w32_midi.cc
-    endif
-  endif
-  ifeq ($(SDL_CONFIG),)
-    ifeq ($(OSTYPE),mac)
-      SDL_CFLAGS  := -I/Library/Frameworks/SDL.framework/Headers -Dmain=SDL_main
-      SDL_LDFLAGS := -framework SDL -framework Cocoa -I/Library/Frameworks/SDL.framework/Headers OSX/SDLMain.m
-    else
-      SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
-      SDL_LDFLAGS := -lSDLmain -lSDL
-    endif
-  else
-    SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-    ifeq ($(OSTYPE),mingw32 mingw64)
-		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
-	else
-	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
-	endif
-  endif
-  CFLAGS += $(SDL_CFLAGS)
-  LIBS   += $(SDL_LDFLAGS)
-endif
 
-ifeq ($(BACKEND),sdl2)
+else ifeq ($(BACKEND),sdl2)
   SOURCES += sys/simsys_s2.cc
+
   ifeq ($(OSTYPE),mac)
-		ifeq ($(shell expr $(AV_FOUNDATION) \>= 1), 1)
-			# Core Audio (AVFoundation) base sound system routines
-			SOURCES += sound/AVF_core-audio_sound.mm
-			SOURCES += music/AVF_core-audio_midi.mm
-			LIBS    += -framework Foundation -framework AVFoundation
-		else
-			# Core Audio (Quicktime) base sound system routines
-			SOURCES += sound/core-audio_sound.mm
-			SOURCES += music/core-audio_midi.mm
-			LIBS    += -framework Foundation -framework QTKit
-		endif
+    ifeq ($(shell expr $(AV_FOUNDATION) \>= 1), 1)
+      # Core Audio (AVFoundation) base sound system routines
+      SOURCES += sound/AVF_core-audio_sound.mm
+      SOURCES += music/AVF_core-audio_midi.mm
+      LIBS    += -framework Foundation -framework AVFoundation
+    else
+      # Core Audio (Quicktime) base sound system routines
+      SOURCES += sound/core-audio_sound.mm
+      SOURCES += music/core-audio_midi.mm
+      LIBS    += -framework Foundation -framework QTKit
+    endif
   else
-    SOURCES  += sound/sdl_sound.cc
+    SOURCES  += sound/sdl2_sound.cc
     ifeq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
       SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
     endif
   endif
+
   ifeq ($(SDL2_CONFIG),)
     ifeq ($(OSTYPE),mac)
       SDL_CFLAGS  := -I/Library/Frameworks/SDL2.framework/Headers
@@ -595,14 +546,29 @@ ifeq ($(BACKEND),sdl2)
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL2_CONFIG) --cflags)
-    SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
+
+    ifneq ($(STATIC),)
+      ifeq ($(shell expr $(STATIC) \>= 1), 1)
+        ifneq ($(findstring  sdl2-config,$(SDL2_CONFIG)),)
+          SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
+        else # assume pkg-config
+          SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs --static)
+        endif
+      else
+        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
+      endif
+    else
+      SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
+    endif
   endif
+
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)
-endif
 
-ifeq ($(BACKEND),mixer_sdl2)
+
+else ifeq ($(BACKEND),mixer_sdl2)
   SOURCES += sys/simsys_s2.cc
+
   ifeq ($(SDL2_CONFIG),)
     ifeq ($(OSTYPE),mac)
       SDL_CFLAGS  := -I/Library/Frameworks/SDL2.framework/Headers
@@ -612,12 +578,18 @@ ifeq ($(BACKEND),mixer_sdl2)
       SDL_LDFLAGS := -lSDL2main -lSDL2
     endif
   else
-		SOURCES += sound/sdl_mixer_sound.cc
-		SOURCES += music/sdl_midi.cc
+    SOURCES += sound/sdl2_mixer_sound.cc
+    SOURCES += music/sdl2_mixer_midi.cc
+
     SDL_CFLAGS  := $(shell $(SDL2_CONFIG) --cflags)
+
     ifneq ($(STATIC),)
       ifeq ($(shell expr $(STATIC) \>= 1), 1)
-        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
+        ifneq ($(findstring  sdl2-config,$(SDL2_CONFIG)),)
+          SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
+        else # assume pkg-config
+          SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs --static)
+        endif
       else
         SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
       endif
@@ -629,77 +601,6 @@ ifeq ($(BACKEND),mixer_sdl2)
   LIBS   += $(SDL_LDFLAGS) -lSDL2_mixer
 endif
 
-ifeq ($(BACKEND),mixer_sdl)
-  SOURCES += sys/simsys_s.cc
-  SOURCES += sound/sdl_mixer_sound.cc
-  SOURCES += music/sdl_midi.cc
-  ifeq ($(SDL_CONFIG),)
-    SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
-    SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
-  else
-    SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-	ifeq ($(OSTYPE),mingw32 mingw64)
-		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
-	else
-	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
-	endif
-
-  endif
-  CFLAGS += $(SDL_CFLAGS)
-  LIBS   += $(SDL_LDFLAGS) -lSDL_mixer
-endif
-
-ifeq ($(BACKEND),opengl)
-  SOURCES += sys/simsys_opengl.cc
-  ifeq ($(OSTYPE),mac)
-		ifeq ($(shell expr $(AV_FOUNDATION) \>= 1), 1)
-			# Core Audio (AVFoundation) base sound system routines
-			SOURCES += sound/AVF_core-audio_sound.mm
-			SOURCES += music/AVF_core-audio_midi.mm
-			LIBS    += -framework Foundation -framework AVFoundation
-		else
-			# Core Audio (Quicktime) base sound system routines
-			SOURCES += sound/core-audio_sound.mm
-			SOURCES += music/core-audio_midi.mm
-			LIBS    += -framework Foundation -framework QTKit
-		endif
-  else
-    SOURCES  += sound/sdl_sound.cc
-    ifeq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
-      SOURCES += music/no_midi.cc
-    else
-      SOURCES += music/w32_midi.cc
-    endif
-  endif
-  ifeq ($(SDL_CONFIG),)
-    SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
-    SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
-  else
-    SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-    ifeq ($(OSTYPE),mingw32 mingw64)
-		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
-	else
-	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
-	endif
-  endif
-  CFLAGS += $(SDL_CFLAGS)
-  LIBS   += $(SDL_LDFLAGS)
-  ifeq ($(OSTYPE),mac)
-    LIBS += -framework OpenGL
-  else
-    ifeq ($(OSTYPE),mingw32 mingw64)
-      LIBS += -lglew32 -lopengl32
-    else
-      LIBS += -lGLEW -lGL
-    endif
-  endif
-endif
-
-ifeq ($(BACKEND),posix)
-  SOURCES += sys/simsys_posix.cc
-  SOURCES += music/no_midi.cc
-  SOURCES += sound/no_sound.cc
-endif
 
 CFLAGS += -DCOLOUR_DEPTH=$(COLOUR_DEPTH)
 

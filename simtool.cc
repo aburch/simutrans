@@ -8701,10 +8701,10 @@ bool tool_change_convoi_t::init( player_t *player )
 	}
 	case 'c': // reassign class
 
-		uint8 compartment, new_class;
+		uint16 compartment, new_class;
 		sint32 good_type; // 0 = Passenger, 1 = Mail,
 		sint32 reset; // 0 = reset only single class, 1 = reset all classes
-		sscanf(p, "%hhu,%hhu,%i,%i", &compartment, &new_class, &good_type, &reset);
+		sscanf(p, "%hu,%hu,%i,%i", &compartment, &new_class, &good_type, &reset);
 		//uint16 new_class = atoi(p);
 		if (reset == 1)
 		{
