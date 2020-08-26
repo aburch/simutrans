@@ -2030,7 +2030,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	env_t::player_finance_display_account = contents.get_int("player_finance_display_account",env_t::player_finance_display_account ) != 0;
 
-	int* offsets[8]; 
+	int* offsets[8];
 	offsets[0] = contents.get_ints("reverse_base_offset_south");
 	offsets[1] = contents.get_ints("reverse_base_offset_west");
 	offsets[2] = contents.get_ints("reverse_base_offset_southwest");
