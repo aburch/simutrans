@@ -192,12 +192,14 @@ jobs:
     container:
       image: ceeac/simutrans-build-env:mingw-sdl2
     steps:
+      - name: Additional setup
+        run: sudo dnf -y install git cmake
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: cp configs/config.${{ github.job }} config.default
+        run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=sdl2 ..
       - name: Build
-        run: make -j$(nproc)
+        run: cd build && make -j$(nproc) simutrans-extended
 
 
   sim-mingw-gdi:
@@ -207,12 +209,14 @@ jobs:
     container:
       image: ceeac/simutrans-build-env:mingw-sdl2
     steps:
+      - name: Additional setup
+        run: sudo dnf -y install git cmake
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: cp configs/config.${{ github.job }} config.default
+        run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=gdi ..
       - name: Build
-        run: make -j$(nproc)
+        run: cd build && make -j$(nproc) simutrans-extended
 
 
   sim-mingw-posix:
@@ -222,12 +226,14 @@ jobs:
     container:
       image: ceeac/simutrans-build-env:mingw-sdl2
     steps:
+      - name: Additional setup
+        run: sudo dnf -y install git cmake
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: cp configs/config.${{ github.job }} config.default
+        run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=none ..
       - name: Build
-        run: make -j$(nproc)
+        run: cd build && make -j$(nproc) simutrans-extended
 
 
   makeobj-mingw:
@@ -237,12 +243,14 @@ jobs:
     container:
       image: ceeac/simutrans-build-env:mingw-sdl2
     steps:
+      - name: Additional setup
+        run: sudo dnf -y install git cmake
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: cp configs/config.${{ github.job }} config.default
+        run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=none ..
       - name: Build
-        run: make -j$(nproc) makeobj
+        run: cd build && make -j$(nproc) makeobj-extended
 
 
   nettool-mingw:
@@ -252,9 +260,11 @@ jobs:
     container:
       image: ceeac/simutrans-build-env:mingw-sdl2
     steps:
+      - name: Additional setup
+        run: sudo dnf -y install git cmake
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: cp configs/config.${{ github.job }} config.default
+        run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=none ..
       - name: Build
-        run: make -j$(nproc) nettool
+        run: cd build && make -j$(nproc) nettool-extended

@@ -438,30 +438,40 @@ endif (SIMUTRANS_MULTI_THREAD)
 
 
 # Backup sound and music routines if the selected backend does not provide any routines
-if (WIN32 OR MINGW)
+if (WIN32)
 	set(BACKUP_SOUND sound/win32_sound.cc)
 	set(BACKUP_MUSIC music/w32_midi.cc)
-else (WIN32 OR MINGW)
+else (WIN32)
 	set(BACKUP_SOUND sound/no_sound.cc)
 	set(BACKUP_MUSIC music/no_midi.cc)
-endif (WIN32 OR MINGW)
+endif (WIN32)
 
 
 if (SIMUTRANS_BACKEND STREQUAL "sdl2")
-	target_sources(simutrans-extended PRIVATE sys/simsys_s2.cc sound/sdl2_sound.cc ${BACKUP_MUSIC})
+	target_sources(simutrans-extended PRIVATE display/simgraph16.cc sys/simsys_s2.cc sound/sdl2_sound.cc ${BACKUP_MUSIC})
 	target_link_libraries(simutrans-extended PRIVATE SDL2::Core)
 
+	if (WIN32)
+		target_sources(simutrans-extended PRIVATE sys/simsys_w32_png.cc)
+	endif ()
+
 elseif (SIMUTRANS_BACKEND STREQUAL "mixer_sdl2")
-	target_sources(simutrans-extended PRIVATE sys/simsys_s2.cc sound/sdl2_mixer_sound.cc music/sdl2_mixer_midi.cc)
+	target_sources(simutrans-extended PRIVATE display/simgraph16.cc sys/simsys_s2.cc sound/sdl2_mixer_sound.cc music/sdl2_mixer_midi.cc)
 	target_link_libraries(simutrans-extended PRIVATE SDL2::Core SDL2::Mixer)
 
+	if (WIN32)
+		target_sources(simutrans-extended PRIVATE sys/simsys_w32_png.cc)
+	endif ()
+
 elseif (SIMUTRANS_BACKEND STREQUAL "gdi")
-	message(WARNING "TODO")
+	target_sources(simutrans-extended PRIVATE display/simgraph16.cc sys/simsys_w.cc sys/simsys_w32_png.cc ${BACKUP_SOUND} ${BACKUP_MUSIC})
+	target_link_libraries(simutrans-extended PRIVATE imm32)
 
 else ()
 	if (NOT SIMUTRANS_BACKEND STREQUAL "none")
 		message(WARNING "Unknown backend '${SIMUTRANS_BACKEND}', falling back to headless compilation")
 	endif ()
+
 	set(SIMUTRANS_BUILD_HEADLESS ON)
 	target_sources(simutrans-extended PRIVATE display/simgraph0.cc sys/simsys_posix.cc sound/no_sound.cc music/no_midi.cc)
 endif ()
@@ -482,6 +492,10 @@ target_link_libraries(simutrans-extended PRIVATE
 	PNG::PNG
 	BZip2::BZip2
 )
+
+if (WIN32)
+	target_link_libraries(simutrans-extended PRIVATE ws2_32 winmm)
+endif (WIN32)
 
 if (SIMUTRANS_USE_FREETYPE)
 	target_compile_definitions(simutrans-extended PRIVATE USE_FREETYPE=1)
@@ -534,7 +548,7 @@ target_compile_definitions(simutrans-extended PRIVATE $<IF:$<CONFIG:Debug>,DEBUG
 target_compile_definitions(simutrans-extended PRIVATE ENABLE_WATERWAY_SIGNS=0 AUTOJOIN_PUBLIC=0)
 
 if (SIMUTRANS_WITH_REVISION)
-	target_compile_definitions(simutrans-extended PRIVATE REVISION=${SIMUTRANS_WC_REVISION})
+	target_compile_definitions(simutrans-extended PRIVATE REVISION=${SIMUTRANS_SHA_SHORT})
 endif ()
 
 

@@ -32,3 +32,7 @@ target_sources(nettool-extended PRIVATE
 	../network/network.cc
 	../network/network_file_transfer.cc
 )
+
+if (WIN32)
+       target_link_libraries(nettool-extended PRIVATE ws2_32)
+endif (WIN32)
