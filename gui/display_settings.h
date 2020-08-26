@@ -13,9 +13,12 @@
 #include "components/gui_button.h"
 #include "components/gui_numberinput.h"
 
-#define COLORS_MAX_BUTTONS (28)
+#define COLORS_MAX_BUTTONS (29)
 #define BUF_MAXLEN_MS_FORMAT (16)
 
+#define MAX_CONVOY_TOOLTIP_OPTIONS 4
+#define MAX_NAMEPLATE_OPTIONS 4
+#define MAX_LOADING_BAR_OPTIONS 4
 
 /**
  * Display settings dialog
@@ -26,6 +29,9 @@ class color_gui_t : public gui_frame_t, private action_listener_t
 private:
 
 	button_t buttons[COLORS_MAX_BUTTONS];
+	static const char *cnv_tooltip_setting_texts[MAX_CONVOY_TOOLTIP_OPTIONS];
+	static const char *nameplate_setting_texts[MAX_NAMEPLATE_OPTIONS];
+	static const char *loadingbar_setting_texts[MAX_LOADING_BAR_OPTIONS];
 
 	gui_numberinput_t
 		brightness,

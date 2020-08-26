@@ -10,7 +10,7 @@
 
 #include "../macros.h"
 #include "../simdebug.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simtypes.h"
 #include "../display/simgraph.h" // for unicode stuff
 #include "translator.h"
@@ -202,18 +202,27 @@ static char pakset_path[256];
 // List of custom city and streetnames
 vector_tpl< vector_tpl<char*> > translator::city_name_list;
 vector_tpl < vector_tpl<char *> > translator::street_name_list;
-
+void translator::clear_custom_list(vector_tpl<vector_tpl<char *>>&name_list)
+{
+	FOR(vector_tpl<vector_tpl<char *>>, i, name_list) {
+		clear_custom_list(i);
+	}
+	name_list.clear();
+}
+void translator::clear_custom_list(vector_tpl<char *>&name_list)
+{
+	FOR(vector_tpl<char*>, const i, name_list) {
+		free(i);
+	}
+	name_list.clear();
+}
 
 // fills a list from a file with the given prefix followed by a language code
 void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const char *fileprefix )
 {
 	FILE *file;
 
-	// Clean up all names
-	FOR(vector_tpl<char*>, const i, name_list) {
-		free(i);
-	}
-	name_list.clear();
+	clear_custom_list(name_list);
 
 	// @author prissi: first try in pakset
 	{
@@ -311,7 +320,7 @@ void translator::init_custom_names(int lang)
 			sprintf(name_text, "streetlist[%u]_", count);
 			load_custom_list(lang, street_names_this_region, name_text);
 		}
-			
+
 		if (city_names_this_region.empty()) {
 			DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");
 			// Hajo: try to read list failed, create random names
@@ -377,7 +386,7 @@ void translator::init_custom_names(int lang)
 						}
 					}
 					const size_t l2 = strlen(s2);
-					char* const c = MALLOCN(char, l1 + l2 + 1); 
+					char* const c = MALLOCN(char, l1 + l2 + 1);
 					sprintf(c, "%s%s", s1, s2);
 					city_names_this_region.append(c);
 
@@ -461,7 +470,7 @@ void translator::init_custom_names(int lang)
 							{
 								sprintf(name, "&%X_CITY_SUFFIX[%u]", p, count);
 							}
-							
+
 							const char* s3 = translator::translate(name, lang);
 							const uint32 random_percent_suffix = sim_async_rand(100);
 
@@ -874,7 +883,7 @@ const char *translator::get_year_month(uint16 year_month)
 		case env_t::DATE_FMT_JAPANESE:
 		case env_t::DATE_FMT_JAPANESE_NO_SEASON:
 		case env_t::DATE_FMT_JAPANESE_INTERNAL_MINUTE: // Extended unique
-			if (year_sym == "") {
+			if (strcmp(year_sym, "") == 0) {
 				year_sym = "/";
 				mon_sym = "";
 			}

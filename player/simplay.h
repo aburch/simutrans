@@ -486,7 +486,7 @@ public:
 	koord get_headquarter_pos() const { return headquarter_pos; }
 	short get_headquarters_level() const { return headquarter_level; }
 
-	void begin_liquidation(); 
+	void begin_liquidation();
 	void complete_liquidation();
 
 	bool allows_access_to(uint8 other_player_nr) const { return player_nr == other_player_nr || access[other_player_nr]; }
@@ -495,16 +495,16 @@ public:
 	bool get_allow_voluntary_takeover() const { return allow_voluntary_takeover; }
 	void set_allow_voluntary_takeover(bool value) { allow_voluntary_takeover = value; }
 
-	bool available_for_takeover() const { return allow_voluntary_takeover || check_solvency() != solvent; } 
+	bool available_for_takeover() const { return allow_voluntary_takeover || check_solvency() != solvent; }
 
 	void set_selected_signalbox(signalbox_t* sb);
 	const signalbox_t* get_selected_signalbox() const { return selected_signalbox; }
 	signalbox_t* get_selected_signalbox() { return selected_signalbox; }
 
-	const char* can_take_over(player_t* target_player); 
-	void take_over(player_t* target_player); 
+	const char* can_take_over(player_t* target_player);
+	void take_over(player_t* target_player);
 	/// Returns *negative* number constituting the cost
-	sint64 calc_takeover_cost() const; 
+	sint64 calc_takeover_cost() const;
 };
 
 #endif

@@ -37,6 +37,15 @@ public:
 	void display(bool dirty);
 
 	/**
+	 * @brief Clears the prepared area of the view.
+	 *
+	 * Sets the prepared area of this view to no area. The entire view will have
+	 * to be reprepared on next display call. Intended when the entire world has
+	 * changed, eg switching underground mode or layer.
+	 */
+	void clear_prepared() const;
+
+	/**
 	 * Draws the simulated world in the specified rectangular area of the pixel buffer. This is a internal function of the class.
 	 * <br>
 	 * See lt and wt as the absolute limit a pixel this routine can draw, a clipping rectangle. y_min and y_max are the coordinates this routine starts,

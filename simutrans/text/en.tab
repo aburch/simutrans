@@ -2277,6 +2277,8 @@ bride
 gow
 &37_CITY_SYLL[2]
 dyce
+&38_CITY_SYLL[2]
+gussie
 #
 # Max: 200 (hex)
 #
@@ -4740,6 +4742,8 @@ all convoi tooltips
 Full convoy tooltips
 convoi error tooltips
 Only error convoy tooltips
+own convoi tooltips
+Current player tooltips
 no buildings hidden
 Do not hide any buildings
 hide city building
@@ -5506,12 +5510,12 @@ oneway
 One way
 twoway
 Two way (default)
-only loading convoi
-Overtake stationary only
+#only loading convoi
+#Overtake stationary only
 prohibited
 Overtaking prohibited
-inverted
-Opposite lane driving
+#inverted
+#Opposite lane driving
 has changed its colour scheme.
 has changed its colour scheme.
 Vehicle running costs per km
@@ -5609,7 +5613,7 @@ Show only connected to own transport network
 Show only connected to own passenger transportation network
 Show only connected to own passenger transportation network
 Show only cities within the active player's transportation network
-Show only cities within the active player's transportation network
+Show only cities within the current player's transportation network
 Fully stocked
 Fully stocked
 Power usage
@@ -5740,6 +5744,8 @@ always show convoy name
 Always show line name
 no convoy nameplate
 Never show line name
+active player's line name
+Current player line name
 Productivity
 Productivity
 (Max. %d%%)
@@ -5794,4 +5800,61 @@ other_player_liquidation_duration
 It has been in liquidation for
 On loan since %i month(s)
 Overdrawn for the last %i month(s)
- 
+filter_pas_line
+Show only passenger
+filter_mail_line
+Show only mail
+filter_freight_line
+Show only freight
+New shipping destination added to Factory %s
+%s now supplies its products to a new industry.
+Loading (%i->%i%%) Long Time
+Loading (%i->%i%%) (long wait)
+Vehicle %s wait loading too much!
+Vehicle %s has been loading for a long time.
+hlptxt_factory_connected
+Active
+symbol_help_txt_in_transit
+In transit
+symbol_help_txt_lead_time
+Lead time
+Suspension of new orders due to sufficient supply
+No shipments demanded: sufficient product en route and in stock
+Shipment has been suspended due to consumption demand
+No shipments demanded: sufficient product is in stock
+Shipment is suspended
+No shipments demanded
+do not change the mode for existing ways
+Keep mode for existing ways
+mouseover loading bar
+Mouse-over loading bar
+no convoy loading bar
+No loading bar
+active player's loading bar
+Current player loading bar
+always show loading bar
+Always show loading bar
+consumption %.1f%s/month
+%.1f%s/month
+consumption %u%s/month
+%u%s/month
+production %.1f%s/month
+%.1f%s/month
+production %u%s/month
+%u%s/month
+station_capacity_freight
+Freight capacity
+hd_wealth
+wealth
+hd_waiting
+waiting
+hd_transfers
+transfers
+hd_category
+category
+hd_transship
+transship
+City growth is restrained
+This city's growth is disabled.
+missing_connection
+Missing connexions to other industries

@@ -3,21 +3,30 @@
  * (see LICENSE.txt)
  */
 
-/// sdl-sound without SDL_mixer.dll
+/// SDL2 sound without SDL2_mixer.dll
 
-#include "SDL.h"
-#include <string.h>
 #include "sound.h"
+
 #include "../simmem.h"
 #include "../simdebug.h"
 
+#ifdef ALT_SDL_DIR
+#include "SDL.h"
+#else
+#include <SDL2/SDL.h>
+#endif
+
+#include <cstring>
+#include <cstdio>
+
+
 /*
- * Hajo: flag if sound module should be used
+ * flag if sound module should be used
  */
 static int use_sound = 0;
 
 /*
- * defines the number of channels avaiable
+ * defines the number of channels available
  */
 #define CHANNELS 4
 
@@ -47,14 +56,13 @@ static int samplenumber = 0;
 /* this structure contains the information about one channel
  */
 struct channel {
-    Uint32 sample_pos; /* the current position inside this sample */
-    Uint8 sample;		/* which sample is played, 255 for no sample */
-    Uint8 volume;		/* the volume this channel should be played */
+	Uint32 sample_pos; /* the current position inside this sample */
+	Uint8 sample;      /* which sample is played, 255 for no sample */
+	Uint8 volume;      /* the volume this channel should be played */
 };
 
 
-/* this array contains all the information of the currently played samples
- */
+/* this array contains all the information of the currently played samples */
 static channel channels[CHANNELS];
 
 
@@ -62,6 +70,8 @@ static channel channels[CHANNELS];
  * all loaded waved need to be converted to this format
  */
 static SDL_AudioSpec output_audio_format;
+
+static SDL_AudioDeviceID audio_device;
 
 
 void sdl_sound_callback(void *, Uint8 * stream, int len)
@@ -86,7 +96,7 @@ void sdl_sound_callback(void *, Uint8 * stream, int len)
 				channels[c].sample = 255;
 			}
 			else {
-				SDL_MixAudio(stream, smp->audio_data + channels[c].sample_pos, len, channels[c].volume);
+				SDL_MixAudioFormat(stream, smp->audio_data + channels[c].sample_pos, output_audio_format.format, len, channels[c].volume);
 				channels[c].sample_pos += len;
 			}
 		}
@@ -101,7 +111,7 @@ bool dr_init_sound()
 {
 	int sound_ok = 0;
 	if(use_sound!=0) {
-		return use_sound;	// avoid init twice
+		return use_sound; // avoid init twice
 	}
 	use_sound = 1;
 
@@ -119,43 +129,28 @@ bool dr_init_sound()
 
 		desired.callback = sdl_sound_callback;
 
-		if (SDL_OpenAudio(&desired, &output_audio_format) != -1) {
+		if(  (audio_device = SDL_OpenAudioDevice( NULL, 0, &desired, &output_audio_format, SDL_AUDIO_ALLOW_ANY_CHANGE ))  ) {
+			// allow any change as loaded .wav files are converted to output format upon loading
 
-			// check if we got the right audio format
-			// The below seems not to work in Windows 64-bit; but disabling it allows the sound to work correctly.
-			//if (output_audio_format.format == AUDIO_S16SYS) {
-			if(true) {
-				int i;
+			int i;
 
-				// finished initializing
-				sound_ok = 1;
+			// finished initializing
+			sound_ok = 1;
 
-				for (i = 0; i < CHANNELS; i++)
-				channels[i].sample = 255;
+			for (i = 0; i < CHANNELS; i++)
+			channels[i].sample = 255;
 
-				// start playing sounds
-				SDL_PauseAudio(0);
+			// start playing sounds
+			SDL_PauseAudioDevice(audio_device, 0);
 
-			} else {
-#ifndef _MSC_VER
-				dbg->important("Open audio channel doesn't meet requirements. Muting");
-#endif
-				SDL_CloseAudio();
-				SDL_QuitSubSystem(SDL_INIT_AUDIO);
-			}
-
-
-		} else {
-#ifndef _MSC_VER
-			dbg->important("Could not open required audio channel. Muting");
-#endif
+		}
+		else {
+			dbg->error("dr_init_sound()", "Could not open required audio channel. Muting");
 			SDL_QuitSubSystem(SDL_INIT_AUDIO);
 		}
 	}
 	else {
-#ifndef _MSC_VER
-		dbg->important("Could not initialize sound system. Muting");
-#endif
+		dbg->error("dr_init_sound()", "Could not initialize sound system. Muting");
 	}
 
 	use_sound = sound_ok ? 1: -1;
@@ -180,9 +175,7 @@ int dr_load_sample(const char *filename)
 
 		/* load the sample */
 		if (SDL_LoadWAV(filename, &wav_spec, &wav_data, &wav_length) == NULL) {
-#ifndef _MSC_VER
-			dbg->warning("dr_load_sample()", "could not load wav (%s)", SDL_GetError());
-#endif
+			dbg->warning("dr_load_sample", "could not load wav (%s)", SDL_GetError());
 			return -1;
 		}
 
@@ -192,9 +185,7 @@ int dr_load_sample(const char *filename)
 			    output_audio_format.format,
 			    output_audio_format.channels,
 			    output_audio_format.freq) < 0) {
-#ifndef _MSC_VER
-			dbg->warning("dr_load_sample()", "could not create conversion structure");
-#endif
+			dbg->warning("dr_load_sample", "could not create conversion structure");
 			SDL_FreeWAV(wav_data);
 			return -1;
 		}
@@ -206,9 +197,7 @@ int dr_load_sample(const char *filename)
 		SDL_FreeWAV(wav_data);
 
 		if (SDL_ConvertAudio(&wav_cvt) < 0) {
-#ifndef _MSC_VER
-			dbg->warning("dr_load_sample()", "could not convert wav to output format");
-#endif
+			dbg->warning("dr_load_sample", "could not convert wav to output format");
 			return -1;
 		}
 
@@ -216,9 +205,7 @@ int dr_load_sample(const char *filename)
 		smp.audio_data = wav_cvt.buf;
 		smp.audio_len = wav_cvt.len_cvt;
 		samples[samplenumber] = smp;
-#ifndef _MSC_VER
 		dbg->message("dr_load_sample", "Loaded %s to sample %i.",filename,samplenumber);
-#endif
 
 		return samplenumber++;
 	}

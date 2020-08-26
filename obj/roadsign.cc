@@ -40,9 +40,9 @@
 #include "signal.h"
 
 
-const roadsign_desc_t *roadsign_t::default_signal=NULL;
+const roadsign_desc_t *roadsign_t::default_signal = NULL;
 
-stringhashtable_tpl<const roadsign_desc_t *> roadsign_t::table;
+stringhashtable_tpl<roadsign_desc_t *> roadsign_t::table;
 vector_tpl<roadsign_desc_t*> roadsign_t::list;
 
 
@@ -304,7 +304,7 @@ void roadsign_t::info(cbuffer_t & buf) const
 
 
 	const grund_t *rs_gr = welt->lookup_kartenboden(rs_pos.x, rs_pos.y);
-	if (rs_gr->get_hoehe() > rs_pos.z == true)
+	if (rs_gr->get_hoehe() > rs_pos.z)
 	{
 		buf.append(translator::translate("underground_sign"));
 		buf.append("\n");
@@ -828,6 +828,11 @@ bool roadsign_t::successfully_loaded()
 	if(table.empty()) {
 		DBG_MESSAGE("roadsign_t", "No signs found - feature disabled");
 	}
+
+	FOR (stringhashtable_tpl<roadsign_desc_t *>, const &i, table) {
+		roadsign_t::list.append(i.value);
+	}
+
 	return true;
 }
 
@@ -858,7 +863,6 @@ bool roadsign_t::register_desc(roadsign_desc_t *desc)
 	}
 
 	roadsign_t::table.put(desc->get_name(), desc);
-	roadsign_t::list.append(desc);
 
 	if(  desc->get_wtyp()==track_wt  &&  desc->get_flags()==roadsign_desc_t::SIGN_SIGNAL  ) {
 		default_signal = desc;
@@ -883,7 +887,7 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 
 	vector_tpl<const roadsign_desc_t *>matching;
 
-	FOR(stringhashtable_tpl<roadsign_desc_t const*>, const& i, table) {
+	FOR(stringhashtable_tpl<roadsign_desc_t *>, const& i, table) {
 		roadsign_desc_t const* const desc = i.value;
 
 		bool allowed_given_current_signalbox;
@@ -943,7 +947,7 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
  */
 const roadsign_desc_t *roadsign_t::roadsign_search(roadsign_desc_t::types const flag, waytype_t const wt, uint16 const time)
 {
-	FOR(stringhashtable_tpl<roadsign_desc_t const*>, const& i, table) {
+	FOR(stringhashtable_tpl<roadsign_desc_t *>, const& i, table) {
 		roadsign_desc_t const* const desc = i.value;
 		if(  desc->is_available(time)  &&  desc->get_wtyp()==wt  &&  desc->get_flags()==flag  ) {
 			return desc;
@@ -957,7 +961,7 @@ const roadsign_desc_t* roadsign_t::find_best_upgrade(bool underground)
 	const uint16 time = welt->get_timeline_year_month();
 	const roadsign_desc_t* best_candidate = NULL;
 
-	FOR(stringhashtable_tpl<roadsign_desc_t const*>, const& i, table)
+	FOR(stringhashtable_tpl<roadsign_desc_t *>, const& i, table)
 	{
 		roadsign_desc_t const* const new_roadsign_type = i.value;
 		if(new_roadsign_type->is_available(time)

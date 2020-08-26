@@ -73,6 +73,13 @@ const skin_desc_t* skinverwaltung_t::mail_evaluation_icons = NULL;
 
 const skin_desc_t* skinverwaltung_t::alerts             = NULL;
 const skin_desc_t* skinverwaltung_t::input_output       = NULL; // industry input/output
+const skin_desc_t* skinverwaltung_t::travel_time        = NULL; // travel time / lead time
+const skin_desc_t* skinverwaltung_t::in_transit         = NULL; // goods in transit
+const skin_desc_t* skinverwaltung_t::ind_sector_symbol  = NULL;
+const skin_desc_t* skinverwaltung_t::reverse_arrows     = NULL;
+const skin_desc_t* skinverwaltung_t::waiting_time       = NULL; // waiting time at the station
+const skin_desc_t* skinverwaltung_t::service_frequency  = NULL; // line service frequency
+const skin_desc_t* skinverwaltung_t::on_foot            = NULL;
 
 // cursors
 const skin_desc_t* skinverwaltung_t::cursor_general     = NULL;	// new cursors
@@ -128,6 +135,13 @@ static spezial_obj_tpl<skin_desc_t> const symbol_objekte[] = {
 	{ &skinverwaltung_t::alerts,             "Alerts"         },
 	{ &skinverwaltung_t::goods_categories,   "GoodsCategories"},
 	{ &skinverwaltung_t::input_output,       "InputOutput"    },
+	{ &skinverwaltung_t::travel_time,        "TravelTime"     },
+	{ &skinverwaltung_t::in_transit,         "InTransit"      },
+	{ &skinverwaltung_t::ind_sector_symbol,  "IndustrySectors" },
+	{ &skinverwaltung_t::reverse_arrows,     "ReverseArrows"  },
+	{ &skinverwaltung_t::waiting_time,       "WaitingTime"    },
+	{ &skinverwaltung_t::service_frequency,  "ServiceFrequency" },
+	{ &skinverwaltung_t::on_foot,            "OnFoot"         },
 	{ &skinverwaltung_t::seasons_icons,      "Seasons"        },
 	{ &skinverwaltung_t::message_options,    "MessageOptions" },
 	{ &skinverwaltung_t::color_options,      "ColorOptions"   },
@@ -183,7 +197,7 @@ bool skinverwaltung_t::successfully_loaded(skintyp_t type)
 	switch (type) {
 		case menu:    sb = menu_objekte+1;     break;
 		case cursor:  sb = cursor_objekte;     break;
-		case symbol:  sb = symbol_objekte+7;   break;
+		case symbol:  sb = symbol_objekte+14;   break;
 		case misc:
 			sb = misc_objekte+3;
 			// for compatibility: use sidewalk as tunneltexture

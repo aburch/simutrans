@@ -1,0 +1,21 @@
+#
+# This file is part of the Simutrans-Extended project under the Artistic License.
+# (see LICENSE.txt)
+#
+
+CC=x86_64-w64-mingw32-gcc
+CXX=x86_64-w64-mingw32-g++
+
+BACKEND=sdl2
+COLOUR_DEPTH=16
+OSTYPE=mingw64
+
+DEBUG=0
+OPTIMISE=1
+MULTI_THREAD=1
+USE_FREETYPE=1
+STATIC=1
+
+FLAGS = -DUSE_C -fno-delete-null-pointer-checks -fno-strict-aliasing -std=c++11
+
+SDL2_CONFIG=x86_64-w64-mingw32-pkg-config sdl2

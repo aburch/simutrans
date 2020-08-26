@@ -362,6 +362,14 @@ private:
 	*/
 	uint32 tolerance_modifier_percentage = 100;
 
+	/**
+	* Setting this allows overriding of the calculated industry density
+	* proportion to (1) allow players the ability to control industry growth
+	* after map editing; and (2) correct errors/balance issues in server games.
+	* Setting this to 0, its default setting, will mean that it has no effect.
+	*/
+	uint32 industry_density_proportion_override = 0;
+
 public:
 	//Cornering settings
 	//@author: jamespetts
@@ -462,16 +470,16 @@ public:
 	// The base comfort revenue table (comfort - tolerable comfort to percentage)
 	piecewise_linear_tpl<sint16, sint16, sint32> base_comfort_revenue;
 	// The comfort derating table (tenths of minutes to percentage)
-	piecewise_linear_tpl<uint16, uint8> comfort_derating;
+	piecewise_linear_tpl<uint16, uint8, uint32> comfort_derating;
 
 	// @author: neroden
 	// Tables 0 through 5 for catering revenue.
 	// One for each level -- so there are 6 of them total.
 	// Dontcha hate C array declaration style?
-	piecewise_linear_tpl<uint16, sint64> catering_revenues[6];
+	piecewise_linear_tpl<uint16, sint64, uint32> catering_revenues[6];
 
 	// Single table for TPO revenues.
-	piecewise_linear_tpl<uint16, sint64> tpo_revenues;
+	piecewise_linear_tpl<uint16, sint64, uint32> tpo_revenues;
 
 
 	//@author: jamespetts
@@ -838,7 +846,7 @@ public:
 	{
 		rotation = (rotation+1)&3;
 		set_groesse( size_y, size_x, true);
-		rotate_regions(size_y); 
+		rotate_regions(size_y);
 	}
 	uint8 get_rotation() const { return rotation; }
 
@@ -1148,6 +1156,8 @@ public:
 	uint32 get_random_mode_visiting() const { return random_mode_visiting; }
 
 	uint32 get_tolerance_modifier_percentage() const { return tolerance_modifier_percentage; }
+
+	uint32 get_industry_density_proportion_override() const { return industry_density_proportion_override; }
 
 #ifndef NETTOOL
 	float32e8_t get_simtime_factor() const { return simtime_factor; }

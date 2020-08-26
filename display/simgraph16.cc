@@ -14,7 +14,7 @@
 #include "font.h"
 #include "../pathes.h"
 #include "../simconst.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simmem.h"
 #include "../simdebug.h"
 #include "../descriptor/image.h"
@@ -706,6 +706,16 @@ static const COLOR_VAL special_pal[224 * 3] =
 	165, 145, 218,
 	198, 191, 232,
 };
+
+
+/*
+ * Hajo: Zoom factor
+ */
+#define MAX_ZOOM_FACTOR (9)
+#define ZOOM_NEUTRAL (3)
+static uint32 zoom_factor = ZOOM_NEUTRAL;
+static sint32 zoom_num[MAX_ZOOM_FACTOR + 1] = { 2, 3, 4, 1, 3, 5, 1, 3, 1, 1 };
+static sint32 zoom_den[MAX_ZOOM_FACTOR + 1] = { 1, 2, 3, 1, 4, 8, 2, 8, 4, 8 };
 
 
 /*
@@ -2837,11 +2847,11 @@ void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 playe
 	} // number ok
 }
 
-void display_color_img_with_tooltip(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty, const char *text  CLIP_NUM_DEF)
+void display_color_img_with_tooltip(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty, const char *text  CLIP_NUM_DEF_NOUSE)
 {
 	display_color_img(n, xp, yp, player_nr_raw, daynight, dirty);
 	if (text && n < anz_images && ( xp <= get_mouse_x() && yp <= get_mouse_y() && (xp+ images[n].w) > get_mouse_x() && (yp+ images[n].h) > get_mouse_y())) {
-		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X/2, yp + images[n].y + images[n].h + TOOLTIP_MOUSE_OFFSET_Y/2, text);
+		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X + D_H_SPACE, yp + images[n].y + images[n].h + TOOLTIP_MOUSE_OFFSET_Y/2 + D_V_SPACE, text);
 	}
 }
 
@@ -3188,6 +3198,14 @@ void display_blend_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, 
 	}
 }
 
+void display_vlinear_gradient_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL colval, int percent_blend_start, int percent_blend_end)
+{
+	uint8 transparency = 0;
+	for (int i = 0; i < h; i++) {
+		transparency = percent_blend_start + (percent_blend_end - percent_blend_start)/h*i;
+		display_blend_wh_rgb(xp, yp+i, w, 1, colval, transparency);
+	}
+}
 
 static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour, blend_proc p  CLIP_NUM_DEF)
 {
@@ -3890,6 +3908,36 @@ void display_fillbox_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_
 {
 	display_fb_internal(xp, yp, w, h, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
 }
+
+void display_filled_roundbox_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty)
+{
+	display_fillbox_wh_clip(xp, yp+1, w, h-2, color, dirty);
+	display_fillbox_wh_clip(xp+1, yp, w-2, 1, color, dirty);
+	display_fillbox_wh_clip(xp+1, yp + h-1, w-2, 1, color, dirty);
+}
+
+void display_cylinderbar_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty  CLIP_NUM_DEF)
+{
+	display_fb_internal(xp, yp, w, h, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
+	display_blend_wh(xp, yp, w, min(3,h/2), COL_WHITE, 15);
+	display_blend_wh(xp, yp + 1, w, 1, COL_WHITE, 15);
+	uint8 start = h * 2 / 3;
+	for (uint8 i = start; i < h; i++) {
+		display_blend_wh(xp, yp + i, w, 1, COL_BLACK, i*25/h);
+	}
+}
+
+
+void display_colorbox_with_tooltip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty, const char *text)
+{
+	display_ddd_box_clip(xp, yp, w, h, MN_GREY0, MN_GREY4);
+	//display_fb_internal(xp+1, yp+1, w-2, h-2, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
+	display_fillbox_wh_clip(xp + 1, yp + 1, w - 2, h - 2, color, dirty);
+	if (text && (xp <= get_mouse_x() && yp <= get_mouse_y() && (xp + w) > get_mouse_x() && (yp + h) > get_mouse_y())) {
+		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X + D_H_SPACE, yp + h + h/2 + TOOLTIP_MOUSE_OFFSET_Y / 2 + D_V_SPACE, text);
+	}
+}
+
 
 /**
 * Draw vertical line
@@ -4838,7 +4886,7 @@ void display_filled_circle_rgb(KOORD_VAL x0, KOORD_VAL  y0, int radius, const PI
 int display_fluctuation_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, const bool dirty, sint64 value)
 {
 	if (!value) { return 0; } // nothing to draw
-	COLOR_VAL col = value > 0 ? COL_LIGHT_TURQUOISE : COL_LIGHT_ORANGE;
+	COLOR_VAL col = value > 0 ? COL_ADDITIONAL : COL_REDUCED-2;
 	uint8 width = height - height % 2;
 	for (uint i = 0; i < width; i++) {
 		uint8 h = height - 2 * abs(int(width / 2 - i));
@@ -4846,7 +4894,7 @@ int display_fluctuation_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, con
 		KOORD_VAL y1 = value > 0 ? y0 - 1 : y + h +1;
 
 		if (h > 1) {
-			display_vline_wh(x + i, y0, h - 1, col, dirty);
+			display_vline_wh_clip(x + i, y0, h - 1, col, dirty);
 		}
 		if (h > 0) {
 			display_blend_wh(x + i, y1, 1, 1, col, 50);

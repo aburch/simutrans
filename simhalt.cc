@@ -25,7 +25,7 @@
 #include "gui/simwin.h"
 #include "simworld.h"
 #include "simware.h"
-#include "simsys.h"
+#include "sys/simsys.h"
 
 #include "bauer/hausbauer.h"
 #include "bauer/goods_manager.h"
@@ -1189,10 +1189,10 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 		{
 			convoihandle_t const c = *i;
 			if (c.is_bound()
-				&& (c->get_state() == convoi_t::LOADING || c->get_state() == convoi_t::REVERSING || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE)
+				&& (c->is_loading() || c->get_state() == convoi_t::REVERSING || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE)
 				&& ((get_halt(c->get_pos(), owner) == self)
 					|| (c->get_vehicle(0)->get_waytype() == water_wt
-					&& c->get_state() == convoi_t::LOADING
+					&& c->is_loading()
 					&& get_halt(c->get_schedule()->get_current_entry().pos, owner) == self)))
 			{
 				++i;
@@ -2810,6 +2810,75 @@ uint32 haltestelle_t::get_ware_summe(const goods_desc_t *wtyp) const
 	return sum;
 }
 
+uint32 haltestelle_t::get_ware_summe(const goods_desc_t *wtyp, uint8 g_class) const
+{
+	if (g_class >= wtyp->get_number_of_classes()) {
+		return 0;
+	}
+	int sum = 0;
+	const vector_tpl<ware_t> * warray = cargo[wtyp->get_catg_index()];
+	if (warray != NULL) {
+		FOR(vector_tpl<ware_t>, const& i, *warray) {
+			if (wtyp->get_index() == i.get_index() && g_class == i.get_class()) {
+				sum += i.menge;
+			}
+		}
+	}
+	return sum;
+}
+
+uint32 haltestelle_t::get_transferring_goods_sum(const goods_desc_t *wtyp, uint8 g_class) const
+{
+	if (g_class != 255 && g_class >= wtyp->get_number_of_classes()) {
+		return 0;
+	}
+	int sum = 0;
+	ware_t ware;
+
+#ifdef MULTI_THREAD
+	sint32 po = world()->get_parallel_operations();
+#else
+	sint32 po = 1;
+#endif
+	for (sint32 i = 0; i < po; i++)
+	{
+		FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes[i])
+		{
+			ware = tc.ware;
+			if (wtyp->get_index() == ware.get_index() && (g_class == 255 || g_class == ware.get_class())) {
+				sum += ware.menge;
+			}
+		}
+	}
+	return sum;
+}
+
+// transferring goods which leaving from the station
+uint32 haltestelle_t::get_leaving_goods_sum(const goods_desc_t *wtyp, uint8 g_class) const
+{
+	if (g_class != 255 && g_class >= wtyp->get_number_of_classes()) {
+		return 0;
+	}
+	int sum = 0;
+	ware_t ware;
+
+#ifdef MULTI_THREAD
+	sint32 po = world()->get_parallel_operations();
+#else
+	sint32 po = 1;
+#endif
+	for (sint32 i = 0; i < po; i++)
+	{
+		FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes[i])
+		{
+			ware = tc.ware;
+			if (wtyp->get_index() == ware.get_index() && (g_class == 255 || g_class == ware.get_class()) && ware.get_zwischenziel() == self) {
+				sum += ware.menge;
+			}
+		}
+	}
+	return sum;
+}
 
 
 uint32 haltestelle_t::get_ware_fuer_zielpos(const goods_desc_t *wtyp, const koord zielpos) const
@@ -3043,11 +3112,13 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 #ifdef MULTI_THREAD
 		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 		assert(mutex_error == 0);
+		(void)mutex_error;
 #endif
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked between too many consecutive stops: terminating early to avoid infinite loops", ware.menge, translator::translate(ware.get_name()), get_name() );
 #ifdef MULTI_THREAD
 		int error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 		assert(error == 0);
+		(void)error;
 #endif
 		return;
 	}
@@ -3065,11 +3136,13 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 #ifdef MULTI_THREAD
 		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 		assert(mutex_error == 0);
+		(void)mutex_error;
 #endif
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer a route to their destination.", ware.menge, translator::translate(ware.get_name()), get_name() );
 #ifdef MULTI_THREAD
 		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 		assert(mutex_error == 0);
+		(void)mutex_error;
 #endif
 		return;
 	}
@@ -3084,6 +3157,7 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 #ifdef MULTI_THREAD
 		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 		assert(mutex_error == 0);
+		(void)mutex_error;
 #endif
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s were intended for a building that has been deleted.", ware.menge, translator::translate(ware.get_name()), get_name() );
 #ifdef MULTI_THREAD
@@ -3153,6 +3227,7 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 #ifdef MULTI_THREAD
 		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 		assert(mutex_error == 0);
+		(void)mutex_error;
 #endif
 		DBG_MESSAGE("haltestelle_t::liefere_an()", "%s has discovered that it is quicker to walk to its destination from %s than take its previously planned route.", translator::translate(ware.get_name()), get_name());
 #ifdef MULTI_THREAD
@@ -3186,6 +3261,7 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 #ifdef MULTI_THREAD
 		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 		assert(mutex_error == 0);
+		(void)mutex_error;
 #endif
 		// target halt no longer there => delete and remove from fab in transit
 		fabrik_t::update_transit( ware, false );
@@ -5556,29 +5632,29 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 	linehandle_t line = cnv->get_line();
 	int count = 0;
 	const bool is_road_type = cnv->get_vehicle(0)->get_waytype() == road_wt;
-	for(slist_tpl<convoihandle_t>::const_iterator i = loading_here.begin(), end = loading_here.end();  i != end && (*i) != cnv; ++i)
+	FOR(slist_tpl<convoihandle_t>, loading_cnv, loading_here)
 	{
-		if(!(*i).is_bound() || get_halt((*i)->get_pos(), owner) != self)
+		if(!loading_cnv.is_bound() || get_halt(loading_cnv->get_pos(), owner) != self || loading_cnv == cnv)
 		{
 			continue;
 		}
-		const int state = (*i)->get_state();
+		const int state = loading_cnv->get_state();
 		// QUERY: If this stop is the stop at which the reverse_route setting is set/unset, might
-		// ((*i)->get_reverse_schedule() == cnv->get_reverse_schedule())
+		// (loading_cnv->get_reverse_schedule() == cnv->get_reverse_schedule())
 		// give a false negative, therefore incorrectly assigning two vehicles to the same queue position?
 		//
 		// ANSWER: No, as the reverse route is only engaged/disengaged on leaving the stop.
 
-		if((*i)->get_line() == line &&
-			(((*i)->get_schedule()->get_current_stop() == cnv->get_schedule()->get_current_stop()
-			&& ((*i)->get_reverse_schedule() == cnv->get_reverse_schedule())
-			&& (!is_road_type || state == convoi_t::LOADING))
+		if(loading_cnv->get_line() == line &&
+			((loading_cnv->get_schedule()->get_current_stop() == cnv->get_schedule()->get_current_stop()
+			&& (loading_cnv->get_reverse_schedule() == cnv->get_reverse_schedule())
+			&& (!is_road_type || loading_cnv->is_loading()))
 			|| (state == convoi_t::REVERSING
 			&& !is_road_type
 			&& cnv->calc_remaining_loading_time() > 100
-			&& ((*i)->get_reverse_schedule() ?
-				(*i)->get_schedule()->get_current_stop() + 1 == cnv->get_schedule()->get_current_stop() :
-				(*i)->get_schedule()->get_current_stop() - 1 == cnv->get_schedule()->get_current_stop()))))
+			&& (loading_cnv->get_reverse_schedule() ?
+				loading_cnv->get_schedule()->get_current_stop() + 1 == cnv->get_schedule()->get_current_stop() :
+				loading_cnv->get_schedule()->get_current_stop() - 1 == cnv->get_schedule()->get_current_stop()))))
 		{
 			count++;
 		}

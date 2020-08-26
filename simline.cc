@@ -22,16 +22,16 @@
 
 line_cost_t convoi_to_line_catgory_[convoi_t::MAX_CONVOI_COST] =
 {
-	LINE_CAPACITY, 
-	LINE_TRANSPORTED_GOODS, 
-	LINE_AVERAGE_SPEED, 
-	LINE_COMFORT, 
-	LINE_REVENUE, 
-	LINE_OPERATIONS, 
-	LINE_PROFIT, 
-	LINE_DISTANCE, 
+	LINE_CAPACITY,
+	LINE_TRANSPORTED_GOODS,
+	LINE_AVERAGE_SPEED,
+	LINE_COMFORT,
+	LINE_REVENUE,
+	LINE_OPERATIONS,
+	LINE_PROFIT,
+	LINE_DISTANCE,
 	LINE_REFUNDS,
-//	LINE_MAXSPEED, 
+//	LINE_MAXSPEED,
 	LINE_WAYTOLL
 };
 
@@ -41,6 +41,17 @@ line_cost_t simline_t::convoi_to_line_catgory(convoi_t::convoi_cost_t cnv_cost)
 	return convoi_to_line_catgory_[cnv_cost];
 }
 
+const uint simline_t::linetype_to_stationtype[simline_t::MAX_LINE_TYPE] = {
+	haltestelle_t::invalid,
+	haltestelle_t::busstop,
+	haltestelle_t::railstation,
+	haltestelle_t::dock,
+	haltestelle_t::airstop,
+	haltestelle_t::monorailstop,
+	haltestelle_t::tramstop,
+	haltestelle_t::maglevstop,
+	haltestelle_t::narrowgaugestop
+};
 
 karte_ptr_t simline_t::welt;
 
@@ -725,7 +736,7 @@ void simline_t::recalc_status()
 		state |= line_no_convoys;
 		withdraw = false;
 	}
-	if(financial_history[0][LINE_PROFIT]<0 && financial_history[1][LINE_PROFIT]<0) 
+	if(financial_history[0][LINE_PROFIT]<0 && financial_history[1][LINE_PROFIT]<0)
 	{
 		// Loss-making
 		state_color = MONEY_MINUS;

@@ -2749,6 +2749,7 @@ void stadt_t::check_all_private_car_routes()
 #ifdef MULTI_THREAD
 	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 	assert(error == 0);
+	(void)error;
 #endif
 	connected_cities.clear();
 	connected_industries.clear();
@@ -2756,6 +2757,7 @@ void stadt_t::check_all_private_car_routes()
 #ifdef MULTI_THREAD
 	error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 	assert(error == 0);
+	(void)error;
 #endif
 
 
@@ -3611,8 +3613,8 @@ void stadt_t::check_bau_spezial(bool new_town)
 								}
 
 								bool success = build_road(k, NULL, true, false);
-
 								assert(success);
+								(void)success;
 							}
 						}
 					}
@@ -4427,7 +4429,7 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 	// does the timeline allow this building?
 	const uint16 current_month = welt->get_timeline_year_month();
 	const climate cl = welt->get_climate_at_height(welt->max_hgt(k));
-	const uint8 region = welt->get_region(k); 
+	const uint8 region = welt->get_region(k);
 
 	// Run through orthogonal neighbors (only) looking for which cluster to build
 	// This is a bitmap -- up to 32 clustering types are allowed.
@@ -4556,7 +4558,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 	// does the timeline allow this building?
 	const uint16 current_month = welt->get_timeline_year_month();
 	const climate cl = welt->get_climate_at_height(gb->get_pos().z);
-	uint8 region = welt->get_region(gb->get_pos().get_2d()); 
+	uint8 region = welt->get_region(gb->get_pos().get_2d());
 
 	// Run through orthogonal neighbors (only) looking for which cluster to build
 	// This is a bitmap -- up to 32 clustering types are allowed.
@@ -5117,7 +5119,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 		allow_deletion &= !runway || (runway->get_player_nr() == PLAYER_UNOWNED && runway->get_max_speed() == 0);
 
 		const weg_t* waterway = bd->get_weg(water_wt);
-		allow_deletion &= !waterway || (!waterway->is_public_right_of_way() && waterway->get_player_nr() == PLAYER_UNOWNED && waterway->is_degraded()); 
+		allow_deletion &= !waterway || (!waterway->is_public_right_of_way() && waterway->get_player_nr() == PLAYER_UNOWNED && waterway->is_degraded());
 
 		if (!allow_deletion)
 		{
@@ -5339,7 +5341,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 			weg->set_desc(welt->get_city_road());
 			strasse_t *str = static_cast<strasse_t *>(weg);
 			str->set_gehweg(true);
-			str->set_overtaking_mode(twoway_mode);
+			str->set_overtaking_mode(twoway_mode, player_);
 			weg->set_public_right_of_way();
 			bd->neuen_weg_bauen(weg, connection_roads, player_);
 			bd->calc_image();
@@ -5353,9 +5355,70 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 			     (bd_next->is_water() || bd_next->hat_weg(water_wt) || bd_next->hat_weg(track_wt) || bd_next->hat_weg(narrowgauge_wt) ||
 			       bd_next->hat_weg(monorail_wt) || bd_next->hat_weg(maglev_wt) || (bd_next->hat_weg(road_wt) && !bd_next->get_weg(road_wt)->is_public_right_of_way()))) {
 				// There is a river, a canal, railway, a private road, or a lake in the way. Build a bridge.
-				build_bridge(bd, direction, map_generation);
+				const bridge_desc_t* bridge = bridge_builder_t::find_bridge(road_wt, welt->get_city_road()->get_topspeed(), welt->get_timeline_year_month());
+				if (bridge == NULL) {
+					// does not have a bridge available ...
+					return false;
+				}
+				const char* err = NULL;
+				sint8 bridge_height;
+				koord3d end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, false);
+				if (err || koord_distance(k, end.get_2d()) > 3) {
+					// try to find shortest possible
+					end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
+				}
+				// if the river is nagigable, we need a two hight slope, so we have to start on a flat tile
+				if (err && *err != 0 && strcmp(err, "Bridge is too long for this type!\n") != 0 && bd->get_weg_hang() != slope_t::flat) {
+					slope_t::type old_slope = bd->get_grund_hang();
+					sint8 h_diff = slope_t::max_diff(old_slope);
+					// raise up the tile
+					bd->set_grund_hang(slope_t::flat);
+					bd->set_hoehe(bd->get_hoehe() + h_diff);
+					end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, false);
+					if (err || koord_distance(k, end.get_2d()) > 3) {
+						// try to find shortest possible
+						end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
+					}
+					// not successful: restore old slope
+					if (err && *err != 0 || end == koord3d::invalid || koord_distance(k, end.get_2d()) > 5) {
+						bd->set_grund_hang(old_slope);
+						bd->set_hoehe(bd->get_hoehe() - h_diff);
+					}
+					else
+					{
+						// update slope graphics on tile and tile in front
+						// The below code from Standard does not seem to exist in Extended
+						// (that is, the check_update_underground() logic.
+						/*
+						if (grund_t* bd_recalc = welt->lookup_kartenboden(k + koord(0, 1))) {
+							bd_recalc->check_update_underground();
+						}
+						if (grund_t* bd_recalc = welt->lookup_kartenboden(k + koord(1, 0))) {
+							bd_recalc->check_update_underground();
+						}
+						if (grund_t* bd_recalc = welt->lookup_kartenboden(k + koord(1, 1))) {
+							bd_recalc->check_update_underground();
+						}*/
+						bd->mark_image_dirty();
+					}
+				}
+				if ((err == NULL || *err == 0) && koord_distance(k, end.get_2d()) <= 5 && welt->is_within_limits((end + zv).get_2d())) {
+					bridge_builder_t::build_bridge(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
+					// try to build one connecting piece of road
+					build_road((end + zv).get_2d(), NULL, forced, map_generation);
+					// try to build a house near the bridge end
+					uint32 old_count = buildings.get_count();
+					for (uint8 i = 0; i < lengthof(koord::neighbours) && buildings.get_count() == old_count; i++) {
+						koord c(end.get_2d() + zv + koord::neighbours[i]);
+						if (welt->is_within_limits(c)) {
+							build_city_building(end.get_2d() + zv + koord::neighbours[i], forced, map_generation);
+						}
+					}
+				}
 			}
 		}
+		return true;
+
 		return true;
 	}
 
@@ -5581,7 +5644,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 			if (hausbauer_t::get_special(0, building_desc_t::townhall, welt->get_timeline_year_month(), false, (climate)i, j))
 			{
 				cl |= (1 << i);
-				regions_allowed |= (1 << j); 
+				regions_allowed |= (1 << j);
 			}
 		}
 	}
@@ -6080,8 +6143,9 @@ void stadt_t::calc_congestion()
 	uint16 congestion_density_factor = s.get_congestion_density_factor();
 
 #ifdef MULTI_THREAD
-		int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+	int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 	assert(error == 0);
+	(void)error;
 #endif
 
 	if (s.get_assume_everywhere_connected_by_road() && congestion_density_factor < 32)

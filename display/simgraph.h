@@ -124,15 +124,6 @@ extern KOORD_VAL base_tile_raster_width;
 /* changes the raster width after loading */
 KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster);
 
-/*
-* Hajo: Zoom factor
-*/
-#define MAX_ZOOM_FACTOR (9)
-#define ZOOM_NEUTRAL (3)
-static uint32 zoom_factor = ZOOM_NEUTRAL;
-static sint32 zoom_num[MAX_ZOOM_FACTOR + 1] = { 2, 3, 4, 1, 3, 5, 1, 3, 1, 1 };
-static sint32 zoom_den[MAX_ZOOM_FACTOR + 1] = { 1, 2, 3, 1, 4, 8, 2, 8, 4, 8 };
-
 int zoom_factor_up();
 int zoom_factor_down();
 int get_zoom_factor();
@@ -272,11 +263,21 @@ inline void display_set_image_proc(bool is_global)
 void display_blend_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, int percent_blend);
 #define display_blend_wh(xp,yp,w,h,color,percent_blend) display_blend_wh_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],percent_blend )
 
+void display_vlinear_gradient_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, int percent_blend_start, int percent_blend_end);
+#define display_vlinear_gradiwnt_wh(xp,yp,w,h,color,percent_blend_start,percent_blend_end) display_vlinear_gradient_wh_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],percent_blend_start,percent_blend_end )
+
 void display_fillbox_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty);
 #define display_fillbox_wh(xp,yp,w,h,color,dirty) display_fillbox_wh_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],dirty)
 
 void display_fillbox_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 #define display_fillbox_wh_clip( x, y, w, h, c, d ) display_fillbox_wh_clip_rgb( (x), (y), (w), (h), specialcolormap_all_day[(c)&0xFF], (d))
+void display_filled_roundbox_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty);
+
+
+void display_cylinderbar_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+#define display_cylinderbar_wh_clip( x, y, w, h, c, d ) display_cylinderbar_wh_clip_rgb( (x), (y), (w), (h), specialcolormap_all_day[(c)&0xFF], (d))
+
+void display_colorbox_with_tooltip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty, const char *text);
 
 void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVAL color, bool dirty, uint8 basic_coupling_constraint, uint8 interactivity, bool is_rightside CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 #define display_veh_form( x, y, w, color, d, flags, interactivity, right) display_veh_form_wh_clip_rgb( (x), (y), (w), specialcolormap_all_day[(color)&0xFF], (d), (flags), (interactivity), (right))

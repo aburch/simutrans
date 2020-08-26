@@ -3,13 +3,20 @@
  * (see LICENSE.txt)
  */
 
-// Sound with SDL_mixer.dll (not changing the volume of other programs)
+// Sound with SDL2_mixer.dll (not changing the volume of other programs)
 
-#include <SDL.h>
-#include <SDL_mixer.h>
-#include <string.h>
 #include "sound.h"
 #include "../simdebug.h"
+
+#ifdef ALT_SDL_DIR
+#include "SDL.h"
+#include "SDL_mixer.h"
+#else
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
+#endif
+
+#include <string.h>
 
 
 /*
@@ -19,7 +26,7 @@ static int use_sound = 0;
 
 /* this list contains all the samples
  */
-static Mix_Chunk *samples[1024];
+static Mix_Chunk *samples[64];
 
 /* all samples are stored chronologically there
  */
@@ -33,7 +40,7 @@ bool dr_init_sound()
 {
 	int sound_ok = 0;
 	if(use_sound!=0) {
-		return true;	// avoid init twice
+		return true; // avoid init twice
 	}
 	use_sound = 1;
 
@@ -49,7 +56,7 @@ bool dr_init_sound()
 
 		if (Mix_OpenAudio(freq, format, channels, samples) != -1) {
 			Mix_QuerySpec(&freq, &format,  &channels);
-			// check if we got the right audi format
+			// check if we got the right audio format
 			if (format == AUDIO_S16SYS) {
 				// finished initializing
 				sound_ok = 1;
@@ -62,7 +69,7 @@ bool dr_init_sound()
 
 			}
 			else {
-				dbg->important("Open audio channel doesn't meet requirements. Muting");
+				dbg->error("dr_init_sound()","Open audio channel doesn't meet requirements. Muting");
 				Mix_CloseAudio();
 				SDL_QuitSubSystem(SDL_INIT_AUDIO);
 			}
@@ -70,12 +77,12 @@ bool dr_init_sound()
 
 		}
 		else {
-			dbg->important("Could not open required audio channel. Muting");
+			dbg->error("dr_init_sound()","Could not open required audio channel. Muting");
 			SDL_QuitSubSystem(SDL_INIT_AUDIO);
 		}
 	}
 	else {
-		dbg->important("Could not initialize sound system. Muting");
+		dbg->error("dr_init_sound()","Could not initialize sound system. Muting");
 	}
 
 	use_sound = sound_ok ? 1: -1;
@@ -91,7 +98,7 @@ bool dr_init_sound()
  */
 int dr_load_sample(const char *filename)
 {
-	if(use_sound>0  &&  samplenumber<1024) {
+	if(use_sound>0  &&  samplenumber<64) {
 
 		Mix_Chunk *smp;
 

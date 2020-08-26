@@ -110,7 +110,7 @@ private:
 	gui_scrollpane_t scrolly_payload_info;
 	gui_scrollpane_t scrolly_maintenance;
 	gui_vehicleinfo_t veh_info;
-	gui_convoy_formaion_t formation;
+	gui_convoy_formation_t formation;
 	gui_convoy_payload_info_t payload_info;
 	gui_convoy_maintenance_info_t maintenance;
 	gui_tab_panel_t tabs;

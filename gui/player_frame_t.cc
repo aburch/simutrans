@@ -194,7 +194,7 @@ ki_kontroll_t::ki_kontroll_t() :
 
 	scr_size fincance_size = scr_size(L_FINANCE_WIDTH, D_BUTTON_HEIGHT);
 
-	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {	
+	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
 			take_over_player[i].init(button_t::roundbox, translator::translate("take_over"), cursor, D_BUTTON_SIZE); // TODO: Set this in Simutranslator
 			take_over_player[i].add_listener(this);
 			take_over_player[i].set_tooltip(translator::translate("take_over_this_company")); // TODO: Set this in Simutranslator
@@ -206,10 +206,10 @@ ki_kontroll_t::ki_kontroll_t() :
 
 			lb_take_over_cost[i].set_size(fincance_size);
 			lb_take_over_cost[i].set_visible(false);
-			add_component(&lb_take_over_cost[i]);		
+			add_component(&lb_take_over_cost[i]);
 	}
 
-	sprintf(text_allow_takeover, translator::translate("allow_takeover_of_your_company")); // TODO: Set this in Simutranslator
+	sprintf(text_allow_takeover, "%s", translator::translate("allow_takeover_of_your_company")); // TODO: Set this in Simutranslator
 	allow_take_over_of_company.init(button_t::roundbox, text_allow_takeover, cursor, scr_size(display_calc_proportional_string_len_width(text_allow_takeover, -1) + 10 ,D_BUTTON_HEIGHT));
 	allow_take_over_of_company.add_listener(this);
 	allow_take_over_of_company.set_tooltip(translator::translate("allows_other_players_to_take_over_your_company")); // TODO: Set this in Simutranslator
@@ -219,7 +219,7 @@ ki_kontroll_t::ki_kontroll_t() :
 	}
 	add_component( &allow_take_over_of_company );
 
-	sprintf(text_cancel_takeover, translator::translate("cancel"));
+	sprintf(text_cancel_takeover, "%s", translator::translate("cancel"));
 	cancel_take_over.init(button_t::roundbox, text_cancel_takeover, cursor, scr_size(display_calc_proportional_string_len_width(text_cancel_takeover, -1) + 10, D_BUTTON_HEIGHT));
 	cancel_take_over.add_listener(this);
 	cancel_take_over.set_tooltip(translator::translate("cancel_the_takeover_of_your_company")); // TODO: Set this in Simutranslator
@@ -228,7 +228,7 @@ ki_kontroll_t::ki_kontroll_t() :
 		cancel_take_over.disable();
 	}
 	add_component(&cancel_take_over);
-	
+
 	update_data();
 }
 
@@ -345,7 +345,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 			}
 
 			static char param[16];
-			sprintf(param,"g%hhu,%i,%i", welt->get_active_player_nr(), i, access_out[i].pressed);
+			sprintf(param,"g%hu,%i,%i", (uint16)welt->get_active_player_nr(), i, (int)access_out[i].pressed);
 			tool_t *tool = create_tool( TOOL_ACCESS_TOOL | SIMPLE_TOOL );
 			tool->set_default_param(param);
 			welt->set_tool( tool, welt->get_active_player() );
@@ -369,7 +369,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 
 		update_data();
 	}
-	
+
 	if (comp == &cancel_take_over)
 	{
 		static char param[16];
@@ -384,11 +384,11 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 	}
 
 
-	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
+	for (uint8 i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
 		if (comp == take_over_player + i)
 		{
 			static char param[16];
-			sprintf(param, "u, %hi, %hi", welt->get_active_player_nr(), i);
+			sprintf(param, "u, %hu, %hu", (uint16)welt->get_active_player_nr(), (uint16)i);
 			tool_t* tool = create_tool(TOOL_CHANGE_PLAYER | SIMPLE_TOOL);
 			tool->set_default_param(param);
 			welt->set_tool(tool, welt->get_active_player());
@@ -396,7 +396,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 			delete tool;
 			take_over_player[i].disable(); // Fail proof, in case the entry stays in the window
 		}
-		
+
 	}
 	return true;
 }
@@ -429,8 +429,6 @@ void ki_kontroll_t::update_data()
 		cursor.y += D_EDIT_HEIGHT + D_V_SPACE;
 		cursor.x = D_MARGIN_LEFT;
 
-		const player_t* const player = welt->get_player(i);
-
 		if (i >= 2) {
 			player_active[i - 2].set_pos(cursor);
 		}
@@ -448,11 +446,11 @@ void ki_kontroll_t::update_data()
 		player_lock[i].set_pos(cursor);
 		cursor.x += D_EDIT_HEIGHT + 10;
 
-	
-		access_out[i].set_pos(cursor);		
+
+		access_out[i].set_pos(cursor);
 		cursor.x += D_CHECKBOX_WIDTH + 20 + D_H_SPACE;
 
-		access_in[i].set_pos(cursor);		
+		access_in[i].set_pos(cursor);
 		cursor.x += D_CHECKBOX_WIDTH + D_H_SPACE;
 
 		ai_income[i]->set_pos(cursor);
@@ -471,7 +469,7 @@ void ki_kontroll_t::update_data()
 
 	company_takeovers.set_pos(cursor);
 	cursor.y += D_BUTTON_HEIGHT;
-	
+
 	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
 		const player_t* const player = welt->get_player(i);
 		take_over_player[i].set_visible(false);
@@ -488,7 +486,7 @@ void ki_kontroll_t::update_data()
 			{
 				take_over_player[i].enable();
 			}
-			
+
 			take_over_player[i].set_pos(cursor);
 			take_over_player[i].set_visible(true);
 			cursor.x += D_BUTTON_WIDTH + 10;
@@ -740,7 +738,6 @@ void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 	player_change_to[welt->get_active_player_nr()].pressed = true;
 
 	// Update take over money entry
-	sint64 takeover_money = 0;
 	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
 		player_t* player = welt->get_player(i);
 		if (player && player->available_for_takeover()) {

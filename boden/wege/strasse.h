@@ -48,29 +48,72 @@ public:
 
 	void set_gehweg(bool janein);
 
-	virtual void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	/**
 	* Overtaking mode (declared in simtypes.h)
 	* halt_mode = vehicles can stop on passing lane
 	* oneway_mode = condition for one-way road
 	* twoway_mode = condition for two-way road
-	* loading_only_mode = overtaking a loading convoy only
 	* prohibited_mode = overtaking is completely forbidden
-	* inverted_mode = vehicles can go only on passing lane
 	* @author teamhimeH
 	*/
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; };
-	void set_overtaking_mode(overtaking_mode_t o) { overtaking_mode = o; };
+	void set_overtaking_mode(overtaking_mode_t o, player_t* calling_player);
 
 	void set_ribi_mask_oneway(ribi_t::ribi ribi) { ribi_mask_oneway = (uint8)ribi; }
 	// used in wegbauer. param @allow is ribi in which vehicles can go. without this, ribi cannot be updated correctly at intersections.
-	void update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow);
+	void update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow, player_t* calling_player);
 	ribi_t::ribi get_ribi_mask_oneway() const { return (ribi_t::ribi)ribi_mask_oneway; }
-	virtual ribi_t::ribi get_ribi() const;
+	ribi_t::ribi get_ribi() const OVERRIDE;
 
-	virtual void rotate90();
-	image_id get_front_image() const {return show_masked_ribi ? skinverwaltung_t::ribi_arrow->get_image_id(get_ribi()) : weg_t::get_front_image();}
+	void rotate90() OVERRIDE;
+
+	image_id get_front_image() const OVERRIDE
+	{
+		if (show_masked_ribi && overtaking_mode <= oneway_mode) {
+			return skinverwaltung_t::ribi_arrow->get_image_id(get_ribi());
+		}
+		else {
+			return weg_t::get_front_image();
+		}
+	}
+
+	PLAYER_COLOR_VAL get_outline_colour() const OVERRIDE
+	{
+		uint8 restriction_colour;
+		switch (overtaking_mode)
+		{
+			case halt_mode:
+			case prohibited_mode:
+			case oneway_mode:
+				restriction_colour = overtaking_mode_to_color(overtaking_mode);
+				break;
+			case invalid_mode:
+			case twoway_mode:
+			default:
+				return 0;
+		}
+		return (show_masked_ribi && restriction_colour) ? TRANSPARENT75_FLAG | OUTLINE_FLAG | restriction_colour : 0;
+	}
+
+	static uint8 overtaking_mode_to_color(overtaking_mode_t o) {
+		switch (o)
+		{
+			// Do not set the lightest color to make a difference between the tile color and the text color
+			case halt_mode:
+				return COL_LIGHT_PURPLE - 1;
+			case prohibited_mode:
+				return COL_ORANGE + 1;
+			case oneway_mode:
+				return 22;
+			case invalid_mode:
+			case twoway_mode:
+			default:
+				return COL_WHITE-1;
+		}
+		return 0;
+	}
 };
 
 #endif

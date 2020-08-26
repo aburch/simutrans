@@ -274,11 +274,11 @@ protected:
 	bool look_toolbar = false;
 
 	virtual way_desc_t const* get_desc(uint16, bool) const;
-	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
+	bool calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
 
 public:
 	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), desc() {
-		overtaking_mode = twoway_mode;
+		overtaking_mode = invalid_mode;
 	}
 	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE;
@@ -323,7 +323,7 @@ private:
 public:
 	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) {
 		way_desc = NULL;
-		overtaking_mode = twoway_mode;
+		overtaking_mode = invalid_mode;
 	}
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
 	char const* get_tooltip(player_t const*) const OVERRIDE;
@@ -851,8 +851,22 @@ public:
 class tool_convoy_nameplate_t : public tool_t {
 public:
 	tool_convoy_nameplate_t() : tool_t(TOOL_CONVOY_NAMEPLATES | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("switch the convoy nameplate display mode"); }
 	bool init(player_t *) OVERRIDE {
-		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + 1) % 3;
+		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + 1) % 4;
+		welt->set_dirty();
+		return false;
+	}
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+};
+
+class tool_convoy_loadingbar_t : public tool_t {
+public:
+	tool_convoy_loadingbar_t() : tool_t(TOOL_CONVOY_LOADINGBAR | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("switch the convoy loading bar display mode"); }
+	bool init(player_t *) OVERRIDE {
+		env_t::show_cnv_loadingbar = (env_t::show_cnv_loadingbar + 1) % 4;
 		welt->set_dirty();
 		return false;
 	}
@@ -1001,7 +1015,7 @@ public:
 	tool_vehicle_tooltips_t() : tool_t(TOOL_VEHICLE_TOOLTIPS | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Toggle vehicle tooltips"); }
 	bool init( player_t * ) OVERRIDE {
-		env_t::show_vehicle_states = (env_t::show_vehicle_states+1)%3;
+		env_t::show_vehicle_states = (env_t::show_vehicle_states+1)%4;
 		welt->set_dirty();
 		return false;
 	}

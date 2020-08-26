@@ -473,6 +473,8 @@ settings_t::settings_t() :
 
 	tolerance_modifier_percentage = 100;
 
+	industry_density_proportion_override = 0;
+
 	max_route_tiles_to_process_in_a_step = 2048;
 
 	for(uint8 i = 0; i < 17; i ++)
@@ -969,7 +971,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_version()>102001)
 		{
-			bool dummy;
+			bool dummy = false;
 			file->rdwr_bool(dummy);
 			file->rdwr_bool(with_private_paks);
 		}
@@ -1840,7 +1842,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 25))
 		{
-			file->rdwr_long(tolerance_modifier_percentage); 
+			file->rdwr_long(tolerance_modifier_percentage);
 		}
 		else if (file->is_loading())
 		{
@@ -1857,9 +1859,9 @@ void settings_t::rdwr(loadsave_t *file)
 
 				FOR(vector_tpl<region_definition_t>, region, regions)
 				{
-					region.top_left.rdwr(file); 
+					region.top_left.rdwr(file);
 					region.bottom_right.rdwr(file);
-					file->rdwr_string(region.name); 
+					file->rdwr_string(region.name);
 				}
 			}
 			else // Loading
@@ -1874,8 +1876,28 @@ void settings_t::rdwr(loadsave_t *file)
 					r.top_left.rdwr(file);
 					r.bottom_right.rdwr(file);
 					file->rdwr_string(r.name);
-					regions.append(r); 
+					regions.append(r);
 				}
+			}
+		}
+
+		if (file->get_extended_version() >= 15 || file->get_extended_version() == 14 && file->get_extended_revision() >= 30)
+		{
+			if (!env_t::server)
+			{
+				file->rdwr_long(industry_density_proportion_override);
+			}
+			else
+			{
+				uint32 idpo = industry_density_proportion_override;
+				file->rdwr_long(idpo); // Do not load this value if running a server - allow this to be an override whatever the general override settings.
+			}
+		}
+		else if (file->is_loading())
+		{
+			if (!env_t::server)
+			{
+				industry_density_proportion_override = 0;
 			}
 		}
 	}
@@ -2615,7 +2637,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	max_elevated_way_building_level = (uint8)contents.get_int("max_elevated_way_building_level", max_elevated_way_building_level);
 
-	tolerance_modifier_percentage = contents.get_int("tolerance_modifier_percentage", tolerance_modifier_percentage); 
+	tolerance_modifier_percentage = contents.get_int("tolerance_modifier_percentage", tolerance_modifier_percentage);
+
+	industry_density_proportion_override = contents.get_int("industry_density_proportion_override", industry_density_proportion_override);
 
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 
@@ -2825,8 +2849,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		int* ul = contents.get_ints(upper_left);
 		int* lr = contents.get_ints(lower_right);
 
-		uint32 x_percent;
-		uint32 y_percent;
+		uint32 x_percent = 0;
+		uint32 y_percent = 0;
 		region_definition_t r;
 
 		if ((ul[0] & 1) == 1)
@@ -2834,6 +2858,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 			dbg->message("void settings_t::parse_simuconf(", "Ill formed line in config/simuconf.tab.\nWill use default value. Format is region_upper_left[percent]=x,y");
 			break;
 		}
+
 		for (int i = 1; i < ul[0]; i += 2)
 		{
 			x_percent = (uint32)ul[i];
@@ -2906,7 +2931,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 		r.name = region_name;
 
-		regions.append(r); 
+		regions.append(r);
 	}
 
 	/*
@@ -3040,7 +3065,7 @@ void settings_t::reset_regions(sint32 old_x, sint32 old_y)
 	regions.clear();
 	FOR(vector_tpl<region_definition_t>, region, temp_regions)
 	{
-		regions.append(region); 
+		regions.append(region);
 	}
 }
 

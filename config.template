@@ -8,9 +8,7 @@
 # copy this file to config.default and adjust the settings
 #
 
-#BACKEND = allegro
 #BACKEND = gdi
-#BACKEND = opengl
 #BACKEND = sdl
 #BACKEND = sdl2
 #BACKEND = mixer_sdl
@@ -46,7 +44,6 @@ MULTI_THREAD = 1 # Enable multithreading
 #AV_FOUNDATION = 1  # Use AVFoundation instead of QTKit. If you are using macOS 10.12 or later, this must be enabled.
 
 # Define these as empty strings, if you don't have the respective config program
-#ALLEGRO_CONFIG = allegro-config
 #PNG_CONFIG     = pkg-config libpng
 #SDL_CONFIG     = sdl-config
 #SDL2_CONFIG    = sdl2-config

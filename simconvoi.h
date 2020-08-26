@@ -115,6 +115,8 @@ public:
 		EMERGENCY_STOP,
 		ROUTE_JUST_FOUND,
 		NO_ROUTE_TOO_COMPLEX,
+		WAITING_FOR_LOADING_THREE_MONTHS,
+		WAITING_FOR_LOADING_FOUR_MONTHS,
 		MAX_STATES
 	};
 
@@ -436,7 +438,7 @@ private:
 	 * The convoi is not processed every sync step for various actions
 	 * (like waiting before signals, loading etc.) Such action will only
 	 * continue after a waiting time larger than wait_lock
-	 * @author Hanjsörg Malthaner
+	 * @author HanjsÃ¶rg Malthaner
 	 */
 	sint32 wait_lock;
 
@@ -454,7 +456,7 @@ private:
 
 	/**
 	* accumulated profit over a year
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	sint64 jahresgewinn;
 
@@ -504,7 +506,7 @@ private:
 
 	/**
 	* Calculate route from Start to Target Coordinate
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	bool drive_to();
 
@@ -518,13 +520,13 @@ private:
 	/**
 	* Setup vehicles for moving in same direction than before
 	* if the direction is the same as before
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	bool can_go_alte_direction();
 
 	/**
 	* Mark first and last vehicle.
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	void set_erstes_letztes();
 
@@ -886,13 +888,15 @@ public:
 	int get_state() const { return state; }
 
 	// In any of these states, user interaction should not be possible.
-	bool is_locked() const { return state == convoi_t::EDIT_SCHEDULE || state == convoi_t::ROUTING_2 || state == convoi_t::ROUTE_JUST_FOUND; }
+	bool is_locked() const { return state == EDIT_SCHEDULE || state == ROUTING_2 || state == ROUTE_JUST_FOUND; }
+
+	bool is_loading() const { return state == LOADING || state == WAITING_FOR_LOADING_THREE_MONTHS || state == WAITING_FOR_LOADING_FOUR_MONTHS; }
 
 	/**
 	* true if in waiting state (maybe also due to starting)
 	* @author hsiegeln
 	*/
-	bool is_waiting() { return (state>=WAITING_FOR_CLEARANCE  &&  state<=CAN_START_TWO_MONTHS)  &&  state!=SELF_DESTRUCT; }
+	bool is_waiting() const { return (state>=WAITING_FOR_CLEARANCE  &&  state<=CAN_START_TWO_MONTHS)  &&  state!=SELF_DESTRUCT; }
 
 	/**
 	* reset state to no error message
@@ -903,13 +907,13 @@ public:
 	/**
 	* The handle for ourselves. In Anlehnung an 'this' aber mit
 	* allen checks beim Zugriff.
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	convoihandle_t self;
 
 	/**
 	 * The profit in this year
-	 * @author Hanjsörg Malthaner
+	 * @author HanjsÃ¶rg Malthaner
 	 */
 	inline const sint64 & get_jahresgewinn() const {return jahresgewinn;}
 
@@ -1016,6 +1020,7 @@ public:
 	 */
 	inline uint32 get_sum_power() {return get_continuous_power();}
 	inline sint32 get_min_top_speed() {return get_vehicle_summary().max_sim_speed;}
+	inline sint32 get_max_power_speed() OVERRIDE {return get_min_top_speed();}
 
 	/// @returns weight of the convoy's vehicles (excluding freight)
 	inline sint64 get_sum_weight() {return get_vehicle_summary().weight;}
@@ -1080,7 +1085,7 @@ public:
 	/**
 	* When a vehicle has detected a problem
 	* force calculate a new route
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	void suche_neue_route();
 
@@ -1197,6 +1202,7 @@ public:
 	sint32 get_max_signal_speed() const { return max_signal_speed; }
 
 	inline void set_wait_lock(sint32 value) { wait_lock = value; }
+	inline sint32 get_wait_lock() { return wait_lock; }
 
 	bool check_destination_reverse(route_t* current_route = NULL, route_t* target_rt = NULL);
 
@@ -1249,7 +1255,7 @@ public:
 
 	/**
 	* Setup vehicles before starting to move
-	* @author Hanjsörg Malthaner
+	* @author HanjsÃ¶rg Malthaner
 	*/
 	void vorfahren();
 
@@ -1426,7 +1432,7 @@ public:
 	bool has_same_vehicles(convoihandle_t other) const;
 
 	// Go to depot, if possible
-	bool go_to_depot(bool show_success, bool use_home_depot = false);
+	bool go_to_depot(bool show_success = true, bool use_home_depot = false);
 
 	// True if convoy has no cargo
 	//@author: isidoro

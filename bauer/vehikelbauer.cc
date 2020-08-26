@@ -245,6 +245,9 @@ const vehicle_desc_t *vehicle_builder_t::vehicle_search( waytype_t wt, const uin
 			uint16 payload_per_maintenance;
 			long index;
 		} best, test;
+
+		best.power = 0;
+		best.payload_per_maintenance = 0;
 		best.index = -100000;
 
 		const vehicle_desc_t *desc = NULL;

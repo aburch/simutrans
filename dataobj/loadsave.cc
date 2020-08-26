@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <errno.h>
 
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simtypes.h"
 #include "../macros.h"
 #include "../simversion.h"
@@ -529,7 +529,7 @@ const char *loadsave_t::close()
 		write( end, strlen(end) );
 	}
 	if(  is_zipped()  &&  fd->gzfp) {
-		int err_no;
+		int err_no = Z_OK;
 		const char *err_str = gzerror( fd->gzfp, &err_no );
 		if(err_no!=Z_OK  &&  err_no!=Z_STREAM_END) {
 			success =  err_no==Z_ERRNO ? strerror(errno) : err_str;

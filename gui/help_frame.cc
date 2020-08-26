@@ -8,7 +8,7 @@
 #include "../simmem.h"
 #include "../gui/simwin.h"
 #include "../simmenu.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simworld.h"
 
 #include "../utils/cbuffer_t.h"

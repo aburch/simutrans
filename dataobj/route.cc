@@ -41,7 +41,7 @@
 
 
 #ifdef DEBUG_ROUTES
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #endif
 
 bool route_t::suspend_private_car_routing = false;
@@ -308,11 +308,13 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 #ifdef MULTI_THREAD
 						int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 						assert(error == 0);
+						(void)error;
 #endif
 						origin_city->add_road_connexion(10, destination_city);
 #ifdef MULTI_THREAD
 						error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 						assert(error == 0);
+						(void)error;
 #endif
 					}
 					else if(origin_city)
@@ -321,11 +323,13 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 #ifdef MULTI_THREAD
 						int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 						assert(error == 0);
+						(void)error;
 #endif
 						origin_city->add_road_connexion(tmp->g / straight_line_distance, welt->access(k.get_2d())->get_city());
 #ifdef MULTI_THREAD
 						error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 						assert(error == 0);
+						(void)error;
 #endif
 					}
 				}
@@ -348,7 +352,15 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 							continue;
 						}
 
-						const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k.get_2d());
+						uint16 straight_line_distance;
+						if (origin_city)
+						{
+							straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k.get_2d());
+						}
+						else
+						{
+							straight_line_distance = shortest_distance(start.get_2d(), k.get_2d());
+						}
 						uint16 journey_time_per_tile;
 						if(straight_line_distance == 0)
 						{
@@ -365,11 +377,13 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 #ifdef MULTI_THREAD
 							int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 							assert(error == 0);
+							(void)error;
 #endif
 							origin_city->add_road_connexion(journey_time_per_tile, destination_industry);
 #ifdef MULTI_THREAD
 							error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 							assert(error == 0);
+							(void)error;
 #endif
 #if 0
 							if (destination_city)
@@ -379,16 +393,18 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 							}
 #endif
 						}
-						else if (origin_city && gb->is_attraction())
+						else if (origin_city && gb && gb->is_attraction())
 						{
 #ifdef MULTI_THREAD
 							int error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
 							assert(error == 0);
+							(void)error;
 #endif
 							origin_city->add_road_connexion(journey_time_per_tile, gb);
 #ifdef MULTI_THREAD
 							error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 							assert(error == 0);
+							(void)error;
 #endif
 #if 0
 							if (!destination_city)
@@ -495,7 +511,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 
 				weg_t* w = to->get_weg(tdriver->get_waytype());
 
-				if (is_tall && w && w->is_height_restricted())
+				if (is_tall && to->is_height_restricted())
 				{
 					// Tall vehicles cannot pass under low bridges
 					continue;
@@ -571,7 +587,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 						}
 						else if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL)
 						{
-							// discourage 90° turns
+							// discourage 90ï¿½ turns
 							k->g += 10;
 						}
 					}
@@ -643,7 +659,8 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 	return next_ribi;
 }
 
-route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t* const tdriver, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, bool is_tall, const sint32 tile_length, koord3d avoid_tile, uint8 start_dir)
+
+route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t* const tdriver, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, bool is_tall, const sint32 tile_length, koord3d avoid_tile, uint8 start_dir, find_route_flags flags)
 {
 	route_result_t ok = no_route;
 
@@ -666,7 +683,7 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 	// some thing for the search
 	const waytype_t wegtyp = tdriver->get_waytype();
 	const bool is_airplane = tdriver->get_waytype()==air_wt;
-	const uint32 cost_upslope = tdriver->get_cost_upslope();
+	const uint32 cost_upslope = flags == simple_cost ? 0 : tdriver->get_cost_upslope();
 
 	/* On water we will try jump point search (jps):
 	 * - If going straight do not turn, only if near an obstacle.
@@ -824,7 +841,7 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 				}
 
 				// Low bridges
-				if (is_tall && w && w->is_height_restricted())
+				if (is_tall && to->is_height_restricted())
 				{
 					continue;
 				}
@@ -929,18 +946,18 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 				}
 
 				// new values for cost g (without way it is either in the air or in water => no costs)
-				const int way_cost = tdriver->get_cost(to, max_speed, tmp->gr->get_pos().get_2d()) + (is_overweight == slowly_only ? 400 : 0);
-				uint32 new_g = tmp->g + (w ? way_cost : 10);
+				const int way_cost = flags == simple_cost ? 1 : tdriver->get_cost(to, max_speed, tmp->gr->get_pos().get_2d()) + (is_overweight == slowly_only ? 400 : 0);
+				uint32 new_g = tmp->g + (w ? way_cost : flags == simple_cost ? 1 : 10);
 
 				// check for curves (usually, one would need the lastlast and the last;
 				// if not there, then we could just take the last
 				uint8 current_dir;
-				if (tmp->parent != NULL) {
+				if (tmp->parent != NULL && flags != simple_cost) {
 					current_dir = next_ribi[r] | tmp->ribi_from;
 					if (tmp->dir != current_dir) {
 						new_g += 30;
 						if (tmp->parent->dir != tmp->dir  &&  tmp->parent->parent != NULL) {
-							// discourage 90° turns
+							// discourage 90ï¿½ turns
 							new_g += 10;
 						}
 						else if (ribi_t::is_perpendicular(tmp->dir, current_dir))
@@ -961,7 +978,7 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 
 				// count how many 45 degree turns are necessary to get to target
 				sint8 turns = 0;
-				if (dist > 1) {
+				if (dist > 1 && flags != simple_cost) {
 					ribi_t::ribi to_target = ribi_type(to->get_pos(), ziel);
 
 					if (to_target && (to_target != current_dir)) {
@@ -1183,9 +1200,9 @@ void route_t::postprocess_water_route(karte_t *welt)
 /* searches route, uses intern_calc_route() for distance between stations
  * handles only driving in stations by itself
  * corrected 12/2005 for station search
- * @author Hansjörg Malthaner, prissi
+ * @author Hansjï¿½rg Malthaner, prissi
  */
- route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t* const tdriver, const sint32 max_khm, const uint32 axle_load, bool is_tall, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight, koord3d avoid_tile, uint8 direction)
+ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t* const tdriver, const sint32 max_khm, const uint32 axle_load, bool is_tall, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight, koord3d avoid_tile, uint8 direction, find_route_flags flags)
 {
 	route.clear();
 	const uint32 distance = shortest_distance(start.get_2d(), ziel.get_2d()) * 600;
@@ -1203,7 +1220,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 	// profiling for routes ...
 	long ms=dr_time();
 #endif
-	route_result_t ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, max_cost, axle_load, convoy_weight, is_tall, max_len, avoid_tile, direction);
+	route_result_t ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, max_cost, axle_load, convoy_weight, is_tall, max_len, avoid_tile, direction, flags);
 #ifdef DEBUG_ROUTES
 	if(tdriver->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
 #endif

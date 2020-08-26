@@ -65,7 +65,7 @@
 #include "../gui/messagebox.h"
 
 #ifdef DEBUG_ROUTES
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #endif
 
 // built bridges automatically
@@ -106,6 +106,22 @@ static void set_default(way_desc_t const*& def, waytype_t const wtyp, systemtype
 
 bool way_builder_t::successfully_loaded()
 {
+	FOR(stringhashtable_tpl<way_desc_t *>, & i, desc_table) {
+		way_desc_t *desc = (way_desc_t *)i.value;
+		if(  desc->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
+			// add the tool
+			tool_build_way_t *tool = new tool_build_way_t();
+			tool->set_icon( desc->get_cursor()->get_image_id(1) );
+			tool->cursor = desc->get_cursor()->get_image_id(0);
+			tool->set_default_param(desc->get_name());
+			tool_t::general_tool.append( tool );
+			desc->set_builder( tool );
+		}
+		else {
+			desc->set_builder( NULL );
+		}
+	}
+
 	// some defaults to avoid hardcoded values
 	set_default(strasse_t::default_strasse,         road_wt,        type_flat, 50);
 	if(  strasse_t::default_strasse == NULL ) {
@@ -137,18 +153,6 @@ bool way_builder_t::register_desc(way_desc_t *desc)
 		delete old_desc;
 	}
 
-	if(  desc->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
-		// add the tool
-		tool_build_way_t *tool = new tool_build_way_t();
-		tool->set_icon( desc->get_cursor()->get_image_id(1) );
-		tool->cursor = desc->get_cursor()->get_image_id(0);
-		tool->set_default_param(desc->get_name());
-		tool_t::general_tool.append( tool );
-		desc->set_builder( tool );
-	}
-	else {
-		desc->set_builder( NULL );
-	}
 	desc_table.put(desc->get_name(), desc);
 	return true;
 }
@@ -511,8 +515,8 @@ bool way_builder_t::check_slope( const grund_t *from, const grund_t *to )
 	const koord zv=to_pos-from_pos;
 
 	if(  !desc->has_double_slopes()
-		&&  (    (from->get_weg_hang()  &&  !(from->get_weg_hang() & 7))
-		      ||   (to->get_weg_hang()  &&    !(to->get_weg_hang() & 7))  )  ) {
+		&&  (    (from->get_weg_hang()  &&  !is_one_high(from->get_weg_hang()))
+		      ||   (to->get_weg_hang()  &&    !is_one_high(to->get_weg_hang()))  )  ) {
 		return false;
 	}
 
@@ -1171,21 +1175,21 @@ bool way_builder_t::check_terraforming( const grund_t *from, const grund_t *to, 
 		const uint8 m_to = (middle >> 1) - to_hgt;
 
 		// write middle heights
-		if(  dir ==  koord::north  ) {
-			*new_from_slope = corner_sw(from_slope) + corner_se(from_slope) * 3 + m_from * 9              + m_from * 27;
-			*new_to_slope =   m_to                + m_to * 3                + corner_ne(to_slope) * 9   + corner_nw(to_slope) * 27;
+		if(  dir == koord::north  ) {
+			*new_from_slope = encode_corners(corner_sw(from_slope), corner_se(from_slope), m_from, m_from);
+			*new_to_slope =   encode_corners(m_to, m_to, corner_ne(to_slope), corner_nw(to_slope));
 		}
 		else if(  dir == koord::east  ) {
-			*new_from_slope = corner_sw(from_slope) + m_from * 3              + m_from * 9              + corner_nw(from_slope) * 27;
-			*new_to_slope =   m_to                + corner_se(to_slope) * 3   + corner_ne(to_slope) * 9   + m_to * 27;
+			*new_from_slope = encode_corners(corner_sw(from_slope), m_from, m_from, corner_nw(from_slope));
+			*new_to_slope =   encode_corners(m_to, corner_se(to_slope), corner_ne(to_slope), m_to);
 		}
 		else if(  dir == koord::south  ) {
-			*new_from_slope = m_from              + m_from * 3              + corner_ne(from_slope) * 9 + corner_nw(from_slope) * 27;
-			*new_to_slope =   corner_sw(to_slope)   + corner_se(to_slope) * 3   + m_to * 9                + m_to * 27;
+			*new_from_slope = encode_corners(m_from, m_from, corner_ne(from_slope), corner_nw(from_slope));
+			*new_to_slope =   encode_corners(corner_sw(to_slope), corner_se(to_slope), m_to, m_to);
 		}
 		else if(  dir == koord::west  ) {
-			*new_from_slope = m_from              + corner_se(from_slope) * 3 + corner_ne(from_slope) * 9 + m_from * 27;
-			*new_to_slope =   corner_sw(to_slope)   + m_to * 3                + m_to * 9                + corner_nw(to_slope) * 27;
+			*new_from_slope = encode_corners(m_from, corner_se(from_slope), corner_ne(from_slope), m_from);
+			*new_to_slope =   encode_corners(corner_sw(to_slope), m_to, m_to, corner_nw(to_slope));
 		}
 		return true;
 	}
@@ -1207,16 +1211,16 @@ void way_builder_t::do_terraforming()
 		bool changed = false;
 		// change slope of from
 		if(  from_slope != from->get_grund_hang()  ) {
-			if(  from_slope == slope_t::raised  ) {
+			if(  from_slope == slope_t::all_up_two  ) {
 				from->set_hoehe( from->get_hoehe() + 2 );
 				from->set_grund_hang( slope_t::flat );
 				route[i].z = from->get_hoehe();
 			}
-			else if(  from_slope != slope_t::raised / 2  ) {
+			else if(  from_slope != slope_t::all_up_one  ) {
 				// bit of a hack to recognise single height slopes shifted up 1
-				if(  from_slope > slope_t::raised / 2  &&  slope_t::is_single( from_slope-slope_t::raised / 2 )  ) {
+				if(  from_slope > slope_t::all_up_one  &&  slope_t::is_single( from_slope-slope_t::all_up_one )  ) {
 					from->set_hoehe( from->get_hoehe() + 1 );
-					from_slope -= slope_t::raised / 2;
+					from_slope -= slope_t::all_up_one;
 					route[i].z = from->get_hoehe();
 				}
 				from->set_grund_hang( from_slope );
@@ -1234,16 +1238,16 @@ void way_builder_t::do_terraforming()
 		}
 		// change slope of to
 		if(  to_slope != to->get_grund_hang()  ) {
-			if(  to_slope == slope_t::raised  ) {
+			if(  to_slope == slope_t::all_up_two  ) {
 				to->set_hoehe( to->get_hoehe() + 2 );
 				to->set_grund_hang( slope_t::flat );
 				route[i + 1].z = to->get_hoehe();
 			}
-			else if(  to_slope != slope_t::raised / 2  ) {
+			else if(  to_slope != slope_t::all_up_one  ) {
 				// bit of a hack to recognise single height slopes shifted up 1
-				if(  to_slope > slope_t::raised / 2  &&  slope_t::is_single( to_slope-slope_t::raised / 2 )  ) {
+				if(  to_slope > slope_t::all_up_one  &&  slope_t::is_single( to_slope-slope_t::all_up_one )  ) {
 					to->set_hoehe( to->get_hoehe() + 1 );
-					to_slope -= slope_t::raised / 2;
+					to_slope -= slope_t::all_up_one;
 					route[i + 1].z = to->get_hoehe();
 				}
 				to->set_grund_hang(to_slope);
@@ -1292,29 +1296,30 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 		switch(  bautyp&bautyp_mask  ) {
 			case schiene_tram:
 			case strasse: {
-				const weg_t *other = way1;
-				if (  way0->get_waytype() != desc->get_wtyp()  ) {
-					if (  way1  ) {
-						// two different ways
-						return;
-					}
-					other = way0;
-				}
-				if (  other  ) {
-					if (  (bautyp&bautyp_mask) == strasse  ) {
-						if (  other->get_waytype() != track_wt  ||  other->get_desc()->get_styp()!=type_tram  ) {
-							// road only on tram
+					const weg_t *other = way1;
+					if (  way0->get_waytype() != desc->get_wtyp()  ) {
+						if (  way1  ) {
+							// two different ways
 							return;
 						}
+						other = way0;
 					}
-					else {
-						if (  other->get_waytype() != road_wt  ) {
-							// tram only on road
-							return;
+					if (  other  ) {
+						if (  (bautyp&bautyp_mask) == strasse  ) {
+							if (  other->get_waytype() != track_wt  ||  other->get_desc()->get_styp()!=type_tram  ) {
+								// road only on tram
+								return;
+							}
+						}
+						else {
+							if (  other->get_waytype() != road_wt  ) {
+								// tram only on road
+								return;
+							}
 						}
 					}
 				}
-			}
+				// fallthrough
 
 			default:
 				if (way0->get_waytype()!=desc->get_wtyp()  ||  way1!=NULL) {
@@ -2020,18 +2025,18 @@ void way_builder_t::calc_straight_route(koord3d start, const koord3d ziel)
 }
 
 
-void way_builder_t::calc_route(const koord3d &start, const koord3d &ziel)
+bool way_builder_t::calc_route(const koord3d &start, const koord3d &ziel)
 {
 	vector_tpl<koord3d> start_vec(1), ziel_vec(1);
 	start_vec.append(start);
 	ziel_vec.append(ziel);
-	calc_route(start_vec, ziel_vec);
+	return calc_route(start_vec, ziel_vec);
 }
 
 /* calc_route
  *
  */
-void way_builder_t::calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
+bool way_builder_t::calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
 {
 #ifdef DEBUG_ROUTES
 uint32 ms = dr_time();
@@ -2066,7 +2071,7 @@ uint32 ms = dr_time();
 			// not successful: try backwards
 			intern_calc_route(ziel,start);
 			route_reversed = false;
-			return;
+			return route_reversed;
 		}
 
 #ifdef REVERSE_CALC_ROUTE_TOO
@@ -2090,6 +2095,7 @@ uint32 ms = dr_time();
 #ifdef DEBUG_ROUTES
 DBG_MESSAGE("calc_route::calc_route", "took %i ms",dr_time()-ms);
 #endif
+	return route_reversed;
 }
 
 void way_builder_t::build_tunnel_and_bridges()
@@ -2100,7 +2106,7 @@ void way_builder_t::build_tunnel_and_bridges()
 	// check for bridges and tunnels (no tunnel/bridge at last/first tile)
 	for(uint32 i=1; i<get_count()-2; i++) {
 		koord d = (route[i + 1] - route[i]).get_2d();
-		koord zv = koord (sgn(d.x), sgn(d.y));
+		const koord zv(ribi_type(d));
 
 		// ok, here is a gap ...
 		if(d.x > 1 || d.y > 1 || d.x < -1 || d.y < -1) {
@@ -2190,14 +2196,8 @@ sint64 way_builder_t::calc_costs()
 	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? welt->get_settings().get_way_height_clearance() : 0 );
 
 	sint32 single_cost = 0;
-	sint32 new_speedlimit;
-
 	if( bautyp&tunnel_flag ) {
 		assert( tunnel_desc );
-		new_speedlimit = tunnel_desc->get_topspeed();
-	}
-	else {
-		new_speedlimit = desc->get_topspeed();
 	}
 
 	// calculate costs for terraforming
@@ -2225,7 +2225,6 @@ sint64 way_builder_t::calc_costs()
 	}
 
 	for(uint32 i=0; i<get_count(); i++) {
-		sint32 old_speedlimit = -1;
 		sint64 replace_cost = 0;
 		bool upgrading = false;
 
@@ -2237,17 +2236,11 @@ sint64 way_builder_t::calc_costs()
 				if( tunnel->get_desc() == tunnel_desc ) {
 					continue; // Nothing to pay on this tile.
 				}
-				old_speedlimit = tunnel->get_desc()->get_topspeed();
 				single_cost = tunnel_desc->get_value();
 			}
 			else {
 				single_cost = desc->get_value();
-				if(  desc->get_wtyp() == powerline_wt  ) {
-					if( leitung_t *lt=gr->get_leitung() ) {
-						old_speedlimit = lt->get_desc()->get_topspeed();
-					}
-				}
-				else {
+				if(  desc->get_wtyp() != powerline_wt  ) {
 					if (weg_t const* const weg = gr->get_weg(desc->get_wtyp())) {
 						replace_cost = weg->get_desc()->get_upgrade_group() == desc->get_upgrade_group() ? desc->get_way_only_cost() : desc->get_value();
 						upgrading = true;
@@ -2258,10 +2251,6 @@ sint64 way_builder_t::calc_costs()
 							// Don't replace a tram on a road with a normal track.
 							continue;
 						}
-						old_speedlimit = weg->get_desc()->get_topspeed();
-					}
-					else if (desc->get_wtyp()==water_wt  &&  gr->is_water()) {
-						old_speedlimit = new_speedlimit;
 					}
 				}
 			}
@@ -2403,7 +2392,7 @@ bool way_builder_t::build_tunnel_tile()
 				if(  tunnel_desc->get_waytype()==road_wt  ) {
 					strasse_t* str = (strasse_t*) weg;
 					assert(str);
-					str->set_overtaking_mode(overtaking_mode);
+					str->set_overtaking_mode(overtaking_mode, player_builder);
 					update_ribi_mask_oneway(str,i);
 				}
 				const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
@@ -2454,7 +2443,7 @@ bool way_builder_t::build_tunnel_tile()
 					if(  tunnel_desc->get_waytype()==road_wt  ) {
 						strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
 						assert(str);
-						str->set_overtaking_mode(overtaking_mode);
+						str->set_overtaking_mode(overtaking_mode, player_builder);
 					}
 					// respect max speed of catenary
 					wayobj_t const* const wo = gr->get_wayobj(tunnel_desc->get_waytype());
@@ -2588,7 +2577,7 @@ void way_builder_t::build_road()
 			{
 				way->set_replacement_way(desc);
 				if(  strasse_t* str = static_cast<strasse_t*>(way)  ) {
-					str -> set_overtaking_mode(overtaking_mode);
+					str -> set_overtaking_mode(overtaking_mode, player_builder);
 				}
 			}
 		}
@@ -2602,7 +2591,7 @@ void way_builder_t::build_road()
 
 				if(  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  ) {
 					// To make changing of overtaking_mode easy, only update overtaking_mode and ribi_mask_oneway
-					str->set_overtaking_mode(overtaking_mode);
+					str->set_overtaking_mode(overtaking_mode, player_builder);
 					update_ribi_mask_oneway(str,i);
 				}
 				// keep faster ways or if it is the same way ... (@author prissi)
@@ -2612,7 +2601,7 @@ void way_builder_t::build_road()
 					||  (  player_builder!=NULL  &&  str-> is_deletable(player_builder)!=NULL  )
 					) {
 					// only update overtaking_mode
-					str->set_overtaking_mode(overtaking_mode);
+					str->set_overtaking_mode(overtaking_mode, player_builder);
 				}
 				else
 				{
@@ -2630,7 +2619,7 @@ void way_builder_t::build_road()
 					}
 
 					str->set_desc(desc);
-					str->set_overtaking_mode(overtaking_mode);
+					str->set_overtaking_mode(overtaking_mode, player_builder);
 					// respect speed limit of crossing
 					str->count_sign();
 					// respect max speed of catenary
@@ -2654,7 +2643,12 @@ void way_builder_t::build_road()
 					}
 					else
 					{
-						str->set_owner(player_builder);
+						if (str->get_owner() != player_builder)
+						{
+							// If taking ownership of a way, must buy the underlying land.
+							str->set_owner(player_builder);
+							cost += welt->get_land_value(gr->get_pos());
+						}
 						// Set maintenance costs here
 						// including corrections for diagonals.
 						str->finish_rd();
@@ -2666,7 +2660,7 @@ void way_builder_t::build_road()
 				str = new strasse_t();
 
 				str->set_desc(desc);
-				str->set_overtaking_mode(overtaking_mode);
+				str->set_overtaking_mode(overtaking_mode, player_builder);
 				if (build_sidewalk) {
 					str->set_gehweg(build_sidewalk);
 					str->set_public_right_of_way();
@@ -3143,27 +3137,31 @@ bool way_builder_t::check_access(const weg_t* way, const player_t* player) const
 }
 
 void way_builder_t::update_ribi_mask_oneway(strasse_t* str, uint32 i) {
+	if (str->is_deletable(player_builder) != NULL) {
+		return;
+	}
 	if(  str->get_overtaking_mode()>oneway_mode  ) {
 		str->set_ribi_mask_oneway(ribi_t::none);
 	} else if(  overtaking_mode<=oneway_mode  &&  get_count()>1   ){ //of course street is oneway_mode
 		if(  i==0  ) {
 			if(  route_reversed  ) {
-				str->update_ribi_mask_oneway(ribi_type(route[0],route[1]),ribi_t::none);
+				str->update_ribi_mask_oneway(ribi_type(route[0],route[1]),ribi_t::none, player_builder);
 			} else {
-				str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));
+				str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]), player_builder);
 			}
 		} else if(  i==get_count()-1  ) {
 			if(  route_reversed  ) {
-				str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[i],route[i-1]));
+				str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[i],route[i-1]), player_builder);
 			} else {
-				str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none);
+				str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none, player_builder);
 			}
 		} else {
 			if(  route_reversed  ) {
-				str->update_ribi_mask_oneway(ribi_type(route[i],route[i+1]),ribi_type(route[i],route[i-1]));
+				str->update_ribi_mask_oneway(ribi_type(route[i],route[i+1]),ribi_type(route[i],route[i-1]), player_builder);
 			} else {
-				str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
+				str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]), player_builder);
 			}
 		}
 	}
 }
+

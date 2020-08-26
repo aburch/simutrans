@@ -9,7 +9,7 @@
 // for the progress bar
 #include "../../simcolor.h"
 #include "../../display/simimg.h"
-#include "../../simsys.h"
+#include "../../sys/simsys.h"
 #include "../../simtypes.h"
 #include "../../simloadingscreen.h"
 

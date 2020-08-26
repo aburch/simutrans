@@ -45,6 +45,8 @@ private:
 	static vector_tpl<vector_tpl<char*> > city_name_list;
 	static vector_tpl<vector_tpl<char*> > street_name_list;
 
+	static void clear_custom_list(vector_tpl<vector_tpl<char *>>&name_list);
+	static void clear_custom_list(vector_tpl<char *>&name_list);
 	static void load_custom_list( int lang, vector_tpl<char*> &name_list, const char *fileprefix );
 
 public:
@@ -61,8 +63,15 @@ public:
 
 	static void init_custom_names(int lang);
 
+	static void delete_all_lists()
+	{
+		clear_custom_list(city_name_list);
+		clear_custom_list(street_name_list);
+	}
+
 	static const vector_tpl<char*> &get_city_name_list(uint8 region) { return city_name_list.get_count() > region && !city_name_list[region].empty() ? city_name_list[region] : city_name_list[0]; }
 	static const vector_tpl<char*> &get_street_name_list(uint8 region) { return street_name_list.get_count() > region && !street_name_list[region].empty() ? street_name_list[region] : street_name_list[0]; }
+
 
 	/**
 	 * Loads up all files of language type from the 'language' directory.

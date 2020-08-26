@@ -91,6 +91,7 @@ private:
 	// always needed
 	button_t bt_add, bt_insert, bt_remove; // stop management
 	button_t bt_bidirectional, bt_mirror, bt_wait_for_time, bt_same_spacing_shift;
+	button_t filter_btn_all_pas, filter_btn_all_mails, filter_btn_all_freights;
 
 	button_t bt_wait_prev, bt_wait_next;	// waiting in parts of month
 	gui_label_t lb_wait, lb_waitlevel_as_clock;
@@ -124,6 +125,10 @@ private:
 
 	// changes the waiting/loading levels if allowed
 	void update_selection();
+
+	// pas=1, mail=2, freight=3
+	uint8 line_type_flags = 0;
+
 protected:
 	schedule_t *schedule;
 	schedule_t* old_schedule;

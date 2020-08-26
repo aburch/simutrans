@@ -182,7 +182,7 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(enables);
 	chk->input(distribution_weight);
 	chk->input((uint8)allowed_climates);
-	chk->input(allowed_regions); 
+	chk->input(allowed_regions);
 	chk->input(maintenance);
 	chk->input(price);
 	chk->input(capacity);

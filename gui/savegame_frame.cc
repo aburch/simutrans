@@ -10,7 +10,7 @@
 
 #include "savegame_frame.h"
 #include "../pathes.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simdebug.h"
 #include "../gui/simwin.h"
 #include "../utils/simstring.h"
@@ -972,7 +972,7 @@ void savegame_frame_t::shorten_path(char *dest,const char *source,const size_t m
 	const int odd = max_size%2;
 
 	strncpy(dest,source,half-1);
-	strncpy(&dest[half-1],"...",3);
+	strncpy(&dest[half-1],"...",4);
 	strcpy(&dest[half+2],&source[orig_size-half+2-odd]);
 
 }

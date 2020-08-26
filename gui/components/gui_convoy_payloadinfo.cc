@@ -34,7 +34,6 @@ void gui_convoy_payloadinfo_t::draw(scr_coord offset)
 			if (catg_index == goods_manager_t::INDEX_PAS || catg_index == goods_manager_t::INDEX_MAIL)
 			{
 				const uint8 classes = catg_index == goods_manager_t::INDEX_PAS ? goods_manager_t::passengers->get_number_of_classes() : goods_manager_t::mail->get_number_of_classes();
-				char g_class_untranslated[32] = "\0";
 				for (uint8 i = 0; i < classes; i++) {
 					capacity = cnv->get_unique_fare_capacity(catg_index, i);
 					cargo_sum = cnv->get_total_cargo_by_fare_class(catg_index, i);
@@ -44,18 +43,9 @@ void gui_convoy_payloadinfo_t::draw(scr_coord offset)
 						display_color_img(goods_manager_t::get_info_catg_index(catg_index)->get_catg_symbol(), offset.x + left, offset.y, 0, false, false);
 						left += 12;
 						// [class name]
-						// TODO: clean up (also convoi_detail_t.cc)
-						if (catg_index == goods_manager_t::INDEX_PAS)
-						{
-							sprintf(g_class_untranslated, "p_class[%u]",i);
-						}
-						if (catg_index == goods_manager_t::INDEX_MAIL)
-						{
-							sprintf(g_class_untranslated, "m_class[%u]", i);
-						}
-						buf.printf("%s ", translator::translate(g_class_untranslated));
+						buf.append(goods_manager_t::get_translated_wealth_name(catg_index, i));
 
-						buf.printf("%i/%i", cargo_sum, capacity);
+						buf.printf(" %i/%i", cargo_sum, capacity);
 						left += display_proportional_clip(offset.x + left, offset.y, buf, ALIGN_LEFT, overcrowded ? COL_OVERCROWD - 1 : SYSCOL_TEXT, true);
 						left += D_H_SPACE * 2;
 					}

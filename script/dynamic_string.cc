@@ -6,7 +6,7 @@
 #include "dynamic_string.h"
 #include "script.h"
 
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simworld.h"
 #include "../network/network.h"
 #include "../network/network_cmd_scenario.h"

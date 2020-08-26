@@ -98,7 +98,7 @@ class dialog_lines_t : public tool_t {
 public:
 	dialog_lines_t() : tool_t(DIALOG_LINEOVERVIEW | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Line Management"); }
-	image_id get_icon(player_t* player) const OVERRIDE{ return /*player && player->is_public_service() ? IMG_EMPTY :*/ icon; }
+	image_id get_icon(player_t *) const OVERRIDE{ return /*player && player->is_public_service() ? IMG_EMPTY :*/ icon; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_line_management_t + welt->get_active_player_nr()); }
 		bool init(player_t* player) OVERRIDE{
 		if (true /*player->get_player_nr() != 1*/) {

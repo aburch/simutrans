@@ -64,7 +64,8 @@
 #define DENS_TRAFFIC							(STOP_WALKER+13)
 #define CONVOI_TOOLTIPS							(DENS_TRAFFIC+13)
 #define CONVOI_NAMEPLATES						(CONVOI_TOOLTIPS+13)
-#define HIGHLITE_SCHEDULE						(CONVOI_NAMEPLATES+13)
+#define CONVOI_LOADINGBAR						(CONVOI_NAMEPLATES+13)
+#define HIGHLITE_SCHEDULE						(CONVOI_LOADINGBAR+13)
 
 #define SEPERATE4	(HIGHLITE_SCHEDULE+13)
 
@@ -88,6 +89,27 @@
 
 // Local params
 #define L_DIALOG_WIDTH (220)
+
+const char *color_gui_t::cnv_tooltip_setting_texts[MAX_CONVOY_TOOLTIP_OPTIONS] = {
+	"convoi mouseover tooltips",
+	"convoi error tooltips",
+	"own convoi tooltips",
+	"all convoi tooltips"
+};
+
+const char *color_gui_t::nameplate_setting_texts[MAX_NAMEPLATE_OPTIONS] = {
+	"no convoy nameplate",
+	"mouseover convoy name",
+	"active player's line name",
+	"always show convoy name"
+};
+
+const char *color_gui_t::loadingbar_setting_texts[MAX_LOADING_BAR_OPTIONS] = {
+	"no convoy loading bar",
+	"mouseover loading bar",
+	"active player's loading bar",
+	"always show loading bar"
+};
 
 
 color_gui_t::color_gui_t() :
@@ -253,6 +275,11 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[25].set_typ(button_t::arrowleft);
 	buttons[26].set_pos(scr_coord(L_DIALOG_WIDTH - 10 - 10 - 2, CONVOI_NAMEPLATES));
 	buttons[26].set_typ(button_t::arrowright);
+	// left/right for convoi loadingbar
+	buttons[27].set_pos(scr_coord(10, CONVOI_LOADINGBAR));
+	buttons[27].set_typ(button_t::arrowleft);
+	buttons[28].set_pos(scr_coord(L_DIALOG_WIDTH - 10 - 10 - 2, CONVOI_LOADINGBAR));
+	buttons[28].set_typ(button_t::arrowright);
 
 	//23, Hide buildings and trees under mouse cursor
 	buttons[++b].set_pos( scr_coord(10,HIDE_UNDER_CURSOR) );
@@ -299,6 +326,8 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	add_component(buttons + 24);
 	add_component(buttons + 25);
 	add_component(buttons + 26);
+	add_component(buttons + 27);
+	add_component(buttons + 28);
 
 	// unused buttons
 	// add_component( buttons+2 );
@@ -366,9 +395,9 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	} else if (&cursor_hide_range==comp) {
 		env_t::cursor_hide_range = cursor_hide_range.get_value();
 	} else if((buttons+0)==comp) {
-		env_t::show_vehicle_states = (env_t::show_vehicle_states+2)%3;
+		env_t::show_vehicle_states = (env_t::show_vehicle_states+(MAX_CONVOY_TOOLTIP_OPTIONS-1))% MAX_CONVOY_TOOLTIP_OPTIONS;
 	} else if((buttons+1)==comp) {
-		env_t::show_vehicle_states = (env_t::show_vehicle_states+1)%3;
+		env_t::show_vehicle_states = (env_t::show_vehicle_states+1)% MAX_CONVOY_TOOLTIP_OPTIONS;
 	} else if((buttons+6)==comp) {
 		buttons[6].pressed ^= 1;
 		env_t::scroll_multi = -env_t::scroll_multi;
@@ -409,7 +438,8 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		grund_t::set_underground_mode(buttons[17].pressed ? grund_t::ugm_none : grund_t::ugm_all, inp_underground_level.get_value());
 		buttons[17].pressed = grund_t::underground_mode == grund_t::ugm_all;
 		// calc new images
-		welt->update_map();
+		welt->update_underground();
+
 		// renew toolbar
 		tool_t::update_toolbars();
 	}
@@ -438,7 +468,8 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		grund_t::set_underground_mode(buttons[21].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
 		buttons[21].pressed = grund_t::underground_mode == grund_t::ugm_level;
 		// calc new images
-		welt->update_map();
+		welt->update_underground();
+
 		// renew toolbar
 		tool_t::update_toolbars();
 	}
@@ -457,7 +488,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		if (grund_t::underground_mode == grund_t::ugm_level) {
 			grund_t::underground_level = inp_underground_level.get_value();
 			// calc new images
-			welt->update_map();
+			welt->update_underground();
 		}
 	}
 	else if ((buttons + 22) == comp) {
@@ -465,10 +496,16 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		buttons[22].pressed ^= 1;
 	}
 	else if ((buttons + 25) == comp) {
-		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + 2) % 3;
+		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + (MAX_NAMEPLATE_OPTIONS-1)) % MAX_NAMEPLATE_OPTIONS;
 	}
 	else if ((buttons + 26) == comp) {
-		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + 1) % 3;
+		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + 1) % MAX_NAMEPLATE_OPTIONS;
+	}
+	else if ((buttons + 27) == comp) {
+		env_t::show_cnv_loadingbar = (env_t::show_cnv_loadingbar + (MAX_LOADING_BAR_OPTIONS-1)) % MAX_LOADING_BAR_OPTIONS;
+	}
+	else if ((buttons + 28) == comp) {
+		env_t::show_cnv_loadingbar = (env_t::show_cnv_loadingbar + 1) % MAX_LOADING_BAR_OPTIONS;
 	}
 
 	welt->set_dirty();
@@ -533,11 +570,11 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	const char *hhc = translator::translate( env_t::hide_buildings==0 ? "no buildings hidden" : (env_t::hide_buildings==1 ? "hide city building" : "hide all building") );
 	display_proportional_clip(x+10+16, y+HIDE_CITY_HOUSES+1, hhc, ALIGN_LEFT, SYSCOL_TEXT, true);
 
-	const char *ctc = translator::translate( env_t::show_vehicle_states==0 ? "convoi error tooltips" : (env_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
-	display_proportional_clip(x+10+16, y+CONVOI_TOOLTIPS+1, ctc, ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional_clip(x+10+16, y+CONVOI_TOOLTIPS+1, translator::translate(cnv_tooltip_setting_texts[env_t::show_vehicle_states]), ALIGN_LEFT, SYSCOL_TEXT, true);
 
-	const char *nameplate_settings = translator::translate(env_t::show_cnv_nameplates == 0 ? "no convoy nameplate" : (env_t::show_cnv_nameplates == 1 ? "mouseover convoy name" : "always show convoy name"));
-	display_proportional_clip(x+10+16, y+CONVOI_NAMEPLATES+1, nameplate_settings, ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional_clip(x+10+16, y+CONVOI_NAMEPLATES+1, translator::translate(nameplate_setting_texts[env_t::show_cnv_nameplates]), ALIGN_LEFT, SYSCOL_TEXT, true);
+
+	display_proportional_clip(x + 10 + 16, y + CONVOI_LOADINGBAR + 1, translator::translate(loadingbar_setting_texts[env_t::show_cnv_loadingbar]), ALIGN_LEFT, SYSCOL_TEXT, true);
 
 	int len=15+display_proportional_clip(x+10, y+FPS_DATA, translator::translate("Frame time:"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	sprintf(buf,"%ld ms", get_frame_time() );

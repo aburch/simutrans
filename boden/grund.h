@@ -111,6 +111,54 @@ public:
 		has_way2 = 128
 	};
 
+	/**
+	 * @brief Back wall corner count.
+	 *
+	 * Number of corners used to produce tile back walls. Visually these corners
+	 * are the left, top and right corners of a tile.
+	 */
+	static size_t const BACK_CORNER_COUNT = 3;
+
+	/**
+	 * @brief Back wall count.
+	 *
+	 * Number of back walls a tile can have. Visually these walls are along the
+	 * top left and right edges of the tile.
+	 */
+	static size_t const BACK_WALL_COUNT = BACK_CORNER_COUNT - 1;
+
+	/**
+	 * @brief Number of wall images per wall.
+	 *
+	 * Number of unique wall image graphics per wall.
+	 */
+	static uint16 const WALL_IMAGE_COUNT = 11;
+
+	/**
+	 * @brief Number of fence images.
+	 *
+	 * Number of unique fence image graphics available. Unlike walls, fence
+	 * images are for an entire tile.
+	 */
+	static uint16 const FENCE_IMAGE_COUNT = 3;
+
+	/**
+	 * @brief Back image ID offset for encoding fences.
+	 *
+	 * The offset used to encode the fence image into a back image ID. Anything
+	 * less than this offset can be considered a wall.
+	 */
+	static sint8 const BIID_ENCODE_FENCE_OFFSET = (sint8)(WALL_IMAGE_COUNT * WALL_IMAGE_COUNT);
+
+	/**
+	 * @brief Maximum distance in tiles that hide test will be performed for.
+	 *
+	 * Maximum distance in tiles that object hide test will be performed for.
+	 * The hide test is needed for correct graphic reproduction of tunnel
+	 * entrances and such.
+	 */
+	static uint16 const MAXIMUM_HIDE_TEST_DISTANCE = 5;
+
 	// just to calculate the offset for skipping the ways ...
 	static uint8 offsets[4];
 
@@ -156,7 +204,7 @@ protected:
 	/**
 	 * Slope (now saved locally), because different grounds need different slopes
 	 */
-	uint8 slope;
+	slope_t::type slope;
 
 	/**
 	 * Image of the walls
@@ -188,7 +236,7 @@ protected:
 	static karte_ptr_t welt;
 
 	// calculates the slope image and sets the draw_as_obj flag correctly
-	void calc_back_image(const sint8 hgt,const sint8 slope_this);
+	void calc_back_image(const sint8 hgt,const slope_t::type slope_this);
 
 	// this is the real image calculation, called for the actual ground image
 	virtual void calc_image_internal(const bool calc_only_snowline_change) = 0;
@@ -235,6 +283,19 @@ public:
 	 * Sets all objects to dirty to prevent artifacts with smart hide cursor
 	 */
 	void set_all_obj_dirty() { objlist.set_all_dirty(); }
+
+	/**
+	 * Updates images after change of underground mode.
+	 */
+	void check_update_underground()
+	{
+		if (ist_tunnel()  ||  ist_bruecke()  ||  is_water()) {
+			calc_image();
+		}
+		else {
+			calc_back_image( get_disp_height(), get_disp_slope() );
+		}
+	}
 
 	/**
 	 * Dient zur Neuberechnung des Bildes, wenn sich die Umgebung
@@ -370,7 +431,7 @@ public:
 	inline void set_pos(koord3d newpos) { pos = newpos;}
 
 	// slope are now maintained locally
-	slope_t::type get_grund_hang() const { return (slope_t::type)slope; }
+	slope_t::type get_grund_hang() const { return slope; }
 	void set_grund_hang(slope_t::type sl) { slope = sl; }
 
 	/**
@@ -418,7 +479,7 @@ public:
 		}
 	}
 
-	void set_hoehe(int h) { pos.z = h;}
+	void set_hoehe(sint8 h) { pos.z = h;}
 
 	// Helper functions for underground modes
 	//
@@ -690,7 +751,7 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	* Strassenbahnschienen duerfen nicht als Kreuzung erkannt werden!
 	* @author V. Meyer, dariok
 	*/
-	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)objlist.bei(1))->get_desc()->get_styp()!=type_tram; }
+	inline bool ist_uebergang() const { return (flags&has_way2)!=0  && ((weg_t*)objlist.bei(1)) && ((weg_t *)objlist.bei(1))->get_desc()->get_styp()!=type_tram; }
 
 	/**
 	* returns the vehicle of a convoi (if there)
@@ -747,6 +808,8 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	 * @author V. Meyer
 	 */
 	sint32 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
+
+	bool is_height_restricted() const;
 
 	bool removing_road_would_disconnect_city_building();
 	bool removing_way_would_disrupt_public_right_of_way(waytype_t wt);
@@ -846,8 +909,7 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 		if(  way_slope != slope  ) {
 			if(  ist_bruecke()  &&  slope  ) {
 				// calculate height quicker because we know that slope exists and is north, south, east or west
-				// single heights are not integer multiples of 8, double heights are
-				h += (slope & 7) ? 1 : 2;
+				h += is_one_high(slope) ? 1 : 2;
 			}
 		}
 

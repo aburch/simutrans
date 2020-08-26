@@ -3,12 +3,12 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SIMSYS_H
-#define SIMSYS_H
+#ifndef SYS_SIMSYS_H
+#define SYS_SIMSYS_H
 
 
 #include <stddef.h>
-#include "simtypes.h"
+#include "../simtypes.h"
 
 // Provide chdir().
 #if defined(_WIN32) && !defined(__CYGWIN__)

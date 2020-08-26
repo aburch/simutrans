@@ -22,7 +22,7 @@ class vehicle_t;
 class schiene_t : public weg_t
 {
 public:
-	enum reservation_type : uint8 	{ block = 0, directional, priority, stale_block, end };
+	enum reservation_type : uint8 	{ block, directional, priority, stale_block, end };
 
 protected:
 	/**
@@ -63,23 +63,30 @@ public:
 	* true, if this rail can be reserved
 	* @author prissi
 	*/
-	bool can_reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t = block, bool check_directions_at_junctions = false) const
+	bool can_reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type rt = block, bool check_directions_at_junctions = false) const
 	{
-		if(t == block)
-		{
-			return !reserved.is_bound() || c == reserved || (type == directional && (dir == direction || dir == ribi_t::all || ((is_diagonal() || ribi_t::is_bend(direction)) && (dir & direction)) || (is_junction() && (dir & direction)))) || (type == priority && true /*Insert real logic here*/);
-		}
-		if(t == directional)
-		{
-			return !reserved.is_bound() || c == reserved || type == priority || (dir == direction || dir == ribi_t::all) || (!check_directions_at_junctions && is_junction());
-		}
-		if(t == priority)
-		{
-			return !reserved.is_bound() || c == reserved; // TODO: Obtain the priority data from the convoy here and comapre it.
-		}
+		switch (rt) {
+			case block:
+				return !reserved.is_bound()
+				|| c == reserved
+				|| (type == directional && (dir == direction || dir == ribi_t::all || ((is_diagonal() || ribi_t::is_bend(direction)) && (dir & direction)) || (is_junction() && (dir & direction))))
+				|| (type == priority && true /*Insert real logic here*/);
 
-		// Fail with non-standard reservation type
-		return false;
+			case directional:
+				return !reserved.is_bound()
+				|| c == reserved
+				|| type == priority
+				|| (dir == direction || dir == ribi_t::all)
+				|| (!check_directions_at_junctions && is_junction());
+
+			case priority:
+				return !reserved.is_bound()
+				|| c == reserved; // TODO: Obtain the priority data from the convoy here and comapre it.
+
+			default:
+				// Fail with non-standard reservation type
+				return false;
+		}
 	}
 
 	/**
@@ -90,7 +97,7 @@ public:
 	bool is_reserved_directional(reservation_type t = directional) const { return reserved.is_bound() && t == type; }
 	bool is_reserved_priority(reservation_type t = priority) const { return reserved.is_bound() && t == type; }
 
-	void set_stale() { type == block ? type = stale_block : type == block /* null code for ternery */ ; }
+	void set_stale() { if (type == block) { type = stale_block; } }
 	bool is_stale() { return type == stale_block; }
 
 	reservation_type get_reservation_type() const { return type != stale_block ? type : block; }
@@ -201,12 +208,12 @@ public:
 	{
 		switch (rt)
 		{
-		case 0:
+		case block:
 		default:
 			return "block_reservation";
-		case 1:
+		case directional:
 			return "directional_reservation";
-		case 2:
+		case priority:
 			return "priority_reservation";
 		};
 	}

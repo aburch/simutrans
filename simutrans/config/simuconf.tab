@@ -349,6 +349,7 @@ allow_underground_transformers = 1
 # At 1, industries will demand enough goods to fill their internal storage initially, then will demand only enough goods to keep up with the demand of their consumers.
 # At 2, industries will demand only enough goods to keep up with the demand of their consumers without trying to fill their internal storage first, but will not demand so many goods that their internal storage is likely to overflow.
 # At 3, industries behave as in 2, save that the internal storage of consumer industries is ignored.
+# At 4, industries will demand goods whenever their internal storage does not have sufficient stock to last until the next delivery is estimated to arrive if the goods were to leave the producing factory now.
 just_in_time = 2
 
 # How much amount in transport is sent before further distribution stops
@@ -405,6 +406,12 @@ rural_industries_no_staff_shortage = 1
 # 3 = ...first, second, then third nearest town
 # ...etc.
 auto_connect_industries_and_attractions_by_road = 4
+
+# This setting allows advanced players or developers retrospectively to edit the industry
+# density proportion of a running game. Do not alter this without a full understanding,
+# or else industry generation might not work properly.
+#  
+#industry_density_proportion_override = 0
 
 ################################# Display settings ################################
 
@@ -463,7 +470,7 @@ random_grounds_probability = 10
 # show random moving animals (n = every n suited tiles, default 1000)
 random_wildlife_probability = 1000
 
-# animate the water each intervall (if images available)
+# animate the water each interval (if images available)
 # costs some time for the additional redraw (~1-3%)
 water_animation_ms = 250
 
@@ -1066,3 +1073,4 @@ remove_dummy_player_months = 24
 
 # Here you can add a message about your server (It will read this file on each joining anew)
 #server_motd_filename =
+

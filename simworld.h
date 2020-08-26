@@ -22,6 +22,7 @@
 #include "dataobj/settings.h"
 #include "network/pwd_hash.h"
 #include "dataobj/loadsave.h"
+#include "dataobj/rect.h"
 
 #include "simware.h"
 
@@ -1147,6 +1148,19 @@ public:
 	void update_map();
 
 	/**
+	 * Recalcs images after change of underground mode.
+	 */
+	void update_underground();
+
+	/**
+	 * @brief Prepares an area of the map to be drawn.
+	 *
+	 * New area is the area that will be prepared. Old area is the area that was
+	 * already prepared. Only the difference between the two rects is prepared.
+	 */
+	void prepare_tiles(rect_t const& new_area, rect_t const& old_area);
+
+	/**
 	 * @returns true if world gets destroyed
 	 */
 	bool is_destroying() const { return destroying; }
@@ -1604,7 +1618,7 @@ public:
 
 	/// Returns the region of the selected co-ordinate.
 	uint8 get_region(koord k) const;
-	static uint8 get_region(koord k, settings_t const* const sets); 
+	static uint8 get_region(koord k, settings_t const* const sets);
 
 	/// Returns the region name of the selected co-ordinate
 	std::string get_region_name(koord k) const;
@@ -2616,6 +2630,11 @@ public:
 
 	const checklist_t& get_last_checklist() const { return LCHKLST(sync_steps); }
 	uint32 get_last_checklist_sync_step() const { return sync_steps; }
+
+	void clear_checklist_history();
+	void clear_checklist_debug_sums();
+	void clear_checklist_rands();
+	void clear_all_checklists();
 
 	void command_queue_append(network_world_command_t*) const;
 

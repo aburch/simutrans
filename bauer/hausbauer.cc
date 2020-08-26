@@ -55,7 +55,7 @@ vector_tpl<const building_desc_t *> hausbauer_t::unbuilt_monuments;
  * List of all registered house descriptors.
  * Allows searching for a desc by its name
  */
-static stringhashtable_tpl<const building_desc_t*> desc_names;
+static stringhashtable_tpl<building_desc_t *> desc_names;
 
 const building_desc_t *hausbauer_t::elevated_foundation_desc = NULL;
 
@@ -141,8 +141,8 @@ static bool compare_station_desc(const building_desc_t* a, const building_desc_t
 
 bool hausbauer_t::successfully_loaded()
 {
-	FOR(stringhashtable_tpl<building_desc_t const*>, const& i, desc_names) {
-		building_desc_t const* const desc = i.value;
+	FOR(stringhashtable_tpl<building_desc_t *>, & i, desc_names) {
+		building_desc_t *const desc = i.value;
 
 		// now insert the besch into the correct list.
 		switch (desc->get_type()) {
@@ -191,7 +191,7 @@ bool hausbauer_t::successfully_loaded()
 					elevated_foundation_desc = desc;
 					break;
 				}
-				/* no break */
+				// fallthrough
 
 			default:
 				// obsolete object, usually such pak set will not load properly anyway (old objects should be caught before!)
@@ -200,21 +200,58 @@ bool hausbauer_t::successfully_loaded()
 
 		// Casting away the const is nasty:
 		const_cast<building_desc_t *>(desc)->fix_number_of_classes();
+
+		// probably needs a tool if it has a cursor
+		const skin_desc_t *sd = desc->get_cursor();
+		if(  sd  &&  sd->get_image_id(1)!=IMG_EMPTY) {
+			tool_t *tool;
+			if(  desc->get_type()==building_desc_t::depot  ) {
+				tool = new tool_build_depot_t();
+			}
+			else if(  desc->get_type()==building_desc_t::headquarters  ) {
+				tool = new tool_headquarter_t();
+			}
+			else if(desc->is_signalbox())
+			{
+				tool = new tool_signalbox_t();
+				modifiable_station_buildings.append(desc);
+			}
+			else {
+				tool = new tool_build_station_t();
+				modifiable_station_buildings.append(desc);
+			}
+			tool->set_icon( desc->get_cursor()->get_image_id(1) );
+			tool->cursor = desc->get_cursor()->get_image_id(0),
+			tool->set_default_param(desc->get_name());
+			tool_t::general_tool.append( tool );
+			desc->set_builder( tool );
+		}
+		else {
+			desc->set_builder( NULL );
+		}
+
+		/* Supply the tiles with a pointer back to the matching description.
+		 * This is necessary since each building consists of separate tiles,
+		 * even if it is part of the same description (building_desc_t)
+		 */
+		const int max_index = desc->get_all_layouts() * desc->get_size().x * desc->get_size().y;
+		for( int i=0;  i<max_index;  i++  )
+		{
+			const_cast<building_tile_desc_t *>(desc->get_tile(i))->set_desc(desc);
+			const_cast<building_tile_desc_t *>(desc->get_tile(i))->set_modifiable_desc(desc);
+		}
 	}
 
 	// now sort them according level
 	warn_missing_objects(special_objects);
+
 	return true;
 }
 
 
 bool hausbauer_t::register_desc(building_desc_t *desc)
 {
-	// We might still need to fix the number of classes, so the const will
-	// be casted away (temporarily) in succesfully_loaded()
-	const building_desc_t* const_desc = desc;
-
-	::register_desc(special_objects, const_desc);
+	::register_desc(special_objects, desc);
 
 	// avoid duplicates with same name
 	const building_desc_t *old_desc = desc_names.get(desc->get_name());
@@ -231,46 +268,9 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 		delete old_desc->get_builder();
 		delete old_desc;
 	}
-	// probably needs a tool if it has a cursor
-	const skin_desc_t *sd = desc->get_cursor();
-	if(  sd  &&  sd->get_image_id(1)!=IMG_EMPTY) {
-		tool_t *tool;
-		if(  desc->get_type()==building_desc_t::depot  ) {
-			tool = new tool_build_depot_t();
-		}
-		else if(  desc->get_type()==building_desc_t::headquarters  ) {
-			tool = new tool_headquarter_t();
-		}
-		else if(desc->is_signalbox())
-		{
-			tool = new tool_signalbox_t();
-			modifiable_station_buildings.append(desc);
-		}
-		else {
-			tool = new tool_build_station_t();
-			modifiable_station_buildings.append(desc);
-		}
-		tool->set_icon( desc->get_cursor()->get_image_id(1) );
-		tool->cursor = desc->get_cursor()->get_image_id(0),
-		tool->set_default_param(desc->get_name());
-		tool_t::general_tool.append( tool );
-		desc->set_builder( tool );
-	}
-	else {
-		desc->set_builder( NULL );
-	}
-	desc_names.put(desc->get_name(), const_desc);
 
-	/* Supply the tiles with a pointer back to the matching description.
-	 * This is necessary since each building consists of separate tiles,
-	 * even if it is part of the same description (building_desc_t)
-	 */
-	const int max_index = const_desc->get_all_layouts() * const_desc->get_size().x * const_desc->get_size().y;
-	for( int i=0;  i<max_index;  i++  )
-	{
-		const_cast<building_tile_desc_t *>(desc->get_tile(i))->set_desc(const_desc);
-		const_cast<building_tile_desc_t *>(desc->get_tile(i))->set_modifiable_desc(desc);
-	}
+	desc->set_builder(NULL);
+	desc_names.put(desc->get_name(), desc);
 
 	return true;
 }

@@ -120,6 +120,7 @@ uint8 baum_t::plant_tree_on_coordinate(koord pos, const uint8 maximum_count, con
 							break;
 						}
 						// leave these (and all other empty)
+						// fallthrough
 					default:
 						return 0;
 				}
@@ -155,13 +156,16 @@ bool baum_t::plant_tree_on_coordinate(koord pos, const tree_desc_t *desc, const 
 					case obj_t::leitung:
 					case obj_t::label:
 					case obj_t::zeiger:
-						// ok to built here
+						// ok to build here
 						break;
+
 					case obj_t::groundobj:
 						if(((groundobj_t *)(gr->obj_bei(0)))->get_desc()->can_build_trees_here()) {
 							break;
 						}
 						// leave these (and all other empty)
+						// fallthrough
+
 					default:
 						return false;
 				}
@@ -268,7 +272,7 @@ bool baum_t::successfully_loaded()
 	tree_list_per_climate = new weighted_vector_tpl<uint32>[MAX_CLIMATES];
 
 	// clear cache
-	memset( tree_id_to_image, -1, lengthof(tree_id_to_image) );
+	memset( tree_id_to_image, -1, sizeof(tree_id_to_image) );
 	// now register all trees for all fitting climates
 	for(  uint32 typ=0;  typ<tree_list.get_count()-1;  typ++  ) {
 		// add this tree to climates
@@ -421,12 +425,11 @@ uint32 baum_t::get_age() const
 /* also checks for distribution values
  * @author prissi
  */
-uint16 baum_t::random_tree_for_climate_intern(climate cl)
+uint8 baum_t::random_tree_for_climate_intern(climate cl)
 {
 	// now weight their distribution
 	weighted_vector_tpl<uint32> const& t = tree_list_per_climate[cl];
-	assert(!t.empty());
-	return pick_any_weighted(t);
+	return !t.empty() ? pick_any_weighted(t) : invalid_tree_id;
 }
 
 

@@ -114,9 +114,8 @@ enum systemtype_t {
 	 halt_mode         = -1, // vehicles can stop on passing lane
 	 oneway_mode       = 0,  // condition for one-way road
 	 twoway_mode       = 1,  // condition for two-way road
-	 loading_only_mode = 2,  // overtake a loading convoy only
+	 //loading_only_mode = 2,  // overtake a loading convoy only
 	 prohibited_mode   = 3,  // overtaking is completely forbidden
-	 inverted_mode     = 4,  // vehicles can go only on passing lane
 	 invalid_mode      = 63
  };
 

@@ -25,6 +25,7 @@
 #include "../../utils/cbuffer_t.h"
 #include "../../vehicle/simvehicle.h" /* for calc_direction */
 #include "../../obj/wayobj.h"
+#include "../../player/simplay.h"
 
 const way_desc_t *strasse_t::default_strasse=NULL;
 
@@ -88,12 +89,14 @@ void strasse_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(mask_oneway);
 		set_ribi_mask_oneway(mask_oneway);
 		sint8 ov = get_overtaking_mode();
+		if (file->is_loading() && file->get_extended_version() == 14 && (ov == 2 || ov == 4)) {
+			ov = twoway_mode; // loading_only_mode and inverted_mode has been removed
+		}
 		file->rdwr_byte(ov);
-		overtaking_mode_t nov = (overtaking_mode_t)ov;
-		set_overtaking_mode(nov);
+		overtaking_mode = (overtaking_mode_t)ov;
 	} else {
 		set_ribi_mask_oneway(ribi_t::none);
-		set_overtaking_mode(twoway_mode);
+		overtaking_mode = twoway_mode;
 	}
 
 	if(file->get_version()<89000) {
@@ -276,8 +279,26 @@ void strasse_t::rdwr(loadsave_t *file)
 	}
 }
 
-void strasse_t::update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow)
+void strasse_t::set_overtaking_mode(overtaking_mode_t o, player_t* calling_player)
 {
+	if (o == invalid_mode) { return; }
+	grund_t* gr = welt->lookup(get_pos());
+	if ((!calling_player || !calling_player->is_public_service()) && is_public_right_of_way() && gr && gr->removing_way_would_disrupt_public_right_of_way(road_wt))
+	{
+		return;
+	}
+	if (is_deletable(calling_player) == NULL)
+	{
+		overtaking_mode = o;
+	}
+}
+
+void strasse_t::update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow, player_t* calling_player)
+{
+	if (is_deletable(calling_player) != NULL) {
+		return;
+	}
+
 	// assertion. @mask and @allow must be single or none.
 	if(!(ribi_t::is_single(mask)||(mask==ribi_t::none))) dbg->error( "weg_t::update_ribi_mask_oneway()", "mask is not single or none.");
 	if(!(ribi_t::is_single(allow)||(allow==ribi_t::none))) dbg->error( "weg_t::update_ribi_mask_oneway()", "allow is not single or none.");

@@ -1104,7 +1104,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	uint8 override_way_speed = obj.get_int("override_way_speed", 0);
 	node.write_uint8(fp, override_way_speed, pos);
-	pos += sizeof(override_way_speed); 
+	pos += sizeof(override_way_speed);
 
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {

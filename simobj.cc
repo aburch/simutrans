@@ -260,6 +260,10 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 			// highlight this tile
 			display_blend( get_image(), xpos, start_ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 		}
+		else if(  get_outline_colour()  ) {
+			// highlight this tile
+			display_blend(get_image(), xpos, start_ypos, owner_n, get_outline_colour() | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
+		}
 	}
 }
 

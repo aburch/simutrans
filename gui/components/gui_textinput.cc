@@ -16,7 +16,7 @@
 #include "../gui_frame.h"
 #include "gui_textinput.h"
 #include "../simwin.h"
-#include "../../simsys.h"
+#include "../../sys/simsys.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
 
@@ -123,10 +123,14 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						text_dirty = false;
 						call_listeners((long)1);
 					}
+					// fallthrough
+
 				case SIM_KEY_TAB:
 					// Knightly : focus is going to be lost -> reset cursor positions to select the whole text by default
 					head_cursor_pos = len;
 					tail_cursor_pos = 0;
+					// fallthrough
+
 				case SIM_KEY_ESCAPE:
 					return false;
 

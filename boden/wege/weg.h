@@ -446,6 +446,8 @@ public:
 	*/
 	int get_statistics(int type) const { return statistics[WAY_STAT_LAST_MONTH][type]; }
 
+	bool is_disused() const { return statistics[WAY_STAT_LAST_MONTH][WAY_STAT_CONVOIS] == 0 && statistics[WAY_STAT_THIS_MONTH][WAY_STAT_CONVOIS] == 0; }
+
 	/**
 	* new month
 	* @author hsiegeln
@@ -502,8 +504,6 @@ public:
 	uint32 get_remaining_wear_capacity() const { return remaining_wear_capacity; }
 	uint32 get_condition_percent() const;
 
-	bool is_height_restricted() const;
-
 	/**
 	 * Called by a convoy or a city car when it passes over a way
 	 * to cause the way to be subject to the specified amount
@@ -527,14 +527,14 @@ public:
 	uint32 get_runway_length(bool is_36_18) const;
 
 	//void increment_traffic_stopped_counter() { statistics[0][WAY_STAT_WAITING] ++; }
-	inline void update_travel_times(uint32 actual, uint32 ideal) 
+	inline void update_travel_times(uint32 actual, uint32 ideal)
 	{
 		travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_ACTUAL] += actual;
 		travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] += ideal;
 	}
 
 	//will return the % ratio of actual to ideal traversal times
-	inline uint32 get_congestion_percentage() const { 
+	inline uint32 get_congestion_percentage() const {
 		uint32 combined_ideal = travel_times[WAY_STAT_THIS_MONTH][WAY_TRAVEL_TIME_IDEAL] + travel_times[WAY_STAT_LAST_MONTH][WAY_TRAVEL_TIME_IDEAL];
 		if(combined_ideal == 0u) {
 			return 0u;
@@ -545,7 +545,7 @@ public:
 		}
 		return (combined_actual * 100u / combined_ideal) - 100u;
 	}
+};
 
-} GCC_PACKED;
 
 #endif

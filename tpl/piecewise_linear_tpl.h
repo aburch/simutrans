@@ -182,7 +182,7 @@ public:
 		else {
 			// Main case: linear interpolation
 			const uint32 left = right - 1; // makes following code clearer; will be optimized out
-			// We may want to use a wider type for this computation...
+			// We may want to use a wider type for this computation, hence the ability to specify this with the third parameter which becomes internal_t
 			internal_t right_val = vec[right].value;
 			internal_t left_val  = vec[left].value;
 			internal_t numerator = (right_val - left_val) * (target - vec[left].key);

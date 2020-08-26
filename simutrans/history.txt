@@ -989,7 +989,7 @@ Release of 99.08
 	FIX: unmark map ground during underground deletion
 	FIX: image for bridge ramps after reloading
 	FIX: citys continue also ways on upslopes
-	FIX: citycars properly turning, when there is no entry or only one tile after a crossing (and also make now 180° turns)
+	FIX: citycars properly turning, when there is no entry or only one tile after a crossing (and also make now 180ï¿½ turns)
 	FIX: (kierongreen) trains in small window are now correctly followed over bridges
 	ADD: (kierongreen) withdraw of convois i.e. convoi is sold after it is empty (and no freight is loaded) 'withdraw' and 'Convoi is sold when all wagons are empty.'
 	ADD: (kierongreen) no loading button to convoi info window added for manual control of a convois state
@@ -3283,8 +3283,8 @@ Released Simutrans 0.84.16.1
 Released Simutrans 0.84.16.0
 
 05-Sep-04: CHANGE: included MHZ' new furniture factory
-           CHANGE: included updated slovak translation by Ján Krnác
-                   included updated prop-latin2.fnt (Ján Krnác ?)
+           CHANGE: included updated slovak translation by Jï¿½n Krnï¿½c
+                   included updated prop-latin2.fnt (Jï¿½n Krnï¿½c ?)
 
 04-Sep-04: CHANGE: included Hendriks depot window changes
                    - Vehicle lists now have scrollbars
@@ -3402,7 +3402,7 @@ Released Simutrans 0.84.15.0
            NEW: added factory details (optional) windows
 
 15-Aug-04: NEW: most depot window buttons now got tooltips
-           CHANGE: included updated slovak translation by Ján Krnác
+           CHANGE: included updated slovak translation by Jï¿½n Krnï¿½c
 
 14-Aug-04: CHANGE: continued to work on monorail track and vehicles
 
@@ -3818,7 +3818,7 @@ released Simutrans 0.84.3.1
                   changing character arrays to the new buffer objects
           CHANGE: vehicle list now formats income with thousands
                   separators
-          CHANGE: included updated danish translation (now using ø)
+          CHANGE: included updated danish translation (now using ï¿½)
           CHANGE: included updated japanese translation
           NEW: added toolbar icon for line management
 
@@ -3849,10 +3849,10 @@ released Simutrans 0.84.2.1
 
 released Simutrans 0.84.2.0
 
-15-Feb-04 FIX: added ø character to prop.fnt (needed for danish
+15-Feb-04 FIX: added ï¿½ character to prop.fnt (needed for danish
                translation)
           CHANGE: included updated danish translation from
-                  Finn Rosenbech Jensen (not yet using ø, was made
+                  Finn Rosenbech Jensen (not yet using ï¿½, was made
                   for former font version)
           NEW: included new, downscaled, oil rig from 128x128 pixel
                tileset made by James Starr
@@ -4763,11 +4763,11 @@ released Simutrans 0.82.5exp
 
           Included new or updated  language files:
                   nl.tab - Martyn Minnis <MartynMinnis@Hotmail.com>
-                  cz.tab - Kamil "FastIkarus" Ondrák <fastikarus@centrum.cz>
+                  cz.tab - Kamil "FastIkarus" Ondrï¿½k <fastikarus@centrum.cz>
                   fi.tab - Antti Louko <alou@mbnet.fi>
                   pl.tab - Piotr Pietrzak <pyotr@wp.pl>
-                  sk.tab - Ján Krnác <Krnac@UZIS.Sk>
-                  sv.tab - Julius Grantén <ge_klav@hotmail.com>
+                  sk.tab - Jï¿½n Krnï¿½c <Krnac@UZIS.Sk>
+                  sv.tab - Julius Grantï¿½n <ge_klav@hotmail.com>
                   pt.tab - Eric C. Olivera <ecostaoli@yahoo.com.br>
 
 
@@ -5785,7 +5785,7 @@ You can use this version with the 0.81.35exp base package.
          - NEW: Makepak16 reads 8/16/24 bit PNG files now.
          TIME: 1:00h
 
-01/13/02 - MERGE: Andreas Rövers sound routines for SDL
+01/13/02 - MERGE: Andreas Rï¿½vers sound routines for SDL
          - TEST: Tested Simutrans with SDL 1.2
          - NEW: updated 16 bit graphics routines (not complete yet)
          TIME: 4:00h
@@ -6664,7 +6664,7 @@ You can use this version with the 0.81.35exp base package.
                 access and saves calls to new/delete. All in all it seems to
                 be rougly as fast as before (no measureable difference). I
                 think, it's even faster now.
-         - CHANGE: Changed event queue indices in simsys_d.c to unsigned types.
+         - CHANGE: Changed event queue indices in sys/simsys_d.c to unsigned types.
                 They were always checked for higher bound, but not for
                 lower bound. Making them unsigned prevents the occurance of
                 negative values, and a higher bound check is now sufficent
@@ -6747,7 +6747,7 @@ You can use this version with the 0.81.35exp base package.
                 version).
 
 
-03/08/01 - CHANGE: idle_time now drops until below 50µs
+03/08/01 - CHANGE: idle_time now drops until below 50ï¿½s
          - CHANGE: passengers are routed in groups of up to 7
          - CHANGE: passengers are appalled by crowded stations
                 in goups of 8 (was 4 before)
@@ -6872,46 +6872,46 @@ You can use this version with the 0.81.35exp base package.
               which supersedes the old class hierarchy.
 
 29.12.00 - Merge mit Niels Sourcen
-         - Brücken und Tunnelwerkzeuge in Strassen- und Schienenbaufenster
+         - Brï¿½cken und Tunnelwerkzeuge in Strassen- und Schienenbaufenster
            verschoben
 
-28.12.00 - NEU: Tab-Panels für Depot-Fenster
+28.12.00 - NEU: Tab-Panels fï¿½r Depot-Fenster
 
 24.12.00 - FIX: Falls Schienebau fehlgeschlagen wurde als Fallback Strasse
-                gebaut ohne zu prüfen ob für die Waren überhaupt
-                Strassenfahrzeuge verfügbar sind
+                gebaut ohne zu prï¿½fen ob fï¿½r die Waren ï¿½berhaupt
+                Strassenfahrzeuge verfï¿½gbar sind
          - CHANGE: Waren haben Koordinaten statt Koordinaten-Zeigern
-                   für die Ziele. Das behebt das Problem der mehrfachen
+                   fï¿½r die Ziele. Das behebt das Problem der mehrfachen
                    Freigabe gleicher Koordinaten
          - CHANGE/FIX: Laden von Planquadraten ermittelt max_index jetzt
                    anders. Das sollte das Problem max_index >= capacity
-                   beheben. Ist nach der Änderung nicht merh aufgetreten
-                   Ein assert() prüft diese Bedingung in der Debug-Version.
+                   beheben. Ist nach der ï¿½nderung nicht merh aufgetreten
+                   Ein assert() prï¿½ft diese Bedingung in der Debug-Version.
 
-20.12.00 - CHANGE: Städte erzeugen beim renovieren keine neuen
+20.12.00 - CHANGE: Stï¿½dte erzeugen beim renovieren keine neuen
                    Gebaeude-Objecte sondern updaten die alten.
                    Das behebt ein Speicherloch.
 
 17.12.00 - CHANGE: GUI: Buttonlisten auf Vector-Template umgestellt
-         - CHANGE: Fahrplan mit 0 Stops führt nicht mehr zum Absturz
+         - CHANGE: Fahrplan mit 0 Stops fï¿½hrt nicht mehr zum Absturz
          - CHANGE: Fahrplan benutzt jetzt auch array_tpl
 
 16.12.00 - CHANGE: Beschleunigung wird jetzt aus dem Fahrzeuggewicht errechnet
          - CHANGE: Anheben von Wasser mit Konvertierung zu Land
-                   ist jetzt möglich
-         - CHANGE: Endverbraucher (Fabriken) können jetzt in Städten
+                   ist jetzt mï¿½glich
+         - CHANGE: Endverbraucher (Fabriken) kï¿½nnen jetzt in Stï¿½dten
                    platziert werden.
-         - FIX: obj_ist_da() stürtze ab, wenn gar kein Objekt auf diesem Feld
+         - FIX: obj_ist_da() stï¿½rtze ab, wenn gar kein Objekt auf diesem Feld
                 vorhanden war
 
-10.12.00 - CHANGE: Ribi von Stadtstraßen werden jetzt richtig gesetzt
-         - NEU: Kosten für Bau und Abriß von Tunnels und Brücken werden
+10.12.00 - CHANGE: Ribi von Stadtstraï¿½en werden jetzt richtig gesetzt
+         - NEU: Kosten fï¿½r Bau und Abriï¿½ von Tunnels und Brï¿½cken werden
                 verrechnet
          - NEU: Gewicht und Leistung pro Convoi werden jetzt ermittelt
 
-09.12.00 - NEU: Testfälle für Objektverwaltung im Planquadrat
-         - FIX: "Überbauen" von nicht-entfernbaren Dingen ist jetzt
-                nicht mehr möglich
+09.12.00 - NEU: Testfï¿½lle fï¿½r Objektverwaltung im Planquadrat
+         - FIX: "ï¿½berbauen" von nicht-entfernbaren Dingen ist jetzt
+                nicht mehr mï¿½glich
          - CHANGE: Staedte steppen nur jede zweite Zeile, erzeugen
                    dabei aber pro Gebaeude doppelt so viele Passagiere.
                    Das sollte Rechenzeit sparen.
@@ -6919,27 +6919,27 @@ You can use this version with the 0.81.35exp base package.
 08.12.00 - CHANGE: Planquadrate haben dynamische Objektverwaltung und
                    koennen bis zu 2^15 Objekte verwalten.
 
-06.12.00 - CHANGE: diagonales Scrolling per Keyboard ist jetzt möglich
-         - CHANGE: daten.pak enthält jetzt die Anzahl der gespeicherten Bilder
-         - CHANGE: Städte bauen Stadien jetzt erst bei 1050 Einwohnern
+06.12.00 - CHANGE: diagonales Scrolling per Keyboard ist jetzt mï¿½glich
+         - CHANGE: daten.pak enthï¿½lt jetzt die Anzahl der gespeicherten Bilder
+         - CHANGE: Stï¿½dte bauen Stadien jetzt erst bei 1050 Einwohnern
 
 05.12.00 - FIX: setRGB8multi wieder benutzt, ist bei Merge mit Niels sourcen
                 am 30.11.00 entfallen
 
-02.12.00 - FIX: 'done' Button im Fahrplan-Dialog öffnet nicht mehr das
+02.12.00 - FIX: 'done' Button im Fahrplan-Dialog ï¿½ffnet nicht mehr das
                 Infofenster eines darunterliegenden Objekts
          - CHANGE: Warteschleife fuer Wartezeiten von weniger als 1 ms
-         - Freispielmodus eingebaut, ergänzt Testmodus
+         - Freispielmodus eingebaut, ergï¿½nzt Testmodus
          - Pasis verbessertes Stadtinfo-Fenster eingebaut
 
 30.11.00 - Merge mit Niels sourcen
 
-29.11.00 - Hotkey q,x zu Q,X geändert
-         - Hotkey t für Schienenbau
+29.11.00 - Hotkey q,x zu Q,X geï¿½ndert
+         - Hotkey t fï¿½r Schienenbau
          - CHANGE: karte_t::destroy loescht alle Blocktrecken
-         - CHANGE: 'max. 10/60 Passagiere' zu '10/60 Passagiere' geändert
+         - CHANGE: 'max. 10/60 Passagiere' zu '10/60 Passagiere' geï¿½ndert
 
-27.11.00 Suche nach Fehler, der die Grafikstörungen hervorrufen könnte
+27.11.00 Suche nach Fehler, der die Grafikstï¿½rungen hervorrufen kï¿½nnte
          2 Stunden erfolglos gesucht
 
 26.11.00 - GUI um Tag und Nacht Modus an-/abzuschalten
@@ -6959,7 +6959,7 @@ You can use this version with the 0.81.35exp base package.
 
 19.11.00 - Tag-und-Nacht-Modus
 
-16.11.00 - FIX: Fahrpläne haben jetzt Speicher für 16 Einträge
+16.11.00 - FIX: Fahrplï¿½ne haben jetzt Speicher fï¿½r 16 Eintrï¿½ge
          - Merge mit Niels sourcen
          - FIX: Ricks Fabrik ist 599 statt 699
          - Ricks toolbar
@@ -6967,7 +6967,7 @@ You can use this version with the 0.81.35exp base package.
 15.11.00 - einige casts durch dynamic_cast ersetzt
          - Vehikelbauer ist auf den vehbesch typen basiert statt auf
            tabellen.
-         - KI prüft die Verfügbarkeit von Fahrzeugen vor dem Streckenbau
+         - KI prï¿½ft die Verfï¿½gbarkeit von Fahrzeugen vor dem Streckenbau
          - Abschluss der Industriekonfiguration, Einbau der Autofabrik
 
 13.11.00 - slist_tpl: Typsicheres List-Template
@@ -6978,12 +6978,12 @@ You can use this version with the 0.81.35exp base package.
 11.11.00 - NEU: industry.tab (begonnen)
 
 09.11.00 - NEU: Warendaten werden aus Datei gelesen,
-                warenbauer als Factory-Klasse für Waren
+                warenbauer als Factory-Klasse fï¿½r Waren
 
 08.11.00 - NEU: Pause-Funktion
          - NEU: Anzeige fuer Fracht in 'aktuell/maximal'
 
-03.11.00 - NEU: eigene, einheitliche Random-Funktion, Plattformunabhängig
+03.11.00 - NEU: eigene, einheitliche Random-Funktion, Plattformunabhï¿½ngig
          - NEU: Reliefkarte "draggable"
          - NEU: Window wird bei Klick in Window-Koerper getoppt.
 
@@ -7003,26 +7003,26 @@ You can use this version with the 0.81.35exp base package.
 
 28.10.00 - FIX: Umbau des GUI auf Komponenten
 
-24.10.00 - FIX: Rückbau des Speichermanagements für gebäude_t
-         - FIX: Einfahren in Bahnhof prüft jetzt auf Schienen
+24.10.00 - FIX: Rï¿½ckbau des Speichermanagements fï¿½r gebï¿½ude_t
+         - FIX: Einfahren in Bahnhof prï¿½ft jetzt auf Schienen
          - CHANGE: intro scroller text
 
 23.10.00 - FIX: Anpassung Fenstergroesse an 11er LINESPACE
-         - FIX: Zuege fahren über Bruecken statt untendurch
+         - FIX: Zuege fahren ï¿½ber Bruecken statt untendurch
          - FIX: free_entries in memblock_t wurde nicht init, das
                 ist jetzt behoben
-         - CHANGE: Änderung im Speichermanagement für Gebäude
+         - CHANGE: ï¿½nderung im Speichermanagement fï¿½r Gebï¿½ude
 
-19.10.00 - NEU: Fenster können mit DEL und Backspace geschlossen werden
+19.10.00 - NEU: Fenster kï¿½nnen mit DEL und Backspace geschlossen werden
          - NEU: Wegpunkte werden mit Koordinaten aufgelistet
-         - CHANGE: Textabstand auf 11 Zeilen erhöht
+         - CHANGE: Textabstand auf 11 Zeilen erhï¿½ht
          - CHANGE: "Cr" wurde in creditszeichen umgeschrieben
          - CHANGE: Betriebskosten werden jetzt aus vehikel.tab gelesen
                    und pro feld verrechnet.
          - FIX: Beim Entfernen eines Bahnhofs wird ein Schienenende wieder
                 zu einem Schienenende
 
-16.10.00 - FIX: beim Einfügen von Koordinaten in eine Route wurden die
+16.10.00 - FIX: beim Einfï¿½gen von Koordinaten in eine Route wurden die
                 Hoehen nicht mit verschoben. Jetzt werden Hoehen von 0
                 eingefuegt
          - NEU: Scrolling per Tastatur
@@ -7037,7 +7037,7 @@ You can use this version with the 0.81.35exp base package.
                    sync_wolke_t benutzt, da diese Klassen sehr
                    haeufig instanziiert und geloescht werden.
 
-12.10.00 - FIX: Schienen über Schienen legen funktioniert jetzt richtig,
+12.10.00 - FIX: Schienen ï¿½ber Schienen legen funktioniert jetzt richtig,
                 Blockstrecken bleiben an den Signalen getrennt
                 - Test geschrieben
 
@@ -7056,7 +7056,7 @@ You can use this version with the 0.81.35exp base package.
 07.10.00 - FIX: Kontostand ist jetzt 64 bit Wert (long long)
 
 05.10.00 - FIX: Post kann nur auf leerem Feld gebaut werden
-         - FIX: besserer Text für Intro-Scroller
+         - FIX: besserer Text fï¿½r Intro-Scroller
 
 04.10.00 - NEU: Intro-Scroller
 
@@ -7065,13 +7065,13 @@ You can use this version with the 0.81.35exp base package.
          - NEU: Staedte bauen Stadien
          - TEST: Fussgaenger
 
-30.09.00 - Züge halten in T-förmigen Bahnhöfen jetzt richtig
+30.09.00 - Zï¿½ge halten in T-fï¿½rmigen Bahnhï¿½fen jetzt richtig
          - FIX: Routing von Waren zur Zielfabrik verbessert:
                 statt entfernung halt->basis zu Fabrik wird jetzt
                 die Fabrikliste der Haltestelle zu rate gezogen um
                 zu sehen ob die ware abgeliefert werden kann.
 
-27.09.00 - Automatische Tests für das Schienenverlegen begonnen
+27.09.00 - Automatische Tests fï¿½r das Schienenverlegen begonnen
          - Testsuite ausgelagert
 
 23.09.00 - simworld.cfg speichert einstellungen: Sprache
@@ -7085,33 +7085,33 @@ You can use this version with the 0.81.35exp base package.
 
 16.09.00 - NEU: Testsuite begonnen
 
-08.09.00 - FIX: bei Truecolor wird das Bild nach einer Änderung der Palette
+08.09.00 - FIX: bei Truecolor wird das Bild nach einer ï¿½nderung der Palette
                 neu gezeichnet.
 
 04.09.00 - FIX: Welt wird nach laden komplett neu gezeichnet
          - CHANGE: auflaufen der hinteren Waggons bei Halt vermieden
-         - CHANGE: Züge klemmen nicht mehr nach halt in kurve, allerdings
+         - CHANGE: Zï¿½ge klemmen nicht mehr nach halt in kurve, allerdings
                    stimmt das setup nach dem Halt nicht mehr bis der Zug
-                   in einen Kopfbahnhof einfährt.
+                   in einen Kopfbahnhof einfï¿½hrt.
          - CHANGE: Fahrplan-UI selekiert add-mode oder remove, je nachdem
                    ob der Fahrplan leer ist oder nicht
 
-01.09.00 - Ungelöst: Haltestellen (docks?) um Ölfelder herum können nur
-           geladen werden, wenn sie Spieler 0 gehören. Gehören sie Spieler 1
-           dann stürtzt das Programm beim zweiten Ladeversuch ab.
-         - FIX: Züge mit mehr als 4 Waggons routen jetzt auch in
-                Durchgangbahnhöfen richtig
+01.09.00 - Ungelï¿½st: Haltestellen (docks?) um ï¿½lfelder herum kï¿½nnen nur
+           geladen werden, wenn sie Spieler 0 gehï¿½ren. Gehï¿½ren sie Spieler 1
+           dann stï¿½rtzt das Programm beim zweiten Ladeversuch ab.
+         - FIX: Zï¿½ge mit mehr als 4 Waggons routen jetzt auch in
+                Durchgangbahnhï¿½fen richtig
 
 31.08.00 - NEU: Oelfelder funktionieren jetzt
          - FIX: verteile_waren bedient meherer Haltetsellen jetzt richtig,
                 hatte zuvor n-mal die Ware verteilt
          - FIX: uninit. Zeiger in simfab.cc behoben
 
-30.08.00 - FIX: Verkehr fährt jetzt richtig über Hügel und Senken
+30.08.00 - FIX: Verkehr fï¿½hrt jetzt richtig ï¿½ber Hï¿½gel und Senken
          - CHANGE: Verkehr behindert Automobile
 
-29.08.00 - FIX: Tunnel und Brückenbau funktioniert wieder
-         - FIX: zwei möglicherweise uninit. zeiger in simplay.cc
+29.08.00 - FIX: Tunnel und Brï¿½ckenbau funktioniert wieder
+         - FIX: zwei mï¿½glicherweise uninit. zeiger in simplay.cc
                 behoben.
 
 28.08.00 - FIX: Bounds check bei raise_to/lower_to war falsch
@@ -7123,22 +7123,22 @@ You can use this version with the 0.81.35exp base package.
 
 20.08.00 - CHANGE: Auslagerung Gebaeudebeschreibungen in "gebaeude.tab"
          - FIX: X-Windows+dirty rectangle list jetzt auch in 16/32 bit
-         - FIX: Redraw der Iconleiste nur wenn nötig
+         - FIX: Redraw der Iconleiste nur wenn nï¿½tig
          - FIX: Kennfarbenumschaltung zeichnet ganzes Bild neu
 
-19.08.00 - NEU: Altersangabe für Fahrzeuge
-         - CHANGE: vehikel_t etwas überarbeitet
-         - CHANGE: Berechnung von Restwert für verkaufte Fahrzeuge
+19.08.00 - NEU: Altersangabe fï¿½r Fahrzeuge
+         - CHANGE: vehikel_t etwas ï¿½berarbeitet
+         - CHANGE: Berechnung von Restwert fï¿½r verkaufte Fahrzeuge
                    (ca. 70% nach erstem Jahr)
 
-17.08.00 - FIX: Gebäudeindex für Gebeudearrays der Stadt wird in renoviere
+17.08.00 - FIX: Gebï¿½udeindex fï¿½r Gebeudearrays der Stadt wird in renoviere
                 richtig geclipped
          - FIX: bug aus fahre() entfernt, der durch die Koordinatenumstellung
                 verursacht worden war, eigentlich ein tippfehler
-         - NEU: Vehikel können im Depot verkauft werden
+         - NEU: Vehikel kï¿½nnen im Depot verkauft werden
 
-16.08.00 - dirty rectangle list vervollständigt
-         - FIX: maximal 8 Loks und 32 Fahrzeuge können in einem Dept
+16.08.00 - dirty rectangle list vervollstï¿½ndigt
+         - FIX: maximal 8 Loks und 32 Fahrzeuge kï¿½nnen in einem Dept
                 eingelagert werden.
 
 14.08.00 - dirty rectangle list weitergebaut
@@ -7150,47 +7150,47 @@ You can use this version with the 0.81.35exp base package.
 
 12.08.00 - dirty rectangle list begonnen
 
-09.08.00 - CHANGE: Züge fahren jetzt immer bis zum Bahnsteigende
+09.08.00 - CHANGE: Zï¿½ge fahren jetzt immer bis zum Bahnsteigende
 
-07.08.00 - FIX: Stadt baut Gebäude nur auf Feldern ohne Besitzer.
+07.08.00 - FIX: Stadt baut Gebï¿½ude nur auf Feldern ohne Besitzer.
 
-04.06.00 - 32 Farben in der Palette sind jetzt zusätzlich verfügbar
-         - GUI für farben aus simgui getrennt und nach gui verschoben
+04.06.00 - 32 Farben in der Palette sind jetzt zusï¿½tzlich verfï¿½gbar
+         - GUI fï¿½r farben aus simgui getrennt und nach gui verschoben
 
-02.08.00 - generisches Makepak für alle Plattformen
-         - Doppelte Info-Fenster für Haltestellen abgeschaltet
+02.08.00 - generisches Makepak fï¿½r alle Plattformen
+         - Doppelte Info-Fenster fï¿½r Haltestellen abgeschaltet
 
 30.07.00 - FIX: Beim Trennen einer Ringstrecke wird jetzt die Blockbelegung
            richtig ermittelt
 
 29.07.00 - Bugfixes
-         - Riffe für unbefahrbares Wasser
+         - Riffe fï¿½r unbefahrbares Wasser
 
 26.07.00 - Abschliessende Arbeiten am Fahrplandialog
-         - Einbau von Olufs Fähre
+         - Einbau von Olufs Fï¿½hre
 
 24.07.00 - Weitere Arbeit am Fahrplandialog
          - CHANGE: Fahrzeuge haben keinen eigenen Fahrplan mehr
                    nur noch Zeiger auf den Convoi-Fahrplan
-         - CHANGE: anderes Design für Fenstertitelleisten
+         - CHANGE: anderes Design fï¿½r Fenstertitelleisten
 
 23.07.00 - Weitere Arbeit am Fahrplandialog
-         - Weitere Anpassungen für SDL
-         - CHANGE: Statusanzeigende Buttons werden jetzt gedrückt dargestellt
-         - CHNAGE: erweitertes event-handling für Info-Fenster
+         - Weitere Anpassungen fï¿½r SDL
+         - CHANGE: Statusanzeigende Buttons werden jetzt gedrï¿½ckt dargestellt
+         - CHNAGE: erweitertes event-handling fï¿½r Info-Fenster
 
 20.07.00 - Beginn Fahrplandialog (Fenster, Anzeige Fahrplan)
 
-19.07.00 - Anpassungen für SDL (BeOS)
+19.07.00 - Anpassungen fï¿½r SDL (BeOS)
 
 16.07.00 - FIX: start von convois mit nur einem Fahrzeug funktioniert wieder
          - CHANGE/FIX: Passagiererzeugungsrate pro stadt ist jetzt von der
-                       Stadtanzahl unabhängig, liegt bei ca. 1/4 der
+                       Stadtanzahl unabhï¿½ngig, liegt bei ca. 1/4 der
                        vorherigen Passagiererzeugungsrate; das limitiert
                        jedoch die Stadtanzahl auf 64 Staedte insgesamt.
 
 15.07.00 - FIX: Beim Absenken auf Wasserniveau werden alle Objekte
-                des Planquadrates gelöscht
+                des Planquadrates gelï¿½scht
 
 12.07.00 - CHANGE: Neues Gras
          - FIX: verbessertes/effizienteres clipping fuer display_img
@@ -7202,7 +7202,7 @@ You can use this version with the 0.81.35exp base package.
                 uebernommen
 
 08.07.00 - Screenshot feature
-         - FIX: Unzerreisbare Züge
+         - FIX: Unzerreisbare Zï¿½ge
 
 06.07.00 - FIX: Verbesserung der Landschaftzeigerpositionierung
                 vor allem bessere Platzierung des Signalzeigers
@@ -7214,28 +7214,28 @@ You can use this version with the 0.81.35exp base package.
 05.07.00 - Fehlersuche in der Blockstreckenverwaltung
          - FIX: Bahnhoefe koennen nur auf eigenen Schienen gebaut werden
 
-03.07.00 - FIX: laden kleinerer Karten jetzt möglich
+03.07.00 - FIX: laden kleinerer Karten jetzt mï¿½glich
          - CHANGE: Signale werden jetzt immer paarweise entfernt
-         - Eddies Korrekturen zur en.tab eingefügt
+         - Eddies Korrekturen zur en.tab eingefï¿½gt
 
 29.06.00 - FIX: Entfernen von Privatfahrzeugen verboten
          - FIX: Depotnamen werden wieder i18n
          - Ricks engl. Stadtnamen eingebaut
 
-28.06.00 - Finnische Übersetzung eingebaut
+28.06.00 - Finnische ï¿½bersetzung eingebaut
          - Sprachnamen stehen jetzt als 1. Zeile in den Sprachfiles
 
 24.06.00 - FIX: Laden und Speichern des Warenziels, Erzeugung einer
                 Warenzielkopie bei Teilen eines Warenpaketes
          - FIX: Waggons bekommen hat_fracht_bild wieder gesetzt, war
                 Fehler im Vehikelbauer, fracht.is_empty() wird bei waggons
-                richtig berücksichtigt.
+                richtig berï¿½cksichtigt.
          - FIX: Reliefkarte: Klick in die unteren 16 Zeilen funktioniert
                 jetzt wieder
          - FIX: Lieferung von Waren mit Eingangsindex != 0 and Fabriken
                 funktioniert jetzt wieder.
          - FIX: Baeume und Wolken rufen kein delete im step() auf.
-                Das delete wird jetzt vom Planquadrat übernommen
+                Das delete wird jetzt vom Planquadrat ï¿½bernommen
 
 23.06.00 - Passagiererzeugung in Fabriken
          - Passagiererzeugung in Staedten beruecksichtigt Fabriken
@@ -7254,31 +7254,31 @@ You can use this version with the 0.81.35exp base package.
 
 21.06.00 - FIX: Bei der Teilung von Waren an Haltestellen werden
                 die Zielkoordinaten der neuen Ware neu erzeugt
-         - Speicherlöcher im Warenrouting behoben
+         - Speicherlï¿½cher im Warenrouting behoben
          - Auslieferung von Waren an Fabriken funktioniert wieder
 
-20.06.00 - Routing für Passagiere und waren funktioniert im Prinzip
+20.06.00 - Routing fï¿½r Passagiere und waren funktioniert im Prinzip
          - CHANGE: altes, quotenbasiertes Passagiersammeln wurde
                    aus dem Programm entfernt
-         - Verdacht auf Speicherlöcher im Warenrouting
+         - Verdacht auf Speicherlï¿½cher im Warenrouting
          - Erzeugung von Waren mit Zielen funktioniert jetzt im Prinzip
 
-19.06.00 - Passagiererzeugung in den Städten begonnen
+19.06.00 - Passagiererzeugung in den Stï¿½dten begonnen
          - Stadtinfo-Fenster begonnen
 
-18.06.00 - Ziele für Waren und Passagiere
+18.06.00 - Ziele fï¿½r Waren und Passagiere
          - Neue GUI-Hierarchie
          - CHANGE: Map-Window wurde zu einer eigenen Klasse
 
-17.06.00 - Ziele für Waren und Passagiere, Ziellisten für Haltestellen
-         - CHANGE: Haltestelleninfofenster werden über Boden geöffnet
+17.06.00 - Ziele fï¿½r Waren und Passagiere, Ziellisten fï¿½r Haltestellen
+         - CHANGE: Haltestelleninfofenster werden ï¿½ber Boden geï¿½ffnet
 
 15.06.00 - Interface comparable_t fuer ADT Menge
          - FIX: Plastiktransporter transportiert jetzt auch Plastik
 
 14.06.00 - ADT "Menge" begonnen
          - CHANGE: Boden hat jetzt pointer auf Haltestellen
-         - CHANGE: Haltestellen werden jetzt über Boden gesucht und gefunden
+         - CHANGE: Haltestellen werden jetzt ï¿½ber Boden gesucht und gefunden
          - FIX: Boden hat virtuellen Destruktor, der Boden von Haltestelle
                 abmeldet.
 
@@ -7286,19 +7286,19 @@ You can use this version with the 0.81.35exp base package.
          - Neues Statdgebaeude: Kirche
 
 11.06.00 - Schiffe, Schiffsrouten
-         - Tests und Bugfixes für Schiffe
-         - FIX: laden der Fahrzeugtabelle lädt letztes Fahrzeug richtig
+         - Tests und Bugfixes fï¿½r Schiffe
+         - FIX: laden der Fahrzeugtabelle lï¿½dt letztes Fahrzeug richtig
          - FIX: statt aussteigender Passagiere fahren die mitgefahrenen Pax
 
-10.06.00 - Auslagerung der Fahrzeugdaten für alle Fahrzeugtypen vereinheitlicht
-         - Bilder für Schiffsdepots + Zeiger
+10.06.00 - Auslagerung der Fahrzeugdaten fï¿½r alle Fahrzeugtypen vereinheitlicht
+         - Bilder fï¿½r Schiffsdepots + Zeiger
          - Schiffdepotwerkzeug
          - Schiffdepots
          - Schiffe (ungetestet)
          - Performanceoptimierungen in der Grafik
 
 08.06.00 - Auslagerung der Fahrzeugdaten fertig
-         - Bilder für Schiffsdepots begonnen
+         - Bilder fï¿½r Schiffsdepots begonnen
 
 07.06.00 - Auslagerung der Fahrzeugdaten in vehikel.tab begonnen
 
@@ -7322,15 +7322,15 @@ You can use this version with the 0.81.35exp base package.
 
 22.05.00 - Lagerhaeuser zur Zwischenlagerung von Waren.
 
-19.05.00 - Umstellung der Blockstrecken von Zug auf Wagenzählung
+19.05.00 - Umstellung der Blockstrecken von Zug auf Wagenzï¿½hlung
            macht Blockstreckenmanagement robuster
          - Info-Fenster der Signale zeigen jetzt die Blockbelegung an
 
-17.05.00 - FIX: Brücken und Tunnels sind wieder befahrbar
-         - Erzanhänger (für LKW) fertig
+17.05.00 - FIX: Brï¿½cken und Tunnels sind wieder befahrbar
+         - Erzanhï¿½nger (fï¿½r LKW) fertig
 
-13.05.00 - FIX: Bug bei Entfernen von Brücken/Tunnels entfernt
-         - FIX: Entfernen von Dingen ist wieder möglich
+13.05.00 - FIX: Bug bei Entfernen von Brï¿½cken/Tunnels entfernt
+         - FIX: Entfernen von Dingen ist wieder mï¿½glich
 
 12.05.00 - FIX: Fahrzeuge fahren nicht mehr ueber Wiesen, falls
            der Verkehrsweg zwischendurch entfernt worden ist.
@@ -7346,7 +7346,7 @@ You can use this version with the 0.81.35exp base package.
 
 08.05.00 - Manfreds Staubkesselwaggon eingebaut
          - Autofabrik verbraucht jetzt Kunststoff
-         - Fabrikfenster führt max. Prod jetzt separat auf
+         - Fabrikfenster fï¿½hrt max. Prod jetzt separat auf
 
 30.04.00 - Convois haben jetzt Zaehler fuer Jahresgewinn
 
@@ -7362,14 +7362,14 @@ You can use this version with the 0.81.35exp base package.
 ??.04.00 - Umstellung DOS Version auf Allegro
          - Umstellung DOS Version auf DJGPP 2.03
 
-18.04.00 - FIX: Land anheben/absenken unter Brücken ist verboten
+18.04.00 - FIX: Land anheben/absenken unter Brï¿½cken ist verboten
          - FIX: es laesst sich nur noch ein kartenfenster oeffnen
          - FIX: Schienen unter Bruecken bauen laesst Bruecken intakt
          - FIX: moegliche Fehlerquellen beim Verbinden von Blockstrecken
                 und beim Bau von Signalen in Ringstrecken korigiert
 
 15.04.00 - FIX: delta_t bei asynchronem step wird jetzt richtig berechnet
-         - FIX: int route.cc INT_CHECK Aufrufe eingefügt -> weniger ruckeln
+         - FIX: int route.cc INT_CHECK Aufrufe eingefï¿½gt -> weniger ruckeln
          - CHANGE: markierungen von grund_t in karte_t verlegt
          - CHANGE: step steppt nur noch jedes 15. Objekt pro Durchlauf
          - CHANGE: step in grund_t wieder virtuell, ohne if
@@ -7381,7 +7381,7 @@ You can use this version with the 0.81.35exp base package.
 13.04.00 - FIX: display_img clipped jetzt oben wieder richtig
          - FIX: verkehrsteilnehmer_r "springen" nicht mehr
          - Vorbereitung "welt gui" zur interaktiven kartenwahl
-         - Einstellungsobjekte für Spieleinstellungen
+         - Einstellungsobjekte fï¿½r Spieleinstellungen
 
 12.04.00 - Umbau des fabrikbauer_t fuer sinnvolle Platzierung der Industrien
          - kleine optimierung in display_img und display_color_img
@@ -7400,7 +7400,7 @@ You can use this version with the 0.81.35exp base package.
          - KIs ebnen Land und entfernen Hindernisse beim Bahnhofsbau
          - FIX: Bahnhof entfernen setzt Blockstrecken richtig
          - FIX: Trennen von Blockstrecken verbessert
-         - FIX: Fabriknamen werden sprachunabhängig gespeichert
+         - FIX: Fabriknamen werden sprachunabhï¿½ngig gespeichert
          - FIX: Karte huepft nicht mehr bei erneutem Scrollen
          - FIX: KI orientiert sich am Lagerbestand bei Streckenplanung
          - FIX: "Gekaufte" Felder koennen nicht in der Hoehe veraendert werden
@@ -7412,7 +7412,7 @@ You can use this version with the 0.81.35exp base package.
          - FIX: Gebeude koennen jetzt auch null-Texte speichern
          - FIX: Signale umstellen kostet kein Geld
 
-25.03.00 - FIX: Tunnelmündungen erhalten richtigen Blockstreckenzeiger
+25.03.00 - FIX: Tunnelmï¿½ndungen erhalten richtigen Blockstreckenzeiger
          - FIX: Brueckenauffahrten erhalten richtigen Blockstreckenzeiger
 
 22.03.00 - Verbesserte Grafikperformnce 30-40% schneller
@@ -7424,18 +7424,18 @@ You can use this version with the 0.81.35exp base package.
          - FIX: KI berechnet gewinn jetzt richtig
 
 18.03.00 - Helligkeits und Farbeinstellungen werden jetzt gespeichert
-         - FIX: Brückenbau nur an Strassen/Schienenenden zugelassen
+         - FIX: Brï¿½ckenbau nur an Strassen/Schienenenden zugelassen
          - FIX: Fehlermeldung "... muss an einfachem Hang ..." uebersetzt
          - FIX: Zeiger fuer Brueckenbau stimmen jetzt
          - GUI fuer Laden, Speichern und Beenden
-         - FIX: Kosten fuer Baeume faellen und Haeuser abreißen werden jetzt
+         - FIX: Kosten fuer Baeume faellen und Haeuser abreiï¿½en werden jetzt
            berechnet
 
 17.03.00 - Neue Blockstreckenverwaltung abgeschlossen
          - Sehenswuerdigkeiten begonnen
 
 13.03.00 - Mauszeiger Kann nun auch auf Linien plaziert werden
-           Das ist für die neue Signalsetzfunktion notwendig
+           Das ist fï¿½r die neue Signalsetzfunktion notwendig
          - Ricks Korrekturen der en.tab integriert
 
 12.03.00 - Blockstreckenverwaltung neu implementiert (Beginn)
@@ -7444,22 +7444,22 @@ You can use this version with the 0.81.35exp base package.
          - Mehrere Farbpaletten zur Auswahl
          - Mehrere Helligkeitstufen zur Auswahl
          - FIX: Haltestelleninfo mit vielen Fabriken funktioniert jetzt
-         - FIX: Fenster werden immer vollständig sichtbar geoeffnet
+         - FIX: Fenster werden immer vollstï¿½ndig sichtbar geoeffnet
 
 09.03.00 - FIX: Bahnhofsgrund verarbeitet ribis jetzt korrekt
 
 04.03.00 - X-Windows: Pointer beim Scrollen unsichtbar
          - FIX: Entfernen fremder Strassen/Schienen nicht mehr moeglich
-         - Fahrzeuge können in Depots zurückgeschickt werden
+         - Fahrzeuge kï¿½nnen in Depots zurï¿½ckgeschickt werden
          - Hausbeschreibungen begonnen
 
 28.02.00 - Verhindern mehrfacher Fahrplaneingabe.
 
 27.02.00 - Anklicken des Bildes im Infofenster springt zum Objekt
 
-26.02.00 - Französiche Übersetzung integriert
+26.02.00 - Franzï¿½siche ï¿½bersetzung integriert
          - Ricks Bauwerke integriert
-         - Fabriken haben jetzt info über abgegebene warenmenge
+         - Fabriken haben jetzt info ï¿½ber abgegebene warenmenge
          - KI nutzt Warenabgabeinfo zur Streckenplanung
          - X-Windows version kann Pointer beim Scrollen im Window fixieren
 
@@ -7468,13 +7468,13 @@ You can use this version with the 0.81.35exp base package.
 20.02.00 - Baubaer kann jetzt lokale Optimierungen an Strecken vornehmen
 
 19.02.00 - KI baut Strassen und Schienen automatisch
-         - KI baut Bahnhöfe und Frachthöfe
+         - KI baut Bahnhï¿½fe und Frachthï¿½fe
          - Bugfixes fuer Schienenbau und Strassenbau
          - Bugfixes fuer Tunnel und Brueckenbau
          - Bugfix fuer zu viele sync_wolken
 
 16.02.00 - Automatischer Brueckenbau fuer Baubaer funktioniert
-         - KI schätzt Anzahl benötigter Fahrzeuge fuer Route
+         - KI schï¿½tzt Anzahl benï¿½tigter Fahrzeuge fuer Route
 
 15.02.00 - Automatische Strassenueberbrueckung bei Schienenbau beggonnen
 
@@ -7496,12 +7496,12 @@ You can use this version with the 0.81.35exp base package.
 
 09.02.00 - Entfernen von Strassenbruecken moeglich
          - Entfernen von Eisenbahnbruecken vorbereitet
-         - Iconleiste wird nur gezeichnet wenn nötig (Performance +)
+         - Iconleiste wird nur gezeichnet wenn nï¿½tig (Performance +)
 
 05.02.00 - Raffinerien
          - Maximalhoehe fuer Berge
          - Anzeige des sichtbaren Bereiches in der Reliefkarte
-         - Fabriken: Produktion vom Lagerbestand abhängig
+         - Fabriken: Produktion vom Lagerbestand abhï¿½ngig
          - Masseinheiten fuer Waren
          - asynchrones Routing fuer convois
          - Reliefkarte zeigt sichtbaren Ausschnitt an
@@ -7510,7 +7510,7 @@ You can use this version with the 0.81.35exp base package.
 04.02.00 - Manfreds Oeltanker eingebaut
          - Raffinerien angefangen
 
-30.01.00 - Grafiken überarbeitet
+30.01.00 - Grafiken ï¿½berarbeitet
          - Neue timer-routinen beruecksichtigen wirklich
            verbrauchte zeit.
          - Strassen in den Staedten mit Gehweg
@@ -7518,33 +7518,33 @@ You can use this version with the 0.81.35exp base package.
 
 29.01.00 - weitere i18n
          - makepak tool von simu getrennt
-         - tooltips für Icons
+         - tooltips fï¿½r Icons
          - Oelfeld
-         - Synchrone Altersberechnung für Baeume und Gebaeude
+         - Synchrone Altersberechnung fï¿½r Baeume und Gebaeude
          - Tabellen statt switch fuer Baeume und Vehikel
 
-28.01.00 - FIX: Brücken "ins nichts" bauen stürtzt nicht mehr ab
+28.01.00 - FIX: Brï¿½cken "ins nichts" bauen stï¿½rtzt nicht mehr ab
          - Fenster aus Hauptfenster herausschiebbar
 
 23.01.00 - Weitere i18n
          - Convoi fahren jetzt nach halt an Signal langsam an
          - aktuelle Sprache wird gespeichert
 
-22.01.00 - "Neuer Fahrplan" Funktion für Convois
+22.01.00 - "Neuer Fahrplan" Funktion fï¿½r Convois
          - Erste Schritte zur Internationalisierung
 
-20.01.00 - Overlay-Technik für Strassen und Schienen implementiert
+20.01.00 - Overlay-Technik fï¿½r Strassen und Schienen implementiert
 
-19.01.00 - Fenster können automatisch nach Zeitspanne geschlosen werden
+19.01.00 - Fenster kï¿½nnen automatisch nach Zeitspanne geschlosen werden
 
-15.01.00 - FIX: Schienen über Schienen bauen kostet kein Geld
-         - FIX: Schienen über Schienen bauen entfernt Züge nicht mehr
+15.01.00 - FIX: Schienen ï¿½ber Schienen bauen kostet kein Geld
+         - FIX: Schienen ï¿½ber Schienen bauen entfernt Zï¿½ge nicht mehr
          - FIX: A* war fehlerhaft
-         - Automatischer Brückenbau möglich
+         - Automatischer Brï¿½ckenbau mï¿½glich
          - Darstellung von Schienen in der Reliefkarte verbessert
          - Makefile verbessert
          - Route ist jetzt eigenes Objekt, d.h. Routing ohne Fahrzeuge
-           wird möglich
+           wird mï¿½glich
          - Passagiere steigen nicht mehr alle gleichzeitig aus,
            statistisch steigen bei n Haltestellen K/(n-1) Passagiere
            pro Haltestelle aus.
@@ -7563,22 +7563,22 @@ You can use this version with the 0.81.35exp base package.
          - Convois bei "Halt ohne umdrehen" verbessert
          - Neue Diesellokomotive
 
-10.01.00 - Tunnels; die Bilder für die Tunnelmündungen fehlen noch
+10.01.00 - Tunnels; die Bilder fï¿½r die Tunnelmï¿½ndungen fehlen noch
 
 08.01.00 - FIX: Laden/Speichern von Convois macht anz_ready persistent
-         - SList für synchrone Objekte, damit beliebig viele sync. Obj. mgl.
+         - SList fï¿½r synchrone Objekte, damit beliebig viele sync. Obj. mgl.
          - Wolken als synchrone Objekte
          - FIX: Start-Button im Depot; Groesse wurde falsch berechnet
          - FIX: Frachtbildinformation wird jetzt gespeichert
          - Fehlermeldungen und Reaktion auf "OUT OF MEMORY"
-         - Fehlermeldungen für Laden/Speichern
+         - Fehlermeldungen fï¿½r Laden/Speichern
 
-06.01.00 - Informationen für Fahrzeuge
-         - Depotfenster überarbeitet
+06.01.00 - Informationen fï¿½r Fahrzeuge
+         - Depotfenster ï¿½berarbeitet
 
-05.01.00 - Baugruben für Neubaus
+05.01.00 - Baugruben fï¿½r Neubaus
          - FIX: Kennfarbe und Zeit speichern und laden
-         - FIX: Rauchberechnung in Convoi, Zeitabhängig statt Geschwindigkeit
+         - FIX: Rauchberechnung in Convoi, Zeitabhï¿½ngig statt Geschwindigkeit
          - FIX: trennen von Ringstrecken jetzt moeglich
 
 04.01.00 - Stahlwerk
@@ -7592,50 +7592,50 @@ You can use this version with the 0.81.35exp base package.
          - Animiertes Wasser
          - FIX: Lokomotive mit Fracht
          - FIX: Haltestellenkonstruktor
-         - Wartezeitberechnung für Hauptschleife als PI-Regler
+         - Wartezeitberechnung fï¿½r Hauptschleife als PI-Regler
 
 29.12.99 - Neues Bahnhofsdach
          - Depotinhalt wird gespeichert
          - Update der Reliefkarte nach laden
          - Neuer Haltestellenzeiger
-         - Beschleunigung/Bremsen für Convois
+         - Beschleunigung/Bremsen fï¿½r Convois
 
 25.12.99 - Neue Dampflokomotive
-         - Erweiterungen für Laden/Speichern
+         - Erweiterungen fï¿½r Laden/Speichern
 
-23.12.99 - Erweiterungen für Laden/Speichern
+23.12.99 - Erweiterungen fï¿½r Laden/Speichern
 
-18.12.99 - Neue Hierarchie für Depots (Bahndepot, Straßendepot)
-         - Neue Hierarchie für Fahrpläne (Bahn, Auto)
-         - Bugfixes für Vehikel, Convoi mit nur einem Vehikel
+18.12.99 - Neue Hierarchie fï¿½r Depots (Bahndepot, Straï¿½endepot)
+         - Neue Hierarchie fï¿½r Fahrplï¿½ne (Bahn, Auto)
+         - Bugfixes fï¿½r Vehikel, Convoi mit nur einem Vehikel
          - neues Verzeichnis dataobj
 
-17.12.99 - Blockstrecken mit Brücken funktionieren jetzt (hoffentlich)
-           evtl. Probleme mit Blockstrecken die mittels Brücke über
-           sich selbst hinwegführen
-         - Überarbeitung Brückenbau
-         - Bugfixes für Vehikel beim Übefahren einer Brücke
+17.12.99 - Blockstrecken mit Brï¿½cken funktionieren jetzt (hoffentlich)
+           evtl. Probleme mit Blockstrecken die mittels Brï¿½cke ï¿½ber
+           sich selbst hinwegfï¿½hren
+         - ï¿½berarbeitung Brï¿½ckenbau
+         - Bugfixes fï¿½r Vehikel beim ï¿½befahren einer Brï¿½cke
          - Tests mit assert()
          - Berechnung der korrekten Kosten bei Landanheben/-absenken
 
-16.12.99 - Haltestellen entfernen ist jetzt möglich
+16.12.99 - Haltestellen entfernen ist jetzt mï¿½glich
          - einige Sicherheitschecks eingebaut
-         - Schatten für Bäume und Häuser
+         - Schatten fï¿½r Bï¿½ume und Hï¿½user
 
-14.12.99 - Erstmals präzise Positionierung des Landschaftszeigers möglich
+14.12.99 - Erstmals prï¿½zise Positionierung des Landschaftszeigers mï¿½glich
 
-09.12.99 - asynchrone darstellung möglich
-         - neue Image-Verwaltung ermöglicht kompakteres daten.pak
+09.12.99 - asynchrone darstellung mï¿½glich
+         - neue Image-Verwaltung ermï¿½glicht kompakteres daten.pak
 
-08.12.99 - Haltestellen mit SList für Grund und Fabriken, damit
-           entfallen die Beschränkungen auf 16 Felder bzw. 16 Fabriken
+08.12.99 - Haltestellen mit SList fï¿½r Grund und Fabriken, damit
+           entfallen die Beschrï¿½nkungen auf 16 Felder bzw. 16 Fabriken
          - Verbesserung von move_win durch offset zum Mauszeiger
-         - Kleine Verschönerungen an Gebaeude-Bildchen
+         - Kleine Verschï¿½nerungen an Gebaeude-Bildchen
 
 05.12.99 - Fahrzeuge mit variablen Geschwindigkeiten
          - Abbiegen mit nur einem Fahrzeug in der Kurve
 
-04.12.99 - Verbessertes Clipping für Zeichenfunktionen
+04.12.99 - Verbessertes Clipping fï¿½r Zeichenfunktionen
          - Verbesserte Window-Darstellung
          - Verbesserte Schilder-Darstellung
          - Softscrolling
@@ -7645,59 +7645,59 @@ You can use this version with the 0.81.35exp base package.
 02.12.99 - Verbesserung convoi_t::ready()
          - Bahndepot
 
-28.11.99 - Erster Versuch eines Dialoges für Zugzusammenstellung
+28.11.99 - Erster Versuch eines Dialoges fï¿½r Zugzusammenstellung
 
 27.11.99 - Algorithmus von Dijkstra zum Strassen/Schienenbau implementiert
          - Neue Gebaeude: Einkaufszentrum und Fabrik 5
          - Automatisches Update der Reliefkarte
 
-24.11.99 - Entfernen von Schienenenden möglich
+24.11.99 - Entfernen von Schienenenden mï¿½glich
 
-22.11.99 - Entfernen von Signalen möglich
-         - Entfernen von Scheinenstücken aus der Mitte von Blockstrecken
-           ist möglich
+22.11.99 - Entfernen von Signalen mï¿½glich
+         - Entfernen von Scheinenstï¿½cken aus der Mitte von Blockstrecken
+           ist mï¿½glich
 
 21.11.99 - Shared Memory abschaltbar, neue Kommandozeile:
            "-net" schaltet Shared Memory ab
            "-map 34" startet karte 34
-         - Unterstützung für XWindows 24/32 Bit Farbtiefe (experimentell)
-         - Unterstutzung für XWindows 16 Bit (565, 555) (experimentell)
-         - Dialog für Wahl der Spielerfarben
+         - Unterstï¿½tzung fï¿½r XWindows 24/32 Bit Farbtiefe (experimentell)
+         - Unterstutzung fï¿½r XWindows 16 Bit (565, 555) (experimentell)
+         - Dialog fï¿½r Wahl der Spielerfarben
          - FIX: Traversierung der Blockstrecken betritt jetzt nur Felder
                 mit Schienen
 
 20.11.99 - FIX: Signale rechts von den Schienen
          - FIX: Frachthof in Spielerfarbe
          - FIX: Convoi "ist_fahrend" init
-         - FIX: Posthäuschen und Industrie werden
+         - FIX: Posthï¿½uschen und Industrie werden
                 beim Satdbau nicht mehr entfernt
          - FIX: Symbole in Iconleiste erscheinen jetzt in Spielerfarbe
 
-16.11.99 - Weichen für Schienen
+16.11.99 - Weichen fï¿½r Schienen
 
-14.11.99 - Bugfix für Suche nach draw.fnt
-         - Bugfix für fehlende "HOME" Umgebungsvariable
-         - Bilder für Erzbergwerke vollständig
-         - Buttons für Infofenster, es fehlt noch der Callback
-         - Trennen/Vereinigen von befahrenen Blockstrecken jetzt möglich
-         - Bugfixes für Blockstreckenverwaltung
+14.11.99 - Bugfix fï¿½r Suche nach draw.fnt
+         - Bugfix fï¿½r fehlende "HOME" Umgebungsvariable
+         - Bilder fï¿½r Erzbergwerke vollstï¿½ndig
+         - Buttons fï¿½r Infofenster, es fehlt noch der Callback
+         - Trennen/Vereinigen von befahrenen Blockstrecken jetzt mï¿½glich
+         - Bugfixes fï¿½r Blockstreckenverwaltung
 
-13.11.99 - Alternative Push-Technologie als Ersatz für SIGNAL verfügbar
-         - Strassenbau für Städte verbessert
-         - neue größere und besser erkennbare Icons
-         - verbesserte Werkzeuge für den Bau von Bahnhöfen, Bushaltestellen
-           und Frachthöfen: automatische Richtungserkennung
+13.11.99 - Alternative Push-Technologie als Ersatz fï¿½r SIGNAL verfï¿½gbar
+         - Strassenbau fï¿½r Stï¿½dte verbessert
+         - neue grï¿½ï¿½ere und besser erkennbare Icons
+         - verbesserte Werkzeuge fï¿½r den Bau von Bahnhï¿½fen, Bushaltestellen
+           und Frachthï¿½fen: automatische Richtungserkennung
 
-06.11.99 - Blockstrecken jetzt auch für Convois (Züge)
+06.11.99 - Blockstrecken jetzt auch fï¿½r Convois (Zï¿½ge)
 
-03.11.99 - Bugfixes für Blockstrecken, alle Tests erfolgreich durchlaufen
+03.11.99 - Bugfixes fï¿½r Blockstrecken, alle Tests erfolgreich durchlaufen
 
 02.11.99 - Einfach- und Doppelsignale
-         - Bugfixes für Blockstrecken und Signalverwaltung
+         - Bugfixes fï¿½r Blockstrecken und Signalverwaltung
 
 01.11.99 - Erste Blockstreckenverwaltung und Signale
 
-09.09.99 - Simu jetzt unabhängig von draw
+09.09.99 - Simu jetzt unabhï¿½ngig von draw
          - Simu 16 Bit-faehig
 
 02.06.99 - Bild fuer Rathaus

@@ -1267,7 +1267,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				ribis |= gr1->get_leitung()->get_ribi();
 			}
 
-			if(  new_slope==RESTORE_SLOPE  ||  !ribi_t::is_single(ribis)  ||  (new_slope<slope_t::raised  &&  ribi_t::backward(ribi_type(new_slope))!=ribis)  ) {
+			if(  new_slope==RESTORE_SLOPE  ||  !ribi_t::is_single(ribis)  ||  (new_slope<slope_t::max_number  &&  ribi_t::backward(ribi_type(new_slope))!=ribis)  ) {
 				// has the wrong tilt
 				return NOTICE_TILE_FULL;
 			}
@@ -1634,7 +1634,7 @@ const char *tool_clear_reservation_t::work( player_t *player, koord3d pos )
 
 			// Does this way belong to the player using the tool? If not, does the vehicle reserving the way belong to the player using the tool?
 			// The public player can use it universally.
-			if(!player->is_public_service() && w->get_owner() != player && w->get_reserved_convoi()->get_owner() != player)
+			if(!player->is_public_service() && w->get_owner() != player && w->get_reserved_convoi().is_bound() && w->get_reserved_convoi()->get_owner() != player)
 			{
 				err = "Cannot edit block reservations on another player's way.";
 				continue;
@@ -2415,7 +2415,7 @@ const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month, bool r
 	const way_desc_t *desc = default_param ? way_builder_t::get_desc(default_param,0) : NULL;
 	if(  desc==NULL  &&  default_param  ) {
 		waytype_t wt = (waytype_t)atoi(default_param);
-		desc = defaults[wt & 63];
+		desc = defaults[wt & (sint8)63];
 		if(desc == NULL || !desc->is_available(timeline_year_month)) {
 			// Search for default way
 			desc = way_builder_t::weg_search(wt, 0xffffffff, timeline_year_month, type_flat);
@@ -2426,7 +2426,7 @@ const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month, bool r
 			defaults[ tram_wt ] = desc;
 		}
 		else {
-			defaults[desc->get_wtyp()&63] = desc;
+			defaults[desc->get_wtyp()&(sint8)63] = desc;
 		}
 	}
 	return desc;
@@ -2555,9 +2555,12 @@ void tool_build_way_t::draw_after(scr_coord k, bool dirty) const
 	if(  desc  &&  desc->get_waytype()==road_wt  ) {
 		if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
-			char level_str[16];
-			tool_build_way_t::set_mode_str(level_str, overtaking_mode);
-			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+			if (overtaking_mode != invalid_mode) {
+				char level_str[16];
+				tool_build_way_t::set_mode_str(level_str, overtaking_mode);
+				display_proportional_rgb(k.x + 5, k.y + 5, level_str, ALIGN_LEFT, color_idx_to_rgb(SYSCOL_TEXT_SHADOW), true);
+				display_proportional_rgb(k.x + 4, k.y + 4, level_str, ALIGN_LEFT, color_idx_to_rgb(strasse_t::overtaking_mode_to_color(overtaking_mode) + 1), true);
+			}
 		}
 	} else {
 		two_click_tool_t::draw_after(k,dirty);
@@ -2675,8 +2678,9 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 	return positive_return;
 }
 
-void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start, const koord3d &end )
+bool tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start, const koord3d &end )
 {
+	bool route_reversed = false;
 	// recalc type of construction
 	way_builder_t::bautyp_t bautyp = (way_builder_t::bautyp_t)desc->get_wtyp();
 	if (desc->is_tram()) {
@@ -2709,10 +2713,11 @@ void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 		bauigel.calc_straight_route(start,end);
 	}
 	else {
-		bauigel.calc_route(start,end);
+		route_reversed = bauigel.calc_route(start,end);
 	}
 
 	DBG_MESSAGE("tool_build_way_t()", "builder found route with %d squares length.", bauigel.get_count());
+	return route_reversed;
 }
 
 tool_build_way_t* get_build_way_tool_from_toolbar(const way_desc_t* desc) {
@@ -2735,7 +2740,8 @@ const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, c
 		// look toolbar variable indicates this tool is called from a shortcut key. When a tool is called from a shortcut key, we have to use overtaking_mode of the tool in a toolbar.
 		mode = toolbar_tool->get_overtaking_mode();
 	}
-  bauigel.set_overtaking_mode(mode);
+
+	bauigel.set_overtaking_mode(mode);
 	if(  bauigel.get_route().get_count()>1  ) {
 		sint64 cost = bauigel.calc_costs();
 
@@ -2777,32 +2783,26 @@ void tool_build_way_t::set_mode_str(char* str, overtaking_mode_t overtaking_mode
 	switch (overtaking_mode) {
 		case halt_mode:
 			sprintf(str, "H");
-		break;
+			break;
 		case oneway_mode:
 			sprintf(str, "O");
-		break;
+			break;
 		case twoway_mode:
 			sprintf(str, "T");
-		break;
-		case loading_only_mode:
-			sprintf(str, "L");
-		break;
+			break;
 		case prohibited_mode:
 			sprintf(str, "P");
-		break;
-		case inverted_mode:
-			sprintf(str, "I");
-		break;
+			break;
 		default:
-			sprintf(str, "X");
-		break;
+			sprintf(str, "-");
+			break;
 	}
 }
 
 void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, const koord3d &end )
 {
 	way_builder_t bauigel(player);
-	calc_route( bauigel, start, end );
+	bool route_reversed = calc_route( bauigel, start, end );
 
 	uint8 offset = (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt) ? welt->get_settings().get_way_height_clearance() : 0;
 
@@ -2837,6 +2837,17 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 			way->set_yoff(-gr->get_weg_yoff() );
 			marked.insert( way );
 			way->mark_image_dirty( way->get_image(), 0 );
+			if (desc->get_wtyp() == road_wt && (j < bauigel.get_count() - 1) && skinverwaltung_t::ribi_arrow
+				&& (get_overtaking_mode() <= oneway_mode || get_build_way_tool_from_toolbar(desc)->get_overtaking_mode() <= oneway_mode)) {
+				uint8 dir = 0;
+				if (route_reversed && (j > 1)) {
+					dir = ribi_type(pos, bauigel.get_route()[j - 1]);
+				}
+				else if(!route_reversed && (j < bauigel.get_count() - 1)) {
+					dir = ribi_type(pos, bauigel.get_route()[j + 1]);
+				}
+				way->set_after_image(skinverwaltung_t::ribi_arrow->get_image_id(dir));
+			}
 		}
 	}
 }
@@ -2852,7 +2863,7 @@ const char *tool_build_cityroad::do_work( player_t *player, const koord3d &start
 {
 	way_builder_t bauigel(player);
 	bauigel.set_build_sidewalk(true);
-  bauigel.set_overtaking_mode(overtaking_mode);
+	bauigel.set_overtaking_mode(overtaking_mode);
 	calc_route( bauigel, start, end );
 	if(  bauigel.get_route().get_count()>1  ) {
 		welt->mute_sound(true);
@@ -2939,9 +2950,12 @@ void tool_build_bridge_t::draw_after(scr_coord k, bool dirty) const
 	if(  desc  &&  desc->get_waytype()==road_wt  ) {
 		if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
-			char level_str[16];
-			tool_build_way_t::set_mode_str(level_str, overtaking_mode);
-			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+			if (overtaking_mode != invalid_mode) {
+				char level_str[16];
+				tool_build_way_t::set_mode_str(level_str, overtaking_mode);
+				display_proportional_rgb(k.x + 5, k.y + 5, level_str, ALIGN_LEFT, color_idx_to_rgb(SYSCOL_TEXT_SHADOW), true);
+				display_proportional_rgb(k.x + 4, k.y + 4, level_str, ALIGN_LEFT, color_idx_to_rgb(strasse_t::overtaking_mode_to_color(overtaking_mode) + 1), true);
+			}
 		}
 	} else {
 		two_click_tool_t::draw_after(k,dirty);
@@ -2990,7 +3004,7 @@ void tool_build_bridge_t::rdwr_custom_data(memory_rw_t *packet)
 	{
 		const bridge_desc_t* bb = bridge_builder_t::get_desc(default_param);
 		const waytype_t wt = bb ? bb->get_waytype() : invalid_wt;
-		way_desc = tool_build_way_t::defaults[wt & 63];
+		way_desc = tool_build_way_t::defaults[wt & (sint8)63];
 
 		plainstring way_desc_string = way_desc ? way_desc->get_name() : "none";
 		packet->rdwr_str(way_desc_string);
@@ -3004,9 +3018,10 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
 	const char *error;
 	sint8 bridge_height;
-	koord3d end2 = bridge_builder_t::find_end_pos(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 
+	koord3d end2 = bridge_builder_t::find_end_pos(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 	assert(end == end2);
+	(void)end2;
 
 	sint64 costs = 0;
 	// start
@@ -3066,6 +3081,9 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 		way->set_after_image(desc->get_foreground(desc->get_straight(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())), 0));
 		marked.insert( way );
 		way->mark_image_dirty( way->get_image(), 0 );
+		if (desc->get_wtyp() == road_wt && get_overtaking_mode() <= oneway_mode) {
+			way->set_after_image(skinverwaltung_t::ribi_arrow->get_image_id(ribi_mark));
+		}
 		pos = pos + zv;
 	}
 	costs += desc->get_value() * koord_distance(start, pos);
@@ -3077,7 +3095,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	// single height -> height is 1
 	// double height -> height is 2
 	const slope_t::type end_slope = gr->get_weg_hang();
-	const uint8 end_max_height = end_slope ? ((end_slope & 7) ? 1 : 2) : (pos.z-end.z);
+	const uint8 end_max_height = end_slope ? (is_one_high(end_slope) ? 1 : 2) : (pos.z-end.z);
 
 	if(  gr->ist_karten_boden()  &&  end.z + end_max_height == start.z + max_height  ) {
 		zeiger_t *way = new zeiger_t(end, player );
@@ -3220,7 +3238,13 @@ tool_build_tunnel_t::tool_build_tunnel_t() : two_click_tool_t(TOOL_BUILD_TUNNEL 
 {
 	if (!env_t::networkmode)
 	{
-		way_desc = default_param ? way_builder_t::get_desc(default_param, 0) : tool_build_way_t::defaults[get_waytype() & 63];
+		waytype_t wt = get_waytype();
+		if (wt == invalid_wt)
+		{
+			dbg->error("tool_build_tunnel_t::tool_build_tunnel_t()", "Tunnel builder object could not be retrieved; using default tunnel waytype (road), but this may cause errors");
+			wt = road_wt;
+		}
+		way_desc = default_param ? way_builder_t::get_desc(default_param, 0) : tool_build_way_t::defaults[wt & (sint8)63];
 	}
   overtaking_mode = twoway_mode;
 }
@@ -3288,9 +3312,12 @@ void tool_build_tunnel_t::draw_after(scr_coord k, bool dirty) const
 	if(  desc  &&  desc->get_waytype()==road_wt  ) {
 		if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
-			char level_str[16];
-			tool_build_way_t::set_mode_str(level_str, overtaking_mode);
-			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+			if (overtaking_mode != invalid_mode) {
+				char level_str[16];
+				tool_build_way_t::set_mode_str(level_str, overtaking_mode);
+				display_proportional_rgb(k.x + 5, k.y + 5, level_str, ALIGN_LEFT, color_idx_to_rgb(SYSCOL_TEXT_SHADOW), true);
+				display_proportional_rgb(k.x + 4, k.y + 4, level_str, ALIGN_LEFT, color_idx_to_rgb(strasse_t::overtaking_mode_to_color(overtaking_mode) + 1), true);
+			}
 		}
 	} else {
 		two_click_tool_t::draw_after(k,dirty);
@@ -3318,8 +3345,13 @@ void tool_build_tunnel_t::rdwr_custom_data(memory_rw_t *packet)
 	else
 	{
 		const tunnel_desc_t* tb = tunnel_builder_t::get_desc(default_param);
-		const waytype_t wt = tb ? tb->get_waytype() : invalid_wt;
-		way_desc = tool_build_way_t::defaults[wt & 63];
+		waytype_t wt = tb ? tb->get_waytype() : road_wt;
+		if (!tb || wt == invalid_wt)
+		{
+			dbg->error("void tool_build_tunnel_t::rdwr_custom_data(memory_rw_t *packet)", "Tunnel builder object could not be retrieved; using default tunnel waytype (road), but this may cause errors");
+			wt = road_wt;
+		}
+		way_desc = tool_build_way_t::defaults[wt & (sint8)63];
 
 		plainstring way_desc_string = way_desc ? way_desc->get_name() : "none";
 		packet->rdwr_str(way_desc_string);
@@ -5155,7 +5187,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 		free(name);
 	}
 
-	sint64 cost;
+	sint64 cost = 0;
 	if(desc->get_base_price() == PRICE_MAGIC)
 	{
 		switch(desc->get_extra()) {
@@ -6607,7 +6639,7 @@ image_id tool_build_depot_t::get_icon(player_t *player) const
 	return IMG_EMPTY;
 }
 
-bool tool_build_depot_t::init( player_t *player )
+bool tool_build_depot_t::init( player_t * )
 {
 	building_desc_t const* desc = hausbauer_t::find_tile(default_param, 0)->get_desc();
 	if (desc == NULL) {
@@ -6660,7 +6692,7 @@ const char *tool_build_depot_t::work( player_t *player, koord3d pos )
 		// no depots for player 1
 		return 0;
 	}
-#endif 
+#endif
 
 	building_desc_t const* const desc = hausbauer_t::find_tile(default_param,0)->get_desc();
 	settings_t   const&       s     = welt->get_settings();
@@ -6789,7 +6821,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 	// process ignore climates switch
 	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : desc->get_allowed_climate_bits();
 	uint16 regions_allowed = desc->get_allowed_region_bits();
-	
+
 	bool hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, cl, regions_allowed);
 	if(!hat_platz  &&  size.y!=size.x  &&  desc->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#'  ||  default_param[1]=='A')) {
 		// try other rotation too ...
@@ -8214,7 +8246,7 @@ bool tool_show_underground_t::init( player_t * )
 		tool_t::update_toolbars();
 
 		// recalc all images on map
-		welt->update_map();
+		welt->update_underground();
 	}
 	return needs_click;
 }
@@ -8235,7 +8267,7 @@ const char *tool_show_underground_t::work( player_t *player, koord3d pos)
 	tool_t::update_toolbars();
 
 	// recalc all images on map
-	welt->update_map();
+	welt->update_underground();
 
 	if(player == welt->get_active_player()) {
 		welt->set_tool( general_tool[TOOL_QUERY], player );
@@ -8571,7 +8603,7 @@ bool tool_change_convoi_t::init( player_t *player )
 
 	case 'P': // Go to depot
 	{
-		cnv->go_to_depot(true);
+		cnv->go_to_depot();
 		break;
 	}
 
@@ -8603,7 +8635,7 @@ bool tool_change_convoi_t::init( player_t *player )
 		if (cnv->get_replace())
 		{
 			cnv->get_replace()->clear_all();
-			cnv->set_replace(NULL); 
+			cnv->set_replace(NULL);
 			// This convoy might already have been sent to a depot. This will need to be undone.
 			schedule_t* sch = cnv->get_schedule();
 			const schedule_entry_t le = sch->get_current_entry();
@@ -8635,10 +8667,10 @@ bool tool_change_convoi_t::init( player_t *player )
 	}
 	case 'c': // reassign class
 
-		uint8 compartment, new_class;
+		uint16 compartment, new_class;
 		sint32 good_type; // 0 = Passenger, 1 = Mail,
 		sint32 reset; // 0 = reset only single class, 1 = reset all classes
-		sscanf(p, "%hhu,%hhu,%i,%i", &compartment, &new_class, &good_type, &reset);
+		sscanf(p, "%hu,%hu,%i,%i", &compartment, &new_class, &good_type, &reset);
 		//uint16 new_class = atoi(p);
 		if (reset == 1)
 		{
@@ -9266,9 +9298,9 @@ bool tool_change_player_t::init( player_t *player_in)
 			break;
 		case 'u': // Take over another company
 			if (player && player == player_in) {
-				sscanf(p, "%c,%i,%i", &tool, &id, &state);		
+				sscanf(p, "%c,%i,%i", &tool, &id, &state);
 				const char* err = player->can_take_over(welt->get_player(state));
-				if (err) 
+				if (err)
 				{
 					message.printf(translator::translate(err));
 					welt->get_message()->add_message(message, koord::invalid, message_t::ai, player->get_player_color1());
@@ -9600,7 +9632,6 @@ bool tool_access_t::init(player_t *)
 		player_t* const receiving_player = welt->get_player(id_receiving_player);
 		schedule_t* schedule;
 		koord3d pos;
-		waytype_t    wtyp;
 
 		uint8 current_aktuell;
 		halthandle_t halt;
@@ -9617,8 +9648,9 @@ bool tool_access_t::init(player_t *)
 				{
 					continue;
 				}
+
 				current_aktuell = schedule->get_current_stop();
-				wtyp = schedule->get_waytype();
+
 				for(uint8 n = 0; n < schedule->get_count(); n ++)
 				{
 					bool tram_stop_public = false;
@@ -9681,7 +9713,6 @@ bool tool_access_t::init(player_t *)
 				continue;
 			}
 			current_aktuell = schedule->get_current_stop();
-			wtyp = schedule->get_waytype();
 			for(uint8 n = 0; n < schedule->get_count(); n ++)
 			{
 				bool tram_stop_public = false;

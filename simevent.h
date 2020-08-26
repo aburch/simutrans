@@ -203,7 +203,7 @@ int event_get_last_control_shift();
 unsigned int last_meta_event_get_class();
 
 /**
- *Get mouse pointer position.Implementation in simsys.cc
+ *Get mouse pointer position.Implementation in sys/simsys.cc
  */
 int get_mouse_x();
 int get_mouse_y();

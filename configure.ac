@@ -25,8 +25,6 @@ AC_CHECK_LIB(pthread, pthread_mutex_destroy, [AC_SUBST(multithread, 1)], [AC_SUB
 
 # find OS and backend by libs ...
 AC_CHECK_LIB(SDL2, SDL_GetRenderDriverInfo)
-AC_CHECK_LIB(SDL, SDL_Init)
-AC_CHECK_LIB(allegro, get_desktop_resolution)
 
 AC_CHECK_HEADERS(windows.h)
 AC_CHECK_HEADERS(LocaleRoster.h)
@@ -75,16 +73,6 @@ then
 elif test "$ac_cv_lib_SDL2_SDL_GetRenderDriverInfo" == yes
 then
 	AC_SUBST(backend, sdl2)
-	AC_SUBST(color, 16)
-	AC_MSG_WARN([Using SDL2 backend!])
-elif test "$ac_cv_lib_SDL_SDL_Init" == yes
-then
-	AC_SUBST(backend, sdl)
-	AC_SUBST(color, 16)
-	AC_MSG_WARN([Using SDL backend!])
-elif test "$ac_cv_lib_allegro_get_desktop_resolution" == yes
-then
-	AC_SUBST(backend, allegro)
 	AC_SUBST(color, 16)
 	AC_MSG_WARN([Using SDL2 backend!])
 else

@@ -362,7 +362,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		if (extended && extended_version >= 4)
 		{
-			desc->base_max_distance_to_supplier = decode_uint16(p); 
+			desc->base_max_distance_to_supplier = decode_uint16(p);
 		}
 		else
 		{

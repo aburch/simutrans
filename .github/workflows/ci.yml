@@ -1,0 +1,266 @@
+name: CI
+on: [push, pull_request]
+
+
+jobs:
+  check-code-formatting:
+    name: Code Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Code Check
+        shell: bash
+        run: ./cleanup_code.sh && git diff --exit-code
+
+
+  sim-linux-sdl2mixer:
+    name: Linux (SDL2 + SDL2_mixer, multi-threaded, freetype)
+    runs-on: ubuntu-latest
+    needs: [check-code-formatting]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get Dependencies
+        shell: bash
+        run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential clang++-10 zlib1g-dev libbz2-dev libsdl2-dev libsdl2-mixer-dev libfreetype6-dev
+      - name: Configure
+        run: cp configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j$(nproc) all
+      - name: Build Zip
+        run: sh distribute.sh
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: sim*.zip
+
+
+  sim-linux-posix:
+    name: Linux (headless)
+    runs-on: ubuntu-latest
+    needs: [check-code-formatting]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get Dependencies
+        shell: bash
+        run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential clang++-10 zlib1g-dev libbz2-dev
+      - name: Configure
+        run: cp configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j$(nproc) all
+      - name: Build Zip
+        run: sh distribute.sh
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: sim*.zip
+
+
+  sim-linux-debug-sdl2:
+    name: Linux (Debug SDL2, multi-threaded)
+    runs-on: ubuntu-latest
+    needs: [check-code-formatting]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get Dependencies
+        shell: bash
+        run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential clang++-10 zlib1g-dev libbz2-dev libsdl2-dev
+      - name: Configure
+        run: cp configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j$(nproc) all
+      - name: Build Zip
+        run: sh distribute.sh
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: sim*.zip
+
+
+  makeobj-linux:
+    name: Linux Makeobj
+    runs-on: ubuntu-latest
+    needs: [check-code-formatting]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get Dependencies
+        shell: bash
+        run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential g++-10 zlib1g-dev libbz2-dev libpng-dev
+      - name: Configure
+        run: cp configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j$(nproc) makeobj
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/default/makeobj-extended/makeobj-extended
+
+
+  nettool-linux:
+    name: Linux Nettool
+    runs-on: ubuntu-latest
+    needs: [check-code-formatting]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get Dependencies
+        shell: bash
+        run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential g++-10
+      - name: Configure
+        run: cp configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j$(nproc) nettool
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/default/nettool/nettool
+
+
+  sim-mac-sdl2:
+    name: macOS (SDL2)
+    runs-on: macOS-latest
+    needs: [check-code-formatting]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get Dependencies
+        run: |
+          curl http://www.libsdl.org/release/SDL2-2.0.10.dmg > SDL2-2.0.10.dmg
+          hdiutil attach SDL2-2.0.10.dmg >>/dev/stderr
+          sudo cp -R -v /Volumes/SDL2/SDL2.framework /Library/Frameworks/
+          sudo ls /Library/Frameworks/ >>/dev/stderr
+          hdiutil eject /Volumes/SDL2 >>/dev/stderr
+      - name: Configure
+        run: |
+          cp configs/config.${{ github.job }} config.default
+          echo "CFLAGS += -DREVISION=$(svn info --show-item revision svn://servers.simutrans.org/simutrans)" >> config.default
+          cat config.default >> /dev/stderr
+      - name: Build
+        run: make -j2
+      - name: Build Zip
+        run: sh distribute.sh
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: sim*.zip
+
+
+  makeobj-mac:
+    name: macOS Makeobj
+    runs-on: macOS-latest
+    needs: [check-code-formatting]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure
+        run: cp configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j2 makeobj
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/default/makeobj-extended/makeobj-extended
+
+
+  nettool-mac:
+    name: macOS Nettool
+    runs-on: macOS-latest
+    needs: [check-code-formatting]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure
+        run: cp configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j2 nettool
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/default/nettool/nettool
+
+
+  sim-mingw-sdl2:
+    name: Windows (mingw, SDL2)
+    runs-on: ubuntu-latest
+    needs: [check-code-formatting]
+    container:
+      image: ceeac/simutrans-build-env:mingw-sdl2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure
+        run: cp configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j$(nproc)
+
+
+  sim-mingw-gdi:
+    name: Windows (mingw, GDI)
+    runs-on: ubuntu-latest
+    needs: [check-code-formatting]
+    container:
+      image: ceeac/simutrans-build-env:mingw-sdl2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure
+        run: cp configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j$(nproc)
+
+
+  sim-mingw-posix:
+    name: Windows (mingw, headless)
+    runs-on: ubuntu-latest
+    needs: [check-code-formatting]
+    container:
+      image: ceeac/simutrans-build-env:mingw-sdl2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure
+        run: cp configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j$(nproc)
+
+
+  makeobj-mingw:
+    name: Windows Makeobj (mingw)
+    runs-on: ubuntu-latest
+    needs: [check-code-formatting]
+    container:
+      image: ceeac/simutrans-build-env:mingw-sdl2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure
+        run: cp configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j$(nproc) makeobj
+
+
+  nettool-mingw:
+    name: Windows Nettool (mingw)
+    runs-on: ubuntu-latest
+    needs: [check-code-formatting]
+    container:
+      image: ceeac/simutrans-build-env:mingw-sdl2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure
+        run: cp configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j$(nproc) nettool

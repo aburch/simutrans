@@ -86,6 +86,7 @@ void *freelist_t::gimme_node(size_t size)
 #ifdef MULTI_THREAD
 	int error = pthread_mutex_lock( &freelist_mutex );
 	assert(error == 0);
+	(void)error;
 #endif
 
 	// hold return value
@@ -187,6 +188,7 @@ void freelist_t::putback_node( size_t size, void *p )
 #ifdef MULTI_THREAD
 	int error = pthread_mutex_lock( &freelist_mutex );
 	assert(error == 0);
+	(void)error;
 #endif
 
 	if(  size > MAX_LIST_INDEX  ) {
@@ -194,6 +196,7 @@ void freelist_t::putback_node( size_t size, void *p )
 #ifdef MULTI_THREAD
 		int error = pthread_mutex_unlock( &freelist_mutex );
 		assert(error == 0);
+		(void)error;
 #endif
 		return;
 	}
@@ -230,7 +233,7 @@ void freelist_t::free_all_nodes()
 	printf("freelist_t::free_all_nodes(): frees all list memory\n" );
 	while(chunk_list) {
 		nodelist_node_t *p = chunk_list;
-		printf("freelist_t::free_all_nodes(): free node %p (next %p)\n",p,chunk_list->next);
+		printf("freelist_t::free_all_nodes(): free node %p (next %p)\n", (void *)p, (void *)chunk_list->next);
 		chunk_list = chunk_list->next;
 
 		// now release memory

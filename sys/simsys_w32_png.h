@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SIMSYS_W32_PNG_H
-#define SIMSYS_W32_PNG_H
+#ifndef SYS_SIMSYS_W32_PNG_H
+#define SYS_SIMSYS_W32_PNG_H
 
 
 #ifdef _WIN32

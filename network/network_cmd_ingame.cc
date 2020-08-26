@@ -18,7 +18,7 @@
 #include "../simversion.h"
 #include "../gui/simwin.h"
 #include "../simmesg.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../dataobj/environment.h"
 #include "../player/simplay.h"
 #include "../gui/player_frame_t.h"

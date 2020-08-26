@@ -62,7 +62,7 @@ private:
 
 	uint8 anim_frame;
 
-	sint64 construction_start;  // Time in ticks. "Pit" under-construction graphics handled by sync_step() 
+	sint64 construction_start;  // Time in ticks. "Pit" under-construction graphics handled by sync_step()
     sint32 purchase_time;       // Date in months
 
 

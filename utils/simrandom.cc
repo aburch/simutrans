@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include "simrandom.h"
 #include "../dataobj/environment.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 
 /* This is the mersenne random generator: More random and faster! */
 
@@ -192,7 +192,7 @@ uint32 simrand_normal(const uint32 max, uint32 exponent, const char*)
 			recursion_exponent = 3;
 		}
 
-		exponent = 3; 
+		exponent = 3;
 	}
 
 	const uint64 abs_max = max == 0 ? 1 : max;
@@ -277,10 +277,10 @@ uint32 setsimrand(uint32 seed,uint32 ns)
 
 static double int_noise(const sint32 x, const sint32 y)
 {
-	sint32 n = x + y*101 + noise_seed;
+	uint32 n = (uint32)x + (uint32)y*101U + noise_seed;
 
 	n = (n<<13) ^ n;
-	return ( 1.0 - (double)((n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0);
+	return 1.0 - (double)((n * (n * n * 15731U + 789221U) + 1376312589U) & 0x7fffffff) / 1073741824.0;
 }
 
 

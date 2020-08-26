@@ -8,9 +8,10 @@
 #include <string.h>
 
 #include "simsys.h"
-#include "display/simgraph.h"
-#include "simdebug.h"
-#include "dataobj/translator.h"
+#include "../display/simgraph.h"
+#include "../simdebug.h"
+#include "../dataobj/translator.h"
+
 
 /**
 * Copy text to the clipboard

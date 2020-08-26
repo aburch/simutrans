@@ -1116,7 +1116,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 				{
 					buf.printf(" %i%%", get_mail_delivery_success_percent_this_year());
 				}
-				else 
+				else
 				{
 					buf.printf(" -");
 				}
@@ -1552,9 +1552,7 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 	}
 	for (int i = 0; i < pass_classes; i++)
 	{
-		char class_name_untranslated[32];
-		sprintf(class_name_untranslated, "p_class[%u]", i);
-		const char* class_name = translator::translate(class_name_untranslated);
+		const char* class_name = goods_manager_t::get_translated_wealth_name(goods_manager_t::INDEX_PAS,i);
 		if (condition == 1)
 		{
 			buf.printf(" %3i%% %s\n", class_percentage[i], class_name);
@@ -1589,7 +1587,7 @@ void gebaeude_t::new_year()
 	mail_delivery_succeeded_last_year = mail_delivery_succeeded;
 	mail_delivery_success_percent_last_year = get_mail_delivery_success_percent_this_year();
 
-	passengers_succeeded_commuting = passengers_generated_commuting = passengers_succeeded_visiting = passengers_generated_visiting = mail_generated = mail_delivery_succeeded = mail_delivery_succeeded = 0;
+	passengers_succeeded_commuting = passengers_generated_commuting = passengers_succeeded_visiting = passengers_generated_visiting = mail_generated = mail_delivery_succeeded = 0;
 }
 
 
@@ -1703,7 +1701,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 				{
 					const building_desc_t *bdsc = hausbauer_t::get_residential(level, single, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z), welt->get_region(get_pos().get_2d()));
 					if (bdsc == NULL) {
-						bdsc = hausbauer_t::get_residential(level, single, 0, MAX_CLIMATES, 65535);
+						bdsc = hausbauer_t::get_residential(level, single, 0, MAX_CLIMATES, 0xFFu);
 					}
 					if (bdsc) {
 						dbg->message("gebaeude_t::rwdr", "replace unknown building %s with residence level %i by %s", buf, level, bdsc->get_name());
@@ -1716,7 +1714,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 				{
 					const building_desc_t *bdsc = hausbauer_t::get_commercial(level, single, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z), welt->get_region(get_pos().get_2d()));
 					if (bdsc == NULL) {
-						bdsc = hausbauer_t::get_commercial(level, single, 0, MAX_CLIMATES, 65535);
+						bdsc = hausbauer_t::get_commercial(level, single, 0, MAX_CLIMATES, 0xFFu);
 					}
 					if (bdsc) {
 						dbg->message("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i by %s", buf, level, bdsc->get_name());
@@ -1729,9 +1727,9 @@ void gebaeude_t::rdwr(loadsave_t *file)
 				{
 					const building_desc_t *bdsc = hausbauer_t::get_industrial(level, single, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z), welt->get_region(get_pos().get_2d()));
 					if (bdsc == NULL) {
-						bdsc = hausbauer_t::get_industrial(level, single, 0, MAX_CLIMATES, 65535);
+						bdsc = hausbauer_t::get_industrial(level, single, 0, MAX_CLIMATES, 0xFFu);
 						if (bdsc == NULL) {
-							bdsc = hausbauer_t::get_residential(level, single, 0, MAX_CLIMATES, 65535);
+							bdsc = hausbauer_t::get_residential(level, single, 0, MAX_CLIMATES, 0xFFu);
 						}
 					}
 					if (bdsc) {
@@ -2320,6 +2318,7 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 
 	// Next, find the nearest city
 	const uint32 rank_max = welt->get_settings().get_auto_connect_industries_and_attractions_by_road();
+	const uint32 max_road_length = env_t::networkmode ? 2048 : (uint32)env_t::intercity_road_length; // The env_t:: settings are not transmitted with network games so may diverge between client and server.
 	for (uint32 rank = 1; rank <= rank_max; rank++)
 	{
 		const stadt_t* city = welt->find_nearest_city(get_pos().get_2d(), rank);
@@ -2329,7 +2328,7 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 		}
 		koord end = city->get_townhall_road();
 
-		if (shortest_distance(start.get_2d(), end) > (uint32)env_t::intercity_road_length)
+		if (shortest_distance(start.get_2d(), end) > max_road_length)
 		{
 			return;
 		}
@@ -2344,9 +2343,10 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 		way_builder_t builder(NULL);
 		builder.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, desc, tunnel_builder_t::get_tunnel_desc(road_wt, desc->get_topspeed(), welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt, desc->get_topspeed(), welt->get_timeline_year_month(), desc->get_max_axle_load() * 2));
 		builder.set_keep_existing_ways(true);
-		builder.set_maximum(env_t::intercity_road_length);
+		builder.set_maximum(max_road_length);
 		builder.set_keep_city_roads(true);
 		builder.set_build_sidewalk(false);
+		builder.set_overtaking_mode(invalid_mode);
 
 		koord3d end3d = welt->lookup_kartenboden(end)->get_pos();
 

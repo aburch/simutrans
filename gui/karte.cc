@@ -79,18 +79,6 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 	COL_DARK_GREEN, 138, COL_LIGHT_GREEN, COL_LIGHT_YELLOW, COL_YELLOW, 30, COL_LIGHT_ORANGE, COL_ORANGE, COL_ORANGE_RED, COL_RED // Green/yellow/orange/red
 };
 
-uint linetype_to_stationtype[MAP_TRANSPORT_TYPE_ITEMS] = {
-	haltestelle_t::invalid,
-	haltestelle_t::busstop,
-	haltestelle_t::railstation,
-	haltestelle_t::dock,
-	haltestelle_t::airstop,
-	haltestelle_t::monorailstop,
-	haltestelle_t::tramstop,
-	haltestelle_t::maglevstop,
-	haltestelle_t::narrowgaugestop
-};
-
 // Way colours for the map
 #define STRASSE_KENN      (208)
 #define SCHIENE_KENN      (185)
@@ -685,7 +673,7 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour, boo
 					gebaeude_t *gb = gr->find<gebaeude_t>();
 					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
 					if(fab==NULL) {
-						sint16 height = (gr->get_grund_hang()%3);
+						sint16 height = corner_sw(gr->get_grund_hang());
 						if (show_contour) {
 							color = calc_hoehe_farbe(welt->lookup_hgt(gr->get_pos().get_2d()) + height, welt->get_water_hgt(gr->get_pos().get_2d()));
 						}
@@ -735,7 +723,7 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour, boo
 						color = map_type_color[MAX_MAP_TYPE_WATER];
 					}
 					else {
-						sint16 height = (gr->get_grund_hang()%3);
+						sint16 height = corner_sw(gr->get_grund_hang());
 						if(  gr->get_hoehe() > welt->get_groundwater()  ) {
 							color = calc_hoehe_farbe(gr->get_hoehe() + height, welt->get_groundwater());
 						}
@@ -793,7 +781,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 						continue;
 					}
 					// station waytype compatible filter
-					if(transport_type_showed_on_map != simline_t::line && !(halt->get_station_type() & linetype_to_stationtype[transport_type_showed_on_map]))
+					if(transport_type_showed_on_map != simline_t::line && !(halt->get_station_type() & simline_t::linetype_to_stationtype[transport_type_showed_on_map]))
 					{
 						continue;
 					}
@@ -1755,7 +1743,13 @@ void reliefkarte_t::draw(scr_coord pos)
 				}
 
 				if(  stype & haltestelle_t::dock  ) {
-					display_harbor( temp_stop.x+diagonal_dist, temp_stop.y+diagonal_dist, color );
+					fabrik_t *fab = fabrik_t::get_fab(station->get_basis_pos());
+					if (fab && fab->get_sector() == fabrik_t::marine_resource && skinverwaltung_t::ind_sector_symbol) {
+						display_color_img(skinverwaltung_t::ind_sector_symbol->get_image_id(0), temp_stop.x + diagonal_dist+4, temp_stop.y + diagonal_dist+4, 0, false, false);
+					}
+					else {
+						display_harbor(temp_stop.x + diagonal_dist, temp_stop.y + diagonal_dist, color);
+					}
 				}
 			}
 		}

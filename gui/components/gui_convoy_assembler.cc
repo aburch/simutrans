@@ -94,6 +94,25 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	scrolly_waggons(&cont_waggons),
 	lb_vehicle_filter("Filter:", SYSCOL_TEXT, gui_label_t::left)
 {
+	livery_selector.add_listener(this);
+	add_component(&livery_selector);
+	livery_selector.clear_elements();
+	livery_scheme_indices.clear();
+
+	vehicle_filter.set_highlight_color(depot_frame ? depot_frame->get_depot()->get_owner()->get_player_color1() + 1 : replace_frame ? replace_frame->get_convoy()->get_owner()->get_player_color1() + 1 : COL_BLACK);
+	vehicle_filter.add_listener(this);
+	add_component(&vehicle_filter);
+
+	veh_action = va_append;
+	action_selector.add_listener(this);
+	add_component(&action_selector);
+	action_selector.clear_elements();
+	static const char *txt_veh_action[4] = { "anhaengen", "voranstellen", "verkaufen", "Upgrade" };
+	action_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_veh_action[0]), SYSCOL_TEXT));
+	action_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_veh_action[1]), SYSCOL_TEXT));
+	action_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_veh_action[2]), SYSCOL_TEXT));
+	action_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_veh_action[3]), SYSCOL_TEXT));
+	action_selector.set_selection(0);
 
 	/*
 	* These parameter are adjusted to resolution.
@@ -240,17 +259,6 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	add_component(&lb_livery_counter);
 	add_component(&lb_vehicle_filter);
 
-	veh_action = va_append;
-	action_selector.add_listener(this);
-	add_component(&action_selector);
-	action_selector.clear_elements();
-	static const char *txt_veh_action[4] = { "anhaengen", "voranstellen", "verkaufen", "Upgrade" };
-	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[0]), SYSCOL_TEXT ) );
-	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[1]), SYSCOL_TEXT ) );
-	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[2]), SYSCOL_TEXT ) );
-	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[3]), SYSCOL_TEXT ) );
-	action_selector.set_selection( 0 );
-
 	bt_outdated.set_typ(button_t::square);
 	bt_outdated.set_text("Show outdated");
 	if (welt->use_timeline() && welt->get_settings().get_allow_buying_obsolete_vehicles() ) {
@@ -272,15 +280,6 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	bt_show_all.add_listener(this);
 	bt_show_all.set_tooltip("Show also vehicles that do not match for current action.");
 	add_component(&bt_show_all);
-
-	vehicle_filter.set_highlight_color(depot_frame ? depot_frame->get_depot()->get_owner()->get_player_color1() + 1 : replace_frame ? replace_frame->get_convoy()->get_owner()->get_player_color1() + 1 : COL_BLACK);
-	vehicle_filter.add_listener(this);
-	add_component(&vehicle_filter);
-
-	livery_selector.add_listener(this);
-	add_component(&livery_selector);
-	livery_selector.clear_elements();
-	livery_scheme_indices.clear();
 
 	bt_class_management.set_typ(button_t::roundbox);
 	bt_class_management.set_text("class_manager");
@@ -2175,7 +2174,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			vehicle_fluctuation++;
 			lb_convoi_count.set_visible(true);
 		}
-		tile_occupancy.set_new_veh_length(new_vehicle_length + auto_addition_length, veh_action == va_insert ? true : false, new_vehicle_length_sb_force_zero ? -1 : new_vehicle_length);
+		tile_occupancy.set_new_veh_length(new_vehicle_length + auto_addition_length, veh_action == va_insert ? true : false, new_vehicle_length_sb_force_zero ? 0xFFu : new_vehicle_length);
 		if (!new_vehicle_length_sb_force_zero) {
 			if (veh_action == va_append && auto_addition_length == 0) {
 				tile_occupancy.set_assembling_incomplete(vec[sel_index]->rcolor == COL_YELLOW ? true : false);
@@ -2284,7 +2283,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 						}
 					}
 					// display upgrade counter
-					sprintf(txt_convoi_count_fluctuation, "(%i)", upgrade_count);
+					sprintf(txt_convoi_count_fluctuation, "(%hu)", (uint16)upgrade_count);
 					lb_convoi_count_fluctuation.set_visible(true);
 					lb_convoi_count_fluctuation.set_pos(scr_coord(lb_convoi_count.get_pos().x + proportional_string_width(txt_convoi_count) + D_H_SPACE, lb_convoi_count.get_pos().y));
 					lb_convoi_count_fluctuation.set_color(COL_UPGRADEABLE);
@@ -2389,7 +2388,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		// Cost information:
 		char tmp[128];
 		money_to_string(tmp, veh_type->get_value() / 100.0, false);
-		char resale_entry[32] = "\0";
+		char resale_entry[256] = "\0";
 		if (resale_value != -1.0) {
 			char tmp[128];
 			money_to_string(tmp, resale_value / 100.0, false);
@@ -2567,18 +2566,11 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				{
 					if (veh_type->get_capacity(i) > 0)
 					{
-						char class_name_untranslated[32];
-						if (mail_veh)
-						{
-							sprintf(class_name_untranslated, "m_class[%u]", i);
-						}
-						else
-						{
-							sprintf(class_name_untranslated, "p_class[%u]", i);
-						}
-						const char* class_name = translator::translate(class_name_untranslated);
-
-						buf.printf("%s: %3d %s %s", class_name, veh_type->get_capacity(i), translator::translate(veh_type->get_freight_type()->get_mass()), translator::translate(veh_type->get_freight_type()->get_name()));
+						buf.printf("%s: %3d %s %s",
+							goods_manager_t::get_translated_wealth_name(veh_type->get_freight_type()->get_catg_index(), i),
+							veh_type->get_capacity(i),
+							translator::translate(veh_type->get_freight_type()->get_mass()),
+							translator::translate(veh_type->get_freight_type()->get_name()));
 						buf.append("\n");
 						lines++;
 

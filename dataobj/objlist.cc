@@ -769,6 +769,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				// some old offsets will be converted to new ones
 				case obj_t::old_fussgaenger:
 					typ = obj_t::pedestrian;
+					// fallthrough
 				case obj_t::pedestrian:
 				{
 					pedestrian_t* const pedestrian = new pedestrian_t(file);
@@ -786,6 +787,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 
 				case obj_t::old_verkehr:
 					typ = obj_t::road_user;
+					// fallthrough
 				case obj_t::road_user:
 				{
 					private_car_t* const car = new private_car_t(file);
@@ -802,11 +804,13 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 
 				case obj_t::old_monoraildepot:
 					typ = obj_t::monoraildepot;
+					// fallthrough
 				case obj_t::monoraildepot:
 					new_obj = new monoraildepot_t(file);
 					break;
 				case obj_t::old_tramdepot:
 					typ = obj_t::tramdepot;
+					// fallthrough
 				case obj_t::tramdepot:
 					new_obj = new tramdepot_t(file);
 					break;
@@ -818,6 +822,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 					break;
 				case obj_t::old_airdepot:
 					typ = obj_t::airdepot;
+					// fallthrough
 				case obj_t::airdepot:
 					new_obj = new airdepot_t(file);
 					break;
@@ -829,28 +834,28 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 					break;
 
 				case obj_t::bahndepot:
-				{
-					// for compatibility reasons we may have to convert them to tram and monorail depots
-					bahndepot_t*                   bd;
-					gebaeude_t                     gb(file, false);
-					building_tile_desc_t const* const tile = gb.get_tile();
-					if(  tile  ) {
-						switch (tile->get_desc()->get_extra()) {
-							case monorail_wt: bd = new monoraildepot_t( gb.get_pos(), gb.get_owner(), tile); break;
-							case tram_wt:     bd = new tramdepot_t(     gb.get_pos(), gb.get_owner(), tile); break;
-							default:          bd = new bahndepot_t(     gb.get_pos(), gb.get_owner(), tile); break;
+					{
+						// for compatibility reasons we may have to convert them to tram and monorail depots
+						bahndepot_t*                   bd;
+						gebaeude_t                     gb(file, false);
+						building_tile_desc_t const* const tile = gb.get_tile();
+						if(  tile  ) {
+							switch (tile->get_desc()->get_extra()) {
+								case monorail_wt: bd = new monoraildepot_t( gb.get_pos(), gb.get_owner(), tile); break;
+								case tram_wt:     bd = new tramdepot_t(     gb.get_pos(), gb.get_owner(), tile); break;
+								default:          bd = new bahndepot_t(     gb.get_pos(), gb.get_owner(), tile); break;
+							}
 						}
+						else {
+							bd = new bahndepot_t( gb.get_pos(), gb.get_owner(), NULL );
+						}
+						bd->rdwr_vehicles(file);
+						new_obj   = bd;
+						typ = new_obj->get_typ();
+						// do not remove from this position, since there will be nothing
+						gb.set_flag(obj_t::not_on_map);
 					}
-					else {
-						bd = new bahndepot_t( gb.get_pos(), gb.get_owner(), NULL );
-					}
-					bd->rdwr_vehicles(file);
-					new_obj   = bd;
-					typ = new_obj->get_typ();
-					// do not remove from this position, since there will be nothing
-					gb.set_flag(obj_t::not_on_map);
-				}
-				break;
+					break;
 
 				case obj_t::signalbox:
 					new_obj = new signalbox_t(file);
@@ -859,100 +864,104 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				// check for pillars
 				case obj_t::old_pillar:
 					typ = obj_t::pillar;
-				case obj_t::pillar:
-				{
-					pillar_t *p = new pillar_t(file);
-					if(p->get_desc()!=NULL  &&  p->get_desc()->get_pillar()!=0) {
-						new_obj = p;
-					}
-					else {
-						// has no pillar ...
-						// do not remove from this position, since there will be nothing
-						p->set_flag(obj_t::not_on_map);
-						delete p;
-					}
-				}
-				break;
+					// fallthrough
 
-				case obj_t::baum:
-				{
-					baum_t *b = new baum_t(file);
-					if(  !b->get_desc()  ) {
-						// is there a replacement possible
-						if(  const tree_desc_t *desc = baum_t::random_tree_for_climate( world()->get_climate_at_height(current_pos.z) )  ) {
-							b->set_desc( desc );
+				case obj_t::pillar:
+					{
+						pillar_t *p = new pillar_t(file);
+						if(p->get_desc()!=NULL  &&  p->get_desc()->get_pillar()!=0) {
+							new_obj = p;
 						}
 						else {
-							// do not remove from map on this position, since there will be nothing
-							b->set_flag(obj_t::not_on_map);
-							delete b;
-							b = NULL;
+							// has no pillar ...
+							// do not remove from this position, since there will be nothing
+							p->set_flag(obj_t::not_on_map);
+							delete p;
 						}
 					}
-					else {
-						new_obj = b;
+					break;
+
+				case obj_t::baum:
+					{
+						baum_t *b = new baum_t(file);
+						if(  !b->get_desc()  ) {
+							// is there a replacement possible
+							if(  const tree_desc_t *desc = baum_t::random_tree_for_climate( world()->get_climate_at_height(current_pos.z) )  ) {
+								b->set_desc( desc );
+							}
+							else {
+								// do not remove from map on this position, since there will be nothing
+								b->set_flag(obj_t::not_on_map);
+								delete b;
+								b = NULL;
+							}
+						}
+						else {
+							new_obj = b;
+						}
 					}
-				}
-				break;
+					break;
 
 				case obj_t::groundobj:
-				{
-					groundobj_t* const groundobj = new groundobj_t(file);
-					if(groundobj->get_desc() == NULL) {
-						// do not remove from this position, since there will be nothing
-						groundobj->set_flag(obj_t::not_on_map);
-						delete groundobj;
+					{
+						groundobj_t* const groundobj = new groundobj_t(file);
+						if(groundobj->get_desc() == NULL) {
+							// do not remove from this position, since there will be nothing
+							groundobj->set_flag(obj_t::not_on_map);
+							delete groundobj;
+						}
+						else {
+							new_obj = groundobj;
+						}
+						break;
 					}
-					else {
-						new_obj = groundobj;
-					}
-					break;
-				}
 
 				case obj_t::movingobj:
-				{
-					movingobj_t* const movingobj = new movingobj_t(file);
-					if (movingobj->get_desc() == NULL) {
-						// no citycars ... delete this
-						movingobj->set_flag(obj_t::not_on_map);
-						delete movingobj;
+					{
+						movingobj_t* const movingobj = new movingobj_t(file);
+						if (movingobj->get_desc() == NULL) {
+							// no citycars ... delete this
+							movingobj->set_flag(obj_t::not_on_map);
+							delete movingobj;
+						}
+						else {
+							new_obj = movingobj;
+						}
+						break;
 					}
-					else {
-						new_obj = movingobj;
-					}
-					break;
-				}
 
 				case obj_t::gebaeude:
-				{
-					gebaeude_t *gb = new gebaeude_t(file, false);
-					if(gb->get_tile()==NULL) {
-						// do not remove from this position, since there will be nothing
-						gb->set_flag(obj_t::not_on_map);
-						delete gb;
-						gb = NULL;
+					{
+						gebaeude_t *gb = new gebaeude_t(file, false);
+						if(gb->get_tile()==NULL) {
+							// do not remove from this position, since there will be nothing
+							gb->set_flag(obj_t::not_on_map);
+							delete gb;
+							gb = NULL;
+						}
+						else {
+							new_obj = gb;
+						}
 					}
-					else {
-						new_obj = gb;
-					}
-				}
-				break;
+					break;
 
 				case obj_t::old_roadsign:
 					typ = obj_t::roadsign;
+					// fallthrough
+
 				case obj_t::roadsign:
-				{
-					roadsign_t *rs = new roadsign_t(file);
-					if(rs->get_desc()==NULL) {
-						// roadsign_t without description => ignore
-						rs->set_flag(obj_t::not_on_map);
-						delete rs;
+					{
+						roadsign_t *rs = new roadsign_t(file);
+						if(rs->get_desc()==NULL) {
+							// roadsign_t without description => ignore
+							rs->set_flag(obj_t::not_on_map);
+							delete rs;
+						}
+						else {
+							new_obj = rs;
+						}
 					}
-					else {
-						new_obj = rs;
-					}
-				}
-				break;
+					break;
 
 				// will be ignored, was only used before 86.09
 				case obj_t::old_gebaeudefundament: { dummy_obj_t d(file); break; }

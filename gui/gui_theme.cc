@@ -9,7 +9,7 @@
 #include "gui_theme.h"
 #include "../simskin.h"
 #include "../simmenu.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/tabfile.h"
 #include "components/gui_button.h"

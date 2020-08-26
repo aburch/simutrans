@@ -15,7 +15,7 @@
 #include "descriptor/sound_desc.h"
 #include "sound/sound.h"
 #include "simsound.h"
-#include "simsys.h"
+#include "sys/simsys.h"
 #include "simio.h"
 #include "simdebug.h"
 
@@ -34,7 +34,7 @@ static plainstring midi_title[MAX_MIDI];
 
 
 /**
- * Gesamtlautstärke
+ * Gesamtlautstï¿½rke
  * @author hj. Malthaner
  */
 
@@ -46,7 +46,7 @@ static int current_midi = -1;  // Hajo: init with error condition,
 
 
 /**
- * setzt lautstärke für all effekte
+ * setzt lautstï¿½rke fï¿½r all effekte
  * @author Hj. Malthaner
  */
 void sound_set_global_volume(int volume)
@@ -56,7 +56,7 @@ void sound_set_global_volume(int volume)
 
 
 /**
- * ermittelt lautstaärke für all effekte
+ * ermittelt lautstaï¿½rke fï¿½r all effekte
  * @author Hj. Malthaner
  */
 int sound_get_global_volume()
@@ -99,7 +99,7 @@ void sound_set_shuffle_midi( bool shuffle )
 
 
 /**
- * setzt Lautstärke für MIDI playback
+ * setzt Lautstï¿½rke fï¿½r MIDI playback
  * @param volume volume in range 0..255
  * @author Hj. Malthaner
  */
@@ -114,7 +114,7 @@ void sound_set_midi_volume(int volume)
 
 
 /**
- * ermittelt Lautstärke für MIDI playback
+ * ermittelt Lautstï¿½rke fï¿½r MIDI playback
  * @return volume in range 0..255
  * @author Hj. Malthaner
  */

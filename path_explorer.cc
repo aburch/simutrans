@@ -9,7 +9,7 @@
 #include "dataobj/translator.h"
 #include "bauer/goods_manager.h"
 #include "descriptor/goods_desc.h"
-#include "simsys.h"
+#include "sys/simsys.h"
 #include "display/simgraph.h"
 #include "player/simplay.h"
 #include "dataobj/environment.h"
@@ -592,6 +592,11 @@ path_explorer_t::compartment_t::~compartment_t()
 	if (outbound_connections)
 	{
 		delete outbound_connections;
+	}
+
+	if (class_name)
+	{
+		delete [] class_name;
 	}
 }
 
@@ -2029,7 +2034,7 @@ void path_explorer_t::compartment_t::set_class(uint8 value)
 	}
 	else
 	{
-		sprintf(class_name, "");
+		class_name[0] = '\0';
 	}
 }
 

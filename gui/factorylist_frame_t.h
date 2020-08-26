@@ -28,7 +28,7 @@ private:
 	gui_combobox_t	sortedby;
 	gui_combobox_t	freight_type_c;
 	button_t sort_asc, sort_desc;
-	button_t	filter_within_network;
+	button_t filter_within_network, btn_display_mode;
 	factorylist_stats_t stats;
 	gui_scrollpane_t scrolly;
 
@@ -40,6 +40,7 @@ private:
 	static bool sortreverse;
 	static bool filter_own_network;
 	static uint8 filter_goods_catg;
+	static bool display_operation_stats;
 
 	vector_tpl<const goods_desc_t *> viewable_freight_types;
 

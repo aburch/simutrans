@@ -434,7 +434,9 @@ private:
 	 * @author Hj. Malthaner, V. Meyer
 	 */
 	bool maybe_build_road(koord k, bool map_generation);
+protected:
 	bool build_road(const koord k, player_t *player, bool forced, bool map_generation);
+private:
 
 	void build(bool new_town, bool map_generation);
 

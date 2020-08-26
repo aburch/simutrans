@@ -606,8 +606,6 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 				static cbuffer_t buf;
 				buf.clear();
 				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name() );
-				const char* TEST_owner = cnv->get_owner()->get_name();
-				const player_t* TEST_veh_owner = cnv->front()->get_owner();
 				create_win( new news_img(buf), w_time_delete, magic_none);
 			}
 		}

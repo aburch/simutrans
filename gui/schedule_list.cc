@@ -69,17 +69,17 @@ static const char *cost_type[MAX_LINE_COST] =
 
 const int cost_type_color[MAX_LINE_COST] =
 {
-	COL_FREE_CAPACITY, 
-	COL_TRANSPORTED, 
-	COL_DISTANCE, 
-	COL_AVERAGE_SPEED, 
-	COL_COMFORT, 
-	COL_REVENUE, 
-	COL_OPERATION, 
+	COL_FREE_CAPACITY,
+	COL_TRANSPORTED,
+	COL_DISTANCE,
+	COL_AVERAGE_SPEED,
+	COL_COMFORT,
+	COL_REVENUE,
+	COL_OPERATION,
 	COL_CAR_OWNERSHIP,
 	COL_TOLL,
 	COL_PROFIT,
-	COL_VEHICLE_ASSETS, 
+	COL_VEHICLE_ASSETS,
 	//COL_COUNVOI_COUNT,
 	COL_MAXSPEED,
 	COL_LILAC
@@ -254,11 +254,33 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&lbl_filter);
 
 	inp_filter.set_pos( scr_coord( 11+D_BUTTON_WIDTH, 7+SCL_HEIGHT ) );
-	inp_filter.set_size( scr_size( D_BUTTON_WIDTH*2, D_BUTTON_HEIGHT ) );
+	inp_filter.set_size( scr_size( D_BUTTON_WIDTH*2- D_BUTTON_HEIGHT *3, D_BUTTON_HEIGHT ) );
 	inp_filter.set_text( schedule_filter, lengthof(schedule_filter) );
 //	inp_filter.set_tooltip("Only show lines containing");
 	inp_filter.add_listener(this);
 	add_component(&inp_filter);
+
+	filter_btn_all_pas.init(button_t::roundbox_state, NULL, scr_coord(inp_filter.get_pos() + scr_coord(inp_filter.get_size().w, 0)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
+	filter_btn_all_pas.set_image(skinverwaltung_t::passengers->get_image_id(0));
+	filter_btn_all_pas.set_tooltip("filter_pas_line");
+	filter_btn_all_pas.pressed = line_type_flags & (1 << simline_t::all_pas);
+	add_component(&filter_btn_all_pas);
+	filter_btn_all_pas.add_listener(this);
+
+	filter_btn_all_mails.init(button_t::roundbox_state, NULL, scr_coord(filter_btn_all_pas.get_pos() + scr_coord(D_BUTTON_HEIGHT, 0)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
+	filter_btn_all_mails.set_image(skinverwaltung_t::mail->get_image_id(0));
+	filter_btn_all_mails.set_tooltip("filter_mail_line");
+	filter_btn_all_mails.pressed = line_type_flags & (1 << simline_t::all_mail);
+	filter_btn_all_mails.add_listener(this);
+	add_component(&filter_btn_all_mails);
+
+	filter_btn_all_freights.init(button_t::roundbox_state, NULL, scr_coord(filter_btn_all_mails.get_pos() + scr_coord(D_BUTTON_HEIGHT, 0)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
+	filter_btn_all_freights.set_image(skinverwaltung_t::goods->get_image_id(0));
+	filter_btn_all_freights.set_tooltip("filter_freight_line");
+	filter_btn_all_freights.pressed = line_type_flags & (1 << simline_t::all_freight);
+	filter_btn_all_freights.add_listener(this);
+	add_component(&filter_btn_all_freights);
+
 
 	// normal buttons edit new remove
 	bt_new_line.init(button_t::roundbox, "New Line", scr_coord(11, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
@@ -557,6 +579,21 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	else if (comp == &inp_name) {
 		rename_line();
 	}
+	else if (comp == &filter_btn_all_pas) {
+		line_type_flags ^= (1 << simline_t::all_pas);
+		filter_btn_all_pas.pressed = line_type_flags & (1 << simline_t::all_pas);
+		build_line_list(tabs.get_active_tab_index());
+	}
+	else if (comp == &filter_btn_all_mails) {
+		line_type_flags ^= (1 << simline_t::all_mail);
+		filter_btn_all_mails.pressed = line_type_flags & (1 << simline_t::all_mail);
+		build_line_list(tabs.get_active_tab_index());
+	}
+	else if (comp == &filter_btn_all_freights) {
+		line_type_flags ^= (1 << simline_t::all_freight);
+		filter_btn_all_freights.pressed = line_type_flags & (1 << simline_t::all_freight);
+		build_line_list(tabs.get_active_tab_index());
+	}
 	else {
 		if (line.is_bound()) {
 			for ( int i = 0; i<MAX_LINE_COST; i++) {
@@ -768,7 +805,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 			buf.append(translator::translate(line_alert_helptexts[0]));
 		}
 	}
-	if (line->get_state() & simline_t::line_has_upgradeable_vehicles) {
+	if (line->count_convoys() && line->get_state() & simline_t::line_has_upgradeable_vehicles) {
 		if (skinverwaltung_t::upgradable) {
 			display_color_img_with_tooltip(skinverwaltung_t::upgradable->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[4]));
 			left += GOODS_SYMBOL_CELL_WIDTH;
@@ -777,7 +814,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 			buf.append(translator::translate(line_alert_helptexts[4]));
 		}
 	}
-	if (line->get_state() & simline_t::line_has_obsolete_vehicles) {
+	if (line->count_convoys() && line->get_state() & simline_t::line_has_obsolete_vehicles) {
 		if (skinverwaltung_t::alerts) {
 			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[2]));
 			left += GOODS_SYMBOL_CELL_WIDTH;
@@ -786,7 +823,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 			buf.append(translator::translate(line_alert_helptexts[2]));
 		}
 	}
-	if (line->get_state() & simline_t::line_overcrowded) {
+	if (line->count_convoys() && line->get_state() & simline_t::line_overcrowded) {
 		if (skinverwaltung_t::pax_evaluation_icons) {
 			display_color_img_with_tooltip(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[3]));
 			left += GOODS_SYMBOL_CELL_WIDTH;
@@ -816,6 +853,7 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 	chart.set_size(scr_size(rest_width-68-D_MARGIN_RIGHT, SCL_HEIGHT-14-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))));
 	inp_name.set_size(scr_size(rest_width - 31, 14));
 	filled_bar.set_size(scr_size(rest_width/2-24-D_MARGIN_RIGHT, 4));
+	bt_withdraw_line.set_pos(scr_coord(get_windowsize().w - D_BUTTON_WIDTH - D_MARGIN_LEFT, bt_withdraw_line.get_pos().y));
 
 	int y=SCL_HEIGHT-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))+18;
 	for (int i=0; i<MAX_LINE_COST; i++) {
@@ -823,13 +861,13 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 	}
 }
 
-
-void schedule_list_gui_t::build_line_list(int filter)
+void schedule_list_gui_t::build_line_list(int selected_tab)
 {
 	sint32 sel = -1;
 	scl.clear_elements();
-	player->simlinemgmt.get_lines(tabs_to_lineindex[filter], &lines);
+	player->simlinemgmt.get_lines(tabs_to_lineindex[selected_tab], &lines, get_filter_type_bits());
 	vector_tpl<line_scrollitem_t *>selected_lines;
+
 
 	FOR(vector_tpl<linehandle_t>, const l, lines) {
 		// search name

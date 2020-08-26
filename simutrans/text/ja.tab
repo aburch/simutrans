@@ -244,7 +244,7 @@ Zughalt muss auf\nSchiene liegen!\n
 #___________________________________help_text___________________________________
 #___________________________________help_text___________________________________
 <h1>Index</h1><p>*: only english</p><p>General</p>%s<p>Usage</p>%s<p>Tools</p>%s<p>Start</p>%s<p>How to play</p>%s<p>Others:</p>%s
-<title>ヘルプ</title><h1>総合ヘルプ</h1><p>*：日本語ヘルプがまだありません。</p><p><it>Simutransについて</it></p>%1$s<p><it>使い方</it></p>%2$s<p><it>ゲームを始まる</it></p>%4$s<p><it>作動の仕方</it></p>%5$s<p><it>ツール</it></p>%3$s<p><it>その他のダイアログ</it></p>%6$s
+<h1>Extended版ヘルプメニュー</h1><p>　 *: 未訳（英文で表示）</p>%1$s<p>■ 操作関連</p>%2$s<p>■ ゲームの開始</p>%4$s<p>■ 基本ツール</p>%3$s<p>■ 遊び方</p>%5$s<p>■ 設定・その他</p>%6$s
 <title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
 <title>キーボード ヘルプ</title><h1>キーボード ヘルプ</h1><p>キー割り当ての一覧表です。何も操作が割り当てられていないキーを押すと、<br>このキーボードヘルプウィンドウが開きます。</p><p>アルファベットの大文字と小文字は区別されます。大文字の場合は、<br>shiftキーを押しながらキーを押します。日本語入力は解除してください。</p><p><i>ウィンドウ操作</i><br>Backspace - すべてのウィンドウ/ツールバーを閉じます<br>Delete, ESC - アクティブなウィンドウ/ツールバーを閉じます<br>F1 - ヘルプウィンドウを開きます</p><p><i>ゲーム画面のスクロール</i>　（数字キー、矢印キー）<br>1,2,3,4,6,7,8,9 - ゲーム画面をスクロールします<br>↑,↓,→,← - ゲーム画面をスクロールします</p><p><i>ゲーム画面のズーム</i><br>＞,PageUp - ゲーム画面をズームインします<br>＜,PageDown - ゲーム画面をズームアウトします</p><p><i>[Ctrl]+道路/線路/トンネルツール</i><br>直線の道路/線路を敷設できます。<br>既存の道路/線路を、低速な道路/線路で置き換えます。<br>トンネルの入り口のみを建設します。</p><p><i>[Ctrl]+V</i><br>クリップボードからテキストを貼り付けます。(Windowsのみ)</p><p>以下の操作キーは「(pakフォルダ)/config/menuconf.tab」ファイル<br>で定義されています。このファイルを編集して、操作キーの割り当てを変更<br>したり、別のツールに、新たに操作キーを割り当てることができます。</p><p><i>現在の操作キー一覧</i><br></p>
 Color according to transport capacity left
@@ -3621,6 +3621,8 @@ Fully stocked
 入荷停止（在庫飽和）
 fab_stuck
 生産停止（資材＆在庫飽和）
+missing_connection
+必要最低限の提携先がありません！
 Within own network
 自家輸送網内のみ表示
 Show only connected to own transport network
@@ -3673,12 +3675,26 @@ Upgrade will be available in the near future
 （混載不可）
 Cannot start: no cab at the front of the convoy.
 編成の構成エラー：\n先頭になれない車両が先頭になっています。（運転台が無い等）
+switch the convoy nameplate display mode
+系統名表示モードの切り替え
 no convoy nameplate
 系統名非表示
 mouseover convoy name
 マウスオーバーで系統名表示
+active player's line name
+自社車両の系統名を常時表示
 always show convoy name
-常に系統名を表示
+全ての車両の系統名を常時表示
+switch the convoy loading bar display mode
+積載率表示モードの切り替え
+no convoy loading bar
+積載率バー非表示
+mouseover loading bar
+マウスオーバーで積載率バーを表示
+active player's loading bar
+自社車両の積載率バーを常時表示
+always show loading bar
+全ての車両の積載率バーを常時表示
 map_btn_freight
 輸送量
 Stop coverage
@@ -3743,6 +3759,94 @@ allow_takeover_of_your_company
 会社の買収を許可
 take_over
 買収
+filter_pas_line
+旅客取扱い路線
+filter_mail_line
+郵便取扱い路線
+filter_freight_line
+貨物取扱い路線
+New shipping destination added to Factory %s
+工場%sに新しい出荷先が追加されました
+Loading (%i->%i%%) Long Time
+積込待ち(%i->%i%%) 数か月以上
+Vehicle %s wait loading too much!
+%sは数か月に渡る積載待ちを行っています！
+Productivity
+生産性
+(Max. %d%%)
+（最大 %d%%）
+Operation rate
+稼働率
+fl_btn_operation
+稼働率
+fl_btn_storage
+在庫
+Incoming shippment status of this item for this factory
+この工場に対する同一製品の輸送状況
+Shipment has been suspended due to consumption demand
+供給過多につき出荷が停止されています
+Suspension of new orders due to sufficient supply
+供給過多につき新規受注は停止しています
+Shipment is suspended
+出荷停止
+symbol_help_txt_lead_time
+リードタイム
+symbol_help_txt_in_transit
+輸送中
+station_capacity_freight
+駅の貨物容量
+Connections
+提携先・接続駅
+Goods chart
+製品に関する統計
+Production chart
+生産性に関する統計
+Building info.
+建物情報
+#hlptxt_factory_connected
+#
+consumption %.1f%s/month
+月消費 %.1f%s
+consumption %u%s/month
+月消費 %u%s
+production %.1f%s/month
+月生産 %.1f%s
+production %u%s/month
+月生産 %u%s
+own convoi tooltips
+所有車両の状態を表示
+No service
+運行されている編成がありません
+Passengers/mail
+旅客／郵便
+Freight
+貨物
+Services
+サービス
+hd_wealth
+所得層
+hd_waiting
+待機中
+hd_transfers
+乗換・移動中
+hd_category
+貨物品目分類
+hd_transship
+積替・搬出中
+Needed
+商品・資材需要
+Products
+生産品
+twoway
+対面通行
+oneway
+一方通行
+prohibited
+追越不可(対面)
+do not change the mode for existing ways
+既存の制限を維持
+City growth is restrained
+「街を発展させる」オプションがオフにされています
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

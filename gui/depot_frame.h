@@ -82,6 +82,7 @@ private:
 	button_t bt_copy_convoi;
 //	button_t bt_apply_line;
 
+	// line selector stuff
 	/// contains the current translation of "<no schedule set>"
 	const char* no_schedule_text;
 	/// contains the current translation of "<clear schedule>"
@@ -96,6 +97,11 @@ private:
 	const char* line_separator;
 
 	gui_combobox_t line_selector;
+	button_t filter_btn_all_pas, filter_btn_all_mails, filter_btn_all_freights;
+	// rebuild the line selector
+	void build_line_list();
+	// pas=1, mail=2, freight=3
+	uint8 line_type_flags = 0;
 
 	gui_convoy_assembler_t convoy_assembler;
 

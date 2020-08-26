@@ -43,7 +43,7 @@ gui_chart_t::gui_chart_t() : gui_component_t()
 }
 
 
-int gui_chart_t::add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc)
+int gui_chart_t::add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc, chart_marker_t marker_type)
 {
 	curve_t new_curve;
 	new_curve.color = color;
@@ -56,12 +56,13 @@ int gui_chart_t::add_curve(int color, const sint64 *values, int size, int offset
 	new_curve.type = type;
 	new_curve.precision = precision;
 	new_curve.convert = proc;
+	new_curve.marker_type = marker_type;
 	curves.append(new_curve);
 	return curves.get_count();
 }
 
 
-uint32 gui_chart_t::add_line(int color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc)
+uint32 gui_chart_t::add_line(int color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc, chart_marker_t marker_type)
 {
 	line_t new_line;
 	new_line.color = color;
@@ -71,6 +72,7 @@ uint32 gui_chart_t::add_line(int color, const sint64 *value, int times, bool sho
 	new_line.show_value = show_value;
 	new_line.precision = precision;
 	new_line.convert = proc;
+	new_line.marker_type = marker_type;
 	lines.append(new_line);
 	return lines.get_count();
 }
@@ -113,7 +115,7 @@ void gui_chart_t::draw(scr_coord offset)
 	offset += pos;
 
 	sint64 last_year=0, tmp=0;
-	char cmin[128] = "0", cmax[128] = "0", digit[8];
+	char cmin[128] = "0", cmax[128] = "0", digit[11];
 
 	sint64 baseline = 0;
 	sint64* pbaseline = &baseline;
@@ -207,7 +209,30 @@ void gui_chart_t::draw(scr_coord offset)
 				}
 
 				// display marker(box) for financial value
-				display_fillbox_wh_clip(tmpx+factor*(size.w / (x_elements - 1))*i-2, (scr_coord_val)(offset.y+baseline- (long)(tmp/scale)-2), 5, 5, c.color, true);
+				scr_coord_val x = tmpx + factor * (size.w / (x_elements - 1))*i - 2;
+				scr_coord_val y = (scr_coord_val)(offset.y + baseline - (long)(tmp / scale) - 2);
+				switch (c.marker_type)
+				{
+					case cross:
+						display_direct_line(x, y, x+4, y+4, c.color);
+						display_direct_line(x+4, y, x, y+4, c.color);
+						break;
+					case diamond:
+						for (int j = 0; j < 5; j++) {
+							display_vline_wh_clip(x+j, y + abs(2 - j), 5-2*abs(2-j), c.color, false);
+						}
+						break;
+					case round_box:
+						display_filled_roundbox_clip(x, y, 5, 5, c.color, true);
+						break;
+					case none:
+						// display nothing
+						break;
+					case square:
+					default:
+						display_fillbox_wh_clip(x, y, 5, 5, c.color, true);
+						break;
+				}
 
 				// display tooltip?
 				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10) {
@@ -250,7 +275,31 @@ void gui_chart_t::draw(scr_coord offset)
 			tmp = ( line.convert ? line.convert(*(line.value)) : *(line.value) );
 			for(  int t=0;  t<line.times;  ++t  ) {
 				// display marker(box) for financial value
-				display_fillbox_wh_clip(tmpx+factor*(size.w / (x_elements - 1))*t-2, (scr_coord_val)(offset.y+baseline- (int)(tmp/scale)-2), 5, 5, line.color, true);
+				scr_coord_val x = tmpx + factor * (size.w / (x_elements - 1))*t - 2;
+				scr_coord_val y = (scr_coord_val)(offset.y + baseline - (int)(tmp / scale) - 2);
+				switch (line.marker_type)
+				{
+					case cross:
+						display_direct_line(x, y, x + 4, y + 4, line.color);
+						display_direct_line(x + 4, y, x, y + 4, line.color);
+						break;
+					case diamond:
+						for (int j = 0; j < 5; j++) {
+							display_vline_wh_clip(x + j, y + abs(2 - j), 5 - 2 * abs(2 - j), line.color, false);
+						}
+						break;
+					case round_box:
+						display_filled_roundbox_clip(x, y, 5, 5, line.color, true);
+						break;
+					case none:
+						// display nothing
+						// Note. not recommended this option to "lines". Applying this to line only shows the label
+						break;
+					case square:
+					default:
+						display_fillbox_wh_clip(x, y, 5, 5, line.color, true);
+						break;
+				}
 
 				// display tooltip?
 				if(  t==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10  ) {

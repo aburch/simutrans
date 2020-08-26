@@ -5,7 +5,7 @@
 
 #include <string>
 #include "../simcity.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../gui/simwin.h"
 
 #include "../dataobj/environment.h"

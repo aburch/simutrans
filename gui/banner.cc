@@ -8,7 +8,7 @@
 #include "../display/simimg.h"
 #include "../simworld.h"
 #include "../simskin.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simversion.h"
 #include "../display/simgraph.h"
 #include "../macros.h"
