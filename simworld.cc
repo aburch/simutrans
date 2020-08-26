@@ -11019,15 +11019,6 @@ bool karte_t::interactive(uint32 quit_month)
 		DBG_DEBUG4("karte_t::interactive", "point of loop return");
 	} while(!finish_loop  &&  get_current_month()<quit_month);
 
-	if(  env_t::quit_simutrans  &&  env_t::reload_and_save_on_quit  ) {
-		// construct from pak name an autosave if requested
-		std::string pak_name( "autosave-" );
-		pak_name.append( env_t::objfilename );
-		pak_name.erase( pak_name.length()-1 );
-		pak_name.append( ".sve" );
-		save( pak_name.c_str(), loadsave_t::autosave_mode, SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR, false );
-	}
-
 	if(  get_current_month() >= quit_month  ) {
 		env_t::quit_simutrans = true;
 	}
