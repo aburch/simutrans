@@ -150,18 +150,6 @@ static sint8 driveleft_base_offsets[8][2] =
 //	{ 6, 6, 6, 0, -6, -6, -6, 0 }
 };
 
-static sint8 reverse_base_offsets[8][3] =
-{
-	{ 4, -1, 34 },
-	{ -1, 0, 2 },
-	{ 0, 0, 0 }, 
-	{ 0, 0, 0 }, 
-	{ -1, 0, 14 }, 
-	{ -3, -2, 32 },
-	{ 0, 0, 0 }, 
-	{ 0, 0, 0 } 
-};
-
 // [0]=xoff [1]=yoff
 sint8 vehicle_base_t::overtaking_base_offsets[8][2];
 
@@ -473,8 +461,8 @@ void vehicle_base_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 	if (veh  &&  veh->is_reversed())
 	{
 		adjusted_steps += (VEHICLE_STEPS_PER_TILE / 2 - veh->get_desc()->get_length_in_steps());
-		//adjusted_steps += (sint32)(reverse_base_offsets[dir][2] * VEHICLE_STEPS_PER_TILE) / veh->get_desc()->get_length_in_steps();
-		adjusted_steps += reverse_base_offsets[dir][2];
+		//adjusted_steps += (sint32)(env_t::reverse_base_offsets[dir][2] * VEHICLE_STEPS_PER_TILE) / veh->get_desc()->get_length_in_steps();
+		adjusted_steps += env_t::reverse_base_offsets[dir][2];
 	}
 
 	// vehicles needs finer steps to appear smoother
@@ -492,8 +480,8 @@ void vehicle_base_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 
 	if (veh && veh->is_reversed())
 	{
-		xoff += tile_raster_scale_x(reverse_base_offsets[dir][0], raster_width);
-		yoff += tile_raster_scale_y(reverse_base_offsets[dir][1], raster_width);
+		xoff += tile_raster_scale_x(env_t::reverse_base_offsets[dir][0], raster_width);
+		yoff += tile_raster_scale_y(env_t::reverse_base_offsets[dir][1], raster_width);
 	}
 
 	if(  drives_on_left  ) {

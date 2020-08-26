@@ -448,6 +448,9 @@ public:
 	/// cannot be used in network mode
 	static bool straight_way_without_control;
 
+	// Graphical offsets for reverseing vehicles
+	static sint8 reverse_base_offsets[8][3];
+
 	/// initialize with default values
 	static void init();
 
