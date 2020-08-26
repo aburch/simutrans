@@ -3,12 +3,16 @@
 # (see LICENSE.txt)
 #
 
-find_package(SDL2 MODULE REQUIRED)
-
+find_package(SDL2       MODULE)
+find_package(SDL2_mixer MODULE)
 
 if (SDL2_FOUND)
 	list(APPEND AVAILABLE_BACKENDS "sdl2")
 	mark_as_advanced(SDL2_DIR)
+
+	if (SDL2_mixer_FOUND)
+		list(APPEND AVAILABLE_BACKENDS "mixer_sdl2")
+	endif (SDL2_mixer_FOUND)
 endif (SDL2_FOUND)
 
 if (WIN32 OR MINGW)

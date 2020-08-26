@@ -26,8 +26,7 @@ if (CCache_FOUND)
 endif (CCache_FOUND)
 
 
-
-project(simutrans-extended VERSION 121.1 LANGUAGES C CXX)
+project(simutrans-extended LANGUAGES C CXX)
 
 include(simutrans-revision)
 
@@ -449,8 +448,12 @@ endif (WIN32 OR MINGW)
 
 
 if (SIMUTRANS_BACKEND STREQUAL "sdl2")
-	target_sources(simutrans-extended PRIVATE sys/simsys_s2.cc ${BACKUP_SOUND} ${BACKUP_MUSIC})
-	target_link_libraries(simutrans-extended PRIVATE SDL2::SDL2)
+	target_sources(simutrans-extended PRIVATE sys/simsys_s2.cc sound/sdl2_sound.cc ${BACKUP_MUSIC})
+	target_link_libraries(simutrans-extended PRIVATE SDL2::Core)
+
+elseif (SIMUTRANS_BACKEND STREQUAL "mixer_sdl2")
+	target_sources(simutrans-extended PRIVATE sys/simsys_s2.cc sound/sdl2_mixer_sound.cc music/sdl2_mixer_midi.cc)
+	target_link_libraries(simutrans-extended PRIVATE SDL2::Core SDL2::Mixer)
 
 elseif (SIMUTRANS_BACKEND STREQUAL "gdi")
 	message(WARNING "TODO")
