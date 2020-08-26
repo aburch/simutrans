@@ -2283,7 +2283,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 						}
 					}
 					// display upgrade counter
-					sprintf(txt_convoi_count_fluctuation, "(%hhu)", upgrade_count);
+					sprintf(txt_convoi_count_fluctuation, "(%hu)", (uint16)upgrade_count);
 					lb_convoi_count_fluctuation.set_visible(true);
 					lb_convoi_count_fluctuation.set_pos(scr_coord(lb_convoi_count.get_pos().x + proportional_string_width(txt_convoi_count) + D_H_SPACE, lb_convoi_count.get_pos().y));
 					lb_convoi_count_fluctuation.set_color(COL_UPGRADEABLE);

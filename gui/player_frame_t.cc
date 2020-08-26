@@ -345,7 +345,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 			}
 
 			static char param[16];
-			sprintf(param,"g%hhu,%i,%i", welt->get_active_player_nr(), i, access_out[i].pressed);
+			sprintf(param,"g%hu,%i,%i", (uint16)welt->get_active_player_nr(), i, (int)access_out[i].pressed);
 			tool_t *tool = create_tool( TOOL_ACCESS_TOOL | SIMPLE_TOOL );
 			tool->set_default_param(param);
 			welt->set_tool( tool, welt->get_active_player() );
@@ -388,7 +388,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 		if (comp == take_over_player + i)
 		{
 			static char param[16];
-			sprintf(param, "u, %hhu, %hhu", welt->get_active_player_nr(), i);
+			sprintf(param, "u, %hu, %hu", (uint16)welt->get_active_player_nr(), (uint16)i);
 			tool_t* tool = create_tool(TOOL_CHANGE_PLAYER | SIMPLE_TOOL);
 			tool->set_default_param(param);
 			welt->set_tool(tool, welt->get_active_player());
