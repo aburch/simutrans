@@ -266,9 +266,9 @@ halt_list_frame_t::halt_list_frame_t(player_t *player) :
 	m_player = player;
 	filter_frame = NULL;
 
-	sort_label.set_pos(scr_coord(BUTTON1_X, D_MARGIN_TOP));
+	sort_label.set_pos(scr_coord(BUTTON1_X, D_V_SPACE));
 	add_component(&sort_label);
-	const sint16 ybutton = D_MARGIN_TOP + LINESPACE + D_V_SPACE;
+	const sint16 ybutton = D_BUTTON_HEIGHT + D_V_SPACE;
 	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, ybutton));
 	sortedby.add_listener(this);
 	add_component(&sortedby);
@@ -277,7 +277,7 @@ halt_list_frame_t::halt_list_frame_t(player_t *player) :
 	sorteddir.add_listener(this);
 	add_component(&sorteddir);
 
-	filter_label.set_pos(scr_coord(BUTTON3_X, D_MARGIN_TOP));
+	filter_label.set_pos(scr_coord(BUTTON3_X, D_V_SPACE));
 	add_component(&filter_label);
 
 	filter_on.init(button_t::roundbox, translator::translate(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), scr_coord(BUTTON3_X, ybutton));
