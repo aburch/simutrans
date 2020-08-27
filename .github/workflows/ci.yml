@@ -284,7 +284,7 @@ jobs:
           cd vcpkg
           git checkout --force 2020.06
           .\bootstrap-vcpkg.bat -disableMetrics
-          .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows zstd:x64-windows
+          .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows
       - name: Configure
         run: |
           cd ${{ github.workspace }}
@@ -294,4 +294,112 @@ jobs:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.1
       - name: Build
-        run: cd build && msbuild.exe Simutrans-Extended.sln
+        run: cd build && msbuild.exe Simutrans-Extended.sln /t:simutrans-extended /p:Configuration=Release
+
+
+  sim-windows-sdl2:
+    name: Windows (MSVC, SDL2)
+    runs-on: windows-latest
+    needs: [check-code-formatting]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install vcpkg
+        run: |
+          cd ..
+          git clone https://github.com/Microsoft/vcpkg.git
+          cd vcpkg
+          git checkout --force 2020.06
+          .\bootstrap-vcpkg.bat -disableMetrics
+          .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows sdl2:x64-windows
+      - name: Configure
+        run: |
+          cd ${{ github.workspace }}
+          mkdir build
+          cd build
+          cmake .. -DSIMUTRANS_BACKEND=sdl2 -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.1
+      - name: Build
+        run: cd build && msbuild.exe Simutrans-Extended.sln /t:simutrans-extended /p:Configuration=Release
+
+
+  sim-windows-headless:
+    name: Windows (MSVC, headless)
+    runs-on: windows-latest
+    needs: [check-code-formatting]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install vcpkg
+        run: |
+          cd ..
+          git clone https://github.com/Microsoft/vcpkg.git
+          cd vcpkg
+          git checkout --force 2020.06
+          .\bootstrap-vcpkg.bat -disableMetrics
+          .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows
+      - name: Configure
+        run: |
+          cd ${{ github.workspace }}
+          mkdir build
+          cd build
+          cmake .. -DSIMUTRANS_BACKEND=none -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.1
+      - name: Build
+        run: cd build && msbuild.exe Simutrans-Extended.sln /t:simutrans-extended /p:Configuration=Release
+
+
+  makeobj-windows:
+    name: Windows Makeobj (MSVC)
+    runs-on: windows-latest
+    needs: [check-code-formatting]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install vcpkg
+        run: |
+          cd ..
+          git clone https://github.com/Microsoft/vcpkg.git
+          cd vcpkg
+          git checkout --force 2020.06
+          .\bootstrap-vcpkg.bat -disableMetrics
+          .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows libpng:x64-windows
+      - name: Configure
+        run: |
+          cd ${{ github.workspace }}
+          mkdir build
+          cd build
+          cmake .. -DSIMUTRANS_BACKEND=none -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.1
+      - name: Build
+        run: cd build && msbuild.exe Simutrans-Extended.sln /t:makeobj-extended /p:Configuration=Release
+
+
+  nettool-windows:
+    name: Windows Nettool (MSVC)
+    runs-on: windows-latest
+    needs: [check-code-formatting]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install vcpkg
+        run: |
+          cd ..
+          git clone https://github.com/Microsoft/vcpkg.git
+          cd vcpkg
+          git checkout --force 2020.06
+          .\bootstrap-vcpkg.bat -disableMetrics
+          .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows
+      - name: Configure
+        run: |
+          cd ${{ github.workspace }}
+          mkdir build
+          cd build
+          cmake .. -DSIMUTRANS_BACKEND=none -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.1
+      - name: Build
+        run: cd build && msbuild.exe Simutrans-Extended.sln /t:nettool-extended /p:Configuration=Release
