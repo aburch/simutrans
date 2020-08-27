@@ -43,8 +43,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Dependencies
 #
 find_package(ZLIB REQUIRED)
-find_package(PNG REQUIRED)
 find_package(BZip2 REQUIRED)
+find_package(PNG)
 find_package(Freetype)
 find_package(MiniUPNP)
 find_package(ZSTD)
@@ -485,7 +485,6 @@ endif ()
 #
 target_link_libraries(simutrans-extended PRIVATE
 	ZLIB::ZLIB
-	PNG::PNG
 	BZip2::BZip2
 )
 
@@ -551,5 +550,8 @@ endif ()
 #
 # Nettool/Makeobj
 #
-add_subdirectory(makeobj)
+if (PNG_FOUND)
+	add_subdirectory(makeobj)
+endif ()
+
 add_subdirectory(nettools)
