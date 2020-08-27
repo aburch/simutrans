@@ -432,7 +432,7 @@ else ()
 endif ()
 
 if (SIMUTRANS_MULTI_THREAD)
-	target_compile_definitions(simutrans-extended PRIVATE MULTI_THREAD)
+	target_compile_definitions(simutrans-extended PRIVATE MULTI_THREAD=1)
 	target_link_libraries(simutrans-extended PRIVATE Threads::Threads)
 endif (SIMUTRANS_MULTI_THREAD)
 
@@ -450,6 +450,7 @@ endif (WIN32)
 if (SIMUTRANS_BACKEND STREQUAL "sdl2")
 	target_sources(simutrans-extended PRIVATE display/simgraph16.cc sys/simsys_s2.cc sound/sdl2_sound.cc ${BACKUP_MUSIC})
 	target_link_libraries(simutrans-extended PRIVATE SDL2::Core)
+	target_compile_definitions(simutrans-extended PRIVATE COLOUR_DEPTH=16)
 
 	if (WIN32)
 		target_sources(simutrans-extended PRIVATE sys/simsys_w32_png.cc)
@@ -458,6 +459,7 @@ if (SIMUTRANS_BACKEND STREQUAL "sdl2")
 elseif (SIMUTRANS_BACKEND STREQUAL "mixer_sdl2")
 	target_sources(simutrans-extended PRIVATE display/simgraph16.cc sys/simsys_s2.cc sound/sdl2_mixer_sound.cc music/sdl2_mixer_midi.cc)
 	target_link_libraries(simutrans-extended PRIVATE SDL2::Core SDL2::Mixer)
+	target_compile_definitions(simutrans-extended PRIVATE COLOUR_DEPTH=16)
 
 	if (WIN32)
 		target_sources(simutrans-extended PRIVATE sys/simsys_w32_png.cc)
@@ -466,6 +468,7 @@ elseif (SIMUTRANS_BACKEND STREQUAL "mixer_sdl2")
 elseif (SIMUTRANS_BACKEND STREQUAL "gdi")
 	target_sources(simutrans-extended PRIVATE display/simgraph16.cc sys/simsys_w.cc sys/simsys_w32_png.cc ${BACKUP_SOUND} ${BACKUP_MUSIC})
 	target_link_libraries(simutrans-extended PRIVATE imm32)
+	target_compile_definitions(simutrans-extended PRIVATE COLOUR_DEPTH=16)
 
 else ()
 	if (NOT SIMUTRANS_BACKEND STREQUAL "none")
@@ -474,14 +477,8 @@ else ()
 
 	set(SIMUTRANS_BUILD_HEADLESS ON)
 	target_sources(simutrans-extended PRIVATE display/simgraph0.cc sys/simsys_posix.cc sound/no_sound.cc music/no_midi.cc)
-endif ()
-
-if (NOT SIMUTRANS_BUILD_HEADLESS)
-	target_sources(simutrans-extended PRIVATE display/simgraph16.cc)
-	target_compile_definitions(simutrans-extended PRIVATE COLOUR_DEPTH=16)
-else ()
 	target_compile_definitions(simutrans-extended PRIVATE COLOUR_DEPTH=0)
-endif (NOT SIMUTRANS_BUILD_HEADLESS)
+endif ()
 
 
 #
