@@ -139,7 +139,7 @@ jobs:
           echo "CFLAGS += -DREVISION=$(svn info --show-item revision svn://servers.simutrans.org/simutrans)" >> config.default
           cat config.default >> /dev/stderr
       - name: Build
-        run: make -j2
+        run: make -j2 all
       - name: Build Zip
         run: sh distribute.sh
       - name: Upload Artifact (CI)

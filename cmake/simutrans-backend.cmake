@@ -15,8 +15,8 @@ if (SDL2_FOUND)
 	endif (SDL2_mixer_FOUND)
 endif (SDL2_FOUND)
 
-if (WIN32 OR MINGW)
-	list(APPEND AVIALIABLE_BACKENDS "gdi")
+if (WIN32)
+	list(APPEND AVAILABLE_BACKENDS "gdi")
 endif ()
 
 list(APPEND AVAILABLE_BACKENDS "none")
