@@ -268,3 +268,30 @@ jobs:
         run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=none ..
       - name: Build
         run: cd build && make -j$(nproc) nettool-extended
+
+
+  sim-windows-gdi:
+    name: Windows (MSVC, GDI)
+    runs-on: windows-latest
+    needs: [check-code-formatting]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install vcpkg
+        run: |
+          cd ..
+          git clone https://github.com/Microsoft/vcpkg.git
+          cd vcpkg
+          git checkout --force 2020.06
+          .\bootstrap-vcpkg.bat -disableMetrics
+          .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows zstd:x64-windows
+      - name: Configure
+        run: |
+          cd ${{ github.workspace }}
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.1
+      - name: Build
+        run: cd build && msbuild.exe Simutrans-Extended.sln

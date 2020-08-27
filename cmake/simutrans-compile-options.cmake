@@ -41,9 +41,18 @@ function(SIMUTRANS_CHECK_CXX_COMPILER_FLAGS result_list)
 endfunction()
 
 if (MSVC)
-	SIMUTRANS_COMMON_COMPILE_OPTIONS(SIMUTRANS_COMMON_COMPILE_OPTIONS
-		/W3 /WX
+	SIMUTRANS_CHECK_CXX_COMPILER_FLAGS(SIMUTRANS_COMMON_COMPILE_OPTIONS
+		/W3
+
+		/wd4244  # C4244: 'conversion_type': conversion from 'type1' to 'type2', possible loss of data
+		/wd4267  # C4267: '=': conversion from 'type1' to 'type2', possible loss of data
+		/wd4068  # C4068: unknown pragma
 	)
+
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+	add_definitions(-DNOMINMAX)
+
 else (MSVC) # Assume GCC/Clang
 	SIMUTRANS_CHECK_CXX_COMPILER_FLAGS(SIMUTRANS_COMMON_COMPILE_OPTIONS
 		-Wall
