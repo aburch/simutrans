@@ -3034,6 +3034,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				file->rdwr_long(d.arr_tick);
 				file->rdwr_long(d.dep_tick);
 				file->rdwr_long(d.exp_tick);
+				if(  file->get_OTRP_version()>=27  ) {
+					file->rdwr_byte(d.stop_index);
+				} else {
+					d.stop_index = 0;
+				}
 				convoi_t::rdwr_convoihandle_t(file, d.cnv);
 				if(  file->is_loading()  ) {
 					departure_slot_table[idx].append(d);
@@ -3738,6 +3743,7 @@ bool haltestelle_t::is_halt_covered(const halthandle_t &halt) const
 bool haltestelle_t::book_departure (uint32 arr_tick, uint32 dep_tick, uint32 exp_tick, convoihandle_t cnv) {
 	const uint8 idx = dep_tick % DST_SIZE;
 	slist_tpl<departure_t>::iterator i = departure_slot_table[idx].begin();
+	const uint8 stop_index = cnv->get_schedule()->get_current_stop_exluding_depot();
 	while(  i!=departure_slot_table[idx].end()  ) {
 		if(  welt->get_ticks()>i->exp_tick  ||  !i->cnv.is_bound()  ) {
 			// This entry is already obsolete. Just remove it.
@@ -3750,7 +3756,7 @@ bool haltestelle_t::book_departure (uint32 arr_tick, uint32 dep_tick, uint32 exp
 		} else if(  
 			i->dep_tick==dep_tick  &&  
 			(i->cnv==cnv  ||  i->cnv->get_line()==cnv->get_line())  &&
-			i->cnv->get_schedule()->get_current_stop_exluding_depot()==cnv->get_schedule()->get_current_stop_exluding_depot()
+			i->stop_index==stop_index
 		) {
 			// The slot is already reserved by other convoy.
 			return false;
@@ -3758,7 +3764,7 @@ bool haltestelle_t::book_departure (uint32 arr_tick, uint32 dep_tick, uint32 exp
 		i++;
 	}
 	// reserve the slot.
-	departure_t dep(arr_tick, dep_tick, exp_tick, cnv);
+	departure_t dep(arr_tick, dep_tick, exp_tick, stop_index, cnv);
 	departure_slot_table[idx].insert(departure_slot_table[idx].begin(), dep);
 	return true;
 }
@@ -3779,11 +3785,11 @@ bool haltestelle_t::erase_departure(uint32 dep_tick, convoihandle_t cnv) {
 }
 
 
-bool haltestelle_t::is_departure_booked(uint32 dep_tick, linehandle_t line) const {
+bool haltestelle_t::is_departure_booked(uint32 dep_tick, uint8 stop_index, linehandle_t line) const {
 	const uint8 idx = dep_tick % DST_SIZE;
 	slist_tpl<departure_t>::const_iterator i = departure_slot_table[idx].begin();
 	while(  i!=departure_slot_table[idx].end()  ) {
-		if(  i->dep_tick==dep_tick  &&  i->cnv->get_line()==line  ) {
+		if(  i->dep_tick==dep_tick  &&  i->stop_index==stop_index  &&  i->cnv->get_line()==line  ) {
 			return true;
 		}
 		i++;

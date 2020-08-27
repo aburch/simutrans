@@ -29,6 +29,7 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
   scr_size size = get_size();
   remove_all();
   set_table_layout(NUM_ARRIVAL_TIME_STORED+2,0);
+  uint8 depot_entry_count = 0;
   for(uint8 idx=0; idx<schedule->entries.get_count(); idx++) {
     schedule_entry_t& e = schedule->entries[idx];
     gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::left);
@@ -36,12 +37,15 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
     if(  halt.is_bound()  ) {
       // show halt name
       lb->buf().printf("%s", halt->get_name());
-      const bool last_slot_empty = e.get_wait_for_time() && !halt->is_departure_booked(get_latest_dep_slot(e, world()->get_ticks()), line);
+      const bool last_slot_empty = e.get_wait_for_time() && !halt->is_departure_booked(get_latest_dep_slot(e, world()->get_ticks()), idx - depot_entry_count, line);
       lb->set_color(last_slot_empty ? color_idx_to_rgb(COL_ORANGE) : SYSCOL_TEXT);
       empty_slot_exists |= last_slot_empty;
     } else {
       // maybe a waypoint
       lb->buf().printf(translator::translate("Wegpunkt"));
+      // count the entries of depot
+      const grund_t* gr = world()->lookup(e.pos);
+      depot_entry_count += (gr  &&  gr->get_depot());
     }
     lb->update();
     
