@@ -31,6 +31,11 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang-10 -DCMAKE_CXX_COMPILER=clang++-10 -DSIMUTRANS_BACKEND=mixer_sdl2 ..
       - name: Build
         run: cd build && make -j$(nproc) simutrans-extended
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/simutrans/simutrans-extended
 
 
   sim-linux-posix:
@@ -50,6 +55,11 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang-10 -DCMAKE_CXX_COMPILER=clang++-10 -DSIMUTRANS_BACKEND=none ..
       - name: Build
         run: cd build && make -j$(nproc) simutrans-extended
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/simutrans/simutrans-extended
 
 
   sim-linux-debug-sdl2:
@@ -69,6 +79,11 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 -DSIMUTRANS_BACKEND=sdl2 ..
       - name: Build
         run: cd build && make -j$(nproc) simutrans-extended
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/simutrans/simutrans-extended
 
 
   makeobj-linux:
@@ -92,7 +107,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.job }}-nightly
-          path: build/default/makeobj-extended/makeobj-extended
+          path: build/simutrans/makeobj-extended
 
 
   nettool-linux:
@@ -116,7 +131,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.job }}-nightly
-          path: build/default/nettool/nettool
+          path: build/simutrans/nettool-extended
 
 
   sim-mac-sdl2:
@@ -200,6 +215,11 @@ jobs:
         run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=sdl2 ..
       - name: Build
         run: cd build && make -j$(nproc) simutrans-extended
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/simutrans/simutrans-extended.exe
 
 
   sim-mingw-gdi:
@@ -217,6 +237,11 @@ jobs:
         run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=gdi ..
       - name: Build
         run: cd build && make -j$(nproc) simutrans-extended
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/simutrans/simutrans-extended.exe
 
 
   sim-mingw-posix:
@@ -234,6 +259,11 @@ jobs:
         run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=none ..
       - name: Build
         run: cd build && make -j$(nproc) simutrans-extended
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/simutrans/simutrans-extended.exe
 
 
   makeobj-mingw:
@@ -251,6 +281,11 @@ jobs:
         run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=none ..
       - name: Build
         run: cd build && make -j$(nproc) makeobj-extended
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/simutrans/makeobj-extended.exe
 
 
   nettool-mingw:
@@ -268,6 +303,11 @@ jobs:
         run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=none ..
       - name: Build
         run: cd build && make -j$(nproc) nettool-extended
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/simutrans/nettool-extended.exe
 
 
   sim-windows-gdi:
@@ -295,6 +335,11 @@ jobs:
         uses: microsoft/setup-msbuild@v1.0.1
       - name: Build
         run: cd build && msbuild.exe Simutrans-Extended.sln /t:simutrans-extended /p:Configuration=Release
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/simutrans/Release/simutrans-extended.exe
 
 
   sim-windows-sdl2:
@@ -322,6 +367,11 @@ jobs:
         uses: microsoft/setup-msbuild@v1.0.1
       - name: Build
         run: cd build && msbuild.exe Simutrans-Extended.sln /t:simutrans-extended /p:Configuration=Release
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/simutrans/Release/simutrans-extended.exe
 
 
   sim-windows-headless:
@@ -349,6 +399,11 @@ jobs:
         uses: microsoft/setup-msbuild@v1.0.1
       - name: Build
         run: cd build && msbuild.exe Simutrans-Extended.sln /t:simutrans-extended /p:Configuration=Release
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/simutrans/Release/simutrans-extended.exe
 
 
   makeobj-windows:
@@ -376,6 +431,11 @@ jobs:
         uses: microsoft/setup-msbuild@v1.0.1
       - name: Build
         run: cd build && msbuild.exe Simutrans-Extended.sln /t:makeobj-extended /p:Configuration=Release
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/simutrans/Release/makeobj-extended.exe
 
 
   nettool-windows:
@@ -403,3 +463,8 @@ jobs:
         uses: microsoft/setup-msbuild@v1.0.1
       - name: Build
         run: cd build && msbuild.exe Simutrans-Extended.sln /t:nettool-extended /p:Configuration=Release
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/simutrans/Release/nettool-extended.exe
