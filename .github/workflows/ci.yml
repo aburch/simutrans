@@ -154,7 +154,7 @@ jobs:
           echo "CFLAGS += -DREVISION=$(svn info --show-item revision svn://servers.simutrans.org/simutrans)" >> config.default
           cat config.default >> /dev/stderr
       - name: Build
-        run: make -j2 all
+        run: make -j$(sysctl hw.logicalcpu) all
       - name: Build Zip
         run: sh distribute.sh
       - name: Upload Artifact (CI)
@@ -174,7 +174,7 @@ jobs:
       - name: Configure
         run: cp configs/config.${{ github.job }} config.default
       - name: Build
-        run: make -j2 makeobj
+        run: make -j$(sysctl hw.logicalcpu) makeobj
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -192,7 +192,7 @@ jobs:
       - name: Configure
         run: cp configs/config.${{ github.job }} config.default
       - name: Build
-        run: make -j2 nettool
+        run: make -j$(sysctl hw.logicalcpu) nettool
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
