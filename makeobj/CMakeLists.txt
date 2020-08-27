@@ -10,6 +10,10 @@ add_executable(makeobj-extended
 target_compile_options(makeobj-extended PRIVATE ${SIMUTRANS_COMMON_COMPILE_OPTIONS})
 target_compile_definitions(makeobj-extended PRIVATE MAKEOBJ=1 COLOUR_DEPTH=0)
 
+if (NOT CMAKE_SIZEOF_VOID_P EQUAL 4 AND SIMUTRANS_BUILD_32BIT)
+	target_compile_options(makeobj-extended PRIVATE -m32)
+	set_target_properties(makeobj-extended PROPERTIES LINK_FLAGS "-m32")
+endif ()
 
 target_link_libraries(makeobj-extended
 	ZLIB::ZLIB

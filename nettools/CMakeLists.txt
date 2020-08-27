@@ -10,6 +10,11 @@ add_executable(nettool-extended
 target_compile_options(nettool-extended PRIVATE ${SIMUTRANS_COMMON_COMPILE_OPTIONS})
 target_compile_definitions(nettool-extended PRIVATE NETTOOL=1 COLOUR_DEPTH=0)
 
+if (NOT CMAKE_SIZEOF_VOID_P EQUAL 4 AND SIMUTRANS_BUILD_32BIT)
+	target_compile_options(nettool-extended PRIVATE -m32)
+	set_target_properties(nettool-extended PROPERTIES LINK_FLAGS "-m32")
+endif ()
+
 # these source files produce the same object code in nettool and simutrans
 target_sources(nettool-extended PRIVATE
 	../dataobj/freelist.cc
@@ -34,5 +39,5 @@ target_sources(nettool-extended PRIVATE
 )
 
 if (WIN32)
-       target_link_libraries(nettool-extended PRIVATE ws2_32)
+	target_link_libraries(nettool-extended PRIVATE ws2_32)
 endif (WIN32)
