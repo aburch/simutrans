@@ -475,7 +475,6 @@ else ()
 		message(WARNING "Unknown backend '${SIMUTRANS_BACKEND}', falling back to headless compilation")
 	endif ()
 
-	set(SIMUTRANS_BUILD_HEADLESS ON)
 	target_sources(simutrans-extended PRIVATE display/simgraph0.cc sys/simsys_posix.cc sound/no_sound.cc music/no_midi.cc)
 	target_compile_definitions(simutrans-extended PRIVATE COLOUR_DEPTH=0)
 endif ()
