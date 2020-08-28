@@ -143,8 +143,8 @@ jobs:
         uses: actions/checkout@v2
       - name: Get Dependencies
         run: |
-          curl http://www.libsdl.org/release/SDL2-2.0.10.dmg > SDL2-2.0.10.dmg
-          hdiutil attach SDL2-2.0.10.dmg >>/dev/stderr
+          curl -L -o ./SDL2-2.0.12.dmg https://www.libsdl.org/release/SDL2-2.0.12.dmg
+          hdiutil attach ./SDL2-2.0.12.dmg >>/dev/stderr
           sudo cp -R -v /Volumes/SDL2/SDL2.framework /Library/Frameworks/
           sudo ls /Library/Frameworks/ >>/dev/stderr
           hdiutil eject /Volumes/SDL2 >>/dev/stderr
