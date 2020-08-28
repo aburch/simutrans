@@ -111,8 +111,8 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 						left += 14;
 					}
 					buf.printf("%i/%i", goods.get_in_transit(), actual_max_transit);
-					PIXVAL col = actual_max_transit == 0 ? COL_RED : max_transit == 0 ? color_idx_to_rgb(COL_DARK_ORANGE): SYSCOL_TEXT;
-					left += display_proportional_clip_rgb(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, col, true);
+					PIXVAL col_val = actual_max_transit == 0 ? COL_DANGER : max_transit == 0 ? color_idx_to_rgb(COL_DARK_ORANGE): SYSCOL_TEXT;
+					left += display_proportional_clip_rgb(pos.x + offset.x + left, pos.y + offset.y + yoff, buf, ALIGN_LEFT, col_val, true);
 					buf.clear();
 					buf.append(", ");
 				}
@@ -333,8 +333,8 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 			if (fab->get_status() >= fabrik_t::staff_shortage) {
 				display_ddd_box_clip_rgb(offset.x + xoff, offset.y + yoff + 2, D_INDICATOR_WIDTH / 2, D_INDICATOR_HEIGHT + 2, COL_STAFF_SHORTAGE, COL_STAFF_SHORTAGE);
 			}
-			PIXVAL col = fabrik_t::status_to_color[target_fab->get_status() % fabrik_t::staff_shortage];
-			display_fillbox_wh_clip_rgb(offset.x + xoff + 1, offset.y + yoff + 3, D_INDICATOR_WIDTH / 2 - 1, D_INDICATOR_HEIGHT, col, true);
+			PIXVAL col_val = color_idx_to_rgb(fabrik_t::status_to_color[target_fab->get_status() % fabrik_t::staff_shortage]);
+			display_fillbox_wh_clip_rgb(offset.x + xoff + 1, offset.y + yoff + 3, D_INDICATOR_WIDTH / 2 - 1, D_INDICATOR_HEIGHT, col_val, true);
 			xoff += D_INDICATOR_WIDTH / 2 + 3;
 
 			// [name]
@@ -349,7 +349,7 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 			display_colorbox_with_tooltip(offset.x + xoff, offset.y + yoff + 2, 8, 8, transport_goods->get_color(), NULL);
 			xoff += 12;
 			// [distance]
-			col = is_within_own_network ? SYSCOL_TEXT : color_idx_to_rgb(COL_GREY3);
+			col_val = is_within_own_network ? SYSCOL_TEXT : color_idx_to_rgb(COL_GREY3);
 			distance = (double)(shortest_distance(k, fab->get_pos().get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
 			if (distance < 1)
 			{
@@ -364,7 +364,7 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 			}
 			buf.clear();
 			buf.append(distance_display);
-			xoff += display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, col, true);
+			xoff += display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, col_val, true);
 
 			xoff += D_H_SPACE;
 
@@ -378,15 +378,15 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 				buf.clear();
 				if (lead_time == UINT32_MAX_VALUE) {
 					buf.append("--:--:--");
-					col = color_idx_to_rgb(COL_GREY4);
+					col_val = color_idx_to_rgb(COL_GREY4);
 				}
 				else {
 					char lead_time_as_clock[32];
 					welt->sprintf_time_tenths(lead_time_as_clock, 32, lead_time);
 					buf.append(lead_time_as_clock);
-					col = is_connected_to_own_network ? SYSCOL_TEXT : color_idx_to_rgb(COL_GREY4);
+					col_val = is_connected_to_own_network ? SYSCOL_TEXT : color_idx_to_rgb(COL_GREY4);
 				}
-				xoff += display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, col, true);
+				xoff += display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, col_val, true);
 				xoff += D_H_SPACE * 2;
 
 				buf.clear();
@@ -453,7 +453,7 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 					//buf.printf("%i/%i (%i)", in_transit, max_transit, goods_needed);
 				}
 
-				xoff += display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, col, true);
+				xoff += display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, col_val, true);
 			}
 
 			// goto button
@@ -540,13 +540,13 @@ void gui_factory_nearby_halt_info_t::draw(scr_coord offset)
 	int yoff = pos.y;
 
 	FORX(const vector_tpl<nearby_halt_t>, freight_halt, halt_list, yoff += LINESPACE + 1) {
-		PIXVAL col = SYSCOL_TEXT;
+		PIXVAL col_val = SYSCOL_TEXT;
 
 		halthandle_t halt = freight_halt.halt;
 
 		if (halt.is_bound()) {
 			xoff = D_V_SPACE;
-			col = SYSCOL_TEXT;
+			col_val = SYSCOL_TEXT;
 			xoff += D_INDICATOR_WIDTH * 2 / 3 +D_H_SPACE;
 
 			// [name]
@@ -596,7 +596,7 @@ void gui_factory_nearby_halt_info_t::draw(scr_coord offset)
 				buf.printf("(%u)", transship_sum);
 			}
 			buf.printf("/%u", halt->get_capacity(2));
-			xoff += display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, col, true);
+			xoff += display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, col_val, true);
 			xoff += D_H_SPACE;
 
 			// [station handled goods category] (symbol)
@@ -622,22 +622,22 @@ void gui_factory_nearby_halt_info_t::draw(scr_coord offset)
 			// This can be separated as a function of simhalt if used elsewhere.
 			//if (halt->is_overcrowded(2)) { col = COL_RED; } // This may be extremely lagging
 			if (!has_active_freight_connection) {
-				col = COL_INACTIVE; // seems that the freight convoy is not running here
+				col_val = COL_INACTIVE; // seems that the freight convoy is not running here
 			}
 			else if (wainting_sum + transship_sum > halt->get_capacity(2)) {
-				col = COL_DANGER;
+				col_val = COL_DANGER;
 			}
 			else if (wainting_sum + transship_sum > halt->get_capacity(2)*0.9) {
-				col = COL_WARNING;
+				col_val = COL_WARNING;
 			}
 			else if (!wainting_sum && !transship_sum) {
 				// Still have to consider
-				col = COL_CAUTION;
+				col_val = COL_CAUTION;
 			}
 			else {
-				col = COL_CLEAR;
+				col_val = COL_CLEAR;
 			}
-			display_fillbox_wh_clip_rgb(offset.x + D_V_SPACE + 1, offset.y + yoff + 3, D_INDICATOR_WIDTH * 2 / 3, D_INDICATOR_HEIGHT + 1, col, true);
+			display_fillbox_wh_clip_rgb(offset.x + D_V_SPACE + 1, offset.y + yoff + 3, D_INDICATOR_WIDTH * 2 / 3, D_INDICATOR_HEIGHT + 1, col_val, true);
 
 			if (win_get_magic(magic_halt_info + halt.get_id())) {
 				display_blend_wh_rgb(offset.x, offset.y + yoff, size.w, LINESPACE, SYSCOL_TEXT, 20);

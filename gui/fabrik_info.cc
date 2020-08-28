@@ -239,7 +239,7 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 	else {
 		//staff_shortage_factor = 0;
 	}
-	staffing_bar.add_color_value(&staff_shortage_factor, COL_YELLOW);
+	staffing_bar.add_color_value(&staff_shortage_factor, COL_CAUTION);
 	staffing_level = fab->get_staffing_level_percentage();
 	staffing_bar.add_color_value(&staffing_level, goods_manager_t::passengers->get_color());
 	staffing_level2 = staff_shortage_factor > staffing_level ? staffing_level : 0;
