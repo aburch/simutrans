@@ -260,7 +260,7 @@ inline void display_set_image_proc(bool is_global)
 	}
 }
 
-// Blends two colors 
+// Blends two colors
 PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_blend);
 
 // blends a rectangular region
