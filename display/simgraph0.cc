@@ -30,6 +30,10 @@ uint32 get_color_rgb(uint8)
 	return 0;
 }
 
+void env_t_rgb_to_system_colors()
+{
+}
+
 KOORD_VAL display_set_base_raster_width(KOORD_VAL)
 {
 	return 0;
