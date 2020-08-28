@@ -3069,7 +3069,7 @@ void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 
 
 
-// Blends two colors 
+// Blends two colors
 PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_blend)
 {
 	const PIXVAL alpha = (percent_blend*64)/100;
