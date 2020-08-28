@@ -16,9 +16,7 @@ if (NOT CMAKE_SIZEOF_VOID_P EQUAL 4 AND SIMUTRANS_BUILD_32BIT)
 endif ()
 
 target_link_libraries(makeobj-extended
-	ZLIB::ZLIB
 	PNG::PNG
-	BZip2::BZip2
 )
 
 
