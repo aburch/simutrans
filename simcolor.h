@@ -142,11 +142,6 @@ typedef unsigned int FLAGGED_PIXVAL;
 
 #define COL_CITICENS        COL_WHITE
 #define COL_GROWTH          122
-#define COL_HAPPY           COL_DARK_GREEN
-#define COL_UNHAPPY         COL_LIGHT_PURPLE
-#define COL_OVERCROWD       COL_PURPLE-1
-#define COL_NO_ROUTE        COL_RED
-#define COL_TOO_SLOW        69
 #define COL_PASSENGERS      COL_BLUE-128
 #define COL_WAITING         COL_DARK_TURQUOISE
 #define COL_ARRIVED         COL_LIGHT_BLUE
@@ -198,5 +193,15 @@ typedef unsigned int FLAGGED_PIXVAL;
 #define SYSCOL_STATUSBAR_DIVIDER            gui_theme_t::gui_color_statusbar_divider
 #define SYSCOL_HIGHLIGHT                    gui_theme_t::gui_highlight_color
 #define SYSCOL_SHADOW                       gui_theme_t::gui_shadow_color
+
+// Customer evaluation colors
+// TODO: These colors can be changed by theme or pakset (Should be considered together with the symbol design)
+#define COL_HAPPY           COL_DARK_GREEN
+#define COL_OVERCROWD       COL_PURPLE-1
+#define COL_TOO_WAITNG      COL_LIGHT_PURPLE-1
+#define COL_TOO_SLOW        69
+#define COL_NO_ROUTE        COL_RED
+#define COL_MAIL_DELIVERED  COL_DARK_GREEN+1
+#define COL_MAIL_NOROUTE    COL_BRIGHT_ORANGE
 
 #endif

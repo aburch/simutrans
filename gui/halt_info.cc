@@ -90,12 +90,8 @@ const uint8 index_of_haltinfo[MAX_HALT_COST] = {
 	HALT_CONVOIS_ARRIVED
 };
 
-#define COL_HAPPY COL_DARK_GREEN
-#define COL_TOO_WAITNG COL_LIGHT_PURPLE-1
 #define COL_WAITING COL_DARK_TURQUOISE
 #define COL_ARRIVED COL_LIGHT_BLUE
-#define COL_MAIL_NOROUTE COL_BRIGHT_ORANGE
-#define COL_MAIL_DELIVERED COL_DARK_GREEN+1
 
 const uint8 cost_type_color[MAX_HALT_COST] =
 {
@@ -405,14 +401,14 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			top += LINESPACE+2;
 
 			const int ev_value_offset_left = display_get_char_max_width(":") + 12;
-			int ev_indicator_width = min( 255, get_windowsize().w - D_MARGIN_LEFT - D_MARGIN_RIGHT * 2 - ev_value_offset_left - view.get_size().w);
+			uint16 ev_indicator_width = min( 255, get_windowsize().w - D_MARGIN_LEFT - D_MARGIN_RIGHT * 2 - ev_value_offset_left - view.get_size().w);
 			PIXVAL color = color_idx_to_rgb(MN_GREY0);
 
 			if (halt->get_pax_enabled()) {
 				left = pos.x + D_MARGIN_LEFT + 10;
 				int pax_ev_num[5] = { halt->haltestelle_t::get_pax_happy(), halt->haltestelle_t::get_pax_unhappy(), halt->haltestelle_t::get_pax_too_waiting(), halt->haltestelle_t::get_pax_too_slow(), halt->haltestelle_t::get_pax_no_route() };
 				int pax_sum = pax_ev_num[0];
-				for (int i = 1; i < PAX_EVALUATIONS; i++) {
+				for (uint8 i = 1; i < PAX_EVALUATIONS; i++) {
 					pax_sum += pax_ev_num[i];
 				}
 				uint8 indicator_height = pax_sum < 100 ? D_INDICATOR_HEIGHT - 1 : D_INDICATOR_HEIGHT;
@@ -520,7 +516,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 							}
 						}
 						if (pax_ev_num[i]) {
-							display_fillbox_wh_clip_rgb(left + indicator_left, top, colored_width, indicator_height, cost_type_color[i], true);
+							display_fillbox_wh_clip_rgb(left + indicator_left, top, colored_width, indicator_height, color_idx_to_rgb(cost_type_color[i]), true);
 						}
 						indicator_left += colored_width;
 					}
