@@ -3162,7 +3162,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			case convoi_t::WAITING_FOR_LOADING_FOUR_MONTHS:
 				if (tooltip_display_level > 0) {
 					sprintf(tooltip_text, translator::translate("Loading (%i->%i%%) Long Time"), cnv->get_loading_level(), cnv->get_loading_limit());
-					color = COL_ORANGE;
+					color = COL_WARNING;
 				}
 				break;
 
@@ -3221,7 +3221,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			case convoi_t::CAN_START_TWO_MONTHS:
 				if (tooltip_display_level > 0) {
 					tstrncpy(tooltip_text, translator::translate("clf_chk_stucked"), lengthof(tooltip_text));
-					color = color_idx_to_rgb(COL_ORANGE);
+					color = COL_WARNING;
 				}
 				break;
 
@@ -3250,7 +3250,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		{
 			if (tooltip_display_level > 0) {
 				sprintf(tooltip_text, translator::translate("Too heavy"), cnv->get_name());
-				color = color_idx_to_rgb(COL_ORANGE);
+				color = COL_WARNING;
 			}
 		}
 
@@ -3259,7 +3259,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		{
 			if (tooltip_display_level > 0) {
 				sprintf(tooltip_text, translator::translate("Runway too short, require %dm"), desc->get_minimum_runway_length());
-				color = color_idx_to_rgb(COL_ORANGE);
+				color = COL_WARNING;
 			}
 		}
 
@@ -3267,7 +3267,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		{
 			if (tooltip_display_level > 0) {
 				sprintf(tooltip_text, "%s", translator::translate("Airport too close to the edge"));
-				color = color_idx_to_rgb(COL_ORANGE);
+				color = COL_WARNING;
 			}
 		}
 
@@ -3295,11 +3295,11 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				// the convoy belongs to no line -> show convoy name
 				tstrncpy(nameplate_text, cnv->get_name(), lengthof(nameplate_text));
 			}
-			const PIXVAL pcolor = color_idx_to_rgb(lh.is_bound() ? cnv->get_owner()->get_player_color1()+3 : cnv->get_owner()->get_player_color1()+1);
+			const PIXVAL col_val = color_idx_to_rgb(lh.is_bound() ? cnv->get_owner()->get_player_color1()+3 : cnv->get_owner()->get_player_color1()+1);
 
 			const int width = proportional_string_width(nameplate_text) + 7;
 			if (ypos > LINESPACE + 32 && ypos + LINESPACE < display_get_clip_wh().yy) {
-				display_ddd_proportional_clip(xpos, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT - LINESPACE/2-2, width, 0, pcolor, COL_WHITE, nameplate_text, true);
+				display_ddd_proportional_clip(xpos, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT - LINESPACE/2-2, width, 0, col_val, color_idx_to_rgb(COL_WHITE), nameplate_text, true);
 				// (*)display_ddd_proportional_clip's height is LINESPACE/2+1+1
 			}
 		}
