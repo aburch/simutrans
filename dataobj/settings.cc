@@ -38,6 +38,7 @@
 
 #define NEVER 0xFFFFU
 
+sint8 env_t::reverse_base_offsets[8][3];
 
 settings_t::settings_t() :
 	filename(""),
@@ -1881,7 +1882,7 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 		}
 
-		if (file->get_extended_version() >= 15 || file->get_extended_version() == 14 && file->get_extended_revision() >= 30)
+		if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 30))
 		{
 			if (!env_t::server)
 			{
@@ -2019,6 +2020,34 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::hide_keyboard = contents.get_int("hide_keyboard",env_t::hide_keyboard ) != 0;
 
 	env_t::player_finance_display_account = contents.get_int("player_finance_display_account",env_t::player_finance_display_account ) != 0;
+
+	int* offsets[8];
+	offsets[0] = contents.get_ints("reverse_base_offset_south");
+	offsets[1] = contents.get_ints("reverse_base_offset_west");
+	offsets[2] = contents.get_ints("reverse_base_offset_southwest");
+	offsets[3] = contents.get_ints("reverse_base_offset_southeast");
+	offsets[4] = contents.get_ints("reverse_base_offset_north");
+	offsets[5] = contents.get_ints("reverse_base_offset_east");
+	offsets[6] = contents.get_ints("reverse_base_offset_northeast");
+	offsets[7] = contents.get_ints("reverse_base_offset_northwest");
+
+	for (uint32 i = 0; i < 8; i++)
+	{
+		if (offsets[i][0] >= 3)
+		{
+			for (uint32 j = 0; j < 3; j++)
+			{
+				env_t::reverse_base_offsets[i][j] = offsets[i][j+1];
+			}
+		}
+		else
+		{
+			for (uint32 j = 0; j < 3; j++)
+			{
+				env_t::reverse_base_offsets[i][j] = 0;
+			}
+		}
+	}
 
 	// network stuff
 	env_t::server_frames_ahead = contents.get_int("server_frames_ahead", env_t::server_frames_ahead );

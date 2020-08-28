@@ -259,7 +259,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 					}
 					display_cylinderbar_wh_clip_rgb(xoff + offset_left + 1, yoff + 3,
 						(fab->get_staffing_level_percentage() > 100) ? STORAGE_BAR_WIDTH : fab->get_staffing_level_percentage()/2, D_INDICATOR_HEIGHT,
-						((staff_shortage_factor > fab->get_staffing_level_percentage()) ? COL_STAFF_SHORTAGE : goods_manager_t::passengers->get_color()), true);
+						((staff_shortage_factor > (uint32)fab->get_staffing_level_percentage()) ? COL_STAFF_SHORTAGE : goods_manager_t::passengers->get_color()), true);
 				}
 			}
 			else {

@@ -108,7 +108,7 @@ void signalbox_t::rdwr(loadsave_t *file)
 	else // Loading
 	{
 		koord3d k;
-		for(sint32 i = 0; i < signals_count; i++)
+		for(uint32 i = 0; i < signals_count; i++)
 		{
 			k.rdwr(file);
 			signals.append(k);
