@@ -492,6 +492,10 @@ if (WIN32)
 	target_link_libraries(simutrans-extended PRIVATE ws2_32 winmm)
 endif (WIN32)
 
+if (APPLE)
+	target_compile_definitions(simutrans-extended PRIVATE ALT_SDL_DIR=1)
+endif (APPLE)
+
 if (SIMUTRANS_USE_FREETYPE)
 	target_compile_definitions(simutrans-extended PRIVATE USE_FREETYPE=1)
 	target_include_directories(simutrans-extended PRIVATE ${FREETYPE_INCLUDE_DIRS})

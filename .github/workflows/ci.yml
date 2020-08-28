@@ -149,19 +149,14 @@ jobs:
           sudo ls /Library/Frameworks/ >>/dev/stderr
           hdiutil eject /Volumes/SDL2 >>/dev/stderr
       - name: Configure
-        run: |
-          cp configs/config.${{ github.job }} config.default
-          echo "CFLAGS += -DREVISION=$(svn info --show-item revision svn://servers.simutrans.org/simutrans)" >> config.default
-          cat config.default >> /dev/stderr
+        run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DSIMUTRANS_BACKEND=sdl2 ..
       - name: Build
-        run: make -j$(sysctl hw.logicalcpu) all
-      - name: Build Zip
-        run: sh distribute.sh
+        run: cd build && make -j$(sysctl -n hw.logicalcpu) simutrans-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.job }}-nightly
-          path: sim*.zip
+          path: build/simutrans/simutrans-extended
 
 
   makeobj-mac:
@@ -172,14 +167,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: cp configs/config.${{ github.job }} config.default
+        run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DSIMUTRANS_BACKEND=none ..
       - name: Build
-        run: make -j$(sysctl hw.logicalcpu) makeobj
+        run: cd build && make -j$(sysctl -n hw.logicalcpu) makeobj-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.job }}-nightly
-          path: build/default/makeobj-extended/makeobj-extended
+          path: build/simutrans/makeobj-extended
 
 
   nettool-mac:
@@ -190,14 +185,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: cp configs/config.${{ github.job }} config.default
+        run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DSIMUTRANS_BACKEND=none ..
       - name: Build
-        run: make -j$(sysctl hw.logicalcpu) nettool
+        run: cd build && make -j$(sysctl -n hw.logicalcpu) nettool-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
           name: ${{ github.job }}-nightly
-          path: build/default/nettool/nettool
+          path: build/simutrans/nettool-extended
 
 
   sim-mingw-sdl2:

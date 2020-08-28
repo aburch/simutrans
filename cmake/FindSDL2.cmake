@@ -170,6 +170,10 @@ find_library(SDL2_LIBRARY
   DOC "Where the SDL2 Library can be found"
 )
 
+if (APPLE AND SDL2_LIBRARY MATCHES "\.framework$" AND EXISTS "${SDL2_LIBRARY}/SDL2" AND NOT IS_DIRECTORY "${SDL2_LIBRARY}/SDL2")
+	set(SDL2_LIBRARY "${SDL2_LIBRARY}/SDL2")
+endif ()
+
 set(SDL2_LIBRARIES "${SDL2_LIBRARY}")
 
 # SDL2 may require threads on your system.
