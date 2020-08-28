@@ -4714,7 +4714,7 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
 	display_fillbox_wh_clip_rgb( xpos - 2, ypos - halfheight - 1 - hgt, width, halfheight * 2 + 2, ddd_farbe, dirty CLIP_NUM_PAR);
 
 	display_blend_wh_rgb( xpos - 1, ypos - halfheight - 1 - hgt, width - 2, 1, color_idx_to_rgb(COL_WHITE), 25 );
-	display_blend_wh_rgb( xpos - 1, ypos - halfheight - hgt    , width - 2, 1, color_idx_to_rgb(COL_BLACK), 25 );
+	display_blend_wh_rgb( xpos - 1, ypos + halfheight - hgt    , width - 2, 1, color_idx_to_rgb(COL_BLACK), 25 );
 
 	display_blend_wh_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, 1, halfheight * 2 + 2, color_idx_to_rgb(COL_WHITE), 25 );
 	display_blend_wh_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, 1, halfheight * 2 + 2, color_idx_to_rgb(COL_BLACK), 25 );
