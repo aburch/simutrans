@@ -577,7 +577,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	display_proportional_clip(x + 10 + 16, y + CONVOI_LOADINGBAR + 1, translator::translate(loadingbar_setting_texts[env_t::show_cnv_loadingbar]), ALIGN_LEFT, SYSCOL_TEXT, true);
 
 	int len=15+display_proportional_clip(x+10, y+FPS_DATA, translator::translate("Frame time:"), ALIGN_LEFT, SYSCOL_TEXT, true);
-	sprintf(buf,"%ld ms", get_frame_time() );
+	sprintf(buf,"%d ms", get_frame_time() );
 	display_proportional_clip(x+len, y+FPS_DATA, buf, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
 
 	len = 15+display_proportional_clip(x+10, y+IDLE_DATA, translator::translate("Idle:"), ALIGN_LEFT, SYSCOL_TEXT, true);
