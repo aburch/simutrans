@@ -25,7 +25,7 @@ KOORD_VAL base_tile_raster_width = 16; // original
 PIXVAL specialcolormap_all_day[256];
 
 
-uint32 get_color_rgb(uint8 idx)
+uint32 get_color_rgb(uint8)
 {
 	return 0;
 }
@@ -423,6 +423,7 @@ void display_filled_circle_rgb(KOORD_VAL, KOORD_VAL, int, const PIXVAL)
 
 int display_fluctuation_triangle_rgb(KOORD_VAL, KOORD_VAL, uint8, const bool, sint64)
 {
+	return 0;
 }
 
 void draw_bezier_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const PIXVAL, KOORD_VAL, KOORD_VAL)

@@ -970,7 +970,7 @@ public:
 class tool_rotate90_t : public tool_t {
 public:
 	tool_rotate90_t() : tool_t(TOOL_ROTATE90 | SIMPLE_TOOL) {}
-	virtual void draw_after(scr_coord pos, bool dirty) const; /* may draw a compass on top */
+	virtual void draw_after(scr_coord pos, bool dirty) const OVERRIDE; /* may draw a compass on top */
 	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_EMPTY : icon; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Rotate map"); }
 	bool init( player_t * ) OVERRIDE;

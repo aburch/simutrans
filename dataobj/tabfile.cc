@@ -370,7 +370,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 								case '-':
 									if (parameter_ribi[i]) {
 										value = parameter_values[i];
-										sprintf(parameter_name[value], "%.*s", strcspn(buffer+name_length+1,","), buffer+name_length+1);
+										sprintf(parameter_name[value], "%.*s", (int)strcspn(buffer+name_length+1,","), buffer+name_length+1);
 										name_length += strcspn(buffer+name_length+1,",") + 1;
 										parameter_value[i][parameter_values[i]++] = value;
 									}
@@ -433,10 +433,10 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 								expansion_value[i] = calculate(buffer, parameter_value, parameters, combination);
 							}
 
-							sprintf(delim_expand, "%.*s%d", expansion[0]-delim, delim, expansion_value[0]);
+							sprintf(delim_expand, "%.*s%d", (int)(expansion[0]-delim), delim, expansion_value[0]);
 							for(int i=1; i<expansions; i++) {
 								char *prev_end = expansion[i-1]+expansion_length[i-1]+2;
-								sprintf(buffer, "%.*s%d", expansion[i]-prev_end, prev_end, expansion_value[i]);
+								sprintf(buffer, "%.*s%d", (int)(expansion[i]-prev_end), prev_end, expansion_value[i]);
 								strcat(delim_expand, buffer);
 							}
 							strcat(delim_expand, expansion[expansions-1]+expansion_length[expansions-1]+2);
@@ -635,10 +635,11 @@ void tabfile_t::add_operator_brackets(char *expression, char *processed)
 			if(expression_end==NULL) expression_end = expression_pos;
 
 			// construct expression with brackets around 'a operator b'
-			sprintf(buffer,"%.*s(%.*s%.*s)%s",	expression_start-processed+1, processed,
-								expression_ptr-expression_start-1, expression_start+1,
-								expression_end-expression_ptr, expression_ptr,
-								expression_end);
+			sprintf(buffer,"%.*s(%.*s%.*s)%s",
+				(int)(expression_start-processed+1), processed,
+				(int)(expression_ptr-expression_start-1), expression_start+1,
+				(int)(expression_end-expression_ptr), expression_ptr,
+				expression_end);
 
 			strcpy(processed, buffer);
 			operator_count++;

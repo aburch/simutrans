@@ -53,7 +53,7 @@
 
 // Banner color ramp
 // Index 0 is the normal text color
-static const uint8 colors[COLOR_RAMP_SIZE] = { SYSCOL_TEXT_HIGHLIGHT, COL_GREY3, COL_GREY4, COL_GREY5, COL_GREY6 };
+static const uint8 colors[COLOR_RAMP_SIZE] = { COL_WHITE, COL_GREY3, COL_GREY4, COL_GREY5, COL_GREY6 };
 
 
 banner_t::banner_t() : gui_frame_t(""),

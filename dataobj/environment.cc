@@ -275,9 +275,9 @@ void env_t::init()
 	tooltip_delay = 500;
 	tooltip_duration = 5000;
 
-	front_window_text_color = 0xFFFFFF; // COL_WHITE
-	bottom_window_text_color = 0x303030;	// CITY_KI dark grey
-	default_window_title_color = 0xD76B00;
+	front_window_text_color_rgb = 0xFFFFFF; // COL_WHITE
+	bottom_window_text_color_rgb = 0x303030;	// CITY_KI dark grey
+	default_window_title_color_rgb = 0xD76B00;
 	bottom_window_darkness = 25;
 
 	default_ai_construction_speed = 8000;
