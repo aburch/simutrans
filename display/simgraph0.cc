@@ -268,7 +268,7 @@ void display_vline_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool  CL
 {
 }
 
-void display_array_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const COLOR_VAL *)
+void display_array_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const PIXVAL *)
 {
 }
 
