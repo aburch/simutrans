@@ -775,7 +775,7 @@ public:
 	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename );
 
 	void parse_colours(tabfile_t& simuconf);
-	
+
 	void set_size_x(sint32 g);
 	void set_size_y(sint32 g);
 	void set_size(sint32 x, sint32 y, bool preserve_regions = false);

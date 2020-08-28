@@ -4692,7 +4692,7 @@ void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, K
 	int halfheight = large_font_total_height / 2 + 1;
 
 	display_fillbox_wh_rgb( xpos - 2, ypos - halfheight - hgt - 1, width, halfheight * 2 + 2, ddd_farbe, dirty );
-	
+
 	display_blend_wh_rgb( xpos - 1, ypos - halfheight - 1 - hgt, width - 2, 1, color_idx_to_rgb(COL_WHITE), 25 );
 	display_blend_wh_rgb( xpos - 1, ypos - halfheight - hgt,     width - 2, 1, color_idx_to_rgb(COL_BLACK), 25 );
 

@@ -3005,7 +3005,7 @@ void settings_t::parse_colours(tabfile_t& simuconf)
 
 	env_t::background_color = contents.get_color("background_color", env_t::background_color, &env_t::background_color_rgb );
 }
-	
+
 
 int settings_t::get_name_language_id() const
 {

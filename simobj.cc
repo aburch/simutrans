@@ -229,7 +229,7 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 			if(  owner_n != PLAYER_UNOWNED  ) {
 				if(  obj_t::show_owner && welt->get_player(owner_n))
 				{
-					display_blend( image, xpos, ypos, owner_n, color_idx_to_rgb(welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR); 			
+					display_blend( image, xpos, ypos, owner_n, color_idx_to_rgb(welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 				}
 				else
 				{

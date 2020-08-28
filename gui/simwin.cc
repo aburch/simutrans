@@ -208,7 +208,7 @@ static int display_gadget_box(sint8 code,
 	int side = x+REVERSE_GADGETS*D_GADGET_WIDTH-1;
 	display_blend_wh_rgb(side,   y+1, 1, D_TITLEBAR_HEIGHT-2, color_idx_to_rgb(COL_BLACK), 25);
 	display_blend_wh_rgb(side+1, y+1, 1, D_TITLEBAR_HEIGHT-2, color_idx_to_rgb(COL_WHITE), 25);
-	
+
 	// Hajo: return width of gadget
 	return D_GADGET_WIDTH;
 }
