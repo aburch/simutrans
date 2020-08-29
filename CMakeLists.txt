@@ -86,6 +86,17 @@ endif (ZSTD_FOUND)
 
 option(SIMUTRANS_ENABLE_PROFILING "Enable profiling code" OFF)
 
+set(SIMUTRANS_MSG_LEVEL 0 CACHE STRING "Message verbosity level")
+set_property(CACHE SIMUTRANS_MSG_LEVEL PROPERTY STRINGS 0 1 2 3 4 5)
+
+# CMake does not fill in CMAKE_BUILD_TYPE automatically.
+if (NOT MSVC)
+    if (CMAKE_BUILD_TYPE STREQUAL "")
+        set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Build type. Valid values are Debug Release MinSizeRel RelWithDebInfo" FORCE)
+    endif ()
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release MinSizeRel RelWithDebInfo)
+endif (NOT MSVC)
+
 
 #
 # output directory
@@ -542,6 +553,7 @@ endif (NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
 
 target_compile_definitions(simutrans-extended PRIVATE $<IF:$<CONFIG:Debug>,DEBUG=1,NDEBUG>)
 target_compile_definitions(simutrans-extended PRIVATE ENABLE_WATERWAY_SIGNS=0 AUTOJOIN_PUBLIC=0)
+target_compile_definitions(simutrans-extended PRIVATE MSG_LEVEL=${SIMUTRANS_MSG_LEVEL})
 
 if (SIMUTRANS_WITH_REVISION)
 	target_compile_definitions(simutrans-extended PRIVATE REVISION=${SIMUTRANS_SHA_SHORT})

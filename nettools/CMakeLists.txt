@@ -9,6 +9,7 @@ add_executable(nettool-extended
 
 target_compile_options(nettool-extended PRIVATE ${SIMUTRANS_COMMON_COMPILE_OPTIONS})
 target_compile_definitions(nettool-extended PRIVATE NETTOOL=1 COLOUR_DEPTH=0)
+target_compile_definitions(nettool-extended PRIVATE MSG_LEVEL=${SIMUTRANS_MSG_LEVEL})
 
 if (NOT CMAKE_SIZEOF_VOID_P EQUAL 4 AND SIMUTRANS_BUILD_32BIT)
 	target_compile_options(nettool-extended PRIVATE -m32)
