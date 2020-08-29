@@ -86,6 +86,7 @@ endif (ZSTD_FOUND)
 
 option(SIMUTRANS_ENABLE_PROFILING "Enable profiling code" OFF)
 option(SIMUTRANS_USE_SYSLOG "Enable logging to syslog" OFF)
+OPTION(SIMUTRANS_ENABLE_IPV6 "Enable connections using IPv6 in addition to IPv4" ON)
 
 set(SIMUTRANS_MSG_LEVEL 0 CACHE STRING "Message verbosity level")
 set_property(CACHE SIMUTRANS_MSG_LEVEL PROPERTY STRINGS 0 1 2 3 4)
@@ -562,6 +563,10 @@ endif ()
 
 if (SIMUTRANS_USE_SYSLOG)
 	target_compile_definitions(simutrans-extended PRIVATE SYSLOG=1)
+endif ()
+
+if (NOT SIMUTRANS_USE_IPV6)
+	target_compile_definitions(simutrans-extended PRIVATE USE_IP4_ONLY=1)
 endif ()
 
 if (APPLE)

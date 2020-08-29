@@ -15,6 +15,10 @@ if (SIMUTRANS_USE_SYSLOG)
 	target_compile_definitions(simutrans-extended PRIVATE SYSLOG=1)
 endif ()
 
+if (NOT SIMUTRANS_USE_IPV6)
+	target_compile_definitions(simutrans-extended PRIVATE USE_IP4_ONLY=1)
+endif ()
+
 if (NOT CMAKE_SIZEOF_VOID_P EQUAL 4 AND SIMUTRANS_BUILD_32BIT)
 	target_compile_options(nettool-extended PRIVATE -m32)
 	set_target_properties(nettool-extended PROPERTIES LINK_FLAGS "-m32")
