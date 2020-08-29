@@ -99,6 +99,38 @@
  * addons/ai/myai/
  * </tt>
  *
+ * @section s_scripted_tools Scripted tools
+ *
+ * See also @ref tool_skel and @ref tool_only.
+ *
+ * @subsection sec_dir_tools Recommended directory structure
+ *
+ * The script file (tool.nut) as well as the configuration file (description.tab) go into
+ *
+ * <tt>
+ * pak-something/tool/mytool/
+ * </tt>
+ *
+ * Related pak-files have to be placed in
+ *
+ * <tt>
+ * pak-something/
+ * </tt>
+ *
+ * directly.
+ *
+ * @subsection sec_description_tab The file description.tab
+ *
+ * This is a plain text file with the following entries:<br>
+ * <tt>
+ * title=Name of tool to be shown in tool selection dialog <br>
+ * type=one_click or two_click<br>
+ * tooltip=Tooltip for the icon in the toolbar<br>
+ * restart=Set to 1 if the virtual machine has to be restarted after each call to the work functions.<br>
+ * menu=Parameter that can be used to load tools with menuconf.tab<br>
+ * icon=Name of cursor object (loaded from some pak-file), used images: 0 = cursor, 1 = icon, 2 = marker image<br>
+ * </tt>
+ *
  * @section s_general_advice General scripting advice
  *
  * Check out the sections on the <a href="modules.html">Modules</a> page.
@@ -294,6 +326,22 @@
  * @defgroup ai_only AI only functions
  *
  * These classes and methods are only available for scripted AI players.
+ *
+ */
+
+/**
+ * @defgroup tool_skel Tool interface
+ *
+ * The following methods are vital for the functioning of scripted tools.
+ * They will be called from simutrans to interact with the script. You should consider
+ * implementing them.
+ *
+ */
+
+/**
+ * @defgroup tool_only Tool only functions
+ *
+ * These classes and methods are only available for scripted scenarios.
  *
  */
 

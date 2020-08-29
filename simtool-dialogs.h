@@ -48,6 +48,7 @@
 #include "gui/scenario_info.h"
 #include "gui/depotlist_frame.h"
 #include "gui/vehiclelist_frame.h"
+#include "gui/script_tool_frame.h"
 
 class player_t;
 
@@ -270,6 +271,21 @@ public:
 		return false;
 	}
 	bool exit(player_t*) OVERRIDE{ destroy_win(magic_save_t); return false; }
+	bool is_init_network_save() const OVERRIDE{ return true; }
+};
+
+// open scripted-tools dialog
+class dialog_script_tool_t : public tool_t {
+public:
+	dialog_script_tool_t() : tool_t(DIALOG_SCRIPT_TOOL | DIALOGE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Load tool script"); }
+	bool is_selected() const OVERRIDE{ return win_get_magic(magic_load_t); }
+	bool init(player_t*) OVERRIDE{
+		destroy_win(magic_save_t);
+		create_win( new script_tool_frame_t(), w_info, magic_load_t );
+		return false;
+	}
+	bool exit(player_t*) OVERRIDE{ destroy_win(magic_load_t); return false; }
 	bool is_init_network_save() const OVERRIDE{ return true; }
 };
 

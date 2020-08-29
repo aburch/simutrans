@@ -32,6 +32,7 @@
 	ADD: defining overlapping climate height limits will generate maps with climate patches at these heights
 	FIX: (extremly old bug) after removing a house on a slope the world height grid was not restored
 	FIX: factory extension during city growth could no cope with more than one supplier for two goods
+	ADD: scripted tools (initial patch by THLeaderH)
 
 
 Release of 121.0 (r8870 on 1-Dec-2019):

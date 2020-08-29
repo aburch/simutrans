@@ -74,6 +74,8 @@ enum {
 	TOOL_SET_CLIMATE,
 	TOOL_ROTATE_BUILDING,
 	TOOL_MERGE_STOP,
+	TOOL_EXEC_SCRIPT,
+	TOOL_EXEC_TWO_CLICK_SCRIPT,
 	GENERAL_TOOL_COUNT,
 	GENERAL_TOOL = 0x1000
 };
@@ -156,6 +158,7 @@ enum {
 	DIALOG_SCENARIO_INFO,
 	DIALOG_LIST_DEPOT,
 	DIALOG_LIST_VEHICLE,
+	DIALOG_SCRIPT_TOOL,
 	DIALOGE_TOOL_COUNT,
 	DIALOGE_TOOL = 0x4000
 };
@@ -411,7 +414,7 @@ private:
 	 */
 	virtual uint8 is_valid_pos( player_t *, const koord3d &pos, const char *&error, const koord3d &start ) = 0;
 
-	virtual image_id get_marker_image();
+	virtual image_id get_marker_image() const;
 
 	bool first_click_var;
 	koord3d start;

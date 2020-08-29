@@ -15,6 +15,7 @@
 #include "simmenu.h"
 #include "simtool.h"
 #include "simtool-dialogs.h"
+#include "simtool-scripted.h"
 #include "simskin.h"
 #include "simsound.h"
 
@@ -22,6 +23,7 @@
 #include "bauer/wegbauer.h"
 #include "bauer/brueckenbauer.h"
 #include "bauer/tunnelbauer.h"
+#include "script/script_tool_manager.h"
 
 #include "descriptor/building_desc.h"
 #include "descriptor/bridge_desc.h"
@@ -118,6 +120,8 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_SET_CLIMATE:                 tool = new tool_set_climate_t();         break;
 		case TOOL_ROTATE_BUILDING:             tool = new tool_rotate_building_t();     break;
 		case TOOL_MERGE_STOP:                  tool = new tool_merge_stop_t();          break;
+		case TOOL_EXEC_SCRIPT:                 tool = new tool_exec_script_t();         break;
+		case TOOL_EXEC_TWO_CLICK_SCRIPT:       tool = new tool_exec_two_click_script_t(); break;
 		default:
 			dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 			return NULL;
@@ -219,6 +223,7 @@ tool_t *create_dialog_tool(int toolnr)
 		case DIALOG_SCENARIO_INFO:   tool = new dialog_scenario_info_t();   break;
 		case DIALOG_LIST_DEPOT:      tool = new dialog_list_depot_t();      break;
 		case DIALOG_LIST_VEHICLE:    tool = new dialog_list_vehicle_t();    break;
+		case DIALOG_SCRIPT_TOOL:     tool = new dialog_script_tool_t();     break;
 		default:
 			dbg->error("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
 			return NULL;
@@ -895,6 +900,13 @@ void toolbar_t::update(player_t *player)
 					waytype_t way = (waytype_t)(*c!=0 ? atoi(++c) : 0);
 					hausbauer_t::fill_menu( tool_selector, utype, way, get_sound(c));
 				}
+				else if (char const* const c = strstart(param, "scripts(")) {
+					const char* end = strchr(c, ')');
+					char buf[1000];
+					size_t len = end ? min(lengthof(buf)-1, end-c) : lengthof(buf)-1;
+					tstrncpy(buf, c, len+1);
+					script_tool_manager_t::fill_menu(tool_selector, buf, get_sound(c));
+				}
 				else if (param[0] == '-') {
 					// add dummy tool_t as seperator
 					tool_selector->add_tool_selector( dummy );
@@ -1217,7 +1229,7 @@ void two_click_tool_t::cleanup( bool delete_start_marker )
 }
 
 
-image_id two_click_tool_t::get_marker_image()
+image_id two_click_tool_t::get_marker_image() const
 {
 	return skinverwaltung_t::bauigelsymbol->get_image_id(0);
 }
