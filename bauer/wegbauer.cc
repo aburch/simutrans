@@ -95,7 +95,7 @@ static void set_default(way_desc_t const*& def, waytype_t const wtyp, systemtype
 bool way_builder_t::successfully_loaded()
 {
 	FOR(stringhashtable_tpl<const way_desc_t *>, & i, desc_table) {
-		way_desc_t *desc = (way_desc_t *)i.value;
+		way_desc_t *desc = const_cast<way_desc_t *>(i.value);
 		if(  desc->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
 			// add the tool
 			tool_build_way_t *tool = new tool_build_way_t();

@@ -60,7 +60,7 @@ bool bridge_builder_t::successfully_loaded()
 {
 	FOR( stringhashtable_tpl<const bridge_desc_t*>, & i, desc_table ) {
 		// add the tool
-		bridge_desc_t * desc = (bridge_desc_t *)i.value;
+		bridge_desc_t * desc = const_cast<bridge_desc_t *>(i.value);
 		tool_build_bridge_t *tool = new tool_build_bridge_t();
 		tool->set_icon( desc->get_cursor()->get_image_id(1) );
 		tool->cursor = desc->get_cursor()->get_image_id(0);
