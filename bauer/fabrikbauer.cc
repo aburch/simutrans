@@ -986,7 +986,6 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 			}
 		}
 	}
-build_chain_now:
 
 	// first: do we have to continue unfinished factory chains?
 	if(  !ware_needed.empty()  ) {
@@ -1007,7 +1006,7 @@ build_chain_now:
 			// we have the ware but not the supplier for it ...
 			int last_built_consumer_missing_supplier = 99999;
 			for(  int i=0;  i < last_built_consumer->get_desc()->get_supplier_count();  i++  ) {
-				if(  last_built_consumer->get_desc()->get_supplier(i)->get_input_type() == ware_needed[0]  ) { 
+				if(  last_built_consumer->get_desc()->get_supplier(i)->get_input_type() == ware_needed[0]  ) {
 					last_built_consumer_missing_supplier = i;
 					break;
 				}
