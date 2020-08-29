@@ -347,16 +347,19 @@ void log_t::fatal(const char *who, const char *format, ...)
 
 
 
+#ifdef NETTOOL
+void log_t::vmessage(const char *, const char *, const char *, va_list )
+{
+}
+
+#else
+
 void log_t::vmessage(const char *what, const char *who, const char *format, va_list args )
 {
 	if(debuglevel>0) {
 		va_list args2;
-#ifdef __va_copy
-		__va_copy(args2, args);
-#else
-		// HACK: this is undefined behavior but should work ... hopefully ...
-		args2 = args;
-#endif
+		va_copy(args2, args);
+
 		if( log ) {                         /* only log when a log */
 			fprintf(log ,"%s: %s:\t", what, who);      /* is already open */
 			vfprintf(log, format, args);
@@ -374,6 +377,8 @@ void log_t::vmessage(const char *what, const char *who, const char *format, va_l
 		va_end(args2);
 	}
 }
+
+#endif
 
 
 // create a logfile for log_debug=true

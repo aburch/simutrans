@@ -4,18 +4,19 @@
  */
 
 #include "network_file_transfer.h"
+
 #include "../simdebug.h"
 #include "../simversion.h"
 #include "../simloadingscreen.h"
-
-#include <string.h>
-#include <errno.h>
 #include "../utils/cbuffer_t.h"
+#include "../simversion.h"
 
 #ifndef NETTOOL
 #include "../dataobj/translator.h"
 #endif
-#include "../simversion.h"
+
+#include <string.h>
+#include <errno.h>
 
 /*
  * Functions required by both Simutrans and Nettool
