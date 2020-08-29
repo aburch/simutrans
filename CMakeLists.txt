@@ -85,9 +85,10 @@ if (ZSTD_FOUND)
 endif (ZSTD_FOUND)
 
 option(SIMUTRANS_ENABLE_PROFILING "Enable profiling code" OFF)
+option(SIMUTRANS_USE_SYSLOG "Enable logging to syslog" OFF)
 
 set(SIMUTRANS_MSG_LEVEL 0 CACHE STRING "Message verbosity level")
-set_property(CACHE SIMUTRANS_MSG_LEVEL PROPERTY STRINGS 0 1 2 3 4 5)
+set_property(CACHE SIMUTRANS_MSG_LEVEL PROPERTY STRINGS 0 1 2 3 4)
 
 # CMake does not fill in CMAKE_BUILD_TYPE automatically.
 if (NOT MSVC)
@@ -557,6 +558,10 @@ target_compile_definitions(simutrans-extended PRIVATE MSG_LEVEL=${SIMUTRANS_MSG_
 
 if (SIMUTRANS_WITH_REVISION)
 	target_compile_definitions(simutrans-extended PRIVATE REVISION=${SIMUTRANS_SHA_SHORT})
+endif ()
+
+if (SIMUTRANS_USE_SYSLOG)
+	target_compile_definitions(simutrans-extended PRIVATE SYSLOG=1)
 endif ()
 
 if (APPLE)

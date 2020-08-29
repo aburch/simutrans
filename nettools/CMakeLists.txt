@@ -11,6 +11,10 @@ target_compile_options(nettool-extended PRIVATE ${SIMUTRANS_COMMON_COMPILE_OPTIO
 target_compile_definitions(nettool-extended PRIVATE NETTOOL=1 COLOUR_DEPTH=0)
 target_compile_definitions(nettool-extended PRIVATE MSG_LEVEL=${SIMUTRANS_MSG_LEVEL})
 
+if (SIMUTRANS_USE_SYSLOG)
+	target_compile_definitions(simutrans-extended PRIVATE SYSLOG=1)
+endif ()
+
 if (NOT CMAKE_SIZEOF_VOID_P EQUAL 4 AND SIMUTRANS_BUILD_32BIT)
 	target_compile_options(nettool-extended PRIVATE -m32)
 	set_target_properties(nettool-extended PROPERTIES LINK_FLAGS "-m32")
