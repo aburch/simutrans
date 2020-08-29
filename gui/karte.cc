@@ -714,7 +714,7 @@ PIXVAL reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour, bo
 					gebaeude_t *gb = gr->find<gebaeude_t>();
 					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
 					if(fab==NULL) {
-						color = COL_GREY3;
+						color = color_idx_to_rgb(COL_GREY3);
 					}
 					else {
 						color = fab->get_color();
@@ -1020,7 +1020,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 					set_relief_farbe(k, color_idx_to_rgb(gr->get_halt()->get_owner()->get_player_color1()+3));
 				}
 				else if(  weg_t *weg = gr->get_weg_nr(0)  ) {
-					set_relief_farbe(k, weg->get_owner()==NULL ? color_idx_to_rgb(COL_ORANGE) : weg->get_owner()->get_player_color1()+3 );
+					set_relief_farbe(k, color_idx_to_rgb(weg->get_owner()==NULL ? COL_ORANGE : weg->get_owner()->get_player_color1()+3 ));
 				}
 				if(  gebaeude_t *gb = gr->get_building()  ) {
 					if(  gb->get_owner()!=NULL  ) {
@@ -1059,7 +1059,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 							set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_commuting, 100));
 						}
 						else {
-							set_relief_farbe(k, color_idx_to_rgb(MAP_COL_NODATA));
+							set_relief_farbe(k, MAP_COL_NODATA);
 						}
 					}
 				}
@@ -1076,7 +1076,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 							set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_visiting, 100));
 						}
 						else {
-							set_relief_farbe(k, color_idx_to_rgb(MAP_COL_NODATA));
+							set_relief_farbe(k, MAP_COL_NODATA);
 						}
 					}
 				}
@@ -1101,7 +1101,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 									set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
 								}
 								else {
-									set_relief_farbe(k, color_idx_to_rgb(MAP_COL_NODATA));
+									set_relief_farbe(k, MAP_COL_NODATA);
 								}
 							}
 						}
@@ -1125,7 +1125,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 							set_relief_farbe(k, calc_severity_color(100 - recent_mail_delivery_success_per, 100));
 						}
 						else {
-							set_relief_farbe(k, color_idx_to_rgb(MAP_COL_NODATA));
+							set_relief_farbe(k, MAP_COL_NODATA);
 						}
 					}
 				}
@@ -1911,7 +1911,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			sint16 x_size = max( 5, size.x*zoom_in );
 			sint16 y_size = max( 5, size.y*zoom_in );
 			display_fillbox_wh_clip_rgb( fab_pos.x-1, fab_pos.y-1, x_size+2, y_size+2, color_idx_to_rgb(COL_BLACK), false );
-			display_fillbox_wh_clip_rgb( fab_pos.x, fab_pos.y, x_size, y_size, color_idx_to_rgb(f->get_color()), false );
+			display_fillbox_wh_clip_rgb( fab_pos.x, fab_pos.y, x_size, y_size, f->get_color(), false );
 		}
 	}
 
