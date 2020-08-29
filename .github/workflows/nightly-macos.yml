@@ -1,0 +1,34 @@
+name: OTRP build MacOS
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: macOS-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: install_dependencies
+      run: | 
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+        brew install sdl2 libpng miniupnpc freetype zstd pkg-config
+#        brew install freetype
+# freetype library is in the system, but not the header
+#        curl -L "https://downloads.sourceforge.net/project/freetype/freetype2/2.10.1/ft2101.zip?&use_mirror=autoselect" > ft2101.zip
+#        unzip -oa ft2101.zip '*.h'
+# could obtain them, but the dylib is not where it should be after installing xcode?!?
+# Thus no freetype :(
+# not easy to install miniupnpc for others, so no UPnP support for macOS
+#        brew install p7zip
+#        brew install miniupnpc
+
+    - name: CI-Build
+      run: sh ./.github/build-mac.sh
+      
+    - name: Upload the executable
+      uses: actions/upload-artifact@v2
+      with:
+        name: sim-mac-OTRP
+        path: ./sim-mac-OTRP

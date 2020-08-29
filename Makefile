@@ -15,7 +15,8 @@ AV_FOUNDATION ?= 0
 
 ALLEGRO_CONFIG  ?= allegro-config
 SDL_CONFIG      ?= sdl-config
-SDL2_CONFIG     ?= sdl2-config
+SDL2_CONFIG     ?= pkg-config sdl2
+#SDL2_CONFIG     ?= sdl2-config
 FREETYPE_CONFIG ?= freetype-config
 #FREETYPE_CONFIG ?= pkg-config freetype2
 
@@ -54,7 +55,7 @@ else ifeq ($(OSTYPE),mingw)
     CFLAGS  += -static
     LDFLAGS += -static-libgcc -static-libstdc++ -static
   endif
-  LDFLAGS   += -pthread -Wl,--large-address-aware
+  LDFLAGS   += -pthread
   SOURCES   += sys/simsys_w32_png.cc
   CFLAGS    += -Wno-deprecated-copy -Wno-c++11-narrowing -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
   LIBS      += -lmingw32 -lgdi32 -lwinmm -lws2_32 -limm32
@@ -649,7 +650,7 @@ ifeq ($(BACKEND),sdl2)
   else
     SDL_CFLAGS    := $(shell $(SDL2_CONFIG) --cflags)
     ifeq ($(shell expr $(STATIC) \>= 1), 1)
-      SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
+      SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static --libs)
     else
       SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
     endif

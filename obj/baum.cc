@@ -318,7 +318,7 @@ bool baum_t::register_desc(tree_desc_t *desc)
 // takes care of slopes
 void baum_t::calc_off(uint8 slope, sint8 x_, sint8 y_)
 {
-	sint16 random = (sint16)( get_pos().x + get_pos().y + get_pos().z + slope + (long)this );
+	sint16 random = (sint16)( get_pos().x + get_pos().y + get_pos().z + slope + (sint16)(intptr_t)this );
 	// point on tile (imaginary origin at sw corner, x axis: north, y axis: east
 	sint16 x = x_==-128 ? (random + tree_id) & 31  : x_;
 	sint16 y = y_==-128 ? (random + get_age()) & 31 : y_;

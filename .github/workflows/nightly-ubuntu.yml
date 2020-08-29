@@ -1,0 +1,49 @@
+name: OTRP build Ubuntu
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: install_dependencies
+      run: |
+        sudo apt-get -y update 
+        sudo apt-get -ym install libsdl2-dev
+        sudo apt-get -ym install libfreetype6-dev
+        sudo apt-get -ym install libminiupnpc-dev
+        sudo apt-get -ym install libbz2-dev
+        sudo apt-get -ym install pkg-config
+        sudo apt-get -ym install autoconf
+        
+    - name: install zstd 1.4.4
+      run: |
+        cd $HOME
+        wget https://github.com/facebook/zstd/releases/download/v1.4.4/zstd-1.4.4.tar.gz
+        tar -zxvf zstd-1.4.4.tar.gz
+        cd zstd-1.4.4
+        make -j
+        sudo make install
+        cd $GITHUB_WORKSPACE
+        
+    - name: setup
+      run: |
+        autoconf 
+        ./configure
+        echo "FLAGS = -DREVISION=$(svn info --show-item revision svn://servers.simutrans.org/simutrans) " >>config.default
+        echo "STATIC = 1" >>config.default
+        cat config.default >>/dev/stderr
+        
+    - name: make
+      run: |
+        make -j
+      
+    - name: Upload the executable
+      uses: actions/upload-artifact@v2
+      with:
+        name: sim-linux-OTRP
+        path: ./sim

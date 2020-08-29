@@ -1,0 +1,28 @@
+name: OTRP build Windows 64bit
+
+on: [push]
+
+jobs:
+  wingdi32:
+    runs-on: windows-latest
+    steps:
+
+      - name: Setup Mingw
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: git zip unzip svn base-devel mingw-w64-x86_64-toolchain autoconf mingw-w64-x86_64-gcc mingw-w64-x86_64-freetype mingw-w64-x86_64-zstd mingw-w64-x86_64-libpng mingw-w64-x86_64-brotli mingw-w64-x86_64-SDL2 mingw-w64-x86_64-pkg-config
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: CI-Build
+        run: sh ./.github/build64.sh
+        shell: msys2 {0}
+
+      - name: Upload sim.exe
+        uses: actions/upload-artifact@v2
+        with:
+          name: sim-WinGDI-OTRP.exe
+          path: ./sim-WinGDI-OTRP.exe
