@@ -95,12 +95,12 @@ void gui_convoy_formation_t::draw(scr_coord offset)
 			(void)left;
 #endif
 
-			color = v->get_desc()->is_future(month_now) || v->get_desc()->is_retired(month_now) ? COL_OUT_OF_PRODUCTION : COL_SAFETY;
+			PIXVAL col_val = v->get_desc()->is_future(month_now) || v->get_desc()->is_retired(month_now) ? COL_OUT_OF_PRODUCTION : COL_SAFETY;
 			if (v->get_desc()->is_obsolete(month_now, welt)) {
-				color = COL_OBSOLETE;
+				col_val = COL_OBSOLETE;
 			}
-			display_veh_form_wh_clip_rgb(offset.x + 1, offset.y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_next() : v->get_desc()->get_basic_constraint_prev(), v->get_desc()->get_interactivity(), false);
-			display_veh_form_wh_clip_rgb(offset.x + grid_width / 2, offset.y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_prev() : v->get_desc()->get_basic_constraint_next(), v->get_desc()->get_interactivity(), true);
+			display_veh_form_wh_clip_rgb(offset.x + 1, offset.y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, col_val, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_next() : v->get_desc()->get_basic_constraint_prev(), v->get_desc()->get_interactivity(), false);
+			display_veh_form_wh_clip_rgb(offset.x + grid_width / 2, offset.y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, col_val, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_prev() : v->get_desc()->get_basic_constraint_next(), v->get_desc()->get_interactivity(), true);
 
 			offset.x += grid_width;
 		}
