@@ -4862,7 +4862,7 @@ void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, K
 	display_vline_wh_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 2, lighter, dirty );
 	display_vline_wh_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 2, darker,  dirty );
 
-	display_text_proportional_len_clip_rgb(xpos + 2, ypos - halfheight + 1, text, ALIGN_LEFT, text_color, dirty, -1);
+	display_proportional_rgb(xpos + 2, ypos - halfheight + 1, text, ALIGN_LEFT, text_color, dirty);
 }
 
 
