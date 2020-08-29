@@ -333,7 +333,7 @@ public:
 /* end of history related things */
 
 	//@author: jamespetts
-	void add_power(uint32 p) { city_history_month[0][HIST_POWER_RECIEVED] += p; city_history_year[0][HIST_POWER_RECIEVED] += p; }
+	void add_power(uint32 p) { city_history_month[0][HIST_POWER_RECEIVED] += p; city_history_year[0][HIST_POWER_RECEIVED] += p; }
 
 	void add_power_demand(uint32 p) { city_history_month[0][HIST_POWER_NEEDED] += p; city_history_year[0][HIST_POWER_NEEDED] += p; }
 
