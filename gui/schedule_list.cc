@@ -776,7 +776,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 		number_to_string(ctmp, capacity, 0);
 		buf.clear();
 		buf.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor );
-		display_multiline_text_rgb(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width + 24, pos.y+16 + 14 + SCL_HEIGHT + D_BUTTON_HEIGHT*2 +4 , buf, SYSCOL_TEXT);
+		display_multiline_text_rgb(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width + 24, pos.y + top, buf, SYSCOL_TEXT);
 	}
 	bt_line_class_manager.disable();
 	for (unsigned convoy = 0; convoy < line->count_convoys(); convoy++)
