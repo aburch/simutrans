@@ -355,7 +355,7 @@ void display_ddd_box_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL
 {
 }
 
-void display_ddd_proportional(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, PIXVAL, const char *, int)
+void display_ddd_proportional(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, FLAGGED_PIXVAL, FLAGGED_PIXVAL, const char *, int)
 {
 }
 
