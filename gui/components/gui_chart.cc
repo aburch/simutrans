@@ -85,11 +85,11 @@ void gui_chart_t::show_curve(unsigned int id)
 
 void gui_chart_t::draw(scr_coord offset)
 {
-	scr_coord chart_offset(130,0);
+	scr_coord chart_offset(100,0);
 	int maximum_axis_len = 22;
 
 	offset += pos;
-	if(  size.w<480  ) {
+	if(  size.w<D_DEFAULT_WIDTH  ) {
 		chart_offset.x = size.w/6;
 		maximum_axis_len = max(7,chart_offset.x/6);
 	}
@@ -139,7 +139,7 @@ void gui_chart_t::draw(scr_coord offset)
 	}
 
 	// draw chart frame
-	display_ddd_box_clip_rgb(offset.x, offset.y, size.w, size.h, SYSCOL_SHADOW, SYSCOL_HIGHLIGHT);
+	display_ddd_box_clip_rgb(offset.x, offset.y, chart_size.w, chart_size.h, SYSCOL_SHADOW, SYSCOL_HIGHLIGHT);
 
 	// draw chart lines
 	scr_coord_val x_last = 0;  // remember last digit position to avoid overwriting by next label
