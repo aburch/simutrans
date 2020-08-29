@@ -40,6 +40,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)simsound.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simticker.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simtool.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)simtool-scripted.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simware.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simworld.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)unicode.cc" />
@@ -192,6 +193,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\scenario_info.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\schedule_gui.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\schedule_list.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)gui\script_tool_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\server_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\settings_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\settings_stats.cc" />
@@ -273,6 +275,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)script\export_objs.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)script\script.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)script\script_loader.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)script\script_tool_manager.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)script\api\api_city.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)script\api\api_command.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)script\api\api_const.cc" />
