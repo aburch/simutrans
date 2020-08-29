@@ -1765,7 +1765,7 @@ void gui_convoy_assembler_t::update_data()
 		vehicle_desc_t const* const    info = i.key;
 		gui_image_list_t::image_data_t& img  = *i.value;
 
-		uint8 ok_color = info->is_future(month_now) || info->is_retired(month_now) ? COL_OUT_OF_PRODUCTION : COL_SAFETY;
+		PIXVAL ok_color = info->is_future(month_now) || info->is_retired(month_now) ? COL_OUT_OF_PRODUCTION : COL_SAFETY;
 		if (info->is_obsolete(month_now, welt)) {
 			ok_color = COL_OBSOLETE;
 		}
