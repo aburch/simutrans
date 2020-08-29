@@ -34,6 +34,7 @@ include(TestBigEndian)
 TEST_BIG_ENDIAN(SIMUTRANS_BIG_ENDIAN)
 
 
+# Force C++11 everywhere
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -72,7 +73,7 @@ endif ()
 option(SIMUTRANS_VALGRIND_SUPPORT  "Add support for valgrind \"memcheck\" tool" OFF)
 
 if (Freetype_FOUND)
-	option(SIMUTRANS_USE_FREETYPE "Enable TrueType font support using freetype library" ON)
+	option(SIMUTRANS_USE_FREETYPE "Enable TrueType font support using freetype library" OFF)
 endif (Freetype_FOUND)
 
 if (MiniUPNP_FOUND)

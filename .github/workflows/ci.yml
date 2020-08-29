@@ -15,7 +15,7 @@ jobs:
 
 
   sim-linux-sdl2mixer:
-    name: Linux (SDL2 + SDL2_mixer, multi-threaded, freetype)
+    name: Linux (SDL2_mixer, freetype)
     runs-on: ubuntu-latest
     needs: [check-code-formatting]
     steps:
@@ -28,9 +28,11 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang-10 -DCMAKE_CXX_COMPILER=clang++-10 -DSIMUTRANS_BACKEND=mixer_sdl2 ..
+          CC=clang-10 CXX=clang++-10 cmake .. -DCMAKE_BUILD_TYPE=Release -DSIMUTRANS_BACKEND=mixer_sdl2 -DSIMUTRANS_USE_FREETYPE=ON
       - name: Build
-        run: cd build && make -j$(nproc) simutrans-extended
+        run: |
+          cd build
+          make -j$(nproc) simutrans-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -52,9 +54,11 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang-10 -DCMAKE_CXX_COMPILER=clang++-10 -DSIMUTRANS_BACKEND=none ..
+          CC=clang-10 CXX=clang++-10 cmake .. -DCMAKE_BUILD_TYPE=Release -DSIMUTRANS_BACKEND=none
       - name: Build
-        run: cd build && make -j$(nproc) simutrans-extended
+        run: |
+          cd build
+          make -j$(nproc) simutrans-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -63,7 +67,7 @@ jobs:
 
 
   sim-linux-debug-sdl2:
-    name: Linux (Debug SDL2, multi-threaded)
+    name: Linux (Debug SDL2, single threaded)
     runs-on: ubuntu-latest
     needs: [check-code-formatting]
     steps:
@@ -76,9 +80,11 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 -DSIMUTRANS_BACKEND=sdl2 ..
+          CC=gcc-10 CXX=g++-10 cmake .. -DCMAKE_BUILD_TYPE=Debug -DSIMUTRANS_BACKEND=sdl2 -DSIMUTRANS_MULTI_THREAD=OFF
       - name: Build
-        run: cd build && make -j$(nproc) simutrans-extended
+        run: |
+          cd build
+          make -j$(nproc) simutrans-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -100,9 +106,11 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 -DSIMUTRANS_BACKEND=none ..
+          CC=gcc-10 CXX=g++-10 cmake .. -DCMAKE_BUILD_TYPE=Release -DSIMUTRANS_BACKEND=none
       - name: Build
-        run: cd build && make -j$(nproc) makeobj-extended
+        run: |
+          cd build
+          make -j$(nproc) makeobj-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -122,11 +130,12 @@ jobs:
         run: sudo apt-get -y update && sudo apt-get install -y --no-install-recommends build-essential cmake g++-10
       - name: Configure
         run: |
-          mkdir build
-          cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 -DSIMUTRANS_BACKEND=none ..
+          mkdir build && cd build
+          CC=gcc-10 CXX=g++-10 cmake .. -DCMAKE_BUILD_TYPE=Release -DSIMUTRANS_BACKEND=none
       - name: Build
-        run: cd build && make -j$(nproc) nettool-extended
+        run: |
+          cd build
+          make -j$(nproc) nettool-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -149,9 +158,35 @@ jobs:
           sudo ls /Library/Frameworks/ >>/dev/stderr
           hdiutil eject /Volumes/SDL2 >>/dev/stderr
       - name: Configure
-        run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DSIMUTRANS_BACKEND=sdl2 ..
+        run: |
+          mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DSIMUTRANS_BACKEND=sdl2
       - name: Build
-        run: cd build && make -j$(sysctl -n hw.logicalcpu) simutrans-extended
+        run: |
+          cd build
+          make -j$(sysctl -n hw.logicalcpu) simutrans-extended
+      - name: Upload Artifact (CI)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.job }}-nightly
+          path: build/simutrans/simutrans-extended
+
+
+  sim-mac-headless:
+    name: macOS (headless)
+    runs-on: macOS-latest
+    needs: [check-code-formatting]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure
+        run: |
+          mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DSIMUTRANS_BACKEND=none
+      - name: Build
+        run: |
+          cd build
+          make -j$(sysctl -n hw.logicalcpu) simutrans-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -167,9 +202,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DSIMUTRANS_BACKEND=none ..
+        run: |
+          mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DSIMUTRANS_BACKEND=none
       - name: Build
-        run: cd build && make -j$(sysctl -n hw.logicalcpu) makeobj-extended
+        run: |
+          cd build
+          make -j$(sysctl -n hw.logicalcpu) makeobj-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -185,9 +224,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DSIMUTRANS_BACKEND=none ..
+        run: |
+          mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DSIMUTRANS_BACKEND=none
       - name: Build
-        run: cd build && make -j$(sysctl -n hw.logicalcpu) nettool-extended
+        run: |
+          cd build
+          make -j$(sysctl -n hw.logicalcpu) nettool-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -207,9 +250,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=sdl2 ..
+        run: |
+          mkdir build && cd build
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=sdl2
       - name: Build
-        run: cd build && make -j$(nproc) simutrans-extended
+        run: |
+          cd build
+          make -j$(nproc) simutrans-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -229,9 +276,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=gdi ..
+        run: |
+          mkdir build && cd build
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=gdi
       - name: Build
-        run: cd build && make -j$(nproc) simutrans-extended
+        run: |
+          cd build
+          make -j$(nproc) simutrans-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -251,9 +302,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=none ..
+        run: |
+          mkdir build && cd build
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=none
       - name: Build
-        run: cd build && make -j$(nproc) simutrans-extended
+        run: |
+          cd build
+          make -j$(nproc) simutrans-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -273,9 +328,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=none ..
+        run: |
+          mkdir build && cd build
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=none
       - name: Build
-        run: cd build && make -j$(nproc) makeobj-extended
+        run: |
+          cd build
+          make -j$(nproc) makeobj-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -295,9 +354,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Configure
-        run: mkdir build && cd build && cmake -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=none ..
+        run: |
+          mkdir build && cd build
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=./.github/toolchain_mingw.cmake -DSIMUTRANS_BACKEND=none
       - name: Build
-        run: cd build && make -j$(nproc) nettool-extended
+        run: |
+          cd build
+          make -j$(nproc) nettool-extended
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -320,16 +383,17 @@ jobs:
           git checkout --force 2020.06
           .\bootstrap-vcpkg.bat -disableMetrics
           .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.1
       - name: Configure
         run: |
           cd ${{ github.workspace }}
-          mkdir build
-          cd build
-          cmake .. -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.1
+          mkdir build && cd build
+          cmake .. -DSIMUTRANS_BACKEND=gdi -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
       - name: Build
-        run: cd build && msbuild.exe Simutrans-Extended.sln /t:simutrans-extended /p:Configuration=Release
+        run: |
+          cd build
+          msbuild.exe Simutrans-Extended.sln /t:simutrans-extended /p:Configuration=Release
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -352,16 +416,18 @@ jobs:
           git checkout --force 2020.06
           .\bootstrap-vcpkg.bat -disableMetrics
           .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows sdl2:x64-windows
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.1
       - name: Configure
         run: |
           cd ${{ github.workspace }}
           mkdir build
           cd build
           cmake .. -DSIMUTRANS_BACKEND=sdl2 -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.1
       - name: Build
-        run: cd build && msbuild.exe Simutrans-Extended.sln /t:simutrans-extended /p:Configuration=Release
+        run: |
+          cd build
+          msbuild.exe Simutrans-Extended.sln /t:simutrans-extended /p:Configuration=Release
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -384,16 +450,18 @@ jobs:
           git checkout --force 2020.06
           .\bootstrap-vcpkg.bat -disableMetrics
           .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.1
       - name: Configure
         run: |
           cd ${{ github.workspace }}
           mkdir build
           cd build
           cmake .. -DSIMUTRANS_BACKEND=none -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.1
       - name: Build
-        run: cd build && msbuild.exe Simutrans-Extended.sln /t:simutrans-extended /p:Configuration=Release
+        run: |
+          cd build
+          msbuild.exe Simutrans-Extended.sln /t:simutrans-extended /p:Configuration=Release
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -416,16 +484,18 @@ jobs:
           git checkout --force 2020.06
           .\bootstrap-vcpkg.bat -disableMetrics
           .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows libpng:x64-windows
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.1
       - name: Configure
         run: |
           cd ${{ github.workspace }}
           mkdir build
           cd build
           cmake .. -DSIMUTRANS_BACKEND=none -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.1
       - name: Build
-        run: cd build && msbuild.exe Simutrans-Extended.sln /t:makeobj-extended /p:Configuration=Release
+        run: |
+          cd build
+          msbuild.exe Simutrans-Extended.sln /t:makeobj-extended /p:Configuration=Release
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -448,16 +518,18 @@ jobs:
           git checkout --force 2020.06
           .\bootstrap-vcpkg.bat -disableMetrics
           .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.1
       - name: Configure
         run: |
           cd ${{ github.workspace }}
           mkdir build
           cd build
           cmake .. -DSIMUTRANS_BACKEND=none -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.1
       - name: Build
-        run: cd build && msbuild.exe Simutrans-Extended.sln /t:nettool-extended /p:Configuration=Release
+        run: |
+          cd build
+          msbuild.exe Simutrans-Extended.sln /t:nettool-extended /p:Configuration=Release
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
