@@ -142,11 +142,11 @@ void citylist_stats_t::draw(scr_coord offset)
 		sint32 growth = city->get_finance_history_month(0, HIST_GROWTH);
 		uint16 left = D_POS_BUTTON_WIDTH+2;
 		if(  offset.y + LINESPACE > cl.y  &&  offset.y <= cl.yy  ) {
-			if( (city->get_finance_history_month(0, HIST_POWER_RECIEVED) * 9) > (welt->get_finance_history_month(0, HIST_POWER_NEEDED) / 10) )
+			if( (city->get_finance_history_month(0, HIST_POWER_RECEIVED) * 9) > (welt->get_finance_history_month(0, HIST_POWER_NEEDED) / 10) )
 			{
 				display_color_img(skinverwaltung_t::electricity->get_image_id(0), offset.x + left, offset.y, 0, false, false);
 			}
-			else if (city->get_finance_history_month(0, HIST_POWER_RECIEVED) > 0) {
+			else if (city->get_finance_history_month(0, HIST_POWER_RECEIVED) > 0) {
 				display_img_blend(skinverwaltung_t::electricity->get_image_id(0), offset.x + left, offset.y, TRANSPARENT50_FLAG, false, false);
 			}
 			left += 9; // symbol width
