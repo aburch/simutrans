@@ -503,8 +503,7 @@ void env_t::rdwr(loadsave_t *file)
 	{
 		file->rdwr_bool( new_height_map_conversion );
 	}
-	if(  file->get_version()>=120005 ||
-		(file->get_extended_version() > 14 || (file->get_extended_version() == 14 && file->get_extended_revision() > 30))) {
+	if( file->get_version()>=120005 ) {
 		file->rdwr_long(background_color_rgb);
 		file->rdwr_long(tooltip_color_rgb);
 		file->rdwr_long(tooltip_textcolor_rgb);

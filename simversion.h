@@ -25,7 +25,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 
 #define SIM_VERSION_MAJOR 120
 #define SIM_VERSION_MINOR   2
-#define SIM_VERSION_PATCH   1
+#define SIM_VERSION_PATCH   2
 #define SIM_VERSION_BUILD SIM_BUILD_NIGHTLY
 
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
