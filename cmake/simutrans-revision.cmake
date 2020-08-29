@@ -11,7 +11,7 @@ if (Git_FOUND)
 endif (Git_FOUND)
 
 if (Git_FOUND)
-	execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+	execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short=7 HEAD
 		OUTPUT_VARIABLE SIMUTRANS_SHA_SHORT ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif (Git_FOUND)
 

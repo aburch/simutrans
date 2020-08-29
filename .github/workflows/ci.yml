@@ -375,24 +375,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install vcpkg
-        run: |
-          cd ..
-          git clone https://github.com/Microsoft/vcpkg.git
-          cd vcpkg
-          git checkout --force 2020.06
-          .\bootstrap-vcpkg.bat -disableMetrics
-          .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows
+      - name: Install dependencies using vcpkg
+        uses: lukka/run-vcpkg@v3
+        with:
+          vcpkgDirectory: '${{ github.workspace }}/build/vcpkg'
+          vcpkgArguments: '--disable-metrics zlib bzip2'
+          vcpkgGitCommitId: 6185aa76504a5025f36754324abf307cc776f3da
+          vcpkgTriplet: x64-windows
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.1
       - name: Configure
         run: |
-          cd ${{ github.workspace }}
-          mkdir build && cd build
-          cmake .. -DSIMUTRANS_BACKEND=gdi -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
+          cd ${{ github.workspace }}/build
+          cmake .. -DSIMUTRANS_BACKEND=gdi -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/build/vcpkg/scripts/buildsystems/vcpkg.cmake
       - name: Build
         run: |
-          cd build
+          cd ${{ github.workspace }}/build
           msbuild.exe Simutrans-Extended.sln /t:simutrans-extended /p:Configuration=Release
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
@@ -401,32 +399,31 @@ jobs:
           path: build/simutrans/Release/simutrans-extended.exe
 
 
-  sim-windows-sdl2:
-    name: Windows (MSVC, SDL2)
+  sim-windows-sdl2mixer:
+    name: Windows (MSVC, SDL2_mixer)
     runs-on: windows-latest
     needs: [check-code-formatting]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install vcpkg
-        run: |
-          cd ..
-          git clone https://github.com/Microsoft/vcpkg.git
-          cd vcpkg
-          git checkout --force 2020.06
-          .\bootstrap-vcpkg.bat -disableMetrics
-          .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows sdl2:x64-windows
+      - name: Set up build dir
+        run: mkdir ${{ github.workspace }}/build
+      - name: Install dependencies using vcpkg
+        uses: lukka/run-vcpkg@v3.3
+        with:
+          vcpkgDirectory: '${{ github.workspace }}/build/vcpkg'
+          vcpkgArguments: '--disable-metrics zlib bzip2 sdl2 sdl2-mixer'
+          vcpkgGitCommitId: 6185aa76504a5025f36754324abf307cc776f3da
+          vcpkgTriplet: x64-windows
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.1
       - name: Configure
         run: |
-          cd ${{ github.workspace }}
-          mkdir build
-          cd build
-          cmake .. -DSIMUTRANS_BACKEND=sdl2 -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
+          cd ${{ github.workspace }}/build
+          cmake .. -DSIMUTRANS_BACKEND=mixer_sdl2 -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/build/vcpkg/scripts/buildsystems/vcpkg.cmake
       - name: Build
         run: |
-          cd build
+          cd ${{ github.workspace }}/build
           msbuild.exe Simutrans-Extended.sln /t:simutrans-extended /p:Configuration=Release
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
@@ -442,25 +439,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install vcpkg
-        run: |
-          cd ..
-          git clone https://github.com/Microsoft/vcpkg.git
-          cd vcpkg
-          git checkout --force 2020.06
-          .\bootstrap-vcpkg.bat -disableMetrics
-          .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows
+      - name: Set up build dir
+        run: mkdir ${{ github.workspace }}/build
+      - name: Install dependencies using vcpkg
+        uses: lukka/run-vcpkg@v3.3
+        with:
+          vcpkgDirectory: '${{ github.workspace }}/build/vcpkg'
+          vcpkgArguments: '--disable-metrics zlib bzip2'
+          vcpkgGitCommitId: 6185aa76504a5025f36754324abf307cc776f3da
+          vcpkgTriplet: x64-windows
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.1
       - name: Configure
         run: |
-          cd ${{ github.workspace }}
-          mkdir build
-          cd build
-          cmake .. -DSIMUTRANS_BACKEND=none -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
+          cd ${{ github.workspace }}/build
+          cmake .. -DSIMUTRANS_BACKEND=none -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/build/vcpkg/scripts/buildsystems/vcpkg.cmake
       - name: Build
         run: |
-          cd build
+          cd ${{ github.workspace }}/build
           msbuild.exe Simutrans-Extended.sln /t:simutrans-extended /p:Configuration=Release
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
@@ -476,25 +472,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install vcpkg
-        run: |
-          cd ..
-          git clone https://github.com/Microsoft/vcpkg.git
-          cd vcpkg
-          git checkout --force 2020.06
-          .\bootstrap-vcpkg.bat -disableMetrics
-          .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows libpng:x64-windows
+      - name: Set up build dir
+        run: mkdir ${{ github.workspace }}/build
+      - name: Install dependencies using vcpkg
+        uses: lukka/run-vcpkg@v3.3
+        with:
+          vcpkgDirectory: '${{ github.workspace }}/build/vcpkg'
+          vcpkgArguments: '--disable-metrics zlib bzip2 libpng'
+          vcpkgGitCommitId: 6185aa76504a5025f36754324abf307cc776f3da
+          vcpkgTriplet: x64-windows
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.1
       - name: Configure
         run: |
-          cd ${{ github.workspace }}
-          mkdir build
-          cd build
-          cmake .. -DSIMUTRANS_BACKEND=none -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
+          cd ${{ github.workspace }}/build
+          cmake .. -DSIMUTRANS_BACKEND=none -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/build/vcpkg/scripts/buildsystems/vcpkg.cmake
       - name: Build
         run: |
-          cd build
+          cd ${{ github.workspace }}/build
           msbuild.exe Simutrans-Extended.sln /t:makeobj-extended /p:Configuration=Release
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
@@ -510,25 +505,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install vcpkg
-        run: |
-          cd ..
-          git clone https://github.com/Microsoft/vcpkg.git
-          cd vcpkg
-          git checkout --force 2020.06
-          .\bootstrap-vcpkg.bat -disableMetrics
-          .\vcpkg.exe install zlib:x64-windows bzip2:x64-windows
+      - name: Set up build dir
+        run: mkdir ${{ github.workspace }}/build
+      - name: Install dependencies using vcpkg
+        uses: lukka/run-vcpkg@v3.3
+        with:
+          vcpkgDirectory: '${{ github.workspace }}/build/vcpkg'
+          vcpkgArguments: '--disable-metrics zlib bzip2'
+          vcpkgGitCommitId: 6185aa76504a5025f36754324abf307cc776f3da
+          vcpkgTriplet: x64-windows
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.1
       - name: Configure
         run: |
-          cd ${{ github.workspace }}
-          mkdir build
-          cd build
-          cmake .. -DSIMUTRANS_BACKEND=none -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/../vcpkg/scripts/buildsystems/vcpkg.cmake
+          cd ${{ github.workspace }}/build
+          cmake .. -DSIMUTRANS_BACKEND=none -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/build/vcpkg/scripts/buildsystems/vcpkg.cmake
       - name: Build
         run: |
-          cd build
+          cd ${{ github.workspace }}/build
           msbuild.exe Simutrans-Extended.sln /t:nettool-extended /p:Configuration=Release
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
