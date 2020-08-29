@@ -39,6 +39,9 @@ class settings_t
 	friend class climate_gui_t;
 	friend class welt_gui_t;
 
+public:
+	typedef enum { HEIGHT_BASED=0, HUMIDITY_BASED } climate_generate_t;
+
 private:
 	sint32 size_x, size_y;
 	sint32 map_number;
@@ -117,9 +120,18 @@ private:
 	 /**
 	 * waterlevel, climate borders, lowest snow in winter
 	 */
+	climate_generate_t climate_generator;
 	sint16 groundwater;
 	sint16 winter_snowline;
 	sint16 climate_borders[MAX_CLIMATES][2];
+	sint8 climate_temperature_borders[5];
+	sint8 tropic_humidity;
+	sint8 desert_humidity;
+
+	sint8 patch_size_percentage; // average size of a climate patch, if there are overlapping climates
+
+	sint8 moisture; // how much increase of moisture per tile
+	sint8 moisture_water; // how much increase of moisture per water tile
 
 	double max_mountain_height;
 	double map_roughness;
@@ -137,9 +149,9 @@ private:
 	uint8 max_no_of_trees_on_square;
 	uint16 tree_climates;
 	uint16 no_tree_climates;
-	bool no_trees;
+	uint16 tree;
 
-	bool lake;
+	sint8 lake_height; //relative to sea height
 
 	// game mechanics
 	uint8 allow_player_change;
@@ -426,11 +438,6 @@ public:
 	void set_just_in_time(uint8 b) { just_in_time = b; }
 	uint8 get_just_in_time() const {return just_in_time;}
 
-	void set_default_climates();
-	sint8 get_climate_borders( sint8 climate, sint8 start_end ) const { return climate_borders[climate][start_end]; }
-
-	sint16 get_winter_snowline() const { return winter_snowline; }
-
 	void rotate90() {
 		rotation = (rotation+1)&3;
 		set_size( size_y, size_x );
@@ -555,11 +562,27 @@ public:
 	uint8 get_max_no_of_trees_on_square() const { return max_no_of_trees_on_square; }
 	uint16 get_tree_climates() const { return tree_climates; }
 	uint16 get_no_tree_climates() const { return no_tree_climates; }
-	bool get_no_trees() const { return no_trees; }
-	void set_no_trees(bool b) { no_trees = b; }
+	uint16 get_tree() const { return tree; }
+	void set_tree(uint16 i) { tree = i; }
 
-	bool get_lake() const { return lake; }
-	void set_lake(bool b) { lake = b; }
+	void set_default_climates();
+	sint8 get_climate_borders( sint8 climate, sint8 start_end ) const { return climate_borders[climate][start_end]; }
+
+	sint8 get_tropic_humidity() const { return tropic_humidity; }
+	sint8 get_desert_humidity() const { return desert_humidity; }
+	sint8 get_climate_temperature_borders( sint8 border ) const { return climate_temperature_borders[border]; }
+
+	climate_generate_t get_climate_generator() const { return climate_generator; }
+	void set_climate_generator(climate_generate_t generator) { climate_generator = generator; }
+
+	sint8 get_moisture() const { return moisture;  }
+	sint8 get_moisture_water() const { return moisture_water;  }
+	sint16 get_winter_snowline() const { return winter_snowline; }
+
+	sint8 get_lakeheight() const { return lake_height; }
+	void set_lakeheight(sint8 h) { lake_height = h; }
+
+	sint8 get_patch_size_percentage() const { return patch_size_percentage; }
 
 	uint32 get_industry_increase_every() const { return industry_increase; }
 	void set_industry_increase_every( uint32 n ) { industry_increase = n; }

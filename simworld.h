@@ -260,10 +260,16 @@ private:
 	uint8 num_climates_at_height[128];
 
 	/**
-	 * Contains the intended climate for a tile
-	 * (needed to restore tiles after height changes)
-	 */
+	* Contains the intended climate for a tile
+	* (needed to restore tiles after height changes)
+	*/
 	array2d_tpl<uint8>climate_map;
+
+	/**
+	* Contains the intended climate for a tile
+	* (needed to restore tiles after height changes)
+	*/
+	array2d_tpl<uint8>humidity_map;
 
 	/**
 	 * Array containing the convois.
@@ -664,7 +670,7 @@ private:
 	/**
 	 * Will create lakes.
 	 */
-	void create_lakes( int xoff, int yoff );
+	void create_lakes( int xoff, int yoff, sint8 max_lake_height );
 
 	/**
 	 * Will create beaches.
@@ -1631,6 +1637,11 @@ public:
 	* Calculates appropriate climate for a region using elliptic areas for each
 	*/
 	void calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom );
+
+	/**
+	* Calculates appropriate climate for a region using elliptic areas for each
+	*/
+	void calc_humidity_map_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom );
 
 	/**
 	* assign climated from the climate map to a region

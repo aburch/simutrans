@@ -548,13 +548,14 @@ tree_climates = 4
 # climates with no trees at all (desert and arctic at the moment)
 no_tree_climates = 130
 
-# if set, no trees will be created at all (save about 30% memory and
+# 0: no trees will be created at all (save about 30% memory and
 # the season change will be much smoother on small machines)
-# also prevents construction of trees
-no_trees = 0
+# 1: normal elliptic forest tree distribution
+# 2: if humidity climate generation is enabled, also direibute tree from humidity (else use 1)
+tree_distribution = 2
 
-# if set, no lakes will be created at all
-no_lakes = 0
+# maximum height level for lake creation (0=no lakes)
+lake_height = 8
 
 ###################################time stuff###################################
 

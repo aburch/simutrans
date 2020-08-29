@@ -166,6 +166,9 @@ public:
 class settings_climates_stats_t : protected settings_stats_t, public gui_aligned_container_t, public action_listener_t
 {
 private:
+	gui_combobox_t climate_generate;
+	gui_combobox_t tree_generate;
+
 	settings_t* local_sets;
 public:
 	void init(settings_t*);

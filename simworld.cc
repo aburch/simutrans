@@ -703,6 +703,8 @@ void karte_t::set_scenario(scenario_t *s)
 
 void karte_t::create_rivers( sint16 number )
 {
+	DBG_DEBUG("karte_t::create_rivers()","distributing rivers");
+
 	// First check, whether there is a canal:
 	const way_desc_t* river_desc = way_builder_t::get_desc( env_t::river_type[env_t::river_types-1], 0 );
 	if(  river_desc == NULL  ) {
@@ -792,11 +794,6 @@ void karte_t::create_rivers( sint16 number )
 
 void karte_t::distribute_groundobjs_cities(int new_city_count, sint32 new_mean_citizen_count, sint16 old_x, sint16 old_y )
 {
-DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
-	if(  env_t::river_types > 0  &&  settings.get_river_number() > 0  ) {
-		create_rivers( settings.get_river_number() );
-	}
-
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 	vector_tpl<koord> *pos = stadt_t::random_place(new_city_count, old_x, old_y);
 
@@ -1187,8 +1184,12 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
 }
 
 
+sint8 *humidity;
+
 void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 {
+	humidity = NULL;
+
 	clear_random_mode( 7 );
 	mute_sound(true);
 	if (env_t::networkmode) {
@@ -1272,9 +1273,49 @@ DBG_DEBUG("karte_t::init()","init_tiles");
 	script_api::new_world();
 
 DBG_DEBUG("karte_t::init()","distributing trees");
-	if (!settings.get_no_trees()) {
-		baum_t::distribute_trees(3);
+	switch (settings.get_tree()) {
+		case 2:
+		if( humidity_map.get_height() != 0 ) {
+			koord pos;
+			for(  pos.y=0;  pos.y<get_size().y;  pos.y++  ) {
+				for(  pos.x=0;  pos.x<get_size().x;  pos.x++  ) {
+					grund_t *gr = lookup_kartenboden(pos);
+					if(gr->get_top() == 0  &&  gr->get_typ() == grund_t::boden)  {
+						if(humidity_map.at(pos.x,pos.y)>75) {
+							const uint32 tree_probability = (humidity_map.at(pos.x,pos.y) - 75)/5 + 38;
+							uint8 number_to_plant = 0;
+							uint8 const max_trees_here = min(get_settings().get_max_no_of_trees_on_square(), (tree_probability - 38 + 1) / 2);
+							for (uint8 c2 = 0 ; c2<max_trees_here; c2++) {
+								const uint32 rating = simrand(10) + 38 + c2*2;
+								if (rating < tree_probability ) {
+									number_to_plant++;
+								}
+							}
+							baum_t::plant_tree_on_coordinate(pos, get_settings().get_max_no_of_trees_on_square(), number_to_plant);
+						}
+						else if(humidity_map.at(pos.x,pos.y)>75) {
+							// plant spare trees, (those with low preffered density) or in an entirely tree climate
+							uint16 cl = 1 << get_climate(pos);
+							settings_t const& s = get_settings();
+							if ((cl & s.get_no_tree_climates()) == 0 && ((cl & s.get_tree_climates()) != 0 || simrand(s.get_forest_inverse_spare_tree_density() * /*dichte*/3) < 100)) {
+								baum_t::plant_tree_on_coordinate(pos, 1, 1);
+							}
+						}
+					}
+				}
+
+			}
+			break;
+		}
+		case 1:
+			// no humidity data or on request
+			baum_t::distribute_trees(3);
+			break;
+		case 0:
+			// no trees
+			break;
 	}
+	humidity_map.clear();
 
 DBG_DEBUG("karte_t::init()","built timeline");
 	private_car_t::build_timeline_list(this);
@@ -1432,14 +1473,13 @@ void karte_t::create_lakes_loop(  sint16 x_min, sint16 x_max, sint16 y_min, sint
 	}
 }
 
-void karte_t::create_lakes(  int xoff, int yoff  )
+void karte_t::create_lakes(  int xoff, int yoff, sint8 max_lake_height  )
 {
 	if(  xoff > 0  ||  yoff > 0  ) {
 		// too complicated to add lakes to an already existing world...
 		return;
 	}
 
-	const sint8 max_lake_height = groundwater + 8;
 	const uint16 size_x = get_size().x;
 	const uint16 size_y = get_size().y;
 
@@ -1895,8 +1935,13 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		ls.set_progress(12);
 	}
 
-	if(  sets->get_lake()  ) {
-		create_lakes( old_x, old_y );
+	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
+	if(  env_t::river_types > 0  &&  settings.get_river_number() > 0  ) {
+		create_rivers( settings.get_river_number() );
+	}
+
+	if(  sets->get_lakeheight()>0  ) {
+		create_lakes( old_x, old_y, sets->get_lakeheight() );
 	}
 
 	if (  old_x == 0  &&  old_y == 0  ) {
@@ -2034,6 +2079,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 karte_t::karte_t() :
 	settings(env_t::default_settings),
 	climate_map(0,0),
+	humidity_map(0,0),
 	convoi_array(0),
 	attractions(16),
 	stadt(0)
@@ -5949,6 +5995,11 @@ void karte_t::calc_climate(koord k, bool recalc)
 		return;
 	}
 
+	if( k.x >= climate_map.get_width()  ||  k.y >= climate_map.get_height()  ) { 
+		// not initialised yet (may happend during river creation)
+		return;
+	}
+
 	grund_t *gr = pl->get_kartenboden();
 	if(  gr  ) {
 		if(  !gr->is_water()  ) {
@@ -5990,71 +6041,228 @@ void karte_t::calc_climate(koord k, bool recalc)
 
 
 // distributes climates in a rectangle
+void karte_t::calc_humidity_map_region( sint16 , sint16 , sint16 xbottom, sint16 ybottom )
+{
+	// always calculate the map for the entire map to have smooth transitions
+	humidity_map.resize( xbottom, ybottom );
+
+	// some parameter to teaks:
+	// artic height should relate to the gradient, like delta_h/artic_max_height ~ 1/16 change of humidity or temperature
+	// also on smaller maps remoistering must be faster, since this parameter is kept with enlargement, it must be set externally
+
+	const sint8 moisture_gradient = settings.get_moisture();
+	const sint8 moisture_gradient_water = settings.get_moisture_water();
+	const sint8 height_increase = min( 160 / settings.get_climate_borders(arctic_climate,1), 33 );
+
+	for(  sint16 y = 0;  y < ybottom;  y++  ) {
+		sint8 current_humidity = 50;	// start value for each row
+		for(  sint16 x = 0;  x < xbottom;  x++  ) {
+
+			grund_t *gr = lookup_kartenboden(x,y);
+			if(  gr->is_water()  ||   gr->hat_weg(water_wt)  ) {
+				// increase humidity over water and rivers
+				current_humidity = current_humidity+settings.get_moisture_water();
+				if( gr->is_water() ) {
+					climate_map.at( x, y ) = water_climate;
+				}
+			}
+			else {
+				sint8 gradient = lookup_hgt_nocheck( x+1, y )-lookup_hgt_nocheck( x, y );
+				current_humidity += settings.get_moisture() + gradient * height_increase;
+			}
+			current_humidity = clamp<sint8>( current_humidity, 0, 100 );
+			humidity_map.at(x,y) = current_humidity;
+
+		}
+	}
+}
+
+
+// distributes climates in a rectangle
 void karte_t::calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom  )
 {
+
 	if( xtop == 0 && ytop == 0 ) {
 		climate_map.clear();
 	}
 	climate_map.resize( xbottom, ybottom, 0x7F );
 
-	sint16 groundwater = settings.get_groundwater();
+	switch(settings.get_climate_generator()) {
 
-	// first remove water all clear single tiles from effort
-	// for the first passes, we only work on the grid, which is much faster
-	for(  sint16 y = ytop;  y < ybottom;  y++  ) {
-		for(  sint16 x = xtop;  x < xbottom;  x++  ) {
-			sint8 hgt = lookup_hgt_nocheck( x, y );
-			if( hgt < groundwater ) {
-				climate_map.at( x, y ) = water_climate;
+		case settings_t::HUMIDITY_BASED:
+		{
+			calc_humidity_map_region( xtop, ytop, xbottom, ybottom );
+
+			sint16 groundwater = settings.get_groundwater();
+			const sint16 winterline = settings.get_winter_snowline();
+			const sint16 summerline = settings.get_climate_borders( arctic_climate, 1 );
+
+			// annual mean temperature at summer snowline must be less than zero
+			// assume annual mean temperature at winter snowline is 14 celcius
+			const sint8 snowline_diff = summerline-winterline;
+			const sint8 groundwater_temperature = 14+((winterline-groundwater)*14)/(snowline_diff!=0 ? snowline_diff:1);
+
+			// first remove water all clear single tiles from effort
+			// for the first passes, we only work on the grid, which is much faster
+			for(  sint16 y = ytop;  y < ybottom;  y++  ) {
+				for(  sint16 x = xtop;  x < xbottom;  x++  ) {
+					if(  climate_map.at(x,y)==0x7F ) {
+						climate this_climate = arctic_climate; // fallthrough option
+
+						sint8 hgt = lookup_hgt_nocheck(x,y) - groundwater;
+						sint8 temperature = groundwater_temperature - (hgt-groundwater) - simrand(2);
+						sint8 this_humidity = humidity_map.at(x,y) + simrand(5);
+
+						if(  temperature >= settings.get_climate_temperature_borders(0)  ) {
+							if(  this_humidity > settings.get_tropic_humidity() ) {
+								this_climate = tropic_climate;
+							}
+							else if(  this_humidity > settings.get_desert_humidity()  ) {
+								this_climate = mediterran_climate;
+							}
+							else {
+								this_climate = desert_climate;
+							}
+						}
+						else if(  temperature >= settings.get_climate_temperature_borders(1)  ) {
+							if(  this_humidity > settings.get_desert_humidity() ) {
+								this_climate = mediterran_climate;
+							}
+							else {
+								this_climate = desert_climate;
+							}
+						}
+						else if(  temperature >= settings.get_climate_temperature_borders(2)  ) {
+							if(  this_humidity > settings.get_desert_humidity() ) {
+								this_climate = temperate_climate;
+							}
+							else {
+								this_climate = mediterran_climate;
+							}
+						}
+						else if(  temperature >= settings.get_climate_temperature_borders(3)  ) {
+							if(  this_humidity > settings.get_desert_humidity() ) {
+								this_climate = tundra_climate;
+							}
+							else {
+								this_climate = temperate_climate;
+							}
+						}
+						else if(  temperature >= settings.get_climate_temperature_borders(4)  ) {
+							this_climate = rocky_climate;
+						}
+
+						climate_map.at( x, y ) = this_climate;
+					}
+				}
 			}
-			else if( num_climates_at_height[ hgt-groundwater ] <= 1 ) {
-				climate_map.at( x, y ) = height_to_climate[hgt-groundwater];
+
+			// smooth climates (this code needs a little cleanup, I think)
+			const sint32 world_size = (get_size().x)*(sint32)(get_size().y);
+			climate *climate_smooth = new climate[world_size];
+			climate *climate_smooth_cpy = new climate[world_size];
+
+			for(uint16 y=0; y<get_size().y; y++) {
+				for(uint16 x=0; x<get_size().x; x++) {
+					climate_smooth[x+y*(get_size().x)] = (climate)climate_map.at( x, y );
+				}
 			}
-		}
-	}
 
-	/* Now all unmarked tiles are still pending to get their climate
-	 * We will start an ellispe at the first tile than is inmarked with a random allowed climate for that height
-	 * The region sizes depends on the map (within reason)
-	 */
-	const sint16 max_patchsize_x = clamp( 5, xbottom / 24, 256 );
-	const sint16 max_patchsize_y = clamp( 5, ybottom / 24, 256 );
+			for(int s=0; s<2; s++) {
+				memcpy( climate_smooth_cpy, climate_smooth, world_size*sizeof(climate) );
 
-	minivec_tpl<uint8> allowed( 8 );
-	{
-		// find the next climateless tile
-		for(  sint16 y = ytop;  y < ybottom;  y++  ) {
-			for(  sint16 x = xtop;  x < xbottom;  x++  ) {
-				if( climate_map.at( x, y ) > arctic_climate ) {
-					// not assigned yet => start with a random allowed climate
-					allowed.clear();
-					sint8 hgt = lookup_hgt_nocheck( x, y );
-					for( int cl=1;  cl<MAX_CLIMATES;  cl++ ) {
-						if(  hgt >= settings.get_climate_borders( cl, 0 )  &&  hgt <= settings.get_climate_borders( cl, 1 )  ) {
-							allowed.append(cl);
+				for(uint16 y=0; y<get_size().y; y++) {
+					for(uint16 x=0; x<get_size().x; x++) {
+						if(climate_smooth_cpy[x+y*(get_size().x)] != water_climate ) {
+							sint32 temp_climate = 4 * (climate_smooth_cpy[x+y*(get_size().x)]);
+							for(int i=0; i<8; i++) {
+								sint32 this_climate;
+								koord k_neighbour = koord(x,y) + koord::neighbours[i];
+								if(  is_within_limits(k_neighbour.x, k_neighbour.y)  &&  climate_smooth_cpy[k_neighbour.x+k_neighbour.y*(get_size().x)]!=water_climate  ) {
+									this_climate = climate_smooth_cpy[k_neighbour.x+k_neighbour.y*(get_size().x)];
+								}
+								else {
+									this_climate = climate_smooth_cpy[x+y*(get_size().x)];
+								}
+								temp_climate += (i&1) ? (2 * (this_climate)) : (this_climate);
+							}
+							//if(s<8) temp_height += sets->get_map_roughness()*(simrand(8));
+							climate_smooth[x+y*(get_size().x)]=(climate)((temp_climate)/16);
 						}
 					}
-//					assert( !allowed.empty() );
-					climate cl = !allowed.empty() ? (climate)pick_any(allowed) : temperate_climate;
+				}
+			}
 
-					// now we do an ellipse with size wx and wy around the starting point
-					const sint32 wx = simrand( max_patchsize_x );
-					const sint32 wy = simrand( max_patchsize_y );
-					for( sint16 j = 0; j < wx; j++) {
-						for( sint16 i = 0; i < wy; i++) {
+			for(uint16 y=0; y<get_size().y; y++) {
+				for(uint16 x=0; x<get_size().x; x++) {
+					climate_map.at( x, y ) = climate_smooth[x+y*(get_size().x)];
+				}
+			}
 
-							const sint32 x_off = (j-(wx>>1));
-							const sint32 y_off = (i-(wy>>1));
-							if(  x+x_off>=xtop  &&  x+x_off<xbottom  &&  y+y_off>=ytop  &&  y+y_off<ybottom  &&  climate_map.at( x+x_off, y+y_off )>arctic_climate  ) {
+			delete [] climate_smooth;
+			delete [] climate_smooth_cpy;
+		}
+		break;
 
-								const uint64 distance = 1 + sqrt_i64( ((uint64)x_off*x_off*(wx*wx) + (uint64)y_off*y_off*(wy*wy)));
-								const uint32 threshold = (uint32)( ( 8 * (uint32)((wx*wx)+(wy*wy)) ) / distance );
+		case settings_t::HEIGHT_BASED: {
+			// first remove water all clear single tiles from effort
+			// for the first passes, we only work on the grid, which is much faster
+			for(  sint16 y = ytop;  y < ybottom;  y++  ) {
+				for(  sint16 x = xtop;  x < xbottom;  x++  ) {
+					sint8 hgt = lookup_hgt_nocheck( x, y );
+					if( hgt < groundwater ) {
+						climate_map.at( x, y ) = water_climate;
+					}
+					else if( num_climates_at_height[ hgt-groundwater ] <= 1 ) {
+						climate_map.at( x, y ) = height_to_climate[hgt-groundwater];
+					}
+				}
+			}
 
-								if(  threshold > 40  ) {
-									hgt = lookup_hgt_nocheck( x+x_off, y+y_off );
-									// find out if the climate is still allowed here
-									if(  hgt >= settings.get_climate_borders( cl, 0 )  &&  hgt <= settings.get_climate_borders( cl, 1 )  ) 	{
-										climate_map.at( x+x_off, y+y_off ) = cl;
+			/* Now all unmarked tiles are still pending to get their climate
+			 * We will start an ellispe at the first tile than is inmarked with a random allowed climate for that height
+			 * The region sizes depends on the map (within reason)
+			 */
+			const sint16 max_patchsize_x = clamp( 5, (int)((xbottom*(long)settings.get_patch_size_percentage())/100l), 256 );
+			const sint16 max_patchsize_y = clamp( 5, (int)((ybottom*(long)settings.get_patch_size_percentage())/100l), 256 );
+
+			minivec_tpl<uint8> allowed( 8 );
+			{
+				// find the next climateless tile
+				for(  sint16 y = ytop;  y < ybottom;  y++  ) {
+					for(  sint16 x = xtop;  x < xbottom;  x++  ) {
+						if( climate_map.at( x, y ) > arctic_climate ) {
+							// not assigned yet => start with a random allowed climate
+							allowed.clear();
+							sint8 hgt = lookup_hgt_nocheck( x, y );
+							for( int cl=1;  cl<MAX_CLIMATES;  cl++ ) {
+								if(  hgt >= settings.get_climate_borders( cl, 0 )  &&  hgt <= settings.get_climate_borders( cl, 1 )  ) {
+									allowed.append(cl);
+								}
+							}
+							//assert( !allowed.empty() );
+							climate cl = !allowed.empty() ? (climate)pick_any(allowed) : temperate_climate;
+
+							// now we do an ellipse with size wx and wy around the starting point
+							const sint32 wx = 2+simrand( max_patchsize_x );
+							const sint32 wy = 2+simrand( max_patchsize_y );
+							for( sint16 j = 0; j < wx; j++) {
+								for( sint16 i = 0; i < wy; i++) {
+
+									const sint32 x_off = (j-(wx>>1));
+									const sint32 y_off = (i-(wy>>1));
+									if(  x+x_off>=xtop  &&  x+x_off<xbottom  &&  y+y_off>=ytop  &&  y+y_off<ybottom  &&  climate_map.at( x+x_off, y+y_off )>arctic_climate  ) {
+
+										const uint64 distance = 1 + sqrt_i64( ((uint64)x_off*x_off*(wx*wx) + (uint64)y_off*y_off*(wy*wy)));
+										const uint32 threshold = (uint32)( ( 8 * (uint32)((wx*wx)+(wy*wy)) ) / distance );
+
+										if(  threshold > 40  ) {
+											hgt = lookup_hgt_nocheck( x+x_off, y+y_off );
+											// find out if the climate is still allowed here
+											if(  hgt >= settings.get_climate_borders( cl, 0 )  &&  hgt <= settings.get_climate_borders( cl, 1 )  ) 	{
+												climate_map.at( x+x_off, y+y_off ) = cl;
+											}
+										}
 									}
 								}
 							}
@@ -6063,7 +6271,9 @@ void karte_t::calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 				}
 			}
 		}
+		break;
 	}
+
 	assign_climate_map_region( xtop, ytop, xbottom, ybottom );
 }
 
