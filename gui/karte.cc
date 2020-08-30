@@ -86,7 +86,7 @@ static const uint8 map_type_color[MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND] =
 	174,
 	159,
 	COL_LIGHT_ORANGE,
-	COL_TOLL,
+	157,
 	156,
 	154,
 	115,
