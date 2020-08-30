@@ -13,6 +13,11 @@
 #include "font.h"
 #include "../utils/simstring.h"
 
+#ifdef USE_FREETYPE
+#include "../dataobj/environment.h"
+#endif
+
+
 
 /* if defined, for the old .fnt files a .bdf core will be generated */
 //#define DUMP_OLD_FONTS
