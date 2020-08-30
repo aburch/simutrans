@@ -339,8 +339,8 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h )
 		}
 		fflush( NULL );
 	}
+
 	display_set_actual_width( screen->w );
-	SDL_SetWindowSize( window, width, height );
 	*textur = dr_textur_init();
 	return screen->w;
 }
