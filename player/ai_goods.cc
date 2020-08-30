@@ -883,7 +883,8 @@ void ai_goods_t::step()
 
 			// guess the "optimum" speed (usually a little too low)
 			sint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->get_speed_bonus()*5, 140 );
-			sint32 best_road_speed = world()->get_settings().get_intercity_road_type(world()->get_timeline_year_month())->get_topspeed(); // was: min(60+freight->get_adjusted_speed_bonus(distance_meters)*5, 130 );
+			const way_desc_t* w_desc = world()->get_settings().get_intercity_road_type(world()->get_timeline_year_month());
+			sint32 best_road_speed = w_desc ? world()->get_settings().get_intercity_road_type(world()->get_timeline_year_month())->get_topspeed() : world()->get_settings().get_intercity_road_type(0)->get_topspeed(); // was: min(60+freight->get_adjusted_speed_bonus(distance_meters)*5, 130 );
 
 			INT_CHECK("simplay 1265");
 
