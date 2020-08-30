@@ -59,6 +59,8 @@ BEGIN {
 	export_types["convoy_x::toggle_withdraw"] = "string(player_x)"
 	export_types["convoy_x::is_withdrawn"] = "bool()"
 	export_types["convoy_x::is_in_depot"] = "bool()"
+	export_types["convoy_x::is_waiting"] = "bool()"
+	export_types["convoy_x::is_loading"] = "bool()"
 	export_types["convoy_x::destroy"] = "string(player_x)"
 	export_types["convoy_x::is_schedule_editor_open"] = "bool()"
 	export_types["convoy_x::get_tile_length"] = "integer()"

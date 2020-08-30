@@ -158,6 +158,11 @@ bool convoy_is_schedule_editor_open(convoi_t *cnv)
 	return cnv->get_state() == convoi_t::EDIT_SCHEDULE;
 }
 
+bool convoy_is_loading(convoi_t *cnv)
+{
+	return cnv->get_state() == convoi_t::LOADING;
+}
+
 void export_convoy(HSQUIRRELVM vm)
 {
 	/**
@@ -328,6 +333,14 @@ void export_convoy(HSQUIRRELVM vm)
 	 * @returns true if convoy is in depot
 	 */
 	register_method(vm, &convoi_t::in_depot, "is_in_depot");
+	/**
+	 * @returns true if convoy is currently waiting (for way clearance)
+	 */
+	register_method(vm, &convoi_t::is_waiting, "is_waiting");
+	/**
+	 * @returns true if convoy is currently waiting (for way clearance)
+	 */
+	register_method(vm, convoy_is_loading, "is_loading", true);
 	/**
 	 * Destroy the convoy.
 	 * @ingroup game_cmd
