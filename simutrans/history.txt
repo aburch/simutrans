@@ -34,6 +34,7 @@
 	FIX: factory extension during city growth could no cope with more than one supplier for two goods
 	ADD: scripted tools (initial patch by THLeaderH)
 	ADD: Humidity based climates (originally from kireon green) Attention, winter snowline set temperature at sea level, so important!
+	ADD: (FrankP) happy signs for system fonts
 
 
 Release of 121.0 (r8870 on 1-Dec-2019):
