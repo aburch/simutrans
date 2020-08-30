@@ -5995,7 +5995,7 @@ void karte_t::calc_climate(koord k, bool recalc)
 		return;
 	}
 
-	if( k.x >= climate_map.get_width()  ||  k.y >= climate_map.get_height()  ) {
+	if( (unsigned)k.x >= climate_map.get_width()  ||  (unsigned)k.y >= climate_map.get_height()  ) {
 		// not initialised yet (may happend during river creation)
 		return;
 	}
