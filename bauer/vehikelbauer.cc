@@ -233,6 +233,7 @@ bool vehicle_builder_t::register_desc(const vehicle_desc_t *desc)
 		}
 		typ_fahrzeuge[sort_idx][wt_idx].append(desc);
 	}
+	// we cannot delete old_desc, since then xref-resolving will crash
 
 	return true;
 }
