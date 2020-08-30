@@ -770,12 +770,9 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte( max_no_of_trees_on_square );
 			file->rdwr_short( tree_climates );
 			file->rdwr_short( no_tree_climates );
-			/*if(  file->is_version_atleast(INSERT LAKE_HEIGHT_VERSION) ) {
-				file->rdwr_byte(tree);
-			}
-			else */ {
-				bool no_trees = (tree==0);
-				file->rdwr_bool( no_trees );
+			bool no_trees = (tree==0);
+			file->rdwr_bool( no_trees );
+			if(  file->is_loading()  ) {
 				tree = no_trees ? 0 : 1;
 			}
 			file->rdwr_long( minimum_city_distance );
