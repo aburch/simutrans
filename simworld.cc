@@ -1733,7 +1733,7 @@ void karte_t::init_height_to_climate()
 	// now just add them, the later climates will win (we will do a fineer assessment later
 	for( int cl=0;  cl<MAX_CLIMATES;  cl++ ) {
 		DBG_DEBUG( "init_height_to_climate()", "climate %i, start %i end %i", cl,  settings.get_climate_borders( cl, 0 ),  settings.get_climate_borders( cl, 1 ) );
-		for( sint8 h = settings.get_climate_borders( cl, 0 ); h < settings.get_climate_borders( cl, 1 ); h++ ) {
+		for( sint8 h = max(groundwater, settings.get_climate_borders( cl, 0 )); h < settings.get_climate_borders( cl, 1 ); h++ ) {
 			height_to_climate[h-groundwater] = (uint8)cl;
 			num_climates_at_height[h-groundwater]++;
 		}
@@ -5995,7 +5995,7 @@ void karte_t::calc_climate(koord k, bool recalc)
 		return;
 	}
 
-	if( k.x >= climate_map.get_width()  ||  k.y >= climate_map.get_height()  ) { 
+	if( k.x >= climate_map.get_width()  ||  k.y >= climate_map.get_height()  ) {
 		// not initialised yet (may happend during river creation)
 		return;
 	}
