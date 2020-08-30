@@ -26,10 +26,6 @@ void bridge_reader_t::register_obj(obj_desc_t *&data)
 	pakset_info_t::append(desc->get_name(), get_type(), chk);
 }
 
-bool bridge_reader_t::successfully_loaded() const
-{
-	return bridge_builder_t::successfully_loaded();
-}
 
 obj_desc_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
