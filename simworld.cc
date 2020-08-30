@@ -6050,8 +6050,6 @@ void karte_t::calc_humidity_map_region( sint16 , sint16 , sint16 xbottom, sint16
 	// artic height should relate to the gradient, like delta_h/artic_max_height ~ 1/16 change of humidity or temperature
 	// also on smaller maps remoistering must be faster, since this parameter is kept with enlargement, it must be set externally
 
-	const sint8 moisture_gradient = settings.get_moisture();
-	const sint8 moisture_gradient_water = settings.get_moisture_water();
 	const sint8 height_increase = min( 160 / settings.get_climate_borders(arctic_climate,1), 33 );
 
 	for(  sint16 y = 0;  y < ybottom;  y++  ) {
