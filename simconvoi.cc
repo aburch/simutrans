@@ -7688,8 +7688,10 @@ void convoi_t::calc_min_range()
 
 void convoi_t::calc_direction_steps()
 {
+	const waytype_t wt = vehicle[0]->get_waytype();
+
 	const sint32 top_speed_kmh = speed_to_kmh(get_min_top_speed());
-	const sint32 corner_force_divider = welt->get_settings().get_corner_force_divider(vehicle[0]->get_waytype());
+	const sint32 corner_force_divider = (wt != air_wt) ? welt->get_settings().get_corner_force_divider(wt) : 0;
 	const sint32 max_limited_radius = ((top_speed_kmh * top_speed_kmh) * corner_force_divider) / 87;
 	const sint16 max_tile_steps = (max_limited_radius / welt->get_settings().get_meters_per_tile()) * 2; // This must be multiplied by two because each diagonal step takes two tiles.
 	for(int i = 0; i < vehicle_count; i ++)
