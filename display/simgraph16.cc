@@ -4740,8 +4740,8 @@ void display_direct_line_rgb(const KOORD_VAL x, const KOORD_VAL y, const KOORD_V
 		steps = 1;
 	}
 
-	xs = (dx << 16) / steps;
-	ys = (dy << 16) / steps;
+	xs = (dx * (1 << 16)) / steps;
+	ys = (dy * (1 << 16)) / steps;
 
 	xp = x << 16;
 	yp = y << 16;
