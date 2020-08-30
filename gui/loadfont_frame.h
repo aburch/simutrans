@@ -5,8 +5,9 @@
  * (see licence.txt)
  */
 
-#ifndef gui_loadsave_frame_h
-#define gui_loadsave_frame_h
+#ifndef GUI_LOADFONT_FRAME_H
+#define GUI_LOADFONT_FRAME_H
+
 
 #ifdef USE_FREETYPE
 #include "../gui/gui_theme.h"

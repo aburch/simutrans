@@ -79,9 +79,9 @@ loadfont_frame_t::loadfont_frame_t() : savegame_frame_t(NULL,false,NULL,false)
 	}
 
 	set_name(translator::translate("Select display font"));
-	
+
 	fnlabel.set_text( "font size" );
-	
+
 	fontsize.init( env_t::fontsize, 6, 19, gui_numberinput_t::AUTOLINEAR, false );
 	fontsize.set_pos( input.get_pos() );
 	fontsize.set_size( gui_theme_t::gui_button_size );
