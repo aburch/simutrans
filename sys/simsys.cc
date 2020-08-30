@@ -232,9 +232,6 @@ const char *dr_query_fontpath(int which)
 	}
 	strcat( buffer, "\\" );
 	return buffer;
-#elif defined __APPLE__
-	// not implemented yet
-	return fontname;
 #else
 	// seems non-trivial to work on any system ...
 	return which == 0 ? "/usr/share/fonts" : 0;
