@@ -1482,7 +1482,7 @@ Only city chains
 Only first %d differing paks reported. There are probably more.
 違いが多いため、%d個以上は表示を省略しています。
 Only full Unicode fonts
-Unicodeを網羅したフォントに限定する
+Unicode対応フォントに限定
 Only land chains
 発電所/郊外のチェーンを作成
 Only one transformer per factory!

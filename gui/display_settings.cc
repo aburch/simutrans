@@ -69,7 +69,7 @@
 #define CONVOI_LOADINGBAR						(CONVOI_NAMEPLATES+13)
 #define HIGHLITE_SCHEDULE						(CONVOI_LOADINGBAR+13)
 
-#define SEPERATE4	(HIGHLITE_SCHEDULE+13)
+#define SEPERATE4	(HIGHLITE_SCHEDULE+26)
 
 #define FPS_DATA						(SEPERATE4+4)
 #define IDLE_DATA						(FPS_DATA+13)
@@ -283,12 +283,6 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[28].set_pos(scr_coord(L_DIALOG_WIDTH - 10 - 10 - 2, CONVOI_LOADINGBAR));
 	buttons[28].set_typ(button_t::arrowright);
 
-	// Change font
-	buttons[29].set_pos(scr_coord(10, CONVOI_LOADINGBAR+13));
-	buttons[29].set_typ(button_t::roundbox_state);
-	buttons[29].set_text("Select display font");
-	buttons[29].set_width(L_DIALOG_WIDTH - D_MARGINS_X);
-
 	//23, Hide buildings and trees under mouse cursor
 	buttons[++b].set_pos( scr_coord(10,HIDE_UNDER_CURSOR) );
 	buttons[b].set_typ( button_t::square_state );
@@ -300,6 +294,12 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[b].set_typ( button_t::square_state );
 	buttons[b].set_text( "Highlite schedule" );
 	buttons[b].set_tooltip( "Highlight the locations of stops on the current schedule" );
+
+	// Change font
+	buttons[29].set_pos(scr_coord(10, HIGHLITE_SCHEDULE+13));
+	buttons[29].set_typ(button_t::roundbox_state);
+	buttons[29].set_text("Select display font");
+	buttons[29].set_width(L_DIALOG_WIDTH - D_MARGINS_X);
 
 	for(int i=0;  i<COLORS_MAX_BUTTONS;  i++ ) {
 		buttons[i].add_listener(this);
