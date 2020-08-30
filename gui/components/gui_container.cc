@@ -178,11 +178,11 @@ bool gui_container_t::infowin_event(const event_t *ev)
 
 			slist_tpl<gui_component_t *>handle_mouseover;
 			FOR(  slist_tpl<gui_component_t*>,  const comp,  components  ) {
-				
+
 				if(  list_dirty  ) {
 					break;
 				}
-	
+
 				if(  comp == comp_focus  ) {
 					// do not handle focus objects twice
 					continue;
