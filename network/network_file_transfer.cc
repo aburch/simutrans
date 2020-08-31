@@ -7,6 +7,7 @@
 #include "../simdebug.h"
 #include "../simversion.h"
 #include "../simloadingscreen.h"
+#include "../sys/simsys.h"
 
 #include <string.h>
 #include <errno.h>
@@ -14,8 +15,12 @@
 
 #ifndef NETTOOL
 #include "../dataobj/translator.h"
+#else
+#define dr_remove remove
+#define dr_fopen fopen
 #endif
 #include "../simversion.h"
+
 
 /*
  * Functions required by both Simutrans and Nettool
@@ -24,7 +29,7 @@
 char const* network_receive_file( SOCKET const s, char const* const save_as, sint32 const length, sint32 const timeout )
 {
 	// ok, we have a socket to connect
-	remove(save_as);
+	dr_remove(save_as);
 
 	DBG_MESSAGE("network_receive_file", "File size %li", length );
 
@@ -36,7 +41,7 @@ char const* network_receive_file( SOCKET const s, char const* const save_as, sin
 		// good place to show a progress bar
 		char rbuf[4096];
 		sint32 length_read = 0;
-		if (FILE* const f = fopen(save_as, "wb")) {
+		if (FILE* const f = dr_fopen(save_as, "wb")) {
 			while(length_read < length) {
 				if(  timeout > 0  ) {
 					/** 10s for 4096 bytes:
@@ -94,6 +99,8 @@ char const* network_receive_file( SOCKET const s, char const* const save_as, sin
 #include "../dataobj/environment.h"
 #include "../simworld.h"
 #include "../utils/simstring.h"
+
+#include "../sys/simsys.h"
 
 
 // connect to address (cp), receive gameinfo, close
@@ -264,7 +271,7 @@ end:
 
 const char *network_send_file( uint32 client_id, const char *filename )
 {
-	FILE *fp = fopen(filename,"rb");
+	FILE *fp = dr_fopen(filename,"rb");
 	if (fp == NULL) {
 		dbg->warning("network_send_file", "could not open file %s", filename);
 		return "Could not open file";

@@ -387,6 +387,50 @@ void gui_file_table_exp_column_t::paint_cell(const scr_coord& offset, coordinate
 const char *loadsave_frame_t::get_info(const char *)
 {
 	static char date[1024] = { 0 };
+/*
+	static char date[1024];
+	date[0] = 0;
+	const char *pak_extension = NULL;
+
+	// get file information
+	struct stat  sb;
+	if(dr_stat(fname, &sb) != 0) {
+		// file not found?
+		return date;
+	}
+	// check hash table
+	sve_info_t *svei = cached_info.get(fname);
+	if (svei   &&  svei->file_size == sb.st_size  &&  svei->mod_time == sb.st_mtime) {
+		// compare size and mtime
+		// if both are equal then most likely the files are the same
+		// no need to read the file for pak_extension
+		pak_extension = svei->pak.c_str();
+		svei->file_exists = true;
+	}
+	else {
+		// read pak_extension from file
+		loadsave_t test;
+		test.rd_open(fname);
+		// add pak extension
+		pak_extension = test.get_pak_extension();
+		// now insert in hash_table
+		sve_info_t *svei_new = new sve_info_t(pak_extension, sb.st_mtime, sb.st_size );
+		// copy filename
+		char *key = strdup(fname);
+		sve_info_t *svei_old = cached_info.set(key, svei_new);
+		delete svei_old;
+	}
+	// write everything in string
+	// add pak extension
+	size_t n = sprintf(date, "%s - ", pak_extension);
+	// add the time too
+	struct tm *tm = localtime(&sb.st_mtime);
+	if (tm) {
+		strftime(date + n, 18, "%Y-%m-%d %H:%M", tm);
+	}
+	else {
+		tstrncpy(date, "??.??.???? ??:??", lengthof(date));
+	}*/
 	return date;
 }
 

@@ -8622,10 +8622,10 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 	if(  file->get_version() >= 112008  ) {
 		xml_tag_t t( file, "motd_t" );
 
-		chdir( env_t::user_dir );
+		dr_chdir( env_t::user_dir );
 		// maybe show message about server
 DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server_motd_filename.c_str() );
-		if(  FILE *fmotd = fopen( env_t::server_motd_filename.c_str(), "r" )  ) {
+		if(  FILE *fmotd = dr_fopen( env_t::server_motd_filename.c_str(), "r" )  ) {
 			struct stat st;
 			stat( env_t::server_motd_filename.c_str(), &st );
 			sint32 len = min( 32760, st.st_size+1 );
@@ -8719,7 +8719,7 @@ bool karte_t::load(const char *filename)
 		if(  env_t::networkmode  ) {
 			network_core_shutdown();
 		}
-		chdir( env_t::user_dir );
+		dr_chdir( env_t::user_dir );
 		const char *err = network_connect(filename+4, this);
 		if(err) {
 			create_win( new news_img(err), w_info, magic_none );
@@ -9070,26 +9070,26 @@ void karte_t::load(loadsave_t *file)
 		string dummy;
 
 		if (read_progdir_simuconf) {
-			chdir( env_t::program_dir );
+			dr_chdir( env_t::program_dir );
 			if(simuconf.open("config/simuconf.tab")) {
 				printf("parse_simuconf() in program dir (%s) for override of save file: ", "config/simuconf.tab");
 				settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 				simuconf.close();
 			}
-			chdir( env_t::user_dir );
+			dr_chdir( env_t::user_dir );
 		}
 		if (read_pak_simuconf) {
-			chdir( env_t::program_dir );
+			dr_chdir( env_t::program_dir );
 			std::string pak_simuconf = env_t::objfilename + "config/simuconf.tab";
 			if(simuconf.open(pak_simuconf.c_str())) {
 				printf("parse_simuconf() in pak dir (%s) for override of save file: ", pak_simuconf.c_str() );
 				settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 				simuconf.close();
 			}
-			chdir( env_t::user_dir );
+			dr_chdir( env_t::user_dir );
 		}
 		if (read_userdir_simuconf) {
-			chdir( env_t::user_dir );
+			dr_chdir( env_t::user_dir );
 			std::string userdir_simuconf = "simuconf.tab";
 			if(simuconf.open("simuconf.tab")) {
 				printf("parse_simuconf() in user dir (%s) for override of save file: ", userdir_simuconf.c_str() );
@@ -9250,10 +9250,10 @@ DBG_MESSAGE("karte_t::load()", "init player");
 			stadt_t::cityrules_rdwr(file);
 			if (  !env_t::networkmode || env_t::server  ) {
 				if (pak_overrides) {
-					chdir( env_t::program_dir );
+					dr_chdir( env_t::program_dir );
 					printf("stadt_t::cityrules_init in pak dir (%s) for override of save file: ", env_t::objfilename.c_str() );
 					stadt_t::cityrules_init( env_t::objfilename );
-					chdir( env_t::user_dir );
+					dr_chdir( env_t::user_dir );
 				}
 			}
 
@@ -9266,12 +9266,12 @@ DBG_MESSAGE("karte_t::load()", "init player");
 				{
 					if(pak_overrides)
 					{
-						chdir(env_t::program_dir);
+						dr_chdir(env_t::program_dir);
 						printf("stadt_t::privatecar_init in pak dir (%s) for override of save file: ", env_t::objfilename.c_str());
 						privatecar_init(env_t::objfilename);
 						printf("stadt_t::electricity_consumption_init in pak dir (%s) for override of save file: ", env_t::objfilename.c_str());
 						stadt_t::electricity_consumption_init(env_t::objfilename);
-						chdir(env_t::user_dir);
+						dr_chdir(env_t::user_dir);
 					}
 				}
 			}

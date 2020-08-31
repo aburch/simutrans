@@ -327,11 +327,13 @@ void savegame_frame_t::list_filled( void )
 				button1->set_size(scr_size(14, D_BUTTON_HEIGHT));
 				button1->set_text("X");
 				button1->set_pos(scr_coord(5, y));
-#ifdef SIM_SYSTEM_TRASHBINAVAILABLE
-				button1->set_tooltip("Send this file to the system trash bin. SHIFT+CLICK to permanently delete.");
-#else
-				button1->set_tooltip("Delete this file.");
-#endif
+
+				if (dr_cantrash()) {
+					button1->set_tooltip("Send this file to the system trash bin. SHIFT+CLICK to permanently delete.");
+				}
+				else {
+					button1->set_tooltip("Delete this file.");
+				}
 
 				button2->set_pos(scr_coord(25, y));
 				button2->set_size(scr_size(140, D_BUTTON_HEIGHT));
@@ -640,22 +642,15 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t
  * @retval false    This function always return false to prevent the
  *                  dialogue from being closed.
  */
-bool savegame_frame_t::del_action(const char * fullpath)
+bool savegame_frame_t::del_action(const char *fullpath)
 {
-#ifdef SIM_SYSTEM_TRASHBINAVAILABLE
-
-	if (event_get_last_control_shift()&1) {
+	if (!dr_cantrash() || event_get_last_control_shift() & 1) {
 		// shift pressed, delete without trash bin
-		remove(fullpath);
+		dr_remove(fullpath);
 		return false;
 	}
 
 	dr_movetotrash(fullpath);
-	return false;
-
-#else
-	remove(fullpath);
-#endif
 	return false;
 }
 

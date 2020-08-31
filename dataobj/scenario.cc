@@ -3,6 +3,7 @@
  * (see LICENSE.txt)
  */
 
+#include "../sys/simsys.h"
 #include "../simconst.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
@@ -726,7 +727,7 @@ plainstring scenario_t::load_language_file(const char* filename)
 	}
 	std::string path = scenario_path.c_str();
 	// try user language
-	std::string wanted_file = path + translator::get_lang()->iso + "/" + filename;
+	std::string wanted_file = path + translator::get_lang()->iso + PATH_SEPARATOR + filename;
 
 	const plainstring& cached = cached_text_files.get(wanted_file.c_str());
 	if (cached != NULL) {
@@ -734,14 +735,14 @@ plainstring scenario_t::load_language_file(const char* filename)
 		return cached;
 	}
 	// not cached: try to read file
-	FILE* file = fopen(wanted_file.c_str(), "rb");
+	FILE* file = dr_fopen(wanted_file.c_str(), "rb");
 	if (file == NULL) {
 		// try English
-		file = fopen((path + "en/" + filename).c_str(), "rb");
+		file = fopen((path + "en" + PATH_SEPARATOR + filename).c_str(), "rb");
 	}
 	if (file == NULL) {
 		// try scenario directory
-		file = fopen((path + filename).c_str(), "rb");
+		file = dr_fopen((path + filename).c_str(), "rb");
 	}
 
 	plainstring text = "";

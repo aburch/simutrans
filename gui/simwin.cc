@@ -1469,7 +1469,7 @@ void win_poll_event(event_t* const ev)
 	}
 	// save and reload all windows (currently only used when a new theme is applied)
 	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RELOAD_WINDOWS  ) {
-		chdir( env_t::user_dir );
+		dr_chdir( env_t::user_dir );
 		loadsave_t dlg;
 		if(  dlg.wr_open( "dlgpos.xml", loadsave_t::xml_zipped, "temp", SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR )  ) {
 			// save all
