@@ -13,7 +13,7 @@
 #include "components/gui_button.h"
 #include "components/gui_numberinput.h"
 
-#define COLORS_MAX_BUTTONS (30)
+#define COLORS_MAX_BUTTONS (31)
 #define BUF_MAXLEN_MS_FORMAT (16)
 
 #define MAX_CONVOY_TOOLTIP_OPTIONS 4
