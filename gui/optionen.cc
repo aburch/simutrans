@@ -113,21 +113,21 @@ bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	}
 	else if(  comp == option_buttons + BUTTON_LOAD_GAME  ) {
 		destroy_win(this);
-		tool_t *tmp_tool = create_tool( DIALOG_LOAD | DIALOGE_TOOL );
+		tool_t *tmp_tool = create_tool( DIALOG_LOAD | DIALOG_TOOL );
 		welt->set_tool( tmp_tool, welt->get_active_player() );
 		// since init always returns false, it is safe to delete immediately
 		delete tmp_tool;
 	}
 	else if(  comp == option_buttons + BUTTON_LOAD_SCENARIO  ) {
 		destroy_win(this);
-		tool_t *tmp_tool = create_tool( DIALOG_SCENARIO | DIALOGE_TOOL );
+		tool_t *tmp_tool = create_tool( DIALOG_SCENARIO | DIALOG_TOOL );
 		welt->set_tool( tmp_tool, welt->get_active_player() );
 		// since init always returns false, it is safe to delete immediately
 		delete tmp_tool;
 	}
 	else if(  comp == option_buttons + BUTTON_SAVE_GAME  ) {
 		destroy_win(this);
-		tool_t *tmp_tool = create_tool( DIALOG_SAVE | DIALOGE_TOOL );
+		tool_t *tmp_tool = create_tool( DIALOG_SAVE | DIALOG_TOOL );
 		welt->set_tool( tmp_tool, welt->get_active_player() );
 		// since init always returns false, it is safe to delete immediately
 		delete tmp_tool;

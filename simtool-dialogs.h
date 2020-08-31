@@ -277,7 +277,7 @@ public:
 // open scenario dialog
 class dialog_scenario_t : public tool_t {
 public:
-	dialog_scenario_t() : tool_t(DIALOG_SCENARIO | DIALOGE_TOOL) {}
+	dialog_scenario_t() : tool_t(DIALOG_SCENARIO | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Load scenario"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_load_t); }
 	bool init(player_t*) OVERRIDE{
