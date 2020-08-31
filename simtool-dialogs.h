@@ -304,7 +304,7 @@ public:
 // open scenario info dialog
 class dialog_scenario_info_t : public tool_t {
 public:
-	dialog_scenario_info_t() : tool_t(DIALOG_SCENARIO_INFO | DIALOGE_TOOL) {}
+	dialog_scenario_info_t() : tool_t(DIALOG_SCENARIO_INFO | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Scenario"); }
 	image_id get_icon(player_t *) const { return world()->get_scenario()->is_scripted() ? icon : IMG_EMPTY; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_scenario_info); }
