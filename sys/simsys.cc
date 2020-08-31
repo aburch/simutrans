@@ -38,7 +38,7 @@
 #	endif
 #   undef PATH_MAX
 #	define PATH_MAX MAX_PATH
-#	include "simdebug.h"
+#	include "../simdebug.h"
 #else
 #	include <limits.h>
 #	include <dirent.h>
