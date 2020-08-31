@@ -813,7 +813,7 @@ void network_core_shutdown()
 }
 
 
-/* The following helper routines will be  used with the easy-server setup, to host machines behind 
+/* The following helper routines will be  used with the easy-server setup, to host machines behind
  * routers with frequently changing IP addresses.
  */
 
