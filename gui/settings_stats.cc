@@ -483,13 +483,13 @@ void settings_costs_stats_t::read(settings_t* const sets)
 
 #include "../descriptor/ground_desc.h"
 
-static char const * const climate_generate_string[] = 
+static char const * const climate_generate_string[] =
 {
 	"height based",
 	"temperature-humidity based"
 };
 
-static char const * const tree_generate_string[] = 
+static char const * const tree_generate_string[] =
 {
 	"none",
 	"random",
@@ -595,6 +595,8 @@ void settings_climates_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->max_no_of_trees_on_square );
 	READ_NUM_VALUE_NEW( sets->tree_climates );
 	READ_NUM_VALUE_NEW( sets->no_tree_climates );
+
+	(void)booliter; // silence warning
 }
 
 
