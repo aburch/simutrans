@@ -380,7 +380,6 @@ char const *dr_query_homedir()
 }
 
 
-<<<<<<< HEAD
 const char *dr_query_fontpath(int which)
 {
 	static char buffer[PATH_MAX];
