@@ -526,5 +526,5 @@ void env_t::rdwr(loadsave_t *file)
 		}
 		file->rdwr_byte(fontsize);
 	}
-// server settings are not saved, since they are server specific and could be different on different servers on the save computers
+	// server settings are not saved, since they are server specific and could be different on different servers on the save computers
 }
