@@ -98,6 +98,14 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "tool_change_water_height", TOOL_CHANGE_WATER_HEIGHT | GENERAL_TOOL);
 	/// change climate of tiles
 	enum_slot(vm, "tool_set_climate", TOOL_SET_CLIMATE | GENERAL_TOOL);
+	/// rotate a building
+	enum_slot(vm, "tool_rotate_building", TOOL_ROTATE_BUILDING | GENERAL_TOOL);
+	/// merge two stops
+	enum_slot(vm, "tool_merge_stop", TOOL_MERGE_STOP | GENERAL_TOOL);
+	/// scripted tool (one-click)
+	enum_slot(vm, "tool_exec_script", TOOL_EXEC_SCRIPT | GENERAL_TOOL);
+	/// scripted tool (two-click)
+	enum_slot(vm, "tool_exec_two_click_script", TOOL_EXEC_TWO_CLICK_SCRIPT | GENERAL_TOOL);
 
 	// simple tools
 	/// increase industry density
