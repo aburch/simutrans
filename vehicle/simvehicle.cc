@@ -3363,10 +3363,10 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			if (waiting_time_per_month) {
 				colored_width = waiting_time_per_month > 100 ? 100 : waiting_time_per_month;
 				display_ddd_box_clip_rgb(xpos - 2, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y, colored_width + 2, WAITINGBAR_HEIGHT, color_idx_to_rgb(MN_GREY2), color_idx_to_rgb(MN_GREY0));
-				display_cylinderbar_wh_clip_rgb(xpos - 1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, colored_width, WAITINGBAR_HEIGHT - 2, waiting_bar_col, true);
+				display_cylinderbar_wh_clip_rgb(xpos - 1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, colored_width, WAITINGBAR_HEIGHT - 2, color_idx_to_rgb(waiting_bar_col), true);
 				if (waiting_time_per_month > 100) {
 					colored_width = waiting_time_per_month-100;
-					display_cylinderbar_wh_clip_rgb(xpos - 1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, colored_width, WAITINGBAR_HEIGHT - 2, waiting_bar_col-2, true);
+					display_cylinderbar_wh_clip_rgb(xpos - 1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, colored_width, WAITINGBAR_HEIGHT - 2, color_idx_to_rgb(waiting_bar_col-2), true);
 				}
 				extra_y += WAITINGBAR_HEIGHT;
 			}
