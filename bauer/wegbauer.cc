@@ -347,7 +347,8 @@ bool way_builder_t::check_crossing(const koord zv, const grund_t *bd, waytype_t 
 		return true;
 	}
 	// right owner of the other way
-	if(!check_owner(w->get_owner(),player)) {
+	// exception: allow if we want to build road and road already exists, since this is passable for us
+	if(!check_owner(w->get_owner(),player)  &&  ! (wtyp==road_wt  &&  bd->has_two_ways()) ) {
 		return false;
 	}
 	// check for existing crossing
@@ -2591,7 +2592,9 @@ void way_builder_t::build_road()
 				||  (keep_existing_city_roads  &&  weg->hat_gehweg())
 				||  (keep_existing_faster_ways  &&  weg->get_desc()->get_topspeed()>desc->get_topspeed())
 				||  (player_builder!=NULL  &&  weg->is_deletable(player_builder)!=NULL)
-				||  (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0)) {
+				||  (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0)
+				||  (gr->has_two_ways()  &&  gr->get_weg_nr(1)->is_deletable(player_builder)!=NULL) // do not replace public roads crossing rails of other players
+			) {
 				//nothing to be done
 			}
 			else {
