@@ -23,7 +23,7 @@
 #include "../macros.h"
 #include "../simmain.h"
 #include "simsys.h"
-#include "pathes.h"
+#include "../pathes.h"
 #include "../simevent.h"
 
 
