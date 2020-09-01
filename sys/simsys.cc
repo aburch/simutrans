@@ -391,7 +391,7 @@ const char *dr_query_fontpath(int which)
 	// Convert UTF-16 to UTF-8.
 	int const convert_size = WideCharToMultiByte(CP_UTF8, 0, fontdir, -1, buffer, sizeof(buffer), NULL, NULL);
 	if (convert_size == 0) {
-		return fontname;
+		return 0;
 	}
 
 	strcat(buffer, PATH_SEPARATOR);
