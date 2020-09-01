@@ -10,8 +10,9 @@
 #include "simtypes.h"
 
 // Ensures that the argument has array type.
-template <typename T, unsigned N> static inline void lengthof_check(T (&)[N]) {}
-#define lengthof(x) (1 ? sizeof(x) / sizeof(*(x)) : (lengthof_check((x)), 0))
+template<typename T, size_t N>
+static inline size_t lengthof(T (&)[N]) { return N; }
+
 #define endof(x) ((x) + lengthof(x))
 
 #define QUOTEME_(x) #x
@@ -41,9 +42,6 @@ template<class T> inline void swap(T& a, T& b)
 	a = b;
 	b = t;
 }
-
-// XXX Workaround for GCC 2.95
-template<typename T> static inline T up_cast(T x) { return x; }
 
 }
 #endif
