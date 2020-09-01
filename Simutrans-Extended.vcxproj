@@ -687,8 +687,8 @@
     </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\Users\Victor\Documents\GitHub\OpenTTD\shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;USE_C;MSG_LEVEL=3;DEBUG=3;%(PreprocessorDefinitions);WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -731,8 +731,8 @@
     </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\Users\Victor\Documents\GitHub\OpenTTD\shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;USE_C;MSG_LEVEL=3;DEBUG=3;%(PreprocessorDefinitions);WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -776,7 +776,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;DISABLE_RANDOMNESS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;DISABLE_RANDOMNESS</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -820,7 +820,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;REVISION_FROM_FILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;REVISION_FROM_FILE</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -864,7 +864,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -907,7 +907,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=0;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=0;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -950,7 +950,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -984,7 +984,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -1027,7 +1027,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;DEBUG_FREELIST</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;DEBUG_FREELIST</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -1061,7 +1061,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;DEBUG_FREELIST</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;DEBUG_FREELIST</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -1095,7 +1095,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;DEBUG_FREELIST</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;DEBUG_FREELIST</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -1129,7 +1129,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;DEBUG_FREELIST</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;DEBUG_FREELIST</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -1163,7 +1163,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD=6;DEBUG_FREELIST;REVISION_FROM_FILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD=6;DEBUG_FREELIST;REVISION_FROM_FILE</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -1201,7 +1201,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD=6;DEBUG_FREELIST</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD=6;DEBUG_FREELIST</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -1235,7 +1235,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;REVISION_FROM_FILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;REVISION_FROM_FILE</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -1278,7 +1278,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -1312,7 +1312,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;DEBUG_FREELIST;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;DEBUG_FREELIST;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -1352,7 +1352,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;DEBUG_FREELIST</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;DEBUG_FREELIST</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -1388,7 +1388,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=5;COLOUR_DEPTH=0;%(PreprocessorDefinitions);REVISION_FROM_FILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=5;COLOUR_DEPTH=0;%(PreprocessorDefinitions);REVISION_FROM_FILE</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>StackFrameRuntimeCheck</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -1427,7 +1427,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=5;COLOUR_DEPTH=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=5;COLOUR_DEPTH=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>StackFrameRuntimeCheck</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -1464,8 +1464,8 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>C:\Users\Victor\Documents\GitHub\OpenTTD\shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;LITTLE_ENDIAN;USE_C;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;REVISION_FROM_FILE;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;REVISION_FROM_FILE;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -1509,7 +1509,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -1548,7 +1548,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;REVISION_FROM_FILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;REVISION_FROM_FILE</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -1589,7 +1589,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD=0</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD=0</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -1627,7 +1627,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <OmitFramePointers>false</OmitFramePointers>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;%(PreprocessorDefinitions);COLOUR_DEPTH=16;REVISION_FROM_FILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;%(PreprocessorDefinitions);COLOUR_DEPTH=16;REVISION_FROM_FILE</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -1668,7 +1668,7 @@
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <OmitFramePointers>false</OmitFramePointers>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;%(PreprocessorDefinitions);COLOUR_DEPTH=16</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;%(PreprocessorDefinitions);COLOUR_DEPTH=16</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -1706,7 +1706,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;USE_IP4_ONLY;MULTI_THREAD;REVISION_FROM_FILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;USE_IP4_ONLY;MULTI_THREAD;REVISION_FROM_FILE</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -1747,7 +1747,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;USE_IP4_ONLY;MULTI_THREAD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;USE_IP4_ONLY;MULTI_THREAD</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -1784,7 +1784,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=0;MULTI_THREAD;REVISION_FROM_FILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=0;MULTI_THREAD;REVISION_FROM_FILE</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -1824,7 +1824,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=0;MULTI_THREAD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=0;MULTI_THREAD</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -1858,7 +1858,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;SDL;%(PreprocessorDefinitions);COLOUR_DEPTH=16;REVISION_FROM_FILE;MULTI_THREAD;GDI_SOUND</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;SDL;%(PreprocessorDefinitions);COLOUR_DEPTH=16;REVISION_FROM_FILE;MULTI_THREAD;GDI_SOUND</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -1895,7 +1895,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=3;SDL;%(PreprocessorDefinitions);COLOUR_DEPTH=16</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;SDL;%(PreprocessorDefinitions);COLOUR_DEPTH=16</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
