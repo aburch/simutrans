@@ -151,21 +151,40 @@ ifeq ($(USE_UPNP),1)
 	endif
 endif
 
-ifneq ($(USE_FREETYPE),0)
-  CFLAGS  += -DUSE_FREETYPE
-	ifneq ($(FREETYPE_CONFIG),)
-    CFLAGS  += $(shell $(FREETYPE_CONFIG) --cflags)
-	  LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs)
-	else
-	  LDFLAGS += -lfreetype
-	endif
+ifdef USE_FREETYPE
+  ifeq ($(shell expr $(USE_FREETYPE) \>= 1), 1)
+    CFLAGS   += -DUSE_FREETYPE
+    ifneq ($(FREETYPE_CONFIG),)
+      CFLAGS += $(shell $(FREETYPE_CONFIG) --cflags)
+      ifeq ($(shell expr $(STATIC) \>= 1), 1)
+        # since static is not supported by slightly old freetype versions
+        FTF = $(shell $(FREETYPE_CONFIG) --libs --static)
+        ifneq ($(FTF),)
+          LDFLAGS += $(FTF)
+        else
+          LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs)
+        endif
+      else
+        LDFLAGS   += $(shell $(FREETYPE_CONFIG) --libs)
+      endif
+    else
+      LDFLAGS += -lfreetype
+      ifeq ($(OSTYPE),mingw)
+        LDFLAGS += -lpng -lharfbuzz
+      endif
+    endif
+
+    ifeq ($(OSTYPE),mingw)
+      LDFLAGS += -lfreetype
+    endif
+  endif
 endif
 
 ifneq ($(PROFILE),)
   CFLAGS  += -pg -DPROFILE
   ifdef MSG_LEVEL
-	CFLAGS += -DMSG_LEVEL=$(MSG_LEVEL)
-	endif
+    CFLAGS += -DMSG_LEVEL=$(MSG_LEVEL)
+  endif
   ifneq ($(PROFILE), 2)
     CFLAGS  += -fno-inline -fno-schedule-insns
   endif
