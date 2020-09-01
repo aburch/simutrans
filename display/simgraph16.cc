@@ -4743,8 +4743,8 @@ void display_direct_line_rgb(const KOORD_VAL x, const KOORD_VAL y, const KOORD_V
 	xs = (dx * (1 << 16)) / steps;
 	ys = (dy * (1 << 16)) / steps;
 
-	xp = x << 16;
-	yp = y << 16;
+	xp = x * (1 << 16);
+	yp = y * (1 << 16);
 
 	for (i = 0; i <= steps; i++) {
 #ifdef DEBUG_FLUSH_BUFFER
