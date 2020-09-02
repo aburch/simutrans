@@ -19,3 +19,4 @@ STATIC=1
 FLAGS = -DUSE_C -fno-delete-null-pointer-checks -fno-strict-aliasing -std=c++11
 
 SDL2_CONFIG=x86_64-w64-mingw32-pkg-config sdl2
+FREETYPE_CONFIG=x86_64-w64-mingw32-pkg-config freetype2
