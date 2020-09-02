@@ -5864,7 +5864,7 @@ void karte_t::step()
 	// routings for goods/passengers.
 	// Default: 8192 ~ 1h (game time) at 125m/tile.
 
-	// This is not the computationally intensive bit of the path explorer.
+	// This is not the computationally intensive bit of the path explorer. // Loss of synchronisation suspected to be in a block of code starting here.
 	if((steps % get_settings().get_reroute_check_interval_steps()) == 0)
 	{
 		path_explorer_t::refresh_all_categories(false);
@@ -5933,7 +5933,7 @@ void karte_t::step()
 
 	if(  get_scenario()->is_scripted() ) {
 		get_scenario()->step();
-	}
+	} // Loss of synchronisation suspected to be in a block of code ending here.
 
 	DBG_DEBUG4("karte_t::step", "end");
 	rands[20] = get_random_seed();
