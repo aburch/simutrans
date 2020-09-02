@@ -2737,6 +2737,8 @@ void convoi_t::rdwr(loadsave_t *file)
 		next_wolke = 0;
 		calc_loading();
 	}
+	
+	calc_min_top_speed();
 
 	// since sp_ist became obsolete, sp_soll is used modulo 65536
 	sp_soll &= 65535;
