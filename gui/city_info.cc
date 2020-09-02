@@ -29,6 +29,7 @@
 #define PAX_DEST_MARGIN (4)
 #define PAX_DEST_MIN_SIZE (16)		// minimum width/height of the minimap
 #define PAX_DEST_VERTICAL (4.0/3.0) // aspect factor where minimaps change to over/under instead of left/right
+#define MIN_CHART_HEIGHT (166)		///< minimum size of the city charts
 
 // @author hsiegeln
 const char *hist_type[MAX_CITY_HISTORY] =
@@ -135,8 +136,11 @@ city_info_t::city_info_t(stadt_t* city_) :
 
 	pax_destinations_last_change = city->get_pax_destinations_new_change();
 
-	set_windowsize(scr_size(PAX_DEST_X + PAX_DESTINATIONS_SIZE + PAX_DEST_MARGIN*2 + 1, 342));
-	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, 256));
+	const int window_height = D_TITLEBAR_HEIGHT + D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE +
+		8 * LINESPACE + D_V_SPACE + D_CHECKBOX_HEIGHT + D_V_SPACE + MIN_CHART_HEIGHT + 2 * (D_BUTTON_HEIGHT + D_V_SPACE);
+
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, window_height));
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, window_height));
 
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0,0));
