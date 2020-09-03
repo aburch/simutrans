@@ -10660,6 +10660,9 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 		set_dirty();
 	}
 
+	// init tool again
+	selected_tool[active_player_nr]->flags = 0;
+	selected_tool[active_player_nr]->init(active_player);
 	// update pointer image / area
 	selected_tool[active_player_nr]->init_cursor(zeiger);
 	// set position / mark area
