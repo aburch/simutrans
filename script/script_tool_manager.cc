@@ -50,8 +50,6 @@ const scripted_tool_info_t* script_tool_manager_t::get_script_info(const char* p
 		info->menu_arg = contents.get_string("menu", "");
 		info->tooltip  = contents.get_string("tooltip", "");
 
-		printf("Path %s Title %s\n", path, info->title.c_str());
-
 		const char* skin_name = contents.get_string("icon", "");
 		info->desc   = skinverwaltung_t::get_extra(skin_name, strlen(skin_name), skinverwaltung_t::cursor);
 		info->is_one_click = !( strcmp(contents.get_string("type", "one_click"), "two_click")==0 );
