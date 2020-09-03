@@ -1064,8 +1064,6 @@ void gui_halt_nearby_factory_info_t::recalc_size()
 void gui_halt_nearby_factory_info_t::draw(scr_coord offset)
 {
 	clip_dimension const cd = display_get_clip_wh();
-	const int start = cd.y - LINESPACE - 1;
-	const int end = cd.yy + LINESPACE + 1;
 
 	static cbuffer_t buf;
 	int xoff = pos.x;

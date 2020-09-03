@@ -31,7 +31,6 @@ class halt_detail_pas_t : public gui_container_t
 {
 private:
 	halthandle_t halt;
-	karte_t *welt;
 
 	cbuffer_t pas_info;
 

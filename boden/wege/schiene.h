@@ -167,7 +167,7 @@ public:
 			break;
 #endif
 		};
-		return (show_reservations  &&  reserved.is_bound()) ? TRANSPARENT75_FLAG | OUTLINE_FLAG | reservation_colour : 0;
+		return (show_reservations  &&  reserved.is_bound()) ? TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(reservation_colour) : 0;
 	}
 
 	/*
