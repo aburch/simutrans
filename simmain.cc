@@ -1278,7 +1278,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 	sound_set_midi_volume( env_t::midi_volume );
 	if(  !midi_get_mute()  ) {
 		// not muted => play random song
-		midi_play(-1);
+		midi_play( env_t::shuffle_midi ? -1 : 0 );
 		// reset volume after first play call else no/low sound or music with win32 and sdl
 		sound_set_midi_volume( env_t::midi_volume );
 	}

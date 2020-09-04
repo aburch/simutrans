@@ -25,6 +25,7 @@ void sound_frame_t::update_song_name()
 		song_name_label.buf().printf("Music playing disabled/not available" );
 	}
 	song_name_label.update();
+	song_name_label.set_size( song_name_label.get_min_size() );
 }
 
 
