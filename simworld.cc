@@ -4844,8 +4844,8 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 	debug_sums[1] = 0; // Convoy sums multiplied by convoy id
 	debug_sums[2] = 0; // "Einwhoner"
 	debug_sums[3] = 0; // Number of buildings
-	debug_sums[4] = 0; 
-	debug_sums[5] = 0;
+	debug_sums[4] = get_parallel_operations(); // Parallel operations
+	debug_sums[5] = env_t::num_threads; // Number of threads
 	debug_sums[6] = 0;
 	debug_sums[7] = 0;
 
