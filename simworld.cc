@@ -9060,7 +9060,7 @@ void karte_t::load(loadsave_t *file)
 	file->set_buffered(true);
 
 	// jetzt geht das laden los
-	dbg->warning("karte_t::load", "Fileversion: %d", file->get_version());
+	dbg->warning("karte_t::load", "File version: %u, Extended version: %u, Extended revision: %u", file->get_version(), file->get_extended_version(), file->get_extended_revision());
 	// makes a copy:
 	settings = env_t::default_settings;
 	settings.rdwr(file);
