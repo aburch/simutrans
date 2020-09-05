@@ -10664,6 +10664,15 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 		return;
 	}
 
+	// Knightly : send changed limits to server where necessary
+	if (path_explorer_t::are_local_limits_changed()) {
+		path_explorer_t::limit_set_t local_limits = path_explorer_t::get_local_limits();
+		network_send_server(new nwc_routesearch_t(sync_steps, map_counter, local_limits, false));
+		path_explorer_t::reset_local_limits_state();
+		dbg->warning("karte_t::interactive", "nwc_routesearch_t object created and sent to server: sync_step=%u map_counter=%u limits=(%u, %u, %u, %llu, %u)",
+			sync_steps, map_counter, local_limits.rebuild_connexions, local_limits.filter_eligible, local_limits.fill_matrix, local_limits.explore_paths, local_limits.reroute_goods);
+	}
+
 	// process the received command
 	while(  nwc  ) {
 		// check timing
