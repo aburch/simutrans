@@ -4846,7 +4846,7 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 	debug_sums[3] = 0; // Number of buildings
 	debug_sums[4] = get_parallel_operations(); // Parallel operations
 	debug_sums[5] = env_t::num_threads; // Number of threads
-	debug_sums[6] = 0;
+	debug_sums[6] = 0; // Passengers/mail generated this step
 	debug_sums[7] = 0;
 
 	set_random_mode( SYNC_STEP_RANDOM );
@@ -6232,6 +6232,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		(void)mutex_error;
 #endif
 		city->set_generated_passengers(units_this_step, history_type + 1);
+		add_to_debug_sums(6, units_this_step);
 #ifdef MULTI_THREAD
 		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 		assert(mutex_error == 0);
