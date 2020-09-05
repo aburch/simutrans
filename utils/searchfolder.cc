@@ -19,6 +19,7 @@
 
 #include "../simdebug.h"
 #include "../simmem.h"
+#include "../simtypes.h"
 #include "simstring.h"
 #include "searchfolder.h"
 
