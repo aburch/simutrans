@@ -4836,11 +4836,6 @@ void karte_t::sync_list_t::sync_step(uint32 delta_t)
 void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 {
 	rands[0] = get_random_seed();
-	rands[2] = 0;
-	rands[3] = 0;
-	rands[4] = 0;
-	rands[5] = 0;
-	rands[6] = 0;
 	rands[7] = 0;
 
 	// If only one convoy speed is mismatched it should be possible to
@@ -4849,7 +4844,7 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 	debug_sums[1] = 0; // Convoy sums multiplied by convoy id
 	debug_sums[2] = 0; // "Einwhoner"
 	debug_sums[3] = 0; // Number of buildings
-	debug_sums[4] = 0;
+	debug_sums[4] = 0; 
 	debug_sums[5] = 0;
 	debug_sums[6] = 0;
 	debug_sums[7] = 0;
@@ -4857,7 +4852,7 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 	set_random_mode( SYNC_STEP_RANDOM );
 	haltestelle_t::pedestrian_limit = 0;
 	if(do_sync_step) {
-		// only omitted, when called to display a new frame during fast forward
+		// Only omitted when called to display a new frame during fast forward
 
 		// just for progress
 		if(  delta_t > 10000  ) {
@@ -4874,16 +4869,22 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 		 */
 		sync_eyecandy.sync_step( delta_t );
 
+		rands[2] = get_random_seed();
+
 		/* pedestrians do not require exact sync and are added/removed frequently
 		 * => they are now in a hastable!
 		 */
 		sync_way_eyecandy.sync_step( delta_t );
 
+		rands[3] = get_random_seed();
+
 		clear_random_mode( INTERACTIVE_RANDOM );
 
 		sync.sync_step( delta_t );
+
+		rands[4] = get_random_seed();
 	}
-	rands[1] = get_random_seed();
+	rands[5] = get_random_seed();
 
 	if(display) {
 		// only omitted in fast forward mode for the magic steps
@@ -4915,7 +4916,7 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 		update_frame_sleep_time();
 	}
 
-	rands[2] = get_random_seed();
+	rands[6] = get_random_seed();
 
 	clear_random_mode( SYNC_STEP_RANDOM );
 }

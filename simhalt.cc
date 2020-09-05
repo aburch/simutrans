@@ -2472,7 +2472,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 					sint64 this_arrival_time = check_arrivals.get(cnv->self.get_id());
 					if (this_arrival_time == 0)
 					{
-						dbg->error("bool haltestelle_t::fetch_goods()", "A convoy's arrival time is not in the database");
+						dbg->message("bool haltestelle_t::fetch_goods()", "A convoy's arrival time is not in the database");
 						this_arrival_time = welt->get_ticks();
 
 						// Fall back to convoy's general average speed if a point-to-point average is not available.

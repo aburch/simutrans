@@ -6161,7 +6161,7 @@ station_tile_search_ready: ;
 		// Advance schedule
 		advance_schedule();
 		state = ROUTING_1;
-		dbg->message("void convoi_t::hat_gehalten(halthandle_t halt)", "Convoy %s departing from stop %s at step %i. Its departure time is calculated as %ll", get_name(), halt.is_bound() ? halt->get_name() : "unknown", welt->get_steps(), go_on_ticks);
+		//dbg->message("void convoi_t::hat_gehalten(halthandle_t halt)", "Convoy %s departing from stop %s at step %i. Its departure time is calculated as %ll", get_name(), halt.is_bound() ? halt->get_name() : "unknown", welt->get_steps(), go_on_ticks);
 	}
 
 	// reset the wait_lock
