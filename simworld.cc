@@ -4835,23 +4835,25 @@ void karte_t::sync_list_t::sync_step(uint32 delta_t)
  */
 void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 {
-rands[0] = get_random_seed();
-rands[2] = 0;
-rands[3] = 0;
-rands[4] = 0;
-rands[5] = 0;
-rands[6] = 0;
-rands[7] = 0;
+	rands[0] = get_random_seed();
+	rands[2] = 0;
+	rands[3] = 0;
+	rands[4] = 0;
+	rands[5] = 0;
+	rands[6] = 0;
+	rands[7] = 0;
+
 	// If only one convoy speed is mismatched it should be possible to
 	// identify the convoy involved.
 	debug_sums[0] = 0; // Convoy speeds
 	debug_sums[1] = 0; // Convoy sums multiplied by convoy id
-	debug_sums[2] = 0;
-	debug_sums[3] = 0;
+	debug_sums[2] = 0; // "Einwhoner"
+	debug_sums[3] = 0; // Number of buildings
 	debug_sums[4] = 0;
 	debug_sums[5] = 0;
 	debug_sums[6] = 0;
 	debug_sums[7] = 0;
+
 	set_random_mode( SYNC_STEP_RANDOM );
 	haltestelle_t::pedestrian_limit = 0;
 	if(do_sync_step) {
@@ -4881,7 +4883,7 @@ rands[7] = 0;
 
 		sync.sync_step( delta_t );
 	}
-rands[1] = get_random_seed();
+	rands[1] = get_random_seed();
 
 	if(display) {
 		// only omitted in fast forward mode for the magic steps
@@ -4912,6 +4914,9 @@ rands[1] = get_random_seed();
 		intr_refresh_display( false );
 		update_frame_sleep_time();
 	}
+
+	rands[2] = get_random_seed();
+
 	clear_random_mode( SYNC_STEP_RANDOM );
 }
 
@@ -5638,6 +5643,8 @@ void karte_t::step()
 	}
 #endif
 
+	rands[13] = get_random_seed();
+
 	// The more computationally intensive parts of this have been extracted and made multi-threaded.
 	DBG_DEBUG4("karte_t::step 4", "step %d convois", convoi_array.get_count());
 	// since convois will be deleted during stepping, we need to step backwards
@@ -5649,7 +5656,7 @@ void karte_t::step()
 		}
 	}
 
-	rands[13] = get_random_seed();
+	rands[14] = get_random_seed();
 
 	INT_CHECK("karte_t::step 3a");
 
@@ -5668,11 +5675,11 @@ void karte_t::step()
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
 	{
 		i->step(delta_t);
-		rands[21] += i->get_einwohner();
-		rands[22] += i->get_buildings();
+		add_to_debug_sums(2, i->get_einwohner());
+		add_to_debug_sums(3, i->get_buildings());
 	}
 
-	rands[14] = get_random_seed();
+	rands[15] = get_random_seed();
 
 	INT_CHECK("karte_t::step 3b");
 
@@ -5683,6 +5690,8 @@ void karte_t::step()
 		await_private_car_threads();
 	}
 #endif
+
+	rands[16] = get_random_seed();
 
 	INT_CHECK("karte_t::step 3c");
 
@@ -5736,7 +5745,7 @@ void karte_t::step()
 #endif
 	DBG_DEBUG4("karte_t::step", "step generate passengers and mail");
 
-	rands[15] = get_random_seed();
+	rands[17] = get_random_seed();
 
 	// the inhabitants stuff
 	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = 0;
@@ -5755,12 +5764,14 @@ void karte_t::step()
 		finance_history_year[0][WORLD_VISITOR_DEMAND] += city->get_finance_history_year(0, HIST_VISITOR_DEMAND);
 	}
 
-	rands[23] = get_random_seed();
+	rands[18] = get_random_seed();
 
 	INT_CHECK("karte_t::step 4");
 
 	// This does nothing if the threading is disabled.
 	await_passengers_and_mail_threads();
+
+	rands[19] = get_random_seed();
 
 #ifdef MULTI_THREAD
 	// This is necessary in network mode to ensure that all cars set in motion
@@ -5827,7 +5838,7 @@ void karte_t::step()
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
 		f->step(delta_t);
 	}
-	rands[16] = get_random_seed();
+	rands[20] = get_random_seed();
 
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
@@ -5837,7 +5848,7 @@ void karte_t::step()
 	pumpe_t::step_all( delta_t );
 	senke_t::step_all( delta_t );
 	powernet_t::step_all( delta_t );
-	rands[17] = get_random_seed();
+	rands[21] = get_random_seed();
 
 	INT_CHECK("karte_t::step 6");
 
@@ -5849,14 +5860,14 @@ void karte_t::step()
 			players[i]->step();
 		}
 	}
-	rands[18] = get_random_seed();
+	rands[22] = get_random_seed();
 
 	INT_CHECK("karte_t::step 7");
 
 	// This is not computationally intensive
 	DBG_DEBUG4("karte_t::step", "step halts");
 	haltestelle_t::step_all();
-	rands[19] = get_random_seed();
+	rands[23] = get_random_seed();
 
 	// Re-check paths if the time has come.
 	// Long months means that it might be necessary to do
@@ -5870,9 +5881,13 @@ void karte_t::step()
 		path_explorer_t::refresh_all_categories(false);
 	}
 
+	rands[24] = get_random_seed();
+
 	INT_CHECK("karte_t::step 8");
 
 	check_transferring_cargoes();
+
+	rands[25] = get_random_seed();
 
 #ifdef MULTI_THREAD_PATH_EXPLORER
 	// Start the path explorer ready for the next step. This can be very
@@ -5936,7 +5951,7 @@ void karte_t::step()
 	} // Loss of synchronisation suspected to be in a block of code ending here.
 
 	DBG_DEBUG4("karte_t::step", "end");
-	rands[20] = get_random_seed();
+	rands[26] = get_random_seed();
 }
 
 void karte_t::step_time_interval_signals()
