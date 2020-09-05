@@ -5706,6 +5706,13 @@ void karte_t::step()
 	rands[31] = 0;
 	rands[23] = 0;
 
+	sint32 po;
+#ifdef MULTI_THREAD
+	po = get_parallel_operations() + 2;
+#else
+	po = 1
+#endif
+
 	// This is quite computationally intensive, but not as much as the path explorer. It can be more or less than the convoys, depending on the map.
 	// Multi-threading the passenger and mail generation is currently not working well as dividing the number of passengers/mail to be generated per
 	//step by the number of parallel operations introduces significant rounding errors.
@@ -5732,12 +5739,6 @@ void karte_t::step()
 
 		INT_CHECK("karte_t::step 3d");
 
-		sint32 po;
-#ifdef MULTI_THREAD
-		po = get_parallel_operations() + 2;
-#else
-		po = 1
-#endif
 		for (uint32 i = 0; i < po; i++)
 		{
 			debug_sums[6] += transferring_cargoes[i].get_count();
