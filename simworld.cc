@@ -4844,10 +4844,10 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 	debug_sums[1] = 0; // Convoy sums multiplied by convoy id
 	debug_sums[2] = 0; // "Einwhoner"
 	debug_sums[3] = 0; // Number of buildings
-	debug_sums[4] = get_parallel_operations(); // Parallel operations
-	debug_sums[5] = env_t::num_threads; // Number of threads
-	debug_sums[6] = 0; // Passengers/mail generated this step
-	debug_sums[7] = 0;
+	debug_sums[4] = env_t::num_threads; // Number of threads
+	debug_sums[5] = 0; // Passengers/mail generated this step
+	debug_sums[6] = 0; // Transferring cargoes before passenger generation
+	debug_sums[7] = 0; // Transferring cargoes after passenger generation
 
 	set_random_mode( SYNC_STEP_RANDOM );
 	haltestelle_t::pedestrian_limit = 0;
@@ -5732,6 +5732,17 @@ void karte_t::step()
 
 		INT_CHECK("karte_t::step 3d");
 
+		sint32 po;
+#ifdef MULTI_THREAD
+		po = get_parallel_operations();
+#else
+		po = 1
+#endif
+		for (uint32 i = 0; i < po; i++)
+		{
+			debug_sums[6] += transferring_cargoes[i].get_count();
+		}
+
 		start_passengers_and_mail_threads();
 
 #ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
@@ -5773,6 +5784,11 @@ void karte_t::step()
 	await_passengers_and_mail_threads();
 
 	rands[19] = get_random_seed();
+
+	for (uint32 i = 0; i <= po; i++)
+	{
+		debug_sums[7] += transferring_cargoes[i].get_count();
+	}
 
 #ifdef MULTI_THREAD
 	// This is necessary in network mode to ensure that all cars set in motion
@@ -6232,7 +6248,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		(void)mutex_error;
 #endif
 		city->set_generated_passengers(units_this_step, history_type + 1);
-		add_to_debug_sums(6, units_this_step);
+		add_to_debug_sums(5, units_this_step);
 #ifdef MULTI_THREAD
 		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 		assert(mutex_error == 0);
