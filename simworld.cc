@@ -5710,7 +5710,7 @@ void karte_t::step()
 #ifdef MULTI_THREAD
 	po = get_parallel_operations() + 2;
 #else
-	po = 1
+	po = 1;
 #endif
 
 	// This is quite computationally intensive, but not as much as the path explorer. It can be more or less than the convoys, depending on the map.
