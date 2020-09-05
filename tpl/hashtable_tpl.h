@@ -213,7 +213,7 @@ public:
 	{
 		static value_t nix;
 		FORT(slist_tpl<node_t>, const& node, bags[get_hash(key)]) {
-			typename hash_t::diff_type diff = hash_t::comp(node.key, key);
+			typename diff_type diff = hash_t::comp(node.key, key);
 			if(  diff == 0  ) {
 				return node.value;
 			}
@@ -231,7 +231,7 @@ public:
 	{
 		slist_tpl<node_t>& bag = bags[get_hash(key)];
 		FORT(slist_tpl<node_t>, & node, bag) {
-			typename hash_t::diff_type diff = hash_t::comp(node.key, key);
+			typename diff_type diff = hash_t::comp(node.key, key);
 			if(  diff == 0  ) {
 				return &node.value;
 			}
@@ -252,7 +252,7 @@ public:
 		 * we also enter it sorted, saving lookout time for large lists ...
 		 */
 		for(  typename slist_tpl<node_t>::iterator iter = bag.begin(), end = bag.end();  iter != end;  ++iter  ) {
-			typename hash_t::diff_type diff = hash_t::comp(iter->key, key);
+			typename diff_type diff = hash_t::comp(iter->key, key);
 			if(  diff>0  ) {
 				node_t n;
 				n.key   = key;
@@ -287,7 +287,7 @@ public:
 		 * we also enter it sorted, saving lookout time for large lists ...
 		 */
 		for(  typename slist_tpl<node_t>::iterator iter = bag.begin(), end = bag.end();  iter != end;  ++iter  ) {
-			typename hash_t::diff_type diff = hash_t::comp(iter->key, key);
+			typename diff_type diff = hash_t::comp(iter->key, key);
 			if(  diff>0  ) {
 				iter = bag.insert( iter );
 				iter->key = key;
@@ -315,7 +315,7 @@ public:
 	{
 		slist_tpl<node_t>& bag = bags[get_hash(key)];
 		for(  typename slist_tpl<node_t>::iterator iter = bag.begin(), end = bag.end();  iter != end;  ++iter  ) {
-			typename hash_t::diff_type diff = hash_t::comp(iter->key, key);
+			typename diff_type diff = hash_t::comp(iter->key, key);
 			if(  diff == 0  ) {
 				value_t value = iter->value;
 				iter->value = object;
@@ -345,7 +345,7 @@ public:
 	{
 		slist_tpl<node_t>& bag = bags[get_hash(key)];
 		for(  typename slist_tpl<node_t>::iterator iter = bag.begin(), end = bag.end();  iter != end;  ++iter  ) {
-			typename hash_t::diff_type diff = hash_t::comp(iter->key, key);
+			typename diff_type diff = hash_t::comp(iter->key, key);
 			if(  diff == 0  ) {
 				value_t v = iter->value;
 				bag.erase(iter);
