@@ -10731,6 +10731,12 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 	}
 	uint32 next_command_step = get_next_command_step();
 
+	// Knightly : check if changed limits, if any, have to be transmitted to all clients
+	if (env_t::server)
+	{
+		nwc_routesearch_t::check_for_transmission(this);
+	}
+
 	// send data
 	ms = dr_time();
 	network_process_send_queues( next_step_time>ms ? min( next_step_time-ms, 5) : 0 );
