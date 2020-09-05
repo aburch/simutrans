@@ -5734,7 +5734,7 @@ void karte_t::step()
 
 		sint32 po;
 #ifdef MULTI_THREAD
-		po = get_parallel_operations();
+		po = get_parallel_operations() + 2;
 #else
 		po = 1
 #endif
@@ -5785,7 +5785,7 @@ void karte_t::step()
 
 	rands[19] = get_random_seed();
 
-	for (uint32 i = 0; i <= po; i++)
+	for (uint32 i = 0; i < po; i++)
 	{
 		debug_sums[7] += transferring_cargoes[i].get_count();
 	}
@@ -6113,7 +6113,7 @@ void karte_t::check_transferring_cargoes()
 	const sint64 current_time = ticks;
 	ware_t ware;
 #ifdef MULTI_THREAD
-	sint32 po = get_parallel_operations();
+	sint32 po = get_parallel_operations() + 2;
 #else
 	sint32 po = 1;
 #endif
@@ -8613,7 +8613,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 		ware_t ware;
 #ifdef MULTI_THREAD
 		count = 0;
-		for (sint32 i = 0; i < get_parallel_operations(); i++)
+		for (sint32 i = 0; i < get_parallel_operations() + 2; i++)
 		{
 			count += transferring_cargoes[i].get_count();
 		}
@@ -8625,7 +8625,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 
 		sint32 po;
 #ifdef MULTI_THREAD
-		po = get_parallel_operations();
+		po = get_parallel_operations() + 2;
 #else
 		po = 1;
 #endif
