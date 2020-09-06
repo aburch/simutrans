@@ -418,7 +418,7 @@ void convoi_t::reserve_own_tiles(bool unreserve)
 			grund_t* gr = welt->lookup(v.get_pos());
 			if(gr)
 			{
-				if(schiene_t *sch = (schiene_t *)gr->get_weg(front()->get_waytype()))
+				if(schiene_t *sch = dynamic_cast<schiene_t *>(gr->get_weg(front()->get_waytype())))
 				{
 					if(!route.empty())
 					{
