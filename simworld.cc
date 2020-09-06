@@ -6354,7 +6354,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				const uint32 tolerance_modifier_percentage = settings.get_tolerance_modifier_percentage();
 				// Now multiply the tolerance by the success percentage of the origin building so as to normalise per inhabitant travel time over any given period of time:
 				// passengers who travel more often must have a lower average journey time tolerance than those who travel less often.
-				const uint32 success_percentage = (uint32)gb->get_average_passenger_success_percent_visiting();
+				const uint32 success_percentage = (uint32)gb->get_passenger_success_percent_last_year_visiting();
 				uint32 tolerance_multiplier = tolerance_modifier_percentage;
 				if (success_percentage > 0 && tolerance_modifier_percentage > 0)
 				{
@@ -10807,8 +10807,9 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 		assert(offset2 < 2048);
 		(void)offset2;
 
-		dbg->warning("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
-		if(client_checklist != server_checklist) {
+		dbg->message("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
+		if(client_checklist != server_checklist)
+		{
 			dbg->warning("karte_t:::do_network_world_command", "disconnecting due to checklist mismatch" );
 			network_disconnect();
 		}
