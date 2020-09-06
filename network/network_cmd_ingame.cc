@@ -259,7 +259,6 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 	}
 	tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | SIMPLE_TOOL );
 	tmp_tool->set_default_param( buf );
-	dbg->message("nwc_nick_t::server_tools()", buf); 
 	// queue tool for network
 	nwc_tool_t *nwc = new nwc_tool_t(NULL, tmp_tool, koord3d::invalid, 0, welt->get_map_counter(), true);
 	network_send_server(nwc);
