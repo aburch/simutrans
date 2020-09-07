@@ -866,15 +866,13 @@ void schedule_list_gui_t::build_line_list(int selected_tab)
 	sint32 sel = -1;
 	scl.clear_elements();
 	player->simlinemgmt.get_lines(tabs_to_lineindex[selected_tab], &lines, get_filter_type_bits());
-	vector_tpl<line_scrollitem_t *>selected_lines;
-
 
 	FOR(vector_tpl<linehandle_t>, const l, lines) {
 		// search name
 		if (strstr(l->get_name(), schedule_filter)) {
 			scl.new_component<line_scrollitem_t>(l);
 
-			if (line == l) {
+			if (  line == l  ) {
 				sel = scl.get_count() - 1;
 			}
 		}
@@ -883,6 +881,7 @@ void schedule_list_gui_t::build_line_list(int selected_tab)
 	scl.set_selection( sel );
 	line_scrollitem_t::sort_mode = (line_scrollitem_t::sort_modes_t)current_sort_mode;
 	scl.sort( 0 );
+	scl.set_size(scl.get_size());
 
 	old_line_count = player->simlinemgmt.get_line_count();
 }
