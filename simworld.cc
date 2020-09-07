@@ -10813,7 +10813,6 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 			network_disconnect();
 		} else {
 			dbg->message("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
-
 		}
 	}
 	else {
