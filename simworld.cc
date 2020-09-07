@@ -10807,11 +10807,13 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 		assert(offset2 < 2048);
 		(void)offset2;
 
-		dbg->message("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
 		if(client_checklist != server_checklist)
 		{
-			dbg->warning("karte_t:::do_network_world_command", "disconnecting due to checklist mismatch" );
+			dbg->warning("karte_t:::do_network_world_command", "disconnecting due to checklist mismatch:\n%s", buf );
 			network_disconnect();
+		} else {
+			dbg->message("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
+
 		}
 	}
 	else {
