@@ -12,6 +12,7 @@
 
 #include "../gui/simwin.h"
 #include "../simworld.h"
+#include "../simmenu.h"
 
 #include "../dataobj/environment.h"
 #include "../dataobj/scenario.h"
