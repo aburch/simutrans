@@ -52,7 +52,7 @@
 #include "scenario_frame.h"
 
 
-#define L_PREVIEW_SIZE_MIN (64)
+#define L_PREVIEW_SIZE_MIN (16)
 
 uint32 welt_gui_t::max_map_dimension_fixed = 32766;
 uint32 welt_gui_t::max_map_dimension_numerator = 33554432;
