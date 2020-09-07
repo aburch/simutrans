@@ -1,10 +1,11 @@
 /*
- * Factory list window
- * @author Hj. Malthaner
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef depotlist_frame_t_h
-#define depotlist_frame_t_h
+#ifndef GUI_DEPOTLIST_FRAME_H
+#define GUI_DEPOTLIST_FRAME_H
+
 
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
