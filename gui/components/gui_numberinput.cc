@@ -3,6 +3,8 @@
  * (see LICENSE.txt)
  */
 
+#include <math.h>
+
 #include "gui_numberinput.h"
 #include "../gui_frame.h"
 #include "../simwin.h"
