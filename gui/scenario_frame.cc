@@ -12,12 +12,14 @@
 
 #include "simwin.h"
 #include "../simworld.h"
+#include "../simmenu.h"
 
 #include "../dataobj/environment.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 
 #include "../network/network.h"
+#include "../network/network_cmd.h"
 
 #include "../utils/cbuffer_t.h"
 
@@ -51,17 +53,11 @@ scenario_frame_t::scenario_frame_t() : savegame_frame_t(NULL, true, NULL, false)
  */
 bool scenario_frame_t::item_action(const char *fullpath)
 {
-	if(  env_t::server  ) {
-		// kill current session
-		welt->announce_server(2);
-		remove_port_forwarding( env_t::server );
-		network_core_shutdown();
-		if(  env_t::fps==15  ) {
-			env_t::fps = 25;
-		}
-	}
+	// since loading a scenario may not init the world
+	welt->switch_server( easy_server.pressed, true );
 
 	scenario_t *scn = new scenario_t(welt);
+
 	const char* err = scn->init(this->get_basename(fullpath).c_str(), this->get_filename(fullpath).c_str(), welt );
 	if (err == NULL) {
 		// start the game
@@ -69,31 +65,17 @@ bool scenario_frame_t::item_action(const char *fullpath)
 		// open scenario info window
 		destroy_win(magic_scenario_info);
 		create_win(new scenario_info_t(), w_info, magic_scenario_info);
+		tool_t::update_toolbars();
+		if(  env_t::server  ) {
+			welt->announce_server(0);
+		}
 	}
 	else {
+		if(  env_t::server  ) {
+			welt->switch_server( false, true );
+		}
 		create_win(new news_img(err), w_info, magic_none);
 		delete scn;
-	}
-
-	if(  easy_server.pressed  ) {
-		// now start a server with defaults
-		env_t::networkmode = network_init_server( env_t::server_port );
-		if(  env_t::networkmode  ) {
-			// query IP and try to open ports on router
-			char IP[256];
-			if(  prepare_for_server( IP, env_t::server_port )  ) {
-				// we have forwarded a port in router, so we can continue
-				env_t::server_dns = IP;
-				if(  env_t::server_name.empty()  ) {
-					env_t::server_name = std::string("Server at ")+IP;
-				}
-				env_t::server_announce = 1;
-				env_t::easy_server = 1;
-				if(  env_t::fps>15  ) {
-					env_t::fps = 15;
-				}
-			}
-		}
 	}
 
 	return true;
