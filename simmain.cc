@@ -765,8 +765,9 @@ int simu_main(int argc, char** argv)
 		dbg->message( "simmain()", "Server started on port %i", env_t::server_port );
 		env_t::networkmode = network_init_server( env_t::server_port );
 		// query IP and try to open ports on router
-		char IP[256];
-		if(  prepare_for_server( IP, env_t::server_port )  ) {
+		char IP[256], altIP[256];
+		altIP[0] = 0;
+		if(  prepare_for_server( IP, altIP, env_t::server_port )  ) {
 			// we have forwarded a port in router, so we can continue
 			env_t::server_dns = IP;
 			if(  env_t::server_name.empty()  ) {
@@ -774,6 +775,8 @@ int simu_main(int argc, char** argv)
 			}
 			env_t::server_announce = 1;
 			env_t::easy_server = 1;
+			env_t::server_dns = IP;
+			env_t::server_alt_dns = altIP;
 		}
 	}
 
