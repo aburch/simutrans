@@ -10959,7 +10959,7 @@ bool karte_t::interactive(uint32 quit_month)
 		// time for the next step?
 		uint32 time = dr_time(); // - (env_t::server ? 0 : 5000);
 		if ((sint32)next_step_time - (sint32)time <= 0) {
-			if (step_mode&PAUSE_FLAG ||{
+			if (step_mode&PAUSE_FLAG) {
 				// only update display
 				sync_step( 0, false, true );
 				idle_time = 100;
