@@ -39,14 +39,14 @@
 
 convoi_detail_t::convoi_detail_t(convoihandle_t cnv) :
 	gui_frame_t( cnv->get_name(), cnv->get_owner() ),
-	scrolly(&veh_info),
-	scrolly_formation(&formation),
-	scrolly_payload_info(&cont_payload),
-	scrolly_maintenance(&maintenance),
 	veh_info(cnv),
 	formation(cnv),
 	payload_info(cnv),
-	maintenance(cnv)
+	maintenance(cnv),
+	scrolly(&veh_info),
+	scrolly_formation(&formation),
+	scrolly_payload_info(&cont_payload),
+	scrolly_maintenance(&maintenance)
 {
 	this->cnv = cnv;
 

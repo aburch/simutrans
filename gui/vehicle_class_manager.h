@@ -77,8 +77,8 @@ public:
 
 private:
 
-	gui_scrollpane_t scrolly;
 	gui_class_vehicleinfo_t veh_info;
+	gui_scrollpane_t scrolly;
 
 	convoihandle_t cnv;
 	button_t reset_all_classes_button;
