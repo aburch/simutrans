@@ -35,10 +35,10 @@ void export_control(HSQUIRRELVM vm)
 	/**
 	 * @returns total amount of opcodes executed by vm
 	 */
-	register_function(vm, sq_get_ops_total, "get_ops_total", 1, ".");
+	register_function<int(*)()>(vm, sq_get_ops_total, "get_ops_total");
 
 	/**
 	 * @returns amount of remaining opcodes until vm will be suspended
 	 */
-	register_function(vm, sq_get_ops_remaing, "get_ops_remaining", 1, ".");
+	register_function<int(*)()>(vm, sq_get_ops_remaing, "get_ops_remaining");
 }
