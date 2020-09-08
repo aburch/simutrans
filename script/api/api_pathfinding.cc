@@ -8,6 +8,7 @@
 /** @file api_pathfinding.cc exports heap structure and construction helpers. */
 
 #include "api_obj_desc_base.h"
+#include "api_simple.h"
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../bauer/brueckenbauer.h"
@@ -122,10 +123,11 @@ bool way_builder_is_allowed_step(way_builder_t *bob, grund_t *from, grund_t *to)
 }
 
 
-koord3d bridge_builder_find_end_pos(player_t *player, koord3d pos, ribi_t::ribi ribi, const bridge_desc_t *bridge, uint32 min_length)
+koord3d bridge_builder_find_end_pos(player_t *player, koord3d pos, my_ribi_t mribi, const bridge_desc_t *bridge, uint32 min_length)
 {
 	const char* err;
 	sint8 height;
+	ribi_t::ribi ribi(mribi);
 
 	if (player == NULL  ||  bridge == NULL) {
 		return koord3d::invalid;
