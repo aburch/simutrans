@@ -112,8 +112,8 @@ private:
 	button_t ware_keine;
 	button_t ware_invers;
 
-	gui_scrollpane_t ware_scrolly;
 	gui_aligned_container_t  ware_cont;
+	gui_scrollpane_t ware_scrolly;
 
 public:
 	void sort_list();
