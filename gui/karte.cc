@@ -729,7 +729,7 @@ PIXVAL reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour, bo
 						case air_wt: color = COL_RUNWAY; break;
 						case monorail_wt:
 						default:	// all other ways light red ...
-							color = 135; break;
+							color = color_idx_to_rgb(135); break;
 							break;
 					}
 				}
@@ -739,7 +739,7 @@ PIXVAL reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour, bo
 						color = COL_POWERLINE;
 					}
 					else if (!show_contour) {
-						color = map_type_color[MAX_MAP_TYPE_WATER];
+						color = color_idx_to_rgb(map_type_color[MAX_MAP_TYPE_WATER]);
 					}
 					else {
 						sint16 height = corner_sw(gr->get_grund_hang());

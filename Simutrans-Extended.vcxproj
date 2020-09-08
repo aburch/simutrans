@@ -600,8 +600,8 @@
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|x64'">F:\My Documents\Development\Zlib\source;$(SourcePath)</SourcePath>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|Win32'">$(ProjectName)-debug-SDL</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL 2)|x64'">$(ProjectName)-debug-SDL</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)-Debug</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Optimised debug|Win32'">$(ProjectName)-Debug</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)-Debug32</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Optimised debug|Win32'">$(ProjectName)-Debug32-optimised</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (no randomness)|Win32'">$(ProjectName)-Debug</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|Win32'">$(ProjectName)-Debug</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|Win32'">$(ProjectName)-Debug</TargetName>
