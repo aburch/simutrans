@@ -33,6 +33,8 @@ BEGIN {
 	export_types["city_x::set_citygrowth_enabled"] = "string(bool)"
 	export_types["::get_ops_total"] = "integer()"
 	export_types["::get_ops_remaining"] = "integer()"
+	export_types["debug::pause"] = "bool()"
+	export_types["debug::set_pause_on_error"] = "void(bool)"
 	export_types["convoy_x::is_valid"] = "bool()"
 	export_types["convoy_x::needs_electrification"] = "bool()"
 	export_types["convoy_x::get_name"] = "string()"

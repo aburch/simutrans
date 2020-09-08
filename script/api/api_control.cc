@@ -8,7 +8,20 @@
 /** @file api_control.cc script control and debug functions. */
 
 #include "../api_function.h"
+#include "../api_class.h"
+#include "../script.h"
 #include "../../squirrel/sq_extensions.h"
+#include "../../simtool.h"
+
+namespace script_api {
+
+	bool pause_game()
+	{
+		tool_pause_t t;
+		t.init(NULL);
+		return t.is_selected();
+	}
+};
 
 using namespace script_api;
 
@@ -19,6 +32,17 @@ SQInteger sleep(HSQUIRRELVM vm)
 	}
 	return sq_suspendvm(vm);
 }
+
+SQInteger set_pause_on_error(HSQUIRRELVM vm)
+{
+	if (script_vm_t *script = (script_vm_t*)sq_getforeignptr(vm)) {
+		bool poe = param<bool>::get(vm, 2);
+		script->pause_on_error = poe;
+	}
+	return SQ_OK;
+}
+
+
 
 void export_control(HSQUIRRELVM vm)
 {
@@ -41,4 +65,21 @@ void export_control(HSQUIRRELVM vm)
 	 * @returns amount of remaining opcodes until vm will be suspended
 	 */
 	register_function<int(*)()>(vm, sq_get_ops_remaing, "get_ops_remaining");
+
+
+	begin_class(vm, "debug");
+	/**
+	 * Pauses game. Does not work in network games. Use with care.
+	 * @returns true when successful.
+	 */
+	STATIC register_method(vm, &pause_game, "pause", false, true);
+
+	/**
+	 * Scripts can pause the game in case of error. Toggle this behavior by parameter @p p.
+	 * Does not work in network games. Use with care.
+	 * @param p true if script should make the game pause in case of error
+	 */
+	STATIC register_function<void_t(*)(bool)>(vm, set_pause_on_error, "set_pause_on_error", true);
+
+	end_class(vm);
 }
