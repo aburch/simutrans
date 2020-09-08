@@ -26,9 +26,12 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 		if (rprt_water == null) {
 			return failed()
 		}
+		// find flat harbour building
+		local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))
+		rprt_water.action.planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, rprt_water.action.planned_convoy.capacity)
 
 		// find amphibious path
-		local marine = amphibious_pathfinder_t(rprt_road.action.planned_way, rprt_water.action.planned_station)
+		local marine = amphibious_pathfinder_t(rprt_road.action.planned_way, rprt_water.action.planned_station, rprt_water.action.planned_harbour_flat)
 		marine.search_route(fsrc,fdest)
 
 		local route = marine.route
@@ -110,21 +113,30 @@ class amphibious_pathfinder_t extends astar
 	planned_harbour = null
 	planned_harbour_flat = null
 	planned_harbour_len = 0
+	planned_harbour_flat_len = 0
+
+	cost_harbour = 333
+	cost_road_stop = 17
 
 	c_harbour_tiles = null
 
-	constructor(way_, harbour_)
+	constructor(way_, harbour_, harbour_flat_)
 	{
 		base.constructor()
+
 		way = way_
 		builder = way_planner_x(our_player)
 		builder.set_build_types(way)
 		planned_harbour = harbour_
+		planned_harbour_flat = harbour_flat_
 
 		local size = planned_harbour.get_size(0)
 		planned_harbour_len = size.x*size.y
 
-		// TODO find flat harbour building
+		if (planned_harbour_flat) {
+			local size = planned_harbour_flat.get_size(0)
+			planned_harbour_flat_len = size.x*size.y
+		}
 	}
 
 	function process_node(cnode)
@@ -160,9 +172,19 @@ class amphibious_pathfinder_t extends astar
 				// water -> water
 				// land -> land
 				if (from_water ==  to_water) {
-					// can we build way here
-					if (!from_water  &&  !builder.is_allowed_step(from, to)) {
-						continue;
+					// can we build way here?
+					if (!from_water) {
+						// empty space for station near a halt with harbour
+						local halt = to.get_halt()
+						if (halt  &&  halt.get_owner().nr == our_player_nr  &&  from.is_empty()) {
+							// try to connect to this halt and to use its harbours
+							process_node_to_land_halt(cnode, halt)
+						}
+						// can we build way here?
+						if (!builder.is_allowed_step(from, to)) {
+							// could be a halt on the other tile that has harbour that could be used
+							continue;
+						}
 					}
 					// estimate moving cost
 					local move   = cnode.is_straight_move(d)  ?  cost_straight  :  cost_curve
@@ -175,28 +197,40 @@ class amphibious_pathfinder_t extends astar
 
 					if (cnode.flag & 0x20) jps = jps | 0x40;
 
-					local node = ab_node(to, cnode, cost, weight, dist, d, jps)
+					local node = ab_node(to, cnode, cost, dist, d, jps)
 					add_to_open(node, weight)
 				}
 				else if (from_water) {
 					// water -> land
-					if (!from.is_water()  ||  !to.is_empty()  ||  dir.to_slope(d) != to.get_slope()
-						||  !finder.check_harbour_place(from, planned_harbour_len, dir.backward(d)))
+					if (from.is_water()  &&  to.get_halt()) {
+						// check for existing harbour
+						local halt = ship_connector_t.get_harbour_halt(to)
+						if (halt) {
+							// create node as end node of water route
+							local harbour_node = ab_node(to, cnode, cnode.cost, cnode.dist, 0x0f, 0x0f)
+							// now look for empty spots to connect to this halt
+							process_node_to_harbour(harbour_node, halt)
+						}
+					}
+					// we have to build ourselves
+					if (!from.is_water()  ||  !can_place_harbour(to, d) )
 					{
 						continue
 					}
-					local move   = 333;
+					local move   = cost_harbour
 					local dist   = estimate_distance(to)
-					local weight = cnode.cost + dist
+					local cost   = cnode.cost + move
+					local weight = cost + dist
 
-					local node = ab_node(to, cnode, cnode.cost + move, weight, dist, d, 0x10)
+					local node = ab_node(to, cnode, cost, dist, d, 0x10)
+
 					add_to_open(node, weight)
 				}
 				else {
 					// land -> water
-					if (!to.is_water()  ||  !from.is_empty()  ||  dir.to_slope(dir.backward(d)) != from.get_slope()
-						||  (cnode.flag & 0x60)
-						||  !finder.check_harbour_place(to, planned_harbour_len, d))
+					if (!to.is_water()
+						||  !can_place_harbour(from, dir.backward(d))
+						||  (cnode.flag & 0x60) )
 					{
 						continue
 					}
@@ -208,15 +242,21 @@ class amphibious_pathfinder_t extends astar
 						}
 					}
 
-					local move   = 333;
+					local move   = cost_harbour
 					local dist   = estimate_distance(to)
-					local weight = cnode.cost + dist
+					local cost   = cnode.cost + move
+					local weight = cost + dist
 
-					local node = ab_node(to, cnode, cnode.cost + move, weight, dist, d, 0x0f)
+					local node = ab_node(to, cnode, cost, dist, d, 0x0f)
 					add_to_open(node, weight)
 				}
 			}
 		}
+	}
+
+	function can_place_harbour(tile, d_water_to_land)
+	{
+		return ship_connector_t.get_harbour_type_for_tile(tile, planned_harbour, planned_harbour_flat, d_water_to_land) > 0
 	}
 
 	function process_node_to_land(cnode, from)
@@ -232,17 +272,87 @@ class amphibious_pathfinder_t extends astar
 					local to = square_x(c.x, c.y).get_ground_tile()
 					if (to  &&  to.is_empty()  &&  to.get_slope()==0) {
 						// can place station here
-						local move   = 17
+						local move   = cost_road_stop
 						local dist   = estimate_distance(to)
 
 						local cost   = cnode.cost + move
 						local weight = cost + dist
 
-						local node = ab_node(to, cnode, cost, weight, dist, 0x0f, 0x0f)
+						local node = ab_node(to, cnode, cost, dist, 0x0f, 0x0f)
 						add_to_open(node, weight)
 					}
 				}
 				catch(ev) {}
+			}
+		}
+	}
+
+	function process_node_to_harbour(cnode, halt)
+	{
+		local visited = {}
+		// process all tiles of this halt
+		foreach(tile in halt.get_tile_list()) {
+			// check all neighbouring tiles for empty spots
+			for(local d = 1; d<16; d*=2) {
+				local c = coord(tile.x, tile.y) + dir.to_coord(d)
+				try {
+					local to = square_x(c.x, c.y).get_ground_tile()
+
+					if (to  &&  to.is_empty()  &&  to.get_slope()==0  &&  !(coord3d_to_key(to) in visited) ) {
+						// can place station here
+						local move   = cost_road_stop
+						local dist   = estimate_distance(to)
+
+						local cost   = cnode.cost + move
+						local weight = cost + dist
+
+						local node = ab_node(to, cnode, cost, dist, 0x0f, 0x0f)
+						add_to_open(node, weight)
+
+						// mark as visited
+						visited[ coord3d_to_key(to) ] <- 1
+					}
+				}
+				catch(ev) {}
+			}
+		}
+	}
+
+	/**
+	 * Does steps land-tile -> halt -> harbour -> water
+	 * Last route tile is cnode, check if station can be placed.
+	 * Check for harbour tiles, put corresponding nodes to open list.
+	 */
+	function process_node_to_land_halt(cnode, halt)
+	{
+		// process all tiles of this halt
+		foreach(tile in halt.get_tile_list()) {
+			if (!tile.is_water()  &&  ship_connector_t.get_harbour_halt(tile)!=null) {
+				local harbour_node = ab_node(tile, cnode, cnode.cost, cnode.dist, 0x0f, 0x0f)
+				local d = 0
+				if (tile.get_slope()) {
+					// get direction from slope
+					d = dir.backward(slope.to_dir(tile.get_slope()))
+				}
+				else {
+					// flat dock, check all four neighbour tiles for water + harbour
+					d = 1
+				}
+				do {
+					local to = coord3d(tile.x, tile.y, tile.z) + dir.to_coord(d)
+					if (world.is_coord_valid(to)) {
+						local move   = cost_road_stop
+						local dist   = estimate_distance(to)
+
+						local cost   = cnode.cost + move
+						local weight = cost + dist
+
+						local node = ab_node(to, harbour_node, cost, dist, d, 0x0f)
+						add_to_open(node, weight)
+					}
+
+					d = d*2
+				} while (tile.get_slope()==0  &&  d<16)
 			}
 		}
 	}

@@ -1,6 +1,8 @@
+/**
+ * Plans connections suggested by factory-searcher.
+ */
 
-function abs(a) { return a >= 0 ? a : -a }
-
+// helper class to simulate ways on open water
 openwater <- {
 	function get_cost() { return 0; }
 	function get_maintenance()  { return 0; }
@@ -16,11 +18,18 @@ function get_max_convoi_length(wt)
 	return 4;
 }
 
+/**
+ * Planer class.
+ */
 class industry_connection_planner_t extends manager_t
 {
+	// Source factory
 	fsrc = null       // factory_x
+	// Destination factory
 	fdest = null      // factory_x
+	// Freight to be transported
 	freight = null    // string
+
 	prod = -1   	// integer
 
 	constructor(s,d,f)
@@ -29,6 +38,12 @@ class industry_connection_planner_t extends manager_t
 		fsrc = s; fdest = d; freight = f;
 	}
 
+	/**
+	 * Evaluates transport by road and ships.
+	 * Returns the corresponding reports.
+	 * In addition, returns amphibious_connection_planner_t.
+	 * This planner will start to work if the connection by road or ship did not succeed.
+	 */
 	function step()
 	{
 		debug = true
@@ -94,10 +109,21 @@ class industry_connection_planner_t extends manager_t
 		return r
 	}
 
-	// if start or target are null then use fsrc/fdest
+	/**
+	 * Plans a connection using one mode of transport
+	 *
+	 * If start or target are null then use fsrc/fdest.
+	 */
 	function plan_simple_connection(wt, start, target, distance = 0)
 	{
+		// compute correct distance
 		if (distance == 0) {
+			foreach(i in ["x", "y"]) {
+				distance += abs( (start ? start[i] : fsrc[i]) - (target ? target[i] : fdest[i]))
+			}
+		}
+		if (distance == 0) {
+			// still zero? avoid division by zero in the prototyper
 			distance = 1
 		}
 		// plan convoy prototype
@@ -117,12 +143,6 @@ class industry_connection_planner_t extends manager_t
 		cnv_valuator.volume = prod
 		cnv_valuator.max_cnvs = 200
 		cnv_valuator.distance = distance
-		// compute correct distance
-		if (distance == 0) {
-			foreach(i in ["x", "y"]) {
-				cnv_valuator.distance += abs( (start ? start[i] : fsrc[i]) - (target ? target[i] : fdest[i]))
-			}
-		}
 
 		local bound_valuator = valuator_simple_t.valuate_monthly_transport.bindenv(cnv_valuator)
 		prototyper.valuate = bound_valuator
@@ -235,7 +255,7 @@ class industry_connection_planner_t extends manager_t
 		local src_prod = fsrc.output[freight].get_base_production();
 		local dest_con = fdest.input[freight].get_base_consumption();
 
-		// TODO implement production factors
+		// TODO implement production boost factors
 
 		dbgprint("production = " + src_prod + " / " + dest_con);
 		return min(src_prod,dest_con)

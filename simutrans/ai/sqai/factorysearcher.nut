@@ -1,3 +1,9 @@
+/**
+ * Class that searches for usefull unbuild factory connections.
+ * Depending on player number uses two different methods:
+ * 1) Method that tries to complete a factory tree (taken from the c++ implementation of the freight AI in player/ai_goods.cc
+ * 2) A demand-driven method.
+ */
 class factorysearcher_t extends manager_t
 {
 	froot = null    // factory_x, complete this tree
@@ -204,7 +210,6 @@ class factorysearcher_t extends manager_t
 				if (g_count > 0  &&  (count == 0  ||  g_count < count)) {
 					count = g_count;
 				}
-// 				count = min(count, g_count) // only take the minimum of the subtrees
 			}
 			dbgprint(indent + "Supply of " + good + " for " + fab.get_name() + " has " + g_count + " missing links")
 		}
@@ -461,7 +466,6 @@ class factorysearcher_t extends manager_t
 		local pro = oslot.get_produced()
 		local isnew = (pro.reduce(sum) - pro[0]) == 0;
 
-		//print("estimate_actual_production: pro[0] = " + (pro[0]) + " pro[1:end] = " + (pro.reduce(sum) - pro[0]) + " base = " + oslot.get_base_consumption())
 		if (!isnew) {
 			// established connection: report max
 			return pro.reduce(max)

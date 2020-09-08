@@ -1,3 +1,11 @@
+/**
+ * Classes to manage industry connections.
+ */
+
+/**
+ * A link is a connection between two factories.
+ * Save its state here.
+ */
 class industry_link_t
 {
 	f_src   = null // factory_x
@@ -36,8 +44,9 @@ class industry_link_t
 	}
 }
 
-
-
+/**
+ * Manage the links operated by us.
+ */
 class industry_manager_t extends manager_t
 {
 	link_list = null
@@ -53,8 +62,7 @@ class industry_manager_t extends manager_t
 	/// Generate unique key from link data
 	static function key(src, des, fre)
 	{
-		return (translate(fre) + "-from-" + src.get_name() + coord_to_string(src)
-		                       + "-to-" + des.get_name() + coord_to_string(des) ).toalnum()
+		return ("freight-" + fre + "-from-" + coord_to_key(src) + "-to-"  + coord_to_key(des) ).toalnum()
 	}
 
 	function set_link_state(src, des, fre, state)
@@ -78,8 +86,6 @@ class industry_manager_t extends manager_t
 			text = "Transport " + translate(fre) + " from "
 			text += coord(src.x, src.y).href(src.get_name()) + " to "
 			text += coord(des.x, des.y).href(des.get_name()) + "<br>"
-
-			info_text += text
 		}
 
 		if (state == industry_link_t.st_missing) {
@@ -107,6 +113,9 @@ class industry_manager_t extends manager_t
 		return res
 	}
 
+	/**
+	 * Loop through all links.
+	 */
 	function work()
 	{
 		// iterate the link_iterator, which is a generator
@@ -132,6 +141,11 @@ class industry_manager_t extends manager_t
 		}
 	}
 
+	/**
+	 * Check link:
+	 * - if state is st_missing set state to st_free after some time
+	 * - for working links see after their lines
+	 */
 	function check_link(link)
 	{
 		switch(link.state) {
@@ -154,6 +168,9 @@ class industry_manager_t extends manager_t
 		}
 	}
 
+	/**
+	 * Manages convoys of one line: withdraw if there are too many, build new ones, upgrade to newer vehicles
+	 */
 	function check_link_line(link, line)
 	{
 		dbgprint("Check line " + line.get_name())
@@ -315,6 +332,10 @@ class industry_manager_t extends manager_t
 
 	}
 
+	/**
+	 * Upgrade: plan a new convoy type with the prototyper, then
+	 * sell existing convoys, create new ones.
+	 */
 	function upgrade_link_line(link, line)
 	{
 		// find convoy
@@ -322,57 +343,50 @@ class industry_manager_t extends manager_t
 		{
 			local list = line.get_convoy_list()
 			if (list.get_count() == 0) {
-				// ??
-				return
+				// no convois - strange
+				return false
 			}
 			cnv = list[0]
 		}
+		local wt = cnv.get_waytype()
 		// estimate transport volume
 		local transported = line.get_transported_goods().reduce(max)
 
 		// plan convoy prototype
-		local prototyper = prototyper_t(cnv.get_waytype(), link.freight.get_name())
+		local prototyper = prototyper_t(wt, link.freight.get_name())
 
 		// iterate through schedule to estimate distance
 		local dist = 0
 		{
 			local entries = cnv.get_schedule().entries
-			local i = 0
+			local halts = []
+			for(local i=0; i < entries.len(); i++) {
+				if (entries[i].get_halt(our_player)) {
+					halts.append( entries[i] )
+				}
+			}
+			if (halts.len() < 2) {
+				// not enough halts??
+				return false
+			}
+			dist = abs(halts.top().x - halts[0].x) + abs(halts.top().y - halts[0].y)
 
-			while(i < entries.len()) {
-				local entry = entries[i]
-				// stations on schedule
-				if (entry.get_halt(our_player) == null) {
-					continue
-				}
-
-				// next station on schedule
-				local nexthalt = null
-				i++
-				while(i < entries.len()) {
-					if (nexthalt = entries[i].get_halt(our_player)) break
-					i++
-				}
-				if (nexthalt == null) {
-					i = 0
-				}
-				local diff = abs(entry.x - entries[i].x) + abs(entry.y - entries[i].y)
-				if (diff > dist)  {
-					dist = diff
-				}
+			for(local i=1; i < halts.len(); i++) {
+				dist = max(dist, abs(halts[i].x - halts[i-1].x) + abs(halts[i].y - halts[i-1].y) )
 			}
 		}
 
+		local wt = wt
 		// TODO do something smarter
 		prototyper.min_speed  = 1
+		prototyper.max_vehicles = get_max_convoi_length(wt)
 		prototyper.max_length = 1
-		prototyper.max_vehicles = get_max_convoi_length( cnv.get_waytype() )
 		if (wt == wt_water) {
 			prototyper.max_length = 4
 		}
 
 		local cnv_valuator    = valuator_simple_t()
-		cnv_valuator.wt       = cnv.get_waytype()
+		cnv_valuator.wt       = wt
 		cnv_valuator.freight  = link.freight.get_name()
 		cnv_valuator.volume   = transported
 		cnv_valuator.max_cnvs = 200
@@ -382,7 +396,7 @@ class industry_manager_t extends manager_t
 		prototyper.valuate = bound_valuator
 
 		if (prototyper.step().has_failed()) {
-			return // TODO process return value
+			return false
 		}
 
 		local planned_convoy = prototyper.best
@@ -411,6 +425,19 @@ class industry_manager_t extends manager_t
 		c.p_withdraw = true
 		append_child(c)
 		return true
+	}
+
+	// keys were broken for rotated maps, regenerate keys for all entries
+	function repair_keys()
+	{
+		link_iterator = null
+		local save_list = link_list
+		link_list = {}
+
+		foreach(link in save_list) {
+			link_list[ key(link.f_src, link.f_dest, link.freight.get_name()) ] <- link
+		}
+
 	}
 
 	function _save()

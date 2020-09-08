@@ -25,7 +25,7 @@ class finder {
 		}
 		// sort
 		sleep()
-		area.sort(/*compare_coord*/)
+		area.sort()
 		return area
 	}
 
@@ -149,14 +149,13 @@ class finder {
 	}
 
 	/**
-	 * Can harbour of length @p len placed at @p pos in direction @p d.
-	 * @param first water tile of harbour
+	 * Can harbour of length @p len placed at @p pos (land tile!) in direction @p d.
 	 */
 	static function check_harbour_place(pos, len, d /* direction */)
 	{
 		local from = pos
 		for(local i = 0; i<len; i++) {
-			local to = from.get_neighbour(wt_water, d)
+			local to = from.get_neighbour(i>0 ? wt_water : wt_all, d)
 			if (to  &&  _tile_water(to)  &&  to.can_remove_all_objects(our_player)==null) {
 				from = to
 			}

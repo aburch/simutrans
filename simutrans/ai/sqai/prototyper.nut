@@ -1,25 +1,38 @@
+/**
+ * Classes to plan a convoy prototype given some constraints.
+ */
+
+/**
+ * Prototype of a convoy.
+ */
 class cnv_proto_t
 {
-	weight = 0
-	power  = 0
-	min_top_speed = 0
-	max_speed = 1000000000000
-	length = 0
-	capacity = 0
-	maintenance = 0
-	running_cost = 0
-	price = 0
-	missing_freight = true
-	veh = null
+	// properties
+	weight = 0         // weight (fully loaded)
+	power  = 0         // total power
+	min_top_speed = 0  // top speed when fully loaded
+	max_speed = -1     // speed limit
+	length = 0         // length of convoy in internal units (one tile = 16 units)
+	capacity = 0       // capacity of convoy for desired freight
+	maintenance = 0    // maintenance cost per month
+	running_cost = 0   // running cost per tile
+	price = 0          // price
+
+	missing_freight = true // convoy misses vehicles to transport desired freight
+	veh = null             // the vehicles of the convoy (array)
 
 	// set by valuator
-	nr_convoys = 0
+	nr_convoys = 0     // number of convoys that should be built
 
 	constructor()
 	{
 		veh = []
 	}
 
+	/**
+	 * Append vehicle to this prototype.
+	 * Desired freight is given as parameter freight.
+	 */
 	function append(newveh, freight)
 	{
 		local cnv = getclass().instance()
@@ -30,14 +43,18 @@ class cnv_proto_t
 		cnv.weight = weight + freight.get_weight_per_unit() * newveh.get_capacity() + newveh.get_weight()
 
 		cnv.power = power + newveh.get_power()
-		cnv.max_speed = min(max_speed, newveh.get_topspeed())
+		if (max_speed >= 0) {
+			cnv.max_speed = min(max_speed, newveh.get_topspeed())
+		}
+		else {
+			cnv.max_speed = newveh.get_topspeed()
+		}
 		cnv.length = length + newveh.get_length()
 
 		local fits = newveh.get_freight().is_interchangeable(freight)
 		cnv.missing_freight = missing_freight  &&  (newveh.get_capacity()==0  ||  !fits)
 
 		cnv.min_top_speed = convoy_x.calc_max_speed(cnv.power, cnv.weight, cnv.max_speed)
-// 		print("XXX Power " +cnv.power + "  weight = " +cnv.weight + " amx = " + cnv.max_speed+ " speed = " + cnv.min_top_speed)
 		cnv.capacity = capacity + (fits ? newveh.get_capacity() : 0)
 		cnv.maintenance = maintenance + newveh.get_maintenance()
 		cnv.running_cost = running_cost + newveh.get_running_cost()
@@ -62,18 +79,28 @@ class cnv_proto_t
 	}
 }
 
+/**
+ * Class to find the best prototype.
+ *
+ * Iterates through all possible combinations.
+ * This can take a very long time for e.g. passenger trains.
+ * Some means to shorten the computation are required.
+ *
+ * If a prototype is valid, it is passed to the function valuate.
+ * The prototype with largest score wins (or the first one if valuate == null).
+ */
 class prototyper_t extends node_t
 {
-	wt = 0
-	freight = 0
-	max_vehicles = 0
-	max_length   = 0
-	min_speed    = 0
+	wt = 0            // way-type
+	freight = 0       // freight to be transported
+	max_vehicles = 0  // maximum of number of vehicles in this prototype
+	max_length   = 0  // maximum lenght of convoy in number of tiles
+	min_speed    = 0  // minimum speed
 
-	valuate = null
+	valuate = null    // valuate function, takes prototype, returns number (null -> first valid prototype is returned)
 
-	best = null
-	best_value = 0
+	best = null       // the best prototype up to now
+	best_value = 0    // and its score
 
 	constructor(w, /*string*/f)
 	{
@@ -82,14 +109,21 @@ class prototyper_t extends node_t
 		freight = good_desc_x(f)
 	}
 
-
+	/**
+	 * Depth-first search.
+	 * Takes constraints into account. Calls valuate.
+	 */
 	function step()
 	{
+		// list of all vehicles
 		local list = vehicle_desc_x.get_available_vehicles(wt)
 
+		// vehicles that can be put first
 		local list_first = []
+		// other vehicles: powered, no capacity (tenders), matching freight
 		local list_other = []
 
+		// preprocess
 		foreach(veh in list) {
 
 			local first = veh.can_be_first()
@@ -100,16 +134,14 @@ class prototyper_t extends node_t
 			// use vehicles that can carry freight
 			// or that are powered and have no freight capacity
 			if (fits ||  (pwer  && none) ) {
-				if (first)
+				if (first) {
 					list_first.append(veh)
+				}
 
 				list_other.append(veh)
 			}
-
 		}
 
-// 		foreach(veh in list_first) print("candidate...leading " + veh.get_name())
-// 		foreach(veh in list_other) print("candidate...        " + veh.get_name())
 
 		// array of lists we try to iterate
 		local it_lists = []; it_lists.resize(max_vehicles+1)
@@ -148,13 +180,9 @@ class prototyper_t extends node_t
 			if ( ind==1 ? !test.can_be_first() : !vehicle_desc_x.is_coupling_allowed(cnv[ind-1].veh.top(), test) ) {
 				continue;
 			}
-// 			print("Test[" + ind + "] = " + test.get_name())
 			// append
 			cnv[ind] = cnv[ind-1].append(test, freight)
 			local c = cnv[ind]
-
-// 			local ccc = ["weight","power","min_top_speed","max_speed","length","missing_freight", "capacity","maintenance","price","running_cost"]
-// 			foreach(key in ccc) print(" ... " + key + " = " + c[key] )
 
 			// check constraints
 			// .. length
@@ -162,14 +190,12 @@ class prototyper_t extends node_t
 			if (l > CARUNITS_PER_TILE*max_length) {
 				continue;
 			}
-			// .. more ??
 
 			// check if convoy finished
 			if (test.can_be_last()  &&  !c.missing_freight  &&  c.min_top_speed >= min_speed) {
 				// evaluate this candidate
 				if (valuate) {
 					local value = valuate.call(getroottable(), c)
-// 					print(" === " + value)
 					if (best==null  ||  value > best_value) {
 						best = c
 						best_value = value
@@ -180,8 +206,6 @@ class prototyper_t extends node_t
 					best = c;
 					break
 				}
-
-// 				print("..... ***")
 			}
 
 			// move on to next position
@@ -201,9 +225,6 @@ class prototyper_t extends node_t
 				print("Best[" + ind + "] = " + test.get_name())
 			}
 
-// 			local ccc = ["weight","power","min_top_speed","max_speed","length","missing_freight", "capacity","maintenance","price","running_cost"]
-// 			foreach(key in ccc) print(" ... " + key + " = " + best[key] )
-//
 			return r_t(RT_SUCCESS)
 		}
 		return r_t(RT_ERROR)
@@ -211,18 +232,24 @@ class prototyper_t extends node_t
 
 }
 
+/**
+ * A simple valuate function.
+ */
 class valuator_simple_t {
-	wt = 0
-	freight = null
-	volume = 0 // monthly transport volume
-	max_cnvs = 0
+	wt = 0         // way-type
+	freight = null // freight to be transported
+	volume = 0     // monthly transport volume
+	max_cnvs = 0   // maximum number of convoys
 	distance = 0
 
-	way_max_speed = -1
-	way_maintenance = 0
+	way_max_speed = -1  // speed limit of planned way
+	way_maintenance = 0 // maintenance of planned way
 
-	function valuate_monthly_transport(cnv) {
-
+	/**
+	 * Estimates gain per month
+	 */
+	function valuate_monthly_transport(cnv)
+	{
 		local speed = way_max_speed > 0 ? min(way_max_speed, cnv.min_top_speed) : cnv.min_top_speed
 
 		local frev = good_desc_x(freight).calc_revenue(wt, speed)
