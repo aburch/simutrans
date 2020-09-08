@@ -13,16 +13,37 @@
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
 #include "components/gui_button.h"
+#include "components/gui_button_to_chart.h"
 #include "components/gui_location_view_t.h"
+#include "components/gui_tab_panel.h"
 #include "components/action_listener.h"
 #include "components/gui_chart.h"
+#include "components/gui_image.h"
+#include "components/gui_colorbox.h"
 #include "components/gui_combobox.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../simhalt.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 
+//class gui_departure_board_t;
 
+/**
+ * Helper class to show type symbols (train, bus, etc)
+ */
+class gui_halt_type_images_t : public gui_aligned_container_t
+{
+	halthandle_t halt;
+	gui_image_t img_transport[9];
+public:
+	gui_halt_type_images_t(halthandle_t h);
+
+	void draw(scr_coord offset) OVERRIDE;
+};
+
+/**
+ * Main class: the station info window.
+ */
 class halt_info_t : public gui_frame_t, private action_listener_t
 {
 private:

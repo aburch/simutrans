@@ -110,10 +110,6 @@ public:
 
 	~gui_scrolled_list_t() { clear_elements(); }
 
-	/**
-	* Sets the color of selected entry
-	* @author Hj. Malthaner
-	*/
 	void set_highlight_color(PIXVAL c) { highlight_color = c; }
 
 	void show_selection(int s);

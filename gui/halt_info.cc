@@ -5,6 +5,8 @@
 
 #include "halt_detail.h"
 #include "halt_info.h"
+//#include "components/gui_button_to_chart.h"
+
 #include "../simworld.h"
 #include "../simware.h"
 #include "../simcolor.h"
@@ -31,6 +33,12 @@
 
 #include "../player/simplay.h"
 
+
+//#define CHART_HEIGHT (100)
+#define PAX_EVALUATIONS 5
+
+#define L_BUTTON_WIDTH button_size.w
+#define L_CHART_INDENT (66)
 
 
 static const char *sort_text[halt_info_t::SORT_MODES] = {
@@ -108,11 +116,53 @@ const uint8 cost_type_color[MAX_HALT_COST] =
 	COL_TURQUOISE
 };
 
-#define PAX_EVALUATIONS 5
+struct type_symbol_t {
+	haltestelle_t::stationtyp type;
+	const skin_desc_t **desc;
+};
 
-#define L_BUTTON_WIDTH button_size.w
-#define L_CHART_INDENT (66)
+const type_symbol_t symbols[] = {
+	{ haltestelle_t::railstation, &skinverwaltung_t::zughaltsymbol },
+	{ haltestelle_t::loadingbay, &skinverwaltung_t::autohaltsymbol },
+	{ haltestelle_t::busstop, &skinverwaltung_t::bushaltsymbol },
+	{ haltestelle_t::dock, &skinverwaltung_t::schiffshaltsymbol },
+	{ haltestelle_t::airstop, &skinverwaltung_t::airhaltsymbol },
+	{ haltestelle_t::monorailstop, &skinverwaltung_t::monorailhaltsymbol },
+	{ haltestelle_t::tramstop, &skinverwaltung_t::tramhaltsymbol },
+	{ haltestelle_t::maglevstop, &skinverwaltung_t::maglevhaltsymbol },
+	{ haltestelle_t::narrowgaugestop, &skinverwaltung_t::narrowgaugehaltsymbol }
+};
 
+
+// helper class
+gui_halt_type_images_t::gui_halt_type_images_t(halthandle_t h)
+{
+	halt = h;
+	set_table_layout(lengthof(symbols), 1);
+	set_alignment(ALIGN_LEFT | ALIGN_CENTER_V);
+	assert( lengthof(img_transport) == lengthof(symbols) );
+	// indicator for supplied transport modes
+	haltestelle_t::stationtyp const halttype = halt->get_station_type();
+	for(uint i=0; i < lengthof(symbols); i++) {
+		if ( *symbols[i].desc ) {
+			add_component(img_transport + i);
+			img_transport[i].set_image( (*symbols[i].desc)->get_image_id(0));
+			img_transport[i].enable_offset_removal(true);
+			img_transport[i].set_visible( (halttype & symbols[i].type) != 0);
+		}
+	}
+}
+
+void gui_halt_type_images_t::draw(scr_coord offset)
+{
+	haltestelle_t::stationtyp const halttype = halt->get_station_type();
+	for(uint i=0; i < lengthof(symbols); i++) {
+		img_transport[i].set_visible( (halttype & symbols[i].type) != 0);
+	}
+	gui_aligned_container_t::draw(offset);
+}
+
+// main class
 halt_info_t::halt_info_t(halthandle_t halt) :
 		gui_frame_t( halt->get_name(), halt->get_owner() ),
 		scrolly(&text),

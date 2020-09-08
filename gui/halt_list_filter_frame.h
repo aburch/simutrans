@@ -65,7 +65,6 @@ private:
 	 */
 	enum { FILTER_BUTTONS=16 };
 
-	static scr_coord filter_buttons_pos[FILTER_BUTTONS];
 	static halt_list_frame_t::filter_flag_t filter_buttons_types[FILTER_BUTTONS];
 	static const char *filter_buttons_text[FILTER_BUTTONS];
 
@@ -87,14 +86,14 @@ private:
 	button_t ware_keine_ab;
 	button_t ware_invers_ab;
 
-	gui_container_t ware_cont_ab;
+	gui_aligned_container_t ware_cont_ab;
 	gui_scrollpane_t ware_scrolly_ab;
 
 	button_t ware_alle_an;
 	button_t ware_keine_an;
 	button_t ware_invers_an;
 
-	gui_container_t ware_cont_an;
+	gui_aligned_container_t ware_cont_an;
 	gui_scrollpane_t ware_scrolly_an;
 
 public:
@@ -127,11 +126,6 @@ public:
 	 * @author V. Meyer
 	 */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
-
-    /**
-     * resize window in response to a resize event
-     */
-	void resize(const scr_coord delta) OVERRIDE;
 
 	/**
 	 * Set the window associated helptext
