@@ -106,6 +106,8 @@ void export_include(HSQUIRRELVM vm, const char* include_path); // api_include.cc
 // virtual machine
 script_vm_t::script_vm_t(const char* include_path_, const char* log_name)
 {
+	pause_on_error = false;
+
 	vm = sq_open(1024);
 	sqstd_seterrorhandlers(vm);
 	sq_setprintfunc(vm, printfunc, errorfunc);
