@@ -85,7 +85,7 @@ settings_t::settings_t() :
 	max_no_of_trees_on_square = 3;         // Number of trees on square 2 - minimal usable, 3 good, 5 very nice looking
 	tree_climates = 0;                     // bit set, if this climate is to be covered with trees entirely
 	no_tree_climates = 0;                  // bit set, if this climate is to be void of random trees
-	tree = 1;                              // 0=no trees may be useful for low end engines, 1=random, 2=rainfall 
+	tree = 1;                              // 0=no trees may be useful for low end engines, 1=random, 2=rainfall
 
 	lake_height = 8;                       // lakes will be generated below this height above groundwater
 
@@ -1382,7 +1382,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	tree = contents.get_int( "trees_distribution", tree );
 	lake_height = (contents.get_int("no_lakes", (lake_height == 0) )) ? 0 : 8;
 	lake_height = contents.get_int("lake_height", lake_height );
-	
+
 	// these are pak specific; the diagonal length affect travelling time (is game critical)
 	pak_diagonal_multiplier = contents.get_int("diagonal_multiplier", pak_diagonal_multiplier );
 	// the height in z-direction will only cause pixel errors but not a different behaviour
