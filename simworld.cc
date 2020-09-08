@@ -365,7 +365,7 @@ void checklist_t::rdwr(memory_rw_t *buffer)
 
 int checklist_t::print(char *buffer, const char *entity) const
 {
-	return sprintf(buffer, "%s=[ss=%u st=%u nfc=%u rand=%u halt=%u line=%u cnvy=%u ssr=%u,%u,%u,%u,%u,%u,%u,%u str=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u exr=%u,%u,%u,%u,%u,%u,%u,%u sums=%u,%u,%u,%u,%u,%u,%u,%u",
+	return sprintf(buffer, "%s=[ss=%u st=%u nfc=%u rand=%u halt=%u line=%u cnvy=%u\n\tssr=%u,%u,%u,%u,%u,%u,%u,%u\n\tstr=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n\texr=%u,%u,%u,%u,%u,%u,%u,%u\n\tsums=%u,%u,%u,%u,%u,%u,%u,%u]\n",
 		entity, ss, st, nfc, random_seed, halt_entry, line_entry, convoy_entry,
 		rand[0], rand[1], rand[2], rand[3], rand[4], rand[5], rand[6], rand[7],
 		rand[8], rand[9], rand[10], rand[11], rand[12], rand[13], rand[14], rand[15], rand[16], rand[17], rand[18], rand[19], rand[20], rand[21], rand[22], rand[23],
@@ -4844,27 +4844,24 @@ void karte_t::sync_list_t::sync_step(uint32 delta_t)
  */
 void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 {
-rands[0] = get_random_seed();
-rands[2] = 0;
-rands[3] = 0;
-rands[4] = 0;
-rands[5] = 0;
-rands[6] = 0;
-rands[7] = 0;
+	rands[0] = get_random_seed();
+	rands[7] = 0;
+
 	// If only one convoy speed is mismatched it should be possible to
 	// identify the convoy involved.
 	debug_sums[0] = 0; // Convoy speeds
 	debug_sums[1] = 0; // Convoy sums multiplied by convoy id
-	debug_sums[2] = 0;
-	debug_sums[3] = 0;
-	debug_sums[4] = 0;
-	debug_sums[5] = 0;
-	debug_sums[6] = 0;
-	debug_sums[7] = 0;
+	debug_sums[2] = 0; // "Einwhoner"
+	debug_sums[3] = 0; // Number of buildings
+	debug_sums[4] = env_t::num_threads; // Number of threads
+	debug_sums[5] = 0; // Passengers/mail generated this step
+	debug_sums[6] = 0; // Transferring cargoes before passenger generation
+	debug_sums[7] = 0; // Transferring cargoes after passenger generation
+
 	set_random_mode( SYNC_STEP_RANDOM );
 	haltestelle_t::pedestrian_limit = 0;
 	if(do_sync_step) {
-		// only omitted, when called to display a new frame during fast forward
+		// Only omitted when called to display a new frame during fast forward
 
 		// just for progress
 		if(  delta_t > 10000  ) {
@@ -4881,16 +4878,22 @@ rands[7] = 0;
 		 */
 		sync_eyecandy.sync_step( delta_t );
 
+		rands[2] = get_random_seed();
+
 		/* pedestrians do not require exact sync and are added/removed frequently
 		 * => they are now in a hastable!
 		 */
 		sync_way_eyecandy.sync_step( delta_t );
 
+		rands[3] = get_random_seed();
+
 		clear_random_mode( INTERACTIVE_RANDOM );
 
 		sync.sync_step( delta_t );
+
+		rands[4] = get_random_seed();
 	}
-rands[1] = get_random_seed();
+	rands[5] = get_random_seed();
 
 	if(display) {
 		// only omitted in fast forward mode for the magic steps
@@ -4921,6 +4924,9 @@ rands[1] = get_random_seed();
 		intr_refresh_display( false );
 		update_frame_sleep_time();
 	}
+
+	rands[6] = get_random_seed();
+
 	clear_random_mode( SYNC_STEP_RANDOM );
 }
 
@@ -5647,6 +5653,8 @@ void karte_t::step()
 	}
 #endif
 
+	rands[13] = get_random_seed();
+
 	// The more computationally intensive parts of this have been extracted and made multi-threaded.
 	DBG_DEBUG4("karte_t::step 4", "step %d convois", convoi_array.get_count());
 	// since convois will be deleted during stepping, we need to step backwards
@@ -5658,7 +5666,7 @@ void karte_t::step()
 		}
 	}
 
-	rands[13] = get_random_seed();
+	rands[14] = get_random_seed();
 
 	INT_CHECK("karte_t::step 3a");
 
@@ -5677,11 +5685,11 @@ void karte_t::step()
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
 	{
 		i->step(delta_t);
-		rands[21] += i->get_einwohner();
-		rands[22] += i->get_buildings();
+		add_to_debug_sums(2, i->get_einwohner());
+		add_to_debug_sums(3, i->get_buildings());
 	}
 
-	rands[14] = get_random_seed();
+	rands[15] = get_random_seed();
 
 	INT_CHECK("karte_t::step 3b");
 
@@ -5692,6 +5700,8 @@ void karte_t::step()
 		await_private_car_threads();
 	}
 #endif
+
+	rands[16] = get_random_seed();
 
 	INT_CHECK("karte_t::step 3c");
 
@@ -5704,6 +5714,13 @@ void karte_t::step()
 	rands[30] = 0;
 	rands[31] = 0;
 	rands[23] = 0;
+
+	sint32 po;
+#ifdef MULTI_THREAD
+	po = get_parallel_operations() + 2;
+#else
+	po = 1;
+#endif
 
 	// This is quite computationally intensive, but not as much as the path explorer. It can be more or less than the convoys, depending on the map.
 	// Multi-threading the passenger and mail generation is currently not working well as dividing the number of passengers/mail to be generated per
@@ -5731,6 +5748,11 @@ void karte_t::step()
 
 		INT_CHECK("karte_t::step 3d");
 
+		for (uint32 i = 0; i < po; i++)
+		{
+			debug_sums[6] += transferring_cargoes[i].get_count();
+		}
+
 		start_passengers_and_mail_threads();
 
 #ifdef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
@@ -5745,7 +5767,7 @@ void karte_t::step()
 #endif
 	DBG_DEBUG4("karte_t::step", "step generate passengers and mail");
 
-	rands[15] = get_random_seed();
+	rands[17] = get_random_seed();
 
 	// the inhabitants stuff
 	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = 0;
@@ -5764,12 +5786,19 @@ void karte_t::step()
 		finance_history_year[0][WORLD_VISITOR_DEMAND] += city->get_finance_history_year(0, HIST_VISITOR_DEMAND);
 	}
 
-	rands[23] = get_random_seed();
+	rands[18] = get_random_seed();
 
 	INT_CHECK("karte_t::step 4");
 
 	// This does nothing if the threading is disabled.
 	await_passengers_and_mail_threads();
+
+	rands[19] = get_random_seed();
+
+	for (uint32 i = 0; i < po; i++)
+	{
+		debug_sums[7] += transferring_cargoes[i].get_count();
+	}
 
 #ifdef MULTI_THREAD
 	// This is necessary in network mode to ensure that all cars set in motion
@@ -5836,7 +5865,7 @@ void karte_t::step()
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
 		f->step(delta_t);
 	}
-	rands[16] = get_random_seed();
+	rands[20] = get_random_seed();
 
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
@@ -5846,7 +5875,7 @@ void karte_t::step()
 	pumpe_t::step_all( delta_t );
 	senke_t::step_all( delta_t );
 	powernet_t::step_all( delta_t );
-	rands[17] = get_random_seed();
+	rands[21] = get_random_seed();
 
 	INT_CHECK("karte_t::step 6");
 
@@ -5858,14 +5887,14 @@ void karte_t::step()
 			players[i]->step();
 		}
 	}
-	rands[18] = get_random_seed();
+	rands[22] = get_random_seed();
 
 	INT_CHECK("karte_t::step 7");
 
 	// This is not computationally intensive
 	DBG_DEBUG4("karte_t::step", "step halts");
 	haltestelle_t::step_all();
-	rands[19] = get_random_seed();
+	rands[23] = get_random_seed();
 
 	// Re-check paths if the time has come.
 	// Long months means that it might be necessary to do
@@ -5879,9 +5908,13 @@ void karte_t::step()
 		path_explorer_t::refresh_all_categories(false);
 	}
 
+	rands[24] = get_random_seed();
+
 	INT_CHECK("karte_t::step 8");
 
 	check_transferring_cargoes();
+
+	rands[25] = get_random_seed();
 
 #ifdef MULTI_THREAD_PATH_EXPLORER
 	// Start the path explorer ready for the next step. This can be very
@@ -5945,7 +5978,7 @@ void karte_t::step()
 	} // Loss of synchronisation suspected to be in a block of code ending here.
 
 	DBG_DEBUG4("karte_t::step", "end");
-	rands[20] = get_random_seed();
+	rands[26] = get_random_seed();
 }
 
 void karte_t::step_time_interval_signals()
@@ -6090,7 +6123,7 @@ void karte_t::check_transferring_cargoes()
 	const sint64 current_time = ticks;
 	ware_t ware;
 #ifdef MULTI_THREAD
-	sint32 po = get_parallel_operations();
+	sint32 po = get_parallel_operations() + 2;
 #else
 	sint32 po = 1;
 #endif
@@ -6225,6 +6258,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		(void)mutex_error;
 #endif
 		city->set_generated_passengers(units_this_step, history_type + 1);
+		add_to_debug_sums(5, units_this_step);
 #ifdef MULTI_THREAD
 		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 		assert(mutex_error == 0);
@@ -6329,7 +6363,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				const uint32 tolerance_modifier_percentage = settings.get_tolerance_modifier_percentage();
 				// Now multiply the tolerance by the success percentage of the origin building so as to normalise per inhabitant travel time over any given period of time:
 				// passengers who travel more often must have a lower average journey time tolerance than those who travel less often.
-				const uint32 success_percentage = (uint32)gb->get_average_passenger_success_percent_visiting();
+				const uint32 success_percentage = (uint32)gb->get_passenger_success_percent_last_year_visiting();
 				uint32 tolerance_multiplier = tolerance_modifier_percentage;
 				if (success_percentage > 0 && tolerance_modifier_percentage > 0)
 				{
@@ -8589,7 +8623,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 		ware_t ware;
 #ifdef MULTI_THREAD
 		count = 0;
-		for (sint32 i = 0; i < get_parallel_operations(); i++)
+		for (sint32 i = 0; i < get_parallel_operations() + 2; i++)
 		{
 			count += transferring_cargoes[i].get_count();
 		}
@@ -8601,7 +8635,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 
 		sint32 po;
 #ifdef MULTI_THREAD
-		po = get_parallel_operations();
+		po = get_parallel_operations() + 2;
 #else
 		po = 1;
 #endif
@@ -9054,7 +9088,7 @@ void karte_t::load(loadsave_t *file)
 	file->set_buffered(true);
 
 	// jetzt geht das laden los
-	dbg->warning("karte_t::load", "Fileversion: %d", file->get_version());
+	dbg->warning("karte_t::load", "File version: %u, Extended version: %u, Extended revision: %u", file->get_version(), file->get_extended_version(), file->get_extended_revision());
 	// makes a copy:
 	settings = env_t::default_settings;
 	settings.rdwr(file);
@@ -10657,6 +10691,15 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 		return;
 	}
 
+	// Knightly : send changed limits to server where necessary
+	if (path_explorer_t::are_local_limits_changed()) {
+		path_explorer_t::limit_set_t local_limits = path_explorer_t::get_local_limits();
+		network_send_server(new nwc_routesearch_t(sync_steps, map_counter, local_limits, false));
+		path_explorer_t::reset_local_limits_state();
+		dbg->warning("karte_t::interactive", "nwc_routesearch_t object created and sent to server: sync_step=%u map_counter=%u limits=(%u, %u, %u, %llu, %u)",
+			sync_steps, map_counter, local_limits.rebuild_connexions, local_limits.filter_eligible, local_limits.fill_matrix, local_limits.explore_paths, local_limits.reroute_goods);
+	}
+
 	// process the received command
 	while(  nwc  ) {
 		// check timing
@@ -10718,7 +10761,7 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 				// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
 				else if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
 					// lost synchronisation -> server kicks client out actively
-					char buf[1024];
+					char buf[2048];
 					const int offset = LCHKLST(nwt->last_sync_step).print(buf, "server");
 					nwt->last_checklist.print(buf + offset, "initiator");
 					dbg->warning("karte_t::process_network_commands", "kicking client due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
@@ -10740,6 +10783,12 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 		nwc = network_get_received_command();
 	}
 	uint32 next_command_step = get_next_command_step();
+
+	// Knightly : check if changed limits, if any, have to be transmitted to all clients
+	if (env_t::server)
+	{
+		nwc_routesearch_t::check_for_transmission(this);
+	}
 
 	// send data
 	ms = dr_time();
@@ -10785,10 +10834,12 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 		assert(offset2 < 2048);
 		(void)offset2;
 
-		dbg->warning("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
-		if(client_checklist != server_checklist) {
-			dbg->warning("karte_t:::do_network_world_command", "disconnecting due to checklist mismatch" );
+		if(client_checklist != server_checklist)
+		{
+			dbg->warning("karte_t:::do_network_world_command", "disconnecting due to checklist mismatch:\n%s", buf );
 			network_disconnect();
+		} else {
+			dbg->message("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
 		}
 	}
 	else {

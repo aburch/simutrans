@@ -79,8 +79,8 @@ private:
 
 	gui_factory_storage_info_t storage;
 
-	gui_scrollpane_t scrolly_info, scrolly_details;
 	gui_container_t container_info, container_details;
+	gui_scrollpane_t scrolly_info, scrolly_details;
 	gui_factory_connection_stat_t all_suppliers, all_consumers;
 	gui_label_t lb_suppliers, lb_consumers, lb_nearby_halts;
 	gui_factory_nearby_halt_info_t nearby_halts;
