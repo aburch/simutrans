@@ -257,7 +257,7 @@ void export_simple(HSQUIRRELVM vm)
 	STATIC register_method(vm, &export_is_twoway,  "is_twoway", false, true);
 	/**
 	 * @param d direction to test
-	 * @return whether direction is triple direction, e.g. n+s+e.
+	 * @return whether direction is triple direction, e.g. n+s+e or n+s+e+w.
 	 */
 	STATIC register_method(vm, &export_is_threeway,  "is_threeway", false, true);
 	/**
@@ -267,7 +267,7 @@ void export_simple(HSQUIRRELVM vm)
 	STATIC register_method(vm, &export_is_bend,  "is_curve", false, true);
 	/**
 	 * @param d direction to test
-	 * @return whether direction is straight and has no curves in it, e.g. n+w, w.
+	 * @return whether direction is straight and has no curves in it, e.g. n+s, w.
 	 */
 	STATIC register_method(vm, &export_is_straight,  "is_straight", false, true);
 	/**
