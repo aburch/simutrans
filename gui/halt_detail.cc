@@ -38,21 +38,21 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	gui_frame_t(halt_->get_name(), halt_->get_owner()),
 	halt(halt_),
 	scrolly(&cont),
-	scrolly_pas(&pas),
-	scrolly_goods(&cont_goods),
 	pas(halt_),
 	goods(halt_),
+	line_number(halt_),
 	txt_info(&buf),
-	nearby_factory(halt_),
-	line_number(halt_)
+	scrolly_pas(&pas),
+	scrolly_goods(&cont_goods),
+	nearby_factory(halt_)
 {
 	if (halt.is_bound()) {
-		init(halt);
+		init();
 	}
 }
 
 
-void halt_detail_t::init(halthandle_t halt_)
+void halt_detail_t::init()
 {
 	line_number.set_pos(scr_coord(0, D_V_SPACE));
 	add_component(&line_number);

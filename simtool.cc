@@ -5720,7 +5720,7 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 
 		signal_t *s = gr->find<signal_t>();
 
-		if( (s  &&  s->get_desc()!=desc) || (desc->is_signal()  &&  gr->find<roadsign_t>()) ) {
+		if( s  &&  (s->get_desc()!=desc || (desc->is_signal()  &&  gr->find<roadsign_t>())) ) {
 			signal_info const& sinfo = signal[player->get_player_nr()];
 
 			// only one sign per tile

@@ -124,7 +124,7 @@ uint32 simrand(const uint32 max, const char*)
 	uint32 result = simrand_plain() % max;
 	char buf[256];
 	sprintf(buf, "%s (%i); seed: (%u). rand %u, max %u", caller, get_random_seed(), thread_seed, result, max);
-	dbg->warning("simrand", buf);
+	dbg->message("simrand", buf);
 	return result;
 #endif
 
