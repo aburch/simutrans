@@ -31,7 +31,6 @@ class halt_detail_pas_t : public gui_container_t
 {
 private:
 	halthandle_t halt;
-	karte_t *welt;
 
 	cbuffer_t pas_info;
 
@@ -105,16 +104,16 @@ private:
 
 	cbuffer_t buf;
 
+	halt_detail_pas_t pas;
+	halt_detail_goods_t goods;
+	gui_halthandled_lines_t line_number;
 	gui_container_t cont, cont_goods;
 	gui_scrollpane_t scrolly, scrolly_pas, scrolly_goods;
 	gui_label_t lb_nearby_factory;
 	gui_textarea_t txt_info;
 
-	halt_detail_pas_t pas;
-	halt_detail_goods_t goods;
 	gui_halt_nearby_factory_info_t nearby_factory;
 	gui_tab_panel_t tabs;
-	gui_halthandled_lines_t line_number;
 
 
 	slist_tpl<button_t *>posbuttons;
@@ -137,7 +136,7 @@ public:
 
 	void halt_detail_info();
 
-	void init(halthandle_t halt);
+	void init();
 
 	/**
 	 * Set the window associated helptext

@@ -105,16 +105,18 @@ public:
 private:
 	convoihandle_t cnv;
 
+	gui_vehicleinfo_t veh_info;
+	gui_convoy_formation_t formation;
+	gui_container_t cont_payload;
+	gui_convoy_payload_info_t payload_info;
+	gui_convoy_maintenance_info_t maintenance;
+
 	gui_scrollpane_t scrolly;
 	gui_scrollpane_t scrolly_formation;
 	gui_scrollpane_t scrolly_payload_info;
 	gui_scrollpane_t scrolly_maintenance;
-	gui_vehicleinfo_t veh_info;
-	gui_convoy_formation_t formation;
-	gui_convoy_payload_info_t payload_info;
-	gui_convoy_maintenance_info_t maintenance;
+
 	gui_tab_panel_t tabs;
-	gui_container_t cont_payload;
 
 	button_t sale_button;
 	button_t withdraw_button;
