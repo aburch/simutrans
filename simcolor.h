@@ -164,6 +164,8 @@ typedef unsigned int FLAGGED_PIXVAL;
 #define SYSCOL_TEXT_SHADOW                  gui_theme_t::gui_color_text_shadow
 #define SYSCOL_TEXT_TITLE                   gui_theme_t::gui_color_text_title
 #define SYSCOL_TEXT_STRONG                  gui_theme_t::gui_color_text_strong
+#define SYSCOL_TEXT_INACTIVE                gui_theme_t::gui_color_text_inactive
+#define SYSCOL_TEXT_PLACEHOLDER             gui_theme_t::gui_color_text_placeholder
 #define MONEY_MINUS                         gui_theme_t::gui_color_text_minus
 #define MONEY_PLUS                          gui_theme_t::gui_color_text_plus
 #define SYSCOL_TEXT_UNUSED                  gui_theme_t::gui_color_text_unused
