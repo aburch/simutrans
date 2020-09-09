@@ -1,7 +1,7 @@
 # Default simutrans theme
 #
 # name of the theme (will be shown with file selector)
-name=Simutrans (large size)
+name=Simutrans classic (large size)
 
 # show tooltips (default 1=show)
 show_tooltips = 1
@@ -97,4 +97,4 @@ toolbar_max_height = 0
 ##################################pakstuff##################################
 
 # pak with the images for this theme
-themeimages=menu.standard.pak
+themeimages=classic.pak
