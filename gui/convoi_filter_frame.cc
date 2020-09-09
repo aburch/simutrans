@@ -12,6 +12,8 @@
 #include "../bauer/goods_manager.h"
 #include "../dataobj/translator.h"
 
+#include "components/gui_image.h"
+#include "../simskin.h"
 
 const char *convoi_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
 	"clf_chk_name_filter",
@@ -79,25 +81,29 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 	set_alignment(ALIGN_TOP);
 
 	// first column
-	add_table(2,0);
+	add_table(1,0);
 	{
 		// name filter
-		add_component(filter_buttons + 0, 2);
+		add_component(filter_buttons + 0);
 
 		name_filter_input.set_text( name_filter_text, lengthof(name_filter_text) );
 		name_filter_input.add_listener(this);
-		add_component(&name_filter_input, 2);
+		add_component(&name_filter_input);
 
-		// type and special buttons
-		for(  int i=2;  i<FILTER_BUTTONS;  i++  ) {
-			if (i==2 || i==11) {
-				add_component(filter_buttons + i, 2);
-			}
-			else {
-				new_component<gui_empty_t>();
-				add_component(filter_buttons + i);
+		add_table(2, 0);
+		{
+			// type and special buttons
+			for(  int i=2;  i<FILTER_BUTTONS;  i++  ) {
+				if (i==2 || i==11) {
+					add_component(filter_buttons + i, 2);
+				}
+				else {
+					new_component<gui_margin_t>(D_CHECKBOX_WIDTH);
+					add_component(filter_buttons + i);
+				}
 			}
 		}
+		end_table();
 	}
 	end_table();
 
@@ -108,12 +114,15 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 		add_table(3,0);
 		{
 			ware_alle.init(button_t::roundbox, "clf_btn_alle");
+			ware_alle.set_size(scr_size(D_BUTTON_WIDTH * 3/5, D_BUTTON_HEIGHT));
 			ware_alle.add_listener(this);
 			add_component(&ware_alle);
 			ware_keine.init(button_t::roundbox, "clf_btn_keine");
+			ware_keine.set_size(scr_size(D_BUTTON_WIDTH * 3/5, D_BUTTON_HEIGHT));
 			ware_keine.add_listener(this);
 			add_component(&ware_keine);
 			ware_invers.init(button_t::roundbox, "clf_btn_invers");
+			ware_invers.set_size(scr_size(D_BUTTON_WIDTH * 3/5, D_BUTTON_HEIGHT));
 			ware_invers.add_listener(this);
 			add_component(&ware_invers);
 		}
@@ -122,7 +131,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 		ware_scrolly.set_scroll_amount_y(D_BUTTON_HEIGHT);
 		add_component(&ware_scrolly);
 
-		ware_cont.set_table_layout(1,0);
+		ware_cont.set_table_layout(3,0);
 		all_ware.clear();
 		for(  int i=0;  i < goods_manager_t::get_count();  i++  ) {
 			const goods_desc_t *ware = goods_manager_t::get_info(i);
@@ -131,20 +140,24 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 			}
 			if(  ware->get_catg() == 0  ) {
 				// Special freight: Each good is special
+				ware_cont.new_component<gui_image_t>()->set_image(ware->get_catg_symbol(), true);
 				ware_item_t *item = ware_cont.new_component<ware_item_t>(this, ware);
 				item->init(button_t::square_state, translator::translate(ware->get_name()));
 				item->pressed = active_ware.is_contained(ware);
 				all_ware.append(item);
+				ware_cont.new_component<gui_fill_t>();
 			}
 		}
 		// now add other good categories
 		for(  int i=1;  i < goods_manager_t::get_max_catg_index();  i++  ) {
 			const goods_desc_t *ware = goods_manager_t::get_info_catg(i);
 			if(  ware->get_catg() != 0  ) {
+				ware_cont.new_component<gui_image_t>()->set_image(ware->get_catg_symbol(), true);
 				ware_item_t *item = ware_cont.new_component<ware_item_t>(this, ware);
 				item->init(button_t::square_state, translator::translate(ware->get_catg_name()));
 				item->pressed = active_ware.is_contained(ware);
 				all_ware.append(item);
+				ware_cont.new_component<gui_fill_t>();
 			}
 		}
 	}
