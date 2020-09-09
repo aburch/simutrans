@@ -224,7 +224,6 @@ void convoi_frame_t::sort_list()
 {
 	scrolly->sort();
 	sortedby.set_text(sort_text[get_sortierung()]);
-	sorteddir.set_text( get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
 }
 
 
@@ -252,7 +251,7 @@ convoi_frame_t::convoi_frame_t(player_t* player) :
 	add_table(4,2);
 	{
 		new_component_span<gui_label_t>("cl_txt_sort", 2);
-		new_component<gui_label_t>("Filter:");
+		new_component<gui_label_t>("cl_txt_mode");
 		filter_on.init(button_t::square, "cl_txt_filter");
 		filter_on.set_tooltip(translator::translate("cl_btn_filter_tooltip"));
 		filter_on.add_listener(this);
@@ -263,9 +262,23 @@ convoi_frame_t::convoi_frame_t(player_t* player) :
 		sortedby.add_listener(this);
 		add_component(&sortedby);
 
-		sorteddir.init(button_t::roundbox, get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
-		sorteddir.add_listener(this);
-		add_component(&sorteddir);
+		// sort ascend/descend button
+		add_table(3,1);
+		{
+			sort_asc.init(button_t::arrowup_state, "");
+			sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
+			sort_asc.add_listener(this);
+			sort_asc.pressed = sortreverse;
+			add_component(&sort_asc);
+
+			sort_desc.init(button_t::arrowdown_state, "");
+			sort_desc.set_tooltip(translator::translate("hl_btn_sort_desc"));
+			sort_desc.add_listener(this);
+			sort_desc.pressed = !sortreverse;
+			add_component(&sort_desc);
+			new_component<gui_margin_t>(10);
+		}
+		end_table();
 
 		display_mode.init(button_t::roundbox, gui_convoiinfo_t::cnvlist_mode_button_texts[cl_display_mode]);
 		display_mode.add_listener(this);
@@ -319,9 +332,11 @@ bool convoi_frame_t::action_triggered( gui_action_creator_t *comp, value_t /* */
 		set_sortierung( (sort_mode_t)((get_sortierung() + 1) % SORT_MODES) );
 		sort_list();
 	}
-	else if(  comp == &sorteddir  ) {
+	else if (comp == &sort_asc || comp == &sort_desc) {
 		set_reverse( !get_reverse() );
 		sort_list();
+		sort_asc.pressed = sortreverse;
+		sort_desc.pressed = !sortreverse;
 	}
 	else if (comp == &display_mode) {
 		cl_display_mode = (cl_display_mode + 1) % gui_convoiinfo_t::DISPLAY_MODES;

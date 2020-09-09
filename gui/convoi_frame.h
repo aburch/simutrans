@@ -40,7 +40,7 @@ private:
 
 	// these are part of the top UI
 	button_t	sortedby;
-	button_t	sorteddir;
+	button_t	sort_asc, sort_desc;
 	button_t	display_mode;
 	button_t	filter_on;
 	button_t	filter_details;
