@@ -2,28 +2,41 @@
 #include "../gui_theme.h"
 #include "../../display/simgraph.h"
 
+#include "../simwin.h"
+
 gui_colorbox_t::gui_colorbox_t(PIXVAL c)
 {
 	color = c;
-	max_size = scr_size(scr_size::inf.w, D_INDICATOR_HEIGHT);
+	tooltip = NULL;
+	max_size = scr_size(scr_size::inf.w, height);
 }
 
 
 scr_size gui_colorbox_t::get_min_size() const
 {
-	return scr_size(D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT);
+	return scr_size(width, height);
 }
 
 
 scr_size gui_colorbox_t::get_max_size() const
 {
-	return scr_size(max_size.w, D_INDICATOR_HEIGHT);
+	return scr_size(size_fixed ? width : max_size.w, height);
+}
+
+
+void gui_colorbox_t::set_tooltip(const char * t)
+{
+	if (t == NULL) {
+		tooltip = NULL;
+	}
+	else {
+		tooltip = t;
+	}
 }
 
 
 void gui_colorbox_t::draw(scr_coord offset)
 {
 	offset += pos;
-	display_ddd_box_clip_rgb(offset.x, offset.y, size.w, D_INDICATOR_HEIGHT, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
-	display_fillbox_wh_clip_rgb(offset.x + 1, offset.y + 1, size.w - 2, D_INDICATOR_HEIGHT-2, color, true);
+	display_colorbox_with_tooltip(offset.x, offset.y, width, height, color, true, tooltip);
 }

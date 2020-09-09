@@ -40,13 +40,13 @@ gui_textinput_t::gui_textinput_t() :
 
 scr_size gui_textinput_t::get_min_size() const
 {
-	return scr_size(16*LINESPACE, LINESPACE+4);
+	return scr_size(D_BUTTON_WIDTH, D_EDIT_HEIGHT+4);
 }
 
 
 scr_size gui_textinput_t::get_max_size() const
 {
-	return scr_size(scr_size::inf.w, LINESPACE+4);
+	return scr_size(scr_size::inf.w, D_EDIT_HEIGHT+4);
 }
 
 
