@@ -87,7 +87,7 @@ void loadingscreen_t::display()
 		display_ddd_box_rgb( quarter_width-1, bar_y + 1, half_width+2, bar_height - 2, color_idx_to_rgb(COL_GREY4), color_idx_to_rgb(COL_GREY6), true );
 
 		// inner
-		display_cylinderbar_wh_clip_rgb( quarter_width, bar_y + 2, half_width, bar_height - 4, SYSCOL_LOADINGBAR_INNER, true);
+		display_fillbox_wh_rgb( quarter_width, bar_y + 2, half_width, bar_height - 4, SYSCOL_LOADINGBAR_INNER, true);
 
 		// progress
 		display_cylinderbar_wh_clip_rgb( quarter_width, bar_y + 4, bar_len,  bar_height - 8, SYSCOL_LOADINGBAR_PROGRESS, true );
