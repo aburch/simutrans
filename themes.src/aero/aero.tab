@@ -47,7 +47,7 @@ second_open_closes_win = 0
 remember_window_positions = 1
 
 # color used for the default titlebars
-#default_window_title_color = 154
+default_window_title_color = 154
 
 # there are three different ways to indicate an active window
 
