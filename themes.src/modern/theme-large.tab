@@ -4,7 +4,7 @@
 # https://wiki.simutrans.com/en_themeDef
 #
 # name of the theme (will be shown with file selector)
-name=Simutrans (touch)
+name=Simutrans Modern (large size)
 
 # show tooltips (default 1=show)
 show_tooltips = 1
@@ -62,7 +62,11 @@ default_window_title_color = #338FCC
 gui_color_text_highlight = #005C9E
 gui_color_text_shadow = #BDD3DF
 gui_color_text_title = #338FCC
-gui_color_text_strong = #E46A0B
+gui_color_text_strong = #EC6E0C
+
+########Test########
+gui_color_empty = #868c86
+gui_color_obsolete = #2878ff
 
 gui_color_edit_text = #000000
 gui_color_edit_text_selected = #FAFAFA
@@ -106,6 +110,14 @@ gui_color_text_unused = #E46A0B
 
 # Color of cursor overlay, which is blended over marked ground tiles
 cursor_overlay_color = #ff0000
+
+# Colo loadbar, save game, load game, server...
+gui_color_loadingbar_progress = #76b9e6
+gui_color_loadingbar_inner = #D6ECF7
+
+# Color player brigth
+gui_player_color_dark = 1	
+gui_player_color_bright = 3
 
 ##################################size stuff##################################
 
@@ -158,4 +170,4 @@ toolbar_max_height = 0
 ###################################pakstuff###################################
 
 # pak with the images for this theme
-themeimages=simutrans-large.pak
+themeimages=modern-large.pak

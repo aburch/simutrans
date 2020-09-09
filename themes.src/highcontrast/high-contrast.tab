@@ -167,4 +167,4 @@ toolbar_max_height = 0
 ###################################pakstuff###################################
 
 # pak with the images for this theme
-themeimages=menu.highcontrast.pak
+themeimages=highcontrast.pak
