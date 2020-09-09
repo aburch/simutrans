@@ -1,7 +1,7 @@
 # Default simutrans theme
 #
 # name of the theme (will be shown with file selector)
-name=Simutrans (large size)
+name=Simutrans classic (large size)
 
 # show tooltips (default 1=show)
 show_tooltips = 1
@@ -36,6 +36,20 @@ icon_width = 48
 # use the larger Button height
 gui_button_height = 22
 
+# arrows and scrollbars
+gui_horizontal_arrow_height = 22
+gui_horizontal_arrow_width = 22
+gui_vertical_arrow_height = 22
+gui_vertical_arrow_width = 22
+gui_scrollbar_width = 22
+gui_scrollbar_height = 22
+
+# and a matching edit field height
+gui_edit_height = 22
+
+# request larger font size (the resulting spacing is about 15% larger due to decent)
+font_size = 16
+
 ##################################window stuff##################################
 
 # when moving, you can use windows to snap onto each other seamlessly
@@ -43,19 +57,17 @@ gui_button_height = 22
 window_snap_distance = 8
 
 # show the windows close etc. buttons on the right (like windows 98)
-# Should be rather a user setting, if the theme does not absolutely require it
-#window_buttons_right = 0
+window_buttons_right = 0
 
 # closes windows/toolbar when button clicked a second time (default off=0)
-# Should be rather a user setting, if the theme does not absolutely require it
-#second_open_closes_win = 0
+second_open_closes_win = 0
 
 # restores window position when window is reopening
 # This will be saved, but will be discarded when screen is resized
 remember_window_positions = 1
 
 # color used for the default titlebars
-#default_window_title_color = 154
+default_window_title_color = #D74700
 
 # there are three different ways to indicate an active window
 
@@ -67,8 +79,8 @@ remember_window_positions = 1
 
 # third (best together with 2nd):use different text color for bar
 # some colors are 215-white, 240-black 208-214- all shades of gray
-#front_window_text_color = #FFFFFF
-#bottom_window_text_color = #DDDDDD
+front_window_text_color = #FFFFFF
+bottom_window_text_color = #DDDDDD
 
 # How much shade for player colors (7 brightest 0 darkest)
 gui_player_color_bright = 4
@@ -85,4 +97,4 @@ toolbar_max_height = 0
 ##################################pakstuff##################################
 
 # pak with the images for this theme
-themeimages=menu.standard.pak
+themeimages=classic.pak
