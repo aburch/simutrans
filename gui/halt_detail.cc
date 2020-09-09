@@ -42,8 +42,8 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	scrolly_goods(&cont_goods),
 	pas(halt_),
 	goods(halt_),
-	nearby_factory(halt_),
 	txt_info(&buf),
+	nearby_factory(halt_),
 	line_number(halt_)
 {
 	if (halt.is_bound()) {
