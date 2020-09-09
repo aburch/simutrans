@@ -69,25 +69,29 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 	set_alignment(ALIGN_TOP);
 
 	// first column
-	add_table(2,0);
+	add_table(1,0);
 	{
 		// name filter
-		add_component(filter_buttons + 0, 2);
+		add_component(filter_buttons + 0);
 
 		name_filter_input.set_text(main_frame->access_name_filter(), 30);
 		name_filter_input.add_listener(this);
-		add_component(&name_filter_input, 2);
+		add_component(&name_filter_input);
 
-		// type and special buttons
-		for(  int i=3;  i<FILTER_BUTTONS;  i++  ) {
-			if (i==3 || i==13) {
-				add_component(filter_buttons + i, 2);
-			}
-			else {
-				new_component<gui_empty_t>();
-				add_component(filter_buttons + i);
+		add_table(2, 0);
+		{
+			// type and special buttons
+			for(  int i=3;  i<FILTER_BUTTONS;  i++  ) {
+				if (i==3 || i==13) {
+					add_component(filter_buttons + i, 2);
+				}
+				else {
+					new_component<gui_margin_t>(D_CHECKBOX_WIDTH);
+					add_component(filter_buttons + i);
+				}
 			}
 		}
+		end_table();
 	}
 	end_table();
 
@@ -98,12 +102,15 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 		add_table(3,0);
 		{
 			ware_alle_an.init(button_t::roundbox, "hlf_btn_alle");
+			ware_alle_an.set_size(scr_size(D_BUTTON_WIDTH * 3/5, D_BUTTON_HEIGHT));
 			ware_alle_an.add_listener(this);
 			add_component(&ware_alle_an);
 			ware_keine_an.init(button_t::roundbox, "hlf_btn_keine");
+			ware_keine_an.set_size(scr_size(D_BUTTON_WIDTH * 3/5, D_BUTTON_HEIGHT));
 			ware_keine_an.add_listener(this);
 			add_component(&ware_keine_an);
 			ware_invers_an.init(button_t::roundbox, "hlf_btn_invers");
+			ware_invers_an.set_size(scr_size(D_BUTTON_WIDTH * 3/5, D_BUTTON_HEIGHT));
 			ware_invers_an.add_listener(this);
 			add_component(&ware_invers_an);
 		}
@@ -112,12 +119,14 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 		ware_scrolly_an.set_scroll_amount_y(D_BUTTON_HEIGHT);
 		add_component(&ware_scrolly_an);
 
-		ware_cont_an.set_table_layout(1,0);
+		ware_cont_an.set_table_layout(3,0);
 		for(  int i=0;  i<goods_manager_t::get_count();  i++  ) {
 			const goods_desc_t *ware = goods_manager_t::get_info(i);
 			if(  ware != goods_manager_t::none  ) {
+				ware_cont_an.new_component<gui_colorbox_t>()->init(ware->get_color(),scr_size(LINESPACE/2, LINESPACE/2),true);
 				ware_item_t *item = ware_cont_an.new_component<ware_item_t>(this, (const goods_desc_t*)NULL, ware);
 				item->init(button_t::square, translator::translate(ware->get_name()));
+				ware_cont_an.new_component<gui_fill_t>();
 			}
 		}
 	}
@@ -130,12 +139,15 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 		add_table(3,0);
 		{
 			ware_alle_ab.init(button_t::roundbox, "hlf_btn_alle");
+			ware_alle_ab.set_size(scr_size(D_BUTTON_WIDTH * 3/5, D_BUTTON_HEIGHT));
 			ware_alle_ab.add_listener(this);
 			add_component(&ware_alle_ab);
 			ware_keine_ab.init(button_t::roundbox, "hlf_btn_keine");
+			ware_keine_ab.set_size(scr_size(D_BUTTON_WIDTH * 3/5, D_BUTTON_HEIGHT));
 			ware_keine_ab.add_listener(this);
 			add_component(&ware_keine_ab);
 			ware_invers_ab.init(button_t::roundbox, "hlf_btn_invers");
+			ware_invers_ab.set_size(scr_size(D_BUTTON_WIDTH * 3/5, D_BUTTON_HEIGHT));
 			ware_invers_ab.add_listener(this);
 			add_component(&ware_invers_ab);
 		}
@@ -144,12 +156,14 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 		ware_scrolly_ab.set_scroll_amount_y(D_BUTTON_HEIGHT);
 		add_component(&ware_scrolly_ab);
 
-		ware_cont_ab.set_table_layout(1,0);
+		ware_cont_ab.set_table_layout(3,0);
 		for(  int i=0;  i<goods_manager_t::get_count();  i++  ) {
 			const goods_desc_t *ware = goods_manager_t::get_info(i);
 			if(  ware != goods_manager_t::none  ) {
+				ware_cont_ab.new_component<gui_colorbox_t>()->init(ware->get_color(), scr_size(LINESPACE/2, LINESPACE/2), true);
 				ware_item_t *item = ware_cont_ab.new_component<ware_item_t>(this, ware, (const goods_desc_t*)NULL);
 				item->init(button_t::square, translator::translate(ware->get_name()));
+				ware_cont_ab.new_component<gui_fill_t>();
 			}
 		}
 	}
