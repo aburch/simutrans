@@ -36,6 +36,12 @@ icon_width = 48
 # use the larger Button height
 gui_button_height = 22
 
+# titlebar height
+gui_titlebar_height = 22
+
+# width of the window elements
+gui_gadget_width = 22
+
 # arrows and scrollbars
 gui_horizontal_arrow_height = 22
 gui_horizontal_arrow_width = 22
