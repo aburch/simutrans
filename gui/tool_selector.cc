@@ -57,8 +57,8 @@ void tool_selector_t::add_tool_selector(tool_t *tool_in)
 	tool_icon_width = tools.get_count();
 DBG_DEBUG4("tool_selector_t::add_tool()","ww=%i, tool_icon_width=%i",ww,tool_icon_width);
 	if(  allow_break  &&  (ww<tool_icon_width  
-		||  (env_t::toolbar_max_width>0  &&  env_t::toolbar_max_width<tool_icon_width)  
-		||  (env_t::toolbar_max_width<0  &&  (ww+env_t::toolbar_max_width)<tool_icon_width))  
+		||  (env_t::toolbar_max_width>0  &&  env_t::toolbar_max_width<tool_icon_width)
+		||  (env_t::toolbar_max_width<0  &&  (ww+env_t::toolbar_max_width)<tool_icon_width))
 		) {
 		//break them
 		int rows = (tool_icon_width/ww)+1;
@@ -238,8 +238,9 @@ bool tool_selector_t::infowin_event(const event_t *ev)
 
 void tool_selector_t::draw(scr_coord pos, scr_size sz)
 {
+	CLIP_NUM_PDECL CLIP_NUM_VAR CLIP_NUM_DEFAULT_ZERO;
 	player_t *player = welt->get_active_player();
-	display_push_clip_wh( pos.x, pos.y+D_TITLEBAR_HEIGHT, sz.w, sz.h, 0 );
+	display_push_clip_wh( pos.x, pos.y+D_TITLEBAR_HEIGHT, sz.w, sz.h CLIP_NUM_PAR );
 
 	if( toolbar_id == 0 ) {
 		// sanity checks for main menu
@@ -281,7 +282,8 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 			tools[i].selected = tools[i].tool->is_selected();
 		}
 	}
-	display_pop_clip_wh( 0 );
+	display_pop_clip_wh(CLIP_NUM_VAR);
+
 	if( is_dragging ) {
 		mark_rect_dirty_wc(pos.x, pos.y+D_TITLEBAR_HEIGHT, pos.x+sz.w, pos.y+sz.h+D_TITLEBAR_HEIGHT );
 	}
