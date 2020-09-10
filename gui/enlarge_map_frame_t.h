@@ -54,8 +54,6 @@ private:
 		start_button;
 
 	gui_label_buf_t
-		//big_cities_label,
-		//clusters_label,
 		info_x_size,
 		info_y_size,
 		cluster_size_label,
