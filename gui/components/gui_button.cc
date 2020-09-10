@@ -64,6 +64,9 @@ void button_t::init(enum type type_par, const char *text_par, scr_coord pos_par,
 	if(  size_par != scr_size::invalid  ) {
 		set_size(size_par);
 	}
+	else if (size_par == scr_size::invalid && type_par & roundbox && !(type_par & flexible) ) {
+		set_size(D_BUTTON_SIZE);
+	}
 }
 
 
@@ -113,7 +116,7 @@ void button_t::set_typ(enum type t)
 			// fallthrough
 
 		case roundbox:
-			set_size( scr_size(gui_theme_t::gui_button_size.w, max(D_BUTTON_HEIGHT,LINESPACE)) );
+			set_size( scr_size(get_size().w, max(D_BUTTON_HEIGHT, LINESPACE)));
 			break;
 
 		default:
@@ -164,7 +167,8 @@ scr_size button_t::get_min_size() const
 		case box:
 		case roundbox: {
 			scr_coord_val w = translated_text ?  2*D_H_SPACE + proportional_string_width( translated_text ) : 0;
-			scr_size size(get_size().w, max(D_BUTTON_HEIGHT,LINESPACE));
+			scr_size size = type & flexible ?
+				scr_size(gui_theme_t::gui_button_size.w, max(D_BUTTON_HEIGHT, LINESPACE)) : scr_size (get_size().w, max(D_BUTTON_HEIGHT,LINESPACE));
 			size.w = max(size.w, w);
 			return size;
 		}
