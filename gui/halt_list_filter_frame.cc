@@ -65,54 +65,57 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 		}
 	}
 
-	set_table_layout(3,0);
-	set_alignment(ALIGN_TOP);
+	set_table_layout( 1, 0 );
+
+	tabs.add_tab( &name_filter, translator::translate( filter_buttons_text[0] ) );
+	tabs.add_tab( &accepts_filter, translator::translate( filter_buttons_text[1] ) );
+	tabs.add_tab( &sends_filter, translator::translate( filter_buttons_text[2] ) );
+	add_component( &tabs );
 
 	// first column
-	add_table(2,0);
+	name_filter.set_table_layout(2,0);
 	{
 		// name filter
-		add_component(filter_buttons + 0, 2);
+		name_filter.add_component(filter_buttons + 0, 2);
 
 		name_filter_input.set_text(main_frame->access_name_filter(), 30);
 		name_filter_input.add_listener(this);
-		add_component(&name_filter_input, 2);
+		name_filter.add_component(&name_filter_input, 2);
 
 		// type and special buttons
 		for(  int i=3;  i<FILTER_BUTTONS;  i++  ) {
 			if (i==3 || i==13) {
-				add_component(filter_buttons + i, 2);
+				name_filter.add_component(filter_buttons + i, 2);
 			}
 			else {
-				new_component<gui_empty_t>();
-				add_component(filter_buttons + i);
+				name_filter.new_component<gui_empty_t>();
+				name_filter.add_component(filter_buttons + i);
 			}
 		}
 	}
-	end_table();
 
 	// second columns: accepted cargo types
-	add_table(1,0);
+	accepts_filter.set_table_layout(1,0);
 	{
-		add_component(filter_buttons + 1);
-		add_table(3,0);
+		accepts_filter.add_component(filter_buttons + 1);
+		accepts_filter.add_table(3,0);
 		{
 			ware_alle_an.init(button_t::roundbox, "hlf_btn_alle");
 			ware_alle_an.add_listener(this);
-			add_component(&ware_alle_an);
+			accepts_filter.add_component(&ware_alle_an);
 			ware_keine_an.init(button_t::roundbox, "hlf_btn_keine");
 			ware_keine_an.add_listener(this);
-			add_component(&ware_keine_an);
+			accepts_filter.add_component(&ware_keine_an);
 			ware_invers_an.init(button_t::roundbox, "hlf_btn_invers");
 			ware_invers_an.add_listener(this);
-			add_component(&ware_invers_an);
+			accepts_filter.add_component(&ware_invers_an);
 		}
-		end_table();
+		accepts_filter.end_table();
 
 		ware_scrolly_an.set_scroll_amount_y(D_BUTTON_HEIGHT);
-		add_component(&ware_scrolly_an);
+		accepts_filter.add_component(&ware_scrolly_an);
 
-		ware_cont_an.set_table_layout(1,0);
+		ware_cont_an.set_table_layout(2,0);
 		for(  int i=0;  i<goods_manager_t::get_count();  i++  ) {
 			const goods_desc_t *ware = goods_manager_t::get_info(i);
 			if(  ware != goods_manager_t::none  ) {
@@ -121,30 +124,29 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 			}
 		}
 	}
-	end_table();
 
 	// second columns: outgoing cargo types
-	add_table(1,0);
+	sends_filter.set_table_layout(1,0);
 	{
-		add_component(filter_buttons + 2);
-		add_table(3,0);
+		sends_filter.add_component(filter_buttons + 2);
+		sends_filter.add_table(3,0);
 		{
 			ware_alle_ab.init(button_t::roundbox, "hlf_btn_alle");
 			ware_alle_ab.add_listener(this);
-			add_component(&ware_alle_ab);
+			sends_filter.add_component(&ware_alle_ab);
 			ware_keine_ab.init(button_t::roundbox, "hlf_btn_keine");
 			ware_keine_ab.add_listener(this);
-			add_component(&ware_keine_ab);
+			sends_filter.add_component(&ware_keine_ab);
 			ware_invers_ab.init(button_t::roundbox, "hlf_btn_invers");
 			ware_invers_ab.add_listener(this);
-			add_component(&ware_invers_ab);
+			sends_filter.add_component(&ware_invers_ab);
 		}
-		end_table();
+		sends_filter.end_table();
 
 		ware_scrolly_ab.set_scroll_amount_y(D_BUTTON_HEIGHT);
-		add_component(&ware_scrolly_ab);
+		sends_filter.add_component(&ware_scrolly_ab);
 
-		ware_cont_ab.set_table_layout(1,0);
+		ware_cont_ab.set_table_layout(2,0);
 		for(  int i=0;  i<goods_manager_t::get_count();  i++  ) {
 			const goods_desc_t *ware = goods_manager_t::get_info(i);
 			if(  ware != goods_manager_t::none  ) {
@@ -153,7 +155,6 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 			}
 		}
 	}
-	end_table();
 
 	set_resizemode(diagonal_resize);
 	reset_min_windowsize();
