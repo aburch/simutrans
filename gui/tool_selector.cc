@@ -245,6 +245,7 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 		// sanity checks for main menu
 		tool_icon_width = (display_get_width() + env_t::iconsize.w - 1) / env_t::iconsize.w;
 		allow_break = false;
+		tool_icon_height = 1; // only single row for title bar
 		has_prev_next = tool_icon_width < tools.get_count();
 		if( tool_icon_disp_start > tool_icon_disp_end ) {
 			tool_icon_disp_start = 0;
