@@ -955,7 +955,7 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 	const sint32 city_population_target_count = stadt.empty() ? new_city_count : new_city_count + stadt.get_count() + 1;
 
 	vector_tpl<sint32> city_population(city_population_target_count);
-	sint32 median_population = abs(sets->get_mean_einwohnerzahl());
+	sint32 median_population = abs(sets->get_mean_citizen_count());
 
 	const uint32 max_city_size = sets->get_max_city_size();
 	const uint32 max_small_city_size = max(sets->get_max_small_city_size(), median_population / 2);

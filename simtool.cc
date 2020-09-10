@@ -1871,7 +1871,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 				// buildings the game crashes. To avoid this problem cities
 				// always belong to player 1
 
-				int const citizens = (int)(welt->get_settings().get_mean_einwohnerzahl() * 0.9);
+				int const citizens = (int)(welt->get_settings().get_mean_citizen_count() * 0.9);
 				//  stadt_t *stadt = new stadt_t(welt->get_public_player();, pos,citizens/10+simrand(2*citizens+1));
 
 				// always start with 1/10 citizens
