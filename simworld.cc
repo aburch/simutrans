@@ -3339,6 +3339,8 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	delete [] water_hgts;
 	water_hgts = rotate90_new_water;
 
+	climate_map.rotate90();
+
 	// rotate heightmap
 	sint8 *new_hgts = new sint8[(cached_grid_size.x+1)*(cached_grid_size.y+1)];
 	const int LOOP_BLOCK = 64;
