@@ -11,6 +11,8 @@
 #include "../../simevent.h"
 #include "../../display/simgraph.h"
 
+#include "../gui_theme.h"
+
 struct event_t;
 class karte_ptr_t;
 
@@ -270,6 +272,23 @@ public:
 
 	scr_size get_max_size() const OVERRIDE { return scr_size( fill_x ? scr_size::inf.w : 0, fill_y ? scr_size::inf.h : 0);  }
 };
+
+/**
+ * Class for an empty element with a fixed size.
+ */
+class gui_margin_t : public gui_component_t
+{
+	uint16 height;
+	uint16 width;
+public:
+	gui_margin_t(uint margin_x = D_H_SPACE, uint margin_y = D_V_SPACE) : width(margin_x), height(margin_y) {}
+
+	void draw(scr_coord) { }
+
+	scr_size get_min_size() const OVERRIDE { return scr_size(width, height); }
+	scr_size get_max_size() const OVERRIDE { return scr_size(width, height); }
+};
+
 
 
 #endif
