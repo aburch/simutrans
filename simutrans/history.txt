@@ -604,6 +604,7 @@ Release of 102.2.1 (r2928)
 	FIX: withdraw all with convois in depot causes crash (and maybe also not withdraw all)
 	FIX: several issues with tram signals
 	CHANGE: info windows now open less important first resp. for single window topmost object first (usually most important)
+	ADD: toolbar, which did not fit their space can be scrolled (either manu menu or when toolbar_max_height = 1)
 
 
 
