@@ -77,8 +77,6 @@ private:
 		inp_intro_date;
 
 	gui_label_buf_t
-		lbl_x_size,
-		lbl_y_size,
 		info_x_size,
 		info_y_size,
 		size_label;

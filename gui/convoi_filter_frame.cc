@@ -95,6 +95,10 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 			// type and special buttons
 			for(  int i=2;  i<FILTER_BUTTONS;  i++  ) {
 				if (i==2 || i==11) {
+					if (i==11) {
+						new_component<gui_margin_t>();
+						new_component<gui_empty_t>();
+					}
 					add_component(filter_buttons + i, 2);
 				}
 				else {

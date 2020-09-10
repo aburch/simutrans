@@ -83,6 +83,10 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 			// type and special buttons
 			for(  int i=3;  i<FILTER_BUTTONS;  i++  ) {
 				if (i==3 || i==13) {
+					if (i==13) {
+						new_component<gui_margin_t>();
+						new_component<gui_empty_t>();
+					}
 					add_component(filter_buttons + i, 2);
 				}
 				else {
