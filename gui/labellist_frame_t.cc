@@ -7,28 +7,10 @@
 #include "labellist_stats_t.h"
 
 #include "../dataobj/translator.h"
-#include "../simcolor.h"
+#include "../obj/label.h"
+#include "../simworld.h"
 
-
-/**
- * This variable defines the sort order (ascending or descending)
- * Values: 1 = ascending, 2 = descending)
- * @author Markus Weber
- */
-bool labellist_frame_t::sortreverse = false;
-bool labellist_frame_t::filter_state = true;
-
-/**
- * This variable defines by which column the table is sorted
- * Values: 0 = label name
- *         1 = label koord
- *         2 = label owner
- * @author Markus Weber
- */
-labellist::sort_mode_t labellist_frame_t::sortby = labellist::by_name;
-static uint8 default_sortmode = 0;
-
-const char *labellist_frame_t::sort_text[labellist::SORT_MODES] = {
+static const char *sort_text[labellist::SORT_MODES] = {
 	"hl_btn_sort_name",
 	"koord",
 	"player"
@@ -36,57 +18,67 @@ const char *labellist_frame_t::sort_text[labellist::SORT_MODES] = {
 
 labellist_frame_t::labellist_frame_t() :
 	gui_frame_t( translator::translate("labellist_title") ),
-	sort_label(translator::translate("hl_txt_sort")),
-	stats(sortby,sortreverse,filter_state),
-	scrolly(&stats)
+	scrolly(gui_scrolled_list_t::windowskin, labellist_stats_t::compare)
 {
-	sort_label.set_pos(scr_coord(BUTTON1_X, 2));
-	add_component(&sort_label);
+	set_table_layout(1,0);
+	new_component<gui_label_t>("hl_txt_sort");
 
-	sortedby.set_pos(scr_coord(BUTTON1_X, 14));
-	sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
-	sortedby.set_max_size(scr_size(D_BUTTON_HEIGHT, LINESPACE * 4));
+	add_table(4,1);
+	{
+		sortedby.init(button_t::roundbox, sort_text[labellist_stats_t::sortby]);
+		sortedby.add_listener(this);
+		add_component(&sortedby);
 
-	for (int i = 0; i < labellist::SORT_MODES; i++) {
-		sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
+		// sort ascend/descend button
+		add_table(3, 1);
+		{
+			sort_asc.init(button_t::arrowup_state, "");
+			sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
+			sort_asc.add_listener(this);
+			sort_asc.pressed = labellist_stats_t::sortreverse;
+			add_component(&sort_asc);
+
+			sort_desc.init(button_t::arrowdown_state, "");
+			sort_desc.set_tooltip(translator::translate("hl_btn_sort_desc"));
+			sort_desc.add_listener(this);
+			sort_desc.pressed = !labellist_stats_t::sortreverse;
+			add_component(&sort_desc);
+			new_component<gui_margin_t>(10);
+		}
+		end_table();
+		new_component<gui_empty_t>();
+
+		filter.init( button_t::square_automatic, "Active player only");
+		filter.pressed = labellist_stats_t::filter;
+		add_component(&filter);
+		filter.add_listener( this );
 	}
-	sortedby.set_selection(default_sortmode);
+	end_table();
 
-	sortedby.add_listener(this);
-	add_component(&sortedby);
-
-	// sort ascend/descend button
-	sort_asc.init(button_t::arrowup_state, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH * 1.5 + D_H_SPACE, 14+1), scr_size(D_ARROW_UP_WIDTH, D_ARROW_UP_HEIGHT));
-	sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
-	sort_asc.add_listener(this);
-	sort_asc.pressed = sortreverse;
-	add_component(&sort_asc);
-
-	sort_desc.init(button_t::arrowdown_state, "", sort_asc.get_pos() + scr_coord(D_ARROW_UP_WIDTH + 2, 0), scr_size(D_ARROW_DOWN_WIDTH, D_ARROW_DOWN_HEIGHT));
-	sort_desc.set_tooltip(translator::translate("hl_btn_sort_desc"));
-	sort_desc.add_listener(this);
-	sort_desc.pressed = !sortreverse;
-	add_component(&sort_desc);
-
-	filter.init( button_t::square_state, "Active player only", scr_coord(BUTTON2_X + D_BUTTON_WIDTH*1.5+10,14+1) );
-	filter.pressed = filter_state;
-	add_component(&filter);
-	filter.add_listener( this );
-
-	scrolly.set_pos(scr_coord(0,14+D_BUTTON_HEIGHT+2));
-	scrolly.set_show_scroll_x(true);
-	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_component(&scrolly);
 
-	display_list();
+	fill_list();
 
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+18*(LINESPACE+1)+14+D_BUTTON_HEIGHT+2+1));
-	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+4*(LINESPACE+1)+14+D_BUTTON_HEIGHT+2+1));
-
+	reset_min_windowsize();
 	set_resizemode(diagonal_resize);
-	resize(scr_coord(0,0));
 }
 
+
+void labellist_frame_t::fill_list()
+{
+	scrolly.clear_elements();
+	FOR(slist_tpl<koord>, const& pos, welt->get_label_list()) {
+		label_t* label = welt->lookup_kartenboden(pos)->find<label_t>();
+		const char* name = welt->lookup_kartenboden(pos)->get_text();
+		// some old version games don't have label nor name.
+		// Check them to avoid crashes.
+		if(label  &&  name  &&  (!labellist_stats_t::filter  ||  (label  &&  (label->get_owner() == welt->get_active_player())))) {
+			scrolly.new_component<labellist_stats_t>(pos);
+		}
+	}
+	scrolly.sort(0);
+	reset_min_windowsize();
+}
 
 
 /**
@@ -96,56 +88,29 @@ labellist_frame_t::labellist_frame_t() :
 bool labellist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if(comp == &sortedby) {
-		int tmp = sortedby.get_selection();
-		if (tmp >= 0 && tmp < sortedby.count_elements())
-		{
-			sortedby.set_selection(tmp);
-			set_sortierung((labellist::sort_mode_t)tmp);
-		}
-		else {
-			sortedby.set_selection(0);
-			set_sortierung(labellist::by_name);
-		}
-		default_sortmode = (uint8)tmp;
-		display_list();
+		labellist_stats_t::sortby = (labellist::sort_mode_t)( (labellist_stats_t::sortby + 1) % labellist::SORT_MODES);
+		sortedby.set_text(sort_text[labellist_stats_t::sortby]);
+		scrolly.sort(0);
 	}
-	else if(comp == &sort_asc || comp == &sort_desc) {
-		set_reverse(!get_reverse());
-		display_list();
-		sort_asc.pressed = sortreverse;
-		sort_desc.pressed = !sortreverse;
+	else if (comp == &sort_asc || comp == &sort_desc) {
+		labellist_stats_t::sortreverse = !labellist_stats_t::sortreverse;
+		scrolly.sort(0);
+		sort_asc.pressed = labellist_stats_t::sortreverse;
+		sort_desc.pressed = !labellist_stats_t::sortreverse;
 	}
 	else if (comp == &filter) {
-		filter_state ^= 1;
-		filter.pressed = filter_state;
-		display_list();
+		labellist_stats_t::filter = !labellist_stats_t::filter;
+		fill_list();
 	}
 	return true;
 }
 
 
-
-/**
- * resize window in response to a resize event
- * @author Hj. Malthaner
- * @date   16-Oct-2003
- */
-void labellist_frame_t::resize(const scr_coord delta)
+void labellist_frame_t::draw(scr_coord pos, scr_size size)
 {
-	gui_frame_t::resize(delta);
-	scr_size size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT+14+D_BUTTON_HEIGHT+2+1);
-	scrolly.set_size(size);
-	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, scrolly.get_size().h));
-}
+	if(  welt->get_label_list().get_count() != (uint32)scrolly.get_count()  ) {
+		fill_list();
+	}
 
-
-
-/**
-* This function refreshes the label list
-* @author Markus Weber/Volker Meyer
-*/
-void labellist_frame_t::display_list()
-{
-	stats.get_unique_labels(sortby, sortreverse, filter_state);
-	stats.recalc_size();
+	gui_frame_t::draw(pos, size);
 }
