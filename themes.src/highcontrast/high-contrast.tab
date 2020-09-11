@@ -4,7 +4,7 @@
 # https://wiki.simutrans.com/en_themeDef
 #
 # name of the theme (will be shown with file selector)
-name=High Contrast (standard size)
+name=High Contrast
 
 # show tooltips (default 1=show)
 show_tooltips = 1
