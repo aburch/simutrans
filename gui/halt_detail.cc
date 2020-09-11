@@ -287,7 +287,7 @@ void halt_detail_t::halt_detail_info()
 				// Line buttons only if owner ...
 				if (welt->get_active_player() == halt->registered_lines[i]->get_owner()) {
 					button_t *b = new button_t();
-					b->init(button_t::posbutton, NULL, scr_coord(offset_x, offset_y));
+					b->init(button_t::posbutton, NULL, scr_coord(offset_x, offset_y), scr_size(D_POS_BUTTON_SIZE) );
 					b->set_targetpos(koord(-1, i));
 					b->add_listener(this);
 					linebuttons.append(b);
@@ -325,7 +325,7 @@ void halt_detail_t::halt_detail_info()
 		for(  uint32 i=0;  i<halt->registered_convoys.get_count();  ++i  ) {
 			// Convoy buttons
 			button_t *b = new button_t();
-			b->init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y) );
+			b->init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y), scr_size(D_POS_BUTTON_SIZE) );
 			b->set_targetpos( koord(-2, i) );
 			b->add_listener( this );
 			convoybuttons.append( b );
@@ -409,7 +409,7 @@ void halt_detail_t::halt_detail_info()
 
 					// target button ...
 					button_t *pb = new button_t();
-					pb->init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y) );
+					pb->init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y), scr_size(D_POS_BUTTON_SIZE) );
 					pb->set_targetpos( a_halt->get_basis_pos() );
 					pb->add_listener( this );
 					posbuttons.append( pb );
