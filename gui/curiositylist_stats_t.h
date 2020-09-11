@@ -7,9 +7,10 @@
 #define GUI_CURIOSITYLIST_STATS_T_H
 
 
-#include "../tpl/vector_tpl.h"
-#include "components/gui_component.h"
-#include "components/gui_button.h"
+#include "components/gui_aligned_container.h"
+#include "components/gui_colorbox.h"
+#include "components/gui_scrolled_list.h"
+#include "components/gui_image.h"
 
 class gebaeude_t;
 
@@ -21,28 +22,27 @@ namespace curiositylist {
  * Where curiosity (attractions) stats are calculated for list dialog
  * @author Hj. Malthaner
  */
-class curiositylist_stats_t : public gui_world_component_t
+class curiositylist_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:
-	vector_tpl<gebaeude_t*> attractions;
-	uint32 line_selected;
+	gebaeude_t* attraction;
 
-	uint32 last_world_curiosities;
-	curiositylist::sort_mode_t sortby;
-	bool sortreverse;
-	bool filter_own_network;
+	enum { no_networks = 0, someones_network = 1, own_network = 2 };
 
 public:
-	curiositylist_stats_t(curiositylist::sort_mode_t sortby, bool sortreverse, bool own_network);
+	static curiositylist::sort_mode_t sortby;
+	static bool sortreverse;
+	static bool filter_own_network;
+	static bool compare(const gui_component_t *a, const gui_component_t *b);
 
-	void get_unique_attractions(curiositylist::sort_mode_t sortby, bool reverse, bool own_network);
+	curiositylist_stats_t(gebaeude_t *att);
+
+	gui_image_t img_enabled[4];
+
+	char const* get_text() const OVERRIDE;
+	virtual bool is_valid() const OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
-
-	/**
-	 * Recalc the size required to display everything and set size (size).
-	 */
-	void recalc_size();
 
 	/**
 	* Draw the component
