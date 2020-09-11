@@ -67,17 +67,17 @@ ki_kontroll_t::ki_kontroll_t() :
 		// activate player buttons
 		// .. not available for the two first players (first human and second public)
 		// NOTE: AI feature is disabled as it currently does not work in Extended
-		//if(  i >= 2  ) {
-		//	// AI button (small square)
-		//	player_active[i-2].init(button_t::square_state, "");
-		//	player_active[i-2].add_listener(this);
-		//	player_active[i-2].set_rigid(true);
-		//	player_active[i-2].set_visible(player_  &&  player_->get_ai_id()!=player_t::HUMAN  &&  player_tools_allowed);
-		//	add_component( player_active+i-2 );
-		//}
-		//else {
+		if(  i >= 2  ) {
+			// AI button (small square)
+			player_active[i-2].init(button_t::square_state, "");
+			player_active[i-2].add_listener(this);
+			player_active[i-2].set_rigid(true);
+			player_active[i-2].set_visible(player  &&  player->get_ai_id()!=player_t::HUMAN  &&  player_tools_allowed);
+			add_component( player_active+i-2 );
+		}
+		else {
 			new_component<gui_empty_t>();
-		//}
+		}
 
 		// Player select button (arrow)
 		player_change_to[i].init(button_t::arrowright_state, "");
@@ -86,7 +86,7 @@ ki_kontroll_t::ki_kontroll_t() :
 		add_component(player_change_to+i);
 
 		// Allow player change to human and public only (no AI)
-		//player_change_to[i].set_visible(player  &&  player_change_allowed);
+		player_change_to[i].set_visible(player  &&  player_change_allowed);
 
 		// Prepare finances button
 		player_get_finances[i].init( button_t::box | button_t::flexible, "");
@@ -151,7 +151,7 @@ ki_kontroll_t::ki_kontroll_t() :
 		access_out[i].set_tooltip(tooltip_out[i]);
 		add_component( access_out+i );
 		access_out[i].add_listener(this);
-		cursor.x += D_CHECKBOX_WIDTH + 20 + D_H_SPACE;
+
 		access_in[i].init(button_t::square_state, "", cursor);
 		access_in[i].pressed = player && player->allows_access_to(current_player->get_player_nr());
 		if(access_in[i].pressed && player)
@@ -254,7 +254,6 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 
 	// Check the GUI list of buttons
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
-		/*
 		if(i>=2  &&  comp==(player_active+i-2)) {
 			// switch AI on/off
 			if(  welt->get_player(i)==NULL  ) {
@@ -263,10 +262,10 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 				player_lock[i]->enable( welt->get_player(i) );
 
 				// if scripted ai without script -> open script selector window
-				ai_scripted_t *ai = dynamic_cast<ai_scripted_t*>(welt->get_player(i));
-				if (ai  &&  !ai->has_script()) {
-					create_win( new ai_selector_t(i), w_info, magic_finances_t + i );
-				}
+				//ai_scripted_t *ai = dynamic_cast<ai_scripted_t*>(welt->get_player(i));
+				//if (ai  &&  !ai->has_script()) {
+				//	create_win( new ai_selector_t(i), w_info, magic_finances_t + i );
+				//}
 			}
 			else {
 				// Current AI on/off
@@ -275,7 +274,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 				welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_PLAYER], welt->get_active_player() );
 			}
 			break;
-		}*/
+		}
 
 		// Finance button pressed
 		if(comp==(player_get_finances+i)) {
