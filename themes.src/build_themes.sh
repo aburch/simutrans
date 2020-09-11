@@ -9,10 +9,16 @@
 
 cd aero
 rm -rf *.pak
-# Aero is somewhat broken, pelase fix!
+# Aero is somewhat broken, please fix!
 #../makeobj pak aerotheme.pak skins_aero.dat
 #mv *.pak ../../simutrans/themes
 #cp *.tab ../../simutrans/themes
+
+cd ../flat
+rm -rf *.pak
+../makeobj pak flat.pak flat-skin.dat
+mv *.pak ../../simutrans/themes
+cp *.tab ../../simutrans/themes
 
 cd ../standard
 rm -rf *.pak
