@@ -62,7 +62,7 @@ bool world_remove_player(karte_t *welt, player_t *player)
 // returns index of attraction base tile with index > start
 uint32 get_next_attraction_base(uint32 start)
 {
-	const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_ausflugsziele();
+	const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_attractions();
 	for(uint32 i = start+1; i < attractions.get_count(); i++) {
 		gebaeude_t *gb = attractions[i];
 		if (gb != NULL  &&  gb->get_first_tile() == gb) {
@@ -75,7 +75,7 @@ uint32 get_next_attraction_base(uint32 start)
 
 SQInteger world_attraction_list_next(HSQUIRRELVM vm)
 {
-	return generic_get_next_f(vm, welt->get_ausflugsziele().get_count(), get_next_attraction_base);
+	return generic_get_next_f(vm, welt->get_attractions().get_count(), get_next_attraction_base);
 }
 
 namespace script_api {
@@ -84,7 +84,7 @@ namespace script_api {
 
 gebaeude_t* world_attraction_list_get(attraction_list_t, uint32 index)
 {
-	const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_ausflugsziele();
+	const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_attractions();
 	return (index < attractions.get_count())  ?  attractions[index]  :  NULL;
 }
 

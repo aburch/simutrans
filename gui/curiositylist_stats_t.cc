@@ -137,7 +137,7 @@ const char* curiositylist_stats_t::get_text() const
 
 bool curiositylist_stats_t::is_valid() const
 {
-	return world()->get_ausflugsziele().is_contained(attraction);
+	return world()->get_attractions().is_contained(attraction);
 }
 
 

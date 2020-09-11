@@ -1204,7 +1204,7 @@ void reliefkarte_t::calc_map()
 	// since we do iterate the tourist info list, this must be done here
 	// find tourist spots
 	if(mode==MAP_TOURIST) {
-		const weighted_vector_tpl<gebaeude_t *> &world_attractions = welt->get_ausflugsziele();
+		const weighted_vector_tpl<gebaeude_t *> &world_attractions = welt->get_attractions();
 		// find the current maximum
 		max_tourist_ziele = 1;
 		FOR(weighted_vector_tpl<gebaeude_t*>, const i, world_attractions) {
@@ -1873,7 +1873,7 @@ void reliefkarte_t::draw(scr_coord pos)
 	// since we do iterate the tourist info list, this must be done here
 	// find tourist spots
 	if(  mode & MAP_TOURIST  ) {
-		FOR(  weighted_vector_tpl<gebaeude_t*>, const gb, welt->get_ausflugsziele()  ) {
+		FOR(  weighted_vector_tpl<gebaeude_t*>, const gb, welt->get_attractions()  ) {
 			if(  gb->get_first_tile() == gb  ) {
 				scr_coord gb_pos = karte_to_screen( gb->get_pos().get_2d() );
 				gb_pos = gb_pos + pos;

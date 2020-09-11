@@ -1004,7 +1004,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using place (%i,%i) for start",
 			if(count==1  ||  simrand(3, "ai_passenger_t::step()")==0) {
 DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 				// 25 % of all connections are tourist attractions
-				const weighted_vector_tpl<gebaeude_t*> &world_attractions = welt->get_ausflugsziele();
+				const weighted_vector_tpl<gebaeude_t*> &world_attractions = welt->get_attractions();
 				// this way, we are sure, our factory is connected to this town ...
 				unsigned	last_dist = 0xFFFFFFFF;
 				bool ausflug=simrand(2, "ai_passenger_t::step()")!=0;	// holidays first ...

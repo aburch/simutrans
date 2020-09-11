@@ -82,7 +82,7 @@ curiositylist_frame_t::curiositylist_frame_t() :
 void curiositylist_frame_t::fill_list()
 {
 	scrolly.clear_elements();
-	const weighted_vector_tpl<gebaeude_t*>& world_attractions = welt->get_ausflugsziele();
+	const weighted_vector_tpl<gebaeude_t*>& world_attractions = welt->get_attractions();
 	attraction_count = world_attractions.get_count();
 
 	FOR(const weighted_vector_tpl<gebaeude_t*>, const geb, world_attractions) {
@@ -138,7 +138,7 @@ bool curiositylist_frame_t::action_triggered(gui_action_creator_t *comp, value_t
 
 void curiositylist_frame_t::draw(scr_coord pos, scr_size size)
 {
-	if (world()->get_ausflugsziele().get_count() != attraction_count) {
+	if (world()->get_attractions().get_count() != attraction_count) {
 		fill_list();
 	}
 

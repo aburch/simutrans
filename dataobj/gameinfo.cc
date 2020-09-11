@@ -48,7 +48,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 
 
 	industries = welt->get_fab_list().get_count();
-	tourist_attractions = welt->get_ausflugsziele().get_count();
+	tourist_attractions = welt->get_attractions().get_count();
 	city_count = welt->get_cities().get_count();
 	citizen_count = 0;
 	FOR(weighted_vector_tpl<stadt_t*>, const i, welt->get_cities()) {
