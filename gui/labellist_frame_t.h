@@ -10,6 +10,7 @@
 #include "gui_frame.h"
 #include "components/gui_button.h"
 #include "components/gui_scrolled_list.h"
+#include "components/gui_combobox.h"
 
 
 /**
@@ -19,7 +20,7 @@
 class labellist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	button_t	sortedby;
+	gui_combobox_t	sortedby;
 	button_t	sort_asc, sort_desc;
 	button_t	filter;
 

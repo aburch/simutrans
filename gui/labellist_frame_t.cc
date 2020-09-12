@@ -10,10 +10,16 @@
 #include "../obj/label.h"
 #include "../simworld.h"
 
+static uint8 default_sortmode = 0;
+
 static const char *sort_text[labellist::SORT_MODES] = {
 	"hl_btn_sort_name",
 	"koord",
 	"player"
+
+class label_sort_item_t : public gui_scrolled_list_t::const_text_scrollitem_t {
+public:
+	label_sort_item_t(uint8 i) : gui_scrolled_list_t::const_text_scrollitem_t(sort_text[i], SYSCOL_TEXT) { }
 };
 
 labellist_frame_t::labellist_frame_t() :
@@ -25,7 +31,10 @@ labellist_frame_t::labellist_frame_t() :
 
 	add_table(4,1);
 	{
-		sortedby.init(button_t::roundbox, sort_text[labellist_stats_t::sortby]);
+		for (int i = 0; i < labellist::SORT_MODES; i++) {
+			sortedby.new_component<label_sort_item_t>(i);
+		}
+		sortedby.set_selection(default_sortmode);
 		sortedby.add_listener(this);
 		add_component(&sortedby);
 
@@ -88,8 +97,16 @@ void labellist_frame_t::fill_list()
 bool labellist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if(comp == &sortedby) {
-		labellist_stats_t::sortby = (labellist::sort_mode_t)( (labellist_stats_t::sortby + 1) % labellist::SORT_MODES);
-		sortedby.set_text(sort_text[labellist_stats_t::sortby]);
+		int tmp = sortedby.get_selection();
+		if (tmp >= 0 && tmp < sortedby.count_elements())
+		{
+			sortedby.set_selection(tmp);
+		}
+		else {
+			sortedby.set_selection(0);
+		}
+		default_sortmode = (uint8)tmp;
+		labellist_stats_t::sortby = (labellist::sort_mode_t)default_sortmode;
 		scrolly.sort(0);
 	}
 	else if (comp == &sort_asc || comp == &sort_desc) {
