@@ -71,7 +71,7 @@ call_tool_init line_change_schedule(simline_t* line, player_t *player, schedule_
 
 call_tool_init line_delete(simline_t* line, player_t *player)
 {
-	if (line->count_convoys() > 0) {
+	if (line->count_convoys() == 0) {
 		cbuffer_t buf;
 		buf.printf( "d,%i", line->get_handle().get_id() );
 
