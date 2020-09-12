@@ -76,7 +76,6 @@ private:
 
 		bool infowin_event(event_t const* const ev) OVERRIDE
 		{
-			bool old_pressed = pressed;
 			bool swallow = button_t::infowin_event(ev);
 			if(  IS_LEFTRELEASE(ev)  &&  swallow   ) {
 				pressed ^= 1;
