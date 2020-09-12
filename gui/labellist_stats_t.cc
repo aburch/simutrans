@@ -49,6 +49,9 @@ bool labellist_stats_t::compare(const gui_component_t *aa, const gui_component_t
 			}
 			break;
 		}
+		case labellist::by_region:
+			cmp = welt->get_region(a->label_pos) - welt->get_region(b->label_pos);
+			break;
 	}
 	if(cmp==0) {
 		const char* a_name = a->get_text();

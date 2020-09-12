@@ -15,7 +15,9 @@ static uint8 default_sortmode = 0;
 static const char *sort_text[labellist::SORT_MODES] = {
 	"hl_btn_sort_name",
 	"koord",
-	"player"
+	"player",
+	"by_region"
+};
 
 class label_sort_item_t : public gui_scrolled_list_t::const_text_scrollitem_t {
 public:

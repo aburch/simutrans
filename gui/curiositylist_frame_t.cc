@@ -19,13 +19,14 @@ static uint8 default_sortmode = 0;
 const char* sort_text[curiositylist::SORT_MODES] = {
 	"hl_btn_sort_name",
 	"Passagierrate",
-	"sort_pas_arrived"/*,
-			 "Postrate"*/
+	"sort_pas_arrived",
+	/*"by_city",*/
+	"by_region"
 };
 
-class sort_item_t : public gui_scrolled_list_t::const_text_scrollitem_t {
+class attraction_item_t : public gui_scrolled_list_t::const_text_scrollitem_t {
 public:
-	sort_item_t(uint8 i) : gui_scrolled_list_t::const_text_scrollitem_t(sort_text[i], SYSCOL_TEXT) { }
+	attraction_item_t(uint8 i) : gui_scrolled_list_t::const_text_scrollitem_t(sort_text[i], SYSCOL_TEXT) { }
 };
 
 curiositylist_frame_t::curiositylist_frame_t() :
@@ -39,7 +40,7 @@ curiositylist_frame_t::curiositylist_frame_t() :
 
 	add_table(4, 1);
 	for (int i = 0; i < curiositylist::SORT_MODES; i++) {
-		sortedby.new_component<sort_item_t>(i);
+		sortedby.new_component<attraction_item_t>(i);
 	}
 	sortedby.set_selection(default_sortmode);
 	sortedby.add_listener(this);

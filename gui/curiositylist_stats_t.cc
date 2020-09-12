@@ -54,9 +54,24 @@ bool curiositylist_stats_t::compare(const gui_component_t *aa, const gui_compone
 			break;
 
 		case curiositylist::by_pax_arrived:
+		{
 			int a_arrive = a->get_passengers_succeeded_commuting() == 65535 ? a->get_passengers_succeeded_visiting() : a->get_passengers_succeeded_visiting() + a->get_passengers_succeeded_commuting();
 			int b_arrive = b->get_passengers_succeeded_commuting() == 65535 ? b->get_passengers_succeeded_visiting() : b->get_passengers_succeeded_visiting() + b->get_passengers_succeeded_commuting();
 			cmp = a_arrive - b_arrive;
+			break;
+		}
+		/*
+		case curiositylist::by_city:
+		{
+			const char* a_name = a->get_stadt() ? a->get_stadt()->get_name() : '\0';
+			const char* b_name = b->get_stadt() ? b->get_stadt()->get_name() : '\0';
+			cmp = STRICMP(a_name, b_name);
+			a->get_stadt()->get_zufallspunkt();
+			break;
+		}*/
+
+		case curiositylist::by_region:
+			cmp = welt->get_region(a->get_pos().get_2d()) - welt->get_region(b->get_pos().get_2d());
 			break;
 	}
 	return sortreverse ? cmp > 0 : cmp < 0;
@@ -68,28 +83,22 @@ curiositylist_stats_t::curiositylist_stats_t(gebaeude_t *att)
 {
 	attraction = att;
 	// pos button
-	set_table_layout(4, 1);
+	set_table_layout(6, 1);
 	button_t *b = new_component<button_t>();
 	b->set_typ(button_t::posbutton_automatic);
 	b->set_targetpos(attraction->get_pos().get_2d());
 
-	gui_aligned_container_t *table = add_table(3, 1);
+	gui_aligned_container_t *table = add_table(2, 1);
 	{
 		add_component(&img_enabled[0]);
 		img_enabled[0].set_image(skinverwaltung_t::passengers->get_image_id(0), true);
 		add_component(&img_enabled[1]);
 		img_enabled[1].set_image(skinverwaltung_t::mail->get_image_id(0), true);
-		add_component(&img_enabled[2]);
-		img_enabled[2].set_image(skinverwaltung_t::intown->get_image_id(0), true);
 
 		img_enabled[0].set_rigid(true);
 		img_enabled[1].set_rigid(true);
-		img_enabled[2].set_rigid(true);
 	}
 	end_table();
-
-	// city attraction images
-	img_enabled[2].set_visible(attraction->get_tile()->get_desc()->get_extra() != 0);
 
 	// name
 	gui_label_buf_t *l = new_component<gui_label_buf_t>();
@@ -100,12 +109,29 @@ curiositylist_stats_t::curiositylist_stats_t(gebaeude_t *att)
 
 	// Pakset must have pax evaluation symbols to show overcrowding symbol
 	if (skinverwaltung_t::pax_evaluation_icons) {
-		img_enabled[3].set_image(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), true);
+		img_enabled[2].set_image(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), true);
 	}
 	else {
-		img_enabled[3].set_image(IMG_EMPTY);
+		img_enabled[2].set_image(IMG_EMPTY);
 	}
+	add_component(&img_enabled[2]);
+
+	// city attraction images
 	add_component(&img_enabled[3]);
+	img_enabled[3].set_image(skinverwaltung_t::intown->get_image_id(0), true);
+	img_enabled[3].set_rigid(false);
+
+	img_enabled[3].set_visible(attraction->get_tile()->get_desc()->get_extra() != 0);
+
+	// city & region name
+	gui_label_buf_t *lb_region = new_component<gui_label_buf_t>();
+	if (attraction->get_stadt() != NULL) {
+		lb_region->buf().append(attraction->get_stadt()->get_name());
+	}
+	if (!welt->get_settings().regions.empty()) {
+		lb_region->buf().printf(" (%s)", welt->get_region_name(attraction->get_pos().get_2d()).c_str());
+	}
+	lb_region->update();
 }
 
 
@@ -205,9 +231,9 @@ void curiositylist_stats_t::draw(scr_coord offset)
 			img_enabled[1].set_transparent(TRANSPARENT25_FLAG);
 		}
 
-		img_enabled[3].set_visible(pax_crowded);
+		img_enabled[2].set_visible(pax_crowded);
 		if (pax_crowded & someones_network) {
-			img_enabled[3].set_transparent(TRANSPARENT25_FLAG);
+			img_enabled[2].set_transparent(TRANSPARENT25_FLAG);
 		}
 
 		gui_aligned_container_t::draw(offset);
