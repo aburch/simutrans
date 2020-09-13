@@ -832,7 +832,7 @@ void settings_display_stats_t::init(settings_t const* const)
 	INIT_NUM( "tooltip_delay", env_t::tooltip_delay, 0, 10000, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_NUM( "tooltip_duration", env_t::tooltip_duration, 0, 30000, gui_numberinput_t::AUTOLINEAR, 0 );
 	SEPERATOR
-	INIT_NUM( "cursor_overlay_color", env_t::cursor_overlay_color, 0, 16777215, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "cursor_overlay_color", env_t::cursor_overlay_color_rgb, 0, 16777215, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_BOOL( "left_to_right_graphs", env_t::left_to_right_graphs );
 	SEPERATOR
 	INIT_BOOL( "player_finance_display_account", env_t::player_finance_display_account );
