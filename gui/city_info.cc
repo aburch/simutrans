@@ -29,6 +29,7 @@
 #define PAX_DEST_MARGIN (4)
 #define PAX_DEST_MIN_SIZE (16)		// minimum width/height of the minimap
 #define PAX_DEST_VERTICAL (4.0/3.0) // aspect factor where minimaps change to over/under instead of left/right
+#define MIN_CHART_HEIGHT (166)		///< minimum size of the city charts
 
 // @author hsiegeln
 const char *hist_type[MAX_CITY_HISTORY] =
@@ -51,7 +52,7 @@ const char *hist_type[MAX_CITY_HISTORY] =
 	"Congestion"
 };
 
-const int hist_type_color[MAX_CITY_HISTORY] =
+const uint8 hist_type_color[MAX_CITY_HISTORY] =
 {
 	COL_WHITE,
 	COL_GREY6,
@@ -72,9 +73,9 @@ const int hist_type_color[MAX_CITY_HISTORY] =
 };
 
 
-city_info_t::city_info_t(stadt_t* stadt_) :
+city_info_t::city_info_t(stadt_t* city_) :
 	gui_frame_t( name, NULL ),
-	stadt(stadt_),
+	city(city_),
 	pax_dest_old(0,0),
 	pax_dest_new(0,0)
 {
@@ -83,38 +84,44 @@ city_info_t::city_info_t(stadt_t* stadt_) :
 	minimaps_size = scr_size(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE); // default minimaps size
 	minimap2_offset = scr_coord(minimaps_size.w + PAX_DEST_MARGIN, 0);
 
-	name_input.set_pos(scr_coord(8, 4));
-	name_input.set_size(scr_size(CITY_NAME_LABEL_WIDTH, 13));
+	// add city name input field
+	name_input.set_pos(scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP));
+	name_input.set_size(scr_size(CITY_NAME_LABEL_WIDTH, D_EDIT_HEIGHT));
 	name_input.add_listener( this );
 
 	add_component(&name_input);
 	set_windowsize(scr_size(410, 325 + (14*(1+((MAX_CITY_HISTORY) / BUTTONS_PER_ROW)))));
 
-	allow_growth.init( button_t::square_state, "Allow city growth", scr_coord(8, 4 + (D_BUTTON_HEIGHT+2) + 8*LINESPACE) );
-	allow_growth.pressed = stadt->get_citygrowth();
+	// add "allow city growth" button below city info
+	allow_growth.init(button_t::square_state, "Allow city growth",
+		scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE+ 8*LINESPACE + D_V_SPACE) );
+	allow_growth.pressed = city->get_citygrowth();
 	allow_growth.add_listener( this );
 	add_component(&allow_growth);
 
-	//CHART YEAR
-	chart.set_pos(scr_coord(21,1));
+	// add city charts
+	// year chart
+	chart.set_pos(scr_coord(D_MARGIN_LEFT, 1));
 	chart.set_size(scr_size(340,120));
 	chart.set_dimension(MAX_CITY_HISTORY_YEARS, 10000);
 	chart.set_seed(welt->get_last_year());
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	chart.set_ltr(env_t::left_to_right_graphs);
 	for(  uint32 i = 0;  i<MAX_CITY_HISTORY;  i++  ) {
-		chart.add_curve( hist_type_color[i], stadt->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true, 0 );
+		chart.add_curve( color_idx_to_rgb(hist_type_color[i]), city->get_city_history_year(),
+			MAX_CITY_HISTORY, i, 12, STANDARD, (city->stadtinfo_options & (1<<i))!=0, true, 0 );
 	}
 
-	//CHART MONTH
-	mchart.set_pos(scr_coord(21,1));
+	// month chart
+	mchart.set_pos(scr_coord(D_MARGIN_LEFT,1));
 	mchart.set_size(scr_size(340,120));
 	mchart.set_dimension(MAX_CITY_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(SYSCOL_CHART_BACKGROUND);
 	mchart.set_ltr(env_t::left_to_right_graphs);
 	for(  uint32 i = 0;  i<MAX_CITY_HISTORY;  i++  ) {
-		mchart.add_curve( hist_type_color[i], stadt->get_city_history_month(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true, 0 );
+		mchart.add_curve( color_idx_to_rgb(hist_type_color[i]), city->get_city_history_month(),
+			MAX_CITY_HISTORY, i, 12, STANDARD, (city->stadtinfo_options & (1<<i))!=0, true, 0 );
 	}
 	mchart.set_visible(false);
 
@@ -127,16 +134,19 @@ city_info_t::city_info_t(stadt_t* stadt_) :
 	for(  int hist=0;  hist<MAX_CITY_HISTORY;  hist++  )
 	{
 		filterButtons[hist].init(button_t::box_state, hist_type[hist], scr_coord(0,0), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-		filterButtons[hist].background_color = hist_type_color[hist];
-		filterButtons[hist].pressed = (stadt->stadtinfo_options & (1<<hist))!=0;
+		filterButtons[hist].background_color = color_idx_to_rgb(hist_type_color[hist]);
+		filterButtons[hist].pressed = (city->stadtinfo_options & (1<<hist))!=0;
 		filterButtons[hist].add_listener(this);
 		add_component(filterButtons + hist);
 	}
 
-	pax_destinations_last_change = stadt->get_pax_destinations_new_change();
+	pax_destinations_last_change = city->get_pax_destinations_new_change();
 
-	set_windowsize(scr_size(PAX_DEST_X + PAX_DESTINATIONS_SIZE + PAX_DEST_MARGIN*2 + 1, 342));
-	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, 256));
+	const int window_height = D_TITLEBAR_HEIGHT + D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE +
+		9 * LINESPACE + D_V_SPACE + D_CHECKBOX_HEIGHT + D_V_SPACE + MIN_CHART_HEIGHT + 2 * (D_BUTTON_HEIGHT + D_V_SPACE);
+
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, window_height));
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, window_height));
 
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0,0));
@@ -159,19 +169,27 @@ void city_info_t::resize(const scr_coord delta)
 
 	if(  world_aspect / space_aspect > PAX_DEST_VERTICAL  ) { // world wider than space, use vertical minimap layout
 		minimaps_size.h = (space.y - PAX_DEST_MARGIN) / 2;
-		minimaps_size.w = (sint16) ((float)minimaps_size.h * world_aspect);
-		if(  minimaps_size.w  > space.x  ) {
+		if(  minimaps_size.h * world_aspect <= space.x) {
+			// minimap fits
+			minimaps_size.w = (sint16) (minimaps_size.h * world_aspect);
+		}
+		else {
+			// too large, truncate
 			minimaps_size.w = space.x;
-			minimaps_size.h = max((int)((float)minimaps_size.w / world_aspect), PAX_DEST_MIN_SIZE);
+			minimaps_size.h = max((int)(minimaps_size.w / world_aspect), PAX_DEST_MIN_SIZE);
 		}
 		minimap2_offset = scr_coord( 0, minimaps_size.h + PAX_DEST_MARGIN );
 	}
 	else { // horizontal minimap layout
 		minimaps_size.w = (space.x - PAX_DEST_MARGIN) / 2;
-		minimaps_size.h = (sint16) ((float)minimaps_size.w / world_aspect);
-		if(  minimaps_size.h > space.y  ) {
+		if (minimaps_size.w / world_aspect <= space.y) {
+			// minimap fits
+			minimaps_size.h = (sint16) (minimaps_size.w / world_aspect);
+		}
+		else {
+			// too large, truncate
 			minimaps_size.h = space.y;
-			minimaps_size.w = max((int)((float)minimaps_size.h * world_aspect), PAX_DEST_MIN_SIZE);
+			minimaps_size.w = max((int)(minimaps_size.h * world_aspect), PAX_DEST_MIN_SIZE);
 		}
 		minimap2_offset = scr_coord( minimaps_size.w + PAX_DEST_MARGIN, 0 );
 	}
@@ -183,12 +201,15 @@ void city_info_t::resize(const scr_coord delta)
 	// reinit minimaps data
 	init_pax_dest( pax_dest_old );
 	pax_dest_new = pax_dest_old;
-	add_pax_dest( pax_dest_old, stadt->get_pax_destinations_old() );
-	add_pax_dest( pax_dest_new, stadt->get_pax_destinations_new() );
+	add_pax_dest( pax_dest_old, city->get_pax_destinations_old() );
+	add_pax_dest( pax_dest_new, city->get_pax_destinations_new() );
 
 	// move and resize charts
-	year_month_tabs.set_pos(scr_coord(60, max( allow_growth.get_pos().y + LINESPACE, (world_aspect / space_aspect > PAX_DEST_VERTICAL ? minimaps_size.h*2 + PAX_DEST_MARGIN : minimaps_size.h) + PAX_DEST_MARGIN )) );
-	year_month_tabs.set_size(scr_size(get_windowsize().w - 80, get_windowsize().h - D_TITLEBAR_HEIGHT - year_month_tabs.get_pos().y - 4 - (D_BUTTON_HEIGHT+2)*(row+1) - 1 ));
+	year_month_tabs.set_pos(scr_coord(D_MARGIN_LEFT,
+		max( allow_growth.get_pos().y + LINESPACE, (world_aspect / space_aspect > PAX_DEST_VERTICAL ? minimaps_size.h*2 + PAX_DEST_MARGIN : minimaps_size.h) + PAX_DEST_MARGIN )) );
+
+	year_month_tabs.set_size(scr_size(get_windowsize().w - 80,
+		get_windowsize().h - D_TITLEBAR_HEIGHT - year_month_tabs.get_pos().y - 4 - (D_BUTTON_HEIGHT+2)*(row+1) - 1 ));
 
 	// move and resize filter buttons
 	for(  int hist=0;  hist<MAX_CITY_HISTORY;  hist++  ) {
@@ -205,11 +226,10 @@ city_info_t::~city_info_t()
 }
 
 
-// returns position of depot on the map
+// returns position of the city center on the map
 koord3d city_info_t::get_weltpos(bool)
 {
-	const grund_t* gr = welt->lookup_kartenboden(stadt->get_center());
-	return gr ? gr->get_pos() : koord3d::invalid;
+	return welt->lookup_kartenboden( city->get_center() )->get_pos();
 }
 
 
@@ -224,14 +244,14 @@ bool city_info_t::is_weltpos()
  */
 void city_info_t::rename_city()
 {
-	if (welt->get_cities().is_contained(stadt)) {
+	if (welt->get_cities().is_contained(city)) {
 		const char *t = name_input.get_text();
 		// only change if old name and current name are the same
 		// otherwise some unintended undo if renaming would occur
-		if(  t  &&  t[0]  &&  strcmp(t, stadt->get_name())  &&  strcmp(old_name, stadt->get_name())==0) {
+		if(  t  &&  t[0]  &&  strcmp(t, city->get_name())  &&  strcmp(old_name, city->get_name())==0) {
 			// text changed => call tool
 			cbuffer_t buf;
-			buf.printf( "t%u,%s", welt->get_cities().index_of(stadt), name );
+			buf.printf( "t%u,%s", welt->get_cities().index_of(city), name );
 			tool_t *tmp_tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 			tmp_tool->set_default_param( buf );
 			welt->set_tool( tmp_tool, welt->get_public_player());
@@ -247,15 +267,15 @@ void city_info_t::rename_city()
 void city_info_t::reset_city_name()
 {
 	// change text input
-	if (welt->get_cities().is_contained(stadt)) {
-		tstrncpy(old_name, stadt->get_name(), sizeof(old_name));
-		tstrncpy(name, stadt->get_name(), sizeof(name));
+	if (welt->get_cities().is_contained(city)) {
+		tstrncpy(old_name, city->get_name(), sizeof(old_name));
+		tstrncpy(name, city->get_name(), sizeof(name));
 		name_input.set_text(name, sizeof(name));
 	}
 }
 
 
-void city_info_t::init_pax_dest( array2d_tpl<uint8> &pax_dest )
+void city_info_t::init_pax_dest( array2d_tpl<PIXVAL> &pax_dest )
 {
 	const int size_x = welt->get_size().x;
 	const int size_y = welt->get_size().y;
@@ -268,9 +288,9 @@ void city_info_t::init_pax_dest( array2d_tpl<uint8> &pax_dest )
 }
 
 
-void city_info_t::add_pax_dest( array2d_tpl<uint8> &pax_dest, const sparse_tpl< uint8 >* city_pax_dest )
+void city_info_t::add_pax_dest( array2d_tpl<PIXVAL> &pax_dest, const sparse_tpl<PIXVAL>* city_pax_dest )
 {
-	uint8 color;
+	PIXVAL color;
 	koord pos;
 	// how large the box in the world?
 	const sint16 dd_x = 1+(minimaps_size.w-1)/welt->get_size().x;
@@ -294,7 +314,7 @@ void city_info_t::add_pax_dest( array2d_tpl<uint8> &pax_dest, const sparse_tpl< 
 
 void city_info_t::draw(scr_coord pos, scr_size size)
 {
-	stadt_t* const c = stadt;
+	stadt_t* const c = city;
 
 	// Hajo: update chart seed
 	chart.set_seed(welt->get_last_year());
@@ -345,7 +365,8 @@ void city_info_t::draw(scr_coord pos, scr_size size)
 
 	buf.append(" \n ");
 
-	display_multiline_text(pos.x + 8, pos.y + D_TITLEBAR_HEIGHT + 4 + (D_BUTTON_HEIGHT+2), buf, SYSCOL_TEXT);
+	display_multiline_text_rgb(pos.x + D_MARGIN_LEFT,
+		pos.y + D_TITLEBAR_HEIGHT + D_MARGIN_TOP+D_EDIT_HEIGHT+D_V_SPACE, buf, SYSCOL_TEXT);
 
 	const uint32 current_pax_destinations = c->get_pax_destinations_new_change();
 	if(  pax_destinations_last_change > current_pax_destinations  ) {
@@ -369,7 +390,7 @@ bool city_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	static char param[16];
 	if(  comp==&allow_growth  ) {
-		sprintf(param,"g%hi,%hi,%hi", stadt->get_pos().x, stadt->get_pos().y, (short)(!stadt->get_citygrowth()) );
+		sprintf(param,"g%hi,%hi,%hi", city->get_pos().x, city->get_pos().y, (short)(!city->get_citygrowth()) );
 		tool_t::simple_tool[TOOL_CHANGE_CITY]->set_default_param( param );
 		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_CITY], welt->get_active_player());
 		return true;
@@ -383,12 +404,12 @@ bool city_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			if (comp == &filterButtons[i]) {
 				filterButtons[i].pressed ^= 1;
 				if (filterButtons[i].pressed) {
-					stadt->stadtinfo_options |= (1<<i);
+					city->stadtinfo_options |= (1<<i);
 					chart.show_curve(i);
 					mchart.show_curve(i);
 				}
 				else {
-					stadt->stadtinfo_options &= ~(1<<i);
+					city->stadtinfo_options &= ~(1<<i);
 					chart.hide_curve(i);
 					mchart.hide_curve(i);
 				}
@@ -403,7 +424,7 @@ bool city_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 void city_info_t::map_rotate90( sint16 )
 {
 	resize(scr_coord(0,0));
-	pax_destinations_last_change = stadt->get_pax_destinations_new_change();
+	pax_destinations_last_change = city->get_pax_destinations_new_change();
 }
 
 
@@ -411,7 +432,7 @@ void city_info_t::map_rotate90( sint16 )
 bool city_info_t::infowin_event(const event_t *ev)
 {
 	if(  IS_WINDOW_TOP(ev)  ) {
-		reliefkarte_t::get_karte()->set_city( stadt );
+		reliefkarte_t::get_karte()->set_city( city );
 	}
 
 	uint16 my = ev->my;
@@ -444,8 +465,8 @@ bool city_info_t::infowin_event(const event_t *ev)
 
 void city_info_t::update_data()
 {
-	allow_growth.pressed = stadt->get_citygrowth();
-	if (strcmp(old_name, stadt->get_name())) {
+	allow_growth.pressed = city->get_citygrowth();
+	if (strcmp(old_name, city->get_name())) {
 		reset_city_name();
 	}
 	set_dirty();
@@ -457,20 +478,21 @@ void city_info_t::update_data()
 
 city_info_t::city_info_t() :
 	gui_frame_t( name, NULL ),
-	stadt(0),
+	city(0),
 	pax_dest_old(0,0),
 	pax_dest_new(0,0)
 {
-	name_input.set_pos(scr_coord(8, 4));
+	name_input.set_pos(scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP));
 	name_input.add_listener( this );
 	add_component(&name_input);
 
-	allow_growth.init( button_t::square_state, "Allow city growth", scr_coord(8, 4 + (D_BUTTON_HEIGHT+2) + 8*LINESPACE) );
+	allow_growth.init( button_t::square_state, "Allow city growth",
+		scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE+ 8*LINESPACE + D_V_SPACE) );
 	allow_growth.add_listener( this );
 	add_component(&allow_growth);
 
 	//CHART YEAR
-	chart.set_pos(scr_coord(21,1));
+	chart.set_pos(scr_coord(D_MARGIN_LEFT, 1));
 	chart.set_size(scr_size(340,120));
 	chart.set_dimension(MAX_CITY_HISTORY_YEARS, 10000);
 	chart.set_seed(welt->get_last_year());
@@ -491,7 +513,7 @@ city_info_t::city_info_t() :
 	// add filter buttons          skip electricity
 	for(  int hist=0;  hist<MAX_CITY_HISTORY-1;  hist++  ) {
 		filterButtons[hist].init(button_t::box_state, hist_type[hist], scr_coord(0,0), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-		filterButtons[hist].background_color = hist_type_color[hist];
+		filterButtons[hist].background_color = color_idx_to_rgb(hist_type_color[hist]);
 		filterButtons[hist].add_listener(this);
 		add_component(filterButtons + hist);
 	}
@@ -513,35 +535,36 @@ void city_info_t::rdwr(loadsave_t *file)
 			}
 		}
 		tabstate = year_month_tabs.get_active_tab_index();
-		townindex = welt->get_cities().index_of(stadt);
+		townindex = welt->get_cities().index_of(city);
 	}
 	size.rdwr( file );
 	file->rdwr_long( townindex );
 	file->rdwr_long( flags );
 	file->rdwr_short( tabstate );
 	if(  file->is_loading()  ) {
-		stadt = welt->get_cities()[townindex];
-		stadt->stadtinfo_options = flags;
+		city = welt->get_cities()[townindex];
+		city->stadtinfo_options = flags;
 		for(  int i = 0;  i<MAX_CITY_HISTORY-1;  i++  ) {
-			chart.add_curve( hist_type_color[i], stadt->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true, 0 );
-			mchart.add_curve( hist_type_color[i], stadt->get_city_history_month(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true, 0 );
-			if(  stadt->stadtinfo_options & (1<<i)  ) {
+			chart.add_curve( color_idx_to_rgb(hist_type_color[i]), city->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, (city->stadtinfo_options & (1<<i))!=0, true, 0 );
+			mchart.add_curve( color_idx_to_rgb(hist_type_color[i]), city->get_city_history_month(), MAX_CITY_HISTORY, i, 12, STANDARD, (city->stadtinfo_options & (1<<i))!=0, true, 0 );
+			if(  city->stadtinfo_options & (1<<i)  ) {
 				filterButtons[i].pressed = 1;
 				chart.show_curve(i);
 				mchart.show_curve(i);
 			}
 			else {
-				stadt->stadtinfo_options &= ~(1<<i);
+				city->stadtinfo_options &= ~(1<<i);
 				filterButtons[i].pressed = 0;
 				chart.hide_curve(i);
 				mchart.hide_curve(i);
 			}
 		}
 		year_month_tabs.set_active_tab_index( tabstate );
-		allow_growth.pressed = stadt->get_citygrowth();
+		allow_growth.pressed = city->get_citygrowth();
+		win_set_magic( this, (ptrdiff_t)city );
 		set_windowsize( size );
 		reset_city_name();
-		pax_destinations_last_change = stadt->get_pax_destinations_new_change();
+		pax_destinations_last_change = city->get_pax_destinations_new_change();
 		resize( scr_coord(0,0) );
 	}
 }

@@ -47,6 +47,10 @@ userdir_overrides_savegame_settings = 0
 # Consumes 16*x Bytes main memory, where x is the "max_route_steps" value.
 max_route_steps = 1500000
 
+# You can use a system font. BUT you must specify the whole path to it!
+# This can be only set in the user defined simuconf.tab
+#fontname=C:\Windows\fonts\arial.ttf
+
 # How many tiles to check before giving up on finding a free bay at a stop or free alternative route? 
 # Default: 200
 # Unlimited: 0
@@ -1034,6 +1038,9 @@ server_frames_between_checks = 32
 
 # Fully Qualified Domain Name (FQDN) or IP address of your server (IPv6 or IPv4)
 #server_dns = 127.0.0.1
+
+# Port address (usually set via command line)
+#server_port = 13353
 
 # Name of server in server listing
 #server_name = My Simutrans Server

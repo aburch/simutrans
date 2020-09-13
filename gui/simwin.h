@@ -100,6 +100,7 @@ enum magic_numbers {
 	magic_motd,
 	magic_convoi_info,
 	magic_factory_info,
+	magic_font,
 	magic_convoi_detail=magic_convoi_info+65536,
 	magic_convoi_time_history=magic_convoi_detail+65536,
 	magic_halt_info=magic_convoi_time_history+65536,
@@ -166,8 +167,11 @@ void win_rotate90( sint16 new_size );
 void move_win(int win);
 
 void win_display_flush(double konto); // draw the frame and all windows
-void win_get_event(event_t*);
+
+uint16 win_get_statusbar_height();
+
 void win_poll_event(event_t*);
+void win_get_event(event_t*);
 
 bool win_change_zoom_factor(bool magnify);
 

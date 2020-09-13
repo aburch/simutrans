@@ -41,6 +41,7 @@ void gui_flowtext_t::set_text(const char *text)
 
 	// hyperref param
 	std::string param;
+	bool link_it = false; // behind opening <a> tag
 
 	while (*tail) {
 		if (*lead == '<') {
@@ -85,10 +86,18 @@ void gui_flowtext_t::set_text(const char *text)
 					else {
 						param = "";
 					}
+					link_it = true;
 				}
 				else {
-					att = ATT_A_END;
-					links.append(hyperlink_t(param));
+					if (link_it) {
+						att = ATT_A_END;
+						links.append(hyperlink_t(param));
+						link_it = false;
+					}
+					else {
+						// ignore closing </a> without opening <a>
+						att = ATT_UNKNOWN;
+					}
 				}
 			}
 			else if (word[0] == 'h' && word[1] == '1') {
@@ -156,14 +165,14 @@ void gui_flowtext_t::set_text(const char *text)
 			att = ATT_NONE;
 			for(  int i = 0;  *lead != '<'  &&  (*lead > 32  ||  (i==0  &&  *lead==32))  &&  i < 511  &&  *lead != '&'; i++) {
 				if(  *lead>128  ) {
-					size_t skip = 0;
-					utf16 symbol = utf8_to_utf16( lead, &skip );
+					size_t len = 0;
+					utf32 symbol = utf8_decoder_t::decode(lead, len);
 					if(  symbol == 0x3000  ) {
 						// space ...
 						break;
 					}
-					lead += skip;
-					i += skip;
+					lead += len;
+					i += len;
 					if(  symbol == 0x3001  ||  symbol == 0x3002  ) {
 						att = ATT_NO_SPACE;
 						// CJK full stop, comma, space
@@ -200,10 +209,9 @@ void gui_flowtext_t::set_text(const char *text)
 				lead++;
 			}
 			// skip wide spaces
-			size_t skip = 0;
-			while(  utf8_to_utf16( lead, &skip )==0x3000  ) {
-				lead += skip;
-				skip = 0;
+			utf8 const *lead_search = lead;
+			while( utf8_decoder_t::decode(lead_search) == 0x3000 ){
+				lead = lead_search;
 			}
 		}
 		tail = lead;
@@ -245,16 +253,16 @@ scr_size gui_flowtext_t::output(scr_coord offset, bool doit, bool return_max_wid
 
 	slist_tpl<hyperlink_t>::iterator link = links.begin();
 
-	int xpos         = 0;
-	int ypos         = 0;
-	int color        = SYSCOL_TEXT;
-	int double_color = SYSCOL_TEXT_SHADOW;
-	bool double_it   = false;
-	bool link_it     = false;	// true, if currently underlining for a link
-	int extra_pixel  = 0;		// extra pixel before next line
-	int last_link_x  = 0;		// at this position ye need to continue underline drawing
-	int max_width    = width;
-	int text_width   = width;
+	int xpos            = 0;
+	int ypos            = 0;
+	PIXVAL color        = SYSCOL_TEXT;
+	PIXVAL double_color = SYSCOL_TEXT_SHADOW;
+	bool double_it      = false;
+	bool link_it        = false;	// true, if currently underlining for a link
+	int extra_pixel     = 0;		// extra pixel before next line
+	int last_link_x     = 0;		// at this position ye need to continue underline drawing
+	int max_width       = width;
+	int text_width      = width;
 	const int space_width = proportional_string_width(" ");
 
 	FOR(slist_tpl<node_t>, const& i, nodes) {
@@ -277,7 +285,7 @@ scr_size gui_flowtext_t::output(scr_coord offset, bool doit, bool return_max_wid
 					if(  xpos!=last_link_x  &&  link_it  ) {
 						if(  doit  ) {
 							// close the link
-							display_fillbox_wh_clip( offset.x + last_link_x, ypos + offset.y + LINESPACE-1, xpos-last_link_x, 1, color, false);
+							display_fillbox_wh_clip_rgb( offset.x + last_link_x, ypos + offset.y + LINESPACE-1, xpos-last_link_x, 1, color, false);
 						}
 						extra_pixel = 1;
 					}
@@ -292,12 +300,12 @@ scr_size gui_flowtext_t::output(scr_coord offset, bool doit, bool return_max_wid
 
 				if (doit) {
 					if (double_it) {
-						display_proportional_clip(offset.x + xpos + 1, offset.y + ypos + 1, i.text.c_str(), 0, double_color, false);
+						display_proportional_clip_rgb(offset.x + xpos + 1, offset.y + ypos + 1, i.text.c_str(), 0, double_color, false);
 						extra_pixel |= 1;
 					}
-					scr_coord_val width = display_proportional_clip(offset.x + xpos, offset.y + ypos, i.text.c_str(), 0, color, false);
+					scr_coord_val width = display_proportional_clip_rgb(offset.x + xpos, offset.y + ypos, i.text.c_str(), 0, color, false);
 					if(  link_it  ) {
-						display_fillbox_wh_clip( offset.x + last_link_x, ypos + offset.y + LINESPACE-1, (xpos+width)-last_link_x, 1, color, false);
+						display_fillbox_wh_clip_rgb( offset.x + last_link_x, ypos + offset.y + LINESPACE-1, (xpos+width)-last_link_x, 1, color, false);
 						last_link_x = xpos+width;
 					}
 				}
@@ -313,7 +321,7 @@ scr_size gui_flowtext_t::output(scr_coord offset, bool doit, bool return_max_wid
 				if(  last_link_x<xpos  &&  link_it  ) {
 					if(  doit  ) {
 						// close the link
-						display_fillbox_wh_clip( offset.x + last_link_x, ypos + offset.y + LINESPACE-1, xpos-last_link_x, 1, color, false);
+						display_fillbox_wh_clip_rgb( offset.x + last_link_x, ypos + offset.y + LINESPACE-1, xpos-last_link_x, 1, color, false);
 					}
 					extra_pixel = 1;
 				}
@@ -349,8 +357,8 @@ scr_size gui_flowtext_t::output(scr_coord offset, bool doit, bool return_max_wid
 			case ATT_H1_END:
 				double_it = false;
 				if(doit) {
-					display_fillbox_wh_clip(offset.x + 1, offset.y + ypos + LINESPACE,   xpos, 1, color,        false);
-					display_fillbox_wh_clip(offset.x,     offset.y + ypos + LINESPACE-1, xpos, 1, double_color, false);
+					display_fillbox_wh_clip_rgb(offset.x + 1, offset.y + ypos + LINESPACE,   xpos, 1, color,        false);
+					display_fillbox_wh_clip_rgb(offset.x,     offset.y + ypos + LINESPACE-1, xpos, 1, double_color, false);
 				}
 				xpos = 0;
 				extra_pixel = 0;

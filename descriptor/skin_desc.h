@@ -26,11 +26,11 @@
  */
 class skin_desc_t : public obj_named_desc_t {
 public:
-	image_t const* get_image(int i) const { return get_child<image_list_t>(2)->get_image(i); }
+	image_t const* get_image(uint16 i) const { return get_child<image_list_t>(2)->get_image(i); }
 
-	int get_count() const { return get_child<image_list_t>(2)->get_count(); }
+	uint16 get_count() const { return get_child<image_list_t>(2)->get_count(); }
 
-	image_id get_image_id(int i) const
+	image_id get_image_id(uint16 i) const
 	{
 		const image_t *image = get_image(i);
 		return image != NULL ? image->get_id() : IMG_EMPTY;

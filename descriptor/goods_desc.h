@@ -9,6 +9,7 @@
 
 #include "obj_base_desc.h"
 #include "../simcolor.h"
+#include "../display/simgraph.h"
 #include "../network/checksum.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/piecewise_linear_tpl.h"
@@ -70,7 +71,7 @@ class goods_desc_t : public obj_named_desc_t {
 	 */
 	uint8 goods_index;
 
-	COLOR_VAL color;
+	uint8 color;
 
 	/**
 	* Bonus for fast transport given in percent!
@@ -165,7 +166,8 @@ public:
 	* @return color for good table and waiting bars
 	* @author Hj. Malthaner
 	*/
-	COLOR_VAL get_color() const { return color; }
+	PIXVAL get_color() const { return color_idx_to_rgb(color); }
+	uint8 get_color_index() const { return color; }
 
 	void calc_checksum(checksum_t *chk) const
 	{

@@ -342,22 +342,22 @@ void goods_frame_t::draw(scr_coord pos, scr_size size)
 	pos.y += D_BUTTON_HEIGHT;
 	// TODO: Add translation entry for these
 	descriptive_text.printf("%s:", translator::translate("Distance"));
-	display_multiline_text(pos.x + D_MARGIN_LEFT, pos.y += D_BUTTON_HEIGHT + 1, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
+	display_multiline_text_rgb(pos.x + D_MARGIN_LEFT, pos.y += D_BUTTON_HEIGHT + 1, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
 	descriptive_text.clear();
 
 	descriptive_text.printf("%s:", translator::translate("Comfort"));
-	display_multiline_text(pos.x + D_MARGIN_LEFT, pos.y += D_BUTTON_HEIGHT + 1, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
+	display_multiline_text_rgb(pos.x + D_MARGIN_LEFT, pos.y += D_BUTTON_HEIGHT + 1, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
 	descriptive_text.clear();
 
 	descriptive_text.printf("%s:", translator::translate("Catering level"));
-	display_multiline_text(pos.x + D_MARGIN_LEFT, pos.y += D_BUTTON_HEIGHT + 1, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
+	display_multiline_text_rgb(pos.x + D_MARGIN_LEFT, pos.y += D_BUTTON_HEIGHT + 1, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
 	descriptive_text.clear();
 
 	descriptive_text.printf("%s:", translator::translate("Average speed"));
-	display_multiline_text(pos.x + D_MARGIN_LEFT, pos.y += D_BUTTON_HEIGHT + 1, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
+	display_multiline_text_rgb(pos.x + D_MARGIN_LEFT, pos.y += D_BUTTON_HEIGHT + 1, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
 	descriptive_text.clear();
 
 	descriptive_text.printf("%s:", translator::translate("Class"));
-	display_multiline_text(pos.x + D_MARGIN_LEFT, pos.y += D_BUTTON_HEIGHT + 1, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
+	display_multiline_text_rgb(pos.x + D_MARGIN_LEFT, pos.y += D_BUTTON_HEIGHT + 1, descriptive_text, SYSCOL_TEXT_HIGHLIGHT);
 	descriptive_text.clear();
 }

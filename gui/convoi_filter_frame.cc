@@ -63,11 +63,10 @@ convoi_filter_frame_t::filter_flag_t convoi_filter_frame_t::filter_buttons_types
 
 slist_tpl<const goods_desc_t *>convoi_filter_frame_t::active_ware;
 char convoi_filter_frame_t::name_filter_text[] = "";
+uint32 convoi_filter_frame_t::filter_flags = 0;
 
-
-convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m, uint32 f ) :
+convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m) :
 	gui_frame_t( translator::translate("clf_title"), player),
-	filter_flags(f),
 	main_frame(m),
 	ware_scrolly(&ware_cont)
 {
@@ -98,7 +97,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 		filter_buttons[i].add_listener(this);
 		add_component(filter_buttons + i);
 		if(filter_buttons_types[i] < sub_filter) {
-			filter_buttons[i].background_color = COL_WHITE;
+			filter_buttons[i].background_color = color_idx_to_rgb(COL_WHITE);
 		}
 		filter_buttons[i].pressed = get_filter(filter_buttons_types[i]);
 	}
@@ -106,7 +105,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 	yp += D_BUTTON_HEIGHT;
 
 	name_filter_input.set_pos(scr_coord(D_MARGIN_LEFT, yp - 2));
-	name_filter_input.set_size(scr_size(100, D_BUTTON_HEIGHT));
+	name_filter_input.set_size(scr_size(100, D_EDIT_HEIGHT));
 	name_filter_input.set_text( name_filter_text, lengthof(name_filter_text) );
 	name_filter_input.add_listener(this);
 	add_component(&name_filter_input);
@@ -229,7 +228,7 @@ void convoi_filter_frame_t::resize(const scr_coord delta)
 	const scr_coord_val pos2 = size.w-w2;
 	const scr_coord_val h = (size.h-2-2*D_BUTTON_HEIGHT-4);
 
-	name_filter_input.set_size(scr_size(min(w1-14,142), D_BUTTON_HEIGHT));
+	name_filter_input.set_size(scr_size(min(w1-14,142), D_EDIT_HEIGHT));
 
 	// column 2
 	filter_buttons_pos[1] = scr_coord(pos2, 2);

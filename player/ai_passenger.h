@@ -79,7 +79,7 @@ private:
 	void create_bus_transport_vehicle(koord startpos,int vehicle_count,koord *stops,int count,bool do_wait);
 
 public:
-	ai_passenger_t(karte_t *wl, uint8 nr);
+	ai_passenger_t(uint8 nr);
 
 	// this type of AIs identifier
 	virtual uint8 get_ai_id() const { return AI_PASSENGER; }

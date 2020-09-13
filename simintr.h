@@ -15,8 +15,8 @@ class main_view_t;
 
 bool reduce_frame_time();
 bool increase_frame_time();
-long get_frame_time();
-void set_frame_time(long time);
+sint32 get_frame_time();
+void set_frame_time(sint32 time);
 
 
 void intr_refresh_display(bool dirty);
@@ -28,8 +28,8 @@ void intr_set(karte_t *welt, main_view_t *view);
  * currently only used by the pause tool. Use with care!
  * @author Hj. Malthaner
  */
-void intr_set_last_time(long time);
-long intr_get_last_time();
+void intr_set_last_time(sint32 time);
+sint32 intr_get_last_time();
 
 
 void intr_enable();

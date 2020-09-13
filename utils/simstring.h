@@ -83,6 +83,10 @@ void money_to_string(char * buf, double f, const bool show_decimal = true);
  */
 int number_to_string(char * buf, double f, int decimal_places );
 
+/* tries to squeeze the number into this amount of given digits
+ * BUT: too large number will still exceed the space
+ */
+void number_to_string_fit(char *ret, double f, int decimals, int max_length );
 
 /**
  * Terminated, length limited string copy. Copies at most

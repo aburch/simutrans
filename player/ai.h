@@ -46,7 +46,7 @@ protected:
 	sint32 construction_speed;
 
 public:
-	ai_t(karte_t *wl, uint8 nr);
+	ai_t(uint8 nr);
 
 	bool has_road_transport() const { return road_transport; }
 	virtual void set_road_transport( bool yesno ) { road_transport = yesno; }
@@ -73,14 +73,6 @@ public:
 
 	// calls a general tool just like a human player work do
 	bool call_general_tool( int tool, koord k, const char *param );
-
-	/**
-	 * Tells the player the result of tool-work commands
-	 * If player is active then play sound, popup error msg etc
-	 * AI players react upon this call and proceed
-	 * @author Dwachs
-	 */
-	virtual void tell_tool_result(tool_t *tool, koord3d pos, const char *err, bool local);
 
 	// find space for stations
 	bool find_place(koord pos, koord &size, koord *dirs);

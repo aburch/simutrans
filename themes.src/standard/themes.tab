@@ -64,8 +64,8 @@ bottom_window_bar_color = 3
 
 # third (best together with 2nd):use different text color for bar
 # some colors are 215-white, 240-black 208-214- all shades of gray
-front_window_text_color = 215
-bottom_window_text_color = 209
+#front_window_text_color = #FFFFFF
+#bottom_window_text_color = #DDDDDD
 
 ##################################size stuff##################################
 

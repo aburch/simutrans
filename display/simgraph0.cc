@@ -17,13 +17,25 @@ KOORD_VAL tile_raster_width = 16; // zoomed
 KOORD_VAL base_tile_raster_width = 16; // original
 
 
-/*
- * Hajo: mapping table for special-colors (AI player colors)
- * to actual output format - all day mode
- * 16 sets of 16 colors
- */
-PIXVAL specialcolormap_all_day[256];
+PIXVAL color_idx_to_rgb(PIXVAL idx)
+{
+	return idx;
+}
 
+PIXVAL color_rgb_to_idx(PIXVAL color)
+{
+	return color;
+}
+
+
+uint32 get_color_rgb(uint8)
+{
+	return 0;
+}
+
+void env_t_rgb_to_system_colors()
+{
+}
 
 KOORD_VAL display_set_base_raster_width(KOORD_VAL)
 {
@@ -101,13 +113,8 @@ void display_day_night_shift(int)
 {
 }
 
-void display_set_player_color_scheme(const int, const COLOR_VAL, const COLOR_VAL)
+void display_set_player_color_scheme(const int, const uint8, const uint8)
 {
-}
-
-COLOR_VAL display_get_index_from_rgb(uint8, uint8, uint8)
-{
-	return 0;
 }
 
 void register_image(class image_t* image)
@@ -140,12 +147,6 @@ void display_get_base_image_offset(image_id image, scr_coord_val& xoff, scr_coor
         yw = 0;
     }
 }
-
-/*
-void display_set_base_image_offset(unsigned, KOORD_VAL, KOORD_VAL)
-{
-}
-*/
 
 clip_dimension display_get_clip_wh(CLIP_NUM_DEF_NOUSE0)
 {
@@ -199,23 +200,23 @@ void display_img_stretch(const stretch_map_t &, scr_rect)
 {
 }
 
-void display_img_stretch_blend(const stretch_map_t &, scr_rect, PLAYER_COLOR_VAL)
+void display_img_stretch_blend(const stretch_map_t &, scr_rect, FLAGGED_PIXVAL)
 {
 }
 
-void display_rezoomed_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int  CLIP_NUM_DEF_NOUSE)
+void display_rezoomed_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const FLAGGED_PIXVAL, const int, const int  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_rezoomed_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int  CLIP_NUM_DEF_NOUSE)
+void display_rezoomed_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const FLAGGED_PIXVAL, const int, const int  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_base_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int  CLIP_NUM_DEF_NOUSE)
+void display_base_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const FLAGGED_PIXVAL, const int, const int  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_base_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, int  CLIP_NUM_DEF_NOUSE)
+void display_base_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const FLAGGED_PIXVAL, const int, int  CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -227,7 +228,12 @@ display_alpha_proc display_alpha = display_base_img_alpha;
 
 signed short current_tile_raster_width = 0;
 
-void display_blend_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, int)
+PIXVAL display_blend_colors(PIXVAL, PIXVAL, int)
+{
+	return 0;
+}
+
+void display_blend_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, int )
 {
 }
 
@@ -239,12 +245,12 @@ void display_color_img_with_tooltip(const image_id, KOORD_VAL, KOORD_VAL, sint8,
 {
 }
 
-void display_fillbox_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
+void display_fillbox_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool)
 {
 }
 
 
-void display_fillbox_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool  CLIP_NUM_DEF_NOUSE)
+void display_fillbox_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -260,15 +266,15 @@ void display_veh_form_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool,
 {
 }
 
-void display_vline_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
+void display_vline_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool)
 {
 }
 
-void display_vline_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool  CLIP_NUM_DEF_NOUSE)
+void display_vline_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_array_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const COLOR_VAL *)
+void display_array_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const PIXVAL *)
 {
 }
 
@@ -289,7 +295,7 @@ sint32 get_prev_char(const char*, sint32 pos)
 	return pos - 1;
 }
 
-KOORD_VAL display_get_char_width(utf16)
+KOORD_VAL display_get_char_width(utf32)
 {
 	return 0;
 }
@@ -299,12 +305,12 @@ KOORD_VAL display_get_char_max_width(const char*, size_t)
 	return 0;
 }
 
-unsigned short get_next_char_with_metrics(const char* &, unsigned char &, unsigned char &)
+utf32 get_next_char_with_metrics(const char* &, unsigned char &, unsigned char &)
 {
 	return 0;
 }
 
-unsigned short get_prev_char_with_metrics(const char* &, const char *const, unsigned char &, unsigned char &)
+utf32 get_prev_char_with_metrics(const char* &, const char *const, unsigned char &, unsigned char &)
 {
 	return 0;
 }
@@ -330,31 +336,31 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL, KOORD_VAL, const char*, co
 	return 0;
 }
 
-void display_outline_proportional_rgb(KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int)
+void display_outline_proportional_rgb(KOORD_VAL, KOORD_VAL, PIXVAL, PIXVAL, const char *, int)
 {
 }
 
-void display_shadow_proportional_rgb(KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int)
+void display_shadow_proportional_rgb(KOORD_VAL, KOORD_VAL, PIXVAL, PIXVAL, const char *, int)
 {
 }
 
-void display_ddd_box_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, bool)
+void display_ddd_box_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, PIXVAL, bool)
 {
 }
 
-void display_ddd_box_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL)
+void display_ddd_box_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, PIXVAL)
 {
 }
 
-void display_ddd_proportional(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int)
+void display_ddd_proportional(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, FLAGGED_PIXVAL, FLAGGED_PIXVAL, const char *, int)
 {
 }
 
-void display_ddd_proportional_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int  CLIP_NUM_DEF_NOUSE)
+void display_ddd_proportional_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, FLAGGED_PIXVAL, FLAGGED_PIXVAL, const char *, int  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-int display_multiline_text_rgb(KOORD_VAL, KOORD_VAL, const char *, PLAYER_COLOR_VAL)
+int display_multiline_text_rgb(KOORD_VAL, KOORD_VAL, const char *, PIXVAL)
 {
 	return 0;
 }
@@ -405,23 +411,19 @@ void display_snapshot()
 {
 }
 
-void display_direct_line_rgb(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const PLAYER_COLOR_VAL)
+void display_direct_line_rgb(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const PIXVAL)
 {
 }
 
-void display_direct_line_rgb(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const PLAYER_COLOR_VAL)
+void display_direct_line_dotted_rgb(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const PIXVAL)
 {
 }
 
-void display_direct_line_dotted_rgb(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const PLAYER_COLOR_VAL)
+void display_circle_rgb(KOORD_VAL, KOORD_VAL, int, const PIXVAL)
 {
 }
 
-void display_circle_rgb(KOORD_VAL, KOORD_VAL, int, const PLAYER_COLOR_VAL)
-{
-}
-
-void display_filled_circle_rgb(KOORD_VAL, KOORD_VAL, int, const PLAYER_COLOR_VAL)
+void display_filled_circle_rgb(KOORD_VAL, KOORD_VAL, int, const PIXVAL)
 {
 }
 
@@ -430,7 +432,7 @@ int display_fluctuation_triangle_rgb(KOORD_VAL, KOORD_VAL, uint8, const bool, si
 	return 0;
 }
 
-void draw_bezier_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const PLAYER_COLOR_VAL, KOORD_VAL, KOORD_VAL)
+void draw_bezier_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const PIXVAL, KOORD_VAL, KOORD_VAL)
 {
 }
 
@@ -446,7 +448,7 @@ void display_img_aligned(const image_id, scr_rect, int, int)
 {
 }
 
-KOORD_VAL display_proportional_ellipse_rgb(scr_rect, const char *, int, PIXVAL, bool)
+KOORD_VAL display_proportional_ellipsis_rgb( scr_rect, const char *, int, PIXVAL, bool)
 {
 	return 0;
 }

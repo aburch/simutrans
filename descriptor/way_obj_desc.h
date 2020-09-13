@@ -59,7 +59,7 @@ public:
 
 	image_id get_front_slope_image_id(slope_t::type slope) const
 	{
-		int nr;
+		uint16 nr;
 		switch(slope) {
 			case 4:
 				nr = 0;
@@ -99,7 +99,7 @@ public:
 
 	image_id get_back_slope_image_id(slope_t::type slope) const
 	{
-		int nr;
+		uint16 nr;
 		switch(slope) {
 			case 4:
 				nr = 0;

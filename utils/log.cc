@@ -21,9 +21,11 @@
 
 #ifdef MAKEOBJ
 //debuglevel is global variable
-#else // MAKEOBJ
+#define dr_fopen fopen
+#else
 #ifdef NETTOOL
 #define debuglevel (0)
+#define dr_fopen fopen
 
 #else // (not) NETTOOL
 #define debuglevel (env_t::verbose_debug)
@@ -405,8 +407,9 @@ log_t::log_t( const char *logfilename, bool force_flush, bool log_debug, bool lo
 		log = NULL;
 		tee = NULL;
 #endif
-	} else {
-		log = fopen(logfilename,"wb");
+	}
+	else {
+		log = dr_fopen(logfilename,"wb");
 
 		if(log == NULL) {
 			fprintf(stderr,"log_t::log_t: can't open file '%s' for writing\n", logfilename);

@@ -90,11 +90,11 @@ bool goods_manager_t::successfully_loaded()
 			assert(goods[i]->get_index()==i);
 			ware_t::index_to_desc[i] = goods[i];
 			if(goods[i]->color==255) {
-				goods[i]->color = 16+4+((i-2)*8)%207;
+				goods[i]->color = color_idx_to_rgb( 16+4+((i-2)*8)%207 );
 			}
 		}
 	}
-	// passenger and good colors
+	// passenger and mail colors
 	if(goods[0]->color==255) {
 		goods[0]->color = COL_GREY3;
 	}

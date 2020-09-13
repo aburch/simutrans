@@ -70,7 +70,7 @@ scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, co
 	const utf8 *line_end  = p;
 
 	// also in unicode *c==0 is end
-	while(*p!=0  ||  p!=line_end) {
+	while(  *p!= UNICODE_NUL  ||  p!=line_end  ) {
 
 		// force at end of text or newline
 		const scr_coord_val max_width = ( y<reserved_area.h ) ? get_size().w-reserved_area.w : get_size().w;
@@ -79,9 +79,7 @@ scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, co
 		do {
 
 			// end of line?
-			size_t len = 0;
-			uint16 next_char = utf8_to_utf16(p, &len);
-			p += len;
+			utf32 next_char = utf8_decoder_t::decode(p);
 
 			if(next_char==0  ||  next_char=='\n') {
 				line_end = p-1;
@@ -122,7 +120,7 @@ scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, co
 
 		// start of new line or end of text
 		if(draw  &&  (line_end-line_start)!=0) {
-			display_text_proportional_len_clip( offset.x, offset.y+y, (const char *)line_start, ALIGN_LEFT | DT_CLIP, SYSCOL_TEXT, true, (size_t)(line_end - line_start) );
+			display_text_proportional_len_clip_rgb( offset.x, offset.y+y, (const char *)line_start, ALIGN_LEFT | DT_CLIP, SYSCOL_TEXT, true, (size_t)(line_end - line_start) );
 		}
 		y += LINESPACE;
 		// back to start of new line

@@ -243,7 +243,7 @@ convoi_frame_t::convoi_frame_t(player_t* player) :
 
 	sort_list();
 
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+5*(40)+31+1));
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_DEFAULT_HEIGHT));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+2*(40)+31+1));
 
 	set_resizemode(diagonal_resize);
@@ -307,7 +307,7 @@ bool convoi_frame_t::action_triggered( gui_action_creator_t *comp, value_t /* */
 	}
 	else if(  comp == &filter_details  ) {
 		if(  !destroy_win( magic_convoi_list_filter+owner->get_player_nr() )  ) {
-			create_win( new convoi_filter_frame_t(owner, this, filter_flags), w_info, magic_convoi_list_filter+owner->get_player_nr() );
+			create_win( new convoi_filter_frame_t(owner, this), w_info, magic_convoi_list_filter+owner->get_player_nr() );
 		}
 	}
 	return true;

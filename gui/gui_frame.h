@@ -97,7 +97,7 @@ private:
 	bool opaque:1;
 
 	uint8 percent_transparent;
-	COLOR_VAL color_transparent;
+	PIXVAL color_transparent;
 
 protected:
 	void set_dirty() { dirty=true; }
@@ -113,7 +113,7 @@ protected:
 
 	void set_owner( const player_t *player ) { owner = player; }
 
-	void set_transparent( uint8 percent, COLOR_VAL col ) { opaque = percent==0; percent_transparent = percent; color_transparent = col; }
+	void set_transparent( uint8 percent, PIXVAL col ) { opaque = percent==0; percent_transparent = percent; color_transparent = col; }
 
 	static karte_ptr_t welt;
 public:
@@ -163,7 +163,7 @@ public:
 	 * -borders and -body background
 	 * @author Hj. Malthaner
 	 */
-	virtual PLAYER_COLOR_VAL get_titlecolor() const;
+	virtual FLAGGED_PIXVAL get_titlecolor() const;
 
 	/**
 	 * @return gets the window sizes

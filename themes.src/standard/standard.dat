@@ -155,10 +155,11 @@ Image[2]=> posbutton.0.2
 --
 Obj=menu
 name=Scrollbar
-# unpressed pressed disabled left and right
+# arrow buttons left unpressed pressed disabled
 Image[0]=> scrollbar.0.0
 Image[1]=> scrollbar.0.1
 Image[2]=> scrollbar.0.2
+# arrow buttons right unpressed pressed disabled
 Image[3]=> scrollbar.0.3
 Image[4]=> scrollbar.0.4
 Image[5]=> scrollbar.0.5
@@ -170,14 +171,14 @@ Image[8]=-
 Image[9]=> scrollbar.1.0
 Image[10]=> scrollbar.1.2
 Image[11]=> scrollbar.1.1
-# back up and down
+# arrow buttons up unpressed pressed disabled
 Image[12]=> scrollbar.2.0
-Image[13]=> scrollbar.2.2
-Image[14]=> scrollbar.2.1
-# knob up and down
+Image[13]=> scrollbar.2.1
+Image[14]=> scrollbar.2.2
+# arrow buttons down unpressed pressed disabled
 Image[15]=> scrollbar.2.3
-Image[16]=> scrollbar.2.5
-Image[17]=> scrollbar.2.4
+Image[16]=> scrollbar.2.4
+Image[17]=> scrollbar.2.5
 # scrollbar back up center down
 Image[18]=-
 Image[19]=> scrollbar.3.6

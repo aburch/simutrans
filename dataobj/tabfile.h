@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 
+#include "../simcolor.h"
 #include "../tpl/stringhashtable_tpl.h"
 
 class tabfileobj_t;
@@ -187,10 +188,12 @@ public:
 	const scr_size &get_scr_size(const char *key, scr_size def);
 
 	/**
-	 * Get a color index or the next matching color when given a #AABBCC
+	 * Get a color in the system format when given a #AABBCC
+	 * and optionally set RGB888 for a chosen var with color_rgb
 	 * @author prissi
+	 * change to rgb @author An_dz
 	 */
-	uint8 get_color(const char *key, uint8 def);
+	PIXVAL get_color(const char *key, PIXVAL def, uint32 *color_rgb = NULL);
 
 	/**
 	 * Get an int

@@ -105,22 +105,22 @@ struct SQWeakRef : SQRefCounted
 
 struct SQObjectPtr;
 
-#define __AddRef(type,unval) if(ISREFCOUNTED(type))	\
+#define __AddRef(type,unval) if(ISREFCOUNTED(type)) \
 		{ \
 			unval.pRefCounted->_uiRef++; \
 		}
 
-#define __Release(type,unval) if(ISREFCOUNTED(type) && ((--unval.pRefCounted->_uiRef)==0))	\
-		{	\
-			unval.pRefCounted->Release();	\
+#define __Release(type,unval) if(ISREFCOUNTED(type) && ((--unval.pRefCounted->_uiRef)==0))  \
+		{   \
+			unval.pRefCounted->Release();   \
 		}
 
 #define __ObjRelease(obj) { \
-	if((obj)) {	\
+	if((obj)) { \
 		(obj)->_uiRef--; \
 		if((obj)->_uiRef == 0) \
 			(obj)->Release(); \
-		(obj) = NULL;	\
+		(obj) = NULL;   \
 	} \
 }
 
@@ -160,7 +160,7 @@ struct SQObjectPtr;
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 #if defined(SQUSEDOUBLE) && !defined(_SQ64) || !defined(SQUSEDOUBLE) && defined(_SQ64)
-#define SQ_REFOBJECT_INIT()	SQ_OBJECT_RAWINIT()
+#define SQ_REFOBJECT_INIT() SQ_OBJECT_RAWINIT()
 #else
 #define SQ_REFOBJECT_INIT()
 #endif
@@ -213,14 +213,14 @@ struct SQObjectPtr : public SQObject
 	}
 	SQObjectPtr(const SQObjectPtr &o)
 	{
-		_type=o._type;
-		_unVal=o._unVal;
+		_type = o._type;
+		_unVal = o._unVal;
 		__AddRef(_type,_unVal);
 	}
 	SQObjectPtr(const SQObject &o)
 	{
-		_type=o._type;
-		_unVal=o._unVal;
+		_type = o._type;
+		_unVal = o._unVal;
 		__AddRef(_type,_unVal);
 	}
 	_REF_TYPE_DECL(OT_TABLE,SQTable,pTable)

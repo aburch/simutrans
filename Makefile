@@ -39,6 +39,9 @@ else
         ifeq ($(OSTYPE), mingw32)
           CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -static
           LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware -static
+          ifeq ($(USE_FREETYPE),1)
+          	LDFLAGS += -Wl,-Bstatic -lfreetype -lpng -lharfbuzz -lgraphite2 -lfreetype -Wl,-Bdynamic
+          endif
           LIBS += -lmingw32
         endif
         ifeq ($(OSTYPE), mingw64)
@@ -92,7 +95,16 @@ LIBS += -lbz2 -lz
 
 CXXFLAGS +=  -std=gnu++11
 
+ifneq ($(OSTYPE),mingw)
+ LIBS += -lbz2 -lz
+endif
+
+USE_UPNP ?= 0
+USE_FREETYPE ?= 0
+
+ALLEGRO_CONFIG ?= allegro-config
 SDL2_CONFIG    ?= sdl2-config
+FREETYPE_CONFIG ?= freetype-config
 
 ifneq ($(OPTIMISE),)
   CFLAGS += -O3
@@ -126,11 +138,53 @@ else
   CFLAGS += -DNDEBUG
 endif
 
+ifdef MSG_LEVEL
+	CFLAGS += -DMSG_LEVEL=$(MSG_LEVEL)
+endif
+
+ifeq ($(USE_UPNP),1)
+  CFLAGS  += -DUSE_UPNP
+	ifeq ($(OSTYPE),mingw)
+    LDFLAGS += -Wl,-Bstatic -lminiupnpc -Wl,-Bdynamic -liphlpapi
+	else
+    LDFLAGS += -lminiupnpc
+	endif
+endif
+
+ifdef USE_FREETYPE
+  ifeq ($(shell expr $(USE_FREETYPE) \>= 1), 1)
+    CFLAGS   += -DUSE_FREETYPE
+    ifneq ($(FREETYPE_CONFIG),)
+      CFLAGS += $(shell $(FREETYPE_CONFIG) --cflags)
+      ifeq ($(shell expr $(STATIC) \>= 1), 1)
+        # since static is not supported by slightly old freetype versions
+        FTF = $(shell $(FREETYPE_CONFIG) --libs --static)
+        ifneq ($(FTF),)
+          LDFLAGS += $(FTF)
+        else
+          LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs)
+        endif
+      else
+        LDFLAGS   += $(shell $(FREETYPE_CONFIG) --libs)
+      endif
+    else
+      LDFLAGS += -lfreetype
+      ifeq ($(OSTYPE),mingw)
+        LDFLAGS += -lpng -lharfbuzz
+      endif
+    endif
+
+    ifeq ($(OSTYPE),mingw)
+      LDFLAGS += -lfreetype
+    endif
+  endif
+endif
+
 ifneq ($(PROFILE),)
   CFLAGS  += -pg -DPROFILE
   ifdef MSG_LEVEL
-	CFLAGS += -DMSG_LEVEL=$(MSG_LEVEL)
-	endif
+    CFLAGS += -DMSG_LEVEL=$(MSG_LEVEL)
+  endif
   ifneq ($(PROFILE), 2)
     CFLAGS  += -fno-inline -fno-schedule-insns
   endif
@@ -339,6 +393,7 @@ SOURCES += gui/line_class_manager.cc
 SOURCES += gui/line_item.cc
 SOURCES += gui/line_management_gui.cc
 SOURCES += gui/load_relief_frame.cc
+SOURCES += gui/loadfont_frame.cc
 SOURCES += gui/loadsave_frame.cc
 SOURCES += gui/map_frame.cc
 SOURCES += gui/message_frame_t.cc
@@ -401,6 +456,7 @@ SOURCES += script/api_function.cc
 SOURCES += script/api_param.cc
 SOURCES += script/api/api_city.cc
 SOURCES += script/api/api_const.cc
+SOURCES += script/api/api_control.cc
 SOURCES += script/api/api_convoy.cc
 SOURCES += script/api/api_gui.cc
 SOURCES += script/api/api_factory.cc

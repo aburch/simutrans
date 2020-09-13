@@ -26,63 +26,65 @@
 #include "../simmenu.h"
 #include "../player/simplay.h"
 #include "../utils/simstring.h"
+
 #include "themeselector.h"
+#include "loadfont_frame.h"
 #include "simwin.h"
 #include "../obj/gebaeude.h"
 
 // y coordinates
 #define GRID_MODE						(6)
-#define UNDERGROUND						(GRID_MODE+13)
-#define SLICE							(UNDERGROUND+13)
-#define SLICE_LABEL						(SLICE+13)
-#define DAY_NIGHT						(SLICE_LABEL+13)
-#define BRIGHTNESS						(DAY_NIGHT+13)
-#define SCROLL_INVERS					(BRIGHTNESS+13)
-#define SCROLL_SPEED					(SCROLL_INVERS+13)
-#define LEFT_TO_RIGHT_GRAPHS			(SCROLL_SPEED+13)
+#define UNDERGROUND						(GRID_MODE+LINESPACE+2)
+#define SLICE							(UNDERGROUND+LINESPACE+2)
+#define SLICE_LABEL						(SLICE+LINESPACE+2)
+#define DAY_NIGHT						(SLICE_LABEL+LINESPACE+2)
+#define BRIGHTNESS						(DAY_NIGHT+LINESPACE+2)
+#define SCROLL_INVERS					(BRIGHTNESS+LINESPACE+2)
+#define SCROLL_SPEED					(SCROLL_INVERS+LINESPACE+2)
+#define LEFT_TO_RIGHT_GRAPHS			(SCROLL_SPEED+LINESPACE+2)
 
-#define SEPERATE1						(LEFT_TO_RIGHT_GRAPHS+13)
+#define SEPERATE1						(LEFT_TO_RIGHT_GRAPHS+LINESPACE)
 
 #define USE_TRANSPARENCY	(SEPERATE1+4)
-#define HIDE_TREES			(USE_TRANSPARENCY+13)
-#define HIDE_CITY_HOUSES	(HIDE_TREES+13)
-#define HIDE_UNDER_CURSOR	(HIDE_CITY_HOUSES+13)
+#define HIDE_TREES			(USE_TRANSPARENCY+LINESPACE+2)
+#define HIDE_CITY_HOUSES	(HIDE_TREES+LINESPACE+2)
+#define HIDE_UNDER_CURSOR	(HIDE_CITY_HOUSES+LINESPACE+2)
 #define CURSOR_HIDE_RANGE	(HIDE_UNDER_CURSOR)
 
-#define SEPERATE2 (CURSOR_HIDE_RANGE+13)
+#define SEPERATE2 (CURSOR_HIDE_RANGE+LINESPACE)
 
 #define USE_TRANSPARENCY_STATIONS		(SEPERATE2+4)
-#define SHOW_STATION_COVERAGE			(USE_TRANSPARENCY_STATIONS+13)
-#define SHOW_STATION_SIGNS				(SHOW_STATION_COVERAGE+13)
-#define SHOW_STATION_GOODS				(SHOW_STATION_SIGNS+13)
-#define SHOW_SIGNALBOX_COVERAGE				(SHOW_STATION_GOODS+13)
+#define SHOW_STATION_COVERAGE			(USE_TRANSPARENCY_STATIONS+LINESPACE+2)
+#define SHOW_STATION_SIGNS				(SHOW_STATION_COVERAGE+LINESPACE+2)
+#define SHOW_STATION_GOODS				(SHOW_STATION_SIGNS+LINESPACE+2)
+#define SHOW_SIGNALBOX_COVERAGE				(SHOW_STATION_GOODS+LINESPACE+2)
 
-#define SEPERATE3						(SHOW_SIGNALBOX_COVERAGE+13)
+#define SEPERATE3						(SHOW_SIGNALBOX_COVERAGE+LINESPACE)
 
 #define CITY_WALKER								(SEPERATE3+4)
-#define STOP_WALKER								(CITY_WALKER+13)
-#define DENS_TRAFFIC							(STOP_WALKER+13)
-#define CONVOI_TOOLTIPS							(DENS_TRAFFIC+13)
-#define CONVOI_NAMEPLATES						(CONVOI_TOOLTIPS+13)
-#define CONVOI_LOADINGBAR						(CONVOI_NAMEPLATES+13)
-#define HIGHLITE_SCHEDULE						(CONVOI_LOADINGBAR+13)
+#define STOP_WALKER								(CITY_WALKER+LINESPACE+2)
+#define DENS_TRAFFIC							(STOP_WALKER+LINESPACE+2)
+#define CONVOI_TOOLTIPS							(DENS_TRAFFIC+LINESPACE+2)
+#define CONVOI_NAMEPLATES						(CONVOI_TOOLTIPS+LINESPACE+2)
+#define CONVOI_LOADINGBAR						(CONVOI_NAMEPLATES+LINESPACE+2)
+#define HIGHLITE_SCHEDULE						(CONVOI_LOADINGBAR+LINESPACE+2)
 
-#define SEPERATE4	(HIGHLITE_SCHEDULE+13)
+#define SEPERATE4	(HIGHLITE_SCHEDULE+D_BUTTON_HEIGHT*3)
 
 #define FPS_DATA						(SEPERATE4+4)
-#define IDLE_DATA						(FPS_DATA+13)
-#define FRAME_DATA						(IDLE_DATA+13)
-#define LOOP_DATA						(FRAME_DATA+13)
+#define IDLE_DATA						(FPS_DATA+LINESPACE)
+#define FRAME_DATA						(IDLE_DATA+LINESPACE)
+#define LOOP_DATA						(FRAME_DATA+LINESPACE)
 
-#define SEPERATE5						(LOOP_DATA+13)
+#define SEPERATE5						(LOOP_DATA+LINESPACE)
 
 #define PHASE_REBUILD_CONNEXIONS		(SEPERATE5+7)
-#define PHASE_FILTER_ELIGIBLE			(PHASE_REBUILD_CONNEXIONS+13)
-#define PHASE_FILL_MATRIX				(PHASE_FILTER_ELIGIBLE+13)
-#define PHASE_EXPLORE_PATHS				(PHASE_FILL_MATRIX+13)
-#define PHASE_REROUTE_GOODS				(PHASE_EXPLORE_PATHS+13)
-#define PATH_EXPLORE_STATUS				(PHASE_REROUTE_GOODS+13)
-#define PATH_EXPLORE_STATUS_TEXT		(PATH_EXPLORE_STATUS+13)
+#define PHASE_FILTER_ELIGIBLE			(PHASE_REBUILD_CONNEXIONS+LINESPACE)
+#define PHASE_FILL_MATRIX				(PHASE_FILTER_ELIGIBLE+LINESPACE)
+#define PHASE_EXPLORE_PATHS				(PHASE_FILL_MATRIX+LINESPACE)
+#define PHASE_REROUTE_GOODS				(PHASE_EXPLORE_PATHS+LINESPACE)
+#define PATH_EXPLORE_STATUS				(PHASE_REROUTE_GOODS+D_BUTTON_HEIGHT)
+#define PATH_EXPLORE_STATUS_TEXT		(PATH_EXPLORE_STATUS+D_BUTTON_HEIGHT)
 
 
 #define L_DIALOG_HEIGHT					(PATH_EXPLORE_STATUS_TEXT+30)
@@ -293,6 +295,18 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[b].set_text( "Highlite schedule" );
 	buttons[b].set_tooltip( "Highlight the locations of stops on the current schedule" );
 
+	// Show thememanager
+	buttons[29].set_pos(scr_coord(10, HIGHLITE_SCHEDULE+ D_BUTTON_HEIGHT));
+	buttons[29].set_typ(button_t::roundbox_state);
+	buttons[29].set_text("Select a theme for display");
+	buttons[29].set_width(L_DIALOG_WIDTH - D_MARGINS_X);
+
+	// Change font
+	buttons[30].set_pos(scr_coord(10, HIGHLITE_SCHEDULE+D_BUTTON_HEIGHT*2));
+	buttons[30].set_typ(button_t::roundbox_state);
+	buttons[30].set_text("Select display font");
+	buttons[30].set_width(L_DIALOG_WIDTH - D_MARGINS_X);
+
 	for(int i=0;  i<COLORS_MAX_BUTTONS;  i++ ) {
 		buttons[i].add_listener(this);
 	}
@@ -328,6 +342,8 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	add_component(buttons + 26);
 	add_component(buttons + 27);
 	add_component(buttons + 28);
+	add_component(buttons + 29);
+	add_component(buttons + 30);
 
 	// unused buttons
 	// add_component( buttons+2 );
@@ -507,7 +523,12 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	else if ((buttons + 28) == comp) {
 		env_t::show_cnv_loadingbar = (env_t::show_cnv_loadingbar + 1) % MAX_LOADING_BAR_OPTIONS;
 	}
-
+	else if ((buttons + 29) == comp) {
+		create_win(new themeselector_t(), w_info, magic_themes);
+	}
+	else if ((buttons + 30) == comp) {
+		create_win(new loadfont_frame_t(), w_info, magic_font);
+	}
 	welt->set_dirty();
 	return true;
 }
@@ -537,51 +558,51 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 
 	// draw the label type
 	if(  env_t::show_names&1  ) {
-		PLAYER_COLOR_VAL pc = welt->get_active_player() ? welt->get_active_player()->get_player_color1()+4 : COL_ORANGE;
+		FLAGGED_PIXVAL pc = color_idx_to_rgb(welt->get_active_player() ? welt->get_active_player()->get_player_color1()+4 : COL_ORANGE);
 		const char *text = translator::translate("show station names");
 		switch( env_t::show_names >> 2 ) {
 			case 0:
 				display_ddd_proportional_clip( 16+x+buttons[19].get_pos().x, y+buttons[19].get_pos().y+(LINESPACE/2), proportional_string_width(text)+7, 0, pc, SYSCOL_TEXT, text, 1 );
 				break;
 			case 1:
-				display_outline_proportional( 16+x+buttons[19].get_pos().x, y+buttons[19].get_pos().y, pc+1, SYSCOL_TEXT, text, 1 );
+				display_outline_proportional_rgb( 16+x+buttons[19].get_pos().x, y+buttons[19].get_pos().y, pc+1, SYSCOL_TEXT, text, 1 );
 				break;
 			case 2:
-				display_outline_proportional( 16+x+buttons[19].get_pos().x+16, y+buttons[19].get_pos().y, COL_YELLOW, SYSCOL_TEXT, text, 1 );
-				display_ddd_box_clip( 16+x+buttons[19].get_pos().x, y+buttons[19].get_pos().y, LINESPACE, LINESPACE, pc-2, pc+2 );
-				display_fillbox_wh(16 + x + buttons[19].get_pos().x + 1, y + buttons[19].get_pos().y + 1, LINESPACE - 2, LINESPACE - 2, pc, true);
+				display_outline_proportional_rgb( 16+x+buttons[19].get_pos().x+16, y+buttons[19].get_pos().y, color_idx_to_rgb(COL_YELLOW), SYSCOL_TEXT, text, 1 );
+				display_ddd_box_clip_rgb( 16+x+buttons[19].get_pos().x, y+buttons[19].get_pos().y, LINESPACE, LINESPACE, pc-2, pc+2 );
+				display_fillbox_wh_rgb(16 + x + buttons[19].get_pos().x + 1, y + buttons[19].get_pos().y + 1, LINESPACE - 2, LINESPACE - 2, pc, true);
 				break;
 		}
 	}
 
 	// separator
 	const sint16 w = this->get_windowsize().w;
-	display_ddd_box_clip(x+10, y+SEPERATE1+1, w-20, 0, MN_GREY0, MN_GREY4);
-	display_ddd_box_clip(x+10, y+SEPERATE2+1, w-20, 0, MN_GREY0, MN_GREY4);
-	display_ddd_box_clip(x+10, y+SEPERATE3+1, w-20, 0, MN_GREY0, MN_GREY4);
-	display_ddd_box_clip(x+10, y+SEPERATE4+1, w-20, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip_rgb(x+10, y+SEPERATE1+1, w-20, 0, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
+	display_ddd_box_clip_rgb(x+10, y+SEPERATE2+1, w-20, 0, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
+	display_ddd_box_clip_rgb(x+10, y+SEPERATE3+1, w-20, 0, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
+	display_ddd_box_clip_rgb(x+10, y+SEPERATE4+1, w-20, 0, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
 
-	display_proportional_clip(x+10, y+BRIGHTNESS+1, translator::translate("1LIGHT_CHOOSE"), ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional_clip_rgb(x+10, y+BRIGHTNESS+1, translator::translate("1LIGHT_CHOOSE"), ALIGN_LEFT, SYSCOL_TEXT, true);
 
-	display_proportional_clip(x+10, y+SCROLL_SPEED+1, translator::translate("3LIGHT_CHOOSE"), ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional_clip_rgb(x+10, y+SCROLL_SPEED+1, translator::translate("3LIGHT_CHOOSE"), ALIGN_LEFT, SYSCOL_TEXT, true);
 
-	display_proportional_clip(x+10, y+DENS_TRAFFIC+1, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional_clip_rgb(x+10, y+DENS_TRAFFIC+1, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, SYSCOL_TEXT, true);
 
 	const char *hhc = translator::translate( env_t::hide_buildings==0 ? "no buildings hidden" : (env_t::hide_buildings==1 ? "hide city building" : "hide all building") );
-	display_proportional_clip(x+10+16, y+HIDE_CITY_HOUSES+1, hhc, ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional_clip_rgb(x+10+16, y+HIDE_CITY_HOUSES+1, hhc, ALIGN_LEFT, SYSCOL_TEXT, true);
 
-	display_proportional_clip(x+10+16, y+CONVOI_TOOLTIPS+1, translator::translate(cnv_tooltip_setting_texts[env_t::show_vehicle_states]), ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional_clip_rgb(x+10+16, y+CONVOI_TOOLTIPS+1, translator::translate(cnv_tooltip_setting_texts[env_t::show_vehicle_states]), ALIGN_LEFT, SYSCOL_TEXT, true);
 
-	display_proportional_clip(x+10+16, y+CONVOI_NAMEPLATES+1, translator::translate(nameplate_setting_texts[env_t::show_cnv_nameplates]), ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional_clip_rgb(x+10+16, y+CONVOI_NAMEPLATES+1, translator::translate(nameplate_setting_texts[env_t::show_cnv_nameplates]), ALIGN_LEFT, SYSCOL_TEXT, true);
 
-	display_proportional_clip(x + 10 + 16, y + CONVOI_LOADINGBAR + 1, translator::translate(loadingbar_setting_texts[env_t::show_cnv_loadingbar]), ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional_clip_rgb(x + 10 + 16, y + CONVOI_LOADINGBAR + 1, translator::translate(loadingbar_setting_texts[env_t::show_cnv_loadingbar]), ALIGN_LEFT, SYSCOL_TEXT, true);
 
-	int len=15+display_proportional_clip(x+10, y+FPS_DATA, translator::translate("Frame time:"), ALIGN_LEFT, SYSCOL_TEXT, true);
+	int len=15+display_proportional_clip_rgb(x+10, y+FPS_DATA, translator::translate("Frame time:"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	sprintf(buf,"%d ms", get_frame_time() );
-	display_proportional_clip(x+len, y+FPS_DATA, buf, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
+	display_proportional_clip_rgb(x+len, y+FPS_DATA, buf, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
 
-	len = 15+display_proportional_clip(x+10, y+IDLE_DATA, translator::translate("Idle:"), ALIGN_LEFT, SYSCOL_TEXT, true);
-	display_proportional_clip(x+len, y+IDLE_DATA, ntos(welt->get_idle_time(), "%d ms"), ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
+	len = 15+display_proportional_clip_rgb(x+10, y+IDLE_DATA, translator::translate("Idle:"), ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional_clip_rgb(x+len, y+IDLE_DATA, ntos(welt->get_idle_time(), "%d ms"), ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
 
 	uint8 farbe;
 	uint32 loops;
@@ -591,26 +612,26 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	if(loops<(target_fps*3)/4) {
 		farbe = (loops<=target_fps/2) ? COL_RED : COL_YELLOW;
 	}
-	len = 15+display_proportional_clip(x+10, y+FRAME_DATA, translator::translate("FPS:"), ALIGN_LEFT, SYSCOL_TEXT, true);
+	len = 15+display_proportional_clip_rgb(x+10, y+FRAME_DATA, translator::translate("FPS:"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	sprintf(buf,"%d fps", loops );
 #if MSG_LEVEL >= 3
 	if(  env_t::simple_drawing  ) {
 		strcat( buf, "*" );
 	}
 #endif
-	display_proportional_clip(x+len, y+FRAME_DATA, buf, ALIGN_LEFT, farbe, true);
+	display_proportional_clip_rgb(x+len, y+FRAME_DATA, buf, ALIGN_LEFT, color_idx_to_rgb(farbe), true);
 
 	loops=welt->get_simloops();
 	farbe = COL_WHITE;
 	if(loops<=30) {
 		farbe = (loops<=20) ? COL_RED : COL_YELLOW;
 	}
-	len = 15+display_proportional_clip(x+10, y+LOOP_DATA, translator::translate("Sim:"), ALIGN_LEFT, SYSCOL_TEXT, true);
+	len = 15+display_proportional_clip_rgb(x+10, y+LOOP_DATA, translator::translate("Sim:"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	sprintf( buf, "%d%c%d", loops/10, get_fraction_sep(), loops%10 );
-	display_proportional_clip(x+len, y+LOOP_DATA, buf, ALIGN_LEFT, farbe, true);
+	display_proportional_clip_rgb(x+len, y+LOOP_DATA, buf, ALIGN_LEFT, color_idx_to_rgb(farbe), true);
 
 	// Added by : Knightly
-	PLAYER_COLOR_VAL text_colour, figure_colour;
+	FLAGGED_PIXVAL text_colour, figure_colour;
 
 	text_colour = SYSCOL_TEXT;
 	figure_colour = SYSCOL_TEXT_TITLE;
@@ -633,21 +654,21 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 		sprintf(status_string, "stand-by");
 	}
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_REBUILD_CONNEXIONS, translator::translate("Rebuild connexions:"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PHASE_REBUILD_CONNEXIONS, ntos(path_explorer_t::get_limit_rebuild_connexions(), "%lu"), ALIGN_LEFT, figure_colour, true);
+	len = 15+display_proportional_clip_rgb(x+10, y+PHASE_REBUILD_CONNEXIONS, translator::translate("Rebuild connexions:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip_rgb(x+len, y+PHASE_REBUILD_CONNEXIONS, ntos(path_explorer_t::get_limit_rebuild_connexions(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_FILTER_ELIGIBLE, translator::translate("Filter eligible halts:"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PHASE_FILTER_ELIGIBLE, ntos(path_explorer_t::get_limit_filter_eligible(), "%lu"), ALIGN_LEFT, figure_colour, true);
+	len = 15+display_proportional_clip_rgb(x+10, y+PHASE_FILTER_ELIGIBLE, translator::translate("Filter eligible halts:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip_rgb(x+len, y+PHASE_FILTER_ELIGIBLE, ntos(path_explorer_t::get_limit_filter_eligible(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_FILL_MATRIX, translator::translate("Fill path matrix:"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PHASE_FILL_MATRIX, ntos(path_explorer_t::get_limit_fill_matrix(), "%lu"), ALIGN_LEFT, figure_colour, true);
+	len = 15+display_proportional_clip_rgb(x+10, y+PHASE_FILL_MATRIX, translator::translate("Fill path matrix:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip_rgb(x+len, y+PHASE_FILL_MATRIX, ntos(path_explorer_t::get_limit_fill_matrix(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_EXPLORE_PATHS, translator::translate("Explore paths:"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PHASE_EXPLORE_PATHS, ntos((long)path_explorer_t::get_limit_explore_paths(), "%lu"), ALIGN_LEFT, figure_colour, true);
+	len = 15+display_proportional_clip_rgb(x+10, y+PHASE_EXPLORE_PATHS, translator::translate("Explore paths:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip_rgb(x+len, y+PHASE_EXPLORE_PATHS, ntos((long)path_explorer_t::get_limit_explore_paths(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_REROUTE_GOODS, translator::translate("Re-route goods:"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PHASE_REROUTE_GOODS, ntos(path_explorer_t::get_limit_reroute_goods(), "%lu"), ALIGN_LEFT, figure_colour, true);
+	len = 15+display_proportional_clip_rgb(x+10, y+PHASE_REROUTE_GOODS, translator::translate("Re-route goods:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip_rgb(x+len, y+PHASE_REROUTE_GOODS, ntos(path_explorer_t::get_limit_reroute_goods(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
-	len = 15+display_proportional_clip(x+10, y+PATH_EXPLORE_STATUS, translator::translate("Status:"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+10, y+PATH_EXPLORE_STATUS_TEXT, status_string, ALIGN_LEFT, figure_colour, true);
+	len = 15+display_proportional_clip_rgb(x+10, y+PATH_EXPLORE_STATUS, translator::translate("Status:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip_rgb(x+10, y+PATH_EXPLORE_STATUS_TEXT, status_string, ALIGN_LEFT, figure_colour, true);
 }

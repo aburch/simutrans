@@ -14,6 +14,11 @@
 // CURVE TYPES
 #define STANDARD 0
 #define MONEY 1
+#define PERCENT 2
+//#define DISTANCE 3 //(km)
+//#define SPEED    4 //(km/h)
+//#define FORCE    5 //(kN)
+//#define KW       6
 
 /**
  * Draws a group of curves.
@@ -28,7 +33,7 @@ public:
 	 * Set background color. -1 means no background
 	 * @author Hj. Malthaner
 	 */
-	void set_background(int color);
+	void set_background(FLAGGED_PIXVAL color);
 
 	gui_chart_t();
 
@@ -66,13 +71,9 @@ public:
 	 * @returns curve's id
 	 * @author hsiegeln
 	 */
-	int add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc=NULL, chart_marker_t marker=square);
-
-	uint32 add_line(int color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc=NULL, chart_marker_t marker=square);
+	uint32 add_curve(PIXVAL color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc=NULL, chart_marker_t marker=square);
 
 	void remove_curves() { curves.clear(); }
-
-	void remove_lines() { lines.clear(); }
 
 	/**
 	 * Hide a curve of the set
@@ -83,13 +84,6 @@ public:
 	 * Show a curve of the set
 	 */
 	void show_curve(unsigned int id);
-
-	/**
-	 * Show/hide a line of the set
-	 * @author Knightly
-	 */
-	void show_line(uint32 id);
-	void hide_line(uint32 id);
 
 	/*
 	 * set starting value for x-axis of chart
@@ -107,44 +101,28 @@ public:
 	int get_curve_count() { return curves.get_count(); }
 
 private:
-
-	void calc_gui_chart_values(sint64 *baseline, float *scale, char *, char *) const;
+	void calc_gui_chart_values(sint64 *baseline, float *scale, char *, char *, int precision ) const;
 
 	/*
 	 * curve struct
 	 * @author hsiegeln
 	 */
 	struct curve_t {
-		int color;
+		PIXVAL color;
 		const sint64 *values;
 		int size;
 		int offset;
 		int elements;
 		bool show;
 		bool show_value; // show first value of curve as number on chart?
-		int type; // 0 = standard, 1 = money
+		int type; // 0 = standard, 1 = money, 2 = percent
+		const char* suffix;
 		int precision;	// how many numbers ...
 		convert_proc convert;	// Knightly : procedure for converting supplied values before use
 		chart_marker_t marker_type;
 	};
 
-	/**
-	 * line struct
-	 * @author Knightly
-	 */
-	struct line_t {
-		int color;
-		const sint64 *value;		// pointer to a single value only
-		int times;					// number of times the same value is repeated
-		bool show;
-		bool show_value;			// whether to show the value as number on the chart
-		int precision;
-		convert_proc convert;	// Knightly : procedure for converting supplied value before use
-		chart_marker_t marker_type;
-	};
-
 	slist_tpl <curve_t> curves;
-	slist_tpl <line_t> lines;
 
 	int x_elements, y_elements;
 
@@ -158,7 +136,7 @@ private:
 	 * Background color, -1 for transparent background
 	 * @author Hj. Malthaner
 	 */
-	int background;
+	FLAGGED_PIXVAL background;
 };
 
 #endif

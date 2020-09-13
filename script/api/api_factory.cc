@@ -27,9 +27,9 @@ SQInteger exp_factory_constructor(HSQUIRRELVM vm)
 	welt->get_scenario()->koord_sq2w(pos);
 	fabrik_t *fab =  fabrik_t::get_fab(pos);
 	if (!fab) {
-		sq_raise_error(vm, "No factory found at (%s)", pos.get_str());
-		return -1;
+		return sq_raise_error(vm, "No factory found at (%s)", pos.get_str());
 	}
+	const factory_desc_t *desc = fab->get_desc();
 	// create input/output tables
 	for (int io=0; io<2; io++) {
 		sq_pushstring(vm, io==0 ? "input" : "output", -1);
@@ -47,6 +47,8 @@ SQInteger exp_factory_constructor(HSQUIRRELVM vm)
 			}
 			// set max value
 			set_slot(vm, "max_storage", prodslot[p].max >> fabrik_t::precision_bits, -1);
+			//production/consumption scaling
+			set_slot(vm, "scalling", io == 0 ? (sint64)desc->get_supplier(p)->get_consumption() : (sint64)desc->get_product(p)->get_factor(), -1);
 			// put class into table
 			sq_newslot(vm, -3, false);
 		}
@@ -81,6 +83,36 @@ vector_tpl<sint64> const& get_factory_production_stat(const ware_production_t *p
 	return v;
 }
 
+
+vector_tpl<koord> const& factory_get_tile_list(fabrik_t *fab)
+{
+	static vector_tpl<koord> list;
+	fab->get_tile_list(list);
+	return list;
+}
+
+vector_tpl<halthandle_t> const& square_get_halt_list(planquadrat_t *plan); // api_tiles.cc
+
+vector_tpl<halthandle_t> const& factory_get_halt_list(fabrik_t *fab)
+{
+	planquadrat_t *plan = welt->access(fab->get_pos().get_2d());
+	return square_get_halt_list(plan);
+}
+
+
+SQInteger ware_production_get_production(HSQUIRRELVM vm)
+{
+	fabrik_t* fab = param<fabrik_t*>::get(vm, 1);
+	sint64 prod = 0;
+	if (fab) {
+		sint64 scaling = 0;
+		if (SQ_SUCCEEDED(get_slot(vm, "scaling", scaling, 1))) {
+			// see fabrik_t::step
+			prod = (scaling * welt->scale_with_month_length(fab->get_base_production()) * DEFAULT_PRODUCTION_FACTOR ) >> (8+8);
+		}
+	}
+	return param<sint64>::push(vm, prod);
+}
 
 SQInteger world_get_next_factory(HSQUIRRELVM vm)
 {
@@ -256,10 +288,22 @@ void export_factory(HSQUIRRELVM vm)
 	register_method_fv(vm, &get_factory_stat, "get_mail_arrived",   freevariable<sint32>(FAB_MAIL_ARRIVED), true);
 
 	/**
+	 * Get list of all tiles occupied by buildings belonging to this factory.
+	 * @returns array of tile_x objects
+	 */
+	register_method(vm, &factory_get_tile_list, "get_tile_list", true);
+
+	/**
 	 * Get monthly statistics of arrived visitors.
 	 * @returns array, index [0] corresponds to current month
 	 */
 	register_method_fv(vm, &get_factory_stat, "get_visitor_arrived", freevariable<sint32>(FAB_CONSUMER_ARRIVED), true);
+
+	/**
+	 * Get list of all halts that serve this this factory.
+	 * @returns array of tile_x objects
+	 */
+	register_method(vm, &factory_get_halt_list, "get_halt_list", true);
 
 	// pop class
 	end_class(vm);

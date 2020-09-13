@@ -10,6 +10,7 @@
 #include "../simworld.h"
 #include "../descriptor/skin_desc.h"
 #include "../simskin.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
 #include "../simtool.h"
@@ -56,7 +57,7 @@ farbengui_t::farbengui_t(player_t *player_) :
 	// Primary color buttons
 	for(unsigned i=0;  i<28;  i++) {
 		player_color_1[i].init(button_t::box_state, (used_colors1 & (1 << i) ? "X" : ""), scr_coord(cursor.x + (i % 14)*(D_BUTTON_HEIGHT + D_H_SPACE), cursor.y + (i / 14)*(D_BUTTON_HEIGHT + D_V_SPACE)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
-		player_color_1[i].background_color = i*8+4;
+		player_color_1[i].background_color = color_idx_to_rgb(i*8+4);
 		player_color_1[i].add_listener(this);
 		add_component( player_color_1+i );
 	}
@@ -71,7 +72,7 @@ farbengui_t::farbengui_t(player_t *player_) :
 	// Secondary color buttons
 	for(unsigned i=0;  i<28;  i++) {
 		player_color_2[i].init(button_t::box_state, (used_colors2 & (1 << i) ? "X" : ""), scr_coord(cursor.x + (i % 14)*(D_BUTTON_HEIGHT + D_H_SPACE), cursor.y + (i / 14)*(D_BUTTON_HEIGHT + D_V_SPACE)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
-		player_color_2[i].background_color = i*8+4;
+		player_color_2[i].background_color = color_idx_to_rgb(i*8+4);
 		player_color_2[i].add_listener(this);
 		add_component( player_color_2+i );
 	}
@@ -106,6 +107,7 @@ bool farbengui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			tool_t *tool = create_tool( TOOL_RECOLOUR_TOOL | SIMPLE_TOOL );
 			tool->set_default_param( buf );
 			welt->set_tool( tool, player );
+			env_t::default_settings.set_default_player_color(player->get_player_nr(), player->get_player_color1(), player->get_player_color2());
 			// since init always returns false, it is save to delete immediately
 			delete tool;
 			return true;
@@ -122,6 +124,7 @@ bool farbengui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			tool_t *tool = create_tool( TOOL_RECOLOUR_TOOL | SIMPLE_TOOL );
 			tool->set_default_param( buf );
 			welt->set_tool( tool, player );
+			env_t::default_settings.set_default_player_color(player->get_player_nr(), player->get_player_color1(), player->get_player_color2());
 			// since init always returns false, it is save to delete immediately
 			delete tool;
 			return true;

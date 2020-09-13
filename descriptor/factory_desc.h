@@ -147,9 +147,9 @@ private:
 
 public:
 	goods_desc_t const* get_input_type() const { return get_child<goods_desc_t>(0); }
-	int get_capacity() const { return capacity; }
-	int get_supplier_count() const { return supplier_count; }
-	int get_consumption() const { return consumption; }
+	uint16 get_capacity() const { return capacity; }
+	uint16 get_supplier_count() const { return supplier_count; }
+	uint16 get_consumption() const { return consumption; }
 	void calc_checksum(checksum_t *chk) const;
 };
 
@@ -179,8 +179,8 @@ private:
 
 public:
 	goods_desc_t const* get_output_type() const { return get_child<goods_desc_t>(0); }
-	uint32 get_capacity() const { return capacity; }
-	uint32 get_factor() const { return factor; }
+	uint16 get_capacity() const { return capacity; }
+	uint16 get_factor() const { return factor; }
 	void calc_checksum(checksum_t *chk) const;
 };
 
@@ -249,11 +249,12 @@ public:
 	smoke_desc_t const* get_smoke() const { return get_child<smoke_desc_t>(1); }
 
 	// we must take care, for the case of no producer/consumer
-	const factory_supplier_desc_t *get_supplier(int i) const
+
+	const factory_supplier_desc_t *get_supplier(uint16 i) const
 	{
 		return 0 <= i && i < supplier_count ? get_child<factory_supplier_desc_t>(2 + i) : 0;
 	}
-	const factory_product_desc_t *get_product(int i) const
+	const factory_product_desc_t *get_product(uint16 i) const
 	{
 		return 0 <= i && i < product_count ? get_child<factory_product_desc_t>(2 + supplier_count + i) : 0;
 	}
@@ -276,21 +277,21 @@ public:
 	site_t get_placement() const { return placement; }
 	int get_distribution_weight() const { return distribution_weight; }
 
-	uint8 get_kennfarbe() const { return color; } //"identification colour code" (Babelfish)
+	PIXVAL get_color() const { return color_idx_to_rgb(color); } //"identification colour code" (Babelfish)
 
-	void set_productivity(int p) { productivity=p; }
+	void set_productivity(uint16 p) { productivity=p; }
 	int get_productivity() const { return productivity; }
 	sint32 get_range() const { return range; }
 
 	/* level for mail and passenger generation */
-	int get_pax_level() const { return pax_level; }
+	uint16 get_pax_level() const { return pax_level; }
 
 	uint16 get_electricity_proportion() const { return electricity_proportion; }
 	uint16 get_inverse_electricity_proportion() const { return inverse_electricity_proportion; }
 
-	int is_electricity_producer() const { return electricity_producer; }
+	bool is_electricity_producer() const { return electricity_producer; }
 
-	const factory_desc_t *get_upgrades(int i) const { return (i >= 0 && i < upgrades) ? get_child<factory_desc_t>(2 + supplier_count + product_count + fields + i) : NULL; }
+	const factory_desc_t *get_upgrades(uint16 i) const { return (i >= 0 && i < upgrades) ? get_child<factory_desc_t>(2 + supplier_count + product_count + fields + i) : NULL; }
 
 	sint32 get_upgrades_count() const { return upgrades; }
 

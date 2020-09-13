@@ -93,7 +93,7 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 			gi.rdwr( &fd );
 			fd.close();
 			// get gameinfo size
-			FILE *fh = fopen( "serverinfo.sve", "rb" );
+			FILE *fh = dr_fopen( "serverinfo.sve", "rb" );
 			fseek( fh, 0, SEEK_END );
 			nwgi.len = ftell( fh );
 			rewind( fh );
@@ -115,7 +115,7 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 				dbg->warning( "nwc_gameinfo_t::execute", "send of NWC_GAMEINFO failed" );
 			}
 			fclose( fh );
-			remove( "serverinfo.sve" );
+			dr_remove("serverinfo.sve");
 		}
 		socket_list_t::remove_client( s );
 	}
@@ -284,7 +284,7 @@ void nwc_chat_t::add_message (karte_t* welt) const
 	dbg->warning("nwc_chat_t::add_message", "");
 	cbuffer_t buf;  // Output which will be printed to chat window
 
-	PLAYER_COLOR_VAL color = player_nr < PLAYER_UNOWNED  ?  welt->get_player( player_nr )->get_player_color1()  :  COL_WHITE;
+	FLAGGED_PIXVAL color = color_idx_to_rgb(player_nr < PLAYER_UNOWNED  ?  welt->get_player( player_nr )->get_player_color1()  :  COL_WHITE);
 	uint16 flag = message_t::chat;
 
 	if (  destination == NULL  ) {
@@ -688,7 +688,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 	}
 	// transfer game, all clients need to sync (save, reload, and pause)
 	// now save and send
-	chdir( env_t::user_dir );
+	dr_chdir( env_t::user_dir );
 	if(  !env_t::server  ) {
 		char fn[256];
 		sprintf( fn, "client%i-network.sve", network_get_client_id() );
@@ -1356,9 +1356,9 @@ void nwc_tool_t::do_command(karte_t *welt)
 			active_tool->cleanup();
 		}
 		const char *err = tool->work( player, pos );
-		// only local players or AIs get the callback
-		if (local  ||  player->get_ai_id()!=player_t::HUMAN) {
-			player->tell_tool_result(tool, pos, err, local);
+		// only local players get the callback
+		if (local) {
+			player->tell_tool_result(tool, pos, err);
 		}
 		if (err) {
 			dbg->warning("nwc_tool_t::do_command","failed with '%s'",err);

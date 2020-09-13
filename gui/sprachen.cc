@@ -36,8 +36,11 @@ int sprachengui_t::cmp_language_button(sprachengui_t::language_button_t a, sprac
  * language to be loaded
  * @author Hj. Malthaner
  */
-void sprachengui_t::init_font_from_lang()
+void sprachengui_t::init_font_from_lang(bool reload_font)
 {
+	// the real fonts for the current language
+	std::string old_font = env_t::fontname;
+
 	static const char *default_name = "PROP_FONT_FILE";
 	const char *prop_font_file = translator::translate(default_name);
 
@@ -47,19 +50,22 @@ void sprachengui_t::init_font_from_lang()
 		prop_font_file = "cyr.bdf";
 	}
 
-	// load large font
-	chdir( env_t::program_dir );
-	chdir( FONT_PATH );
-	bool ok = false;
-	char prop_font_file_name[1024];
-	tstrncpy( prop_font_file_name, prop_font_file, lengthof(prop_font_file_name) );
-	char *f = strtok( prop_font_file_name, ";" );
-	do {
-		ok = display_load_font(prop_font_file_name);
-		f = strtok( NULL, ";" );
+	if(  reload_font  ) {
+		// load large font
+		dr_chdir( env_t::program_dir );
+		bool ok = false;
+		char prop_font_file_name[4096];
+		tstrncpy( prop_font_file_name, prop_font_file, lengthof(prop_font_file_name) );
+		char *f = strtok( prop_font_file_name, ";" );
+		do {
+			std::string fname = FONT_PATH_X;
+			fname += prop_font_file_name;
+			ok = display_load_font(fname.c_str());
+			f = strtok( NULL, ";" );
+		}
+		while(  !ok  &&  f  );
+		dr_chdir( env_t::user_dir );
 	}
-	while(  !ok  &&  f  );
-	chdir( env_t::user_dir );
 
 	const char * p = translator::translate("SEP_THOUSAND");
 	char c = ',';
@@ -114,8 +120,7 @@ sprachengui_t::sprachengui_t() :
 	cursor.y = max( separator.get_pos().y + D_DIVIDER_HEIGHT, flags.get_pos().y + flags.get_size().h);
 
 	const translator::lang_info* lang = translator::get_langs();
-	chdir( env_t::program_dir );
-	chdir( FONT_PATH );
+	dr_chdir( env_t::program_dir );
 
 	for (int i = 0; i < translator::get_language_count(); ++i, ++lang) {
 		button_t* b = new button_t();
@@ -130,7 +135,19 @@ sprachengui_t::sprachengui_t() :
 		tstrncpy( prop_font_file_name, lang->translate("PROP_FONT_FILE"), lengthof(prop_font_file_name) );
 		char *f = strtok( prop_font_file_name, ";" );
 		do {
-			num_loaded = display_load_font(prop_font_file_name);
+			std::string fname = FONT_PATH_X;
+			fname += prop_font_file_name;
+#if 1
+			// we are onlz checking the existence of the file
+			num_loaded = false;
+			if(  FILE *fnt = dr_fopen(fname.c_str(), "rb")  ) {
+				num_loaded = true;
+				fclose( fnt );
+			}
+#else
+			//
+			num_loaded = display_load_font(fname.c_str());
+#endif
 			f = strtok( NULL, ";" );
 		}
 		while(  !num_loaded  &&  f  );
@@ -174,7 +191,7 @@ sprachengui_t::sprachengui_t() :
 		add_component( buttons[i].button );
 	}
 
-	chdir(env_t::user_dir);
+	dr_chdir(env_t::user_dir);
 
 	set_windowsize( scr_size(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + ((count+1)>>1)*(max(D_CHECKBOX_HEIGHT, LINESPACE)+D_V_SPACE) + D_MARGIN_BOTTOM ) );
 }
@@ -188,7 +205,7 @@ bool sprachengui_t::action_triggered( gui_action_creator_t *comp, value_t)
 		if(b == comp) {
 			b->pressed = true;
 			translator::set_language(buttons[i].id);
-			init_font_from_lang();
+			init_font_from_lang(true);
 		}
 		else {
 			b->pressed = false;
@@ -196,10 +213,4 @@ bool sprachengui_t::action_triggered( gui_action_creator_t *comp, value_t)
 
 	}
 	return true;
-}
-
-sprachengui_t::~sprachengui_t()
-{
-	// reload font
-	sprachengui_t::init_font_from_lang();
 }

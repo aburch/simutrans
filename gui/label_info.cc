@@ -43,7 +43,7 @@ label_info_t::label_info_t(label_t* l) :
 	}
 	// text input
 	input.set_pos(scr_coord(10,4));
-	input.set_size(scr_size(min_width-20, 13));
+	input.set_size(scr_size(min_width-20, D_EDIT_HEIGHT));
 	input.set_text(edit_name, lengthof(edit_name));
 	add_component(&input);
 	input.add_listener(this);
@@ -53,8 +53,9 @@ label_info_t::label_info_t(label_t* l) :
 	player_name.set_text(p_name);
 	add_component(&player_name);
 
-	set_focus(&input);
 	set_windowsize(scr_size(min_width, view.get_size().h+47));
+
+	set_focus(&input);
 }
 
 

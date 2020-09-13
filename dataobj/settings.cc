@@ -1970,9 +1970,16 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	}
 #endif
 
-	env_t::water_animation = contents.get_int("water_animation_ms", env_t::water_animation);
-	env_t::ground_object_probability = contents.get_int("random_grounds_probability", env_t::ground_object_probability);
-	env_t::moving_object_probability = contents.get_int("random_wildlife_probability", env_t::moving_object_probability);
+	//check for fontname, must be a valid name!
+	const char *fname = contents.get_string( "fontname", env_t::fontname.c_str() );
+	if(  FILE *f=fopen(fname,"r")  ) {
+		fclose(f);
+		env_t::fontname = fname;
+	}
+
+	env_t::water_animation = contents.get_int("water_animation_ms", env_t::water_animation );
+	env_t::ground_object_probability = contents.get_int("random_grounds_probability", env_t::ground_object_probability );
+	env_t::moving_object_probability = contents.get_int("random_wildlife_probability", env_t::moving_object_probability );
 
 	env_t::straight_way_without_control = contents.get_int("straight_way_without_control", env_t::straight_way_without_control) != 0;
 
@@ -1993,22 +2000,13 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::second_open_closes_win = contents.get_int("second_open_closes_win", env_t::second_open_closes_win );
 	env_t::remember_window_positions = contents.get_int("remember_window_positions", env_t::remember_window_positions );
 
-	env_t::front_window_bar_color = contents.get_int("front_window_bar_color", env_t::front_window_bar_color );
-	env_t::front_window_text_color = contents.get_int("front_window_text_color", env_t::front_window_text_color );
-	env_t::bottom_window_bar_color = contents.get_int("bottom_window_bar_color", env_t::bottom_window_bar_color );
-	env_t::bottom_window_text_color = contents.get_int("bottom_window_text_color", env_t::bottom_window_text_color );
-
 	env_t::show_tooltips = contents.get_int("show_tooltips", env_t::show_tooltips );
-	env_t::tooltip_color = contents.get_int("tooltip_background_color", env_t::tooltip_color );
-	env_t::tooltip_textcolor = contents.get_int("tooltip_text_color", env_t::tooltip_textcolor );
 	env_t::tooltip_delay = contents.get_int("tooltip_delay", env_t::tooltip_delay );
 	env_t::tooltip_duration = contents.get_int("tooltip_duration", env_t::tooltip_duration );
 	env_t::toolbar_max_width = contents.get_int("toolbar_max_width", env_t::toolbar_max_width );
 	env_t::toolbar_max_height = contents.get_int("toolbar_max_height", env_t::toolbar_max_height );
-	env_t::cursor_overlay_color = contents.get_int("cursor_overlay_color", env_t::cursor_overlay_color );
 
 	// how to show the stuff outside the map
-	env_t::background_color = contents.get_int("background_color", env_t::background_color );
 	env_t::draw_earth_border = contents.get_int("draw_earth_border", env_t::draw_earth_border ) != 0;
 	env_t::draw_outside_tile = contents.get_int("draw_outside_tile", env_t::draw_outside_tile ) != 0;
 
@@ -2068,6 +2066,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::reload_and_save_on_quit = contents.get_int("reload_and_save_on_quit", env_t::reload_and_save_on_quit );
 
 	env_t::server_announce = contents.get_int("announce_server", env_t::server_announce );
+	env_t::server_announce = contents.get_int("server_port", env_t::server_port );
 	env_t::server_announce = contents.get_int("server_announce", env_t::server_announce );
 	env_t::server_announce_interval = contents.get_int("server_announce_intervall", env_t::server_announce_interval );
 	env_t::server_announce_interval = contents.get_int("server_announce_interval", env_t::server_announce_interval );
@@ -3022,7 +3021,26 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	printf("Reading simuconf.tab successful!\n" );
 
-	simuconf.close( );
+}
+
+// colour stuff can only be parsed when the graphic system has already started
+void settings_t::parse_colours(tabfile_t& simuconf)
+{
+	tabfileobj_t contents;
+
+	simuconf.read( contents );
+
+	env_t::default_window_title_color = contents.get_color("default_window_title_color", env_t::default_window_title_color, &env_t::default_window_title_color_rgb );
+	env_t::front_window_text_color = contents.get_color("front_window_text_color", env_t::front_window_text_color, &env_t::front_window_text_color_rgb );
+	env_t::bottom_window_text_color = contents.get_color("bottom_window_text_color", env_t::bottom_window_text_color, &env_t::bottom_window_text_color_rgb );
+
+	env_t::bottom_window_darkness = contents.get_int("env_t::bottom_window_darkness", env_t::bottom_window_darkness);
+
+	env_t::tooltip_color = contents.get_color("tooltip_color", env_t::tooltip_color, &env_t::tooltip_color_rgb );
+	env_t::tooltip_textcolor = contents.get_color("tooltip_textcolor", env_t::tooltip_textcolor, &env_t::tooltip_textcolor_rgb );
+	env_t::cursor_overlay_color = contents.get_color("cursor_overlay_color", env_t::cursor_overlay_color, &env_t::cursor_overlay_color_rgb );
+
+	env_t::background_color = contents.get_color("background_color", env_t::background_color, &env_t::background_color_rgb );
 }
 
 
@@ -3038,7 +3056,7 @@ int settings_t::get_name_language_id() const
 	return lang;
 }
 
-void settings_t::set_groesse(sint32 x, sint32 y, bool preserve_regions)
+void settings_t::set_size(sint32 x, sint32 y, bool preserve_regions)
 {
 	sint32 old_x = size_x;
 	sint32 old_y = size_y;
@@ -3213,11 +3231,20 @@ void settings_t::copy_city_road(settings_t const& other)
 }
 
 
+void settings_t::set_default_player_color(uint8 player_nr, uint8 color1, uint8 color2)
+{
+	if (player_nr < MAX_PLAYER_COUNT) {
+		default_player_color[player_nr][0] = color1 < 28 ? color1 : 255;
+		default_player_color[player_nr][1] = color2 < 28 ? color2 : 255;
+	}
+}
+
+
 // returns default player colors for new players
-void settings_t::set_default_player_color(player_t* const player) const
+void settings_t::set_player_color_to_default(player_t* const player) const
 {
 	karte_ptr_t welt;
-	COLOR_VAL color1 = default_player_color[player->get_player_nr()][0];
+	uint8 color1 = default_player_color[player->get_player_nr()][0];
 	if(  color1 == 255  ) {
 		if(  default_player_color_random  ) {
 			// build a vector with all colors
@@ -3249,7 +3276,7 @@ void settings_t::set_default_player_color(player_t* const player) const
 		}
 	}
 
-	COLOR_VAL color2 = default_player_color[player->get_player_nr()][1];
+	uint8 color2 = default_player_color[player->get_player_nr()][1];
 	if(  color2 == 255  ) {
 		if(  default_player_color_random  ) {
 			// build a vector with all colors

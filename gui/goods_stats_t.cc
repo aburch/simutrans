@@ -60,12 +60,12 @@ void goods_stats_t::draw(scr_coord offset)
 	{
 		const goods_desc_t * wtyp = goods_manager_t::get_info(goodslist[i]);
 
-		display_ddd_box_clip(offset.x + 2, yoff, 8, 8, MN_GREY0, MN_GREY4);
-		display_fillbox_wh_clip(offset.x + 3, yoff+1, 6, 6, wtyp->get_color(), true);
+		display_ddd_box_clip_rgb(offset.x + 2, yoff, 8, 8, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
+		display_fillbox_wh_clip_rgb(offset.x + 3, yoff+1, 6, 6, wtyp->get_color(), true);
 
 		buf.clear();
 		buf.printf("%s", translator::translate(wtyp->get_name()));
-		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+		display_proportional_clip_rgb(offset.x + 14, yoff,	buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 		// Massively cleaned up by neroden, June 2013
 		// Roundoff is deliberate here (get two-digit speed)... question this
@@ -83,16 +83,16 @@ void goods_stats_t::draw(scr_coord offset)
 		money_to_string( money_buf, (double)price/100.0 );
 		buf.clear();
 		buf.printf(money_buf);
-		display_proportional_clip(offset.x + 170, yoff, buf, 	ALIGN_RIGHT, 	SYSCOL_TEXT, true);
+		display_proportional_clip_rgb(offset.x + 170, yoff, buf, 	ALIGN_RIGHT, 	SYSCOL_TEXT, true);
 
 		buf.clear();
 		buf.printf( "%s",	translator::translate(wtyp->get_catg_name()));
-		display_proportional_clip(offset.x + 220, yoff, buf, 	ALIGN_LEFT, SYSCOL_TEXT, 	true);
+		display_proportional_clip_rgb(offset.x + 220, yoff, buf, 	ALIGN_LEFT, SYSCOL_TEXT, 	true);
 		display_color_img(wtyp->get_catg_symbol(), offset.x + 205, yoff, 0, false, false);
 
 		buf.clear();
 		buf.printf("%dKg", wtyp->get_weight_per_unit());
-		display_proportional_clip(offset.x + 360, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
+		display_proportional_clip_rgb(offset.x + 360, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 		yoff += LINESPACE+1;
 	}

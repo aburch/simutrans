@@ -56,9 +56,9 @@ enum city_cost {
 	HIST_PAS_WALKED,		// The number of passengers who walked to their destination.
 	HIST_MAIL_TRANSPORTED,	// letters that could be sent
 	HIST_MAIL_GENERATED,	// all letters generated
-	HIST_GOODS_RECIEVED,	// times all storages were not empty
+	HIST_GOODS_RECEIVED,	// times all storages were not empty
 	HIST_GOODS_NEEDED,		// times storages checked
-	HIST_POWER_RECIEVED,	// power consumption
+	HIST_POWER_RECEIVED,	// power consumption
 	HIST_POWER_NEEDED,		// Power demand by the city.
 	HIST_CONGESTION,		// Level of congestion in the city, expressed in percent.
 	MAX_CITY_HISTORY		// Total number of items in array
@@ -177,8 +177,8 @@ private:
 
 	weighted_vector_tpl <gebaeude_t *> buildings;
 
-	sparse_tpl<uint8> pax_destinations_old;
-	sparse_tpl<uint8> pax_destinations_new;
+	sparse_tpl<PIXVAL> pax_destinations_old;
+	sparse_tpl<PIXVAL> pax_destinations_new;
 
 	// this counter will increment by one for every change => dialogs can question, if they need to update map
 	uint32 pax_destinations_new_change;
@@ -333,7 +333,7 @@ public:
 /* end of history related things */
 
 	//@author: jamespetts
-	void add_power(uint32 p) { city_history_month[0][HIST_POWER_RECIEVED] += p; city_history_year[0][HIST_POWER_RECIEVED] += p; }
+	void add_power(uint32 p) { city_history_month[0][HIST_POWER_RECEIVED] += p; city_history_year[0][HIST_POWER_RECEIVED] += p; }
 
 	void add_power_demand(uint32 p) { city_history_month[0][HIST_POWER_NEEDED] += p; city_history_year[0][HIST_POWER_NEEDED] += p; }
 
@@ -477,7 +477,7 @@ public:
 	 * ein Passagierziel in die Zielkarte eintragen
 	 * @author Hj. Malthaner
 	 */
-	void merke_passagier_ziel(koord ziel, uint8 color);
+	void merke_passagier_ziel(koord ziel, PIXVAL color);
 
 	// this function removes houses from the city house list
 	// (called when removed by player, or by town)
@@ -557,22 +557,22 @@ public:
 
 	/**
 	 * gibt einen zufällingen gleichverteilten Punkt innerhalb der
-	 * Citygrenzen zurück
+	 * Citygrenzen zurEk
 	 * @author Hj. Malthaner
 	 */
 	koord get_zufallspunkt(uint32 min_distance = 0, uint32 max_distance = 16384, koord origin = koord::invalid) const;
 
 	/**
-	 * gibt das pax-statistik-array für letzten monat zurück
+	 * gibt das pax-statistik-array fE letzten monat zurEk
 	 * @author Hj. Malthaner
 	 */
-	const sparse_tpl<unsigned char>* get_pax_destinations_old() const { return &pax_destinations_old; }
+	const sparse_tpl<PIXVAL>* get_pax_destinations_old() const { return &pax_destinations_old; }
 
 	/**
-	 * gibt das pax-statistik-array für den aktuellen monat zurück
+	 * gibt das pax-statistik-array fE den aktuellen monat zurEk
 	 * @author Hj. Malthaner
 	 */
-	const sparse_tpl<unsigned char>* get_pax_destinations_new() const { return &pax_destinations_new; }
+	const sparse_tpl<PIXVAL>* get_pax_destinations_new() const { return &pax_destinations_new; }
 
 	/* this counter will increment by one for every change
 	 * => dialogs can question, if they need to update map
@@ -616,7 +616,7 @@ public:
 
 	/**
 	 * Wird am Ende der LAderoutine aufgerufen, wenn die Welt geladen ist
-	 * und nur noch die Datenstrukturenneu verknüpft werden müssen.
+	 * und nur noch die Datenstrukturenneu verknEft werden mEsen.
 	 * @author Hj. Malthaner
 	 */
 	void finish_rd();

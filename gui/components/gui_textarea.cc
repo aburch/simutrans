@@ -52,7 +52,7 @@ void gui_textarea_t::recalc_size()
 {
 	const char *text(*buf);
 
-	// we cannot use: display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, COL_BLACK);
+	// we cannot use: display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, color_idx_to_rgb(COL_BLACK));
 	// since we also want to dynamically change the size of the component
 	int new_lines=0;
 	int x_size = 1;
@@ -85,7 +85,7 @@ void gui_textarea_t::draw(scr_coord offset)
 {
 	const char *text(*buf);
 
-	// we cannot use: display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, COL_BLACK);
+	// we cannot use: display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, color_idx_to_rgb(COL_BLACK));
 	// since we also want to dynamically change the size of the component
 	int new_lines=0;
 
@@ -101,7 +101,7 @@ void gui_textarea_t::draw(scr_coord offset)
 			next = strchr(buf, '\n');
 			if(  pos.y + new_lines + (LINESPACE >= 0)  ) {
 				const int len = next != NULL ? (long)(size_t)(next - buf) : -1;
-				int px_len = display_text_proportional_len_clip(x, y + new_lines, buf, ALIGN_LEFT | DT_CLIP, SYSCOL_TEXT, true, len);
+				int px_len = display_text_proportional_len_clip_rgb(x, y + new_lines, buf, ALIGN_LEFT | DT_CLIP, SYSCOL_TEXT, true, len);
 				if(px_len>x_size) {
 					x_size = px_len;
 				}

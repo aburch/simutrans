@@ -681,7 +681,7 @@ void roadsign_t::display_after(int xpos, int ypos, bool ) const
 		// draw with owner
 		if(  get_player_nr() != PLAYER_UNOWNED  ) {
 			if(  obj_t::show_owner  ) {
-				display_blend( foreground_image, xpos, ypos, 0, (get_owner()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty  CLIP_NUM_PAR);
+				display_blend( foreground_image, xpos, ypos, 0, color_idx_to_rgb(get_owner()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty  CLIP_NUM_PAR);
 			}
 			else {
 				display_color( foreground_image, xpos, ypos, get_player_nr(), true, get_flag(obj_t::dirty)  CLIP_NUM_PAR);

@@ -7,6 +7,7 @@
 #include "../simdebug.h"
 #include "../simversion.h"
 #include "../simloadingscreen.h"
+#include "../sys/simsys.h"
 
 #include <string.h>
 #include <errno.h>
@@ -14,8 +15,12 @@
 
 #ifndef NETTOOL
 #include "../dataobj/translator.h"
+#else
+#define dr_remove remove
+#define dr_fopen fopen
 #endif
 #include "../simversion.h"
+
 
 /*
  * Functions required by both Simutrans and Nettool
@@ -24,7 +29,7 @@
 char const* network_receive_file( SOCKET const s, char const* const save_as, sint32 const length, sint32 const timeout )
 {
 	// ok, we have a socket to connect
-	remove(save_as);
+	dr_remove(save_as);
 
 	DBG_MESSAGE("network_receive_file", "File size %li", length );
 
@@ -36,7 +41,7 @@ char const* network_receive_file( SOCKET const s, char const* const save_as, sin
 		// good place to show a progress bar
 		char rbuf[4096];
 		sint32 length_read = 0;
-		if (FILE* const f = fopen(save_as, "wb")) {
+		if (FILE* const f = dr_fopen(save_as, "wb")) {
 			while(length_read < length) {
 				if(  timeout > 0  ) {
 					/** 10s for 4096 bytes:
@@ -95,6 +100,8 @@ char const* network_receive_file( SOCKET const s, char const* const save_as, sin
 #include "../simworld.h"
 #include "../utils/simstring.h"
 
+#include "../sys/simsys.h"
+
 
 // connect to address (cp), receive gameinfo, close
 const char *network_gameinfo(const char *cp, gameinfo_t *gi)
@@ -106,7 +113,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 		network_command_t *nwc;
 		nwc_gameinfo_t *nwgi;
 		uint32 len;
-		char filename[1024];
+		char filename[PATH_MAX];
 		loadsave_t fd;
 
 		socket_list_t::add_client(my_client_socket);
@@ -264,7 +271,7 @@ end:
 
 const char *network_send_file( uint32 client_id, const char *filename )
 {
-	FILE *fp = fopen(filename,"rb");
+	FILE *fp = dr_fopen(filename,"rb");
 	if (fp == NULL) {
 		dbg->warning("network_send_file", "could not open file %s", filename);
 		return "Could not open file";
@@ -331,7 +338,7 @@ const char *network_http_post( const char *address, const char *name, const char
 				"Content-Length: %d\r\n\r\n%s";
 		if ((strlen(format) + strlen(name) + strlen(address) + strlen(poststr) + strlen(QUOTEME(REVISION))) > 4060) {
 			// We will get a buffer overwrite here if we continue
-			return "Error: String too long";
+			dbg->fatal( "network_http_post", "Error: String too long (>4096)" );
 		}
 		DBG_MESSAGE("network_http_post", "2");
 		char request[4096];

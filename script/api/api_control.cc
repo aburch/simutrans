@@ -12,13 +12,13 @@
 
 using namespace script_api;
 
-SQInteger sleep(HSQUIRRELVM vm)
-{
-	if (const char* blocker = sq_get_suspend_blocker(vm)) {
-		return sq_raise_error(vm, "Cannot call sleep from within `%s'.", blocker);
-	}
-	return sq_suspendvm(vm);
-}
+// SQInteger sleep(HSQUIRRELVM vm)
+// {
+// 	if (const char* blocker = sq_get_suspend_blocker(vm)) {
+// 		return sq_raise_error(vm, "Cannot call sleep from within `%s'.", blocker);
+// 	}
+// 	return sq_suspendvm(vm);
+// }
 
 void export_control(HSQUIRRELVM vm)
 {
@@ -30,15 +30,17 @@ void export_control(HSQUIRRELVM vm)
 	 * i.e. writing into @ref persistent.
 	 * @typemask void()
 	 */
-	register_function(vm, sleep, "sleep", 1, ".");
 
-	/**
-	 * @returns total amount of opcodes executed by vm
-	 */
-	register_function(vm, sq_get_ops_total, "get_ops_total", 1, ".");
+	register_function(vm, sq_suspendvm, "sleep", 1, ".");
+	// register_function(vm, sleep, "sleep", 1, ".");
 
-	/**
-	 * @returns amount of remaining opcodes until vm will be suspended
-	 */
-	register_function(vm, sq_get_ops_remaing, "get_ops_remaining", 1, ".");
+	// /**
+	//  * @returns total amount of opcodes executed by vm
+	//  */
+	// register_function(vm, sq_get_ops_total, "get_ops_total", 1, ".");
+
+	// /**
+	//  * @returns amount of remaining opcodes until vm will be suspended
+	//  */
+	// register_function(vm, sq_get_ops_remaing, "get_ops_remaining", 1, ".");
 }

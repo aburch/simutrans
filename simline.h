@@ -7,9 +7,10 @@
 #define SIMLINE_H
 
 
+#include "simtypes.h"
+#include "simcolor.h"
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
-#include "simtypes.h"
 #include "simconvoi.h"
 
 #include "tpl/minivec_tpl.h"
@@ -77,7 +78,7 @@ private:
 	 * the current state saved as color
 	 * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), BLUE (at least one convoi vehicle is obsolete)
 	 */
-	uint8 state_color;
+	PIXVAL state_color;
 
 	/*
 	 * a list of all convoys assigned to this line
@@ -168,7 +169,7 @@ public:
 	 * returns the state of the line
 	 * @author prissi
 	 */
-	uint8 get_state_color() const { return state_color; }
+	PIXVAL get_state_color() const { return state_color; }
 	// This has multiple flags
 	uint8 get_state() const { return state; }
 
@@ -249,7 +250,13 @@ public:
 	void new_month();
 
 	linetype get_linetype() { return type; }
-	static linetype get_linetype( const waytype_t wt );
+
+	static waytype_t linetype_to_waytype(const linetype lt);
+	static linetype waytype_to_linetype(const waytype_t wt);
+	static const char *get_linetype_name(const linetype lt);
+	inline char const *get_linetype_name() const {
+		return schedule_type_text[type];
+	}
 
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 
@@ -294,10 +301,6 @@ public:
 		else {
 			return schedule->get_schedule_type_symbol();
 		}
-	}
-
-	inline char const *get_linetype_name() const {
-		return schedule_type_text[type];
 	}
 
 	sint64 calc_departures_scheduled();

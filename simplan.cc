@@ -598,19 +598,19 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 		if(gb) {
 			fabrik_t* fab=gb->get_fabrik();
 			if(fab) {
-				PLAYER_COLOR_VAL status = COL_RED;
+				FLAGGED_PIXVAL status = color_idx_to_rgb(COL_RED);
 				if(fab->get_desc()->is_electricity_producer()) {
-					status = COL_LIGHT_BLUE;
+					status = color_idx_to_rgb(COL_LIGHT_BLUE);
 					if(fab->is_transformer_connected()) {
-						status = COL_LIGHT_TURQUOISE;
+						status = color_idx_to_rgb(COL_LIGHT_TURQUOISE);
 					}
 				}
 				else {
 					if(fab->is_transformer_connected()) {
-						status = COL_ORANGE;
+						status = color_idx_to_rgb(COL_ORANGE);
 					}
 					if(fab->get_prodfactor_electric()>0) {
-						status = COL_GREEN;
+						status = color_idx_to_rgb(COL_GREEN);
 					}
 				}
 				display_img_blend( overlay_img(gr), xpos, ypos, status | OUTLINE_FLAG | TRANSPARENT50_FLAG, 0, true);
@@ -627,7 +627,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			image_id img = overlay_img(gr);
 
 			for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
-				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (halt_list[halt_count].halt->get_owner()->get_player_color1() + 4);
+				const FLAGGED_PIXVAL transparent = PLAYER_FLAG | OUTLINE_FLAG | color_idx_to_rgb(halt_list[halt_count].halt->get_owner()->get_player_color1() + 4);
 				display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
 			}
 #ifdef PLOT_PLAYER_OUTLINE_COLOURS
@@ -641,7 +641,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 				player_t *display_player = welt->get_player(player_count);
 				if(display_player)
 				{
-					const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
+					const FLAGGED_PIXVAL transparent = PLAYER_FLAG | OUTLINE_FLAG | color_idx_to_rgb(display_player->get_player_color1() * 4 + 4);
 					for(int halt_count = 0; halt_count < halt_list_count; halt_count++)
 					{
 						if(halt_list[halt_count].halt->get_owner() == display_player)
@@ -663,7 +663,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			const sint16 off = (raster_tile_width>>5);
 			// suitable start search
 			for (size_t h = halt_list_count; h-- != 0;) {
-				display_fillbox_wh_clip(x - h * off, y + h * off, r, r, PLAYER_FLAG | (halt_list[h].halt->get_owner()->get_player_color1() + 4), kartenboden_dirty);
+				display_fillbox_wh_clip_rgb(x - h * off, y + h * off, r, r, PLAYER_FLAG | color_idx_to_rgb(halt_list[h].halt->get_owner()->get_player_color1() + 4), kartenboden_dirty);
 			}
 		}
 	}

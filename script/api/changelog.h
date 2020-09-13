@@ -9,6 +9,18 @@
  *
  * @section api-trunk Current trunk
  *
+ * @section api-120-1-2 Release 120.1.2
+ *
+ * - Added label_x::get_text, tile_x::get_text
+ * - Added factory_x::get_halt_list, halt_x::get_tile_list, halt_x::get_factory_list, square_x::get_halt_list
+ * - Added world.get_player
+ * - Removed player_x::is_active
+ *
+ * @section api-120-1 Release 120.1
+ *
+ * - Added depot_x, depot_x::get_convoy_list
+ * - Added line_x::get_waytype, tile_x::get_slope
+ * - Added factory_production_x::get_base_production, factory_production_x::get_base_consumption, factory_x::get_tile_list
  * - Added coord::href, coord3d::href
  * - Added label_x, tile_x::remove_object
  * - Added ::get_debug_text, debug::get_forbidden_text
@@ -69,7 +81,6 @@
  * - Added player_x::is_active, world::remove_player
  * - Added schedule_x, schedule_entry_x, ::is_schedule_allowed
  * - Added halt_x::is_connected
- *
  *
  * @section api-112-1 Releases 112.0 and 112.1
  *

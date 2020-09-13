@@ -8,41 +8,37 @@
 
 
 #include "savegame_frame.h"
-
+#include "components/gui_textarea.h"
+#include "../utils/cbuffer_t.h"
 
 class pakselector_t : public savegame_frame_t
 {
-private:
-	// unused button_t load_addons;
-	//bool at_least_one_add;
-	gui_file_table_action_column_t action_column;
-	gui_file_table_delete_column_t addon_column;
+	protected:
+		scr_coord_val  addon_button_width;
+		scr_coord_val  action_button_width;
+		cbuffer_t      notice_buffer;
+		gui_textarea_t notice_label;
+		gui_divider_t  divider;
 
-protected:
-	virtual bool item_action(const char *fullpath) OVERRIDE;
-	virtual bool del_action(const char *fullpath) OVERRIDE;
-	virtual const char *get_info(const char *fname) OVERRIDE;
+		virtual const char *get_info    ( const char *filename );
+		virtual       bool  check_file  ( const char *filename, const char *suffix );
+		virtual       bool  item_action ( const char *fullpath );
+		virtual       bool  del_action  ( const char *fullpath );
 
-	// true, if valid
-	virtual bool check_file( const char *filename, const char *suffix ) OVERRIDE;
+	public:
+		pakselector_t();
 
-	virtual void init(const char *suffix, const char *path) OVERRIDE;
-	virtual void add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix) OVERRIDE;
+		const char *get_help_filename ( void ) const { return ""; }
+		      bool  has_title       ( void ) const { return false; }
+		      bool  has_pak         ( void ) const { return !entries.empty(); }
+		      void  fill_list       ( void );
 
-public:
-	void fill_list() OVERRIDE;	// do the search ...
-	virtual bool has_title() const OVERRIDE { return false; }
-	bool has_pak() const { return use_table ? file_table.get_size().h > 0 : !entries.empty(); }
+		// If there is only one option, this will set the pak name and return true.
+		// Otherwise it will return false.  (Note, it's const but it modifies global data.)
+		bool check_only_one_option() const;
 
-	// If there is only one option, this will set the pak name and return true.
-	// Otherwise it will return false.  (Note, it's const but it modifies global data.)
-	bool check_only_one_option() const;
-	const char * get_help_filename() const OVERRIDE { return ""; }
-	// since we only want to see the frames ...
-	void draw(scr_coord pos, scr_size gr) OVERRIDE;
-	void set_windowsize(scr_size size) OVERRIDE;
-	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
-	pakselector_t();
+		// since we only want to see the frame...
+		void set_windowsize(scr_size size);
 };
 
 #endif

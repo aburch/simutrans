@@ -22,7 +22,7 @@
 #include "../simworld.h"
 
 
-class karte_t;
+class karte_ptr_t;
 class fabrik_t;
 class koord3d;
 class tool_t;
@@ -47,7 +47,7 @@ protected:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static karte_t *welt;
+	static karte_ptr_t welt;
 
 	// when was the company founded
 	uint16 player_age;
@@ -324,7 +324,7 @@ public:
 	 * @param player_nr Number assigned to this player - it's an ID.
 	 * @author Hj. Malthaner
 	 */
-	player_t(karte_t *welt, uint8 player_nr );
+	player_t( uint8 player_nr );
 
 	virtual ~player_t();
 
@@ -422,11 +422,9 @@ public:
 	/**
 	 * Tells the player the result of tool-work commands
 	 * If player is active then play sound, popup error msg etc
-	 * AI players react upon this call and proceedplayer The owner of the city
-	 * local is true if tool was called by player on our client
 	 * @author Dwachs
 	 */
-	virtual void tell_tool_result(tool_t *tool, koord3d pos, const char *err, bool local);
+	virtual void tell_tool_result(tool_t *tool, koord3d pos, const char *err);
 
 	/**
 	 * Tells the player that the factory

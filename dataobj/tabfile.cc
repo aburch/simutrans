@@ -3,12 +3,14 @@
  * (see LICENSE.txt)
  */
 
+#include "../sys/simsys.h"
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
 
 #ifdef MAKEOBJ
 #include "../descriptor/writer/obj_writer.h"
+#define dr_fopen fopen
 #endif
 
 #include "../simdebug.h"
@@ -20,7 +22,7 @@
 bool tabfile_t::open(const char *filename)
 {
 	close();
-	file = fopen(filename, "r");
+	file = dr_fopen(filename, "r");
 	return file != NULL;
 }
 
@@ -132,7 +134,7 @@ const scr_size &tabfileobj_t::get_scr_size(const char *key, scr_size def)
 
 
 
-uint8 tabfileobj_t::get_color(const char *key, uint8 def)
+PIXVAL tabfileobj_t::get_color(const char *key, PIXVAL def, uint32 *color_rgb)
 {
 	const char *value = get_string(key,NULL);
 
@@ -144,14 +146,30 @@ uint8 tabfileobj_t::get_color(const char *key, uint8 def)
 		while ( *value>0  &&  *value<=32  ) {
 			value ++;
 		}
+#ifndef MAKEOBJ
 		if(  *value=='#'  ) {
 			uint32 rgb = strtoul( value+1, NULL, 16 ) & 0XFFFFFFul;
-			return image_t::get_index_from_rgb( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
+			// we save in settings as RGB888
+			if (color_rgb) {
+				*color_rgb = rgb;
+			}
+			// but the functions expect in the system colour (like RGB565)
+			return get_system_color( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
 		}
 		else {
 			// this inputs also hex correct
-			return (uint8)strtol( value, NULL, 0 );
+			uint8 index = (uint8)strtoul( value, NULL, 0 );
+			//we save in settings as RGB888
+			if (color_rgb) {
+				*color_rgb = get_color_rgb(index);
+			}
+			//but the functions expect in the system colour (like RGB565)
+			return color_idx_to_rgb(index);
 		}
+#else
+		(void)color_rgb;
+		return (uint8)strtoul( value, NULL, 0 );
+#endif
 	}
 }
 
@@ -354,7 +372,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 								case '-':
 									if (parameter_ribi[i]) {
 										value = parameter_values[i];
-										sprintf(parameter_name[value], "%.*s", strcspn(buffer+name_length+1,","), buffer+name_length+1);
+										sprintf(parameter_name[value], "%.*s", (int)strcspn(buffer+name_length+1,","), buffer+name_length+1);
 										name_length += strcspn(buffer+name_length+1,",") + 1;
 										parameter_value[i][parameter_values[i]++] = value;
 									}
@@ -417,10 +435,10 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 								expansion_value[i] = calculate(buffer, parameter_value, parameters, combination);
 							}
 
-							sprintf(delim_expand, "%.*s%d", expansion[0]-delim, delim, expansion_value[0]);
+							sprintf(delim_expand, "%.*s%d", (int)(expansion[0]-delim), delim, expansion_value[0]);
 							for(int i=1; i<expansions; i++) {
 								char *prev_end = expansion[i-1]+expansion_length[i-1]+2;
-								sprintf(buffer, "%.*s%d", expansion[i]-prev_end, prev_end, expansion_value[i]);
+								sprintf(buffer, "%.*s%d", (int)(expansion[i]-prev_end), prev_end, expansion_value[i]);
 								strcat(delim_expand, buffer);
 							}
 							strcat(delim_expand, expansion[expansions-1]+expansion_length[expansions-1]+2);
@@ -619,10 +637,11 @@ void tabfile_t::add_operator_brackets(char *expression, char *processed)
 			if(expression_end==NULL) expression_end = expression_pos;
 
 			// construct expression with brackets around 'a operator b'
-			sprintf(buffer,"%.*s(%.*s%.*s)%s",	expression_start-processed+1, processed,
-								expression_ptr-expression_start-1, expression_start+1,
-								expression_end-expression_ptr, expression_ptr,
-								expression_end);
+			sprintf(buffer,"%.*s(%.*s%.*s)%s",
+				(int)(expression_start-processed+1), processed,
+				(int)(expression_ptr-expression_start-1), expression_start+1,
+				(int)(expression_end-expression_ptr), expression_ptr,
+				expression_end);
 
 			strcpy(processed, buffer);
 			operator_count++;

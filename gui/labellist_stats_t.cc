@@ -158,11 +158,11 @@ void labellist_stats_t::recalc_size()
 
 		// the other infos
 		const label_t* label = welt->lookup_kartenboden(pos)->find<label_t>();
-		//PLAYER_COLOR_VAL col = SYSCOL_TEXT_HIGHLIGHT;
+		//FLAGGED_PIXVAL col = color_idx_to_rgb(SYSCOL_TEXT_HIGHLIGHT);
 		buf.printf(" (%d,%d)", pos.x, pos.y);
 
 		if(  label  ) {
-			//col = (PLAYER_FLAG|label->get_owner()->get_player_color1());
+			//col = (PLAYER_FLAG|color_idx_to_rgb(label->get_owner()->get_player_color1()));
 			grund_t *gr = welt->lookup(label->get_pos());
 			if(  gr  &&  gr->get_text()  ) {
 				buf.append(gr->get_text());
@@ -219,17 +219,17 @@ void labellist_stats_t::draw(scr_coord offset)
 
 		// the other infos
 		const label_t* label = welt->lookup_kartenboden(pos)->find<label_t>();
-		PLAYER_COLOR_VAL col = SYSCOL_TEXT_HIGHLIGHT;
+		FLAGGED_PIXVAL col = color_idx_to_rgb(SYSCOL_TEXT_HIGHLIGHT);
 		buf.printf(" (%d,%d)", pos.x, pos.y);
 
 		if(label) {
-			col = (PLAYER_FLAG|label->get_owner()->get_player_color1());
+			col = (PLAYER_FLAG|color_idx_to_rgb(label->get_owner()->get_player_color1()));
 			grund_t *gr = welt->lookup(label->get_pos());
 			if(gr && gr->get_text()) {
 				buf.append(gr->get_text());
 			}
 		}
-		const int px_len = display_proportional_clip(offset.x+10+4,yoff,buf,ALIGN_LEFT,col,true);
+		const int px_len = display_proportional_clip_rgb(offset.x+10+4,yoff,buf,ALIGN_LEFT,col,true);
 		if(  px_len>x_size  ) {
 			x_size = px_len;
 		}

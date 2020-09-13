@@ -92,6 +92,7 @@
 
 
 /* macros */
+#define IS_MOUSE(ev) ((ev)->ev_class >= EVENT_CLICK && (ev)->ev_class <= EVENT_DRAG)
 
 #define IS_LEFTCLICK(ev) ((ev)->ev_class == EVENT_CLICK && (ev)->ev_code == MOUSE_LEFTBUTTON)
 #define IS_LEFTRELEASE(ev) ((ev)->ev_class == EVENT_RELEASE && (ev)->ev_code == MOUSE_LEFTBUTTON)
@@ -155,6 +156,11 @@ struct event_t {
 	 * position of last mouse click
 	 */
 	int cx, cy;
+
+	/**
+	 * new window size for SYSTEM_RESIZE
+	 */
+	int size_x, size_y;
 
 	/**
 	 * current mouse button state

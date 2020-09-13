@@ -291,7 +291,7 @@ public:
 	 * then a transparent outline with the color from the lower 8 bit is drawn
 	 * @author kierongreen
 	 */
-	virtual PLAYER_COLOR_VAL get_outline_colour() const {return 0;}
+	virtual FLAGGED_PIXVAL get_outline_colour() const {return 0;}
 
 	/**
 	 * The image, that will be outlined

@@ -137,7 +137,7 @@ const char *grund_t::get_text() const
 }
 
 
-PLAYER_COLOR_VAL grund_t::text_farbe() const
+FLAGGED_PIXVAL grund_t::text_farbe() const
 {
 	// if this ground belongs to a halt, the color should reflect the halt owner, not the ground owner!
 	// Now, we use the color of label_t owner
@@ -146,7 +146,7 @@ PLAYER_COLOR_VAL grund_t::text_farbe() const
 		const halthandle_t halt = get_halt();
 		const player_t *player=halt->get_owner();
 		if(player) {
-			return PLAYER_FLAG|(player->get_player_color1()+4);
+			return PLAYER_FLAG|color_idx_to_rgb(player->get_player_color1()+4);
 		}
 	}
 	// else color according to current owner
@@ -157,7 +157,7 @@ PLAYER_COLOR_VAL grund_t::text_farbe() const
 			player = l->get_owner();
 		}
 		if(player) {
-			return PLAYER_FLAG|(player->get_player_color1()+4);
+			return PLAYER_FLAG|color_idx_to_rgb(player->get_player_color1()+4);
 		}
 	}
 
@@ -1110,7 +1110,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 				display_normal( get_image(), xpos, ypos, 0, true, dirty CLIP_NUM_PAR );
 #ifdef SHOW_FORE_GRUND
 				if (get_flag(grund_t::draw_as_obj)) {
-					display_blend( get_image(), xpos, ypos, 0, COL_RED | OUTLINE_FLAG |TRANSPARENT50_FLAG, true, dirty CLIP_NUM_PAR );
+					display_blend( get_image(), xpos, ypos, 0, color_idx_to_rgb(COL_RED) | OUTLINE_FLAG |TRANSPARENT50_FLAG, true, dirty CLIP_NUM_PAR );
 				}
 #endif
 				//display climate transitions - only needed if below snowline (snow_transition>0)
@@ -1267,7 +1267,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 				}
 				if(  way_ribi & ribi_t::north  ) {
 					const int dh = corner_nw(get_disp_way_slope()) * hgt_step;
-					add_poly_clip(xpos + raster_tile_width - 1, ypos + 3 * raster_tile_width / 4 - 1 - dh, xpos + raster_tile_width / 2 + 1, ypos + raster_tile_width / 2 - dh, ribi_t::north | non_convex CLIP_NUM_PAR);
+					add_poly_clip( xpos + raster_tile_width, ypos + 3 * raster_tile_width / 4 - dh, xpos + raster_tile_width / 2, ypos + raster_tile_width / 2 - dh, ribi_t::north | non_convex CLIP_NUM_PAR );
 				}
 				activate_ribi_clip((way_ribi & ribi_t::northwest) | non_convex  CLIP_NUM_PAR);
 			}
@@ -1511,7 +1511,7 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 		ribi = (static_cast<const wasser_t*>(this))->get_weg_ribi(water_wt);
 	}
 
-	// now ways? - no clipping needed, avoid all the ribi-checks
+	// no ways? - no clipping needed, avoid all the ribi-checks
 	if (ribi==ribi_t::none) {
 		// display background
 		const uint8 offset_vh = display_obj_bg( xpos, ypos, is_global, true, visible CLIP_NUM_PAR );
@@ -1526,9 +1526,14 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 
 	// ships might be large and could be clipped by vertical walls on our tile
 	const bool ontile_se = back_imageid  &&  is_water();
-
 	// get slope of way as displayed
 	const uint8 slope = get_disp_way_slope();
+	// tunnel portals need special clipping
+	bool tunnel_portal = ist_tunnel()  &&  ist_karten_boden();
+	if (tunnel_portal) {
+		// pretend tunnel portal is connected to the inside
+		ribi |= ribi_type(get_grund_hang());
+	}
 	// clip
 	const int hgt_step = tile_raster_scale_y( TILE_HEIGHT_STEP, raster_tile_width);
 	// .. nonconvex n/w if not both n/w are active and if we have back image
@@ -1540,7 +1545,7 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 	}
 	if(  ribi & ribi_t::north  ) {
 		const int dh = corner_nw(slope) * hgt_step;
-		add_poly_clip(xpos + raster_tile_width - 1, ypos + 3 * raster_tile_width / 4 - 1 - dh, xpos + raster_tile_width / 2 + 1, ypos + raster_tile_width / 2 - dh, ribi_t::north | non_convex CLIP_NUM_PAR);
+		add_poly_clip( xpos + raster_tile_width, ypos + 3 * raster_tile_width / 4 - dh, xpos + raster_tile_width / 2, ypos + raster_tile_width / 2 - dh, ribi_t::north | non_convex CLIP_NUM_PAR );
 	}
 	if(  ribi & ribi_t::east  ) {
 		const int dh = corner_se(slope) * hgt_step;
@@ -1548,11 +1553,17 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 	}
 	if(  ribi & ribi_t::south  ) {
 		const int dh = corner_se(slope) * hgt_step;
-		add_poly_clip(xpos, ypos + 3 * raster_tile_width / 4 + 1 - dh, xpos + raster_tile_width / 2, ypos + raster_tile_width + 1 - dh, ribi_t::south | 16  CLIP_NUM_PAR);
+		add_poly_clip(xpos - 1, ypos + 3 * raster_tile_width / 4 - dh, xpos + raster_tile_width / 2 - 1, ypos + raster_tile_width - dh, ribi_t::south | 16  CLIP_NUM_PAR);
 	}
+
 	// display background
+	if (!tunnel_portal  ||  slope == 0) {
+		activate_ribi_clip( (ribi_t::northwest & ribi) | 16 CLIP_NUM_PAR );	}
+	else {
+		// also clip along the upper edge of the tunnel tile
+		activate_ribi_clip( ribi | 16 CLIP_NUM_PAR );
+	}
 	// get offset of first vehicle
-	activate_ribi_clip( (ribi_t::northwest & ribi) | 16 CLIP_NUM_PAR );
 	const uint8 offset_vh = display_obj_bg( xpos, ypos, is_global, false, visible CLIP_NUM_PAR );
 	if(  !visible  ) {
 		// end of clipping
@@ -1643,11 +1654,20 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 		gr_se->display_obj_vh( xpos, ypos + raster_tile_width / 2 - tile_raster_scale_y( (gr_se->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::southeast, ontile_se CLIP_NUM_PAR );
 	}
 
-	// end of clipping
-	clear_all_poly_clip( CLIP_NUM_VAR );
-
 	// foreground
+	if (tunnel_portal  &&  slope != 0) {
+		// clip at the upper edge
+		activate_ribi_clip( (ribi & (corner_se(slope)>0 ?  ribi_t::southeast : ribi_t::northwest) )| 16 CLIP_NUM_PAR );
+	}
+	else {
+		clear_all_poly_clip( CLIP_NUM_VAR );
+	}
 	display_obj_fg( xpos, ypos, is_global, offset_fg CLIP_NUM_PAR );
+
+	// end of clipping
+	if (tunnel_portal) {
+		clear_all_poly_clip( CLIP_NUM_VAR );
+	}
 }
 
 
@@ -1736,19 +1756,19 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 			const sint16 raster_tile_width = get_tile_raster_width();
 			const int width = proportional_string_width(text)+7;
 			int new_xpos = xpos - (width-raster_tile_width)/2;
-			PLAYER_COLOR_VAL pc = text_farbe();
+			FLAGGED_PIXVAL pc = text_farbe();
 
 			switch( env_t::show_names >> 2 ) {
 				case 0:
-					display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, SYSCOL_TEXT, text, dirty );
+					display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, color_idx_to_rgb(COL_BLACK), text, dirty );
 					break;
 				case 1:
-					display_outline_proportional( new_xpos, ypos-(LINESPACE/2), pc+3, SYSCOL_TEXT, text, dirty );
+					display_outline_proportional_rgb( new_xpos, ypos-(LINESPACE/2), pc+3, color_idx_to_rgb(COL_BLACK), text, dirty );
 					break;
 				case 2:
-					display_outline_proportional( 16+new_xpos, ypos-(LINESPACE/2), COL_YELLOW, SYSCOL_TEXT, text, dirty );
-					display_ddd_box_clip( new_xpos, ypos-(LINESPACE/2), LINESPACE, LINESPACE, pc-2, pc+2 );
-					display_fillbox_wh( new_xpos+1, ypos-(LINESPACE/2)+1, LINESPACE-2, LINESPACE-2, pc, dirty );
+					display_outline_proportional_rgb( new_xpos + LINESPACE + D_H_SPACE, ypos-(LINESPACE/2), color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, dirty );
+					display_ddd_box_clip_rgb( new_xpos, ypos-(LINESPACE/2), LINESPACE, LINESPACE, pc-2, pc+2 );
+					display_fillbox_wh_rgb( new_xpos+1, ypos-(LINESPACE/2)+1, LINESPACE-2, LINESPACE-2, pc, dirty );
 					break;
 			}
 		}

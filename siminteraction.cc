@@ -240,7 +240,7 @@ void interaction_t::interactive_event( const event_t &ev )
 			}
 			if (!suspended) {
 				// play sound / error message
-				world->get_active_player()->tell_tool_result(tool, pos, err, true);
+				world->get_active_player()->tell_tool_result(tool, pos, err);
 
 				// Check if we need to update pointer(zeiger) position.
 				if( err == NULL  &&  tool->update_pos_after_use() ) {
@@ -308,7 +308,7 @@ bool interaction_t::process_event(event_t &ev)
 			env_t::server_save_game_on_quit = false;
 
 			// following code quite similar to nwc_sync_t::do_coomand
-			chdir(env_t::user_dir);
+			dr_chdir( env_t::user_dir );
 
 			// first save password hashes
 			char fn[256];
@@ -339,7 +339,8 @@ bool interaction_t::process_event(event_t &ev)
 			world->save(fn, loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR, false);
 			env_t::restore_UI = old_restore_UI;
 		}
-		else if (env_t::reload_and_save_on_quit) {
+		else if (env_t::reload_and_save_on_quit && !env_t::networkmode) {
+			// save current game, if not online
 			bool old_restore_UI = env_t::restore_UI;
 			env_t::restore_UI = true;
 

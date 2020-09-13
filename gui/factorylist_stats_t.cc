@@ -187,7 +187,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 		if (yoff < start) continue;
 
 		if(fab) {
-			unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()%fabrik_t::staff_shortage];
+			PIXVAL indikatorfarbe = color_idx_to_rgb(fabrik_t::status_to_color[fab->get_status()%fabrik_t::staff_shortage]);
 			int offset_left = 1;
 
 			// goto button
@@ -197,31 +197,31 @@ void factorylist_stats_t::draw(scr_coord offset)
 
 			// status bar
 			if (fab->get_status() >= fabrik_t::staff_shortage) {
-				display_ddd_box_clip(xoff + offset_left, yoff + 1, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT + 2, COL_STAFF_SHORTAGE, COL_STAFF_SHORTAGE);
+				display_ddd_box_clip_rgb(xoff + offset_left, yoff + 1, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT + 2, COL_STAFF_SHORTAGE, COL_STAFF_SHORTAGE);
 			}
 			offset_left++;
-			display_fillbox_wh_clip(xoff+ offset_left, yoff+2, D_INDICATOR_WIDTH-2, D_INDICATOR_HEIGHT, indikatorfarbe, true);
+			display_fillbox_wh_clip_rgb(xoff+ offset_left, yoff+2, D_INDICATOR_WIDTH-2, D_INDICATOR_HEIGHT, indikatorfarbe, true);
 			offset_left += D_INDICATOR_WIDTH;
 
 			buf.clear();
 			buf.append(fab->get_name());
 			// show name
-			offset_left += max(150, display_proportional_clip(xoff + offset_left, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true));
+			offset_left += max(150, display_proportional_clip_rgb(xoff + offset_left, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true));
 			buf.clear();
 
 			if (display_operation_stats) {
 				// this month and last month operation rate
 				buf.printf("%3.1f - ", fab->get_stat_converted(0,FAB_PRODUCTION) / 100.0);
 				offset_left += proportional_string_width("0000.0 -");
-				display_proportional_clip(xoff + offset_left, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
+				display_proportional_clip_rgb(xoff + offset_left, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 				buf.clear();
 				buf.printf("%3.1f", fab->get_stat_converted(1, FAB_PRODUCTION) / 100.0);
 				offset_left += proportional_string_width("0000.0");
-				display_proportional_clip(xoff + offset_left, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
+				display_proportional_clip_rgb(xoff + offset_left, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 				buf.clear();
 				const uint32 max_productivity = (100 * (fab->get_desc()->get_electric_boost() + fab->get_desc()->get_pax_boost() + fab->get_desc()->get_mail_boost())) >> DEFAULT_PRODUCTION_FACTOR_BITS;
 				buf.printf("/%d%%", max_productivity + 100);
-				offset_left += display_proportional_clip(xoff + offset_left, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				offset_left += display_proportional_clip_rgb(xoff + offset_left, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				buf.clear();
 
 				// electricity
@@ -231,7 +231,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 						display_color_img(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left, yoff, 0, false, true);
 					}
 					else {
-						display_img_blend(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left, yoff, TRANSPARENT50_FLAG | OUTLINE_FLAG | COL_GREY2, false, false);
+						display_img_blend(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left, yoff, TRANSPARENT50_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_GREY2), false, false);
 					}
 				}
 				offset_left += 10;
@@ -246,7 +246,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 
 				// staffing
 				if (fab->get_desc()->get_building()->get_class_proportions_sum_jobs()) {
-					display_ddd_box_clip(xoff + offset_left, yoff+2, 52, D_INDICATOR_HEIGHT+2, MN_GREY0, MN_GREY4);
+					display_ddd_box_clip_rgb(xoff + offset_left, yoff+2, 52, D_INDICATOR_HEIGHT+2, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
 					uint32 staff_shortage_factor=0;
 					if (fab->get_sector() == fabrik_t::end_consumer) {
 						staff_shortage_factor = welt->get_settings().get_minimum_staffing_percentage_consumer_industry();
@@ -255,9 +255,9 @@ void factorylist_stats_t::draw(scr_coord offset)
 						staff_shortage_factor = welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry();
 					}
 					if (staff_shortage_factor) {
-						display_fillbox_wh_clip(xoff + offset_left + 1, yoff + 3, staff_shortage_factor/2, D_INDICATOR_HEIGHT, COL_YELLOW, true);
+						display_fillbox_wh_clip_rgb(xoff + offset_left + 1, yoff + 3, staff_shortage_factor/2, D_INDICATOR_HEIGHT, color_idx_to_rgb(COL_YELLOW), true);
 					}
-					display_cylinderbar_wh_clip(xoff + offset_left + 1, yoff + 3,
+					display_cylinderbar_wh_clip_rgb(xoff + offset_left + 1, yoff + 3,
 						(fab->get_staffing_level_percentage() > 100) ? STORAGE_BAR_WIDTH : fab->get_staffing_level_percentage()/2, D_INDICATOR_HEIGHT,
 						((staff_shortage_factor > (uint32)fab->get_staffing_level_percentage()) ? COL_STAFF_SHORTAGE : goods_manager_t::passengers->get_color()), true);
 				}
@@ -274,7 +274,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 							display_color_img(skinverwaltung_t::in_transit->get_image_id(0), xoff + offset_left, yoff, 0, false, false);
 						}
 						buf.printf("%i", fab->get_total_transit());
-						display_proportional_clip(xoff + offset_left + 14, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+						display_proportional_clip_rgb(xoff + offset_left + 14, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						buf.clear();
 					}
 
@@ -283,10 +283,10 @@ void factorylist_stats_t::draw(scr_coord offset)
 						display_color_img(skinverwaltung_t::input_output->get_image_id(0), xoff + offset_left + 14 + 32, yoff, 0, false, false);
 					}
 					uint colored_with = fab->get_total_input_occupancy() * STORAGE_BAR_WIDTH / 100;
-					display_vlinear_gradiwnt_wh(xoff + offset_left + 14 + 32 + 12, yoff + 2, colored_with, LINESPACE - 3, colored_with == STORAGE_BAR_WIDTH ? COL_DARK_GREEN : COL_DARK_GREEN + 1, 10, 75);
+					display_vlinear_gradient_wh_rgb(xoff + offset_left + 14 + 32 + 12, yoff + 2, colored_with, LINESPACE - 3, color_idx_to_rgb(colored_with == STORAGE_BAR_WIDTH ? COL_DARK_GREEN : COL_DARK_GREEN + 1), 10, 75);
 
 					buf.printf("%4i", fab->get_total_in());
-					display_proportional_clip(xoff + offset_left + 14 + 40 + 14, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+					display_proportional_clip_rgb(xoff + offset_left + 14 + 40 + 14, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					buf.clear();
 				}
 				offset_left += 14 * 2 + 32 + STORAGE_BAR_WIDTH;
@@ -299,11 +299,11 @@ void factorylist_stats_t::draw(scr_coord offset)
 
 					if (fab->get_total_output_capacity()) {
 						uint colored_with = fab->get_total_out() * STORAGE_BAR_WIDTH / fab->get_total_output_capacity();
-						display_vlinear_gradiwnt_wh(xoff + offset_left + 12, yoff + 2, colored_with, LINESPACE - 3, colored_with == STORAGE_BAR_WIDTH ? COL_DARK_GREEN : COL_DARK_GREEN + 1, 10, 75);
+						display_vlinear_gradient_wh_rgb(xoff + offset_left + 12, yoff + 2, colored_with, LINESPACE - 3, color_idx_to_rgb(colored_with == STORAGE_BAR_WIDTH ? COL_DARK_GREEN : COL_DARK_GREEN + 1), 10, 75);
 					}
 
 					buf.printf("%4i", fab->get_total_out());
-					display_proportional_clip(xoff + offset_left + 14, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+					display_proportional_clip_rgb(xoff + offset_left + 14, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					buf.clear();
 				}
 				else if (fab->get_sector() == fabrik_t::power_plant) {
@@ -311,7 +311,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 						display_color_img(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left+2, yoff, 0, false, true);
 					}
 					else {
-						display_img_blend(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left+2, yoff, TRANSPARENT50_FLAG | OUTLINE_FLAG | COL_GREY2, false, false);
+						display_img_blend(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left+2, yoff, TRANSPARENT50_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_GREY2), false, false);
 					}
 				}
 				offset_left += STORAGE_BAR_WIDTH + 14;
@@ -320,11 +320,11 @@ void factorylist_stats_t::draw(scr_coord offset)
 					NOTE: This number is ambiguous. This is an internal basic parameter and may differ from the actual production value.
 				*/
 				buf.append(fab->get_current_production(), 0);
-				display_proportional_clip(xoff + offset_left, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				display_proportional_clip_rgb(xoff + offset_left, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			}
 
 			if(  win_get_magic( (ptrdiff_t)fab )  ) {
-				display_blend_wh( xoff, yoff, size.w+D_INDICATOR_WIDTH, LINESPACE, SYSCOL_TEXT, 25 );
+				display_blend_wh_rgb( xoff, yoff, size.w+D_INDICATOR_WIDTH, LINESPACE, SYSCOL_TEXT, 25 );
 			}
 		}
 	}

@@ -58,12 +58,12 @@ bool increase_frame_time()
 	}
 }
 
-long get_frame_time()
+sint32 get_frame_time()
 {
 	return frame_time/FRAME_TIME_MULTI;
 }
 
-void set_frame_time(long time)
+void set_frame_time(sint32 time)
 {
 	frame_time = clamp( time, 10, 250 )*FRAME_TIME_MULTI;
 }
@@ -128,12 +128,12 @@ void intr_set(karte_t *welt, main_view_t *view)
  * currently only used by the pause tool. Use with care!
  * @author Hj. Malthaner
  */
-void intr_set_last_time(long time)
+void intr_set_last_time(sint32 time)
 {
 	last_time = time;
 }
 
-long intr_get_last_time()
+sint32 intr_get_last_time()
 {
 	return last_time;
 }

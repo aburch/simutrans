@@ -33,6 +33,12 @@ private:
 	// Variables for reference lines
 	sint64 prod_ref_line_data[MAX_FAB_REF_LINE];
 
+	struct button_to_curve_t {
+		button_t* button;
+		uint16 curve;
+	};
+	button_to_curve_t button_to_curve[MAX_FAB_STAT+MAX_FAB_REF_LINE];
+
 public:
 	factory_chart_t(const fabrik_t *_factory);
 
@@ -62,7 +68,7 @@ private:
 	uint16 goods_label_count;
 
 	// Optimize goods color to color for chart
-	COLOR_VAL goods_col_to_chart_col(COLOR_VAL col) const;
+	PIXVAL goods_col_to_chart_col(uint8 col) const;
 
 public:
 	factory_goods_chart_t(const fabrik_t *_factory);

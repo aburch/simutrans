@@ -53,7 +53,8 @@ static char const* const version[] =
 	"0.120.5",
 	"0.120.7",
 	"0.120.1.2",
-	"0.120.2.1"
+	"0.120.2.1",
+	"0.120.2.2"
 };
 
 static const char *version_ex[] =
@@ -110,7 +111,8 @@ static const char *revision_ex[] =
 	"27",
 	"28",
 	"29",
-	"30"
+	"30",
+	"31"
 };
 
 // just free memory
@@ -819,18 +821,18 @@ void settings_display_stats_t::init(settings_t const* const)
 	SEPERATOR
 	INIT_BOOL( "window_buttons_right", env_t::window_buttons_right );
 	INIT_BOOL( "window_frame_active", env_t::window_frame_active );
-	INIT_NUM( "front_window_bar_color", env_t::front_window_bar_color, 0, 6, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "default_window_title_color", env_t::default_window_title_color_rgb, 0, 16777215, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_NUM( "front_window_text_color", env_t::front_window_text_color, 208, 240, gui_numberinput_t::AUTOLINEAR, 0 );
-	INIT_NUM( "bottom_window_bar_color", env_t::bottom_window_bar_color, 0, 6, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_NUM( "bottom_window_text_color", env_t::bottom_window_text_color, 208, 240, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "bottom_window_darkness", env_t::bottom_window_darkness, 0, 100, gui_numberinput_t::AUTOLINEAR, 0 );
 	SEPERATOR
 	INIT_BOOL( "show_tooltips", env_t::show_tooltips );
-	INIT_NUM( "tooltip_background_color", env_t::tooltip_color, 0, 255, 1, 0 );
-	INIT_NUM( "tooltip_text_color", env_t::tooltip_textcolor, 0, 255, 1, 0 );
+	INIT_NUM( "tooltip_background_color", env_t::tooltip_color, 0, 16777215, 1, 0 );
+	INIT_NUM( "tooltip_text_color", env_t::tooltip_textcolor, 0, 16777215, 1, 0 );
 	INIT_NUM( "tooltip_delay", env_t::tooltip_delay, 0, 10000, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_NUM( "tooltip_duration", env_t::tooltip_duration, 0, 30000, gui_numberinput_t::AUTOLINEAR, 0 );
 	SEPERATOR
-	INIT_NUM( "cursor_overlay_color", env_t::cursor_overlay_color, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "cursor_overlay_color", env_t::cursor_overlay_color, 0, 16777215, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_BOOL( "left_to_right_graphs", env_t::left_to_right_graphs );
 	SEPERATOR
 	INIT_BOOL( "player_finance_display_account", env_t::player_finance_display_account );
@@ -851,18 +853,18 @@ void settings_display_stats_t::read(settings_t* const)
 
 	READ_BOOL_VALUE( env_t::window_buttons_right );
 	READ_BOOL_VALUE( env_t::window_frame_active );
-	READ_NUM_VALUE( env_t::front_window_bar_color );
-	READ_NUM_VALUE( env_t::front_window_text_color );
-	READ_NUM_VALUE( env_t::bottom_window_bar_color );
-	READ_NUM_VALUE( env_t::bottom_window_text_color );
+	READ_NUM_VALUE( env_t::default_window_title_color_rgb );
+	READ_NUM_VALUE( env_t::front_window_text_color_rgb );
+	READ_NUM_VALUE( env_t::bottom_window_text_color_rgb );
+	READ_NUM_VALUE( env_t::bottom_window_darkness );
 
 	READ_BOOL_VALUE( env_t::show_tooltips );
-	READ_NUM_VALUE( env_t::tooltip_color );
-	READ_NUM_VALUE( env_t::tooltip_textcolor );
+	READ_NUM_VALUE( env_t::tooltip_color_rgb );
+	READ_NUM_VALUE( env_t::tooltip_textcolor_rgb );
 	READ_NUM_VALUE( env_t::tooltip_delay );
 	READ_NUM_VALUE( env_t::tooltip_duration );
 
-	READ_NUM_VALUE( env_t::cursor_overlay_color );
+	READ_NUM_VALUE( env_t::cursor_overlay_color_rgb );
 	READ_BOOL_VALUE( env_t::left_to_right_graphs );
 
 	READ_BOOL_VALUE( env_t::player_finance_display_account );

@@ -8,11 +8,13 @@
 
 
 #include "simcolor.h"
+#include "display/simgraph.h"
 
 // ticker height
-#define TICKER_HEIGHT      (LINESPACE+3)
+#define TICKER_HEIGHT (LINESPACE+3)
+
 // ticker vertical position from bottom of screen
-#define TICKER_YPOS_BOTTOM (15+TICKER_HEIGHT)
+extern uint16 TICKER_YPOS_BOTTOM;
 
 class koord;
 
@@ -27,9 +29,9 @@ namespace ticker
 	/**
 	 * Add a message to the message list
 	 * @param pos    position of the event
-	 * @param color  message color 
+	 * @param color  message color
 	 */
-	void add_msg(const char*, koord pos, int color = COL_BLACK);
+	void add_msg(const char*, koord pos, FLAGGED_PIXVAL color = color_idx_to_rgb(COL_BLACK));
 
 	/**
 	 * Ticker infowin pops up

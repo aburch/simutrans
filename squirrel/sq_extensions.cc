@@ -15,26 +15,41 @@ void* get_instanceup(HSQUIRRELVM vm, SQInteger index, void* tag, const char* typ
 }
 
 
-void sq_raise_error(HSQUIRRELVM vm, const SQChar *s, ...)
+SQRESULT sq_raise_error(HSQUIRRELVM vm, const SQChar *s, ...)
 {
 	va_list vl;
 	va_start(vl, s);
 	vm->Raise_Error_vl(s, vl);
 	va_end(vl);
-
-	vm->_error_handler_called = false;
-	vm->CallErrorHandler(vm->_lasterror);
+	return SQ_ERROR;
 }
 
-SQRESULT sq_call_restricted(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerror, SQInteger ops)
+SQRESULT sq_call_restricted(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool throw_if_no_ops, SQInteger ops)
+{
+	if(v->_ops_remaining < 4*ops  &&  sq_getvmstate(v)==SQ_VMSTATE_IDLE) {
+		v->_ops_remaining += ops;
+	}
+
+	bool save_throw_if_no_ops = v->_throw_if_no_ops;
+	v->_throw_if_no_ops = throw_if_no_ops;
+
+	SQRESULT ret = sq_call(v, params, retval, true /*raise_error*/);
+	v->_throw_if_no_ops = save_throw_if_no_ops;
+
+	return ret;
+}
+
+SQRESULT sq_resumevm(HSQUIRRELVM v, SQBool retval, SQInteger ops)
 {
 	if(v->_ops_remaining < 4*ops) {
 		v->_ops_remaining += ops;
 	}
-	bool n = v->_throw_if_no_ops;
-	v->_throw_if_no_ops = true;
 
-	SQRESULT ret = sq_call(v, params, retval, raiseerror);
-	v->_throw_if_no_ops = n;
+	bool save_throw_if_no_ops = v->_throw_if_no_ops;
+	v->_throw_if_no_ops = false;
+
+	SQRESULT ret = sq_wakeupvm(v, false, retval, true /*raise_error*/, false);
+	v->_throw_if_no_ops = save_throw_if_no_ops;
+
 	return ret;
 }

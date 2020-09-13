@@ -50,7 +50,7 @@ void gui_tab_panel_t::set_size(scr_size size)
 
 	required_size = scr_size( 8, D_TAB_HEADER_HEIGHT );
 	FOR(slist_tpl<tab>, & i, tabs) {
-		i.x_offset          = required_size.w - 4;
+		i.x_offset = required_size.w - 4;
 		i.width             = 8 + (i.title ? proportional_string_width(i.title) : IMG_WIDTH);
 		required_size.w += i.width;
 		i.component->set_pos(scr_coord(0, D_TAB_HEADER_HEIGHT));
@@ -58,8 +58,10 @@ void gui_tab_panel_t::set_size(scr_size size)
 	}
 
 	if(  required_size.w > size.w  ||  offset_tab > 0  ) {
-		left.set_pos( scr_coord( 2, 5 ) );
-		right.set_pos( scr_coord( size.w-10, 5 ) );
+		left.set_pos( scr_coord( 0, 0 ) );
+		left.set_size( scr_size( D_ARROW_LEFT_WIDTH, D_TAB_HEADER_HEIGHT ) );
+		right.set_pos( scr_coord( size.w-D_ARROW_RIGHT_WIDTH, 0 ) );
+		right.set_size( scr_size( D_ARROW_RIGHT_WIDTH, D_TAB_HEADER_HEIGHT ) );
 	}
 }
 
@@ -146,19 +148,19 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 	if(  required_size.w>size.w  ||  offset_tab > 0) {
 		left.draw( parent_pos+pos );
 		right.draw( parent_pos+pos );
-		//display_fillbox_wh_clip(xpos, ypos+D_TAB_HEADER_HEIGHT-1, 10, 1, SYSCOL_TEXT_HIGHLIGHT, true);
-		display_fillbox_wh_clip(xpos, ypos+D_TAB_HEADER_HEIGHT-1, 10, 1, SYSCOL_HIGHLIGHT, true);
-		xpos += 10;
+		//display_fillbox_wh_clip_rgb(xpos, ypos+D_TAB_HEADER_HEIGHT-1, 10, 1, SYSCOL_TEXT_HIGHLIGHT, true);
+		display_fillbox_wh_clip_rgb(xpos, ypos+D_TAB_HEADER_HEIGHT-1, D_ARROW_LEFT_WIDTH, 1, SYSCOL_HIGHLIGHT, true);
+		xpos += D_ARROW_LEFT_WIDTH;
 	}
 
-	int text_x = xpos+8;
+	int text_x = xpos + 8;
 	int text_y = ypos + (D_TAB_HEADER_HEIGHT - LINESPACE)/2;
 
-	//display_fillbox_wh_clip(xpos, ypos+D_TAB_HEADER_HEIGHT-1, 4, 1, COL_WHITE, true);
-	display_fillbox_wh_clip(xpos, ypos+D_TAB_HEADER_HEIGHT-1, 4, 1, SYSCOL_HIGHLIGHT, true);
+	//display_fillbox_wh_clip_rgb(xpos, ypos+D_TAB_HEADER_HEIGHT-1, 4, 1, COL_WHITE, true);
+	display_fillbox_wh_clip_rgb(xpos, ypos+D_TAB_HEADER_HEIGHT-1, 4, 1, SYSCOL_HIGHLIGHT, true);
 
 	// do not draw under right button
-	int xx = required_size.w>get_size().w ? get_size().w-22 : get_size().w;
+	int xx = required_size.w>get_size().w ? get_size().w-(D_ARROW_LEFT_WIDTH+2+D_ARROW_RIGHT_WIDTH) : get_size().w;
 
 	int i=0;
 	FORX(slist_tpl<tab>, const& iter, tabs, ++i) {
@@ -175,14 +177,14 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 
 			if (i != active_tab) {
 				// Non active tabs
-				display_fillbox_wh_clip(text_x-3, ypos+2, width+6, 1, SYSCOL_HIGHLIGHT, true);
-				display_fillbox_wh_clip(text_x-4, ypos+D_TAB_HEADER_HEIGHT-1, width+8, 1, SYSCOL_HIGHLIGHT, true);
+				display_fillbox_wh_clip_rgb(text_x-3, ypos+2, width+6, 1, SYSCOL_HIGHLIGHT, true);
+				display_fillbox_wh_clip_rgb(text_x-4, ypos+D_TAB_HEADER_HEIGHT-1, width+8, 1, SYSCOL_HIGHLIGHT, true);
 
-				display_vline_wh_clip(text_x-4, ypos+3, D_TAB_HEADER_HEIGHT-4, SYSCOL_HIGHLIGHT, true);
-				display_vline_wh_clip(text_x+width+3, ypos+3, D_TAB_HEADER_HEIGHT-4, SYSCOL_SHADOW, true);
+				display_vline_wh_clip_rgb(text_x-4, ypos+3, D_TAB_HEADER_HEIGHT-4, SYSCOL_HIGHLIGHT, true);
+				display_vline_wh_clip_rgb(text_x+width+3, ypos+3, D_TAB_HEADER_HEIGHT-4, SYSCOL_SHADOW, true);
 
 				if(text) {
-					display_proportional_clip(text_x, text_y, text, ALIGN_LEFT, SYSCOL_TEXT, true);
+					display_proportional_clip_rgb(text_x, text_y, text, ALIGN_LEFT, SYSCOL_TEXT, true);
 				}
 				else {
 					scr_coord_val const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
@@ -192,13 +194,13 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 			}
 			else {
 				// Active tab
-				display_fillbox_wh_clip(text_x-3, ypos, width+6, 1, SYSCOL_HIGHLIGHT, true);
+				display_fillbox_wh_clip_rgb(text_x-3, ypos, width+6, 1, SYSCOL_HIGHLIGHT, true);
 
-				display_vline_wh_clip(text_x-4, ypos+1, D_TAB_HEADER_HEIGHT-2, SYSCOL_HIGHLIGHT, true);
-				display_vline_wh_clip(text_x+width+3, ypos+1, D_TAB_HEADER_HEIGHT-2, SYSCOL_SHADOW, true);
+				display_vline_wh_clip_rgb(text_x-4, ypos+1, D_TAB_HEADER_HEIGHT-2, SYSCOL_HIGHLIGHT, true);
+				display_vline_wh_clip_rgb(text_x+width+3, ypos+1, D_TAB_HEADER_HEIGHT-2, SYSCOL_SHADOW, true);
 
 				if(text) {
-					display_proportional_clip(text_x, text_y, text, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
+					display_proportional_clip_rgb(text_x, text_y, text, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
 				}
 				else {
 					scr_coord_val const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
@@ -211,7 +213,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 			POP_CLIP();
 		}
 	}
-	display_fillbox_wh_clip(text_x-4, ypos+D_TAB_HEADER_HEIGHT-1, xpos+size.w-(text_x-4), 1, SYSCOL_HIGHLIGHT, true);
+	display_fillbox_wh_clip_rgb(text_x-4, ypos+D_TAB_HEADER_HEIGHT-1, xpos+size.w-(text_x-4), 1, SYSCOL_HIGHLIGHT, true);
 
 	// now for tooltips ...
 	int my = get_mouse_y()-parent_pos.y-pos.y-6;

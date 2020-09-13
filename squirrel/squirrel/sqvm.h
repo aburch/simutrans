@@ -10,14 +10,16 @@
 
 #define SQ_SUSPEND_FLAG -666
 #define DONT_FALL_BACK 666
-#define EXISTS_FALL_BACK -1
+
+#define GET_FLAG_RAW                0x00000001
+#define GET_FLAG_DO_NOT_RAISE_ERROR 0x00000002
 //base lib
 void sq_base_register(HSQUIRRELVM v);
 
 struct SQExceptionTrap{
 	SQExceptionTrap() {}
 	SQExceptionTrap(SQInteger ss, SQInteger stackbase,SQInstruction *ip, SQInteger ex_target){ _stacksize = ss; _stackbase = stackbase; _ip = ip; _extarget = ex_target;}
-	SQExceptionTrap(const SQExceptionTrap &et) { (*this) = et;	}
+	SQExceptionTrap(const SQExceptionTrap &et) { (*this) = et;  }
 	SQInteger _stackbase;
 	SQInteger _stacksize;
 	SQInstruction *_ip;
@@ -55,19 +57,20 @@ public:
 	SQVM(SQSharedState *ss);
 	~SQVM();
 	bool Init(SQVM *friendvm, SQInteger stacksize);
-	bool Execute(SQObjectPtr &func, SQInteger nargs, SQInteger stackbase, SQObjectPtr &outres, SQBool raiseerror, ExecutionType et = ET_CALL);
+	bool Execute(SQObjectPtr &func, SQInteger nargs, SQInteger stackbase, SQObjectPtr &outres, SQBool raiseerror, ExecutionType et = ET_CALL, SQBool can_suspend = false);
 	//starts a native call return when the NATIVE closure returns
 	bool CallNative(SQNativeClosure *nclosure, SQInteger nargs, SQInteger newbase, SQObjectPtr &retval,bool &suspend);
 	//starts a SQUIRREL call in the same "Execution loop"
 	bool StartCall(SQClosure *closure, SQInteger target, SQInteger nargs, SQInteger stackbase, bool tailcall);
 	bool CreateClassInstance(SQClass *theclass, SQObjectPtr &inst, SQObjectPtr &constructor);
 	//call a generic closure pure SQUIRREL or NATIVE
-	bool Call(SQObjectPtr &closure, SQInteger nparams, SQInteger stackbase, SQObjectPtr &outres,SQBool raiseerror);
+	// @param can_suspend is by default FALSE, only set it to true if you handle the case that vm is suspended after call.
+	bool Call(SQObjectPtr &closure, SQInteger nparams, SQInteger stackbase, SQObjectPtr &outres,SQBool raiseerror, SQBool can_suspend = false);
 	SQRESULT Suspend();
 
 	void CallDebugHook(SQInteger type,SQInteger forcedline=0);
 	void CallErrorHandler(SQObjectPtr &e);
-	bool Get(const SQObjectPtr &self, const SQObjectPtr &key, SQObjectPtr &dest, bool raw, SQInteger selfidx);
+	bool Get(const SQObjectPtr &self, const SQObjectPtr &key, SQObjectPtr &dest, SQUnsignedInteger getflags, SQInteger selfidx);
 	SQInteger FallBackGet(const SQObjectPtr &self,const SQObjectPtr &key,SQObjectPtr &dest);
 	bool InvokeDefaultDelegate(const SQObjectPtr &self,const SQObjectPtr &key,SQObjectPtr &dest);
 	bool Set(const SQObjectPtr &self, const SQObjectPtr &key, const SQObjectPtr &val, SQInteger selfidx);
@@ -147,7 +150,7 @@ public:
 
 	SQInteger _top;
 	SQInteger _stackbase;
-	SQOuter	*_openouters;
+	SQOuter *_openouters;
 	SQObjectPtr _roottable;
 	SQObjectPtr _lasterror;
 	SQObjectPtr _errorhandler;
@@ -166,20 +169,21 @@ public:
 
 	ExceptionsTraps _etraps;
 	CallInfo *ci;
-	void *_foreignptr;
+	SQUserPointer _foreignptr;
 	//VMs sharing the same state
 	SQSharedState *_sharedstate;
 	SQInteger _nnativecalls;
 	SQInteger _nmetamethodscall;
+	SQRELEASEHOOK _releasehook;
 	//suspend infos
 	SQBool _suspended;
 	SQBool _suspended_root;
 	SQInteger _suspended_target;
 	SQInteger _suspended_traps;
 
-	SQInteger _ops_remaining;
-	bool _throw_if_no_ops;
-	bool _error_handler_called;
+	SQInteger _ops_remaining;    /// number of ops the vm can do till break
+	SQInteger _ops_grace_amount; /// raise error if _ops_remaining is less than  -_ops_grace_amount for pure native calls
+	bool _throw_if_no_ops;       /// is no-ops an error or can call suspended? default: true
 };
 
 struct AutoDec{

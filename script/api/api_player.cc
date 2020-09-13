@@ -33,6 +33,8 @@ vector_tpl<sint64> const& get_player_stat(player_t *player, sint32 INDEX, sint32
 	}
 	if (player) {
 		finance_t *finance = player->get_finance();
+		// calculate current month
+		finance->calc_finance_history();
 		uint16 maxi = monthly ? MAX_PLAYER_HISTORY_MONTHS : MAX_PLAYER_HISTORY_YEARS;
 		for(uint16 i = 0; i < maxi; i++) {
 			sint64 m = atv ? ( monthly ? finance->get_history_veh_month((transport_type)TTYPE, i, INDEX) : finance->get_history_veh_year((transport_type)TTYPE, i, INDEX) )
@@ -209,8 +211,11 @@ void export_player(HSQUIRRELVM vm)
 
 	/**
 	 * Returns whether the player (still) exists in the game.
+	 *
+	 * @deprecated Only available for api versions less than 120.1, see @ref get_api_version.
+	 * @typemask bool()
 	 */
-	register_method(vm, &player_active, "is_active", true);
+	// register_method(vm,, "is_active", true); implemented in scenario_compat.nut
 	/**
 	 * Exports list of lines of this player.
 	 * @typemask line_list_x()

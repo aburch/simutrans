@@ -82,6 +82,20 @@ halthandle_t get_first_halt_on_square(planquadrat_t* plan)
 	return plan->get_halt(NULL);
 }
 
+vector_tpl<halthandle_t> const& square_get_halt_list(planquadrat_t *plan)
+{
+	static vector_tpl<halthandle_t> list;
+	list.clear();
+	if (plan) {
+		const nearby_halt_t* haltlist = plan->get_haltlist();
+		for(uint8 i=0, end = plan->get_haltlist_count(); i < end; i++) {
+			list.append(haltlist[i].halt);
+		}
+	}
+	return list;
+}
+
+
 void export_tiles(HSQUIRRELVM vm)
 {
 	/**
@@ -158,6 +172,18 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @returns true if tile on ground (not bridge/elevated, not tunnel)
 	 */
 	register_method(vm, &grund_t::ist_karten_boden, "is_ground");
+
+	/**
+	 * Returns encoded slope of tile, zero means flat tile.
+	 * @returns slope
+	 */
+	register_method(vm, &grund_t::get_grund_hang, "get_slope");
+
+	/**
+	 * Returns text of a sign on this tile (station sign, city name, label).
+	 * @returns text
+	 */
+	register_method(vm, &grund_t::get_text, "get_text");
 
 	/**
 	 * Queries ways on the tile.
@@ -275,5 +301,12 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @returns tile_x instance
 	 */
 	register_method(vm, &planquadrat_t::get_kartenboden, "get_ground_tile");
+
+	/**
+	 * Returns list of stations that cover this tile.
+	 * @typemask array<halt_x>
+	 */
+	register_method(vm, &square_get_halt_list, "get_halt_list", true);
+
 	end_class(vm);
 }

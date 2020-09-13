@@ -52,15 +52,15 @@ public:
 	const building_desc_t *get_desc() const { return building; }
 	building_desc_t *get_modifiable_desc() const { return modifiable_haus; }
 
-	int get_index() const { return index; }
-	int get_seasons() const { return seasons; }
-	int get_phases() const { return phases; }
+	uint16 get_index() const { return index; }
+	uint8 get_seasons() const { return seasons; }
+	uint8 get_phases() const { return phases; }
 
 	bool has_image() const {
 		return get_background(0,0,0)!=IMG_EMPTY  ||  get_foreground(0,0)!=IMG_EMPTY;
 	}
 
-	image_id get_background(int phase, int height, int season) const
+	image_id get_background(uint8 phase, uint8 height, uint8 season) const
 	{
 		image_array_t const* const imglist = get_child<image_array_t>(0 + 2 * season);
 		if(phase>0 && phase<phases) {
@@ -261,16 +261,16 @@ class building_desc_t : public obj_desc_timelined_t {
 
 public:
 
-	koord get_size(int layout = 0) const {
+	koord get_size(uint8 layout = 0) const {
 		return (layout & 1) ? koord(size.y, size.x) : size;
 	}
 
 	// size of the building
-	int get_y(int layout = 0) const {
+	sint16 get_y(sint16 layout = 0) const {
 		return (layout & 1) ? size.x: size.y;
 	}
 
-	int get_x(int layout = 0) const {
+	sint16 get_x(sint16 layout = 0) const {
 		return (layout & 1) ? size.y : size.x;
 	}
 
@@ -319,14 +319,14 @@ public:
 	uint16 get_mail_level() const;
 
 	// how often will this appear
-	int get_distribution_weight() const { return distribution_weight; }
+	uint8 get_distribution_weight() const { return distribution_weight; }
 
-	const building_tile_desc_t *get_tile(int index) const {
+	const building_tile_desc_t *get_tile(uint8 index) const {
 		assert(0<=index  &&  index < layouts * size.x * size.y);
 		return get_child<building_tile_desc_t>(index + 2);
 	}
 
-	const building_tile_desc_t *get_tile(int layout, int x, int y) const;
+	const building_tile_desc_t *get_tile(uint8 layout, sint16 x, sint16 y) const;
 
 	// returns true if the building can be rotated
 	bool can_rotate() const {
@@ -334,8 +334,8 @@ public:
 			return false;
 		}
 		// check for missing tiles after rotation
-		for( int x=0;  x<size.x;  x++  ) {
-			for( int y=0;  y<size.y;  y++  ) {
+		for( sint16 x=0;  x<size.x;  x++  ) {
+			for( sint16 y=0;  y<size.y;  y++  ) {
 				// only true, if one is missing
 				if(get_tile( 0, x, y )->has_image()  ^  get_tile( 1, get_x(1)-y-1, x )->has_image()) {
 					return false;
@@ -345,7 +345,7 @@ public:
 		return true;
 	}
 
-	int adjust_layout(int layout) const;
+	uint8 adjust_layout(uint8 layout) const;
 
 	/**
 	* Skin: cursor (index 0) and icon (index 1)

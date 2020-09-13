@@ -54,7 +54,7 @@ private:
 		cbuffer_t serverdns;
 		bool status;
 	public:
-		server_scrollitem_t (const cbuffer_t& name, const cbuffer_t& dns, bool status, uint8 col) : gui_scrolled_list_t::const_text_scrollitem_t( NULL, col ), servername( name ), serverdns( dns ), status( status ) { servername.append( " (" ); servername.append( serverdns.get_str() ); servername.append( ")" ); }
+		server_scrollitem_t (const cbuffer_t& name, const cbuffer_t& dns, bool status, PIXVAL col) : gui_scrolled_list_t::const_text_scrollitem_t( NULL, col ), servername( name ), serverdns( dns ), status( status ) { servername.append( " (" ); servername.append( serverdns.get_str() ); servername.append( ")" ); }
 		char const* get_text () const OVERRIDE { return servername.get_str(); }
 		char const* get_dns () const { return serverdns.get_str(); }
 		void set_text (char const* newtext) OVERRIDE { servername.clear(); servername.append( newtext ); serverdns.clear(); serverdns.append( newtext ); }

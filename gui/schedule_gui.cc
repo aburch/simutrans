@@ -228,7 +228,7 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 	if(  schedule->empty()  ) {
 		buf.clear();
 		buf.append(translator::translate("Please click on the map to add\nwaypoints or stops to this\nschedule."));
-		sint16 const width = display_multiline_text(offset.x + 4, offset.y, buf, SYSCOL_TEXT_HIGHLIGHT );
+		sint16 const width = display_multiline_text_rgb(offset.x + 4, offset.y, buf, SYSCOL_TEXT_HIGHLIGHT );
 		set_size(scr_size(width + 4 + 16, 3 * LINESPACE));
 	}
 	else {
@@ -244,7 +244,7 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 			if (sel == 0)
 			{
 				// highlight current entry (width is just wide enough, scrolly will do clipping)
-				display_fillbox_wh_clip(offset.x, offset.y - 1, 2048, LINESPACE + 1, player->get_player_color1() + 1, false);
+				display_fillbox_wh_clip_rgb(offset.x, offset.y - 1, 2048, LINESPACE + 1, color_idx_to_rgb(player->get_player_color1() + 1), false);
 			}
 
 			if(last_stop_pos != e.pos.get_2d())
@@ -252,8 +252,8 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 				distance = (double)(shortest_distance(last_stop_pos, e.pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
 				buf.printf(" %.1f%s", distance, "km");
 
-				PLAYER_COLOR_VAL const c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
-				sint16           const w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
+				PIXVAL const c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
+				sint16 const w = display_proportional_clip_rgb(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
 				if (width < w)
 				{
 					width = w;
@@ -281,12 +281,12 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 		if (sel == 0)
 		{
 			// highlight current entry (width is just wide enough, scrolly will do clipping)
-			display_fillbox_wh_clip(offset.x, offset.y - 1, 2048, LINESPACE + 1, player->get_player_color1() + 1, false);
+			display_fillbox_wh_clip_rgb(offset.x, offset.y - 1, 2048, LINESPACE + 1, color_idx_to_rgb(player->get_player_color1() + 1), false);
 		}
 		distance = (double)(shortest_distance(last_stop_pos, schedule->entries[0].pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000;
 		buf.printf(" %.1f%s", distance, "km");
-		PLAYER_COLOR_VAL c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
-		sint16           w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
+		PIXVAL c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
+		sint16 w = display_proportional_clip_rgb(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
 		if (width < w)
 		{
 			width = w;
@@ -381,7 +381,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 		line_selector.set_pos(scr_coord(D_MARGIN_LEFT, ypos));
 		line_selector.set_size(scr_size(BUTTON4_X - D_BUTTON_HEIGHT*2, D_BUTTON_HEIGHT));
 		line_selector.set_max_size(scr_size(BUTTON4_X-D_MARGIN_LEFT, 13*LINESPACE+D_TITLEBAR_HEIGHT-1));
-		line_selector.set_highlight_color(player->get_player_color1() + 1);
+		line_selector.set_highlight_color(color_idx_to_rgb(player->get_player_color1() + 1));
 		line_selector.clear_elements();
 
 		init_line_selector();
@@ -615,22 +615,22 @@ void schedule_gui_t::update_tool(bool set)
 
 void schedule_gui_t::update_selection()
 {
-	lb_load.set_color( COL_GREY3 );
+	lb_load.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
 	numimp_load.disable();
 	numimp_load.set_value( 0 );
 	bt_wait_prev.disable();
-	lb_wait.set_color( COL_GREY3 );
-	lb_spacing.set_color( COL_GREY3 );
-	lb_spacing_as_clock.set_color( COL_GREY3 );
+	lb_wait.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
+	lb_spacing.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
+	lb_spacing_as_clock.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
 	numimp_spacing.disable();
 	numimp_spacing_shift.disable();
 	sprintf(str_spacing_as_clock, "%s", translator::translate("off") );
-	lb_spacing_shift.set_color( COL_GREY3 );
-	lb_spacing_shift_as_clock.set_color( COL_GREY3 );
+	lb_spacing_shift.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
+	lb_spacing_shift_as_clock.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
 	sprintf(str_spacing_shift_as_clock, "%s", translator::translate("off") );
 
 	strcpy( str_parts_month, translator::translate("off") );
-	lb_waitlevel_as_clock.set_color( COL_GREY3 );
+	lb_waitlevel_as_clock.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
 	bt_wait_next.disable();
 
 	if(  !schedule->empty()  ) {
@@ -693,9 +693,9 @@ bool schedule_gui_t::infowin_event(const event_t *ev)
 		// close combo box; we must do it ourselves, since the box does not receive outside events ...
 		line_selector.close_box();
 
-		if(  ev->my>=scrolly.get_pos().y+16  ) {
+		if(  ev->my>=scrolly.get_pos().y+D_TITLEBAR_HEIGHT  ) {
 			// we are now in the multiline region ...
-			const int line = ( ev->my - scrolly.get_pos().y + scrolly.get_scroll_y() - 16)/(LINESPACE+1);
+			const int line = ( ev->my - scrolly.get_pos().y + scrolly.get_scroll_y() - D_TITLEBAR_HEIGHT)/(LINESPACE+1);
 
 			if(  line >= 0 && line < schedule->get_count()  ) {
 				if(  IS_RIGHTCLICK(ev)  ||  ev->mx<16  ) {

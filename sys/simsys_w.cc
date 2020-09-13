@@ -15,12 +15,14 @@
 #include <wingdi.h>
 #include <mmsystem.h>
 #include <imm.h>
+#include <commdlg.h>
 
 #ifdef __CYGWIN__
 extern int __argc;
 extern char **__argv;
 #endif
 
+#include "../simconst.h"
 #include "../display/simgraph.h"
 #include "../simdebug.h"
 #include "../gui/simwin.h"
@@ -36,9 +38,6 @@ extern char **__argv;
 #ifndef GET_WHEEL_DELTA_WPARAM
 #	define GET_WHEEL_DELTA_WPARAM(wparam) ((short)HIWORD(wparam))
 #endif
-
-// 16 Bit may be much slower than 15 unfortunately on some hardware
-#define USE_16BIT_DIB
 
 #include "../simmem.h"
 #include "simsys_w32_png.h"
@@ -126,15 +125,14 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 	RECT r = { 0, 0, w, h };
 	AdjustWindowRectEx(&r, style, false, ex_style);
 
-#if 0
-	// Try with a wide character window; need the title with full width
-	WCHAR *wSIM_TITLE = new wchar_t[lengthof(SIM_TITLE)];
-	size_t convertedChars = 0;
-	mbstowcs( wSIM_TITLE, SIM_TITLE, lengthof(SIM_TITLE) );
+	// Convert UTF-8 to UTF-16.
+	int const size = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, SIM_TITLE, -1, NULL, 0);
+	LPWSTR const wSIM_TITLE = new WCHAR[size];
+	MultiByteToWideChar(CP_UTF8, 0, SIM_TITLE, -1, wSIM_TITLE, size);
+
 	hwnd = CreateWindowExW(ex_style, L"Simu", wSIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
-#else
-	hwnd = CreateWindowExA(ex_style, "Simu", SIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
-#endif
+
+	delete[] wSIM_TITLE;
 
 	ShowWindow(hwnd, SW_SHOW);
 	SetTimer( hwnd, 0, 1111, NULL );	// HACK: so windows thinks we are not dead when processing a timer every 1111 ms ...
@@ -297,10 +295,10 @@ unsigned short *dr_textur_init()
  */
 unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 {
-#ifdef USE_16BIT_DIB
-	return ((r & 0x00F8) << 8) | ((g & 0x00FC) << 3) | (b >> 3);
-#else
+#ifdef RGB555
 	return ((r & 0x00F8) << 7) | ((g & 0x00F8) << 2) | (b >> 3); // 15 Bit
+#else
+	return ((r & 0x00F8) << 8) | ((g & 0x00FC) << 3) | (b >> 3);
 #endif
 }
 
@@ -406,14 +404,14 @@ void set_pointer(int loading)
  */
 int dr_screenshot(const char *filename, int x, int y, int w, int h)
 {
-#if defined USE_16BIT_DIB
-	int const bpp = COLOUR_DEPTH;
-#else
+#if defined RGB555
 	int const bpp = 15;
+#else
+	int const bpp = COLOUR_DEPTH;
 #endif
 	if (!dr_screenshot_png(filename, w, h, AllDib->bmiHeader.biWidth, (unsigned short*)AllDibData+x+y*AllDib->bmiHeader.biWidth, bpp)) {
 		// not successful => save full screen as BMP
-		if (FILE* const fBmp = fopen(filename, "wb")) {
+		if (FILE* const fBmp = dr_fopen(filename, "wb")) {
 			BITMAPFILEHEADER bf;
 
 			// since the number of drawn pixel can be smaller than the actual width => only use the drawn pixel for bitmap
@@ -490,10 +488,10 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					MEMZERO(settings);
 					settings.dmSize = sizeof(settings);
 					settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-#if defined USE_16BIT_DIB
-					settings.dmBitsPerPel = COLOUR_DEPTH;
-#else
+#ifdef RGB555
 					settings.dmBitsPerPel = 15;
+#else
+					settings.dmBitsPerPel = COLOUR_DEPTH;
 #endif
 					settings.dmPelsWidth  = MaxSize.right;
 					settings.dmPelsHeight = MaxSize.bottom;
@@ -600,14 +598,14 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SYSTEM_RESIZE;
 
-				sys_event.mx = (LOWORD(lParam)*32)/x_scale;
-				if (sys_event.mx <= 0) {
-					sys_event.mx = 4;
+				sys_event.size_x = (LOWORD(lParam)*32)/x_scale;
+				if (sys_event.size_x <= 0) {
+					sys_event.size_x = 4;
 				}
 
-				sys_event.my = (HIWORD(lParam)*32)/y_scale;
-				if (sys_event.my <= 1) {
-					sys_event.my = 64;
+				sys_event.size_y = (HIWORD(lParam)*32)/y_scale;
+				if (sys_event.size_y <= 1) {
+					sys_event.size_y = 64;
 				}
 			}
 			break;
@@ -681,7 +679,10 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			break;
 
 		case WM_IME_SETCONTEXT:
-			return DefWindowProc( this_hwnd, msg, wParam, lParam&~ISC_SHOWUICOMPOSITIONWINDOW );
+			// attempt to avoid crash at windows 1809> just not call DefWinodwsProc seems to work for SDL2 ...
+//			DefWindowProc( this_hwnd, msg, wParam, lParam&~ISC_SHOWUICOMPOSITIONWINDOW );
+			lParam = 0;
+			return 0;
 
 		case WM_IME_STARTCOMPOSITION:
 			break;

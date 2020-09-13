@@ -87,12 +87,12 @@ message_frame_t::message_frame_t() :
 	input.add_listener(this);
 	input.set_pos(scr_coord(BUTTON2_X,0));
 	if(  env_t::networkmode  ) {
-		set_transparent( env_t::chat_window_transparency, COL_WHITE );
+		set_transparent( env_t::chat_window_transparency, color_idx_to_rgb(COL_WHITE) );
 		add_component(&input);
 		set_focus( &input );
 	}
 
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+D_TAB_HEADER_HEIGHT+2+16*(LINESPACE+1)+D_SCROLLBAR_HEIGHT));
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_DEFAULT_HEIGHT));
 	set_min_windowsize(scr_size(BUTTON3_X, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+D_TAB_HEADER_HEIGHT+2+3*(LINESPACE+1)+D_SCROLLBAR_HEIGHT));
 
 	set_resizemode(diagonal_resize);
@@ -110,7 +110,7 @@ void message_frame_t::resize(const scr_coord delta)
 {
 	gui_frame_t::resize(delta);
 	scr_size size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT);
-	input.set_size(scr_size(size.w-D_SCROLLBAR_WIDTH-BUTTON2_X, D_BUTTON_HEIGHT));
+	input.set_size(scr_size(size.w-D_SCROLLBAR_WIDTH-BUTTON2_X, D_EDIT_HEIGHT));
 	tabs.set_size(size);
 	scrolly.set_size(size-scr_size(0,D_BUTTON_HEIGHT+4+1));
 }

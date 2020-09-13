@@ -97,7 +97,8 @@ private:
 	/// clears statistics, transit, and weighted_sum_storage
 	void init_stats();
 public:
-	ware_production_t() : type(NULL), menge(0), max(0)/*, transit(statistics[0][FAB_GOODS_TRANSIT])*/, max_transit(0), index_offset(0)
+	ware_production_t() : type(NULL), menge(0), max(0)/*, transit(statistics[0][FAB_GOODS_TRANSIT])*/,
+		max_transit(0), index_offset(0)
 	{
 		init_stats();
 	}
@@ -622,7 +623,7 @@ public:
 	char const* get_name() const;
 	void set_name( const char *name );
 
-	sint32 get_kennfarbe() const { return desc->get_kennfarbe(); }
+	PIXVAL get_color() const { return desc->get_color(); }
 
 	player_t *get_owner() const
 	{
@@ -721,7 +722,7 @@ public:
 
 	/* prissi: returns the status of the current factory */
 	enum { nothing, good, water_resource, medium, water_resource_full, storage_full, inactive, shipment_stuck, material_shortage, no_material, bad, mat_overstocked, stuck, missing_connection, staff_shortage, MAX_FAB_STATUS };
-	static unsigned status_to_color[MAX_FAB_STATUS];
+	static uint8 status_to_color[MAX_FAB_STATUS];
 
 	uint8  get_status() const { return status; }
 	uint32 get_total_in() const { return total_input; }

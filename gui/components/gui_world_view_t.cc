@@ -139,7 +139,7 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 	/* Not very elegant, but works: Fill everything with black for underground
 	 * mode. */
 	if(  grund_t::underground_mode  ) {
-		display_fillbox_wh(pos.x, pos.y, size.w, size.h, COL_BLACK, true);
+		display_fillbox_wh_rgb(pos.x, pos.y, size.w, size.h, color_idx_to_rgb(COL_BLACK), true);
 	}
 	else {
 		welt->get_view()->display_background(pos.x, pos.y, size.w, size.h, true);
@@ -227,7 +227,7 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 	}
 
 	display_set_clip_wh(old_clip.x, old_clip.y, old_clip.w, old_clip.h);
-	display_ddd_box_clip(pos.x - 1, pos.y - 1, size.w + 2, size.h + 2, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip_rgb(pos.x - 1, pos.y - 1, size.w + 2, size.h + 2, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
 }
 
 

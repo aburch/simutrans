@@ -93,8 +93,8 @@ private:
 	image_id image;
 
 public:
-	COLOR_VAL background_color; //@author hsiegeln
-	COLOR_VAL text_color;
+	PIXVAL background_color; //@author hsiegeln
+	PIXVAL text_color;
 
 	bool pressed;
 	scr_coord_val text_offset_x;

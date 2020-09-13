@@ -237,20 +237,22 @@ class sparse_tpl
 			return row_end;
 		}
 
-	friend void swap(sparse_tpl<T>& a, sparse_tpl<T>& b)
-	{
-		sim::swap(a.size,  b.size);
+		friend void swap<>(sparse_tpl<T>& a, sparse_tpl<T>& b);
 
-		sim::swap(a.data,  b.data);
-		sim::swap(a.col_ind,  b.col_ind);
-		sim::swap(a.row_ptr,  b.row_ptr);
-
-		sim::swap(a.data_size, b.data_size);
-		sim::swap(a.data_count, b.data_count);
-	}
-
-	sparse_tpl(const sparse_tpl& other);
-	sparse_tpl& operator=( sparse_tpl const& other );
+		sparse_tpl(const sparse_tpl& other);
+		sparse_tpl& operator=(sparse_tpl const& other);
 };
+
+template<class T> void swap(sparse_tpl<T>& a, sparse_tpl<T>& b)
+{
+	sim::swap(a.size, b.size);
+
+	sim::swap(a.data, b.data);
+	sim::swap(a.col_ind, b.col_ind);
+	sim::swap(a.row_ptr, b.row_ptr);
+
+	sim::swap(a.data_size, b.data_size);
+	sim::swap(a.data_count, b.data_count);
+}
 
 #endif

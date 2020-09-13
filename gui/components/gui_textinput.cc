@@ -34,7 +34,7 @@ gui_textinput_t::gui_textinput_t() :
 	textcol(SYSCOL_EDIT_TEXT),
 	text_dirty(false),
 	cursor_reference_time(0),
-	focus_recieved(false)
+	focus_received(false)
 { }
 
 
@@ -361,8 +361,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 			}
 
 			while(  *in  ) {
-				in_pos = 0;
-				utf16 uc = utf8_to_utf16( in, &in_pos );
+				utf32 const uc = utf8_decoder_t::decode(in, in_pos);
 
 				text_dirty = true;
 
@@ -389,7 +388,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 				}
 
 				// insert into text?
-				if (head_cursor_pos < len) {
+				if(  len>0  &&  head_cursor_pos < len  ) {
 					for(  sint64 pos=len+num_letter;  pos>=(sint64)head_cursor_pos;  pos--  ) {
 						text[pos] = text[pos-num_letter];
 					}
@@ -479,7 +478,7 @@ void gui_textinput_t::draw(scr_coord offset)
 void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 {
 	// check if focus state has changed
-	if(  focus_recieved!=has_focus  ) {
+	if(  focus_received!=has_focus  ) {
 		if(  has_focus  ) {
 			// update reference time for cursor blinking if focus has just been received
 			cursor_reference_time = dr_time();
@@ -494,7 +493,7 @@ void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 		else {
 			dr_stop_textinput();
 		}
-		focus_recieved = has_focus;
+		focus_received = has_focus;
 	}
 
 	display_with_cursor( offset, has_focus, (has_focus  &&  ((dr_time()-cursor_reference_time)&512ul)==0) );
@@ -559,14 +558,14 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 		const int y_offset = pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h);
 
 		// display text (before composition)
-		display_text_proportional_len_clip(x_base_offset, y_offset, text, ALIGN_LEFT, textcol, true, head_cursor_pos);
+		display_text_proportional_len_clip_rgb(x_base_offset, y_offset, text, ALIGN_LEFT | DT_CLIP, textcol, true, head_cursor_pos);
 		int x_offset = proportional_string_len_width(text, head_cursor_pos);
 
 		// IME text to display?
 		if(  composition.len()  ) {
 //			assert(head_cursor_pos==tail_cursor_pos);
 
-			display_proportional_clip(x_base_offset+x_offset, y_offset, composition.get_str(), ALIGN_LEFT, textcol, true);
+			display_proportional_clip_rgb(x_base_offset+x_offset, y_offset, composition.get_str(), ALIGN_LEFT | DT_CLIP, textcol, true);
 
 			// draw underline
 			int composition_width = proportional_string_width(composition.get_str());
@@ -575,14 +574,14 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 			// mark targeted part in a similar manner to selected text
 			int start_offset = proportional_string_len_width(composition.get_str(), composition_target_start);
 			int highlight_width = proportional_string_len_width(composition.get_str()+composition_target_start, composition_target_length);
-			display_fillbox_wh_clip(x_base_offset+x_offset+start_offset, y_offset, highlight_width, LINESPACE, SYSCOL_EDIT_BACKGROUND_SELECTED, true);
-			display_text_proportional_len_clip(x_base_offset+x_offset+start_offset, y_offset, composition.get_str()+composition_target_start, ALIGN_LEFT|DT_CLIP, SYSCOL_EDIT_TEXT_SELECTED, false, composition_target_length);
+			display_fillbox_wh_clip_rgb(x_base_offset+x_offset+start_offset, y_offset, highlight_width, LINESPACE, SYSCOL_EDIT_BACKGROUND_SELECTED, true);
+			display_text_proportional_len_clip_rgb(x_base_offset+x_offset+start_offset, y_offset, composition.get_str()+composition_target_start, ALIGN_LEFT|DT_CLIP, SYSCOL_EDIT_TEXT_SELECTED, false, composition_target_length);
 
 			x_offset += composition_width;
 		}
 
 		// display text (after composition)
-		display_proportional_clip(x_base_offset+x_offset, y_offset, text+head_cursor_pos, ALIGN_LEFT, textcol, true);
+		display_proportional_clip_rgb(x_base_offset+x_offset, y_offset, text+head_cursor_pos, ALIGN_LEFT | DT_CLIP, textcol, true);
 
 		if(  cursor_active  ) {
 			// Knightly : display selected text block with light grey text on charcoal bounding box
@@ -591,13 +590,13 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 				const size_t end_pos = ::max(head_cursor_pos, tail_cursor_pos);
 				const scr_coord_val start_offset = proportional_string_len_width(text, start_pos);
 				const scr_coord_val highlight_width = proportional_string_len_width(text+start_pos, end_pos-start_pos);
-				display_fillbox_wh_clip(x_base_offset+start_offset, y_offset, highlight_width, LINESPACE, SYSCOL_EDIT_BACKGROUND_SELECTED, true);
-				display_text_proportional_len_clip(x_base_offset+start_offset, y_offset, text+start_pos, ALIGN_LEFT|DT_CLIP, SYSCOL_EDIT_TEXT_SELECTED, false, end_pos-start_pos);
+				display_fillbox_wh_clip_rgb(x_base_offset+start_offset, y_offset, highlight_width, LINESPACE, SYSCOL_EDIT_BACKGROUND_SELECTED, true);
+				display_text_proportional_len_clip_rgb(x_base_offset+start_offset, y_offset, text+start_pos, ALIGN_LEFT|DT_CLIP, SYSCOL_EDIT_TEXT_SELECTED, false, end_pos-start_pos);
 			}
 
 			// display blinking cursor
 			if(  cursor_visible  ) {
-				display_fillbox_wh_clip(x_base_offset+cursor_offset-1, y_offset, 1, LINESPACE, SYSCOL_CURSOR_BEAM, true);
+				display_fillbox_wh_clip_rgb(x_base_offset+cursor_offset-1, y_offset, 1, LINESPACE, SYSCOL_CURSOR_BEAM, true);
 			}
 		}
 
@@ -660,20 +659,21 @@ void gui_hidden_textinput_t::display_with_cursor(scr_coord const offset, bool, b
 		const int clip_x =  old_clip.x > text_clip_x ? old_clip.x : text_clip_x;
 		display_set_clip_wh( clip_x, old_clip.y, min(old_clip.xx, text_clip_x+text_clip_w)-clip_x, old_clip.h);
 
-		size_t text_pos=0;
+		utf8 const *text_pos = (utf8 const*)text;
+		utf8 const *end = (utf8 const*)text + max;
 		sint16 xpos = pos.x+offset.x+2;
-		utf16  c = 0;
+		utf32  c = 0;
 		do {
 			// cursor?
-			if(  cursor_visible  &&  text_pos==head_cursor_pos  ) {
-				display_fillbox_wh_clip( xpos, pos.y+offset.y+1+(size.h-LINESPACE)/2, 1, LINESPACE, SYSCOL_CURSOR_BEAM, true);
+			if(  cursor_visible  &&  text_pos == (utf8 const*)text + head_cursor_pos  ) {
+				display_fillbox_wh_clip_rgb( xpos, pos.y+offset.y+1+(size.h-LINESPACE)/2, 1, LINESPACE, SYSCOL_CURSOR_BEAM, true);
 			}
-			c = utf8_to_utf16((utf8 const*)text + text_pos, &text_pos);
+			c = utf8_decoder_t::decode((utf8 const *&)text_pos);
 			if(c) {
-				xpos += display_proportional_clip( xpos, pos.y+offset.y+1+(size.h-LINESPACE)/2, "*", ALIGN_LEFT, textcol, true);
+				xpos += display_proportional_clip_rgb( xpos, pos.y+offset.y+1+(size.h-LINESPACE)/2, "*", ALIGN_LEFT | DT_CLIP, textcol, true);
 			}
 		}
-		while(  text_pos<max  &&  c  );
+		while(  text_pos < end  &&  c != UNICODE_NUL  );
 
 		// reset clipping
 		display_set_clip_wh(old_clip.x, old_clip.y, old_clip.w, old_clip.h);

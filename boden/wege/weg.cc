@@ -1423,7 +1423,7 @@ void weg_t::calc_image()
 	grund_t *to;
 	image_id old_image = image;
 	bool bridge_has_own_way_graphics = false;
-	if(  from==NULL  ||  desc==NULL  ||  !from->is_visible()  ) {
+	if(  from==NULL  ||  desc==NULL  ) {
 		// no ground, in tunnel
 		set_image(IMG_EMPTY);
 		set_after_image(IMG_EMPTY);

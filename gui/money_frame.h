@@ -18,6 +18,7 @@
 
 #include "../player/finance.h"
 #include "../player/simplay.h"
+#include "../utils/cbuffer_t.h"
 
 #define MAX_PLAYER_COST_BUTTON (17)
 
@@ -31,7 +32,7 @@
 class money_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	char money_frame_title[512];
+	cbuffer_t money_frame_title;
 
 	gui_chart_t chart, mchart;
 
@@ -98,7 +99,7 @@ private:
 	static const char cost_tooltip[MAX_PLAYER_COST_BUTTON][256];
 
 	static const char *cost_type_name[MAX_PLAYER_COST_BUTTON];
-	static const COLOR_VAL cost_type_color[MAX_PLAYER_COST_BUTTON];
+	static const uint8 cost_type_color[MAX_PLAYER_COST_BUTTON];
 	static const uint8 cost_type[3*MAX_PLAYER_COST_BUTTON];
 	static const char * transport_type_values[TT_MAX];
 	gui_tab_panel_t year_month_tabs;
@@ -145,6 +146,8 @@ public:
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	bool infowin_event(const event_t *ev) OVERRIDE;
 
 	// saving/restore stuff
 	uint32 get_rdwr_id() OVERRIDE;

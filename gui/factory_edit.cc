@@ -89,7 +89,7 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 	add_component(&lb_production_info);
 
 	inp_production.set_pos(scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4-2 ));
-	inp_production.set_size(scr_size( 76, 12 ));
+	inp_production.set_size(scr_size( 76, D_EDIT_HEIGHT ));
 	inp_production.set_limits(0,9999);
 	inp_production.add_listener( this );
 	add_component(&inp_production);
@@ -144,9 +144,9 @@ void factory_edit_frame_t::fill_list( bool translate )
 	scl.clear_elements();
 	scl.set_selection(-1);
 	FOR(vector_tpl<factory_desc_t const*>, const i, factory_list) {
-		COLOR_VAL const color =
-			i->is_consumer_only() ? COL_BLUE       :
-			i->is_producer_only() ? COL_DARK_GREEN :
+		PIXVAL const color =
+			i->is_consumer_only() ? color_idx_to_rgb(COL_BLUE)       :
+			i->is_producer_only() ? color_idx_to_rgb(COL_DARK_GREEN) :
 			SYSCOL_TEXT;
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
 		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));

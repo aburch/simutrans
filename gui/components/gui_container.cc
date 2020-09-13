@@ -157,65 +157,98 @@ bool gui_container_t::infowin_event(const event_t *ev)
 		const int x = ev->ev_class==EVENT_MOVE ? ev->mx : ev->cx;
 		const int y = ev->ev_class==EVENT_MOVE ? ev->my : ev->cy;
 
-		slist_tpl<gui_component_t *>handle_mouseover;
-		FOR(  slist_tpl<gui_component_t*>,  const comp,  components  ) {
-			if(  list_dirty  ) {
-				break;
-			}
-
-			// Hajo: deliver events if
-			// a) The mouse or click coordinates are inside the component
-			// b) The event affects all components, this are WINDOW events
-			if(  comp  ) {
-				if(  DOES_WINDOW_CHILDREN_NEED( ev )  ) { // (Mathew Hounsell)
-					// Hajo: no need to translate the event, it has no valid coordinates either
-					comp->infowin_event(ev);
-				}
-				else if(  comp->is_visible()  ) {
-					if(  comp->getroffen(x, y)  ) {
-						handle_mouseover.insert( comp );
-					}
-				}
-
-			} // if(comp)
-		}
-
-		/* since the last drawn are overlaid over all others
-		 * the event-handling must go reverse too
-		 */
-		FOR(  slist_tpl<gui_component_t*>,  const comp,  handle_mouseover  ) {
-			if (list_dirty) {
-				break;
-			}
-
-			// Hajo: if component hit, translate coordinates and deliver event
+		// Handle the focus!
+		if(  comp_focus  ) {
+			gui_component_t *const comp = comp_focus;
 			event_t ev2 = *ev;
 			translate_event(&ev2, -comp->get_pos().x, -comp->get_pos().y);
-
-			// CAUTION : call to infowin_event() should not delete the component itself!
 			swallowed = comp->infowin_event(&ev2);
 
-			// focused component of this container can only be one of its immediate children
-			gui_component_t *focus = comp->get_focus() ? comp : NULL;
-
 			// set focus for component, if component allows focus
+			gui_component_t *const focus = comp->get_focus() ? comp : NULL;
 			if(  focus  &&  IS_LEFTCLICK(ev)  &&  comp->getroffen(ev->cx, ev->cy)  ) {
 				/* the focus swallow all following events;
 				 * due to the activation action
 				 */
 				new_focus = focus;
 			}
-			// stop here, if event swallowed or focus received
-			if(  swallowed  ||  comp==new_focus  ) {
-				break;
+		}
+
+		if(  !swallowed  ) {
+
+			slist_tpl<gui_component_t *>handle_mouseover;
+			FOR(  slist_tpl<gui_component_t*>,  const comp,  components  ) {
+
+				if(  list_dirty  ) {
+					break;
+				}
+
+				if(  comp == comp_focus  ) {
+					// do not handle focus objects twice
+					continue;
+				}
+
+				// Hajo: deliver events if
+				// a) The mouse or click coordinates are inside the component
+				// b) The event affects all components, this are WINDOW events
+				if(  comp  ) {
+					if(  DOES_WINDOW_CHILDREN_NEED( ev )  ) { // (Mathew Hounsell)
+						// Hajo: no need to translate the event, it has no valid coordinates either
+						comp->infowin_event(ev);
+					}
+					else if(  comp->is_visible()  ) {
+						if(  comp->getroffen(x, y)  ) {
+							handle_mouseover.insert( comp );
+						}
+					}
+
+				} // if(comp)
+			}
+
+			/* since the last drawn are overlaid over all others
+			 * the event-handling must go reverse too
+			 */
+			FOR(  slist_tpl<gui_component_t*>,  const comp,  handle_mouseover  ) {
+
+				if (list_dirty) {
+					break;
+				}
+
+				if(  comp == comp_focus  ) {
+					// do not handle focus objects twice
+					continue;
+				}
+
+				// Hajo: if component hit, translate coordinates and deliver event
+				event_t ev2 = *ev;
+				translate_event(&ev2, -comp->get_pos().x, -comp->get_pos().y);
+
+				// CAUTION : call to infowin_event() should not delete the component itself!
+				swallowed = comp->infowin_event(&ev2);
+
+				// set focus for component, if component allows focus
+				gui_component_t *focus = comp->get_focus() ? comp : NULL;
+
+				// set focus for component, if component allows focus
+				if(  focus  &&  IS_LEFTCLICK(ev)  &&  comp->getroffen(ev->cx, ev->cy)  ) {
+					/* the focus swallow all following events;
+					 * due to the activation action
+					 */
+					new_focus = focus;
+				}
+
+				// stop here, if event swallowed or focus received
+				if(  swallowed  ||  comp==new_focus  ) {
+					break;
+				}
 			}
 		}
 	}
 
 	list_dirty = false;
 
-	// handle unfocus/next focus stuff
-	if(  new_focus!=comp_focus  ) {
+	// handle unfocus/next focus stuff, but do no unfocus twice
+	if(  new_focus!=comp_focus  &&  !(ev->ev_class==INFOWIN  &&  ev->ev_code==WIN_UNTOP)  ) {
 		gui_component_t *old_focus = comp_focus;
 		comp_focus = new_focus;
 		if(  old_focus  ) {
@@ -240,15 +273,24 @@ bool gui_container_t::infowin_event(const event_t *ev)
 void gui_container_t::draw(scr_coord offset)
 {
 	const scr_coord screen_pos = pos + offset;
+	bool redraw_focus = false;
 
 	// For debug purpose, draw the container's boundary
-	// display_ddd_box(screen_pos.x,screen_pos.y,get_size().w, get_size().h, COL_RED, COL_RED, true);
+	// display_ddd_box_rgb(screen_pos.x,screen_pos.y,get_size().w, get_size().h, color_idx_to_rgb(COL_RED), color_idx_to_rgb(COL_RED), true);
 
 	FOR(slist_tpl<gui_component_t*>, const c, components) {
-		if (c->is_visible()) {
+		if(  c->is_visible()  ) {
+			if(  c == comp_focus  ) {
+				redraw_focus = true;
+				continue;
+			}
 			// @author hsiegeln; check if component is hidden or displayed
 			c->draw(screen_pos);
 		}
+	}
+	// this allows focussed (selected) components to overlay other components; but focus may subcomponent!
+	if(  redraw_focus  ) {
+		comp_focus->draw(screen_pos);
 	}
 }
 

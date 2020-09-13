@@ -32,10 +32,6 @@ class image_t : public obj_desc_t
 {
 public:
 	static const uint32 rgbtab[SPECIAL];
-	static const uint8  special_pal[224*3];
-
-	// returns next matching color to an rgb
-	static COLOR_VAL get_index_from_rgb( uint8 r, uint8 g, uint8 b );
 
 	size_t len;       ///< length of data[] in PIXVAL units
 	scr_coord_val x;  ///< x offset of data[] image

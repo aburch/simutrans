@@ -40,14 +40,12 @@ private:
 public:
 	/**
 	 * Causes the required fonts for currently selected
-	 * language to be loaded
+	 * language to be loaded if true
 	 * @author Hj. Malthaner
 	 */
-	static void init_font_from_lang();
+	static void init_font_from_lang(bool font);
 
 	sprachengui_t();
-
-	~sprachengui_t();
 
 	/**
 	 * Set the window associated helptext

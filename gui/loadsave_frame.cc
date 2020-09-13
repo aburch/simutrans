@@ -17,10 +17,17 @@
 #include "../sys/simsys.h"
 #include "../simworld.h"
 #include "../simversion.h"
+#include "../pathes.h"
+
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
-#include "../pathes.h"
+
+#include "../network/network.h"
+#include "../network/network_cmd.h"
+#include "../network/network_cmd_ingame.h"
+#include "../network/network_socket_list.h"
+
 #include "../utils/simstring.h"
 
 #include "components/gui_button.h"
@@ -88,15 +95,33 @@ void sve_info_t::rdwr(loadsave_t *file)
 
 /**
  * Action that's started with a button click
- * @author Hansj�rg Malthaner
+ * @author Hansj?rg Malthaner
  */
 bool loadsave_frame_t::item_action(const char *filename)
 {
 	if(do_load) {
-		welt->load(filename);
+		welt->switch_server( easy_server.pressed, true );
+		if(  !welt->load(filename)  ) {
+			welt->switch_server( false, true );
+		}
+		else if(  env_t::server  ) {
+			welt->announce_server(0);
+		}
 	}
 	else {
-		welt->save( filename, loadsave_t::save_mode, env_t::savegame_version_str, env_t::savegame_ex_version_str, env_t::savegame_ex_revision_str, false );
+		// saving a game
+		if(  env_t::server  ||  socket_list_t::get_playing_clients() > 0  ) {
+			network_reset_server();
+#if 0
+// TODO: saving without kicking all clients off ...
+			// we have connected clients, so we do a sync
+			const uint32 new_map_counter = welt->generate_new_map_counter();
+			nwc_sync_t *nw_sync = new nwc_sync_t(welt->get_sync_steps() + 1, welt->get_map_counter(), -1, new_map_counter);
+			network_send_all(nw_sync, false);
+			// and now we need to copy the servergame to the map ...
+#endif
+		}
+		welt->save(filename, loadsave_t::save_mode, env_t::savegame_version_str, env_t::savegame_ex_version_str, env_t::savegame_ex_revision_str, false);
 		welt->set_dirty();
 		welt->reset_timer();
 	}
@@ -119,6 +144,8 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve", fals
 	init(".sve", NULL);
 	if(do_load) {
 		set_name(translator::translate("Laden"));
+		easy_server.init( button_t::square_automatic, "Start this as a server", scr_coord(D_MARGIN_LEFT,0) );
+		add_component(&easy_server);
 	}
 	else {
 		set_filename(welt->get_settings().get_filename());
@@ -163,6 +190,16 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve", fals
 		}
 	}
 #endif
+}
+
+
+/**
+ * need to shift the start server button to the lower left
+ */
+void loadsave_frame_t::set_windowsize(scr_size size)
+{
+	savegame_frame_t::set_windowsize(size);
+	easy_server.align_to(&savebutton, ALIGN_CENTER_V, scr_coord( 0, 0 ) );
 }
 
 
@@ -345,6 +382,50 @@ void gui_file_table_exp_column_t::paint_cell(const scr_coord& offset, coordinate
 const char *loadsave_frame_t::get_info(const char *)
 {
 	static char date[1024] = { 0 };
+/*
+	static char date[1024];
+	date[0] = 0;
+	const char *pak_extension = NULL;
+
+	// get file information
+	struct stat  sb;
+	if(dr_stat(fname, &sb) != 0) {
+		// file not found?
+		return date;
+	}
+	// check hash table
+	sve_info_t *svei = cached_info.get(fname);
+	if (svei   &&  svei->file_size == sb.st_size  &&  svei->mod_time == sb.st_mtime) {
+		// compare size and mtime
+		// if both are equal then most likely the files are the same
+		// no need to read the file for pak_extension
+		pak_extension = svei->pak.c_str();
+		svei->file_exists = true;
+	}
+	else {
+		// read pak_extension from file
+		loadsave_t test;
+		test.rd_open(fname);
+		// add pak extension
+		pak_extension = test.get_pak_extension();
+		// now insert in hash_table
+		sve_info_t *svei_new = new sve_info_t(pak_extension, sb.st_mtime, sb.st_size );
+		// copy filename
+		char *key = strdup(fname);
+		sve_info_t *svei_old = cached_info.set(key, svei_new);
+		delete svei_old;
+	}
+	// write everything in string
+	// add pak extension
+	size_t n = sprintf(date, "%s - ", pak_extension);
+	// add the time too
+	struct tm *tm = localtime(&sb.st_mtime);
+	if (tm) {
+		strftime(date + n, 18, "%Y-%m-%d %H:%M", tm);
+	}
+	else {
+		tstrncpy(date, "??.??.???? ??:??", lengthof(date));
+	}*/
 	return date;
 }
 

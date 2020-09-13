@@ -9,20 +9,26 @@
 
 #include "../simtypes.h"
 
-struct font_type
+class font_t
 {
-	char fname[1024];
+public:
+	char fname[PATH_MAX];
 	sint16	height;
 	sint16	descent;
 	uint16 num_chars;
 	uint8 *screen_width;
 	uint8 *char_data;
 
-	font_type()
+	enum fonttype { BINARY=1, BDF=2, FREETYPE=3 };
+
+	font_t()
 	: height(0), descent(0), num_chars(0), screen_width(NULL), char_data(NULL)
 	{
 		fname[0]= 0;
 	}
+
+	// later we may add on the fly rendering for freefont
+	uint16 get_char(uint16 i) { return char_data[i] == 0 ? 0 : i; }
 };
 
 /*
@@ -38,6 +44,6 @@ struct font_type
 /**
  * Loads a font
  */
-bool load_font(font_type* font, const char* fname);
+bool load_font(font_t* font, const char* fname);
 
 #endif

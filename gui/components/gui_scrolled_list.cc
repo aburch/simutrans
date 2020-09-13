@@ -43,12 +43,12 @@ scr_coord_val gui_scrolled_list_t::const_text_scrollitem_t::draw(scr_coord pos, 
 {
 	if (selected) {
 		// selected element
-		display_fillbox_wh_clip(pos.x + 3, pos.y - 1, w - 5, get_height() + 1, (focus ? SYSCOL_LIST_BACKGROUND_SELECTED_F : SYSCOL_LIST_BACKGROUND_SELECTED_NF), true);
-		return display_proportional_clip(pos.x + 7, pos.y, get_text(), ALIGN_LEFT, (focus ? SYSCOL_LIST_TEXT_SELECTED_FOCUS : SYSCOL_LIST_TEXT_SELECTED_NOFOCUS), true);
+		display_fillbox_wh_clip_rgb(pos.x + 3, pos.y - 1, w - 5, get_height() + 1, (focus ? SYSCOL_LIST_BACKGROUND_SELECTED_F : SYSCOL_LIST_BACKGROUND_SELECTED_NF), true);
+		return display_proportional_clip_rgb(pos.x + 7, pos.y, get_text(), ALIGN_LEFT, (focus ? SYSCOL_LIST_TEXT_SELECTED_FOCUS : SYSCOL_LIST_TEXT_SELECTED_NOFOCUS), true);
 	}
 	else {
 		// normal text
-		return display_proportional_clip(pos.x + 7, pos.y, get_text(), ALIGN_LEFT, get_color(), true);
+		return display_proportional_clip_rgb(pos.x + 7, pos.y, get_text(), ALIGN_LEFT, get_color(), true);
 	}
 }
 
@@ -161,8 +161,6 @@ void gui_scrolled_list_t::sort(int offset, void *sort_param)
 				}
 			}
 		}
-		else {
-		}
 	}
 }
 
@@ -220,6 +218,15 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 
 	const int boarder_w = border / 2;
 
+	if(  sb.is_visible()  &&  sb.getroffen(x,y)  ) {
+		event_t new_ev = *ev;
+		translate_event( &new_ev, -sb.get_pos().x, -sb.get_pos().y );
+		if (sb.infowin_event( &new_ev ) ) {
+			// nothing to update for parent ...
+			return true;
+		}
+	}
+
 	// size without scrollbar
 	const int w = size.w - D_SCROLLBAR_WIDTH + 2;
 	const int h = size.h;
@@ -259,6 +266,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 					// not handled oneself
 					call_listeners((long)new_selection);
 				}
+				return true;
 			}
 		}
 	}
@@ -279,7 +287,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 		return true;
 	}
 
-	if (sb.is_visible() && (sb.getroffen(x, y) || IS_WHEELUP(ev) || IS_WHEELDOWN(ev))) {
+	if(  sb.is_visible()  &&  (IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -sb.get_pos().x, -sb.get_pos().y);
 		return sb.infowin_event(&ev2);

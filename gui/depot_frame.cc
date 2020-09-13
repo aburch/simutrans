@@ -81,14 +81,14 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_component(&lb_convois);
 
 	convoy_selector.add_listener(this);
-	convoy_selector.set_highlight_color( depot->get_owner()->get_player_color1() + 1);
+	convoy_selector.set_highlight_color( color_idx_to_rgb(depot->get_owner()->get_player_color1() + 1));
 	add_component(&convoy_selector);
 
 	/*
 	* [SELECT ROUTE]:
 	*/
 	line_selector.add_listener(this);
-	line_selector.set_highlight_color( depot->get_owner()->get_player_color1() + 1);
+	line_selector.set_highlight_color( color_idx_to_rgb(depot->get_owner()->get_player_color1() + 1));
 	line_selector.set_wrapping(false);
 	line_selector.set_focusable(true);
 	add_component(&line_selector);
@@ -828,20 +828,20 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 		update_data();
 		layout(NULL);
 	}
-	else {
+	if(0) {
 		if(IS_LEFTCLICK(ev)  ) {
-			if(  !convoy_selector.getroffen(ev->cx, ev->cy-16)  &&  convoy_selector.is_dropped()  ) {
+			if(  !convoy_selector.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  &&  convoy_selector.is_dropped()  ) {
 				// close combo box; we must do it ourselves, since the box does not receive outside events ...
 				convoy_selector.close_box();
 			}
-			if(  line_selector.is_dropped()  &&  !line_selector.getroffen(ev->cx, ev->cy-16)  ) {
+			if(  line_selector.is_dropped()  &&  !line_selector.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  ) {
 				// close combo box; we must do it ourselves, since the box does not receive outside events ...
 				line_selector.close_box();
 				if(  line_selector.get_selection() < last_selected_line.is_bound()+3  &&  get_focus() == &line_selector  ) {
 					set_focus( NULL );
 				}
 			}
-			//if(  !vehicle_filter.is_hit(ev->cx, ev->cy-16)  &&  vehicle_filter.is_dropped()  ) {
+			//if(  !vehicle_filter.is_hit(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  &&  vehicle_filter.is_dropped()  ) {
 			//	// close combo box; we must do it ourselves, since the box does not receive outside events ...
 			//	vehicle_filter.close_box();
 			//}

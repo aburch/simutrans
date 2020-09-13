@@ -58,18 +58,17 @@
 #include "simplay.h"
 #include "finance.h"
 
-karte_t *player_t::welt = NULL;
+karte_ptr_t player_t::welt;
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
 static pthread_mutex_t load_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
-player_t::player_t(karte_t *wl, uint8 nr) :
+player_t::player_t(uint8 nr) :
 	simlinemgmt()
 {
-	finance = new finance_t(this, wl);
-	welt = wl;
+	finance = new finance_t(this, welt);
 	player_nr = nr;
 	player_age = 0;
 	active = false;			// Don't start as an AI player
@@ -83,7 +82,7 @@ player_t::player_t(karte_t *wl, uint8 nr) :
 
 	allow_voluntary_takeover = false;
 
-	welt->get_settings().set_default_player_color(this);
+	welt->get_settings().set_player_color_to_default(this);
 
 	// we have different AI, try to find out our type:
 	sprintf(player_name_buf,"player %i",player_nr-1);
@@ -279,7 +278,7 @@ void player_t::display_messages()
 
 		const scr_coord scr_pos = vp->get_screen_coord(koord3d(m->pos,welt->lookup_hgt(m->pos)),koord(0,m->alter >> 4));
 
-		display_shadow_proportional( scr_pos.x, scr_pos.y, PLAYER_FLAG|(player_color_1+3), SYSCOL_TEXT_SHADOW, m->str, true);
+		display_shadow_proportional_rgb(scr_pos.x, scr_pos.y, PLAYER_FLAG | color_idx_to_rgb(player_color_1+3), color_idx_to_rgb(COL_BLACK), m->str, true);
 		if(  m->pos.x < 3  ||  m->pos.y < 3  ) {
 			// very close to border => renew background
 			welt->set_background_dirty();
@@ -348,7 +347,7 @@ void player_t::step()
 {
 	/*
 	NOTE: This would need updating to the new FOR iterators to work now.
-	// die haltestellen müssen die Fahrpläne rgelmaessig pruefen
+	// die haltestellen mEsen die Fahrpläne rgelmaessig pruefen
 	uint8 i = (uint8)(welt->get_steps()+player_nr);
 	//slist_iterator_tpl <nearby_halt_t> iter( halt_list );
 	//while(iter.next()) {
@@ -1180,14 +1179,14 @@ sint64 player_t::undo()
 }
 
 
-void player_t::tell_tool_result(tool_t *tool, koord3d, const char *err, bool local)
+void player_t::tell_tool_result(tool_t *tool, koord3d, const char *err)
 {
 	/* tools can return three kinds of messages
 	* NULL = success
 	* "" = failure, but just do not try again
 	* "bla" error message, which should be shown
 	*/
-	if (welt->get_active_player() == this && local) {
+	if (welt->get_active_player() == this) {
 		if (err == NULL) {
 			if (tool->ok_sound != NO_SOUND) {
 				sound_play(tool->ok_sound);
@@ -1198,13 +1197,7 @@ void player_t::tell_tool_result(tool_t *tool, koord3d, const char *err, bool loc
 			sound_play(SFX_FAILURE);
 			// look for coordinate in error message
 			// syntax: either @x,y or (x,y)
-			koord pos = message_t::get_coord_from_text(err);
-			if (pos != koord::invalid) {
-				create_win(new news_loc(err, pos), w_time_delete, magic_none);
-			}
-			else {
-				create_win(new news_img(err), w_time_delete, magic_none);
-			}
+			open_error_msg_win(err);
 		}
 	}
 }

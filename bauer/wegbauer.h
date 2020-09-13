@@ -44,8 +44,8 @@ public:
 	 * Finds a way with a given speed limit for a given waytype
 	 * @author prissi
 	 */
-	static const way_desc_t * weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const systemtype_t system_type, const uint32 wear_capacity_limit, way_constraints_of_vehicle_t way_constraints = way_constraints_of_vehicle_t());
-	static const way_desc_t * weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint16 time, const systemtype_t system_type);
+	static const way_desc_t *weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const systemtype_t system_type, const uint32 wear_capacity_limit, way_constraints_of_vehicle_t way_constraints = way_constraints_of_vehicle_t());
+	static const way_desc_t *weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint16 time, const systemtype_t system_type);
 
 	/**
 	 * Finds a mothballed way for a given waytype.

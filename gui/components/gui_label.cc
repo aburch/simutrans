@@ -13,11 +13,14 @@
  * just displays a text, will be auto-translated
  */
 
+static scr_coord_val separator_width = 0;
 
-
-gui_label_t::gui_label_t(const char* text, COLOR_VAL color_, align_t align_) :
+gui_label_t::gui_label_t(const char* text, PIXVAL color_, align_t align_) :
 	tooltip(NULL)
 {
+	if (align_ == money) {
+		separator_width = proportional_string_width(",00$");
+	}
 	set_size( scr_size( D_BUTTON_WIDTH, D_LABEL_HEIGHT ) );
 	init( text, scr_coord (0,0), color_, align_);
 }
@@ -49,8 +52,9 @@ void gui_label_t::draw(scr_coord offset)
 	if(  align == money  ) {
 		if(text) {
 			const char *separator = NULL;
+			const bool not_a_number = atol(text) == 0 && !isdigit(*text);
 
-			if(  strrchr(text, '$')!=NULL  ) {
+			if(  !not_a_number  ) {
 				separator = strrchr(text, get_fraction_sep());
 				if(separator==NULL  &&  get_large_money_string()!=NULL) {
 					separator = strrchr(text, *(get_large_money_string()) );
@@ -58,47 +62,25 @@ void gui_label_t::draw(scr_coord offset)
 			}
 
 			if(separator) {
-				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, separator, ALIGN_LEFT, color, true);
+				display_proportional_clip_rgb(pos.x+offset.x, pos.y+offset.y, separator, ALIGN_LEFT, color, true);
 				if(  separator!=text  ) {
-					display_text_proportional_len_clip(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true, separator-text );
+					display_text_proportional_len_clip_rgb(pos.x + offset.x, pos.y + offset.y, text, ALIGN_RIGHT | DT_CLIP, color, true, separator - text);
 				}
 			}
+			else if (not_a_number) {
+				// normal text, correct for money decimals
+				display_proportional_clip_rgb(pos.x + offset.x + separator_width, pos.y + offset.y, text, ALIGN_RIGHT, color, true);
+			}
 			else {
-				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true);
+				// integer numbers without deciamals, aling at decimal separator
+				display_proportional_clip_rgb(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true);
 			}
 		}
 	}
 
 	else if(text) {
-		int al;
-		scr_coord_val align_offset_x = 0;
-		scr_coord_val align_offset_y = D_GET_CENTER_ALIGN_OFFSET( LINESPACE, size.h );
-
-		switch(align) {
-			case left:
-				al = ALIGN_LEFT;
-				break;
-			case centered:
-				al = ALIGN_CENTER_H;
-				align_offset_x = (size.w>>1);
-				break;
-			case right:
-				al = ALIGN_RIGHT;
-				align_offset_x = size.w;
-				break;
-			default:
-				al = ALIGN_LEFT;
-		}
-
-		size_t idx = display_fit_proportional( text, size.w+1, -1 );
-		if(  text[idx]==0  ) {
-			display_proportional_clip(pos.x + offset.x + align_offset_x, pos.y + offset.y + align_offset_y, text, al, color, true);
-		}
-		else {
-			scr_coord_val w = display_text_proportional_len_clip( pos.x+offset.x+align_offset_x, pos.y+offset.y, text, al | DT_CLIP, color, true, idx );
-			display_proportional_clip( pos.x + offset.x + align_offset_x + w, pos.y + offset.y + align_offset_y, translator::translate("..."), al | DT_CLIP, color, true );
-		}
-
+		const scr_rect area( offset+pos, size );
+		display_proportional_ellipsis_rgb( area, text, align  | DT_CLIP, color, true );
 	}
 
 	if ( tooltip  &&  getroffen(get_mouse_x()-offset.x, get_mouse_y()-offset.y) ) {
@@ -109,7 +91,7 @@ void gui_label_t::draw(scr_coord offset)
 	}
 
 	// DEBUG
-	//display_ddd_box_clip(offset.x+pos.x,offset.y+pos.y,size.w,size.h,SYSCOL_HIGHLIGHT,SYSCOL_HIGHLIGHT);
+	//display_ddd_box_clip_rgb(offset.x+pos.x,offset.y+pos.y,size.w,size.h,SYSCOL_HIGHLIGHT,SYSCOL_HIGHLIGHT);
 }
 
 void gui_label_t::set_tooltip(const char * t)

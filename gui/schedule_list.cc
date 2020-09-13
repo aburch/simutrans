@@ -67,7 +67,7 @@ static const char *cost_type[MAX_LINE_COST] =
 	"Scheduled"
 };
 
-const int cost_type_color[MAX_LINE_COST] =
+const uint8 cost_type_color[MAX_LINE_COST] =
 {
 	COL_FREE_CAPACITY,
 	COL_TRANSPORTED,
@@ -164,7 +164,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	// init scrolled list
 	scl.set_pos(scr_coord(0,1));
 	scl.set_size(scr_size(LINE_NAME_COLUMN_WIDTH-11-4, SCL_HEIGHT-18));
-	scl.set_highlight_color(player->get_player_color1()+1);
+	scl.set_highlight_color(color_idx_to_rgb(player->get_player_color1()+1));
 	scl.add_listener(this);
 
 	// tab panel
@@ -217,7 +217,8 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&inp_name);
 
 	// load display
-	filled_bar.add_color_value(&loadfactor, COL_GREEN);
+	filled_bar.add_color_value(&loadfactor, color_idx_to_rgb(COL_GREEN));
+	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + 3*D_BUTTON_WIDTH + 10, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 4 + 2));
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
@@ -254,7 +255,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&lbl_filter);
 
 	inp_filter.set_pos( scr_coord( 11+D_BUTTON_WIDTH, 7+SCL_HEIGHT ) );
-	inp_filter.set_size( scr_size( D_BUTTON_WIDTH*2- D_BUTTON_HEIGHT *3, D_BUTTON_HEIGHT ) );
+	inp_filter.set_size( scr_size( D_BUTTON_WIDTH*2- D_BUTTON_HEIGHT *3, D_EDIT_HEIGHT ) );
 	inp_filter.set_text( schedule_filter, lengthof(schedule_filter) );
 //	inp_filter.set_tooltip("Only show lines containing");
 	inp_filter.add_listener(this);
@@ -371,7 +372,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	for (int i=0; i<MAX_LINE_COST; i++) {
 		filterButtons[i].init(button_t::box_state,cost_type[i],scr_coord(0,0), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 		filterButtons[i].add_listener(this);
-		filterButtons[i].background_color = cost_type_color[i];
+		filterButtons[i].background_color = color_idx_to_rgb(cost_type_color[i]);
 		cont_charts.add_component(filterButtons + i);
 	}
 	info_tabs.add_tab(&cont_charts, translator::translate("Chart"));
@@ -755,7 +756,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 		welt->sprintf_ticks(as_clock, sizeof(as_clock), service_frequency);
 		buf.printf(" %s",  as_clock);
 	}
-	int len=display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y + top, buf, ALIGN_LEFT, line->get_state() & simline_t::line_missing_scheduled_slots ? COL_DARK_TURQUOISE : SYSCOL_TEXT, true );
+	int len=display_proportional_clip_rgb(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y + top, buf, ALIGN_LEFT, line->get_state() & simline_t::line_missing_scheduled_slots ? color_idx_to_rgb(COL_DARK_TURQUOISE) : SYSCOL_TEXT, true );
 	if (line->get_state() & simline_t::line_missing_scheduled_slots) {
 		if (skinverwaltung_t::missing_scheduled_slot) {
 			display_color_img_with_tooltip(skinverwaltung_t::missing_scheduled_slot->get_image_id(0), pos.x + LINE_NAME_COLUMN_WIDTH + len + D_H_SPACE, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[1]));
@@ -765,10 +766,9 @@ void schedule_list_gui_t::display(scr_coord pos)
 		}
 	}
 
-	int len2 = display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+top + LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true );
+	int len2 = display_proportional_clip_rgb(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+top + LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true );
 	money_to_string(ctmp, profit/100.0);
-	len2 += display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH+len2+5, pos.y+top+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
-
+	len2 += display_proportional_clip_rgb(pos.x+LINE_NAME_COLUMN_WIDTH+len2+5, pos.y+top+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
 	int rest_width = max( (get_windowsize().w-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
 	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + rest_width + 24, top - LINESPACE - D_BUTTON_HEIGHT));
@@ -776,7 +776,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 		number_to_string(ctmp, capacity, 0);
 		buf.clear();
 		buf.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor );
-		display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width + 24, pos.y+top, buf, SYSCOL_TEXT);
+		display_multiline_text_rgb(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width + 24, pos.y + top, buf, SYSCOL_TEXT);
 	}
 	bt_line_class_manager.disable();
 	for (unsigned convoy = 0; convoy < line->count_convoys(); convoy++)
@@ -833,7 +833,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 		}
 	}
 	if (buf.len() > 0) {
-		display_proportional_clip(pos.x + left, pos.y + top, buf, ALIGN_LEFT, line->get_state_color(), true);
+		display_proportional_clip_rgb(pos.x + left, pos.y + top, buf, ALIGN_LEFT, line->get_state_color(), true);
 	}
 }
 
@@ -1029,7 +1029,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// chart
 		chart.remove_curves();
 		for(i=0; i<MAX_LINE_COST; i++)  {
-			chart.add_curve(cost_type_color[i], new_line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true, statistic_type[i]*2 );
+			chart.add_curve(color_idx_to_rgb(cost_type_color[i]), new_line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true, statistic_type[i]*2 );
 			if (bFilterStates & (1 << i)) {
 				chart.show_curve(i);
 			}

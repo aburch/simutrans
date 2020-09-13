@@ -273,12 +273,11 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 {
 	close();
 
-	const char *filename = dr_utf8_to_system_filename( filename_utf8 );
 	version = 0;
 	mode = zipped;
 	extended_version = 0;
 	extended_revision = 0;
-	fd->fp = fopen( filename, "rb");
+	fd->fp = dr_fopen(filename_utf8, "rb");
 	if(  fd->fp==NULL  ) {
 		// most likely not existing
 		return false;
@@ -318,7 +317,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 	if(  mode!=bzip2  ) {
 		fclose(fd->fp);
 		// and now with zlib ...
-		fd->gzfp = gzopen(filename, "rb");
+		fd->gzfp = dr_gzopen(filename_utf8, "rb");
 		if(fd->gzfp==NULL) {
 			return false;
 		}
@@ -382,7 +381,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 	if(*pak_extension==0) {
 		strcpy( pak_extension, "(unknown)" );
 	}
-	this->filename = filename;
+	this->filename = filename_utf8;
 #ifndef SPECIAL_RESCUE_12_6
 	if (extended_version >= 12)
 	{
@@ -417,18 +416,17 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 	mode = m;
 	close();
 
-	const char *filename = dr_utf8_to_system_filename( filename_utf8, true );
 	if(  is_zipped()  ) {
 		// using zlib
-		fd->gzfp = gzopen(filename, "wb1");
+		fd->gzfp = dr_gzopen(filename_utf8, "wb");
 	}
 	else if(  mode==binary  ) {
 		// no compression
-		fd->fp = fopen(filename, "wb");
+		fd->fp = dr_fopen(filename_utf8, "wb");
 	}
 	else if(  is_bzip2()  ) {
 		// XML or bzip ...
-		fd->fp = fopen(filename, "wb");
+		fd->fp = dr_fopen(filename_utf8, "wb");
 		// the additional magic for bzip2
 		fd->bse = BZ_OK+1;
 		fd->bzfp = NULL;
@@ -442,7 +440,7 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 	else {
 		// uncompressed xml should be here ...
 		assert(  mode==xml  );
-		fd->fp = fopen(filename, "wb");
+		fd->fp = dr_fopen(filename_utf8, "wb");
 	}
 
 	// check whether we could open the file
@@ -503,7 +501,7 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 	extended_version = versions.extended_version;
 	extended_revision = versions.extended_revision;
 
-	this->filename = filename;
+	this->filename = filename_utf8;
 
 	if (extended_version >= 12)
 	{

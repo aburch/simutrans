@@ -190,20 +190,20 @@ void gui_table_t::paint_grid(const scr_coord& offset)
 	if (grid_width.y > 0)
 	{
 		for (coordinate_t y = 0, n = size.get_y(); y < n; y++) {
-			display_fillbox_wh_clip(h.x, h.y, s.x, grid_width.y, grid_color, true);
+			display_fillbox_wh_clip_rgb(h.x, h.y, s.x, grid_width.y, grid_color, true);
 			h.y += grid_width.y + get_row_height(y);
 		}
-		display_fillbox_wh_clip(h.x, h.y, s.x, grid_width.y, grid_color, true);
+		display_fillbox_wh_clip_rgb(h.x, h.y, s.x, grid_width.y, grid_color, true);
 	}
 
 	// paint vertical grid lines
 	if (grid_width.x > 0)
 	{
 		for (coordinate_t x = 0, m = size.get_x(); x < m; x++) {
-			display_fillbox_wh_clip(v.x, v.y, grid_width.x, s.y, grid_color, true);
+			display_fillbox_wh_clip_rgb(v.x, v.y, grid_width.x, s.y, grid_color, true);
 			v.x += grid_width.x + get_column_width(x);
 		}
-		display_fillbox_wh_clip(v.x, v.y, grid_width.x, s.y, grid_color, true);
+		display_fillbox_wh_clip_rgb(v.x, v.y, grid_width.x, s.y, grid_color, true);
 	}
 }
 

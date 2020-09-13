@@ -11,6 +11,15 @@
 #include <stdlib.h>
 
 #include "utils/for.h"
+#include <limits.h>
+
+#ifndef PATH_MAX
+#ifdef MAX_PATH
+#define PATH_MAX (MAX_PATH)
+#else
+#define PATH_MAX 1024
+#endif
+#endif
 
 #if defined _MSC_VER
 #	if _MSC_VER <= 1200
@@ -151,7 +160,9 @@ typedef unsigned long       uint32;
 #endif
 #endif
 typedef   signed long long  sint64;
+#ifndef NO_UINT64_TYPES
 typedef unsigned long long  uint64;
+#endif
 #ifdef _MSC_VER
 #	define GCC_PACKED
 #	define GCC_ALIGN(a)

@@ -632,7 +632,7 @@ private:
 	 * @note Variable used in interactive().
 	 * @note Set in reset_timer().
 	 */
-	uint32 fix_ratio_frame_time;
+	sint32 fix_ratio_frame_time;
 
 	/**
 	 * For performance comparison.
@@ -855,6 +855,11 @@ private:
 	 * Updates all images.
 	 */
 	void update_map_intern(sint16, sint16, sint16, sint16);
+
+	/**
+	 * Updates images after change of underground mode.
+	 */
+	void update_underground_intern(sint16, sint16, sint16, sint16);
 
 	/**
 	 * This contains all buildings in the world from which passenger
@@ -2581,6 +2586,11 @@ public:
 	bool play_sound_area_clipped(koord k, uint16 idx, waytype_t cooldown_type);
 
 	void mute_sound( bool state ) { is_sound = !state; }
+
+	/* if start is true, the current map will be used as servergame
+	 * Does not announce a new map!
+	 */
+	void switch_server( bool start_server, bool port_forwarding );
 
 	/**
 	 * Saves the map to a file.

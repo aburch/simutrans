@@ -12,8 +12,7 @@
 #include "../squirrel/squirrel.h"
 #include "../simobj.h"
 #include "../simtypes.h"
-#include "../halthandle_t.h"
-#include "../linehandle_t.h"
+#include "../tpl/quickstone_tpl.h"
 #include "../utils/cbuffer_t.h"
 
 class baum_t;
@@ -21,6 +20,7 @@ class convoi_t;
 class fabrik_t;
 class gebaeude_t;
 class grund_t;
+class haltestelle_t;
 class karte_t;
 class karte_ptr_t;
 class koord;
@@ -245,7 +245,7 @@ namespace script_api {
 	};
 
 	/**
-	 * partial specialization for vector_tpl types
+	 * partial specialization for container types
 	 */
 	template< template<class> class vector, class T> struct param< vector<T> > {
 		/**
@@ -255,8 +255,9 @@ namespace script_api {
 		static SQInteger push(HSQUIRRELVM vm, vector<T> const& v)
 		{
 			sq_newarray(vm, 0);
-			for(uint32 i=0; i<v.get_count(); i++) {
-				param<T>::push(vm, v[i]);
+
+			FORT(const vector<T>, const&i, v) {
+				param<T>::push(vm, i);
 				sq_arrayappend(vm, -2);
 			}
 			return 1;
@@ -270,6 +271,14 @@ namespace script_api {
 			return buf;
 		}
 	};
+
+	/**
+	 * partial specialization for *handle_t types
+	 */
+	// declared here, implementation in api_class.h,
+	// which has to be included if necessary
+	template<class T> struct param< quickstone_tpl<T> >;
+
 
 #define declare_types(mask, sqtype) \
 	static const char* typemask() { return mask; } \
@@ -330,7 +339,6 @@ namespace script_api {
 	declare_specialized_param(convoi_t*, "t|x|y", "convoy_x");
 	declare_specialized_param(fabrik_t*, "t|x|y", "factory_x");
 	declare_specialized_param(grund_t*, "t|x|y", "tile_x");
-	declare_specialized_param(halthandle_t, "t|x|y", "halt_x");
 	declare_specialized_param(const haltestelle_t*, "t|x|y", "halt_x");
 	declare_param_mask(haltestelle_t*, "t|x|y", "halt_x");
 	declare_specialized_param(karte_t*, ".", "world");
@@ -342,7 +350,6 @@ namespace script_api {
 	declare_specialized_param(mytime_t, "i|t|x|y", "time_x");
 	declare_specialized_param(mytime_ticks_t, "i|t|x|y", "time_ticks_x");
 	declare_specialized_param(scenario_t*, "t|x|y", "");
-	declare_specialized_param(linehandle_t, "t|x|y", "line_x");
 	declare_specialized_param(simline_t*, "t|x|y", "line_x");
 	declare_specialized_param(player_t*, "t|x|y", "player_x");
 	declare_specialized_param(stadt_t*, "t|x|y", "city_x");

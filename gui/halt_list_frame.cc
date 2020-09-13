@@ -127,8 +127,8 @@ static bool passes_filter_special(haltestelle_t & s)
 	if (!halt_list_frame_t::get_filter(halt_list_frame_t::spezial_filter)) return true;
 
 	if (halt_list_frame_t::get_filter(halt_list_frame_t::ueberfuellt_filter)) {
-		COLOR_VAL const farbe = s.get_status_farbe();
-		if (farbe == COL_RED || farbe == COL_ORANGE) {
+		PIXVAL const farbe = s.get_status_farbe();
+		if (farbe == color_idx_to_rgb(COL_RED) || farbe == color_idx_to_rgb(COL_ORANGE)) {
 			return true; // overcrowded
 		}
 	}
@@ -266,24 +266,25 @@ halt_list_frame_t::halt_list_frame_t(player_t *player) :
 	m_player = player;
 	filter_frame = NULL;
 
-	sort_label.set_pos(scr_coord(BUTTON1_X, 2));
+	sort_label.set_pos(scr_coord(BUTTON1_X, D_V_SPACE));
 	add_component(&sort_label);
-	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	const sint16 ybutton = D_BUTTON_HEIGHT + D_V_SPACE;
+	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, ybutton));
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, ybutton));
 	sorteddir.add_listener(this);
 	add_component(&sorteddir);
 
-	filter_label.set_pos(scr_coord(BUTTON3_X, 2));
+	filter_label.set_pos(scr_coord(BUTTON3_X, D_V_SPACE));
 	add_component(&filter_label);
 
-	filter_on.init(button_t::roundbox, translator::translate(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), scr_coord(BUTTON3_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	filter_on.init(button_t::roundbox, translator::translate(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), scr_coord(BUTTON3_X, ybutton));
 	filter_on.add_listener(this);
 	add_component(&filter_on);
 
-	filter_details.init(button_t::roundbox, translator::translate("hl_btn_filter_settings"), scr_coord(BUTTON4_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	filter_details.init(button_t::roundbox, translator::translate("hl_btn_filter_settings"), scr_coord(BUTTON4_X, ybutton));
 	filter_details.add_listener(this);
 	add_component(&filter_details);
 
@@ -450,10 +451,13 @@ void halt_list_frame_t::draw(scr_coord pos, scr_size size)
 	gui_frame_t::draw(pos, size);
 
 	const sint16 xr = vscroll.is_visible() ? D_SCROLLBAR_WIDTH+4 : 6;
-	PUSH_CLIP(pos.x, pos.y+47, size.w-xr, size.h-48 );
+	const sint16 margin_top = D_TITLEBAR_HEIGHT + sortedby.get_pos().y + sortedby.get_size().h + D_V_SPACE;
+
+	PUSH_CLIP(pos.x, pos.y+margin_top, size.w-xr, size.h-margin_top-1 );
 
 	const sint32 start = vscroll.get_knob_offset();
-	sint16 yoffset = 47;
+	sint16 yoffset = margin_top;
+
 	const int last_num_filtered_stops = num_filtered_stops;
 	num_filtered_stops = 0;
 
@@ -466,7 +470,7 @@ void halt_list_frame_t::draw(scr_coord pos, scr_size size)
 		halthandle_t const halt = i.get_halt();
 		if (halt.is_bound() && passes_filter(*halt)) {
 			num_filtered_stops++;
-			if(  num_filtered_stops>start  &&  yoffset<size.h+47  ) {
+			if(  num_filtered_stops>start  &&  yoffset<size.h+margin_top  ) {
 				i.draw(pos + scr_coord(0, yoffset));
 				yoffset += i.get_size().h;
 			}

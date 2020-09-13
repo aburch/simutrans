@@ -137,11 +137,11 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 	scl.set_selection(-1);
 	FOR(vector_tpl<building_desc_t const*>, const i, building_list) {
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
-		COLOR_VAL color;
+		PIXVAL color;
 		switch (i->get_type()) {
-			case building_desc_t::attraction_city: color = COL_BLUE;       break;
-			case building_desc_t::attraction_land: color = COL_DARK_GREEN; break;
-			default:                            color = COL_BLACK;      break;
+		case building_desc_t::attraction_city: color = color_idx_to_rgb(COL_BLUE);       break;
+		case building_desc_t::attraction_land: color = color_idx_to_rgb(COL_DARK_GREEN); break;
+		default:                            color = color_idx_to_rgb(COL_BLACK);      break;
 		}
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
 		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));

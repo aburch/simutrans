@@ -182,6 +182,17 @@ char *tooltip_with_price_maintenance_level(karte_t *welt, const char *tip, sint6
 
 
 
+void open_error_msg_win(const char* error)
+{
+	koord pos = message_t::get_coord_from_text(error);
+	if (pos != koord::invalid) {
+		create_win(new news_loc(error, pos), w_time_delete, magic_none);
+	}
+	else {
+		create_win(new news_img(error), w_time_delete, magic_none);
+	}
+}
+
 /**
  * sucht Haltestelle um Umkreis +1/-1 um (pos, b, h)
  * extended to search first in our direction
@@ -2418,7 +2429,15 @@ const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month, bool r
 		desc = defaults[wt & (sint8)63];
 		if(desc == NULL || !desc->is_available(timeline_year_month)) {
 			// Search for default way
-			desc = way_builder_t::weg_search(wt, 0xffffffff, timeline_year_month, type_flat);
+			if(  wt == tram_wt  ||  wt == powerline_wt  ) {
+				desc = way_builder_t::weg_search(wt, 0xffffffff, timeline_year_month, type_flat);
+			}
+			else {
+				// this triggers an assertion if wt == powerline_wt
+				weg_t *w = weg_t::alloc(wt);
+				desc = w->get_desc();
+				delete w;
+			}
 		}
 	}
 	if( desc && remember ) {
@@ -2435,8 +2454,21 @@ const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month, bool r
 image_id tool_build_way_t::get_icon(player_t *) const
 {
 	const way_desc_t *desc = way_builder_t::get_desc(default_param,0);
-	bool const elevated = desc ? desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt : false;
-	return (grund_t::underground_mode == grund_t::ugm_all && elevated) ? IMG_EMPTY : icon;
+	image_id image = icon;
+	bool is_tram = false;
+	if(  desc  ) {
+		is_tram = (desc->get_wtyp()==tram_wt) || (desc->get_styp() == type_tram);
+		if(  image ==  IMG_EMPTY  ) {
+			image = desc->get_cursor()->get_image_id(1);
+		}
+		if(  !desc->is_available( world()->get_timeline_year_month() )  ) {
+			return IMG_EMPTY;
+		}
+	}
+	if(  grund_t::underground_mode==grund_t::ugm_all && !is_tram ) {
+		return IMG_EMPTY;
+	}
+	return image;
 }
 
 const char* tool_build_way_t::get_tooltip(const player_t *) const
@@ -2821,9 +2853,12 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 				gr->set_grund_hang( welt->lookup( pos - koord3d( 0, 0, offset ) )->get_grund_hang() );
 				welt->access(pos.get_2d())->boden_hinzufuegen(gr);
 			}
+			if (gr->is_water()) {
+				continue;
+			}
 			ribi_t::ribi zeige = gr->get_weg_ribi_unmasked(desc->get_wtyp()) | bauigel.get_route().get_ribi( j );
 
-			zeiger_t *way = new zeiger_t(pos, NULL );
+			zeiger_t *way = new zeiger_t(pos, player);
 			if(gr->get_weg_hang()) {
 				way->set_image( desc->get_slope_image_id(gr->get_weg_hang(),0) );
 			}
@@ -3031,7 +3066,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	// flat -> height is 1 if conversion factor 1, 2 if conversion factor 2
 	// single height -> height is 1
 	// double height -> height is 2
-	const slope_t::type slope = gr->get_grund_hang();
+	const slope_t::type slope = gr->get_weg_hang();
 	uint8 max_height = slope ?  slope_t::max_diff(slope) : bridge_height;
 
 	zeiger_t *way = new zeiger_t(start, player );
@@ -3131,7 +3166,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 			}
 		}
 	}
-	win_set_static_tooltip( tooltip_with_price("Building costs estimates", costs ) );
+	win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", costs, koord_distance(start, pos) ) );
 }
 
 uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, const char *&error, const koord3d &start )
@@ -3475,7 +3510,8 @@ void tool_build_tunnel_t::mark_tiles(  player_t *player, const koord3d &start, c
 
 	if(  bauigel.get_count()>1  ) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
-		win_set_static_tooltip( tooltip_with_price("Building costs estimates", -bauigel.calc_costs() ) );
+		const uint32 distance = bauigel.get_count() * welt->get_settings().get_meters_per_tile();
+		win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", -bauigel.calc_costs(), distance) );
 
 		// make dummy route from bauigel
 		for(  uint32 j=0;  j<bauigel.get_count();  j++  ) {
@@ -4075,7 +4111,8 @@ void tool_build_wayobj_t::mark_tiles( player_t * player, const koord3d &start, c
 				marked.insert( way_obj );
 			}
 		}
-		win_set_static_tooltip( tooltip_with_price("Building costs estimates", -cost_estimate ) );
+		const uint32 distance = verbindung.get_count() * welt->get_settings().get_meters_per_tile();
+		win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", -cost_estimate, distance ) );
 	}
 }
 
@@ -5637,7 +5674,7 @@ char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 void tool_build_roadsign_t::draw_after(scr_coord k, bool dirty) const
 {
 	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
-		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
+		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
 		char level_str[16];
 		uint32 spacing_in_meter = (uint32)signal[welt->get_active_player_nr()].spacing * (uint32)welt->get_settings().get_meters_per_tile();
 		if( spacing_in_meter < 1000 ) {
@@ -5649,7 +5686,7 @@ void tool_build_roadsign_t::draw_after(scr_coord k, bool dirty) const
 			spacing_dec = spacing_dec % 10;
 			sprintf(level_str, "%i.%ikm", spacing_km, spacing_dec);
 		}
-		display_proportional( k.x+2, k.y+2, level_str, ALIGN_LEFT, COL_YELLOW, true );
+		display_proportional_rgb( k.x+2, k.y+2, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
 	}
 }
 
@@ -7290,6 +7327,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 											{
 												player_t::add_maintenance( player, -prev_desc->get_maintenance(), prev_desc->get_finance_waytype() );
 												gb->set_tile( tile, true );
+												gb->calc_image();
 												player_t::add_maintenance( player, desc->get_maintenance(), desc->get_finance_waytype() );
 											}
 										}
@@ -8334,16 +8372,26 @@ bool tool_show_underground_t::is_selected() const
 void tool_show_underground_t::draw_after(scr_coord k, bool dirty) const
 {
 	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
-		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
+		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
 		// additionally show level in sliced mode
 		if(  default_param!=NULL  &&  grund_t::underground_mode==grund_t::ugm_level  ) {
 			char level_str[16];
 			sprintf( level_str, "%i", grund_t::underground_level );
-			display_proportional( k.x+4, k.y+4, level_str, ALIGN_LEFT, COL_YELLOW, true );
+			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
 		}
 	}
 }
 
+
+void tool_rotate90_t::draw_after(scr_coord pos, bool dirty) const
+{
+	if(  !env_t::networkmode  ) {
+		if(  skinverwaltung_t::compass_map  ) {
+			display_img_aligned( skinverwaltung_t::compass_map->get_image_id( welt->get_settings().get_rotation()+4 ), scr_rect(pos, env_t::iconsize), ALIGN_CENTER_V|ALIGN_CENTER_H, false );
+		}
+		tool_t::draw_after( pos, dirty );
+	}
+}
 
 bool tool_rotate90_t::init( player_t * )
 {
@@ -8424,7 +8472,7 @@ static bool scenario_check_schedule(karte_t *welt, player_t *player, schedule_t 
 	const char* err = welt->get_scenario()->is_schedule_allowed(player, schedule);
 	if (err) {
 		if (*err  &&  local) {
-			create_win( new news_img(err), w_time_delete, magic_none);
+			open_error_msg_win(err);
 		}
 		return false;
 	}
@@ -8856,7 +8904,7 @@ bool tool_change_line_t::init( player_t *player )
 				}
 
 				FOR(vector_tpl<linehandle_t>,line,lines) {
-					if(  line->get_linetype() == linetype  &&  line->get_convoys().get_count() > 3  ) {
+					if(  line->get_linetype() == linetype  &&  line->get_convoys().get_count() > 2  ) {
 						// correct waytpe and more than one,n now some up usage for the last six months
 						sint64 transported = 0, capacity = 0;
 						for(  int i=0;  i<6;  i++  ) {
@@ -8885,10 +8933,12 @@ bool tool_change_line_t::init( player_t *player )
 							sint64 new_sum_capacity = (transported * 1000 * old_sum_capacity) / (capacity * percentage * 10);
 
 							// first we remove the totally empty convois (nowbody will miss them)
-							int destroyed = 0, initial = line->get_convoys().get_count();
-							for(  int j = initial - 1;  j >= 0  &&  initial-destroyed > 3  &&  new_sum_capacity < old_sum_capacity;  j--  ) {
+							int destroyed = 0;
+							const int initial = line->get_convoys().get_count();
+							const int max_left = (initial+2) / 2;
+							for(  int j = initial - 1;  j >= 0  &&  initial-destroyed > max_left  &&  new_sum_capacity < old_sum_capacity;  j--  ) {
 								convoihandle_t cnv = line->get_convoy(j);
-								if(  cnv->get_loading_level() == 0  ||  cnv->get_state() == convoi_t::INITIAL  ) {
+								if(  cnv->get_state() == convoi_t::INITIAL  ||  cnv->get_state() >= convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH  ) {
 									for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
 										old_sum_capacity -= cnv->get_vehicle(i)->get_desc()->get_capacity();
 									}
@@ -8897,7 +8947,7 @@ bool tool_change_line_t::init( player_t *player )
 								}
 							}
 							// not enough? Then remove from the end ...
-							for(  uint32 j=0;  j < line->get_convoys().get_count()  &&  initial-destroyed > 3  &&  new_sum_capacity < old_sum_capacity;  j++  ) {
+							for(  uint32 j=0;  j < line->get_convoys().get_count()  &&  initial-destroyed > max_left  &&  new_sum_capacity < old_sum_capacity;  j++  ) {
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_state() != convoi_t::SELF_DESTRUCT  ) {
 									for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
@@ -9577,7 +9627,7 @@ bool tool_recolour_t::init(player_t *)
 			return false;
 	}
 
-	const uint8 colour = atoi(p);
+	const FLAGGED_PIXVAL colour = atoi(p);
 
 	// now for action ...
 	switch(  what  )
@@ -9798,7 +9848,7 @@ bool tool_add_message_t::init(player_t *player)
 
 		}
 		welt->get_message()->add_message(text + 1, koord::invalid, type,
-		type & message_t::local_flag ? COL_BLACK : (player ? PLAYER_FLAG | player->get_player_nr() : COL_WHITE), IMG_EMPTY);
+																		 type & message_t::local_flag ? color_idx_to_rgb(COL_BLACK) : (player ? PLAYER_FLAG | player->get_player_nr() : COL_WHITE), IMG_EMPTY);
 	}
 	return false;
 }

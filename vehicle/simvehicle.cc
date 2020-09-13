@@ -588,9 +588,6 @@ void vehicle_base_t::calc_height(grund_t *gr)
 			}
 		}
 	}
-	else if(  !gr->is_visible()  ) {
-		set_image(IMG_EMPTY);
-	}
 	else {
 		// force a valid image above ground, with special handling of tunnel entraces
 		if (get_image() == IMG_EMPTY) {
@@ -1591,6 +1588,9 @@ grund_t* vehicle_t::hop_check()
 				dir = get_ribi(bd);
 			}
 			koord3d nextnext_pos = cnv->get_route()->at(route_index+1);
+			if ( nextnext_pos == get_pos() ) {
+				dbg->error("vehicle_t::hop_check", "route contains point (%s) twice for %s", nextnext_pos.get_str(), cnv->get_name());
+			}
 			uint8 new_dir = ribi_type(nextnext_pos-pos_next);
 			if((dir&new_dir)==0) {
 				// new one way sign here?
@@ -1700,9 +1700,8 @@ void vehicle_t::hop(grund_t* gr)
 
 	// check if arrived at waypoint, and update schedule to next destination
 	// route search through the waypoint is already complete
-//	if(  leading  &&  get_pos()==cnv->get_schedule_target()  ) { // leading turned off in vorfahren when reversing
 	if(  get_pos()==cnv->get_schedule_target()  ) {
-		if(  route_index+1 >= cnv->get_route()->get_count()  ) {
+		if(  route_index >= cnv->get_route()->get_count()  ) {
 			// we end up here after loading a game or when a waypoint is reached which crosses next itself
 			cnv->set_schedule_target( koord3d::invalid );
 		}
@@ -3099,7 +3098,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 {
 	if(  is_gobal  &&  cnv  &&  leading  ) {
 #endif
-		COLOR_VAL color = COL_GREEN; // not used, but stop compiler warning about uninitialized
+		PIXVAL color = 0; // not used, but stop compiler warning about uninitialized
 		char tooltip_text[1024];
 		tooltip_text[0] = 0;
 		uint8 tooltip_display_level = env_t::show_vehicle_states;
@@ -3118,7 +3117,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			case convoi_t::CAN_START_ONE_MONTH:
 				if(tooltip_display_level >=3  ) {
 					tstrncpy( tooltip_text, translator::translate("Waiting for clearance!"), lengthof(tooltip_text) );
-					color = COL_YELLOW;
+					color = color_idx_to_rgb(COL_YELLOW);
 				}
 				break;
 
@@ -3128,7 +3127,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 					char emergency_stop_time[64];
 					cnv->snprintf_remaining_emergency_stop_time(emergency_stop_time, sizeof(emergency_stop_time));
 					sprintf(tooltip_text, translator::translate("emergency_stop %s left"), emergency_stop_time/*, lengthof(tooltip_text) */);
-					color = COL_RED;
+					color = color_idx_to_rgb(COL_RED);
 				}
 				break;
 
@@ -3156,14 +3155,14 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 					{
 						sprintf( tooltip_text, translator::translate("Loading. %s left!"), waiting_time);
 					}
-					color = COL_YELLOW;
+					color = color_idx_to_rgb(COL_YELLOW);
 				}
 				break;
 			case convoi_t::WAITING_FOR_LOADING_THREE_MONTHS:
 			case convoi_t::WAITING_FOR_LOADING_FOUR_MONTHS:
 				if (tooltip_display_level > 0) {
 					sprintf(tooltip_text, translator::translate("Loading (%i->%i%%) Long Time"), cnv->get_loading_level(), cnv->get_loading_limit());
-					color = COL_ORANGE;
+					color = COL_WARNING;
 				}
 				break;
 
@@ -3172,7 +3171,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			case convoi_t::ROUTE_JUST_FOUND:
 				if( tooltip_display_level >=3 ) {
 					tstrncpy( tooltip_text, translator::translate("Schedule changing!"), lengthof(tooltip_text) );
-					color = COL_LIGHT_YELLOW;
+					color = color_idx_to_rgb(COL_LIGHT_YELLOW);
 				}
 				break;
 
@@ -3181,11 +3180,11 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 					grund_t const* const gr = welt->lookup(cnv->get_route()->back());
 					if(  gr  &&  gr->get_depot()  ) {
 						tstrncpy( tooltip_text, translator::translate("go home"), lengthof(tooltip_text) );
-						color = COL_GREEN;
+						color = color_idx_to_rgb(COL_GREEN);
 					}
 					else if(  cnv->get_no_load()  ) {
 						tstrncpy( tooltip_text, translator::translate("no load"), lengthof(tooltip_text) );
-						color = COL_GREEN;
+						color = color_idx_to_rgb(COL_GREEN);
 					}
 				}
 				break;
@@ -3193,7 +3192,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			case convoi_t::LEAVING_DEPOT:
 				if( tooltip_display_level >=3 ) {
 					tstrncpy( tooltip_text, translator::translate("Leaving depot!"), lengthof(tooltip_text) );
-					color = COL_GREEN;
+					color = color_idx_to_rgb(COL_GREEN);
 				}
 				break;
 
@@ -3214,7 +3213,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 							sprintf(tooltip_text, translator::translate("Reversing. %s left"), reversing_time);
 							break;
 					}
-					color = COL_YELLOW;
+					color = color_idx_to_rgb(COL_YELLOW);
 				}
 				break;
 
@@ -3222,28 +3221,28 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			case convoi_t::CAN_START_TWO_MONTHS:
 				if (tooltip_display_level > 0) {
 					tstrncpy(tooltip_text, translator::translate("clf_chk_stucked"), lengthof(tooltip_text));
-					color = COL_ORANGE;
+					color = COL_WARNING;
 				}
 				break;
 
 			case convoi_t::NO_ROUTE:
 				if (tooltip_display_level > 0) {
 					tstrncpy(tooltip_text, translator::translate("clf_chk_noroute"), lengthof(tooltip_text));
-					color = COL_RED;
+					color = color_idx_to_rgb(COL_RED);
 				}
 				break;
 
 			case convoi_t::NO_ROUTE_TOO_COMPLEX:
 				if (tooltip_display_level > 0) {
 					tstrncpy(tooltip_text, translator::translate("clf_chk_noroute_too_complex"), lengthof(tooltip_text));
-					color = COL_RED;
+					color = color_idx_to_rgb(COL_RED);
 				}
 				break;
 
 			case convoi_t::OUT_OF_RANGE:
 				if (tooltip_display_level > 0) {
 					tstrncpy(tooltip_text, translator::translate("out of range"), lengthof(tooltip_text));
-					color = COL_RED;
+					color = color_idx_to_rgb(COL_RED);
 				}
 				break;
 		}
@@ -3251,7 +3250,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		{
 			if (tooltip_display_level > 0) {
 				sprintf(tooltip_text, translator::translate("Too heavy"), cnv->get_name());
-				color = COL_ORANGE;
+				color = COL_WARNING;
 			}
 		}
 
@@ -3260,7 +3259,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		{
 			if (tooltip_display_level > 0) {
 				sprintf(tooltip_text, translator::translate("Runway too short, require %dm"), desc->get_minimum_runway_length());
-				color = COL_ORANGE;
+				color = COL_WARNING;
 			}
 		}
 
@@ -3268,7 +3267,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		{
 			if (tooltip_display_level > 0) {
 				sprintf(tooltip_text, "%s", translator::translate("Airport too close to the edge"));
-				color = COL_ORANGE;
+				color = COL_WARNING;
 			}
 		}
 
@@ -3296,11 +3295,11 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				// the convoy belongs to no line -> show convoy name
 				tstrncpy(nameplate_text, cnv->get_name(), lengthof(nameplate_text));
 			}
-			const COLOR_VAL pcolor = lh.is_bound() ? cnv->get_owner()->get_player_color1()+3 : cnv->get_owner()->get_player_color1()+1;
+			const PIXVAL col_val = color_idx_to_rgb(lh.is_bound() ? cnv->get_owner()->get_player_color1()+3 : cnv->get_owner()->get_player_color1()+1);
 
 			const int width = proportional_string_width(nameplate_text) + 7;
 			if (ypos > LINESPACE + 32 && ypos + LINESPACE < display_get_clip_wh().yy) {
-				display_ddd_proportional_clip(xpos, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT - LINESPACE/2-2, width, 0, pcolor, COL_WHITE, nameplate_text, true);
+				display_ddd_proportional_clip(xpos, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT - LINESPACE/2-2, width, 0, col_val, color_idx_to_rgb(COL_WHITE), nameplate_text, true);
 				// (*)display_ddd_proportional_clip's height is LINESPACE/2+1+1
 			}
 		}
@@ -3308,7 +3307,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		// loading bar
 		int extra_y = 0; // yoffset from the default tooltip position
 		sint64 waiting_time_per_month = 0;
-		COLOR_VAL waiting_bar_col = COL_APRICOT;
+		uint8 waiting_bar_col = COL_APRICOT;
 		if (cnv && (env_t::show_cnv_loadingbar == 3 || (env_t::show_cnv_loadingbar == 2 && cnv->get_owner() == welt->get_active_player())
 			|| ((env_t::show_cnv_loadingbar == 1 || env_t::show_cnv_loadingbar == 2) && welt->get_zeiger()->get_pos() == get_pos()) ))
 		{
@@ -3340,18 +3339,18 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 					break;
 			}
 
-			display_ddd_box_clip(xpos-2, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y, LOADINGBAR_WIDTH+2, LOADINGBAR_HEIGHT, MN_GREY2, MN_GREY0);
+			display_ddd_box_clip_rgb(xpos-2, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y, LOADINGBAR_WIDTH+2, LOADINGBAR_HEIGHT, color_idx_to_rgb(MN_GREY2), color_idx_to_rgb(MN_GREY0));
 			sint32 colored_width = cnv->get_loading_level() > 100 ? 100 : cnv->get_loading_level();
 			if (cnv->get_loading_limit() && cnv->get_state() == convoi_t::LOADING) {
-				display_fillbox_wh_clip(xpos - 1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, cnv->get_loading_limit(), LOADINGBAR_HEIGHT - 2, COL_YELLOW, true);
+				display_fillbox_wh_clip_rgb(xpos - 1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, cnv->get_loading_limit(), LOADINGBAR_HEIGHT - 2, COL_IN_TRANSIT, true);
 			}
 			else if (cnv->get_loading_limit()) {
-				display_blend_wh(xpos-1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, cnv->get_loading_limit(), LOADINGBAR_HEIGHT - 2, COL_YELLOW, 60);
+				display_blend_wh_rgb(xpos-1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, cnv->get_loading_limit(), LOADINGBAR_HEIGHT - 2, COL_IN_TRANSIT, 60);
 			}
 			else {
-				display_blend_wh(xpos-1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, LOADINGBAR_WIDTH, LOADINGBAR_HEIGHT - 2, MN_GREY2, colored_width ? 65 : 40);
+				display_blend_wh_rgb(xpos-1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, LOADINGBAR_WIDTH, LOADINGBAR_HEIGHT - 2, color_idx_to_rgb(MN_GREY2), colored_width ? 65 : 40);
 			}
-			display_cylinderbar_wh_clip(xpos-1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, colored_width, LOADINGBAR_HEIGHT-2, COL_GREEN-1, true);
+			display_cylinderbar_wh_clip_rgb(xpos-1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, colored_width, LOADINGBAR_HEIGHT-2, color_idx_to_rgb(COL_GREEN-1), true);
 
 			// overcrowding
 			if (cnv->get_overcrowded() && skinverwaltung_t::pax_evaluation_icons) {
@@ -3363,11 +3362,11 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			// winting gauge
 			if (waiting_time_per_month) {
 				colored_width = waiting_time_per_month > 100 ? 100 : waiting_time_per_month;
-				display_ddd_box_clip(xpos - 2, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y, colored_width + 2, WAITINGBAR_HEIGHT, MN_GREY2, MN_GREY0);
-				display_cylinderbar_wh_clip(xpos - 1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, colored_width, WAITINGBAR_HEIGHT - 2, waiting_bar_col, true);
+				display_ddd_box_clip_rgb(xpos - 2, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y, colored_width + 2, WAITINGBAR_HEIGHT, color_idx_to_rgb(MN_GREY2), color_idx_to_rgb(MN_GREY0));
+				display_cylinderbar_wh_clip_rgb(xpos - 1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, colored_width, WAITINGBAR_HEIGHT - 2, color_idx_to_rgb(waiting_bar_col), true);
 				if (waiting_time_per_month > 100) {
 					colored_width = waiting_time_per_month-100;
-					display_cylinderbar_wh_clip(xpos - 1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, colored_width, WAITINGBAR_HEIGHT - 2, waiting_bar_col-2, true);
+					display_cylinderbar_wh_clip_rgb(xpos - 1, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + extra_y + 1, colored_width, WAITINGBAR_HEIGHT - 2, color_idx_to_rgb(waiting_bar_col-2), true);
 				}
 				extra_y += WAITINGBAR_HEIGHT;
 			}
@@ -3377,7 +3376,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		if (tooltip_text[0]) {
 			const int width = proportional_string_width(tooltip_text) + 7;
 			if (ypos > LINESPACE + 32 && ypos + LINESPACE < display_get_clip_wh().yy) {
-				display_ddd_proportional_clip(xpos, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + LINESPACE/2+2 + extra_y, width, 0, color, COL_BLACK, tooltip_text, true);
+				display_ddd_proportional_clip(xpos, ypos - LOADINGBAR_HEIGHT - WAITINGBAR_HEIGHT + LINESPACE/2+2 + extra_y, width, 0, color, color_idx_to_rgb(COL_BLACK), tooltip_text, true);
 				// (*)display_ddd_proportional_clip's height is LINESPACE/2+1+1
 			}
 		}

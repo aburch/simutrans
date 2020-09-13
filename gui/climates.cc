@@ -150,8 +150,8 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 		climate_borders_ui[i].set_size( edit_size );
 		climate_borders_ui[i].add_listener( this );
 		add_component( climate_borders_ui+i );
-		if(sets->get_climate_borders()[i]>arctic) {
-			arctic = sets->get_climate_borders()[i];
+		if(sets->get_climate_borders()[i+1]>arctic) {
+			arctic = sets->get_climate_borders()[i+1];
 		}
 		numberinput_lbl[labelnr].init( ground_desc_t::get_climate_name_from_bit((climate)(i+1)), cursor + lbl_offs);
 		numberinput_lbl[labelnr].set_width(label_width);

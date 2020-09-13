@@ -24,7 +24,7 @@ jump_frame_t::jump_frame_t() :
 	input.set_text(buf, 62);
 	input.add_listener(this);
 	input.set_pos(cursor);
-	input.set_size(scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	input.set_size(scr_size(D_BUTTON_WIDTH, D_EDIT_HEIGHT));
 	add_component(&input);
 	cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
 

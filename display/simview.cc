@@ -24,6 +24,8 @@
 
 #include "../utils/simrandom.h"
 
+uint16 win_get_statusbar_height(); // simwin.h
+
 main_view_t::main_view_t(karte_t *welt)
 {
 	this->welt = welt;
@@ -105,7 +107,7 @@ void main_view_t::display(bool force_dirty)
 	const sint16 menu_height = env_t::iconsize.h;
 	const sint16 IMG_SIZE = get_tile_raster_width();
 
-	const sint16 disp_height = display_get_height() - 16 - (!ticker::empty() ? 16 : 0);
+	const sint16 disp_height = display_get_height() - win_get_statusbar_height() - (!ticker::empty() ? TICKER_HEIGHT : 0);
 	display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height );
 
 	// redraw everything?
@@ -152,7 +154,7 @@ void main_view_t::display(bool force_dirty)
 	// not very elegant, but works:
 	// fill everything with black for Underground mode ...
 	if( grund_t::underground_mode ) {
-		display_fillbox_wh(0, menu_height, disp_width, disp_height-menu_height, COL_BLACK, force_dirty);
+		display_fillbox_wh_rgb(0, menu_height, disp_width, disp_height-menu_height, color_idx_to_rgb(COL_BLACK), force_dirty);
 	}
 	else if( welt->is_background_dirty()  &&  outside_visible  ) {
 		// we check if background will be visible, no need to clear screen if it's not.
@@ -166,7 +168,7 @@ void main_view_t::display(bool force_dirty)
 	const sint8 hmax_ground = (grund_t::underground_mode==grund_t::ugm_level) ? grund_t::underground_level : 127;
 
 	// lower limit for y: display correctly water/outside graphics at upper border of screen
-	int y_min = (-const_y_off + 4*tile_raster_scale_y( min(hmax_ground, welt->get_groundwater())*TILE_HEIGHT_STEP, IMG_SIZE )
+	int y_min = (-const_y_off + 4*tile_raster_scale_y( min(hmax_ground, welt->min_height)*TILE_HEIGHT_STEP, IMG_SIZE )
 					+ 4*(menu_height-IMG_SIZE)-IMG_SIZE/2-1) / IMG_SIZE;
 
 	// prepare view
@@ -290,7 +292,7 @@ void main_view_t::display(bool force_dirty)
 		if(zeiger->get_yoff()==Z_PLAN) {
 			grund_t *gr = welt->lookup( zeiger->get_pos() );
 			if(gr && gr->is_visible()) {
-				const PLAYER_COLOR_VAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| env_t::cursor_overlay_color;
+				const FLAGGED_PIXVAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| env_t::cursor_overlay_color;
 				if(  gr->get_image()==IMG_EMPTY  ) {
 					if(  gr->hat_wege()  ) {
 						display_img_blend( gr->obj_bei(0)->get_image(), background_pos.x, background_pos.y, transparent, 0, dirty );
@@ -411,7 +413,7 @@ void main_view_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max
 					// check if outside visible
 					outside_visible = true;
 					if(  env_t::draw_outside_tile  ) {
-						const sint16 yypos = ypos - tile_raster_scale_y( welt->get_groundwater() * TILE_HEIGHT_STEP, IMG_SIZE );
+						const sint16 yypos = ypos - tile_raster_scale_y( welt->min_height * TILE_HEIGHT_STEP, IMG_SIZE );
 						display_normal( ground_desc_t::outside->get_image(0), xpos, yypos, 0, true, false  CLIP_NUM_PAR);
  					}
 				}
@@ -562,6 +564,6 @@ void main_view_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max
 void main_view_t::display_background( KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, bool dirty )
 {
 	if(  !(env_t::draw_earth_border  &&  env_t::draw_outside_tile)  ) {
-		display_fillbox_wh(xp, yp, w, h, env_t::background_color, dirty );
+		display_fillbox_wh_rgb(xp, yp, w, h, env_t::background_color, dirty );
 	}
 }

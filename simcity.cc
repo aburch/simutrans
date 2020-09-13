@@ -1610,26 +1610,26 @@ stadt_t::~stadt_t()
 	{
 		welt->lookup_kartenboden(pos)->set_text(NULL);
 
-		// remove city info and houses
-		while(!buildings.empty())
-		{
-			gebaeude_t* const gb = buildings.pop_back();
-			assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
+		if (!welt->is_destroying()) {
+			// remove city info and houses
+			while(!buildings.empty()) {
 
-			if(gb->get_tile()->get_desc()->get_type() == building_desc_t::headquarters)
-			{
-				stadt_t *city = welt->find_nearest_city(gb->get_pos().get_2d());
-				gb->set_stadt( city );
-				if(city)
-				{
-					city->buildings.append_unique(gb, gb->get_adjusted_visitor_demand());
+				gebaeude_t* const gb = buildings.pop_back();
+				assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
+
+				if(gb->get_tile()->get_desc()->get_type() == building_desc_t::headquarters) {
+					stadt_t *city = welt->find_nearest_city(gb->get_pos().get_2d());
+					gb->set_stadt( city );
+					if(city) {
+						city->buildings.append_unique(gb, gb->get_adjusted_visitor_demand());
+					}
+				}
+				else {
+					gb->set_stadt( this );
+					hausbauer_t::remove(welt->get_public_player(), gb, false);
 				}
 			}
-			else
-			{
-				gb->set_stadt( this );
-				hausbauer_t::remove(welt->get_public_player(), gb, false);
-			}
+			// avoid the bookkeeping if world geets destroyed
 		}
 		// Remove substations
 		FOR(vector_tpl<senke_t*>, sub, substations)
@@ -1987,9 +1987,9 @@ void stadt_t::rdwr(loadsave_t* file)
 		{
 			for (uint hist_type = 0; hist_type < adapted_max_city_history - 2; hist_type++)
 			{
-				if(hist_type == HIST_POWER_RECIEVED)
+				if(hist_type == HIST_POWER_RECEIVED)
 				{
-					city_history_year[year][HIST_POWER_RECIEVED] = 0;
+					city_history_year[year][HIST_POWER_RECEIVED] = 0;
 					hist_type = HIST_CONGESTION;
 				}
 				if(hist_type == HIST_JOBS || hist_type == HIST_VISITOR_DEMAND)
@@ -2009,9 +2009,9 @@ void stadt_t::rdwr(loadsave_t* file)
 		{
 			for (uint hist_type = 0; hist_type < adapted_max_city_history - 2; hist_type++)
 			{
-				if(hist_type == HIST_POWER_RECIEVED)
+				if(hist_type == HIST_POWER_RECEIVED)
 				{
-					city_history_month[month][HIST_POWER_RECIEVED] = 0;
+					city_history_month[month][HIST_POWER_RECEIVED] = 0;
 					hist_type = HIST_CONGESTION;
 				}
 				if(hist_type == HIST_JOBS || hist_type == HIST_VISITOR_DEMAND)
@@ -2522,16 +2522,16 @@ void stadt_t::rotate90( const sint16 y_size )
 	best_strasse.reset(pos);
 	best_haus.reset(pos);
 	// townhall position may be changed a little!
-	sparse_tpl<uint8> pax_destinations_temp(koord(welt->get_size().x, welt->get_size().y));
+	sparse_tpl<PIXVAL> pax_destinations_temp(koord(welt->get_size().x, welt->get_size().y));
 
-	uint8 color;
+	PIXVAL color;
 	koord pos;
 	for( uint16 i = 0; i < pax_destinations_new.get_data_count(); i++ ) {
 		pax_destinations_new.get_nonzero(i, pos, color);
 		assert( color != 0 );
 		pax_destinations_temp.set(pos.y, pos.x, color);
 	}
-	swap( pax_destinations_temp, pax_destinations_new );
+	swap<PIXVAL>( pax_destinations_temp, pax_destinations_new );
 
 	pax_destinations_temp.clear();
 	for( uint16 i = 0; i < pax_destinations_old.get_data_count(); i++ ) {
@@ -2540,7 +2540,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		pax_destinations_temp.set(pos.y, pos.x, color);
 	}
 	pax_destinations_new_change ++;
-	swap( pax_destinations_temp, pax_destinations_old );
+	swap<PIXVAL>( pax_destinations_temp, pax_destinations_old );
 
 	vector_tpl<koord> k_list(connected_cities.get_count());
 	vector_tpl<uint32> f_list(connected_cities.get_count());
@@ -2854,7 +2854,7 @@ void stadt_t::calc_traffic_level()
 
 void stadt_t::new_month()
 {
-	swap( pax_destinations_old, pax_destinations_new );
+	swap<PIXVAL>( pax_destinations_old, pax_destinations_new );
 	pax_destinations_new.clear();
 	pax_destinations_new_change = 0;
 
@@ -2885,8 +2885,8 @@ void stadt_t::calc_growth()
 				city_history_year[0][HIST_GOODS_NEEDED] ++;
 				if(  fab->input_vorrat_an( desc->get_supplier(i)->get_input_type() )>0  )
 				{
-					city_history_month[0][HIST_GOODS_RECIEVED] ++;
-					city_history_year[0][HIST_GOODS_RECIEVED] ++;
+					city_history_month[0][HIST_GOODS_RECEIVED] ++;
+					city_history_year[0][HIST_GOODS_RECEIVED] ++;
 				}
 			}
 		}
@@ -3008,11 +3008,11 @@ void stadt_t::city_growth_get_factors(city_growth_factor_t(&factors)[GROWTH_FACT
 
 	// goods growth factors
 	factors[index].demand = h[HIST_GOODS_NEEDED];
-	factors[index++].supplied = h[HIST_GOODS_RECIEVED];
+	factors[index++].supplied = h[HIST_GOODS_RECEIVED];
 
 	// Electricity growth factors
 	factors[index].demand = h[HIST_POWER_NEEDED];
-	factors[index++].supplied = h[HIST_POWER_RECIEVED];
+	factors[index++].supplied = h[HIST_POWER_RECEIVED];
 }
 
 
@@ -3372,7 +3372,7 @@ uint16 stadt_t::get_max_dimension()
 }
 
 
-void stadt_t::merke_passagier_ziel(koord k, uint8 color)
+void stadt_t::merke_passagier_ziel(koord k, PIXVAL color)
 {
 	vector_tpl<koord> building_list;
 	building_list.append(k);
@@ -3627,7 +3627,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 					// tell the player, if not during initialization
 					if (!new_town) {
 						cbuffer_t buf;
-						buf.printf( translator::translate("With a big festival\n%s built\na new monument.\n%i citizen rejoiced."), get_name(), get_einwohner() );
+						buf.printf( translator::translate("With a big festival\n%s built\na new monument.\n%i citicens rejoiced."), get_name(), get_einwohner() );
 						welt->get_message()->add_message(buf, best_pos + koord(1, 1), message_t::city, CITY_KI, desc->get_tile(0)->get_background(0, 0, 0));
 					}
 				}

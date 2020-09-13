@@ -90,7 +90,7 @@ server_frame_t::server_frame_t() :
 		// Add server input/button
 		addinput.set_pos( scr_coord( D_MARGIN_LEFT, pos_y ) );
 		addinput.set_text( newserver_name, sizeof( newserver_name ) );
-		addinput.set_size( scr_size( ww - D_MARGIN_LEFT - D_MARGIN_RIGHT - D_BUTTON_WIDTH - D_H_SPACE, D_BUTTON_HEIGHT ) );
+		addinput.set_size( scr_size( ww - D_MARGIN_LEFT - D_MARGIN_RIGHT - D_BUTTON_WIDTH - D_H_SPACE, D_EDIT_HEIGHT ) );
 		addinput.add_listener( this );
 		add_component( &addinput );
 
@@ -137,7 +137,7 @@ server_frame_t::server_frame_t() :
 	nick.set_pos( scr_coord( D_MARGIN_LEFT + D_H_SPACE + nick_width, pos_y ) );
 	nick.add_listener(this);
 	nick.set_text( nick_buf, lengthof( nick_buf ) );
-	nick.set_size( scr_size( ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT - nick_width, D_BUTTON_HEIGHT ) );
+	nick.set_size( scr_size( ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT - nick_width, D_EDIT_HEIGHT ) );
 	tstrncpy( nick_buf, env_t::nickname.c_str(), min( lengthof( nick_buf ), env_t::nickname.length() + 1 ) );
 	add_component( &nick );
 
@@ -349,7 +349,7 @@ bool server_frame_t::update_serverlist ()
 
 		// Only show offline servers if the checkbox is set
 		if (  status == 1  ||  show_offline.pressed  ) {
-			serverlist.append_element( new server_scrollitem_t( servername, serverdns, status, status == 1 ? COL_BLUE : COL_RED ) );
+			serverlist.append_element( new server_scrollitem_t( servername, serverdns, status, status == 1 ? COL_BLUE : SYSCOL_TEXT_STRONG ) );
 			dbg->message( "server_frame_t::update_serverlist", "Appended %s (%s) to list", servername.get_str(), serverdns.get_str() );
 		}
 
@@ -511,13 +511,13 @@ void server_frame_t::draw (scr_coord pos, scr_size size)
 		pos_y += D_V_SPACE;             // padding
 		pos_y += D_BUTTON_HEIGHT;       // show_mismatched + show_offline
 		pos_y += D_V_SPACE;             // padding
-		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
+		display_ddd_box_clip_rgb( pos.x + D_MARGIN_LEFT, pos_y, size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4) );
 		pos_y += D_V_SPACE;             // padding
 		pos_y += LINESPACE;             // Manual connect info text
 		pos_y += D_V_SPACE;             // padding
 		pos_y += D_BUTTON_HEIGHT;       // add server button/textinput
 		pos_y += D_V_SPACE;             // padding
-		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
+		display_ddd_box_clip_rgb( pos.x + D_MARGIN_LEFT, pos_y, size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4) );
 		pos_y += D_V_SPACE;             // padding
 	}
 
@@ -529,7 +529,7 @@ void server_frame_t::draw (scr_coord pos, scr_size size)
 #endif
 
 	pos_y += D_V_SPACE;     // padding
-	display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
+	display_ddd_box_clip_rgb( pos.x + D_MARGIN_LEFT, pos_y, size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0,  color_idx_to_rgb(MN_GREY0),  color_idx_to_rgb(MN_GREY4) );
 	pos_y += D_V_SPACE;     // padding
 
 	const scr_size mapsize( gi.get_map()->get_width(), gi.get_map()->get_height() );
@@ -537,24 +537,24 @@ void server_frame_t::draw (scr_coord pos, scr_size size)
 	// Map graphic (offset in 3D border by 1px)
 	if (  display_map  ) {
 		// 3D border around the map graphic
-		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, mapsize.w + 2, mapsize.h + 2, MN_GREY0, MN_GREY4 );
+		display_ddd_box_clip_rgb( pos.x + D_MARGIN_LEFT, pos_y, mapsize.w + 2, mapsize.h + 2, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4) );
 		display_array_wh( pos.x + D_MARGIN_LEFT + 1, pos_y + 1, mapsize.w, mapsize.h, gi.get_map()->to_array() );
 	}
 
 	// Descriptive server text
-	display_multiline_text( pos.x + D_MARGIN_LEFT + 1 + mapsize.w + 2 + D_H_SPACE, pos_y, buf, SYSCOL_TEXT );
+	display_multiline_text_rgb( pos.x + D_MARGIN_LEFT + 1 + mapsize.w + 2 + D_H_SPACE, pos_y, buf, SYSCOL_TEXT );
 
 	pos_y += LINESPACE * 8;   // Spacing for the multiline_text above
 
 	pos_y += D_V_SPACE;
-	display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
+	display_ddd_box_clip_rgb( pos.x + D_MARGIN_LEFT, pos_y, size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0,  color_idx_to_rgb(MN_GREY0),  color_idx_to_rgb(MN_GREY4) );
 	pos_y += D_V_SPACE;
 	pos_y += D_BUTTON_HEIGHT; // Nick entry
 
 	// Buttons at bottom of dialog
 	if (  !env_t::networkmode  ) {
 		pos_y += D_V_SPACE;
-		display_ddd_box_clip( pos.x + D_MARGIN_LEFT, pos_y, size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0, MN_GREY0, MN_GREY4 );
+		display_ddd_box_clip_rgb( pos.x + D_MARGIN_LEFT, pos_y, size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0,  color_idx_to_rgb(MN_GREY0),  color_idx_to_rgb(MN_GREY4) );
 		pos_y += D_V_SPACE;
 
 		// drawing twice, but otherwise it will not overlay image
