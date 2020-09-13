@@ -343,6 +343,8 @@ void export_convoy(HSQUIRRELVM vm)
 	register_method(vm, convoy_is_loading, "is_loading", true);
 	/**
 	 * Destroy the convoy.
+	 * The convoy will be marked for destroying, it will be destroyed when the simulation continues.
+	 * Call @ref sleep to be sure that the convoy is destroyed before script continues.
 	 * @ingroup game_cmd
 	 */
 	register_method_fv(vm, convoy_generic_tool, "destroy", freevariable<uint8>('x'), true);
