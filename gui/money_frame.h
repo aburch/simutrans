@@ -18,6 +18,7 @@
 
 #include "../player/finance.h"
 #include "../player/simplay.h"
+#include "../utils/cbuffer_t.h"
 
 #define MAX_PLAYER_COST_BUTTON (17)
 
@@ -31,7 +32,7 @@
 class money_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	char money_frame_title[512];
+	cbuffer_t money_frame_title;
 
 	gui_chart_t chart, mchart;
 
