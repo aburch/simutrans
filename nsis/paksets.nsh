@@ -36,10 +36,10 @@ SectionGroupEnd
 
 Section "pak64.german (Freeware) for 120.4.1.2 beta" pak64german
   AddSize 22768
-  StrCpy $downloadlink "https://simutrans-germany.com/pak.german/pak64.german_0-120-4-1-2_full.zip"
-  StrCpy $archievename "pak64.german_0-120-4-1-2_full.zip"
+  StrCpy $downloadlink "http://simutrans-germany.com/pak.german/pak64.german_0-122-0-0-2_full.zip"
+  StrCpy $archievename "pak64.german_0-122-0-0-2_full.zip"
   StrCpy $downloadname "pak64.german"
-  StrCpy $VersionString "pak64.german 0.120.4.1.2"
+  StrCpy $VersionString "pak64.german 0.122.0.0.2"
   Call DownloadInstallZip
 SectionEnd
 
@@ -166,12 +166,12 @@ Section /o "pak128.Britain V1.18" pak128britain
 SectionEnd
 
 
-Section "pak128.German V1.2" pak128german
-  AddSize 396454
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/pak128.german_1.2_for_ST_121.0/PAK128.german_1.2_for_ST_121-0.zip"
+Section "pak128.German V2.0 beta" pak128german
+  AddSize 431961
+  StrCpy $downloadlink "http://pak128-german.de/PAK128.german_VS2.0.beta.zip"
   StrCpy $archievename "PAK128.german_1.2_for_ST_121-0.zip"
   StrCpy $downloadname "pak128.German"
-  StrCpy $VersionString "  PAK128.german V 1.2 (Rev. 265)"
+  StrCpy $VersionString "Pak128.german VS 2.0.beta (Rev. 352)"
   Call DownloadInstallZip
 SectionEnd
 
@@ -199,13 +199,13 @@ Section /o "pak128.CZ (0.3)" pak128cz
 SectionEnd
 
 
-Section "pak192.Comic 0.5 (CC-BY-SA)" pak192comic
-  AddSize 484130
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192comic%20for%20120-2-2/pak192.comic.0.5.zip"
-  StrCpy $archievename "pak192.comic.0.5.zip"
+Section "pak192.Comic 0.6 RC1 (CC-BY-SA)" pak192comic
+  AddSize 788407
+  StrCpy $downloadlink "http://github.com/Flemmbrav/Pak192.Comic/releases/download/2021-V0.6-RC1/pak192.comic.0.6.RC1.zip"
+  StrCpy $archievename "pak192.comic.0.6.RC1.zip"
   StrCpy $downloadname "pak192.comic"
-  StrCpy $VersionString "pak192.comic nightly-r717"
-  Call DownloadInstallZip
+  StrCpy $VersionString "Pak192.Comic 2021 [V 0.6 RC 1]"
+  Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
 
