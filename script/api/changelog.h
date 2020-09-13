@@ -9,6 +9,10 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Feature: scripted tools
+ * - Added @ref debug::pause, @ref debug::set_pause_on_error
+ * - Added more tool ids
+ * - Added @ref convoy_x::is_waiting, @ref convoy_x::is_loading
  * - Added @ref rules::gui_needs_update
  * - Added @ref convoy_x::get_tile_length
  * - Added @ref settings::get_pay_for_total_distance_mode, @ref settings::get_drive_on_left

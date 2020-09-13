@@ -75,6 +75,9 @@
 #	define OVERRIDE
 #endif
 
+#include <stdint.h> // intptr_t (standard)
+#include <stddef.h> // ptrdiff_t, intptr_t (Microsoft)
+
 #define ENUM_BITSET(T) \
 	static inline T operator ~  (T  a)      { return     (T)~(unsigned)a;                } \
 	static inline T operator &  (T  a, T b) { return     (T)((unsigned)a & (unsigned)b); } \

@@ -19,6 +19,23 @@
 
 namespace script_api {
 
+	// forward declarations
+	template<typename F> SQInteger generic_squirrel_callback(HSQUIRRELVM vm);
+	template<typename F> struct embed_call_t;
+	template<typename F> struct func_signature_t;
+
+	/// @{
+	/// @name Function to log squirrel-side type of exported functions
+	void start_squirrel_type_logging(const char* suffix);
+
+	void end_squirrel_type_logging();
+
+	// sets current class name, does not work with nested classes
+	void set_squirrel_type_class(const char* classname);
+
+	void log_squirrel_type(std::string classname, const char* name, std::string squirrel_type);
+	/// @}
+
 	/**
 	 * Registers custom SQFUNCTION @p funcptr.
 	 *
@@ -32,6 +49,28 @@ namespace script_api {
 	 * @param staticmethod if true then register as static method
 	 */
 	void register_function(HSQUIRRELVM vm, SQFUNCTION funcptr, const char *name, int nparamcheck, const char* typemask, bool staticmethod = false);
+
+	/**
+	 * Registers custom SQFUNCTION @p funcptr.
+	 *
+	 * Same as non-templated register_function. Typemask und paramcheck will be deduced from the template parameter.
+	 *
+	 * @tparam F function pointer signature of c++ method
+	 * @param funcptr function pointer to custom implementation
+	 * @param name name of the method as visible from squirrel
+	 * @param staticmethod if true then register as static method
+	 */
+	template<class F>
+	void register_function(HSQUIRRELVM vm, SQFUNCTION funcptr, const char *name, bool staticmethod = false)
+	{
+		std::string typemask = func_signature_t<F>::get_typemask(false);
+		int nparamcheck = func_signature_t<F>::get_nparams();
+
+		register_function(vm, funcptr, name, nparamcheck, typemask.c_str(), staticmethod);
+
+		log_squirrel_type(func_signature_t<F>::get_squirrel_class(false), name, func_signature_t<F>::get_squirrel_type(false, 0));
+	}
+
 
 	/**
 	 * Registers custom SQFUNCTION @p funcptr with templated free variables (default parameters).
@@ -57,12 +96,6 @@ namespace script_api {
 		sq_setparamscheck(vm, nparamcheck, typemask);
 		sq_newslot(vm, -3, staticmethod);
 	}
-
-	// forward declarations
-	template<typename F> SQInteger generic_squirrel_callback(HSQUIRRELVM vm);
-	template<typename F> struct embed_call_t;
-	template<typename F> struct func_signature_t;
-
 	// auxiliary struct
 	template <typename F>
 	struct function_info_t {
@@ -70,15 +103,6 @@ namespace script_api {
 		bool discard_first;
 		function_info_t(F f, bool d) : funcptr(f), discard_first(d) {}
 	};
-
-	void start_squirrel_type_logging(const char* suffix);
-
-	void end_squirrel_type_logging();
-
-	// sets current class name, does not work with nested classes
-	void set_squirrel_type_class(const char* classname);
-
-	void log_squirrel_type(std::string classname, const char* name, std::string squirrel_type);
 
 	/**
 	 * Registers native c++ method to be called from squirrel.
@@ -113,8 +137,6 @@ namespace script_api {
 		sq_newslot(vm, -3, staticmethod);
 
 		log_squirrel_type(func_signature_t<F>::get_squirrel_class(discard_first), name, func_signature_t<F>::get_squirrel_type(discard_first, 0));
-		//printf("CHECKTPM %d %s::%s: %s vs %s = %s\n", discard_first, func_signature_t<F>::get_squirrel_class(discard_first).c_str(), name, func_signature_t<F>::get_typemask(discard_first).c_str(), embed_call_t<F>::get_typemask(discard_first).c_str(),
-		 //      func_signature_t<F>::get_squirrel_type(discard_first, 0).c_str());
 	}
 
 
@@ -155,9 +177,6 @@ namespace script_api {
 		sq_newslot(vm, -3, staticmethod);
 
 		log_squirrel_type(func_signature_t<F>::get_squirrel_class(discard_first), name, func_signature_t<F>::get_squirrel_type(discard_first, count));
-
-		//printf("CHECKTPM %d %ld %s::%s: %s vs %s = %s\n", discard_first, count, func_signature_t<F>::get_squirrel_class(discard_first).c_str(), name, func_signature_t<F>::get_typemask(discard_first).c_str(), embed_call_t<F>::get_typemask(discard_first).c_str(),
-		//       func_signature_t<F>::get_squirrel_type(discard_first, count).c_str());
 	}
 
 

@@ -1,3 +1,7 @@
+/**
+ * Classes for basic nodes in the tree, which represents our brain :)
+ */
+
 // return codes from step
 // enum return_code {
 const RT_DONE_NOTHING    = 1	// Done nothing.
@@ -10,8 +14,10 @@ const RT_TOTAL_FAIL      = 24 // RT_ERROR | RT_KILL_ME
 const RT_READY           = 29 // RT_DONE_NOTHING | RT_SUCCESS | RT_ERROR | RT_KILL_ME
 // }
 
-
-// basic return codes / data from steps
+/**
+ * Class use as return value from the function step()
+ * Signals success, contains additional data.
+ */
 class r_t
 {
 	// return code composed of return_code constants above
@@ -28,11 +34,16 @@ class r_t
 	function has_failed()      { return (code & RT_ERROR);}
 }
 
-// basic node
+/**
+ * Basic node class.
+ */
 class node_t {
 	name = null
 	debug = false
 
+	/**
+	 * Main method of these nodes. Called from the global ::step() method.
+	 */
 	function step() { return r_t(RT_TOTAL_FAIL)}
 
 	constructor(n = "node_t")
@@ -106,6 +117,9 @@ class node_seq_t extends node_t
 	}
 }
 
+/**
+ * Base class to report financial aspects of plans.
+ */
 class report_t
 {
 	// tree that will be executed
@@ -130,6 +144,10 @@ class report_t
 	}
 }
 
+/**
+ * Manager class.
+ * Steps its child nodes, otherwise does some work(), generates reports.
+ */
 class manager_t extends node_seq_t
 {
 	reports = null
@@ -159,6 +177,9 @@ class manager_t extends node_seq_t
 
 	function append_report(r) { reports.append(r); }
 
+	/**
+	 * Returns the best report available.
+	 */
 	function get_report()
 	{
 		if (reports.len() == 0) return null

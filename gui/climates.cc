@@ -18,6 +18,7 @@
 
 #include "../display/simgraph.h"
 
+
 /**
  * set the climate borders
  */
@@ -51,48 +52,88 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 		mountain_roughness.add_listener( this );
 		add_component( &mountain_roughness );
 
-		// summer snowline always starting above highest climate
-		new_component<gui_label_t>("Summer snowline");
-		summer_snowline.init(SYSCOL_TEXT_HIGHLIGHT, gui_label_t::centered);
-		summer_snowline.buf().printf("%d", sets->get_climate_borders(arctic_climate,1) );
-		summer_snowline.update();
-		add_component( &summer_snowline );
-
-		// Winter snowline
-		new_component<gui_label_t>("Winter snowline");
+		new_component<gui_label_t>( "Winter snowline" );
 		snowline_winter.init( sets->get_winter_snowline(), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
 		snowline_winter.add_listener( this );
 		add_component( &snowline_winter );
 	}
 	end_table();
 
-	add_table(3,0);
+	climate_generator.add_tab( &height_climate, translator::translate( "height based" ), NULL, translator::translate( "Generate climate from height" ) );
+	climate_generator.add_tab( &humidity_climate, translator::translate( "temperature-humidity based" ), NULL, translator::translate( "Generate climate from humidity" ) );
+	add_component( &climate_generator );
+
+	height_climate.set_table_layout(3,0);
 	{
 		// other climate borders ...
-		for(  int i=desert_climate-1;  i<MAX_CLIMATES-1;  i++  ) {
-			climate_borders_ui[i][0].init( sets->get_climate_borders(i+1,0), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
+		for( int i = desert_climate - 1; i < MAX_CLIMATES - 1; i++ ) {
+			climate_borders_ui[i][0].init( sets->get_climate_borders( i + 1, 0 ), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
 			climate_borders_ui[i][0].add_listener( this );
-			add_component( &(climate_borders_ui[i][0]) );
-			new_component<gui_label_t>( ground_desc_t::get_climate_name_from_bit((climate)(i+1)) );
-			climate_borders_ui[i][1].init( sets->get_climate_borders(i+1,1), sets->get_climate_borders(i+1,0), 127, gui_numberinput_t::AUTOLINEAR, false );
+			height_climate.add_component( &(climate_borders_ui[i][0]) );
+			height_climate.new_component<gui_label_t>( ground_desc_t::get_climate_name_from_bit( (climate)(i + 1) ) );
+			climate_borders_ui[i][1].init( sets->get_climate_borders( i + 1, 1 ), sets->get_climate_borders( i + 1, 0 ), 127, gui_numberinput_t::AUTOLINEAR, false );
 			climate_borders_ui[i][1].add_listener( this );
-			add_component( &(climate_borders_ui[i][1]) );
+			height_climate.add_component( &(climate_borders_ui[i][1]) );
 		}
+		height_climate.new_component_span<gui_label_t>( "climate area percentage", 2 );
+		patch_size.init( sets->get_patch_size_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
+		patch_size.add_listener( this );
+		height_climate.add_component( &patch_size );
 	}
-	end_table();
 
-	no_tree.init( button_t::square_state, "no tree" );
-	no_tree.pressed = sets->get_no_trees();
-	no_tree.add_listener( this );
-	add_component( &no_tree );
+	humidity_climate.set_table_layout(3,0);
+	{
+		humidity_climate.new_component_span<gui_label_t>( "moisture land", 2 );
+		moistering.init( 1, 0, 10, gui_numberinput_t::AUTOLINEAR, false );
+		moistering.add_listener( this );
+		humidity_climate.add_component( &moistering );
 
-	lake.init( button_t::square_state, "lake" );
-	lake.pressed = sets->get_lake();
-	lake.add_listener( this );
-	add_component( &lake );
+		humidity_climate.new_component_span<gui_label_t>( "moisture water", 2 );
+		moistering_water.init( 1, 0, 10, gui_numberinput_t::AUTOLINEAR, false );
+		moistering_water.add_listener( this );
+		humidity_climate.add_component( &moistering_water );
+
+		humidity_climate.new_component<gui_label_t>( "humidities" );
+		humidities[0].init( sets->get_desert_humidity(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
+		humidities[0].add_listener( this );
+		humidity_climate.add_component( &humidities[0] );
+		humidities[1].init( sets->get_tropic_humidity(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
+		humidities[1].add_listener( this );
+		humidity_climate.add_component( &humidities[1] );
+
+		humidity_climate.new_component_span<gui_label_t>( "temperature borders", 3 );
+
+		// other climate borders ...
+		for(  int i=0;  i<5;  i++  ) {
+			temperatures[i].init( sets->get_climate_temperature_borders(i), -30, 30, gui_numberinput_t::AUTOLINEAR, false );
+			temperatures[i].add_listener( this );
+			humidity_climate.add_component( &temperatures[i] );
+		}
+		humidity_climate.new_component<gui_empty_t>();
+
+		// summer snowline (actually setting arctic broders)
+		humidity_climate.new_component_span<gui_label_t>( "Summer snowline", 2 );
+		snowline_summer.init( sets->get_climate_borders(arctic_climate,1), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
+		snowline_summer.add_listener( this );
+		humidity_climate.add_component( &snowline_summer );
+	}
 
 	add_table(2,0);
 	{
+		new_component<gui_label_t>("Trees");
+		tree.set_focusable( false );
+		tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "none" ), SYSCOL_TEXT );
+		tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "random" ), SYSCOL_TEXT );
+		tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "rainfall" ), SYSCOL_TEXT );
+		tree.set_selection( sets->get_tree() );
+		add_component( &tree );
+		tree.add_listener( this );
+
+		new_component<gui_label_t>("Lake height");
+		lake.init( sets->lake_height, sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
+		lake.add_listener( this );
+		add_component( &lake );
+
 		new_component<gui_label_t>("Number of rivers");
 		river_n.init( sets->get_river_number(), 0, 1024, gui_numberinput_t::POWER2, false );
 		river_n.add_listener(this);
@@ -110,6 +151,9 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	}
 	end_table();
 
+	climate_generator.set_active_tab_index( sets->get_climate_generator() );
+	climate_generator.add_listener( this );
+
 	reset_min_windowsize();
 	set_windowsize(get_min_windowsize());
 }
@@ -121,13 +165,11 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
 	welt_gui_t *welt_gui = dynamic_cast<welt_gui_t *>(win_get_magic( magic_welt_gui_t ));
-	if(comp==&no_tree) {
-		no_tree.pressed ^= 1;
-		sets->set_no_trees(no_tree.pressed);
+	if(comp==&tree) {
+		sets->set_tree((sint16)v.i);
 	}
 	else if(comp==&lake) {
-		lake.pressed ^= 1;
-		sets->set_lake(lake.pressed);
+		sets->lake_height = (sint16)v.i;
 	}
 	else if(comp==&water_level) {
 		sets->groundwater = (sint16)v.i;
@@ -150,6 +192,41 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 			welt_gui->update_preview();
 		}
 	}
+	else if(comp==&climate_generator) {
+		sets->set_climate_generator( (settings_t::climate_generate_t)v.i );
+		if( sets->get_climate_generator()==settings_t::HEIGHT_BASED ) {
+
+			// disable rainfall tree generation
+			if( sets->get_tree()==2 ) {
+				sets->set_tree(1);
+			}
+			tree.clear_elements();
+			tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "none" ), SYSCOL_TEXT );
+			tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "random" ), SYSCOL_TEXT );
+			tree.set_selection( sets->get_tree() );
+
+			// enable climate height selection
+			for(  int i=desert_climate-1;  i<arctic_climate-1;  i++  ) {
+				climate_borders_ui[i][0].enable();
+				climate_borders_ui[i][1].enable();
+			}
+
+		}
+		else {
+			// enable rainfall tree generation
+			tree.clear_elements();
+			tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "none" ), SYSCOL_TEXT );
+			tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "random" ), SYSCOL_TEXT );
+			tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "rainfall" ), SYSCOL_TEXT );
+			tree.set_selection( sets->get_tree() );
+
+			// disable climate height selection (except arctic which is used for snowline)
+			for(  int i=desert_climate-1;  i<arctic_climate-1;  i++  ) {
+				climate_borders_ui[i][0].disable();
+				climate_borders_ui[i][1].disable();
+			}
+		}
+	}
 	else if(comp==&river_n) {
 		sets->river_number = (sint16)v.i;
 	}
@@ -161,11 +238,35 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		sets->max_river_length = (sint16)v.i;
 		river_min.set_limits(0,max(16,v.i)-16);
 	}
+	else if(comp==&moistering) {
+		sets->moisture = (sint16)v.i;
+	}
+	else if(comp==&moistering_water) {
+		sets->moisture_water = (sint16)v.i;
+	}
+	else if(comp==&humidities[0]) {
+		sets->desert_humidity = (sint16)v.i;
+	}
+	else if(comp==&humidities[1]) {
+		sets->tropic_humidity = (sint16)v.i;
+	}
 	else if(comp==&snowline_winter) {
 		sets->winter_snowline = (sint16)v.i;
 	}
+	else if(comp==&snowline_winter) {
+		sets->winter_snowline = (sint16)v.i;
+	}
+	else if(comp==&snowline_summer) {
+		// set artic borders
+		sets->patch_size_percentage = (sint16)v.i;
+	}
 
-	// Update borders
+	// Update temperature borders
+	for(  int i=0;  i<5;  i++  ) {
+		sets->climate_temperature_borders[i] = temperatures[i].get_value();
+	}
+
+	// Update height borders
 	for(  int i=desert_climate-1;  i<=arctic_climate-1;  i++  ) {
 		climate_borders_ui[i][0].set_limits( sets->get_groundwater(), 127 );
 		climate_borders_ui[i][0].set_value( climate_borders_ui[i][0].get_value() );
@@ -175,8 +276,6 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		sets->climate_borders[i+1][1] = climate_borders_ui[i][1].get_value();
 	}
 
-	summer_snowline.buf().printf("%d", sets->get_climate_borders(arctic_climate,1) );
-	summer_snowline.update();
 	return true;
 }
 

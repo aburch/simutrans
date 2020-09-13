@@ -102,7 +102,7 @@ const char *weg_t::waytype_to_string(waytype_t wt)
 		case narrowgauge_wt: return "narrowgauge_track";
 		case road_wt:        return "road";
 		case water_wt:       return "water";
-		case air_wt:         return "air";
+		case air_wt:         return "air_wt";
 		default:
 			// keep compiler happy; should never reach here anyway
 			break;

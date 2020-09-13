@@ -2,7 +2,6 @@
 # name of the theme (will be shown with file selector)
 name=Aero skin (standard size)
 
-
 # show tooltips (default 1=show)
 show_tooltips = 1
 
@@ -18,26 +17,17 @@ tooltip_delay = 500
 # duration in ms during tooltip is visible (default 5000ms=5s)
 tooltip_duration = 5000
 
-# in default theme white text, but this is not visible with this theme
-gui_text_highlight = #76B4F3
+# windows drop a little shadow (default off)
+# gui_drop_shadows = 1
 
-# Color of cursor overlay, which is blended over marked ground tiles
-# The available colors and their numbers can be found on
-#    http://simutrans-germany.com/wiki/wiki/tiki-index.php?page=en_FactoryDef#mapcolor
-# Suggested values (155 is the default)
-# -- pak64, pak.german, pak128
-#cursor_overlay_color = 155
-# -- pak128.japan
-#cursor_overlay_color = 149
-
-##################################window stuff##################################
+#################################window stuff#################################
 
 # when moving, you can use windows to snap onto each other seamlessly
 # if you do not like it, set the catch radius to zero
 window_snap_distance = 8
 
-# show the windows close etc. buttons on the right (like windows 98)
-window_buttons_right = 1
+# show the windows close etc. buttons on the right (like Windows)
+# window_buttons_right = 0
 
 # closes windows/toolbar when button clicked a second time (default off=0)
 second_open_closes_win = 0
@@ -46,23 +36,127 @@ second_open_closes_win = 0
 # This will be saved, but will be discarded when screen is resized
 remember_window_positions = 1
 
-# color used for the default titlebars
-#default_window_title_color = 154
-
 # there are three different ways to indicate an active window
 
 # first: draw a frame with titlebar color around active window
-#window_frame_active = 0
+# window_frame_active = 0
 
-# second: draw the title with a dark overlay (0=none, 100=full black)
-#bottom_window_darkness = 25
+# second: draw the title with a different brightness (0: dark ... 6: bright)
+front_window_bar_color = 1
+bottom_window_bar_color = 3
 
 # third (best together with 2nd):use different text color for bar
 # some colors are 215-white, 240-black 208-214- all shades of gray
-#front_window_text_color = #FFFFFF
-#bottom_window_text_color = #DDDDDD
+front_window_text_color = #FFFFFF
+bottom_window_text_color = #C0C0C0
+
+#################################colour stuff#################################
+
+# color used for the default titlebars
+default_window_title_color = 154
+
+# gui_color_text = #000000
+gui_text_highlight = #76B4F3
+gui_color_text_shadow = #BDD3DF
+gui_color_text_title = #338FCC
+gui_color_text_strong = #E46A0B
+
+########Test########
+gui_color_empty = #868c86
+gui_color_obsolete = #2878ff
+
+gui_color_edit_text = #000000
+gui_color_edit_text_selected = #FAFAFA
+gui_color_edit_text_disabled = #666666
+gui_color_edit_background_selected = #72B2DD
+gui_color_edit_beam = #000000
+
+gui_color_chart_background = #FAFAFA
+gui_color_chart_lines_zero = #005C9E
+gui_color_chart_lines_odd = #338FCC
+gui_color_chart_lines_even = #338FCC
+
+gui_color_list_text_selected_focus = #FAFAFA
+gui_color_list_text_selected_nofocus = #FAFAFA
+gui_color_list_background_selected_focus = #72B2DD
+gui_color_list_background_selected_nofocus = #72B2DD
+
+gui_color_button_text = #FAFAFA
+gui_color_button_text_disabled = #666666
+gui_color_button_text_selected = #FAFAFA
+
+gui_color_colored_button_text = #FAFAFA
+gui_color_colored_button_text_selected = #FAFAFA
+
+# gui_color_checkbox_text = #000000
+gui_color_checkbox_text_disabled = #666666
+
+gui_color_ticker_background = #D6ECF7
+gui_color_ticker_divider = #6095B8
+
+# gui_color_statusbar_text = #000000
+gui_color_statusbar_background = #72B2DD
+gui_color_statusbar_divider = #6095B8
+
+gui_highlight_color = #8FC5E6
+gui_shadow_color = #8FC5E6
+
+# gui_color_text_minus = #C00000
+# gui_color_text_plus = #000000
+gui_color_text_unused = #E46A0B
+
+# Color of cursor overlay, which is blended over marked ground tiles
+cursor_overlay_color = #ff0000
+
+# Colo loadbar, save game, load game, server...
+gui_color_loadingbar_progress = #76b9e6
+gui_color_loadingbar_inner = #D6ECF7
+
+# Color player brigth
+gui_player_color_dark = 1	
+gui_player_color_bright = 3
 
 ##################################size stuff##################################
+
+# force main menu icon size
+icon_width = 32
+
+# titlebar height
+gui_titlebar_height = 22
+
+# safe margin around windows
+# gui_frame_left = 10
+# gui_frame_top = 10
+# gui_frame_right = 10
+# gui_frame_bottom = 10
+
+# horizontal and vertical margins between objects
+# gui_hspace = 4
+# gui_vspace = 4
+
+# tab minimum sizes
+gui_tab_header_vsize = 18
+
+# input boxes height
+# minimum height is the height of the position button graphic
+# gui_edit_height = 22
+
+# checkbox height, default sizes come from the checkbox graphic
+# gui_checkbox_width = 10
+# gui_checkbox_height = 10
+
+# sum of the top and bottom margins for divider lines
+# default is twice the size of gui_vspace
+# gui_divider_vsize = 8
+
+# buttons sizes
+gui_button_height = 16
+# for buttons with fixed widths
+gui_button_width = 100
+
+# text margins inside the buttons (left, top, right)
+gui_button_text_offset = 5,0,5
+gui_color_button_text_offset = 5,0,5
 
 # maximum size of tool bars in tools (0 = no limit)
 # if more tools than allowed by height,
@@ -70,7 +164,7 @@ remember_window_positions = 1
 toolbar_max_width = 0
 toolbar_max_height = 0
 
-##################################pakstuff##################################
+###################################pakstuff###################################
 
 # pak with the images for this theme
-themeimages=menu.aerotheme.pak
+themeimages=aerotheme.pak

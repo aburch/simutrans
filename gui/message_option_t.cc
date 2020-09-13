@@ -12,27 +12,16 @@
 #include "../dataobj/environment.h"
 #include "message_option_t.h"
 
-//#define BUTTON_ROW (110+D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE)
-
-
-
 
 message_option_t::message_option_t() :
 	gui_frame_t( translator::translate("Mailbox Options") ),
 	legend( skinverwaltung_t::message_options->get_image_id(0),0,0,true )
 {
-	set_table_layout(1,0);
+	set_table_layout(5,0);
 
 	// first row with monolithic images ...
-	add_table(2,0);
-	{
-		new_component<gui_fill_t>();
-		add_component( &legend );
-	}
-	end_table();
-
-	// further rows
-	add_table(5,0);
+	new_component_span<gui_empty_t>(2);
+	add_component( &legend, 3 );
 
 	// The text is unfourtunately a single text, which we have to chop into pieces.
 	const unsigned char *p = (const unsigned char *)translator::translate( "MessageOptionsText" );
@@ -73,7 +62,6 @@ message_option_t::message_option_t() :
 		buttons[i*4+3].add_listener(this);
 		add_component( buttons+i*4+3 );
 	}
-	end_table();
 
 	reset_min_windowsize();
 }

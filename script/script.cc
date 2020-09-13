@@ -25,6 +25,10 @@
 #include "../utils/plainstring.h"
 
 
+namespace script_api {
+	bool pause_game();  // api_control.cc
+}
+
 // debug: store stack pointer
 #define BEGIN_STACK_WATCH(v) int stack_top = sq_gettop(v);
 // debug: compare stack pointer with expected stack pointer, raise warning if failure
@@ -81,6 +85,10 @@ void script_vm_t::errorfunc(HSQUIRRELVM vm, const SQChar *s_, ...)
 
 		if (script) {
 			script->set_error(buf);
+			// pause game
+			if (script->pause_on_error) {
+				script_api::pause_game();
+			}
 		}
 	}
 	else {
@@ -98,6 +106,8 @@ void export_include(HSQUIRRELVM vm, const char* include_path); // api_include.cc
 // virtual machine
 script_vm_t::script_vm_t(const char* include_path_, const char* log_name)
 {
+	pause_on_error = false;
+
 	vm = sq_open(1024);
 	sqstd_seterrorhandlers(vm);
 	sq_setprintfunc(vm, printfunc, errorfunc);

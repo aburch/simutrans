@@ -3,6 +3,8 @@
  * (see LICENSE.txt)
  */
 
+#include <algorithm>
+
 #include "halt_info.h"
 #include "components/gui_button_to_chart.h"
 
@@ -138,6 +140,13 @@ private:
 	static bool compare_connection(haltestelle_t::connection_t const& a, haltestelle_t::connection_t const& b)
 	{
 		return strcmp(a.halt->get_name(), b.halt->get_name()) <=0;
+	}
+
+	static bool compare_line (linehandle_t a, linehandle_t b)
+	{
+		return a->get_linetype() == b->get_linetype() ?
+			strcmp(a->get_name(), b->get_name()) <= 0
+			: strcmp(a->get_linetype_name(a->get_linetype()), b->get_linetype_name(b->get_linetype())) <= 0;
 	}
 
 	uint32 cached_line_count;
@@ -584,9 +593,23 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 	new_component_span<gui_label_t>("Lines serving this stop", 2);
 
 	if(  !halt->registered_lines.empty()  ) {
-		for (unsigned int i = 0; i<halt->registered_lines.get_count(); i++) {
+		simline_t::linetype previous_linetype = simline_t::MAX_LINE_TYPE;
 
-			linehandle_t line = halt->registered_lines[i];
+		vector_tpl<linehandle_t> sorted_lines;
+		FOR(vector_tpl<linehandle_t>, l, halt->registered_lines) {
+			if(  l.is_bound()  ) {
+				sorted_lines.insert_unique_ordered( l, gui_halt_detail_t::compare_line );
+			}
+		}
+
+		FOR(vector_tpl<linehandle_t>, line, sorted_lines) {
+
+			// Linetype if it is the first
+			if(  line->get_linetype() != previous_linetype  ) {
+				previous_linetype = line->get_linetype();
+				new_component_span<gui_label_t>(simline_t::get_linetype_name(previous_linetype),2);
+			}
+
 			new_component<gui_line_button_t>(line);
 
 			// Line labels with color of player

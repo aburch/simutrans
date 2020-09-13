@@ -76,12 +76,12 @@ private:
 
 		bool infowin_event(event_t const* const ev) OVERRIDE
 		{
-			bool b = button_t::infowin_event(ev);
-			if(IS_LEFTRELEASE(ev)) {
+			bool swallow = button_t::infowin_event(ev);
+			if(  IS_LEFTRELEASE(ev)  &&  swallow   ) {
 				pressed ^= 1;
 				parent->sort_list();
 			}
-			return b;
+			return swallow;
 		}
 	};
 

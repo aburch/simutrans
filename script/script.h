@@ -197,6 +197,13 @@ private:
 
 	plainstring error_msg;
 
+	/// path to files to #include
+	plainstring include_path;
+
+public:
+	bool pause_on_error;
+
+private:
 	/// @{
 	/// @name Helper functions to call, suspend, queue calls to scripted functions
 
@@ -244,9 +251,6 @@ private:
 
 	/// custom print handler
 	static void printfunc(HSQUIRRELVM, const SQChar *s, ...);
-
-	/// path to files to #include
-	plainstring include_path;
 };
 
 /**

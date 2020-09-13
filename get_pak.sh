@@ -197,7 +197,7 @@ paksets=( \
 	"https://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20111-3/pak96.comic-0.4.10-plus.zip" \
 	"https://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20120.4.1%20%282.8.1%2C%20priority%20signals%20%2B%20bugfix%29/pak128.zip" \
 	"https://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20120-3/pak128.Britain.1.18-120-3.zip" \
-	"https://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_1.0_for_ST_120.x/PAK128.german_1.0_for_ST_120.x.zip" \
+	"https://downloads.sourceforge.net/project/simutrans/PAK128.german/pak128.german_1.3_for_ST_121.0/PAK128.german_1.3_for_ST_121.0.zip" \
 	"https://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192comic%20for%20120-2-2/pak192.comic.0.5.zip" \
 	"https://downloads.sourceforge.net/project/simutrans/pak32.comic/pak32.comic%20for%20102-0/pak32.comic_102-0.zip" \
 	"https://downloads.sourceforge.net/project/simutrans/pak64.contrast/pak64.Contrast_910.zip" \

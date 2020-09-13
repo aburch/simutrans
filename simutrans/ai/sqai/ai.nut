@@ -1,10 +1,12 @@
-// account for changes in scenario_base
-factory_production_x.scaling <- 0
+/**
+ * Main file of the AI player.
+ */
+
 
 // TODO obey construction speed setting
 // TODO check allowed transport types
 
-// some meta data
+// some meta data - unused
 ai <- {}
 ai.short_description <- "Test AI player implementation"
 
@@ -12,31 +14,35 @@ ai.author <-"dwachs"
 ai.version <- "0.1"
 
 
-sum <- @(a,b) a+b
-
-
 // includes
-include("basic")
-include("astar")
-include("save")
+include("basic")  // .. definition of basic node classes
+include("astar")  // .. route search for way building etc
+include("save")   // .. routines to save class instances
 
-include("factorysearcher")
-include("industry_connection_planner")
-include("combined_connections")
-include("industry_manager")
-include("placefinder")
-include("prototyper")
-include("road_connector")
-include("ship_connector")
-include("station_manager")
-include("vehicle_constructor")
+include("factorysearcher")              // .. checks factories for available connections
+include("industry_connection_planner")  // .. plans connection between 2 factories
+include("combined_connections")         // .. plans connections using water + land transport
+include("industry_manager")             // .. manages existing connection (buys, sells, upgrades convoys)
+include("placefinder")                  // .. utility functions to find places for stations near factories etc
+include("prototyper")                   // .. plans convoy-type for a connection
+include("road_connector")               // .. builds road connection
+include("ship_connector")               // .. creates ship connection
+include("station_manager")              // .. keeps information about freight station
+include("vehicle_constructor")          // .. constructs convoy, assign to line, start
+
+// basic functions
+sum <- @(a,b) a+b
+function abs(x) { return x>0 ? x : -x }
 
 // global variables
 our_player_nr <- -1
 our_player    <- null // player_x instance
 
+// the AI is organized as a tree,
+// all the work is done in the nodes of the tree
 tree <- {}
 
+// nodes with particular jobs
 factorysearcher  <- null
 industry_manager <- null
 station_manager  <- null
@@ -46,14 +52,19 @@ s <- {}
 s._step <- 0
 s._next_construction_step <- 0
 
+// the table 'persistent' will be saved in the savegame
 persistent.s <- s
 
+// 2.. 14 = 13 names
 possible_names <- ["Petersil Cars", "Teumer Alp Dream Trucks", "Runk & Strunk Transports", "A. Nach B. Transports", "Interflug Fourwheelers",
 	"Pfarnest International", "Suboptimal Transports", "Conveyor Belts & Braces", "Bucket Brigade Inc.",
 	"Maggikraut AG", "Bugs & Eggs Unlimited", "S. Claus & R. Deer Worldwide", "Leiterwagn & Sons"
 			]
-// 2.. 14 = 13 names
 
+/**
+ * Start-routine. Will be called when AI is initialized.
+ * Parameter: the number of the AI player.
+ */
 function start(pl_nr)
 {
 	init()
@@ -64,12 +75,14 @@ function start(pl_nr)
 	}
 	our_player = player_x(our_player_nr)
 
-	info_text  +="Act as player no " + our_player_nr + " under the name " + our_player.get_name() + ". <br>"
 	print("Act as player no " + our_player_nr + " under the name " + our_player.get_name())
 
 	init_tree()
 }
 
+/**
+ * Initialize the tree with basic nodes.
+ */
 function init_tree()
 {
 	if (factorysearcher == null) {
@@ -102,6 +115,9 @@ function init_tree()
 	}
 }
 
+/**
+ * Called after savegame is loaded.
+ */
 function resume_game(pl_nr)
 {
 	init()
@@ -115,12 +131,15 @@ function resume_game(pl_nr)
 
 function init()
 {
-	annotate_classes()
+	annotate_classes() // sets class name as attribute for all known classes (save.nut)
 }
 
-
-info_text <- ""
-
+/**
+ * The heart beat of the player.
+ * If the routine will take too much time, execution is suspended and later resumed.
+ * This should be completely transparent to the script.
+ * Then the main program is still responsive.
+ */
 function step()
 {
 	tree.step()
@@ -141,23 +160,20 @@ function step()
 		}
 		s._next_construction_step += 1 + (s._step % 3)
 	}
-
-	// ??
 }
 
-
-function compare_coord(c1, c2)
-{
-	local res = c1.x <=> c2.x
-	if (res == 0) {
-		res = c1.y <=> c2.y
-	}
-	return res
-}
-
+/**
+ * Helper routine: translate 3d-coordinate to string.
+ * This can be used as key in tables.
+ */
 function coord3d_to_key(c)
 {
 	return ("coord3d_" + c.x + "_" + c.y + "_" + c.z).toalnum();
+}
+
+function coord_to_key(c)
+{
+	return ("coord_" + c.x + "_" + c.y).toalnum();
 }
 
 function is_cash_available(cost /* in 1/100 cr */)
@@ -165,6 +181,11 @@ function is_cash_available(cost /* in 1/100 cr */)
 	return 2*cost + 2*our_player.get_current_maintenance() < our_player.get_current_net_wealth()
 }
 
+/**
+ * Called to save into savegame.
+ * Returns string that will be saved.
+ * Here: we turn the persistent table into a string using recursive_save (from script/script_base.nut).
+ */
 function save()
 {
 	local str = ""

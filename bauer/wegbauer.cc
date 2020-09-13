@@ -94,22 +94,6 @@ static void set_default(way_desc_t const*& def, waytype_t const wtyp, systemtype
 
 bool way_builder_t::successfully_loaded()
 {
-	FOR(stringhashtable_tpl<const way_desc_t *>, & i, desc_table) {
-		way_desc_t *desc = (way_desc_t *)i.value;
-		if(  desc->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
-			// add the tool
-			tool_build_way_t *tool = new tool_build_way_t();
-			tool->set_icon( desc->get_cursor()->get_image_id(1) );
-			tool->cursor = desc->get_cursor()->get_image_id(0);
-			tool->set_default_param(desc->get_name());
-			tool_t::general_tool.append( tool );
-			desc->set_builder( tool );
-		}
-		else {
-			desc->set_builder( NULL );
-		}
-	}
-
 	// some defaults to avoid hardcoded values
 	set_default(strasse_t::default_strasse,         road_wt,        type_flat, 50);
 	if(  strasse_t::default_strasse == NULL ) {
@@ -138,6 +122,18 @@ bool way_builder_t::register_desc(way_desc_t *desc)
 		delete old_desc;
 	}
 
+	if(  desc->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
+		// add the tool
+		tool_build_way_t *tool = new tool_build_way_t();
+		tool->set_icon( desc->get_cursor()->get_image_id(1) );
+		tool->cursor = desc->get_cursor()->get_image_id(0);
+		tool->set_default_param(desc->get_name());
+		tool_t::general_tool.append( tool );
+		desc->set_builder( tool );
+	}
+	else {
+		desc->set_builder( NULL );
+	}
 	desc_table.put(desc->get_name(), desc);
 	return true;
 }
@@ -351,7 +347,8 @@ bool way_builder_t::check_crossing(const koord zv, const grund_t *bd, waytype_t 
 		return true;
 	}
 	// right owner of the other way
-	if(!check_owner(w->get_owner(),player)) {
+	// exception: allow if we want to build road and road already exists, since this is passable for us
+	if(!check_owner(w->get_owner(),player)  &&  ! (wtyp==road_wt  &&  bd->has_two_ways()) ) {
 		return false;
 	}
 	// check for existing crossing
@@ -2631,7 +2628,14 @@ void way_builder_t::build_road()
 				str->set_street_flag(street_flag);
 			}
 			// keep faster ways or if it is the same way ... (@author prissi)
-			else if((str->get_desc()==desc  &&  str->get_overtaking_mode()==overtaking_mode  &&  str->get_street_flag()==street_flag  )  ||  keep_existing_ways  ||  (keep_existing_city_roads  &&  str->hat_gehweg())  ||  (keep_existing_faster_ways  &&  str->get_desc()->get_topspeed()>desc->get_topspeed())  ||  (player_builder!=NULL  &&  str->is_deletable(player_builder)!=NULL)) {
+			else if((str->get_desc()==desc  &&  str->get_overtaking_mode()==overtaking_mode  &&  str->get_street_flag()==street_flag  )  
+				||  keep_existing_ways  
+				||  (keep_existing_city_roads  &&  str->hat_gehweg())  
+				||  (keep_existing_faster_ways  &&  str->get_desc()->get_topspeed()>desc->get_topspeed())  
+				||  (player_builder!=NULL  &&  str->is_deletable(player_builder)!=NULL)
+				||  (gr->has_two_ways()  &&  gr->get_weg_nr(1)->is_deletable(player_builder)!=NULL) // do not replace public roads crossing rails of other players
+			) {
+
 				//nothing to be done
 			}
 			else {

@@ -138,31 +138,8 @@ static bool compare_station_desc(const building_desc_t* a, const building_desc_t
 
 bool hausbauer_t::successfully_loaded()
 {
-	FOR(stringhashtable_tpl<const building_desc_t*>, const& i, desc_table) {
-		building_desc_t *desc = (building_desc_t *)i.value;
-
-		// probably needs a tool if it has a cursor
-		const skin_desc_t *sd = desc->get_cursor();
-		if(  sd  &&  sd->get_image_id(1)!=IMG_EMPTY) {
-			tool_t *tool;
-			if(  desc->get_type()==building_desc_t::depot  ) {
-				tool = new tool_build_depot_t();
-			}
-			else if(  desc->get_type()==building_desc_t::headquarters  ) {
-				tool = new tool_headquarter_t();
-			}
-			else {
-				tool = new tool_build_station_t();
-			}
-			tool->set_icon( desc->get_cursor()->get_image_id(1) );
-			tool->cursor = desc->get_cursor()->get_image_id(0),
-				tool->set_default_param(desc->get_name());
-			tool_t::general_tool.append( tool );
-			desc->set_builder( tool );
-		}
-		else {
-			desc->set_builder( NULL );
-		}
+	FOR(stringhashtable_tpl<building_desc_t const*>, const& i, desc_table) {
+		building_desc_t const* const desc = i.value;
 
 		// now insert the desc into the correct list.
 		switch(desc->get_type()) {
@@ -261,6 +238,28 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 		delete old_desc;
 	}
 
+	// probably needs a tool if it has a cursor
+	const skin_desc_t *sd = desc->get_cursor();
+	if(  sd  &&  sd->get_image_id(1)!=IMG_EMPTY) {
+		tool_t *tool;
+		if(  desc->get_type()==building_desc_t::depot  ) {
+			tool = new tool_build_depot_t();
+		}
+		else if(  desc->get_type()==building_desc_t::headquarters  ) {
+			tool = new tool_headquarter_t();
+		}
+		else {
+			tool = new tool_build_station_t();
+		}
+		tool->set_icon( desc->get_cursor()->get_image_id(1) );
+		tool->cursor = desc->get_cursor()->get_image_id(0),
+		tool->set_default_param(desc->get_name());
+		tool_t::general_tool.append( tool );
+		desc->set_builder( tool );
+	}
+	else {
+		desc->set_builder( NULL );
+	}
 	desc_table.put(desc->get_name(), desc);
 
 	/* Supply the tiles with a pointer back to the matching description.

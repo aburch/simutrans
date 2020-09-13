@@ -318,6 +318,10 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	for(  uint i=0;  i<max_idx;  i++  ) {
 		if(  tabs_to_lineindex[i] == selected_tab[player->get_player_nr()]  ) {
 			line = selected_line[player->get_player_nr()][selected_tab[player->get_player_nr()]];
+			// check owner here: selected_line[][] is not reset between games, so line could have another player as owner
+			if (line.is_bound()  &&  line->get_owner() != player) {
+				line = linehandle_t();
+			}
 			index = i;
 			break;
 		}

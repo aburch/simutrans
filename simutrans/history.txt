@@ -32,6 +32,9 @@
 	ADD: defining overlapping climate height limits will generate maps with climate patches at these heights
 	FIX: (extremly old bug) after removing a house on a slope the world height grid was not restored
 	FIX: factory extension during city growth could no cope with more than one supplier for two goods
+	ADD: scripted tools (initial patch by THLeaderH)
+	ADD: Humidity based climates (originally from kireon green) Attention, winter snowline set temperature at sea level, so important!
+	ADD: (FrankP) happy signs for system fonts
 
 
 Release of 121.0 (r8870 on 1-Dec-2019):
@@ -601,6 +604,8 @@ Release of 102.2.1 (r2928)
 	FIX: withdraw all with convois in depot causes crash (and maybe also not withdraw all)
 	FIX: several issues with tram signals
 	CHANGE: info windows now open less important first resp. for single window topmost object first (usually most important)
+	ADD: toolbar, which did not fit their space can be scrolled (either manu menu or when toolbar_max_height = 1)
+	ADD: new parameter for icons in windows title bars: gui_gadgetwidth and gui_gadget_height (although the latter is unused for now)
 
 
 

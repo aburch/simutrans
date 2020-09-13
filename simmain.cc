@@ -83,6 +83,7 @@
 #include "utils/simrandom.h"
 
 #include "bauer/vehikelbauer.h"
+#include "script/script_tool_manager.h"
 
 #include "vehicle/simvehicle.h"
 #include "vehicle/simroadtraffic.h"
@@ -1148,7 +1149,17 @@ int simu_main(int argc, char** argv)
 		destroy_all_win(true);
 	}
 
+	// load tool scripts
+	dbg->message("simmain()","Reading tool scripts ...");
+	dr_chdir( env_t::program_dir );
+	script_tool_manager_t::load_scripts((env_t::objfilename + "tool/").c_str());
+	if(  env_t::default_settings.get_with_private_paks()  ) {
+		dr_chdir( env_t::user_dir );
+		script_tool_manager_t::load_scripts(("addons/" + env_t::objfilename + "tool/").c_str());
+	}
+
 	dbg->message("simmain()","Reading menu configuration ...");
+	dr_chdir( env_t::program_dir );
 	tool_t::read_menu(env_t::objfilename);
 
 	// reread theme
@@ -1314,7 +1325,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 	sound_set_midi_volume( env_t::midi_volume );
 	if(  !midi_get_mute()  ) {
 		// not muted => play random song
-		midi_play(-1);
+		midi_play( env_t::shuffle_midi ? -1 : 0 );
 		// reset volume after first play call else no/low sound or music with win32 and sdl
 		sound_set_midi_volume( env_t::midi_volume );
 	}

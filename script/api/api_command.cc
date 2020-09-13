@@ -35,10 +35,16 @@ SQInteger command_constructor(HSQUIRRELVM vm)
 	if (id & GENERAL_TOOL) {
 		// we do not want scripts to open dialogues or quitting the game etc
 
-		if (tool_t *tool = create_tool(id)) {
-			my_tool_t* mtool = new my_tool_t(tool);
-			attach_instance(vm, 1, mtool);
+		if (id == (TOOL_EXEC_TWO_CLICK_SCRIPT | GENERAL_TOOL)) {
+			// do not create & attach instance, will be done separately
 			return 0;
+		}
+		else {
+			if (tool_t *tool = create_tool(id)) {
+				my_tool_t* mtool = new my_tool_t(tool);
+				attach_instance(vm, 1, mtool);
+				return 0;
+			}
 		}
 	}
 	return sq_raise_error(vm, "Invalid tool called (%d / 0x%x)", id & 0xfff, id);
@@ -145,7 +151,7 @@ SQInteger command_work(HSQUIRRELVM vm)
 	bool twoclick = top>4;
 
 	// save & set default_param
-	my_tool_t *mtool = get_attached_instance<my_tool_t>(vm, 1, (void*)param<tool_t*>::get);
+	my_tool_t *mtool = get_attached_instance<my_tool_t>(vm, 1, param<tool_t*>::tag());
 	if (mtool == NULL) {
 		return sq_raise_error(vm, "Called from an instance different to tool_x");
 	}

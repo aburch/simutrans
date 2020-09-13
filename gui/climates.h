@@ -8,11 +8,14 @@
 
 
 #include "gui_frame.h"
+#include "components/gui_aligned_container.h"
 #include "components/gui_button.h"
+#include "components/gui_combobox.h"
 #include "components/gui_label.h"
 #include "components/gui_numberinput.h"
-#include "components/action_listener.h"
+#include "components/gui_tab_panel.h"
 #include "components/gui_textinput.h"
+#include "components/action_listener.h"
 
 class settings_t;
 
@@ -29,22 +32,34 @@ private:
 		water_level,
 		mountain_height,
 		mountain_roughness,
+		climate_borders_ui[MAX_CLIMATES][2],
+		// this is only for height based climates
+		patch_size,
+		// this is only for humidity based climates
 		snowline_winter,
-		climate_borders_ui[MAX_CLIMATES][2];
+		snowline_summer,
+		moistering,
+		moistering_water,
+		humidities[2],
+		temperatures[5];
 
-	gui_label_buf_t
-		summer_snowline;
+	gui_combobox_t
+		tree;
 
-	button_t
-		no_tree; // without tree
-
-	button_t
-		lake; // lake
+	gui_numberinput_t
+		lake; // lake height
 
 	gui_numberinput_t
 		river_n,
 		river_min,
 		river_max;
+
+	gui_tab_panel_t
+		climate_generator;
+
+
+	gui_aligned_container_t height_climate;
+	gui_aligned_container_t humidity_climate;
 
 public:
 	climate_gui_t(settings_t*);

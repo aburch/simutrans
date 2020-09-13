@@ -212,8 +212,8 @@ public:
 	static uint32 tooltip_duration;
 
 	/// limit width and height of menu toolbars
-	static uint8 toolbar_max_width;
-	static uint8 toolbar_max_height;
+	static sint8 toolbar_max_width;
+	static sint8 toolbar_max_height;
 
 	// how to highlight topped (untopped windows)
 	static bool window_frame_active;

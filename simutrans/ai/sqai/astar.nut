@@ -1,17 +1,24 @@
+/**
+ * Classes to help with route-searching.
+ * Based on the A* algorithm.
+ */
+
+
+/**
+ * Nodes for A*
+ */
 class astar_node extends coord3d
 {
 	previous = null // previous node
 	cost     = -1   // cost to reach this node
-	weight   = -1   // heuristic cost to reach target
 	dist     = -1   // distance to target
-	constructor(c, p, co, w, d)
+	constructor(c, p, co, d)
 	{
 		x = c.x
 		y = c.y
 		z = c.z
 		previous = p
 		cost     = co
-		weight   = w
 		dist     = d
 	}
 	function is_straight_move(d)
@@ -20,8 +27,20 @@ class astar_node extends coord3d
 	}
 }
 
-function abs(x) { return x>0 ? x : -x }
-
+/**
+ * Class to perform A* searches.
+ *
+ * Derived classes have to implement:
+ *    process_node(node): add nodes to open list reachable by node
+ *
+ * To use this:
+ * 1) call prepare_search
+ * 2) add tiles to target array
+ * 3) call compute_bounding_box
+ * 4) add start tiles to open list
+ * 5) call search()
+ * 6) use route
+ */
 class astar
 {
 	closed_list = null // table
@@ -33,10 +52,12 @@ class astar
 
 	route       = null // route, reversed: target to start
 
+	// statistics
 	calls_open = 0
 	calls_closed = 0
 	calls_pop = 0
 
+	// costs - can be fine-tuned
 	cost_straight = 10
 	cost_curve    = 14
 
@@ -60,6 +81,7 @@ class astar
 		calls_pop = 0
 	}
 
+	// adds node c to closed list
 	function add_to_close(c)
 	{
 		closed_list[ coord3d_to_key(c) ] <- 1
@@ -85,6 +107,7 @@ class astar
 		return (key in closed_list)
 	}
 
+	// add node c to open list with give weight
 	function add_to_open(c, weight)
 	{
 		local i = nodes.len()
@@ -133,6 +156,9 @@ class astar
 		print("Calls: pop = " + calls_pop + ", open = " + calls_open + ", close = " + calls_closed)
 	}
 
+	/**
+	 * Computes bounding box of all targets to speed up distance computation.
+	 */
 	function compute_bounding_box()
 	{
 		if (targets.len()>0) {
@@ -149,6 +175,10 @@ class astar
 		}
 	}
 
+	/**
+	 * Estimates distance to target.
+	 * Returns zero if and only if c is a target tile.
+	 */
 	function estimate_distance(c)
 	{
 		local d = 0
@@ -185,17 +215,19 @@ class astar
 
 class ab_node extends ::astar_node
 {
-	dir = 0 // direction to reach this node
-	flag = 0
-	constructor(c, p, co, w, d, di, fl=0)
+	dir = 0   // direction to reach this node
+	flag = 0  // flag internal to the route searcher
+	constructor(c, p, co, d, di, fl=0)
 	{
-		base.constructor(c, p, co, w, d)
+		base.constructor(c, p, co, d)
 		dir  = di
 		flag = fl
 	}
 }
 
-
+/**
+ * Helper class to find bridges and spots to place them.
+ */
 class pontifex
 {
 	player = null
@@ -231,14 +263,15 @@ class pontifex
 	}
 }
 
-
+/**
+ * Class to search a route and to build a connection (i.e. roads).
+ * Builds bridges. But not tunnels (not implemented).
+ */
 class astar_builder extends astar
 {
 	builder = null
 	bridger = null
 	way     = null
-
-
 
 	function process_node(cnode)
 	{
@@ -268,12 +301,12 @@ class astar_builder extends astar
 
 					local cost   = cnode.cost + move
 					local weight = cost + dist
-					local node = ab_node(to, cnode, cost, weight, dist, d)
+					local node = ab_node(to, cnode, cost, dist, d)
 
 					add_to_open(node, weight)
 				}
 				// try bridges
-				else if (bridger  &&  d == cnode.dir) {
+				else if (bridger  &&  d == cnode.dir  &&  cnode.flag != 1) {
 					local len = 1
 					local max_len = bridger.bridge.get_max_length()
 
@@ -285,14 +318,12 @@ class astar_builder extends astar
 						local bridge_len = abs(from.x-to.x) + abs(from.y-to.y)
 
 						local move = bridge_len * cost_straight  * 3  /*extra bridge penalty */;
-						// set distance to 1 if at a target tile,
-						// still route might come back to this tile in a loop (?)
-						// but if there is space for a loop there is also place for another target tile (?)
+						// set distance to 1 if at a target tile
 						local dist = max(estimate_distance(to), 1)
 
 						local cost   = cnode.cost + move
 						local weight = cost + dist
-						local node = ab_node(to, cnode, cost, weight, dist, d, 1 /*bridge*/)
+						local node = ab_node(to, cnode, cost, dist, d, 1 /*bridge*/)
 
 						add_to_open(node, weight)
 
@@ -345,7 +376,7 @@ class astar_builder extends astar
 					if (err) gui.add_message_at(our_player, "Failed to build road from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 				}
 				else if (route[i-1].flag == 1) {
-					err = command_x.build_bridge(our_player, route[i], route[i-1], bridger.bridge)
+					err = command_x.build_bridge(our_player, route[i-1], route[i], bridger.bridge)
 					if (err) gui.add_message_at(our_player, "Failed to build bridge from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
 				}
 				if (err) {
@@ -359,7 +390,10 @@ class astar_builder extends astar
 	}
 }
 
-
+/**
+ * Helper class to remove a field at a factory.
+ * Used if no empty spot is available to place a station.
+ */
 function remove_field(pos)
 {
 	local tile = square_x(pos.x, pos.y).get_ground_tile()

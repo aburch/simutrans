@@ -161,11 +161,12 @@ public:
 	 * @param len length of string
 	 * @return pointer to skin object or NULL if nothing found
 	 */
-	static const skin_desc_t *get_extra( const char *str, int len );
+	static const skin_desc_t *get_extra( const char *str, int len, skintyp_t type = menu );
 
 private:
-	/// holds objects from paks with type 'menu'
-	static slist_tpl<const skin_desc_t *>extra_obj;
+	/// holds objects from paks with type 'menu' and 'cursor'
+	static slist_tpl<const skin_desc_t *>extra_menu_obj;
+	static slist_tpl<const skin_desc_t *>extra_cursor_obj;
 };
 
 #endif

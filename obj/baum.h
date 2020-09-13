@@ -50,8 +50,6 @@ private:
 
 	static uint16 random_tree_for_climate_intern(climate cl);
 
-	static uint8 plant_tree_on_coordinate(koord pos, const uint8 maximum_count, const uint8 count);
-
 public:
 	/**
 	 * Only the load save constructor should be called outside
@@ -118,6 +116,8 @@ public:
 	static void distribute_trees(int dichte);
 
 	static bool plant_tree_on_coordinate(koord pos, const tree_desc_t *desc, const bool check_climate, const bool random_age );
+
+	static uint8 plant_tree_on_coordinate(koord pos, const uint8 maximum_count, const uint8 count);
 
 	static bool register_desc(tree_desc_t *desc);
 	static bool successfully_loaded();

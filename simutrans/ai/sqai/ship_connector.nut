@@ -41,8 +41,10 @@ class ship_connector_t extends manager_t
 
 			case 0: {
 				// find flat harbour building
-				local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))
-				planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, planned_convoy.capacity)
+				if (planned_harbour_flat == null) {
+					local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))
+					planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, planned_convoy.capacity)
+				}
 				phase ++
 			}
 			case 1:
@@ -211,7 +213,7 @@ class ship_connector_t extends manager_t
 		if (tile_list.len()>0  &&  halt_list.len()>0) {
 			foreach(tile in tile_list) {
 
-				local h = schedule_entry_x(tile,0,0).get_halt(our_player)
+				local h = halt_x.get_halt(tile, our_player)
 				if (h) {
 					foreach(halt in halt_list) {
 						if ( (h <=> halt) == 0) {
@@ -230,29 +232,73 @@ class ship_connector_t extends manager_t
 				for(local d = 1; d<16; d*=2) {
 					local to = tile.get_neighbour(wt_all, d)
 
-					if (to  &&  to.is_empty()) {
-						local ok = false
-						if (to.get_slope() !=0) {
-							// check place for harbour
-							local size = planned_station.get_size(0)
-							ok = finder.check_harbour_place(tile, size.x*size.y, dir.backward(d))
-						}
-						else if (planned_harbour_flat) {
-							// check place for flat one
-							local size = planned_harbour_flat.get_size(0)
-							ok = finder.check_harbour_place(tile, size.x*size.y, dir.backward(d))
-							// TODO check that only one direction is possible
-						}
-						if (ok) {
-							anch.append(tile)
-							c_harbour_tiles[coord3d_to_key(tile)] <- to
-							break
-						}
+					if (to  &&  get_harbour_type_for_tile(to, planned_station, planned_harbour_flat, d) > 0) {
+
+						anch.append(tile)
+						c_harbour_tiles[coord3d_to_key(tile)] <- to
+						break
 					}
 				}
 			}
 		}
 		return anch
+	}
+
+	/**
+	 * Checks whether we can build harbour: empty tile, slopes, enough space on water
+	 * returns type of harbour that can be placed here: 0 - nothing, 1 - harbour, 2 - flat harbour
+	 */
+	static function get_harbour_type_for_tile(tile, planned_harbour, planned_harbour_flat, d_water_to_land /*direction*/)
+	{
+		local type = 0 // 1 - harbour, 2 - flat harbour
+		if (!tile.is_empty()) {
+			return 0
+		}
+		// first slope
+		if (planned_harbour) {
+			if (tile.get_slope() != 0) {
+				// can place on slopes, target tile is sloped and empty -> we can terraform
+				type = 1
+			}
+			else if (planned_harbour_flat == null  &&  command_x.can_set_slope(our_player, tile, dir.to_slope(d_water_to_land))==null) {
+				// no slope, no flat dock, but terraforming possible
+				type = 1
+			}
+		}
+		if (planned_harbour_flat) {
+			if (tile.get_slope() == 0) {
+				// flat place
+				type = 2
+			}
+			else if (planned_harbour == null  &&  command_x.can_set_slope(our_player, tile, 0)==null) {
+				// not flat, not harbour for slopes, can flatten
+				type = 2
+			}
+		}
+		if (type == 0) {
+			return 0
+		}
+		// then space
+		local size = type == 1  ?  planned_harbour.get_size(0) : planned_harbour_flat.get_size(0)
+
+		return finder.check_harbour_place(tile, size.x*size.y, dir.backward(d_water_to_land)) ? type : 0
+	}
+
+	/**
+	 * Checks whether there is already a harbour on this tile.
+	 * @returns corresponding halt_x object (or null)
+	 */
+	static function get_harbour_halt(tile)
+	{
+		local halt = tile.get_halt()
+		if (halt  &&  halt.get_owner().nr == our_player_nr) {
+			// our halt
+			local harb = tile.find_object(mo_building)
+			if (harb  &&  (harb.get_desc().get_type()==building_desc_x.harbour  ||  harb.get_desc().get_type()==building_desc_x.flat_harbour) ) {
+				return halt
+			}
+		}
+		return null
 	}
 
 	/**
@@ -267,35 +313,58 @@ class ship_connector_t extends manager_t
 		local dif = { x=tile.x-water.x, y=tile.y-water.y}
 		print("Place harbour at " + coord3d_to_string(tile) + " to access " + coord3d_to_string(water) )
 
-		if (tile.get_slope()) {
-
-			local slope = dir.to_slope(coord_to_dir(dif))
-			// terraform ??
-			if (tile.get_slope() != slope  &&  tile.get_slope() != 2*slope) {
-				err = command_x.set_slope(our_player, tile, slope )
-				if (err) {
-					return err;
-				}
-			}
-			err = command_x.build_station(our_player, tile, planned_station)
-			if (err) gui.add_message_at(our_player, "Failed to harbour at " + coord_to_string(tile) +"\n" + err, tile)
-
-			local size = planned_station.get_size(0)
-			len = size.x*size.y
+		if (get_harbour_halt(tile)) {
+			// already there
 		}
 		else {
-			err = command_x.build_station(our_player, tile, planned_harbour_flat)
-			if (err) gui.add_message_at(our_player, "Failed to flat harbour at " + coord_to_string(tile) +"\n" + err, tile)
+			local d_water_to_land = coord_to_dir(dif)
+			local type = get_harbour_type_for_tile(tile, planned_station, planned_harbour_flat, d_water_to_land)
 
-			local size = planned_harbour_flat.get_size(0)
-			len = size.x*size.y
+			switch(type) {
+				case 0: {
+					err = "Cannot place harbour here"
+					gui.add_message_at(our_player, "Cannot place any harbour at " + coord_to_string(tile), tile)
+					break
+				}
+				case 1: {
+					// harbour on slope
+					local slope = dir.to_slope(d_water_to_land)
+					// terraform ??
+					if (tile.get_slope() != slope  &&  tile.get_slope() != 2*slope) {
+						err = command_x.set_slope(our_player, tile, slope )
+						if (err) gui.add_message_at(our_player, "Failed to change slope at " + coord_to_string(tile) +"\n" + err, tile)
+					}
+					if (err == null) {
+						err = command_x.build_station(our_player, tile, planned_station)
+						if (err) gui.add_message_at(our_player, "Failed to harbour at " + coord_to_string(tile) +"\n" + err, tile)
+					}
+					local size = planned_station.get_size(0)
+					len = size.x*size.y
+					break
+				}
+				case 2: {
+					// flat dock
+					// flatten slope
+					if (tile.get_slope() != 0) {
+						err = command_x.set_slope(our_player, tile, 0 )
+						if (err) gui.add_message_at(our_player, "Failed to flatten slope at " + coord_to_string(tile) +"\n" + err, tile)
+					}
+					if (err == null) {
+						err = command_x.build_station(our_player, tile, planned_harbour_flat, dir.backward(d_water_to_land))
+						if (err) gui.add_message_at(our_player, "Failed to build flat harbour at " + coord_to_string(tile) +"\n" + err, tile)
+					}
+					local size = planned_harbour_flat.get_size(0)
+					len = size.x*size.y
+					break
+				}
+			}
 		}
 		if (err) {
 			return err;
 		}
 
 		// halt at this harbour
-		local harbour_halt = schedule_entry_x(tile,0,0).get_halt(our_player)
+		local harbour_halt = halt_x.get_halt(tile, our_player)
 
 		water_arr.clear()
 		// all water tiles near harbour
@@ -308,7 +377,7 @@ class ship_connector_t extends manager_t
 				try {
 					if (finder._tile_water(to)) {
 
-						local halt = schedule_entry_x(to,0,0).get_halt(our_player)
+						local halt = halt_x.get_halt(to, our_player)
 
 						if (halt  &&  ( (halt<=>harbour_halt) != 0) ) {
 							// we do not want to use this halt
@@ -405,7 +474,7 @@ class route_finder_water extends astar
 					// use jump-point search (see dataobj/route.cc)
 					local jps = cnode.previous ? (water_dir ^ 0x0f) | d | cnode.dir | from.get_canal_ribi() : 0x0f
 
-					local node = ab_node(to, cnode, cost, weight, dist, d, jps)
+					local node = ab_node(to, cnode, cost, dist, d, jps)
 					add_to_open(node, weight)
 				}
 			}
@@ -426,7 +495,7 @@ class route_finder_water extends astar
 			if (dist == 0) {
 				continue
 			}
-			add_to_open(ab_node(s, null, 1, dist+1, dist, 0), dist+1)
+			add_to_open(ab_node(s, null, 1, dist+1, 0), dist+1)
 		}
 
 		search()
@@ -447,11 +516,29 @@ class route_finder_water extends astar
 
 class route_finder_water_depot extends route_finder_water
 {
-	function estimate_distance(tile)
+	function estimate_distance(c)
 	{
-		return tile.get_objects().get_count()
-		// take first empty tile
-
+		local t = tile_x(c.x, c.y, c.z)
+		if (t.is_water()  &&  t.get_objects().get_count()==0) {
+			return 0
+		}
+		local depot = t.find_object(mo_depot_water)
+		if (depot  &&  depot.get_owner().nr == our_player_nr) {
+			return 0
+		}
+		return 10
+	}
+	function add_to_open(c, weight)
+	{
+		if (c.dist == 0) {
+			// test for depot
+			local t = tile_x(c.x, c.y, c.z)
+			if (t.get_objects().get_count()==0) {
+				// depot not existing, we must build, increase weight
+				weight += 25 * cost_straight
+			}
+		}
+		base.add_to_open(c, weight)
 	}
 
 	function search_route(watertiles)
@@ -466,7 +553,7 @@ class route_finder_water_depot extends route_finder_water
 		for(local i=0; i<watertiles.len(); i++)
 		{
 			local dist = (watertiles.len() - i)*10;
-			process_node(ab_node(watertiles[i], null, 1, dist+1, dist, 0))
+			process_node(ab_node(watertiles[i], null, 1, dist+1, 0))
 		}
 
 		search()

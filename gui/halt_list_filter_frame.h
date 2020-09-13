@@ -8,12 +8,14 @@
 
 
 #include "gui_frame.h"
+#include "components/action_listener.h"
+#include "components/gui_aligned_container.h"
+#include "components/gui_button.h"
 #include "components/gui_label.h"
 #include "components/gui_scrollpane.h"
-#include "components/action_listener.h"
-#include "components/gui_button.h"
-#include "halt_list_frame.h"
+#include "components/gui_tab_panel.h"
 #include "components/gui_textinput.h"
+#include "halt_list_frame.h"
 
 class player_t;
 
@@ -42,10 +44,12 @@ private:
 
 		bool infowin_event(event_t const* const ev) OVERRIDE
 		{
-			if(IS_LEFTRELEASE(ev)) {
-				parent->ware_item_triggered(ware_ab, ware_an);
+			bool old_pressed = pressed;
+			bool swallow = button_t::infowin_event( ev );
+			if(  swallow  &&  IS_LEFTRELEASE(ev)  ) {	// only handle, if we are hit!
+				parent->ware_item_triggered( ware_ab, ware_an );
 			}
-			return button_t::infowin_event(ev);
+			return swallow;
 		}
 		void draw(scr_coord offset) OVERRIDE {
 			if(ware_ab) {
@@ -76,6 +80,9 @@ private:
 	 * All gui elements of this dialog:
 	 */
 	button_t filter_buttons[FILTER_BUTTONS];
+
+	gui_aligned_container_t name_filter, accepts_filter, sends_filter;
+	gui_tab_panel_t tabs;
 
 	gui_textinput_t name_filter_input;
 

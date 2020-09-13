@@ -33,11 +33,6 @@ void tunnel_reader_t::register_obj(obj_desc_t *&data)
 	pakset_info_t::append(desc->get_name(), get_type(), chk);
 }
 
-bool tunnel_reader_t::successfully_loaded() const
-{
-	return tunnel_builder_t::successfully_loaded();
-}
-
 /**
  * Sets default data for ancient tunnel paks
  */
@@ -164,4 +159,3 @@ obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	return desc;
 }
-

@@ -22,3 +22,4 @@ echo "WITH_REVISION = $(svn info --show-item revision svn://servers.simutrans.or
 echo "STATIC = 1" >>config.default
 make -j
 mv build/default/sim.exe sim-WinGDI-OTRP.exe
+

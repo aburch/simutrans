@@ -16,10 +16,10 @@
 #define SIM_BUILD_RELEASE_CANDIDATE 1
 #define SIM_BUILD_RELEASE           2
 
-#define SIM_VERSION_MAJOR 121
-#define SIM_VERSION_MINOR   1
+#define SIM_VERSION_MAJOR 122
+#define SIM_VERSION_MINOR   0
 #define SIM_VERSION_PATCH   0
-#define SIM_VERSION_BUILD SIM_BUILD_NIGHTLY
+#define SIM_VERSION_BUILD SIM_BUILD_RELEASE_CANDIDATE 
 
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
 // ==> These have no direct connection at all!
@@ -31,7 +31,7 @@
 #define OTRP_VERSION_MINOR 0
 // NOTE: increment OTRP_VERSION_MAJOR when the save data structure changes.
 
-#define MAKEOBJ_VERSION "60.4"
+#define MAKEOBJ_VERSION "60.5"
 // new factory locations and provisio
 
 #ifndef QUOTEME
