@@ -29,8 +29,6 @@ bool curiositylist_stats_t::sortreverse = false;
 bool curiositylist_stats_t::filter_own_network = false;
 static karte_ptr_t welt;
 
-#define L_DIALOG_WIDTH (210)
-
 bool curiositylist_stats_t::compare(const gui_component_t *aa, const gui_component_t *bb)
 {
 	const curiositylist_stats_t* ca = dynamic_cast<const curiositylist_stats_t*>(aa);
@@ -83,7 +81,7 @@ curiositylist_stats_t::curiositylist_stats_t(gebaeude_t *att)
 {
 	attraction = att;
 	// pos button
-	set_table_layout(6, 1);
+	set_table_layout(7, 1);
 	button_t *b = new_component<button_t>();
 	b->set_typ(button_t::posbutton_automatic);
 	b->set_targetpos(attraction->get_pos().get_2d());
@@ -132,6 +130,8 @@ curiositylist_stats_t::curiositylist_stats_t(gebaeude_t *att)
 		lb_region->buf().printf(" (%s)", welt->get_region_name(attraction->get_pos().get_2d()).c_str());
 	}
 	lb_region->update();
+
+	new_component<gui_fill_t>();
 }
 
 
