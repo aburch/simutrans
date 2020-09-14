@@ -38,7 +38,7 @@ public:
 
 	scr_size get_max_size() const;
 
-	void set_size(scr_size size) OVERRIDE { width = size.w; height = size.h; };
+	void set_size(scr_size size) OVERRIDE { width = size.w; height = size.h; max_size =size; };
 	void set_size_fixed(bool yesno) { size_fixed = yesno; };
 
 	void set_tooltip(const char * t);
