@@ -5,7 +5,6 @@
 
 #include "goods_stats_t.h"
 
-#include "../display/simgraph.h"
 #include "../simcolor.h"
 #include "../simworld.h"
 #include "../simconvoi.h"
@@ -14,58 +13,31 @@
 #include "../descriptor/goods_desc.h"
 
 #include "../dataobj/translator.h"
-#include "../utils/cbuffer_t.h"
-#include "../utils/simstring.h"
 
 #include "../descriptor/goods_desc.h"
 #include "gui_frame.h"
-#include "../gui/components/gui_button.h"
+#include "components/gui_button.h"
+#include "components/gui_colorbox.h"
+#include "components/gui_label.h"
+
+#include "components/gui_image.h"
 
 
-
-goods_stats_t::goods_stats_t()
+void goods_stats_t::update_goodslist(vector_tpl<const goods_desc_t*>goods, uint32 b, uint32 d, uint8 c, uint8 ct, uint8 gc)
 {
-	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, goods_manager_t::get_count() * (LINESPACE+1) ) );
-}
-
-
-void goods_stats_t::update_goodslist( uint16 *g, uint32 b, int l, uint32 d, uint8 c, uint8 ct, uint8 gc)
-{
-	goodslist = g;
 	vehicle_speed = b;
 	distance_meters = d;
 	comfort = c;
 	catering_level = ct;
 	g_class = gc;
-	listd_goods = l;
-	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, listd_goods * (LINESPACE+1) ) );
-}
 
+	scr_size size = get_size();
+	remove_all();
+	set_table_layout(7, 0);
 
-/**
- * Draw the component
- * @author Hj. Malthaner
- */
-void goods_stats_t::draw(scr_coord offset)
-{
-	scr_coord_val yoff = offset.y;
-	char money_buf[256];
-	cbuffer_t buf;
-	offset.x += pos.x;
-
-	// Pre-111.1 in case current does not work.
-	/*for(  uint16 i=0;  i<goods_manager_t::get_count()-1u;  i++  )*/
-
-	for(  uint16 i=0;  i<listd_goods;  i++  )
-	{
-		const goods_desc_t * wtyp = goods_manager_t::get_info(goodslist[i]);
-
-		display_ddd_box_clip_rgb(offset.x + 2, yoff, 8, 8, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
-		display_fillbox_wh_clip_rgb(offset.x + 3, yoff+1, 6, 6, wtyp->get_color(), true);
-
-		buf.clear();
-		buf.printf("%s", translator::translate(wtyp->get_name()));
-		display_proportional_clip_rgb(offset.x + 14, yoff,	buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+	FOR(vector_tpl<const goods_desc_t*>, wtyp, goods) {
+		new_component<gui_colorbox_t>(wtyp->get_color())->set_size(scr_size(LINESPACE/2 + 2, LINESPACE/2 + 2));
+		new_component<gui_label_t>(wtyp->get_name());
 
 		// Massively cleaned up by neroden, June 2013
 		// Roundoff is deliberate here (get two-digit speed)... question this
@@ -73,6 +45,7 @@ void goods_stats_t::draw(scr_coord offset)
 			// Negative and zero speeds will be due to roundoff errors
 			vehicle_speed = 1;
 		}
+
 		const sint64 journey_tenths = tenths_from_meters_and_kmh(distance_meters, vehicle_speed);
 
 		sint64 revenue = wtyp->get_total_fare(distance_meters, 0u, comfort, catering_level, min(g_class, wtyp->get_number_of_classes() - 1), journey_tenths);
@@ -80,20 +53,19 @@ void goods_stats_t::draw(scr_coord offset)
 		// Convert to simucents.  Should be very fast.
 		sint64 price = (revenue + 2048) / 4096;
 
-		money_to_string( money_buf, (double)price/100.0 );
-		buf.clear();
-		buf.printf(money_buf);
-		display_proportional_clip_rgb(offset.x + 170, yoff, buf, 	ALIGN_RIGHT, 	SYSCOL_TEXT, true);
+		gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
+		lb->buf().append_money(price / 100.0);
+		lb->update();
 
-		buf.clear();
-		buf.printf( "%s",	translator::translate(wtyp->get_catg_name()));
-		display_proportional_clip_rgb(offset.x + 220, yoff, buf, 	ALIGN_LEFT, SYSCOL_TEXT, 	true);
-		display_color_img(wtyp->get_catg_symbol(), offset.x + 205, yoff, 0, false, false);
+		new_component<gui_margin_t>(LINESPACE);
+		new_component<gui_image_t>(wtyp->get_catg_symbol(), 0, ALIGN_NONE, true);
 
-		buf.clear();
-		buf.printf("%dKg", wtyp->get_weight_per_unit());
-		display_proportional_clip_rgb(offset.x + 360, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
+		new_component<gui_label_t>(wtyp->get_catg_name());
 
-		yoff += LINESPACE+1;
+		lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
+		lb->buf().printf("%dKg", wtyp->get_weight_per_unit());
+		lb->update();
 	}
+	scr_size min_size = get_min_size();
+	set_size(scr_size(max(size.w, min_size.w), min_size.h));
 }

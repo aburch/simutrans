@@ -8,14 +8,16 @@
 
 
 #include "../simtypes.h"
-#include "components/gui_component.h"
+#include "components/gui_aligned_container.h"
 
+template<class T> class vector_tpl;
+class goods_desc_t;
 
-
-class goods_stats_t : public gui_world_component_t
+class goods_stats_t : public gui_aligned_container_t
 {
+	static karte_ptr_t welt;
+
 private:
-	uint16 *goodslist;
 	uint32 vehicle_speed;
 	uint8 comfort;
 	uint8 catering_level;
@@ -27,16 +29,11 @@ private:
 	int listd_goods;
 
 public:
-	goods_stats_t();
+	goods_stats_t() {}
 
 	// update list and resize
-	void update_goodslist(uint16 *g, uint32 vehicle_speed, int listd_goods, uint32 distance, uint8 comfort, uint8 catering, uint8 g_class);
-
-	/**
-	* Draw the component
-	* @author Hj. Malthaner
-	*/
-	void draw(scr_coord offset);
+	//void update_goodslist(uint16 *g, uint32 vehicle_speed, int listd_goods, uint32 distance, uint8 comfort, uint8 catering, uint8 g_class);
+	void update_goodslist(vector_tpl<const goods_desc_t*>, uint32 vehicle_speed, /*int listd_goods,*/ uint32 distance, uint8 comfort, uint8 catering, uint8 g_class);
 };
 
 #endif
