@@ -64,6 +64,9 @@ void button_t::init(enum type type_par, const char *text_par, scr_coord pos_par,
 	if(  size_par != scr_size::invalid  ) {
 		set_size(size_par);
 	}
+	else if (size_par == scr_size::invalid && type_par & posbutton) {
+		set_size(D_POS_BUTTON_SIZE);
+	}
 	else if (size_par == scr_size::invalid && type_par & roundbox && !(type_par & flexible) ) {
 		set_size(D_BUTTON_SIZE);
 	}
