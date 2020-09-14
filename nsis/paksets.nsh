@@ -169,9 +169,9 @@ SectionEnd
 Section "pak128.German V2.0 beta" pak128german
   AddSize 431961
   StrCpy $downloadlink "http://pak128-german.de/PAK128.german_VS2.0.beta.zip"
-  StrCpy $archievename "PAK128.german_1.2_for_ST_121-0.zip"
+  StrCpy $archievename "PAK128.german_VS2.0.beta.zip"
   StrCpy $downloadname "pak128.German"
-  StrCpy $VersionString "Pak128.german VS 2.0.beta (Rev. 352)"
+  StrCpy $VersionString "Pak128.german VS 2.0 (Rev. 356)"
   Call DownloadInstallZip
 SectionEnd
 
