@@ -81,7 +81,7 @@ curiositylist_stats_t::curiositylist_stats_t(gebaeude_t *att)
 {
 	attraction = att;
 	// pos button
-	set_table_layout(7, 1);
+	set_table_layout(8, 1);
 	button_t *b = new_component<button_t>();
 	b->set_typ(button_t::posbutton_automatic);
 	b->set_targetpos(attraction->get_pos().get_2d());
@@ -99,20 +99,26 @@ curiositylist_stats_t::curiositylist_stats_t(gebaeude_t *att)
 	end_table();
 
 	// name
-	gui_label_buf_t *l = new_component<gui_label_buf_t>();
-	l->buf().printf("%s (%d/%d)", get_text(),
-		attraction->get_passengers_succeeded_commuting() == 65535 ? attraction->get_passengers_succeeded_visiting() : attraction->get_passengers_succeeded_visiting() + attraction->get_passengers_succeeded_commuting(),
-		attraction->get_adjusted_visitor_demand());
-	l->update();
+	lb_name.set_text(attraction->get_tile()->get_desc()->get_name());
+	lb_name.set_min_size(scr_size(D_LABEL_WIDTH*3/2, D_LABEL_HEIGHT));
+	add_component(&lb_name);
 
 	// Pakset must have pax evaluation symbols to show overcrowding symbol
 	if (skinverwaltung_t::pax_evaluation_icons) {
 		img_enabled[2].set_image(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), true);
+		img_enabled[2].set_rigid(true);
 	}
 	else {
 		img_enabled[2].set_image(IMG_EMPTY);
 	}
 	add_component(&img_enabled[2]);
+
+	gui_label_buf_t *l = new_component<gui_label_buf_t>();
+	l->buf().printf("(%4d/%4d) ",
+		attraction->get_passengers_succeeded_commuting() == 65535 ? attraction->get_passengers_succeeded_visiting() : attraction->get_passengers_succeeded_visiting() + attraction->get_passengers_succeeded_commuting(),
+		attraction->get_adjusted_visitor_demand());
+	l->update();
+
 
 	// city attraction images
 	add_component(&img_enabled[3]);

@@ -29,6 +29,8 @@ private:
 
 	enum { no_networks = 0, someones_network = 1, own_network = 2 };
 
+	gui_label_t lb_name;
+
 public:
 	static curiositylist::sort_mode_t sortby;
 	static bool sortreverse;
