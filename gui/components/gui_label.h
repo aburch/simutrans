@@ -36,21 +36,22 @@ public:
 	};
 
 private:
-	align_t align;
+	bool shadowed;
+	PIXVAL color_shadow;
 
+	const char * text;	// only for direct access of non-translatable things. Do not use!
+
+	scr_size min_size;
+
+protected:
 	/**
 	 * Color of the Labels
 	 * @author Hansjorg Malthaner
 	 */
 	PIXVAL color;
 
-	bool shadowed;
-	PIXVAL color_shadow;
-
-	const char * text;	// only for direct access of non-translatable things. Do not use!
+	align_t align;
 	const char * tooltip;
-
-protected:
 	using gui_component_t::init;
 
 public:
@@ -90,7 +91,7 @@ public:
 	 * Draws the component.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord offset);
+	virtual void draw(scr_coord offset);
 
 	/**
 	 * Sets the colour of the label
@@ -119,6 +120,8 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void set_tooltip(const char * t);
+
+	void set_min_size(scr_size);
 
 	align_t get_align() const { return align; }
 
@@ -161,12 +164,40 @@ public:
 	 */
 	void append_money(double money);
 
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 protected:
 	using gui_label_t::get_text_pointer;
 	using gui_label_t::set_text;
 	using gui_label_t::set_text_pointer;
+};
+
+
+class gui_label_updown_t : public gui_label_t
+{
+private:
+	sint64 border=0;
+	sint64 value=0;
+	bool show_border_value=true;
+
+public:
+	gui_label_updown_t(const sint64 value = 0, PIXVAL color = SYSCOL_TEXT, align_t align = left, const sint64 border = 0) :
+		gui_label_t(NULL, color, align) { }
+
+	void init(const sint64 value, scr_coord pos_par, PIXVAL color_par = SYSCOL_TEXT, align_t align_par = left, const sint64 border = 0, bool show_border_value=true) {
+		set_value(value);
+		set_pos(pos_par);
+		set_color(color_par);
+		set_align(align_par);
+		set_border(border);
+		set_show_border_value(show_border_value);
+	}
+
+	void set_value(const sint64 v) { value = v; };
+	void set_border(const sint64 b) { border = b; };
+	void set_show_border_value(bool yesno) { show_border_value = yesno; };
+
+	void draw(scr_coord offset) OVERRIDE;
 };
 
 #endif

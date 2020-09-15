@@ -9,6 +9,8 @@
 #include "../../utils/simstring.h"
 #include "../simwin.h"
 
+#include "../../display/simgraph.h"
+
 /*
  * just displays a text, will be auto-translated
  */
@@ -23,17 +25,24 @@ gui_label_t::gui_label_t(const char* text, PIXVAL color_, align_t align_) :
 	set_size( scr_size( D_BUTTON_WIDTH, D_LABEL_HEIGHT ) );
 	init( text, scr_coord (0,0), color_, align_);
 	shadowed = false;
+	min_size = scr_size(0, 0);
+}
+
+
+void gui_label_t::set_min_size(scr_size s)
+{
+	min_size = s;
 }
 
 
 scr_size gui_label_t::get_min_size() const
 {
-	return scr_size( text ? display_calc_proportional_string_len_width(text,strlen(text)) : D_BUTTON_WIDTH, D_LABEL_HEIGHT );
+	return scr_size( max(min_size.w, text ? display_calc_proportional_string_len_width(text,strlen(text)) : D_BUTTON_WIDTH), D_LABEL_HEIGHT );
 }
 
 scr_size gui_label_t::get_max_size() const
 {
-	return align == left  ? get_min_size() : scr_size(scr_size::inf.w, get_min_size().h);
+	return align == left  ? scr_size(max(get_min_size().w, size.w), get_min_size().h) : scr_size(scr_size::inf.w, get_min_size().h);
 }
 
 
@@ -68,7 +77,7 @@ void gui_label_t::draw(scr_coord offset)
 			// position of separator
 			scr_coord right = pos + offset;
 			if (align == money_right) {
-				right.x += get_size().w - separator_width;
+				right.x += size.w - separator_width;
 			}
 
 			if(  !not_a_number  ) {
@@ -144,4 +153,58 @@ void gui_label_buf_t::append_money(double money)
 {
 	buffer_write.append_money(money);
 	set_color(money >= 0 ? MONEY_PLUS : MONEY_MINUS);
+}
+
+
+void gui_label_updown_t::draw(scr_coord offset)
+{
+	cbuffer_t text;
+	text.clear();
+	if (!show_border_value && value == border) {
+		text.append("-");
+	}
+	else{
+		text.append(value, align == money_right ? 2 : 0);
+	}
+
+	if (align == money_right) {
+		const char *separator = NULL;
+
+		// position of separator
+		scr_coord right = pos + offset;
+		if (align == money_right) {
+			right.x += get_size().w - separator_width;
+		}
+
+		separator = strrchr(text, get_fraction_sep());
+		if (separator == NULL && get_large_money_string() != NULL) {
+			separator = strrchr(text, *(get_large_money_string()));
+		}
+
+		if (separator) {
+			display_proportional_clip_rgb(right.x, right.y, separator, ALIGN_LEFT, color, true);
+			if (separator != text) {
+				display_text_proportional_len_clip_rgb(right.x, right.y, text, ALIGN_RIGHT | DT_CLIP, color, true, separator - text);
+			}
+		}
+		else {
+			// integer numbers without decimals, align at decimal separator
+			display_proportional_clip_rgb(right.x, right.y, text, ALIGN_RIGHT, color, true);
+		}
+
+		display_fluctuation_triangle_rgb(right.x - LINEASCENT + 3, right.y + LINEASCENT/3, LINEASCENT*2/3, true, value);
+	}
+	else {
+		display_fluctuation_triangle_rgb(pos.x + offset.x, pos.y + offset.y + LINEASCENT/3, LINEASCENT*2/3, true, value);
+		const scr_rect area(offset + pos + scr_coord(LINEASCENT,0), size);
+		int a = align == left ? ALIGN_LEFT : (align == right ? ALIGN_RIGHT : ALIGN_CENTER_H);
+		display_proportional_ellipsis_rgb(area, text, a | DT_CLIP, color, true);
+	}
+
+	if (tooltip  &&  getroffen(get_mouse_x() - offset.x, get_mouse_y() - offset.y)) {
+		const scr_coord_val by = offset.y + pos.y;
+		const scr_coord_val bh = size.h;
+
+		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X, by + bh + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
+	}
 }
