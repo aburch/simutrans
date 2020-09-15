@@ -24,6 +24,8 @@ class gui_image_t : public gui_component_t
 		bool                remove_enabled;
 		FLAGGED_PIXVAL      color_index;
 
+		const char * tooltip;
+
 	public:
 		gui_image_t( const image_id i=IMG_EMPTY, const uint8 p=0, control_alignment_t alignment_par = ALIGN_NONE, bool remove_offset = false );
 		void set_size( scr_size size_par ) OVERRIDE;
@@ -42,6 +44,7 @@ class gui_image_t : public gui_component_t
 
 		scr_size get_max_size() const { return get_min_size(); }
 
+		void set_tooltip(const char * tooltip);
 };
 
 #endif

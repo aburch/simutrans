@@ -5,6 +5,7 @@
 
 #include "gui_image.h"
 #include "../gui_frame.h"
+#include "../simwin.h"
 
 gui_image_t::gui_image_t( const image_id i, const uint8 p, control_alignment_t alignment_par, bool remove_offset_enabled )
 : player_nr(p)
@@ -13,6 +14,7 @@ gui_image_t::gui_image_t( const image_id i, const uint8 p, control_alignment_t a
 	remove_enabled = remove_offset_enabled;
 	remove_offset  = scr_coord(0,0);
 	color_index = 0;
+	tooltip = NULL;
 	set_image(i,remove_offset_enabled);
 }
 
@@ -105,5 +107,23 @@ void gui_image_t::draw( scr_coord offset ) {
 		else {
 			display_base_img( id, pos.x+offset.x+remove_offset.x, pos.y+offset.y+remove_offset.y, (sint8)player_nr, false, true );
 		}
+
+		if (tooltip  &&  getroffen(get_mouse_x() - offset.x, get_mouse_y() - offset.y)) {
+			const scr_coord_val by = offset.y + pos.y;
+			const scr_coord_val bh = size.h;
+
+			win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X, by + bh + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
+		}
+	}
+}
+
+
+void gui_image_t::set_tooltip(const char * t)
+{
+	if (t == NULL) {
+		tooltip = NULL;
+	}
+	else {
+		tooltip = t;
 	}
 }
