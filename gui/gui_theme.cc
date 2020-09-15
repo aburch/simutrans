@@ -59,6 +59,8 @@ PIXVAL gui_theme_t::gui_highlight_color;
 PIXVAL gui_theme_t::gui_shadow_color;
 PIXVAL gui_theme_t::gui_color_loadingbar_inner;
 PIXVAL gui_theme_t::gui_color_loadingbar_progress;
+PIXVAL gui_theme_t::gui_color_up_pointing_triangle;
+PIXVAL gui_theme_t::gui_color_down_pointing_triangle;
 
 /**
  * Max Kielland
@@ -181,6 +183,9 @@ void gui_theme_t::init_gui_defaults()
 
 	gui_color_loadingbar_inner             = color_idx_to_rgb(COL_GREY5);
 	gui_color_loadingbar_progress          = color_idx_to_rgb(COL_BLUE);
+
+	gui_color_up_pointing_triangle         = COL_ADDITIONAL;
+	gui_color_down_pointing_triangle       = COL_REDUCED_TEXT;
 
 	gui_button_size              = scr_size(92,14);
 	gui_color_button_size        = scr_size(92,16);
@@ -517,6 +522,8 @@ bool gui_theme_t::themes_init(const char *file_name, bool init_fonts )
 	gui_theme_t::gui_shadow_color                       = (PIXVAL)contents.get_color("gui_shadow_color", SYSCOL_SHADOW);
 	gui_theme_t::gui_color_loadingbar_inner             = (PIXVAL)contents.get_color("gui_color_loadingbar_inner", SYSCOL_LOADINGBAR_INNER);
 	gui_theme_t::gui_color_loadingbar_progress          = (PIXVAL)contents.get_color("gui_color_loadingbar_progress", SYSCOL_LOADINGBAR_PROGRESS);
+	gui_theme_t::gui_color_up_pointing_triangle         = (PIXVAL)contents.get_color("gui_color_up_pointing_triangle", SYSCOL_UP_TRIANGLE);
+	gui_theme_t::gui_color_down_pointing_triangle       = (PIXVAL)contents.get_color("gui_color_down_pointing_triangle", SYSCOL_DOWN_TRIANGLE);
 
 	gui_theme_t::gui_waitingbar_width = (uint32)contents.get_int("gui_waitingbar_width", gui_theme_t::gui_waitingbar_width);
 

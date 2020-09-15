@@ -198,6 +198,8 @@ typedef unsigned int FLAGGED_PIXVAL;
 #define SYSCOL_SHADOW                       gui_theme_t::gui_shadow_color
 #define SYSCOL_LOADINGBAR_INNER             gui_theme_t::gui_color_loadingbar_inner
 #define SYSCOL_LOADINGBAR_PROGRESS          gui_theme_t::gui_color_loadingbar_progress
+#define SYSCOL_UP_TRIANGLE                  gui_theme_t::gui_color_up_pointing_triangle
+#define SYSCOL_DOWN_TRIANGLE                gui_theme_t::gui_color_down_pointing_triangle
 
 // Customer evaluation colors
 // TODO: These colors can be changed by theme or pakset (Should be considered together with the symbol design)

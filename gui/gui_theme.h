@@ -243,7 +243,9 @@ public:
 	static PIXVAL gui_shadow_color;                       //@< Color to draw shadowed dividers (tabs)
 	static PIXVAL gui_color_loadingbar_inner;
 	static PIXVAL gui_color_loadingbar_progress;
-    /// @}
+	static PIXVAL gui_color_up_pointing_triangle;         //@< Color to draw an upward triangle indicating an increase in the number
+	static PIXVAL gui_color_down_pointing_triangle;       //@< Color to draw an downward triangle indicating an decrease in the number
+	/// @}
 
 	/// @name GUI element sizes used by gui components
 	/// @{
