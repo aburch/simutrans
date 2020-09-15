@@ -7,201 +7,171 @@
 #include "city_info.h"
 
 #include "../simcity.h"
-#include "../simcolor.h"
-#include "../display/simgraph.h"
-#include "../display/viewport.h"
-#include "../gui/simwin.h"
+#include "../simevent.h"
 #include "../simworld.h"
 
-#include "../descriptor/skin_desc.h"
-
-#include "../dataobj/translator.h"
-
 #include "../utils/cbuffer_t.h"
-#include "../utils/simstring.h"
+#include "components/gui_label.h"
 
-#define L_DIALOG_WIDTH (210)
+bool citylist_stats_t::sortreverse = false;
+bool citylist_stats_t::filter_own_network = false;
+citylist_stats_t::sort_mode_t citylist_stats_t::sort_mode = citylist_stats_t::SORT_BY_NAME;
 
-static const char* total_bev_translation = NULL;
-char citylist_stats_t::total_bev_string[128];
+static karte_ptr_t welt;
 
-
-citylist_stats_t::citylist_stats_t(citylist::sort_mode_t sortby, bool sortreverse, bool own_network)
+citylist_stats_t::citylist_stats_t(stadt_t *c)
 {
-	total_bev_translation = translator::translate("Total inhabitants:");
-	sort(sortby, sortreverse, own_network);
-	recalc_size();
-	line_selected = 0xFFFFFFFFu;
-}
+	city = c;
+	set_table_layout(8, 0);
 
+	button_t *b = new_component<button_t>(); // (1,0)
+	b->set_typ(button_t::posbutton_automatic);
+	b->set_targetpos(city->get_center());
 
-class compare_cities
-{
-	public:
-		compare_cities(citylist::sort_mode_t sortby_, bool reverse_) :
-			sortby(sortby_),
-			reverse(reverse_)
-		{}
+	electricity.set_image(skinverwaltung_t::electricity->get_image_id(0), true);
+	electricity.set_rigid(true);
+	add_component(&electricity); // (2,0)
 
-		bool operator ()(const stadt_t* a, const stadt_t* b)
-		{
-			int cmp;
-			switch (sortby) {
-				default: NOT_REACHED
-				case citylist::by_name:   cmp = strcmp(a->get_name(), b->get_name());    break;
-				case citylist::by_size:   cmp = a->get_city_population() - b->get_city_population(); break;
-				case citylist::by_growth: cmp = a->get_wachstum()  - b->get_wachstum();  break;
-			}
-			return reverse ? cmp > 0 : cmp < 0;
-		}
+	lb_name.set_min_size(scr_size(D_BUTTON_WIDTH * 3 / 2, D_LABEL_HEIGHT));
+	//label.set_align(gui_label_t::right); // align::right breaks the layout
+	add_component(&lb_name); // (3,0)
 
-	private:
-		citylist::sort_mode_t sortby;
-		bool reverse;
-};
+	add_component(&label); // (4,0)
 
+	fluctuation_city.set_show_border_value(false);
+	add_component(&fluctuation_city); // (5,0)
 
-void citylist_stats_t::sort(citylist::sort_mode_t sb, bool sr, bool own_network)
-{
-	const weighted_vector_tpl<stadt_t*>& cities = welt->get_cities();
-
-	sortby = sb;
-	sortreverse = sr;
-	filter_own_network = own_network;
-
-	city_list.clear();
-
-	FOR(weighted_vector_tpl<stadt_t*>, const i, cities) {
-		// own network filter
-		if (filter_own_network && !i->is_within_players_network(welt->get_active_player())) {
-			continue;
-		}
-		city_list.insert_ordered(i, compare_cities(sortby, sortreverse));
-	}
-	city_list.resize(cities.get_count());
-	set_size(scr_size(L_DIALOG_WIDTH, city_list.get_count()*LINESPACE + D_V_SPACE));
-}
-
-
-bool citylist_stats_t::infowin_event(const event_t * ev)
-{
-	const uint line = ev->cy / (LINESPACE + 1);
-
-	line_selected = 0xFFFFFFFFu;
-	if(  line >= city_list.get_count()  ) {
-		return false;
-	}
-
-	stadt_t* stadt = city_list[line];
-	if(  ev->button_state > 0  &&  ev->cx  >0  &&  ev->cx < 15  ) {
-		line_selected = line;
-	}
-
-	if(  IS_LEFTRELEASE(ev)  &&  ev->cy > 0  ) {
-		if(  ev->cx > 0  &&  ev->cx < 15  ) {
-			if(  grund_t *gr = welt->lookup_kartenboden( stadt->get_center() )  ) {
-				welt->get_viewport()->change_world_position( gr->get_pos() );
-			}
-		}
-		else {
-			stadt->show_info();
-		}
-	}
-	else if(  IS_RIGHTRELEASE(ev)  &&  ev->cy > 0  ) {
-		if(  grund_t *gr = welt->lookup_kartenboden( stadt->get_center() )  ) {
-			welt->get_viewport()->change_world_position( gr->get_pos() );
-		}
-	}
-	return false;
-}
-
-
-void citylist_stats_t::recalc_size()
-{
-	// show_scroll_x==false ->> size.w not important ->> no need to calc text pixel length
-	set_size( scr_size(L_DIALOG_WIDTH, city_list.get_count() * (LINESPACE+1) ) );
-}
-
-
-void citylist_stats_t::draw(scr_coord offset)
-{
-	cbuffer_t buf;
-
-	if(  welt->get_cities().get_count()!=city_list.get_count()  ) {
-		// some deleted/ added => resort
-		sort( sortby, sortreverse, filter_own_network );
-		recalc_size();
-	}
-
-	sint32 sel = line_selected;
-	clip_dimension cl = display_get_clip_wh();
-
-	FORX(vector_tpl<stadt_t*>, const city, city_list, offset.y += LINESPACE + 1) {
-
-		sint32 population = city->get_finance_history_month(0, HIST_CITICENS);
-		sint32 growth = city->get_finance_history_month(0, HIST_GROWTH);
-		uint16 left = D_POS_BUTTON_WIDTH+2;
-		if(  offset.y + LINESPACE > cl.y  &&  offset.y <= cl.yy  ) {
-			if( (city->get_finance_history_month(0, HIST_POWER_RECEIVED) * 9) > (welt->get_finance_history_month(0, HIST_POWER_NEEDED) / 10) )
-			{
-				display_color_img(skinverwaltung_t::electricity->get_image_id(0), offset.x + left, offset.y, 0, false, false);
-			}
-			else if (city->get_finance_history_month(0, HIST_POWER_RECEIVED) > 0) {
-				display_img_blend(skinverwaltung_t::electricity->get_image_id(0), offset.x + left, offset.y, TRANSPARENT50_FLAG, false, false);
-			}
-			left += 9; // symbol width
-			buf.clear();
-			buf.append(city->get_name());
-			display_text_proportional_len_clip_rgb(offset.x + left, offset.y, buf, ALIGN_LEFT, SYSCOL_TEXT, true, 25);
-
-			left += (int)(D_BUTTON_WIDTH*1.4) + D_H_SPACE;
-			left += proportional_string_width(" 00,000,000");
-			buf.clear();
-			buf.append( population, 0 );
-			display_proportional_clip_rgb(offset.x + left, offset.y, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
-
-			left += D_H_SPACE;
-			display_fluctuation_triangle_rgb(offset.x + left, offset.y, LINESPACE-4, true, growth);
-			left += 9;
-			buf.clear();
-			if (growth == 0) {
-				buf.append("-");
-			}
-			else {
-				buf.append(abs(growth), 0);
-			}
-			const bool allow_citygrowth = city->get_citygrowth();
-			left += display_proportional_clip_rgb(offset.x + left, offset.y, buf, ALIGN_LEFT, allow_citygrowth ? SYSCOL_TEXT : color_idx_to_rgb(COL_BLUE), true) + D_H_SPACE;
-
-			if (!allow_citygrowth && skinverwaltung_t::alerts) {
-				display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), offset.x + left, offset.y + 1, 0, false, true, translator::translate("City growth is restrained"));
-			}
-
-			// goto button
-			bool selected = sel==0;
-			if(  !selected  ) {
-				// still on center?
-				if(  grund_t *gr = welt->lookup_kartenboden( city->get_center() )  ) {
-					selected = welt->get_viewport()->is_on_center( gr->get_pos() );
-				}
-			}
-			display_img_aligned( gui_theme_t::pos_button_img[ selected ], scr_rect( offset.x, offset.y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
-			sel --;
-
-			if(  win_get_magic( (ptrdiff_t)city )  ) {
-				display_blend_wh_rgb( offset.x, offset.y, D_DEFAULT_WIDTH, LINESPACE, SYSCOL_TEXT, 25 );
-			}
-		}
-	}
-	// some cities there?
-	const sint32 total_bev = welt->get_finance_history_month(0, HIST_CITICENS);
-	if(  total_bev > 0  ) {
-		buf.clear();
-		buf.printf( "%s ", total_bev_translation);
-		buf.append(total_bev, 0);
-		tstrncpy(total_bev_string, buf, lengthof(total_bev_string));
+	if (skinverwaltung_t::alerts) {
+		alert.set_image(skinverwaltung_t::alerts->get_image_id(2), true);
+		alert.set_tooltip("City growth is restrained");
 	}
 	else {
-		total_bev_string[0] = 0;
+		alert.set_image(IMG_EMPTY);
 	}
+	alert.set_rigid(false);
+	add_component(&alert);
+
+	update_label();
+
+	new_component<gui_fill_t>();
+}
+
+void citylist_stats_t::update_label()
+{
+	electricity.set_visible(city->get_finance_history_month(0, HIST_POWER_RECEIVED));
+	if ( (city->get_finance_history_month(0, HIST_POWER_RECEIVED) * 9) < (welt->get_finance_history_month(0, HIST_POWER_NEEDED) / 10) ) {
+		electricity.set_transparent(TRANSPARENT25_FLAG);
+	}
+
+	lb_name.buf().printf("%s ", city->get_name());
+	lb_name.update();
+
+	if (sort_mode != SORT_BY_REGION) {
+		label.buf().printf("%8d ", city->get_finance_history_month(0, HIST_CITICENS));
+	}
+	else {
+		label.buf().printf("(%s)", welt->get_region_name(city->get_pos()).c_str());
+		//label.set_align(gui_label_t::left);
+	}
+	label.update();
+
+	if (sort_mode != SORT_BY_REGION) {
+		fluctuation_city.set_visible(true);
+		const bool allow_citygrowth = city->get_citygrowth();
+		if (!allow_citygrowth) {
+			fluctuation_city.set_color(COL_BLUE);
+		}
+		fluctuation_city.set_value(city->get_finance_history_month(0, HIST_GROWTH));
+		alert.set_visible(!allow_citygrowth);
+	}
+	else {
+		fluctuation_city.set_visible(false);
+		alert.set_visible(false);
+	}
+	set_size(size);
+}
+
+
+void citylist_stats_t::set_size(scr_size size)
+{
+	gui_aligned_container_t::set_size(size);
+	lb_name.set_width(D_BUTTON_WIDTH * 3 / 2);
+}
+
+
+void citylist_stats_t::draw( scr_coord pos)
+{
+	update_label();
+	gui_aligned_container_t::draw(pos);
+}
+
+
+bool citylist_stats_t::is_valid() const
+{
+	return world()->get_cities().is_contained(city);
+}
+
+
+bool citylist_stats_t::infowin_event(const event_t *ev)
+{
+	bool swallowed = gui_aligned_container_t::infowin_event(ev);
+
+	if (!swallowed  &&  IS_LEFTRELEASE(ev)) {
+		//city->open_info_window();
+		city->show_info();
+		swallowed = true;
+	}
+	return swallowed;
+}
+
+
+bool citylist_stats_t::compare(const gui_component_t *aa, const gui_component_t *bb)
+{
+	const citylist_stats_t* a = dynamic_cast<const citylist_stats_t*>(aa);
+	const citylist_stats_t* b = dynamic_cast<const citylist_stats_t*>(bb);
+	// good luck with mixed lists
+	assert(a != NULL && b != NULL);
+
+	if (sortreverse) {
+		const citylist_stats_t *temp = a;
+		a = b;
+		b = temp;
+	}
+	if (  sort_mode != sort_mode_t::SORT_BY_NAME  ) {
+		switch (  sort_mode  ) {
+		case SORT_BY_NAME:	// default
+			break;
+		case SORT_BY_SIZE:
+			return a->city->get_einwohner() < b->city->get_einwohner();
+		case SORT_BY_GROWTH:
+			return a->city->get_wachstum() < b->city->get_wachstum();
+		case SORT_BY_REGION:
+			return welt->get_region(a->city->get_pos()) < welt->get_region(b->city->get_pos());
+		default: break;
+		}
+		// default sorting ...
+	}
+	// first: try to sort by number
+	const char *atxt = a->get_text();
+	int aint = 0;
+	// isdigit produces with UTF8 assertions ...
+	if (atxt[0] >= '0'  &&  atxt[0] <= '9') {
+		aint = atoi(atxt);
+	}
+	else if (atxt[0] == '('  &&  atxt[1] >= '0'  &&  atxt[1] <= '9') {
+		aint = atoi(atxt + 1);
+	}
+	const char *btxt = b->get_text();
+	int bint = 0;
+	if (btxt[0] >= '0'  &&  btxt[0] <= '9') {
+		bint = atoi(btxt);
+	}
+	else if (btxt[0] == '('  &&  btxt[1] >= '0'  &&  btxt[1] <= '9') {
+		bint = atoi(btxt + 1);
+	}
+	if (aint != bint) {
+		return (aint - bint) < 0;
+	}
+	// otherwise: sort by name
+	return strcmp(atxt, btxt) < 0;
 }

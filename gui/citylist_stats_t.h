@@ -7,45 +7,46 @@
 #define GUI_CITYLIST_STATS_T_H
 
 
-#include "components/gui_component.h"
-#include "../tpl/vector_tpl.h"
+#include "components/gui_aligned_container.h"
+#include "components/gui_label.h"
+#include "components/gui_scrolled_list.h"
+#include "../simcity.h"
 
-class karte_ptr_t;
+#include "components/gui_image.h"
+
 class stadt_t;
 
 
-namespace citylist {
-	enum sort_mode_t { by_name=0, by_size, by_growth, SORT_MODES };
-};
-
 
 // City list stats display
-class citylist_stats_t : public gui_world_component_t
+class citylist_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:
-	vector_tpl<stadt_t*> city_list;
-	uint32 line_selected;
+	stadt_t* city;
 
-	citylist::sort_mode_t sortby;
-	bool sortreverse;
-	bool filter_own_network;
+	gui_label_buf_t lb_name;
+	gui_label_buf_t label;
+	gui_image_t electricity, alert;
+	gui_label_updown_t fluctuation_city;
+	void update_label();
 
 public:
-	static char total_bev_string[128];
+	enum sort_mode_t { SORT_BY_NAME=0, SORT_BY_SIZE, SORT_BY_GROWTH, SORT_BY_REGION, SORT_MODES };
+	static sort_mode_t sort_mode;
+	static bool sortreverse, filter_own_network;
 
-	citylist_stats_t(citylist::sort_mode_t sortby, bool sortreverse, bool own_network);
+public:
+	citylist_stats_t(stadt_t *);
 
-	void sort(citylist::sort_mode_t sortby, bool sortreverse, bool own_network);
+	void draw( scr_coord pos);
 
+	char const* get_text() const { return city->get_name(); }
+
+	virtual bool is_valid() const;
 	bool infowin_event(event_t const*) OVERRIDE;
+	void set_size(scr_size size) OVERRIDE;
 
-	/**
-	 * Recalc the size required to display everything and set size.
-	 */
-	void recalc_size();
-
-	// Draw the component
-	void draw(scr_coord offset) OVERRIDE;
+	static bool compare(const gui_component_t *a, const gui_component_t *b);
 };
 
 #endif
