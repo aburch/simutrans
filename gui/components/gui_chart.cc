@@ -71,9 +71,9 @@ uint32 gui_chart_t::add_curve(PIXVAL color, const sint64 *values, int size, int 
 	new_curve.show_value = show_value;
 	new_curve.type = type;
 	switch (type) {
-	case MONEY:   new_curve.suffix = "$"; break;
-	case PERCENT: new_curve.suffix = "%"; break;
-	default:      new_curve.suffix = NULL; break;
+		case MONEY:   new_curve.suffix = "$"; break;
+		case PERCENT: new_curve.suffix = "%"; break;
+		default:      new_curve.suffix = NULL; break;
 	}
 	new_curve.precision = precision;
 	new_curve.convert = proc;
@@ -111,7 +111,7 @@ void gui_chart_t::draw(scr_coord offset)
 	}
 
 	offset += chart_offset;
-	scr_size chart_size = size-chart_offset-scr_size(10,0);
+	scr_size chart_size = size-chart_offset-scr_size(10,4+LINESPACE);
 
 	sint64 last_year=0, tmp=0;
 	char cmin[128] = "0", cmax[128] = "0", digit[11];
@@ -310,6 +310,10 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 			}
 		}
 	}
+	// max happend due to rounding errors
+	if( precision == 0   &&  min == max ) {
+		max += 1;
+	}
 
 	number_to_string_fit(cmin, (double)min, precision, maximum_axis_len - (min_suffix != 0));
 	number_to_string_fit(cmax, (double)max, precision, maximum_axis_len - (max_suffix != 0));
@@ -321,13 +325,13 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 	}
 
 	// scale: factor to calculate money with, to get y-pos offset
-	*scale = (double)(max - min) / (size.h-2);
+	*scale = (double)(max - min) / (size.h-1-4-LINESPACE);
 	if(*scale==0.0) {
 		*scale = 1.0;
 	}
 
 	// baseline: y-pos for the "zero" line in the chart
-	*baseline = (sint64)(size.h - labs((sint64)(min / *scale)));
+	*baseline = (sint64)(size.h-1-4-LINESPACE - labs((sint64)(min / *scale )));
 }
 
 
