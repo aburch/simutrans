@@ -24,13 +24,13 @@ class factorylist_frame_t : public gui_frame_t, private action_listener_t
 private:
 	static const char *sort_text[factorylist::SORT_MODES];
 
-	gui_label_t sort_label;
 	gui_combobox_t	sortedby;
 	gui_combobox_t	freight_type_c;
 	button_t sort_asc, sort_desc;
 	button_t filter_within_network, btn_display_mode;
 	factorylist_stats_t stats;
 	gui_scrollpane_t scrolly;
+	gui_aligned_container_t list;
 
 	/*
 	 * All filter settings are static, so they are not reset each
@@ -46,12 +46,6 @@ private:
 
 public:
 	factorylist_frame_t();
-
-	/**
-	 * resize window in response to a resize event
-	 * @author Hj. Malthaner
-	 */
-	void resize(const scr_coord delta) OVERRIDE;
 
 	/**
 	 * Set the window associated helptext

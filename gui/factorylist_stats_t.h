@@ -14,7 +14,7 @@ class fabrik_t;
 
 
 namespace factorylist {
-    enum sort_mode_t { by_name=0, by_available, by_output, by_maxprod, by_status, by_power, by_sector, by_staffing, by_operation_rate, SORT_MODES, by_input, by_transit,  };	// the last two not used
+    enum sort_mode_t { by_name=0, by_available, by_output, by_maxprod, by_status, by_power, by_sector, by_staffing, by_operation_rate, by_region, SORT_MODES, by_input, by_transit,  };	// the last two not used
 };
 
 /**

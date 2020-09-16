@@ -10,6 +10,7 @@
 #include "gui_frame.h"
 #include "halt_list_stats.h"
 #include "components/gui_button.h"
+#include "components/gui_combobox.h"
 #include "components/action_listener.h"
 #include "../tpl/vector_tpl.h"
 
@@ -53,7 +54,7 @@ private:
 	/*
      * All gui elements of this dialog:
      */
-    button_t	sortedby;
+	gui_combobox_t	sortedby;
 	button_t	sort_asc, sort_desc;
 	button_t	filter_on;
     button_t	filter_details;
@@ -71,7 +72,8 @@ private:
     static sort_mode_t sortby;
     static bool sortreverse;
 
-    static int filter_flags;
+	bool filter_is_on;
+	static int filter_flags;
 
     static char name_filter_value[64];
 
@@ -116,9 +118,6 @@ public:
 	 * @author V. Meyer
 	 */
 	const char *get_help_filename() const OVERRIDE {return "haltlist.txt"; }
-
-	static sort_mode_t get_sortierung() { return sortby; }
-	static void set_sortierung(sort_mode_t sm) { sortby = sm; }
 
 	static bool get_reverse() { return sortreverse; }
 	static void set_reverse(bool reverse) { sortreverse = reverse; }

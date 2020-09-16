@@ -23,6 +23,7 @@
 
 
 static bool passes_filter(haltestelle_t & s); // see below
+static uint8 default_sortmode = 0;
 
 /**
  * Scrolled list of halt_list_stats_ts.
@@ -297,20 +298,25 @@ halt_list_frame_t::halt_list_frame_t(player_t *player) :
 
 	set_table_layout(1,0);
 
-	add_table(4,2);
+	add_table(2,2);
 	{
-		new_component_span<gui_label_t>("hl_txt_sort", 2);
-		new_component_span<gui_label_t>("hl_txt_filter", 2);
+		new_component<gui_label_t>("hl_txt_sort");
 
-
-		sortedby.init(button_t::roundbox, sort_text[get_sortierung()]);
-		sortedby.add_listener(this);
-		add_component(&sortedby);
-
+		filter_on.init(button_t::square, "cl_txt_filter");
+		filter_on.set_tooltip(translator::translate("cl_btn_filter_tooltip"));
+		filter_on.add_listener(this);
+		add_component(&filter_on);
 
 		// sort ascend/descend button
-		add_table(3, 1);
+		add_table(4, 1);
 		{
+			for (int i = 0; i < SORT_MODES; i++) {
+				sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
+			}
+			sortedby.set_selection(default_sortmode);
+			sortedby.add_listener(this);
+			add_component(&sortedby);
+
 			sort_asc.init(button_t::arrowup_state, "");
 			sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
 			sort_asc.add_listener(this);
@@ -326,11 +332,8 @@ halt_list_frame_t::halt_list_frame_t(player_t *player) :
 		}
 		end_table();
 
-		filter_on.init(button_t::roundbox, get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable");
-		filter_on.add_listener(this);
-		add_component(&filter_on);
-
 		filter_details.init(button_t::roundbox, "hl_btn_filter_settings");
+		filter_details.set_size(D_BUTTON_SIZE);
 		filter_details.add_listener(this);
 		add_component(&filter_details);
 	}
@@ -375,7 +378,6 @@ void halt_list_frame_t::fill_list()
 void halt_list_frame_t::sort_list()
 {
 	scrolly->sort();
-	sortedby.set_text(sort_text[get_sortierung()]);
 }
 
 
@@ -398,11 +400,22 @@ bool halt_list_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* 
 {
 	if (comp == &filter_on) {
 		set_filter(any_filter, !get_filter(any_filter));
-		filter_on.set_text(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable");
+		filter_is_on = !filter_is_on;
+		filter_on.pressed = filter_is_on;
 		sort_list();
 	}
 	else if (comp == &sortedby) {
-		set_sortierung((sort_mode_t)((get_sortierung() + 1) % SORT_MODES));
+		int tmp = sortedby.get_selection();
+		if (tmp >= 0 && tmp < sortedby.count_elements())
+		{
+			sortedby.set_selection(tmp);
+			sortby = (halt_list_frame_t::sort_mode_t)tmp;
+		}
+		else {
+			sortedby.set_selection(0);
+			sortby = halt_list_frame_t::nach_name;
+		}
+		default_sortmode = (uint8)tmp;
 		sort_list();
 	}
 	else if (comp == &sort_asc || comp == &sort_desc) {

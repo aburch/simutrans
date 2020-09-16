@@ -24,13 +24,14 @@
 
 #define STORAGE_BAR_WIDTH 50
 
+static karte_ptr_t welt;
+
 factorylist_stats_t::factorylist_stats_t(factorylist::sort_mode_t sortby, bool sortreverse, bool own_network, uint8 goods_catg)
 {
 	sort(sortby,sortreverse,own_network, goods_catg);
 	recalc_size();
 	line_selected = 0xFFFFFFFFu;
 }
-
 
 class compare_factories
 {
@@ -100,6 +101,9 @@ class compare_factories
 					break;
 				case factorylist::by_operation_rate:
 					cmp = a->get_stat(1, FAB_PRODUCTION) - b->get_stat(1, FAB_PRODUCTION);
+					break;
+				case factorylist::by_region:
+					cmp = welt->get_region(a->get_pos().get_2d()) - welt->get_region(b->get_pos().get_2d());
 					break;
 			}
 			if (cmp == 0) {
