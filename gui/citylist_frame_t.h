@@ -85,8 +85,6 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
 
     static void set_sortierung(const citylist_stats_t::sort_mode_t& sm) { sortby = sm; }
 
-	bool has_min_sizer() const OVERRIDE { return true; }
-
     bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
 
