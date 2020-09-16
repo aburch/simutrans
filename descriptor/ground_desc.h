@@ -76,7 +76,7 @@ public:
 	// image for all ground tiles
 	static image_id get_ground_tile(grund_t *gr);
 
-	static image_id get_water_tile(slope_t::type slope);
+	static image_id get_water_tile(slope_t::type slope, int stage);
 	static image_id get_climate_tile(climate cl, slope_t::type slope);
 	static image_id get_snow_tile(slope_t::type slope);
 	static image_id get_beach_tile(slope_t::type slope, uint8 corners);
