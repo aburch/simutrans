@@ -142,7 +142,7 @@ bool citylist_stats_t::compare(const gui_component_t *aa, const gui_component_t 
 		case SORT_BY_NAME:	// default
 			break;
 		case SORT_BY_SIZE:
-			return a->city->get_einwohner() < b->city->get_einwohner();
+			return a->city->get_city_population() < b->city->get_city_population();
 		case SORT_BY_GROWTH:
 			return a->city->get_wachstum() < b->city->get_wachstum();
 		case SORT_BY_REGION:
