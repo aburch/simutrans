@@ -440,6 +440,9 @@ bool savegame_frame_t::infowin_event(const event_t *event)
 	if(event->ev_class == INFOWIN  &&  event->ev_code == WIN_OPEN  &&  entries.empty()) {
 		// before no virtual functions can be used ...
 		fill_list();
+
+		// Notify of the end
+		list_filled();
 	}
 	if(  event->ev_class == EVENT_KEYBOARD  &&  event->ev_code == 13  ) {
 		action_triggered(&input, (long)0);
