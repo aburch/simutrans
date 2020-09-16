@@ -96,7 +96,7 @@ void gui_scrolled_list_t::set_selection(int s)
 		return;
 	}
 	gui_component_t* new_focus = item_list[s];
-	
+
 	// reset selected status
 	FOR(vector_tpl<gui_component_t*>, v, item_list) {
 		scrollitem_t* item = dynamic_cast<scrollitem_t*>(v);
