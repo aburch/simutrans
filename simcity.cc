@@ -3624,7 +3624,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 			bd->calc_image(); // otherwise the
 		}
 		// check to bridge a river
-		if(ribi_t::is_single(connection_roads)) {
+		if(ribi_t::is_single(connection_roads)  &&  !bd->has_two_ways()  ) {
 			koord zv = koord(ribi_t::backward(connection_roads));
 			grund_t *bd_next = welt->lookup_kartenboden( k + zv );
 			if(bd_next  &&  (bd_next->is_water()  ||  (bd_next->hat_weg(water_wt)  &&  bd_next->get_weg(water_wt)->get_desc()->get_styp()== type_river))) {
