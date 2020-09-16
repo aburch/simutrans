@@ -159,7 +159,7 @@ FLAGGED_PIXVAL gui_frame_t::get_titlecolor() const
 bool gui_frame_t::infowin_event(const event_t *ev)
 {
 	// %DB0 printf( "\nMessage: gui_frame_t::infowin_event( event_t const * ev ) : Fenster|Window %p : Event is %d", (void*)this, ev->ev_class );
-	if (ev->ev_code == SYSTEM_THEME_CHANGED) {
+	if (ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code == SYSTEM_THEME_CHANGED) {
 		if (gui_aligned_container_t::is_table()) {
 			reset_min_windowsize();
 		}

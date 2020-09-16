@@ -2255,6 +2255,7 @@
     <ClCompile Include="gui\curiositylist_frame_t.cc" />
     <ClCompile Include="gui\curiositylist_stats_t.cc" />
     <ClCompile Include="gui\depot_frame.cc" />
+    <ClCompile Include="gui\depotlist_frame.cc" />
     <ClCompile Include="gui\enlarge_map_frame_t.cc" />
     <ClCompile Include="gui\extend_edit.cc" />
     <ClCompile Include="gui\fabrik_info.cc" />
@@ -2504,6 +2505,7 @@
     <ClCompile Include="dataobj\tabfile.cc" />
     <ClCompile Include="descriptor\reader\text_reader.cc" />
     <ClCompile Include="gui\trafficlight_info.cc" />
+    <ClCompile Include="gui\vehiclelist_frame.cc" />
     <ClCompile Include="dataobj\translator.cc" />
     <ClCompile Include="descriptor\reader\tree_reader.cc" />
     <ClCompile Include="descriptor\tunnel_desc.cc" />
@@ -2701,6 +2703,7 @@
     <ClInclude Include="gui\curiositylist_stats_t.h" />
     <ClInclude Include="tpl\debug_helper.h" />
     <ClInclude Include="gui\depot_frame.h" />
+    <ClInclude Include="gui\depotlist_frame.h" />
     <ClInclude Include="utils\csv.h" />
     <ClInclude Include="utils\dr_rdgif.h" />
     <ClInclude Include="utils\dr_rdpng.h" />
@@ -2927,6 +2930,7 @@
     <ClInclude Include="descriptor\writer\text_writer.h" />
     <ClInclude Include="gui\thing_info.h" />
     <ClInclude Include="gui\trafficlight_info.h" />
+    <ClCompile Include="gui\vehiclelist_frame.h" />
     <ClInclude Include="dataobj\translator.h" />
     <ClInclude Include="descriptor\reader\tree_reader.h" />
     <ClInclude Include="descriptor\writer\tree_writer.h" />
