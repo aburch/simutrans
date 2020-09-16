@@ -54,7 +54,7 @@ class label_settings_t : public gui_aligned_container_t, public action_listener_
 {
 private:
 	gui_combobox_t convoy_tooltip;
-	gui_combobox_t convoy_nameplate, convoy_loadingbar;
+	gui_combobox_t convoy_nameplate, convoy_loadingbar, money_booking;
 public:
 	label_settings_t();
 	virtual bool action_triggered(gui_action_creator_t *comp, value_t v);
@@ -75,7 +75,7 @@ class traffic_settings_t : public gui_aligned_container_t, public action_listene
 {
 private:
 	gui_numberinput_t traffic_density;
-	gui_combobox_t money_booking /*, follow_mode*/;
+	/* gui_combobox_t follow_mode;*/
 public:
 	traffic_settings_t();
 	virtual bool action_triggered( gui_action_creator_t *comp, value_t v );
