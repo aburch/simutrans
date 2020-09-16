@@ -879,6 +879,7 @@ const char *translator::get_short_date(uint16 year, uint16 month)
 	switch (env_t::show_month) {
 	case env_t::DATE_FMT_JAPANESE:
 	case env_t::DATE_FMT_JAPANESE_NO_SEASON:
+	case env_t::DATE_FMT_JAPANESE_INTERNAL_MINUTE: // Extended unique
 		sprintf(sdate, "%4d%s %s", year, year_sym, month_);
 		break;
 	case env_t::DATE_FMT_GERMAN:
