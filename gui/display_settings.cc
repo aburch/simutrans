@@ -68,9 +68,15 @@ public:
 		FLAGGED_PIXVAL pc = welt->get_active_player() ? color_idx_to_rgb(welt->get_active_player()->get_player_color1()+3) : color_idx_to_rgb(COL_ORANGE);
 		const char *text = get_text_pointer();
 
-		switch( env_t::show_names >> 2 ) {
+		char ddd[ 16 ];
+		sprintf( ddd, "%d", env_t::show_names );
+		display_proportional_rgb( p.x, p.y + get_size().h/2, ddd, 0, color_idx_to_rgb(COL_BLACK), 1 );
+		p.x += 20;
+		switch( env_t::show_names>>2 ) {
 		case 0:
-			display_ddd_proportional_clip( p.x, p.y + get_size().h/2, proportional_string_width(text)+7, 0, pc, color_idx_to_rgb(COL_BLACK), text, 1 );
+			if(  env_t::show_names & 1  ) {
+				display_ddd_proportional_clip( p.x, p.y + get_size().h/2, proportional_string_width(text)+7, 0, pc, color_idx_to_rgb(COL_BLACK), text, 1 );
+			}
 			break;
 		case 1:
 			display_outline_proportional_rgb( p.x, p.y, pc+1, color_idx_to_rgb(COL_BLACK), text, 1 );
@@ -79,8 +85,6 @@ public:
 			display_outline_proportional_rgb( p.x + LINESPACE + D_H_SPACE, p.y, color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, 1 );
 			display_ddd_box_clip_rgb(         p.x,                     p.y,   LINESPACE,   LINESPACE,   pc-2, pc+2 );
 			display_fillbox_wh_clip_rgb(      p.x+1,                   p.y+1, LINESPACE-2, LINESPACE-2, pc,   true);
-			break;
-		case 3: // show nothing
 			break;
 		}
 	}
@@ -375,6 +379,14 @@ bool transparency_settings_t::action_triggered( gui_action_creator_t *comp, valu
 		world()->set_dirty();
 	}
 	return true;
+}
+
+
+void transparency_settings_t::draw( scr_coord offset )
+{
+	hide_buildings.set_selection( env_t::hide_buildings );
+
+	gui_aligned_container_t::draw(offset);
 }
 
 
@@ -731,6 +743,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	buttons[IDBTN_UNDERGROUND_VIEW].pressed = grund_t::underground_mode == grund_t::ugm_all;
 	buttons[IDBTN_TRANSPARENT_STATION_COVERAGE].pressed = env_t::use_transparency_station_coverage;
 	buttons[IDBTN_TRANSPARENT_INSTEAD_OF_HIDDEN].pressed = env_t::hide_with_transparency;
+	
 
 	buttons[IDBTN_SHOW_SIGNALBOX_COVERAGE].pressed = env_t::signalbox_coverage_show;
 

@@ -5347,7 +5347,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 			bd->calc_image();
 		}
 		// check to bridge a river, railway, etc.
-		if(ribi_t::is_single(connection_roads)) {
+		if(ribi_t::is_single(connection_roads)  &&  !bd->has_two_ways()  ) {
 			ribi_t::ribi direction = ribi_t::backward(connection_roads);
 			koord zv = koord(direction);
 			grund_t *bd_next = welt->lookup_kartenboden( k + zv );
