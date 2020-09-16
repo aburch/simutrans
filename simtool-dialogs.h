@@ -351,7 +351,7 @@ public:
 /* open the list of depots */
 class dialog_list_depot_t : public tool_t {
 public:
-	dialog_list_depot_t() : tool_t(DIALOG_LIST_DEPOT | DIALOGE_TOOL) {}
+	dialog_list_depot_t() : tool_t(DIALOG_LIST_DEPOT | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("dp_title"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_depotlist + welt->get_active_player_nr()); }
 	bool init(player_t* player) OVERRIDE{
@@ -366,7 +366,7 @@ public:
 /* open the list of vehicles */
 class dialog_list_vehicle_t : public tool_t {
 public:
-	dialog_list_vehicle_t() : tool_t(DIALOG_LIST_VEHICLE | DIALOGE_TOOL) {}
+	dialog_list_vehicle_t() : tool_t(DIALOG_LIST_VEHICLE | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("vh_title"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_vehiclelist); }
 	bool init(player_t*) OVERRIDE{
