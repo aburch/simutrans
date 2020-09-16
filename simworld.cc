@@ -10985,12 +10985,15 @@ bool karte_t::interactive(uint32 quit_month)
 
 		// time for the next step?
 		uint32 time = dr_time(); // - (env_t::server ? 0 : 5000);
-		if(  next_step_time<=time  ) {
-			if (step_mode&PAUSE_FLAG ||
-				(env_t::networkmode && !env_t::server  &&  sync_steps >= sync_steps_barrier)) {
+		if ((sint32)next_step_time - (sint32)time <= 0) {
+			if (step_mode&PAUSE_FLAG) {
 				// only update display
 				sync_step( 0, false, true );
 				idle_time = 100;
+			}
+			else if (env_t::networkmode && !env_t::server && sync_steps >= sync_steps_barrier) {
+				sync_step(0, false, true);
+				next_step_time = time + fix_ratio_frame_time;
 			}
 			else {
 				if(  step_mode==FAST_FORWARD  ) {

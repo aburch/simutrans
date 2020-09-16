@@ -328,8 +328,7 @@ void socket_list_t::send_all(network_command_t* nwc, bool only_playing_clients)
 	}
 	for(uint32 i=server_sockets; i<list.get_count(); i++) {
 		if (list[i]->is_active()  &&  list[i]->socket!=INVALID_SOCKET
-			&&  (!only_playing_clients  ||  list[i]->state == socket_info_t::playing)) {
-
+			&& (!only_playing_clients || list[i]->state == socket_info_t::playing || list[i]->state == socket_info_t::connected)) {
 			packet_t *p = nwc->copy_packet();
 			list[i]->send_queue_append(p);
 		}
