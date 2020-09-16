@@ -56,7 +56,8 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 	int dx = proportional_string_width( translator::translate( veh->get_name(), world()->get_settings().get_name_language_id() ) );
 	if( veh->get_power() > 0 ) {
 		char str[ 256 ];
-		sprintf( str, " (%s)", translator::translate( engine_type_names[ veh->get_engine_type() + 1 ] ) );
+		const uint8 et = (uint8)veh->get_engine_type() + 1;
+		sprintf( str, " (%s)", translator::translate( engine_type_names[et] ) );
 		dx += proportional_string_width( str );
 	}
 	dx += D_H_SPACE;
@@ -68,12 +69,12 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 	part1.clear();
 	if( sint64 fix_cost = world()->scale_with_month_length( veh->get_maintenance() ) ) {
 		char tmp[ 128 ];
-		money_to_string( tmp, veh->get_price() / 100.0, false );
+		money_to_string( tmp, veh->get_value() / 100.0, false );
 		part1.printf( translator::translate( "Cost: %8s (%.2f$/km %.2f$/m)\n" ), tmp, veh->get_running_cost() / 100.0, fix_cost / 100.0 );
 	}
 	else {
 		char tmp[ 128 ];
-		money_to_string( tmp, veh->get_price() / 100.0, false );
+		money_to_string( tmp, veh->get_value() / 100.0, false );
 		part1.printf( translator::translate( "Cost: %8s (%.2f$/km)\n" ), tmp, veh->get_running_cost() / 100.0 );
 	}
 
@@ -150,7 +151,8 @@ void vehiclelist_stats_t::draw( scr_coord offset )
 	);
 	if( veh->get_power() > 0 ) {
 		char str[ 256 ];
-		sprintf( str, " (%s)", translator::translate( engine_type_names[ veh->get_engine_type() + 1 ] ) );
+		const uint8 et = (uint8)veh->get_engine_type() + 1;
+		sprintf( str, " (%s)", translator::translate( engine_type_names[et] ) );
 		display_proportional_rgb( offset.x+dx, offset.y, str, ALIGN_LEFT|DT_CLIP, SYSCOL_TEXT, false );
 	}
 
@@ -335,7 +337,7 @@ void vehiclelist_frame_t::fill_list()
 	if(  current_wt == any_wt  ) {
 		// adding all vehiles, i.e. iterate over all available waytypes
 		for(  int i=1;  i<max_idx;  i++  ) {
-			FOR(slist_tpl<vehicle_desc_t const*>, const veh, vehicle_builder_t::get_info(tabs_to_wt[i])) {
+			FOR(slist_tpl<vehicle_desc_t *>, const veh, vehicle_builder_t::get_info(tabs_to_wt[i])) {
 				if(  bt_obsolete.pressed  ||  !veh->is_retired(month)  ) {
 					scrolly.new_component<vehiclelist_stats_t>( veh );
 				}
@@ -343,7 +345,7 @@ void vehiclelist_frame_t::fill_list()
 		}
 	}
 	else {
-		FOR(slist_tpl<vehicle_desc_t const*>, const veh, vehicle_builder_t::get_info(current_wt)) {
+		FOR(slist_tpl<vehicle_desc_t *>, const veh, vehicle_builder_t::get_info(current_wt)) {
 			if(  bt_obsolete.pressed  ||  !veh->is_retired(month)  ) {
 				scrolly.new_component<vehiclelist_stats_t>( veh );
 			}
