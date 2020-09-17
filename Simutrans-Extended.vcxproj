@@ -2930,7 +2930,7 @@
     <ClInclude Include="descriptor\writer\text_writer.h" />
     <ClInclude Include="gui\thing_info.h" />
     <ClInclude Include="gui\trafficlight_info.h" />
-    <ClCompile Include="gui\vehiclelist_frame.h" />
+    <ClInclude Include="gui\vehiclelist_frame.h" />
     <ClInclude Include="dataobj\translator.h" />
     <ClInclude Include="descriptor\reader\tree_reader.h" />
     <ClInclude Include="descriptor\writer\tree_writer.h" />
