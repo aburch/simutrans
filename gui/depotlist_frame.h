@@ -12,6 +12,7 @@
 #include "components/gui_scrolled_list.h"
 #include "components/gui_label.h"
 #include "components/gui_image.h"
+#include "components/gui_combobox.h"
 
 class depot_t;
 
@@ -19,8 +20,8 @@ class depot_t;
 class depotlist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	button_t	sortedby;
-	button_t	sorteddir;
+	gui_combobox_t sortedby;
+	button_t sort_asc, sort_desc;
 	gui_scrolled_list_t scrolly;
 
 	uint32 last_depot_count;
