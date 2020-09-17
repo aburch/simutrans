@@ -585,6 +585,21 @@ endif (APPLE)
 
 
 #
+# Installation
+#
+install(TARGETS simutrans-extended RUNTIME DESTINATION simutrans)
+
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/simutrans/" DESTINATION "simutrans")
+
+install(FILES get_pak.sh DESTINATION "simutrans"
+	PERMISSIONS
+		OWNER_READ OWNER_WRITE OWNER_EXECUTE
+		GROUP_READ GROUP_EXECUTE
+		WORLD_READ WORLD_EXECUTE
+)
+
+
+#
 # Nettool/Makeobj
 #
 if (PNG_FOUND)
