@@ -505,6 +505,15 @@ bool label_settings_t::action_triggered(gui_action_creator_t *comp, value_t v)
 	return true;
 }
 
+void label_settings_t::draw(scr_coord offset)
+{
+	convoy_nameplate.set_selection(env_t::show_cnv_nameplates);
+	convoy_loadingbar.set_selection(env_t::show_cnv_loadingbar);
+	convoy_tooltip.set_selection(env_t::show_vehicle_states);
+
+	gui_aligned_container_t::draw(offset);
+}
+
 traffic_settings_t::traffic_settings_t()
 {
 	set_table_layout( 1, 0 );

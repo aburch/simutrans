@@ -58,6 +58,7 @@ private:
 public:
 	label_settings_t();
 	virtual bool action_triggered(gui_action_creator_t *comp, value_t v);
+	void draw(scr_coord offset) OVERRIDE;
 };
 
 class transparency_settings_t : public gui_aligned_container_t, public action_listener_t
