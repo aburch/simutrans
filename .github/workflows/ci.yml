@@ -33,6 +33,7 @@ jobs:
         run: |
           cd build
           make -j$(nproc) simutrans-extended
+          make package
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -59,6 +60,7 @@ jobs:
         run: |
           cd build
           make -j$(nproc) simutrans-extended
+          make package
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -85,6 +87,7 @@ jobs:
         run: |
           cd build
           make -j$(nproc) simutrans-extended
+          make package
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -165,6 +168,7 @@ jobs:
         run: |
           cd build
           make -j$(sysctl -n hw.logicalcpu) simutrans-extended
+          make package
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -187,6 +191,7 @@ jobs:
         run: |
           cd build
           make -j$(sysctl -n hw.logicalcpu) simutrans-extended
+          make package
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -257,6 +262,7 @@ jobs:
         run: |
           cd build
           make -j$(nproc) simutrans-extended
+          make package
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -283,6 +289,7 @@ jobs:
         run: |
           cd build
           make -j$(nproc) simutrans-extended
+          make package
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
@@ -309,6 +316,7 @@ jobs:
         run: |
           cd build
           make -j$(nproc) simutrans-extended
+          make package
       - name: Upload Artifact (CI)
         uses: actions/upload-artifact@v2
         with:
