@@ -264,7 +264,10 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 
 		bt_future.init( button_t::square_state, "Show future" );
 		bt_future.add_listener( this );
-		bt_future.pressed = true;
+		if (!welt->get_settings().get_show_future_vehicle_info()) {
+			bt_future.set_visible(false);
+		}
+		bt_future.pressed = false;
 		add_component( &bt_future, 2 );
 
 	}
