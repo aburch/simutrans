@@ -2890,12 +2890,12 @@ function destroy_line(line_obj) {
 
 		local combined_s = test_halt_waytypes(start_l)
 		local combined_e = test_halt_waytypes(end_l)
-
+/*
 	if ( wt != wt_water ) {
 		local asf = astar_route_finder(wt)
 		local result = asf.search_route(start_l, end_l)
 	}
-
+*/
 
 	gui.add_message_at(our_player, "+ destroy_line(line_obj) finish line " + line_name, world.get_time())
 }
