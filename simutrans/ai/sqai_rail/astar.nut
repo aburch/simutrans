@@ -2906,7 +2906,7 @@ function destroy_line(line_obj) {
  * return count waytypes
  */
 function test_halt_waytypes(tile) {
-	if ( tile.is_water ) {
+	if ( tile.is_water() ) {
 		gui.add_message_at(our_player, "halt is water tile " + coord3d_to_string(tile), tile)
 		return 0
 	}
