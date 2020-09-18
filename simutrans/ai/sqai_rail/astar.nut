@@ -1185,7 +1185,7 @@ function find_object(obj, wt, speed) {
 	}
 
 	local len = list.len()
-	local way_speed = speed
+	local max_speed = 120
 	local min_len = 5
 
 	local obj_desc = null
@@ -1196,7 +1196,7 @@ function find_object(obj, wt, speed) {
 		for(local i=1; i<len; i++) {
 			local b = list[i]
 			local o = 1
-			if ( obj == "bridge" && ( b.get_max_length() > min_len || b.get_max_length() == 0 ) ) {
+			if ( obj == "bridge" && b.get_max_length() < min_len ) {
 				o = 0
 			}
 			if ( o == 1 ) {
@@ -1206,7 +1206,7 @@ function find_object(obj, wt, speed) {
 					}
 				}
 				else {
-					if (speed < b.get_topspeed() && b.get_topspeed() < obj_desc.get_topspeed()) {
+					if (speed < b.get_topspeed() && max_speed > b.get_topspeed() && b.get_topspeed() > obj_desc.get_topspeed()) {
 						obj_desc = b
 					}
 				}
@@ -2126,7 +2126,7 @@ function check_way_line(start, end, wt, l, c) {
 
 		if ("err" in result) {
 			gui.add_message_at(our_player, " ### no route found: " + result.err, start)
-			return false
+			return nexttile
 		}
 		else {
 			gui.add_message_at(our_player, " ### route found: length =  " +  result.routes.len(), start)
@@ -2146,6 +2146,7 @@ function check_way_line(start, end, wt, l, c) {
 			foreach(tile in marked) {
 				tile.unmark();
 			}
+			::sleep()
 		}
 	//}
 
@@ -2698,7 +2699,7 @@ function optimize_way_line(route, wt) {
 					tile_4_d = tile_4.get_way_dirs(wt)
 					if ( tile_2_speed >= tile_4.find_object(mo_way).get_desc().get_topspeed() && ( tile_4_d == 9 || tile_4_d == 12 ) ) {
 						remove_tile_to_empty(tile_4, wt, 0)
-					} else if ( d == 9 || d == 12 ) {
+					} else if ( tile_2_d == 9 || tile_2_d == 12 ) {
 						remove_tile_to_empty(tile_2, wt, 0)
 					}
 				}
@@ -2721,27 +2722,55 @@ function optimize_way_line(route, wt) {
 			}
 		}
 
-		//::debug.pause()
+		local build_bridge = 0
+		local build_tunnel = 0
 
 		if ( tile_1.z == tile_2.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true ) ) {
-			// slope down - slope up -> bridge
 			if ( tile_1.get_slope() > 0 || tile_2.get_slope() > 0 || tile_3.get_slope() > 0 ) {
-				//gui.add_message_at(our_player, " tile_1 " + tile_1.get_slope() + " tile_2 " + tile_2.get_slope() + " tile_3 " + tile_3.get_slope() + " - " + coord3d_to_string(tile_1), tile_1)
-			}
-			if ( (tile_1.get_slope() == 12 && tile_2.get_slope() == 28) || (tile_1.get_slope() == 4 && tile_2.get_slope() == 36) ) {
+				gui.add_message_at(our_player, " tile_1 " + tile_1.get_slope() + " tile_2 " + tile_2.get_slope() + " tile_3 " + tile_3.get_slope() + " - " + coord3d_to_string(tile_1), tile_1)
 				local txt = coord3d_to_string(tile_1)
-				local err = remove_tile_to_empty(tile_2, wt, 0)
-				if ( err ) {
-					err = null
-					err = command_x.build_bridge(our_player, tile_1, tile_2, bridge_obj)
-				}
 			}
+
+
+			// slope down - slope up -> bridge
 			// slope up - slope down -> tunnel
-			if ( (tile_1.get_slope() == 28 && tile_2.get_slope() == 12) || (tile_1.get_slope() == 36 && tile_2.get_slope() == 4) ) {
+			if ( (tile_1.get_slope() == 4 && tile_2.get_slope() == 36 && tile_1.y < tile_2.y) || (tile_1.get_slope() == 36 && tile_2.get_slope() == 4 && tile_1.y > tile_2.y)  ) {
+				build_tunnel = 1
+			} else if ( (tile_1.get_slope() == 12 && tile_2.get_slope() == 28 && tile_1.x < tile_2.x) || (tile_1.get_slope() == 28 && tile_2.get_slope() == 12 && tile_1.x > tile_2.x)  ) {
+				build_tunnel = 1
+			} else if ( (tile_1.get_slope() == 4 && tile_2.get_slope() == 36 && tile_1.y > tile_2.y) || (tile_1.get_slope() == 36 && tile_2.get_slope() == 4 && tile_1.y < tile_2.y) ) {
+				build_bridge = 1
+			} else if ( (tile_1.get_slope() == 12 && tile_2.get_slope() == 28 && tile_1.x > tile_2.x) || (tile_1.get_slope() == 28 && tile_2.get_slope() == 12 && tile_1.x < tile_2.x) ) {
+				build_bridge = 1
+			}
+
+		}
+
+		if ( tile_1.z == tile_2.z == tile_3.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true && tile_3.is_bridge() != true ) ) {
+			// slope down - flate - slope up -> bridge
+			// slope up - flate - slope down -> tunnel
+			if ( (tile_1.get_slope() == 4 && tile_3.get_slope() == 36 && tile_1.y < tile_3.y) || (tile_1.get_slope() == 36 && tile_3.get_slope() == 4 && tile_1.y > tile_3.y)  ) {
+				build_tunnel = 1
+			} else if ( (tile_1.get_slope() == 12 && tile_3.get_slope() == 28 && tile_1.x < tile_3.x) || (tile_1.get_slope() == 28 && tile_3.get_slope() == 12 && tile_1.x > tile_3.x)  ) {
+				build_tunnel = 1
+			} else if ( (tile_1.get_slope() == 4 && tile_3.get_slope() == 36 && tile_1.y > tile_3.y) || (tile_1.get_slope() == 36 && tile_3.get_slope() == 4 && tile_1.y < tile_3.y) ) {
+				build_bridge = 1
+			} else if ( (tile_1.get_slope() == 12 && tile_3.get_slope() == 28 && tile_1.x > tile_3.x) || (tile_1.get_slope() == 28 && tile_3.get_slope() == 12 && tile_1.x < tile_3.x) ) {
+				build_bridge = 1
+			}
+
+		}
+
+			//::debug.pause()
+
+			// slope up - slope down -> tunnel
+			if ( build_tunnel == 1 ) {
 				local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
 				local txt = coord3d_to_string(tile_1)
 				remove_tile_to_empty(tile_2, wt, 0)
 				//local err = command_x.build_tunnel_at(our_player, tile_1, tunnel_obj)
+
+				// tunnel not work -> terraform down
 				remove_tile_to_empty(tile_1, wt, 0)
 				// terraform down
 				command_x.set_slope(our_player, tile_1, 83 )
@@ -2749,26 +2778,15 @@ function optimize_way_line(route, wt) {
 				local way_obj = tile_4.find_object(mo_way).get_desc()
 				command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
 			}
-			if ( tile_1.get_slope() == 72 && tile_2.get_slope() == 8 ) {
-				//remove_tile_to_empty(tile_2, wt, 0)
-				//local err = command_x.build_tunnel_at(our_player, tile_1, tunnel_obj)
-			}
-		}
 
-		if ( tile_1.z == tile_2.z == tile_3.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true && tile_3.is_bridge() != true ) ) {
-			// slope down - flate - slope up -> bridge
-			if ( (tile_1.get_slope() == 4 && tile_3.get_slope() == 36) || (tile_1.get_slope() == 8 && tile_3.get_slope() == 72) ) {
-				local txt = coord3d_to_string(tile_1)
-				remove_tile_to_empty(tile_2, wt, 0)
-				local err = command_x.build_bridge_at(our_player, tile_1, bridge_obj)
+			// slope down - slope up -> bridge
+			if ( build_bridge == 1 ) {
+				local err = remove_tile_to_empty(tile_2, wt, 0)
+				if ( err ) {
+					err = null
+					err = command_x.build_bridge(our_player, tile_1, tile_2, bridge_obj)
+				}
 			}
-			// slope up - flate - slope down -> tunnel
-			if ( (tile_1.get_slope() == 36 && tile_3.get_slope() == 4) || (tile_1.get_slope() == 72 && tile_3.get_slope() == 8) ) {
-				local txt = coord3d_to_string(tile_1)
-				//remove_tile_to_empty(tile_2, wt, 0)
-				//local err = command_x.build_tunnel_at(our_player, tile_1, tunnel_obj)
-			}
-		}
 
 
 	}
