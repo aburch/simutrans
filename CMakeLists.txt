@@ -611,7 +611,7 @@ add_subdirectory(nettools)
 
 
 #
-# Pakckaging
+# Packaging
 #
 
 include(InstallRequiredSystemLibraries)
@@ -649,7 +649,7 @@ set(CPACK_PACKAGE_FILE_NAME "${SIMUTRANS_PKG_NAME}-${SIMUTRANS_VERSION}-${SIMUTR
 
 if (WIN32 AND NOT UNIX)
 	# There is a bug in NSI that does not handle full unix paths properly.
-	# Make sure there is at least one set of four (4) backlashes.
+	# Make sure there is at least one set of four (4) backslashes.
 	set(CPACK_PACKAGE_INSTALL_DIRECTORY "${SIMUTRANS_PKG_NAME}\\\\${SIMUTRANS_VERSION}\\\\")
 	set(CPACK_NSIS_DISPLAY_NAME "Simutrans Extended")
 	set(CPACK_NSIS_MODIFY_PATH ON)
