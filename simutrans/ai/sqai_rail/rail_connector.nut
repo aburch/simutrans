@@ -202,7 +202,7 @@ class rail_connector_t extends manager_t
 					} else {
 						local i = 0
 						if ( c_route.len() > 10 ) {
-							i = c_route.len() - 10
+							i = c_route.len() - 5 - s_src.len()
 						}
 						local err = construct_rail_to_depot(pl, c_route[i], planned_way) //c_start
 						if (err) {

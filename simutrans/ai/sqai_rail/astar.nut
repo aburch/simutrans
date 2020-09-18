@@ -2234,6 +2234,7 @@ function check_way_line(start, end, wt, l, c) {
 		}
 
 		local t = nexttile[i]
+		d = nexttile[i].get_way_dirs(wt)
 
 		// diagonal start ribi
 		if ( ( dc == 5 && d == 6 ) || ( dc == 5 && d == 9 ) ) {
@@ -2727,13 +2728,13 @@ function optimize_way_line(route, wt) {
 
 		if ( tile_1.z == tile_2.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true ) ) {
 			if ( tile_1.get_slope() > 0 || tile_2.get_slope() > 0 || tile_3.get_slope() > 0 ) {
-				gui.add_message_at(our_player, " tile_1 " + tile_1.get_slope() + " tile_2 " + tile_2.get_slope() + " tile_3 " + tile_3.get_slope() + " - " + coord3d_to_string(tile_1), tile_1)
+				//gui.add_message_at(our_player, " tile_1 " + tile_1.get_slope() + " tile_2 " + tile_2.get_slope() + " tile_3 " + tile_3.get_slope() + " - " + coord3d_to_string(tile_1), tile_1)
 				local txt = coord3d_to_string(tile_1)
 			}
 
 
 			// slope down - slope up -> bridge
-			// slope up - slope down -> tunnel
+			// slope up - slope down -> terraform down ( build_tunnel = 1 )
 			if ( (tile_1.get_slope() == 4 && tile_2.get_slope() == 36 && tile_1.y < tile_2.y) || (tile_1.get_slope() == 36 && tile_2.get_slope() == 4 && tile_1.y > tile_2.y)  ) {
 				build_tunnel = 1
 			} else if ( (tile_1.get_slope() == 12 && tile_2.get_slope() == 28 && tile_1.x < tile_2.x) || (tile_1.get_slope() == 28 && tile_2.get_slope() == 12 && tile_1.x > tile_2.x)  ) {
@@ -2748,7 +2749,7 @@ function optimize_way_line(route, wt) {
 
 		if ( tile_1.z == tile_2.z == tile_3.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true && tile_3.is_bridge() != true ) ) {
 			// slope down - flate - slope up -> bridge
-			// slope up - flate - slope down -> tunnel
+			// slope up - flate - slope down -> tunnel ( build_tunnel = 2 )
 			if ( (tile_1.get_slope() == 4 && tile_3.get_slope() == 36 && tile_1.y < tile_3.y) || (tile_1.get_slope() == 36 && tile_3.get_slope() == 4 && tile_1.y > tile_3.y)  ) {
 				build_tunnel = 1
 			} else if ( (tile_1.get_slope() == 12 && tile_3.get_slope() == 28 && tile_1.x < tile_3.x) || (tile_1.get_slope() == 28 && tile_3.get_slope() == 12 && tile_1.x > tile_3.x)  ) {
@@ -2768,15 +2769,17 @@ function optimize_way_line(route, wt) {
 				local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
 				local txt = coord3d_to_string(tile_1)
 				remove_tile_to_empty(tile_2, wt, 0)
-				//local err = command_x.build_tunnel_at(our_player, tile_1, tunnel_obj)
-
-				// tunnel not work -> terraform down
 				remove_tile_to_empty(tile_1, wt, 0)
 				// terraform down
 				command_x.set_slope(our_player, tile_1, 83 )
 				command_x.set_slope(our_player, tile_2, 83 )
 				local way_obj = tile_4.find_object(mo_way).get_desc()
 				command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
+			} else if ( build_tunnel == 2 ) {
+				local tile_4 = tile_x(route[i-2].x, route[i-2].y, route[i-2].z)
+				local txt = coord3d_to_string(tile_1)
+				remove_tile_to_empty(tile_2, wt, 0)
+				local err = command_x.build_tunnel_at(our_player, tile_1, tunnel_obj)
 			}
 
 			// slope down - slope up -> bridge
