@@ -72,7 +72,7 @@ if (MiniUPNP_FOUND)
 endif (MiniUPNP_FOUND)
 
 if (ZSTD_FOUND)
-	option(SIMUTRANS_USE_ZSTD "Enable support for zstd save file compression (slightly larger save files, but faster)" ON)
+	option(SIMUTRANS_USE_ZSTD "Enable support for zstd save file compression (larger save files than bzip2, but faster)" ON)
 endif (ZSTD_FOUND)
 
 option(SIMUTRANS_ENABLE_PROFILING "Enable profiling code" OFF)
@@ -533,18 +533,6 @@ endif ()
 
 include(SimutransCompileOptions)
 target_compile_options(simutrans-extended PRIVATE ${SIMUTRANS_COMMON_COMPILE_OPTIONS})
-
-if (NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
-	if (SIMUTRANS_BUILD_32BIT)
-		target_compile_options(simutrans-extended PRIVATE -m32)
-		set_target_properties(simutrans-extended PROPERTIES LINK_FLAGS "-m32")
-
-	else ()
-		# For now, emit a warning when compiling as 64 bit binary
-		message(WARNING "Simutrans is preferrably compiled as a 32 bit binary!")
-	endif (SIMUTRANS_BUILD_32BIT)
-endif (NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
-
 
 target_compile_definitions(simutrans-extended PRIVATE $<IF:$<CONFIG:Debug>,DEBUG=1,NDEBUG>)
 target_compile_definitions(simutrans-extended PRIVATE ENABLE_WATERWAY_SIGNS=0 AUTOJOIN_PUBLIC=0)

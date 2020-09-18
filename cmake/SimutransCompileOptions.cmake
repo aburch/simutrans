@@ -65,8 +65,6 @@ else (MSVC) # Assume GCC/Clang
 		-Wcast-align
 		-Walloca
 		-Wduplicated-cond
-
-		-Wno-cpp # Squelch #warning directive that is already emitted at CMake configure time
 	)
 
 	if (SIMUTRANS_PROFILE)
