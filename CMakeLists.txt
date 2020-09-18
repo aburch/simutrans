@@ -617,15 +617,17 @@ add_subdirectory(nettools)
 include(InstallRequiredSystemLibraries)
 
 if (WIN32 AND NOT UNIX)
-    set(CPACK_GENERATOR "ZIP;NSIS")
+	set(CPACK_GENERATOR "ZIP;NSIS")
 else ()
-    set(CPACK_GENERATOR "ZIP;TGZ")
+	set(CPACK_GENERATOR "ZIP;TGZ")
 endif()
 
 set(SIMUTRANS_PKG_NAME "simutrans-extended")
 
 if (WIN32 AND NOT UNIX)
-    set(SIMUTRANS_PKG_PLATFORM "win")
+	set(SIMUTRANS_PKG_PLATFORM "win")
+elseif (APPLE)
+	set(SIMUTRANS_PKG_PLATFORM "mac")
 else ()
     set(SIMUTRANS_PKG_PLATFORM "linux")
 endif ()
@@ -646,19 +648,19 @@ set(CPACK_RESOURCE_FILE_LICENSE       "${CMAKE_SOURCE_DIR}/LICENSE.txt")
 set(CPACK_PACKAGE_FILE_NAME "${SIMUTRANS_PKG_NAME}-${SIMUTRANS_VERSION}-${SIMUTRANS_PKG_PLATFORM}${SIMUTRANS_PKG_BITNESS}")
 
 if (WIN32 AND NOT UNIX)
-    # There is a bug in NSI that does not handle full unix paths properly.
-    # Make sure there is at least one set of four (4) backlasshes.
-    set(CPACK_PACKAGE_INSTALL_DIRECTORY "${SIMUTRANS_PKG_NAME}\\\\${SIMUTRANS_VERSION}\\\\")
-    set(CPACK_NSIS_DISPLAY_NAME "Simutrans Extended")
-    set(CPACK_NSIS_MODIFY_PATH ON)
+	# There is a bug in NSI that does not handle full unix paths properly.
+	# Make sure there is at least one set of four (4) backlashes.
+	set(CPACK_PACKAGE_INSTALL_DIRECTORY "${SIMUTRANS_PKG_NAME}\\\\${SIMUTRANS_VERSION}\\\\")
+	set(CPACK_NSIS_DISPLAY_NAME "Simutrans Extended")
+	set(CPACK_NSIS_MODIFY_PATH ON)
 
 else (WIN32 AND NOT UNIX)
-    set(CPACK_PACKAGE_INSTALL_DIRECTORY "")
-    set(CPACK_STRIP_FILES "simutrans/simutrans-extended")
-    set(CPACK_SOURCE_STRIP_FILES "")
+	set(CPACK_PACKAGE_INSTALL_DIRECTORY "")
+	set(CPACK_STRIP_FILES "simutrans/simutrans-extended")
+	set(CPACK_SOURCE_STRIP_FILES "")
 
-    # deb specific
-    string(REGEX REPLACE "^v" "" CPACK_DEBIAN_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION}")
+	# deb specific
+	string(REGEX REPLACE "^v" "" CPACK_DEBIAN_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION}")
 endif (WIN32 AND NOT UNIX)
 
 include(CPack)
