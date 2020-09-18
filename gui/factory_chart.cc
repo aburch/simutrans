@@ -130,10 +130,10 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 		uint16 curve = prod_chart.add_curve(color_idx_to_rgb(prod_color[s]), factory->get_stats(), MAX_FAB_STAT, s, MAX_MONTH, chart_type[s], false, true, (chart_type[s] == 1) ? 1 : 0, prod_convert[s]);
 		if (s==1 && factory->get_desc()->is_electricity_producer()) {
 			// if power plant, switch label to output
-			prod_buttons[s].init(button_t::box_state, prod_type[MAX_FAB_STAT], scr_coord(D_MARGIN_LEFT + (D_H_SPACE + D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart + (D_H_SPACE + D_BUTTON_HEIGHT)*button_pos[s].y));
+			prod_buttons[s].init(button_t::box_state, prod_type[MAX_FAB_STAT], scr_coord(D_MARGIN_LEFT + (D_H_SPACE + D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart + (D_H_SPACE + D_BUTTON_HEIGHT)*button_pos[s].y), D_BUTTON_SIZE);
 		}
 		else {
-			prod_buttons[s].init(button_t::box_state, prod_type[s], scr_coord(D_MARGIN_LEFT + (D_H_SPACE + D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart + (D_H_SPACE + D_BUTTON_HEIGHT)*button_pos[s].y));
+			prod_buttons[s].init(button_t::box_state, prod_type[s], scr_coord(D_MARGIN_LEFT + (D_H_SPACE + D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart + (D_H_SPACE + D_BUTTON_HEIGHT)*button_pos[s].y), D_BUTTON_SIZE);
 		}
 		prod_buttons[s].background_color = color_idx_to_rgb(prod_color[s]);
 		prod_buttons[s].pressed = false;
@@ -161,7 +161,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 				button_to_curve[r + MAX_FAB_STAT].button = &prod_ref_line_buttons[r];
 				button_to_curve[r + MAX_FAB_STAT].curve = curve;
 
-				prod_ref_line_buttons[r].init(button_t::box_state, prod_type[2+(r%3)], scr_coord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(1+r%3), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*(2+(r/3))));
+				prod_ref_line_buttons[r].init(button_t::box_state, prod_type[2+(r%3)], scr_coord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(1+r%3), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*(2+(r/3))), D_BUTTON_SIZE);
 				prod_ref_line_buttons[r].background_color = color_idx_to_rgb(ref_color[r]);
 				prod_ref_line_buttons[r].pressed = false;
 				if(
@@ -340,7 +340,7 @@ void factory_goods_chart_t::set_factory(const fabrik_t *_factory)
 			add_component(goods_labels + goods_label_count);
 			for (int s = 0; s < MAX_FAB_GOODS_STAT; ++s) {
 				goods_chart.add_curve(goods_color + s*4/3, input[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s], gui_chart_t::chart_marker_t(s%MAX_FAB_GOODS_STAT));
-				goods_buttons[goods_button_count].init(button_t::box_state, input_type[s], scr_coord(D_MARGIN_LEFT + (D_H_SPACE + D_BUTTON_WIDTH)*(s % 2 + 1), offset_below_chart + (D_H_SPACE + D_BUTTON_HEIGHT)*(goods_label_row + s / 2)));
+				goods_buttons[goods_button_count].init(button_t::box_state, input_type[s], scr_coord(D_MARGIN_LEFT + (D_H_SPACE + D_BUTTON_WIDTH)*(s % 2 + 1), offset_below_chart + (D_H_SPACE + D_BUTTON_HEIGHT)*(goods_label_row + s / 2)), D_BUTTON_SIZE);
 				goods_buttons[goods_button_count].background_color = goods_color + s*4/3;
 				goods_buttons[goods_button_count].pressed = false;
 				goods_buttons[goods_button_count].add_listener(this);
@@ -368,7 +368,7 @@ void factory_goods_chart_t::set_factory(const fabrik_t *_factory)
 			add_component(goods_labels + goods_label_count);
 			for (int s = 0; s < 3; ++s) {
 				goods_chart.add_curve(goods_color + s * 2, output[g].get_stats(), MAX_FAB_GOODS_STAT, s, MAX_MONTH, false, false, true, 0, goods_convert[s], gui_chart_t::chart_marker_t(s));
-				goods_buttons[goods_button_count].init(button_t::box_state, output_type[s], scr_coord(D_MARGIN_LEFT + (D_H_SPACE + D_BUTTON_WIDTH)*(s + 1), offset_below_chart + (D_H_SPACE + D_BUTTON_HEIGHT)*goods_label_row));
+				goods_buttons[goods_button_count].init(button_t::box_state, output_type[s], scr_coord(D_MARGIN_LEFT + (D_H_SPACE + D_BUTTON_WIDTH)*(s + 1), offset_below_chart + (D_H_SPACE + D_BUTTON_HEIGHT)*goods_label_row), D_BUTTON_SIZE);
 				goods_buttons[goods_button_count].background_color = goods_color + s * 2;
 				goods_buttons[goods_button_count].pressed = false;
 				goods_buttons[goods_button_count].add_listener(this);
