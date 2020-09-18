@@ -2872,7 +2872,7 @@ function destroy_line(line_obj) {
 
 	if ( wt != wt_water ) {
 		local asf = astar_route_finder(wt)
-		local result = asf.search_route([start], [end])
+		local result = asf.search_route(start_l, end_l)
 	}
 
 
