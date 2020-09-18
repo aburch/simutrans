@@ -2595,6 +2595,9 @@ function check_way_line(start, end, wt, l, c) {
 						gui.add_message_at(our_player, " add nexttile[i] id = " + i + " " + coord3d_to_string(t), t)
 					}
 					start_fields.append(nexttile[i])
+					stl = 0
+					str = 0
+					fc = 0
 				}
 			} else if ( nexttile[i-1].x > nexttile[i].x && fc == 0 && nexttile[i-2].y > nexttile[i].y ) {
 				/*
@@ -2606,21 +2609,34 @@ function check_way_line(start, end, wt, l, c) {
 						gui.add_message_at(our_player, " add nexttile[i] id = " + i + " " + coord3d_to_string(t), t)
 					}
 					start_fields.append(nexttile[i])
+					stl = 0
+					str = 0
+					fc = 0
 				}
+			} else if ( nexttile[i-1].x < nexttile[i].x && fc > 0 && nexttile[i-2].y == nexttile[i].y ) {
+					start_fields.append(nexttile[i-way_len])
+					stl = 0
+					str = 0
+					if ( print_message == 1 ) {
+						gui.add_message_at(our_player, " add nexttile[i-way_len] id = " + (i-way_len) + " " + coord3d_to_string(t), t)
+					}
 			} else {
-				if ( nexttile[i-way_len-1].get_slope() == 0 ) {
 					if ( ( nexttile[i-way_len].get_way_dirs(wt) == 3 || nexttile[i-way_len].get_way_dirs(wt) == 12 ) && nexttile[i-way_len].get_slope() == 0 && fc == 0 ) {
 						start_fields.append(nexttile[i-way_len])
+						stl = 0
+						str = 0
 						if ( print_message == 1 ) {
 							gui.add_message_at(our_player, " add nexttile[i-way_len] id = " + (i-way_len) + " " + coord3d_to_string(t), t)
 						}
-					} else {
+					} else if ( nexttile[i-way_len-1].get_slope() == 0 ) {
 						start_fields.append(nexttile[i-way_len+1])
+						stl = 0
+						str = 0
+						fc = 0
 						if ( print_message == 1 ) {
 							gui.add_message_at(our_player, " add nexttile[i-way_len+1] id = " + (i-way_len+1) + " " + coord3d_to_string(t), t)
 						}
 					}
-				}
 			}
 
 			if ( print_message_box == 2 ) {
@@ -2890,6 +2906,9 @@ function destroy_line(line_obj) {
 
 		local combined_s = test_halt_waytypes(start_l)
 		local combined_e = test_halt_waytypes(end_l)
+
+	gui.add_message_at(our_player, " combined station s waytypes = " + combined_s, start_l)
+	gui.add_message_at(our_player, " combined station e waytypes = " + combined_e, end_l)
 /*
 	if ( wt != wt_water ) {
 		local asf = astar_route_finder(wt)
@@ -2906,23 +2925,26 @@ function destroy_line(line_obj) {
  * return count waytypes
  */
 function test_halt_waytypes(tile) {
-	if ( tile.is_water() ) {
+	if ( tile.is_water() && tile.find_object(mo_building) == null ) {
 		gui.add_message_at(our_player, "halt is water tile " + coord3d_to_string(tile), tile)
 		return 0
 	}
 
 	local halt_tiles = tile.get_halt().get_tile_list()
+	gui.add_message_at(our_player, "halt has tiles " + halt_tiles.len(), tile)
+
 	local test_rail = 0
 	local test_road = 0
 	local test_water = 0
 	for ( local i = 0; i < halt_tiles.len(); i++ ) {
-		if ( tile.has_way(wt_rail) ) {
+		local building = tile.find_object(mo_building).get_desc()
+		if ( building.get_waytype() == wt_rail ) {
 			test_rail++
 		}
-		if ( tile.has_way(wt_road) ) {
+		if ( building.get_waytype() == wt_road ) {
 			test_road++
 		}
-		if ( tile.has_way(wt_water) ) {
+		if ( building.get_waytype() == wt_water ) {
 			test_water++
 		}
 	}
