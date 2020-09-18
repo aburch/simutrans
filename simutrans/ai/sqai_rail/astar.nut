@@ -2714,7 +2714,7 @@ function optimize_way_line(route, wt) {
 					tile_4_d = tile_4.get_way_dirs(wt)
 					if ( tile_2_speed >= tile_4.find_object(mo_way).get_desc().get_topspeed() && ( tile_4_d == 3 || tile_4_d == 6 ) ) {
 						remove_tile_to_empty(tile_4, wt, 0)
-					} else if ( d == 3 || d == 6 ) {
+					} else if ( tile_2_d == 3 || tile_2_d == 6 ) {
 						remove_tile_to_empty(tile_2, wt, 0)
 					}
 				}
