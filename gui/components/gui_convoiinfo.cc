@@ -81,16 +81,35 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, bool show_line_name):
 	this->show_line_name = show_line_name;
 
 	set_table_layout(2,1);
-	set_alignment(ALIGN_LEFT | ALIGN_TOP);
+	set_alignment(ALIGN_LEFT);
 
-	add_table(1,3);
+	add_table(1,3)->set_spacing(scr_size(D_H_SPACE, 0));
 	{
-		add_component(&label_name);
-		add_component(&label_line);
-		add_table(2,1);
+		set_alignment(ALIGN_LEFT);
+		add_table(3, 1);
 		{
+			img_alert.set_image(IMG_EMPTY);
+			img_alert.set_rigid(false);
+			add_component(&img_alert);
+			img_operation.set_image(IMG_EMPTY);
+			img_operation.set_rigid(false);
+			add_component(&img_operation);
+			add_component(&label_name);
+		}
+		end_table();
+
+		add_table(3,1);
+		{
+			new_component<gui_margin_t>(LINESPACE/3);
 			new_component<gui_label_t>("Gewinn");
 			add_component(&label_profit);
+		}
+		end_table();
+
+		add_table(2, 1);
+		{
+			new_component<gui_margin_t>(LINESPACE / 3);
+			add_component(&label_line);
 		}
 		end_table();
 	}
@@ -98,8 +117,8 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, bool show_line_name):
 
 	add_table(1,2);
 	{
-		new_component<gui_convoi_images_t>(cnv);
 		add_component(&filled_bar);
+		new_component<gui_convoi_images_t>(cnv);
 	}
 	end_table();
 
@@ -147,7 +166,63 @@ const char* gui_convoiinfo_t::get_text() const
 
 void gui_convoiinfo_t::update_label()
 {
+	img_alert.set_visible(false);
+	img_operation.set_visible(false);
+	if (skinverwaltung_t::alerts) {
+		switch (cnv->get_state()) {
+		case convoi_t::EMERGENCY_STOP:
+			img_alert.set_image(skinverwaltung_t::alerts->get_image_id(2), true);
+			img_alert.set_tooltip("Waiting for clearance!");
+			img_alert.set_visible(true);
+			break;
+		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
+		case convoi_t::CAN_START_ONE_MONTH:
+		case convoi_t::WAITING_FOR_LOADING_THREE_MONTHS:
+			img_alert.set_image(skinverwaltung_t::alerts->get_image_id(3), true);
+			img_alert.set_tooltip("Waiting for clearance!");
+			img_alert.set_visible(true);
+			break;
+		case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
+		case convoi_t::CAN_START_TWO_MONTHS:
+		case convoi_t::WAITING_FOR_LOADING_FOUR_MONTHS:
+			img_alert.set_image(skinverwaltung_t::alerts->get_image_id(4), true);
+			img_alert.set_tooltip("clf_chk_stucked");
+			img_alert.set_visible(true);
+			break;
+		case convoi_t::OUT_OF_RANGE:
+		case convoi_t::NO_ROUTE:
+		case convoi_t::NO_ROUTE_TOO_COMPLEX:
+			if (skinverwaltung_t::pax_evaluation_icons) {
+				img_alert.set_image(skinverwaltung_t::pax_evaluation_icons->get_image_id(4), true);
+			}
+			else {
+				img_alert.set_image(skinverwaltung_t::alerts->get_image_id(4), true);
+			}
+			img_alert.set_tooltip("clf_chk_noroute");
+			img_alert.set_visible(true);
+			break;
+		default:
+			break;
+		}
+		if (cnv->get_withdraw()) {
+			img_operation.set_image(skinverwaltung_t::alerts->get_image_id(2), true);
+			img_operation.set_tooltip("withdraw");
+			img_operation.set_visible(true);
+		}
+		else if (cnv->get_replace()) {
+			img_operation.set_image(skinverwaltung_t::alerts->get_image_id(1), true);
+			img_operation.set_tooltip("Replacing");
+			img_operation.set_visible(true);
+		}
+		else if (cnv->get_no_load() && !cnv->in_depot()) {
+			img_operation.set_image(skinverwaltung_t::alerts->get_image_id(2), true);
+			img_operation.set_tooltip("No load setting");
+			img_operation.set_visible(true);
+		}
+	}
+
 	label_profit.buf().append_money(cnv->get_jahresgewinn() / 100.0);
+	label_profit.set_color(cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS);
 	label_profit.update();
 	label_line.set_visible(true);
 
@@ -180,57 +255,9 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 //<<<<<<< HEAD
 	clip_dimension clip = display_get_clip_wh();
 	if(! ((pos.y+offset.y) > clip.yy ||  (pos.y+offset.y) < clip.y-32) &&  cnv.is_bound()) {
-		// 1st row: convoy name
-		int w = 0;
-		if (skinverwaltung_t::alerts) {
-			switch (cnv->get_state()) {
-				case convoi_t::EMERGENCY_STOP:
-					display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("Waiting for clearance!"));
-					w += 14;
-					break;
-				case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
-				case convoi_t::CAN_START_ONE_MONTH:
-					display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(3), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("Waiting for clearance!"));
-					w += 14;
-					break;
-				case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
-				case convoi_t::CAN_START_TWO_MONTHS:
-					display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(4), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("clf_chk_stucked"));
-					w += 14;
-					break;
-				case convoi_t::OUT_OF_RANGE:
-				case convoi_t::NO_ROUTE:
-				case convoi_t::NO_ROUTE_TOO_COMPLEX:
-					display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(4), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("clf_chk_noroute"));
-					w += 14;
-					break;
-				default:
-					break;
-			}
-			if (cnv->get_withdraw()){
-				display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("withdraw"));
-				w += 14;
-			}
-			else if (cnv->get_no_load() && !cnv->in_depot()) {
-				display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("No load setting"));
-				w += 14;
-			}
-			if (cnv->get_replace()) {
-				display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(1), pos.x + offset.x + 2 + w, pos.y + offset.y + 6, 0, false, false, translator::translate("Replacing"));
-				w += 14;
-			}
-		}
-		// name, use the convoi status color for redraw: Possible colors are YELLOW (not moving) BLUE: obsolete in convoi, RED: minus income, BLACK: ok
-		int max_x = display_proportional_clip_rgb(pos.x+offset.x+2, pos.y+offset.y+6, cnv->get_name(), ALIGN_LEFT, cnv->get_status_color(), true)+2;
-
 		// 2nd row
-		w = D_MARGIN_LEFT;
 		if (display_mode == cnvlist_normal) {
 			w += display_proportional_clip_rgb(pos.x + offset.x + w, pos.y + offset.y + 6 + LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true) + 2;
-			char buf[256];
-			money_to_string(buf, cnv->get_jahresgewinn() / 100.0);
-			w += display_proportional_clip_rgb(pos.x + offset.x + w + 5, pos.y + offset.y + 6 + LINESPACE, buf, ALIGN_LEFT, cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS, true);
-			max_x = max(max_x, w + 5);
 		}
 		else if (display_mode == cnvlist_payload) {
 			payload.set_cnv(cnv);

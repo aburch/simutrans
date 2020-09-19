@@ -14,6 +14,7 @@
 #include "../../convoihandle_t.h"
 #include "gui_convoy_formation.h"
 #include "gui_convoy_payloadinfo.h"
+#include "gui_image.h"
 
 /**
  * Convoi info stats, like loading status bar
@@ -32,6 +33,7 @@ private:
 
 	gui_speedbar_t filled_bar;
 	gui_label_buf_t label_name, label_profit, label_line;
+	gui_image_t img_alert, img_operation;
 
 	gui_convoy_formation_t formation;
 	gui_convoy_payloadinfo_t payload;
