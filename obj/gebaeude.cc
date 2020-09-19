@@ -819,6 +819,7 @@ void gebaeude_t::show_info()
 
 	if (is_headquarter()) {
 		create_win( new headquarter_info_t(get_owner()), w_info, magic_headquarter+get_owner()->get_player_nr() );
+		return;
 	}
 	else if (is_townhall()) {
 		get_stadt()->show_info();
