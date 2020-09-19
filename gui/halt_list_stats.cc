@@ -52,6 +52,7 @@ halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 {
 	halt = h;
 	set_table_layout(2,2);
+	set_spacing(scr_size(D_H_SPACE, 0));
 
 	add_component(&indicator);
 	indicator.set_max_size(scr_size(D_INDICATOR_WIDTH,D_INDICATOR_HEIGHT));
