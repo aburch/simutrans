@@ -149,7 +149,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	player(player_),
 	scrolly_convois(&cont),
 	scrolly_haltestellen(&cont_haltestellen),
-	scl(gui_scrolled_list_t::listskin),
+	scl(gui_scrolled_list_t::listskin, line_scrollitem_t::compare),
 	lbl_filter("Line Filter"),
 	convoy_infos(),
 	stop_infos()
@@ -917,27 +917,15 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		}
 		convoy_infos.resize(icnv);
 		int ypos = 0;
-		int cinfo_height;
-		switch (selected_cnvlist_mode[player->get_player_nr()]) {
-			case gui_convoiinfo_t::cnvlist_formation:
-				cinfo_height = 55;
-				break;
-			case gui_convoiinfo_t::cnvlist_payload:
-				cinfo_height = 40;
-				break;
-			case gui_convoiinfo_t::cnvlist_normal:
-			default:
-				cinfo_height = 40;
-				break;
-		}
 		for(i = 0;  i<icnv;  i++  ) {
 			gui_convoiinfo_t* const cinfo = new gui_convoiinfo_t(line_convoys.get_element(i), false);
-			cinfo->set_pos(scr_coord(0, ypos));
-			cinfo->set_size(scr_size(600, cinfo_height));
+			cinfo->set_pos(scr_coord(0, ypos-D_MARGIN_TOP));
+			scr_size csize = cinfo->get_min_size();
+			cinfo->set_size(scr_size(400, csize.h-D_MARGINS_Y));
 			cinfo->set_mode(selected_cnvlist_mode[player->get_player_nr()]);
 			convoy_infos.append(cinfo);
 			cont.add_component(cinfo);
-			ypos += cinfo_height;
+			ypos += csize.h - D_MARGIN_TOP-D_V_SPACE*2;
 		}
 		cont.set_size(scr_size(600, ypos));
 
@@ -1013,11 +1001,12 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
 			if (halt.is_bound()) {
 				halt_list_stats_t* cinfo = new halt_list_stats_t(halt);
-				cinfo->set_pos(scr_coord(0, ypos));
-				cinfo->set_size(scr_size(500, 28));
+				cinfo->set_pos(scr_coord(0, ypos-D_MARGIN_TOP));
+				scr_size csize = cinfo->get_min_size();
+				cinfo->set_size(scr_size(500, csize.h-D_MARGINS_Y));
 				stop_infos.append(cinfo);
 				cont_haltestellen.add_component(cinfo);
-				ypos += 28;
+				ypos += csize.h - D_MARGIN_TOP - D_V_SPACE*2;
 			}
 		}
 		cont_haltestellen.set_size(scr_size(500, ypos));
