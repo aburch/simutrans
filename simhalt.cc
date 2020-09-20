@@ -1835,7 +1835,12 @@ uint32 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 		return service_frequencies.get(spec);
 	}
 
-	dbg->message("uint32 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 category) const", "Unknown frequency for %s from %s to %s", goods_manager_t::get_info_catg(category)->get_catg_name(), get_name(), destination->get_name());
+	if(destination.is_bound()) {
+		dbg->message(__PRETTY_FUNCTION__, "Unknown frequency for %s from %s to %s", translator::translate(goods_manager_t::get_info_catg(category)->get_catg_name()), get_name(), destination->get_name());
+	} else {
+		dbg->warning(__PRETTY_FUNCTION__, "Tried to calculate frequency for %s from %s to missing halt", translator::translate(goods_manager_t::get_info_catg(category)->get_catg_name()), get_name());
+	}
+
 	return calc_service_frequency(destination, category);
 }
 
