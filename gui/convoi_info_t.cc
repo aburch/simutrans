@@ -325,7 +325,8 @@ void convoi_info_t::init(convoihandle_t cnv)
 	speed_bar.add_color_value(&mean_convoi_speed, color_idx_to_rgb(COL_GREEN));
 
 	// we update this ourself!
-	route_bar.add_color_value(&cnv_route_index, color_idx_to_rgb(COL_GREEN));
+	route_bar.init(&cnv_route_index, 0);
+	route_bar.set_height(9);
 
 	update_labels();
 
@@ -347,6 +348,23 @@ convoi_info_t::~convoi_info_t()
 
 void convoi_info_t::update_labels()
 {
+	switch (cnv->get_state())
+	{
+		case convoi_t::DRIVING:
+			route_bar.set_state(0);
+			break;
+		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
+		case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
+		case convoi_t::CAN_START_ONE_MONTH:
+		case convoi_t::CAN_START_TWO_MONTHS:
+			route_bar.set_state(2);
+		case convoi_t::NO_ROUTE:
+			route_bar.set_state(3);
+			break;
+		default:
+			route_bar.set_state(1);
+			break;
+	}
 	// use median speed to avoid flickering
 	mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed() * 4);
 	mean_convoi_speed /= 2;
