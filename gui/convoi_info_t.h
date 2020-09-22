@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the Simutrans-Extended project under the Artistic License.
  * (see LICENSE.txt)
  */
@@ -66,7 +66,6 @@ private:
 	gui_textinput_t input;
 	gui_speedbar_t filled_bar;
 	gui_speedbar_t speed_bar;
-	//gui_routebar_t route_bar;
 	gui_routebar_t route_bar;
 	gui_chart_t chart;
 	button_t button;

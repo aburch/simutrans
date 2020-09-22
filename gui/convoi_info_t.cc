@@ -226,16 +226,16 @@ void convoi_info_t::init(convoihandle_t cnv)
 		new_component<gui_empty_t>();
 		new_component<gui_empty_t>();
 
+		no_load_button.init(button_t::square_state, "no load");
+		no_load_button.set_tooltip("No goods are loaded onto this convoi.");
+		no_load_button.add_listener(this);
+		add_component(&no_load_button);
+
 		reverse_button.init(button_t::square_state, "reverse route");
 		reverse_button.add_listener(this);
 		reverse_button.set_tooltip("When this is set, the vehicle will visit stops in reverse order.");
 		reverse_button.pressed = cnv->get_reverse_schedule();
 		add_component(&reverse_button);
-
-		no_load_button.init(button_t::square_state, "no load");
-		no_load_button.set_tooltip("No goods are loaded onto this convoi.");
-		no_load_button.add_listener(this);
-		add_component(&no_load_button);
 	}
 	end_table();
 
@@ -247,7 +247,6 @@ void convoi_info_t::init(convoihandle_t cnv)
 	container_freight.add_table(2,1);
 	{
 		container_freight.new_component<gui_label_t>("loaded passenger/freight");
-		//(´・ω・｀)コンボボックス
 		freight_sort_selector.clear_elements();
 		for (int i = 0; i < SORT_MODES; i++)
 		{
@@ -258,7 +257,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 		freight_sort_selector.set_highlight_color(1);
 		freight_sort_selector.add_listener(this);
 		container_freight.add_component(&freight_sort_selector);
-		//container_freight.new_component<gui_label_t>("loaded passenger/freight"); // dummy
+
 	}
 	container_freight.end_table();
 	container_freight.add_component(&text);
@@ -348,33 +347,182 @@ convoi_info_t::~convoi_info_t()
 
 void convoi_info_t::update_labels()
 {
+	air_vehicle_t* air_vehicle = NULL;
+	if (cnv->front()->get_waytype() == air_wt)
+	{
+		air_vehicle = (air_vehicle_t*)cnv->front();
+	}
+	bool runway_too_short = air_vehicle == NULL ? false : air_vehicle->is_runway_too_short();
+
+	speed_bar.set_visible(false);
+	route_bar.set_state(1);
 	switch (cnv->get_state())
 	{
-		case convoi_t::DRIVING:
-			route_bar.set_state(0);
-			break;
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
-		case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
-		case convoi_t::CAN_START_ONE_MONTH:
-		case convoi_t::CAN_START_TWO_MONTHS:
-			route_bar.set_state(2);
-		case convoi_t::NO_ROUTE:
-			route_bar.set_state(3);
+		case convoi_t::WAITING_FOR_CLEARANCE:
+
+			if (runway_too_short)
+			{
+				speed_label.buf().printf("%s (%s) %i%s", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
+				speed_label.set_color(COL_CAUTION);
+				route_bar.set_state(3);
+			}
+			else
+			{
+				speed_label.buf().append(translator::translate("Waiting for clearance!"));
+				speed_label.set_color(COL_CAUTION);
+				route_bar.set_state(1);
+			}
 			break;
-		default:
+
+		case convoi_t::CAN_START:
+		case convoi_t::CAN_START_ONE_MONTH:
+
+			speed_label.buf().append(translator::translate("Waiting for clearance!"));
+			speed_label.set_color(SYSCOL_TEXT);
 			route_bar.set_state(1);
 			break;
-	}
-	// use median speed to avoid flickering
-	mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed() * 4);
-	mean_convoi_speed /= 2;
-	if (mean_convoi_speed==0) {
-		speed_bar.set_visible(false);
-	}
-	else {
-		speed_label.buf().printf(translator::translate("%i km/h (max. %ikm/h)"), (mean_convoi_speed + 3) / 4, speed_to_kmh(cnv->get_min_top_speed()));
-		speed_label.update();
-		speed_bar.set_visible(true);
+
+		case convoi_t::EMERGENCY_STOP:
+
+			char emergency_stop_time[64];
+			cnv->snprintf_remaining_emergency_stop_time(emergency_stop_time, sizeof(emergency_stop_time));
+
+			speed_label.buf().printf(translator::translate("emergency_stop %s left"), emergency_stop_time);
+			speed_label.set_color(COL_DANGER);
+			route_bar.set_state(3);
+			break;
+
+		case convoi_t::LOADING:
+
+			char waiting_time[64];
+			cnv->snprintf_remaining_loading_time(waiting_time, sizeof(waiting_time));
+			if (cnv->get_schedule()->get_current_entry().wait_for_time)
+			{
+				speed_label.buf().printf(translator::translate("Waiting for schedule. %s left"), waiting_time);
+				speed_label.set_color(COL_CAUTION);
+			}
+			else if (cnv->get_loading_limit())
+			{
+				if (!cnv->is_wait_infinite() && strcmp(waiting_time, "0:00"))
+				{
+					speed_label.buf().printf(translator::translate("Loading (%i->%i%%), %s left!"), cnv->get_loading_level(), cnv->get_loading_limit(), waiting_time);
+					speed_label.set_color(COL_CAUTION);
+				}
+				else
+				{
+					speed_label.buf().printf(translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit());
+					speed_label.set_color(COL_CAUTION);
+				}
+			}
+			else
+			{
+				speed_label.buf().printf(translator::translate("Loading. %s left!"), waiting_time);
+				speed_label.set_color(SYSCOL_TEXT);
+			}
+			route_bar.set_state(1);
+
+			break;
+
+		case convoi_t::WAITING_FOR_LOADING_THREE_MONTHS:
+		case convoi_t::WAITING_FOR_LOADING_FOUR_MONTHS:
+
+			speed_label.buf().printf(translator::translate("Loading (%i->%i%%) Long Time"), cnv->get_loading_level(), cnv->get_loading_limit());
+			route_bar.set_state(2);
+			break;
+
+		case convoi_t::REVERSING:
+
+			char reversing_time[64];
+			cnv->snprintf_remaining_reversing_time(reversing_time, sizeof(reversing_time));
+			switch (cnv->get_terminal_shunt_mode()) {
+			case convoi_t::rearrange:
+			case convoi_t::shunting_loco:
+				speed_label.buf().printf(translator::translate("Shunting. %s left"), reversing_time);
+				break;
+			case convoi_t::change_direction:
+				speed_label.buf().printf(translator::translate("Changing direction. %s left"), reversing_time);
+				break;
+			default:
+				speed_label.buf().printf(translator::translate("Reversing. %s left"), reversing_time);
+				break;
+			}
+			speed_label.set_color(SYSCOL_TEXT);
+			route_bar.set_state(1);
+			break;
+
+		case convoi_t::CAN_START_TWO_MONTHS:
+		case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
+
+			if (runway_too_short)
+			{
+				speed_label.buf().printf("%s (%s %i%s)", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
+				speed_label.set_color(COL_DANGER);
+				route_bar.set_state(3);
+			}
+			else
+			{
+				speed_label.buf().append(translator::translate("clf_chk_stucked"));
+				speed_label.set_color(COL_WARNING);
+				route_bar.set_state(2);
+			}
+			break;
+
+		case convoi_t::NO_ROUTE:
+
+			if (runway_too_short)
+			{
+				speed_label.buf().printf("%s (%s %i%s)", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
+			}
+			else
+			{
+				speed_label.buf().append(translator::translate("clf_chk_noroute"));
+			}
+			speed_label.set_color(COL_DANGER);
+			route_bar.set_state(3);
+			break;
+
+		case convoi_t::NO_ROUTE_TOO_COMPLEX:
+			//speed_label.buf().append(translator::translate("no_route_too_complex_message"));
+			speed_label.buf().append(translator::translate("clf_chk_noroute"));
+			speed_label.set_color(COL_DANGER);
+			route_bar.set_state(3);
+			break;
+
+		case convoi_t::OUT_OF_RANGE:
+
+			//speed_label.buf().printf(translator::translate("out_of_range (max %i km)"), cnv->front()->get_desc()->get_range());
+			speed_label.buf().printf("%s (%s %i%s)", translator::translate("out of range"), translator::translate("max"), cnv->front()->get_desc()->get_range(), translator::translate("km"));
+			speed_label.set_color(COL_DANGER);
+			route_bar.set_state(3);
+			break;
+
+		case convoi_t::DRIVING:
+			route_bar.set_state(0);
+
+		default:
+			if (runway_too_short)
+			{
+				speed_label.buf().printf("%s (%s %i%s)", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
+				speed_label.set_color(COL_DANGER);
+				route_bar.set_state(3);
+			}
+			else
+			{
+				uint32 empty_weight = cnv->get_vehicle_summary().weight;
+				uint32 gross_weight = cnv->get_weight_summary().weight;
+
+				speed_bar.set_visible(true);
+				//use median speed to avoid flickering
+				mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed() * 4);
+				mean_convoi_speed /= 2;
+				const sint32 min_speed = cnv->calc_max_speed(cnv->get_weight_summary());
+				const sint32 max_speed = cnv->calc_max_speed(weight_summary_t(empty_weight, cnv->get_current_friction()));
+				speed_label.buf().printf(translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"),
+					(mean_convoi_speed + 3) / 4, min_speed, translator::translate("..."), max_speed);
+				speed_label.set_color(SYSCOL_TEXT);
+			}
+			break;
 	}
 	profit_label.append_money(cnv->get_jahresgewinn()/100.0);
 	profit_label.update();
@@ -537,187 +685,6 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		times_history_button.disable();
 	}
 
-
-
-/*
-
-		// convoi information
-		static cbuffer_t info_buf;
-		const int pos_x = pos.x + D_MARGIN_LEFT;
-		const int pos_y0 = pos.y + view.get_pos().y + LINESPACE + D_V_SPACE + 2;
-		const char *caption = translator::translate("%s:");
-
-
-
-		uint32 empty_weight = convoy.get_vehicle_summary().weight;
-		uint32 gross_weight = convoy.get_weight_summary().weight;
-
-		PIXVAL speed_color = color_idx_to_rgb(COL_BLACK);
-		const int pos_y = pos_y0; // line 1
-		char speed_text[256];
-
-		air_vehicle_t* air_vehicle = NULL;
-		if (cnv->front()->get_waytype() == air_wt)
-		{
-			air_vehicle = (air_vehicle_t*)cnv->front();
-		}
-
-		speed_bar.set_visible(false);
-
-		switch (cnv->get_state())
-		{
-		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
-		case convoi_t::WAITING_FOR_CLEARANCE:
-
-			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
-			{
-				sprintf(speed_text, "%s (%s) %i%s", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
-				speed_color = color_idx_to_rgb(COL_RED);
-			}
-			else
-			{
-				sprintf(speed_text, "%s", translator::translate("Waiting for clearance!"));
-				speed_color = color_idx_to_rgb(COL_YELLOW);
-			}
-			break;
-
-		case convoi_t::CAN_START:
-		case convoi_t::CAN_START_ONE_MONTH:
-
-			sprintf(speed_text, "%s", translator::translate("Waiting for clearance!"));
-			speed_color = color_idx_to_rgb(COL_BLACK);
-			break;
-
-		case convoi_t::EMERGENCY_STOP:
-
-			char emergency_stop_time[64];
-			cnv->snprintf_remaining_emergency_stop_time(emergency_stop_time, sizeof(emergency_stop_time));
-
-			sprintf(speed_text, translator::translate("emergency_stop %s left"), emergency_stop_time);
-			speed_color = color_idx_to_rgb(COL_RED);
-			break;
-
-		case convoi_t::LOADING:
-
-			char waiting_time[64];
-			cnv->snprintf_remaining_loading_time(waiting_time, sizeof(waiting_time));
-			if (cnv->get_schedule()->get_current_entry().wait_for_time)
-			{
-				sprintf(speed_text, translator::translate("Waiting for schedule. %s left"), waiting_time);
-				speed_color = color_idx_to_rgb(COL_YELLOW);
-			}
-			else if (cnv->get_loading_limit())
-			{
-				if (!cnv->is_wait_infinite() && strcmp(waiting_time, "0:00"))
-				{
-					sprintf(speed_text, translator::translate("Loading (%i->%i%%), %s left!"), cnv->get_loading_level(), cnv->get_loading_limit(), waiting_time);
-					speed_color = color_idx_to_rgb(COL_YELLOW);
-				}
-				else
-				{
-					sprintf(speed_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit());
-					speed_color = color_idx_to_rgb(COL_YELLOW);
-				}
-			}
-			else
-			{
-				sprintf(speed_text, translator::translate("Loading. %s left!"), waiting_time);
-				speed_color = color_idx_to_rgb(COL_BLACK);
-			}
-
-			break;
-
-		case convoi_t::WAITING_FOR_LOADING_THREE_MONTHS:
-		case convoi_t::WAITING_FOR_LOADING_FOUR_MONTHS:
-			sprintf(speed_text, translator::translate("Loading (%i->%i%%) Long Time"), cnv->get_loading_level(), cnv->get_loading_limit());
-			speed_color = COL_ORANGE;
-			break;
-
-		case convoi_t::REVERSING:
-
-			char reversing_time[64];
-			cnv->snprintf_remaining_reversing_time(reversing_time, sizeof(reversing_time));
-			switch (cnv->get_terminal_shunt_mode()) {
-			case convoi_t::rearrange:
-			case convoi_t::shunting_loco:
-				sprintf(speed_text, translator::translate("Shunting. %s left"), reversing_time);
-				break;
-			case convoi_t::change_direction:
-				sprintf(speed_text, translator::translate("Changing direction. %s left"), reversing_time);
-				break;
-			default:
-				sprintf(speed_text, translator::translate("Reversing. %s left"), reversing_time);
-				break;
-			}
-			speed_color = color_idx_to_rgb(COL_BLACK);
-			break;
-
-		case convoi_t::CAN_START_TWO_MONTHS:
-		case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
-
-			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
-			{
-				sprintf(speed_text, "%s (%s %i%s)", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
-				speed_color = color_idx_to_rgb(COL_RED);
-			}
-			else
-			{
-				sprintf(speed_text, "%s", translator::translate("clf_chk_stucked"));
-				speed_color = color_idx_to_rgb(COL_ORANGE);
-			}
-			break;
-
-		case convoi_t::NO_ROUTE:
-
-			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
-			{
-				sprintf(speed_text, "%s (%s %i%s)", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
-			}
-			else
-			{
-				sprintf(speed_text, "%s", translator::translate("clf_chk_noroute"));
-			}
-			speed_color = color_idx_to_rgb(COL_RED);
-			break;
-
-		case convoi_t::NO_ROUTE_TOO_COMPLEX:
-			//sprintf(speed_text, translator::translate("no_route_too_complex_message"));
-			sprintf(speed_text, "%s", translator::translate("clf_chk_noroute"));
-			speed_color = color_idx_to_rgb(COL_RED);
-			break;
-
-		case convoi_t::OUT_OF_RANGE:
-
-			//sprintf(speed_text, translator::translate("out_of_range (max %i km)"), cnv->front()->get_desc()->get_range());
-			sprintf(speed_text, "%s (%s %i%s)", translator::translate("out of range"), translator::translate("max"), cnv->front()->get_desc()->get_range(), translator::translate("km"));
-			speed_color = color_idx_to_rgb(COL_RED);
-			break;
-
-		default:
-			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
-			{
-				sprintf(speed_text, "%s (%s %i%s)", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
-				speed_color = color_idx_to_rgb(COL_RED);
-			}
-			else
-			{
-				speed_bar.set_visible(true);
-				//use median speed to avoid flickering
-				mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed() * 4);
-				mean_convoi_speed /= 2;
-				const sint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
-				const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
-				sprintf(speed_text, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"),
-					(mean_convoi_speed + 3) / 4, min_speed, translator::translate("..."), max_speed);
-				speed_color = color_idx_to_rgb(COL_BLACK);
-			}
-		}
-
-		display_proportional_rgb(pos_x, pos_y, speed_text, ALIGN_LEFT, speed_color, true);
-*/
-
-
-
 /*
 #ifdef DEBUG_CONVOY_STATES
 		{
@@ -760,7 +727,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				display_proportional_rgb(pos_x, pos_y, state_text, ALIGN_LEFT, SYSCOL_TEXT, true);
 				debug_row++;
 			}
-			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
+			if (runway_too_short)
 			{
 				const int pos_y = pos_y0 + debug_row * LINESPACE;
 				char runway_too_short[32];
