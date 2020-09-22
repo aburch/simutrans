@@ -247,8 +247,8 @@ bool button_t::infowin_event(const event_t *ev)
 	}
 
 	// check if the initial click and the current mouse positions are within the button's boundary
-	bool const cxy_within_boundary = 0 <= ev->cx && ev->cx < get_size().w && 0 <= ev->cy && ev->cy < get_size().h;
-	bool const mxy_within_boundary = 0 <= ev->mx && ev->mx < get_size().w && 0 <= ev->my && ev->my < get_size().h;
+	bool const cxy_within_boundary = 0 <= ev->cx && ev->cx < get_size().w && 0 <= ev->cy && ev->cy <= get_size().h;
+	bool const mxy_within_boundary = 0 <= ev->mx && ev->mx < get_size().w && 0 <= ev->my && ev->my <= get_size().h;
 
 	// update the button pressed state only when mouse positions are within boundary or when it is mouse release
 	if(  (type & STATE_BIT) == 0  &&  cxy_within_boundary  &&  (  mxy_within_boundary  ||  IS_LEFTRELEASE(ev)  )  ) {

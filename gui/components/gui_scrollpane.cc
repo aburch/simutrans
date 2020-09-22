@@ -155,7 +155,7 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		// (and sometime even not then ... )
 		return IS_SHIFT_PRESSED(ev) ? scroll_x.infowin_event(ev) : scroll_y.infowin_event(ev);
 	}
-	else if(  ev->ev_class<EVENT_CLICK  ||  (ev->mx>=0 &&  ev->my>=0  &&  ev->mx<size.w  &&  ev->my<size.h)  ) {
+	else if(  ev->ev_class<EVENT_CLICK  ||  (ev->mx>=0 &&  ev->my>=0  &&  ev->mx<=size.w  &&  ev->my<=size.h)  ) {
 		// since we get can grab the focus to get keyboard events, we must make sure to handle mouse events only if we are hit
 
 		// translate according to scrolled position
