@@ -5083,6 +5083,18 @@ void display_filled_circle_rgb(KOORD_VAL x0, KOORD_VAL  y0, int radius, const PI
 }
 
 
+// Currently, only right-facing equilateral triangles are supported. Can be expanded if needed to accommodate another direction.
+// The horizontal size is sqrt(3) times the height. - Ranran
+void display_right_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, const PIXVAL colval, const bool dirty)
+{
+	double sqrt3 = sqrt(3);
+	for (uint x0 = 0; x0 <= int(0.99 + height * (sqrt3)); x0++)
+	{
+		display_vline_wh_rgb(x + x0, y + int(0.99 + x0 / sqrt3), height - int(0.99 + x0 / sqrt3) * 2, colval, dirty);
+	}
+}
+
+
 int display_fluctuation_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, const bool dirty, sint64 value)
 {
 	if (!value) { return 0; } // nothing to draw
