@@ -1357,6 +1357,7 @@ void private_car_t::info(cbuffer_t & buf) const
 	buf.printf(translator::translate("\nOrigin: %s\nDestination: %s (%s)"), origin_city_name, destination_name, destination_city_name);
 
 	if (char const* const maker = desc->get_copyright()) {
+		buf.append("\n");
 		buf.printf(translator::translate("Constructed by %s"), maker);
 	}
 }
