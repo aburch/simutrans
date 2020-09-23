@@ -10,6 +10,10 @@
 #include "../bauer/goods_manager.h"
 #include "../dataobj/translator.h"
 
+#include "../descriptor/skin_desc.h"
+#include "components/gui_image.h"
+
+
 const char *halt_list_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
 	"hlf_chk_name_filter",
 	"hlf_chk_waren_annahme",
@@ -102,7 +106,12 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 	// second columns: accepted cargo types
 	add_table(1,0);
 	{
-		add_component(filter_buttons + 1);
+		add_table(2,1);
+		{
+			new_component<gui_image_t>()->set_image(skinverwaltung_t::input_output ? skinverwaltung_t::input_output->get_image_id(0) : skinverwaltung_t::goods->get_image_id(0), true);
+			add_component(filter_buttons + 1);
+		}
+		end_table();
 		add_table(3,0);
 		{
 			ware_alle_an.init(button_t::roundbox, "hlf_btn_alle");
@@ -139,7 +148,12 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 	// second columns: outgoing cargo types
 	add_table(1,0);
 	{
-		add_component(filter_buttons + 2);
+		add_table(2, 1);
+		{
+			new_component<gui_image_t>()->set_image(skinverwaltung_t::input_output ? skinverwaltung_t::input_output->get_image_id(1) : skinverwaltung_t::goods->get_image_id(0), true);
+			add_component(filter_buttons + 2);
+		}
+		end_table();
 		add_table(3,0);
 		{
 			ware_alle_ab.init(button_t::roundbox, "hlf_btn_alle");
