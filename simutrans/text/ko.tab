@@ -1755,10 +1755,10 @@ Zu nah am Kartenrand
 #_________________________________program_text__________________________________
  from %s
 출발지 %s
- mins. travelling
-분 걸림
- mins. waiting)
-분 기달림)
+%s mins. travelling
+%s 분 걸림
+%s mins. waiting
+%s 분 기달림)
  via %s
 경유지 %s
 ; brakes from max. speed in %i - %i m

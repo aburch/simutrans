@@ -1730,10 +1730,10 @@ Ek
 #_________________________________program_text__________________________________
  from %s
  från %s
- mins. travelling
-min. restid
- mins. waiting)
-min. väntetid
+%s mins. travelling
+%s min. restid
+%s mins. waiting
+%s min. väntetid
 \n\nInterest on your debt is\naccumulating at %i %%
 \n\nRänta på din skuld\npåförs med %i %%
 \n\nYour credit rating is being affected.
@@ -2088,7 +2088,7 @@ Use performance counter
 Använd prestandaräknare
 Vehicle running costs (both fixed and distance related)
 Driftskostnader för fordon (omfattar både fasta och avståndsrelaterade kostnader)
-waiting time unknown)
+waiting time unknown
 okänd väntetid)
 Way constraint permissive 
 Tillåtande vägbegränsning

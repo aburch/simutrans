@@ -2123,10 +2123,10 @@ Bsuburb
 #_________________________________program_text__________________________________
  from %s
  (de %s)
- mins. travelling
- de viagem
- mins. waiting)
- de espera)
+%s mins. travelling
+%s de viagem
+%s mins. waiting
+%s de espera
  via %s
  (via %s)
 ; brakes from max. speed in %i - %i m
@@ -2737,7 +2737,7 @@ Vehicle running costs (both fixed and distance related)
 Despesas de funcionamento dos veículos (fixos e por distância)
 Vehicles make a round trip between the schedule endpoints, visiting all stops in reverse after reaching the end.
 Os veículos ao chegarem no final da linha fazem o trajeto inverso, ao invés de iniciarem o itinerário do começo
-waiting time unknown)
+waiting time unknown
 tempo de espera desconhecido)
 waiting\ntolerance\nmax. min
 Tolerância\nde espera\nmáx. (min)

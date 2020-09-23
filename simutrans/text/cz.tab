@@ -2345,10 +2345,10 @@ Zsuburb
 #_________________________________program_text__________________________________
  from %s
  z %s
- mins. travelling
- minut jízdy
- mins. waiting)
- minut èekání)
+%s mins. travelling
+%s minut jízdy
+%s mins. waiting
+%s minut èekání)
  via %s
  pøes %s
 \n\nInterest on your debt is\naccumulating at %i %%
@@ -2613,7 +2613,7 @@ Vehicle running costs (both fixed and distance related)
 Výdaje na provoz vozidel (oboje: fixní i závislé na ujeté vzdálenosti)
 Vehicles make a round trip between the schedule endpoints, visiting all stops in reverse after reaching the end.
 Vozidla po dosa¾ení poslední zastávky následují jízdní øád v opaèném poøadí.
-waiting time unknown)
+waiting time unknown
 èas èekání neznámý
 West To East
 Od záp. na východ

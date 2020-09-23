@@ -208,3 +208,34 @@ void gui_label_updown_t::draw(scr_coord offset)
 		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X, by + bh + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
 	}
 }
+
+
+gui_heading_t::gui_heading_t(const char* text, COLOR_VAL color_, COLOR_VAL frame_color_, uint8 style_) :
+	tooltip(NULL)
+{
+	set_size(scr_size(D_DEFAULT_WIDTH - D_MARGINS_X, D_HEADING_HEIGHT));
+	init(text, scr_coord(0, 0), color_, frame_color_, style_);
+}
+
+void gui_heading_t::draw(scr_coord offset)
+{
+	if (text) {
+		display_heading(pos.x + offset.x, pos.y + offset.y, get_size().w, get_size().h, text_color, frame_color, text, true, style);
+	}
+	if (tooltip  &&  getroffen(get_mouse_x() - offset.x, get_mouse_y() - offset.y)) {
+		const scr_coord_val by = offset.y + pos.y;
+		const scr_coord_val bh = size.h;
+
+		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X, by + bh + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
+	}
+}
+
+void gui_heading_t::set_text(const char *text)
+{
+	if(text != NULL){
+		this->text = translator::translate(text);
+	}
+	else {
+		this->text = NULL;
+	}
+}

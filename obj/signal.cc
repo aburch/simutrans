@@ -663,8 +663,7 @@ void signal_t::info(cbuffer_t & buf) const
 				}
 
 				// Convert the tiles counted to actual distance
-				const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
-				const double distance_km = (double)tiles * km_per_tile;
+				const double distance_km = welt->tiles_to_km(tiles);
 				char distance[20];
 
 				if (distance_km < 1)
@@ -902,9 +901,7 @@ void signal_t::info(cbuffer_t & buf) const
 				buf.append("\n   ");
 
 				// Show the distance between the signal and its signalbox, along with the signals maximum range
-				const uint32 tiles_to_signalbox = shortest_distance(get_pos().get_2d(), sb.get_2d());
-				const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
-				const double km_to_signalbox = (double)tiles_to_signalbox * km_per_tile;
+				const double km_to_signalbox = welt->tiles_to_km(shortest_distance(get_pos().get_2d(), sb.get_2d()));
 
 				if (km_to_signalbox < 1)
 				{

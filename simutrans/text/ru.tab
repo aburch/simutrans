@@ -2104,10 +2104,10 @@ zooming out
 #_________________________________program_text__________________________________
  from %s
  из %s
- mins. travelling
- мин. поездка
- mins. waiting)
- мин. ожидание)
+%s mins. travelling
+%s  мин. поездка
+%s mins. waiting
+%s  мин. ожидание)
  via %s
  через %s
 "%s has built a new %s %s %s."
@@ -2658,7 +2658,7 @@ tiles
 клеток
 too heavy
 слишком тяжелый
-waiting time unknown)
+waiting time unknown
 время ожидания неизветно)
 LOCO_SYM
 L

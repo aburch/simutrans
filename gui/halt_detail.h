@@ -88,6 +88,31 @@ public:
 };
 
 
+class gui_halt_route_info_t : public gui_world_component_t
+{
+private:
+	halthandle_t halt;
+
+	vector_tpl<halthandle_t> halt_list;
+	uint32 line_selected;
+
+	uint8 selected_route_catg_index = goods_manager_t::INDEX_PAS;
+	uint8 selected_class = 255;
+	bool station_display_mode;
+
+	void draw_list_by_catg(scr_coord offset);
+	void draw_list_by_dest(scr_coord offset);
+
+public:
+	gui_halt_route_info_t(const halthandle_t& halt, uint8 catg_index, bool station_mode = false);
+
+	void build_halt_list(uint8 catg_index, uint8 g_class = 255, bool station_mode = false);
+	bool infowin_event(event_t const *ev) OVERRIDE;
+
+	void recalc_size();
+
+	void draw(scr_coord offset) OVERRIDE;
+};
 
 class halt_detail_t : public gui_frame_t, action_listener_t
 {
@@ -99,14 +124,20 @@ private:
 	uint32 old_factory_count, old_catg_count;
 	uint32 update_time;
 	scr_coord_val cashed_size_y;
+
+	gui_tab_panel_t tabs;
 	static sint16 tabstate;
 	bool show_pas_info, show_freight_info;
+	gui_container_t cont, cont_goods, cont_route;
+	gui_scrollpane_t scrolly, scrolly_pas, scrolly_goods, scrolly_route;
+	gui_label_t lb_selected_route_catg;
+	gui_heading_t lb_nearby_factory, lb_routes, lb_serve_catg, lb_serve_lines, lb_serve_convoys;
 
 	cbuffer_t buf;
 
+	gui_halthandled_lines_t line_number;
 	halt_detail_pas_t pas;
 	halt_detail_goods_t goods;
-	gui_halthandled_lines_t line_number;
 	gui_container_t cont, cont_goods;
 	gui_scrollpane_t scrolly, scrolly_pas, scrolly_goods;
 	gui_label_t lb_nearby_factory;
@@ -116,12 +147,26 @@ private:
 	gui_tab_panel_t tabs;
 
 
-	slist_tpl<button_t *>posbuttons;
+	// service tab stuffs
+	cbuffer_t buf;
+	gui_textarea_t txt_info;
 	slist_tpl<gui_label_t *>linelabels;
 	slist_tpl<button_t *>linebuttons;
 	slist_tpl<gui_label_t *> convoylabels;
 	slist_tpl<button_t *> convoybuttons;
 	slist_tpl<char*> label_names;
+
+	// route tab stuffs
+	gui_halt_route_info_t route;
+	bool list_by_station = false;
+	button_t bt_by_category, bt_by_station;
+	slist_tpl<button_t *>catg_buttons, pas_class_buttons, mail_class_buttons;
+	char *pass_class_name_untranslated[32];
+	char *mail_class_name_untranslated[32];
+	uint8 selected_route_catg_index = goods_manager_t::INDEX_NONE;
+	uint8 selected_class = 0;
+	// Opening and closing the button panel on the route tab
+	void open_close_catg_buttons();
 
 	bool has_min_sizer() const OVERRIDE { return true; }
 

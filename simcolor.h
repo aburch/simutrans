@@ -146,6 +146,7 @@ typedef unsigned int FLAGGED_PIXVAL;
 #define COL_WAITING         COL_DARK_TURQUOISE
 #define COL_ARRIVED         COL_LIGHT_BLUE
 #define COL_DEPARTED        COL_MAXSPEED
+#define COL_COMMUTER        (22)
 
 //#define COL_POWERLINES      87
 #define COL_ELECTRICITY     60
