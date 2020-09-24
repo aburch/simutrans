@@ -64,13 +64,13 @@ class gui_convoy_payload_info_t : public gui_container_t
 {
 private:
 	convoihandle_t cnv;
-	bool show_detail = true;
+	bool show_detail = true; // Currently broken, always true
 
 public:
 	gui_convoy_payload_info_t(convoihandle_t cnv);
 
 	void set_cnv(convoihandle_t c) { cnv = c; }
-	void set_show_detail(bool yesno) { show_detail = yesno; }
+	void set_show_detail(bool yesno) { show_detail = yesno; } // Currently not in use
 
 	void draw(scr_coord offset);
 	void display_loading_bar(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, uint16 loading, uint16 capacity, uint16 overcrowd_capacity);
@@ -111,8 +111,8 @@ private:
 	gui_convoy_payload_info_t payload_info;
 	gui_convoy_maintenance_info_t maintenance;
 
-	gui_scrollpane_t scrolly;
 	gui_scrollpane_t scrolly_formation;
+	gui_scrollpane_t scrolly;
 	gui_scrollpane_t scrolly_payload_info;
 	gui_scrollpane_t scrolly_maintenance;
 
@@ -123,7 +123,7 @@ private:
 	button_t retire_button;
 	button_t class_management_button;
 
-	button_t display_detail_button;
+	//button_t display_detail_button;
 
 public:
 	convoi_detail_t(convoihandle_t cnv);

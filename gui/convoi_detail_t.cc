@@ -39,13 +39,14 @@
 
 convoi_detail_t::convoi_detail_t(convoihandle_t cnv) :
 	gui_frame_t( cnv->get_name(), cnv->get_owner() ),
-	veh_info(cnv),
 	formation(cnv),
+	veh_info(cnv),
 	payload_info(cnv),
 	maintenance(cnv),
-	scrolly(&veh_info),
 	scrolly_formation(&formation),
-	scrolly_payload_info(&cont_payload),
+	scrolly(&veh_info),
+	//scrolly_payload_info(&cont_payload), // This method cannot be used with new GUI engine
+	scrolly_payload_info(&payload_info),
 	scrolly_maintenance(&maintenance)
 {
 	this->cnv = cnv;
@@ -60,12 +61,12 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv) :
 	withdraw_button.add_listener(this);
 	add_component(&withdraw_button);
 
-	retire_button.init(button_t::roundbox, "Retire", scr_coord(BUTTON3_X, 16), D_BUTTON_SIZE);
+	retire_button.init(button_t::roundbox, "Retire", scr_coord(BUTTON3_X, D_BUTTON_HEIGHT), D_BUTTON_SIZE);
 	retire_button.set_tooltip("Convoi is sent to depot when all wagons are empty.");
 	add_component(&retire_button);
 	retire_button.add_listener(this);
 
-	class_management_button.init(button_t::roundbox, "class_manager", scr_coord(BUTTON4_X, 16), D_BUTTON_SIZE);
+	class_management_button.init(button_t::roundbox, "class_manager", scr_coord(BUTTON4_X, D_BUTTON_HEIGHT), D_BUTTON_SIZE);
 	class_management_button.set_tooltip("see_and_change_the_class_assignments");
 	add_component(&class_management_button);
 	class_management_button.add_listener(this);
@@ -81,6 +82,8 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv) :
 
 	scrolly.set_show_scroll_x(true);
 
+	// This method cannot be used with new GUI engine
+	/*
 	if (cnv->get_vehicle_count() > 1) {
 		display_detail_button.init(button_t::square_state, "Display loaded detail", scr_coord(BUTTON3_X + D_BUTTON_SIZE.w / 2, LINESPACE / 2));
 		display_detail_button.set_tooltip("Displays detailed information of the vehicle's load.");
@@ -89,7 +92,7 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv) :
 		cont_payload.add_component(&display_detail_button);
 	}
 	payload_info.set_show_detail(true);
-	cont_payload.add_component(&payload_info);
+	cont_payload.add_component(&payload_info);*/
 
 	tabs.add_tab(&scrolly, translator::translate("cd_spec_tab"));
 	tabs.add_tab(&scrolly_payload_info, translator::translate("cd_payload_tab"));
@@ -217,11 +220,12 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp, value_t)     
 			create_win(20, 40, new vehicle_class_manager_t(cnv), w_info, magic_class_manager + cnv.get_id());
 			return true;
 		}
+		/*
 		else if (comp == &display_detail_button) {
 			display_detail_button.pressed = !display_detail_button.pressed;
 			payload_info.set_show_detail(display_detail_button.pressed);
 			return true;
-		}
+		}*/
 	}
 	return false;
 }
@@ -246,11 +250,11 @@ convoi_detail_t::convoi_detail_t() :
 	cnv(convoihandle_t()),
 	scrolly(&veh_info),
 	scrolly_formation(&formation),
+	payload_info(cnv),
 	scrolly_payload_info(&cont_payload),
 	scrolly_maintenance(&maintenance),
 	veh_info(convoihandle_t()),
 	formation(cnv),
-	payload_info(cnv),
 	maintenance(cnv)
 {
 }
