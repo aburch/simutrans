@@ -69,10 +69,10 @@ void halt_detail_t::init()
 	add_component(&line_number);
 
 	lb_serve_lines.init("Lines serving this stop", scr_coord(D_MARGIN_LEFT, D_V_SPACE),
-		halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1() + 2, 1);
+		color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
 	cont.add_component(&lb_serve_lines);
 	lb_serve_convoys.init("Lineless convoys serving this stop", scr_coord(D_MARGIN_LEFT, LINESPACE*4),
-		halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1() + 2, 1);
+		color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
 	lb_serve_convoys.set_visible(false);
 	cont.add_component(&lb_serve_convoys);
 
@@ -93,7 +93,7 @@ void halt_detail_t::init()
 	scrolly.set_show_scroll_x(true);
 
 	lb_nearby_factory.init("Fabrikanschluss"/* (en)Connected industries */, scr_coord(D_MARGIN_LEFT, 0),
-		halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1() + 2, 1);
+		color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
 
 	// fill buffer with halt detail
 	goods.recalc_size();
@@ -115,7 +115,7 @@ void halt_detail_t::init()
 	bt_by_category.init(button_t::roundbox_state, "hd_btn_by_category", scr_coord(bt_by_station.get_pos().x - D_BUTTON_WIDTH, y), D_BUTTON_SIZE);
 	y += D_BUTTON_HEIGHT;
 	lb_serve_catg.init("lb_served_goods_and_classes", scr_coord(D_MARGIN_LEFT, y),
-		halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1() + 2, 1);
+		color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
 	bt_by_station.add_listener(this);
 	bt_by_category.add_listener(this);
 	bt_by_station.pressed = false;
@@ -219,7 +219,7 @@ void halt_detail_t::init()
 
 	routelist_default_pos_y = y + D_BUTTON_HEIGHT * (row + 2) + D_V_SPACE;
 	lb_routes.init("Direkt erreichbare Haltestellen", scr_coord(D_MARGIN_LEFT, routelist_default_pos_y),
-		halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1() + 2, 1);
+		color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
 	lb_selected_route_catg.set_pos(lb_routes.get_pos() + scr_coord(0, D_HEADING_HEIGHT+D_V_SPACE));
 	lb_selected_route_catg.set_size(D_BUTTON_SIZE);
 	scrolly_route.set_pos(scr_coord(0, lb_selected_route_catg.get_pos().y + D_BUTTON_HEIGHT));
@@ -1037,7 +1037,7 @@ void halt_detail_pas_t::draw_class_table(scr_coord offset, const uint8 class_nam
 		if (waiting_commuter_sum_by_class) {
 			// commuter bar
 			bar_width = ((waiting_commuter_sum_by_class*GOODS_WAITING_BAR_BASE_WIDTH) + (base_capacity-1)) / base_capacity;
-			display_cylinderbar_wh_clip_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH * 2 + 10, y + 1, bar_width, 6, COL_COMMUTER, true);
+			display_cylinderbar_wh_clip_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH * 2 + 10, y + 1, bar_width, 6, color_idx_to_rgb(COL_COMMUTER), true);
 		}
 
 		y += LINESPACE + GOODS_LEAVING_BAR_HEIGHT + 1;
@@ -1123,7 +1123,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 			pas_info.append(translator::translate("visitors"));
 			left += display_proportional_clip_rgb(offset.x + left, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true) + D_H_SPACE * 2;
 
-			display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, COL_COMMUTER, true, translator::translate("commuters"));
+			display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, color_idx_to_rgb(COL_COMMUTER), true, translator::translate("commuters"));
 			left += 10;
 			pas_info.clear();
 			pas_info.append(translator::translate("commuters"));
@@ -1148,7 +1148,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 		if (halt->get_pax_enabled()) {
 			top += LINESPACE;
 			display_heading_rgb(offset.x, offset.y + top, D_DEFAULT_WIDTH - D_MARGINS_X, D_HEADING_HEIGHT,
-				halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1()+2, translator::translate("Around passenger demands"), true, 1);
+				color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), translator::translate("Around passenger demands"), true, 1);
 			top += D_HEADING_HEIGHT + D_V_SPACE*2;
 			display_proportional_clip_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, translator::translate("hd_wealth"), ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_proportional_clip_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + 4, offset.y + top, translator::translate("Population"), ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -1156,10 +1156,10 @@ void halt_detail_pas_t::draw(scr_coord offset)
 			display_proportional_clip_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH * 2 + 5 + 4, offset.y + top, translator::translate("Jobs"), ALIGN_LEFT, SYSCOL_TEXT, true);
 			top += LINESPACE + 2;
 
-			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width, offset.y + top, MN_GREY1);
-			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH, offset.y + top, MN_GREY1);
-			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 2 + 5, offset.y + top, MN_GREY1);
-			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 2 + 5 + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 3 + 5, offset.y + top, MN_GREY1);
+			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width, offset.y + top, color_idx_to_rgb(MN_GREY1));
+			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH, offset.y + top, color_idx_to_rgb(MN_GREY1));
+			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 2 + 5, offset.y + top, color_idx_to_rgb(MN_GREY1));
+			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 2 + 5 + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 3 + 5, offset.y + top, color_idx_to_rgb(MN_GREY1));
 			top += 4;
 
 			const uint32 arround_visitor_demand = halt->get_around_visitor_demand();
@@ -1174,7 +1174,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 				pas_info.clear();
 				pas_info.printf("%u (%4.1f%%)", arround_population_by_class, arround_population ? 100.0 * arround_population_by_class / arround_population : 0.0);
 				uint colored_with = arround_population ? ((DEMANDS_CELL_WIDTH*arround_population_by_class) + (arround_population-1)) / arround_population : 0;
-				display_linear_gradient_wh_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH+5, offset.y + top+1, colored_with, LINESPACE - 3, COL_DARK_GREEN+1, 70, 15, true);
+				display_linear_gradient_wh_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH+5, offset.y + top+1, colored_with, LINESPACE - 3, color_idx_to_rgb(COL_DARK_GREEN+1), 70, 15, true);
 				display_proportional_clip_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 				// visitor demand
@@ -1182,7 +1182,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 				pas_info.clear();
 				pas_info.printf("%u (%4.1f%%)", arround_visitor_demand_by_class, arround_visitor_demand ? 100.0 * arround_visitor_demand_by_class / arround_visitor_demand : 0.0);
 				colored_with = arround_visitor_demand ? ((DEMANDS_CELL_WIDTH*arround_visitor_demand_by_class) + (arround_visitor_demand-1)) / arround_visitor_demand : 0;
-				display_linear_gradient_wh_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH+5, offset.y + top + 1, colored_with, LINESPACE - 3, col_passenger-1, 70, 15, true);
+				display_linear_gradient_wh_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH+5, offset.y + top + 1, colored_with, LINESPACE - 3, col_passenger, 70, 15, true);
 				display_proportional_clip_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH *2 + 5, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 				// job demand
@@ -1190,16 +1190,16 @@ void halt_detail_pas_t::draw(scr_coord offset)
 				pas_info.clear();
 				pas_info.printf("%u (%4.1f%%)", arround_job_demand_by_class, arround_job_demand ? 100.0 * arround_job_demand_by_class / arround_job_demand : 0.0);
 				colored_with = arround_job_demand ? ((DEMANDS_CELL_WIDTH*arround_job_demand_by_class) + (arround_job_demand-1)) / arround_job_demand : 0;
-				display_linear_gradient_wh_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + (DEMANDS_CELL_WIDTH+5) *2, offset.y + top + 1, colored_with, LINESPACE - 3, COL_COMMUTER-1, 70, 15, true);
+				display_linear_gradient_wh_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + (DEMANDS_CELL_WIDTH+5) *2, offset.y + top + 1, colored_with, LINESPACE - 3, color_idx_to_rgb(COL_COMMUTER-1), 70, 15, true);
 				display_proportional_clip_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH *3 + 5 + 4, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 				top += LINESPACE;
 			}
 			top += 2;
-			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width, offset.y + top, MN_GREY1);
-			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH, offset.y + top, MN_GREY1);
-			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 2 + 5, offset.y + top, MN_GREY1);
-			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 2 + 5 + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 3 + 5, offset.y + top, MN_GREY1);
+			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width, offset.y + top, color_idx_to_rgb(MN_GREY1));
+			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH, offset.y + top, color_idx_to_rgb(MN_GREY1));
+			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 2 + 5, offset.y + top, color_idx_to_rgb(MN_GREY1));
+			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 2 + 5 + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + class_name_cell_width + DEMANDS_CELL_WIDTH * 3 + 5, offset.y + top, color_idx_to_rgb(MN_GREY1));
 
 			top += 4;
 			pas_info.clear();
@@ -1219,15 +1219,15 @@ void halt_detail_pas_t::draw(scr_coord offset)
 		if ((halt->get_pax_enabled() && arround_population) || halt->get_mail_enabled()) {
 			top += LINESPACE;
 			display_heading_rgb(offset.x, offset.y + top, D_DEFAULT_WIDTH - D_MARGINS_X, D_HEADING_HEIGHT,
-				halt->get_owner()->get_player_color1(), halt->get_owner()->get_player_color1() + 2, translator::translate("Transportation status around this stop"), true, 1);
+				color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), translator::translate("Transportation status around this stop"), true, 1);
 			top += D_HEADING_HEIGHT + D_V_SPACE * 2;
 			// header
 			display_proportional_clip_rgb(offset.x + D_BUTTON_WIDTH + GOODS_SYMBOL_CELL_WIDTH + 4, offset.y + top, translator::translate("hd_generated"), ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_proportional_clip_rgb(offset.x + D_BUTTON_WIDTH + GOODS_SYMBOL_CELL_WIDTH + GENERATED_CELL_WIDTH + D_H_SPACE + 4, offset.y + top, translator::translate("Success rate"), ALIGN_LEFT, SYSCOL_TEXT, true);
 			top += LINESPACE + 2;
-			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH, offset.y + top, MN_GREY1);
-			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH, offset.y + top, MN_GREY1);
-			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH * 2 + GENERATED_CELL_WIDTH + 5, offset.y + top, MN_GREY1);
+			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH, offset.y + top, color_idx_to_rgb(MN_GREY1));
+			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH, offset.y + top, color_idx_to_rgb(MN_GREY1));
+			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GENERATED_CELL_WIDTH + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH * 2 + GENERATED_CELL_WIDTH + 5, offset.y + top, color_idx_to_rgb(MN_GREY1));
 			top += 4;
 			if (halt->get_pax_enabled() && arround_population) {
 				// These are information about RES building
@@ -1245,7 +1245,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 				top += LINESPACE;
 
 				// commuting trip
-				display_colorbox_with_tooltip(offset.x, offset.y + top + 1, 8, 8, COL_COMMUTER, true, translator::translate("commuters"));
+				display_colorbox_with_tooltip(offset.x, offset.y + top + 1, 8, 8, color_idx_to_rgb(COL_COMMUTER), true, translator::translate("commuters"));
 				pas_info.clear();
 				pas_info.append(translator::translate("Commuting trip")); // Note: "Commuting" is used in chart button. "commuting" is used in cargo list
 				display_proportional_clip_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
