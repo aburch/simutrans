@@ -311,7 +311,6 @@ void display_shadow_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text
 void display_ddd_box_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PIXVAL tl_color, PIXVAL rd_color, bool dirty);
 void display_ddd_box_clip_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PIXVAL tl_color, PIXVAL rd_color);
 void display_heading_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL text_color, PIXVAL frame_color, const char *text, int dirty, uint8 style);
-#define display_heading( x, y, w, h, text_col, frame_col, text, dirty, style ) display_heading_rgb( x, y, w, h, specialcolormap_all_day[(text_col)&0xFF], specialcolormap_all_day[(frame_col)&0xFF], text, dirty, style )
 
 
 // unicode save moving in strings

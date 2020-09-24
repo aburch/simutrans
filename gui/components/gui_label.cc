@@ -210,7 +210,7 @@ void gui_label_updown_t::draw(scr_coord offset)
 }
 
 
-gui_heading_t::gui_heading_t(const char* text, COLOR_VAL color_, COLOR_VAL frame_color_, uint8 style_) :
+gui_heading_t::gui_heading_t(const char* text, PIXVAL color_, PIXVAL frame_color_, uint8 style_) :
 	tooltip(NULL)
 {
 	set_size(scr_size(D_DEFAULT_WIDTH - D_MARGINS_X, D_HEADING_HEIGHT));
@@ -220,7 +220,7 @@ gui_heading_t::gui_heading_t(const char* text, COLOR_VAL color_, COLOR_VAL frame
 void gui_heading_t::draw(scr_coord offset)
 {
 	if (text) {
-		display_heading(pos.x + offset.x, pos.y + offset.y, get_size().w, get_size().h, text_color, frame_color, text, true, style);
+		display_heading_rgb(pos.x + offset.x, pos.y + offset.y, get_size().w, get_size().h, text_color, frame_color, text, true, style);
 	}
 	if (tooltip  &&  getroffen(get_mouse_x() - offset.x, get_mouse_y() - offset.y)) {
 		const scr_coord_val by = offset.y + pos.y;

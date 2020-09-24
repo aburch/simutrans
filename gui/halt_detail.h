@@ -124,31 +124,24 @@ private:
 	uint32 old_factory_count, old_catg_count;
 	uint32 update_time;
 	scr_coord_val cashed_size_y;
-
-	gui_tab_panel_t tabs;
 	static sint16 tabstate;
 	bool show_pas_info, show_freight_info;
-	gui_container_t cont, cont_goods, cont_route;
-	gui_scrollpane_t scrolly, scrolly_pas, scrolly_goods, scrolly_route;
-	gui_label_t lb_selected_route_catg;
-	gui_heading_t lb_nearby_factory, lb_routes, lb_serve_catg, lb_serve_lines, lb_serve_convoys;
 
 	cbuffer_t buf;
 
 	gui_halthandled_lines_t line_number;
 	halt_detail_pas_t pas;
 	halt_detail_goods_t goods;
-	gui_container_t cont, cont_goods;
-	gui_scrollpane_t scrolly, scrolly_pas, scrolly_goods;
-	gui_label_t lb_nearby_factory;
-	gui_textarea_t txt_info;
+	gui_container_t cont, cont_goods, cont_route;
+	gui_scrollpane_t scrolly, scrolly_pas, scrolly_goods, scrolly_route;
+	gui_label_t lb_selected_route_catg;
+	gui_heading_t lb_nearby_factory, lb_routes, lb_serve_catg, lb_serve_lines, lb_serve_convoys;
 
 	gui_halt_nearby_factory_info_t nearby_factory;
 	gui_tab_panel_t tabs;
 
 
 	// service tab stuffs
-	cbuffer_t buf;
 	gui_textarea_t txt_info;
 	slist_tpl<gui_label_t *>linelabels;
 	slist_tpl<button_t *>linebuttons;
