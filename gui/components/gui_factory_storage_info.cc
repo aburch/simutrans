@@ -307,7 +307,7 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 			const bool is_within_own_network = target_fab->is_connected_to_network(welt->get_active_player());
 			xoff = D_POS_BUTTON_WIDTH + D_H_SPACE;
 
-			const goods_desc_t *transport_goods = NULL;
+			const goods_desc_t *transport_goods = goods_manager_t::none;
 			if (!is_input_display) {
 				FOR(array_tpl<ware_production_t>, const& product, fab->get_output()) {
 					const goods_desc_t *inquiry_goods = product.get_typ();
@@ -326,8 +326,6 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 					}
 				}
 			}
-
-			assert(transport_goods != NULL);
 
 			// [status color bar]
 			if (fab->get_status() >= fabrik_t::staff_shortage) {
