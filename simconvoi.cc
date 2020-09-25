@@ -5323,7 +5323,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	if(!this_halt.is_bound())
 	{
 		state = CAN_START;
-		dbg->error("void convoi_t::laden()", "Trying to load at halt %s when not at a halt", halt.is_bound() ? halt->get_name() : "none");
+		dbg->warning("void convoi_t::laden()", "%s trying to load at %s when not at a halt", get_name(), halt.is_bound() ? halt->get_name() : "none");
 		return;
 	}
 
@@ -5419,7 +5419,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		{
 			// Necessary to prevent divisions by zero.
 			// This code should never be reached.
-			dbg->error("void convoi_t::laden()", "Journey time (%i) is zero or less");
+			dbg->warning("void convoi_t::laden()", "Journey time is %i for %s.", latest_journey_time, get_name());
 			latest_journey_time = 1;
 		}
 
@@ -6077,7 +6077,7 @@ station_tile_search_ready: ;
 		arrival_time = now;
 		if (arrival_time < WAIT_INFINITE)
 		{
-			dbg->error("void convoi_t::hat_gehalten(halthandle_t halt)", "Arrival time is in the future for convoy %u at stop %u", self.get_id(), halt.get_id());
+			dbg->warning("void convoi_t::hat_gehalten(halthandle_t halt)", "Arrival time in the future for %s at %s", get_name(), halt->get_name());
 		}
 	}
 	const sint64 reversing_time = schedule->get_current_entry().reverse > 0 ? (sint64)calc_reverse_delay() : 0ll;
