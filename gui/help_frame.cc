@@ -88,6 +88,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 		if(  strstart(iter->get_tool_selector()->get_help_filename(),"railtools.txt" )  ) {
 			add_helpfile( toolbars, NULL, "bridges.txt", true, 1 );
 			add_helpfile( toolbars, NULL, "signals.txt", true, 1 );
+			add_helpfile( toolbars, "set signal spacing", "signal_spacing.txt", false, 1 );
 		}
 		if(  strstart(iter->get_tool_selector()->get_help_filename(),"roadtools.txt" )  ) {
 			add_helpfile( toolbars, NULL, "privatesign_info.txt", false, 1 );
@@ -140,7 +141,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 	add_helpfile( how_to_play, "Spielerliste", "players.txt", false, 0 );
 	add_helpfile( how_to_play, "Finanzen", "finances.txt", false, 1 );
 	add_helpfile( how_to_play, "Farbe", "color.txt", false, 1 );
-//		add_helpfile( how_to_play, "Scenario", "scenario.txt", false, 1 );
+//	add_helpfile( how_to_play, "Scenario", "scenario.txt", false, 1 );
 	add_helpfile( how_to_play, "Enter Password", "password.txt", false, 1 );
 	add_helpfile( how_to_play, NULL, "way_wear.txt", false, 1);
 	add_helpfile(how_to_play, NULL, "signals_overview.txt", false, 1);
@@ -213,9 +214,9 @@ static const char *load_text(char const* const filename )
 		}
 		// now we may need to translate the text ...
 		if(  len>0  ) {
-			bool is_latin = strchr( buf, 0xF6 )!=NULL;	// "o-umlaut, is forbidden for unicode
+			bool is_latin = strchr( buf, 0xF6 )!=NULL; // "o-umlaut, is forbidden for unicode
 			if(  !is_latin  &&  translator::get_lang()->is_latin2_based  ) {
-				is_latin |= strchr( buf, 0xF8 )!=NULL;	// "o-umlaut, is forbidden for unicode
+				is_latin |= strchr( buf, 0xF8 )!=NULL; // "o-umlaut, is forbidden for unicode
 			}
 			if(  is_latin  ) {
 				// we need to translate charwise ...
@@ -322,8 +323,8 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 				case '<': c = "&lt;"; break;
 				case '>': c = "&gt;"; break;
 				case 27:  c = "ESC"; break;
-				case SIM_KEY_HOME:	c=translator::translate( "[HOME]" ); break;
-				case SIM_KEY_END:	c=translator::translate( "[END]" ); break;
+				case SIM_KEY_HOME: c = translator::translate( "[HOME]" ); break;
+				case SIM_KEY_END:  c = translator::translate( "[END]" ); break;
 				default:
 					if (key < 32) {
 						sprintf(str, "%s + %c", translator::translate("[CTRL]"), '@' + key);
@@ -443,7 +444,8 @@ void help_frame_t::add_helpfile( cbuffer_t &section, const char *titlename, cons
 	if(  (  only_native  &&  mode!=native  )  ||  mode==missing  ) {
 		return;
 	}
-	std::string filetitle;	// just in case as temporary storage ...
+
+	std::string filetitle; // just in case as temporary storage ...
 	if(  titlename == NULL  &&  file  ) {
 		// get the title from the helpfile
 		char htmlline[1024];
