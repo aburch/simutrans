@@ -359,7 +359,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		if (welt->get_settings().is_separate_halt_capacities()) {
 			// here only for separate capacities
 			if (halt->get_pax_enabled()) {
-				display_color_img(skinverwaltung_t::passengers->get_image_id(0), left, top, 0, false, false);
+				display_color_img(skinverwaltung_t::passengers->get_image_id(0), left, top + FIXED_SYMBOL_YOFF, 0, false, false);
 				left += 10;
 			}
 			// mail
@@ -371,7 +371,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 				info_buf.printf("%u", halt->get_capacity(1));
 				enabled = true;
 				left += display_proportional_rgb(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-				display_color_img(skinverwaltung_t::mail->get_image_id(0), left, top, 0, false, false);
+				display_color_img(skinverwaltung_t::mail->get_image_id(0), left, top + FIXED_SYMBOL_YOFF, 0, false, false);
 				left += 10;
 			}
 			// goods
@@ -382,7 +382,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 				}
 				info_buf.printf("%u", halt->get_capacity(2));
 				left += display_proportional_rgb(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-				display_color_img(skinverwaltung_t::goods->get_image_id(0), left, top, 0, false, false);
+				display_color_img(skinverwaltung_t::goods->get_image_id(0), left, top + FIXED_SYMBOL_YOFF, 0, false, false);
 			}
 		}
 
@@ -415,7 +415,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 				if (pax_sum > 999)  { indicator_height++; }
 				if (pax_sum > 9999) { indicator_height++; }
 				// pax symbol
-				display_color_img(skinverwaltung_t::passengers->get_image_id(0), left, top+2, 0, false, false);
+				display_color_img(skinverwaltung_t::passengers->get_image_id(0), left, top + FIXED_SYMBOL_YOFF, 0, false, false);
 				left += 11;
 
 				info_buf.printf(": %d ", pax_sum);
@@ -426,7 +426,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 				if (!halt->get_ware_summe(goods_manager_t::passengers) && !halt->has_pax_user(2, true)) {
 					// there is no passenger demand
 					if (skinverwaltung_t::alerts) {
-						display_color_img(skinverwaltung_t::alerts->get_image_id(2), left, top, 0, false, false);
+						display_color_img(skinverwaltung_t::alerts->get_image_id(2), left, top + FIXED_SYMBOL_YOFF, 0, false, false);
 					}
 					left += 13;
 					info_buf.printf("%s", translator::translate("This stop has no user"));
@@ -435,7 +435,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 				else if (!halt->get_ware_summe(goods_manager_t::passengers) && !halt->has_pax_user(2, false)) {
 					// there is demand but it seems no passengers using
 					if (skinverwaltung_t::alerts) {
-						display_color_img(skinverwaltung_t::alerts->get_image_id(2), left, top, 0, false, false);
+						display_color_img(skinverwaltung_t::alerts->get_image_id(2), left, top + FIXED_SYMBOL_YOFF, 0, false, false);
 					}
 					left += 13;
 					info_buf.printf("%s", translator::translate("No passenger service"));
@@ -448,7 +448,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 						for (int i = 0; i < PAX_EVALUATIONS; i++) {
 							info_buf.printf("%d", pax_ev_num[i]);
 							left += display_proportional_rgb(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + 1;
-							display_color_img(skinverwaltung_t::pax_evaluation_icons->get_image_id(i), left, top, 0, false, false);
+							display_color_img(skinverwaltung_t::pax_evaluation_icons->get_image_id(i), left, top + FIXED_SYMBOL_YOFF, 0, false, false);
 							if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
 								tooltip_buf.clear();
 								tooltip_buf.printf("%s: %s", translator::translate(cost_type[i]), translator::translate(cost_tooltip[i]));
@@ -534,7 +534,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 				if (mail_sum > 9999) { indicator_height++; }
 
 				// mail symbol
-				display_color_img(skinverwaltung_t::mail->get_image_id(0), left, top + 2, 0, false, false);
+				display_color_img(skinverwaltung_t::mail->get_image_id(0), left, top + FIXED_SYMBOL_YOFF, 0, false, false);
 				left += 11;
 
 				info_buf.printf(": %d ", mail_sum);
@@ -544,7 +544,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 				// value + symbol + tooltip / error message
 				if (!halt->get_ware_summe(goods_manager_t::mail) && !halt->haltestelle_t::gibt_ab(goods_manager_t::get_info(1))) {
 					if (skinverwaltung_t::alerts) {
-						display_color_img(skinverwaltung_t::alerts->get_image_id(2), left, top, 0, false, false);
+						display_color_img(skinverwaltung_t::alerts->get_image_id(2), left, top + FIXED_SYMBOL_YOFF, 0, false, false);
 					}
 					left += 13;
 					if (!halt->has_mail_user(2, true)) {
@@ -563,7 +563,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 						info_buf.printf("(%d", halt->haltestelle_t::get_mail_delivered());
 						left += display_proportional_rgb(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + 1;
 
-						display_color_img(skinverwaltung_t::mail_evaluation_icons->get_image_id(0), left, top, 0, false, false);
+						display_color_img(skinverwaltung_t::mail_evaluation_icons->get_image_id(0), left, top + FIXED_SYMBOL_YOFF, 0, false, false);
 						if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
 							tooltip_buf.clear();
 							tooltip_buf.printf("%s: %s", translator::translate(cost_type[5]), translator::translate(cost_tooltip[5]));
@@ -575,7 +575,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 						info_buf.printf(", %d", halt->haltestelle_t::get_mail_no_route());
 						left += display_proportional_rgb(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + 1;
 						info_buf.clear();
-						display_color_img(skinverwaltung_t::mail_evaluation_icons->get_image_id(1), left, top, 0, false, false);
+						display_color_img(skinverwaltung_t::mail_evaluation_icons->get_image_id(1), left, top + FIXED_SYMBOL_YOFF, 0, false, false);
 						if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
 							tooltip_buf.clear();
 							tooltip_buf.printf("%s: %s", translator::translate(cost_type[6]), translator::translate(cost_tooltip[6]));

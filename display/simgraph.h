@@ -30,6 +30,11 @@ extern int large_font_total_height;
 #define LINEASCENT (large_font_ascent)
 #define LINESPACE (large_font_total_height)
 
+// Basic size of small symbols such as alerts, goods categories, evaluations, etc.
+// Same value for height
+#define D_FIXED_SYMBOL_WIDTH 12
+#define FIXED_SYMBOL_YOFF ((LINESPACE-D_FIXED_SYMBOL_WIDTH)/2)
+
 #define VEHICLE_BAR_HEIGHT 7
 
 /**
