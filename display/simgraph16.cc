@@ -4107,8 +4107,9 @@ void display_filled_roundbox_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD
 void display_cylinderbar_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty  CLIP_NUM_DEF)
 {
 	display_fb_internal(xp, yp, w, h, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
-	display_blend_wh_rgb(xp, yp, w, min(3,h/2), color_idx_to_rgb(COL_WHITE), 15);
-	display_blend_wh_rgb(xp, yp + 1, w, 1, color_idx_to_rgb(COL_WHITE), 15);
+	for (uint8 i = 1; i < h/2; i++) {
+		display_blend_wh_rgb(xp, yp + i, w, 1, color_idx_to_rgb(COL_WHITE), 33 * (h/4-abs(i-h/4))/(h/4));
+	}
 	uint8 start = h * 4 / 7;
 	for (uint8 i = start; i < h; i++) {
 		display_blend_wh_rgb(xp, yp + i, w, 1, color_idx_to_rgb(COL_BLACK), 33*((i-start)+1)/(h-start));
