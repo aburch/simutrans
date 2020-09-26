@@ -5356,7 +5356,10 @@ void convoi_t::laden() //"load" (Babelfish)
 	// so code inside if will be executed once. At arrival time.
 	minivec_tpl<uint8> departure_entries_to_remove(schedule->get_count());
 
-	if(journey_distance > 0)
+	// Update journey times.
+	// loading in other states such as WAITING_FOR_CLEARANCE and REVERSING are non-scheduled and should be excluded.
+	// perhaps the state == LOADING check could be replaced by a parameter.
+	if(journey_distance > 0 && state == LOADING)
 	{
 		arrival_time = welt->get_ticks();
 		inthashtable_tpl<uint16, sint64> best_times_in_schedule; // Key: halt ID; value: departure time.
