@@ -79,10 +79,10 @@ public:
 			}
 			break;
 		case 1:
-			display_outline_proportional_rgb( p.x, p.y, pc+1, color_idx_to_rgb(COL_BLACK), text, 1 );
+			display_outline_proportional_rgb( p.x, p.y+LINESPACE/4, pc+1, color_idx_to_rgb(COL_BLACK), text, 1 );
 			break;
 		case 2:
-			display_outline_proportional_rgb( p.x + LINESPACE + D_H_SPACE, p.y, color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, 1 );
+			display_outline_proportional_rgb( p.x + LINESPACE + D_H_SPACE, p.y+LINESPACE/4, color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, 1 );
 			display_ddd_box_clip_rgb(         p.x,                     p.y,   LINESPACE,   LINESPACE,   pc-2, pc+2 );
 			display_fillbox_wh_clip_rgb(      p.x+1,                   p.y+1, LINESPACE-2, LINESPACE-2, pc,   true);
 			break;
