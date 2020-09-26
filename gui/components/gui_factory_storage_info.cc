@@ -66,11 +66,11 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 				left = 2;
 				yoff += 2; // box position adjistment
 				// [storage indicator]
-				display_ddd_box_clip_rgb(pos.x + offset.x + left, pos.y + offset.y + yoff, STORAGE_INDICATOR_WIDTH + 2, 8, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
-				display_fillbox_wh_clip_rgb(pos.x + offset.x + left + 1, pos.y + offset.y + yoff + 1, STORAGE_INDICATOR_WIDTH, 6, color_idx_to_rgb(MN_GREY2), true);
+				display_ddd_box_clip_rgb(pos.x + offset.x + left, pos.y + offset.y + yoff + GOODS_COLOR_BOX_YOFF, STORAGE_INDICATOR_WIDTH + 2, GOODS_COLOR_BOX_HEIGHT, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
+				display_fillbox_wh_clip_rgb(pos.x + offset.x + left + 1, pos.y + offset.y + yoff + GOODS_COLOR_BOX_YOFF + 1, STORAGE_INDICATOR_WIDTH, GOODS_COLOR_BOX_HEIGHT-2, color_idx_to_rgb(MN_GREY2), true);
 				if (storage_capacity) {
 					const uint16 colored_width = min(STORAGE_INDICATOR_WIDTH, (uint16)(STORAGE_INDICATOR_WIDTH * stock_quantity / storage_capacity));
-					display_cylinderbar_wh_clip_rgb(pos.x + offset.x + left + 1, pos.y + offset.y + yoff + 1, colored_width, 6, goods_color, true);
+					display_cylinderbar_wh_clip_rgb(pos.x + offset.x + left + 1, pos.y + offset.y + yoff + GOODS_COLOR_BOX_YOFF + 1, colored_width, 6, goods_color, true);
 					if (goods.get_in_transit()) {
 						const uint16 intransint_width = min(STORAGE_INDICATOR_WIDTH - colored_width, STORAGE_INDICATOR_WIDTH * (uint16)goods.get_in_transit() / storage_capacity);
 						display_fillbox_wh_clip_rgb(pos.x + offset.x + left + 1 + colored_width, pos.y + offset.y + yoff + 1, intransint_width, 6, COL_IN_TRANSIT, true);
@@ -79,7 +79,7 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 				left += STORAGE_INDICATOR_WIDTH + 2 + D_H_SPACE;
 
 				// [goods color box] This design is the same as the goods list
-				display_colorbox_with_tooltip(pos.x + offset.x + left, pos.y + offset.y + yoff, 8, 8, goods_color, NULL);
+				display_colorbox_with_tooltip(pos.x + offset.x + left, pos.y + offset.y + yoff + GOODS_COLOR_BOX_YOFF, GOODS_COLOR_BOX_HEIGHT, GOODS_COLOR_BOX_HEIGHT, goods_color, NULL);
 				left += 12;
 				yoff -= 2; // box position adjistment
 
@@ -155,16 +155,16 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 				left = 2;
 				yoff+=2; // box position adjistment
 				// [storage indicator]
-				display_ddd_box_clip_rgb(pos.x + offset.x + left, pos.y + offset.y + yoff, STORAGE_INDICATOR_WIDTH+2, 8, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
-				display_fillbox_wh_clip_rgb(pos.x + offset.x + left+1, pos.y + offset.y + yoff+1, STORAGE_INDICATOR_WIDTH, 6, color_idx_to_rgb(MN_GREY2), true);
+				display_ddd_box_clip_rgb(pos.x + offset.x + left, pos.y + offset.y + yoff + GOODS_COLOR_BOX_YOFF, STORAGE_INDICATOR_WIDTH+2, GOODS_COLOR_BOX_HEIGHT, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
+				display_fillbox_wh_clip_rgb(pos.x + offset.x + left+1, pos.y + offset.y + yoff + GOODS_COLOR_BOX_YOFF + 1, STORAGE_INDICATOR_WIDTH, GOODS_COLOR_BOX_HEIGHT-2, color_idx_to_rgb(MN_GREY2), true);
 				if (storage_capacity) {
 					const uint16 colored_width = min(STORAGE_INDICATOR_WIDTH, (uint16)(STORAGE_INDICATOR_WIDTH * stock_quantity / storage_capacity));
-					display_cylinderbar_wh_clip_rgb(pos.x + offset.x + left + 1, pos.y + offset.y + yoff + 1, colored_width, 6, goods_color, true);
+					display_cylinderbar_wh_clip_rgb(pos.x + offset.x + left + 1, pos.y + offset.y + yoff + GOODS_COLOR_BOX_YOFF + 1, colored_width, 6, goods_color, true);
 				}
 				left += STORAGE_INDICATOR_WIDTH + 2 + D_H_SPACE;
 
 				// [goods color box] This design is the same as the goods list
-				display_colorbox_with_tooltip(pos.x + offset.x + left, pos.y + offset.y + yoff, 8, 8, goods_color, NULL);
+				display_colorbox_with_tooltip(pos.x + offset.x + left, pos.y + offset.y + yoff + GOODS_COLOR_BOX_YOFF, GOODS_COLOR_BOX_HEIGHT, GOODS_COLOR_BOX_HEIGHT, goods_color, NULL);
 				left += 12;
 				yoff-=2; // box position adjistment
 
@@ -344,7 +344,7 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 				xoff += 11;
 			}
 			// [goods color box] This design is the same as the goods list
-			display_colorbox_with_tooltip(offset.x + xoff, offset.y + yoff + 2, 8, 8, transport_goods->get_color(), NULL);
+			display_colorbox_with_tooltip(offset.x + xoff, offset.y + yoff + GOODS_COLOR_BOX_YOFF, GOODS_COLOR_BOX_HEIGHT, GOODS_COLOR_BOX_HEIGHT, transport_goods->get_color(), NULL);
 			xoff += 12;
 			// [distance]
 			col_val = is_within_own_network ? SYSCOL_TEXT : color_idx_to_rgb(COL_GREY3);
