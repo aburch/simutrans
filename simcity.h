@@ -692,7 +692,7 @@ public:
 	inline koord get_linksoben() const { return lo;} // "Top left" (Google)
 	inline koord get_rechtsunten() const { return ur;} // "Bottom right" (Google)
 
-	koord get_center() const { return (lo+ur)/2; }
+	koord get_center() const { return lo/2 + ur/2; }
 
 	// Checks whether any given postition is within the city limits.
 	bool is_within_city_limits(koord k) const;

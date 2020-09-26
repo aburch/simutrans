@@ -99,7 +99,7 @@ void gui_convoy_formation_t::draw(scr_coord offset)
 			if (v->get_desc()->is_obsolete(month_now, welt)) {
 				col_val = COL_OBSOLETE;
 			}
-			display_veh_form_wh_clip_rgb(offset.x + 1, offset.y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, col_val, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_next() : v->get_desc()->get_basic_constraint_prev(), v->get_desc()->get_interactivity(), false);
+			display_veh_form_wh_clip_rgb(offset.x + 2, offset.y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, col_val, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_next() : v->get_desc()->get_basic_constraint_prev(), v->get_desc()->get_interactivity(), false);
 			display_veh_form_wh_clip_rgb(offset.x + grid_width / 2, offset.y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, col_val, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_prev() : v->get_desc()->get_basic_constraint_next(), v->get_desc()->get_interactivity(), true);
 
 			offset.x += grid_width;
