@@ -339,6 +339,13 @@ bool font_t::load_from_freetype(const char *fname, int pixel_height)
 		return false;
 	}
 
+	// hack for not rendered full width space
+	if(  glyphs[0x3000].advance == 0xFF  &&  glyphs[0x3001].advance != 0xFF  ) {
+		glyphs[0x3000].advance = glyphs[0x3001].advance;
+		glyphs[0x3000].width = 0;
+		glyphs[0x3000].yoff = GLYPH_BITMAP_HEIGHT;
+	}
+
 	// Use only needed amount
 	glyphs.resize(num_glyphs);
 	glyphs[(uint32)' '].advance = glyphs[(uint32)'n'].advance;
