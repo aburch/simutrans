@@ -41,6 +41,10 @@ class industry_link_t
 	{
 		lines.append(l)
 	}
+	function remove_line(l)
+	{
+		lines.remove(l)
+	}
 	function _save()
 	{
 		return ::saveinstance("industry_link_t", this)
@@ -173,10 +177,13 @@ class industry_manager_t extends manager_t
 		}
 
 		// iterate through all lines
-		foreach(line in link.lines) {
+		foreach(index, line in link.lines) {
 			if ( line.is_valid() ) {
-				//gui.add_message_at(our_player, "####### line.is_valid() " + line.is_valid(), world.get_time())
+				//gui.add_message_at(our_player, "####### valid line " + line.get_name(), world.get_time())
 				check_link_line(link, line)
+			} else {
+				gui.add_message_at(our_player, "####### invalid line " + line, world.get_time())
+				link.lines.remove(index)
 			}
 		}
 	}
@@ -190,6 +197,7 @@ class industry_manager_t extends manager_t
 		local  print_message_box = 0
 
 		dbgprint("Check line " + line.get_name())
+		//gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
 		// find convoy
 		local cnv = null
 		local cnv_count = 0
@@ -205,10 +213,15 @@ class industry_manager_t extends manager_t
 		}
 
 		if ( line.get_owner().nr == our_player.nr ) {
-			// non profit in 5 months then destroy line
+			// non profit in 5 months then destroy line //cnv.get_distance_traveled_total() > 3 &&
 			local profit_count = line.get_profit()
-			if ( profit_count[4] < 0 && profit_count[3] == 0 && profit_count[2] == 0 && profit_count[1] == 0 && profit_count[0] == 0 ) {
-				destroy_line(line)
+			//if ( cnv.get_distance_traveled_total() < 3 ) { return }
+			if ( (profit_count[4] < 0 || profit_count[4] == 0) && profit_count[3] == 0 && profit_count[2] == 0 && profit_count[1] == 0 && profit_count[0] == 0 ) {
+				if ( cnv.get_distance_traveled_total() > 1 && cnv.get_distance_traveled_total() < 25 && cnv.get_loading_level() == 0 ) {
+					destroy_line(line)
+				} else {
+					//gui.add_message_at(our_player, "return cnv/line new " + line.get_name(), world.get_time())
+				}
 				return
 			}
 		}
