@@ -17,7 +17,6 @@
 #include "../../player/simplay.h"
 
 #define STORAGE_INDICATOR_WIDTH (50)
-//#define STORAGE_INDICATOR_HEIGHT (6)
 
 // Half a display unit (0.5).
 static const sint64 FAB_DISPLAY_UNIT_HALF = ((sint64)1 << (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS - 1));
@@ -329,10 +328,10 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 
 			// [status color bar]
 			if (fab->get_status() >= fabrik_t::staff_shortage) {
-				display_ddd_box_clip_rgb(offset.x + xoff, offset.y + yoff + 2, D_INDICATOR_WIDTH / 2, D_INDICATOR_HEIGHT + 2, COL_STAFF_SHORTAGE, COL_STAFF_SHORTAGE);
+				display_ddd_box_clip_rgb(offset.x + xoff, offset.y + yoff + GOODS_COLOR_BOX_YOFF + 2, D_INDICATOR_WIDTH / 2, D_INDICATOR_HEIGHT + 2, COL_STAFF_SHORTAGE, COL_STAFF_SHORTAGE);
 			}
 			PIXVAL col_val = color_idx_to_rgb(fabrik_t::status_to_color[target_fab->get_status() % fabrik_t::staff_shortage]);
-			display_fillbox_wh_clip_rgb(offset.x + xoff + 1, offset.y + yoff + 3, D_INDICATOR_WIDTH / 2 - 1, D_INDICATOR_HEIGHT, col_val, true);
+			display_fillbox_wh_clip_rgb(offset.x + xoff + 1, offset.y + yoff + GOODS_COLOR_BOX_YOFF + 3, D_INDICATOR_WIDTH / 2 - 1, D_INDICATOR_HEIGHT, col_val, true);
 			xoff += D_INDICATOR_WIDTH / 2 + 3;
 
 			// [name]
@@ -635,7 +634,7 @@ void gui_factory_nearby_halt_info_t::draw(scr_coord offset)
 			else {
 				col_val = COL_CLEAR;
 			}
-			display_fillbox_wh_clip_rgb(offset.x + D_V_SPACE + 1, offset.y + yoff + 3, D_INDICATOR_WIDTH * 2 / 3, D_INDICATOR_HEIGHT + 1, col_val, true);
+			display_fillbox_wh_clip_rgb(offset.x + D_V_SPACE + 1, offset.y + yoff + GOODS_COLOR_BOX_YOFF + 3, D_INDICATOR_WIDTH * 2 / 3, D_INDICATOR_HEIGHT + 1, col_val, true);
 
 			if (win_get_magic(magic_halt_info + halt.get_id())) {
 				display_blend_wh_rgb(offset.x, offset.y + yoff, size.w, LINESPACE, SYSCOL_TEXT, 20);
