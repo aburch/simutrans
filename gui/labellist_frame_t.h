@@ -40,10 +40,8 @@ public:
 
 	void draw(scr_coord pos, scr_size size);
 
-	/**
-	 * This function refreshes the list
-	 * @author Markus Weber
-	 */
+	uint32 count_label();
+
 	void fill_list();
 };
 
