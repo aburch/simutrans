@@ -342,6 +342,13 @@ bool load_FT_font( font_t* fnt, const char* fname, int pixel_height )
 		return false;
 	}
 
+	// hack for not rendered full width space
+	if(  glyphs[0x3000].advance == 0xFF  &&  glyphs[0x3001].advance != 0xFF  ) {
+		glyphs[0x3000].advance = glyphs[0x3001].advance;
+		glyphs[0x3000].width = 0;
+		glyphs[0x3000].yoff = GLYPH_BITMAP_HEIGHT;
+	}
+
 	// Use only needed amount
 	fnt->char_data = (uint8 *)realloc( fnt->char_data, fnt->num_chars*CHARACTER_LEN );
 	fnt->screen_width[' '] = fnt->screen_width['n'];
