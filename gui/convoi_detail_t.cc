@@ -60,12 +60,12 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv) :
 	withdraw_button.add_listener(this);
 	add_component(&withdraw_button);
 
-	retire_button.init(button_t::roundbox, "Retire", scr_coord(BUTTON3_X, 16), D_BUTTON_SIZE);
+	retire_button.init(button_t::roundbox, "Retire", scr_coord(BUTTON3_X, D_BUTTON_HEIGHT), D_BUTTON_SIZE);
 	retire_button.set_tooltip("Convoi is sent to depot when all wagons are empty.");
 	add_component(&retire_button);
 	retire_button.add_listener(this);
 
-	class_management_button.init(button_t::roundbox, "class_manager", scr_coord(BUTTON4_X, 16), D_BUTTON_SIZE);
+	class_management_button.init(button_t::roundbox, "class_manager", scr_coord(BUTTON4_X, D_BUTTON_HEIGHT), D_BUTTON_SIZE);
 	class_management_button.set_tooltip("see_and_change_the_class_assignments");
 	add_component(&class_management_button);
 	class_management_button.add_listener(this);
@@ -609,7 +609,7 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 
 		if (cnv->get_no_load()) {
 			if (skinverwaltung_t::alerts) {
-				display_color_img(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + extra_w, pos.y + offset.y + total_height, 0, false, false);
+				display_color_img(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + extra_w, pos.y + offset.y + total_height + FIXED_SYMBOL_YOFF, 0, false, false);
 			}
 			buf.clear();
 			buf.append(translator::translate("No load setting"));
@@ -676,7 +676,7 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 			if (v->get_desc()->is_obsolete(month_now, welt)) {
 				veh_bar_color = COL_OBSOLETE;
 			}
-			display_veh_form_wh_clip_rgb(pos.x + offset.x, pos.y + offset.y + total_height + extra_y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, veh_bar_color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_next() : v->get_desc()->get_basic_constraint_prev(), v->get_desc()->get_interactivity(), false);
+			display_veh_form_wh_clip_rgb(pos.x + offset.x+1, pos.y + offset.y + total_height + extra_y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, veh_bar_color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_next() : v->get_desc()->get_basic_constraint_prev(), v->get_desc()->get_interactivity(), false);
 			display_veh_form_wh_clip_rgb(pos.x + offset.x + grid_width / 2 - 1, pos.y + offset.y + total_height + extra_y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, veh_bar_color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_prev() : v->get_desc()->get_basic_constraint_next(), v->get_desc()->get_interactivity(), true);
 
 			// goods category symbol
@@ -889,7 +889,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 
 		if (cnv->get_replace()) {
 			if (skinverwaltung_t::alerts) {
-				display_color_img(skinverwaltung_t::alerts->get_image_id(1), pos.x + offset.x + extra_w, pos.y + offset.y + total_height, 0, false, false);
+				display_color_img(skinverwaltung_t::alerts->get_image_id(1), pos.x + offset.x + extra_w, pos.y + offset.y + total_height + FIXED_SYMBOL_YOFF, 0, false, false);
 			}
 			buf.clear();
 			buf.append(translator::translate("Replacing"));
@@ -967,7 +967,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 			if (buf.len() > 0)
 			{
 				if (skinverwaltung_t::alerts) {
-					display_color_img(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, 0, false, false);
+					display_color_img(skinverwaltung_t::alerts->get_image_id(2), pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height + FIXED_SYMBOL_YOFF, 0, false, false);
 				}
 				display_proportional_clip_rgb(pos.x + offset.x + D_MARGIN_LEFT + 13, pos.y + offset.y + total_height, buf, ALIGN_LEFT, COL_OBSOLETE, true);
 				total_height += LINESPACE * 1.5;
@@ -1013,7 +1013,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 			if (v->get_desc()->is_obsolete(month_now, welt)) {
 				veh_bar_color = COL_OBSOLETE;
 			}
-			display_veh_form_wh_clip_rgb(pos.x + offset.x, pos.y + offset.y + total_height + extra_y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, veh_bar_color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_next() : v->get_desc()->get_basic_constraint_prev(), v->get_desc()->get_interactivity(), false);
+			display_veh_form_wh_clip_rgb(pos.x + offset.x+1, pos.y + offset.y + total_height + extra_y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, veh_bar_color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_next() : v->get_desc()->get_basic_constraint_prev(), v->get_desc()->get_interactivity(), false);
 			display_veh_form_wh_clip_rgb(pos.x + offset.x + grid_width / 2 - 1, pos.y + offset.y + total_height + extra_y + LINESPACE, VEHICLE_BAR_HEIGHT * 2, veh_bar_color, true, v->is_reversed() ? v->get_desc()->get_basic_constraint_prev() : v->get_desc()->get_basic_constraint_next(), v->get_desc()->get_interactivity(), true);
 
 			// goods category symbol
@@ -1146,7 +1146,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 						found++;
 						if (found == 1) {
 							if (skinverwaltung_t::upgradable) {
-								display_color_img(skinverwaltung_t::upgradable->get_image_id(upgradable_state-1), pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y, 0, false, false);
+								display_color_img(skinverwaltung_t::upgradable->get_image_id(upgradable_state-1), pos.x + extra_w + offset.x, pos.y + offset.y + total_height + extra_y + FIXED_SYMBOL_YOFF, 0, false, false);
 							}
 							buf.clear();
 							buf.printf("%s:", translator::translate("this_vehicle_can_upgrade_to"));
