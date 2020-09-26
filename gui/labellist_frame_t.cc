@@ -67,6 +67,21 @@ void labellist_frame_t::fill_list()
 }
 
 
+uint32 labellist_frame_t::count_label()
+{
+	uint32 labelcount = 0;
+	FOR(slist_tpl<koord>, const& pos, welt->get_label_list()) {
+		label_t* label = welt->lookup_kartenboden(pos)->find<label_t>();
+		const char* name = welt->lookup_kartenboden(pos)->get_text();
+		// some old version games don't have label nor name.
+		if(label  &&  name  &&  (!labellist_stats_t::filter  ||  (label  &&  (label->get_owner() == welt->get_active_player())))) {
+			labelcount++;
+		}
+	}
+	return labelcount;
+}
+
+
 /**
  * This method is called if an action is triggered
  */
@@ -92,7 +107,7 @@ bool labellist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* 
 
 void labellist_frame_t::draw(scr_coord pos, scr_size size)
 {
-	if(  welt->get_label_list().get_count() != (uint32)scrolly.get_count()  ) {
+	if(  count_label() != (uint32)scrolly.get_count()  ) {
 		fill_list();
 	}
 

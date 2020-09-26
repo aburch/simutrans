@@ -33,6 +33,8 @@ public:
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
+	uint32 count_label();
+
 	void fill_list();
 
 	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
