@@ -470,7 +470,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				previous = tmp->gr->get_pos();
 				tmp = tmp->parent;
 			}
-			
 
 #ifdef MULTI_THREAD
 			const uint32 max_steps = welt->get_settings().get_max_route_tiles_to_process_in_a_step();
