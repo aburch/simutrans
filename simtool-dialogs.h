@@ -48,6 +48,7 @@
 #include "gui/scenario_info.h"
 #include "gui/depotlist_frame.h"
 #include "gui/vehiclelist_frame.h"
+#include "gui/signalboxlist_frame.h"
 
 class player_t;
 
@@ -373,6 +374,22 @@ public:
 	bool exit(player_t* player) OVERRIDE{ destroy_win(magic_vehiclelist); return false; }
 	bool is_init_network_save() const OVERRIDE{ return true; }
 	bool is_work_network_save() const OVERRIDE{ return true; }
+};
+
+/* open the list of sugnalboxes */
+class dialog_list_signalbox_t : public tool_t {
+public:
+	dialog_list_signalbox_t() : tool_t(DIALOG_LIST_SIGNALBOX | DIALOG_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("sb_title"); }
+	bool is_selected() const OVERRIDE { return win_get_magic(magic_signalboxlist + welt->get_active_player_nr()); }
+	image_id get_icon(player_t*) const OVERRIDE { return welt->get_active_player_nr() == 1 ? IMG_EMPTY : icon; }
+	bool init(player_t* player) OVERRIDE {
+		create_win(new signalboxlist_frame_t(player), w_info, magic_signalboxlist + player->get_player_nr());
+		return false;
+	}
+	bool exit(player_t* player) OVERRIDE { destroy_win(magic_signalboxlist + player->get_player_nr()); return false; }
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
 /* open the list of towns */

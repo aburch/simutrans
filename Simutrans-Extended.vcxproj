@@ -2382,6 +2382,7 @@
     <ClCompile Include="gui\settings_stats.cc" />
     <ClCompile Include="utils\sha1.cc" />
     <ClCompile Include="gui\signal_spacing.cc" />
+    <ClCompile Include="gui\signalboxlist_frame.cc" />
     <ClCompile Include="descriptor\reader\sim_reader.cc" />
     <ClCompile Include="simcity.cc" />
     <ClCompile Include="simconvoi.cc" />
@@ -2872,6 +2873,7 @@
     <ClInclude Include="gui\settings_stats.h" />
     <ClInclude Include="utils\sha1.h" />
     <ClInclude Include="gui\signal_spacing.h" />
+    <ClInclude Include="gui\signalboxlist_frame.h" />
     <ClInclude Include="simcity.h" />
     <ClInclude Include="simcolor.h" />
     <ClInclude Include="simconst.h" />
