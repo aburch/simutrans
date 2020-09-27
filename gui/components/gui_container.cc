@@ -6,12 +6,7 @@
 /**
  * A container for other gui_components. Is itself
  * a gui_component, and can therefor be nested.
- *
- * @author Hj. Malthaner
- * @date 03-Mar-01
  */
-
-// #define SHOW_BBOX
 
 /*
  * [Mathew Hounsell] Min Size Button On Map Window 20030313
@@ -20,6 +15,8 @@
 #include "gui_container.h"
 #include "../gui_theme.h"
 
+// DEBUG: shows outline of all elements
+//#define SHOW_BBOX
 
 gui_container_t::gui_container_t() : gui_component_t(), comp_focus(NULL)
 {
