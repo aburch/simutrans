@@ -46,7 +46,7 @@ private:
 	gui_textinput_t input;
 	gui_speedbar_t filled_bar;
 	gui_speedbar_t speed_bar;
-	gui_speedbar_t route_bar;
+	gui_routebar_t route_bar;
 	gui_chart_t chart;
 	button_t button;
 	button_t follow_button;

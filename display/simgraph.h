@@ -371,3 +371,4 @@ extern uint8 display_night_lights[LIGHT_COUNT * 3];
 #endif
 
 #endif
+void display_right_triangle_rgb(KOORD_VAL x, KOORD_VAL y, KOORD_VAL height, const PIXVAL colval, const bool dirty);

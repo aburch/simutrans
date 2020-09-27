@@ -427,6 +427,10 @@ void add_poly_clip(int, int, int, int, int)
 
 void clear_all_poly_clip()
 {
+void display_right_triangle_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, const PIXVAL, const bool)
+{
+}
+
 }
 
 void activate_ribi_clip(int)

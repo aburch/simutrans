@@ -4872,6 +4872,20 @@ void draw_bezier_rgb(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOO
 }
 
 
+
+// Only right facing at the moment
+void display_right_triangle_rgb(KOORD_VAL x, KOORD_VAL y, KOORD_VAL height, const PIXVAL colval, const bool dirty)
+{
+	y += (height / 2);
+	while(  height > 0  ) {
+		display_vline_wh_rgb( x, y-(height/2), height, colval, dirty );
+		x++;
+		height -= 2;
+	}
+}
+
+
+
 // ------------------- other support routines that actually interface with the OS -----------------
 
 
