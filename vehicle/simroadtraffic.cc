@@ -458,8 +458,6 @@ void private_car_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(tiles_overtaking);
 		set_tiles_overtaking( tiles_overtaking );
 	}
-	// do not start with zero speed!
-	current_speed ++;
 }
 
 
