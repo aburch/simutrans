@@ -355,7 +355,7 @@ scr_size gui_aligned_container_t::get_size(vector_tpl<scr_coord_val>& col_w, vec
 		else {
 			s.h += h + space;
 		}
-		space = spacing.w;
+		space = spacing.h;
 	}
 //	printf("\n");
 	return s;

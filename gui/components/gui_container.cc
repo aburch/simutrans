@@ -7,7 +7,8 @@
 #include "gui_container.h"
 #include "../gui_theme.h"
 
-// #define SHOW_BBOX
+// DEBUG: shows outline of all elements
+//#define SHOW_BBOX
 
 gui_container_t::gui_container_t() : gui_component_t(), comp_focus(NULL)
 {
