@@ -433,7 +433,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			const koord industry_destination_pos = destination_industry ? destination_industry->get_pos().get_2d() : koord::invalid;
 			const koord attraction_destination_pos = destination_attraction ? destination_attraction->get_first_tile()->get_pos().get_2d() : koord::invalid;
 			const koord city_destination_pos = destination_city ? destination_city->get_townhall_road() : koord::invalid;
-			
+
 			koord3d previous = koord3d::invalid;
 			weg_t* w;
 			while (tmp != NULL)
