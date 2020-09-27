@@ -4868,7 +4868,7 @@ void display_heading_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, P
 	if (border_left_width) {
 		display_fillbox_wh_clip_rgb(xp, yp, border_left_width, h, frame_color, dirty);
 	}
-	display_text_proportional_len_clip_rgb(xp + padding_left, yp + (h - large_font_total_height) / 2, text, flags, text_color, dirty, -1  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xp + padding_left, yp + (h - LINESPACE ) / 2, text, flags, text_color, dirty, -1  CLIP_NUM_DEFAULT);
 }
 
 
