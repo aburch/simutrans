@@ -461,7 +461,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					if (city_destination_pos != koord::invalid)
 					{
 						w->add_private_car_route(city_destination_pos, previous);
-					}		
+					}
 				}
 
 				// Old route storage - we probably no longer need this.
