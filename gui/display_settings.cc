@@ -47,6 +47,7 @@ enum {
 	IDBTN_CHANGE_FONT,
 	IDBTN_LEFT_TO_RIGHT_GRAPHS,
 	IDBTN_SHOW_SIGNALBOX_COVERAGE,
+	IDBTN_CLASSES_WAITING_BAR,
 	COLORS_MAX_BUTTONS,
 };
 
@@ -399,11 +400,9 @@ label_settings_t::label_settings_t()
 	buttons[IDBTN_SHOW_SIGNALBOX_COVERAGE].pressed = env_t::signalbox_coverage_show;
 	buttons[IDBTN_SHOW_SIGNALBOX_COVERAGE].set_tooltip("Show coverage radius of the signalbox.");
 	add_component(buttons + IDBTN_SHOW_SIGNALBOX_COVERAGE);
-	new_component<gui_margin_t>(LINESPACE / 3);
+	new_component<gui_margin_t>(0, LINESPACE/3);
 
 	new_component<gui_label_t>("Station display");
-	add_table( 2, 0 );
-
 	// Transparent station coverage
 	buttons[ IDBTN_TRANSPARENT_STATION_COVERAGE ].init( button_t::square_state, "transparent station coverage" );
 	buttons[ IDBTN_TRANSPARENT_STATION_COVERAGE ].pressed = env_t::use_transparency_station_coverage;
@@ -422,18 +421,24 @@ label_settings_t::label_settings_t()
 	add_component( buttons + IDBTN_SHOW_WAITING_BARS, 2 );
 
 	// Show station names arrow
-	add_table( 2, 1 );
+	add_table(2, 2);
 	{
-		buttons[ IDBTN_SHOW_STATION_NAMES_ARROW ].set_typ( button_t::arrowright );
-		buttons[ IDBTN_SHOW_STATION_NAMES_ARROW ].set_tooltip("Shows the names of the individual stations in the main game window.");
-		add_component( buttons + IDBTN_SHOW_STATION_NAMES_ARROW );
-		new_component<gui_label_stationname_t>( "show station names" );
+		// Option to split into classes
+		new_component<gui_margin_t>(LINESPACE / 2);
+		buttons[IDBTN_CLASSES_WAITING_BAR].init(button_t::square_state, "Waiting bar divided by class");
+		buttons[IDBTN_CLASSES_WAITING_BAR].pressed = env_t::classes_waiting_bar;
+		buttons[IDBTN_CLASSES_WAITING_BAR].enable(env_t::show_names & 2);
+		buttons[IDBTN_CLASSES_WAITING_BAR].set_tooltip("Waiting bars are displayed separately for each class.");
+		add_component(buttons + IDBTN_CLASSES_WAITING_BAR);
+
+		buttons[IDBTN_SHOW_STATION_NAMES_ARROW].set_typ(button_t::arrowright);
+		buttons[IDBTN_SHOW_STATION_NAMES_ARROW].set_tooltip("Shows the names of the individual stations in the main game window.");
+		add_component(buttons + IDBTN_SHOW_STATION_NAMES_ARROW);
+		new_component<gui_label_stationname_t>("show station names");
 	}
 	end_table();
 
-	end_table();
-
-	new_component<gui_margin_t>(LINESPACE/3);
+	new_component<gui_margin_t>(0, LINESPACE/3);
 
 	new_component<gui_label_t>("Convoy tooltips");
 	add_table(2, 0);
@@ -684,6 +689,11 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 		break;
 	case IDBTN_SHOW_WAITING_BARS:
 		env_t::show_names ^= 2;
+		buttons[IDBTN_CLASSES_WAITING_BAR].enable(env_t::show_names & 2);
+		break;
+	case IDBTN_CLASSES_WAITING_BAR:
+		env_t::classes_waiting_bar = !env_t::classes_waiting_bar;
+		buttons[IDBTN_CLASSES_WAITING_BAR].pressed ^= 1;
 		break;
 	case IDBTN_SHOW_SLICE_MAP_VIEW:
 		// see simtool.cc::tool_show_underground_t::init
