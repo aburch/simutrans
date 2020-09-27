@@ -240,11 +240,12 @@ clipping_info_t clips;
 
 #define CR clips CLIP_NUM_INDEX
 
-static font_t  large_font;
+static font_t default_font;
 
 // needed for resizing gui
-int large_font_ascent = 9;
-int large_font_total_height = 11;
+int default_font_ascent = 0;
+int default_font_linespace = 0;
+
 
 #define MAX_PLAYER_COUNT (16)
 
@@ -4115,8 +4116,9 @@ void display_filled_roundbox_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD
 void display_cylinderbar_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty  CLIP_NUM_DEF)
 {
 	display_fb_internal(xp, yp, w, h, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
-	display_blend_wh_rgb(xp, yp, w, min(3,h/2), color_idx_to_rgb(COL_WHITE), 15);
-	display_blend_wh_rgb(xp, yp + 1, w, 1, color_idx_to_rgb(COL_WHITE), 15);
+	for (uint8 i = 1; i < h/2; i++) {
+		display_blend_wh_rgb(xp, yp + i, w, 1, color_idx_to_rgb(COL_WHITE), 33 * (h/4-abs(i-h/4))/(h/4));
+	}
 	uint8 start = h * 4 / 7;
 	for (uint8 i = start; i < h; i++) {
 		display_blend_wh_rgb(xp, yp + i, w, 1, color_idx_to_rgb(COL_BLACK), 33*((i-start)+1)/(h-start));
@@ -4329,33 +4331,31 @@ void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVA
 // --------------------------------- text rendering stuff ------------------------------
 
 
-uint16 display_load_font(const char* fname, bool reload)
+bool display_load_font(const char *fname, bool reload)
 {
-	font_t  fnt;
+	font_t loaded_fnt;
 
 	if(  fname == NULL  ) {
 		dbg->error( "display_load_font", "NULL filename" );
-		return 0;
+		return false;
 	}
+
 	// skip reloading if already in memory, if bdf font
-	if(  !reload  &&  large_font.num_chars>0  &&  strcmp( large_font.fname, fname ) == 0  ) {
-		return large_font.num_chars;
+	if(  !reload  &&  default_font.is_loaded()  &&  strcmp( default_font.get_fname(), fname ) == 0  ) {
+		return true;
 	}
 
-	tstrncpy( large_font.fname, fname, lengthof(large_font.fname) );
-	if(  load_font(&fnt, fname)  ) {
-
-		free(large_font.screen_width);
-		free(large_font.char_data);
-		large_font = fnt;
-		large_font_ascent = large_font.height + large_font.descent;
-		large_font_total_height = large_font.height;	// this is the actual LINESPACE
+	if(  loaded_fnt.load_from_file(fname)  ) {
+		default_font = loaded_fnt;
+		default_font_ascent    = default_font.get_ascent();
+		default_font_linespace = default_font.get_linespace();
 
 		env_t::fontname = fname;
 
-		return large_font.num_chars;
+		return default_font.is_loaded();
 	}
-	return 0;
+
+	return false;
 }
 
 
@@ -4377,12 +4377,7 @@ sint32 get_prev_char(const char* text, sint32 pos)
 
 KOORD_VAL display_get_char_width(utf32 c)
 {
-	KOORD_VAL pixel_width;
-	if (c >= large_font.num_chars || (pixel_width = large_font.screen_width[c]) == 0xFF) {
-		// default width for missing characters
-		return large_font.screen_width[0];
-	}
-	return pixel_width;
+	return default_font.get_glyph_advance(c);
 }
 
 
@@ -4420,13 +4415,7 @@ utf32 get_next_char_with_metrics(const char* &text, unsigned char &byte_length, 
 	else {
 		text += len;
 		byte_length = len;
-		if (char_code >= large_font.num_chars || (pixel_width = large_font.screen_width[char_code]) == 0xFF) {
-			// default width for missing characters
-			pixel_width = large_font.screen_width[0];
-		}
-		else {
-			pixel_width = large_font.screen_width[char_code];
-		}
+		pixel_width = default_font.get_glyph_advance(char_code);
 	}
 	return char_code;
 }
@@ -4435,11 +4424,7 @@ utf32 get_next_char_with_metrics(const char* &text, unsigned char &byte_length, 
 /* returns true, if this is a valid character */
 bool has_character(utf16 char_code)
 {
-	if (char_code >= large_font.num_chars || large_font.screen_width[char_code] == 0xFF) {
-		// missing characters
-		return false;
-	}
-	return true;
+	return default_font.is_valid_glyph(char_code);
 }
 
 
@@ -4506,11 +4491,8 @@ utf32 get_prev_char_with_metrics(const char* &text, const char *const text_start
 	size_t len = 0;
 	char_code = utf8_decoder_t::decode((utf8 const *)text, len);
 	byte_length = len;
+	pixel_width = default_font.get_glyph_advance(char_code);
 
-	if (char_code >= large_font.num_chars || (pixel_width = large_font.screen_width[char_code]) == 0xFF) {
-		// default width for missing characters
-		pixel_width = large_font.screen_width[0];
-	}
 	return char_code;
 }
 
@@ -4524,26 +4506,57 @@ utf32 get_prev_char_with_metrics(const char* &text, const char *const text_start
  */
 int display_calc_proportional_string_len_width(const char *text, size_t len)
 {
-	const font_t * const fnt = &large_font;
+	const font_t* const fnt = &default_font;
 	unsigned int width = 0;
-	int w;
+
+	// decode char
+	const char *const end = text + len;
+	while(  text < end  ) {
+		const utf32 iUnicode = utf8_decoder_t::decode((utf8 const *&)text);
+		if(  iUnicode == UNICODE_NUL ||  iUnicode == '\n') {
+			return width;
+		}
+		width += fnt->get_glyph_advance(iUnicode);
+	}
+
+	return width;
+}
+
+
+
+/* display_calc_proportional_multiline_string_len_width
+* calculates the width and hieght of a box containing the text inside
+*/
+/*
+// After incorporating r8930, it will be modified in r9042 as follows
+void display_calc_proportional_multiline_string_len_width(int &xw, int &yh, const char *text, size_t len)
+{
+	const font_t* const fnt = &default_font;
+	int width = 0;
+
+	xw = yh = 0;
 
 	// decode char
 	const char *const end = text + len;
 	while(  text < end  ) {
 		utf32 iUnicode = utf8_decoder_t::decode((utf8 const *&)text);
-		if(  iUnicode == UNICODE_NUL ||  iUnicode == '\n') {
-			return width;
+		if(  iUnicode == '\n'  ) {
+			// new line: record max width
+			xw = max( xw, width );
+			yh += LINESPACE;
+			width = 0;
 		}
-		else if (iUnicode >= fnt->num_chars || (w = fnt->screen_width[iUnicode]) == 0xFF) {
-			// default width for missing characters
-			w = fnt->screen_width[0];
+		if(  iUnicode == UNICODE_NUL ) {
+			return;
 		}
-		width += w;
+
+		width += fnt->get_glyph_advance(iUnicode);
 	}
 
-	return width;
+	xw = max( xw, width );
+	yh += LINESPACE;
 }
+*/
 
 
 /**
@@ -4573,28 +4586,17 @@ static unsigned char get_h_mask(const int xL, const int xR, const int cL, const 
 	return mask;
 }
 
-/*
-* len parameter added - use -1 for previous behaviour.
-* completely renovated for unicode and 10 bit width and variable height
-* @author Volker Meyer, prissi
-* @date  15.06.2003, 2.1.2005
-*/
+/**
+ * len parameter added - use -1 for previous behaviour.
+ * completely renovated for unicode and 10 bit width and variable height
+ */
 int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len  CLIP_NUM_DEF)
 {
-	const font_t * const fnt = &large_font;
-	KOORD_VAL cL, cR, cT, cB;
-	utf32 c;
-	size_t iTextPos = 0; // pointer on text position: prissi
-	int char_width_1, char_width_2; // 1 is char only, 2 includes room
-	int screen_pos;
-	const uint8 *char_data;
-	const uint8 *p;
-	KOORD_VAL yy = y + fnt->height;
-	KOORD_VAL x0;	// store the initial x (for dirty marking)
-	KOORD_VAL y_offset, char_height;	// real y for display with clipping
 
-								// TAKE CARE: Clipping area may be larger than actual screen size ...
-	if ((flags & DT_CLIP)) {
+	KOORD_VAL cL, cR, cT, cB;
+
+	// TAKE CARE: Clipping area may be larger than actual screen size
+	if(  (flags & DT_CLIP)  ) {
 		cL = CR.clip_rect.x;
 		cR = CR.clip_rect.xx;
 		cT = CR.clip_rect.y;
@@ -4606,8 +4608,9 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 		cT = 0;
 		cB = disp_height;
 	}
-	// don't know len yet ...
+
 	if (len < 0) {
+		// don't know len yet
 		len = 0x7FFF;
 	}
 
@@ -4627,64 +4630,61 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 	}
 
 	// still something to display?
-	if (x >= cR || y >= cB || y + fnt->height <= cT) {
+	const font_t *const fnt = &default_font;
+
+	if (x >= cR || y >= cB || y + fnt->get_linespace() <= cT) {
 		// nothing to display
 		return 0;
 	}
 
-	// x0 contains the starting x
-	x0 = x;
-	y_offset = 0;
-	char_height = fnt->height;
+	// store the initial x (for dirty marking)
+	const KOORD_VAL x0 = x;
+
+	KOORD_VAL y_offset = 0; // real y for display with clipping
+	KOORD_VAL glyph_height = fnt->get_linespace();
+	const KOORD_VAL yy = y + fnt->get_linespace();
+
 	// calculate vertical y clipping parameters
 	if (y < cT) {
 		y_offset = cT - y;
 	}
 	if (yy > cB) {
-		char_height -= yy - cB;
+		glyph_height -= yy - cB;
 	}
 
-	// big loop, char by char
+	// big loop, draw char by char
 	utf8_decoder_t decoder((utf8 const*)txt);
-	while (iTextPos < (size_t)len  &&  decoder.has_next()) {
-		int h;
-		uint8 char_yoffset;
+	size_t iTextPos = 0; // pointer on text position
 
+	while (iTextPos < (size_t)len  &&  decoder.has_next()) {
 		// decode char
-		c = decoder.next();
+		utf32 c = decoder.next();
 		iTextPos = decoder.get_position() - (utf8 const*)txt;
 
-		if(  c == '\n') {
+		if(  c == '\n'  ) {
 			// stop at linebreak
 			break;
 		}
 		// print unknown character?
-		if (c >= fnt->num_chars || fnt->screen_width[c] == 0xFF) {
+		else if(  !fnt->is_valid_glyph(c)  ) {
 			c = 0;
 		}
 
 		// get the data from the font
-		char_data = fnt->char_data + CHARACTER_LEN * c;
-		char_width_1 = char_data[CHARACTER_LEN - 1];
-		char_yoffset = (sint8)char_data[CHARACTER_LEN - 2];
-		char_width_2 = fnt->screen_width[c];
-
-		// do the display
-		if(  y_offset>char_yoffset  ) {
-			char_yoffset = (uint8)y_offset;
-		}
+		int glyph_width = fnt->get_glyph_width(c);
+		const uint8 glyph_yoffset = std::min(fnt->get_glyph_yoffset(c), (uint8)y_offset);
 
 		// currently max character width 16 bit supported by font.h/font.cc
 		for(  int i=0;  i<2;  i++  ) {
+			const uint8 bits = std::min(8, glyph_width);
+			uint8 mask = get_h_mask(x + i*8, x + i*8 + bits, cL, cR);
+			glyph_width -= bits;
 
-			uint8 bits = min(8, char_width_1);
-			unsigned char mask = get_h_mask(x + i*8, x + i*8 + bits, cL, cR);
-			char_width_1 -= bits;
+			const uint8 *p = fnt->get_glyph_bitmap(c) + glyph_yoffset + i*GLYPH_BITMAP_HEIGHT;
+			if(  mask!=0  ) {
+				int screen_pos = (y+glyph_yoffset) * disp_width + x + i*8;
 
-			p = char_data + char_yoffset + i*CHARACTER_HEIGHT;
-			if(  mask  ) {
-				screen_pos = (y+char_yoffset) * disp_width + x + i*8;
-				for (h = char_yoffset; h < char_height; h++) {
+				for (int h = glyph_yoffset; h < glyph_height; h++) {
 					unsigned int dat = *p++ & mask;
 					PIXVAL* dst = textur + screen_pos;
 #if defined LOW_LEVEL
@@ -4714,14 +4714,15 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 				}
 			}
 		}
-		// next char: screen width
-		x += char_width_2;
+
+		x += fnt->get_glyph_advance(c);
 	}
 
 	if (dirty) {
 		// here, because only now we know the length also for ALIGN_LEFT text
-		mark_rect_dirty_clip( x0, y, x - 1, y + large_font_total_height - 1  CLIP_NUM_PAR);
+		mark_rect_dirty_clip( x0, y, x - 1, y + LINESPACE - 1  CLIP_NUM_PAR);
 	}
+
 	// warning: actual len might be longer, due to clipping!
 	return x - x0;
 }
@@ -4822,17 +4823,17 @@ void display_ddd_box_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, P
 void display_outline_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty, sint32 len)
 {
 	const int flags = ALIGN_LEFT | DT_CLIP;
-	display_text_proportional_len_clip_rgb(xpos - 1, ypos - 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, len  CLIP_NUM_DEFAULT);
-	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, len  CLIP_NUM_DEFAULT);
-	display_text_proportional_len_clip_rgb(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, dirty, len  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos - 1, ypos - 1 + (12 - LINESPACE) / 2, text, flags, shadow_color, dirty, len  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 1 + (12 - LINESPACE) / 2, text, flags, shadow_color, dirty, len  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos, ypos + (12 - LINESPACE) / 2, text, flags, text_color, dirty, len  CLIP_NUM_DEFAULT);
 }
 
 
 void display_shadow_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty, sint32 len)
 {
 	const int flags = ALIGN_LEFT | DT_CLIP;
-	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, len  CLIP_NUM_DEFAULT);
-	display_text_proportional_len_clip_rgb(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, dirty, len  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 1 + (12 - LINESPACE) / 2, text, flags, shadow_color, dirty, len  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos, ypos + (12 - LINESPACE) / 2, text, flags, text_color, dirty, len  CLIP_NUM_DEFAULT);
 }
 
 
@@ -4889,7 +4890,7 @@ void display_ddd_box_clip_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL
 // if width equals zero, take default value
 void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, FLAGGED_PIXVAL ddd_color, FLAGGED_PIXVAL text_color, const char *text, int dirty)
 {
-	int halfheight = large_font_total_height / 2 + 1;
+	const int halfheight = LINESPACE / 2 + 1;
 
 	PIXVAL lighter = display_blend_colors(ddd_color, color_idx_to_rgb(COL_WHITE), 25);
 	PIXVAL darker  = display_blend_colors(ddd_color, color_idx_to_rgb(COL_BLACK), 25);
@@ -4912,7 +4913,7 @@ void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, K
  */
 void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, FLAGGED_PIXVAL ddd_color, FLAGGED_PIXVAL text_color, const char *text, int dirty  CLIP_NUM_DEF)
 {
-	const int halfheight = large_font_total_height / 2 + 1;
+	const int halfheight = LINESPACE / 2 + 1;
 
 	PIXVAL lighter = display_blend_colors(ddd_color, color_idx_to_rgb(COL_WHITE), 25);
 	PIXVAL darker  = display_blend_colors(ddd_color, color_idx_to_rgb(COL_BLACK), 25);
@@ -4925,7 +4926,7 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
 	display_vline_wh_clip_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 2, lighter, dirty );
 	display_vline_wh_clip_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 2, darker,  dirty );
 
-	display_text_proportional_len_clip_rgb( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_color, dirty, -1);
+	display_text_proportional_len_clip_rgb( xpos + 2, ypos - 5 + (12 - LINESPACE) / 2, text, ALIGN_LEFT | DT_CLIP, text_color, dirty, -1);
 }
 
 
@@ -5425,9 +5426,6 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 		textur = dr_textur_init();
 
 		// init, load, and check fonts
-		large_font.screen_width = NULL;
-		large_font.char_data = NULL;
-
 		if(  !display_load_font(env_t::fontname.c_str())  &&  !display_load_font(FONT_PATH_X "prop.fnt") ) {
 			dr_fatal_notify( "No fonts found!" );
 			fprintf(stderr, "Error: No fonts found!");
@@ -5522,7 +5520,7 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 */
 int is_display_init()
 {
-	return textur != NULL  &&  large_font.num_chars>0;
+	return textur != NULL  &&  default_font.is_loaded();
 }
 
 

@@ -825,8 +825,29 @@ void gebaeude_t::show_info()
 		get_stadt()->show_info();
 	}
 
-	if (!tile->get_desc()->no_info_window()) {
-		if (!special || (env_t::townhall_info  &&  old_count == win_get_open_count())) {
+	if(!tile->get_desc()->no_info_window()) {
+		if(!special  ||  (env_t::townhall_info  &&  old_count==win_get_open_count()) ) {
+			// iterate over all places to check if there is already an open window
+			const building_desc_t* const building_desc = tile->get_desc();
+			const uint8 layout = tile->get_layout();
+			koord k;
+			for (k.x = 0; k.x<building_desc->get_x(layout); k.x++) {
+				for (k.y = 0; k.y<building_desc->get_y(layout); k.y++) {
+					const building_tile_desc_t *tile = building_desc->get_tile(layout, k.x, k.y);
+					if (tile == NULL || !tile->has_image()) {
+						continue;
+					}
+					if (grund_t *gr = welt->lookup(get_pos() - get_tile()->get_offset() + k)) {
+						gebaeude_t *gb = gr->find<gebaeude_t>();
+						if (gb  &&  gb->get_tile() == tile) {
+							if (win_get_magic((ptrdiff_t)gb)) {
+								// already open
+								return;
+							}
+						}
+					}
+				}
+			}
 			// open info window for the first tile of our building (not relying on presence of (0,0) tile)
 			access_first_tile()->obj_t::show_info();
 		}

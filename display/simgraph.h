@@ -15,21 +15,27 @@
 #include "scr_coord.h"
 
 
-/*
- * Attempt of graphics for the Simulation game
- * Hj. Malthaner, Aug. 1997
- *
- *
- * 3D, isometric representation
- */
+#if COLOUR_DEPTH != 0
+
+extern int default_font_ascent;
+extern int default_font_linespace;
+
+#  define LINEASCENT (default_font_ascent)
+#  define LINESPACE  (default_font_linespace)
+#else
+#  define LINEASCENT 0
+#  define LINESPACE  0
+#endif
 
 
-extern int large_font_ascent;
-extern int large_font_total_height;
+// Basic size of small symbols such as alerts, goods categories, evaluations, etc.
+// Same value for height
+#define D_FIXED_SYMBOL_WIDTH 12
+#define FIXED_SYMBOL_YOFF ((LINESPACE-D_FIXED_SYMBOL_WIDTH)/2)
 
-#define LINEASCENT (large_font_ascent)
-#define LINESPACE (large_font_total_height)
 #define D_HEADING_HEIGHT (LINESPACE+4)
+#define GOODS_COLOR_BOX_HEIGHT 8
+#define GOODS_COLOR_BOX_YOFF ((LINESPACE-GOODS_COLOR_BOX_HEIGHT)/2)
 
 #define VEHICLE_BAR_HEIGHT 7
 
@@ -150,7 +156,7 @@ void reset_textur(void *new_textur);
  * Loads the font, returns the number of characters in it
  * @param reload if true forces reload
  */
-uint16 display_load_font(const char* fname, bool reload = false);
+bool display_load_font(const char *fname, bool reload = false);
 
 image_id get_image_count();
 void register_image(class image_t *);

@@ -3323,7 +3323,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 					waiting_time_per_month = 100;
 					waiting_bar_col = COL_ORANGE;
 					if (skinverwaltung_t::alerts) {
-						display_color_img(skinverwaltung_t::alerts->get_image_id(3), xpos - 15, ypos - LINESPACE, 0, false, true);
+						display_color_img(skinverwaltung_t::alerts->get_image_id(3), xpos - 15, ypos - D_FIXED_SYMBOL_WIDTH, 0, false, true);
 					}
 					break;
 				case convoi_t::NO_ROUTE:
@@ -3332,7 +3332,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 					waiting_time_per_month = 100;
 					waiting_bar_col = COL_RED+1;
 					if (skinverwaltung_t::pax_evaluation_icons) {
-						display_color_img(skinverwaltung_t::pax_evaluation_icons->get_image_id(4), xpos - 15, ypos - LINESPACE, 0, false, true);
+						display_color_img(skinverwaltung_t::pax_evaluation_icons->get_image_id(4), xpos - 15, ypos - D_FIXED_SYMBOL_WIDTH, 0, false, true);
 					}
 					break;
 				default:
@@ -3354,7 +3354,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 
 			// overcrowding
 			if (cnv->get_overcrowded() && skinverwaltung_t::pax_evaluation_icons) {
-				display_color_img(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), xpos + LOADINGBAR_WIDTH + 5, ypos - LINESPACE, 0, false, true);
+				display_color_img(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), xpos + LOADINGBAR_WIDTH + 5, ypos - D_FIXED_SYMBOL_WIDTH, 0, false, true);
 			}
 
 			extra_y += LOADINGBAR_HEIGHT;
