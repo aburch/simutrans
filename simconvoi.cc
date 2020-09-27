@@ -1357,8 +1357,13 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 			dbg->fatal("convoi_t::sync_step()", "Wrong state %d!\n", state);
 			break;
 	}
-	welt->add_to_debug_sums(0, v.get_mantissa());
-	welt->add_to_debug_sums(1, v.get_mantissa()*(uint32)self.get_id());
+
+	// Debug sums:
+	// The difference of sums[1] should be divisible by the difference of sums[0] whenever a single convoi is out of sync.
+	// They should be kept low enough to avoid excessive overflow that would make this impractical.
+	uint32 sum = (v.get_mantissa() % 256) + 1;
+	welt->add_to_debug_sums(0, sum);
+	welt->add_to_debug_sums(1, sum * self.get_id());
 
 	return SYNC_OK;
 }
