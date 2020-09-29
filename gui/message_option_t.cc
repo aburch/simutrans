@@ -28,7 +28,7 @@ message_option_t::message_option_t() :
 	welt->get_message()->get_message_flags( &ticker_msg, &window_msg, &auto_msg, &ignore_msg );
 
 	for(  int i=0;  i<message_t::MAX_MESSAGE_TYPE;  i++  ) {
-		
+
 		buttons[i*4].set_typ(button_t::square_state);
 		buttons[i*4].pressed = ((ignore_msg>>i)&1)==0;
 		buttons[i*4].add_listener(this);
@@ -38,7 +38,7 @@ message_option_t::message_option_t() :
 		while(  *p < ' '  &&  *p  ) {
 			p++;
 		}
-		for(  int j=0;   *p>=' '; p++  ) { 
+		for(  int j=0;   *p>=' '; p++  ) {
 			if(  j < MAX_MESSAGE_OPTION_TEXTLEN-1  ) {
 				option_texts[i][j++] = *p;
 				option_texts[i][j] = 0;

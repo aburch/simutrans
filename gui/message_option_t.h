@@ -6,6 +6,7 @@
 #ifndef GUI_MESSAGE_OPTION_T_H
 #define GUI_MESSAGE_OPTION_T_H
 
+
 #include "../simmesg.h"
 #include "simwin.h"
 
