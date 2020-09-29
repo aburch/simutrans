@@ -99,6 +99,7 @@ bool env_t::use_transparency_station_coverage;
 uint8 env_t::station_coverage_show;
 uint8 env_t::signalbox_coverage_show;
 sint32 env_t::show_names;
+uint8 env_t::freight_waiting_bar_level;
 bool env_t::classes_waiting_bar;
 uint8 env_t::show_cnv_nameplates;
 uint8 env_t::show_cnv_loadingbar;
@@ -205,6 +206,7 @@ void env_t::init()
 	signalbox_coverage_show = 0;
 
 	show_names = 3;
+	freight_waiting_bar_level = 2;
 	classes_waiting_bar = false;
 	show_cnv_nameplates = 0;
 	show_cnv_loadingbar = 0;
@@ -541,6 +543,7 @@ void env_t::rdwr(loadsave_t *file)
 	}
 	if (file->get_version() >= 120007 && ((file->get_extended_version() == 14 && file->get_extended_revision() >= 31) || file->get_extended_version() >= 15))
 	{
+		file->rdwr_byte(freight_waiting_bar_level);
 		file->rdwr_bool(classes_waiting_bar);
 	}
 	// server settings are not saved, since they are server specific and could be different on different servers on the save computers

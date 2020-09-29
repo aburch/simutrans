@@ -25,6 +25,7 @@
 #include "simwin.h"
 
 #include "../path_explorer.h"
+#include "components/gui_image.h"
 
 enum {
 	IDBTN_SCROLL_INVERSE,
@@ -420,17 +421,40 @@ label_settings_t::label_settings_t()
 	buttons[ IDBTN_SHOW_WAITING_BARS ].set_tooltip("Shows a bar graph representing the number of passengers/mail/goods waiting at stops.");
 	add_component( buttons + IDBTN_SHOW_WAITING_BARS, 2 );
 
-	// Show station names arrow
-	add_table(2, 2);
+	add_table(4, 2);
 	{
-		// Option to split into classes
-		new_component<gui_margin_t>(LINESPACE / 2);
-		buttons[IDBTN_CLASSES_WAITING_BAR].init(button_t::square_state, "Waiting bar divided by class");
-		buttons[IDBTN_CLASSES_WAITING_BAR].pressed = env_t::classes_waiting_bar;
-		buttons[IDBTN_CLASSES_WAITING_BAR].enable(env_t::show_names & 2);
-		buttons[IDBTN_CLASSES_WAITING_BAR].set_tooltip("Waiting bars are displayed separately for each class.");
-		add_component(buttons + IDBTN_CLASSES_WAITING_BAR);
+		// waiting bar option for passenger and mail classes
+		bool pax_classes = (goods_manager_t::passengers->get_number_of_classes() > 1);
+		bool mail_classes = (goods_manager_t::mail->get_number_of_classes() > 1);
+		if (pax_classes && mail_classes) {
+			new_component<gui_margin_t>(LINESPACE / 2);
+			new_component<gui_image_t>()->set_image(pax_classes ? skinverwaltung_t::passengers->get_image_id(0) : IMG_EMPTY, true);
+			new_component<gui_image_t>()->set_image(mail_classes ? skinverwaltung_t::mail->get_image_id(0) : IMG_EMPTY, true);
+			buttons[IDBTN_CLASSES_WAITING_BAR].init(button_t::square_state, "Divided by class");
+			buttons[IDBTN_CLASSES_WAITING_BAR].pressed = env_t::classes_waiting_bar;
+			buttons[IDBTN_CLASSES_WAITING_BAR].enable(env_t::show_names & 2);
+			buttons[IDBTN_CLASSES_WAITING_BAR].set_tooltip("Waiting bars are displayed separately for each class.");
+			add_component(buttons + IDBTN_CLASSES_WAITING_BAR);
+		}
 
+		// waiting bar option for freight
+		new_component<gui_margin_t>(LINESPACE / 2);
+		new_component<gui_image_t>()->set_image(skinverwaltung_t::goods->get_image_id(0), true);
+		new_component<gui_empty_t>();
+		freight_waiting_bar.set_focusable(false);
+		freight_waiting_bar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Unified"), SYSCOL_TEXT);
+		freight_waiting_bar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Divided by category"), SYSCOL_TEXT);
+		freight_waiting_bar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Divided by goods"), SYSCOL_TEXT);
+		freight_waiting_bar.set_selection(env_t::freight_waiting_bar_level);
+		add_component(&freight_waiting_bar);
+		freight_waiting_bar.add_listener(this);
+
+	}
+	end_table();
+
+	// Show station names arrow
+	add_table(2, 1);
+	{
 		buttons[IDBTN_SHOW_STATION_NAMES_ARROW].set_typ(button_t::arrowright);
 		buttons[IDBTN_SHOW_STATION_NAMES_ARROW].set_tooltip("Shows the names of the individual stations in the main game window.");
 		add_component(buttons + IDBTN_SHOW_STATION_NAMES_ARROW);
@@ -507,6 +531,10 @@ bool label_settings_t::action_triggered(gui_action_creator_t *comp, value_t v)
 	if (&money_booking == comp) {
 		env_t::show_money_message = v.i;
 	}
+	// freight waiting bar detail level
+	if (&freight_waiting_bar == comp) {
+		env_t::freight_waiting_bar_level = v.i;
+	}
 	return true;
 }
 
@@ -515,6 +543,13 @@ void label_settings_t::draw(scr_coord offset)
 	convoy_nameplate.set_selection(env_t::show_cnv_nameplates);
 	convoy_loadingbar.set_selection(env_t::show_cnv_loadingbar);
 	convoy_tooltip.set_selection(env_t::show_vehicle_states);
+	freight_waiting_bar.set_selection(env_t::freight_waiting_bar_level);
+	if (env_t::show_names & 2) {
+		freight_waiting_bar.enable();
+	}
+	else {
+		freight_waiting_bar.disable();
+	}
 
 	gui_aligned_container_t::draw(offset);
 }

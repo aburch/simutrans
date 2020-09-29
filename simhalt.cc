@@ -4964,30 +4964,45 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 {
 	// ignore freight that cannot reach to this station
 	sint16 count = 0;
-	for(  uint16 i = 0;  i < goods_manager_t::get_count();  i++  ) {
-		if(  i == 2  ) {
-			continue; // ignore freight none
-		}
-		if(  gibt_ab( goods_manager_t::get_info(i) )  ) {
-			if (env_t::classes_waiting_bar) {
-				switch (i)
-				{
-					case goods_manager_t::INDEX_PAS:
-						count += goods_manager_t::passengers->get_number_of_classes();
-						break;
-					case goods_manager_t::INDEX_MAIL:
-						count += goods_manager_t::mail->get_number_of_classes();
-						break;
-					default:
-						count++;
-						break;
-				}
-			}
-			else {
-				count++;
-			}
+
+	if (get_pax_enabled()) {
+		if (gibt_ab(goods_manager_t::passengers)) {
+			count += env_t::classes_waiting_bar ? goods_manager_t::passengers->get_number_of_classes() : 1;
 		}
 	}
+	if (get_mail_enabled()) {
+		if (gibt_ab(goods_manager_t::mail)) {
+			count += env_t::classes_waiting_bar ? goods_manager_t::mail->get_number_of_classes() : 1;
+		}
+	}
+	if (get_ware_enabled()) {
+		switch (env_t::freight_waiting_bar_level)
+		{
+			case 0: // simple
+				count++;
+				break;
+			case 1: // category
+				for (uint8 i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
+					if (goods_manager_t::get_info_catg_index(i) == goods_manager_t::none) {
+						continue;
+					}
+					if (gibt_ab(goods_manager_t::get_info_catg_index(i))) {
+						count++;
+					}
+				}
+				break;
+			case 2: // all freight
+			default:
+				for (uint16 i = 2; i < goods_manager_t::get_count(); i++) {
+					if (gibt_ab(goods_manager_t::get_info(i))) {
+						count++;
+					}
+				}
+				break;
+		}
+	}
+
+
 	if(  count != last_bar_count  ) {
 		// bars will shift x positions, mark entire station bar region dirty
 		KOORD_VAL max_bar_height = 0;
@@ -5014,14 +5029,20 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 
 	sint16 bar_height_index = 0;
 	uint32 max_capacity;
-	for(  uint8 i = 0;  i < goods_manager_t::get_count();  i++  ) {
-		if(  i == 2  ) {
-			continue; // ignore freight none
+	uint32 total_ware = 0;
+	for (uint8 i = 0; i < goods_manager_t::get_count(); i++) {
+		if (i == 2) {
+			if (env_t::freight_waiting_bar_level == 1 /* category */) {
+				break;
+			}
+			else {
+				continue; // ignore freight none
+			}
 		}
 		uint8 g_class = 1;
 		const goods_desc_t *wtyp = goods_manager_t::get_info(i);
-		if(  gibt_ab( wtyp )  ) {
-			if(  i < 2  ) {
+		if (gibt_ab(wtyp)) {
+			if (i < 2) {
 				max_capacity = get_capacity(i);
 				if (env_t::classes_waiting_bar) {
 					g_class = i == goods_manager_t::INDEX_PAS ? goods_manager_t::passengers->get_number_of_classes() : goods_manager_t::mail->get_number_of_classes();
@@ -5029,9 +5050,14 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 			}
 			else {
 				max_capacity = get_capacity(2);
+				if (env_t::freight_waiting_bar_level == 0 /* simply */) {
+					total_ware += get_ware_summe(wtyp);
+					continue;
+				}
 			}
+
 			const uint32 catg_sum = get_ware_summe(wtyp);
-			for(uint j=0; j<g_class; j++)
+			for (uint j = 0; j < g_class; j++)
 			{
 				const uint32 sum = g_class > 1 ? get_ware_summe(wtyp, j) : catg_sum;
 				uint32 v = min(sum, max_capacity);
@@ -5042,13 +5068,13 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 					v = (v / 4) + 2;
 				}
 				display_fillbox_wh_clip_rgb(xpos, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY4), false);
-				display_fillbox_wh_clip_rgb(xpos + 1, ypos - v - 1, 2, v, wtyp->get_color(), false);
-				display_fillbox_wh_clip_rgb(xpos + 3, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY1), false);
+				display_fillbox_wh_clip_rgb(xpos + 1, ypos - v - 1, D_WAITINGBAR_WIDTH - 2, v, wtyp->get_color(), false);
+				display_fillbox_wh_clip_rgb(xpos + D_WAITINGBAR_WIDTH - 1, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY1), false);
 
-				// Hajo: show up arrow for capped values
+				// show up arrow for capped values
 				if (sum > max_capacity) {
-					display_fillbox_wh_clip_rgb(xpos + 1, ypos - v - 6, 2, 4, color_idx_to_rgb(COL_WHITE), false);
-					display_fillbox_wh_clip_rgb(xpos, ypos - v - 5, 4, 1, color_idx_to_rgb(COL_WHITE), false);
+					display_fillbox_wh_clip_rgb(xpos + (D_WAITINGBAR_WIDTH / 2) - 1, ypos - v - 6, 2, 4, color_idx_to_rgb(COL_WHITE), false);
+					display_fillbox_wh_clip_rgb(xpos + (D_WAITINGBAR_WIDTH / 2) - 2, ypos - v - 5, 4, 1, color_idx_to_rgb(COL_WHITE), false);
 				}
 
 				if (last_bar_height[bar_height_index] != (KOORD_VAL)v) {
@@ -5067,6 +5093,111 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 			}
 		}
 	}
+	if (env_t::freight_waiting_bar_level == 0 /* simply */ && get_ware_enabled()) {
+		const PIXVAL ware_colval = color_idx_to_rgb(115);
+		max_capacity = get_capacity(2);
+		uint32 v = min(total_ware, get_capacity(2));
+		if (max_capacity > 512) {
+			v = 2 + (v * 128) / max_capacity;
+		}
+		else {
+			v = (v / 4) + 2;
+		}
+		display_fillbox_wh_clip_rgb(xpos, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY4), false);
+		display_fillbox_wh_clip_rgb(xpos + 1, ypos - v - 1, D_WAITINGBAR_WIDTH - 2, v, ware_colval, false);
+		display_fillbox_wh_clip_rgb(xpos + D_WAITINGBAR_WIDTH - 1, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY1), false);
+		// show up arrow for capped values
+		if (total_ware > max_capacity) {
+			display_fillbox_wh_clip_rgb(xpos + (D_WAITINGBAR_WIDTH / 2) - 1, ypos - v - 6, 2, 4, color_idx_to_rgb(COL_WHITE), false);
+			display_fillbox_wh_clip_rgb(xpos + (D_WAITINGBAR_WIDTH / 2) - 2, ypos - v - 5, 4, 1, color_idx_to_rgb(COL_WHITE), false);
+		}
+
+		if (last_bar_height[bar_height_index] != (KOORD_VAL)v) {
+			if ((KOORD_VAL)v > last_bar_height[bar_height_index]) {
+				// bar will be longer, mark new height dirty
+				mark_rect_dirty_wc(xpos, ypos - v - 6, xpos + 4 - 1, ypos + 4 - 1);
+			}
+			else {
+				// bar will be shorter, mark old height dirty
+				mark_rect_dirty_wc(xpos, ypos - last_bar_height[bar_height_index] - 6, xpos + 4 - 1, ypos + 4 - 1);
+			}
+			last_bar_height[bar_height_index] = v;
+		}
+		bar_height_index++;
+
+		xpos += D_WAITINGBAR_WIDTH;
+	}
+	// draw goods category bar
+	else if (env_t::freight_waiting_bar_level == 1 /* category */) {
+		for (uint8 i = 2; i < goods_manager_t::get_max_catg_index(); i++) {
+			if (goods_manager_t::get_info_catg_index(i) == goods_manager_t::none) {
+				continue;
+			}
+			total_ware = 0; // category total
+			// first, count category waiting total
+			if (gibt_ab(goods_manager_t::get_info_catg_index(i))) {
+				const uint8  count = goods_manager_t::get_count();
+				for (uint8 j = 3; j < count; j++) {
+					goods_desc_t const* const wtyp2 = goods_manager_t::get_info(j);
+					if (wtyp2->get_catg_index() != i) {
+						continue;
+					}
+					total_ware += get_ware_summe(wtyp2);
+				}
+			}
+
+			// second, draw the bar
+			KOORD_VAL yoff = 0;
+			max_capacity = get_capacity(2);
+			if (gibt_ab(goods_manager_t::get_info_catg_index(i))) {
+				uint32 v = min(total_ware, get_capacity(2));
+				if (max_capacity > 512) {
+					v = 2 + (v * 128) / max_capacity;
+				}
+				else {
+					v = (v / 4) + 2;
+				}
+				const uint8  count = goods_manager_t::get_count();
+				for (uint8 j = 3; j < count; j++) {
+					goods_desc_t const* const wtyp2 = goods_manager_t::get_info(j);
+					if (wtyp2->get_catg_index() != i) {
+						continue;
+					}
+					if (total_ware) {
+						KOORD_VAL h = (v*get_ware_summe(wtyp2) + total_ware-1) / total_ware;
+						h = min(h, v-yoff);
+
+						display_fillbox_wh_clip_rgb(xpos, ypos - v - 1 + yoff, 1, h, color_idx_to_rgb(COL_GREY4), false);
+						display_fillbox_wh_clip_rgb(xpos + 1, ypos - v - 1 + yoff, D_WAITINGBAR_WIDTH - 2, h, wtyp2->get_color(), false);
+						display_fillbox_wh_clip_rgb(xpos + D_WAITINGBAR_WIDTH - 1, ypos - v - 1 + yoff, 1, h, color_idx_to_rgb(COL_GREY1), false);
+
+						yoff += h;
+					}
+				}
+				// show up arrow for capped values
+				if (total_ware > max_capacity) {
+					display_fillbox_wh_clip_rgb(xpos + (D_WAITINGBAR_WIDTH / 2) - 1, ypos - v - 6, 2, 4, color_idx_to_rgb(COL_WHITE), false);
+					display_fillbox_wh_clip_rgb(xpos + (D_WAITINGBAR_WIDTH / 2) - 2, ypos - v - 5, 4, 1, color_idx_to_rgb(COL_WHITE), false);
+				}
+
+				if (last_bar_height[bar_height_index] != (KOORD_VAL)v) {
+					if ((KOORD_VAL)v > last_bar_height[bar_height_index]) {
+						// bar will be longer, mark new height dirty
+						mark_rect_dirty_wc(xpos, ypos - v - 6, xpos + 4 - 1, ypos + 4 - 1);
+					}
+					else {
+						// bar will be shorter, mark old height dirty
+						mark_rect_dirty_wc(xpos, ypos - last_bar_height[bar_height_index] - 6, xpos + 4 - 1, ypos + 4 - 1);
+					}
+					last_bar_height[bar_height_index] = v;
+				}
+
+				bar_height_index++;
+				xpos += D_WAITINGBAR_WIDTH;
+			}
+		}
+	}
+
 
 	// status color box below
 	bool dirty = false;
@@ -5074,7 +5205,7 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 		last_status_color = get_status_farbe();
 		dirty = true;
 	}
-	display_fillbox_wh_clip_rgb( x - 1 - 4, ypos, count * D_WAITINGBAR_WIDTH + 12 - 2, D_WAITINGBAR_WIDTH, get_status_farbe(), dirty );
+	display_fillbox_wh_clip_rgb( x - 1 - 4, ypos, count * D_WAITINGBAR_WIDTH + 12 - 2, D_WAITINGBAR_WIDTH, get_status_farbe(), true );
 }
 
 
