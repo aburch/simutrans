@@ -263,6 +263,7 @@ map_settings_t::map_settings_t()
 
 	// Show slice map view checkbox
 	buttons[ IDBTN_SHOW_SLICE_MAP_VIEW ].init( button_t::square_state, "sliced underground mode" );
+	buttons[ IDBTN_SHOW_SLICE_MAP_VIEW ].set_tooltip("See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.");
 	add_component( buttons + IDBTN_SHOW_SLICE_MAP_VIEW );
 
 	// underground slice edit
@@ -548,7 +549,6 @@ traffic_settings_t::traffic_settings_t()
 	follow_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("underground mode"), SYSCOL_TEXT);
 	follow_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("sliced underground mode"), SYSCOL_TEXT);
 	follow_mode.set_selection(env_t::follow_convoi_underground);
-	//buttons[].set_tooltip("See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.");
 	add_component(&follow_mode);
 	follow_mode.add_listener(this);
 
