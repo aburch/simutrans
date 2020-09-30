@@ -424,12 +424,12 @@ label_settings_t::label_settings_t()
 	add_table(4, 2);
 	{
 		// waiting bar option for passenger and mail classes
-		bool pax_classes = (goods_manager_t::passengers->get_number_of_classes() > 1);
-		bool mail_classes = (goods_manager_t::mail->get_number_of_classes() > 1);
-		if (pax_classes && mail_classes) {
+		bool pakset_has_pass_classes = (goods_manager_t::passengers->get_number_of_classes() > 1);
+		bool pakset_has_mail_classes = (goods_manager_t::mail->get_number_of_classes() > 1);
+		if (pakset_has_pass_classes || pakset_has_mail_classes) {
 			new_component<gui_margin_t>(LINESPACE / 2);
-			new_component<gui_image_t>()->set_image(pax_classes ? skinverwaltung_t::passengers->get_image_id(0) : IMG_EMPTY, true);
-			new_component<gui_image_t>()->set_image(mail_classes ? skinverwaltung_t::mail->get_image_id(0) : IMG_EMPTY, true);
+			new_component<gui_image_t>()->set_image(pakset_has_pass_classes ? skinverwaltung_t::passengers->get_image_id(0) : IMG_EMPTY, true);
+			new_component<gui_image_t>()->set_image(pakset_has_mail_classes ? skinverwaltung_t::mail->get_image_id(0) : IMG_EMPTY, true);
 			buttons[IDBTN_CLASSES_WAITING_BAR].init(button_t::square_state, "Divided by class");
 			buttons[IDBTN_CLASSES_WAITING_BAR].pressed = env_t::classes_waiting_bar;
 			buttons[IDBTN_CLASSES_WAITING_BAR].enable(env_t::show_names & 2);
