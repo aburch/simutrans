@@ -1357,8 +1357,13 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 			dbg->fatal("convoi_t::sync_step()", "Wrong state %d!\n", state);
 			break;
 	}
-	welt->add_to_debug_sums(0, v.get_mantissa());
-	welt->add_to_debug_sums(1, v.get_mantissa()*(uint32)self.get_id());
+
+	// Debug sums:
+	// The difference of sums[1] should be divisible by the difference of sums[0] whenever a single convoi is out of sync.
+	// They should be kept low enough to avoid excessive overflow that would make this impractical.
+	uint32 sum = (v.get_mantissa() % 256) + 1;
+	welt->add_to_debug_sums(0, sum);
+	welt->add_to_debug_sums(1, sum * self.get_id());
 
 	return SYNC_OK;
 }
@@ -5355,7 +5360,10 @@ void convoi_t::laden() //"load" (Babelfish)
 	// so code inside if will be executed once. At arrival time.
 	minivec_tpl<uint8> departure_entries_to_remove(schedule->get_count());
 
-	if(journey_distance > 0)
+	// Update journey times.
+	// loading in other states such as WAITING_FOR_CLEARANCE and REVERSING are non-scheduled and should be excluded.
+	// perhaps the state == LOADING check could be replaced by a parameter.
+	if(journey_distance > 0 && state == LOADING)
 	{
 		arrival_time = welt->get_ticks();
 		inthashtable_tpl<uint16, sint64> best_times_in_schedule; // Key: halt ID; value: departure time.

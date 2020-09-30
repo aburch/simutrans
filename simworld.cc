@@ -11284,7 +11284,6 @@ void karte_t::network_disconnect()
 	// force disconnect
 	dbg->warning("karte_t::network_disconnect()", "Lost synchronisation with server. Random flags: %d", get_random_mode());
 	network_core_shutdown();
-	destroy_all_win(true);
 
 	clear_random_mode( INTERACTIVE_RANDOM );
 	step_mode = NORMAL;
@@ -11293,8 +11292,7 @@ void karte_t::network_disconnect()
 	create_win( display_get_width()/2-128, 40, new news_img("Lost synchronisation\nwith server."), w_info, magic_none);
 	ticker::add_msg( translator::translate("Lost synchronisation\nwith server."), koord::invalid, color_idx_to_rgb(COL_BLACK) );
 	last_active_player_nr = active_player_nr;
-
-	stop(false);
+	set_pause(true);
 }
 
 void karte_t::set_citycar_speed_average()
