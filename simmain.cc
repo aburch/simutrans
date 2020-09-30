@@ -1084,7 +1084,7 @@ int simu_main(int argc, char** argv)
 	if(  !gimme_arg(argc, argv, "-nosound", 0)  ) {
 		sound_set_mute(true);
 	}
-	
+
 
 	// Adam - Moved away loading from simmain and placed into translator for better modularization
 	if(  !translator::load(env_t::objfilename)  ) {
