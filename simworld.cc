@@ -4892,7 +4892,7 @@ void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 		sync.sync_step( delta_t );
 
 		rands[4] = get_random_seed();
-		
+
 		ticker::update();
 	}
 	rands[5] = get_random_seed();
