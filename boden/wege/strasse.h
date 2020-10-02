@@ -27,7 +27,7 @@ private:
 	/**
 	* @author THLeaderH
 	*/
-	overtaking_mode_t overtaking_mode;
+	overtaking_mode_t overtaking_mode = invalid_mode;
 
 	/**
 	* Mask used by oneway_mode road

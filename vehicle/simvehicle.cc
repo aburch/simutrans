@@ -3255,8 +3255,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			}
 		}
 
-		const air_vehicle_t* air = (const air_vehicle_t*)this;
-		if(get_waytype() == air_wt && air->runway_too_short)
+		if(get_waytype() == air_wt && static_cast<const air_vehicle_t *>(this)->runway_too_short)
 		{
 			if (tooltip_display_level > 0) {
 				sprintf(tooltip_text, translator::translate("Runway too short, require %dm"), desc->get_minimum_runway_length());
@@ -3264,7 +3263,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			}
 		}
 
-		if(get_waytype() == air_wt && air->airport_too_close_to_the_edge)
+		if(get_waytype() == air_wt && static_cast<const air_vehicle_t *>(this)->airport_too_close_to_the_edge)
 		{
 			if (tooltip_display_level > 0) {
 				sprintf(tooltip_text, "%s", translator::translate("Airport too close to the edge"));

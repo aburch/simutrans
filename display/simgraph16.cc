@@ -115,8 +115,8 @@ public:
 		if (steps == 0) {
 			return;
 		}
-		sdx = (dx << 16) / steps;
-		sdy = (dy << 16) / steps;
+		sdx = (dx * (1 << 16)) / steps;
+		sdy = (dy * (1 << 16)) / steps;
 		// to stay right from the line
 		// left border: xmin <= x
 		// right border: x < xmax
@@ -125,7 +125,7 @@ public:
 				inc = 1 << 16;
 			}
 			else {
-				inc = (dx << 16) / dy;
+				inc = (dx * (1 << 16)) / dy;
 			}
 		}
 		else if (dy < 0) {
@@ -133,7 +133,7 @@ public:
 				inc = 0; // (+1)-1 << 16;
 			}
 			else {
-				inc = (1 << 16) - (dx << 16) / dy;
+				inc = (1 << 16) - (dx * (1 << 16)) / dy;
 			}
 		}
 	}
@@ -154,11 +154,11 @@ public:
 		}
 		else if (dy != 0) {
 			// init Bresenham algorithm
-			const int t = ((y - y0) << 16) / sdy;
+			const int t = ((y - y0) * (1 << 16)) / sdy;
 			// sx >> 16 = x
 			// sy >> 16 = y
-			r.sx = t * sdx + inc + (x0 << 16);
-			r.sy = t * sdy + (y0 << 16);
+			r.sx = t * sdx + inc + (x0 * (1 << 16));
+			r.sy = t * sdy +       (y0 * (1 << 16));
 		}
 	}
 
@@ -171,11 +171,11 @@ public:
 				r.non_convex_active = false;
 				if (dy != 0) {
 					// init Bresenham algorithm
-					const int t = ((r.y - y0) << 16) / sdy;
+					const int t = ((r.y - y0) * (1 << 16)) / sdy;
 					// sx >> 16 = x
 					// sy >> 16 = y
-					r.sx = t * sdx + inc + (x0 << 16);
-					r.sy = t * sdy + (y0 << 16);
+					r.sx = t * sdx + inc + (x0 * (1 << 16));
+					r.sy = t * sdy +       (y0 * (1 << 16));
 					if (dy > 0) {
 						const int r_xmin = r.sx >> 16;
 						if (xmin < r_xmin) {
@@ -4740,11 +4740,11 @@ void display_direct_line_rgb(const KOORD_VAL x, const KOORD_VAL y, const KOORD_V
 		steps = 1;
 	}
 
-	xs = (dx << 16) / steps;
-	ys = (dy << 16) / steps;
+	xs = (dx * (1 << 16)) / steps;
+	ys = (dy * (1 << 16)) / steps;
 
-	xp = x << 16;
-	yp = y << 16;
+	xp = x * (1 << 16);
+	yp = y * (1 << 16);
 
 	for (i = 0; i <= steps; i++) {
 #ifdef DEBUG_FLUSH_BUFFER
@@ -4775,11 +4775,11 @@ void display_direct_line_dotted_rgb(const KOORD_VAL x, const KOORD_VAL y, const 
 		steps = 1;
 	}
 
-	xs = (dx << 16) / steps;
-	ys = (dy << 16) / steps;
+	xs = (dx * (1 << 16)) / steps;
+	ys = (dy * (1 << 16)) / steps;
 
-	xp = x << 16;
-	yp = y << 16;
+	xp = x * (1 << 16);
+	yp = y * (1 << 16);
 
 	for (i = 0; i <= steps; i++) {
 		counter++;
