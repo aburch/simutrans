@@ -4493,7 +4493,14 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	FOR(vector_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
 		s->rotate90(cached_size.x);
 	}
-	for (uint32 i = 0; i < get_parallel_operations(); i++)
+
+#ifdef MULTI_THREAD
+	const sint32 po = get_parallel_operations() + 2;
+#else
+	const sint32 po = 1;
+#endif
+
+	for (uint32 i = 0; i < po; i++)
 	{
 		vector_tpl<transferring_cargo_t>& tcarray = transferring_cargoes[i];
 		for (size_t j = tcarray.get_count(); j-- > 0;)
@@ -6114,9 +6121,9 @@ void karte_t::check_transferring_cargoes()
 	const sint64 current_time = ticks;
 	ware_t ware;
 #ifdef MULTI_THREAD
-	sint32 po = get_parallel_operations() + 2;
+	const sint32 po = get_parallel_operations() + 2;
 #else
-	sint32 po = 1;
+	const sint32 po = 1;
 #endif
 	bool removed;
 	for (sint32 i = 0; i < po; i++)
