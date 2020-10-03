@@ -1350,7 +1350,6 @@ public:
 	 /**
 	  * Initialize map.
 	  * @param sets Game settings.
-	  * @param preselected_players Defines which players the user has selected before he started the game.
 	  */
 	void init(settings_t*, sint8 const* heights);
 
