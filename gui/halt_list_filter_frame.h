@@ -44,7 +44,6 @@ private:
 
 		bool infowin_event(event_t const* const ev) OVERRIDE
 		{
-			bool old_pressed = pressed;
 			bool swallow = button_t::infowin_event( ev );
 			if(  swallow  &&  IS_LEFTRELEASE(ev)  ) {	// only handle, if we are hit!
 				parent->ware_item_triggered( ware_ab, ware_an );
