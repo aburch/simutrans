@@ -118,7 +118,7 @@ bool tool_selector_t::infowin_event(const event_t *ev)
 		is_dragging = true;
 		offset = old_offset + scr_coord( ev->mx - ev->cx, 0 );
 		int xy = tool_icon_width*tool_icon_height;
-		if(  tool_icon_disp_start + xy >= tools.get_count()  &&  offset.x < 0  ) {
+		if(  tool_icon_disp_start + xy >= (int)tools.get_count()  &&  offset.x < 0  ) {
 			offset.x = 0;
 		}
 		if(  tool_icon_disp_start == 0  &&  offset.x > 0  ) {

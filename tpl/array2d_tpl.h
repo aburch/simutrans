@@ -87,10 +87,10 @@ public:
 	{
 		if(  w*h > 0  ) {
 			T *new_data = new T[w*h];
-			for(  int y=0;  y<h;  y++  ) {
-				for(  int x=0;  x<w;  x++  ) {
-					const int nr = x+(y*w);
-					const int new_nr = (h-y-1)+(x*h);
+			for(  unsigned y=0;  y<h;  y++  ) {
+				for(  unsigned x=0;  x<w;  x++  ) {
+					const unsigned nr = x+(y*w);
+					const unsigned new_nr = (h-y-1)+(x*h);
 					new_data[new_nr] = data[nr];
 				}
 			}
