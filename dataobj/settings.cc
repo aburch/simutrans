@@ -203,19 +203,15 @@ settings_t::settings_t() :
 	// default AIs active
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		if(  i<2  ) {
-			player_active[i] = true;
 			player_type[i] = player_t::HUMAN;
 		}
 		else if(  i==3  ) {
-			player_active[i] = true;
 			player_type[i] = player_t::AI_PASSENGER;
 		}
 		else if(  i==6  ) {
-			player_active[i] = true;
 			player_type[i] = player_t::AI_GOODS;
 		}
 		else {
-			player_active[i] = false;
 			player_type[i] = player_t::EMPTY;
 		}
 		// undefined colors
@@ -829,12 +825,15 @@ void settings_t::rdwr(loadsave_t *file)
 			// restore AI state
 			//char password[16]; // unused
 			for(  int i=0;  i<15;  i++  ) {
-				file->rdwr_bool( player_active[i]);
+				if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 32) || file->get_extended_version() >= 15) {
+					bool player_active = true;
+					file->rdwr_bool(player_active);
+				}
 				file->rdwr_byte( player_type[i]);
 				if(  file->get_version_int()<=102002 || file->get_extended_version() == 7) {
 					char dummy[17];
 					dummy[0] = 0;
-					file->rdwr_str(dummy, lengthof(dummy));
+					file->rdwr_str(dummy, lengthof(dummy) );
 				}
 			}
 
@@ -936,7 +935,6 @@ void settings_t::rdwr(loadsave_t *file)
 				else {
 					player_type[i] = player_t::EMPTY;
 				}
-				player_active[i] = false;
 			}
 		}
 

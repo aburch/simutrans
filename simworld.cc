@@ -1559,7 +1559,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
 		if(  players[i]  ) {
-			players[i]->set_active(settings.player_active[i]);
+			players[i]->set_active(true);
 		}
 	}
 
@@ -4202,7 +4202,6 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 				player_t *player = get_player(player_nr);
 				if (param != player_t::HUMAN  &&  player) {
 					player->set_active(true);
-					settings.set_player_active(player_nr, player->is_active());
 				}
 			}
 			return true;
@@ -9691,10 +9690,6 @@ DBG_MESSAGE("karte_t::load()", "%d convois/trains loaded", convoi_array.get_coun
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(  players[i]  ) {
 			players[i]->rdwr(file);
-			settings.player_active[i] = players[i]->is_active();
-		}
-		else {
-			settings.player_active[i] = false;
 		}
 		ls.set_progress( (get_size().y*3)/2+128+8*i );
 	}
