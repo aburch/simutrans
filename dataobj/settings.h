@@ -338,8 +338,6 @@ public:
 	uint32 way_max_bridge_len;
 	sint32 way_count_leaving_road;
 
-	// true if active
-	bool player_active[MAX_PLAYER_COUNT];
 	// 0 = empty, otherwise some value from simplay
 	uint8 player_type[MAX_PLAYER_COUNT];
 
@@ -489,7 +487,6 @@ public:
 		language_code_names[2] = 0;
 	}
 
-	void set_player_active(uint8 i, bool b) { player_active[i] = b; }
 	void set_player_type(uint8 i, uint8 t) { player_type[i] = t; }
 	uint8 get_player_type(uint8 i) const { return player_type[i]; }
 
