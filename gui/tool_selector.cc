@@ -66,7 +66,6 @@ DBG_DEBUG4("tool_selector_t::add_tool()","ww=%i, rows=%i",ww,rows);
 		// assure equal distribution if more than a single row is needed
 		tool_icon_width = (tool_icon_width+rows-1)/rows;
 		if(  env_t::toolbar_max_width != 0  ) {
-			int max_width = env_t::toolbar_max_width ? env_t::toolbar_max_width : (ww + env_t::toolbar_max_width);
 			// At least, 3 rows is needed to drag toolbar
 			tool_icon_width = min( tool_icon_width, max(env_t::toolbar_max_width, 3) );
 		}
