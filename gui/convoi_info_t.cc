@@ -255,6 +255,7 @@ void convoi_info_t::update_labels()
 		case convoi_t::CAN_START_ONE_MONTH:
 		case convoi_t::CAN_START_TWO_MONTHS:
 			route_bar.set_state(2);
+			break;
 		case convoi_t::NO_ROUTE:
 			route_bar.set_state(3);
 			break;
