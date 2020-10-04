@@ -214,7 +214,7 @@ public:
 
 	/**
 	 * Account purchase of new vehicle: Subtracts money, increases assets.
-	 * @param amount money paid for vehicle
+	 * @param amount money paid for vehicle (negative)
 	 * @param wt - waytype of vehicle
 	 */
 	inline void book_new_vehicle(const sint64 amount, const waytype_t wt)
@@ -223,8 +223,8 @@ public:
 
 		veh_year[ tt][0][ATV_NEW_VEHICLE] += (sint64) amount;
 		veh_month[tt][0][ATV_NEW_VEHICLE] += (sint64) amount;
-		veh_year[ tt][0][ATV_NON_FINANCIAL_ASSETS] -= (sint64) amount;
-		veh_month[tt][0][ATV_NON_FINANCIAL_ASSETS] -= (sint64) amount;
+
+		update_assets(-amount, wt);
 
 		account_balance += amount;
 	}
