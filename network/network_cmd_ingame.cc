@@ -1051,7 +1051,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 	}
 
 	// do not open dialog windows across network
-	if (  init  ?  tool->is_init_network_save() :  tool->is_work_network_save() ){
+	if (  init  ?  tool->is_init_network_safe() :  tool->is_work_network_safe() ){
 		// no reason to send request over network
 		return NULL;
 	}

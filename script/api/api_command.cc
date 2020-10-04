@@ -210,7 +210,7 @@ SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 	uint8 flags = tool->flags; // might be reset by init()
 
 	// call init before work (but check network safety)
-	if (!tool->is_init_network_save()) {
+	if (!tool->is_init_network_safe()) {
 		return sq_raise_error(vm, "Initializing tool has side effects");
 	}
 	if (!tool->init(player)) {
@@ -219,7 +219,7 @@ SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 	// set flags
 	tool->flags = flags;
 	// test work
-	if (tool->is_work_network_save()  ||  (!v.twoclick  &&  tool->is_work_here_network_save(player, v.start))) {
+	if (tool->is_work_network_safe()  ||  (!v.twoclick  &&  tool->is_work_here_network_save(player, v.start))) {
 		return sq_raise_error(vm, "Tool has no effects");
 	}
 	// two-click tool
