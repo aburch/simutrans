@@ -64,8 +64,8 @@ public:
 	tool_dummy_t() : tool_t(dummy_id) {}
 
 	bool init(player_t*) OVERRIDE { return false; }
-	bool is_init_network_save() const OVERRIDE { return true; }
-	bool is_work_network_save() const OVERRIDE { return true; }
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
 	bool is_move_network_save(player_t*) const OVERRIDE { return true; }
 };
 tool_t *tool_t::dummy = new tool_dummy_t();
