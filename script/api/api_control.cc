@@ -18,7 +18,9 @@ namespace script_api {
 	bool pause_game()
 	{
 		tool_pause_t t;
-		t.init(NULL);
+		if (!t.is_selected()) {
+			t.init(NULL);
+		}
 		return t.is_selected();
 	}
 };
