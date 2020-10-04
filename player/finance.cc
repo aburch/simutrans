@@ -167,14 +167,14 @@ void finance_t::calc_finance_history()
 sint64 finance_t::get_maintenance_with_bits(transport_type tt) const
 {
 	assert(tt<TT_MAX);
-	return world->scale_with_month_length((sint64)maintenance[tt]);
+	return world->scale_with_month_length(maintenance[tt]);
 }
 
 
 sint64 finance_t::get_vehicle_maintenance_with_bits(transport_type tt) const
 {
 	assert(tt<TT_MAX);
-	return world->scale_with_month_length((sint64)vehicle_maintenance[tt]);
+	return world->scale_with_month_length(vehicle_maintenance[tt]);
 }
 
 
