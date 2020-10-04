@@ -5674,7 +5674,7 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 		fabrik_t *f = factory_builder_t::build_factory(NULL, fab, initial_prod, rotation, gr->get_pos(), welt->get_public_player());
 		if(f) {
 			// at least one factory has been built
-			welt->get_viewport()->change_world_position( pos );
+			// === removed on player request === welt->get_viewport()->change_world_position( pos );
 			player_t::book_construction_costs(player, welt->get_settings().cst_multiply_found_industry, pos.get_2d(), ignore_wt);
 
 			// crossconnect all?

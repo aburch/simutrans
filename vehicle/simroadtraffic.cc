@@ -649,16 +649,25 @@ grund_t* private_car_t::hop_check()
 	// traffic light phase check (since this is on next tile, it will always be necessary!)
 	const ribi_t::ribi direction90 = ribi_type(get_pos(), pos_next);
 
-	if(  weg->has_sign(  )) {
+	if(  weg->has_sign()  ) {
 		const roadsign_t* rs = from->find<roadsign_t>();
 		const roadsign_desc_t* rs_desc = rs->get_desc();
-		if(rs_desc->is_traffic_light()  &&  (rs->get_dir()&direction90)==0) {
-			direction = direction90;
-			calc_image();
-			// wait here
-			current_speed = 48;
-			weg_next = 0;
-			return NULL;
+		if(  rs_desc->is_traffic_light()  &&  (rs->get_dir()&direction90)==0  ) {
+			// red traffic light, but we go on, if we are already on a traffic light
+			bool go_on = false;
+			if(  const grund_t *gr_current = welt->lookup(get_pos())  ) {
+				if(  const roadsign_t *rs = gr_current->find<roadsign_t>()  ) {
+					go_on = rs  &&  rs->get_desc()->is_traffic_light()  &&  !from->ist_uebergang();
+				}
+			}
+			if(  !go_on   ) {
+				direction = direction90;
+				calc_image();
+				// wait here
+				current_speed = 48;
+				weg_next = 0;
+				return NULL;
+			}
 		}
 	}
 

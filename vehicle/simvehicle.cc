@@ -2067,9 +2067,18 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	if(  leading  ) {
 		// no further check, when already entered a crossing (to allow leaving it)
 		if(  !second_check_count  ) {
-			const grund_t *gr_current = welt->lookup(get_pos());
-			if(  gr_current  &&  gr_current->ist_uebergang()  ) {
-				return true;
+			if(  const grund_t *gr_current = welt->lookup(get_pos())  ) {
+				if(  gr_current  &&  gr_current->ist_uebergang()  ) {
+					return true;
+				}
+			}
+			// always allow to leave traffic lights (avoid vehicles stuck on crossings directly after though)
+			if(  const grund_t *gr_current = welt->lookup(get_pos())  ) {
+				if(  const roadsign_t *rs = gr_current->find<roadsign_t>()  ) {
+					if(  rs  &&  rs->get_desc()->is_traffic_light()  &&  !gr->ist_uebergang()  ) {
+						return true;
+					}
+				}
 			}
 		}
 
@@ -2185,15 +2194,17 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				if(  str->has_sign()  ) {
 					rs = gr->find<roadsign_t>();
 					if(  rs  ) {
+#if 0
 						// since at the corner, our direction may be diagonal, we make it straight
 						if(  rs->get_desc()->is_traffic_light()  &&  (rs->get_dir() & curr_90direction)==0  ) {
 							// wait here
 							restart_speed = 16;
 							return false;
 						}
+						else 
+#endif
 						// check, if we reached a choose point
-
-						else if(  rs->is_free_route(curr_90direction)  &&  !target_halt.is_bound()  ) {
+						if(  rs->is_free_route(curr_90direction)  &&  !target_halt.is_bound()  ) {
 							if(  second_check_count  ) {
 								return false;
 							}
