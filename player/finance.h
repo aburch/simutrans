@@ -229,8 +229,8 @@ public:
 	 */
 	inline void book_construction_costs(const sint64 amount, const waytype_t wt) {
 		transport_type tt = translate_waytype_to_tt(wt);
-		veh_year[tt][0][ATV_CONSTRUCTION_COST] += (sint64) amount;
-		veh_month[tt][0][ATV_CONSTRUCTION_COST] += (sint64) amount;
+		veh_year[tt][0][ATV_CONSTRUCTION_COST] += amount;
+		veh_month[tt][0][ATV_CONSTRUCTION_COST] += amount;
 
 		account_balance += amount;
 	}
@@ -282,8 +282,8 @@ public:
 		// It is positive for a SALE of a vehicle
 		const transport_type tt = translate_waytype_to_tt(wt);
 
-		veh_year[ tt][0][ATV_NEW_VEHICLE] += (sint64) amount;
-		veh_month[tt][0][ATV_NEW_VEHICLE] += (sint64) amount;
+		veh_year[ tt][0][ATV_NEW_VEHICLE] += amount;
+		veh_month[tt][0][ATV_NEW_VEHICLE] += amount;
 
 		update_assets(-amount, wt);
 
@@ -302,8 +302,8 @@ public:
 
 		index = ((0 <= index) && (index <= 2)? index : 2);
 
-		veh_year[tt][0][ATV_REVENUE_PASSENGER+index] += (sint64) amount;
-		veh_month[tt][0][ATV_REVENUE_PASSENGER+index] += (sint64) amount;
+		veh_year[tt][0][ATV_REVENUE_PASSENGER+index] += amount;
+		veh_month[tt][0][ATV_REVENUE_PASSENGER+index] += amount;
 
 		account_balance += amount;
 	}
@@ -329,8 +329,8 @@ public:
 	inline void book_toll_paid(const sint64 amount, const waytype_t wt)
 	{
 		const transport_type tt =  translate_waytype_to_tt(wt);
-		veh_year[tt][0][ATV_TOLL_PAID] += (sint64) amount;
-		veh_month[tt][0][ATV_TOLL_PAID] += (sint64) amount;
+		veh_year[tt][0][ATV_TOLL_PAID] += amount;
+		veh_month[tt][0][ATV_TOLL_PAID] += amount;
 		account_balance += amount;
 	}
 
@@ -342,8 +342,8 @@ public:
 	inline void book_toll_received(const sint64 amount, const waytype_t wt)
 	{
 		const transport_type tt = translate_waytype_to_tt(wt);
-		veh_year[tt][0][ATV_TOLL_RECEIVED] += (sint64) amount;
-		veh_month[tt][0][ATV_TOLL_RECEIVED] += (sint64) amount;
+		veh_year[tt][0][ATV_TOLL_RECEIVED] += amount;
+		veh_month[tt][0][ATV_TOLL_RECEIVED] += amount;
 		account_balance += amount;
 	}
 
