@@ -37,6 +37,7 @@
 	ADD: (FrankP) happy signs for system fonts
 	ADD: (ranran) new GUI element routebar
 	FIX: space.w added in container not space.h for vertical distance
+	CHG: On consequeutive traffic lights, only the first is obeyed to allow turns on four traffic lights crossings
 
 
 Release of 121.0 (r8870 on 1-Dec-2019):

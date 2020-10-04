@@ -2194,15 +2194,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				if(  str->has_sign()  ) {
 					rs = gr->find<roadsign_t>();
 					if(  rs  ) {
-#if 0
-						// since at the corner, our direction may be diagonal, we make it straight
-						if(  rs->get_desc()->is_traffic_light()  &&  (rs->get_dir() & curr_90direction)==0  ) {
-							// wait here
-							restart_speed = 16;
-							return false;
-						}
-						else 
-#endif
 						// check, if we reached a choose point
 						if(  rs->is_free_route(curr_90direction)  &&  !target_halt.is_bound()  ) {
 							if(  second_check_count  ) {
