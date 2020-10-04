@@ -44,49 +44,11 @@ public:
  */
 class tabfile_t
 {
-private:
-	FILE *file;
-
-	/**
-	 * Read one non-comment line from input.
-	 * Lines starting with ' ' are comment lines here. This differs from the
-	 * global read_line() function.
-	 *
-	 * @return bool false in case of eof
-	 * @param s     line buffer
-	 * @param size  size of line buffer
-	 */
-	bool read_line(char *s, int size);
-
-	/**
-	 * Return parameters and expansions
-	 */
-	int find_parameter_expansion(char *key, char *data, int *parameters, int *expansions, char *parameter_ptr[10], char *expansion_ptr[10]);
-
-	/**
-	 * Calculates expression provided in buffer, substituting parameters provided
-	 */
-	int calculate(char *expression, int parameter_value[10][256], int parameters, int combination[10]);
-
-	/**
-	 * Adds brackets to expression to ensure calculate_internal processes expression correctly
-	 */
-	void add_operator_brackets(char *expression, char *processed);
-
-	/**
-	 * Calculates expression provided in buffer (do not call directly!)
-	 */
-	int calculate_internal(char *expression, int parameter_value[10][256], int parameters, int combination[10]);
-
-	/**
-	 * Format the key string (trimright and lowercase)
-	 */
-	void format_key(char *key);
-
 public:
 	tabfile_t() : file(NULL) {}
 	~tabfile_t() { close(); }
 
+public:
 	bool open(const char *filename);
 
 	void close();
@@ -98,6 +60,47 @@ public:
 	 * @param &objinfo  will receive the object info
 	 */
 	bool read(tabfileobj_t &objinfo, FILE *fp = NULL);
+
+private:
+	/**
+	 * Read one non-comment line from input.
+	 * Lines starting with ' ' are comment lines here. This differs from the
+	 * global read_line() function.
+	 *
+	 * @param dest      line buffer
+	 * @param dest_size size of line buffer
+	 *
+	 * @returns false in case of eof
+	 */
+	bool read_line(char *dest, size_t dest_size);
+
+	/**
+	 * Return parameters and expansions
+	 */
+	int find_parameter_expansion(char *key, char *data, int *parameters, int *expansions, char *parameter_ptr[10], char *expansion_ptr[10]);
+
+	/**
+	 * Calculates expression provided in buffer, substituting parameters provided
+	 */
+	int calculate(char *expression, const int (&parameter_value)[10][256], int parameters, int combination[10]);
+
+	/**
+	 * Adds brackets to expression to ensure calculate_internal processes expression correctly
+	 */
+	void add_operator_parens(char *expression, char *processed);
+
+	/**
+	 * Calculates expression provided in buffer (do not call directly!)
+	 */
+	int calculate_internal(char *expression, const int (&parameter_value)[10][256], int parameters, int combination[10], int nest_level);
+
+	/**
+	 * Format the key string (trimright and lowercase)
+	 */
+	void format_key(char *key);
+
+private:
+	FILE *file;
 };
 
 
