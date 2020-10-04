@@ -19,13 +19,15 @@
 #include "tabfile.h"
 
 
+#define LINEBUFFER_SIZE (4096)
+
+
 bool tabfile_t::open(const char *filename)
 {
 	close();
 	file = dr_fopen(filename, "r");
 	return file != NULL;
 }
-
 
 
 void tabfile_t::close()
@@ -63,7 +65,6 @@ const char *tabfileobj_t::get_string(const char *key, const char * def)
 }
 
 
-
 bool tabfileobj_t::put(const char *key, const char *value)
 {
 	if(objinfo.get(key).str) {
@@ -72,7 +73,6 @@ bool tabfileobj_t::put(const char *key, const char *value)
 	objinfo.put(strdup(key), obj_info_t(false,strdup(value)) );
 	return true;
 }
-
 
 
 void tabfileobj_t::clear()
@@ -106,6 +106,7 @@ bool tabfileobj_t::get_x_y( const char *key, I &x, I &y )
 	return true;
 }
 
+
 const koord &tabfileobj_t::get_koord(const char *key, koord def)
 {
 	static koord ret;
@@ -114,13 +115,6 @@ const koord &tabfileobj_t::get_koord(const char *key, koord def)
 	return ret;
 }
 
-const scr_coord &tabfileobj_t::get_scr_coord(const char *key, scr_coord def)
-{
-	static scr_coord ret;
-	ret = def;
-	get_x_y( key, ret.x, ret.y );
-	return ret;
-}
 
 const scr_size &tabfileobj_t::get_scr_size(const char *key, scr_size def)
 {
@@ -129,8 +123,6 @@ const scr_size &tabfileobj_t::get_scr_size(const char *key, scr_size def)
 	get_x_y( key, ret.w, ret.h );
 	return ret;
 }
-
-
 
 
 PIXVAL tabfileobj_t::get_color(const char *key, PIXVAL def, uint32 *color_rgb)
@@ -171,6 +163,7 @@ PIXVAL tabfileobj_t::get_color(const char *key, PIXVAL def, uint32 *color_rgb)
 #endif
 	}
 }
+
 
 int tabfileobj_t::get_int(const char *key, int def)
 {
@@ -301,11 +294,11 @@ void tabfileobj_t::unused( const char *exclude_start_chars )
 bool tabfile_t::read(tabfileobj_t &objinfo, FILE *fp)
 {
 	bool lines = false;
-	char line[4096];
+	char line[LINEBUFFER_SIZE];
 
-	char line_expand[4096];
-	char delim_expand[4096];
-	char buffer[4096];
+	char line_expand[LINEBUFFER_SIZE];
+	char delim_expand[LINEBUFFER_SIZE];
+	char buffer[LINEBUFFER_SIZE];
 	char *param[10];
 	char *expansion[10];
 
@@ -318,6 +311,9 @@ bool tabfile_t::read(tabfileobj_t &objinfo, FILE *fp)
 			if(delim) {
 				*delim++ = '\0';
 				format_key(line);
+				if (line[0] == 0) {
+					return false;
+				}
 
 				int parameters = 0;
 				int expansions = 0;
@@ -376,8 +372,13 @@ bool tabfile_t::read(tabfileobj_t &objinfo, FILE *fp)
 										parameter_value[i][parameter_values[i]++] = value;
 									}
 									else {
-										int start_range = parameter_value[i][parameter_values[i]-1];
-										int end_range = atoi(token_ptr);
+										const int start_range = parameter_value[i][parameter_values[i]-1];
+										const int end_range = atoi(token_ptr);
+
+										if (parameter_values[i] + (end_range - start_range) >= 256) {
+											dbg->fatal("tabfile_t::read", "Invalid number range %d-%d (Max range %d values)", start_range, end_range, 256 - parameter_values[i]);
+										}
+
 										for(int range=start_range; range<end_range; range++) {
 											parameter_value[i][parameter_values[i]++] = range+1;
 										}
@@ -471,15 +472,14 @@ bool tabfile_t::read(tabfileobj_t &objinfo, FILE *fp)
 }
 
 
-
-bool tabfile_t::read_line(char *s, int size)
+bool tabfile_t::read_line(char *dest, size_t dest_size)
 {
 	char *r;
 	size_t l;
 
 	do {
-		r = fgets(s, size, file);
-	} while(r != NULL  &&  (*s == '#' || *s == ' ')  );
+		r = fgets(dest, dest_size, file);
+	} while(r != NULL  &&  (*dest == '#' || *dest == ' ')  );
 
 	if(r) {
 		l = strlen(r);
@@ -491,14 +491,13 @@ bool tabfile_t::read_line(char *s, int size)
 }
 
 
-
 int tabfile_t::find_parameter_expansion(char *key, char *data, int *parameters, int *expansions, char *param_ptr[10], char *expansion_ptr[10])
 {
-	char *s;
-
 	// find params in key
-	for(s = key; *s; s++) {
+	bool in_bracket = false;
+	for(char *s = key; *s; s++) {
 		if(*s == '[') {
+			in_bracket = true;
 			bool parameter = false;
 			s++;
 
@@ -510,20 +509,41 @@ int tabfile_t::find_parameter_expansion(char *key, char *data, int *parameters, 
 				}
 				s++;
 			}
+
 			if(parameter) {
+				if (*parameters >= 10) {
+					dbg->error("tabfile_t::find_parameter_expansion", "Too many parameters (Only 10 allowed)");
+					return 0;
+				}
 				param_ptr[*parameters] = t;
 				(*parameters)++;
 			}
 		}
+		else if (*s == ']') {
+			if (!in_bracket) {
+				dbg->error("tabfile_t::find_parameter_expansion", "Found ']' before '['");
+				return 0; // invalid key
+			}
+			else {
+				in_bracket = false;
+			}
+		}
+		else if (!isalpha(*s) && !isdigit(*s) && *s != '_') { // only allow [a-zA-Z0-9_] in keys
+			dbg->error("tabfile_t::find_parameter_expansion", "Found invalid character %c in key of parameter expansion (Only alphanumeric characters and _ allowed)", *s);
+			return 0;
+		}
 	}
 
-
 	// find expansions in data
-	for(s = data; *s; s++) {
+	for(char *s = data; *s; s++) {
 		if(*s == '<') {
 			char *t = s;
 			while(*s) {
 				if(*s == '>') {
+					if (*expansions >= 10) {
+						dbg->error("tabfile_t::find_parameter_expansion", "Too many expansions (only $0 .. $9 allowed)");
+						return 0;
+					}
 					expansion_ptr[*expansions] = t;
 					(*expansions)++;
 					break;
@@ -537,19 +557,17 @@ int tabfile_t::find_parameter_expansion(char *key, char *data, int *parameters, 
 }
 
 
-
-int tabfile_t::calculate(char *expression, int parameter_value[10][256], int parameters, int combination[10])
+int tabfile_t::calculate(char *expression, const int (&parameter_value)[10][256], int parameters, int combination[10])
 {
-	char processed[4096];
-	add_operator_brackets(expression, processed);
-	return calculate_internal(processed, parameter_value, parameters, combination);
+	char processed[LINEBUFFER_SIZE];
+	add_operator_parens(expression, processed);
+	return calculate_internal(processed, parameter_value, parameters, combination, 0);
 }
 
 
-
-void tabfile_t::add_operator_brackets(char *expression, char *processed)
+void tabfile_t::add_operator_parens(char *expression, char *processed)
 {
-	char buffer[4096];
+	char buffer[LINEBUFFER_SIZE];
 	char operators[5] = { '%','/','*','-','+' };
 
 	// first remove any spaces
@@ -566,7 +584,7 @@ void tabfile_t::add_operator_brackets(char *expression, char *processed)
 
 	// for each operator take 'a operator b' and turn into '(a operator b)'
 
-	for(int operator_loop = 0 ; operator_loop<5; operator_loop++) {
+	for(size_t operator_loop = 0 ; operator_loop<lengthof(operators); operator_loop++) {
 		int operator_count = 0;
 
 		char *expression_ptr = strchr(processed, operators[operator_loop]);
@@ -577,22 +595,26 @@ void tabfile_t::add_operator_brackets(char *expression, char *processed)
 			while(expression_pos>=processed && !expression_start) {
 				switch(expression_pos[0]) {
 					case ')': {
-						int bracket_level = 1;
+						int paren_level = 1;
 						expression_start = expression_pos-1;
-						while(expression_start>processed && bracket_level>0) {
+						while(expression_start>processed && paren_level>0) {
 							switch(expression_start[0]) {
 								case ')':
-									bracket_level++;
+									paren_level++;
 								break;
 								case '(':
-									bracket_level--;
+									paren_level--;
 								break;
 							}
 							expression_start--;
 						}
-						if(bracket_level>0) dbg->fatal( "tabfile_t::read", "mismatched brackets" );
+
+						if(paren_level>0) {
+							dbg->fatal( "tabfile_t::add_operator_parens", "Mismatched parentheses" );
+						}
+						break;
 					}
-					break;
+
 					case '%':
 					case '/':
 					case '*':
@@ -605,30 +627,38 @@ void tabfile_t::add_operator_brackets(char *expression, char *processed)
 				}
 				expression_pos--;
 			}
-			if(expression_start==NULL) expression_start=expression_pos;
+
+			if(expression_start==NULL) {
+				expression_start = expression_pos;
+			}
 
 			// find b
 			expression_pos = expression_ptr+1;
 			char *expression_end = NULL;
+
 			while(expression_pos[0]!='\0' && !expression_end) {
 				switch(expression_pos[0]) {
 					case '(': {
-						int bracket_level = 1;
+						int paren_level = 1;
 						expression_end = expression_pos+1;
-						while(expression_end[0]!='\0' && bracket_level>0) {
+						while(expression_end[0]!='\0' && paren_level>0) {
 							switch(expression_end[0]) {
 								case '(':
-									bracket_level++;
+									paren_level++;
 								break;
 								case ')':
-									bracket_level--;
+									paren_level--;
 								break;
 							}
 							expression_end++;
 						}
-						if(bracket_level>0) dbg->fatal( "tabfile_t::read", "mismatched brackets" );
+
+						if(paren_level>0) {
+							dbg->fatal( "tabfile_t::add_operator_parens", "Mismatched parentheses" );
+						}
+						break;
 					}
-					break;
+
 					case '%':
 					case '/':
 					case '*':
@@ -639,14 +669,27 @@ void tabfile_t::add_operator_brackets(char *expression, char *processed)
 				}
 				expression_pos++;
 			}
-			if(expression_end==NULL) expression_end = expression_pos;
+
+			if(expression_end==NULL) {
+				expression_end = expression_pos;
+			}
 
 			// construct expression with brackets around 'a operator b'
+			const int prefix_len = (int)(expression_start-processed+1);
+			const int lhs_len    = (int)(expression_ptr-expression_start-1);
+			const int rhs_len    = (int)(expression_end-expression_ptr);
+			const int suffix_len = strlen(expression_end);
+
+			// make sure we have enough room
+			if (prefix_len + 1 + lhs_len + rhs_len + 1 + suffix_len >= LINEBUFFER_SIZE-1) {
+				dbg->fatal("tabfile_t::add_operator_parens", "Line too long to add operators");
+			}
+
 			sprintf(buffer,"%.*s(%.*s%.*s)%s",
-				(int)(expression_start-processed+1), processed,
-				(int)(expression_ptr-expression_start-1), expression_start+1,
-				(int)(expression_end-expression_ptr), expression_ptr,
-				expression_end);
+			        prefix_len, processed,
+			        lhs_len, expression_start+1,
+			        rhs_len, expression_ptr,
+			        expression_end);
 
 			strcpy(processed, buffer);
 			operator_count++;
@@ -660,15 +703,19 @@ void tabfile_t::add_operator_brackets(char *expression, char *processed)
 }
 
 
-
-int tabfile_t::calculate_internal(char *expression, int parameter_value[10][256], int parameters, int combination[10])
+int tabfile_t::calculate_internal(char *expression, const int (&parameter_value)[10][256], int parameters, int combination[10], int nest_level)
 {
 	int answer = 0;
 
-	char original[4096];
+	char original[LINEBUFFER_SIZE];
+	assert(strlen(expression) < LINEBUFFER_SIZE);
 	strcpy(original, expression);
 
-	char *token_ptr = strtok(expression,"<-+*/%");
+	const char *token_ptr = strtok(expression, "<-+*/%");
+
+	if (token_ptr == NULL) {
+		dbg->fatal("tabfile_t::calculate_internal", "Unable to tokenize '%s'", expression);
+	}
 
 	if(token_ptr[0]=='(') {
 		token_ptr++;
@@ -679,49 +726,65 @@ int tabfile_t::calculate_internal(char *expression, int parameter_value[10][256]
 		char operator_char = original[token_ptr-expression-1];
 
 		if(token_ptr[0]=='$') {
-			int parameter = atoi((char *)(token_ptr+1));
-			if(parameter<=parameters) {
+			const int parameter = atoi(token_ptr+1);
+			if(parameter >= 0 && parameter < parameters) {
 				value = parameter_value[parameter][combination[parameter]];
 			}
+			else {
+				dbg->fatal("tabfile_t::calculate_internal", "Invalid reference to parameter $%d", parameter);
+			}
+		}
+		else if(token_ptr[0]=='(') {
+			size_t paren_expression_len;
+			int paren_level=1;
+
+			for(paren_expression_len=1; paren_expression_len<strlen(original)-(token_ptr-expression) && paren_level>0; paren_expression_len++) {
+				switch(original[token_ptr-expression+paren_expression_len]) {
+					case '(':
+						paren_level++;
+					break;
+					case ')':
+						paren_level--;
+					break;
+				}
+			}
+
+			// Note: We have to avoid too deep recursion here to avoid a stack overflow (each recursion adds > 8 kB to the stack)
+			if (paren_expression_len >= LINEBUFFER_SIZE-1 || nest_level > 20) {
+				dbg->fatal("tabfile_t::calculate_internal", "Cannot calculate expression (too nested or line too long)");
+			}
+
+			char buffer[LINEBUFFER_SIZE];
+			sprintf(buffer, "%.*s", (int)paren_expression_len, original+(token_ptr-expression)-1);
+
+			value = calculate_internal(buffer+1, parameter_value, parameters, combination, nest_level+1);
+			token_ptr += paren_expression_len;
 		}
 		else {
-			if(token_ptr[0]=='(') {
-				uint16 bracket_length;
-				int bracket_level=1;
-				for(bracket_length=1; bracket_length<strlen(original)-(token_ptr-expression) && bracket_level>0; bracket_length++) {
-					switch(original[token_ptr-expression+bracket_length]) {
-						case '(':
-							bracket_level++;
-						break;
-						case ')':
-							bracket_level--;
-						break;
-					}
-				}
-				char buffer[4096];
-				sprintf(buffer, "%.*s", bracket_length, original+(token_ptr-expression)-1);
-				value = calculate_internal(buffer+1, parameter_value, parameters, combination);
-				token_ptr+=bracket_length;
-			}
-			else {
-				value = atoi(token_ptr);
-			}
+			value = atoi(token_ptr);
 		}
+
 		switch(operator_char) {
 			case '+':
-				answer+= value;
+				answer += value;
 			break;
 			case '-':
-				answer-= value;
+				answer -= value;
 			break;
 			case '*':
-				answer*= value;
+				answer *= value;
 			break;
 			case '/':
-				answer/= value;
+				if (value == 0) {
+					dbg->fatal("tabfile_t::calculate_internal", "Cannot divide by 0");
+				}
+				answer /= value;
 			break;
 			case '%':
-				answer%= value;
+				if (value == 0) {
+					dbg->fatal("tabfile_t::calculate_internal", "Cannot divide modulo 0");
+				}
+				answer %= value;
 			break;
 			case '<':
 			case '(':
@@ -730,9 +793,9 @@ int tabfile_t::calculate_internal(char *expression, int parameter_value[10][256]
 		}
 		token_ptr += strcspn(token_ptr, "<-+*/%")+1;
 	}
+
 	return answer;
 }
-
 
 
 void tabfile_t::format_key(char *key)
@@ -744,10 +807,12 @@ void tabfile_t::format_key(char *key)
 	while(s > key && s[-1] == ' ') {
 		*--s = '\0';
 	}
+
 	// make lowercase
 	for(s = key; *s; s++) {
 		*s = tolower(*s);
 	}
+
 	// skip spaces inside []
 	for(s = t = key; *s; s++) {
 		if(*s == '[') {
@@ -767,25 +832,6 @@ void tabfile_t::format_key(char *key)
 			*t++ = *s;
 		}
 	}
+
 	*t = '\0';
-}
-
-
-void tabfile_t::format_value(char *value)
-{
-	size_t len = strlen(value);
-
-	// trim right
-	while(len && value[len - 1] == ' ') {
-		value[--len] = '\0';
-	}
-	// trim left
-	if(*value == ' ') {
-		char *from;
-		for(from = value; *from == ' '; from++) {}
-		while(*value) {
-			*value++ = *from++;
-		}
-	}
-
 }
