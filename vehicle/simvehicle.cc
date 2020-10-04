@@ -1555,7 +1555,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			ware_t ware(file);
 			if(  (desc==NULL  ||  ware.menge>0)  &&  welt->is_within_limits(ware.get_zielpos())  &&  ware.get_desc()  ) {
 				// also add, of the desc is unknown to find matching replacement
-				fracht.insert(ware);
+				fracht.append(ware);
 #ifdef CACHE_TRANSIT
 				if(  file->is_version_less(112, 1)  )
 #endif

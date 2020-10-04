@@ -38,11 +38,15 @@ private:
 
 	inline void intern_insert_at(obj_t* new_obj, uint8 pri);
 
+	// only used internal for loading. DO NOT USE OTHERWISE! Use add instead!
+	bool append(obj_t *obj);
+
 	// this will automatically give the right order for citycars and the like ...
 	bool intern_add_moving(obj_t* new_obj);
 
 	objlist_t(objlist_t const&);
 	objlist_t& operator=(objlist_t const&);
+
 public:
 	objlist_t();
 	~objlist_t();
@@ -70,12 +74,8 @@ public:
 	// usually used only for copying by grund_t
 	obj_t *remove_last();
 
-	/**
-	 * this routine will automatically obey the correct order of things during
-	 * insert into objlist
-	 */
-	bool add(obj_t* obj);
-
+	/// This routine will automatically obey the correct order of things during insertion.
+	bool add(obj_t *obj);
 	bool remove(const obj_t* obj);
 	bool loesche_alle(player_t *player,uint8 offset);
 	bool ist_da(const obj_t* obj) const;

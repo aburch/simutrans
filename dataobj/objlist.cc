@@ -292,6 +292,27 @@ inline void objlist_t::intern_insert_at(obj_t* new_obj, uint8 pri)
 }
 
 
+// only used internal for loading. DO NOT USE OTHERWISE!
+bool objlist_t::append(obj_t *new_obj)
+{
+	if(capacity==0) {
+		// the first one save direct
+		obj.one = new_obj;
+		top = 1;
+		capacity = 1;
+		return true;
+	}
+
+	if(top>=capacity  &&  !grow_capacity()) {
+		// memory exceeded
+		return false;
+	}
+
+	intern_insert_at(new_obj, top);
+	return true;
+}
+
+
 // this will automatically give the right order for citycars and the like ...
 bool objlist_t::intern_add_moving(obj_t* new_obj)
 {
@@ -992,7 +1013,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 			}
 
 			if(new_obj) {
-				add(new_obj);
+				append(new_obj);
 			}
 		}
 	}
