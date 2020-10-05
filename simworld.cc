@@ -5683,8 +5683,6 @@ void karte_t::step()
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
 	{
 		i->step(delta_t);
-		add_to_debug_sums(2, i->get_einwohner());
-		add_to_debug_sums(3, i->get_buildings());
 	}
 
 	rands[15] = get_random_seed();
