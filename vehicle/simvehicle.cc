@@ -4830,12 +4830,15 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 // author prissi
 int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord from_pos)
 {
+
 	// first favor faster ways
 	const weg_t *w = gr->get_weg(get_waytype());
 	if(  w==NULL  ) {
 		// only occurs when deletion during waysearch
 		return 9999;
 	}
+
+	const koord to_pos = gr->get_pos().get_2d();
 
 	// add cost for going (with maximum speed, cost is 10)
 	const sint32 max_tile_speed = w->get_max_speed();
@@ -4848,7 +4851,7 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	// effect of slope
 	if(  gr->get_weg_hang()!=0  ) {
 		// Knightly : check if the slope is upwards, relative to the previous tile
-		from_pos -= gr->get_pos().get_2d();
+		from_pos -= to_pos;
 		// 125 hardcoded, see get_cost_upslope()
 		costs += 125 * slope_t::get_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y );
 	}
@@ -4862,11 +4865,18 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 		costs += 400;
 	}
 
+	// Slightly discourage passing signals from behind (opposite to the intended direction of travel)
+	if(w->get_signal(ribi_type(to_pos, from_pos)))
+	{
+		costs += 10;
+	}
+
 	if(w->is_diagonal())
 	{
 		// Diagonals are a *shorter* distance.
 		costs = (costs * 5) / 7; // was: costs /= 1.4
 	}
+
 
 	return costs;
 }
