@@ -4830,7 +4830,6 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 // author prissi
 int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord from_pos)
 {
-
 	// first favor faster ways
 	const weg_t *w = gr->get_weg(get_waytype());
 	if(  w==NULL  ) {
@@ -4876,7 +4875,6 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 		// Diagonals are a *shorter* distance.
 		costs = (costs * 5) / 7; // was: costs /= 1.4
 	}
-
 
 	return costs;
 }
