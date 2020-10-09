@@ -1362,11 +1362,13 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 	// The difference of sums[1] should be divisible by the difference of sums[0] whenever a single convoi is out of sync.
 	// They should be kept low enough to avoid excessive overflow that would make this impractical.
 	uint32 sum = (v.get_mantissa() % 256) + 1;
-	uint32 state_sum = state + 1;
 	welt->add_to_debug_sums(0, sum);
 	welt->add_to_debug_sums(1, sum * self.get_id());
-	welt->add_to_debug_sums(2, state_sum);
-	welt->add_to_debug_sums(3, state_sum*self.get_id());
+
+	// Sums [2] and [3] exist to give an idea of the discrepencies in speed.
+	// They should (almost) never mismatch if [0] and [1] don't either, so there is no need to multiply/divide by ID.
+	welt->add_to_debug_sums(2, speed_to_kmh(akt_speed));
+	welt->add_to_debug_sums(3, speed_to_kmh(akt_speed_soll));
 	return SYNC_OK;
 }
 
