@@ -70,7 +70,7 @@ bool ai_passenger_t::set_active(bool new_state)
 halthandle_t ai_passenger_t::get_our_hub( const stadt_t *s ) const
 {
 	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
-		if (halt->get_owner() == sim::up_cast<player_t const*>(this)) {
+		if (halt->get_owner() == this) {
 			if(  halt->get_pax_enabled()  &&  (halt->get_station_type()&haltestelle_t::busstop)!=0  ) {
 				koord h=halt->get_basis_pos();
 				if(h.x>=s->get_linksoben().x  &&  h.y>=s->get_linksoben().y  &&  h.x<=s->get_rechtsunten().x  &&  h.y<=s->get_rechtsunten().y  ) {
@@ -99,7 +99,7 @@ koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const k
 				if(  gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==slope_t::flat  ) {
 					const obj_t* obj = gr->obj_bei(0);
 					int test_dist = shortest_distance( trypos, basis );
-					if (!obj || !obj->get_owner() || obj->get_owner() == sim::up_cast<player_t const*>(this)) {
+					if (!obj || !obj->get_owner() || obj->get_owner() == this) {
 						if(  gr->is_halt()  &&  check_owner( gr->get_halt()->get_owner(), this )  &&  gr->hat_weg(road_wt)  ) {
 							// ok, one halt belongs already to us ... (should not really happen!) but might be a public stop
 							return trypos;

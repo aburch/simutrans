@@ -418,7 +418,7 @@ void convoi_t::reserve_own_tiles(bool unreserve)
 			grund_t* gr = welt->lookup(v.get_pos());
 			if(gr)
 			{
-				if(schiene_t *sch = (schiene_t *)gr->get_weg(front()->get_waytype()))
+				if(schiene_t *sch = dynamic_cast<schiene_t *>(gr->get_weg(front()->get_waytype())))
 				{
 					if(!route.empty())
 					{
@@ -1357,9 +1357,18 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 			dbg->fatal("convoi_t::sync_step()", "Wrong state %d!\n", state);
 			break;
 	}
-	welt->add_to_debug_sums(0, v.get_mantissa());
-	welt->add_to_debug_sums(1, v.get_mantissa()*(uint32)self.get_id());
 
+	// Debug sums:
+	// The difference of sums[1] should be divisible by the difference of sums[0] whenever a single convoi is out of sync.
+	// They should be kept low enough to avoid excessive overflow that would make this impractical.
+	uint32 sum = (v.get_mantissa() % 256) + 1;
+	welt->add_to_debug_sums(0, sum);
+	welt->add_to_debug_sums(1, sum * self.get_id());
+
+	// Sums [2] and [3] exist to give an idea of the discrepencies in speed.
+	// They should (almost) never mismatch if [0] and [1] don't either, so there is no need to multiply/divide by ID.
+	welt->add_to_debug_sums(2, speed_to_kmh(akt_speed));
+	welt->add_to_debug_sums(3, speed_to_kmh(akt_speed_soll));
 	return SYNC_OK;
 }
 
@@ -5323,7 +5332,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	if(!this_halt.is_bound())
 	{
 		state = CAN_START;
-		dbg->error("void convoi_t::laden()", "Trying to load at halt %s when not at a halt", halt.is_bound() ? halt->get_name() : "none");
+		dbg->warning("void convoi_t::laden()", "%s trying to load at %s when not at a halt", get_name(), halt.is_bound() ? halt->get_name() : "none");
 		return;
 	}
 
@@ -5355,7 +5364,10 @@ void convoi_t::laden() //"load" (Babelfish)
 	// so code inside if will be executed once. At arrival time.
 	minivec_tpl<uint8> departure_entries_to_remove(schedule->get_count());
 
-	if(journey_distance > 0)
+	// Update journey times.
+	// loading in other states such as WAITING_FOR_CLEARANCE and REVERSING are non-scheduled and should be excluded.
+	// perhaps the state == LOADING check could be replaced by a parameter.
+	if(journey_distance > 0 && state == LOADING)
 	{
 		arrival_time = welt->get_ticks();
 		inthashtable_tpl<uint16, sint64> best_times_in_schedule; // Key: halt ID; value: departure time.
@@ -5419,7 +5431,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		{
 			// Necessary to prevent divisions by zero.
 			// This code should never be reached.
-			dbg->error("void convoi_t::laden()", "Journey time (%i) is zero or less");
+			dbg->warning("void convoi_t::laden()", "Journey time is %i for %s.", latest_journey_time, get_name());
 			latest_journey_time = 1;
 		}
 
@@ -6077,7 +6089,7 @@ station_tile_search_ready: ;
 		arrival_time = now;
 		if (arrival_time < WAIT_INFINITE)
 		{
-			dbg->error("void convoi_t::hat_gehalten(halthandle_t halt)", "Arrival time is in the future for convoy %u at stop %u", self.get_id(), halt.get_id());
+			dbg->warning("void convoi_t::hat_gehalten(halthandle_t halt)", "Arrival time in the future for %s at %s", get_name(), halt->get_name());
 		}
 	}
 	const sint64 reversing_time = schedule->get_current_entry().reverse > 0 ? (sint64)calc_reverse_delay() : 0ll;
@@ -6734,65 +6746,68 @@ bool convoi_t::check_destination_reverse(route_t* current_route, route_t* target
 void convoi_t::set_next_stop_index(uint16 n)
 {
 	// stop at station or signals, not at waypoints
-   if(n == INVALID_INDEX && !route.empty())
-   {
-	   // Find out if this schedule entry is a stop or a waypoint, waypoint:
-	   // do not brake at non-reversing waypoints
-	   bool reverse_waypoint = false;
-	   koord3d route_end = route.back();
-	   bool update_line = false;
+	if(n == INVALID_INDEX && !route.empty())
+	{
+		// Find out if this schedule entry is a stop or a waypoint, waypoint:
+		// do not brake at non-reversing waypoints
+		bool reverse_waypoint = false;
+		koord3d route_end = route.back();
+		bool update_line = false;
 
-	   if(front()->get_typ() != obj_t::air_vehicle)
-	   {
-		   const int count = schedule->get_count();
-		   for(int i = 0; i < count; i ++)
-		   {
-			   schedule_entry_t &entries = schedule->entries[i];
-			   if(entries.pos == route_end)
-			   {
-				   if(entries.reverse == -1)
-				   {
-					   grund_t* gr = world()->lookup(entries.pos);
-					   if (gr && gr->get_depot())
-					   {
-						   schedule->set_reverse(1, i);
-					   }
-					   else
-					   {
-						   entries.reverse = check_destination_reverse() ? 1 : 0;
-						   schedule->set_reverse(entries.reverse, i);
+		if(front()->get_typ() != obj_t::air_vehicle)
+		{
+			const int count = schedule->get_count();
+			for(int i = 0; i < count; i ++)
+			{
+				schedule_entry_t &entries = schedule->entries[i];
+				if(entries.pos == route_end)
+				{
+					if(entries.reverse == -1)
+					{
+						grund_t* gr = world()->lookup(entries.pos);
+						if (gr && gr->get_depot())
+						{
+							schedule->set_reverse(1, i);
+						}
+						else
+						{
+							entries.reverse = check_destination_reverse() ? 1 : 0;
+							schedule->set_reverse(entries.reverse, i);
 
-						   if (line.is_bound())
-						   {
-							   schedule_t* line_schedule = line->get_schedule();
-							   if (line_schedule->get_count() > i)
-							   {
-								   schedule_entry_t &line_entry = line_schedule->entries[i];
-								   line_entry.reverse = entries.reverse;
-								   update_line = true;
-							   }
-						   }
-					   }
-				   }
+							if (line.is_bound())
+							{
+								schedule_t* line_schedule = line->get_schedule();
+								if (line_schedule->get_count() > i)
+								{
+									schedule_entry_t &line_entry = line_schedule->entries[i];
+									line_entry.reverse = entries.reverse;
+									update_line = true;
+								}
+							}
+						}
+					}
 					reverse_waypoint = entries.reverse == 1;
 
 					break;
-			   }
-		   }
+				}
+			}
 
-		   if (update_line)
-		   {
-			   simlinemgmt_t::update_line(line);
-		   }
-	   }
+			if (update_line)
+			{
+				simlinemgmt_t::update_line(line);
+			}
+		}
 
-	   grund_t const* const gr = welt->lookup(route_end);
-	   rail_vehicle_t* rv = (rail_vehicle_t*)front();
-	   if(gr && (gr->is_halt() || reverse_waypoint) && (front()->get_typ() != obj_t::rail_vehicle || rv->get_working_method() != one_train_staff))
-	   {
-		   n = route.get_count() - 1;
-	   }
-   }
+		grund_t const* const gr = welt->lookup(route_end);
+		if(gr && (gr->is_halt() || reverse_waypoint))
+		{
+			if (front()->get_typ() != obj_t::rail_vehicle || (static_cast<const rail_vehicle_t *>(front())->get_working_method() != one_train_staff))
+			{
+				n = route.get_count() - 1;
+			}
+		}
+	}
+
 	next_stop_index = n + 1;
 }
 
@@ -7684,8 +7699,10 @@ void convoi_t::calc_min_range()
 
 void convoi_t::calc_direction_steps()
 {
+	const waytype_t wt = vehicle[0]->get_waytype();
+
 	const sint32 top_speed_kmh = speed_to_kmh(get_min_top_speed());
-	const sint32 corner_force_divider = welt->get_settings().get_corner_force_divider(vehicle[0]->get_waytype());
+	const sint32 corner_force_divider = (wt != air_wt) ? welt->get_settings().get_corner_force_divider(wt) : 0;
 	const sint32 max_limited_radius = ((top_speed_kmh * top_speed_kmh) * corner_force_divider) / 87;
 	const sint16 max_tile_steps = (max_limited_radius / welt->get_settings().get_meters_per_tile()) * 2; // This must be multiplied by two because each diagonal step takes two tiles.
 	for(int i = 0; i < vehicle_count; i ++)

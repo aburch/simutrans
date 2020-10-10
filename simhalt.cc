@@ -703,7 +703,13 @@ void haltestelle_t::rotate90( const sint16 y_size )
 		}
 	}
 
-	for (uint32 i = 0; i < world()->get_parallel_operations(); i++)
+#ifdef MULTI_THREAD
+	const sint32 po = world()->get_parallel_operations() + 2;
+#else
+	const sint32 po = 1;
+#endif
+
+	for (uint32 i = 0; i < po; i++)
 	{
 		vector_tpl<transferring_cargo_t>& tcarray = transferring_cargoes[i];
 		for (size_t j = tcarray.get_count(); j-- > 0;)
@@ -1835,7 +1841,12 @@ uint32 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 		return service_frequencies.get(spec);
 	}
 
-	dbg->message("uint32 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 category) const", "Service frequency not in the database: calculating");
+	if(destination.is_bound()) {
+		dbg->message("uint32 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 category) const", "Unknown frequency for %s from %s to %s", translator::translate(goods_manager_t::get_info_catg_index(category)->get_catg_name()), get_name(), destination->get_name());
+	} else {
+		dbg->warning("uint32 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 category) const", "Tried to calculate frequency for %s from %s to missing halt", translator::translate(goods_manager_t::get_info_catg_index(category)->get_catg_name()), get_name());
+	}
+
 	return calc_service_frequency(destination, category);
 }
 
@@ -2472,7 +2483,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 					sint64 this_arrival_time = check_arrivals.get(cnv->self.get_id());
 					if (this_arrival_time == 0)
 					{
-						dbg->message("bool haltestelle_t::fetch_goods()", "A convoy's arrival time is not in the database");
+						dbg->message("bool haltestelle_t::fetch_goods()", "Unknown arrival time for %s at %s", cnv->get_name(), get_name());
 						this_arrival_time = welt->get_ticks();
 
 						// Fall back to convoy's general average speed if a point-to-point average is not available.

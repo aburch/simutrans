@@ -427,7 +427,13 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			route.clear();
 			ANode* original_tmp = tmp;
 			//route.resize(tmp->count + 16);
-			const koord destination_pos = destination_industry ? destination_industry->get_pos().get_2d() : destination_attraction ? destination_attraction->get_first_tile()->get_pos().get_2d() : destination_city ? destination_city->get_townhall_road() : koord::invalid;
+
+			// There may be multiple objects at this location (a townhall road might share a tile with an industry or attraction).
+			// Make sure to capture all objects.
+			const koord industry_destination_pos = destination_industry ? destination_industry->get_pos().get_2d() : koord::invalid;
+			const koord attraction_destination_pos = destination_attraction ? destination_attraction->get_first_tile()->get_pos().get_2d() : koord::invalid;
+			const koord city_destination_pos = destination_city ? destination_city->get_townhall_road() : koord::invalid;
+
 			koord3d previous = koord3d::invalid;
 			weg_t* w;
 			while (tmp != NULL)
@@ -441,7 +447,21 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					// that are currently being read.
 
 					// Also, the route is iterated here *backwards*.
-					w->add_private_car_route(destination_pos, previous);
+
+					if (industry_destination_pos != koord::invalid)
+					{
+						w->add_private_car_route(industry_destination_pos, previous);
+					}
+
+					if (attraction_destination_pos != koord::invalid)
+					{
+						w->add_private_car_route(attraction_destination_pos, previous);
+					}
+
+					if (city_destination_pos != koord::invalid)
+					{
+						w->add_private_car_route(city_destination_pos, previous);
+					}
 				}
 
 				// Old route storage - we probably no longer need this.

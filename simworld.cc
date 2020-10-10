@@ -4502,7 +4502,14 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	FOR(vector_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
 		s->rotate90(cached_size.x);
 	}
-	for (uint32 i = 0; i < get_parallel_operations(); i++)
+
+#ifdef MULTI_THREAD
+	const sint32 po = get_parallel_operations() + 2;
+#else
+	const sint32 po = 1;
+#endif
+
+	for (uint32 i = 0; i < po; i++)
 	{
 		vector_tpl<transferring_cargo_t>& tcarray = transferring_cargoes[i];
 		for (size_t j = tcarray.get_count(); j-- > 0;)
@@ -5685,8 +5692,6 @@ void karte_t::step()
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
 	{
 		i->step(delta_t);
-		add_to_debug_sums(2, i->get_einwohner());
-		add_to_debug_sums(3, i->get_buildings());
 	}
 
 	rands[15] = get_random_seed();
@@ -6123,9 +6128,9 @@ void karte_t::check_transferring_cargoes()
 	const sint64 current_time = ticks;
 	ware_t ware;
 #ifdef MULTI_THREAD
-	sint32 po = get_parallel_operations() + 2;
+	const sint32 po = get_parallel_operations() + 2;
 #else
-	sint32 po = 1;
+	const sint32 po = 1;
 #endif
 	bool removed;
 	for (sint32 i = 0; i < po; i++)
@@ -11284,7 +11289,6 @@ void karte_t::network_disconnect()
 	// force disconnect
 	dbg->warning("karte_t::network_disconnect()", "Lost synchronisation with server. Random flags: %d", get_random_mode());
 	network_core_shutdown();
-	destroy_all_win(true);
 
 	clear_random_mode( INTERACTIVE_RANDOM );
 	step_mode = NORMAL;
@@ -11293,8 +11297,7 @@ void karte_t::network_disconnect()
 	create_win( display_get_width()/2-128, 40, new news_img("Lost synchronisation\nwith server."), w_info, magic_none);
 	ticker::add_msg( translator::translate("Lost synchronisation\nwith server."), koord::invalid, color_idx_to_rgb(COL_BLACK) );
 	last_active_player_nr = active_player_nr;
-
-	stop(false);
+	set_pause(true);
 }
 
 void karte_t::set_citycar_speed_average()
