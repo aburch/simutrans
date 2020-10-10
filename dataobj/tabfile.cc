@@ -528,8 +528,10 @@ int tabfile_t::find_parameter_expansion(char *key, char *data, int *parameters, 
 				in_bracket = false;
 			}
 		}
-		else if (!isalpha(*s) && !isdigit(*s) && *s != '_') { // only allow [a-zA-Z0-9_] in keys
-			dbg->error("tabfile_t::find_parameter_expansion", "Found invalid character %c in key of parameter expansion (Only alphanumeric characters and _ allowed)", *s);
+		else if (!isalpha(*s) && !isdigit(*s) && *s != '_' && *s != '.') {
+			// only allow [a-zA-Z0-9_.] in keys ('.' is required for city rules)
+			dbg->error("tabfile_t::find_parameter_expansion",
+				"Found invalid character %c in key of parameter expansion (Only alphanumeric characters, '.' and '_' allowed)", *s);
 			return 0;
 		}
 	}
