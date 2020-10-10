@@ -8,11 +8,11 @@
 SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak (64 size) (standard)" pak
-  AddSize 12308
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/121-0/simupak64-121-0.zip"
-  StrCpy $archievename "simupak64-121-0.zip"
+  AddSize 12334
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/122-0/simupak64-122-0.zip"
+  StrCpy $archievename "simupak64-122-0.zip"
   StrCpy $downloadname "pak"
-  StrCpy $VersionString "pak64 121 r2018"
+  StrCpy $VersionString "pak64 121 r2044"
   Call DownloadInstallZip
 SectionEnd
 
@@ -34,7 +34,7 @@ SectionGroupEnd
 
 
 
-Section "pak64.german (Freeware) for 120.4.1.2 beta" pak64german
+Section "pak64.german (Freeware) for 122" pak64german
   AddSize 22768
   StrCpy $downloadlink "http://simutrans-germany.com/pak.german/pak64.german_0-122-0-0-2_full.zip"
   StrCpy $archievename "pak64.german_0-122-0-0-2_full.zip"
@@ -147,7 +147,7 @@ SectionEnd
 
 Section /o "pak128 V2.8.1" pak128
   AddSize 413056
-  StrCpy $downloadlink "https://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20120.4.1%20%282.8.1%2C%20priority%20signals%20%2B%20bugfix%29/pak128.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20120.4.1%20%282.8.1%2C%20priority%20signals%20%2B%20bugfix%29/pak128.zip"
   StrCpy $archievename "pak128.zip"
   StrCpy $downloadname "pak128"
   StrCpy $VersionString "Pak128 2.8.1"
@@ -165,11 +165,10 @@ Section /o "pak128.Britain V1.18" pak128britain
   Call DownloadInstallZip
 SectionEnd
 
-
-Section "pak128.German V2.0 beta" pak128german
+Section "pak128.German V2.0" pak128german
   AddSize 431961
-  StrCpy $downloadlink "http://pak128-german.de/PAK128.german_VS2.0.beta.zip"
-  StrCpy $archievename "PAK128.german_VS2.0.beta.zip"
+	StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_2.0_for_ST_122.0/PAK128.german_2.0_for_ST_122.0.zip"
+  StrCpy $archievename "PAK128.german_2.0_for_ST_122.0.zip"
   StrCpy $downloadname "pak128.German"
   StrCpy $VersionString "Pak128.german VS 2.0 (Rev. 356)"
   Call DownloadInstallZip

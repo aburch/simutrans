@@ -1,3 +1,4 @@
+Release of 122.0 (r9273 on 10-Oct-2020):
 	FIX: Rotation of multi-tile buildings at street corners
 	ADD: different volumes for different sounds, realistic distance scaling (independent from screen size)
 	CHG: Fade sounds with one over square root distance, and remove the dependency from display and tile size
