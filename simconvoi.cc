@@ -1365,6 +1365,10 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 	welt->add_to_debug_sums(0, sum);
 	welt->add_to_debug_sums(1, sum * self.get_id());
 
+	// Sums [2] and [3] exist to give an idea of the discrepencies in speed.
+	// They should (almost) never mismatch if [0] and [1] don't either, so there is no need to multiply/divide by ID.
+	welt->add_to_debug_sums(2, speed_to_kmh(akt_speed));
+	welt->add_to_debug_sums(3, speed_to_kmh(akt_speed_soll));
 	return SYNC_OK;
 }
 
