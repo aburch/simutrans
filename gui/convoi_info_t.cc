@@ -222,8 +222,11 @@ void convoi_info_t::init(convoihandle_t cnv)
 		details_button.add_listener(this);
 		add_component(&details_button);
 
+		times_history_button.init(button_t::roundbox | button_t::flexible, "times_history");
+		times_history_button.set_tooltip("view_journey_times_history_of_this_convoy");
+		times_history_button.add_listener(this);
+		add_component(&times_history_button);
 
-		new_component<gui_empty_t>();
 		new_component<gui_empty_t>();
 
 		no_load_button.init(button_t::square_state, "no load");
@@ -263,12 +266,6 @@ void convoi_info_t::init(convoihandle_t cnv)
 	container_freight.add_component(&text);
 
 	switch_mode.add_tab(&container_stats, translator::translate("Chart"));
-/*
-	times_history_button.init(button_t::roundbox, "times_history", dummy, D_BUTTON_SIZE);
-	times_history_button.set_tooltip("view_journey_times_history_of_this_convoy");
-	add_component(&times_history_button);
-	times_history_button.add_listener(this);
-	*/
 
 	/*
 #ifdef ACCELERATION_BUTTON
