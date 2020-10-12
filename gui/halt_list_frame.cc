@@ -302,8 +302,9 @@ halt_list_frame_t::halt_list_frame_t(player_t *player) :
 	{
 		new_component<gui_label_t>("hl_txt_sort");
 
-		filter_on.init(button_t::square, "cl_txt_filter");
+		filter_on.init(button_t::square_state, "cl_txt_filter");
 		filter_on.set_tooltip(translator::translate("cl_btn_filter_tooltip"));
+		filter_on.pressed = filter_is_on;
 		filter_on.add_listener(this);
 		add_component(&filter_on);
 

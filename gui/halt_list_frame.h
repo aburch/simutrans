@@ -72,7 +72,7 @@ private:
     static sort_mode_t sortby;
     static bool sortreverse;
 
-	bool filter_is_on;
+	bool filter_is_on = false;
 	static int filter_flags;
 
     static char name_filter_value[64];
