@@ -36,6 +36,51 @@
 
 #define LOADING_BAR_WIDTH 150
 #define LOADING_BAR_HEIGHT 5
+#define CHART_HEIGHT (100)
+
+class convoy_t;
+
+static const uint8 physics_curves_color[MAX_PHYSICS_CURVES] =
+{
+	COL_GREEN-1,
+	COL_DODGER_BLUE,
+	COL_ORANGE_RED,
+	COL_PURPLE+1,
+	COL_DARK_SLATEBLUE
+};
+
+// TODO: Add definitions for SPEED and FORCE
+static const uint8 curves_type[MAX_PHYSICS_CURVES] =
+{
+	KMPH,
+	KMPH,
+	KMPH,
+	FORCE,
+	FORCE
+};
+
+static const gui_chart_t::chart_marker_t marker_type[MAX_PHYSICS_CURVES] = {
+	gui_chart_t::cross, gui_chart_t::diamond, gui_chart_t::square,
+	gui_chart_t::diamond, gui_chart_t::cross
+};
+
+static const char curve_name[MAX_PHYSICS_CURVES][64] =
+{
+	"Acceleration(actual)",
+	"Acceleration(empty)",
+	"Acceleration(full load)",
+	"Tractive effort",
+	"Running resistance"
+};
+
+static char const* const chart_help_text[] =
+{
+	"help_text_actual_acceleration",
+	"Acceleration graph when nothing is loaded on the convoy",
+	"help_text_vt_graph_full_load",
+	"help_text_fv_graph_tractive_effort",
+	"Total force acting in the opposite direction of the convoy"
+};
 
 convoi_detail_t::convoi_detail_t(convoihandle_t cnv) :
 	gui_frame_t( cnv->get_name(), cnv->get_owner() ),
@@ -97,10 +142,69 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv) :
 	tabs.add_tab(&scrolly, translator::translate("cd_spec_tab"));
 	tabs.add_tab(&scrolly_payload_info, translator::translate("cd_payload_tab"));
 	tabs.add_tab(&scrolly_maintenance, translator::translate("cd_maintenance_tab"));
+	tabs.add_tab(&container_chart, translator::translate("cd_physics_chart_tab"));
 	tabs.set_pos(scr_coord(0, header_height));
 
 	add_component(&tabs);
 	tabs.add_listener(this);
+
+	container_chart.set_table_layout(1, 0);
+	container_chart.add_component(&switch_chart);
+
+	switch_chart.add_tab(&cont_accel, translator::translate("v-t graph"));
+	switch_chart.add_tab(&cont_force, translator::translate("f-v graph"));
+
+	cont_accel.set_table_layout(1, 0);
+	cont_accel.add_component(&accel_chart);
+	accel_chart.set_dimension(SPEED_RECORDS, 10000);
+	accel_chart.set_background(SYSCOL_CHART_BACKGROUND);
+	accel_chart.set_min_size(scr_size(0, CHART_HEIGHT));
+
+	cont_accel.add_table(4, 0);
+	for (int btn = 0; btn < MAX_ACCEL_CURVES; btn++) {
+		for (uint8 i = 0; i < SPEED_RECORDS; i++)
+		{
+			accel_curves[i][btn] = 0;
+		}
+		sint16 curve = accel_chart.add_curve(color_idx_to_rgb(physics_curves_color[btn]), (sint64*)accel_curves, MAX_ACCEL_CURVES, btn, SPEED_RECORDS, curves_type[btn], false, true, 0, NULL, marker_type[btn]);
+
+		button_t *b = cont_accel.new_component<button_t>();
+		b->init(button_t::box_state_automatic | button_t::flexible, curve_name[btn]);
+		b->background_color = color_idx_to_rgb(physics_curves_color[btn]);
+		b->set_tooltip(translator::translate(chart_help_text[btn]));
+		b->pressed = (cnv->in_depot() && btn == 2) ? true : false;
+
+		btn_to_accel_chart.append(b, &accel_chart, curve);
+	}
+	cont_accel.end_table();
+
+	cont_force.set_table_layout(1, 0);
+	cont_force.add_component(&force_chart);
+	force_chart.set_dimension(SPEED_RECORDS, 10000);
+	force_chart.set_background(SYSCOL_CHART_BACKGROUND);
+	force_chart.set_min_size(scr_size(0, CHART_HEIGHT));
+
+	cont_force.add_table(4, 0);
+	for (int btn = 0; btn < MAX_FORCE_CURVES; btn++) {
+		for (uint8 i = 0; i < SPEED_RECORDS; i++)
+		{
+			force_curves[i][btn] = 0;
+		}
+		sint16 force_curve = force_chart.add_curve(color_idx_to_rgb(physics_curves_color[MAX_ACCEL_CURVES+btn]), (sint64*)force_curves, MAX_FORCE_CURVES, btn, SPEED_RECORDS, curves_type[MAX_ACCEL_CURVES+btn], false, true, 0, NULL, marker_type[MAX_ACCEL_CURVES+btn]);
+
+		button_t *bf = cont_force.new_component<button_t>();
+		bf->init(button_t::box_state_automatic | button_t::flexible, curve_name[MAX_ACCEL_CURVES+btn]);
+		bf->background_color = color_idx_to_rgb(physics_curves_color[MAX_ACCEL_CURVES+btn]);
+		bf->set_tooltip(translator::translate(chart_help_text[MAX_ACCEL_CURVES+btn]));
+		bf->pressed = false;
+
+		btn_to_force_chart.append(bf, &force_chart, force_curve);
+	}
+	cont_force.end_table();
+
+	if (cnv->in_depot()) {
+		tabs.set_active_tab_index(3);
+	}
 
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+17*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-6));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+10*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-3));
@@ -191,6 +295,108 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 			buf.printf("%s: %s", translator::translate("Current working method"), translator::translate(rv1->is_leading() ? roadsign_t::get_working_method_name(rv1->get_working_method()) : roadsign_t::get_working_method_name(rv2->get_working_method())));
 			display_proportional_clip_rgb( pos.x+10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 			offset_y += LINESPACE;
+		}
+	}
+
+	if (cnv->in_depot()) {
+		retire_button.disable();
+		withdraw_button.disable();
+	}
+	else {
+		retire_button.enable();
+		withdraw_button.enable();
+	}
+
+	if (tabs.get_active_tab_index()==3) {
+		//Bernd Gabriel, Dec, 02 2009: common existing_convoy_t for acceleration curve and weight/speed info.
+		convoi_t &convoy = *cnv.get_rep();
+
+		// create dummy convoy and calcurate theoretical acceleration curve - Ranran, Jan, 2020
+		vector_tpl<const vehicle_desc_t*> vehicles;
+		for (uint8 i = 0; i < cnv->get_vehicle_count(); i++)
+		{
+			vehicles.append(cnv->get_vehicle(i)->get_desc());
+		}
+		potential_convoy_t empty_convoy(vehicles);
+		potential_convoy_t dummy_convoy(vehicles);
+		const sint32 min_weight = dummy_convoy.get_vehicle_summary().weight;
+		const sint32 max_freight_weight = dummy_convoy.get_freight_summary().max_freight_weight;
+
+		const int akt_speed_soll = kmh_to_speed(convoy.calc_max_speed(convoy.get_weight_summary()));
+		const int akt_speed_soll_ = dummy_convoy.get_vehicle_summary().max_sim_speed;
+		float32e8_t akt_v = 0;
+		float32e8_t akt_v_min = 0;
+		float32e8_t akt_v_max = 0;
+		sint32 akt_speed = 0;
+		sint32 akt_speed_min = 0;
+		sint32 akt_speed_max = 0;
+		sint32 sp_soll = 0;
+		sint32 sp_soll_min = 0;
+		sint32 sp_soll_max = 0;
+		int i = SPEED_RECORDS - 1;
+		long delta_t = 1000;
+		sint32 delta_s = (welt->get_settings().ticks_to_seconds(delta_t)).to_sint32();
+		accel_curves[i][0] = akt_speed;
+		accel_curves[i][1] = akt_speed_min;
+		accel_curves[i][2] = akt_speed_max;
+
+		if (env_t::left_to_right_graphs) {
+			accel_chart.set_seed(delta_s * (SPEED_RECORDS - 1));
+			accel_chart.set_x_axis_span(delta_s);
+		}
+		else {
+			accel_chart.set_seed(0);
+			accel_chart.set_x_axis_span(0 - delta_s);
+		}
+		accel_chart.set_abort_display_x(0);
+
+		while (i > 0)
+		{
+			empty_convoy.calc_move(welt->get_settings(), delta_t, weight_summary_t(min_weight, empty_convoy.get_current_friction()), akt_speed_soll_, akt_speed_soll_, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed_min, sp_soll_min, akt_v_min);
+			dummy_convoy.calc_move(welt->get_settings(), delta_t, weight_summary_t(min_weight+max_freight_weight, dummy_convoy.get_current_friction()), akt_speed_soll_, akt_speed_soll_, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed_max, sp_soll_max, akt_v_max);
+			convoy.calc_move(welt->get_settings(), delta_t, akt_speed_soll, akt_speed_soll, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed, sp_soll, akt_v);
+			if (env_t::left_to_right_graphs) {
+				accel_curves[--i][0] = speed_to_kmh(akt_speed);
+				accel_curves[i][1] = speed_to_kmh(akt_speed_min);
+				accel_curves[i][2] = speed_to_kmh(akt_speed_max);
+			}
+			else {
+				accel_curves[SPEED_RECORDS - i][0] = speed_to_kmh(akt_speed);
+				accel_curves[SPEED_RECORDS - i][1] = speed_to_kmh(akt_speed_min);
+				accel_curves[SPEED_RECORDS - i][2] = speed_to_kmh(akt_speed_max);
+				i--;
+			}
+		}
+
+
+		// force chart
+		uint32 empty_weight = convoy.get_vehicle_summary().weight;
+		const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
+		const uint16 display_interval = (max_speed + SPEED_RECORDS - 1) / SPEED_RECORDS;
+		float32e8_t rolling_resistance = cnv->get_adverse_summary().fr;
+		te_curve_abort_x = (uint8)((max_speed + (display_interval - 1)) / display_interval) + 1;
+		force_chart.set_abort_display_x(te_curve_abort_x);
+		force_chart.set_dimension(te_curve_abort_x, 10000);
+
+		if (env_t::left_to_right_graphs) {
+			force_chart.set_seed(display_interval * (SPEED_RECORDS - 1));
+			force_chart.set_x_axis_span(display_interval);
+			for (int i = 0; i < max_speed; i++) {
+				if (i % display_interval == 0) {
+					force_curves[SPEED_RECORDS - i / display_interval - 1][0] = cnv->get_force_summary(i * kmh2ms);
+					force_curves[SPEED_RECORDS - i / display_interval - 1][1] = cnv->calc_speed_holding_force(i * kmh2ms, rolling_resistance).to_sint32();
+				}
+			}
+		}
+		else {
+			force_chart.set_seed(0);
+			force_chart.set_x_axis_span(0 - display_interval);
+			for (int i = 0; i < max_speed; i++) {
+				if (i % display_interval == 0) {
+					force_curves[i / display_interval][0] = cnv->get_force_summary(i * kmh2ms);
+					force_curves[i / display_interval][1] = cnv->calc_speed_holding_force(i * kmh2ms, rolling_resistance).to_sint32();
+				}
+			}
 		}
 	}
 }

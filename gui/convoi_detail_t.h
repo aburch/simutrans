@@ -21,8 +21,15 @@
 #include "../convoihandle_t.h"
 #include "../gui/simwin.h"
 #include "components/gui_convoy_formation.h"
+#include "components/gui_chart.h"
+#include "components/gui_button_to_chart.h"
 
 class scr_coord;
+
+#define MAX_ACCEL_CURVES 3
+#define MAX_FORCE_CURVES 2
+#define MAX_PHYSICS_CURVES (MAX_ACCEL_CURVES+MAX_FORCE_CURVES)
+#define SPEED_RECORDS 25
 
 /**
  * One element of the vehicle list display
@@ -110,20 +117,29 @@ private:
 	gui_container_t cont_payload;
 	gui_convoy_payload_info_t payload_info;
 	gui_convoy_maintenance_info_t maintenance;
+	gui_aligned_container_t cont_accel, cont_force;
+	gui_chart_t accel_chart, force_chart;
 
 	gui_scrollpane_t scrolly_formation;
 	gui_scrollpane_t scrolly;
 	gui_scrollpane_t scrolly_payload_info;
 	gui_scrollpane_t scrolly_maintenance;
 
+	gui_tab_panel_t switch_chart;
 	gui_tab_panel_t tabs;
 
+	gui_aligned_container_t container_chart;
 	button_t sale_button;
 	button_t withdraw_button;
 	button_t retire_button;
 	button_t class_management_button;
 
+	gui_button_to_chart_array_t btn_to_accel_chart, btn_to_force_chart; //button_to_chart
 	//button_t display_detail_button;
+
+	sint64 accel_curves[SPEED_RECORDS][MAX_ACCEL_CURVES];
+	sint64 force_curves[SPEED_RECORDS][MAX_FORCE_CURVES];
+	uint8 te_curve_abort_x = SPEED_RECORDS;
 
 public:
 	convoi_detail_t(convoihandle_t cnv);

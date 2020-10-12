@@ -279,6 +279,7 @@ convoi_t::~convoi_t()
 	assert(self.is_bound());
 	assert(vehicle_count==0);
 
+	destroy_win( magic_convoi_detail + self.get_id() );
 	close_windows();
 
 DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
@@ -329,7 +330,6 @@ void convoi_t::close_windows()
 {
 	// close windows
 	destroy_win( magic_convoi_info+self.get_id() );
-	destroy_win( magic_convoi_detail+self.get_id() );
 	destroy_win( magic_replace+self.get_id() );
 }
 
