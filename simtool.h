@@ -909,7 +909,7 @@ public:
 	image_id get_icon(player_t *) const OVERRIDE { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
 	bool init(player_t * ) OVERRIDE {
 		if(  baum_t::get_count() > 0  &&  default_param  ) {
-			baum_t::fill_trees( atoi(default_param) );
+			baum_t::fill_trees( atoi(default_param), 0, 0, welt->get_size().x, welt->get_size().y );
 		}
 		return false;
 	}

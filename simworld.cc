@@ -1272,51 +1272,6 @@ DBG_DEBUG("karte_t::init()","init_tiles");
 
 	script_api::new_world();
 
-DBG_DEBUG("karte_t::init()","distributing trees");
-	switch (settings.get_tree()) {
-		case 2:
-		if( humidity_map.get_height() != 0 ) {
-			koord pos;
-			for(  pos.y=0;  pos.y<get_size().y;  pos.y++  ) {
-				for(  pos.x=0;  pos.x<get_size().x;  pos.x++  ) {
-					grund_t *gr = lookup_kartenboden(pos);
-					if(gr->get_top() == 0  &&  gr->get_typ() == grund_t::boden)  {
-						if(humidity_map.at(pos.x,pos.y)>75) {
-							const uint32 tree_probability = (humidity_map.at(pos.x,pos.y) - 75)/5 + 38;
-							uint8 number_to_plant = 0;
-							uint8 const max_trees_here = min(get_settings().get_max_no_of_trees_on_square(), (tree_probability - 38 + 1) / 2);
-							for (uint8 c2 = 0 ; c2<max_trees_here; c2++) {
-								const uint32 rating = simrand(10) + 38 + c2*2;
-								if (rating < tree_probability ) {
-									number_to_plant++;
-								}
-							}
-							baum_t::plant_tree_on_coordinate(pos, get_settings().get_max_no_of_trees_on_square(), number_to_plant);
-						}
-						else if(humidity_map.at(pos.x,pos.y)>75) {
-							// plant spare trees, (those with low preffered density) or in an entirely tree climate
-							uint16 cl = 1 << get_climate(pos);
-							settings_t const& s = get_settings();
-							if ((cl & s.get_no_tree_climates()) == 0 && ((cl & s.get_tree_climates()) != 0 || simrand(s.get_forest_inverse_spare_tree_density() * /*dichte*/3) < 100)) {
-								baum_t::plant_tree_on_coordinate(pos, 1, 1);
-							}
-						}
-					}
-				}
-
-			}
-			break;
-		}
-		case 1:
-			// no humidity data or on request
-			baum_t::distribute_trees(3);
-			break;
-		case 0:
-			// no trees
-			break;
-	}
-	humidity_map.clear();
-
 DBG_DEBUG("karte_t::init()","built timeline");
 	private_car_t::build_timeline_list(this);
 	pedestrian_t::build_timeline_list(this);
@@ -1754,6 +1709,55 @@ void karte_t::init_height_to_climate()
 }
 
 
+void karte_t::distribute_trees_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom  )
+{
+	// now distribute trees
+	DBG_DEBUG("karte_t::init()","distributing trees");
+	switch (settings.get_tree()) {
+	case 2:
+		if( humidity_map.get_height() != 0 ) {
+			koord pos;
+			for(  pos.y=ytop;  pos.y<ybottom;  pos.y++  ) {
+				for(  pos.x=xtop;  pos.x<xbottom;  pos.x++  ) {
+					grund_t *gr = lookup_kartenboden(pos);
+					if(gr->get_top() == 0  &&  gr->get_typ() == grund_t::boden)  {
+						if(humidity_map.at(pos.x,pos.y)>75) {
+							const uint32 tree_probability = (humidity_map.at(pos.x,pos.y) - 75)/5 + 38;
+							uint8 number_to_plant = 0;
+							uint8 const max_trees_here = min(get_settings().get_max_no_of_trees_on_square(), (tree_probability - 38 + 1) / 2);
+							for (uint8 c2 = 0 ; c2<max_trees_here; c2++) {
+								const uint32 rating = simrand(10) + 38 + c2*2;
+								if (rating < tree_probability ) {
+									number_to_plant++;
+								}
+							}
+							baum_t::plant_tree_on_coordinate(pos, get_settings().get_max_no_of_trees_on_square(), number_to_plant);
+						}
+						else if(humidity_map.at(pos.x,pos.y)>75) {
+							// plant spare trees, (those with low preffered density) or in an entirely tree climate
+							uint16 cl = 1 << get_climate(pos);
+							settings_t const& s = get_settings();
+							if ((cl & s.get_no_tree_climates()) == 0 && ((cl & s.get_tree_climates()) != 0 || simrand(s.get_forest_inverse_spare_tree_density() * /*dichte*/3) < 100)) {
+								baum_t::plant_tree_on_coordinate(pos, 1, 1);
+							}
+						}
+					}
+				}
+
+			}
+			break;
+		}
+	case 1:
+		// no humidity data or on request
+		baum_t::distribute_trees(3, xtop, ytop, xbottom, ybottom );
+		break;
+	case 0:
+		// no trees
+		break;
+	}
+}
+
+
 void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 {
 	sint16 new_size_x = sets->get_size_x();
@@ -1991,6 +1995,15 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 			lookup_kartenboden_nocheck(x,y)->calc_image();
 		}
 	}
+
+	if( old_x == 0   &&  old_y == 0 ) {
+		distribute_trees_region( 0, 0, new_size_x, new_size_y );
+	}
+	else {
+		distribute_trees_region( 0, old_y, old_x, new_size_y );
+		distribute_trees_region( old_x, 0, new_size_x, new_size_y );
+	}
+	humidity_map.clear();
 
 	// eventual update origin
 	switch(  settings.get_rotation()  ) {
@@ -6098,8 +6111,8 @@ void karte_t::calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 
 			// first remove water all clear single tiles from effort
 			// for the first passes, we only work on the grid, which is much faster
-			for(  sint16 y = ytop;  y < ybottom;  y++  ) {
-				for(  sint16 x = xtop;  x < xbottom;  x++  ) {
+			for(  sint16 y = 0;  y < ybottom;  y++  ) {
+				for(  sint16 x = 0;  x < xbottom;  x++  ) {
 					if(  climate_map.at(x,y)==0x7F ) {
 						climate this_climate = arctic_climate; // fallthrough option
 
@@ -6146,50 +6159,52 @@ void karte_t::calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 							this_climate = rocky_climate;
 						}
 
-						climate_map.at( x, y ) = this_climate;
+						if( x >= xtop  &&  y >= ytop ) {
+							climate_map.at( x, y ) = this_climate;
+						}
 					}
 				}
 			}
 
 			// smooth climates (this code needs a little cleanup, I think)
-			const sint32 world_size = (get_size().x)*(sint32)(get_size().y);
+			const sint32 world_size = xbottom*(sint32)ybottom;
 			climate *climate_smooth = new climate[world_size];
 			climate *climate_smooth_cpy = new climate[world_size];
 
-			for(uint16 y=0; y<get_size().y; y++) {
-				for(uint16 x=0; x<get_size().x; x++) {
-					climate_smooth[x+y*(get_size().x)] = (climate)climate_map.at( x, y );
+			for(uint16 y=0; y<ybottom; y++) {
+				for(uint16 x=0; x<xbottom; x++) {
+					climate_smooth[x+y*xbottom] = (climate)climate_map.at( x, y );
 				}
 			}
 
 			for(int s=0; s<2; s++) {
 				memcpy( climate_smooth_cpy, climate_smooth, world_size*sizeof(climate) );
 
-				for(uint16 y=0; y<get_size().y; y++) {
-					for(uint16 x=0; x<get_size().x; x++) {
-						if(climate_smooth_cpy[x+y*(get_size().x)] != water_climate ) {
-							sint32 temp_climate = 4 * (climate_smooth_cpy[x+y*(get_size().x)]);
+				for(uint16 y=ytop; y<ybottom; y++) {
+					for(uint16 x=max(0,xtop-1); x<xbottom; x++) {
+						if(climate_smooth_cpy[x+y*xbottom] != water_climate ) {
+							sint32 temp_climate = 4 * (climate_smooth_cpy[x+y*xbottom]);
 							for(int i=0; i<8; i++) {
 								sint32 this_climate;
 								koord k_neighbour = koord(x,y) + koord::neighbours[i];
-								if(  is_within_limits(k_neighbour.x, k_neighbour.y)  &&  climate_smooth_cpy[k_neighbour.x+k_neighbour.y*(get_size().x)]!=water_climate  ) {
-									this_climate = climate_smooth_cpy[k_neighbour.x+k_neighbour.y*(get_size().x)];
+								if(  is_within_limits(k_neighbour.x, k_neighbour.y)  &&  climate_smooth_cpy[k_neighbour.x+k_neighbour.y*xbottom]!=water_climate  ) {
+									this_climate = climate_smooth_cpy[k_neighbour.x+k_neighbour.y*xbottom];
 								}
 								else {
-									this_climate = climate_smooth_cpy[x+y*(get_size().x)];
+									this_climate = climate_smooth_cpy[x+y*xbottom];
 								}
 								temp_climate += (i&1) ? (2 * (this_climate)) : (this_climate);
 							}
 							//if(s<8) temp_height += sets->get_map_roughness()*(simrand(8));
-							climate_smooth[x+y*(get_size().x)]=(climate)((temp_climate)/16);
+							climate_smooth[x+y*xbottom]=(climate)((temp_climate)/16);
 						}
 					}
 				}
 			}
 
-			for(uint16 y=0; y<get_size().y; y++) {
-				for(uint16 x=0; x<get_size().x; x++) {
-					climate_map.at( x, y ) = climate_smooth[x+y*(get_size().x)];
+			for(uint16 y=ytop; y<ybottom; y++) {
+				for(uint16 x=max(0,xtop-1); x<xbottom; x++) {
+					climate_map.at( x, y ) = climate_smooth[x+y*xbottom];
 				}
 			}
 

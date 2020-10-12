@@ -1,3 +1,6 @@
+	FIX: map enlargement crashes with new climate generator
+
+
 Release of 122.0 (r9274 on 10-Oct-2020):
 	FIX: Rotation of multi-tile buildings at street corners
 	ADD: different volumes for different sounds, realistic distance scaling (independent from screen size)

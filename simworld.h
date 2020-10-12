@@ -1643,9 +1643,14 @@ public:
 	void calc_humidity_map_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom );
 
 	/**
-	* assign climated from the climate map to a region
-	*/
+	 * assign climated from the climate map to a region
+	 */
 	void assign_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom );
+
+	/**
+	 * Since the trees follow humidity, we have to redistribute them only in the new region
+	 */
+	void distribute_trees_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom );
 
 	/**
 	 * Rotates climate and water transitions for a tile
