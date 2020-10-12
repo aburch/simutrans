@@ -803,7 +803,7 @@ void settings_general_stats_t::read(settings_t* const sets)
 
 	READ_NUM_VALUE( sets->world_maximum_height );
 	READ_NUM_VALUE( sets->world_minimum_height );
-	
+
 	sets->calc_job_replenishment_ticks();
 
 	const int selected_ex = savegame_ex.get_selection();
