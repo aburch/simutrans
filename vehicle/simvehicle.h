@@ -796,7 +796,7 @@ protected:
 
 	sint32 activate_choose_signal(uint16 start_index, uint16 &next_signal_index, uint32 brake_steps, uint16 modified_sighting_distance_tiles, route_t* route, sint32 modified_route_index);
 
-	working_method_t working_method;
+	working_method_t working_method = drive_by_sight;
 
 public:
 	virtual waytype_t get_waytype() const { return track_wt; }

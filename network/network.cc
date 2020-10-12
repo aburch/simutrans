@@ -964,7 +964,7 @@ bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, in
 	char hostname[1024];
 	hostname[0] = 0;
 
-	int failed = getnameinfo((const sockaddr *)&sin, sizeof(sin), hostname, lengthof(hostname), NULL, NULL, 0);
+	int failed = getnameinfo((const sockaddr *)&sin, sizeof(sin), hostname, lengthof(hostname), NULL, 0, 0);
 	if(  !failed  &&  *hostname  ) {
 		strcpy( externalIPAddress, hostname );
 	}

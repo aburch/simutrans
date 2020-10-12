@@ -148,6 +148,12 @@ private:
 	 */
 	sint32 show_pax;
 
+	/**
+	 * the maximum and minimum allowed world height.
+	 */
+	sint8 world_maximum_height;
+	sint8 world_minimum_height;
+
 	 /**
 	 * waterlevel, climate borders, lowest snow in winter
 	 */
@@ -807,6 +813,9 @@ public:
 	void set_show_pax(bool yesno) {show_pax=yesno;}
 	bool get_show_pax() const {return show_pax != 0;}
 
+	sint8 get_maximumheight() const { return world_maximum_height; }
+	sint8 get_minimumheight() const { return world_minimum_height; }
+
 	sint16 get_groundwater() const {return groundwater;}
 
 	double get_max_mountain_height() const {return max_mountain_height;}
@@ -985,9 +994,9 @@ public:
 	uint8 get_congestion_density_factor () const { return congestion_density_factor; }
 	void set_congestion_density_factor (uint8 value)  { congestion_density_factor = value; }
 
-	uint8 get_curve_friction_factor (waytype_t waytype) const { return curve_friction_factor[waytype]; }
+	uint8 get_curve_friction_factor (waytype_t waytype) const { assert((int)waytype < 10); return curve_friction_factor[waytype]; }
 
-	sint32 get_corner_force_divider(waytype_t waytype) const { return corner_force_divider[waytype]; }
+	sint32 get_corner_force_divider(waytype_t waytype) const { assert((int)waytype < 10); return corner_force_divider[waytype]; }
 
 	sint32 get_tilting_min_radius_effect() const { return tilting_min_radius_effect; }
 
