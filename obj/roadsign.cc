@@ -812,7 +812,7 @@ static bool compare_roadsign_desc(const roadsign_desc_t* a, const roadsign_desc_
 		if(b->is_choose_sign()) {
 			diff -= 120;
 		}
-		diff += (int)(a->get_flags() & ~roadsign_desc_t::SIGN_SIGNAL) - (int)(b->get_flags()  & ~roadsign_desc_t::SIGN_SIGNAL);
+		diff += (int)(a->get_flags() & ~(uint32)roadsign_desc_t::SIGN_SIGNAL) - (int)(b->get_flags() & ~(uint32)roadsign_desc_t::SIGN_SIGNAL);
 	}
 	if (diff == 0) {
 		/* Some type: sort by name */

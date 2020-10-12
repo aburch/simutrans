@@ -507,7 +507,7 @@ void gebaeude_t::add_alter(sint64 a)
 void gebaeude_t::set_tile(const building_tile_desc_t *new_tile, bool start_with_construction)
 {
 	construction_start = welt->get_ticks();
-        purchase_time = welt->get_current_month();
+	purchase_time = welt->get_current_month();
 
 	if (!show_construction  &&  tile != NULL) {
 		// mark old tile dirty
@@ -1617,14 +1617,15 @@ void gebaeude_t::rdwr(loadsave_t *file)
 	}
 	else
 	{
-        	sint64 month_start = (purchase_time - welt->get_settings().get_starting_month() - welt->get_settings().get_starting_year()*12) *
-        		welt->ticks_per_world_month;
-        	file->rdwr_longlong(file->is_saving() ? month_start : construction_start);
+		sint64 month_start = (purchase_time - welt->get_settings().get_starting_month() - welt->get_settings().get_starting_year()*12) *
+			welt->ticks_per_world_month;
+		file->rdwr_longlong(file->is_saving() ? month_start : construction_start);
 	}
-        if (!file->is_saving()) { // stepping year in game results in mismatch of Ticks vs. Year/Month; avoid updating here
-        	purchase_time = (construction_start / welt->ticks_per_world_month)+welt->get_settings().get_starting_month()+
-	        	welt->get_settings().get_starting_year()*12;
-        }
+
+	if (!file->is_saving()) { // stepping year in game results in mismatch of Ticks vs. Year/Month; avoid updating here
+		purchase_time = (construction_start / welt->ticks_per_world_month)+welt->get_settings().get_starting_month()+
+			welt->get_settings().get_starting_year()*12;
+	}
 
 	if (file->get_extended_version() >= 12)
 	{

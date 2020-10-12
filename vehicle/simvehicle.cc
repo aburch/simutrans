@@ -3254,8 +3254,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			}
 		}
 
-		const air_vehicle_t* air = (const air_vehicle_t*)this;
-		if(get_waytype() == air_wt && air->runway_too_short)
+		if(get_waytype() == air_wt && static_cast<const air_vehicle_t *>(this)->runway_too_short)
 		{
 			if (tooltip_display_level > 0) {
 				sprintf(tooltip_text, translator::translate("Runway too short, require %dm"), desc->get_minimum_runway_length());
@@ -3263,7 +3262,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			}
 		}
 
-		if(get_waytype() == air_wt && air->airport_too_close_to_the_edge)
+		if(get_waytype() == air_wt && static_cast<const air_vehicle_t *>(this)->airport_too_close_to_the_edge)
 		{
 			if (tooltip_display_level > 0) {
 				sprintf(tooltip_text, "%s", translator::translate("Airport too close to the edge"));
@@ -6575,7 +6574,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							combined_signals.append(signal);
 							last_combined_signal_index = i;
 						}
-						else if((!directional_only && (next_signal_working_method == moving_block && working_method != moving_block)) || ((next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling) && remaining_aspects >= 0 && remaining_aspects <= 2))
+						else if(!directional_only && ((next_signal_working_method == moving_block && working_method != moving_block) || ((next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling) && remaining_aspects >= 0 && remaining_aspects <= 2)))
 						{
 							// If there are no more caution aspects, or this is a transition to moving block signalling do not reserve any further at this juncture.
 							if(((last_bidirectional_signal_index < INVALID_INDEX || last_longblock_signal_index < INVALID_INDEX) && (first_oneway_sign_index >= INVALID_INDEX || (!directional_only && (last_bidirectional_signal_index < INVALID_INDEX && last_oneway_sign_index < last_bidirectional_signal_index)))) || (next_signal_working_method == moving_block && working_method != moving_block))

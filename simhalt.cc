@@ -703,7 +703,13 @@ void haltestelle_t::rotate90( const sint16 y_size )
 		}
 	}
 
-	for (uint32 i = 0; i < world()->get_parallel_operations(); i++)
+#ifdef MULTI_THREAD
+	const sint32 po = world()->get_parallel_operations() + 2;
+#else
+	const sint32 po = 1;
+#endif
+
+	for (uint32 i = 0; i < po; i++)
 	{
 		vector_tpl<transferring_cargo_t>& tcarray = transferring_cargoes[i];
 		for (size_t j = tcarray.get_count(); j-- > 0;)

@@ -3050,7 +3050,7 @@ sint32 stadt_t::city_growth_base(uint32 const rprec, uint32 const cprec)
 		}
 
 		// Compute fractional satisfaction.
-		sint32 const frac = (sint32)((got << cprec) / had);
+		sint32 const frac = (sint32)((got * (1<<cprec)) / had);
 
 		// Add to weight and div.
 		acc += frac * weight[i];
@@ -3075,7 +3075,7 @@ sint32 stadt_t::city_growth_base(uint32 const rprec, uint32 const cprec)
 			}
 
 			// Compute fractional satisfaction.
-			sint32 const frac = (sint32)((got << cprec) / had);
+			sint32 const frac = (sint32)((got * (1<<cprec)) / had);
 
 			// Add to weight and div.
 			acc += frac * weight[i];

@@ -994,9 +994,9 @@ public:
 	uint8 get_congestion_density_factor () const { return congestion_density_factor; }
 	void set_congestion_density_factor (uint8 value)  { congestion_density_factor = value; }
 
-	uint8 get_curve_friction_factor (waytype_t waytype) const { return curve_friction_factor[waytype]; }
+	uint8 get_curve_friction_factor (waytype_t waytype) const { assert((int)waytype < 10); return curve_friction_factor[waytype]; }
 
-	sint32 get_corner_force_divider(waytype_t waytype) const { return corner_force_divider[waytype]; }
+	sint32 get_corner_force_divider(waytype_t waytype) const { assert((int)waytype < 10); return corner_force_divider[waytype]; }
 
 	sint32 get_tilting_min_radius_effect() const { return tilting_min_radius_effect; }
 
