@@ -188,6 +188,9 @@ const char* script_vm_t::call_script(const char* filename)
 
 const char* script_vm_t::eval_string(const char* squirrel_string)
 {
+	if (squirrel_string == NULL) {
+		return NULL;
+	}
 	HSQUIRRELVM &job = thread;
 	// compile string
 	if (!SQ_SUCCEEDED(sq_compilebuffer(job, squirrel_string, strlen(squirrel_string), "userdefinedstringmethod", true))) {
