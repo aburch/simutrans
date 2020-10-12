@@ -135,7 +135,7 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 				if (idata.has_upgrade > 2) {
 					break;
 				}
-				display_color_img(skinverwaltung_t::upgradable->get_image_id(idata.has_upgrade-1), xpos + grid.x - LINESPACE - 1, ypos + grid.y - VEHICLE_BAR_HEIGHT - LINESPACE - 1, 0, false, false);
+				display_color_img(skinverwaltung_t::upgradable->get_image_id(idata.has_upgrade-1), xpos + grid.x - D_FIXED_SYMBOL_WIDTH - 1, ypos + grid.y - VEHICLE_BAR_HEIGHT - D_FIXED_SYMBOL_WIDTH - 1, 0, false, false);
 			}
 		}
 		// advance x, y to next position
