@@ -31,7 +31,7 @@ trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
 	offset.wrap_mode( false );
 	offset.add_listener( this );
 	add_component( &offset );
-	
+
 	end_table();
 	recalc_size();
 }
