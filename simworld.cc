@@ -6187,7 +6187,13 @@ void karte_t::calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 							for(int i=0; i<8; i++) {
 								sint32 this_climate;
 								koord k_neighbour = koord(x,y) + koord::neighbours[i];
-								if(  is_within_limits(k_neighbour.x, k_neighbour.y)  &&  climate_smooth_cpy[k_neighbour.x+k_neighbour.y*xbottom]!=water_climate  ) {
+
+								// note: cannot use is_within_limits() here since expanding the map
+								// in both directions at the same time results in a buffer overrun
+								// since the region does not necessarily cover the whole map
+								const bool within_limits = (k_neighbour.x|k_neighbour.y|(xbottom-1 - k_neighbour.x)|(ybottom-1 - k_neighbour.y)) >= 0;
+
+								if(  within_limits  &&  climate_smooth_cpy[k_neighbour.x+k_neighbour.y*xbottom]!=water_climate  ) {
 									this_climate = climate_smooth_cpy[k_neighbour.x+k_neighbour.y*xbottom];
 								}
 								else {
