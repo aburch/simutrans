@@ -37,7 +37,6 @@ protected:
 	uint8 ticks_ns;
 	uint8 ticks_ow;
 	uint8 ticks_offset;
-	uint8 open_direction;
 
 	sint8 after_yoffset, after_xoffset;
 
@@ -156,9 +155,6 @@ public:
 	uint8 get_lane_affinity() const { return lane_affinity; }
 	void set_lane_affinity(uint8 lf) { lane_affinity = lf; }
 	const koord3d get_intersection() const;
-
-	uint8 get_open_direction() const { return open_direction; }
-	void set_open_direction(uint8 dir) { open_direction = dir; }
 
 	inline void set_image( image_id b ) { image = b; }
 	image_id get_image() const OVERRIDE { return image; }
