@@ -890,6 +890,9 @@ void settings_t::rdwr(loadsave_t *file)
 		if(  file->is_version_atleast(120, 9)  ) {
 			file->rdwr_long(allow_merge_distant_halt);
 		}
+		if(  file->is_version_atleast(122, 1)  ) {
+			file->rdwr_enum(climate_generator);
+		}
 		// otherwise the default values of the last one will be used
 	}
 }
