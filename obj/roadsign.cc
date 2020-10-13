@@ -121,7 +121,6 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	ticks_ns = ticks_ow = 16;
 	ticks_offset = 0;
 	lane_affinity = 4;
-	open_direction = 0xA5; // north-south <-> east-west
 	set_owner( player );
 	if(  desc->is_private_way()  ) {
 		// init ownership of private ways
@@ -363,12 +362,10 @@ void roadsign_t::info(cbuffer_t & buf) const
 	if (desc->is_traffic_light())
 	{
 		buf.append(translator::translate("\nSet phases:"));
-		buf.append("\n\n\n\n\n\n");
 	}
-	if (desc->is_private_way()) // Must be last, as the \n\n\n... section is the free height for the buttons // Ves
-	{
-		buf.append("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-	}
+	//if (desc->is_private_way()) // Must be last, as the \n\n\n... section is the free height for the buttons // Ves
+	//{
+	//}
 
 	if (char const* const maker = desc->get_copyright()) {
 		buf.append("\n");
@@ -646,7 +643,7 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 		uint8 new_state = (ticks >= ticks_ns);
 		if(state!=new_state) {
 			state = new_state;
-			dir = (new_state==0) ? open_direction&0x0F : (open_direction>>4)&0x0F;
+			dir = (new_state == 0) ? ribi_t::northsouth : ribi_t::eastwest;
 			calc_image();
 		}
 	}
@@ -659,9 +656,15 @@ void roadsign_t::rotate90()
 	// only meaningful for traffic lights
 	obj_t::rotate90();
 	if(automatic  &&  !desc->is_private_way()) {
-		uint8 first_dir = ribi_t::rotate90(open_direction&0x0F);
-		uint8 second_dir = ribi_t::rotate90((open_direction>>4)&0x0F);
-		open_direction = first_dir + (second_dir << 4);
+		state = (state+1)&1;
+		if (ticks_offset >= ticks_ns) {
+			ticks_offset -= ticks_ns;
+		} else {
+			ticks_offset += ticks_ow;
+		}
+		uint8 temp = ticks_ns;
+		ticks_ns = ticks_ow;
+		ticks_ow = temp;
 
 		trafficlight_info_t *const trafficlight_win = dynamic_cast<trafficlight_info_t *>( win_get_magic( (ptrdiff_t)this ) );
 		if(  trafficlight_win  ) {
@@ -731,11 +734,11 @@ void roadsign_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if((file->get_extended_version() == 13 && file->get_extended_revision() >= 6) || file->get_extended_version() >= 14) {
-		file->rdwr_byte(open_direction);
-	} else if(  file->is_loading()  ) {
-		open_direction = 0xA5;
+	if( (file->get_extended_version() == 13 && file->get_extended_revision() >= 6)
+		|| (file->get_extended_version() == 14 && file->get_extended_revision() < 32) ) {
+		file->rdwr_byte(dummy);
 	}
+
 	dummy = state;
 	file->rdwr_byte(dummy);
 	state = dummy;
@@ -817,7 +820,7 @@ static bool compare_roadsign_desc(const roadsign_desc_t* a, const roadsign_desc_
 		if(b->is_choose_sign()) {
 			diff -= 120;
 		}
-		diff += (int)(a->get_flags() & ~(uint32)roadsign_desc_t::SIGN_SIGNAL) - (int)(b->get_flags() & ~(uint32)roadsign_desc_t::SIGN_SIGNAL);
+		diff += (int)(a->get_flags() & ~roadsign_desc_t::SIGN_SIGNAL) - (int)(b->get_flags()  & ~roadsign_desc_t::SIGN_SIGNAL);
 	}
 	if (diff == 0) {
 		/* Some type: sort by name */

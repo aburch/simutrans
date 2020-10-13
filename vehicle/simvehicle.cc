@@ -3743,10 +3743,19 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	// check for traffic lights (only relevant for the first car in a convoi)
 	if(  leading  ) {
 		// no further check, when already entered a crossing (to allow leaving it)
-		if (!second_check_count) {
-			const grund_t *gr_current = welt->lookup(get_pos());
-			if(  gr_current  &&  gr_current->ist_uebergang()  ) {
-				return true;
+		if(  !second_check_count  ) {
+			if(  const grund_t *gr_current = welt->lookup(get_pos())  ) {
+				if(  gr_current  &&  gr_current->ist_uebergang()  ) {
+					return true;
+				}
+			}
+			// always allow to leave traffic lights (avoid vehicles stuck on crossings directly after though)
+			if(  const grund_t *gr_current = welt->lookup(get_pos())  ) {
+				if(  const roadsign_t *rs = gr_current->find<roadsign_t>()  ) {
+					if(  rs  &&  rs->get_desc()->is_traffic_light()  &&  !gr->ist_uebergang()  ) {
+						return true;
+					}
+				}
 			}
 		}
 
@@ -3955,25 +3964,18 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 				if (is_traffic_light || gr->get_weg(get_waytype())->get_ribi_maske() & dir)
 				{
+					uint8 direction90 = ribi_type(get_pos(), pos_next);
 					if (rs && (!route_index_beyond_end_of_route)) {
-						// since at the corner, our direction may be diagonal, we make it straight
-
-						uint8 direction90 = ribi_type(get_pos(), pos_next);
-						if (is_traffic_light && (dir & direction90) == 0) {
-							// wait here
-							restart_speed = 16;
-							return false;
-						}
 						// Check whether if we reached a choose point
-						else if (rs->get_desc()->is_choose_sign())
+						if (rs->get_desc()->is_choose_sign())
 						{
 							// route position after road sign
 							const koord3d pos_next_next = r.at(route_index + 1u);
 							// since at the corner, our direction may be diagonal, we make it straight
 							direction90 = ribi_type(pos_next, pos_next_next);
 
-							if (rs->is_free_route(direction90) && !target_halt.is_bound()) {
-								if (second_check_count) {
+							if (  rs->is_free_route(direction90) && !target_halt.is_bound()  ) {
+								if (  second_check_count  ) {
 									return false;
 								}
 								if (!choose_route(restart_speed, direction90, route_index)) {

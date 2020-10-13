@@ -1346,10 +1346,6 @@ void player_t::take_over(player_t* target_player)
 								{
 									sign->set_ticks_offset((uint8)mask);
 								}
-								else if (ns == 3)
-								{
-									sign->set_open_direction((uint8)mask);
-								}
 							}
 						}
 					}
