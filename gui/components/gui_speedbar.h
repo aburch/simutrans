@@ -112,4 +112,26 @@ public:
 	scr_size get_max_size() const OVERRIDE;
 };
 
+class gui_bandgraph_t : public gui_component_t
+{
+private:
+	sint32 total;
+	struct info_t {
+		PIXVAL color;
+		const sint32 *value;
+	};
+	slist_tpl <info_t> values;
+
+public:
+	gui_bandgraph_t() { total = 0; }
+
+	void add_color_value(const sint32 *value, PIXVAL color);
+
+	void draw(scr_coord offset) OVERRIDE;
+
+	scr_size get_min_size() const OVERRIDE;
+
+	scr_size get_max_size() const OVERRIDE;
+};
+
 #endif
