@@ -3964,6 +3964,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 				if (is_traffic_light || gr->get_weg(get_waytype())->get_ribi_maske() & dir)
 				{
+					uint8 direction90 = ribi_type(get_pos(), pos_next);
 					if (rs && (!route_index_beyond_end_of_route)) {
 						// Check whether if we reached a choose point
 						if (rs->get_desc()->is_choose_sign())
