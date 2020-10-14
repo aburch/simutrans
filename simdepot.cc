@@ -533,7 +533,7 @@ void depot_t::rdwr_vehikel(slist_tpl<vehicle_t *> &list, loadsave_t *file)
 			}
 			if(v->get_desc()) {
 				DBG_MESSAGE("depot_t::vehikel_laden()","loaded %s", v->get_desc()->get_name());
-				list.insert( v );
+				list.append( v );
 			}
 			else {
 				dbg->error("depot_t::vehikel_laden()","vehicle has no desc => ignored");
