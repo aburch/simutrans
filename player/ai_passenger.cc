@@ -1436,8 +1436,15 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 		k3d.rdwr(file);
 		ziel = fabrik_t::get_fab(k3d.get_2d() );
 	}
-}
 
+	if (file->is_version_atleast(122, 1)) {
+		plainstring road_vehicle_name = road_vehicle ? road_vehicle->get_name() : "";
+		file->rdwr_str(road_vehicle_name);
+		if (file->is_loading() && road_vehicle_name != "") {
+			road_vehicle = vehicle_builder_t::get_info(road_vehicle_name);
+		}
+	}
+}
 
 
 /**
@@ -1458,7 +1465,11 @@ void ai_passenger_t::report_vehicle_problem(convoihandle_t cnv,const koord3d zie
 
 void ai_passenger_t::finish_rd()
 {
-	road_vehicle = vehikel_search( road_wt, 50, 80, goods_manager_t::passengers, false);
+	if (!road_vehicle) {
+		dbg->warning("ai_passenger_t::finish_rd", "Default road vehicle could not be loaded, searching for one...");
+		road_vehicle = vehikel_search( road_wt, 50, 80, goods_manager_t::passengers, false);
+	}
+
 	if (road_vehicle == NULL) {
 		// reset state
 		end_stadt = NULL;
