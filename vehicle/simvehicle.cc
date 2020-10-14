@@ -78,10 +78,6 @@
 #include "../path_explorer.h"
 #include "../freight_list_sorter.h"
 
-#define LOADINGBAR_HEIGHT 6
-#define WAITINGBAR_HEIGHT 4
-#define LOADINGBAR_WIDTH 100
-
 void traffic_vehicle_t::flush_travel_times(strasse_t* str)
 {
 	if(get_max_speed() && str->get_max_speed() && dist_travelled_since_last_hop > (128 << YARDS_PER_VEHICLE_STEP_SHIFT))

@@ -38,6 +38,10 @@ extern int default_font_linespace;
 
 #define VEHICLE_BAR_HEIGHT 7
 
+#define LOADINGBAR_HEIGHT 6
+#define WAITINGBAR_HEIGHT 4
+#define LOADINGBAR_WIDTH 100
+
 /**
 * Alignment enum to align controls against each other
 * Vertical and horizontal alignment can be masked together
