@@ -4793,9 +4793,15 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "start");
 			settings.set_player_type(i, player_t::EMPTY);
 		}
 	}
+
 	settings.rdwr(file);
+
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		settings.set_player_type(i, old_players[i]);
+	}
+
+	if (file->is_version_atleast(122, 1)) {
+		simrand_rdwr(file);
 	}
 
 	file->rdwr_long(ticks);
@@ -5365,14 +5371,24 @@ void karte_t::load(loadsave_t *file)
 	dbg->warning("karte_t::load", "Fileversion: %u", file->get_version_int());
 	settings = env_t::default_settings;
 	settings.rdwr(file);
+
 	loaded_rotation = settings.get_rotation();
 
 	// some functions (finish_rd) need to know what version was loaded
 	load_version = file->get_version_int();
 
+	if (file->is_version_atleast(122, 1)) {
+		// rdwr the entire RNG sate
+		simrand_rdwr(file);
+	}
+
 	if(  env_t::networkmode  ) {
-		// to have games synchronized, transfer random counter too
-		setsimrand(settings.get_random_counter(), 0xFFFFFFFFu );
+		// To have games synchronized, transfer random counter too
+		// Superseded by simrand_rdwr in newer versions
+		if (file->is_version_less(122, 1)) {
+			setsimrand(settings.get_random_counter(), 0xFFFFFFFFu );
+		}
+
 		translator::init_custom_names(settings.get_name_language_id());
 	}
 

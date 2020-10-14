@@ -7,8 +7,12 @@
 #define UTILS_SIMRANDOM_H
 
 
-#include <stddef.h>
 #include "../simtypes.h"
+
+#include <cstddef>
+
+
+class loadsave_t;
 
 
 uint32 get_random_seed();
@@ -26,6 +30,9 @@ uint32 simrand(const uint32 max);
 
 /* generates a random number on [0,0xFFFFFFFFu]-interval */
 uint32 simrand_plain();
+
+/// reads/writes the sate of the random number generator
+void simrand_rdwr(loadsave_t *file);
 
 double perlin_noise_2D(const double x, const double y, const double persistence);
 
