@@ -218,7 +218,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	// load display
 	filled_bar.add_color_value(&loadfactor, color_idx_to_rgb(COL_GREEN));
-	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + 3*D_BUTTON_WIDTH + 10, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 4 + 2));
+	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + 3*D_BUTTON_WIDTH + 10, D_EDIT_HEIGHT + SCL_HEIGHT + D_BUTTON_HEIGHT + 4 + 2));
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
@@ -691,13 +691,13 @@ void schedule_list_gui_t::display(scr_coord pos)
 
 	cbuffer_t buf;
 	char ctmp[128];
-	int top = D_TITLEBAR_HEIGHT + D_MARGIN_TOP + D_BUTTON_HEIGHT;
+	int top = D_TITLEBAR_HEIGHT + D_MARGIN_TOP + D_EDIT_HEIGHT;
 	int left = LINE_NAME_COLUMN_WIDTH;
 
 	// line handling goods (symbol)
 	FOR(minivec_tpl<uint8>, const catg_index, line->get_goods_catg_index()) {
 		uint8 temp = catg_index;
-		display_color_img(goods_manager_t::get_info_catg_index(temp)->get_catg_symbol(), pos.x + left, pos.y + top+2, 0, false, false);
+		display_color_img(goods_manager_t::get_info_catg_index(temp)->get_catg_symbol(), pos.x + left, pos.y + top + FIXED_SYMBOL_YOFF, 0, false, false);
 		left += GOODS_SYMBOL_CELL_WIDTH;
 	}
 
@@ -771,7 +771,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	len2 += display_proportional_clip_rgb(pos.x+LINE_NAME_COLUMN_WIDTH+len2+5, pos.y+top+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
 	int rest_width = max( (get_windowsize().w-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
-	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + rest_width + 24, top - LINESPACE - D_BUTTON_HEIGHT));
+	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + rest_width + 24, top - LINESPACE*2 + FIXED_SYMBOL_YOFF));
 	if (capacity > 0) {
 		number_to_string(ctmp, capacity, 0);
 		buf.clear();
@@ -798,7 +798,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	// show the state of the line, if interresting
 	if (line->get_state() & simline_t::line_nothing_moved) {
 		if (skinverwaltung_t::alerts) {
-			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[0]));
+			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + left, pos.y + top + FIXED_SYMBOL_YOFF, 0, false, false, translator::translate(line_alert_helptexts[0]));
 			left += GOODS_SYMBOL_CELL_WIDTH;
 		}
 		else {
@@ -807,7 +807,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	}
 	if (line->count_convoys() && line->get_state() & simline_t::line_has_upgradeable_vehicles) {
 		if (skinverwaltung_t::upgradable) {
-			display_color_img_with_tooltip(skinverwaltung_t::upgradable->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[4]));
+			display_color_img_with_tooltip(skinverwaltung_t::upgradable->get_image_id(1), pos.x + left, pos.y + top + FIXED_SYMBOL_YOFF, 0, false, false, translator::translate(line_alert_helptexts[4]));
 			left += GOODS_SYMBOL_CELL_WIDTH;
 		}
 		else if (!buf.len() && line->get_state_color() == COL_PURPLE) {
@@ -816,7 +816,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	}
 	if (line->count_convoys() && line->get_state() & simline_t::line_has_obsolete_vehicles) {
 		if (skinverwaltung_t::alerts) {
-			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[2]));
+			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(1), pos.x + left, pos.y + top + FIXED_SYMBOL_YOFF, 0, false, false, translator::translate(line_alert_helptexts[2]));
 			left += GOODS_SYMBOL_CELL_WIDTH;
 		}
 		else if (!buf.len()) {
@@ -825,7 +825,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	}
 	if (line->count_convoys() && line->get_state() & simline_t::line_overcrowded) {
 		if (skinverwaltung_t::pax_evaluation_icons) {
-			display_color_img_with_tooltip(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), pos.x + left, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[3]));
+			display_color_img_with_tooltip(skinverwaltung_t::pax_evaluation_icons->get_image_id(1), pos.x + left, pos.y + top + FIXED_SYMBOL_YOFF, 0, false, false, translator::translate(line_alert_helptexts[3]));
 			left += GOODS_SYMBOL_CELL_WIDTH;
 		}
 		else if (!buf.len() && line->get_state_color() == COL_DARK_PURPLE) {
@@ -851,7 +851,7 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 	info_tabs.set_size(scr_size(rest_width+2, get_windowsize().h - LINESPACE*2 - D_BUTTON_HEIGHT*5 - D_MARGIN_TOP - D_TITLEBAR_HEIGHT));
 	scrolly_convois.set_size(scr_size(info_tabs.get_size().w+1, info_tabs.get_size().h - scrolly_convois.get_pos().y-D_H_SPACE-1));
 	chart.set_size(scr_size(rest_width-68-D_MARGIN_RIGHT, SCL_HEIGHT-14-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))));
-	inp_name.set_size(scr_size(rest_width - 31, 14));
+	inp_name.set_size(scr_size(rest_width - 31, D_EDIT_HEIGHT));
 	filled_bar.set_size(scr_size(rest_width/2-24-D_MARGIN_RIGHT, 4));
 	bt_withdraw_line.set_pos(scr_coord(get_windowsize().w - D_BUTTON_WIDTH - D_MARGIN_LEFT, bt_withdraw_line.get_pos().y));
 
