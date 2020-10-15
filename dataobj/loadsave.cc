@@ -353,13 +353,11 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 
 	if(  mode==zstd  ) {
 #if USE_ZSTD
-		bool ok = false;
 		fd->zbuff = xmalloc(LS_BUF_SIZE);
 
 		fd->dctx = ZSTD_createDCtx();
 		if(  fd->dctx==NULL  ) {
 			// zstd could not init
-			bool ok = false;
 			last_error = FILE_ERROR_BZ_CORRUPT;
 			close();
 			return false;
@@ -518,7 +516,6 @@ bool loadsave_t::wr_open( const char *filename_utf8, mode_t m, int level, const 
 		fd->cctx = ZSTD_createCCtx();
 		if(  fd->cctx==NULL  ) {
 			// zstd could not init
-			bool ok = false;
 			last_error = FILE_ERROR_BZ_CORRUPT;
 			close();
 			return false;

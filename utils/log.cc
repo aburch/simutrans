@@ -282,9 +282,11 @@ void log_t::fatal(const char *who, const char *format, ...)
 	va_end(argptr);
 
 #if defined MAKEOBJ
+	(void)n;
 	exit(1);
 #elif defined NETTOOL
 	// no display available
+	(void)n;
 	puts( buffer );
 #else
 #  ifdef MSG_LEVEL
