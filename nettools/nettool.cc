@@ -152,7 +152,7 @@ int simple_gettext_command(SOCKET socket, uint32 command_id, int argc, char **ar
 	}
 
 	if (nws->text) {
-		printf(nws->text);
+		printf("%s", nws->text);
 	}
 	else {
 		printf("Nothing received.\n");
