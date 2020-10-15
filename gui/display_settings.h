@@ -55,7 +55,7 @@ private:
 	gui_combobox_t hide_buildings;
 public:
 	transparency_settings_t();
-	virtual bool action_triggered( gui_action_creator_t *comp, value_t v );
+	virtual bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
 	void draw(scr_coord offset) OVERRIDE;
 };
 
