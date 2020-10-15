@@ -31,16 +31,14 @@ private:
 	*/
 	convoihandle_t cnv;
 
-	gui_speedbar_t filled_bar;
-	gui_label_buf_t label_name, label_profit, label_line;
+	gui_loadingbar_t loading_bar;
+	gui_label_buf_t label_name, label_line, switchable_label_title, switchable_label_value;
 	gui_image_t img_alert, img_operation;
 
 	gui_convoy_formation_t formation;
-	gui_convoy_payloadinfo_t payload;
 
+	uint8 switch_label = 0;
 	bool show_line_name = true;
-
-	uint8 display_mode = cnvlist_normal;
 
 public:
 	/**
@@ -58,8 +56,8 @@ public:
 	void draw(scr_coord offset) OVERRIDE;
 
 	void set_mode(uint8 mode);
-	enum cl_display_mode_t { cnvlist_normal = 0, cnvlist_payload, cnvlist_formation, DISPLAY_MODES };
-	static const char *cnvlist_mode_button_texts[DISPLAY_MODES];
+	enum cl_sort_mode_t { by_name = 0, by_profit, by_type, by_id, by_power, CL_SORT_MODES };
+	//enum sort_mode_t { by_name = 0, by_schedule, by_profit, by_loading_lvl, by_max_speed, /*by_power,*/ by_value, by_age, SORT_MODES };
 
 	void update_label();
 

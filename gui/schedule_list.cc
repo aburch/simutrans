@@ -139,7 +139,7 @@ const char *schedule_list_gui_t::sort_text[SORT_MODES] = {
 	"cl_btn_sort_income",
 	"cl_btn_sort_loading_lvl",
 	"cl_btn_sort_max_speed",
-	/*"cl_btn_sort_power",*/
+	"cl_btn_sort_power",
 	"cl_btn_sort_value",
 	"cl_btn_sort_age"
 };
@@ -344,7 +344,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	sort_desc.pressed = !sortreverse;
 	cont_convoys.add_component(&sort_desc);
 
-	bt_mode_convois.init(button_t::roundbox, gui_convoiinfo_t::cnvlist_mode_button_texts[selected_cnvlist_mode[player->get_player_nr()]], scr_coord(BUTTON3_X, 2), scr_size(D_BUTTON_WIDTH+15, D_BUTTON_HEIGHT));
+	bt_mode_convois.init(button_t::roundbox, gui_convoy_formation_t::cnvlist_mode_button_texts[selected_cnvlist_mode[player->get_player_nr()]], scr_coord(BUTTON3_X, 2), scr_size(D_BUTTON_WIDTH+15, D_BUTTON_HEIGHT));
 	bt_mode_convois.add_listener(this);
 	cont_convoys.add_component(&bt_mode_convois);
 	info_tabs.add_tab(&cont_convoys, tab_name);
@@ -516,8 +516,8 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		sort_desc.pressed = !sortreverse;
 	}
 	else if (comp == &bt_mode_convois) {
-		selected_cnvlist_mode[player->get_player_nr()] = (selected_cnvlist_mode[player->get_player_nr()] + 1) % gui_convoiinfo_t::DISPLAY_MODES;
-		bt_mode_convois.set_text(gui_convoiinfo_t::cnvlist_mode_button_texts[selected_cnvlist_mode[player->get_player_nr()]]);
+		selected_cnvlist_mode[player->get_player_nr()] = (selected_cnvlist_mode[player->get_player_nr()] + 1) % gui_convoy_formation_t::CONVOY_OVERVIEW_MODES;
+		bt_mode_convois.set_text(gui_convoy_formation_t::cnvlist_mode_button_texts[selected_cnvlist_mode[player->get_player_nr()]]);
 		update_lineinfo(line);
 	}
 	else if(comp == &livery_selector)
@@ -1107,9 +1107,9 @@ bool schedule_list_gui_t::compare_convois(convoihandle_t const cnv1, convoihandl
 		case by_max_speed:
 			cmp = cnv1->get_min_top_speed() - cnv2->get_min_top_speed();
 			break;
-		//case by_power:
-		//	cmp = cnv1->get_sum_power() - cnv2->get_sum_power();
-		//	break;
+		case by_power:
+			cmp = cnv1->get_sum_power() - cnv2->get_sum_power();
+			break;
 		case by_age:
 			cmp = cnv1->get_average_age() - cnv2->get_average_age();
 			break;

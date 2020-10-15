@@ -71,18 +71,6 @@ private:
 	static sort_mode_t sortby;
 	static bool sortreverse;
 
-	inline uint8 get_cinfo_height(uint8 cl_display_mode)
-	{
-		switch (cl_display_mode) {
-		case gui_convoiinfo_t::cnvlist_formation:
-			return 55;
-		case gui_convoiinfo_t::cnvlist_payload:
-		case gui_convoiinfo_t::cnvlist_normal:
-		default:
-			return 40;
-		}
-	}
-
 public:
 
 	static bool compare_convois(convoihandle_t, convoihandle_t);
