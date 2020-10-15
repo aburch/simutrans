@@ -24,6 +24,7 @@
 #include "simwin.h"
 
 #include "../utils/cbuffer_t.h"
+#include "components/gui_convoy_payloadinfo.h"
 
 #define BUTTON_COUNT convoi_t::MAX_CONVOI_COST
 
@@ -64,7 +65,7 @@ private:
 	gui_label_buf_t speed_label, profit_label, running_cost_label, weight_label, target_label, line_label;
 	gui_label_buf_t distance_label, avg_triptime_label;
 	gui_textinput_t input;
-	gui_speedbar_t filled_bar;
+	gui_loadingbar_t loading_bar;
 	gui_speedbar_t speed_bar;
 	gui_routebar_t route_bar;
 	gui_chart_t chart;
