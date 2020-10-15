@@ -127,8 +127,8 @@ void gui_loadingbar_t::draw(scr_coord offset)
 			break;
 	}
 
-	display_ddd_box_clip_rgb(offset.x, offset.y, LOADINGBAR_WIDTH + 2, LOADINGBAR_HEIGHT, color_idx_to_rgb(MN_GREY2), color_idx_to_rgb(MN_GREY0));
-	sint32 colored_width = cnv->get_loading_level() > 100 ? 100 : cnv->get_loading_level();
+	display_ddd_box_clip_rgb(offset.x, offset.y, size.w, LOADINGBAR_HEIGHT, color_idx_to_rgb(MN_GREY2), color_idx_to_rgb(MN_GREY0));
+	sint32 colored_width = cnv->get_loading_level() > 100 ? size.w-2 : cnv->get_loading_level()*(size.w-2)/100;
 
 	if (cnv->get_loading_limit() && cnv->get_state() == convoi_t::LOADING) {
 		display_fillbox_wh_clip_rgb(offset.x+1, offset.y+1, cnv->get_loading_limit(), LOADINGBAR_HEIGHT - 2, COL_IN_TRANSIT, true);
@@ -137,17 +137,17 @@ void gui_loadingbar_t::draw(scr_coord offset)
 		display_blend_wh_rgb(offset.x+1, offset.y+1, cnv->get_loading_limit(), LOADINGBAR_HEIGHT - 2, COL_IN_TRANSIT, 60);
 	}
 	else {
-		display_blend_wh_rgb(offset.x+1, offset.y+1, LOADINGBAR_WIDTH, LOADINGBAR_HEIGHT - 2, color_idx_to_rgb(MN_GREY2), colored_width ? 65 : 40);
+		display_blend_wh_rgb(offset.x+1, offset.y+1, size.w-2, LOADINGBAR_HEIGHT - 2, color_idx_to_rgb(MN_GREY2), colored_width ? 65 : 40);
 	}
 	display_cylinderbar_wh_clip_rgb(offset.x + 1, offset.y + 1, colored_width, LOADINGBAR_HEIGHT - 2, color_idx_to_rgb(COL_GREEN - 1), true);
 
 	// winting gauge
 	if (waiting_time_per_month) {
-		colored_width = waiting_time_per_month > 100 ? 100 : waiting_time_per_month;
+		colored_width = waiting_time_per_month > 100 ? size.w - 2 : waiting_time_per_month * (size.w - 2) / 100;
 		display_ddd_box_clip_rgb(offset.x, offset.y+LOADINGBAR_HEIGHT, colored_width + 2, WAITINGBAR_HEIGHT, color_idx_to_rgb(MN_GREY2), color_idx_to_rgb(MN_GREY0));
 		display_cylinderbar_wh_clip_rgb(offset.x+1, offset.y+LOADINGBAR_HEIGHT+1, colored_width, WAITINGBAR_HEIGHT - 2, color_idx_to_rgb(waiting_bar_col), true);
 		if (waiting_time_per_month > 100) {
-			colored_width = waiting_time_per_month - 100;
+			colored_width = waiting_time_per_month - (size.w - 2);
 			display_cylinderbar_wh_clip_rgb(offset.x+1, offset.y+LOADINGBAR_HEIGHT+1, colored_width, WAITINGBAR_HEIGHT - 2, color_idx_to_rgb(waiting_bar_col-2), true);
 		}
 	}
@@ -160,5 +160,5 @@ scr_size gui_loadingbar_t::get_min_size() const
 
 scr_size gui_loadingbar_t::get_max_size() const
 {
-	return scr_size(LOADINGBAR_WIDTH + 2, LOADINGBAR_HEIGHT + WAITINGBAR_HEIGHT);
+	return scr_size(size_fixed ? LOADINGBAR_WIDTH+2 : scr_size::inf.w, LOADINGBAR_HEIGHT + WAITINGBAR_HEIGHT);
 }
