@@ -71,14 +71,14 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv) :
 	add_component(&class_management_button);
 	class_management_button.add_listener(this);
 
-	scrolly_formation.set_pos(scr_coord(0, LINESPACE*4));
+	scrolly_formation.set_pos(scr_coord(0, LINESPACE*4+D_V_SPACE));
 	scrolly_formation.set_show_scroll_x(true);
 	scrolly_formation.set_show_scroll_y(false);
 	scrolly_formation.set_scroll_discrete_x(false);
 	scrolly_formation.set_size_corner(false);
 	add_component(&scrolly_formation);
 
-	int header_height = D_TITLEBAR_HEIGHT + LINESPACE * 7 + 4;
+	int header_height = D_TITLEBAR_HEIGHT + LINESPACE * 7 + D_V_SPACE*2;
 
 	scrolly.set_show_scroll_x(true);
 
@@ -156,7 +156,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		gui_frame_t::draw(pos, size);
 		cont_payload.set_size(payload_info.get_size());
 
-		int offset_y = pos.y+2+16;
+		int offset_y = pos.y + D_TITLEBAR_HEIGHT + D_V_SPACE;
 
 		// current value
 		char number[64];

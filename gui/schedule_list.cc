@@ -771,7 +771,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	len2 += display_proportional_clip_rgb(pos.x+LINE_NAME_COLUMN_WIDTH+len2+5, pos.y+top+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
 	int rest_width = max( (get_windowsize().w-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
-	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + rest_width + 24, top - LINESPACE*2 + FIXED_SYMBOL_YOFF));
+	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + rest_width + 24, top - LINESPACE*3 + FIXED_SYMBOL_YOFF));
 	if (capacity > 0) {
 		number_to_string(ctmp, capacity, 0);
 		buf.clear();
