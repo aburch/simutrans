@@ -566,7 +566,8 @@ endif
 ifeq ($(BACKEND),gdi)
   SOURCES += sys/simsys_w.cc
   SOURCES += music/w32_midi.cc
-  SOURCES += sound/win32_sound.cc
+  SOURCES += sound/win32_sound_xa.cc
+	LDFLAGS += -lxaudio2_8
 endif
 
 ifeq ($(BACKEND),sdl)

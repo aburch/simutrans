@@ -10,7 +10,8 @@ DIRS := $(sort $(dir $(OBJS)))
 # Make build directories
 DUMMY := $(shell mkdir -p $(DIRS))
 
-BUILDCONFIG_FILES := common.mk Makefile config.$(CFG)
+BUILDCONFIG_FILES := 
+#common.mk Makefile config.$(CFG)
 
 .PHONY: all clean
 
