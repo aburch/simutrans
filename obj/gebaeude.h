@@ -147,7 +147,7 @@ public:
 	const building_tile_desc_t *get_tile() const { return tile; }
 
 	bool is_within_players_network(const player_t* player) const;
-		
+
 	void show_info() OVERRIDE;
 
 	void cleanup(player_t *player) OVERRIDE;

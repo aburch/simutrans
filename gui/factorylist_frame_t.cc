@@ -86,7 +86,7 @@ bool factorylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /
 		scrolly.sort(0);
 	}
 	else if(comp == &filterowner) {
-		if(  filter_by_owner.pressed ) { 
+		if(  filter_by_owner.pressed ) {
 			fill_list();
 		}
 	}

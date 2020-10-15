@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_SCRIPT_TOOL_INFO_H
-#define GUI_SCRIPT_TOOL_INFO_H
+#ifndef GUI_SCRIPT_TOOL_FRAME_H
+#define GUI_SCRIPT_TOOL_FRAME_H
 
 
 #include "savegame_frame.h"

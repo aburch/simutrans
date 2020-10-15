@@ -6,6 +6,7 @@
 #ifndef SCRIPT_SCRIPT_LOADER_H
 #define SCRIPT_SCRIPT_LOADER_H
 
+
 class script_vm_t;
 
 struct script_loader_t

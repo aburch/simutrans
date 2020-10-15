@@ -3724,7 +3724,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 
 	// Furthermore, if we reach the end of the route for a vehcile as fast as us,
 	// we simply assume it to be ok too
-	sint32 overtaking_distance = time_overtaking; 
+	sint32 overtaking_distance = time_overtaking;
 	distance = 0; // distance to needed traveled to crash int us from this point
 	time_overtaking = (time_overtaking << 16)/akt_speed;
 	while(  time_overtaking > 0  ) {

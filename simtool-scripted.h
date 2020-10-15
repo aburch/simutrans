@@ -6,6 +6,7 @@
 #ifndef SIMTOOL_SCRIPTED_H
 #define SIMTOOL_SCRIPTED_H
 
+
 #include "simmenu.h"
 #include "script/script.h"
 #include "utils/plainstring.h"

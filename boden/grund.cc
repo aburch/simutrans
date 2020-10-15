@@ -273,7 +273,7 @@ void grund_t::rdwr(loadsave_t *file)
 	// restore grid
 	if(  file->is_loading()  ) {
 		if( get_typ() == grund_t::boden  ||  get_typ() == grund_t::fundament  ) {
-			/* since those must be on the ground and broken grids occurred in the past 
+			/* since those must be on the ground and broken grids occurred in the past
 			 * (due to incorrect restoration of grid heights on house slopes)
 			 * we simply reset the grid height to our current height
 			 */
