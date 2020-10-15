@@ -1,4 +1,5 @@
 	FIX: map enlargement crashes with new climate generator
+	FIX: Wrong tooltip when building something with the finance window opened.
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):

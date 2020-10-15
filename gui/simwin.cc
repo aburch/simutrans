@@ -124,7 +124,7 @@ static void display_win(int win);
 static int tooltip_xpos = 0;
 static int tooltip_ypos = 0;
 static const char * tooltip_text = 0;
-static const char * static_tooltip_text = 0;
+static std::string static_tooltip_text;
 
 // For timed tooltip with initial delay and finite visible duration.
 // Valid owners are required for timing. Invalid (NULL) owners disable timing.
@@ -1662,9 +1662,9 @@ void win_display_flush(double konto)
 					}
 				}
 			}
-			else if(static_tooltip_text!=NULL  &&  *static_tooltip_text) {
-				const sint16 width = proportional_string_width(static_tooltip_text)+7;
-				display_ddd_proportional_clip(min(get_mouse_x()+16,disp_width-width), max(menu_height+7,get_mouse_y()-16), width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, static_tooltip_text, true);
+			else if(!static_tooltip_text.empty()) {
+				const sint16 width = proportional_string_width(static_tooltip_text.c_str())+7;
+				display_ddd_proportional_clip(min(get_mouse_x()+16,disp_width-width), max(menu_height+7,get_mouse_y()-16), width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, static_tooltip_text.c_str(), true);
 				if(wl) {
 					wl->set_background_dirty();
 				}
@@ -1909,5 +1909,5 @@ void win_set_tooltip(int xpos, int ypos, const char *text, const void *const own
  */
 void win_set_static_tooltip(const char *text)
 {
-	static_tooltip_text = text;
+	static_tooltip_text = text ? text : "";
 }
