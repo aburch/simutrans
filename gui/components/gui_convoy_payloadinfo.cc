@@ -96,6 +96,9 @@ gui_loadingbar_t::gui_loadingbar_t(convoihandle_t cnv)
 
 void gui_loadingbar_t::draw(scr_coord offset)
 {
+	if (!cnv.is_bound()) {
+		return;
+	}
 	offset += pos;
 	sint64 waiting_time_per_month = 0;
 	uint8 waiting_bar_col = COL_APRICOT;
