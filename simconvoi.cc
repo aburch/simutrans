@@ -6330,7 +6330,10 @@ void convoi_t::destroy()
 			vehicle[i]->set_last( true );
 			vehicle[i]->leave_tile();
 			if(  gr  &&  gr->ist_uebergang()  ) {
-				gr->find<crossing_t>()->release_crossing(vehicle[i]);
+				crossing_t* cr = gr->find<crossing_t>();
+				if(cr) {
+					cr->release_crossing(vehicle[i]);
+				}
 			}
 			vehicle[i]->set_flag( obj_t::not_on_map );
 
