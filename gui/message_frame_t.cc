@@ -61,6 +61,7 @@ message_frame_t::message_frame_t() :
 	add_table(2,0);
 	{
 		option_bt.init(button_t::roundbox, translator::translate("Optionen"));
+		option_bt.set_size(D_BUTTON_SIZE);
 		option_bt.add_listener(this);
 		add_component(&option_bt);
 
