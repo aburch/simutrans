@@ -540,7 +540,7 @@ void env_t::rdwr(loadsave_t *file)
 	if (file->get_version()>120007) {
 		rdwr_win_settings(file);
 	}
-	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 31) || file->get_extended_version() >= 15)
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 31) || file->get_extended_version() >= 15) {
 		file->rdwr_byte(show_money_message);
 		file->rdwr_byte(follow_convoi_underground);
 		file->rdwr_byte( gui_player_color_dark );
