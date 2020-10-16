@@ -3579,10 +3579,6 @@ bool haltestelle_t::make_public_and_join(player_t *player)
 		// join this halt with me
 		halthandle_t halt = joining.remove_first();
 
-		// have to rebuild connections of halt due to the
-		// ownership-change of this halt
-		halt->rebuild_connections();
-
 		// now with the second stop
 		while(  halt.is_bound()  &&  halt!=self  ) {
 			// add statistics
@@ -3636,8 +3632,6 @@ bool haltestelle_t::make_public_and_join(player_t *player)
 			}
 		}
 	}
-	// also rebuild our connections
-	rebuild_connections();
 
 	// tell the world of it ...
 	if(  player->get_player_nr()!=1  &&  env_t::networkmode  ) {
