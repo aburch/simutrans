@@ -1045,21 +1045,21 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d position)
 
 		case convoi_t::OUT_OF_RANGE:
 			{
-				koord destination = position.get_2d();
+				koord3d destination = position;
 				schedule_t* const sch = cnv->get_schedule();
 				const uint8 entries = sch->get_count();
 				uint8 count = 0;
-				while(count <= entries && !haltestelle_t::get_halt(destination, this).is_bound() && (welt->lookup_kartenboden(destination) == NULL || !welt->lookup_kartenboden(destination)->get_depot()))
+				while(count <= entries && !haltestelle_t::get_halt(destination, this).is_bound() && (welt->lookup_kartenboden(destination.get_2d()) == NULL || !welt->lookup_kartenboden(destination.get_2d())->get_depot()))
 				{
 					// Make sure that we are not incorrectly calculating the distance to a waypoint.
 					bool rev = cnv->is_reversed();
 					uint8 index = sch->get_current_stop();
 					sch->increment_index(&index, &rev);
-					destination = sch->entries.get_element(index).pos.get_2d();
+					destination = sch->entries.get_element(index).pos;
 					count++;
 				}
 				const uint32 distance_from_last_stop_to_here_tiles = shortest_distance(cnv->get_pos().get_2d(), cnv->front()->get_last_stop_pos().get_2d());
-				const uint32 distance_tiles = distance_from_last_stop_to_here_tiles + (shortest_distance(cnv->get_pos().get_2d(), destination));
+				const uint32 distance_tiles = distance_from_last_stop_to_here_tiles + (shortest_distance(cnv->get_pos().get_2d(), destination.get_2d()));
 				const double distance = (double)(distance_tiles * (double)welt->get_settings().get_meters_per_tile()) / 1000.0;
 				const double excess = distance - (double)cnv->get_min_range();
 				DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s cannot travel %.2fkm to (%i,%i) because it would exceed its range of %i by %.2fkm", cnv->get_name(), distance, position.x, position.y, cnv->get_min_range(), excess);
