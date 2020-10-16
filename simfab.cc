@@ -808,7 +808,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* desc, si
 		for (weighted_vector_tpl<stadt_t*>::const_iterator i = cities.begin(), end = cities.end(); i != end; ++i)
 		{
 			stadt_t* const c = *i;
-			const sint64 pop = c->get_finance_history_month(0,HIST_CITICENS);
+			const sint64 pop = c->get_finance_history_month(0,HIST_CITIZENS);
 			if(pop > biggest_city_population)
 			{
 				biggest_city_population = pop;
@@ -819,7 +819,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* desc, si
 			}
 		}
 
-		const sint64 this_city_population = city->get_finance_history_month(0,HIST_CITICENS);
+		const sint64 this_city_population = city->get_finance_history_month(0,HIST_CITIZENS);
 		sint32 production;
 
 		if(this_city_population == biggest_city_population)
@@ -2807,7 +2807,7 @@ void fabrik_t::new_month()
 						for (weighted_vector_tpl<stadt_t*>::const_iterator i = cities.begin(), end = cities.end(); i != end; ++i)
 						{
 							stadt_t* const c = *i;
-							const sint64 pop = c->get_finance_history_month(0, HIST_CITICENS);
+							const sint64 pop = c->get_finance_history_month(0, HIST_CITIZENS);
 							if(pop > biggest_city_population)
 							{
 								biggest_city_population = pop;
@@ -2818,7 +2818,7 @@ void fabrik_t::new_month()
 							}
 						}
 
-						const sint64 this_city_population = city->get_finance_history_month(0, HIST_CITICENS);
+						const sint64 this_city_population = city->get_finance_history_month(0, HIST_CITIZENS);
 						sint32 production;
 
 						if(this_city_population == biggest_city_population)

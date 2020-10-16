@@ -74,7 +74,7 @@ void citylist_stats_t::update_label()
 	lb_name.buf().printf("%s ", city->get_name());
 	lb_name.update();
 
-	label.buf().printf("%8d ", city->get_finance_history_month(0, HIST_CITICENS));
+	label.buf().printf("%8d ", city->get_finance_history_month(0, HIST_CITIZENS));
 	label.update();
 	//label.set_align(gui_label_t::left);
 
