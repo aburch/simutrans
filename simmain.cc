@@ -347,7 +347,7 @@ static void ask_objfilename()
 
 	if(sel->has_pak()) {
 		destroy_all_win(true);	// since eventually the successful load message is still there ....
-		dbg->important("modal_dialogue( sel, magic_none, NULL, empty_objfilename );" );
+		dbg->message("simmain()","modal_dialogue( sel, magic_none, NULL, empty_objfilename );" );
 		modal_dialogue( sel, magic_none, NULL, empty_objfilename );
 	}
 	else {
@@ -370,7 +370,7 @@ static void ask_language()
 	else {
 		sprachengui_t* sel = new sprachengui_t();
 		destroy_all_win(true);	// since eventually the successful load message is still there ....
-		dbg->important("modal_dialogue( sel, magic_none, NULL, no_language );" );
+		dbg->message("simmain()","modal_dialogue( sel, magic_none, NULL, no_language );" );
 		modal_dialogue( sel, magic_none, NULL, no_language );
 		destroy_win( sel );
 	}
@@ -1145,7 +1145,7 @@ int simu_main(int argc, char** argv)
 	dbg->message("simmain()","Reading menu configuration ...");
 	tool_t::read_menu(env_t::objfilename);
 
-	dbg->important("Reading private car ownership configuration ...");
+	dbg->message("simmain()","Reading private car ownership configuration ...");
 	karte_t::privatecar_init(env_t::objfilename);
 
 	if(  translator::get_language()==-1  ) {
@@ -1462,7 +1462,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 		}
 
 		if(  new_world  ) {
-			dbg->important("modal_dialogue( new welt_gui_t(&env_t::default_settings), magic_welt_gui_t, welt, never_quit );" );
+			dbg->message("simmain()","modal_dialogue( new welt_gui_t(&env_t::default_settings), magic_welt_gui_t, welt, never_quit );" );
 			modal_dialogue( new welt_gui_t(&env_t::default_settings), magic_welt_gui_t, welt, never_quit );
 			if(  env_t::quit_simutrans  ) {
 				break;

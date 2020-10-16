@@ -949,7 +949,7 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 
 	const uint32 number_of_big_cities = env_t::number_of_big_cities;
 
-	dbg->important("Creating cities ...");
+	dbg->message("simmain()","Creating cities ...");
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "prepare cities sizes");
 
 	const sint32 city_population_target_count = stadt.empty() ? new_city_count : new_city_count + stadt.get_count() + 1;
