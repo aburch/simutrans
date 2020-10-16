@@ -759,10 +759,10 @@ void schedule_list_gui_t::display(scr_coord pos)
 	int len=display_proportional_clip_rgb(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y + top, buf, ALIGN_LEFT, line->get_state() & simline_t::line_missing_scheduled_slots ? color_idx_to_rgb(COL_DARK_TURQUOISE) : SYSCOL_TEXT, true );
 	if (line->get_state() & simline_t::line_missing_scheduled_slots) {
 		if (skinverwaltung_t::missing_scheduled_slot) {
-			display_color_img_with_tooltip(skinverwaltung_t::missing_scheduled_slot->get_image_id(0), pos.x + LINE_NAME_COLUMN_WIDTH + len + D_H_SPACE, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[1]));
+			display_color_img_with_tooltip(skinverwaltung_t::missing_scheduled_slot->get_image_id(0), pos.x + LINE_NAME_COLUMN_WIDTH + len + D_H_SPACE, pos.y+top+FIXED_SYMBOL_YOFF, 0, false, false, translator::translate(line_alert_helptexts[1]));
 		}
 		else if (skinverwaltung_t::alerts) {
-			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + LINE_NAME_COLUMN_WIDTH + len + D_H_SPACE, pos.y + top, 0, false, false, translator::translate(line_alert_helptexts[1]));
+			display_color_img_with_tooltip(skinverwaltung_t::alerts->get_image_id(2), pos.x + LINE_NAME_COLUMN_WIDTH + len + D_H_SPACE, pos.y+top+FIXED_SYMBOL_YOFF, 0, false, false, translator::translate(line_alert_helptexts[1]));
 		}
 	}
 
