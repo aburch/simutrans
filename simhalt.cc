@@ -1864,18 +1864,18 @@ uint32 haltestelle_t::calc_service_frequency(halthandle_t destination, uint8 cat
 		uint32 timing = 0;
 		bool line_serves_destination = false;
 		uint32 number_of_calls_at_this_stop = 0;
-		koord current_halt;
-		koord next_halt;
+		koord3d current_halt;
+		koord3d next_halt;
 		for (uint8 n = 0; n < schedule_count; n++)
 		{
-			current_halt = registered_lines[i]->get_schedule()->entries[n].pos.get_2d();
+			current_halt = registered_lines[i]->get_schedule()->entries[n].pos;
 			if (n < schedule_count - 2)
 			{
-				next_halt = registered_lines[i]->get_schedule()->entries[n + 1].pos.get_2d();
+				next_halt = registered_lines[i]->get_schedule()->entries[n + 1].pos;
 			}
 			else
 			{
-				next_halt = registered_lines[i]->get_schedule()->entries[0].pos.get_2d();
+				next_halt = registered_lines[i]->get_schedule()->entries[0].pos;
 			}
 			if (n < schedule_count - 1)
 			{
@@ -1887,7 +1887,7 @@ uint32 haltestelle_t::calc_service_frequency(halthandle_t destination, uint8 cat
 				else
 				{
 					// Fallback to convoy's general average speed if a point-to-point average is not available.
-					const uint32 distance = shortest_distance(current_halt, next_halt);
+					const uint32 distance = shortest_distance(current_halt.get_2d(), next_halt.get_2d());
 					const uint32 recorded_average_speed = registered_lines[i]->get_finance_history(1, LINE_AVERAGE_SPEED);
 					const uint32 average_speed = recorded_average_speed > 0 ? recorded_average_speed : speed_to_kmh(registered_lines[i]->get_convoy(0)->get_min_top_speed()) >> 1;
 					const uint32 journey_time = welt->travel_time_tenths_from_distance(distance, average_speed);
