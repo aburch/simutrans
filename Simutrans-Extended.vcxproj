@@ -508,7 +508,7 @@
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (non-graphical server)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\miniupnpc;..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\freetype-2.10.1\include\freetype;..\miniupnpc;..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Optimised debug|x64'">..\miniupnpc;..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (no randomness)|x64'">..\OpenTTD\shared\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|x64'">..\OpenTTD\shared\include;$(IncludePath)</IncludePath>
@@ -528,7 +528,7 @@
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (non-graphical server)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\freetype-2.10.1;..\OpenTTD\win64\library;..\miniupnpc;..\bzip\lib\x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\freetype-2.10.1;..\miniupnpc;..\OpenTTD\win64\library;..\bzip\lib\x64;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Optimised debug|x64'">..\OpenTTD\win64\library;..\bzip\lib\x64;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (no randomness)|x64'">..\OpenTTD\win64\library;..\bzip\lib\x64;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|x64'">..\OpenTTD\win64\library;..\bzip\lib\x64;$(LibraryPath)</LibraryPath>
