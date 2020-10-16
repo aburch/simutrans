@@ -274,8 +274,12 @@ void vehicle_base_t::leave_tile()
 	if(  gr  &&  gr->ist_uebergang()  ) {
 		crossing_t *cr = gr->find<crossing_t>(2);
 		grund_t *gr2 = welt->lookup(pos_next);
-		if(  gr2==NULL  ||  gr2==gr  ||  !gr2->ist_uebergang()  ||  cr->get_logic()!=gr2->find<crossing_t>(2)->get_logic()  ) {
-			cr->release_crossing(this);
+		if(cr) {
+			if(gr2==NULL  ||  gr2==gr  ||  !gr2->ist_uebergang()  ||  cr->get_logic()!=gr2->find<crossing_t>(2)->get_logic()) {
+				cr->release_crossing(this);
+			}
+		} else {
+			dbg->warning("vehicle_base_t::leave_tile()", "No crossing found at %s", gr->get_pos().get_str());
 		}
 	}
 
@@ -7101,7 +7105,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			}
 			if(sch1->is_crossing())
 			{
-				gr->find<crossing_t>()->release_crossing(this);
+				crossing_t* cr = gr->find<crossing_t>();
+				if(cr) {
+					cr->release_crossing(this);
+				}
 			}
 		} // Unreserve
 
@@ -7343,7 +7350,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 					if(sch1->is_crossing())
 					{
-						gr_this->find<crossing_t>()->release_crossing(this);
+						crossing_t* cr = gr_this->find<crossing_t>();
+						if(cr) {
+							cr->release_crossing(this);
+						}
 					}
 				}
 			}

@@ -411,7 +411,10 @@ private_car_t::~private_car_t()
 	// first: release crossing
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr  &&  gr->ist_uebergang()) {
-		gr->find<crossing_t>(2)->release_crossing(this);
+		crossing_t* cr = gr->find<crossing_t>(2);
+		if(cr) {
+			cr->release_crossing(this);
+		}
 	}
 
 	if (gr)
@@ -1308,7 +1311,12 @@ void private_car_t::hop(grund_t* to)
 	}
 	update_tiles_overtaking();
 	if(to->ist_uebergang()) {
-		to->find<crossing_t>(2)->add_to_crossing(this);
+		crossing_t* cr  =to->find<crossing_t>(2);
+		if(cr) {
+			cr->add_to_crossing(this);
+		} else {
+			dbg->warning("private_car_t::hop(grund_t* to)", "No crossing found at %s", to->get_pos().get_str());
+		}
 	}
 	if(  next_lane==1  ) {
 		set_tiles_overtaking(3);
