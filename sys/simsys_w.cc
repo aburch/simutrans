@@ -628,33 +628,33 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 		case WM_KEYDOWN: { /* originally KeyPress */
 			// check for not numlock!
-			int numlock = (GetKeyState(VK_NUMLOCK) & 1) == 0;
-
 			sys_event.type = SIM_KEYBOARD;
 			sys_event.code = 0;
 			sys_event.key_mod = ModifierKeys();
 
-			if (numlock) {
-				// do low level special stuff here
-				switch (wParam) {
-					case VK_NUMPAD0:   sys_event.code = '0';           break;
-					case VK_NUMPAD1:   sys_event.code = '1';           break;
-					case VK_NUMPAD3:   sys_event.code = '3';           break;
-					case VK_NUMPAD7:   sys_event.code = '7';           break;
-					case VK_NUMPAD9:   sys_event.code = '9';           break;
-					case VK_NUMPAD2:   sys_event.code = SIM_KEY_DOWN;  break;
-					case VK_NUMPAD4:   sys_event.code = SIM_KEY_LEFT;  break;
-					case VK_NUMPAD6:   sys_event.code = SIM_KEY_RIGHT; break;
-					case VK_NUMPAD8:   sys_event.code = SIM_KEY_UP;    break;
-					case VK_PAUSE:     sys_event.code = 16;            break; // Pause -> ^P
-					case VK_SEPARATOR: sys_event.code = 127;           break; // delete
+			if(  (GetKeyState(VK_NUMLOCK) & 1)==0  ) { // numlock off?
+				int code = 0;
+				switch( lParam >> 16 ) {
+					case 0x47: code = SIM_KEY_UPLEFT; break;
+					case 0x48: code = SIM_KEY_UP; break;
+					case 0x49: code = SIM_KEY_UPRIGHT; break;
+					case 0x4B: code = SIM_KEY_LEFT; break;
+					case 0x4C: code = SIM_KEY_CENTER; break;
+					case 0x4D: code = SIM_KEY_RIGHT; break;
+					case 0x4F: code = SIM_KEY_DOWNLEFT; break;
+					case 0x50: code = SIM_KEY_DOWN; break;
+					case 0x51: code = SIM_KEY_DOWNRIGHT; break;
+					case 0x52: code = SIM_KEY_NUMPAD_BASE; break;
 				}
-				// check for numlock!
-				if (sys_event.code != 0) break;
+				if( code ) {
+					sys_event.code = code;
+					break;
+				}
 			}
 
 			// do low level special stuff here
 			switch (wParam) {
+				case VK_PAUSE:  sys_event.code = SIM_KEY_PAUSE; break;
 				case VK_LEFT:   sys_event.code = SIM_KEY_LEFT;  break;
 				case VK_RIGHT:  sys_event.code = SIM_KEY_RIGHT; break;
 				case VK_UP:     sys_event.code = SIM_KEY_UP;    break;
@@ -678,9 +678,17 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		}
 
 		case WM_CHAR: /* originally KeyPress */
-			sys_event.type = SIM_KEYBOARD;
-			sys_event.code = wParam;
-			sys_event.key_mod = ModifierKeys();
+			if(wParam>=VK_NUMPAD0  &&  wParam<=VK_NUMPAD9) {
+				// we handled this above ...
+				sys_event.type = SIM_NOEVENT;
+				sys_event.code = 0;
+				break;
+			}
+			else {
+				sys_event.type = SIM_KEYBOARD;
+				sys_event.code = wParam;
+				sys_event.key_mod = ModifierKeys();
+			}
 			break;
 
 		case WM_IME_SETCONTEXT:

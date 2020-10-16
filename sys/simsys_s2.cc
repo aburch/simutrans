@@ -578,6 +578,7 @@ static void internal_GetEvents(bool const wait)
 #endif
 			sys_event.key_mod = ModifierKeys();
 			SDL_Keycode sym = event.key.keysym.sym;
+
 			switch(  sym  ) {
 				case SDLK_BACKSPACE:  code = SIM_KEY_BACKSPACE;             break;
 				case SDLK_TAB:        code = SIM_KEY_TAB;                   break;
@@ -602,24 +603,23 @@ static void internal_GetEvents(bool const wait)
 				case SDLK_F13:        code = SIM_KEY_F13;                   break;
 				case SDLK_F14:        code = SIM_KEY_F14;                   break;
 				case SDLK_F15:        code = SIM_KEY_F15;                   break;
-				case SDLK_KP_0:       code = numlock ? 0 : 0;               break;
-				case SDLK_KP_1:       code = numlock ? 0 : SIM_KEY_END;     break;
-				case SDLK_KP_2:       code = numlock ? 0 : SIM_KEY_DOWN;    break;
-				case SDLK_KP_3:       code = numlock ? 0 : '<';             break;
-				case SDLK_KP_4:       code = numlock ? 0 : SIM_KEY_LEFT;    break;
-				case SDLK_KP_5:       code = numlock ? 0 : 0;               break;
-				case SDLK_KP_6:       code = numlock ? 0 : SIM_KEY_RIGHT;   break;
-				case SDLK_KP_7:       code = numlock ? 0 : SIM_KEY_HOME;    break;
-				case SDLK_KP_8:       code = numlock ? 0 : SIM_KEY_UP;      break;
-				case SDLK_KP_9:       code = numlock ? 0 : '>';             break;
-				case SDLK_KP_DECIMAL: code = numlock ? 0 : SIM_KEY_DELETE;  break;
+				case SDLK_KP_0:       code = numlock ? '0' : SIM_KEY_NUMPAD_BASE+0; break;
+				case SDLK_KP_1:       code = numlock ? '1' : SIM_KEY_NUMPAD_BASE+1; break;
+				case SDLK_KP_2:       code = numlock ? '2' : SIM_KEY_NUMPAD_BASE+2; break;
+				case SDLK_KP_3:       code = numlock ? '3' : SIM_KEY_NUMPAD_BASE+3; break;
+				case SDLK_KP_4:       code = numlock ? '4' : SIM_KEY_NUMPAD_BASE+4; break;
+				case SDLK_KP_5:       code = numlock ? '5' : SIM_KEY_NUMPAD_BASE+5; break;
+				case SDLK_KP_6:       code = numlock ? '6' : SIM_KEY_NUMPAD_BASE+6; break;
+				case SDLK_KP_7:       code = numlock ? '7' : SIM_KEY_NUMPAD_BASE+7; break;
+				case SDLK_KP_8:       code = numlock ? '8' : SIM_KEY_NUMPAD_BASE+8; break;
+				case SDLK_KP_9:       code = numlock ? '9' : SIM_KEY_NUMPAD_BASE+9; break;
 				case SDLK_KP_ENTER:   code = SIM_KEY_ENTER;                 break;
 				case SDLK_LEFT:       code = SIM_KEY_LEFT;                  break;
 				case SDLK_PAGEDOWN:   code = '<';                           break;
 				case SDLK_PAGEUP:     code = '>';                           break;
 				case SDLK_RIGHT:      code = SIM_KEY_RIGHT;                 break;
 				case SDLK_UP:         code = SIM_KEY_UP;                    break;
-				case SDLK_PAUSE:      code = 16;                            break;
+				case SDLK_PAUSE:      code = SIM_KEY_PAUSE;                 break;
 				default: {
 					// Handle CTRL-keys. SDL_TEXTINPUT event handles regular input
 					if(  (sys_event.key_mod & 2)  &&  SDLK_a <= sym  &&  sym <= SDLK_z  ) {

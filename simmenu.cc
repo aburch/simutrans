@@ -172,6 +172,7 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_TOGGLE_RESERVATION:   tool = new tool_toggle_reservation_t();   break;
 		case TOOL_VIEW_OWNER:           tool = new tool_view_owner_t();           break;
 		case TOOL_HIDE_UNDER_CURSOR:    tool = new tool_hide_under_cursor_t();    break;
+		case TOOL_MOVE_MAP:             tool = new tool_move_map_t();             break;
 		case UNUSED_WKZ_PWDHASH_TOOL:
 			dbg->warning("create_simple_tool()","deprecated tool [%i] requested", toolnr);
 			return NULL;
@@ -374,6 +375,10 @@ static utf32 str_to_key( const char *str )
 		if (strstart(str, "COMMA")) {
 			return ',';
 		}
+		// break/pause key
+		if (strstart(str, "PAUSE")) {
+			return SIM_KEY_PAUSE;
+		}
 		// HOME
 		if (strstart(str, "HOME")) {
 			return SIM_KEY_HOME;
@@ -381,6 +386,14 @@ static utf32 str_to_key( const char *str )
 		// END
 		if (strstart(str, "END")) {
 			return SIM_KEY_END;
+		}
+		// END
+		if (strstart(str, "END")) {
+			return SIM_KEY_END;
+		}
+		// NUMPAD
+		if(  const char *c=strstart(str, "NUM_")  ) {
+			return SIM_KEY_NUMPAD_BASE + atoi( c );
 		}
 	}
 	// invalid key

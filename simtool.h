@@ -19,6 +19,8 @@
 #include "dataobj/environment.h"
 #include "dataobj/translator.h"
 
+#include "display/viewport.h"
+
 #include "obj/baum.h"
 
 #include "player/simplay.h"
@@ -1013,7 +1015,26 @@ public:
 	bool is_work_network_safe() const OVERRIDE { return true; }
 };
 
+class tool_move_map_t : public tool_t {
+public:
+	tool_move_map_t() : tool_t(TOOL_MOVE_MAP | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Move the map"); }
+	bool is_selected() const OVERRIDE { return false; }
+	bool init( player_t * ) OVERRIDE {
+		assert(  default_param  );
+		if( const char *c = strchr( default_param, '|' ) ) {
+			koord delta( atoi( default_param ), atoi( c+1 ) );
+			welt->get_viewport()->change_world_position(welt->get_viewport()->get_world_position() + delta);
+			welt->set_dirty();
+		}
+		return false;
+	}
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
+};
+
 /******************************** Internal tools ***********/
+
 /* internal simple tools needed for network synchronisation */
 class tool_traffic_level_t : public tool_t {
 public:
