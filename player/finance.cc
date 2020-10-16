@@ -407,7 +407,7 @@ enum player_cost {
 	COST_TRANSPORTED_GOOD,
 	COST_ALL_CONVOIS,        // number of convois
 	COST_SCENARIO_COMPLETED, // scenario success (only useful if there is one ... )
-	COST_WAY_TOLLS,
+	COST_WAY_TOLLS
 	// OLD_MAX_PLAYER_COST = 19
 };
 

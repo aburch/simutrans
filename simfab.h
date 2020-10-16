@@ -222,7 +222,7 @@ private:
 		CL_CONS_MANY,    // Consumer that consumes multiple inputs, possibly produces power.
 		// Electricity producers provide power.
 		CL_ELEC_PROD,    // Simple electricity source. (green energy)
-		CL_ELEC_CLASSIC, // Classic electricity producer behaviour with no inputs.
+		CL_ELEC_CLASSIC  // Classic electricity producer behaviour with no inputs.
 	} control_type;
 
 	// Demand buffer order logic;
@@ -238,7 +238,7 @@ private:
 		BL_NONE,    // Production cannot be boosted.
 		BL_PAXM,    // Production boosted only using passengers/mail.
 		BL_POWER,   // Production boosted with power as well. Needs aditional logic for correct ordering.
-		BL_CLASSIC, // Production boosted in classic way.
+		BL_CLASSIC  // Production boosted in classic way.
 	} boost_type;
 
 	// Functions for manipulating factory statistics

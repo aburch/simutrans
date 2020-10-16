@@ -215,7 +215,7 @@ public:
 		WFL_CTRL   = 2, ///< ctrl-key was pressed when mouse-click happened
 		WFL_LOCAL  = 4, ///< tool call was issued by local client
 		WFL_SCRIPT = 8, ///< tool call was issued by script
-		WFL_NO_CHK = 16, ///< tool call needs no password or scenario checks
+		WFL_NO_CHK = 16 ///< tool call needs no password or scenario checks
 	};
 	uint8 flags; // flags are set before init/work/move is called
 

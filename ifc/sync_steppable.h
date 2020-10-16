@@ -12,7 +12,7 @@
 enum sync_result {
 	SYNC_OK,     ///< object remains in list
 	SYNC_REMOVE, ///< remove object from list
-	SYNC_DELETE, ///< delete object and remove from list
+	SYNC_DELETE  ///< delete object and remove from list
 };
 
 /**

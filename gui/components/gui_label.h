@@ -25,7 +25,7 @@ public:
 		left,
 		centered,
 		right,
-		money_right,
+		money_right
 	};
 
 private:

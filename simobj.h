@@ -164,7 +164,7 @@ public:
 		old_pillar = 98,
 		old_airdepot = 99,
 		old_monoraildepot=100,
-		old_tramdepot=101,
+		old_tramdepot=101
 	};
 
 	inline sint8 get_xoff() const {return xoff;}

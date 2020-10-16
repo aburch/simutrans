@@ -132,7 +132,7 @@ public:
 			// city buildings
 			city_res          = 37, ///< residential city buildings
 			city_com          = 38, ///< commercial  city buildings
-			city_ind          = 39, ///< industrial  city buildings
+			city_ind          = 39  ///< industrial  city buildings
 		};
 
 
@@ -164,7 +164,7 @@ private:
 			monorail_geb      = 22,
 			wartehalle        = 30,
 			mail              = 31,
-			lagerhalle        = 32,
+			lagerhalle        = 32
 		};
 
 	building_desc_t::btype type;
