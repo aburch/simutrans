@@ -129,26 +129,25 @@ class building_desc_t : public obj_desc_timelined_t {
 	public:
 		enum btype
 		{
-			unknown				=  0,
-			attraction_city		=  1,
-			attraction_land		=  2,
-			monument			= 3,
-			factory				= 4,
-			townhall			= 5,
-			others				= 6, ///< monorail foundation
-			headquarters			= 7,
-			dock				= 11, ///< dock, build on sloped coast
-									// in these, the extra data points to a waytype
-			depot				= 33,
-			generic_stop		= 34,
-			generic_extension	= 35,
-			flat_dock			= 36, ///< dock, but can start on a flat coast line
-									// city buildings
-			city_res			= 37, ///< residential city buildings
-			city_com			= 38, ///< commercial  city buildings
-			city_ind			= 39, ///< industrial  city buildings
-			signalbox			= 70, // Signalbox. 70 to allow for plenty more Standard ones in between.
-
+			unknown           =  0,
+			attraction_city   =  1,
+			attraction_land   =  2,
+			monument          =  3,
+			factory           =  4,
+			townhall          =  5,
+			others            =  6, ///< monorail foundation
+			headquarters      =  7,
+			dock              = 11, ///< dock, build on sloped coast
+			// in these, the extra data points to a waytype
+			depot             = 33,
+			generic_stop      = 34,
+			generic_extension = 35,
+			flat_dock         = 36, ///< dock, but can start on a flat coast line
+			// city buildings
+			city_res          = 37, ///< residential city buildings
+			city_com          = 38, ///< commercial  city buildings
+			city_ind          = 39, ///< industrial  city buildings
+			signalbox         = 70  // Signalbox. 70 to allow for plenty more Standard ones in between.
 		};
 
 			enum flag_t {
@@ -181,7 +180,7 @@ class building_desc_t : public obj_desc_timelined_t {
 			monorail_geb      = 22,
 			wartehalle        = 30,
 			mail              = 31,
-			lagerhalle        = 32,
+			lagerhalle        = 32
 		};
 
 	building_desc_t::btype type;

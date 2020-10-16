@@ -25,10 +25,10 @@ class slope_t {
 	/// Named constants for the flags table
 	enum {
 		doubles = 1,   ///< two-height difference slopes
-		way_ns = 2,   ///< way possible in north-south direction
-		way_ew = 4,   ///< way possible in east-west direction
-		single = 8,   ///< way possible
-		all_up = 16,  ///< all corners raised
+		way_ns  = 2,   ///< way possible in north-south direction
+		way_ew  = 4,   ///< way possible in east-west direction
+		single  = 8,   ///< way possible
+		all_up  = 16   ///< all corners raised
 	};
 
 public:
@@ -148,9 +148,9 @@ class ribi_t {
 		single = 1,  ///< only one bit set, way ends here
 		straight_ns = 2,  ///< contains straight n/s connection
 		straight_ew = 4,  ///< contains straight e/w connection
-		bend = 8,   ///< is a bend
-		twoway = 16, ///< two bits set
-		threeway = 32, ///< three bits set
+		bend        = 8,  ///< is a bend
+		twoway      = 16, ///< two bits set
+		threeway    = 32  ///< three bits set
 	};
 
 public:
