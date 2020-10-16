@@ -1311,7 +1311,7 @@ void private_car_t::hop(grund_t* to)
 	}
 	update_tiles_overtaking();
 	if(to->ist_uebergang()) {
-		crossing_t* cr  =to->find<crossing_t>(2);
+		crossing_t* cr = to->find<crossing_t>(2);
 		if(cr) {
 			cr->add_to_crossing(this);
 		} else {
