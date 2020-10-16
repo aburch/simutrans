@@ -172,7 +172,7 @@ bool dr_movetotrash(const char *path)
 
 	// Initalize file operation structure.
 	SHFILEOPSTRUCTW  FileOp;
-	FileOp.hwnd = NULL;
+	FileOp.hwnd = GetActiveWindow();
 	FileOp.wFunc = FO_DELETE;
 	FileOp.pFrom = full_wpath;
 	FileOp.pTo = NULL;
@@ -182,6 +182,8 @@ bool dr_movetotrash(const char *path)
 	int success = SHFileOperationW(&FileOp);
 
 	delete[] full_wpath;
+
+	BringWindowToTop(FileOp.hwnd);
 
 	return success;
 #else
