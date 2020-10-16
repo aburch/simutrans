@@ -218,7 +218,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	// load display
 	filled_bar.add_color_value(&loadfactor, color_idx_to_rgb(COL_GREEN));
-	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + 3*D_BUTTON_WIDTH + 10, D_MARGIN_TOP + D_EDIT_HEIGHT + FIXED_SYMBOL_YOFF + 2));
+	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + 3*D_BUTTON_WIDTH + 10, inp_name.get_pos().y + D_EDIT_HEIGHT + FIXED_SYMBOL_YOFF + D_V_SPACE));
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
@@ -697,7 +697,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	// line handling goods (symbol)
 	FOR(minivec_tpl<uint8>, const catg_index, line->get_goods_catg_index()) {
 		uint8 temp = catg_index;
-		display_color_img(goods_manager_t::get_info_catg_index(temp)->get_catg_symbol(), pos.x + left, pos.y + top + FIXED_SYMBOL_YOFF, 0, false, false);
+		display_color_img(goods_manager_t::get_info_catg_index(temp)->get_catg_symbol(), pos.x + left, pos.y + top + FIXED_SYMBOL_YOFF + 1, 0, false, false);
 		left += GOODS_SYMBOL_CELL_WIDTH;
 	}
 
@@ -771,7 +771,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	len2 += display_proportional_clip_rgb(pos.x+LINE_NAME_COLUMN_WIDTH+len2+5, pos.y+top+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
 	int rest_width = max( (get_windowsize().w-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
-	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + rest_width + 24, pos.y + top - LINESPACE*3 + FIXED_SYMBOL_YOFF));
+	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + rest_width + 24, inp_name.get_pos().y + D_EDIT_HEIGHT + FIXED_SYMBOL_YOFF + D_V_SPACE));
 	if (capacity > 0) {
 		number_to_string(ctmp, capacity, 0);
 		buf.clear();
