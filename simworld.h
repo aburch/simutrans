@@ -102,7 +102,7 @@ public:
 	void perlin_hoehe_loop(sint16, sint16, sint16, sint16);
 
 	enum player_cost {
-		WORLD_CITICENS=0,        ///< total people
+		WORLD_CITIZENS=0,        ///< total people
 		WORLD_GROWTH,            ///< growth (just for convenience)
 		WORLD_TOWNS,             ///< number of all cities
 		WORLD_FACTORIES,         ///< number of all consuming only factories

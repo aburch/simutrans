@@ -173,7 +173,7 @@ void export_world(HSQUIRRELVM vm, bool scenario)
 	 * Get monthly statistics of total number of citizens.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_citizens",          freevariable2<bool,sint32>(true, karte_t::WORLD_CITICENS), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_citizens",          freevariable2<bool,sint32>(true, karte_t::WORLD_CITIZENS), true );
 	/**
 	 * Get monthly statistics of total city growth.
 	 * @returns array, index [0] corresponds to current month
@@ -238,7 +238,7 @@ void export_world(HSQUIRRELVM vm, bool scenario)
 	 * Get per year statistics of total number of citizens.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_year_citizens",          freevariable2<bool,sint32>(false, karte_t::WORLD_CITICENS), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_year_citizens",          freevariable2<bool,sint32>(false, karte_t::WORLD_CITIZENS), true );
 	/**
 	 * Get per year statistics of total city growth.
 	 * @returns array, index [0] corresponds to current year

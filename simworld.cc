@@ -815,7 +815,7 @@ void karte_t::distribute_groundobjs_cities(int new_city_count, sint32 new_mean_c
 #endif
 			for(  int i=0;  i<new_city_count;  i++  ) {
 				stadt_t* s = new stadt_t(players[1], (*pos)[i], 1 );
-				DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
+				DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITIZENS] );
 				if (s->get_buildings() > 0) {
 					add_city(s);
 				}
@@ -890,7 +890,7 @@ void karte_t::distribute_groundobjs_cities(int new_city_count, sint32 new_mean_c
 			msg->clear();
 		}
 		finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
-		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev;
+		finance_history_year[0][WORLD_CITIZENS] = finance_history_month[0][WORLD_CITIZENS] = last_month_bev;
 
 		// connect some cities with roads
 		way_desc_t const* desc = settings.get_intercity_road_type(get_timeline_year_month());
@@ -3845,7 +3845,7 @@ void karte_t::new_month()
 	update_history();
 
 	// advance history ...
-	last_month_bev = finance_history_month[ 0 ][ WORLD_CITICENS ];
+	last_month_bev = finance_history_month[ 0 ][ WORLD_CITIZENS ];
 	for( int hist = 0; hist < karte_t::MAX_WORLD_COST; hist++ ) {
 		for( int y = MAX_WORLD_HISTORY_MONTHS - 1; y > 0; y-- ) {
 			finance_history_month[ y ][ hist ] = finance_history_month[ y - 1 ][ hist ];
@@ -4224,11 +4224,11 @@ void karte_t::step()
 	sint64 bev=0;
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
 		i->step(delta_t);
-		bev += i->get_finance_history_month(0, HIST_CITICENS);
+		bev += i->get_finance_history_month(0, HIST_CITIZENS);
 	}
 
 	// the inhabitants stuff
-	finance_history_month[0][WORLD_CITICENS] = bev;
+	finance_history_month[0][WORLD_CITIZENS] = bev;
 
 	DBG_DEBUG4("karte_t::step", "step factories");
 	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
@@ -4334,7 +4334,7 @@ void karte_t::restore_history(bool restore_transported_only)
 		sint64 total_mail = 1, trans_mail = 0;
 		sint64 total_goods = 1, supplied_goods = 0;
 		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
-			bev            += i->get_finance_history_month(m, HIST_CITICENS);
+			bev            += i->get_finance_history_month(m, HIST_CITIZENS);
 			trans_pas      += i->get_finance_history_month(m, HIST_PAS_TRANSPORTED);
 			total_pas      += i->get_finance_history_month(m, HIST_PAS_GENERATED);
 			trans_mail     += i->get_finance_history_month(m, HIST_MAIL_TRANSPORTED);
@@ -4348,7 +4348,7 @@ void karte_t::restore_history(bool restore_transported_only)
 			last_month_bev = bev;
 		}
 		finance_history_month[m][WORLD_GROWTH] = bev-last_month_bev;
-		finance_history_month[m][WORLD_CITICENS] = bev;
+		finance_history_month[m][WORLD_CITIZENS] = bev;
 		last_month_bev = bev;
 
 		// transportation ratio and total number
@@ -4367,7 +4367,7 @@ void karte_t::restore_history(bool restore_transported_only)
 		sint64 total_mail_year = 1, trans_mail_year = 0;
 		sint64 total_goods_year = 1, supplied_goods_year = 0;
 		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
-			bev                 += i->get_finance_history_year(y, HIST_CITICENS);
+			bev                 += i->get_finance_history_year(y, HIST_CITIZENS);
 			trans_pas_year      += i->get_finance_history_year(y, HIST_PAS_TRANSPORTED);
 			total_pas_year      += i->get_finance_history_year(y, HIST_PAS_GENERATED);
 			trans_mail_year     += i->get_finance_history_year(y, HIST_MAIL_TRANSPORTED);
@@ -4381,7 +4381,7 @@ void karte_t::restore_history(bool restore_transported_only)
 			bev_last_year = bev;
 		}
 		finance_history_year[y][WORLD_GROWTH] = bev-bev_last_year;
-		finance_history_year[y][WORLD_CITICENS] = bev;
+		finance_history_year[y][WORLD_CITIZENS] = bev;
 		bev_last_year = bev;
 
 		// transportation ratio and total number
@@ -4411,7 +4411,7 @@ void karte_t::update_history()
 	sint64 total_mail_year = 1, trans_mail_year = 0;
 	sint64 total_goods_year = 1, supplied_goods_year = 0;
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
-		bev                 += i->get_finance_history_month(0, HIST_CITICENS);
+		bev                 += i->get_finance_history_month(0, HIST_CITIZENS);
 		trans_pas           += i->get_finance_history_month(0, HIST_PAS_TRANSPORTED);
 		total_pas           += i->get_finance_history_month(0, HIST_PAS_GENERATED);
 		trans_mail          += i->get_finance_history_month(0, HIST_MAIL_TRANSPORTED);
@@ -4427,13 +4427,13 @@ void karte_t::update_history()
 	}
 
 	finance_history_month[0][WORLD_GROWTH] = bev-last_month_bev;
-	finance_history_year[0][WORLD_GROWTH] = bev - (finance_history_year[1][WORLD_CITICENS]==0 ? finance_history_month[0][WORLD_CITICENS] : finance_history_year[1][WORLD_CITICENS]);
+	finance_history_year[0][WORLD_GROWTH] = bev - (finance_history_year[1][WORLD_CITIZENS]==0 ? finance_history_month[0][WORLD_CITIZENS] : finance_history_year[1][WORLD_CITIZENS]);
 
 	// the inhabitants stuff
 	finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
-	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = bev;
+	finance_history_year[0][WORLD_CITIZENS] = finance_history_month[0][WORLD_CITIZENS] = bev;
 	finance_history_month[0][WORLD_GROWTH] = bev-last_month_bev;
-	finance_history_year[0][WORLD_GROWTH] = bev - (finance_history_year[1][WORLD_CITICENS]==0 ? finance_history_month[0][WORLD_CITICENS] : finance_history_year[1][WORLD_CITICENS]);
+	finance_history_year[0][WORLD_GROWTH] = bev - (finance_history_year[1][WORLD_CITIZENS]==0 ? finance_history_month[0][WORLD_CITIZENS] : finance_history_year[1][WORLD_CITIZENS]);
 
 	// transportation ratio and total number
 	finance_history_month[0][WORLD_PAS_RATIO] = (10000*trans_pas)/total_pas;
@@ -5864,7 +5864,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 				file->rdwr_longlong(finance_history_month[month][cost_type]);
 			}
 		}
-		last_month_bev = finance_history_month[1][WORLD_CITICENS];
+		last_month_bev = finance_history_month[1][WORLD_CITIZENS];
 
 		if (file->is_version_atleast(112, 5) &&  file->is_version_less(120, 6)) {
 			restore_history(true);
