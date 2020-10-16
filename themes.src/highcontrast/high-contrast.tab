@@ -4,7 +4,7 @@
 # https://wiki.simutrans.com/en_themeDef
 #
 # name of the theme (will be shown with file selector)
-name=High Contrast (standard size)
+name=High Contrast
 
 # show tooltips (default 1=show)
 show_tooltips = 1
@@ -70,7 +70,7 @@ gui_color_edit_text = #c98926
 gui_color_edit_text_selected = #FAFAFA
 gui_color_edit_text_disabled = #868c86
 gui_color_edit_background_selected = #5686a6
-gui_color_edit_beam = #333333
+gui_color_edit_beam = #ffffff
 
 gui_color_chart_background = #333333
 gui_color_chart_lines_zero = #FAFAFA
@@ -109,10 +109,10 @@ gui_color_text_plus = #c98926
 # Color of cursor overlay, which is blended over marked ground tiles
 cursor_overlay_color = #000000
 
+# Color of load bar in loag game, load serve etc
 gui_color_loadingbar_progress = #000000
 gui_color_loadingbar_inner = #868c86
 
-#########Test########
 gui_player_color_dark = 5	
 gui_player_color_bright = 5
 
@@ -136,6 +136,8 @@ gui_titlebar_height = 15
 
 # tab minimum sizes
 gui_tab_header_vsize = 22
+
+# gui_label_size = 24
 
 # input boxes height
 # minimum height is the height of the position button graphic
@@ -167,4 +169,4 @@ toolbar_max_height = 0
 ###################################pakstuff###################################
 
 # pak with the images for this theme
-themeimages=menu.highcontrast.pak
+themeimages=highcontrast.pak

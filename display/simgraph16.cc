@@ -2756,12 +2756,12 @@ void display_img_stretch(const stretch_map_t &imag, scr_rect area)
 	}
 
 	// now stretch the middle
-	if (imag[0][1] != IMG_EMPTY) {
-		scr_rect row(area.x, area.y + h_top, area.w, area.h - h_top - h_bottom);
+	if(  imag[0][1]!=IMG_EMPTY  ||  imag[1][1]!=IMG_EMPTY  ) {
+		scr_rect row( area.x, area.y+h_top, area.w, area.h-h_top-h_bottom );
 		// tile it wide
-		scr_coord_val h = images[imag[0][1]].h;
-		while (h <= row.h) {
-			display_three_image_row(imag[0][1], imag[1][1], imag[2][1], row);
+		scr_coord_val h = imag[0][1]!=IMG_EMPTY ? images[imag[0][1]].h : imag[1][1]!=IMG_EMPTY;
+		while(  h <= row.h  ) {
+			display_three_image_row( imag[0][1], imag[1][1], imag[2][1], row );
 			row.y += h;
 			row.h -= h;
 		}
@@ -5477,7 +5477,7 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 */
 int is_display_init()
 {
-	return textur != NULL  &&  default_font.is_loaded();
+	return textur != NULL  &&  default_font.is_loaded()  &&  images!=NULL;
 }
 
 

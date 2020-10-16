@@ -187,6 +187,9 @@ void gui_theme_t::init_gui_defaults()
 	gui_color_up_pointing_triangle         = COL_ADDITIONAL;
 	gui_color_down_pointing_triangle       = COL_REDUCED_TEXT;
 
+	env_t::gui_player_color_bright = 4;
+	env_t::gui_player_color_dark   = 1;
+
 	gui_button_size              = scr_size(92,14);
 	gui_color_button_size        = scr_size(92,16);
 	gui_button_text_offset       = scr_size(0,0);
@@ -442,6 +445,9 @@ bool gui_theme_t::themes_init(const char *file_name, bool init_fonts )
 
 	gui_theme_t::gui_checkbox_size.w = (uint32)contents.get_int("gui_checkbox_width",  gui_theme_t::gui_checkbox_size.w );
 	gui_theme_t::gui_checkbox_size.h = (uint32)contents.get_int("gui_checkbox_height", gui_theme_t::gui_checkbox_size.h );
+
+	gui_theme_t::gui_gadget_size.w = (uint32)contents.get_int("gui_gadget_width",  gui_theme_t::gui_gadget_size.w );
+	gui_theme_t::gui_gadget_size.h = (uint32)contents.get_int("gui_gadget_height", gui_theme_t::gui_gadget_size.h );
 
 	// make them fit at least the font height
 	gui_theme_t::gui_titlebar_height = max( LINESPACE+2, gui_theme_t::gui_titlebar_height );
