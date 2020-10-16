@@ -129,46 +129,46 @@ tool_t *create_simple_tool(int toolnr)
 {
 	tool_t* tool = NULL;
 	switch(toolnr) {
-		case TOOL_PAUSE:             tool = new tool_pause_t(); break;
-		case TOOL_FASTFORWARD:       tool = new tool_fastforward_t(); break;
-		case TOOL_SCREENSHOT:        tool = new tool_screenshot_t(); break;
-		case TOOL_INCREASE_INDUSTRY: tool = new tool_increase_industry_t(); break;
-		case TOOL_UNDO:              tool = new tool_undo_t(); break;
-		case TOOL_SWITCH_PLAYER:     tool = new tool_switch_player_t(); break;
-		case TOOL_STEP_YEAR:         tool = new tool_step_year_t(); break;
-		case TOOL_CHANGE_GAME_SPEED: tool = new tool_change_game_speed_t(); break;
-		case TOOL_ZOOM_IN:           tool = new tool_zoom_in_t(); break;
-		case TOOL_ZOOM_OUT:          tool = new tool_zoom_out_t(); break;
-		case TOOL_SHOW_COVERAGE:     tool = new tool_show_coverage_t(); break;
-		case TOOL_SHOW_NAME:        tool = new tool_show_name_t(); break;
+		case TOOL_PAUSE:                tool = new tool_pause_t();                break;
+		case TOOL_FASTFORWARD:          tool = new tool_fastforward_t();          break;
+		case TOOL_SCREENSHOT:           tool = new tool_screenshot_t();           break;
+		case TOOL_INCREASE_INDUSTRY:    tool = new tool_increase_industry_t();    break;
+		case TOOL_UNDO:                 tool = new tool_undo_t();                 break;
+		case TOOL_SWITCH_PLAYER:        tool = new tool_switch_player_t();        break;
+		case TOOL_STEP_YEAR:            tool = new tool_step_year_t();            break;
+		case TOOL_CHANGE_GAME_SPEED:    tool = new tool_change_game_speed_t();    break;
+		case TOOL_ZOOM_IN:              tool = new tool_zoom_in_t();              break;
+		case TOOL_ZOOM_OUT:             tool = new tool_zoom_out_t();             break;
+		case TOOL_SHOW_COVERAGE:        tool = new tool_show_coverage_t();        break;
+		case TOOL_SHOW_NAME:            tool = new tool_show_name_t();            break;
 		case TOOL_SHOW_SIGNALBOX_COVERAGE:     tool = new tool_show_signalbox_coverage_t(); break;
-		case TOOL_SHOW_GRID:         tool = new tool_show_grid_t(); break;
-		case TOOL_SHOW_TREES:        tool = new tool_show_trees_t(); break;
-		case TOOL_SHOW_HOUSES:       tool = new tool_show_houses_t(); break;
-		case TOOL_SHOW_UNDERGROUND:  tool = new tool_show_underground_t(); break;
-		case TOOL_ROTATE90:          tool = new tool_rotate90_t(); break;
-		case TOOL_QUIT:              tool = new tool_quit_t(); break;
-		case TOOL_FILL_TREES:        tool = new tool_fill_trees_t(); break;
-		case TOOL_DAYNIGHT_LEVEL:    tool = new tool_daynight_level_t(); break;
-		case TOOL_VEHICLE_TOOLTIPS:  tool = new tool_vehicle_tooltips_t(); break;
+		case TOOL_SHOW_GRID:            tool = new tool_show_grid_t();            break;
+		case TOOL_SHOW_TREES:           tool = new tool_show_trees_t();           break;
+		case TOOL_SHOW_HOUSES:          tool = new tool_show_houses_t();          break;
+		case TOOL_SHOW_UNDERGROUND:     tool = new tool_show_underground_t();     break;
+		case TOOL_ROTATE90:             tool = new tool_rotate90_t();             break;
+		case TOOL_QUIT:                 tool = new tool_quit_t();                 break;
+		case TOOL_FILL_TREES:           tool = new tool_fill_trees_t();           break;
+		case TOOL_DAYNIGHT_LEVEL:       tool = new tool_daynight_level_t();       break;
+		case TOOL_VEHICLE_TOOLTIPS:     tool = new tool_vehicle_tooltips_t();     break;
 		case TOOL_CONVOY_NAMEPLATES: tool = new tool_convoy_nameplate_t(); break;
 		case TOOL_CONVOY_LOADINGBAR: tool = new tool_convoy_loadingbar_t(); break;
-		case TOOL_TOOGLE_PAX:        tool = new tool_toggle_pax_station_t(); break;
-		case TOOL_TOOGLE_PEDESTRIANS:tool = new tool_toggle_pedestrians_t(); break;
-		case TOOL_TRAFFIC_LEVEL:     tool = new tool_traffic_level_t(); break;
-		case TOOL_CHANGE_CONVOI:       tool = new tool_change_convoi_t(); break;
-		case TOOL_CHANGE_LINE:         tool = new tool_change_line_t(); break;
-		case TOOL_CHANGE_DEPOT:        tool = new tool_change_depot_t(); break;
+		case TOOL_TOOGLE_PAX:           tool = new tool_toggle_pax_station_t();   break;
+		case TOOL_TOOGLE_PEDESTRIANS:   tool = new tool_toggle_pedestrians_t();   break;
+		case TOOL_TRAFFIC_LEVEL:        tool = new tool_traffic_level_t();        break;
+		case TOOL_CHANGE_CONVOI:        tool = new tool_change_convoi_t();        break;
+		case TOOL_CHANGE_LINE:          tool = new tool_change_line_t();          break;
+		case TOOL_CHANGE_DEPOT:         tool = new tool_change_depot_t();         break;
 		case UNUSED_WKZ_PWDHASH_TOOL: dbg->warning("create_simple_tool()","deprecated tool [%i] requested", toolnr); return NULL;
-		case TOOL_CHANGE_PLAYER:   tool = new tool_change_player_t(); break;
-		case TOOL_CHANGE_TRAFFIC_LIGHT:tool = new tool_change_traffic_light_t(); break;
-		case TOOL_CHANGE_CITY:  tool = new tool_change_city_t(); break;
-		case TOOL_RENAME:       tool = new tool_rename_t(); break;
-		case TOOL_ADD_MESSAGE:  tool = new tool_add_message_t(); break;
-		case TOOL_TOGGLE_RESERVATION:tool = new tool_toggle_reservation_t(); break;
-		case TOOL_VIEW_OWNER:        tool = new tool_view_owner_t(); break;
-		case TOOL_HIDE_UNDER_CURSOR: tool = new tool_hide_under_cursor_t(); break;
-		case TOOL_CHANGE_ROADSIGN_DEPRECATED:
+		case TOOL_CHANGE_PLAYER:        tool = new tool_change_player_t();        break;
+		case TOOL_CHANGE_TRAFFIC_LIGHT: tool = new tool_change_traffic_light_t(); break;
+		case TOOL_CHANGE_CITY:          tool = new tool_change_city_t();          break;
+		case TOOL_RENAME:               tool = new tool_rename_t();               break;
+		case TOOL_ADD_MESSAGE:          tool = new tool_add_message_t();          break;
+		case TOOL_TOGGLE_RESERVATION:   tool = new tool_toggle_reservation_t();   break;
+		case TOOL_VIEW_OWNER:           tool = new tool_view_owner_t();           break;
+		case TOOL_HIDE_UNDER_CURSOR:    tool = new tool_hide_under_cursor_t();    break;
+		case TOOL_MOVE_MAP:             tool = new tool_move_map_t();             break;
 		case TOOL_CHANGE_ROADSIGN:   tool = new tool_change_roadsign_t(); break;
 		case TOOL_SHOW_RIBI_DEPRECATED:
 		case TOOL_SHOW_RIBI:    tool = new tool_show_ribi_t(); break;
@@ -176,8 +176,12 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_RECOLOUR_TOOL:		tool = new tool_recolour_t(); break;
 		case TOOL_ACCESS_TOOL_DEPRECATED:
 		case TOOL_ACCESS_TOOL:		tool = new tool_access_t(); break;
-		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
-		                            return NULL;
+		case UNUSED_WKZ_PWDHASH_TOOL:
+			dbg->warning("create_simple_tool()","deprecated tool [%i] requested", toolnr);
+			return NULL;
+		default:
+			dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
+			return NULL;
 	}
 	assert(tool->get_id()  ==  (toolnr | SIMPLE_TOOL)  ||  (toolnr >= TOOL_CHANGE_ROADSIGN_DEPRECATED  &&  toolnr <= TOOL_ACCESS_TOOL_DEPRECATED));
 	return tool;
@@ -282,6 +286,10 @@ static utf32 str_to_key( const char *str )
 		if (strstart(str, "COMMA")) {
 			return ',';
 		}
+		// break/pause key
+		if (strstart(str, "PAUSE")) {
+			return SIM_KEY_PAUSE;
+		}
 		// HOME
 		if (strstart(str, "HOME")) {
 			return SIM_KEY_HOME;
@@ -289,6 +297,14 @@ static utf32 str_to_key( const char *str )
 		// END
 		if (strstart(str, "END")) {
 			return SIM_KEY_END;
+		}
+		// END
+		if (strstart(str, "END")) {
+			return SIM_KEY_END;
+		}
+		// NUMPAD
+		if(  const char *c=strstart(str, "NUM_")  ) {
+			return SIM_KEY_NUMPAD_BASE + atoi( c );
 		}
 	}
 	// invalid key

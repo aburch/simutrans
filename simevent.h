@@ -61,18 +61,27 @@
 #define SIM_KEY_ESCAPE               27
 #define SIM_KEY_SPACE                32
 #define SIM_KEY_DELETE              127
+#define SIM_KEY_PAUSE               279
 
 /* arrow (direction) keys */
-#define SIM_KEY_UP                  273
-#define SIM_KEY_DOWN                274
-#define SIM_KEY_RIGHT               275
-#define SIM_KEY_LEFT                276
+enum {
+	SIM_KEY_NUMPAD_BASE = 280, // 0 on keypad
+	SIM_KEY_DOWNLEFT,
+	SIM_KEY_DOWN,
+	SIM_KEY_DOWNRIGHT,
+	SIM_KEY_LEFT,
+	SIM_KEY_CENTER,
+	SIM_KEY_RIGHT,
+	SIM_KEY_UPLEFT,
+	SIM_KEY_UP,
+	SIM_KEY_UPRIGHT
+};
 
 /* other navigation keys */
-#define	SIM_KEY_HOME			    278
-#define SIM_KEY_END				    279
-#define SIM_KEY_PGUP                 62
-#define SIM_KEY_PGDN                 60
+#define SIM_KEY_HOME                275
+#define SIM_KEY_END                 276
+#define SIM_KEY_PGUP                277
+#define SIM_KEY_PGDN                278
 
 /* Function keys */
 #define SIM_KEY_F1                  256
