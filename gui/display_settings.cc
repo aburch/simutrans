@@ -28,6 +28,7 @@
 
 enum {
 	IDBTN_SCROLL_INVERSE,
+	IDBTN_IGNORE_NUMLOCK,
 	IDBTN_PEDESTRIANS_AT_STOPS,
 	IDBTN_PEDESTRIANS_IN_TOWNS,
 	IDBTN_DAY_NIGHT_CHANGE,
@@ -290,6 +291,11 @@ map_settings_t::map_settings_t()
 	buttons[ IDBTN_SCROLL_INVERSE ].init( button_t::square_state, "4LIGHT_CHOOSE" );
 	buttons[ IDBTN_SCROLL_INVERSE ].set_tooltip("The main game window can be scrolled by right-clicking and dragging the ground.");
 	add_component( buttons + IDBTN_SCROLL_INVERSE, 2 );
+
+	// Numpad key
+	buttons[ IDBTN_IGNORE_NUMLOCK ].init( button_t::square_state, "Num pad keys always move map" );
+	buttons[ IDBTN_IGNORE_NUMLOCK ].pressed = env_t::numpad_always_moves_map;
+	add_component( buttons + IDBTN_IGNORE_NUMLOCK, 2 );
 
 	// Scroll speed label
 	new_component<gui_label_t>( "3LIGHT_CHOOSE" );
@@ -623,6 +629,10 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 
 	switch( i )
 	{
+	case IDBTN_IGNORE_NUMLOCK:
+		env_t::numpad_always_moves_map = !env_t::numpad_always_moves_map;
+		buttons[IDBTN_IGNORE_NUMLOCK].pressed = env_t::numpad_always_moves_map;
+		break;
 	case IDBTN_SCROLL_INVERSE:
 		env_t::scroll_multi = -env_t::scroll_multi;
 		break;

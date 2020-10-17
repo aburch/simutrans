@@ -78,6 +78,8 @@ scr_size env_t::iconsize( 32, 32 );
 uint8 env_t::chat_window_transparency = 75;
 bool env_t::show_delete_buttons = false;
 
+bool env_t::numpad_always_moves_map = true;
+
 // only used internally => do not touch further
 bool env_t::quit_simutrans = false;
 
@@ -550,6 +552,7 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(follow_convoi_underground);
 		file->rdwr_byte( gui_player_color_dark );
 		file->rdwr_byte( gui_player_color_bright );
+		file->rdwr_bool( env_t::numpad_always_moves_map );
 	}
 	// server settings are not saved, since they are server specific
 	// and could be different on different servers on the same computers

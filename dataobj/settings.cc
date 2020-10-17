@@ -2018,24 +2018,25 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::draw_outside_tile = contents.get_int("draw_outside_tile", env_t::draw_outside_tile ) != 0;
 
 	// display stuff
-	env_t::show_names = contents.get_int("show_names", env_t::show_names );
-	env_t::show_month = contents.get_int("show_month", env_t::show_month );
-	env_t::max_acceleration = contents.get_int("fast_forward", env_t::max_acceleration );
-	env_t::fps = clamp((uint32)contents.get_int("frames_per_second", env_t::fps), env_t::min_fps, env_t::max_fps);
-	env_t::ff_fps = clamp((uint32)contents.get_int("fast_forward_frames_per_second", env_t::ff_fps), env_t::min_fps, env_t::max_fps);
-	env_t::num_threads = clamp(contents.get_int("threads", env_t::num_threads ), 1, MAX_THREADS);
-	env_t::simple_drawing_default = contents.get_int("simple_drawing_tile_size",env_t::simple_drawing_default );
-	env_t::simple_drawing_fast_forward = contents.get_int("simple_drawing_fast_forward",env_t::simple_drawing_fast_forward );
-	env_t::visualize_schedule = contents.get_int("visualize_schedule",env_t::visualize_schedule ) != 0;
-	env_t::show_vehicle_states = contents.get_int("show_vehicle_states",env_t::show_vehicle_states );
-	env_t::follow_convoi_underground = contents.get_int("follow_convoi_underground",env_t::follow_convoi_underground );
+	env_t::show_names = contents.get_int( "show_names", env_t::show_names );
+	env_t::show_month = contents.get_int( "show_month", env_t::show_month );
+	env_t::max_acceleration = contents.get_int( "fast_forward", env_t::max_acceleration );
+	env_t::fps = clamp( (uint32)contents.get_int( "frames_per_second", env_t::fps ), env_t::min_fps, env_t::max_fps );
+	env_t::ff_fps = clamp( (uint32)contents.get_int( "fast_forward_frames_per_second", env_t::ff_fps ), env_t::min_fps, env_t::max_fps );
+	env_t::num_threads = clamp( contents.get_int( "threads", env_t::num_threads ), 1, MAX_THREADS );
+	env_t::simple_drawing_default = contents.get_int( "simple_drawing_tile_size", env_t::simple_drawing_default );
+	env_t::simple_drawing_fast_forward = contents.get_int( "simple_drawing_fast_forward", env_t::simple_drawing_fast_forward );
+	env_t::visualize_schedule = contents.get_int( "visualize_schedule", env_t::visualize_schedule ) != 0;
+	env_t::show_vehicle_states = contents.get_int( "show_vehicle_states", env_t::show_vehicle_states );
+	env_t::follow_convoi_underground = contents.get_int( "follow_convoi_underground", env_t::follow_convoi_underground );
 
-	env_t::show_delete_buttons = contents.get_int("show_delete_buttons",env_t::show_delete_buttons ) != 0;
-	env_t::chat_window_transparency = contents.get_int("chat_transparency",env_t::chat_window_transparency );
+	env_t::show_delete_buttons = contents.get_int( "show_delete_buttons", env_t::show_delete_buttons ) != 0;
+	env_t::chat_window_transparency = contents.get_int( "chat_transparency", env_t::chat_window_transparency );
 
-	env_t::hide_keyboard = contents.get_int("hide_keyboard",env_t::hide_keyboard ) != 0;
+	env_t::hide_keyboard = contents.get_int( "hide_keyboard", env_t::hide_keyboard ) != 0;
+	env_t::numpad_always_moves_map = contents.get_int( "numpad_always_moves_map", env_t::numpad_always_moves_map );
 
-	env_t::player_finance_display_account = contents.get_int("player_finance_display_account",env_t::player_finance_display_account ) != 0;
+	env_t::player_finance_display_account = contents.get_int( "player_finance_display_account", env_t::player_finance_display_account ) != 0;
 
 	int* offsets[8];
 	offsets[0] = contents.get_ints("reverse_base_offset_south");

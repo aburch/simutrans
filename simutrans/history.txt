@@ -1,3 +1,8 @@
+	ADD: map only moves when numlock off, new tool to move to map view (simple_tool[36]=,keybinding,-1|0)
+	ADD: new option in simuconf.tab "numpad_always_moves_map" regardsless of numlock state
+
+
+Release of 120.1: (r7634 on 31-Oct-2015):
 	FIX: sliced undergraound mode now ranges from lowest existing to highest existing ground
 	FIX: several issues with bridge bilding and deletion at two vertical cliffs
 	ADD: new industrial deman dmodel just_in_time=2, which models factory ordering stuff

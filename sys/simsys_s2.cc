@@ -481,6 +481,7 @@ static void internal_GetEvents(bool const wait)
 	// Apparently Cocoa SDL posts key events that meant to be used by IM...
 	// Ignoring SDL_KEYDOWN during preedit seems to work fine.
 	static bool composition_is_underway = false;
+	static bool ignore_previous_number = false;
 
 	SDL_Event event;
 	event.type = 1;
@@ -575,12 +576,14 @@ static void internal_GetEvents(bool const wait)
 			unsigned long code;
 #ifdef _WIN32
 			// SDL doesn't set numlock state correctly on startup. Revert to win32 function as workaround.
-			const bool numlock = (GetKeyState(VK_NUMLOCK) & 1) != 0;
+			const bool key_numlock = ((GetKeyState( VK_NUMLOCK ) & 1) != 0);
 #else
-			const bool numlock = SDL_GetModState() & KMOD_NUM;
+			const bool key_numlock = (SDL_GetModState() & KMOD_NUM);
 #endif
+			const bool numlock = key_numlock  &&  !env_t::numpad_always_moves_map;
 			sys_event.key_mod = ModifierKeys();
 			SDL_Keycode sym = event.key.keysym.sym;
+			bool np = false; // to indicate we converted a numpad key
 
 			switch(  sym  ) {
 				case SDLK_BACKSPACE:  code = SIM_KEY_BACKSPACE;             break;
@@ -606,16 +609,16 @@ static void internal_GetEvents(bool const wait)
 				case SDLK_F13:        code = SIM_KEY_F13;                   break;
 				case SDLK_F14:        code = SIM_KEY_F14;                   break;
 				case SDLK_F15:        code = SIM_KEY_F15;                   break;
-				case SDLK_KP_0:       code = numlock ? '0' : SIM_KEY_NUMPAD_BASE+0; break;
-				case SDLK_KP_1:       code = numlock ? '1' : SIM_KEY_NUMPAD_BASE+1; break;
-				case SDLK_KP_2:       code = numlock ? '2' : SIM_KEY_NUMPAD_BASE+2; break;
-				case SDLK_KP_3:       code = numlock ? '3' : SIM_KEY_NUMPAD_BASE+3; break;
-				case SDLK_KP_4:       code = numlock ? '4' : SIM_KEY_NUMPAD_BASE+4; break;
-				case SDLK_KP_5:       code = numlock ? '5' : SIM_KEY_NUMPAD_BASE+5; break;
-				case SDLK_KP_6:       code = numlock ? '6' : SIM_KEY_NUMPAD_BASE+6; break;
-				case SDLK_KP_7:       code = numlock ? '7' : SIM_KEY_NUMPAD_BASE+7; break;
-				case SDLK_KP_8:       code = numlock ? '8' : SIM_KEY_NUMPAD_BASE+8; break;
-				case SDLK_KP_9:       code = numlock ? '9' : SIM_KEY_NUMPAD_BASE+9; break;
+				case SDLK_KP_0:       np = true; code = numlock ? '0' : SIM_KEY_NUMPAD_BASE + 0; break;
+				case SDLK_KP_1:       np = true; code = numlock ? '1' : SIM_KEY_NUMPAD_BASE+1; break;
+				case SDLK_KP_2:       np = true; code = numlock ? '2' : SIM_KEY_NUMPAD_BASE+2; break;
+				case SDLK_KP_3:       np = true; code = numlock ? '3' : SIM_KEY_NUMPAD_BASE+3; break;
+				case SDLK_KP_4:       np = true; code = numlock ? '4' : SIM_KEY_NUMPAD_BASE+4; break;
+				case SDLK_KP_5:       np = true; code = numlock ? '5' : SIM_KEY_NUMPAD_BASE+5; break;
+				case SDLK_KP_6:       np = true; code = numlock ? '6' : SIM_KEY_NUMPAD_BASE+6; break;
+				case SDLK_KP_7:       np = true; code = numlock ? '7' : SIM_KEY_NUMPAD_BASE+7; break;
+				case SDLK_KP_8:       np = true; code = numlock ? '8' : SIM_KEY_NUMPAD_BASE+8; break;
+				case SDLK_KP_9:       np = true; code = numlock ? '9' : SIM_KEY_NUMPAD_BASE+9; break;
 				case SDLK_KP_ENTER:   code = SIM_KEY_ENTER;                 break;
 				case SDLK_LEFT:       code = SIM_KEY_LEFT;                  break;
 				case SDLK_PAGEDOWN:   code = '<';                           break;
@@ -634,15 +637,21 @@ static void internal_GetEvents(bool const wait)
 					break;
 				}
 			}
+			ignore_previous_number = (np  &&   key_numlock  &&  env_t::numpad_always_moves_map);
 			sys_event.type    = SIM_KEYBOARD;
 			sys_event.code    = code;
 			break;
 		}
+
 		case SDL_TEXTINPUT: {
 			size_t in_pos = 0;
 			utf32 uc = utf8_decoder_t::decode((utf8 const*)event.text.text, in_pos);
 			if(  event.text.text[in_pos]==0  ) {
 				// single character
+				if( ignore_previous_number ) {
+					ignore_previous_number = false;
+					break;
+				}
 				sys_event.type    = SIM_KEYBOARD;
 				sys_event.code    = (unsigned long)uc;
 			}
