@@ -176,9 +176,6 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_RECOLOUR_TOOL:		tool = new tool_recolour_t(); break;
 		case TOOL_ACCESS_TOOL_DEPRECATED:
 		case TOOL_ACCESS_TOOL:		tool = new tool_access_t(); break;
-		case UNUSED_WKZ_PWDHASH_TOOL:
-			dbg->warning("create_simple_tool()","deprecated tool [%i] requested", toolnr);
-			return NULL;
 		default:
 			dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 			return NULL;
