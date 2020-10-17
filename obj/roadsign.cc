@@ -361,15 +361,16 @@ void roadsign_t::info(cbuffer_t & buf) const
 #endif
 	if (desc->is_traffic_light())
 	{
-		buf.append(translator::translate("\nSet phases:"));
-	}
-	//if (desc->is_private_way()) // Must be last, as the \n\n\n... section is the free height for the buttons // Ves
-	//{
-	//}
-
-	if (char const* const maker = desc->get_copyright()) {
-		buf.append("\n");
-		buf.printf(translator::translate("Constructed by %s"), maker);
+		if(  automatic  ) {
+			buf.append(translator::translate("\nSet phases:"));
+		}
+		else{
+			if (char const* const maker = desc->get_copyright()) {
+				buf.append("\n");
+				buf.printf(translator::translate("Constructed by %s"), maker);
+			}
+			// extra treatment of trafficlights & private signs, author will be shown by those windows themselves
+		}
 	}
 }
 	// Signal specific information is dealt with in void signal_t::info(cbuffer_t & buf, bool dummy) const (in signal.cc)
