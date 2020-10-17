@@ -19,7 +19,7 @@ bool reduce_frame_time();
 /// Try to decrease fps
 bool increase_frame_time();
 sint32 get_frame_time();
-void set_frame_time(sint32 ms);
+void set_frame_time(uint32 ms);
 
 
 void intr_refresh_display(bool dirty);
