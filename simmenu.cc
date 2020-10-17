@@ -180,7 +180,7 @@ tool_t *create_simple_tool(int toolnr)
 			dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 			return NULL;
 	}
-	assert(tool->get_id()  ==  (toolnr | SIMPLE_TOOL)  ||  (toolnr >= TOOL_CHANGE_ROADSIGN_DEPRECATED  &&  toolnr <= TOOL_ACCESS_TOOL_DEPRECATED));
+	assert(tool->get_id()  ==  (toolnr | SIMPLE_TOOL)  ||  (toolnr >= TOOL_SHOW_RIBI_DEPRECATED &&  toolnr <= TOOL_ACCESS_TOOL_DEPRECATED));
 	return tool;
 }
 
@@ -413,7 +413,7 @@ void tool_t::read_menu(const std::string &objfilename)
 			if(*str) {
 				// Check if tool is deprecated
 				if(  (  t==0  &&  i>=TOOL_BUILD_SIGNALBOX_DEPRECATED && i<=TOOL_REASSIGN_SIGNAL_DEPRECATED  )
-				   || (  t==1  &&  i>=TOOL_CHANGE_ROADSIGN_DEPRECATED && i<=TOOL_ACCESS_TOOL_DEPRECATED  )  ) {
+				   || (  t==1  &&  i>= TOOL_SHOW_RIBI_DEPRECATED && i<=TOOL_ACCESS_TOOL_DEPRECATED  )  ) {
 					// Do not warn if new id also appears in menuconf:
 					char new_id[256];
 					sprintf( new_id, "%s[%i]", info[t].type, tool->get_id()&0xFFF );
