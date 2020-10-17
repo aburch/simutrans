@@ -45,3 +45,10 @@ rm -rf *.pak
 mv *.pak ../../simutrans/themes
 cp *.tab ../../simutrans/themes
 
+cd ../newstandard
+rm -rf *.pak
+../makeobj pak newstandard.pak standard.dat
+#../makeobj pak newstandard-large.pak standard-large.dat
+mv *.pak ../../simutrans/themes
+cp *.tab ../../simutrans/themes
+
