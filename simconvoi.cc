@@ -8591,7 +8591,7 @@ uint8 convoi_t::get_terminal_shunt_mode() const
 		return wye;
 	}
 
-	const bool need_turn_table = front()->get_desc()->is_bidirectional() ? false : true;
+	const bool need_turn_table = !front()->get_desc()->is_bidirectional();
 
 	if (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
 	{

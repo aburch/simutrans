@@ -5,11 +5,6 @@
 
 /* basic network functionality, borrowed from OpenTTD */
 
-#if defined(__amiga__)
-// warning: IPv6 will only work on Windows XP and up ...
-#define USE_IP4_ONLY
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
