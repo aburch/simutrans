@@ -386,7 +386,7 @@ class tool_change_roadsign_t : public tool_t {
 public:
 	tool_change_roadsign_t() : tool_t(TOOL_CHANGE_ROADSIGN | SIMPLE_TOOL) {}
 	bool init(player_t*) OVERRIDE;
-	bool is_init_network_save() const OVERRIDE { return false; }
+	bool is_init_network_safe() const OVERRIDE { return false; }
 };
 
 class tool_build_wayobj_t : public two_click_tool_t {
@@ -531,7 +531,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_init_network_safe() const OVERRIDE { return true; }
 };
 
 /* builds (random) tourist attraction (default_param==NULL) and maybe adds it to the next city
@@ -672,7 +672,7 @@ private:
 public:
 	tool_reassign_signal_t() : two_click_tool_t(TOOL_REASSIGN_SIGNAL | GENERAL_TOOL) { last_selected_location = koord3d::invalid; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Reassign signals"); }
-	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_init_network_safe() const OVERRIDE { return true; }
 
 private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -862,8 +862,8 @@ public:
 		return false;
 	}
 	bool exit(player_t *s) OVERRIDE { return init(s); }
-	bool is_init_network_save() const OVERRIDE { return true; }
-	bool is_work_network_save() const OVERRIDE { return true; }
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
 };
 
 class tool_convoy_nameplate_t : public tool_t {
@@ -875,8 +875,8 @@ public:
 		welt->set_dirty();
 		return false;
 	}
-	bool is_init_network_save() const OVERRIDE { return true; }
-	bool is_work_network_save() const OVERRIDE { return true; }
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
 };
 
 class tool_convoy_loadingbar_t : public tool_t {
@@ -888,8 +888,8 @@ public:
 		welt->set_dirty();
 		return false;
 	}
-	bool is_init_network_save() const OVERRIDE { return true; }
-	bool is_work_network_save() const OVERRIDE { return true; }
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
 };
 
 class tool_show_name_t : public tool_t {
@@ -1103,8 +1103,8 @@ public:
 		}
 		return false;
 	}
-	bool is_init_network_save() const OVERRIDE { return true; }
-	bool is_work_network_save() const OVERRIDE { return true; }
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
 };
 
 class tool_view_owner_t : public tool_t {
