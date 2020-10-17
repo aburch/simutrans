@@ -25,17 +25,18 @@ extern char **__argv;
 #include "simsys_w32_png.h"
 #include "simsys.h"
 
+#include "../macros.h"
 #include "../simconst.h"
-#include "../display/simgraph.h"
 #include "../simdebug.h"
+#include "../simmem.h"
+#include "../simversion.h"
+#include "../simevent.h"
+#include "../dataobj/environment.h"
+#include "../display/simgraph.h"
 #include "../gui/simwin.h"
 #include "../gui/gui_frame.h"
 #include "../gui/components/gui_component.h"
 #include "../gui/components/gui_textinput.h"
-#include "../simmem.h"
-#include "../simversion.h"
-#include "../simevent.h"
-#include "../macros.h"
 
 // needed for wheel
 #ifndef WM_MOUSEWHEEL
@@ -632,23 +633,26 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			sys_event.code = 0;
 			sys_event.key_mod = ModifierKeys();
 
-			if(  (GetKeyState(VK_NUMLOCK) & 1)==0  ) { // numlock off?
-				int code = 0;
-				switch( lParam >> 16 ) {
-					case 0x47: code = SIM_KEY_UPLEFT; break;
-					case 0x48: code = SIM_KEY_UP; break;
-					case 0x49: code = SIM_KEY_UPRIGHT; break;
-					case 0x4B: code = SIM_KEY_LEFT; break;
-					case 0x4C: code = SIM_KEY_CENTER; break;
-					case 0x4D: code = SIM_KEY_RIGHT; break;
-					case 0x4F: code = SIM_KEY_DOWNLEFT; break;
-					case 0x50: code = SIM_KEY_DOWN; break;
-					case 0x51: code = SIM_KEY_DOWNRIGHT; break;
-					case 0x52: code = SIM_KEY_NUMPAD_BASE; break;
-				}
-				if( code ) {
-					sys_event.code = code;
-					break;
+			sint16 code = lParam >> 16;
+			if(  code >= 0x47  &&  code <= 0x52  &&  code != 0x4A  &&  code != 0x4e  ) {
+				if(  env_t::numpad_always_moves_map  ||  (GetKeyState( VK_NUMLOCK ) & 1) == 0  ) { // numlock off?
+					switch( code ) {
+						case 0x47: code = SIM_KEY_UPLEFT; break;
+						case 0x48: code = SIM_KEY_UP; break;
+						case 0x49: code = SIM_KEY_UPRIGHT; break;
+						case 0x4B: code = SIM_KEY_LEFT; break;
+						case 0x4C: code = SIM_KEY_CENTER; break;
+						case 0x4D: code = SIM_KEY_RIGHT; break;
+						case 0x4F: code = SIM_KEY_DOWNLEFT; break;
+						case 0x50: code = SIM_KEY_DOWN; break;
+						case 0x51: code = SIM_KEY_DOWNRIGHT; break;
+						case 0x52: code = SIM_KEY_NUMPAD_BASE; break;
+					}
+					if(  code>=SIM_KEY_NUMPAD_BASE  ) {
+						// ok found something
+						sys_event.code = code;
+						break;
+					}
 				}
 			}
 
@@ -678,18 +682,21 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		}
 
 		case WM_CHAR: /* originally KeyPress */
-			if(wParam>=VK_NUMPAD0  &&  wParam<=VK_NUMPAD9) {
-				// we handled this above ...
-				sys_event.type = SIM_NOEVENT;
-				sys_event.code = 0;
-				break;
+		{
+			sint16 code = lParam >> 16;
+			if(  code >= 0x47  &&  code <= 0x52  &&  code != 0x4A  &&  code != 0x4e  ) {
+				if(  env_t::numpad_always_moves_map  ||  (GetKeyState( VK_NUMLOCK ) & 1) == 0  ) { // numlock off?
+					// we handled numpad keys already above ...
+					sys_event.type = SIM_NOEVENT;
+					sys_event.code = 0;
+					break;
+				}
 			}
-			else {
-				sys_event.type = SIM_KEYBOARD;
-				sys_event.code = wParam;
-				sys_event.key_mod = ModifierKeys();
-			}
+			sys_event.type = SIM_KEYBOARD;
+			sys_event.code = wParam;
+			sys_event.key_mod = ModifierKeys();
 			break;
+		}
 
 		case WM_IME_SETCONTEXT:
 			// attempt to avoid crash at windows 1809> just not call DefWinodwsProc seems to work for SDL2 ...

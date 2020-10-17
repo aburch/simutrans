@@ -146,6 +146,9 @@ public:
 	/// controls scrolling speed and scrolling direction
 	static sint16 scroll_multi;
 
+	/// converts numpad keys to arrows no matter of numlock state
+	static bool numpad_always_moves_map;
+
 	/// open info windows for pedestrian and private cars
 	static bool road_user_info;
 
