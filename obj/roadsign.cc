@@ -186,14 +186,18 @@ void roadsign_t::info(cbuffer_t & buf) const
 			buf.printf("%s%d", translator::translate("\nminimum speed:"), speed_to_kmh(desc->get_min_speed()));
 		}
 		buf.printf("%s%u\n", translator::translate("\ndirection:"), dir);
+
 		if(  automatic  ) {
 			buf.append(translator::translate("\nSet phases:"));
 		}
-	}
 
-	if (char const* const maker = desc->get_copyright()) {
-		buf.append("\n");
-		buf.printf(translator::translate("Constructed by %s"), maker);
+		if (!automatic) {
+			if (char const* const maker = desc->get_copyright()) {
+				buf.append("\n");
+				buf.printf(translator::translate("Constructed by %s"), maker);
+			}
+			// extra treatment of trafficlights & private signs, author will be shown by those windows themselves
+		}
 	}
 }
 
