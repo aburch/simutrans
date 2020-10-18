@@ -28,7 +28,7 @@ script_tool_frame_t::script_tool_frame_t() : savegame_frame_t(NULL, true, NULL, 
 	cbuffer_t pakset_script_tool;
 	cbuffer_t addons_script_tool;
 
-	pakset_script_tool.printf("%s%stool/", env_t::program_dir, env_t::objfilename.c_str());
+	pakset_script_tool.printf("%s%stool/", env_t::data_dir, env_t::objfilename.c_str());
 	addons_script_tool.printf("addons/%stool/", env_t::objfilename.c_str());
 
 	if (env_t::default_settings.get_with_private_paks()) {

@@ -28,8 +28,9 @@
 class env_t
 {
 public:
-	/// points to the current simutrans data directory
-	static char program_dir[PATH_MAX];
+	/// Points to the current simutrans data directory. Usually this is the same directory
+	/// where the executable is located, unless -use_workdir is specified.
+	static char data_dir[PATH_MAX];
 
 	/// points to the current user directory for loading and saving
 	static const char *user_dir;

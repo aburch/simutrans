@@ -153,10 +153,10 @@ void savegame_frame_t::add_section(std::string &name){
 	char *label_text = new char [L_SHORTENED_SIZE+prefix_len+2];
 	char *path_expanded = new char[FILENAME_MAX];
 
-	size_t program_dir_len = strlen(env_t::program_dir);
+	const size_t data_dir_len = strlen(env_t::data_dir);
 
-	if(  name[0]=='/'  ||  name[0]=='\\'  ||  name[1]==':'  ||  strncmp(name.c_str(),env_t::program_dir,program_dir_len) == 0  ) {
-		// starts with program_dir or an absolute path
+	if(  name[0]=='/'  ||  name[0]=='\\'  ||  name[1]==':'  ||  strncmp(name.c_str(),env_t::data_dir,data_dir_len) == 0  ) {
+		// starts with data_dir or an absolute path
 		tstrncpy(path_expanded, name.c_str(), FILENAME_MAX);
 	}
 	else {

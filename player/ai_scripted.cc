@@ -230,9 +230,9 @@ void ai_scripted_t::rdwr(loadsave_t *file)
 		script_filename.printf("%sai.nut", ai_path.c_str());
 		bool rdwr_error = !load_script(script_filename);
 
-		// failed, try ai from program directory
+		// failed, try ai from data directory
 		if (rdwr_error) {
-			ai_path = ( std::string(env_t::program_dir) + "/ai/" + ai_name.c_str() + "/").c_str();
+			ai_path = ( std::string(env_t::data_dir) + "/ai/" + ai_name.c_str() + "/").c_str();
 			script_filename.clear();
 			script_filename.printf("%sai.nut", ai_path.c_str());
 			rdwr_error = !load_script(script_filename);

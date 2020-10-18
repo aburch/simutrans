@@ -227,14 +227,14 @@ void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const
 	}
 	// not found => try pak location
 	if(  file==NULL  ) {
-		string local_file_name(env_t::program_dir);
+		string local_file_name(env_t::data_dir);
 		local_file_name = local_file_name + pakset_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
 		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
 		file = dr_fopen(local_file_name.c_str(), "rb");
 	}
 	// not found => try global translations
 	if(  file==NULL  ) {
-		string local_file_name(env_t::program_dir);
+		string local_file_name(env_t::data_dir);
 		local_file_name = local_file_name + "text/" + fileprefix + langs[lang].iso_base + ".txt";
 		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
 		file = dr_fopen(local_file_name.c_str(), "rb");
@@ -421,7 +421,7 @@ void translator::load_files_from_folder(const char *folder_name, const char *wha
 
 bool translator::load(const string &path_to_pakset)
 {
-	dr_chdir( env_t::program_dir );
+	dr_chdir( env_t::data_dir );
 	tstrncpy(pakset_path, path_to_pakset.c_str(), lengthof(pakset_path));
 
 	//initialize these values to 0(ie. nothing loaded)
@@ -468,7 +468,7 @@ bool translator::load(const string &path_to_pakset)
 		// there can be more than one file per language, provided it is name like iso_xyz.tab
 		const string folderName("addons/" + path_to_pakset + "text/");
 		load_files_from_folder(folderName.c_str(), "pak addons");
-		dr_chdir( env_t::program_dir );
+		dr_chdir( env_t::data_dir );
 	}
 
 	//if NO languages were loaded then game cannot continue
@@ -494,7 +494,7 @@ bool translator::load(const string &path_to_pakset)
 			DBG_MESSAGE("translator::load()", "pakset addon compatibility texts loaded.");
 			fclose(file);
 		}
-		dr_chdir( env_t::program_dir );
+		dr_chdir( env_t::data_dir );
 	}
 
 #if DEBUG>=4

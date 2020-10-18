@@ -187,12 +187,12 @@ void dr_copy(const char *source, size_t length);
 size_t dr_paste(char *target, size_t max_length);
 
 /**
- * Open a program/starts a script to download pak sets from sourceforge
- * @param path_to_program : actual simutrans pakfile directory
- * @param portabel : true if local files to be save in simutransdir
+ * Open a program/starts a script to download pak sets.
+ * @param data_dir : The current simutrans data directory (usually the same as env_t::data_dir)
+ * @param portable : true if local files to be save in simutransdir
  * @return false, if nothing was downloaded
  */
-bool dr_download_pakset( const char *path_to_program, bool portable );
+bool dr_download_pakset( const char *data_dir, bool portable );
 
 /**
  * Shows the touch keyboard when using systems without a hardware keyboard.
