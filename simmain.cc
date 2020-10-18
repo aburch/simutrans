@@ -499,7 +499,7 @@ int simu_main(int argc, char** argv)
 			" -use_workdir        Use current directory as data directory. If this parameter is\n"
 			"                     not present, uses the directory where the executable is located\n"
 		);
-		return 0;
+		return EXIT_SUCCESS;
 	}
 
 #ifdef __BEOS__
@@ -796,7 +796,7 @@ int simu_main(int argc, char** argv)
 					"invalid resolution, argument must be 1,2,3 or 4\n"
 					"1=640x480, 2=800x600, 3=1024x768, 4=1280x1024, 5=windowed\n"
 				);
-				return 0;
+				return EXIT_FAILURE;
 		}
 	}
 
@@ -815,7 +815,7 @@ int simu_main(int argc, char** argv)
 				"invalid argument for -screensize option\n"
 				"argument must be of format like 800x600\n"
 			);
-			return 1;
+			return EXIT_FAILURE;
 		}
 	}
 
@@ -915,7 +915,7 @@ int simu_main(int argc, char** argv)
 		ask_objfilename();
 		if(  env_t::quit_simutrans  ) {
 			simgraph_exit();
-			return 0;
+			return EXIT_SUCCESS;
 		}
 		if(  env_t::objfilename.empty()  ) {
 			// try to download missing paks
@@ -923,7 +923,7 @@ int simu_main(int argc, char** argv)
 				ask_objfilename();
 				if(  env_t::quit_simutrans  ) {
 					simgraph_exit();
-					return 0;
+					return EXIT_SUCCESS;
 				}
 			}
 			// still nothing?
@@ -931,7 +931,7 @@ int simu_main(int argc, char** argv)
 				// nothing to be loaded => exit
 				dr_fatal_notify("*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install a pak set (graphics).\n");
 				simgraph_exit();
-				return 0;
+				return EXIT_FAILURE;
 			}
 		}
 	}
@@ -947,7 +947,7 @@ int simu_main(int argc, char** argv)
 		if(  !f  ) {
 			dr_fatal_notify("*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install a pak set (graphics).\n");
 			simgraph_exit();
-			return 0;
+			return EXIT_FAILURE;
 		}
 		fclose(f);
 	}
@@ -1516,5 +1516,5 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 	freelist_t::free_all_nodes();
 #endif
 
-	return 0;
+	return EXIT_SUCCESS;
 }
