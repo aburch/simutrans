@@ -295,7 +295,7 @@ void savegame_frame_t::list_filled( void )
 				continue;
 			}
 			button_frame.add_component(label, cols);
-		} 
+		}
 		else {
 
 			if (dr_cantrash()) {
