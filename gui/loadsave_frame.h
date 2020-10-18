@@ -7,6 +7,8 @@
 #define GUI_LOADSAVE_FRAME_H
 
 
+#include <time.h>
+
 #include "savegame_frame.h"
 #include "../tpl/stringhashtable_tpl.h"
 #include <string>
@@ -53,28 +55,26 @@ private:
 protected:
 	/**
 	 * Action that's started with a button click
-	 * @author Hansjörg Malthaner
 	 */
-	virtual bool item_action (const char *filename);
-	virtual bool ok_action   (const char *fullpath);
+	bool item_action (const char *filename) OVERRIDE;
+	bool ok_action   (const char *fullpath) OVERRIDE;
 
 	// returns extra file info
-	virtual const char *get_info(const char *fname);
+	const char *get_info(const char *fname) OVERRIDE;
 
 public:
 	/**
 	* Set the window associated helptext
 	* @return the filename for the helptext, or NULL
-	* @author Hj. Malthaner
 	*/
-	virtual const char *get_help_filename() const;
+	const char *get_help_filename() const OVERRIDE;
 
 	loadsave_frame_t(bool do_load);
 
 	/**
 	 * save hashtable to xml file
 	 */
-	virtual ~loadsave_frame_t();
+	~loadsave_frame_t();
 };
 
 #endif

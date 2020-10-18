@@ -9,7 +9,6 @@
 #define MAXINT INT_MAX
 
 #include <sys/stat.h>
-#include <time.h>
 //#include <ctype.h>
 
 #include "loadsave_frame.h"
@@ -30,21 +29,6 @@
 
 #include "../utils/simstring.h"
 
-#include "components/gui_button.h"
-
-
-class gui_loadsave_table_row_t : public gui_file_table_row_t
-{
-	sve_info_t* svei;
-public:
-	//loadsave_t file;
-	const char* get_pak_extension() const { return svei ? svei->pak.c_str() : ""; }
-	uint32 get_version() const { return svei ? svei->version : 0; }
-	uint32 get_extended_version() const { return svei ? svei->extended_version : 0; }
-
-	//gui_loadsave_table_row_t() : gui_file_table_row_t() {};
-	gui_loadsave_table_row_t(const char *pathname, const char *buttontext);
-};
 
 stringhashtable_tpl<sve_info_t *> loadsave_frame_t::cached_info;
 
@@ -96,7 +80,6 @@ void sve_info_t::rdwr(loadsave_t *file)
 
 /**
  * Action that's started with a button click
- * @author Hansj?rg Malthaner
  */
 bool loadsave_frame_t::item_action(const char *filename)
 {
@@ -374,7 +357,7 @@ const char *loadsave_frame_t::get_info(const char *fname)
 	// add the time too
 	struct tm *tm = localtime(&sb.st_mtime);
 	if(tm) {
-		strftime(date + n, 18, "%Y-%m-%d %H:%M", tm);
+		strftime(date+n, 18, "%Y-%m-%d %H:%M", tm);
 	}
 	else {
 		tstrncpy(date, "??.??.???? ??:??", lengthof(date));
