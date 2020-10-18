@@ -645,7 +645,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		}
 		else if (prev_has_none) {
 			basic_constraint_prev |= vehicle_desc_t::can_be_tail;
-			if (!bidirectional || can_lead_from_rear || has_front_cab) {
+			if (!bidirectional) {
+				basic_constraint_prev |= vehicle_desc_t::can_be_head;
+			}
+			if (has_front_cab || can_lead_from_rear) {
 				basic_constraint_prev |= vehicle_desc_t::can_be_head;
 			}
 			if (leader_count == 1) {
@@ -707,11 +710,14 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		}
 		else if (next_has_none) {
 			basic_constraint_next |= vehicle_desc_t::can_be_tail;
-			if (has_rear_cab || can_lead_from_rear) {
+			if (bidirectional) {
 				basic_constraint_next |= vehicle_desc_t::can_be_head;
 			}
 			if (trailer_count == 1) {
 				basic_constraint_next |= vehicle_desc_t::unconnectable;
+			}
+			if (has_rear_cab || can_lead_from_rear) {
+				basic_constraint_next |= vehicle_desc_t::can_be_head;
 			}
 		}
 		else {

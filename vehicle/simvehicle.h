@@ -765,7 +765,8 @@ public:
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width, bool prev_based ) const;
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const OVERRIDE { get_screen_offset(xoff,yoff,raster_width,false); }
 
-#ifndef INLINE_OBJ_TYPE
+#ifdef INLINE_OBJ_TYPE
+#else
 	obj_t::typ get_typ() const { return road_vehicle; }
 #endif
 

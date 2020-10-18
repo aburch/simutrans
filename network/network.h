@@ -23,7 +23,7 @@
 #	ifndef IPV6_V6ONLY
 #		define IPV6_V6ONLY (27)
 #	endif
-#	if WINVER<=0x0500 && !defined(USE_IP4_ONLY)
+#	if WINVER<=0x0500
 // compiling for Windows 2000
 #		define USE_IP4_ONLY
 #	endif

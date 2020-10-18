@@ -98,48 +98,7 @@ void haltestelle_t::step_all()
 }
 
 
-static vector_tpl<convoihandle_t>stale_convois;
-static vector_tpl<linehandle_t>stale_lines;
-
-
-void haltestelle_t::start_load_game()
-{
-	all_koords = new inthashtable_tpl<sint32,halthandle_t>;
-}
-
-
-void haltestelle_t::end_load_game()
-{
-	delete all_koords;
-	all_koords = NULL;
-}
-
-/**
- * return an index to a halt; it is only used for old games
- * by default create a new halt if none found
- */
-halthandle_t haltestelle_t::get_halt_koord_index(koord k)
-{
-	if(!welt->is_within_limits(k)) {
-		return halthandle_t();
-	}
-	// check in hashtable
-	halthandle_t h;
-	const sint32 n = get_halt_key(koord3d(k,-128), welt->get_size().y);
-	assert(all_koords);
-	h = all_koords->get( n );
-
-	if(  !h.is_bound()  ) {
-		// No halts found => create one
-		h = haltestelle_t::create(k, NULL );
-		all_koords->set( n,  h );
-	}
-	return h;
-}
-
-
-
-halthandle_t haltestelle_t::get_halt_2D(const koord pos, const player_t *player )
+halthandle_t haltestelle_t::get_halt(const koord pos, const player_t *player )
 {
 	const planquadrat_t *plan = welt->access(pos);
 	if(plan)
@@ -187,6 +146,46 @@ halthandle_t haltestelle_t::get_halt_2D(const koord pos, const player_t *player 
 	}
 	return halthandle_t();
 }
+
+static vector_tpl<convoihandle_t>stale_convois;
+static vector_tpl<linehandle_t>stale_lines;
+
+
+void haltestelle_t::start_load_game()
+{
+	all_koords = new inthashtable_tpl<sint32,halthandle_t>;
+}
+
+
+void haltestelle_t::end_load_game()
+{
+	delete all_koords;
+	all_koords = NULL;
+}
+
+/**
+ * return an index to a halt; it is only used for old games
+ * by default create a new halt if none found
+ */
+halthandle_t haltestelle_t::get_halt_koord_index(koord k)
+{
+	if(!welt->is_within_limits(k)) {
+		return halthandle_t();
+	}
+	// check in hashtable
+	halthandle_t h;
+	const sint32 n = get_halt_key(koord3d(k,-128), welt->get_size().y);
+	assert(all_koords);
+	h = all_koords->get( n );
+
+	if(  !h.is_bound()  ) {
+		// No halts found => create one
+		h = haltestelle_t::create(k, NULL );
+		all_koords->set( n,  h );
+	}
+	return h;
+}
+
 
 /* we allow only for a single stop per grund
  * this will only return something if this stop is accessible by the player passed in the second parameter
@@ -1865,22 +1864,22 @@ uint32 haltestelle_t::calc_service_frequency(halthandle_t destination, uint8 cat
 		uint32 timing = 0;
 		bool line_serves_destination = false;
 		uint32 number_of_calls_at_this_stop = 0;
-		koord3d current_halt_pos;
-		koord3d next_halt_pos;
+		koord current_halt;
+		koord next_halt;
 		for (uint8 n = 0; n < schedule_count; n++)
 		{
-			current_halt_pos = registered_lines[i]->get_schedule()->entries[n].pos;
+			current_halt = registered_lines[i]->get_schedule()->entries[n].pos.get_2d();
 			if (n < schedule_count - 2)
 			{
-				next_halt_pos = registered_lines[i]->get_schedule()->entries[n + 1].pos;
+				next_halt = registered_lines[i]->get_schedule()->entries[n + 1].pos.get_2d();
 			}
 			else
 			{
-				next_halt_pos = registered_lines[i]->get_schedule()->entries[0].pos;
+				next_halt = registered_lines[i]->get_schedule()->entries[0].pos.get_2d();
 			}
 			if (n < schedule_count - 1)
 			{
-				const uint32 average_time = registered_lines[i]->get_average_journey_times().get(id_pair(haltestelle_t::get_halt(current_halt_pos, owner).get_id(), haltestelle_t::get_halt(next_halt_pos, owner).get_id())).get_average();
+				const uint32 average_time = registered_lines[i]->get_average_journey_times().get(id_pair(haltestelle_t::get_halt(current_halt, owner).get_id(), haltestelle_t::get_halt(next_halt, owner).get_id())).get_average();
 				if (average_time != 0 && average_time != UINT32_MAX_VALUE)
 				{
 					timing += average_time;
@@ -1888,7 +1887,7 @@ uint32 haltestelle_t::calc_service_frequency(halthandle_t destination, uint8 cat
 				else
 				{
 					// Fallback to convoy's general average speed if a point-to-point average is not available.
-					const uint32 distance = shortest_distance(current_halt_pos.get_2d(), next_halt_pos.get_2d());
+					const uint32 distance = shortest_distance(current_halt, next_halt);
 					const uint32 recorded_average_speed = registered_lines[i]->get_finance_history(1, LINE_AVERAGE_SPEED);
 					const uint32 average_speed = recorded_average_speed > 0 ? recorded_average_speed : speed_to_kmh(registered_lines[i]->get_convoy(0)->get_min_top_speed()) >> 1;
 					const uint32 journey_time = welt->travel_time_tenths_from_distance(distance, average_speed);
@@ -1897,7 +1896,7 @@ uint32 haltestelle_t::calc_service_frequency(halthandle_t destination, uint8 cat
 				}
 			}
 
-			halthandle_t current_halthandle = haltestelle_t::get_halt(current_halt_pos, owner);
+			halthandle_t current_halthandle = haltestelle_t::get_halt(current_halt, owner);
 
 			if (current_halthandle == destination)
 			{

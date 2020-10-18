@@ -151,6 +151,7 @@ text/citylists/
 
 
 # Files:
+/*.*
 simctrl
 envvars
 text/*.*

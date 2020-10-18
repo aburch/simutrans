@@ -6330,10 +6330,7 @@ void convoi_t::destroy()
 			vehicle[i]->set_last( true );
 			vehicle[i]->leave_tile();
 			if(  gr  &&  gr->ist_uebergang()  ) {
-				crossing_t* cr = gr->find<crossing_t>();
-				if(cr) {
-					cr->release_crossing(vehicle[i]);
-				}
+				gr->find<crossing_t>()->release_crossing(vehicle[i]);
 			}
 			vehicle[i]->set_flag( obj_t::not_on_map );
 
@@ -8591,7 +8588,7 @@ uint8 convoi_t::get_terminal_shunt_mode() const
 		return wye;
 	}
 
-	const bool need_turn_table = !front()->get_desc()->is_bidirectional();
+	const bool need_turn_table = front()->get_desc()->is_bidirectional() ? false : true;
 
 	if (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
 	{
