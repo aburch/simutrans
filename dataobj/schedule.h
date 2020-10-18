@@ -339,7 +339,6 @@ public:
 /**
  * Schedules for airplanes.
  */
-*/
 class airplane_schedule_ : public schedule_t
 {
 public:

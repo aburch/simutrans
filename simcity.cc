@@ -2599,7 +2599,7 @@ void stadt_t::set_name(const char *new_name)
 
 
 /* show city info dialogue */
-void stadt_t::open_info_window()
+void stadt_t::show_info()
 {
 	create_win( new city_info_t(this), w_info, (ptrdiff_t)this );
 }

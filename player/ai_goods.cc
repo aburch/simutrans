@@ -455,7 +455,7 @@ bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int vehicle_count
 }
 
 
-void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
+void ai_goods_t::create_road_transport_vehicle(fabrik_t *qfab, int vehicle_count)
 {
 	const building_desc_t* fh = hausbauer_t::get_random_station(building_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	// succeed in frachthof creation
@@ -505,7 +505,7 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 }
 
 
-void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord platz2, int anz_vehikel, int minimum_loading)
+void ai_goods_t::create_rail_transport_vehicle(const koord platz1, const koord platz2, int vehicle_count, int minimum_loading)
 {
 	// now obeys timeline and use "more clever" scheme for vehicle selection
 	schedule_t *schedule;

@@ -132,7 +132,6 @@ void intr_set(karte_t *welt, main_view_t *view)
 	enabled = true;
 }
 
- */
 void intr_set_last_time(sint32 time)
 {
 	last_time = time;
