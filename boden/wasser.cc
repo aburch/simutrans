@@ -54,16 +54,6 @@ ribi_t::ribi get_base_water_ribi(grund_t *gr)
 }
 
 
-/**
- * helper function: return maximal possible ribis, does not
- * take water ribi of sea tiles into account.
- */
-ribi_t::ribi get_base_water_ribi(grund_t *gr)
-{
-	return gr->is_water() ? (ribi_t::ribi)ribi_t::all : gr->grund_t::get_weg_ribi(water_wt);
-}
-
-
 void wasser_t::calc_image_internal(const bool calc_only_snowline_change)
 {
 	if(  !calc_only_snowline_change  ) {
