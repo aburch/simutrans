@@ -21,11 +21,11 @@
 
 #define LINEBUFFER_SIZE (4096)
 
-
 bool tabfile_t::open(const char *filename)
 {
 	close();
 	file = dr_fopen(filename, "r");
+	current_line_number = 0;
 	return file != NULL;
 }
 
@@ -302,10 +302,12 @@ bool tabfile_t::read(tabfileobj_t &objinfo, FILE *fp)
 	char *param[10];
 	char *expansion[10];
 
+	current_line_number = 0;
+
 	objinfo.clear();
 
 	do {
-		while(read_line(line, sizeof(line)) && *line != '-') {
+		while(read_line(line, sizeof(line))  &&  *line != '-') {
 			char *delim = strchr(line, '=');
 
 			if(delim) {
@@ -376,7 +378,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo, FILE *fp)
 										const int end_range = atoi(token_ptr);
 
 										if (parameter_values[i] + (end_range - start_range) >= 256) {
-											dbg->fatal("tabfile_t::read", "Invalid number range %d-%d (Max range %d values)", start_range, end_range, 256 - parameter_values[i]);
+											dbg->fatal("tabfile_t::read", "Invalid number range %d-%d (Max range %d values) in line %d", start_range, end_range, 256 - parameter_values[i], current_line_number);
 										}
 
 										for(int range=start_range; range<end_range; range++) {
@@ -478,6 +480,7 @@ bool tabfile_t::read_line(char *dest, size_t dest_size)
 	size_t l;
 
 	do {
+		current_line_number++;
 		r = fgets(dest, dest_size, file);
 	} while(r != NULL  &&  (*dest == '#' || *dest == ' ')  );
 
@@ -612,7 +615,7 @@ void tabfile_t::add_operator_parens(char *expression, char *processed)
 						}
 
 						if(paren_level>0) {
-							dbg->fatal( "tabfile_t::add_operator_parens", "Mismatched parentheses" );
+							dbg->fatal( "tabfile_t::add_operator_parens", "Mismatched parentheses in line %d", current_line_number );
 						}
 						break;
 					}
@@ -656,7 +659,7 @@ void tabfile_t::add_operator_parens(char *expression, char *processed)
 						}
 
 						if(paren_level>0) {
-							dbg->fatal( "tabfile_t::add_operator_parens", "Mismatched parentheses" );
+							dbg->fatal( "tabfile_t::add_operator_parens", "Mismatched parentheses in line %d", current_line_number );
 						}
 						break;
 					}
@@ -684,7 +687,7 @@ void tabfile_t::add_operator_parens(char *expression, char *processed)
 
 			// make sure we have enough room
 			if (prefix_len + 1 + lhs_len + rhs_len + 1 + suffix_len >= LINEBUFFER_SIZE-1) {
-				dbg->fatal("tabfile_t::add_operator_parens", "Line too long to add operators");
+				dbg->fatal("tabfile_t::add_operator_parens", "Line too long to add operators in line %d", current_line_number);
 			}
 
 			sprintf(buffer,"%.*s(%.*s%.*s)%s",
@@ -716,7 +719,7 @@ int tabfile_t::calculate_internal(char *expression, const int (&parameter_value)
 	const char *token_ptr = strtok(expression, "<-+*/%");
 
 	if (token_ptr == NULL) {
-		dbg->fatal("tabfile_t::calculate_internal", "Unable to tokenize '%s'", expression);
+		dbg->fatal("tabfile_t::calculate_internal", "Unable to tokenize '%s' in line %d", expression, current_line_number);
 	}
 
 	if(token_ptr[0]=='(') {
@@ -733,7 +736,7 @@ int tabfile_t::calculate_internal(char *expression, const int (&parameter_value)
 				value = parameter_value[parameter][combination[parameter]];
 			}
 			else {
-				dbg->fatal("tabfile_t::calculate_internal", "Invalid reference to parameter $%d", parameter);
+				dbg->fatal("tabfile_t::calculate_internal", "Invalid reference to parameter $%d in line %d", parameter, current_line_number);
 			}
 		}
 		else if(token_ptr[0]=='(') {
@@ -753,7 +756,7 @@ int tabfile_t::calculate_internal(char *expression, const int (&parameter_value)
 
 			// Note: We have to avoid too deep recursion here to avoid a stack overflow (each recursion adds > 8 kB to the stack)
 			if (paren_expression_len >= LINEBUFFER_SIZE-1 || nest_level > 20) {
-				dbg->fatal("tabfile_t::calculate_internal", "Cannot calculate expression (too nested or line too long)");
+				dbg->fatal("tabfile_t::calculate_internal", "Cannot calculate expression (too nested or line too long) in line %d", current_line_number);
 			}
 
 			char buffer[LINEBUFFER_SIZE];
@@ -778,13 +781,13 @@ int tabfile_t::calculate_internal(char *expression, const int (&parameter_value)
 			break;
 			case '/':
 				if (value == 0) {
-					dbg->fatal("tabfile_t::calculate_internal", "Cannot divide by 0");
+					dbg->fatal("tabfile_t::calculate_internal", "Cannot divide by 0 in line %d", current_line_number);
 				}
 				answer /= value;
 			break;
 			case '%':
 				if (value == 0) {
-					dbg->fatal("tabfile_t::calculate_internal", "Cannot divide modulo 0");
+					dbg->fatal("tabfile_t::calculate_internal", "Cannot divide modulo 0 in line %d", current_line_number);
 				}
 				answer %= value;
 			break;
