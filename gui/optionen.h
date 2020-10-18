@@ -7,7 +7,6 @@
 #define GUI_OPTIONEN_H
 
 
-
 class gui_frame_t;
 class action_listener_t;
 class button_t;
