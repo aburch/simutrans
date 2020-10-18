@@ -246,11 +246,8 @@ static int display_gadget_boxes(
 }
 
 
-static sint8 decode_gadget_boxes(
-               simwin_gadget_flags_t const * const flags,
-               int const x,
-               int const px
-) {
+static sint8 decode_gadget_boxes(simwin_gadget_flags_t const * const flags, int const x,int const px)
+{
 	int offset = px-x;
 	const int w=(REVERSE_GADGETS?-D_GADGET_WIDTH:D_GADGET_WIDTH);
 
@@ -546,7 +543,7 @@ bool win_is_top(const gui_frame_t *ig)
 // save/restore all dialogues
 void rdwr_all_win(loadsave_t *file)
 {
-	if(  file->get_version()>120007  ) {
+	if((file->get_extended_version() == 14 && file->get_extended_revision() >= 31) || file->get_extended_version() >= 15) {
 		if(  file->is_saving()  ) {
 			FOR(vector_tpl<simwin_t>, & i, wins) {
 				uint32 id = i.gui->get_rdwr_id();
