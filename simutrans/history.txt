@@ -27,6 +27,38 @@ Release of 121.0 (r8870 on 1-Dec-2019):
 	ADD: search for midi files first in pak folder, then user folder, then program folder
 
 
+Release of 120.4 (r8588 on 17-Sep-2018):
+	FIX: properly handle dualstack servers by using both IPv4 and IP6 addresses (if no symbolic name is available)
+	ADD: system clipboard support now also with SDL2
+	FIX: underground slice view now correctly displays front tile walls when a tile infront is flat and 2 elevations below the underground slice
+	OPT: significantly improved the performance of changing underground mode/slice when playing on very large maps
+	ADD: (THLeaderH) option to hide the revenue income messaging at stops
+	ADD: (THLeaderH) configurable height setting for extremely heigh maps (use at own risk)
+
+
+Release of 120.3 (r8503 on 15-June-2018):
+	ADD: new blue-white theme
+	ADD: scenario_info now dialog tool nummer 31
+	ADD: Support Truetype fonts on windows up to 19 pts. For MAC and Linux support there is a way needed to find the font path.
+	ADD: Server can be now started at the UI when loading a game.
+	ADD: switch -easyserver on commandline to host a game with dynamic IP behind a router
+	FIX: crash when resizing isometric minimap
+	FIX: problems with scrolled lists
+	FIX: removed line management window memory leaks
+	ADD: animated pedestrians, parameters:
+		steps_per_frame (internal steps per frame, straight movement across tile is 256 steps)
+		image[dir][a] (dir - direction, a - animation counter, a=0,1,..)
+	CHG: pedestrian movement, new dat parameter:
+		offset (of pedestrian image relative to right tile boundary, 0..255, default 20, 0 = on the right edge of tile, 128 = on center line of tile
+	FIX: added Unicode file path support for Windows builds
+	FIX: removed Windows builds file search resource leak
+
+
+Release of 120.2.2: (r8163 on 31-3-2017):
+	FIX: Combo boxes now work much more reliable
+	ADD: All configurable colors now rgb internally
+
+
 Release of 120.1: (r7634 on 31-Oct-2015):
 	FIX: sliced undergraound mode now ranges from lowest existing to highest existing ground
 	FIX: several issues with bridge bilding and deletion at two vertical cliffs
