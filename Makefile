@@ -92,7 +92,7 @@ ifdef OPTIMISE
     endif
   endif
 else
-  CFLAGS += -O
+  CFLAGS += -O1
 endif
 
 ifdef DEBUG
