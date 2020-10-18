@@ -46,7 +46,7 @@ void sprachengui_t::init_font_from_lang(bool reload_font)
 
 	if(  reload_font  ) {
 		// load large font
-		dr_chdir( env_t::program_dir );
+		dr_chdir( env_t::data_dir );
 		bool ok = false;
 		char prop_font_file_name[4096];
 		tstrncpy( prop_font_file_name, prop_font_file, lengthof(prop_font_file_name) );
@@ -111,7 +111,7 @@ sprachengui_t::sprachengui_t() :
 	new_component_span<gui_divider_t>(2);
 
 	const translator::lang_info* lang = translator::get_langs();
-	dr_chdir( env_t::program_dir );
+	dr_chdir( env_t::data_dir );
 
 	for (int i = 0; i < translator::get_language_count(); ++i, ++lang) {
 		button_t* b = new button_t();

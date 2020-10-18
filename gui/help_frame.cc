@@ -187,7 +187,7 @@ static char *load_text(char const* const filename )
 {
 	std::string file_prefix= std::string("text") + PATH_SEPARATOR;
 	std::string fullname = file_prefix + translator::get_lang()->iso + PATH_SEPARATOR + filename;
-	dr_chdir(env_t::program_dir);
+	dr_chdir(env_t::data_dir);
 
 	FILE* file = dr_fopen(fullname.c_str(), "rb");
 	if (!file) {
@@ -380,7 +380,7 @@ FILE *help_frame_t::has_helpfile( char const* const filename, int &mode )
 	mode = native;
 	std::string file_prefix = std::string("text") + PATH_SEPARATOR;
 	std::string fullname = file_prefix + translator::get_lang()->iso + PATH_SEPARATOR + filename;
-	dr_chdir(env_t::program_dir);
+	dr_chdir(env_t::data_dir);
 
 	FILE* file = dr_fopen(fullname.c_str(), "rb");
 	if(  !file  &&  strcmp(translator::get_lang()->iso,translator::get_lang()->iso_base)  ) {
