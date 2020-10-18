@@ -101,6 +101,8 @@ private:
 
 private:
 	FILE *file;
+
+	int current_line_number;
 };
 
 
