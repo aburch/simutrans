@@ -101,7 +101,7 @@ void factorylist_frame_t::fill_list()
 {
 	old_factories_count = world()->get_fab_list().get_count(); // to avoid too many redraws ...
 	scrolly.clear_elements();
-	player_t *pl = (filter_by_owner.pressed  &&  filterowner.get_selection()>0) ? world()->get_player(filterowner.get_selection()) : NULL;
+	player_t *pl = (filter_by_owner.pressed  &&  filterowner.get_selection()>=0) ? world()->get_player(filterowner.get_selection()) : NULL;
 	FOR(const slist_tpl<fabrik_t *>,fab,world()->get_fab_list()) {
 		if( pl == NULL || fab->is_within_players_network( pl ) ) {
 			scrolly.new_component<factorylist_stats_t>( fab );
