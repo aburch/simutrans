@@ -31,7 +31,7 @@ private:
 
 	static const char *sort_text[SORT_MODES];
 
-	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line, bt_line_class_manager, bt_times_history, bt_mode_convois;
+	button_t bt_new_line, bt_edit_line, bt_delete_line, bt_withdraw_line, bt_line_class_manager, bt_times_history, bt_mode_convois;
 	button_t sort_asc, sort_desc;
 	gui_container_t cont, cont_haltestellen, cont_charts, cont_convoys;
 	gui_scrollpane_t scrolly_convois, scrolly_haltestellen;

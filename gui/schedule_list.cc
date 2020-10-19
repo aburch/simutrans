@@ -289,11 +289,11 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_new_line.add_listener(this);
 	add_component(&bt_new_line);
 
-	bt_change_line.init(button_t::roundbox, "Update Line", scr_coord(11+D_BUTTON_WIDTH, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
-	bt_change_line.set_tooltip("Modify the selected line");
-	bt_change_line.add_listener(this);
-	bt_change_line.disable();
-	add_component(&bt_change_line);
+	bt_edit_line.init(button_t::roundbox, "Update Line", scr_coord(11+D_BUTTON_WIDTH, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	bt_edit_line.set_tooltip("Modify the selected line");
+	bt_edit_line.add_listener(this);
+	bt_edit_line.disable();
+	add_component(&bt_edit_line);
 
 	bt_delete_line.init(button_t::roundbox, "Delete Line", scr_coord(11+2*D_BUTTON_WIDTH, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	bt_delete_line.set_tooltip("Delete the selected line (if without associated convois).");
@@ -443,7 +443,7 @@ bool schedule_list_gui_t::infowin_event(const event_t *ev)
 
 bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t v )
 {
-	if(comp == &bt_change_line) {
+	if(comp == &bt_edit_line) {
 		if(line.is_bound()) {
 			create_win( new line_management_gui_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
 		}
@@ -950,7 +950,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		else {
 			bt_delete_line.enable();
 		}
-		bt_change_line.enable();
+		bt_edit_line.enable();
 
 		bt_withdraw_line.pressed = new_line->get_withdraw();
 
@@ -1057,7 +1057,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		filled_bar.set_visible(false);
 		scl.set_selection(-1);
 		bt_delete_line.disable();
-		bt_change_line.disable();
+		bt_edit_line.disable();
 		tab_name.clear();
 		tab_name.printf("%s (0)",translator::translate("Convoys"));
 		for(int i=0; i<MAX_LINE_COST; i++)  {
