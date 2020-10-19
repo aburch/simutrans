@@ -184,8 +184,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	pos += sizeof(uint16);
 
 	// Price of this vehicle in cent
-	uint32 price = obj.get_int("cost", 0);
-	node.write_uint32(fp, price, pos);
+	uint32 cost = obj.get_int("cost", 0);
+	node.write_uint32(fp, cost, pos);
 	pos += sizeof(uint32);
 
 	// The number of classes.
