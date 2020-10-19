@@ -112,10 +112,7 @@ public:
 	// since traffic lights need their own window
 	void show_info() OVERRIDE;
 
-	/**
-	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	 * Beobachtungsfenster angezeigt wird.
-	 */
+	/// @copydoc obj_t::info
 	void info(cbuffer_t & buf) const OVERRIDE;
 
 	/**

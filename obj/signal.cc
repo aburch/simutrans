@@ -116,10 +116,6 @@ void signal_t::show_info()
 }
 
 
-/**
- * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
- * Beobachtungsfenster angezeigt wird.
- */
 void signal_t::info(cbuffer_t & buf) const
 {
 	// well, needs to be done

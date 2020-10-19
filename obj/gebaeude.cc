@@ -1915,10 +1915,6 @@ void gebaeude_t::rdwr(loadsave_t *file)
 }
 
 
-/**
- * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
- * um das Aussehen des Dings an Boden und Umgebung anzupassen
- */
 void gebaeude_t::finish_rd()
 {
 	calc_image();

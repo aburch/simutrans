@@ -39,10 +39,7 @@ public:
 
 	void rotate90() OVERRIDE;
 
-	/**
-	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	* Beobachtungsfenster angezeigt wird.
-	*/
+	/// @copydoc obj_t::info
 	void info(cbuffer_t & buf) const OVERRIDE;
 
 #ifdef INLINE_OBJ_TYPE

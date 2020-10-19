@@ -90,7 +90,8 @@ static void dump_hashtable(stringhashtable_tpl<const char*>* tbl)
 
 /* first two file functions needed in connection with utf */
 
-/* checks, if we need a unicode translation (during load only done for identifying strings like "Auflösen")
+/**
+ * checks, if we need a unicode translation
  */
 static bool is_unicode_file(FILE* f)
 {

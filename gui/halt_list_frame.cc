@@ -218,9 +218,9 @@ static bool passes_filter_out(haltestelle_t const& s)
 		} else if (ware == goods_manager_t::mail) {
 			if (s.get_mail_enabled()) return true;
 		} else if (ware != goods_manager_t::none) {
-			// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
-			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
-			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang)
+			// Sigh - a doubly nested loop per halt
+			// Fortunately the number of factories and their number of outputs
+			// is limited (usually 1-2 factories and 0-1 outputs per factory)
 			FOR(slist_tpl<fabrik_t*>, const f, s.get_fab_list()) {
 				FOR(array_tpl<ware_production_t>, const& j, f->get_output()) {
 					if (j.get_typ() == ware) return true;
@@ -252,9 +252,9 @@ static bool passes_filter_in(haltestelle_t const& s)
 			if (s.get_mail_enabled()) return true;
 		}
 		else if (ware != goods_manager_t::none) {
-			// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
-			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
-			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang)
+			// Sigh - a doubly nested loop per halt
+			// Fortunately the number of factories and their number of outputs
+			// is limited (usually 1-2 factories and 0-1 outputs per factory)
 			FOR(slist_tpl<fabrik_t*>, const f, s.get_fab_list()) {
 				FOR(array_tpl<ware_production_t>, const& j, f->get_input()) {
 					if (j.get_typ() == ware) return true;

@@ -31,11 +31,8 @@ public:
 
 	image_id get_image() const;
 
-	/**
-	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	 * Beobachtungsfenster angezeigt wird.
-	 */
-	void show_info();
+	/// @copydoc obj_t::show_info
+	void show_info() OVERRIDE;
 
 	/**
 	 * @return NULL when OK, otherwise an error message

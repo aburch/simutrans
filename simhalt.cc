@@ -3088,10 +3088,6 @@ void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 }
 
 
-
-/* Receives ware and tries to route it further on
- * if no route is found, it will be removed
- */
 void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 {
 	if (walked_between_stations > 8)

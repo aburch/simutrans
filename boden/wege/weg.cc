@@ -564,9 +564,7 @@ void weg_t::rdwr(loadsave_t *file)
 	}
 }
 
-/**
- * Info-text for this way
- */
+
 void weg_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);

@@ -162,7 +162,6 @@ static int display_gadget_box(sint8 code,
 	// If we have a skin, get gadget image data
 	const image_t *img = NULL;
 	if(  skinverwaltung_t::gadget  ) {
-		// "x", "?", "=", "?", "?"
 		// "x", "?", "=", "<<", ">>"
 		img = skinverwaltung_t::gadget->get_image(code);
 	}

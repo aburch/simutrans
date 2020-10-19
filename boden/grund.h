@@ -95,18 +95,18 @@ class grund_t
 {
 public:
 	/**
-	 * Flag-Werte für das neuzeichnen geänderter Untergründe
+	 * Flag values for different ground properties
 	 */
 	enum flag_values {
-		no_flags=0,
-		dirty=1, // was changed => redraw full
-		is_kartenboden=2,
-		has_text=4,
-		marked = 8,  // will have a frame
-		draw_as_obj = 16, // is a slope etc => draw as one
-		is_halt_flag = 32,	// is a part of a halt
-		has_way1 = 64,
-		has_way2 = 128
+		no_flags       = 0,
+		dirty          = (1<<0), ///< was changed => redraw full
+		is_kartenboden = (1<<1),
+		has_text       = (1<<2),
+		marked         = (1<<3), ///< will have a frame
+		draw_as_obj    = (1<<4), ///< is a slope etc => draw as one
+		is_halt_flag   = (1<<5), ///< is a part of a halt
+		has_way1       = (1<<6),
+		has_way2       = (1<<7)
 	};
 
 	/**
@@ -416,14 +416,9 @@ public:
 	void set_grund_hang(slope_t::type sl) { slope = sl; }
 
 	/**
-	 * Manche Böden können zu Haltestellen gehören.
+	 * some ground tiles may be part of halts.
 	 */
 	void set_halt(halthandle_t halt);
-
-	/**
-	 * Ermittelt, ob dieser Boden zu einer Haltestelle gehört.
-	 * @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
-	 */
 	halthandle_t get_halt() const;
 	bool is_halt() const { return flags & is_halt_flag; }
 
@@ -683,11 +678,9 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	virtual ribi_t::ribi get_weg_ribi(waytype_t typ) const;
 
 	/**
-	* Ermittelt die Richtungsbits furr den weg vom Typ 'typ' unmaskiert.
-	* Dies wird beim Bauen ben÷tigt. Furr die Routenfindung werden die
-	* maskierten ribis benutzt.
-	*
-	*/
+	 * @returns the ribis (unmasked) for waytype @p typ.
+	 * These are required e.g. for building. For pathfinding masked ribis are used.
+	 */
 	virtual ribi_t::ribi get_weg_ribi_unmasked(waytype_t typ) const;
 
 	/**
@@ -701,9 +694,8 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	*/
 	virtual sint8 get_weg_yoff() const { return 0; }
 
-	/**
-	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false für Water!
-	*/
+
+	/// @returns true if there is at least one way on this ground.
 	inline bool hat_wege() const { return (flags&(has_way1|has_way2))!=0;}
 
 	/**

@@ -229,7 +229,7 @@ map_frame_t::map_frame_t() :
 		zoom_buttons[1].add_listener( this );
 		add_component( zoom_buttons+1 );
 
-		// rotate map 45° (isometric view)
+		// rotate map 45 degrees (isometric view)
 		b_rotate45.init( button_t::square_state, "isometric map");
 		b_rotate45.set_tooltip("Similar view as the main window");
 		b_rotate45.add_listener(this);

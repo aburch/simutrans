@@ -167,10 +167,6 @@ void crossing_t::rdwr(loadsave_t *file)
 }
 
 
-/**
- * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
- * um das Aussehen des Dings an Boden und Umgebung anzupassen
- */
 void crossing_t::finish_rd()
 {
 	grund_t *gr=welt->lookup(get_pos());

@@ -701,7 +701,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 			// this fails with two crossings together; however, I see no easy way out here ...
 		}
 		else {
-			// not a crossing => skip 90° check!
+			// not a crossing => skip 90 degrees check!
 			dt = no_cars_blocking( gr, NULL, this_direction, next_direction, next_90direction, this, next_lane );
 			frei = true;
 		}

@@ -238,10 +238,6 @@ void roadsign_t::show_info()
 }
 
 
-/**
- * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
- * Beobachtungsfenster angezeigt wird.
- */
 void roadsign_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
@@ -789,10 +785,6 @@ void roadsign_t::cleanup(player_t *player)
 }
 
 
-/**
- * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
- * um das Aussehen des Dings an Boden und Umgebung anzupassen
- */
 void roadsign_t::finish_rd()
 {
 	grund_t *gr=welt->lookup(get_pos());
