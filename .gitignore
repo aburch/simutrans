@@ -94,6 +94,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+#Visual Studio local configuration directiory
+.vs/
+
 # =========================
 # Operating System Files
 # =========================
