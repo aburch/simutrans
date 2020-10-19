@@ -87,7 +87,7 @@ void export_control(HSQUIRRELVM vm)
 	 * This can only be used in functions that are called by user actions (e.g., is_*_allowed).
 	 * @returns true when successful.
 	 */
-	STATIC register_method(vm, &pause_game, "is_paused", false, true);
+	STATIC register_method(vm, &is_game_paused, "is_paused", false, true);
 
 	/**
 	 * Scripts can pause the game in case of error. Toggle this behavior by parameter @p p.
