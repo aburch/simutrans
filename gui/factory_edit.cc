@@ -39,7 +39,7 @@ static bool compare_fabrik_desc(const factory_desc_t* a, const factory_desc_t* b
 
 }
 
-static bool compare_fabrik_desc_trans(const factory_desc_t* a, const factory_desc_t* b)
+static bool compare_factory_desc_trans(const factory_desc_t* a, const factory_desc_t* b)
 {
 	int diff = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
 	return diff < 0;
@@ -103,7 +103,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 
 				if(city_chain) {
 					if (desc->get_placement() == factory_desc_t::City && desc->is_consumer_only()) {
-						factory_list.insert_ordered(desc, translate ? compare_fabrik_desc_trans : compare_fabrik_desc);
+						factory_list.insert_ordered(desc, translate?compare_factory_desc_trans:compare_fabrik_desc);
 					}
 				}
 				if(land_chain) {
@@ -112,7 +112,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 					}
 				}
 				if(!city_chain  &&  !land_chain) {
-					factory_list.insert_ordered(desc, translate ? compare_fabrik_desc_trans : compare_fabrik_desc);
+					factory_list.insert_ordered(desc, translate?compare_factory_desc_trans:compare_fabrik_desc);
 				}
 			}
 		}

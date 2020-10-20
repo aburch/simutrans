@@ -115,9 +115,9 @@ class factory_site_searcher_t: public building_placefinder_t  {
 public:
 	factory_site_searcher_t(karte_t* welt, factory_desc_t::site_t site_) : building_placefinder_t(welt), site(site_) {}
 
-	virtual bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions) const
+	virtual bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl, uint16 allowed_regions) const
 	{
-		if(  !building_placefinder_t::is_area_ok(pos, b, h, cl, allowed_regions)  ) {
+		if(  !building_placefinder_t::is_area_ok(pos, w, h, cl, allowed_regions)  ) {
 			// We need a clear space to build, first of all
 			return false;
 		}
@@ -686,7 +686,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		// second try: rotated
 		koord k1 = koord::invalid;
 		if (is_rotate  &&  (k == koord::invalid  ||  simrand(256, " factory_builder_t::build_link")<128)) {
-			k1 = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.y, size.x, cl, regions_allowed);
+			k1 = factory_site_searcher_t(welt, factory_desc_t::City).find_place(city->get_pos(), size.y, size.x, cl, regions_allowed);
 		}
 
 		rotate = simrand( info->get_building()->get_all_layouts(), " factory_builder_t::build_link" );
