@@ -165,15 +165,15 @@ Image[23]=> scrollbar.3.4
 # window background
 Obj=menu
 name=Back
-Image[0]=> back.0.0
-Image[1]=> back.0.1
-Image[2]=> back.0.2
-Image[3]=> back.1.0
-Image[4]=> back.1.1
-Image[5]=> back.1.2
-Image[6]=> back.2.0
-Image[7]=> back.2.1
-Image[8]=> back.2.2
+Image[0]=> alt_back.0.0
+Image[1]=> alt_back.0.1
+Image[2]=> alt_back.0.2
+Image[3]=> alt_back.1.0
+Image[4]=> alt_back.1.1
+Image[5]=> alt_back.1.2
+Image[6]=> alt_back.2.0
+Image[7]=> alt_back.2.1
+Image[8]=> alt_back.2.2
 --
 # window symbols
 Obj=menu
