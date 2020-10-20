@@ -102,6 +102,8 @@ bool env_t::use_transparency_station_coverage;
 uint8 env_t::station_coverage_show;
 uint8 env_t::signalbox_coverage_show;
 sint32 env_t::show_names;
+uint8 env_t::freight_waiting_bar_level;
+bool env_t::classes_waiting_bar;
 uint8 env_t::show_cnv_nameplates;
 uint8 env_t::show_cnv_loadingbar;
 sint32 env_t::message_flags[4];
@@ -213,6 +215,8 @@ void env_t::init()
 	signalbox_coverage_show = 0;
 
 	show_names = 3;
+	freight_waiting_bar_level = 2;
+	classes_waiting_bar = false;
 	show_cnv_nameplates = 0;
 	show_cnv_loadingbar = 0;
 	player_finance_display_account = true;
@@ -555,6 +559,8 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_byte( gui_player_color_dark );
 		file->rdwr_byte( gui_player_color_bright );
 		file->rdwr_bool( env_t::numpad_always_moves_map );
+		file->rdwr_byte(freight_waiting_bar_level);
+		file->rdwr_bool(classes_waiting_bar);
 	}
 	// server settings are not saved, since they are server specific
 	// and could be different on different servers on the same computers

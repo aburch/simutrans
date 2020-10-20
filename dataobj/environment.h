@@ -317,6 +317,12 @@ public:
 	 */
 	static sint32 show_names;
 
+	/// Display detail level of station freight waiting bar
+	static uint8 freight_waiting_bar_level;
+
+	/// Display waiting bar divided by class
+	static bool classes_waiting_bar;
+
 	/// Show convoy nameplates (line or convoy name).
 	static uint8 show_cnv_nameplates;
 
