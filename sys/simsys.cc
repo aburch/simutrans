@@ -30,6 +30,7 @@
 
 
 #ifdef _WIN32
+#	include <locale>
 #	include <windows.h>
 #	include <winbase.h>
 #	include <shellapi.h>
