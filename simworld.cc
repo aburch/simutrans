@@ -6077,26 +6077,60 @@ void karte_t::calc_humidity_map_region( sint16 , sint16 , sint16 xbottom, sint16
 
 	const sint8 height_increase = min( 160 / settings.get_climate_borders(arctic_climate,1), 33 );
 
-	for(  sint16 y = 0;  y < ybottom;  y++  ) {
-		sint8 current_humidity = 50;	// start value for each row
-		for(  sint16 x = 0;  x < xbottom;  x++  ) {
+	const ribi_t::ribi wind = settings.get_wind_dir();
+	if( wind == ribi_t::west || wind == ribi_t::east ) {
+		const sint16 x0   = wind == ribi_t::west ? 0 : xbottom - 1;
+		const sint16 xmax = wind == ribi_t::west ? xbottom : -1;
+		const sint16 dx   = wind == ribi_t::west ? 1 : -1;
+		for(  sint16 y = 0;  y < ybottom;  y++  ) {
+			sint8 current_humidity = 50;	// start value for each row
+			for(  sint16 x = x0;  x < xmax;  x+=dx  ) {
 
-			grund_t *gr = lookup_kartenboden(x,y);
-			if(  gr->is_water()  ||   gr->hat_weg(water_wt)  ) {
-				// increase humidity over water and rivers
-				current_humidity = current_humidity+settings.get_moisture_water();
-				if( gr->is_water() ) {
-					climate_map.at( x, y ) = water_climate;
+				grund_t *gr = lookup_kartenboden(x,y);
+				if(  gr->is_water()  ||   gr->hat_weg(water_wt)  ) {
+					// increase humidity over water and rivers
+					current_humidity = current_humidity+settings.get_moisture_water();
+					if( gr->is_water() ) {
+						climate_map.at( x, y ) = water_climate;
+					}
 				}
-			}
-			else {
-				sint8 gradient = lookup_hgt_nocheck( x+1, y )-lookup_hgt_nocheck( x, y );
-				current_humidity += settings.get_moisture() + gradient * height_increase;
-			}
-			current_humidity = clamp<sint8>( current_humidity, 0, 100 );
-			humidity_map.at(x,y) = current_humidity;
+				else {
+					sint8 gradient = lookup_hgt_nocheck( x+1, y )-lookup_hgt_nocheck( x, y );
+					current_humidity += settings.get_moisture() + gradient * height_increase;
+				}
+				current_humidity = clamp<sint8>( current_humidity, 0, 100 );
+				humidity_map.at(x,y) = current_humidity;
 
+			}
 		}
+	}
+	else {
+		const sint16 y0   = wind == ribi_t::north ? 0 : ybottom - 1;
+		const sint16 ymax = wind == ribi_t::north ? ybottom : -1;
+		const sint16 dy   = wind == ribi_t::north ? 1 : -1;
+
+		for(  sint16 x = 0;  x < xbottom;  x++  ) {
+			sint8 current_humidity = 50;	// start value for each row
+			for(  sint16 y = y0;  y < ymax;  y+=dy  ) {
+
+				grund_t *gr = lookup_kartenboden(x,y);
+				if(  gr->is_water()  ||   gr->hat_weg(water_wt)  ) {
+					// increase humidity over water and rivers
+					current_humidity = current_humidity+settings.get_moisture_water();
+					if( gr->is_water() ) {
+						climate_map.at( x, y ) = water_climate;
+					}
+				}
+				else {
+					sint8 gradient = lookup_hgt_nocheck( x+1, y )-lookup_hgt_nocheck( x, y );
+					current_humidity += settings.get_moisture() + gradient * height_increase;
+				}
+				current_humidity = clamp<sint8>( current_humidity, 0, 100 );
+				humidity_map.at(x,y) = current_humidity;
+
+			}
+		}
+
 	}
 }
 
@@ -6303,6 +6337,27 @@ void karte_t::calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 			}
 		}
 		break;
+
+		case settings_t::MAP_BASED:
+		{
+			/* Essentially keep the climates from this map
+			 * we just have to set the tiles with water to water climate
+			 * and vice vers
+			 */
+			for(  sint16 y = ytop;  y < ybottom;  y++  ) {
+				for(  sint16 x = xtop;  x < xbottom;  x++  ) {
+					sint8 hgt = lookup_hgt_nocheck( x, y );
+					if( hgt < groundwater ) {
+						climate_map.at( x, y ) = water_climate;
+					}
+					else if( climate_map.at( x, y )==water_climate ) {
+						climate_map.at( x, y ) = height_to_climate[hgt-groundwater];
+					}
+				}
+			}
+		}
+		break;
+
 	}
 
 	assign_climate_map_region( xtop, ytop, xbottom, ybottom );

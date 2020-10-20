@@ -18,6 +18,7 @@
 
 #include "../display/simgraph.h"
 
+static const char *wind_dir_text[4] = { "West", "North", "East", "South" };
 
 /**
  * set the climate borders
@@ -56,6 +57,15 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 		snowline_winter.init( sets->get_winter_snowline(), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
 		snowline_winter.add_listener( this );
 		add_component( &snowline_winter );
+
+		new_component<gui_label_t>( "Wind direction" );
+		wind_dir.set_focusable( false );
+		for( int i = 0; i < 4; i++ ) {
+			wind_dir.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( wind_dir_text[i] ), SYSCOL_TEXT );
+		}
+		wind_dir.set_selection( sets->wind_direction );
+		add_component( &wind_dir );
+		wind_dir.add_listener( this );
 	}
 	end_table();
 
@@ -167,6 +177,9 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	welt_gui_t *welt_gui = dynamic_cast<welt_gui_t *>(win_get_magic( magic_welt_gui_t ));
 	if(comp==&tree) {
 		sets->set_tree((sint16)v.i);
+	}
+	if(comp==&wind_dir) {
+		sets->wind_direction = v.i;
 	}
 	else if(comp==&lake) {
 		sets->lake_height = (sint16)v.i;

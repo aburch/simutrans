@@ -510,6 +510,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	INIT_NUM_NEW( "Map roughness", mountain_roughness_start, 0, min(10, 11-((mountain_height_start+99)/100)), gui_numberinput_t::AUTOLINEAR, false );
 
 	SEPERATOR
+	INIT_NUM_NEW( "Wind direction", sets->wind_direction, 0, 3, 1, true );
 	// combobox for climate generator
 	for(  uint32 i=0;  i<lengthof(climate_generate_string);  i++  ) {
 		climate_generate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( climate_generate_string[i], SYSCOL_TEXT ) ;
@@ -570,6 +571,7 @@ void settings_climates_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE_NEW( env_t::pak_height_conversion_factor );
 	READ_NUM_VALUE_NEW( sets->groundwater );
 	READ_NUM_VALUE_NEW( sets->max_mountain_height );
+	READ_NUM_VALUE_NEW( sets->wind_direction );
 	double n = 0;
 	READ_NUM_VALUE_NEW( n );
 	if(  new_world  ) {
