@@ -221,7 +221,7 @@ map_frame_t::map_frame_t() :
 
 		// zoom level value label
 		sint16 zoom_in, zoom_out;
-		minimap_t::get_instance()->get_zoom_factors(zoom_out, zoom_in);
+		reliefkarte_t::get_karte()->get_zoom_factors(zoom_out, zoom_in);
 		zoom_value_label.buf().printf("%i:%i", zoom_in, zoom_out );
 		zoom_value_label.update();
 		add_component( &zoom_value_label );
