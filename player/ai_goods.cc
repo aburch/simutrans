@@ -71,7 +71,6 @@ ai_goods_t::ai_goods_t(uint8 nr) : ai_t(nr)
 
 /**
  * Methode fuer jaehrliche Aktionen
- * @author Hj. Malthaner, Owen Rudge, hsiegeln
  */
 void ai_goods_t::new_year()
 {
@@ -100,8 +99,8 @@ void ai_goods_t::rotate90( const sint16 y_size )
 
 
 
-/* Activates/deactivates a player
- * @author prissi
+/**
+ * Activates/deactivates a player
  */
 bool ai_goods_t::set_active(bool new_state)
 {
@@ -357,8 +356,8 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 
 
 
-/* build docks and ships
- * @author prissi
+/**
+ * build docks and ships
  */
 bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int vehicle_count)
 {
@@ -436,7 +435,7 @@ bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int vehicle_count
 		}
 		vehicle_t* v = vehicle_builder_t::build( qfab->get_pos(), this, NULL, ship_vehicle);
 		convoi_t* cnv = new convoi_t(this);
-		// V.Meyer: give the new convoi name from first vehicle
+		// give the new convoi name from first vehicle
 		cnv->set_name(v->get_desc()->get_name());
 		cnv->add_vehicle( v );
 
@@ -456,10 +455,6 @@ bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int vehicle_count
 }
 
 
-
-/* changed to use vehicles searched before
- * @author prissi
- */
 void ai_goods_t::create_road_transport_vehicle(fabrik_t *qfab, int vehicle_count)
 {
 	const building_desc_t* fh = hausbauer_t::get_random_station(building_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
@@ -499,7 +494,7 @@ void ai_goods_t::create_road_transport_vehicle(fabrik_t *qfab, int vehicle_count
 			}
 			vehicle_t* v = vehicle_builder_t::build(startpos, this, NULL, road_vehicle);
 			convoi_t* cnv = new convoi_t(this);
-			// V.Meyer: give the new convoi name from first vehicle
+			// give the new convoi name from first vehicle
 			cnv->set_name(v->get_desc()->get_name());
 			cnv->add_vehicle( v );
 
@@ -510,12 +505,9 @@ void ai_goods_t::create_road_transport_vehicle(fabrik_t *qfab, int vehicle_count
 }
 
 
-
-/* now obeys timeline and use "more clever" scheme for vehicle selection *
- * @author prissi
- */
 void ai_goods_t::create_rail_transport_vehicle(const koord platz1, const koord platz2, int vehicle_count, int minimum_loading)
 {
+	// now obeys timeline and use "more clever" scheme for vehicle selection
 	schedule_t *schedule;
 	if(  convoihandle_t::is_exhausted()  ) {
 		// too many convois => cannot do anything about this ...
@@ -540,7 +532,7 @@ void ai_goods_t::create_rail_transport_vehicle(const koord platz1, const koord p
 	koord3d start_pos = welt->lookup_kartenboden(pos1.get_2d() + (abs(size1.x)>abs(size1.y) ? koord(size1.x,0) : koord(0,size1.y)))->get_pos();
 	vehicle_t* v = vehicle_builder_t::build( start_pos, this, NULL, rail_engine);
 
-	// V.Meyer: give the new convoi name from first vehicle
+	// give the new convoi name from first vehicle
 	cnv->set_name(rail_engine->get_name());
 	cnv->add_vehicle( v );
 
@@ -568,9 +560,9 @@ void ai_goods_t::create_rail_transport_vehicle(const koord platz1, const koord p
 
 
 
-/* built a station
+/**
+ * build a station
  * Can fail even though check has been done before
- * @author prissi
  */
 int ai_goods_t::baue_bahnhof(const koord* p, int vehicle_count)
 {
@@ -634,9 +626,9 @@ int ai_goods_t::baue_bahnhof(const koord* p, int vehicle_count)
 
 
 
-/* built a very simple track with just the minimum effort
+/**
+ * built a very simple track with just the minimum effort
  * usually good enough, since it can use road crossings
- * @author prissi
  */
 bool ai_goods_t::create_simple_rail_transport()
 {
@@ -871,7 +863,6 @@ void ai_goods_t::step()
 			 * the KI just chooses the way to run the operation at maximum profit (minimum loss).
 			 * The KI will built also a loosing route; this might be required by future versions to
 			 * be able to built a network!
-			 * @author prissi
 			 */
 
 			/* for the calculation we need:
@@ -1020,21 +1011,21 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 			if(  count_road<255  ) {
 				// for short distance: reduce number of cars
 				// calculated here, since the above number was based on production
-				count_road = CLIP( (sint32)(dist*15)/best_road_speed, 2, count_road );
-;
+				count_road = clamp( (sint32)(dist*15)/best_road_speed, 2, count_road );
+
 				// Guess that average speed is half of "best" speed
 				const uint32 average_speed = best_road_speed / 2;
 
 				const sint64 freight_revenue_per_trip = freight->get_total_fare(distance_meters) * road_vehicle->get_capacity() * count_road / 3000;
 				const sint64 freight_cost_per_trip
-				  = ( (sint64) road_vehicle->get_running_cost(welt) * count_road
-				    )
+					= ((sint64)road_vehicle->get_running_cost(welt) * count_road
+						)
 					* distance_meters * 2 / 1000;
 				const uint32 tpm = welt->speed_to_tiles_per_month(kmh_to_speed(average_speed));
-				const sint32 profit_per_month = ( (freight_revenue_per_trip - freight_cost_per_trip) * tpm / dist * 2) ;
+				const sint32 profit_per_month = ((freight_revenue_per_trip - freight_cost_per_trip) * tpm / dist * 2);
 
 				cost_road = road_weg->get_maintenance() - profit_per_month;
-				DBG_MESSAGE("ai_goods_t::do_ki()","Net credits per month for road transport %.2f (income %.2f)",cost_road/100.0, profit_per_month/100.0 );
+				DBG_MESSAGE("ai_goods_t::do_ki()", "Net credits per month for road transport %.2f (income %.2f)", cost_road / 100.0, profit_per_month / 100.0);
 			}
 
 			// check location, if vehicles found
@@ -1518,7 +1509,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 		while(  cnt-->0  ) {
 			fabconnection_t *fc = new fabconnection_t(0,0,0);
 			fc->rdwr(file);
-			// @author Bernd Gabriel, Jan 01, 2010: Don't add, if fab or ware no longer in the game.
+			// Don't add if fab or ware no longer in the game.
 			if(  fc->fab1  &&  fc->fab2  &&  fc->ware  ) {
 				forbidden_connections.append(fc);
 			}
@@ -1573,8 +1564,6 @@ void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
  * Dealing with stucked  or lost vehicles:
  * - delete lost ones
  * - ignore stuck ones
- * @author prissi
- * @date 30-Dec-2008
  */
 void ai_goods_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 {
@@ -1590,7 +1579,6 @@ void ai_goods_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 /**
  * Tells the player that a fabrik_t is going to be deleted.
  * It could also tell, that a fab has been created, but by now the factory_builder_t does not.
- * @author Bernd Gabriel, Jan 01, 2010
  */
 void ai_goods_t::notify_factory(notification_factory_t flag, const fabrik_t* fab)
 {

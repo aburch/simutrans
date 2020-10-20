@@ -17,7 +17,6 @@ class roadsign_t;
 
 /**
  * Info window for factories
- * @author Hj. Malthaner
  */
 class privatesign_info_t : public obj_infowin_t, public action_listener_t
 {
@@ -31,7 +30,6 @@ class privatesign_info_t : public obj_infowin_t, public action_listener_t
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author Hj. Malthaner
 	 */
 	const char *get_help_filename() const OVERRIDE {return "privatesign_info.txt";}
 

@@ -3,22 +3,15 @@
  * (see LICENSE.txt)
  */
 
-/*
- * A simple text input field. It has no Text Buffer,
- * only a pointer to a buffer created by someone else.
- *
- * @date 19-Apr-01
- * @author Hj. Malthaner
- */
-
 #include <string.h>
 
 #include "../gui_frame.h"
 #include "gui_textinput.h"
 #include "../simwin.h"
-#include "../../sys/simsys.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
+#include "../../sys/simsys.h"
+
 
 gui_textinput_t::gui_textinput_t() :
 	gui_component_t(true),
@@ -40,19 +33,18 @@ gui_textinput_t::gui_textinput_t() :
 
 scr_size gui_textinput_t::get_min_size() const
 {
-	return scr_size(D_BUTTON_WIDTH, D_EDIT_HEIGHT+4);
+	return scr_size( 16*LINESPACE, ::max(LINESPACE+4,D_BUTTON_HEIGHT) );
 }
 
 
 scr_size gui_textinput_t::get_max_size() const
 {
-	return scr_size(scr_size::inf.w, D_EDIT_HEIGHT+4);
+	return scr_size( scr_size::inf.w, ::max(LINESPACE+4,D_BUTTON_HEIGHT) );
 }
 
 
 /**
  * determine new cursor position from event coordinates
- * @author Knightly
  */
 size_t gui_textinput_t::calc_cursor_pos(const int x)
 {
@@ -76,7 +68,6 @@ size_t gui_textinput_t::calc_cursor_pos(const int x)
 /**
  * Remove selected text portion, if any.
  * Returns true if some selected text is actually deleted.
- * @author Knightly
  */
 bool gui_textinput_t::remove_selection()
 {
@@ -118,9 +109,7 @@ void gui_textinput_t::set_composition_status( char *c, int start, int length )
 
 
 /**
- * Events werden hiermit an die GUI-components
- * gemeldet
- * @author Hj. Malthaner
+ * Events werden hiermit an die GUI-components gemeldet
  */
 bool gui_textinput_t::infowin_event(const event_t *ev)
 {
@@ -135,26 +124,24 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						text_dirty = false;
 						call_listeners((long)1);
 					}
-					// fallthrough
-
+					/* FALLTHROUGH */
 				case SIM_KEY_TAB:
-					// Knightly : focus is going to be lost -> reset cursor positions to select the whole text by default
+					// focus is going to be lost -> reset cursor positions to select the whole text by default
 					head_cursor_pos = len;
 					tail_cursor_pos = 0;
-					// fallthrough
-
+					/* FALLTHROUGH */
 				case SIM_KEY_ESCAPE:
 					return false;
 
 				case 1:
-					// Knightly : if Ctrl-A -> select the whole text
+					// if Ctrl-A -> select the whole text
 					if(  IS_CONTROL_PRESSED(ev)  ) {
 						head_cursor_pos = len;
 						tail_cursor_pos = 0;
 					}
 					break;
 				case 3:
-					// Knightly : if Ctrl-C -> copy selected text to clipboard
+					// if Ctrl-C -> copy selected text to clipboard
 					if(  IS_CONTROL_PRESSED(ev)  &&  head_cursor_pos!=tail_cursor_pos  ) {
 						const size_t start_pos = min(head_cursor_pos, tail_cursor_pos);
 						const size_t end_pos = ::max(head_cursor_pos, tail_cursor_pos);
@@ -162,7 +149,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					}
 					break;
 				case 22:
-					// Knightly : if Ctrl-V -> paste selected text to cursor position
+					// if Ctrl-V -> paste selected text to cursor position
 					if(  IS_CONTROL_PRESSED(ev)  ) {
 						if(  remove_selection()  ) {
 							// recalculate text length after deleting selection
@@ -173,7 +160,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					}
 					break;
 				case 24:
-					// Knightly : if Ctrl-X -> cut and copy selected text to clipboard
+					// if Ctrl-X -> cut and copy selected text to clipboard
 					if(  IS_CONTROL_PRESSED(ev)  &&  head_cursor_pos!=tail_cursor_pos  ) {
 						const size_t start_pos = min(head_cursor_pos, tail_cursor_pos);
 						const size_t end_pos = ::max(head_cursor_pos, tail_cursor_pos);
@@ -187,7 +174,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					break;
 				case SIM_KEY_LEFT: // left arrow
 					if(  head_cursor_pos>0  ) {
-						// Knightly : Ctrl key pressed -> skip over to the start of the previous word (as delimited by space(s))
+						// Ctrl key pressed -> skip over to the start of the previous word (as delimited by space(s))
 						if(  IS_CONTROL_PRESSED(ev)  ) {
 							const char* tmp_text = text + head_cursor_pos;
 							uint8 byte_length;
@@ -209,14 +196,14 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 							head_cursor_pos = get_prev_char(text, head_cursor_pos);
 						}
 					}
-					// Knightly : do not update tail cursor if SHIFT key is pressed -> enables text selection
+					// do not update tail cursor if SHIFT key is pressed -> enables text selection
 					if(  !IS_SHIFT_PRESSED(ev)  ) {
 						tail_cursor_pos = head_cursor_pos;
 					}
 					break;
 				case SIM_KEY_RIGHT: // right arrow
 					if(  head_cursor_pos<len  ) {
-						// Knightly : Ctrl key pressed -> skip over to the start of the next word (as delimited by space(s))
+						// Ctrl key pressed -> skip over to the start of the next word (as delimited by space(s))
 						if(  IS_CONTROL_PRESSED(ev)  ) {
 							const char* tmp_text = text + head_cursor_pos;
 							uint8 byte_length;
@@ -238,7 +225,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 							head_cursor_pos = get_next_char(text, head_cursor_pos);
 						}
 					}
-					// Knightly : do not update tail cursor if SHIFT key is pressed -> enables text selection
+					// do not update tail cursor if SHIFT key is pressed -> enables text selection
 					if(  !IS_SHIFT_PRESSED(ev)  ) {
 						tail_cursor_pos = head_cursor_pos;
 					}
@@ -248,21 +235,21 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					break;
 				case SIM_KEY_HOME: // home
 					head_cursor_pos = 0;
-					// Knightly : do not update tail cursor if SHIFT key is pressed -> enables text selection
+					// do not update tail cursor if SHIFT key is pressed -> enables text selection
 					if(  !IS_SHIFT_PRESSED(ev)  ) {
 						tail_cursor_pos = head_cursor_pos;
 					}
 					break;
 				case SIM_KEY_END: // end
 					head_cursor_pos = len;
-					// Knightly : do not update tail cursor if SHIFT key is pressed -> enables text selection
+					// do not update tail cursor if SHIFT key is pressed -> enables text selection
 					if(  !IS_SHIFT_PRESSED(ev)  ) {
 						tail_cursor_pos = head_cursor_pos;
 					}
 					break;
 				case SIM_KEY_BACKSPACE:
 					// backspace
-					// Knightly : check and remove any selected text first
+					// check and remove any selected text first
 					text_dirty |= len>0;
 					if(  !remove_selection()  &&  head_cursor_pos>0  ) {
 						if (  head_cursor_pos<len  ) {
@@ -281,7 +268,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					break;
 				case SIM_KEY_DELETE:
 					// delete
-					// Knightly : check and remove any selected text first
+					// check and remove any selected text first
 					text_dirty |= len>0;
 					if(  !remove_selection()  &&  head_cursor_pos<=len  ) {
 						size_t next_pos = get_next_char(text, head_cursor_pos);
@@ -298,7 +285,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					}
 					// insert letters, numbers, and special characters
 
-					// Knightly : first check if it is necessary to remove selected text portion
+					// first check if it is necessary to remove selected text portion
 					if(  remove_selection()  ) {
 						// recalculate text length after deleting selection
 						len = strlen(text);
@@ -354,7 +341,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		else {
 			DBG_MESSAGE("gui_textinput_t::infowin_event", "called but text is NULL");
 		}
-		cursor_reference_time = dr_time();	// update reference time for cursor blinking
+		cursor_reference_time = dr_time(); // update reference time for cursor blinking
 		return true;
 	}
 	else if(  ev->ev_class==EVENT_STRING  ) {
@@ -366,7 +353,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 			utf8 *in = (utf8 *)ev->ev_ptr;
 			size_t in_pos = 0;
 
-			// Knightly : first check if it is necessary to remove selected text portion
+			// first check if it is necessary to remove selected text portion
 			if(  remove_selection()  ) {
 				// recalculate text length after deleting selection
 				len = strlen(text);
@@ -418,49 +405,69 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		}
 	}
 	else if(  IS_LEFTCLICK(ev)  ) {
+		// since now the focus could be received while the mouse  no there, we must release it
+		scr_rect this_comp( get_size() );
+		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+			// not us, just in old focus from previous selection or tab
+			return false;
+		}
 		// acting on release causes unwanted recalculations of cursor position for long strings and (scroll_offset>0)
 		// moreover, only (click) or (release) event happened inside textinput, the other one could lie outside
-		// Knightly : use mouse *click* position; update both head and tail cursors
+		// use mouse *click* position; update both head and tail cursors
 		tail_cursor_pos = 0;
 		if(  text  ) {
 			tail_cursor_pos = head_cursor_pos = display_fit_proportional( text, ev->cx - 2 + scroll_offset );
 		}
-		cursor_reference_time = dr_time();	// update reference time for cursor blinking
+		cursor_reference_time = dr_time(); // update reference time for cursor blinking
 		return true;
 	}
 	else if(  IS_LEFTDRAG(ev)  ) {
-		// Knightly : use mouse *move* position; update head cursor only in order to enable text selection
+		// since now the focus could be received while the mouse  no there, we must release it
+		scr_rect this_comp( get_size() );
+		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+			// not us, just in old focus from previous selection or tab
+			return false;
+		}
+		// use mouse *move* position; update head cursor only in order to enable text selection
 		head_cursor_pos = 0;
 		if(  text  ) {
 			head_cursor_pos = display_fit_proportional( text, ev->mx - 1 + scroll_offset );
 		}
-		cursor_reference_time = dr_time();	// update reference time for cursor blinking
+		cursor_reference_time = dr_time(); // update reference time for cursor blinking
 		return true;
 	}
 	else if(  IS_LEFTDBLCLK(ev)  ) {
-		if( text ) {
-			// Knightly : select a word as delimited by spaces
-			// for tail cursor pos -> skip over all contiguous non-space characters to the left
-			const char* tmp_text = text + tail_cursor_pos;
-			uint8 byte_length;
-			uint8 pixel_width;
-			while(  tail_cursor_pos>0  &&  get_prev_char_with_metrics(tmp_text, text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
-				tail_cursor_pos -= byte_length;
-			}
-			// for head cursor pos -> skip over all contiguous non-space characters to the right
-			const size_t len = strlen(text);
-			tmp_text = text + head_cursor_pos;
-			while(  head_cursor_pos<len  &&  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
-				head_cursor_pos += byte_length;
-			}
+		// since now the focus could be received while the mouse  no there, we must release it
+		scr_rect this_comp( get_size() );
+		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+			// not us, just in old focus from previous selection or tab
+			return false;
+		}
+		// select a word as delimited by spaces
+		// for tail cursor pos -> skip over all contiguous non-space characters to the left
+		const char* tmp_text = text + tail_cursor_pos;
+		uint8 byte_length;
+		uint8 pixel_width;
+		while(  tail_cursor_pos>0  &&  get_prev_char_with_metrics(tmp_text, text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
+			tail_cursor_pos -= byte_length;
+		}
+		// for head cursor pos -> skip over all contiguous non-space characters to the right
+		const size_t len = strlen(text);
+		tmp_text = text + head_cursor_pos;
+		while(  head_cursor_pos<len  &&  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
+			head_cursor_pos += byte_length;
 		}
 	}
 	else if(  IS_LEFTTPLCLK(ev)  ) {
-		if( text ) {
-			// Knightly : select the whole text
-			head_cursor_pos = strlen(text);
-			tail_cursor_pos = 0;
+		// since now the focus could be received while the mouse  no there, we must release it
+		scr_rect this_comp( get_size() );
+		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+			// not us, just in old focus from previous selection or tab
+			return false;
 		}
+		// select the whole text
+		head_cursor_pos = strlen(text);
+		tail_cursor_pos = 0;
 	}
 	else if(  ev->ev_class==INFOWIN  &&  ev->ev_code==WIN_UNTOP  ) {
 		if(  text_dirty  ) {
@@ -474,7 +481,6 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 
 /**
  * Draw the component
- * @author Hj. Malthaner
  */
 void gui_textinput_t::draw(scr_coord offset)
 {
@@ -485,7 +491,6 @@ void gui_textinput_t::draw(scr_coord offset)
 /**
  * Detect change of focus state and determine whether cursor should be displayed,
  * and call the function that performs the actual display
- * @author Knightly
  */
 void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 {
@@ -517,21 +522,21 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 	display_img_stretch( gui_theme_t::editfield, scr_rect( pos+offset, size ) );
 
 	if(  text  ) {
-		// Knightly : recalculate scroll offset
+		// recalculate scroll offset
 		const KOORD_VAL text_width = proportional_string_width(text);
 		const KOORD_VAL view_width = size.w - 3;
 		const KOORD_VAL cursor_offset = cursor_active ? proportional_string_len_width(text, head_cursor_pos) : 0;
 		if(  text_width<=view_width  ) {
 			// case : text is shorter than displayable width of the text input
-			//			-> the only case where left and right alignments differ
-			//			-> pad empty spaces on the left if right-aligned
+			//        -> the only case where left and right alignments differ
+			//        -> pad empty spaces on the left if right-aligned
 			scroll_offset = align==ALIGN_RIGHT ? text_width - view_width : 0;
 		}
 		else {
 			if(  scroll_offset<0  ) {
 				// case : if text is longer than displayable width of the text input
-				//			but there is empty space to the left
-				//			-> the text should move leftwards to fill up the empty space
+				//        but there is empty space to the left
+				//        -> the text should move leftwards to fill up the empty space
 				scroll_offset = 0;
 			}
 			if(  cursor_offset-scroll_offset>view_width  ) {
@@ -544,8 +549,8 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 			}
 			if(  scroll_offset+view_width>text_width  ) {
 				// case : if text is longer than displayable width of the text input
-				//			but there is empty space to the right
-				//			-> the text should move rightwards to fill up the empty space
+				//        but there is empty space to the right
+				//        -> the text should move rightwards to fill up the empty space
 				scroll_offset = text_width - view_width;
 			}
 		}
@@ -588,7 +593,7 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 		display_proportional_clip_rgb(x_base_offset+x_offset, y_offset, text+head_cursor_pos, ALIGN_LEFT | DT_CLIP, textcol, true);
 
 		if(  cursor_active  ) {
-			// Knightly : display selected text block with light grey text on charcoal bounding box
+			// display selected text block with light grey text on charcoal bounding box
 			if(  head_cursor_pos!= tail_cursor_pos  ) {
 				const size_t start_pos = min(head_cursor_pos, tail_cursor_pos);
 				const size_t end_pos = ::max(head_cursor_pos, tail_cursor_pos);
@@ -615,7 +620,7 @@ void gui_textinput_t::set_text(char *text, size_t max)
 {
 	this->text = text;
 	this->max = max;
-	// Knightly : whole text is selected by default
+	// whole text is selected by default
 	head_cursor_pos = strlen(text);
 	tail_cursor_pos = 0;
 	text_dirty = false;
@@ -626,7 +631,13 @@ void gui_textinput_t::set_text(char *text, size_t max)
 // needed to set the cursor on the right position
 bool gui_hidden_textinput_t::infowin_event(const event_t *ev)
 {
-	if(  IS_LEFTCLICK(ev)  ) {
+	if(  IS_LEFTRELEASE(ev)  ) {
+		// since now the focus could be received while the mouse  no there, we must release it
+		scr_rect this_comp( get_size() );
+		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+			// not us, just in old focus from previous selection or tab
+			return false;
+		}
 		// acting on release causes unwanted recalculations of cursor position for long strings and (cursor_offset>0)
 		// moreover, only (click) or (release) event happened inside textinput, the other one could lie outside
 		sint16 asterix_width = display_calc_proportional_string_len_width("*",1);
@@ -634,7 +645,7 @@ bool gui_hidden_textinput_t::infowin_event(const event_t *ev)
 		if (  text  ) {
 			head_cursor_pos = min( strlen(text), ev->cx/asterix_width );
 		}
-		cursor_reference_time = dr_time();	// update reference time for cursor blinking
+		cursor_reference_time = dr_time(); // update reference time for cursor blinking
 		return true;
 	}
 	else {

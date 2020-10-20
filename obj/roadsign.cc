@@ -238,11 +238,6 @@ void roadsign_t::show_info()
 }
 
 
-/**
- * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
- * Beobachtungsfenster angezeigt wird.
- * @author Hj. Malthaner
- */
 void roadsign_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
@@ -361,15 +356,16 @@ void roadsign_t::info(cbuffer_t & buf) const
 #endif
 	if (desc->is_traffic_light())
 	{
-		buf.append(translator::translate("\nSet phases:"));
-	}
-	//if (desc->is_private_way()) // Must be last, as the \n\n\n... section is the free height for the buttons // Ves
-	//{
-	//}
-
-	if (char const* const maker = desc->get_copyright()) {
-		buf.append("\n");
-		buf.printf(translator::translate("Constructed by %s"), maker);
+		if(  automatic  ) {
+			buf.append(translator::translate("\nSet phases:"));
+		}
+		else{
+			if (char const* const maker = desc->get_copyright()) {
+				buf.append("\n");
+				buf.printf(translator::translate("Constructed by %s"), maker);
+			}
+			// extra treatment of trafficlights & private signs, author will be shown by those windows themselves
+		}
 	}
 }
 	// Signal specific information is dealt with in void signal_t::info(cbuffer_t & buf, bool dummy) const (in signal.cc)
@@ -789,12 +785,6 @@ void roadsign_t::cleanup(player_t *player)
 }
 
 
-/**
- * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
- * um das Aussehen des Dings an Boden und Umgebung anzupassen
- *
- * @author Hj. Malthaner
- */
 void roadsign_t::finish_rd()
 {
 	grund_t *gr=welt->lookup(get_pos());
@@ -881,8 +871,7 @@ bool roadsign_t::register_desc(roadsign_desc_t *desc)
 
 
 /**
- * Fill menu with icons of given signals/roadsigns from the list
- * @author Hj. Malthaner
+ * Fill menu with icons of given signals/roadsings from the list
  */
 void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 /*sound_ok*/)
 {
@@ -951,7 +940,6 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 
 /**
  * Finds a matching roadsign
- * @author prissi
  */
 const roadsign_desc_t *roadsign_t::roadsign_search(roadsign_desc_t::types const flag, waytype_t const wt, uint16 const time)
 {

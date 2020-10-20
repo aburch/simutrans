@@ -333,7 +333,6 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 
 /**
  * Draw the component
- * @author Dwachs
  */
 void gui_numberinput_t::draw(scr_coord offset)
 {

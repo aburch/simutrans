@@ -13,8 +13,6 @@
 
 /**
  * Ships can be created on docks
- *
- * @author Hj. Malthaner
  */
 class kanal_t : public weg_t
 {

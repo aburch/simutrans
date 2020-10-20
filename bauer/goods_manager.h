@@ -14,8 +14,6 @@ class goods_desc_t;
 
 /**
  * Factory-Class for Goods.
- *
- * @author Hj. Malthaner
  */
 class goods_manager_t
 {
@@ -48,7 +46,6 @@ public:
 	* unknown.
 	*
 	* @param name the non-translated good name
-	* @author Hj. Malthaner/V. Meyer
 	*/
 	static const goods_desc_t *get_info(const char* name);
 

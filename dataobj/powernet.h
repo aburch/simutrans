@@ -17,14 +17,12 @@
 /**
  * Data class for power networks. A two phase queue to store
  * and hand out power.
- * @author Hj. Malthaner
  */
 class powernet_t
 {
 public:
 	/**
 	 * Must be called when a new map is started or loaded. Clears the table of networks.
-	 * @author Hj. Malthaner
 	 */
 	static void new_world();
 

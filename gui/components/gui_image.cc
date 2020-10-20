@@ -74,7 +74,6 @@ void gui_image_t::set_image( const image_id i, bool remove_offsets ) {
 
 /**
  * Draw the component
- * @author Hj. Malthaner
  */
 void gui_image_t::draw( scr_coord offset ) {
 

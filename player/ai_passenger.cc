@@ -51,8 +51,8 @@ ai_passenger_t::ai_passenger_t(uint8 nr) : ai_t( nr )
 }
 
 
-/* Activates/deactivates a player
- * @author prissi
+/**
+ * Activates/deactivates a player
  */
 bool ai_passenger_t::set_active(bool new_state)
 {
@@ -64,8 +64,7 @@ bool ai_passenger_t::set_active(bool new_state)
 }
 
 
-/* return the hub of a city (always the very first stop) or zero
- * @author prissi
+/** return the hub of a city (always the very first stop) or zero
  */
 halthandle_t ai_passenger_t::get_our_hub( const stadt_t *s ) const
 {
@@ -125,8 +124,8 @@ DBG_MESSAGE("ai_passenger_t::find_area_for_hub()","suggest hub at (%i,%i)",best_
 }
 
 
-/* tries to built a hub near the koordinate
- * @author prissi
+/**
+ * tries to built a hub near the koordinate
  */
 koord ai_passenger_t::find_place_for_hub( const stadt_t *s ) const
 {
@@ -615,8 +614,7 @@ static koord find_airport_pos(karte_t* welt, const stadt_t *s )
 }
 
 
-/* build airports and planes
- * @author prissi
+/** build airports and planes
  */
 bool ai_passenger_t::create_air_transport_vehicle(const stadt_t *start_stadt, const stadt_t *end_stadt)
 {
@@ -778,8 +776,7 @@ bool ai_passenger_t::create_air_transport_vehicle(const stadt_t *start_stadt, co
 }
 
 
-/* creates a more general road transport
- * @author prissi
+/** creates a more general road transport
  */
 void ai_passenger_t::create_bus_transport_vehicle(koord startpos2d,int vehicle_count,koord *stops,int count,bool do_wait)
 {
@@ -806,7 +803,7 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehicle()","bus at (%i,%i)",st
 			return;
 		}
 		convoi_t* cnv = new convoi_t(this);
-		// V.Meyer: give the new convoi name from first vehicle
+		// give the new convoi name from first vehicle
 		cnv->set_name(v->get_desc()->get_name());
 		cnv->add_vehicle( v );
 
@@ -1447,8 +1444,6 @@ void ai_passenger_t::rdwr(loadsave_t *file)
  * Dealing with stuck  or lost vehicles:
  * - delete lost ones
  * - ignore stuck ones
- * @author prissi
- * @date 30-Dec-2008
  */
 void ai_passenger_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 {

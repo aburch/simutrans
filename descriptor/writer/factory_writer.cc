@@ -24,7 +24,7 @@ void factory_field_class_writer_t::write_obj(FILE* outfp, obj_node_t& parent, co
 
 	xref_writer_t::instance()->write_obj(outfp, node, obj_field, field_name, true);
 
-	// Knightly : data specific to each field class
+	// data specific to each field class
 	node.write_uint16(outfp, 0x8001,     0); // version
 	node.write_uint8 (outfp, snow_image, 2);
 	node.write_uint16(outfp, production, 3);
@@ -53,7 +53,7 @@ void factory_field_group_writer_t::write_obj(FILE* outfp, obj_node_t& parent, ta
 		factory_field_class_writer_t::instance()->write_obj(outfp, node, field_name, snow_image, production, capacity, weight);
 	}
 	else {
-		// Knightly : for each field class, retrieve its data and write a field class node
+		// for each field class, retrieve its data and write a field class node
 		for (field_classes = 0;; ++field_classes) {
 			char buf[64];
 
@@ -119,8 +119,8 @@ void factory_product_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int ca
 
 	xref_writer_t::instance()->write_obj(outfp, node, obj_good, warename, true);
 
-	// Hajo: Version needs high bit set as trigger -> this is required
-	//       as marker because formerly nodes were unversioned
+	// Version needs high bit set as trigger -> this is required
+	// as marker because formerly nodes were unversioned
 	// new version 2: pax-level added
 	node.write_uint16(outfp, 0x8001,   0);
 
@@ -196,9 +196,9 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	uint16 total_len = 48;
 
-	// prissi: must be done here, since it may affect the len of the header!
-	string sound_str = ltrim(obj.get("sound"));
-	sint16 sound_id = NO_SOUND;
+	// must be done here, since it may affect the len of the header!
+	string sound_str = ltrim( obj.get("sound") );
+	sint8 sound_id=NO_SOUND;
 	if (!sound_str.empty()) {
 		// ok, there is some sound
 		sound_id = atoi(sound_str.c_str());
@@ -275,7 +275,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// fields (careful, are xref'ed)
 	uint8 fields = 0;
 	if(  *obj.get("fields")  ||  *obj.get("fields[0]")  ) {
-		// Knightly : at least one field class available
+		// at least one field class available
 		fields = 1;
 		factory_field_group_writer_t::instance()->write_obj(fp, node, obj);
 	}

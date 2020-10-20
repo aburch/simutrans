@@ -20,7 +20,6 @@
 
 /**
  * set the climate borders
- * @author prissi
  */
 climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	gui_frame_t( translator::translate("Climate Control") )
@@ -136,7 +135,6 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {

@@ -20,7 +20,6 @@ namespace curiositylist {
 
 /**
  * Where curiosity (attractions) stats are calculated for list dialog
- * @author Hj. Malthaner
  */
 class curiositylist_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
@@ -48,7 +47,6 @@ public:
 
 	/**
 	* Draw the component
-	* @author Hj. Malthaner
 	*/
 	void draw(scr_coord offset) OVERRIDE;
 };

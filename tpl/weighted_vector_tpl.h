@@ -153,7 +153,6 @@ template<class T> class weighted_vector_tpl
 		/**
 		 * Appends the element at the end of the vector.
 		 * Extend if necessary.
-		 * @author prissi
 		 */
 		bool append(T elem, uint32 weight)
 		{

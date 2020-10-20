@@ -195,7 +195,7 @@ static char *load_text(char const* const filename )
 		file = dr_fopen((file_prefix + translator::get_lang()->iso_base + PATH_SEPARATOR + filename).c_str(), "rb");
 	}
 	if (!file) {
-		// Hajo: check fallback english
+		// check fallback english
 		file = dr_fopen((file_prefix + PATH_SEPARATOR + "en" + PATH_SEPARATOR + filename).c_str(), "rb");
 	}
 	// go back to load/save dir
@@ -352,9 +352,11 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 			set_text( buf, resize_frame );
 			free(buf);
 		}
-		else {
-			set_text( "<title>Error</title>Help text not found", resize_frame );
-		}
+		else {{
+			cbuffer_t buf;
+			buf.printf("<title>%s</title>%s", translator::translate("Error"), translator::translate("Help text not found"));
+			set_text(buf, resize_frame );
+		}}
 	}
 	else {
 		// default text when opening general help
@@ -386,7 +388,7 @@ FILE *help_frame_t::has_helpfile( char const* const filename, int &mode )
 		file = dr_fopen(  (file_prefix + translator::get_lang()->iso_base + PATH_SEPARATOR + filename).c_str(), "rb"  );
 	}
 	if(  !file  ) {
-		// Hajo: check fallback english
+		// check fallback english
 		file = dr_fopen((file_prefix + "en/" + filename).c_str(), "rb");
 		mode = english;
 	}
@@ -481,7 +483,6 @@ void help_frame_t::add_helpfile( cbuffer_t &section, const char *titlename, cons
 /**
  * Called upon link activation
  * @param the hyper ref of the link
- * @author Hj. Malthaner
  */
 bool help_frame_t::action_triggered( gui_action_creator_t *, value_t extra)
 {

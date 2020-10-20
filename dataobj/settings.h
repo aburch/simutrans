@@ -15,13 +15,6 @@
 #include "../tpl/piecewise_linear_tpl.h" // for various revenue tables
 #include "../dataobj/koord.h"
 
-/**
- * Game settings
- *
- * Hj. Malthaner
- *
- * April 2000
- */
 
 class player_t;
 class loadsave_t;
@@ -70,6 +63,9 @@ public:
 	}
 };
 
+/**
+ * Game settings
+ */
 class settings_t
 {
 	// these are the only classes, that are allowed to modify elements from settings_t
@@ -104,7 +100,6 @@ private:
 	sint32 map_number;
 
 	/* new setting since version 0.85.01
-	 * @author prissi
 	 */
 	sint32 factory_count;
 	sint32 electric_promille;
@@ -128,10 +123,10 @@ private:
 	uint32 industry_increase;
 	uint32 city_isolation_factor;
 
-	// Knightly : number of periods for averaging the amount of arrived pax/mail at factories
+	// number of periods for averaging the amount of arrived pax/mail at factories
 	uint16 factory_arrival_periods;
 
-	// Knightly : whether factory pax/mail demands are enforced
+	// whether factory pax/mail demands are enforced
 	bool factory_enforce_demand;
 
 	uint16 station_coverage_size;
@@ -162,8 +157,8 @@ private:
 	sint16 climate_borders[MAX_CLIMATES];
 	sint16 winter_snowline;
 
-	double max_mountain_height;                  //01-Dec-01        Markus Weber    Added
-	double map_roughness;                        //01-Dec-01        Markus Weber    Added
+	double max_mountain_height;
+	double map_roughness;
 
 	// river stuff
 	sint16 river_number;
@@ -208,16 +203,14 @@ private:
 	/*no goods will put in route, when stored>gemax_storage and goods_in_transit*maximum_intransit_percentage/100>max_storage  */
 	uint16 factory_maximum_intransit_percentage;
 
-	/* prissi: crossconnect all factories (like OTTD and similar games) */
+	/* crossconnect all factories (like OTTD and similar games) */
 	bool crossconnect_factories;
 
-	/* prissi: crossconnect all factories (like OTTD and similar games) */
+	/* crossconnect all factories (like OTTD and similar games) */
 	sint16 crossconnect_factor;
 
 	/**
 	* Generate random pedestrians in the cities?
-	*
-	* @author Hj. Malthaner
 	*/
 	bool random_pedestrians;
 
@@ -243,12 +236,10 @@ private:
 
 	/**
 	 * Use numbering for stations?
-	 *
-	 * @author Hj. Malthaner
 	 */
 	bool numbered_stations;
 
-	/* prissi: maximum number of steps for breath search */
+	/* maximum number of steps for breath search */
 	sint32 max_route_steps;
 
 	// maximum length for route search at signs/signals
@@ -257,7 +248,7 @@ private:
 	// max steps for good routing
 	sint32 max_hops;
 
-	/* prissi: maximum number of steps for breath search */
+	/* maximum number of steps for breath search */
 	sint32 max_transfers;
 
 	/**
@@ -572,7 +563,7 @@ public:
 
 private:
 	/// what is the minimum clearance required under bridges
-	sint8 way_height_clearance;
+	uint8 way_height_clearance;
 
 	// 1 = allow purchase of all out of production vehicles, including obsolete vehicles 2 = allow purchase of out of produciton vehicles that are not obsolete only
 	uint8 allow_buying_obsolete_vehicles;
@@ -763,7 +754,6 @@ public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
 	 * Set to empty string in order to avoid loading.
-	 * @author Hj. Malthaner
 	 */
 	std::string heightfield;
 
@@ -826,10 +816,10 @@ public:
 
 	uint16 get_station_coverage_factories() const {return station_coverage_size_factories;}
 
-	void set_allow_player_change(char n) {allow_player_change=n;}	// prissi, Oct-2005
+	void set_allow_player_change(char n) {allow_player_change=n;}
 	uint8 get_allow_player_change() const {return allow_player_change;}
 
-	void set_use_timeline(char n) {use_timeline=n;}	// prissi, Oct-2005
+	void set_use_timeline(char n) {use_timeline=n;}
 	uint8 get_use_timeline() const {return use_timeline;}
 
 	void set_starting_year( sint16 n ) { starting_year = n; }
@@ -840,7 +830,7 @@ public:
 
 	sint16 get_bits_per_month() const {return bits_per_month;}
 
-	void set_filename(const char *n) {filename=n;}	// prissi, Jun-06
+	void set_filename(const char *n) {filename=n;}
 	const char* get_filename() const { return filename.c_str(); }
 
 	bool get_beginner_mode() const {return beginner_mode;}
@@ -1066,10 +1056,11 @@ public:
 	sint32 get_growthfactor_medium() const { return growthfactor_medium; }
 	sint32 get_growthfactor_large() const { return growthfactor_large; }
 
-	// Knightly : number of periods for averaging the amount of arrived pax/mail at factories
+
+	// number of periods for averaging the amount of arrived pax/mail at factories
 	uint16 get_factory_arrival_periods() const { return factory_arrival_periods; }
 
-	// Knightly : whether factory pax/mail demands are enforced
+	// whether factory pax/mail demands are enforced
 	bool get_factory_enforce_demand() const { return factory_enforce_demand; }
 
 	uint16 get_factory_maximum_intransit_percentage() const { return factory_maximum_intransit_percentage; }

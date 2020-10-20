@@ -285,8 +285,7 @@ int dr_os_open(int width, int height, int const fullscreen)
 	if(  !internal_create_surfaces( true, w, h )  ) {
 		return 0;
 	}
-	DBG_MESSAGE("dr_os_open(SDL2)", "SDL realized screen size width=%d, height=%d (internal w=%d, h=%d)", width, height, w, h );
-	SDL_SetWindowSize( window, width, height );
+	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (internal w=%d, h=%d)", width, height, w, h );
 
 	SDL_ShowCursor(0);
 	arrow = SDL_GetCursor();
@@ -348,6 +347,7 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h )
 	}
 
 	display_set_actual_width( screen->w );
+
 	*textur = dr_textur_init();
 	return screen->w;
 }
@@ -367,7 +367,6 @@ unsigned short *dr_textur_init()
 /**
  * Transform a 24 bit RGB color into the system format.
  * @return converted color value
- * @author Hj. Malthaner
  */
 unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 {
@@ -433,7 +432,6 @@ void set_pointer(int loading)
  * Some wrappers can save screenshots.
  * @return 1 on success, 0 if not implemented for a particular wrapper and -1
  *         in case of error.
- * @author Hj. Malthaner
  */
 int dr_screenshot(const char *filename, int x, int y, int w, int h)
 {
@@ -481,6 +479,7 @@ static void internal_GetEvents(bool const wait)
 	// Apparently Cocoa SDL posts key events that meant to be used by IM...
 	// Ignoring SDL_KEYDOWN during preedit seems to work fine.
 	static bool composition_is_underway = false;
+	static bool ignore_previous_number = false;
 
 	SDL_Event event;
 	event.type = 1;
@@ -575,12 +574,15 @@ static void internal_GetEvents(bool const wait)
 			unsigned long code;
 #ifdef _WIN32
 			// SDL doesn't set numlock state correctly on startup. Revert to win32 function as workaround.
-			const bool numlock = (GetKeyState(VK_NUMLOCK) & 1) != 0;
+			const bool key_numlock = ((GetKeyState( VK_NUMLOCK ) & 1) != 0);
 #else
-			const bool numlock = SDL_GetModState() & KMOD_NUM;
+			const bool key_numlock = (SDL_GetModState() & KMOD_NUM);
 #endif
+			const bool numlock = key_numlock  &&  !env_t::numpad_always_moves_map;
 			sys_event.key_mod = ModifierKeys();
 			SDL_Keycode sym = event.key.keysym.sym;
+			bool np = false; // to indicate we converted a numpad key
+
 			switch(  sym  ) {
 				case SDLK_BACKSPACE:  code = SIM_KEY_BACKSPACE;             break;
 				case SDLK_TAB:        code = SIM_KEY_TAB;                   break;
@@ -605,24 +607,23 @@ static void internal_GetEvents(bool const wait)
 				case SDLK_F13:        code = SIM_KEY_F13;                   break;
 				case SDLK_F14:        code = SIM_KEY_F14;                   break;
 				case SDLK_F15:        code = SIM_KEY_F15;                   break;
-				case SDLK_KP_0:       code = numlock ? 0 : 0;               break;
-				case SDLK_KP_1:       code = numlock ? 0 : SIM_KEY_END;     break;
-				case SDLK_KP_2:       code = numlock ? 0 : SIM_KEY_DOWN;    break;
-				case SDLK_KP_3:       code = numlock ? 0 : '<';             break;
-				case SDLK_KP_4:       code = numlock ? 0 : SIM_KEY_LEFT;    break;
-				case SDLK_KP_5:       code = numlock ? 0 : 0;               break;
-				case SDLK_KP_6:       code = numlock ? 0 : SIM_KEY_RIGHT;   break;
-				case SDLK_KP_7:       code = numlock ? 0 : SIM_KEY_HOME;    break;
-				case SDLK_KP_8:       code = numlock ? 0 : SIM_KEY_UP;      break;
-				case SDLK_KP_9:       code = numlock ? 0 : '>';             break;
-				case SDLK_KP_DECIMAL: code = numlock ? 0 : SIM_KEY_DELETE;  break;
+				case SDLK_KP_0:       np = true; code = numlock ? '0' : SIM_KEY_NUMPAD_BASE + 0; break;
+				case SDLK_KP_1:       np = true; code = numlock ? '1' : SIM_KEY_NUMPAD_BASE+1; break;
+				case SDLK_KP_2:       np = true; code = numlock ? '2' : SIM_KEY_NUMPAD_BASE+2; break;
+				case SDLK_KP_3:       np = true; code = numlock ? '3' : SIM_KEY_NUMPAD_BASE+3; break;
+				case SDLK_KP_4:       np = true; code = numlock ? '4' : SIM_KEY_NUMPAD_BASE+4; break;
+				case SDLK_KP_5:       np = true; code = numlock ? '5' : SIM_KEY_NUMPAD_BASE+5; break;
+				case SDLK_KP_6:       np = true; code = numlock ? '6' : SIM_KEY_NUMPAD_BASE+6; break;
+				case SDLK_KP_7:       np = true; code = numlock ? '7' : SIM_KEY_NUMPAD_BASE+7; break;
+				case SDLK_KP_8:       np = true; code = numlock ? '8' : SIM_KEY_NUMPAD_BASE+8; break;
+				case SDLK_KP_9:       np = true; code = numlock ? '9' : SIM_KEY_NUMPAD_BASE+9; break;
 				case SDLK_KP_ENTER:   code = SIM_KEY_ENTER;                 break;
 				case SDLK_LEFT:       code = SIM_KEY_LEFT;                  break;
 				case SDLK_PAGEDOWN:   code = '<';                           break;
 				case SDLK_PAGEUP:     code = '>';                           break;
 				case SDLK_RIGHT:      code = SIM_KEY_RIGHT;                 break;
 				case SDLK_UP:         code = SIM_KEY_UP;                    break;
-				case SDLK_PAUSE:      code = 16;                            break;
+				case SDLK_PAUSE:      code = SIM_KEY_PAUSE;                 break;
 				default: {
 					// Handle CTRL-keys. SDL_TEXTINPUT event handles regular input
 					if(  (sys_event.key_mod & 2)  &&  SDLK_a <= sym  &&  sym <= SDLK_z  ) {
@@ -634,15 +635,21 @@ static void internal_GetEvents(bool const wait)
 					break;
 				}
 			}
+			ignore_previous_number = (np  &&   key_numlock  &&  env_t::numpad_always_moves_map);
 			sys_event.type    = SIM_KEYBOARD;
 			sys_event.code    = code;
 			break;
 		}
+
 		case SDL_TEXTINPUT: {
 			size_t in_pos = 0;
 			utf32 uc = utf8_decoder_t::decode((utf8 const*)event.text.text, in_pos);
 			if(  event.text.text[in_pos]==0  ) {
 				// single character
+				if( ignore_previous_number ) {
+					ignore_previous_number = false;
+					break;
+				}
 				sys_event.type    = SIM_KEYBOARD;
 				sys_event.code    = (unsigned long)uc;
 			}

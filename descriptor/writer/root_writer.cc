@@ -423,7 +423,7 @@ void root_writer_t::uncopy(const char* name)
 					node_name = name_from_next_node(infp);
 				}
 				// use a clever default name, if no name there
-				// note: this doesn't work because node_name.size() is not 0 even if invalid file characters are contained. (z9999)
+				// note: this doesn't work because node_name.size() is not 0 even if invalid file characters are contained.
 				if (node_name.empty()) {
 					char random_name[16];
 					// we use the file position as unique name

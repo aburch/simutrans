@@ -48,7 +48,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 {
 	int total_len = 22;
 
-	// prissi: must be done here, since it may affect the len of the header!
+	// must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
 	sint16 sound_id=NO_SOUND;
 	if (!sound_str.empty()) {
@@ -72,9 +72,8 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	obj_node_t	node(this, total_len, &parent);
 	write_head(fp, node, obj);
 
-	// Hajo: version number
-	// Hajo: Version needs high bit set as trigger -> this is required
-	//       as marker because formerly nodes were unversioned
+	// Version needs high bit set as trigger -> this is required
+	// as marker because formerly nodes were unversionend
 	uint16 uv16 = 0x8002;
 
 	// This is the overlay flag for Simutrans-Extended

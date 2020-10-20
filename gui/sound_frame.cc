@@ -134,7 +134,6 @@ bool sound_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
  * Draw new component. The values to be passed refer to the window
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
- * @author Hj. Malthaner
  */
 void sound_frame_t::draw(scr_coord pos, scr_size size)
 {

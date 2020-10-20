@@ -492,7 +492,7 @@ int simu_main(int argc, char** argv)
 #endif
 			" -use_workdir        use current dir as basedir\n"
 		);
-		return 0;
+		return EXIT_SUCCESS;
 	}
 
 #ifdef __BEOS__
@@ -838,7 +838,7 @@ int simu_main(int argc, char** argv)
 					"invalid resolution, argument must be 1,2,3 or 4\n"
 					"1=640x480, 2=800x600, 3=1024x768, 4=1280x1024, 5=windowed\n"
 				);
-				return 0;
+				return EXIT_FAILURE;
 		}
 	}
 
@@ -857,7 +857,7 @@ int simu_main(int argc, char** argv)
 				"invalid argument for -screensize option\n"
 				"argument must be of format like 800x600\n"
 			);
-			return 1;
+			return EXIT_FAILURE;
 		}
 	}
 
@@ -920,29 +920,29 @@ int simu_main(int argc, char** argv)
 	if(  const char *themestr = gimme_arg(argc, argv, "-theme", 1)  ) {
 		dr_chdir( env_t::user_dir );
 		dr_chdir( "themes" );
-		themes_ok = gui_theme_t::themes_init(themestr, true);
+		themes_ok = gui_theme_t::themes_init(themestr, true, false);
 		if(  !themes_ok  ) {
 			dr_chdir( env_t::program_dir );
 			dr_chdir( "themes" );
-			themes_ok = gui_theme_t::themes_init(themestr, true);
+			themes_ok = gui_theme_t::themes_init(themestr, true, false);
 		}
 	}
 	// next try the last used theme
 	if(  !themes_ok  &&  env_t::default_theme.c_str()!=NULL  ) {
 		dr_chdir( env_t::user_dir );
 		dr_chdir( "themes" );
-		themes_ok = gui_theme_t::themes_init( env_t::default_theme, true  );
+		themes_ok = gui_theme_t::themes_init( env_t::default_theme, true, false );
 		if(  !themes_ok  ) {
 			dr_chdir( env_t::program_dir );
 			dr_chdir( "themes" );
-			themes_ok = gui_theme_t::themes_init( env_t::default_theme, true  );
+			themes_ok = gui_theme_t::themes_init( env_t::default_theme, true, false );
 		}
 	}
 	// specified themes not found => try default themes
 	if(  !themes_ok  ) {
 		dr_chdir( env_t::program_dir );
 		dr_chdir( "themes" );
-		themes_ok = gui_theme_t::themes_init("themes.tab",true);
+		themes_ok = gui_theme_t::themes_init("themes.tab",true,false);
 	}
 	if(  !themes_ok  ) {
 		dbg->fatal( "simmain()", "No GUI themes found! Please re-install!" );
@@ -957,7 +957,7 @@ int simu_main(int argc, char** argv)
 		ask_objfilename();
 		if(  env_t::quit_simutrans  ) {
 			simgraph_exit();
-			return 0;
+			return EXIT_SUCCESS;
 		}
 		if(  env_t::objfilename.empty()  ) {
 			// try to download missing paks
@@ -965,7 +965,7 @@ int simu_main(int argc, char** argv)
 				ask_objfilename();
 				if(  env_t::quit_simutrans  ) {
 					simgraph_exit();
-					return 0;
+					return EXIT_SUCCESS;
 				}
 			}
 			// still nothing?
@@ -973,7 +973,7 @@ int simu_main(int argc, char** argv)
 				// nothing to be loaded => exit
 				dr_fatal_notify("*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install a pak set (graphics).\n");
 				simgraph_exit();
-				return 0;
+				return EXIT_FAILURE;
 			}
 		}
 	}
@@ -990,7 +990,7 @@ int simu_main(int argc, char** argv)
 		if(  !f  ) {
 			dr_fatal_notify("*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install a pak set (graphics).\n");
 			simgraph_exit();
-			return 0;
+			return EXIT_FAILURE;
 		}
 		fclose(f);
 	}
@@ -1113,7 +1113,7 @@ int simu_main(int argc, char** argv)
 		translator::set_language( env_t::language_iso );
 	}
 
-	// Hajo: simgraph init loads default fonts, now we need to load (if not set otherwise)
+	// simgraph_init loads default fonts, now we need to load (if not set otherwise)
 	sprachengui_t::init_font_from_lang( strcmp(env_t::fontname.c_str(), FONT_PATH_X "prop.fnt")==0 );
 	dr_chdir(env_t::program_dir);
 
@@ -1147,6 +1147,17 @@ int simu_main(int argc, char** argv)
 
 	dbg->message("simmain()","Reading private car ownership configuration ...");
 	karte_t::privatecar_init(env_t::objfilename);
+
+	// reread theme
+	dr_chdir( env_t::user_dir );
+	dr_chdir( "themes" );
+	themes_ok = gui_theme_t::themes_init( env_t::default_theme, true, false );
+	if(  !themes_ok  ) {
+		dr_chdir( env_t::program_dir );
+		dr_chdir( "themes" );
+		themes_ok = gui_theme_t::themes_init( env_t::default_theme, true, false );
+	}
+	dr_chdir( env_t::program_dir );
 
 	if(  translator::get_language()==-1  ) {
 		ask_language();
@@ -1221,20 +1232,16 @@ int simu_main(int argc, char** argv)
 
 	// still nothing to be loaded => search for demo games
 	if(  new_world  ) {
-		cbuffer_t buf;
-		// It's in the pakfile, in the program directory
-		// (unlike every other saved game)
-		buf.append( env_t::program_dir ); // has trailing slash
-		buf.append( env_t::objfilename.c_str() ); //has trailing slash
-		buf.append("demo.sve");
+		dr_chdir( env_t::program_dir );
 
-		if (FILE* const f = dr_fopen(buf.get_str(), "rb")) {
+		const std::string path = env_t::program_dir + env_t::objfilename + "demo.sve";
+
+		// access did not work!
+		if(  FILE *const f = dr_fopen(path.c_str(), "rb")  ) {
 			// there is a demo game to load
-			loadgame = buf;
+			loadgame = path;
 			fclose(f);
-DBG_MESSAGE("simmain","loadgame file found at %s",buf.get_str() );
-		} else {
-DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
+DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 		}
 	}
 
@@ -1414,7 +1421,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 
 
 #ifdef USE_SOFTPOINTER
-	// Hajo: give user a mouse to work with
+	// give user a mouse to work with
 	if (skinverwaltung_t::mouse_cursor != NULL) {
 		// we must use our softpointer (only Allegro!)
 		display_set_pointer(skinverwaltung_t::mouse_cursor->get_image_id(0));
@@ -1426,7 +1433,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 
 	welt->set_dirty();
 
-	// Hajo: simgraph init loads default fonts, now we need to load
+	// simgraph_init loads default fonts, now we need to load
 	// the real fonts for the current language, if not set otherwise
 	sprachengui_t::init_font_from_lang( strcmp(env_t::fontname.c_str(), FONT_PATH_X "prop.fnt")==0 );
 
@@ -1520,5 +1527,5 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 	freelist_t::free_all_nodes();
 #endif
 
-	return 0;
+	return EXIT_SUCCESS;
 }

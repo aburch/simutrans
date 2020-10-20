@@ -16,7 +16,7 @@ struct event_t;
  * Implements the loading screen related routines, in the aim of  centralize
  * all its code and make it more modular, as it was scattered across all code
  * before.
- * @author prissi converted the namespace code from Markohs
+ *
  * @note The functions are safe on non-initialized displays, it won't try to write
  * on a not existent buffer.
  */

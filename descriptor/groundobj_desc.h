@@ -12,11 +12,8 @@
 #include "image_array.h"
 #include "../network/checksum.h"
 
-/*
- *  Autor:
- *      Markus Pristovsek
- *
- * this is the description for ground objects like small lakes, hunting mail, birds, flower patch, stones, sheeps, ...
+/**
+ * This is the description for ground objects like small lakes, hunting post, birds, flower patch, stones, sheeps, ...
  * these can either reside on a tile (moving=0)
  * or move around the map (water_t=only on water, air_t=everywhere)
  * They are removable with certain costs.

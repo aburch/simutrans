@@ -37,7 +37,6 @@ crossing_logic_t::crossing_logic_t( const crossing_desc_t *desc )
 
 /**
  * @return string; currently unused but useful for debugging
- * @author prissi
  */
 void crossing_logic_t::info(cbuffer_t & buf) const
 {

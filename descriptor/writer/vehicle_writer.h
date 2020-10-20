@@ -24,7 +24,6 @@ class vehicle_writer_t : public obj_writer_t {
 	public:
 		/**
 		 * Writes vehicle node data to file
-		 * @author Hj. Malthaner
 		 */
 		virtual void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);
 

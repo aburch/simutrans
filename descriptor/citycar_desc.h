@@ -14,12 +14,8 @@
 #include "../network/checksum.h"
 
 
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *	Pedestrians
+/**
+ * Private city cars, not player owned. They automatically appear in cities.
  *
  *  Child nodes:
  *	0   Name

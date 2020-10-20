@@ -34,9 +34,9 @@ class gui_image_t : public gui_component_t
 		void enable_offset_removal(bool remove_offsets) { set_image(id,remove_offsets); }
 
 		void set_transparent(FLAGGED_PIXVAL c) { color_index = c; }
+
 		/**
 		 * Draw the component
-		 * @author Hj. Malthaner
 		 */
 		void draw( scr_coord offset ) OVERRIDE;
 

@@ -3,8 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/* completely overhauled by prissi Oct-2005 */
-
 #include <stdio.h>
 #include <ctype.h>
 
@@ -403,10 +401,8 @@ void schedule_t::rotate90( sint16 y_size )
 }
 
 
-
-/*
+/**
  * compare this schedule (schedule) with another, passed in schedule
- * @author hsiegeln
  */
 bool schedule_t::matches(karte_t *welt, const schedule_t *schedule)
 {
@@ -547,9 +543,8 @@ public:
 };
 
 
-/*
+/**
  * compare this schedule (schedule) with another, ignoring order and exact positions and waypoints
- * @author prissi
  */
 bool schedule_t::similar( const schedule_t *schedule, const player_t *player )
 {

@@ -8,7 +8,7 @@
 
 
 #include "gui_frame.h"
-#include "components/action_listener.h"  // 28-Dec-2001  Markus Weber    Added
+#include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_combobox.h"
 #include "components/gui_convoiinfo.h"
@@ -18,15 +18,12 @@ class player_t;
 class goods_desc_t;
 class gui_scrolled_convoy_list_t;
 
-/*
+/**
  * Displays a scrollable list of all convois of a player
- *
- * @author Hj. Malthaner, Sort/Filtering by V. Meyer
- * @date 15-Jun-01
  */
 class convoi_frame_t :
 	public gui_frame_t,
-	private action_listener_t  //28-Dec-01     Markus Weber    Added , private action_listener_t
+	private action_listener_t
 {
 public:
 	enum sort_mode_t { by_name = 0, by_profit, by_type, by_id, by_power, SORT_MODES };
@@ -78,9 +75,9 @@ public:
 	/**
 	 * Check all filters for one convoi.
 	 * returns true, if it is not filtered away.
-	 * @author V. Meyer
 	 */
 	bool passes_filter(convoihandle_t cnv);
+
 	/**
 	 * Resorts convois
 	 */
@@ -91,9 +88,7 @@ public:
 	virtual ~convoi_frame_t();
 
 	/**
-	 * Events werden hiermit an die GUI-components
-	 * gemeldet
-	 * @author V. Meyer
+	 * Events werden hiermit an die GUI-Komponenten gemeldet
 	 */
 	bool infowin_event(const event_t *ev) OVERRIDE;
 
@@ -101,14 +96,12 @@ public:
 	 * Draw new component. The values to be passed refer to the window
 	 * i.e. It's the screen coordinates of the window where the
 	 * component is displayed.
-	 * @author Hj. Malthaner
 	 */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author V. Meyer
 	 */
 	const char * get_help_filename() const OVERRIDE {return "convoi.txt"; }
 

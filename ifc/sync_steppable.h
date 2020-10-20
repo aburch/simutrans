@@ -12,13 +12,11 @@
 enum sync_result {
 	SYNC_OK,     ///< object remains in list
 	SYNC_REMOVE, ///< remove object from list
-	SYNC_DELETE, ///< delete object and remove from list
+	SYNC_DELETE  ///< delete object and remove from list
 };
 
 /**
  * All synchronously moving things must implement this interface.
- *
- * @author Hj. Malthaner
  */
 class sync_steppable
 {

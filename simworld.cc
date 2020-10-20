@@ -27,7 +27,6 @@
 #include "display/simimg.h"
 #include "siminteraction.h"
 #include "simintr.h"
-#include "simio.h"
 #include "simlinemgmt.h"
 #include "simloadingscreen.h"
 #include "simmenu.h"
@@ -421,17 +420,13 @@ void karte_t::perlin_hoehe_loop( sint16 x_min, sint16 x_max, sint16 y_min, sint1
  *
  * @param frequency in 0..1.0 roughness, the higher the rougher
  * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
- * @author Hj. Malthaner
  */
 sint32 karte_t::perlin_hoehe(settings_t const* const sets, koord k, koord const size, sint32 map_size_max)
 {
-	// Hajo: to Markus: replace the fixed values with your
-	// settings. Amplitude is the top highness of the
-	// mountains, frequency is something like landscape 'roughness'
-	// amplitude may not be greater than 160.0 !!!
-	// please don't allow frequencies higher than 0.8 it'll
-	// break the AI's pathfinding. Frequency values of 0.5 .. 0.7
-	// seem to be ok, less is boring flat, more is too crumbled
+	// replace the fixed values with your settings. Amplitude is the top highness of the mountains,
+	// frequency is something like landscape 'roughness'; amplitude may not be greater than 160.0 !!!
+	// please don't allow frequencies higher than 0.8, it'll break the AI's pathfinding.
+	// Frequency values of 0.5 .. 0.7 seem to be ok, less is boring flat, more is too crumbled
 	// the old defaults are given here: f=0.6, a=160.0
 	switch( sets->get_rotation() ) {
 		// 0: do nothing
@@ -497,7 +492,7 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 			gr->set_pos( koord3d( k, height) );
 			if(  gr->get_typ() != grund_t::wasser  &&  max_hgt_nocheck(k) <= water_hgt  ) {
 				// below water but ground => convert
-				pl->kartenboden_setzen( new wasser_t(gr->get_pos()) );
+				pl->kartenboden_setzen( new wasser_t(gr->get_pos()), true /* do not calc_image for water tiles */ );
 			}
 			else if(  gr->get_typ() == grund_t::wasser  &&  max_hgt_nocheck(k) > water_hgt  ) {
 				// water above ground => to ground
@@ -1011,7 +1006,7 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 	}
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "Creating cities: %d", new_city_count);
 
-	// prissi if we could not generate enough positions ...
+	// if we could not generate enough positions ...
 	settings.set_city_count(old_city_count);
 	int old_progress = 16;
 
@@ -1479,7 +1474,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 
 	world_maximum_height = sets->get_maximumheight();
 	world_minimum_height = sets->get_minimumheight();
-	groundwater = (sint8)sets->get_groundwater();      //29-Nov-01     Markus Weber    Changed
+	groundwater = (sint8)sets->get_groundwater();
 
 	init_height_to_climate();
 	snowline = sets->get_winter_snowline() + groundwater;
@@ -4231,7 +4226,7 @@ void karte_t::set_tool( tool_t *tool_in, player_t *player )
 	}
 
 	// check for password-protected players
-	if(  (!tool_in->is_init_network_save()  ||  !tool_in->is_work_network_save())  &&  !scripted_call  &&
+	if(  (!tool_in->is_init_network_safe()  ||  !tool_in->is_work_network_safe())  &&  !scripted_call  &&
 		 !(tool_in->get_id()==(TOOL_CHANGE_PLAYER|SIMPLE_TOOL)  ||  tool_in->get_id()==(TOOL_ADD_MESSAGE|SIMPLE_TOOL))  &&
 		 action_player  &&  action_player->is_locked()  ) {
 		// player is currently password protected => request unlock first
@@ -4239,7 +4234,7 @@ void karte_t::set_tool( tool_t *tool_in, player_t *player )
 		return;
 	}
 	tool_in->flags |= event_get_last_control_shift();
-	if(!env_t::networkmode  ||  tool_in->is_init_network_save()  ) {
+	if(!env_t::networkmode  ||  tool_in->is_init_network_safe()  ) {
 		local_set_tool(tool_in, player);
 	}
 	else {
@@ -4265,7 +4260,7 @@ void karte_t::local_set_tool( tool_t *tool_in, player_t * player )
 	// now call init
 	bool init_result = tool_in->init(player);
 	// for unsafe tools init() must return false
-	assert(tool_in->is_init_network_save()  ||  !init_result);
+	assert(tool_in->is_init_network_safe()  ||  !init_result);
 
 	if (player && init_result) {
 
@@ -5059,9 +5054,11 @@ void karte_t::update_frame_sleep_time()
 			}
 		}
 	}
-	else  { // here only with fyst forward ...
+	else  {
+		assert(step_mode == FAST_FORWARD);
+
 		// try to get 10 fps or lower rate (if set)
-		uint32 frame_intervall = max( 100, 1000/env_t::fps );
+		const uint32 frame_intervall = 1000/env_t::ff_fps;
 		if(get_frame_time()>frame_intervall) {
 			reduce_frame_time();
 		}
@@ -9065,7 +9062,7 @@ static pthread_mutex_t height_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
 {
-	sint8 min_h = min_height, max_h = max_height;
+	sint8 min_h = 127, max_h = -128;
 	for(  int y = y_min;  y < y_max;  y++  ) {
 		for(  int x = x_min; x < x_max;  x++  ) {
 			const planquadrat_t *plan = access_nocheck(x,y);
@@ -10431,13 +10428,13 @@ void karte_t::reset_timer()
 	else if(step_mode==FAST_FORWARD) {
 		next_step_time = last_tick_sync+1;
 		idle_time = 0;
-		set_frame_time( 100 );
+		set_frame_time( 1000 / env_t::ff_fps );
 		time_multiplier = 16;
 		intr_enable();
 	}
 	else if(step_mode==FIX_RATIO) {
 		last_frame_idx = 0;
-		fix_ratio_frame_time = 1000 / clamp(settings.get_frames_per_second(), 5, 100);
+		fix_ratio_frame_time = 1000 / clamp(settings.get_frames_per_second(), 5u, 100u);
 		next_step_time = last_tick_sync + fix_ratio_frame_time;
 		set_frame_time( fix_ratio_frame_time );
 		intr_disable();
@@ -10663,6 +10660,9 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 		set_dirty();
 	}
 
+	// init tool again
+	selected_tool[active_player_nr]->flags = 0;
+	selected_tool[active_player_nr]->init(active_player);
 	// update pointer image / area
 	selected_tool[active_player_nr]->init_cursor(zeiger);
 	// set position / mark area
@@ -10712,7 +10712,7 @@ void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 const char* karte_t::call_work(tool_t *tool, player_t *player, koord3d pos, bool &suspended)
 {
 	const char *err = NULL;
-	if (!env_t::networkmode || tool->is_work_network_save() || tool->is_work_here_network_save(player, pos)) {
+	if (!env_t::networkmode || tool->is_work_network_safe() || tool->is_work_here_network_save(player, pos)) {
 		// do the work
 		tool->flags |= tool_t::WFL_LOCAL;
 		// check allowance by scenario

@@ -33,10 +33,6 @@ public:
 };
 
 /**
- * SAVE GAME FRAME CONSTRUCTOR
- * @author Hj. Malthaner
- * @author Max Kielland
- *
  * @param suffix            Optional file pattern to populate the file list.
  *                          Example ".sve" or "sve"
  *                          Default value is NULL to disregard extension.
@@ -47,8 +43,7 @@ public:
  * @param delete_enabled    Show (true) or hide (false) the delete buttons.
  *                          This is an optional parameter with a default value of true;
  */
-savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, const char *path, const bool delete_enabled) :
-	gui_frame_t( translator::translate("Load/Save") ),
+savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, const char *path, const bool delete_enabled) : gui_frame_t( translator::translate("Load/Save") ),
 	suffix(suffix),
 	in_action(false),
 	only_directories(only_directories),
@@ -58,11 +53,11 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	num_sections(0),
 	delete_enabled(delete_enabled)
 {
-	set_table_layout(1, 0);
+	set_table_layout(1,0);
 	label_enabled = true;
 
 	// Filename input
-	top_frame.set_table_layout(2, 0);
+	top_frame.set_table_layout(2,0);
 	add_component(&top_frame);
 	{
 		top_frame.add_component(&fnlabel);
@@ -82,7 +77,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	// Controls below will be sized and positioned in set_windowsize()
 	new_component<gui_divider_t>();
 
-	add_table(3, 1);
+	add_table(3,1);
 	{
 		add_component(&bottom_left_frame);
 		bottom_left_frame.set_table_layout(1, 0);
@@ -122,9 +117,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 
 
 /**
- * SAVE GAME FRAME DESTRUCTOR
  * Free all list items.
- * @author Hj. Malthaner
  */
 savegame_frame_t::~savegame_frame_t()
 {
@@ -149,7 +142,6 @@ savegame_frame_t::~savegame_frame_t()
 
 
 /**
- * ADD SECTION
  * Adds a section entry to the list...
  *
  * @param name  Section name?!?
@@ -203,7 +195,6 @@ void savegame_frame_t::add_section(std::string &name){
 
 
 /**
- * ADD PATH
  * Adds a path to the list of path included in the file search.
  * Several paths can be added one at a time. All added paths will
  * be searched by fill_list().
@@ -222,7 +213,6 @@ void savegame_frame_t::add_path(const char * path){
 
 
 /**
- * FILL LIST
  * Populates the item list with matching file names. Each matching file
  * is first checked (check_file) and then added (add_file).
  */
@@ -243,8 +233,8 @@ void savegame_frame_t::fill_list( void )
 	// for each path, we search.
 	FOR(vector_tpl<std::string>, &path, paths){
 
-		const char		*path_c = path.c_str();
-		const size_t	path_c_len = strlen(path_c);
+		const char *path_c      = path.c_str();
+		const size_t path_c_len = strlen(path_c);
 
 		sf.search(path, std::string(suffixnodot), this->only_directories, false);
 
@@ -271,9 +261,6 @@ void savegame_frame_t::fill_list( void )
 
 	}
 
-	// Notify of the end
-	list_filled();
-
 	// force position and size calculation of list elements
 	resize(scr_coord(0, 0));
 }
@@ -281,19 +268,17 @@ void savegame_frame_t::fill_list( void )
 
 
 /**
- * LIST FILLED
  * All items has been inserted in the list.
  * On return resize() is called and all item's GYU members are positioned and resized.
  * Therefore it is no use to set the button's and label's width or any items y position.
  * The only control keeping its size is the delete button.
- * @author Unknown
- * @author Max Kielland
  */
 void savegame_frame_t::list_filled( void )
 {
 	uint cols = (delete_enabled ? 1 : 0) + 1 + (label_enabled ? 1 : 0);
-	button_frame.set_table_layout(1, 0);
-	button_frame.add_table(cols, 0);
+	button_frame.set_table_layout(1,0);
+	button_frame.add_table(cols,0);
+	button_frame.add_table(cols,0)->set_spacing(scr_size(D_H_SPACE,D_FILELIST_V_SPACE)); // change space between entries to zero to see more on screen
 
 	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 		button_t*    const delete_button = i.del;
@@ -312,8 +297,7 @@ void savegame_frame_t::list_filled( void )
 
 			if (dr_cantrash()) {
 				delete_button->set_tooltip("Send this file to the system trash bin. SHIFT+CLICK to permanently delete.");
-			}
-			else {
+			} else {
 				delete_button->set_tooltip("Delete this file.");
 			}
 
@@ -366,7 +350,7 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 	}
 	button->set_typ( button_t::roundbox | button_t::flexible);
 	button->set_no_translate(true);
-	button->set_text(name);	// to avoid translation
+	button->set_text(name); // to avoid translation
 
 	std::string const compare_to = !env_t::objfilename.empty() ? env_t::objfilename.substr(0, env_t::objfilename.size() - 1) + " -" : std::string();
 	// sort by date descending:
@@ -389,7 +373,7 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 	if(!strstart(pak, compare_to.c_str())) {
 		// skip current ones
 		while(i != end) {
-			// extract palname in same format than in savegames ...
+			// extract pakname in same format than in savegames ...
 			if(!strstart(i->label->get_text_pointer(), compare_to.c_str())) {
 				break;
 			}
@@ -430,7 +414,6 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 
 
 /**
- * INFO WIN EVENT
  * This dialogue's message event handler. The enter key is dispateched as
  * an action button click event. The WIN_OPEN event starts to fill the file
  * list if it is empty.
@@ -467,12 +450,9 @@ bool savegame_frame_t::check_file(const char *filename, const char *suffix)
 
 
 /**
- * ACTION TRIGGERED
  * Click event handler and dispatcher. This function is called
  * every time a button is clicked and the corresponding handler
  * is called from here.
- * @author Hj. Malthaner
- * @author Max Kielland
  *
  * @param component  The component that was clicked.
  *
@@ -502,14 +482,14 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t
 			}
 		}
 		ok_action(buf);
-		destroy_win(this);      //29-Oct-2001         Markus Weber    Close window
+		destroy_win(this);
 
 	}
 	else if(component == &cancelbutton) {
 		// Cancel-button pressed
 		//----------------------------
 		cancel_action(buf);
-		destroy_win(this);      //29-Oct-2001         Markus Weber    Added   savebutton case
+		destroy_win(this);
 	}
 	else if (component == &file_table) {
 		const gui_table_event_t *event = (const gui_table_event_t *) p.p;
@@ -603,12 +583,10 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t
 
 
 /**
- * DELETE ACTION
  * Generic delete button click handler. This will delete the
  * item from the storage media. If the system supports a
  * trash bin, the file is moved over there instead of being deleted.
  * A shift + Delete always deletes the file imediatly
- * @author Hansjörg Malthaner
  *
  * @param fullpath  Full path to the file being deleted.
  *
@@ -629,7 +607,6 @@ bool savegame_frame_t::del_action(const char *fullpath)
 
 
 /**
- * SET FILE NAME
  * Sets the current filename in the input box
  *
  * @param file_name  A nul terminated string to assign the edit control.
@@ -782,7 +759,7 @@ void gui_file_table_t::paint_cell(const scr_coord& offset, coordinate_t x, coord
 
 
 /**
- * CLEAN UP PATH - ONLY WIN32
+ * ONLY WIN32
  * Translates all / into \ in a given path string. If a drive
  * letter is present it is translated to upper case
  *
@@ -814,7 +791,6 @@ void savegame_frame_t::cleanup_path(char *path)
 
 
 /**
- * SHORTEN PATH
  * Outputs a truncated path by replacing the middle portion with "..."
  *
  * @param dest      Destination string.
@@ -844,10 +820,9 @@ void savegame_frame_t::shorten_path(char *dest,const char *source,const size_t m
 
 
 /**
- * GET BASE NAME
  * Returns the path portion of a qualified filename including path.
  *
- * @param fullpath A null terminated string with a full qualified file name.
+ * @param fullpath  A null terminated string with a full qualified file name.
  */
 std::string savegame_frame_t::get_basename(const char *fullpath)
 {
@@ -862,11 +837,10 @@ std::string savegame_frame_t::get_basename(const char *fullpath)
 
 
 /**
- * GET FILE NAME
  * Returns the file name without extension (optional) of a qualified filename
  * including path.
  *
- * @param fullpath A null terminated string with a full qualified file name.
+ * @param fullpath            A nul terminated string with a full qualified file name.
  * @param with_extension  If true, the extension is removed from the filename.
  *
  * @retval std::string  The filename without extension.

@@ -4,6 +4,7 @@
  */
 
 #include "privatesign_info.h"
+#include "components/gui_label.h"
 #include "../obj/roadsign.h"
 #include "../player/simplay.h"
 
@@ -27,18 +28,24 @@ privatesign_info_t::privatesign_info_t(roadsign_t* s) :
 		players[i].pressed = (i>=8? sign->get_ticks_ow() & (1<<(i-8)) : sign->get_ticks_ns() & (1<<i) )!=0;
 		add_component( &players[i] );
 	}
+
+	// show author below the settings
+	if (char const* const maker = sign->get_desc()->get_copyright()) {
+		gui_label_buf_t* lb = new_component<gui_label_buf_t>();
+		lb->buf().printf(translator::translate("Constructed by %s"), maker);
+		lb->update();
+	}
+
 	recalc_size();
 }
 
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  *
  * Returns true, if action is done and no more
  * components should be triggered.
- * V.Meyer
-   */
+ */
 bool privatesign_info_t::action_triggered( gui_action_creator_t *comp, value_t /* */)
 {
 	if(  welt->get_active_player() ==  sign->get_owner()  ) {

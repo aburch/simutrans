@@ -595,7 +595,6 @@ DBG_DEBUG( "wayobj_t::register_desc()","%s", desc->get_name() );
 
 /**
  * Fill menu with icons of given wayobjects from the list
- * @author Hj. Malthaner
  */
 void wayobj_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 /*sound_ok*/)
 {

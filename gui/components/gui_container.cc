@@ -3,23 +3,12 @@
  * (see LICENSE.txt)
  */
 
-/**
- * A container for other gui_components. Is itself
- * a gui_component, and can therefor be nested.
- *
- * @author Hj. Malthaner
- * @date 03-Mar-01
- */
-
-// #define SHOW_BBOX
-
-/*
- * [Mathew Hounsell] Min Size Button On Map Window 20030313
- */
 
 #include "gui_container.h"
 #include "../gui_theme.h"
 
+// DEBUG: shows outline of all elements
+//#define SHOW_BBOX
 
 gui_container_t::gui_container_t() : gui_component_t(), comp_focus(NULL)
 {
@@ -30,7 +19,6 @@ gui_container_t::gui_container_t() : gui_component_t(), comp_focus(NULL)
 
 /**
  * Add component to the container
- * @author Hj. Malthaner
  */
 void gui_container_t::add_component(gui_component_t *comp)
 {
@@ -44,7 +32,6 @@ void gui_container_t::add_component(gui_component_t *comp)
 
 /**
  * Remove/destroy component from container
- * @author Hj. Malthaner
  */
 void gui_container_t::remove_component(gui_component_t *comp)
 {
@@ -61,7 +48,6 @@ void gui_container_t::remove_component(gui_component_t *comp)
 
 /**
  * Remove all components from container
- * @author Markus Weber
  */
 void gui_container_t::remove_all()
 {
@@ -75,7 +61,6 @@ void gui_container_t::remove_all()
 /**
  * Events werden hiermit an die GUI-components
  * gemeldet
- * @author Hj. Malthaner
  */
 bool gui_container_t::infowin_event(const event_t *ev)
 {
@@ -93,7 +78,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 			swallowed = comp_focus->infowin_event(&ev2);
 		}
 
-		// Knightly : either event not swallowed, or inner container has no focused child component after TAB event
+		// either event not swallowed, or inner container has no focused child component after TAB event
 		if(  !swallowed  ||  (ev->ev_code==SIM_KEY_TAB  &&  comp_focus  &&  comp_focus->get_focus()==NULL)  ) {
 			if(  ev->ev_code==SIM_KEY_TAB  ) {
 				// TAB: find new focus
@@ -121,8 +106,8 @@ bool gui_container_t::infowin_event(const event_t *ev)
 					}
 				}
 
-				// Knightly :	inner containers with focusable components may not have a focused component yet
-				//				==> give the inner container a distribution_weight to activate the first focusable component
+				// inner containers with focusable components may not have a focused component yet
+				// ==> give the inner container a chance to activate the first focusable component
 				if(  new_focus  &&  new_focus->get_focus()==NULL  ) {
 					event_t ev2 = *ev;
 					translate_event(&ev2, -new_focus->get_pos().x, -new_focus->get_pos().y);
@@ -177,12 +162,12 @@ bool gui_container_t::infowin_event(const event_t *ev)
 					continue;
 				}
 
-				// Hajo: deliver events if
+				// deliver events if
 				// a) The mouse or click coordinates are inside the component
 				// b) The event affects all components, this are WINDOW events
 				if(  comp  ) {
-					if(  DOES_WINDOW_CHILDREN_NEED( ev )  ) { // (Mathew Hounsell)
-						// Hajo: no need to translate the event, it has no valid coordinates either
+					if(  DOES_WINDOW_CHILDREN_NEED( ev )  ) {
+						// no need to translate the event, it has no valid coordinates either
 						comp->infowin_event(ev);
 					}
 					else if(  comp->is_visible()  ) {
@@ -208,7 +193,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 					continue;
 				}
 
-				// Hajo: if component hit, translate coordinates and deliver event
+				// if component hit, translate coordinates and deliver event
 				event_t ev2 = *ev;
 				translate_event(&ev2, -comp->get_pos().x, -comp->get_pos().y);
 
@@ -219,7 +204,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 				gui_component_t *focus = comp->get_focus() ? comp : NULL;
 
 				// set focus for component, if component allows focus
-				if(  focus  &&  IS_LEFTCLICK(ev)  &&  comp->getroffen(ev->cx, ev->cy)  ) {
+				if(  focus  &&  IS_LEFTRELEASE(ev)  &&  comp->getroffen(ev->cx, ev->cy)  ) {
 					/* the focus swallow all following events;
 					 * due to the activation action
 					 */
@@ -256,8 +241,8 @@ bool gui_container_t::infowin_event(const event_t *ev)
 }
 
 
-/* Draw the component
- * @author Hj. Malthaner
+/**
+ * Draw the component
  */
 void gui_container_t::draw(scr_coord offset)
 {
@@ -269,7 +254,7 @@ void gui_container_t::draw(scr_coord offset)
 
 	// For debug purpose, draw the container's boundary
 #ifdef SHOW_BBOX
-#define shorten(d) max(0, min(d, 0x4fff))
+#define shorten(d) clamp(d, 0, 0x4fff)
 	display_ddd_box_clip_rgb(shorten(screen_pos.x), shorten(screen_pos.y), shorten(get_size().w), shorten(get_size().h), color_idx_to_rgb(COL_RED), color_idx_to_rgb(COL_RED));
 #endif
 	// iterate backwards
@@ -293,7 +278,6 @@ void gui_container_t::draw(scr_coord offset)
 				display_ddd_box_clip_rgb(shorten(c_pos.x), shorten(c_pos.y), shorten(c->get_size().w), shorten(c->get_size().h), color_idx_to_rgb(COL_YELLOW),color_idx_to_rgb(COL_YELLOW));
 			}
 #endif
-			// @author hsiegeln; check if component is hidden or displayed
 			c->draw(screen_pos);
 		}
 	}

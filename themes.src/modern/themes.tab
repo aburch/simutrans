@@ -4,7 +4,7 @@
 # https://wiki.simutrans.com/en_themeDef
 #
 # name of the theme (will be shown with file selector)
-name=Simutrans Touch (standard size)
+name=Modern
 
 # show tooltips (default 1=show)
 show_tooltips = 1
@@ -138,7 +138,7 @@ gui_titlebar_height = 22
 # gui_vspace = 4
 
 # tab minimum sizes
-gui_tab_header_vsize = 22
+gui_tab_header_vsize = 18
 
 # input boxes height
 # minimum height is the height of the position button graphic
@@ -170,4 +170,4 @@ toolbar_max_height = 0
 ###################################pakstuff###################################
 
 # pak with the images for this theme
-themeimages=simutrans-condensed.pak
+themeimages=modern.pak

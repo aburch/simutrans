@@ -746,7 +746,6 @@ void depot_t::rdwr_vehicle(slist_tpl<vehicle_t *> &list, loadsave_t *file)
 
 /**
  * @return NULL when OK, otherwise an error message
- * @author Hj. Malthaner
  */
 const char * depot_t:: is_deletable(const player_t *player)
 {

@@ -43,14 +43,12 @@ public:
 	/**
 	* in top-level windows the name is displayed in titlebar
 	* @return the non-translated component name
-	* @author Hj. Malthaner
 	*/
 	const char* get_name() const { return "citybuilding builder"; }
 
 	/**
 	* Set the window associated helptext
 	* @return the filename for the helptext, or NULL
-	* @author Hj. Malthaner
 	*/
 	const char* get_help_filename() const OVERRIDE { return "citybuilding_build.txt"; }
 

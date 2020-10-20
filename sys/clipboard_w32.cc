@@ -14,11 +14,10 @@
 
 
 /**
-* Copy text to the clipboard
-* @param source : pointer to the start of the source text
-* @param length : number of character bytes to copy
-* @author Knightly
-*/
+ * Copy text to the clipboard
+ * @param source : pointer to the start of the source text
+ * @param length : number of character bytes to copy
+ */
 void dr_copy(const char *source, size_t length)
 {
 	if(  OpenClipboard(NULL)  ) {
@@ -40,12 +39,11 @@ void dr_copy(const char *source, size_t length)
 
 
 /**
-* Paste text from the clipboard
-* @param target : pointer to the insertion position in the target text
-* @param max_length : maximum number of character bytes which could be inserted
-* @return number of character bytes actually inserted -> for cursor advancing
-* @author Knightly
-*/
+ * Paste text from the clipboard
+ * @param target : pointer to the insertion position in the target text
+ * @param max_length : maximum number of character bytes which could be inserted
+ * @return number of character bytes actually inserted -> for cursor advancing
+ */
 size_t dr_paste(char *target, size_t max_length)
 {
 	size_t insert_len = 0;

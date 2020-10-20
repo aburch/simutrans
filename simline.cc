@@ -740,13 +740,13 @@ void simline_t::recalc_status()
 	if((financial_history[0][LINE_DISTANCE]|financial_history[1][LINE_DISTANCE]|financial_history[2][LINE_DISTANCE]) ==0)
 	{
 		// nothing moved
-		state_color = COL_CAUTION;
+		state_color = SYSCOL_TEXT_UNUSED;
 		state |= line_nothing_moved;
 	}
 	if(financial_history[0][LINE_CONVOIS]==0)
 	{
 		// no convoys assigned to this line
-		state_color = SYSCOL_TEXT_HIGHLIGHT;
+		state_color = SYSCOL_EMPTY;
 		state |= line_no_convoys;
 		withdraw = false;
 	}

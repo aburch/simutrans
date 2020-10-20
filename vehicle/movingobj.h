@@ -17,8 +17,7 @@
 
 
 /**
- * moving stuff like sheeps or birds
- * @author prissi
+ * moving stuff like sheep or birds
  */
 class movingobj_t : public vehicle_base_t, public sync_steppable
 {
@@ -57,7 +56,7 @@ public:
 
 	sync_result sync_step(uint32 delta_t);
 
-	// prissi: always free
+	// always free
 	virtual bool check_next_tile(const grund_t *) const;
 	virtual bool can_enter_tile() { return 1; }
 	virtual grund_t* hop_check();

@@ -30,7 +30,6 @@ message_stats_t::message_stats_t() :
 /**
  * Filter messages by type
  * @return whether there is a change in message filtering
- * @author Knightly
  */
 bool message_stats_t::filter_messages(const sint32 msg_type)
 {
@@ -63,7 +62,6 @@ bool message_stats_t::filter_messages(const sint32 msg_type)
 
 /**
  * Click on message => go to position
- * @author Hj. Malthaner
  */
 bool message_stats_t::infowin_event(const event_t * ev)
 {
@@ -172,11 +170,10 @@ void message_stats_t::recalc_size()
 
 /**
  * Now draw the list
- * @author prissi
  */
 void message_stats_t::draw(scr_coord offset)
 {
-	// Knightly : update component size and filtered message list where necessary
+	// update component size and filtered message list where necessary
 	const uint32 new_count = msg->get_list().get_count();
 	if(  last_count<new_count  ) {
 		if(  message_type==-1  ) {
@@ -187,7 +184,7 @@ void message_stats_t::draw(scr_coord offset)
 		else {
 			// incrementally add new entries to filtered message list before recalculating component size, and update last count
 			uint32 entry_count = new_count - last_count;
-			// Knightly : for ensuring correct chronological order of the new messages
+			// for ensuring correct chronological order of the new messages
 			slist_tpl<message_t::node *> temp_list;
 			FOR(slist_tpl<message_t::node*>, const i, msg->get_list()) {
 				if (entry_count-- == 0) break;

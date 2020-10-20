@@ -22,7 +22,6 @@ class planquadrat_t;
 
 /**
  * Asynchronous or synchronous animations for buildings.
- * @author Hj. Malthaner
  */
 class gebaeude_t : public obj_t, sync_steppable
 {
@@ -31,27 +30,22 @@ private:
 
 	/**
 	 * Time control for animation progress.
-	 * @author Hj. Malthaner
 	 */
 	uint16 anim_time;
 
 	/**
 	 * Is this a sync animated object?
-	 * @author Hj. Malthaner
 	 */
 	uint8 sync:1;
 
 	/**
 	 * Boolean flag if a construction site or buildings image
 	 * shall be displayed.
-	 * @author Hj. Malthaner
 	 */
 	uint8 show_construction:1;
 
 	/**
 	 * if true, this ptr union contains a factory pointer
-	 * ? Surely, this cannot be right with an 8 bit integer? Out of date comment?
-	 * @author Hj. Malthaner
 	 */
 	uint8 is_factory:1;
 
@@ -68,7 +62,6 @@ private:
 
 	/**
 	* either point to a factory or a city
-	* @author Hj. Malthaner
 	*/
 	union {
 		fabrik_t  *fab;
@@ -77,7 +70,6 @@ private:
 
 	/**
 	 * Initializes all variables with safe, usable values
-	 * @author Hj. Malthaner
 	 */
 	void init();
 
@@ -184,13 +176,6 @@ public:
 	void set_fab(fabrik_t *fd);
 	void set_stadt(stadt_t *s);
 
-	/**
-	 * A building can belong to a factory.
-	 * @return a pointer of the factory to which the object belongs; or NULL,
-	 * if the object does not belong to a factory.
-	 *
-	 * @author Hj. Malthaner
-	 */
 	fabrik_t* get_fabrik() const { return is_factory ? ptr.fab : NULL; }
 	stadt_t* get_stadt() const;
 
@@ -224,7 +209,6 @@ public:
 	/**
 	 * @return Building's own name, or factory name (if building
 	 * belongs to a factory)
-	 * @author Hj. Malthaner
 	 */
 	virtual const char *get_name() const OVERRIDE;
 	const char* get_individual_name() const;
@@ -243,10 +227,7 @@ public:
 
 	bool is_signalbox() const;
 
-	/**
-	 * @return A description string, as might be displayed in an infobox
-	 * @author Hj. Malthaner
-	 */
+	/// @copydoc obj_t::info
 	void info(cbuffer_t & buf) const OVERRIDE;
 
 	void get_class_percentage(cbuffer_t & buf) const;
@@ -269,6 +250,7 @@ public:
 
 	void cleanup(player_t *player) OVERRIDE;
 
+	/// @copydoc obj_t::finish_rd
 	void finish_rd() OVERRIDE;
 
 	// currently animated

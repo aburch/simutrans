@@ -146,7 +146,7 @@ void vehiclelist_stats_t::draw( scr_coord offset )
 		offset.x, offset.y,
 		translator::translate( veh->get_name(), world()->get_settings().get_name_language_id() ),
 		ALIGN_LEFT|DT_CLIP,
-		veh->is_future(month) ? SYSCOL_TEXT_HIGHLIGHT : (veh->is_available(month) ? SYSCOL_TEXT : color_idx_to_rgb(COL_BLUE)),
+		veh->is_future(month) ? SYSCOL_TEXT_HIGHLIGHT : (veh->is_available(month) ? SYSCOL_TEXT : gui_theme_t::gui_color_obsolete),
 		false
 	);
 	if( veh->get_power() > 0 ) {
@@ -293,7 +293,6 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 
 /**
  * This method is called if an action is triggered
- * @author Markus Weber/Volker Meyer
  */
 bool vehiclelist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {

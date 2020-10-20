@@ -186,7 +186,7 @@ bool planquadrat_t::boden_entfernen(grund_t *bd)
 }
 
 
-void planquadrat_t::kartenboden_setzen(grund_t *bd)
+void planquadrat_t::kartenboden_setzen(grund_t *bd, bool startup)
 {
 	assert(bd);
 	grund_t *tmp = get_kartenboden();
@@ -198,14 +198,16 @@ void planquadrat_t::kartenboden_setzen(grund_t *bd)
 		ground_size = 1;
 		bd->set_kartenboden(true);
 	}
-	bd->calc_image();
+	if (!startup) {
+		// water tiles need neighbor tiles, which might not be initialized at startup
+		bd->calc_image();
+	}
 	reliefkarte_t::get_karte()->calc_map_pixel(bd->get_pos().get_2d());
 }
 
 
 /**
  * replaces the map solid ground (or water) and deletes the old one
- * @author Hansjörg Malthaner
  */
 void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 {
@@ -274,7 +276,7 @@ void planquadrat_t::rdwr(loadsave_t *file, koord pos )
 				case grund_t::brueckenboden:    gr = new brueckenboden_t(file, pos);     break;
 				case grund_t::monorailboden:	    gr = new monorailboden_t(file, pos); break;
 				default:
-					gr = 0; // Hajo: keep compiler happy, fatal() never returns
+					gr = 0; // keep compiler happy, fatal() never returns
 					dbg->fatal("planquadrat_t::rdwr()","Error while loading game: Unknown ground type '%d'",gtyp);
 			}
 			// check if we have a matching building here, otherwise set to nothing
@@ -481,7 +483,7 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 	}
 	const sint8 h0 = gr0->get_disp_height();
 	uint8 i = 1;
-	// underground
+	// tiles below ground drawing height (tunnels in full underground mode)
 	if(  hmin < h0  ) {
 		for(  ;  i < ground_size;  i++  ) {
 			const grund_t* gr = data.some[i];
@@ -518,6 +520,11 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 			for(  uint8 j = i;  j < ground_size;  j++  ) {
 				const sint8 h = data.some[j]->get_hoehe();
 				const sint8 htop = h + slope_t::max_diff(data.some[j]->get_grund_hang());
+
+				// still underground
+				if(  h < h0  ) {
+					continue;
+				}
 				// too high?
 				if(  h > hmax  ) {
 					break;
@@ -539,12 +546,17 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
 		}
 	}
-	// above ground
+	// above ground drawing height
 	for(  ;  i < ground_size;  i++  ) {
 		const grund_t* gr = data.some[i];
 		const sint8 h = gr->get_hoehe();
 		const slope_t::type slope = gr->get_grund_hang();
 		const sint8 htop = h + max(max(corner_sw(slope), corner_se(slope)),max(corner_ne(slope), corner_nw(slope)));
+
+		// still underground
+		if(  h < h0  ) {
+			continue;
+		}
 		// too high?
 		if(  h > hmax  ) {
 			break;
@@ -763,9 +775,8 @@ void planquadrat_t::halt_list_insert_at(halthandle_t halt, uint8 pos, uint8 dist
 }
 
 
-/* The following functions takes at least 9 bytes of memory per tile but speed up passenger generation *
- * @author prissi
- * Modified: jamespetts, May 2013
+/**
+ * The following functions takes at least 8 bytes of memory per tile but speed up passenger generation *
  */
 void planquadrat_t::add_to_haltlist(halthandle_t halt)
 {
@@ -800,7 +811,6 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 /**
  * removes the halt from a ground
  * however this function check, whether there is really no other part still reachable
- * @author prissi, neroden
  */
 void planquadrat_t::remove_from_haltlist(halthandle_t halt)
 {
@@ -840,7 +850,6 @@ void planquadrat_t::remove_from_haltlist(halthandle_t halt)
 
 /**
  * true, if this halt is reachable from here
- * @author prissi
  */
 uint8 planquadrat_t::get_connected(halthandle_t halt) const
 {

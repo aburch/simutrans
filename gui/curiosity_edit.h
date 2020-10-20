@@ -39,14 +39,12 @@ public:
 	/**
 	* in top-level windows the name is displayed in titlebar
 	* @return the non-translated component name
-	* @author Hj. Malthaner
 	*/
 	const char* get_name() const { return "curiosity builder"; }
 
 	/**
 	* Set the window associated helptext
 	* @return the filename for the helptext, or NULL
-	* @author Hj. Malthaner
 	*/
 	const char* get_help_filename() const OVERRIDE { return "curiosity_build.txt"; }
 
@@ -54,7 +52,6 @@ public:
 	* Draw new component. The values to be passed refer to the window
 	* i.e. It's the screen coordinates of the window where the
 	* component is displayed.
-	* @author Hj. Malthaner
 	*/
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 

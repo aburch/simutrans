@@ -650,7 +650,6 @@ void reliefkarte_t::set_relief_farbe(koord k_, const PIXVAL color)
  * calculates ground color for position relative to water height
  * @param height height of the tile
  * @param groundwater water height
- * @author Hj. Malthaner
  */
 PIXVAL reliefkarte_t::calc_hoehe_farbe(const sint16 height, const sint16 groundwater)
 {
@@ -670,8 +669,7 @@ PIXVAL reliefkarte_t::calc_hoehe_farbe(const sint16 height, const sint16 groundw
 
 
 /**
- * Updated Map color(Kartenfarbe) an Position k
- * @author Hj. Malthaner
+ * Calculates the minimap color of a ground tile
  */
 PIXVAL reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour, bool show_buildings)
 {

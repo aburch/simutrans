@@ -494,6 +494,9 @@ townhall_info = 1
 # (1=hide, 0=show anyway)
 hide_rail_return_ticket = 1
 
+# do not show the buttons to delete old savegames (default)
+show_delete_buttons = 1
+
 # always open only a single info window for the ground,
 # even if there are more objects on this tile
 #only_single_info = 1
@@ -978,6 +981,9 @@ toolbar_max_height = 0
 # How many frames per second to use? Display may look pretty until 10 or so
 # (depends very much on computer, game complexity and graphics driver)
 frames_per_second = 30
+
+# Same as frames_per_second, but for fast forward (default 10)
+#fast_forward_frames_per_second = 10
 
 # during zooming out simutrans may get slow due to the very high number
 # of tiles visible. If the tiles become equal or smaller than the tile size

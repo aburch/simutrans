@@ -33,7 +33,6 @@ static vector_tpl<sint32> bFilterStates;
 
 #define FINANCE_TABLE_ROWS 11
 
-// @author hsiegeln
 static const char *cost_type_name[MAX_PLAYER_COST_BUTTON] =
 {
 	"Revenue",
@@ -601,7 +600,7 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 	fill_chart_tables();
 	update_labels();
 
-	// Hajo: update chart seed
+	// update chart seed
 	chart.set_seed(welt->get_last_year());
 
 	gui_frame_t::draw(pos, size);

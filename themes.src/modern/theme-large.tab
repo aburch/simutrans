@@ -4,7 +4,7 @@
 # https://wiki.simutrans.com/en_themeDef
 #
 # name of the theme (will be shown with file selector)
-name=Simutrans Touch (standard size)
+name=Modern (large size)
 
 # show tooltips (default 1=show)
 show_tooltips = 1
@@ -62,7 +62,7 @@ default_window_title_color = #338FCC
 gui_color_text_highlight = #005C9E
 gui_color_text_shadow = #BDD3DF
 gui_color_text_title = #338FCC
-gui_color_text_strong = #E46A0B
+gui_color_text_strong = #EC6E0C
 
 ########Test########
 gui_color_empty = #868c86
@@ -122,10 +122,13 @@ gui_player_color_bright = 3
 ##################################size stuff##################################
 
 # force main menu icon size
-icon_width = 32
+icon_width = 48
 
 # titlebar height
 gui_titlebar_height = 22
+
+# width of the window elements
+gui_gadget_width = 22
 
 # safe margin around windows
 # gui_frame_left = 10
@@ -153,7 +156,7 @@ gui_tab_header_vsize = 22
 # gui_divider_vsize = 8
 
 # buttons sizes
-gui_button_height = 16
+gui_button_height = 22
 # for buttons with fixed widths
 gui_button_width = 100
 
@@ -170,4 +173,4 @@ toolbar_max_height = 0
 ###################################pakstuff###################################
 
 # pak with the images for this theme
-themeimages=simutrans-condensed.pak
+themeimages=modern-large.pak

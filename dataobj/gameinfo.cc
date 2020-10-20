@@ -3,14 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Info about the current game
- *
- * prissi
- *
- * 8/2010
- */
-
 #include "gameinfo.h"
 #include "../network/network.h"
 #include "../network/network_socket_list.h"
@@ -93,7 +85,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	bits_per_month = s.get_bits_per_month();
 
 	// names of the stations ...
-	strncpy(language_code_names, translator::get_langs()[s.get_name_language_id()].iso, lengthof(language_code_names));
+	tstrncpy(language_code_names, translator::get_langs()[s.get_name_language_id()].iso, lengthof(language_code_names));
 
 	// will contain server-IP/name for network games
 	file_name = s.get_filename();

@@ -11,9 +11,7 @@
 #include "../descriptor/bridge_desc.h"
 
 /**
- * Brueckenteile (visible)
- *
- * Hj. Malthaner
+ * Bridge piece (visible)
  */
 class loadsave_t;
 class karte_t;
@@ -52,7 +50,6 @@ public:
 	/**
 	 * @return Einen Beschreibungsstring fuer das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
-	 * @author Hj. Malthaner
 	 */
 	void show_info();
 

@@ -210,7 +210,6 @@ depotlist_frame_t::depotlist_frame_t(player_t *player) :
 
 /**
  * This method is called if an action is triggered
- * @author Markus Weber/Volker Meyer
  */
 bool depotlist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {

@@ -18,9 +18,8 @@
 class image_t;
 class loadsave_t;
 
-/*
+/**
  * A class for distribution of tabs through the gui_component_t component.
- * @author Hj. Malthaner
  */
 class gui_tab_panel_t :
 	public gui_action_creator_t,
@@ -55,13 +54,11 @@ public:
 	 * Add new tab to tab bar
 	 * @param c is tab component
 	 * @param name is name for tab component
-	 * @author Hj. Malthaner
 	 */
 	void add_tab(gui_component_t *c, const char *name, const skin_desc_t *b=NULL, const char *tooltip=NULL );
 
 	/**
 	 * Get the active component/active tab
-	 * @author Hj. Malthaner
 	 */
 	gui_component_t* get_aktives_tab() const { return get_tab(active_tab); }
 
@@ -74,28 +71,21 @@ public:
 
 	/**
 	 * Draw tabs
-	 * @author Hj. Malthaner
 	 */
 	void draw(scr_coord offset) OVERRIDE;
 
 	/**
 	 * Resizing must be propagated!
-	 * @author Volker Meyer
-	 * @date  18.06.2003
 	 */
 	void set_size(scr_size size) OVERRIDE;
 
-	/*
+	/**
 	 * Remove all tabs.
-	 * @author Gerd Wachsmuth
-	 * @date  08.05.2009
 	 */
 	void clear();
 
-	/*
+	/**
 	 * How many tabs we have?
-	 * @author Gerd Wachsmuth
-	 * @date  08.05.2009
 	 */
 	uint32 get_count () const { return tabs.get_count(); }
 
@@ -103,7 +93,6 @@ public:
 
 	/**
 	 * Returns true if the hosted component of the active tab is focusable
-	 * @author Knightly
 	 */
 	virtual bool is_focusable() OVERRIDE { return get_aktives_tab()->is_focusable(); }
 
@@ -112,7 +101,6 @@ public:
 	/**
 	 * Get the relative position of the focused component.
 	 * Used for auto-scrolling inside a scroll pane.
-	 * @author Knightly
 	 */
 	virtual scr_coord get_focus_pos() OVERRIDE { return pos + get_aktives_tab()->get_focus_pos(); }
 

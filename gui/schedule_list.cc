@@ -44,6 +44,8 @@
 #include "../boden/wege/schiene.h"
 #include "../boden/wege/strasse.h"
 
+#include "../unicode.h"
+
 
 #include "karte.h"
 
@@ -160,6 +162,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	schedule_filter[0] = 0;
 	old_schedule_filter[0] = 0;
 	last_schedule = NULL;
+	old_player = NULL;
 
 	// init scrolled list
 	scl.set_pos(scr_coord(0,1));
@@ -218,7 +221,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	// load display
 	filled_bar.add_color_value(&loadfactor, color_idx_to_rgb(COL_GREEN));
-	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + 3*D_BUTTON_WIDTH + 10, D_MARGIN_TOP + D_EDIT_HEIGHT + FIXED_SYMBOL_YOFF + 2));
+	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + 3*D_BUTTON_WIDTH + 10, inp_name.get_pos().y + D_EDIT_HEIGHT + FIXED_SYMBOL_YOFF + D_V_SPACE));
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
@@ -288,11 +291,11 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_new_line.add_listener(this);
 	add_component(&bt_new_line);
 
-	bt_change_line.init(button_t::roundbox, "Update Line", scr_coord(11+D_BUTTON_WIDTH, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
-	bt_change_line.set_tooltip("Modify the selected line");
-	bt_change_line.add_listener(this);
-	bt_change_line.disable();
-	add_component(&bt_change_line);
+	bt_edit_line.init(button_t::roundbox, "Update Line", scr_coord(11+D_BUTTON_WIDTH, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	bt_edit_line.set_tooltip("Modify the selected line");
+	bt_edit_line.add_listener(this);
+	bt_edit_line.disable();
+	add_component(&bt_edit_line);
 
 	bt_delete_line.init(button_t::roundbox, "Delete Line", scr_coord(11+2*D_BUTTON_WIDTH, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	bt_delete_line.set_tooltip("Delete the selected line (if without associated convois).");
@@ -383,6 +386,10 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	for(  uint i=0;  i<max_idx;  i++  ) {
 		if(  tabs_to_lineindex[i] == selected_tab[player->get_player_nr()]  ) {
 			line = selected_line[player->get_player_nr()][selected_tab[player->get_player_nr()]];
+			// check owner here: selected_line[][] is not reset between games, so line could have another player as owner
+			if (line.is_bound()  &&  line->get_owner() != player) {
+				line = linehandle_t();
+			}
 			index = i;
 			break;
 		}
@@ -440,9 +447,9 @@ bool schedule_list_gui_t::infowin_event(const event_t *ev)
 }
 
 
-bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t v )           // 28-Dec-01    Markus Weber    Added
+bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t v )
 {
-	if(comp == &bt_change_line) {
+	if(comp == &bt_edit_line) {
 		if(line.is_bound()) {
 			create_win( new line_management_gui_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
 		}
@@ -654,6 +661,17 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 	if(  old_line_count != player->simlinemgmt.get_line_count()  ) {
 		show_lineinfo( line );
 	}
+
+	if(  old_player != welt->get_active_player()  ) {
+		// deativate buttons, if not curretn player
+		old_player = welt->get_active_player();
+		const bool activate = old_player == player || old_player == welt->get_player( 1 );
+		bt_delete_line.enable( activate );
+		bt_edit_line.enable( activate );
+		bt_new_line.enable( activate   &&  tabs.get_active_tab_index() > 0);
+		bt_withdraw_line.enable( activate );
+	}
+
 	// if search string changed, update line selection
 	if(  strcmp( old_schedule_filter, schedule_filter )  ) {
 		build_line_list(tabs.get_active_tab_index());
@@ -697,7 +715,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	// line handling goods (symbol)
 	FOR(minivec_tpl<uint8>, const catg_index, line->get_goods_catg_index()) {
 		uint8 temp = catg_index;
-		display_color_img(goods_manager_t::get_info_catg_index(temp)->get_catg_symbol(), pos.x + left, pos.y + top + FIXED_SYMBOL_YOFF, 0, false, false);
+		display_color_img(goods_manager_t::get_info_catg_index(temp)->get_catg_symbol(), pos.x + left, pos.y + top + FIXED_SYMBOL_YOFF + 1, 0, false, false);
 		left += GOODS_SYMBOL_CELL_WIDTH;
 	}
 
@@ -771,7 +789,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 	len2 += display_proportional_clip_rgb(pos.x+LINE_NAME_COLUMN_WIDTH+len2+5, pos.y+top+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
 	int rest_width = max( (get_windowsize().w-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
-	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + rest_width + 24, pos.y + top - LINESPACE*3 + FIXED_SYMBOL_YOFF));
+	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + rest_width + 24, inp_name.get_pos().y + D_EDIT_HEIGHT + FIXED_SYMBOL_YOFF + D_V_SPACE));
 	if (capacity > 0) {
 		number_to_string(ctmp, capacity, 0);
 		buf.clear();
@@ -869,7 +887,7 @@ void schedule_list_gui_t::build_line_list(int selected_tab)
 
 	FOR(vector_tpl<linehandle_t>, const l, lines) {
 		// search name
-		if (strstr(l->get_name(), schedule_filter)) {
+		if(  utf8caseutf8(l->get_name(), schedule_filter)  ) {
 			scl.new_component<line_scrollitem_t>(l);
 
 			if (  line == l  ) {
@@ -938,7 +956,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		else {
 			bt_delete_line.enable();
 		}
-		bt_change_line.enable();
+		bt_edit_line.enable();
 
 		bt_withdraw_line.pressed = new_line->get_withdraw();
 
@@ -1045,7 +1063,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		filled_bar.set_visible(false);
 		scl.set_selection(-1);
 		bt_delete_line.disable();
-		bt_change_line.disable();
+		bt_edit_line.disable();
 		tab_name.clear();
 		tab_name.printf("%s (0)",translator::translate("Convoys"));
 		for(int i=0; i<MAX_LINE_COST; i++)  {

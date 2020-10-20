@@ -13,18 +13,14 @@
 #include "../dataobj/ribi.h"
 #include "../network/checksum.h"
 
-/*
-*  Autor:
-*      Volker Meyer
-*
-*  Description:
-*	Pedestrians
-*
-*  Child nodes:
-*	0   Name
-*	1   Copyright
-*	2   Image-list or 2d
-*/
+/**
+ *	Pedestrians.
+ *
+ *  Child nodes:
+ *	0   Name
+ *	1   Copyright
+ *	2   Image-list or 2d
+ */
 class pedestrian_desc_t : public obj_desc_timelined_t {
 	friend class pedestrian_reader_t;
 

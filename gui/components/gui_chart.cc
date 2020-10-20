@@ -19,7 +19,6 @@ static char tooltip[64];
 
 /**
  * Set background color. -1 means no background
- * @author Hj. Malthaner
  */
 void gui_chart_t::set_background(FLAGGED_PIXVAL color)
 {
@@ -39,7 +38,7 @@ gui_chart_t::gui_chart_t() : gui_component_t()
 	x_elements = 0;
 	min_size = scr_size(0,0);
 
-	// Hajo: transparent by default
+	// transparent by default
 	background = TRANSPARENT_FLAGS;
 }
 
@@ -125,7 +124,7 @@ void gui_chart_t::draw(scr_coord offset)
 	// calc baseline and scale
 	calc_gui_chart_values(pbaseline, pscale, cmin, cmax, 18);
 
-	// Hajo: draw background if desired
+	// draw background if desired
 	if(background != TRANSPARENT_FLAGS) {
 		display_fillbox_wh_clip_rgb(offset.x, offset.y, chart_size.w, chart_size.h, background, false);
 	}
@@ -195,7 +194,7 @@ void gui_chart_t::draw(scr_coord offset)
 			for (int i=0;i<c.elements;i++) {
 
 				tmp = c.values[i*c.size+c.offset];
-				// Knightly : convert value where necessary
+				// convert value where necessary
 				if(  c.convert  ) {
 					tmp = c.convert(tmp);
 					display_tmp = tmp;
@@ -289,7 +288,7 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 		if(  c.show  ) {
 			for(  int i=0;  i<c.elements;  i++  ) {
 				tmp = c.values[i*c.size+c.offset];
-				// Knightly : convert value where necessary
+				// convert value where necessary
 				if(  c.convert  ) {
 					tmp = c.convert(tmp);
 				}
@@ -338,7 +337,6 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 /**
  * Events werden hiermit an die GUI-components
  * gemeldet
- * @author Hj. Malthaner
  */
 bool gui_chart_t::infowin_event(const event_t *ev)
 {

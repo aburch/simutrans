@@ -14,7 +14,7 @@
 
 class roadsign_t;
 
-/*
+/**
  * Traffic light phase buttons
  */
 class trafficlight_info_t : public obj_infowin_t, public action_listener_t
@@ -26,10 +26,9 @@ private:
 public:
 	trafficlight_info_t(roadsign_t* s);
 
-	/*
+	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author Hj. Malthaner
 	 */
 	const char *get_help_filename() const OVERRIDE {return "trafficlight_info.txt";}
 
