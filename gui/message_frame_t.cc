@@ -4,20 +4,20 @@
  */
 
 #include "simwin.h"
+#include "message_frame_t.h"
+#include "message_option_t.h"
+#include "components/action_listener.h"
+
 #include "../simworld.h"
 #include "../simmenu.h"
+#include "../simmesg.h"
+#include "../sys/simsys.h"
 
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
-#include "message_frame_t.h"
-#include "../simmesg.h"
-#include "message_option_t.h"
 #include "../network/network_cmd_ingame.h"
 #include "../player/simplay.h"
-
-
-#include "components/action_listener.h"
 
 
 #define MAX_MESG_TABS (8)
@@ -58,16 +58,23 @@ message_frame_t::message_frame_t() :
 
 	set_table_layout(1,0);
 
-	add_table(2,0);
+	add_table(3,0);
 	{
 		option_bt.init(button_t::roundbox, translator::translate("Optionen"));
+		option_bt.set_size(D_BUTTON_SIZE);
 		option_bt.add_listener(this);
 		add_component(&option_bt);
+
+		copy_bt.init(button_t::roundbox, translator::translate("Copy to clipboard"));
+		copy_bt.add_listener(this);
+		add_component(&copy_bt);
+
+		new_component<gui_fill_t>();
 
 		if(  env_t::networkmode  ) {
 			input.set_text(ibuf, lengthof(ibuf) );
 			input.add_listener(this);
-			add_component(&input);
+			add_component(&input,3);
 			set_focus( &input );
 		}
 	}
@@ -76,7 +83,7 @@ message_frame_t::message_frame_t() :
 	scrolly.set_show_scroll_x(true);
 	scrolly.set_scroll_amount_y(LINESPACE+1);
 
-	// Knightly : add tabs for classifying messages
+	// add tabs for classifying messages
 	tabs.add_tab( &scrolly, translator::translate("All") );
 	tab_categories.append( -1 );
 
@@ -111,6 +118,34 @@ bool message_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 	if(  comp==&option_bt  ) {
 		create_win(320, 200, new message_option_t(), w_info, magic_message_options );
 	}
+	if(  comp==&copy_bt  ) {
+		cbuffer_t clipboard;
+		const sint32 message_type = tab_categories[ tabs.get_active_tab_index() ];
+		int count = 20;	// just copy the last 20
+		FOR( slist_tpl<message_t::node*>, const i, welt->get_message()->get_list() ) {
+			if( i->get_type_shifted() & message_type ) {
+				// add them to clipboard
+				char msg_no_break[ 258 ];
+				for( int j = 0; j < 256; j++ ) {
+					msg_no_break[ j ] = i->msg[ j ] == '\n' ? ' ' : i->msg[ j ];
+					if( msg_no_break[ j ] == 0 ) {
+						msg_no_break[ j++ ] = '\n';
+						msg_no_break[ j ] = 0;
+						break;
+					}
+				}
+				clipboard.append( msg_no_break );
+				if( count-- < 0 ) {
+					break;
+				}
+			}
+		}
+		// copy, if there was anything ...
+		if( clipboard.len() > 0 ) {
+			dr_copy( clipboard, clipboard.len() );
+		}
+
+	}
 	else if(  comp==&input  &&  ibuf[0]!=0  ) {
 		// Send chat message to server for distribution
 		nwc_chat_t* nwchat = new nwc_chat_t( ibuf, welt->get_active_player()->get_player_nr(), env_t::nickname.c_str() );
@@ -119,7 +154,7 @@ bool message_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 		ibuf[0] = 0;
 	}
 	else if(  comp==&tabs  ) {
-		// Knightly : filter messages by type where necessary
+		// filter messages by type where necessary
 		if(  stats.filter_messages( tab_categories[v.i] )  ) {
 			scrolly.set_scroll_position(0, 0);
 		}

@@ -760,7 +760,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 		}
 	}
 
-	// Hajo: search if there already is one or two (crossconnect everything if possible)
+	// search if there already is one or two (cross-connect everything if possible)
 	FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list())
 	{
 		// Try to find matching factories for this consumption, but don't find more than two times number of factories requested.

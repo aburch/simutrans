@@ -90,9 +90,10 @@ public:
 	/**
 	* Does this window need a min size button in the title bar?
 	* @return true if such a button is needed
-	* @author Hj. Malthaner
 	*/
 	bool has_min_sizer() const OVERRIDE {return true;}
+
+	void set_windowsize( scr_size s ) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

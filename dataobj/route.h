@@ -21,9 +21,6 @@ class grund_t;
 
 /**
  * Route, e.g. for vehicles
- *
- * @author Hj. Malthaner
- * @date 15.01.00
  */
 class route_t
 {
@@ -39,7 +36,6 @@ private:
 
 	/**
 	 * The actual route search
-	 * @author Hj. Malthaner
 	 */
 	route_result_t intern_calc_route(karte_t *w, koord3d start, koord3d ziel, test_driver_t* const tdriver, const sint32 max_kmh, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, bool is_tall, const sint32 tile_length, const koord3d avoid_tile, uint8 start_dir = ribi_t::all, find_route_flags flags = none);
 
@@ -107,7 +103,6 @@ public:
 
 	/**
 	 * @return Coordinate at index @p n.
-	 * @author Hj. Malthaner
 	 */
 	const koord3d& at(const uint16 n) const { return route[n]; }
 
@@ -121,31 +116,26 @@ public:
 
 	/**
 	 * Appends the other route to ours.
-	 * @author prissi
 	 */
 	void append(const route_t *route);
 
 	/**
 	 * Inserts @p k at position 0.
-	 * @author Hj. Malthaner
 	 */
 	void insert(koord3d k);
 
 	/**
 	 * Appends position @p k.
-	 * @author prissi
 	 */
 	inline void append(koord3d k) { route.append(k); }
 
 	/**
 	 * removes all tiles from the route
-	 * @author prissi
 	 */
 	void clear() { route.clear(); }
 
 	/**
 	 * Removes all tiles at indices >@p i.
-	 * @author prissi
 	 */
 	void remove_koord_from(uint32 i);
 
@@ -157,27 +147,23 @@ public:
 
 	/**
 	 * Appends a straight line to the @p target.
-	 * Will return false if fails
-	 * @author prissi
+	 * Will return fals if fails
 	 */
 	bool append_straight_route( karte_t *w, koord3d target);
 
 	/**
 	 * Finds route to a location, where @p tdriver-> is_target becomes true.
 	 * @param max_depth is the maximum length of a route
-	 * @author prissi
 	 */
 	bool find_route(karte_t *w, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 axle_load, sint32 max_tile_len, uint32 total_weight, uint32 max_depth, bool is_tall, find_route_flags flags = none);
 
 	/**
 	 * Calculates the route from @p start to @p target
-	 * @author Hj. Malthaner
 	 */
 	route_result_t calc_route(karte_t *welt, koord3d start, koord3d ziel, test_driver_t* const tdriver, const sint32 max_speed_kmh, const uint32 axle_load, bool is_tall, sint32 max_tile_len, const sint64 max_cost = SINT64_MAX_VALUE, const uint32 convoy_weight = 0, const koord3d avoid_tile = koord3d::invalid, uint8 direction = ribi_t::all, find_route_flags flags = none);
 
 	/**
 	 * Load/Save of the route.
-	 * @author V. Meyer
 	 */
 	void rdwr(loadsave_t *file);
 };

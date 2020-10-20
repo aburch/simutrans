@@ -14,13 +14,12 @@ class fabrik_t;
 
 
 namespace factorylist {
-    enum sort_mode_t { by_name=0, by_available, by_output, by_maxprod, by_status, by_power, by_sector, by_staffing, by_operation_rate, by_region, SORT_MODES, by_input, by_transit,  };	// the last two not used
+    enum sort_mode_t { by_name=0, by_available, by_output, by_maxprod, by_status, by_power, by_sector, by_staffing, by_operation_rate, by_region, SORT_MODES, by_input, by_transit  };	// the last two not used
 };
 
 /**
  * Factory list stats display
  * Where factory stats are calculated for list dialog
- * @author Hj. Malthaner
  */
 class factorylist_stats_t : public gui_world_component_t
 {

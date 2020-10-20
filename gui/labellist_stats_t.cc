@@ -12,6 +12,8 @@
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
+#include "../dataobj/environment.h"
+
 
 labellist::sort_mode_t labellist_stats_t::sortby = labellist::by_name;
 bool labellist_stats_t::sortreverse = false;
@@ -77,7 +79,7 @@ labellist_stats_t::labellist_stats_t(koord label_pos)
 	label.update();
 
 	if (const label_t *lb = get_label()) {
-		label.set_color(PLAYER_FLAG | color_idx_to_rgb(lb->get_owner()->get_player_color1()));
+		label.set_color(PLAYER_FLAG | color_idx_to_rgb(lb->get_owner()->get_player_color1()+env_t::gui_player_color_dark));
 	}
 }
 
@@ -115,7 +117,6 @@ const char* labellist_stats_t::get_text() const
 /**
  * Events werden hiermit an die GUI-Komponenten
  * gemeldet
- * @author Hj. Malthaner
  */
 bool labellist_stats_t::infowin_event(const event_t * ev)
 {
@@ -135,7 +136,6 @@ bool labellist_stats_t::infowin_event(const event_t * ev)
 
 /**
  * Draw the component
- * @author Hj. Malthaner
  */
 void labellist_stats_t::draw(scr_coord offset)
 {

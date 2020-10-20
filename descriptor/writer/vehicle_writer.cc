@@ -89,7 +89,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	int total_len = 88;
 
-	// prissi: must be done here, since it may affect the len of the header!
+	// must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
 	sint16 sound_id=NO_SOUND;
 	if (!sound_str.empty()) {
@@ -158,9 +158,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// It is important that data be read back in exactly the same order as they were written.
 	uint16 pos = 0;
 
-	// Hajo: version number
-	// Hajo: Version needs high bit set as trigger -> this is required
-	//       as marker because formerly nodes were unversioned
+	// Version needs high bit set as trigger -> this is required
+	// as marker because formerly nodes were unversioned
 	uint16 version = 0x800B;
 
 	// This is the overlay flag for Simutrans-Extended
@@ -184,7 +183,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	pos += sizeof(uint16);
 
-	// Hajodoc: Price of this vehicle in Simucents
+	// Price of this vehicle in cent
 	uint32 cost = obj.get_int("cost", 0);
 	node.write_uint32(fp, cost, pos);
 	pos += sizeof(uint32);
@@ -211,12 +210,12 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	pos += sizeof(uint16);
 	*/
 
-	// Hajodoc: Top speed of this vehicle. Must be greater than 0
-	uint16 topspeed  = obj.get_int("speed", 0);
+	// Top speed of this vehicle. Must be greater than 0
+	uint16 topspeed = obj.get_int("speed", 0);
 	node.write_uint16(fp, topspeed, pos);
 	pos += sizeof(topspeed);
 
-	// Hajodoc: Total weight of this vehicle in tons
+	// Total weight of this vehicle in tons
 	const char *weight_str = obj.get("weight");
 	uint32 weight = (uint32)(atof( weight_str )*1000.0 + 0.5);
 	node.write_uint32(fp, weight, pos);
@@ -235,12 +234,12 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, axle_load, pos);
 	pos += sizeof(uint16);
 
-	// Hajodoc: Power of this vehicle in KW
+	// Power of this vehicle in KW
 	uint32 power = obj.get_int("power", 0);
 	node.write_uint32(fp, power, pos);
 	pos += sizeof(uint32);
 
-	// Hajodoc: Running costs, given in cent per square
+	// Running costs, given in cent per square
 	uint16 running_cost = obj.get_int("runningcost", 0);
 	node.write_uint16(fp, running_cost, pos);
 	pos += sizeof(uint16);
@@ -254,24 +253,24 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, fixed_cost, pos);
 	pos += sizeof(uint16);*/
 
-	// Hajodoc: Introduction date (year * 12 + month)
-	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+	// Introduction date (year * 12 + month)
+	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro_date += obj.get_int("intro_month", 1) - 1;
 	node.write_uint16(fp, intro_date, pos);
 	pos += sizeof(uint16);
 
-	// Hajodoc: retire date (year * 12 + month)
+	// retire date (year * 12 + month)
 	uint16 retire_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	retire_date += obj.get_int("retire_month", 1) - 1;
 	node.write_uint16(fp, retire_date, pos);
 	pos += sizeof(uint16);
 
-	// Hajodoc: Engine gear (power multiplier)
+	// Engine gear (power multiplier)
 	uint16 gear = (obj.get_int("gear", 100) * 64) / 100;
 	node.write_uint16(fp, gear, pos);
 	pos += sizeof(uint16);
 
-	// Hajodoc: Type of way this vehicle drives on
+	// Type of way this vehicle drives on
 	// These need to be earlier for the purposes of axle loads.
 	// char const* const waytype_name = obj.get("waytype");
 	// waytype_t   const waytype      = get_waytype(waytype_name);
@@ -285,7 +284,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	// engine
 	if (waytype == overheadlines_wt) {
-		// Hajo: compatibility for old style DAT files
+		// compatibility for old style DAT files
 		uv8 = vehicle_desc_t::electric;
 	}
 	else {
@@ -300,8 +299,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint8(fp, length, pos);
 	pos += sizeof(uint8);
 
-	// Hajodoc: The freight type
-	// Hajoval: string
+	// The freight type
 	const char* freight = obj.get("freight");
 	if (!*freight) {
 		freight = "None";
@@ -537,7 +535,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		}
 	}
 
-	// prissi: added more error checks
+	// added more error checks
 	if (has_8_images && emptykeys.get_count() < 8 && liverykeys_empty.get_count() < 8)
 	{
 		dbg->fatal( "Vehicle", "Missing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count() + liverykeys_empty.get_count());
@@ -613,8 +611,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	do {
 		char buf[40];
 
-		// Hajodoc: Constraints for previous vehicles
-		// Hajoval: string, "none" means only suitable at front of an convoi
+		// Constraints for previous vehicles, "none" means only suitable at front of an convoi
 		sprintf(buf, "constraint[prev][%d]", leader_count);
 
 		str = obj.get(buf);
@@ -641,7 +638,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// set front-end flags
 	if (can_be_at_front) {
 		if (!leader_count) {
-			basic_constraint_prev |= vehicle_desc_t::can_be_tail | vehicle_desc_t::can_be_head; // no constraint setting = free
+			basic_constraint_prev |= vehicle_desc_t::can_be_tail; // no constraint setting = free
+			if (has_front_cab) {
+				basic_constraint_prev |= vehicle_desc_t::can_be_head;
+			}
 		}
 		else if (prev_has_none) {
 			basic_constraint_prev |= vehicle_desc_t::can_be_tail;
@@ -675,8 +675,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	do {
 		char buf[40];
 
-		// Hajodoc: Constraints for successing vehicles
-		// Hajoval: string, "none" to disallow any followers
+		// Constraints for next vehicle, "none" to disallow any followers
 		sprintf(buf, "constraint[next][%d]", trailer_count);
 
 		str = obj.get(buf);
@@ -706,7 +705,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// set back-end flags
 	if (can_be_at_end) {
 		if (!trailer_count) {
-			basic_constraint_next |= vehicle_desc_t::can_be_tail | vehicle_desc_t::can_be_head; // no constraint setting = free
+			basic_constraint_next |= vehicle_desc_t::can_be_tail; // no constraint setting = free
+			if (has_rear_cab) {
+				basic_constraint_next |= vehicle_desc_t::can_be_head;
+			}
 		}
 		else if (next_has_none) {
 			basic_constraint_next |= vehicle_desc_t::can_be_tail;

@@ -119,10 +119,11 @@ gui_player_color_bright = 5
 ##################################size stuff##################################
 
 # force main menu icon size
-icon_width = 44
+icon_width = 48
 
 # titlebar height
 gui_titlebar_height = 22
+gui_gadget_width = 22
 
 # safe margin around windows
 # gui_frame_left = 10
@@ -168,4 +169,4 @@ toolbar_max_height = 0
 ###################################pakstuff###################################
 
 # pak with the images for this theme
-themeimages=menu.highcontrast-large.pak
+themeimages=highcontrast-large.pak

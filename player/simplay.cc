@@ -1083,7 +1083,7 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d position)
 void player_t::init_undo( waytype_t wtype, unsigned short max )
 {
 	// only human player
-	// prissi: allow for UNDO for real player
+	// allow for UNDO for real player
 DBG_MESSAGE("player_t::int_undo()","undo tiles %i",max);
 	last_built.clear();
 	last_built.resize(max+1);
@@ -1345,10 +1345,6 @@ void player_t::take_over(player_t* target_player)
 								else if (ns == 2)
 								{
 									sign->set_ticks_offset((uint8)mask);
-								}
-								else if (ns == 3)
-								{
-									sign->set_open_direction((uint8)mask);
 								}
 							}
 						}

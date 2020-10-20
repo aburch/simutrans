@@ -28,6 +28,7 @@ class koord3d;
 class tool_t;
 class finance_t;
 
+
 /**
  * Class to hold informations about one player/company. AI players are derived from this class.
  */
@@ -44,8 +45,6 @@ protected:
 
 	/**
 	 * Die Welt in der gespielt wird.
-	 *
-	 * @author Hj. Malthaner
 	 */
 	static karte_ptr_t welt;
 
@@ -92,13 +91,11 @@ public:
 protected:
 	/**
 	 * Colors of the player
-	 * @author Hj. Malthaner
 	 */
 	uint8 player_color_1, player_color_2;
 
 	/**
-	 * Player number
-	 * @author Hj. Malthaner
+	 * Player number; only player 0 can do interaction
 	 */
 	uint8 player_nr;
 
@@ -106,19 +103,16 @@ protected:
 	 * Adds some amount to the maintenance costs.
 	 * @param change the change
 	 * @return the new maintenance costs
-	 * @author Hj. Malthaner
 	 */
 	sint64 add_maintenance(sint64 change, waytype_t const wt=ignore_wt);
 
 	/**
 	 * Is this player an AI player?
-	 * @author Hj. Malthaner
 	 */
 	bool active;
 
 	/**
-	 * Are this player allowed to make any changes?
-	 * @author Hj. Malthaner
+	 * Are this player allowed to do any changes?
 	 */
 	bool locked;
 
@@ -148,7 +142,6 @@ public:
 	/**
 	 * Sums up "count" with number of convois in statistics,
 	 * supersedes buche( count, COST_ALL_CONVOIS).
-	 * @author jk271
 	 */
 	void book_convoi_number(int count);
 
@@ -156,7 +149,6 @@ public:
 	 * Adds construction costs to accounting statistics.
 	 * @param amount How much does it cost
 	 * @param wt type of transport
-	 * @author jk271
 	 */
 	static void book_construction_costs(player_t * const player, const sint64 amount, const koord k, const waytype_t wt=ignore_wt);
 
@@ -166,7 +158,6 @@ public:
 	 *              negative value = vehicle bought,
 	 *              positive value = vehicle sold
 	 * @param wt type of transport for accounting purpose
-	 * @author jk271
 	 */
 	void book_new_vehicle(const sint64 price, const koord k, const waytype_t wt=ignore_wt);
 
@@ -178,15 +169,13 @@ public:
 	 * 	0 ... passenger
 	 *	1 ... mail
 	 *	2 ... good (and powerlines revenue)
-	 * @author jk271
 	 */
 	void book_revenue(const sint64 amount, const koord k, const waytype_t wt=ignore_wt, sint32 cathegory=2);
 
 	/**
 	 * Adds running costs to accounting statistics.
 	 * @param amount How much does it cost
-	 * @param wt
-	 * @author jk271
+	 * @param wt type of transport used for accounting statistics
 	 */
 	void book_running_costs(const sint64 amount, const waytype_t wt=ignore_wt);
 
@@ -210,16 +199,14 @@ public:
 	/**
 	 * Books toll paid by our company to someone else.
 	 * @param amount money paid to our company
-	 * @param wt type of transport used for accounting statistiscs
-	 * @author jk271
+	 * @param wt type of transport used for accounting statistics
 	 */
 	void book_toll_paid(const sint64 amount, const waytype_t wt=ignore_wt);
 
 	/**
 	 * Books toll paid to our company by someone else.
 	 * @param amount money paid for usage of our roads,railway,channels, ... ; positive sign
-	 * @param wt type of transport used for accounting statistiscs
-	 * @author jk271
+	 * @param wt type of transport used for accounting statistics
 	 */
 	void book_toll_received(const sint64 amount, waytype_t wt=ignore_wt);
 
@@ -228,7 +215,6 @@ public:
 	 * @param amount sum of money
 	 * @param wt way type
 	 * @param index 0 = passenger, 1 = mail, 2 = goods
-	 * @author jk271
 	 */
 	void book_transported(const sint64 amount, const waytype_t wt=ignore_wt, int index=2);
 
@@ -284,18 +270,12 @@ public:
 	// this type of AIs identifier
 	virtual uint8 get_ai_id() const { return HUMAN; }
 
-	// @author hsiegeln
 	simlinemgmt_t simlinemgmt;
 
-	/**
-	 * Age messages (move them upwards)
-	 * @author Hj. Malthaner
-	 */
+	/// Age messages (move them upwards)
 	void age_messages(uint32 delta_t);
 
-	/* Handles player colors ...
-	* @author prissi
-	*/
+	/// Handles player colors
 	uint8 get_player_color1() const { return player_color_1; }
 	uint8 get_player_color2() const { return player_color_2; }
 	// Change and report message
@@ -306,7 +286,6 @@ public:
 
 	/**
 	 * @return the name of the player; "player -1" sits in front of the screen
-	 * @author prissi
 	 */
 	const char* get_name() const;
 	void set_name(const char *);
@@ -315,14 +294,12 @@ public:
 
 	/**
 	 * return true, if the owner is none, myself or player(1), i.e. the ownership _can be taken by player test
-	 * @author prissi
 	 */
 	static bool check_owner( const player_t *owner, const player_t *test );
 
 	/**
 	 * @param welt World this players belong to.
 	 * @param player_nr Number assigned to this player - it's an ID.
-	 * @author Hj. Malthaner
 	 */
 	player_t( uint8 player_nr );
 
@@ -349,7 +326,6 @@ public:
 
 	/**
 	 * @return Account balance as a double (floating point) value
-	 * @author Hj. Malthaner
 	 */
 	double get_account_balance_as_double() const;
 
@@ -357,41 +333,35 @@ public:
 
 	/**
 	 * @return true when account balance is overdrawn
-	 * @author Hj. Malthaner
 	 */
 	int get_account_overdrawn() const;
 
 	/**
 	 * Displays messages from the queue of the player on the screen
 	 * Show income messages
-	 * @author prissi
 	 */
 	void display_messages();
 
 	/**
 	 * Called often by simworld.cc during simulation
 	 * @note Any action goes here (only need for AI at the moment)
-	 * @author Hj. Malthaner
 	 */
 	virtual void step();
 
 	/**
 	 * Called monthly by simworld.cc during simulation
-	 * @author Hj. Malthaner
-	 * @returns false if player has to be removed (inactive)
+	 * @returns false if player has to be removed (bankrupt/inactive)
 	 */
 	virtual bool new_month();
 
 	/**
 	 * Called yearly by simworld.cc during simulation
-	 * @author Hj. Malthaner
 	 */
 	virtual void new_year() {}
 
 	/**
 	 * Stores/loads the player state
 	 * @param file where the data will be saved/loaded
-	 * @author Hj. Malthaner
 	 */
 	virtual void rdwr(loadsave_t *file);
 
@@ -414,22 +384,18 @@ public:
 
 	/**
 	 * Report the player one of his vehicles has a problem
-	 * @author Hansjörg Malthaner
-	 * @date 26-Nov-2001
 	 */
 	virtual void report_vehicle_problem(convoihandle_t cnv,const koord3d ziel);
 
 	/**
-	 * Tells the player the result of tool-work commands
-	 * If player is active then play sound, popup error msg etc
-	 * @author Dwachs
+	 * Tells the player the result of tool-work commands.
+	 * If player is active then play sound, popup error msg etc.
 	 */
 	virtual void tell_tool_result(tool_t *tool, koord3d pos, const char *err);
 
 	/**
 	 * Tells the player that the factory
 	 * is going to be deleted (flag==0)
-	 * Bernd Gabriel, Dwachs
 	 */
 	enum notification_factory_t {
 		notify_delete	// notified immediately before object is deleted (and before nulled in the slist_tpl<>)!
@@ -439,29 +405,21 @@ public:
 	solvency_status check_solvency() const;
 
 private:
-	/* undo informations *
-	 * @author prissi
-	 */
+	/// undo information
 	vector_tpl<koord3d> last_built;
 	waytype_t undo_type;
 
 public:
 	/**
 	 * Function for UNDO
-	 * @date 7-Feb-2005
-	 * @author prissi
 	 */
 	void init_undo(waytype_t t, unsigned short max );
 	/**
 	 * Function for UNDO
-	 * @date 7-Feb-2005
-	 * @author prissi
 	 */
 	void add_undo(koord3d k);
 	/**
 	 * Function for UNDO
-	 * @date 7-Feb-2005
-	 * @author prissi
 	 */
 	sint64 undo();
 

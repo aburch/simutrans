@@ -12,12 +12,9 @@
 #include "image_array.h"
 
 #include "../network/checksum.h"
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *      Tree type description in Simutrans
+
+/**
+ * Tree type description in Simutrans
  *
  *  Child nodes:
  *	0   Name

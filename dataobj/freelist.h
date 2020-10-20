@@ -10,8 +10,6 @@
 /**
  * Helper class to organize small memory objects i.e. nodes for linked lists
  * and such.
- *
- * @author Hanjsjörg Malthaner
  */
 class freelist_t
 {

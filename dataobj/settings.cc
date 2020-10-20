@@ -3,14 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Game settings
- *
- * Hj. Malthaner
- *
- * April 2000
- */
-
 #include <string>
 #include <math.h>
 
@@ -57,7 +49,6 @@ settings_t::settings_t() :
 	map_number = sim_async_rand(SINT32_MAX_VALUE);
 
 	/* new setting since version 0.85.01
-	 * @author prissi
 	 */
 	factory_count = 12;
 	tourist_attractions = 8;
@@ -72,13 +63,16 @@ settings_t::settings_t() :
 
 	show_pax = true;
 
+	world_maximum_height = 32;
+	world_minimum_height = -12;
+
 	// default climate zones
 	set_default_climates( );
 	winter_snowline = 7;	// not mediterranean
-	groundwater = -2;            //25-Nov-01        Markus Weber    Added
+	groundwater = -2;
 
-	max_mountain_height = 160;                  //can be 0-160.0  01-Dec-01        Markus Weber    Added
-	map_roughness = 0.6;                        //can be 0-1      01-Dec-01        Markus Weber    Added
+	max_mountain_height = 160;                  //can be 0-160.0
+	map_roughness = 0.6;                        //can be 0-1
 
 	river_number = 16;
 	min_river_length = 16;
@@ -146,11 +140,11 @@ settings_t::settings_t() :
 	electric_promille = 330;
 
 #ifdef OTTD_LIKE
-	/* prissi: crossconnect all factories (like OTTD and similar games) */
+	// crossconnect all factories (like OTTD and similar games)
 	crossconnect_factories=true;
 	crossconnect_factor=100;
 #else
-	/* prissi: crossconnect a certain number */
+	/* crossconnect a certain number */
 	crossconnect_factories=false;
 	crossconnect_factor=33;
 #endif
@@ -982,7 +976,7 @@ void settings_t::rdwr(loadsave_t *file)
 			random_counter = get_random_seed( );
 			file->rdwr_long( random_counter );
 			if(  !env_t::networkmode  ||  env_t::server  ) {
-				frames_per_second = clamp(env_t::fps,5,100 );	// update it on the server to the current setting
+				frames_per_second = clamp(env_t::fps, 5u, 100u); // update it on the server to the current setting
 				frames_per_step = env_t::network_frames_per_step;
 			}
 			file->rdwr_long( frames_per_second );
@@ -1670,7 +1664,6 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(lake);
 			file->rdwr_bool(no_trees);
 			file->rdwr_long(max_choose_route_steps );
-		// otherwise the default values of the last one will be used
 		}
 
 		if ((file->get_version() > 120003 && (file->get_extended_version() == 0 || file->get_extended_revision() >= 19)) || file->get_extended_version() >= 13)
@@ -1901,6 +1894,11 @@ void settings_t::rdwr(loadsave_t *file)
 				industry_density_proportion_override = 0;
 			}
 		}
+		if( (file->get_extended_version() == 14 && file->get_extended_revision() >= 31) || file->get_extended_version() > 14) {
+			file->rdwr_byte(world_maximum_height);
+			file->rdwr_byte(world_minimum_height);
+		}
+		// otherwise the default values of the last one will be used
 	}
 
 
@@ -2011,23 +2009,25 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::draw_outside_tile = contents.get_int("draw_outside_tile", env_t::draw_outside_tile ) != 0;
 
 	// display stuff
-	env_t::show_names = contents.get_int("show_names", env_t::show_names );
-	env_t::show_month = contents.get_int("show_month", env_t::show_month );
-	env_t::max_acceleration = contents.get_int("fast_forward", env_t::max_acceleration );
-	env_t::fps = contents.get_int("frames_per_second",env_t::fps );
-	env_t::num_threads = clamp( contents.get_int("threads", env_t::num_threads ), 1, MAX_THREADS );
-	env_t::simple_drawing_default = contents.get_int("simple_drawing_tile_size",env_t::simple_drawing_default );
-	env_t::simple_drawing_fast_forward = contents.get_int("simple_drawing_fast_forward",env_t::simple_drawing_fast_forward );
-	env_t::visualize_schedule = contents.get_int("visualize_schedule",env_t::visualize_schedule ) != 0;
-	env_t::show_vehicle_states = contents.get_int("show_vehicle_states",env_t::show_vehicle_states );
-	env_t::follow_convoi_underground = contents.get_int("follow_convoi_underground",env_t::follow_convoi_underground );
+	env_t::show_names = contents.get_int( "show_names", env_t::show_names );
+	env_t::show_month = contents.get_int( "show_month", env_t::show_month );
+	env_t::max_acceleration = contents.get_int( "fast_forward", env_t::max_acceleration );
+	env_t::fps = clamp( (uint32)contents.get_int( "frames_per_second", env_t::fps ), env_t::min_fps, env_t::max_fps );
+	env_t::ff_fps = clamp( (uint32)contents.get_int( "fast_forward_frames_per_second", env_t::ff_fps ), env_t::min_fps, env_t::max_fps );
+	env_t::num_threads = clamp( contents.get_int( "threads", env_t::num_threads ), 1, MAX_THREADS );
+	env_t::simple_drawing_default = contents.get_int( "simple_drawing_tile_size", env_t::simple_drawing_default );
+	env_t::simple_drawing_fast_forward = contents.get_int( "simple_drawing_fast_forward", env_t::simple_drawing_fast_forward );
+	env_t::visualize_schedule = contents.get_int( "visualize_schedule", env_t::visualize_schedule ) != 0;
+	env_t::show_vehicle_states = contents.get_int( "show_vehicle_states", env_t::show_vehicle_states );
+	env_t::follow_convoi_underground = contents.get_int( "follow_convoi_underground", env_t::follow_convoi_underground );
 
-	env_t::show_delete_buttons = contents.get_int("show_delete_buttons",env_t::show_delete_buttons ) != 0;
-	env_t::chat_window_transparency = contents.get_int("chat_transparency",env_t::chat_window_transparency );
+	env_t::show_delete_buttons = contents.get_int( "show_delete_buttons", env_t::show_delete_buttons ) != 0;
+	env_t::chat_window_transparency = contents.get_int( "chat_transparency", env_t::chat_window_transparency );
 
-	env_t::hide_keyboard = contents.get_int("hide_keyboard",env_t::hide_keyboard ) != 0;
+	env_t::hide_keyboard = contents.get_int( "hide_keyboard", env_t::hide_keyboard ) != 0;
+	env_t::numpad_always_moves_map = contents.get_int( "numpad_always_moves_map", env_t::numpad_always_moves_map );
 
-	env_t::player_finance_display_account = contents.get_int("player_finance_display_account",env_t::player_finance_display_account ) != 0;
+	env_t::player_finance_display_account = contents.get_int( "player_finance_display_account", env_t::player_finance_display_account ) != 0;
 
 	int* offsets[8];
 	offsets[0] = contents.get_ints("reverse_base_offset_south");
@@ -2067,7 +2067,12 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::reload_and_save_on_quit = contents.get_int("reload_and_save_on_quit", env_t::reload_and_save_on_quit );
 
 	env_t::server_announce = contents.get_int("announce_server", env_t::server_announce );
-	env_t::server_announce = contents.get_int("server_port", env_t::server_port );
+	if (!env_t::server) {
+		env_t::server_port = contents.get_int("server_port", env_t::server_port);
+	}
+	else {
+		env_t::server_port = env_t::server;
+	}
 	env_t::server_announce = contents.get_int("server_announce", env_t::server_announce );
 	env_t::server_announce_interval = contents.get_int("server_announce_intervall", env_t::server_announce_interval );
 	env_t::server_announce_interval = contents.get_int("server_announce_interval", env_t::server_announce_interval );
@@ -2404,10 +2409,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::pak_height_conversion_factor = contents.get_int("height_conversion_factor", env_t::pak_height_conversion_factor );
 
 	// minimum clearance under under bridges: 1 or 2? (HACK: value only zero during loading of pak set config)
-	const int bounds = way_height_clearance != 0 ? 1 : 0;
+	const uint8 bounds = way_height_clearance != 0 ? 1 : 0;
 	way_height_clearance  = contents.get_int("way_height_clearance", way_height_clearance );
 	if(  way_height_clearance > 2  &&  way_height_clearance < bounds  ) {
-		sint8 new_whc = clamp( way_height_clearance, bounds, 2 );
+		uint8 new_whc = clamp( way_height_clearance, bounds, (uint8)2 );
 		dbg->warning( "settings_t::parse_simuconf()", "Illegal way_height_clearance of %i set to %i", way_height_clearance, new_whc );
 		way_height_clearance = new_whc;
 	}
@@ -3016,6 +3021,12 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	fullscreen = contents.get_int("fullscreen", fullscreen );
 
 	with_private_paks = contents.get_int("with_private_paks", with_private_paks)!=0;
+
+	world_maximum_height = contents.get_int("world_maximum_height",world_maximum_height);
+	world_minimum_height = contents.get_int("world_minimum_height",world_minimum_height);
+	if(  world_minimum_height>=world_maximum_height  ) {
+		world_minimum_height = world_maximum_height-1;
+	}
 
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", ""));

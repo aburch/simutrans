@@ -10,10 +10,6 @@
 #include "obj_reader.h"
 
 
-/*
- *  Autor:
- *      Volker Meyer
- */
 class pedestrian_reader_t : public obj_reader_t {
 	static pedestrian_reader_t the_instance;
 

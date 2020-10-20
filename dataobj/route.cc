@@ -87,7 +87,6 @@ void route_t::remove_koord_to(uint32 i)
 /**
  * Appends a straight line from the last koord3d in route to the desired target.
  * Will return false if failed
- * @author prissi
  */
 bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 {
@@ -178,8 +177,8 @@ void route_t::RELEASE_NODES(uint8 nodes_index)
 	_nodes_in_use[nodes_index] = false;
 }
 
-/* find the route to an unknown location
- * @author prissi
+/**
+ * find the route to an unknown location
  */
 bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 axle_load, sint32 max_tile_len, uint32 total_weight, uint32 max_depth, bool is_tall, find_route_flags flags)
 {
@@ -427,7 +426,13 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			route.clear();
 			ANode* original_tmp = tmp;
 			//route.resize(tmp->count + 16);
-			const koord destination_pos = destination_industry ? destination_industry->get_pos().get_2d() : destination_attraction ? destination_attraction->get_first_tile()->get_pos().get_2d() : destination_city ? destination_city->get_townhall_road() : koord::invalid;
+
+			// There may be multiple objects at this location (a townhall road might share a tile with an industry or attraction).
+			// Make sure to capture all objects.
+			const koord industry_destination_pos = destination_industry ? destination_industry->get_pos().get_2d() : koord::invalid;
+			const koord attraction_destination_pos = destination_attraction ? destination_attraction->get_first_tile()->get_pos().get_2d() : koord::invalid;
+			const koord city_destination_pos = destination_city ? destination_city->get_townhall_road() : koord::invalid;
+
 			koord3d previous = koord3d::invalid;
 			weg_t* w;
 			while (tmp != NULL)
@@ -441,7 +446,21 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					// that are currently being read.
 
 					// Also, the route is iterated here *backwards*.
-					w->add_private_car_route(destination_pos, previous);
+
+					if (industry_destination_pos != koord::invalid)
+					{
+						w->add_private_car_route(industry_destination_pos, previous);
+					}
+
+					if (attraction_destination_pos != koord::invalid)
+					{
+						w->add_private_car_route(attraction_destination_pos, previous);
+					}
+
+					if (city_destination_pos != koord::invalid)
+					{
+						w->add_private_car_route(city_destination_pos, previous);
+					}
 				}
 
 				// Old route storage - we probably no longer need this.
@@ -587,7 +606,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 						}
 						else if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL)
 						{
-							// discourage 90� turns
+							// discourage 90 degree turns
 							k->g += 10;
 						}
 					}
@@ -754,9 +773,8 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 #ifndef MULTI_THREAD
 		// If this is multi-threaded, we cannot have random
 		// threads calling INT_CHECK.
-		// Hajo: this is too expensive to be called each step
-		if((beat++ & 1023) == 0)
-		{
+		// this is too expensive to be called each step
+		if((beat++ & 1023) == 0) {
 			INT_CHECK("route 161");
 		}
 #endif
@@ -954,10 +972,10 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 				uint8 current_dir;
 				if (tmp->parent != NULL && flags != simple_cost) {
 					current_dir = next_ribi[r] | tmp->ribi_from;
-					if (tmp->dir != current_dir) {
+					if(tmp->dir!=current_dir) {
 						new_g += 30;
-						if (tmp->parent->dir != tmp->dir  &&  tmp->parent->parent != NULL) {
-							// discourage 90� turns
+						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL) {
+							// discourage 90 degree turns
 							new_g += 10;
 						}
 						else if (ribi_t::is_perpendicular(tmp->dir, current_dir))
@@ -1023,8 +1041,8 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 					// if going straight only check straight direction
 					// if going diagonally check both directions that generate this diagonal
 					// also enter all available canals and turn to get around canals
-					if (tmp->parent != NULL) {
-						k->jps_ribi = ~way_ribi | current_dir | ((wasser_t*)to)->get_canal_ribi();
+					if (tmp->parent!=NULL) {
+						k->jps_ribi = ~way_ribi | current_dir |  ((wasser_t*)to)->get_canal_ribi();
 
 						if (gr->is_water()) {
 							// turn on next tile to enter possible neighbours of canal tiles
@@ -1197,10 +1215,10 @@ void route_t::postprocess_water_route(karte_t *welt)
 }
 
 
-/* searches route, uses intern_calc_route() for distance between stations
+
+/**
+ * searches route, uses intern_calc_route() for distance between stations
  * handles only driving in stations by itself
- * corrected 12/2005 for station search
- * @author Hansj�rg Malthaner, prissi
  */
  route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t* const tdriver, const sint32 max_khm, const uint32 axle_load, bool is_tall, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight, koord3d avoid_tile, uint8 direction, find_route_flags flags)
 {

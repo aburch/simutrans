@@ -7,19 +7,15 @@
 #define GUI_SOUND_FRAME_H
 
 
-/*
- * Dialog for sound settings
- *
- * @author Hj. Malthaner, Owen Rudge
- * @date 09-Apr-01
- */
-
 #include "gui_frame.h"
 #include "components/gui_scrollbar.h"
 #include "components/gui_label.h"
 #include "components/gui_button.h"
 #include "components/action_listener.h"
 
+/**
+ * Dialog for sound settings
+ */
 class sound_frame_t : public gui_frame_t, action_listener_t
 {
 private:
@@ -39,14 +35,12 @@ public:
     /**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-     * @author Hj. Malthaner
      */
 	const char * get_help_filename() const OVERRIDE {return "sound.txt";}
 
 
     /**
 	 * Constructor. Adds all necessary Subcomponents.
-     * @author Hj. Malthaner
      */
     sound_frame_t();
 
@@ -54,7 +48,6 @@ public:
 	 * Draw new component. The values to be passed refer to the window
 	 * i.e. It's the screen coordinates of the window where the
 	 * component is displayed.
-     * @author Hj. Malthaner
      */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 

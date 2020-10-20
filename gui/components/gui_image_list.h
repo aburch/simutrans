@@ -16,18 +16,13 @@
 #define EMPTY_IMAGE_BAR (255)
 
 /**
+ * A component that represents a list of images.
+ *
  * Updated! class is used only for the vehicle dialog. SO I changed some things
  * for the new one::
  * - cannot select no-image fields any more
  * - numbers can be drawn ontop an images
  * - color bar can be added to the images
- *
- *
- * @author Volker Meyer
- * @date  09.06.2003
- *
- * A component that represents a list of images.
- * @author Hj. Malthaner
  */
 class gui_image_list_t :
 	public gui_action_creator_t,
@@ -53,9 +48,6 @@ public:
 	 * Graphic layout:
 	 * size of borders around the whole area (there are no borders around
 	 * individual images)
-	 *
-	 * @author Volker Meyer
-	 * @date  07.06.2003
 	 */
 	enum { BORDER = 4 };
 
@@ -67,14 +59,11 @@ private:
 
 	/**
 	 * Rows or columns?
-	 * @author Volker Meyer
-	 * @date  20.06.2003
 	 */
 	int use_rows;
 
 	/**
 	 * Player number to obtain player color used to display the images.
-	 * @author Hj. Malthaner
 	 */
 	sint8 player_nr;
 
@@ -84,21 +73,16 @@ public:
 	/**
 	 * Constructor: takes pointer to vector with image_data_t
 	 * @param images pointer to vector of pointers to image_data_t
-	 * @author Hj. Malthaner
 	 */
 	gui_image_list_t(vector_tpl<image_data_t*> *images);
 
 	/**
 	 * This set horizontal and vertical spacing for the images.
-	 * @author Volker Meyer
-	 * @date  20.06.2003
 	 */
 	void set_grid(scr_coord grid) { this->grid = grid; }
 
 	/**
 	 * This set the offset for the images.
-	 * @author Volker Meyer
-	 * @date  20.06.2003
 	 */
 	void set_placement(scr_coord placement) { this->placement = placement; }
 
@@ -111,16 +95,12 @@ public:
 
 	/**
 	 * Draw/record the picture
-	 * @author Hj. Malthaner
 	 */
 	virtual void draw(scr_coord offset) OVERRIDE;
 
 	/**
 	 * Looks for the image at given position.
 	 * xpos and ypos relative to parent window.
-	 *
-	 * @author Volker Meyer
-	 * @date  07.06.2003
 	 */
 	int index_at(scr_coord parent_pos, int xpos, int ypos) const;
 

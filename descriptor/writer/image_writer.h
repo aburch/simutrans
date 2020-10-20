@@ -49,8 +49,6 @@ class image_writer_t : public obj_writer_t {
 		/**
 		 * Encodes an image into a sprite data structure, considers
 		 * special colors.
-		 *
-		 * @author Hj. Malthaner
 		 */
 		static uint16* encode_image(int x, int y, dimension* dim, int* len);
 };

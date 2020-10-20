@@ -58,7 +58,6 @@ password_frame_t::password_frame_t( player_t *player ) :
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool password_frame_t::action_triggered( gui_action_creator_t *comp, value_t p )
 {

@@ -891,6 +891,11 @@ void scenario_t::rdwr(loadsave_t *file)
 			rdwr_error = true;
 		}
 	}
+	// client side of scripted game but not on a client
+	if ( (what_scenario == SCRIPTED_NETWORK)  ^  (env_t::networkmode  &&  env_t::server==0) ) {
+		what_scenario = 0;
+		rdwr_error = true;
+	}
 }
 
 void scenario_t::rotate90(const sint16 y_size)

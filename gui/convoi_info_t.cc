@@ -85,14 +85,10 @@ static uint8 statistic[convoi_t::MAX_CONVOI_COST] = {
 
 /**
  * This variable defines by which column the table is sorted
- * Values:			0 = destination
- *                  1 = via
- *                  2 = via_amount
- *                  3 = amount
- *					4 = origin
- *					5 = origin_amount
- *					6 = destination (detail)
- * @author prissi - amended by jamespetts (origins)
+ * Values: 0 = destination
+ *                 1 = via
+ *                 2 = via_amount
+ *                 3 = amount
  */
 const char *convoi_info_t::sort_text[SORT_MODES] =
 {
@@ -114,6 +110,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	: gui_frame_t(""),
 	text(&freight_info),
 	view(scr_size(max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
+	loading_bar(cnv),
 	scroll_freight(&container_freight, true, true)
 {
 	if (cnv.is_bound()) {
@@ -148,7 +145,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 				add_component(&speed_bar);
 
 				add_component(&weight_label);
-				add_component(&filled_bar);
+				add_component(&loading_bar);
 
 				add_table(3, 1);
 				{
@@ -310,11 +307,6 @@ void convoi_info_t::init(convoihandle_t cnv)
 	container_stats.end_table();
 
 	cnv->set_sortby(env_t::default_sortmode);
-
-
-	// indicator bars
-	filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
-	filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
 
 	speed_bar.set_base(max_convoi_speed);
 	speed_bar.set_vertical(false);
@@ -595,7 +587,6 @@ void convoi_info_t::update_labels()
  * Draw new component. The values to be passed refer to the window
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
- * @author Hj. Malthaner
  */
 void convoi_info_t::draw(scr_coord pos, scr_size size)
 {
@@ -820,7 +811,6 @@ koord3d convoi_info_t::get_weltpos( bool set )
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {

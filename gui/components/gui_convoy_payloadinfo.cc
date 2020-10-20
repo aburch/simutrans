@@ -7,6 +7,7 @@
 #include "../../utils/cbuffer_t.h"
 
 #include "../gui_frame.h"
+#include "../../display/simgraph.h"
 
 
 gui_convoy_payloadinfo_t::gui_convoy_payloadinfo_t(convoihandle_t cnv)
@@ -19,7 +20,7 @@ void gui_convoy_payloadinfo_t::draw(scr_coord offset)
 		convoi_t &convoy = *cnv.get_rep();
 		offset.y += 2;
 		offset.x += D_MARGIN_LEFT;
-		int left = 0;
+		uint16 left = 0;
 		cbuffer_t buf;
 		const bool overcrowded = cnv->get_overcrowded() ? true : false;
 		PIXVAL text_col = overcrowded ? color_idx_to_rgb(COL_OVERCROWD - 1) : SYSCOL_TEXT;
@@ -84,4 +85,83 @@ void gui_convoy_payloadinfo_t::draw(scr_coord offset)
 			set_size(size);
 		}
 	}
+}
+
+static karte_ptr_t welt;
+
+gui_loadingbar_t::gui_loadingbar_t(convoihandle_t cnv)
+{
+	this->cnv = cnv;
+}
+
+void gui_loadingbar_t::draw(scr_coord offset)
+{
+	if (!cnv.is_bound()) {
+		return;
+	}
+	offset += pos;
+	sint64 waiting_time_per_month = 0;
+	uint8 waiting_bar_col = COL_APRICOT;
+	switch (cnv->get_state()) {
+		case convoi_t::LOADING:
+			waiting_time_per_month = int(0.9 + cnv->calc_remaining_loading_time() * 200 / welt->ticks_per_world_month);
+			break;
+		case convoi_t::REVERSING:
+			waiting_time_per_month = int(0.9 + cnv->get_wait_lock() * 200 / welt->ticks_per_world_month);
+			break;
+		case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
+		case convoi_t::CAN_START_TWO_MONTHS:
+			waiting_time_per_month = 100;
+			waiting_bar_col = COL_ORANGE;
+			//if (skinverwaltung_t::alerts) {
+			//	display_color_img(skinverwaltung_t::alerts->get_image_id(3), xpos - 15, ypos - D_FIXED_SYMBOL_WIDTH, 0, false, true);
+			//}
+			break;
+		case convoi_t::NO_ROUTE:
+		case convoi_t::NO_ROUTE_TOO_COMPLEX:
+		case convoi_t::OUT_OF_RANGE:
+			waiting_time_per_month = 100;
+			waiting_bar_col = COL_RED + 1;
+			//if (skinverwaltung_t::pax_evaluation_icons) {
+			//	display_color_img(skinverwaltung_t::pax_evaluation_icons->get_image_id(4), xpos - 15, ypos - D_FIXED_SYMBOL_WIDTH, 0, false, true);
+			//}
+			break;
+		default:
+			break;
+	}
+
+	display_ddd_box_clip_rgb(offset.x, offset.y, size.w, LOADINGBAR_HEIGHT, color_idx_to_rgb(MN_GREY2), color_idx_to_rgb(MN_GREY0));
+	sint32 colored_width = cnv->get_loading_level() > 100 ? size.w-2 : cnv->get_loading_level()*(size.w-2)/100;
+
+	if (cnv->get_loading_limit() && cnv->get_state() == convoi_t::LOADING) {
+		display_fillbox_wh_clip_rgb(offset.x+1, offset.y+1, cnv->get_loading_limit(), LOADINGBAR_HEIGHT - 2, COL_IN_TRANSIT, true);
+	}
+	else if (cnv->get_loading_limit()) {
+		display_blend_wh_rgb(offset.x+1, offset.y+1, cnv->get_loading_limit(), LOADINGBAR_HEIGHT - 2, COL_IN_TRANSIT, 60);
+	}
+	else {
+		display_blend_wh_rgb(offset.x+1, offset.y+1, size.w-2, LOADINGBAR_HEIGHT - 2, color_idx_to_rgb(MN_GREY2), colored_width ? 65 : 40);
+	}
+	display_cylinderbar_wh_clip_rgb(offset.x + 1, offset.y + 1, colored_width, LOADINGBAR_HEIGHT - 2, color_idx_to_rgb(COL_GREEN - 1), true);
+
+	// winting gauge
+	if (waiting_time_per_month) {
+		colored_width = waiting_time_per_month > 100 ? size.w - 2 : waiting_time_per_month * (size.w - 2) / 100;
+		display_ddd_box_clip_rgb(offset.x, offset.y+LOADINGBAR_HEIGHT, colored_width + 2, WAITINGBAR_HEIGHT, color_idx_to_rgb(MN_GREY2), color_idx_to_rgb(MN_GREY0));
+		display_cylinderbar_wh_clip_rgb(offset.x+1, offset.y+LOADINGBAR_HEIGHT+1, colored_width, WAITINGBAR_HEIGHT - 2, color_idx_to_rgb(waiting_bar_col), true);
+		if (waiting_time_per_month > 100) {
+			colored_width = waiting_time_per_month - (size.w - 2);
+			display_cylinderbar_wh_clip_rgb(offset.x+1, offset.y+LOADINGBAR_HEIGHT+1, colored_width, WAITINGBAR_HEIGHT - 2, color_idx_to_rgb(waiting_bar_col-2), true);
+		}
+	}
+}
+
+scr_size gui_loadingbar_t::get_min_size() const
+{
+	return scr_size(LOADINGBAR_WIDTH + 2, LOADINGBAR_HEIGHT + WAITINGBAR_HEIGHT);
+}
+
+scr_size gui_loadingbar_t::get_max_size() const
+{
+	return scr_size(size_fixed ? LOADINGBAR_WIDTH+2 : scr_size::inf.w, LOADINGBAR_HEIGHT + WAITINGBAR_HEIGHT);
 }

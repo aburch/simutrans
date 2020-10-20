@@ -165,7 +165,7 @@ bool dr_screenshot_png(char const* filename, int w, int h, int maxwidth, unsigne
 		free( newdata );
 	}
 
-	// Passenden Encoder f�r jpegs suchen:
+	// Get suitable encoder for png files:
 	// Genausogut kann man auch image/png benutzen um png's zu speichern ;D
 	// ...oder image/gif um gif's zu speichern, ...
 	bool ok = false;

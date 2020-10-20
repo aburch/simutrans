@@ -35,12 +35,12 @@ static int use_sound = 0;
  * this structure contains the data for one sample
  */
 struct sample {
-    /* the buffer containing the data for the sample, the format
-     * must always be identical to the one of the system output
-     * format */
-    Uint8 *audio_data;
+	/* the buffer containing the data for the sample, the format
+	 * must always be identical to the one of the system output
+	 * format */
+	Uint8 *audio_data;
 
-    Uint32 audio_len;		    /* number of samples in the adiop data */
+	Uint32 audio_len;	/* number of samples in the audio data */
 };
 
 
@@ -56,9 +56,9 @@ static int samplenumber = 0;
 /* this structure contains the information about one channel
  */
 struct channel {
-	Uint32 sample_pos; /* the current position inside this sample */
-	Uint8 sample;      /* which sample is played, 255 for no sample */
-	Uint8 volume;      /* the volume this channel should be played */
+	Uint32 sample_pos;	/* the current position inside this sample */
+	Uint8 sample;		/* which sample is played, 255 for no sample */
+	Uint8 volume;		/* the volume this channel should be played */
 };
 
 
@@ -161,7 +161,6 @@ bool dr_init_sound()
 /**
  * loads a sample
  * @return a handle for that sample or -1 on failure
- * @author Hj. Malthaner
  */
 int dr_load_sample(const char *filename)
 {
@@ -216,7 +215,6 @@ int dr_load_sample(const char *filename)
 /**
  * plays a sample
  * @param key the key for the sample to be played
- * @author Hj. Malthaner
  */
 void dr_play_sample(int sample_number, int volume)
 {

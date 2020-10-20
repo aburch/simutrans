@@ -44,7 +44,6 @@ public:
 
 	/**
 	 * Different GUI elements
-	 * @author prissi
 	 */
 	static const skin_desc_t* button;
 	static const skin_desc_t* round_button;

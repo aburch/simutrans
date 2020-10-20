@@ -90,9 +90,8 @@ static void dump_hashtable(stringhashtable_tpl<const char*>* tbl)
 
 /* first two file functions needed in connection with utf */
 
-/* checks, if we need a unicode translation (during load only done for identifying strings like "Aufl?sen")
- * @date 2.1.2005
- * @author prissi
+/**
+ * checks, if we need a unicode translation
  */
 static bool is_unicode_file(FILE* f)
 {
@@ -222,7 +221,7 @@ void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const
 
 	clear_custom_list(name_list);
 
-	// @author prissi: first try in pakset
+	// first try in pakset
 	{
 		string local_file_name(env_t::user_dir);
 		local_file_name = local_file_name + "addons/" + pakset_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
@@ -274,13 +273,13 @@ void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const
 }
 
 
-/* the city list is now reloaded after the language is changed
+/**
+ * the city list is now reloaded after the language is changed
  * new cities will get their appropriate names
- * @author hajo, prissi
  */
 void translator::init_custom_names(int lang)
 {
-	// Hajo: init names. There are two options:
+	// init names. There are two options:
 	//
 	// 1.) read list from file
 	// 2.) create random names (only for cities)

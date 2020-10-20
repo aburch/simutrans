@@ -13,7 +13,7 @@
 #include "../tpl/stringhashtable_tpl.h"
 
 class karte_ptr_t;
-class player_t;               // Hajo: 22-Nov-01: Added forward declaration
+class player_t;
 class tunnel_desc_t;
 class way_desc_t;
 class tool_selector_t;
@@ -23,8 +23,6 @@ class tool_selector_t;
  * sondern immer vom tunnel_builder_t erzeugt werden.
  *
  * Es gibt keine Instanz - nur statische Methoden.
- *
- * @author V. Meyer
  */
 class tunnel_builder_t {
 private:

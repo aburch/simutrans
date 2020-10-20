@@ -14,6 +14,7 @@
 #include "simwin.h"
 #include "../simconvoi.h"
 #include "../simworld.h"
+#include "../unicode.h"
 #include "../descriptor/goods_desc.h"
 #include "../bauer/goods_manager.h"
 #include "../dataobj/translator.h"
@@ -28,7 +29,7 @@
 convoi_frame_t::sort_mode_t convoi_frame_t::sortby = convoi_frame_t::by_name;
 static uint8 default_sortmode = 0;
 bool convoi_frame_t::sortreverse = false;
-static uint8 cl_display_mode = gui_convoiinfo_t::cnvlist_normal;
+static uint8 cl_display_mode = gui_convoy_formation_t::appearance;
 
 const char *convoi_frame_t::sort_text[SORT_MODES] = {
 	"cl_btn_sort_name",
@@ -61,6 +62,7 @@ public:
 			gui_convoiinfo_t *a = dynamic_cast<gui_convoiinfo_t*>(*iter);
 
 			a->set_visible( main->passes_filter(a->get_cnv()) );
+			a->set_mode(cl_display_mode);
 		}
 		main_static = main;
 		gui_scrolled_list_t::sort(0);
@@ -84,7 +86,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 		return true;
 	}
 
-	if(  name_filter!=NULL  &&  !strstr(cnv->get_name(), name_filter)  ) {
+	if(  name_filter!=NULL  &&  !utf8caseutf8(cnv->get_name(), name_filter)  ) {
 		// not the right name
 		return false;
 	}
@@ -214,7 +216,7 @@ void convoi_frame_t::fill_list()
 	scrolly->clear_elements();
 	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
 		if(cnv->get_owner()==owner) {
-			scrolly->new_component<gui_convoiinfo_t>(cnv) ;
+			scrolly->new_component<gui_convoiinfo_t>(cnv);
 		}
 	}
 	sort_list();
@@ -282,7 +284,7 @@ convoi_frame_t::convoi_frame_t(player_t* player) :
 		}
 		end_table();
 
-		display_mode.init(button_t::roundbox, gui_convoiinfo_t::cnvlist_mode_button_texts[cl_display_mode]);
+		display_mode.init(button_t::roundbox, gui_convoy_formation_t::cnvlist_mode_button_texts[cl_display_mode]);
 		display_mode.add_listener(this);
 		add_component(&display_mode);
 
@@ -320,9 +322,8 @@ bool convoi_frame_t::infowin_event(const event_t *ev)
 
 /**
  * This method is called if an action is triggered
- * @author Markus Weber
  */
-bool convoi_frame_t::action_triggered( gui_action_creator_t *comp, value_t /* */ )           // 28-Dec-01    Markus Weber    Added
+bool convoi_frame_t::action_triggered( gui_action_creator_t *comp, value_t /* */ )
 {
 	if(  comp == &filter_on  ) {
 		filter_is_on = !filter_is_on;
@@ -350,8 +351,9 @@ bool convoi_frame_t::action_triggered( gui_action_creator_t *comp, value_t /* */
 		sort_desc.pressed = !sortreverse;
 	}
 	else if (comp == &display_mode) {
-		cl_display_mode = (cl_display_mode + 1) % gui_convoiinfo_t::DISPLAY_MODES;
-		display_mode.set_text(gui_convoiinfo_t::cnvlist_mode_button_texts[cl_display_mode]);
+		cl_display_mode = (cl_display_mode + 1) % gui_convoy_formation_t::CONVOY_OVERVIEW_MODES;
+		display_mode.set_text(gui_convoy_formation_t::cnvlist_mode_button_texts[cl_display_mode]);
+		sort_list();
 		resize(scr_size(0, 0));
 	}
 	else if(  comp == &filter_details  ) {

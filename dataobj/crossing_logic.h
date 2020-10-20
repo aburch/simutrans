@@ -19,7 +19,6 @@ class vehicle_base_t;
 
 /**
  * road sign for traffic (one way minimum speed, traffic lights)
- * @author Hj. Malthaner
  */
 class crossing_logic_t
 {
@@ -47,7 +46,6 @@ public:
 
 	/**
 	 * @return string (only used for debug at the moment)
-	 * @author prissi
 	 */
 	void info(cbuffer_t & buf) const;
 

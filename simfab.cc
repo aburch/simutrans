@@ -1112,7 +1112,6 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool, bool from_saved)
 
 
 /* field generation code
- * @author Kieron Green
  */
 bool fabrik_t::add_random_field(uint16 probability)
 {
@@ -1168,7 +1167,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 		const koord k = gr->get_pos().get_2d();
 		field_data_t new_field(k);
 		assert(!fields.is_contained(new_field));
-		// Knightly : fetch a random field class desc based on spawn weights
+		// fetch a random field class desc based on spawn weights
 		const weighted_vector_tpl<uint16> &field_class_indices = fd->get_field_class_indices();
 		new_field.field_class_index = pick_any_weighted(field_class_indices);
 		const field_class_desc_t *const field_class = fd->get_field_class( new_field.field_class_index );
@@ -1176,7 +1175,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 		grund_t *gr2 = new fundament_t(gr->get_pos(), gr->get_grund_hang());
 		welt->access(k)->boden_ersetzen(gr, gr2);
 		gr2->obj_add( new field_t(gr2->get_pos(), owner, field_class, this ) );
-		// Knightly : adjust production base and storage capacities
+		// adjust production base and storage capacities
 		adjust_production_for_fields();
 		if(lt) {
 			gr2->obj_add( lt );
@@ -1194,7 +1193,7 @@ void fabrik_t::remove_field_at(koord pos)
 	assert(fields.is_contained( field ));
 	field = fields[ fields.index_of(field) ];
 	fields.remove(field);
-	// Knightly : revert the field's effect on production base and storage capacities
+	// revert the field's effect on production base and storage capacities
 	adjust_production_for_fields();
 }
 
@@ -1332,7 +1331,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 					ware.menge = menge;
 				}
 
-				// Hajo: repair files that have 'insane' values
+				// repair files that have 'insane' values
 				const sint32 max = (sint32)((((sint64)FAB_MAX_INPUT << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
 				if (ware.menge < 0) {
 					ware.menge = 0;
@@ -1347,8 +1346,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 						pos_origin.get_fullstr(), i, ware_name, ware.get_typ()->get_name(), desc->get_supplier(i)->get_input_type()->get_name());
 				}
 			}
-
-			guarded_free(const_cast<char *>(ware_name));
+			free(const_cast<char *>(ware_name));
 
 			/*
 			* It's very easy for in-transit information to get corrupted,
@@ -1437,8 +1435,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 					ware.menge = menge;
 				}
 
-				// Hajo: repair files that have 'insane' values
-				if (ware.menge < 0) {
+				// repair files that have 'insane' values
+				if(  ware.menge < 0  ) {
 					ware.menge = 0;
 				}
 
@@ -1448,7 +1446,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 						pos_origin.get_fullstr(), i, ware_name, ware.get_typ()->get_name(), desc->get_product(i)->get_output_type()->get_name());
 				}
 			}
-			guarded_free(const_cast<char *>(ware_name));
+			free(const_cast<char *>(ware_name));
 		}
 	}
 	if (desc  &&  output_count != desc->get_product_count()) {
@@ -1485,7 +1483,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	file->rdwr_long(owner_n);
 	file->rdwr_long(prodbase);
 	if(  file->get_version()<110005  ) {
-		// TurfIt : prodfactor saving no longer required
+		// prodfactor saving no longer required
 		sint32 adjusted_value = (prodfactor_electric / 16) + 16;
 		file->rdwr_long(adjusted_value);
 	}
@@ -1503,7 +1501,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			// since we step from 86.01 per factory, not per tile!
 			prodbase *= k.x*k.y*2;
 		}
-		// Hajo: restore factory owner
+		// restore factory owner
 		// Due to a omission in Volkers changes, there might be savegames
 		// in which factories were saved without an owner. In this case
 		// set the owner to the default of player 1
@@ -1690,7 +1688,6 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 
 /**
  * let the chimney smoke, if there is something to produce
- * @author Hj. Malthaner
  */
 void fabrik_t::smoke() const
 {
@@ -1813,7 +1810,7 @@ sint32 fabrik_t::liefere_an(const goods_desc_t *typ, sint32 menge)
 
 				ware.menge += prod_delta;
 
-				// Hajo: avoid overflow
+				// avoid overflow
 				const sint32 max = (sint32)((((sint64)FAB_MAX_INPUT << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
 				if (ware.menge >= max) {
 					menge -= (sint32)(((sint64)menge * (sint64)(ware.menge - max) + (sint64)(prod_delta >> 1)) / (sint64)prod_delta);
@@ -2268,8 +2265,8 @@ void fabrik_t::step(uint32 delta_t)
 			// we produced some real quantity => smoke
 			smoke();
 
-			// Knightly : distribution_weight to expand every 256 rounds of activities, after which activity count will return to 0 (overflow behaviour)
-			if(  ++activity_count==0  ) {
+			// chance to expand every 256 rounds of activities, after which activity count will return to 0 (overflow behaviour)
+			if(  (++activity_count)==0  ) {
 				if(  desc->get_field_group()  ) {
 					if(  fields.get_count()<desc->get_field_group()->get_max_fields()  ) {
 						// spawn new field with given probability
@@ -2292,7 +2289,7 @@ void fabrik_t::step(uint32 delta_t)
 		}
 	}
 
-	// Knightly : advance arrival slot at calculated interval and recalculate boost where necessary
+	/// advance arrival slot at calculated interval and recalculate boost where necessary
 	delta_slot += delta_t;
 	const sint32 periods = welt->get_settings().get_factory_arrival_periods();
 	const sint32 slot_interval = (1 << (PERIOD_BITS - SLOT_BITS)) * periods;
@@ -2343,7 +2340,6 @@ public:
 
 /**
  * distribute stuff to all best destination
- * @author Hj. Malthaner
  */
 void fabrik_t::verteile_waren(const uint32 product)
 {
@@ -2359,12 +2355,11 @@ void fabrik_t::verteile_waren(const uint32 product)
 	// to distribute to all target equally, we use this counter, for the source hald, and target factory, to try first
 	output[product].index_offset++;
 
-	/* prissi: distribute goods to factory
+	/* distribute goods to factory
 	 * that has not an overflowing input storage
 	 * also prevent stops from overflowing, if possible
 	 * Since we can called with menge>max/2 are at least 1 are there, we must first limit the amount we distribute
 	 */
-
 	// We already know the distribution amount. However it has to be converted from factory units into real units.
 	const uint32 prod_factor = desc->get_product(product)->get_factor();
 	sint32 menge = (sint32)(((sint64)output[product].menge * (sint64)(prod_factor)) >> (sint64)(DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits));
@@ -2444,10 +2439,9 @@ void fabrik_t::verteile_waren(const uint32 product)
 	{
 		nearby_halt_t nearby_halt = nearby_freight_halts[(i + output[product].index_offset) % count];
 
-		// Über all Ziele iterieren ("Iterate over all targets" - Google)
-		for(uint32 n = 0; n < lieferziele.get_count(); n ++)
-		{
-			// prissi: this way, the halt that is tried first will change. As a result, if all destinations are empty, it will be spread evenly
+		// Iterate over all targets
+		for(  uint32 n=0;  n<lieferziele.get_count();  n++  ) {
+			// this way, the halt, that is tried first, will change. As a result, if all destinations are empty, it will be spread evenly
 			const koord lieferziel = lieferziele[(n + output[product].index_offset) % lieferziele.get_count()];
 			fabrik_t * ziel_fab = get_fab(lieferziel);
 
@@ -3690,13 +3684,13 @@ void fabrik_t::calc_max_intransit_percentages()
 		{
 			// No factories connected; use the default intransit percentage for now.
 			max_intransit_percentages.put(catg, base_max_intransit_percentage);
-			input[index].max_transit = max(1, (base_max_intransit_percentage * input[index].max) / 100); // This puts max_transit in internal units
+			input[index].max_transit = max(1, ((sint64)base_max_intransit_percentage * input[index].max) / 100); // This puts max_transit in internal units
 			index ++;
 			continue;
 		}
 		const uint32 time_to_consume = max(1u, get_time_to_consume_stock(index));
 		const sint32 ratio = ((sint32)lead_time * 1000 / (sint32)time_to_consume);
-		const sint32 modified_max_intransit_percentage = (ratio * (sint32)base_max_intransit_percentage) / 1000;
+		const sint32 modified_max_intransit_percentage = (ratio * (sint64)base_max_intransit_percentage) / 1000;
 		max_intransit_percentages.put(catg, (uint16)modified_max_intransit_percentage);
 		input[index].max_transit = max(1, (modified_max_intransit_percentage * input[index].max) / 100); // This puts max_transit in internal units
 		index ++;

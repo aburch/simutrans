@@ -15,8 +15,6 @@ class fabrik_t;
 
 /**
  * Cars are able to drive on roads.
- *
- * @author Hj. Malthaner
  */
 class strasse_t : public weg_t
 {
@@ -27,7 +25,7 @@ private:
 	/**
 	* @author THLeaderH
 	*/
-	overtaking_mode_t overtaking_mode;
+	overtaking_mode_t overtaking_mode = invalid_mode;
 
 	/**
 	* Mask used by oneway_mode road

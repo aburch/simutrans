@@ -18,7 +18,7 @@ class grund_t;
  * Singleton.
  */
 class marker_t {
-	// Hajo: added bit mask, because it allows a more efficient
+	// added bit mask, because it allows a more efficient
 	// implementation (use & instead of %)
 	enum { bit_unit = (8 * sizeof(unsigned char)),
 		bit_mask = (8 * sizeof(unsigned char))-1 };

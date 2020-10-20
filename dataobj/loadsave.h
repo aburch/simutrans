@@ -16,22 +16,14 @@ class plainstring;
 struct file_descriptors_t;
 
 /**
-* loadsave_t:
-*
-* This class replaces the FILE when loading and saving games.
-* <p>
-* Hj. Malthaner, 16-Feb-2002, added zlib compression support
-* </p>
-* Can now read and write 3 formats: text, binary and zipped
-* Input format is automatically detected.
-* Output format has a default, changeable with set_savemode, but can be
-* overwritten in wr_open.
-*
-* @author V. Meyer, Hj. Malthaner
-*/
-
-
-class loadsave_t {
+ * This class replaces the FILE when loading and saving games.
+ * Can now read and write 3 formats: text, binary and zipped
+ * Input format is automatically detected.
+ * Output format has a default, changeable with set_savemode, but can be
+ * overwritten in wr_open.
+ */
+class loadsave_t
+{
 public:
 	enum mode_t { text = 1, xml = 2, binary = 0, zipped = 4, xml_zipped = 6, bzip2 = 8, xml_bzip2 = 10 };
 
@@ -53,11 +45,12 @@ private:
 
 	file_descriptors_t *fd;
 
-	// Hajo: putc got a name clash on my system
+	/// @sa putc
 	inline void lsputc(int c);
 
-	// Hajo: getc got a name clash on my system
+	/// @sa getc
 	inline int lsgetc();
+
 	size_t write(const void * buf, size_t len);
 	size_t read(void *buf, size_t len);
 
@@ -95,9 +88,8 @@ public:
 	static void set_autosavemode(mode_t mode) { autosave_mode = mode; }
 
 	/**
-	* Checks end-of-file
-	* @author Hj. Malthaner
-	*/
+	 * Checks end-of-file
+	 */
 	bool is_eof();
 
 	void set_buffered(bool enable);

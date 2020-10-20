@@ -13,8 +13,6 @@
 
 /**
  * Searches a disk folder for files matching certain restrictions.
- * @author Volker Meyer
- * @author Markohs
  */
 class searchfolder_t {
 public:

@@ -14,7 +14,6 @@
 class cbuffer_t;
 
 /**
- * Knightly :
  *	A fixed-width, automatically line-wrapping text-area,
  *	optionally with a reserved area in the upper right corner.
  *	It does *not* add 10px margins from the top and the left.

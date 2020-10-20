@@ -220,3 +220,48 @@ scr_size gui_routebar_t::get_max_size() const
 {
 	return scr_size(scr_size::inf.w, size.h);
 }
+
+
+void gui_bandgraph_t::add_color_value(const sint32 *value, PIXVAL color)
+{
+	info_t next = { color, value };
+	values.insert(next);
+}
+
+scr_size gui_bandgraph_t::get_min_size() const
+{
+	return D_INDICATOR_SIZE;
+}
+
+scr_size gui_bandgraph_t::get_max_size() const
+{
+	return scr_size(scr_size::inf.w, D_INDICATOR_HEIGHT);
+}
+
+void gui_bandgraph_t::draw(scr_coord offset)
+{
+	offset += pos;
+	total = 0;
+	FOR(slist_tpl<info_t>, const& i, values) {
+		total += *i.value;
+	}
+
+	if (total==0) {
+		display_fillbox_wh_clip_rgb(offset.x, offset.y, size.w, size.h, COL_INACTIVE, true);
+	}
+	else{
+		sint32 temp = 0;
+		KOORD_VAL end = 0;
+		FOR(slist_tpl<info_t>, const& i, values) {
+			if (*i.value>0) {
+				temp += (*i.value);
+				const KOORD_VAL from = size.w * temp / total + 0.5;
+				const KOORD_VAL width = from-end;
+				if (width) {
+					display_fillbox_wh_clip_rgb(offset.x + size.w - from, offset.y, width, size.h, i.color, true);
+				}
+				end += width;
+			}
+		}
+	}
+}

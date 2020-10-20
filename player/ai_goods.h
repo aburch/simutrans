@@ -31,9 +31,9 @@ private:
 	// vars for the KI
 	state state;
 
-	/* test more than one supplier and more than one good *
+	/**
+	 * test more than one supplier and more than one good *
 	 * save last factory for building next supplier/consumer *
-	 * @author prissi
 	 */
 	fabrik_t *root;
 

@@ -15,7 +15,6 @@
 class dynamic_string;
 /**
  * All messages since the start of the program
- * @author prissi
  */
 class scenario_info_t : public gui_frame_t, private action_listener_t
 {
@@ -32,11 +31,9 @@ public:
 
 	/**
 	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
 	 *
 	 * Returns true, if action is done and no more
 	 * components should be triggered.
-	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *comp, value_t extra);
 

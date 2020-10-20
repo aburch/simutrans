@@ -14,7 +14,7 @@
 #include "components/gui_textinput.h"
 #include "components/gui_speedbar.h"
 #include "components/gui_button.h"
-#include "components/gui_label.h"                  // 09-Dec-2001      Markus Weber    Added
+#include "components/gui_label.h"
 #include "components/gui_combobox.h"
 #include "components/gui_tab_panel.h"
 #include "components/action_listener.h"
@@ -33,15 +33,10 @@ class scr_coord;
 
 /**
  * One element of the vehicle list display
- * @author prissi
  */
 class gui_vehicleinfo_t : public gui_container_t
 {
 private:
-	/**
-	 * Handle the convoi to be displayed.
-	 * @author Hj. Malthaner
-	 */
 	convoihandle_t cnv;
 
 	gui_combobox_t class_selector;
@@ -51,18 +46,10 @@ private:
 	vector_tpl<uint16> class_indices;
 
 public:
-	/**
-	 * @param cnv, the handler for displaying the convoi.
-	 * @author Hj. Malthaner
-	 */
 	gui_vehicleinfo_t(convoihandle_t cnv);
 
 	void set_cnv( convoihandle_t c ) { cnv = c; }
 
-	/**
-	 * Draw the component
-	 * @author Hj. Malthaner
-	 */
 	void draw(scr_coord offset);
 };
 
@@ -100,9 +87,6 @@ public:
 
 /**
  * Displays an information window for a convoi
- *
- * @author Hj. Malthaner
- * @date 22-Aug-01
  */
 class convoi_detail_t : public gui_frame_t , private action_listener_t
 {
@@ -144,25 +128,10 @@ private:
 public:
 	convoi_detail_t(convoihandle_t cnv);
 
-	/**
-	 * Draw new component. The values to be passed refer to the window
-	 * i.e. It's the screen coordinates of the window where the
-	 * component is displayed.
-	 * @author Hj. Malthaner
-	 */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	/**
-	 * Set the window associated helptext
-	 * @return the filename for the helptext, or NULL
-	 * @author V. Meyer
-	 */
 	const char * get_help_filename() const OVERRIDE {return "convoidetail.txt"; }
 
-	/**
-	 * Set window size and adjust component sizes and/or positions accordingly
-	 * @author Hj. Malthaner
-	 */
 	virtual void set_windowsize(scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;

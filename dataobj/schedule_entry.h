@@ -11,7 +11,6 @@
 
 /**
  * A schedule entry.
- * @author Hj. Malthaner
  */
 struct schedule_entry_t
 {
@@ -29,20 +28,17 @@ public:
 
 	/**
 	 * target position
-	 * @author Hj. Malthaner
 	 */
 	koord3d pos;
 
 	/**
 	 * Wait for % load at this stops
 	 * (ignored on waypoints)
-	 * @author Hj. Malthaner
 	 */
 	uint16 minimum_loading;
 
 	/**
 	 * spacing shift
-	 * @author Inkelyad
 	 */
 	sint16 spacing_shift;
 

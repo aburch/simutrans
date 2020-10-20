@@ -10,12 +10,8 @@
 #include "../network/checksum.h"
 
 
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *      Richtigen Index für singlees Brückenstück bestimmen
+/**
+ * Returns image index of a straight piece (excluding start pieces)
  */
 bridge_desc_t::img_t bridge_desc_t::get_straight(ribi_t::ribi ribi, uint8 height) const
 {
@@ -35,12 +31,8 @@ bridge_desc_t::img_t bridge_desc_t::get_pillar(ribi_t::ribi ribi)
 }
 
 
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *      Returns image index of a straight bridge-start piece (on slope)
+/**
+ * Returns image index of a straight bridge-start piece (on slope)
  */
 bridge_desc_t::img_t bridge_desc_t::get_start(slope_t::type slope) const
 {
@@ -69,12 +61,8 @@ bridge_desc_t::img_t bridge_desc_t::get_start(slope_t::type slope) const
 }
 
 
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *      Richtigen Index für Rampenstart ück bestimmen
+/**
+ * Returns image index of a ramp piece
  */
 bridge_desc_t::img_t bridge_desc_t::get_ramp(slope_t::type slope) const
 {
@@ -102,12 +90,8 @@ bridge_desc_t::img_t bridge_desc_t::get_ramp(slope_t::type slope) const
  }
 
 
-/*
- *  Author:
- *      Kieron Green
- *
- *  Description:
- *      returns image index for appropriate ramp or start image given ground and way slopes
+/**
+ * returns image index for appropriate ramp or start image given ground and way slopes
  */
 bridge_desc_t::img_t bridge_desc_t::get_end(slope_t::type test_slope, slope_t::type ground_slope, slope_t::type way_slope) const
 {
@@ -122,12 +106,8 @@ bridge_desc_t::img_t bridge_desc_t::get_end(slope_t::type test_slope, slope_t::t
 }
 
 
-/*
- *  Author:
- *      Kieron Green
- *
- *  Description:
- *      returns whether desc has double height images for ramps
+/**
+ * returns whether desc has double height images for ramps
  */
 bool bridge_desc_t::has_double_ramp() const
 {

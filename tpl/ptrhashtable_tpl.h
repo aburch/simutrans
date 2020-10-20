@@ -8,8 +8,7 @@
 
 
 #include "hashtable_tpl.h"
-#include <stdint.h> // intptr_t (standard)
-#include <stddef.h> // ptrdiff_t, intptr_t (Microsoft)
+#include "../simtypes.h"
 
 
 /*

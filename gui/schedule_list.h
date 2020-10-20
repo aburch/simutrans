@@ -25,13 +25,13 @@ class player_t;
 class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 {
 public:
-	enum sort_mode_t { by_name = 0, by_schedule, by_profit, by_loading_lvl, by_max_speed, /*by_power,*/ by_value, by_age, SORT_MODES };
+	enum sort_mode_t { by_name = 0, by_schedule, by_profit, by_loading_lvl, by_max_speed, by_power, by_value, by_age, SORT_MODES };
 private:
-	player_t *player;
+	player_t *player, *old_player;
 
 	static const char *sort_text[SORT_MODES];
 
-	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line, bt_line_class_manager, bt_times_history, bt_mode_convois;
+	button_t bt_new_line, bt_edit_line, bt_delete_line, bt_withdraw_line, bt_line_class_manager, bt_times_history, bt_mode_convois;
 	button_t sort_asc, sort_desc;
 	gui_container_t cont, cont_haltestellen, cont_charts, cont_convoys;
 	gui_scrollpane_t scrolly_convois, scrolly_haltestellen;
@@ -108,17 +108,15 @@ public:
 	schedule_list_gui_t(player_t* player_);
 	~schedule_list_gui_t();
 	/**
-	* in top-level windows the name is displayed in titlebar
-	* @return the non-translated component name
-	* @author Hj. Malthaner
-	*/
+	 * in top-level windows the name is displayed in titlebar
+	 * @return the non-translated component name
+	 */
 	const char* get_name() const { return "Line Management"; }
 
 	/**
-	* Set the window associated helptext
-	* @return the filename for the helptext, or NULL
-	* @author Hj. Malthaner
-	*/
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
+	 */
 	const char* get_help_filename() const OVERRIDE { return "linemanagement.txt"; }
 
 	static void set_sortierung(const sort_mode_t sm) { sortby = sm; }
@@ -129,7 +127,6 @@ public:
 	/**
 	* Does this window need a min size button in the title bar?
 	* @return true if such a button is needed
-	* @author Hj. Malthaner
 	*/
 	bool has_min_sizer() const OVERRIDE {return true;}
 
@@ -137,13 +134,11 @@ public:
 	* Draw new component. The values to be passed refer to the window
 	* i.e. It's the screen coordinates of the window where the
 	* component is displayed.
-	* @author Hj. Malthaner
 	*/
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	* Set window size and adjust component sizes and/or positions accordingly
-	* @author Hj. Malthaner
 	*/
 	virtual void set_windowsize(scr_size size) OVERRIDE;
 
@@ -153,7 +148,6 @@ public:
 
 	/**
 	 * Select line and show its info
-	 * @author isidoro
 	 */
 	void show_lineinfo(linehandle_t line);
 

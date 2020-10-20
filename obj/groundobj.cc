@@ -69,8 +69,8 @@ bool groundobj_t::register_desc(groundobj_desc_t *desc)
 }
 
 
-/* also checks for distribution values
- * @author prissi
+/**
+ * also checks for distribution values
  */
 const groundobj_desc_t *groundobj_t::random_groundobj_for_climate(climate_bits cl, slope_t::type slope  )
 {
@@ -208,10 +208,6 @@ void groundobj_t::rdwr(loadsave_t *file)
 }
 
 
-/**
- * uffnet ein neues Beobachtungsfenster fur das Objekt.
- * @author Hj. Malthaner
- */
 void groundobj_t::show_info()
 {
 	if(env_t::tree_info) {
@@ -220,11 +216,6 @@ void groundobj_t::show_info()
 }
 
 
-/**
- * @return Einen Beschreibungsstring fur das Objekt, der z.B. in einem
- * Beobachtungsfenster angezeigt wird.
- * @author Hj. Malthaner
- */
 void groundobj_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);

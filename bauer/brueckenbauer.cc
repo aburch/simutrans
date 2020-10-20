@@ -1191,7 +1191,7 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 	do {
 		pos = tmp_list.remove_first();
 
-		// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+		// weg_position_t changed to grund_t::get_neighbour()
 		grund_t *from = welt->lookup(pos);
 		grund_t *to;
 		koord zv = koord::invalid;

@@ -16,10 +16,7 @@ class label_t;
 
 /**
  * Label creation/edition window
- *
- * @author Hj. Malthaner
  */
-
 class label_info_t : public gui_frame_t, private action_listener_t
 {
 private:

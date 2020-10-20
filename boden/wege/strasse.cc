@@ -3,13 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Roads for Simutrans
- *
- * Revised January 2001
- * Hj. Malthaner
- */
-
 #include <stdio.h>
 
 #include "strasse.h"
@@ -93,7 +86,20 @@ void strasse_t::rdwr(loadsave_t *file)
 			ov = twoway_mode; // loading_only_mode and inverted_mode has been removed
 		}
 		file->rdwr_byte(ov);
-		overtaking_mode = (overtaking_mode_t)ov;
+		switch ((sint32)ov) {
+		case halt_mode:
+		case oneway_mode:
+		case twoway_mode:
+		case prohibited_mode:
+		case invalid_mode:
+			overtaking_mode = (overtaking_mode_t)ov;
+			break;
+		default:
+			dbg->warning("strasse_t::rdwr", "Unrecognized overtaking mode %d, changed to invalid mode", (sint32)ov);
+			assert(file->is_loading());
+			overtaking_mode = invalid_mode;
+			break;
+		}
 	} else {
 		set_ribi_mask_oneway(ribi_t::none);
 		overtaking_mode = twoway_mode;

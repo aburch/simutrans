@@ -22,14 +22,21 @@ extern int __argc;
 extern char **__argv;
 #endif
 
+//#include "simsys_w32_png.h"
+//#include "simsys.h"
+
+#include "../macros.h"
 #include "../simconst.h"
-#include "../display/simgraph.h"
 #include "../simdebug.h"
+#include "../simmem.h"
+#include "../simversion.h"
+#include "../simevent.h"
+#include "../dataobj/environment.h"
+#include "../display/simgraph.h"
 #include "../gui/simwin.h"
 #include "../gui/gui_frame.h"
 #include "../gui/components/gui_component.h"
 #include "../gui/components/gui_textinput.h"
-
 
 // needed for wheel
 #ifndef WM_MOUSEWHEEL
@@ -47,6 +54,11 @@ extern char **__argv;
 #include "../macros.h"
 
 
+/*
+ * The class name used to configure the main window.
+ */
+static const LPCWSTR WINDOW_CLASS_NAME = L"Simu";
+
 static volatile HWND hwnd;
 static bool is_fullscreen = false;
 static bool is_not_top = false;
@@ -55,7 +67,7 @@ static RECT WindowSize = { 0, 0, 0, 0 };
 static RECT MaxSize;
 static HINSTANCE hInstance;
 
-static BITMAPINFO* AllDib;
+static BITMAPINFO* AllDib = NULL;
 static PIXVAL*     AllDibData;
 
 volatile HDC hdc = NULL;
@@ -130,7 +142,7 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 	LPWSTR const wSIM_TITLE = new WCHAR[size];
 	MultiByteToWideChar(CP_UTF8, 0, SIM_TITLE, -1, wSIM_TITLE, size);
 
-	hwnd = CreateWindowExW(ex_style, L"Simu", wSIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
+	hwnd = CreateWindowExW(ex_style, WINDOW_CLASS_NAME, wSIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
 
 	delete[] wSIM_TITLE;
 
@@ -291,7 +303,6 @@ unsigned short *dr_textur_init()
 /**
  * Transform a 24 bit RGB color into the system format.
  * @return converted color value
- * @author Hj. Malthaner
  */
 unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 {
@@ -400,7 +411,6 @@ void set_pointer(int loading)
  * Some wrappers can save screenshots.
  * @return 1 on success, 0 if not implemented for a particular wrapper and -1
  *         in case of error.
- * @author Hj. Malthaner
  */
 int dr_screenshot(const char *filename, int x, int y, int w, int h)
 {
@@ -611,45 +621,50 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			break;
 
 		case WM_PAINT: {
-			PAINTSTRUCT ps;
-			HDC hdcp;
+			if (AllDib != NULL) {
+				PAINTSTRUCT ps;
+				HDC hdcp;
 
-			hdcp = BeginPaint(hwnd, &ps);
-			AllDib->bmiHeader.biHeight = (WindowSize.bottom*32)/y_scale;
-			StretchDIBits(hdcp, 0, 0, WindowSize.right, WindowSize.bottom, 0, AllDib->bmiHeader.biHeight + 1, AllDib->bmiHeader.biWidth, -AllDib->bmiHeader.biHeight, AllDibData, AllDib, DIB_RGB_COLORS, SRCCOPY);
-			EndPaint(this_hwnd, &ps);
+				hdcp = BeginPaint(hwnd, &ps);
+				AllDib->bmiHeader.biHeight = (WindowSize.bottom*32)/y_scale;
+				StretchDIBits(hdcp, 0, 0, WindowSize.right, WindowSize.bottom, 0, AllDib->bmiHeader.biHeight + 1, AllDib->bmiHeader.biWidth, -AllDib->bmiHeader.biHeight, AllDibData, AllDib, DIB_RGB_COLORS, SRCCOPY);
+				EndPaint(this_hwnd, &ps);
+			}
 			break;
 		}
 
 		case WM_KEYDOWN: { /* originally KeyPress */
 			// check for not numlock!
-			int numlock = (GetKeyState(VK_NUMLOCK) & 1) == 0;
-
 			sys_event.type = SIM_KEYBOARD;
 			sys_event.code = 0;
 			sys_event.key_mod = ModifierKeys();
 
-			if (numlock) {
-				// do low level special stuff here
-				switch (wParam) {
-					case VK_NUMPAD0:   sys_event.code = '0';           break;
-					case VK_NUMPAD1:   sys_event.code = '1';           break;
-					case VK_NUMPAD3:   sys_event.code = '3';           break;
-					case VK_NUMPAD7:   sys_event.code = '7';           break;
-					case VK_NUMPAD9:   sys_event.code = '9';           break;
-					case VK_NUMPAD2:   sys_event.code = SIM_KEY_DOWN;  break;
-					case VK_NUMPAD4:   sys_event.code = SIM_KEY_LEFT;  break;
-					case VK_NUMPAD6:   sys_event.code = SIM_KEY_RIGHT; break;
-					case VK_NUMPAD8:   sys_event.code = SIM_KEY_UP;    break;
-					case VK_PAUSE:     sys_event.code = 16;            break;	// Pause -> ^P
-					case VK_SEPARATOR: sys_event.code = 127;           break;	// delete
+			sint16 code = lParam >> 16;
+			if(  code >= 0x47  &&  code <= 0x52  &&  code != 0x4A  &&  code != 0x4e  ) {
+				if(  env_t::numpad_always_moves_map  ||  (GetKeyState( VK_NUMLOCK ) & 1) == 0  ) { // numlock off?
+					switch( code ) {
+						case 0x47: code = SIM_KEY_UPLEFT; break;
+						case 0x48: code = SIM_KEY_UP; break;
+						case 0x49: code = SIM_KEY_UPRIGHT; break;
+						case 0x4B: code = SIM_KEY_LEFT; break;
+						case 0x4C: code = SIM_KEY_CENTER; break;
+						case 0x4D: code = SIM_KEY_RIGHT; break;
+						case 0x4F: code = SIM_KEY_DOWNLEFT; break;
+						case 0x50: code = SIM_KEY_DOWN; break;
+						case 0x51: code = SIM_KEY_DOWNRIGHT; break;
+						case 0x52: code = SIM_KEY_NUMPAD_BASE; break;
+					}
+					if(  code>=SIM_KEY_NUMPAD_BASE  ) {
+						// ok found something
+						sys_event.code = code;
+						break;
+					}
 				}
-				// check for numlock!
-				if (sys_event.code != 0) break;
 			}
 
 			// do low level special stuff here
 			switch (wParam) {
+				case VK_PAUSE:  sys_event.code = SIM_KEY_PAUSE; break;
 				case VK_LEFT:   sys_event.code = SIM_KEY_LEFT;  break;
 				case VK_RIGHT:  sys_event.code = SIM_KEY_RIGHT; break;
 				case VK_UP:     sys_event.code = SIM_KEY_UP;    break;
@@ -673,10 +688,21 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		}
 
 		case WM_CHAR: /* originally KeyPress */
+		{
+			sint16 code = lParam >> 16;
+			if(  code >= 0x47  &&  code <= 0x52  &&  code != 0x4A  &&  code != 0x4e  ) {
+				if(  env_t::numpad_always_moves_map  ||  (GetKeyState( VK_NUMLOCK ) & 1) == 0  ) { // numlock off?
+					// we handled numpad keys already above ...
+					sys_event.type = SIM_NOEVENT;
+					sys_event.code = 0;
+					break;
+				}
+			}
 			sys_event.type = SIM_KEYBOARD;
 			sys_event.code = wParam;
 			sys_event.key_mod = ModifierKeys();
 			break;
+		}
 
 		case WM_IME_SETCONTEXT:
 			// attempt to avoid crash at windows 1809> just not call DefWinodwsProc seems to work for SDL2 ...
@@ -996,7 +1022,6 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 	WNDCLASSW wc;
 	bool timer_is_set = false;
 
-	wc.lpszClassName = L"Simu";
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = WindowProc;
 	wc.cbClsExtra = 0;
@@ -1006,6 +1031,7 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH) (COLOR_BACKGROUND + 1);
 	wc.lpszMenuName = NULL;
+	wc.lpszClassName = WINDOW_CLASS_NAME;
 	RegisterClassW(&wc);
 
 	GetWindowRect(GetDesktopWindow(), &MaxSize);

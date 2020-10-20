@@ -18,11 +18,7 @@ class goods_desc_t;
 
 
 /**
- * building_place_with_road_finder:
- *
  * Search for a free location using the function find_place().
- *
- * @author V. Meyer
  */
 class ai_building_place_with_road_finder : public building_placefinder_t  {
 public:
@@ -87,7 +83,7 @@ public:
 	/**
 	 * Find the first water tile using line algorithm
 	 * start MUST be on land!
-	 **/
+	 */
 	koord find_shore(koord start, koord end) const;
 	bool find_harbour(koord &start, koord &size, koord target);
 

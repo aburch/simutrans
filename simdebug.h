@@ -22,16 +22,14 @@
 
  /**
  * Logger instance, this is a globally exported object.
- * @author Hj. Malthaner
  */
 extern log_t *dbg;
 
 
 /**
-* Inits logging facility.
-* @author Hj. Malthaner
-*/
-void init_logging(const char *logname, bool force_flush, bool log_debug, const char *greeting, const char* syslogtag);
+ * Inits logging facility.
+ */
+void init_logging(const char *logname, bool force_flush, bool log_debug, const char *greeting, const char* syslogtag );
 
 #ifdef MSG_LEVEL
 

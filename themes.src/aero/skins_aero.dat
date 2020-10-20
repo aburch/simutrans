@@ -27,6 +27,32 @@ Image[10]=> button.3.2
 Image[11]=> button.3.1
 --
 Obj=menu
+name=Editfield
+#should be either scalable or at least LINESPACE+2px high
+Image[0]=> editfield.0.0
+Image[1]=> editfield.0.2
+Image[2]=> editfield.0.1
+Image[3]=> editfield.1.0
+Image[4]=> editfield.1.2
+Image[5]=> editfield.1.1
+Image[6]=> editfield.2.0
+Image[7]=> editfield.2.2
+Image[8]=> editfield.2.1
+--
+Obj=menu
+name=Listbox
+#Must be scalable!
+Image[0]=> listbox.0.0
+Image[1]=> listbox.0.2
+Image[2]=> listbox.0.1
+Image[3]=> listbox.1.0
+Image[4]=> listbox.1.2
+Image[5]=> listbox.1.1
+Image[6]=> listbox.2.0
+Image[7]=> listbox.2.2
+Image[8]=> listbox.2.1
+--
+Obj=menu
 name=Roundbutton
 # unpressed left, middle, right
 Image[0]=> roundbutton.0.0
@@ -97,6 +123,14 @@ Image[23]=> scrollbar.3.4
 Obj=menu
 name=Back
 Image[0]=> back.0.0
+Image[1]=> back.0.0
+Image[2]=> back.0.0
+Image[3]=> back.0.0
+Image[4]=> back.0.0
+Image[5]=> back.0.0
+Image[6]=> back.0.0
+Image[7]=> back.0.0
+Image[8]=> back.0.0
 --
 # window symbols
 Obj=menu
@@ -119,4 +153,11 @@ Image[6]=> gadget.0.6
 Image[7]=> gadget.0.7
 # goto pos
 Image[8]=> gadget.0.8
+--
+# window background
+Obj=menu
+name=Divider
+Image[0]=-
+Image[1]=> divider.0.0
+Image[2]=-
 --

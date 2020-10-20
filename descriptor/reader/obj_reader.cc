@@ -164,7 +164,7 @@ DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", name.c_str());
 
 void obj_reader_t::read_file(const char *name)
 {
-	// Hajo: added trace
+	// added trace
 	DBG_DEBUG("obj_reader_t::read_file()", "filename='%s'", name);
 
 	if (FILE* const fp = dr_fopen(name, "rb")) {
@@ -178,7 +178,6 @@ void obj_reader_t::read_file(const char *name)
 		} while(!feof(fp) && c != 0x1a);
 
 		if(feof(fp)) {
-			// Hajo: added error check
 			dbg->error("obj_reader_t::read_file()",	"unexpected end of file after %d bytes while reading '%s'!",n, name);
 		}
 		else {
@@ -205,7 +204,6 @@ void obj_reader_t::read_file(const char *name)
 		fclose(fp);
 	}
 	else {
-		// Hajo: added error check
 		dbg->error("obj_reader_t::read_file()", "reading '%s' failed!", name);
 	}
 }

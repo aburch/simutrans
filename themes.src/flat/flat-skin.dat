@@ -1,5 +1,6 @@
 #
 # Simutrans window skin definitions for themes
+# Author: Phystam
 #
 # All image names must start with "> " to have them non zoomable
 #
@@ -11,11 +12,11 @@
 #
 # If only top row is there, button will be centered vertically in area if the size does not match.
 # If all nine are there, you can set any size in themes.tab
-#
+#!pak64
 --
 Obj=menu
 name=Button
-# normal
+# unpressed
 Image[0]=> button.0.0
 Image[1]=> button.0.2
 Image[2]=> button.0.1
@@ -46,21 +47,21 @@ Image[24]=> button.2.6
 Image[25]=> button.2.8
 Image[26]=> button.2.7
 # color mask (will be blended, so it is a good idea to have a bright color for the foreground in this area)
-Image[27]=> button.3.0
-Image[28]=> button.3.2
-Image[29]=> button.3.1
-Image[30]=> button.3.3
-Image[31]=> button.3.5
-Image[32]=> button.3.4
-Image[33]=> button.3.6
-Image[34]=> button.3.8
-Image[35]=> button.3.7
+Image[27]=> button.0.0
+Image[28]=> button.0.2
+Image[29]=> button.0.1
+Image[30]=> button.0.3
+Image[31]=> button.0.5
+Image[32]=> button.0.4
+Image[33]=> button.0.6
+Image[34]=> button.0.8
+Image[35]=> button.0.7
 # If the position of the colored area is different for a pressed button (i.e. protruding knobs)
 # then here can come another nine mask images
 --
 Obj=menu
 name=Roundbutton
-# normal
+# unpressed
 Image[0]=> button.0.0
 Image[1]=> button.0.2
 Image[2]=> button.0.1
@@ -130,13 +131,100 @@ Image[6]=> back.2.0
 Image[7]=> back.2.1
 Image[8]=> back.2.2
 --
+# titlebar background
+Obj=menu
+name=Titlebar
+Image[0]=> titlebar.0.0
+Image[1]=> titlebar.0.1
+Image[2]=> titlebar.0.2
+Image[3]=> titlebar.1.0
+Image[4]=> titlebar.1.1
+Image[5]=> titlebar.1.2
+Image[6]=> titlebar.2.0
+Image[7]=> titlebar.2.1
+Image[8]=> titlebar.2.2
+# color mask (will be blended, so it is a good idea to have a bright color for the foreground in this area)
+Image[9]=> titlebar.3.0
+Image[10]=> titlebar.3.1
+Image[11]=> titlebar.3.2
+Image[12]=> titlebar.4.0
+Image[13]=> titlebar.4.1
+Image[14]=> titlebar.4.2
+Image[15]=> titlebar.5.0
+Image[16]=> titlebar.5.1
+Image[17]=> titlebar.5.2
+--
+# Gadgets background
+Obj=menu
+name=GadgetBack
+# all gadget except close
+Image[0]=> titlebar.0.0
+Image[1]=> titlebar.0.1
+Image[2]=> titlebar.0.2
+Image[3]=> titlebar.1.0
+Image[4]=> titlebar.1.1
+Image[5]=> titlebar.1.2
+Image[6]=> titlebar.2.0
+Image[7]=> titlebar.2.1
+Image[8]=> titlebar.2.2
+# color mask for above (will be blended, so it is a good idea to have a bright color for the foreground in this area)
+Image[9]=> titlebar.3.0
+Image[10]=> titlebar.3.1
+Image[11]=> titlebar.3.2
+Image[12]=> titlebar.4.0
+Image[13]=> titlebar.4.1
+Image[14]=> titlebar.4.2
+Image[15]=> titlebar.5.0
+Image[16]=> titlebar.5.1
+Image[17]=> titlebar.5.2
+# close background when buttons at left
+Image[18]=> titlebar.0.0
+Image[19]=> titlebar.0.1
+Image[20]=> titlebar.0.3
+Image[21]=> titlebar.1.0
+Image[22]=> titlebar.1.1
+Image[23]=> titlebar.1.2
+Image[24]=> titlebar.2.0
+Image[25]=> titlebar.2.1
+Image[26]=> titlebar.2.2
+# color mask for above (will be blended, so it is a good idea to have a bright color for the foreground in this area)
+Image[27]=> titlebar.3.0
+Image[28]=> titlebar.3.1
+Image[29]=> titlebar.3.3
+Image[30]=> titlebar.4.0
+Image[31]=> titlebar.4.1
+Image[32]=> titlebar.4.2
+Image[33]=> titlebar.5.0
+Image[34]=> titlebar.5.1
+Image[35]=> titlebar.5.2
+# close background when buttons at right
+Image[36]=> titlebar.1.3
+Image[37]=> titlebar.0.1
+Image[38]=> titlebar.0.2
+Image[39]=> titlebar.1.0
+Image[40]=> titlebar.1.1
+Image[41]=> titlebar.1.2
+Image[42]=> titlebar.2.0
+Image[43]=> titlebar.2.1
+Image[44]=> titlebar.2.2
+# color mask for above (will be blended, so it is a good idea to have a bright color for the foreground in this area)
+Image[45]=> titlebar.4.3
+Image[46]=> titlebar.3.1
+Image[47]=> titlebar.3.2
+Image[48]=> titlebar.4.0
+Image[49]=> titlebar.4.1
+Image[50]=> titlebar.4.2
+Image[51]=> titlebar.5.0
+Image[52]=> titlebar.5.1
+Image[53]=> titlebar.5.2
+--
 #################################################################
 #
 # The following control only have one (or three) images, and are not stretchable
 #
 Obj=menu
 name=Checkbutton
-# normal
+# unpressed
 Image[0]=> checkbutton-small.0.0
 # pressed
 Image[1]=> checkbutton-small.0.1
@@ -145,7 +233,7 @@ Image[2]=> checkbutton-small.0.2
 --
 Obj=menu
 name=Posbutton
-# normal
+# unpressed
 Image[0]=> posbutton-small.0.0
 # pressed
 Image[1]=> posbutton-small.0.1
@@ -154,35 +242,34 @@ Image[2]=> posbutton-small.0.2
 --
 Obj=menu
 name=Scrollbar
-# normal/pressed/disabled left button
+# unpressed pressed disabled left and right
 Image[0]=> scrollbar-small.0.0
 Image[1]=> scrollbar-small.0.1
 Image[2]=> scrollbar-small.0.2
-# normal/pressed/disabled right button
 Image[3]=> scrollbar-small.0.3
 Image[4]=> scrollbar-small.0.4
 Image[5]=> scrollbar-small.0.5
-# left/center/right scrollbar background
+# scrollbar back left center right
 Image[6]=-
 Image[7]=> scrollbar-small.1.6
 Image[8]=-
-# left/center/right scrollbar knob
+# scrollbar knob left center right
 Image[9]=> scrollbar-small.1.0
 Image[10]=> scrollbar-small.1.2
 Image[11]=> scrollbar-small.1.1
-# normal/pressed/disabled up button
+# back up and down
 Image[12]=> scrollbar-small.2.0
-Image[13]=> scrollbar-small.2.1
-Image[14]=> scrollbar-small.2.2
-# normal/pressed/disabled down button
+Image[13]=> scrollbar-small.2.2
+Image[14]=> scrollbar-small.2.1
+# knob up and down
 Image[15]=> scrollbar-small.2.3
-Image[16]=> scrollbar-small.2.4
-Image[17]=> scrollbar-small.2.5
-# up/center/down scrollbar background
+Image[16]=> scrollbar-small.2.5
+Image[17]=> scrollbar-small.2.4
+# scrollbar back up center down
 Image[18]=-
 Image[19]=> scrollbar-small.3.6
 Image[20]=-
-# up/center/down scrollbar knob
+# scrollbar knob up center down
 Image[21]=> scrollbar-small.3.0
 Image[22]=> scrollbar-small.3.2
 Image[23]=> scrollbar-small.3.1
@@ -205,11 +292,11 @@ Image[5]=> gadget.0.5
 # sticky
 Image[6]=> gadget.0.6
 # resize corner
-Image[7]=> gadget.0.7
+Image[7]=> gadget.0.7,-2,-2
 # goto pos
 Image[8]=> gadget.0.8
 --
-# divider line
+# window background
 Obj=menu
 name=Divider
 Image[0]=-

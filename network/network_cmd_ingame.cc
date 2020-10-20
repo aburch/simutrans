@@ -284,7 +284,7 @@ void nwc_chat_t::add_message (karte_t* welt) const
 	dbg->warning("nwc_chat_t::add_message", "");
 	cbuffer_t buf;  // Output which will be printed to chat window
 
-	FLAGGED_PIXVAL color = color_idx_to_rgb(player_nr < PLAYER_UNOWNED  ?  welt->get_player( player_nr )->get_player_color1()  :  COL_WHITE);
+	FLAGGED_PIXVAL color = color_idx_to_rgb(player_nr < PLAYER_UNOWNED  ?  welt->get_player( player_nr )->get_player_color1()+env_t::gui_player_color_dark  :  COL_WHITE);
 	uint16 flag = message_t::chat;
 
 	if (  destination == NULL  ) {
@@ -1104,6 +1104,7 @@ void nwc_chg_player_t::do_command(karte_t *welt)
 
 
 nwc_tool_t::nwc_tool_t() : network_broadcast_world_command_t(NWC_TOOL, 0, 0),
+	init(false),
 	custom_data(custom_data_buf, lengthof(custom_data_buf), true)
 {
 	tool = NULL;
@@ -1210,7 +1211,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 	}
 
 	// do not open dialog windows across network
-	if (  init  ?  tool->is_init_network_save() :  tool->is_work_network_save() ){
+	if (  init  ?  tool->is_init_network_safe() :  tool->is_work_network_safe() ){
 		// no reason to send request over network
 		return NULL;
 	}

@@ -31,16 +31,11 @@ public:
 
 	image_id get_image() const;
 
-	/**
-	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	 * Beobachtungsfenster angezeigt wird.
-	 * @author Hj. Malthaner
-	 */
-	void show_info();
+	/// @copydoc obj_t::show_info
+	void show_info() OVERRIDE;
 
 	/**
 	 * @return NULL when OK, otherwise an error message
-	 * @author Hj. Malthaner
 	 */
 	const char *  is_deletable(const player_t *);
 

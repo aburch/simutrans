@@ -24,8 +24,6 @@
  * Class to save all environment parameters, ie everything that changes
  * the look and feel of the game. Most of them can be changed by command-line
  * parameters or simuconf.tab files.
- *
- * @author Hj. Malthaner
  */
 class env_t
 {
@@ -153,6 +151,9 @@ public:
 	/// controls scrolling speed and scrolling direction
 	static sint16 scroll_multi;
 
+	/// converts numpad keys to arrows no matter of numlock state
+	static bool numpad_always_moves_map;
+
 	/// open info windows for pedestrian and private cars
 	static bool road_user_info;
 
@@ -186,7 +187,6 @@ public:
 	 * message_flags[i] is bitfield, where bit is set if message should be show at location i,
 	 * where 0 = show message in ticker, 1 = open auto-close window, 2 = open persistent window, 3 = ignore message
 	 * @see message_option_t
-	 * @author prissi
 	 */
 	static sint32 message_flags[4];
 
@@ -194,7 +194,6 @@ public:
 
 	/**
 	 * window button at right corner (like Windows)
-	 * @author prissi
 	 */
 	static bool window_buttons_right;
 
@@ -216,8 +215,8 @@ public:
 	static uint32 tooltip_duration;
 
 	/// limit width and height of menu toolbars
-	static uint8 toolbar_max_width;
-	static uint8 toolbar_max_height;
+	static sint8 toolbar_max_width;
+	static sint8 toolbar_max_height;
 
 	// how to highlight topped (untopped windows)
 	static bool window_frame_active;
@@ -228,6 +227,9 @@ public:
 	static uint32 default_window_title_color_rgb;
 	static PIXVAL default_window_title_color;
 	static uint8 bottom_window_darkness;
+
+	static uint8 gui_player_color_dark;
+	static uint8 gui_player_color_bright;
 
 	// default font name and -size
 	static std::string fontname;
@@ -282,8 +284,6 @@ public:
 	/**
 	 * Set to true to hide all trees. "Hiding" is implemented by showing the
 	 * first pic which should be very small.
-	 * @author Volker Meyer
-	 * @date  10.06.2003
 	 */
 	static bool hide_trees;
 
@@ -316,6 +316,12 @@ public:
 	 * @see grund_t::display_overlay
 	 */
 	static sint32 show_names;
+
+	/// Display detail level of station freight waiting bar
+	static uint8 freight_waiting_bar_level;
+
+	/// Display waiting bar divided by class
+	static bool classes_waiting_bar;
 
 	/// Show convoy nameplates (line or convoy name).
 	static uint8 show_cnv_nameplates;
@@ -367,8 +373,6 @@ public:
 
 	/**
 	 * show month in date?
-	 *
-	 * @author hsiegeln
 	 */
 	static uint8 show_month;
 
@@ -380,8 +384,10 @@ public:
 	 */
 	/// @{
 
-	/// set the frame rate for the display
-	static uint32 fps;
+	static uint32 fps;                ///< target frame rate
+	static uint32 ff_fps;             ///< target fps during fast forward
+	static const uint32 min_fps = 5;  ///< minimum target fps (actual fps may be lower for large zoom out on slow machines)
+	static const uint32 max_fps = 100;
 
 	/// maximum acceleration with fast forward
 	static sint16 max_acceleration;
@@ -424,7 +430,6 @@ public:
 
 	/**
 	 * Name of rivers; first the river with the lowest number
-	 * @author prissi
 	 */
 	static plainstring river_type[10];
 
@@ -436,13 +441,11 @@ public:
 	/**
 	* Produce more debug info:
 	* can be set by command-line switch '-debug'
-	* @author Hj. Malthaner
 	*/
 	static uint8 verbose_debug;
 
 
 	/// do autosave every month?
-	/// @author prissi
 	static sint32 autosave;
 
 

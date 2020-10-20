@@ -9,12 +9,8 @@
 
 #include "image_list.h"
 
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *      2 dimensional image array
+/**
+ * Two-dimensional array of images
  *
  *  Child nodes:
  *	0   1. Image list

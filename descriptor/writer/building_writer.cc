@@ -80,13 +80,8 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 		imagelist2d_writer_t::instance()->write_obj(fp, node, frontkeys.at(i));
 	}
 
-	// Hajo: temp vars of appropriate size
-	uint16 v16;
-
-	// Set version data
-	v16 = 0x8002;
-
-	// Write version data
+	// write version data
+	uint16 v16 = 0x8002;
 	node.write_uint16(fp, v16, 0);
 
 	v16 = phases;
@@ -253,10 +248,10 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		++level;
 	}
 
-	// Hajo: read dist_weight - default is 100% dist_weight to be built
+	// read chance - default is 100% chance to be built
 	uint8 const dist_weight = obj.get_int("chance", 100);
 
-	// prissi: timeline for buildings
+	// timeline for buildings
 	uint16 const intro_date =
 		obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12 +
 		obj.get_int("intro_month", 1) - 1;
@@ -265,7 +260,6 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 +
 		obj.get_int("retire_month", 1) - 1;
 
-	// @author: Kieron Green (ideas from extended code by jamespetts)
 	// capacity and price information.
 	// Stands in place of the "level" setting, but uses "level" data by default.
 

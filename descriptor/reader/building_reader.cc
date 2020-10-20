@@ -19,10 +19,9 @@
 struct old_btyp
 {
 	/**
-	* From type "unknown" also come special buildings e.q. Townhall
-	* @author Hj. Malthaner
-	*/
-	enum typ { wohnung, gewerbe, industrie, unknown };
+	 * From type "unknown" also come special buildings e.q. Townhall
+	 */
+	enum typ {wohnung, gewerbe, industrie, unknown};
 };
 
 
@@ -32,12 +31,12 @@ obj_desc_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	building_tile_desc_t *desc = new building_tile_desc_t();
 
-	// Hajo: Read data
+	// Read data
 	fread(desc_buf, node.size, 1, fp);
 
 	char * p = desc_buf;
 
-	// Hajo: old versions of PAK files have no version stamp.
+	// old versions of PAK files have no version stamp.
 	// But we know, the highest bit was always cleared.
 	const uint16 v = decode_uint16(p);
 	const int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
@@ -215,11 +214,11 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	building_desc_t *desc = new building_desc_t();
 
-	// Hajo: Read data
+	// Read data
 	fread(desc_buf, node.size, 1, fp);
 
 	char * p = desc_buf;
-	// Hajo: old versions of PAK files have no version stamp.
+	// old versions of PAK files have no version stamp.
 	// But we know, the highest bit was always cleared.
 	const uint16 v = decode_uint16(p);
 	int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;

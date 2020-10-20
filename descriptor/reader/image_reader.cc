@@ -29,7 +29,7 @@ obj_desc_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	ALLOCA(char, desc_buf, node.size);
 	image_t* desc=NULL;
 
-	// Hajo: Read data
+	// Read data
 	fread(desc_buf, node.size, 1, fp);
 	char * p = desc_buf+6;
 

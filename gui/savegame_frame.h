@@ -135,10 +135,6 @@ protected:
 
 /**
  * Base class from which all GUI dialogs to load/save generics can inherit from
- * @author Hansjoerg Malthaner
- * @author Markohs
- * @author Max Kielland
- * @note Based on previous original work from the Simutrans team and Hansjoerg Malthaner
  * @note When I refer to a "qualified" path I mean it can contain sub-directories or even fully qualified path. i.e. : "save/a.sve" or "c:\simutrans\scenario\file.nut"
  */
 class savegame_frame_t : public gui_frame_t, action_listener_t
@@ -149,8 +145,8 @@ private:
 	vector_tpl<std::string> paths;     //@< Paths in which this dialog will search for
 
 	const char *suffix;                //@< Extension of the files this dialog will use, can be NULL Can include or not the "." at start, will work on both cases
-	char        ibuf[PATH_MAX];            //@< Input buffer for the text input component
-	char        searchpath[PATH_MAX];      //@< Default search path
+	char        ibuf[PATH_MAX];        //@< Input buffer for the text input component
+	char        searchpath[PATH_MAX];  //@< Default search path
 	bool        in_action;             //@< To avoid double mouse action
 	bool        only_directories;      //@< Search for directories (used in pak_selector)
 	bool        searchpath_defined;    //@< Is default path defined?
@@ -206,9 +202,9 @@ protected:
 
 	// Standard GUI controls in dialogue
 	gui_textinput_t  input;         //@< Filename input field
-	button_t         savebutton;    //@< Save button            (Added 29-Oct-2001 Markus Weber)
-	button_t         cancelbutton;  //@< Cancel button          (Added 29-Oct-2001 Markus Weber)
-	gui_label_t      fnlabel;       //@< Static file name label (Added 31-Oct-2001 Markus Weber)
+	button_t         savebutton;    //@< Save button
+	button_t         cancelbutton;  //@< Cancel button
+	gui_label_t      fnlabel;       //@< Static file name label
 	gui_aligned_container_t
 	                 top_frame,     //@< Contains input field
 					 bottom_left_frame, //@< container for elements on the left of the last row
