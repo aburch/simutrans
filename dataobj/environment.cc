@@ -499,7 +499,7 @@ void env_t::rdwr(loadsave_t *file)
 		}
 		file->rdwr_byte( fontsize );
 	}
-	if(  file->is_version_atleast(102, 7)  ) {
+	if(  file->is_version_atleast(120, 7)  ) {
 		file->rdwr_byte(show_money_message);
 	}
 
